@@ -43,6 +43,8 @@ namespace intpr = boost::interprocess;
 bool end2 = false;
 int port = 3030;
 
+boost::program_options::variables_map cmdLineOptions;
+
 /*
  * CVCMIServer.cpp, part of VCMI engine
  *
@@ -508,21 +510,45 @@ void CVCMIServer::loadGame()
 	gh.run(true);
 }
 
+static void handleCommandOptions(int argc, char *argv[])
+{
+	namespace po = boost::program_options;
+	po::options_description opts("Allowed options");
+	opts.add_options()
+		("help,h", "display help and exit")
+		("version,v", "display version information and exit")
+		("port", po::value<int>()->default_value(3030), "port at which server will listen to connections from client")
+		("resultsFile", po::value<std::string>()->default_value("./results.txt"), "file to which the battle result will be appended. Used only in the DUEL mode.");
+
+	if(argc > 1)
+	{
+		try
+		{
+			po::store(po::parse_command_line(argc, argv, opts), cmdLineOptions);
+		}
+		catch(std::exception &e) 
+		{
+			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
+		}
+	}
+
+	po::notify(cmdLineOptions);
+}
+
 int main(int argc, char** argv)
 {
 	console = new CConsoleHandler;
 	CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Server_log.txt", console);
-    logConfig.configureDefault();
-	if(argc > 1)
-	{
-		port = boost::lexical_cast<int>(argv[1]);
-    }
+	logConfig.configureDefault();
 
 	preinitDLL(console);
     settings.init();
-    logConfig.configure();
+	logConfig.configure();
 
-    logNetwork->infoStream() << "Port " << port << " will be used.";
+	handleCommandOptions(argc, argv);
+	port = cmdLineOptions["port"].as<int>();
+	logNetwork->infoStream() << "Port " << port << " will be used.";
+
 	loadDLLClasses();
 	srand ( (ui32)time(NULL) );
 	try

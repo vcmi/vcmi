@@ -1017,7 +1017,7 @@ std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(const BattleAtta
 			{
 				BattleStackAttacked bsa;
 				bsa.damageAmount = ret.*pairElems[i];
-				bai.defender->prepareAttacked(bsa);
+				bai.defender->prepareAttacked(bsa, bai.defenderCount);
 
 				auto retaliationAttack = bai.reverse();
 				retaliationAttack.attackerCount = bsa.newAmount;
@@ -2329,6 +2329,8 @@ BattleAttackInfo::BattleAttackInfo(const CStack *Attacker, const CStack *Defende
 	defenderPosition = Defender->position;
 
 	attackerCount = Attacker->count;
+	defenderCount = Defender->count;
+
 	shooting = Shooting;
 	chargedFields = 0;
 
@@ -2343,8 +2345,8 @@ BattleAttackInfo BattleAttackInfo::reverse() const
 	std::swap(ret.attacker, ret.defender);
 	std::swap(ret.attackerBonuses, ret.defenderBonuses);
 	std::swap(ret.attackerPosition, ret.defenderPosition);
+	std::swap(ret.attackerCount, ret.defenderCount);
 
-	ret.attackerCount = ret.attacker->count;
 	ret.shooting = false;
 	ret.chargedFields = 0;
 	ret.luckyHit = ret.ballistaDoubleDamage = ret.deathBlow = false;

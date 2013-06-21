@@ -198,7 +198,7 @@ struct DLL_LINKAGE BattleAttackInfo
 	const CStack *attacker, *defender;
 	BattleHex attackerPosition, defenderPosition;
 
-	int attackerCount;
+	int attackerCount, defenderCount;
 	bool shooting;
 	int chargedFields;
 

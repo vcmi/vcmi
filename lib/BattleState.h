@@ -193,7 +193,8 @@ public:
 	bool coversPos(BattleHex position) const; //checks also if unit is double-wide
 	std::vector<BattleHex> getSurroundingHexes(BattleHex attackerPos = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
 
-	void prepareAttacked(BattleStackAttacked &bsa) const; //requires bsa.damageAmout filled
+	std::pair<int,int> countKilledByAttack(int damageReceived) const; //returns pair<killed count, new left HP>
+	void prepareAttacked(BattleStackAttacked &bsa, boost::optional<int> customCount = boost::none) const; //requires bsa.damageAmout filled
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

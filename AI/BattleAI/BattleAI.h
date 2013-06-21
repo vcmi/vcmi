@@ -1,8 +1,110 @@
 #pragma once
 
 #include "../../lib/BattleHex.h"
+#include "../../lib/HeroBonus.h"
+#include "../../lib/CBattleCallback.h"
 
 class CSpell;
+
+
+class StackWithBonuses : public IBonusBearer
+{
+public:
+	const CStack *stack;
+	mutable std::vector<Bonus> bonusesToAdd;
+
+	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const OVERRIDE;
+};
+
+struct EnemyInfo
+{
+	const CStack * s;
+	int adi, adr;
+	std::vector<BattleHex> attackFrom; //for melee fight
+	EnemyInfo(const CStack * _s) : s(_s)
+	{}
+	void calcDmg(const CStack * ourStack);
+
+	bool operator==(const EnemyInfo& ei) const
+	{
+		return s == ei.s;
+	}
+};
+
+
+//FIXME: unused function
+/*
+static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const BattleHex &h2)
+{
+	int shooters[2] = {0}; //count of shooters on hexes
+
+	for(int i = 0; i < 2; i++)
+		BOOST_FOREACH(BattleHex neighbour, (i ? h2 : h1).neighbouringTiles())
+			if(const CStack *s = cbc->battleGetStackByPos(neighbour))
+				if(s->getCreature()->isShooting())
+						shooters[i]++;
+
+	return shooters[0] < shooters[1];
+}
+*/
+
+
+
+struct ThreatMap
+{	
+	std::array<std::vector<BattleAttackInfo>, GameConstants::BFIELD_SIZE> threatMap; // [hexNr] -> enemies able to strike
+	
+	const CStack *endangered; 
+	std::array<int, GameConstants::BFIELD_SIZE> sufferedDamage; 
+
+	ThreatMap(const CStack *Endangered);
+};
+
+struct HypotheticChangesToBattleState
+{
+	std::map<const CStack *, const IBonusBearer *> bonusesOfStacks;
+	std::map<const CStack *, int> counterAttacksLeft;
+};
+
+struct AttackPossibility
+{
+	const CStack *enemy; //redundant (to attack.defender) but looks nice
+	BattleHex tile; //tile from which we attack
+	BattleAttackInfo attack;
+
+	int damageDealt;
+	int damageReceived; //usually by counter-attack
+	int tacticImpact;
+
+	int damageDiff() const;
+	int attackValue() const;
+
+	static AttackPossibility evaluate(const BattleAttackInfo &AttackInfo, const HypotheticChangesToBattleState &state, BattleHex hex);
+};
+
+template<typename Key, typename Val, typename Val2>
+const Val &getValOr(const std::map<Key, Val> &Map, const Key &key, const Val2 &defaultValue)
+{
+	auto i = Map.find(key);
+	if(i != Map.end())
+		return i->second;
+	else 
+		return defaultValue;
+}
+
+struct PotentialTargets
+{
+	std::vector<AttackPossibility> possibleAttacks;
+	std::vector<const CStack *> unreachableEnemies;
+
+	//std::function<AttackPossibility(bool,BattleHex)>  GenerateAttackInfo; //args: shooting, destHex
+
+	PotentialTargets(){};
+	PotentialTargets(const CStack *attacker, const HypotheticChangesToBattleState &state = HypotheticChangesToBattleState());
+
+	AttackPossibility bestAction() const;
+	int bestActionValue() const;
+};
 
 class CBattleAI : public CBattleGameInterface
 {

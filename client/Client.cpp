@@ -410,10 +410,18 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		{
 			auto cbc = make_shared<CBattleCallback>(gs, color, this);
 			battleCallbacks[color] = cbc;
-			if(color == PlayerColor(0))
-				battleints[color] = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
-			else
-				battleints[color] = CDynLibHandler::getNewBattleAI("StupidAI");
+
+			std::string AItoGive = it->second.name;
+			if(AItoGive.empty())
+			{
+				if(color == PlayerColor(0))
+					battleints[color] = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
+				else
+					battleints[color] = CDynLibHandler::getNewBattleAI("StupidAI");
+			}
+
+
+			battleints[color] = CDynLibHandler::getNewBattleAI(AItoGive);
 			battleints[color]->init(cbc.get());
 		}
 	}
@@ -802,7 +810,7 @@ void CServerHandler::callServer()
 {
 	setThreadName("CServerHandler::callServer");
 	std::string logName = VCMIDirs::get().localPath() + "/server_log.txt";
-	std::string comm = VCMIDirs::get().serverPath() + " " + port + " > " + logName;
+	std::string comm = VCMIDirs::get().serverPath() + " --port=" + port + " > " + logName;
 	int result = std::system(comm.c_str());
 	if (result == 0)
         logNetwork->infoStream() << "Server closed correctly";

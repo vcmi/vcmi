@@ -24,6 +24,7 @@
 #include "../lib/VCMIDirs.h"
 #include "../client/CSoundBase.h"
 #include "CGameHandler.h"
+#include "CVCMIServer.h"
 #include "../lib/CCreatureSet.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/GameConstants.h"
@@ -455,6 +456,15 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 
 	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
+
+	if(finishingBattle->duel)
+	{
+		duelFinished();
+		sendAndApply(battleResult.data); //after this point casualties objects are destroyed
+		return;
+	}
+
+
 	ChangeSpells cs; //for Eagle Eye
 
 	if(finishingBattle->winnerHero)
@@ -595,15 +605,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		sendAndApply(&iw);
 		sendAndApply(&cs);
 	}
-
-	if(finishingBattle->duel)
-	{
-		BattleResultsApplied resultsApplied;
-		resultsApplied.player1 = finishingBattle->victor;
-		resultsApplied.player2 = finishingBattle->loser;
-		sendAndApply(&resultsApplied);
-		return;
-	}
 	
 	cab1.takeFromArmy(this); cab2.takeFromArmy(this); //take casualties after battle is deleted
 
@@ -664,13 +665,6 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 	sendAndApply(&resultsApplied);
 
 	setBattle(nullptr);
-
-	if(finishingBattle->duel)
-	{
-		CSaveFile resultFile("result.vdrst");
-		resultFile << *battleResult.data;
-		return;
-	}
 
 	if(visitObjectAfterVictory && result.winner==0)
 	{
@@ -6185,6 +6179,49 @@ bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, con
 			return !(visit->visitedObject == obj && visit->visitingHero == hero);
 
 	return true;
+}
+
+void CGameHandler::duelFinished()
+{
+	auto si = getStartInfo();
+	auto getName = [&](int i){ return si->getIthPlayersSettings(gs->curB->sides[i]).name; };
+
+	int casualtiesPoints = 0;
+	logGlobal->debugStream() << boost::format("Winner side %d\nWinner casualties:") 
+		% (int)battleResult.data->winner;
+
+	for(auto i = battleResult.data->casualties[battleResult.data->winner].begin(); i != battleResult.data->casualties[battleResult.data->winner].end(); i++)
+	{
+		const CCreature *c = VLC->creh->creatures[i->first];
+		logGlobal->debugStream() << boost::format("\t* %d of %s") % i->second % c->namePl;
+		casualtiesPoints += c->AIValue * i->second;
+	}
+	logGlobal->debugStream() << boost::format("Total casualties points: %d") % casualtiesPoints;
+
+
+	time_t timeNow;
+	time(&timeNow);
+
+	std::ofstream out(cmdLineOptions["resultsFile"].as<std::string>(), std::ios::app);
+	if(out)
+	{
+		out << boost::format("%s\t%s\t%s\t%d\t%d\t%d\t%s\n") % si->mapname % getName(0) % getName(1)
+			% battleResult.data->winner % battleResult.data->result % casualtiesPoints 
+			% asctime(localtime(&timeNow));
+	}
+	else
+	{
+		logGlobal->errorStream() << "Cannot open to write " << cmdLineOptions["resultsFile"].as<std::string>();
+	}
+
+	CSaveFile resultFile("result.vdrst");
+	resultFile << *battleResult.data;
+
+	BattleResultsApplied resultsApplied;
+	resultsApplied.player1 = finishingBattle->victor;
+	resultsApplied.player2 = finishingBattle->loser;
+	sendAndApply(&resultsApplied);
+	return;
 }
 
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)

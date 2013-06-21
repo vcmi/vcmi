@@ -93,6 +93,10 @@ struct StartInfo
         logGlobal->errorStream() << "Cannot find info about player " << no <<". Throwing...";
 		throw std::runtime_error("Cannot find info about player");
 	}
+	const PlayerSettings & getIthPlayersSettings(PlayerColor no) const
+	{
+		return const_cast<StartInfo&>(*this).getIthPlayersSettings(no);
+	}
 
 	PlayerSettings *getPlayersSettings(const ui8 nameID)
 	{

@@ -13,50 +13,58 @@ CBattleCallback * cbc;
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
 
-
-
-class StackWithBonuses : public IBonusBearer
+struct Priorities
 {
-public:
-	const CStack *stack;
-	mutable std::vector<Bonus> bonusesToAdd;
+	double manaValue;
+	double generalResourceValueModifier;
+	std::vector<double> resourceTypeBaseValues;
+	std::function<double(const CStack *)> stackEvaluator;
 
-	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const OVERRIDE
+
+	Priorities()
 	{
-		TBonusListPtr ret = make_shared<BonusList>();
-		const TBonusListPtr originalList = stack->getAllBonuses(selector, limit, root, cachingStr);
-		boost::copy(*originalList, std::back_inserter(*ret));
-		BOOST_FOREACH(auto &bonus, bonusesToAdd)
+		manaValue = 0.;
+		generalResourceValueModifier = 1.;
+		range::copy(VLC->objh->resVals, std::back_inserter(resourceTypeBaseValues));
+		stackEvaluator = [](const CStack*){ return 1.0; };
+	}
+} priorities;
+
+
+int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = NULL)
+{
+	int ret = 1000000;
+	BOOST_FOREACH(BattleHex n, hex.neighbouringTiles())
+	{
+		if(dists[n] >= 0 && dists[n] < ret)
 		{
-			if(selector(&bonus)  &&  (!limit || !limit(&bonus)))
-				ret->push_back(&bonus);
+			ret = dists[n];
+			if(chosenHex)
+				*chosenHex = n;
 		}
-
-		//TODO limiters?
-
-		return ret;
 	}
-};
 
-struct Skirmish
+	return ret;
+}
+
+bool isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const ReachabilityInfo::TDistances & dists)
 {
-	const CStack *attacker, *defender;
-	int retaliationDamage, dealtDamage;
+	return distToNearestNeighbour(ei1.s->position, dists) < distToNearestNeighbour(ei2.s->position, dists);
+}
 
-	Skirmish(const CStack *Attacker, const CStack *Defender)
-		:attacker(Attacker), defender(Defender)
+template <typename Container, typename Pred>
+auto sum(const Container & c, Pred p) -> decltype(p(*boost::begin(c)))
+{
+	double ret = 0;
+	BOOST_FOREACH(const auto &element, c)
 	{
-		TDmgRange retal, dmg = cbc->battleEstimateDamage(attacker, defender, &retal);
-		dealtDamage = (dmg.first + dmg.second) / 2;
-		retaliationDamage = (retal.first + retal.second) / 2;
-
-		if(attacker->hasBonusOfType(Bonus::ADDITIONAL_ATTACK))
-			dealtDamage *= 2;
-		if(attacker->hasBonusOfType(Bonus::BLOCKS_RETALIATION) || defender->hasBonusOfType(Bonus::NO_RETALIATION))
-			retaliationDamage = 0;
-
+		ret += p(element);
 	}
-};
+
+	return ret;
+}
+
+
 
 CBattleAI::CBattleAI(void)
 	: side(-1), cb(NULL)
@@ -89,261 +97,15 @@ void CBattleAI::init( CBattleCallback * CB )
 	CB->unlockGsWhenWaiting = false;
 }
 
-void CBattleAI::actionFinished(const BattleAction &action)
+static bool thereRemainsEnemy()
 {
-	print("actionFinished called");
+	return cbc->battleGetStacks(CBattleInfoEssentials::ONLY_ENEMY).size();
 }
-
-void CBattleAI::actionStarted(const BattleAction &action)
-{
-	print("actionStarted called");
-}
-
-struct EnemyInfo
-{
-	const CStack * s;
-	int adi, adr;
-	std::vector<BattleHex> attackFrom; //for melee fight
-	EnemyInfo(const CStack * _s) : s(_s)
-	{}
-	void calcDmg(const CStack * ourStack)
-	{
-		TDmgRange retal, dmg = cbc->battleEstimateDamage(ourStack, s, &retal);
-		adi = (dmg.first + dmg.second) / 2;
-		adr = (retal.first + retal.second) / 2;
-	}
-
-	bool operator==(const EnemyInfo& ei) const
-	{
-		return s == ei.s;
-	}
-};
-
-bool isMoreProfitable(const EnemyInfo &ei1, const EnemyInfo& ei2)
-{
-	return (ei1.adi-ei1.adr) < (ei2.adi - ei2.adr);
-}
-
-int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = NULL)
-{
-	int ret = 1000000;
-	BOOST_FOREACH(BattleHex n, hex.neighbouringTiles())
-	{
-		if(dists[n] >= 0 && dists[n] < ret)
-		{
-			ret = dists[n];
-			if(chosenHex)
-				*chosenHex = n;
-		}
-	}
-
-	return ret;
-}
-
-bool isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const ReachabilityInfo::TDistances & dists)
-{
-	return distToNearestNeighbour(ei1.s->position, dists) < distToNearestNeighbour(ei2.s->position, dists);
-}
-
-//FIXME: unused function
-/*
-static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const BattleHex &h2)
-{
-	int shooters[2] = {0}; //count of shooters on hexes
-
-	for(int i = 0; i < 2; i++)
-		BOOST_FOREACH(BattleHex neighbour, (i ? h2 : h1).neighbouringTiles())
-			if(const CStack *s = cbc->battleGetStackByPos(neighbour))
-				if(s->getCreature()->isShooting())
-						shooters[i]++;
-
-	return shooters[0] < shooters[1];
-}
-*/
-
-template <typename Container, typename Pred>
-auto sum(const Container & c, Pred p) -> decltype(p(*boost::begin(c)))
-{
-	double ret = 0;
-	BOOST_FOREACH(const auto &element, c)
-	{
-		ret += p(element);
-	}
-
-	return ret;
-}
-
-struct ThreatMap
-{	
-	std::array<std::vector<BattleAttackInfo>, GameConstants::BFIELD_SIZE> threatMap; // [hexNr] -> enemies able to strike
-	
-	const CStack *endangered; 
-	std::array<int, GameConstants::BFIELD_SIZE> sufferedDamage; 
-
-	ThreatMap(const CStack *Endangered)
-		: endangered(Endangered)
-	{
-		sufferedDamage.fill(0);
-
-		BOOST_FOREACH(const CStack *enemy, cbc->battleGetStacks())
-		{
-			//Consider only stacks of different owner
-			if(enemy->attackerOwned == endangered->attackerOwned)
-				continue;
-
-			//Look-up which tiles can be melee-attacked
-			std::array<bool, GameConstants::BFIELD_SIZE> meleeAttackable;
-			meleeAttackable.fill(false);
-			auto enemyReachability = cbc->getReachability(enemy);
-			for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
-			{
-				if(enemyReachability.isReachable(i))
-				{
-					meleeAttackable[i] = true;
-					BOOST_FOREACH(auto n, BattleHex(i).neighbouringTiles())
-						meleeAttackable[n] = true;
-				}
-			}
-
-			//Gather possible assaults
-			for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
-			{
-				if(cbc->battleCanShoot(enemy, i))
-					threatMap[i].push_back(BattleAttackInfo(enemy, endangered, true));
-				else if(meleeAttackable[i])
-				{
-					BattleAttackInfo bai(enemy, endangered, false);
-					bai.chargedFields = std::max(BattleHex::getDistance(enemy->position, i) - 1, 0); //TODO check real distance (BFS), not just metric
-					threatMap[i].push_back(BattleAttackInfo(bai));
-				}
-			}
-		}
-
-		for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
-		{
-			sufferedDamage[i] = sum(threatMap[i], [](const BattleAttackInfo &bai) -> int
-			{
-				auto dmg = cbc->calculateDmgRange(bai);
-				return (dmg.first + dmg.second)/2;
-			});
-		}
-	}
-};
-
-struct AttackPossibility
-{
-	const CStack *enemy; //redundant (to attack.defender) but looks nice
-	BattleHex tile; //tile from which we attack
-	BattleAttackInfo attack;
-
-	int damageDealt;
-	int damageReceived; //usually by counter-attack
-	int damageDiff() const
-	{
-		return damageDealt - damageReceived;
-	}
-
-	int attackValue() const
-	{
-		//TODO consider tactical advantage
-		return damageDiff();
-	}
-};
-
-template<typename Key, typename Val>
-const Val &getValOr(const std::map<Key, Val> &Map, const Key &key, const Val &defaultValue)
-{
-	auto i = Map.find(key);
-	if(i != Map.end())
-		return i->second;
-	else 
-		return defaultValue;
-}
-
-struct HypotheticChangesToBattleState
-{
-	std::map<const CStack *, const IBonusBearer *> bonusesOfStacks;
-};
-
-struct PotentialTargets
-{
-	std::vector<AttackPossibility> possibleAttacks;
-	std::vector<const CStack *> unreachableEnemies;
-
-	std::function<AttackPossibility(bool,BattleHex)>  GenerateAttackInfo; //args: shooting, destHex
-
-	PotentialTargets()
-	{}
-
-	PotentialTargets(const CStack *attacker, const HypotheticChangesToBattleState &state = HypotheticChangesToBattleState())
-	{
-		auto dists = cbc->battleGetDistances(attacker);
-		std::vector<BattleHex> avHexes = cbc->battleGetAvailableHexes(attacker, false);
-
-		BOOST_FOREACH(const CStack *enemy, cbc->battleGetStacks())
-		{
-			//Consider only stacks of different owner
-			if(enemy->attackerOwned == attacker->attackerOwned)
-				continue;
-			
-			GenerateAttackInfo = [&](bool shooting, BattleHex hex) -> AttackPossibility
-			{
-				auto bai = BattleAttackInfo(attacker, enemy, shooting);
-				bai.attackerBonuses = getValOr(state.bonusesOfStacks, bai.attacker, static_cast<const IBonusBearer *>(bai.attacker));
-				bai.defenderBonuses = getValOr(state.bonusesOfStacks, bai.defender, static_cast<const IBonusBearer *>(bai.defender));
-
-				AttackPossibility ap = {enemy, hex, bai, 0, 0};
-				if(hex.isValid())
-				{
-					assert(dists[hex] <= attacker->Speed());
-					ap.attack.chargedFields = dists[hex];
-				}
-
-				std::pair<ui32, ui32> retaliation;
-				auto attackDmg = cbc->battleEstimateDamage(ap.attack, &retaliation);
-				ap.damageDealt = (attackDmg.first + attackDmg.second) / 2;
-				ap.damageReceived = (retaliation.first + retaliation.second) / 2;
-				//TODO other damage related to attack (eg. fire shield and other abilities)
-				//TODO limit max damage by total stacks health (dealing 100000 dmg to single Pikineer is not that effective)
-
-				return ap;
-			};
-
-			if(cbc->battleCanShoot(attacker, enemy->position))
-			{
-				possibleAttacks.push_back(GenerateAttackInfo(true, BattleHex::INVALID));
-			}
-			else
-			{
-				BOOST_FOREACH(BattleHex hex, avHexes)
-					if(CStack::isMeleeAttackPossible(attacker, enemy, hex))
-						possibleAttacks.push_back(GenerateAttackInfo(false, hex));
-
-				if(!vstd::contains_if(possibleAttacks, [=](const AttackPossibility &pa) { return pa.enemy == enemy; }))
-					unreachableEnemies.push_back(enemy);
-			}
-		}
-	}
-
-	AttackPossibility bestAction() const
-	{
-		if(possibleAttacks.empty())
-			throw std::runtime_error("No best action, since we don't have any actions");
-
-		return *vstd::maxElementByFun(possibleAttacks, [](const AttackPossibility &ap) { return ap.damageDiff(); } );
-	}
-
-	int bestActionValue() const
-	{
-		if(possibleAttacks.empty())
-			return 0;
-
-		return bestAction().damageDiff();
-	}
-};
 
 BattleAction CBattleAI::activeStack( const CStack * stack )
 {
+	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName())	;
+
 	cbc = cb; //TODO: make solid sure that AIs always use their callbacks (need to take care of event handlers too)
 	try
 	{
@@ -353,6 +115,9 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 		if(cb->battleCanCastSpell())
 			attemptCastingSpell();
+
+		if(!thereRemainsEnemy())
+			return BattleAction();
 
 		if(auto action = considerFleeingOrSurrendering())
 			return *action;
@@ -364,6 +129,8 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		}
 
 		PotentialTargets targets(stack);
+
+
 		if(targets.possibleAttacks.size())
 		{
 			auto hlp = targets.bestAction();
@@ -392,10 +159,20 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 	}
 	catch(std::exception &e)
 	{
-        logAi->errorStream() << "Exception occurred in " << __FUNCTION__ << " " << e.what();
+		logAi->errorStream() << "Exception occurred in " << __FUNCTION__ << " " << e.what();
 	}
 
 	return BattleAction::makeDefend(stack);
+}
+
+void CBattleAI::actionFinished(const BattleAction &action)
+{
+	print("actionFinished called");
+}
+
+void CBattleAI::actionStarted(const BattleAction &action)
+{
+	print("actionStarted called");
 }
 
 void CBattleAI::battleAttack(const BattleAttack *ba)
@@ -591,6 +368,8 @@ struct CurrentOffensivePotential
 		return ourPotential - enemyPotential;
 	}
 };
+
+
 // 
 // //set has its own order, so remove_if won't work. TODO - reuse for map
 // template<typename Elem, typename Predicate>
@@ -763,4 +542,184 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 
 	}
 	return boost::none;
+}
+
+ThreatMap::ThreatMap(const CStack *Endangered) : endangered(Endangered)
+{
+	sufferedDamage.fill(0);
+
+	BOOST_FOREACH(const CStack *enemy, cbc->battleGetStacks())
+	{
+		//Consider only stacks of different owner
+		if(enemy->attackerOwned == endangered->attackerOwned)
+			continue;
+
+		//Look-up which tiles can be melee-attacked
+		std::array<bool, GameConstants::BFIELD_SIZE> meleeAttackable;
+		meleeAttackable.fill(false);
+		auto enemyReachability = cbc->getReachability(enemy);
+		for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
+		{
+			if(enemyReachability.isReachable(i))
+			{
+				meleeAttackable[i] = true;
+				BOOST_FOREACH(auto n, BattleHex(i).neighbouringTiles())
+					meleeAttackable[n] = true;
+			}
+		}
+
+		//Gather possible assaults
+		for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
+		{
+			if(cbc->battleCanShoot(enemy, i))
+				threatMap[i].push_back(BattleAttackInfo(enemy, endangered, true));
+			else if(meleeAttackable[i])
+			{
+				BattleAttackInfo bai(enemy, endangered, false);
+				bai.chargedFields = std::max(BattleHex::getDistance(enemy->position, i) - 1, 0); //TODO check real distance (BFS), not just metric
+				threatMap[i].push_back(BattleAttackInfo(bai));
+			}
+		}
+	}
+
+	for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
+	{
+		sufferedDamage[i] = sum(threatMap[i], [](const BattleAttackInfo &bai) -> int
+		{
+			auto dmg = cbc->calculateDmgRange(bai);
+			return (dmg.first + dmg.second)/2;
+		});
+	}
+}
+
+const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const std::string &cachingStr /*= ""*/) const 
+{
+	TBonusListPtr ret = make_shared<BonusList>();
+	const TBonusListPtr originalList = stack->getAllBonuses(selector, limit, root, cachingStr);
+	boost::copy(*originalList, std::back_inserter(*ret));
+	BOOST_FOREACH(auto &bonus, bonusesToAdd)
+	{
+		if(selector(&bonus)  &&  (!limit || !limit(&bonus)))
+			ret->push_back(&bonus);
+	}
+
+	//TODO limiters?
+
+	return ret;
+}
+
+int AttackPossibility::damageDiff() const
+{
+	const auto dealtDmgValue = priorities.stackEvaluator(enemy) * damageDealt;
+	const auto receivedDmgValue = priorities.stackEvaluator(attack.attacker) * damageReceived;
+	return dealtDmgValue - receivedDmgValue;
+}
+
+int AttackPossibility::attackValue() const
+{
+	return damageDiff() + tacticImpact;
+}
+
+AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo &AttackInfo, const HypotheticChangesToBattleState &state, BattleHex hex)
+{
+	auto attacker = AttackInfo.attacker;
+	auto enemy = AttackInfo.defender;
+
+	const int remainingCounterAttacks = getValOr(state.counterAttacksLeft, enemy, enemy->counterAttacks);
+	const bool counterAttacksBlocked = attacker->hasBonusOfType(Bonus::BLOCKS_RETALIATION) || enemy->hasBonusOfType(Bonus::NO_RETALIATION);
+	const int totalAttacks = 1 + AttackInfo.attackerBonuses->getBonuses(Selector::type(Bonus::ADDITIONAL_ATTACK), (Selector::effectRange (Bonus::NO_LIMIT) || Selector::effectRange(Bonus::ONLY_MELEE_FIGHT)))->totalValue();
+
+	AttackPossibility ap = {enemy, hex, AttackInfo, 0, 0, 0};
+
+	auto curBai = AttackInfo; //we'll modify here the stack counts
+	for(int i  = 0; i < totalAttacks; i++)
+	{
+		std::pair<ui32, ui32> retaliation(0,0);
+		auto attackDmg = cbc->battleEstimateDamage(curBai, &retaliation);
+		ap.damageDealt = (attackDmg.first + attackDmg.second) / 2;
+		ap.damageReceived = (retaliation.first + retaliation.second) / 2;
+
+		if(remainingCounterAttacks <= i || counterAttacksBlocked)
+			ap.damageReceived = 0;
+
+		curBai.attackerCount = attacker->count - attacker->countKilledByAttack(ap.damageReceived).first;
+		curBai.defenderCount = enemy->count - enemy->countKilledByAttack(ap.damageDealt).first;
+		if(!curBai.attackerCount) 
+			break;
+		//TODO what about defender? should we break? but in pessimistic scenario defender might be alive
+	}
+
+	//TODO other damage related to attack (eg. fire shield and other abilities)
+
+	//Limit damages by total stack health
+	vstd::amin(ap.damageDealt, enemy->count * enemy->MaxHealth() - (enemy->MaxHealth() - enemy->firstHPleft));
+	vstd::amin(ap.damageReceived, attacker->count * attacker->MaxHealth() - (attacker->MaxHealth() - attacker->firstHPleft));
+
+	return ap;
+}
+
+
+PotentialTargets::PotentialTargets(const CStack *attacker, const HypotheticChangesToBattleState &state /*= HypotheticChangesToBattleState()*/)
+{
+	auto dists = cbc->battleGetDistances(attacker);
+	auto avHexes = cbc->battleGetAvailableHexes(attacker, false);
+
+	BOOST_FOREACH(const CStack *enemy, cbc->battleGetStacks())
+	{
+		//Consider only stacks of different owner
+		if(enemy->attackerOwned == attacker->attackerOwned)
+			continue;
+
+		auto GenerateAttackInfo = [&](bool shooting, BattleHex hex) -> AttackPossibility
+		{
+			auto bai = BattleAttackInfo(attacker, enemy, shooting);
+			bai.attackerBonuses = getValOr(state.bonusesOfStacks, bai.attacker, bai.attacker);
+			bai.defenderBonuses = getValOr(state.bonusesOfStacks, bai.defender, bai.defender);
+			
+			if(hex.isValid())
+			{
+				assert(dists[hex] <= attacker->Speed());
+				bai.chargedFields = dists[hex];
+			}
+
+			return AttackPossibility::evaluate(bai, state, hex);
+		};
+
+		if(cbc->battleCanShoot(attacker, enemy->position))
+		{
+			possibleAttacks.push_back(GenerateAttackInfo(true, BattleHex::INVALID));
+		}
+		else
+		{
+			BOOST_FOREACH(BattleHex hex, avHexes)
+				if(CStack::isMeleeAttackPossible(attacker, enemy, hex))
+					possibleAttacks.push_back(GenerateAttackInfo(false, hex));
+
+			if(!vstd::contains_if(possibleAttacks, [=](const AttackPossibility &pa) { return pa.enemy == enemy; }))
+				unreachableEnemies.push_back(enemy);
+		}
+	}
+}
+
+AttackPossibility PotentialTargets::bestAction() const
+{
+	if(possibleAttacks.empty())
+		throw std::runtime_error("No best action, since we don't have any actions");
+
+	return *vstd::maxElementByFun(possibleAttacks, [](const AttackPossibility &ap) { return ap.attackValue(); } );
+}
+
+int PotentialTargets::bestActionValue() const
+{
+	if(possibleAttacks.empty())
+		return 0;
+
+	return bestAction().attackValue();
+}
+
+void EnemyInfo::calcDmg(const CStack * ourStack)
+{
+	TDmgRange retal, dmg = cbc->battleEstimateDamage(ourStack, s, &retal);
+	adi = (dmg.first + dmg.second) / 2;
+	adr = (retal.first + retal.second) / 2;
 }

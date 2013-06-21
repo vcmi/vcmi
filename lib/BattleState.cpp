@@ -1129,33 +1129,55 @@ std::string CStack::nodeName() const
 	return oss.str();
 }
 
-void CStack::prepareAttacked(BattleStackAttacked &bsa) const
+std::pair<int,int> CStack::countKilledByAttack(int damageReceived) const
 {
-	bsa.killedAmount = bsa.damageAmount / MaxHealth();
-	unsigned damageFirst = bsa.damageAmount % MaxHealth();
+	int killedCount = 0;
+	int newRemainingHP = 0;
+
+	killedCount = damageReceived / MaxHealth();
+	unsigned damageFirst = damageReceived % MaxHealth();
+
+	if (damageReceived && vstd::contains(state, EBattleStackState::CLONED)) // block ability should not kill clone (0 damage)
+	{
+		killedCount = count;
+	}
+	else
+	{
+		if( firstHPleft <= damageFirst )
+		{
+			killedCount++;
+			newRemainingHP = firstHPleft + MaxHealth() - damageFirst;
+		}
+		else
+		{
+			newRemainingHP = firstHPleft - damageFirst;
+		}
+	}
+
+	return std::make_pair(killedCount, newRemainingHP);
+}
+
+void CStack::prepareAttacked(BattleStackAttacked &bsa, boost::optional<int> customCount /*= boost::none*/) const
+{
+	auto afterAttack = countKilledByAttack(bsa.damageAmount);
+
+	bsa.killedAmount = afterAttack.first;
+	bsa.newHP = afterAttack.second;
+
 
 	if (bsa.damageAmount && vstd::contains(state, EBattleStackState::CLONED)) // block ability should not kill clone (0 damage)
 	{
-		bsa.killedAmount = count;
 		bsa.flags |= BattleStackAttacked::CLONE_KILLED;
 		return; // no rebirth I believe
 	}
 
-	if( firstHPleft <= damageFirst )
-	{
-		bsa.killedAmount++;
-		bsa.newHP = firstHPleft + MaxHealth() - damageFirst;
-	}
-	else
-	{
-		bsa.newHP = firstHPleft - damageFirst;
-	}
+	const int countToUse = customCount ? *customCount : count;
 
-	if(count <= bsa.killedAmount) //stack killed
+	if(countToUse <= bsa.killedAmount) //stack killed
 	{
 		bsa.newAmount = 0;
 		bsa.flags |= BattleStackAttacked::KILLED;
-		bsa.killedAmount = count; //we cannot kill more creatures than we have
+		bsa.killedAmount = countToUse; //we cannot kill more creatures than we have
 
 		int resurrectFactor = valOfBonuses(Bonus::REBIRTH);
 		if (resurrectFactor > 0 && casts) //there must be casts left
@@ -1177,7 +1199,7 @@ void CStack::prepareAttacked(BattleStackAttacked &bsa) const
 	}
 	else
 	{
-		bsa.newAmount = count - bsa.killedAmount;
+		bsa.newAmount = countToUse - bsa.killedAmount;
 	}
 }
 

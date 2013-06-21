@@ -78,7 +78,8 @@ std::queue<SDL_Event> events;
 boost::mutex eventsM;
 
 bool gNoGUI = false;
-static bool gOnlyAI = false;
+static po::variables_map vm;
+
 //static bool setResolution = false; //set by event handling thread after resolution is adjusted
 
 static bool ermInteractiveMode = false; //structurize when time is right
@@ -226,12 +227,12 @@ int main(int argc, char** argv)
 		("start", po::value<std::string>(), "starts game from saved StartInfo file")
 		("onlyAI", "runs without human player, all players will be default AI")
 		("noGUI", "runs without GUI, implies --onlyAI")
+		("ai", po::value<std::vector<std::string>>(), "AI to be used for the player, can be specified several times for the consecutive players")
 		("oneGoodAI", "puts one default AI and the rest will be EmptyAI")
 		("autoSkip", "automatically skip turns in GUI")
 		("disable-video", "disable video player")
 		("nointro,i", "skips intro movies");
 
-	po::variables_map vm;
 	if(argc > 1)
 	{
 		try
@@ -258,7 +259,7 @@ int main(int argc, char** argv)
 	if(vm.count("noGUI"))
 	{
 		gNoGUI = true;
-		vm["onlyAI"];
+		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
 	}
 
 	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
@@ -375,7 +376,6 @@ int main(int argc, char** argv)
 
 	if(!vm.count("battle"))
 	{
-		gOnlyAI = vm.count("onlyAI");
 		Settings session = settings.write["session"];
 		session["autoSkip"].Bool()  = vm.count("autoSkip");
 		session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
@@ -566,7 +566,7 @@ void processCommand(const std::string &message)
 	}
 	else if(cn == "onlyai")
 	{
-		gOnlyAI = true;
+		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
 	}
 	else if (cn == "ai")
 	{
@@ -917,11 +917,18 @@ static void listenForEvents()
 
 void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 {
-	if(gOnlyAI)
+	if(vm.count("onlyAI"))
 	{
+		auto ais = vm["ai"].as<std::vector<std::string>>();
+
+		int i = 0;
+
+
 		for(auto it = options->playerInfos.begin(); it != options->playerInfos.end(); ++it)
 		{
 			it->second.playerID = PlayerSettings::PLAYER_AI;
+			if(i < ais.size())
+				it->second.name = ais[i++];
 		}
 	}
 

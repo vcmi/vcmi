@@ -96,3 +96,5 @@ public:
 	void sendPack(CConnection * pc, const CPackForSelectionScreen & pack);
 	void startListeningThread(CConnection * pc);
 };
+
+extern boost::program_options::variables_map cmdLineOptions;
