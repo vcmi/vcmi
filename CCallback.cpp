@@ -361,7 +361,7 @@ void CCallback::validatePaths()
 	ASSERT_IF_CALLED_WITH_PLAYER
 	const CGHeroInstance *h = cl->IGameCallback::getSelectedHero(*player);
 	if(h  && ( cl->pathInfo->hero != h							//wrong hero
-		       || cl->pathInfo->hpos != h->getPosition(false)  //wrong hero positoin
+		       || cl->pathInfo->hpos != h->getPosition(false)  //wrong hero position
 		       || !cl->pathInfo->isValid)) //paths invalidated by game event
 	{
 		recalculatePaths();
@@ -376,25 +376,25 @@ int CCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance 
 		return swapCreatures(s1, s2, p1, p2);
 }
 
-void CCallback::registerGameInterface(CGameInterface *cgi)
+void CCallback::registerGameInterface(shared_ptr<CGameInterface> cgi)
 {
 	cl->additionalPlayerInts[*player].push_back(cgi);
 	registerBattleInterface(cgi);
 }
 
-void CCallback::registerBattleInterface(CBattleGameInterface *cbga)
+void CCallback::registerBattleInterface(shared_ptr<CBattleGameInterface> cbga)
 {
 	cl->additionalBattleInts[*player].push_back(cbga);
 }
 
-void CCallback::unregisterGameInterface(CGameInterface *cgi)
+void CCallback::unregisterGameInterface(shared_ptr<CGameInterface> cgi)
 {
 	cl->additionalPlayerInts[*player] -= cgi;
 	unregisterBattleInterface(cgi);
 
 }
 
-void CCallback::unregisterBattleInterface(CBattleGameInterface *cbga)
+void CCallback::unregisterBattleInterface(shared_ptr<CBattleGameInterface> cbga)
 {
 	cl->additionalBattleInts[*player] -= cbga;
 }

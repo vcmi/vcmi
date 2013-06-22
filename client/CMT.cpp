@@ -706,7 +706,6 @@ void processCommand(const std::string &message)
 		{
 			if(auto ai = CDynLibHandler::getNewBattleAI(fname)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
 			{
-				delete ai;
 				Settings neutralAI = settings.write["server"]["neutralAI"];
 				neutralAI->String() = fname;
                 std::cout << "Setting changed, from now the battle ai will be " << fname << "!\n";

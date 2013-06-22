@@ -22,27 +22,33 @@
  *
  */
 
+
+
 template<typename rett>
-rett * createAny(std::string dllname, std::string methodName)
+shared_ptr<rett> createAny(std::string dllname, std::string methodName)
 {
-	char temp[50];
-	rett * ret=NULL;
-	rett*(*getAI)(); 
-	void(*getName)(char*); 
+	typedef void(*TGetAIFun)(shared_ptr<rett>&); 
+	typedef void(*TGetNameFun)(char*); 
+
+	char temp[150];
+
+	TGetAIFun getAI = nullptr;
+	TGetNameFun getName = nullptr;
+
 
 #ifdef _WIN32
 	HINSTANCE dll = LoadLibraryA(dllname.c_str());
 	if (dll)
 	{
-		getName = (void(*)(char*))GetProcAddress(dll,"GetAiName");
-		getAI = (rett*(*)())GetProcAddress(dll,methodName.c_str());
+		getName = (TGetNameFun)GetProcAddress(dll,"GetAiName");
+		getAI = (TGetAIFun)GetProcAddress(dll,methodName.c_str());
 	}
 #else
 	void *dll = dlopen(dllname.c_str(), RTLD_LOCAL | RTLD_LAZY);
 	if (dll)
 	{
-		getName = (void(*)(char*))dlsym(dll,"GetAiName");
-		getAI = (rett*(*)())dlsym(dll,methodName.c_str());
+		getName = (TGetNameFun)dlsym(dll,"GetAiName");
+		getAI = (TGetAIFun)dlsym(dll,methodName.c_str());
 	}
 	else
         logGlobal->errorStream() << "Error: " << dlerror();
@@ -65,8 +71,9 @@ rett * createAny(std::string dllname, std::string methodName)
 
 	getName(temp);
     logGlobal->infoStream() << "Loaded " << temp;
-	ret = getAI();
 
+	shared_ptr<rett> ret;
+	getAI(ret);
 	if(!ret)
         logGlobal->errorStream() << "Cannot get AI!";
 
@@ -74,26 +81,27 @@ rett * createAny(std::string dllname, std::string methodName)
 }
 
 template<typename rett>
-rett * createAnyAI(std::string dllname, std::string methodName)
+shared_ptr<rett> createAnyAI(std::string dllname, std::string methodName)
 {
     logGlobal->infoStream() << "Opening " << dllname;
 	std::string filename = VCMIDirs::get().libraryName(dllname);
-	rett* ret = createAny<rett>(VCMIDirs::get().libraryPath() + "/AI/" + filename, methodName);
+
+	auto ret = createAny<rett>(VCMIDirs::get().libraryPath() + "/AI/" + filename, methodName);
 	ret->dllName = dllname;
 	return ret;
 }
 
-CGlobalAI * CDynLibHandler::getNewAI(std::string dllname)
+shared_ptr<CGlobalAI> CDynLibHandler::getNewAI(std::string dllname)
 {
 	return createAnyAI<CGlobalAI>(dllname, "GetNewAI");
 }
 
-CBattleGameInterface * CDynLibHandler::getNewBattleAI(std::string dllname )
+shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(std::string dllname )
 {
 	return createAnyAI<CBattleGameInterface>(dllname, "GetNewBattleAI");
 }
 
-CScriptingModule * CDynLibHandler::getNewScriptingModule(std::string dllname)
+shared_ptr<CScriptingModule> CDynLibHandler::getNewScriptingModule(std::string dllname)
 {
 	return createAny<CScriptingModule>(dllname, "GetNewModule");
 }
@@ -187,7 +195,7 @@ void CAdventureAI::battleSpellCast(const BattleSpellCast *sc)
 void CAdventureAI::battleEnd(const BattleResult *br)
 {
 	battleAI->battleEnd(br);
-	vstd::clear_pointer(battleAI);
+	battleAI = nullptr;
 }
 
 void CAdventureAI::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom)

@@ -12,19 +12,8 @@ extern "C" DLL_EXPORT void GetAiName(char* name)
 {
 	strcpy(name,NAME);
 }
-extern "C" DLL_EXPORT char * GetAiNameS()
+
+extern "C" DLL_EXPORT void GetNewAI(shared_ptr<CGlobalAI> &out)
 {
-	char * ret = new char[50];
-	strcpy(ret,NAME);
-	return ret;
-}
-extern "C" DLL_EXPORT CGlobalAI * GetNewAI()
-{
-	return new CEmptyAI();
-// return
-}
-extern "C" DLL_EXPORT void ReleaseAI(CGlobalAI * i)
-{
-	delete (CEmptyAI*)i;
-	ais.erase(i);
+	out = make_shared<CEmptyAI>();
 }

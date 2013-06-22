@@ -114,13 +114,13 @@ class CClient : public IGameCallback
 public:
 	std::map<PlayerColor,shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
 	std::map<PlayerColor,shared_ptr<CBattleCallback> > battleCallbacks; //callbacks given to player interfaces
-	std::vector<IGameEventsReceiver*> privilagedGameEventReceivers; //scripting modules, spectator interfaces
-	std::vector<IBattleEventsReceiver*> privilagedBattleEventReceivers; //scripting modules, spectator interfaces
-	std::map<PlayerColor,CGameInterface *> playerint;
-	std::map<PlayerColor,CBattleGameInterface *> battleints;
+	std::vector<shared_ptr<IGameEventsReceiver>> privilagedGameEventReceivers; //scripting modules, spectator interfaces
+	std::vector<shared_ptr<IBattleEventsReceiver>> privilagedBattleEventReceivers; //scripting modules, spectator interfaces
+	std::map<PlayerColor, shared_ptr<CGameInterface>> playerint;
+	std::map<PlayerColor, shared_ptr<CBattleGameInterface>> battleints;
 
-	std::map<PlayerColor,std::vector<CGameInterface *>> additionalPlayerInts;
-	std::map<PlayerColor,std::vector<CBattleGameInterface *>> additionalBattleInts;
+	std::map<PlayerColor,std::vector<shared_ptr<CGameInterface>>> additionalPlayerInts;
+	std::map<PlayerColor,std::vector<shared_ptr<CBattleGameInterface>>> additionalBattleInts;
 
 	bool hotSeat;
 	CConnection *serv;
@@ -144,8 +144,8 @@ public:
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server
 
 	void loadNeutralBattleAI();
-	void installNewPlayerInterface(CGameInterface *gameInterface, boost::optional<PlayerColor> color);
-	void installNewBattleInterface(CBattleGameInterface* battleInterface, boost::optional<PlayerColor> color, bool needCallback = true);
+	void installNewPlayerInterface(shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color);
+	void installNewBattleInterface(shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback = true);
 	std::string aiNameForPlayer(const PlayerSettings &ps, bool battleAI); //empty means no AI -> human
 
 	void endGame(bool closeConnection = true);
@@ -229,7 +229,7 @@ public:
 
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
 	void battleStarted(const BattleInfo * info);
-	void commenceTacticPhaseForInt(CBattleGameInterface *battleInt); //will be called as separate thread
+	void commenceTacticPhaseForInt(shared_ptr<CBattleGameInterface> battleInt); //will be called as separate thread
 
 	void commitPackage(CPackForClient *pack) OVERRIDE;
 

@@ -140,7 +140,7 @@ private:
 	double getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
 	std::map<int, int> standingFrame; //number of frame in standing animation by stack ID, helps in showing 'random moves'
 
-	CPlayerInterface * tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
+	shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
 	bool tacticsMode;
 	bool stackCanCastSpell; //if true, active stack could possibly cats some target spell
 	bool creatureCasting; //if true, stack currently aims to cats a spell
@@ -156,7 +156,11 @@ private:
 	PossibleActions selectedAction; //last action chosen (and saved) by player
 	PossibleActions illegalAction; //most likely action that can't be performed here
 
-	CBattleGameInterface *autofightingAI;
+	shared_ptr<CBattleGameInterface> autofightingAI;
+	bool isAutoFightOn;
+	unique_ptr<boost::thread> aiThread;
+
+	void requestAutofightingAIToTakeAction();
 
 	void getPossibleActionsForStack (const CStack * stack); //called when stack gets its turn
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
@@ -198,16 +202,16 @@ private:
 		friend class CBattleInterface;
 	} * siegeH;
 
-	CPlayerInterface * attackerInt, * defenderInt; //because LOCPLINT is not enough in hotSeat
+	shared_ptr<CPlayerInterface> attackerInt, defenderInt; //because LOCPLINT is not enough in hotSeat
 	const CGHeroInstance * getActiveHero(); //returns hero that can currently cast a spell
 public:
-	CPlayerInterface * curInt; //current player interface
+	shared_ptr<CPlayerInterface> curInt; //current player interface
 	std::list<std::pair<CBattleAnimation *, bool> > pendingAnims; //currently displayed animations <anim, initialized>
 	void addNewAnim(CBattleAnimation * anim); //adds new anim to pendingAnims
 	ui32 animIDhelper; //for giving IDs for animations
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 
-	CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen); //c-tor
+	CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, shared_ptr<CPlayerInterface> att, shared_ptr<CPlayerInterface> defen); //c-tor
 	~CBattleInterface(); //d-tor
 
 	//std::vector<TimeInterested*> timeinterested; //animation handling

@@ -174,7 +174,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 		}
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 
-		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, myOwner->curInt);
+		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, myOwner->curInt.get());
 		GH.pushInt(spellWindow);
 	}
 }
@@ -483,7 +483,7 @@ void CBattleResultWindow::bExitf()
 		return;
 	}
 
-	CPlayerInterface * intTmp = owner->curInt;
+	auto intTmp = owner->curInt;
 	GH.popInts(2); //first - we; second - battle interface
 	intTmp->showingDialog->setn(false);
 	CCS->videoh->close();

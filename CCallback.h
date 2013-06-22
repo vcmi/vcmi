@@ -114,10 +114,10 @@ public:
 	virtual void recalculatePaths(); //updates main, client pathfinder info (should be called when moving hero is over)
 
 	//Set of metrhods that allows adding more interfaces for this player that'll receive game event call-ins.
-	void registerGameInterface(CGameInterface *cgi);
-	void registerBattleInterface(CBattleGameInterface *cbga);
-	void unregisterGameInterface(CGameInterface *cgi);
-	void unregisterBattleInterface(CBattleGameInterface *cbga);
+	void registerGameInterface(shared_ptr<CGameInterface> cgi);
+	void registerBattleInterface(shared_ptr<CBattleGameInterface> cbga);
+	void unregisterGameInterface(shared_ptr<CGameInterface> cgi);
+	void unregisterBattleInterface(shared_ptr<CBattleGameInterface> cbga);
 
 	void unregisterMyInterface(); //stops delivering information about game events to that player's interface -> can be called ONLY after victory/loss
 

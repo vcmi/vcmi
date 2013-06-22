@@ -19,18 +19,7 @@ extern "C" DLL_EXPORT void GetAiName(char* name)
 	strcpy_s(name, strlen(g_cszAiName) + 1, g_cszAiName);
 }
 
-extern "C" DLL_EXPORT char* GetAiNameS()
+extern "C" DLL_EXPORT void GetNewBattleAI(shared_ptr<CBattleGameInterface> &out)
 {
-	// need to be defined
-	return NULL;
-}
-
-extern "C" DLL_EXPORT CBattleGameInterface* GetNewBattleAI()
-{
-	return new CStupidAI();
-}
-
-extern "C" DLL_EXPORT void ReleaseBattleAI(CBattleGameInterface* i)
-{
-	delete (CStupidAI*)i;
+	out = make_shared<CStupidAI>();
 }

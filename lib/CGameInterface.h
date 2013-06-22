@@ -96,9 +96,9 @@ public:
 class DLL_LINKAGE CDynLibHandler
 {
 public:
-	static CGlobalAI * getNewAI(std::string dllname);
-	static CBattleGameInterface * getNewBattleAI(std::string dllname);
-	static CScriptingModule * getNewScriptingModule(std::string dllname);
+	static shared_ptr<CGlobalAI> getNewAI(std::string dllname);
+	static shared_ptr<CBattleGameInterface> getNewBattleAI(std::string dllname);
+	static shared_ptr<CScriptingModule> getNewScriptingModule(std::string dllname);
 };
 
 class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
@@ -114,7 +114,7 @@ class DLL_LINKAGE CAdventureAI : public CGlobalAI
 public:
 	CAdventureAI() : battleAI(NULL), cbc(NULL) {};
 
-	CBattleGameInterface *battleAI;
+	shared_ptr<CBattleGameInterface> battleAI;
 	shared_ptr<CBattleCallback> cbc;
 
 	virtual std::string getBattleAIName() const = 0; //has to return name of the battle AI to be used

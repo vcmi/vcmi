@@ -88,24 +88,31 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 	animsAreDisplayed.setn(true);
 }
 
-CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen)
+CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, 
+								   CGHeroInstance *hero1, CGHeroInstance *hero2, 
+								   const SDL_Rect & myRect, 
+								   shared_ptr<CPlayerInterface> att, shared_ptr<CPlayerInterface> defen)
 	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
 	  activeStack(NULL), stackToActivate(NULL), selectedStack(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1),
 	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(NULL), sp(NULL),
 	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0),
 	  givenCommand(NULL), myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL),
-	  autofightingAI(nullptr), background(nullptr)
+	  autofightingAI(nullptr), isAutoFightOn(false), aiThread(nullptr), background(nullptr)
 {
 	OBJ_CONSTRUCTION;
 
-	if(!curInt) curInt = LOCPLINT; //may happen when we are defending during network MP game
+	if(!curInt)
+	{
+		//May happen when we are defending during network MP game -> attacker interface is just not present
+		curInt = defenderInt; 
+	}
 
 	animsAreDisplayed.setn(false);
 	pos = myRect;
 	strongInterest = true;
 	givenCommand = new CondSh<BattleAction *>(NULL);
 
-	if(attackerInt && attackerInt->cb->battleGetTacticDist()) //hotseat -> check tactics for both players (defender may be local human)
+	if(attackerInt && attackerInt->cb->battleGetTacticDist()) //hot-seat -> check tactics for both players (defender may be local human)
 		tacticianInterface = attackerInt;
 	else if(defenderInt && defenderInt->cb->battleGetTacticDist())
 		tacticianInterface = defenderInt;
@@ -453,9 +460,7 @@ CBattleInterface::~CBattleInterface()
 	delete bigForceField[1];
 
 	delete siegeH;
-
-	delete autofightingAI;
-
+	
 	//TODO: play AI tracks if battle was during AI turn
 	//if (!curInt->makingTurn)
 	//CCS->musich->playMusicFromSet(CCS->musich->aiMusics, -1);
@@ -493,6 +498,12 @@ void CBattleInterface::setPrintMouseShadow(bool set)
 
 void CBattleInterface::activate()
 {
+	if(isAutoFightOn)
+	{
+		bAutofight->activate();
+		return;
+	}
+
 	CIntObject::activate();
 	bOptions->activate();
 	bSurrender->activate();
@@ -1265,16 +1276,16 @@ void CBattleInterface::bAutofightf()
 	if(spellDestSelectMode) //we are casting a spell
 		return;
 	
-	static bool isAutoFightOn = false;
-	static unique_ptr<boost::thread> aiThread = nullptr;
-
+	//Stop auto-fight mode
 	if(isAutoFightOn)
 	{
 		assert(autofightingAI);
 		isAutoFightOn = false;
+		logGlobal->traceStream() << "Stopping the autofight...";
+		aiThread->interrupt();
 		aiThread->join();
 
-		vstd::clear_pointer(autofightingAI);
+		autofightingAI = nullptr;
 		aiThread = nullptr;
 	}
 	else
@@ -1284,18 +1295,7 @@ void CBattleInterface::bAutofightf()
 		autofightingAI->init(curInt->cb);
 		autofightingAI->battleStart(army1, army2, int3(0,0,0), attackingHeroInstance, defendingHeroInstance, curInt->cb->battleGetMySide());
 
-		//Deactivate everything
-		deactivate();
-		bAutofight->activate(); //only autofight button is to remain active
-		aiThread = make_unique<boost::thread>([&] 
-		{
-			auto ba = new BattleAction(autofightingAI->activeStack(activeStack));
-
-			if(isAutoFightOn)
-			{
-				givenCommand->setn(ba);
-			}
-		});
+		requestAutofightingAIToTakeAction();
 	}
 }
 
@@ -1313,7 +1313,7 @@ void CBattleInterface::bSpellf()
 	ESpellCastProblem::ESpellCastProblem spellCastProblem;
 	if (curInt->cb->battleCanCastSpell(&spellCastProblem))
 	{
-		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, curInt);
+		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, curInt.get());
 		GH.pushInt(spellWindow);
 	}
 	else if(spellCastProblem == ESpellCastProblem::MAGIC_IS_BLOCKED)
@@ -2057,7 +2057,7 @@ void CBattleInterface::activateStack()
 	const CStack *s = activeStack;
 
 	myTurn = true;
-	if(attackerInt && defenderInt) //hotseat -> need to pick which interface "takes over" as active
+	if(!!attackerInt && defenderInt) //hotseat -> need to pick which interface "takes over" as active
 		curInt = attackerInt->playerID == s->owner ? attackerInt : defenderInt;
 
 	queue->update();
@@ -2095,6 +2095,9 @@ void CBattleInterface::activateStack()
 
 	if(!pendingAnims.size() && !active)
 		activate();
+
+	if(isAutoFightOn)
+		requestAutofightingAIToTakeAction();
 
 	GH.fakeMouseMove();
 }
@@ -3583,6 +3586,24 @@ InfoAboutHero CBattleInterface::enemyHero() const
 		curInt->cb->getHeroInfo(attackingHeroInstance, ret);
 
 	return ret;
+}
+
+void CBattleInterface::requestAutofightingAIToTakeAction()
+{
+	assert(isAutoFightOn);
+
+	deactivate();
+	bAutofight->activate();
+
+	aiThread = make_unique<boost::thread>([&] 
+	{
+		auto ba = new BattleAction(autofightingAI->activeStack(activeStack));
+
+		if(isAutoFightOn)
+		{
+			givenCommand->setn(ba);
+		}
+	});
 }
 
 CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface * _owner)

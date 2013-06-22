@@ -17,7 +17,7 @@ extern "C" DLL_EXPORT void GetAiName(char* name)
 	strcpy_s(name, strlen(g_cszAiName) + 1, g_cszAiName);
 }
 
-extern "C" DLL_EXPORT CGlobalAI* GetNewAI()
+extern "C" DLL_EXPORT void GetNewAI(shared_ptr<CGlobalAI> &out)
 {
-	return new VCAI();
+	out = make_shared<VCAI>();
 }

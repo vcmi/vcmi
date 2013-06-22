@@ -207,13 +207,8 @@ void CClient::endGame( bool closeConnection /*= true*/ )
         logNetwork->infoStream() << "Deleted mapHandler and gameState.";
 		LOCPLINT = NULL;
 	}
-	while (!playerint.empty())
-	{
-		CGameInterface *pint = playerint.begin()->second;
-		playerint.erase(playerint.begin());
-		delete pint;
-	}
 
+	playerint.clear();
 	callbacks.clear();
 	battleCallbacks.clear();
     logNetwork->infoStream() << "Deleted playerInts.";
@@ -391,7 +386,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			}
 			else 
 			{
-				installNewPlayerInterface(new CPlayerInterface(color), color);
+				installNewPlayerInterface(make_shared<CPlayerInterface>(color), color);
 				humanPlayers++;
 			}
 		}
@@ -407,10 +402,10 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		if(!gNoGUI)
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
-			CPlayerInterface *p = new CPlayerInterface(PlayerColor::NEUTRAL);
+			auto p = make_shared<CPlayerInterface>(PlayerColor::NEUTRAL);
 			p->observerInDuelMode = true;
 			installNewPlayerInterface(p, boost::none);
-			GH.curInt = p;
+			GH.curInt = p.get();
 		}
 		battleStarted(gs->curB);
 	}
@@ -469,7 +464,7 @@ void CClient::serialize( Handler &h, const int version )
 			h & pid & dllname & isHuman;
 			LOG_TRACE_PARAMS(logGlobal, "Loading player %s interface", pid);
 
-			CGameInterface *nInt = nullptr;
+			shared_ptr<CGameInterface> nInt = nullptr;
 			if(dllname.length())
 			{
 				if(pid == PlayerColor::NEUTRAL)
@@ -487,7 +482,7 @@ void CClient::serialize( Handler &h, const int version )
 			else
 			{
 				assert(isHuman);
-				nInt = new CPlayerInterface(pid);
+				nInt = make_shared<CPlayerInterface>(pid);
 			}
 
 			nInt->dllName = dllname;
@@ -584,18 +579,18 @@ void CClient::battleStarted(const BattleInfo * info)
 // 		if(battleCallbacks.count(side))
 // 			battleCallbacks[side]->setBattle(info);
 
-	CPlayerInterface * att, * def;
+	shared_ptr<CPlayerInterface> att, def;
 	if(vstd::contains(playerint, info->sides[0]) && playerint[info->sides[0]]->human)
-		att = static_cast<CPlayerInterface*>( playerint[info->sides[0]] );
+		att = std::dynamic_pointer_cast<CPlayerInterface>( playerint[info->sides[0]] );
 	else
 		att = NULL;
 
 	if(vstd::contains(playerint, info->sides[1]) && playerint[info->sides[1]]->human)
-		def = static_cast<CPlayerInterface*>( playerint[info->sides[1]] );
+		def = std::dynamic_pointer_cast<CPlayerInterface>( playerint[info->sides[1]] );
 	else
 		def = NULL;
 
-	if(!gNoGUI && (att || def || gs->scenarioOps->mode == StartInfo::DUEL))
+	if(!gNoGUI && (!!att || !!def || gs->scenarioOps->mode == StartInfo::DUEL))
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 		new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1],
@@ -650,7 +645,7 @@ void CClient::calculatePaths(const CGHeroInstance *h)
 	gs->calculatePaths(h, *pathInfo);
 }
 
-void CClient::commenceTacticPhaseForInt(CBattleGameInterface *battleInt)
+void CClient::commenceTacticPhaseForInt(shared_ptr<CBattleGameInterface> battleInt)
 {
 	setThreadName("CClient::commenceTacticPhaseForInt");
 	try
@@ -710,7 +705,7 @@ void CClient::campaignMapFinished( shared_ptr<CCampaignState> camp )
 	}
 }
 
-void CClient::installNewPlayerInterface(CGameInterface *gameInterface, boost::optional<PlayerColor> color)
+void CClient::installNewPlayerInterface(shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
@@ -729,7 +724,7 @@ void CClient::installNewPlayerInterface(CGameInterface *gameInterface, boost::op
 	installNewBattleInterface(gameInterface, color, false);
 }
 
-void CClient::installNewBattleInterface(CBattleGameInterface* battleInterface, boost::optional<PlayerColor> color, bool needCallback /*= true*/)
+void CClient::installNewBattleInterface(shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback /*= true*/)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
