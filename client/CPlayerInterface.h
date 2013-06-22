@@ -101,7 +101,7 @@ public:
 	static CBattleInterface * battleInt; //NULL if no battle
 	CInGameConsole * cingconsole;
 
-	CCallback * cb; //to communicate with engine
+	shared_ptr<CCallback> cb; //to communicate with engine
 	const BattleAction *curAction; //during the battle - action currently performed by active stack (or NULL)
 
 	std::list<CInfoWindow *> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
@@ -221,7 +221,7 @@ public:
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	void updateInfo(const CGObjectInstance * specific);
-	void init(CCallback * CB);
+	void init(shared_ptr<CCallback> CB);
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 	void showInfoDialog(const std::string &text, CComponent * component);
 	void showInfoDialog(const std::string &text, const std::vector<CComponent*> & components = std::vector<CComponent*>(), int soundID = 0, bool delComps = false);

@@ -135,9 +135,9 @@ CPlayerInterface::~CPlayerInterface()
 
 	LOCPLINT = NULL;
 }
-void CPlayerInterface::init(CCallback * CB)
+void CPlayerInterface::init(shared_ptr<CCallback> CB)
 {
-	cb = dynamic_cast<CCallback*>(CB);
+	cb = CB;
 	if(observerInDuelMode)
 		return;
 

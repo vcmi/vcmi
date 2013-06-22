@@ -5,7 +5,7 @@
 #include "../../CCallback.h"
 #include "../../lib/CCreatureHandler.h"
 
-CPlayerBattleCallback * cbc;
+shared_ptr<CBattleCallback> cbc;
 
 CStupidAI::CStupidAI(void)
 	: side(-1), cb(NULL)
@@ -19,7 +19,7 @@ CStupidAI::~CStupidAI(void)
 	print("destroyed");
 }
 
-void CStupidAI::init( CBattleCallback * CB )
+void CStupidAI::init(shared_ptr<CBattleCallback> CB)
 {
 	print("init called, saving ptr to IBattleCallback");
 	cbc = cb = CB;

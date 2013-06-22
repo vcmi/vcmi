@@ -4384,6 +4384,9 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 	{
 	case Battle::HERO_SPELL:
 		{
+			COMPLAIN_RET_FALSE_IF(ba.side > 1, "Side must be 0 or 1!");
+				
+
 			const CGHeroInstance *h = gs->curB->heroes[ba.side];
 			const CGHeroInstance *secondHero = gs->curB->heroes[!ba.side];
 			if(!h)

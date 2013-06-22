@@ -291,7 +291,7 @@ public:
 	AIStatus status;
 	std::string battlename;
 
-	CCallback *myCb;
+	shared_ptr<CCallback> myCb;
 
 	unique_ptr<boost::thread> makingTurn;
 
@@ -306,7 +306,7 @@ public:
 
 	virtual std::string getBattleAIName() const OVERRIDE;
 
-	virtual void init(CCallback * CB) OVERRIDE;
+	virtual void init(shared_ptr<CCallback> CB) OVERRIDE;
 	virtual void yourTurn() OVERRIDE;
 
 	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) OVERRIDE; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id

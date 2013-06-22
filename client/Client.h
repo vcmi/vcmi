@@ -112,7 +112,6 @@ public:
 class CClient : public IGameCallback
 {
 public:
-	CCallback *cb;
 	std::map<PlayerColor,shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
 	std::map<PlayerColor,shared_ptr<CBattleCallback> > battleCallbacks; //callbacks given to player interfaces
 	std::vector<IGameEventsReceiver*> privilagedGameEventReceivers; //scripting modules, spectator interfaces
@@ -141,6 +140,10 @@ public:
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server
 
 	void loadNeutralBattleAI();
+	void installNewPlayerInterface(CGameInterface *gameInterface, boost::optional<PlayerColor> color);
+	void installNewBattleInterface(CBattleGameInterface* battleInterface, boost::optional<PlayerColor> color, bool needCallback = true);
+	std::string aiNameForPlayer(const PlayerSettings &ps, bool battleAI); //empty means no AI -> human
+
 	void endGame(bool closeConnection = true);
 	void stopConnection();
 	void save(const std::string & fname);

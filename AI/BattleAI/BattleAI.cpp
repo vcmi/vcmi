@@ -8,7 +8,7 @@
 #include "../../lib/VCMI_Lib.h"
 
 using boost::optional;
-CBattleCallback * cbc;
+shared_ptr<CBattleCallback> cbc;
 
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
@@ -85,7 +85,7 @@ CBattleAI::~CBattleAI(void)
 	}
 }
 
-void CBattleAI::init( CBattleCallback * CB )
+void CBattleAI::init(shared_ptr<CBattleCallback> CB)
 {
 	print("init called, saving ptr to IBattleCallback");
 	cbc = cb = CB;

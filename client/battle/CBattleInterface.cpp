@@ -93,8 +93,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	  activeStack(NULL), stackToActivate(NULL), selectedStack(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1),
 	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(NULL), sp(NULL),
 	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0),
-	  givenCommand(NULL), myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
-
+	  givenCommand(NULL), myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL),
+	  autofightingAI(nullptr), background(nullptr)
 {
 	OBJ_CONSTRUCTION;
 
@@ -172,8 +172,16 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	}
 	else
 	{
-		std::vector< std::string > & backref = graphics->battleBacks[ curInt->cb->battleGetBattlefieldType() ];
-		background = BitmapHandler::loadBitmap(backref[ rand() % backref.size()], false );
+		auto bfieldType = (int)curInt->cb->battleGetBattlefieldType();
+		if(graphics->battleBacks.size() <= bfieldType || bfieldType < 0)
+			logGlobal->errorStream() << bfieldType << " is not valid battlefield type index!";
+		else if(graphics->battleBacks[bfieldType].empty())
+			logGlobal->errorStream() << bfieldType << " battlefield type does not have any backgrounds!";
+		else
+		{
+			const std::string bgName = vstd::pickRandomElementOf(graphics->battleBacks[bfieldType], rand);
+			background = BitmapHandler::loadBitmap(bgName, false);
+		}
 	}
 
 	//preparing menu background
@@ -445,6 +453,8 @@ CBattleInterface::~CBattleInterface()
 	delete bigForceField[1];
 
 	delete siegeH;
+
+	delete autofightingAI;
 
 	//TODO: play AI tracks if battle was during AI turn
 	//if (!curInt->makingTurn)
@@ -1254,6 +1264,39 @@ void CBattleInterface::bAutofightf()
 {
 	if(spellDestSelectMode) //we are casting a spell
 		return;
+	
+	static bool isAutoFightOn = false;
+	static unique_ptr<boost::thread> aiThread = nullptr;
+
+	if(isAutoFightOn)
+	{
+		assert(autofightingAI);
+		isAutoFightOn = false;
+		aiThread->join();
+
+		vstd::clear_pointer(autofightingAI);
+		aiThread = nullptr;
+	}
+	else
+	{
+		isAutoFightOn = true;
+		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
+		autofightingAI->init(curInt->cb);
+		autofightingAI->battleStart(army1, army2, int3(0,0,0), attackingHeroInstance, defendingHeroInstance, curInt->cb->battleGetMySide());
+
+		//Deactivate everything
+		deactivate();
+		bAutofight->activate(); //only autofight button is to remain active
+		aiThread = make_unique<boost::thread>([&] 
+		{
+			auto ba = new BattleAction(autofightingAI->activeStack(activeStack));
+
+			if(isAutoFightOn)
+			{
+				givenCommand->setn(ba);
+			}
+		});
+	}
 }
 
 void CBattleInterface::bSpellf()

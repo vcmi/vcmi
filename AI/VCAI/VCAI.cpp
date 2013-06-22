@@ -34,7 +34,7 @@ struct SetGlobalState
 		assert(!cb.get());
 
 		ai.reset(AI);
-		cb.reset(AI->myCb);
+		cb.reset(AI->myCb.get());
 	}
 	~SetGlobalState()
 	{
@@ -823,7 +823,7 @@ void VCAI::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::init(CCallback * CB)
+void VCAI::init(shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);
 	myCb = CB;

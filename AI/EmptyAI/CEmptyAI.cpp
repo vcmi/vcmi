@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CEmptyAI.h"
 
-void CEmptyAI::init(CCallback * CB)
+void CEmptyAI::init(shared_ptr<CCallback> CB)
 {
 	cb = CB;
 	human=false;

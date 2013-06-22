@@ -91,7 +91,6 @@ void CClient::init()
 	IObjectInterface::cb = this;
 	serv = nullptr;
 	gs = nullptr;
-	cb = nullptr;
 	erm = nullptr;
 	terminate = false;
 }
@@ -216,6 +215,7 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 	}
 
 	callbacks.clear();
+	battleCallbacks.clear();
     logNetwork->infoStream() << "Deleted playerInts.";
 
     logNetwork->infoStream() << "Client stopped.";
@@ -372,7 +372,6 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	}
 
 	int humanPlayers = 0;
-	int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : PlayerColor::PLAYER_LIMIT_I;
 	for(auto it = gs->scenarioOps->playerInfos.begin(); 
 		it != gs->scenarioOps->playerInfos.end(); ++it)//initializing interfaces for players
 	{
@@ -384,45 +383,22 @@ void CClient::newGame( CConnection *con, StartInfo *si )
         logNetwork->traceStream() << "Preparing interface for player " << color;
 		if(si->mode != StartInfo::DUEL)
 		{
-			auto cb = make_shared<CCallback>(gs,color,this);
 			if(it->second.playerID == PlayerSettings::PLAYER_AI)
 			{
-				std::string AItoGive = settings["server"]["playerAI"].String();
-				if(!sensibleAILimit)
-					AItoGive = "EmptyAI";
-				else
-					sensibleAILimit--;
-				playerint[color] = static_cast<CGameInterface*>(CDynLibHandler::getNewAI(AItoGive));
-                logNetwork->infoStream() << "Player " << static_cast<int>(color.getNum()) << " will be lead by " << AItoGive;
+				auto AiToGive = aiNameForPlayer(it->second, false);
+				logNetwork->infoStream() << boost::format("Player %s will be lead by %s") % color % AiToGive;
+				installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 			}
 			else 
 			{
-				playerint[color] = new CPlayerInterface(color);
+				installNewPlayerInterface(new CPlayerInterface(color), color);
 				humanPlayers++;
 			}
-			battleints[color] = playerint[color];
-
-            logNetwork->traceStream() << "\tInitializing the interface";
-			playerint[color]->init(cb.get());
-			battleCallbacks[color] = callbacks[color] = cb;
 		}
 		else
 		{
-			auto cbc = make_shared<CBattleCallback>(gs, color, this);
-			battleCallbacks[color] = cbc;
-
-			std::string AItoGive = it->second.name;
-			if(AItoGive.empty())
-			{
-				if(color == PlayerColor(0))
-					battleints[color] = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
-				else
-					battleints[color] = CDynLibHandler::getNewBattleAI("StupidAI");
-			}
-
-
-			battleints[color] = CDynLibHandler::getNewBattleAI(AItoGive);
-			battleints[color]->init(cbc.get());
+			std::string AItoGive = aiNameForPlayer(it->second, true);
+			installNewBattleInterface(CDynLibHandler::getNewBattleAI(AItoGive), color);
 		}
 	}
 
@@ -433,12 +409,8 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 			CPlayerInterface *p = new CPlayerInterface(PlayerColor::NEUTRAL);
 			p->observerInDuelMode = true;
-			battleints[PlayerColor::UNFLAGGABLE] = playerint[PlayerColor::UNFLAGGABLE] = p;
-			privilagedBattleEventReceivers.push_back(p);
+			installNewPlayerInterface(p, boost::none);
 			GH.curInt = p;
-			auto cb = make_shared<CCallback>(gs, boost::optional<PlayerColor>(), this);
-			battleCallbacks[PlayerColor::NEUTRAL] = callbacks[PlayerColor::NEUTRAL] = cb;
-			p->init(cb.get());
 		}
 		battleStarted(gs->curB);
 	}
@@ -502,10 +474,7 @@ void CClient::serialize( Handler &h, const int version )
 			{
 				if(pid == PlayerColor::NEUTRAL)
 				{
-					//CBattleCallback * cbc = new CBattleCallback(gs, pid, this);//FIXME: unused?
-					CBattleGameInterface *cbgi = CDynLibHandler::getNewBattleAI(dllname);
-					battleints[pid] = cbgi;
-					cbgi->init(cb);
+					installNewBattleInterface(CDynLibHandler::getNewBattleAI(dllname), pid);
 					//TODO? consider serialization 
 					continue;
 				}
@@ -525,9 +494,7 @@ void CClient::serialize( Handler &h, const int version )
 			nInt->human = isHuman;
 			nInt->playerID = pid;
 
-			battleCallbacks[pid] = callbacks[pid] = make_shared<CCallback>(gs,pid,this);
-			battleints[pid] = playerint[pid] = nInt;
-			nInt->init(callbacks[pid].get());
+			installNewPlayerInterface(nInt, pid);
 			nInt->loadGame(dynamic_cast<CISer<CLoadFile>&>(h), version); //another evil cast, check above
 		}
 
@@ -658,10 +625,7 @@ void CClient::battleFinished()
 
 void CClient::loadNeutralBattleAI()
 {
-	battleints[PlayerColor::NEUTRAL] = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
-	auto cbc = make_shared<CBattleCallback>(gs, PlayerColor::NEUTRAL, this);
-	battleCallbacks[PlayerColor::NEUTRAL] = cbc;
-	battleints[PlayerColor::NEUTRAL]->init(cbc.get());
+	installNewBattleInterface(CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String()), PlayerColor::NEUTRAL);
 }
 
 void CClient::commitPackage( CPackForClient *pack )
@@ -744,6 +708,65 @@ void CClient::campaignMapFinished( shared_ptr<CCampaignState> camp )
 	{
 		finisher();
 	}
+}
+
+void CClient::installNewPlayerInterface(CGameInterface *gameInterface, boost::optional<PlayerColor> color)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
+
+	if(!color) 
+		privilagedGameEventReceivers.push_back(gameInterface);
+
+	playerint[colorUsed] = gameInterface;
+
+	logGlobal->traceStream() << boost::format("\tInitializing the interface for player %s") % colorUsed;
+	auto cb = make_shared<CCallback>(gs, color, this);
+	callbacks[colorUsed] = cb;
+	battleCallbacks[colorUsed] = cb;
+	gameInterface->init(cb);
+
+	installNewBattleInterface(gameInterface, color, false);
+}
+
+void CClient::installNewBattleInterface(CBattleGameInterface* battleInterface, boost::optional<PlayerColor> color, bool needCallback /*= true*/)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
+
+	if(!color) 
+		privilagedBattleEventReceivers.push_back(battleInterface);
+
+	battleints[colorUsed] = battleInterface;
+
+	if(needCallback)
+	{
+		logGlobal->traceStream() << boost::format("\tInitializing the battle interface for player %s") % *color;
+		auto cbc = make_shared<CBattleCallback>(gs, color, this);
+		battleCallbacks[colorUsed] = cbc;
+		battleInterface->init(cbc);
+	}
+}
+
+std::string CClient::aiNameForPlayer(const PlayerSettings &ps, bool battleAI)
+{
+	if(ps.name.size())
+	{
+		std::string filename = VCMIDirs::get().libraryPath() + "/AI/" + VCMIDirs::get().libraryName(ps.name);
+		if(boost::filesystem::exists(filename))
+			return ps.name;
+	}
+
+	const int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : PlayerColor::PLAYER_LIMIT_I;
+	std::string goodAI = battleAI ? settings["server"]["neutralAI"].String() : settings["server"]["playerAI"].String();
+	std::string badAI = battleAI ? "StupidAI" : "EmptyAI";
+
+
+	//TODO what about human players
+	if(battleints.size() >= sensibleAILimit)
+		return badAI;
+
+	return goodAI;
 }
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );

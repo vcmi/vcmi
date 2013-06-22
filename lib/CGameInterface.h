@@ -61,7 +61,7 @@ public:
 	std::string dllName;
 
 	virtual ~CBattleGameInterface() {};
-	virtual void init(CBattleCallback * CB){};
+	virtual void init(shared_ptr<CBattleCallback> CB){};
 
 	//battle call-ins
 	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
@@ -76,7 +76,7 @@ public:
 class CGameInterface : public CBattleGameInterface, public IGameEventsReceiver
 {
 public:
-	virtual void init(CCallback * CB){};
+	virtual void init(shared_ptr<CCallback> CB){};
 	virtual void yourTurn(){}; //called AFTER playerStartsTurn(player)
 
 	//pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
@@ -115,7 +115,7 @@ public:
 	CAdventureAI() : battleAI(NULL), cbc(NULL) {};
 
 	CBattleGameInterface *battleAI;
-	CBattleCallback *cbc;
+	shared_ptr<CBattleCallback> cbc;
 
 	virtual std::string getBattleAIName() const = 0; //has to return name of the battle AI to be used
 

@@ -48,6 +48,7 @@ class CClickableHex;
 struct BattleHex;
 struct InfoAboutHero;
 struct BattleAction;
+class CBattleGameInterface;
 
 /// Class which manages the locked hex fields that are blocked e.g. by obstacles
 class CBattleObstacle
@@ -154,6 +155,8 @@ private:
 	PossibleActions currentAction; //action that will be performed on l-click
 	PossibleActions selectedAction; //last action chosen (and saved) by player
 	PossibleActions illegalAction; //most likely action that can't be performed here
+
+	CBattleGameInterface *autofightingAI;
 
 	void getPossibleActionsForStack (const CStack * stack); //called when stack gets its turn
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
