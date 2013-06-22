@@ -118,6 +118,10 @@ public:
 	std::vector<IBattleEventsReceiver*> privilagedBattleEventReceivers; //scripting modules, spectator interfaces
 	std::map<PlayerColor,CGameInterface *> playerint;
 	std::map<PlayerColor,CBattleGameInterface *> battleints;
+
+	std::map<PlayerColor,std::vector<CGameInterface *>> additionalPlayerInts;
+	std::map<PlayerColor,std::vector<CBattleGameInterface *>> additionalBattleInts;
+
 	bool hotSeat;
 	CConnection *serv;
 

@@ -919,7 +919,7 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 {
 	if(vm.count("onlyAI"))
 	{
-		auto ais = vm["ai"].as<std::vector<std::string>>();
+		auto ais = vm.count("ai") ? vm["ai"].as<std::vector<std::string>>() : std::vector<std::string>();
 
 		int i = 0;
 
