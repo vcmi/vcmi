@@ -66,6 +66,15 @@
 // They do not own any mutexes intiially.
 #define THREAD_CREATED_BY_CLIENT
 
+#define RETURN_IF_QUICK_COMBAT		\
+	if(isAutoFightOn)				\
+		return;
+
+#define BATTLE_EVENT_POSSIBLE_RETURN\
+	if(LOCPLINT != this)			\
+		return;						\
+	RETURN_IF_QUICK_COMBAT
+
 using namespace boost::assign;
 using namespace CSDL_Ext;
 
@@ -600,12 +609,19 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
+	if(settings["adventure"]["quickCombat"].Bool())
+	{
+		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
+		autofightingAI->init(cb);
+		autofightingAI->battleStart(army1, army2, int3(0,0,0), hero1, hero2, side);
+		isAutoFightOn = true;
+		cb->registerBattleInterface(autofightingAI);
 	}
-
+	
 	waitForAllDialogs();
+
+	BATTLE_EVENT_POSSIBLE_RETURN;
+
 	GH.pushInt(battleInt);
 }
 
@@ -613,10 +629,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	for(int b=0; b<healedStacks.size(); ++b)
 	{
@@ -663,10 +676,7 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 void CPlayerInterface::battleNewStackAppeared(const CStack * stack)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->newStack(stack);
 }
@@ -674,10 +684,7 @@ void CPlayerInterface::battleNewStackAppeared(const CStack * stack)
 void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 // 	for(std::set<si32>::const_iterator it = removedObstacles.begin(); it != removedObstacles.end(); ++it)
 // 	{
@@ -697,10 +704,7 @@ void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObst
 void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->stackIsCatapulting(ca);
 }
@@ -708,10 +712,7 @@ void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
 void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	for(std::set<ui32>::const_iterator it = bsr.stackIDs.begin(); it != bsr.stackIDs.end(); ++it) //for each removed stack
 	{
@@ -723,10 +724,7 @@ void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 void CPlayerInterface::battleNewRound(int round) //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->newRound(round);
 }
@@ -734,10 +732,7 @@ void CPlayerInterface::battleNewRound(int round) //called at the beginning of ea
 void CPlayerInterface::actionStarted(const BattleAction &action)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	curAction = new BattleAction(action);
 	battleInt->startAction(curAction);
@@ -746,10 +741,7 @@ void CPlayerInterface::actionStarted(const BattleAction &action)
 void CPlayerInterface::actionFinished(const BattleAction &action)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->endAction(curAction);
 	delete curAction;
@@ -760,6 +752,23 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 {
 	THREAD_CREATED_BY_CLIENT;
     logGlobal->traceStream() << "Awaiting command for " << stack->nodeName();
+
+	if(autofightingAI)
+	{
+		if(isAutoFightOn)
+		{
+			assert(autofightingAI);
+			auto ret = autofightingAI->activeStack(stack);
+			if(isAutoFightOn)
+			{
+				return ret;
+			}
+		}
+
+		cb->unregisterBattleInterface(autofightingAI);
+		autofightingAI = nullptr;
+	}
+
 	CBattleInterface *b = battleInt;
 
 	assert(!b->givenCommand->get()); //command buffer must be clean (we don't want to use old command)
@@ -790,10 +799,19 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 void CPlayerInterface::battleEnd(const BattleResult *br)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
+	if(isAutoFightOn)
+	{
+		isAutoFightOn = false;
+		cb->unregisterBattleInterface(autofightingAI);
+		autofightingAI = nullptr;
+
+		SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
+		auto resWindow = new CBattleResultWindow(*br, temp_rect, *this);
+		GH.pushInt(resWindow);
 		return;
 	}
+
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->battleFinished(*br);
 }
@@ -801,45 +819,36 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->stackMoved(stack, dest, distance);
 }
 void CPlayerInterface::battleSpellCast( const BattleSpellCast *sc )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->spellCast(sc);
 }
 void CPlayerInterface::battleStacksEffectsSet( const SetStackEffect & sse )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->battleStacksEffectsSet(sse);
 }
 void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	//TODO why is this different (no return on LOPLINT != this) ?
+
+	RETURN_IF_QUICK_COMBAT;
 	battleInt->battleTriggerEffect(bte);
 }
 void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 	
 	std::vector<StackAttackedInfo> arg;
 	for(std::vector<BattleStackAttacked>::const_iterator i = bsa.begin(); i != bsa.end(); i++)
@@ -866,10 +875,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 void CPlayerInterface::battleAttack(const BattleAttack *ba)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	assert(curAction);
 	if(ba->lucky()) //lucky hit
@@ -938,10 +944,7 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 void CPlayerInterface::battleObstaclePlaced(const CObstacleInstance &obstacle)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->obstaclePlaced(obstacle);
 }
@@ -2236,10 +2239,7 @@ void CPlayerInterface::updateInfo(const CGObjectInstance * specific)
 void CPlayerInterface::battleNewRoundFirst( int round )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-	{ //another local interface should do this
-		return;
-	}
+	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->newRoundFirst(round);
 }

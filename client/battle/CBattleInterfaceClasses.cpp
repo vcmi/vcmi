@@ -304,13 +304,13 @@ void CBattleOptionsWindow::bExitf()
 	GH.popIntTotally(this);
 }
 
-CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect & pos, CBattleInterface * _owner)
+CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect & pos, CPlayerInterface &_owner)
 : owner(_owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	this->pos = pos;
 	CPicture * bg = new CPicture("CPRESULT");
-	bg->colorize(owner->curInt->playerID);
+	bg->colorize(owner.playerID);
 
 	exit = new CAdventureMapButton ("", "", boost::bind(&CBattleResultWindow::bExitf,this), 384, 505, "iok6432.def", SDLK_RETURN);
 	exit->borderColor = Colors::METALLIC_GOLD;
@@ -331,59 +331,40 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	new CLabel(232, 332, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[408]);
 	new CLabel(232, 428, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[409]);
 
-	std::string attackerName, defenderName;
+	std::string sideNames[2] = {"N/A", "N/A"};
 
-	if(owner->attackingHeroInstance) //a hero attacked
+	for(int i = 0; i < 2; i++)
 	{
-		new CAnimImage("PortraitsLarge", owner->attackingHeroInstance->portrait, 0, 21, 38);
-		//setting attackerName
-		attackerName = owner->attackingHeroInstance->name;
-	}
-	else //a monster attacked
-	{
-		int bestMonsterID = -1;
-		ui32 bestPower = 0;
-		for(TSlots::const_iterator it = owner->army1->Slots().begin(); it!=owner->army1->Slots().end(); ++it)
+		auto heroInfo = owner.cb->battleGetHeroInfo(i);
+		const int xs[] = {21, 392};
+
+		if(heroInfo.portrait >= 0) //attacking hero 
 		{
-			if(it->second->type->AIValue > bestPower)
+			new CAnimImage("PortraitsLarge", heroInfo.portrait, 0, xs[i], 38);
+			sideNames[i] = heroInfo.name;
+		}
+		else
+		{
+			int bestMonsterID = -1;
+			ui32 bestPower = 0;
+			auto stacks = owner.cb->battleGetAllStacks();
+			vstd::erase_if(stacks, [i](const CStack *stack) //erase stack of other side and not coming from garrison
+				{ return stack->attackerOwned == i  ||  !stack->base; });
+
+			auto best = vstd::maxElementByFun(stacks, [](const CStack *stack){ return stack->type->AIValue; });
+			if(best != stacks.end()) //should be always but to be safe...
 			{
-				bestPower = it->second->type->AIValue;
-				bestMonsterID = it->second->type->idNumber;
+				new CAnimImage("TWCRPORT", (*best)->type->idNumber+2, 0, xs[i], 38);
+				sideNames[i] = CGI->creh->creatures[(*best)->type->idNumber]->namePl;
 			}
 		}
-		new CAnimImage("TWCRPORT", bestMonsterID+2, 0, 21, 38);
-		//setting attackerName
-		attackerName =  CGI->creh->creatures[bestMonsterID]->namePl;
-	}
-	if(owner->defendingHeroInstance) //a hero defended
-	{
-		new CAnimImage("PortraitsLarge", owner->defendingHeroInstance->portrait, 0, 392, 38);
-		//setting defenderName
-		defenderName = owner->defendingHeroInstance->name;
-	}
-	else //a monster defended
-	{
-		int bestMonsterID = -1;
-		ui32 bestPower = 0;
-		for(TSlots::const_iterator it = owner->army2->Slots().begin(); it!=owner->army2->Slots().end(); ++it)
-		{
-			if( it->second->type->AIValue > bestPower)
-			{
-				bestPower = it->second->type->AIValue;
-				bestMonsterID = it->second->type->idNumber;
-			}
-		}
-		new CAnimImage("TWCRPORT", CGI->creh->creatures[bestMonsterID]->iconIndex, 0, 392, 38);
-		//setting defenderName
-		defenderName =  CGI->creh->creatures[bestMonsterID]->namePl;
 	}
 
 	//printing attacker and defender's names
-	new CLabel( 89, 37, FONT_SMALL, TOPLEFT, Colors::WHITE, attackerName);
+	new CLabel( 89, 37, FONT_SMALL, TOPLEFT, Colors::WHITE, sideNames[0]);
+	new CLabel( 381, 53, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, sideNames[1]);
 
-	new CLabel( 381, 53, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, defenderName);
-
-	//printing casualities
+	//printing casualties
 	for(int step = 0; step < 2; ++step)
 	{
 		if(br.casualties[step].size()==0)
@@ -405,7 +386,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		}
 	}
 	//printing result description
-	bool weAreAttacker = (owner->curInt->playerID == owner->attackingHeroInstance->tempOwner);
+	bool weAreAttacker = !(owner.cb->battleGetMySide());
 	if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 	{
 		int text=-1;
@@ -420,7 +401,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		CCS->videoh->open("WIN3.BIK");
 		std::string str = CGI->generaltexth->allTexts[text];
 
-		const CGHeroInstance * ourHero = weAreAttacker? owner->attackingHeroInstance : owner->defendingHeroInstance;
+		const CGHeroInstance * ourHero = owner.cb->battleGetMyHero();
 		if (ourHero)
 		{
 			str += CGI->generaltexth->allTexts[305];
@@ -465,7 +446,7 @@ CBattleResultWindow::~CBattleResultWindow()
 
 void CBattleResultWindow::activate()
 {
-	owner->curInt->showingDialog->set(true);
+	owner.showingDialog->set(true);
 	CIntObject::activate();
 }
 
@@ -483,9 +464,14 @@ void CBattleResultWindow::bExitf()
 		return;
 	}
 
-	auto intTmp = owner->curInt;
-	GH.popInts(2); //first - we; second - battle interface
-	intTmp->showingDialog->setn(false);
+	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
+	GH.popIntTotally(this);
+	if(dynamic_cast<CBattleInterface*>(GH.topInt()))
+		GH.popInts(1); //pop battle interface if present
+
+	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle, 
+	//so we can be sure that there is no dialogs left on GUI stack.
+	intTmp.showingDialog->setn(false);
 	CCS->videoh->close();
 }
 

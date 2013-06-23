@@ -14,6 +14,7 @@ class CLabel;
 struct BattleResult;
 class CStack;
 class CAnimImage;
+class CPlayerInterface;
 
 /*
  * CBattleInterfaceClasses.h, part of VCMI engine
@@ -87,9 +88,9 @@ class CBattleResultWindow : public CIntObject
 {
 private:
 	CAdventureMapButton *exit;
-	CBattleInterface *owner;
+	CPlayerInterface &owner;
 public:
-	CBattleResultWindow(const BattleResult & br, const SDL_Rect & pos, CBattleInterface * _owner); //c-tor
+	CBattleResultWindow(const BattleResult & br, const SDL_Rect & pos, CPlayerInterface &_owner); //c-tor
 	~CBattleResultWindow(); //d-tor
 
 	void bExitf(); //exit button callback

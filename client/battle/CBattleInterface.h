@@ -156,10 +156,6 @@ private:
 	PossibleActions selectedAction; //last action chosen (and saved) by player
 	PossibleActions illegalAction; //most likely action that can't be performed here
 
-	shared_ptr<CBattleGameInterface> autofightingAI;
-	bool isAutoFightOn;
-	unique_ptr<boost::thread> aiThread;
-
 	void requestAutofightingAIToTakeAction();
 
 	void getPossibleActionsForStack (const CStack * stack); //called when stack gets its turn

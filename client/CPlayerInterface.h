@@ -111,6 +111,11 @@ public:
 	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
 	std::vector<const CGHeroInstance *> sleepingHeroes; //if hero is in here, he's sleeping
 
+	//During battle is quick combat mode is used
+	shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
+	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
+
+
 	struct SpellbookLastSetting
 	{
 		int spellbookLastPageBattle, spellbokLastPageAdvmap; //on which page we left spellbook

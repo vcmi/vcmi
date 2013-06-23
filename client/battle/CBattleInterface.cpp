@@ -97,7 +97,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(NULL), sp(NULL),
 	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0),
 	  givenCommand(NULL), myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL),
-	  autofightingAI(nullptr), isAutoFightOn(false), aiThread(nullptr), background(nullptr)
+	  background(nullptr)
 {
 	OBJ_CONSTRUCTION;
 
@@ -498,7 +498,7 @@ void CBattleInterface::setPrintMouseShadow(bool set)
 
 void CBattleInterface::activate()
 {
-	if(isAutoFightOn)
+	if(curInt->isAutoFightOn)
 	{
 		bAutofight->activate();
 		return;
@@ -1277,23 +1277,23 @@ void CBattleInterface::bAutofightf()
 		return;
 	
 	//Stop auto-fight mode
-	if(isAutoFightOn)
+	if(curInt->isAutoFightOn)
 	{
-		assert(autofightingAI);
-		isAutoFightOn = false;
+		assert(curInt->autofightingAI);
+		curInt->isAutoFightOn = false;
 		logGlobal->traceStream() << "Stopping the autofight...";
-		aiThread->interrupt();
-		aiThread->join();
-
-		autofightingAI = nullptr;
-		aiThread = nullptr;
 	}
 	else
 	{
-		isAutoFightOn = true;
-		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
-		autofightingAI->init(curInt->cb);
-		autofightingAI->battleStart(army1, army2, int3(0,0,0), attackingHeroInstance, defendingHeroInstance, curInt->cb->battleGetMySide());
+		curInt->isAutoFightOn = true;	
+		deactivate();
+		bAutofight->activate();
+
+		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
+		ai->init(curInt->cb);
+		ai->battleStart(army1, army2, int3(0,0,0), attackingHeroInstance, defendingHeroInstance, curInt->cb->battleGetMySide());
+		curInt->autofightingAI = ai;
+		curInt->cb->registerBattleInterface(ai);
 
 		requestAutofightingAIToTakeAction();
 	}
@@ -1627,7 +1627,7 @@ void CBattleInterface::displayBattleFinished()
 	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
 
 	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
-	resWindow = new CBattleResultWindow(*bresult, temp_rect, this);
+	resWindow = new CBattleResultWindow(*bresult, temp_rect, *this->curInt);
 	GH.pushInt(resWindow);
 }
 
@@ -2095,9 +2095,6 @@ void CBattleInterface::activateStack()
 
 	if(!pendingAnims.size() && !active)
 		activate();
-
-	if(isAutoFightOn)
-		requestAutofightingAIToTakeAction();
 
 	GH.fakeMouseMove();
 }
@@ -3590,20 +3587,23 @@ InfoAboutHero CBattleInterface::enemyHero() const
 
 void CBattleInterface::requestAutofightingAIToTakeAction()
 {
-	assert(isAutoFightOn);
+	assert(curInt->isAutoFightOn);
 
-	deactivate();
-	bAutofight->activate();
-
-	aiThread = make_unique<boost::thread>([&] 
+	auto tmp = make_unique<boost::thread>([&] 
 	{
-		auto ba = new BattleAction(autofightingAI->activeStack(activeStack));
+		auto ba = new BattleAction(curInt->autofightingAI->activeStack(activeStack));
 
-		if(isAutoFightOn)
+		if(curInt->isAutoFightOn)
 		{
 			givenCommand->setn(ba);
 		}
+		else
+		{
+			boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+			activateStack();
+		}
 	});
+	tmp->detach();
 }
 
 CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface * _owner)

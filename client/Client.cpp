@@ -579,16 +579,17 @@ void CClient::battleStarted(const BattleInfo * info)
 // 		if(battleCallbacks.count(side))
 // 			battleCallbacks[side]->setBattle(info);
 
-	shared_ptr<CPlayerInterface> att, def;
-	if(vstd::contains(playerint, info->sides[0]) && playerint[info->sides[0]]->human)
-		att = std::dynamic_pointer_cast<CPlayerInterface>( playerint[info->sides[0]] );
-	else
-		att = NULL;
+	shared_ptr<CPlayerInterface> att = nullptr, def = nullptr;
 
-	if(vstd::contains(playerint, info->sides[1]) && playerint[info->sides[1]]->human)
-		def = std::dynamic_pointer_cast<CPlayerInterface>( playerint[info->sides[1]] );
-	else
-		def = NULL;
+	//If quick combat is not, do not prepare interfaces for battleint
+	if(!settings["adventure"]["quickCombat"].Bool())
+	{
+		if(vstd::contains(playerint, info->sides[0]) && playerint[info->sides[0]]->human)
+			att = std::dynamic_pointer_cast<CPlayerInterface>( playerint[info->sides[0]] );
+
+		if(vstd::contains(playerint, info->sides[1]) && playerint[info->sides[1]]->human)
+			def = std::dynamic_pointer_cast<CPlayerInterface>( playerint[info->sides[1]] );
+	}
 
 	if(!gNoGUI && (!!att || !!def || gs->scenarioOps->mode == StartInfo::DUEL))
 	{

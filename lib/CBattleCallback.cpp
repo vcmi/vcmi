@@ -288,7 +288,10 @@ InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo( ui8 side ) const
 {
 	auto hero = getBattle()->heroes[side];
 	if(!hero)
+	{
         logGlobal->warnStream() << __FUNCTION__ << ": side " << (int)side << " does not have hero!";
+		return InfoAboutHero();
+	}
 
 	return InfoAboutHero(hero, battleDoWeKnowAbout(side));
 }
