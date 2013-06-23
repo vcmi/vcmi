@@ -46,7 +46,7 @@ public:
 	}
 
 	/// returns true if next entry is empty
-	bool isNextEntryEmpty();
+	bool isNextEntryEmpty() const;
 
 	/// end current line
 	bool endLine();

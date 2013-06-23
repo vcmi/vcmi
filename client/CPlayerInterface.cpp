@@ -767,7 +767,7 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 		}
 
 		cb->unregisterBattleInterface(autofightingAI);
-		autofightingAI = nullptr;
+		autofightingAI.reset();
 	}
 
 	CBattleInterface *b = battleInt;
@@ -804,7 +804,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 	{
 		isAutoFightOn = false;
 		cb->unregisterBattleInterface(autofightingAI);
-		autofightingAI = nullptr;
+		autofightingAI.reset();
 
 		if(!battleInt)
 		{

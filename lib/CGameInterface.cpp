@@ -195,7 +195,7 @@ void CAdventureAI::battleSpellCast(const BattleSpellCast *sc)
 void CAdventureAI::battleEnd(const BattleResult *br)
 {
 	battleAI->battleEnd(br);
-	battleAI = nullptr;
+	battleAI.reset();
 }
 
 void CAdventureAI::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom)

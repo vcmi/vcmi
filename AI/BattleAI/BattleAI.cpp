@@ -67,7 +67,7 @@ auto sum(const Container & c, Pred p) -> decltype(p(*boost::begin(c)))
 
 
 CBattleAI::CBattleAI(void)
-	: side(-1), cb(NULL)
+	: side(-1)
 {
 	print("created");
 }

@@ -920,7 +920,7 @@ void CSelectionScreen::startScenario()
 		saveGameName = "Saves/" + sel->txt->text;
 
 		CFunctionList<void()> overWrite;
-		overWrite += boost::bind(&CCallback::save, LOCPLINT->cb, saveGameName);
+		overWrite += boost::bind(&CCallback::save, LOCPLINT->cb.get(), saveGameName);
 		overWrite += bind(&CGuiHandler::popIntTotally, &GH, this);
 
 		if(CResourceHandler::get()->existsResource(ResourceID(saveGameName, EResType::CLIENT_SAVEGAME)))

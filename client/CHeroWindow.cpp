@@ -166,6 +166,16 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 	new CAnimImage("PSKIL42", 4, 0, 20, 230, false);
 	new CAnimImage("PSKIL42", 5, 0, 242, 111, false);
 
+	// various texts
+	new CLabel( 52, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[1]);
+	new CLabel(123, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[2]);
+	new CLabel(193, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[3]);
+	new CLabel(262, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[4]);
+
+	new CLabel( 69, 183, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[5]);
+	new CLabel( 69, 232, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[6]);
+	new CLabel(213, 232, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->jktexts[7]);
+
 	update(hero);
 }
 
@@ -272,7 +282,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	//setting formations
 	formations->onChange = 0;
 	formations->select(curHero->formation,true);
-	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, curHero, _1);
+	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb.get(), curHero, _1);
 
 	morale->set(&heroWArt);
 	luck->set(&heroWArt);
@@ -284,7 +294,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 void CHeroWindow::dismissCurrent()
 {
 	CFunctionList<void()> ony = boost::bind(&CHeroWindow::close,this);
-	ony += boost::bind(&CCallback::dismissHero,LOCPLINT->cb,curHero);
+	ony += boost::bind(&CCallback::dismissHero, LOCPLINT->cb.get(), curHero);
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, 0, false);
 }
 
@@ -335,12 +345,6 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	boost::algorithm::replace_first(secondLine,"%d",boost::lexical_cast<std::string>(curHero->level));
 	boost::algorithm::replace_first(secondLine,"%s",curHero->type->heroClass->name);
 	printAtMiddleLoc(secondLine, 190, 65, FONT_MEDIUM, Colors::WHITE, to);
-	 	
-	//primary skills names
-	printAtMiddleLoc(CGI->generaltexth->jktexts[1], 52, 99, FONT_SMALL, Colors::YELLOW, to);
-	printAtMiddleLoc(CGI->generaltexth->jktexts[2], 123, 99, FONT_SMALL, Colors::YELLOW, to);
-	printAtMiddleLoc(CGI->generaltexth->jktexts[3], 193, 99, FONT_SMALL, Colors::YELLOW, to);
-	printAtMiddleLoc(CGI->generaltexth->jktexts[4], 262, 99, FONT_SMALL, Colors::YELLOW, to);
 
 	//printing primary skills' amounts
 	for(int m=0; m<4; ++m)
@@ -358,15 +362,11 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	}
 	 
 	//printing special ability
-	printAtLoc(CGI->generaltexth->jktexts[5].substr(1, CGI->generaltexth->jktexts[5].size()-2), 69, 183, FONT_SMALL, Colors::YELLOW, to);
 	printAtLoc(curHero->type->specName, 69, 205, FONT_SMALL, Colors::WHITE, to);
-	 
-	//printing necessery texts
-	printAtLoc(CGI->generaltexth->jktexts[6].substr(1, CGI->generaltexth->jktexts[6].size()-2), 69, 232, FONT_SMALL, Colors::YELLOW, to);
 	std::ostringstream expstr;
 	expstr << curHero->exp;
 	printAtLoc(expstr.str(), 68, 252, FONT_SMALL, Colors::WHITE, to);
-	printAtLoc(CGI->generaltexth->jktexts[7].substr(1, CGI->generaltexth->jktexts[7].size()-2), 213, 232, FONT_SMALL, Colors::YELLOW, to);
+
 	std::ostringstream manastr;
 	manastr << curHero->mana << '/' << heroWArt.manaLimit();
 	printAtLoc(manastr.str(), 211, 252, FONT_SMALL, Colors::WHITE, to);

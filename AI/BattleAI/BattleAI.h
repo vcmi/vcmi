@@ -83,8 +83,9 @@ struct AttackPossibility
 };
 
 template<typename Key, typename Val, typename Val2>
-const Val &getValOr(const std::map<Key, Val> &Map, const Key &key, const Val2 &defaultValue)
+const Val getValOr(const std::map<Key, Val> &Map, const Key &key, const Val2 defaultValue)
 {
+	//returning references here won't work: defaultValue must be converted into Val, creating temporary
 	auto i = Map.find(key);
 	if(i != Map.end())
 		return i->second;

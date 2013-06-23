@@ -165,8 +165,7 @@ void CTownTooltip::init(const InfoAboutTown &town)
 
 	if(town.details)
 	{
-		if (town.details->hallLevel)
-			new CAnimImage("ITMTLS", town.details->hallLevel, 0, 67, 31);
+		new CAnimImage("ITMTLS", town.details->hallLevel, 0, 67, 31);
 
 		if (town.details->goldIncome)
 			new CLabel(157, 58, FONT_TINY, CENTER, Colors::WHITE,
@@ -322,8 +321,8 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				bool canDismiss = getObj()->tempOwner == LOCPLINT->playerID && (getObj()->stacksCount()>1  || !getObj()->needsLastStack());
 				boost::function<void()> upgr = NULL;
 				boost::function<void()> dism = NULL;
-				if (canUpgrade) upgr = boost::bind(&CCallback::upgradeCreature, LOCPLINT->cb, getObj(), ID, pom.newID[0]);
-				if (canDismiss) dism = boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID);
+				if (canUpgrade) upgr = boost::bind(&CCallback::upgradeCreature, LOCPLINT->cb.get(), getObj(), ID, pom.newID[0]);
+				if (canDismiss) dism = boost::bind(&CCallback::dismissCreature, LOCPLINT->cb.get(), getObj(), ID);
 
 				owner->selectSlot(nullptr);
 				owner->setSplittingMode(false);
@@ -1280,7 +1279,7 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
 
 	if(buttons.size() > 1  &&  askID.getNum() >= 0) //cancel button functionality
-		buttons.back()->callback += boost::bind(&CCallback::selectionMade,LOCPLINT->cb,0,askID);
+		buttons.back()->callback += boost::bind(&CCallback::selectionMade,LOCPLINT->cb.get(),0,askID);
 
 	for(int i=0;i<comps.size();i++)
 	{
@@ -4260,7 +4259,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 						ourArt->artType->id,
 						combination->id,
 						true,
-						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, true, combination->id),
+						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, true, combination->id),
 						0);
 
 					if(assemblyPossibilities.size() > 2)
@@ -4278,7 +4277,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 						ourArt->artType->id,
 						0,
 						false,
-						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, false, ArtifactID()),
+						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, false, ArtifactID()),
 						0);
 					return;
 				}

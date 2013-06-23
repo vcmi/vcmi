@@ -8,7 +8,7 @@
 shared_ptr<CBattleCallback> cbc;
 
 CStupidAI::CStupidAI(void)
-	: side(-1), cb(NULL)
+	: side(-1)
 {
 	print("created");
 }

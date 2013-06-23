@@ -227,6 +227,8 @@ public:
 	bool moveStarted; //if true, the creature that is already moving is going to make its first step
 	int moveSh;		  // sound handler used when moving a unit
 
+	const BattleResult * bresult; //result of a battle; if non-zero then display when all animations end
+
 	//button handle funcs:
 	void bOptionsf();
 	void bSurrenderf();
@@ -265,7 +267,6 @@ public:
 	void hexLclicked(int whichOne); //hex only call-in
 	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
 	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
-	const BattleResult * bresult; //result of a battle; if non-zero then display when all animations end
 	void displayBattleFinished(); //displays battle result
 	void spellCast(const BattleSpellCast * sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks

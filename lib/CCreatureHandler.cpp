@@ -285,7 +285,24 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 	CLegacyConfigParser parser("DATA/CRTRAITS.TXT");
 
 	parser.endLine(); // header
-	parser.endLine();
+
+	// this file is a bit different in some of Russian localisations:
+	//ENG: Singular	Plural Wood ...
+	//RUS: Singular	Plural	Plural2 Wood ...
+	// Try to detect which version this is by header
+	// TODO: use 3rd name? Stand for "whose", e.g. pikemans'
+	size_t namesCount;
+	{
+		if ( parser.readString() != "Singular" || parser.readString() != "Plural" )
+			throw std::runtime_error("Incorrect format of CrTraits.txt");
+
+		if (parser.readString() == "Plural2")
+			namesCount = 3;
+		else
+			namesCount = 2;
+
+		parser.endLine();
+	}
 
 	for (size_t i=0; i<dataSize; i++)
 	{
@@ -296,6 +313,10 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 		JsonNode data;
 
 		data["name"]["singular"].String() =  parser.readString();
+
+		if (namesCount == 3)
+			parser.readString();
+
 		data["name"]["plural"].String() =  parser.readString();
 
 		for(int v=0; v<7; ++v)

@@ -345,8 +345,6 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		}
 		else
 		{
-			int bestMonsterID = -1;
-			ui32 bestPower = 0;
 			auto stacks = owner.cb->battleGetAllStacks();
 			vstd::erase_if(stacks, [i](const CStack *stack) //erase stack of other side and not coming from garrison
 				{ return stack->attackerOwned == i  ||  !stack->base; });

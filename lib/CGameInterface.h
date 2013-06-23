@@ -112,7 +112,7 @@ public:
 class DLL_LINKAGE CAdventureAI : public CGlobalAI
 {
 public:
-	CAdventureAI() : battleAI(NULL), cbc(NULL) {};
+	CAdventureAI() {};
 
 	shared_ptr<CBattleGameInterface> battleAI;
 	shared_ptr<CBattleCallback> cbc;

@@ -464,7 +464,7 @@ void CClient::serialize( Handler &h, const int version )
 			h & pid & dllname & isHuman;
 			LOG_TRACE_PARAMS(logGlobal, "Loading player %s interface", pid);
 
-			shared_ptr<CGameInterface> nInt = nullptr;
+			shared_ptr<CGameInterface> nInt;
 			if(dllname.length())
 			{
 				if(pid == PlayerColor::NEUTRAL)
@@ -579,7 +579,7 @@ void CClient::battleStarted(const BattleInfo * info)
 // 		if(battleCallbacks.count(side))
 // 			battleCallbacks[side]->setBattle(info);
 
-	shared_ptr<CPlayerInterface> att = nullptr, def = nullptr;
+	shared_ptr<CPlayerInterface> att, def;
 
 	//If quick combat is not, do not prepare interfaces for battleint
 	if(!settings["adventure"]["quickCombat"].Bool())

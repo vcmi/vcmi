@@ -59,8 +59,10 @@
 			cl->battleints[player]->function(__VA_ARGS__);		\
 																\
 		if(cl->additionalBattleInts.count(player))				\
+		{														\
 			BOOST_FOREACH(auto bInt, cl->additionalBattleInts[player])\
 				bInt->function(__VA_ARGS__);					\
+		}														\
 	} while (0);
 
 #define BATTLE_INTERFACE_CALL_RECEIVERS(function,...) 	\

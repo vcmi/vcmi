@@ -103,7 +103,7 @@ std::string CLegacyConfigParser::readString()
 	else
 		ret = extractNormalString();//string without quotes - copy till \t or \r
 
-	curr++;
+		curr++;
 	return ret;
 }
 
@@ -122,7 +122,7 @@ float CLegacyConfigParser::readNumber()
 	return result;
 }
 
-bool CLegacyConfigParser::isNextEntryEmpty()
+bool CLegacyConfigParser::isNextEntryEmpty() const
 {
 	char * nextSymbol = curr;
 	while (nextSymbol < end && *nextSymbol == ' ')
@@ -136,7 +136,7 @@ bool CLegacyConfigParser::endLine()
 	while (curr < end && *curr !=  '\n')
 		readString();
 
-	curr++;
+		curr++;
 
 	return curr < end;
 }

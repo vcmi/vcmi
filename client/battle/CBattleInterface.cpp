@@ -92,12 +92,11 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 								   CGHeroInstance *hero1, CGHeroInstance *hero2, 
 								   const SDL_Rect & myRect, 
 								   shared_ptr<CPlayerInterface> att, shared_ptr<CPlayerInterface> defen)
-	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
+	: background(nullptr), queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
 	  activeStack(NULL), stackToActivate(NULL), selectedStack(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1),
-	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(NULL), sp(NULL),
+	  currentlyHoveredHex(-1), attackingHex(-1), stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(NULL), sp(NULL),
 	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0),
-	  givenCommand(NULL), myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL),
-	  background(nullptr)
+	  givenCommand(NULL), myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
 {
 	OBJ_CONSTRUCTION;
 

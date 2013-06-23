@@ -470,7 +470,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 {
 	auto object = loadFromJson(data);
 	object->ID = HeroTypeID(heroes.size());
-	object->imageIndex = heroes.size() + 8; // 2 special frames + some extra portraits
+	object->imageIndex = heroes.size() + 10; // 2 special frames + some extra portraits
 
 	heroes.push_back(object);
 
