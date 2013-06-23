@@ -217,7 +217,7 @@ void CAdventureAI::saveGame(COSer<CSaveFile> &h, const int version) /*saving */
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	CGlobalAI::saveGame(h, version);
-	bool hasBattleAI = battleAI;
+	bool hasBattleAI = static_cast<bool>(battleAI);
 	h << hasBattleAI;
 	if(hasBattleAI)
 	{

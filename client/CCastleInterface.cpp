@@ -825,8 +825,9 @@ void CCastleBuildings::enterTownHall()
 		if(!vstd::contains(town->forbiddenBuildings, BuildingID::GRAIL))
 		{
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
-			                            boost::bind(&CCallback::buildBuilding, LOCPLINT->cb, town, BuildingID::GRAIL),
-			                            boost::bind(&CCastleBuildings::openTownHall, this), true);
+										[&]{ LOCPLINT->cb->buildBuilding(town, BuildingID::GRAIL); },
+										[&]{ openTownHall(); },
+										true);
 		}
 		else
 		{

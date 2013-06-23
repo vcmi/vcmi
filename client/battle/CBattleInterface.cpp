@@ -117,7 +117,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	else if(defenderInt && defenderInt->cb->battleGetTacticDist())
 		tacticianInterface = defenderInt;
 
-	tacticsMode = tacticianInterface;  //if we found interface of player with tactics, then enter tactics mode
+	tacticsMode = static_cast<bool>(tacticianInterface);  //if we found interface of player with tactics, then enter tactics mode
 
 	//create stack queue
 	bool embedQueue = screen->h < 700;
