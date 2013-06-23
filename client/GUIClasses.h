@@ -742,7 +742,7 @@ private:
 
 	//CHighlightableButton * showPath;
 	CHighlightableButton * showReminder;
-	//CHighlightableButton * quickCombat;
+	CHighlightableButton * quickCombat;
 	//CHighlightableButton * videoSubs;
 	CHighlightableButton * newCreatureWin;
 	CHighlightableButton * fullscreen;
@@ -767,6 +767,7 @@ private:
 
 	//functions for checkboxes
 	void toggleReminder(bool on);
+	void toggleQuickCombat(bool on);
 	void toggleCreatureWin(bool on);
 	void toggleFullscreen(bool on);
 

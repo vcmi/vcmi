@@ -34,7 +34,7 @@
 #define CALL_IN_PRIVILAGED_INTS(function, ...)										\
 	do																				\
 	{																				\
-		BOOST_FOREACH(IGameEventsReceiver *ger, cl->privilagedGameEventReceivers)	\
+		BOOST_FOREACH(auto &ger, cl->privilagedGameEventReceivers)	\
 			ger->function(__VA_ARGS__);												\
 	} while(0)
 
@@ -66,7 +66,7 @@
 #define BATTLE_INTERFACE_CALL_RECEIVERS(function,...) 	\
 	do															\
 	{															\
-		BOOST_FOREACH(IBattleEventsReceiver *ber, cl->privilagedBattleEventReceivers)\
+		BOOST_FOREACH(auto & ber, cl->privilagedBattleEventReceivers)\
 			ber->function(__VA_ARGS__);							\
 	} while(0)
 
@@ -81,7 +81,7 @@
 #define CALL_IN_ALL_INTERFACES(function, ...)							\
 	do																	\
 	{																	\
-		std::map<PlayerColor, CGameInterface*> ints = cl->playerint;			\
+		auto ints = cl->playerint;			\
 		for(auto i = ints.begin(); i != ints.end(); i++)\
 			CALL_ONLY_THAT_INTERFACE(i->first, function, __VA_ARGS__);	\
 	} while(0)

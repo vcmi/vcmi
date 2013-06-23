@@ -71,7 +71,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "heroSpeed", "enemySpeed", "scrollSpeed", "heroReminder" ],
+			"required" : [ "heroSpeed", "enemySpeed", "scrollSpeed", "heroReminder", "quickCombat" ],
 			"properties" : {
 				"heroSpeed" : {
 					"type" : "number",
@@ -88,6 +88,10 @@
 				"heroReminder" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"quickCombat" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},

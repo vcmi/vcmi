@@ -3529,6 +3529,10 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 		boost::bind(&CSystemOptionsWindow::toggleReminder, this, true), boost::bind(&CSystemOptionsWindow::toggleReminder, this, false),
 		std::map<int,std::string>(), CGI->generaltexth->zelp[361].second, false, "sysopchk.def", NULL, 246, 87, false);
 
+	quickCombat = new CHighlightableButton(
+		boost::bind(&CSystemOptionsWindow::toggleQuickCombat, this, true), boost::bind(&CSystemOptionsWindow::toggleQuickCombat, this, false),
+		std::map<int,std::string>(), CGI->generaltexth->zelp[362].second, false, "sysopchk.def", NULL, 246, 87+32, false);
+
 	newCreatureWin = new CHighlightableButton(
 		boost::bind(&CSystemOptionsWindow::toggleCreatureWin, this, true), boost::bind(&CSystemOptionsWindow::toggleCreatureWin, this, false),
 		std::map<int,std::string>(), cwHelp, false, "sysopchk.def", NULL, 246, 183, false);
@@ -3538,6 +3542,7 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 		std::map<int,std::string>(), fsHelp, false, "sysopchk.def", NULL, 246, 215, false);
 
 	showReminder->select(settings["adventure"]["heroReminder"].Bool());
+	quickCombat->select(settings["adventure"]["quickCombat"].Bool());
 	newCreatureWin->select(settings["general"]["classicCreatureWindow"].Bool());
 	fullscreen->select(settings["video"]["fullscreen"].Bool());
 
@@ -3595,6 +3600,12 @@ void CSystemOptionsWindow::toggleReminder(bool on)
 {
 	Settings heroReminder = settings.write["adventure"]["heroReminder"];
 	heroReminder->Bool() = on;
+}
+
+void CSystemOptionsWindow::toggleQuickCombat(bool on)
+{
+	Settings quickCombat = settings.write["adventure"]["quickCombat"];
+	quickCombat->Bool() = on;
 }
 
 void CSystemOptionsWindow::toggleCreatureWin(bool on)
