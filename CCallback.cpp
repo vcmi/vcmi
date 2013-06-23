@@ -376,27 +376,24 @@ int CCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance 
 		return swapCreatures(s1, s2, p1, p2);
 }
 
-void CCallback::registerGameInterface(shared_ptr<CGameInterface> cgi)
+void CCallback::registerGameInterface(shared_ptr<IGameEventsReceiver> gameEvents)
 {
-	cl->additionalPlayerInts[*player].push_back(cgi);
-	registerBattleInterface(cgi);
+	cl->additionalPlayerInts[*player].push_back(gameEvents);
 }
 
-void CCallback::registerBattleInterface(shared_ptr<CBattleGameInterface> cbga)
+void CCallback::registerBattleInterface(shared_ptr<IBattleEventsReceiver> battleEvents)
 {
-	cl->additionalBattleInts[*player].push_back(cbga);
+	cl->additionalBattleInts[*player].push_back(battleEvents);
 }
 
-void CCallback::unregisterGameInterface(shared_ptr<CGameInterface> cgi)
+void CCallback::unregisterGameInterface(shared_ptr<IGameEventsReceiver> gameEvents)
 {
-	cl->additionalPlayerInts[*player] -= cgi;
-	unregisterBattleInterface(cgi);
-
+	cl->additionalPlayerInts[*player] -= gameEvents;
 }
 
-void CCallback::unregisterBattleInterface(shared_ptr<CBattleGameInterface> cbga)
+void CCallback::unregisterBattleInterface(shared_ptr<IBattleEventsReceiver> battleEvents)
 {
-	cl->additionalBattleInts[*player] -= cbga;
+	cl->additionalBattleInts[*player] -= battleEvents;
 }
 
 CBattleCallback::CBattleCallback(CGameState *GS, boost::optional<PlayerColor> Player, CClient *C )

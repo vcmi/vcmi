@@ -767,7 +767,8 @@ void CCastleBuildings::enterCastleGate()
 void CCastleBuildings::enterDwelling(int level)
 {
 	assert(level >= 0 && level < town->creatures.size());
-	GH.pushInt(new CRecruitmentWindow(town, level, town, boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2,level), -87));
+	auto recruitCb = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, id, count, level); };
+	GH.pushInt(new CRecruitmentWindow(town, level, town, recruitCb, -87));
 }
 
 void CCastleBuildings::enterFountain(BuildingID building)
@@ -803,9 +804,9 @@ void CCastleBuildings::enterMagesGuild()
 		}
 		else
 		{
-			CFunctionList<void()> onYes = boost::bind(&CCastleBuildings::openMagesGuild,this);
+			CFunctionList<void()> onYes = [this]{ openMagesGuild(); };
 			CFunctionList<void()> onNo = onYes;
-			onYes += boost::bind(&CCallback::buyArtifact,LOCPLINT->cb, hero,ArtifactID::SPELLBOOK);
+			onYes += [hero]{ LOCPLINT->cb->buyArtifact(hero, ArtifactID::SPELLBOOK); };
 			std::vector<CComponent*> components(1, new CComponent(CComponent::artifact,0,0));
 
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], onYes, onNo, true, components);
@@ -1051,9 +1052,8 @@ void CCreaInfo::clickLeft(tribool down, bool previousState)
 	if(previousState && (!down))
 	{
 		int offset = LOCPLINT->castleInt? (-87) : 0;
-
-		GH.pushInt(new CRecruitmentWindow(town, level, town, 
-		           boost::bind(&CCallback::recruitCreatures, LOCPLINT->cb, town, _1, _2, level), offset));
+		auto recruitCb = [=](CreatureID id, int count) { LOCPLINT->cb->recruitCreatures(town, id, count, level); };
+		GH.pushInt(new CRecruitmentWindow(town, level, town, recruitCb, offset));
 	}
 }
 
@@ -1691,7 +1691,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	cancel = new CAdventureMapButton(text,"",boost::bind(&CBlacksmithDialog::close, this), 224, 312,"ICANCEL.DEF",SDLK_ESCAPE);
 
 	if(possible)
-		buy->callback += boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,LOCPLINT->cb->getHero(hid),aid);
+		buy->callback += [=]{ LOCPLINT->cb->buyArtifact(LOCPLINT->cb->getHero(hid),aid); };
 	else
 		buy->block(true);
 

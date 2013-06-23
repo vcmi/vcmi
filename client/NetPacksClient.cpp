@@ -52,7 +52,7 @@
 			CALL_IN_PRIVILAGED_INTS(function, __VA_ARGS__);			\
 		} while(0)
 
-#define CALL_ONLY_THT_BATTLE_INTERFACE(player,function, ...) 	\
+#define CALL_ONLY_THAT_BATTLE_INTERFACE(player,function, ...) 	\
 	do															\
 	{															\
 		if(vstd::contains(cl->battleints,player))				\
@@ -88,8 +88,8 @@
 
 
 #define BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(function,...) 				\
-	CALL_ONLY_THT_BATTLE_INTERFACE(GS(cl)->curB->sides[0], function, __VA_ARGS__)	\
-	CALL_ONLY_THT_BATTLE_INTERFACE(GS(cl)->curB->sides[1], function, __VA_ARGS__)	\
+	CALL_ONLY_THAT_BATTLE_INTERFACE(GS(cl)->curB->sides[0], function, __VA_ARGS__)	\
+	CALL_ONLY_THAT_BATTLE_INTERFACE(GS(cl)->curB->sides[1], function, __VA_ARGS__)	\
 	BATTLE_INTERFACE_CALL_RECEIVERS(function, __VA_ARGS__)
 /*
  * NetPacksClient.cpp, part of VCMI engine

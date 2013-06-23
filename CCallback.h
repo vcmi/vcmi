@@ -27,8 +27,8 @@ struct CGPathNode;
 struct CGPath;
 struct CPathsInfo;
 struct CPack;
-class CBattleGameInterface;
-class CGameInterface;
+class IBattleEventsReceiver;
+class IGameEventsReceiver;
 
 class IBattleCallback
 {
@@ -114,10 +114,10 @@ public:
 	virtual void recalculatePaths(); //updates main, client pathfinder info (should be called when moving hero is over)
 
 	//Set of metrhods that allows adding more interfaces for this player that'll receive game event call-ins.
-	void registerGameInterface(shared_ptr<CGameInterface> cgi);
-	void registerBattleInterface(shared_ptr<CBattleGameInterface> cbga);
-	void unregisterGameInterface(shared_ptr<CGameInterface> cgi);
-	void unregisterBattleInterface(shared_ptr<CBattleGameInterface> cbga);
+	void registerGameInterface(shared_ptr<IGameEventsReceiver> gameEvents);
+	void registerBattleInterface(shared_ptr<IBattleEventsReceiver> battleEvents);
+	void unregisterGameInterface(shared_ptr<IGameEventsReceiver> gameEvents);
+	void unregisterBattleInterface(shared_ptr<IBattleEventsReceiver> battleEvents);
 
 	void unregisterMyInterface(); //stops delivering information about game events to that player's interface -> can be called ONLY after victory/loss
 

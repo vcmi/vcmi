@@ -67,7 +67,7 @@
 #define THREAD_CREATED_BY_CLIENT
 
 #define RETURN_IF_QUICK_COMBAT		\
-	if(isAutoFightOn)				\
+	if(isAutoFightOn && !battleInt)	\
 		return;
 
 #define BATTLE_EVENT_POSSIBLE_RETURN\
@@ -124,6 +124,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	terminate_cond.set(false);
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
+	isAutoFightOn = false;
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -805,10 +806,13 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 		cb->unregisterBattleInterface(autofightingAI);
 		autofightingAI = nullptr;
 
-		SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
-		auto resWindow = new CBattleResultWindow(*br, temp_rect, *this);
-		GH.pushInt(resWindow);
-		return;
+		if(!battleInt)
+		{
+			SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
+			auto resWindow = new CBattleResultWindow(*br, temp_rect, *this);
+			GH.pushInt(resWindow);
+			return;
+		}
 	}
 
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -1033,7 +1037,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 		for(int i=0;i<components.size();i++)
 			intComps.push_back(new CComponent(components[i])); //will be deleted by close in window
 
-		showYesNoDialog(text, boost::bind(&CCallback::selectionMade,cb,1,askID),boost::bind(&CCallback::selectionMade,cb,0,askID),true, intComps);
+		showYesNoDialog(text, [=]{ cb->selectionMade(1, askID); }, [=]{ cb->selectionMade(0, askID); }, true, intComps);
 	}
 	else if(selection)
 	{
@@ -1469,7 +1473,8 @@ void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const C
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
-	CRecruitmentWindow *cr = new CRecruitmentWindow(dwelling, level, dst, boost::bind(&CCallback::recruitCreatures, cb, dwelling, _1, _2, -1));
+	auto recruitCb = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(dwelling, id, count, -1); };
+	CRecruitmentWindow *cr = new CRecruitmentWindow(dwelling, level, dst, recruitCb);
 	GH.pushInt(cr);
 }
 
@@ -1493,7 +1498,7 @@ void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 	auto state = obj->state();
 	std::vector<si32> cost;
 	obj->getBoatCost(cost);
-	CShipyardWindow *csw = new CShipyardWindow(cost, state, obj->getBoatType(), boost::bind(&CCallback::buildBoat, cb, obj));
+	CShipyardWindow *csw = new CShipyardWindow(cost, state, obj->getBoatType(), [=]{ cb->buildBoat(obj); });
 	GH.pushInt(csw);
 }
 

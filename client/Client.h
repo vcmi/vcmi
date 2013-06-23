@@ -119,8 +119,8 @@ public:
 	std::map<PlayerColor, shared_ptr<CGameInterface>> playerint;
 	std::map<PlayerColor, shared_ptr<CBattleGameInterface>> battleints;
 
-	std::map<PlayerColor,std::vector<shared_ptr<CGameInterface>>> additionalPlayerInts;
-	std::map<PlayerColor,std::vector<shared_ptr<CBattleGameInterface>>> additionalBattleInts;
+	std::map<PlayerColor,std::vector<shared_ptr<IGameEventsReceiver>>> additionalPlayerInts;
+	std::map<PlayerColor,std::vector<shared_ptr<IBattleEventsReceiver>>> additionalBattleInts;
 
 	bool hotSeat;
 	CConnection *serv;
