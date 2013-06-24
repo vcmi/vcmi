@@ -3588,7 +3588,7 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 {
 	assert(curInt->isAutoFightOn);
 
-	auto tmp = make_unique<boost::thread>([&] 
+	boost::thread aiThread([&] 
 	{
 		auto ba = new BattleAction(curInt->autofightingAI->activeStack(activeStack));
 
@@ -3598,11 +3598,13 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 		}
 		else
 		{
+			delete ba;
 			boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 			activateStack();
 		}
 	});
-	tmp->detach();
+	
+	aiThread.detach();
 }
 
 CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface * _owner)

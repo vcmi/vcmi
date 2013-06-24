@@ -621,6 +621,9 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	
 	waitForAllDialogs();
 
+	if(isAutoFightOn)
+		GH.topInt()->deactivate();
+
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	GH.pushInt(battleInt);
@@ -758,7 +761,6 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	{
 		if(isAutoFightOn)
 		{
-			assert(autofightingAI);
 			auto ret = autofightingAI->activeStack(stack);
 			if(isAutoFightOn)
 			{
