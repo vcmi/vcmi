@@ -52,6 +52,8 @@ template <typename Serializer> class CISer;
 template <typename Serializer> class COSer;
 struct ArtifactLocation;
 class CScriptingModule;
+class CAutomationModule;
+
 
 class DLL_LINKAGE CBattleGameInterface : public IBattleEventsReceiver
 {
@@ -142,4 +144,35 @@ public:
 
 	virtual void saveGame(COSer<CSaveFile> &h, const int version); //saving
 	virtual void loadGame(CISer<CLoadFile> &h, const int version); //loading
+};
+
+struct ReceivedObjects
+{
+	std::vector<const CGObjectInstance *> objects;
+
+	bool hasObject(const CGObjectInstance *obj) const
+	{
+		return vstd::contains(objects, obj);
+	}
+	bool remove(const CGObjectInstance *obj)
+	{
+		auto it = range::find(objects, obj);
+		if(it != objects.end())
+			objects.erase(it);
+	}
+	bool add(const CGObjectInstance *obj)
+	{
+		objects.push_back(obj);
+	}
+};
+
+class DLL_LINKAGE CAutomationModule : public CGameInterface
+{
+	ReceivedObjects receivedObjects;
+
+public:
+
+	virtual void receivedMessage(const boost::any &msg);
+
+	friend class CAutomationModule;
 };

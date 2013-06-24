@@ -250,3 +250,8 @@ void CBattleGameInterface::saveGame(COSer<CSaveFile> &h, const int version)
 void CBattleGameInterface::loadGame(CISer<CLoadFile> &h, const int version)
 {
 }
+
+void CAutomationModule::receivedMessage(const boost::any &msg)
+{
+
+}

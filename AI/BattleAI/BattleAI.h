@@ -64,6 +64,7 @@ struct HypotheticChangesToBattleState
 {
 	std::map<const CStack *, const IBonusBearer *> bonusesOfStacks;
 	std::map<const CStack *, int> counterAttacksLeft;
+	std::map<const CStack *, int> stackCount;
 };
 
 struct AttackPossibility
@@ -74,7 +75,7 @@ struct AttackPossibility
 
 	int damageDealt;
 	int damageReceived; //usually by counter-attack
-	int tacticImpact;
+	//int tacticImpact;
 
 	int damageDiff() const;
 	int attackValue() const;
@@ -107,6 +108,23 @@ struct PotentialTargets
 	int bestActionValue() const;
 };
 
+struct TacticInfo
+{
+	double ourPotential;
+	double enemyPotential;
+
+	double ourHealth;
+	double enemyhealth;
+
+	std::map<const CStack*, PotentialTargets> targets;
+
+	TacticInfo(const HypotheticChangesToBattleState &state = HypotheticChangesToBattleState());
+
+	double totalValue() const;
+
+	int expectedLength() const;
+};
+
 class CBattleAI : public CBattleGameInterface
 {
 	int side;
@@ -114,6 +132,8 @@ class CBattleAI : public CBattleGameInterface
 	
 	//Previous setting of cb 
 	bool wasWaitingForRealize, wasUnlockingGs;
+
+	unique_ptr<TacticInfo> tacticInfo;
 
 	void print(const std::string &text) const;
 public:

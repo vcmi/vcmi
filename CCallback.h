@@ -29,6 +29,7 @@ struct CPathsInfo;
 struct CPack;
 class IBattleEventsReceiver;
 class IGameEventsReceiver;
+class CAutomationInterface;
 
 class IBattleCallback
 {
@@ -154,4 +155,44 @@ public:
 
 //friends
 	friend class CClient;
+};
+
+class CAutomationCallback : public CCallback
+{
+	std::weak_ptr<CAutomationInterface> automationModule;
+
+	shared_ptr<CAutomationInterface> getModule();
+
+	bool canAccessHero(const CGHeroInstance *h);
+	bool canRecruitAt(const CGDwelling *dwelling);
+
+public:
+	//overloads
+	virtual bool moveHero(const CGHeroInstance *h, int3 dst);
+	virtual bool dismissHero(const CGHeroInstance * hero);
+	virtual void dig(const CGObjectInstance *hero);
+	virtual void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1) );
+	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero);
+	virtual bool buildBuilding(const CGTownInstance *town, BuildingID buildingID);
+	virtual void recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui32 amount, si32 level=-1);
+	virtual bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE);
+	virtual void swapGarrisonHero(const CGTownInstance *town);
+	virtual void trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero = NULL);
+	virtual int selectionMade(int selection, QueryID queryID);
+	virtual int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2);
+	virtual int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2);
+	virtual int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2);
+	virtual int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val);
+	virtual bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2);
+	virtual bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo);
+	virtual bool dismissCreature(const CArmedInstance *obj, SlotID stackPos);
+	virtual void endTurn();
+	virtual void buyArtifact(const CGHeroInstance *hero, ArtifactID aid);
+	virtual void setFormation(const CGHeroInstance * hero, bool tight);
+	virtual void setSelection(const CArmedInstance * obj);
+	virtual void buildBoat(const IShipyard *obj);
+
+
+	//new, automation specific
+	void sendMessage(const boost::any &msg);
 };
