@@ -76,6 +76,16 @@ struct ObjectsCeded
 	}
 };
 
+struct DLL_LINKAGE Priorities
+{
+	double manaValue;
+	double generalResourceValueModifier;
+	std::vector<double> resourceTypeBaseValues;
+	std::function<double(const CStack *)> stackEvaluator;
+
+
+	Priorities();
+};
 
 class DLL_LINKAGE CBattleGameInterface : public IBattleEventsReceiver
 {
@@ -90,6 +100,7 @@ public:
 	//battle call-ins
 	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
 	virtual void yourTacticPhase(int distance){}; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
+	virtual void setPriorities(const Priorities &priorities){}
 
 	virtual void saveGame(COSer<CSaveFile> &h, const int version);
 	virtual void loadGame(CISer<CLoadFile> &h, const int version);
@@ -102,6 +113,7 @@ class CGameInterface : public CBattleGameInterface, public IGameEventsReceiver
 public:
 	virtual void init(shared_ptr<CCallback> CB){};
 	virtual void yourTurn(){}; //called AFTER playerStartsTurn(player)
+	virtual void receiveMessageFromAutomation(const boost::any &msg){}
 
 	//pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)=0;
@@ -194,7 +206,5 @@ public:
 
 	void execute();
 
-	//friend class CAutomationCallback;
 	friend class CCallback;
-	//friend class CClient;
 };

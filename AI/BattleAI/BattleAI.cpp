@@ -25,22 +25,7 @@ auto maxElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(boos
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
 
-struct Priorities
-{
-	double manaValue;
-	double generalResourceValueModifier;
-	std::vector<double> resourceTypeBaseValues;
-	std::function<double(const CStack *)> stackEvaluator;
 
-
-	Priorities()
-	{
-		manaValue = 0.;
-		generalResourceValueModifier = 1.;
-		range::copy(VLC->objh->resVals, std::back_inserter(resourceTypeBaseValues));
-		stackEvaluator = [](const CStack*){ return 1.0; };
-	}
-} priorities;
 
 
 int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = NULL)

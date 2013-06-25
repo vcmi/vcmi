@@ -12,9 +12,9 @@ public:
 	ObjectVisitingModule(void);
 	~ObjectVisitingModule(void);
 
-	virtual void receivedMessage(const boost::any &msg);
-	virtual void executeInternal();
-	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start);
+	virtual void receivedMessage(const boost::any &msg)  override;
+	virtual void executeInternal() override;
+	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start) override;
 
 	bool isInterestingObject(const CGObjectInstance *obj) const;
 	std::vector<const CGObjectInstance *> getDestinations() const;

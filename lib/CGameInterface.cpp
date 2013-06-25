@@ -296,3 +296,11 @@ std::vector<const CGHeroInstance*> CAutomationModule::getMyHeroes() const
 
 	return ret;
 }
+
+Priorities::Priorities()
+{
+	manaValue = 0.;
+	generalResourceValueModifier = 1.;
+	range::copy(VLC->objh->resVals, std::back_inserter(resourceTypeBaseValues));
+	stackEvaluator = [](const CStack*){ return 1.0; };
+}

@@ -107,6 +107,7 @@ struct OCM_HLP_CGIN
 
 CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
+	duringAutomationExecution = false;
     logGlobal->traceStream() << "\tHuman player interface for player " << Player << " being constructed";
 	observerInDuelMode = false;
 	howManyPeople++;
@@ -996,6 +997,8 @@ void CPlayerInterface::showInfoDialog(const std::string &text, CComponent * comp
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<CComponent*> & components, int soundID, bool delComps)
 {
 	waitWhileDialog();
+	if(duringAutomationExecution)
+		return;
 
 	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
 	{
@@ -2180,8 +2183,6 @@ void CPlayerInterface::acceptTurn()
 	if(howManyPeople > 1)
 		adventureInt->startTurn();
 
-	cb->executeAutomation();
-
 	//select first hero if available.
 	//TODO: check if hero is slept
 	adventureInt->heroList.update();
@@ -2503,7 +2504,10 @@ void CPlayerInterface::receivedConsoleMessage(const std::string &msg)
 	}
 	else if(s1 == "exec")
 	{
+		duringAutomationExecution = true;
+		auto pimUnlock = vstd::makeUnlockGuard(*pim);
 		cb->executeAutomation();
+		duringAutomationExecution = false;
 	}
 	else if(s1 == "give")
 	{

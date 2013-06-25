@@ -599,3 +599,13 @@ CAutomationCallback::CAutomationCallback(CGameState * GS, boost::optional<Player
 {
 	automationModule = module;
 }
+
+void CAutomationCallback::sendMessage(const boost::any &msg)
+{
+	cl->playerint[*player]->receiveMessageFromAutomation(msg);
+}
+
+shared_ptr<CAutomationModule> CAutomationCallback::getModule()
+{
+	return automationModule.lock();
+}

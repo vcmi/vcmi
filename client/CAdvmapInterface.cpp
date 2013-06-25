@@ -522,6 +522,12 @@ void CAdvMapInt::fendTurn()
 	if(!LOCPLINT->makingTurn)
 		return;
 
+	if(LOCPLINT->duringAutomationExecution)
+	{
+		logGlobal->warnStream() <<"Cannot end turn during the automation run!";
+		return;
+	}
+
 	if ( settings["adventure"]["heroReminder"].Bool())
 	{
 		for (int i = 0; i < LOCPLINT->wanderingHeroes.size(); i++)

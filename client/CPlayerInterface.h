@@ -85,6 +85,7 @@ enum
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
 public:
+	bool duringAutomationExecution;
 	bool observerInDuelMode;
 
 	//minor interfaces

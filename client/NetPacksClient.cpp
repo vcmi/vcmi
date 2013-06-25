@@ -43,6 +43,12 @@
 		{													\
 		if(vstd::contains(cl->playerint,player))			\
 			cl->playerint[player]->function(__VA_ARGS__);	\
+															\
+		if(cl->additionalBattleInts.count(player))				\
+		{														\
+			BOOST_FOREACH(auto bInt, cl->additionalPlayerInts[player])\
+				bInt->function(__VA_ARGS__);					\
+		}														\
 		}while(0)
 
 #define INTERFACE_CALL_IF_PRESENT(player,function,...) 				\
@@ -247,7 +253,19 @@ void DisassembledArtifact::applyCl( CClient *cl )
 void HeroVisit::applyCl( CClient *cl )
 {
 	assert(hero);
-	INTERFACE_CALL_IF_PRESENT(hero->tempOwner, heroVisit, hero, obj, starting);
+	do													
+	{													
+		if(vstd::contains(cl->playerint,hero->tempOwner))			
+			cl->playerint[hero->tempOwner]->heroVisit(hero, obj, starting);	
+
+		if(cl->additionalPlayerInts.count(hero->tempOwner))				
+		{														
+			BOOST_FOREACH(auto bInt, cl->additionalPlayerInts[hero->tempOwner])
+				bInt->heroVisit(hero, obj, starting);					
+		}														
+	}while(0);
+
+//	INTERFACE_CALL_IF_PRESENT(hero->tempOwner, heroVisit, hero, obj, starting);
 }
 
 void NewTurn::applyCl( CClient *cl )
@@ -785,7 +803,9 @@ void PlayerBlocked::applyCl( CClient *cl )
 void YourTurn::applyCl( CClient *cl )
 {
 	CALL_IN_ALL_INTERFACES(playerStartsTurn, player);
-	CALL_ONLY_THAT_INTERFACE(player,yourTurn);
+
+	if(vstd::contains(cl->playerint,player))
+		cl->playerint[player]->yourTurn();
 }
 
 void SaveGame::applyCl(CClient *cl)

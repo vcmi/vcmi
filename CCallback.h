@@ -207,5 +207,5 @@ public:
 
 
 	//new, automation specific
-	void sendMessage(const boost::any &msg);
+	virtual void sendMessage(const boost::any &msg);
 };

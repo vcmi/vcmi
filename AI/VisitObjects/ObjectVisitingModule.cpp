@@ -29,11 +29,17 @@ void ObjectVisitingModule::receivedMessage(const boost::any &msg)
 		{
 			destinations = getDestinations();
 			logGlobal->debugStream() << "Added as destination all possible objects:";
+			printObjects(destinations);
 		}
 		if(w2 == "list")
 		{
 			auto dsts = getDestinations();
 			logGlobal->debugStream() << "Possible visit destinations:";
+			printObjects(dsts);
+		}
+		if(w2 == "clear")
+		{
+			destinations.clear();
 		}
 		if(w2 == "add")
 		{
@@ -54,6 +60,11 @@ void ObjectVisitingModule::receivedMessage(const boost::any &msg)
 				destinations.push_back(dsts[no]);
 			}
 		}
+	}
+	
+	if(auto objs = boost::any_cast<std::vector<const CGObjectInstance*>>(&msg))
+	{
+		destinations = *objs;
 	}
 }
 
@@ -78,14 +89,13 @@ void ObjectVisitingModule::executeInternal()
 	{
 		cb->setSelection(h);
 
-		auto leftToVisit = destinations;
-
 		while(true)
 		{
-			vstd::erase_if(destinations, [this](const CGObjectInstance *obj) { 
-				return vstd::contains(visitedThisWeek, obj); });
+			auto leftToVisit = destinations;
+			vstd::erase_if(leftToVisit, [this](const CGObjectInstance *obj) 
+				{ return vstd::contains(visitedThisWeek, obj); });
 
-			if(destinations.empty())
+			if(leftToVisit.empty())
 				return;
 
 			auto isCloser = [this] (const CGObjectInstance *lhs, const CGObjectInstance *rhs) -> bool
@@ -94,14 +104,11 @@ void ObjectVisitingModule::executeInternal()
 			};
 
 			const auto toVisit = *range::min_element(leftToVisit, isCloser);
-			const int3 moveDest = (toVisit)->visitablePos();
-
-			CGPath path;
-			cb->getPath2(moveDest, path);
 
 			try
 			{
-				bool ret = moveHero(h, moveDest);
+				if(!moveHero(h, toVisit->visitablePos()))
+					break;
 			}
 			catch(...)
 			{
