@@ -132,6 +132,8 @@ public:
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 
+	void receivedConsoleMessage(const std::string &msg);
+
 	//overridden funcs from CGameInterface
 	void buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) OVERRIDE; //what: 1 - built, 2 - demolished
 	void stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute) OVERRIDE; //if absolute, change is the new count; otherwise count was modified by adding change

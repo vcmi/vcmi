@@ -29,7 +29,8 @@ struct CPathsInfo;
 struct CPack;
 class IBattleEventsReceiver;
 class IGameEventsReceiver;
-class CAutomationInterface;
+class CAutomationModule;
+struct ObjectsCeded;
 
 class IBattleCallback
 {
@@ -120,6 +121,15 @@ public:
 	void unregisterGameInterface(shared_ptr<IGameEventsReceiver> gameEvents);
 	void unregisterBattleInterface(shared_ptr<IBattleEventsReceiver> battleEvents);
 
+	virtual shared_ptr<CAutomationModule> createAutomationModule(const std::string &moduleName, const ObjectsCeded &objects, const boost::any &initialMessage = boost::none);
+	virtual void installAutomationModule(shared_ptr<CAutomationModule> module, const ObjectsCeded &objects);
+	virtual void removeAutomationModule(shared_ptr<CAutomationModule> module);
+	virtual void giveObjectToModule(const CGObjectInstance *obj, shared_ptr<CAutomationModule> module);
+	virtual void takeObjectFromModule(const CGObjectInstance *obj, shared_ptr<CAutomationModule> module);
+	virtual void sendMessageToModule(shared_ptr<CAutomationModule> module, const boost::any &message);
+	virtual std::vector<shared_ptr<CAutomationModule>> getAutomationInterfaces();
+	virtual void executeAutomation();
+
 	void unregisterMyInterface(); //stops delivering information about game events to that player's interface -> can be called ONLY after victory/loss
 
 //commands
@@ -159,15 +169,18 @@ public:
 
 class CAutomationCallback : public CCallback
 {
-	std::weak_ptr<CAutomationInterface> automationModule;
+	std::weak_ptr<CAutomationModule> automationModule;
 
-	shared_ptr<CAutomationInterface> getModule();
+	shared_ptr<CAutomationModule> getModule();
 
 	bool canAccessHero(const CGHeroInstance *h);
 	bool canRecruitAt(const CGDwelling *dwelling);
 
 public:
+	CAutomationCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient *C, shared_ptr<CAutomationModule> module);
+
 	//overloads
+	/*
 	virtual bool moveHero(const CGHeroInstance *h, int3 dst);
 	virtual bool dismissHero(const CGHeroInstance * hero);
 	virtual void dig(const CGObjectInstance *hero);
@@ -190,7 +203,7 @@ public:
 	virtual void buyArtifact(const CGHeroInstance *hero, ArtifactID aid);
 	virtual void setFormation(const CGHeroInstance * hero, bool tight);
 	virtual void setSelection(const CArmedInstance * obj);
-	virtual void buildBoat(const IShipyard *obj);
+	virtual void buildBoat(const IShipyard *obj);*/
 
 
 	//new, automation specific

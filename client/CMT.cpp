@@ -720,7 +720,7 @@ void processCommand(const std::string &message)
 	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
-		LOCPLINT->cb->sendMessage(message);
+		LOCPLINT->receivedConsoleMessage(message);
 	}
 }
 

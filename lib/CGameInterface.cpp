@@ -106,6 +106,11 @@ shared_ptr<CScriptingModule> CDynLibHandler::getNewScriptingModule(std::string d
 	return createAny<CScriptingModule>(dllname, "GetNewModule");
 }
 
+shared_ptr<CAutomationModule> CDynLibHandler::getNewAutomationModule(std::string dllname)
+{
+	return createAny<CAutomationModule>(VCMIDirs::get().libraryPath() + "/AI/" + VCMIDirs::get().libraryName(dllname), "GetNewAutomationModule");
+}
+
 BattleAction CGlobalAI::activeStack( const CStack * stack )
 {
 	BattleAction ba; ba.actionType = Battle::DEFEND;
@@ -254,4 +259,40 @@ void CBattleGameInterface::loadGame(CISer<CLoadFile> &h, const int version)
 void CAutomationModule::receivedMessage(const boost::any &msg)
 {
 
+}
+
+void CAutomationModule::execute()
+{
+	executeInternal();
+}
+
+void CAutomationModule::automationInit(shared_ptr<CAutomationCallback> cb, const ObjectsCeded &objs)
+{
+	this->cb = cb;
+	receivedObjects = objs;
+}
+
+void CAutomationModule::newObjectReceived(const CGObjectInstance *obj)
+{
+
+}
+
+void CAutomationModule::objectTakenAway(const CGObjectInstance *obj)
+{
+
+}
+
+const std::vector<const CGObjectInstance*> & CAutomationModule::getMyObjects() const
+{
+	return receivedObjects.objects;
+}
+
+std::vector<const CGHeroInstance*> CAutomationModule::getMyHeroes() const
+{
+	std::vector<const CGHeroInstance*> ret;
+	BOOST_FOREACH(auto obj, getMyObjects())
+		if(auto h = dynamic_cast<const CGHeroInstance*>(obj))
+			ret.push_back(h);
+
+	return ret;
 }

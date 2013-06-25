@@ -396,6 +396,68 @@ void CCallback::unregisterBattleInterface(shared_ptr<IBattleEventsReceiver> batt
 	cl->additionalBattleInts[*player] -= battleEvents;
 }
 
+shared_ptr<CAutomationModule> CCallback::createAutomationModule(const std::string &moduleName, const ObjectsCeded &objects, const boost::any &initialMessage /*= boost::none*/)
+{
+	auto module = CDynLibHandler::getNewAutomationModule(moduleName);
+	installAutomationModule(module, objects);
+	module->receivedMessage(initialMessage);
+	return module;
+}
+
+void CCallback::installAutomationModule(shared_ptr<CAutomationModule> module, const ObjectsCeded &objects)
+{
+	auto cb = make_shared<CAutomationCallback>(gs, player, cl, module);
+	module->automationInit(cb, objects);
+	registerGameInterface(module);
+	cb->waitTillRealize = module->needsWaitingForRealize();
+	cb->unlockGsWhenWaiting = module->needsUnlockingGs();
+	module->modulePrepared();
+}
+
+void CCallback::removeAutomationModule(shared_ptr<CAutomationModule> module)
+{
+	unregisterGameInterface(module);
+}
+
+void CCallback::giveObjectToModule(const CGObjectInstance *obj, shared_ptr<CAutomationModule> module)
+{
+	if(module->receivedObjects.hasObject(obj))
+		return;
+
+	module->receivedObjects.add(obj);
+	module->newObjectReceived(obj);
+}
+
+void CCallback::takeObjectFromModule(const CGObjectInstance *obj, shared_ptr<CAutomationModule> module)
+{
+	if(!module->receivedObjects.hasObject(obj))
+		return;
+
+	module->receivedObjects.remove(obj);
+	module->objectTakenAway(obj);
+}
+
+void CCallback::sendMessageToModule(shared_ptr<CAutomationModule> module, const boost::any &message)
+{
+	module->receivedMessage(message);
+}
+
+std::vector<shared_ptr<CAutomationModule>> CCallback::getAutomationInterfaces()
+{
+	std::vector<shared_ptr<CAutomationModule>> ret;
+	BOOST_FOREACH(auto &interfacePtr, cl->additionalPlayerInts[*player])
+		if(auto automationModule = std::dynamic_pointer_cast<CAutomationModule>(interfacePtr))
+			ret.push_back(automationModule);
+
+	return ret;
+}
+
+void CCallback::executeAutomation()
+{
+	BOOST_FOREACH(auto module, getAutomationInterfaces())
+		module->execute();
+}
+
 CBattleCallback::CBattleCallback(CGameState *GS, boost::optional<PlayerColor> Player, CClient *C )
 {
 	gs = GS;
@@ -412,122 +474,128 @@ bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
 	return true;
 }
 
-bool CAutomationCallback::moveHero(const CGHeroInstance *h, int3 dst)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
+// bool CAutomationCallback::moveHero(const CGHeroInstance *h, int3 dst)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// bool CAutomationCallback::dismissHero(const CGHeroInstance * hero)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// void CAutomationCallback::dig(const CGObjectInstance *hero)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// void CAutomationCallback::castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos /*= int3(-1, -1, -1) */)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// void CAutomationCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// bool CAutomationCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// void CAutomationCallback::recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui32 amount, si32 level/*=-1*/)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// bool CAutomationCallback::upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID/*=CreatureID::NONE*/)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// void CAutomationCallback::swapGarrisonHero(const CGTownInstance *town)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// void CAutomationCallback::trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero /*= NULL*/)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// int CAutomationCallback::selectionMade(int selection, QueryID queryID)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// int CAutomationCallback::swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// int CAutomationCallback::mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// int CAutomationCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// int CAutomationCallback::splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// bool CAutomationCallback::swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// bool CAutomationCallback::assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// bool CAutomationCallback::dismissCreature(const CArmedInstance *obj, SlotID stackPos)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// void CAutomationCallback::endTurn()
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// void CAutomationCallback::buyArtifact(const CGHeroInstance *hero, ArtifactID aid)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// void CAutomationCallback::setFormation(const CGHeroInstance * hero, bool tight)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// void CAutomationCallback::setSelection(const CArmedInstance * obj)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// void CAutomationCallback::buildBoat(const IShipyard *obj)
+// {
+// 	throw std::exception("The method or operation is not implemented.");
+// }
+// 
+// shared_ptr<CAutomationModule> CAutomationCallback::getModule()
+// {
+// 	return automationModule.lock();
+// }
 
-bool CAutomationCallback::dismissHero(const CGHeroInstance * hero)
+CAutomationCallback::CAutomationCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient *C, shared_ptr<CAutomationModule> module)
+	: CCallback(GS, Player, C)
 {
-	throw std::exception("The method or operation is not implemented.");
-}
-
-void CAutomationCallback::dig(const CGObjectInstance *hero)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-void CAutomationCallback::castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos /*= int3(-1, -1, -1) */)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-void CAutomationCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-bool CAutomationCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-void CAutomationCallback::recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui32 amount, si32 level/*=-1*/)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-bool CAutomationCallback::upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID/*=CreatureID::NONE*/)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-void CAutomationCallback::swapGarrisonHero(const CGTownInstance *town)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-void CAutomationCallback::trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero /*= NULL*/)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-int CAutomationCallback::selectionMade(int selection, QueryID queryID)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-int CAutomationCallback::swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-int CAutomationCallback::mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-int CAutomationCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-int CAutomationCallback::splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-bool CAutomationCallback::swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-bool CAutomationCallback::assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-bool CAutomationCallback::dismissCreature(const CArmedInstance *obj, SlotID stackPos)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-void CAutomationCallback::endTurn()
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-void CAutomationCallback::buyArtifact(const CGHeroInstance *hero, ArtifactID aid)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-void CAutomationCallback::setFormation(const CGHeroInstance * hero, bool tight)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-void CAutomationCallback::setSelection(const CArmedInstance * obj)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-void CAutomationCallback::buildBoat(const IShipyard *obj)
-{
-	throw std::exception("The method or operation is not implemented.");
-}
-
-shared_ptr<CAutomationInterface> CAutomationCallback::getModule()
-{
-	return automationModule.lock();
+	automationModule = module;
 }

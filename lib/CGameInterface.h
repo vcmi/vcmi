@@ -53,6 +53,28 @@ template <typename Serializer> class COSer;
 struct ArtifactLocation;
 class CScriptingModule;
 class CAutomationModule;
+class CClient;
+class CAutomationCallback;
+
+struct ObjectsCeded
+{
+	std::vector<const CGObjectInstance *> objects;
+
+	bool hasObject(const CGObjectInstance *obj) const
+	{
+		return vstd::contains(objects, obj);
+	}
+	void remove(const CGObjectInstance *obj)
+	{
+		auto it = range::find(objects, obj);
+		if(it != objects.end())
+			objects.erase(it);
+	}
+	void add(const CGObjectInstance *obj)
+	{
+		objects.push_back(obj);
+	}
+};
 
 
 class DLL_LINKAGE CBattleGameInterface : public IBattleEventsReceiver
@@ -101,6 +123,7 @@ public:
 	static shared_ptr<CGlobalAI> getNewAI(std::string dllname);
 	static shared_ptr<CBattleGameInterface> getNewBattleAI(std::string dllname);
 	static shared_ptr<CScriptingModule> getNewScriptingModule(std::string dllname);
+	static shared_ptr<CAutomationModule> getNewAutomationModule(std::string dllname);
 };
 
 class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
@@ -146,33 +169,32 @@ public:
 	virtual void loadGame(CISer<CLoadFile> &h, const int version); //loading
 };
 
-struct ReceivedObjects
+class DLL_LINKAGE CAutomationModule : public IGameEventsReceiver
 {
-	std::vector<const CGObjectInstance *> objects;
+	ObjectsCeded receivedObjects;
 
-	bool hasObject(const CGObjectInstance *obj) const
-	{
-		return vstd::contains(objects, obj);
-	}
-	bool remove(const CGObjectInstance *obj)
-	{
-		auto it = range::find(objects, obj);
-		if(it != objects.end())
-			objects.erase(it);
-	}
-	bool add(const CGObjectInstance *obj)
-	{
-		objects.push_back(obj);
-	}
-};
-
-class DLL_LINKAGE CAutomationModule : public CGameInterface
-{
-	ReceivedObjects receivedObjects;
+protected:
+	const std::vector<const CGObjectInstance*> &getMyObjects() const;
+	std::vector<const CGHeroInstance*> getMyHeroes() const;
+	shared_ptr<CAutomationCallback> cb;
 
 public:
+	void automationInit(shared_ptr<CAutomationCallback> cb, const ObjectsCeded &objs);
 
+
+	virtual bool needsWaitingForRealize() const {return true;}
+	virtual bool needsUnlockingGs() const {return false;}
+
+	virtual void newObjectReceived(const CGObjectInstance *obj);
+	virtual void objectTakenAway(const CGObjectInstance *obj);
+
+	virtual void modulePrepared(){};
 	virtual void receivedMessage(const boost::any &msg);
+	virtual void executeInternal() = 0;
 
-	friend class CAutomationModule;
+	void execute();
+
+	//friend class CAutomationCallback;
+	friend class CCallback;
+	//friend class CClient;
 };

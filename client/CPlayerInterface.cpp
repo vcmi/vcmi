@@ -2180,6 +2180,8 @@ void CPlayerInterface::acceptTurn()
 	if(howManyPeople > 1)
 		adventureInt->startTurn();
 
+	cb->executeAutomation();
+
 	//select first hero if available.
 	//TODO: check if hero is slept
 	adventureInt->heroList.update();
@@ -2478,6 +2480,39 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim /*= true*/)
 void CPlayerInterface::proposeLoadingGame()
 {
 	showYesNoDialog(CGI->generaltexth->allTexts[68], [this] { sendCustomEvent(RETURN_TO_MENU_LOAD); }, 0, false);
+}
+
+void CPlayerInterface::receivedConsoleMessage(const std::string &msg)
+{
+	std::istringstream hlp(msg);
+	std::string s1, s2;
+	hlp >> s1 >> s2;
+
+	if(s1 == "create")
+	{
+		ObjectsCeded oc;
+		oc.add(adventureInt->selection);
+		try
+		{
+			cb->createAutomationModule(s2, oc);
+		}
+		catch(std::exception &e)
+		{
+			logGlobal->errorStream() << "Cannot create module " << s2 << ": " << e.what();
+		}
+	}
+	else if(s1 == "exec")
+	{
+		cb->executeAutomation();
+	}
+	else if(s1 == "give")
+	{
+		auto module = cb->getAutomationInterfaces().front();
+		cb->giveObjectToModule(adventureInt->selection, module);
+	}
+
+	BOOST_FOREACH(auto module, cb->getAutomationInterfaces())
+		cb->sendMessageToModule(module, msg);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()
