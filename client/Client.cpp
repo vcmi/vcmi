@@ -58,7 +58,7 @@ public:
 	virtual void applyOnClBefore(CClient *cl, void *pack) const =0; 
 	virtual ~CBaseForCLApply(){}
 
-	template<typename U> static CBaseForCLApply *getApplier(const U * t=NULL)
+	template<typename U> static CBaseForCLApply *getApplier(const U * t=nullptr)
 	{
 		return new CApplyOnCL<U>;
 	}
@@ -136,7 +136,7 @@ void CClient::run()
 	setThreadName("CClient::run");
 	try
 	{
-		CPack *pack = NULL;
+		CPack *pack = nullptr;
 		while(!terminate)
 		{
 			pack = serv->retreivePack(); //get the package from the server
@@ -144,12 +144,12 @@ void CClient::run()
 			if (terminate) 
 			{
 				delete pack;
-				pack = NULL;
+				pack = nullptr;
 				break;
 			}
 
 			handlePack(pack);
-			pack = NULL;
+			pack = nullptr;
 		}
 	} 
 	//catch only asio exceptions
@@ -189,7 +189,7 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 		stopConnection();
     logNetwork->infoStream() << "Closed connection.";
 
-	GH.curInt = NULL;
+	GH.curInt = nullptr;
 	LOCPLINT->terminate_cond.setn(true);
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
@@ -198,14 +198,14 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 			GH.topInt()->deactivate();
 		GH.listInt.clear();
 		GH.objsToBlit.clear();
-		GH.statusbar = NULL;
+		GH.statusbar = nullptr;
         logNetwork->infoStream() << "Removed GUI.";
 
 		vstd::clear_pointer(const_cast<CGameInfo*>(CGI)->mh);
 		vstd::clear_pointer(gs);
 
         logNetwork->infoStream() << "Deleted mapHandler and gameState.";
-		LOCPLINT = NULL;
+		LOCPLINT = nullptr;
 	}
 
 	playerint.clear();
@@ -297,7 +297,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 {
 	enum {SINGLE, HOST, GUEST} networkMode = SINGLE;
 
-	if (con == NULL) 
+	if (con == nullptr) 
 	{
 		CServerHandler sh;
 		serv = sh.connectToServer();
@@ -556,14 +556,14 @@ void CClient::stopConnection()
         logNetwork->infoStream() << "Connection handler thread joined";
 
 		delete connectionHandler;
-		connectionHandler = NULL;
+		connectionHandler = nullptr;
 	}
 
 	if (serv) //and delete connection
 	{
 		serv->close();
 		delete serv;
-		serv = NULL;
+		serv = nullptr;
         logNetwork->warnStream() << "Our socket has been closed.";
 	}
 }
@@ -660,7 +660,7 @@ void CClient::commenceTacticPhaseForInt(shared_ptr<CBattleGameInterface> battleI
 	} HANDLE_EXCEPTION
 }
 
-void CClient::invalidatePaths(const CGHeroInstance *h /*= NULL*/)
+void CClient::invalidatePaths(const CGHeroInstance *h /*= nullptr*/)
 {
 	if(!h || pathInfo->hero == h)
 		pathInfo->isValid = false;
@@ -807,8 +807,8 @@ CConnection * CServerHandler::connectToServer()
 
 CServerHandler::CServerHandler(bool runServer /*= false*/)
 {
-	serverThread = NULL;
-	shared = NULL;
+	serverThread = nullptr;
+	shared = nullptr;
 	port = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
 	verbose = true;
 
@@ -843,7 +843,7 @@ void CServerHandler::callServer()
 
 CConnection * CServerHandler::justConnectToServer(const std::string &host, const std::string &port)
 {
-	CConnection *ret = NULL;
+	CConnection *ret = nullptr;
 	while(!ret)
 	{
 		try

@@ -63,7 +63,7 @@ class DLL_LINKAGE SettingsListener
 	// Path to this node
 	std::vector<std::string> path;
 	// Callback
-	boost::function<void(const JsonNode&)> callback;
+	std::function<void(const JsonNode&)> callback;
 
 	SettingsListener(SettingsStorage &_parent, const std::vector<std::string> &_path);
 
@@ -75,7 +75,7 @@ public:
 	~SettingsListener();
 
 	// assign callback function
-	void operator()(boost::function<void(const JsonNode&)> _callback);
+	void operator()(std::function<void(const JsonNode&)> _callback);
 
 	friend class SettingsStorage;
 };

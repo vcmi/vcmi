@@ -74,7 +74,7 @@ public:
 	void initializeBattleGraphics();
 	void loadPaletteAndColors();
 	void loadHeroFlags();
-	void loadHeroFlags(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr, bool mode);
+	void loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr, bool mode);
 	void loadHeroAnims();
 	CDefEssential *  loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations);
 	void loadErmuToPicture();

@@ -134,13 +134,13 @@ void CBattleHero::show(SDL_Surface * to)
 	}
 	CSDL_Ext::blit8bppAlphaTo24bpp(
 		flag->ourImages[flagAnim].bitmap,
-		NULL,
+		nullptr,
 		screen,
 		&temp_rect);
 
 	//animation of hero
 	SDL_Rect rect = pos;
-	CSDL_Ext::blit8bppAlphaTo24bpp(dh->ourImages[currentFrame].bitmap, NULL, to, &rect);
+	CSDL_Ext::blit8bppAlphaTo24bpp(dh->ourImages[currentFrame].bitmap, nullptr, to, &rect);
 
 	if ( ++animCount == 4 )
 	{
@@ -165,7 +165,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 	if(myOwner->spellDestSelectMode) //we are casting a spell
 		return;
 
-	if(!down && myHero != NULL && myOwner->myTurn && myOwner->curInt->cb->battleCanCastSpell()) //check conditions
+	if(!down && myHero != nullptr && myOwner->myTurn && myOwner->curInt->cb->battleCanCastSpell()) //check conditions
 	{
 		for(int it=0; it<GameConstants::BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
 		{
@@ -248,11 +248,11 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	background = new CPicture("comopbck.bmp");
 	background->colorize(owner->curInt->playerID);
 
-	viewGrid = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintCellBorders, owner, true), boost::bind(&CBattleInterface::setPrintCellBorders, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[427].first)(3,CGI->generaltexth->zelp[427].first), CGI->generaltexth->zelp[427].second, false, "sysopchk.def", NULL, 25, 56, false);
+	viewGrid = new CHighlightableButton(std::bind(&CBattleInterface::setPrintCellBorders, owner, true), std::bind(&CBattleInterface::setPrintCellBorders, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[427].first)(3,CGI->generaltexth->zelp[427].first), CGI->generaltexth->zelp[427].second, false, "sysopchk.def", nullptr, 25, 56, false);
 	viewGrid->select(settings["battle"]["cellBorders"].Bool());
-	movementShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintStackRange, owner, true), boost::bind(&CBattleInterface::setPrintStackRange, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[428].first)(3,CGI->generaltexth->zelp[428].first), CGI->generaltexth->zelp[428].second, false, "sysopchk.def", NULL, 25, 89, false);
+	movementShadow = new CHighlightableButton(std::bind(&CBattleInterface::setPrintStackRange, owner, true), std::bind(&CBattleInterface::setPrintStackRange, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[428].first)(3,CGI->generaltexth->zelp[428].first), CGI->generaltexth->zelp[428].second, false, "sysopchk.def", nullptr, 25, 89, false);
 	movementShadow->select(settings["battle"]["stackRange"].Bool());
-	mouseShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintMouseShadow, owner, true), boost::bind(&CBattleInterface::setPrintMouseShadow, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[429].first)(3,CGI->generaltexth->zelp[429].first), CGI->generaltexth->zelp[429].second, false, "sysopchk.def", NULL, 25, 122, false);
+	mouseShadow = new CHighlightableButton(std::bind(&CBattleInterface::setPrintMouseShadow, owner, true), std::bind(&CBattleInterface::setPrintMouseShadow, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[429].first)(3,CGI->generaltexth->zelp[429].first), CGI->generaltexth->zelp[429].second, false, "sysopchk.def", nullptr, 25, 122, false);
 	mouseShadow->select(settings["battle"]["mouseShadow"].Bool());
 
 	animSpeeds = new CHighlightableButtonsGroup(0);
@@ -260,12 +260,12 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[423].first),CGI->generaltexth->zelp[423].second, "sysob10.def", 92, 225, 2);
 	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[424].first),CGI->generaltexth->zelp[424].second, "sysob11.def",156, 225, 4);
 	animSpeeds->select(owner->getAnimSpeed(), 1);
-	animSpeeds->onChange = boost::bind(&CBattleInterface::setAnimSpeed, owner, _1);
+	animSpeeds->onChange = std::bind(&CBattleInterface::setAnimSpeed, owner, _1);
 
-	setToDefault = new CAdventureMapButton (CGI->generaltexth->zelp[393], boost::bind(&CBattleOptionsWindow::bDefaultf,this), 246, 359, "codefaul.def");
+	setToDefault = new CAdventureMapButton (CGI->generaltexth->zelp[393], std::bind(&CBattleOptionsWindow::bDefaultf,this), 246, 359, "codefaul.def");
 	setToDefault->swappedImages = true;
 	setToDefault->update();
-	exit = new CAdventureMapButton (CGI->generaltexth->zelp[392], boost::bind(&CBattleOptionsWindow::bExitf,this), 357, 359, "soretrn.def",SDLK_RETURN);
+	exit = new CAdventureMapButton (CGI->generaltexth->zelp[392], std::bind(&CBattleOptionsWindow::bExitf,this), 357, 359, "soretrn.def",SDLK_RETURN);
 	exit->swappedImages = true;
 	exit->update();
 
@@ -312,7 +312,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	CPicture * bg = new CPicture("CPRESULT");
 	bg->colorize(owner.playerID);
 
-	exit = new CAdventureMapButton ("", "", boost::bind(&CBattleResultWindow::bExitf,this), 384, 505, "iok6432.def", SDLK_RETURN);
+	exit = new CAdventureMapButton ("", "", std::bind(&CBattleResultWindow::bExitf,this), 384, 505, "iok6432.def", SDLK_RETURN);
 	exit->borderColor = Colors::METALLIC_GOLD;
 	exit->borderEnabled = true;
 
@@ -531,7 +531,7 @@ void CClickableHex::hover(bool on)
 	}
 }
 
-CClickableHex::CClickableHex() : setAlterText(false), myNumber(-1), accessible(true), hovered(false), strictHovered(false), myInterface(NULL)
+CClickableHex::CClickableHex() : setAlterText(false), myNumber(-1), accessible(true), hovered(false), strictHovered(false), myInterface(nullptr)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
 }
@@ -553,7 +553,7 @@ void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 	if(hovered && strictHovered) //print attacked creature to console
 	{
 		const CStack * attackedStack = myInterface->curInt->cb->battleGetStackByPos(myNumber);
-		if(myInterface->console->alterTxt.size() == 0 &&attackedStack != NULL &&
+		if(myInterface->console->alterTxt.size() == 0 &&attackedStack != nullptr &&
 			attackedStack->owner != myInterface->curInt->playerID &&
 			attackedStack->alive())
 		{
@@ -582,7 +582,7 @@ void CClickableHex::clickLeft(tribool down, bool previousState)
 void CClickableHex::clickRight(tribool down, bool previousState)
 {
 	const CStack * myst = myInterface->curInt->cb->battleGetStackByPos(myNumber); //stack info
-	if(hovered && strictHovered && myst!=NULL)
+	if(hovered && strictHovered && myst!=nullptr)
 	{
 
 		if(!myst->alive()) return;
@@ -616,7 +616,7 @@ CStackQueue::CStackQueue(bool Embedded, CBattleInterface * _owner)
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	if(embedded)
 	{
-		bg = NULL;
+		bg = nullptr;
 		pos.w = QUEUE_SIZE * 37;
 		pos.h = 46;
 		pos.x = screen->w/2 - pos.w/2;

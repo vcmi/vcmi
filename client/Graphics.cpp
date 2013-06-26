@@ -42,7 +42,7 @@ using namespace CSDL_Ext;
  *
  */
 
-Graphics * graphics = NULL;
+Graphics * graphics = nullptr;
 
 void Graphics::loadPaletteAndColors()
 {
@@ -121,12 +121,12 @@ void Graphics::initializeBattleGraphics()
 Graphics::Graphics()
 {
 	std::vector<Task> tasks; //preparing list of graphics to load
-	tasks += boost::bind(&Graphics::loadFonts,this);
-	tasks += boost::bind(&Graphics::loadPaletteAndColors,this);
-	tasks += boost::bind(&Graphics::loadHeroFlags,this);
-	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
-	tasks += boost::bind(&Graphics::loadErmuToPicture,this);
-	tasks += boost::bind(&Graphics::initializeImageLists,this);
+	tasks += std::bind(&Graphics::loadFonts,this);
+	tasks += std::bind(&Graphics::loadPaletteAndColors,this);
+	tasks += std::bind(&Graphics::loadHeroFlags,this);
+	tasks += std::bind(&Graphics::initializeBattleGraphics,this);
+	tasks += std::bind(&Graphics::loadErmuToPicture,this);
+	tasks += std::bind(&Graphics::initializeImageLists,this);
 	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
 	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
 	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
@@ -199,7 +199,7 @@ CDefEssential * Graphics::loadHeroAnim( const std::string &name, const std::vect
 	return anim;
 }
 
-void Graphics::loadHeroFlags(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr, bool mode)
+void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr, bool mode)
 {
 	for(int i=0;i<8;i++)
 		(this->*pr.first).push_back(CDefHandler::giveDefEss(pr.second[i]));
@@ -273,7 +273,7 @@ void Graphics::loadHeroFlags()
 	boost::thread_group grupa;
 	for(int g=3; g>=0; --g)
 	{
-		grupa.create_thread(boost::bind(&Graphics::loadHeroFlags,this,boost::ref(pr[g]),true));
+		grupa.create_thread(std::bind(&Graphics::loadHeroFlagsDetail, this, std::ref(pr[g]), true));
 	}
 	grupa.join_all();
     logGlobal->infoStream() << "Loading and transforming heroes' flags: "<<th.getDiff();
@@ -285,7 +285,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 // 		return;
 	if(sur->format->BitsPerPixel == 8)
 	{
-		SDL_Color *palette = NULL;
+		SDL_Color *palette = nullptr;
 		if(player < PlayerColor::PLAYER_LIMIT)
 		{
 			palette = playerColorPalette + 32*player.getNum();

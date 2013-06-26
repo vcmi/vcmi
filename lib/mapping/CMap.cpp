@@ -100,7 +100,7 @@ TerrainTile::TerrainTile() : terType(ETerrainType::BORDER), terView(0), riverTyp
 
 }
 
-bool TerrainTile::entrableTerrain(const TerrainTile * from /*= NULL*/) const
+bool TerrainTile::entrableTerrain(const TerrainTile * from /*= nullptr*/) const
 {
 	return entrableTerrain(from ? from->terType != ETerrainType::WATER : true, from ? from->terType == ETerrainType::WATER : true);
 }
@@ -111,7 +111,7 @@ bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
 			&& ((allowSea && terType == ETerrainType::WATER)  ||  (allowLand && terType != ETerrainType::WATER));
 }
 
-bool TerrainTile::isClear(const TerrainTile *from /*= NULL*/) const
+bool TerrainTile::isClear(const TerrainTile *from /*= nullptr*/) const
 {
 	return entrableTerrain(from) && !blocked;
 }

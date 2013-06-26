@@ -2,7 +2,6 @@
 #include "BattleState.h"
 
 #include <numeric>
-#include <boost/random/linear_congruential.hpp>
 #include "VCMI_Lib.h"
 #include "CObjectHandler.h"
 #include "CHeroHandler.h"
@@ -23,7 +22,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-extern boost::rand48 ran;
+extern std::minstd_rand ran;
 
 const CStack * BattleInfo::getNextStack() const
 {
@@ -33,7 +32,7 @@ const CStack * BattleInfo::getNextStack() const
 	if(hlp.size())
 		return hlp[0];
 	else
-		return NULL;
+		return nullptr;
 }
 
 int BattleInfo::getAvaliableHex(CreatureID creID, bool attackerOwned, int initialPos) const
@@ -193,7 +192,7 @@ bool BattleInfo::resurrects(SpellID spellid) const
 
 const CStack * BattleInfo::battleGetStack(BattleHex pos, bool onlyAlive)
 {
-	CStack * stack = NULL;
+	CStack * stack = nullptr;
 	for(ui32 g=0; g<stacks.size(); ++g)
 	{
 		if(stacks[g]->position == pos
@@ -299,7 +298,7 @@ struct RangeGenerator
 	{
 	};
 
-	RangeGenerator(int _min, int _max, boost::function<int()> _myRand)
+	RangeGenerator(int _min, int _max, std::function<int()> _myRand)
 	{
 		myRand = _myRand;
 		min = _min;
@@ -317,7 +316,7 @@ struct RangeGenerator
 	}
 
 	//get number fulfilling predicate. Never gives the same number twice.
-	int getSuchNumber(boost::function<bool(int)> goodNumberPred = 0)
+	int getSuchNumber(std::function<bool(int)> goodNumberPred = 0)
 	{
 		int ret = -1;
 		do
@@ -343,7 +342,7 @@ struct RangeGenerator
 
 	int min, remainingCount;
 	std::vector<bool> remaining;
-	boost::function<int()> myRand;
+	std::function<int()> myRand;
 };
 
 BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town )
@@ -376,7 +375,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	}
 	else
 	{
-		curB->town = NULL;
+		curB->town = nullptr;
 		curB->siege = CGTownInstance::NONE;
 		curB->terrainType = terrain;
 	}
@@ -391,7 +390,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	}
 
 	//randomize obstacles
- 	if (town == NULL && !creatureBank) //do it only when it's not siege and not creature bank
+ 	if (town == nullptr && !creatureBank) //do it only when it's not siege and not creature bank
  	{
 		const int ABSOLUTE_OBSTACLES_COUNT = 34, USUAL_OBSTACLES_COUNT = 91; //shouldn't be changes if we want H3-like obstacle placement
 
@@ -857,7 +856,7 @@ CStack::CStack()
 	setNodeType(STACK_BATTLE);
 }
 CStack::CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, bool AO, SlotID S)
-	: base(NULL), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacks(1)
+	: base(nullptr), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacks(1)
 {
 	type = stack->type;
 	count = baseAmount = stack->count;
@@ -866,8 +865,8 @@ CStack::CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, bool AO
 
 void CStack::init()
 {
-	base = NULL;
-	type = NULL;
+	base = nullptr;
+	type = nullptr;
 	ID = -1;
 	count = baseAmount = -1;
 	firstHPleft = -1;
@@ -1111,7 +1110,7 @@ const CGHeroInstance * CStack::getMyHero() const
 			if(n->getNodeType() == HERO)
 				return dynamic_cast<const CGHeroInstance *>(n);
 
-	return NULL;
+	return nullptr;
 }
 
 std::string CStack::nodeName() const

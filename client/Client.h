@@ -30,8 +30,6 @@ class CScriptingModule;
 struct CPathsInfo;
 namespace boost { class thread; }
 
-void processCommand(const std::string &message, CClient *&client);
-
 /// structure to handle running server and connecting to it
 class CServerHandler
 {
@@ -156,7 +154,7 @@ public:
 	void campaignMapFinished( shared_ptr<CCampaignState> camp );
 	void finishCampaign( shared_ptr<CCampaignState> camp );
 	void proposeNextMission(shared_ptr<CCampaignState> camp);
-	void invalidatePaths(const CGHeroInstance *h = NULL); //invalidates paths for hero h or for any hero if h is NULL => they'll got recalculated when the next query comes
+	void invalidatePaths(const CGHeroInstance *h = nullptr); //invalidates paths for hero h or for any hero if h is nullptr => they'll got recalculated when the next query comes
 	void calculatePaths(const CGHeroInstance *h);
 	void updatePaths(); //calls calculatePaths for same hero for which we previously calculated paths
 
@@ -164,74 +162,73 @@ public:
 	boost::thread *connectionHandler; //thread running run() method
 
 	//////////////////////////////////////////////////////////////////////////
-	virtual PlayerColor getLocalPlayer() const OVERRIDE;
+	virtual PlayerColor getLocalPlayer() const override;
 
 	//////////////////////////////////////////////////////////////////////////
 	//not working yet, will be implement somewhen later with support for local-sim-based gameplay
-	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) OVERRIDE {};
-	bool removeObject(const CGObjectInstance * obj) OVERRIDE {return false;};
-	void setBlockVis(ObjectInstanceID objid, bool bv) OVERRIDE {};
-	void setOwner(const CGObjectInstance * obj, PlayerColor owner) OVERRIDE {};
-	void setHoverName(const CGObjectInstance * obj, MetaString * name) OVERRIDE {};
-	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) OVERRIDE {};
-	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) OVERRIDE {}; 
+	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override {};
+	bool removeObject(const CGObjectInstance * obj) override {return false;};
+	void setBlockVis(ObjectInstanceID objid, bool bv) override {};
+	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override {};
+	void setHoverName(const CGObjectInstance * obj, MetaString * name) override {};
+	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) override {};
+	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {}; 
 
-	void showBlockingDialog(BlockingDialog *iw) OVERRIDE {}; 
-	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) OVERRIDE {};
-	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) OVERRIDE {};
-	void giveResource(PlayerColor player, Res::ERes which, int val) OVERRIDE {};
-	virtual void giveResources(PlayerColor player, TResources resources) OVERRIDE {};
+	void showBlockingDialog(BlockingDialog *iw) override {}; 
+	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {};
+	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override {};
+	void giveResource(PlayerColor player, Res::ERes which, int val) override {};
+	virtual void giveResources(PlayerColor player, TResources resources) override {};
 
-	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE {};
-	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures) OVERRIDE {};
-	bool changeStackType(const StackLocation &sl, CCreature *c) OVERRIDE {return false;};
-	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) OVERRIDE {return false;};
-	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) OVERRIDE {return false;};
+	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override {};
+	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures) override {};
+	bool changeStackType(const StackLocation &sl, CCreature *c) override {return false;};
+	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) override {return false;};
+	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) override {return false;};
 	bool eraseStack(const StackLocation &sl, bool forceRemoval = false){return false;};
-	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2) OVERRIDE {return false;}
-	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) OVERRIDE {return false;}
-	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) OVERRIDE {}
-	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) OVERRIDE {return false;}
+	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2) override {return false;}
+	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) override {return false;}
+	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) override {}
+	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) override {return false;}
 	
-	void removeAfterVisit(const CGObjectInstance *object) OVERRIDE {};
+	void removeAfterVisit(const CGObjectInstance *object) override {};
 
-	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) OVERRIDE {};
-	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) OVERRIDE {};
-	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) OVERRIDE {}; 
-	void removeArtifact(const ArtifactLocation &al) OVERRIDE {};
-	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE {return false;};
-	void synchronizeArtifactHandlerLists() OVERRIDE {};
+	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) override {};
+	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override {};
+	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override {}; 
+	void removeArtifact(const ArtifactLocation &al) override {};
+	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override {return false;};
+	void synchronizeArtifactHandlerLists() override {};
 
-	void showCompInfo(ShowInInfobox * comp) OVERRIDE {};
-	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) OVERRIDE {};
-	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) OVERRIDE {};
+	void showCompInfo(ShowInInfobox * comp) override {};
+	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
+	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
 	//void giveHeroArtifact(int artid, int hid, int position){}; 
 	//void giveNewArtifact(int hid, int position){};
-	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = NULL) OVERRIDE {}; //use hero=NULL for no hero
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false) OVERRIDE {}; //if any of armies is hero, hero will be used
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) OVERRIDE {}; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
-	void setAmount(ObjectInstanceID objid, ui32 val) OVERRIDE {};
-	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker = PlayerColor::NEUTRAL) OVERRIDE {return false;};
-	void giveHeroBonus(GiveBonus * bonus) OVERRIDE {};
-	void setMovePoints(SetMovePoints * smp) OVERRIDE {};
-	void setManaPoints(ObjectInstanceID hid, int val) OVERRIDE {};
-	void giveHero(ObjectInstanceID id, PlayerColor player) OVERRIDE {};
-	void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags) OVERRIDE {};
-	void sendAndApply(CPackForClient * info) OVERRIDE {};
-	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) OVERRIDE {};
+	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr) override {}; //use hero=nullptr for no hero
+	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false) override {}; //if any of armies is hero, hero will be used
+	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) override {}; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
+	void setAmount(ObjectInstanceID objid, ui32 val) override {};
+	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker = PlayerColor::NEUTRAL) override {return false;};
+	void giveHeroBonus(GiveBonus * bonus) override {};
+	void setMovePoints(SetMovePoints * smp) override {};
+	void setManaPoints(ObjectInstanceID hid, int val) override {};
+	void giveHero(ObjectInstanceID id, PlayerColor player) override {};
+	void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags) override {};
+	void sendAndApply(CPackForClient * info) override {};
+	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {};
 
 	//////////////////////////////////////////////////////////////////////////
 	friend class CCallback; //handling players actions
 	friend class CBattleCallback; //handling players actions
-	friend void processCommand(const std::string &message, CClient *&client); //handling console
-	
+
 	int sendRequest(const CPack *request, PlayerColor player); //returns ID given to that request
 
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
 	void battleStarted(const BattleInfo * info);
 	void commenceTacticPhaseForInt(shared_ptr<CBattleGameInterface> battleInt); //will be called as separate thread
 
-	void commitPackage(CPackForClient *pack) OVERRIDE;
+	void commitPackage(CPackForClient *pack) override;
 
 	//////////////////////////////////////////////////////////////////////////
 

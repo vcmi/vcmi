@@ -11,28 +11,11 @@
 
 #pragma once
 
-#include <boost/version.hpp>
-#include <boost/random/mersenne_twister.hpp>
-
-#if BOOST_VERSION >= 104700
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
-#else
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/uniform_real.hpp>
-#endif
-#include <boost/random/variate_generator.hpp>
-
-typedef boost::mt19937 TGenerator;
-#if BOOST_VERSION >= 104700
-typedef boost::random::uniform_int_distribution<int> TIntDist;
-typedef boost::random::uniform_real_distribution<double> TRealDist;
-#else
-typedef boost::uniform_int<int> TIntDist;
-typedef boost::uniform_real<double> TRealDist;
-#endif
-typedef boost::variate_generator<TGenerator &, TIntDist> TRandI;
-typedef boost::variate_generator<TGenerator &, TRealDist> TRand;
+typedef std::mt19937 TGenerator;
+typedef std::uniform_int_distribution<int> TIntDist;
+typedef std::uniform_real_distribution<double> TRealDist;
+typedef std::function<int()> TRandI;
+typedef std::function<double()> TRand;
 
 /// The random generator randomly generates integers and real numbers("doubles") between
 /// a given range. This is a header only class and mainly a wrapper for
@@ -55,8 +38,7 @@ public:
 	/// e.g.: auto a = gen.getRangeI(0,10); a(); a(); a();
 	TRandI getRangeI(int lower, int upper)
 	{
-		TIntDist range(lower, upper);
-		return TRandI(gen, range);
+		return std::bind(TIntDist(lower, upper), gen);
 	}
 	
 	int getInteger(int lower, int upper)
@@ -68,8 +50,7 @@ public:
 	/// e.g.: auto a = gen.getRangeI(0,10); a(); a(); a();
 	TRand getRange(double lower, double upper)
 	{
-		TRealDist range(lower, upper);
-		return TRand(gen, range);
+		return std::bind(TRealDist(lower, upper), gen);
 	}
 	
 	double getDouble(double lower, double upper)

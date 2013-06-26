@@ -82,15 +82,15 @@ public:
 	void artifactDisassembled (const ArtifactLocation &artLoc) {return;};
 	void artifactAssembled (const ArtifactLocation &artLoc) {return;};
 
-	boost::function<void()> dsm; //dismiss button callback
-	boost::function<void()> Upg; //upgrade button callback
-	boost::function<void(ui32)> levelUp; //choose commander skill to level up
+	std::function<void()> dsm; //dismiss button callback
+	std::function<void()> Upg; //upgrade button callback
+	std::function<void(ui32)> levelUp; //choose commander skill to level up
 
 	CCreatureWindow(const CStack & stack, CreWinType type); //battle c-tor
 	CCreatureWindow (const CStackInstance &stack, CreWinType Type); //pop-up c-tor
-	CCreatureWindow(const CStackInstance &st, CreWinType Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //full garrison window
-	CCreatureWindow(const CCommanderInstance * commander, const CStack * stack = NULL); //commander window
-	CCreatureWindow(std::vector<ui32> &skills, const CCommanderInstance * commander, boost::function<void(ui32)> callback); 
+	CCreatureWindow(const CStackInstance &st, CreWinType Type, std::function<void()> Upg, std::function<void()> Dsm, UpgradeInfo *ui); //full garrison window
+	CCreatureWindow(const CCommanderInstance * commander, const CStack * stack = nullptr); //commander window
+	CCreatureWindow(std::vector<ui32> &skills, const CCommanderInstance * commander, std::function<void(ui32)> callback); 
 	CCreatureWindow(CreatureID Cid, CreWinType Type, int creatureCount); //c-tor
 
 	void init(const CStackInstance *stack, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner);
@@ -123,7 +123,7 @@ public:
 class CSelectableSkill : public LRClickableAreaWText
 {
 public:
-	boost::function<void()> callback; //TODO: create more generic clickable class than AdvMapButton?
+	std::function<void()> callback; //TODO: create more generic clickable class than AdvMapButton?
 
 	virtual void clickLeft(tribool down, bool previousState);
 	virtual void clickRight(tribool down, bool previousState){};
@@ -146,7 +146,7 @@ public:
 
 	CAdventureMapButton * dismiss, * upgrade, * ok;
 
-	CCreInfoWindow(const CStackInstance & st, bool LClicked, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo * ui = NULL);
+	CCreInfoWindow(const CStackInstance & st, bool LClicked, std::function<void()> Upg = 0, std::function<void()> Dsm = 0, UpgradeInfo * ui = nullptr);
 	CCreInfoWindow(const CStack & st, bool LClicked = 0);
 	CCreInfoWindow(int Cid, bool LClicked, int creatureCount);
 	~CCreInfoWindow();
@@ -159,4 +159,4 @@ public:
 
 CIntObject *createCreWindow(const CStack *s, bool lclick = false);
 CIntObject *createCreWindow(CreatureID Cid, CCreatureWindow::CreWinType Type, int creatureCount);
-CIntObject *createCreWindow(const CStackInstance *s, CCreatureWindow::CreWinType type, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL);
+CIntObject *createCreWindow(const CStackInstance *s, CCreatureWindow::CreWinType type, std::function<void()> Upg = 0, std::function<void()> Dsm = 0, UpgradeInfo *ui = nullptr);

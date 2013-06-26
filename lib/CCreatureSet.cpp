@@ -37,7 +37,7 @@ const CCreature* CCreatureSet::getCreature(SlotID slot) const
 	if (i != stacks.end())
 		return i->second->type;
 	else
-		return NULL;
+		return nullptr;
 }
 
 bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity) /*slots 0 to 6 */
@@ -281,7 +281,7 @@ const CStackInstance* CCreatureSet::getStackPtr(SlotID slot) const
 {
 	if(hasStackAtSlot(slot))
 		return stacks.find(slot)->second;
-	else return NULL;
+	else return nullptr;
 }
 
 void CCreatureSet::eraseStack(SlotID slot)
@@ -386,7 +386,7 @@ CStackInstance * CCreatureSet::detachStack(SlotID slot)
 
 	//if(CArmedInstance *armedObj = castToArmyObj())
 	{
-		ret->setArmyObj(NULL); //detaches from current armyobj
+		ret->setArmyObj(nullptr); //detaches from current armyobj
 	}
 
 	assert(!ret->armyObj); //we failed detaching?
@@ -477,9 +477,9 @@ void CStackInstance::init()
 {
 	experience = 0;
 	count = 0;
-	type = NULL;
+	type = nullptr;
 	idRand = -1;
-	_armyObj = NULL;
+	_armyObj = nullptr;
 	setNodeType(STACK_INSTANCE);
 }
 
@@ -549,7 +549,7 @@ void CStackInstance::setType(CreatureID creID)
 	if(creID >= 0 && creID < VLC->creh->creatures.size())
 		setType(VLC->creh->creatures[creID]);
 	else
-		setType((const CCreature*)NULL);
+		setType((const CCreature*)nullptr);
 }
 
 void CStackInstance::setType(const CCreature *c)
@@ -638,10 +638,10 @@ std::string CStackInstance::nodeName() const
 void CStackInstance::deserializationFix()
 {
 	const CCreature *backup = type;
-	type = NULL;
+	type = nullptr;
 		setType(backup);
 	const CArmedInstance *armyBackup = _armyObj;
-	_armyObj = NULL;
+	_armyObj = nullptr;
 	setArmyObj(armyBackup);
 	artDeserializationFix(this);
 }
@@ -689,9 +689,9 @@ void CCommanderInstance::init()
 	experience = 0;
 	level = 1;
 	count = 1;
-	type = NULL;
+	type = nullptr;
 	idRand = -1;
-	_armyObj = NULL;
+	_armyObj = nullptr;
 	setNodeType (CBonusSystemNode::COMMANDER);
 	secondarySkills.resize (ECommander::SPELL_POWER + 1);
 }
@@ -748,7 +748,7 @@ bool CCommanderInstance::gainsLevel() const
 
 CStackBasicDescriptor::CStackBasicDescriptor()
 {
-	type = NULL;
+	type = nullptr;
 	count = -1;
 }
 

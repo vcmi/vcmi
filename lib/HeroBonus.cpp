@@ -187,7 +187,7 @@ const Bonus * BonusList::getFirst(const CSelector &selector) const
 		if(selector(b))
 			return &*b;
 	}
-	return NULL;
+	return nullptr;
 }
 
 Bonus * BonusList::getFirst(const CSelector &select)
@@ -198,7 +198,7 @@ Bonus * BonusList::getFirst(const CSelector &select)
 		if(select(b))
 			return &*b;
 	}
-	return NULL;
+	return nullptr;
 }
 
 void BonusList::getModifiersWDescr(TModDescr &out) const
@@ -248,7 +248,7 @@ int BonusList::valOfBonuses(const CSelector &select) const
 
 // void BonusList::limit(const CBonusSystemNode &node)
 // {
-// 	remove_if(boost::bind(&CBonusSystemNode::isLimitedOnUs, boost::ref(node), _1));
+// 	remove_if(std::bind(&CBonusSystemNode::isLimitedOnUs, std::ref(node), _1));
 // }
 
 
@@ -329,7 +329,7 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) cons
 int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
 	CSelector limit = 0;
-	TBonusListPtr hlp = getAllBonuses(selector, limit, NULL, cachingStr);
+	TBonusListPtr hlp = getAllBonuses(selector, limit, nullptr, cachingStr);
 	return hlp->totalValue();
 }
 bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachingStr /*= ""*/) const
@@ -374,12 +374,12 @@ int IBonusBearer::getBonusesCount(const CSelector &selector, const std::string &
 
 const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr /*= ""*/) const
 {
-	return getAllBonuses(selector, 0, NULL, cachingStr);
+	return getAllBonuses(selector, 0, nullptr, cachingStr);
 }
 
 const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr /*= ""*/) const
 {
-	return getAllBonuses(selector, limit, NULL, cachingStr);
+	return getAllBonuses(selector, limit, nullptr, cachingStr);
 }
 
 bool IBonusBearer::hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const
@@ -512,7 +512,7 @@ const Bonus * IBonusBearer::getEffect(ui16 id, int turn /*= 0*/) const
 				return &(*it);
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 ui8 IBonusBearer::howManyEffectsSet(ui16 id) const
@@ -558,7 +558,7 @@ Bonus * CBonusSystemNode::getBonusLocalFirst(const CSelector &selector)
 			return ret;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const Bonus * CBonusSystemNode::getBonusLocalFirst( const CSelector &selector ) const
@@ -604,7 +604,7 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 	bonuses.getAllBonuses(out);
 }
 
-const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const std::string &cachingStr /*= ""*/) const
+const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= nullptr*/, const std::string &cachingStr /*= ""*/) const
 {
 	bool limitOnUs = (!root || root == this); //caching won't work when we want to limit bonuses against an external node
 	if (CBonusSystemNode::cachingEnabled && limitOnUs)
@@ -657,7 +657,7 @@ const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, c
 	}
 }
 
-const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
+const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= nullptr*/) const
 {
 	auto ret = make_shared<BonusList>();
 
@@ -1099,7 +1099,7 @@ const CSpell * Bonus::sourceSpell() const
 {
 	if(source == SPELL_EFFECT)
 		return SpellID(sid).toSpell();
-	return NULL;
+	return nullptr;
 }
 
 std::string Bonus::Description() const
@@ -1250,7 +1250,7 @@ const CStack * retreiveStackBattle(const CBonusSystemNode *node)
 	case CBonusSystemNode::STACK_BATTLE:
 		return static_cast<const CStack*>(node);
 	default:
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -1263,7 +1263,7 @@ const CStackInstance * retreiveStackInstance(const CBonusSystemNode *node)
 	case CBonusSystemNode::STACK_BATTLE:
 		return (static_cast<const CStack*>(node))->base;
 	default:
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -1277,7 +1277,7 @@ const CCreature * retrieveCreature(const CBonusSystemNode *node)
 		const CStackInstance *csi = retreiveStackInstance(node);
 		if(csi)
 			return csi->type;
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -1360,7 +1360,7 @@ CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, bool Inclu
 
 CCreatureTypeLimiter::CCreatureTypeLimiter()
 {
-	creature = NULL;
+	creature = nullptr;
 	includeUpgrades = false;
 }
 
@@ -1410,7 +1410,7 @@ bool IPropagator::shouldBeAttached(CBonusSystemNode *dest)
 
 // CBonusSystemNode * CPropagatorNodeType::getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild)
 // {
-// 	return NULL;
+// 	return nullptr;
 // }
 
 CPropagatorNodeType::CPropagatorNodeType()

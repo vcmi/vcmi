@@ -45,7 +45,7 @@ void CIdentifierStorage::checkIdentifier(std::string & ID)
 }
 
 CIdentifierStorage::ObjectCallback::ObjectCallback(std::string localScope, std::string remoteScope, std::string type,
-                                                   std::string name, const boost::function<void(si32)> & callback):
+                                                   std::string name, const std::function<void(si32)> & callback):
     localScope(localScope),
     remoteScope(remoteScope),
     type(type),
@@ -81,21 +81,21 @@ void CIdentifierStorage::requestIdentifier(ObjectCallback callback)
 	scheduledRequests.push_back(callback);
 }
 
-void CIdentifierStorage::requestIdentifier(std::string scope, std::string type, std::string name, const boost::function<void(si32)> & callback)
+void CIdentifierStorage::requestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback)
 {
 	auto pair = splitString(name, ':'); // remoteScope:name
 
 	requestIdentifier(ObjectCallback(scope, pair.first, type, pair.second, callback));
 }
 
-void CIdentifierStorage::requestIdentifier(std::string type, const JsonNode & name, const boost::function<void(si32)> & callback)
+void CIdentifierStorage::requestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback)
 {
 	auto pair = splitString(name.String(), ':'); // remoteScope:name
 
 	requestIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, callback));
 }
 
-void CIdentifierStorage::requestIdentifier(const JsonNode & name, const boost::function<void(si32)> & callback)
+void CIdentifierStorage::requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback)
 {
 	auto pair  = splitString(name.String(), ':'); // remoteScope:<type.name>
 	auto pair2 = splitString(pair.second,   '.'); // type.name

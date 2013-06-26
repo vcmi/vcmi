@@ -67,7 +67,7 @@ public:
 
 	ui32 price;
 	bmap<ArtBearer::ArtBearer, std::vector<ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
-	std::unique_ptr<std::vector<CArtifact *> > constituents; // Artifacts IDs a combined artifact consists of, or NULL.
+	std::unique_ptr<std::vector<CArtifact *> > constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
 	std::vector<CArtifact *> constituentOf; // Reverse map of constituents - combined arts that include this art
 	EartClass aClass;
 	ArtifactID id;
@@ -157,7 +157,7 @@ public:
 		}
 
 		bool operator==(const ConstituentInfo &rhs) const;
-		ConstituentInfo(CArtifactInstance *art = NULL, ArtifactPosition slot = ArtifactPosition::PRE_FIRST);
+		ConstituentInfo(CArtifactInstance *art = nullptr, ArtifactPosition slot = ArtifactPosition::PRE_FIRST);
 	};
 
 	std::vector<ConstituentInfo> constituentsInfo;
@@ -272,8 +272,8 @@ public:
 	void eraseArtSlot(ArtifactPosition slot);
 
 	const ArtSlotInfo *getSlot(ArtifactPosition pos) const;
-	const CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true) const; //NULL - no artifact
-	CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true); //NULL - no artifact
+	const CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true) const; //nullptr - no artifact
+	CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true); //nullptr - no artifact
 	ArtifactPosition getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
 	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
 	const CArtifactInstance *getArtByInstanceId(ArtifactInstanceID artInstId) const;

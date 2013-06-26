@@ -36,7 +36,7 @@ const int QUEST_COUNT = 9;
 class CQuestLabel : public LRClickableAreaWText, public CBoundedLabel
 {
 public:
-	boost::function<void()> callback;
+	std::function<void()> callback;
 
 	CQuestLabel (int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "")
 		: CBoundedLabel (x, y, FONT_SMALL, TOPLEFT, Colors::WHITE, Text){};
@@ -47,7 +47,7 @@ public:
 class CQuestIcon : public CAnimImage
 {
 public:
-	boost::function<void()> callback; //TODO: merge with other similiar classes?
+	std::function<void()> callback; //TODO: merge with other similiar classes?
 
 	CQuestIcon (const std::string &defname, int index, int x=0, int y=0);
 

@@ -105,7 +105,7 @@ class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
 {
 public:
 	CGlobalAI();
-	virtual BattleAction activeStack(const CStack * stack) OVERRIDE;
+	virtual BattleAction activeStack(const CStack * stack) override;
 };
 
 //class to  be inherited by adventure-only AIs, it cedes battle actions to given battle-AI

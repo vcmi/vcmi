@@ -104,7 +104,7 @@ struct StartInfo
 			if(it->second.playerID == nameID)
 				return &it->second;
 
-		return NULL;
+		return nullptr;
 	}
 
 	template <typename Handler>

@@ -157,7 +157,7 @@ public:
 	std::vector<CMapInfo> allItems;
 	std::vector<CMapInfo*> curItems;
 	size_t selectionPos;
-	boost::function<void(CMapInfo *)> onSelect;
+	std::function<void(CMapInfo *)> onSelect;
 
 	ESortBy sortingBy;
 	bool ascending;
@@ -181,7 +181,7 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void onDoubleClick();
-	SelectionTab(CMenuScreen::EState Type, const boost::function<void(CMapInfo *)> &OnSelect, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER);
+	SelectionTab(CMenuScreen::EState Type, const std::function<void(CMapInfo *)> &OnSelect, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER);
     ~SelectionTab();
 };
 
@@ -321,7 +321,7 @@ public:
 	StartInfo sInfo;
 	std::map<ui8, std::string> playerNames; // id of player <-> player name; 0 is reserved as ID of AI "players"
 
-	ISelectionScreenInfo(const std::map<ui8, std::string> *Names = NULL);
+	ISelectionScreenInfo(const std::map<ui8, std::string> *Names = nullptr);
 	virtual ~ISelectionScreenInfo();
 	virtual void update(){};
 	virtual void propagateOptions() {};
@@ -359,7 +359,7 @@ public:
 	bool ongoingClosing;
 	ui8 myNameID; //used when networking - otherwise all player are "mine"
 
-	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER, const std::map<ui8, std::string> * Names = NULL, const std::string & Address = "", const std::string & Port = "");
+	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER, const std::map<ui8, std::string> * Names = nullptr, const std::string & Address = "", const std::string & Port = "");
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);
@@ -591,7 +591,7 @@ public:
 
 	static CGPreGame * create();
 	void removeFromGui();
-	static void showLoadingScreen(boost::function<void()> loader);
+	static void showLoadingScreen(std::function<void()> loader);
 };
 
 class CLoadingScreen : public CWindowObject
@@ -600,7 +600,7 @@ class CLoadingScreen : public CWindowObject
 
 	std::string getBackground();
 public:
-	CLoadingScreen(boost::function<void()> loader);
+	CLoadingScreen(std::function<void()> loader);
 	~CLoadingScreen();
 
 	void showAll(SDL_Surface *to);

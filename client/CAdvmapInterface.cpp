@@ -55,7 +55,7 @@ CAdvMapInt *adventureInt;
 
 
 CTerrainRect::CTerrainRect()
-	:curHoveredTile(-1,-1,-1), currentPath(NULL)
+	:curHoveredTile(-1,-1,-1), currentPath(nullptr)
 {
 	tilesw=(ADVOPT.advmapW+31)/32;
 	tilesh=(ADVOPT.advmapH+31)/32;
@@ -199,7 +199,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 				if (hvx<0 && hvy<0)
 				{
 					Rect dstRect = genRect(32, 32, x + moveX, y + moveY);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &dstRect);
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, nullptr, to, &dstRect);
 				}
 				else if(hvx<0)
 				{
@@ -225,7 +225,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 				if (hvx<0 && hvy<0)
 				{
 					Rect dstRect = genRect(32, 32, x, y);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &dstRect);
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, nullptr, to, &dstRect);
 				}
 				else if(hvx<0)
 				{
@@ -364,34 +364,34 @@ CAdvMapInt::CAdvMapInt():
     minimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH)),
 statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
 kingOverview(CGI->generaltexth->zelp[293].first,CGI->generaltexth->zelp[293].second,
-			 boost::bind(&CAdvMapInt::fshowOverview,this),&ADVOPT.kingOverview, SDLK_k),
+			 std::bind(&CAdvMapInt::fshowOverview,this),&ADVOPT.kingOverview, SDLK_k),
 
 underground(CGI->generaltexth->zelp[294].first,CGI->generaltexth->zelp[294].second,
-			boost::bind(&CAdvMapInt::fswitchLevel,this),&ADVOPT.underground, SDLK_u),
+			std::bind(&CAdvMapInt::fswitchLevel,this),&ADVOPT.underground, SDLK_u),
 
 questlog(CGI->generaltexth->zelp[295].first,CGI->generaltexth->zelp[295].second,
-		 boost::bind(&CAdvMapInt::fshowQuestlog,this),&ADVOPT.questlog, SDLK_q),
+		 std::bind(&CAdvMapInt::fshowQuestlog,this),&ADVOPT.questlog, SDLK_q),
 
 sleepWake(CGI->generaltexth->zelp[296].first,CGI->generaltexth->zelp[296].second,
-		  boost::bind(&CAdvMapInt::fsleepWake,this), &ADVOPT.sleepWake, SDLK_w),
+		  std::bind(&CAdvMapInt::fsleepWake,this), &ADVOPT.sleepWake, SDLK_w),
 
 moveHero(CGI->generaltexth->zelp[297].first,CGI->generaltexth->zelp[297].second,
-		  boost::bind(&CAdvMapInt::fmoveHero,this), &ADVOPT.moveHero, SDLK_m),
+		  std::bind(&CAdvMapInt::fmoveHero,this), &ADVOPT.moveHero, SDLK_m),
 
 spellbook(CGI->generaltexth->zelp[298].first,CGI->generaltexth->zelp[298].second,
-		  boost::bind(&CAdvMapInt::fshowSpellbok,this), &ADVOPT.spellbook, SDLK_c),
+		  std::bind(&CAdvMapInt::fshowSpellbok,this), &ADVOPT.spellbook, SDLK_c),
 
 advOptions(CGI->generaltexth->zelp[299].first,CGI->generaltexth->zelp[299].second,
-		  boost::bind(&CAdvMapInt::fadventureOPtions,this), &ADVOPT.advOptions, SDLK_a),
+		  std::bind(&CAdvMapInt::fadventureOPtions,this), &ADVOPT.advOptions, SDLK_a),
 
 sysOptions(CGI->generaltexth->zelp[300].first,CGI->generaltexth->zelp[300].second,
-		  boost::bind(&CAdvMapInt::fsystemOptions,this), &ADVOPT.sysOptions, SDLK_o),
+		  std::bind(&CAdvMapInt::fsystemOptions,this), &ADVOPT.sysOptions, SDLK_o),
 
 nextHero(CGI->generaltexth->zelp[301].first,CGI->generaltexth->zelp[301].second,
-		  boost::bind(&CAdvMapInt::fnextHero,this), &ADVOPT.nextHero, SDLK_h),
+		  std::bind(&CAdvMapInt::fnextHero,this), &ADVOPT.nextHero, SDLK_h),
 
 endTurn(CGI->generaltexth->zelp[302].first,CGI->generaltexth->zelp[302].second,
-		  boost::bind(&CAdvMapInt::fendTurn,this), &ADVOPT.endTurn, SDLK_e),
+		  std::bind(&CAdvMapInt::fendTurn,this), &ADVOPT.endTurn, SDLK_e),
 
 heroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD),
 townList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD),
@@ -399,12 +399,12 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 {
 	duringAITurn = false;
 	state = NA;
-	spellBeingCasted = NULL;
+	spellBeingCasted = nullptr;
 	pos.x = pos.y = 0;
 	pos.w = screen->w;
 	pos.h = screen->h;
-	selection = NULL;
-	townList.onSelect = boost::bind(&CAdvMapInt::selectionChanged,this);
+	selection = nullptr;
+	townList.onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
 	adventureInt=this;
 	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
 	scrollingDir = 0;
@@ -527,7 +527,7 @@ void CAdvMapInt::fendTurn()
 		for (int i = 0; i < LOCPLINT->wanderingHeroes.size(); i++)
 			if (!isHeroSleeping(LOCPLINT->wanderingHeroes[i]) && (LOCPLINT->wanderingHeroes[i]->movement > 0))
 			{
-				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], boost::bind(&CAdvMapInt::endingTurn, this), 0, false);
+				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::bind(&CAdvMapInt::endingTurn, this), 0, false);
 				return;
 			}
 	}
@@ -698,7 +698,7 @@ void CAdvMapInt::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
 		LOCPLINT->sleepingHeroes += hero;
 	else
 		LOCPLINT->sleepingHeroes -= hero;
-	updateNextHero(NULL);
+	updateNextHero(nullptr);
 }
 
 void CAdvMapInt::show(SDL_Surface * to)
@@ -721,8 +721,8 @@ void CAdvMapInt::show(SDL_Surface * to)
 	if((animValHitCount % (4/scrollSpeed)) == 0
 		&&  (
 			(GH.topInt() == this)
-			|| SDL_GetKeyState(NULL)[SDLK_LCTRL]
-			|| SDL_GetKeyState(NULL)[SDLK_RCTRL]
+			|| SDL_GetKeyState(nullptr)[SDLK_LCTRL]
+			|| SDL_GetKeyState(nullptr)[SDLK_RCTRL]
 )
 	)
 	{
@@ -799,7 +799,11 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 		{
 			//find first town with tavern
-			auto itr = range::find_if(LOCPLINT->towns, boost::bind(&CGTownInstance::hasBuilt, _1, BuildingID::TAVERN));
+			auto itr = range::find_if(LOCPLINT->towns, [](const CGTownInstance * town)
+			{
+				return town->hasBuilt(BuildingID::TAVERN);
+			});
+
 			if(itr != LOCPLINT->towns.end())
 				LOCPLINT->showThievesGuildWindow(*itr);
 			else
@@ -878,7 +882,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(LOCPLINT->ctrlPressed()) //CTRL + T => open marketplace
 			{
 				//check if we have any marketplace
-				const CGTownInstance *townWithMarket = NULL;
+				const CGTownInstance *townWithMarket = nullptr;
 				BOOST_FOREACH(const CGTownInstance *t, LOCPLINT->cb->getTownsInfo())
 				{
 					if(t->hasBuilt(BuildingID::MARKETPLACE))
@@ -937,7 +941,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			terrain.currentPath = &path;
 			if(!LOCPLINT->cb->getPath2(h->getPosition(false) + dir, path))
 			{
-				terrain.currentPath = NULL;
+				terrain.currentPath = nullptr;
 				return;
 			}
 
@@ -986,7 +990,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	assert(sel);
 	LOCPLINT->cb->setSelection(sel);
 	selection = sel;
-	if (LOCPLINT->battleInt == NULL && LOCPLINT->makingTurn)
+	if (LOCPLINT->battleInt == nullptr && LOCPLINT->makingTurn)
 	{
 		auto pos = sel->visitablePos();
 		auto tile = LOCPLINT->cb->getTile(pos);
@@ -996,7 +1000,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	if(centerView)
 		centerOn(sel);
 
-	terrain.currentPath = NULL;
+	terrain.currentPath = nullptr;
 	if(sel->ID==Obj::TOWN)
 	{
 		auto town = dynamic_cast<const CGTownInstance*>(sel);
@@ -1005,8 +1009,8 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 		townList.select(town);
 		heroList.select(nullptr);
 
-		updateSleepWake(NULL);
-		updateMoveHero(NULL);
+		updateSleepWake(nullptr);
+		updateMoveHero(nullptr);
 	}
 	else //hero selected
 	{
@@ -1028,7 +1032,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 {
 	//adventure map scrolling with mouse
-	if(!SDL_GetKeyState(NULL)[SDLK_LCTRL]  &&  isActive())
+	if(!SDL_GetKeyState(nullptr)[SDLK_LCTRL]  &&  isActive())
 	{
 		if(sEvent.x<15)
 		{
@@ -1452,7 +1456,7 @@ void CAdvMapInt::leaveCastingMode(bool cast /*= false*/, int3 dest /*= int3(-1, 
 {
 	assert(spellBeingCasted);
 	SpellID id = spellBeingCasted->id;
-	spellBeingCasted = NULL;
+	spellBeingCasted = nullptr;
 	terrain.deactivate();
 	activate();
 
@@ -1467,7 +1471,7 @@ const CGHeroInstance * CAdvMapInt::curHero() const
 	if(selection && selection->ID == Obj::HERO)
 		return static_cast<const CGHeroInstance *>(selection);
 	else
-		return NULL;
+		return nullptr;
 }
 
 const CGTownInstance * CAdvMapInt::curTown() const
@@ -1475,7 +1479,7 @@ const CGTownInstance * CAdvMapInt::curTown() const
 	if(selection && selection->ID == Obj::TOWN)
 		return static_cast<const CGTownInstance *>(selection);
 	else
-		return NULL;
+		return nullptr;
 }
 
 const IShipyard * CAdvMapInt::ourInaccessibleShipyard(const CGObjectInstance *obj) const
@@ -1483,7 +1487,7 @@ const IShipyard * CAdvMapInt::ourInaccessibleShipyard(const CGObjectInstance *ob
 	const IShipyard *ret = IShipyard::castFrom(obj);
 
 	if(!ret || obj->tempOwner != player || CCS->curh->type || (CCS->curh->frame != 6 && CCS->curh->frame != 0))
-		return NULL;
+		return nullptr;
 
 	return ret;
 }
@@ -1513,19 +1517,19 @@ CAdventureOptions::CAdventureOptions():
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	exit = new CAdventureMapButton("","",boost::bind(&CAdventureOptions::close, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+	exit = new CAdventureMapButton("","",std::bind(&CAdventureOptions::close, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
-	scenInfo = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 198, "ADVINFO.DEF",SDLK_i);
+	scenInfo = new CAdventureMapButton("","", std::bind(&CAdventureOptions::close, this), 24, 198, "ADVINFO.DEF",SDLK_i);
 	scenInfo->callback += CAdventureOptions::showScenarioInfo;
-	//viewWorld = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+	//viewWorld = new CAdventureMapButton("","",std::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
 
-	puzzle = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 81, "ADVPUZ.DEF");
-	puzzle->callback += boost::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT);
+	puzzle = new CAdventureMapButton("","", std::bind(&CAdventureOptions::close, this), 24, 81, "ADVPUZ.DEF");
+	puzzle->callback += std::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT);
 
-	dig = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 139, "ADVDIG.DEF");
+	dig = new CAdventureMapButton("","", std::bind(&CAdventureOptions::close, this), 24, 139, "ADVDIG.DEF");
 	if(const CGHeroInstance *h = adventureInt->curHero())
-		dig->callback += boost::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h);
+		dig->callback += std::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h);
 	else
 		dig->block(true);
 }

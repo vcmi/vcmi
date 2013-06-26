@@ -257,7 +257,7 @@ void CIntObject::removeChild(CIntObject *child, bool adjustPosition /*= false*/)
 	assert(vstd::contains(children, child));
 	assert(child->parent_m == this);
 	children -= child;
-	child->parent_m = NULL;
+	child->parent_m = nullptr;
 	if(adjustPosition)
 		child->pos -= pos;
 }

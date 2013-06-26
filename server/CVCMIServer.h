@@ -75,7 +75,7 @@ public:
 	const CMapInfo *curmap;
 	StartInfo *curStartInfo;
 
-	CPregameServer(CConnection *Host, TAcceptor *Acceptor = NULL);
+	CPregameServer(CConnection *Host, TAcceptor *Acceptor = nullptr);
 	~CPregameServer();
 
 	void run();

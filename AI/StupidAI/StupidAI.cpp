@@ -60,7 +60,7 @@ bool isMoreProfitable(const EnemyInfo &ei1, const EnemyInfo& ei2)
 	return (ei1.adi-ei1.adr) < (ei2.adi - ei2.adr);
 }
 
-int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = NULL)
+int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = nullptr)
 {
 	int ret = 1000000;
 	BOOST_FOREACH(BattleHex n, hex.neighbouringTiles())
@@ -157,7 +157,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	else if(enemiesUnreachable.size()) //due to #955 - a buggy battle may occur when there are no enemies
 	{
 		assert(enemiesUnreachable.size());
-		const EnemyInfo &ei= *std::min_element(enemiesUnreachable.begin(), enemiesUnreachable.end(), boost::bind(isCloser, _1, _2, boost::ref(dists)));
+		const EnemyInfo &ei= *std::min_element(enemiesUnreachable.begin(), enemiesUnreachable.end(), std::bind(isCloser, _1, _2, std::ref(dists)));
 		assert(ei.s);
 		if(distToNearestNeighbour(ei.s->position, dists) < GameConstants::BFIELD_SIZE)
 		{

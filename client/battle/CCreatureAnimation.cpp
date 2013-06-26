@@ -163,7 +163,7 @@ void CCreatureAnimation::playOnce( CCreatureAnim::EAnimType type )
 
 
 template<int bpp>
-int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attacker, ui8 animCount, bool IncrementFrame /*= true*/, bool yellowBorder /*= false*/, bool blueBorder /*= false*/, SDL_Rect * destRect /*= NULL*/)
+int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attacker, ui8 animCount, bool IncrementFrame /*= true*/, bool yellowBorder /*= false*/, bool blueBorder /*= false*/, SDL_Rect * destRect /*= nullptr*/)
 {
 	//increasing frame number
 	int SIndex = curFrame;

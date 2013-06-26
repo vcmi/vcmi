@@ -47,8 +47,8 @@ private:
 	Mix_Chunk *GetSoundChunk(std::string &sound);
 
 	//have entry for every currently active channel
-	//boost::function will be NULL if callback was not set
-	std::map<int, boost::function<void()> > callbacks;
+	//std::function will be nullptr if callback was not set
+	std::map<int, std::function<void()> > callbacks;
 
 public:
 	CSoundHandler();
@@ -65,7 +65,7 @@ public:
 	int playSoundFromSet(std::vector<soundBase::soundID> &sound_vec);
 	void stopSound(int handler);
 
-	void setCallback(int channel, boost::function<void()> function);
+	void setCallback(int channel, std::function<void()> function);
 	void soundFinishedCallback(int channel);
 
 	std::map<const CSpell*, std::string> spellSounds;

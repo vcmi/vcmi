@@ -71,7 +71,7 @@ struct CPackForServer : public CPack
 	CPackForServer()
 	{
 		type = 2;
-		c = NULL;
+		c = nullptr;
 		player = PlayerColor::NEUTRAL;
 	};
 
@@ -2269,7 +2269,7 @@ struct SelectMap : public CPregamePackToPropagate
 	}
 	SelectMap()
 	{
-		mapInfo = NULL;
+		mapInfo = nullptr;
 		free = true;
 	}
 	~SelectMap()
@@ -2301,7 +2301,7 @@ struct UpdateStartOptions : public CPregamePackToPropagate
 	}
 	UpdateStartOptions()
 	{
-		options = NULL;
+		options = nullptr;
 		free = true;
 	}
 	~UpdateStartOptions()

@@ -1,8 +1,6 @@
 #include "StdInc.h"
 #include "IGameCallback.h"
 
-#include <boost/random/linear_congruential.hpp>
-
 #include "CGameState.h"
 #include "mapping/CMap.h"
 #include "CObjectHandler.h"
@@ -38,7 +36,7 @@
 #define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return;}} while(0)
 #define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
 
-extern boost::rand48 ran;
+extern std::minstd_rand ran;
 
 CGameState * CPrivilagedInfoCallback::gameState ()
 {
@@ -63,7 +61,7 @@ int CGameInfoCallback::getResource(PlayerColor Player, Res::ERes which) const
 const CGHeroInstance* CGameInfoCallback::getSelectedHero( PlayerColor Player ) const
 {
 	const PlayerState *p = getPlayer(Player);
-	ERROR_RET_VAL_IF(!p, "No player info!", NULL);
+	ERROR_RET_VAL_IF(!p, "No player info!", nullptr);
 	return getHero(p->currentSelection);
 }
 
@@ -88,7 +86,7 @@ void CPrivilagedInfoCallback::getTilesInRange( boost::unordered_set<int3, ShashI
 		getAllTiles (tiles, player, -1, 0);
 	else
 	{
-		const TeamState * team = !player ? NULL : gs->getPlayerTeam(*player);
+		const TeamState * team = !player ? nullptr : gs->getPlayerTeam(*player);
 		for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gs->map->width - 1); xd++)
 		{
 			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gs->map->height - 1); yd++)
@@ -259,27 +257,27 @@ template DLL_LINKAGE void CPrivilagedInfoCallback::saveCommonState<CSaveFile>(CS
 TerrainTile * CNonConstInfoCallback::getTile( int3 pos )
 {
 	if(!gs->map->isInTheMap(pos))
-		return NULL;
+		return nullptr;
 	return &gs->map->getTile(pos);
 }
 
 const PlayerState * CGameInfoCallback::getPlayer(PlayerColor color, bool verbose) const
 {
-	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!hasAccess(color), verbose, "Cannot access player " << color << "info!", NULL);
-	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!vstd::contains(gs->players,color), verbose, "Cannot find player " << color << "info!", NULL);
+	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!hasAccess(color), verbose, "Cannot access player " << color << "info!", nullptr);
+	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!vstd::contains(gs->players,color), verbose, "Cannot find player " << color << "info!", nullptr);
 	return &gs->players[color];
 }
 
 const CTown * CGameInfoCallback::getNativeTown(PlayerColor color) const
 {
 	const PlayerSettings *ps = getPlayerSettings(color);
-	ERROR_RET_VAL_IF(!ps, "There is no such player!", NULL);
+	ERROR_RET_VAL_IF(!ps, "There is no such player!", nullptr);
 	return VLC->townh->factions[ps->castle]->town;
 }
 
 const CGObjectInstance * CGameInfoCallback::getObjByQuestIdentifier(int identifier) const
 {
-	ERROR_RET_VAL_IF(!vstd::contains(gs->map->questIdentifierToId, identifier), "There is no object with such quest identifier!", NULL);
+	ERROR_RET_VAL_IF(!vstd::contains(gs->map->questIdentifierToId, identifier), "There is no object with such quest identifier!", nullptr);
 	return getObj(gs->map->questIdentifierToId[identifier]);
 }
 
@@ -294,7 +292,7 @@ const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool v
 	{
 		if(verbose)
             logGlobal->errorStream() << "Cannot get object with id " << oid;
-		return NULL;
+		return nullptr;
 	}
 
 	const CGObjectInstance *ret = gs->map->objects[oid];
@@ -302,14 +300,14 @@ const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool v
 	{
 		if(verbose)
             logGlobal->errorStream() << "Cannot get object with id " << oid << ". Object was removed.";
-		return NULL;
+		return nullptr;
 	}
 
 	if(!isVisible(ret, player))
 	{
 		if(verbose)
             logGlobal->errorStream() << "Cannot get object with id " << oid << ". Object is not visible.";
-		return NULL;
+		return nullptr;
 	}
 
 	return ret;
@@ -321,7 +319,7 @@ const CGHeroInstance* CGameInfoCallback::getHero(ObjectInstanceID objid) const
 	if(obj)
 		return dynamic_cast<const CGHeroInstance*>(obj);
 	else
-		return NULL;
+		return nullptr;
 }
 const CGTownInstance* CGameInfoCallback::getTown(ObjectInstanceID objid) const
 {
@@ -329,7 +327,7 @@ const CGTownInstance* CGameInfoCallback::getTown(ObjectInstanceID objid) const
 	if(obj)
 		return dynamic_cast<const CGTownInstance*>(obj);
 	else
-		return NULL;
+		return nullptr;
 }
 
 void CGameInfoCallback::getUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
@@ -371,7 +369,7 @@ int CGameInfoCallback::estimateSpellDamage(const CSpell * sp, const CGHeroInstan
 	{
 		if (hero) //but we see hero's spellbook
 			return gs->curB->calculateSpellDmg(
-				sp, hero, NULL, hero->getSpellSchoolLevel(sp), hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER));
+				sp, hero, nullptr, hero->getSpellSchoolLevel(sp), hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER));
 		else
 			return 0; //mage guild
 	}
@@ -379,7 +377,7 @@ int CGameInfoCallback::estimateSpellDamage(const CSpell * sp, const CGHeroInstan
 	//const CGHeroInstance * ourHero = gs->curB->heroes[0]->tempOwner == player ? gs->curB->heroes[0] : gs->curB->heroes[1];
 	const CGHeroInstance * ourHero = hero;
 	return gs->curB->calculateSpellDmg(
-		sp, ourHero, NULL, ourHero->getSpellSchoolLevel(sp), ourHero->getPrimSkillLevel(PrimarySkill::SPELL_POWER));
+		sp, ourHero, nullptr, ourHero->getSpellSchoolLevel(sp), ourHero->getPrimSkillLevel(PrimarySkill::SPELL_POWER));
 }
 
 void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj)
@@ -493,7 +491,7 @@ bool CGameInfoCallback::isVisible(const CGObjectInstance *obj) const
 // 	if()
 // 	const CArmedInstance *armi = dynamic_cast<const CArmedInstance*>(obj);
 // 	if(!armi)
-// 		return NULL;
+// 		return nullptr;
 // 	else
 // 		return armi;
 // }
@@ -559,7 +557,7 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 
 const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 {
-	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!isVisible(tile), verbose, tile << " is not visible!", NULL);
+	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!isVisible(tile), verbose, tile << " is not visible!", nullptr);
 
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return &gs->map->getTile(tile);
@@ -858,7 +856,7 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId,
 {
 	ASSERT_IF_CALLED_WITH_PLAYER
 	const PlayerState *p = getPlayer(*player);
-	ERROR_RET_VAL_IF(!p, "No player info", NULL);
+	ERROR_RET_VAL_IF(!p, "No player info", nullptr);
 
 	if (!includeGarrisoned)
 	{
@@ -866,7 +864,7 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId,
 			if(p->heroes[i]->inTownGarrison)
 				serialId++;
 	}
-	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->heroes.size(), "No player info", NULL);
+	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->heroes.size(), "No player info", nullptr);
 	return p->heroes[serialId];
 }
 
@@ -874,8 +872,8 @@ const CGTownInstance* CPlayerSpecificInfoCallback::getTownBySerial(int serialId)
 {
 	ASSERT_IF_CALLED_WITH_PLAYER
 	const PlayerState *p = getPlayer(*player);
-	ERROR_RET_VAL_IF(!p, "No player info", NULL);
-	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->towns.size(), "No player info", NULL);
+	ERROR_RET_VAL_IF(!p, "No player info", nullptr);
+	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->towns.size(), "No player info", nullptr);
 	return p->towns[serialId];
 }
 
@@ -930,9 +928,9 @@ CGObjectInstance * CNonConstInfoCallback::getObjInstance( ObjectInstanceID oid )
 
 const TeamState * CGameInfoCallback::getTeam( TeamID teamID ) const
 {
-	ERROR_RET_VAL_IF(!vstd::contains(gs->teams, teamID), "Cannot find info for team " << teamID, NULL);
+	ERROR_RET_VAL_IF(!vstd::contains(gs->teams, teamID), "Cannot find info for team " << teamID, nullptr);
 	const TeamState *ret = &gs->teams[teamID];
-	ERROR_RET_VAL_IF(!!player && !vstd::contains(ret->players, *player), "Illegal attempt to access team data!", NULL);
+	ERROR_RET_VAL_IF(!!player && !vstd::contains(ret->players, *player), "Illegal attempt to access team data!", nullptr);
 	return ret;
 }
 
@@ -941,7 +939,7 @@ const TeamState * CGameInfoCallback::getPlayerTeam( PlayerColor color ) const
 	const PlayerState * ps = getPlayer(color);
 	if (ps)
 		return getTeam(ps->team);
-	return NULL;
+	return nullptr;
 }
 
 const CGHeroInstance* CGameInfoCallback::getHeroWithSubid( int subid ) const
@@ -950,7 +948,7 @@ const CGHeroInstance* CGameInfoCallback::getHeroWithSubid( int subid ) const
 		if(h->subID == subid)
 			return h;
 
-	return NULL;
+	return nullptr;
 }
 
 PlayerColor CGameInfoCallback::getLocalPlayer() const

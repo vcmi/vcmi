@@ -1,7 +1,6 @@
 // CMT.cpp : Defines the entry point for the console application.
 //
 #include "StdInc.h"
-#include <boost/filesystem/operations.hpp>
 #include <SDL_mixer.h>
 #include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
@@ -68,9 +67,9 @@ namespace po = boost::program_options;
 std::string NAME_AFFIX = "client";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 CGuiHandler GH;
-static CClient *client=NULL;
-SDL_Surface *screen = NULL, //main screen surface
-	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer)
+static CClient *client=nullptr;
+SDL_Surface *screen = nullptr, //main screen surface
+	*screen2 = nullptr,//and hlp surface (used to store not-active interfaces layer)
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 static boost::thread *mainGUIThread;
 
@@ -89,7 +88,7 @@ void dispose();
 void playIntro();
 static void listenForEvents();
 //void requestChangingResolution();
-void startGame(StartInfo * options, CConnection *serv = NULL);
+void startGame(StartInfo * options, CConnection *serv = nullptr);
 
 #ifndef _WIN32
 #ifndef _GNU_SOURCE
@@ -212,7 +211,7 @@ int main(int argc, char** argv)
 
     // Check that game data is prepared. Otherwise run vcmibuilder helper application
     FILE* check = fopen((VCMIDirs::get().localPath() + "/game_data_prepared").c_str(), "r");
-    if (check == NULL) {
+    if (check == nullptr) {
         system("open ./vcmibuilder.app");
         return 0;
     }
@@ -276,7 +275,7 @@ int main(int argc, char** argv)
 	CStopWatch total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
 	console = new CConsoleHandler;
-	*console->cb = boost::bind(&processCommand, _1);
+	*console->cb = std::bind(&processCommand, _1);
 	console->start();
 	atexit(dispose);
 
@@ -314,7 +313,7 @@ int main(int argc, char** argv)
     logGlobal->infoStream() <<"Loading settings: "<<pomtime.getDiff();
     logGlobal->infoStream() << NAME;
 
-	srand ( time(NULL) );
+	srand ( time(nullptr) );
 	
 
 	const JsonNode& video = settings["video"];
@@ -367,7 +366,7 @@ int main(int argc, char** argv)
 	{
 		if(!vm.count("battle") && !vm.count("nointro"))
 			playIntro();
-		SDL_FillRect(screen,NULL,0);
+		SDL_FillRect(screen,nullptr,0);
 	}
 
 	CSDL_Ext::update(screen);
@@ -408,7 +407,7 @@ int main(int argc, char** argv)
 
 	if(!gNoGUI)
 	{
-		mainGUIThread = new boost::thread(&CGuiHandler::run, boost::ref(GH));
+		mainGUIThread = new boost::thread(&CGuiHandler::run, &GH);
 		listenForEvents();
 	}
 	else
@@ -560,7 +559,7 @@ void processCommand(const std::string &message)
 	}
 	else if(cn=="crash")
 	{
-		int *ptr = NULL;
+		int *ptr = nullptr;
 		*ptr = 666;
 		//disaster!
 	}
@@ -769,7 +768,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 		SDL_InitSubSystem(SDL_INIT_VIDEO);
 	}
 	
-	if((screen = SDL_SetVideoMode(w, h, suggestedBpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == NULL)
+	if((screen = SDL_SetVideoMode(w, h, suggestedBpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == nullptr)
 	{
         logGlobal->errorStream() << "Requested screen resolution is not available (" << w << "x" << h << "x" << suggestedBpp << "bpp)";
 		throw std::runtime_error("Requested screen resolution is not available\n");
@@ -914,7 +913,7 @@ static void listenForEvents()
 	}
 }
 
-void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
+void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 {
 	if(vm.count("onlyAI"))
 	{
@@ -959,10 +958,10 @@ void handleQuit()
 		GH.terminate = true;
 		mainGUIThread->join();
 		delete mainGUIThread;
-		mainGUIThread = NULL;
+		mainGUIThread = nullptr;
 	}
 	delete console;
-	console = NULL;
+	console = nullptr;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(750));
 	if(!gNoGUI)
 		SDL_Quit();

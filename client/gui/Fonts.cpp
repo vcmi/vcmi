@@ -243,14 +243,14 @@ size_t CTrueTypeFont::getLineHeight() const
 size_t CTrueTypeFont::getSymbolWidth(char data) const
 {
 	int advance;
-	TTF_GlyphMetrics(font.get(), data, NULL, NULL, NULL, NULL, &advance);
+	TTF_GlyphMetrics(font.get(), data, nullptr, nullptr, nullptr, nullptr, &advance);
 	return advance;
 }
 
 size_t CTrueTypeFont::getStringWidth(const std::string & data) const
 {
 	int width;
-	TTF_SizeText(font.get(), data.c_str(), &width, NULL);
+	TTF_SizeText(font.get(), data.c_str(), &width, nullptr);
 	return width;
 }
 
@@ -273,7 +273,7 @@ void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, 
 		assert(rendered);
 
 		Rect rect(pos.x, pos.y, rendered->w, rendered->h);
-		SDL_BlitSurface(rendered, NULL, surface, &rect);
+		SDL_BlitSurface(rendered, nullptr, surface, &rect);
 		SDL_FreeSurface(rendered);
 	}
 }

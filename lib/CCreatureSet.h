@@ -78,8 +78,8 @@ public:
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	virtual void giveStackExp(TExpType exp);
 	bool valid(bool allowUnrandomized) const;
-	ArtBearer::ArtBearer bearerType() const OVERRIDE; //from CArtifactSet
-	virtual std::string nodeName() const OVERRIDE; //from CBonusSystemnode
+	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
+	virtual std::string nodeName() const override; //from CBonusSystemnode
 	void deserializationFix();
 };
 
@@ -95,7 +95,7 @@ public:
 	std::vector <ui8> secondarySkills; //ID -> level
 	std::set <ui8> specialSKills;
 	//std::vector <CArtifactInstance *> arts;
-	void init() OVERRIDE;
+	void init() override;
 	CCommanderInstance();
 	CCommanderInstance (CreatureID id);
 	~CCommanderInstance();
@@ -106,8 +106,8 @@ public:
 	bool gainsLevel() const; //true if commander has lower level than should upon his experience
 	ui64 getPower() const {return 0;};
 	int getExpRank() const;
-	int getLevel() const OVERRIDE; 
-	ArtBearer::ArtBearer bearerType() const OVERRIDE; //from CArtifactSet
+	int getLevel() const override; 
+	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -133,8 +133,8 @@ class DLL_LINKAGE CSimpleArmy : public IArmyDescriptor
 {
 public:
 	TSimpleSlots army;
-	void clear() OVERRIDE;
-	bool setCreature(SlotID slot, CreatureID cre, TQuantity count) OVERRIDE;
+	void clear() override;
+	bool setCreature(SlotID slot, CreatureID cre, TQuantity count) override;
 	operator bool() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -181,7 +181,7 @@ public:
 	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.
 
 	const CStackInstance& getStack(SlotID slot) const; //stack must exist
-	const CStackInstance* getStackPtr(SlotID slot) const; //if stack doesn't exist, returns NULL
+	const CStackInstance* getStackPtr(SlotID slot) const; //if stack doesn't exist, returns nullptr
 	const CCreature* getCreature(SlotID slot) const; //workaround of map issue;
 	int getStackCount (SlotID slot) const;
 	TExpType getStackExperience(SlotID slot) const;

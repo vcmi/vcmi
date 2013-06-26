@@ -40,7 +40,7 @@ CDefHandler::~CDefHandler()
 		if (ourImages[i].bitmap)
 		{
 			SDL_FreeSurface(ourImages[i].bitmap);
-			ourImages[i].bitmap=NULL;
+			ourImages[i].bitmap=nullptr;
 		}
 	}
 }
@@ -130,7 +130,7 @@ void CDefHandler::expand(ui8 N,ui8 & BL, ui8 & BR)
 
 SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPalette * palette) const
 {
-	SDL_Surface * ret=NULL;
+	SDL_Surface * ret=nullptr;
 
 	ui32 BaseOffset,
 		SpriteWidth, SpriteHeight, //format of sprite

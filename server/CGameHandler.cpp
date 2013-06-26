@@ -44,8 +44,6 @@
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
 #endif
-#include <boost/random/binomial_distribution.hpp>
-#include <boost/range/algorithm/random_shuffle.hpp>
 extern bool end2;
 #ifdef min
 #undef min
@@ -63,7 +61,7 @@ extern bool end2;
 		sendAndApply(&bnr);
 
 CondSh<bool> battleMadeAction;
-CondSh<BattleResult *> battleResult(NULL);
+CondSh<BattleResult *> battleResult(nullptr);
 template <typename T> class CApplyOnGH;
 
 class CBaseForGHApply
@@ -71,7 +69,7 @@ class CBaseForGHApply
 public:
 	virtual bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack, PlayerColor player) const =0;
 	virtual ~CBaseForGHApply(){}
-	template<typename U> static CBaseForGHApply *getApplier(const U * t=NULL)
+	template<typename U> static CBaseForGHApply *getApplier(const U * t=nullptr)
 	{
 		return new CApplyOnGH<U>;
 	}
@@ -89,7 +87,7 @@ public:
 	}
 };
 
-static CApplier<CBaseForGHApply> *applier = NULL;
+static CApplier<CBaseForGHApply> *applier = nullptr;
 
 CMP_stack cmpst ;
 
@@ -153,7 +151,7 @@ void PlayerStatuses::setFlag(PlayerColor player, bool PlayerStatus::*flag, bool 
 }
 
 template <typename T>
-void callWith(std::vector<T> args, boost::function<void(T)> fun, ui32 which)
+void callWith(std::vector<T> args, std::function<void(T)> fun, ui32 which)
 {
 	fun(args[which]);
 }
@@ -817,13 +815,13 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &c)
 {
 	setThreadName("CGameHandler::handleConnection");
-	srand(time(NULL));
+	srand(time(nullptr));
 
 	try
 	{
 		while(1)//server should never shut connection first //was: while(!end2)
 		{
-			CPack *pack = NULL;
+			CPack *pack = nullptr;
 			PlayerColor player = PlayerColor::NEUTRAL;
 			si32 requestID = -999;
 			int packType = 0;
@@ -1014,7 +1012,7 @@ startWalking:
 CGameHandler::CGameHandler(void)
 {
 	QID = 1;
-	//gs = NULL;
+	//gs = nullptr;
 	IObjectInterface::cb = this;
 	applier = new CApplier<CBaseForGHApply>;
 	registerTypes3(*applier);
@@ -1025,15 +1023,15 @@ CGameHandler::CGameHandler(void)
 CGameHandler::~CGameHandler(void)
 {
 	delete applier;
-	applier = NULL;
+	applier = nullptr;
 	delete gs;
 }
 
 void CGameHandler::init(StartInfo *si)
 {
-	//extern DLL_LINKAGE boost::rand48 ran;
+	//extern DLL_LINKAGE std::minstd_rand ran;
 	if(!si->seedToBeUsed)
-		si->seedToBeUsed = std::time(NULL);
+		si->seedToBeUsed = std::time(nullptr);
 
 	gs = new CGameState();
     logGlobal->infoStream() << "Gamestate created!";
@@ -1098,7 +1096,7 @@ void CGameHandler::newTurn()
 	bool newMonth = getDate(Date::DAY_OF_MONTH) == 28;
 
 	std::map<PlayerColor, si32> hadGold;//starting gold - for buildings like dwarven treasury
-	srand(time(NULL));
+	srand(time(nullptr));
 
 	if (firstTurn)
 	{
@@ -1139,13 +1137,13 @@ void CGameHandler::newTurn()
 					n.specialWeek = NewTurn::DOUBLE_GROWTH;
 					if (VLC->modh->settings.ALL_CREATURES_GET_DOUBLE_MONTHS)
 					{
-						std::pair<int,CreatureID> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+						std::pair<int,CreatureID> newMonster(54, VLC->creh->pickRandomMonster(std::ref(rand)));
 						n.creatureid = newMonster.second;
 					}
 					else if(VLC->creh->doubledCreatures.size())
 					{
 						const std::vector<CreatureID> doubledCreatures (VLC->creh->doubledCreatures.begin(), VLC->creh->doubledCreatures.end());
-						n.creatureid = vstd::pickRandomElementOf (doubledCreatures, boost::ref(rand));
+						n.creatureid = vstd::pickRandomElementOf (doubledCreatures, std::ref(rand));
 					}
 					else
 					{
@@ -1161,7 +1159,7 @@ void CGameHandler::newTurn()
 				if (monthType < 25)
 				{
 					n.specialWeek = NewTurn::BONUS_GROWTH; //+5
-					std::pair<int, CreatureID> newMonster (54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+					std::pair<int, CreatureID> newMonster (54, VLC->creh->pickRandomMonster(std::ref(rand)));
 					//TODO do not pick neutrals
 					n.creatureid = newMonster.second;
 				}
@@ -1187,7 +1185,7 @@ void CGameHandler::newTurn()
 			sah.player = i->first;
 
 			//pick heroes and their armies
-			CHeroClass *banned = NULL;
+			CHeroClass *banned = nullptr;
 			for (int j = 0; j < GameConstants::AVAILABLE_HEROES_PER_PLAYER; j++)
 			{
 				if(CGHeroInstance *h = gs->hpool.pickHeroFor(j == 0, i->first, getNativeTown(i->first), pool, banned)) //first hero - native if possible, second hero -> any other class
@@ -1475,7 +1473,7 @@ void CGameHandler::run(bool resume)
 			if(j->second == *i)
 				pom.insert(j->first);
 
-		boost::thread(boost::bind(&CGameHandler::handleConnection,this,pom,boost::ref(**i)));
+		boost::thread(std::bind(&CGameHandler::handleConnection,this,pom,std::ref(**i)));
 	}
 
 	if(gs->scenarioOps->mode == StartInfo::DUEL)
@@ -1534,7 +1532,7 @@ void CGameHandler::run(bool resume)
 
 void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town )
 {
-	battleResult.set(NULL);
+	battleResult.set(nullptr);
 
 	//send info about battles
 	BattleStart bs;
@@ -1961,7 +1959,7 @@ void CGameHandler::removeArtifact(const ArtifactLocation &al)
 }
 void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, 
 								const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, 
-								const CGTownInstance *town) //use hero=NULL for no hero
+								const CGTownInstance *town) //use hero=nullptr for no hero
 {
 	engageIntoBattle(army1->tempOwner);
 	engageIntoBattle(army2->tempOwner);
@@ -1985,8 +1983,8 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank )
 {
 	startBattlePrimary(army1, army2, tile,
-		army1->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(army1) : NULL,
-		army2->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(army2) : NULL,
+		army1->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(army1) : nullptr,
+		army2->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(army2) : nullptr,
 		creatureBank);
 }
 
@@ -2565,7 +2563,7 @@ void CGameHandler::sendMessageToAll( const std::string &message )
 bool CGameHandler::recruitCreatures( ObjectInstanceID objid, CreatureID crid, ui32 cram, si32 fromLvl )
 {
 	const CGDwelling *dw = static_cast<const CGDwelling*>(gs->getObj(objid));
-	const CArmedInstance *dst = NULL;
+	const CArmedInstance *dst = nullptr;
 	const CCreature *c = VLC->creh->creatures[crid];
 	bool warMachine = c->hasBonusOfType(Bonus::SIEGE_WEAPON);
 
@@ -2799,7 +2797,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	const CArtifactInstance *srcArtifact = src.getArt();
 	const CArtifactInstance *destArtifact = dst.getArt();
 
-	if (srcArtifact == NULL)
+	if (srcArtifact == nullptr)
 		COMPLAIN_RET("No artifact to move!");
 	if (destArtifact && srcPlayer != dstPlayer)
 		COMPLAIN_RET("Can't touch artifact on hero of another player!");
@@ -2958,7 +2956,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::E
 	{
 		if(art && art->id == aid)
 		{
-			art = NULL;
+			art = nullptr;
 			found = true;
 			break;
 		}
@@ -3093,7 +3091,7 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 
 bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance * hero, SlotID slot)
 {
-	const CArmedInstance *army = NULL;
+	const CArmedInstance *army = nullptr;
 	if (hero)
 		army = hero;
 	else
@@ -3190,7 +3188,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->unusedHeroesFromPool();
 
 	const CGHeroInstance *theOtherHero = p->availableHeroes[!hid];
-	const CGHeroInstance *newHero = NULL;
+	const CGHeroInstance *newHero = nullptr;
 	if (theOtherHero) //on XXL maps all heroes can be imprisoned :(
 		newHero = gs->hpool.pickHeroFor(false, player, getNativeTown(player), pool, theOtherHero->type->heroClass);
 
@@ -3390,7 +3388,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			if(stackAtEnd && stack->ID == stackAtEnd->ID) //we should just move, it will be handled by following check
 			{
-				stackAtEnd = NULL;
+				stackAtEnd = nullptr;
 			}
 
 			if(!stackAtEnd)
@@ -3614,7 +3612,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			const CStack *healer = gs->curB->battleGetStackByID(ba.stackNumber),
 				*destStack = gs->curB->battleGetStackByPos(ba.destinationTile);
 
-			if(healer == NULL || destStack == NULL || !healer->hasBonusOfType(Bonus::HEALER))
+			if(healer == nullptr || destStack == nullptr || !healer->hasBonusOfType(Bonus::HEALER))
 			{
 				complain("There is either no healer, no destination, or healer cannot heal :P");
 			}
@@ -3715,7 +3713,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				int casterSide = gs->curB->whatSide(stack->owner);
 				const CGHeroInstance * secHero = gs->curB->getHero(gs->curB->theOtherPlayer(stack->owner));
 
-				handleSpellCasting(spellID, spellLvl, destination, casterSide, stack->owner, NULL, secHero, 0, ECastingMode::CREATURE_ACTIVE_CASTING, stack);
+				handleSpellCasting(spellID, spellLvl, destination, casterSide, stack->owner, nullptr, secHero, 0, ECastingMode::CREATURE_ACTIVE_CASTING, stack);
 			}
 
 			sendAndApply(&end_action);
@@ -4062,7 +4060,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 			{
 				sse.effect.back().additionalInfo = stack->ID; //we need to know who casted Bind
 			}
-			const Bonus * bonus = NULL;
+			const Bonus * bonus = nullptr;
 			if (caster)
 				bonus = caster->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, spellID));
 			//TODO does hero specialty should affects his stack casting spells?
@@ -4257,7 +4255,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 		break;
 	case SpellID::CLONE:
 		{
-			const CStack * clonedStack = NULL;
+			const CStack * clonedStack = nullptr;
 			if (attackedCres.size())
 				clonedStack = *attackedCres.begin();
 			if (!clonedStack)
@@ -4364,14 +4362,14 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				{
 					if(battleStacks[j]->owner == gs->curB->sides[casterSide]) //get enemy stacks which can be affected by this spell
 					{
-						if (!gs->curB->battleIsImmune(NULL, spell, ECastingMode::MAGIC_MIRROR, battleStacks[j]->position))
+						if (!gs->curB->battleIsImmune(nullptr, spell, ECastingMode::MAGIC_MIRROR, battleStacks[j]->position))
 							mirrorTargets.push_back(battleStacks[j]);
 					}
 				}
 				if (mirrorTargets.size())
 				{
 					int targetHex = mirrorTargets[rand() % mirrorTargets.size()]->position;
-					handleSpellCasting(spellID, 0, targetHex, 1 - casterSide, (*it)->owner, NULL, (caster ? caster : NULL), usedSpellPower, ECastingMode::MAGIC_MIRROR, (*it));
+					handleSpellCasting(spellID, 0, targetHex, 1 - casterSide, (*it)->owner, nullptr, (caster ? caster : nullptr), usedSpellPower, ECastingMode::MAGIC_MIRROR, (*it));
 				}
 			}
 		}
@@ -4419,7 +4417,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 				handleSpellCasting (SpellID(ba.additionalInfo), skill, ba.destinationTile, ba.side, h->tempOwner,
 									h, secondHero, h->getPrimSkillLevel(PrimarySkill::SPELL_POWER),
-									ECastingMode::HERO_CASTING, NULL, ba.selectedStack);
+									ECastingMode::HERO_CASTING, nullptr, ba.selectedStack);
 
 				sendAndApply(&end_action);
 				if( !gs->curB->battleGetStackByID(gs->curB->activeStack, false)->alive() )
@@ -4554,7 +4552,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 			{
 				int spellLeveL = bl[index]->val; //spell level
 				const CGHeroInstance * enemyHero = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
-				handleSpellCasting(spellID, spellLeveL, -1, side, st->owner, NULL, enemyHero, 0, ECastingMode::ENCHANTER_CASTING, st);
+				handleSpellCasting(spellID, spellLeveL, -1, side, st->owner, nullptr, enemyHero, 0, ECastingMode::ENCHANTER_CASTING, st);
 
 				BattleSetStackProperty ssp;
 				ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
@@ -5245,7 +5243,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 		}
 		BOOST_FOREACH(SpellID spellID, spellsToCast)
 		{
-			const CStack * oneOfAttacked = NULL;
+			const CStack * oneOfAttacked = nullptr;
 			for (int g=0; g<bat.bsa.size(); ++g)
 			{
 				if (bat.bsa[g].newAmount > 0 && !bat.bsa[g].isSecondary()) //apply effects only to first target stack if it's alive
@@ -5256,7 +5254,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			}
 			bool castMe = false;
 			int meleeRanged;
-			if(oneOfAttacked == NULL) //all attacked creatures have been killed
+			if(oneOfAttacked == nullptr) //all attacked creatures have been killed
 				return;
 			int spellLevel = 0;
 			TBonusListPtr spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, spellID));
@@ -5281,7 +5279,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 
 			//casting //TODO: check if spell can be blocked or target is immune
 			if (castMe) //stacks use 0 spell power. If needed, default = 3 or custom value is used
-				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, NULL, NULL, 0, ECastingMode::AFTER_ATTACK_CASTING, attacker);
+				handleSpellCasting(spellID, spellLevel, destination, !attacker->attackerOwned, attacker->owner, nullptr, nullptr, 0, ECastingMode::AFTER_ATTACK_CASTING, attacker);
 		}
 	}
 }
@@ -5314,10 +5312,10 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		double chanceToKill = double(attacker->count * attacker->valOfBonuses(Bonus::DEATH_STARE, 0)) / 100;
 		vstd::amin(chanceToKill, 1); //cap at 100%
 
-		boost::binomial_distribution<> distr(attacker->count, chanceToKill);
-		boost::mt19937 rng(rand());
-		boost::variate_generator<boost::mt19937&, boost::binomial_distribution<> > dice (rng, distr);
-		int staredCreatures = dice();
+		std::binomial_distribution<> distr(attacker->count, chanceToKill);
+		std::mt19937 rng(rand());
+
+		int staredCreatures = distr(rng);
 
 		int maxToKill = (attacker->count * chanceToKill + 99) / 100;
 		vstd::amin(staredCreatures, maxToKill);
@@ -5327,7 +5325,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		{
 			if (bat.bsa[0].newAmount > 0) //TODO: death stare was not originally available for multiple-hex attacks, but...
 			handleSpellCasting(SpellID::DEATH_STARE, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
-				!attacker->attackerOwned, attacker->owner, NULL, NULL, staredCreatures, ECastingMode::AFTER_ATTACK_CASTING, attacker);
+				!attacker->attackerOwned, attacker->owner, nullptr, nullptr, staredCreatures, ECastingMode::AFTER_ATTACK_CASTING, attacker);
 		}
 	}
 
@@ -5341,7 +5339,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	if (acidDamage)
 	{
 		handleSpellCasting(SpellID::ACID_BREATH_DAMAGE, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
-				!attacker->attackerOwned, attacker->owner, NULL, NULL,
+				!attacker->attackerOwned, attacker->owner, nullptr, nullptr,
 				acidDamage * attacker->count, ECastingMode::AFTER_ATTACK_CASTING, attacker);
 	}
 }
@@ -5380,7 +5378,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int
 			}
 
 			//try to find unoccupied boat to summon
-			const CGBoat *nearest = NULL;
+			const CGBoat *nearest = nullptr;
 			double dist = 0;
 			int3 summonPos = h->bestLocation();
 			if(summonPos.x < 0)
@@ -5803,7 +5801,7 @@ void CGameHandler::runBattle()
 			TBonusListPtr bl = gs->curB->heroes[i]->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
 			BOOST_FOREACH (Bonus *b, *bl)
 			{
-				handleSpellCasting(SpellID(b->subtype), 3, -1, 0, gs->curB->heroes[i]->tempOwner, NULL, gs->curB->heroes[1-i], b->val, ECastingMode::HERO_CASTING, NULL);
+				handleSpellCasting(SpellID(b->subtype), 3, -1, 0, gs->curB->heroes[i]->tempOwner, nullptr, gs->curB->heroes[1-i], b->val, ECastingMode::HERO_CASTING, nullptr);
 			}
 		}
 	}
@@ -5850,7 +5848,7 @@ void CGameHandler::runBattle()
 			if(next->hasBonusOfType(Bonus::ATTACKS_NEAREST_CREATURE)) //while in berserk
 			{ //fixme: stack should not attack itself
 				std::pair<const CStack *, int> attackInfo = curB.getNearestStack(next, boost::logic::indeterminate);
-				if(attackInfo.first != NULL)
+				if(attackInfo.first != nullptr)
 				{
 					BattleAction attack;
 					attack.actionType = Battle::WALK_AND_ATTACK;
@@ -6064,7 +6062,7 @@ void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstan
 
 void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos)
 {
-	CArtifactInstance *a = NULL;
+	CArtifactInstance *a = nullptr;
 	if(!artType->constituents)
 	{
 		a = new CArtifactInstance();

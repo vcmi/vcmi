@@ -128,7 +128,7 @@ public:
 	CTownList townList;
 	CInfoBar infoBar;
 
-	const CSpell *spellBeingCasted; //NULL if none
+	const CSpell *spellBeingCasted; //nullptr if none
 
 	const CArmedInstance *selection; //currently selected town/hero
 
@@ -178,7 +178,7 @@ public:
 	void leaveCastingMode(bool cast = false, int3 dest = int3(-1, -1, -1));
 	const CGHeroInstance * curHero() const;
 	const CGTownInstance * curTown() const;
-	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or NULL else
+	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
 	//button updates
 	void updateSleepWake(const CGHeroInstance *h); 
 	void updateMoveHero(const CGHeroInstance *h, tribool hasPath = boost::logic::indeterminate);

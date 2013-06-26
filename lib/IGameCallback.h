@@ -102,7 +102,7 @@ public:
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
 	int estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
-	const CGHeroInstance* getSelectedHero(PlayerColor player) const; //NULL if no hero is selected
+	const CGHeroInstance* getSelectedHero(PlayerColor player) const; //nullptr if no hero is selected
 	const CGHeroInstance* getSelectedHero() const; //of current (active) player
 	const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const;
 	const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const;
@@ -114,7 +114,7 @@ public:
 	std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	std::vector <std::string > getObjDescriptions(int3 pos)const; //returns descriptions of objects at pos in order from the lowest to the highest
 	PlayerColor getOwner(ObjectInstanceID heroID) const;
-	const CGObjectInstance *getObjByQuestIdentifier(int identifier) const; //NULL if object has been removed (eg. killed)
+	const CGObjectInstance *getObjByQuestIdentifier(int identifier) const; //nullptr if object has been removed (eg. killed)
 
 	//map
 	int3 guardingCreaturePosition (int3 pos) const;
@@ -249,7 +249,7 @@ public:
 	virtual void showCompInfo(ShowInInfobox * comp)=0;
 	virtual void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
-	virtual void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = NULL)=0; //use hero=NULL for no hero
+	virtual void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr)=0; //use hero=nullptr for no hero
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false)=0; //if any of armies is hero, hero will be used
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	virtual void setAmount(ObjectInstanceID objid, ui32 val)=0;

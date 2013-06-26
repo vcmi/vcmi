@@ -1,7 +1,6 @@
 #include "StdInc.h"
 #include "CGameState.h"
 
-#include <boost/random/linear_congruential.hpp>
 #include "mapping/CCampaignHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CArtHandler.h"
@@ -28,7 +27,7 @@
 #include "rmg/CMapGenerator.h"
 #include "CStopWatch.h"
 
-DLL_LINKAGE boost::rand48 ran;
+DLL_LINKAGE std::minstd_rand ran;
 class CGObjectInstance;
 
 #ifdef min
@@ -55,7 +54,7 @@ class CBaseForGSApply
 public:
 	virtual void applyOnGS(CGameState *gs, void *pack) const =0;
 	virtual ~CBaseForGSApply(){};
-	template<typename U> static CBaseForGSApply *getApplier(const U * t=NULL)
+	template<typename U> static CBaseForGSApply *getApplier(const U * t=nullptr)
 	{
 		return new CApplyOnGS<U>;
 	}
@@ -73,7 +72,7 @@ public:
 	}
 };
 
-static CApplier<CBaseForGSApply> *applierGs = NULL;
+static CApplier<CBaseForGSApply> *applierGs = nullptr;
 
 class IObjectCaller
 {
@@ -102,7 +101,7 @@ class CObjectCallersHandler
 public:
 	std::vector<IObjectCaller*> apps;
 
-	template<typename T> void registerType(const T * t=NULL)
+	template<typename T> void registerType(const T * t=nullptr)
 	{
 		apps.push_back(new CObjectCaller<T>);
 	}
@@ -129,7 +128,7 @@ public:
 	//for (size_t i = 0; i < apps.size(); i++)
 	//apps[i]->postInit();
 	}
-} *objCaller = NULL;
+} *objCaller = nullptr;
 
 void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst) const
 {
@@ -364,7 +363,7 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 	if(!nobj->defInfo)
         logGlobal->warnStream() <<"No def declaration for " <<id <<" "<<subid;
 	nobj->pos = pos;
-	//nobj->state = NULL;//new CLuaObjectScript();
+	//nobj->state = nullptr;//new CLuaObjectScript();
 	nobj->tempOwner = owner;
 	nobj->defInfo->id = id;
 	nobj->defInfo->subid = subid;
@@ -376,14 +375,14 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 	return nobj;
 }
 
-CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass /*= NULL*/) const
+CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass /*= nullptr*/) const
 {
-	CGHeroInstance *ret = NULL;
+	CGHeroInstance *ret = nullptr;
 
 	if(player>=PlayerColor::PLAYER_LIMIT)
 	{
         logGlobal->errorStream() << "Cannot pick hero for " << town->faction->index << ". Wrong owner!";
-		return NULL;
+		return nullptr;
 	}
 
 	std::vector<CGHeroInstance *> pool;
@@ -522,15 +521,15 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 	case Obj::RANDOM_HERO:
 		return std::make_pair(Obj::HERO, pickHero(obj->tempOwner));
 	case Obj::RANDOM_MONSTER:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran)));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran)));
 	case Obj::RANDOM_MONSTER_L1:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 1));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 1));
 	case Obj::RANDOM_MONSTER_L2:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 2));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 2));
 	case Obj::RANDOM_MONSTER_L3:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 3));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 3));
 	case Obj::RANDOM_MONSTER_L4:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 4));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 4));
 	case Obj::RANDOM_RESOURCE:
 		return std::make_pair(Obj::RESOURCE,ran()%7); //now it's OH3 style, use %8 for mithril
 	case Obj::RANDOM_TOWN:
@@ -559,11 +558,11 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			return std::make_pair(Obj::TOWN,f);
 		}
 	case Obj::RANDOM_MONSTER_L5:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 5));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 5));
 	case Obj::RANDOM_MONSTER_L6:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 6));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 6));
 	case Obj::RANDOM_MONSTER_L7:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 7));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 7));
 	case Obj::RANDOM_DWELLING:
 	case Obj::RANDOM_DWELLING_LVL:
 	case Obj::RANDOM_DWELLING_FACTION:
@@ -856,7 +855,7 @@ void CGameState::init(StartInfo * si)
 	ran.seed((boost::int32_t)si->seedToBeUsed);
 	scenarioOps = new StartInfo(*si);
 	initialOpts = new StartInfo(*si);
-	si = NULL;
+	si = nullptr;
 
 	switch(scenarioOps->mode)
 	{
@@ -1522,11 +1521,11 @@ void CGameState::initDuel()
 
 	const CArmedInstance *armies[2] = {0};
 	const CGHeroInstance *heroes[2] = {0};
-	CGTownInstance *town = NULL;
+	CGTownInstance *town = nullptr;
 
 	for(int i = 0; i < 2; i++)
 	{
-		CArmedInstance *obj = NULL;
+		CArmedInstance *obj = nullptr;
 		if(dp.sides[i].heroId >= 0)
 		{
 			const DuelParameters::SideSettings &ss = dp.sides[i];
@@ -1678,8 +1677,8 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 	UpgradeInfo ret;
 	const CCreature *base = stack.type;
 
-	const CGHeroInstance *h = stack.armyObj->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(stack.armyObj) : NULL;
-	const CGTownInstance *t = NULL;
+	const CGHeroInstance *h = stack.armyObj->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(stack.armyObj) : nullptr;
+	const CGTownInstance *t = nullptr;
 
 	if(stack.armyObj->ID == Obj::TOWN)
 		t = static_cast<const CGTownInstance *>(stack.armyObj);
@@ -2077,7 +2076,7 @@ int CGameState::victoryCheck( PlayerColor player ) const
 				int total = 0; //creature counter
 				for(size_t i = 0; i < map->objects.size(); i++)
 				{
-					const CArmedInstance *ai = NULL;
+					const CArmedInstance *ai = nullptr;
 					if(map->objects[i]
 						&& map->objects[i]->tempOwner == player //object controlled by player
 						&&  (ai = dynamic_cast<const CArmedInstance*>(map->objects[i].get()))) //contains army
@@ -2251,7 +2250,7 @@ struct statsHLP
 	{
 		std::vector<ConstTransitivePtr<CGHeroInstance> > &h = gs->players[color].heroes;
 		if(!h.size())
-			return NULL;
+			return nullptr;
 		//best hero will be that with highest exp
 		int best = 0;
 		for(int b=1; b<h.size(); ++b)
@@ -2608,7 +2607,7 @@ std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > CGameState::campaignH
 					logGlobal->warnStream() << "Warning, no hero to replace!";
 					map->removeBlockVisTiles(hp, true);
 					delete hp;
-					map->objects[g] = NULL;
+					map->objects[g] = nullptr;
 				}
 				//we don't have to remove hero from Xheroes because it would destroy the order and duplicates shouldn't happen
 			}
@@ -2673,7 +2672,7 @@ CGPathNode::CGPathNode()
 	land = 0;
 	moveRemains = 0;
 	turns = 255;
-	theNodeBefore = NULL;
+	theNodeBefore = nullptr;
 }
 
 bool CGPathNode::reachable() const
@@ -2703,7 +2702,7 @@ bool CPathsInfo::getPath( const int3 &dst, CGPath &out )
 CPathsInfo::CPathsInfo( const int3 &Sizes )
 :sizes(Sizes)
 {
-	hero = NULL;
+	hero = nullptr;
 	nodes = new CGPathNode**[sizes.x];
 	for(int i = 0; i < sizes.x; i++)
 	{
@@ -2781,7 +2780,7 @@ void InfoAboutHero::assign(const InfoAboutHero & iah)
 {
 	InfoAboutArmy::operator = (iah);
 
-	details = (iah.details ? new Details(*iah.details) : NULL);
+	details = (iah.details ? new Details(*iah.details) : nullptr);
 	hclass = iah.hclass;
 	portrait = iah.portrait;
 }
@@ -3054,7 +3053,7 @@ void CPathfinder::initializeGraph()
 				node.coord.y = j;
 				node.coord.z = k;
                 node.land = tinfo->terType != ETerrainType::WATER;
-				node.theNodeBefore = NULL;
+				node.theNodeBefore = nullptr;
 			}
 		}
 	}

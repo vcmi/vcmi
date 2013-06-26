@@ -1046,7 +1046,7 @@ CCreatureHandler::~CCreatureHandler()
 		creature.dellNull();
 }
 
-CreatureID CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, int tier) const
+CreatureID CCreatureHandler::pickRandomMonster(const std::function<int()> &randGen, int tier) const
 {
 	int r = 0;
 	if(tier == -1) //pick any allowed creature

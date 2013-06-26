@@ -97,7 +97,7 @@ void CCursorHandler::drawRestored()
 	shiftPos(x, y);
 
 	SDL_Rect temp_rect = genRect(40, 40, x, y);
-	SDL_BlitSurface(help, NULL, screen, &temp_rect);
+	SDL_BlitSurface(help, nullptr, screen, &temp_rect);
 	//blitAt(help,x,y);
 }
 

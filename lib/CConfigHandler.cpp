@@ -135,7 +135,7 @@ void SettingsListener::nodeInvalidated(const std::vector<std::string> &changedPa
 		callback(parent.getNode(path));
 }
 
-void SettingsListener::operator() (boost::function<void(const JsonNode&)> _callback)
+void SettingsListener::operator() (std::function<void(const JsonNode&)> _callback)
 {
 	callback = _callback;
 }
@@ -200,7 +200,7 @@ static void setGem(AdventureMapConfig &ac, const int gem, const JsonNode &g)
 	ac.gemG.push_back(g["graphic"].String());
 }
 
-CConfigHandler::CConfigHandler(void): current(NULL)
+CConfigHandler::CConfigHandler(void): current(nullptr)
 {
 }
 

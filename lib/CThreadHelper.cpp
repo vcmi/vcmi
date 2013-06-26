@@ -16,7 +16,7 @@
  *
  */
 
-CThreadHelper::CThreadHelper(std::vector<boost::function<void()> > *Tasks, int Threads)
+CThreadHelper::CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads)
 {
 	currentTask = 0; amount = Tasks->size();
 	tasks = Tasks;
@@ -26,7 +26,7 @@ void CThreadHelper::run()
 {
 	boost::thread_group grupa;
 	for(int i=0;i<threads;i++)
-		grupa.create_thread(boost::bind(&CThreadHelper::processTasks,this));
+		grupa.create_thread(std::bind(&CThreadHelper::processTasks,this));
 	grupa.join_all();
 }
 void CThreadHelper::processTasks()

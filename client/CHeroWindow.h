@@ -46,7 +46,7 @@ public:
 	CWindowWithArtifacts *cww;
 
 	CHeroWithMaybePickedArtifact(CWindowWithArtifacts *Cww, const CGHeroInstance *Hero);
-	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const OVERRIDE;
+	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
 };
 
 class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWindowWithArtifacts

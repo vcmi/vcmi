@@ -61,9 +61,9 @@ void printWinError()
     logGlobal->errorStream() << "Error " << error << " encountered:";
 
 	//Get error description
-	char* pTemp = NULL;
+	char* pTemp = nullptr;
 	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, error,  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPSTR)&pTemp, 1, NULL);
+		nullptr, error,  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPSTR)&pTemp, 1, nullptr);
     logGlobal->errorStream() << pTemp;
 	LocalFree( pTemp );
 }
@@ -124,9 +124,9 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	MINIDUMP_EXCEPTION_INFORMATION meinfo = {threadId, exception, TRUE};
 
 	//create file where dump will be placed
-	char *mname = NULL;
+	char *mname = nullptr;
 	char buffer[MAX_PATH + 1];
-	HMODULE hModule = NULL;
+	HMODULE hModule = nullptr;
 	GetModuleFileNameA(hModule, buffer, MAX_PATH);
 	mname = strrchr(buffer, '\\');
 	if (mname != 0)
@@ -228,7 +228,7 @@ CConsoleHandler::CConsoleHandler() : thread(nullptr)
 #else
 	defColor = "\x1b[0m";
 #endif
-    cb = new boost::function<void(const std::string &)>;
+    cb = new std::function<void(const std::string &)>;
 }
 CConsoleHandler::~CConsoleHandler()
 {
@@ -248,11 +248,11 @@ void CConsoleHandler::end()
 #endif
 		thread->join();
 		delete thread;
-		thread = NULL;
+		thread = nullptr;
 	}
 }
 
 void CConsoleHandler::start()
 {
-	thread = new boost::thread(boost::bind(&CConsoleHandler::run,console));
+	thread = new boost::thread(std::bind(&CConsoleHandler::run,console));
 }

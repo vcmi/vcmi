@@ -26,7 +26,7 @@ void CBattleAnimation::endAnim()
 	{
 		if(it->first == this)
 		{
-			it->first = NULL;
+			it->first = nullptr;
 		}
 	}
 
@@ -97,7 +97,7 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 : CBattleStackAnimation(_owner, attacker), dest(_dest), attackedStack(defender), attackingStack(attacker)
 {
 
-	assert(attackingStack && "attackingStack is NULL in CBattleAttack::CBattleAttack !\n");
+	assert(attackingStack && "attackingStack is nullptr in CBattleAttack::CBattleAttack !\n");
 	bool isCatapultAttack = attackingStack->hasBonusOfType(Bonus::CATAPULT) 
 							&& owner->curInt->cb->battleHexToWallPart(_dest) >= 0;
 
@@ -120,7 +120,7 @@ bool CDefenceAnimation::init()
 	//	return false;
 	//}
 
-	if(attacker == NULL && owner->battleEffects.size() > 0)
+	if(attacker == nullptr && owner->battleEffects.size() > 0)
 		return false;
 
 	ui32 lowestMoveID = owner->animIDhelper + 5;
@@ -134,7 +134,7 @@ bool CDefenceAnimation::init()
 		if(attAnim && attAnim->stack->ID != stack->ID)
 			continue;
 
-		if(attacker != NULL)
+		if(attacker != nullptr)
 		{
 			int attackerAnimType = owner->creAnims[attacker->ID]->getType();
 			if( ( attackerAnimType == CCreatureAnim::ATTACK_UP ||
@@ -222,7 +222,7 @@ void CDefenceAnimation::endAnim()
 
 	//printing info to console
 
-	//if(attacker!=NULL)
+	//if(attacker!=nullptr)
 	//	owner->printConsoleAttacked(stack, dmg, amountKilled, attacker);
 
 	//const CStack * attacker = owner->curInt->cb->battleGetStackByID(IDby, false);
@@ -604,7 +604,7 @@ CReverseAnimation::CReverseAnimation(CBattleInterface * _owner, const CStack * s
 
 bool CReverseAnimation::init()
 {
-	if(myAnim() == NULL || myAnim()->getType() == CCreatureAnim::DEATH)
+	if(myAnim() == nullptr || myAnim()->getType() == CCreatureAnim::DEATH)
 	{
 		endAnim();
 
@@ -978,7 +978,7 @@ bool CSpellEffectAnimation::init()
 			}
 
 			// Correction for 2-hex creatures.
-			if (destStack != NULL && destStack->doubleWide())
+			if (destStack != nullptr && destStack->doubleWide())
 				be.x += (destStack->attackerOwned ? -1 : 1)*tilePos.w/2;
 
 			owner->battleEffects.push_back(be);

@@ -97,11 +97,11 @@ CList::CList(int Size, Point position, std::string btnUp, std::string btnDown, s
 	list = new CListBox(create, destroy, Point(1,scrollUp->pos.h), Point(0, 32), size, listAmount);
 
 	//assign callback only after list was created
-	scrollUp->callback = boost::bind(&CListBox::moveToPrev, list);
-	scrollDown = new CAdventureMapButton(CGI->generaltexth->zelp[helpDown], boost::bind(&CListBox::moveToNext, list), 0, scrollUp->pos.h + 32*size, btnDown);
+	scrollUp->callback = std::bind(&CListBox::moveToPrev, list);
+	scrollDown = new CAdventureMapButton(CGI->generaltexth->zelp[helpDown], std::bind(&CListBox::moveToNext, list), 0, scrollUp->pos.h + 32*size, btnDown);
 
-	scrollDown->callback += boost::bind(&CList::update, this);
-	scrollUp->callback += boost::bind(&CList::update, this);
+	scrollDown->callback += std::bind(&CList::update, this);
+	scrollUp->callback += std::bind(&CList::update, this);
 
 	update();
 }
@@ -236,7 +236,7 @@ CIntObject * CHeroList::createHeroItem(size_t index)
 }
 
 CHeroList::CHeroList(int size, Point position, std::string btnUp, std::string btnDown):
-    CList(size, position, btnUp, btnDown, LOCPLINT->wanderingHeroes.size(), 303, 304, boost::bind(&CHeroList::createHeroItem, this, _1))
+    CList(size, position, btnUp, btnDown, LOCPLINT->wanderingHeroes.size(), 303, 304, std::bind(&CHeroList::createHeroItem, this, _1))
 {
 }
 
@@ -321,7 +321,7 @@ std::string CTownList::CTownItem::getHoverText()
 }
 
 CTownList::CTownList(int size, Point position, std::string btnUp, std::string btnDown):
-    CList(size, position, btnUp, btnDown, LOCPLINT->towns.size(),  306, 307, boost::bind(&CTownList::createTownItem, this, _1))
+    CList(size, position, btnUp, btnDown, LOCPLINT->towns.size(),  306, 307, std::bind(&CTownList::createTownItem, this, _1))
 {
 }
 

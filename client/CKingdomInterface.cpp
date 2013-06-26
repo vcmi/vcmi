@@ -32,8 +32,8 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data)
 	size(Size),
 	infoPos(Pos),
 	data(Data),
-	value(NULL),
-	name(NULL)
+	value(nullptr),
+	name(nullptr)
 {
 	assert(data);
 	addUsedEvents(LCLICK | RCLICK);
@@ -253,7 +253,7 @@ bool InfoBoxAbstractHeroData::prepareMessage(std::string &text, CComponent **com
 	{
 	case HERO_SPECIAL:
 		text = CGI->heroh->heroes[getSubID()]->specDescr;
-		*comp = NULL;
+		*comp = nullptr;
 		return true;
 	case HERO_PRIMARY_SKILL:
 		text = CGI->generaltexth->arraytxt[2+getSubID()];
@@ -261,11 +261,11 @@ bool InfoBoxAbstractHeroData::prepareMessage(std::string &text, CComponent **com
 		return true;
 	case HERO_MANA:
 		text = CGI->generaltexth->allTexts[149];
-		*comp = NULL;
+		*comp = nullptr;
 		return true;
 	case HERO_EXPERIENCE:
 		text = CGI->generaltexth->allTexts[241];
-		*comp = NULL;
+		*comp = nullptr;
 		return true;
 	case HERO_SECONDARY_SKILL:
 		{
@@ -383,7 +383,7 @@ bool InfoBoxHeroData::prepareMessage(std::string &text, CComponent**comp)
 		boost::replace_first(text, "%s", boost::lexical_cast<std::string>(hero->name));
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->mana));
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->manaLimit()));
-		*comp = NULL;
+		*comp = nullptr;
 		return true;
 
 	case HERO_EXPERIENCE:
@@ -391,7 +391,7 @@ bool InfoBoxHeroData::prepareMessage(std::string &text, CComponent**comp)
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->level));
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(hero->level+1)));
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->exp));
-		*comp = NULL;
+		*comp = nullptr;
 		return true;
 
 	default:
@@ -462,7 +462,7 @@ CKingdomInterface::CKingdomInterface():
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ui32 footerPos = conf.go()->ac.overviewSize * 116;
 
-	tabArea = new CTabbedInt(boost::bind(&CKingdomInterface::createMainTab, this, _1), CTabbedInt::DestroyFunc(), Point(4,4));
+	tabArea = new CTabbedInt(std::bind(&CKingdomInterface::createMainTab, this, _1), CTabbedInt::DestroyFunc(), Point(4,4));
 
 	std::vector<const CGObjectInstance * > ownedObjects = LOCPLINT->cb->getMyObjects();
 	generateObjectsList(ownedObjects);
@@ -522,7 +522,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 	{
 		objects.push_back(element.second);
 	}
-	dwellingsList = new CListBox(boost::bind(&CKingdomInterface::createOwnedObject, this, _1), CListBox::DestroyFunc(),
+	dwellingsList = new CListBox(std::bind(&CKingdomInterface::createOwnedObject, this, _1), CListBox::DestroyFunc(),
 	                             Point(740,44), Point(0,57), dwellSize, visibleObjects.size());
 }
 
@@ -535,7 +535,7 @@ CIntObject* CKingdomInterface::createOwnedObject(size_t index)
 		return new InfoBox(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL,
 			   new InfoBoxCustom(value,"", "FLAGPORT", obj.imageID, obj.hoverText));
 	}
-	return NULL;
+	return nullptr;
 }
 
 CIntObject * CKingdomInterface::createMainTab(size_t index)
@@ -545,7 +545,7 @@ CIntObject * CKingdomInterface::createMainTab(size_t index)
 	{
 	case 0: return new CKingdHeroList(size);
 	case 1: return new CKingdTownList(size);
-	default:return NULL;
+	default:return nullptr;
 	}
 }
 
@@ -603,30 +603,30 @@ void CKingdomInterface::generateButtons()
 
 	//Main control buttons
 	btnHeroes = new CAdventureMapButton (CGI->generaltexth->overview[11], CGI->generaltexth->overview[6],
-	                                    boost::bind(&CKingdomInterface::activateTab, this, 0),748,28+footerPos,"OVBUTN1.DEF", SDLK_h);
+	                                    std::bind(&CKingdomInterface::activateTab, this, 0),748,28+footerPos,"OVBUTN1.DEF", SDLK_h);
 	btnHeroes->block(true);
 
 	btnTowns = new CAdventureMapButton (CGI->generaltexth->overview[12], CGI->generaltexth->overview[7],
-	                                   boost::bind(&CKingdomInterface::activateTab, this, 1),748,64+footerPos,"OVBUTN6.DEF", SDLK_t);
+	                                   std::bind(&CKingdomInterface::activateTab, this, 1),748,64+footerPos,"OVBUTN6.DEF", SDLK_t);
 
 	btnExit = new CAdventureMapButton (CGI->generaltexth->allTexts[600],"",
-	                                  boost::bind(&CKingdomInterface::close, this),748,99+footerPos,"OVBUTN1.DEF", SDLK_RETURN);
+	                                  std::bind(&CKingdomInterface::close, this),748,99+footerPos,"OVBUTN1.DEF", SDLK_RETURN);
 	btnExit->assignedKeys.insert(SDLK_ESCAPE);
 	btnExit->setOffset(3);
 
 	//Object list control buttons
-	dwellTop = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToPos, dwellingsList, 0),
+	dwellTop = new CAdventureMapButton ("", "", std::bind(&CListBox::moveToPos, dwellingsList, 0),
 	                                   733, 4, "OVBUTN4.DEF");
 
-	dwellBottom = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToPos, dwellingsList, -1),
+	dwellBottom = new CAdventureMapButton ("", "", std::bind(&CListBox::moveToPos, dwellingsList, -1),
 	                                      733, footerPos+2, "OVBUTN4.DEF");
 	dwellBottom->setOffset(2);
 
-	dwellUp = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToPrev, dwellingsList),
+	dwellUp = new CAdventureMapButton ("", "", std::bind(&CListBox::moveToPrev, dwellingsList),
 	                                  733, 24, "OVBUTN4.DEF");
 	dwellUp->setOffset(4);
 
-	dwellDown = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToNext, dwellingsList),
+	dwellDown = new CAdventureMapButton ("", "", std::bind(&CListBox::moveToNext, dwellingsList),
 	                                    733, footerPos-18, "OVBUTN4.DEF");
 	dwellDown->setOffset(6);
 }
@@ -684,7 +684,7 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 
 	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
-	heroes = new CListBox(boost::bind(&CKingdHeroList::createHeroItem, this, _1), boost::bind(&CKingdHeroList::destroyHeroItem, this, _1),
+	heroes = new CListBox(std::bind(&CKingdHeroList::createHeroItem, this, _1), std::bind(&CKingdHeroList::destroyHeroItem, this, _1),
 	                      Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
 }
 
@@ -737,7 +737,7 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 
 	ui32 townCount = LOCPLINT->cb->howManyTowns();
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
-	towns = new CListBox(boost::bind(&CKingdTownList::createTownItem, this, _1), CListBox::DestroyFunc(),
+	towns = new CListBox(std::bind(&CKingdTownList::createTownItem, this, _1), CListBox::DestroyFunc(),
 	                     Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
 }
 
@@ -784,7 +784,7 @@ CTownItem::CTownItem(const CGTownInstance* Town):
 	hall = new CTownInfo( 69, 31, town, true);
 	fort = new CTownInfo(111, 31, town, false);
 
-	garr = new CGarrisonInt(313, 3, 4, Point(232,0),  NULL, Point(313,2), town->getUpperArmy(), town->visitingHero, true, true, true);
+	garr = new CGarrisonInt(313, 3, 4, Point(232,0),  nullptr, Point(313,2), town->getUpperArmy(), town->visitingHero, true, true, true);
 	heroes = new HeroSlots(town, Point(244,6), Point(475,6), garr, false);
 
 	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
@@ -886,7 +886,7 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	heroArts->commonInfo = artsCommonPart;
 	heroArts->setHero(hero);
 
-	artsTabs = new CTabbedInt(boost::bind(&CHeroItem::onTabSelected, this, _1), boost::bind(&CHeroItem::onTabDeselected, this, _1));
+	artsTabs = new CTabbedInt(std::bind(&CHeroItem::onTabSelected, this, _1), std::bind(&CHeroItem::onTabDeselected, this, _1));
 
 	artButtons = new CHighlightableButtonsGroup(0);
 	for (size_t it = 0; it<3; it++)
@@ -900,11 +900,11 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 		artButtons->addButton(tooltip, overlay, "OVBUTN3",364+it*112, 46, it);
 		artButtons->buttons[it]->addTextOverlay(CGI->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
 	}
-	artButtons->onChange += boost::bind(&CTabbedInt::setActive, artsTabs, _1);
-	artButtons->onChange += boost::bind(&CHeroItem::onArtChange, this, _1);
+	artButtons->onChange += std::bind(&CTabbedInt::setActive, artsTabs, _1);
+	artButtons->onChange += std::bind(&CHeroItem::onArtChange, this, _1);
 	artButtons->select(0,0);
 
-	garr = new CGarrisonInt(6, 78, 4, Point(), NULL, Point(), hero, NULL, true, true);
+	garr = new CGarrisonInt(6, 78, 4, Point(), nullptr, Point(), hero, nullptr, true, true);
 
 	portrait = new CAnimImage("PortraitsLarge", hero->portrait, 0, 5, 6);
 	heroArea = new CHeroArea(5, 6, hero);

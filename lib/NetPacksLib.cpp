@@ -144,7 +144,7 @@ DLL_LINKAGE void HeroVisitCastle::applyGs( CGameState *gs )
 	if(start())
 		t->setVisitingHero(h);
 	else
-		t->setVisitingHero(NULL);
+		t->setVisitingHero(nullptr);
 }
 
 DLL_LINKAGE void ChangeSpells::applyGs( CGameState *gs )
@@ -217,7 +217,7 @@ DLL_LINKAGE void SetAvailableHeroes::applyGs( CGameState *gs )
 
 DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 {
-	CBonusSystemNode *cbsn = NULL;
+	CBonusSystemNode *cbsn = nullptr;
 	switch(who)
 	{
 	case HERO:
@@ -316,10 +316,10 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		if(h->visitedTown)
 		{
 			if(h->inTownGarrison)
-				h->visitedTown->garrisonHero = NULL;
+				h->visitedTown->garrisonHero = nullptr;
 			else
-				h->visitedTown->visitingHero = NULL;
-			h->visitedTown = NULL;
+				h->visitedTown->visitingHero = nullptr;
+			h->visitedTown = nullptr;
 		}
 
 		//return hero to the pool, so he may reappear in tavern
@@ -327,7 +327,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		if(!vstd::contains(gs->hpool.pavailable, h->subID))
 			gs->hpool.pavailable[h->subID] = 0xff;
 
-		gs->map->objects[id.getNum()] = NULL;
+		gs->map->objects[id.getNum()] = nullptr;
 
 
 		return;
@@ -336,14 +336,14 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 	auto quest = dynamic_cast<const CQuest *>(obj);
 	if (quest)
 	{
-		gs->map->quests[quest->qid] = NULL;
+		gs->map->quests[quest->qid] = nullptr;
 		BOOST_FOREACH (auto &player, gs->players)
 		{
 			BOOST_FOREACH (auto &q, player.second.quests)
 			{
 				if (q.obj == obj)
 				{
-					q.obj = NULL;
+					q.obj = nullptr;
 				}
 			}
 		}
@@ -415,9 +415,9 @@ void TryMoveHero::applyGs( CGameState *gs )
 		CGBoat *b = const_cast<CGBoat *>(h->boat);
 		b->direction = h->moveDir;
 		b->pos = start;
-		b->hero = NULL;
+		b->hero = nullptr;
 		gs->map->addBlockVisTiles(b);
-		h->boat = NULL;
+		h->boat = nullptr;
 	}
 
 	if(start!=end && (result == SUCCESS || result == TELEPORTATION || result == EMBARK || result == DISEMBARK))
@@ -472,9 +472,9 @@ DLL_LINKAGE void SetHeroesInTown::applyGs( CGameState *gs )
 	bool newGarrisonComesFromVisiting = g && g == t->visitingHero;
 
 	if(newVisitorComesFromGarrison)
-		t->setGarrisonedHero(NULL);
+		t->setGarrisonedHero(nullptr);
 	if(newGarrisonComesFromVisiting)
-		t->setVisitingHero(NULL);
+		t->setVisitingHero(nullptr);
 	if(!newGarrisonComesFromVisiting || v)
 		t->setVisitingHero(v);
 	if(!newVisitorComesFromGarrison || g)
@@ -543,7 +543,7 @@ DLL_LINKAGE void GiveHero::applyGs( CGameState *gs )
 DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 {
 
-	CGObjectInstance *o = NULL;
+	CGObjectInstance *o = nullptr;
 	switch(ID)
 	{
 	case Obj::BOAT:
@@ -607,7 +607,7 @@ DLL_LINKAGE const CStackInstance * StackLocation::getStack()
 	if(!army->hasStackAtSlot(slot))
 	{
         logNetwork->warnStream() << "Warning: " << army->nodeName() << " dont have a stack at slot " << slot;
-		return NULL;
+		return nullptr;
 	}
 	return &army->getStack(slot);
 }
@@ -664,10 +664,10 @@ DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 		else
 		{
             logNetwork->warnStream() << "ArtifactLocation::getArt: That location is locked!";
-			return NULL;
+			return nullptr;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 DLL_LINKAGE const CArtifactSet * ArtifactLocation::getHolderArtSet() const
@@ -1130,7 +1130,7 @@ void BattleResult::applyGs( CGameState *gs )
 		CBonusSystemNode::treeHasChanged();
 	}
 
-	gs->curB->belligerents[0]->battle = gs->curB->belligerents[1]->battle = NULL;
+	gs->curB->belligerents[0]->battle = gs->curB->belligerents[1]->battle = nullptr;
 	gs->curB.dellNull();
 }
 

@@ -31,9 +31,9 @@ class CIdentifierStorage
 		std::string remoteScope; /// scope in which this object must be found
 		std::string type;        /// type, e.g. creature, faction, hero, etc
 		std::string name;        /// string ID
-		boost::function<void(si32)> callback;
+		std::function<void(si32)> callback;
 
-		ObjectCallback(std::string localScope, std::string remoteScope, std::string type, std::string name, const boost::function<void(si32)> & callback);
+		ObjectCallback(std::string localScope, std::string remoteScope, std::string type, std::string name, const std::function<void(si32)> & callback);
 	};
 
 	struct ObjectData // entry created on ID registration
@@ -53,9 +53,9 @@ class CIdentifierStorage
 public:
 	/// request identifier for specific object name. If ID is not yet resolved callback will be queued
 	/// and will be called later
-	void requestIdentifier(std::string scope, std::string type, std::string name, const boost::function<void(si32)> & callback);
-	void requestIdentifier(std::string type, const JsonNode & name, const boost::function<void(si32)> & callback);
-	void requestIdentifier(const JsonNode & name, const boost::function<void(si32)> & callback);
+	void requestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback);
+	void requestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback);
+	void requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback);
 
 	/// registers new object, calls all associated callbacks
 	void registerObject(std::string scope, std::string type, std::string name, si32 identifier);

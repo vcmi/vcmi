@@ -66,9 +66,9 @@ public:
 
 	CObjectVisitQuery(const CGObjectInstance *Obj, const CGHeroInstance *Hero, int3 Tile);
 
-	virtual bool blocksPack(const CPack *pack) const OVERRIDE;
-	virtual void onRemoval(CGameHandler *gh, PlayerColor color) OVERRIDE;
-	virtual void onExposure(CGameHandler *gh, QueryPtr topQuery) OVERRIDE;
+	virtual bool blocksPack(const CPack *pack) const override;
+	virtual void onRemoval(CGameHandler *gh, PlayerColor color) override;
+	virtual void onExposure(CGameHandler *gh, QueryPtr topQuery) override;
 };
 
 class CBattleQuery : public CQuery
@@ -81,9 +81,9 @@ public:
 
 	CBattleQuery();
 	CBattleQuery(const BattleInfo *Bi); //TODO
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const OVERRIDE;
-	virtual bool blocksPack(const CPack *pack) const OVERRIDE;
-	virtual void onRemoval(CGameHandler *gh, PlayerColor color) OVERRIDE;
+	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	virtual bool blocksPack(const CPack *pack) const override;
+	virtual void onRemoval(CGameHandler *gh, PlayerColor color) override;
 };
 
 //Created when hero attempts move and something happens
@@ -104,8 +104,8 @@ class CDialogQuery : public CQuery
 {
 public:
 	boost::optional<ui32> answer;
-	virtual bool endsByPlayerAnswer() const OVERRIDE;
-	virtual bool blocksPack(const CPack *pack) const OVERRIDE;
+	virtual bool endsByPlayerAnswer() const override;
+	virtual bool blocksPack(const CPack *pack) const override;
 };
 
 class CGarrisonDialogQuery : public CDialogQuery //used also for hero exchange dialogs
@@ -114,8 +114,8 @@ public:
 	std::array<const CArmedInstance *,2> exchangingArmies;
 
 	CGarrisonDialogQuery(const CArmedInstance *up, const CArmedInstance *down);
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const OVERRIDE;
-	virtual bool blocksPack(const CPack *pack) const OVERRIDE;
+	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
+	virtual bool blocksPack(const CPack *pack) const override;
 };
 
 //yes/no and component selection dialogs
@@ -126,7 +126,7 @@ public:
 
 	CBlockingDialogQuery(const BlockingDialog &bd);
 
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const OVERRIDE;
+	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
 };
 
 class CHeroLevelUpDialogQuery : public CDialogQuery
@@ -134,8 +134,8 @@ class CHeroLevelUpDialogQuery : public CDialogQuery
 public:
 	CHeroLevelUpDialogQuery(const HeroLevelUp &Hlu);
 
-	virtual void onRemoval(CGameHandler *gh, PlayerColor color) OVERRIDE;
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const OVERRIDE;
+	virtual void onRemoval(CGameHandler *gh, PlayerColor color) override;
+	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
 
 	HeroLevelUp hlu;
 };
@@ -146,8 +146,8 @@ class CCommanderLevelUpDialogQuery : public CDialogQuery
 public:
 	CCommanderLevelUpDialogQuery(const CommanderLevelUp &Clu);
 
-	virtual void onRemoval(CGameHandler *gh, PlayerColor color) OVERRIDE;
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const OVERRIDE;
+	virtual void onRemoval(CGameHandler *gh, PlayerColor color) override;
+	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
 
 	CommanderLevelUp clu;
 };

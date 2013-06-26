@@ -27,7 +27,7 @@ typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values a
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
 typedef std::vector<CBonusSystemNode *> TNodesVector;
-typedef boost::function<bool(const Bonus*)> CSelector;
+typedef std::function<bool(const Bonus*)> CSelector;
 
 
 
@@ -373,7 +373,7 @@ public:
 	void push_back(Bonus* const &x);
 	std::vector<Bonus*>::iterator erase (const int position);
 	void clear();
-	void resize(std::vector<Bonus*>::size_type sz, Bonus* c = NULL );
+	void resize(std::vector<Bonus*>::size_type sz, Bonus* c = nullptr );
 	void insert(std::vector<Bonus*>::iterator position, std::vector<Bonus*>::size_type n, Bonus* const &x);
 	Bonus *const &operator[] (std::vector<Bonus*>::size_type n) { return bonuses[n]; }
 	Bonus *const &operator[] (std::vector<Bonus*>::size_type n) const { return bonuses[n]; }
@@ -474,7 +474,7 @@ public:
 	CPropagatorNodeType();
 	CPropagatorNodeType(int NodeType);
 	bool shouldBeAttached(CBonusSystemNode *dest);
-	//CBonusSystemNode *getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild) OVERRIDE;
+	//CBonusSystemNode *getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -508,9 +508,9 @@ class DLL_LINKAGE IBonusBearer
 public:
 	//new bonusing node interface
 	// * selector is predicate that tests if HeroBonus matches our criteria
-	// * root is node on which call was made (NULL will be replaced with this)
+	// * root is node on which call was made (nullptr will be replaced with this)
 	//interface
-	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const = 0;
+	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const = 0;
 	void getModifiersWDescr(TModDescr &out, const CSelector &selector, const std::string &cachingStr = "") const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(const CSelector &selector, const std::string &cachingStr = "") const;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
@@ -577,7 +577,7 @@ private:
 
 	void getBonusesRec(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	void getAllBonusesRec(BonusList &out) const;
-	const TBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const;
+	const TBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
 
 public:
 
@@ -586,7 +586,7 @@ public:
 
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
 	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
-	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const;
+	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 	const Bonus *getBonusLocalFirst(const CSelector &selector) const;
 
@@ -651,7 +651,7 @@ public:
 
 namespace NBonus
 {
-	//set of methods that may be safely called with NULL objs
+	//set of methods that may be safely called with nullptr objs
 	DLL_LINKAGE int valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1); //subtype -> subtype of bonus, if -1 then any
 	DLL_LINKAGE bool hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1);//determines if hero has a bonus of given type (and optionally subtype)
 	//DLL_LINKAGE const HeroBonus * get(const CBonusSystemNode *obj, int from, int id );
@@ -796,7 +796,7 @@ class DLL_LINKAGE LimiterList : public ILimiter
 	std::vector<TLimiterPtr> limiters;
 
 public:
-	int limit(const BonusLimitationContext &context) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const override;
 	void add(TLimiterPtr limiter);
 };
 
@@ -810,7 +810,7 @@ public:
 	CCreatureTypeLimiter(const CCreature &Creature, bool IncludeUpgrades = true);
 	void setCreature (CreatureID id);
 
-	int limit(const BonusLimitationContext &context) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -829,7 +829,7 @@ public:
 	HasAnotherBonusLimiter(Bonus::BonusType bonus = Bonus::NONE);
 	HasAnotherBonusLimiter(Bonus::BonusType bonus, TBonusSubtype _subtype);
 
-	int limit(const BonusLimitationContext &context) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -845,7 +845,7 @@ public:
 	CreatureNativeTerrainLimiter();
 	CreatureNativeTerrainLimiter(int TerrainType);
 
-	int limit(const BonusLimitationContext &context) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -861,7 +861,7 @@ public:
 	CreatureFactionLimiter();
 	CreatureFactionLimiter(int TerrainType);
 
-	int limit(const BonusLimitationContext &context) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -877,7 +877,7 @@ public:
 	CreatureAlignmentLimiter();
 	CreatureAlignmentLimiter(si8 Alignment);
 
-	int limit(const BonusLimitationContext &context) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -893,7 +893,7 @@ public:
 	StackOwnerLimiter();
 	StackOwnerLimiter(PlayerColor Owner);
 
-	int limit(const BonusLimitationContext &context) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -909,7 +909,7 @@ public:
 
 	RankRangeLimiter();
 	RankRangeLimiter(ui8 Min, ui8 Max = 255);
-	int limit(const BonusLimitationContext &context) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

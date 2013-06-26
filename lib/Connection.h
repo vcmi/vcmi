@@ -91,19 +91,19 @@ class DLL_LINKAGE CTypeList
 public:
 	CTypeList();
 	ui16 registerType(const std::type_info *type);
-	template <typename T> ui16 registerType(const T * t = NULL)
+	template <typename T> ui16 registerType(const T * t = nullptr)
 	{
 		return registerType(getTypeInfo(t));
 	}
 
 	ui16 getTypeID(const std::type_info *type);
-	template <typename T> ui16 getTypeID(const T * t = NULL)
+	template <typename T> ui16 getTypeID(const T * t = nullptr)
 	{
 		return getTypeID(getTypeInfo(t));
 	}
 
 
-	template <typename T> const std::type_info * getTypeInfo(const T * t = NULL)
+	template <typename T> const std::type_info * getTypeInfo(const T * t = nullptr)
 	{
 		if(t)
 			return &typeid(*t);
@@ -351,7 +351,7 @@ public:
 	template <typename T, typename U>
 	const VectorisedObjectInfo<T, U> *getVectorisedTypeInfo()
 	{
-		const std::type_info *myType = NULL;
+		const std::type_info *myType = nullptr;
 //
 // 		if(boost::is_base_of<CGObjectInstance, T>::value) //ugly workaround to support also types derived from CGObjectInstance -> if we encounter one, treat it aas CGObj..
 // 			myType = &typeid(CGObjectInstance);
@@ -360,7 +360,7 @@ public:
 
 		TTypeVecMap::iterator i = vectors.find(myType);
 		if(i == vectors.end())
-			return NULL;
+			return nullptr;
 		else
 		{
 			assert(!i->second.empty());
@@ -374,7 +374,7 @@ public:
 	T* getVectorItemFromId(const VectorisedObjectInfo<T, U> &oInfo, U id) const
 	{
 	/*	if(id < 0)
-			return NULL;*/
+			return nullptr;*/
 		si32 idAsNumber = idToNumber(id);
 
 		assert(oInfo.vector);
@@ -557,7 +557,7 @@ public:
 			delete iter->second;
 	}
 
-	template<typename T> void registerType(const T * t=NULL)
+	template<typename T> void registerType(const T * t=nullptr)
 	{
 		ui16 ID = typeList.registerType(t);
 		savers[ID] = new CPointerSaver<COSer<Serializer>,T>;
@@ -593,11 +593,11 @@ public:
 	template <typename T>
 	void savePointer(const T &data)
 	{
-		//write if pointer is not NULL
-		ui8 hlp = (data!=NULL);
+		//write if pointer is not nullptr
+		ui8 hlp = (data!=nullptr);
 		*this << hlp;
 
-		//if pointer is NULL then we don't need anything more...
+		//if pointer is nullptr then we don't need anything more...
 		if(!hlp)
 			return;
 
@@ -873,7 +873,7 @@ public:
 			delete iter->second;
 	}
 
-	template<typename T> void registerType(const T * t=NULL)
+	template<typename T> void registerType(const T * t=nullptr)
 	{
 		ui16 ID = typeList.registerType(t);
 		loaders[ID] = new CPointerLoader<CISer<Serializer>,T>;
@@ -980,7 +980,7 @@ public:
 		*this >> hlp;
 		if(!hlp)
 		{
-			data = NULL;
+			data = nullptr;
 			return;
 		}
 
@@ -1374,7 +1374,7 @@ public:
 		for(iter = apps.begin(); iter != apps.end(); iter++)
 			delete iter->second;
 	}
-	template<typename U> void registerType(const U * t=NULL)
+	template<typename U> void registerType(const U * t=nullptr)
 	{
 		ui16 ID = typeList.registerType(t);
 		apps[ID] = T::getApplier(t);

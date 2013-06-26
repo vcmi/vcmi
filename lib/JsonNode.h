@@ -68,7 +68,7 @@ public:
 
 	void setMeta(std::string metadata, bool recursive = true);
 
-	/// Convert node to another type. Converting to NULL will clear all data
+	/// Convert node to another type. Converting to nullptr will clear all data
 	void setType(JsonType Type);
 	JsonType getType() const;
 

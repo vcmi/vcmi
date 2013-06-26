@@ -35,22 +35,19 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 //defining available c++11 features
 
 //initialization lists - only gcc-4.4 or later
-#if defined(__clang__) || (defined(__GNUC__) && (GCC_VERSION >= 440))
+#if defined(__clang__) || defined(__GNUC__)
 #define CPP11_USE_INITIALIZERS_LIST
 #endif
 
-//nullptr -  only msvc and gcc-4.6 or later, othervice define it  as NULL
-#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 460)) && !(defined(__clang__))
+//nullptr -  only msvc and gcc-4.6 or later, othervice define it  as nullptr
+#if (defined(__GNUC__)) && (GCC_VERSION < 460)
 #define nullptr NULL
 #endif
 
 //override keyword - only msvc and gcc-4.7 or later.
-#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 470)) && !(defined(__clang__))
+#if !defined(_MSC_VER) && !defined(__clang__) && !(defined(__GNUC__) && (GCC_VERSION >= 470))
 #define override
 #endif
-
-//workaround to support existing code
-#define OVERRIDE override
 
 /* ---------------------------------------------------------------------------- */
 /* Suppress some compiler warnings */
@@ -72,6 +69,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <climits>
 #include <cmath>
 #include <cstdlib>
+#include <functional>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -79,6 +77,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <memory>
 #include <numeric>
 #include <queue>
+#include <random>
 #include <set>
 #include <sstream>
 #include <string>
@@ -93,12 +92,11 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define BOOST_THREAD_VERSION 3
 #endif
 #define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
+#define BOOST_BIND_NO_PLACEHOLDERS
 //#define BOOST_SYSTEM_NO_DEPRECATED 1
 
 #include <boost/algorithm/string.hpp>
-#include <boost/assert.hpp>
 #include <boost/assign.hpp>
-#include <boost/bind.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/current_function.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -106,17 +104,15 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
-#include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
-#include <boost/program_options.hpp>
 #include <boost/optional.hpp>
-#include <boost/range/algorithm.hpp>
+#include <boost/program_options.hpp>
 #include <boost/range/adaptor/filtered.hpp>
+#include <boost/range/algorithm.hpp>
 #include <boost/thread.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
-#include <boost/unordered_map.hpp>
 #include <boost/variant.hpp>
 
 #ifdef ANDROID
@@ -129,6 +125,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 using std::shared_ptr;
 using std::unique_ptr;
 using std::make_shared;
+using namespace std::placeholders;
 namespace range = boost::range;
 
 /* ---------------------------------------------------------------------------- */
@@ -153,37 +150,33 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 /* ---------------------------------------------------------------------------- */
 // Import + Export macro declarations
 #ifdef _WIN32
-#ifdef __GNUC__
-#define DLL_EXPORT __attribute__((dllexport))
+#  ifdef __GNUC__
+#    define DLL_EXPORT __attribute__((dllexport))
+#  else
+#    define DLL_EXPORT __declspec(dllexport)
+#  endif
 #else
-#define DLL_EXPORT __declspec(dllexport)
-#endif
-#else
-#if defined(__GNUC__) && GCC_VERSION >= 400
-#define DLL_EXPORT	__attribute__ ((visibility("default")))
-#else
-#define DLL_EXPORT
-#endif
+#  ifdef __GNUC__
+#    define DLL_EXPORT	__attribute__ ((visibility("default")))
+#  endif
 #endif
 
 #ifdef _WIN32
-#ifdef __GNUC__
-#define DLL_IMPORT __attribute__((dllimport))
+#  ifdef __GNUC__
+#    define DLL_IMPORT __attribute__((dllimport))
+#  else
+#    define DLL_IMPORT __declspec(dllimport)
+#  endif
 #else
-#define DLL_IMPORT __declspec(dllimport)
-#endif
-#else
-#if defined(__GNUC__) && GCC_VERSION >= 400
-#define DLL_IMPORT	__attribute__ ((visibility("default")))
-#else
-#define DLL_IMPORT
-#endif
+#  ifdef __GNUC__
+#    define DLL_IMPORT	__attribute__ ((visibility("default")))
+#  endif
 #endif
 
 #ifdef VCMI_DLL
-#define DLL_LINKAGE DLL_EXPORT
+#  define DLL_LINKAGE DLL_EXPORT
 #else
-#define DLL_LINKAGE DLL_IMPORT
+#  define DLL_LINKAGE DLL_IMPORT
 #endif
 
 #define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
@@ -246,11 +239,6 @@ public:
 
 	bmap()
 	{}
-#if 0 // What is _Myt? gcc\clang does not have that
-	bmap(const typename std::map<KeyT, ValT>::_Myt& _Right)
-		: std::map<KeyT, ValT>(_Right)
-	{}
-#endif
 	explicit bmap(const typename std::map<KeyT, ValT>::key_compare& _Pred)
 		: std::map<KeyT, ValT>(_Pred)
 	{}
@@ -439,12 +427,12 @@ namespace vstd
 		return assigner<t1,t2>(a1,a2);
 	}
 
-	//deleted pointer and sets it to NULL
+	//deleted pointer and sets it to nullptr
 	template <typename T>
 	void clear_pointer(T* &ptr)
 	{
 		delete ptr;
-		ptr = NULL;
+		ptr = nullptr;
 	}
 
 	template<typename T>
@@ -550,7 +538,7 @@ namespace vstd
 		});
 	}
 
-	static inline int retreiveRandNum(const boost::function<int()> &randGen)
+	static inline int retreiveRandNum(const std::function<int()> &randGen)
 	{
 		if (randGen)
 			return randGen();
@@ -558,7 +546,7 @@ namespace vstd
 			return rand();
 	}
 
-	template <typename T> const T & pickRandomElementOf(const std::vector<T> &v, const boost::function<int()> &randGen)
+	template <typename T> const T & pickRandomElementOf(const std::vector<T> &v, const std::function<int()> &randGen)
 	{
 		return v.at(retreiveRandNum(randGen) % v.size());
 	}
@@ -570,7 +558,7 @@ namespace vstd
 	}
 
 	template <typename Container>
-	typename Container::value_type backOrNull(const Container &c) //returns last element of container or NULL if it is empty (to be used with containers of pointers)
+	typename Container::value_type backOrNull(const Container &c) //returns last element of container or nullptr if it is empty (to be used with containers of pointers)
 	{
 		if(c.size())
 			return c.back();
@@ -579,7 +567,7 @@ namespace vstd
 	}
 
 	template <typename Container>
-	typename Container::value_type frontOrNull(const Container &c) //returns first element of container or NULL if it is empty (to be used with containers of pointers)
+	typename Container::value_type frontOrNull(const Container &c) //returns first element of container or nullptr if it is empty (to be used with containers of pointers)
 	{
 		if(c.size())
 			return c.front();

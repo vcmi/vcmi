@@ -3,7 +3,6 @@
 
 #include "filesystem/CResourceLoader.h"
 #include "CGeneralTextHandler.h"
-#include <boost/random/linear_congruential.hpp>
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
 #include "CSpellHandler.h"
@@ -23,7 +22,7 @@ using namespace boost::assign;
  *
  */
 
-extern boost::rand48 ran;
+extern std::minstd_rand ran;
 // Note: list must match entries in ArtTraits.txt
 #define ART_POS_LIST    \
 	ART_POS(SPELLBOOK)  \
@@ -494,7 +493,7 @@ void CArtHandler::giveArtBonus( ArtifactID aid, Bonus::BonusType type, int val, 
 	giveArtBonus(aid, createBonus(type, val, subtype, valType, limiter, additionalInfo));
 }
 
-void CArtHandler::giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator /*= NULL*/, int additionalInfo)
+void CArtHandler::giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator /*= nullptr*/, int additionalInfo)
 {
 	giveArtBonus(aid, createBonus(type, val, subtype, propagator, additionalInfo));
 }
@@ -967,7 +966,7 @@ void CCombinedArtifactInstance::removeFrom(ArtifactLocation al)
 
 CArtifactInstance * CCombinedArtifactInstance::figureMainConstituent(const ArtifactLocation al)
 {
-	CArtifactInstance *mainConstituent = NULL; //it'll be replaced with combined artifact, not a lock
+	CArtifactInstance *mainConstituent = nullptr; //it'll be replaced with combined artifact, not a lock
 	BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)
 		if(ci.slot == al.slot)
 			mainConstituent = ci.art;
@@ -1006,7 +1005,7 @@ bool CCombinedArtifactInstance::isPart(const CArtifactInstance *supposedPart) co
 	return false;
 }
 
-CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance *Art /*= NULL*/, ArtifactPosition Slot /*= -1*/)
+CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance *Art /*= nullptr*/, ArtifactPosition Slot /*= -1*/)
 {
 	art = Art;
 	slot = Slot;
@@ -1025,7 +1024,7 @@ const CArtifactInstance* CArtifactSet::getArt(ArtifactPosition pos, bool exclude
 			return si->artifact;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 CArtifactInstance* CArtifactSet::getArt(ArtifactPosition pos, bool excludeLocked /*= true*/)
@@ -1072,7 +1071,7 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId( ArtifactInstanceID a
 		if(i.artifact->id == artInstId)
 			return i.artifact;
 
-	return NULL;
+	return nullptr;
 }
 
 bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= false*/) const
@@ -1088,12 +1087,12 @@ const ArtSlotInfo * CArtifactSet::getSlot(ArtifactPosition pos) const
 	{
 		int backpackPos = (int)pos - GameConstants::BACKPACK_START;
 		if(backpackPos < 0 || backpackPos >= artifactsInBackpack.size())
-			return NULL;
+			return nullptr;
 		else
 			return &artifactsInBackpack[backpackPos];
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 bool CArtifactSet::isPositionFree(ArtifactPosition pos, bool onlyLockCheck /*= false*/) const

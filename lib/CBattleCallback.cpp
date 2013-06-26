@@ -210,8 +210,8 @@ const CGTownInstance * CBattleInfoEssentials::battleGetDefendedTown() const
 	RETURN_IF_NOT_BATTLE(nullptr);
 
 
-	if(!getBattle() || getBattle()->town == NULL)
-		return NULL;
+	if(!getBattle() || getBattle()->town == nullptr)
+		return nullptr;
 
 	return getBattle()->town;
 }
@@ -503,7 +503,7 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 	//let's define a huge lambda
 	auto takeStack = [&](std::vector<const CStack *> &st) -> const CStack*
 	{
-		const CStack *ret = NULL;
+		const CStack *ret = nullptr;
 		unsigned i, //fastest stack
 			j=0; //fastest stack of the other side
 		for(i = 0; i < st.size(); i++)
@@ -514,7 +514,7 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 		if(i == st.size())
 			return nullptr;
 
-		const CStack *fastest = st[i], *other = NULL;
+		const CStack *fastest = st[i], *other = nullptr;
 		int bestSpeed = fastest->Speed(turn);
 
 		if(fastest->attackerOwned != lastMoved)
@@ -546,9 +546,9 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 
 		assert(ret);
 		if(ret == fastest)
-			st[i] = NULL;
+			st[i] = nullptr;
 		else
-			st[j] = NULL;
+			st[j] = nullptr;
 
 		lastMoved = ret->attackerOwned;
 		return ret;
@@ -998,7 +998,7 @@ TDmgRange CBattleInfoCallback::battleEstimateDamage(const CStack * attacker, con
 	return battleEstimateDamage(bai, retaliationDmg);
 }
 
-std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(const BattleAttackInfo &bai, std::pair<ui32, ui32> * retaliationDmg /*= NULL*/) const
+std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(const BattleAttackInfo &bai, std::pair<ui32, ui32> * retaliationDmg /*= nullptr*/) const
 {
 	RETURN_IF_NOT_BATTLE(std::make_pair(0, 0));
 
@@ -1225,7 +1225,7 @@ std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const 
 		return std::make_pair(minimal->stack, reachability.predecessors[minimal->stack->position]);
 	}
 	else
-		return std::make_pair<const CStack * , BattleHex>(NULL, BattleHex::INVALID);
+		return std::make_pair<const CStack * , BattleHex>(nullptr, BattleHex::INVALID);
 }
 
 si8 CBattleInfoCallback::battleGetTacticDist() const
@@ -1424,7 +1424,7 @@ bool CBattleInfoCallback::isToReverse (BattleHex hexFrom, BattleHex hexTo, bool 
 	}
 }
 
-ReachabilityInfo::TDistances CBattleInfoCallback::battleGetDistances(const CStack * stack, BattleHex hex /*= BattleHex::INVALID*/, BattleHex * predecessors /*= NULL*/) const
+ReachabilityInfo::TDistances CBattleInfoCallback::battleGetDistances(const CStack * stack, BattleHex hex /*= BattleHex::INVALID*/, BattleHex * predecessors /*= nullptr*/) const
 {
 	ReachabilityInfo::TDistances ret;
 	ret.fill(-1);
@@ -1811,7 +1811,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if (mode == ECastingMode::HERO_CASTING)
 		return battleIsImmune(battleGetFightingHero(playerToSide(player)), spell, mode, dest);
 	else
-		return battleIsImmune(NULL, spell, mode, dest);
+		return battleIsImmune(nullptr, spell, mode, dest);
 }
 
 ui32 CBattleInfoCallback::calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const
@@ -1999,13 +1999,13 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	return attackedCres;
 }
 
-const CStack * CBattleInfoCallback::getStackIf(boost::function<bool(const CStack*)> pred) const
+const CStack * CBattleInfoCallback::getStackIf(std::function<bool(const CStack*)> pred) const
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
 	auto stacks = battleGetAllStacks();
 	auto stackItr = range::find_if(stacks, pred);
 	return stackItr == stacks.end()
-		? NULL
+		? nullptr
 		: *stackItr;
 }
 
@@ -2172,7 +2172,7 @@ int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
 
 si8 CBattleInfoCallback::battleMaxSpellLevel() const
 {
-	const CBonusSystemNode *node = NULL;
+	const CBonusSystemNode *node = nullptr;
 	if(const CGHeroInstance *h =  battleGetFightingHero(battleGetMySide()))
 		node = h;
 	//TODO else use battle node

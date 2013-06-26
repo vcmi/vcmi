@@ -112,11 +112,11 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	howManyPeople++;
 	GH.defActionsDef = 0;
 	LOCPLINT = this;
-	curAction = NULL;
+	curAction = nullptr;
 	playerID=Player;
 	human=true;
-	castleInt = NULL;
-	battleInt = NULL;
+	castleInt = nullptr;
+	battleInt = nullptr;
 	//pim = new boost::recursive_mutex;
 	makingTurn = false;
 	showingDialog = new CondSh<bool>(false);
@@ -138,12 +138,12 @@ CPlayerInterface::~CPlayerInterface()
 		if(adventureInt->active & CIntObject::KEYBOARD)
 			adventureInt->deactivateKeyboard();
 		delete adventureInt;
-		adventureInt = NULL;
+		adventureInt = nullptr;
 	}
 
 	delete cingconsole;
 
-	LOCPLINT = NULL;
+	LOCPLINT = nullptr;
 }
 void CPlayerInterface::init(shared_ptr<CCallback> CB)
 {
@@ -165,7 +165,7 @@ void CPlayerInterface::yourTurn()
 
 		LOCPLINT = this;
 		GH.curInt = this;
-		adventureInt->selection = NULL;
+		adventureInt->selection = nullptr;
 
 		if(firstCall)
 		{
@@ -520,7 +520,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 			wanderingHeroes.push_back(town->visitingHero);
 	}
 	adventureInt->heroList.update();
-	adventureInt->updateNextHero(NULL);
+	adventureInt->updateNextHero(nullptr);
 
 	if(CCastleInterface *c = castleInt)
 	{
@@ -749,7 +749,7 @@ void CPlayerInterface::actionFinished(const BattleAction &action)
 
 	battleInt->endAction(curAction);
 	delete curAction;
-	curAction = NULL;
+	curAction = nullptr;
 }
 
 BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
@@ -792,7 +792,7 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	//tidy up
 	BattleAction ret = *(b->givenCommand->data);
 	delete b->givenCommand->data;
-	b->givenCommand->data = NULL;
+	b->givenCommand->data = nullptr;
 
 	//return command
     logGlobal->traceStream() << "Giving command for " << stack->nodeName();
@@ -1325,12 +1325,12 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 
 bool CPlayerInterface::shiftPressed() const
 {
-	return SDL_GetKeyState(NULL)[SDLK_LSHIFT]  ||  SDL_GetKeyState(NULL)[SDLK_RSHIFT];
+	return SDL_GetKeyState(nullptr)[SDLK_LSHIFT]  ||  SDL_GetKeyState(nullptr)[SDLK_RSHIFT];
 }
 
 bool CPlayerInterface::altPressed() const
 {
-	return SDL_GetKeyState(NULL)[SDLK_LALT]  ||  SDL_GetKeyState(NULL)[SDLK_RALT];
+	return SDL_GetKeyState(nullptr)[SDLK_LALT]  ||  SDL_GetKeyState(nullptr)[SDLK_RALT];
 }
 
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
@@ -1468,7 +1468,7 @@ void CPlayerInterface::initializeHeroTownList()
 		towns.push_back(allTowns[i]);
 
 	if (adventureInt)
-		adventureInt->updateNextHero(NULL);
+		adventureInt->updateNextHero(nullptr);
 }
 
 void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level)
@@ -1547,7 +1547,7 @@ void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 
 bool CPlayerInterface::ctrlPressed() const
 {
-	return SDL_GetKeyState(NULL)[SDLK_LCTRL]  ||  SDL_GetKeyState(NULL)[SDLK_RCTRL];
+	return SDL_GetKeyState(nullptr)[SDLK_LCTRL]  ||  SDL_GetKeyState(nullptr)[SDLK_RCTRL];
 }
 
 void CPlayerInterface::update()
@@ -2133,7 +2133,7 @@ void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho, bool check
 	assert(ho == adventureInt->selection);
 
 	paths.erase(ho);
-	adventureInt->terrain.currentPath = NULL;
+	adventureInt->terrain.currentPath = nullptr;
 	adventureInt->updateMoveHero(ho, false);
 }
 
@@ -2165,7 +2165,7 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void CPlayerInterface::acceptTurn()
@@ -2193,7 +2193,7 @@ void CPlayerInterface::acceptTurn()
 	//show new day animation and sound on infobar
 	adventureInt->infoBar.showDate();
 
-	adventureInt->updateNextHero(NULL);
+	adventureInt->updateNextHero(nullptr);
 	adventureInt->showAll(screen);
 
 	if(settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
@@ -2286,7 +2286,7 @@ void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const 
 	GH.pushInt(chfw);
 }
 
-void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket *bm /*= NULL*/)
+void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket *bm /*= nullptr*/)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(CMarketplaceWindow *cmw = dynamic_cast<CMarketplaceWindow*>(GH.topInt()))

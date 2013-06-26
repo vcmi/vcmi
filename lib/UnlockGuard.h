@@ -62,18 +62,18 @@ namespace vstd
 
 		unlock_guard()
 		{
-			m = NULL;
+			m = nullptr;
 		}
 
 		unlock_guard(unlock_guard &&other)
 			: m(other.m)
 		{
-			other.m = NULL;
+			other.m = nullptr;
 		}
 
 		void release()
 		{
-			m = NULL;
+			m = nullptr;
 		}
 
 		~unlock_guard()

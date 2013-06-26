@@ -18,7 +18,6 @@
 #include "CSpellHandler.h"
 #include "CModHandler.h"
 #include "../client/CSoundBase.h"
-#include <boost/random/linear_congruential.hpp>
 #include "CTownHandler.h"
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
@@ -41,8 +40,8 @@ using namespace boost::assign;
 
 std::map<Obj, std::map<int, std::vector<ObjectInstanceID> > > CGTeleport::objs;
 std::vector<std::pair<ObjectInstanceID, ObjectInstanceID> > CGTeleport::gates;
-IGameCallback * IObjectInterface::cb = NULL;
-extern boost::rand48 ran;
+IGameCallback * IObjectInterface::cb = nullptr;
+extern std::minstd_rand ran;
 std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
 ui8 CGObelisk::obeliskCount; //how many obelisks are on map
@@ -304,7 +303,7 @@ CGObjectInstance::CGObjectInstance()
 	//state = new CLuaObjectScript();
 	ID = Obj::NO_OBJ;
 	subID = -1;
-	defInfo = NULL;
+	defInfo = nullptr;
 	tempOwner = PlayerColor::UNFLAGGABLE;
 	blockVisit = false;
 }
@@ -312,7 +311,7 @@ CGObjectInstance::~CGObjectInstance()
 {
 	//if (state)
 	//	delete state;
-	//state=NULL;
+	//state=nullptr;
 }
 
 const std::string & CGObjectInstance::getHoverText() const
@@ -336,9 +335,9 @@ int CGObjectInstance::getHeight() const //returns height of object graphic in ti
 }
 bool CGObjectInstance::visitableAt(int x, int y) const //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
 {
-	if(defInfo==NULL)
+	if(defInfo==nullptr)
 	{
-        logGlobal->warnStream() << "Warning: VisitableAt for obj "<< id.getNum() <<": NULL defInfo!";
+        logGlobal->warnStream() << "Warning: VisitableAt for obj "<< id.getNum() <<": nullptr defInfo!";
 		return false;
 	}
 
@@ -351,7 +350,7 @@ bool CGObjectInstance::visitableAt(int x, int y) const //returns true if object 
 }
 bool CGObjectInstance::blockingAt(int x, int y) const
 {
-	if(x<0 || y<0 || x>=getWidth() || y>=getHeight() || defInfo==NULL)
+	if(x<0 || y<0 || x>=getWidth() || y>=getHeight() || defInfo==nullptr)
 		return false;
 	if((defInfo->blockMap[y+6-getHeight()] >> (7-(8-getWidth()+x) )) & 1)
 		return false;
@@ -754,10 +753,10 @@ CGHeroInstance::CGHeroInstance()
 	isStanding = true;
 	moveDir = 4;
 	exp = 0xffffffff;
-	visitedTown = NULL;
-	type = NULL;
-	boat = NULL;
-	commander = NULL;
+	visitedTown = nullptr;
+	type = nullptr;
+	boat = nullptr;
+	commander = nullptr;
 	sex = 0xff;
 	secSkills.push_back(std::make_pair(SecondarySkill::DEFAULT, -1));
 }
@@ -842,7 +841,7 @@ void CGHeroInstance::initHero()
 		mana = manaLimit();
 }
 
-void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
+void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= nullptr*/)
 {
 	if(!dst)
 		dst = this;
@@ -1206,7 +1205,7 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 						break; //use only hero skills as bonuses to avoid feedback loop
 					case Bonus::PRIMARY_SKILL: //for creatures, that is
 					{
-						const CCreature * cre = NULL;
+						const CCreature * cre = nullptr;
 						int creLevel = 0;
 						if (auto creatureLimiter = std::dynamic_pointer_cast<CCreatureTypeLimiter>(b->limiter)) //TODO: more general eveluation of bonuses?
 						{
@@ -2167,7 +2166,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 	{
 		if(armedGarrison() || visitingHero)
 		{
-			const CGHeroInstance *defendingHero = NULL;
+			const CGHeroInstance *defendingHero = nullptr;
 			const CArmedInstance *defendingArmy = this;
 
 			if(visitingHero)
@@ -2183,7 +2182,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			//TODO
 			//"borrowing" army from garrison to visiting hero
 
-			cb->startBattlePrimary(h, defendingArmy, getSightCenter(), h, defendingHero, false, (outsideTown ? NULL : this));
+			cb->startBattlePrimary(h, defendingArmy, getSightCenter(), h, defendingHero, false, (outsideTown ? nullptr : this));
 		}
 		else
 		{
@@ -2581,10 +2580,10 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 	else
 	{
 		PlayerState *p = cb->gameState()->getPlayer(visitingHero->tempOwner);
-		visitingHero->visitedTown = NULL;
+		visitingHero->visitedTown = nullptr;
 		visitingHero->detachFrom(&townAndVis);
 		visitingHero->attachTo(p);
-		visitingHero = NULL;
+		visitingHero = nullptr;
 	}
 }
 
@@ -2604,11 +2603,11 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 	else
 	{
 		PlayerState *p = cb->gameState()->getPlayer(garrisonHero->tempOwner);
-		garrisonHero->visitedTown = NULL;
+		garrisonHero->visitedTown = nullptr;
 		garrisonHero->inTownGarrison = false;
 		garrisonHero->detachFrom(this);
 		garrisonHero->attachTo(p);
-		garrisonHero = NULL;
+		garrisonHero = nullptr;
 	}
 	updateMoraleBonusFromArmy(); //avoid giving morale bonus for same army twice
 }
@@ -3954,7 +3953,10 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 	}
 
 	//sort by position
-	std::sort(gatesSplit[0].begin(), gatesSplit[0].end(), boost::bind(&CGObjectInstance::pos, _1) < boost::bind(&CGObjectInstance::pos, _2));
+	std::sort(gatesSplit[0].begin(), gatesSplit[0].end(), [](const CGObjectInstance * a, const CGObjectInstance * b)
+	{
+		return a->pos < b->pos;
+	});
 
 	for(size_t i = 0; i < gatesSplit[0].size(); i++)
 	{
@@ -3978,7 +3980,7 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 		if(best.first >= 0) //found pair
 		{
 			gates.push_back(std::make_pair(cur->id, gatesSplit[1][best.first]->id));
-			gatesSplit[1][best.first] = NULL;
+			gatesSplit[1][best.first] = nullptr;
 		}
 		else
 		{
@@ -4956,7 +4958,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 {
 	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->m13489val);
 	if(allowNull && !o)
-		return NULL;
+		return nullptr;
 	assert(o && o->ID == Obj::HERO);
 	return static_cast<const CGHeroInstance*>(o);
 }
@@ -4965,7 +4967,7 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 {
 	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->m13489val);
 	if(allowNull && !o)
-		return NULL;
+		return nullptr;
 	assert(o && o->ID == Obj::MONSTER);
 	return static_cast<const CGCreature*>(o);
 }
@@ -6080,7 +6082,7 @@ void CGOnceVisitable::blockingDialogAnswered(const CGHeroInstance *hero, ui32 an
 void CBank::initObj()
 {
 	index = VLC->objh->bankObjToIndex(this);
-	bc = NULL;
+	bc = nullptr;
 	daycounter = 0;
 	multiplier = 1;
 }
@@ -6150,7 +6152,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 			reset (val%100);
 			break;
 		case ObjProperty::BANK_CLEAR_CONFIG:
-			bc = NULL;
+			bc = nullptr;
 			break;
 		case ObjProperty::BANK_CLEAR_ARTIFACTS: //remove rewards from Derelict Ship
 			artifacts.clear();
@@ -6210,7 +6212,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 
 void CBank::newTurn() const
 {
-	if (bc == NULL)
+	if (bc == nullptr)
 	{
 		if (cb->getDate() == 1)
 			initialize(); //initialize on first day
@@ -6415,7 +6417,7 @@ void CBank::battleFinished(const CGHeroInstance *hero, const BattleResult &resul
 			cb->showInfoDialog(&iw);
 			cb->giveCreatures(this, hero, ourArmy, false);
 		}
-		cb->setObjProperty (id, ObjProperty::BANK_CLEAR_CONFIG, 0); //bc = NULL
+		cb->setObjProperty (id, ObjProperty::BANK_CLEAR_CONFIG, 0); //bc = nullptr
 	}
 }
 
@@ -6659,7 +6661,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 }
 void CGBoat::initObj()
 {
-	hero = NULL;
+	hero = nullptr;
 }
 
 void CGSirens::initObj()
@@ -6804,7 +6806,7 @@ IShipyard::IShipyard(const CGObjectInstance *O)
 IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 {
 	if(!obj)
-		return NULL;
+		return nullptr;
 
 	if(obj->ID == Obj::TOWN)
 	{
@@ -6816,7 +6818,7 @@ IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 	}
 	else
 	{
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -7047,7 +7049,7 @@ void CArmedInstance::randomizeArmy(int type)
 
 CArmedInstance::CArmedInstance()
 {
-	battle = NULL;
+	battle = nullptr;
 }
 
 //int CArmedInstance::valOfGlobalBonuses(CSelector selector) const
@@ -7294,7 +7296,7 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose /*= 
 	default:
 		if(verbose)
             logGlobal->errorStream() << "Cannot cast to IMarket object with ID " << obj->ID;
-		return NULL;
+		return nullptr;
 	}
 }
 

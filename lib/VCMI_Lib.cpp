@@ -28,7 +28,7 @@
 #include "filesystem/CResourceLoader.h"
 #include "CConsoleHandler.h"
 
-LibClasses * VLC = NULL;
+LibClasses * VLC = nullptr;
 
 DLL_LINKAGE void preinitDLL(CConsoleHandler *Console)
 {

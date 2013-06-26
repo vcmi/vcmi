@@ -123,8 +123,8 @@ static CFileCache animationCache;
  *************************************************************************/
 
 CDefFile::CDefFile(std::string Name):
-	data(NULL),
-	palette(NULL)
+	data(nullptr),
+	palette(nullptr)
 {
 	//First 8 colors in def palette used for transparency
 	static SDL_Color H3Palette[8] =
@@ -340,8 +340,8 @@ const std::map<size_t, size_t > CDefFile::getEntries() const
 
 SDLImageLoader::SDLImageLoader(SDLImage * Img):
 	image(Img),
-	lineStart(NULL),
-	position(NULL)
+	lineStart(nullptr),
+	position(nullptr)
 {
 }
 
@@ -394,8 +394,8 @@ SDLImageLoader::~SDLImageLoader()
  
 CompImageLoader::CompImageLoader(CompImage * Img):
 	image(Img),
-	position(NULL),
-	entry(NULL),
+	position(nullptr),
+	entry(nullptr),
 	currentLine(0)
 {
 	
@@ -550,7 +550,7 @@ void CompImageLoader::EndLine()
 {
 	currentLine++;
 	image->line[currentLine] = position - image->surf;
-	entry = NULL;
+	entry = nullptr;
 
 }
 
@@ -586,7 +586,7 @@ void IImage::increaseRef()
 }
 
 SDLImage::SDLImage(CDefFile *data, size_t frame, size_t group, bool compressed):
-	surf(NULL)
+	surf(nullptr)
 {
 	SDLImageLoader loader(this);
 	data->loadFrame(frame, group, loader);
@@ -607,7 +607,7 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 {
 	surf = BitmapHandler::loadBitmap(filename);
 
-	if (surf == NULL)
+	if (surf == nullptr)
 	{
         logGlobal->errorStream() << "Error: failed to load image "<<filename;
 	}
@@ -672,9 +672,9 @@ SDLImage::~SDLImage()
 }
 
 CompImage::CompImage(const CDefFile *data, size_t frame, size_t group):
-	surf(NULL),
-	line(NULL),
-	palette(NULL)
+	surf(nullptr),
+	line(nullptr),
+	palette(nullptr)
 	
 {
 	CompImageLoader loader(this);
@@ -854,7 +854,7 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 
 void CompImage::playerColored(PlayerColor player)
 {
-	SDL_Color *pal = NULL;
+	SDL_Color *pal = nullptr;
 	if(player < PlayerColor::PLAYER_LIMIT)
 	{
 		pal = graphics->playerColorPalette + 32*player.getNum();
@@ -900,7 +900,7 @@ IImage * CAnimation::getFromExtraDef(std::string filename)
 {
 	size_t pos = filename.find(':');
 	if (pos == -1)
-		return NULL;
+		return nullptr;
 	CAnimation anim(filename.substr(0, pos));
 	pos++;
 	size_t frame = atoi(filename.c_str()+pos);
@@ -1052,7 +1052,7 @@ CDefFile * CAnimation::getFile() const
 
 	if (CResourceHandler::get()->existsResource(identifier))
 		return new CDefFile(name);
-	return NULL;
+	return nullptr;
 }
 
 void CAnimation::printError(size_t frame, size_t group, std::string type) const
@@ -1079,7 +1079,7 @@ CAnimation::CAnimation():
 	name(""),
 	compressed(false)
 {
-	init(NULL);
+	init(nullptr);
 	loadedAnims.insert(this);
 }
 
@@ -1114,7 +1114,7 @@ IImage * CAnimation::getImage(size_t frame, size_t group, bool verbose) const
 	}
 	if (verbose)
 		printError(frame, group, "GetImage");
-	return NULL;
+	return nullptr;
 }
 
 void CAnimation::load()
@@ -1494,7 +1494,7 @@ void CCreatureAnim::reset()
 
 void CCreatureAnim::startPreview(bool warMachine)
 {
-	callback = boost::bind(&CCreatureAnim::loopPreview, this, warMachine);
+	callback = std::bind(&CCreatureAnim::loopPreview, this, warMachine);
 }
 
 void CCreatureAnim::clearAndSet(EAnimType type)

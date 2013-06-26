@@ -140,7 +140,7 @@ void JsonNode::setType(JsonType Type)
 	if (type == Type)
 		return;
 
-	//Reset node to NULL
+	//Reset node to nullptr
 	if (Type != DATA_NULL)
 		setType(DATA_NULL);
 

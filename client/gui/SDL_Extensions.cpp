@@ -53,7 +53,7 @@ void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst)
 {
 	if(!dst) dst = screen;
 	SDL_Rect pom = genRect(src->h,src->w,x,y);
-	CSDL_Ext::blitSurface(src,NULL,dst,&pom);
+	CSDL_Ext::blitSurface(src,nullptr,dst,&pom);
 }
 
 void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst)
@@ -395,7 +395,7 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * sr
 		/* Make sure the surfaces aren't locked */
 		if ( ! src || ! dst )
 		{
-			SDL_SetError("SDL_UpperBlit: passed a NULL surface");
+			SDL_SetError("SDL_UpperBlit: passed a nullptr surface");
 			return -1;
 		}
 		if ( src->locked || dst->locked )
@@ -404,8 +404,8 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * sr
 			return -1;
 		}
 
-		/* If the destination rectangle is NULL, use the entire dest surface */
-		if ( dstRect == NULL )
+		/* If the destination rectangle is nullptr, use the entire dest surface */
+		if ( dstRect == nullptr )
 		{
 			fulldst.x = fulldst.y = 0;
 			dstRect = &fulldst;
@@ -614,7 +614,7 @@ case BytesPerPixel:									\
 		CASE_BPP(4)
 	default:
         logGlobal->errorStream() << (int)dest->format->BitsPerPixel << "bpp is not supported!";
-		return NULL;
+		return nullptr;
 	}
 
 }
@@ -628,7 +628,7 @@ TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &dest, int inc
 		CASE_BPP(4)
 	default:
         logGlobal->errorStream() << (int)dest->format->BitsPerPixel << "bpp is not supported!";
-		return NULL;
+		return nullptr;
 	}
 #undef CASE_BPP
 }
@@ -716,7 +716,7 @@ BlitterWithRotationVal CSDL_Ext::getBlitterWithRotation(SDL_Surface *dest)
 	}
 
 	assert(0);
-	return NULL;
+	return nullptr;
 }
 
 BlitterWithRotationVal CSDL_Ext::getBlitterWithRotationAndAlpha(SDL_Surface *dest)
@@ -732,7 +732,7 @@ BlitterWithRotationVal CSDL_Ext::getBlitterWithRotationAndAlpha(SDL_Surface *des
 	}
 
 	assert(0);
-	return NULL;
+	return nullptr;
 }
 
 template<int bpp>

@@ -13,7 +13,7 @@
  *
  */
 
-typedef boost::function<void()> Task;
+typedef std::function<void()> Task;
 
 /// Can assign CPU work to other threads/cores
 class DLL_LINKAGE CThreadHelper
@@ -25,11 +25,11 @@ class DLL_LINKAGE CThreadHelper
 
 	void processTasks();
 public:
-	CThreadHelper(std::vector<boost::function<void()> > *Tasks, int Threads);
+	CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads);
 	void run();
 };
 
-template <typename T> inline void setData(T * data, boost::function<T()> func)
+template <typename T> inline void setData(T * data, std::function<T()> func)
 {
 	*data = func();
 }
@@ -37,16 +37,16 @@ template <typename T> inline void setData(T * data, boost::function<T()> func)
 void DLL_LINKAGE setThreadName(const std::string &name);
 
 #define GET_DATA(TYPE,DESTINATION,FUNCTION_TO_GET) \
-	(boost::bind(&setData<TYPE>,&DESTINATION,FUNCTION_TO_GET))
+	(std::bind(&setData<TYPE>,&DESTINATION,FUNCTION_TO_GET))
 #define GET_SURFACE(SUR_DESTINATION, SUR_NAME) \
 	(GET_DATA \
 		(SDL_Surface*,SUR_DESTINATION,\
-		boost::function<SDL_Surface*()>(boost::bind(&BitmapHandler::loadBitmap,SUR_NAME,true))))
+		std::function<SDL_Surface*()>(std::bind(&BitmapHandler::loadBitmap,SUR_NAME,true))))
 #define GET_DEF(DESTINATION, DEF_NAME) \
 	(GET_DATA \
 		(CDefHandler*,DESTINATION,\
-		boost::function<CDefHandler*()>(boost::bind(CDefHandler::giveDef,DEF_NAME))))
+		std::function<CDefHandler*()>(std::bind(CDefHandler::giveDef,DEF_NAME))))
 #define GET_DEF_ESS(DESTINATION, DEF_NAME) \
 	(GET_DATA \
 		(CDefEssential*,DESTINATION,\
-		boost::function<CDefEssential*()>(boost::bind(CDefHandler::giveDefEss,DEF_NAME))))
+		std::function<CDefEssential*()>(std::bind(CDefHandler::giveDefEss,DEF_NAME))))

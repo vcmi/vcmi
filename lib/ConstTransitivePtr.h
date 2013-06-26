@@ -20,7 +20,7 @@ class ConstTransitivePtr
 		: ptr(const_cast<T*>(Ptr)) 
 	{}
 public:
-	ConstTransitivePtr(T *Ptr = NULL)
+	ConstTransitivePtr(T *Ptr = nullptr)
 		: ptr(Ptr) 
 	{}
 
@@ -64,7 +64,7 @@ public:
 	void dellNull()
 	{
 		delete ptr;
-		ptr = NULL;
+		ptr = nullptr;
 	}
 
 	template <typename Handler> void serialize(Handler &h, const int version)

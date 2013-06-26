@@ -84,7 +84,7 @@ public:
 	int upg; //0 - up garrison, 1 - down garrison
 
 	CAnimImage *image;
-	CAnimImage *selection; //selection border. NULL if not selected
+	CAnimImage *selection; //selection border. nullptr if not selected
 	
 	void setHighlight(bool on);
 	void set(const CGHeroInstance *newHero);

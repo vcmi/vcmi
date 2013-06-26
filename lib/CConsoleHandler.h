@@ -75,7 +75,7 @@ public:
 #endif
 	}
 
-    boost::function<void(const std::string &)> *cb; //function to be called when message is received
+    std::function<void(const std::string &)> *cb; //function to be called when message is received
 
 private:
     int run();

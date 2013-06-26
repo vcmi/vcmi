@@ -49,7 +49,7 @@ public:
 	/**
 	 * Replaces the cursor with a custom image.
 	 *
-	 * @param image Image to replace cursor with or NULL to use the normal
+	 * @param image Image to replace cursor with or nullptr to use the normal
 	 * cursor. CursorHandler takes ownership of object
 	 */
 	void dragAndDropCursor (CAnimImage * image);

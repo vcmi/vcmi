@@ -184,7 +184,7 @@ public:
 	std::vector <std::pair <Bonus*, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
 
 	void deserializationFix();
-	CreatureID pickRandomMonster(const boost::function<int()> &randGen = 0, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
+	CreatureID pickRandomMonster(const std::function<int()> &randGen = 0, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
 	void addBonusForTier(int tier, Bonus *b); //tier must be <1-7>
 	void addBonusForAllCreatures(Bonus *b);
 

@@ -97,7 +97,7 @@ CPicture::~CPicture()
 void CPicture::init()
 {
 	needRefresh = false;
-	srcRect = NULL;
+	srcRect = nullptr;
 }
 
 void CPicture::show(SDL_Surface * to)
@@ -158,7 +158,7 @@ void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
 	else
 		bg = SDL_CreateRGBSurface(SDL_SWSURFACE, r.w, r.h, 8, 0, 0, 0, 0);
 
-	SDL_FillRect(bg, NULL, color);
+	SDL_FillRect(bg, nullptr, color);
 	freeSurf = true;
 }
 
@@ -200,8 +200,8 @@ CButtonBase::CButtonBase()
 	swappedImages = keepFrame = false;
 	bitmapOffset = 0;
 	state=NORMAL;
-	image = NULL;
-	text = NULL;
+	image = nullptr;
+	text = nullptr;
 }
 
 CButtonBase::~CButtonBase()
@@ -304,7 +304,7 @@ CAdventureMapButton::CAdventureMapButton( const std::string &Name, const std::st
 	init(Callback, pom, HelpBox, info->playerColoured, info->defName, &info->additionalDefs, info->x, info->y, key);
 }
 
-CAdventureMapButton::CAdventureMapButton( const std::pair<std::string, std::string> &help, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key/*=0*/, std::vector<std::string> * add /*= NULL*/, bool playerColoredButton /*= false */ )
+CAdventureMapButton::CAdventureMapButton( const std::pair<std::string, std::string> &help, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key/*=0*/, std::vector<std::string> * add /*= nullptr*/, bool playerColoredButton /*= false */ )
 {
 	std::map<int,std::string> pom;
 	pom[0] = help.first;
@@ -357,7 +357,7 @@ void CAdventureMapButton::hover (bool on)
 
 	std::string *name = (vstd::contains(hoverTexts,getState()))
 		? (&hoverTexts[getState()])
-		: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : NULL);
+		: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : nullptr);
 	if(name && name->size() && !isBlocked()) //if there is no name, there is nohing to display also
 	{
 		if (LOCPLINT && LOCPLINT->battleInt) //for battle buttons
@@ -491,7 +491,7 @@ CHighlightableButton::CHighlightableButton( const CFunctionList<void()> &onSelec
 	init(onSelect,Name,HelpBox,playerColoredButton,defName,add,x,y,key);
 }
 
-CHighlightableButton::CHighlightableButton( const std::pair<std::string, std::string> &help, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key/*=0*/, std::vector<std::string> * add /*= NULL*/, bool playerColoredButton /*= false */ )
+CHighlightableButton::CHighlightableButton( const std::pair<std::string, std::string> &help, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key/*=0*/, std::vector<std::string> * add /*= nullptr*/, bool playerColoredButton /*= false */ )
 : onlyOn(false), selected(false) // TODO: callback2(???)
 {
 	ID = myid;
@@ -500,7 +500,7 @@ CHighlightableButton::CHighlightableButton( const std::pair<std::string, std::st
 	init(onSelect, pom, help.second, playerColoredButton, defName, add, x, y, key);
 }
 
-CHighlightableButton::CHighlightableButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key/*=0*/, std::vector<std::string> * add /*= NULL*/, bool playerColoredButton /*= false */ )
+CHighlightableButton::CHighlightableButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key/*=0*/, std::vector<std::string> * add /*= nullptr*/, bool playerColoredButton /*= false */ )
 : onlyOn(false), selected(false) // TODO: callback2(???)
 {
 	ID = myid;
@@ -516,7 +516,7 @@ void CHighlightableButtonsGroup::addButton(CHighlightableButton* bt)
 	addChild(bt);
 	bt->recActions = defActions;//FIXME: not needed?
 
-	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
+	bt->callback += std::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
 	bt->onlyOn = true;
 	buttons.push_back(bt);
 }
@@ -530,7 +530,7 @@ void CHighlightableButtonsGroup::addButton(const std::map<int,std::string> &tool
 		bt->setOffset(buttons.size()-3);
 	}
 	bt->ID = uid;
-	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
+	bt->callback += std::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
 	bt->onlyOn = true;
 	buttons.push_back(bt);
 }
@@ -546,7 +546,7 @@ CHighlightableButtonsGroup::~CHighlightableButtonsGroup()
 
 void CHighlightableButtonsGroup::select(int id, bool mode)
 {
-	CHighlightableButton *bt = NULL;
+	CHighlightableButton *bt = nullptr;
 	if(mode)
 	{
 		for(size_t i=0;i<buttons.size() && !bt; ++i)
@@ -723,7 +723,7 @@ CSlider::~CSlider()
 
 }
 
-CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, int style)
+CSlider::CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, int style)
 :capacity(Capacity),amount(Amount),horizontal(Horizontal), moved(Moved)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -753,9 +753,9 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 		right->pos.y = pos.y + totalw - 16;
 	}
 
-	left->callback = boost::bind(&CSlider::moveLeft,this);
-	right->callback = boost::bind(&CSlider::moveRight,this);
-	slider->callback = boost::bind(&CSlider::sliderClicked,this);
+	left->callback = std::bind(&CSlider::moveLeft,this);
+	right->callback = std::bind(&CSlider::moveRight,this);
+	slider->callback = std::bind(&CSlider::sliderClicked,this);
 	left->pos.w = left->pos.h = right->pos.w = right->pos.h = slider->pos.w = slider->pos.h = 16;
 	if(horizontal)
 	{
@@ -892,7 +892,7 @@ CIntObject* CObjectList::createItem(size_t index)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	CIntObject * item = createObject(index);
-	if (item == NULL)
+	if (item == nullptr)
 		item = new CIntObject();
 
 	item->recActions = defActions;
@@ -903,7 +903,7 @@ CIntObject* CObjectList::createItem(size_t index)
 
 CTabbedInt::CTabbedInt(CreateFunc create, DestroyFunc destroy, Point position, size_t ActiveID):
 CObjectList(create, destroy),
-activeTab(NULL),
+activeTab(nullptr),
 activeID(ActiveID)
 {
 	pos += position;
@@ -948,7 +948,7 @@ CListBox::CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point Item
 	if (Slider & 1)
 	{
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(SliderPos.x, SliderPos.y, SliderPos.w, boost::bind(&CListBox::moveToPos, this, _1),
+		slider = new CSlider(SliderPos.x, SliderPos.y, SliderPos.w, std::bind(&CListBox::moveToPos, this, _1),
 			VisibleSize, TotalSize, InitialPos, Slider & 2, Slider & 4);
 	}
 	reset();
@@ -1095,7 +1095,7 @@ CSimpleWindow::~CSimpleWindow()
 	if (bitmap)
 	{
 		SDL_FreeSurface(bitmap);
-		bitmap=NULL;
+		bitmap=nullptr;
 	}
 }
 
@@ -1170,7 +1170,7 @@ CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, con
 	pos.x += x;
 	pos.y += y;
 	pos.w = pos.h = 0;
-	bg = NULL;
+	bg = nullptr;
 	ignoreLeadingWhitespace = false;
 
 	if (alignment == TOPLEFT) // causes issues for MIDDLE
@@ -1315,7 +1315,7 @@ void CLabelGroup::add(int x, int y, const std::string &text)
 }
 
 CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= Colors::WHITE*/)
-:CBoundedLabel(rect.x, rect.y, Font, Align, Color, Text), sliderStyle(SliderStyle), slider(NULL)
+:CBoundedLabel(rect.x, rect.y, Font, Align, Color, Text), sliderStyle(SliderStyle), slider(nullptr)
 {
 	type |= REDRAW_PARENT;
 	autoRedraw = false;
@@ -1341,7 +1341,7 @@ void CTextBox::recalculateLines(const std::string &Txt)
 	{
 		lines = CMessage::breakText(Txt, pos.w - 32 - 10, font);
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(pos.w - 32, 0, pos.h, boost::bind(&CTextBox::sliderMoved, this, _1), lineCapacity, lines.size(), 0, false, sliderStyle);
+		slider = new CSlider(pos.w - 32, 0, pos.h, std::bind(&CTextBox::sliderMoved, this, _1), lineCapacity, lines.size(), 0, false, sliderStyle);
 		if(active)
 			slider->activate();
 	}
@@ -1512,9 +1512,9 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 	bg = new CPicture(Pos, 0, true);
 	Rect hlp = Pos;
 	if(srf)
-		CSDL_Ext::blitSurface(srf, &hlp, *bg, NULL);
+		CSDL_Ext::blitSurface(srf, &hlp, *bg, nullptr);
 	else
-		SDL_FillRect(*bg, NULL, 0);
+		SDL_FillRect(*bg, nullptr, 0);
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
 	bg->pos = pos;
@@ -1639,7 +1639,7 @@ CFocusable::CFocusable()
 CFocusable::~CFocusable()
 {
 	if(inputWithFocus == this)
-		inputWithFocus = NULL;
+		inputWithFocus = nullptr;
 
 	focusables -= this;
 }
@@ -1814,9 +1814,9 @@ void CWindowObject::setShadow(bool on)
 			Uint32 shadowColor = SDL_MapRGBA(shadowCornerTempl->format, 0, 0, 0, 192);
 
 			//fill with shadow body color
-			SDL_FillRect(shadowCornerTempl, NULL, shadowColor);
-			SDL_FillRect(shadowBottomTempl, NULL, shadowColor);
-			SDL_FillRect(shadowRightTempl,  NULL, shadowColor);
+			SDL_FillRect(shadowCornerTempl, nullptr, shadowColor);
+			SDL_FillRect(shadowBottomTempl, nullptr, shadowColor);
+			SDL_FillRect(shadowRightTempl,  nullptr, shadowColor);
 
 			//fill last row and column with more transparent color
 			blitAlphaCol(shadowRightTempl , size-1);

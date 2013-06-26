@@ -245,7 +245,7 @@ static void processDef (const CGDefInfo* def)
 {
 	if(def->id == Obj::EVENT)
 	{
-		graphics->advmapobjGraphics[def->name] = NULL;
+		graphics->advmapobjGraphics[def->name] = nullptr;
 		return;
 	}
 	CDefEssential * ourDef = graphics->getDef(def);
@@ -543,7 +543,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				pp.w = sr.w;
 
 				const CGHeroInstance * themp = (obj->ID != Obj::HERO
-					? NULL  
+					? nullptr  
 					: static_cast<const CGHeroInstance*>(obj));
 
 				//print hero / boat and flag
@@ -551,8 +551,8 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				{
 					const int IMGVAL = 8; //frames per group of movement animation
 					ui8 dir;
-					std::vector<Cimage> * iv = NULL;
-					std::vector<CDefEssential *> Graphics::*flg = NULL;
+					std::vector<Cimage> * iv = nullptr;
+					std::vector<CDefEssential *> Graphics::*flg = nullptr;
 					SDL_Surface * tb = nullptr; //surface to blitted
 
 					if(themp) //hero
@@ -639,7 +639,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 							bufr.h = 64;
 							bufr.w = 96;
 							if(bufr.x-extRect->x>-64)
-								CSDL_Ext::blitSurface((graphics->*flg)[color.getNum()]->ourImages[getHeroFrameNum(dir, false) *8+(heroAnim/4)%IMGVAL].bitmap, NULL, extSurf, &bufr);
+								CSDL_Ext::blitSurface((graphics->*flg)[color.getNum()]->ourImages[getHeroFrameNum(dir, false) *8+(heroAnim/4)%IMGVAL].bitmap, nullptr, extSurf, &bufr);
 						}
 					}
 				}
@@ -665,7 +665,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			{
 				if(bx == grailPosRel.x && by == grailPosRel.y)
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(graphics->heroMoveArrows->ourImages[0].bitmap, NULL, extSurf, &sr);
+					CSDL_Ext::blit8bppAlphaTo24bpp(graphics->heroMoveArrows->ourImages[0].bitmap, nullptr, extSurf, &sr);
 				}
 			}
 		}
@@ -1077,8 +1077,8 @@ CMapHandler::~CMapHandler()
 CMapHandler::CMapHandler()
 {
 	frameW = frameH = 0;
-	graphics->FoWfullHide = NULL;
-	graphics->FoWpartialHide = NULL;
+	graphics->FoWfullHide = nullptr;
+	graphics->FoWpartialHide = nullptr;
 }
 
 void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terName )

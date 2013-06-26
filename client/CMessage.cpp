@@ -65,7 +65,7 @@ namespace
 {
 	CDefHandler * ok, *cancel;
 	std::vector<std::vector<SDL_Surface*> > piecesOfBox; //in colors of all players
-	SDL_Surface * background = NULL;
+	SDL_Surface * background = nullptr;
 }
 
 void CMessage::init()
@@ -352,16 +352,16 @@ void CMessage::drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int
 
 	//corners
 	Rect dstR(x, y, box[0]->w, box[0]->h);
-	CSDL_Ext::blitSurface(box[0], NULL, ret, &dstR);
+	CSDL_Ext::blitSurface(box[0], nullptr, ret, &dstR);
 
 	dstR=Rect(x+w-box[1]->w, y,   box[1]->w, box[1]->h);
-	CSDL_Ext::blitSurface(box[1], NULL, ret, &dstR);
+	CSDL_Ext::blitSurface(box[1], nullptr, ret, &dstR);
 
 	dstR=Rect(x, y+h-box[2]->h+1, box[2]->w, box[2]->h);
-	CSDL_Ext::blitSurface(box[2], NULL, ret, &dstR);
+	CSDL_Ext::blitSurface(box[2], nullptr, ret, &dstR);
 
 	dstR=Rect(x+w-box[3]->w, y+h-box[3]->h+1, box[3]->w, box[3]->h);
-	CSDL_Ext::blitSurface(box[3], NULL, ret, &dstR);
+	CSDL_Ext::blitSurface(box[3], nullptr, ret, &dstR);
 }
 
 ComponentResolved::ComponentResolved( CComponent *Comp ):

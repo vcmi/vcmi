@@ -61,7 +61,7 @@ class IImage
 public:
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, ui8 alpha=255) const=0;
+	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const=0;
 
 	//decrease ref count, returns true if image can be deleted (refCount <= 0)
 	bool decreaseRef();
@@ -97,7 +97,7 @@ public:
 	SDLImage(SDL_Surface * from, bool extraRef);
 	~SDLImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL,  ui8 alpha=255) const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr,  ui8 alpha=255) const;
 	void playerColored(PlayerColor player);
 	int width() const;
 	int height() const;
@@ -143,7 +143,7 @@ public:
 	CompImage(SDL_Surface * surf);
 	~CompImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, ui8 alpha=255) const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const;
 	void playerColored(PlayerColor player);
 	int width() const;
 	int height() const;
@@ -201,7 +201,7 @@ public:
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);
 
-	//get pointer to image from specific group, NULL if not found
+	//get pointer to image from specific group, nullptr if not found
 	IImage * getImage(size_t frame, size_t group=0, bool verbose=true) const;
 
 	//all available frames
@@ -287,7 +287,7 @@ protected:
 
 public:
 	//called when next animation sequence is required
-	boost::function<void()> callback;
+	std::function<void()> callback;
 
 	//Set per-surface alpha, 0 = transparent, 255 = opaque
 	void setAlpha(ui32 alphaValue);

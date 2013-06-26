@@ -179,7 +179,7 @@ public:
 	ui8 daysWithoutCastle;
 
 	PlayerState();
-	std::string nodeName() const OVERRIDE;
+	std::string nodeName() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -350,7 +350,7 @@ private:
 
 public:
 	CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero);
-	void calculatePaths(int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or NULL if path does not exists
+	void calculatePaths(int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 };
 
 
@@ -370,10 +370,10 @@ public:
 
 	struct DLL_LINKAGE HeroesPool
 	{
-		bmap<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; NULL if not available
+		bmap<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; nullptr if not available
 		bmap<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
 
-		CGHeroInstance * pickHeroFor(bool native, PlayerColor player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass = NULL) const;
+		CGHeroInstance * pickHeroFor(bool native, PlayerColor player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass = nullptr) const;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -401,7 +401,7 @@ public:
 	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	bool checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst) const; //check if src tile is visitable from dst tile
-	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or NULL if path does not exists
+	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 	int3 guardingCreaturePosition (int3 pos) const;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
 	int victoryCheck(PlayerColor player) const; //checks if given player is winner; -1 if std victory, 1 if special victory, 0 else

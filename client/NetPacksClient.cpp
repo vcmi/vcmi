@@ -476,7 +476,7 @@ void SetHeroesInTown::applyCl( CClient *cl )
 // void SetHeroArtifacts::applyCl( CClient *cl )
 // {
 // // 	CGHeroInstance *h = GS(cl)->getHero(hid);
-// // 	CGameInterface *player = (vstd::contains(cl->playerint,h->tempOwner) ? cl->playerint[h->tempOwner] : NULL);
+// // 	CGameInterface *player = (vstd::contains(cl->playerint,h->tempOwner) ? cl->playerint[h->tempOwner] : nullptr);
 // // 	if(!player)
 // // 		return;
 //
@@ -632,7 +632,7 @@ void BattleSetActiveStack::applyCl( CClient *cl )
 		playerToCall = activated->owner;
 	}
 	if( vstd::contains(cl->battleints, playerToCall) )
-		boost::thread( boost::bind(&CClient::waitForMoveAndSend, cl, playerToCall) );
+		boost::thread( std::bind(&CClient::waitForMoveAndSend, cl, playerToCall) );
 }
 
 void BattleTriggerEffect::applyCl(CClient * cl)
@@ -924,7 +924,7 @@ void SetAvailableArtifacts::applyCl(CClient *cl)
 	if(id < 0) //artifact merchants globally
 	{
 		for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
-			i->second->availableArtifactsChanged(NULL);
+			i->second->availableArtifactsChanged(nullptr);
 	}
 	else
 	{

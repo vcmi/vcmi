@@ -132,7 +132,7 @@ struct DLL_LINKAGE VictoryCondition
 	si32 objectId;
 	/// needed count for creatures (1) / resource (2); upgraded town hall level (3);
 	si32 count;
-	/// object of specific monster / city / hero instance (NULL if not used); set during map parsing
+	/// object of specific monster / city / hero instance (nullptr if not used); set during map parsing
 	const CGObjectInstance * obj;
 
 	template <typename Handler>
@@ -240,10 +240,10 @@ struct DLL_LINKAGE TerrainTile
 	TerrainTile();
 
 	/// Gets true if the terrain is not a rock. If from is water/land, same type is also required.
-	bool entrableTerrain(const TerrainTile * from = NULL) const;
+	bool entrableTerrain(const TerrainTile * from = nullptr) const;
 	bool entrableTerrain(bool allowLand, bool allowSea) const;
 	/// Checks for blocking objects and terraint type (water / land).
-	bool isClear(const TerrainTile * from = NULL) const;
+	bool isClear(const TerrainTile * from = nullptr) const;
 	/// Gets the ID of the top visitable object or -1 if there is none.
 	int topVisitableId() const;
 	bool isWater() const;

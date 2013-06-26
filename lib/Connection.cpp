@@ -60,7 +60,7 @@ void CConnection::init()
 	wmx = new boost::mutex;
 	rmx = new boost::mutex;
 
-	handler = NULL;
+	handler = nullptr;
 	receivedStop = sendStop = false;
 	static int cid = 1;
 	connectionID = cid++;
@@ -199,7 +199,7 @@ void CConnection::close()
 	{
 		socket->close();
 		delete socket;
-		socket = NULL;
+		socket = nullptr;
 	}
 }
 
@@ -220,7 +220,7 @@ void CConnection::reportState(CLogger * out)
 
 CPack * CConnection::retreivePack()
 {
-	CPack *ret = NULL;
+	CPack *ret = nullptr;
 	boost::unique_lock<boost::mutex> lock(*rmx);
     logNetwork->traceStream() << "Listening... ";
 	*this >> ret;

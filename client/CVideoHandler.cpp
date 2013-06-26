@@ -23,9 +23,6 @@ static bool keyDown()
 
 #ifdef _WIN32
 
-#include <boost/algorithm/string/predicate.hpp>
-
-
 void checkForError(bool throwing = true)
 {
 	int error = GetLastError();
@@ -34,13 +31,13 @@ void checkForError(bool throwing = true)
 
     logGlobal->errorStream() << "Error " << error << " encountered!";
 	std::string msg;
-	char* pTemp = NULL;
+	char* pTemp = nullptr;
 	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, error,  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPSTR)&pTemp, 1, NULL );
+		nullptr, error,  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPSTR)&pTemp, 1, nullptr );
     logGlobal->errorStream() << "Error: " << pTemp;
 	msg = pTemp;
 	LocalFree( pTemp );
-	pTemp = NULL;
+	pTemp = nullptr;
 	if(throwing)
 		throw std::runtime_error(msg);
 }
@@ -75,7 +72,7 @@ void *DLLHandler::FindAddress(const char *symbol)
 	if(!dll)
 	{
         logGlobal->errorStream() << "Cannot look for " << symbol << " because DLL hasn't been appropriately loaded!";
-		return NULL;
+		return nullptr;
 	}
 	ret = (void*) GetProcAddress(dll,symbol);
 	if(!ret)
@@ -100,7 +97,7 @@ DLLHandler::~DLLHandler()
 
 DLLHandler::DLLHandler()
 {
-	dll = NULL;
+	dll = nullptr;
 }
 
 CBIKHandler::CBIKHandler()
@@ -117,10 +114,10 @@ CBIKHandler::CBIKHandler()
 	binkClose =  (BinkClose)FindAddress("_BinkClose@4");
 
 
-	hBinkFile = NULL;
-	hBink = NULL;
+	hBinkFile = nullptr;
+	hBink = nullptr;
 
-	buffer = NULL;
+	buffer = nullptr;
 	bufferSize = 0;
 }
 
@@ -131,7 +128,7 @@ bool CBIKHandler::open(std::string name)
 		name.c_str(),				// file name
 		GENERIC_READ,						// access mode
 		FILE_SHARE_READ,	// share mode
-		NULL,								// Security Descriptor
+		nullptr,								// Security Descriptor
 		OPEN_EXISTING,						// how to create
 		FILE_ATTRIBUTE_NORMAL,//FILE_FLAG_SEQUENTIAL_SCAN,			// file attributes
 		0								// handle to template file
@@ -146,7 +143,7 @@ bool CBIKHandler::open(std::string name)
     {
 		void *waveout = GetProcAddress(dll,"_BinkOpenWaveOut@4");
 		if(waveout)
-			binkSetSoundSystem(waveout,NULL);
+			binkSetSoundSystem(waveout,nullptr);
 
     }
 
@@ -162,7 +159,7 @@ bool CBIKHandler::open(std::string name)
 
 checkErrorAndClean:
 	CloseHandle(hBinkFile);
-	hBinkFile = NULL;
+	hBinkFile = nullptr;
 	checkForError();
 	throw std::runtime_error("BIK failed opening video!");
 }
@@ -213,12 +210,12 @@ bool CBIKHandler::nextFrame()
 void CBIKHandler::close()
 {
 	binkClose(hBink);
-	hBink = NULL;
+	hBink = nullptr;
 	CloseHandle(hBinkFile);
-	hBinkFile = NULL;
+	hBinkFile = nullptr;
 	delete [] buffer;
 
-	buffer = NULL;
+	buffer = nullptr;
 	bufferSize = 0;
 }
 
@@ -256,7 +253,7 @@ void CBIKHandler::allocBuffer(int Bpp)
 void CBIKHandler::freeBuffer()
 {
 	delete [] buffer;
-	buffer = NULL;
+	buffer = nullptr;
 	bufferSize = 0;
 }
 
@@ -271,7 +268,7 @@ bool CSmackPlayer::wait()
 	return ptrSmackWait(data);
 }
 
-CSmackPlayer::CSmackPlayer() : data(NULL)
+CSmackPlayer::CSmackPlayer() : data(nullptr)
 {
 	Instantiate("smackw32.dll");
 	ptrSmackNextFrame = (SmackNextFrame)FindAddress("_SmackNextFrame@4");
@@ -293,7 +290,7 @@ CSmackPlayer::~CSmackPlayer()
 void CSmackPlayer::close()
 {
 	ptrSmackClose(data);
-	data = NULL;
+	data = nullptr;
 }
 
 bool CSmackPlayer::open( std::string name )
@@ -397,7 +394,7 @@ void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 
 CVideoPlayer::CVideoPlayer()
 {
-	current = NULL;
+	current = nullptr;
 }
 
 CVideoPlayer::~CVideoPlayer()
@@ -452,7 +449,7 @@ void CVideoPlayer::close()
 	}
 
 	current->close();
-	current = NULL;
+	current = nullptr;
 	if(!DeleteFileA(fname.c_str()))
 	{
         logGlobal->errorStream() << "Cannot remove temporarily extracted video file: " << fname;
@@ -594,12 +591,12 @@ static si64 lodSeek(void * opaque, si64 pos, int whence)
 
 CVideoPlayer::CVideoPlayer()
 {
-	format = NULL;
-	frame = NULL;
-	codec = NULL;
-	sws = NULL;
-	overlay = NULL;
-	dest = NULL;
+	format = nullptr;
+	frame = nullptr;
+	codec = nullptr;
+	sws = nullptr;
+	overlay = nullptr;
+	dest = nullptr;
 	context = nullptr;
 
 	// Register codecs. TODO: May be overkill. Should call a
@@ -637,7 +634,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	static const int BUFFER_SIZE = 4096;
 
 	unsigned char * buffer  = (unsigned char *)av_malloc(BUFFER_SIZE);// will be freed by ffmpeg
-	context = avio_alloc_context( buffer, BUFFER_SIZE, 0, (void *)this, lodRead, NULL, lodSeek);
+	context = avio_alloc_context( buffer, BUFFER_SIZE, 0, (void *)this, lodRead, nullptr, lodSeek);
 
 	format = avformat_alloc_context();
 	format->pb = context;
@@ -652,7 +649,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 17, 0)
 	if (av_find_stream_info(format) < 0)
 #else
-	if (avformat_find_stream_info(format, NULL) < 0)
+	if (avformat_find_stream_info(format, nullptr) < 0)
 #endif
 		return false;
 
@@ -677,7 +674,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	// Find the decoder for the video stream
 	codec = avcodec_find_decoder(codecContext->codec_id);
 
-	if (codec == NULL)
+	if (codec == nullptr)
 	{
 		// Unsupported codec
 		return false;
@@ -687,11 +684,11 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 6, 0)
 	if ( avcodec_open(codecContext, codec) < 0 )
 #else
-	if ( avcodec_open2(codecContext, codec, NULL) < 0 )
+	if ( avcodec_open2(codecContext, codec, nullptr) < 0 )
 #endif
 	{
 		// Could not open codec
-		codec = NULL;
+		codec = nullptr;
 		return false;
 	}
 
@@ -712,7 +709,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 		destRect.h = codecContext->height;
 	}
 
-	if (overlay == NULL && dest == NULL)
+	if (overlay == nullptr && dest == nullptr)
 		return false;
 
 	// Convert the image into YUV format that SDL uses
@@ -720,7 +717,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	{
 		sws = sws_getContext(codecContext->width, codecContext->height,
 							 codecContext->pix_fmt, codecContext->width, codecContext->height,
-							 PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
+							 PIX_FMT_YUV420P, SWS_BICUBIC, nullptr, nullptr, nullptr);
 	}
 	else
 	{
@@ -751,10 +748,10 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 
 		sws = sws_getContext(codecContext->width, codecContext->height,
 							 codecContext->pix_fmt, codecContext->width, codecContext->height,
-							 screenFormat, SWS_BICUBIC, NULL, NULL, NULL);
+							 screenFormat, SWS_BICUBIC, nullptr, nullptr, nullptr);
 	}
 
-	if (sws == NULL)
+	if (sws == nullptr)
 		return false;
 
 	pos.w = codecContext->width;
@@ -770,7 +767,7 @@ bool CVideoPlayer::nextFrame()
 	int frameFinished = 0;
 	bool gotError = false;
 
-	if (sws == NULL)
+	if (sws == nullptr)
 		return false;
 
 	while(!frameFinished)
@@ -841,7 +838,7 @@ bool CVideoPlayer::nextFrame()
 
 void CVideoPlayer::show( int x, int y, SDL_Surface *dst, bool update )
 {
-	if (sws == NULL)
+	if (sws == nullptr)
 		return;
 
 	pos.x = x;
@@ -859,7 +856,7 @@ void CVideoPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 
 void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, bool update )
 {
-	if (sws == NULL)
+	if (sws == nullptr)
 		return;
 
 	if (refreshCount <= 0)
@@ -892,39 +889,39 @@ void CVideoPlayer::close()
 	if (sws)
 	{
 		sws_freeContext(sws);
-		sws = NULL;
+		sws = nullptr;
 	}
 
 	if (overlay)
 	{
 		SDL_FreeYUVOverlay(overlay);
-		overlay = NULL;
+		overlay = nullptr;
 	}
 
 	if (dest)
 	{
 		SDL_FreeSurface(dest);
-		dest = NULL;
+		dest = nullptr;
 	}
 
 	if (frame)
 	{
 		av_free(frame);
-		frame = NULL;
+		frame = nullptr;
 	}
 
 	if (codec)
 	{
 		avcodec_close(codecContext);
-		codec = NULL;
-		codecContext = NULL;
+		codec = nullptr;
+		codecContext = nullptr;
 	}
 
 	if (format)
 	{
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 17, 0)
 		av_close_input_file(format);
-		format = NULL;
+		format = nullptr;
 #else
 		avformat_close_input(&format);
 #endif

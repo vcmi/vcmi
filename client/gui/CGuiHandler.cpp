@@ -136,7 +136,7 @@ void CGuiHandler::popInts( int howMany )
 IShowActivatable * CGuiHandler::topInt()
 {
 	if(!listInt.size())
-		return NULL;
+		return nullptr;
 	else 
 		return listInt.front();
 }
@@ -303,7 +303,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 				(*i)->clickRight(boost::logic::indeterminate, prev);
 		}
 	}
-	current = NULL;
+	current = nullptr;
 
 } //event end
 
@@ -397,10 +397,10 @@ void CGuiHandler::run()
 CGuiHandler::CGuiHandler()
 :lastClick(-500, -500)
 {
-	curInt = NULL;
-	current = NULL;
+	curInt = nullptr;
+	current = nullptr;
 	terminate = false;
-	statusbar = NULL;
+	statusbar = nullptr;
 
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
 	mainFPSmng = new CFramerateManager(48);
@@ -414,7 +414,7 @@ CGuiHandler::~CGuiHandler()
 
 void CGuiHandler::breakEventHandling()
 {
-	current = NULL;
+	current = nullptr;
 }
 
 void CGuiHandler::drawFPSCounter()

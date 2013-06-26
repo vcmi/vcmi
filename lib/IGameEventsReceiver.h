@@ -117,7 +117,7 @@ public:
 	virtual void tileHidden(const boost::unordered_set<int3, ShashInt3> &pos){};
 	virtual void tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos){};
 	virtual void newObject(const CGObjectInstance * obj){}; //eg. ship built in shipyard
-	virtual void availableArtifactsChanged(const CGBlackMarket *bm = NULL){}; //bm may be NULL, then artifacts are changed in the global pool (used by merchants in towns)
+	virtual void availableArtifactsChanged(const CGBlackMarket *bm = nullptr){}; //bm may be nullptr, then artifacts are changed in the global pool (used by merchants in towns)
 	virtual void centerView (int3 pos, int focusTime){};
 	virtual void availableCreaturesChanged(const CGDwelling *town){};
 	virtual void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain){};//if gain hero received bonus, else he lost it

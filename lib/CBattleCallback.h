@@ -36,7 +36,7 @@ class CBattleInfoEssentials;
 //Basic class for various callbacks (interfaces called by players to get info about game and so forth)
 class DLL_LINKAGE CCallbackBase
 {
-	const BattleInfo *battle; //battle to which the player is engaged, NULL if none or not applicable
+	const BattleInfo *battle; //battle to which the player is engaged, nullptr if none or not applicable
 
 	const BattleInfo * getBattle() const
 	{
@@ -171,7 +171,7 @@ public:
 	bool battleHasNativeStack(ui8 side) const;
 	ui8 battleGetWallState(int partOfWall) const; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
 	int battleGetMoatDmg() const; //what dmg unit will suffer if ending turn in the moat
-	const CGTownInstance * battleGetDefendedTown() const; //returns defended town if current battle is a siege, NULL instead
+	const CGTownInstance * battleGetDefendedTown() const; //returns defended town if current battle is a siege, nullptr instead
 	const CStack *battleActiveStack() const;
 	si8 battleTacticDist() const; //returns tactic distance in current tactics phase; 0 if not in tactics phase
 	si8 battleGetTacticsSide() const; //returns which side is in tactics phase, undefined if none (?)
@@ -226,10 +226,10 @@ public:
 	void battleGetStackCountOutsideHexes(bool *ac) const; // returns hexes which when in front of a stack cause us to move the amount box back
 
 
-	std::vector<BattleHex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL) const; //returns hexes reachable by creature with id ID (valid movement destinations), DOES contain stack current position
+	std::vector<BattleHex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = nullptr) const; //returns hexes reachable by creature with id ID (valid movement destinations), DOES contain stack current position
 
 	int battleGetSurrenderCost(PlayerColor Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
-	ReachabilityInfo::TDistances battleGetDistances(const CStack * stack, BattleHex hex = BattleHex::INVALID, BattleHex * predecessors = NULL) const; //returns vector of distances to [dest hex number]
+	ReachabilityInfo::TDistances battleGetDistances(const CStack * stack, BattleHex hex = BattleHex::INVALID, BattleHex * predecessors = nullptr) const; //returns vector of distances to [dest hex number]
 	std::set<BattleHex> battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const;
 	bool battleCanShoot(const CStack * stack, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleIsStackBlocked(const CStack * stack) const; //returns true if there is neighboring enemy stack
@@ -240,8 +240,8 @@ public:
 	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 
 	//hextowallpart  //int battleGetWallUnderHex(BattleHex hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
-	std::pair<ui32, ui32> battleEstimateDamage(const BattleAttackInfo &bai, std::pair<ui32, ui32> * retaliationDmg = NULL) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
-	std::pair<ui32, ui32> battleEstimateDamage(const CStack * attacker, const CStack * defender, std::pair<ui32, ui32> * retaliationDmg = NULL) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
+	std::pair<ui32, ui32> battleEstimateDamage(const BattleAttackInfo &bai, std::pair<ui32, ui32> * retaliationDmg = nullptr) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
+	std::pair<ui32, ui32> battleEstimateDamage(const CStack * attacker, const CStack * defender, std::pair<ui32, ui32> * retaliationDmg = nullptr) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	si8 battleHasDistancePenalty( const CStack * stack, BattleHex destHex ) const;
 	si8 battleHasDistancePenalty(const IBonusBearer *bonusBearer, BattleHex shooterPosition, BattleHex destHex ) const;
 	si8 battleHasWallPenalty(const CStack * stack, BattleHex destHex) const; //checks if given stack has wall penalty
@@ -268,7 +268,7 @@ public:
 	ESpellCastProblem::ESpellCastProblem battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; 
 
 
-	const CStack * getStackIf(boost::function<bool(const CStack*)> pred) const;
+	const CStack * getStackIf(std::function<bool(const CStack*)> pred) const;
 
 	si8 battleHasShootingPenalty(const CStack * stack, BattleHex destHex)
 	{

@@ -86,12 +86,12 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	const CStack * getNextStack() const; //which stack will have turn after current one
 	//void getStackQueue(std::vector<const CStack *> &out, int howMany, int turn = 0, int lastMoved = -1) const; //returns stack in order of their movement action
 
-	//void getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<BattleHex> & occupyable, bool flying, const CStack* stackToOmmit = NULL) const; //send pointer to at least 187 allocated bytes
+	//void getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<BattleHex> & occupyable, bool flying, const CStack* stackToOmmit = nullptr) const; //send pointer to at least 187 allocated bytes
 	//static bool isAccessible(BattleHex hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos); //helper for makeBFS
 	int getAvaliableHex(CreatureID creID, bool attackerOwned, int initialPos = -1) const; //find place for summon / clone effects
 	//void makeBFS(BattleHex start, bool*accessibility, BattleHex *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const; //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
 	std::pair< std::vector<BattleHex>, int > getPath(BattleHex start, BattleHex dest, const CStack *stack); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
-	//std::vector<BattleHex> getAccessibility(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL, bool forPassingBy = false) const; //returns vector of accessible tiles (taking into account the creature range)
+	//std::vector<BattleHex> getAccessibility(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = nullptr, bool forPassingBy = false) const; //returns vector of accessible tiles (taking into account the creature range)
 
 	//bool isObstacleVisibleForSide(const CObstacleInstance &obstacle, ui8 side) const;
 	shared_ptr<CObstacleInstance> getObstacleOnTile(BattleHex tile) const;
@@ -108,7 +108,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	CStack * generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, SlotID slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	int getIdForNewStack() const; //suggest a currently unused ID that'd suitable for generating a new stack
 	//std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
-	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack = NULL) const; //Sacrifice
+	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack = nullptr) const; //Sacrifice
 	ui32 calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const; //for Archangel
 	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //healing spells casted by stacks
 	bool resurrects(SpellID spellid) const; //TODO: move it to spellHandler?
@@ -119,7 +119,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<const CStack*> affectedCreatures, PlayerColor casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const;
 
 	const CStack * battleGetStack(BattleHex pos, bool onlyAlive); //returns stack at given tile
-	const CGHeroInstance * battleGetOwner(const CStack * stack) const; //returns hero that owns given stack; NULL if none
+	const CGHeroInstance * battleGetOwner(const CStack * stack) const; //returns hero that owns given stack; nullptr if none
 	void localInit();
 
 	void localInitStack(CStack * s);
@@ -136,7 +136,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 class DLL_LINKAGE CStack : public CBonusSystemNode, public CStackBasicDescriptor
 {
 public:
-	const CStackInstance *base; //garrison slot from which stack originates (NULL for war machines, summoned cres, etc)
+	const CStackInstance *base; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
 
 	ui32 ID; //unique ID of stack
 	ui32 baseAmount;
@@ -157,7 +157,7 @@ public:
 	CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, bool AO, SlotID S = SlotID(255)); //c-tor
 	CStack(); //c-tor
 	~CStack();
-	std::string nodeName() const OVERRIDE;
+	std::string nodeName() const override;
 
 	void init(); //set initial (invalid) values
 	void postInit(); //used to finish initialization when inheriting creature parameters is working
@@ -173,7 +173,7 @@ public:
 	si32 magicResistance() const; //include aura of resistance
 	static void stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse);
 	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
-	const CGHeroInstance *getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, NULL otherwise
+	const CGHeroInstance *getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise
 
 	static inline Bonus featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, Bonus::LimitEffect limit = Bonus::NO_LIMIT)
 	{
@@ -204,7 +204,7 @@ public:
 		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
 			& shots & casts & count;
 
-		const CArmedInstance *army = (base ? base->armyObj : NULL);
+		const CArmedInstance *army = (base ? base->armyObj : nullptr);
 		SlotID slot = (base ? base->armyObj->findStack(base) : SlotID());
 
 		if(h.saving)
@@ -222,7 +222,7 @@ public:
 			}
 			else if(!army || slot == SlotID() || !army->hasStackAtSlot(slot))
 			{
-				base = NULL;
+				base = nullptr;
                 logGlobal->warnStream() << type->nameSing << " doesn't have a base stack!";
 			}
 			else

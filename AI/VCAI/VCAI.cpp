@@ -140,8 +140,8 @@ void removeDuplicates(std::vector<T> &vec)
 
 struct AtScopeExit
 {
-	boost::function<void()> foo;
-	AtScopeExit(const boost::function<void()> &FOO) : foo(FOO)
+	std::function<void()> foo;
+	AtScopeExit(const std::function<void()> &FOO) : foo(FOO)
 	{}
 	~AtScopeExit()
 	{
@@ -149,7 +149,7 @@ struct AtScopeExit
 	}
 };
 
-void foreach_tile_pos(boost::function<void(const int3& pos)> foo)
+void foreach_tile_pos(std::function<void(const int3& pos)> foo)
 {
 	for(int i = 0; i < cb->getMapSize().x; i++)
 		for(int j = 0; j < cb->getMapSize().y; j++)
@@ -157,7 +157,7 @@ void foreach_tile_pos(boost::function<void(const int3& pos)> foo)
 				foo(int3(i,j,k));
 }
 
-void foreach_neighbour(const int3 &pos, boost::function<void(const int3& pos)> foo)
+void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo)
 {
 	BOOST_FOREACH(const int3 &dir, dirs)
 	{
@@ -177,7 +177,7 @@ const unsigned char &retreiveTileN(const std::vector< std::vector< std::vector<u
 	return vectors[pos.x][pos.y][pos.z];
 }
 
-void foreach_tile(std::vector< std::vector< std::vector<unsigned char> > > &vectors, boost::function<void(unsigned char &in)> foo)
+void foreach_tile(std::vector< std::vector< std::vector<unsigned char> > > &vectors, std::function<void(unsigned char &in)> foo)
 {
 	for(auto i = vectors.begin(); i != vectors.end(); i++)
 		for(auto j = i->begin(); j != i->end(); j++)
@@ -323,7 +323,10 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 	auto visitableObjects = cb->getVisitableObjs(tile);
 	// in some scenarios hero happens to be "under" the object (eg town). Then we consider ONLY the hero.
 	if(vstd::contains_if(visitableObjects, objWithID<Obj::HERO>))
-		erase_if(visitableObjects, ! boost::bind(objWithID<Obj::HERO>, _1));
+		erase_if(visitableObjects, [](const CGObjectInstance * obj)
+		{
+			return !objWithID<Obj::HERO>(obj);
+		});
 
 	if(const CGObjectInstance * dangerousObject = backOrNull(visitableObjects))
 	{
@@ -532,7 +535,7 @@ void VCAI::gameOver(PlayerColor player, bool victory)
 // 		{
 // 			//play dirty: crash the whole engine to avoid lose
 // 			//that way AI is unbeatable!
-// 			*(int*)NULL = 666;
+// 			*(int*)nullptr = 666;
 // 		}
 
 // 		TODO - at least write some insults on stdout
@@ -579,7 +582,7 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 	}
 }
 
-void VCAI::availableArtifactsChanged(const CGBlackMarket *bm /*= NULL*/)
+void VCAI::availableArtifactsChanged(const CGBlackMarket *bm /*= nullptr*/)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -1560,7 +1563,7 @@ void VCAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int
 	NET_EVENT_HANDLER;
 	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
-	const CGObjectInstance *presumedEnemy = backOrNull(cb->getVisitableObjs(tile)); //may be NULL in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
+	const CGObjectInstance *presumedEnemy = backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
 	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->name : "a army") % (presumedEnemy ? presumedEnemy->hoverName : "unknown enemy") % tile);
 	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
 }
@@ -1649,7 +1652,7 @@ const CGObjectInstance * VCAI::lookForArt(int aid) const
 			return obj;
 	}
 
-	return NULL;
+	return nullptr;
 
 	//TODO what if more than one artifact is available? return them all or some slection criteria
 }
@@ -1673,17 +1676,17 @@ HeroPtr VCAI::getHeroWithGrail() const
 		if(h->hasArt(2)) //grail
 			return h;
 
-	return NULL;
+	return nullptr;
 }
 
-const CGObjectInstance * VCAI::getUnvisitedObj(const boost::function<bool(const CGObjectInstance *)> &predicate)
+const CGObjectInstance * VCAI::getUnvisitedObj(const std::function<bool(const CGObjectInstance *)> &predicate)
 {
 	//TODO smarter definition of unvisited
 	BOOST_FOREACH(const CGObjectInstance *obj, visitableObjs)
 		if(predicate(obj) && !vstd::contains(alreadyVisited, obj))
 			return obj;
 
-	return NULL;
+	return nullptr;
 }
 
 bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /*= false*/) const
@@ -1986,7 +1989,7 @@ const CGTownInstance * VCAI::findTownWithTavern() const
 		if(t->hasBuilt(BuildingID::TAVERN) && !t->visitingHero)
 			return t;
 
-	return NULL;
+	return nullptr;
 }
 
 std::vector<HeroPtr> VCAI::getUnblockedHeroes() const
@@ -2009,7 +2012,7 @@ HeroPtr VCAI::primaryHero() const
 	boost::sort(hs, compareHeroStrength);
 
 	if(hs.empty())
-		return NULL;
+		return nullptr;
 
 	return hs.back();
 }
@@ -2498,7 +2501,7 @@ void VCAI::finish()
 		makingTurn->interrupt();
 }
 
-void VCAI::requestActionASAP(boost::function<void()> whatToDo)
+void VCAI::requestActionASAP(std::function<void()> whatToDo)
 {
 // 	static boost::mutex m;
 // 	boost::unique_lock<boost::mutex> mylock(m);
@@ -2834,7 +2837,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 		break;
 	case FIND_OBJ:
 		{
-			const CGObjectInstance * o = NULL;
+			const CGObjectInstance * o = nullptr;
 			if (resID > -1) //specified
 			{
 				BOOST_FOREACH(const CGObjectInstance *obj, ai->visitableObjs)
@@ -3071,7 +3074,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				return CGoal(EXPLORE);
 
 			if(hero && !ai->isAccessibleForHero(tile, hero))
-				hero = NULL;
+				hero = nullptr;
 
 			if(!hero)
 			{
@@ -3384,7 +3387,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				else
 				{
 					boost::sort(objs, isCloser);
-					HeroPtr h = NULL;
+					HeroPtr h = nullptr;
 					BOOST_FOREACH(const CGObjectInstance *obj, objs)
 					{ //find safe dwelling
 						auto pos = obj->visitablePos();

@@ -27,7 +27,7 @@ class CSimpleWindow : public CIntObject
 public:
 	SDL_Surface * bitmap; //background
 	virtual void show(SDL_Surface * to);
-	CSimpleWindow():bitmap(NULL){}; //c-tor
+	CSimpleWindow():bitmap(nullptr){}; //c-tor
 	virtual ~CSimpleWindow(); //d-tor
 };
 
@@ -37,7 +37,7 @@ class CPicture : public CIntObject
 	void setSurface(SDL_Surface *to);
 public: 
 	SDL_Surface * bg;
-	Rect * srcRect; //if NULL then whole surface will be used
+	Rect * srcRect; //if nullptr then whole surface will be used
 	bool freeSurf; //whether surface will be freed upon CPicture destruction
 	bool needRefresh;//Surface needs to be displayed each frame
 
@@ -139,8 +139,8 @@ public:
 	void hover (bool on);
 
 	CAdventureMapButton(); //c-tor
-	CAdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
-	CAdventureMapButton( const std::pair<std::string, std::string> &help, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
+	CAdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key=0, std::vector<std::string> * add = nullptr, bool playerColoredButton = false );//c-tor
+	CAdventureMapButton( const std::pair<std::string, std::string> &help, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key=0, std::vector<std::string> * add = nullptr, bool playerColoredButton = false );//c-tor
 	CAdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, config::ButtonInfo *info, int key=0);//c-tor
 
 	void init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key );
@@ -157,8 +157,8 @@ class CHighlightableButton
 {
 public:
 	CHighlightableButton(const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key=0);
-	CHighlightableButton(const std::pair<std::string, std::string> &help, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
-	CHighlightableButton(const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
+	CHighlightableButton(const std::pair<std::string, std::string> &help, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key=0, std::vector<std::string> * add = nullptr, bool playerColoredButton = false );//c-tor
+	CHighlightableButton(const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key=0, std::vector<std::string> * add = nullptr, bool playerColoredButton = false );//c-tor
 	bool onlyOn;//button can not be de-selected
 	bool selected;//state of highlightable button
 	int ID; //for identification
@@ -200,7 +200,7 @@ public:
 	bool wheelScrolling;
 	bool keyScrolling;
 
-	boost::function<void(int)> moved;
+	std::function<void(int)> moved;
 
 	void redrawSlider(); 
 	void sliderClicked();
@@ -216,7 +216,7 @@ public:
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void showAll(SDL_Surface * to);
 
-	CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int Capacity, int Amount, 
+	CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, 
 		int Value=0, bool Horizontal=true, int style = 0); //style 0 - brown, 1 - blue
 	~CSlider();
 	void moveToMax();
@@ -226,8 +226,8 @@ public:
 class CObjectList : public CIntObject
 {
 public:
-	typedef boost::function<CIntObject* (size_t)> CreateFunc;
-	typedef boost::function<void(CIntObject *)> DestroyFunc;
+	typedef std::function<CIntObject* (size_t)> CreateFunc;
+	typedef std::function<void(CIntObject *)> DestroyFunc;
 
 private:
 	CreateFunc createObject;
@@ -445,7 +445,7 @@ public:
 
 	CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(const std::string &)> &CB);
 	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
-	CTextInput(const Rect &Pos, SDL_Surface *srf = NULL);
+	CTextInput(const Rect &Pos, SDL_Surface *srf = nullptr);
 
 	void clickLeft(tribool down, bool previousState) override;
 	void keyPressed(const SDL_KeyboardEvent & key) override;
@@ -454,7 +454,7 @@ public:
 	//Filter that will block all characters not allowed in filenames
 	static void filenameFilter(std::string &text, const std::string & oldText);
 	//Filter that will allow only input of numbers in range min-max (min-max are allowed)
-	//min-max should be set via something like boost::bind
+	//min-max should be set via something like std::bind
 	static void numberFilter(std::string &text, const std::string & oldText, int minValue, int maxValue);
 };
 

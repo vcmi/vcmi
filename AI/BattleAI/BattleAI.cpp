@@ -31,7 +31,7 @@ struct Priorities
 } priorities;
 
 
-int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = NULL)
+int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = nullptr)
 {
 	int ret = 1000000;
 	BOOST_FOREACH(BattleHex n, hex.neighbouringTiles())
@@ -145,7 +145,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			{
 				ThreatMap threatsToUs(stack);
 				auto dists = cbc->battleGetDistances(stack);
-				const EnemyInfo &ei= *range::min_element(targets.unreachableEnemies, boost::bind(isCloser, _1, _2, boost::ref(dists)));
+				const EnemyInfo &ei= *range::min_element(targets.unreachableEnemies, std::bind(isCloser, _1, _2, std::ref(dists)));
 				if(distToNearestNeighbour(ei.s->position, dists) < GameConstants::BFIELD_SIZE)
 				{
 					return goTowards(stack, ei.s->position);
@@ -592,7 +592,7 @@ ThreatMap::ThreatMap(const CStack *Endangered) : endangered(Endangered)
 	}
 }
 
-const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const std::string &cachingStr /*= ""*/) const 
+const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= nullptr*/, const std::string &cachingStr /*= ""*/) const 
 {
 	TBonusListPtr ret = make_shared<BonusList>();
 	const TBonusListPtr originalList = stack->getAllBonuses(selector, limit, root, cachingStr);

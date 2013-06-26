@@ -103,14 +103,14 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 	if(!fname.size())
 	{
         logGlobal->warnStream() << "Call to loadBitmap with void fname!";
-		return NULL;
+		return nullptr;
 	}
 	if (!CResourceHandler::get()->existsResource(ResourceID(path + fname, EResType::IMAGE)))
 	{
 		return nullptr;
 	}
 
-	SDL_Surface * ret=NULL;
+	SDL_Surface * ret=nullptr;
 
 	auto readFile = CResourceHandler::get()->loadData(
 	                              ResourceID(path + fname, EResType::IMAGE));

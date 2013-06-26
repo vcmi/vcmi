@@ -83,7 +83,7 @@ void CSoundHandler::onVolumeChange(const JsonNode &volumeNode)
 CSoundHandler::CSoundHandler():
 	listener(settings.listen["general"]["sound"])
 {
-	listener(boost::bind(&CSoundHandler::onVolumeChange, this, _1));
+	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
 
 	// Vectors for helper(s)
 	pickupSounds += soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
@@ -269,9 +269,9 @@ void CSoundHandler::setVolume(ui32 percent)
 		Mix_Volume(-1, (MIX_MAX_VOLUME * volume)/100);
 }
 
-void CSoundHandler::setCallback(int channel, boost::function<void()> function)
+void CSoundHandler::setCallback(int channel, std::function<void()> function)
 {
-	std::map<int, boost::function<void()> >::iterator iter;
+	std::map<int, std::function<void()> >::iterator iter;
 	iter = callbacks.find(channel);
 
 	//channel not found. It may have finished so fire callback now
@@ -283,7 +283,7 @@ void CSoundHandler::setCallback(int channel, boost::function<void()> function)
 
 void CSoundHandler::soundFinishedCallback(int channel)
 {
-	std::map<int, boost::function<void()> >::iterator iter;
+	std::map<int, std::function<void()> >::iterator iter;
 	iter = callbacks.find(channel);
 
 	assert(iter != callbacks.end());
@@ -302,7 +302,7 @@ void CMusicHandler::onVolumeChange(const JsonNode &volumeNode)
 CMusicHandler::CMusicHandler():
 	listener(settings.listen["general"]["music"])
 {
-	listener(boost::bind(&CMusicHandler::onVolumeChange, this, _1));
+	listener(std::bind(&CMusicHandler::onVolumeChange, this, _1));
 	// Map music IDs
 	// Vectors for helper
 	const std::string setEnemy[] = {"AITheme0", "AITheme1", "AITheme2"};
@@ -338,7 +338,7 @@ void CMusicHandler::release()
 	{
 		boost::mutex::scoped_lock guard(musicMutex);
 
-		Mix_HookMusicFinished(NULL);
+		Mix_HookMusicFinished(nullptr);
 
 		current.reset();
 		next.reset();
@@ -416,7 +416,7 @@ void CMusicHandler::stopMusic(int fade_ms)
 
 	boost::mutex::scoped_lock guard(musicMutex);
 
-	if (current.get() != NULL)
+	if (current.get() != nullptr)
 		current->stop(fade_ms);
 	next.reset();
 }
@@ -433,7 +433,7 @@ void CMusicHandler::musicFinishedCallback(void)
 {
 	boost::mutex::scoped_lock guard(musicMutex);
 
-	if (current.get() != NULL)
+	if (current.get() != nullptr)
 	{
 		//return if current music still not finished
 		if (current->play())
@@ -442,7 +442,7 @@ void CMusicHandler::musicFinishedCallback(void)
 			current.reset();
 	}
 
-	if (current.get() == NULL && next.get() != NULL)
+	if (current.get() == nullptr && next.get() != nullptr)
 	{
 		current.reset(next.release());
 		current->play();

@@ -56,7 +56,7 @@ struct DLL_LINKAGE CObstacleInstance
 
 struct DLL_LINKAGE MoatObstacle : CObstacleInstance
 {
-	virtual std::vector<BattleHex> getAffectedTiles() const OVERRIDE; //for special effects (not blocking)
+	virtual std::vector<BattleHex> getAffectedTiles() const override; //for special effects (not blocking)
 };
 
 struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
@@ -69,10 +69,10 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 
 	SpellCreatedObstacle();
 
-	virtual std::vector<BattleHex> getAffectedTiles() const OVERRIDE; //for special effects (not blocking)
-	virtual bool visibleForSide(ui8 side, bool hasNativeStack) const OVERRIDE; //0 attacker
+	virtual std::vector<BattleHex> getAffectedTiles() const override; //for special effects (not blocking)
+	virtual bool visibleForSide(ui8 side, bool hasNativeStack) const override; //0 attacker
 
-	virtual void battleTurnPassed() OVERRIDE;
+	virtual void battleTurnPassed() override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

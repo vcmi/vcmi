@@ -105,7 +105,7 @@ public:
 	~CInfoWindow(); //d-tor
 
 	static void showYesNoDialog( const std::string & text, const std::vector<CComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps = true, PlayerColor player = PlayerColor(1)); //use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
-	static CInfoWindow *create(const std::string &text, PlayerColor playerID = PlayerColor(1), const std::vector<CComponent*> *components = NULL, bool DelComps = false);
+	static CInfoWindow *create(const std::string &text, PlayerColor playerID = PlayerColor(1), const std::vector<CComponent*> *components = nullptr, bool DelComps = false);
 
 	/// create text from title and description: {title}\n\n description
 	static std::string genText(std::string title, std::string description);
@@ -160,7 +160,7 @@ public:
 	void show(SDL_Surface * to);
 	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false); //c-tor
 	CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free=false); //c-tor
-	CInfoPopup(SDL_Surface * Bitmap = NULL, bool Free = false); //default c-tor
+	CInfoPopup(SDL_Surface * Bitmap = nullptr, bool Free = false); //default c-tor
 
 	void init(int x, int y);
 	~CInfoPopup(); //d-tor
@@ -227,14 +227,14 @@ class CSelectableComponent : public CComponent, public CKeyShortcut
 	void init();
 public:
 	bool selected; //if true, this component is selected
-	boost::function<void()> onSelect; //function called on selection change
+	std::function<void()> onSelect; //function called on selection change
 
 	void showAll(SDL_Surface * to);
 	void select(bool on);
 
 	void clickLeft(tribool down, bool previousState); //call-in
-	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, boost::function<void()> OnSelect = 0); //c-tor
-	CSelectableComponent(const Component &c, boost::function<void()> OnSelect = 0); //c-tor
+	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = 0); //c-tor
+	CSelectableComponent(const Component &c, std::function<void()> OnSelect = 0); //c-tor
 };
 
 /// box with multiple components (up to 8?)
@@ -244,7 +244,7 @@ class CComponentBox : public CIntObject
 	std::vector<CComponent *> components;
 
 	CSelectableComponent * selected;
-	boost::function<void(int newID)> onSelect;
+	std::function<void(int newID)> onSelect;
 
 	void selectionChanged(CSelectableComponent * newSelection);
 
@@ -269,7 +269,7 @@ public:
 	/// constructor for selectable components
 	/// will also create "or" labels between components
 	/// onSelect - optional function that will be called every time on selection change
-	CComponentBox(std::vector<CSelectableComponent *> components, Rect position, boost::function<void(int newID)> onSelect = 0);
+	CComponentBox(std::vector<CSelectableComponent *> components, Rect position, std::function<void(int newID)> onSelect = 0);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -314,7 +314,7 @@ class CGarrisonSlot : public CIntObject
 {
 	SlotID ID; //for identification
 	CGarrisonInt *owner;
-	const CStackInstance *myStack; //NULL if slot is empty
+	const CStackInstance *myStack; //nullptr if slot is empty
 	const CCreature *creature;
 	int upg; //0 - up garrison, 1 - down garrison
 
@@ -330,7 +330,7 @@ public:
 	void clickRight(tribool down, bool previousState);
 	void clickLeft(tribool down, bool previousState);
 	void update();
-	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, int Upg=0, const CStackInstance * Creature=NULL);
+	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, int Upg=0, const CStackInstance * Creature=nullptr);
 
 	friend class CGarrisonInt;
 };
@@ -383,7 +383,7 @@ public:
 	//removableUnits - you can take units from top;
 	//smallImgs - units images size 64x58 or 32x32;
 	//twoRows - display slots in 2 row (1st row = 4 slots, 2nd = 3 slots)
-	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false, bool _twoRows=false); //c-tor
+	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=nullptr, bool _removableUnits = true, bool smallImgs = false, bool _twoRows=false); //c-tor
 };
 
 /// draws picture with creature on background, use Animated=true to get animation
@@ -430,7 +430,7 @@ class CRecruitmentWindow : public CWindowObject
 		void createItems(TResources res);
 	};
 
-	boost::function<void(CreatureID,int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
+	std::function<void(CreatureID,int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
 
 	int level;
 	const CArmedInstance *dst;
@@ -454,14 +454,14 @@ class CRecruitmentWindow : public CWindowObject
 	void showAll(SDL_Surface *to);
 public:
 	const CGDwelling * const dwelling;
-	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(CreatureID,int)> & Recruit, int y_offset = 0); //creatures - pairs<creature_ID,amount> //c-tor
+	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset = 0); //creatures - pairs<creature_ID,amount> //c-tor
 	void availableCreaturesChanged();
 };
 
 /// Split window where creatures can be split up into two single unit stacks
 class CSplitWindow : public CWindowObject
 {
-	boost::function<void(int, int)> callback;
+	std::function<void(int, int)> callback;
 	int leftAmount;
 	int rightAmount;
 
@@ -485,7 +485,7 @@ public:
 	 * leftMin, rightMin - minimal amount of creatures in each stack
 	 * leftAmount, rightAmount - amount of creatures in each stack
 	 */
-	CSplitWindow(const CCreature * creature, boost::function<void(int, int)> callback,
+	CSplitWindow(const CCreature * creature, std::function<void(int, int)> callback,
 	             int leftMin, int rightMin, int leftAmount, int rightAmount);
 };
 
@@ -493,12 +493,12 @@ public:
 class CLevelWindow : public CWindowObject
 {
 	CComponentBox * box; //skills to select
-	boost::function<void(ui32)> cb;
+	std::function<void(ui32)> cb;
 
 	void selectionChanged(unsigned to);
 public:
 
-	CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, boost::function<void(ui32)> callback); //c-tor
+	CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback); //c-tor
 	~CLevelWindow(); //d-tor
 
 };
@@ -530,7 +530,7 @@ class CObjectListWindow : public CWindowObject
 		void clickLeft(tribool down, bool previousState);
 	};
 
-	boost::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
+	std::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
 	CLabel * title;
 	CLabel * descr;
 
@@ -544,12 +544,12 @@ class CObjectListWindow : public CWindowObject
 public:
 	size_t selected;//index of currently selected item
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
-	/// Image can be NULL
+	/// Image can be nullptr
 	///item names will be taken from map objects
 	CObjectListWindow(const std::vector<int> &_items, CPicture * titlePic, std::string _title, std::string _descr,
-                      boost::function<void(int)> Callback);
+                      std::function<void(int)> Callback);
 	CObjectListWindow(const std::vector<std::string> &_items, CPicture * titlePic, std::string _title, std::string _descr,
-                      boost::function<void(int)> Callback);
+                      std::function<void(int)> Callback);
 
 	CIntObject *genItem(size_t index);
 	void elementSelected();//call callback and close this window
@@ -625,7 +625,7 @@ public:
 	CArtifactsOfHero *arts;
 	//all indexes: 1 = left, 0 = right
 	std::vector<CTradeableItem*> items[2];
-	CTradeableItem *hLeft, *hRight; //highlighted items (NULL if no highlight)
+	CTradeableItem *hLeft, *hRight; //highlighted items (nullptr if no highlight)
 	EType itemsType[2];
 
 	EMarketMode::EMarketMode mode;//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
@@ -640,7 +640,7 @@ public:
 	void initSubs(bool Left);
 	void initTypes();
 	void initItems(bool Left);
-	std::vector<int> *getItemsIds(bool Left); //NULL if default
+	std::vector<int> *getItemsIds(bool Left); //nullptr if default
 	void getPositionsFor(std::vector<Rect> &poss, bool Left, EType type) const;
 	void removeItems(const std::set<CTradeableItem *> &toRemove);
 	void removeItem(CTradeableItem * t);
@@ -671,7 +671,7 @@ public:
 	void sliderMoved(int to);
 	void makeDeal();
 	void selectionChanged(bool side); //true == left
-	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = NULL, EMarketMode::EMarketMode Mode = EMarketMode::RESOURCE_RESOURCE); //c-tor
+	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = nullptr, EMarketMode::EMarketMode Mode = EMarketMode::RESOURCE_RESOURCE); //c-tor
 	~CMarketplaceWindow(); //d-tor
 
 	Point selectionOffset(bool Left) const;
@@ -908,7 +908,7 @@ public:
 	CArtifactsOfHero * ourOwner;
 	const CArtifactInstance * ourArt; // should be changed only with setArtifact()
 
-	CArtPlace(Point position, const CArtifactInstance * Art = NULL); //c-tor
+	CArtPlace(Point position, const CArtifactInstance * Art = nullptr); //c-tor
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void select ();
@@ -955,7 +955,7 @@ public:
 	CAdventureMapButton * leftArtRoll, * rightArtRoll;
 	bool allowedAssembling;
 	std::multiset<const CArtifactInstance*> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be omitted in backpack slots
-	boost::function<void(CArtPlace*)> highlightModeCallback; //if set, clicking on art place doesn't pick artifact but highlights the slot and calls this function
+	std::function<void(CArtPlace*)> highlightModeCallback; //if set, clicking on art place doesn't pick artifact but highlights the slot and calls this function
 
 	void realizeCurrentTransaction(); //calls callback with parameters stored in commonInfo
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
@@ -1057,7 +1057,7 @@ public:
 
 	CGStatusBar * statusBar;
 
-	CShipyardWindow(const std::vector<si32> &cost, int state, int boatType, const boost::function<void()> &onBuy);
+	CShipyardWindow(const std::vector<si32> &cost, int state, int boatType, const std::function<void()> &onBuy);
 };
 
 /// Puzzle screen which gets uncovered when you visit obilisks
@@ -1099,7 +1099,7 @@ public:
 
 	const CArmedInstance *army;//object with army for transforming (hero or town)
 	const CGHeroInstance *hero;//only if we have hero in town
-	const CGTownInstance *town;//market, town garrison is used if hero == NULL
+	const CGTownInstance *town;//market, town garrison is used if hero == nullptr
 	std::vector<CItem*> items;
 
 	CAdventureMapButton *all, *convert, *cancel;

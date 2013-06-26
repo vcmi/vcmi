@@ -24,18 +24,18 @@ class CPlayerInterface;
 class SpellbookInteractiveArea : public CIntObject
 {
 private:
-	boost::function<void()> onLeft;
+	std::function<void()> onLeft;
 	std::string textOnRclick;
-	boost::function<void()> onHoverOn;
-	boost::function<void()> onHoverOff;
+	std::function<void()> onHoverOn;
+	std::function<void()> onHoverOff;
 	CPlayerInterface * myInt;
 public:
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void hover(bool on);
 
-	SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL, const std::string & textR,
-		boost::function<void()> funcHon, boost::function<void()> funcHoff, CPlayerInterface * _myInt);//c-tor
+	SpellbookInteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, const std::string & textR,
+		std::function<void()> funcHon, std::function<void()> funcHoff, CPlayerInterface * _myInt);//c-tor
 };
 
 /// The spell window

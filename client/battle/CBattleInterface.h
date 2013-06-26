@@ -124,8 +124,8 @@ private:
 
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 	ui8 animCount;
-	const CStack * activeStack; //number of active stack; NULL - no one
-	const CStack * stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; NULL of none
+	const CStack * activeStack; //number of active stack; nullptr - no one
+	const CStack * stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; nullptr of none
 	const CStack * selectedStack; //for Teleport / Sacrifice
 	void activateStack(); //sets activeStack to stackToActivate etc.
 	int mouseHoveredStack; //stack hovered by mouse; if -1 -> none
@@ -220,7 +220,7 @@ public:
 	std::vector<CClickableHex*> bfield; //11 lines, 17 hexes on each
 	//std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	SDL_Surface * cellBorder, * cellShade;
-	CondSh<BattleAction *> *givenCommand; //data != NULL if we have i.e. moved current unit
+	CondSh<BattleAction *> *givenCommand; //data != nullptr if we have i.e. moved current unit
 	bool myTurn; //if true, interface is active (commands can be ordered)
 	CBattleResultWindow * resWindow; //window of end of battle
 
@@ -241,7 +241,7 @@ public:
 	void bDefencef();
 	void bConsoleUpf();
 	void bConsoleDownf();
-	void bTacticNextStack(const CStack *current = NULL);
+	void bTacticNextStack(const CStack *current = nullptr);
 	void bEndTacticPhase();
 	//end of button handle funcs
 	//napisz tu klase odpowiadajaca za wyswietlanie bitwy i obsluge uzytkownika, polecenia ma przekazywac callbackiem

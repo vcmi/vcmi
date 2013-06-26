@@ -1,8 +1,6 @@
 #include "StdInc.h"
 
 #include <boost/asio.hpp>
-#include <boost/interprocess/mapped_region.hpp>
-#include <boost/interprocess/shared_memory_object.hpp>
 
 #include "../lib/filesystem/CResourceLoader.h"
 #include "../lib/mapping/CCampaignHandler.h"
@@ -62,9 +60,9 @@ static void vaccept(tcp::acceptor *ac, tcp::socket *s, boost::system::error_code
 
 
 
-CPregameServer::CPregameServer(CConnection *Host, TAcceptor *Acceptor /*= NULL*/)
-	: host(Host), listeningThreads(0), acceptor(Acceptor), upcomingConnection(NULL),
-	  curmap(NULL), curStartInfo(NULL), state(RUNNING)
+CPregameServer::CPregameServer(CConnection *Host, TAcceptor *Acceptor /*= nullptr*/)
+	: host(Host), listeningThreads(0), acceptor(Acceptor), upcomingConnection(nullptr),
+	  curmap(nullptr), curStartInfo(nullptr), state(RUNNING)
 {
 	initConnection(host);
 }
@@ -76,7 +74,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 	{
 		while(!cpc->receivedStop)
 		{
-			CPackForSelectionScreen *cpfs = NULL;
+			CPackForSelectionScreen *cpfs = nullptr;
 			*cpc >> cpfs;
 
             logNetwork->infoStream() << "Got package to announce " << typeid(*cpfs).name() << " from " << *cpc;
@@ -205,7 +203,7 @@ void CPregameServer::connectionAccepted(const boost::system::error_code& ec)
     logNetwork->infoStream() << "We got a new connection! :)";
 	CConnection *pc = new CConnection(upcomingConnection, NAME);
 	initConnection(pc);
-	upcomingConnection = NULL;
+	upcomingConnection = nullptr;
 
 	*pc << (ui8)pc->connectionID << curmap;
 
@@ -226,7 +224,7 @@ void CPregameServer::start_async_accept()
 	assert(acceptor);
 
 	upcomingConnection = new TSocket(acceptor->get_io_service());
-	acceptor->async_accept(*upcomingConnection, boost::bind(&CPregameServer::connectionAccepted, this, boost::asio::placeholders::error));
+	acceptor->async_accept(*upcomingConnection, std::bind(&CPregameServer::connectionAccepted, this, _1));
 }
 
 void CPregameServer::announceTxt(const std::string &txt, const std::string &playerName /*= "system"*/)
@@ -310,7 +308,7 @@ void CPregameServer::startListeningThread(CConnection * pc)
 }
 
 CVCMIServer::CVCMIServer()
-: io(new boost::asio::io_service()), acceptor(new TAcceptor(*io, tcp::endpoint(tcp::v4(), port))), firstConnection(NULL)
+: io(new boost::asio::io_service()), acceptor(new TAcceptor(*io, tcp::endpoint(tcp::v4(), port))), firstConnection(nullptr)
 {
     logNetwork->debugStream() << "CVCMIServer created!";
 }
@@ -389,7 +387,7 @@ void CVCMIServer::newPregame()
 
 void CVCMIServer::start()
 {
-	ServerReady *sr = NULL;
+	ServerReady *sr = nullptr;
 	intpr::mapped_region *mr;
 	try
 	{
@@ -409,7 +407,7 @@ void CVCMIServer::start()
 	boost::system::error_code error;
     logNetwork->infoStream()<<"Listening for connections at port " << acceptor->local_endpoint().port();
 	tcp::socket * s = new tcp::socket(acceptor->get_io_service());
-	boost::thread acc(boost::bind(vaccept,acceptor,s,&error));
+	boost::thread acc(std::bind(vaccept,acceptor,s,&error));
 	sr->setToTrueAndNotify();
 	delete mr;
 
@@ -550,7 +548,7 @@ int main(int argc, char** argv)
 	logNetwork->infoStream() << "Port " << port << " will be used.";
 
 	loadDLLClasses();
-	srand ( (ui32)time(NULL) );
+	srand ( (ui32)time(nullptr) );
 	try
 	{
 		io_service io_service;
