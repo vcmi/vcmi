@@ -23,7 +23,7 @@ namespace VERMInterpreter
 	{
 		std::string problem;
 	public:
-		const char * what() const throw() OVERRIDE
+		const char * what() const throw() override
 		{
 			return problem.c_str();
 		}
@@ -216,7 +216,7 @@ namespace VERMInterpreter
 
 		int realLineNum;
 
-		LinePointer() : file(NULL)
+		LinePointer() : file(nullptr)
 		{}
 
 		LinePointer(const FileInfo * finfo, int line, int _realLineNum) : file(finfo), lineNum(line),
@@ -281,7 +281,7 @@ namespace VERMInterpreter
 		LinePointer line;
 		TriggerLocalVars ermLocalVars;
 		Stack * stack; //where we are stuck at execution
-		Trigger() : stack(NULL)
+		Trigger() : stack(nullptr)
 		{}
 	};
 
@@ -468,7 +468,7 @@ namespace VERMInterpreter
 		Environment * parent;
 
 	public:
-		Environment() : parent(NULL)
+		Environment() : parent(nullptr)
 		{}
 		void setPatent(Environment * _parent);
 		Environment * getPatent() const;
@@ -503,7 +503,7 @@ namespace VERMInterpreter
 	public:
 		VermTreeIterator(VOptionList & _parent) : parent(&_parent), state(NORM), basePos(0)
 		{}
-		VermTreeIterator() : parent(NULL), state(NORM)
+		VermTreeIterator() : parent(nullptr), state(NORM)
 		{}
 
 		VermTreeIterator & operator=(const VOption & opt);
@@ -818,8 +818,8 @@ class ERMInterpreter : public CScriptingModule
 
 	std::string processERMString(std::string ermstring);
 
-	VERMInterpreter::VOption eval( VERMInterpreter::VOption line, VERMInterpreter::Environment * env = NULL );
-	VERMInterpreter::VOptionList evalEach( VERMInterpreter::VermTreeIterator list, VERMInterpreter::Environment * env = NULL ); 
+	VERMInterpreter::VOption eval( VERMInterpreter::VOption line, VERMInterpreter::Environment * env = nullptr );
+	VERMInterpreter::VOptionList evalEach( VERMInterpreter::VermTreeIterator list, VERMInterpreter::Environment * env = nullptr );
 
 public:
 	typedef std::map< int, std::vector<int> > TIDPattern;
@@ -839,13 +839,13 @@ public:
 	int getRealLine(const VERMInterpreter::LinePointer &lp);
 
 	//overload CScriptingModule
-	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start) OVERRIDE;
-	virtual void init() OVERRIDE;//sets up environment etc.
-	virtual void executeUserCommand(const std::string &cmd) OVERRIDE;
-	virtual void giveInfoCB(CPrivilagedInfoCallback *cb) OVERRIDE;
-	virtual void giveActionCB(IGameEventRealizer *cb) OVERRIDE;
+	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start) override;
+	virtual void init() override;//sets up environment etc.
+	virtual void executeUserCommand(const std::string &cmd) override;
+	virtual void giveInfoCB(CPrivilagedInfoCallback *cb) override;
+	virtual void giveActionCB(IGameEventRealizer *cb) override;
 
-	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) OVERRIDE;
+	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override;
 
 	const CGObjectInstance *getObjFrom(int3 pos);
 	template <typename T>

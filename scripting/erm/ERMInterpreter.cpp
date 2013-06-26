@@ -464,8 +464,8 @@ void ERMInterpreter::scanScripts()
 ERMInterpreter::ERMInterpreter()
 {
 	erm = this;
-	curFunc = NULL;
-	curTrigger = NULL;
+	curFunc = nullptr;
+	curTrigger = nullptr;
 	globalEnv = new Environment();
 	topDyn = globalEnv;
 }
@@ -496,7 +496,7 @@ void ERMInterpreter::executeTrigger( VERMInterpreter::Trigger & trig, int funNum
 		executeLine(lp);
 	}
 
-	curFunc = NULL;
+	curFunc = nullptr;
 }
 
 bool ERMInterpreter::isATrigger( const ERM::TLine & line )
@@ -686,8 +686,8 @@ struct HE_BPerformer : StandardBodyOptionItemVisitor<HEPerformer>
 	{}
 	using StandardBodyOptionItemVisitor<HEPerformer>::operator();
 
-	void operator()(TIexp const& cmp) const OVERRIDE;
-	void operator()(TVarpExp const& cmp) const OVERRIDE;
+	void operator()(TIexp const& cmp) const override;
+	void operator()(TVarpExp const& cmp) const override;
 };
 
 template<int opcode>
@@ -703,8 +703,8 @@ struct HE_CPerformer : StandardBodyOptionItemVisitor<HEPerformer>
 	{}
 	using StandardBodyOptionItemVisitor<HEPerformer>::operator();
 
-	void operator()(TIexp const& cmp) const OVERRIDE;
-	void operator()(TVarpExp const& cmp) const OVERRIDE;
+	void operator()(TIexp const& cmp) const override;
+	void operator()(TVarpExp const& cmp) const override;
 };
 
 template<int opcode>
@@ -719,7 +719,7 @@ struct HEPerformer : StandardReceiverVisitor<const CGHeroInstance *>
 	{}
 	using StandardReceiverVisitor<const CGHeroInstance *>::operator();
 
-	void operator()(TNormalBodyOption const& trig) const OVERRIDE
+	void operator()(TNormalBodyOption const& trig) const override
 	{
 		switch(trig.optionCode)
 		{
@@ -780,7 +780,7 @@ struct IF_MPerformer : StandardBodyOptionItemVisitor<IFPerformer>
 	explicit IF_MPerformer(IFPerformer & _owner) : StandardBodyOptionItemVisitor<IFPerformer>(_owner){}
 	using StandardBodyOptionItemVisitor<IFPerformer>::operator();
 
-	void operator()(TStringConstant const& cmp) const OVERRIDE;
+	void operator()(TStringConstant const& cmp) const override;
 };
 
 
@@ -802,7 +802,7 @@ struct StringFormatter
 {
 	int pos;
 	int tokenLength;
-	int percentPos;
+	size_t percentPos;
 	int charsToReplace;
 	std::string &msg;
 
@@ -821,7 +821,7 @@ struct StringFormatter
 	{
 		int toAdd = 0;
 		int numStart = percentPos + 2;
-		int numEnd = msg.find_first_not_of("1234567890", numStart);
+		size_t numEnd = msg.find_first_not_of("1234567890", numStart);
 
 		if(numEnd == std::string::npos)
 			toAdd = msg.size() - numStart;
@@ -887,7 +887,7 @@ struct IFPerformer : StandardReceiverVisitor<TUnusedType>
 	using StandardReceiverVisitor<TUnusedType>::operator();
 
 
-	void operator()(TNormalBodyOption const& trig) const OVERRIDE
+	void operator()(TNormalBodyOption const& trig) const override
 	{
 		std::string message; //to be shown
 		switch(trig.optionCode)
@@ -932,8 +932,8 @@ struct MA_PPerformer : StandardBodyOptionItemVisitor<MAPerformer>
 	explicit MA_PPerformer(MAPerformer & _owner);
 	using StandardBodyOptionItemVisitor<MAPerformer>::operator();
 
-	void operator()(TIexp const& cmp) const OVERRIDE;
-	void operator()(TVarpExp const& cmp) const OVERRIDE;
+	void operator()(TIexp const& cmp) const override;
+	void operator()(TVarpExp const& cmp) const override;
 };
 
 struct MAPerformer : StandardReceiverVisitor<TUnusedType>
@@ -942,7 +942,7 @@ struct MAPerformer : StandardReceiverVisitor<TUnusedType>
 	{}
 	using StandardReceiverVisitor<TUnusedType>::operator();
 
-	void operator()(TNormalBodyOption const& trig) const OVERRIDE
+	void operator()(TNormalBodyOption const& trig) const override
 	{
 		switch(trig.optionCode)
 		{
@@ -981,8 +981,8 @@ struct MO_GPerformer : StandardBodyOptionItemVisitor<MOPerformer>
 	{}
 	using StandardBodyOptionItemVisitor<MOPerformer>::operator();
 
-	void operator()(TVarpExp const& cmp) const OVERRIDE;
-	void operator()(TIexp const& cmp) const OVERRIDE;
+	void operator()(TVarpExp const& cmp) const override;
+	void operator()(TIexp const& cmp) const override;
 };
 
 struct MOPerformer: StandardReceiverVisitor<int3>
@@ -991,7 +991,7 @@ struct MOPerformer: StandardReceiverVisitor<int3>
 	{}
 	using StandardReceiverVisitor<int3>::operator();
 
-	void operator()(TNormalBodyOption const& trig) const OVERRIDE
+	void operator()(TNormalBodyOption const& trig) const override
 	{
 		switch(trig.optionCode)
 		{
@@ -1116,8 +1116,8 @@ struct VR_SPerformer : StandardBodyOptionItemVisitor<VRPerformer>
 	explicit VR_SPerformer(VRPerformer & _owner);
 	using StandardBodyOptionItemVisitor<VRPerformer>::operator();
 
-	void operator()(TStringConstant const& cmp) const OVERRIDE;
-	void operator()(TIexp const& cmp) const OVERRIDE;
+	void operator()(TStringConstant const& cmp) const override;
+	void operator()(TIexp const& cmp) const override;
 };
 
 struct VRPerformer : StandardReceiverVisitor<IexpValStr>
@@ -1125,7 +1125,7 @@ struct VRPerformer : StandardReceiverVisitor<IexpValStr>
 	VRPerformer(ERMInterpreter * _interpr, IexpValStr ident) : StandardReceiverVisitor<IexpValStr>(_interpr, ident)
 	{}
 
-	void operator()(TVRLogic const& trig) const OVERRIDE
+	void operator()(TVRLogic const& trig) const override
 	{
 		int valr = interp->getIexp(trig.var).getInt();
 		switch (trig.opcode)
@@ -1144,7 +1144,7 @@ struct VRPerformer : StandardReceiverVisitor<IexpValStr>
 			break;
 		}
 	}
-	void operator()(TVRArithmetic const& trig) const OVERRIDE
+	void operator()(TVRArithmetic const& trig) const override
 	{
 		IexpValStr rhs = interp->getIexp(trig.rhs);
 		switch (trig.opcode)
@@ -1169,7 +1169,7 @@ struct VRPerformer : StandardReceiverVisitor<IexpValStr>
 			break;
 		}
 	}
-	void operator()(TNormalBodyOption const& trig) const OVERRIDE
+	void operator()(TNormalBodyOption const& trig) const override
 	{
 		switch(trig.optionCode)
 		{
@@ -1380,7 +1380,7 @@ struct ERMExpDispatch : boost::static_visitor<>
 		}
 		else if(trig.name == "HE")
 		{
-			const CGHeroInstance * hero = NULL;
+			const CGHeroInstance * hero = nullptr;
 			if(trig.identifier.is_initialized())
 			{
 				ERM::Tidentifier tid = trig.identifier.get();
@@ -1754,11 +1754,11 @@ struct LVL3BodyOptionItemVisitor : StandardBodyOptionItemVisitor<IexpValStr>
 	{}
 	using StandardBodyOptionItemVisitor<IexpValStr>::operator();
 
-	void operator()(TIexp const& cmp) const OVERRIDE
+	void operator()(TIexp const& cmp) const override
 	{
 		owner = erm->getIexp(cmp);
 	}
-	void operator()(TVarpExp const& cmp) const OVERRIDE
+	void operator()(TVarpExp const& cmp) const override
 	{
 		owner = erm->getIexp(cmp);
 	}
@@ -2717,7 +2717,7 @@ struct VEvaluator : boost::static_visitor<VOption>
 	}
 };
 
-VOption ERMInterpreter::eval( VOption line, Environment * env /*= NULL*/ )
+VOption ERMInterpreter::eval( VOption line, Environment * env /*= nullptr*/ )
 {
 // 	if(line.children.isNil())
 // 		return;
@@ -2729,7 +2729,7 @@ VOption ERMInterpreter::eval( VOption line, Environment * env /*= NULL*/ )
 
 }
 
-VOptionList ERMInterpreter::evalEach( VermTreeIterator list, Environment * env /*= NULL*/ )
+VOptionList ERMInterpreter::evalEach( VermTreeIterator list, Environment * env /*= nullptr*/ )
 {
 	VOptionList ret;
 	for(int g=0; g<list.size(); ++g)

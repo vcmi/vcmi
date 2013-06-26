@@ -1,10 +1,6 @@
 #include "StdInc.h"
 #include "ERMParser.h"
 
-//To make compilation with older boost versions possible
-//Don't know exact version - 1.46 works while 1.42 not
-#if BOOST_VERSION >= 104600
-
 /*
  * ERMParser.cpp, part of VCMI engine
  *
@@ -67,7 +63,7 @@ std::string CERMPreprocessor::retreiveCommandLine()
 		getline(line); //reading line
 
 
-		int dash = line.find_first_of('^');
+		size_t dash = line.find_first_of('^');
 		bool inTheMiddle = openedBraces || openedString;
 
 		if(!inTheMiddle)
@@ -548,9 +544,3 @@ void ERMParser::repairEncoding( char * str, int len ) const
 		if(str[g] & 0x80)
 			str[g] = '|';
 }
-#else
-
-ERMParser::ERMParser(std::string file){}
-std::vector<LineInfo> ERMParser::parseFile() {std::vector<LineInfo> dummy; return dummy;} //compile fix
-
-#endif
