@@ -9,11 +9,6 @@
 
 const char *g_cszAiName = "Battle AI";
 
-extern "C" DLL_EXPORT int GetGlobalAiVersion()
-{
-	return AI_INTERFACE_VER;
-}
-
 extern "C" DLL_EXPORT void GetAiName(char* name)
 {
 	strcpy_s(name, strlen(g_cszAiName) + 1, g_cszAiName);

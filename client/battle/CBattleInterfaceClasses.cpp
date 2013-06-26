@@ -596,6 +596,9 @@ void CClickableHex::clickRight(tribool down, bool previousState)
 void CStackQueue::update()
 {
 	stacksSorted.clear();
+	if(!owner->curInt)
+		return;
+
 	owner->curInt->cb->battleGetStackQueue(stacksSorted, stackBoxes.size());
 	if(stacksSorted.size())
 	{

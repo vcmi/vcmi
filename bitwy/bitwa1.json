@@ -1,0 +1,37 @@
+{
+	"terType" : 1,
+	"bfieldType" : 0,
+	"obstacles" : [155], //vector of positions or vectored pairs [type, pos]
+	
+	"sides" : 
+	[
+		{
+			"side" : 0,
+			"army" : [[0, 1], [1, 1]],
+			"heroid" : 0,
+		},
+		{
+			"side" : 1,
+			"army" : [[6, 1], [6, 1]],
+		}
+	],
+	
+	"creatures" : 
+	[
+		{
+			"id" : 0,
+			"dmg" : 500,
+			"speed" : 7
+		},
+		{
+			"id" : 1,
+			"dmg" : 500,
+			"speed" : 5
+		},
+		{
+			"id" : 6,
+			"dmg" : 500,
+			"speed" : 6
+		},
+	]
+}

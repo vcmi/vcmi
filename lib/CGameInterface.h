@@ -82,7 +82,7 @@ struct DLL_LINKAGE Priorities
 	double generalResourceValueModifier;
 	std::vector<double> resourceTypeBaseValues;
 	std::function<double(const CStack *)> stackEvaluator;
-
+	double heroValue;
 
 	Priorities();
 };

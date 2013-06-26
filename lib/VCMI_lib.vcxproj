@@ -291,9 +291,6 @@
     <ClInclude Include="VCMI_Lib.h" />
     <ClInclude Include="VCMIDirs.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

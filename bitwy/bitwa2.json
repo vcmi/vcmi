@@ -1,0 +1,34 @@
+{
+	"terType" : 1,
+	"bfieldType" : 0,
+	"obstacles" : [111, [28, 7], 88, 122, 139, 156, 173], //vector of positions or vectored pairs [type, pos]
+	
+	"sides" : 
+	[
+		{
+			"side" : 0,
+			"army" : [[95, 1]],
+			"heroid" : 0,			
+			"heroPrimSkills" : [4, 4, 5, 10],
+			"spells" : [28,61,15, 27, 54, 53, 44, 41, 42]
+		},
+		{
+			"side" : 1,
+			"army" : [[111, 1]]
+		}
+	],
+	
+	"creatures" : 
+	[
+		{
+			"id" : 95,
+			"shoots" : 1000,
+			"HP" : 1
+		},
+		
+		{
+			"id" : 111,
+			"speed" : 2
+		}
+	]
+}

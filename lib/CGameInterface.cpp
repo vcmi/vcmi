@@ -11,6 +11,7 @@
 	#include <dlfcn.h>
 #endif
 #include "Connection.h"
+#include "VCMI_Lib.h"
 
 /*
  * CGameInterface.cpp, part of VCMI engine
@@ -303,4 +304,5 @@ Priorities::Priorities()
 	generalResourceValueModifier = 1.;
 	range::copy(VLC->objh->resVals, std::back_inserter(resourceTypeBaseValues));
 	stackEvaluator = [](const CStack*){ return 1.0; };
+	heroValue = 50;
 }

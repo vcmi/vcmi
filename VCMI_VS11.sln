@@ -45,6 +45,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VisitObjects", "AI\VisitObj
 		{B952FFC5-3039-4DE1-9F08-90ACDA483D8F} = {B952FFC5-3039-4DE1-9F08-90ACDA483D8F}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Runner", "Runner\Runner.vcxproj", "{D80625BB-FD36-4089-8CD2-E0489B19EED5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -180,6 +182,15 @@ Global
 		{D3126B35-650E-46C8-A336-1D6640FBFFD0}.Release|Win32.Build.0 = RD|Win32
 		{D3126B35-650E-46C8-A336-1D6640FBFFD0}.Release|x64.ActiveCfg = RD|x64
 		{D3126B35-650E-46C8-A336-1D6640FBFFD0}.Release|x64.Build.0 = RD|x64
+		{D80625BB-FD36-4089-8CD2-E0489B19EED5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D80625BB-FD36-4089-8CD2-E0489B19EED5}.Debug|Win32.Build.0 = Debug|Win32
+		{D80625BB-FD36-4089-8CD2-E0489B19EED5}.Debug|x64.ActiveCfg = Debug|Win32
+		{D80625BB-FD36-4089-8CD2-E0489B19EED5}.RD|Win32.ActiveCfg = Release|Win32
+		{D80625BB-FD36-4089-8CD2-E0489B19EED5}.RD|Win32.Build.0 = Release|Win32
+		{D80625BB-FD36-4089-8CD2-E0489B19EED5}.RD|x64.ActiveCfg = Release|Win32
+		{D80625BB-FD36-4089-8CD2-E0489B19EED5}.Release|Win32.ActiveCfg = Release|Win32
+		{D80625BB-FD36-4089-8CD2-E0489B19EED5}.Release|Win32.Build.0 = Release|Win32
+		{D80625BB-FD36-4089-8CD2-E0489B19EED5}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

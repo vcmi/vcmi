@@ -557,15 +557,42 @@ std::vector<BattleHex> CBattleAI::getTargetsToConsider( const CSpell *spell ) co
 
 boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 {
+	if(tacticInfo->expectedLength() >= 2  || tacticInfo->totalValue() > 0)
+		return boost::none;
+
+	BattleAction ba;
+	ba.side = cb->battleGetMySide();
+	ba.stackNumber = cb->battleActiveStack()->ID;
+
 	if(cb->battleCanSurrender(playerID))
 	{
+		double armyValue = 0;
+		BOOST_FOREACH(auto stack, cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE))
+		{
+			armyValue += stack->count*stack->MaxHealth()*priorities.stackEvaluator(stack);
+		}
 
+		double cost = cb->battleGetSurrenderCost() * priorities.generalResourceValueModifier * priorities.resourceTypeBaseValues[Res::GOLD];
+		if(armyValue + priorities.heroValue > cost + tacticInfo->ourPotential)
+		{
+			ba.actionType = Battle::SURRENDER;
+			return ba;
+		}
 	}
 	if(cb->battleCanFlee())
 	{
-
+		if(priorities.heroValue > tacticInfo->ourPotential)
+		{
+			ba.actionType = Battle::RETREAT;
+			return ba;
+		}
 	}
 	return boost::none;
+}
+
+void CBattleAI::setPriorities(const Priorities &priorities)
+{
+	this->priorities = priorities;
 }
 
 ThreatMap::ThreatMap(const CStack *Endangered) : endangered(Endangered)
@@ -634,8 +661,8 @@ const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector &selector, c
 
 int AttackPossibility::damageDiff() const
 {
-	const auto dealtDmgValue = priorities.stackEvaluator(enemy) * damageDealt;
-	const auto receivedDmgValue = priorities.stackEvaluator(attack.attacker) * damageReceived;
+	const auto dealtDmgValue = ai->priorities.stackEvaluator(enemy) * damageDealt;
+	const auto receivedDmgValue = ai->priorities.stackEvaluator(attack.attacker) * damageReceived;
 	return dealtDmgValue - receivedDmgValue;
 }
 
@@ -675,7 +702,9 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo &AttackInfo
 		//TODO what about defender? should we break? but in pessimistic scenario defender might be alive
 	}
 
-	//TODO LUCK!!!!!!!!!!!!
+	double luck = curBai.attackerBonuses->LuckVal();
+	if(luck > 0)
+		ap.damageDealt *= (1 + luck/12.0);
 
 	//TODO other damage related to attack (eg. fire shield and other abilities)
 
@@ -769,6 +798,17 @@ TacticInfo::TacticInfo(const HypotheticChangesToBattleState &state /*= Hypotheti
 		targets[enemyStack] = PotentialTargets(enemyStack, state);
 		enemyPotential += targets[enemyStack].bestActionValue();
 		enemyhealth += (enemyStack->count-1) * enemyStack->MaxHealth() + enemyStack->firstHPleft;
+	}
+
+	if(ourPotential < 0)
+	{
+		enemyPotential -= ourPotential;
+		ourPotential = 0;
+	}
+	if(enemyPotential < 0)
+	{
+		ourPotential -= enemyPotential;
+		enemyPotential = 0;
 	}
 }
 

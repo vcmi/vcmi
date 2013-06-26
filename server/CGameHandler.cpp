@@ -6193,6 +6193,16 @@ void CGameHandler::duelFinished()
 	logGlobal->debugStream() << boost::format("Winner side %d\nWinner casualties:") 
 		% (int)battleResult.data->winner;
 
+
+	double initialHP = 0;
+	BOOST_FOREACH(auto &stack, gs->curB->belligerents[battleResult.data->winner]->stacks)
+	{
+		initialHP += stack.second->count * stack.second->type->AIValue;
+	}
+
+
+	logGlobal->debugStream() << boost::format("Total army value points: %lf") % initialHP;
+
 	for(auto i = battleResult.data->casualties[battleResult.data->winner].begin(); i != battleResult.data->casualties[battleResult.data->winner].end(); i++)
 	{
 		const CCreature *c = VLC->creh->creatures[i->first];
@@ -6205,12 +6215,20 @@ void CGameHandler::duelFinished()
 	time_t timeNow;
 	time(&timeNow);
 
+	double casualtiesRatio = (1 - casualtiesPoints/initialHP);
+	
+	if(battleResult.data->winner)
+	{
+		casualtiesPoints = -casualtiesPoints;
+		casualtiesRatio = -casualtiesRatio;
+	}
+
 	std::ofstream out(cmdLineOptions["resultsFile"].as<std::string>(), std::ios::app);
 	if(out)
 	{
-		out << boost::format("%s\t%s\t%s\t%d\t%d\t%d\t%s\n") % si->mapname % getName(0) % getName(1)
-			% battleResult.data->winner % battleResult.data->result % casualtiesPoints 
-			% asctime(localtime(&timeNow));
+		out << boost::format("%s\t%s\t%s\t%d\t%d\t%d\t%lf\t%s") % si->mapname % getName(0) % getName(1)
+			% (int)battleResult.data->winner % (int)battleResult.data->result % casualtiesPoints 
+			% casualtiesRatio % asctime(localtime(&timeNow));
 	}
 	else
 	{

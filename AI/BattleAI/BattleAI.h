@@ -132,11 +132,13 @@ class CBattleAI : public CBattleGameInterface
 	
 	//Previous setting of cb 
 	bool wasWaitingForRealize, wasUnlockingGs;
-
 	unique_ptr<TacticInfo> tacticInfo;
 
 	void print(const std::string &text) const;
 public:
+	Priorities priorities;
+
+
 	CBattleAI(void);
 	~CBattleAI(void);
 
@@ -144,6 +146,8 @@ public:
 	void actionFinished(const BattleAction &action) OVERRIDE;//occurs AFTER every action taken by any stack or by the hero
 	void actionStarted(const BattleAction &action) OVERRIDE;//occurs BEFORE every action taken by any stack or by the hero
 	BattleAction activeStack(const CStack * stack) OVERRIDE; //called when it's turn of that stack
+
+	void setPriorities(const Priorities &priorities) OVERRIDE;
 
 	void battleAttack(const BattleAttack *ba) OVERRIDE; //called when stack is performing attack
 	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) OVERRIDE; //called when stack receives damage (after battleAttack())
