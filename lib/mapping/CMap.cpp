@@ -231,9 +231,9 @@ void CMap::addBlockVisTiles(CGObjectInstance * obj)
 
 CGHeroInstance * CMap::getHero(int heroID)
 {
-	for(ui32 i=0; i<heroesOnMap.size();i++)
-		if(heroesOnMap[i]->subID == heroID)
-			return heroesOnMap[i];
+	for(auto & elem : heroesOnMap)
+		if(elem->subID == heroID)
+			return elem;
 	return nullptr;
 }
 

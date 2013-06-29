@@ -79,7 +79,7 @@ class CFileCache
 
 		ui8 * getCopy()
 		{
-			ui8 * ret = new ui8[size];
+			auto   ret = new ui8[size];
 			std::copy(data, data + size, ret);
 			return ret;
 		}
@@ -97,7 +97,7 @@ class CFileCache
 public:
 	ui8 * getCachedFile(ResourceID && rid)
 	{
-		BOOST_FOREACH(auto & file, cache)
+		for(auto & file : cache)
 		{
 			if (file.name == rid)
 				return file.getCopy();
@@ -329,8 +329,8 @@ const std::map<size_t, size_t > CDefFile::getEntries() const
 {
 	std::map<size_t, size_t > ret;
 
-	for (auto mapIt = offset.begin(); mapIt!=offset.end(); ++mapIt)
-		ret[mapIt->first] =  mapIt->second.size();
+	for (auto & elem : offset)
+		ret[elem.first] =  elem.second.size();
 	return ret;
 }
 
@@ -523,7 +523,7 @@ inline void CompImageLoader::Load(size_t size, ui8 color)
 		return;
 	if (color==0xff)
 	{
-		ui8* tmpbuf = new ui8[size];
+		auto   tmpbuf = new ui8[size];
 		memset((void*)tmpbuf, color, size);
 		Load(size, tmpbuf);
 		delete [] tmpbuf;
@@ -990,12 +990,12 @@ void CAnimation::initFromJson(const JsonNode & config)
 	std::string basepath;
 	basepath = config["basepath"].String();
 
-	BOOST_FOREACH(const JsonNode &group, config["sequences"].Vector())
+	for(const JsonNode &group : config["sequences"].Vector())
 	{
 		size_t groupID = group["group"].Float();//TODO: string-to-value conversion("moving" -> MOVING)
 		source[groupID].clear();
 
-		BOOST_FOREACH(const JsonNode &frame, group["frames"].Vector())
+		for(const JsonNode &frame : group["frames"].Vector())
 		{
 			source[groupID].push_back(JsonNode());
 			std::string filename =  frame.String();
@@ -1003,7 +1003,7 @@ void CAnimation::initFromJson(const JsonNode & config)
 		}
 	}
 
-	BOOST_FOREACH(const JsonNode &node, config["images"].Vector())
+	for(const JsonNode &node : config["images"].Vector())
 	{
 		size_t group = node["group"].Float();
 		size_t frame = node["frame"].Float();
@@ -1023,8 +1023,8 @@ void CAnimation::init(CDefFile * file)
 	{
 		const std::map<size_t, size_t> defEntries = file->getEntries();
 
-		for (std::map<size_t, size_t>::const_iterator mapIt = defEntries.begin(); mapIt!=defEntries.end(); ++mapIt)
-			source[mapIt->first].resize(mapIt->second);
+		for (auto & defEntrie : defEntries)
+			source[defEntrie.first].resize(defEntrie.second);
 	}
 
 	ResourceID resID(std::string("SPRITES/") + name, EResType::TEXT);
@@ -1034,7 +1034,7 @@ void CAnimation::init(CDefFile * file)
 
 	auto & configList = CResourceHandler::get()->getResourcesWithName(resID);
 
-	BOOST_FOREACH(auto & entry, configList)
+	for(auto & entry : configList)
 	{
 		auto stream = entry.getLoader()->load(entry.getResourceName());
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
@@ -1088,9 +1088,9 @@ CAnimation::~CAnimation()
 	if (!images.empty())
 	{
         logGlobal->warnStream()<<"Warning: not all frames were unloaded from "<<name;
-		for (group_map::iterator group = images.begin(); group != images.end(); ++group )
-			for (image_map::iterator image = group->second.begin(); image != group->second.end(); ++image )
-				delete image->second;
+		for (auto & elem : images)
+			for (auto & _image : elem.second)
+				delete _image.second;
 	}
 	loadedAnims.erase(this);
 }
@@ -1105,10 +1105,10 @@ void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
 
 IImage * CAnimation::getImage(size_t frame, size_t group, bool verbose) const
 {
-	group_map::const_iterator groupIter = images.find(group);
+	auto groupIter = images.find(group);
 	if (groupIter != images.end())
 	{
-		image_map::const_iterator imageIter = groupIter->second.find(frame);
+		auto imageIter = groupIter->second.find(frame);
 		if (imageIter != groupIter->second.end())
 			return imageIter->second;
 	}
@@ -1121,18 +1121,18 @@ void CAnimation::load()
 {
 	CDefFile * file = getFile();
 
-	for (source_map::iterator group = source.begin(); group != source.end(); ++group )
-		for (size_t image=0; image < group->second.size(); image++)
-			loadFrame(file, image, group->first);
+	for (auto & elem : source)
+		for (size_t image=0; image < elem.second.size(); image++)
+			loadFrame(file, image, elem.first);
 
 	delete file;
 }
 
 void CAnimation::unload()
 {
-	for (source_map::iterator group = source.begin(); group != source.end(); ++group )
-		for (size_t image=0; image < group->second.size(); image++)
-			unloadFrame(image, group->first);
+	for (auto & elem : source)
+		for (size_t image=0; image < elem.second.size(); image++)
+			unloadFrame(image, elem.first);
 
 }
 
@@ -1168,7 +1168,7 @@ void CAnimation::unload(size_t frame, size_t group)
 
 size_t CAnimation::size(size_t group) const
 {
-	source_map::const_iterator iter = source.find(group);
+	auto iter = source.find(group);
 	if (iter != source.end())
 		return iter->second.size();
 	return 0;
@@ -1179,9 +1179,9 @@ std::set<CAnimation*> CAnimation::loadedAnims;
 void CAnimation::getAnimInfo()
 {
     logGlobal->errorStream()<<"Animation stats: Loaded "<<loadedAnims.size()<<" total";
-	for (std::set<CAnimation*>::iterator it = loadedAnims.begin(); it != loadedAnims.end(); it++)
+	for (auto anim : loadedAnims)
 	{
-		CAnimation * anim = *it;
+		
         logGlobal->errorStream()<<"Name: "<<anim->name<<" Groups: "<<anim->images.size();
 		if (!anim->images.empty())
             logGlobal->errorStream()<<", "<<anim->images.begin()->second.size()<<" image loaded in group "<< anim->images.begin()->first;
@@ -1427,9 +1427,9 @@ void CCreatureAnim::loopPreview(bool warMachine)
 	static const EAnimType machPreviewList[] = {HOLDING, MOVING, SHOOT_UP, SHOOT_FRONT, SHOOT_DOWN};
 	auto & previewList = warMachine ? machPreviewList : creaPreviewList;
 	
-	for (size_t i=0; i<ARRAY_COUNT(previewList); i++)
-		if (anim.size(previewList[i]))
-			available.push_back(previewList[i]);
+	for (auto & elem : previewList)
+		if (anim.size(elem))
+			available.push_back(elem);
 
 	size_t rnd = rand()%(available.size()*2);
 

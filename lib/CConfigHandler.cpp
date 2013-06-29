@@ -71,7 +71,7 @@ void SettingsStorage::init()
 
 void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath)
 {
-	BOOST_FOREACH(SettingsListener * listener, listeners)
+	for(SettingsListener * listener : listeners)
 		listener->nodeInvalidated(changedPath);
 
 	JsonNode savedConf = config;
@@ -87,7 +87,7 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 JsonNode & SettingsStorage::getNode(std::vector<std::string> path)
 {
 	JsonNode *node = &config;
-	BOOST_FOREACH(std::string& value, path)
+	for(std::string& value : path)
 		node = &(*node)[value];
 
 	return *node;
@@ -187,7 +187,7 @@ static void setButton(ButtonInfo &button, const JsonNode &g)
 	if (!g["additionalDefs"].isNull()) {
 		const JsonVector &defs_vec = g["additionalDefs"].Vector();
 
-		BOOST_FOREACH(const JsonNode &def, defs_vec) {
+		for(const JsonNode &def : defs_vec) {
 			button.additionalDefs.push_back(def.String());
 		}
 	}
@@ -214,7 +214,7 @@ void config::CConfigHandler::init()
 	const JsonNode config(ResourceID("config/resolutions.json"));
 	const JsonVector &guisettings_vec = config["GUISettings"].Vector();
 
-	BOOST_FOREACH(const JsonNode &g, guisettings_vec) 
+	for(const JsonNode &g : guisettings_vec) 
 	{
 		std::pair<int,int> curRes(g["resolution"]["x"].Float(), g["resolution"]["y"].Float());
 		GUIOptions *current = &conf.guiOptions[curRes];

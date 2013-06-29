@@ -51,7 +51,7 @@ CCreatureWindow::CCreatureWindow (const CStack &stack, CreWinType Type):
 		init(stack.base, &stack, dynamic_cast<const CGHeroInstance*>(stack.base->armyObj));
 	else
 	{
-		CStackInstance * s = new CStackInstance(stack.type, 1); //TODO: war machines and summons should be regular stacks
+		auto   s = new CStackInstance(stack.type, 1); //TODO: war machines and summons should be regular stacks
 		init(s, &stack, nullptr);
 		delete s;
 	}
@@ -72,7 +72,7 @@ CCreatureWindow::CCreatureWindow(CreatureID Cid, CreWinType Type, int creatureCo
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	CStackInstance * stack = new CStackInstance(Cid, creatureCount); //TODO: simplify?
+	auto   stack = new CStackInstance(Cid, creatureCount); //TODO: simplify?
 	init(stack, CGI->creh->creatures[Cid], nullptr);
 	delete stack;
 }
@@ -80,9 +80,9 @@ CCreatureWindow::CCreatureWindow(CreatureID Cid, CreWinType Type, int creatureCo
 CCreatureWindow::CCreatureWindow(const CStackInstance &st, CreWinType Type, std::function<void()> Upg, std::function<void()> Dsm, UpgradeInfo *ui):
     CWindowObject(PLAYER_COLORED | (Type == OTHER ? RCLICK_POPUP : 0 ) ),
     type(Type),
-    dismiss(0),
-    upgrade(0),
-    ok(0),
+    dismiss(nullptr),
+    upgrade(nullptr),
+    ok(nullptr),
     dsm(Dsm)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -225,10 +225,10 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 		if (type == COMMANDER_LEVEL_UP)
 		{
-			BOOST_FOREACH (auto option, upgradeOptions)
+			for (auto option : upgradeOptions)
 			{
 				ui32 index = selectableSkills.size();
-				CSelectableSkill * selectableSkill = new CSelectableSkill();
+				auto   selectableSkill = new CSelectableSkill();
 				selectableSkill->callback = std::bind(&CCreatureWindow::selectSkill, this, index);
 
 				if (option < 100)
@@ -260,7 +260,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	}
 
 	std::string text;
-	BOOST_FOREACH(Bonus* b, bl)
+	for(Bonus* b : bl)
 	{
 		text = stack->bonusToString(b, false);
 		if (text.size()) //if it's possible to give any description for this kind of bonus
@@ -415,7 +415,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		//spell effects
 		int printed=0; //how many effect pics have been printed
 		std::vector<si32> spells = battleStack->activeSpells();
-		BOOST_FOREACH(si32 effect, spells)
+		for(si32 effect : spells)
 		{
 			std::string spellText;
 			if (effect < graphics->spellEffectsPics->ourImages.size()) //not all effects have graphics (for eg. Acid Breath)
@@ -541,10 +541,10 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 	printLine(4, CGI->generaltexth->allTexts[388], c->valOfBonuses(Bonus::STACK_HEALTH), stackNode->valOfBonuses(Bonus::STACK_HEALTH));
 	printLine(6, CGI->generaltexth->zelp[441].first, c->valOfBonuses(Bonus::STACKS_SPEED), stackNode->valOfBonuses(Bonus::STACKS_SPEED));
 
-	BOOST_FOREACH(CBonusItem* b, bonusItems)
+	for(CBonusItem* b : bonusItems)
 		b->showAll (to);
 
-	BOOST_FOREACH(auto s, selectableSkills)
+	for(auto s : selectableSkills)
 		s->showAll (to);
 
 	for (int i = 0; i < skillPictures.size(); i++)
@@ -660,7 +660,7 @@ void CCreatureWindow::passArtifactToHero()
 void CCreatureWindow::artifactRemoved (const ArtifactLocation &artLoc)
 {
 	//align artifacts to remove holes
-	BOOST_FOREACH (auto al, stack->artifactsWorn)
+	for (auto al : stack->artifactsWorn)
 	{
 		ArtifactPosition freeSlot = al.second.artifact->firstAvailableSlot(stack); 
 		if (freeSlot < al.first)
@@ -684,8 +684,8 @@ void CCreatureWindow::selectSkill (ui32 which)
 
 CCreatureWindow::~CCreatureWindow()
 {
- 	for (int i=0; i<upgResCost.size(); ++i)
- 		delete upgResCost[i];
+ 	for (auto & elem : upgResCost)
+ 		delete elem;
 	bonusItems.clear();
 }
 
@@ -804,7 +804,7 @@ CCreInfoWindow::CCreInfoWindow(const CStack &stack, bool LClicked):
 
 CCreInfoWindow::~CCreInfoWindow()
 {
-	BOOST_FOREACH(CComponent* object, upgResCost)
+	for(CComponent* object : upgResCost)
 		delete object;
 }
 

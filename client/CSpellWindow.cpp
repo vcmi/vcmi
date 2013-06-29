@@ -85,12 +85,12 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 	}
 
 	//initializing sizes of spellbook's parts
-	for(int b=0; b<5; ++b)
-		sitesPerTabAdv[b] = 0;
-	for(int b=0; b<5; ++b)
-		sitesPerTabBattle[b] = 0;
+	for(auto & elem : sitesPerTabAdv)
+		elem = 0;
+	for(auto & elem : sitesPerTabBattle)
+		elem = 0;
 
-	BOOST_FOREACH(auto g, mySpells)
+	for(auto g : mySpells)
 	{
 		const CSpell &s = *CGI->spellh->spells[g];
 		Uint8 *sitesPerOurTab = s.combatSpell ? sitesPerTabBattle : sitesPerTabAdv;
@@ -222,8 +222,8 @@ CSpellWindow::~CSpellWindow()
 	delete spells;
 	delete spellTab;
 	delete schools;
-	for(int b=0; b<4; ++b)
-		delete schoolBorders[b];
+	for(auto & elem : schoolBorders)
+		delete elem;
 
 	delete exitBtn;
 	delete battleSpells;
@@ -240,9 +240,9 @@ CSpellWindow::~CSpellWindow()
 	delete lCorner;
 	delete rCorner;
 
-	for(int g=0; g<12; ++g)
+	for(auto & elem : spellAreas)
 	{
-		delete spellAreas[g];
+		delete elem;
 	}
 }
 
@@ -341,9 +341,9 @@ void CSpellWindow::showAll(SDL_Surface * to)
 	}
 
 	//printing spell info
-	for(int b=0; b<12; ++b)
+	for(auto & elem : spellAreas)
 	{
-		spellAreas[b]->showAll(to);
+		elem->showAll(to);
 	}
 }
 
@@ -473,9 +473,9 @@ void CSpellWindow::activate()
 	selectSpellsW->activate();
 	selectSpellsAll->activate();
 
-	for(int g=0; g<12; ++g)
+	for(auto & elem : spellAreas)
 	{
-		spellAreas[g]->activate();
+		elem->activate();
 	}
 
 	lCorner->activate();
@@ -496,9 +496,9 @@ void CSpellWindow::deactivate()
 	selectSpellsW->deactivate();
 	selectSpellsAll->deactivate();
 
-	for(int g=0; g<12; ++g)
+	for(auto & elem : spellAreas)
 	{
-		spellAreas[g]->deactivate();
+		elem->deactivate();
 	}
 
 	lCorner->deactivate();
@@ -640,7 +640,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				{
 					std::string text = CGI->generaltexth->allTexts[538], summoner, elemental, caster;
 					std::vector<const CStack *> stacks = owner->myInt->cb->battleGetStacks();
-					BOOST_FOREACH(const CStack * s, stacks)
+					for(const CStack * s : stacks)
 					{
 						if(vstd::contains(s->state, EBattleStackState::SUMMONED))
 						{
@@ -755,9 +755,9 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					}
 					else
 					{ //let the player choose
-						for(size_t i=0;i<Towns.size();i++)
+						for(auto & Town : Towns)
 						{
-							const CGTownInstance *t = Towns[i];
+							const CGTownInstance *t = Town;
 							if (t->visitingHero == nullptr) //empty town and this is
 							{
 								availableTowns.push_back(t->id.getNum());//add to the list

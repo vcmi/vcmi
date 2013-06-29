@@ -170,14 +170,14 @@ void CIdentifierStorage::finalize()
 {
 	bool errorsFound = false;
 
-	BOOST_FOREACH(const ObjectCallback & request, scheduledRequests)
+	for(const ObjectCallback & request : scheduledRequests)
 	{
 		errorsFound |= !resolveIdentifier(request);
 	}
 
 	if (errorsFound)
 	{
-		BOOST_FOREACH(auto object, registeredObjects)
+		for(auto object : registeredObjects)
 		{
 			logGlobal->traceStream() << object.first << " -> " << object.second.id;
 		}
@@ -191,7 +191,7 @@ CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, 
     objectName(objectName),
     originalData(handler->loadLegacyData(VLC->modh->settings.data["textData"][objectName].Float()))
 {
-	BOOST_FOREACH(auto & node, originalData)
+	for(auto & node : originalData)
 	{
 		node.setMeta("core");
 	}
@@ -204,7 +204,7 @@ void CContentHandler::ContentTypeHandler::preloadModData(std::string modName, st
 
 	ModInfo & modInfo = modData[modName];
 
-	BOOST_FOREACH(auto entry, data.Struct())
+	for(auto entry : data.Struct())
 	{
 		size_t colon = entry.first.find(':');
 
@@ -237,7 +237,7 @@ void CContentHandler::ContentTypeHandler::loadMod(std::string modName)
 	if (!modInfo.patches.isNull())
 		JsonUtils::merge(modInfo.modData, modInfo.patches);
 
-	BOOST_FOREACH(auto entry, modInfo.modData.Struct())
+	for(auto entry : modInfo.modData.Struct())
 	{
 		const std::string & name = entry.first;
 		JsonNode & data = entry.second;
@@ -277,7 +277,7 @@ CContentHandler::CContentHandler()
 
 void CContentHandler::preloadModData(std::string modName, JsonNode modConfig)
 {
-	BOOST_FOREACH(auto & handler, handlers)
+	for(auto & handler : handlers)
 	{
 		handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >());
 	}
@@ -285,7 +285,7 @@ void CContentHandler::preloadModData(std::string modName, JsonNode modConfig)
 
 void CContentHandler::loadMod(std::string modName)
 {
-	BOOST_FOREACH(auto & handler, handlers)
+	for(auto & handler : handlers)
 	{
 		handler.second.loadMod(modName);
 	}
@@ -338,7 +338,7 @@ bool CModHandler::hasCircularDependency(TModID modID, std::set <TModID> currentL
 	currentList.insert(modID);
 
 	// recursively check every dependency of this mod
-	BOOST_FOREACH(const TModID & dependency, mod.dependencies)
+	for(const TModID & dependency : mod.dependencies)
 	{
 		if (hasCircularDependency(dependency, currentList))
 		{
@@ -351,11 +351,11 @@ bool CModHandler::hasCircularDependency(TModID modID, std::set <TModID> currentL
 
 bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 {
-	BOOST_FOREACH(const TModID & id, input)
+	for(const TModID & id : input)
 	{
 		const CModInfo & mod = allMods.at(id);
 
-		BOOST_FOREACH(const TModID & dep, mod.dependencies)
+		for(const TModID & dep : mod.dependencies)
 		{
 			if (!vstd::contains(input, dep))
 			{
@@ -364,7 +364,7 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 			}
 		}
 
-		BOOST_FOREACH(const TModID & conflicting, mod.conflicts)
+		for(const TModID & conflicting : mod.conflicts)
 		{
 			if (vstd::contains(input, conflicting))
 			{
@@ -396,7 +396,7 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input
 	// Check if all mod dependencies are resolved (moved to resolvedMods)
 	auto isResolved = [&](const CModInfo mod) -> bool
 	{
-		BOOST_FOREACH(const TModID & dependency, mod.dependencies)
+		for(const TModID & dependency : mod.dependencies)
 		{
 			if (!vstd::contains(resolvedMods, dependency))
 				return false;
@@ -441,7 +441,7 @@ void CModHandler::initialize(std::vector<std::string> availableMods)
 
 	std::vector <TModID> detectedMods;
 
-	BOOST_FOREACH(std::string name, availableMods)
+	for(std::string name : availableMods)
 	{
 		boost::to_lower(name);
 		std::string modFileName = "mods/" + name + "/mod.json";
@@ -505,7 +505,7 @@ void CModHandler::handleData(Handler handler, const JsonNode & source, std::stri
 {
 	JsonNode config = JsonUtils::assembleFromFiles(source[listName].convertTo<std::vector<std::string> >());
 
-	BOOST_FOREACH(auto & entry, config.Struct())
+	for(auto & entry : config.Struct())
 	{
 		if (!entry.second.isNull()) // may happens if mod removed object by setting json entry to null
 		{
@@ -532,7 +532,7 @@ void CModHandler::loadGameContent()
 	content.preloadModData("core", JsonNode(ResourceID("config/gameConfig.json")));
 	logGlobal->infoStream() << "\tParsing original game data: " << timer.getDiff() << " ms";
 
-	BOOST_FOREACH(const TModID & modName, activeMods)
+	for(const TModID & modName : activeMods)
 	{
 		logGlobal->infoStream() << "\t\t" << allMods[modName].name;
 
@@ -548,7 +548,7 @@ void CModHandler::loadGameContent()
 	content.loadMod("core");
 	logGlobal->infoStream() << "\tLoading original game data: " << timer.getDiff() << " ms";
 
-	BOOST_FOREACH(const TModID & modName, activeMods)
+	for(const TModID & modName : activeMods)
 	{
 		content.loadMod(modName);
 		logGlobal->infoStream() << "\t\t" << allMods[modName].name;
@@ -571,11 +571,11 @@ void CModHandler::reload()
 
 		const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::MONSTER].begin()->second;
 
-		BOOST_FOREACH(auto & crea, VLC->creh->creatures)
+		for(auto & crea : VLC->creh->creatures)
 		{
 			if (!vstd::contains(VLC->dobjinfo->gobjs[Obj::MONSTER], crea->idNumber)) // no obj info for this type
 			{
-				CGDefInfo * info = new CGDefInfo(*baseInfo);
+				auto  info = new CGDefInfo(*baseInfo);
 				info->subid = crea->idNumber;
 				info->name = crea->advMapDef;
 
@@ -588,11 +588,11 @@ void CModHandler::reload()
 
 		const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::ARTIFACT].begin()->second;
 
-		BOOST_FOREACH(auto & art, VLC->arth->artifacts)
+		for(auto & art : VLC->arth->artifacts)
 		{
 			if (!vstd::contains(VLC->dobjinfo->gobjs[Obj::ARTIFACT], art->id)) // no obj info for this type
 			{
-				CGDefInfo * info = new CGDefInfo(*baseInfo);
+				auto  info = new CGDefInfo(*baseInfo);
 				info->subid = art->id;
 				info->name = art->advMapDef;
 
@@ -607,7 +607,7 @@ void CModHandler::reload()
 		const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::TOWN].begin()->second;
 		auto & townInfos = VLC->dobjinfo->gobjs[Obj::TOWN];
 
-		BOOST_FOREACH(auto & faction, VLC->townh->factions)
+		for(auto & faction : VLC->townh->factions)
 		{
 			TFaction index = faction->index;
 			CTown * town = faction->town;
@@ -617,7 +617,7 @@ void CModHandler::reload()
 
 				if (!vstd::contains(VLC->dobjinfo->gobjs[Obj::TOWN], index)) // no obj info for this type
 				{
-					CGDefInfo * info = new CGDefInfo(*baseInfo);
+					auto  info = new CGDefInfo(*baseInfo);
 					info->subid = index;
 
 					townInfos[index] = info;
@@ -634,9 +634,9 @@ void CModHandler::reload()
 				{
 					const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::CREATURE_GENERATOR1][i]; //get same blockmap as first dwelling of tier i
 
-					BOOST_FOREACH (auto cre, town->creatures[i]) //both unupgraded and upgraded get same dwelling
+					for (auto cre : town->creatures[i]) //both unupgraded and upgraded get same dwelling
 					{
-						CGDefInfo * info = new CGDefInfo(*baseInfo);
+						auto  info = new CGDefInfo(*baseInfo);
 						info->subid = cre;
 						info->name = town->dwellings[i];
 						VLC->dobjinfo->gobjs[Obj::CREATURE_GENERATOR1][cre] = info;

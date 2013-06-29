@@ -248,9 +248,9 @@ void CHeroList::select(const CGHeroInstance * hero)
 void CHeroList::update(const CGHeroInstance * hero)
 {
 	//this hero is already present, update its status
-	for (auto iter = list->getItems().begin(); iter != list->getItems().end(); iter++)
+	for (auto & elem : list->getItems())
 	{
-		auto item = dynamic_cast<CHeroItem*>(*iter);
+		auto item = dynamic_cast<CHeroItem*>(elem);
 		if (item && item->hero == hero && vstd::contains(LOCPLINT->wanderingHeroes, hero))
 		{
 			item->update();
@@ -355,7 +355,7 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 		return fogOfWar;
 
 	// if object at tile is owned - it will be colored as its owner
-	BOOST_FOREACH(const CGObjectInstance *obj, tile->blockingObjects)
+	for(const CGObjectInstance *obj : tile->blockingObjects)
 	{
 		//heroes will be blitted later
 		if (obj->ID == Obj::HERO)
@@ -463,7 +463,7 @@ void CMinimapInstance::showAll(SDL_Surface *to)
 
 	//draw heroes
 	std::vector <const CGHeroInstance *> heroes = LOCPLINT->cb->getHeroesInfo(false);
-	BOOST_FOREACH(auto & hero, heroes)
+	for(auto & hero : heroes)
 	{
 		int3 position = hero->getPosition(false);
 		if (position.z == level)
@@ -480,15 +480,15 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 
 	const JsonNode config(ResourceID(from, EResType::TEXT));
 
-	BOOST_FOREACH(auto &m, config.Struct())
+	for(auto &m : config.Struct())
 	{
 		auto index = boost::find(GameConstants::TERRAIN_NAMES, m.first);
-		if (index == boost::end(GameConstants::TERRAIN_NAMES))
+		if (index == std::end(GameConstants::TERRAIN_NAMES))
 		{
             logGlobal->errorStream() << "Error: unknown terrain in terrains.json: " << m.first;
 			continue;
 		}
-		int terrainID = index - boost::begin(GameConstants::TERRAIN_NAMES);
+		int terrainID = index - std::begin(GameConstants::TERRAIN_NAMES);
 
 		const JsonVector &unblockedVec = m.second["minimapUnblocked"].Vector();
 		SDL_Color normal =
@@ -651,7 +651,7 @@ CInfoBar::CVisibleInfo::CVisibleInfo(Point position):
 void CInfoBar::CVisibleInfo::show(SDL_Surface *to)
 {
 	CIntObject::show(to);
-	BOOST_FOREACH(auto object, forceRefresh)
+	for(auto object : forceRefresh)
 		object->showAll(to);
 }
 
@@ -750,7 +750,7 @@ void CInfoBar::CVisibleInfo::loadGameStatus()
 
 	//get amount of halls of each level
 	std::vector<int> halls(4, 0);
-	BOOST_FOREACH(auto town, LOCPLINT->towns)
+	for(auto town : LOCPLINT->towns)
 		halls[town->hallLevel()]++;
 
 	std::vector<PlayerColor> allies, enemies;
@@ -774,14 +774,14 @@ void CInfoBar::CVisibleInfo::loadGameStatus()
 	auto enemyLabel = new CLabel(10, 136, FONT_SMALL, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
 
 	int posx = allyLabel->pos.w + allyLabel->pos.x - pos.x + 4;
-	BOOST_FOREACH(PlayerColor & player, allies)
+	for(PlayerColor & player : allies)
 	{
 		auto image = new CAnimImage("ITGFLAGS", player.getNum(), 0, posx, 102);
 		posx += image->pos.w;
 	}
 
 	posx = enemyLabel->pos.w + enemyLabel->pos.x - pos.x + 4;
-	BOOST_FOREACH(PlayerColor & player, enemies)
+	for(PlayerColor & player : enemies)
 	{
 		auto image = new CAnimImage("ITGFLAGS", player.getNum(), 0, posx, 132);
 		posx += image->pos.w;
@@ -803,7 +803,7 @@ void CInfoBar::CVisibleInfo::loadComponent(const Component & compToDisplay, std:
 
 	new CPicture("ADSTATOT", 1);
 
-	auto comp = new CComponent(compToDisplay);
+	auto   comp = new CComponent(compToDisplay);
 	comp->moveTo(Point(pos.x+47, pos.y+50));
 
 	new CTextBox(message, Rect(10, 4, 160, 50), 0, FONT_SMALL, CENTER, Colors::WHITE);

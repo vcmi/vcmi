@@ -37,7 +37,7 @@ public:
 	/// @see ISimpleResourceLoader
 	std::unique_ptr<CInputStream> load(const std::string & resourceName) const override;
 	bool existsEntry(const std::string & resourceName) const override;
-	boost::unordered_map<ResourceID, std::string> getEntries() const override;
+	std::unordered_map<ResourceID, std::string> getEntries() const override;
 	std::string getOrigin() const override;
 	bool createEntry(std::string filename, bool update) override;
 
@@ -49,7 +49,7 @@ private:
 	 * key = ResourceID for resource loader
 	 * value = name that can be used to access file
 	*/
-	boost::unordered_map<ResourceID, std::string> fileList;
+	std::unordered_map<ResourceID, std::string> fileList;
 
 	/**
 	 * Returns a list of pathnames denoting the files in the directory denoted by this pathname.
@@ -60,5 +60,5 @@ private:
 	 * @return a list of pathnames denoting the files and directories in the directory denoted by this pathname
 	 * The array will be empty if the directory is empty. Ptr is null if the directory doesn't exist or if it isn't a directory.
 	 */
-	boost::unordered_map<ResourceID, std::string> listFiles(size_t depth, bool initial) const;
+	std::unordered_map<ResourceID, std::string> listFiles(size_t depth, bool initial) const;
 };

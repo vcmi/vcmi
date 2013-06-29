@@ -37,7 +37,7 @@ struct armyStructure
 ui64 evaluateBankConfig (BankConfig * bc)
 {
 	ui64 danger = 0;
-	BOOST_FOREACH (auto opt, bc->guards)
+	for (auto opt : bc->guards)
 	{
 		danger += VLC->creh->creatures[opt.first]->fightValue * opt.second;
 	}
@@ -52,7 +52,7 @@ armyStructure evaluateArmyStructure (const CArmedInstance * army)
 	double shootersStrenght = 0;
 	ui32 maxSpeed = 0;
 
-	BOOST_FOREACH(auto s, army->Slots())
+	for(auto s : army->Slots())
 	{
 		bool walker = true;
 		if (s.second->type->hasBonusOfType(Bonus::SHOOTER))
@@ -123,7 +123,7 @@ void FuzzyHelper::initTacticalAdvantage()
 
 		helper += ourShooters, ourWalkers, ourFlyers, enemyShooters, enemyWalkers, enemyFlyers;
 
-		BOOST_FOREACH (auto val, helper)
+		for (auto val : helper)
 		{
 			val->addTerm (new fl::ShoulderTerm("FEW", 0, 0.75, true));
 			val->addTerm (new fl::ShoulderTerm("MANY", 0.25, 1, false));
@@ -136,7 +136,7 @@ void FuzzyHelper::initTacticalAdvantage()
 
 		helper += ourSpeed, enemySpeed;
 
-		BOOST_FOREACH (auto val, helper)
+		for (auto val : helper)
 		{
 			val->addTerm (new fl::ShoulderTerm("LOW", 3, 8.1, true));
 			val->addTerm (new fl::TriangularTerm("MEDIUM", 6.9, 13.1));

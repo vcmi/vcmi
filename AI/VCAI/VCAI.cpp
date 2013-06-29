@@ -159,7 +159,7 @@ void foreach_tile_pos(std::function<void(const int3& pos)> foo)
 
 void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo)
 {
-	BOOST_FOREACH(const int3 &dir, dirs)
+	for(const int3 &dir : dirs)
 	{
 		const int3 n = pos + dir;
 		if(cb->isInTheMap(n))
@@ -179,10 +179,10 @@ const unsigned char &retreiveTileN(const std::vector< std::vector< std::vector<u
 
 void foreach_tile(std::vector< std::vector< std::vector<unsigned char> > > &vectors, std::function<void(unsigned char &in)> foo)
 {
-	for(auto i = vectors.begin(); i != vectors.end(); i++)
-		for(auto j = i->begin(); j != i->end(); j++)
-			for(auto z = j->begin(); z != j->end(); z++)
-				foo(*z);
+	for(auto & vector : vectors)
+		for(auto j = vector.begin(); j != vector.end(); j++)
+			for(auto & elem : *j)
+				foo(elem);
 }
 
 struct ObjInfo
@@ -241,7 +241,7 @@ ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance *t)
 	ui64 ret = 0;
 	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();
 	std::vector<const CStackInstance *> toMove;
-	BOOST_FOREACH(auto const slot, t->Slots())
+	for(auto const slot : t->Slots())
 	{
 		//can be merged woth another stack?
 		SlotID dst = h->getSlotFor(slot.second->getCreatureID());
@@ -254,7 +254,7 @@ ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance *t)
 	{
 		return lhs->getPower() < rhs->getPower();
 	});
-	BOOST_REVERSE_FOREACH(const CStackInstance *stack, toMove)
+	for (auto & stack : boost::adaptors::reverse(toMove))
 	{
 		if(freeHeroSlots)
 		{
@@ -341,7 +341,7 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 	}
 
 	auto guards = cb->getGuardingCreatures(tile);
-	BOOST_FOREACH (auto cre, guards)
+	for (auto cre : guards)
 	{
 		amax (guardDanger, evaluateDanger(cre) * fh->getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance*>(cre))); //we are interested in strongest monster around
 	}
@@ -596,7 +596,7 @@ void VCAI::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * tow
 	//moveCreaturesToHero(town);
 }
 
-void VCAI::tileHidden(const boost::unordered_set<int3, ShashInt3> &pos)
+void VCAI::tileHidden(const std::unordered_set<int3, ShashInt3> &pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -604,12 +604,12 @@ void VCAI::tileHidden(const boost::unordered_set<int3, ShashInt3> &pos)
 	validateVisitableObjs();
 }
 
-void VCAI::tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos)
+void VCAI::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-	BOOST_FOREACH(int3 tile, pos)
-		BOOST_FOREACH(const CGObjectInstance *obj, myCb->getVisitableObjs(tile))
+	for(int3 tile : pos)
+		for(const CGObjectInstance *obj : myCb->getVisitableObjs(tile))
 			addVisitableObj(obj);
 }
 
@@ -686,7 +686,7 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 	erase_if_present(reservedObjs, obj);
 
 
-	BOOST_FOREACH(auto &p, reservedHeroesMap)
+	for(auto &p : reservedHeroesMap)
 		erase_if_present(p.second, obj);
 
 	//TODO
@@ -953,7 +953,7 @@ void VCAI::makeTurn()
 			townVisitsThisWeek.clear();
 			std::vector<const CGObjectInstance *> objs;
 			retreiveVisitableObjs(objs, true);
-			BOOST_FOREACH(const CGObjectInstance *obj, objs)
+			for(const CGObjectInstance *obj : objs)
 			{
 				if (isWeeklyRevisitable(obj))
 				{
@@ -974,7 +974,7 @@ void VCAI::makeTurn()
 				int dangerousObjects = 0;
 				std::vector<const CGObjectInstance *> objs;
 				retreiveVisitableObjs(objs, false);
-				BOOST_FOREACH (auto obj, objs)
+				for (auto obj : objs)
 				{
 					if (evaluateDanger(obj)) //potentilaly dnagerous
 					{
@@ -1005,18 +1005,18 @@ void VCAI::makeTurnInternal()
 	saving = 0;
 
 	//it looks messy here, but it's better to have armed heroes before attempting realizing goals
-	BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
+	for(const CGTownInstance *t : cb->getTownsInfo())
 		moveCreaturesToHero(t);
 
 	try
 	{
 		//Pick objects reserved in previous turn - we expect only nerby objects there
 		auto reservedHeroesCopy = reservedHeroesMap; //work on copy => the map may be changed while iterating (eg because hero died when attempting a goal)
-		BOOST_FOREACH (auto hero, reservedHeroesCopy)
+		for (auto hero : reservedHeroesCopy)
 		{
 			cb->setSelection(hero.first.get());
 			boost::sort (hero.second, isCloser);
-			BOOST_FOREACH (auto obj, hero.second)
+			for (auto obj : hero.second)
 			{
 				striveToGoal (CGoal(VISIT_TILE).sethero(hero.first).settile(obj->visitablePos()));
 			}
@@ -1051,7 +1051,7 @@ void VCAI::makeTurnInternal()
 		}
 
 		auto quests = myCb->getMyQuests();
-		BOOST_FOREACH (auto quest, quests)
+		for (auto quest : quests)
 		{
 			striveToQuest (quest);
 		}
@@ -1114,8 +1114,8 @@ bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * sourc
 	int armySize = 0; 
 	//we calculate total strength for each creature type available in armies
 	std::map<const CCreature*, int> creToPower;
-	BOOST_FOREACH(auto armyPtr, armies)
-		BOOST_FOREACH(auto &i, armyPtr->Slots())
+	for(auto armyPtr : armies)
+		for(auto &i : armyPtr->Slots())
 		{
 			++armySize;//TODO: allow splitting stacks?
 			creToPower[i.second->type] += i.second->getPower();
@@ -1140,7 +1140,7 @@ bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * sourc
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
 	for (int i = 0; i < bestArmy.size(); i++) //i-th strongest creature type will go to i-th slot
 	{
-		BOOST_FOREACH(auto armyPtr, armies)
+		for(auto armyPtr : armies)
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
 				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst slot
@@ -1158,8 +1158,8 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 	int armySize = 0; 
 	//we calculate total strength for each creature type available in armies
 	std::map<const CCreature*, int> creToPower;
-	BOOST_FOREACH(auto armyPtr, armies)
-		BOOST_FOREACH(auto &i, armyPtr->Slots())
+	for(auto armyPtr : armies)
+		for(auto &i : armyPtr->Slots())
 		{
 			++armySize;//TODO: allow splitting stacks?
 			creToPower[i.second->type] += i.second->getPower();
@@ -1184,7 +1184,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
 	for (int i = 0; i < bestArmy.size(); i++) //i-th strongest creature type will go to i-th slot
 	{
-		BOOST_FOREACH(auto armyPtr, armies)
+		for(auto armyPtr : armies)
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
 				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst slot
@@ -1244,7 +1244,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 
 	toBuild.insert(building);
 
-	BOOST_FOREACH(BuildingID buildID, toBuild)
+	for(BuildingID buildID : toBuild)
 	{
 		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if (canBuild == EBuildingState::HAVE_CAPITAL
@@ -1260,7 +1260,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 	TResources income = estimateIncome();
 	//TODO: calculate if we have enough resources to build it in maxDays
 
-	BOOST_FOREACH(const auto & buildID, toBuild)
+	for(const auto & buildID : toBuild)
 	{
 		const CBuilding *b = t->town->buildings[buildID];
 
@@ -1292,7 +1292,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 
 bool VCAI::tryBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays)
 {
-	BOOST_FOREACH(const auto & building, buildList)
+	for(const auto & building : buildList)
 	{
 		if(t->hasBuilt(building))
 			continue;
@@ -1304,7 +1304,7 @@ bool VCAI::tryBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID
 
 bool VCAI::tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays)
 {
-	BOOST_FOREACH(const auto & building, buildList)
+	for(const auto & building : buildList)
 	{
 		if(t->hasBuilt(building))
 			continue;
@@ -1398,7 +1398,7 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 {
 	validateVisitableObjs();
 	std::vector<const CGObjectInstance *> possibleDestinations;
-	BOOST_FOREACH(const CGObjectInstance *obj, visitableObjs)
+	for(const CGObjectInstance *obj : visitableObjs)
 	{
 		if(cb->getPathInfo(obj->visitablePos())->reachable() && !obj->wasVisited(playerID) &&
 			(obj->tempOwner != playerID || isWeeklyRevisitable(obj))) //flag or get weekly resources / creatures
@@ -1452,7 +1452,7 @@ void VCAI::wander(HeroPtr h)
 
 	        std::vector<const CGTownInstance *> townsReachable;
 	        std::vector<const CGTownInstance *> townsNotReachable;
-	        BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
+	        for(const CGTownInstance *t : cb->getTownsInfo())
 	        {
 	            if(!t->visitingHero && howManyReinforcementsCanGet(h,t) && !vstd::contains(townVisitsThisWeek[h], t))
 	            {
@@ -1487,7 +1487,7 @@ void VCAI::wander(HeroPtr h)
 				std::vector<const CGTownInstance *> towns = cb->getTownsInfo();
 				erase_if(towns, [](const CGTownInstance *t) -> bool
 				{
-					BOOST_FOREACH(const CGHeroInstance *h, cb->getHeroesInfo())
+					for(const CGHeroInstance *h : cb->getHeroesInfo())
 					if(!t->getArmyStrength() || howManyReinforcementsCanGet(h, t))
 						return true;
 					return false;
@@ -1619,7 +1619,7 @@ void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, boo
 {
 	foreach_tile_pos([&](const int3 &pos)
 	{
-		BOOST_FOREACH(const CGObjectInstance *obj, myCb->getVisitableObjs(pos, false))
+		for(const CGObjectInstance *obj : myCb->getVisitableObjs(pos, false))
 		{
 			if(includeOwned || obj->tempOwner != playerID)
 				out.push_back(obj);
@@ -1646,7 +1646,7 @@ void VCAI::addVisitableObj(const CGObjectInstance *obj)
 
 const CGObjectInstance * VCAI::lookForArt(int aid) const
 {
-	BOOST_FOREACH(const CGObjectInstance *obj, ai->visitableObjs)
+	for(const CGObjectInstance *obj : ai->visitableObjs)
 	{
 		if(obj->ID == 5 && obj->subID == aid)
 			return obj;
@@ -1661,7 +1661,7 @@ bool VCAI::isAccessible(const int3 &pos)
 {
 	//TODO precalculate for speed
 
-	BOOST_FOREACH(const CGHeroInstance *h, cb->getHeroesInfo())
+	for(const CGHeroInstance *h : cb->getHeroesInfo())
 	{
 		if(isAccessibleForHero(pos, h))
 			return true;
@@ -1672,7 +1672,7 @@ bool VCAI::isAccessible(const int3 &pos)
 
 HeroPtr VCAI::getHeroWithGrail() const
 {
-	BOOST_FOREACH(const CGHeroInstance *h, cb->getHeroesInfo())
+	for(const CGHeroInstance *h : cb->getHeroesInfo())
 		if(h->hasArt(2)) //grail
 			return h;
 
@@ -1682,7 +1682,7 @@ HeroPtr VCAI::getHeroWithGrail() const
 const CGObjectInstance * VCAI::getUnvisitedObj(const std::function<bool(const CGObjectInstance *)> &predicate)
 {
 	//TODO smarter definition of unvisited
-	BOOST_FOREACH(const CGObjectInstance *obj, visitableObjs)
+	for(const CGObjectInstance *obj : visitableObjs)
 		if(predicate(obj) && !vstd::contains(alreadyVisited, obj))
 			return obj;
 
@@ -1694,7 +1694,7 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /
 	cb->setSelection(*h);
 	if (!includeAllies)
 	{ //don't visit tile occupied by allied hero
-		BOOST_FOREACH (auto obj, cb->getVisitableObjs(pos))
+		for (auto obj : cb->getVisitableObjs(pos))
 		{
 			if (obj->ID == Obj::HERO && obj->tempOwner == h->tempOwner && obj != h)
 				return false;
@@ -1830,7 +1830,7 @@ int howManyTilesWillBeDiscovered(int radious, int3 pos, crint3 dir)
 
 void getVisibleNeighbours(const std::vector<int3> &tiles, std::vector<int3> &out)
 {
-	BOOST_FOREACH(const int3 &tile, tiles)
+	for(const int3 &tile : tiles)
 	{
 		foreach_neighbour(tile, [&](int3 neighbour)
 		{
@@ -1896,7 +1896,7 @@ void VCAI::tryRealize(CGoal g)
 
 			if(!t)
 			{
-				BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
+				for(const CGTownInstance *t : cb->getTownsInfo())
 				{
 					switch(cb->canBuildStructure(t, BuildingID(g.bid)))
 					{
@@ -1985,7 +1985,7 @@ void VCAI::tryRealize(CGoal g)
 
 const CGTownInstance * VCAI::findTownWithTavern() const
 {
-	BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
+	for(const CGTownInstance *t : cb->getTownsInfo())
 		if(t->hasBuilt(BuildingID::TAVERN) && !t->visitingHero)
 			return t;
 
@@ -1997,7 +1997,7 @@ std::vector<HeroPtr> VCAI::getUnblockedHeroes() const
 	std::vector<HeroPtr> ret;
 	boost::copy(cb->getHeroesInfo(), std::back_inserter(ret));
 
-	BOOST_FOREACH(auto h, lockedHeroes)
+	for(auto h : lockedHeroes)
 	{
 		//if (!h.second.invalid()) //we can use heroes without valid goal
 		if (h.second.goalType == DIG_AT_TILE || !h.first->movement) //experiment: use all heroes that have movement left, TODO: unlock heroes that couldn't realize their goals 
@@ -2200,7 +2200,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 		{
 			case CQuest::MISSION_ART:
 			{
-				BOOST_FOREACH (auto hero, heroes) //TODO: remove duplicated code?
+				for (auto hero : heroes) //TODO: remove duplicated code?
 				{
 					if (q.quest->checkQuest(hero))
 					{
@@ -2208,7 +2208,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 						return;
 					}
 				}
-				BOOST_FOREACH (auto art, q.quest->m5arts)
+				for (auto art : q.quest->m5arts)
 				{
 					striveToGoal (CGoal(GET_ART_TYPE).setaid(art)); //TODO: transport?
 				}
@@ -2217,7 +2217,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			case CQuest::MISSION_HERO:
 			{
 				//striveToGoal (CGoal(RECRUIT_HERO));
-				BOOST_FOREACH (auto hero, heroes)
+				for (auto hero : heroes)
 				{
 					if (q.quest->checkQuest(hero))
 					{
@@ -2231,7 +2231,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			}
 			case CQuest::MISSION_ARMY:
 			{
-				BOOST_FOREACH (auto hero, heroes)
+				for (auto hero : heroes)
 				{
 					if (q.quest->checkQuest(hero)) //veyr bad info - stacks can be split between multiple heroes :(
 					{
@@ -2239,7 +2239,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 						return;
 					}
 				}
-				BOOST_FOREACH (auto creature, q.quest->m6creatures)
+				for (auto creature : q.quest->m6creatures)
 				{
 					striveToGoal (CGoal(GATHER_TROOPS).setobjid(creature.type->idNumber).setvalue(creature.count));
 				}
@@ -2281,7 +2281,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			case CQuest::MISSION_PRIMARY_STAT:
 			{
 				auto heroes = cb->getHeroesInfo();
-				BOOST_FOREACH (auto hero, heroes)
+				for (auto hero : heroes)
 				{
 					if (q.quest->checkQuest(hero))
 					{
@@ -2298,7 +2298,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			case CQuest::MISSION_LEVEL:
 			{
 				auto heroes = cb->getHeroesInfo();
-				BOOST_FOREACH (auto hero, heroes)
+				for (auto hero : heroes)
 				{
 					if (q.quest->checkQuest(hero))
 					{
@@ -2326,7 +2326,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 
 void VCAI::performTypicalActions()
 {
-	BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
+	for(const CGTownInstance *t : cb->getTownsInfo())
 	{
         logAi->debugStream() << boost::format("Looking into %s") % t->name;
 		buildStructure(t);
@@ -2340,7 +2340,7 @@ void VCAI::performTypicalActions()
 		}
 	}
 
-	BOOST_FOREACH(auto h, getUnblockedHeroes())
+	for(auto h : getUnblockedHeroes())
 	{
         logAi->debugStream() << boost::format("Looking into %s, MP=%d") % h->name.c_str() % h->movement;
 		makePossibleUpgrades(*h);
@@ -2369,7 +2369,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 {
 	TimeCheck tc("looking for best exploration neighbour");
 	std::map<int3, int> dstToRevealedTiles;
-	BOOST_FOREACH(crint3 dir, dirs)
+	for(crint3 dir : dirs)
 		if(cb->isInTheMap(hpos+dir))
 			dstToRevealedTiles[hpos + dir] = howManyTilesWillBeDiscovered(radius, hpos, dir) * isSafeToVisit(h, hpos + dir);
 
@@ -2407,7 +2407,7 @@ int3 VCAI::explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<in
 		getVisibleNeighbours(tiles[i-1], tiles[i]);
 		removeDuplicates(tiles[i]);
 
-		BOOST_FOREACH(const int3 &tile, tiles[i])
+		for(const int3 &tile : tiles[i])
 		{
 			if(cb->getPathInfo(tile)->reachable() && isSafeToVisit(h, tile) && howManyTilesWillBeDiscovered(tile, radius) && !isBlockedBorderGate(tile))
 			{
@@ -2421,7 +2421,7 @@ int3 VCAI::explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<in
 TResources VCAI::estimateIncome() const
 {
 	TResources ret;
-	BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
+	for(const CGTownInstance *t : cb->getTownsInfo())
 	{
 		ret[Res::GOLD] += t->dailyIncome();
 
@@ -2440,7 +2440,7 @@ TResources VCAI::estimateIncome() const
 		}
 	}
 
-	BOOST_FOREACH(const CGObjectInstance *obj, getFlaggedObjects())
+	for(const CGObjectInstance *obj : getFlaggedObjects())
 	{
 		if(obj->ID == Obj::MINE)
 		{
@@ -2523,7 +2523,7 @@ void VCAI::lostHero(HeroPtr h)
     logAi->debugStream() << boost::format("I lost my hero %s. It's best to forget and move on.") % h.name;
 
 	erase_if_present(lockedHeroes, h);
-	BOOST_FOREACH(auto obj, reservedHeroesMap[h])
+	for(auto obj : reservedHeroesMap[h])
 	{
 		erase_if_present(reservedObjs, obj); //unreserve all objects for that hero
 	}
@@ -2573,7 +2573,7 @@ void VCAI::validateObject(ObjectIdRef obj)
 	{
 		erase_if(visitableObjs, matchesId);
 
-		BOOST_FOREACH(auto &p, reservedHeroesMap)
+		for(auto &p : reservedHeroesMap)
 			erase_if(p.second, matchesId);
 	}
 }
@@ -2701,7 +2701,7 @@ int3 whereToExplore(HeroPtr h)
 	//look for nearby objs -> visit them if they're close enouh
 	const int DIST_LIMIT = 3;
 	std::vector<const CGObjectInstance *> nearbyVisitableObjs;
-	BOOST_FOREACH(const CGObjectInstance *obj, ai->getPossibleDestinations(h))
+	for(const CGObjectInstance *obj : ai->getPossibleDestinations(h))
 	{
 		int3 op = obj->visitablePos();
 		CGPath p;
@@ -2730,8 +2730,8 @@ int3 whereToExplore(HeroPtr h)
 			{
 				TimeCheck tc("Evaluating exploration possibilities");
 				tiles[0].clear(); //we can't reach FoW anyway
-				BOOST_FOREACH(auto &vt, tiles)
-					BOOST_FOREACH(auto &tile, vt)
+				for(auto &vt : tiles)
+					for(auto &tile : vt)
 						profits[howManyTilesWillBeDiscovered(tile, radius)].push_back(tile);
 			}
 
@@ -2840,7 +2840,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			const CGObjectInstance * o = nullptr;
 			if (resID > -1) //specified
 			{
-				BOOST_FOREACH(const CGObjectInstance *obj, ai->visitableObjs)
+				for(const CGObjectInstance *obj : ai->visitableObjs)
 				{
 					if(obj->ID == objid && obj->subID == resID)
 					{
@@ -2851,7 +2851,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			}
 			else
 			{
-				BOOST_FOREACH(const CGObjectInstance *obj, ai->visitableObjs)
+				for(const CGObjectInstance *obj : ai->visitableObjs)
 				{
 					if(obj->ID == objid)
 					{
@@ -2969,7 +2969,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			{
 				if (hero.get(true))
 				{
-					BOOST_FOREACH (auto obj, objs)
+					for (auto obj : objs)
 					{
 						auto pos = obj->visitablePos();
 						//FIXME: this confition fails if everything but guarded subterranen gate was explored. in this case we should gather army for hero
@@ -2979,7 +2979,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				}
 				else
 				{
-					BOOST_FOREACH (auto obj, objs)
+					for (auto obj : objs)
 					{
 						auto pos = obj->visitablePos();
 						if (ai->isAccessible (pos)) //TODO: check safety?
@@ -3083,7 +3083,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 					return CGoal(RECRUIT_HERO);
 				}
 
-				BOOST_FOREACH(const CGHeroInstance *h, cb->getHeroesInfo())
+				for(const CGHeroInstance *h : cb->getHeroesInfo())
 				{
 					if(ai->isAccessibleForHero(tile, h))
 					{
@@ -3134,7 +3134,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 
 			std::vector<const CGObjectInstance*> visObjs;
 			ai->retreiveVisitableObjs(visObjs, true);
-			BOOST_FOREACH(const CGObjectInstance *obj, visObjs)
+			for(const CGObjectInstance *obj : visObjs)
 			{
 				if(const IMarket *m = IMarket::castFrom(obj, false))
 				{
@@ -3158,7 +3158,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 
 			if(!markets.size())
 			{
-				BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
+				for(const CGTownInstance *t : cb->getTownsInfo())
 				{
 					if(cb->canBuildStructure(t, BuildingID::MARKETPLACE) == EBuildingState::ALLOWED)
 						return CGoal(BUILD_STRUCTURE).settown(t).setbid(BuildingID::MARKETPLACE);
@@ -3192,7 +3192,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 	case GATHER_TROOPS:
 		{
 			std::vector<const CGDwelling *> dwellings;
-			BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
+			for(const CGTownInstance *t : cb->getTownsInfo())
 			{
 				auto creature = VLC->creh->creatures[objid];
 				if (t->subID == creature->faction) //TODO: how to force AI to build unupgraded creatures? :O
@@ -3211,17 +3211,17 @@ TSubgoal CGoal::whatToDoToAchieve()
 					}
 				}
 			}
-			BOOST_FOREACH (auto obj, ai->visitableObjs)
+			for (auto obj : ai->visitableObjs)
 			{
 				if (obj->ID != Obj::CREATURE_GENERATOR1) //TODO: what with other creature generators?
 					continue;
 
 				auto d = dynamic_cast<const CGDwelling *>(obj);
-				BOOST_FOREACH (auto creature, d->creatures)
+				for (auto creature : d->creatures)
 				{
 					if (creature.first) //there are more than 0 creatures avaliabe
 					{
-						BOOST_FOREACH (auto type, creature.second)
+						for (auto type : creature.second)
 						{
 							if (type == objid)
 								dwellings.push_back(d);
@@ -3302,7 +3302,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				I_AM_ELEMENTAR;
 
 			boost::sort(objs, isCloser);
-			BOOST_FOREACH(const CGObjectInstance *obj, objs)
+			for(const CGObjectInstance *obj : objs)
 			{
 				if (ai->isAccessibleForHero(obj->visitablePos(), h))
 				{
@@ -3334,7 +3334,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			};
 
 			std::vector<const CGTownInstance *> townsReachable;
-			BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
+			for(const CGTownInstance *t : cb->getTownsInfo())
 			{
 				if(!t->visitingHero && howManyReinforcementsCanGet(hero,t))
 				{
@@ -3388,14 +3388,14 @@ TSubgoal CGoal::whatToDoToAchieve()
 				{
 					boost::sort(objs, isCloser);
 					HeroPtr h = nullptr;
-					BOOST_FOREACH(const CGObjectInstance *obj, objs)
+					for(const CGObjectInstance *obj : objs)
 					{ //find safe dwelling
 						auto pos = obj->visitablePos();
 						if (shouldVisit (hero, obj)) //creatures fit in army
 							h = hero;
 						else
 						{
-							BOOST_FOREACH(auto ourHero, cb->getHeroesInfo()) //make use of multiple heroes
+							for(auto ourHero : cb->getHeroesInfo()) //make use of multiple heroes
 							{
 								if (shouldVisit(ourHero, obj))
 									h = ourHero;
@@ -3445,11 +3445,11 @@ SectorMap::SectorMap()
 {
 // 	int3 sizes = cb->getMapSize();
 // 	sector.resize(sizes.x);
-// 	BOOST_FOREACH(auto &i, sector)
+// 	for(auto &i : sector)
 // 		i.resize(sizes.y);
 //
-// 	BOOST_FOREACH(auto &i, sector)
-// 		BOOST_FOREACH(auto &j, i)
+// 	for(auto &i : sector)
+// 		for(auto &j : i)
 // 			j.resize(sizes.z, 0);
 	update();
 }
@@ -3588,7 +3588,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::BORDERGUARD:
 		case Obj::BORDER_GATE:
 		{
-			BOOST_FOREACH (auto q, ai->myCb->getMyQuests())
+			for (auto q : ai->myCb->getMyQuests())
 			{
 				if (q.obj == obj)
 				{
@@ -3601,7 +3601,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::SEER_HUT:
 		case Obj::QUEST_GUARD:
 		{
-			BOOST_FOREACH (auto q, ai->myCb->getMyQuests())
+			for (auto q : ai->myCb->getMyQuests())
 			{
 				if (q.obj == obj)
 				{
@@ -3620,9 +3620,9 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 				return true; //flag just in case
 			bool canRecruitCreatures = false;
 			const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
-			BOOST_FOREACH(auto level, d->creatures)
+			for(auto level : d->creatures)
 			{
-				BOOST_FOREACH(auto c, level.second)
+				for(auto c : level.second)
 				{
 					if (h->getSlotFor(CreatureID(c)) != SlotID())
 						canRecruitCreatures = true;
@@ -3633,7 +3633,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		}
 		case Obj::HILL_FORT:
 		{	
-			BOOST_FOREACH (auto slot, h->Slots())
+			for (auto slot : h->Slots())
 			{
 				if (slot.second->type->upgrades.size())
 					return true; //TODO: check price?
@@ -3703,7 +3703,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 			const Sector *s = sq.front();
 			sq.pop();
 
-			BOOST_FOREACH(int3 ep, s->embarkmentPoints)
+			for(int3 ep : s->embarkmentPoints)
 			{
 				Sector *neigh = &infoOnSectors[retreiveTile(ep)];
 				//preds[s].push_back(neigh);
@@ -3754,7 +3754,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 					//we need to find a shipyard with an access to the desired sector's EP
 					//TODO what about Summon Boat spell?
 					std::vector<const IShipyard *> shipyards;
-					BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
+					for(const CGTownInstance *t : cb->getTownsInfo())
 					{
 						if(t->hasBuilt(BuildingID::SHIPYARD))
 							shipyards.push_back(t);
@@ -3762,7 +3762,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 
 					std::vector<const CGObjectInstance*> visObjs;
 					ai->retreiveVisitableObjs(visObjs, true);
-					BOOST_FOREACH(const CGObjectInstance *obj, visObjs)
+					for(const CGObjectInstance *obj : visObjs)
 					{
 						if(obj->ID != Obj::TOWN) //towns were handled in the previous loop
 							if(const IShipyard *shipyard = IShipyard::castFrom(obj))

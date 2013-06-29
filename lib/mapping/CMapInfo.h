@@ -20,10 +20,8 @@ struct StartInfo;
 class DLL_LINKAGE CMapInfo
 {
 public:
-	//FIXME: unique_ptr won't work here with gcc-4.5. (can't move into vector at CPregame.cpp, SelectionTab::parseMaps() method)
-	//Needs some workaround or wait till there is no need to support 4.5
-	shared_ptr<CMapHeader> mapHeader; //may be nullptr if campaign
-	shared_ptr<CCampaignHeader> campaignHeader; //may be nullptr if scenario
+	unique_ptr<CMapHeader> mapHeader; //may be nullptr if campaign
+	unique_ptr<CCampaignHeader> campaignHeader; //may be nullptr if scenario
 	StartInfo * scenarioOpts; //options with which scenario has been started (used only with saved games)
 	std::string fileURI;
 	std::string date;

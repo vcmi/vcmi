@@ -55,9 +55,9 @@ const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector 
 	else
 		bonusesFromPickedUpArtifact = TBonusListPtr(new BonusList);
 
-	BOOST_FOREACH(Bonus *b, *bonusesFromPickedUpArtifact)
+	for(Bonus *b : *bonusesFromPickedUpArtifact)
 		*heroBonuses -= b;
-	BOOST_FOREACH(Bonus *b, *heroBonuses)
+	for(Bonus *b : *heroBonuses)
 		out->push_back(b);
 	return out;
 }
@@ -130,7 +130,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 
 	for(int v=0; v<GameConstants::PRIMARY_SKILLS; ++v)
 	{
-		LRClickableAreaWTextComp *area = new LRClickableAreaWTextComp(Rect(30 + 70*v, 109, 42, 64), CComponent::primskill);
+		auto  area = new LRClickableAreaWTextComp(Rect(30 + 70*v, 109, 42, 64), CComponent::primskill);
 		area->text = CGI->generaltexth->arraytxt[2+v];
 		area->type = v;
 		area->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % CGI->generaltexth->primarySkillNames[v]);
@@ -214,7 +214,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		}
 		if(!artSets.size())
 		{
-			CArtifactsOfHero *arts = new CArtifactsOfHero(Point(-65, -8), true);
+			auto  arts = new CArtifactsOfHero(Point(-65, -8), true);
 			arts->setHero(curHero);
 			artSets.push_back(arts);
 		}
@@ -258,7 +258,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;
-	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
+	for(IShowActivatable *isa : GH.listInt)
 	{
 		if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(isa))
 			for(int g=0; g < ARRAY_COUNT(cew->heroInst); ++g)

@@ -26,16 +26,16 @@ SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possi
 	if(possibles.size()==1)
 		return *possibles.begin();
 	int totalProb = 0;
-	for(auto i=possibles.begin(); i!=possibles.end(); i++)
+	for(auto & possible : possibles)
 	{
-		totalProb += secSkillProbability[*i];
+		totalProb += secSkillProbability[possible];
 	}
 	int ran = rand()%totalProb;
-	for(auto i=possibles.begin(); i!=possibles.end(); i++)
+	for(auto & possible : possibles)
 	{
-		ran -= secSkillProbability[*i];
+		ran -= secSkillProbability[possible];
 		if(ran<0)
-			return *i;
+			return possible;
 	}
 	throw std::runtime_error("Cannot pick secondary skill!");
 }
@@ -55,7 +55,7 @@ std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 		return ret;
 	}
 
-	BOOST_FOREACH(int offset, blockedTiles)
+	for(int offset : blockedTiles)
 	{
 		BattleHex toBlock = hex + offset;
 		if((hex.getY() & 1) && !(toBlock.getY() & 1))
@@ -80,7 +80,7 @@ bool CObstacleInfo::isAppropriate(ETerrainType terrainType, int specialBattlefie
 
 CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 {
-	CHeroClass * heroClass = new CHeroClass();
+	auto  heroClass = new CHeroClass();
 
 	heroClass->imageBattleFemale = node["animation"]["battle"]["female"].String();
 	heroClass->imageBattleMale   = node["animation"]["battle"]["male"].String();
@@ -89,19 +89,19 @@ CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 
 	heroClass->name = node["name"].String();
 
-	BOOST_FOREACH(const std::string & pSkill, PrimarySkill::names)
+	for(const std::string & pSkill : PrimarySkill::names)
 	{
 		heroClass->primarySkillInitial.push_back(node["primarySkills"][pSkill].Float());
 		heroClass->primarySkillLowLevel.push_back(node["lowLevelChance"][pSkill].Float());
 		heroClass->primarySkillHighLevel.push_back(node["highLevelChance"][pSkill].Float());
 	}
 
-	BOOST_FOREACH(const std::string & secSkill, NSecondarySkill::names)
+	for(const std::string & secSkill : NSecondarySkill::names)
 	{
 		heroClass->secSkillProbability.push_back(node["secondarySkills"][secSkill].Float());
 	}
 
-	BOOST_FOREACH(auto & tavern, node["tavern"].Struct())
+	for(auto & tavern : node["tavern"].Struct())
 	{
 		int value = tavern.second.Float();
 
@@ -140,20 +140,20 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData(size_t dataSize)
 
 		parser.readNumber(); // unused aggression
 
-		for (size_t i=0; i < GameConstants::PRIMARY_SKILLS; i++)
-			entry["primarySkills"][PrimarySkill::names[i]].Float() = parser.readNumber();
+		for (auto & name : PrimarySkill::names)
+			entry["primarySkills"][name].Float() = parser.readNumber();
 
-		for (size_t i=0; i < GameConstants::PRIMARY_SKILLS; i++)
-			entry["lowLevelChance"][PrimarySkill::names[i]].Float() = parser.readNumber();
+		for (auto & name : PrimarySkill::names)
+			entry["lowLevelChance"][name].Float() = parser.readNumber();
 
-		for (size_t i=0; i < GameConstants::PRIMARY_SKILLS; i++)
-			entry["highLevelChance"][PrimarySkill::names[i]].Float() = parser.readNumber();
+		for (auto & name : PrimarySkill::names)
+			entry["highLevelChance"][name].Float() = parser.readNumber();
 
-		for (size_t i=0; i < GameConstants::SKILL_QUANTITY; i++)
-			entry["secondarySkills"][NSecondarySkill::names[i]].Float() = parser.readNumber();
+		for (auto & name : NSecondarySkill::names)
+			entry["secondarySkills"][name].Float() = parser.readNumber();
 
-		for(size_t i = 0; i < GameConstants::F_NUMBER; i++)
-			entry["tavern"][ETownType::names[i]].Float() = parser.readNumber();
+		for(auto & name : ETownType::names)
+			entry["tavern"][name].Float() = parser.readNumber();
 
 		parser.endLine();
 		h3Data.push_back(entry);
@@ -189,7 +189,7 @@ std::vector<bool> CHeroClassHandler::getDefaultAllowed() const
 
 CHeroClassHandler::~CHeroClassHandler()
 {
-	BOOST_FOREACH(auto heroClass, heroClasses)
+	for(auto heroClass : heroClasses)
 	{
 		delete heroClass.get();
 	}
@@ -197,7 +197,7 @@ CHeroClassHandler::~CHeroClassHandler()
 
 CHeroHandler::~CHeroHandler()
 {
-	BOOST_FOREACH(auto hero, heroes)
+	for(auto hero : heroes)
 		delete hero.get();
 }
 
@@ -217,7 +217,7 @@ CHeroHandler::CHeroHandler()
 
 CHero * CHeroHandler::loadFromJson(const JsonNode & node)
 {
-	CHero * hero = new CHero;
+	auto  hero = new CHero;
 
 	hero->sex = node["female"].Bool();
 	hero->special = node["special"].Bool();
@@ -270,9 +270,9 @@ void CHeroHandler::loadHeroArmy(CHero * hero, const JsonNode & node)
 
 void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 {
-	BOOST_FOREACH(const JsonNode &set, node["skills"].Vector())
+	for(const JsonNode &set : node["skills"].Vector())
 	{
-		int skillLevel = boost::range::find(NSecondarySkill::levels, set["level"].String()) - boost::begin(NSecondarySkill::levels);
+		int skillLevel = boost::range::find(NSecondarySkill::levels, set["level"].String()) - std::begin(NSecondarySkill::levels);
 		if (skillLevel < SecSkillLevel::LEVELS_SIZE)
 		{
 			size_t currentIndex = hero->secSkillsInit.size();
@@ -292,7 +292,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 	// spellbook is considered present if hero have "spellbook" entry even when this is an empty set (0 spells)
 	hero->haveSpellBook = !node["spellbook"].isNull();
 
-	BOOST_FOREACH(const JsonNode & spell, node["spellbook"].Vector())
+	for(const JsonNode & spell : node["spellbook"].Vector())
 	{
 		if (spell.getType() == JsonNode::DATA_FLOAT) // for compatibility
 		{
@@ -312,7 +312,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 {
 	//deprecated, used only for original spciealties
-	BOOST_FOREACH(const JsonNode &specialty, node["specialties"].Vector())
+	for(const JsonNode &specialty : node["specialties"].Vector())
 	{
 		SSpecialtyInfo spec;
 
@@ -324,11 +324,11 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 		hero->spec.push_back(spec); //put a copy of dummy
 	}
 	//new format, using bonus system
-	BOOST_FOREACH(const JsonNode &specialty, node["specialty"].Vector())
+	for(const JsonNode &specialty : node["specialty"].Vector())
 	{
 		SSpecialtyBonus hs;
 		hs.growsWithLevel = specialty["growsWithLevel"].Bool();
-		BOOST_FOREACH (const JsonNode & bonus, specialty["bonuses"].Vector())
+		for (const JsonNode & bonus : specialty["bonuses"].Vector())
 		{
 			auto b = JsonUtils::parseBonus(bonus);
 			hs.bonuses.push_back (b);
@@ -366,7 +366,7 @@ void CHeroHandler::loadObstacles()
 {
 	auto loadObstacles = [](const JsonNode &node, bool absolute, std::map<int, CObstacleInfo> &out)
 	{
-		BOOST_FOREACH(const JsonNode &obs, node.Vector())
+		for(const JsonNode &obs : node.Vector())
 		{
 			int ID = obs["id"].Float();
 			CObstacleInfo & obi = out[ID];
@@ -491,7 +491,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 ui32 CHeroHandler::level (ui64 experience) const
 {
-	return boost::range::upper_bound(expPerLevel, experience) - boost::begin(expPerLevel);
+	return boost::range::upper_bound(expPerLevel, experience) - std::begin(expPerLevel);
 }
 
 ui64 CHeroHandler::reqExp (ui32 level) const
@@ -515,7 +515,7 @@ void CHeroHandler::loadTerrains()
 	const JsonNode config(ResourceID("config/terrains.json"));
 
 	terrCosts.reserve(GameConstants::TERRAIN_TYPES);
-	BOOST_FOREACH(const std::string & name, GameConstants::TERRAIN_NAMES)
+	for(const std::string & name : GameConstants::TERRAIN_NAMES)
 		terrCosts.push_back(config[name]["moveCost"].Float());
 }
 
@@ -525,7 +525,7 @@ std::vector<bool> CHeroHandler::getDefaultAllowed() const
 	std::vector<bool> allowedHeroes;
 	allowedHeroes.reserve(heroes.size());
 
-	BOOST_FOREACH(const CHero * hero, heroes)
+	for(const CHero * hero : heroes)
 	{
 		allowedHeroes.push_back(!hero->special);
 	}

@@ -75,7 +75,7 @@ const PlayerSettings * CGameInfoCallback::getPlayerSettings(PlayerColor color) c
 	return &gs->scenarioOps->getIthPlayersSettings(color);
 }
 
-void CPrivilagedInfoCallback::getTilesInRange( boost::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player/*=uninit*/, int mode/*=0*/ ) const
+void CPrivilagedInfoCallback::getTilesInRange( std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player/*=uninit*/, int mode/*=0*/ ) const
 {
 	if(!!player && *player >= PlayerColor::PLAYER_LIMIT)
 	{
@@ -105,7 +105,7 @@ void CPrivilagedInfoCallback::getTilesInRange( boost::unordered_set<int3, ShashI
 	}
 }
 
-void CPrivilagedInfoCallback::getAllTiles (boost::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> Player/*=uninit*/, int level, int surface ) const
+void CPrivilagedInfoCallback::getAllTiles (std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> Player/*=uninit*/, int level, int surface ) const
 {
 	if(!!Player && *Player >= PlayerColor::PLAYER_LIMIT)
 	{
@@ -126,9 +126,9 @@ void CPrivilagedInfoCallback::getAllTiles (boost::unordered_set<int3, ShashInt3>
 	else
 		floors.push_back(level);
 
-	for (std::vector<int>::const_iterator i = floors.begin(); i!= floors.end(); i++)
+	for (auto zd : floors)
 	{
-		register int zd = *i;
+		
 		for (int xd = 0; xd < gs->map->width; xd++)
 		{
 			for (int yd = 0; yd < gs->map->height; yd++)
@@ -149,9 +149,9 @@ void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 		floors.push_back(b);
 	}
 	const TerrainTile *tinfo;
-	for (std::vector<int>::const_iterator i = floors.begin(); i!= floors.end(); i++)
+	for (auto zd : floors)
 	{
-		register int zd = *i;
+		
 		for (int xd = 0; xd < gs->map->width; xd++)
 		{
 			for (int yd = 0; yd < gs->map->height; yd++)
@@ -428,7 +428,7 @@ std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (in
 {
 	ERROR_RET_VAL_IF(!isVisible(pos), "Tile is not visible!", std::vector<const CGObjectInstance*>());
 	std::vector<const CGObjectInstance*> ret;
-	BOOST_FOREACH(auto cr, gs->guardingCreatures(pos))
+	for(auto cr : gs->guardingCreatures(pos))
 	{
 		ret.push_back(cr);
 	}
@@ -460,7 +460,7 @@ std::vector < std::string > CGameInfoCallback::getObjDescriptions(int3 pos) cons
 	ERROR_RET_VAL_IF(!t, "Not a valid tile given!", ret);
 
 
-	BOOST_FOREACH(const CGObjectInstance * obj, t->blockingObjects)
+	for(const CGObjectInstance * obj : t->blockingObjects)
 		ret.push_back(obj->getHoverText());
 	return ret;
 }
@@ -502,7 +502,7 @@ std::vector < const CGObjectInstance * > CGameInfoCallback::getBlockingObjs( int
 	const TerrainTile *t = getTile(pos);
 	ERROR_RET_VAL_IF(!t, "Not a valid tile requested!", ret);
 
-	BOOST_FOREACH(const CGObjectInstance * obj, t->blockingObjects)
+	for(const CGObjectInstance * obj : t->blockingObjects)
 		ret.push_back(obj);
 	return ret;
 }
@@ -513,9 +513,9 @@ std::vector <const CGObjectInstance * > CGameInfoCallback::getVisitableObjs(int3
 	const TerrainTile *t = getTile(pos, verbose);
 	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!t, verbose, pos << " is not visible!", ret);
 
-	BOOST_FOREACH(const CGObjectInstance * obj, t->visitableObjects)
+	for(const CGObjectInstance * obj : t->visitableObjects)
 	{
-		if(player < 0 || obj->ID != Obj::EVENT) //hide events from players
+		if(player < nullptr || obj->ID != Obj::EVENT) //hide events from players
 			ret.push_back(obj);
 	}
 
@@ -527,7 +527,7 @@ std::vector < const CGObjectInstance * > CGameInfoCallback::getFlaggableObjects(
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos);
 	ERROR_RET_VAL_IF(!t, "Not a valid tile requested!", ret);
-	BOOST_FOREACH(const CGObjectInstance *obj, t->blockingObjects)
+	for(const CGObjectInstance *obj : t->blockingObjects)
 		if(obj->tempOwner != PlayerColor::UNFLAGGABLE)
 			ret.push_back(obj);
 // 	const std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & objs = CGI->mh->ttiles[pos.x][pos.y][pos.z].objects;
@@ -583,11 +583,11 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	std::set<BuildingID> reqs = getBuildingRequiments(t, ID);//getting all requirements
 
 	bool notAllBuilt = false;
-	for( std::set<BuildingID>::iterator ri  =  reqs.begin(); ri != reqs.end(); ri++ )
+	for(auto & req : reqs)
 	{
-		if(!t->hasBuilt(*ri)) //lack of requirements - cannot build
+		if(!t->hasBuilt(req)) //lack of requirements - cannot build
 		{
-			if(vstd::contains(t->forbiddenBuildings, *ri)) // not built requirement forbidden - same goes to this build
+			if(vstd::contains(t->forbiddenBuildings, req)) // not built requirement forbidden - same goes to this build
 				return EBuildingState::FORBIDDEN;
 			else
 				notAllBuilt = true; // no return here - we need to check if any required builds are forbidden
@@ -605,7 +605,7 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 		const PlayerState *ps = getPlayer(t->tempOwner);
 		if(ps)
 		{
-			BOOST_FOREACH(const CGTownInstance *t, ps->towns)
+			for(const CGTownInstance *t : ps->towns)
 			{
 				if(t->hasBuilt(BuildingID::CAPITOL))
 				{
@@ -649,8 +649,8 @@ std::set<BuildingID> CGameInfoCallback::getBuildingRequiments( const CGTownInsta
 				auto & requires = t->town->buildings[*i]->requirements;
 
 				used.insert(*i);
-				for(auto j = requires.begin(); j!= requires.end(); j++)
-					reqs.insert(*j);//creating full list of requirements
+				for(auto & require : requires)
+					reqs.insert(require);//creating full list of requirements
 			}
 		}
 	}
@@ -701,8 +701,8 @@ int CGameInfoCallback::getHeroCount( PlayerColor player, bool includeGarrisoned 
 	if(includeGarrisoned)
 		return p->heroes.size();
 	else
-		for(ui32 i = 0; i < p->heroes.size(); i++)
-			if(!p->heroes[i]->inTownGarrison)
+		for(auto & elem : p->heroes)
+			if(!elem->inTownGarrison)
 				ret++;
 	return ret;
 }
@@ -749,9 +749,9 @@ std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector < const CGTownInstance *> ret = std::vector < const CGTownInstance *>();
-	BOOST_FOREACH(const auto & i, gs->players)
+	for(const auto & i : gs->players)
 	{
-		BOOST_FOREACH(const auto & town, i.second.towns)
+		for(const auto & town : i.second.towns)
 		{
 			if (i.first==player || (isVisible(town, player) && !onlyOur))
 			{
@@ -765,7 +765,7 @@ std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector < const CGHeroInstance *> ret;
-	BOOST_FOREACH(auto hero, gs->map->heroesOnMap)
+	for(auto hero : gs->map->heroesOnMap)
 	{
 		if( !player || (hero->tempOwner == *player) ||
 			(isVisible(hero->getPosition(false), player) && !onlyOur)	)
@@ -789,12 +789,12 @@ int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool
 	size_t index = 0;
 	auto & heroes = gs->players[*player].heroes;
 
-	for (auto curHero = heroes.begin(); curHero!=heroes.end(); curHero++)
+	for (auto & heroe : heroes)
 	{
-		if (includeGarrisoned || !(*curHero)->inTownGarrison)
+		if (includeGarrisoned || !(heroe)->inTownGarrison)
 			index++;
 
-		if (*curHero == hero)
+		if (heroe == hero)
 			return index;
 	}
 	return -1;
@@ -816,7 +816,7 @@ int3 CPlayerSpecificInfoCallback::getGrailPos( double &outKnownRatio )
 std::vector < const CGObjectInstance * > CPlayerSpecificInfoCallback::getMyObjects() const
 {
 	std::vector < const CGObjectInstance * > ret;
-	BOOST_FOREACH(const CGObjectInstance * obj, gs->map->objects)
+	for(const CGObjectInstance * obj : gs->map->objects)
 	{
 		if(obj && obj->tempOwner == player)
 			ret.push_back(obj);
@@ -828,7 +828,7 @@ std::vector < const CGDwelling * > CPlayerSpecificInfoCallback::getMyDwellings()
 {
 	ASSERT_IF_CALLED_WITH_PLAYER
 	std::vector < const CGDwelling * > ret;
-	BOOST_FOREACH(CGDwelling * dw, gs->getPlayer(*player)->dwellings)
+	for(CGDwelling * dw : gs->getPlayer(*player)->dwellings)
 	{
 		ret.push_back(dw);
 	}
@@ -838,7 +838,7 @@ std::vector < const CGDwelling * > CPlayerSpecificInfoCallback::getMyDwellings()
 std::vector <QuestInfo> CPlayerSpecificInfoCallback::getMyQuests() const
 {
 	std::vector <QuestInfo> ret;
-	BOOST_FOREACH (auto quest, gs->getPlayer(*player)->quests)
+	for (auto quest : gs->getPlayer(*player)->quests)
 	{
 		ret.push_back (quest);
 	}
@@ -944,7 +944,7 @@ const TeamState * CGameInfoCallback::getPlayerTeam( PlayerColor color ) const
 
 const CGHeroInstance* CGameInfoCallback::getHeroWithSubid( int subid ) const
 {
-	BOOST_FOREACH(const CGHeroInstance *h, gs->map->heroesOnMap)
+	for(const CGHeroInstance *h : gs->map->heroesOnMap)
 		if(h->subID == subid)
 			return h;
 

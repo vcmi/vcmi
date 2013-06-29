@@ -180,7 +180,7 @@ void CClient::save(const std::string & fname)
 void CClient::endGame( bool closeConnection /*= true*/ )
 {
 	//suggest interfaces to finish their stuff (AI should interrupt any bg working threads)
-	BOOST_FOREACH(auto i, playerint)
+	for(auto i : playerint)
 		i.second->finish();
 
 	// Game is ending
@@ -280,10 +280,9 @@ void CClient::loadGame( const std::string & fname )
         logNetwork->infoStream() << "Server opened savegame properly.";
 
 	*serv << ui32(gs->scenarioOps->playerInfos.size()+1); //number of players + neutral
-	for(auto it = gs->scenarioOps->playerInfos.begin(); 
-		it != gs->scenarioOps->playerInfos.end(); ++it)
+	for(auto & elem : gs->scenarioOps->playerInfos)
 	{
-		*serv << ui8(it->first.getNum()); //players
+		*serv << ui8(elem.first.getNum()); //players
 	}
 	*serv << ui8(PlayerColor::NEUTRAL.getNum());
     logNetwork->infoStream() <<"Sent info to server: "<<tmh.getDiff();
@@ -342,13 +341,13 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	// Now after possible random map gen, we know exact player count.
 	// Inform server about how many players client handles
 	std::set<PlayerColor> myPlayers;
-	for(auto it = gs->scenarioOps->playerInfos.begin(); it != gs->scenarioOps->playerInfos.end(); ++it)
+	for(auto & elem : gs->scenarioOps->playerInfos)
 	{
 		if((networkMode == SINGLE)                                                      //single - one client has all player
-		   || (networkMode != SINGLE && serv->connectionID == it->second.playerID)      //multi - client has only "its players"
-		   || (networkMode == HOST && it->second.playerID == PlayerSettings::PLAYER_AI))//multi - host has all AI players
+		   || (networkMode != SINGLE && serv->connectionID == elem.second.playerID)      //multi - client has only "its players"
+		   || (networkMode == HOST && elem.second.playerID == PlayerSettings::PLAYER_AI))//multi - host has all AI players
 		{
-			myPlayers.insert(it->first); //add player
+			myPlayers.insert(elem.first); //add player
 		}
 	}
 	if(networkMode != GUEST)
@@ -367,10 +366,9 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	}
 
 	int humanPlayers = 0;
-	for(auto it = gs->scenarioOps->playerInfos.begin(); 
-		it != gs->scenarioOps->playerInfos.end(); ++it)//initializing interfaces for players
+	for(auto & elem : gs->scenarioOps->playerInfos)//initializing interfaces for players
 	{
-		PlayerColor color = it->first;
+		PlayerColor color = elem.first;
 		gs->currentPlayer = color;
 		if(!vstd::contains(myPlayers, color))
 			continue;
@@ -378,9 +376,9 @@ void CClient::newGame( CConnection *con, StartInfo *si )
         logNetwork->traceStream() << "Preparing interface for player " << color;
 		if(si->mode != StartInfo::DUEL)
 		{
-			if(it->second.playerID == PlayerSettings::PLAYER_AI)
+			if(elem.second.playerID == PlayerSettings::PLAYER_AI)
 			{
-				auto AiToGive = aiNameForPlayer(it->second, false);
+				auto AiToGive = aiNameForPlayer(elem.second, false);
 				logNetwork->infoStream() << boost::format("Player %s will be lead by %s") % color % AiToGive;
 				installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 			}
@@ -392,7 +390,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		}
 		else
 		{
-			std::string AItoGive = aiNameForPlayer(it->second, true);
+			std::string AItoGive = aiNameForPlayer(elem.second, true);
 			installNewBattleInterface(CDynLibHandler::getNewBattleAI(AItoGive), color);
 		}
 	}
@@ -419,7 +417,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 // 	std::vector<FileInfo> scriptModules;
 // 	CFileUtility::getFilesWithExt(scriptModules, LIB_DIR "/scripting", "." LIB_EXT);
-// 	BOOST_FOREACH(FileInfo &m, scriptModules)
+// 	for(FileInfo &m : scriptModules)
 // 	{
 // 		CScriptingModule * nm = CDynLibHandler::getNewScriptingModule(m.name);
 // 		privilagedGameEventReceivers.push_back(nm);
@@ -570,12 +568,12 @@ void CClient::stopConnection()
 
 void CClient::battleStarted(const BattleInfo * info)
 {
-	BOOST_FOREACH(auto &battleCb, battleCallbacks)
+	for(auto &battleCb : battleCallbacks)
 	{
 		if(vstd::contains(info->sides, battleCb.first)  ||  battleCb.first >= PlayerColor::PLAYER_LIMIT)
 			battleCb.second->setBattle(info);
 	}
-// 	BOOST_FOREACH(ui8 side, info->sides)
+// 	for(ui8 side : info->sides)
 // 		if(battleCallbacks.count(side))
 // 			battleCallbacks[side]->setBattle(info);
 
@@ -614,7 +612,7 @@ void CClient::battleStarted(const BattleInfo * info)
 
 void CClient::battleFinished()
 {
-	BOOST_FOREACH(PlayerColor side, gs->curB->sides)
+	for(PlayerColor side : gs->curB->sides)
 		if(battleCallbacks.count(side))
 			battleCallbacks[side]->setBattle(nullptr);
 }

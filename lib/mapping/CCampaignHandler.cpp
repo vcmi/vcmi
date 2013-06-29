@@ -330,7 +330,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 	if (!(travelOptions.whatHeroKeeps & 1))
 	{
 		//trimming experience
-		BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
+		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
 			cgh->initExp();
 		}
@@ -338,7 +338,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 	if (!(travelOptions.whatHeroKeeps & 2))
 	{
 		//trimming prim skills
-		BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
+		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
 			for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
 			{
@@ -351,7 +351,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 	if (!(travelOptions.whatHeroKeeps & 4))
 	{
 		//trimming sec skills
-		BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
+		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
 			cgh->secSkills = cgh->type->secSkillsInit;
 		}
@@ -359,7 +359,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 	if (!(travelOptions.whatHeroKeeps & 8))
 	{
 		//trimming spells
-		BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
+		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
 			cgh->spells.clear();
 		}
@@ -367,7 +367,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 	if (!(travelOptions.whatHeroKeeps & 16))
 	{
 		//trimming artifacts
-		BOOST_FOREACH(CGHeroInstance * hero, crossoverHeroes)
+		for(CGHeroInstance * hero : crossoverHeroes)
 		{
 			size_t totalArts = GameConstants::BACKPACK_START + hero->artifactsInBackpack.size();
 			for (size_t i=0; i<totalArts; i++ )
@@ -391,7 +391,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 	}
 
 	//trimming creatures
-	BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
+	for(CGHeroInstance * cgh : crossoverHeroes)
 	{
 		vstd::erase_if(cgh->stacks, [&](const std::pair<SlotID, CStackInstance *> & j) -> bool
 		{

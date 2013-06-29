@@ -174,7 +174,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 		}
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 
-		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, myOwner->curInt.get());
+		auto  spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, myOwner->curInt.get());
 		GH.pushInt(spellWindow);
 	}
 }
@@ -208,15 +208,15 @@ CBattleHero::CBattleHero(const std::string & defName, bool flipG, PlayerColor pl
     animCount(0)
 {
 	dh = CDefHandler::giveDef( defName );
-	for(size_t i = 0; i < dh->ourImages.size(); ++i) //transforming images
+	for(auto & elem : dh->ourImages) //transforming images
 	{
 		if(flip)
 		{
-			SDL_Surface * hlp = CSDL_Ext::rotate01(dh->ourImages[i].bitmap);
-			SDL_FreeSurface(dh->ourImages[i].bitmap);
-			dh->ourImages[i].bitmap = hlp;
+			SDL_Surface * hlp = CSDL_Ext::rotate01(elem.bitmap);
+			SDL_FreeSurface(elem.bitmap);
+			elem.bitmap = hlp;
 		}
-		CSDL_Ext::alphaTransform(dh->ourImages[i].bitmap);
+		CSDL_Ext::alphaTransform(elem.bitmap);
 	}
 
 	if(flip)
@@ -225,10 +225,10 @@ CBattleHero::CBattleHero(const std::string & defName, bool flipG, PlayerColor pl
 		flag = CDefHandler::giveDef("CMFLAGL.DEF");
 
 	//coloring flag and adding transparency
-	for(size_t i = 0; i < flag->ourImages.size(); ++i)
+	for(auto & elem : flag->ourImages)
 	{
-		CSDL_Ext::alphaTransform(flag->ourImages[i].bitmap);
-		graphics->blueToPlayersAdv(flag->ourImages[i].bitmap, player);
+		CSDL_Ext::alphaTransform(elem.bitmap);
+		graphics->blueToPlayersAdv(elem.bitmap, player);
 	}
 	addUsedEvents(LCLICK);
 
@@ -373,11 +373,11 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		{
 			int xPos = 235 - (br.casualties[step].size()*32 + (br.casualties[step].size() - 1)*10)/2; //increment by 42 with each picture
 			int yPos = 344 + step*97;
-			for(std::map<ui32,si32>::const_iterator it=br.casualties[step].begin(); it!=br.casualties[step].end(); ++it)
+			for(auto & elem : br.casualties[step])
 			{
-				new CAnimImage("CPRSMALL", CGI->creh->creatures[it->first]->iconIndex, 0, xPos, yPos);
+				new CAnimImage("CPRSMALL", CGI->creh->creatures[elem.first]->iconIndex, 0, xPos, yPos);
 				std::ostringstream amount;
-				amount<<it->second;
+				amount<<elem.second;
 				new CLabel( xPos+16, yPos + 42, FONT_SMALL, CENTER, Colors::WHITE, amount.str());
 				xPos += 42;
 			}

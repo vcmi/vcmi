@@ -99,17 +99,17 @@ void Graphics::initializeBattleGraphics()
 	battleBacks.resize(idx+1);	// 1 to idx, 0 is unused
 
 	idx = 1;
-	BOOST_FOREACH(const JsonNode &t, config["backgrounds"].Vector()) {
+	for(const JsonNode &t : config["backgrounds"].Vector()) {
 		battleBacks[idx].push_back(t.String());
 		idx++;
 	}
 
 	//initialization of AC->def name mapping
-	BOOST_FOREACH(const JsonNode &ac, config["ac_mapping"].Vector()) {
+	for(const JsonNode &ac : config["ac_mapping"].Vector()) {
 		int ACid = ac["id"].Float();
 		std::vector< std::string > toAdd;
 
-		BOOST_FOREACH(const JsonNode &defname, ac["defnames"].Vector()) {
+		for(const JsonNode &defname : ac["defnames"].Vector()) {
 			toAdd.push_back(defname.String());
 		}
 
@@ -134,9 +134,9 @@ Graphics::Graphics()
 	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
 	th.run();
 
-	for(size_t y=0; y < heroMoveArrows->ourImages.size(); ++y)
+	for(auto & elem : heroMoveArrows->ourImages)
 	{
-		CSDL_Ext::alphaTransform(heroMoveArrows->ourImages[y].bitmap);
+		CSDL_Ext::alphaTransform(elem.bitmap);
 	}
 }
 
@@ -146,9 +146,9 @@ void Graphics::loadHeroAnims()
 	rotations += std::make_pair(6,10), std::make_pair(7,11), std::make_pair(8,12), std::make_pair(1,13),
 		std::make_pair(2,14), std::make_pair(3,15);
 
-	for(size_t i=0; i<CGI->heroh->classes.heroClasses.size(); ++i)
+	for(auto & elem : CGI->heroh->classes.heroClasses)
 	{
-		const CHeroClass * hc = CGI->heroh->classes.heroClasses[i];
+		const CHeroClass * hc = elem;
 
 		if (!vstd::contains(heroAnims, hc->imageMapFemale))
 			heroAnims[hc->imageMapFemale] = loadHeroAnim(hc->imageMapFemale, rotations);
@@ -192,9 +192,9 @@ CDefEssential * Graphics::loadHeroAnim( const std::string &name, const std::vect
 			}
 		}
 	}
-	for(size_t ff=0; ff<anim->ourImages.size(); ++ff)
+	for(auto & elem : anim->ourImages)
 	{
-		CSDL_Ext::alphaTransform(anim->ourImages[ff].bitmap);
+		CSDL_Ext::alphaTransform(elem.bitmap);
 	}
 	return anim;
 }
@@ -210,15 +210,15 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 		std::vector<Cimage> &curImgs = (this->*pr.first)[q]->ourImages;
 		for(size_t o=0; o<curImgs.size(); ++o)
 		{
-			for(size_t p=0; p<rotations.size(); p++)
+			for(auto & rotation : rotations)
 			{
-				if(curImgs[o].groupNumber==rotations[p].first)
+				if(curImgs[o].groupNumber==rotation.first)
 				{
 					for(int e=0; e<8; ++e)
 					{
 						Cimage nci;
 						nci.bitmap = CSDL_Ext::rotate01(curImgs[o+e].bitmap);
-						nci.groupNumber = rotations[p].second;
+						nci.groupNumber = rotation.second;
 						nci.imName = std::string();
 						curImgs.push_back(nci);
 					}
@@ -244,10 +244,10 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 				}
 			}
 		}
-		for(size_t ff=0; ff<curImgs.size(); ++ff)
+		for(auto & curImg : curImgs)
 		{
-			SDL_SetColorKey(curImgs[ff].bitmap, SDL_SRCCOLORKEY,
-				SDL_MapRGB(curImgs[ff].bitmap->format, 0, 255, 255)
+			SDL_SetColorKey(curImg.bitmap, SDL_SRCCOLORKEY,
+				SDL_MapRGB(curImg.bitmap->format, 0, 255, 255)
 				);
 		}
 	}
@@ -406,9 +406,9 @@ void Graphics::loadErmuToPicture()
 	//loading ERMU to picture
 	const JsonNode config(ResourceID("config/ERMU_to_picture.json"));
 	int etp_idx = 0;
-	BOOST_FOREACH(const JsonNode &etp, config["ERMU_to_picture"].Vector()) {
+	for(const JsonNode &etp : config["ERMU_to_picture"].Vector()) {
 		int idx = 0;
-		BOOST_FOREACH(const JsonNode &n, etp.Vector()) {
+		for(const JsonNode &n : etp.Vector()) {
 			ERMUtoPicture[idx][etp_idx] = n.String();
 			idx ++;
 		}
@@ -436,13 +436,13 @@ void Graphics::addImageListEntry(size_t index, std::string listName, std::string
 
 void Graphics::initializeImageLists()
 {
-	BOOST_FOREACH(const CCreature * creature, CGI->creh->creatures)
+	for(const CCreature * creature : CGI->creh->creatures)
 	{
 		addImageListEntry(creature->iconIndex, "CPRSMALL", creature->smallIconName);
 		addImageListEntry(creature->iconIndex, "TWCRPORT", creature->largeIconName);
 	}
 
-	BOOST_FOREACH(const CHero * hero, CGI->heroh->heroes)
+	for(const CHero * hero : CGI->heroh->heroes)
 	{
 		addImageListEntry(hero->imageIndex, "UN32", hero->iconSpecSmall);
 		addImageListEntry(hero->imageIndex, "UN44", hero->iconSpecLarge);
@@ -450,13 +450,13 @@ void Graphics::initializeImageLists()
 		addImageListEntry(hero->imageIndex, "PORTRAITSSMALL", hero->portraitSmall);
 	}
 
-	BOOST_FOREACH(const CArtifact * art, CGI->arth->artifacts)
+	for(const CArtifact * art : CGI->arth->artifacts)
 	{
 		addImageListEntry(art->iconIndex, "ARTIFACT", art->image);
 		addImageListEntry(art->iconIndex, "ARTIFACTLARGE", art->large);
 	}
 
-	BOOST_FOREACH(const CFaction * faction, CGI->townh->factions)
+	for(const CFaction * faction : CGI->townh->factions)
 	{
 		if (faction->town)
 		{

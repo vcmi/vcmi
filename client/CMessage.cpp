@@ -77,17 +77,17 @@ void CMessage::init()
 			CDefHandler * bluePieces = CDefHandler::giveDef("DIALGBOX.DEF");
 			if (i==1)
 			{
-				for (size_t j=0;j<bluePieces->ourImages.size();++j)
+				for (auto & elem : bluePieces->ourImages)
 				{
-					piecesOfBox[i].push_back(bluePieces->ourImages[j].bitmap);
-					bluePieces->ourImages[j].bitmap->refcount++;
+					piecesOfBox[i].push_back(elem.bitmap);
+					elem.bitmap->refcount++;
 				}
 			}
-			for (size_t j=0;j<bluePieces->ourImages.size();++j)
+			for (auto & elem : bluePieces->ourImages)
 			{
-				graphics->blueToPlayersAdv(bluePieces->ourImages[j].bitmap, PlayerColor(i));
-				piecesOfBox[i].push_back(bluePieces->ourImages[j].bitmap);
-				bluePieces->ourImages[j].bitmap->refcount++;
+				graphics->blueToPlayersAdv(elem.bitmap, PlayerColor(i));
+				piecesOfBox[i].push_back(elem.bitmap);
+				elem.bitmap->refcount++;
 			}
 			delete bluePieces;
 		}
@@ -102,9 +102,9 @@ void CMessage::dispose()
 {
 	for (int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		for (size_t j=0; j<piecesOfBox[i].size(); ++j)
+		for (auto & elem : piecesOfBox[i])
 		{
-			SDL_FreeSurface(piecesOfBox[i][j]);
+			SDL_FreeSurface(elem);
 		}
 	}
 	SDL_FreeSurface(background);
@@ -211,8 +211,8 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 
 	/* Trim whitespaces of every line. */
 	//if(!allowLeadingWhitespace)
-		for (size_t i=0; i<ret.size(); i++)
-			boost::algorithm::trim(ret[i]);
+		for (auto & elem : ret)
+			boost::algorithm::trim(elem);
 
 	return ret;
 }
@@ -249,8 +249,8 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	{
 		// Compute total width of buttons
 		bw = 20*(ret->buttons.size()-1); // space between all buttons
-		for(size_t i=0; i<ret->buttons.size(); i++) //and add buttons width
-			bw+=ret->buttons[i]->pos.w;
+		for(auto & elem : ret->buttons) //and add buttons width
+			bw+=elem->pos.w;
 		winSize.second += 20 + //before button
 		ok->ourImages[0].bitmap->h; //button	
 	}
@@ -292,10 +292,10 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 		bw = (ret->bitmap->w/2) - (bw/2);
 		curh = ret->bitmap->h - SIDE_MARGIN - ret->buttons[0]->pos.h;
 
-		for(size_t i=0; i<ret->buttons.size(); i++)
+		for(auto & elem : ret->buttons)
 		{
-			ret->buttons[i]->moveBy(Point(bw, curh));
-			bw += ret->buttons[i]->pos.w + 20;
+			elem->moveBy(Point(bw, curh));
+			bw += elem->pos.w + 20;
 		}
 	}
 	for(size_t i=0; i<ret->components.size(); i++)
@@ -401,9 +401,9 @@ void ComponentResolved::showAll(SDL_Surface *to)
 
 ComponentsToBlit::~ComponentsToBlit()
 {
-	for(size_t i=0; i<comps.size(); i++)
-		for(size_t j = 0; j < comps[i].size(); j++)
-			delete comps[i][j];
+	for(auto & elem : comps)
+		for(size_t j = 0; j < elem.size(); j++)
+			delete elem[j];
 
 }
 
@@ -419,9 +419,9 @@ ComponentsToBlit::ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, 
 	int curw = 0;
 	int curr = 0; //current row
 
-	for(size_t i=0;i<SComps.size();i++)
+	for(auto & SComp : SComps)
 	{
-		ComponentResolved *cur = new ComponentResolved(SComps[i]);
+		auto  cur = new ComponentResolved(SComp);
 
 		int toadd = (cur->pos.w + BETWEEN_COMPS + (blitOr ? orWidth : 0));
 		if (curw + toadd > maxw)
@@ -440,11 +440,11 @@ ComponentsToBlit::ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, 
 		comps[curr].push_back(cur);
 	}
 
-	for(size_t i=0;i<comps.size();i++)
+	for(auto & elem : comps)
 	{
 		int maxHeight = 0;
-		for(size_t j=0;j<comps[i].size();j++)
-			vstd::amax(maxHeight, comps[i][j]->pos.h);
+		for(size_t j=0;j<elem.size();j++)
+			vstd::amax(maxHeight, elem[j]->pos.h);
 
 		h += maxHeight + BETWEEN_COMPS_ROWS;
 	}
@@ -454,28 +454,28 @@ void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Su
 {
 	int orWidth = graphics->fonts[FONT_MEDIUM]->getStringWidth(CGI->generaltexth->allTexts[4]);
 
-	for (size_t i=0;i<comps.size();i++)//for each row
+	for (auto & elem : comps)//for each row
 	{
 		int totalw=0, maxHeight=0;
-		for(size_t j=0;j<(comps)[i].size();j++)//find max height & total width in this row
+		for(size_t j=0;j<elem.size();j++)//find max height & total width in this row
 		{
-			ComponentResolved *cur = (comps)[i][j];
+			ComponentResolved *cur = elem[j];
 			totalw += cur->pos.w;
 			vstd::amax(maxHeight, cur->pos.h);
 		}
 
 		//add space between comps in this row
 		if(blitOr)
-			totalw += (inter*2+orWidth) * ((comps)[i].size() - 1);
+			totalw += (inter*2+orWidth) * (elem.size() - 1);
 		else
-			totalw += (inter) * ((comps)[i].size() - 1);
+			totalw += (inter) * (elem.size() - 1);
 
 		int middleh = curh + maxHeight/2;//axis for image aligment
 		int curw = ret->w/2 - totalw/2;
 
-		for(size_t j=0;j<(comps)[i].size();j++)
+		for(size_t j=0;j<elem.size();j++)
 		{
-			ComponentResolved *cur = (comps)[i][j];
+			ComponentResolved *cur = elem[j];
 			cur->moveTo(Point(curw, curh));
 
 			//blit component
@@ -483,7 +483,7 @@ void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Su
 			curw += cur->pos.w;
 
 			//if there is subsequent component blit "or"
-			if(j<((comps)[i].size()-1))
+			if(j<(elem.size()-1))
 			{
 				if(blitOr)
 				{

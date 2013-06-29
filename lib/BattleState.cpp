@@ -109,9 +109,9 @@ ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender, c
 
 void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
 {
-	for(ui32 i=0; i<stacks.size();i++)//setting casualties
+	for(auto & elem : stacks)//setting casualties
 	{
-		const CStack * const st = stacks[i];
+		const CStack * const st = elem;
 		si32 killed = (st->alive() ? st->baseAmount - st->count : st->baseAmount);
 		vstd::amax(killed, 0);
 		if(killed)
@@ -144,7 +144,7 @@ CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerO
 	assert((owner >= PlayerColor::PLAYER_LIMIT)  ||
 		   (base.armyObj && base.armyObj->tempOwner == owner));
 
-	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
+	auto  ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = getAvaliableHex (base.getCreatureID(), attackerOwned, position); //TODO: what if no free tile on battlefield was found?
 	ret->state.insert(EBattleStackState::ALIVE);  //alive state indication
 	return ret;
@@ -154,7 +154,7 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 {
 	int stackID = getIdForNewStack();
 	PlayerColor owner = attackerOwned ? sides[0] : sides[1];
-	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
+	auto  ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = position;
 	ret->state.insert(EBattleStackState::ALIVE);  //alive state indication
 	return ret;
@@ -193,18 +193,18 @@ bool BattleInfo::resurrects(SpellID spellid) const
 const CStack * BattleInfo::battleGetStack(BattleHex pos, bool onlyAlive)
 {
 	CStack * stack = nullptr;
-	for(ui32 g=0; g<stacks.size(); ++g)
+	for(auto & elem : stacks)
 	{
-		if(stacks[g]->position == pos
-			|| (stacks[g]->doubleWide()
-			&&( (stacks[g]->attackerOwned && stacks[g]->position-1 == pos)
-			||	(!stacks[g]->attackerOwned && stacks[g]->position+1 == pos)	)
+		if(elem->position == pos
+			|| (elem->doubleWide()
+			&&( (elem->attackerOwned && elem->position-1 == pos)
+			||	(!elem->attackerOwned && elem->position+1 == pos)	)
 			) )
 		{
-			if (stacks[g]->alive())
-				return stacks[g]; //we prefer living stacks - there cna be only one stack on te tile, so return it imediately
+			if (elem->alive())
+				return elem; //we prefer living stacks - there cna be only one stack on te tile, so return it imediately
 			else if (!onlyAlive)
-				stack = stacks[g]; //dead stacks are only accessible when there's no alive stack on this tile
+				stack = elem; //dead stacks are only accessible when there's no alive stack on this tile
 		}
 	}
 	return stack;
@@ -219,10 +219,10 @@ void BattleInfo::localInit()
 {
 	belligerents[0]->battle = belligerents[1]->battle = this;
 
-	BOOST_FOREACH(CArmedInstance *b, belligerents)
+	for(CArmedInstance *b : belligerents)
 		b->attachTo(this);
 
-	BOOST_FOREACH(CStack *s, stacks)
+	for(CStack *s : stacks)
 		localInitStack(s);
 
 	exportBonuses();
@@ -251,10 +251,10 @@ namespace CGH
 
 	static void readBattlePositions(const JsonNode &node, vector< vector<int> > & dest)
 	{
-		BOOST_FOREACH(const JsonNode &level, node.Vector())
+		for(const JsonNode &level : node.Vector())
 		{
 			std::vector<int> pom;
-			BOOST_FOREACH(const JsonNode &value, level.Vector())
+			for(const JsonNode &value : level.Vector())
 			{
 				pom.push_back(value.Float());
 			}
@@ -316,7 +316,7 @@ struct RangeGenerator
 	}
 
 	//get number fulfilling predicate. Never gives the same number twice.
-	int getSuchNumber(std::function<bool(int)> goodNumberPred = 0)
+	int getSuchNumber(std::function<bool(int)> goodNumberPred = nullptr)
 	{
 		int ret = -1;
 		do
@@ -348,7 +348,7 @@ struct RangeGenerator
 BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town )
 {
 	CMP_stack cmpst;
-	BattleInfo *curB = new BattleInfo;
+	auto curB = new BattleInfo;
 	curB->castSpells[0] = curB->castSpells[1] = 0;
 	curB->sides[0] = armies[0]->tempOwner;
 	curB->sides[1] = armies[1]->tempOwner;
@@ -424,7 +424,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 				obstPtr->uniqueID = curB->obstacles.size();
 				curB->obstacles.push_back(obstPtr);
 
-				BOOST_FOREACH(BattleHex blocked, obstPtr->getBlockedTiles())
+				for(BattleHex blocked : obstPtr->getBlockedTiles())
 					blockedTiles.push_back(blocked);
 				tilesToBlock -= VLC->heroh->absoluteObstacles[obstPtr->ID].blockedTiles.size() / 2;
 			}
@@ -453,7 +453,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 					if(vstd::contains(blockedTiles, pos))
 						return false;
 
-					BOOST_FOREACH(BattleHex blocked, obi.getBlocked(pos))
+					for(BattleHex blocked : obi.getBlocked(pos))
 					{
 						if(vstd::contains(blockedTiles, blocked))
 							return false;
@@ -473,7 +473,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 				obstPtr->uniqueID = curB->obstacles.size();
 				curB->obstacles.push_back(obstPtr);
 
-				BOOST_FOREACH(BattleHex blocked, obstPtr->getBlockedTiles())
+				for(BattleHex blocked : obstPtr->getBlockedTiles())
 					blockedTiles.push_back(blocked);
 				tilesToBlock -= obi.blockedTiles.size();
 			}
@@ -497,11 +497,11 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	CGH::readBattlePositions(positions[4]["levels"], creBankFormations[0]);
 	CGH::readBattlePositions(positions[5]["levels"], creBankFormations[1]);
 
-	BOOST_FOREACH (auto position, config["commanderPositions"]["field"].Vector())
+	for (auto position : config["commanderPositions"]["field"].Vector())
 	{
 		commanderField.push_back (position.Float());
 	}
-	BOOST_FOREACH (auto position, config["commanderPositions"]["creBank"].Vector())
+	for (auto position : config["commanderPositions"]["creBank"].Vector())
 	{
 		commanderBank.push_back (position.Float());
 	}
@@ -537,7 +537,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		vstd::abetween(formationNo, 0, GameConstants::ARMY_SIZE - 1);
 
 		int k = 0; //stack serial
-		for(TSlots::const_iterator i = armies[side]->Slots().begin(); i != armies[side]->Slots().end(); i++, k++)
+		for(auto i = armies[side]->Slots().begin(); i != armies[side]->Slots().end(); i++, k++)
 		{
 			std::vector<int> *formationVector = nullptr;
 			if(creatureBank)
@@ -688,13 +688,13 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	{
 		TNodes nodes;
 		curB->belligerents[i]->getRedAncestors(nodes);
-		BOOST_FOREACH(CBonusSystemNode *n, nodes)
+		for(CBonusSystemNode *n : nodes)
 		{
-			BOOST_FOREACH(Bonus *b, n->getExportedBonusList())
+			for(Bonus *b : n->getExportedBonusList())
 			{
 				if(b->effectRange == Bonus::ONLY_ENEMY_ARMY/* && b->propagator && b->propagator->shouldBeAttached(curB)*/)
 				{
-					Bonus *bCopy = new Bonus(*b);
+					auto bCopy = new Bonus(*b);
 					bCopy->effectRange = Bonus::NO_LIMIT;
 					bCopy->propagator.reset();
 					bCopy->limiter.reset(new StackOwnerLimiter(curB->sides[!i]));
@@ -719,11 +719,11 @@ const CGHeroInstance * BattleInfo::getHero( PlayerColor player ) const
 std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<const CStack*> affectedCreatures, PlayerColor casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const
 {
 	std::vector<ui32> ret;
-	for(auto it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
+	for(auto & affectedCreature : affectedCreatures)
 	{
-		if(battleIsImmune(caster, sp, mode, (*it)->position) != ESpellCastProblem::OK) //FIXME: immune stacks should not display resisted animation
+		if(battleIsImmune(caster, sp, mode, (affectedCreature)->position) != ESpellCastProblem::OK) //FIXME: immune stacks should not display resisted animation
 		{
-			ret.push_back((*it)->ID);
+			ret.push_back((affectedCreature)->ID);
 			continue;
 		}
 
@@ -738,26 +738,26 @@ std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const C
 		else
 			bonusHero = hero2;*/
 
-		int prob = (*it)->magicResistance(); //probability of resistance in %
+		int prob = (affectedCreature)->magicResistance(); //probability of resistance in %
 
 		if(prob > 100) prob = 100;
 
 		if(rand()%100 < prob) //immunity from resistance
-			ret.push_back((*it)->ID);
+			ret.push_back((affectedCreature)->ID);
 
 	}
 
 	if(sp->id == SpellID::HYPNOTIZE) //hypnotize
 	{
-		for(auto it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
+		for(auto & affectedCreature : affectedCreatures)
 		{
-			if( (*it)->hasBonusOfType(Bonus::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
-				|| ( (*it)->count - 1 ) * (*it)->MaxHealth() + (*it)->firstHPleft
+			if( (affectedCreature)->hasBonusOfType(Bonus::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
+				|| ( (affectedCreature)->count - 1 ) * (affectedCreature)->MaxHealth() + (affectedCreature)->firstHPleft
 		>
-		calculateSpellBonus (usedSpellPower * 25 + sp->powers[spellLevel], sp, caster, *it) //apply 'damage' bonus for hypnotize, including hero specialty
+		calculateSpellBonus (usedSpellPower * 25 + sp->powers[spellLevel], sp, caster, affectedCreature) //apply 'damage' bonus for hypnotize, including hero specialty
 			)
 			{
-				ret.push_back((*it)->ID);
+				ret.push_back((affectedCreature)->ID);
 			}
 		}
 	}
@@ -796,7 +796,7 @@ int BattleInfo::getIdForNewStack() const
 
 shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) const
 {
-	BOOST_FOREACH(auto &obs, obstacles)
+	for(auto &obs : obstacles)
 		if(vstd::contains(obs->getAffectedTiles(), tile))
 			return obs;
 
@@ -896,7 +896,7 @@ ui32 CStack::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
 	int speed = valOfBonuses(Selector::type(Bonus::STACKS_SPEED) && Selector::turns(turn));
 
 	int percentBonus = 0;
-	BOOST_FOREACH(const Bonus *b, getBonusList())
+	for(const Bonus *b : getBonusList())
 	{
 		if(b->type == Bonus::STACKS_SPEED)
 		{
@@ -930,7 +930,7 @@ si32 CStack::magicResistance() const
 	{
 		magicResistance = base->magicResistance();
 		int auraBonus = 0;
-		BOOST_FOREACH (const CStack * stack, base->armyObj->battle-> batteAdjacentCreatures(this))
+		for (const CStack * stack : base->armyObj->battle-> batteAdjacentCreatures(this))
 	{
 		if (stack->owner == owner)
 		{
@@ -952,7 +952,7 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 	std::vector<Bonus> tmp;
 	sp->getEffects(tmp, sse.val);
 
-	BOOST_FOREACH(Bonus& b, tmp)
+	for(Bonus& b : tmp)
 	{
 		b.turnsRemain =  sse.turnsRemain;
 		sf.push_back(b);
@@ -1087,7 +1087,7 @@ std::vector<si32> CStack::activeSpells() const
 	std::vector<si32> ret;
 
 	TBonusListPtr spellEffects = getSpellBonuses();
-	BOOST_FOREACH(const Bonus *it, *spellEffects)
+	for(const Bonus *it : *spellEffects)
 	{
 		if (!vstd::contains(ret, it->sid)) //do not duplicate spells with multiple effects
 			ret.push_back(it->sid);
@@ -1106,7 +1106,7 @@ const CGHeroInstance * CStack::getMyHero() const
 	if(base)
 		return dynamic_cast<const CGHeroInstance *>(base->armyObj);
 	else //we are attached directly?
-		BOOST_FOREACH(const CBonusSystemNode *n, getParentNodes())
+		for(const CBonusSystemNode *n : getParentNodes())
 			if(n->getNodeType() == HERO)
 				return dynamic_cast<const CGHeroInstance *>(n);
 

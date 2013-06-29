@@ -45,7 +45,7 @@ public:
 	 *
 	 * @return Returns a list of all entries in the archive or (file) system.
 	 */
-	virtual boost::unordered_map<ResourceID, std::string> getEntries() const =0;
+	virtual std::unordered_map<ResourceID, std::string> getEntries() const =0;
 
 	/**
 	 * Gets the origin of the loader.

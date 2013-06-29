@@ -182,7 +182,7 @@ void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpel
 
 	if (!config["spell_sounds"].isNull())
 	{
-		BOOST_FOREACH(const JsonNode &node, config["spell_sounds"].Vector())
+		for(const JsonNode &node : config["spell_sounds"].Vector())
 		{
 			int spellid = node["id"].Float();
 			const CSpell *s = CGI->spellh->spells[spellid];

@@ -152,10 +152,10 @@ DLL_LINKAGE void ChangeSpells::applyGs( CGameState *gs )
 	CGHeroInstance *hero = gs->getHero(hid);
 
 	if(learn)
-		BOOST_FOREACH(auto sid, spells)
+		for(auto sid : spells)
 			hero->spells.insert(sid);
 	else
-		BOOST_FOREACH(auto sid, spells)
+		for(auto sid : spells)
 			hero->spells.erase(sid);
 }
 
@@ -175,14 +175,14 @@ DLL_LINKAGE void SetMovePoints::applyGs( CGameState *gs )
 DLL_LINKAGE void FoWChange::applyGs( CGameState *gs )
 {
 	TeamState * team = gs->getPlayerTeam(player);
-	BOOST_FOREACH(int3 t, tiles)
+	for(int3 t : tiles)
 		team->fogOfWarMap[t.x][t.y][t.z] = mode;
 	if (mode == 0) //do not hide too much
 	{
-		boost::unordered_set<int3, ShashInt3> tilesRevealed;
-		for (size_t i = 0; i < gs->map->objects.size(); i++)
+		std::unordered_set<int3, ShashInt3> tilesRevealed;
+		for (auto & elem : gs->map->objects)
 		{
-			const CGObjectInstance *o = gs->map->objects[i];
+			const CGObjectInstance *o = elem;
 			if (o)
 			{
 				switch(o->ID)
@@ -197,7 +197,7 @@ DLL_LINKAGE void FoWChange::applyGs( CGameState *gs )
 				}
 			}
 		}
-		BOOST_FOREACH(int3 t, tilesRevealed) //probably not the most optimal solution ever
+		for(int3 t : tilesRevealed) //probably not the most optimal solution ever
 			team->fogOfWarMap[t.x][t.y][t.z] = 1;
 	}
 }
@@ -233,7 +233,7 @@ DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 
 	assert(cbsn);
 
-	Bonus *b = new Bonus(bonus);
+	auto b = new Bonus(bonus);
 	cbsn->addNewBonus(b);
 
 	std::string &descr = b->description;
@@ -337,9 +337,9 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 	if (quest)
 	{
 		gs->map->quests[quest->qid] = nullptr;
-		BOOST_FOREACH (auto &player, gs->players)
+		for (auto &player : gs->players)
 		{
-			BOOST_FOREACH (auto &q, player.second.quests)
+			for (auto &q : player.second.quests)
 			{
 				if (q.obj == obj)
 				{
@@ -429,14 +429,14 @@ void TryMoveHero::applyGs( CGameState *gs )
 		gs->map->addBlockVisTiles(h);
 	}
 
-	BOOST_FOREACH(int3 t, fowRevealed)
+	for(int3 t : fowRevealed)
 		gs->getPlayerTeam(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
 }
 
 DLL_LINKAGE void NewStructures::applyGs( CGameState *gs )
 {
 	CGTownInstance *t = gs->getTown(tid);
-	BOOST_FOREACH(const auto & id, bid)
+	for(const auto & id : bid)
 	{
 		t->builtBuildings.insert(id);
 	}
@@ -446,7 +446,7 @@ DLL_LINKAGE void NewStructures::applyGs( CGameState *gs )
 DLL_LINKAGE void RazeStructures::applyGs( CGameState *gs )
 {
 	CGTownInstance *t = gs->getTown(tid);
-	BOOST_FOREACH(const auto & id, bid)
+	for(const auto & id : bid)
 	{
 		t->builtBuildings.erase(id);
 	}
@@ -722,7 +722,7 @@ DLL_LINKAGE void SwapStacks::applyGs( CGameState *gs )
 
 DLL_LINKAGE void InsertNewStack::applyGs( CGameState *gs )
 {
-	CStackInstance *s = new CStackInstance(stack.type, stack.count);
+	auto s = new CStackInstance(stack.type, stack.count);
 	sl.army->putStack(sl.slot, s);
 }
 
@@ -854,10 +854,10 @@ DLL_LINKAGE void AssembledArtifact::applyGs( CGameState *gs )
 	assert(transformedArt);
 	assert(vstd::contains(transformedArt->assemblyPossibilities(artSet), builtArt));
 
-	CCombinedArtifactInstance *combinedArt = new CCombinedArtifactInstance(builtArt);
+	auto combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 	//retrieve all constituents
-	BOOST_FOREACH(const CArtifact * constituent, *builtArt->constituents)
+	for(const CArtifact * constituent : *builtArt->constituents)
 	{
 		ArtifactPosition pos = artSet->getArtPos(constituent->id);
 		assert(pos >= 0);
@@ -881,7 +881,7 @@ DLL_LINKAGE void DisassembledArtifact::applyGs( CGameState *gs )
 
 	std::vector<CCombinedArtifactInstance::ConstituentInfo> constituents = disassembled->constituentsInfo;
 	disassembled->removeFrom(al);
-	BOOST_FOREACH(CCombinedArtifactInstance::ConstituentInfo &ci, constituents)
+	for(CCombinedArtifactInstance::ConstituentInfo &ci : constituents)
 	{
 		ArtifactLocation constituentLoc = al;
 		constituentLoc.slot = (ci.slot >= 0 ? ci.slot : al.slot); //-1 is slot of main constituent -> it'll replace combined artifact in its pos
@@ -918,7 +918,7 @@ DLL_LINKAGE void SetAvailableArtifacts::applyGs( CGameState *gs )
 DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 {
 	gs->day = day;
-	BOOST_FOREACH(NewTurn::Hero h, heroes) //give mana/movement point
+	for(NewTurn::Hero h : heroes) //give mana/movement point
 	{
 		CGHeroInstance *hero = gs->getHero(h.id);
 		hero->movement = h.move;
@@ -931,7 +931,7 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 		gs->getPlayer(i->first)->resources = i->second;
 	}
 
-	BOOST_FOREACH(auto creatureSet, cres) //set available creatures in towns
+	for(auto creatureSet : cres) //set available creatures in towns
 		creatureSet.second.applyGs(gs);
 
 	gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
@@ -949,7 +949,7 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 			i->second.daysWithoutCastle++;
 	}
 
-	BOOST_FOREACH(CGTownInstance* t, gs->map->towns)
+	for(CGTownInstance* t : gs->map->towns)
 		t->builded = 0;
 }
 
@@ -1021,7 +1021,7 @@ DLL_LINKAGE void BattleNextRound::applyGs( CGameState *gs )
 
 	gs->curB->round = round;
 
-	BOOST_FOREACH(CStack *s, gs->curB->stacks)
+	for(CStack *s : gs->curB->stacks)
 	{
 		s->state -= EBattleStackState::DEFENDING;
 		s->state -= EBattleStackState::WAITING;
@@ -1034,7 +1034,7 @@ DLL_LINKAGE void BattleNextRound::applyGs( CGameState *gs )
 		s->battleTurnPassed();
 	}
 
-	BOOST_FOREACH(auto &obst, gs->curB->obstacles)
+	for(auto &obst : gs->curB->obstacles)
 		obst->battleTurnPassed();
 }
 
@@ -1091,7 +1091,7 @@ DLL_LINKAGE void BattleObstaclePlaced::applyGs( CGameState *gs )
 
 void BattleResult::applyGs( CGameState *gs )
 {
-	BOOST_FOREACH (CStack *s, gs->curB->stacks)
+	for (CStack *s : gs->curB->stacks)
 	{
 		if (s->base && s->base->armyObj && vstd::contains(s->state, EBattleStackState::SUMMONED))
 		{
@@ -1100,8 +1100,8 @@ void BattleResult::applyGs( CGameState *gs )
 			const_cast<CArmedInstance*>(s->base->armyObj)->eraseStack(s->slot);
 		}
 	}
-	for (unsigned i = 0; i < gs->curB->stacks.size(); i++)
-		delete gs->curB->stacks[i];
+	for (auto & elem : gs->curB->stacks)
+		delete elem;
 
 	CGHeroInstance *h;
 	for (int i = 0; i < 2; ++i)
@@ -1112,7 +1112,7 @@ void BattleResult::applyGs( CGameState *gs )
 			h->getBonusList().remove_if(Bonus::OneBattle); 	//remove any "until next battle" bonuses
 			if (h->commander && h->commander->alive)
 			{
-				BOOST_FOREACH (auto art, h->commander->artifactsWorn) //increment bonuses for commander artifacts
+				for (auto art : h->commander->artifactsWorn) //increment bonuses for commander artifacts
 				{
 					art.second.artifact->artType->levelUpArtifact (art.second.artifact);
 				}
@@ -1140,7 +1140,7 @@ void BattleStackMoved::applyGs( CGameState *gs )
 	BattleHex dest = tilesToMove.back();
 
 	//if unit ended movement on quicksands that were created by enemy, that quicksand patch becomes visible for owner
-	BOOST_FOREACH(auto &oi, gs->curB->obstacles)
+	for(auto &oi : gs->curB->obstacles)
 	{
 		if(oi->obstacleType == CObstacleInstance::QUICKSAND
 		&& vstd::contains(oi->getAffectedTiles(), tilesToMove.back()))
@@ -1166,9 +1166,9 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 		at->state -= EBattleStackState::ALIVE;
 	}
 	//life drain handling
-	for (int g=0; g<healedStacks.size(); ++g)
+	for (auto & elem : healedStacks)
 	{
-		healedStacks[g].applyGs(gs);
+		elem.applyGs(gs);
 	}
 	if (willRebirth())
 	{
@@ -1193,7 +1193,7 @@ DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 	{
 		//don't remove ammo if we have a working ammo cart
 		bool hasAmmoCart = false;
-		BOOST_FOREACH(const CStack * st, gs->curB->stacks)
+		for(const CStack * st : gs->curB->stacks)
 		{
 			if(st->owner == attacker->owner && st->getCreature()->idNumber == CreatureID::AMMO_CART && st->alive())
 			{
@@ -1207,14 +1207,14 @@ DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 			attacker->shots--;
 		}
 	}
-	BOOST_FOREACH(BattleStackAttacked stackAttacked, bsa)
+	for(BattleStackAttacked stackAttacked : bsa)
 		stackAttacked.applyGs(gs);
 
 	attacker->getBonusList().remove_if(Bonus::UntilAttack);
 
-	for(std::vector<BattleStackAttacked>::const_iterator it = bsa.begin(); it != bsa.end(); ++it)
+	for(auto & elem : bsa)
 	{
-		CStack * stack = gs->curB->getStack(it->stackAttacked, false);
+		CStack * stack = gs->curB->getStack(elem.stackAttacked, false);
 		if (stack) //cloned stack is already gone
 			stack->getBonusList().remove_if(Bonus::UntilBeingAttacked);
 	}
@@ -1288,7 +1288,7 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 	const bool removeAllSpells = id == SpellID::DISPEL;
 	const bool removeHelpful = id == SpellID::DISPEL_HELPFUL_SPELLS;
 
-	BOOST_FOREACH(auto stackID, affectedCres)
+	for(auto stackID : affectedCres)
 	{
 		if(vstd::contains(resisted, stackID))
 			continue;
@@ -1312,9 +1312,9 @@ void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
 {
 	//actualizing features vector
 
-	BOOST_FOREACH(const Bonus &fromEffect, ef)
+	for(const Bonus &fromEffect : ef)
 	{
-		BOOST_FOREACH(Bonus *stackBonus, s->getBonusList()) //TODO: optimize
+		for(Bonus *stackBonus : s->getBonusList()) //TODO: optimize
 		{
 			if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == fromEffect.type && stackBonus->subtype == fromEffect.subtype)
 			{
@@ -1325,7 +1325,7 @@ void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
 }
 void actualizeEffect(CStack * s, const Bonus & ef)
 {
-	BOOST_FOREACH(Bonus *stackBonus, s->getBonusList()) //TODO: optimize
+	for(Bonus *stackBonus : s->getBonusList()) //TODO: optimize
 	{
 		if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == ef.type && stackBonus->subtype == ef.subtype)
 		{
@@ -1338,14 +1338,14 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 {
 	int spellid = effect.begin()->sid; //effects' source ID
 
-	BOOST_FOREACH(ui32 id, stacks)
+	for(ui32 id : stacks)
 	{
 		CStack *s = gs->curB->getStack(id);
 		if(s)
 		{
 			if(spellid == SpellID::DISRUPTING_RAY || spellid == SpellID::ACID_BREATH_DEFENSE || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid)))//disrupting ray or acid breath or not on the list - just add
 			{
-				BOOST_FOREACH(Bonus &fromEffect, effect)
+				for(Bonus &fromEffect : effect)
 				{
 					logBonus->traceStream() << s->nodeName() << " receives a new bonus: " << fromEffect.Description();
 					s->addNewBonus( new Bonus(fromEffect));
@@ -1360,7 +1360,7 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
             logNetwork->errorStream() << "Cannot find stack " << id;
 	}
 	typedef std::pair<ui32, Bonus> p;
-	BOOST_FOREACH(p para, uniqueBonuses)
+	for(p para : uniqueBonuses)
 	{
 		CStack *s = gs->curB->getStack(para.first);
 		if (s)
@@ -1377,15 +1377,15 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 
 DLL_LINKAGE void StacksInjured::applyGs( CGameState *gs )
 {
-	BOOST_FOREACH(BattleStackAttacked stackAttacked, stacks)
+	for(BattleStackAttacked stackAttacked : stacks)
 		stackAttacked.applyGs(gs);
 }
 
 DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 {
-	for(int g=0; g<healedStacks.size(); ++g)
+	for(auto & elem : healedStacks)
 	{
-		CStack * changedStack = gs->curB->getStack(healedStacks[g].stackID, false);
+		CStack * changedStack = gs->curB->getStack(elem.stackID, false);
 
 		//checking if we resurrect a stack that is under a living stack
 		auto accessibility = gs->curB->getAccesibility();
@@ -1401,13 +1401,13 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		if(resurrected)
 		{
 			changedStack->state.insert(EBattleStackState::ALIVE);
-			if(healedStacks[g].lowLevelResurrection)
+			if(elem.lowLevelResurrection)
 				changedStack->state.insert(EBattleStackState::SUMMONED); //TODO: different counter for rised units
 		}
 		//int missingHPfirst = changedStack->MaxHealth() - changedStack->firstHPleft;
-		int res = std::min( healedStacks[g].healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count );
+		int res = std::min( elem.healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count );
 		changedStack->count += res;
-		changedStack->firstHPleft += healedStacks[g].healedHP - res * changedStack->MaxHealth();
+		changedStack->firstHPleft += elem.healedHP - res * changedStack->MaxHealth();
 		if(changedStack->firstHPleft > changedStack->MaxHealth())
 		{
 			changedStack->firstHPleft -= changedStack->MaxHealth();
@@ -1433,7 +1433,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			const BonusList tmpFeatures = changedStack->getBonusList();
 			//changedStack->bonuses.clear();
 
-			BOOST_FOREACH(Bonus *b, tmpFeatures)
+			for(Bonus *b : tmpFeatures)
 			{
 				const CSpell *s = b->sourceSpell();
 				if(s && s->isNegative())
@@ -1449,7 +1449,7 @@ DLL_LINKAGE void ObstaclesRemoved::applyGs( CGameState *gs )
 {
 	if(gs->curB) //if there is a battle
 	{
-		BOOST_FOREACH(const si32 rem_obst,obstacles)
+		for(const si32 rem_obst :obstacles)
 		{
 			for(int i=0; i<gs->curB->obstacles.size(); ++i)
 			{
@@ -1467,7 +1467,7 @@ DLL_LINKAGE void CatapultAttack::applyGs( CGameState *gs )
 {
 	if(gs->curB && gs->curB->siege != CGTownInstance::NONE) //if there is a battle and it's a siege
 	{
-		BOOST_FOREACH(const auto &it,attackedParts)
+		for(const auto &it :attackedParts)
 		{
 			gs->curB->si.wallState[it.first.first] =
 				std::min( gs->curB->si.wallState[it.first.first] + it.second, 3 );
@@ -1479,7 +1479,7 @@ DLL_LINKAGE void BattleStacksRemoved::applyGs( CGameState *gs )
 {
 	if(!gs->curB)
 		return;
-	BOOST_FOREACH(ui32 rem_stack, stackIDs)
+	for(ui32 rem_stack : stackIDs)
 	{
 		for(int b=0; b<gs->curB->stacks.size(); ++b) //find it in vector of stacks
 		{

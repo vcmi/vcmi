@@ -63,7 +63,7 @@ bool isMoreProfitable(const EnemyInfo &ei1, const EnemyInfo& ei2)
 int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = nullptr)
 {
 	int ret = 1000000;
-	BOOST_FOREACH(BattleHex n, hex.neighbouringTiles())
+	for(auto & n: hex.neighbouringTiles())
 	{
 		if(dists[n] >= 0 && dists[n] < ret)
 		{
@@ -86,7 +86,7 @@ static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const Battl
 	int shooters[2] = {0}; //count of shooters on hexes
 
 	for(int i = 0; i < 2; i++)
-		BOOST_FOREACH(BattleHex neighbour, (i ? h2 : h1).neighbouringTiles())
+		for (auto & neighbour : (i ? h2 : h1).neighbouringTiles())
 			if(const CStack *s = cbc->battleGetStackByPos(neighbour))
 				if(s->getCreature()->isShooting())
 						shooters[i]++;
@@ -114,7 +114,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		return attack;
 	}
 
-	BOOST_FOREACH(const CStack *s, cb->battleGetStacks(CBattleCallback::ONLY_ENEMY))
+	for (const CStack *s : cb->battleGetStacks(CBattleCallback::ONLY_ENEMY))
 	{
 		if(cb->battleCanShoot(stack, s->position))
 		{
@@ -124,7 +124,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		{
 			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack, false);
 
-			BOOST_FOREACH(BattleHex hex, avHexes)
+			for (BattleHex hex : avHexes)
 			{
 				if(CStack::isMeleeAttackPossible(stack, s, hex))
 				{

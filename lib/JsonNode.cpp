@@ -119,14 +119,14 @@ void JsonNode::setMeta(std::string metadata, bool recursive)
 		{
 			break; case DATA_VECTOR:
 			{
-				BOOST_FOREACH(auto & node, Vector())
+				for(auto & node : Vector())
 				{
 					node.setMeta(metadata);
 				}
 			}
 			break; case DATA_STRUCT:
 			{
-				BOOST_FOREACH(auto & node, Struct())
+				for(auto & node : Struct())
 				{
 					node.second.setMeta(metadata);
 				}
@@ -257,7 +257,7 @@ JsonNode & JsonNode::operator[](std::string child)
 
 const JsonNode & JsonNode::operator[](std::string child) const
 {
-	JsonMap::const_iterator it = Struct().find(child);
+	auto it = Struct().find(child);
 	if (it != Struct().end())
 		return it->second;
 	return nullNode;
@@ -775,7 +775,7 @@ static const std::map<std::string, JsonNode::JsonType> stringToType =
 
 std::string JsonValidator::validateEnum(const JsonNode &node, const JsonVector &enumeration)
 {
-	BOOST_FOREACH(auto & enumEntry, enumeration)
+	for(auto & enumEntry : enumeration)
 	{
 		if (node == enumEntry)
 			return "";
@@ -790,7 +790,7 @@ std::string JsonValidator::validatesSchemaList(const JsonNode &node, const JsonN
 		std::string errors = "<tested schemas>\n";
 		size_t result = 0;
 
-		BOOST_FOREACH(auto & schema, schemas.Vector())
+		for(auto & schema : schemas.Vector())
 		{
 			std::string error = validateNode(node, schema);
 			if (error.empty())
@@ -993,11 +993,11 @@ std::string JsonValidator::validateStruct(const JsonNode &node, const JsonNode &
 		auto & properties = schema["properties"];
 		auto & additional = schema["additionalProperties"];
 
-		BOOST_FOREACH(auto & entry, map)
+		for(auto & entry : map)
 			errors += validateStructItem(entry.second, properties, additional, entry.first);
 	}
 
-	BOOST_FOREACH(auto & required, schema["required"].Vector())
+	for(auto & required : schema["required"].Vector())
 	{
 		if (node[required.String()].isNull())
 			errors += fail("Required entry " + required.String() + " is missing");
@@ -1028,14 +1028,14 @@ std::string JsonValidator::validateStruct(const JsonNode &node, const JsonNode &
 	// a) array of fields that must be present
 	// b) struct with schema against which data should be valid
 	// These checks are triggered only if key is present
-	BOOST_FOREACH(auto & deps, schema["dependencies"].Struct())
+	for(auto & deps : schema["dependencies"].Struct())
 	{
 		if (vstd::contains(map, deps.first))
 		{
 			if (deps.second.getType() == JsonNode::DATA_VECTOR)
 			{
 				JsonVector depList = deps.second.Vector();
-				BOOST_FOREACH(auto & depEntry, depList)
+				for(auto & depEntry : depList)
 				{
 					if (!vstd::contains(map, depEntry.String()))
 						errors += fail("Property " + depEntry.String() + " required for " + deps.first + " is missing");
@@ -1134,7 +1134,7 @@ std::string JsonValidator::fail(const std::string &message)
 	errors += "At ";
 	if (!currentPath.empty())
 	{
-		BOOST_FOREACH(const JsonNode &path, currentPath)
+		for(const JsonNode &path : currentPath)
 		{
 			errors += "/";
 			if (path.getType() == JsonNode::DATA_STRING)
@@ -1176,7 +1176,7 @@ void JsonUtils::parseTypedBonusShort(const JsonVector& source, Bonus *dest)
 
 Bonus * JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
 {
-	Bonus * b = new Bonus();
+	auto  b = new Bonus();
 	std::string type = ability_vec[0].String();
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
@@ -1254,7 +1254,7 @@ void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
 Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 {
 
-	Bonus * b = new Bonus();
+	auto  b = new Bonus();
 	const JsonNode *value;
 
 	std::string type = ability["type"].String();
@@ -1297,7 +1297,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 		case JsonNode::DATA_VECTOR:
 			{
 				ui16 dur = 0;
-				BOOST_FOREACH (const JsonNode & d, value->Vector())
+				for (const JsonNode & d : value->Vector())
 				{
 					dur |= parseByMap(bonusDurationMap, &d, "duration type ");
 				}
@@ -1316,7 +1316,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 	value = &ability["limiters"];
 	if (!value->isNull())
 	{
-		BOOST_FOREACH (const JsonNode & limiter, value->Vector())
+		for (const JsonNode & limiter : value->Vector())
 		{
 			switch (limiter.getType())
 			{
@@ -1382,7 +1382,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 template<class Key, class Val>
 Key reverseMapFirst(const Val & val, const std::map<Key, Val> map)
 {
-	BOOST_FOREACH(auto it, map)
+	for(auto it : map)
 	{
 		if(it.second == val)
 		{
@@ -1422,7 +1422,7 @@ void minimizeNode(JsonNode & node, const JsonNode & schema)
 	{
 		std::set<std::string> foundEntries;
 
-		BOOST_FOREACH(auto & entry, schema["required"].Vector())
+		for(auto & entry : schema["required"].Vector())
 		{
 			std::string name = entry.String();
 			foundEntries.insert(name);
@@ -1461,7 +1461,7 @@ void maximizeNode(JsonNode & node, const JsonNode & schema)
 		std::set<std::string> foundEntries;
 
 		// check all required entries that have default version
-		BOOST_FOREACH(auto & entry, schema["required"].Vector())
+		for(auto & entry : schema["required"].Vector())
 		{
 			std::string name = entry.String();
 			foundEntries.insert(name);
@@ -1583,7 +1583,7 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source)
 		case JsonNode::DATA_STRUCT:
 		{
 			//recursively merge all entries from struct
-			BOOST_FOREACH(auto & node, source.Struct())
+			for(auto & node : source.Struct())
 				merge(dest[node.first], node.second);
 		}
 	}
@@ -1599,7 +1599,7 @@ JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files)
 {
 	JsonNode result;
 
-	BOOST_FOREACH(std::string file, files)
+	for(std::string file : files)
 	{
 		JsonNode section(ResourceID(file, EResType::TEXT));
 		merge(result, section);
@@ -1613,7 +1613,7 @@ JsonNode JsonUtils::assembleFromFiles(std::string filename)
 
 	auto & configList = CResourceHandler::get()->getResourcesWithName(ResourceID(filename, EResType::TEXT));
 
-	BOOST_FOREACH(auto & entry, configList)
+	for(auto & entry : configList)
 	{
 		// FIXME: some way to make this code more readable
 		auto stream = entry.getLoader()->load(entry.getResourceName());

@@ -310,7 +310,7 @@ const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & gen)
 	// Find potential templates
 	const auto & tpls = getAvailableTemplates();
 	std::list<const CRmgTemplate *> potentialTpls;
-	BOOST_FOREACH(const auto & tplPair, tpls)
+	for(const auto & tplPair : tpls)
 	{
 		const auto & tpl = tplPair.second;
 		CRmgTemplate::CSize tplSize(width, height, hasTwoLevels);
@@ -439,7 +439,7 @@ std::string CMapGenerator::getMapDescription() const
 		static_cast<int>(mapGenOptions.getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions.getWaterContent()] %
         monsterStrengthStr[mapGenOptions.getMonsterStrength()]);
 
-	BOOST_FOREACH(const auto & pair, mapGenOptions.getPlayersSettings())
+	for(const auto & pair : mapGenOptions.getPlayersSettings())
 	{
 		const auto & pSettings = pair.second;
 		if(pSettings.getPlayerType() == EPlayerType::HUMAN)
@@ -492,7 +492,7 @@ void CMapGenerator::addPlayerInfo()
 	}
 
 	// Team numbers are assigned randomly to every player
-	BOOST_FOREACH(const auto & pair, mapGenOptions.getPlayersSettings())
+	for(const auto & pair : mapGenOptions.getPlayersSettings())
 	{
 		const auto & pSettings = pair.second;
 		PlayerInfo player;
@@ -532,7 +532,7 @@ void CMapGenerator::genTowns()
 
 		PlayerColor owner(i);
 		int side = i % 2;
-		CGTownInstance * town = new CGTownInstance();
+		auto  town = new CGTownInstance();
 		town->ID = Obj::TOWN;
 		int townId = mapGenOptions.getPlayersSettings().find(PlayerColor(i))->second.getStartingTown();
 		if(townId == CMapGenOptions::CPlayerSettings::RANDOM_TOWN) townId = gen.getInteger(0, 8); // Default towns
@@ -740,7 +740,7 @@ std::set<ETerrainType> CRmgTemplateZone::getDefaultTerrainTypes() const
 	std::set<ETerrainType> terTypes;
 	static const ETerrainType::EETerrainType allowedTerTypes[] = { ETerrainType::DIRT, ETerrainType::SAND, ETerrainType::GRASS, ETerrainType::SNOW,
 												   ETerrainType::SWAMP, ETerrainType::ROUGH, ETerrainType::SUBTERRANEAN, ETerrainType::LAVA };
-	for(int i = 0; i < ARRAY_COUNT(allowedTerTypes); ++i) terTypes.insert(allowedTerTypes[i]);
+	for(auto & allowedTerType : allowedTerTypes) terTypes.insert(allowedTerType);
 	return terTypes;
 }
 
@@ -967,7 +967,7 @@ void CRmgTemplate::CPlayerCountRange::addNumber(int value)
 
 bool CRmgTemplate::CPlayerCountRange::isInRange(int count) const
 {
-	BOOST_FOREACH(const auto & pair, range)
+	for(const auto & pair : range)
 	{
 		if(count >= pair.first && count <= pair.second) return true;
 	}
@@ -977,7 +977,7 @@ bool CRmgTemplate::CPlayerCountRange::isInRange(int count) const
 std::set<int> CRmgTemplate::CPlayerCountRange::getNumbers() const
 {
 	std::set<int> numbers;
-	BOOST_FOREACH(const auto & pair, range)
+	for(const auto & pair : range)
 	{
 		for(int i = pair.first; i <= pair.second; ++i) numbers.insert(i);
 	}
@@ -992,7 +992,7 @@ const std::map<std::string, CRmgTemplate> & CRmgTemplateLoader::getTemplates() c
 void CJsonRmgTemplateLoader::loadTemplates()
 {
 	const JsonNode rootNode(ResourceID("config/rmg.json"));
-	BOOST_FOREACH(const auto & templatePair, rootNode.Struct())
+	for(const auto & templatePair : rootNode.Struct())
 	{
 		CRmgTemplate tpl;
 		try
@@ -1008,7 +1008,7 @@ void CJsonRmgTemplateLoader::loadTemplates()
 
 			// Parse zones
 			std::map<TRmgTemplateZoneId, CRmgTemplateZone> zones;
-			BOOST_FOREACH(const auto & zonePair, templateNode["zones"].Struct())
+			for(const auto & zonePair : templateNode["zones"].Struct())
 			{
 				CRmgTemplateZone zone;
 				auto zoneId = boost::lexical_cast<TRmgTemplateZoneId>(zonePair.first);
@@ -1031,7 +1031,7 @@ void CJsonRmgTemplateLoader::loadTemplates()
 
 			// Parse connections
 			std::list<CRmgTemplateZoneConnection> connections;
-			BOOST_FOREACH(const auto & connPair, templateNode["connections"].Vector())
+			for(const auto & connPair : templateNode["connections"].Vector())
 			{
 				CRmgTemplateZoneConnection conn;
 				conn.setZoneA(boost::lexical_cast<TRmgTemplateZoneId>(connPair["a"].String()));
@@ -1103,13 +1103,13 @@ CRmgTemplateZone::CTownInfo CJsonRmgTemplateLoader::parseTemplateZoneTowns(const
 std::set<TFaction> CJsonRmgTemplateLoader::parseTownTypes(const JsonVector & townTypesVector, const std::set<TFaction> & defaultTownTypes) const
 {
 	std::set<TFaction> townTypes;
-	BOOST_FOREACH(const auto & townTypeNode, townTypesVector)
+	for(const auto & townTypeNode : townTypesVector)
 	{
 		auto townTypeStr = townTypeNode.String();
 		if(townTypeStr == "all") return defaultTownTypes;
 
 		bool foundFaction = false;
-		BOOST_FOREACH(auto factionPtr, VLC->townh->factions)
+		for(auto factionPtr : VLC->townh->factions)
 		{
 			if(factionPtr->town != nullptr && townTypeStr == factionPtr->name)
 			{
@@ -1125,7 +1125,7 @@ std::set<TFaction> CJsonRmgTemplateLoader::parseTownTypes(const JsonVector & tow
 std::set<ETerrainType> CJsonRmgTemplateLoader::parseTerrainTypes(const JsonVector & terTypeStrings, const std::set<ETerrainType> & defaultTerrainTypes) const
 {
 	std::set<ETerrainType> terTypes;
-	BOOST_FOREACH(const auto & node, terTypeStrings)
+	for(const auto & node : terTypeStrings)
 	{
 		const auto & terTypeStr = node.String();
 		if(terTypeStr == "all") return defaultTerrainTypes;
@@ -1152,7 +1152,7 @@ CRmgTemplate::CPlayerCountRange CJsonRmgTemplateLoader::parsePlayers(const std::
 	}
 	std::vector<std::string> commaParts;
 	boost::split(commaParts, players, boost::is_any_of(","));
-	BOOST_FOREACH(const auto & commaPart, commaParts)
+	for(const auto & commaPart : commaParts)
 	{
 		std::vector<std::string> rangeParts;
 		boost::split(rangeParts, commaPart, boost::is_any_of("-"));

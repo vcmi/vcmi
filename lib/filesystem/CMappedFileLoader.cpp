@@ -5,7 +5,7 @@
 
 CMappedFileLoader::CMappedFileLoader(const JsonNode &config)
 {
-	BOOST_FOREACH(auto entry, config.Struct())
+	for(auto entry : config.Struct())
 	{
 		fileList[ResourceID(entry.first)] = entry.second.String();
 	}
@@ -18,9 +18,9 @@ std::unique_ptr<CInputStream> CMappedFileLoader::load(const std::string & resour
 
 bool CMappedFileLoader::existsEntry(const std::string & resourceName) const
 {
-	for(auto it = fileList.begin(); it != fileList.end(); ++it)
+	for(auto & elem : fileList)
 	{
-		if(it->second == resourceName)
+		if(elem.second == resourceName)
 		{
 			return true;
 		}
@@ -29,7 +29,7 @@ bool CMappedFileLoader::existsEntry(const std::string & resourceName) const
 	return false;
 }
 
-boost::unordered_map<ResourceID, std::string> CMappedFileLoader::getEntries() const
+std::unordered_map<ResourceID, std::string> CMappedFileLoader::getEntries() const
 {
 	return fileList;
 }

@@ -24,7 +24,7 @@
 
 const CStackInstance &CCreatureSet::operator[](SlotID slot) const
 {
-	TSlots::const_iterator i = stacks.find(slot);
+	auto i = stacks.find(slot);
 	if (i != stacks.end())
 		return *i->second;
 	else
@@ -33,7 +33,7 @@ const CStackInstance &CCreatureSet::operator[](SlotID slot) const
 
 const CCreature* CCreatureSet::getCreature(SlotID slot) const
 {
-	TSlots::const_iterator i = stacks.find(slot);
+	auto i = stacks.find(slot);
 	if (i != stacks.end())
 		return i->second->type;
 	else
@@ -69,12 +69,12 @@ SlotID CCreatureSet::getSlotFor(CreatureID creature, ui32 slotsAmount/*=7*/) con
 SlotID CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount/*=ARMY_SIZE*/) const
 {
 	assert(c->valid());
-	for(TSlots::const_iterator i=stacks.begin(); i!=stacks.end(); ++i)
+	for(auto & elem : stacks)
 	{
-		assert(i->second->type->valid());
-		if(i->second->type == c)
+		assert(elem.second->type->valid());
+		if(elem.second->type == c)
 		{
-			return i->first; //if there is already such creature we return its slot id
+			return elem.first; //if there is already such creature we return its slot id
 		}
 	}
 	return getFreeSlot(slotsAmount);
@@ -94,7 +94,7 @@ SlotID CCreatureSet::getFreeSlot(ui32 slotsAmount/*=ARMY_SIZE*/) const
 
 int CCreatureSet::getStackCount(SlotID slot) const
 {
-	TSlots::const_iterator i = stacks.find(slot);
+	auto i = stacks.find(slot);
 	if (i != stacks.end())
 		return i->second->count;
 	else
@@ -103,7 +103,7 @@ int CCreatureSet::getStackCount(SlotID slot) const
 
 TExpType CCreatureSet::getStackExperience(SlotID slot) const
 {
-	TSlots::const_iterator i = stacks.find(slot);
+	auto i = stacks.find(slot);
 	if (i != stacks.end())
 		return i->second->experience;
 	else
@@ -117,25 +117,25 @@ bool CCreatureSet::mergableStacks(std::pair<SlotID, SlotID> &out, SlotID prefera
 	if(preferable.validSlot() &&  vstd::contains(stacks, preferable))
 	{
 		const CCreature *cr = stacks.find(preferable)->second->type;
-		for(TSlots::const_iterator j=stacks.begin(); j!=stacks.end(); ++j)
+		for(auto & elem : stacks)
 		{
-			if(cr == j->second->type && j->first != preferable)
+			if(cr == elem.second->type && elem.first != preferable)
 			{
 				out.first = preferable;
-				out.second = j->first;
+				out.second = elem.first;
 				return true;
 			}
 		}
 	}
 
-	for(TSlots::const_iterator i=stacks.begin(); i!=stacks.end(); ++i)
+	for(auto i=stacks.begin(); i!=stacks.end(); ++i)
 	{
-		for(TSlots::const_iterator j=stacks.begin(); j!=stacks.end(); ++j)
+		for(auto & elem : stacks)
 		{
-			if(i->second->type == j->second->type  &&  i->first != j->first)
+			if(i->second->type == elem.second->type  &&  i->first != elem.first)
 			{
 				out.first = i->first;
-				out.second = j->first;
+				out.second = elem.first;
 				return true;
 			}
 		}
@@ -145,7 +145,7 @@ bool CCreatureSet::mergableStacks(std::pair<SlotID, SlotID> &out, SlotID prefera
 
 void CCreatureSet::sweep()
 {
-	for(TSlots::iterator i=stacks.begin(); i!=stacks.end(); ++i)
+	for(auto i=stacks.begin(); i!=stacks.end(); ++i)
 	{
 		if(!i->second->count)
 		{
@@ -194,9 +194,9 @@ void CCreatureSet::addToSlot(SlotID slot, CStackInstance *stack, bool allowMergi
 
 bool CCreatureSet::validTypes(bool allowUnrandomized /*= false*/) const
 {
-	for(TSlots::const_iterator i=stacks.begin(); i!=stacks.end(); ++i)
+	for(auto & elem : stacks)
 	{
-		if(!i->second->valid(allowUnrandomized))
+		if(!elem.second->valid(allowUnrandomized))
 			return false;
 	}
 	return true;
@@ -215,8 +215,8 @@ bool CCreatureSet::needsLastStack() const
 ui64 CCreatureSet::getArmyStrength() const
 {
 	ui64 ret = 0;
-	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); i++)
-		ret += i->second->getPower();
+	for(auto & elem : stacks)
+		ret += elem.second->getPower();
 	return ret;
 }
 
@@ -296,8 +296,8 @@ bool CCreatureSet::contains(const CStackInstance *stack) const
 	if(!stack)
 		return false;
 
-	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); ++i)
-		if(i->second == stack)
+	for(auto & elem : stacks)
+		if(elem.second == stack)
 			return true;
 
 	return false;
@@ -312,9 +312,9 @@ SlotID CCreatureSet::findStack(const CStackInstance *stack) const
 	if(!stack)
 		return SlotID();
 
-	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); ++i)
-		if(i->second == stack)
-			return i->first;
+	for(auto & elem : stacks)
+		if(elem.second == stack)
+			return elem.first;
 
 	return SlotID();
 }
@@ -369,7 +369,7 @@ void CCreatureSet::setToArmy(CSimpleArmy &src)
 	clear();
 	while(src)
 	{
-		TSimpleSlots::iterator i = src.army.begin();
+		auto i = src.army.begin();
 
 		assert(i->second.type);
 		assert(i->second.count);
@@ -409,11 +409,11 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStac
 	{
 		int freeSlots = stacksCount() - GameConstants::ARMY_SIZE;
 		std::set<const CCreature*> cresToAdd;
-		for(TSlots::const_iterator i = cs.stacks.begin(); i != cs.stacks.end(); i++)
+		for(auto & elem : cs.stacks)
 		{
-			SlotID dest = getSlotFor(i->second->type);
+			SlotID dest = getSlotFor(elem.second->type);
 			if(!dest.validSlot() || hasStackAtSlot(dest))
-				cresToAdd.insert(i->second->type);
+				cresToAdd.insert(elem.second->type);
 		}
 		return cresToAdd.size() <= freeSlots;
 	}
@@ -422,13 +422,13 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStac
 		CCreatureSet cres;
 
 		//get types of creatures that need their own slot
-		for(TSlots::const_iterator i = cs.stacks.begin(); i != cs.stacks.end(); i++)
-			cres.addToSlot(i->first, i->second->type->idNumber, 1, true);
+		for(auto & elem : cs.stacks)
+			cres.addToSlot(elem.first, elem.second->type->idNumber, 1, true);
 		SlotID j;
-		for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); i++)
+		for(auto & elem : stacks)
 		{
-			if ((j = cres.getSlotFor(i->second->type)).validSlot())
-				cres.addToSlot(j, i->second->type->idNumber, 1, true);  //merge if possible
+			if ((j = cres.getSlotFor(elem.second->type)).validSlot())
+				cres.addToSlot(j, elem.second->type->idNumber, 1, true);  //merge if possible
 			else
 				return false; //no place found
 		}
@@ -730,7 +730,7 @@ int CCommanderInstance::getLevel() const
 void CCommanderInstance::levelUp ()
 {
 	level++;
-	BOOST_FOREACH (auto bonus, VLC->creh->commanderLevelPremy)
+	for (auto bonus : VLC->creh->commanderLevelPremy)
 	{ //grant all regular level-up bonuses
 		accumulateBonus (*bonus);
 	}

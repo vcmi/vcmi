@@ -494,7 +494,7 @@ void CAdvMapInt::fshowSpellbok()
 
 	centerOn(selection);
 
-	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), curHero(), LOCPLINT, false);
+	auto   spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), curHero(), LOCPLINT, false);
 	GH.pushInt(spellWindow);
 }
 
@@ -883,7 +883,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			{
 				//check if we have any marketplace
 				const CGTownInstance *townWithMarket = nullptr;
-				BOOST_FOREACH(const CGTownInstance *t, LOCPLINT->cb->getTownsInfo())
+				for(const CGTownInstance *t : LOCPLINT->cb->getTownsInfo())
 				{
 					if(t->hasBuilt(BuildingID::MARKETPLACE))
 					{

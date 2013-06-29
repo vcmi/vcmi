@@ -188,7 +188,7 @@ public:
 	virtual int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	virtual int getSightRadious() const; //sight distance (should be used if player-owned structure)
 	bool passableFor(PlayerColor color) const;
-	void getSightTiles(boost::unordered_set<int3, ShashInt3> &tiles) const; //returns reference to the set
+	void getSightTiles(std::unordered_set<int3, ShashInt3> &tiles) const; //returns reference to the set
 	PlayerColor getOwner() const;
 	void setOwner(PlayerColor ow);
 	int getWidth() const; //returns width of object graphic in tiles

@@ -101,34 +101,34 @@ void CMapHandler::prepareFOWDefs()
 	static const int missRot [] = {22, 15, 2, 13, 12, 16, 28, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27};
 
 	Cimage nw;
-	for(int g=0; g<ARRAY_COUNT(missRot); ++g)
+	for(auto & elem : missRot)
 	{
-		nw = graphics->FoWpartialHide->ourImages[missRot[g]];
+		nw = graphics->FoWpartialHide->ourImages[elem];
 		nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
 		graphics->FoWpartialHide->ourImages.push_back(nw);
 	}
 	//necessaary rotations added
 
 	//alpha - transformation
-	for(size_t i = 0; i < graphics->FoWpartialHide->ourImages.size(); ++i)
+	for(auto & elem : graphics->FoWpartialHide->ourImages)
 	{
-		CSDL_Ext::alphaTransform(graphics->FoWpartialHide->ourImages[i].bitmap);
+		CSDL_Ext::alphaTransform(elem.bitmap);
 	}
 
 	//initialization of type of full-hide image
 	hideBitmap.resize(sizes.x);
-	for (size_t i = 0; i < hideBitmap.size();i++)
+	for (auto & elem : hideBitmap)
 	{
-		hideBitmap[i].resize(sizes.y);
+		elem.resize(sizes.y);
 	}
-	for (size_t i = 0; i < hideBitmap.size(); ++i)
+	for (auto & elem : hideBitmap)
 	{
 		for (int j = 0; j < sizes.y; ++j)
 		{
-			hideBitmap[i][j].resize(sizes.z);
+			elem[j].resize(sizes.z);
 			for(int k = 0; k < sizes.z; ++k)
 			{
-				hideBitmap[i][j][k] = rand()%graphics->FoWfullHide->ourImages.size();
+				elem[j][k] = rand()%graphics->FoWfullHide->ourImages.size();
 			}
 		}
 	}
@@ -145,18 +145,18 @@ void CMapHandler::roadsRiverTerrainInit()
 	staticRiverDefs.push_back(CDefHandler::giveDefEss("icyrvr.def"));
 	staticRiverDefs.push_back(CDefHandler::giveDefEss("mudrvr.def"));
 	staticRiverDefs.push_back(CDefHandler::giveDefEss("lavrvr.def"));
-	for(size_t g=0; g<staticRiverDefs.size(); ++g)
+	for(auto & elem : staticRiverDefs)
 	{
-		for(size_t h=0; h < staticRiverDefs[g]->ourImages.size(); ++h)
+		for(size_t h=0; h < elem->ourImages.size(); ++h)
 		{
-			CSDL_Ext::alphaTransform(staticRiverDefs[g]->ourImages[h].bitmap);
+			CSDL_Ext::alphaTransform(elem->ourImages[h].bitmap);
 		}
 	}
-	for(size_t g=0; g<roadDefs.size(); ++g)
+	for(auto & elem : roadDefs)
 	{
-		for(size_t h=0; h < roadDefs[g]->ourImages.size(); ++h)
+		for(size_t h=0; h < elem->ourImages.size(); ++h)
 		{
-			CSDL_Ext::alphaTransform(roadDefs[g]->ourImages[h].bitmap);
+			CSDL_Ext::alphaTransform(elem->ourImages[h].bitmap);
 		}
 	}
 
@@ -264,18 +264,18 @@ static void processDef (const CGDefInfo* def)
 
 	}
 	//alpha transformation
-	for(size_t yy=0; yy < ourDef->ourImages.size(); ++yy)
+	for(auto & elem : ourDef->ourImages)
 	{
-		CSDL_Ext::alphaTransform(ourDef->ourImages[yy].bitmap);
+		CSDL_Ext::alphaTransform(elem.bitmap);
 	}
 }
 
 void CMapHandler::initObjectRects()
 {
 	//initializing objects / rects
-	for(size_t f=0; f < map->objects.size(); ++f)
+	for(auto & elem : map->objects)
 	{
-		const CGObjectInstance *obj = map->objects[f];
+		const CGObjectInstance *obj = elem;
 		if(	!obj
 			|| (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
 			|| (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero) //boat with hero (hero graphics is used)
@@ -371,11 +371,11 @@ void CMapHandler::init()
 	offsetX = (mapW - (2*frameW+1)*32)/2;
 	offsetY = (mapH - (2*frameH+1)*32)/2;
 
-	for(int i=0;i<map->heroesOnMap.size();i++)
+	for(auto & elem : map->heroesOnMap)
 	{
-		if( !graphics->getDef(map->heroesOnMap[i]) )
+		if( !graphics->getDef(elem) )
 		{
-			initHeroDef(map->heroesOnMap[i]);
+			initHeroDef(elem);
 		}
 	}
 
@@ -518,9 +518,9 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 
 			//blit objects
 			const std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > &objects = tile.objects;
-			for(int h=0; h < objects.size(); ++h)
+			for(auto & object : objects)
 			{
-				const CGObjectInstance *obj = objects[h].first;
+				const CGObjectInstance *obj = object.first;
 				if (!graphics->getDef(obj))
 					processDef(obj->defInfo);
 
@@ -538,7 +538,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 
  				SDL_Rect sr2(sr); 
 
-				SDL_Rect pp = objects[h].second;
+				SDL_Rect pp = object.second;
 				pp.h = sr.h;
 				pp.w = sr.w;
 
@@ -879,7 +879,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 			{
 				TerrainTile2 & curt = ttiles[obj->pos.x + fx - tilesW+1][obj->pos.y + fy - tilesH+1][obj->pos.z];
 
-				std::vector< std::pair<const CGObjectInstance*,SDL_Rect> >::iterator i = curt.objects.begin();
+				auto i = curt.objects.begin();
 				for(; i != curt.objects.end(); i++)
 				{
 					OCM_HLP cmp;
@@ -1029,29 +1029,29 @@ void shiftColors(SDL_Surface *img, int from, int howMany) //shifts colors in pal
 
 void CMapHandler::updateWater() //shift colors in palettes of water tiles
 {
-	for(size_t j=0; j < terrainGraphics[7].size(); ++j)
+	for(auto & elem : terrainGraphics[7])
 	{
-		shiftColors(terrainGraphics[7][j],246, 9); 
+		shiftColors(elem,246, 9); 
 	}
-	for(size_t j=0; j < terrainGraphics[8].size(); ++j)
+	for(auto & elem : terrainGraphics[8])
 	{
-		shiftColors(terrainGraphics[8][j],229, 12); 
-		shiftColors(terrainGraphics[8][j],242, 14); 
+		shiftColors(elem,229, 12); 
+		shiftColors(elem,242, 14); 
 	}
-	for(size_t j=0; j < staticRiverDefs[0]->ourImages.size(); ++j)
+	for(auto & elem : staticRiverDefs[0]->ourImages)
 	{
-		shiftColors(staticRiverDefs[0]->ourImages[j].bitmap,183, 12); 
-		shiftColors(staticRiverDefs[0]->ourImages[j].bitmap,195, 6); 
+		shiftColors(elem.bitmap,183, 12); 
+		shiftColors(elem.bitmap,195, 6); 
 	}
-	for(size_t j=0; j < staticRiverDefs[2]->ourImages.size(); ++j)
+	for(auto & elem : staticRiverDefs[2]->ourImages)
 	{
-		shiftColors(staticRiverDefs[2]->ourImages[j].bitmap,228, 12); 
-		shiftColors(staticRiverDefs[2]->ourImages[j].bitmap,183, 6); 
-		shiftColors(staticRiverDefs[2]->ourImages[j].bitmap,240, 6); 
+		shiftColors(elem.bitmap,228, 12); 
+		shiftColors(elem.bitmap,183, 6); 
+		shiftColors(elem.bitmap,240, 6); 
 	}
-	for(size_t j=0; j < staticRiverDefs[3]->ourImages.size(); ++j)
+	for(auto & elem : staticRiverDefs[3]->ourImages)
 	{
-		shiftColors(staticRiverDefs[3]->ourImages[j].bitmap,240, 9); 
+		shiftColors(elem.bitmap,240, 9); 
 	}
 }
 
@@ -1060,16 +1060,16 @@ CMapHandler::~CMapHandler()
 	delete graphics->FoWfullHide;
 	delete graphics->FoWpartialHide;
 
-	for(int i=0; i < roadDefs.size(); i++)
-		delete roadDefs[i];
+	for(auto & elem : roadDefs)
+		delete elem;
 
-	for(int i=0; i < staticRiverDefs.size(); i++)
-		delete staticRiverDefs[i];
+	for(auto & elem : staticRiverDefs)
+		delete elem;
 
-	for(int i=0; i < terrainGraphics.size(); ++i)
+	for(auto & elem : terrainGraphics)
 	{
-		for(int j=0; j < terrainGraphics[i].size(); ++j)
-			SDL_FreeSurface(terrainGraphics[i][j]);
+		for(int j=0; j < elem.size(); ++j)
+			SDL_FreeSurface(elem[j]);
 	}
 	terrainGraphics.clear();
 }
@@ -1086,11 +1086,11 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	out.clear();
 	TerrainTile2 & tt = ttiles[pos.x][pos.y][pos.z];
 	const TerrainTile &t = map->getTile(pos);
-	for(std::vector < std::pair<const CGObjectInstance*,SDL_Rect> >::const_iterator i = tt.objects.begin(); i != tt.objects.end(); i++)
+	for(auto & elem : tt.objects)
 	{
-		if(i->first->ID == Obj::HOLE) //Hole
+		if(elem.first->ID == Obj::HOLE) //Hole
 		{
-			out = i->first->hoverName;
+			out = elem.first->hoverName;
 			return;
 		}
 	}
@@ -1115,5 +1115,5 @@ ui8 CMapHandler::getPhaseShift(const CGObjectInstance *object) const
 }
 
 TerrainTile2::TerrainTile2()
- :terbitmap(0)
+ :terbitmap(nullptr)
 {}

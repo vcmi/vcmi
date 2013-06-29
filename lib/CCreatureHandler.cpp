@@ -107,7 +107,7 @@ CCreature::CCreature()
 }
 void CCreature::addBonus(int val, Bonus::BonusType type, int subtype /*= -1*/)
 {
-	Bonus *added = new Bonus(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
+	auto added = new Bonus(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
 	addNewBonus(added);
 }
 
@@ -135,7 +135,7 @@ bool CCreature::isItNativeTerrain(int terrain) const
 void CCreature::setId(CreatureID ID)
 {
 	idNumber = ID;
-	BOOST_FOREACH(auto bonus, getExportedBonusList())
+	for(auto bonus : getExportedBonusList())
 	{
 		if(bonus->source == Bonus::CREATURE_ABILITY)
 			bonus->sid = ID;
@@ -144,7 +144,7 @@ void CCreature::setId(CreatureID ID)
 
 static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 {
-	Bonus *nsf = new Bonus();
+	auto nsf = new Bonus();
 	std::string type = ability_vec[0].String();
 
 	auto it = bonusNameMap.find(type);
@@ -194,23 +194,23 @@ void CCreatureHandler::loadCommanders()
 
 	const JsonNode & config = data; // switch to const data accessors
 
-	BOOST_FOREACH (auto bonus, config["bonusPerLevel"].Vector())
+	for (auto bonus : config["bonusPerLevel"].Vector())
 	{
 		commanderLevelPremy.push_back(JsonUtils::parseBonus (bonus.Vector()));
 	}
 
 	int i = 0;
-	BOOST_FOREACH (auto skill, config["skillLevels"].Vector())
+	for (auto skill : config["skillLevels"].Vector())
 	{
 		skillLevels.push_back (std::vector<ui8>());
-		BOOST_FOREACH (auto skillLevel, skill["levels"].Vector())
+		for (auto skillLevel : skill["levels"].Vector())
 		{
 			skillLevels[i].push_back (skillLevel.Float());
 		}
 		++i;
 	}
 
-	BOOST_FOREACH (auto ability, config["abilityRequirements"].Vector())
+	for (auto ability : config["abilityRequirements"].Vector())
 	{
 		std::pair <Bonus*, std::pair <ui8, ui8> > a;
 		a.first = JsonUtils::parseBonus (ability["ability"].Vector());
@@ -252,7 +252,7 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 		return boost::algorithm::find_first(bonuses, name);
 	};
 
-	BOOST_FOREACH(auto a, abilityMap)
+	for(auto a : abilityMap)
 	{
 		if(hasAbility(a.first))
 			creature["abilities"][a.first] = a.second;
@@ -364,7 +364,7 @@ void CCreatureHandler::loadObject(std::string scope, std::string name, const Jso
 
 	VLC->modh->identifiers.registerObject(scope, "creature", name, object->idNumber);
 
-	BOOST_FOREACH(auto node, data["extraNames"].Vector())
+	for(auto node : data["extraNames"].Vector())
 	{
 		VLC->modh->identifiers.registerObject(scope, "creature", node.String(), object->idNumber);
 	}
@@ -385,7 +385,7 @@ void CCreatureHandler::loadObject(std::string scope, std::string name, const Jso
 	creatures[index] = object;
 
 	VLC->modh->identifiers.registerObject(scope, "creature", name, object->idNumber);
-	BOOST_FOREACH(auto node, data["extraNames"].Vector())
+	for(auto node : data["extraNames"].Vector())
 	{
 		VLC->modh->identifiers.registerObject(scope, "creature", node.String(), object->idNumber);
 	}
@@ -395,7 +395,7 @@ std::vector<bool> CCreatureHandler::getDefaultAllowed() const
 {
 	std::vector<bool> ret;
 
-	BOOST_FOREACH(const CCreature * crea, creatures)
+	for(const CCreature * crea : creatures)
 	{
 		ret.push_back(crea ? !crea->special : false);
 	}
@@ -421,7 +421,7 @@ void CCreatureHandler::loadCrExpBon()
 
 		parser.readString(); //ignore index
 		loadStackExp(b, bl, parser);
-		BOOST_FOREACH(Bonus * b, bl)
+		for(Bonus * b : bl)
 			addBonusForAllCreatures(b); //health bonus is common for all
 		parser.endLine();
 
@@ -432,7 +432,7 @@ void CCreatureHandler::loadCrExpBon()
 				parser.readString(); //ignore index
 				bl.clear();
 				loadStackExp(b, bl, parser);
-				BOOST_FOREACH(Bonus * b, bl)
+				for(Bonus * b : bl)
 					addBonusForTier(i, b);
 				parser.endLine();
 			}
@@ -442,7 +442,7 @@ void CCreatureHandler::loadCrExpBon()
 			parser.readString(); //ignore index
 			bl.clear();
 			loadStackExp(b, bl, parser);
-			BOOST_FOREACH(Bonus * b, bl)
+			for(Bonus * b : bl)
 			{
 				addBonusForTier(7, b);
 				creaturesOfLevel[0].addNewBonus(b); //bonuses from level 7 are given to high-level creatures
@@ -562,7 +562,7 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 
 CCreature * CCreatureHandler::loadFromJson(const JsonNode & node)
 {
-	CCreature * cre = new CCreature();
+	auto  cre = new CCreature();
 
 	const JsonNode & name = node["name"];
 	cre->nameSing = name["singular"].String();
@@ -634,7 +634,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 
 	if (config["abilities"].getType() == JsonNode::DATA_STRUCT)
 	{
-		BOOST_FOREACH(auto &ability, config["abilities"].Struct())
+		for(auto &ability : config["abilities"].Struct())
 		{
 			if (!ability.second.isNull())
 			{
@@ -647,7 +647,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	}
 	else
 	{
-		BOOST_FOREACH(const JsonNode &ability, config["abilities"].Vector())
+		for(const JsonNode &ability : config["abilities"].Vector())
 		{
 			if (ability.getType() == JsonNode::DATA_VECTOR)
 			{
@@ -669,7 +669,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		creature->faction = faction;
 	});
 
-	BOOST_FOREACH(const JsonNode &value, config["upgrades"].Vector())
+	for(const JsonNode &value : config["upgrades"].Vector())
 	{
 		VLC->modh->identifiers.requestIdentifier("creature", value, [=](si32 identifier)
 		{
@@ -697,7 +697,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 
 void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode & input)
 {
-	BOOST_FOREACH (const JsonNode &exp, input.Vector())
+	for (const JsonNode &exp : input.Vector())
 	{
 		auto bonus = JsonUtils::parseBonus (exp["bonus"]);
 		bonus->source = Bonus::STACK_EXPERIENCE;
@@ -706,7 +706,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 		int lowerLimit = 1;//, upperLimit = 255;
 		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
 		{
-			BOOST_FOREACH (const JsonNode &val, values)
+			for (const JsonNode &val : values)
 			{
 				if (val.Bool() == true)
 				{
@@ -720,7 +720,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 		else
 		{
 			int lastVal = 0;
-			BOOST_FOREACH (const JsonNode &val, values)
+			for (const JsonNode &val : values)
 			{
 				if (val.Float() != lastVal)
 				{
@@ -1042,7 +1042,7 @@ int CCreatureHandler::stringToNumber(std::string & s)
 
 CCreatureHandler::~CCreatureHandler()
 {
-	BOOST_FOREACH(auto & creature, creatures)
+	for(auto & creature : creatures)
 		creature.dellNull();
 }
 
@@ -1060,7 +1060,7 @@ CreatureID CCreatureHandler::pickRandomMonster(const std::function<int()> &randG
 	{
 		assert(vstd::iswithin(tier, 1, 7));
 		std::vector<CreatureID> allowed;
-		BOOST_FOREACH(const CBonusSystemNode *b, creaturesOfLevel[tier].getChildrenNodes())
+		for(const CBonusSystemNode *b : creaturesOfLevel[tier].getChildrenNodes())
 		{
 			assert(b->getNodeType() == CBonusSystemNode::CREATURE);
 			const CCreature * crea = dynamic_cast<const CCreature*>(b);
@@ -1093,14 +1093,14 @@ void CCreatureHandler::addBonusForAllCreatures(Bonus *b)
 
 void CCreatureHandler::buildBonusTreeForTiers()
 {
-	BOOST_FOREACH(CCreature *c, creatures)
+	for(CCreature *c : creatures)
 	{
 		if(vstd::isbetween(c->level, 0, ARRAY_COUNT(creaturesOfLevel)))
 			c->attachTo(&creaturesOfLevel[c->level]);
 		else
 			c->attachTo(&creaturesOfLevel[0]);
 	}
-	BOOST_FOREACH(CBonusSystemNode &b, creaturesOfLevel)
+	for(CBonusSystemNode &b : creaturesOfLevel)
 		b.attachTo(&allCreatures);
 }
 

@@ -141,7 +141,7 @@ bool CResourceLoader::createResource(std::string URI, bool update)
 {
 	std::string filename = URI;
 	boost::to_upper(URI);
-	BOOST_REVERSE_FOREACH (const LoaderEntry & entry, loaders)
+	for (auto & entry : boost::adaptors::reverse(loaders))
 	{
 		if (entry.writeable && boost::algorithm::starts_with(URI, entry.prefix))
 		{
@@ -172,11 +172,11 @@ void CResourceLoader::addLoader(std::string mountPoint, shared_ptr<ISimpleResour
 	loaders.push_back(loaderEntry);
 
 	// Get entries and add them to the resources list
-	const boost::unordered_map<ResourceID, std::string> & entries = loader->getEntries();
+	const std::unordered_map<ResourceID, std::string> & entries = loader->getEntries();
 
 	boost::to_upper(mountPoint);
 
-	BOOST_FOREACH (auto & entry, entries)
+	for (auto & entry : entries)
 	{
 		// Create identifier and locator and add them to the resources list
 		ResourceID ident(mountPoint, entry.first.getName(), entry.first.getType());
@@ -316,7 +316,7 @@ void CResourceHandler::initialize()
 	auto recurseInDir = [](std::string URI, int depth)
 	{
 		auto resources = initialLoader->getResourcesWithName(ResourceID(URI, EResType::DIRECTORY));
-		BOOST_FOREACH(const ResourceLocator & entry, resources)
+		for(const ResourceLocator & entry : resources)
 		{
 			std::string filename = entry.getLoader()->getOrigin() + '/' + entry.getResourceName();
 			if (!filename.empty())
@@ -363,7 +363,7 @@ void CResourceHandler::loadDirectory(const std::string &prefix, const std::strin
 
 	auto resources = initialLoader->getResourcesWithName(ResourceID(URI, EResType::DIRECTORY));
 
-	BOOST_FOREACH(const ResourceLocator & entry, resources)
+	for(const ResourceLocator & entry : resources)
 	{
 		std::string filename = entry.getLoader()->getOrigin() + '/' + entry.getResourceName();
 		resourceLoader->addLoader(mountPoint,
@@ -407,9 +407,9 @@ void CResourceHandler::loadFileSystem(const std::string & prefix, const std::str
 
 void CResourceHandler::loadFileSystem(const std::string & prefix, const JsonNode &fsConfig)
 {
-	BOOST_FOREACH(auto & mountPoint, fsConfig.Struct())
+	for(auto & mountPoint : fsConfig.Struct())
 	{
-		BOOST_FOREACH(auto & entry, mountPoint.second.Vector())
+		for(auto & entry : mountPoint.second.Vector())
 		{
 			CStopWatch timer;
             logGlobal->debugStream() << "\t\tLoading resource at " << prefix + entry["path"].String();
@@ -476,7 +476,7 @@ void CResourceHandler::setActiveMods(std::vector<std::string> enabledMods)
 	defaultFS[""].Vector()[0]["type"].String() = "dir";
 	defaultFS[""].Vector()[0]["path"].String() = "/Content";
 
-	BOOST_FOREACH(std::string & modName, enabledMods)
+	for(std::string & modName : enabledMods)
 	{
 		ResourceID modConfFile("all/mods/" + modName + "/mod", EResType::TEXT);
 		auto fsConfigData = initialLoader->loadData(modConfFile);

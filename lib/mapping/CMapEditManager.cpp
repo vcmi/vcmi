@@ -251,7 +251,7 @@ CComposedOperation::CComposedOperation(CMap * map) : CMapOperation(map)
 
 void CComposedOperation::execute()
 {
-	BOOST_FOREACH(auto & operation, operations)
+	for(auto & operation : operations)
 	{
 		operation->execute();
 	}
@@ -259,7 +259,7 @@ void CComposedOperation::execute()
 
 void CComposedOperation::undo()
 {
-	BOOST_FOREACH(auto & operation, operations)
+	for(auto & operation : operations)
 	{
 		operation->undo();
 	}
@@ -267,7 +267,7 @@ void CComposedOperation::undo()
 
 void CComposedOperation::redo()
 {
-	BOOST_FOREACH(auto & operation, operations)
+	for(auto & operation : operations)
 	{
 		operation->redo();
 	}
@@ -320,7 +320,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 	for(int i = 0; i < ARRAY_COUNT(patternTypes); ++i)
 	{
 		const auto & patternsVec = config[patternTypes[i]].Vector();
-		BOOST_FOREACH(const auto & ptrnNode, patternsVec)
+		for(const auto & ptrnNode : patternsVec)
 		{
 			TerrainViewPattern pattern;
 
@@ -333,7 +333,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 				boost::algorithm::erase_all(cell, " ");
 				std::vector<std::string> rules;
 				boost::split(rules, cell, boost::is_any_of(","));
-				BOOST_FOREACH(std::string ruleStr, rules)
+				for(std::string ruleStr : rules)
 				{
 					std::vector<std::string> ruleParts;
 					boost::split(ruleParts, ruleStr, boost::is_any_of("-"));
@@ -359,7 +359,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 			if(i == 0)
 			{
 				const auto & mappingStruct = ptrnNode["mapping"].Struct();
-				BOOST_FOREACH(const auto & mappingPair, mappingStruct)
+				for(const auto & mappingPair : mappingStruct)
 				{
 					TerrainViewPattern terGroupPattern = pattern;
 					auto mappingStr = mappingPair.second.String();
@@ -375,7 +375,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 					mappingStr = mappingStr.substr(colonIndex + 1);
 					std::vector<std::string> mappings;
 					boost::split(mappings, mappingStr, boost::is_any_of(","));
-					BOOST_FOREACH(std::string mapping, mappings)
+					for(std::string mapping : mappings)
 					{
 						std::vector<std::string> range;
 						boost::split(range, mapping, boost::is_any_of("-"));
@@ -419,7 +419,7 @@ const std::vector<TerrainViewPattern> & CTerrainViewPatternConfig::getTerrainVie
 boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrainViewPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const
 {
 	const std::vector<TerrainViewPattern> & groupPatterns = getTerrainViewPatternsForGroup(terGroup);
-	BOOST_FOREACH(const TerrainViewPattern & pattern, groupPatterns)
+	for(const TerrainViewPattern & pattern : groupPatterns)
 	{
 		if(id == pattern.id)
 		{
@@ -444,7 +444,7 @@ CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, const CTerrainSelection
 
 void CDrawTerrainOperation::execute()
 {
-	BOOST_FOREACH(const auto & pos, terrainSel.getSelectedItems())
+	for(const auto & pos : terrainSel.getSelectedItems())
 	{
 		auto & tile = map->getTile(pos);
 		tile.terType = terType;
@@ -488,7 +488,7 @@ void CDrawTerrainOperation::updateTerrainTypes()
 		};
 
 		// Fill foreign invalid tiles
-		BOOST_FOREACH(const auto & tile, tiles.foreignTiles)
+		for(const auto & tile : tiles.foreignTiles)
 		{
 			updateTerrainType(tile, true);
 		}
@@ -542,9 +542,9 @@ void CDrawTerrainOperation::updateTerrainTypes()
 			{
 				static const int3 directions[] = { int3(0, -1, 0), int3(-1, 0, 0), int3(0, 1, 0), int3(1, 0, 0),
 											int3(-1, -1, 0), int3(-1, 1, 0), int3(1, 1, 0), int3(1, -1, 0)};
-				for(int i = 0; i < ARRAY_COUNT(directions); ++i)
+				for(auto & direction : directions)
 				{
-					auto it = suitableTiles.find(centerPos + directions[i]);
+					auto it = suitableTiles.find(centerPos + direction);
 					if(it != suitableTiles.end())
 					{
 						updateTerrainType(*it, tileRequiresValidation);
@@ -562,7 +562,7 @@ void CDrawTerrainOperation::updateTerrainTypes()
 
 void CDrawTerrainOperation::updateTerrainViews()
 {
-	BOOST_FOREACH(const auto & pos, invalidatedTerViews)
+	for(const auto & pos : invalidatedTerViews)
 	{
 		const auto & patterns =
 				CTerrainViewPatternConfig::get().getTerrainViewPatternsForGroup(getTerrainGroup(map->getTile(pos).terType));
@@ -687,9 +687,9 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 
 		// Validate all rules per cell
 		int topPoints = -1;
-		for(int j = 0; j < pattern.data[i].size(); ++j)
+		for(auto & elem : pattern.data[i])
 		{
-			TerrainViewPattern::WeightedRule rule = pattern.data[i][j];
+			TerrainViewPattern::WeightedRule rule = elem;
 			if(!rule.isStandardRule())
 			{
 				if(recDepth == 0 && map->isInTheMap(currentPos))
@@ -849,9 +849,9 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 			if(valid && centerTerType != terType && (terType == ETerrainType::WATER || terType == ETerrainType::ROCK))
 			{
 				static const std::string patternIds[] = { "s1", "s2" };
-				for(int i = 0; i < ARRAY_COUNT(patternIds); ++i)
+				for(auto & patternId : patternIds)
 				{
-					valid = !validateTerrainView(pos, ptrConfig.getTerrainTypePatternById(patternIds[i])).result;
+					valid = !validateTerrainView(pos, ptrConfig.getTerrainTypePatternById(patternId)).result;
 					if(!valid) break;
 				}
 			}
@@ -859,9 +859,9 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 			else if(!valid && (terType != ETerrainType::WATER && terType != ETerrainType::ROCK))
 			{
 				static const std::string patternIds[] = { "n2", "n3" };
-				for(int i = 0; i < ARRAY_COUNT(patternIds); ++i)
+				for(auto & patternId : patternIds)
 				{
-					valid = validateTerrainView(pos, ptrConfig.getTerrainTypePatternById(patternIds[i])).result;
+					valid = validateTerrainView(pos, ptrConfig.getTerrainTypePatternById(patternId)).result;
 					if(valid) break;
 				}
 			}

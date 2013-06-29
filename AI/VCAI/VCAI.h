@@ -322,7 +322,7 @@ public:
 	virtual void stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute) override;
 	virtual void heroInGarrisonChange(const CGTownInstance *town) override;
 	virtual void centerView(int3 pos, int focusTime) override;
-	virtual void tileHidden(const boost::unordered_set<int3, ShashInt3> &pos) override;
+	virtual void tileHidden(const std::unordered_set<int3, ShashInt3> &pos) override;
 	virtual void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst) override;
 	virtual void artifactAssembled(const ArtifactLocation &al) override;
 	virtual void showTavernWindow(const CGObjectInstance *townOrTavern) override;
@@ -338,7 +338,7 @@ public:
 	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start) override;
 	virtual void availableArtifactsChanged(const CGBlackMarket *bm = nullptr) override;
 	virtual void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town) override;
-	virtual void tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos) override;
+	virtual void tileRevealed(const std::unordered_set<int3, ShashInt3> &pos) override;
 	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
 	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) override;
 	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) override;

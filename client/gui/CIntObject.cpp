@@ -46,18 +46,18 @@ void CIntObject::onTimer(int timePassed)
 void CIntObject::show(SDL_Surface * to)
 {
 	if(defActions & UPDATE)
-		for(size_t i = 0; i < children.size(); i++)
-			if(children[i]->recActions & UPDATE)
-				children[i]->show(to);
+		for(auto & elem : children)
+			if(elem->recActions & UPDATE)
+				elem->show(to);
 }
 
 void CIntObject::showAll(SDL_Surface * to)
 {
 	if(defActions & SHOWALL)
 	{
-		for(size_t i = 0; i < children.size(); i++)
-			if(children[i]->recActions & SHOWALL)
-				children[i]->showAll(to);
+		for(auto & elem : children)
+			if(elem->recActions & SHOWALL)
+				elem->showAll(to);
 
 	}
 }
@@ -79,9 +79,9 @@ void CIntObject::activate()
 	activate(used);
 
 	if(defActions & ACTIVATE)
-		for(size_t i = 0; i < children.size(); i++)
-			if(children[i]->recActions & ACTIVATE)
-				children[i]->activate();
+		for(auto & elem : children)
+			if(elem->recActions & ACTIVATE)
+				elem->activate();
 }
 
 void CIntObject::activate(ui16 what)
@@ -100,9 +100,9 @@ void CIntObject::deactivate()
 	assert(!active_m);
 
 	if(defActions & DEACTIVATE)
-		for(size_t i = 0; i < children.size(); i++)
-			if(children[i]->recActions & DEACTIVATE)
-				children[i]->deactivate();
+		for(auto & elem : children)
+			if(elem->recActions & DEACTIVATE)
+				elem->deactivate();
 }
 
 void CIntObject::deactivate(ui16 what)
@@ -219,8 +219,8 @@ void CIntObject::moveBy( const Point &p, bool propagate /*= true*/ )
 	pos.x += p.x;
 	pos.y += p.y;
 	if(propagate)
-		for(size_t i = 0; i < children.size(); i++)
-			children[i]->moveBy(p, propagate);
+		for(auto & elem : children)
+			elem->moveBy(p, propagate);
 }
 
 void CIntObject::moveTo( const Point &p, bool propagate /*= true*/ )

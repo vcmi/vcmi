@@ -80,10 +80,10 @@ namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 			std::make_pair(147, EWallParts::INDESTRUCTIBLE_PART)
 		};
 
-		for(int g = 0; g < ARRAY_COUNT(attackable); ++g)
+		for(auto & elem : attackable)
 		{
-			if(attackable[g].first == hex)
-				return attackable[g].second;
+			if(elem.first == hex)
+				return elem.second;
 		}
 
 		return EWallParts::INVALID; //not found!
@@ -144,7 +144,7 @@ std::vector<shared_ptr<const CObstacleInstance> > CBattleInfoEssentials::battleG
 		}
 	}
 
-	BOOST_FOREACH(auto oi, getBattle()->obstacles)
+	for(auto oi : getBattle()->obstacles)
 	{
 		if(getBattle()->battleIsObstacleVisibleForSide(*oi, *perspective))
 			ret.push_back(oi);
@@ -163,7 +163,7 @@ bool CBattleInfoEssentials::battleHasNativeStack(ui8 side) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
-	BOOST_FOREACH(const CStack *s, battleGetAllStacks())
+	for(const CStack *s : battleGetAllStacks())
 	{
 		if(s->attackerOwned == !side  &&  s->getCreature()->isItNativeTerrain(getBattle()->terrainType))
 			return true;
@@ -240,7 +240,7 @@ const CStack* CBattleInfoEssentials::battleGetStackByID(int ID, bool onlyAlive) 
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
 
-	BOOST_FOREACH(auto s, battleGetAllStacks())
+	for(auto s : battleGetAllStacks())
 		if(s->ID == ID  &&  (!onlyAlive || s->alive()))
 			return s;
 
@@ -452,7 +452,7 @@ std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* at
 
 	AttackableTiles at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
 
-	BOOST_FOREACH (BattleHex tile, at.hostileCreaturePositions)
+	for (BattleHex tile : at.hostileCreaturePositions)
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
 		if(st && st->owner != attacker->owner) //only hostile stacks - does it work well with Berserk?
@@ -460,7 +460,7 @@ std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* at
 			attackedHexes.insert(tile);
 		}
 	}
-	BOOST_FOREACH (BattleHex tile, at.friendlyCreaturePositions)
+	for (BattleHex tile : at.friendlyCreaturePositions)
 	{
 		if(battleGetStackByPos(tile, true)) //friendly stacks can also be damaged by Dragon Breath
 		{
@@ -489,7 +489,7 @@ SpellID CBattleInfoCallback::battleGetRandomStackSpell(const CStack * stack, ERa
 const CStack* CBattleInfoCallback::battleGetStackByPos(BattleHex pos, bool onlyAlive) const
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
-	BOOST_FOREACH(auto s, battleGetAllStacks())
+	for(auto s : battleGetAllStacks())
 		if(vstd::contains(s->getHexes(), pos)  &&  (!onlyAlive || s->alive()))
 			return s;
 
@@ -579,7 +579,7 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 		return;
 	}
 
-	BOOST_FOREACH(auto s, battleGetAllStacks())
+	for(auto s : battleGetAllStacks())
 	{
 		if((turn <= 0 && !s->willMove()) //we are considering current round and stack won't move
 			|| (turn > 0 && !s->canMove(turn)) //stack won't be able to move in later rounds
@@ -714,7 +714,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const CStack
 			return availableNeighbor != ret.end();
 		};
 
-		BOOST_FOREACH(const CStack * otherSt, battleAliveStacks(stack->attackerOwned))
+		for(const CStack * otherSt : battleAliveStacks(stack->attackerOwned))
 		{
 			if(!otherSt->isValidTarget(false))
 				continue;
@@ -727,7 +727,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const CStack
 				continue;
 			}
 
-			BOOST_FOREACH(BattleHex he, occupied)
+			for(BattleHex he : occupied)
 			{
 				if(meleeAttackable(he))
 					attackable->push_back(he);
@@ -824,7 +824,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 
 		for(int g = 0; g < VLC->creh->creatures.size(); ++g)
 		{
-			BOOST_FOREACH(const Bonus *b, VLC->creh->creatures[g]->getBonusList())
+			for(const Bonus *b : VLC->creh->creatures[g]->getBonusList())
 			{
 				if ( (b->type == Bonus::KING3 && spLevel >= 3) || //expert
 					(b->type == Bonus::KING2 && spLevel >= 2) || //adv +
@@ -836,9 +836,9 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 			}
 		}
 
-		for(ui32 g=0; g<affectedIds.size(); ++g)
+		for(auto & affectedId : affectedIds)
 		{
-			if(defenderType->idNumber == affectedIds[g])
+			if(defenderType->idNumber == affectedId)
 			{
 				attackDefenceDifference += SpellID(SpellID::SLAYER).toSpell()->powers[spLevel];
 				break;
@@ -1036,7 +1036,7 @@ shared_ptr<const CObstacleInstance> CBattleInfoCallback::battleGetObstacleOnPos(
 {
 	RETURN_IF_NOT_BATTLE(shared_ptr<const CObstacleInstance>());
 
-	BOOST_FOREACH(auto &obs, battleGetAllObstacles())
+	for(auto &obs : battleGetAllObstacles())
 	{
 		if(vstd::contains(obs->getBlockedTiles(), tile)
 			|| (!onlyBlocking  &&  vstd::contains(obs->getAffectedTiles(), tile)))
@@ -1067,17 +1067,17 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	}
 
 	//tiles occupied by standing stacks
-	BOOST_FOREACH(auto stack, battleAliveStacks())
+	for(auto stack : battleAliveStacks())
 	{
-		BOOST_FOREACH(auto hex, stack->getHexes())
+		for(auto hex : stack->getHexes())
 			if(hex.isAvailable()) //towers can have <0 pos; we don't also want to overwrite side columns
 				ret[hex] = EAccessibility::ALIVE_STACK;
 	}
 
 	//obstacles
-	BOOST_FOREACH(const auto &obst, battleGetAllObstacles())
+	for(const auto &obst : battleGetAllObstacles())
 	{
-		BOOST_FOREACH(auto hex, obst->getBlockedTiles())
+		for(auto hex : obst->getBlockedTiles())
 			ret[hex] = EAccessibility::OBSTACLE;
 	}
 
@@ -1085,7 +1085,7 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	if(battleGetSiegeLevel() > 0)
 	{
 		static const int permanentlyLocked[] = {12, 45, 78, 112, 147, 165};
-		BOOST_FOREACH(auto hex, permanentlyLocked)
+		for(auto hex : permanentlyLocked)
 			ret[hex] = EAccessibility::UNAVAILABLE;
 
 		//TODO likely duplicated logic
@@ -1093,10 +1093,10 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 			{std::make_pair(2, BattleHex(182)), std::make_pair(3, BattleHex(130)),
 			std::make_pair(4, BattleHex(62)), std::make_pair(5, BattleHex(29))};
 
-		for(int b=0; b<ARRAY_COUNT(lockedIfNotDestroyed); ++b)
+		for(auto & elem : lockedIfNotDestroyed)
 		{
-			if(battleGetWallState(lockedIfNotDestroyed[b].first) < 3)
-				ret[lockedIfNotDestroyed[b].second] = EAccessibility::DESTRUCTIBLE_WALL;
+			if(battleGetWallState(elem.first) < 3)
+				ret[elem.second] = EAccessibility::DESTRUCTIBLE_WALL;
 		}
 	}
 
@@ -1111,7 +1111,7 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility(const CStack *stack) cons
 AccessibilityInfo CBattleInfoCallback::getAccesibility(const std::vector<BattleHex> &accessibleHexes) const
 {
 	auto ret = getAccesibility();
-	BOOST_FOREACH(auto hex, accessibleHexes)
+	for(auto hex : accessibleHexes)
 		if(hex.isValid())
 			ret[hex] = EAccessibility::ACCESSIBLE;
 
@@ -1151,7 +1151,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 			continue;
 
 		const int costToNeighbour = ret.distances[curHex] + 1;
-		BOOST_FOREACH(BattleHex neighbour, curHex.neighbouringTiles())
+		for(BattleHex neighbour : curHex.neighbouringTiles())
 		{
 			const bool accessible = accessibility.accessible(neighbour, params.doubleWide, params.attackerOwned);
 			const int costFoundSoFar = ret.distances[neighbour];
@@ -1178,7 +1178,7 @@ std::set<BattleHex> CBattleInfoCallback::getStoppers(BattlePerspective::BattlePe
 	std::set<BattleHex> ret;
 	RETURN_IF_NOT_BATTLE(ret);
 
-	BOOST_FOREACH(auto &oi, battleGetAllObstacles(whichSidePerspective))
+	for(auto &oi : battleGetAllObstacles(whichSidePerspective))
 	{
 		if(battleIsObstacleVisibleForSide(*oi, whichSidePerspective))
 		{
@@ -1313,7 +1313,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 	if (attacker->hasBonusOfType(Bonus::THREE_HEADED_ATTACK))
 	{
 		std::vector<BattleHex> hexes = attacker->getSurroundingHexes(attackerPos);
-		BOOST_FOREACH (BattleHex tile, hexes)
+		for (BattleHex tile : hexes)
 		{
 			if ((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition (tile, hex) > -1)) //adjacent both to attacker's head and attacked tile
 			{
@@ -1346,7 +1346,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 			BattleHex::checkAndPush (destinationTile.hex + pseudoVector + ((hex/WN)%2 ? 1 : 0), hexes);
 			break;
 		}
-		BOOST_FOREACH (BattleHex tile, hexes)
+		for (BattleHex tile : hexes)
 		{
 			//friendly stacks can also be damaged by Dragon Breath
 			if (battleGetStackByPos (tile, true))
@@ -1363,7 +1363,7 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 	RETURN_IF_NOT_BATTLE(attackedCres);
 
 	AttackableTiles at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
-	BOOST_FOREACH (BattleHex tile, at.hostileCreaturePositions) //all around & three-headed attack
+	for (BattleHex tile : at.hostileCreaturePositions) //all around & three-headed attack
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
 		if(st && st->owner != attacker->owner) //only hostile stacks - does it work well with Berserk?
@@ -1371,7 +1371,7 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 			attackedCres.insert(st);
 		}
 	}
-	BOOST_FOREACH (BattleHex tile, at.friendlyCreaturePositions)
+	for (BattleHex tile : at.friendlyCreaturePositions)
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
 		if(st) //friendly stacks can also be damaged by Dragon Breath
@@ -1458,7 +1458,7 @@ si8 CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer *bonusBeare
 	if(const CStack * dstStack = battleGetStackByPos(destHex, false))
 	{
 		//If any hex of target creature is within range, there is no penalty
-		BOOST_FOREACH(auto hex, dstStack->getHexes())
+		for(auto hex : dstStack->getHexes())
 			if(BattleHex::getDistance(shooterPosition, hex) <= GameConstants::BATTLE_PENALTY_DISTANCE)
 				return false;
 
@@ -1526,7 +1526,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 			{
 				TBonusListPtr spellBon = subject->getSpellBonuses();
 				bool hasPositiveSpell = false;
-				BOOST_FOREACH(const Bonus * b, *spellBon)
+				for(const Bonus * b : *spellBon)
 				{
 					if(SpellID(b->sid).toSpell()->isPositive())
 					{
@@ -1604,7 +1604,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if(spell->isNegative())
 	{
 		bool allEnemiesImmune = true;
-		BOOST_FOREACH(auto enemyStack, battleAliveStacks(!side))
+		for(auto enemyStack : battleAliveStacks(!side))
 		{
 			if(!enemyStack->hasBonusOfType(Bonus::SPELL_IMMUNITY, spell->id))
 			{
@@ -1631,7 +1631,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if(arpos < ARRAY_COUNT(spellIDs))
 	{
 		//check if there are summoned elementals of other type
-		BOOST_FOREACH( const CStack * st, battleAliveStacks())
+		for( const CStack * st : battleAliveStacks())
 			if(vstd::contains(st->state, EBattleStackState::SUMMONED) && st->getCreature()->idNumber == creIDs[arpos])
 				return ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED;
 	}
@@ -1645,7 +1645,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		{
 			const CGHeroInstance * caster = battleGetFightingHero(side);
 			bool targetExists = false;
-			BOOST_FOREACH(const CStack * stack, battleAliveStacks())
+			for(const CStack * stack : battleAliveStacks())
 			{
 				switch (spell->positiveness)
 				{
@@ -1705,7 +1705,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor
 		{
 			const CGHeroInstance * caster = battleGetFightingHero(playerToSide(player)); //TODO
 
-			BOOST_FOREACH(const CStack * stack, battleAliveStacks())
+			for(const CStack * stack : battleAliveStacks())
 			{
 				switch (spell->positiveness)
 				{
@@ -1749,7 +1749,7 @@ ui32 CBattleInfoCallback::battleGetSpellCost(const CSpell * sp, const CGHeroInst
 	si32 manaIncrease = 0;
 
 
-	BOOST_FOREACH(auto stack, battleAliveStacks())
+	for(auto stack : battleAliveStacks())
 	{
 		if(stack->owner == caster->tempOwner  &&  stack->hasBonusOfType(Bonus::CHANGES_SPELL_COST_FOR_ALLY) )
 		{
@@ -1901,7 +1901,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	//fixme: what about other rising spells (Sacrifice) ?
 	if(spell->id == SpellID::DEATH_RIPPLE || spell->id == SpellID::DESTROY_UNDEAD || spell->id == SpellID::ARMAGEDDON)
 	{
-		BOOST_FOREACH(const CStack *stack, battleGetAllStacks())
+		for(const CStack *stack : battleGetAllStacks())
 		{
 			if((spell->id == SpellID::DEATH_RIPPLE && !stack->getCreature()->isUndead()) //death ripple
 				|| (spell->id == SpellID::DESTROY_UNDEAD && stack->getCreature()->isUndead()) //destroy undead
@@ -1916,11 +1916,11 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	else if (spell->id == SpellID::CHAIN_LIGHTNING)
 	{
 		std::set<BattleHex> possibleHexes;
-		BOOST_FOREACH (auto stack, battleGetAllStacks())
+		for (auto stack : battleGetAllStacks())
 		{
 			if (stack->isValidTarget())
 			{
-				BOOST_FOREACH (auto hex, stack->getHexes())
+				for (auto hex : stack->getHexes())
 				{
 					possibleHexes.insert (hex);
 				}
@@ -1933,7 +1933,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 			if (!stack)
 				break;
 			attackedCres.insert (stack);
-			BOOST_FOREACH (auto hex, stack->getHexes())
+			for (auto hex : stack->getHexes())
 			{
 				possibleHexes.erase (hex); //can't hit same place twice
 			}
@@ -1944,7 +1944,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	}
 	else if (spell->range[skillLevel].size() > 1) //custom many-hex range
 	{
-		BOOST_FOREACH(BattleHex hex, attackedHexes)
+		for(BattleHex hex : attackedHexes)
 		{
 			if(const CStack * st = battleGetStackByPos(hex, onlyAlive))
 			{
@@ -1970,7 +1970,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 		}
 		else
 		{
-			BOOST_FOREACH (auto stack, battleGetAllStacks())
+			for (auto stack : battleGetAllStacks())
 			{
 				/*if it's non negative spell and our unit or non positive spell and hostile unit */
 				if((!spell->isNegative() && stack->owner == attackerOwner)
@@ -1990,7 +1990,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	}
 	else //custom range from attackedHexes
 	{
-		BOOST_FOREACH(BattleHex hex, attackedHexes)
+		for(BattleHex hex : attackedHexes)
 		{
 			if(const CStack * st = battleGetStackByPos(hex, onlyAlive))
 				attackedCres.insert(st);
@@ -2016,7 +2016,7 @@ bool CBattleInfoCallback::battleIsStackBlocked(const CStack * stack) const
 	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON)) //siege weapons cannot be blocked
 		return false;
 
-	BOOST_FOREACH(const CStack * s,  batteAdjacentCreatures(stack))
+	for(const CStack * s :  batteAdjacentCreatures(stack))
 	{
 		if (s->owner != stack->owner) //blocked by enemy stack
 			return true;
@@ -2029,7 +2029,7 @@ std::set<const CStack*> CBattleInfoCallback:: batteAdjacentCreatures(const CStac
 	std::set<const CStack*> stacks;
 	RETURN_IF_NOT_BATTLE(stacks);
 
-	BOOST_FOREACH (BattleHex hex, stack->getSurroundingHexes())
+	for (BattleHex hex : stack->getSurroundingHexes())
 		if(const CStack *neighbour = battleGetStackByPos(hex, true))
 			stacks.insert(neighbour);
 
@@ -2041,7 +2041,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 	std::vector<SpellID> possibleSpells;
 
-	BOOST_FOREACH(const CSpell *spell, VLC->spellh->spells)
+	for(const CSpell *spell : VLC->spellh->spells)
 	{
 		if (spell->isPositive()) //only positive
 		{
@@ -2133,12 +2133,12 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(const CStack * caster) const
 	if (!bl->size())
 		return SpellID::NONE;
 	int totalWeight = 0;
-	BOOST_FOREACH(Bonus * b, *bl)
+	for(Bonus * b : *bl)
 	{
 		totalWeight += std::max(b->additionalInfo, 1); //minimal chance to cast is 1
 	}
 	int randomPos = rand() % totalWeight;
-	BOOST_FOREACH(Bonus * b, *bl)
+	for(Bonus * b : *bl)
 	{
 		randomPos -= std::max(b->additionalInfo, 1);
 		if(randomPos < 0)
@@ -2158,7 +2158,7 @@ int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
 
 	int ret = 0;
 	double discount = 0;
-	BOOST_FOREACH(const CStack *s, battleAliveStacks(playerToSide(Player)))
+	for(const CStack *s : battleAliveStacks(playerToSide(Player)))
 		if(s->base) //we pay for our stack that comes from our army slots - condition eliminates summoned cres and war machines
 			ret += s->getCreature()->cost[Res::GOLD] * s->count;
 
@@ -2195,7 +2195,7 @@ bool AccessibilityInfo::accessible(BattleHex tile, const CStack *stack) const
 bool AccessibilityInfo::accessible(BattleHex tile, bool doubleWide, bool attackerOwned) const
 {
 	// All hexes that stack would cover if standing on tile have to be accessible.
-	BOOST_FOREACH(auto hex, CStack::getHexes(tile, doubleWide, attackerOwned))
+	for(auto hex : CStack::getHexes(tile, doubleWide, attackerOwned))
 	{
         // If the hex is out of range then the tile isn't accessible
         if(!hex.isValid())

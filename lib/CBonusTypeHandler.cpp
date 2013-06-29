@@ -66,7 +66,7 @@ std::string MacroString::build(const GetValue& getValue) const
 {
 	std::string result;
 	
-	BOOST_FOREACH(const Item &i, items)
+	for(const Item &i : items)
 	{
 		switch (i.type)
 		{
@@ -269,7 +269,7 @@ void CBonusTypeHandler::load()
 
 void CBonusTypeHandler::load(const JsonNode& config)
 {
-	BOOST_FOREACH(auto & node, config.Struct())
+	for(auto & node : config.Struct())
 	{
 		auto it = bonusNameMap.find(node.first);
 		

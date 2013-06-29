@@ -9,11 +9,11 @@ template <typename Container>
 std::string formatContainer(const Container &c, std::string delimeter=", ", std::string opener="(", std::string closer=")")
 {
 	std::string ret = opener;
-	auto itr = boost::begin(c);
-	if(itr != boost::end(c))
+	auto itr = std::begin(c);
+	if(itr != std::end(c))
 	{
 		ret += boost::lexical_cast<std::string>(*itr);
-		while(++itr != boost::end(c))
+		while(++itr != std::end(c))
 		{
 			ret += delimeter;
 			ret += boost::lexical_cast<std::string>(*itr);
@@ -144,7 +144,7 @@ void Queries::popQuery(const CQuery &query)
 	LOG_TRACE_PARAMS(logGlobal, "query='%s'", query);
 
 	assert(query.players.size());
-	BOOST_FOREACH(auto player, query.players)
+	for(auto player : query.players)
 	{
 		auto top = topQuery(player);
 		if(top.get() == &query)
@@ -156,13 +156,13 @@ void Queries::popQuery(const CQuery &query)
 
 void Queries::popQuery(QueryPtr query)
 {
-	BOOST_FOREACH(auto player, query->players)
+	for(auto player : query->players)
 		popQuery(player, query);
 }
 
 void Queries::addQuery(QueryPtr query)
 {
-	BOOST_FOREACH(auto player, query->players)
+	for(auto player : query->players)
 		addQuery(player, query);
 }
 
@@ -188,7 +188,7 @@ void Queries::popIfTop(QueryPtr query)
 
 void Queries::popIfTop(const CQuery &query)
 {
-	BOOST_FOREACH(PlayerColor color, query.players)
+	for(PlayerColor color : query.players)
 		if(topQuery(color).get() == &query)
 			popQuery(color, topQuery(color));
 }
@@ -196,8 +196,8 @@ void Queries::popIfTop(const CQuery &query)
 std::vector<shared_ptr<const CQuery>> Queries::allQueries() const
 {
 	std::vector<shared_ptr<const CQuery>> ret;
-	BOOST_FOREACH(auto &playerQueries, queries)
-		BOOST_FOREACH(auto &query, playerQueries.second)
+	for(auto &playerQueries : queries)
+		for(auto &query : playerQueries.second)
 			ret.push_back(query);
 
 	return ret;
@@ -207,8 +207,8 @@ std::vector<shared_ptr<CQuery>> Queries::allQueries()
 {
 	//TODO code duplication with const function :(
 	std::vector<shared_ptr<CQuery>> ret;
-	BOOST_FOREACH(auto &playerQueries, queries)
-		BOOST_FOREACH(auto &query, playerQueries.second)
+	for(auto &playerQueries : queries)
+		for(auto &query : playerQueries.second)
 		ret.push_back(query);
 
 	return ret;
@@ -227,7 +227,7 @@ CBattleQuery::CBattleQuery(const BattleInfo *Bi)
 
 	bi = Bi;
 
-	BOOST_FOREACH(PlayerColor side, bi->sides)
+	for(PlayerColor side : bi->sides)
 		addPlayer(side);
 }
 

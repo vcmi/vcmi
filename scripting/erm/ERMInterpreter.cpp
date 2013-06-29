@@ -89,7 +89,7 @@ namespace ERMPrinter
 		if(id.is_initialized())
 		{
 			logGlobal->debugStream() << "identifier: ";
-			BOOST_FOREACH(TIdentifierInternal x, id.get())
+			for (auto x : id.get())
 			{
 				logGlobal->debugStream() << "#";
 				boost::apply_visitor(IdentifierPrinterVisitor(), x);
@@ -215,7 +215,7 @@ namespace ERMPrinter
 		void operator()(TNormalBodyOption const& cmp) const
 		{
 			logGlobal->debugStream() << cmp.optionCode << "~";
-			BOOST_FOREACH(TBodyOptionItem optList, cmp.params)
+			for (auto optList : cmp.params)
 			{
 				boost::apply_visitor(BodyOptionItemPrinterVisitor(), optList);
 			}
@@ -225,7 +225,7 @@ namespace ERMPrinter
 	void bodyPrinter(const Tbody & body)
 	{
 		logGlobal->debugStream() << " body items: ";
-		BOOST_FOREACH(TBodyOption bi, body)
+		for (auto bi: body)
 		{
 			logGlobal->debugStream() << " (";
 			apply_visitor(BodyOptionVisitor(), bi);
@@ -299,7 +299,7 @@ namespace ERMPrinter
 		}
 		void operator()(TSymbol const& cmd) const
 		{
-			BOOST_FOREACH(TVModifier mod, cmd.symModifier)
+			for(auto mod : cmd.symModifier)
 			{
 				logGlobal->debugStream() << mod << " ";
 			}
@@ -329,12 +329,12 @@ namespace ERMPrinter
 
 	void printTVExp(const TVExp & exp)
 	{
-		BOOST_FOREACH(TVModifier mod, exp.modifier)
+		for (auto mod: exp.modifier)
 		{
 			logGlobal->debugStream() << mod << " ";
 		}
 		logGlobal->debugStream() << "[ ";
-		BOOST_FOREACH(TVOption opt, exp.children)
+		for (auto opt: exp.children)
 		{
 			boost::apply_visitor(VOptionPrinterVisitor(), opt);
 			logGlobal->debugStream() << " ";

@@ -34,7 +34,7 @@ struct Priorities
 int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = nullptr)
 {
 	int ret = 1000000;
-	BOOST_FOREACH(BattleHex n, hex.neighbouringTiles())
+	for(BattleHex n : hex.neighbouringTiles())
 	{
 		if(dists[n] >= 0 && dists[n] < ret)
 		{
@@ -53,10 +53,10 @@ bool isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const ReachabilityIn
 }
 
 template <typename Container, typename Pred>
-auto sum(const Container & c, Pred p) -> decltype(p(*boost::begin(c)))
+auto sum(const Container & c, Pred p) -> decltype(p(*std::begin(c)))
 {
 	double ret = 0;
-	BOOST_FOREACH(const auto &element, c)
+	for(const auto &element : c)
 	{
 		ret += p(element);
 	}
@@ -347,7 +347,7 @@ struct CurrentOffensivePotential
 
 	CurrentOffensivePotential(ui8 side)
 	{
-		BOOST_FOREACH(auto stack, cbc->battleGetStacks())
+		for(auto stack : cbc->battleGetStacks())
 		{
 			if(stack->attackerOwned == !side)
 				ourAttacks[stack] = PotentialTargets(stack);
@@ -359,10 +359,10 @@ struct CurrentOffensivePotential
 	int potentialValue()
 	{
 		int ourPotential = 0, enemyPotential = 0;
-		BOOST_FOREACH(auto &p, ourAttacks)
+		for(auto &p : ourAttacks)
 			ourPotential += p.second.bestAction().attackValue();
 
-		BOOST_FOREACH(auto &p, enemyAttacks)
+		for(auto &p : enemyAttacks)
 			enemyPotential += p.second.bestAction().attackValue();
 
 		return ourPotential - enemyPotential;
@@ -408,9 +408,9 @@ void CBattleAI::attemptCastingSpell()
 
 	//Get possible spell-target pairs
 	std::vector<PossibleSpellcast> possibleCasts;
-	BOOST_FOREACH(auto spell, possibleSpells)
+	for(auto spell : possibleSpells)
 	{
-		BOOST_FOREACH(auto hex, getTargetsToConsider(spell))
+		for(auto hex : getTargetsToConsider(spell))
 		{
 			PossibleSpellcast ps = {spell, hex};
 			possibleCasts.push_back(ps);
@@ -421,7 +421,7 @@ void CBattleAI::attemptCastingSpell()
 		return;
 
 	std::map<const CStack*, int> valueOfStack;
-	BOOST_FOREACH(auto stack, cb->battleGetStacks())
+	for(auto stack : cb->battleGetStacks())
 	{
 		PotentialTargets pt(stack);
 		valueOfStack[stack] = pt.bestActionValue();
@@ -447,7 +447,7 @@ void CBattleAI::attemptCastingSpell()
 				if(stacksSuffering.empty())
 					return -1;
 
-				BOOST_FOREACH(auto stack, stacksSuffering)
+				for(auto stack : stacksSuffering)
 				{
 					const int dmg = cb->calculateSpellDmg(ps.spell, hero, stack, skillLevel, spellPower);
 					if(stack->owner == playerID)
@@ -548,7 +548,7 @@ ThreatMap::ThreatMap(const CStack *Endangered) : endangered(Endangered)
 {
 	sufferedDamage.fill(0);
 
-	BOOST_FOREACH(const CStack *enemy, cbc->battleGetStacks())
+	for(const CStack *enemy : cbc->battleGetStacks())
 	{
 		//Consider only stacks of different owner
 		if(enemy->attackerOwned == endangered->attackerOwned)
@@ -563,7 +563,7 @@ ThreatMap::ThreatMap(const CStack *Endangered) : endangered(Endangered)
 			if(enemyReachability.isReachable(i))
 			{
 				meleeAttackable[i] = true;
-				BOOST_FOREACH(auto n, BattleHex(i).neighbouringTiles())
+				for(auto n : BattleHex(i).neighbouringTiles())
 					meleeAttackable[n] = true;
 			}
 		}
@@ -596,8 +596,8 @@ const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector &selector, c
 {
 	TBonusListPtr ret = make_shared<BonusList>();
 	const TBonusListPtr originalList = stack->getAllBonuses(selector, limit, root, cachingStr);
-	boost::copy(*originalList, std::back_inserter(*ret));
-	BOOST_FOREACH(auto &bonus, bonusesToAdd)
+	range::copy(*originalList, std::back_inserter(*ret));
+	for(auto &bonus : bonusesToAdd)
 	{
 		if(selector(&bonus)  &&  (!limit || !limit(&bonus)))
 			ret->push_back(&bonus);
@@ -664,7 +664,7 @@ PotentialTargets::PotentialTargets(const CStack *attacker, const HypotheticChang
 	auto dists = cbc->battleGetDistances(attacker);
 	auto avHexes = cbc->battleGetAvailableHexes(attacker, false);
 
-	BOOST_FOREACH(const CStack *enemy, cbc->battleGetStacks())
+	for(const CStack *enemy : cbc->battleGetStacks())
 	{
 		//Consider only stacks of different owner
 		if(enemy->attackerOwned == attacker->attackerOwned)
@@ -691,7 +691,7 @@ PotentialTargets::PotentialTargets(const CStack *attacker, const HypotheticChang
 		}
 		else
 		{
-			BOOST_FOREACH(BattleHex hex, avHexes)
+			for(BattleHex hex : avHexes)
 				if(CStack::isMeleeAttackPossible(attacker, enemy, hex))
 					possibleAttacks.push_back(GenerateAttackInfo(false, hex));
 

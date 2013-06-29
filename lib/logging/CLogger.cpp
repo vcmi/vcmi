@@ -197,7 +197,7 @@ void CLogger::callTargets(const LogRecord & record) const
 	TLockGuard _(mx);
 	for(const CLogger * logger = this; logger != nullptr; logger = logger->parent)
 	{
-		BOOST_FOREACH(auto & target, logger->targets)
+		for(auto & target : logger->targets)
 		{
 			target->write(record);
 		}
@@ -245,7 +245,7 @@ CLogManager::CLogManager()
 
 CLogManager::~CLogManager()
 {
-	BOOST_FOREACH(auto & i, loggers)
+	for(auto & i : loggers)
 	{
 		delete i.second;
 	}

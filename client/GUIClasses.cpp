@@ -80,7 +80,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 	slotsPos.push_back(Point(90,122));
 	slotsPos.push_back(Point(126,122));
 
-	BOOST_FOREACH(auto & slot, army.army)
+	for(auto & slot : army.army)
 	{
 		if(slot.first.getNum() >= GameConstants::ARMY_SIZE)
 		{
@@ -327,8 +327,8 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				owner->selectSlot(nullptr);
 				owner->setSplittingMode(false);
 
-				for(size_t i = 0; i<owner->splitButtons.size(); i++)
-					owner->splitButtons[i]->block(true);
+				for(auto & elem : owner->splitButtons)
+					elem->block(true);
 
 				redraw();
 				refr = true;
@@ -430,8 +430,8 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				owner->selectSlot(this);
 				if(creature)
 				{
-					for(size_t i = 0; i<owner->splitButtons.size(); i++)
-						owner->splitButtons[i]->block(false);
+					for(auto & elem : owner->splitButtons)
+						elem->block(false);
 				}
 			}
 			redraw();
@@ -525,9 +525,9 @@ void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSe
 
 	if (set)
 	{
-		for(TSlots::const_iterator i=set->Slots().begin(); i!=set->Slots().end(); i++)
+		for(auto & elem : set->Slots())
 		{
-			ret[i->first.getNum()] = new CGarrisonSlot(this, posX + (i->first.getNum()*distance), posY, i->first, Upg, i->second);
+			ret[elem.first.getNum()] = new CGarrisonSlot(this, posX + (elem.first.getNum()*distance), posY, elem.first, Upg, elem.second);
 		}
 	}
 
@@ -558,14 +558,14 @@ void CGarrisonInt::recreateSlots()
 	selectSlot(nullptr);
 	setSplittingMode(false);
 
-	for(size_t i = 0; i<splitButtons.size(); i++)
-		splitButtons[i]->block(true);
+	for(auto & elem : splitButtons)
+		elem->block(true);
 
 
-	BOOST_FOREACH(CGarrisonSlot * slot, slotsUp)
+	for(CGarrisonSlot * slot : slotsUp)
 		slot->update();
 
-	BOOST_FOREACH(CGarrisonSlot * slot, slotsDown)
+	for(CGarrisonSlot * slot : slotsDown)
 		slot->update();
 }
 
@@ -613,7 +613,7 @@ void CGarrisonInt::selectSlot(CGarrisonSlot *slot)
 			highlighted->setHighlight(false);
 
 		highlighted = slot;
-		BOOST_FOREACH (auto button, splitButtons)
+		for (auto button : splitButtons)
 			button->block(highlighted == nullptr);
 
 		if (highlighted)
@@ -627,10 +627,10 @@ void CGarrisonInt::setSplittingMode(bool on)
 
 	if (inSplittingMode || on)
 	{
-		BOOST_FOREACH(CGarrisonSlot * slot, slotsUp)
+		for(CGarrisonSlot * slot : slotsUp)
 			slot->setHighlight( ( on && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
 
-		BOOST_FOREACH(CGarrisonSlot * slot, slotsDown)
+		for(CGarrisonSlot * slot : slotsDown)
 			slot->setHighlight( ( on && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
 		inSplittingMode = on;
 	}
@@ -653,12 +653,12 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 
 	type |= BLOCK_ADV_HOTKEYS;
 	ID = QueryID(-1);
-	for(int i=0;i<Buttons.size();i++)
+	for(auto & Button : Buttons)
 	{
-		CAdventureMapButton *button = new CAdventureMapButton("","",std::bind(&CInfoWindow::close,this),0,0,Buttons[i].first);
+		CAdventureMapButton *button = new CAdventureMapButton("","",std::bind(&CInfoWindow::close,this),0,0,Button.first);
 		button->borderColor = Colors::METALLIC_GOLD;
 		button->borderEnabled = true;
-		button->callback.add(Buttons[i].second); //each button will close the window apart from call-defined actions
+		button->callback.add(Button.second); //each button will close the window apart from call-defined actions
 		buttons.push_back(button);
 	}
 
@@ -675,12 +675,12 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 		buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
 	}
 
-	for(int i=0;i<comps.size();i++)
+	for(auto & comp : comps)
 	{
-		comps[i]->recActions = 0xff;
-		addChild(comps[i]);
-		comps[i]->recActions &= ~(SHOWALL | UPDATE);
-		components.push_back(comps[i]);
+		comp->recActions = 0xff;
+		addChild(comp);
+		comp->recActions &= ~(SHOWALL | UPDATE);
+		components.push_back(comp);
 	}
 	setDelComps(delComps);
 	CMessage::drawIWindow(this,Text,player);
@@ -709,8 +709,8 @@ CInfoWindow::~CInfoWindow()
 {
 	if(!delComps)
 	{
-		for (int i=0;i<components.size();i++)
-			removeChild(components[i]);
+		for (auto & elem : components)
+			removeChild(elem);
 	}
 }
 
@@ -727,10 +727,10 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<CC
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
 	CInfoWindow * temp = new CInfoWindow(text, player, components ? *components : std::vector<CComponent*>(), pom, DelComps);
-	for(int i=0;i<onYes.funcs.size();i++)
-		temp->buttons[0]->callback += onYes.funcs[i];
-	for(int i=0;i<onNo.funcs.size();i++)
-		temp->buttons[1]->callback += onNo.funcs[i];
+	for(auto & elem : onYes.funcs)
+		temp->buttons[0]->callback += elem;
+	for(auto & elem : onNo.funcs)
+		temp->buttons[1]->callback += elem;
 
 	GH.pushInt(temp);
 }
@@ -751,7 +751,7 @@ std::string CInfoWindow::genText(std::string title, std::string description)
 void CInfoWindow::setDelComps(bool DelComps)
 {
 	delComps = DelComps;
-	BOOST_FOREACH(CComponent *comp, components)
+	for(CComponent *comp : components)
 	{
 		if(delComps)
 			comp->recActions |= DISPOSE;
@@ -877,10 +877,10 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 	pos.h += 4; //distance between text and image
 
 	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(80, pos.w), font);
-	BOOST_FOREACH(auto & line, textLines)
+	for(auto & line : textLines)
 	{
 		int height = graphics->fonts[font]->getLineHeight();
-		CLabel * label = new CLabel(pos.w/2, pos.h + height/2, font, CENTER, Colors::WHITE, line);
+		auto   label = new CLabel(pos.w/2, pos.h + height/2, font, CENTER, Colors::WHITE, line);
 
 		pos.h += height;
 		if (label->pos.w > pos.w)
@@ -1117,7 +1117,7 @@ void CComponentBox::placeComponents(bool selectable)
 		return;
 
 	//prepare components
-	BOOST_FOREACH(auto & comp, components)
+	for(auto & comp : components)
 	{
 		addChild(comp);
 		comp->moveTo(Point(pos.x, pos.y));
@@ -1137,7 +1137,7 @@ void CComponentBox::placeComponents(bool selectable)
 	//split components in rows
 	CComponent * prevComp = nullptr;
 
-	BOOST_FOREACH(CComponent * comp, components)
+	for(CComponent * comp : components)
 	{
 		//make sure that components are smaller than our width
 		//assert(pos.w == 0 || pos.w < comp->pos.w);
@@ -1164,12 +1164,12 @@ void CComponentBox::placeComponents(bool selectable)
 
 	if (pos.w == 0)
 	{
-		BOOST_FOREACH(auto & row, rows)
+		for(auto & row : rows)
 			vstd::amax(pos.w, row.width);
 	}
 
 	int height = (rows.size() - 1) * betweenRows;
-	BOOST_FOREACH(auto & row, rows)
+	for(auto & row : rows)
 		height += row.height;
 
 	//assert(pos.h == 0 || pos.h < height);
@@ -1180,14 +1180,14 @@ void CComponentBox::placeComponents(bool selectable)
 	int currentY = (pos.h - height) / 2;
 
 	//move components to their positions
-	for (size_t row = 0; row < rows.size(); row++)
+	for (auto & rows_row : rows)
 	{
 		// amount of free space we may add on each side of every component
-		int freeSpace = (pos.w - rows[row].width) / (rows[row].comps * 2);
+		int freeSpace = (pos.w - rows_row.width) / (rows_row.comps * 2);
 		prevComp = nullptr;
 
 		int currentX = 0;
-		for (size_t col = 0; col < rows[row].comps; col++)
+		for (size_t col = 0; col < rows_row.comps; col++)
 		{
 			currentX += freeSpace;
 			if (prevComp)
@@ -1207,7 +1207,7 @@ void CComponentBox::placeComponents(bool selectable)
 
 			prevComp = *(iter++);
 		}
-		currentY += rows[row].height + betweenRows;
+		currentY += rows_row.height + betweenRows;
 	}
 }
 
@@ -1241,7 +1241,7 @@ CComponentBox::CComponentBox(std::vector<CSelectableComponent *> _components, Re
 	assert(!components.empty());
 
 	int key = SDLK_1;
-	BOOST_FOREACH(auto & comp, _components)
+	for(auto & comp : _components)
 	{
 		comp->onSelect = std::bind(&CComponentBox::selectionChanged, this, comp);
 		comp->assignedKeys.insert(key++);
@@ -1383,7 +1383,7 @@ CRecruitmentWindow::CCostBox::CCostBox(Rect position, std::string title)
 void CRecruitmentWindow::CCostBox::set(TResources res)
 {
 	//just update values
-	BOOST_FOREACH(auto & item, resources)
+	for(auto & item : resources)
 	{
 		item.second.first->setTxt(boost::lexical_cast<std::string>(res[item.first]));
 	}
@@ -1393,7 +1393,7 @@ void CRecruitmentWindow::CCostBox::createItems(TResources res)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	BOOST_FOREACH(auto & curr, resources)
+	for(auto & curr : resources)
 	{
 		delete curr.second.first;
 		delete curr.second.second;
@@ -1414,7 +1414,7 @@ void CRecruitmentWindow::CCostBox::createItems(TResources res)
 	{
 		int curx = pos.w / 2 - (16 * resources.size()) - (8 * (resources.size() - 1));
 		//reverse to display gold as first resource
-		BOOST_REVERSE_FOREACH(auto & res, resources)
+		for (auto & res : boost::adaptors::reverse(resources))
 		{
 			res.second.first->moveBy(Point(curx, 22));
 			res.second.second->moveBy(Point(curx, 22));
@@ -1522,7 +1522,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	slider = new CSlider(176,279,135,0,0,0,0,true);
+	slider = new CSlider(176,279,135,nullptr,0,0,0,true);
 	slider->moved = std::bind(&CRecruitmentWindow::sliderMoved,this, _1);
 
 	maxButton = new CAdventureMapButton(CGI->generaltexth->zelp[553],std::bind(&CSlider::moveToMax,slider),134,313,"IRCBTNS.DEF",SDLK_m);
@@ -1555,7 +1555,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 	select(nullptr);
 
 	//delete old cards
-	BOOST_FOREACH(auto & card, cards)
+	for(auto & card : cards)
 		delete card;
 	cards.clear();
 
@@ -1568,7 +1568,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 		int amount = dwelling->creatures[i].first;
 
 		//create new cards
-		BOOST_REVERSE_FOREACH(auto & creature, dwelling->creatures[i].second)
+		for(auto & creature : boost::adaptors::reverse(dwelling->creatures[i].second))
 			cards.push_back(new CCreatureCard(this, CGI->creh->creatures[creature], amount));
 	}
 
@@ -1593,7 +1593,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 
 	//now we know total amount of cards and can move them to correct position
 	int curx = pos.w / 2 - (creatureWidth*cards.size()/2) - (spaceBetween*(cards.size()-1)/2);
-	BOOST_FOREACH(auto & card, cards)
+	for(auto & card : cards)
 	{
 		card->moveBy(Point(curx, 64));
 		curx += totalCreatureWidth;
@@ -1722,12 +1722,12 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkil
 	{
 		std::vector<CSelectableComponent *> comps;
 
-		for(size_t i=0;i<skills.size();i++)
+		for(auto & skill : skills)
 		{
 			comps.push_back(new CSelectableComponent(
 								CComponent::secskill,
-								skills[i],
-								hero->getSecSkillLevel( SecondarySkill(skills[i]) )+1,
+								skill,
+								hero->getSecSkillLevel( SecondarySkill(skill) )+1,
 								CComponent::medium));
 		}
 		box = new CComponentBox(comps, Rect(75, 300, pos.w - 150, 100));
@@ -1820,7 +1820,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CPicture * 
 	onSelect(Callback)
 {
 	items.reserve(_items.size());
-	BOOST_FOREACH(int id, _items)
+	for(int id : _items)
 	{
 		items.push_back(std::make_pair(id, CGI->mh->map->objects[id]->hoverName));
 	}
@@ -1887,7 +1887,7 @@ void CObjectListWindow::changeSelection(size_t which)
 		return;
 
 	std::list< CIntObject * > elements = list->getItems();
-	BOOST_FOREACH(CIntObject * element, elements)
+	for(CIntObject * element : elements)
 	{
 		CItem *item;
 		if ( (item = dynamic_cast<CItem*>(element)) )
@@ -2277,7 +2277,7 @@ void CTradeWindow::initItems(bool Left)
 			xOffset = -361;
 			yOffset = +46;
 
-			CTradeableItem *hlp = new CTradeableItem(Point(137, 469), itemsType[Left], -1, 1, 0);
+			auto  hlp = new CTradeableItem(Point(137, 469), itemsType[Left], -1, 1, 0);
 			hlp->recActions &= ~(UPDATE | SHOWALL);
 			items[Left].push_back(hlp);
 		}
@@ -2322,7 +2322,7 @@ void CTradeWindow::initItems(bool Left)
 		if(id < 0 && mode != EMarketMode::ARTIFACT_EXP)  //when sacrificing artifacts we need to prepare empty slots
 			continue;
 
-		CTradeableItem *hlp = new CTradeableItem(pos[j].topLeft(), itemsType[Left], id, Left, j);
+		auto  hlp = new CTradeableItem(pos[j].topLeft(), itemsType[Left], id, Left, j);
 		hlp->pos = pos[j] + this->pos.topLeft();
 		items[Left].push_back(hlp);
 	}
@@ -2407,7 +2407,7 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 
 		if(!Left)
 		{
-			BOOST_FOREACH(Rect &r, poss)
+			for(Rect &r : poss)
 				r.x += leftToRightOffset;
 		}
 	}
@@ -2415,7 +2415,7 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 
 void CTradeWindow::initSubs(bool Left)
 {
-	BOOST_FOREACH(CTradeableItem *t, items[Left])
+	for(CTradeableItem *t : items[Left])
 	{
 		if(Left)
 		{
@@ -2474,7 +2474,7 @@ void CTradeWindow::showAll(SDL_Surface * to)
 
 void CTradeWindow::removeItems(const std::set<CTradeableItem *> &toRemove)
 {
-	BOOST_FOREACH(CTradeableItem *t, toRemove)
+	for(CTradeableItem *t : toRemove)
 		removeItem(t);
 }
 
@@ -2492,7 +2492,7 @@ void CTradeWindow::removeItem(CTradeableItem * t)
 
 void CTradeWindow::getEmptySlots(std::set<CTradeableItem *> &toRemove)
 {
-	BOOST_FOREACH(CTradeableItem *t, items[1])
+	for(CTradeableItem *t : items[1])
 		if(!hero->getStackCount(SlotID(t->serial)))
 			toRemove.insert(t);
 }
@@ -2604,7 +2604,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 
 	if(sliderNeeded)
 	{
-		slider = new CSlider(231,490,137,0,0,0);
+		slider = new CSlider(231,490,137,nullptr,0,0);
 		slider->moved = std::bind(&CMarketplaceWindow::sliderMoved,this,_1);
 		max = new CAdventureMapButton(CGI->generaltexth->zelp[596],std::bind(&CMarketplaceWindow::setMax,this),229,520,"IRCBTNS.DEF");
 		max->block(true);
@@ -2675,10 +2675,10 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 CMarketplaceWindow::~CMarketplaceWindow()
 {
 	hLeft = hRight = nullptr;
-	for(int i=0;i<items[1].size();i++)
-		delete items[1][i];
-	for(int i=0;i<items[0].size();i++)
-		delete items[0][i];
+	for(auto & elem : items[1])
+		delete elem;
+	for(auto & elem : items[0])
+		delete elem;
 
 	items[1].clear();
 	items[0].clear();
@@ -2817,7 +2817,7 @@ void CMarketplaceWindow::artifactsChanged(bool Left)
 
 	std::vector<int> available = market->availableItemsIds(mode);
 	std::set<CTradeableItem *> toRemove;
-	BOOST_FOREACH(CTradeableItem *t, items[0])
+	for(CTradeableItem *t : items[0])
 		if(!vstd::contains(available, t->id))
 			toRemove.insert(t);
 
@@ -3011,7 +3011,7 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 		 //To sacrifice creatures, move them from your army on to the Altar and click Sacrifice
 		new CTextBox(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, CENTER, Colors::YELLOW);
 
-		slider = new CSlider(231,481,137,0,0,0);
+		slider = new CSlider(231,481,137,nullptr,0,0);
 		slider->moved = std::bind(&CAltarWindow::sliderMoved,this,_1);
 		max = new CAdventureMapButton(CGI->generaltexth->zelp[578],std::bind(&CSlider::moveToMax, slider),147,520,"IRCBTNS.DEF");
 
@@ -3111,10 +3111,10 @@ void CAltarWindow::makeDeal()
 				LOCPLINT->cb->trade(market->o, mode, i, 0, toSacrifice[i], hero);
 		}
 
-		BOOST_FOREACH(int& val, sacrificedUnits)
+		for(int& val : sacrificedUnits)
 			val = 0;
 
-		BOOST_FOREACH(CTradeableItem *t, items[0])
+		for(CTradeableItem *t : items[0])
 		{
 			t->setType(CREATURE_PLACEHOLDER);
 			t->subtitle = "";
@@ -3122,13 +3122,13 @@ void CAltarWindow::makeDeal()
 	}
 	else
 	{
-		BOOST_FOREACH(const CArtifactInstance *art, arts->artifactsOnAltar) //sacrifice each artifact on the list
+		for(const CArtifactInstance *art : arts->artifactsOnAltar) //sacrifice each artifact on the list
 		{
 			LOCPLINT->cb->trade(market->o, mode, hero->getArtPos(art), -1, 1, hero);
 		}
 		arts->artifactsOnAltar.clear();
 
-		BOOST_FOREACH(CTradeableItem *t, items[0])
+		for(CTradeableItem *t : items[0])
 		{
 			t->setID(-1);
 			t->subtitle = "";
@@ -3147,12 +3147,12 @@ void CAltarWindow::SacrificeAll()
 	if(mode == EMarketMode::CREATURE_EXP)
 	{
 		bool movedAnything = false;
-		BOOST_FOREACH(CTradeableItem *t, items[1])
+		for(CTradeableItem *t : items[1])
 			sacrificedUnits[t->serial] = hero->getStackCount(SlotID(t->serial));
 
 		sacrificedUnits[items[1].front()->serial]--;
 
-		BOOST_FOREACH(CTradeableItem *t, items[0])
+		for(CTradeableItem *t : items[0])
 		{
 			updateRight(t);
 			if(t->type == CREATURE)
@@ -3206,9 +3206,9 @@ void CAltarWindow::mimicCres()
 	std::vector<Rect> positions;
 	getPositionsFor(positions, false, CREATURE);
 
-	BOOST_FOREACH(CTradeableItem *t, items[1])
+	for(CTradeableItem *t : items[1])
 	{
-		CTradeableItem *hlp = new CTradeableItem(positions[t->serial].topLeft(), CREATURE_PLACEHOLDER, t->id, false, t->serial);
+		auto  hlp = new CTradeableItem(positions[t->serial].topLeft(), CREATURE_PLACEHOLDER, t->id, false, t->serial);
 		hlp->pos = positions[t->serial] + this->pos.topLeft();
 		items[0].push_back(hlp);
 	}
@@ -3245,7 +3245,7 @@ void CAltarWindow::garrisonChanged()
 	std::set<CTradeableItem *> empty;
 	getEmptySlots(empty);
 
-	BOOST_FOREACH(CTradeableItem *t, empty)
+	for(CTradeableItem *t : empty)
 	{
 		removeItem(*std::find_if(items[0].begin(), items[0].end(), [&](const CTradeableItem * item)
 		{
@@ -3260,7 +3260,7 @@ void CAltarWindow::garrisonChanged()
 void CAltarWindow::getExpValues()
 {
 	int dump;
-	BOOST_FOREACH(CTradeableItem *t, items[1])
+	for(CTradeableItem *t : items[1])
 		if(t->id >= 0)
 			market->getOffer(t->id, 0, dump, expPerUnit[t->serial], EMarketMode::CREATURE_EXP);
 }
@@ -3277,7 +3277,7 @@ void CAltarWindow::calcTotalExp()
 	}
 	else
 	{
-		BOOST_FOREACH(const CArtifactInstance *art, arts->artifactsOnAltar)
+		for(const CArtifactInstance *art : arts->artifactsOnAltar)
 		{
 			int dmp, valOfArt;
 			market->getOffer(art->artType->id, 0, dmp, valOfArt, mode);
@@ -3323,16 +3323,16 @@ void CAltarWindow::SacrificeBackpack()
 {
 	std::multiset<const CArtifactInstance *> toOmmit = arts->artifactsOnAltar;
 
-	for (int i = 0; i < hero->artifactsInBackpack.size(); i++)
+	for (auto & elem : hero->artifactsInBackpack)
 	{
 
-		if(vstd::contains(toOmmit, hero->artifactsInBackpack[i].artifact))
+		if(vstd::contains(toOmmit, elem.artifact))
 		{
-			toOmmit -= hero->artifactsInBackpack[i].artifact;
+			toOmmit -= elem.artifact;
 			continue;
 		}
 
-		putOnAltar(nullptr, hero->artifactsInBackpack[i].artifact);
+		putOnAltar(nullptr, elem.artifact);
 	}
 
 	arts->scrollBackpack(0);
@@ -3570,7 +3570,7 @@ void CSystemOptionsWindow::selectGameRes()
 
 	std::vector<std::string> items;
 
-	BOOST_FOREACH( config::CConfigHandler::GuiOptionsMap::value_type& value, conf.guiOptions)
+	for( config::CConfigHandler::GuiOptionsMap::value_type& value : conf.guiOptions)
 	{
 		std::string resX = boost::lexical_cast<std::string>(value.first.first);
 		std::string resY = boost::lexical_cast<std::string>(value.first.second);
@@ -3814,7 +3814,7 @@ void CInGameConsole::show(SDL_Surface * to)
 	std::vector<std::list< std::pair< std::string, int > >::iterator> toDel;
 
 	boost::unique_lock<boost::mutex> lock(texts_mx);
-	for(std::list< std::pair< std::string, int > >::iterator it = texts.begin(); it != texts.end(); ++it, ++number)
+	for(auto it = texts.begin(); it != texts.end(); ++it, ++number)
 	{
 		Point leftBottomCorner(0, screen->h);
 		if(LOCPLINT->battleInt)
@@ -3830,9 +3830,9 @@ void CInGameConsole::show(SDL_Surface * to)
 		}
 	}
 
-	for(int it=0; it<toDel.size(); ++it)
+	for(auto & elem : toDel)
 	{
-		texts.erase(toDel[it]);
+		texts.erase(elem);
 	}
 }
 
@@ -4157,7 +4157,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 	{
 		if(ourArt->artType->id == 0)
 		{
-			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt);
+			auto   spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt);
 			GH.pushInt(spellWindow);
 		}
 	}
@@ -4258,7 +4258,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 				std::vector<const CArtifact *> assemblyPossibilities = ourArt->assemblyPossibilities(ourOwner->curHero);
 
 				// If the artifact can be assembled, display dialog.
-				BOOST_FOREACH(const CArtifact *combination, assemblyPossibilities)
+				for(const CArtifact *combination : assemblyPossibilities)
 				{
 					LOCPLINT->showArtifactAssemblyDialog(
 						ourArt->artType->id,
@@ -4668,11 +4668,11 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 	//in artifact merchant selling artifacts we may have highlight on one of backpack artifacts -> market needs update, cause artifact under highlight changed
 	if(highlightModeCallback)
 	{
-		for(int i = 0; i < backpack.size(); i++)
+		for(auto & elem : backpack)
 		{
-			if(backpack[i]->marked)
+			if(elem->marked)
 			{
-				highlightModeCallback(backpack[i]);
+				highlightModeCallback(elem);
 				break;
 			}
 		}
@@ -4694,8 +4694,8 @@ void CArtifactsOfHero::scrollBackpack(int dir)
  */
 void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
 {
-	BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
-		BOOST_FOREACH(CArtPlace *place, aoh->artWorn)
+	for(CArtifactsOfHero *aoh : commonInfo->participants)
+		for(CArtPlace *place : aoh->artWorn)
 			place->selectSlot(art->canBePutAt(ArtifactLocation(aoh->curHero, place->slotID), true));
 
 	safeRedraw();
@@ -4707,7 +4707,7 @@ void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
 void CArtifactsOfHero::unmarkSlots(bool withRedraw /*= true*/)
 {
 	if(commonInfo)
-		BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
+		for(CArtifactsOfHero *aoh : commonInfo->participants)
 			aoh->unmarkLocalSlots(false);
 	else
 		unmarkLocalSlots(false);\
@@ -4718,9 +4718,9 @@ void CArtifactsOfHero::unmarkSlots(bool withRedraw /*= true*/)
 
 void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw /*= true*/)
 {
-	BOOST_FOREACH(CArtPlace *place, artWorn)
+	for(CArtPlace *place : artWorn)
 		place->selectSlot(false);
-	BOOST_FOREACH(CArtPlace *place, backpack)
+	for(CArtPlace *place : backpack)
 		place->selectSlot(false);
 
 	if(withRedraw)
@@ -4766,7 +4766,7 @@ CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector
 	artWorn(ArtWorn), backpack(Backpack),
 	backpackPos(0), commonInfo(nullptr), updateState(false),
 	leftArtRoll(leftScroll), rightArtRoll(rightScroll),
-	allowedAssembling(true), highlightModeCallback(0)
+	allowedAssembling(true), highlightModeCallback(nullptr)
 {
 	if(createCommonPart)
 	{
@@ -4793,7 +4793,7 @@ CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector
 }
 
 CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart /*= false*/)
- : curHero(nullptr), backpackPos(0), commonInfo(nullptr), updateState(false), allowedAssembling(true), highlightModeCallback(0)
+ : curHero(nullptr), backpackPos(0), commonInfo(nullptr), updateState(false), allowedAssembling(true), highlightModeCallback(nullptr)
 {
 	if(createCommonPart)
 	{
@@ -4825,7 +4825,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	// Create slots for the backpack.
 	for(size_t s=0; s<5; ++s)
 	{
-		CArtPlace * add = new CArtPlace(Point(403 + 46 * s, 365));
+		auto   add = new CArtPlace(Point(403 + 46 * s, 365));
 
 		add->ourOwner = this;
 		eraseSlotData(add, ArtifactPosition(GameConstants::BACKPACK_START + s));
@@ -4926,7 +4926,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		commonInfo->reset();
 
 		CArtPlace *ap = nullptr;
-		BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
+		for(CArtifactsOfHero *aoh : commonInfo->participants)
 		{
 			if(dst.isHolder(aoh->curHero))
 			{
@@ -4998,7 +4998,7 @@ CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 	}
 	else
 	{
-		BOOST_FOREACH(CArtPlace *ap, backpack)
+		for(CArtPlace *ap : backpack)
 			if(ap->slotID == slot)
 				return ap;
 	}
@@ -5265,11 +5265,11 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 
 	auto & puzzleMap = CGI->townh->factions[faction]->puzzleMap;
 
-	for(int g=0; g<puzzleMap.size(); ++g)
+	for(auto & elem : puzzleMap)
 	{
-		const SPuzzleInfo & info = puzzleMap[g];
+		const SPuzzleInfo & info = elem;
 
-		auto piece = new CPicture(info.filename, info.x, info.y);
+		auto   piece = new CPicture(info.filename, info.x, info.y);
 
 		//piece that will slowly disappear
 		if(info.whenUncovered <= GameConstants::PUZZLE_MAP_PIECES * discoveredRatio)
@@ -5301,14 +5301,14 @@ void CPuzzleWindow::show(SDL_Surface * to)
 	if (currentAlpha < animSpeed)
 	{
 		//animation done
-		BOOST_FOREACH(auto & piece, piecesToRemove)
+		for(auto & piece : piecesToRemove)
 			delete piece;
 		piecesToRemove.clear();
 	}
 	else
 	{
 		//update disappearing puzzles
-		BOOST_FOREACH(auto & piece, piecesToRemove)
+		for(auto & piece : piecesToRemove)
 			piece->setAlpha(currentAlpha);
 		currentAlpha -= animSpeed;
 	}
@@ -5355,22 +5355,22 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * parent, int size, int id):
 
 void CTransformerWindow::makeDeal()
 {
-	for (int i=0; i<items.size(); i++)
-		if (!items[i]->left)
-			LOCPLINT->cb->trade(town, EMarketMode::CREATURE_UNDEAD, items[i]->id, 0, 0, hero);
+	for (auto & elem : items)
+		if (!elem->left)
+			LOCPLINT->cb->trade(town, EMarketMode::CREATURE_UNDEAD, elem->id, 0, 0, hero);
 }
 
 void CTransformerWindow::addAll()
 {
-	for (int i=0; i<items.size(); i++)
-		if (items[i]->left)
-			items[i]->move();
+	for (auto & elem : items)
+		if (elem->left)
+			elem->move();
 	showAll(screen2);
 }
 
 void CTransformerWindow::updateGarrisons()
 {
-	BOOST_FOREACH(auto & item, items)
+	for(auto & item : items)
 	{
 		item->update();
 	}
@@ -5409,7 +5409,7 @@ void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
 	{
 		if ( state() != 2 )
 			return;
-		CUnivConfirmWindow *win = new CUnivConfirmWindow(parent, ID, LOCPLINT->cb->getResourceAmount(Res::GOLD) >= 2000);
+		auto  win = new CUnivConfirmWindow(parent, ID, LOCPLINT->cb->getResourceAmount(Res::GOLD) >= 2000);
 		GH.pushInt(win);
 	}
 }
@@ -5823,7 +5823,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 	//printing best hero
 	int counter = 0;
-	BOOST_FOREACH(auto & iter, tgi.colorToBestHero)
+	for(auto & iter : tgi.colorToBestHero)
 	{
 		if(iter.second.portrait >= 0)
 		{
@@ -5848,7 +5848,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 	//printing best creature
 	counter = 0;
-	BOOST_FOREACH(auto & it, tgi.bestCreature)
+	for(auto & it : tgi.bestCreature)
 	{
 		if(it.second >= 0)
 			new CAnimImage("TWCRPORT", it.second+2, 0, 255 + 66 * counter, 479);
@@ -5857,7 +5857,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 	//printing personality
 	counter = 0;
-	BOOST_FOREACH(auto & it, tgi.personality)
+	for(auto & it : tgi.personality)
 	{
 		std::string text;
         if(it.second == EAiTactic::NONE)
@@ -5912,10 +5912,10 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 		}
 		else
 		{
-			for(int it=0; it < mrl.size(); it++)
+			for(auto & elem : mrl)
 			{
-				if (mrl[it].first) //no bonuses with value 0
-					text += "\n" + mrl[it].second;
+				if (elem.first) //no bonuses with value 0
+					text += "\n" + elem.second;
 			}
 		}
 	}
@@ -5946,14 +5946,14 @@ CArtifactHolder::CArtifactHolder()
 
 void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation &artLoc)
 {
-	BOOST_FOREACH(CArtifactsOfHero *aoh, artSets)
+	for(CArtifactsOfHero *aoh : artSets)
 		aoh->artifactRemoved(artLoc);
 }
 
 void CWindowWithArtifacts::artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)
 {
 	CArtifactsOfHero *destaoh = nullptr;
-	BOOST_FOREACH(CArtifactsOfHero *aoh, artSets)
+	for(CArtifactsOfHero *aoh : artSets)
 	{
 		aoh->artifactMoved(artLoc, destLoc);
 		aoh->redraw();
@@ -5970,13 +5970,13 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation &artLoc, const A
 
 void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation &artLoc)
 {
-	BOOST_FOREACH(CArtifactsOfHero *aoh, artSets)
+	for(CArtifactsOfHero *aoh : artSets)
 		aoh->artifactDisassembled(artLoc);
 }
 
 void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation &artLoc)
 {
-	BOOST_FOREACH(CArtifactsOfHero *aoh, artSets)
+	for(CArtifactsOfHero *aoh : artSets)
 		aoh->artifactAssembled(artLoc);
 }
 
@@ -6038,7 +6038,7 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 	CSimpleWindow * temp = new CInfoWindow(txt, player, comps);
 	temp->center(Point(GH.current->motion)); //center on mouse
 	temp->fitToScreen(10);
-	CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
+	auto  rcpi = new CRClickPopupInt(temp,true);
 	GH.pushInt(rcpi);
 }
 

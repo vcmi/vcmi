@@ -18,9 +18,9 @@
 
 bool CGDefInfo::isVisitable() const
 {
-	for (int i=0; i<6; i++)
+	for (auto & elem : visitMap)
 	{
-		if (visitMap[i])
+		if (elem)
 			return true;
 	}
 	return false;
@@ -58,7 +58,7 @@ CDefObjInfoHandler::CDefObjInfoHandler()
 	std::string mapStr;
 	for(int hh=0; hh<objNumber; ++hh)
 	{
-		CGDefInfo* nobj = new CGDefInfo();
+		auto  nobj = new CGDefInfo();
 		std::string dump;
 		inp>>nobj->name;
 
@@ -120,9 +120,9 @@ CDefObjInfoHandler::CDefObjInfoHandler()
 				Obj::QUEST_GUARD,
 				Obj::CORPSE};
 
-			for(int i=0; i < ARRAY_COUNT(visitableFromTop); i++)
+			for(auto & elem : visitableFromTop)
 			{
-				if(visitableFromTop[i] == nobj->id)
+				if(elem == nobj->id)
 				{
 					nobj->visitDir = 0xff;
 					break;
@@ -163,7 +163,7 @@ CDefObjInfoHandler::CDefObjInfoHandler()
 
 CDefObjInfoHandler::~CDefObjInfoHandler()
 {
-	for(bmap<int,bmap<int, ConstTransitivePtr<CGDefInfo> > >::iterator i=gobjs.begin(); i!=gobjs.end(); i++)
-		for(bmap<int, ConstTransitivePtr<CGDefInfo> >::iterator j=i->second.begin(); j!=i->second.end(); j++)
+	for(auto & elem : gobjs)
+		for(auto j=elem.second.begin(); j!=elem.second.end(); j++)
 			j->second.dellNull();
 }

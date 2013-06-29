@@ -58,12 +58,12 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), onc
 	totalBlocks = read_le_u32(FDef + i); i+=4;
 
 	i=0x10;
-	for (int it=0;it<256;it++)
+	for (auto & elem : palette)
 	{
-		palette[it].R = FDef[i++];
-		palette[it].G = FDef[i++];
-		palette[it].B = FDef[i++];
-		palette[it].F = 0;
+		elem.R = FDef[i++];
+		elem.G = FDef[i++];
+		elem.B = FDef[i++];
+		elem.F = 0;
 	}
 	i=0x310;
 	totalEntries=0;

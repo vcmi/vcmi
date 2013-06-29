@@ -364,6 +364,9 @@ public:
 	typedef TInternalContainer::const_reference const_reference;
 	typedef TInternalContainer::value_type value_type;
 
+	typedef TInternalContainer::const_iterator const_iterator;
+	typedef TInternalContainer::iterator iterator;
+
 	BonusList(bool BelongsToTree = false);
 	BonusList(const BonusList &bonusList);
 	BonusList& operator=(const BonusList &bonusList);
@@ -427,29 +430,40 @@ public:
 		h & static_cast<std::vector<Bonus*>&>(bonuses);
 	}
 
-	friend inline std::vector<Bonus*>::iterator range_begin(BonusList & x);
-	friend inline std::vector<Bonus*>::iterator range_end(BonusList & x);
+	// C++ for range support
+	auto begin () -> decltype (bonuses.begin())
+	{
+		return bonuses.begin();
+	}
+
+	auto end () -> decltype (bonuses.end())
+	{
+		return bonuses.end();
+	}
+
+	//friend inline std::vector<Bonus*>::iterator range_begin(BonusList & x);
+	//friend inline std::vector<Bonus*>::iterator range_end(BonusList & x);
 };
 
 
 // Extensions for BOOST_FOREACH to enable iterating of BonusList objects
 // Don't touch/call this functions
-inline std::vector<Bonus*>::iterator range_begin(BonusList & x)
-{
-	return x.bonuses.begin();
-}
-
-inline std::vector<Bonus*>::iterator range_end(BonusList & x)
-{
-	return x.bonuses.end();
-}
-
-inline std::vector<Bonus*>::const_iterator range_begin(BonusList const &x)
+inline BonusList::iterator range_begin(BonusList & x)
 {
 	return x.begin();
 }
 
-inline std::vector<Bonus*>::const_iterator range_end(BonusList const &x)
+inline BonusList::iterator range_end(BonusList & x)
+{
+	return x.end();
+}
+
+inline BonusList::const_iterator range_begin(BonusList const &x)
+{
+	return x.begin();
+}
+
+inline BonusList::const_iterator range_end(BonusList const &x)
 {
 	return x.end();
 }
@@ -963,7 +977,7 @@ void BonusList::insert(const int position, InputIterator first, InputIterator la
 }
 
 // Extensions for BOOST_FOREACH to enable iterating of BonusList objects
-namespace boost
+/*namespace boost
 {
 	template<>
 	struct range_mutable_iterator<BonusList>
@@ -976,4 +990,4 @@ namespace boost
 	{
 		typedef std::vector<Bonus*>::const_iterator type;
 	};
-}
+}*/

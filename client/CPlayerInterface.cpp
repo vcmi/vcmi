@@ -215,10 +215,10 @@ void CPlayerInterface::yourTurn()
 STRONG_INLINE void subRect(const int & x, const int & y, const int & z, const SDL_Rect & r, const ObjectInstanceID & hid)
 {
 	TerrainTile2 & hlp = CGI->mh->ttiles[x][y][z];
-	for(int h=0; h<hlp.objects.size(); ++h)
-		if(hlp.objects[h].first->id == hid)
+	for(auto & elem : hlp.objects)
+		if(elem.first->id == hid)
 		{
-			hlp.objects[h].second = r;
+			elem.second = r;
 			return;
 		}
 }
@@ -249,9 +249,9 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		//TODO very evil workaround -> retreive pointer to hero so we could animate it
 		// TODO -> we should not need full CGHeroInstance structure to display animation or it should not be handled by playerint (but by the client itself)
 		const TerrainTile2 &tile = CGI->mh->ttiles[hp.x-1][hp.y][hp.z];
-		for(int i = 0; i < tile.objects.size(); i++)
-			if(tile.objects[i].first->id == details.id)
-				hero = dynamic_cast<const CGHeroInstance *>(tile.objects[i].first);
+		for(auto & elem : tile.objects)
+			if(elem.first->id == details.id)
+				hero = dynamic_cast<const CGHeroInstance *>(elem.first);
 
 		if(!hero) //still nothing...
 			return;
@@ -530,7 +530,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		c->garr->recreateSlots();
 		c->heroes->update();
 	}
-	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
+	for(IShowActivatable *isa : GH.listInt)
 	{
 		CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa);
 		if (ki)
@@ -553,16 +553,16 @@ void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownIn
 void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> objs)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	BOOST_FOREACH(auto object, objs)
+	for(auto object : objs)
 		updateInfo(object);
 
-	for(std::list<IShowActivatable*>::iterator i = GH.listInt.begin(); i != GH.listInt.end(); i++)
+	for(auto & elem : GH.listInt)
 	{
-		CGarrisonHolder *cgh = dynamic_cast<CGarrisonHolder*>(*i);
+		CGarrisonHolder *cgh = dynamic_cast<CGarrisonHolder*>(elem);
 		if (cgh)
 			cgh->updateGarrisons();
 
-		if(CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(*i))
+		if(CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(elem))
 		{
 			if(vstd::contains(objs, cmw->hero))
 				cmw->garrisonChanged();
@@ -635,9 +635,9 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	for(int b=0; b<healedStacks.size(); ++b)
+	for(auto & healedStack : healedStacks)
 	{
-		const CStack * healed = cb->battleGetStackByID(healedStacks[b].first);
+		const CStack * healed = cb->battleGetStackByID(healedStack.first);
 		if(battleInt->creAnims[healed->ID]->getType() == CCreatureAnim::DEATH)
 		{
 			//stack has been resurrected
@@ -718,9 +718,9 @@ void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	for(std::set<ui32>::const_iterator it = bsr.stackIDs.begin(); it != bsr.stackIDs.end(); ++it) //for each removed stack
+	for(auto & elem : bsr.stackIDs) //for each removed stack
 	{
-		battleInt->stackRemoved(*it);
+		battleInt->stackRemoved(elem);
 		//battleInt->stackRemoved(LOCPLINT->cb->battleGetStackByID(*it));
 	}
 }
@@ -811,7 +811,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 		if(!battleInt)
 		{
 			SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
-			auto resWindow = new CBattleResultWindow(*br, temp_rect, *this);
+			auto   resWindow = new CBattleResultWindow(*br, temp_rect, *this);
 			GH.pushInt(resWindow);
 			return;
 		}
@@ -857,17 +857,17 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 	BATTLE_EVENT_POSSIBLE_RETURN;
 	
 	std::vector<StackAttackedInfo> arg;
-	for(std::vector<BattleStackAttacked>::const_iterator i = bsa.begin(); i != bsa.end(); i++)
+	for(auto & elem : bsa)
 	{
-		const CStack *defender = cb->battleGetStackByID(i->stackAttacked, false);
-		const CStack *attacker = cb->battleGetStackByID(i->attackerID, false);
-		if(i->isEffect() && i->effect != 12) //and not armageddon
+		const CStack *defender = cb->battleGetStackByID(elem.stackAttacked, false);
+		const CStack *attacker = cb->battleGetStackByID(elem.attackerID, false);
+		if(elem.isEffect() && elem.effect != 12) //and not armageddon
 		{
-			if (defender && !i->isSecondary())
-				battleInt->displayEffect(i->effect, defender->position);
+			if (defender && !elem.isSecondary())
+				battleInt->displayEffect(elem.effect, defender->position);
 		}
 		bool shooting = (LOCPLINT->curAction ? LOCPLINT->curAction->actionType == Battle::SHOOT : false); //FIXME: why action is deleted during enchanter cast?
-		StackAttackedInfo to_put = {defender, i->damageAmount, i->killedAmount, attacker, shooting, i->killed(), i->willRebirth(), i->cloneKilled()};
+		StackAttackedInfo to_put = {defender, elem.damageAmount, elem.killedAmount, attacker, shooting, elem.killed(), elem.willRebirth(), elem.cloneKilled()};
 		arg.push_back(to_put);
 	}
 
@@ -908,9 +908,9 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 		std::string hlp = CGI->generaltexth->allTexts[(stack->count != 1) ? 366 : 365];
 		boost::algorithm::replace_first(hlp,"%s", (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str());
 		battleInt->console->addText(hlp);
-		for (std::vector<BattleStackAttacked>::const_iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
+		for (auto & elem : ba->bsa)
 		{
-			const CStack * attacked = cb->battleGetStackByID(i->stackAttacked);
+			const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
 			battleInt->displayEffect(73, attacked->position);
 		}
 		CCS->soundh->playSound(soundBase::deathBlow);
@@ -921,11 +921,11 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 
 	if(ba->shot())
 	{
-		for(std::vector<BattleStackAttacked>::const_iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
+		for(auto & elem : ba->bsa)
 		{
-			if (!i->isSecondary()) //display projectile only for primary target
+			if (!elem.isSecondary()) //display projectile only for primary target
 			{
-				const CStack * attacked = cb->battleGetStackByID(i->stackAttacked);
+				const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
 				battleInt->stackAttacking(attacker, attacked->position, attacked, true);
 			}
 		}
@@ -979,8 +979,8 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 		return;
 	}
 	std::vector<CComponent*> intComps;
-	for(int i=0;i<components.size();i++)
-		intComps.push_back(new CComponent(*components[i]));
+	for(auto & component : components)
+		intComps.push_back(new CComponent(*component));
 	showInfoDialog(text,intComps,soundID);
 
 }
@@ -1036,16 +1036,16 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	if(!selection && cancel) //simple yes/no dialog
 	{
 		std::vector<CComponent*> intComps;
-		for(int i=0;i<components.size();i++)
-			intComps.push_back(new CComponent(components[i])); //will be deleted by close in window
+		for(auto & component : components)
+			intComps.push_back(new CComponent(component)); //will be deleted by close in window
 
 		showYesNoDialog(text, [=]{ cb->selectionMade(1, askID); }, [=]{ cb->selectionMade(0, askID); }, true, intComps);
 	}
 	else if(selection)
 	{
 		std::vector<CSelectableComponent*> intComps;
-		for(int i=0;i<components.size();i++)
-			intComps.push_back(new CSelectableComponent(components[i])); //will be deleted by CSelWindow::close
+		for(auto & component : components)
+			intComps.push_back(new CSelectableComponent(component)); //will be deleted by CSelWindow::close
 
 		std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 		pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
@@ -1057,27 +1057,27 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 		int charperline = 35;
 		if (pom.size() > 1)
 			charperline = 50;
-		CSelWindow * temp = new CSelWindow(text, playerID, charperline, intComps, pom, askID);
+		auto   temp = new CSelWindow(text, playerID, charperline, intComps, pom, askID);
 		GH.pushInt(temp);
 		intComps[0]->clickLeft(true, false);
 	}
 
 }
 
-void CPlayerInterface::tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos)
+void CPlayerInterface::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	for(boost::unordered_set<int3, ShashInt3>::const_iterator i=pos.begin(); i!=pos.end();i++)
-		adventureInt->minimap.showTile(*i);
+	for(auto & po : pos)
+		adventureInt->minimap.showTile(po);
 	if(pos.size())
 		GH.totalRedraw();
 }
 
-void CPlayerInterface::tileHidden(const boost::unordered_set<int3, ShashInt3> &pos)
+void CPlayerInterface::tileHidden(const std::unordered_set<int3, ShashInt3> &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	for(boost::unordered_set<int3, ShashInt3>::const_iterator i=pos.begin(); i!=pos.end();i++)
-		adventureInt->minimap.hideTile(*i);
+	for(auto & po : pos)
+		adventureInt->minimap.hideTile(po);
 	if(pos.size())
 		GH.totalRedraw();
 }
@@ -1137,7 +1137,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 		if(fs)
 			fs->creaturesChanged();
 
-		BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
+		for(IShowActivatable *isa : GH.listInt)
 		{
 			CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa);
 			if (ki && townObj)
@@ -1177,7 +1177,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest
 	if(h.saving)
 	{
-		BOOST_FOREACH(auto &p, paths)
+		for(auto &p : paths)
 			pathsMap[p.first] = p.second.endPos();
 		h & pathsMap;
 	}
@@ -1186,7 +1186,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 		h & pathsMap;
 
 		CPathsInfo pathsInfo(cb->getMapSize());
-		BOOST_FOREACH(auto &p, pathsMap)
+		for(auto &p : pathsMap)
 		{
 			cb->calculatePaths(p.first, pathsInfo);
 			CGPath path;
@@ -1346,7 +1346,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 
 	waitForAllDialogs();
 
-	CGarrisonWindow *cgw = new CGarrisonWindow(up,down,removableUnits);
+	auto  cgw = new CGarrisonWindow(up,down,removableUnits);
 	cgw->quit->callback += onEnd;
 	GH.pushInt(cgw);
 }
@@ -1374,7 +1374,7 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact.Name());
 
 		// Picture of assembled artifact at bottom.
-		CComponent* sc = new CComponent(CComponent::artifact, assembledArtifact.id, 0);
+		auto   sc = new CComponent(CComponent::artifact, assembledArtifact.id, 0);
 		//sc->description = assembledArtifact.Description();
 		//sc->subtitle = assembledArtifact.Name();
 		scs.push_back(sc);
@@ -1407,10 +1407,10 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 	{
 		const CGObjectInstance * obj = cb->getObj(sop->id);
 		std::set<int3> pos = obj->getBlockedPos();
-		for(std::set<int3>::const_iterator it = pos.begin(); it != pos.end(); ++it)
+		for(auto & po : pos)
 		{
-			if(cb->isVisible(*it))
-				adventureInt->minimap.showTile(*it);
+			if(cb->isVisible(po))
+				adventureInt->minimap.showTile(po);
 		}
 
 		if(obj->ID == Obj::TOWN)
@@ -1447,9 +1447,9 @@ void CPlayerInterface::initializeHeroTownList()
 	wanderingHeroes = newWanderingHeroes;
 	newWanderingHeroes.clear();*/
 
-	for (int i = 0; i < allHeroes.size(); i++)
-		if (!allHeroes[i]->inTownGarrison)
-			wanderingHeroes += allHeroes[i];
+	for (auto & allHeroe : allHeroes)
+		if (!allHeroe->inTownGarrison)
+			wanderingHeroes += allHeroe;
 
 	std::vector<const CGTownInstance*> allTowns = cb->getTownsInfo();
 	/*
@@ -1464,8 +1464,8 @@ void CPlayerInterface::initializeHeroTownList()
 	towns.clear();
 	towns = newTowns;
 	newTowns.clear();*/
-	for(int i = 0; i < allTowns.size(); i++)
-		towns.push_back(allTowns[i]);
+	for(auto & allTown : allTowns)
+		towns.push_back(allTown);
 
 	if (adventureInt)
 		adventureInt->updateNextHero(nullptr);
@@ -2275,14 +2275,14 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	CUniversityWindow *cuw = new CUniversityWindow(visitor, market);
+	auto  cuw = new CUniversityWindow(visitor, market);
 	GH.pushInt(cuw);
 }
 
 void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	CHillFortWindow *chfw = new CHillFortWindow(visitor, object);
+	auto  chfw = new CHillFortWindow(visitor, object);
 	GH.pushInt(chfw);
 }
 
@@ -2296,14 +2296,14 @@ void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket *bm /*= nul
 void CPlayerInterface::showTavernWindow(const CGObjectInstance *townOrTavern)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	CTavernWindow *tv = new CTavernWindow(townOrTavern);
+	auto  tv = new CTavernWindow(townOrTavern);
 	GH.pushInt(tv);
 }
 
 void CPlayerInterface::showThievesGuildWindow (const CGObjectInstance * obj)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	CThievesGuildWindow *tgw = new CThievesGuildWindow(obj);
+	auto  tgw = new CThievesGuildWindow(obj);
 	GH.pushInt(tgw);
 }
 
@@ -2397,7 +2397,7 @@ void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
+	for(IShowActivatable *isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa);
 		if(artWin)
@@ -2408,7 +2408,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
+	for(IShowActivatable *isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa);
 		if(artWin)
@@ -2419,7 +2419,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
+	for(IShowActivatable *isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa);
 		if(artWin)
@@ -2430,7 +2430,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
+	for(IShowActivatable *isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa);
 		if(artWin)

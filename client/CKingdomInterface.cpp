@@ -491,7 +491,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 	idToImage[std::make_pair( 87, 0)] = 87;//Harbor
 
 	std::map<int, OwnedObjectInfo> visibleObjects;
-	BOOST_FOREACH(const CGObjectInstance * object, ownedObjects)
+	for(const CGObjectInstance * object : ownedObjects)
 	{
 		//Dwellings
 		if ( object->ID == Obj::CREATURE_GENERATOR1 )
@@ -504,7 +504,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 			}
 		}
 		//Special objects from idToImage map that should be displayed in objects list
-		std::map<std::pair<int,int>,int>::iterator iter = idToImage.find(std::make_pair(object->ID, object->subID));
+		auto iter = idToImage.find(std::make_pair(object->ID, object->subID));
 		if (iter != idToImage.end())
 		{
 			OwnedObjectInfo &info = visibleObjects[iter->second];
@@ -517,8 +517,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 	}
 	objects.reserve(visibleObjects.size());
 
-	std::pair<int, OwnedObjectInfo> element;
-	BOOST_FOREACH(element, visibleObjects)
+	for(auto & element : visibleObjects)
 	{
 		objects.push_back(element.second);
 	}
@@ -555,7 +554,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	std::vector<int> minesCount(GameConstants::RESOURCE_QUANTITY, 0);
 	int totalIncome=0;
 
-	BOOST_FOREACH(const CGObjectInstance * object, ownedObjects)
+	for(const CGObjectInstance * object : ownedObjects)
 	{
 		//Mines
 		if ( object->ID == Obj::MINE )
@@ -571,17 +570,17 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 
 	//Heroes can produce gold as well - skill, specialty or arts
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
-	for(size_t i=0; i<heroes.size(); i++)
+	for(auto & heroe : heroes)
 	{
-		totalIncome += heroes[i]->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ESTATES));
-		totalIncome += heroes[i]->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
+		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ESTATES));
+		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
 	}
 
 	//Add town income of all towns
 	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
-	for(size_t i=0; i<towns.size(); i++)
+	for(auto & town : towns)
 	{
-		totalIncome += towns[i]->dailyIncome();
+		totalIncome += town->dailyIncome();
 	}
 	for (int i=0; i<7; i++)
 	{
@@ -691,7 +690,7 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 void CKingdHeroList::updateGarrisons()
 {
 	std::list<CIntObject*> list = heroes->getItems();
-	BOOST_FOREACH(CIntObject* object, list)
+	for(CIntObject* object : list)
 	{
 		if (CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object) )
 			garrison->updateGarrisons();
@@ -705,7 +704,7 @@ CIntObject* CKingdHeroList::createHeroItem(size_t index)
 
 	if (index < heroesCount)
 	{
-		CHeroItem * hero = new CHeroItem(LOCPLINT->cb->getHeroBySerial(index, false), &artsCommonPart);
+		auto   hero = new CHeroItem(LOCPLINT->cb->getHeroBySerial(index, false), &artsCommonPart);
 		artsCommonPart.participants.insert(hero->heroArts);
 		artSets.push_back(hero->heroArts);
 		return hero;
@@ -744,7 +743,7 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 void CKingdTownList::townChanged(const CGTownInstance *town)
 {
 	std::list<CIntObject*> list = towns->getItems();
-	BOOST_FOREACH(CIntObject* object, list)
+	for(CIntObject* object : list)
 	{
 		CTownItem * townItem = dynamic_cast<CTownItem*>(object);
 		if ( townItem && townItem->town == town)
@@ -755,7 +754,7 @@ void CKingdTownList::townChanged(const CGTownInstance *town)
 void CKingdTownList::updateGarrisons()
 {
 	std::list<CIntObject*> list = towns->getItems();
-	BOOST_FOREACH(CIntObject* object, list)
+	for(CIntObject* object : list)
 	{
 		if (CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object) )
 			garrison->updateGarrisons();
@@ -866,9 +865,9 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	artTabs.resize(3);
-	ArtSlotsTab* arts1 = new ArtSlotsTab;
-	ArtSlotsTab* arts2 = new ArtSlotsTab;
-	BackpackTab* backpack = new BackpackTab;
+	auto   arts1 = new ArtSlotsTab;
+	auto   arts2 = new ArtSlotsTab;
+	auto   backpack = new BackpackTab;
 	artTabs[0] = arts1;
 	artTabs[1] = arts2;
 	artTabs[2] = backpack;

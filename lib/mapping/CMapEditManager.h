@@ -137,8 +137,7 @@ public:
 	void addOperation(unique_ptr<CMapOperation> && operation); /// Client code does not need to call this method.
 
 private:
-	// FIXME: switch back to unique_ptr once gcc 4.5 is abandoned
-	typedef std::list<shared_ptr<CMapOperation> > TStack;
+	typedef std::list<unique_ptr<CMapOperation> > TStack;
 
 	void doOperation(TStack & fromStack, TStack & toStack, bool doUndo);
 	const CMapOperation * peek(const TStack & stack) const;

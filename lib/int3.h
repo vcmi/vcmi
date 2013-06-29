@@ -104,9 +104,9 @@ struct ShashInt3
 {
 	size_t operator()(int3 const& pos) const
 	{
-		size_t ret = ::boost::hash<int>()(pos.x);
-		boost::hash_combine(ret, pos.y);
-		boost::hash_combine(ret, pos.z);
+		size_t ret = std::hash<int>()(pos.x);
+		vstd::hash_combine(ret, pos.y);
+		vstd::hash_combine(ret, pos.z);
 		return ret;
 	}
 };

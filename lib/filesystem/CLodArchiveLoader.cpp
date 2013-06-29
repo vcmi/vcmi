@@ -93,7 +93,7 @@ void CLodArchiveLoader::initVIDArchive(CFileInputStream & fileStream)
 
 	// Get all entries from file
 	fileStream.seek(4);
-	struct VideoEntryBlock * vidEntries = new struct VideoEntryBlock[totalFiles];
+	auto  vidEntries = new struct VideoEntryBlock[totalFiles];
 	fileStream.read(reinterpret_cast<ui8 *>(vidEntries), sizeof(struct VideoEntryBlock) * totalFiles);
 
 	// Insert entries to list
@@ -141,7 +141,7 @@ void CLodArchiveLoader::initSNDArchive(CFileInputStream & fileStream)
 
 	// Get all entries from file
 	fileStream.seek(4);
-	struct SoundEntryBlock * sndEntries = new struct SoundEntryBlock[totalFiles];
+	auto  sndEntries = new struct SoundEntryBlock[totalFiles];
 	fileStream.read(reinterpret_cast<ui8 *>(sndEntries), sizeof(struct SoundEntryBlock) * totalFiles);
 
 	// Insert entries to list
@@ -184,13 +184,13 @@ std::unique_ptr<CInputStream> CLodArchiveLoader::load(const std::string & resour
 	}
 }
 
-boost::unordered_map<ResourceID, std::string> CLodArchiveLoader::getEntries() const
+std::unordered_map<ResourceID, std::string> CLodArchiveLoader::getEntries() const
 {
-	boost::unordered_map<ResourceID, std::string> retList;
+	std::unordered_map<ResourceID, std::string> retList;
 
-	for(auto it = entries.begin(); it != entries.end(); ++it)
+	for(auto & elem : entries)
 	{
-		const ArchiveEntry & entry = it->second;
+		const ArchiveEntry & entry = elem.second;
 		retList[ResourceID(entry.name)] = entry.name;
 	}
 

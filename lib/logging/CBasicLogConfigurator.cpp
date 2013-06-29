@@ -27,7 +27,7 @@ void CBasicLogConfigurator::configure()
 		const JsonNode & loggers = loggingNode["loggers"];
 		if(!loggers.isNull())
 		{
-			BOOST_FOREACH(auto & loggerNode, loggers.Vector())
+			for(auto & loggerNode : loggers.Vector())
 			{
 				// Get logger
 				std::string name = loggerNode["domain"].String();
@@ -55,7 +55,7 @@ void CBasicLogConfigurator::configure()
 			const JsonNode & colorMappingNode = consoleNode["colorMapping"];
 			if(!colorMappingNode.isNull())
 			{
-				BOOST_FOREACH(const JsonNode & mappingNode, colorMappingNode.Vector())
+				for(const JsonNode & mappingNode : colorMappingNode.Vector())
 				{
 					std::string domain = mappingNode["domain"].String();
 					std::string level = mappingNode["level"].String();

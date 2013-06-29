@@ -91,8 +91,8 @@ namespace SRSLPraserHelpers
 		}
 
 		std::pair<int, int> mainPointForLayer[6]; //A, B, C, D, E, F points
-		for(int b=0; b<6; ++b)
-			mainPointForLayer[b] = hexToPair(center);
+		for(auto & elem : mainPointForLayer)
+			elem = hexToPair(center);
 
 		for(int it=1; it<=high; ++it) //it - distance to the center
 		{
@@ -133,10 +133,10 @@ CSpell::CSpell()
 
 CSpell::~CSpell()
 {
-	for (size_t i=0; i<effects.size(); i++)
+	for (auto & elem : effects)
 	{
-		for (size_t j=0; j<effects[i].size(); j++)
-			delete effects[i][j];
+		for (size_t j=0; j<elem.size(); j++)
+			delete elem[j];
 	}
 }
 
@@ -186,16 +186,16 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 		std::string number1, number2;
 		int beg, end;
 		bool readingFirst = true;
-		for(int it=0; it<rng.size(); ++it)
+		for(auto & elem : rng)
 		{
-			if( std::isdigit(rng[it]) ) //reading numer
+			if( std::isdigit(elem) ) //reading numer
 			{
 				if(readingFirst)
-					number1 += rng[it];
+					number1 += elem;
 				else
-					number2 += rng[it];
+					number2 += elem;
 			}
-			else if(rng[it] == ',') //comma
+			else if(elem == ',') //comma
 			{
 				//calculating variables
 				if(readingFirst)
@@ -220,13 +220,13 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 					readingFirst = true;
 				}
 				//adding abtained hexes
-				for(std::set<ui16>::iterator it = curLayer.begin(); it != curLayer.end(); ++it)
+				for(auto & curLayer_it : curLayer)
 				{
-					ret.push_back(*it);
+					ret.push_back(curLayer_it);
 				}
 
 			}
-			else if(rng[it] == '-') //dash
+			else if(elem == '-') //dash
 			{
 				beg = atoi(number1.c_str());
 				number1 = "";
@@ -265,7 +265,7 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 	}
 	lst.reserve(lst.size() + effects[level].size());
 
-	BOOST_FOREACH (Bonus *b, effects[level])
+	for (Bonus *b : effects[level])
 	{
 		//TODO: value, add value
 		lst.push_back(Bonus(*b));
@@ -275,13 +275,13 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 {
 	//todo: use new bonus API
-	BOOST_FOREACH(auto b, limiters)
+	for(auto b : limiters)
 	{
 		if (!obj->hasBonusOfType(b))
 			return true;
 	}
 
-	BOOST_FOREACH(auto b, immunities)
+	for(auto b : immunities)
 	{
 		if (obj->hasBonusOfType(b))
 			return true;
@@ -365,7 +365,7 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
 
 CSpell * CSpellHandler::loadSpell(CLegacyConfigParser & parser, const SpellID id)
 {
-	CSpell * spell = new CSpell; //new currently being read spell
+	auto  spell = new CSpell; //new currently being read spell
 
 	spell->id      = id;
 
@@ -448,7 +448,7 @@ CSpellHandler::CSpellHandler()
 	JsonNode config(ResourceID("config/spell_info.json"));
 	config.setMeta("core");
 
-	BOOST_FOREACH(auto &spell, config["spells"].Struct())
+	for(auto &spell : config["spells"].Struct())
 	{
 		//reading exact info
 		int spellID = spell.second["id"].Float();
@@ -459,7 +459,7 @@ CSpellHandler::CSpellHandler()
 
 		s->range.resize(4);
 		int idx = 0;
-		BOOST_FOREACH(const JsonNode &range, spell.second["ranges"].Vector())
+		for(const JsonNode &range : spell.second["ranges"].Vector())
 			s->range[idx++] = range.String();
 
 		s->counteredSpells = spell.second["counters"].convertTo<std::vector<SpellID> >();
@@ -472,7 +472,7 @@ CSpellHandler::CSpellHandler()
 		{
 			auto flags = flags_node.convertTo<std::vector<std::string> >();
 
-			BOOST_FOREACH (const auto & flag, flags)
+			for (const auto & flag : flags)
 			{
 				if (flag == "damage")
 				{
@@ -491,7 +491,7 @@ CSpellHandler::CSpellHandler()
 
 		const JsonNode & effects_node = spell.second["effects"];
 
-		BOOST_FOREACH (const JsonNode & bonus_node, effects_node.Vector())
+		for (const JsonNode & bonus_node : effects_node.Vector())
 		{
 			auto &v_node = bonus_node["values"];
 			auto &a_node = bonus_node["ainfos"];
@@ -542,7 +542,7 @@ CSpellHandler::CSpellHandler()
 			if (!node.isNull())
 			{
 				auto names = node.convertTo<std::vector<std::string> >();
-				BOOST_FOREACH(auto name, names)
+				for(auto name : names)
 				   find_in_map(name, vec);
 			}
 		};
@@ -560,7 +560,7 @@ CSpellHandler::CSpellHandler()
 
 CSpellHandler::~CSpellHandler()
 {
-	BOOST_FOREACH(auto & spell, spells)
+	for(auto & spell : spells)
 	{
 		spell.dellNull();
 	}

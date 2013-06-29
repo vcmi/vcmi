@@ -40,7 +40,7 @@ public:
 	/// @see ISimpleResourceLoader
 	std::unique_ptr<CInputStream> load(const std::string & resourceName) const override;
 	bool existsEntry(const std::string & resourceName) const override;
-	boost::unordered_map<ResourceID, std::string> getEntries() const override;
+	std::unordered_map<ResourceID, std::string> getEntries() const override;
 	std::string getOrigin() const override;
 	std::string getFullName(const std::string & resourceName) const override;
 
@@ -49,5 +49,5 @@ private:
 	 * key = ResourceID for resource loader
 	 * value = ResourceID to which file this request will be redirected
 	*/
-	boost::unordered_map<ResourceID, std::string> fileList;
+	std::unordered_map<ResourceID, std::string> fileList;
 };

@@ -114,7 +114,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 		connections -= cpc;
 
 		//notify other players about leaving
-		PlayerLeft *pl = new PlayerLeft();
+		auto pl = new PlayerLeft();
 		pl->playerID = cpc->connectionID;
 		announceTxt(cpc->name + " left the game");
 		toAnnounce.push_back(pl);
@@ -149,7 +149,7 @@ void CPregameServer::run()
 
 // 			//we end sending thread if we ordered all our connections to stop
 // 			ending = true;
-// 			BOOST_FOREACH(CPregameConnection *pc, connections)
+// 			for(CPregameConnection *pc : connections)
 // 				if(!pc->sendStop)
 // 					ending = false;
 
@@ -184,7 +184,7 @@ CPregameServer::~CPregameServer()
 	delete acceptor;
 	delete upcomingConnection;
 
-	BOOST_FOREACH(CPackForSelectionScreen *pack, toAnnounce)
+	for(CPackForSelectionScreen *pack : toAnnounce)
 		delete pack;
 
 	toAnnounce.clear();
@@ -210,7 +210,7 @@ void CPregameServer::connectionAccepted(const boost::system::error_code& ec)
 	startListeningThread(pc);
 
 	announceTxt(pc->name + " joins the game");
-	PlayerJoined *pj = new PlayerJoined();
+	auto pj = new PlayerJoined();
 	pj->playerName = pc->name;
 	pj->connectionID = pc->connectionID;
 	toAnnounce.push_back(pj);
@@ -240,7 +240,7 @@ void CPregameServer::announceTxt(const std::string &txt, const std::string &play
 
 void CPregameServer::announcePack(const CPackForSelectionScreen &pack)
 {
-	BOOST_FOREACH(CConnection *pc, connections)
+	for(CConnection *pc : connections)
 		sendPack(pc, pack);
 }
 
@@ -321,7 +321,7 @@ CVCMIServer::~CVCMIServer()
 
 CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
 {
-	CGameHandler *gh = new CGameHandler();
+	auto gh = new CGameHandler();
 	StartInfo si;
 	c >> si; //get start options
 
@@ -364,7 +364,7 @@ void CVCMIServer::newGame()
 
 void CVCMIServer::newPregame()
 {
-	CPregameServer *cps = new CPregameServer(firstConnection, acceptor);
+	auto cps = new CPregameServer(firstConnection, acceptor);
 	cps->run();
 	if(cps->state == CPregameServer::ENDING_WITHOUT_START)
 	{
@@ -378,7 +378,7 @@ void CVCMIServer::newPregame()
 		gh.conns = cps->connections;
 		gh.init(cps->curStartInfo);
 
-		BOOST_FOREACH(CConnection *c, gh.conns)
+		for(CConnection *c : gh.conns)
 			c->addStdVecItems(gh.gs);
 
 		gh.run(false);
@@ -406,7 +406,7 @@ void CVCMIServer::start()
 
 	boost::system::error_code error;
     logNetwork->infoStream()<<"Listening for connections at port " << acceptor->local_endpoint().port();
-	tcp::socket * s = new tcp::socket(acceptor->get_io_service());
+	auto  s = new tcp::socket(acceptor->get_io_service());
 	boost::thread acc(std::bind(vaccept,acceptor,s,&error));
 	sr->setToTrueAndNotify();
 	delete mr;
@@ -491,7 +491,7 @@ void CVCMIServer::loadGame()
 		}
 		else
 		{
-			tcp::socket * s = new tcp::socket(acceptor->get_io_service());
+			auto  s = new tcp::socket(acceptor->get_io_service());
 			acceptor->accept(*s,error);
 			if(error) //retry
 			{

@@ -21,10 +21,10 @@
 #include "CArtHandler.h"
 #include "GameConstants.h"
 
-#define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
-#define FOREACH_CPARENT(pname) 	TCNodes lparents; getParents(lparents); BOOST_FOREACH(const CBonusSystemNode *pname, lparents)
-#define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); BOOST_FOREACH(CBonusSystemNode *pname, lchildren)
-#define FOREACH_RED_PARENT(pname) 	TNodes lparents; getRedParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
+#define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); for(CBonusSystemNode *pname : lparents)
+#define FOREACH_CPARENT(pname) 	TCNodes lparents; getParents(lparents); for(const CBonusSystemNode *pname : lparents)
+#define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); for(CBonusSystemNode *pname : lchildren)
+#define FOREACH_RED_PARENT(pname) 	TNodes lparents; getRedParents(lparents); for(CBonusSystemNode *pname : lparents)
 
 #define BONUS_NAME(x) ( #x, Bonus::x )
 	const std::map<std::string, Bonus::BonusType> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
@@ -106,9 +106,9 @@ int BonusList::totalValue() const
 	int indepMin = 0;
 	bool hasIndepMin = false;
 
-	for (size_t i = 0; i < bonuses.size(); i++)
+	for (auto & elem : bonuses)
 	{
-		Bonus *b = bonuses[i];
+		Bonus *b = elem;
 
 		switch(b->valType)
 		{
@@ -181,9 +181,9 @@ int BonusList::totalValue() const
 }
 const Bonus * BonusList::getFirst(const CSelector &selector) const
 {
-	for (ui32 i = 0; i < bonuses.size(); i++)
+	for (auto & elem : bonuses)
 	{
-		const Bonus *b = bonuses[i];
+		const Bonus *b = elem;
 		if(selector(b))
 			return &*b;
 	}
@@ -192,9 +192,9 @@ const Bonus * BonusList::getFirst(const CSelector &selector) const
 
 Bonus * BonusList::getFirst(const CSelector &select)
 {
-	for (ui32 i = 0; i < bonuses.size(); i++)
+	for (auto & elem : bonuses)
 	{
-		Bonus *b = bonuses[i];
+		Bonus *b = elem;
 		if(select(b))
 			return &*b;
 	}
@@ -203,27 +203,27 @@ Bonus * BonusList::getFirst(const CSelector &select)
 
 void BonusList::getModifiersWDescr(TModDescr &out) const
 {
-	for (size_t i = 0; i < bonuses.size(); i++)
+	for (auto & elem : bonuses)
 	{
-		Bonus *b = bonuses[i];
+		Bonus *b = elem;
 		out.push_back(std::make_pair(b->val, b->Description()));
 	}
 }
 
 void BonusList::getBonuses(BonusList & out, const CSelector &selector) const
 {
-// 	BOOST_FOREACH(Bonus *i, *this)
+// 	for(Bonus *i : *this)
 // 		if(selector(i) && i->effectRange == Bonus::NO_LIMIT)
 // 			out.push_back(i);
 
-	getBonuses(out, selector, 0);
+	getBonuses(out, selector, nullptr);
 }
 
 void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSelector &limit) const
 {
-	for (ui32 i = 0; i < bonuses.size(); i++)
+	for (auto & elem : bonuses)
 	{
-		Bonus *b = bonuses[i];
+		Bonus *b = elem;
 
 		//add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
 		if(selector(b) && ((!limit && b->effectRange == Bonus::NO_LIMIT) || (limit && limit(b))))
@@ -233,14 +233,14 @@ void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSe
 
 void BonusList::getAllBonuses(BonusList &out) const
 {
-	BOOST_FOREACH(Bonus *b, bonuses)
+	for(Bonus *b : bonuses)
 		out.push_back(b);
 }
 
 int BonusList::valOfBonuses(const CSelector &select) const
 {
 	BonusList ret;
-	CSelector limit = 0;
+	CSelector limit = nullptr;
 	getBonuses(ret, select, limit);
 	ret.eliminateDuplicates();
 	return ret.totalValue();
@@ -283,7 +283,7 @@ void BonusList::clear()
 
 std::vector<BonusList*>::size_type BonusList::operator-=(Bonus* const &i)
 {
-	std::vector<Bonus*>::iterator itr = std::find(bonuses.begin(), bonuses.end(), i);
+	auto itr = std::find(bonuses.begin(), bonuses.end(), i);
 	if(itr == bonuses.end())
 		return false;
 	bonuses.erase(itr);
@@ -328,7 +328,7 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) cons
 
 int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
-	CSelector limit = 0;
+	CSelector limit = nullptr;
 	TBonusListPtr hlp = getAllBonuses(selector, limit, nullptr, cachingStr);
 	return hlp->totalValue();
 }
@@ -374,7 +374,7 @@ int IBonusBearer::getBonusesCount(const CSelector &selector, const std::string &
 
 const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr /*= ""*/) const
 {
-	return getAllBonuses(selector, 0, nullptr, cachingStr);
+	return getAllBonuses(selector, nullptr, nullptr, cachingStr);
 }
 
 const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr /*= ""*/) const
@@ -504,7 +504,7 @@ const Bonus * IBonusBearer::getEffect(ui16 id, int turn /*= 0*/) const
 {
 	//TODO should check only local bonuses?
 	auto bonuses = getAllBonuses();
-	BOOST_FOREACH(const Bonus *it, *bonuses)
+	for(const Bonus *it : *bonuses)
 	{
 		if(it->source == Bonus::SPELL_EFFECT && it->sid == id)
 		{
@@ -521,7 +521,7 @@ ui8 IBonusBearer::howManyEffectsSet(ui16 id) const
 	ui8 ret = 0;
 
 	auto bonuses = getAllBonuses();
-	BOOST_FOREACH(const Bonus *it, *bonuses)
+	for(const Bonus *it : *bonuses)
 	{
 		if(it->source == Bonus::SPELL_EFFECT && it->sid == id) //effect found
 		{
@@ -568,18 +568,18 @@ const Bonus * CBonusSystemNode::getBonusLocalFirst( const CSelector &selector ) 
 
 void CBonusSystemNode::getParents(TCNodes &out) const /*retreives list of parent nodes (nodes to inherit bonuses from) */
 {
-	for (ui32 i = 0; i < parents.size(); i++)
+	for (auto & elem : parents)
 	{
-		const CBonusSystemNode *parent = parents[i];
+		const CBonusSystemNode *parent = elem;
 		out.insert(parent);
 	}
 }
 
 void CBonusSystemNode::getParents(TNodes &out)
 {
-	for (ui32 i = 0; i < parents.size(); i++)
+	for (auto & elem : parents)
 	{
-		const CBonusSystemNode *parent = parents[i];
+		const CBonusSystemNode *parent = elem;
 		out.insert(const_cast<CBonusSystemNode*>(parent));
 	}
 }
@@ -678,13 +678,13 @@ const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelecto
 		BonusList rootBonuses, limitedRootBonuses;
 		getAllBonusesRec(rootBonuses);
 
-		BOOST_FOREACH(Bonus *b, beforeLimiting)
+		for(Bonus *b : beforeLimiting)
 			rootBonuses.push_back(b);
 
 		rootBonuses.eliminateDuplicates();
 		root->limitBonuses(rootBonuses, limitedRootBonuses);
 
-		BOOST_FOREACH(Bonus *b, beforeLimiting)
+		for(Bonus *b : beforeLimiting)
 			if(vstd::contains(limitedRootBonuses, b))
 				afterLimiting.push_back(b);
 
@@ -711,7 +711,7 @@ CBonusSystemNode::~CBonusSystemNode()
 			children.front()->detachFrom(this);
 	}
 
-	BOOST_FOREACH(Bonus *b, exportedBonuses)
+	for(Bonus *b : exportedBonuses)
 		delete b;
 }
 
@@ -747,10 +747,10 @@ void CBonusSystemNode::popBonuses(const CSelector &s)
 {
 	BonusList bl;
 	exportedBonuses.getBonuses(bl, s);
-	BOOST_FOREACH(Bonus *b, bl)
+	for(Bonus *b : bl)
 		removeBonus(b);
 
-	BOOST_FOREACH(CBonusSystemNode *child, children)
+	for(CBonusSystemNode *child : children)
 		child->popBonuses(s);
 }
 
@@ -879,7 +879,7 @@ void CBonusSystemNode::getRedParents(TNodes &out)
 
 	if(!actsAsBonusSourceOnly())
 	{
-		BOOST_FOREACH(CBonusSystemNode *child, children)
+		for(CBonusSystemNode *child : children)
 		{
 			out.insert(child);
 		}
@@ -898,7 +898,7 @@ void CBonusSystemNode::getRedChildren(TNodes &out)
 
 	if(actsAsBonusSourceOnly())
 	{
-		BOOST_FOREACH(CBonusSystemNode *child, children)
+		for(CBonusSystemNode *child : children)
 		{
 			out.insert(child);
 		}
@@ -907,7 +907,7 @@ void CBonusSystemNode::getRedChildren(TNodes &out)
 
 void CBonusSystemNode::newRedDescendant(CBonusSystemNode *descendant)
 {
-	BOOST_FOREACH(Bonus *b, exportedBonuses)
+	for(Bonus *b : exportedBonuses)
 		if(b->propagator)
 			descendant->propagateBonus(b);
 
@@ -917,7 +917,7 @@ void CBonusSystemNode::newRedDescendant(CBonusSystemNode *descendant)
 
 void CBonusSystemNode::removedRedDescendant(CBonusSystemNode *descendant)
 {
-	BOOST_FOREACH(Bonus *b, exportedBonuses)
+	for(Bonus *b : exportedBonuses)
 		if(b->propagator)
 			descendant->unpropagateBonus(b);
 
@@ -942,9 +942,9 @@ void CBonusSystemNode::getRedDescendants(TNodes &out)
 void CBonusSystemNode::battleTurnPassed()
 {
 	BonusList bonusesCpy = exportedBonuses; //copy, because removing bonuses invalidates iters
-	for (ui32 i = 0; i < bonusesCpy.size(); i++)
+	for (auto & elem : bonusesCpy)
 	{
-		Bonus *b = bonusesCpy[i];
+		Bonus *b = elem;
 
 		if(b->duration & Bonus::N_TURNS)
 		{
@@ -967,7 +967,7 @@ void CBonusSystemNode::exportBonus(Bonus * b)
 
 void CBonusSystemNode::exportBonuses()
 {
-	BOOST_FOREACH(Bonus *b, exportedBonuses)
+	for(Bonus *b : exportedBonuses)
 		exportBonus(b);
 }
 
@@ -1544,7 +1544,7 @@ int LimiterList::limit( const BonusLimitationContext &context ) const
 {
 	bool wasntSure = false;
 
-	BOOST_FOREACH(auto limiter, limiters)
+	for(auto limiter : limiters)
 	{
 		auto result = limiter->limit(context);
 		if(result == ILimiter::DISCARD)

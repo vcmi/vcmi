@@ -35,19 +35,19 @@ CDefHandler::~CDefHandler()
 {
 	if (notFreeImgs)
 		return;
-	for (size_t i=0; i<ourImages.size(); ++i)
+	for (auto & elem : ourImages)
 	{
-		if (ourImages[i].bitmap)
+		if (elem.bitmap)
 		{
-			SDL_FreeSurface(ourImages[i].bitmap);
-			ourImages[i].bitmap=nullptr;
+			SDL_FreeSurface(elem.bitmap);
+			elem.bitmap=nullptr;
 		}
 	}
 }
 CDefEssential::~CDefEssential()
 {
-	for(size_t i=0; i < ourImages.size(); ++i)
-		SDL_FreeSurface(ourImages[i].bitmap);
+	for(auto & elem : ourImages)
+		SDL_FreeSurface(elem.bitmap);
 }
 
 void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
@@ -107,9 +107,9 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 		}
 	}
 
-	for(ui32 j=0; j<SEntries.size(); ++j)
+	for(auto & elem : SEntries)
 	{
-		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
+		elem.name = elem.name.substr(0, elem.name.find('.')+4);
 	}
 	//RWEntries = new ui32[height];
 	for(ui32 i=0; i < SEntries.size(); ++i)
@@ -354,7 +354,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPal
 
 CDefEssential * CDefHandler::essentialize()
 {
-	CDefEssential * ret = new CDefEssential;
+	auto   ret = new CDefEssential;
 	ret->ourImages = ourImages;
 	notFreeImgs = true;
 	return ret;
@@ -366,7 +366,7 @@ CDefHandler * CDefHandler::giveDef(const std::string & defName)
 	                 ResourceID(std::string("SPRITES/") + defName, EResType::ANIMATION)).first.release();
 	if(!data)
 		throw std::runtime_error("bad def name!");
-	CDefHandler * nh = new CDefHandler();
+	auto   nh = new CDefHandler();
 	nh->openFromMemory(data, defName);
 	delete [] data;
 	return nh;

@@ -521,7 +521,7 @@ int ERMParser::countHatsBeforeSemicolon( const std::string & line ) const
 	//CHECK: omit macros? or anything else? 
 	int numOfHats = 0; //num of '^' before ';'
 	//check for unmatched ^
-	BOOST_FOREACH(char c, line)
+	for (char c : line)
 	{
 		if(c == ';')
 			break;

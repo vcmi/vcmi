@@ -18,9 +18,9 @@ std::unique_ptr<CInputStream> CFilesystemLoader::load(const std::string & resour
 
 bool CFilesystemLoader::existsEntry(const std::string & resourceName) const
 {
-	for(auto it = fileList.begin(); it != fileList.end(); ++it)
+	for(auto & elem : fileList)
 	{
-		if(it->second == resourceName)
+		if(elem.second == resourceName)
 		{
 			return true;
 		}
@@ -29,7 +29,7 @@ bool CFilesystemLoader::existsEntry(const std::string & resourceName) const
 	return false;
 }
 
-boost::unordered_map<ResourceID, std::string> CFilesystemLoader::getEntries() const
+std::unordered_map<ResourceID, std::string> CFilesystemLoader::getEntries() const
 {
 	return fileList;
 }
@@ -52,7 +52,7 @@ bool CFilesystemLoader::createEntry(std::string filename, bool update)
 }
 
 
-boost::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(size_t depth, bool initial) const
+std::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(size_t depth, bool initial) const
 {
 	std::set<EResType::Type> initialTypes;
 	initialTypes.insert(EResType::DIRECTORY);
@@ -62,7 +62,7 @@ boost::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(size_
 	initialTypes.insert(EResType::ARCHIVE_SND);
 
 	assert(boost::filesystem::is_directory(baseDirectory));
-	boost::unordered_map<ResourceID, std::string> fileList;
+	std::unordered_map<ResourceID, std::string> fileList;
 
 	std::vector<std::string> path;//vector holding relative path to our file
 

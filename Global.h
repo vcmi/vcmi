@@ -1,3 +1,4 @@
+#pragma once
 
 /*
  * Global.h, part of VCMI engine
@@ -9,8 +10,6 @@
  *
  */
 
-#pragma once
-
 /* ---------------------------------------------------------------------------- */
 /* Compiler detection */
 /* ---------------------------------------------------------------------------- */
@@ -18,15 +17,19 @@
 static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
 #if defined _M_X64 && defined _WIN32 //Win64 -> cannot load 32-bit DLLs for video handling
-    #define DISABLE_VIDEO
+#  define DISABLE_VIDEO
 #endif
 
 #ifdef __GNUC__
-#define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__)
+#  define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__)
+#endif
+
+#if !defined(__clang__) && defined(__GNUC__) && (GCC_VERSION < 460)
+#  error VCMI requires at least gcc-4.6 for successfull compilation or clang-3.1. Please update your compiler
 #endif
 
 #if defined(__GNUC__) && (GCC_VERSION == 470 || GCC_VERSION == 471)
-#error This GCC version has buggy std::array::at version and should not be used. Please update to 4.7.2 or use 4.6.x.
+#  error This GCC version has buggy std::array::at version and should not be used. Please update to 4.7.2 or use 4.6.x.
 #endif
 
 /* ---------------------------------------------------------------------------- */
@@ -34,26 +37,21 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 /* ---------------------------------------------------------------------------- */
 //defining available c++11 features
 
-//initialization lists - only gcc-4.4 or later
+//initialization lists - gcc or clang
 #if defined(__clang__) || defined(__GNUC__)
-#define CPP11_USE_INITIALIZERS_LIST
+#  define CPP11_USE_INITIALIZERS_LIST
 #endif
 
-//nullptr -  only msvc and gcc-4.6 or later, othervice define it  as nullptr
-#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 460)) && !(defined(__clang__))
-#define nullptr NULL
-#endif
-
-//override keyword - only msvc and gcc-4.7 or later.
+//override keyword - not present in gcc-4.6
 #if !defined(_MSC_VER) && !defined(__clang__) && !(defined(__GNUC__) && (GCC_VERSION >= 470))
-#define override
+#  define override
 #endif
 
 /* ---------------------------------------------------------------------------- */
 /* Suppress some compiler warnings */
 /* ---------------------------------------------------------------------------- */
 #ifdef _MSC_VER
-#pragma warning (disable : 4800 ) /* disable conversion to bool warning -- I think it's intended in all places */
+#  pragma warning (disable : 4800 ) /* disable conversion to bool warning -- I think it's intended in all places */
 #endif
 
 /* ---------------------------------------------------------------------------- */
@@ -81,6 +79,8 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <set>
 #include <sstream>
 #include <string>
+#include <unordered_set>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -93,7 +93,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #endif
 #define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
 #define BOOST_BIND_NO_PLACEHOLDERS
-//#define BOOST_SYSTEM_NO_DEPRECATED 1
 
 #include <boost/algorithm/string.hpp>
 #include <boost/assign.hpp>
@@ -102,17 +101,15 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/posix_time/posix_time_io.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/optional.hpp>
 #include <boost/program_options.hpp>
 #include <boost/range/adaptor/filtered.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/thread.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
 #include <boost/variant.hpp>
 
 #ifdef ANDROID
@@ -268,18 +265,27 @@ public:
 
 namespace vstd
 {
+	
+	// combine hashes. Present in boost but not in std
+	template <class T>
+	inline void hash_combine(std::size_t& seed, const T& v)
+	{
+		std::hash<T> hasher;
+		seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+	}
+	
 	//returns true if container c contains item i
 	template <typename Container, typename Item>
 	bool contains(const Container & c, const Item &i)
 	{
-		return std::find(boost::begin(c), boost::end(c),i) != boost::end(c);
+		return std::find(std::begin(c), std::end(c),i) != std::end(c);
 	}
 
 	//returns true if container c contains item i
 	template <typename Container, typename Pred>
 	bool contains_if(const Container & c, Pred p)
 	{
-		return std::find_if(boost::begin(c), boost::end(c), p) != boost::end(c);
+		return std::find_if(std::begin(c), std::end(c), p) != std::end(c);
 	}
 
 	//returns true if map c contains item i
@@ -298,13 +304,13 @@ namespace vstd
 
 	//returns true if unordered set c contains item i
 	template <typename Item>
-	bool contains(const boost::unordered_set<Item> & c, const Item &i)
+	bool contains(const std::unordered_set<Item> & c, const Item &i)
 	{
 		return c.find(i)!=c.end();
 	}
 
 	template <typename V, typename Item, typename Item2>
-	bool contains(const boost::unordered_map<Item,V> & c, const Item2 &i)
+	bool contains(const std::unordered_map<Item,V> & c, const Item2 &i)
 	{
 		return c.find(i)!=c.end();
 	}
@@ -314,7 +320,7 @@ namespace vstd
 	int find_pos(const Container & c, const T2 &s)
 	{
 		size_t i=0;
-		for (auto iter = boost::begin(c); iter != boost::end(c); iter++, i++)
+		for (auto iter = std::begin(c); iter != std::end(c); iter++, i++)
 			if(*iter == s)
 				return i;
 		return -1;
@@ -466,7 +472,7 @@ namespace vstd
 	{
 		assert(r.size());
 		index %= r.size();
-		auto itr = boost::begin(r);
+		auto itr = std::begin(r);
 		std::advance(itr, index);
 		return *itr;
 	}
@@ -507,7 +513,7 @@ namespace vstd
 	template<typename InputRange, typename OutputIterator, typename Predicate>
 	OutputIterator copy_if(const InputRange &input, OutputIterator result, Predicate pred)
 	{
-		return std::copy_if(boost::const_begin(input), boost::end(input), result, pred);
+		return std::copy_if(boost::const_begin(input), std::end(input), result, pred);
 	}
 
 	template <typename Container>
@@ -518,9 +524,9 @@ namespace vstd
 
 	//Returns iterator to the element for which the value of ValueFunction is minimal
 	template<class ForwardRange, class ValueFunction>
-	auto minElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(boost::begin(rng))
+	auto minElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
 	{
-		typedef decltype(*boost::begin(rng)) ElemType;
+		typedef decltype(*std::begin(rng)) ElemType;
 		return boost::min_element(rng, [&] (ElemType lhs, ElemType rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
@@ -529,9 +535,9 @@ namespace vstd
 		
 	//Returns iterator to the element for which the value of ValueFunction is maximal
 	template<class ForwardRange, class ValueFunction>
-	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(boost::begin(rng))
+	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
 	{
-		typedef decltype(*boost::begin(rng)) ElemType;
+		typedef decltype(*std::begin(rng)) ElemType;
 		return boost::max_element(rng, [&] (ElemType lhs, ElemType rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);

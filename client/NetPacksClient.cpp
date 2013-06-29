@@ -34,7 +34,7 @@
 #define CALL_IN_PRIVILAGED_INTS(function, ...)										\
 	do																				\
 	{																				\
-		BOOST_FOREACH(auto &ger, cl->privilagedGameEventReceivers)	\
+		for(auto &ger : cl->privilagedGameEventReceivers)	\
 			ger->function(__VA_ARGS__);												\
 	} while(0)
 
@@ -60,7 +60,7 @@
 																\
 		if(cl->additionalBattleInts.count(player))				\
 		{														\
-			BOOST_FOREACH(auto bInt, cl->additionalBattleInts[player])\
+			for(auto bInt : cl->additionalBattleInts[player])\
 				bInt->function(__VA_ARGS__);					\
 		}														\
 	} while (0);
@@ -68,7 +68,7 @@
 #define BATTLE_INTERFACE_CALL_RECEIVERS(function,...) 	\
 	do															\
 	{															\
-		BOOST_FOREACH(auto & ber, cl->privilagedBattleEventReceivers)\
+		for(auto & ber : cl->privilagedBattleEventReceivers)\
 			ber->function(__VA_ARGS__);							\
 	} while(0)
 
@@ -166,7 +166,7 @@ void SetMovePoints::applyCl( CClient *cl )
 void FoWChange::applyCl( CClient *cl )
 {
 
-	BOOST_FOREACH(auto &i, cl->playerint)
+	for(auto &i : cl->playerint)
 		if(cl->getPlayerRelations(i.first, player) != PlayerRelations::ENEMIES)
 		{
 			if(mode)
@@ -385,7 +385,7 @@ void TryMoveHero::applyCl( CClient *cl )
 
 	PlayerColor player = h->tempOwner;
 
-	BOOST_FOREACH(auto &i, cl->playerint)
+	for(auto &i : cl->playerint)
 		if(cl->getPlayerRelations(i.first, player) != PlayerRelations::ENEMIES)
 			i.second->tileRevealed(fowRevealed);
 
@@ -409,7 +409,7 @@ void TryMoveHero::applyCl( CClient *cl )
 void NewStructures::applyCl( CClient *cl )
 {
 	CGTownInstance *town = GS(cl)->getTown(tid);
-	BOOST_FOREACH(const auto & id, bid)
+	for(const auto & id : bid)
 	{
 		if(id == BuildingID::CAPITOL) //fort or capitol
 		{
@@ -426,7 +426,7 @@ void NewStructures::applyCl( CClient *cl )
 void RazeStructures::applyCl (CClient *cl)
 {
 	CGTownInstance *town = GS(cl)->getTown(tid);
-	BOOST_FOREACH(const auto & id, bid)
+	for(const auto & id : bid)
 	{
 		if (id == BuildingID::CAPITOL) //fort or capitol
 		{
@@ -469,7 +469,7 @@ void SetHeroesInTown::applyCl( CClient *cl )
 	if (hVisit && vstd::contains(cl->playerint, hVisit->tempOwner))
 		playersToNotify.insert(hVisit->tempOwner);
 
-	BOOST_FOREACH(auto playerID, playersToNotify)
+	for(auto playerID : playersToNotify)
 		cl->playerint[playerID]->heroInGarrisonChange(t);
 }
 
@@ -483,11 +483,11 @@ void SetHeroesInTown::applyCl( CClient *cl )
 // 	//h->recreateArtBonuses();
 // 	//player->heroArtifactSetChanged(h);
 //
-// // 	BOOST_FOREACH(Bonus bonus, gained)
+// // 	for(Bonus bonus : gained)
 // // 	{
 // // 		player->heroBonusChanged(h,bonus,true);
 // // 	}
-// // 	BOOST_FOREACH(Bonus bonus, lost)
+// // 	for(Bonus bonus : lost)
 // // 	{
 // // 		player->heroBonusChanged(h,bonus,false);
 // // 	}
@@ -528,9 +528,9 @@ void GiveHero::applyFirstCl( CClient *cl )
 void InfoWindow::applyCl( CClient *cl )
 {
 	std::vector<Component*> comps;
-	for(size_t i=0;i<components.size();i++)
+	for(auto & elem : components)
 	{
-		comps.push_back(&components[i]);
+		comps.push_back(&elem);
 	}
 	std::string str;
 	text.toString(str);
@@ -669,11 +669,11 @@ void BattleStackAttacked::applyFirstCl( CClient *cl )
 void BattleAttack::applyFirstCl( CClient *cl )
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleAttack,this);
-	for (int g=0; g<bsa.size(); ++g)
+	for (auto & elem : bsa)
 	{
-		for (int z=0; z<bsa[g].healedStacks.size(); ++z)
+		for (int z=0; z<elem.healedStacks.size(); ++z)
 		{
-			bsa[g].healedStacks[z].applyCl(cl);
+			elem.healedStacks[z].applyCl(cl);
 		}
 	}
 }
@@ -719,9 +719,9 @@ void BattleResultsApplied::applyCl( CClient *cl )
 void StacksHealedOrResurrected::applyCl( CClient *cl )
 {
 	std::vector<std::pair<ui32, ui32> > shiftedHealed;
-	for(int v=0; v<healedStacks.size(); ++v)
+	for(auto & elem : healedStacks)
 	{
-		shiftedHealed.push_back(std::make_pair(healedStacks[v].stackID, healedStacks[v].healedHP));
+		shiftedHealed.push_back(std::make_pair(elem.stackID, elem.healedHP));
 	}
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksHealedRes, shiftedHealed, lifeDrain, tentHealing, drainedFrom);
 }
@@ -923,8 +923,8 @@ void SetAvailableArtifacts::applyCl(CClient *cl)
 {
 	if(id < 0) //artifact merchants globally
 	{
-		for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
-			i->second->availableArtifactsChanged(nullptr);
+		for(auto & elem : cl->playerint)
+			elem.second->availableArtifactsChanged(nullptr);
 	}
 	else
 	{

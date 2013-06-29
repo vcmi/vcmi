@@ -116,7 +116,7 @@ private:
 	CLoggerDomain domain;
 	CLogger * parent;
 	ELogLevel::ELogLevel level;
-	std::list<unique_ptr<ILogTarget> > targets;
+	std::vector<unique_ptr<ILogTarget> > targets;
 	mutable boost::mutex mx;
 	static boost::recursive_mutex smx;
 };

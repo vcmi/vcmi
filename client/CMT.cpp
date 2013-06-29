@@ -397,7 +397,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		StartInfo *si = new StartInfo();
+		auto  si = new StartInfo();
 		si->mode = StartInfo::DUEL;
 		si->mapname = vm["battle"].as<std::string>();
 		si->playerInfos[PlayerColor(0)].color = PlayerColor(0);
@@ -445,7 +445,7 @@ void printInfoAboutIntObject(const CIntObject *obj, int level)
     sbuffer << " (" << obj->pos.w <<"x"<< obj->pos.h << ")";
     logGlobal->debugStream() << sbuffer.str();
 
-	BOOST_FOREACH(const CIntObject *child, obj->children)
+	for(const CIntObject *child : obj->children)
 		printInfoAboutIntObject(child, level+1);
 }
 
@@ -585,7 +585,7 @@ void processCommand(const std::string &message)
         std::cout << "\nInherited bonuses:\n";
 		TCNodes parents;
 		adventureInt->selection->getParents(parents);
-		BOOST_FOREACH(const CBonusSystemNode *parent, parents)
+		for(const CBonusSystemNode *parent : parents)
 		{
             std::cout << "\nBonuses from " << typeid(*parent).name() << std::endl << parent->getBonusList() << std::endl;
 		}
@@ -596,7 +596,7 @@ void processCommand(const std::string &message)
 	}
 	else if(cn == "gui")
 	{
-		BOOST_FOREACH(const IShowActivatable *child, GH.listInt)
+		for(const IShowActivatable *child : GH.listInt)
 		{
 			if(const CIntObject *obj = dynamic_cast<const CIntObject *>(child))
 				printInfoAboutIntObject(obj, 0);
@@ -611,7 +611,7 @@ void processCommand(const std::string &message)
 		readed >> what >> id1 >> id2;
 		if(what == "hs")
 		{
-			BOOST_FOREACH(const CGHeroInstance *h, LOCPLINT->cb->getHeroesInfo())
+			for(const CGHeroInstance *h : LOCPLINT->cb->getHeroesInfo())
 				if(h->type->ID.getNum() == id1)
 					if(const CArtifactInstance *a = h->getArt(ArtifactPosition(id2)))
                         std::cout << a->nodeName();
@@ -922,11 +922,11 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 		int i = 0;
 
 
-		for(auto it = options->playerInfos.begin(); it != options->playerInfos.end(); ++it)
+		for(auto & elem : options->playerInfos)
 		{
-			it->second.playerID = PlayerSettings::PLAYER_AI;
+			elem.second.playerID = PlayerSettings::PLAYER_AI;
 			if(i < ais.size())
-				it->second.name = ais[i++];
+				elem.second.name = ais[i++];
 		}
 	}
 

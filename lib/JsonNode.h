@@ -239,7 +239,7 @@ namespace JsonDetail
 		static std::map<std::string, Type> convert(const JsonNode & node)
 		{
 			std::map<std::string, Type> ret;
-			BOOST_FOREACH(auto entry, node.Struct())
+			for (const JsonMap::value_type & entry : node.Struct())
 			{
 				ret.insert(entry.first, entry.second.convertTo<Type>());
 			}
@@ -253,7 +253,7 @@ namespace JsonDetail
 		static std::set<Type> convert(const JsonNode & node)
 		{
 			std::set<Type> ret;
-			BOOST_FOREACH(auto entry, node.Vector())
+			for(const JsonVector::value_type & entry : node.Vector())
 			{
 				ret.insert(entry.convertTo<Type>());
 			}
@@ -267,7 +267,7 @@ namespace JsonDetail
 		static std::vector<Type> convert(const JsonNode & node)
 		{
 			std::vector<Type> ret;
-			BOOST_FOREACH(auto entry, node.Vector())
+			for (const JsonVector::value_type & entry: node.Vector())
 			{
 				ret.push_back(entry.convertTo<Type>());
 			}

@@ -40,7 +40,7 @@ void IFont::renderTextLinesLeft(SDL_Surface * surface, const std::vector<std::st
 {
 	Point currPos = pos;
 
-	BOOST_FOREACH(const std::string & line, data)
+	for(const std::string & line : data)
 	{
 		renderTextLeft(surface, line, color, currPos);
 		currPos.y += getLineHeight();
@@ -52,7 +52,7 @@ void IFont::renderTextLinesRight(SDL_Surface * surface, const std::vector<std::s
 	Point currPos = pos;
 	currPos.y -= data.size() * getLineHeight();
 
-	BOOST_FOREACH(const std::string & line, data)
+	for(const std::string & line : data)
 	{
 		renderTextRight(surface, line, color, currPos);
 		currPos.y += getLineHeight();
@@ -64,7 +64,7 @@ void IFont::renderTextLinesCenter(SDL_Surface * surface, const std::vector<std::
 	Point currPos = pos;
 	currPos.y -= data.size() * getLineHeight()/2;
 
-	BOOST_FOREACH(const std::string & line, data)
+	for(const std::string & line : data)
 	{
 		renderTextCenter(surface, line, color, currPos);
 		currPos.y += getLineHeight();
@@ -77,17 +77,17 @@ std::array<CBitmapFont::Char, CBitmapFont::totalChars> CBitmapFont::loadChars() 
 
 	size_t offset = 32;
 
-	for (size_t i=0; i< ret.size(); i++)
+	for (auto & elem : ret)
 	{
-		ret[i].leftOffset =  read_le_u32(data.first.get() + offset); offset+=4;
-		ret[i].width =       read_le_u32(data.first.get() + offset); offset+=4;
-		ret[i].rightOffset = read_le_u32(data.first.get() + offset); offset+=4;
+		elem.leftOffset =  read_le_u32(data.first.get() + offset); offset+=4;
+		elem.width =       read_le_u32(data.first.get() + offset); offset+=4;
+		elem.rightOffset = read_le_u32(data.first.get() + offset); offset+=4;
 	}
 
-	for (size_t i=0; i< ret.size(); i++)
+	for (auto & elem : ret)
 	{
 		int pixelOffset =  read_le_u32(data.first.get() + offset); offset+=4;
-		ret[i].pixels = data.first.get() + 4128 + pixelOffset;
+		elem.pixels = data.first.get() + 4128 + pixelOffset;
 
 		assert(pixelOffset + 4128 < data.second);
 	}
@@ -115,7 +115,7 @@ size_t CBitmapFont::getStringWidth(const std::string & data) const
 {
 	size_t width = 0;
 
-	BOOST_FOREACH(auto & ch, data)
+	for(auto & ch : data)
 	{
 		width += getSymbolWidth(ch);
 	}
@@ -188,9 +188,9 @@ void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, co
 
 	SDL_LockSurface(surface);
 	// for each symbol
-	for(size_t index = 0; index < data.size(); index++)
+	for(auto & elem : data)
 	{
-		renderCharacter(surface, chars[ui8(data[index])], color, posX, posY);
+		renderCharacter(surface, chars[ui8(elem)], color, posX, posY);
 	}
 	SDL_UnlockSurface(surface);
 }
@@ -215,7 +215,7 @@ int CTrueTypeFont::getFontStyle(const JsonNode &config)
 {
 	const JsonVector & names = config["style"].Vector();
 	int ret = 0;
-	BOOST_FOREACH(const JsonNode & node, names)
+	for(const JsonNode & node : names)
 	{
 		if (node.String() == "bold")
 			ret |= TTF_STYLE_BOLD;

@@ -22,11 +22,11 @@ CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
 
 void CBattleAnimation::endAnim()
 {
-	for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
+	for(auto & elem : owner->pendingAnims)
 	{
-		if(it->first == this)
+		if(elem.first == this)
 		{
-			it->first = nullptr;
+			elem.first = nullptr;
 		}
 	}
 
@@ -38,10 +38,10 @@ bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 	CBattleStackAnimation * thAnim = dynamic_cast<CBattleStackAnimation *>(this);
 	CSpellEffectAnimation * thSen = dynamic_cast<CSpellEffectAnimation *>(this);
 
-	for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
+	for(auto & elem : owner->pendingAnims)
 	{
-		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(it->first);
-		CSpellEffectAnimation * sen = dynamic_cast<CSpellEffectAnimation *>(it->first);
+		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(elem.first);
+		CSpellEffectAnimation * sen = dynamic_cast<CSpellEffectAnimation *>(elem.first);
 		if(perStackConcurrency && stAnim && thAnim && stAnim->stack->ID != thAnim->stack->ID)
 			continue;
 
@@ -53,8 +53,8 @@ bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 		if(revAnim && thAnim && stAnim && stAnim->stack->ID == thAnim->stack->ID && revAnim->priority)
 			return false;
 
-		if(it->first)
-			vstd::amin(lowestMoveID, it->first->ID);
+		if(elem.first)
+			vstd::amin(lowestMoveID, elem.first->ID);
 	}
 	return (ID == lowestMoveID) || (lowestMoveID == (owner->animIDhelper + 5));
 }
@@ -124,13 +124,13 @@ bool CDefenceAnimation::init()
 		return false;
 
 	ui32 lowestMoveID = owner->animIDhelper + 5;
-	for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
+	for(auto & elem : owner->pendingAnims)
 	{
-		CDefenceAnimation * defAnim = dynamic_cast<CDefenceAnimation *>(it->first);
+		CDefenceAnimation * defAnim = dynamic_cast<CDefenceAnimation *>(elem.first);
 		if(defAnim && defAnim->stack->ID != stack->ID)
 			continue;
 
-		CAttackAnimation * attAnim = dynamic_cast<CAttackAnimation *>(it->first);
+		CAttackAnimation * attAnim = dynamic_cast<CAttackAnimation *>(elem.first);
 		if(attAnim && attAnim->stack->ID != stack->ID)
 			continue;
 
@@ -143,13 +143,13 @@ bool CDefenceAnimation::init()
 				return false;
 		}
 
-		CReverseAnimation * animAsRev = dynamic_cast<CReverseAnimation *>(it->first);
+		CReverseAnimation * animAsRev = dynamic_cast<CReverseAnimation *>(elem.first);
 
 		if(animAsRev && animAsRev->priority)
 			return false;
 
-		if(it->first)
-			vstd::amin(lowestMoveID, it->first->ID);
+		if(elem.first)
+			vstd::amin(lowestMoveID, elem.first->ID);
 	}
 	if(ID > lowestMoveID)
 		return false;
@@ -474,11 +474,11 @@ void CMovementAnimation::nextFrame()
 				myAnim()->pos.x += 44;
 
 			// re-init animation
-			for(std::list<std::pair<CBattleAnimation *, bool> >::iterator it = owner->pendingAnims.begin(); it != owner->pendingAnims.end(); ++it)
+			for(auto & elem : owner->pendingAnims)
 			{
-				if (it->first == this)
+				if (elem.first == this)
 				{
-					it->second = false;
+					elem.second = false;
 					break;
 				}
 			}
@@ -896,9 +896,9 @@ bool CSpellEffectAnimation::init()
 
 			if (Vflip)
 			{
-				for (size_t v = 0; v < anim->ourImages.size(); ++v)
+				for (auto & elem : anim->ourImages)
 				{
-					CSDL_Ext::VflipSurf(anim->ourImages[v].bitmap);
+					CSDL_Ext::VflipSurf(elem.bitmap);
 				}
 			}
 
@@ -911,9 +911,9 @@ bool CSpellEffectAnimation::init()
 					be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
 					if (Vflip)
 					{
-						for (size_t v = 0; v < be.anim->ourImages.size(); ++v)
+						for (auto & elem : be.anim->ourImages)
 						{
-							CSDL_Ext::VflipSurf(be.anim->ourImages[v].bitmap);
+							CSDL_Ext::VflipSurf(elem.bitmap);
 						}
 					}
 					be.frame = 0;
@@ -946,9 +946,9 @@ bool CSpellEffectAnimation::init()
 
 			if (Vflip)
 			{
-				for (size_t v = 0; v < be.anim->ourImages.size(); ++v)
+				for (auto & elem : be.anim->ourImages)
 				{
-					CSDL_Ext::VflipSurf(be.anim->ourImages[v].bitmap);
+					CSDL_Ext::VflipSurf(elem.bitmap);
 				}
 			}
 
@@ -996,21 +996,21 @@ bool CSpellEffectAnimation::init()
 void CSpellEffectAnimation::nextFrame()
 {
 	//notice: there may be more than one effect in owner->battleEffects correcponding to this animation (ie. armageddon)
-	for(std::list<BattleEffect>::iterator it = owner->battleEffects.begin(); it != owner->battleEffects.end(); ++it)
+	for(auto & elem : owner->battleEffects)
 	{
-		if(it->effectID == ID)
+		if(elem.effectID == ID)
 		{
-			++(it->frame);
+			++(elem.frame);
 
-			if(it->frame == it->maxFrame)
+			if(elem.frame == elem.maxFrame)
 			{
 				endAnim();
 				break;
 			}
 			else
 			{
-				it->x += dx;
-				it->y += dy;
+				elem.x += dx;
+				elem.y += dy;
 			}
 		}
 	}
@@ -1022,7 +1022,7 @@ void CSpellEffectAnimation::endAnim()
 
 	std::vector<std::list<BattleEffect>::iterator> toDel;
 
-	for(std::list<BattleEffect>::iterator it = owner->battleEffects.begin(); it != owner->battleEffects.end(); ++it)
+	for(auto it = owner->battleEffects.begin(); it != owner->battleEffects.end(); ++it)
 	{
 		if(it->effectID == ID)
 		{
@@ -1030,10 +1030,10 @@ void CSpellEffectAnimation::endAnim()
 		}
 	}
 
-	for(size_t b = 0; b < toDel.size(); ++b)
+	for(auto & elem : toDel)
 	{
-		delete toDel[b]->anim;
-		owner->battleEffects.erase(toDel[b]);
+		delete elem->anim;
+		owner->battleEffects.erase(elem);
 	}
 
 	delete this;

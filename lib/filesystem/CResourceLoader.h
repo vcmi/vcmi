@@ -157,17 +157,17 @@ private:
 	EResType::Type type;
 };
 
-/**
- 	* Generates a hash value for the resource identifier object.
- 	*
- 	* @param resourceIdent The object from which a hash value should be generated.
- 	* @return the generated hash value
- 	*/
-inline size_t hash_value(const ResourceID & resourceIdent)
+namespace std
 {
-	boost::hash<int> intHasher;
-	boost::hash<std::string> stringHasher;
-	return stringHasher(resourceIdent.getName()) ^ intHasher(static_cast<int>(resourceIdent.getType()));
+	template <> struct hash<ResourceID>
+	{
+		size_t operator()(const ResourceID & resourceIdent) const
+		{
+			std::hash<int> intHasher;
+			std::hash<std::string> stringHasher;
+			return stringHasher(resourceIdent.getName()) ^ intHasher(static_cast<int>(resourceIdent.getType()));
+		}
+	};
 }
 
 /**
@@ -176,7 +176,7 @@ inline size_t hash_value(const ResourceID & resourceIdent)
  */
 class DLL_LINKAGE CResourceLoader
 {
-	typedef boost::unordered_map<ResourceID, std::vector<ResourceLocator> > ResourcesMap;
+	typedef std::unordered_map<ResourceID, std::vector<ResourceLocator> > ResourcesMap;
 
 public:
 	/// class for iterating over all available files/Identifiers

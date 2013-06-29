@@ -60,7 +60,7 @@ public:
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
 	std::unique_ptr<CInputStream> load(const std::string & resourceName) const override;
-	boost::unordered_map<ResourceID, std::string> getEntries() const override;
+	std::unordered_map<ResourceID, std::string> getEntries() const override;
 	bool existsEntry(const std::string & resourceName) const override;
 	std::string getOrigin() const override;
 
@@ -92,5 +92,5 @@ private:
 	std::string archive;
 
 	/** Holds all entries of the archive file. An entry can be accessed via the entry name. **/
-	boost::unordered_map<std::string, ArchiveEntry> entries;
+	std::unordered_map<std::string, ArchiveEntry> entries;
 };

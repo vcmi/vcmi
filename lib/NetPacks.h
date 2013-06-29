@@ -392,7 +392,7 @@ struct FoWChange : public CPackForClient //112
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	boost::unordered_set<int3, struct ShashInt3 > tiles;
+	std::unordered_set<int3, struct ShashInt3 > tiles;
 	PlayerColor player;
 	ui8 mode; //mode==0 - hide, mode==1 - reveal
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -646,7 +646,7 @@ struct TryMoveHero : public CPackForClient //501
 	ui32 movePoints;
 	EResult result; //uses EResult
 	int3 start, end; //h3m format
-	boost::unordered_set<int3, ShashInt3> fowRevealed; //revealed tiles
+	std::unordered_set<int3, ShashInt3> fowRevealed; //revealed tiles
 	boost::optional<int3> attackedFrom; // Set when stepping into endangered tile.
 
 	bool humanKnows; //used locally during applying to client

@@ -402,8 +402,8 @@ void CAdventureMapButton::init(const CFunctionList<void()> &Callback, const std:
 	if (!defName.empty())
 		imageNames.push_back(defName);
 	if (add)
-		for (size_t i=0; i<add->size();i++ )
-			imageNames.push_back(add->at(i));
+		for (auto & elem : *add)
+			imageNames.push_back(elem);
 	setIndex(0, playerColoredButton);
 }
 
@@ -524,7 +524,7 @@ void CHighlightableButtonsGroup::addButton(CHighlightableButton* bt)
 void CHighlightableButtonsGroup::addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid, const CFunctionList<void()> &OnSelect, int key)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	CHighlightableButton *bt = new CHighlightableButton(OnSelect, 0, tooltip, HelpBox, false, defName, 0, x, y, key);
+	CHighlightableButton *bt = new CHighlightableButton(OnSelect, 0, tooltip, HelpBox, false, defName, nullptr, x, y, key);
 	if(musicLike)
 	{
 		bt->setOffset(buttons.size()-3);
@@ -563,9 +563,9 @@ void CHighlightableButtonsGroup::select(int id, bool mode)
 
 void CHighlightableButtonsGroup::selectionChanged(int to)
 {
-	for(size_t i=0;i<buttons.size(); ++i)
-		if(buttons[i]->ID!=to && buttons[i]->isHighlighted())
-			buttons[i]->select(false);
+	for(auto & elem : buttons)
+		if(elem->ID!=to && elem->isHighlighted())
+			elem->select(false);
 	onChange(to);
 	if (parent)
 		parent->redraw();
@@ -575,9 +575,9 @@ void CHighlightableButtonsGroup::show(SDL_Surface * to)
 {
 	if (musicLike)
 	{
-		for(size_t i=0;i<buttons.size(); ++i)
-			if(buttons[i]->isHighlighted())
-				buttons[i]->show(to);
+		for(auto & elem : buttons)
+			if(elem->isHighlighted())
+				elem->show(to);
 	}
 	else
 		CIntObject::show(to);
@@ -587,9 +587,9 @@ void CHighlightableButtonsGroup::showAll(SDL_Surface * to)
 {
 	if (musicLike)
 	{
-		for(size_t i=0;i<buttons.size(); ++i)
-			if(buttons[i]->isHighlighted())
-				buttons[i]->showAll(to);
+		for(auto & elem : buttons)
+			if(elem->isHighlighted())
+				elem->showAll(to);
 	}
 	else
 		CIntObject::showAll(to);
@@ -597,9 +597,9 @@ void CHighlightableButtonsGroup::showAll(SDL_Surface * to)
 
 void CHighlightableButtonsGroup::block( ui8 on )
 {
-	for(size_t i=0;i<buttons.size(); ++i)
+	for(auto & elem : buttons)
 	{
-		buttons[i]->block(on);
+		elem->block(on);
 	}
 }
 
@@ -774,17 +774,17 @@ CSlider::CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int C
 		//NOTE: this images do not have "blocked" frames. They should be implemented somehow (e.g. palette transform or something...)
 
 		//use source def to create custom animations. Format "name.def:123" will load this frame from def file
-		CAnimation *animLeft = new CAnimation();
+		auto animLeft = new CAnimation();
 		animLeft->setCustom(name + ":0", 0);
 		animLeft->setCustom(name + ":1", 1);
 		left->setImage(animLeft);
 
-		CAnimation *animRight = new CAnimation();
+		auto animRight = new CAnimation();
 		animRight->setCustom(name + ":2", 0);
 		animRight->setCustom(name + ":3", 1);
 		right->setImage(animRight);
 
-		CAnimation *animSlider = new CAnimation();
+		auto animSlider = new CAnimation();
 		animSlider->setCustom(name + ":4", 0);
 		slider->setImage(animSlider);
 	}
@@ -958,9 +958,9 @@ CListBox::CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point Item
 void CListBox::updatePositions()
 {
 	Point itemPos = pos.topLeft();
-	for (std::list<CIntObject*>::iterator it = items.begin(); it!=items.end(); it++)
+	for (auto & elem : items)
 	{
-		(*it)->moveTo(itemPos);
+		(elem)->moveTo(itemPos);
 		itemPos += itemOffset;
 	}
 	if (active)
@@ -974,10 +974,10 @@ void CListBox::updatePositions()
 void CListBox::reset()
 {
 	size_t current = first;
-	for (std::list<CIntObject*>::iterator it = items.begin(); it!=items.end(); it++)
+	for (auto & elem : items)
 	{
-		deleteItem(*it);
-		*it = createItem(current++);
+		deleteItem(elem);
+		elem = createItem(current++);
 	}
 	updatePositions();
 }
@@ -1300,7 +1300,7 @@ void CBoundedLabel::recalculateLines(const std::string &Txt)
 
 	maxH = lineHeight * lines.size();
 	maxW = 0;
-	BOOST_FOREACH(const std::string &line, lines)
+	for(const std::string &line : lines)
 		vstd::amax(maxW, f->getStringWidth(line.c_str()));
 }
 
@@ -1348,7 +1348,7 @@ void CTextBox::recalculateLines(const std::string &Txt)
 
 	maxH = lineHeight * lines.size();
 	maxW = 0;
-	BOOST_FOREACH(const std::string &line, lines)
+	for(const std::string &line : lines)
 		vstd::amax(maxW, f->getStringWidth(line));
 }
 
@@ -1658,7 +1658,7 @@ void CFocusable::giveFocus()
 
 void CFocusable::moveFocus()
 {
-	std::list<CFocusable*>::iterator i = vstd::find(focusables, this),
+	auto i = vstd::find(focusables, this),
 		ourIt = i;
 	for(i++; i != ourIt; i++)
 	{
@@ -1725,7 +1725,7 @@ CPicture * CWindowObject::createBg(std::string imageName, bool playerColored)
 	if (imageName.empty())
 		return nullptr;
 
-	auto image = new CPicture(imageName);
+	auto  image = new CPicture(imageName);
 	if (playerColored)
 		image->colorize(LOCPLINT->playerID);
 	return image;

@@ -420,8 +420,8 @@ void CHeroGSlot::setHighlight( bool on )
 
 	if(owner->garrisonedHero->hero && owner->visitingHero->hero) //two heroes in town
 	{
-		for(size_t i = 0; i<owner->garr->splitButtons.size(); i++) //splitting enabled when slot higlighted
-			owner->garr->splitButtons[i]->block(!on);
+		for(auto & elem : owner->garr->splitButtons) //splitting enabled when slot higlighted
+			elem->block(!on);
 	}
 }
 
@@ -472,7 +472,7 @@ void CCastleBuildings::recreate()
 	selectedBuilding = nullptr;
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	//clear existing buildings
-	BOOST_FOREACH(auto build, buildings)
+	for(auto build : buildings)
 		delete build;
 	buildings.clear();
 	groups.clear();
@@ -491,7 +491,7 @@ void CCastleBuildings::recreate()
 		}
 	}
 
-	BOOST_FOREACH(const CStructure * structure, town->town->clientInfo.structures)
+	for(const CStructure * structure : town->town->clientInfo.structures)
 	{
 		if (!structure->building)
 		{
@@ -504,7 +504,7 @@ void CCastleBuildings::recreate()
 		}
 	}
 
-	BOOST_FOREACH(auto & entry, groups)
+	for(auto & entry : groups)
 	{
 		const CBuilding * build = town->town->buildings[entry.first];
 
@@ -535,7 +535,7 @@ void CCastleBuildings::addBuilding(BuildingID building)
 
 	auto & structures = groups[base];
 
-	BOOST_FOREACH(CBuildingRect * rect, buildings)
+	for(CBuildingRect * rect : buildings)
 	{
 		if (vstd::contains(structures, rect->str))
 		{
@@ -558,14 +558,14 @@ void CCastleBuildings::removeBuilding(BuildingID building)
 void CCastleBuildings::show(SDL_Surface * to)
 {
 	CIntObject::show(to);
-	BOOST_FOREACH(CBuildingRect * str, buildings)
+	for(CBuildingRect * str : buildings)
 		str->show(to);
 }
 
 void CCastleBuildings::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-	BOOST_FOREACH(CBuildingRect * str, buildings)
+	for(CBuildingRect * str : buildings)
 		str->showAll(to);
 }
 
@@ -750,16 +750,16 @@ void CCastleBuildings::enterCastleGate()
 	}
 	std::vector <int> availableTowns;
 	std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
-	for(size_t i=0;i<Towns.size();i++)
+	for(auto & Town : Towns)
 	{
-		const CGTownInstance *t = Towns[i];
+		const CGTownInstance *t = Town;
 		if (t->id != this->town->id && t->visitingHero == nullptr && //another town, empty and this is
 			t->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
 		{
 			availableTowns.push_back(t->id.getNum());//add to the list
 		}
 	}
-	CPicture *titlePic = new CPicture (LOCPLINT->castleInt->bicons->ourImages[BuildingID::CASTLE_GATE].bitmap, 0,0, false);//will be deleted by selection window
+	auto  titlePic = new CPicture (LOCPLINT->castleInt->bicons->ourImages[BuildingID::CASTLE_GATE].bitmap, 0,0, false);//will be deleted by selection window
 	GH.pushInt (new CObjectListWindow(availableTowns, titlePic, CGI->generaltexth->jktexts[40],
 	    CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1)));
 }
@@ -965,8 +965,8 @@ void CCastleInterface::recreateIcons()
 	hall = new CTownInfo( 80, 413, town, true);
 	fort = new CTownInfo(122, 413, town, false);
 
-	for (size_t i=0; i<creainfo.size(); i++)
-		delete creainfo[i];
+	for (auto & elem : creainfo)
+		delete elem;
 	creainfo.clear();
 
 	for (size_t i=0; i<4; i++)
@@ -1071,7 +1071,7 @@ std::string CCreaInfo::genGrowthText()
 	GrowthInfo gi = town->getGrowthInfo(level);
 	std::string descr = boost::str(boost::format(CGI->generaltexth->allTexts[589]) % creature->nameSing % gi.totalGrowth());
 
-	BOOST_FOREACH(const GrowthInfo::Entry &entry, gi.entries)
+	for(const GrowthInfo::Entry &entry : gi.entries)
 	{
 		descr +="\n" + entry.description;
 	}
@@ -1151,7 +1151,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 			delete builds;
 			builds = new CCastleBuildings(town);
 
-			BOOST_FOREACH(const CStructure * str, town->town->clientInfo.structures)
+			for(const CStructure * str : town->town->clientInfo.structures)
 			{
 				if (str->building)
                     logGlobal->errorStream() << int(str->building->bid) << " -> " << int(str->pos.z);
@@ -1167,7 +1167,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 			delete builds;
 			builds = new CCastleBuildings(town);
 
-			BOOST_FOREACH(const CStructure * str, town->town->clientInfo.structures)
+			for(const CStructure * str : town->town->clientInfo.structures)
 			{
 				if (str->building)
                     logGlobal->errorStream() << int(str->building->bid) << " -> " << int(str->pos.z);
@@ -1308,9 +1308,9 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 		for(size_t col=0; col<boxList[row].size(); col++) //for each box
 		{
 			const CBuilding *building = nullptr;
-			for(size_t item=0; item<boxList[row][col].size(); item++)//we are looking for the first not build structure
+			for(auto & elem : boxList[row][col])//we are looking for the first not build structure
 			{
-				auto buildingID = boxList[row][col][item];
+				auto buildingID = elem;
 				building = town->town->buildings[buildingID];
 
 				if(!vstd::contains(town->builtBuildings,buildingID))
@@ -1348,7 +1348,7 @@ std::string CBuildWindow::getTextForState(int state)
 			ret = CGI->generaltexth->allTexts[52];
 			std::set<BuildingID> reqs= LOCPLINT->cb->getBuildingRequiments(town, building->bid);
 
-			BOOST_FOREACH(const auto & i, reqs)
+			for(const auto & i : reqs)
 			{
 				if (vstd::contains(town->builtBuildings, i))
 					continue;//skipping constructed buildings
@@ -1466,8 +1466,8 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 
 void CFortScreen::creaturesChanged()
 {
-	for (size_t i=0; i<recAreas.size(); i++)
-		recAreas[i]->creaturesChanged();
+	for (auto & elem : recAreas)
+		elem->creaturesChanged();
 }
 
 LabeledValue::LabeledValue(Rect size, std::string name, std::string descr, int min, int max)

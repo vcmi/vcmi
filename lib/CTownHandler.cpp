@@ -73,10 +73,10 @@ CTown::CTown()
 
 CTown::~CTown()
 {
-	BOOST_FOREACH(auto & build, buildings)
+	for(auto & build : buildings)
 		build.second.dellNull();
 
-	BOOST_FOREACH(auto & str, clientInfo.structures)
+	for(auto & str : clientInfo.structures)
 		str.dellNull();
 }
 
@@ -87,7 +87,7 @@ CTownHandler::CTownHandler()
 
 CTownHandler::~CTownHandler()
 {
-	BOOST_FOREACH(auto faction, factions)
+	for(auto faction : factions)
 		faction.dellNull();
 }
 
@@ -97,7 +97,7 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	JsonNode & cost = ret["cost"];
 
 	//note: this code will try to parse mithril as well but wil always return 0 for it
-	BOOST_FOREACH(const std::string & resID, GameConstants::RESOURCE_NAMES)
+	for(const std::string & resID : GameConstants::RESOURCE_NAMES)
 		cost[resID].Float() = parser.readNumber();
 
 	cost.Struct().erase("mithril"); // erase mithril to avoid confusing validator
@@ -262,7 +262,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData(size_t dataSize)
 
 void CTownHandler::loadBuilding(CTown &town, const JsonNode & source)
 {
-	CBuilding * ret = new CBuilding;
+	auto  ret = new CBuilding;
 
 	static const std::string modes [] = {"normal", "auto", "special", "grail"};
 
@@ -274,7 +274,7 @@ void CTownHandler::loadBuilding(CTown &town, const JsonNode & source)
 	ret->description = source["description"].String();
 	ret->resources = TResources(source["cost"]);
 
-	BOOST_FOREACH(const JsonNode &building, source["requires"].Vector())
+	for(const JsonNode &building : source["requires"].Vector())
 		ret->requirements.insert(BuildingID(building.Float()));
 
 	if (!source["upgrades"].isNull())
@@ -292,7 +292,7 @@ void CTownHandler::loadBuildings(CTown &town, const JsonNode & source)
 {
 	if (source.getType() == JsonNode::DATA_VECTOR)
 	{
-		BOOST_FOREACH(auto &node, source.Vector())
+		for(auto &node : source.Vector())
 		{
 			if (!node.isNull())
 				loadBuilding(town, node);
@@ -300,7 +300,7 @@ void CTownHandler::loadBuildings(CTown &town, const JsonNode & source)
 	}
 	else
 	{
-		BOOST_FOREACH(auto &node, source.Struct())
+		for(auto &node : source.Struct())
 		{
 			if (!node.second.isNull())
 				loadBuilding(town, node.second);
@@ -310,7 +310,7 @@ void CTownHandler::loadBuildings(CTown &town, const JsonNode & source)
 
 void CTownHandler::loadStructure(CTown &town, const JsonNode & source)
 {
-	CStructure * ret = new CStructure;
+	auto  ret = new CStructure;
 
 	if (source["id"].isNull())
 	{
@@ -343,7 +343,7 @@ void CTownHandler::loadStructures(CTown &town, const JsonNode & source)
 {
 	if (source.getType() == JsonNode::DATA_VECTOR)
 	{
-		BOOST_FOREACH(auto &node, source.Vector())
+		for(auto &node : source.Vector())
 		{
 			if (!node.isNull())
 				loadStructure(town, node);
@@ -351,7 +351,7 @@ void CTownHandler::loadStructures(CTown &town, const JsonNode & source)
 	}
 	else
 	{
-		BOOST_FOREACH(auto &node, source.Struct())
+		for(auto &node : source.Struct())
 		{
 			if (!node.second.isNull())
 				loadStructure(town, node.second);
@@ -361,15 +361,15 @@ void CTownHandler::loadStructures(CTown &town, const JsonNode & source)
 
 void CTownHandler::loadTownHall(CTown &town, const JsonNode & source)
 {
-	BOOST_FOREACH(const JsonNode &row, source.Vector())
+	for(const JsonNode &row : source.Vector())
 	{
 		std::vector< std::vector<BuildingID> > hallRow;
 
-		BOOST_FOREACH(const JsonNode &box, row.Vector())
+		for(const JsonNode &box : row.Vector())
 		{
 			std::vector<BuildingID> hallBox;
 
-			BOOST_FOREACH(const JsonNode &value, box.Vector())
+			for(const JsonNode &value : box.Vector())
 			{
 				hallBox.push_back(BuildingID(value.Float()));
 			}
@@ -464,10 +464,10 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 {
 	auto resIter = boost::find(GameConstants::RESOURCE_NAMES, source["primaryResource"].String());
-	if (resIter == boost::end(GameConstants::RESOURCE_NAMES))
+	if (resIter == std::end(GameConstants::RESOURCE_NAMES))
 		town.primaryRes = Res::WOOD_AND_ORE; //Wood + Ore
 	else
-		town.primaryRes = resIter - boost::begin(GameConstants::RESOURCE_NAMES);
+		town.primaryRes = resIter - std::begin(GameConstants::RESOURCE_NAMES);
 
 	VLC->modh->identifiers.requestIdentifier("creature", source["warMachine"],
 	[&town](si32 creature)
@@ -481,7 +481,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	town.names = source["names"].convertTo<std::vector<std::string> >();
 
 	//  Horde building creature level
-	BOOST_FOREACH(const JsonNode &node, source["horde"].Vector())
+	for(const JsonNode &node : source["horde"].Vector())
 	{
 		town.hordeLvl[town.hordeLvl.size()] = node.Float();
 	}
@@ -506,7 +506,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	}
 
 	/// set chance of specific hero class to appear in this town
-	BOOST_FOREACH(auto &node, source["tavern"].Struct())
+	for(auto &node : source["tavern"].Struct())
 	{
 		int chance = node.second.Float();
 
@@ -516,7 +516,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 		});
 	}
 
-	BOOST_FOREACH(auto &node, source["guildSpells"].Struct())
+	for(auto &node : source["guildSpells"].Struct())
 	{
 		int chance = node.second.Float();
 
@@ -526,7 +526,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 		});
 	}
 
-	BOOST_FOREACH (const JsonNode &d, source["adventureMap"]["dwellings"].Vector())
+	for (const JsonNode &d : source["adventureMap"]["dwellings"].Vector())
 	{
 		town.dwellings.push_back (d["graphics"].String());
 		town.dwellingNames.push_back (d["name"].String());
@@ -541,7 +541,7 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	faction.puzzleMap.reserve(GameConstants::PUZZLE_MAP_PIECES);
 
 	std::string prefix = source["prefix"].String();
-	BOOST_FOREACH(const JsonNode &piece, source["pieces"].Vector())
+	for(const JsonNode &piece : source["pieces"].Vector())
 	{
 		size_t index = faction.puzzleMap.size();
 		SPuzzleInfo spi;
@@ -564,7 +564,7 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 
 CFaction * CTownHandler::loadFromJson(const JsonNode &source)
 {
-	CFaction * faction = new CFaction();
+	auto  faction = new CFaction();
 
 	faction->name = source["name"].String();
 
@@ -640,7 +640,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 std::vector<bool> CTownHandler::getDefaultAllowed() const
 {
 	std::vector<bool> allowedFactions;
-	BOOST_FOREACH(auto town, factions)
+	for(auto town : factions)
 	{
 		allowedFactions.push_back(town->town != nullptr);
 	}

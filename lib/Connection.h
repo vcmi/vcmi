@@ -739,12 +739,12 @@ public:
 			*this << *i;
 	}
 	template <typename T, typename U>
-	void saveSerializable(const boost::unordered_set<T, U> &data)
+	void saveSerializable(const std::unordered_set<T, U> &data)
 	{
-		boost::unordered_set<T, U> &d = const_cast<boost::unordered_set<T, U> &>(data);
+		std::unordered_set<T, U> &d = const_cast<std::unordered_set<T, U> &>(data);
 		ui32 length = d.size();
 		*this << length;
-		for(typename boost::unordered_set<T, U>::iterator i=d.begin();i!=d.end();i++)
+		for(typename std::unordered_set<T, U>::iterator i=d.begin();i!=d.end();i++)
 			*this << *i;
 	}
 	template <typename T>
@@ -1132,7 +1132,7 @@ public:
 		}
 	}
 	template <typename T, typename U>
-	void loadSerializable(boost::unordered_set<T, U> &data)
+	void loadSerializable(std::unordered_set<T, U> &data)
 	{
 		READ_CHECK_U32(length);
         data.clear();

@@ -157,7 +157,7 @@ bool CPlayersVisited::wasVisited( PlayerColor player ) const
 
 bool CPlayersVisited::wasVisited( TeamID team ) const
 {
-	BOOST_FOREACH(auto i, players)
+	for(auto i : players)
 	{
 		if(cb->getPlayer(i)->team == team)
 			return true;
@@ -183,7 +183,7 @@ static void readBankLevel(const JsonNode &level, BankConfig &bc)
 
 	bc.chance = level["chance"].Float();
 
-	BOOST_FOREACH(const JsonNode &creature, level["guards"].Vector())
+	for(const JsonNode &creature : level["guards"].Vector())
 	{
 		readCreatures(creature, bc.guards);
 	}
@@ -193,20 +193,20 @@ static void readBankLevel(const JsonNode &level, BankConfig &bc)
 
 	bc.resources.resize(GameConstants::RESOURCE_QUANTITY);
 	idx = 0;
-	BOOST_FOREACH(const JsonNode &resource, level["reward_resources"].Vector())
+	for(const JsonNode &resource : level["reward_resources"].Vector())
 	{
 		bc.resources[idx] = resource.Float();
 		idx ++;
 	}
 
-	BOOST_FOREACH(const JsonNode &creature, level["reward_creatures"].Vector())
+	for(const JsonNode &creature : level["reward_creatures"].Vector())
 	{
 		readCreatures(creature, bc.creatures);
 	}
 
 	bc.artifacts.resize(4);
 	idx = 0;
-	BOOST_FOREACH(const JsonNode &artifact, level["reward_artifacts"].Vector())
+	for(const JsonNode &artifact : level["reward_artifacts"].Vector())
 	{
 		bc.artifacts[idx] = artifact.Float();
 		idx ++;
@@ -222,7 +222,7 @@ CObjectHandler::CObjectHandler()
     logGlobal->traceStream() << "\t\tReading cregens ";
 
 	const JsonNode config(ResourceID("config/dwellings.json"));
-	BOOST_FOREACH(const JsonNode &dwelling, config["dwellings"].Vector())
+	for(const JsonNode &dwelling : config["dwellings"].Vector())
 	{
 		cregens[dwelling["dwelling"].Float()] = CreatureID((si32)dwelling["creature"].Float());
 	}
@@ -230,7 +230,7 @@ CObjectHandler::CObjectHandler()
 
     logGlobal->traceStream() << "\t\tReading resources prices ";
 	const JsonNode config2(ResourceID("config/resources.json"));
-	BOOST_FOREACH(const JsonNode &price, config2["resources_prices"].Vector())
+	for(const JsonNode &price : config2["resources_prices"].Vector())
 	{
 		resVals.push_back(price.Float());
 	}
@@ -239,12 +239,12 @@ CObjectHandler::CObjectHandler()
     logGlobal->traceStream() << "\t\tReading banks configs";
 	const JsonNode config3(ResourceID("config/bankconfig.json"));
 	int bank_num = 0;
-	BOOST_FOREACH(const JsonNode &bank, config3["banks"].Vector())
+	for(const JsonNode &bank : config3["banks"].Vector())
 	{
 		creBanksNames[bank_num] = bank["name"].String();
 
 		int level_num = 0;
-		BOOST_FOREACH(const JsonNode &level, bank["levels"].Vector())
+		for(const JsonNode &level : bank["levels"].Vector())
 		{
 			banksInfo[bank_num].push_back(new BankConfig);
 			BankConfig &bc = *banksInfo[bank_num].back();
@@ -261,9 +261,9 @@ CObjectHandler::CObjectHandler()
 
 CObjectHandler::~CObjectHandler()
 {
-	BOOST_FOREACH(auto & mapEntry, banksInfo)
+	for(auto & mapEntry : banksInfo)
 	{
-		BOOST_FOREACH(auto & vecEntry, mapEntry.second)
+		for(auto & vecEntry : mapEntry.second)
 		{
 			vecEntry.dellNull();
 		}
@@ -469,7 +469,7 @@ int CGObjectInstance::getSightRadious() const
 {
 	return 3;
 }
-void CGObjectInstance::getSightTiles(boost::unordered_set<int3, ShashInt3> &tiles) const //returns reference to the set
+void CGObjectInstance::getSightTiles(std::unordered_set<int3, ShashInt3> &tiles) const //returns reference to the set
 {
 	cb->getTilesInRange(tiles, getSightCenter(), getSightRadious(), tempOwner, 1);
 }
@@ -479,13 +479,13 @@ void CGObjectInstance::hideTiles(PlayerColor ourplayer, int radius) const
 	{
 		if ( !vstd::contains(i->second.players, ourplayer ))//another team
 		{
-			for (auto j = i->second.players.begin(); j != i->second.players.end(); j++)
-				if ( cb->getPlayer(*j)->status == EPlayerStatus::INGAME )//seek for living player (if any)
+			for (auto & elem : i->second.players)
+				if ( cb->getPlayer(elem)->status == EPlayerStatus::INGAME )//seek for living player (if any)
 				{
 					FoWChange fw;
 					fw.mode = 0;
-					fw.player = *j;
-					cb->getTilesInRange (fw.tiles, pos, radius, (*j), -1);
+					fw.player = elem;
+					cb->getTilesInRange (fw.tiles, pos, radius, (elem), -1);
 					cb->sendAndApply (&fw);
 					break;
 				}
@@ -582,7 +582,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
         logGlobal->errorStream() << "Error! Hero " << chi->id.getNum() << " ("<<chi->name<<") has no army!";
 		return 20;
 	}
-	TSlots::const_iterator i = chi->Slots().begin();
+	auto i = chi->Slots().begin();
 	//TODO? should speed modifiers (eg from artifacts) affect hero movement?
 	int ret = (i++)->second->valOfBonuses(Bonus::STACKS_SPEED);
 	for (;i!=chi->Slots().end();i++)
@@ -627,7 +627,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 		// will always have best penalty without any influence from player-defined stacks order
 
 		bool nativeArmy = true;
-		BOOST_FOREACH(auto stack, stacks)
+		for(auto stack : stacks)
 		{
 			int nativeTerrain = VLC->townh->factions[stack.second->type->faction]->nativeTerrain;
 
@@ -675,9 +675,9 @@ bool CGHeroInstance::canWalkOnSea() const
 
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
 {
-	for(size_t i=0; i < secSkills.size(); ++i)
-		if(secSkills[i].first == skill)
-			return secSkills[i].second;
+	for(auto & elem : secSkills)
+		if(elem.first == skill)
+			return elem.second;
 	return 0;
 }
 
@@ -690,21 +690,21 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 	}
 	else
 	{
-		for (unsigned i=0; i<secSkills.size(); i++)
+		for (auto & elem : secSkills)
 		{
-			if(secSkills[i].first == which)
+			if(elem.first == which)
 			{
 				if(abs)
-					secSkills[i].second = val;
+					elem.second = val;
 				else
-					secSkills[i].second += val;
+					elem.second += val;
 
-				if(secSkills[i].second > 3) //workaround to avoid crashes when same sec skill is given more than once
+				if(elem.second > 3) //workaround to avoid crashes when same sec skill is given more than once
 				{
                     logGlobal->warnStream() << "Warning: Skill " << which << " increased over limit! Decreasing to Expert.";
-					secSkills[i].second = 3;
+					elem.second = 3;
 				}
-				updateSkill(which, secSkills[i].second); //when we know final value
+				updateSkill(which, elem.second); //when we know final value
 			}
 		}
 	}
@@ -777,7 +777,7 @@ void CGHeroInstance::initHero()
 
 	if(!vstd::contains(spells, SpellID::PRESET)) //hero starts with a spell
 	{
-		BOOST_FOREACH(auto spellID, type->spells)
+		for(auto spellID : type->spells)
 			spells.insert(spellID);
 	}
 	else //remove placeholder
@@ -983,16 +983,16 @@ const std::string & CGHeroInstance::getBiography() const
 void CGHeroInstance::initObj() //TODO: use bonus system
 {
 	blockVisit = true;
-	HeroSpecial * hs = new HeroSpecial();
+	auto  hs = new HeroSpecial();
 	hs->setNodeType(CBonusSystemNode::specialty);
 	attachTo(hs); //do we ever need to detach it?
 
 	if(!type)
 		initHero(); //TODO: set up everything for prison before specialties are configured
 
-	BOOST_FOREACH(const auto &spec, type->spec) //TODO: unfity with bonus system
+	for(const auto &spec : type->spec) //TODO: unfity with bonus system
 	{
-		Bonus *bonus = new Bonus();
+		auto bonus = new Bonus();
 		bonus->val = spec.val;
 		bonus->sid = id.getNum(); //from the hero, specialty has no unique id
 		bonus->duration = Bonus::PERMANENT;
@@ -1123,7 +1123,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 				hs->addNewBonus(bonus);
 				bonus = new Bonus(*bonus);
 
-				BOOST_FOREACH(auto cre_id, creatures[spec.subtype]->upgrades)
+				for(auto cre_id : creatures[spec.subtype]->upgrades)
 				{
 					bonus->subtype = cre_id; //propagate for regular upgrades of base creature
 					hs->addNewBonus(bonus);
@@ -1165,13 +1165,13 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 	}
 	specialty.push_back(hs); //will it work?
 
-	BOOST_FOREACH (auto hs2, type->specialty) //copy active (probably growing) bonuses from hero prootype to hero object
+	for (auto hs2 : type->specialty) //copy active (probably growing) bonuses from hero prootype to hero object
 	{
-		HeroSpecial * hs = new HeroSpecial();
+		auto  hs = new HeroSpecial();
 		attachTo(hs); //do we ever need to detach it?
 
 		hs->setNodeType(CBonusSystemNode::specialty);
-		BOOST_FOREACH (auto bonus, hs2.bonuses)
+		for (auto bonus : hs2.bonuses)
 		{
 			hs->addNewBonus (bonus);
 		}
@@ -1181,7 +1181,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 	}
 
 	//initialize bonuses
-	BOOST_FOREACH(auto skill_info, secSkills)
+	for(auto skill_info : secSkills)
 		updateSkill(SecondarySkill(skill_info.first), skill_info.second);
 	Updatespecialty();
 
@@ -1190,13 +1190,13 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 }
 void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuses on-the-fly?
 {
-	BOOST_FOREACH (auto hs, specialty)
+	for (auto hs : specialty)
 	{
 		if (hs->growsWithLevel)
 		{
 			//const auto &creatures = VLC->creh->creatures;
 
-			BOOST_FOREACH(Bonus * b, hs->getBonusList())
+			for(Bonus * b : hs->getBonusList())
 			{
 				switch (b->type)
 				{
@@ -1319,7 +1319,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 	}
 	else
 	{
-		Bonus *bonus = new Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::SECONDARY_SKILL, skillVal, id.getNum(), which, skillValType);
+		auto bonus = new Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::SECONDARY_SKILL, skillVal, id.getNum(), which, skillValType);
 		bonus->source = Bonus::SECONDARY_SKILL;
 		addNewBonus(bonus);
 	}
@@ -1424,14 +1424,14 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		const ui32 raisedUnitHP = raisedUnitType->valOfBonuses(Bonus::STACK_HEALTH);
 
 		//calculate creatures raised from each defeated stack
-		for (std::map<ui32,si32>::const_iterator it = casualties.begin(); it != casualties.end(); it++)
+		for (auto & casualtie : casualties)
 		{
 			// Get lost enemy hit points convertible to units.
-			CCreature * c = VLC->creh->creatures[it->first];
+			CCreature * c = VLC->creh->creatures[casualtie.first];
 			if (c->isLiving())
 			{
-				const ui32 raisedHP = c->valOfBonuses(Bonus::STACK_HEALTH) * it->second * necromancySkill;
-				raisedUnits += std::min<ui32>(raisedHP / raisedUnitHP, it->second * necromancySkill); //limit to % of HP and % of original stack count
+				const ui32 raisedHP = c->valOfBonuses(Bonus::STACK_HEALTH) * casualtie.second * necromancySkill;
+				raisedUnits += std::min<ui32>(raisedHP / raisedUnitHP, casualtie.second * necromancySkill); //limit to % of HP and % of original stack count
 			}
 		}
 
@@ -1527,8 +1527,8 @@ int CGHeroInstance::getBoatType() const
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
 {
 	static int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0), int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
-	for (size_t i = 0; i < ARRAY_COUNT(dirs); i++)
-		offsets += dirs[i];
+	for (auto & dir : dirs)
+		offsets += dir;
 }
 
 int CGHeroInstance::getSpellCost(const CSpell *sp) const
@@ -1577,7 +1577,7 @@ void CGHeroInstance::deserializationFix()
 {
 	artDeserializationFix(this);
 
-	//BOOST_FOREACH (auto hs, specialty)
+	//for (auto hs : specialty)
 	//{
 	//	attachTo (hs);
 	//}
@@ -1636,13 +1636,13 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 		if (cb->isAllowed(2,i))
 			none.insert(SecondarySkill(i));
 
-	for(unsigned i=0; i<secSkills.size(); i++)
+	for(auto & elem : secSkills)
 	{
-		if(secSkills[i].second < 3)
-			basicAndAdv.insert(secSkills[i].first);
+		if(elem.second < 3)
+			basicAndAdv.insert(elem.first);
 		else
-			expert.insert(secSkills[i].first);
-		none.erase(secSkills[i].first);
+			expert.insert(elem.first);
+		none.erase(elem.first);
 	}
 
 	//first offered skill
@@ -1811,15 +1811,15 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		bd.text.addTxt(MetaString::ADVOB_TXT, ID == Obj::CREATURE_GENERATOR1 ? 35 : 36); //{%s} Would you like to recruit %s? / {%s} Would you like to recruit %s, %s, %s, or %s?
 		bd.text.addReplacement(ID == Obj::CREATURE_GENERATOR1 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
-		for(size_t i = 0; i < creatures.size(); i++)
-			bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[i].second[0]);
+		for(auto & elem : creatures)
+			bd.text.addReplacement(MetaString::CRE_PL_NAMES, elem.second[0]);
 	}
 	else if(ID == Obj::REFUGEE_CAMP)
 	{
 		bd.text.addTxt(MetaString::ADVOB_TXT, 35); //{%s} Would you like to recruit %s?
 		bd.text.addReplacement(MetaString::OBJ_NAMES, ID);
-		for(size_t i = 0; i < creatures.size(); i++)
-			bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[i].second[0]);
+		for(auto & elem : creatures)
+			bd.text.addReplacement(MetaString::CRE_PL_NAMES, elem.second[0]);
 	}
 	else if(ID == Obj::WAR_MACHINE_FACTORY)
 		bd.text.addTxt(MetaString::ADVOB_TXT, 157); //{War Machine Factory} Would you like to purchase War Machines?
@@ -2081,7 +2081,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	int dwellingBonus = 0;
 	if(const PlayerState *p = cb->getPlayer(tempOwner, false))
 	{
-		BOOST_FOREACH(const CGDwelling *dwelling, p->dwellings)
+		for(const CGDwelling *dwelling : p->dwellings)
 			if(vstd::contains(creatures[level].second, dwelling->creatures[0].second[0]))
 				dwellingBonus++;
 	}
@@ -2091,12 +2091,12 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
 	TBonusListPtr bonuses = getBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level));
-	BOOST_FOREACH(const Bonus *b, *bonuses)
+	for(const Bonus *b : *bonuses)
 		ret.entries.push_back(GrowthInfo::Entry(b->Description() + " %+d", b->val));
 
 	//statue-of-legion-like bonus: % to base+castle
 	TBonusListPtr bonuses2 = getBonuses(Selector::type(Bonus::CREATURE_GROWTH_PERCENT));
-	BOOST_FOREACH(const Bonus *b, *bonuses2)
+	for(const Bonus *b : *bonuses2)
 		ret.entries.push_back(GrowthInfo::Entry(b->Description() + " %+d", b->val * (base + castleBonus) / 100));
 
 	if(hasBuilt(BuildingID::GRAIL)) //grail - +50% to ALL (so far added) growth
@@ -2137,8 +2137,8 @@ CGTownInstance::CGTownInstance()
 
 CGTownInstance::~CGTownInstance()
 {
-	for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++)
-		delete *i;
+	for (auto & elem : bonusingBuildings)
+		delete elem;
 }
 
 int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
@@ -2268,20 +2268,20 @@ void CGTownInstance::newTurn() const
 		}
 
 		if ( subID == ETownType::DUNGEON )
-			for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
+			for (auto & elem : bonusingBuildings)
 		{
-			if ((*i)->ID == BuildingID::MANA_VORTEX)
-				cb->setObjProperty (id, ObjProperty::STRUCTURE_CLEAR_VISITORS, (*i)->id); //reset visitors for Mana Vortex
+			if ((elem)->ID == BuildingID::MANA_VORTEX)
+				cb->setObjProperty (id, ObjProperty::STRUCTURE_CLEAR_VISITORS, (elem)->id); //reset visitors for Mana Vortex
 		}
 
 		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
 			{
 				std::vector<SlotID> nativeCrits; //slots
-				for (TSlots::const_iterator it = Slots().begin(); it != Slots().end(); it++)
+				for (auto & elem : Slots())
 				{
-					if (it->second->type->faction == subID) //native
+					if (elem.second->type->faction == subID) //native
 					{
-						nativeCrits.push_back(it->first); //collect matching slots
+						nativeCrits.push_back(elem.first); //collect matching slots
 					}
 				}
 				if (nativeCrits.size())
@@ -2339,7 +2339,7 @@ ui8 CGTownInstance::getPassableness() const
 
 	ui8 mask = 0;
 	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
-	BOOST_FOREACH(PlayerColor it, ts->players)
+	for(PlayerColor it : ts->players)
 		mask |= 1<<it.getNum();//allies - add to possible visitors
 
 	return mask;
@@ -2391,7 +2391,7 @@ int CGTownInstance::getMarketEfficiency() const
 	assert(p);
 
 	int marketCount = 0;
-	BOOST_FOREACH(const CGTownInstance *t, p->towns)
+	for(const CGTownInstance *t : p->towns)
 		if(t->hasBuilt(BuildingID::MARKETPLACE))
 			marketCount++;
 
@@ -2431,7 +2431,7 @@ std::vector<int> CGTownInstance::availableItemsIds(EMarketMode::EMarketMode mode
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{
 		std::vector<int> ret;
-		BOOST_FOREACH(const CArtifact *a, merchantArtifacts)
+		for(const CArtifact *a : merchantArtifacts)
 			if(a)
 				ret.push_back(a->id);
 			else
@@ -2484,7 +2484,7 @@ void CGTownInstance::recreateBuildingsBonuses()
 
 	BonusList bl;
 	getExportedBonusList().getBonuses(bl, Selector::sourceType(Bonus::TOWN_STRUCTURE));
-	BOOST_FOREACH(Bonus *b, bl)
+	for(Bonus *b : bl)
 		removeBonus(b);
 
 	//tricky! -> checks tavern only if no bratherhood of sword or not a castle
@@ -3313,7 +3313,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	myKindCres.insert(myCreature->idNumber); //we
 	myKindCres.insert(myCreature->upgrades.begin(), myCreature->upgrades.end()); //our upgrades
 
-	BOOST_FOREACH(ConstTransitivePtr<CCreature> &crea, VLC->creh->creatures)
+	for(ConstTransitivePtr<CCreature> &crea : VLC->creh->creatures)
 	{
 		if(vstd::contains(crea->upgrades, myCreature->idNumber)) //it's our base creatures
 			myKindCres.insert(crea->idNumber);
@@ -3322,11 +3322,11 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	int count = 0, //how many creatures of similar kind has hero
 		totalCount = 0;
 
-	for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); i++)
+	for (auto & elem : h->Slots())
 	{
-		if(vstd::contains(myKindCres,i->second->type->idNumber))
-			count += i->second->count;
-		totalCount += i->second->count;
+		if(vstd::contains(myKindCres,elem.second->type->idNumber))
+			count += elem.second->count;
+		totalCount += elem.second->count;
 	}
 
 	int sympathy = 0; // 0 if hero have no similar creatures
@@ -3596,7 +3596,7 @@ void CGMine::initObj()
 	{
 		//set guardians
 		int howManyTroglodytes = 100 + ran()%100;
-		CStackInstance *troglodytes = new CStackInstance(CreatureID::TROGLODYTES, howManyTroglodytes);
+		auto troglodytes = new CStackInstance(CreatureID::TROGLODYTES, howManyTroglodytes);
 		putStack(SlotID(0), troglodytes);
 
 		//after map reading tempOwner placeholds bitmask for allowed resources
@@ -3874,7 +3874,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 					if (h->Slots().size() > 1 || h->Slots().begin()->second->count > 1)
 					{ //we can't remove last unit
 						SlotID targetstack = h->Slots().begin()->first; //slot numbers may vary
-						for(TSlots::const_reverse_iterator i = h->Slots().rbegin(); i != h->Slots().rend(); i++)
+						for(auto i = h->Slots().rbegin(); i != h->Slots().rend(); i++)
 						{
 							if (h->getPower(targetstack) > h->getPower(i->first))
 							{
@@ -3917,7 +3917,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 	if (ID == Obj::WHIRLPOOL)
 	{
 		std::set<int3> tiles = cb->getObj(destinationid)->getBlockedPos();
-		std::set<int3>::iterator it = tiles.begin();
+		auto it = tiles.begin();
 		std::advance (it, rand() % tiles.size()); //picking random element of set is tiring
 		cb->moveHero (h->id, *it + int3(1,0,0), true);
 	}
@@ -3946,9 +3946,9 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 {
 	//split on underground and surface gates
 	std::vector<const CGObjectInstance *> gatesSplit[2]; //surface and underground gates
-	for(size_t i = 0; i < objs[Obj::SUBTERRANEAN_GATE][0].size(); i++)
+	for(auto & elem : objs[Obj::SUBTERRANEAN_GATE][0])
 	{
-		const CGObjectInstance *hlp = cb->getObj(objs[Obj::SUBTERRANEAN_GATE][0][i]);
+		const CGObjectInstance *hlp = cb->getObj(elem);
 		gatesSplit[hlp->pos.z].push_back(hlp);
 	}
 
@@ -3992,12 +3992,12 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 
 ObjectInstanceID CGTeleport::getMatchingGate(ObjectInstanceID id)
 {
-	for(int i=0; i < gates.size(); i++)
+	for(auto & gate : gates)
 	{
-		if(gates[i].first == id)
-			return gates[i].second;
-		if(gates[i].second == id)
-			return gates[i].first;
+		if(gate.first == id)
+			return gate.second;
+		if(gate.second == id)
+			return gate.first;
 	}
 
 	return ObjectInstanceID();
@@ -4330,9 +4330,9 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 				return true;
 			return false;
 		case MISSION_ART:
-			for (int i = 0; i < m5arts.size(); ++i)
+			for (auto & elem : m5arts)
 			{
-				if (h->hasArt(m5arts[i]))
+				if (h->hasArt(elem))
 					continue;
 				return false; //if the artifact was not found
 			}
@@ -4432,11 +4432,11 @@ void CQuest::getVisitText (MetaString &iwText, std::vector<Component> &component
 		case MISSION_ART:
 		{
 			MetaString loot;
-			for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
+			for (auto & elem : m5arts)
 			{
-				components.push_back(Component (Component::ARTIFACT, *it, 0, 0));
+				components.push_back(Component (Component::ARTIFACT, elem, 0, 0));
 				loot << "%s";
-				loot.addReplacement(MetaString::ART_NAMES, *it);
+				loot.addReplacement(MetaString::ART_NAMES, elem);
 			}
 			if (!isCustom)
 				iwText.addReplacement(loot.buildList());
@@ -4445,11 +4445,11 @@ void CQuest::getVisitText (MetaString &iwText, std::vector<Component> &component
 		case MISSION_ARMY:
 		{
 			MetaString loot;
-			for (std::vector<CStackBasicDescriptor>::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
+			for (auto & elem : m6creatures)
 			{
-				components.push_back(Component(*it));
+				components.push_back(Component(elem));
 				loot << "%s";
-				loot.addReplacement(*it);
+				loot.addReplacement(elem);
 			}
 			if (!isCustom)
 				iwText.addReplacement(loot.buildList());
@@ -4515,10 +4515,10 @@ void CQuest::getRolloverText (MetaString &ms, bool onHover) const
 		case MISSION_ART:
 			{
 				MetaString loot;
-				for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
+				for (auto & elem : m5arts)
 				{
 					loot << "%s";
-					loot.addReplacement(MetaString::ART_NAMES, *it);
+					loot.addReplacement(MetaString::ART_NAMES, elem);
 				}
 				ms.addReplacement(loot.buildList());
 			}
@@ -4526,10 +4526,10 @@ void CQuest::getRolloverText (MetaString &ms, bool onHover) const
 		case MISSION_ARMY:
 			{
 				MetaString loot;
-				for (std::vector<CStackBasicDescriptor>::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
+				for (auto & elem : m6creatures)
 				{
 					loot << "%s";
-					loot.addReplacement(*it);
+					loot.addReplacement(elem);
 				}
 				ms.addReplacement(loot.buildList());
 			}
@@ -4589,10 +4589,10 @@ void CQuest::getCompletionText (MetaString &iwText, std::vector<Component> &comp
 		case CQuest::MISSION_ART:
 		{
 			MetaString loot;
-			for (std::vector<ui16>::const_iterator it = m5arts.begin(); it != m5arts.end(); ++it)
+			for (auto & elem : m5arts)
 			{
 				loot << "%s";
-				loot.addReplacement(MetaString::ART_NAMES, *it);
+				loot.addReplacement(MetaString::ART_NAMES, elem);
 			}
 			if (!isCustomComplete)
 				iwText.addReplacement(loot.buildList());
@@ -4601,10 +4601,10 @@ void CQuest::getCompletionText (MetaString &iwText, std::vector<Component> &comp
 		case CQuest::MISSION_ARMY:
 		{
 			MetaString loot;
-			for (std::vector<CStackBasicDescriptor>::const_iterator it = m6creatures.begin(); it != m6creatures.end(); ++it)
+			for (auto & elem : m6creatures)
 			{
 				loot << "%s";
-				loot.addReplacement(*it);
+				loot.addReplacement(elem);
 			}
 			if (!isCustomComplete)
 				iwText.addReplacement(loot.buildList());
@@ -4876,9 +4876,9 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 		switch (quest->missionType)
 		{
 			case CQuest::MISSION_ART:
-				for (std::vector<ui16>::const_iterator it = quest->m5arts.begin(); it != quest->m5arts.end(); ++it)
+				for (auto & elem : quest->m5arts)
 				{
-					cb->removeArtifact(ArtifactLocation(h, h->getArtPos(*it, false)));
+					cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
 				}
 				break;
 			case CQuest::MISSION_ARMY:
@@ -5180,7 +5180,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		iw.soundID = soundBase::STORE;
 		bool someUpgradeDone = false;
 
-		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); ++i)
+		for (auto i = h->Slots().begin(); i != h->Slots().end(); ++i)
 		{
 			if(i->second->type->idNumber == CreatureID::CAVALIER)
 			{
@@ -5334,9 +5334,9 @@ void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 	iw.player = h->getOwner();
 
 	bool changesPrimSkill = false;
-	for (int i = 0; i < primskills.size(); i++)
+	for (auto & elem : primskills)
 	{
-		if(primskills[i])
+		if(elem)
 		{
 			changesPrimSkill = true;
 			break;
@@ -5486,9 +5486,9 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	// 	getText(iw,afterBattle,183,h);
 	iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure
 	iw.text.addReplacement(h->name);
-	for(int i=0; i<artifacts.size(); i++)
+	for(auto & elem : artifacts)
 	{
-		iw.components.push_back(Component(Component::ARTIFACT,artifacts[i],0,0));
+		iw.components.push_back(Component(Component::ARTIFACT,elem,0,0));
 		if(iw.components.size() >= 14)
 		{
 			cb->showInfoDialog(&iw);
@@ -5506,8 +5506,8 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 		if(resources[i])
 			cb->giveResource(h->getOwner(),static_cast<Res::ERes>(i),resources[i]);
 
-	for(int i=0; i<artifacts.size(); i++)
-		cb->giveHeroNewArtifact(h, VLC->arth->artifacts[artifacts[i]],ArtifactPosition::FIRST_AVAILABLE);
+	for(auto & elem : artifacts)
+		cb->giveHeroNewArtifact(h, VLC->arth->artifacts[elem],ArtifactPosition::FIRST_AVAILABLE);
 
 	iw.components.clear();
 	iw.text.clear();
@@ -5515,11 +5515,11 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	if (creatures.Slots().size())
 	{ //this part is taken straight from creature bank
 		MetaString loot;
-		for(TSlots::const_iterator i = creatures.Slots().begin(); i != creatures.Slots().end(); i++)
+		for(auto & elem : creatures.Slots())
 		{ //build list of joined creatures
-			iw.components.push_back(Component(*i->second));
+			iw.components.push_back(Component(*elem.second));
 			loot << "%s";
-			loot.addReplacement(*i->second);
+			loot.addReplacement(*elem.second);
 		}
 
 		if (creatures.Slots().size() == 1 && creatures.Slots().begin()->second->count == 1)
@@ -5872,7 +5872,7 @@ ui8 CGGarrison::getPassableness() const
 
 	ui8 mask = 0;
 	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
-	BOOST_FOREACH(PlayerColor it, ts->players)
+	for(PlayerColor it : ts->players)
 		mask |= 1<<it.getNum(); //allies - add to possible visitors
 
 	return mask;
@@ -6095,11 +6095,11 @@ const std::string & CBank::getHoverText() const
 void CBank::reset(ui16 var1) //prevents desync
 {
 	ui8 chance = 0;
-	for (ui8 i = 0; i < VLC->objh->banksInfo[index].size(); i++)
+	for (auto & elem : VLC->objh->banksInfo[index])
 	{
-		if (var1 < (chance += VLC->objh->banksInfo[index][i]->chance))
+		if (var1 < (chance += elem->chance))
 		{
- 			bc = VLC->objh->banksInfo[index][i];
+ 			bc = elem;
 			break;
 		}
 	}
@@ -6173,9 +6173,9 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 					{
 						if (bc->guards.back().second) //all stacks are present
 						{
-							for (auto it = bc->guards.begin(); it != bc->guards.end(); it++)
+							for (auto & elem : bc->guards)
 							{
-								setCreature (SlotID(stacksCount()), it->first, it->second);
+								setCreature (SlotID(stacksCount()), elem.first, elem.second);
 							}
 						}
 						else if (bc->guards[2].second)//Wraiths are present, split two stacks in Crypt
@@ -6369,12 +6369,12 @@ void CBank::battleFinished(const CGHeroInstance *hero, const BattleResult &resul
 			}
 		}
 		//grant artifacts
-		for (std::vector<ui32>::const_iterator it = artifacts.begin(); it != artifacts.end(); it++)
+		for (auto & elem : artifacts)
 		{
-			iw.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
+			iw.components.push_back (Component (Component::ARTIFACT, elem, 0, 0));
 			loot << "%s";
-			loot.addReplacement(MetaString::ART_NAMES, *it);
-			cb->giveHeroNewArtifact (hero, VLC->arth->artifacts[*it], ArtifactPosition::FIRST_AVAILABLE);
+			loot.addReplacement(MetaString::ART_NAMES, elem);
+			cb->giveHeroNewArtifact (hero, VLC->arth->artifacts[elem], ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
 		if (!iw.components.empty())
@@ -6398,11 +6398,11 @@ void CBank::battleFinished(const CGHeroInstance *hero, const BattleResult &resul
 			SlotID slot = ourArmy.getSlotFor(it->first);
 			ourArmy.addToSlot(slot, it->first, it->second);
 		}
-		for (TSlots::const_iterator i = ourArmy.Slots().begin(); i != ourArmy.Slots().end(); i++)
+		for (auto & elem : ourArmy.Slots())
 		{
-			iw.components.push_back(Component(*i->second));
+			iw.components.push_back(Component(*elem.second));
 			loot << "%s";
-			loot.addReplacement(*i->second);
+			loot.addReplacement(*elem.second);
 		}
 
 		if (ourArmy.Slots().size())
@@ -6639,7 +6639,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 			fw.player = h->tempOwner;
 			fw.mode = 1;
 
-			BOOST_FOREACH(auto it, eyelist[subID])
+			for(auto it : eyelist[subID])
 			{
 				const CGObjectInstance *eye = cb->getObj(it);
 
@@ -6689,7 +6689,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 		giveDummyBonus(h->id, Bonus::ONE_BATTLE);
 		TExpType xp = 0;
 
-		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); i++)
+		for (auto i = h->Slots().begin(); i != h->Slots().end(); i++)
 		{
 			TQuantity drown = i->second->count * 0.3;
 			if(drown)
@@ -6732,12 +6732,12 @@ int3 IBoatGenerator::bestLocation() const
 	std::vector<int3> offsets;
 	getOutOffsets(offsets);
 
-	for (int i = 0; i < offsets.size(); ++i)
+	for (auto & offset : offsets)
 	{
-		if (const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offsets[i], false)) //tile is in the map
+		if (const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offset, false)) //tile is in the map
 		{
             if (tile->terType == ETerrainType::WATER  &&  (!tile->blocked || tile->blockingObjects.front()->ID == 8)) //and is water and is not blocked or is blocked by boat
-				return o->pos + offsets[i];
+				return o->pos + offset;
 		}
 	}
 	return int3 (-1,-1,-1);
@@ -7031,18 +7031,18 @@ void CGLighthouse::giveBonusTo( PlayerColor player ) const
 void CArmedInstance::randomizeArmy(int type)
 {
 	int max = VLC->creh->creatures.size();
-	for (TSlots::iterator j = stacks.begin(); j != stacks.end();j++)
+	for (auto & elem : stacks)
 	{
-		int randID = j->second->idRand;
+		int randID = elem.second->idRand;
 		if(randID > max)
 		{
 			int level = (randID-VLC->creh->creatures.size()) / 2 -1;
 			bool upgrade = !(randID % 2);
-			j->second->setType(VLC->townh->factions[type]->town->creatures[level][upgrade]);
+			elem.second->setType(VLC->townh->factions[type]->town->creatures[level][upgrade]);
 			randID = -1;
 		}
 
-		assert(j->second->armyObj == this);
+		assert(elem.second->armyObj == this);
 	}
 	return;
 }
@@ -7074,7 +7074,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	std::set<TFaction> factions;
 	bool hasUndead = false;
 
-	BOOST_FOREACH(auto slot, Slots())
+	for(auto slot : Slots())
 	{
 		const CStackInstance * inst = slot.second;
 		const CCreature * creature  = VLC->creh->creatures[inst->getCreatureID()];
@@ -7091,7 +7091,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	{
 		size_t mixableFactions = 0;
 
-		BOOST_FOREACH(TFaction f, factions)
+		for(TFaction f : factions)
 		{
 			if (VLC->townh->factions[f]->alignment != EAlignment::EVIL)
 				mixableFactions++;
@@ -7386,7 +7386,7 @@ std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode::EMarketMode mode)
 	case EMarketMode::RESOURCE_ARTIFACT:
 		{
 			std::vector<int> ret;
-			BOOST_FOREACH(const CArtifact *a, artifacts)
+			for(const CArtifact *a : artifacts)
 				if(a)
 					ret.push_back(a->id);
 				else
@@ -7466,7 +7466,7 @@ CTownAndVisitingHero::CTownAndVisitingHero()
 int GrowthInfo::totalGrowth() const
 {
 	int ret = 0;
-	BOOST_FOREACH(const Entry &entry, entries)
+	for(const Entry &entry : entries)
 		ret += entry.count;
 
 	return ret;
