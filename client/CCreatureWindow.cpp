@@ -104,9 +104,10 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, CreWinType Type, std:
 			{
 				CFunctionList<void()> fs;
 				fs += Upg;
-				fs += std::bind(&CCreatureWindow::close,this);
+				fs += boost::bind(&CCreatureWindow::close,this);
 				CFunctionList<void()> cfl;
-				cfl = std::bind(&CPlayerInterface::showYesNoDialog, LOCPLINT, CGI->generaltexth->allTexts[207], fs, nullptr, false, std::ref(upgResCost));
+				cfl = [&] {
+					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[207], fs, nullptr, false, upgResCost); };
 				upgrade = new CAdventureMapButton("",CGI->generaltexth->zelp[446].second,cfl,385, 148,"IVIEWCR.DEF",SDLK_u);
 			}
 			else
@@ -122,9 +123,9 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, CreWinType Type, std:
 			CFunctionList<void()> fs[2];
 			//on dismiss confirmed
 			fs[0] += Dsm; //dismiss
-			fs[0] += std::bind(&CCreatureWindow::close,this);//close this window
+			fs[0] += boost::bind(&CCreatureWindow::close,this);//close this window
 			CFunctionList<void()> cfl;
-			cfl = std::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
+			cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
 			dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second,cfl,333, 148,"IVIEWCR2.DEF",SDLK_d);
 		}
 	}
@@ -150,9 +151,9 @@ CCreatureWindow::CCreatureWindow (const CCommanderInstance * Commander, const CS
 	CFunctionList<void()> fs[2];
 	//on dismiss confirmed
 	fs[0] += Dsm; //dismiss
-	fs[0] += std::bind(&CCreatureWindow::close,this);//close this window
+	fs[0] += boost::bind(&CCreatureWindow::close,this);//close this window
 	CFunctionList<void()> cfl;
-	cfl = std::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
+	cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
 	if (type < COMMANDER_LEVEL_UP) //can dismiss only in regular window
 		dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, cfl, 333, 148,"IVIEWCR2.DEF", SDLK_d);
 }
@@ -173,9 +174,9 @@ CCreatureWindow::CCreatureWindow (std::vector<ui32> &skills, const CCommanderIns
 	CFunctionList<void()> fs[2];
 	//on dismiss confirmed
 	fs[0] += Dsm; //dismiss
-	fs[0] += std::bind(&CCreatureWindow::close,this);//close this window
+	fs[0] += boost::bind(&CCreatureWindow::close,this);//close this window
 	CFunctionList<void()> cfl;
-	cfl = std::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
+	cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
 	if (type < COMMANDER_LEVEL_UP) //can dismiss only in regular window
 		dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, cfl, 333, 148,"IVIEWCR2.DEF", SDLK_d);
 }
@@ -229,7 +230,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 			{
 				ui32 index = selectableSkills.size();
 				auto   selectableSkill = new CSelectableSkill();
-				selectableSkill->callback = std::bind(&CCreatureWindow::selectSkill, this, index);
+				selectableSkill->callback = boost::bind(&CCreatureWindow::selectSkill, this, index);
 
 				if (option < 100)
 				{
@@ -324,7 +325,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		setBackground("CreWin" + boost::lexical_cast<std::string>(bonusRows) + ".pcx"); //1 to 4 rows for now
 
 	//Buttons
-	ok = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, std::bind(&CCreatureWindow::close,this), 489, 148, "hsbtns.def", SDLK_RETURN);
+	ok = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, boost::bind(&CCreatureWindow::close,this), 489, 148, "hsbtns.def", SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
 
 	if (type <= BATTLE) //in battle or info window
@@ -403,10 +404,10 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		if (type > BATTLE && type < COMMANDER_BATTLE) //artifact buttons inactive in battle
 		{
 			//TODO: disable buttons if no artifact is equipped
-			leftArtRoll = new CAdventureMapButton(std::string(), std::string(), std::bind (&CCreatureWindow::scrollArt, this, -1), 437, 98, "hsbtns3.def", SDLK_LEFT);
-			rightArtRoll = new CAdventureMapButton(std::string(), std::string(), std::bind (&CCreatureWindow::scrollArt, this, +1), 516, 98, "hsbtns5.def", SDLK_RIGHT);
+			leftArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, -1), 437, 98, "hsbtns3.def", SDLK_LEFT);
+			rightArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, +1), 516, 98, "hsbtns5.def", SDLK_RIGHT);
 			if (heroOwner)
-				passArtToHero = new CAdventureMapButton(std::string(), std::string(), std::bind (&CCreatureWindow::passArtifactToHero, this), 437, 148, "OVBUTN1.DEF", SDLK_HOME);
+				passArtToHero = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::passArtifactToHero, this), 437, 148, "OVBUTN1.DEF", SDLK_HOME);
 		}
 	}
 
@@ -437,7 +438,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 	if (bonusItems.size() > (bonusRows << 1)) //only after graphics are created
 	{
-		slider = new CSlider(528, 231 + commanderOffset, bonusRows*60, std::bind (&CCreatureWindow::sliderMoved, this, _1),
+		slider = new CSlider(528, 231 + commanderOffset, bonusRows*60, boost::bind (&CCreatureWindow::sliderMoved, this, _1),
 		bonusRows, (bonusItems.size() + 1) >> 1, 0, false, 0);
 	}
 	else //slider automatically places bonus Items
@@ -746,7 +747,7 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &stack, bool LClicked, std::
 	//additional buttons if opened with left click
 	if(LClicked)
 	{
-		std::function<void()> closeFunc = std::bind(&CCreInfoWindow::close,this);
+		std::function<void()> closeFunc = boost::bind(&CCreInfoWindow::close,this);
 
 		if(upgradeFunc && upgradeInfo)
 		{
@@ -761,11 +762,11 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &stack, bool LClicked, std::
 			onUpgrade += upgradeFunc;
 			onUpgrade += closeFunc;
 
-			std::function<void()> dialog = std::bind(&CPlayerInterface::showYesNoDialog,
+			std::function<void()> dialog = boost::bind(&CPlayerInterface::showYesNoDialog,
 				LOCPLINT,
 				CGI->generaltexth->allTexts[207],
 				onUpgrade, 0, false,
-				std::ref(upgResCost));
+				boost::ref(upgResCost));
 
 			upgrade = new CAdventureMapButton("", CGI->generaltexth->zelp[446].second, dialog, 76, 237, "IVIEWCR", SDLK_u);
 			upgrade->block(!LOCPLINT->cb->getResourceAmount().canAfford(upgradeCost));
@@ -777,7 +778,7 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &stack, bool LClicked, std::
 			onDismiss += dismissFunc;
 			onDismiss += closeFunc;
 
-			std::function<void()> dialog = std::bind(&CPlayerInterface::showYesNoDialog,
+			std::function<void()> dialog = boost::bind(&CPlayerInterface::showYesNoDialog,
 				LOCPLINT,
 				CGI->generaltexth->allTexts[12],
 				onDismiss, 0, true, std::vector<CComponent*>());
@@ -871,7 +872,7 @@ void CCreInfoWindow::init(const CCreature *creature, const CBonusSystemNode *sta
 	{
 		abilityText = nullptr;
 		ok = new CAdventureMapButton("", CGI->generaltexth->zelp[445].second,
-			std::bind(&CCreInfoWindow::close,this), 216, 237, "IOKAY.DEF", SDLK_RETURN);
+			boost::bind(&CCreInfoWindow::close,this), 216, 237, "IOKAY.DEF", SDLK_RETURN);
 		ok->assignedKeys.insert(SDLK_ESCAPE);
 	}
 

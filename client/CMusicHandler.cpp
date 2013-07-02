@@ -83,7 +83,7 @@ void CSoundHandler::onVolumeChange(const JsonNode &volumeNode)
 CSoundHandler::CSoundHandler():
 	listener(settings.listen["general"]["sound"])
 {
-	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
+	listener(boost::bind(&CSoundHandler::onVolumeChange, this, _1));
 
 	// Vectors for helper(s)
 	pickupSounds += soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
@@ -302,7 +302,7 @@ void CMusicHandler::onVolumeChange(const JsonNode &volumeNode)
 CMusicHandler::CMusicHandler():
 	listener(settings.listen["general"]["music"])
 {
-	listener(std::bind(&CMusicHandler::onVolumeChange, this, _1));
+	listener(boost::bind(&CMusicHandler::onVolumeChange, this, _1));
 	// Map music IDs
 	// Vectors for helper
 	const std::string setEnemy[] = {"AITheme0", "AITheme1", "AITheme2"};

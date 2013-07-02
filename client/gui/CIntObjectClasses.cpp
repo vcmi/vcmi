@@ -516,7 +516,7 @@ void CHighlightableButtonsGroup::addButton(CHighlightableButton* bt)
 	addChild(bt);
 	bt->recActions = defActions;//FIXME: not needed?
 
-	bt->callback += std::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
+	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
 	bt->onlyOn = true;
 	buttons.push_back(bt);
 }
@@ -530,7 +530,7 @@ void CHighlightableButtonsGroup::addButton(const std::map<int,std::string> &tool
 		bt->setOffset(buttons.size()-3);
 	}
 	bt->ID = uid;
-	bt->callback += std::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
+	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
 	bt->onlyOn = true;
 	buttons.push_back(bt);
 }
@@ -753,9 +753,9 @@ CSlider::CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int C
 		right->pos.y = pos.y + totalw - 16;
 	}
 
-	left->callback = std::bind(&CSlider::moveLeft,this);
-	right->callback = std::bind(&CSlider::moveRight,this);
-	slider->callback = std::bind(&CSlider::sliderClicked,this);
+	left->callback = boost::bind(&CSlider::moveLeft,this);
+	right->callback = boost::bind(&CSlider::moveRight,this);
+	slider->callback = boost::bind(&CSlider::sliderClicked,this);
 	left->pos.w = left->pos.h = right->pos.w = right->pos.h = slider->pos.w = slider->pos.h = 16;
 	if(horizontal)
 	{
@@ -948,7 +948,7 @@ CListBox::CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point Item
 	if (Slider & 1)
 	{
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(SliderPos.x, SliderPos.y, SliderPos.w, std::bind(&CListBox::moveToPos, this, _1),
+		slider = new CSlider(SliderPos.x, SliderPos.y, SliderPos.w, boost::bind(&CListBox::moveToPos, this, _1),
 			VisibleSize, TotalSize, InitialPos, Slider & 2, Slider & 4);
 	}
 	reset();
@@ -1341,7 +1341,7 @@ void CTextBox::recalculateLines(const std::string &Txt)
 	{
 		lines = CMessage::breakText(Txt, pos.w - 32 - 10, font);
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(pos.w - 32, 0, pos.h, std::bind(&CTextBox::sliderMoved, this, _1), lineCapacity, lines.size(), 0, false, sliderStyle);
+		slider = new CSlider(pos.w - 32, 0, pos.h, boost::bind(&CTextBox::sliderMoved, this, _1), lineCapacity, lines.size(), 0, false, sliderStyle);
 		if(active)
 			slider->activate();
 	}

@@ -90,7 +90,7 @@ void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 	CQuestIcon * pic = new CQuestIcon ("VwSymbol.def", 3, x, y);
 
 	pic->moveBy (Point ( -pic->pos.w/2, -pic->pos.h/2));
-	pic->callback = std::bind (&CQuestMinimap::iconClicked, this);
+	pic->callback = boost::bind (&CQuestMinimap::iconClicked, this);
 
 	icons.push_back(pic);
 }
@@ -131,10 +131,10 @@ void CQuestLog::init()
 {
 	minimap = new CQuestMinimap (Rect (47, 33, 144, 144));
 	description = new CTextBox ("", Rect(245, 33, 350, 355), 1, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
-	ok = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, std::bind(&CQuestLog::close,this), 547, 401, "IOKAY.DEF", SDLK_RETURN);
+	ok = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, boost::bind(&CQuestLog::close,this), 547, 401, "IOKAY.DEF", SDLK_RETURN);
 
 	if (quests.size() > QUEST_COUNT)
-		slider = new CSlider(203, 199, 230, std::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, quests.size(), false, 0);
+		slider = new CSlider(203, 199, 230, boost::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, quests.size(), false, 0);
 
 	for (int i = 0; i < quests.size(); ++i)
 	{
@@ -143,7 +143,7 @@ void CQuestLog::init()
 		if (quests[i].obj)
 			text.addReplacement (quests[i].obj->getHoverText()); //get name of the object
 		CQuestLabel * label = new CQuestLabel (28, 199 + i * 24, FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
-		label->callback = std::bind(&CQuestLog::selectQuest, this, i);
+		label->callback = boost::bind(&CQuestLog::selectQuest, this, i);
 		label->setBounds (172, 30);
 		labels.push_back(label);
 	}

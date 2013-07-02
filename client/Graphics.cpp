@@ -121,12 +121,12 @@ void Graphics::initializeBattleGraphics()
 Graphics::Graphics()
 {
 	std::vector<Task> tasks; //preparing list of graphics to load
-	tasks += std::bind(&Graphics::loadFonts,this);
-	tasks += std::bind(&Graphics::loadPaletteAndColors,this);
-	tasks += std::bind(&Graphics::loadHeroFlags,this);
-	tasks += std::bind(&Graphics::initializeBattleGraphics,this);
-	tasks += std::bind(&Graphics::loadErmuToPicture,this);
-	tasks += std::bind(&Graphics::initializeImageLists,this);
+	tasks += boost::bind(&Graphics::loadFonts,this);
+	tasks += boost::bind(&Graphics::loadPaletteAndColors,this);
+	tasks += boost::bind(&Graphics::loadHeroFlags,this);
+	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
+	tasks += boost::bind(&Graphics::loadErmuToPicture,this);
+	tasks += boost::bind(&Graphics::initializeImageLists,this);
 	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
 	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
 	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
@@ -273,7 +273,7 @@ void Graphics::loadHeroFlags()
 	boost::thread_group grupa;
 	for(int g=3; g>=0; --g)
 	{
-		grupa.create_thread(std::bind(&Graphics::loadHeroFlagsDetail, this, std::ref(pr[g]), true));
+		grupa.create_thread(boost::bind(&Graphics::loadHeroFlagsDetail, this, boost::ref(pr[g]), true));
 	}
 	grupa.join_all();
     logGlobal->infoStream() << "Loading and transforming heroes' flags: "<<th.getDiff();

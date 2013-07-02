@@ -254,5 +254,5 @@ void CConsoleHandler::end()
 
 void CConsoleHandler::start()
 {
-	thread = new boost::thread(std::bind(&CConsoleHandler::run,console));
+	thread = new boost::thread(boost::bind(&CConsoleHandler::run,console));
 }

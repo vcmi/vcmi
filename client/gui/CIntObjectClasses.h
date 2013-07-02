@@ -454,7 +454,7 @@ public:
 	//Filter that will block all characters not allowed in filenames
 	static void filenameFilter(std::string &text, const std::string & oldText);
 	//Filter that will allow only input of numbers in range min-max (min-max are allowed)
-	//min-max should be set via something like std::bind
+	//min-max should be set via something like boost::bind
 	static void numberFilter(std::string &text, const std::string & oldText, int minValue, int maxValue);
 };
 

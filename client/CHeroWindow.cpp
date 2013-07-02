@@ -103,10 +103,10 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 	//artifs = new CArtifactsOfHero(pos.topLeft(), true);
 	ourBar = new CGStatusBar(7, 559, "ADROLLVR.bmp", 660); // new CStatusBar(pos.x+72, pos.y+567, "ADROLLVR.bmp", 660);
 
-	quitButton = new CAdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(),std::bind(&CHeroWindow::close,this), 609, 516, "hsbtns.def", SDLK_RETURN);
+	quitButton = new CAdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(),boost::bind(&CHeroWindow::close,this), 609, 516, "hsbtns.def", SDLK_RETURN);
 	quitButton->assignedKeys.insert(SDLK_ESCAPE);
-	dismissButton = new CAdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], std::bind(&CHeroWindow::dismissCurrent,this), 454, 429, "hsbtns2.def", SDLK_d);
-	questlogButton = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), std::bind(&CHeroWindow::questlog,this), 314, 429, "hsbtns4.def", SDLK_q);
+	dismissButton = new CAdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], boost::bind(&CHeroWindow::dismissCurrent,this), 454, 429, "hsbtns2.def", SDLK_d);
+	questlogButton = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 314, 429, "hsbtns4.def", SDLK_q);
 
 	formations = new CHighlightableButtonsGroup(0);
 	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[23]),CGI->generaltexth->heroscrn[29], "hsbtns6.def", 481, 483, 0, 0, SDLK_t);
@@ -116,7 +116,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 
 	if (hero->commander)
 	{
-		commanderButton = new CAdventureMapButton ("Commander", "Commander info", std::bind(&CHeroWindow::commanderWindow, this), 317, 18, "chftke.def", SDLK_c, nullptr, false);
+		commanderButton = new CAdventureMapButton ("Commander", "Commander info", boost::bind(&CHeroWindow::commanderWindow, this), 317, 18, "chftke.def", SDLK_c, nullptr, false);
 	}
 
 
@@ -207,7 +207,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		{
 			garr = new CGarrisonInt(15, 485, 8, Point(), background->bg, Point(15,485), curHero);
 			split = new CAdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32],
-					std::bind(&CGarrisonInt::splitClick,garr), 539, 519, "hsbtns9.def", false, nullptr, false); //deleted by garrison destructor
+					boost::bind(&CGarrisonInt::splitClick,garr), 539, 519, "hsbtns9.def", false, nullptr, false); //deleted by garrison destructor
 			boost::algorithm::replace_first(split->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
 
 			garr->addSplitBtn(split);
@@ -282,7 +282,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	//setting formations
 	formations->onChange = 0;
 	formations->select(curHero->formation,true);
-	formations->onChange = std::bind(&CCallback::setFormation, LOCPLINT->cb.get(), curHero, _1);
+	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb.get(), curHero, _1);
 
 	morale->set(&heroWArt);
 	luck->set(&heroWArt);
@@ -293,8 +293,8 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 
 void CHeroWindow::dismissCurrent()
 {
-	CFunctionList<void()> ony = std::bind(&CHeroWindow::close,this);
-	ony += std::bind(&CCallback::dismissHero, LOCPLINT->cb.get(), curHero);
+	CFunctionList<void()> ony = boost::bind(&CHeroWindow::close,this);
+	ony += boost::bind(&CCallback::dismissHero, LOCPLINT->cb.get(), curHero);
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, 0, false);
 }
 

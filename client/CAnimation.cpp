@@ -1494,7 +1494,7 @@ void CCreatureAnim::reset()
 
 void CCreatureAnim::startPreview(bool warMachine)
 {
-	callback = std::bind(&CCreatureAnim::loopPreview, this, warMachine);
+	callback = boost::bind(&CCreatureAnim::loopPreview, this, warMachine);
 }
 
 void CCreatureAnim::clearAndSet(EAnimType type)

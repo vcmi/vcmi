@@ -248,7 +248,7 @@ int BonusList::valOfBonuses(const CSelector &select) const
 
 // void BonusList::limit(const CBonusSystemNode &node)
 // {
-// 	remove_if(std::bind(&CBonusSystemNode::isLimitedOnUs, std::ref(node), _1));
+// 	remove_if(boost::bind(&CBonusSystemNode::isLimitedOnUs, boost::ref(node), _1));
 // }
 
 

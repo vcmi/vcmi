@@ -26,7 +26,7 @@ void CThreadHelper::run()
 {
 	boost::thread_group grupa;
 	for(int i=0;i<threads;i++)
-		grupa.create_thread(std::bind(&CThreadHelper::processTasks,this));
+		grupa.create_thread(boost::bind(&CThreadHelper::processTasks,this));
 	grupa.join_all();
 }
 void CThreadHelper::processTasks()

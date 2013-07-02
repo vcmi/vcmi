@@ -632,7 +632,7 @@ void BattleSetActiveStack::applyCl( CClient *cl )
 		playerToCall = activated->owner;
 	}
 	if( vstd::contains(cl->battleints, playerToCall) )
-		boost::thread( std::bind(&CClient::waitForMoveAndSend, cl, playerToCall) );
+		boost::thread( boost::bind(&CClient::waitForMoveAndSend, cl, playerToCall) );
 }
 
 void BattleTriggerEffect::applyCl(CClient * cl)

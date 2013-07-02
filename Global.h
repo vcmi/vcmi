@@ -92,7 +92,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define BOOST_THREAD_VERSION 3
 #endif
 #define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
-#define BOOST_BIND_NO_PLACEHOLDERS
+//#define BOOST_BIND_NO_PLACEHOLDERS
 
 #include <boost/algorithm/string.hpp>
 #include <boost/assign.hpp>
@@ -122,7 +122,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 using std::shared_ptr;
 using std::unique_ptr;
 using std::make_shared;
-using namespace std::placeholders;
+//using namespace std::placeholders;
 namespace range = boost::range;
 
 /* ---------------------------------------------------------------------------- */

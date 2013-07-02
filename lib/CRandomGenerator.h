@@ -38,7 +38,7 @@ public:
 	/// e.g.: auto a = gen.getRangeI(0,10); a(); a(); a();
 	TRandI getRangeI(int lower, int upper)
 	{
-		return std::bind(TIntDist(lower, upper), gen);
+		return boost::bind(TIntDist(lower, upper), gen);
 	}
 	
 	int getInteger(int lower, int upper)
@@ -50,7 +50,7 @@ public:
 	/// e.g.: auto a = gen.getRangeI(0,10); a(); a(); a();
 	TRand getRange(double lower, double upper)
 	{
-		return std::bind(TRealDist(lower, upper), gen);
+		return boost::bind(TRealDist(lower, upper), gen);
 	}
 	
 	double getDouble(double lower, double upper)

@@ -33,6 +33,8 @@ public:
 	CMapInfo();
 	CMapInfo(CMapInfo && tmp);
 
+	CMapInfo &operator=(CMapInfo &&other);
+
 	void mapInit(const std::string & fname);
 	void campaignInit();
 	void countPlayers();
