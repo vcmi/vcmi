@@ -22,7 +22,7 @@
 #ifndef FL_DEFS_H
 #define	FL_DEFS_H
 
-#if _MSC_VER < 1800
+#if defined(_MSC_VER) && _MSC_VER < 1800
     #ifndef NAN
     static const unsigned long __nan[2] = {0xffffffff, 0x7fffffff};
     #define NAN (*(const float *) __nan)
