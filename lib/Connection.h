@@ -1354,6 +1354,8 @@ public:
 	void enableStackSendingByID();
 	void disableSmartPointerSerialization();
 	void enableSmartPointerSerializatoin();
+	void disableSmartVectorMemberSerialization();
+	void enableSmartVectorMemberSerializatoin();
 
 	void prepareForSendingHeroes(); //disables sending vectorised, enables smart pointer serialization, clears saved/loaded ptr cache
 	void enterPregameConnectionMode();

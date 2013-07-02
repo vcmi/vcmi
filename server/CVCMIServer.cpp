@@ -205,9 +205,9 @@ void CPregameServer::connectionAccepted(const boost::system::error_code& ec)
 	initConnection(pc);
 	upcomingConnection = nullptr;
 
-	*pc << (ui8)pc->connectionID << curmap;
-
 	startListeningThread(pc);
+
+	*pc << (ui8)pc->connectionID << curmap;
 
 	announceTxt(pc->name + " joins the game");
 	auto pj = new PlayerJoined();
