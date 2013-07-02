@@ -321,8 +321,8 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				bool canDismiss = getObj()->tempOwner == LOCPLINT->playerID && (getObj()->stacksCount()>1  || !getObj()->needsLastStack());
 				std::function<void()> upgr = nullptr;
 				std::function<void()> dism = nullptr;
-				if (canUpgrade) upgr = std::bind(&CCallback::upgradeCreature, LOCPLINT->cb.get(), getObj(), ID, pom.newID[0]);
-				if (canDismiss) dism = std::bind(&CCallback::dismissCreature, LOCPLINT->cb.get(), getObj(), ID);
+				if(canUpgrade) upgr = [=] { LOCPLINT->cb->upgradeCreature(getObj(), ID, pom.newID[0]); };
+				if(canDismiss) dism = [=] { LOCPLINT->cb->dismissCreature(getObj(), ID); };
 
 				owner->selectSlot(nullptr);
 				owner->setSplittingMode(false);

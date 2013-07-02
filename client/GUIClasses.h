@@ -233,8 +233,8 @@ public:
 	void select(bool on);
 
 	void clickLeft(tribool down, bool previousState); //call-in
-	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = 0); //c-tor
-	CSelectableComponent(const Component &c, std::function<void()> OnSelect = 0); //c-tor
+	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr); //c-tor
+	CSelectableComponent(const Component &c, std::function<void()> OnSelect = nullptr); //c-tor
 };
 
 /// box with multiple components (up to 8?)
@@ -269,7 +269,7 @@ public:
 	/// constructor for selectable components
 	/// will also create "or" labels between components
 	/// onSelect - optional function that will be called every time on selection change
-	CComponentBox(std::vector<CSelectableComponent *> components, Rect position, std::function<void(int newID)> onSelect = 0);
+	CComponentBox(std::vector<CSelectableComponent *> components, Rect position, std::function<void(int newID)> onSelect = nullptr);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

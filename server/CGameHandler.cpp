@@ -1137,13 +1137,13 @@ void CGameHandler::newTurn()
 					n.specialWeek = NewTurn::DOUBLE_GROWTH;
 					if (VLC->modh->settings.ALL_CREATURES_GET_DOUBLE_MONTHS)
 					{
-						std::pair<int,CreatureID> newMonster(54, VLC->creh->pickRandomMonster(std::ref(rand)));
+						std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster([]{ return rand(); }));
 						n.creatureid = newMonster.second;
 					}
 					else if(VLC->creh->doubledCreatures.size())
 					{
 						const std::vector<CreatureID> doubledCreatures (VLC->creh->doubledCreatures.begin(), VLC->creh->doubledCreatures.end());
-						n.creatureid = vstd::pickRandomElementOf (doubledCreatures, std::ref(rand));
+						n.creatureid = vstd::pickRandomElementOf(doubledCreatures, []{ return rand(); });
 					}
 					else
 					{
@@ -1159,7 +1159,7 @@ void CGameHandler::newTurn()
 				if (monthType < 25)
 				{
 					n.specialWeek = NewTurn::BONUS_GROWTH; //+5
-					std::pair<int, CreatureID> newMonster (54, VLC->creh->pickRandomMonster(std::ref(rand)));
+					std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster([]{ return rand(); }));
 					//TODO do not pick neutrals
 					n.creatureid = newMonster.second;
 				}
@@ -3409,7 +3409,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			//attack
 
 			int totalAttacks = 1 + stack->getBonuses(Selector::type (Bonus::ADDITIONAL_ATTACK),
-				(Selector::effectRange (Bonus::NO_LIMIT) || Selector::effectRange(Bonus::ONLY_MELEE_FIGHT)))->totalValue(); //all unspicified attacks + melee attacks
+				(Selector::effectRange(Bonus::NO_LIMIT).Or(Selector::effectRange(Bonus::ONLY_MELEE_FIGHT))))->totalValue(); //all unspicified attacks + melee attacks
 
 			for (int i = 0; i < totalAttacks; ++i)
 			{
@@ -3479,7 +3479,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			//allow more than one additional attack
 
 			int additionalAttacks = stack->getBonuses(Selector::type (Bonus::ADDITIONAL_ATTACK),
-				(Selector::effectRange (Bonus::NO_LIMIT) || Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT)))->totalValue();
+				(Selector::effectRange(Bonus::NO_LIMIT).Or(Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT))))->totalValue();
 			for (int i = 0; i < additionalAttacks; ++i)
 			{
 				if(
@@ -4494,7 +4494,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 
 		if(st->hasBonusOfType(Bonus::POISON))
 		{
-			const Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON) && Selector::type(Bonus::STACK_HEALTH));
+			const Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON).And(Selector::type(Bonus::STACK_HEALTH)));
 			if (b) //TODO: what if not?...
 			{
 				bte.val = std::max (b->val - 10, -(st->valOfBonuses(Bonus::POISON)));

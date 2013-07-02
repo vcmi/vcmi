@@ -146,7 +146,7 @@ public:
 
 	CAdventureMapButton * dismiss, * upgrade, * ok;
 
-	CCreInfoWindow(const CStackInstance & st, bool LClicked, std::function<void()> Upg = 0, std::function<void()> Dsm = 0, UpgradeInfo * ui = nullptr);
+	CCreInfoWindow(const CStackInstance & st, bool LClicked, std::function<void()> Upg = nullptr, std::function<void()> Dsm = nullptr, UpgradeInfo * ui = nullptr);
 	CCreInfoWindow(const CStack & st, bool LClicked = 0);
 	CCreInfoWindow(int Cid, bool LClicked, int creatureCount);
 	~CCreInfoWindow();
@@ -159,4 +159,4 @@ public:
 
 CIntObject *createCreWindow(const CStack *s, bool lclick = false);
 CIntObject *createCreWindow(CreatureID Cid, CCreatureWindow::CreWinType Type, int creatureCount);
-CIntObject *createCreWindow(const CStackInstance *s, CCreatureWindow::CreWinType type, std::function<void()> Upg = 0, std::function<void()> Dsm = 0, UpgradeInfo *ui = nullptr);
+CIntObject *createCreWindow(const CStackInstance *s, CCreatureWindow::CreWinType type, std::function<void()> Upg = nullptr, std::function<void()> Dsm = nullptr, UpgradeInfo *ui = nullptr);

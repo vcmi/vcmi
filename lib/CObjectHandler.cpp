@@ -1250,7 +1250,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 		bool luck = which == SecondarySkill::LUCK;
 		Bonus::BonusType type[] = {Bonus::MORALE, Bonus::LUCK};
 
-		Bonus *b = getBonusLocalFirst(Selector::type(type[luck]) && Selector::sourceType(Bonus::SECONDARY_SKILL));
+		Bonus *b = getBonusLocalFirst(Selector::type(type[luck]).And(Selector::sourceType(Bonus::SECONDARY_SKILL)));
 		if(!b)
 		{
 			b = new Bonus(Bonus::PERMANENT, type[luck], Bonus::SECONDARY_SKILL, +val, which, which, Bonus::BASE_NUMBER);
@@ -1262,7 +1262,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 	else if(which == SecondarySkill::DIPLOMACY) //surrender discount: 20% per level
 	{
 
-		if(Bonus *b = getBonusLocalFirst(Selector::type(Bonus::SURRENDER_DISCOUNT) && Selector::sourceType(Bonus::SECONDARY_SKILL)))
+		if(Bonus *b = getBonusLocalFirst(Selector::type(Bonus::SURRENDER_DISCOUNT).And(Selector::sourceType(Bonus::SECONDARY_SKILL))))
 			b->val = +val;
 		else
 			addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::SURRENDER_DISCOUNT, Bonus::SECONDARY_SKILL, val * 20, which));
@@ -1312,7 +1312,8 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 
 
 	Bonus::ValueType skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
-	if(Bonus * b = getBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which) && Selector::sourceType(Bonus::SECONDARY_SKILL))) //only local hero bonus
+	if(Bonus * b = getBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which)
+										.And(Selector::sourceType(Bonus::SECONDARY_SKILL)))) //only local hero bonus
 	{
 		b->val = skillVal;
 		b->valType = skillValType;
@@ -2090,7 +2091,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 		ret.entries.push_back(GrowthInfo::Entry(VLC->generaltexth->allTexts[591], dwellingBonus));// \nExternal dwellings %+d
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
-	TBonusListPtr bonuses = getBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level));
+	TBonusListPtr bonuses = getBonuses(Selector::type(Bonus::CREATURE_GROWTH).And(Selector::subtype(level)));
 	for(const Bonus *b : *bonuses)
 		ret.entries.push_back(GrowthInfo::Entry(b->Description() + " %+d", b->val));
 
@@ -2465,7 +2466,7 @@ void CGTownInstance::deserializationFix()
 
 void CGTownInstance::updateMoraleBonusFromArmy()
 {
-	Bonus *b = getBonusList().getFirst(Selector::sourceType(Bonus::ARMY) && Selector::type(Bonus::MORALE));
+	Bonus *b = getBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
 	if(!b)
 	{
 		b = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
@@ -7063,7 +7064,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	if(!validTypes(false)) //object not randomized, don't bother
 		return;
 
-	Bonus *b = getBonusList().getFirst(Selector::sourceType(Bonus::ARMY) && Selector::type(Bonus::MORALE));
+	Bonus *b = getBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
 	if(!b)
 	{
 		b = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);

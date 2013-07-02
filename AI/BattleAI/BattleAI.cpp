@@ -627,7 +627,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo &AttackInfo
 
 	const int remainingCounterAttacks = getValOr(state.counterAttacksLeft, enemy, enemy->counterAttacks);
 	const bool counterAttacksBlocked = attacker->hasBonusOfType(Bonus::BLOCKS_RETALIATION) || enemy->hasBonusOfType(Bonus::NO_RETALIATION);
-	const int totalAttacks = 1 + AttackInfo.attackerBonuses->getBonuses(Selector::type(Bonus::ADDITIONAL_ATTACK), (Selector::effectRange (Bonus::NO_LIMIT) || Selector::effectRange(Bonus::ONLY_MELEE_FIGHT)))->totalValue();
+	const int totalAttacks = 1 + AttackInfo.attackerBonuses->getBonuses(Selector::type(Bonus::ADDITIONAL_ATTACK), (Selector::effectRange (Bonus::NO_LIMIT).Or(Selector::effectRange(Bonus::ONLY_MELEE_FIGHT))))->totalValue();
 
 	AttackPossibility ap = {enemy, hex, AttackInfo, 0, 0, 0};
 

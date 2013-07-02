@@ -35,6 +35,14 @@ CMapInfo::CMapInfo() : scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0),
 
 }
 
+#define STEAL(x) x(std::move(tmp.x))
+
+CMapInfo::CMapInfo(CMapInfo && tmp)
+	: STEAL(mapHeader), STEAL(campaignHeader), STEAL(scenarioOpts), STEAL(fileURI), STEAL(date),
+	STEAL(playerAmnt), STEAL(humanPlayers), STEAL(actualHumanPlayers), STEAL(isRandomMap)
+{}
+
+
 void CMapInfo::mapInit(const std::string & fname)
 {
 	fileURI = fname;

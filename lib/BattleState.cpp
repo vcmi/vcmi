@@ -890,10 +890,10 @@ void CStack::postInit()
 
 ui32 CStack::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
 {
-	if(hasBonus(Selector::type(Bonus::SIEGE_WEAPON) && Selector::turns(turn))) //war machines cannot move
+	if(hasBonus(Selector::type(Bonus::SIEGE_WEAPON).And(Selector::turns(turn)))) //war machines cannot move
 		return 0;
 
-	int speed = valOfBonuses(Selector::type(Bonus::STACKS_SPEED) && Selector::turns(turn));
+	int speed = valOfBonuses(Selector::type(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
 
 	int percentBonus = 0;
 	for(const Bonus *b : getBonusList())
@@ -970,7 +970,7 @@ bool CStack::willMove(int turn /*= 0*/) const
 bool CStack::canMove( int turn /*= 0*/ ) const
 {
 	return alive()
-		&& !hasBonus(Selector::type(Bonus::NOT_ACTIVE) && Selector::turns(turn)); //eg. Ammo Cart or blinded creature
+		&& !hasBonus(Selector::type(Bonus::NOT_ACTIVE).And(Selector::turns(turn))); //eg. Ammo Cart or blinded creature
 }
 
 bool CStack::moved( int turn /*= 0*/ ) const

@@ -27,7 +27,45 @@ typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values a
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
 typedef std::vector<CBonusSystemNode *> TNodesVector;
-typedef std::function<bool(const Bonus*)> CSelector;
+
+class CSelector : std::function<bool(const Bonus*)>
+{
+	typedef std::function<bool(const Bonus*)> TBase;
+public:
+	CSelector() {}
+	template<typename T>
+	CSelector(const T &t,	//SFINAE trick -> include this c-tor in overload resolution only if parameter is class 
+							//(includes functors, lambdas) or function. Without that VC is going mad about ambiguities.
+		typename std::enable_if < boost::mpl::or_ < std::is_class<T>, std::is_function<T >> ::value>::type *dummy = nullptr)
+		: TBase(t)
+	{}
+
+	CSelector(std::nullptr_t)
+	{}
+	//CSelector(std::function<bool(const Bonus*)> f) : std::function<bool(const Bonus*)>(std::move(f)) {}
+
+	CSelector And(CSelector rhs) const
+	{
+		//lambda may likely outlive "this" (it can be even a temporary) => we copy the OBJECT (not pointer)
+		auto thisCopy = *this;
+		return [thisCopy, rhs](const Bonus *b) mutable { return thisCopy(b) && rhs(b); };
+	}
+	CSelector Or(CSelector rhs) const
+	{
+		auto thisCopy = *this;
+		return [thisCopy, rhs](const Bonus *b) mutable { return thisCopy(b) && rhs(b); };
+	}
+
+	bool operator()(const Bonus *b) const
+	{
+		return TBase::operator()(b);
+	}
+
+	operator bool() const
+	{
+		return !!static_cast<const TBase&>(*this);
+	}
+};
 
 
 
@@ -694,55 +732,21 @@ inline Bonus * makeFeature(Bonus::BonusType type, ui8 duration, si16 subtype, si
 	return new Bonus(makeFeatureVal(type, duration, subtype, value, source, turnsRemain, additionalInfo));
 }
 
-
-class DLL_LINKAGE CSelectorsConjunction
-{
-	const CSelector first, second;
-public:
-	CSelectorsConjunction(const CSelector &First, const CSelector &Second)
-		:first(First), second(Second)
-	{
-	}
-	bool operator()(const Bonus *bonus) const
-	{
-		return first(bonus) && second(bonus);
-	}
-};
-CSelector DLL_LINKAGE operator&&(const CSelector &first, const CSelector &second);
-
-class DLL_LINKAGE CSelectorsAlternative
-{
-	const CSelector first, second;
-public:
-	CSelectorsAlternative(const CSelector &First, const CSelector &Second)
-		:first(First), second(Second)
-	{
-	}
-	bool operator()(const Bonus *bonus) const
-	{
-		return first(bonus) || second(bonus);
-	}
-};
-CSelector DLL_LINKAGE operator||(const CSelector &first, const CSelector &second);
-
 template<typename T>
 class CSelectFieldEqual
 {
 	T Bonus::*ptr;
-	T val;
+
 public:
-	CSelectFieldEqual(T Bonus::*Ptr, const T &Val)
-		: ptr(Ptr), val(Val)
+	CSelectFieldEqual(T Bonus::*Ptr)
+		: ptr(Ptr)
 	{
 	}
-	bool operator()(const Bonus *bonus) const
+	
+	CSelector operator()(const T &valueToCompareAgainst) const
 	{
-		return bonus->*ptr == val;
-	}
-	CSelectFieldEqual& operator()(const T &setVal)
-	{
-		val = setVal;
-		return *this;
+		auto ptr2 = ptr; //We need a COPY because we don't want to reference this (might be outlived by lambda)
+		return [ptr2, valueToCompareAgainst](const Bonus *bonus) {  return bonus->*ptr2 == valueToCompareAgainst; };
 	}
 };
 
@@ -944,7 +948,6 @@ namespace Selector
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
 	extern DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange;
-	extern DLL_LINKAGE CSelectFieldEqualOrEvery<TBonusSubtype> everySubtype;
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);
 	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info);

@@ -342,9 +342,11 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 		{
 			for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
 			{
-				cgh->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) &&
-					Selector::subtype(g) && Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val
-					= cgh->type->heroClass->primarySkillInitial[g];
+				auto sel = Selector::type(Bonus::PRIMARY_SKILL)
+					.And(Selector::subtype(g))
+					.And(Selector::sourceType(Bonus::HERO_BASE_SKILL));
+
+				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g];
 			}
 		}
 	}

@@ -31,6 +31,8 @@ public:
 	bool isRandomMap; // true if the map will be created randomly, false if not
 
 	CMapInfo();
+	CMapInfo(CMapInfo && tmp);
+
 	void mapInit(const std::string & fname);
 	void campaignInit();
 	void countPlayers();

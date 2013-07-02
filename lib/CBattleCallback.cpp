@@ -780,8 +780,13 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 {
 	auto battleBonusValue = [&](const IBonusBearer * bearer, CSelector selector) -> int
 	{
-		return bearer->getBonuses(selector, Selector::effectRange(Bonus::NO_LIMIT) || //any regular bonuses or just ones for melee/ranged
-			(info.shooting ? Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT) : Selector::effectRange(Bonus::ONLY_MELEE_FIGHT)))->totalValue();
+		auto noLimit = Selector::effectRange(Bonus::NO_LIMIT);
+		auto limitMatches = info.shooting 
+				? Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT) 
+				: Selector::effectRange(Bonus::ONLY_MELEE_FIGHT);
+
+		//any regular bonuses or just ones for melee/ranged
+		return bearer->getBonuses(selector, noLimit.Or(limitMatches))->totalValue();
 	};
 
 	double additiveBonus = 1.0, multBonus = 1.0,
@@ -800,7 +805,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	{ //minDmg and maxDmg are multiplied by hero attack + 1
 		auto retreiveHeroPrimSkill = [&](int skill) -> int
 		{
-			const Bonus *b = info.attackerBonuses->getBonus(Selector::sourceTypeSel(Bonus::HERO_BASE_SKILL) &&  Selector::typeSubtype(Bonus::PRIMARY_SKILL, skill));
+			const Bonus *b = info.attackerBonuses->getBonus(Selector::sourceTypeSel(Bonus::HERO_BASE_SKILL).And(Selector::typeSubtype(Bonus::PRIMARY_SKILL, skill)));
 			return b ? b->val : 0; //if there is no hero or no info on his primary skill, return 0
 		};
 
@@ -2103,8 +2108,11 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 				{
 					auto kingMonster = getStackIf([&](const CStack *stack) //look for enemy, non-shooting stack
 					{
-						return stack->owner != subject->owner
-							&& (stack->hasBonus(Selector::type(Bonus::KING1) || Selector::type(Bonus::KING2) || Selector::type(Bonus::KING3)));
+						const auto isKing = Selector::type(Bonus::KING1)
+							.Or(Selector::type(Bonus::KING2))
+							.Or(Selector::type(Bonus::KING3));
+
+						return stack->owner != subject->owner  &&  stack->hasBonus(isKing);
 					});
 
 					if (!kingMonster)

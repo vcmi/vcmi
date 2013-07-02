@@ -311,7 +311,7 @@ void BonusList::insert(std::vector<Bonus*>::iterator position, std::vector<Bonus
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
 {
-	return valOfBonuses(Selector::type(type) && selector);
+	return valOfBonuses(Selector::type(type).And(selector));
 }
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) const
@@ -321,7 +321,7 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) cons
 
 	CSelector s = Selector::type(type);
 	if(subtype != -1)
-		s = s && Selector::subtype(subtype);
+		s = s.And(Selector::subtype(subtype));
 
 	return valOfBonuses(s, cachingStr.str());
 }
@@ -344,7 +344,7 @@ bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) c
 
 	CSelector s = Selector::type(type);
 	if(subtype != -1)
-		s = s && Selector::subtype(subtype);
+		s = s.And(Selector::subtype(subtype));
 
 	return hasBonus(s, cachingStr.str());
 }
@@ -451,13 +451,13 @@ ui32 IBonusBearer::getMinDamage() const
 {
 	std::stringstream cachingStr;
 	cachingStr << "type_" << Bonus::CREATURE_DAMAGE << "s_0Otype_" << Bonus::CREATURE_DAMAGE << "s_1";
-	return valOfBonuses(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1), cachingStr.str());
+	return valOfBonuses(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1)), cachingStr.str());
 }
 ui32 IBonusBearer::getMaxDamage() const
 {
 	std::stringstream cachingStr;
 	cachingStr << "type_" << Bonus::CREATURE_DAMAGE << "s_0Otype_" << Bonus::CREATURE_DAMAGE << "s_2";
-	return valOfBonuses(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2), cachingStr.str());
+	return valOfBonuses(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2)), cachingStr.str());
 }
 
 si32 IBonusBearer::manaLimit() const
@@ -490,7 +490,9 @@ bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" b
 {
 	std::stringstream cachingStr;
 	cachingStr << "type_" << Bonus::UNDEAD << "s_-1Otype_" << Bonus::NON_LIVING << "s_-11type_" << Bonus::SIEGE_WEAPON; //I don't relaly get what string labels mean?
-	return(!hasBonus(Selector::type(Bonus::UNDEAD) || Selector::type(Bonus::NON_LIVING) || Selector::type(Bonus::SIEGE_WEAPON), cachingStr.str()));
+	return !hasBonus(Selector::type(Bonus::UNDEAD)
+					.Or(Selector::type(Bonus::NON_LIVING))
+					.Or(Selector::type(Bonus::SIEGE_WEAPON)), cachingStr.str());
 }
 
 const TBonusListPtr IBonusBearer::getSpellBonuses() const
@@ -1171,50 +1173,43 @@ Bonus * Bonus::addPropagator(TPropagatorPtr Propagator)
 	return this;
 }
 
-CSelector DLL_LINKAGE operator&&(const CSelector &first, const CSelector &second)
-{
-	return CSelectorsConjunction(first, second);
-}
-CSelector DLL_LINKAGE operator||(const CSelector &first, const CSelector &second)
-{
-	return CSelectorsAlternative(first, second);
-}
-
 namespace Selector
 {
-	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type(&Bonus::type, Bonus::NONE);
-	DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype(&Bonus::subtype, 0);
-	DLL_LINKAGE CSelectFieldEqual<si32> info(&Bonus::additionalInfo, 0);
-	DLL_LINKAGE CSelectFieldEqual<ui16> duration(&Bonus::duration, 0);
-	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType(&Bonus::source, Bonus::OTHER);
-	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange(&Bonus::effectRange, Bonus::NO_LIMIT);
+	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type(&Bonus::type);
+	DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype(&Bonus::subtype);
+	DLL_LINKAGE CSelectFieldEqual<si32> info(&Bonus::additionalInfo);
+	DLL_LINKAGE CSelectFieldEqual<ui16> duration(&Bonus::duration);
+	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType(&Bonus::source);
+	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange(&Bonus::effectRange);
 	DLL_LINKAGE CWillLastTurns turns;
-	DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange (&Bonus::effectRange);
-	DLL_LINKAGE CSelectFieldEqualOrEvery<TBonusSubtype> everySubtype (&Bonus::subtype, 0);
+	DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange(&Bonus::effectRange);
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype)
 	{
-		return type(Type) && subtype(Subtype);
+		return type(Type).And(subtype(Subtype));
 	}
 
 	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info)
 	{
-		return CSelectFieldEqual<Bonus::BonusType>(&Bonus::type, type) && CSelectFieldEqual<TBonusSubtype>(&Bonus::subtype, subtype) && CSelectFieldEqual<si32>(&Bonus::additionalInfo, info);
+		return CSelectFieldEqual<Bonus::BonusType>(&Bonus::type)(type)
+			.And(CSelectFieldEqual<TBonusSubtype>(&Bonus::subtype)(subtype))
+			.And(CSelectFieldEqual<si32>(&Bonus::additionalInfo)(info));
 	}
 
 	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID)
 	{
-		return CSelectFieldEqual<Bonus::BonusSource>(&Bonus::source, source) && CSelectFieldEqual<ui32>(&Bonus::sid, sourceID);
+		return CSelectFieldEqual<Bonus::BonusSource>(&Bonus::source)(source)
+			.And(CSelectFieldEqual<ui32>(&Bonus::sid)(sourceID));
 	}
 
 	CSelector DLL_EXPORT durationType(ui16 duration)
 	{
-		return CSelectFieldEqual<ui16>(&Bonus::duration, duration);
+		return CSelectFieldEqual<ui16>(&Bonus::duration)(duration);
 	}
 
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source)
 	{
-		return CSelectFieldEqual<Bonus::BonusSource>(&Bonus::source, source);
+		return CSelectFieldEqual<Bonus::BonusSource>(&Bonus::source)(source);
 	}
 
 	bool DLL_LINKAGE matchesType(const CSelector &sel, Bonus::BonusType type)

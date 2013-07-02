@@ -33,6 +33,8 @@ public:
 	{
 		funcs.push_back(first);
 	}
+	CFunctionList(std::nullptr_t)
+	{}
 	CFunctionList & operator+=(const boost::function<Signature> &first)
 	{
 		funcs.push_back(first);

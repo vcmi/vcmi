@@ -54,7 +54,9 @@ DLL_LINKAGE void SetPrimSkill::applyGs( CGameState *gs )
 
 	if(which < PrimarySkill::EXPERIENCE)
 	{
-		Bonus *skill = hero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) && Selector::subtype(which) && Selector::sourceType(Bonus::HERO_BASE_SKILL));
+		Bonus *skill = hero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL)
+											.And(Selector::subtype(which))
+											.And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
 		assert(skill);
 
 		if(abs)
@@ -1069,7 +1071,8 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 		}
 		case Bonus::POISON:
 		{
-			Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, 71) && Selector::type(Bonus::STACK_HEALTH));
+			Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, 71)
+											.And(Selector::type(Bonus::STACK_HEALTH)));
 			if (b)
 				b->val = val;
 			break;
@@ -1365,7 +1368,7 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 		CStack *s = gs->curB->getStack(para.first);
 		if (s)
 		{
-			if (!s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid) && Selector::typeSubtype(para.second.type, para.second.subtype)))
+			if (!s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid).And(Selector::typeSubtype(para.second.type, para.second.subtype))))
 				s->addNewBonus(new Bonus(para.second));
 			else
 				actualizeEffect(s, effect);

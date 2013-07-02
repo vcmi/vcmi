@@ -106,7 +106,7 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, CreWinType Type, std:
 				fs += Upg;
 				fs += std::bind(&CCreatureWindow::close,this);
 				CFunctionList<void()> cfl;
-				cfl = std::bind(&CPlayerInterface::showYesNoDialog, LOCPLINT, CGI->generaltexth->allTexts[207], fs, 0, false, std::ref(upgResCost));
+				cfl = std::bind(&CPlayerInterface::showYesNoDialog, LOCPLINT, CGI->generaltexth->allTexts[207], fs, nullptr, false, std::ref(upgResCost));
 				upgrade = new CAdventureMapButton("",CGI->generaltexth->zelp[446].second,cfl,385, 148,"IVIEWCR.DEF",SDLK_u);
 			}
 			else
@@ -248,7 +248,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	}
 
 	BonusList bl, blTemp;
-	blTemp = (*(stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT) && Selector::anyRange())));
+	blTemp = (*(stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT).And(Selector::anyRange()))));
 
 	while (blTemp.size())
 	{
