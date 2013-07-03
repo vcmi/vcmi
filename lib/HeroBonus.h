@@ -53,7 +53,7 @@ public:
 	CSelector Or(CSelector rhs) const
 	{
 		auto thisCopy = *this;
-		return [thisCopy, rhs](const Bonus *b) mutable { return thisCopy(b) && rhs(b); };
+		return [thisCopy, rhs](const Bonus *b) mutable { return thisCopy(b) || rhs(b); };
 	}
 
 	bool operator()(const Bonus *b) const
