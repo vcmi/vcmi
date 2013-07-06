@@ -3468,8 +3468,14 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				handleAfterAttackCasting(bat);
 			}
 
-			//ballista & artillery handling
-			if(destStack->alive() && stack->getCreature()->idNumber == CreatureID::BALLISTA)
+			//second shot for ballista, only if hero has advanced artillery
+
+			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
+
+			if( destStack->alive()
+			    && (stack->getCreature()->idNumber == CreatureID::BALLISTA)
+			    && (attackingHero->getSecSkillLevel(SecondarySkill::ARTILLERY) >= SecSkillLevel::ADVANCED)
+			   )
 			{
 				BattleAttack bat2;
 				bat2.flags |= BattleAttack::SHOT;

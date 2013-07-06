@@ -125,20 +125,16 @@ private:
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 	ui8 animCount;
 	const CStack * activeStack; //number of active stack; nullptr - no one
+	const CStack * mouseHoveredStack; // stack below mouse pointer, used for border animation
 	const CStack * stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; nullptr of none
 	const CStack * selectedStack; //for Teleport / Sacrifice
 	void activateStack(); //sets activeStack to stackToActivate etc.
-	int mouseHoveredStack; //stack hovered by mouse; if -1 -> none
-    time_t lastMouseHoveredStackAnimationTime; // time when last mouse hovered animation occurred
-    static const time_t HOVER_ANIM_DELTA;
 	std::vector<BattleHex> occupyableHexes, //hexes available for active stack
 		attackableHexes; //hexes attackable by active stack
     bool stackCountOutsideHexes[GameConstants::BFIELD_SIZE]; // hexes that when in front of a unit cause it's amount box to move back
 	int previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
 	int currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
 	int attackingHex; //hex from which the stack would perform attack with current cursor
-	double getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
-	std::map<int, int> standingFrame; //number of frame in standing animation by stack ID, helps in showing 'random moves'
 
 	shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
 	bool tacticsMode;
@@ -155,6 +151,9 @@ private:
 	PossibleActions currentAction; //action that will be performed on l-click
 	PossibleActions selectedAction; //last action chosen (and saved) by player
 	PossibleActions illegalAction; //most likely action that can't be performed here
+
+	void setActiveStack(const CStack * stack);
+	void setHoveredStack(const CStack * stack);
 
 	void requestAutofightingAIToTakeAction();
 
@@ -214,8 +213,8 @@ public:
 	void setPrintCellBorders(bool set); //if true, cell borders will be printed
 	void setPrintStackRange(bool set); //if true,range of active stack will be printed
 	void setPrintMouseShadow(bool set); //if true, hex under mouse will be shaded
-	void setAnimSpeed(int set); //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
-	int getAnimSpeed() const; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
+	void setAnimSpeed(int set); //speed of animation; range 1..100
+	int getAnimSpeed() const; //speed of animation; range 1..100
 
 	std::vector<CClickableHex*> bfield; //11 lines, 17 hexes on each
 	//std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
@@ -225,7 +224,7 @@ public:
 	CBattleResultWindow * resWindow; //window of end of battle
 
 	bool moveStarted; //if true, the creature that is already moving is going to make its first step
-	int moveSh;		  // sound handler used when moving a unit
+	int moveSoundHander;		  // sound handler used when moving a unit
 
 	const BattleResult * bresult; //result of a battle; if non-zero then display when all animations end
 

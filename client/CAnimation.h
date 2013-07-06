@@ -320,15 +320,14 @@ public:
 
 	enum EAnimType // list of creature animations, numbers were taken from def files
 	{
-		WHOLE_ANIM=-1, //just for convenience
-		MOVING=0, //will automatically add MOVE_START and MOVE_END to queue
-		MOUSEON=1, //rename to IDLE
-		HOLDING=2, //rename to STANDING
+		MOVING=0,
+		MOUSEON=1,
+		HOLDING=2,
 		HITTED=3,
 		DEFENCE=4,
 		DEATH=5,
 		//DEATH2=6, //unused?
-		TURN_L=7, //will automatically play second part of anim and rotate creature
+		TURN_L=7,
 		TURN_R=8, //same
 		//TURN_L2=9, //identical to previous?
 		//TURN_R2=10,
@@ -341,13 +340,10 @@ public:
 		CAST_UP=17,
 		CAST_FRONT=18,
 		CAST_DOWN=19,
-		DHEX_ATTACK_UP=17,
-		DHEX_ATTACK_FRONT=18,
-		DHEX_ATTACK_DOWN=19,
-		MOVE_START=20, //no need to use this two directly - MOVING will be enought
-		MOVE_END=21
-		//MOUSEON=22 //special group for border-only images - IDLE will be used as base
-		//READY=23 //same but STANDING is base
+		MOVE_START=20,
+		MOVE_END=21,
+		DEAD = 22 // new group, used to show dead stacks. If empty - last frame from "DEATH" will be copied here
+
 	};
 
 private:

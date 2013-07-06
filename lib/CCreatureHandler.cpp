@@ -579,8 +579,11 @@ CCreature * CCreatureHandler::loadFromJson(const JsonNode & node)
 	cre->addBonus(node["speed"].Float(), Bonus::STACKS_SPEED);
 	cre->addBonus(node["attack"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
 	cre->addBonus(node["defense"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+
 	cre->addBonus(node["damage"]["min"].Float(), Bonus::CREATURE_DAMAGE, 1);
 	cre->addBonus(node["damage"]["max"].Float(), Bonus::CREATURE_DAMAGE, 2);
+
+	assert(node["damage"]["min"].Float() <= node["damage"]["max"].Float());
 
 	cre->ammMin = node["advMapAmount"]["min"].Float();
 	cre->ammMax = node["advMapAmount"]["max"].Float();

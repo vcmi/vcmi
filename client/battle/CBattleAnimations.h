@@ -25,15 +25,14 @@ class CBattleAnimation
 protected:
 	CBattleInterface * owner;
 public:
-	virtual bool init()=0; //to be called - if returned false, call again until returns true
-	virtual void nextFrame()=0; //call every new frame
+	virtual bool init() = 0; //to be called - if returned false, call again until returns true
+	virtual void nextFrame() {} //call every new frame
 	virtual void endAnim(); //to be called mostly internally; in this class it removes animation from pendingAnims list
-	virtual ~CBattleAnimation(){};
+	virtual ~CBattleAnimation(){}
 
 	bool isEarliest(bool perStackConcurrency); //determines if this animation is earliest of all
 
 	ui32 ID; //unique identifier
-
 	CBattleAnimation(CBattleInterface * _owner);
 };
 
@@ -41,16 +40,17 @@ public:
 class CBattleStackAnimation : public CBattleAnimation
 {
 public:
+	CCreatureAnimation * myAnim; //animation for our stack, managed by CBattleInterface
 	const CStack * stack; //id of stack whose animation it is
 
 	CBattleStackAnimation(CBattleInterface * _owner, const CStack * _stack);
-
-	CCreatureAnimation * myAnim(); //animation for our stack
 };
 
 /// This class is responsible for managing the battle attack animation
 class CAttackAnimation : public CBattleStackAnimation
 {
+	bool soundPlayed;
+
 protected:
 	BattleHex dest; //attacked hex
 	bool shooting;
@@ -60,6 +60,7 @@ protected:
 	int attackingStackPosBeforeReturn; //for stacks with return_after_strike feature
 public:
 	void nextFrame();
+	void endAnim();
 	bool checkInitialConditions();
 
 	CAttackAnimation(CBattleInterface *_owner, const CStack *attacker, BattleHex _dest, const CStack *defender);
@@ -101,7 +102,6 @@ class CMeleeAttackAnimation : public CAttackAnimation
 {
 public:
 	bool init();
-	void nextFrame();
 	void endAnim();
 
 	CMeleeAttackAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked);
@@ -112,14 +112,20 @@ public:
 class CMovementAnimation : public CBattleStackAnimation
 {
 private:
-	std::vector<BattleHex> destTiles; //destination
-	BattleHex nextHex;
-	ui32 nextPos;
-	int distance;
-	double stepX, stepY; //how far stack is moved in one frame
-	double posX, posY;
-	int steps, whichStep;
-	int curStackPos; //position of stack before move
+	bool shouldRotate();
+
+	std::vector<BattleHex> destTiles; //full path, includes already passed hexes
+	ui32 curentMoveIndex; // index of nextHex in destTiles
+
+	BattleHex oldPos; //position of stack before move
+	BattleHex nextHex; // next hex, to which creature move right now
+
+	double begX, begY; // starting position
+	double distanceX, distanceY; // full movement distance, may be negative if creture moves topleft
+
+	double timeToMove; // full length of movement animation
+	double progress; // range 0 -> 1, indicates move progrees. 0 = movement starts, 1 = move ends
+
 public:
 	bool init();
 	void nextFrame();
@@ -136,7 +142,6 @@ private:
 	BattleHex destinationTile;
 public:
 	bool init();
-	void nextFrame();
 	void endAnim();
 
 	CMovementEndAnimation(CBattleInterface * _owner, const CStack * _stack, BattleHex destTile);
@@ -148,7 +153,6 @@ class CMovementStartAnimation : public CBattleStackAnimation
 {
 public:
 	bool init();
-	void nextFrame();
 	void endAnim();
 
 	CMovementStartAnimation(CBattleInterface * _owner, const CStack * _stack);
@@ -158,14 +162,12 @@ public:
 /// Class responsible for animation of stack chaning direction (left <-> right)
 class CReverseAnimation : public CBattleStackAnimation
 {
-private:
-	int partOfAnim; //1 - first, 2 - second
-	bool secondPartSetup;
 	BattleHex hex;
 public:
 	bool priority; //true - high, false - low
 	bool init();
-	void nextFrame();
+
+	static void rotateStack(CBattleInterface * owner, const CStack * stack, BattleHex hex);
 
 	void setupSecondPart();
 	void endAnim();
@@ -184,7 +186,8 @@ struct ProjectileInfo
 	int stackID; //ID of stack
 	int frameNum; //frame to display form projectile animation
 	//bool spin; //if true, frameNum will be increased
-	int animStartDelay; //how many times projectile must be attempted to be shown till it's really show (decremented after hit)
+	int animStartDelay; //frame of shooter animation when projectile should appear
+	bool shotDone; // actual shot already done, projectile is flying
 	bool reverse; //if true, projectile will be flipped by vertical asix
 	std::shared_ptr<CatapultProjectileInfo> catapultInfo; // holds info about the parabolic trajectory of the cannon
 };

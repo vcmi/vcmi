@@ -1,11 +1,15 @@
 #include "StdInc.h"
 #include "CCreatureAnimation.h"
 
-#include "../../lib/filesystem/CResourceLoader.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/CCreatureHandler.h"
 #include "../../lib/vcmi_endian.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/SDL_Pixels.h"
+
+#include "../../lib/filesystem/CResourceLoader.h"
+#include "../../lib/filesystem/CBinaryReader.h"
+#include "../../lib/filesystem/CMemoryStream.h"
 
 /*
  * CCreatureAnimation.cpp, part of VCMI engine
@@ -17,6 +21,100 @@
  *
  */
 
+static const SDL_Color creatureBlueBorder = { 0, 255, 255, 255 };
+static const SDL_Color creatureGoldBorder = { 255, 255, 0, 255 };
+static const SDL_Color creatureNoBorder  =  { 0, 0, 0, 0 };
+
+SDL_Color AnimationControls::getBlueBorder()
+{
+	return creatureBlueBorder;
+}
+
+SDL_Color AnimationControls::getGoldBorder()
+{
+	return creatureGoldBorder;
+}
+
+SDL_Color AnimationControls::getNoBorder()
+{
+	return creatureNoBorder;
+}
+
+CCreatureAnimation * AnimationControls::getAnimation(const CCreature * creature)
+{
+	auto func = boost::bind(&AnimationControls::getCreatureAnimationSpeed, creature, _1, _2);
+	return new CCreatureAnimation(creature->animDefName, func);
+}
+
+float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, const CCreatureAnimation * anim, size_t group)
+{
+	// possible new fields for creature format
+	//Shoot Animation Time
+	//Cast Animation Time
+	//Defence and/or Death Animation Time
+
+
+	// a lot of arbitrary multipliers, mostly to make animation speed closer to H3
+	CCreatureAnim::EAnimType type = CCreatureAnim::EAnimType(group);
+	const float baseSpeed = 10;
+	const float speedMult = settings["battle"]["animationSpeed"].Float() * 20;
+	const float speed = baseSpeed * speedMult;
+
+	switch (type)
+	{
+	case CCreatureAnim::MOVING:
+		return speed / creature->animation.walkAnimationTime / anim->framesInGroup(type);
+
+	case CCreatureAnim::MOUSEON:
+	case CCreatureAnim::HOLDING:
+		return baseSpeed;
+
+	case CCreatureAnim::ATTACK_UP:
+	case CCreatureAnim::ATTACK_FRONT:
+	case CCreatureAnim::ATTACK_DOWN:
+	case CCreatureAnim::SHOOT_UP:
+	case CCreatureAnim::SHOOT_FRONT:
+	case CCreatureAnim::SHOOT_DOWN:
+	case CCreatureAnim::CAST_UP:
+	case CCreatureAnim::CAST_FRONT:
+	case CCreatureAnim::CAST_DOWN:
+		return speed * 2 / creature->animation.attackAnimationTime / anim->framesInGroup(type);
+
+	case CCreatureAnim::TURN_L:
+	case CCreatureAnim::TURN_R:
+		return speed;
+
+	case CCreatureAnim::MOVE_START:
+	case CCreatureAnim::MOVE_END:
+		return speed / 5;
+
+	case CCreatureAnim::HITTED:
+	case CCreatureAnim::DEFENCE:
+	case CCreatureAnim::DEATH:
+	case CCreatureAnim::DEAD:
+		return speed / 5;
+
+	default:
+		assert(0);
+		return 1;
+	}
+}
+
+float AnimationControls::getProjectileSpeed()
+{
+	return settings["battle"]["animationSpeed"].Float() * 100;
+}
+
+float AnimationControls::getMovementDuration(const CCreature * creature)
+{
+	return settings["battle"]["animationSpeed"].Float() * 4 / creature->animation.walkAnimationTime;
+}
+
+float AnimationControls::getFlightDistance(const CCreature * creature)
+{
+	return creature->animation.flightAnimationDistance * 200;
+}
+
 CCreatureAnim::EAnimType CCreatureAnimation::getType() const
 {
 	return type;
@@ -24,135 +122,116 @@ CCreatureAnim::EAnimType CCreatureAnimation::getType() const
 
 void CCreatureAnimation::setType(CCreatureAnim::EAnimType type)
 {
-	assert(framesInGroup(type) > 0 && "Bad type for void CCreatureAnimation::setType(int type)!");
+	assert(type >= 0);
+	assert(framesInGroup(type) != 0);
+
 	this->type = type;
-	internalFrame = 0;
-	if(type!=-1)
-	{
-		curFrame = frameGroups[type][0];
-	}
-	else
-	{
-		if(curFrame>=frames)
-		{
-			curFrame = 0;
-		}
-	}
+	currentFrame = 0;
+	once = false;
+
+	play();
 }
 
-CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), once(false)
+CCreatureAnimation::CCreatureAnimation(std::string name, TSpeedController controller)
+    : defName(name),
+      speed(0.1),
+      currentFrame(0),
+      elapsedTime(0),
+      type(CCreatureAnim::HOLDING),
+      border({0, 0, 0, 0}),
+      speedController(controller),
+      once(false)
 {
-	//load main file
-	FDef = CResourceHandler::get()->loadData(
-	           ResourceID(std::string("SPRITES/") + name, EResType::ANIMATION)).first.release();
+	// separate block to avoid accidental use of "data" after it was moved into "pixelData"
+	{
+		auto data = CResourceHandler::get()->loadData(
+				   ResourceID(std::string("SPRITES/") + name, EResType::ANIMATION));
 
-	//init anim data
-	int i,j, totalInBlock;
+		pixelData = std::move(data.first);
+		pixelDataSize = data.second;
+	}
 
-	defName=name;
-	i = 0;
-	DEFType = read_le_u32(FDef + i); i+=4;
-	fullWidth = read_le_u32(FDef + i); i+=4;
-	fullHeight = read_le_u32(FDef + i); i+=4;
-	i=0xc;
-	totalBlocks = read_le_u32(FDef + i); i+=4;
+	CBinaryReader reader(new CMemoryStream(pixelData.get(), pixelDataSize));
 
-	i=0x10;
+	reader.readInt32(); // def type, unused
+
+	fullWidth  = reader.readInt32();
+	fullHeight = reader.readInt32();
+
+	int totalBlocks = reader.readInt32();
+
 	for (auto & elem : palette)
 	{
-		elem.R = FDef[i++];
-		elem.G = FDef[i++];
-		elem.B = FDef[i++];
-		elem.F = 0;
+		elem.r = reader.readUInt8();
+		elem.g = reader.readUInt8();
+		elem.b = reader.readUInt8();
+		elem.unused = 0;
 	}
-	i=0x310;
-	totalEntries=0;
-	for (int z=0; z<totalBlocks; z++)
+
+	for (int i=0; i<totalBlocks; i++)
 	{
-		std::vector<int> frameIDs;
-		int group = read_le_u32(FDef + i); i+=4; //block ID
-		totalInBlock = read_le_u32(FDef + i); i+=4;
-		for (j=SEntries.size(); j<totalEntries+totalInBlock; j++)
-		{
-			SEntries.push_back(SEntry());
-			SEntries[j].group = group;
-			frameIDs.push_back(j);
-		}
-		/*int unknown2 = read_le_u32(FDef + i);*/ i+=4; //TODO use me
-		/*int unknown3 = read_le_u32(FDef + i);*/ i+=4; //TODO use me
-		i+=13*totalInBlock; //omitting names
-		for (j=0; j<totalInBlock; j++)
-		{ 
-			SEntries[totalEntries+j].offset = read_le_u32(FDef + i); i+=4;
-		}
-		//totalEntries+=totalInBlock;
-		for(int hh=0; hh<totalInBlock; ++hh)
-		{
-			++totalEntries;
-		}
-		frameGroups[group] = frameIDs;
+		int groupID = reader.readInt32();
+
+		int totalInBlock = reader.readInt32();
+
+		reader.skip(4 + 4 + 13 * totalInBlock); // some unused data
+
+		for (int j=0; j<totalInBlock; j++)
+			dataOffsets[groupID].push_back(reader.readUInt32());
 	}
 
-	//init vars
-	curFrame = 0;
-	type = CCreatureAnim::WHOLE_ANIM;
-	frames = totalEntries;
+	// if necessary, add one frame into vcmi-only group DEAD
+	if (dataOffsets.count(CCreatureAnim::DEAD) == 0)
+		dataOffsets[CCreatureAnim::DEAD].push_back(dataOffsets[CCreatureAnim::DEATH].back());
+
+	play();
 }
 
-int CCreatureAnimation::nextFrameMiddle(SDL_Surface *dest, int x, int y, bool attacker, ui8 animCount, bool incrementFrame, bool yellowBorder, bool blueBorder, SDL_Rect * destRect)
+void CCreatureAnimation::endAnimation()
 {
-	return nextFrame(dest, x-fullWidth/2, y-fullHeight/2, attacker, animCount, incrementFrame, yellowBorder, blueBorder, destRect);
+	once = false;
+	auto copy = onAnimationReset;
+	onAnimationReset.clear();
+	copy();
 }
 
-void CCreatureAnimation::incrementFrame()
+bool CCreatureAnimation::incrementFrame(float timePassed)
 {
-	if(type!=-1) //when a specific part of animation is played
+	elapsedTime += timePassed;
+	currentFrame += timePassed * speed;
+	if (currentFrame >= float(framesInGroup(type)))
 	{
-		++internalFrame;
-		if(internalFrame == frameGroups[type].size()) //rewind
-		{
-			internalFrame = 0;
-			if(once) //playing animation once - return to standing animation
-			{
-				type = CCreatureAnim::HOLDING;
-				once = false;
-				curFrame = frameGroups[2][0];
-			}
-			else //
-			{
-				curFrame = frameGroups[type][0];
-			}
-		}
-		curFrame = frameGroups[type][internalFrame];
-	}
-	else //when whole animation is played
-	{
-		++curFrame;
-		if(curFrame>=frames)
-			curFrame = 0;
-	}
-}
+		// just in case of extremely low fps
+		while (currentFrame >= float(framesInGroup(type)))
+			currentFrame -= framesInGroup(type);
 
-int CCreatureAnimation::getFrame() const
-{
-	return curFrame;
-}
+		if (once)
+			setType(CCreatureAnim::HOLDING);
 
-int CCreatureAnimation::getAnimationFrame() const
-{
-	return internalFrame;
-}
-
-bool CCreatureAnimation::onFirstFrameInGroup()
-{
-	return internalFrame == 0;
-}
-
-bool CCreatureAnimation::onLastFrameInGroup()
-{
-	if(internalFrame == frameGroups[type].size() - 1)
+		endAnimation();
 		return true;
+	}
 	return false;
+}
+
+void CCreatureAnimation::setBorderColor(SDL_Color palette)
+{
+	border = palette;
+}
+
+int CCreatureAnimation::getWidth() const
+{
+	return fullWidth;
+}
+
+int CCreatureAnimation::getHeight() const
+{
+	return fullHeight;
+}
+
+float CCreatureAnimation::getCurrentFrame() const
+{
+	return currentFrame;
 }
 
 void CCreatureAnimation::playOnce( CCreatureAnim::EAnimType type )
@@ -161,188 +240,195 @@ void CCreatureAnimation::playOnce( CCreatureAnim::EAnimType type )
 	once = true;
 }
 
-
-template<int bpp>
-int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attacker, ui8 animCount, bool IncrementFrame /*= true*/, bool yellowBorder /*= false*/, bool blueBorder /*= false*/, SDL_Rect * destRect /*= nullptr*/)
+inline int getBorderStrength(float time)
 {
-	//increasing frame number
-	int SIndex = curFrame;
-	if (IncrementFrame)
-		incrementFrame();
+	float borderStrength = fabs(round(time) - time) * 2; // generate value in range 0-1
 
-#if 0
-	long SpriteWidth, SpriteHeight, //sprite format
-		LeftMargin, RightMargin, TopMargin,BottomMargin,
-		i, FullHeight,
-
-#endif
-	ui8 SegmentType, SegmentLength;
-	ui32 i;
-
-	i = SEntries[SIndex].offset;
-
-	/*int prSize = read_le_u32(FDef + i);*/ i += 4; //TODO use me
-	const ui32 defType2 = read_le_u32(FDef + i); i += 4;
-	const ui32 FullWidth = read_le_u32(FDef + i); i += 4;
-	const ui32 FullHeight = read_le_u32(FDef + i); i += 4;
-	const ui32 SpriteWidth = read_le_u32(FDef + i); i += 4;
-	const ui32 SpriteHeight = read_le_u32(FDef + i); i += 4;
-	const int LeftMargin = read_le_u32(FDef + i); i += 4;
-	const int TopMargin = read_le_u32(FDef + i); i += 4;
-	const int RightMargin = FullWidth - SpriteWidth - LeftMargin;
-	const int BottomMargin = FullHeight - SpriteHeight - TopMargin;
-
-	if (defType2 == 1) //as it should be always in creature animations
-	{
-		const int BaseOffsetor = i;
-		int ftcp = 0;
-
-		if (TopMargin > 0)
-		{
-			ftcp += FullWidth * TopMargin;
-		}
-		ui32 *RLEntries = (ui32 *)(FDef + BaseOffsetor);
-
-		for (int i = 0; i < SpriteHeight; i++)
-		{
-			int BaseOffset = BaseOffsetor + read_le_u32(RLEntries + i);
-			int TotalRowLength; // length of read segment
-
-			if (LeftMargin > 0)
-			{
-				ftcp += LeftMargin;
-			}
-			
-			TotalRowLength = 0;
-
-			// Note: Bug fixed (Rev 2115): The implementation of omitting lines was false. 
-			// We've to calculate several things so not showing/putting pixels should suffice.
-
-			int yB = ftcp / FullWidth + y;
-
-			do
-			{
-				SegmentType = FDef[BaseOffset++];
-				SegmentLength = FDef[BaseOffset++];
-
-				const int remainder = ftcp % FullWidth;
-				int xB = (attacker ? remainder : FullWidth - remainder - 1) + x;
-
-				const ui8 aCountMod = (animCount & 0x20) ? ((animCount & 0x1e) >> 1) << 4 : (0x0f - ((animCount & 0x1e) >> 1)) << 4;
-
-				for (int k = 0; k <= SegmentLength; k++)
-				{
-					if(xB >= 0 && xB < dest->w && yB >= 0 && yB < dest->h)
-					{
-						if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB && destRect->y <= yB && destRect->y + destRect->h > yB))
-						{
-							const ui8 colorNr = SegmentType == 0xff ? FDef[BaseOffset+k] : SegmentType;
-							putPixel<bpp>(dest, xB, yB, palette[colorNr], colorNr, yellowBorder, blueBorder, aCountMod);
-						}
-					}
-					ftcp++; //increment pos
-					if(attacker)
-						xB++;
-					else
-						xB--;
-					if ( SegmentType == 0xFF && TotalRowLength+k+1 >= SpriteWidth )
-						break;
-				}
-				if (SegmentType == 0xFF)
-				{
-					BaseOffset += SegmentLength+1;
-				}
-
-				TotalRowLength+=SegmentLength+1;
-			} while(TotalRowLength < SpriteWidth);
-			if (RightMargin > 0)
-			{
-				ftcp += RightMargin;
-			}
-		}
-		if (BottomMargin > 0)
-		{
-			ftcp += BottomMargin * FullWidth;
-		}
-	}
-
-	return 0;
+	return borderStrength * 155 + 100; // scale to 0-255
 }
 
-int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, ui8 animCount, bool IncrementFrame, bool yellowBorder, bool blueBorder, SDL_Rect * destRect)
+static SDL_Color genShadow(ui8 alpha)
+{
+	return {0, 0, 0, alpha};
+}
+
+static SDL_Color genBorderColor(ui8 alpha, const SDL_Color & base)
+{
+	return {base.r, base.g, base.b, ui8(base.unused * alpha / 256)};
+}
+
+static ui8 mixChannels(ui8 c1, ui8 c2, ui8 a1, ui8 a2)
+{
+	return c1*a1 / 256 + c2*a2*(255 - a1) / 256 / 256;
+}
+
+static SDL_Color addColors(const SDL_Color & base, const SDL_Color & over)
+{
+	return {
+	            mixChannels(over.r, base.r, over.unused, base.unused),
+	            mixChannels(over.g, base.g, over.unused, base.unused),
+	            mixChannels(over.b, base.b, over.unused, base.unused),
+	            ui8(over.unused + base.unused * (255 - over.unused) / 256)
+	            };
+}
+
+std::array<SDL_Color, 8> CCreatureAnimation::genSpecialPalette()
+{
+	std::array<SDL_Color, 8> ret;
+
+	ret[0] = genShadow(0);
+	ret[1] = genShadow(64);
+	ret[2] = genShadow(128);
+	ret[3] = genShadow(128);
+	ret[4] = genShadow(128);
+	ret[5] = genBorderColor(getBorderStrength(elapsedTime), border);
+	ret[6] = addColors(genShadow(128), genBorderColor(getBorderStrength(elapsedTime), border));
+	ret[7] = addColors(genShadow(64),  genBorderColor(getBorderStrength(elapsedTime), border));
+
+	return ret;
+}
+
+template<int bpp>
+void CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool rotate, SDL_Rect * destRect /*= nullptr*/)
+{
+	assert(dataOffsets.count(type) && dataOffsets.at(type).size() > size_t(currentFrame));
+
+	ui32 offset = dataOffsets.at(type).at(floor(currentFrame));
+
+	CBinaryReader reader(new CMemoryStream(pixelData.get(), pixelDataSize));
+
+	reader.getStream()->seek(offset);
+
+	reader.readUInt32(); // unused, size of pixel data for this frame
+	const ui32 defType2 = reader.readUInt32();
+	const ui32 fullWidth = reader.readUInt32();
+	/*const ui32 fullHeight =*/ reader.readUInt32();
+	const ui32 spriteWidth = reader.readUInt32();
+	const ui32 spriteHeight = reader.readUInt32();
+	const int leftMargin = reader.readInt32();
+	const int topMargin = reader.readInt32();
+
+	const int rightMargin = fullWidth - spriteWidth - leftMargin;
+	//const int bottomMargin = fullHeight - spriteHeight - topMargin;
+
+	const size_t baseOffset = reader.getStream()->tell();
+
+	assert(defType2 == 1);
+
+	auto specialPalette = genSpecialPalette();
+
+	for (ui32 i=0; i<spriteHeight; i++)
+	{
+		//NOTE: if this loop will be optimized to skip empty lines - recheck this read access
+		ui8 * lineData = pixelData.get() + baseOffset + reader.readUInt32();
+
+		size_t destX = x;
+		if (rotate)
+			destX += rightMargin + spriteWidth - 1;
+		else
+			destX += leftMargin;
+
+		size_t destY = y + topMargin + i;
+		size_t currentOffset = 0;
+		size_t totalRowLength = 0;
+
+		while (totalRowLength < spriteWidth)
+		{
+			ui8 type = lineData[currentOffset++];
+			ui32 length = lineData[currentOffset++] + 1;
+
+			if (type==0xFF)//Raw data
+			{
+				for (size_t j=0; j<length; j++)
+					putPixelAt<bpp>(dest, destX + (rotate?(-j):(j)), destY, lineData[currentOffset + j], specialPalette, destRect);
+
+				currentOffset += length;
+			}
+			else// RLE
+			{
+				if (type != 0) // transparency row, handle it here for speed
+				{
+					for (size_t j=0; j<length; j++)
+						putPixelAt<bpp>(dest, destX + (rotate?(-j):(j)), destY, type, specialPalette, destRect);
+				}
+			}
+
+			destX += rotate ? (-length) : (length);
+			totalRowLength += length;
+		}
+	}
+}
+
+void CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, SDL_Rect * destRect)
 {
 	switch(dest->format->BytesPerPixel)
 	{
-	case 2: return nextFrameT<2>(dest, x, y, attacker, animCount, IncrementFrame, yellowBorder, blueBorder, destRect);
-	case 3: return nextFrameT<3>(dest, x, y, attacker, animCount, IncrementFrame, yellowBorder, blueBorder, destRect);
-	case 4: return nextFrameT<4>(dest, x, y, attacker, animCount, IncrementFrame, yellowBorder, blueBorder, destRect);
+	case 2: return nextFrameT<2>(dest, x, y, !attacker, destRect);
+	case 3: return nextFrameT<3>(dest, x, y, !attacker, destRect);
+	case 4: return nextFrameT<4>(dest, x, y, !attacker, destRect);
 	default:
         logGlobal->errorStream() << (int)dest->format->BitsPerPixel << " bpp is not supported!!!";
-		return -1;
 	}
 }
 
 int CCreatureAnimation::framesInGroup(CCreatureAnim::EAnimType group) const
 {
-	if(frameGroups.find(group) == frameGroups.end())
+	if(dataOffsets.count(group) == 0)
 		return 0;
-	return frameGroups.find(group)->second.size();
+
+	return dataOffsets.at(group).size();
 }
 
-CCreatureAnimation::~CCreatureAnimation()
+ui8 * CCreatureAnimation::getPixelAddr(SDL_Surface * dest, int X, int Y) const
 {
-	delete [] FDef;
+	return (ui8*)dest->pixels + X * dest->format->BytesPerPixel + Y * dest->pitch;
 }
 
 template<int bpp>
-inline void CCreatureAnimation::putPixel(
-	SDL_Surface * dest,
-	const int & ftcpX,
-	const int & ftcpY,
-	const BMPPalette & color,
-	const ui8 & palc,
-	const bool & yellowBorder,
-	const bool & blueBorder,
-	const ui8 & animCount
-) const
-{	
-	if(palc!=0)
+inline void CCreatureAnimation::putPixelAt(SDL_Surface * dest, int X, int Y, size_t index, const std::array<SDL_Color, 8> & special, SDL_Rect * destRect) const
+{
+	if (destRect == nullptr)
+		putPixel<bpp>(getPixelAddr(dest, X, Y), palette[index], index, special);
+	else
 	{
-		Uint8 * p = (Uint8*)dest->pixels + ftcpX*dest->format->BytesPerPixel + ftcpY*dest->pitch;
-		if(palc > 7) //normal color
-		{
-			ColorPutter<bpp, 0>::PutColor(p, color.R, color.G, color.B);
-		}
-		else if((yellowBorder || blueBorder) && (palc == 6 || palc == 7)) //selection highlight
-		{
-			if(blueBorder)
-				ColorPutter<bpp, 0>::PutColor(p, 0, 0x0f + animCount, 0x0f + animCount);
-			else
-				ColorPutter<bpp, 0>::PutColor(p, 0x0f + animCount, 0x0f + animCount, 0);
-		}
-		else if (palc == 5) //selection highlight or transparent
-		{
-			if(blueBorder)
-				ColorPutter<bpp, 0>::PutColor(p, color.B, color.G - 0xf0 + animCount, color.R - 0xf0 + animCount); //shouldn't it be reversed? its bgr instead of rgb
-			else if (yellowBorder)
-				ColorPutter<bpp, 0>::PutColor(p, color.R - 0xf0 + animCount, color.G - 0xf0 + animCount, color.B);
-		}
-		else //shadow
-		{
-			//determining transparency value, 255 or 0 should be already filtered
-			static Uint16 colToAlpha[8] = {255,192,128,128,128,255,128,192};
-			Uint16 alpha = colToAlpha[palc];
-
-			if(bpp != 3 && bpp != 4)
-			{
-				ColorPutter<bpp, 0>::PutColor(p, 0, 0, 0, alpha);
-			}
-			else
-			{
-				p[0] = (p[0] * alpha)>>8;
-				p[1] = (p[1] * alpha)>>8;
-				p[2] = (p[2] * alpha)>>8;
-			}
-		}
+		if ( X > destRect->x && X < destRect->w + destRect->x &&
+		     Y > destRect->y && Y < destRect->h + destRect->y )
+			putPixel<bpp>(getPixelAddr(dest, X, Y), palette[index], index, special);
 	}
+}
+
+template<int bpp>
+inline void CCreatureAnimation::putPixel(ui8 * dest, const SDL_Color & color, size_t index, const std::array<SDL_Color, 8> & special) const
+{
+	if (index < 8)
+	{
+		const SDL_Color & pal = special[index];
+		ColorPutter<bpp, 0>::PutColor(dest, pal.r, pal.g, pal.b, pal.unused);
+	}
+	else
+	{
+		ColorPutter<bpp, 0>::PutColor(dest, color.r, color.g, color.b);
+	}
+}
+
+bool CCreatureAnimation::isDead() const
+{
+	return getType() == CCreatureAnim::DEAD
+	    || getType() == CCreatureAnim::DEATH;
+}
+
+bool CCreatureAnimation::isIdle() const
+{
+	return getType() == CCreatureAnim::HOLDING
+	    || getType() == CCreatureAnim::MOUSEON;
+}
+
+void CCreatureAnimation::pause()
+{
+	speed = 0;
+}
+
+void CCreatureAnimation::play()
+{
+	speed = speedController(this, type);
 }

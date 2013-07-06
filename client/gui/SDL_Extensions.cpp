@@ -62,16 +62,6 @@ void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst)
 		blitAt(src,pos.x,pos.y,dst);
 }
 
-SDL_Color genRGB(int r, int g, int b, int a=0)
-{
-	SDL_Color ret;
-	ret.b=b;
-	ret.g=g;
-	ret.r=r;
-	ret.unused=a;
-	return ret;
-}
-
 void updateRect (SDL_Rect * rect, SDL_Surface * scr)
 {
 	SDL_UpdateRect(scr,rect->x,rect->y,rect->w,rect->h);

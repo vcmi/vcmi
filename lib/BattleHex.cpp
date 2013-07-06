@@ -60,12 +60,14 @@ std::vector<BattleHex> BattleHex::neighbouringTiles() const
 {
 	std::vector<BattleHex> ret;
 	const int WN = GameConstants::BFIELD_WIDTH;
-	checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), ret);
-	checkAndPush(hex - ( (hex/WN)%2 ? WN : WN-1 ), ret);
-	checkAndPush(hex - 1, ret);
-	checkAndPush(hex + 1, ret);
-	checkAndPush(hex + ( (hex/WN)%2 ? WN-1 : WN ), ret);
-	checkAndPush(hex + ( (hex/WN)%2 ? WN : WN+1 ), ret);
+	// H3 order : TR, R, BR, BL, L, TL (T = top, B = bottom ...)
+
+	checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), ret); // 1
+	checkAndPush(hex + 1, ret); // 2
+	checkAndPush(hex + ( (hex/WN)%2 ? WN : WN+1 ), ret); // 3
+	checkAndPush(hex + ( (hex/WN)%2 ? WN-1 : WN ), ret); // 4
+	checkAndPush(hex - 1, ret); // 5
+	checkAndPush(hex - ( (hex/WN)%2 ? WN : WN-1 ), ret); // 6
 
 	return ret;
 }

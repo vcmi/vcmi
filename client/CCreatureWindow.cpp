@@ -106,8 +106,8 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, CreWinType Type, std:
 				fs += Upg;
 				fs += boost::bind(&CCreatureWindow::close,this);
 				CFunctionList<void()> cfl;
-				cfl = [&] {
-					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[207], fs, nullptr, false, upgResCost); };
+				cfl += boost::bind(&CPlayerInterface::showYesNoDialog,
+				                   LOCPLINT, CGI->generaltexth->allTexts[207], fs, nullptr, false, upgResCost);
 				upgrade = new CAdventureMapButton("",CGI->generaltexth->zelp[446].second,cfl,385, 148,"IVIEWCR.DEF",SDLK_u);
 			}
 			else

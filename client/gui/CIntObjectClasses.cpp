@@ -546,12 +546,14 @@ CHighlightableButtonsGroup::~CHighlightableButtonsGroup()
 
 void CHighlightableButtonsGroup::select(int id, bool mode)
 {
-	CHighlightableButton *bt = nullptr;
+	assert(!buttons.empty());
+
+	CHighlightableButton *bt = buttons.front();
 	if(mode)
 	{
-		for(size_t i=0;i<buttons.size() && !bt; ++i)
-			if (buttons[i]->ID == id)
-				bt = buttons[i];
+		for(auto btn : buttons)
+			if (btn->ID == id)
+				bt = btn;
 	}
 	else
 	{

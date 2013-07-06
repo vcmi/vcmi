@@ -52,7 +52,7 @@ CDefEssential::~CDefEssential()
 
 void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 {
-	BMPPalette palette[256];
+	SDL_Color palette[256];
 	SDefEntry &de = * reinterpret_cast<SDefEntry *>(table);
 	ui8 *p;
 
@@ -64,10 +64,10 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 
 	for (ui32 it=0;it<256;it++)
 	{
-		palette[it].R = de.palette[it].R;
-		palette[it].G = de.palette[it].G;
-		palette[it].B = de.palette[it].B;
-		palette[it].F = 255;
+		palette[it].r = de.palette[it].R;
+		palette[it].g = de.palette[it].G;
+		palette[it].b = de.palette[it].B;
+		palette[it].unused = 255;
 	}
 
 	// The SDefEntryBlock starts just after the SDefEntry
@@ -128,7 +128,7 @@ void CDefHandler::expand(ui8 N,ui8 & BL, ui8 & BR)
 	BR = N & 0x1F;
 }
 
-SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPalette * palette) const
+SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Color * palette) const
 {
 	SDL_Surface * ret=nullptr;
 
@@ -176,10 +176,10 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPal
 	for(int i=0; i<256; ++i)
 	{
 		SDL_Color pr;
-		pr.r = palette[i].R;
-		pr.g = palette[i].G;
-		pr.b = palette[i].B;
-		pr.unused = palette[i].F;
+		pr.r = palette[i].r;
+		pr.g = palette[i].g;
+		pr.b = palette[i].b;
+		pr.unused = palette[i].unused;
 		(*(ret->format->palette->colors+i))=pr;
 	}
 

@@ -27,11 +27,8 @@ public:
 	}
 	CFunctionList(const boost::function<Signature> &first)
 	{
-		funcs.push_back(first);
-	}
-	CFunctionList(boost::function<Signature> &first)
-	{
-		funcs.push_back(first);
+		if (first)
+			funcs.push_back(first);
 	}
 	CFunctionList(std::nullptr_t)
 	{}

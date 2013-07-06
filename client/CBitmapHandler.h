@@ -1,9 +1,5 @@
 #pragma once
 
-
-
-struct SDL_Surface;
-
 /*
  * CBitmapHandler.h, part of VCMI engine
  *
@@ -14,11 +10,7 @@ struct SDL_Surface;
  *
  */
 
-/// Struct which stands for a simple rgba palette
-struct BMPPalette
-{
-	ui8 R,G,B,F;
-};
+struct SDL_Surface;
 
 namespace BitmapHandler
 {

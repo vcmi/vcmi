@@ -5,6 +5,7 @@
 #include "../gui/SDL_Extensions.h"
 #include "../CAdvmapInterface.h"
 #include "../CAnimation.h"
+#include "../CBitmapHandler.h"
 #include "../../lib/CObjectHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../CDefHandler.h"
@@ -43,8 +44,6 @@ const double M_PI = 3.14159265358979323846;
 
 using namespace boost::assign;
 
-const time_t CBattleInterface::HOVER_ANIM_DELTA = 1;
-
 /*
  * CBattleInterface.cpp, part of VCMI engine
  *
@@ -57,13 +56,27 @@ const time_t CBattleInterface::HOVER_ANIM_DELTA = 1;
 
 CondSh<bool> CBattleInterface::animsAreDisplayed;
 
-struct CMP_stack2
+static void onAnimationFinished(const CStack *stack, CCreatureAnimation * anim)
 {
-	inline bool operator ()(const CStack& a, const CStack& b)
+	if (anim->isIdle())
 	{
-		return (a.Speed())>(b.Speed());
+		const CCreature *creature = stack->getCreature();
+
+		if (anim->framesInGroup(CCreatureAnim::MOUSEON) > 0)
+		{
+			if (float(rand() % 100) < creature->animation.timeBetweenFidgets * 10)
+				anim->playOnce(CCreatureAnim::MOUSEON);
+			else
+				anim->setType(CCreatureAnim::HOLDING);
+		}
+		else
+		{
+			anim->setType(CCreatureAnim::HOLDING);
+		}
 	}
-} cmpst2 ;
+	// always reset callback
+	anim->onAnimationReset += std::bind(&onAnimationFinished, stack, anim);
+}
 
 static void transformPalette(SDL_Surface * surf, double rCor, double gCor, double bCor)
 {
@@ -80,7 +93,6 @@ static void transformPalette(SDL_Surface * surf, double rCor, double gCor, doubl
 		}
 	}
 }
-//////////////////////
 
 void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 {
@@ -93,10 +105,10 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 								   const SDL_Rect & myRect, 
 								   shared_ptr<CPlayerInterface> att, shared_ptr<CPlayerInterface> defen)
 	: background(nullptr), queue(nullptr), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
-	  activeStack(nullptr), stackToActivate(nullptr), selectedStack(nullptr), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1),
+      activeStack(nullptr), mouseHoveredStack(nullptr), stackToActivate(nullptr), selectedStack(nullptr), previouslyHoveredHex(-1),
 	  currentlyHoveredHex(-1), attackingHex(-1), stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(nullptr), sp(nullptr),
 	  siegeH(nullptr), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0),
-	  givenCommand(nullptr), myTurn(false), resWindow(nullptr), moveStarted(false), moveSh(-1), bresult(nullptr)
+	  givenCommand(nullptr), myTurn(false), resWindow(nullptr), moveStarted(false), moveSoundHander(-1), bresult(nullptr)
 {
 	OBJ_CONSTRUCTION;
 
@@ -719,7 +731,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		const CStack *s = stack;
 		if(creAnims.find(s->ID) == creAnims.end()) //e.g. for summoned but not yet handled stacks
 			continue;
-		if(creAnims[s->ID]->getType() != CCreatureAnim::DEATH && s->position >= 0) //don't show turrets here
+		if(creAnims[s->ID]->getType() != CCreatureAnim::DEAD && s->position >= 0) //don't show turrets here
 			stackAliveByHex[s->position].push_back(s);
 	}
 	std::vector<const CStack *> stackDeadByHex[GameConstants::BFIELD_SIZE];
@@ -728,7 +740,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		const CStack *s = stack;
 		if(creAnims.find(s->ID) == creAnims.end()) //e.g. for summoned but not yet handled stacks
 			continue;
-		if(creAnims[s->ID]->getType() == CCreatureAnim::DEATH)
+		if(creAnims[s->ID]->isDead())
 			stackDeadByHex[s->position].push_back(s);
 	}
 
@@ -790,7 +802,8 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(size_t v=0; v<elem.size(); ++v)
 		{
-			creAnims[elem[v]->ID]->nextFrame(to, creAnims[elem[v]->ID]->pos.x, creAnims[elem[v]->ID]->pos.y, creDir[elem[v]->ID], animCount, false); //increment always when moving, never if stack died
+			creAnims[elem[v]->ID]->nextFrame(to, creAnims[elem[v]->ID]->pos.x, creAnims[elem[v]->ID]->pos.y, creDir[elem[v]->ID]);
+			creAnims[elem[v]->ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
 		}
 	}
 	std::vector<const CStack *> flyingStacks; //flying stacks should be displayed later, over other stacks and obstacles
@@ -964,7 +977,7 @@ void CBattleInterface::showAliveStacks(std::vector<const CStack *> *aliveStacks,
 	{
 		const CStack *s = elem;
 
-		if(!s->hasBonusOfType(Bonus::FLYING) || creAnims[s->ID]->getType() != CCreatureAnim::DEATH)
+		if(!s->hasBonusOfType(Bonus::FLYING) || creAnims[s->ID]->getType() != CCreatureAnim::DEAD)
 			showAliveStack(s, to);
 		else
 			flyingStacks->push_back(s);
@@ -1376,8 +1389,9 @@ void CBattleInterface::newStack(const CStack * stack)
 
 	if(stack->position < 0) //turret
 	{
-		const CCreature & turretCreature = *CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
-		creAnims[stack->ID] = new CCreatureAnimation(turretCreature.animDefName);
+		const CCreature * turretCreature = CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
+
+		creAnims[stack->ID] = AnimationControls::getAnimation(turretCreature);
 
 		// Turret positions are read out of the /config/wall_pos.txt
 		int posID = 0;
@@ -1399,13 +1413,18 @@ void CBattleInterface::newStack(const CStack * stack)
 			coords.x = siegeH->town->town->clientInfo.siegePositions[posID].x + this->pos.x;
 			coords.y = siegeH->town->town->clientInfo.siegePositions[posID].y + this->pos.y;
 		}
+		creAnims[stack->ID]->pos.h = siegeH->town->town->clientInfo.siegeShooterCropHeight;
 	}
 	else
 	{
-		creAnims[stack->ID] = new CCreatureAnimation(stack->getCreature()->animDefName);
+		creAnims[stack->ID] = AnimationControls::getAnimation(stack->getCreature());
+		creAnims[stack->ID]->onAnimationReset += std::bind(&onAnimationFinished, stack, creAnims[stack->ID]);
+		creAnims[stack->ID]->pos.h = creAnims[stack->ID]->getHeight();
 	}
+	creAnims[stack->ID]->pos.x = coords.x;
+	creAnims[stack->ID]->pos.y = coords.y;
+	creAnims[stack->ID]->pos.w = creAnims[stack->ID]->getWidth();
 	creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
-	creAnims[stack->ID]->pos = Rect(coords.x, coords.y, creAnims[stack->ID]->fullWidth, creAnims[stack->ID]->fullHeight);
 	creDir[stack->ID] = stack->attackerOwned;
 	
 }
@@ -1541,14 +1560,14 @@ void CBattleInterface::giveCommand(Battle::ActionType action, BattleHex tile, ui
 	{
         logGlobal->traceStream() << "Setting command for " << (stack ? stack->nodeName() : "hero");
 		myTurn = false;
-		activeStack = nullptr;
+		setActiveStack(nullptr);
 		givenCommand->setn(ba);
 	}
 	else
 	{
 		curInt->cb->battleMakeTacticAction(ba);
 		vstd::clear_pointer(ba);
-		activeStack = nullptr;
+		setActiveStack(nullptr);
 		//next stack will be activated when action ends
 	}
 }
@@ -1618,7 +1637,7 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 		animsAreDisplayed.waitUntil(false);
 	}
 	displayBattleFinished();
-	activeStack = nullptr;
+	setActiveStack(nullptr);
 }
 
 void CBattleInterface::displayBattleFinished()
@@ -2041,17 +2060,49 @@ void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
 void CBattleInterface::setAnimSpeed(int set)
 {
 	Settings speed = settings.write["battle"]["animationSpeed"];
-	speed->Float() = set;
+	speed->Float() = float(set) / 100;
 }
 
 int CBattleInterface::getAnimSpeed() const
 {
-	return settings["battle"]["animationSpeed"].Float();
+	return round(settings["battle"]["animationSpeed"].Float() * 100);
+}
+
+void CBattleInterface::setActiveStack(const CStack * stack)
+{
+	if (activeStack) // update UI
+		creAnims[activeStack->ID]->setBorderColor(AnimationControls::getNoBorder());
+
+	activeStack = stack;
+
+	if (activeStack) // update UI
+		creAnims[activeStack->ID]->setBorderColor(AnimationControls::getGoldBorder());
+}
+
+void CBattleInterface::setHoveredStack(const CStack * stack)
+{
+	if (mouseHoveredStack)
+		creAnims[mouseHoveredStack->ID]->setBorderColor(AnimationControls::getNoBorder());
+
+	// stack must be alive and not active (which uses gold border instead)
+	if (stack && stack->alive() && stack != activeStack)
+	{
+		mouseHoveredStack = stack;
+
+		if (mouseHoveredStack)
+		{
+			creAnims[mouseHoveredStack->ID]->setBorderColor(AnimationControls::getBlueBorder());
+			if (creAnims[mouseHoveredStack->ID]->framesInGroup(CCreatureAnim::MOUSEON) > 0)
+				creAnims[mouseHoveredStack->ID]->playOnce(CCreatureAnim::MOUSEON);
+		}
+	}
+	else
+		mouseHoveredStack = nullptr;
 }
 
 void CBattleInterface::activateStack()
 {
-	activeStack = stackToActivate;
+	setActiveStack(stackToActivate);
 	stackToActivate = nullptr;
 	const CStack *s = activeStack;
 
@@ -2096,21 +2147,6 @@ void CBattleInterface::activateStack()
 		activate();
 
 	GH.fakeMouseMove();
-}
-
-double CBattleInterface::getAnimSpeedMultiplier() const
-{
-	switch(getAnimSpeed())
-	{
-	case 1:
-		return 3.5;
-	case 2:
-		return 2.2;
-	case 4:
-		return 1.0;
-	default:
-		return 0.0;
-	}
 }
 
 void CBattleInterface::endCastingSpell()
@@ -2204,63 +2240,9 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	int ID = stack->ID;
 	if(creAnims.find(ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
 		return;
-	const CCreature *creature = stack->getCreature();
-	SDL_Rect unitRect = {creAnims[ID]->pos.x, creAnims[ID]->pos.y, uint16_t(creAnims[ID]->fullWidth), uint16_t(creAnims[ID]->fullHeight)};
 
-	CCreatureAnim::EAnimType animType = creAnims[ID]->getType();
-
-	int affectingSpeed = getAnimSpeed();
-	if(animType == CCreatureAnim::MOUSEON || animType == CCreatureAnim::HOLDING) //standing stacks should not stand faster :)
-		affectingSpeed = 2;
-	bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=CCreatureAnim::DEATH &&
-		animType!=CCreatureAnim::MOVE_START && animType!=CCreatureAnim::HOLDING;
-
-	if (creature->idNumber == CreatureID::ARROW_TOWERS)
-	{
-		// a turret creature has a limited height, so cut it at a certain position; turret creature has no standing anim
-		unitRect.h = siegeH->town->town->clientInfo.siegeShooterCropHeight;
-	}
-	else
-	{
-		// standing animation
-		if(animType == CCreatureAnim::HOLDING)
-		{
-			if(standingFrame.find(ID)!=standingFrame.end())
-			{
-				incrementFrame = (animCount%(8/affectingSpeed)==0);
-				if(incrementFrame)
-				{
-					++standingFrame[ID];
-					if(standingFrame[ID] == creAnims[ID]->framesInGroup(CCreatureAnim::HOLDING))
-					{
-						standingFrame.erase(standingFrame.find(ID));
-					}
-				}
-			}
-			else
-			{
-				if((rand()%50) == 0)
-				{
-					standingFrame.insert(std::make_pair(ID, 0));
-				}
-			}
-		}
-	}
-
-	// As long as the projectile of the shooter-stack is flying incrementFrame should be false
-	//bool shootingFinished = true;
-	for (auto & elem : projectiles)
-	{
-		if (elem.stackID == ID)
-		{
-			//shootingFinished = false;
-			if (elem.animStartDelay == 0)
-				incrementFrame = false;
-		}
-	}
-
-	// Increment always when moving, never if stack died
-	creAnims[ID]->nextFrame(to, unitRect.x, unitRect.y, creDir[ID], animCount, incrementFrame, activeStack && ID==activeStack->ID, ID==mouseHoveredStack, &unitRect);
+	creAnims[ID]->nextFrame(to, creAnims[ID]->pos.x, creAnims[ID]->pos.y, creDir[ID], nullptr);
+	creAnims[ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
 
 	//printing amount
 	if(stack->count > 0 //don't print if stack is not alive
@@ -2471,17 +2453,19 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 	if(to == nullptr)
 		to = screen;
 	std::list< std::list<ProjectileInfo>::iterator > toBeDeleted;
-	for(auto it=projectiles.begin(); it!=projectiles.end(); ++it)
+	for(auto it = projectiles.begin(); it!=projectiles.end(); ++it)
 	{
-		// Creature have to be in a shooting anim and the anim start delay must be over.
-		// Otherwise abort to start moving the projectile.
-		if (it->animStartDelay > 0)
+		// Check if projectile is already visible (shooter animation did the shot)
+		if (!it->shotDone)
 		{
-			if(it->animStartDelay == creAnims[it->stackID]->getAnimationFrame() + 1
-					&& creAnims[it->stackID]->getType() >= 14 && creAnims[it->stackID]->getType() <= 16)
-				it->animStartDelay = 0;
+			if (creAnims[it->stackID]->getCurrentFrame() > it->animStartDelay)
+			{
+				//at this point projectile should become visible
+				creAnims[it->stackID]->pause(); // pause animation
+				it->shotDone = true;
+			}
 			else
-				continue;
+				continue; // wait...
 		}
 
 		SDL_Rect dst;
@@ -2528,6 +2512,8 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 	}
 	for(auto & elem : toBeDeleted)
 	{
+		// resume animation
+		creAnims[elem->stackID]->play();
 		projectiles.erase(elem);
 	}
 }
@@ -2545,24 +2531,19 @@ void CBattleInterface::endAction(const BattleAction* action)
 	}
 
 	if(stack && action->actionType == Battle::WALK &&
-		creAnims[action->stackNumber]->getType() != CCreatureAnim::HOLDING) //walk or walk & attack
+		!creAnims[action->stackNumber]->isIdle()) //walk or walk & attack
 	{
 		pendingAnims.push_back(std::make_pair(new CMovementEndAnimation(this, stack, action->destinationTile), false));
-	}
-	if(action->actionType == Battle::CATAPULT) //catapult
-	{
 	}
 
 	//check if we should reverse stacks
 	//for some strange reason, it's not enough
-// 	std::set<const CStack *> stacks;
-// 	stacks.insert(LOCPLINT->cb->battleGetStackByID(action->stackNumber));
-// 	stacks.insert(LOCPLINT->cb->battleGetStackByPos(action->destinationTile));
 	TStacks stacks = curInt->cb->battleGetStacks(CBattleCallback::MINE_AND_ENEMY);
 
 	for(const CStack *s : stacks)
 	{
-		if(s && creDir[s->ID] != bool(s->attackerOwned) && s->alive())
+		if(s && creDir[s->ID] != bool(s->attackerOwned) && s->alive()
+		   && creAnims[s->ID]->isIdle())
 		{
 			addNewAnim(new CReverseAnimation(this, s, s->position, false));
 		}
@@ -2613,6 +2594,9 @@ void CBattleInterface::showQueue()
 
 void CBattleInterface::startAction(const BattleAction* action)
 {
+	setActiveStack(nullptr);
+	setHoveredStack(nullptr);
+
 	if(action->actionType == Battle::END_TACTIC_PHASE)
 	{
 		SDL_FreeSurface(menu);
@@ -2719,7 +2703,7 @@ void CBattleInterface::waitForAnims()
 
 void CBattleInterface::bEndTacticPhase()
 {
-	activeStack = nullptr;
+	setActiveStack(nullptr);
 	btactEnd->block(true);
 	tacticsMode = false;
 }
@@ -2839,9 +2823,12 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	if (shere)
 		ourStack = shere->owner == curInt->playerID;
 	
-	//TODO: handle
-	bool noStackIsHovered = true; //will cause removing a blue glow
-	
+	//stack changed, update selection border
+	if (shere != mouseHoveredStack)
+	{
+		setHoveredStack(shere);
+	}
+
 	localActions.clear();
 	illegalActions.clear();
 
@@ -3145,23 +3132,8 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				cursorFrame = ECursor::COMBAT_QUERY;
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[297]) % shere->getName()).str();
 				realizeAction = [=]{ GH.pushInt(createCreWindow(shere, true)); };
-	
-				//setting console text
-				const time_t curTime = time(nullptr);
-				CCreatureAnimation *hoveredStackAnim = creAnims[shere->ID];
-
-				if (shere->ID != mouseHoveredStack
-					&& curTime > lastMouseHoveredStackAnimationTime + HOVER_ANIM_DELTA
-					&& hoveredStackAnim->getType() == CCreatureAnim::HOLDING 
-					&& hoveredStackAnim->framesInGroup(CCreatureAnim::MOUSEON) > 0)
-				{
-					hoveredStackAnim->playOnce(CCreatureAnim::MOUSEON);
-					lastMouseHoveredStackAnimationTime = curTime;
-				}
-				noStackIsHovered = false;
-				mouseHoveredStack = shere->ID;
-			}
 				break;
+			}
 		}
 	}
 	else //no possible valid action, display message
@@ -3249,11 +3221,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			}
 		};
 	}
-
 	realizeThingsToDo();
-	if(noStackIsHovered)
-		mouseHoveredStack = -1;
-
 }
 
 bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CStack * shere, BattleHex myNumber)
@@ -3447,7 +3415,7 @@ Rect CBattleInterface::hexPosition(BattleHex hex) const
 
 SDL_Surface * CBattleInterface::imageOfObstacle(const CObstacleInstance &oi) const
 {
-	int frameIndex = (animCount+1) / (40/getAnimSpeed());
+	int frameIndex = (animCount+1) * 25 / getAnimSpeed();
 	switch(oi.obstacleType)
 	{
 	case CObstacleInstance::USUAL:

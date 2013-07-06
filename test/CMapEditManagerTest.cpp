@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 		CRandomGenerator gen;
 		const JsonNode viewNode(ResourceID("test/terrainViewMappings", EResType::TEXT));
 		const auto & mappingsNode = viewNode["mappings"].Vector();
-		BOOST_FOREACH(const auto & node, mappingsNode)
+		for (const auto & node : mappingsNode)
 		{
 			// Get terrain group and id
 			const auto & patternStr = node["pattern"].String();
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 			const auto & mapping = (*pattern).mapping;
 
 			const auto & positionsNode = node["pos"].Vector();
-			BOOST_FOREACH(const auto & posNode, positionsNode)
+			for (const auto & posNode : positionsNode)
 			{
 				const auto & posVector = posNode.Vector();
 				if(posVector.size() != 3) throw std::runtime_error("A position should consist of three values x,y,z. Continue with next position.");
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 				editManager->drawTerrain(originalTile.terType, &gen);
 				const auto & tile = map->getTile(pos);
 				bool isInRange = false;
-				BOOST_FOREACH(const auto & range, mapping)
+				for(const auto & range : mapping)
 				{
 					if(tile.terView >= range.first && tile.terView <= range.second)
 					{

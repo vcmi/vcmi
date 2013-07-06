@@ -3,6 +3,8 @@
 #include "gui/SDL_Extensions.h"
 
 #include "CAdvmapInterface.h"
+#include "CBitmapHandler.h"
+#include "CDefHandler.h"
 #include "battle/CBattleInterface.h"
 #include "battle/CBattleInterfaceClasses.h"
 #include "../CCallback.h"
