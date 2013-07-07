@@ -802,7 +802,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(size_t v=0; v<elem.size(); ++v)
 		{
-			creAnims[elem[v]->ID]->nextFrame(to, creAnims[elem[v]->ID]->pos.x, creAnims[elem[v]->ID]->pos.y, creDir[elem[v]->ID]);
+			creAnims[elem[v]->ID]->nextFrame(to, creDir[elem[v]->ID]);
 			creAnims[elem[v]->ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
 		}
 	}
@@ -986,8 +986,7 @@ void CBattleInterface::showAliveStacks(std::vector<const CStack *> *aliveStacks,
 
 void CBattleInterface::showObstacles(std::multimap<BattleHex, int> *hexToObstacle, std::vector<shared_ptr<const CObstacleInstance> > &obstacles, int hex, SDL_Surface *to)
 {
-	std::pair<std::multimap<BattleHex, int>::const_iterator, std::multimap<BattleHex, int>::const_iterator> obstRange =
-		hexToObstacle->equal_range(hex);
+	auto obstRange = hexToObstacle->equal_range(hex);
 
 	for(auto it = obstRange.first; it != obstRange.second; ++it)
 	{
@@ -1385,7 +1384,9 @@ void CBattleInterface::bConsoleDownf()
 
 void CBattleInterface::newStack(const CStack * stack)
 {
-	Point coords = CClickableHex::getXYUnitAnim(stack->position, stack->owner == attackingHeroInstance->tempOwner, stack, this);
+	creDir[stack->ID] = stack->attackerOwned; // must be set before getting stack position
+
+	Point coords = CClickableHex::getXYUnitAnim(stack->position, stack, this);
 
 	if(stack->position < 0) //turret
 	{
@@ -1425,7 +1426,6 @@ void CBattleInterface::newStack(const CStack * stack)
 	creAnims[stack->ID]->pos.y = coords.y;
 	creAnims[stack->ID]->pos.w = creAnims[stack->ID]->getWidth();
 	creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
-	creDir[stack->ID] = stack->attackerOwned;
 	
 }
 
@@ -1680,7 +1680,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			//initial variables
 			std::string animToDisplay;
 			Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;
-			Point destcoord = CClickableHex::getXYUnitAnim(sc->tile, !sc->side, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by arrow
+			Point destcoord = CClickableHex::getXYUnitAnim(sc->tile, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by arrow
 			destcoord.x += 250; destcoord.y += 240;
 
 			//animation angle
@@ -2241,7 +2241,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	if(creAnims.find(ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
 		return;
 
-	creAnims[ID]->nextFrame(to, creAnims[ID]->pos.x, creAnims[ID]->pos.y, creDir[ID], nullptr);
+	creAnims[ID]->nextFrame(to, creDir[ID]);
 	creAnims[ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
 
 	//printing amount

@@ -20,6 +20,16 @@
 #include "../../lib/BattleState.h"
 #include "../../lib/CTownHandler.h"
 
+/*
+ * CBattleAnimations.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
     : owner(_owner), ID(_owner->animIDhelper++)
 {}
@@ -302,8 +312,8 @@ void CMeleeAttackAnimation::endAnim()
 
 bool CMovementAnimation::shouldRotate()
 {
-	Point begPosition = CClickableHex::getXYUnitAnim(oldPos, stack->attackerOwned, stack, owner);
-	Point endPosition = CClickableHex::getXYUnitAnim(nextHex, stack->attackerOwned, stack, owner);
+	Point begPosition = CClickableHex::getXYUnitAnim(oldPos, stack, owner);
+	Point endPosition = CClickableHex::getXYUnitAnim(nextHex, stack, owner);
 
 	if((begPosition.x > endPosition.x) && owner->creDir[stack->ID] == true)
 	{
@@ -361,8 +371,8 @@ bool CMovementAnimation::init()
 		owner->moveSoundHander = CCS->soundh->playSound(battle_sound(stack->getCreature(), move), -1);
 	}
 
-	Point begPosition = CClickableHex::getXYUnitAnim(oldPos, stack->attackerOwned, stack, owner);
-	Point endPosition = CClickableHex::getXYUnitAnim(nextHex, stack->attackerOwned, stack, owner);
+	Point begPosition = CClickableHex::getXYUnitAnim(oldPos, stack, owner);
+	Point endPosition = CClickableHex::getXYUnitAnim(nextHex, stack, owner);
 
 	timeToMove = AnimationControls::getMovementDuration(stack->getCreature());
 
@@ -395,7 +405,7 @@ void CMovementAnimation::nextFrame()
 	if(progress >= 1.0)
 	{
 		// Sets the position of the creature animation sprites
-		Point coords = CClickableHex::getXYUnitAnim(nextHex, owner->creDir[stack->ID], stack, owner);
+		Point coords = CClickableHex::getXYUnitAnim(nextHex, stack, owner);
 		myAnim->pos = coords;
 
 		// true if creature haven't reached the final destination hex
@@ -405,13 +415,6 @@ void CMovementAnimation::nextFrame()
 			curentMoveIndex++;
 			oldPos = nextHex;
 			nextHex = destTiles[curentMoveIndex];
-
-			// update position of double wide creatures
-			bool twoTiles = stack->doubleWide();
-			if(twoTiles && bool(stack->attackerOwned) && (owner->creDir[stack->ID] != bool(stack->attackerOwned) )) //big attacker creature is reversed
-				myAnim->pos.x -= 44;
-			else if(twoTiles && (! bool(stack->attackerOwned) ) && (owner->creDir[stack->ID] != bool(stack->attackerOwned) )) //big defender creature is reversed
-				myAnim->pos.x += 44;
 
 			// re-init animation
 			for(auto & elem : owner->pendingAnims)
@@ -432,7 +435,7 @@ void CMovementAnimation::endAnim()
 {
 	assert(stack);
 
-	myAnim->pos = CClickableHex::getXYUnitAnim(nextHex, owner->creDir[stack->ID], stack, owner);
+	myAnim->pos = CClickableHex::getXYUnitAnim(nextHex, stack, owner);
 	CBattleAnimation::endAnim();
 
 	owner->addNewAnim(new CMovementEndAnimation(owner, stack, nextHex));
@@ -540,8 +543,6 @@ bool CReverseAnimation::init()
 	if(!priority && !isEarliest(false))
 		return false;
 
-	//myAnim->pos = CClickableHex::getXYUnitAnim(hex, owner->creDir[stack->ID], stack, owner);
-
 	if(myAnim->framesInGroup(CCreatureAnim::TURN_L))
 	{
 		myAnim->setType(CCreatureAnim::TURN_L);
@@ -567,21 +568,7 @@ void CReverseAnimation::rotateStack(CBattleInterface * owner, const CStack * sta
 {
 	owner->creDir[stack->ID] = !owner->creDir[stack->ID];
 
-	owner->creAnims[stack->ID]->pos = CClickableHex::getXYUnitAnim(hex, owner->creDir[stack->ID], stack, owner);
-
-	if(stack->doubleWide())
-	{
-		if(stack->attackerOwned)
-		{
-			if(!owner->creDir[stack->ID])
-				owner->creAnims[stack->ID]->pos.x -= 44;
-		}
-		else
-		{
-			if(owner->creDir[stack->ID])
-				owner->creAnims[stack->ID]->pos.x += 44;
-		}
-	}
+	owner->creAnims[stack->ID]->pos = CClickableHex::getXYUnitAnim(hex, stack, owner);
 }
 
 void CReverseAnimation::setupSecondPart()
@@ -659,7 +646,7 @@ bool CShootingAnimation::init()
 	fromPos = owner->creAnims[spi.stackID]->pos.topLeft();
 	//xycoord = CClickableHex::getXYUnitAnim(shooter->position, true, shooter, owner);
 
-	destPos = CClickableHex::getXYUnitAnim(dest, false, attackedStack, owner);
+	destPos = CClickableHex::getXYUnitAnim(dest, attackedStack, owner);
 
 	// to properly translate coordinates when shooter is rotated
 	int multiplier = spi.reverse ? -1 : 1;

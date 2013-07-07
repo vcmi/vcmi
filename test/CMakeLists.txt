@@ -11,7 +11,7 @@ set(test_SRCS
 )
 
 add_executable(vcmitest ${test_SRCS})
-target_link_libraries(vcmitest vcmi ${Boost_LIBRARIES})
+target_link_libraries(vcmitest vcmi ${Boost_LIBRARIES} ${RT_LIB} ${DL_LIB})
 add_test(vcmitest vcmitest)
 
 # Files to copy to the build directory

@@ -86,13 +86,13 @@ private:
 	ui8 * getPixelAddr(SDL_Surface * dest, int ftcpX, int ftcpY) const;
 
 	template<int bpp>
-	void putPixelAt(SDL_Surface * dest, int X, int Y, size_t index, const std::array<SDL_Color, 8> & special, SDL_Rect * destRect = nullptr) const;
+	void putPixelAt(SDL_Surface * dest, int X, int Y, size_t index, const std::array<SDL_Color, 8> & special) const;
 
 	template<int bpp>
 	void putPixel( ui8 * dest, const SDL_Color & color, size_t index, const std::array<SDL_Color, 8> & special) const;
 
 	template<int bpp>
-	void nextFrameT(SDL_Surface * dest, int x, int y, bool rotate, SDL_Rect * destRect = nullptr);
+	void nextFrameT(SDL_Surface * dest, bool rotate);
 
 	void endAnimation();
 
@@ -116,7 +116,7 @@ public:
 	void setType(CCreatureAnim::EAnimType type); //sets type of animation and cleares framecount
 	CCreatureAnim::EAnimType getType() const; //returns type of animation
 
-	void nextFrame(SDL_Surface * dest, int x, int y, bool rotate, SDL_Rect * destRect = nullptr);
+	void nextFrame(SDL_Surface * dest, bool rotate);
 
 	// should be called every frame, return true when animation was reset to beginning
 	bool incrementFrame(float timePassed);

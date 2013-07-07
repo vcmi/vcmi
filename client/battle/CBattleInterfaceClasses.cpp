@@ -25,6 +25,16 @@
 #include "../CCreatureWindow.h"
 #include "../CMessage.h"
 
+/*
+ * CBattleInterfaceClasses.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 void CBattleConsole::showAll(SDL_Surface * to)
 {
 	Point textPos(pos.x + pos.w/2, pos.y + 17);
@@ -473,7 +483,7 @@ void CBattleResultWindow::bExitf()
 	CCS->videoh->close();
 }
 
-Point CClickableHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const CStack * stack, const CBattleInterface * cbi)
+Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBattleInterface * cbi)
 {
 	Point ret(-500, -500); //returned value
 	if(stack && stack->position < 0) //creatures in turrets
@@ -493,26 +503,31 @@ Point CClickableHex::getXYUnitAnim(const int & hexNum, const bool & attacker, co
 	}
 	else
 	{
-		ret.y = -139 + 42 * (hexNum/GameConstants::BFIELD_WIDTH); //counting y
+		static const Point basePos(-190, -139); // position of creature in topleft corner
+		static const int imageShiftX = 30; // X offset to base pos for facing right stacks, negative for facing left
+
+		ret.y = basePos.y + 42 * hexNum.getY(); //counting y
 		//counting x
-		if(attacker)
+		if(cbi->creDir[stack->ID])
 		{
-			ret.x = -160 + 22 * ( ((hexNum/GameConstants::BFIELD_WIDTH) + 1)%2 ) + 44 * (hexNum % GameConstants::BFIELD_WIDTH);
+			ret.x = basePos.x + imageShiftX + 22 * ( (hexNum.getY() + 1)%2 ) + 44 * hexNum.getX();
 		}
 		else
 		{
-			ret.x = -219 + 22 * ( ((hexNum/GameConstants::BFIELD_WIDTH) + 1)%2 ) + 44 * (hexNum % GameConstants::BFIELD_WIDTH);
+			ret.x = basePos.x - imageShiftX + 22 * ( (hexNum.getY() + 1)%2 ) + 44 * hexNum.getX();
 		}
 		//shifting position for double - hex creatures
 		if(stack && stack->doubleWide())
 		{
-			if(attacker)
+			if(stack->attackerOwned)
 			{
-				ret.x -= 44;
+				if(cbi->creDir[stack->ID])
+					ret.x -= 44;
 			}
 			else
 			{
-				ret.x += 45;
+				if(!cbi->creDir[stack->ID])
+					ret.x += 44;
 			}
 		}
 	}

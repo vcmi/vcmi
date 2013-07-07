@@ -289,7 +289,7 @@ std::array<SDL_Color, 8> CCreatureAnimation::genSpecialPalette()
 }
 
 template<int bpp>
-void CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool rotate, SDL_Rect * destRect /*= nullptr*/)
+void CCreatureAnimation::nextFrameT(SDL_Surface * dest, bool rotate)
 {
 	assert(dataOffsets.count(type) && dataOffsets.at(type).size() > size_t(currentFrame));
 
@@ -322,13 +322,13 @@ void CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool rotat
 		//NOTE: if this loop will be optimized to skip empty lines - recheck this read access
 		ui8 * lineData = pixelData.get() + baseOffset + reader.readUInt32();
 
-		size_t destX = x;
+		size_t destX = pos.x;
 		if (rotate)
 			destX += rightMargin + spriteWidth - 1;
 		else
 			destX += leftMargin;
 
-		size_t destY = y + topMargin + i;
+		size_t destY = pos.y + topMargin + i;
 		size_t currentOffset = 0;
 		size_t totalRowLength = 0;
 
@@ -340,7 +340,7 @@ void CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool rotat
 			if (type==0xFF)//Raw data
 			{
 				for (size_t j=0; j<length; j++)
-					putPixelAt<bpp>(dest, destX + (rotate?(-j):(j)), destY, lineData[currentOffset + j], specialPalette, destRect);
+					putPixelAt<bpp>(dest, destX + (rotate?(-j):(j)), destY, lineData[currentOffset + j], specialPalette);
 
 				currentOffset += length;
 			}
@@ -349,7 +349,7 @@ void CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool rotat
 				if (type != 0) // transparency row, handle it here for speed
 				{
 					for (size_t j=0; j<length; j++)
-						putPixelAt<bpp>(dest, destX + (rotate?(-j):(j)), destY, type, specialPalette, destRect);
+						putPixelAt<bpp>(dest, destX + (rotate?(-j):(j)), destY, type, specialPalette);
 				}
 			}
 
@@ -359,13 +359,15 @@ void CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool rotat
 	}
 }
 
-void CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, SDL_Rect * destRect)
+void CCreatureAnimation::nextFrame(SDL_Surface *dest, bool attacker)
 {
+	// Note: please notice that attacker value is inversed when passed further.
+	// This is intended behavior because "attacker" actually does not needs rotation
 	switch(dest->format->BytesPerPixel)
 	{
-	case 2: return nextFrameT<2>(dest, x, y, !attacker, destRect);
-	case 3: return nextFrameT<3>(dest, x, y, !attacker, destRect);
-	case 4: return nextFrameT<4>(dest, x, y, !attacker, destRect);
+	case 2: return nextFrameT<2>(dest, !attacker);
+	case 3: return nextFrameT<3>(dest, !attacker);
+	case 4: return nextFrameT<4>(dest, !attacker);
 	default:
         logGlobal->errorStream() << (int)dest->format->BitsPerPixel << " bpp is not supported!!!";
 	}
@@ -385,16 +387,9 @@ ui8 * CCreatureAnimation::getPixelAddr(SDL_Surface * dest, int X, int Y) const
 }
 
 template<int bpp>
-inline void CCreatureAnimation::putPixelAt(SDL_Surface * dest, int X, int Y, size_t index, const std::array<SDL_Color, 8> & special, SDL_Rect * destRect) const
+inline void CCreatureAnimation::putPixelAt(SDL_Surface * dest, int X, int Y, size_t index, const std::array<SDL_Color, 8> & special) const
 {
-	if (destRect == nullptr)
-		putPixel<bpp>(getPixelAddr(dest, X, Y), palette[index], index, special);
-	else
-	{
-		if ( X > destRect->x && X < destRect->w + destRect->x &&
-		     Y > destRect->y && Y < destRect->h + destRect->y )
-			putPixel<bpp>(getPixelAddr(dest, X, Y), palette[index], index, special);
-	}
+	putPixel<bpp>(getPixelAddr(dest, X, Y), palette[index], index, special);
 }
 
 template<int bpp>

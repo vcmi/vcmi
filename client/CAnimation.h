@@ -318,6 +318,15 @@ class CCreatureAnim: public CShowableAnim
 {
 public:
 
+	enum EHeroAnimType
+	{
+		HERO_HOLDING = 0,
+		HERO_IDLE = 1, // idling movement that happens from time to time
+		HERO_DEFEAT = 2, // played when army loses stack or on friendly fire
+		HERO_VICTORY = 3, // when enemy stack killed or huge damage is dealt
+		HERO_CAST_SPELL = 4 // spellcasting
+	};
+
 	enum EAnimType // list of creature animations, numbers were taken from def files
 	{
 		MOVING=0,

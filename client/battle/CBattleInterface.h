@@ -50,12 +50,6 @@ struct InfoAboutHero;
 struct BattleAction;
 class CBattleGameInterface;
 
-/// Class which manages the locked hex fields that are blocked e.g. by obstacles
-class CBattleObstacle
-{
-	std::vector<int> lockedHexes;
-};
-
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
 {
@@ -217,14 +211,13 @@ public:
 	int getAnimSpeed() const; //speed of animation; range 1..100
 
 	std::vector<CClickableHex*> bfield; //11 lines, 17 hexes on each
-	//std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	SDL_Surface * cellBorder, * cellShade;
 	CondSh<BattleAction *> *givenCommand; //data != nullptr if we have i.e. moved current unit
 	bool myTurn; //if true, interface is active (commands can be ordered)
 	CBattleResultWindow * resWindow; //window of end of battle
 
 	bool moveStarted; //if true, the creature that is already moving is going to make its first step
-	int moveSoundHander;		  // sound handler used when moving a unit
+	int moveSoundHander; // sound handler used when moving a unit
 
 	const BattleResult * bresult; //result of a battle; if non-zero then display when all animations end
 

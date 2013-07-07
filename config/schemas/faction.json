@@ -132,10 +132,13 @@
 						},
 						"dwellings" : {
 							"type" : "array",
+							"minItems" : 7,
+							"maxItems" : 7,
 							"description" : "Dwellings on adventure map",
 							"items" : {
 								"type" : "object",
 								"additionalProperties" : false,
+								"required" : [ "name", "graphics" ],
 								"properties" : {
 									"name":     { "type":"string" },
 									"graphics": { "type":"string" }
