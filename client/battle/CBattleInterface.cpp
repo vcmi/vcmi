@@ -2065,7 +2065,7 @@ void CBattleInterface::setAnimSpeed(int set)
 
 int CBattleInterface::getAnimSpeed() const
 {
-	return round(settings["battle"]["animationSpeed"].Float() * 100);
+	return vstd::round(settings["battle"]["animationSpeed"].Float() * 100);
 }
 
 void CBattleInterface::setActiveStack(const CStack * stack)

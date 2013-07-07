@@ -137,8 +137,8 @@ CCreatureAnimation::CCreatureAnimation(std::string name, TSpeedController contro
       speed(0.1),
       currentFrame(0),
       elapsedTime(0),
-      type(CCreatureAnim::HOLDING),
-      border({0, 0, 0, 0}),
+	  type(CCreatureAnim::HOLDING),
+	  border(CSDL_Ext::makeColor(0, 0, 0, 0)),
       speedController(controller),
       once(false)
 {
@@ -242,19 +242,19 @@ void CCreatureAnimation::playOnce( CCreatureAnim::EAnimType type )
 
 inline int getBorderStrength(float time)
 {
-	float borderStrength = fabs(round(time) - time) * 2; // generate value in range 0-1
+	float borderStrength = fabs(vstd::round(time) - time) * 2; // generate value in range 0-1
 
 	return borderStrength * 155 + 100; // scale to 0-255
 }
 
 static SDL_Color genShadow(ui8 alpha)
 {
-	return {0, 0, 0, alpha};
+	return CSDL_Ext::makeColor(0, 0, 0, alpha);
 }
 
 static SDL_Color genBorderColor(ui8 alpha, const SDL_Color & base)
 {
-	return {base.r, base.g, base.b, ui8(base.unused * alpha / 256)};
+	return CSDL_Ext::makeColor(base.r, base.g, base.b, ui8(base.unused * alpha / 256));
 }
 
 static ui8 mixChannels(ui8 c1, ui8 c2, ui8 a1, ui8 a2)
@@ -264,12 +264,12 @@ static ui8 mixChannels(ui8 c1, ui8 c2, ui8 a1, ui8 a2)
 
 static SDL_Color addColors(const SDL_Color & base, const SDL_Color & over)
 {
-	return {
+	return CSDL_Ext::makeColor(
 	            mixChannels(over.r, base.r, over.unused, base.unused),
 	            mixChannels(over.g, base.g, over.unused, base.unused),
 	            mixChannels(over.b, base.b, over.unused, base.unused),
 	            ui8(over.unused + base.unused * (255 - over.unused) / 256)
-	            };
+	            );
 }
 
 std::array<SDL_Color, 8> CCreatureAnimation::genSpecialPalette()

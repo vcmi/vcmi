@@ -977,6 +977,12 @@ void CSDL_Ext::fillTexture(SDL_Surface *dst, SDL_Surface * src)
 	}
 }
 
+SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
+{
+	SDL_Color ret = {r, g, b, a};
+	return ret;
+}
+
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<2>(int, int);
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<3>(int, int);
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<4>(int, int);

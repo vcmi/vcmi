@@ -112,6 +112,9 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/thread.hpp>
 #include <boost/variant.hpp>
 
+#include <boost/math/special_functions/round.hpp>
+
+
 #ifdef ANDROID
 #include <android/log.h>
 #endif
@@ -584,6 +587,8 @@ namespace vstd
 		else
 			return nullptr;
 	}
+
+	using boost::math::round;
 }
 using vstd::operator-=;
 using vstd::make_unique;
