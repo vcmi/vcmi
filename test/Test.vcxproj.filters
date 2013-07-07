@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="CQuestLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CMapEditManagerTest.cpp" />
+    <ClCompile Include="CVcmiTestConfig.cpp" />
+    <ClCompile Include="StdInc.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CQuestLog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CVcmiTestConfig.h" />
+    <ClInclude Include="StdInc.h" />
+  </ItemGroup>
+</Project>
