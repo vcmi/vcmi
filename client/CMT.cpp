@@ -170,7 +170,7 @@ void init()
 static void prog_version(void)
 {
 	printf("%s\n", GameConstants::VCMI_VERSION.c_str());
-	printf("  data directory:    %s\n", VCMIDirs::get().dataPath().c_str());
+	printf("  data directory:    %s\n", VCMIDirs::get().dataPaths().back().c_str());
 	printf("  library directory: %s\n", VCMIDirs::get().libraryPath().c_str());
 	printf("  path to server:    %s\n", VCMIDirs::get().serverPath().c_str());
 }
@@ -279,7 +279,7 @@ int main(int argc, char** argv)
 	console->start();
 	atexit(dispose);
 
-	CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Client_log.txt", console);
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() + "/VCMI_Client_log.txt", console);
     logConfig.configureDefault();
 	logGlobal->infoStream() <<"Creating console "<<pomtime.getDiff();
 
@@ -324,8 +324,8 @@ int main(int argc, char** argv)
 	{
         logGlobal->errorStream() << "Fatal error: failed to load settings!";
         logGlobal->errorStream() << "Possible reasons:";
-        logGlobal->errorStream() << "\tCorrupted local configuration file at " << VCMIDirs::get().localPath() << "/config/settings.json";
-        logGlobal->errorStream() << "\tMissing or corrupted global configuration file at " << VCMIDirs::get().dataPath() << "/config/schemas/settings.json";
+        logGlobal->errorStream() << "\tCorrupted local configuration file at " << VCMIDirs::get().userConfigPath() << "/settings.json";
+        logGlobal->errorStream() << "\tMissing or corrupted global configuration file at " << VCMIDirs::get().userConfigPath() << "/schemas/settings.json";
         logGlobal->errorStream() << "VCMI will now exit...";
 		exit(EXIT_FAILURE);
 	}
@@ -534,7 +534,7 @@ void processCommand(const std::string &message)
 	{
         std::cout<<"Command accepted.\t";
 
-		std::string outPath = VCMIDirs::get().localPath() + "/extracted/";
+		std::string outPath = VCMIDirs::get().userCachePath() + "/extracted/";
 
 		auto iterator = CResourceHandler::get()->getIterator([](const ResourceID & ident)
 		{
@@ -662,8 +662,7 @@ void processCommand(const std::string &message)
 			CDefEssential * cde = CDefHandler::giveDefEss(URI);
 
 			std::string outName = CResourceHandler::get()->getResource(ResourceID("SPRITES/" + URI)).getResourceName();
-			std::string outPath = VCMIDirs::get().localPath() + "/extracted/";
-
+			std::string outPath = VCMIDirs::get().userCachePath() + "/extracted/";
 
 			boost::filesystem::create_directories(outPath + outName);
 
@@ -684,7 +683,7 @@ void processCommand(const std::string &message)
 		if (CResourceHandler::get()->existsResource(ResourceID(URI)))
 		{
 			std::string outName = CResourceHandler::get()->getResource(ResourceID(URI)).getResourceName();
-			std::string outPath = VCMIDirs::get().localPath() + "/extracted/";
+			std::string outPath = VCMIDirs::get().userCachePath() + "/extracted/";
 			std::string fullPath = outPath + outName;
 
 			auto data = CResourceHandler::get()->loadData(ResourceID(URI));

@@ -364,13 +364,13 @@ void ERMInterpreter::scanForScripts()
 {
 	using namespace boost::filesystem;
 	//parser checking
-	if(!exists(VCMIDirs::get().dataPath() + "/Data/s/"))
+	if(!exists(VCMIDirs::get().dataPaths().back() + "/Data/s/"))
 	{
-		logGlobal->warnStream() << "Warning: Folder " << VCMIDirs::get().dataPath() << "/Data/s/ doesn't exist!";
+		logGlobal->warnStream() << "Warning: Folder " << VCMIDirs::get().dataPaths().back() << "/Data/s/ doesn't exist!";
 		return;
 	}
 	directory_iterator enddir;
-	for (directory_iterator dir(VCMIDirs::get().dataPath() + "/Data/s"); dir!=enddir; dir++)
+	for (directory_iterator dir(VCMIDirs::get().dataPaths().back() + "/Data/s"); dir!=enddir; dir++)
 	{
 		if(is_regular(dir->status()))
 		{

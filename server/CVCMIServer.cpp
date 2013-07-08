@@ -536,7 +536,7 @@ static void handleCommandOptions(int argc, char *argv[])
 int main(int argc, char** argv)
 {
 	console = new CConsoleHandler;
-	CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Server_log.txt", console);
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() + "/VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
 
 	preinitDLL(console);

@@ -171,7 +171,7 @@
 				"horde1":         { "id" : 18, "upgrades" : 31 },
 				"horde1Upgr":     { "id" : 19, "upgrades" : 38, "requires" : [ 18 ], "mode" : "auto" },
 				"special2":       { "id" : 21, "requires" : [ 17 ] },
-				"special3":       { "id" : 22, "requires" : [ 18, 19 ] },
+				"special3":       { "id" : 22, "requires" : [ 18 ] },
 				"horde2":         { "id" : 24, "upgrades" : 34 },
 				"horde2Upgr":     { "id" : 25, "upgrades" : 41, "requires" : [ 24 ], "mode" : "auto" },
 				"grail":          { "id" : 26, "mode" : "grail"},

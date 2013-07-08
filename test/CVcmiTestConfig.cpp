@@ -22,7 +22,7 @@
 CVcmiTestConfig::CVcmiTestConfig()
 {
 	console = new CConsoleHandler;
-	CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Test_log.txt", console);
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() + "/VCMI_Test_log.txt", console);
 	logConfig.configureDefault();
 	preinitDLL(console);
 	settings.init();

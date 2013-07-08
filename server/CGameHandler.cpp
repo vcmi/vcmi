@@ -3765,12 +3765,21 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	}
 	else if (message == "vcmiarmenelos") //build all buildings in selected town
 	{
-		CGTownInstance *town = gs->getTown(gs->getPlayer(player)->currentSelection);
+		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
+		CGTownInstance *town;
+
+		if (hero)
+			town = hero->visitedTown;
+		else
+			town = gs->getTown(gs->getPlayer(player)->currentSelection);
+
 		if (town)
 		{
 			for (auto & build : town->town->buildings)
 			{
-				if (!town->hasBuilt(build.first) && !build.second->Name().empty())
+				if (!town->hasBuilt(build.first)
+				    && !build.second->Name().empty()
+				    && build.first != BuildingID::SHIP)
 				{
 					buildStructure(town->id, build.first, true);
 				}

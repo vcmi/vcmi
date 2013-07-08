@@ -2,6 +2,7 @@
 #include "Graphics.h"
 
 #include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/CBinaryReader.h"
 #include "CDefHandler.h"
 #include "gui/SDL_Extensions.h"
 #include <SDL_ttf.h>
@@ -65,18 +66,18 @@ void Graphics::loadPaletteAndColors()
 	}
 
 	neutralColorPalette = new SDL_Color[32];
-	std::ifstream ncp;
-	ncp.open(CResourceHandler::get()->getResourceName(ResourceID("config/NEUTRAL.PAL")), std::ios::binary);
+
+	auto stream = CResourceHandler::get()->load(ResourceID("config/NEUTRAL.PAL"));
+	CBinaryReader reader(stream.get());
+
 	for(int i=0; i<32; ++i)
 	{
-		ncp.read((char*)&neutralColorPalette[i].r,1);
-		ncp.read((char*)&neutralColorPalette[i].g,1);
-		ncp.read((char*)&neutralColorPalette[i].b,1);
-		ncp.read((char*)&neutralColorPalette[i].unused,1);
+		neutralColorPalette[i].r = reader.readUInt8();
+		neutralColorPalette[i].g = reader.readUInt8();
+		neutralColorPalette[i].b = reader.readUInt8();
+		neutralColorPalette[i].unused = reader.readUInt8();
 		neutralColorPalette[i].unused = !neutralColorPalette[i].unused;
 	}
-
-
 	//colors initialization
 	int3 kolory[] = {int3(0xff,0,0),int3(0x31,0x52,0xff),int3(0x9c,0x73,0x52),int3(0x42,0x94,0x29),
 		int3(0xff,0x84,0x0),int3(0x8c,0x29,0xa5),int3(0x09,0x9c,0xa5),int3(0xc6,0x7b,0x8c)};

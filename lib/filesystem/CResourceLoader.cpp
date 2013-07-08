@@ -332,25 +332,26 @@ void CResourceHandler::initialize()
 	initialLoader = new CResourceLoader;
 	resourceLoader = new CResourceLoader;
 
-	shared_ptr<ISimpleResourceLoader> rootDir(new CFilesystemLoader(VCMIDirs::get().dataPath(), 0, true));
-	initialLoader->addLoader("GLOBAL/", rootDir, false);
-	initialLoader->addLoader("ALL/", rootDir, false);
-
-	auto userDir = rootDir;
-
-	//add local directory to "ALL" but only if it differs from root dir (true for linux)
-	if (VCMIDirs::get().dataPath() != VCMIDirs::get().localPath())
+	for (auto path : VCMIDirs::get().dataPaths())
 	{
-		userDir = shared_ptr<ISimpleResourceLoader>(new CFilesystemLoader(VCMIDirs::get().localPath(), 0, true));
-		initialLoader->addLoader("ALL/", userDir, false);
+		shared_ptr<ISimpleResourceLoader> loader(new CFilesystemLoader(path, 0, true));
+
+		initialLoader->addLoader("GLOBAL/", loader, false);
+		initialLoader->addLoader("ALL/", loader, false);
 	}
 
-	//create "LOCAL" dir with current userDir (may be same as rootDir)
-	initialLoader->addLoader("LOCAL/", userDir, false);
+	{
+		shared_ptr<ISimpleResourceLoader> loader(new CFilesystemLoader(VCMIDirs::get().userDataPath(), 0, true));
+
+		initialLoader->addLoader("LOCAL/", loader, false);
+
+		if (!vstd::contains(VCMIDirs::get().dataPaths(), VCMIDirs::get().userDataPath()))
+			initialLoader->addLoader("ALL/", loader, false);
+	}
 
 	recurseInDir("ALL/CONFIG", 0);// look for configs
 	recurseInDir("ALL/DATA", 0); // look for archives
-	recurseInDir("ALL/MODS", 2); // look for mods. Depth 2 is required for now but won't cause issues if no mods present
+	recurseInDir("ALL/MODS", 2); // look for mods. Depth 2 is required for now but won't cause spped issues if no mods present
 }
 
 void CResourceHandler::loadDirectory(const std::string &prefix, const std::string &mountPoint, const JsonNode & config)

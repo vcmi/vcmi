@@ -76,7 +76,7 @@
 				{ "x":313, "y":244, "file":"DATA/NEUTRAL1.H3C",  "image":"CAMPNEUS", "video":"CNEUTRAL", "open": true },
 				{ "x":586, "y":246, "file":"DATA/EVIL2.H3C",    "image":"CAMPEV2S", "video":"CEVIL2",   "open": true },
 				{ "x":34,  "y":417, "file":"DATA/GOOD3.H3C",    "image":"CAMPGD3S", "video":"CGOOD3",   "open": true },
-				{ "x":404, "y":414, "file":"DATA/SECRET.H3C",   "image":"CAMPSCTS", "video":"CSECRET",  "open": true }
+				{ "x":404, "y":414, "file":"DATA/SECRET1.H3C",   "image":"CAMPSCTS", "video":"CSECRET",  "open": true }
 			]
 		},
 		{
@@ -111,7 +111,7 @@
 				{ "x":313, "y":244, "file":"DATA/SANDRO.H3C",   "image":"CAMPRN1", "video":"RISE",    "open": true },
 				{ "x":586, "y":246, "file":"DATA/YOG.H3C",      "image":"CAMPBB1", "video":"BIRTH",   "open": true },
 				{ "x":34,  "y":417, "file":"DATA/FINAL.H3C",    "image":"CAMPUA1", "video":"UNHOLY",  "open": true },
-				{ "x":404, "y":414, "file":"DATA/SECRET1.H3C",  "image":"CAMPSP1", "video":"SPECTRE", "open": true }
+				{ "x":404, "y":414, "file":"DATA/SECRET.H3C",  "image":"CAMPSP1", "video":"SPECTRE", "open": true }
 			]
 
 		},

@@ -21,18 +21,30 @@ public:
 	/// get singleton instance
 	static VCMIDirs & get();
 
-	/// Path to local, user-specific directory (e.g. ~/.vcmi on *nix systems)
-	std::string localPath() const;
+	/// Path to user-specific data directory
+	std::string userDataPath() const;
+
+	/// Path to "cache" directory, can be used for any non-essential files
+	std::string userCachePath() const;
+
+	/// Path to writeable directory with user configs
+	std::string userConfigPath() const;
+
+	/// Path to saved games
+	std::string userSavePath() const;
+
+	/// Path to config directories, e.g. <data dir>/config. First items have higher priority
+	std::vector<std::string> configPaths() const;
+
+	/// Paths to global system-wide data directories. First items have higher priority
+	std::vector<std::string> dataPaths() const;
+
+	/// Full path to vcmiserver executable, including server name (e.g. /usr/bin/vcmiserver)
+	std::string serverPath() const;
 
 	/// Path where vcmi libraries can be found (in AI and Scripting subdirectories)
 	std::string libraryPath() const;
 
-	/// Path to vcmiserver, including server name (e.g. /usr/bin/vcmiserver)
-	std::string serverPath() const;
-
-	/// Path to global system-wide data directory
-	std::string dataPath() const;
-
-	/// Returns system-specific name for dynamic libraries ("libStupidAI.so" or "StupidAI.dll")
+	/// Returns system-specific name for dynamic libraries ( StupidAI => "libStupidAI.so" or "StupidAI.dll")
 	std::string libraryName(std::string basename) const;
 };

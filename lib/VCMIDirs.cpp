@@ -16,9 +16,10 @@ static VCMIDirs VCMIDirsGlobal;
 VCMIDirs::VCMIDirs()
 {
 	// initialize local directory and create folders to which VCMI needs write access
-	boost::filesystem::create_directory(localPath());
-	boost::filesystem::create_directory(localPath() + "/config");
-	boost::filesystem::create_directory(localPath() + "/Games");
+	boost::filesystem::create_directory(userDataPath());
+	boost::filesystem::create_directory(userCachePath());
+	boost::filesystem::create_directory(userConfigPath());
+	boost::filesystem::create_directory(userSavePath());
 }
 
 VCMIDirs & VCMIDirs::get()
@@ -26,27 +27,47 @@ VCMIDirs & VCMIDirs::get()
 	return VCMIDirsGlobal;
 }
 
+std::string VCMIDirs::userCachePath() const
+{
+	return userDataPath();
+}
+
+std::string VCMIDirs::userConfigPath() const
+{
+	return userDataPath() + "/config";
+}
+
+std::string VCMIDirs::userSavePath() const
+{
+	return userDataPath() + "/Games";
+}
+
+std::vector<std::string> VCMIDirs::configPaths() const
+{
+	return std::vector<std::string>(1, dataPaths()[0] + "/config");
+}
+
 //FIXME: find way to at least decrease size of this ifdef (along with cleanup in CMake)
 #if defined(_WIN32)
 
-std::string VCMIDirs::localPath() const
+std::string VCMIDirs::userDataPath() const
 {
-	return dataPath();
+	return dataPaths()[0];
 }
 
 std::string VCMIDirs::libraryPath() const
 {
-	return dataPath();
+	return userDataPath();
 }
 
 std::string VCMIDirs::serverPath() const
 {
-	return dataPath() + "\\" + "VCMI_server.exe";
+	return userDataPath() + "\\" + "VCMI_server.exe";
 }
 
-std::string VCMIDirs::dataPath() const
+std::vector<std::string> VCMIDirs::dataPaths() const
 {
-	return ".";
+	return std::vector<std::string>(1, ".");
 }
 
 std::string VCMIDirs::libraryName(std::string basename) const
@@ -56,7 +77,7 @@ std::string VCMIDirs::libraryName(std::string basename) const
 
 #elif defined(__APPLE__)
 
-std::string VCMIDirs::localPath() const
+std::string VCMIDirs::userDataPath() const
 {
 	// This is Cocoa code that should be normally used to get path to Application Support folder but can't use it here for now...
 	// NSArray* urls = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask];
@@ -80,9 +101,9 @@ std::string VCMIDirs::serverPath() const
 	return "./vcmiserver";
 }
 
-std::string VCMIDirs::dataPath() const
+std::vector<std::string> VCMIDirs::dataPaths() const
 {
-	return "../Data";
+	return std::vector<std::string>(1, "../Data");
 }
 
 std::string VCMIDirs::libraryName(std::string basename) const
@@ -92,7 +113,7 @@ std::string VCMIDirs::libraryName(std::string basename) const
 
 #else
 
-std::string VCMIDirs::localPath() const
+std::string VCMIDirs::userDataPath() const
 {
 	if (getenv("HOME") != nullptr )
 		return std::string(getenv("HOME")) + "/.vcmi";
@@ -109,9 +130,9 @@ std::string VCMIDirs::serverPath() const
 	return std::string(M_BIN_DIR) + "/" + "vcmiserver";
 }
 
-std::string VCMIDirs::dataPath() const
+std::vector<std::string> VCMIDirs::dataPaths() const
 {
-	return M_DATA_DIR;
+	return std::vector<std::string>(1, M_DATA_DIR);
 }
 
 std::string VCMIDirs::libraryName(std::string basename) const
