@@ -798,6 +798,18 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 	}
 
+	//Get all the spell effects that need to be drawn with the stack
+	std::vector<const BattleEffect *> battleEffectByHex[GameConstants::BFIELD_SIZE];
+	std::vector<const BattleEffect *> topBattleEffects;
+	for (auto & battleEffect : battleEffects)
+	{
+		const BattleEffect *e = &battleEffect;
+		if(e->position.isValid())
+			battleEffectByHex[e->position].push_back(e);
+		else
+			topBattleEffects.push_back(e);
+	}
+
 	for(auto & elem : stackDeadByHex) //showing dead stacks
 	{
 		for(size_t v=0; v<elem.size(); ++v)
@@ -809,10 +821,11 @@ void CBattleInterface::show(SDL_Surface * to)
 	std::vector<const CStack *> flyingStacks; //flying stacks should be displayed later, over other stacks and obstacles
 	if (!siegeH)
 	{
-		for(int b = 0; b < GameConstants::BFIELD_SIZE; ++b) //showing alive stacks
+		for(int b = 0; b < GameConstants::BFIELD_SIZE; ++b) //showing alive stacks and spells
 		{
 			showObstacles(&hexToObstacle, obstacles, b, to);
 			showAliveStacks(stackAliveByHex, b, &flyingStacks, to);
+			showBattleEffects(battleEffectByHex[b], to);
 		}
 	}
 	// Siege drawing
@@ -882,6 +895,7 @@ void CBattleInterface::show(SDL_Surface * to)
 					int hex = j * 17 + k;
 					showObstacles(&hexToObstacle, obstacles, hex, to);
 					showAliveStacks(stackAliveByHex, hex, &flyingStacks, to);
+					showBattleEffects(battleEffectByHex[hex], to);
 					showPieceOfWall(to, hex, stacks);
 				}
 
@@ -899,15 +913,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	projectileShowHelper(to);
 
 	//showing spell effects
-	if(battleEffects.size())
-	{
-		for(auto & elem : battleEffects)
-		{
-			SDL_Surface * bitmapToBlit = elem.anim->ourImages[(elem.frame)%elem.anim->ourImages.size()].bitmap;
-			SDL_Rect temp_rect = genRect(bitmapToBlit->h, bitmapToBlit->w, elem.x, elem.y);
-			SDL_BlitSurface(bitmapToBlit, nullptr, to, &temp_rect);
-		}
-	}
+	showBattleEffects(topBattleEffects, to);
 
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 
@@ -994,6 +1000,16 @@ void CBattleInterface::showObstacles(std::multimap<BattleHex, int> *hexToObstacl
 		SDL_Surface *toBlit = imageOfObstacle(curOb);
 		Point p = whereToBlitObstacleImage(toBlit, curOb);
 		blitAt(toBlit, p.x, p.y, to);
+	}
+}
+
+void CBattleInterface::showBattleEffects(const std::vector<const BattleEffect *> &battleEffects, SDL_Surface *to)
+{
+	for(auto & elem : battleEffects)
+	{
+		SDL_Surface * bitmapToBlit = elem->anim->ourImages[(elem->frame)%elem->anim->ourImages.size()].bitmap;
+		SDL_Rect temp_rect = genRect(bitmapToBlit->h, bitmapToBlit->w, elem->x, elem->y);
+		SDL_BlitSurface(bitmapToBlit, nullptr, to, &temp_rect);
 	}
 }
 
@@ -1924,7 +1940,8 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 	{
 		for(auto & elem : sse.stacks)
 		{
-			displayEffect(CGI->spellh->spells[effID]->mainEffectAnim, curInt->cb->battleGetStackByID(elem)->position);
+			bool areaEffect(CGI->spellh->spells[effID]->getTargetType() == CSpell::ETargetType::NO_TARGET);
+			displayEffect(CGI->spellh->spells[effID]->mainEffectAnim, curInt->cb->battleGetStackByID(elem)->position, areaEffect);
 		}
 	}
 	else if (sse.stacks.size() == 1 && sse.effect.size() == 2)
@@ -2015,9 +2032,9 @@ void CBattleInterface::castThisSpell(int spellID)
 	}
 }
 
-void CBattleInterface::displayEffect(ui32 effect, int destTile)
+void CBattleInterface::displayEffect(ui32 effect, int destTile, bool areaEffect)
 {
-	addNewAnim(new CSpellEffectAnimation(this, effect, destTile));
+	addNewAnim(new CSpellEffectAnimation(this, effect, destTile, 0, 0, false, areaEffect));
 }
 
 void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)

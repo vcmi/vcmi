@@ -70,6 +70,7 @@ struct BattleEffect
 	int frame, maxFrame;
 	CDefHandler * anim; //animation to display
 	int effectID; //uniqueID equal ot ID of appropriate CSpellEffectAnim
+	BattleHex position; //Indicates if effect which hex the effect is drawn on
 };
 
 /// Small struct which is needed for drawing the parabolic trajectory of the catapult cannon
@@ -158,6 +159,7 @@ private:
 	void showAliveStacks(std::vector<const CStack *> *aliveStacks, int hex, std::vector<const CStack *> *flyingStacks, SDL_Surface *to); // loops through all stacks at a given hex position
 	void showPieceOfWall(SDL_Surface * to, int hex, const std::vector<const CStack*> & stacks); //helper function for show
 	void showObstacles(std::multimap<BattleHex, int> *hexToObstacle, std::vector<shared_ptr<const CObstacleInstance> > &obstacles, int hex, SDL_Surface *to); // show all obstacles at a given hex position
+	void showBattleEffects(const std::vector<const BattleEffect *> &battleEffects, SDL_Surface *to); //Show all spells in the given vector
 	SDL_Surface *imageOfObstacle(const CObstacleInstance &oi) const;
 	Point whereToBlitObstacleImage(SDL_Surface *image, const CObstacleInstance &obstacle) const;
 	void redrawBackgroundWithHexes(const CStack * activeStack);
@@ -263,7 +265,7 @@ public:
 	void spellCast(const BattleSpellCast * sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(int spellID); //called when player has chosen a spell from spellbook
-	void displayEffect(ui32 effect, int destTile); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender
+	void displayEffect(ui32 effect, int destTile, bool areaEffect = true); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 	void setBattleCursor(const int myNumber); //really complex and messy, sets attackingHex
 	void endAction(const BattleAction* action);

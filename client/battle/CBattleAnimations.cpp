@@ -772,12 +772,12 @@ void CShootingAnimation::endAnim()
 	delete this;
 }
 
-CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, BattleHex _destTile, int _dx, int _dy, bool _Vflip)
-:CBattleAnimation(_owner), effect(_effect), destTile(_destTile), customAnim(""), x(0), y(0), dx(_dx), dy(_dy), Vflip(_Vflip) 
+CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, BattleHex _destTile, int _dx, int _dy, bool _Vflip, bool _areaEffect)
+:CBattleAnimation(_owner), effect(_effect), destTile(_destTile), customAnim(""), x(0), y(0), dx(_dx), dy(_dy), Vflip(_Vflip) , areaEffect(_areaEffect)
 {}
 
-CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy, bool _Vflip)
-:CBattleAnimation(_owner), effect(-1), destTile(0), customAnim(_customAnim), x(_x), y(_y), dx(_dx), dy(_dy), Vflip(_Vflip) 
+CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy, bool _Vflip, bool _areaEffect)
+:CBattleAnimation(_owner), effect(-1), destTile(0), customAnim(_customAnim), x(_x), y(_y), dx(_dx), dy(_dy), Vflip(_Vflip), areaEffect(_areaEffect)
 {}
 
 bool CSpellEffectAnimation::init()
@@ -821,6 +821,7 @@ bool CSpellEffectAnimation::init()
 					be.maxFrame = be.anim->ourImages.size();
 					be.x = i * anim->width + owner->pos.x;
 					be.y = j * anim->height + owner->pos.y;
+					be.position = BattleHex::INVALID;
 
 					owner->battleEffects.push_back(be);
 				}
@@ -866,6 +867,7 @@ bool CSpellEffectAnimation::init()
 				break;
 			case 0: // Prayer and Lightning Bolt.
 			case 1:
+			case 19: // Slow
 				// Position effect with it's bottom center touching the bottom center of affected tile(s).
 				be.x = tilePos.x + tilePos.w/2 - be.anim->width/2;
 				be.y = tilePos.y + tilePos.h - be.anim->height;
@@ -881,6 +883,12 @@ bool CSpellEffectAnimation::init()
 			// Correction for 2-hex creatures.
 			if (destStack != nullptr && destStack->doubleWide())
 				be.x += (destStack->attackerOwned ? -1 : 1)*tilePos.w/2;
+
+			//Indicate if effect should be drawn on top of everything or just on top of the hex
+			if(areaEffect)
+				be.position = BattleHex::INVALID;
+			else
+				be.position = destTile;
 
 			owner->battleEffects.push_back(be);
 		}
