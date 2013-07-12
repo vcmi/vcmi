@@ -226,7 +226,7 @@ void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSe
 		Bonus *b = elem;
 
 		//add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
-		if(selector(b) && ((!limit && b->effectRange == Bonus::NO_LIMIT) || (limit && limit(b))))
+		if(selector(b) && ((!limit && b->effectRange == Bonus::NO_LIMIT) || ((bool)limit && limit(b))))
 			out.push_back(b);
 	}
 }

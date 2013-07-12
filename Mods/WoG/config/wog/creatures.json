@@ -210,7 +210,7 @@
 	"ghost" :
 	{
 		"index": 159,
-		"level": 0,
+		"level": 3,
 		"faction": "neutral",
 		"graphics" :
 		{
@@ -344,7 +344,7 @@
 	"gorynych" :
 	{
 		"index": 168,
-		"level": 0,
+		"level": 7,
 		"faction": "neutral",
 		"abilities":
 		{
@@ -369,7 +369,7 @@
 	"warZealot" :
 	{
 		"index": 169,
-		"level": 0,
+		"level": 6,
 		"faction": "neutral",
 		"graphics" :
 		{
@@ -389,10 +389,10 @@
 			"wince": "ZELTWNCE.wav"
 		}
 	},
-	"myriad" :
+	"arcticSharpshooter" :
 	{
 		"index": 170,
-		"level": 0,
+		"level": 5,
 		"faction": "neutral",
 		"graphics" :
 		{
@@ -412,10 +412,10 @@
 			"wince": "HCRSWNCE.wav"
 		}
 	},
-	"medusaMatriarch" :
+	"lavaSharpshooter" :
 	{
 		"index": 171,
-		"level": 0,
+		"level": 5,
 		"faction": "neutral",
 		"graphics" :
 		{
@@ -438,7 +438,7 @@
 	"nightmare" :
 	{
 		"index": 172,
-		"level": 0,
+		"level": 6,
 		"faction": "neutral",
 		"graphics" :
 		{
@@ -456,7 +456,7 @@
 	"santaGremlin" :
 	{
 		"index": 173,
-		"level": 0,
+		"level": 2,
 		"faction": "neutral",
 		"graphics" :
 		{
@@ -1092,7 +1092,7 @@
 	"sylvanCentaur" :
 	{
 		"index": 192,
-		"level": 0,
+		"level": 3,
 		"faction": "neutral",
 		"graphics" :
 		{
@@ -1112,10 +1112,10 @@
 			"wince": "ECNTWNCE.wav"
 		}
 	},
-	"sorceress" :
+	"sorceresses" :
 	{
 		"index": 193,
-		"level": 0,
+		"level": 6,
 		"faction": "neutral",
 		"graphics" :
 		{
@@ -1138,7 +1138,7 @@
 	"werewolf" :
 	{
 		"index": 194,
-		"level": 0,
+		"level": 4,
 		"faction": "neutral",
 		"graphics" :
 		{
@@ -1148,7 +1148,7 @@
 	"hellSteed" :
 	{
 		"index": 195,
-		"level": 0,
+		"level": 6,
 		"faction": "neutral",
 		"graphics" :
 		{
