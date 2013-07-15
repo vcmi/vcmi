@@ -693,11 +693,14 @@ void CBattleInterface::show(SDL_Surface * to)
 					}
 				}
 
-				//always highlight pointed hex
-				int x = 14 + ((b/GameConstants::BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%GameConstants::BFIELD_WIDTH) + pos.x;
-				int y = 86 + 42 * (b/GameConstants::BFIELD_WIDTH) + pos.y;
-				SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
-				CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, nullptr, to, &temp_rect);
+				if (active)
+				{
+					//always highlight pointed hex
+					int x = 14 + ((b/GameConstants::BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%GameConstants::BFIELD_WIDTH) + pos.x;
+					int y = 86 + 42 * (b/GameConstants::BFIELD_WIDTH) + pos.y;
+					SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
+					CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, nullptr, to, &temp_rect);
+				}
 			}
 		}
 	}
@@ -2632,7 +2635,6 @@ void CBattleInterface::startAction(const BattleAction* action)
 				bConsoleUp->activate();
 			}
 		}
-		redraw();
 
 		return;
 	}
@@ -2661,6 +2663,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 	if(active)
 		deactivate();
+	redraw(); // redraw after deactivation, including proper handling of hovered hexes
 
 	char txt[400];
 
