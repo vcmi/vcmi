@@ -1010,7 +1010,10 @@ void CBattleInterface::showBattleEffects(const std::vector<const BattleEffect *>
 {
 	for(auto & elem : battleEffects)
 	{
-		SDL_Surface * bitmapToBlit = elem->anim->ourImages[(elem->frame)%elem->anim->ourImages.size()].bitmap;
+		int currentFrame = floor(elem->currentFrame);
+		currentFrame %= elem->anim->ourImages.size();
+
+		SDL_Surface * bitmapToBlit = elem->anim->ourImages[currentFrame].bitmap;
 		SDL_Rect temp_rect = genRect(bitmapToBlit->h, bitmapToBlit->w, elem->x, elem->y);
 		SDL_BlitSurface(bitmapToBlit, nullptr, to, &temp_rect);
 	}
@@ -1520,16 +1523,11 @@ void CBattleInterface::stackAttacking( const CStack * attacker, BattleHex dest, 
 	{
 		addNewAnim(new CMeleeAttackAnimation(this, attacker, dest, attacked));
 	}
-	waitForAnims();
+	//waitForAnims();
 }
 
 void CBattleInterface::newRoundFirst( int round )
 {
-	//handle regeneration
-	std::vector<const CStack*> stacks = curInt->cb->battleGetStacks(); //gets only alive stacks
-//	for(const CStack *s : stacks)
-//	{
-//	}
 	waitForAnims();
 }
 
@@ -1725,12 +1723,13 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 			//displaying animation
 			CDefEssential * animDef = CDefHandler::giveDefEss(animToDisplay);
+			double diffX = (destcoord.x - srccoord.x)*(destcoord.x - srccoord.x);
+			double diffY = (destcoord.y - srccoord.y)*(destcoord.y - srccoord.y);
+			double distance = sqrt(diffX + diffY);
 
-			int steps = sqrt(static_cast<double>((destcoord.x - srccoord.x)*(destcoord.x - srccoord.x) + (destcoord.y - srccoord.y) * (destcoord.y - srccoord.y))) / 40;
-			if(steps <= 0)
-				steps = 1;
-
-			int dx = (destcoord.x - srccoord.x - animDef->ourImages[0].bitmap->w)/steps, dy = (destcoord.y - srccoord.y - animDef->ourImages[0].bitmap->h)/steps;
+			int steps = distance / AnimationControls::getSpellEffectSpeed() + 1;
+			int dx = (destcoord.x - srccoord.x - animDef->ourImages[0].bitmap->w)/steps;
+			int dy = (destcoord.y - srccoord.y - animDef->ourImages[0].bitmap->h)/steps;
 
 			delete animDef;
 			addNewAnim(new CSpellEffectAnimation(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));
@@ -2614,7 +2613,7 @@ void CBattleInterface::showQueue()
 
 void CBattleInterface::startAction(const BattleAction* action)
 {
-	setActiveStack(nullptr);
+	//setActiveStack(nullptr);
 	setHoveredStack(nullptr);
 
 	if(action->actionType == Battle::END_TACTIC_PHASE)

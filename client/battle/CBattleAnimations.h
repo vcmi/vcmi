@@ -28,7 +28,7 @@ public:
 	virtual bool init() = 0; //to be called - if returned false, call again until returns true
 	virtual void nextFrame() {} //call every new frame
 	virtual void endAnim(); //to be called mostly internally; in this class it removes animation from pendingAnims list
-	virtual ~CBattleAnimation(){}
+	virtual ~CBattleAnimation();
 
 	bool isEarliest(bool perStackConcurrency); //determines if this animation is earliest of all
 
@@ -69,11 +69,16 @@ public:
 /// Animation of a defending unit
 class CDefenceAnimation : public CBattleStackAnimation
 {
-private:
-	//std::vector<StackAttackedInfo> attackedInfos;
+	CCreatureAnim::EAnimType getMyAnimType();
+	std::string getMySound();
+
+	void startAnimation();
+
 	const CStack * attacker; //attacking stack
-	bool byShooting; //if true, stack has been attacked by shooting
+	bool rangedAttack; //if true, stack has been attacked by shooting
 	bool killed; //if true, stack has been killed
+
+	float timeToWait; // for how long this animation should be paused
 public:
 	bool init();
 	void nextFrame();

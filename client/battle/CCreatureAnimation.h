@@ -28,12 +28,15 @@ namespace AnimationControls
 	/// creates animation object with preset speed control
 	CCreatureAnimation * getAnimation(const CCreature * creature);
 
-	/// returns animation speed of specific group, taking in mind game setting
+	/// returns animation speed of specific group, taking in mind game setting (in frames per second)
 	float getCreatureAnimationSpeed(const CCreature * creature, const CCreatureAnimation * anim, size_t groupID);
 
 	/// returns how far projectile should move each frame
 	/// TODO: make it time-based
 	float getProjectileSpeed();
+
+	/// returns speed of any spell effects, including any special effects like morale (in frames per second)
+	float getSpellEffectSpeed();
 
 	/// returns duration of full movement animation, in seconds. Needed to move animation on screen
 	float getMovementDuration(const CCreature * creature);

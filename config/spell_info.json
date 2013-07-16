@@ -560,7 +560,7 @@
 					"type": 	"PRIMARY_SKILL",
 					"subtype": "primSkill.defence",
 					"valueType": "ADDITIVE_VALUE",
-					"duration": "N_TURNS",
+					"duration": "ONE_BATTLE",
 					"values":[-3,-3,-4,-5]
 				}
 			]

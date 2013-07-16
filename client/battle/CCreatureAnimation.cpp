@@ -48,11 +48,8 @@ CCreatureAnimation * AnimationControls::getAnimation(const CCreature * creature)
 
 float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, const CCreatureAnimation * anim, size_t group)
 {
-	// possible new fields for creature format
-	//Shoot Animation Time
-	//Cast Animation Time
-	//Defence and/or Death Animation Time
-
+	// possible new fields for creature format:
+	//split "Attack time" into "Shoot Time" and "Cast Time"
 
 	// a lot of arbitrary multipliers, mostly to make animation speed closer to H3
 	CCreatureAnim::EAnimType type = CCreatureAnim::EAnimType(group);
@@ -69,9 +66,6 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	case CCreatureAnim::HOLDING:
 		return baseSpeed;
 
-	case CCreatureAnim::ATTACK_UP:
-	case CCreatureAnim::ATTACK_FRONT:
-	case CCreatureAnim::ATTACK_DOWN:
 	case CCreatureAnim::SHOOT_UP:
 	case CCreatureAnim::SHOOT_FRONT:
 	case CCreatureAnim::SHOOT_DOWN:
@@ -79,6 +73,18 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	case CCreatureAnim::CAST_FRONT:
 	case CCreatureAnim::CAST_DOWN:
 		return speed * 2 / creature->animation.attackAnimationTime / anim->framesInGroup(type);
+
+	// as strange as it looks like "attackAnimationTime" does not affects melee attacks
+	// necessary because length of attack animation must be same for all creatures for synchronization
+	case CCreatureAnim::ATTACK_UP:
+	case CCreatureAnim::ATTACK_FRONT:
+	case CCreatureAnim::ATTACK_DOWN:
+	case CCreatureAnim::DEFENCE:
+		return speed * 2 / anim->framesInGroup(type);
+
+	case CCreatureAnim::DEATH:
+	case CCreatureAnim::HITTED: // time-wise equals 1/2 of attack animation length
+		return speed / anim->framesInGroup(type);
 
 	case CCreatureAnim::TURN_L:
 	case CCreatureAnim::TURN_R:
@@ -88,9 +94,6 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	case CCreatureAnim::MOVE_END:
 		return speed / 5;
 
-	case CCreatureAnim::HITTED:
-	case CCreatureAnim::DEFENCE:
-	case CCreatureAnim::DEATH:
 	case CCreatureAnim::DEAD:
 		return speed / 5;
 
@@ -103,6 +106,11 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 float AnimationControls::getProjectileSpeed()
 {
 	return settings["battle"]["animationSpeed"].Float() * 100;
+}
+
+float AnimationControls::getSpellEffectSpeed()
+{
+	return settings["battle"]["animationSpeed"].Float() * 60;
 }
 
 float AnimationControls::getMovementDuration(const CCreature * creature)
@@ -201,7 +209,7 @@ bool CCreatureAnimation::incrementFrame(float timePassed)
 	currentFrame += timePassed * speed;
 	if (currentFrame >= float(framesInGroup(type)))
 	{
-		// just in case of extremely low fps
+		// just in case of extremely low fps (or insanely high speed)
 		while (currentFrame >= float(framesInGroup(type)))
 			currentFrame -= framesInGroup(type);
 

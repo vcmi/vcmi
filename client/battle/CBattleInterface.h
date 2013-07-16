@@ -57,7 +57,7 @@ struct StackAttackedInfo
 	unsigned int dmg; //damage dealt
 	unsigned int amountKilled; //how many creatures in stack has been killed
 	const CStack * attacker; //attacking stack
-	bool byShooting; //if true, stack has been attacked by shooting
+	bool rangedAttack; //if true, stack has been attacked by shooting
 	bool killed; //if true, stack has been killed
 	bool rebirth; //if true, play rebirth animation after all
 	bool cloneKilled;
@@ -67,7 +67,8 @@ struct StackAttackedInfo
 struct BattleEffect
 {
 	int x, y; //position on the screen
-	int frame, maxFrame;
+	float currentFrame;
+	int maxFrame;
 	CDefHandler * anim; //animation to display
 	int effectID; //uniqueID equal ot ID of appropriate CSpellEffectAnim
 	BattleHex position; //Indicates if effect which hex the effect is drawn on

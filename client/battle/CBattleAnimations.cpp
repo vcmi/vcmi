@@ -32,10 +32,18 @@
 
 CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
     : owner(_owner), ID(_owner->animIDhelper++)
-{}
+{
+	logAnim->traceStream() << "Animation #" << ID << " created";
+}
+
+CBattleAnimation::~CBattleAnimation()
+{
+	logAnim->traceStream() << "Animation #" << ID << " deleted";
+}
 
 void CBattleAnimation::endAnim()
 {
+	logAnim->traceStream() << "Animation #" << ID << " ended, type is " << typeid(this).name();
 	for(auto & elem : owner->pendingAnims)
 	{
 		if(elem.first == this)
@@ -58,7 +66,7 @@ bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 		if(perStackConcurrency && stAnim && thAnim && stAnim->stack->ID != thAnim->stack->ID)
 			continue;
 
-		if(sen && thSen && sen != thSen && perStackConcurrency)
+		if(perStackConcurrency && sen && thSen && sen != thSen)
 			continue;
 
 		CReverseAnimation * revAnim = dynamic_cast<CReverseAnimation *>(stAnim);
@@ -105,6 +113,17 @@ void CAttackAnimation::endAnim()
 
 bool CAttackAnimation::checkInitialConditions()
 {
+	for(auto & elem : owner->pendingAnims)
+	{
+		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(elem.first);
+		CReverseAnimation * revAnim = dynamic_cast<CReverseAnimation *>(stAnim);
+
+		if(revAnim) // enemy must be fully reversed
+		{
+			if (revAnim->stack->ID == attackedStack->ID)
+				return false;
+		}
+	}
 	return isEarliest(false);
 }
 
@@ -124,7 +143,7 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 
 CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, CBattleInterface * _owner)
 : CBattleStackAnimation(_owner, _attackedInfo.defender),
-attacker(_attackedInfo.attacker), byShooting(_attackedInfo.byShooting),
+attacker(_attackedInfo.attacker), rangedAttack(_attackedInfo.rangedAttack),
 killed(_attackedInfo.killed) 
 {}
 
@@ -144,23 +163,15 @@ bool CDefenceAnimation::init()
 		if(attAnim && attAnim->stack->ID != stack->ID)
 			continue;
 
-		if(attacker != nullptr)
-		{
-			int attackerAnimType = owner->creAnims[attacker->ID]->getType();
-			if( ( attackerAnimType == CCreatureAnim::ATTACK_UP ||
-			    attackerAnimType == CCreatureAnim::ATTACK_FRONT ||
-			    attackerAnimType == CCreatureAnim::ATTACK_DOWN ) )
-				return false;
-		}
-
 		CReverseAnimation * animAsRev = dynamic_cast<CReverseAnimation *>(elem.first);
 
-		if(animAsRev && animAsRev->priority)
+		if(animAsRev /*&& animAsRev->priority*/)
 			return false;
 
 		if(elem.first)
 			vstd::amin(lowestMoveID, elem.first->ID);
 	}
+
 	if(ID > lowestMoveID)
 		return false;
 
@@ -172,7 +183,7 @@ bool CDefenceAnimation::init()
 	}
 	//unit reversed
 
-	if(byShooting) //delay hit animation
+	if(rangedAttack) //delay hit animation
 	{		
 		for(std::list<ProjectileInfo>::const_iterator it = owner->projectiles.begin(); it != owner->projectiles.end(); ++it)
 		{
@@ -183,27 +194,61 @@ bool CDefenceAnimation::init()
 		}
 	}
 
-	//initializing
-	if(killed)
+	// synchronize animation with attacker, unless defending or attacked by shooter:
+	// wait for 1/2 of attack animation
+	if (!rangedAttack && getMyAnimType() != CCreatureAnim::DEFENCE)
 	{
-		CCS->soundh->playSound(battle_sound(stack->getCreature(), killed));
-		myAnim->setType(CCreatureAnim::DEATH); //death
+		float fps = AnimationControls::getCreatureAnimationSpeed(
+		                          stack->getCreature(), owner->creAnims[stack->ID], getMyAnimType());
+
+		timeToWait = myAnim->framesInGroup(getMyAnimType()) / fps;
+
+		myAnim->setType(CCreatureAnim::HOLDING);
 	}
 	else
 	{
-		// TODO: this block doesn't seems correct if the unit is defending.
-		CCS->soundh->playSound(battle_sound(stack->getCreature(), wince));
-		myAnim->setType(CCreatureAnim::HITTED); //getting hit
+		timeToWait = 0;
+		startAnimation();
 	}
-
-	myAnim->onAnimationReset += std::bind(&CDefenceAnimation::endAnim, this);
 
 	return true; //initialized successfuly
 }
 
+std::string CDefenceAnimation::getMySound()
+{
+	if(killed)
+		return battle_sound(stack->getCreature(), killed);
+
+	if (stack->valOfBonuses(Selector::durationType(Bonus::STACK_GETS_TURN)))
+		return battle_sound(stack->getCreature(), defend);
+	return battle_sound(stack->getCreature(), wince);
+}
+
+CCreatureAnim::EAnimType CDefenceAnimation::getMyAnimType()
+{
+	if(killed)
+		return CCreatureAnim::DEATH;
+
+	if (stack->valOfBonuses(Selector::durationType(Bonus::STACK_GETS_TURN)))
+		return CCreatureAnim::DEFENCE;
+	return CCreatureAnim::HITTED;
+}
+
+void CDefenceAnimation::startAnimation()
+{
+	CCS->soundh->playSound(getMySound());
+	myAnim->setType(getMyAnimType());
+	myAnim->onAnimationReset += std::bind(&CDefenceAnimation::endAnim, this);
+}
+
 void CDefenceAnimation::nextFrame()
 {
-	assert(myAnim->getType() == CCreatureAnim::HITTED || myAnim->getType() == CCreatureAnim::DEATH);
+	if (timeToWait > 0)
+	{
+		timeToWait -= float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000;
+		if (timeToWait <= 0)
+			startAnimation();
+	}
 
 	CBattleAnimation::nextFrame();
 }
@@ -262,6 +307,12 @@ bool CMeleeAttackAnimation::init()
 		owner->addNewAnim(new CReverseAnimation(owner, stack, attackingStackPosBeforeReturn, true));
 		return false;
 	}
+
+	// opponent must face attacker ( = different directions) before he can be attacked
+	if (attackingStack && attackedStack &&
+	    owner->creDir[attackingStack->ID] == owner->creDir[attackedStack->ID])
+		return false;
+
 	//reversed
 
 	shooting = false;
@@ -386,7 +437,7 @@ bool CMovementAnimation::init()
 	{
 		float distance = sqrt(distanceX * distanceX + distanceY * distanceY);
 
-		timeToMove *= distance / AnimationControls::getFlightDistance(stack->getCreature());
+		timeToMove *= AnimationControls::getFlightDistance(stack->getCreature()) / distance;
 	}
 
 	return true;
@@ -614,6 +665,11 @@ bool CShootingAnimation::init()
 		return false;
 	}
 
+	// opponent must face attacker ( = different directions) before he can be attacked
+	if (attackingStack && attackedStack &&
+	    owner->creDir[attackingStack->ID] == owner->creDir[attackedStack->ID])
+		return false;
+
 	// Create the projectile animation
 
 	//maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
@@ -817,7 +873,7 @@ bool CSpellEffectAnimation::init()
 							CSDL_Ext::VflipSurf(elem.bitmap);
 						}
 					}
-					be.frame = 0;
+					be.currentFrame = 0;
 					be.maxFrame = be.anim->ourImages.size();
 					be.x = i * anim->width + owner->pos.x;
 					be.y = j * anim->height + owner->pos.y;
@@ -854,7 +910,7 @@ bool CSpellEffectAnimation::init()
 				}
 			}
 
-			be.frame = 0;
+			be.currentFrame = 0;
 			be.maxFrame = be.anim->ourImages.size();
 			if(effect == 1)
 				be.maxFrame = 3;
@@ -909,9 +965,9 @@ void CSpellEffectAnimation::nextFrame()
 	{
 		if(elem.effectID == ID)
 		{
-			++(elem.frame);
+			elem.currentFrame += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
 
-			if(elem.frame == elem.maxFrame)
+			if(elem.currentFrame >= elem.maxFrame)
 			{
 				endAnim();
 				break;

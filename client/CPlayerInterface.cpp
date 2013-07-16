@@ -866,7 +866,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 			if (defender && !elem.isSecondary())
 				battleInt->displayEffect(elem.effect, defender->position);
 		}
-		bool shooting = (LOCPLINT->curAction ? LOCPLINT->curAction->actionType == Battle::SHOOT : false); //FIXME: why action is deleted during enchanter cast?
+		bool shooting = (LOCPLINT->curAction ? LOCPLINT->curAction->actionType != Battle::WALK_AND_ATTACK : false); //FIXME: why action is deleted during enchanter cast?
 		StackAttackedInfo to_put = {defender, elem.damageAmount, elem.killedAmount, attacker, shooting, elem.killed(), elem.willRebirth(), elem.cloneKilled()};
 		arg.push_back(to_put);
 	}

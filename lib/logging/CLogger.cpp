@@ -54,10 +54,9 @@ boost::recursive_mutex CLogManager::smx;
 DLL_LINKAGE CLogger * logGlobal = CLogger::getGlobalLogger();
 
 DLL_LINKAGE CLogger * logBonus = CLogger::getLogger(CLoggerDomain("bonus"));
-
 DLL_LINKAGE CLogger * logNetwork = CLogger::getLogger(CLoggerDomain("network"));
-
 DLL_LINKAGE CLogger * logAi = CLogger::getLogger(CLoggerDomain("ai"));
+DLL_LINKAGE CLogger * logAnim = CLogger::getLogger(CLoggerDomain("animation"));
 
 CLogger * CLogger::getLogger(const CLoggerDomain & domain)
 {

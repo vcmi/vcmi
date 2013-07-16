@@ -125,6 +125,7 @@ extern DLL_LINKAGE CLogger * logGlobal;
 extern DLL_LINKAGE CLogger * logBonus;
 extern DLL_LINKAGE CLogger * logNetwork;
 extern DLL_LINKAGE CLogger * logAi;
+extern DLL_LINKAGE CLogger * logAnim;
 
 /// RAII class for tracing the program execution.
 /// It prints "Leaving function XYZ" automatically when the object gets destructed.
