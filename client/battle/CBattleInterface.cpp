@@ -601,7 +601,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	SDL_SetClipRect(to, &pos);
 
 	//printing background and hexes
-	if(activeStack != nullptr && creAnims[activeStack->ID]->getType() != CCreatureAnim::MOVING) //show everything with range
+	if(activeStack != nullptr && creAnims[activeStack->ID]->isIdle()) //show everything with range
 	{
 		blitAt(backgroundWithHexes, pos.x, pos.y, to);
 	}

@@ -198,10 +198,10 @@ bool CDefenceAnimation::init()
 	// wait for 1/2 of attack animation
 	if (!rangedAttack && getMyAnimType() != CCreatureAnim::DEFENCE)
 	{
-		float fps = AnimationControls::getCreatureAnimationSpeed(
+		float frameLength = AnimationControls::getCreatureAnimationSpeed(
 		                          stack->getCreature(), owner->creAnims[stack->ID], getMyAnimType());
 
-		timeToWait = myAnim->framesInGroup(getMyAnimType()) / fps;
+		timeToWait = myAnim->framesInGroup(getMyAnimType()) * frameLength / 2;
 
 		myAnim->setType(CCreatureAnim::HOLDING);
 	}

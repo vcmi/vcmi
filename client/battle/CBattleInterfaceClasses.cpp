@@ -485,6 +485,8 @@ void CBattleResultWindow::bExitf()
 
 Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBattleInterface * cbi)
 {
+	assert(cbi);
+
 	Point ret(-500, -500); //returned value
 	if(stack && stack->position < 0) //creatures in turrets
 	{
@@ -506,28 +508,29 @@ Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBatt
 		static const Point basePos(-190, -139); // position of creature in topleft corner
 		static const int imageShiftX = 30; // X offset to base pos for facing right stacks, negative for facing left
 
-		ret.y = basePos.y + 42 * hexNum.getY(); //counting y
-		//counting x
-		if(cbi->creDir[stack->ID])
+		ret.x = basePos.x + 22 * ( (hexNum.getY() + 1)%2 ) + 44 * hexNum.getX();
+		ret.y = basePos.y + 42 * hexNum.getY();
+
+		if (stack)
 		{
-			ret.x = basePos.x + imageShiftX + 22 * ( (hexNum.getY() + 1)%2 ) + 44 * hexNum.getX();
-		}
-		else
-		{
-			ret.x = basePos.x - imageShiftX + 22 * ( (hexNum.getY() + 1)%2 ) + 44 * hexNum.getX();
-		}
-		//shifting position for double - hex creatures
-		if(stack && stack->doubleWide())
-		{
-			if(stack->attackerOwned)
-			{
-				if(cbi->creDir[stack->ID])
-					ret.x -= 44;
-			}
+			if(cbi->creDir[stack->ID])
+				ret.x += imageShiftX;
 			else
+				ret.x -= imageShiftX;
+
+			//shifting position for double - hex creatures
+			if(stack->doubleWide())
 			{
-				if(!cbi->creDir[stack->ID])
-					ret.x += 44;
+				if(stack->attackerOwned)
+				{
+					if(cbi->creDir[stack->ID])
+						ret.x -= 44;
+				}
+				else
+				{
+					if(!cbi->creDir[stack->ID])
+						ret.x += 44;
+				}
 			}
 		}
 	}

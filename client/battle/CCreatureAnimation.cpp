@@ -48,19 +48,24 @@ CCreatureAnimation * AnimationControls::getAnimation(const CCreature * creature)
 
 float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, const CCreatureAnimation * anim, size_t group)
 {
+	CCreatureAnim::EAnimType type = CCreatureAnim::EAnimType(group);
+
+	assert(creature->animation.walkAnimationTime != 0);
+	assert(creature->animation.attackAnimationTime != 0);
+	assert(anim->framesInGroup(type) != 0);
+
 	// possible new fields for creature format:
 	//split "Attack time" into "Shoot Time" and "Cast Time"
 
 	// a lot of arbitrary multipliers, mostly to make animation speed closer to H3
-	CCreatureAnim::EAnimType type = CCreatureAnim::EAnimType(group);
-	const float baseSpeed = 10;
-	const float speedMult = settings["battle"]["animationSpeed"].Float() * 20;
-	const float speed = baseSpeed * speedMult;
+	const float baseSpeed = 0.1;
+	const float speedMult = settings["battle"]["animationSpeed"].Float();
+	const float speed = baseSpeed / speedMult;
 
 	switch (type)
 	{
 	case CCreatureAnim::MOVING:
-		return speed / creature->animation.walkAnimationTime / anim->framesInGroup(type);
+		return speed * 2 * creature->animation.walkAnimationTime / anim->framesInGroup(type);
 
 	case CCreatureAnim::MOUSEON:
 	case CCreatureAnim::HOLDING:
@@ -72,30 +77,28 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	case CCreatureAnim::CAST_UP:
 	case CCreatureAnim::CAST_FRONT:
 	case CCreatureAnim::CAST_DOWN:
-		return speed * 2 / creature->animation.attackAnimationTime / anim->framesInGroup(type);
+		return speed * 4 * creature->animation.attackAnimationTime / anim->framesInGroup(type);
 
 	// as strange as it looks like "attackAnimationTime" does not affects melee attacks
-	// necessary because length of attack animation must be same for all creatures for synchronization
+	// necessary because length of these animations must be same for all creatures for synchronization
 	case CCreatureAnim::ATTACK_UP:
 	case CCreatureAnim::ATTACK_FRONT:
 	case CCreatureAnim::ATTACK_DOWN:
+	case CCreatureAnim::HITTED:
 	case CCreatureAnim::DEFENCE:
-		return speed * 2 / anim->framesInGroup(type);
-
 	case CCreatureAnim::DEATH:
-	case CCreatureAnim::HITTED: // time-wise equals 1/2 of attack animation length
-		return speed / anim->framesInGroup(type);
+		return speed * 3 / anim->framesInGroup(type);
 
 	case CCreatureAnim::TURN_L:
 	case CCreatureAnim::TURN_R:
-		return speed;
+		return speed / 3;
 
 	case CCreatureAnim::MOVE_START:
 	case CCreatureAnim::MOVE_END:
-		return speed / 5;
+		return speed / 3;
 
 	case CCreatureAnim::DEAD:
-		return speed / 5;
+		return speed;
 
 	default:
 		assert(0);
@@ -433,5 +436,5 @@ void CCreatureAnimation::pause()
 
 void CCreatureAnimation::play()
 {
-	speed = speedController(this, type);
+	speed = 1 / speedController(this, type);
 }
