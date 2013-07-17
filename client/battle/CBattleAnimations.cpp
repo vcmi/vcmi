@@ -229,7 +229,7 @@ CCreatureAnim::EAnimType CDefenceAnimation::getMyAnimType()
 	if(killed)
 		return CCreatureAnim::DEATH;
 
-	if (stack->valOfBonuses(Selector::durationType(Bonus::STACK_GETS_TURN)))
+	if (stack->valOfBonuses(Selector::durationType(Bonus::STACK_GETS_TURN).And(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE))))
 		return CCreatureAnim::DEFENCE;
 	return CCreatureAnim::HITTED;
 }

@@ -560,7 +560,7 @@
 					"type": 	"PRIMARY_SKILL",
 					"subtype": "primSkill.defence",
 					"valueType": "ADDITIVE_VALUE",
-					"duration": "ONE_BATTLE",
+					"duration": "N_TURNS",
 					"values":[-3,-3,-4,-5]
 				}
 			]
@@ -720,7 +720,7 @@
 			[
 				{
 					"type": 	"IN_FRENZY",
-					"duration": "N_TURNS",
+					"duration": "STACK_GETS_TURN",
 					"values":[100, 100, 150, 200]
 				}
 			]
