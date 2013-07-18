@@ -289,12 +289,9 @@ bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 
 	auto battleTestElementalImmunity = [&,this](Bonus::BonusType element) -> bool
 	{
-		if (isPositive())
-		{
-			if (obj->hasBonusOfType(element, 0)) //must be immune to all spells
+		if (obj->hasBonusOfType(element, 0)) //always resist if immune to all spells altogether
 				return true;
-		}
-		else //negative or indifferent
+		else if (!isPositive()) //negative or indifferent
 		{
 			if ((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
 				return true;

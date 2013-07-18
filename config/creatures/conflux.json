@@ -110,7 +110,8 @@
 			},
 			"immuneToFire" : 
 			{
-				"type" : "FIRE_IMMUNITY"
+				"type" : "FIRE_IMMUNITY",
+				"subtype" : 0
 			},
 			"frostRingVulnerablity" :
 			{
@@ -445,6 +446,11 @@
 			"nonLiving" : 
 			{
 				"type" : "NON_LIVING"
+			},
+			"immuneToFire" : 
+			{
+				"type" : "FIRE_IMMUNITY",
+				"subtype" : 0
 			},
 			"spellPower" : 
 			{
