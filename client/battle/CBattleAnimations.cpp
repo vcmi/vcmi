@@ -504,11 +504,11 @@ CMovementAnimation::CMovementAnimation(CBattleInterface *_owner, const CStack *_
       destTiles(_destTiles),
       curentMoveIndex(0),
       oldPos(stack->position),
-      nextHex(destTiles.front()),
       begX(0), begY(0),
       distanceX(0), distanceY(0),
       timeToMove(0.0),
-      progress(0.0)
+      progress(0.0),
+      nextHex(destTiles.front())
 {
 }
 

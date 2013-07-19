@@ -74,6 +74,27 @@ struct BattleEffect
 	BattleHex position; //Indicates if effect which hex the effect is drawn on
 };
 
+struct BattleObjectsByHex
+{
+	typedef std::vector<int> TWallList;
+	typedef std::vector<const CStack * > TStackList;
+	typedef std::vector<const BattleEffect *> TEffectList;
+	typedef std::vector<shared_ptr<const CObstacleInstance> > TObstacleList;
+
+	struct HexData
+	{
+		TWallList walls;
+		TStackList dead;
+		TStackList alive;
+		TEffectList effects;
+		TObstacleList obstacles;
+	};
+
+	HexData beforeAll;
+	HexData afterAll;
+	std::array<HexData, GameConstants::BFIELD_SIZE> hex;
+};
+
 /// Small struct which is needed for drawing the parabolic trajectory of the catapult cannon
 struct CatapultProjectileInfo
 {
@@ -128,8 +149,8 @@ private:
 	std::vector<BattleHex> occupyableHexes, //hexes available for active stack
 		attackableHexes; //hexes attackable by active stack
     bool stackCountOutsideHexes[GameConstants::BFIELD_SIZE]; // hexes that when in front of a unit cause it's amount box to move back
-	int previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
-	int currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
+	BattleHex previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
+	BattleHex currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
 	int attackingHex; //hex from which the stack would perform attack with current cursor
 
 	shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
@@ -156,18 +177,9 @@ private:
 	void getPossibleActionsForStack (const CStack * stack); //called when stack gets its turn
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 
-	void showAliveStack(const CStack *stack, SDL_Surface * to); //helper function for function show
-	void showAliveStacks(std::vector<const CStack *> *aliveStacks, int hex, std::vector<const CStack *> *flyingStacks, SDL_Surface *to); // loops through all stacks at a given hex position
-	void showPieceOfWall(SDL_Surface * to, int hex, const std::vector<const CStack*> & stacks); //helper function for show
-	void showObstacles(std::multimap<BattleHex, int> *hexToObstacle, std::vector<shared_ptr<const CObstacleInstance> > &obstacles, int hex, SDL_Surface *to); // show all obstacles at a given hex position
-	void showBattleEffects(const std::vector<const BattleEffect *> &battleEffects, SDL_Surface *to); //Show all spells in the given vector
-	SDL_Surface *imageOfObstacle(const CObstacleInstance &oi) const;
-	Point whereToBlitObstacleImage(SDL_Surface *image, const CObstacleInstance &obstacle) const;
-	void redrawBackgroundWithHexes(const CStack * activeStack);
 	void printConsoleAttacked(const CStack * defender, int dmg, int killed, const CStack * attacker, bool Multiple);
 
 	std::list<ProjectileInfo> projectiles; //projectiles flying on battlefield
-	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
 	void giveCommand(Battle::ActionType action, BattleHex tile, ui32 stackID, si32 additional=-1, si32 selectedStack = -1);
 	bool isTileAttackable(const BattleHex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
 	bool isCatapultAttackable(BattleHex hex) const; //returns true if given tile can be attacked by catapult
@@ -196,6 +208,35 @@ private:
 
 	shared_ptr<CPlayerInterface> attackerInt, defenderInt; //because LOCPLINT is not enough in hotSeat
 	const CGHeroInstance * getActiveHero(); //returns hero that can currently cast a spell
+
+	/** Methods for displaying battle screen */
+	void showBackground(SDL_Surface * to);
+
+	void showBackgroundImage(SDL_Surface * to);
+	void showAbsoluteObstacles(SDL_Surface * to);
+	void showHighlightedHexes(SDL_Surface * to);
+	void showHighlightedHex(SDL_Surface * to, BattleHex hex);
+	void showInterface(SDL_Surface * to);
+
+
+	void showBattlefieldObjects(SDL_Surface * to);
+
+	void showAliveStacks(SDL_Surface * to, std::vector<const CStack *> stacks);
+	void showStacks(SDL_Surface * to, std::vector<const CStack *> stacks);
+	void showObstacles(SDL_Surface *to, std::vector<shared_ptr<const CObstacleInstance> > &obstacles);
+	void showPiecesOfWall(SDL_Surface * to, std::vector<int> pieces);
+
+	void showBattleEffects(SDL_Surface *to, const std::vector<const BattleEffect *> &battleEffects);
+	void showProjectiles(SDL_Surface * to);
+
+	BattleObjectsByHex sortObjectsByHex();
+	void updateBattleAnimations();
+
+	SDL_Surface *getObstacleImage(const CObstacleInstance &oi);
+	Point getObstaclePosition(SDL_Surface *image, const CObstacleInstance &obstacle);
+	void redrawBackgroundWithHexes(const CStack * activeStack);
+	/** End of battle screen blitting methods */
+
 public:
 	shared_ptr<CPlayerInterface> curInt; //current player interface
 	std::list<std::pair<CBattleAnimation *, bool> > pendingAnims; //currently displayed animations <anim, initialized>
@@ -242,11 +283,12 @@ public:
 	//napisz tu klase odpowiadajaca za wyswietlanie bitwy i obsluge uzytkownika, polecenia ma przekazywac callbackiem
 	void activate();
 	void deactivate();
-	void showAll(SDL_Surface * to);
-	void show(SDL_Surface * to);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void mouseMoved(const SDL_MouseMotionEvent &sEvent);
 	void clickRight(tribool down, bool previousState);
+
+	void show(SDL_Surface *to);
+	void showAll(SDL_Surface *to);
 
 	//call-ins
 	void startAction(const BattleAction* action);

@@ -123,7 +123,6 @@ private:
 	ui32 curentMoveIndex; // index of nextHex in destTiles
 
 	BattleHex oldPos; //position of stack before move
-	BattleHex nextHex; // next hex, to which creature move right now
 
 	double begX, begY; // starting position
 	double distanceX, distanceY; // full movement distance, may be negative if creture moves topleft
@@ -132,6 +131,8 @@ private:
 	double progress; // range 0 -> 1, indicates move progrees. 0 = movement starts, 1 = move ends
 
 public:
+	BattleHex nextHex; // next hex, to which creature move right now
+
 	bool init();
 	void nextFrame();
 	void endAnim();

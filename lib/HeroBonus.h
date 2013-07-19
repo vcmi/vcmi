@@ -414,6 +414,7 @@ public:
 	void push_back(Bonus* const &x);
 	std::vector<Bonus*>::iterator erase (const int position);
 	void clear();
+	bool empty() const { return bonuses.empty(); }
 	void resize(std::vector<Bonus*>::size_type sz, Bonus* c = nullptr );
 	void insert(std::vector<Bonus*>::iterator position, std::vector<Bonus*>::size_type n, Bonus* const &x);
 	Bonus *const &operator[] (std::vector<Bonus*>::size_type n) { return bonuses[n]; }
