@@ -1332,7 +1332,8 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 	if (spell.isDamageSpell() && sc->affectedCres.empty()) //for example Inferno that causes no BattleStackAttacked
 	{
-		displayEffect (spell.mainEffectAnim, sc->tile);
+		if(sc->tile.isValid() && graphics->battleACToDef.count(spell.mainEffectAnim)) //eg. when casting Lind Mine or Fire Wall
+			displayEffect (spell.mainEffectAnim, sc->tile);
 	}
 
 	//support for resistance
