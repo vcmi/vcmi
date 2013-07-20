@@ -3967,10 +3967,12 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 	}
 
 	//calculating affected creatures for all spells
-	std::set<const CStack*> attackedCres; //what is that and what is sc.afectedCres?
+	//must be vector, as in Chain Lightning order matters
+	std::vector<const CStack*> attackedCres; //what is that and what is sc.afectedCres?
 	if (mode != ECastingMode::ENCHANTER_CASTING)
 	{
-		attackedCres = gs->curB->getAffectedCreatures(spell, spellLvl, casterColor, destination);
+		auto creatures = gs->curB->getAffectedCreatures(spell, spellLvl, casterColor, destination);
+		std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
 	}
 	else //enchanter - hit all possible stacks
 	{
@@ -3982,11 +3984,12 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 			{
 				if(stack->isValidTarget()) //TODO: allow dead targets somewhere in the future
 				{
-					attackedCres.insert(stack);
+					attackedCres.push_back(stack);
 				}
 			}
 		}
 	}
+	
 	for (auto cre : attackedCres)
 	{
 		sc.affectedCres.insert (cre->ID);
