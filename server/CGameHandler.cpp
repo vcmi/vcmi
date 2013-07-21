@@ -4299,18 +4299,14 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 		break;
 	case SpellID::REMOVE_OBSTACLE:
 		{
-			ObstaclesRemoved obr;
-			for(auto &obstacle : battleGetAllObstacles())
+			if(auto obstacleToRemove = battleGetObstacleOnPos(destination, false))
 			{
-				if(vstd::contains(obstacle->getBlockedTiles(), destination))
-					obr.obstacles.insert(obstacle->uniqueID);
-			}
-
-			if(!obr.obstacles.empty())
+				ObstaclesRemoved obr;
+				obr.obstacles.insert(obstacleToRemove->uniqueID);
 				sendAndApply(&obr);
+			}
 			else
 				complain("There's no obstacle to remove!");
-			break;
 		}
 		break;
 	case SpellID::DEATH_STARE: //handled in a bit different way

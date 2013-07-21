@@ -1778,6 +1778,32 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 
 	if(spell->getTargetType() == CSpell::OBSTACLE)
 	{
+		if(spell->id == SpellID::REMOVE_OBSTACLE)
+		{
+			if(auto obstacle = battleGetObstacleOnPos(dest, false))
+			{
+				switch (obstacle->obstacleType)
+				{
+				case CObstacleInstance::ABSOLUTE_OBSTACLE: //cliff-like obstacles cant be removed
+				case CObstacleInstance::MOAT: 
+					return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+				case CObstacleInstance::USUAL:
+					return ESpellCastProblem::OK;
+
+// 				//TODO FIRE_WALL only for ADVANCED level casters
+// 				case CObstacleInstance::FIRE_WALL:
+// 					return 
+// 				//TODO other magic obstacles for EXPERT
+// 				case CObstacleInstance::QUICKSAND:
+// 				case CObstacleInstance::LAND_MINE:
+// 				case CObstacleInstance::FORCE_FIELD:
+// 					return 
+				default:
+//					assert(0);
+					return ESpellCastProblem::OK;
+				}
+			}
+		}
 		//isObstacleOnTile(dest)
 		//
 		//
