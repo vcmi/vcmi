@@ -570,51 +570,58 @@ void CClient::battleStarted(const BattleInfo * info)
 {
 	for(auto &battleCb : battleCallbacks)
 	{
-		if(vstd::contains(info->sides, battleCb.first)  ||  battleCb.first >= PlayerColor::PLAYER_LIMIT)
+		if(vstd::contains_if(info->sides, [&](const SideInBattle& side) {return side.color == battleCb.first; })  
+			||  battleCb.first >= PlayerColor::PLAYER_LIMIT)
+		{
 			battleCb.second->setBattle(info);
+		}
 	}
 // 	for(ui8 side : info->sides)
 // 		if(battleCallbacks.count(side))
 // 			battleCallbacks[side]->setBattle(info);
 
 	shared_ptr<CPlayerInterface> att, def;
+	auto &leftSide = info->sides[0], &rightSide = info->sides[1];
+
 
 	//If quick combat is not, do not prepare interfaces for battleint
 	if(!settings["adventure"]["quickCombat"].Bool())
 	{
-		if(vstd::contains(playerint, info->sides[0]) && playerint[info->sides[0]]->human)
-			att = std::dynamic_pointer_cast<CPlayerInterface>( playerint[info->sides[0]] );
+		if(vstd::contains(playerint, leftSide.color) && playerint[leftSide.color]->human)
+			att = std::dynamic_pointer_cast<CPlayerInterface>( playerint[leftSide.color] );
 
-		if(vstd::contains(playerint, info->sides[1]) && playerint[info->sides[1]]->human)
-			def = std::dynamic_pointer_cast<CPlayerInterface>( playerint[info->sides[1]] );
+		if(vstd::contains(playerint, rightSide.color) && playerint[rightSide.color]->human)
+			def = std::dynamic_pointer_cast<CPlayerInterface>( playerint[rightSide.color] );
 	}
 
 	if(!gNoGUI && (!!att || !!def || gs->scenarioOps->mode == StartInfo::DUEL))
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
-		new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1],
+		new CBattleInterface(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero,
 			Rect((screen->w - 800)/2, 
 			     (screen->h - 600)/2, 800, 600), att, def);
 	}
 
-	if(vstd::contains(battleints,info->sides[0]))
-		battleints[info->sides[0]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);
-	if(vstd::contains(battleints,info->sides[1]))
-		battleints[info->sides[1]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
-	if(vstd::contains(battleints,PlayerColor::UNFLAGGABLE))
-		battleints[PlayerColor::UNFLAGGABLE]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
+	auto callBattleStart = [&](PlayerColor color, ui8 side){
+		if(vstd::contains(battleints, color))
+			battleints[color]->battleStart(leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side);
+	};
 
-	if(info->tacticDistance && vstd::contains(battleints,info->sides[info->tacticsSide]))
+	callBattleStart(leftSide.color, 0);
+	callBattleStart(leftSide.color, 1);
+	callBattleStart(PlayerColor::UNFLAGGABLE, 1);
+
+	if(info->tacticDistance && vstd::contains(battleints,info->sides[info->tacticsSide].color))
 	{
-		boost::thread(&CClient::commenceTacticPhaseForInt, this, battleints[info->sides[info->tacticsSide]]);
+		boost::thread(&CClient::commenceTacticPhaseForInt, this, battleints[info->sides[info->tacticsSide].color]);
 	}
 }
 
 void CClient::battleFinished()
 {
-	for(PlayerColor side : gs->curB->sides)
-		if(battleCallbacks.count(side))
-			battleCallbacks[side]->setBattle(nullptr);
+	for(auto & side : gs->curB->sides)
+		if(battleCallbacks.count(side.color))
+			battleCallbacks[side.color]->setBattle(nullptr);
 }
 
 void CClient::loadNeutralBattleAI()

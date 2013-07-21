@@ -221,9 +221,9 @@ BattlePerspective::BattlePerspective CBattleInfoEssentials::battleGetMySide() co
 	RETURN_IF_NOT_BATTLE(BattlePerspective::INVALID);
 	if(!player)
 		return BattlePerspective::ALL_KNOWING;
-	if(*player == getBattle()->sides[0])
+	if(*player == getBattle()->sides[0].color)
 		return BattlePerspective::LEFT_SIDE;
-	if(*player == getBattle()->sides[1])
+	if(*player == getBattle()->sides[1].color)
 		return BattlePerspective::RIGHT_SIDE;
 
     logGlobal->errorStream() << "Cannot find player " << *player << " in battle!";
@@ -281,12 +281,30 @@ const CGHeroInstance * CBattleInfoEssentials::battleGetFightingHero(ui8 side) co
 		return nullptr;
 	}
 
-	return getBattle()->heroes[side];
+	return getBattle()->sides[side].hero;
+}
+
+const CArmedInstance * CBattleInfoEssentials::battleGetArmyObject(ui8 side) const
+{
+	RETURN_IF_NOT_BATTLE(nullptr);
+	if(side > 1)
+	{
+		logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " wrong argument!";
+		return nullptr;
+	}
+
+	if(!battleDoWeKnowAbout(side))
+	{
+		logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " access check ";
+		return nullptr;
+	}
+
+	return getBattle()->sides[side].armyObject;
 }
 
 InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo( ui8 side ) const
 {
-	auto hero = getBattle()->heroes[side];
+	auto hero = getBattle()->sides[side].hero;
 	if(!hero)
 	{
         logGlobal->warnStream() << __FUNCTION__ << ": side " << (int)side << " does not have hero!";
@@ -299,7 +317,7 @@ InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo( ui8 side ) const
 int CBattleInfoEssentials::battleCastSpells(ui8 side) const
 {
 	RETURN_IF_NOT_BATTLE(-1);
-	return getBattle()->castSpells[side];
+	return getBattle()->sides[side].castSpellsCount;
 }
 
 ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(PlayerColor player, ECastingMode::ECastingMode mode) const
@@ -366,7 +384,7 @@ bool CBattleInfoEssentials::battleCanFlee(PlayerColor player) const
 ui8 CBattleInfoEssentials::playerToSide(PlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(-1);
-	int ret = vstd::find_pos(getBattle()->sides, player);
+	int ret = vstd::find_pos_if(getBattle()->sides, [=](const SideInBattle &side){ return side.color == player; });
 	if(ret < 0)
         logGlobal->warnStream() << "Cannot find side for player " << player;
 
@@ -390,7 +408,7 @@ bool CBattleInfoEssentials::battleHasHero(ui8 side) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	assert(side < 2);
-	return getBattle()->heroes[side];
+	return getBattle()->sides[side].hero;
 }
 
 ui8 CBattleInfoEssentials::battleGetWallState(int partOfWall) const

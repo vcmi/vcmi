@@ -243,7 +243,7 @@ public:
 	ui32 animIDhelper; //for giving IDs for animations
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 
-	CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, shared_ptr<CPlayerInterface> att, shared_ptr<CPlayerInterface> defen); //c-tor
+	CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const SDL_Rect & myRect, shared_ptr<CPlayerInterface> att, shared_ptr<CPlayerInterface> defen); //c-tor
 	~CBattleInterface(); //d-tor
 
 	//std::vector<TimeInterested*> timeinterested; //animation handling

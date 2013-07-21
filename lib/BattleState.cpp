@@ -140,7 +140,7 @@ int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstan
 CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerOwned, SlotID slot, BattleHex position) const
 {
 	int stackID = getIdForNewStack();
-	PlayerColor owner = attackerOwned ? sides[0] : sides[1];
+	PlayerColor owner = sides[attackerOwned ? 0 : 1].color;
 	assert((owner >= PlayerColor::PLAYER_LIMIT)  ||
 		   (base.armyObj && base.armyObj->tempOwner == owner));
 
@@ -153,7 +153,7 @@ CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerO
 CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, SlotID slot, BattleHex position) const
 {
 	int stackID = getIdForNewStack();
-	PlayerColor owner = attackerOwned ? sides[0] : sides[1];
+	PlayerColor owner = sides[attackerOwned ? 0 : 1].color;
 	auto  ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = position;
 	ret->state.insert(EBattleStackState::ALIVE);  //alive state indication
@@ -202,7 +202,7 @@ const CStack * BattleInfo::battleGetStack(BattleHex pos, bool onlyAlive)
 			) )
 		{
 			if (elem->alive())
-				return elem; //we prefer living stacks - there cna be only one stack on te tile, so return it imediately
+				return elem; //we prefer living stacks - there can be only one stack on the tile, so return it immediately
 			else if (!onlyAlive)
 				stack = elem; //dead stacks are only accessible when there's no alive stack on this tile
 		}
@@ -212,15 +212,17 @@ const CStack * BattleInfo::battleGetStack(BattleHex pos, bool onlyAlive)
 
 const CGHeroInstance * BattleInfo::battleGetOwner(const CStack * stack) const
 {
-	return heroes[!stack->attackerOwned];
+	return sides[!stack->attackerOwned].hero;
 }
 
 void BattleInfo::localInit()
 {
-	belligerents[0]->battle = belligerents[1]->battle = this;
-
-	for(CArmedInstance *b : belligerents)
-		b->attachTo(this);
+	for(int i = 0; i < 2; i++)
+	{
+		auto armyObj = battleGetArmyObject(i);
+		armyObj->battle = this;
+		armyObj->attachTo(this);
+	}
 
 	for(CStack *s : stacks)
 		localInitStack(s);
@@ -237,7 +239,7 @@ void BattleInfo::localInitStack(CStack * s)
 	}
 	else //attach directly to obj to which stack belongs and creature type
 	{
-		CArmedInstance *army = belligerents[!s->attackerOwned];
+		CArmedInstance *army = battleGetArmyObject(!s->attackerOwned);
 		s->attachTo(army);
 		assert(s->type);
 		s->attachTo(const_cast<CCreature*>(s->type));
@@ -349,23 +351,17 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 {
 	CMP_stack cmpst;
 	auto curB = new BattleInfo;
-	curB->castSpells[0] = curB->castSpells[1] = 0;
-	curB->sides[0] = armies[0]->tempOwner;
-	curB->sides[1] = armies[1]->tempOwner;
-	if(curB->sides[1] == PlayerColor::UNFLAGGABLE)
-		curB->sides[1] = PlayerColor::NEUTRAL;
+
+	for(auto i = 0u; i < curB->sides.size(); i++)
+		curB->sides[i].init(heroes[i], armies[i]);
+
 
 	std::vector<CStack*> & stacks = (curB->stacks);
 
 	curB->tile = tile;
 	curB->battlefieldType = battlefieldType;
-	curB->belligerents[0] = const_cast<CArmedInstance*>(armies[0]);
-	curB->belligerents[1] = const_cast<CArmedInstance*>(armies[1]);
-	curB->heroes[0] = const_cast<CGHeroInstance*>(heroes[0]);
-	curB->heroes[1] = const_cast<CGHeroInstance*>(heroes[1]);
 	curB->round = -2;
 	curB->activeStack = -1;
-	curB->enchanterCounter[0] = curB->enchanterCounter[1] = 0; //ready to cast
 
 	if(town)
 	{
@@ -664,7 +660,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	//////////////////////////////////////////////////////////////////////////
 
 	//tactics
-	bool isTacticsAllowed = !creatureBank; //no tactics in crebanks
+	bool isTacticsAllowed = !creatureBank; //no tactics in creature banks
 
 	int tacticLvls[2] = {0};
 	for(int i = 0; i < ARRAY_COUNT(tacticLvls); i++)
@@ -687,7 +683,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	for(int i = 0; i < 2; i++)
 	{
 		TNodes nodes;
-		curB->belligerents[i]->getRedAncestors(nodes);
+		curB->battleGetArmyObject(i)->getRedAncestors(nodes);
 		for(CBonusSystemNode *n : nodes)
 		{
 			for(Bonus *b : n->getExportedBonusList())
@@ -697,7 +693,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 					auto bCopy = new Bonus(*b);
 					bCopy->effectRange = Bonus::NO_LIMIT;
 					bCopy->propagator.reset();
-					bCopy->limiter.reset(new StackOwnerLimiter(curB->sides[!i]));
+					bCopy->limiter.reset(new StackOwnerLimiter(curB->sides[!i].color));
 					curB->addNewBonus(bCopy);
 				}
 			}
@@ -709,11 +705,12 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 
 const CGHeroInstance * BattleInfo::getHero( PlayerColor player ) const
 {
-	assert(sides[0] == player || sides[1] == player);
-	if(heroes[0] && heroes[0]->getOwner() == player)
-		return heroes[0];
+	for(int i = 0; i < sides.size(); i++)
+		if(sides[i].color == player)
+			return sides[i].hero;
 
-	return heroes[1];
+	logGlobal->errorStream() << "Player " << player << " is not in battle!";
+	return nullptr;
 }
 
 std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::vector<const CStack*> affectedCreatures, PlayerColor casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const
@@ -767,13 +764,13 @@ std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const C
 
 PlayerColor BattleInfo::theOtherPlayer(PlayerColor player) const
 {
-	return sides[!whatSide(player)];
+	return sides[!whatSide(player)].color;
 }
 
 ui8 BattleInfo::whatSide(PlayerColor player) const
 {
-	for(int i = 0; i < ARRAY_COUNT(sides); i++)
-		if(sides[i] == player)
+	for(int i = 0; i < sides.size(); i++)
+		if(sides[i].color == player)
 			return i;
 
     logGlobal->warnStream() << "BattleInfo::whatSide: Player " << player << " is not in battle!";
@@ -839,6 +836,16 @@ BattleInfo::BattleInfo()
 {
 	setBattle(this);
 	setNodeType(BATTLE);
+}
+
+CArmedInstance * BattleInfo::battleGetArmyObject(ui8 side) const
+{
+	return const_cast<CArmedInstance*>(CBattleInfoEssentials::battleGetArmyObject(side));
+}
+
+CGHeroInstance * BattleInfo::battleGetFightingHero(ui8 side) const
+{
+	return const_cast<CGHeroInstance*>(CBattleInfoEssentials::battleGetFightingHero(side));
 }
 
 CStack::CStack(const CStackInstance *Base, PlayerColor O, int I, bool AO, SlotID S)
@@ -1287,3 +1294,21 @@ CMP_stack::CMP_stack( int Phase /*= 1*/, int Turn )
 	turn = Turn;
 }
 
+
+SideInBattle::SideInBattle()
+{
+	hero = nullptr;
+	armyObject = nullptr;
+	castSpellsCount = 0;
+	enchanterCounter = 0;
+}
+
+void SideInBattle::init(const CGHeroInstance *Hero, const CArmedInstance *Army)
+{
+	hero = Hero;
+	armyObject = Army;
+	color = armyObject->getOwner();
+
+	if(color == PlayerColor::UNFLAGGABLE)
+		color = PlayerColor::NEUTRAL;
+}

@@ -101,7 +101,7 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 }
 
 CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, 
-								   CGHeroInstance *hero1, CGHeroInstance *hero2, 
+								   const CGHeroInstance *hero1, const CGHeroInstance *hero2, 
 								   const SDL_Rect & myRect, 
 								   shared_ptr<CPlayerInterface> att, shared_ptr<CPlayerInterface> defen)
 	: background(nullptr), queue(nullptr), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),

@@ -1015,10 +1015,10 @@ DLL_LINKAGE void BattleStart::applyGs( CGameState *gs )
 
 DLL_LINKAGE void BattleNextRound::applyGs( CGameState *gs )
 {
-	gs->curB->castSpells[0] = gs->curB->castSpells[1] = 0;
 	for (int i = 0; i < 2; ++i)
 	{
-		vstd::amax(--gs->curB->enchanterCounter[i], 0);
+		gs->curB->sides[i].castSpellsCount = 0;
+		vstd::amax(--gs->curB->sides[i].enchanterCounter, 0);
 	}
 
 	gs->curB->round = round;
@@ -1106,11 +1106,10 @@ void BattleResult::applyGs( CGameState *gs )
 	for (auto & elem : gs->curB->stacks)
 		delete elem;
 
-	CGHeroInstance *h;
-	for (int i = 0; i < 2; ++i)
+
+	for(int i = 0; i < 2; ++i)
 	{
-		h = gs->curB->heroes[i];
-		if (h)
+		if(auto h = gs->curB->battleGetFightingHero(i))
 		{
 			h->getBonusList().remove_if(Bonus::OneBattle); 	//remove any "until next battle" bonuses
 			if (h->commander && h->commander->alive)
@@ -1123,17 +1122,18 @@ void BattleResult::applyGs( CGameState *gs )
 		}
 	}
 
-	if (VLC->modh->modules.STACK_EXP)
+	if(VLC->modh->modules.STACK_EXP)
 	{
-		if (exp[0]) //checking local array is easier than dereferencing this crap twice
-			gs->curB->belligerents[0]->giveStackExp(exp[0]);
-		if (exp[1])
-			gs->curB->belligerents[1]->giveStackExp(exp[1]);
-
+		for(int i = 0; i < 2; i++)
+			if(exp[i])
+				gs->curB->battleGetArmyObject(i)->giveStackExp(exp[i]);
+		
 		CBonusSystemNode::treeHasChanged();
 	}
 
-	gs->curB->belligerents[0]->battle = gs->curB->belligerents[1]->battle = nullptr;
+	for(int i = 0; i < 2; i++)
+		gs->curB->battleGetArmyObject(i)->battle = nullptr;
+
 	gs->curB.dellNull();
 }
 
@@ -1246,7 +1246,7 @@ DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
 	}
 	else
 	{
-		gs->curB->usedSpellsHistory[ba.side].push_back(SpellID(ba.additionalInfo).toSpell());
+		gs->curB->sides[ba.side].usedSpellsHistory.push_back(SpellID(ba.additionalInfo).toSpell());
 	}
 
 	switch(ba.actionType)
@@ -1273,8 +1273,8 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 	assert(gs->curB);
 	if (castedByHero)
 	{
-		CGHeroInstance * h = gs->curB->heroes[side];
-		CGHeroInstance * enemy = gs->curB->heroes[1-side];
+		CGHeroInstance * h = gs->curB->battleGetFightingHero(side);
+		CGHeroInstance * enemy = gs->curB->battleGetFightingHero(!side);
 
 		h->mana -= spellCost;
 			vstd::amax(h->mana, 0);
@@ -1282,7 +1282,7 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 			enemy->mana += manaGained;
 		if (side < 2)
 		{
-			gs->curB->castSpells[side]++;
+			gs->curB->sides[side].castSpellsCount++;
 		}
 	}
 
@@ -1532,12 +1532,12 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState *gs)
 		}
 		case ENCHANTER_COUNTER:
 		{
-			int side = gs->curB->whatSide(stack->owner);
+			auto & counter = gs->curB->sides[gs->curB->whatSide(stack->owner)].enchanterCounter;
 			if (absolute)
-				gs->curB->enchanterCounter[side] = val;
+				counter = val;
 			else
-				gs->curB->enchanterCounter[side] += val;
-			vstd::amax(gs->curB->enchanterCounter[side], 0);
+				counter += val;
+			vstd::amax(counter, 0);
 			break;
 		}
 		case UNBIND:

@@ -428,8 +428,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	if (hero2)
 		battleResult.data->exp[1] = hero2->calculateXp(battleResult.data->exp[1]);
 
-	const CArmedInstance *bEndArmy1 = gs->curB->belligerents[0];
-	const CArmedInstance *bEndArmy2 = gs->curB->belligerents[1];
+	const CArmedInstance *bEndArmy1 = gs->curB->sides[0].armyObject;
+	const CArmedInstance *bEndArmy2 = gs->curB->sides[1].armyObject;
 	const BattleResult::EResult result = battleResult.get()->result;
 
 	auto findBattleQuery = [this] () -> shared_ptr<CBattleQuery>
@@ -452,8 +452,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			battleQuery = make_shared<CBattleQuery>(gs->curB);
 		}
 	}
-	if(battleQuery != queries.topQuery(gs->curB->sides[0]))
-		complain("Player " + boost::lexical_cast<std::string>(gs->curB->sides[0]) + " although in battle has no battle query at the top!");
+	if(battleQuery != queries.topQuery(gs->curB->sides[0].color))
+		complain("Player " + boost::lexical_cast<std::string>(gs->curB->sides[0].color) + " although in battle has no battle query at the top!");
 		
 	battleQuery->result = *battleResult.data;
 
@@ -480,7 +480,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		{
 			int maxLevel = eagleEyeLevel + 1;
 			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::EAGLE_EYE);
-			for(const CSpell *sp : gs->curB->usedSpellsHistory[!battleResult.data->winner])
+			for(const CSpell *sp : gs->curB->sides[!battleResult.data->winner].usedSpellsHistory)
 				if(sp->level <= maxLevel && !vstd::contains(finishingBattle->winnerHero->spells, sp->id) && rand() % 100 < eagleEyeChance)
 					cs.spells.insert(sp->id);
 		}
@@ -534,7 +534,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 				}
 			}
 		}
-		for (auto armySlot : gs->curB->belligerents[!battleResult.data->winner]->stacks)
+		for (auto armySlot : gs->curB->battleGetArmyObject(!battleResult.data->winner)->stacks)
 		{
 			auto artifactsWorn = armySlot.second->artifactsWorn;
 			for (auto artSlot : artifactsWorn)
@@ -647,7 +647,7 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 	logGlobal->traceStream() << "Decremented queries count to " << finishingBattle->remainingBattleQueriesCount;
 
 	if(finishingBattle->remainingBattleQueriesCount > 0)
-		//Battle results will be hndled when all battle queries are closed
+		//Battle results will be handled when all battle queries are closed
 		return;
 
 	//TODO consider if we really want it to work like above. ATM each player as unblocked as soon as possible
@@ -657,7 +657,7 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 	// Necromancy if applicable.
 	const CStackBasicDescriptor raisedStack = finishingBattle->winnerHero ? finishingBattle->winnerHero->calculateNecromancy(*battleResult.data) : CStackBasicDescriptor();
 	// Give raised units to winner and show dialog, if any were raised,
-	// units will be given after casualities are taken
+	// units will be given after casualties are taken
 	const SlotID necroSlot = raisedStack.type ? finishingBattle->winnerHero->getSlotFor(raisedStack.type) : SlotID();
 
 	if (necroSlot != SlotID())
@@ -706,12 +706,11 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 {
 	bat.bsa.clear();
 	bat.stackAttacking = att->ID;
-	int attackerLuck = att->LuckVal();
-	const CGHeroInstance * h0 = gs->curB->heroes[0],
-		* h1 = gs->curB->heroes[1];
+	const int attackerLuck = att->LuckVal();
+	
+	auto sideHeroBlocksLuck = [](const SideInBattle &side){ return NBonus::hasOfType(side.hero, Bonus::BLOCK_LUCK); };
 
-	if(!(h0 && NBonus::hasOfType(h0, Bonus::BLOCK_LUCK)) &&
-	   !(h1 && NBonus::hasOfType(h1, Bonus::BLOCK_LUCK)))
+	if(!vstd::contains_if(gs->curB->sides, sideHeroBlocksLuck))
 	{
 		if(attackerLuck > 0  && rand()%24 < attackerLuck)
 		{
@@ -3339,7 +3338,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case Battle::RETREAT: //retreat/flee
 		{
-			if(!gs->curB->battleCanFlee(gs->curB->sides[ba.side]))
+			if(!gs->curB->battleCanFlee(gs->curB->sides[ba.side].color))
 				complain("Cannot retreat!");
 			else
 				setBattleResult(BattleResult::ESCAPE, !ba.side); //surrendering side loses
@@ -3347,7 +3346,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case Battle::SURRENDER:
 		{
-			PlayerColor player = gs->curB->sides[ba.side];
+			PlayerColor player = gs->curB->sides[ba.side].color;
 			int cost = gs->curB->battleGetSurrenderCost(player);
 			if(cost < 0)
 				complain("Cannot surrender!");
@@ -3477,7 +3476,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			//second shot for ballista, only if hero has advanced artillery
 
-			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
+			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 
 			if( destStack->alive()
 			    && (stack->getCreature()->idNumber == CreatureID::BALLISTA)
@@ -3516,7 +3515,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
-			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
+			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(SecondarySkill::BALLISTICS)];
 
 			EWallParts::EWallParts attackedPart = gs->curB->battleHexToWallPart(ba.destinationTile);
@@ -3620,7 +3619,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
-			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
+			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 			const CStack *healer = gs->curB->battleGetStackByID(ba.stackNumber),
 				*destStack = gs->curB->battleGetStackByPos(ba.destinationTile);
 
@@ -4385,7 +4384,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				std::vector<CStack *> & battleStacks = gs->curB->stacks;
 				for (auto & battleStack : battleStacks)
 				{
-					if(battleStack->owner == gs->curB->sides[casterSide]) //get enemy stacks which can be affected by this spell
+					if(battleStack->owner == gs->curB->sides[casterSide].color) //get enemy stacks which can be affected by this spell
 					{
 						if (!gs->curB->battleIsImmune(nullptr, spell, ECastingMode::MAGIC_MIRROR, battleStack->position))
 							mirrorTargets.push_back(battleStack);
@@ -4410,8 +4409,8 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			COMPLAIN_RET_FALSE_IF(ba.side > 1, "Side must be 0 or 1!");
 				
 
-			const CGHeroInstance *h = gs->curB->heroes[ba.side];
-			const CGHeroInstance *secondHero = gs->curB->heroes[!ba.side];
+			const CGHeroInstance *h = gs->curB->battleGetFightingHero(ba.side);
+			const CGHeroInstance *secondHero = gs->curB->battleGetFightingHero(!ba.side);
 			if(!h)
 			{
                 logGlobal->warnStream() << "Wrong caster!";
@@ -4534,10 +4533,11 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 		if (st->hasBonusOfType(Bonus::MANA_DRAIN) && !vstd::contains(st->state, EBattleStackState::DRAINED_MANA))
 		{
 			const CGHeroInstance * enemy = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
+			const CGHeroInstance * owner = gs->curB->getHero(st->owner);
 			if (enemy)
 			{
 				ui32 manaDrained = st->valOfBonuses(Bonus::MANA_DRAIN);
-				vstd::amin (manaDrained, gs->curB->heroes[0]->mana);
+				vstd::amin(manaDrained, gs->curB->battleGetFightingHero(0)->mana);
 				if (manaDrained)
 				{
 					bte.effect = Bonus::MANA_DRAIN;
@@ -4569,7 +4569,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 		}
 		BonusList bl = *(st->getBonuses(Selector::type(Bonus::ENCHANTER)));
 		int side = gs->curB->whatSide(st->owner);
-		if (bl.size() && st->casts && !gs->curB->enchanterCounter[side])
+		if (bl.size() && st->casts && !gs->curB->sides[side].enchanterCounter)
 		{
 			int index = rand() % bl.size();
 			SpellID spellID = SpellID(bl[index]->subtype);
@@ -4624,7 +4624,7 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 	//helper info
 	const SpellCreatedObstacle *spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(&obstacle); //not nice but we may need spell params
 	const ui8 side = curStack->attackerOwned; //if enemy is defending (false = 0), side of our hero is also 0 (attacker)
-	const CGHeroInstance *hero = gs->curB->heroes[side];
+	const CGHeroInstance *hero = gs->curB->battleGetFightingHero(side);
 
 	if(obstacle.obstacleType == CObstacleInstance::MOAT)
 	{
@@ -5819,14 +5819,15 @@ void CGameHandler::runBattle()
 	}
 
 	//spells opening battle
-	for(int i=0; i<ARRAY_COUNT(gs->curB->heroes); ++i)
+	for(int i = 0; i < 2; ++i)
 	{
-		if(gs->curB->heroes[i] && gs->curB->heroes[i]->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
+		auto h = gs->curB->battleGetFightingHero(i);
+		if(h && h->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
 		{
-			TBonusListPtr bl = gs->curB->heroes[i]->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
+			TBonusListPtr bl = h->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
 			for (Bonus *b : *bl)
 			{
-				handleSpellCasting(SpellID(b->subtype), 3, -1, 0, gs->curB->heroes[i]->tempOwner, nullptr, gs->curB->heroes[1-i], b->val, ECastingMode::HERO_CASTING, nullptr);
+				handleSpellCasting(SpellID(b->subtype), 3, -1, 0, h->tempOwner, nullptr, gs->curB->battleGetFightingHero(1-i), b->val, ECastingMode::HERO_CASTING, nullptr);
 			}
 		}
 	}
@@ -5853,7 +5854,8 @@ void CGameHandler::runBattle()
 			//check for bad morale => freeze
 			int nextStackMorale = next->MoraleVal();
 			if( nextStackMorale < 0 &&
-				!(NBonus::hasOfType(gs->curB->heroes[0], Bonus::BLOCK_MORALE) || NBonus::hasOfType(gs->curB->heroes[1], Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses)
+				!(NBonus::hasOfType(gs->curB->battleGetFightingHero(0), Bonus::BLOCK_MORALE)
+				   || NBonus::hasOfType(gs->curB->battleGetFightingHero(1), Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses)
 				)
 			{
 				if( rand()%24   <   -2 * nextStackMorale)
@@ -6005,7 +6007,8 @@ void CGameHandler::runBattle()
 					&& !vstd::contains(next->state, EBattleStackState::FEAR)
 					&&  next->alive()
 					&&  nextStackMorale > 0
-					&& !(NBonus::hasOfType(gs->curB->heroes[0], Bonus::BLOCK_MORALE) || NBonus::hasOfType(gs->curB->heroes[1], Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses
+					&& !(NBonus::hasOfType(gs->curB->battleGetFightingHero(0), Bonus::BLOCK_MORALE)
+						|| NBonus::hasOfType(gs->curB->battleGetFightingHero(1), Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses
 					)
 				{
 					if(rand()%24 < nextStackMorale) //this stack hasn't got morale this turn
@@ -6033,7 +6036,7 @@ void CGameHandler::runBattle()
 		}
 	}
 
-	endBattle(gs->curB->tile, gs->curB->heroes[0], gs->curB->heroes[1]);
+	endBattle(gs->curB->tile, gs->curB->battleGetFightingHero(0), gs->curB->battleGetFightingHero(1));
 }
 
 bool CGameHandler::makeAutomaticAction(const CStack *stack, BattleAction &ba)
@@ -6210,7 +6213,7 @@ bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, con
 void CGameHandler::duelFinished()
 {
 	auto si = getStartInfo();
-	auto getName = [&](int i){ return si->getIthPlayersSettings(gs->curB->sides[i]).name; };
+	auto getName = [&](int i){ return si->getIthPlayersSettings(gs->curB->sides[i].color).name; };
 
 	int casualtiesPoints = 0;
 	logGlobal->debugStream() << boost::format("Winner side %d\nWinner casualties:") 
@@ -6310,10 +6313,10 @@ CGameHandler::FinishingBattleHelper::FinishingBattleHelper(shared_ptr<const CBat
 	auto &result = *Query->result;
 	auto &info = *Query->bi;
 
-	winnerHero = result.winner != 0 ? info.heroes[1] : info.heroes[0];
-	loserHero = result.winner != 0 ? info.heroes[0] : info.heroes[1];
-	victor = info.sides[result.winner];
-	loser = info.sides[!result.winner];
+	winnerHero = result.winner != 0 ? info.sides[1].hero : info.sides[0].hero;
+	loserHero = result.winner != 0 ? info.sides[0].hero : info.sides[1].hero;
+	victor = info.sides[result.winner].color;
+	loser = info.sides[!result.winner].color;
 	duel = Duel;
 	remainingBattleQueriesCount = RemainingBattleQueriesCount;
 }

@@ -329,13 +329,14 @@ namespace vstd
 		return -1;
 	}
 
-	//Func(T1,T2) must say if these elements matches
-	template <typename T1, typename T2, typename Func>
-	int find_pos(const std::vector<T1> & c, const T2 &s, const Func &f)
+	//Func f tells if element matches
+	template <typename Container, typename Func>
+	int find_pos_if(const Container & c, const Func &f)
 	{
-		for(size_t i=0; i < c.size(); ++i)
-			if(f(c[i],s))
-				return i;
+		auto ret = boost::range::find_if(c, f);
+		if(ret != std::end(c))
+			return std::distance(std::begin(c), ret);
+
 		return -1;
 	}
 

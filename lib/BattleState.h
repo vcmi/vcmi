@@ -41,22 +41,36 @@ struct DLL_LINKAGE SiegeInfo
 	}
 };
 
+struct DLL_LINKAGE SideInBattle
+{
+	PlayerColor color;
+	const CGHeroInstance *hero; //may be NULL if army is not commanded by hero
+	const CArmedInstance *armyObject; //adv. map object with army that participates in battle; may be same as hero
 
+	ui8 castSpellsCount; //how many spells each side has cast this turn
+	std::vector<const CSpell *> usedSpellsHistory; //every time hero casts spell, it's inserted here -> eagle eye skill
+	si16 enchanterCounter; //tends to pass through 0, so sign is needed
+
+	SideInBattle();
+	void init(const CGHeroInstance *Hero, const CArmedInstance *Army);
+
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & color & hero & armyObject;
+		h & castSpellsCount & usedSpellsHistory & enchanterCounter;
+	}
+};
 
 struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallback
 {
-	PlayerColor sides[2]; //sides[0] - attacker, sides[1] - defender
+	std::array<SideInBattle, 2> sides; //sides[0] - attacker, sides[1] - defender
 	si32 round, activeStack, selectedStack;
 	CGTownInstance::EFortLevel siege;
 	const CGTownInstance * town; //used during town siege - id of attacked town; -1 if not town defence
 	int3 tile; //for background and bonuses
-	CGHeroInstance* heroes[2];
-	CArmedInstance *belligerents[2]; //may be same as heroes
 	std::vector<CStack*> stacks;
 	std::vector<shared_ptr<CObstacleInstance> > obstacles;
-	ui8 castSpells[2]; //how many spells each side has cast this turn [0] - attacker, [1] - defender
-	std::vector<const CSpell *> usedSpellsHistory[2]; //each time hero casts spell, it's inserted here -> eagle eye skill
-	si16 enchanterCounter[2]; //tends to pass through 0, so sign is needed
 	SiegeInfo si;
 
 	BFieldType battlefieldType; //like !!BA:B
@@ -67,10 +81,9 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & sides & round & activeStack & selectedStack & siege & town & tile & stacks & belligerents & obstacles
-			& castSpells & si & battlefieldType & terrainType;
-		h & heroes;
-		h & usedSpellsHistory & enchanterCounter;
+		h & sides;
+		h & round & activeStack & selectedStack & siege & town & tile & stacks & obstacles
+			& si & battlefieldType & terrainType;
 		h & tacticsSide & tacticDistance;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}
@@ -82,6 +95,10 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	//////////////////////////////////////////////////////////////////////////
 	CStack * getStackT(BattleHex tileID, bool onlyAlive = true);
 	CStack * getStack(int stackID, bool onlyAlive = true);
+	using CBattleInfoEssentials::battleGetArmyObject;
+	CArmedInstance * battleGetArmyObject(ui8 side) const; 
+	using CBattleInfoEssentials::battleGetFightingHero;
+	CGHeroInstance * battleGetFightingHero(ui8 side) const; 
 
 	const CStack * getNextStack() const; //which stack will have turn after current one
 	//void getStackQueue(std::vector<const CStack *> &out, int howMany, int turn = 0, int lastMoved = -1) const; //returns stack in order of their movement action
@@ -170,7 +187,7 @@ public:
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
 	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed of creature with all modificators
 	ui32 level() const;
-	si32 magicResistance() const; //include aura of resistance
+	si32 magicResistance() const override; //include aura of resistance
 	static void stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse);
 	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance *getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise

@@ -20,6 +20,7 @@ struct BattleInfo;
 struct CObstacleInstance;
 class IBonusBearer;
 struct InfoAboutHero;
+class CArmedInstance;
 
 namespace boost
 {class shared_mutex;}
@@ -182,6 +183,7 @@ public:
 	bool battleHasHero(ui8 side) const;
 	int battleCastSpells(ui8 side) const; //how many spells has given side casted
 	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //depracated for players callback, easy to get wrong
+	const CArmedInstance * battleGetArmyObject(ui8 side) const; 
 	InfoAboutHero battleGetHeroInfo(ui8 side) const;
 
 	//helpers

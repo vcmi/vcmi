@@ -222,13 +222,13 @@ void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit
 
 CBattleQuery::CBattleQuery(const BattleInfo *Bi)
 {
-	belligerents[0] = Bi->belligerents[0];
-	belligerents[1] = Bi->belligerents[1];
+	belligerents[0] = Bi->sides[0].armyObject;
+	belligerents[1] = Bi->sides[1].armyObject;
 
 	bi = Bi;
 
-	for(PlayerColor side : bi->sides)
-		addPlayer(side);
+	for(auto &side : bi->sides)
+		addPlayer(side.color);
 }
 
 CBattleQuery::CBattleQuery()

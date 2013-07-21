@@ -249,7 +249,7 @@ bool MakeAction::applyGh( CGameHandler *gh )
 		if(ba.actionType != Battle::WALK  &&  ba.actionType != Battle::END_TACTIC_PHASE  
 			&& ba.actionType != Battle::RETREAT && ba.actionType != Battle::SURRENDER)
 			ERROR_AND_RETURN;
-		if(gh->connections[b->sides[b->tacticsSide]] != c) 
+		if(gh->connections[b->sides[b->tacticsSide].color] != c) 
 			ERROR_AND_RETURN;
 	}
 	else if(gh->connections[b->battleGetStackByID(b->activeStack)->owner] != c) 

@@ -90,8 +90,8 @@
 
 
 #define BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(function,...) 				\
-	CALL_ONLY_THAT_BATTLE_INTERFACE(GS(cl)->curB->sides[0], function, __VA_ARGS__)	\
-	CALL_ONLY_THAT_BATTLE_INTERFACE(GS(cl)->curB->sides[1], function, __VA_ARGS__)	\
+	CALL_ONLY_THAT_BATTLE_INTERFACE(GS(cl)->curB->sides[0].color, function, __VA_ARGS__)	\
+	CALL_ONLY_THAT_BATTLE_INTERFACE(GS(cl)->curB->sides[1].color, function, __VA_ARGS__)	\
 	BATTLE_INTERFACE_CALL_RECEIVERS(function, __VA_ARGS__)
 /*
  * NetPacksClient.cpp, part of VCMI engine
@@ -624,7 +624,9 @@ void BattleSetActiveStack::applyCl( CClient *cl )
 	PlayerColor playerToCall; //player that will move activated stack
 	if( activated->hasBonusOfType(Bonus::HYPNOTIZED) )
 	{
-		playerToCall = ( GS(cl)->curB->sides[0] == activated->owner ? GS(cl)->curB->sides[1] : GS(cl)->curB->sides[0] );
+		playerToCall = ( GS(cl)->curB->sides[0].color == activated->owner 
+			? GS(cl)->curB->sides[1].color 
+			: GS(cl)->curB->sides[0].color );
 	}
 	else
 	{
