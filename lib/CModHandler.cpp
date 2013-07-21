@@ -264,6 +264,11 @@ void CContentHandler::ContentTypeHandler::loadMod(std::string modName)
 	}
 }
 
+void CContentHandler::ContentTypeHandler::afterLoadFinalization()
+{
+	handler->afterLoadFinalization();
+}
+
 CContentHandler::CContentHandler()
 {
 	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, "heroClass")));
@@ -288,6 +293,14 @@ void CContentHandler::loadMod(std::string modName)
 	for(auto & handler : handlers)
 	{
 		handler.second.loadMod(modName);
+	}
+}
+
+void CContentHandler::afterLoadFinalization()
+{
+	for(auto & handler : handlers)
+	{
+		handler.second.afterLoadFinalization();
 	}
 }
 
@@ -558,8 +571,11 @@ void CModHandler::loadGameContent()
 	VLC->creh->loadCrExpBon();
 	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded
 	identifiers.finalize();
-
 	logGlobal->infoStream() << "\tResolving identifiers: " << timer.getDiff() << " ms";
+
+	content.afterLoadFinalization();
+	logGlobal->infoStream() << "\tHandlers post-load finalization: " << timer.getDiff() << " ms";
+
 	logGlobal->infoStream() << "\tAll game content loaded in " << totalTime.getDiff() << " ms";
 }
 

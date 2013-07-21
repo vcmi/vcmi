@@ -261,8 +261,7 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node)
 	for (auto b : node["bonuses"].Vector())
 	{
 		auto bonus = JsonUtils::parseBonus (b);
-		bonus->sid = art->id;
-		art->addNewBonus (bonus);
+		art->addNewBonus(bonus);
 	}
 	return art;
 }
@@ -634,6 +633,20 @@ void CArtHandler::fillList( std::vector<CArtifact*> &listToBeFilled, CArtifact::
 	{
 		if (elem->aClass == artifactClass)
 			listToBeFilled.push_back(elem);
+	}
+}
+
+void CArtHandler::afterLoadFinalization()
+{
+	//All artifacts have their id, so we can properly update their bonuses' source ids.
+	for(auto &art : artifacts)
+	{
+		for(auto &bonus : art->getExportedBonusList())
+		{
+			assert(art == artifacts[art->id]);
+			assert(bonus->source == Bonus::ARTIFACT);
+			bonus->sid = art->id;
+		}
 	}
 }
 

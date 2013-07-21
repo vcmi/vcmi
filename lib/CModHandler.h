@@ -93,6 +93,7 @@ class CContentHandler
 		/// local version of methods in ContentHandler
 		void preloadModData(std::string modName, std::vector<std::string> fileList);
 		void loadMod(std::string modName);
+		void afterLoadFinalization();
 	};
 
 	std::map<std::string, ContentTypeHandler> handlers;
@@ -105,6 +106,9 @@ public:
 
 	/// actually loads data in mod
 	void loadMod(std::string modName);
+
+	/// all data was loaded, time for final validation / integration
+	void afterLoadFinalization();
 };
 
 typedef std::string TModID;
