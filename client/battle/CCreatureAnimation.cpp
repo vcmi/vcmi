@@ -429,6 +429,20 @@ bool CCreatureAnimation::isIdle() const
 	    || getType() == CCreatureAnim::MOUSEON;
 }
 
+bool CCreatureAnimation::isMoving() const
+{
+	return getType() == CCreatureAnim::MOVE_START
+	    || getType() == CCreatureAnim::MOVING
+	    || getType() == CCreatureAnim::MOVE_END;
+}
+
+bool CCreatureAnimation::isShooting() const
+{
+	return getType() == CCreatureAnim::SHOOT_UP
+	    || getType() == CCreatureAnim::SHOOT_FRONT
+	    || getType() == CCreatureAnim::SHOOT_DOWN;
+}
+
 void CCreatureAnimation::pause()
 {
 	speed = 0;

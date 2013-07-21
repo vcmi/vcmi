@@ -137,4 +137,6 @@ public:
 	//helpers. TODO: move them somewhere else
 	bool isDead() const;
 	bool isIdle() const;
+	bool isMoving() const;
+	bool isShooting() const;
 };

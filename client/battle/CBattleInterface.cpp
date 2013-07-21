@@ -230,11 +230,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	bOptions = new CAdventureMapButton (CGI->generaltexth->zelp[381].first, CGI->generaltexth->zelp[381].second, boost::bind(&CBattleInterface::bOptionsf,this), 3, 561, "icm003.def", SDLK_o);
 	bSurrender = new CAdventureMapButton (CGI->generaltexth->zelp[379].first, CGI->generaltexth->zelp[379].second, boost::bind(&CBattleInterface::bSurrenderf,this), 54, 561, "icm001.def", SDLK_s);
 	bFlee = new CAdventureMapButton (CGI->generaltexth->zelp[380].first, CGI->generaltexth->zelp[380].second, boost::bind(&CBattleInterface::bFleef,this), 105, 561, "icm002.def", SDLK_r);
-	bFlee->block(!curInt->cb->getMyColor() || !curInt->cb->battleCanFlee());
-	bSurrender->block(!curInt->cb->getMyColor() || curInt->cb->battleGetSurrenderCost() < 0);
 	bAutofight  = new CAdventureMapButton (CGI->generaltexth->zelp[382].first, CGI->generaltexth->zelp[382].second, boost::bind(&CBattleInterface::bAutofightf,this), 157, 561, "icm004.def", SDLK_a);
 	bSpell = new CAdventureMapButton (CGI->generaltexth->zelp[385].first, CGI->generaltexth->zelp[385].second, boost::bind(&CBattleInterface::bSpellf,this), 645, 561, "icm005.def", SDLK_c);
-	bSpell->block(true);
 	bWait = new CAdventureMapButton (CGI->generaltexth->zelp[386].first, CGI->generaltexth->zelp[386].second, boost::bind(&CBattleInterface::bWaitf,this), 696, 561, "icm006.def", SDLK_w);
 	bDefence = new CAdventureMapButton (CGI->generaltexth->zelp[387].first, CGI->generaltexth->zelp[387].second, boost::bind(&CBattleInterface::bDefencef,this), 747, 561, "icm007.def", SDLK_d);
 	bDefence->assignedKeys.insert(SDLK_SPACE);
@@ -250,8 +247,6 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	{
 		btactNext = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bTacticNextStack,this, (CStack*)nullptr), 213, 560, "icm011.def", SDLK_SPACE);
 		btactEnd = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bEndTacticPhase,this), 419, 560, "icm012.def", SDLK_RETURN);
-		bDefence->block(true);
-		bWait->block(true);
 		menu = BitmapHandler::loadBitmap("COPLACBR.BMP");
 	}
 	else
@@ -884,8 +879,7 @@ void CBattleInterface::bAutofightf()
 	else
 	{
 		curInt->isAutoFightOn = true;	
-		deactivate();
-		bAutofight->activate();
+		blockUI(true);
 
 		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
 		ai->init(curInt->cb);
@@ -1201,12 +1195,16 @@ void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 	{
 		const CStack * stack = curInt->cb->battleGetStackByID(ca.attacker);
 		addNewAnim(new CShootingAnimation(this, stack, it->first.second, nullptr, true, it->second));
+	}
 
+	waitForAnims();
+
+	for(auto it = ca.attackedParts.begin(); it != ca.attackedParts.end(); ++it)
+	{
 		SDL_FreeSurface(siegeH->walls[it->first.first + 2]);
 		siegeH->walls[it->first.first + 2] = BitmapHandler::loadBitmap(
 			siegeH->getSiegeName(it->first.first + 2, curInt->cb->battleGetWallState(it->first.first)) );
 	}
-	waitForAnims();
 }
 
 void CBattleInterface::battleFinished(const BattleResult& br)
@@ -1232,10 +1230,6 @@ void CBattleInterface::displayBattleFinished()
 void CBattleInterface::spellCast( const BattleSpellCast * sc )
 {
 	const CSpell &spell = *CGI->spellh->spells[sc->id];
-
-	//spell opening battle is cast when no stack is active
-	if(sc->castedByHero && ( activeStack == nullptr || sc->side == !activeStack->attackerOwned) )
-		bSpell->block(true);
 
 	std::vector< std::string > anims; //for magic arrow and ice bolt
 
@@ -1658,6 +1652,8 @@ void CBattleInterface::setActiveStack(const CStack * stack)
 
 	if (activeStack) // update UI
 		creAnims[activeStack->ID]->setBorderColor(AnimationControls::getGoldBorder());
+
+	blockUI(activeStack == nullptr);
 }
 
 void CBattleInterface::setHoveredStack(const CStack * stack)
@@ -1693,16 +1689,6 @@ void CBattleInterface::activateStack()
 
 	queue->update();
 	redrawBackgroundWithHexes(activeStack);
-	bWait->block(s->waited() || tacticsMode); //block waiting button if stack has been already waiting
-
-	//block cast spell button if hero doesn't have a spellbook
-	ESpellCastProblem::ESpellCastProblem spellcastingProblem;
-	bool canCastSpells = curInt->cb->battleCanCastSpell(&spellcastingProblem);
-	bSpell->block(!canCastSpells && spellcastingProblem != ESpellCastProblem::MAGIC_IS_BLOCKED); //if magic is blocked, we leave button active, so the message can be displayed (cf bug #97)
-	bSurrender->block((curInt == attackerInt ? defendingHeroInstance : attackingHeroInstance) == nullptr);
-	bFlee->block(!curInt->cb->battleCanFlee());
-	bSurrender->block(curInt->cb->battleGetSurrenderCost() < 0);
-
 
 	//set casting flag to true if creature can use it to not check it every time
 	const Bonus *spellcaster = s->getBonusLocalFirst(Selector::type(Bonus::SPELLCASTER)),
@@ -1723,9 +1709,6 @@ void CBattleInterface::activateStack()
 	}
 
 	getPossibleActionsForStack (s);
-
-	if(!pendingAnims.size() && !active)
-		activate();
 
 	GH.fakeMouseMove();
 }
@@ -1886,7 +1869,12 @@ void CBattleInterface::endAction(const BattleAction* action)
 	if(activeStack && !animsAreDisplayed.get() && pendingAnims.empty() && !active)
 	{
 		logGlobal->warnStream() << "Something wrong... interface was deactivated but there is no animation. Reactivating...";
-		activate();
+		blockUI(false);
+	}
+	else
+	{
+		// block UI if no active stack (e.g. enemy turn);
+		blockUI(activeStack == nullptr);
 	}
 }
 
@@ -1918,10 +1906,42 @@ void CBattleInterface::showQueue()
 	}
 }
 
+void CBattleInterface::blockUI(bool on)
+{
+	ESpellCastProblem::ESpellCastProblem spellcastingProblem;
+	bool canCastSpells = curInt->cb->battleCanCastSpell(&spellcastingProblem);
+	bool canWait = activeStack ? !activeStack->waited() : false;
+
+	bOptions->block(on);
+	bFlee->block(on || !curInt->cb->battleCanFlee());
+	bSurrender->block(on || curInt->cb->battleGetSurrenderCost() < 0);
+
+	// never block autofight button
+	//FIXME: is that correct?
+	bAutofight->block(false); //curInt->isAutoFightOn
+
+	if(tacticsMode && btactEnd && btactNext)
+	{
+		btactNext->block(on);
+		btactEnd->block(on);
+	}
+	else
+	{
+		bConsoleUp->block(on);
+		bConsoleDown->block(on);
+	}
+
+	//if magic is blocked, we leave button active, so the message can be displayed (cf bug #97)
+	bSpell->block(on || (!canCastSpells && spellcastingProblem != ESpellCastProblem::MAGIC_IS_BLOCKED));
+	bWait->block(on || tacticsMode || !canWait);
+	bDefence->block(on || tacticsMode);
+}
+
 void CBattleInterface::startAction(const BattleAction* action)
 {
 	//setActiveStack(nullptr);
 	setHoveredStack(nullptr);
+	blockUI(true);
 
 	if(action->actionType == Battle::END_TACTIC_PHASE)
 	{
@@ -1929,19 +1949,6 @@ void CBattleInterface::startAction(const BattleAction* action)
 		menu = BitmapHandler::loadBitmap("CBAR.bmp");
 
 		graphics->blueToPlayersAdv(menu, curInt->playerID);
-		bDefence->block(false);
-		bWait->block(false);
-		if(active)
-		{
-			if(btactEnd && btactNext) //if the other side had tactics, there are no buttons
-			{
-				btactEnd->deactivate();
-				btactNext->deactivate();
-				bConsoleDown->activate();
-				bConsoleUp->activate();
-			}
-		}
-
 		return;
 	}
 
@@ -1967,8 +1974,6 @@ void CBattleInterface::startAction(const BattleAction* action)
 		}
 	}
 
-	if(active)
-		deactivate();
 	redraw(); // redraw after deactivation, including proper handling of hovered hexes
 
 	char txt[400];
@@ -2030,7 +2035,7 @@ void CBattleInterface::waitForAnims()
 void CBattleInterface::bEndTacticPhase()
 {
 	setActiveStack(nullptr);
-	btactEnd->block(true);
+	blockUI(true);
 	tacticsMode = false;
 }
 
@@ -3128,7 +3133,9 @@ void CBattleInterface::showProjectiles(SDL_Surface * to)
 		// Check if projectile is already visible (shooter animation did the shot)
 		if (!it->shotDone)
 		{
-			if (creAnims[it->stackID]->getCurrentFrame() >= it->animStartDelay)
+			// frame we're waiting for is reached OR animation has already finished
+			if (creAnims[it->stackID]->getCurrentFrame() >= it->animStartDelay ||
+			    creAnims[it->stackID]->isShooting() == false)
 			{
 				//at this point projectile should become visible
 				creAnims[it->stackID]->pause(); // pause animation
@@ -3197,27 +3204,29 @@ void CBattleInterface::showBattlefieldObjects(SDL_Surface * to)
 	{
 		showPiecesOfWall(to, hex.walls);
 		showObstacles(to, hex.obstacles);
-		showStacks(to, hex.dead);
 		showAliveStacks(to, hex.alive);
 		showBattleEffects(to, hex.effects);
 	};
 
 	if(attackingHero)
 		attackingHero->show(to);
-
 	if(defendingHero)
 		defendingHero->show(to);
 
 	BattleObjectsByHex objects = sortObjectsByHex();
 
+	// dead stacks should be blit first
+	showStacks(to, objects.beforeAll.dead);
+	for( auto & data : objects.hex )
+		showStacks(to, data.dead);
+	showStacks(to, objects.afterAll.dead);
+
 	// display objects that must be blit before anything else (e.g. topmost walls)
 	showHexEntry(objects.beforeAll);
-
 	// actual blit of most of objects, hex by hex
 	// NOTE: row-by-row blitting may be a better approach
 	for( auto & data : objects.hex )
 		showHexEntry(data);
-
 	// objects that must be blit *after* everything else - e.g. bottom tower or some spell effects
 	showHexEntry(objects.afterAll);
 }
@@ -3412,7 +3421,7 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 
 		if(!creAnims[stack->ID]->isDead())
 		{
-			if (creAnims[stack->ID]->getType() != CCreatureAnim::MOVING)
+			if (!creAnims[stack->ID]->isMoving())
 				sorted.hex[stack->position].alive.push_back(stack);
 			else
 			{
@@ -3500,11 +3509,9 @@ void CBattleInterface::updateBattleAnimations()
 
 	if(preSize > 0 && pendingAnims.size() == 0)
 	{
-		//action finished, restore the interface
-		if(!active)
-			activate();
-
 		//anims ended
+		blockUI(activeStack == nullptr);
+
 		animsAreDisplayed.setn(false);
 	}
 }

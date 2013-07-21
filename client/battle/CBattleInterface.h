@@ -218,7 +218,6 @@ private:
 	void showHighlightedHex(SDL_Surface * to, BattleHex hex);
 	void showInterface(SDL_Surface * to);
 
-
 	void showBattlefieldObjects(SDL_Surface * to);
 
 	void showAliveStacks(SDL_Surface * to, std::vector<const CStack *> stacks);
@@ -264,6 +263,10 @@ public:
 	int moveSoundHander; // sound handler used when moving a unit
 
 	const BattleResult * bresult; //result of a battle; if non-zero then display when all animations end
+
+	// block all UI elements, e.g. during enemy turn
+	// unlike activate/deactivate this method will correctly grey-out all elements
+	void blockUI(bool on);
 
 	//button handle funcs:
 	void bOptionsf();

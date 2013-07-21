@@ -1931,8 +1931,10 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 				}
 			}
 		}
+		int targetsOnLevel[4] = {4, 4, 5, 5};
+
 		BattleHex lightningHex =  destinationTile;
-		for (int i = 0; i < 5; ++i) //TODO: depends on spell school level
+		for (int i = 0; i < targetsOnLevel[skillLevel]; ++i)
 		{
 			auto stack = battleGetStackByPos (lightningHex, true);
 			if (!stack)
