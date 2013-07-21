@@ -3771,7 +3771,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 
 					shipyards.erase(boost::remove_if(shipyards, [=](const IShipyard *shipyard) -> bool
 					{
-						return shipyard->state() != 0 || retreiveTile(shipyard->bestLocation()) != sectorToReach->id;
+						return shipyard->shipyardStatus() != 0 || retreiveTile(shipyard->bestLocation()) != sectorToReach->id;
 					}),shipyards.end());
 
 					if(!shipyards.size())

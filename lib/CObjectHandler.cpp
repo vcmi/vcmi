@@ -6744,7 +6744,7 @@ int3 IBoatGenerator::bestLocation() const
 	return int3 (-1,-1,-1);
 }
 
-IBoatGenerator::EGeneratorState IBoatGenerator::state() const
+IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 {
 	int3 tile = bestLocation();
 	const TerrainTile *t = IObjectInterface::cb->getTile(tile);
@@ -6772,7 +6772,7 @@ IBoatGenerator::IBoatGenerator(const CGObjectInstance *O)
 
 void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visitor) const
 {
-	switch(state())
+	switch(shipyardStatus())
 	{
 	case BOAT_ALREADY_BUILT:
 		out.addTxt(MetaString::GENERAL_TXT, 51);
@@ -6848,7 +6848,7 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 	if(!cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner))
 		cb->setOwner(this, h->tempOwner);
 
-	auto s = state();
+	auto s = shipyardStatus();
 	if(s != IBoatGenerator::GOOD)
 	{
 		InfoWindow iw;

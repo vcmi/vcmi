@@ -140,7 +140,7 @@ public:
 	int3 bestLocation() const; //returns location when the boat should be placed
 
 	enum EGeneratorState {GOOD, BOAT_ALREADY_BUILT, TILE_BLOCKED, NO_WATER};
-	EGeneratorState state() const; //0 - can buid, 1 - there is already a boat at dest tile, 2 - dest tile is blocked, 3 - no water
+	EGeneratorState shipyardStatus() const; //0 - can buid, 1 - there is already a boat at dest tile, 2 - dest tile is blocked, 3 - no water
 	void getProblemText(MetaString &out, const CGHeroInstance *visitor = nullptr) const;
 };
 

@@ -1497,7 +1497,7 @@ void CPlayerInterface::waitWhileDialog(bool unlockPim /*= true*/)
 void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto state = obj->state();
+	auto state = obj->shipyardStatus();
 	std::vector<si32> cost;
 	obj->getBoatCost(cost);
 	CShipyardWindow *csw = new CShipyardWindow(cost, state, obj->getBoatType(), [=]{ cb->buildBoat(obj); });
@@ -2316,7 +2316,7 @@ void CPlayerInterface::showQuestLog()
 
 void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 {
-	if(obj->state() != IBoatGenerator::GOOD)
+	if(obj->shipyardStatus() != IBoatGenerator::GOOD)
 	{
 		MetaString txt;
 		obj->getProblemText(txt);

@@ -4931,7 +4931,7 @@ bool CGameHandler::buildBoat( ObjectInstanceID objid )
 {
 	const IShipyard *obj = IShipyard::castFrom(getObj(objid));
 
-	if(obj->state() != IBoatGenerator::GOOD)
+	if(obj->shipyardStatus() != IBoatGenerator::GOOD)
 	{
 		complain("Cannot build boat in this shipyard!");
 		return false;

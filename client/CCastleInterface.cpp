@@ -604,7 +604,8 @@ void CCastleBuildings::buildingClicked(BuildingID building)
 				break;
 
 		case BuildingID::SHIPYARD:
-				LOCPLINT->showShipyardDialog(town);
+				if(town->shipyardStatus() == IBoatGenerator::GOOD)
+					LOCPLINT->showShipyardDialog(town);
 				break;
 
 		case BuildingID::FORT:

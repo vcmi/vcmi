@@ -1347,7 +1347,7 @@ void CGameState::init(StartInfo * si)
 				vti->builtBuildings.insert(BuildingID::DWELL_LVL_2);
 		}
 
-		if (vstd::contains(vti->builtBuildings, BuildingID::SHIPYARD) && vti->state()==IBoatGenerator::TILE_BLOCKED)
+		if (vstd::contains(vti->builtBuildings, BuildingID::SHIPYARD) && vti->shipyardStatus()==IBoatGenerator::TILE_BLOCKED)
 			vti->builtBuildings.erase(BuildingID::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
 
 		//init hordes
