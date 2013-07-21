@@ -1410,8 +1410,8 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 {
 	const ui8 necromancyLevel = getSecSkillLevel(SecondarySkill::NECROMANCY);
 
-	// Hero knows necromancy.
-	if (necromancyLevel > 0)
+	// Hero knows necromancy or has Necromancer Cloak
+	if (necromancyLevel > 0 || hasBonusOfType(Bonus::IMPROVED_NECROMANCY))
 	{
 		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::NECROMANCY)/100.0;
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
@@ -1429,11 +1429,9 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		{
 			// Get lost enemy hit points convertible to units.
 			CCreature * c = VLC->creh->creatures[casualtie.first];
-			if (c->isLiving())
-			{
-				const ui32 raisedHP = c->valOfBonuses(Bonus::STACK_HEALTH) * casualtie.second * necromancySkill;
-				raisedUnits += std::min<ui32>(raisedHP / raisedUnitHP, casualtie.second * necromancySkill); //limit to % of HP and % of original stack count
-			}
+
+			const ui32 raisedHP = c->valOfBonuses(Bonus::STACK_HEALTH) * casualtie.second * necromancySkill;
+			raisedUnits += std::min<ui32>(raisedHP / raisedUnitHP, casualtie.second * necromancySkill); //limit to % of HP and % of original stack count
 		}
 
 		// Make room for new units.
@@ -1966,7 +1964,7 @@ int CGTownInstance::getSightRadious() const //returns sight distance
 	{
 		if (hasBuilt(BuildingID::GRAIL)) //skyship
 			return -1; //entire map
-		else if (hasBuilt(BuildingID::LOOKOUT_TOWER)) //lookout tower
+		if (hasBuilt(BuildingID::LOOKOUT_TOWER)) //lookout tower
 			return 20;
 	}
 	return 5;

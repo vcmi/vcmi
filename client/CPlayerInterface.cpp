@@ -2180,13 +2180,26 @@ void CPlayerInterface::acceptTurn()
 	if(howManyPeople > 1)
 		adventureInt->startTurn();
 
-	//select first hero if available.
-	//TODO: check if hero is slept
 	adventureInt->heroList.update();
 	adventureInt->townList.update();
 
-	if(wanderingHeroes.size())
-		adventureInt->select(wanderingHeroes.front());
+	const CGHeroInstance * heroToSelect = nullptr;
+
+	// find first non-sleeping hero
+	for (auto hero : wanderingHeroes)
+	{
+		if (boost::range::find(sleepingHeroes, hero) == sleepingHeroes.end())
+		{
+			heroToSelect = hero;
+			break;
+		}
+	}
+
+	//select first hero if available.
+	if(heroToSelect != nullptr)
+	{
+		adventureInt->select(heroToSelect);
+	}
 	else
 		adventureInt->select(towns.front());
 

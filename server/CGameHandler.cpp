@@ -414,6 +414,15 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	//Fill BattleResult structure with exp info
 	giveExp(*battleResult.data);
+
+	if (battleResult.get()->result == BattleResult::NORMAL) // give 500 exp for defeating hero, unless he escaped
+	{
+		if (hero1)
+			battleResult.data->exp[1] += 500;
+		if (hero2)
+			battleResult.data->exp[0] += 500;
+	}
+
 	if (hero1)
 		battleResult.data->exp[0] = hero1->calculateXp(battleResult.data->exp[0]);//scholar skill
 	if (hero2)
@@ -2440,7 +2449,7 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 			ssi.creatures[level].second.push_back(crea->idNumber);
 			sendAndApply(&ssi);
 		}
-		else if ( t->subID == ETownType::DUNGEON && buildingID == BuildingID::PORTAL_OF_SUMMON )
+		if ( t->subID == ETownType::DUNGEON && buildingID == BuildingID::PORTAL_OF_SUMMON )
 		{
 			setPortalDwelling(t);
 		}
@@ -2463,8 +2472,6 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 
 		return true;
 	};
-
-
 
 	//Init the vectors
 	for(auto & build : t->town->buildings)
@@ -2499,13 +2506,6 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 		}
 	}
 
-	//reveal ground for lookout tower
-	FoWChange fw;
-	fw.player = t->tempOwner;
-	fw.mode = 1;
-	t->getSightTiles(fw.tiles);
-	sendAndApply(&fw);
-
 	//Other post-built events
 	for(auto builtID : ns.bid)
 		processBuiltStructure(builtID);
@@ -2521,6 +2521,13 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 
 	//We know what has been built, appluy changes. Do this as final step to properly update town window
 	sendAndApply(&ns);
+
+	// now when everything is built - reveal tiles for lookout tower
+	FoWChange fw;
+	fw.player = t->tempOwner;
+	fw.mode = 1;
+	t->getSightTiles(fw.tiles);
+	sendAndApply(&fw);
 
 	if(t->visitingHero)
 		vistiCastleObjects (t, t->visitingHero);
@@ -3665,7 +3672,12 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			bsa.creID = CreatureID(summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype); //in case summoner can summon more than one type of monsters... scream!
 			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID.toEnum());
-			bsa.amount = std::min ((ui32)(risedHp / VLC->creh->creatures[bsa.creID]->MaxHealth()), destStack->baseAmount);
+			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;
+
+			ui64 canRiseHp = std::min(targetHealth, risedHp);
+			ui32 canRiseAmount = canRiseHp / VLC->creh->creatures[bsa.creID]->MaxHealth();
+
+			bsa.amount = std::min(canRiseAmount, destStack->baseAmount);
 
 			bsa.pos = gs->curB->getAvaliableHex(bsa.creID, bsa.attacker, destStack->position);
 			bsa.summoned = false;

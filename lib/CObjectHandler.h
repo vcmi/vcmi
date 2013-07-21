@@ -633,8 +633,8 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
-	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
-	int getSightRadious() const; //returns sight distance
+	int3 getSightCenter() const override; //"center" tile from which the sight distance is calculated
+	int getSightRadious() const override; //returns sight distance
 	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
 	int getMarketEfficiency() const override; //=market count

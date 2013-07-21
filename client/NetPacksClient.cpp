@@ -165,7 +165,6 @@ void SetMovePoints::applyCl( CClient *cl )
 
 void FoWChange::applyCl( CClient *cl )
 {
-
 	for(auto &i : cl->playerint)
 		if(cl->getPlayerRelations(i.first, player) != PlayerRelations::ENEMIES)
 		{
