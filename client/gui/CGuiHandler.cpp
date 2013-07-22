@@ -101,6 +101,9 @@ void CGuiHandler::popIntTotally( IShowActivatable *top )
 
 void CGuiHandler::pushInt( IShowActivatable *newInt )
 {
+	assert(newInt);
+	assert(boost::range::find(listInt, newInt) == listInt.end()); // do not add same object twice
+
 	//a new interface will be present, we'll need to use buffer surface (unless it's advmapint that will alter screenBuf on activate anyway)
 	screenBuf = screen2; 
 

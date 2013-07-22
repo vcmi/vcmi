@@ -608,7 +608,7 @@ void CClient::battleStarted(const BattleInfo * info)
 	};
 
 	callBattleStart(leftSide.color, 0);
-	callBattleStart(leftSide.color, 1);
+	callBattleStart(rightSide.color, 1);
 	callBattleStart(PlayerColor::UNFLAGGABLE, 1);
 
 	if(info->tacticDistance && vstd::contains(battleints,info->sides[info->tacticsSide].color))

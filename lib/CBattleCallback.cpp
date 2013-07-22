@@ -21,24 +21,19 @@
 
 namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 {
-	static void retreiveTurretDamageRange(const CStack *turret, double &outMinDmg, double &outMaxDmg)
+	static void retreiveTurretDamageRange(const CGTownInstance * town, const CStack *turret, double &outMinDmg, double &outMaxDmg)
 	{
 		assert(turret->getCreature()->idNumber == CreatureID::ARROW_TOWERS);
+		assert(town);
+		assert(turret->position >= -4 && turret->position <= -2);
 
-		switch(turret->position)
-		{
-		case -2: //keep
-			outMinDmg = 15;
-			outMaxDmg = 15;
-			break;
-		case -3: case -4: //turrets
-			outMinDmg = 7.5;
-			outMaxDmg = 7.5;
-			break;
-		default:
-            logGlobal->warnStream() << "Unknown turret type!";
-			outMaxDmg = outMinDmg = 1;
-		}
+		float multiplier = (turret->position == -2) ? 1 : 0.5;
+
+		int baseMin = 6;
+		int baseMax = 10;
+
+		outMinDmg = multiplier * (baseMin + town->getTownLevel() * 2);
+		outMaxDmg = multiplier * (baseMax + town->getTownLevel() * 3);
 	}
 
 	static BattleHex lineToWallHex(int line) //returns hex with wall in given line (y coordinate)
@@ -816,7 +811,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 
 	if(attackerType->idNumber == CreatureID::ARROW_TOWERS)
 	{
-		SiegeStuffThatShouldBeMovedToHandlers::retreiveTurretDamageRange(info.attacker, minDmg, maxDmg);
+		SiegeStuffThatShouldBeMovedToHandlers::retreiveTurretDamageRange(battleGetDefendedTown(), info.attacker, minDmg, maxDmg);
 	}
 
 	if(info.attackerBonuses->hasBonusOfType(Bonus::SIEGE_WEAPON) && attackerType->idNumber != CreatureID::ARROW_TOWERS) //any siege weapon, but only ballista can attack (second condition - not arrow turret)

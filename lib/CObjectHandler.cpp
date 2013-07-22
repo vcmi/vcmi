@@ -2616,6 +2616,15 @@ bool CGTownInstance::armedGarrison() const
 	return stacksCount() || garrisonHero;
 }
 
+int CGTownInstance::getTownLevel() const
+{
+	// count all buildings that are not upgrades
+	return boost::range::count_if(builtBuildings, [&](const BuildingID & build)
+	{
+		return town->buildings[build] && town->buildings[build]->upgrade == -1;
+	});
+}
+
 CBonusSystemNode * CGTownInstance::whatShouldBeAttached()
 {
 	return &townAndVis;
