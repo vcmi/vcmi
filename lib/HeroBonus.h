@@ -592,6 +592,7 @@ public:
 	ui32 MaxHealth() const; //get max HP of stack with all modifiers
 	bool isLiving() const; //non-undead, non-non living or alive
 	virtual si32 magicResistance() const;
+	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed of creature with all modificators
 	const Bonus * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
 	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 
@@ -674,9 +675,6 @@ public:
 	void popBonuses(const CSelector &s);
 	virtual std::string bonusToString(const Bonus *bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
-
-	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed of creature with all modificators
-	//FIXME: this interface should be moved to IBonusBearer, but bonus list is required for original implementation to compile
 
 	void deserializationFix();
 	void exportBonus(Bonus * b);

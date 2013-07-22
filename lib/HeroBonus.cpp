@@ -486,32 +486,21 @@ si32 IBonusBearer::magicResistance() const
 	return valOfBonuses(Bonus::MAGIC_RESISTANCE);
 }
 
-ui32 CBonusSystemNode::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
+ui32 IBonusBearer::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
 {
-	if(hasBonus(Selector::type(Bonus::SIEGE_WEAPON).And(Selector::turns(turn)))) //war machines cannot move
-		return 0;
-
-	int speed = valOfBonuses(Selector::type(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
-
-	int percentBonus = 0;
-	for(const Bonus *b : getBonusList())
+	//war machines cannot move
+	if(hasBonus(Selector::type(Bonus::SIEGE_WEAPON).And(Selector::turns(turn))))
 	{
-		if(b->type == Bonus::STACKS_SPEED)
-		{
-			percentBonus += b->additionalInfo;
-		}
+		return 0;
 	}
-
-	speed = ((100 + percentBonus) * speed)/100;
-
 	//bind effect check - doesn't influence stack initiative
 	if (useBind && getEffect (SpellID::BIND))
 	{
 		return 0;
 	}
 
-	return speed;
-}
+	return valOfBonuses(Selector::type(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
+}	
 
 bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
 {
