@@ -173,7 +173,7 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 		ret.push_back(centralHex);
 		addIfValid(centralHex.moveInDir(firstStep, false));
 		if(schoolLvl >= 2) //advanced versions of fire wall / force field cotnains of 3 hexes
-			addIfValid(centralHex.moveInDir(firstStep, false).moveInDir(secondStep, false));
+			addIfValid(centralHex.moveInDir(secondStep, false)); //moveInDir function modifies subject hex
 
 		return ret;
 	}
