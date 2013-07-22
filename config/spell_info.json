@@ -372,12 +372,11 @@
 			"id": 34,
 			"effect": 1,
 			"anim": 5,
-			"ranges": [ "0", "0", "0", "X" ],
+			"ranges": [ "0", "0", "0", "0" ],
 			"effects":
 			[
 				{
 					"type": 	"LEVEL_SPELL_IMMUNITY",
-					"subtype":5, //needed?
 					"valType":"INDEPENDENT_MAX",
 					"duration": "N_TURNS",
 					"values":[3,3,4,5]
