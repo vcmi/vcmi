@@ -760,20 +760,21 @@ public:
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
 
-	struct DLL_LINKAGE RestoredCreature // info about merging stacks after battle back into one
+	struct DLL_LINKAGE formationInfo // info about merging stacks after battle back into one
 	{
 		si32 basicType;
+		ui32 randomFormation; //random seed used to determine number of stacks and is there's upgraded stack
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & basicType;
+			h & basicType & randomFormation;
 		}
-	} restore;
+	} formation;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & identifier & character & message & resources & gainedArtifact & neverFlees & notGrowingTeam & temppower;
-		h & refusedJoining & restore;
+		h & refusedJoining & formation;
 	}
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;

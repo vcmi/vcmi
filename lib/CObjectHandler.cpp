@@ -3249,6 +3249,7 @@ void CGCreature::initObj()
 			amount = 1;
 		}
 	}
+	formation.randomFormation = rand();
 
 	temppower = stacks[SlotID(0)]->count * 1000;
 	refusedJoining = false;
@@ -3279,7 +3280,7 @@ void CGCreature::setPropertyDer(ui8 what, ui32 val)
 			giveStackExp(val);
 			break;
 		case ObjProperty::MONSTER_RESTORE_TYPE:
-			restore.basicType = val;
+			formation.basicType = val;
 			break;
 		case ObjProperty::MONSTER_REFUSED_JOIN:
 			refusedJoining = val;
@@ -3462,7 +3463,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	}
 	if (stacksCount > 1)
 	{
-		if (rand()%100 < 50) //upgrade
+		if (formation.randomFormation % 100 < 50) //upgrade
 		{
 			SlotID slotId = SlotID(stacks.size() / 2);
 			if(ui32 upgradesSize = getStack(slotId).type->upgrades.size())
@@ -3513,7 +3514,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 
 		//merge stacks into one
 		TSlots::const_iterator i;
-		CCreature * cre = VLC->creh->creatures[restore.basicType];
+		CCreature * cre = VLC->creh->creatures[formation.basicType];
 		for (i = stacks.begin(); i != stacks.end(); i++)
 		{
 			if (cre->isMyUpgrade(i->second->type))
