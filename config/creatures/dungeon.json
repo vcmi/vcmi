@@ -10,6 +10,11 @@
 			{
 				"type" : "SPELL_IMMUNITY",
 				"subtype" : "spell.blind"
+			},
+			"petrifyImmunity" : 
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.stoneGaze"
 			}
 		},
 		"upgrades": ["infernalTroglodyte"],
@@ -38,6 +43,11 @@
 			{
 				"type" : "SPELL_IMMUNITY",
 				"subtype" : "spell.blind"
+			},
+			"petrifyImmunity" : 
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.stoneGaze"
 			}
 		},
 		"graphics" :

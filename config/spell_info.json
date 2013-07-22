@@ -421,7 +421,8 @@
 			"effect": 1,
 			"anim": 79,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["rising"]
+			"flags" : ["rising"],
+			"immunity":["UNDEAD", "NON_LIVING"]
 		},
 		"animateDead"    :
 		{
@@ -430,6 +431,7 @@
 			"anim": 79,
 			"ranges": [ "0", "0", "0", "0" ],
 			"flags" : ["rising"]
+			//TODO: immunity for living creatures
 		},
 		"sacrifice"      :
 		{
@@ -623,7 +625,7 @@
 					"values":[-1,-1,-2,-2]
 				}
 			],
-			"immunity":["MIND_IMMUNITY"]
+			"immunity":["MIND_IMMUNITY", "UNDEAD", "NON_LIVING"]
 		},
 		"fortune"        :
 		{
@@ -767,7 +769,7 @@
 					"values":[0,1,2,3]
 				}
 			],
-			"immunity":["MIND_IMMUNITY"]
+			"immunity":["MIND_IMMUNITY", "UNDEAD", "NON_LIVING"]
 		},
 		"hypnotize"      :
 		{
@@ -786,7 +788,7 @@
 					"values":[0,1,2,3]
 				}
 			],
-			"immunity":["MIND_IMMUNITY"]
+			"immunity":["MIND_IMMUNITY", "UNDEAD", "NON_LIVING"]
 		},
 		"forgetfulness"  :
 		{
@@ -803,7 +805,7 @@
 				}
 			],
 			"limit":["SHOOTER"],
-			"immunity":["MIND_IMMUNITY"]
+			"immunity":["MIND_IMMUNITY", "UNDEAD", "NON_LIVING"]
 		},
 		"blind"          :
 		{
@@ -832,7 +834,7 @@
 					"values":[0,0,0,0]
 				}
 			],
-			"immunity":["MIND_IMMUNITY"]
+			"immunity":["MIND_IMMUNITY", "UNDEAD", "NON_LIVING"]
 		},
 		"teleport"       :
 		{
@@ -927,7 +929,8 @@
 					"duration": "N_TURNS",
 					"values":[-10,-10,-10,-10]
 				}
-			]
+			],
+			"immunity":["UNDEAD", "NON_LIVING"]
 		},
 		"bind"           :
 		{
@@ -965,7 +968,8 @@
 					"duration": "N_TURNS",
 					"values":[-2,-2,-2,-2]
 				}
-			]
+			],
+			"immunity":["UNDEAD", "NON_LIVING"]
 		},
 		"paralyze"       :
 		{
@@ -1002,14 +1006,16 @@
 					"duration": "N_TURNS",
 					"values":[-50,-50,-50,-50]
 				}
-			]
+			],
+			"immunity":["UNDEAD", "NON_LIVING"]
 		},
 		"deathCloud"     :
 		{
 			"id": 76,
 			"effect": 0,
 			"anim": 72,
-			"ranges": [ "0-1", "0-1", "0-1", "0-1" ]
+			"ranges": [ "0-1", "0-1", "0-1", "0-1" ],
+			"immunity":["UNDEAD", "NON_LIVING"]
 		},
 		"thunderbolt"    :
 		{
@@ -1034,7 +1040,8 @@
 			"id": 79,
 			"effect": 0,
 			"anim": 80,
-			"ranges": [ "0", "0", "0", "0" ]
+			"ranges": [ "0", "0", "0", "0" ],
+			"immunity":["UNDEAD", "NON_LIVING"]
 		},
 		"acidBreath"     :
 		{
