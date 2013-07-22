@@ -675,6 +675,9 @@ public:
 	virtual std::string bonusToString(const Bonus *bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
 
+	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed of creature with all modificators
+	//FIXME: this interface should be moved to IBonusBearer, but bonus list is required for original implementation to compile
+
 	void deserializationFix();
 	void exportBonus(Bonus * b);
 	void exportBonuses();

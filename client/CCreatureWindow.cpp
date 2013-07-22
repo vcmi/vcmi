@@ -540,7 +540,7 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 
 	printLine(3, CGI->generaltexth->allTexts[199], stackNode->getMinDamage() * dmgMultiply, stackNode->getMaxDamage() * dmgMultiply, true);
 	printLine(4, CGI->generaltexth->allTexts[388], c->valOfBonuses(Bonus::STACK_HEALTH), stackNode->valOfBonuses(Bonus::STACK_HEALTH));
-	printLine(6, CGI->generaltexth->zelp[441].first, c->valOfBonuses(Bonus::STACKS_SPEED), stackNode->valOfBonuses(Bonus::STACKS_SPEED));
+	printLine(6, CGI->generaltexth->zelp[441].first, c->Speed(), stackNode->Speed());
 
 	for(CBonusItem* b : bonusItems)
 		b->showAll (to);

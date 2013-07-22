@@ -895,33 +895,6 @@ void CStack::postInit()
 	casts = valOfBonuses(Bonus::CASTS);
 }
 
-ui32 CStack::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
-{
-	if(hasBonus(Selector::type(Bonus::SIEGE_WEAPON).And(Selector::turns(turn)))) //war machines cannot move
-		return 0;
-
-	int speed = valOfBonuses(Selector::type(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
-
-	int percentBonus = 0;
-	for(const Bonus *b : getBonusList())
-	{
-		if(b->type == Bonus::STACKS_SPEED)
-		{
-			percentBonus += b->additionalInfo;
-		}
-	}
-
-	speed = ((100 + percentBonus) * speed)/100;
-
-	//bind effect check - doesn't influence stack initiative
-	if (useBind && getEffect (SpellID::BIND))
-	{
-		return 0;
-	}
-
-	return speed;
-}
-
 ui32 CStack::level() const
 {
 	if (base)

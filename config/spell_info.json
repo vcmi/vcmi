@@ -588,7 +588,8 @@
 				{
 					"type": 	"STACKS_SPEED",
 					"duration": "N_TURNS",
-					"values":[2, 2, 4, 4]
+					"values":[2, 2, 4, 4],
+					"ainfos":[0,0,0,0]
 				}
 			]
 		},
@@ -669,7 +670,8 @@
 				{
 					"type": 	"STACKS_SPEED",
 					"duration": "N_TURNS",
-					"values":[3, 3, 5, 5]
+					"values":[3, 3, 5, 5],
+					"ainfos":[0,0,0,0]
 				}
 			],
 			"immunity":["SIEGE_WEAPON"]
@@ -690,7 +692,8 @@
 					"type": 	"STACKS_SPEED",
 					"valueType": "PERCENT_TO_ALL",
 					"duration": "N_TURNS",
-					"values":[-25,-25,-50,-50]
+					"values":[-25,-25,-50,-50],
+					"ainfos":[0,0,0,0]
 				}
 			],
 			"immunity":["SIEGE_WEAPON"]
