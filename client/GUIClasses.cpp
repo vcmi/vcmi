@@ -993,7 +993,17 @@ std::string CComponent::getSubtitleInternal()
 	case resource:   return boost::lexical_cast<std::string>(val);
 	case creature:   return (val? boost::lexical_cast<std::string>(val) + " " : "") + CGI->creh->creatures[subtype]->*(val != 1 ? &CCreature::namePl : &CCreature::nameSing);
 	case artifact:   return CGI->arth->artifacts[subtype]->Name();
-	case experience: return (subtype && val==1) ? CGI->generaltexth->allTexts[442] : boost::lexical_cast<std::string>(val);
+	case experience:
+		{
+			if (subtype == 1) //+1 level - tree of knowledge
+			{
+				std::string level = CGI->generaltexth->allTexts[442];
+				boost::replace_first(level, "1", boost::lexical_cast<std::string>(val));
+				return level;
+			}
+			else
+				return boost::lexical_cast<std::string>(val); //amount of experience OR level required for seer hut;
+		}
 	case spell:      return CGI->spellh->spells[subtype]->name;
 	case morale:     return "";
 	case luck:       return "";

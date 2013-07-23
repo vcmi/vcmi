@@ -335,10 +335,10 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		return;
 	}
 
-	auto quest = dynamic_cast<const CQuest *>(obj);
+	auto quest = dynamic_cast<const IQuestObject *>(obj);
 	if (quest)
 	{
-		gs->map->quests[quest->qid] = nullptr;
+		gs->map->quests[quest->quest->qid] = nullptr;
 		for (auto &player : gs->players)
 		{
 			for (auto &q : player.second.quests)
@@ -349,7 +349,6 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 				}
 			}
 		}
-		//gs->map->quests[quest->qid].dellNull();
 	}
 
 	gs->map->objects[id.getNum()].dellNull();

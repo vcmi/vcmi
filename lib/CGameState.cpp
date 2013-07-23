@@ -1728,6 +1728,9 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 	if(ret.newID.size())
 		ret.oldID = base->idNumber;
 
+	for (Res::ResourceSet &cost : ret.cost)
+		cost.positive(); //upgrade cost can't be negative, ignore missing resources
+
 	return ret;
 }
 

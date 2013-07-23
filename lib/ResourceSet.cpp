@@ -40,6 +40,12 @@ void Res::ResourceSet::amax(const TResourceCap &val)
 		::vstd::amax(elem, val);
 }
 
+void Res::ResourceSet::positive()
+{
+	for(auto & elem : *this)
+		::vstd::amax(elem, 0);
+}
+
 bool Res::ResourceSet::canBeAfforded(const ResourceSet &res) const
 {
 	return Res::canAfford(res, *this);

@@ -4390,17 +4390,17 @@ void CQuest::getVisitText (MetaString &iwText, std::vector<Component> &component
 	if (firstVisit)
 	{
 		isCustom = isCustomFirst;
-		iwText << firstVisitText;
+		iwText << (text = firstVisitText);
 	}
 	else if (failRequirements)
 	{
 		isCustom = isCustomNext;
-		iwText << nextVisitText;
+		iwText << (text = nextVisitText);
 	}
 	switch (missionType)
 	{
 		case MISSION_LEVEL:
-			components.push_back(Component (Component::EXPERIENCE, 1, m13489val, 0));
+			components.push_back(Component (Component::EXPERIENCE, 0, m13489val, 0));
 			if (!isCustom)
 				iwText.addReplacement(m13489val);
 			break;
@@ -4435,7 +4435,9 @@ void CQuest::getVisitText (MetaString &iwText, std::vector<Component> &component
 			{
 				components.push_back(Component(stackToKill));
 				if (!isCustom)
+				{
 					addReplacements(iwText, text);
+				}
 			}
 			break;
 		case MISSION_ART:
@@ -4687,7 +4689,10 @@ void CGSeerHut::initObj()
 			quest->completedText = VLC->generaltexth->quests[quest->missionType-1][2][quest->textOption];
 	}
 	else
+	{
+		quest->progress = CQuest::COMPLETE;
 		quest->firstVisitText = VLC->generaltexth->seerEmpty[quest->textOption];
+	}
 
 }
 
@@ -4788,17 +4793,13 @@ void CGSeerHut::setPropertyDer (ui8 what, ui32 val)
 		case 10:
 			quest->progress = static_cast<CQuest::Eprogress>(val);
 			break;
-		case 11:
-			quest->missionType = CQuest::MISSION_NONE;
-			break;
 	}
 }
 void CGSeerHut::newTurn() const
 {
-	if (quest->lastDay >= 0 && quest->lastDay < cb->getDate()) //time is up
+	if (quest->lastDay >= 0 && quest->lastDay < cb->getDate()-1) //time is up
 	{
-		cb->setObjProperty (id, 11, 0);
-		cb->setObjProperty (id, 10, 0);
+		cb->setObjProperty (id, 10, CQuest::COMPLETE);
 	}
 
 }
@@ -4806,7 +4807,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
-	if (quest->missionType)
+	if (quest->progress < CQuest::COMPLETE)
 	{
 		bool firstVisit = !quest->progress;
 		bool failRequirements = !checkQuest(h);
@@ -4908,9 +4909,8 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			default:
 				break;
 		}
-		cb->setObjProperty (id, 10, CQuest::COMPLETE); //mission complete - for AI
-		cb->setObjProperty (id, 11, 0); //no more mission available - redundant?
-		completeQuest(h); //make sure to remove QuestQuard at the very end
+		cb->setObjProperty (id, 10, CQuest::COMPLETE); //mission complete
+		completeQuest(h); //make sure to remove QuestGuard at the very end
 	}
 }
 void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward

@@ -241,10 +241,10 @@ CGeneralTextHandler::CGeneralTextHandler()
 
 		//skip header
 		parser.endLine();
-		parser.endLine();
 
 		for (int i = 0; i < 6; ++i)
 			seerEmpty.push_back(parser.readString());
+		parser.endLine();
 
 		quests.resize(10);
 		for (int i = 0; i < 9; ++i) //9 types of quests
