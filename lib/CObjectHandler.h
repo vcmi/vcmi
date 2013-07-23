@@ -837,6 +837,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
+	virtual void init();
 	int checkDirection() const; //calculates the region of map where monster is placed
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
 	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
@@ -844,7 +845,7 @@ public:
 	void getRolloverText (MetaString &text, bool onHover) const;
 	void getCompletionText(MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h = nullptr) const;
 	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
-	void completeQuest (const CGHeroInstance * h) const;
+	virtual void completeQuest (const CGHeroInstance * h) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -859,8 +860,8 @@ class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
 	CGQuestGuard() : CGSeerHut(){};
-	void initObj() override;
-	void completeQuest (const CGHeroInstance * h) const;
+	void init() override;
+	void completeQuest (const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -4400,10 +4400,10 @@ void CQuest::getVisitText (MetaString &iwText, std::vector<Component> &component
 	switch (missionType)
 	{
 		case MISSION_LEVEL:
-		components.push_back(Component (Component::EXPERIENCE, 1, m13489val, 0));
-		if (!isCustom)
-			iwText.addReplacement(m13489val);
-		break;
+			components.push_back(Component (Component::EXPERIENCE, 1, m13489val, 0));
+			if (!isCustom)
+				iwText.addReplacement(m13489val);
+			break;
 		case MISSION_PRIMARY_STAT:
 		{
 			MetaString loot;
@@ -4666,10 +4666,16 @@ void CGSeerHut::setObjToKill()
 	}
 }
 
-void CGSeerHut::initObj()
+void CGSeerHut::init()
 {
 	seerName = VLC->generaltexth->seerNames[ran()%VLC->generaltexth->seerNames.size()];
-	quest->textOption = ran()%3;
+	quest->textOption = ran() % 3;
+}
+
+void CGSeerHut::initObj()
+{
+	init();
+
 	quest->progress = CQuest::NOT_ACTIVE;
 	if (quest->missionType)
 	{
@@ -4986,22 +4992,10 @@ void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) 
 	finishQuest(hero, answer);
 }
 
-void CGQuestGuard::initObj()
+void CGQuestGuard::init()
 {
 	blockVisit = true;
-	quest->progress = CQuest::NOT_ACTIVE;
-	quest->textOption = ran()%3 + 3; //3-5
-	if (quest->missionType)
-	{
-		if (!quest->isCustomFirst)
-			quest->firstVisitText = VLC->generaltexth->quests[quest->missionType-1][0][quest->textOption];
-		if (!quest->isCustomNext)
-			quest->nextVisitText = VLC->generaltexth->quests[quest->missionType-1][1][quest->textOption];
-		if (!quest->isCustomComplete)
-			quest->completedText = VLC->generaltexth->quests[quest->missionType-1][2][quest->textOption];
-	}
-	else
-		quest->firstVisitText = VLC->generaltexth->seerEmpty[quest->textOption];
+	quest->textOption = (ran() % 3) + 3; //3-5
 }
 void CGQuestGuard::completeQuest(const CGHeroInstance *h) const
 {
