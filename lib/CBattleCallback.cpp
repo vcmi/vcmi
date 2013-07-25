@@ -449,7 +449,7 @@ si8 CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer *bonusBearer, B
 si8 CBattleInfoCallback::battleCanTeleportTo(const CStack * stack, BattleHex destHex, int telportLevel) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	if(getAccesibility(stack).accessible(destHex, stack))
+	if (!getAccesibility(stack).accessible(destHex, stack))
 		return false;
 
 	if (battleGetSiegeLevel() && telportLevel < 2) //check for wall

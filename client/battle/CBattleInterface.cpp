@@ -2118,29 +2118,6 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	//used when l-clicking -> action to be called upon the click
 	std::function<void()> realizeAction;
 
-	//helper lambda that appropriately realizes action / sets cursor and tooltip
-	auto realizeThingsToDo = [&]()
-	{
-		if(eventType == MOVE)
-		{
-			if(setCursor)
-				CCS->curh->changeGraphic(cursorType, cursorFrame);
-			this->console->alterText(consoleMsg);
-			this->console->whoSetAlter = 0;
-		}
-		if(eventType == LCLICK && realizeAction)
-		{
-			//opening creature window shouldn't affect myTurn... 
-			if(currentAction != CREATURE_INFO)
-			{
-				myTurn = false; //tends to crash with empty calls
-			}
-			realizeAction();
-			CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
-			this->console->alterText("");
-		}
-	};
-
 	const CStack * const sactive = activeStack;
 	//Get stack on the hex - first try to grab the alive one, if not found -> allow dead stacks.
 	const CStack *shere = curInt->cb->battleGetStackByPos(myNumber, true);
@@ -2165,7 +2142,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 
 	for (PossibleActions action : possibleActions)
 	{
-		bool legalAction = false; //this action is legal and can't be performed
+		bool legalAction = false; //this action is legal and can be performed
 		bool notLegal = false; //this action is not legal and should display message
 		
 		switch (action)
@@ -2409,7 +2386,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				{
 					case SpellID::SACRIFICE:
 					case SpellID::TELEPORT:
-						selectedStack = shere; //remember firts target
+						selectedStack = shere; //remember first target
 						secondaryTarget = true;
 						break;
 				}
@@ -2428,15 +2405,17 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case TELEPORT:
 				consoleMsg = CGI->generaltexth->allTexts[25]; //Teleport Here
+				cursorFrame = ECursor::COMBAT_TELEPORT;
 				isCastingPossible = true;
 				break;
 			case OBSTACLE:
 				consoleMsg = CGI->generaltexth->allTexts[550];
+				//TODO: remove obstacle cursor
 				isCastingPossible = true;
 				break;
 			case SACRIFICE:
-				cursorFrame = ECursor::COMBAT_SACRIFICE;
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[549]) % shere->getName()).str(); //sacrifice the %s
+				cursorFrame = ECursor::COMBAT_SACRIFICE; 
 				spellToCast->selectedStack = shere->ID; //sacrificed creature is selected
 				isCastingPossible = true;
 				break;
@@ -2479,6 +2458,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				consoleMsg = CGI->generaltexth->allTexts[23];
 				break;
 			case TELEPORT:
+				cursorFrame = ECursor::COMBAT_BLOCKED;
 				consoleMsg = CGI->generaltexth->allTexts[24]; //Invalid Teleport Destination
 				break;
 			case SACRIFICE:
@@ -2499,10 +2479,18 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 
 	if (isCastingPossible) //common part
 	{
-		cursorType = ECursor::SPELLBOOK;
-		cursorFrame = 0;
-		if(consoleMsg.empty() && sp)
-			consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
+		switch (currentAction) //don't use that with teleport / sacrifice
+		{
+			case TELEPORT: //FIXME: more generic solution?
+			case SACRIFICE:
+				break;
+			default:
+				cursorType = ECursor::SPELLBOOK;
+				cursorFrame = 0;
+				if(consoleMsg.empty() && sp)
+					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
+				break;
+		}
 		
 		realizeAction = [=]
 		{
@@ -2552,6 +2540,30 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			}
 		};
 	}
+	//helper lambda that appropriately realizes action / sets cursor and tooltip
+	auto realizeThingsToDo = [&]()
+	{
+		if(eventType == MOVE)
+		{
+			if(setCursor)
+				CCS->curh->changeGraphic(cursorType, cursorFrame);
+			this->console->alterText(consoleMsg);
+			this->console->whoSetAlter = 0;
+		}
+		if(eventType == LCLICK && realizeAction)
+		{
+			//opening creature window shouldn't affect myTurn... 
+			if ((currentAction != CREATURE_INFO) && !secondaryTarget)
+			{
+				myTurn = false; //tends to crash with empty calls
+			}
+			realizeAction();
+			if (!secondaryTarget) //do not replace teleport or sacrifice cursor
+				CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER); 
+			this->console->alterText("");
+		}
+	};
+
 	realizeThingsToDo();
 }
 
