@@ -1403,12 +1403,12 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		if(resurrected)
 		{
 			changedStack->state.insert(EBattleStackState::ALIVE);
-			if(elem.lowLevelResurrection)
-				changedStack->state.insert(EBattleStackState::SUMMONED); //TODO: different counter for rised units
 		}
 		//int missingHPfirst = changedStack->MaxHealth() - changedStack->firstHPleft;
 		int res = std::min( elem.healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count );
 		changedStack->count += res;
+		if(elem.lowLevelResurrection)
+			changedStack->resurrected += res;
 		changedStack->firstHPleft += elem.healedHP - res * changedStack->MaxHealth();
 		if(changedStack->firstHPleft > changedStack->MaxHealth())
 		{

@@ -125,13 +125,9 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	CStack * generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, SlotID slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	int getIdForNewStack() const; //suggest a currently unused ID that'd suitable for generating a new stack
 	//std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
-	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack = nullptr) const; //Sacrifice
-	ui32 calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const; //for Archangel
-	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //healing spells casted by stacks
 	bool resurrects(SpellID spellid) const; //TODO: move it to spellHandler?
 
 	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
-
 
 	std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::vector<const CStack*> affectedCreatures, PlayerColor casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const;
 
@@ -165,6 +161,7 @@ public:
 	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
 	si16 shots; //how many shots left
 	ui8 casts; //how many casts left
+	TQuantity resurrected; // these units will be taken back after battle is over
 
 	std::set<EBattleStackState::EBattleStackState> state;
 	//overrides
@@ -218,7 +215,7 @@ public:
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CStackBasicDescriptor&>(*this);
 		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
-			& shots & casts & count;
+			& shots & casts & count & resurrected;
 
 		const CArmedInstance *army = (base ? base->armyObj : nullptr);
 		SlotID slot = (base ? base->armyObj->findStack(base) : SlotID());

@@ -1750,25 +1750,14 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 				for (Bonus * spellBonus : spellBonuses)
 				{
 					spell = CGI->spellh->spells[spellBonus->subtype];
-					if (spell->isRisingSpell())
+					switch (spellBonus->subtype)
 					{
-						possibleActions.push_back (RISING_SPELL);
-					}
-					//possibleActions.push_back (NO_LOCATION);
-					//possibleActions.push_back (ANY_LOCATION);
-					//TODO: allow stacks cast aimed spells
-					//possibleActions.push_back (OTHER_SPELL);
-					else
-					{
-						switch (spellBonus->subtype)
-						{
-							case SpellID::REMOVE_OBSTACLE:
-								possibleActions.push_back (OBSTACLE);
-								break;
-							default:
-								possibleActions.push_back (selectionTypeByPositiveness (*spell));
-								break;
-						}
+						case SpellID::REMOVE_OBSTACLE:
+							possibleActions.push_back (OBSTACLE);
+							break;
+						default:
+							possibleActions.push_back (selectionTypeByPositiveness (*spell));
+							break;
 					}
 
 				}
@@ -2194,13 +2183,18 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					legalAction = true;
 				break;
 			case FRIENDLY_CREATURE_SPELL:
-				if (shere && shere->alive() && ourStack && isCastingPossibleHere (sactive, shere, myNumber))
-					legalAction = true;
+			{
+				if (isCastingPossibleHere (sactive, shere, myNumber)); //need to be called before sp is determined
+				{
+					bool rise = false; //TODO: can you imagine rising hostile creatures?
+					sp = CGI->spellh->spells[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo];
+					if (sp && sp->isRisingSpell())
+							rise = true;
+					if (shere && (shere->alive() || rise) && ourStack)
+						legalAction = true;
+				}
 				break;
-			case RISING_SPELL:
-				if (shere && shere->canBeHealed() && ourStack && isCastingPossibleHere (sactive, shere, myNumber)) //TODO: at least one stack has to be raised by resurrection / animate dead
-					legalAction = true;
-				break;
+			}
 			case RANDOM_GENIE_SPELL:
 			{
 				if (shere && ourStack && shere != sactive) //only positive spells for other allied creatures
@@ -2379,7 +2373,6 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case HOSTILE_CREATURE_SPELL:
 			case FRIENDLY_CREATURE_SPELL:
-			case RISING_SPELL:
 				sp = CGI->spellh->spells[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo]; //necessary if creature has random Genie spell at same time
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
 				switch (sp->id)
@@ -2452,7 +2445,6 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		{
 			case HOSTILE_CREATURE_SPELL:
 			case FRIENDLY_CREATURE_SPELL:
-			case RISING_SPELL:
 			case RANDOM_GENIE_SPELL:
 				cursorFrame = ECursor::COMBAT_BLOCKED;
 				consoleMsg = CGI->generaltexth->allTexts[23];

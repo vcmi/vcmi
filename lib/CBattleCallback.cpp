@@ -503,8 +503,8 @@ const CStack* CBattleInfoCallback::battleGetStackByPos(BattleHex pos, bool onlyA
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
 	for(auto s : battleGetAllStacks())
-		if(vstd::contains(s->getHexes(), pos)  &&  (!onlyAlive || s->alive()))
-			return s;
+		if(vstd::contains(s->getHexes(), pos) && (!onlyAlive || s->alive()))
+				return s;
 
 	return nullptr;
 }
@@ -1562,7 +1562,8 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 
 		if (spell->isRisingSpell())
 		{
-			if (subject->count >= subject->baseAmount) //TODO: calculate potential hp raised
+			auto maxHealth = calculateHealedHP (caster, spell, subject);
+			if (subject->count >= subject->baseAmount || maxHealth < subject->MaxHealth()) //must be able to rise at least one full creature
 				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 		}
 
@@ -1663,7 +1664,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		{
 			const CGHeroInstance * caster = battleGetFightingHero(side);
 			bool targetExists = false;
-			for(const CStack * stack : battleAliveStacks())
+			for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
 			{
 				switch (spell->positiveness)
 				{
@@ -1941,8 +1942,9 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 
 	const ui8 attackerSide = playerToSide(attackerOwner) == 1;
 	const auto attackedHexes = spell->rangeInHexes(destinationTile, skillLevel, attackerSide);
-	const bool onlyAlive = spell->id != SpellID::RESURRECTION && spell->id != SpellID::ANIMATE_DEAD; //when casting resurrection or animate dead we should be allow to select dead stack
-	//fixme: what about other rising spells (Sacrifice) ?
+	const bool onlyAlive = !spell->isRisingSpell(); //when casting resurrection or animate dead we should be allow to select dead stack
+
+	//TODO: more generic solution for mass spells
 	if(spell->id == SpellID::DEATH_RIPPLE || spell->id == SpellID::DESTROY_UNDEAD || spell->id == SpellID::ARMAGEDDON)
 	{
 		for(const CStack *stack : battleGetAllStacks())

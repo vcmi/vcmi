@@ -6266,6 +6266,9 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleI
 		if(vstd::contains(st->state, EBattleStackState::SUMMONED)) //don't take into account summoned stacks
 			continue;
 
+		//FIXME: this info is also used in BattleInfo::calculateCasualties, refactor
+		st->count = std::max (0, st->count - st->resurrected);
+
 		if(st->owner==color && !army->slotEmpty(st->slot) && st->count < army->getStackCount(st->slot))
 		{
 			StackLocation sl(army, st->slot);
