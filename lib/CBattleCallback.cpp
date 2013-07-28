@@ -1617,22 +1617,21 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if(!spell->combatSpell)
 		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
 
-	//TODO?
-	//if(NBonus::hasOfType(heroes[1-cside], Bonus::SPELL_IMMUNITY, spell->id)) //non - casting hero provides immunity for this spell
-	//	return ESpellCastProblem::SECOND_HEROS_SPELL_IMMUNITY;
-	if(spell->isNegative())
+	if(spell->isNegative() || spell->hasEffects())
 	{
-		bool allEnemiesImmune = true;
-		for(auto enemyStack : battleAliveStacks(!side))
+		bool allStacksImmune = true;
+		//we are interested only in enemy stacks when casting offensive spells
+		auto stacks = spell->isNegative() ? battleAliveStacks(!side) : battleAliveStacks();
+		for(auto stack : stacks) 
 		{
-			if(!enemyStack->hasBonusOfType(Bonus::SPELL_IMMUNITY, spell->id))
+			if(!battleIsImmune(castingHero, spell, mode, stack->position))
 			{
-				allEnemiesImmune = false;
+				allStacksImmune = false;
 				break;
 			}
 		}
 
-		if(allEnemiesImmune)
+		if(allStacksImmune)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 
