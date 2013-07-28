@@ -43,10 +43,15 @@ std::unordered_set<ResourceID> CMappedFileLoader::getFilteredFiles(std::function
 	return foundID;
 }
 
+CFilesystemList::CFilesystemList()
+{
+	loaders = new std::vector<std::unique_ptr<ISimpleResourceLoader> >;
+}
+
 std::unique_ptr<CInputStream> CFilesystemList::load(const ResourceID & resourceName) const
 {
 	// load resource from last loader that have it (last overriden version)
-	for (auto & loader : boost::adaptors::reverse(loaders))
+	for (auto & loader : boost::adaptors::reverse(*loaders))
 	{
 		if (loader->existsResource(resourceName))
 			return loader->load(resourceName);
@@ -77,7 +82,7 @@ std::unordered_set<ResourceID> CFilesystemList::getFilteredFiles(std::function<b
 {
 	std::unordered_set<ResourceID> ret;
 
-	for (auto & loader : loaders)
+	for (auto & loader : *loaders)
 		for (auto & entry : loader->getFilteredFiles(filter))
 			ret.insert(entry);
 
@@ -87,7 +92,7 @@ std::unordered_set<ResourceID> CFilesystemList::getFilteredFiles(std::function<b
 bool CFilesystemList::createResource(std::string filename, bool update)
 {
 	logGlobal->traceStream()<< "Creating " << filename;
-	for (auto & loader : boost::adaptors::reverse(loaders))
+	for (auto & loader : boost::adaptors::reverse(*loaders))
 	{
 		if (writeableLoaders.count(loader.get()) != 0                       // writeable,
 			&& loader->createResource(filename, update))          // successfully created
@@ -109,7 +114,7 @@ std::vector<const ISimpleResourceLoader *> CFilesystemList::getResourcesWithName
 {
 	std::vector<const ISimpleResourceLoader *> ret;
 
-	for (auto & loader : loaders)
+	for (auto & loader : *loaders)
 		boost::range::copy(loader->getResourcesWithName(resourceName), std::back_inserter(ret));
 
 	return ret;
@@ -117,7 +122,7 @@ std::vector<const ISimpleResourceLoader *> CFilesystemList::getResourcesWithName
 
 void CFilesystemList::addLoader(ISimpleResourceLoader * loader, bool writeable)
 {
-	loaders.push_back(std::unique_ptr<ISimpleResourceLoader>(loader));
+	loaders->push_back(std::unique_ptr<ISimpleResourceLoader>(loader));
 	if (writeable)
 		writeableLoaders.insert(loader);
 }

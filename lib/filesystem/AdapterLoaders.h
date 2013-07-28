@@ -53,11 +53,12 @@ private:
 
 class DLL_LINKAGE CFilesystemList : public ISimpleResourceLoader
 {
-	std::vector<std::unique_ptr<ISimpleResourceLoader> > loaders;
+	std::vector<std::unique_ptr<ISimpleResourceLoader> >* loaders;
 
 	std::set<ISimpleResourceLoader *> writeableLoaders;
 
 public:
+	CFilesystemList();
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
 	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;

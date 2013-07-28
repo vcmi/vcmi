@@ -412,7 +412,7 @@ bool CVideoPlayer::open(std::string name)
 		// We can handle only videos in form of single file, no archive support yet.
 		{
 			ResourceID videoID = ResourceID("VIDEO/" + name, EResType::VIDEO);
-			std::string realVideoFilename = CResourceHandler::get()->getResourceName(videoID);
+			std::string realVideoFilename = CResourceHandler::get()->getResourceName(videoID).get();
 
 			if(boost::algorithm::iends_with(realVideoFilename, ".BIK"))
 				current = &bikPlayer;
