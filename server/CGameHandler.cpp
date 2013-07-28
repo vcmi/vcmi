@@ -5332,9 +5332,9 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	{
 		// mechanics of Death Stare as in H3:
 		// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
-		// maximum amount that can be killed is ( gorgons_count / 10 ), rounded up
+		//original formula x = min(x, (gorgons_count + 9)/10);
 
-		double chanceToKill = double(attacker->count * attacker->valOfBonuses(Bonus::DEATH_STARE, 0)) / 100;
+		double chanceToKill = attacker->valOfBonuses(Bonus::DEATH_STARE, 0) / 100.0f;
 		vstd::amin(chanceToKill, 1); //cap at 100%
 
 		std::binomial_distribution<> distr(attacker->count, chanceToKill);
@@ -5342,7 +5342,8 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 
 		int staredCreatures = distr(rng);
 
-		int maxToKill = (attacker->count * chanceToKill + 99) / 100;
+		double cap = 1 / std::max(chanceToKill, (double)(0.01));//don't divide by 0
+		int maxToKill = (attacker->count + cap - 1) / cap; //not much more than chance * count
 		vstd::amin(staredCreatures, maxToKill);
 
 		staredCreatures += (attacker->level() * attacker->valOfBonuses(Bonus::DEATH_STARE, 1)) / gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->level();
