@@ -1325,7 +1325,8 @@
 			{
 				"type" : "NEGATE_ALL_NATURAL_IMMUNITIES",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "BASE_NUMBER",
+				"propagator": "BATTLE_WIDE"
 			}
 		],
 		"index" : 93,

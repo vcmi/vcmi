@@ -430,8 +430,8 @@
 			"effect": 1,
 			"anim": 79,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["rising"]
-			//TODO: immunity for living creatures
+			"flags" : ["rising"],
+			"limit":["UNDEAD"]
 		},
 		"sacrifice"      :
 		{
@@ -439,7 +439,8 @@
 			"effect": 1,
 			"anim": 79,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["rising"]
+			"flags" : ["rising"],
+			"immunity":["UNDEAD", "NON_LIVING"]
 		},
 		"bless"          :
 		{
