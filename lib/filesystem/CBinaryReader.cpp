@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include "CBinaryReader.h"
+
 #include <SDL_endian.h>
 #include "CInputStream.h"
 
@@ -12,9 +13,7 @@ CData readLE(CData data)
 	std::reverse(dataPtr, dataPtr + sizeof(data));
 	return data;
 }
-
 #else
-
 template <typename CData>
 CData readLE(CData data)
 {
@@ -24,12 +23,10 @@ CData readLE(CData data)
 
 CBinaryReader::CBinaryReader() : stream(nullptr)
 {
-
 }
 
 CBinaryReader::CBinaryReader(CInputStream * stream) : stream(stream)
 {
-
 }
 
 CInputStream * CBinaryReader::getStream()
@@ -96,7 +93,6 @@ void CBinaryReader::skip(int count)
 {
 	stream->skip(count);
 }
-
 
 std::string CBinaryReader::getEndOfStreamExceptionMsg(long bytesToRead) const
 {

@@ -9,7 +9,7 @@
 #include "CHeroHandler.h"
 #include "CArtHandler.h"
 #include "CSpellHandler.h"
-#include "filesystem/CResourceLoader.h"
+#include "filesystem/Filesystem.h"
 
 /*
  * CTownHandler.cpp, part of VCMI engine

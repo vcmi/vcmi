@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CConfigHandler.h"
 
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/GameConstants.h"
 #include "../lib/VCMIDirs.h"
 
@@ -80,7 +80,7 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 	savedConf.Struct().erase("session");
 	JsonUtils::minimize(savedConf, "vcmi:settings");
 
-	std::ofstream file(CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::trunc);
+	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::trunc);
 	file << savedConf;
 }
 

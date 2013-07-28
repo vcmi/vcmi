@@ -975,7 +975,7 @@ void CBattleInterface::newStack(const CStack * stack)
 
 		creAnims[stack->ID] = AnimationControls::getAnimation(turretCreature);
 
-		// Turret positions are read out of the /config/wall_pos.txt
+		// Turret positions are read out of the config/wall_pos.txt
 		int posID = 0;
 		switch (stack->position)
 		{
@@ -2184,7 +2184,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case FRIENDLY_CREATURE_SPELL:
 			{
-				if (isCastingPossibleHere (sactive, shere, myNumber)); //need to be called before sp is determined
+				if (isCastingPossibleHere (sactive, shere, myNumber)) //need to be called before sp is determined
 				{
 					bool rise = false; //TODO: can you imagine rising hostile creatures?
 					sp = CGI->spellh->spells[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo];

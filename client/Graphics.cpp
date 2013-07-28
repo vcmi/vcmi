@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "Graphics.h"
 
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
 #include "CDefHandler.h"
 #include "gui/SDL_Extensions.h"
@@ -47,7 +47,7 @@ Graphics * graphics = nullptr;
 
 void Graphics::loadPaletteAndColors()
 {
-	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/PLAYERS.PAL"));
+	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/PLAYERS.PAL"))->readAll();
 	std::string pals((char*)textFile.first.get(), textFile.second);
 
 	playerColorPalette = new SDL_Color[256];

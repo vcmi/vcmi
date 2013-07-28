@@ -11,9 +11,7 @@
 #include "CBonusTypeHandler.h"
 
 #include "JsonNode.h"
-#include "filesystem/CResourceLoader.h"
-#include "filesystem/ISimpleResourceLoader.h"
-
+#include "filesystem/Filesystem.h"
 
 #include "VCMI_Lib.h"
 #include "CCreatureHandler.h"

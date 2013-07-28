@@ -1,3 +1,4 @@
+#pragma once
 
 /*
  * CFileInfo.h, part of VCMI engine
@@ -9,9 +10,7 @@
  *
  */
 
-#pragma once
-
-#include "CResourceLoader.h"
+#include "Filesystem.h"
 
 /**
  * A class which holds information about a file.

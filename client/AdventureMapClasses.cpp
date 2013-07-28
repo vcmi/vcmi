@@ -3,7 +3,7 @@
 
 #include "../CCallback.h"
 #include "../lib/JsonNode.h"
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CObjectHandler.h"

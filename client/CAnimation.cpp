@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include <SDL_image.h>
 
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/ISimpleResourceLoader.h"
 #include "../lib/JsonNode.h"
 
@@ -107,7 +107,7 @@ public:
 			cache.pop_front();
 		cache.push_back(FileData());
 
-		auto data =  CResourceHandler::get()->loadData(rid);
+		auto data =  CResourceHandler::get()->load(rid)->readAll();
 		cache.back().name = ResourceID(rid);
 		cache.back().size = data.second;
 		cache.back().data = data.first.release();
@@ -1023,8 +1023,8 @@ void CAnimation::init(CDefFile * file)
 	{
 		const std::map<size_t, size_t> defEntries = file->getEntries();
 
-		for (auto & defEntrie : defEntries)
-			source[defEntrie.first].resize(defEntrie.second);
+		for (auto & defEntry : defEntries)
+			source[defEntry.first].resize(defEntry.second);
 	}
 
 	ResourceID resID(std::string("SPRITES/") + name, EResType::TEXT);
@@ -1032,11 +1032,11 @@ void CAnimation::init(CDefFile * file)
 	if (vstd::contains(graphics->imageLists, resID.getName()))
 		initFromJson(graphics->imageLists[resID.getName()]);
 
-	auto & configList = CResourceHandler::get()->getResourcesWithName(resID);
+	auto configList = CResourceHandler::get()->getResourcesWithName(resID);
 
-	for(auto & entry : configList)
+	for(auto & loader : configList)
 	{
-		auto stream = entry.getLoader()->load(entry.getResourceName());
+		auto stream = loader->load(resID);
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 

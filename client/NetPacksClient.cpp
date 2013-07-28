@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "../lib/NetPacks.h"
 
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CFileInfo.h"
 #include "../CCallback.h"
 #include "Client.h"
@@ -796,7 +796,7 @@ void SaveGame::applyCl(CClient *cl)
 
 	try
 	{
-		CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME)));
+		CSaveFile save(*CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME)));
 		cl->saveCommonState(save);
 		save << *cl;
 	}

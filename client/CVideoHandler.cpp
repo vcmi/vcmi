@@ -5,7 +5,7 @@
 #include "gui/CGuiHandler.h"
 #include "gui/SDL_Extensions.h"
 #include "CPlayerInterface.h"
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 
 extern CGuiHandler GH; //global gui handler
 

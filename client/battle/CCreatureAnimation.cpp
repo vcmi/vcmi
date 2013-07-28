@@ -7,7 +7,7 @@
 #include "../gui/SDL_Extensions.h"
 #include "../gui/SDL_Pixels.h"
 
-#include "../../lib/filesystem/CResourceLoader.h"
+#include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CBinaryReader.h"
 #include "../../lib/filesystem/CMemoryStream.h"
 
@@ -155,8 +155,9 @@ CCreatureAnimation::CCreatureAnimation(std::string name, TSpeedController contro
 {
 	// separate block to avoid accidental use of "data" after it was moved into "pixelData"
 	{
-		auto data = CResourceHandler::get()->loadData(
-				   ResourceID(std::string("SPRITES/") + name, EResType::ANIMATION));
+		ResourceID resID(std::string("SPRITES/") + name, EResType::ANIMATION);
+
+		auto data = CResourceHandler::get()->load(resID)->readAll();
 
 		pixelData = std::move(data.first);
 		pixelDataSize = data.second;

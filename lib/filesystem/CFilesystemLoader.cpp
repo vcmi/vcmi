@@ -4,55 +4,75 @@
 #include "CFileInfo.h"
 #include "CFileInputStream.h"
 
-CFilesystemLoader::CFilesystemLoader(const std::string & baseDirectory, size_t depth, bool initial):
+CFilesystemLoader::CFilesystemLoader(const std::string &mountPoint, const std::string & baseDirectory, size_t depth, bool initial):
     baseDirectory(baseDirectory),
-    fileList(listFiles(depth, initial))
+    mountPoint(mountPoint),
+    fileList(listFiles(mountPoint, depth, initial))
 {
 }
 
-std::unique_ptr<CInputStream> CFilesystemLoader::load(const std::string & resourceName) const
+std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourceID & resourceName) const
 {
-	std::unique_ptr<CInputStream> stream(new CFileInputStream(getOrigin() + '/' + resourceName));
+	assert(fileList.count(resourceName));
+
+	std::unique_ptr<CInputStream> stream(new CFileInputStream(baseDirectory + '/' + fileList.at(resourceName)));
 	return stream;
 }
 
-bool CFilesystemLoader::existsEntry(const std::string & resourceName) const
+bool CFilesystemLoader::existsResource(const ResourceID & resourceName) const
 {
-	for(auto & elem : fileList)
+	return fileList.count(resourceName);
+}
+
+std::string CFilesystemLoader::getMountPoint() const
+{
+	return mountPoint;
+}
+
+boost::optional<std::string> CFilesystemLoader::getResourceName(const ResourceID & resourceName) const
+{
+	assert(existsResource(resourceName));
+
+	return baseDirectory + '/' + fileList.at(resourceName);
+}
+
+std::unordered_set<ResourceID> CFilesystemLoader::getFilteredFiles(std::function<bool(const ResourceID &)> filter) const
+{
+	std::unordered_set<ResourceID> foundID;
+
+	for (auto & file : fileList)
 	{
-		if(elem.second == resourceName)
-		{
-			return true;
-		}
+		if (filter(file.first))
+			foundID.insert(file.first);
+	}	return foundID;
+}
+
+bool CFilesystemLoader::createResource(std::string filename, bool update)
+{
+	ResourceID resID(filename);
+
+	if (fileList.find(resID) != fileList.end())
+		return true;
+
+	if (!boost::iequals(mountPoint, filename.substr(0, mountPoint.size())))
+	{
+		logGlobal->traceStream() << "Can't create file: wrong mount point: " << mountPoint;
+		return false;
 	}
 
-	return false;
-}
+	filename = filename.substr(mountPoint.size());
 
-std::unordered_map<ResourceID, std::string> CFilesystemLoader::getEntries() const
-{
-	return fileList;
-}
-
-std::string CFilesystemLoader::getOrigin() const
-{
-	return baseDirectory;
-}
-
-bool CFilesystemLoader::createEntry(std::string filename, bool update)
-{
-	ResourceID res(filename);
-	if (fileList.find(res) != fileList.end())
-		return false;
-
-	fileList[res] = filename;
 	if (!update)
+	{
 		std::ofstream newfile (baseDirectory + "/" + filename);
+		if (!newfile.good())
+			return false;
+	}
+	fileList[resID] = filename;
 	return true;
 }
 
-
-std::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(size_t depth, bool initial) const
+std::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(const std::string &mountPoint, size_t depth, bool initial) const
 {
 	std::set<EResType::Type> initialTypes;
 	initialTypes.insert(EResType::DIRECTORY);
@@ -77,7 +97,8 @@ std::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(size_t 
 		{
 			path.resize(it.level()+1);
 			path.back() = it->path().leaf().string();
-			it.no_push(depth <= it.level()); // don't iterate into directory if depth limit reached
+			// don't iterate into directory if depth limit reached OR into hidden directories (like .svn)
+			it.no_push(depth <= it.level() || it->path().leaf().string()[0] == '.');
 
 			type = EResType::DIRECTORY;
 		}
@@ -92,7 +113,7 @@ std::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(size_t 
 				filename += path[i] + '/';
 			filename += it->path().leaf().string();
 
-			fileList[ResourceID(filename, type)] = filename;
+			fileList[ResourceID(mountPoint + filename, type)] = filename;
 		}
 	}
 

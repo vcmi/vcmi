@@ -1,3 +1,4 @@
+#pragma once
 
 /*
  * CInputStream.h, part of VCMI engine
@@ -8,8 +9,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-#pragma once
 
 /**
  * Abstract class which provides method definitions for reading from a stream.
@@ -62,7 +61,17 @@ public:
 	virtual si64 getSize() = 0;
 
 	/**
-	 * Closes the stream and releases any system resources associated with the stream explicitely.
+	 * @brief for convenience, reads whole stream at once
+	 *
+	 * @return pair, first = raw data, second = size of data
 	 */
-	//virtual void close() = 0;
+	std::pair<std::unique_ptr<ui8[]>, size_t> readAll()
+	{
+		std::unique_ptr<ui8[]> data(new ui8[getSize()]);
+
+		size_t readSize = read(data.get(), getSize());
+		assert(readSize == getSize());
+
+		return std::make_pair(std::move(data), getSize());
+	}
 };

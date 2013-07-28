@@ -6,7 +6,7 @@
 #include "CGameInfo.h"
 #include "mapHandler.h"
 
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "CPreGame.h"
 #include "CCastleInterface.h"
 #include "../lib/CConsoleHandler.h"
@@ -300,8 +300,8 @@ int main(int argc, char** argv)
 		return false;
 	};
 
-	if (!testFile("DATA/HELP.TXT", "Heroes III data") &&
-	    !testFile("MODS/VCMI/MOD.JSON", "VCMI mod") &&
+	if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
+	    !testFile("MODS/VCMI/MOD.JSON", "VCMI mod") ||
 	    !testFile("DATA/StackQueueBgBig.PCX", "VCMI data"))
 		exit(1); // These are unrecoverable errors
 
@@ -536,22 +536,21 @@ void processCommand(const std::string &message)
 
 		std::string outPath = VCMIDirs::get().userCachePath() + "/extracted/";
 
-		auto iterator = CResourceHandler::get()->getIterator([](const ResourceID & ident)
+		auto list = CResourceHandler::get()->getFilteredFiles([](const ResourceID & ident)
 		{
 			return ident.getType() == EResType::TEXT && boost::algorithm::starts_with(ident.getName(), "DATA/");
 		});
 
-		while (iterator.hasNext())
+		for (auto & filename : list)
 		{
-			std::string outName = outPath + iterator->getName();
+			std::string outName = outPath + filename.getName();
 
 			boost::filesystem::create_directories(outName.substr(0, outName.find_last_of("/")));
 
 			std::ofstream file(outName + ".TXT");
-			auto text = CResourceHandler::get()->loadData(*iterator);
+			auto text = CResourceHandler::get()->load(filename)->readAll();
 
 			file.write((char*)text.first.get(), text.second);
-			++iterator;
 		}
 
         std::cout << "\rExtracting done :)\n";
@@ -661,7 +660,7 @@ void processCommand(const std::string &message)
 		{
 			CDefEssential * cde = CDefHandler::giveDefEss(URI);
 
-			std::string outName = CResourceHandler::get()->getResource(ResourceID("SPRITES/" + URI)).getResourceName();
+			std::string outName = *CResourceHandler::get()->getResourceName(ResourceID("SPRITES/" + URI));
 			std::string outPath = VCMIDirs::get().userCachePath() + "/extracted/";
 
 			boost::filesystem::create_directories(outPath + outName);
@@ -682,11 +681,11 @@ void processCommand(const std::string &message)
 
 		if (CResourceHandler::get()->existsResource(ResourceID(URI)))
 		{
-			std::string outName = CResourceHandler::get()->getResource(ResourceID(URI)).getResourceName();
+			std::string outName = *CResourceHandler::get()->getResourceName(ResourceID(URI));
 			std::string outPath = VCMIDirs::get().userCachePath() + "/extracted/";
 			std::string fullPath = outPath + outName;
 
-			auto data = CResourceHandler::get()->loadData(ResourceID(URI));
+			auto data = CResourceHandler::get()->load(ResourceID(URI))->readAll();
 
 			boost::filesystem::create_directories(fullPath.substr(0, fullPath.find_last_of("/")));
 			std::ofstream outFile(outPath + outName);

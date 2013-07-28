@@ -1,6 +1,6 @@
 #include "StdInc.h"
 
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CFileInfo.h"
 #include "../lib/int3.h"
 #include "../lib/mapping/CCampaignHandler.h"
@@ -2233,7 +2233,7 @@ void CGameHandler::save(const std::string & filename )
 // 		}
 
 		{
-			CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::SERVER_SAVEGAME)));
+			CSaveFile save(*CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::SERVER_SAVEGAME)));
 			saveCommonState(save);
             logGlobal->infoStream() << "Saving server state";
 			save << *this;
@@ -4533,7 +4533,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 		if (st->hasBonusOfType(Bonus::MANA_DRAIN) && !vstd::contains(st->state, EBattleStackState::DRAINED_MANA))
 		{
 			const CGHeroInstance * enemy = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
-			const CGHeroInstance * owner = gs->curB->getHero(st->owner);
+			//const CGHeroInstance * owner = gs->curB->getHero(st->owner);
 			if (enemy)
 			{
 				ui32 manaDrained = st->valOfBonuses(Bonus::MANA_DRAIN);

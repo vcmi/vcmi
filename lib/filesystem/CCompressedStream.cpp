@@ -81,8 +81,6 @@ si64 CCompressedStream::getSize()
 
 void CCompressedStream::decompressTill(si64 newSize)
 {
-	assert(newSize < 100 * 1024 * 1024); //just in case
-
 	if (inflateState == nullptr)
 		return; //file already decompressed
 

@@ -25,7 +25,7 @@
 #include "IGameEventsReceiver.h"
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
-#include "filesystem/CResourceLoader.h"
+#include "filesystem/Filesystem.h"
 #include "CConsoleHandler.h"
 
 LibClasses * VLC = nullptr;
@@ -34,20 +34,20 @@ DLL_LINKAGE void preinitDLL(CConsoleHandler *Console)
 {
 	console = Console;
 	VLC = new LibClasses;
-	try
+	//try
 	{
 		VLC->loadFilesystem();
 	}
-	HANDLE_EXCEPTION;
+	//HANDLE_EXCEPTION;
 }
 
 DLL_LINKAGE void loadDLLClasses()
 {
-	try
+	//try
 	{
 		VLC->init();
 	}
-	HANDLE_EXCEPTION;
+	//HANDLE_EXCEPTION;
 }
 
 const IBonusTypeHandler * LibClasses::getBth() const
@@ -63,7 +63,7 @@ void LibClasses::loadFilesystem()
 	CResourceHandler::initialize();
     logGlobal->infoStream()<<"\t Initialization: "<<loadTime.getDiff();
 
-	CResourceHandler::loadFileSystem("", "ALL/config/filesystem.json");
+	CResourceHandler::loadMainFileSystem("config/filesystem.json");
     logGlobal->infoStream()<<"\t Data loading: "<<loadTime.getDiff();
 
 	modh = new CModHandler;

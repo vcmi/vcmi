@@ -2,7 +2,7 @@
 
 #include <boost/asio.hpp>
 
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/Connection.h"
@@ -475,7 +475,7 @@ void CVCMIServer::loadGame()
 // 	}
 
 	{
-		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)));
+		CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)));
 		gh.loadCommonState(lf);
 		lf >> gh;
 	}

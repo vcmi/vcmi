@@ -2,7 +2,7 @@
 #include "SDL.h"
 #include "CDefHandler.h"
 
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/VCMI_Lib.h"
 #include "CBitmapHandler.h"
 
@@ -362,8 +362,9 @@ CDefEssential * CDefHandler::essentialize()
 
 CDefHandler * CDefHandler::giveDef(const std::string & defName)
 {
-	ui8 * data = CResourceHandler::get()->loadData(
-	                 ResourceID(std::string("SPRITES/") + defName, EResType::ANIMATION)).first.release();
+	ResourceID resID(std::string("SPRITES/") + defName, EResType::ANIMATION);
+
+	ui8 * data = CResourceHandler::get()->load(resID)->readAll().first.release();
 	if(!data)
 		throw std::runtime_error("bad def name!");
 	auto   nh = new CDefHandler();

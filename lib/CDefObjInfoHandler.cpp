@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CDefObjInfoHandler.h"
 
-#include "filesystem/CResourceLoader.h"
+#include "filesystem/Filesystem.h"
 #include "../client/CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
 #include "GameConstants.h"
@@ -35,7 +35,7 @@ CGDefInfo::CGDefInfo()
 void CGDefInfo::fetchInfoFromMSK()
 {
 
-	auto msk = CResourceHandler::get()->loadData(ResourceID(std::string("SPRITES/") + name, EResType::MASK));
+	auto msk = CResourceHandler::get()->load(ResourceID(std::string("SPRITES/") + name, EResType::MASK))->readAll();
 
 	width = msk.first.get()[0];
 	height = msk.first.get()[1];
@@ -50,7 +50,7 @@ CDefObjInfoHandler::CDefObjInfoHandler()
 {
 	VLC->dobjinfo = this;
 
-	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/OBJECTS.TXT"));
+	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/OBJECTS.TXT"))->readAll();
 
 	std::istringstream inp(std::string((char*)textFile.first.get(), textFile.second));
 	int objNumber;

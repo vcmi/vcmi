@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CFileInputStream.h"
-#include "CFileInfo.h"
 
+#include "CFileInfo.h"
 
 CFileInputStream::CFileInputStream(const std::string & file, si64 start, si64 size)
 {

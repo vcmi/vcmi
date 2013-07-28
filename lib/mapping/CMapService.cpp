@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CMapService.h"
 
-#include "../filesystem/CResourceLoader.h"
+#include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"

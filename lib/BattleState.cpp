@@ -10,7 +10,7 @@
 #include "CTownHandler.h"
 #include "NetPacks.h"
 #include "JsonNode.h"
-#include "filesystem/CResourceLoader.h"
+#include "filesystem/Filesystem.h"
 
 
 /*

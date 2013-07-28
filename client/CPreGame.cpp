@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CPreGame.h"
 
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CFileInfo.h"
 #include "../lib/filesystem/CCompressedStream.h"
 
@@ -403,7 +403,7 @@ CreditsScreen::CreditsScreen()
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos.w = CGP->menu->pos.w;
 	pos.h = CGP->menu->pos.h;
-	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/CREDITS.TXT"));
+	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/CREDITS.TXT"))->readAll();
 	std::string text((char*)textFile.first.get(), textFile.second);
 	size_t firstQuote = text.find('\"')+1;
 	text = text.substr(firstQuote, text.find('\"', firstQuote) - firstQuote );
@@ -1090,27 +1090,20 @@ void SelectionTab::filter( int size, bool selectFirst )
 	}
 }
 
-std::vector<ResourceID> SelectionTab::getFiles(std::string dirURI, int resType)
+std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int resType)
 {
-	std::vector<ResourceID> ret;
 	boost::to_upper(dirURI);
 
-	auto iterator = CResourceHandler::get()->getIterator([&](const ResourceID & ident)
+	std::unordered_set<ResourceID> ret = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
 	{
 		return ident.getType() == resType
 			&& boost::algorithm::starts_with(ident.getName(), dirURI);
 	});
 
-	while (iterator.hasNext())
-	{
-		ret.push_back(*iterator);
-		++iterator;
-	}
-
 	return ret;
 }
 
-void SelectionTab::parseMaps(const std::vector<ResourceID> & files)
+void SelectionTab::parseMaps(const std::unordered_set<ResourceID> &files)
 {
 	allItems.clear();
 	for(auto & file : files)
@@ -1131,13 +1124,13 @@ void SelectionTab::parseMaps(const std::vector<ResourceID> & files)
 	}
 }
 
-void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
+void SelectionTab::parseGames(const std::unordered_set<ResourceID> &files, bool multi)
 {
 	for(auto & file : files)
 	{
 		try
 		{
-			CLoadFile lf(CResourceHandler::get()->getResourceName(file));
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(file));
 			lf.checkMagicBytes(SAVEGAME_MAGIC);
 // 			ui8 sign[8];
 // 			lf >> sign;
@@ -1153,7 +1146,7 @@ void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 			lf >> *(mapInfo.mapHeader.get()) >> mapInfo.scenarioOpts;
 			mapInfo.fileURI = file.getName();
 			mapInfo.countPlayers();
-			std::time_t time = CFileInfo(CResourceHandler::get()->getResourceName(file)).getDate();
+			std::time_t time = CFileInfo(*CResourceHandler::get()->getResourceName(file)).getDate();
 			mapInfo.date = std::asctime(std::localtime(&time));
 
 			// If multi mode then only multi games, otherwise single
@@ -1171,14 +1164,16 @@ void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 	}
 }
 
-void SelectionTab::parseCampaigns(const std::vector<ResourceID> & files )
+void SelectionTab::parseCampaigns(const std::unordered_set<ResourceID> &files )
 {
-	allItems.resize(files.size());
-	for(int i=0; i<files.size(); i++)
+	allItems.reserve(files.size());
+	for (auto & file : files)
 	{
+		CMapInfo info;
 		//allItems[i].date = std::asctime(std::localtime(&files[i].date));
-		allItems[i].fileURI = files[i].getName();
-		allItems[i].campaignInit();
+		info.fileURI = file.getName();
+		info.campaignInit();
+		allItems.push_back(std::move(info));
 	}
 }
 
@@ -1356,7 +1351,7 @@ void SelectionTab::select( int position )
 
 	if(txt)
 	{
-		std::string filename = CResourceHandler::get()->getResourceName(
+		std::string filename = *CResourceHandler::get()->getResourceName(
 								   ResourceID(curItems[py]->fileURI, EResType::CLIENT_SAVEGAME));
 		txt->setTxt(CFileInfo(filename).getBaseName());
 	}
@@ -1489,7 +1484,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 		}
 		else
 		{
-			name = CFileInfo(CResourceHandler::get()->getResourceName(
+			name = CFileInfo(*CResourceHandler::get()->getResourceName(
 								 ResourceID(currentItem->fileURI, EResType::CLIENT_SAVEGAME))).getBaseName();
 		}
 

@@ -29,7 +29,7 @@
 #include <SDL_stdinc.h>
 #include "CBuildingHandler.h"
 #include "JsonNode.h"
-#include "filesystem/CResourceLoader.h"
+#include "filesystem/Filesystem.h"
 
 using namespace boost::assign;
 

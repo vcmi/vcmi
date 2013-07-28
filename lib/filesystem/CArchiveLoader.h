@@ -1,6 +1,7 @@
+#pragma once
 
 /*
- * CLodArchiveLoader.h, part of VCMI engine
+ * CArchiveLoader.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,9 +10,8 @@
  *
  */
 
-#pragma once
-
 #include "ISimpleResourceLoader.h"
+#include "Filesystem.h"
 
 class CFileInfo;
 class CFileInputStream;
@@ -33,16 +33,16 @@ struct ArchiveEntry
 	int offset;
 
 	/** Size without compression in bytes **/
-	int realSize;
+	int fullSize;
 
 	/** Size with compression in bytes or 0 if not compressed **/
-	int size;
+	int compressedSize;
 };
 
 /**
  * A class which can scan and load files of a LOD archive.
  */
-class DLL_LINKAGE CLodArchiveLoader : public ISimpleResourceLoader
+class DLL_LINKAGE CArchiveLoader : public ISimpleResourceLoader
 {
 public:
 	/**
@@ -55,42 +55,42 @@ public:
 	 *
 	 * @throws std::runtime_error if the archive wasn't found or if the archive isn't supported
 	 */
-	explicit CLodArchiveLoader(const std::string & archive);
+	explicit CArchiveLoader(const std::string & mountPoint, const std::string & archive);
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
-	std::unique_ptr<CInputStream> load(const std::string & resourceName) const override;
-	std::unordered_map<ResourceID, std::string> getEntries() const override;
-	bool existsEntry(const std::string & resourceName) const override;
-	std::string getOrigin() const override;
+	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;
+	bool existsResource(const ResourceID & resourceName) const override;
+	std::string getMountPoint() const override;
+	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const;
 
 private:
-	const ArchiveEntry * getArchiveEntry(const std::string & resourceName) const;
-
 	/**
 	 * Initializes a LOD archive.
 	 *
 	 * @param fileStream File stream to the .lod archive
 	 */
-	void initLODArchive(CFileInputStream & fileStream);
+	void initLODArchive(const std::string &mountPoint, CFileInputStream & fileStream);
 
 	/**
 	 * Initializes a VID archive.
 	 *
 	 * @param fileStream File stream to the .vid archive
 	 */
-	void initVIDArchive(CFileInputStream & fileStream);
+	void initVIDArchive(const std::string &mountPoint, CFileInputStream & fileStream);
 
 	/**
 	 * Initializes a SND archive.
 	 *
 	 * @param fileStream File stream to the .snd archive
 	 */
-	void initSNDArchive(CFileInputStream & fileStream);
+	void initSNDArchive(const std::string &mountPoint, CFileInputStream & fileStream);
 
 	/** The file path to the archive which is scanned and indexed. */
 	std::string archive;
 
+	std::string mountPoint;
+
 	/** Holds all entries of the archive file. An entry can be accessed via the entry name. **/
-	std::unordered_map<std::string, ArchiveEntry> entries;
+	std::unordered_map<ResourceID, ArchiveEntry> entries;
 };

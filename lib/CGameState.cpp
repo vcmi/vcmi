@@ -22,7 +22,7 @@
 #include "mapping/CMapInfo.h"
 #include "BattleState.h"
 #include "JsonNode.h"
-#include "filesystem/CResourceLoader.h"
+#include "filesystem/Filesystem.h"
 #include "GameConstants.h"
 #include "rmg/CMapGenerator.h"
 #include "CStopWatch.h"

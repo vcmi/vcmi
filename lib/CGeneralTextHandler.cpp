@@ -1,8 +1,7 @@
 #include "StdInc.h"
 #include "CGeneralTextHandler.h"
 
-#include "filesystem/CResourceLoader.h"
-#include "filesystem/CInputStream.h"
+#include "filesystem/Filesystem.h"
 #include "GameConstants.h"
 #include "CModHandler.h"
 #include "VCMI_Lib.h"
@@ -322,7 +321,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 	}
 
 	std::string buffer;
-	std::ifstream ifs(CResourceHandler::get()->getResourceName(ResourceID("config/threatlevel.txt")), std::ios::binary);
+	std::ifstream ifs(*CResourceHandler::get()->getResourceName(ResourceID("config/threatlevel.txt")), std::ios::binary);
 	getline(ifs, buffer); //skip 1st line
 	for (int i = 0; i < 13; ++i)
 	{

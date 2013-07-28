@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CArtHandler.h"
 
-#include "filesystem/CResourceLoader.h"
+#include "filesystem/Filesystem.h"
 #include "CGeneralTextHandler.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"

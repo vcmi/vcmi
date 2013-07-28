@@ -14,8 +14,7 @@
 #include "ScopeGuard.h"
 
 #include "HeroBonus.h"
-#include "filesystem/CResourceLoader.h"
-#include "filesystem/ISimpleResourceLoader.h"
+#include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h" //for identifier resolution
 #include "CModHandler.h"
 
@@ -42,7 +41,7 @@ JsonNode::JsonNode(const char *data, size_t datasize):
 JsonNode::JsonNode(ResourceID && fileURI):
 	type(DATA_NULL)
 {
-	auto file = CResourceHandler::get()->loadData(fileURI);
+	auto file = CResourceHandler::get()->load(fileURI)->readAll();
 
 	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second);
 	*this = parser.parse(fileURI.getName());
@@ -1610,19 +1609,16 @@ JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files)
 JsonNode JsonUtils::assembleFromFiles(std::string filename)
 {
 	JsonNode result;
+	ResourceID resID(filename, EResType::TEXT);
 
-	auto & configList = CResourceHandler::get()->getResourcesWithName(ResourceID(filename, EResType::TEXT));
-
-	for(auto & entry : configList)
+	for(auto & loader : CResourceHandler::get()->getResourcesWithName(resID))
 	{
 		// FIXME: some way to make this code more readable
-		auto stream = entry.getLoader()->load(entry.getResourceName());
+		auto stream = loader->load(resID);
 		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
 		stream->read(textData.get(), stream->getSize());
 
 		JsonNode section((char*)textData.get(), stream->getSize());
-		//for debug
-		//section.setMeta(entry.getLoader()->getOrigin());
 		merge(result, section);
 	}
 	return result;

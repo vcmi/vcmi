@@ -1,3 +1,4 @@
+#pragma once
 
 /*
  * ISimpleResourceLoader.h, part of VCMI engine
@@ -9,10 +10,8 @@
  *
  */
 
-#pragma once
-
-#include "CInputStream.h"
-#include "CResourceLoader.h" //FIXME: move ResourceID + EResType in separate file?
+class CInputStream;
+class ResourceID;
 
 /**
  * A class which knows the files containing in the archive or system and how to load them.
@@ -20,9 +19,6 @@
 class DLL_LINKAGE ISimpleResourceLoader
 {
 public:
-	/**
-	 * Dtor.
-	 */
 	virtual ~ISimpleResourceLoader() { };
 
 	/**
@@ -31,44 +27,59 @@ public:
 	 * @param resourceName The unqiue resource name in space of the archive.
 	 * @return a input stream object
 	 */
-	virtual std::unique_ptr<CInputStream> load(const std::string & resourceName) const =0;
+	virtual std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const = 0;
 
 	/**
 	 * Checks if the entry exists.
 	 *
 	 * @return Returns true if the entry exists, false if not.
 	 */
-	virtual bool existsEntry(const std::string & resourceName) const =0;
+	virtual bool existsResource(const ResourceID & resourceName) const = 0;
 
 	/**
-	 * Gets all entries in the archive or (file) system.
+	 * Gets mount point to which this loader was attached
 	 *
-	 * @return Returns a list of all entries in the archive or (file) system.
+	 * @return mount point URI
 	 */
-	virtual std::unordered_map<ResourceID, std::string> getEntries() const =0;
-
-	/**
-	 * Gets the origin of the loader.
-	 *
-	 * @return the file path to source of this loader
-	 */
-	virtual std::string getOrigin() const =0;
+	virtual std::string getMountPoint() const = 0;
 
 	/**
 	 * Gets full name of resource, e.g. name of file in filesystem.
+	 *
+	 * @return path or empty optional if file can't be accessed independently (e.g. file in archive)
 	 */
-	virtual std::string getFullName(const std::string & resourceName) const
+	virtual boost::optional<std::string> getResourceName(const ResourceID & resourceName) const
 	{
-		return getOrigin() + '/' + resourceName;
+		return boost::optional<std::string>();
 	}
+
+	/**
+	 * Get list of files that matches filter function
+	 *
+	 * @param filter Filter that returns true if specified ID matches filter
+	 * @return Returns list of flies
+	 */
+	virtual std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const = 0;
 
 	/**
 	 * Creates new resource with specified filename.
 	 *
-	 * @returns true if new file was created, false on error or if file already exists
+	 * @return true if new file was created, false on error or if file already exists
 	 */
-	virtual bool createEntry(std::string filename, bool update = false)
+	virtual bool createResource(std::string filename, bool update = false)
 	{
 		return false;
+	}
+
+	/**
+	 * @brief Returns all loaders that have resource with such name
+	 *
+	 * @return vector with all loaders
+	 */
+	virtual std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourceID & resourceName) const
+	{
+		if (existsResource(resourceName))
+			return std::vector<const ISimpleResourceLoader *>(1, this);
+		return std::vector<const ISimpleResourceLoader *>();
 	}
 };

@@ -6,7 +6,7 @@
 #include "SDL_Pixels.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/vcmi_endian.h"
-#include "../../lib/filesystem/CResourceLoader.h"
+#include "../../lib/filesystem/Filesystem.h"
 
 /*
  * Fonts.cpp, part of VCMI engine
@@ -95,7 +95,7 @@ std::array<CBitmapFont::Char, CBitmapFont::totalChars> CBitmapFont::loadChars() 
 }
 
 CBitmapFont::CBitmapFont(const std::string & filename):
-    data(CResourceHandler::get()->loadData(ResourceID("data/" + filename, EResType::BMP_FONT))),
+    data(CResourceHandler::get()->load(ResourceID("data/" + filename, EResType::BMP_FONT))->readAll()),
     chars(loadChars()),
     height(data.first.get()[5])
 {}
@@ -198,7 +198,7 @@ void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, co
 std::pair<std::unique_ptr<ui8[]>, ui64> CTrueTypeFont::loadData(const JsonNode & config)
 {
 	std::string filename = "Data/" + config["file"].String();
-	return CResourceHandler::get()->loadData(ResourceID(filename, EResType::TTF_FONT));
+	return CResourceHandler::get()->load(ResourceID(filename, EResType::TTF_FONT))->readAll();
 }
 
 TTF_Font * CTrueTypeFont::loadFont(const JsonNode &config)

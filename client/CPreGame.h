@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include <SDL.h>
 #include "../lib/StartInfo.h"
 #include "GUIClasses.h"
@@ -145,10 +145,10 @@ class SelectionTab : public CIntObject
 private:
 	CDefHandler *format; //map size
 
-    void parseMaps(const std::vector<ResourceID> &files);
-	void parseGames(const std::vector<ResourceID> &files, bool multi);
-	void parseCampaigns(const std::vector<ResourceID> & files );
-	std::vector<ResourceID> getFiles(std::string dirURI, int resType);
+    void parseMaps(const std::unordered_set<ResourceID> &files);
+	void parseGames(const std::unordered_set<ResourceID> &files, bool multi);
+	void parseCampaigns(const std::unordered_set<ResourceID> & files );
+	std::unordered_set<ResourceID> getFiles(std::string dirURI, int resType);
 	CMenuScreen::EState tabType;
 public:
 	int positions; //how many entries (games/maps) can be shown

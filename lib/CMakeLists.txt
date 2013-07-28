@@ -5,24 +5,28 @@ include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIRECTORY} ${
 include_directories(${Boost_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
 set(lib_SRCS
-		filesystem/CBinaryReader.cpp
-		filesystem/CFilesystemLoader.cpp
-		filesystem/CMemoryStream.cpp
-		filesystem/CFileInfo.cpp
-		filesystem/CLodArchiveLoader.cpp
-		filesystem/CResourceLoader.cpp
-		filesystem/CFileInputStream.cpp
+		filesystem/AdapterLoaders.cpp
 		filesystem/CCompressedStream.cpp
-		filesystem/CMappedFileLoader.cpp
+		filesystem/CFilesystemLoader.cpp
+		filesystem/CArchiveLoader.cpp
+		filesystem/CFileInfo.cpp
+		filesystem/CMemoryStream.cpp
+		filesystem/CBinaryReader.cpp
+		filesystem/CFileInputStream.cpp
+		filesystem/Filesystem.cpp
+
 		logging/CBasicLogConfigurator.cpp
 		logging/CLogger.cpp
+
 		mapping/CCampaignHandler.cpp
 		mapping/CMap.cpp
 		mapping/CMapEditManager.cpp
 		mapping/CMapInfo.cpp
 		mapping/CMapService.cpp
 		mapping/MapFormatH3M.cpp
+
 		rmg/CMapGenerator.cpp
+
 		BattleAction.cpp
 		BattleHex.cpp
 		BattleState.cpp

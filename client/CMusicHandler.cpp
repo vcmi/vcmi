@@ -7,7 +7,7 @@
 #include "../client/CGameInfo.h"
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 
 /*
  * CMusicHandler.cpp, part of VCMI engine
@@ -139,7 +139,7 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(soundBase::soundID soundID)
 	// Load and insert
 	try
 	{
-		auto data = CResourceHandler::get()->loadData(ResourceID(std::string("SOUNDS/") + fname, EResType::SOUND));
+		auto data = CResourceHandler::get()->load(ResourceID(std::string("SOUNDS/") + fname, EResType::SOUND))->readAll();
 
 		SDL_RWops *ops = SDL_RWFromMem(data.first.release(), data.second);
 		Mix_Chunk *chunk;
@@ -162,7 +162,7 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound)
 	// Load and insert
 	try
 	{
-		auto data = CResourceHandler::get()->loadData(ResourceID(std::string("SOUNDS/") + sound, EResType::SOUND)); //TODO: allow other sound folders?
+		auto data = CResourceHandler::get()->load(ResourceID(std::string("SOUNDS/") + sound, EResType::SOUND))->readAll();
 
 		SDL_RWops *ops = SDL_RWFromMem(data.first.release(), data.second);
 		Mix_Chunk *chunk;
@@ -477,7 +477,7 @@ void MusicEntry::load(std::string musicURI)
 
     logGlobal->traceStream()<<"Loading music file "<<musicURI;
 
-	music = Mix_LoadMUS(CResourceHandler::get()->getResourceName(ResourceID(musicURI, EResType::MUSIC)).c_str());
+	music = Mix_LoadMUS(CResourceHandler::get()->getResourceName(ResourceID(musicURI, EResType::MUSIC))->c_str());
 
 	if(!music)
 	{

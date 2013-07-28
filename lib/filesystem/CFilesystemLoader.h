@@ -1,3 +1,4 @@
+#pragma once
 
 /*
  * CFilesystemLoader.h, part of VCMI engine
@@ -9,10 +10,8 @@
  *
  */
 
-#pragma once
-
 #include "ISimpleResourceLoader.h"
-#include "CResourceLoader.h"
+#include "Filesystem.h"
 
 class CFileInfo;
 class CInputStream;
@@ -31,19 +30,22 @@ public:
 	 *
 	 * @throws std::runtime_error if the base directory is not a directory or if it is not available
 	 */
-	explicit CFilesystemLoader(const std::string & baseDirectory, size_t depth = 16, bool initial = false);
+	explicit CFilesystemLoader(const std::string & mountPoint, const std::string & baseDirectory, size_t depth = 16, bool initial = false);
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
-	std::unique_ptr<CInputStream> load(const std::string & resourceName) const override;
-	bool existsEntry(const std::string & resourceName) const override;
-	std::unordered_map<ResourceID, std::string> getEntries() const override;
-	std::string getOrigin() const override;
-	bool createEntry(std::string filename, bool update) override;
+	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;
+	bool existsResource(const ResourceID & resourceName) const override;
+	std::string getMountPoint() const override;
+	bool createResource(std::string filename, bool update = false) override;
+	boost::optional<std::string> getResourceName(const ResourceID & resourceName) const override;
+	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const;
 
 private:
 	/** The base directory which is scanned and indexed. */
 	std::string baseDirectory;
+
+	std::string mountPoint;
 
 	/** A list of files in the directory
 	 * key = ResourceID for resource loader
@@ -60,5 +62,5 @@ private:
 	 * @return a list of pathnames denoting the files and directories in the directory denoted by this pathname
 	 * The array will be empty if the directory is empty. Ptr is null if the directory doesn't exist or if it isn't a directory.
 	 */
-	std::unordered_map<ResourceID, std::string> listFiles(size_t depth, bool initial) const;
+	std::unordered_map<ResourceID, std::string> listFiles(const std::string &mountPoint, size_t depth, bool initial) const;
 };

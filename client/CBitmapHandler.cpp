@@ -1,6 +1,6 @@
 #include "StdInc.h"
 
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CFileInfo.h"
 #include "SDL.h"
 #include "SDL_image.h"
@@ -112,10 +112,8 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 
 	SDL_Surface * ret=nullptr;
 
-	auto readFile = CResourceHandler::get()->loadData(
-	                              ResourceID(path + fname, EResType::IMAGE));
+	auto readFile = CResourceHandler::get()->load(ResourceID(path + fname, EResType::IMAGE))->readAll();
 
-	
 	if (isPCX(readFile.first.get()))
 	{//H3-style PCX
 		ret = loadH3PCX(readFile.first.get(), readFile.second);
@@ -132,7 +130,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 	}
 	else
 	{ //loading via SDL_Image
-		CFileInfo info(CResourceHandler::get()->getResourceName(ResourceID(path + fname, EResType::IMAGE)));
+		CFileInfo info(*CResourceHandler::get()->getResourceName(ResourceID(path + fname, EResType::IMAGE)));
 
 		ret = IMG_LoadTyped_RW(
 		          //create SDL_RW with our data (will be deleted by SDL)

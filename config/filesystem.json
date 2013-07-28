@@ -2,59 +2,52 @@
 	// Complete filesystem available after initialization
 	// All paths and names here are case-insensitive
 	// If same filename is found twice entry from latest source will be used
-	// path can start from:
-	// "GLOBAL" - global location for data files. /usr/share/vcmi | C:\Program files\Heroes 3\
-	// "LOCAL" - local user-specific files. ~/.vcmi | same as global (TODO: move it to C:\Users\whatever)
-	// "ALL" - will check local directory first or (if was not found) in global directory
-	// NOTE: this file must be available as "ALL/config/filesystem.json"
+	// NOTES:
+	// - this file must be available as "config/filesystem.json"
+	// - some locations are hardcoded (user config directory, cache/tmp directory, saved games location)
 	"filesystem":
 	{
 		"DATA/" :
 		[
-			{"type" : "lod", "path" : "ALL/Data/H3ab_bmp.lod"},
-			{"type" : "lod", "path" : "ALL/Data/H3bitmap.lod"},
-			{"type" : "dir",  "path" : "ALL/Data"}
+			{"type" : "lod", "path" : "Data/H3ab_bmp.lod"},
+			{"type" : "lod", "path" : "Data/H3bitmap.lod"},
+			{"type" : "dir",  "path" : "Data"}
 		],
 		"SPRITES/":
 		[
-			{"type" : "lod", "path" : "ALL/Data/H3ab_spr.lod"},
-			{"type" : "lod", "path" : "ALL/Data/H3sprite.lod"},
-			{"type" : "dir",  "path" : "ALL/Sprites"}
+			{"type" : "lod", "path" : "Data/H3ab_spr.lod"},
+			{"type" : "lod", "path" : "Data/H3sprite.lod"},
+			{"type" : "dir",  "path" : "Sprites"}
 		],
 		"SOUNDS/":
 		[
-			{"type" : "snd", "path" : "ALL/Data/H3ab_ahd.snd"},
-			{"type" : "snd", "path" : "ALL/Data/Heroes3-cd2.snd"},
-			{"type" : "snd", "path" : "ALL/Data/Heroes3.snd"},
+			{"type" : "snd", "path" : "Data/H3ab_ahd.snd"},
+			{"type" : "snd", "path" : "Data/Heroes3-cd2.snd"},
+			{"type" : "snd", "path" : "Data/Heroes3.snd"},
 			//WoG have overriden sounds with .82m extension in Data
-			{"type" : "dir",  "path" : "ALL/Data", "depth": 0}
+			{"type" : "dir",  "path" : "Data", "depth": 0}
 		],
 		"MUSIC/":
 		[
-			{"type" : "dir",  "path" : "ALL/Mp3"}
+			{"type" : "dir",  "path" : "Mp3"}
 		],
 		"VIDEO/":
 		[
-			{"type" : "vid", "path" : "ALL/Data/H3ab_ahd.vid"},
-			{"type" : "vid", "path" : "ALL/Data/Heroes3.vid"},
-			{"type" : "vid", "path" : "ALL/Data/video.vid"}
+			{"type" : "vid", "path" : "Data/H3ab_ahd.vid"},
+			{"type" : "vid", "path" : "Data/Heroes3.vid"},
+			{"type" : "vid", "path" : "Data/video.vid"}
 		],
 		"CONFIG/":
 		[
-			{"type" : "dir",  "path" : "GLOBAL/Config",}, // separate to avoid overwriting global resources
-			{"type" : "dir",  "path" : "LOCAL/Config", "writeable": true}
+			{"type" : "dir",  "path" : "config",}
 		],
 		"MAPS/":
 		[
-			{"type" : "dir",  "path" : "ALL/Maps"}
+			{"type" : "dir",  "path" : "Maps"}
 		],
 		"MODS/":
 		[
-			{"type" : "dir",  "path" : "ALL/Mods", "depth": 1}
-		],
-		"SAVES/":
-		[
-			{"type" : "dir",  "path" : "LOCAL/Games", "writeable": true},
+			{"type" : "dir",  "path" : "Mods", "depth": 1}
 		]
 	}
 }

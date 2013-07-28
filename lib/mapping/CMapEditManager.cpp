@@ -2,7 +2,7 @@
 #include "CMapEditManager.h"
 
 #include "../JsonNode.h"
-#include "../filesystem/CResourceLoader.h"
+#include "../filesystem/Filesystem.h"
 #include "../CDefObjInfoHandler.h"
 
 MapRect::MapRect() : x(0), y(0), z(0), width(0), height(0)

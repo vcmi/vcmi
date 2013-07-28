@@ -9,7 +9,7 @@
 #include "../CDefObjInfoHandler.h"
 #include "../CTownHandler.h"
 #include "../StringConstants.h"
-#include "../filesystem/CResourceLoader.h"
+#include "../filesystem/Filesystem.h"
 
 CMapGenOptions::CMapGenOptions() : width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), hasTwoLevels(false),
 	playerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(0), compOnlyTeamCount(RANDOM_SIZE),

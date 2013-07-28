@@ -14,8 +14,9 @@
 
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CFilesystemLoader.h"
+#include "../lib/filesystem/AdapterLoaders.h"
 #include "../lib/JsonNode.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/int3.h"
@@ -81,8 +82,8 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 	try
 	{
 		// Load maps and json config
-		auto loader = make_shared<CFilesystemLoader>(".");
-		CResourceHandler::get()->addLoader("test/", loader, false);
+		auto loader = new CFilesystemLoader("test/", ".");
+		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
 		const auto originalMap = CMapService::loadMap("test/TerrainViewTest");
 		auto map = CMapService::loadMap("test/TerrainViewTest");
 		logGlobal->infoStream() << "Loaded test map successfully.";

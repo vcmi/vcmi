@@ -2,8 +2,7 @@
 #include "CModHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "JsonNode.h"
-#include "filesystem/CResourceLoader.h"
-#include "filesystem/ISimpleResourceLoader.h"
+#include "filesystem/Filesystem.h"
 
 #include "CCreatureHandler.h"
 #include "CArtHandler.h"
@@ -497,7 +496,7 @@ void CModHandler::initialize(std::vector<std::string> availableMods)
 	modConfig["activeMods"] = resultingList;
 	CResourceHandler::get()->createResource("CONFIG/modSettings.json");
 
-	std::ofstream file(CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);
+	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);
 	file << modConfig;
 }
 
