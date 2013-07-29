@@ -9,6 +9,7 @@ CFilesystemLoader::CFilesystemLoader(const std::string &mountPoint, const std::s
     mountPoint(mountPoint),
     fileList(listFiles(mountPoint, depth, initial))
 {
+	logGlobal->traceStream() << "Filesystem loaded, " << fileList.size() << " files found";
 }
 
 std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourceID & resourceName) const
@@ -97,8 +98,8 @@ std::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(const s
 		{
 			path.resize(it.level()+1);
 			path.back() = it->path().leaf().string();
-			// don't iterate into directory if depth limit reached OR into hidden directories (like .svn)
-			it.no_push(depth <= it.level() || it->path().leaf().string()[0] == '.');
+			// don't iterate into directory if depth limit reached
+			it.no_push(depth <= it.level());
 
 			type = EResType::DIRECTORY;
 		}

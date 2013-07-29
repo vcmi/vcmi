@@ -46,7 +46,7 @@ public:
 	 * @param size The number of bytes to read.
 	 * @return the number of bytes read actually.
 	 */
-	si64 read(ui8 * data, si64 size);
+	si64 read(ui8 * data, si64 size) override;
 
 	/**
 	 * Seeks the internal read pointer to the specified position.
@@ -54,14 +54,14 @@ public:
 	 * @param position The read position from the beginning.
 	 * @return the position actually moved to, -1 on error.
 	 */
-	si64 seek(si64 position);
+	si64 seek(si64 position) override;
 
 	/**
 	 * Gets the current read position in the stream.
 	 *
 	 * @return the read position. -1 on failure or if the read pointer isn't in the valid range.
 	 */
-	si64 tell();
+	si64 tell() override;
 
 	/**
 	 * Skips delta numbers of bytes.
@@ -69,14 +69,14 @@ public:
 	 * @param delta The count of bytes to skip.
 	 * @return the count of bytes skipped actually.
 	 */
-	si64 skip(si64 delta);
+	si64 skip(si64 delta) override;
 
 	/**
 	 * Gets the length in bytes of the stream.
 	 *
 	 * @return the length in bytes of the stream.
 	 */
-	si64 getSize();
+	si64 getSize() override;
 
 private:
 	/**

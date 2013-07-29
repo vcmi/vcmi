@@ -59,6 +59,7 @@ class DLL_LINKAGE CFilesystemList : public ISimpleResourceLoader
 
 public:
 	CFilesystemList();
+	~CFilesystemList();
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
 	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;

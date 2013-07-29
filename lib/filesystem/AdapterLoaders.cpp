@@ -48,6 +48,11 @@ CFilesystemList::CFilesystemList()
 	loaders = new std::vector<std::unique_ptr<ISimpleResourceLoader> >;
 }
 
+CFilesystemList::~CFilesystemList()
+{
+	delete loaders;
+}
+
 std::unique_ptr<CInputStream> CFilesystemList::load(const ResourceID & resourceName) const
 {
 	// load resource from last loader that have it (last overriden version)

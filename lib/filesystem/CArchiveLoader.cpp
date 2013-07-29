@@ -46,6 +46,7 @@ CArchiveLoader::CArchiveLoader(const std::string &mountPoint, const std::string 
 	{
 		throw std::runtime_error("LOD archive format unknown. Cannot deal with " + archive);
 	}
+	logGlobal->traceStream() << "Archive loaded, " << entries.size() << " files found";
 }
 
 void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStream & fileStream)

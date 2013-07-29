@@ -51,6 +51,7 @@ namespace EResType
 		SOUND,
 		MUSIC,
 		ARCHIVE_VID,
+		ARCHIVE_ZIP,
 		ARCHIVE_SND,
 		ARCHIVE_LOD,
 		PALETTE,
