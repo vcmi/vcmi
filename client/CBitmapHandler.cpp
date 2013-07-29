@@ -130,13 +130,10 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 	}
 	else
 	{ //loading via SDL_Image
-		CFileInfo info(*CResourceHandler::get()->getResourceName(ResourceID(path + fname, EResType::IMAGE)));
-
-		ret = IMG_LoadTyped_RW(
+		ret = IMG_Load_RW(
 		          //create SDL_RW with our data (will be deleted by SDL)
 		          SDL_RWFromConstMem((void*)readFile.first.get(), readFile.second),
-		          1, // mark it for auto-deleting
-		          &info.getExtension()[0] + 1); //pass extension without dot (+1 character)
+		          1); // mark it for auto-deleting
 		if (ret)
 		{
 			if (ret->format->palette)

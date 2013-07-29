@@ -660,7 +660,7 @@ void processCommand(const std::string &message)
 		{
 			CDefEssential * cde = CDefHandler::giveDefEss(URI);
 
-			std::string outName = *CResourceHandler::get()->getResourceName(ResourceID("SPRITES/" + URI));
+			std::string outName = URI;
 			std::string outPath = VCMIDirs::get().userCachePath() + "/extracted/";
 
 			boost::filesystem::create_directories(outPath + outName);
@@ -681,7 +681,7 @@ void processCommand(const std::string &message)
 
 		if (CResourceHandler::get()->existsResource(ResourceID(URI)))
 		{
-			std::string outName = *CResourceHandler::get()->getResourceName(ResourceID(URI));
+			std::string outName = URI;
 			std::string outPath = VCMIDirs::get().userCachePath() + "/extracted/";
 			std::string fullPath = outPath + outName;
 

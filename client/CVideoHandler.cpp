@@ -412,20 +412,20 @@ bool CVideoPlayer::open(std::string name)
 		// We can handle only videos in form of single file, no archive support yet.
 		{
 			ResourceID videoID = ResourceID("VIDEO/" + name, EResType::VIDEO);
-			std::string realVideoFilename = CResourceHandler::get()->getResourceName(videoID).get();
+			auto data = CResourceHandler::get()->load(videoID)->readAll();
 
-			if(boost::algorithm::iends_with(realVideoFilename, ".BIK"))
+			// try to determine video format using magic number from header (3 bytes, SMK or BIK)
+			std::string magic(reinterpret_cast<char*>(data.first.get()), 3);
+			if (magic == "BIK")
 				current = &bikPlayer;
-			else
+			else if (magic == "SMK")
 				current = &smkPlayer;
-
-			auto myVideo = CResourceHandler::get()->load(videoID);
-			unique_ptr<char[]> data = unique_ptr<char[]>(new char[myVideo->getSize()]);
-			myVideo->read((ui8*)data.get(), myVideo->getSize());
+			else
+				throw std::runtime_error("Unknown video format: " + magic);
 
 			std::ofstream out(name, std::ofstream::binary);
 			out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-			out.write(data.get(), myVideo->getSize());
+			out.write(data.first.get(), data.second);
 		}
 
 		current->open(name);
