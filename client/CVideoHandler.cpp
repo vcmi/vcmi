@@ -425,7 +425,7 @@ bool CVideoPlayer::open(std::string name)
 
 			std::ofstream out(name, std::ofstream::binary);
 			out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-			out.write(data.first.get(), data.second);
+			out.write(reinterpret_cast<char*>(data.first.get()), data.second);
 		}
 
 		current->open(name);
