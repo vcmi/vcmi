@@ -6,6 +6,7 @@
 #include "CArchiveLoader.h"
 #include "CFilesystemLoader.h"
 #include "AdapterLoaders.h"
+#include "CZipLoader.h"
 
 //For filesystem initialization
 #include "../JsonNode.h"
@@ -190,7 +191,6 @@ void CResourceHandler::initialize()
 void CResourceHandler::loadDirectory(const std::string &prefix, const std::string &mountPoint, const JsonNode & config)
 {
 	std::string URI = prefix + config["path"].String();
-	bool writeable = config["writeable"].Bool();
 	int depth = 16;
 	if (!config["depth"].isNull())
 		depth = config["depth"].Float();
@@ -200,8 +200,16 @@ void CResourceHandler::loadDirectory(const std::string &prefix, const std::strin
 	for(auto & loader : initialLoader->getResourcesWithName(resID))
 	{
 		auto filename = loader->getResourceName(resID);
-		resourceLoader->addLoader(new CFilesystemLoader(mountPoint, *filename, depth), writeable);
+		resourceLoader->addLoader(new CFilesystemLoader(mountPoint, *filename, depth), false);
 	}
+}
+
+void CResourceHandler::loadZipArchive(const std::string &prefix, const std::string &mountPoint, const JsonNode & config)
+{
+	std::string URI = prefix + config["path"].String();
+	auto filename = initialLoader->getResourceName(ResourceID(URI, EResType::ARCHIVE_ZIP));
+	if (filename)
+		resourceLoader->addLoader(new CZipLoader(mountPoint, *filename), false);
 }
 
 void CResourceHandler::loadArchive(const std::string &prefix, const std::string &mountPoint, const JsonNode & config, EResType::Type archiveType)
@@ -257,6 +265,8 @@ void CResourceHandler::loadModFileSystem(const std::string & prefix, const JsonN
 				loadArchive(prefix, mountPoint.first, entry, EResType::ARCHIVE_SND);
 			if (entry["type"].String() == "vid")
 				loadArchive(prefix, mountPoint.first, entry, EResType::ARCHIVE_VID);
+			if (entry["type"].String() == "zip")
+				loadZipArchive(prefix, mountPoint.first, entry);
 
 			logGlobal->debugStream() << "Resource loaded in " << timer.getDiff() << " ms.";
 		}
@@ -300,9 +310,11 @@ void CResourceHandler::setActiveMods(std::vector<std::string> enabledMods)
 	// default FS config for mods: directory "Content" that acts as H3 root directory
 	JsonNode defaultFS;
 
-	defaultFS[""].Vector().resize(1);
-	defaultFS[""].Vector()[0]["type"].String() = "dir";
-	defaultFS[""].Vector()[0]["path"].String() = "/Content";
+	defaultFS[""].Vector().resize(2);
+	defaultFS[""].Vector()[0]["type"].String() = "zip";
+	defaultFS[""].Vector()[0]["path"].String() = "/Content.zip";
+	defaultFS[""].Vector()[1]["type"].String() = "dir";
+	defaultFS[""].Vector()[1]["path"].String() = "/Content";
 
 	for(std::string & modName : enabledMods)
 	{

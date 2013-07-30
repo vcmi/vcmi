@@ -364,12 +364,11 @@ CDefHandler * CDefHandler::giveDef(const std::string & defName)
 {
 	ResourceID resID(std::string("SPRITES/") + defName, EResType::ANIMATION);
 
-	ui8 * data = CResourceHandler::get()->load(resID)->readAll().first.release();
+	auto data = CResourceHandler::get()->load(resID)->readAll().first;
 	if(!data)
 		throw std::runtime_error("bad def name!");
 	auto   nh = new CDefHandler();
-	nh->openFromMemory(data, defName);
-	delete [] data;
+	nh->openFromMemory(data.get(), defName);
 	return nh;
 }
 CDefEssential * CDefHandler::giveDefEss(const std::string & defName)

@@ -5,12 +5,81 @@
 
 static const int inflateBlockSize = 10000;
 
+CBufferedStream::CBufferedStream():
+    position(0),
+    endOfFileReached(false)
+{
+}
+
+si64 CBufferedStream::read(ui8 * data, si64 size)
+{
+	ensureSize(position + size);
+
+	auto start = buffer.data() + position;
+	si64 toRead = std::min<si64>(size, buffer.size() - position);
+
+	std::copy(start, start + toRead, data);
+	position += toRead;
+	return size;
+}
+
+si64 CBufferedStream::seek(si64 position)
+{
+	ensureSize(position);
+	this->position = std::min<si64>(position, buffer.size());
+	return this->position;
+}
+
+si64 CBufferedStream::tell()
+{
+	return position;
+}
+
+si64 CBufferedStream::skip(si64 delta)
+{
+	return seek(position + delta) - delta;
+}
+
+si64 CBufferedStream::getSize()
+{
+	si64 prevPos = tell();
+	seek(std::numeric_limits<si64>::max());
+	si64 size = tell();
+	seek(prevPos);
+	return size;
+}
+
+void CBufferedStream::ensureSize(si64 size)
+{
+	while (buffer.size() < size && !endOfFileReached)
+	{
+		si64 initialSize = buffer.size();
+		si64 currentStep = std::min<si64>(size, buffer.size());
+		vstd::amax(currentStep, 1024); // to avoid large number of calls at start
+
+		buffer.resize(initialSize + currentStep);
+
+		si64 readSize = readMore(buffer.data() + initialSize, currentStep);
+		if (readSize != currentStep)
+		{
+			endOfFileReached = true;
+			buffer.resize(initialSize + readSize);
+			buffer.shrink_to_fit();
+			return;
+		}
+	}
+}
+
+void CBufferedStream::reset()
+{
+	buffer.clear();
+	position = 0;
+	endOfFileReached = false;
+}
+
 CCompressedStream::CCompressedStream(std::unique_ptr<CInputStream> stream, bool gzip, size_t decompressedSize):
 	gzipStream(std::move(stream)),
-	buffer(decompressedSize),
-	decompressedSize(0),
-	compressedBuffer(inflateBlockSize),
-	position(0)
+	compressedBuffer(inflateBlockSize)
 {
 	assert(gzipStream);
 
@@ -33,132 +102,67 @@ CCompressedStream::CCompressedStream(std::unique_ptr<CInputStream> stream, bool 
 
 CCompressedStream::~CCompressedStream()
 {
-	if (inflateState)
-	{
-		inflateEnd(inflateState);
-		delete inflateState;
-	}
+	delete inflateState;
 }
 
-si64 CCompressedStream::read(ui8 * data, si64 size)
-{
-	decompressTill(position + size);
-
-	auto start = buffer.begin() + position;
-	si64 toRead = std::min<si64>(size, decompressedSize - position);
-
-	std::copy(start, start + toRead, data);
-	position += toRead;
-	return size;
-}
-
-si64 CCompressedStream::seek(si64 position)
-{
-	decompressTill(position);
-	this->position = std::min<si64>(position, decompressedSize);
-	return this->position;
-}
-
-si64 CCompressedStream::tell()
-{
-	return position;
-}
-
-si64 CCompressedStream::skip(si64 delta)
-{
-	decompressTill(position + delta);
-
-	si64 oldPosition = position;
-	position = std::min<si64>(position + delta , decompressedSize);
-	return position - oldPosition;
-}
-
-si64 CCompressedStream::getSize()
-{
-	decompressTill(-1);
-	return decompressedSize;
-}
-
-void CCompressedStream::decompressTill(si64 newSize)
+si64 CCompressedStream::readMore(ui8 *data, si64 size)
 {
 	if (inflateState == nullptr)
-		return; //file already decompressed
-
-	if (newSize >= 0 && newSize <= inflateState->total_out)
-		return; //no need to decompress anything
-
-	bool toEnd = newSize < 0; //if true - we've got request to read whole file
-
-	if (toEnd && buffer.empty())
-		buffer.resize(16 * 1024); //some space for initial decompression
-
-	if (!toEnd && buffer.size() < newSize)
-		buffer.resize(newSize);
+		return 0; //file already decompressed
 
 	bool fileEnded = false; //end of file reached
+	bool endLoop = false;
 
-	int endLoop = false;
+	int decompressed = inflateState->total_out;
+
+	inflateState->avail_out = size;
+	inflateState->next_out = data;
+
 	do
 	{
 		if (inflateState->avail_in == 0)
 		{
 			//inflate ran out of available data or was not initialized yet
 			// get new input data and update state accordingly
-			si64 size = gzipStream->read(compressedBuffer.data(), compressedBuffer.size());
-			if (size != compressedBuffer.size())
-				fileEnded = true; //end of file reached
+			si64 availSize = gzipStream->read(compressedBuffer.data(), compressedBuffer.size());
+			if (availSize != compressedBuffer.size())
+				gzipStream.reset();
 
-			inflateState->avail_in = size;
+			inflateState->avail_in = availSize;
 			inflateState->next_in  = compressedBuffer.data();
 		}
 
-		inflateState->avail_out = buffer.size() - inflateState->total_out;
-		inflateState->next_out = buffer.data() + inflateState->total_out;
-
 		int ret = inflate(inflateState, Z_NO_FLUSH);
+
+		if (inflateState->avail_in == 0 && gzipStream == nullptr)
+			fileEnded = true;
 
 		switch (ret)
 		{
-		case Z_STREAM_END: //end decompression
-			endLoop = true;
-			break;
-		case Z_OK: //decompress next chunk
+		case Z_OK: //input data ended/ output buffer full
 			endLoop = false;
 			break;
-		case Z_BUF_ERROR:
-			{
-				if (toEnd)
-				{
-					//not enough memory. Allocate bigger buffer and try again
-					buffer.resize(buffer.size() * 2);
-					endLoop = false;
-				}
-				else
-				{
-					//specific amount of data was requested. inflate extracted all requested data
-					// but returned "error". Ensure that enough data was extracted and return
-					assert(inflateState->total_out == newSize);
-					endLoop = true;
-				}
-			}
+		case Z_STREAM_END: // stream ended. Note that campaign files consist from multiple such streams
+			endLoop = true;
+			break;
+		case Z_BUF_ERROR: // output buffer full. Can be triggered?
+			endLoop = true;
 			break;
 		default:
 			throw std::runtime_error("Decompression error!\n");
 		}
-
 	}
-	while (!endLoop);
+	while (endLoop == false && inflateState->avail_out != 0 );
+
+	decompressed = inflateState->total_out - decompressed;
 
 	// Clean up and return
 	if (fileEnded)
 	{
 		inflateEnd(inflateState);
-		buffer.resize(inflateState->total_out);
-		decompressedSize = inflateState->total_out;
 		vstd::clear_pointer(inflateState);
 	}
-	else
-		decompressedSize = inflateState->total_out;
+	return decompressed;
 }
 
 bool CCompressedStream::getNextBlock()
@@ -169,8 +173,6 @@ bool CCompressedStream::getNextBlock()
 	if (inflateReset(inflateState) < 0)
 		return false;
 
-	decompressedSize = 0;
-	position = 0;
-	buffer.clear();
+	reset();
 	return true;
 }

@@ -31,7 +31,7 @@ class JsonNode;
  * Sound: .wav .82m
  * Video: .smk, .bik .mjpg .mpg
  * Music: .mp3, .ogg
- * Archive: .lod, .snd, .vid .pac
+ * Archive: .lod, .snd, .vid .pac .zip
  * Palette: .pal
  * Savegame: .v*gm1
  */
@@ -169,6 +169,7 @@ public:
 	static void loadMainFileSystem(const std::string & fsConfigURI);
 	static void loadModFileSystem(const std::string &prefix, const JsonNode & fsConfig);
 	static void loadDirectory(const std::string &prefix, const std::string & mountPoint, const JsonNode & config);
+	static void loadZipArchive(const std::string &prefix, const std::string & mountPoint, const JsonNode & config);
 	static void loadArchive(const std::string &prefix, const std::string & mountPoint, const JsonNode & config, EResType::Type archiveType);
 	static void loadJsonMap(const std::string &prefix, const std::string & mountPoint, const JsonNode & config);
 

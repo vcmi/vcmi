@@ -81,6 +81,7 @@ std::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(const s
 	initialTypes.insert(EResType::ARCHIVE_LOD);
 	initialTypes.insert(EResType::ARCHIVE_VID);
 	initialTypes.insert(EResType::ARCHIVE_SND);
+	initialTypes.insert(EResType::ARCHIVE_ZIP);
 
 	assert(boost::filesystem::is_directory(baseDirectory));
 	std::unordered_map<ResourceID, std::string> fileList;

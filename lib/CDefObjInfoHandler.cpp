@@ -51,7 +51,6 @@ CDefObjInfoHandler::CDefObjInfoHandler()
 	VLC->dobjinfo = this;
 
 	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/OBJECTS.TXT"))->readAll();
-
 	std::istringstream inp(std::string((char*)textFile.first.get(), textFile.second));
 	int objNumber;
 	inp>>objNumber;

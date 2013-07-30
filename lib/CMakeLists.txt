@@ -13,6 +13,7 @@ set(lib_SRCS
 		filesystem/CMemoryStream.cpp
 		filesystem/CBinaryReader.cpp
 		filesystem/CFileInputStream.cpp
+		filesystem/CZipLoader.cpp
 		filesystem/Filesystem.cpp
 
 		logging/CBasicLogConfigurator.cpp
@@ -88,7 +89,7 @@ set(lib_HEADERS
 
 add_library(vcmi SHARED ${lib_SRCS} ${lib_HEADERS})
 set_target_properties(vcmi PROPERTIES XCODE_ATTRIBUTE_LD_DYLIB_INSTALL_NAME "@executable_path/libvcmi.dylib")
-target_link_libraries(vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${ZLIB_LIBRARIES})
+target_link_libraries(vcmi minizip ${Boost_LIBRARIES} ${SDL_LIBRARY} ${ZLIB_LIBRARIES})
 
 if (NOT APPLE) # Already inside vcmiclient bundle
     install(TARGETS vcmi DESTINATION ${LIB_DIR})
