@@ -211,7 +211,6 @@
 					"bank" : { "x" : -1, "y" : -1 },
 					"moat" : { "x" : 406, "y" : 77 }
 				},
-				"shooterHeight" : 231,
 				"static" :
 				{
 					"background" : { "x" : 604, "y" : 58 },

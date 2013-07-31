@@ -76,10 +76,6 @@
 				}
 			}
 		},
-		"shooterHeight": {
-			"type":"number",
-			"description" : "Height at which shooter image will be cropped"
-		},
 		"shooter": {
 			"type":"string",
 			"description" : "Identifier of creature that will be used as tower shooter"

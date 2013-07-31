@@ -185,13 +185,12 @@ public:
 		std::string siegePrefix;
 		std::vector<Point> siegePositions;
 		CreatureID siegeShooter; // shooter creature ID
-		si32 siegeShooterCropHeight; //trim height for shooters in turrets
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & icons & iconSmall & iconLarge & musicTheme & townBackground & guildWindow & buildingsIcons & hallBackground;
 			h & advMapVillage & advMapCastle & advMapCapitol & hallSlots & structures;
-			h & siegePrefix & siegePositions & siegeShooter & siegeShooterCropHeight;
+			h & siegePrefix & siegePositions & siegeShooter;
 		}
 	} clientInfo;
 

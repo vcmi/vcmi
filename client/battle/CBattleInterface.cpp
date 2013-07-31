@@ -995,7 +995,7 @@ void CBattleInterface::newStack(const CStack * stack)
 			coords.x = siegeH->town->town->clientInfo.siegePositions[posID].x + this->pos.x;
 			coords.y = siegeH->town->town->clientInfo.siegePositions[posID].y + this->pos.y;
 		}
-		creAnims[stack->ID]->pos.h = siegeH->town->town->clientInfo.siegeShooterCropHeight;
+		creAnims[stack->ID]->pos.h = 225;
 	}
 	else
 	{
@@ -2945,12 +2945,17 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInf
 void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 {
 	Point pos = Point(-1, -1);
+	auto & ci = owner->siegeH->town->town->clientInfo;
 
 	if (what >= 1 && what <= 17)
 	{
-		pos.x = owner->siegeH->town->town->clientInfo.siegePositions[what].x + owner->pos.x;
-		pos.y = owner->siegeH->town->town->clientInfo.siegePositions[what].y + owner->pos.y;
+		pos.x = ci.siegePositions[what].x + owner->pos.x;
+		pos.y = ci.siegePositions[what].y + owner->pos.y;
 	}
+
+	if (town->town->faction->index == ETownType::TOWER
+	    && (what == 13 || what == 14))
+		return; // no moat in Tower. TODO: remove hardcode somehow?
 
 	if(pos.x != -1)
 	{
@@ -3054,6 +3059,8 @@ void CBattleInterface::showAbsoluteObstacles(SDL_Surface * to)
 		if(oi->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 			blitAt(getObstacleImage(*oi), pos.x + oi->getInfo().width, pos.y + oi->getInfo().height, to);
 
+	if (siegeH && siegeH->town->hasBuilt(BuildingID::CITADEL))
+		siegeH->printPartOfWall(to, 14); // show moat background
 }
 
 void CBattleInterface::showHighlightedHexes(SDL_Surface * to)
@@ -3463,22 +3470,28 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 	if (siegeH)
 	{
 		sorted.beforeAll.walls.push_back(1);  // 1. background wall
-		sorted.hex[135].walls.push_back(2);   // 2. keep
 		sorted.afterAll.walls.push_back(3);   // 3. bottom tower
 		sorted.hex[182].walls.push_back(4);   // 4. bottom wall
 		sorted.hex[130].walls.push_back(5);   // 5. wall below gate,
 		sorted.hex[62].walls.push_back(6);    // 6. wall over gate
 		sorted.hex[12].walls.push_back(7);    // 7. upper wall
 		sorted.beforeAll.walls.push_back(8);  // 8. upper tower
-		//sorted.hex[94].walls.push_back(9);    // 9. gate // Not implemented it seems
+		//sorted.hex[94].walls.push_back(9);  // 9. gate // Not implemented it seems
 		sorted.hex[112].walls.push_back(10);  // 10. gate arch
 		sorted.hex[165].walls.push_back(11);  // 11. bottom static wall
-		sorted.beforeAll.walls.push_back(12); // 12. upper static wall
-		sorted.beforeAll.walls.push_back(13); // 13. moat
-		sorted.beforeAll.walls.push_back(14); // 14. mlip
-		sorted.hex[135].walls.push_back(15);  // 15. keep turret cover
-		sorted.afterAll.walls.push_back(16);  // 16. lower turret cover
-		sorted.beforeAll.walls.push_back(17); // 17. upper turret cover
+		sorted.hex[45].walls.push_back(12);   // 12. upper static wall
+		if (siegeH && siegeH->town->hasBuilt(BuildingID::CITADEL))
+		{
+			sorted.beforeAll.walls.push_back(13); // 13. moat
+			//sorted.beforeAll.walls.push_back(14); // 14. mlip (moat background terrain), blit as absolute obstacle
+			sorted.hex[135].walls.push_back(2);   // 2. keep
+			sorted.hex[135].walls.push_back(15);  // 15. keep turret cover
+		}
+		if (siegeH && siegeH->town->hasBuilt(BuildingID::CASTLE))
+		{
+			sorted.afterAll.walls.push_back(16);  // 16. lower turret cover
+			sorted.beforeAll.walls.push_back(17); // 17. upper turret cover
+		}
 	}
 	return sorted;
 }

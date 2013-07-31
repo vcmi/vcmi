@@ -395,8 +395,6 @@ void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source)
 		town.clientInfo.siegeShooter = CreatureID(creature);
 	});
 
-	town.clientInfo.siegeShooterCropHeight = source["shooterHeight"].Float();
-
 	auto & pos = town.clientInfo.siegePositions;
 	pos.resize(21);
 

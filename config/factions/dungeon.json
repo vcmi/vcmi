@@ -196,28 +196,27 @@
 				"imagePrefix" : "SGDN",
 				"gate" :
 				{
-					"arch" : { "x" : 471, "y" : 164 },
+					"arch" : { "x" : 471, "y" : 165 },
 					"gate" : { "x" : 395, "y" : 260 }
 				},
 				"moat" :
 				{
-					"bank" : { "x" : 283, "y" : 94 },
-					"moat" : { "x" : 283, "y" : 94 }
+					"bank" : { "x" : 284, "y" : 94 },
+					"moat" : { "x" : 284, "y" : 94 }
 				},
-				"shooterHeight" : 230,
 				"static" :
 				{
 					"background" : { "x" : 608, "y" : 50 },
-					"bottom" : { "x" : 522, "y" : 305 },
+					"bottom" : { "x" : 522, "y" : 306 },
 					"top" : { "x" : 494, "y" : 53 }
 				},
 				"towers" :
 				{
 					"bottom" :
 					{
-						"battlement" : { "x" : 600, "y" : 495 },
+						"battlement" : { "x" : 595, "y" : 496 },
 						"creature" : { "x" : 410, "y" : 293 },
-						"tower" : { "x" : 560, "y" : 495 }
+						"tower" : { "x" : 595, "y" : 496 }
 					},
 					"keep" :
 					{
@@ -227,9 +226,9 @@
 					},
 					"top" :
 					{
-						"battlement" : { "x" : 565, "y" : 15 },
+						"battlement" : { "x" : 562, "y" : 15 },
 						"creature" : { "x" : 381, "y" : -187 },
-						"tower" : { "x" : 565, "y" : 15 }
+						"tower" : { "x" : 562, "y" : 15 }
 					}
 				},
 				"walls" :
@@ -237,7 +236,7 @@
 					"bottom" : { "x" : 559, "y" : 448 },
 					"bottomMid" : { "x" : 471, "y" : 296 },
 					"upper" : { "x" : 523, "y" : 56 },
-					"upperMid" : { "x" : 477, "y" : 180 }
+					"upperMid" : { "x" : 478, "y" : 181 }
 				}
 			}
 		}

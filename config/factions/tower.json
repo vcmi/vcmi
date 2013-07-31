@@ -142,7 +142,7 @@
 			"primaryResource" : "gems",
 			"mageGuild" : 5,
 			"warMachine" : "ammoCart",
-			"moatDamage" : -1,
+			"moatDamage" : 0, //TODO: minefield
 
 			"buildings" :
 			{
@@ -204,7 +204,6 @@
 					"bank" : { "x" : 410, "y" : 80 },
 					"moat" : { "x" : 410, "y" : 90 }
 				},
-				"shooterHeight" : 231,
 				"static" :
 				{
 					"background" : { "x" : 615, "y" : 57 },
