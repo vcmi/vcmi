@@ -1562,9 +1562,12 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 
 		if (spell->isRisingSpell())
 		{
-			auto maxHealth = calculateHealedHP (caster, spell, subject);
-			if (subject->count >= subject->baseAmount || maxHealth < subject->MaxHealth()) //must be able to rise at least one full creature
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+			if (caster) //TODO: what with Archangels?
+			{
+				auto maxHealth = calculateHealedHP (caster, spell, subject);
+				if (subject->count >= subject->baseAmount || maxHealth < subject->MaxHealth()) //must be able to rise at least one full creature
+					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+			}
 		}
 
 	}
