@@ -75,7 +75,7 @@
 #endif
 #endif
 
-/*
+
 #ifndef ZPOS64_T
   #ifdef _WIN32
                 #define ZPOS64_T fpos_t
@@ -84,7 +84,7 @@
     #define ZPOS64_T uint64_t
   #endif
 #endif
-*/
+
 
 #ifdef HAVE_MINIZIP64_CONF_H
 #include "mz64conf.h"
@@ -102,12 +102,25 @@ typedef uint64_t ZPOS64_T;
 /* Maximum unsigned 32-bit value used as placeholder for zip64 */
 #define MAXU32 0xffffffff
 
-#if defined(_MSC_VER) || defined(__BORLANDC__)
-typedef unsigned __int64 ZPOS64_T;
-#else
-typedef unsigned long long int ZPOS64_T;
+//#if defined(_MSC_VER) || defined(__BORLANDC__)
+//	typedef unsigned __int64 ZPOS64_T;
+//#else
+//	typedef unsigned long long int ZPOS64_T;
+//#endif
 #endif
 #endif
+
+#if defined(_MSC_VER) 
+   /* If building or using zlib as a DLL, define ZLIB_DLL.
+    * This is not mandatory, but it offers a little performance increase.
+    */
+#  ifdef ZLIB_DLL
+#      ifdef ZLIB_INTERNAL
+#        define ZEXPORT __declspec(dllexport)
+#      else
+#        define ZEXPORT __declspec(dllimport)
+#      endif
+#  endif  /* ZLIB_DLL */
 #endif
 
 

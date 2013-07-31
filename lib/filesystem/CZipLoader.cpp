@@ -1,4 +1,5 @@
-#include "Global.h"
+#include "StdInc.h"
+#include "../../Global.h"
 #include "CZipLoader.h"
 
 /*
