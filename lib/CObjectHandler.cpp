@@ -171,6 +171,7 @@ static void readCreatures(const JsonNode &creature, std::vector< std::pair <Crea
 {
 	std::pair<CreatureID, si32> creInfo = std::make_pair(CreatureID::NONE, 0);
 
+	//TODO: replace numeric id's with mod-friendly string id's
 	creInfo.second = creature["number"].Float();
 	creInfo.first = CreatureID((si32)creature["id"].Float());
 	storage.push_back(creInfo);
@@ -191,13 +192,7 @@ static void readBankLevel(const JsonNode &level, BankConfig &bc)
 	bc.upgradeChance = level["upgrade_chance"].Float();
 	bc.combatValue = level["combat_value"].Float();
 
-	bc.resources.resize(GameConstants::RESOURCE_QUANTITY);
-	idx = 0;
-	for(const JsonNode &resource : level["reward_resources"].Vector())
-	{
-		bc.resources[idx] = resource.Float();
-		idx ++;
-	}
+	bc.resources = Res::ResourceSet(level["reward_resources"]);
 
 	for(const JsonNode &creature : level["reward_creatures"].Vector())
 	{

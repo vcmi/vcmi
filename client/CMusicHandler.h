@@ -16,6 +16,7 @@
 
 class CSpell;
 struct _Mix_Music;
+struct SDL_RWops;
 typedef struct _Mix_Music Mix_Music;
 struct Mix_Chunk;
 
@@ -86,6 +87,8 @@ class MusicEntry
 {
 	CMusicHandler *owner;
 	Mix_Music *music;
+	SDL_RWops *musicFile;
+
 	int loop; // -1 = indefinite
 	//if not null - set from which music will be randomly selected
 	std::string setName;

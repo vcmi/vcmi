@@ -1,6 +1,5 @@
 //Resources:  Wood, Mercury, Ore, Sulfur, Crystal, Gems, Gold
 //Artifacts:  Treasure, Minor, Major, Relic
-
 {
 	"banks": [
 		{
@@ -11,7 +10,16 @@
 					"guards": [ { "number": 20, "id": 94 } ],
 					"upgrade_chance": 50,
 					"combat_value": 506,
-					"reward_resources": [ 4, 4, 4, 4, 4, 4, 0 ],
+					"reward_resources": 
+					{
+						"wood" : 4,
+						"mercury" : 4,
+						"ore" : 4,
+						"sulfur" : 4,
+						"crystal" : 4,
+						"gems" : 4,
+						"gold" : 0
+					},
 					"value": 10000,
 					"profitability": 20,
 					"easiest": 100
@@ -22,7 +30,15 @@
 					"guards": [ { "number": 30, "id": 94 } ],
 					"upgrade_chance": 50,
 					"combat_value": 760,
-					"reward_resources": [ 6, 6, 6, 6, 6, 6, 0 ],
+					"reward_resources":
+					{
+						"wood" : 6,
+						"mercury" : 6,
+						"ore" : 6,
+						"sulfur" : 6,
+						"crystal" : 6,
+						"gems" : 6
+					},
 					"value": 15000,
 					"profitability": 20,
 					"easiest": 150
@@ -32,7 +48,15 @@
 					"guards": [ { "number": 40, "id": 94 } ],
 					"upgrade_chance": 50,
 					"combat_value": 1013,
-					"reward_resources": [ 8, 8, 8, 8, 8, 8, 0 ],
+					"reward_resources":
+					{
+						"wood" : 8,
+						"mercury" : 8,
+						"ore" : 8,
+						"sulfur" : 8,
+						"crystal" : 8,
+						"gems" : 8
+					},
 					"value": 20000,
 					"profitability": 20,
 					"easiest": 200
@@ -42,7 +66,15 @@
 					"guards": [ { "number": 50, "id": 94 } ],
 					"upgrade_chance": 50,
 					"combat_value": 1266,
-					"reward_resources": [ 10, 10, 10, 10, 10, 10, 0 ],
+					"reward_resources":
+					{
+						"wood" : 10,
+						"mercury" : 10,
+						"ore" : 10,
+						"sulfur" : 10,
+						"crystal" : 10,
+						"gems" : 10
+					},
 					"value": 25000,
 					"profitability": 20,
 					"easiest": 250
@@ -58,7 +90,11 @@
 					"guards": [ { "number": 50, "id": 16 } ],
 					"upgrade_chance": 50,
 					"combat_value": 194,
-					"reward_resources": [ 0, 0, 0, 0, 2, 0, 2500 ],
+					"reward_resources":
+					{
+						"crystal" : 2,
+						"gold" : 2500
+					},
 					"value": 3500,
 					"profitability": 18,
 					"easiest": 100
@@ -68,7 +104,11 @@
 					"guards": [ { "number": 75, "id": 16 } ],
 					"upgrade_chance": 50,
 					"combat_value": 291,
-					"reward_resources": [ 0, 0, 0, 0, 3, 0, 4000 ],
+					"reward_resources":
+					{
+						"crystal" : 3,
+						"gold" : 4000
+					},
 					"value": 5500,
 					"profitability": 19,
 					"easiest": 150
@@ -78,7 +118,11 @@
 					"guards": [ { "number": 100, "id": 16 } ],
 					"upgrade_chance": 50,
 					"combat_value": 388,
-					"reward_resources": [ 0, 0, 0, 0, 5, 0, 5000 ],
+					"reward_resources":
+					{
+						"crystal" : 5,
+						"gold" : 5000
+					},
 					"value": 7500,
 					"profitability": 19,
 					"easiest": 200
@@ -88,7 +132,11 @@
 					"guards": [ { "number": 150, "id": 16 } ],
 					"upgrade_chance": 50,
 					"combat_value": 582,
-					"reward_resources": [ 0, 0, 0, 0, 10, 0, 7500 ],
+					"reward_resources":
+					{
+						"crystal" : 10,
+						"gold" : 7500
+					},
 					"value": 12500,
 					"profitability": 21,
 					"easiest": 300
@@ -150,7 +198,16 @@
 					"guards": [ { "number": 100, "id": 42 } ],
 					"upgrade_chance": 50,
 					"combat_value": 100,
-					"reward_resources": [ 0, 2, 0, 0, 0, 0, 1000 ],
+					"reward_resources":
+					{
+						"wood" : 0,
+						"mercury" : 2,
+						"ore" : 0,
+						"sulfur" : 0,
+						"crystal" : 0,
+						"gems" : 0,
+						"gold" : 1000
+					},
 					"value": 2000,
 					"profitability": 20,
 					"easiest": 100
@@ -160,7 +217,11 @@
 					"guards": [ { "number": 150, "id": 42 } ],
 					"upgrade_chance": 50,
 					"combat_value": 150,
-					"reward_resources": [ 0, 3, 0, 0, 0, 0, 1500 ],
+					"reward_resources":
+					{
+						"mercury" : 3,
+						"gold" : 1500
+					},
 					"value": 3000,
 					"profitability": 20,
 					"easiest": 150
@@ -170,7 +231,11 @@
 					"guards": [ { "number": 200, "id": 42 } ],
 					"upgrade_chance": 50,
 					"combat_value": 200,
-					"reward_resources": [ 0, 4, 0, 0, 0, 0, 2000 ],
+					"reward_resources":
+					{
+						"mercury" : 4,
+						"gold" : 2000
+					},
 					"value": 4000,
 					"profitability": 20,
 					"easiest": 200
@@ -180,7 +245,11 @@
 					"guards": [ { "number": 300, "id": 42 } ],
 					"upgrade_chance": 50,
 					"combat_value": 300,
-					"reward_resources": [ 0, 6, 0, 0, 0, 0, 3000 ],
+					"reward_resources":
+					{
+						"mercury" : 6,
+						"gold" : 3000
+					},
 					"value": 6000,
 					"profitability": 20,
 					"easiest": 300
@@ -196,7 +265,11 @@
 					"guards": [ { "number": 20, "id": 76 } ],
 					"upgrade_chance": 50,
 					"combat_value": 207,
-					"reward_resources": [ 0, 0, 0, 5, 0, 0, 2000 ],
+					"reward_resources":
+					{
+						"sulfur" : 5,
+						"gold" : 2000
+					},
 					"value": 4500,
 					"profitability": 22,
 					"easiest": 100
@@ -206,7 +279,11 @@
 					"guards": [ { "number": 30, "id": 76 } ],
 					"upgrade_chance": 50,
 					"combat_value": 310,
-					"reward_resources": [ 0, 0, 0, 6, 0, 0, 3000 ],
+					"reward_resources":
+					{
+						"sulfur" : 6,
+						"gold" : 3000
+					},
 					"value": 6000,
 					"profitability": 19,
 					"easiest": 150
@@ -216,7 +293,11 @@
 					"guards": [ { "number": 40, "id": 76 } ],
 					"upgrade_chance": 50,
 					"combat_value": 414,
-					"reward_resources": [ 0, 0, 0, 8, 0, 0, 4000 ],
+					"reward_resources":
+					{
+						"sulfur" : 8,
+						"gold" : 4000
+					},
 					"value": 8000,
 					"profitability": 19,
 					"easiest": 200
@@ -226,7 +307,11 @@
 					"guards": [ { "number": 50, "id": 76 } ],
 					"upgrade_chance": 50,
 					"combat_value": 517,
-					"reward_resources": [ 0, 0, 0, 10, 0, 0, 5000 ],
+					"reward_resources":
+					{
+						"sulfur" : 10,
+						"gold" : 5000
+					},
 					"value": 10000,
 					"profitability": 19,
 					"easiest": 250
@@ -242,7 +327,11 @@
 					"guards": [ { "number": 10, "id": 38 } ],
 					"upgrade_chance": 50,
 					"combat_value": 403,
-					"reward_resources": [ 0, 0, 0, 0, 0, 8, 4000 ],
+					"reward_resources":
+					{
+						"gems" : 8,
+						"gold" : 4000
+					},
 					"value": 8000,
 					"profitability": 20,
 					"easiest": 100
@@ -252,7 +341,11 @@
 					"guards": [ { "number": 15, "id": 38 } ],
 					"upgrade_chance": 50,
 					"combat_value": 605,
-					"reward_resources": [ 0, 0, 0, 0, 0, 12, 6000 ],
+					"reward_resources":
+					{
+						"gems" : 12,
+						"gold" : 6000
+					},
 					"value": 12000,
 					"profitability": 20,
 					"easiest": 150
@@ -262,7 +355,11 @@
 					"guards": [ { "number": 20, "id": 38 } ],
 					"upgrade_chance": 50,
 					"combat_value": 806,
-					"reward_resources": [ 0, 0, 0, 0, 0, 16, 8000 ],
+					"reward_resources":
+					{
+						"gems" : 16,
+						"gold" : 8000
+					},
 					"value": 16000,
 					"profitability": 20,
 					"easiest": 200
@@ -272,7 +369,11 @@
 					"guards": [ { "number": 30, "id": 38 } ],
 					"upgrade_chance": 50,
 					"combat_value": 1210,
-					"reward_resources": [ 0, 0, 0, 0, 0, 24, 12000 ],
+					"reward_resources":
+					{
+						"gems" : 24,
+						"gold" : 12000
+					},
 					"value": 24000,
 					"profitability": 20,
 					"easiest": 300
@@ -334,7 +435,10 @@
 					"guards": [ { "number": 10, "id": 60 } ],
 					"upgrade_chance": 0,
 					"combat_value": 31,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 2000 ],
+					"reward_resources":
+					{
+						"gold" : 2000
+					},
 					"value": 2000,
 					"profitability": 65,
 					"easiest": 100
@@ -344,7 +448,10 @@
 					"guards": [ { "number": 15, "id": 60 } ],
 					"upgrade_chance": 0,
 					"combat_value": 46,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 3000 ],
+					"reward_resources":
+					{
+						"gold" : 3000
+					},
 					"value": 3000,
 					"profitability": 65,
 					"easiest": 150
@@ -354,7 +461,10 @@
 					"guards": [ { "number": 25, "id": 60 } ],
 					"upgrade_chance": 0,
 					"combat_value": 77,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 4000 ],
+					"reward_resources":
+					{
+						"gold" : 4000
+					},
 					"reward_artifacts": [ 1, 0, 0, 0 ],
 					"value": 5000,
 					"profitability": 65,
@@ -365,7 +475,10 @@
 					"guards": [ { "number": 50, "id": 60 } ],
 					"upgrade_chance": 0,
 					"combat_value": 154,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 5000 ],
+					"reward_resources":
+					{
+						"gold" : 5000
+					},
 					"reward_artifacts": [ 0, 1, 0, 0 ],
 					"value": 7000,
 					"profitability": 45,
@@ -382,7 +495,10 @@
 					"guards": [ { "number": 20, "id": 115 } ],
 					"upgrade_chance": 0,
 					"combat_value": 138,
-					"reward_resources": [ 0, 0, 0, 0, 0, 3000 ],
+					"reward_resources":
+					{
+						"gold" : 3000
+					},
 					"value": 3000,
 					"profitability": 22,
 					"easiest": 100
@@ -392,7 +508,10 @@
 					"guards": [ { "number": 30, "id": 115 } ],
 					"upgrade_chance": 0,
 					"combat_value": 207,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 3000 ],
+					"reward_resources":
+					{
+						"gold" : 3000
+					},
 					"reward_artifacts": [ 1, 0, 0, 0 ],
 					"value": 4000,
 					"profitability": 19,
@@ -403,7 +522,10 @@
 					"guards": [ { "number": 40, "id": 115 } ],
 					"upgrade_chance": 0,
 					"combat_value": 276,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 4000 ],
+					"reward_resources":
+					{
+						"gold" : 4000
+					},
 					"reward_artifacts": [ 1, 0, 0, 0 ],
 					"value": 5000,
 					"profitability": 18,
@@ -414,7 +536,10 @@
 					"guards": [ { "number": 60, "id": 115 } ],
 					"upgrade_chance": 0,
 					"combat_value": 414,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 6000 ],
+					"reward_resources":
+					{
+						"gold" : 6000
+					},
 					"reward_artifacts": [ 0, 1, 0, 0 ],
 					"value": 8000,
 					"profitability": 19,
@@ -431,7 +556,10 @@
 					"guards": [ { "number": 30, "id": 56 }, { "number": 20, "id": 58 }, { "number": 0, "id": 60 } , { "number": 0, "id": 62 } ],
 					"upgrade_chance": 0,
 					"combat_value": 75,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 1500 ],
+					"reward_resources":
+					{
+						"gold" : 1500
+					},
 					"value": 1500,
 					"profitability": 20,
 					"easiest": 100
@@ -441,7 +569,10 @@
 					"guards": [ { "number": 25, "id": 56 }, { "number": 20, "id": 58 }, { "number": 5, "id": 60 }, { "number": 0, "id": 62 } ],
 					"upgrade_chance": 0,
 					"combat_value": 94,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 2000 ],
+					"reward_resources":
+					{
+						"gold" : 2000
+					},
 					"value": 2000,
 					"profitability": 21,
 					"easiest": 126
@@ -451,7 +582,10 @@
 					"guards": [ { "number": 20, "id": 56 }, { "number": 20, "id": 58 }, { "number": 10, "id": 60 }, { "number": 5, "id": 62 } ],
 					"upgrade_chance": 0,
 					"combat_value": 169,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 2500 ],
+					"reward_resources":
+					{
+						"gold" : 2500
+					},
 					"reward_artifacts": [ 1, 0, 0, 0 ],
 					"value": 3500,
 					"profitability": 21,
@@ -462,7 +596,10 @@
 					"guards": [ { "number": 20, "id": 56 }, { "number": 20, "id": 58 }, { "number": 10, "id": 60 }, { "number": 10, "id": 62 } ],
 					"upgrade_chance": 0,
 					"combat_value": 225,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 5000 ],
+					"reward_resources":
+					{
+						"gold" : 5000
+					},
 					"reward_artifacts": [ 1, 0, 0, 0 ],
 					"value": 6000,
 					"profitability": 27,
@@ -479,7 +616,10 @@
 					"guards": [ { "number": 8, "id": 26 }, { "number": 5, "id": 82 }, { "number": 2, "id": 27 }, { "number": 1, "id": 83 }	],
 					"upgrade_chance": 0,
 					"combat_value": 769,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 20000 ],
+					"reward_resources":
+					{
+						"gold" : 20000
+					},
 					"reward_artifacts": [ 1, 1, 1, 1 ],
 					"value": 38000,
 					"profitability": 21,
@@ -490,7 +630,10 @@
 					"guards": [ { "number": 8, "id": 26 }, { "number": 6, "id": 82 }, { "number": 3, "id": 27 }, { "number": 2, "id": 83 }	],
 					"upgrade_chance": 0,
 					"combat_value": 209,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 30000 ],
+					"reward_resources":
+					{
+						"gold" : 30000
+					},
 					"reward_artifacts": [ 0, 1, 1, 2 ],
 					"value": 57000,
 					"profitability": 26,
@@ -501,7 +644,10 @@
 					"guards": [ { "number": 8, "id": 26 }, { "number": 6, "id": 82 }, { "number": 4, "id": 27 }, { "number": 3, "id": 83 }	],
 					"upgrade_chance": 0,
 					"combat_value": 556,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 40000 ],
+					"reward_resources":
+					{
+						"gold" : 40000
+					},
 					"reward_artifacts": [ 0, 0, 1, 3 ],
 					"value": 75000,
 					"profitability": 29,
@@ -512,7 +658,10 @@
 					"guards": [ { "number": 8, "id": 26 }, { "number": 7, "id": 82 }, { "number": 6, "id": 27 }, { "number": 5, "id": 83 } ],
 					"upgrade_chance": 0,
 					"combat_value": 343,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 50000 ],
+					"reward_resources":
+					{
+						"gold" : 50000
+					},
 					"reward_artifacts": [ 0, 0, 0, 4 ],
 					"value": 90000,
 					"profitability": 27,
@@ -529,7 +678,11 @@
 					"guards": [ { "number": 3, "id": 22 }, { "number": 4, "id": 18 }, { "number": 3, "id": 22 }, { "number": 4, "id": 18 } ],
 					"upgrade_chance": 0,
 					"combat_value": 100,
-					"reward_resources": [ 15, 0, 0, 0, 0, 0, 500 ],
+					"reward_resources":
+					{
+						"wood" : 15,
+						"gold" : 500
+					},
 					"value": 2000,
 					"profitability": 20,
 					"easiest": 100
@@ -539,7 +692,11 @@
 					"guards": [ { "number": 4, "id": 22 }, { "number": 6, "id": 18 }, { "number": 4, "id": 22 }, { "number": 6, "id": 18 } ],
 					"upgrade_chance": 0,
 					"combat_value": 150,
-					"reward_resources": [ 20, 0, 0, 0, 0, 0, 500 ],
+					"reward_resources":
+					{
+						"wood" : 20,
+						"gold" : 500
+					},
 					"value": 3000,
 					"profitability": 20,
 					"easiest": 100
@@ -549,7 +706,11 @@
 					"guards": [ { "number": 5, "id": 22 }, { "number": 8, "id": 18 }, { "number": 5, "id": 22 }, { "number": 8, "id": 18 } ],
 					"upgrade_chance": 0,
 					"combat_value": 200,
-					"reward_resources": [ 25, 0, 0, 0, 0, 0, 500 ],
+					"reward_resources":
+					{
+						"wood" : 25,
+						"gold" : 500
+					},
 					"value": 4000,
 					"profitability": 20,
 					"easiest": 150
@@ -559,7 +720,11 @@
 					"guards": [ { "number": 6, "id": 22 }, { "number": 10, "id": 18 }, { "number": 6, "id": 22 }, { "number": 10, "id": 18 } ],
 					"upgrade_chance": 100,
 					"combat_value": 300,
-					"reward_resources": [ 40, 0, 0, 0, 0, 0, 1000 ],
+					"reward_resources":
+					{
+						"wood" : 40,
+						"gold" : 1000
+					},
 					"value": 6000,
 					"profitability": 20,
 					"easiest": 200
@@ -575,7 +740,11 @@
 					"guards": [ { "number": 5, "id": 32 }, { "number": 20, "id": 29 }, { "number": 5, "id": 32 }, { "number": 20, "id": 29 } ],
 					"upgrade_chance": 0,
 					"combat_value": 100,
-					"reward_resources": [ 0, 0, 15, 0, 0, 0, 500 ],
+					"reward_resources":
+					{
+						"ore" : 15,
+						"gold" : 500
+					},
 					"value": 2000,
 					"profitability": 20,
 					"easiest": 100
@@ -585,7 +754,11 @@
 					"guards": [ { "number": 6, "id": 32 }, { "number": 30, "id": 29 }, { "number": 6, "id": 32 }, { "number": 30, "id": 29 } ],
 					"upgrade_chance": 0,
 					"combat_value": 150,
-					"reward_resources": [ 0, 0, 20, 0, 0, 0, 500 ],
+					"reward_resources":
+					{
+						"ore" : 20,
+						"gold" : 500
+					},
 					"value": 3000,
 					"profitability": 20,
 					"easiest": 100
@@ -595,7 +768,11 @@
 					"guards": [ { "number": 7, "id": 32 }, { "number": 40, "id": 29 }, { "number": 7, "id": 32 }, { "number": 40, "id": 29 } ],
 					"upgrade_chance": 0,
 					"combat_value": 200,
-					"reward_resources": [ 0, 0, 30, 0, 0, 0, 500 ],
+					"reward_resources":
+					{
+						"ore" : 30,
+						"gold" : 500
+					},
 					"value": 4000,
 					"profitability": 20,
 					"easiest": 150
@@ -605,7 +782,11 @@
 					"guards": [ { "number": 8, "id": 32 }, { "number": 50, "id": 29 }, { "number": 8, "id": 32 }, { "number": 50, "id": 29 } ],
 					"upgrade_chance": 0,
 					"combat_value": 300,
-					"reward_resources": [ 0, 0, 40, 0, 0, 0, 1000 ],
+					"reward_resources":
+					{
+						"ore" : 40,
+						"gold" : 1000
+					},
 					"value": 6000,
 					"profitability": 20,
 					"easiest": 200
@@ -805,9 +986,11 @@
 					"guards": [ { "number": 10, "id": 62 } ],
 					"upgrade_chance": 0,
 					"combat_value": 100,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 1500 ],
+					"reward_resources":
+					{
+						"gold" : 1500
+					},
 					"reward_creatures": [ { "number": 3, "id": 63 } ],
-					"reward_artifacts": [ ],
 					"value": 2000,
 					"profitability": 10,
 					"easiest": 100
@@ -817,7 +1000,10 @@
 					"guards": [ { "number": 15, "id": 62 } ],
 					"upgrade_chance": 0,
 					"combat_value": 150,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 2500 ],
+					"reward_resources":
+					{
+						"gold" : 2500
+					},
 					"reward_creatures": [ { "number": 5, "id": 63 } ],
 					"value": 3000,
 					"profitability": 10,
@@ -828,7 +1014,10 @@
 					"guards": [ { "number": 20, "id": 62 } ],
 					"upgrade_chance": 0,
 					"combat_value": 200,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 3500 ],
+					"reward_resources":
+					{
+						"gold" : 3500
+					},
 					"reward_creatures": [ { "number": 7, "id": 63 } ],
 					"value": 4000,
 					"profitability": 10,
@@ -839,7 +1028,10 @@
 					"guards": [ { "number": 30, "id": 62 } ],
 					"upgrade_chance": 0,
 					"combat_value": 250,
-					"reward_resources": [ 0, 0, 0, 0, 0, 0, 5000 ],
+					"reward_resources":
+					{
+						"gold" : 5000
+					},
 					"reward_creatures": [ { "number": 9, "id": 63 } ],
 					"value": 5000,
 					"profitability": 10,
@@ -856,7 +1048,13 @@
 					"guards": [ { "number": 10, "id": 62 } ],
 					"upgrade_chance": 50,
 					"combat_value": 100,
-					"reward_resources": [ 0, 2, 0, 2, 2, 2, 0 ],
+					"reward_resources":
+					{
+						"mercury" : 2,
+						"sulfur" : 2,
+						"crystal" : 2,
+						"gems" : 2
+					},
 					"reward_creatures": [ { "number": 3, "id": 63 } ],
 					"value": 2000,
 					"profitability": 10,
@@ -867,7 +1065,14 @@
 					"guards": [ { "number": 15, "id": 62 } ],
 					"upgrade_chance": 70,
 					"combat_value": 150,
-					"reward_resources": [ 0, 3, 0, 3, 3, 3, 0 ],
+					"reward_resources":
+					{
+						"mercury" : 3,
+						"sulfur" : 3,
+						"crystal" : 3,
+						"gems" : 3
+					},
+
 					"reward_creatures": [ { "number": 5, "id": 63 } ],
 
 					"value": 3000,
@@ -879,7 +1084,14 @@
 					"guards": [ { "number": 20, "id": 62 } ],
 					"upgrade_chance": 80,
 					"combat_value": 200,
-					"reward_resources": [ 0, 4, 0, 4, 4, 4, 0 ],
+					"reward_resources":
+					{
+						"mercury" : 4,
+						"sulfur" : 4,
+						"crystal" : 4,
+						"gems" : 4
+					},
+
 					"reward_creatures": [ { "number": 7, "id": 63 } ],
 					"value": 4000,
 					"profitability": 10,
@@ -890,7 +1102,14 @@
 					"guards": [ { "number": 30, "id": 62 } ],
 					"upgrade_chance": 90,
 					"combat_value": 250,
-					"reward_resources": [ 0, 5, 0, 5, 5, 5, 0 ],
+					"reward_resources":
+					{
+						"mercury" : 5,
+						"sulfur" : 5,
+						"crystal" : 5,
+						"gems" : 5
+					},
+
 					"reward_creatures": [ { "number": 9, "id": 63 } ],
 					"value": 5000,
 					"profitability": 10,
@@ -907,7 +1126,13 @@
 					"guards": [ { "number": 10, "id": 36 } ],
 					"upgrade_chance": 50,
 					"combat_value": 100,
-					"reward_resources": [ 0, 2, 0, 2, 2, 2, 0 ],
+					"reward_resources":
+					{
+						"mercury" : 2,
+						"sulfur" : 2,
+						"crystal" : 2,
+						"gems" : 2
+					},
 					"reward_creatures": [ { "number": 3, "id": 36 } ],
 					"value": 2000,
 					"profitability": 10,
@@ -918,7 +1143,13 @@
 					"guards": [ { "number": 15, "id": 36 } ],
 					"upgrade_chance": 70,
 					"combat_value": 150,
-					"reward_resources": [ 0, 3, 0, 3, 3, 3, 0 ],
+					"reward_resources":
+					{
+						"mercury" : 3,
+						"sulfur" : 3,
+						"crystal" : 3,
+						"gems" : 3
+					},
 					"reward_creatures": [ { "number": 5, "id": 36 } ],
 					"value": 3000,
 					"profitability": 10,
@@ -929,7 +1160,13 @@
 					"guards": [ { "number": 20, "id": 36 } ],
 					"upgrade_chance": 80,
 					"combat_value": 200,
-					"reward_resources": [ 0, 4, 0, 4, 4, 4, 0 ],
+					"reward_resources":
+					{
+						"mercury" : 4,
+						"sulfur" : 4,
+						"crystal" : 4,
+						"gems" : 4
+					},
 					"reward_creatures": [ { "number": 7, "id": 36 } ],
 					"value": 4000,
 					"profitability": 10,
@@ -940,7 +1177,13 @@
 					"guards": [ { "number": 30, "id": 36 } ],
 					"upgrade_chance": 90,
 					"combat_value": 250,
-					"reward_resources": [ 0, 5, 0, 5, 5, 5, 0 ],
+					"reward_resources":
+					{
+						"mercury" : 5,
+						"sulfur" : 5,
+						"crystal" : 5,
+						"gems" : 5
+					},
 					"reward_creatures": [ { "number": 9, "id": 36 } ],
 					"value": 5000,
 					"profitability": 10,
@@ -957,7 +1200,11 @@
 					"guards": [	{ "number": 3, "id": 72 }, { "number": 3, "id": 74 }, { "number": 3, "id": 72 }, { "number": 3, "id": 74 } ],
 					"upgrade_chance": 0,
 					"combat_value": 200,
-					"reward_resources": [ 0, 0, 20, 0,	0, 0, 1000 ],
+					"reward_resources":
+					{
+						"ore" : 20,
+						"gold" : 1000
+					},
 					"value": 2000,
 					"profitability": 20,
 					"easiest": 100
@@ -967,7 +1214,11 @@
 					"guards": [	{ "number": 4, "id": 72 }, { "number": 4, "id": 74 }, { "number": 4, "id": 72 }, { "number": 4, "id": 74 } ],
 					"upgrade_chance": 0,
 					"combat_value": 300,
-					"reward_resources": [ 0, 0, 25, 0,	0, 0, 1000 ],
+					"reward_resources":
+					{
+						"ore" : 25,
+						"gold" : 1000
+					},
 					"value": 3000,
 					"profitability": 20,
 					"easiest": 150
@@ -977,7 +1228,11 @@
 					"guards": [	{ "number": 5, "id": 72 }, { "number": 5, "id": 74 }, { "number": 5, "id": 72 }, { "number": 5, "id": 74 } ],
 					"upgrade_chance": 0,
 					"combat_value": 400,
-					"reward_resources": [ 0, 0, 30, 0,	0, 0, 1500 ],
+					"reward_resources":
+					{
+						"ore" : 30,
+						"gold" : 1500
+					},
 					"value": 4000,
 					"profitability": 20,
 					"easiest": 200
@@ -987,7 +1242,11 @@
 					"guards": [	{ "number": 6, "id": 72 }, { "number": 6, "id": 74 }, { "number": 6, "id": 72 }, { "number": 6, "id": 74 } ],
 					"upgrade_chance": 0,
 					"combat_value": 500,
-					"reward_resources": [ 0, 0, 35, 0,	0, 0, 2000 ],
+					"reward_resources":
+					{
+						"ore" : 35,
+						"gold" : 2000
+					},
 					"value": 5000,
 					"profitability": 20,
 					"easiest": 250

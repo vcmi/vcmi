@@ -452,6 +452,7 @@ void CMusicHandler::musicFinishedCallback(void)
 MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped):
 	owner(owner),
 	music(nullptr),
+    musicFile(nullptr),
 	loop(looped ? -1 : 1),
     setName(setName)
 {
@@ -460,28 +461,35 @@ MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string mu
 }
 MusicEntry::~MusicEntry()
 {
-    logGlobal->traceStream()<<"Del-ing music file "<<currentName;
+	logGlobal->traceStream()<<"Del-ing music file "<<currentName;
 	if (music)
+	{
 		Mix_FreeMusic(music);
+		SDL_FreeRW(musicFile);
+	}
 }
 
 void MusicEntry::load(std::string musicURI)
 {
 	if (music)
 	{
-        logGlobal->traceStream()<<"Del-ing music file "<<currentName;
+		logGlobal->traceStream()<<"Del-ing music file "<<currentName;
 		Mix_FreeMusic(music);
+		SDL_FreeRW(musicFile);
 	}
 
 	currentName = musicURI;
 
-    logGlobal->traceStream()<<"Loading music file "<<musicURI;
+	logGlobal->traceStream()<<"Loading music file "<<musicURI;
 
-	music = Mix_LoadMUS(CResourceHandler::get()->getResourceName(ResourceID(musicURI, EResType::MUSIC))->c_str());
+	auto data = CResourceHandler::get()->load(ResourceID(musicURI, EResType::MUSIC))->readAll();
+	musicFile = SDL_RWFromConstMem(data.first.release(), data.second);
+	music = Mix_LoadMUS_RW(musicFile);
 
 	if(!music)
 	{
-        logGlobal->warnStream() << "Warning: Cannot open " << currentName << ": " << Mix_GetError();
+		SDL_FreeRW(musicFile);
+		logGlobal->warnStream() << "Warning: Cannot open " << currentName << ": " << Mix_GetError();
 		return;
 	}
 

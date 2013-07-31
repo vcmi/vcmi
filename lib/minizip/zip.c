@@ -26,6 +26,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#ifndef NOCRYPT
+        #define NOCRYPT
+#endif
+
 #include "zlib.h"
 #include "zip.h"
 

@@ -103,7 +103,7 @@
 			"properties" : {
 				"animationSpeed" : {
 					"type" : "number",
-					"default" : 2
+					"default" : 0.63
 				},
 				"mouseShadow" : {
 					"type":"boolean",

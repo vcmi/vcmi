@@ -7,6 +7,7 @@ include_directories(${ZLIB_INCLUDE_DIR})
 # but right now VCMI does not need any extra functionality
 set(lib_SRCS
 		unzip.c
+		zip.c
 		ioapi.c
 )
 

@@ -1390,7 +1390,7 @@ struct BankConfig
 	ui8 upgradeChance; //chance for creatures to be in upgraded versions
 	std::vector< std::pair <CreatureID, ui32> > guards; //creature ID, amount
 	ui32 combatValue; //how hard are guards of this level
-	std::vector<si32> resources; //resources given in case of victory
+	Res::ResourceSet resources; //resources given in case of victory
 	std::vector< std::pair <CreatureID, ui32> > creatures; //creatures granted in case of victory (creature ID, amount)
 	std::vector<ui16> artifacts; //number of artifacts given in case of victory [0] -> treasure, [1] -> minor [2] -> major [3] -> relic
 	ui32 value; //overall value of given things
