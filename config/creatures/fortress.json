@@ -279,7 +279,7 @@
 			"petrify" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.stoneGaze",
+				"subtype" : "spell.poison",
 				"val" : 50
 			}
 		},
