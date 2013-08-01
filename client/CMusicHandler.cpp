@@ -352,7 +352,7 @@ void CMusicHandler::playMusic(std::string musicURI, bool loop)
 	if (current && current->isTrack( musicURI))
 		return;
 
-	queueNext(new MusicEntry(this, "", musicURI, loop));
+	queueNext(this, "", musicURI, loop);
 }
 
 void CMusicHandler::playMusicFromSet(std::string whichSet, bool loop)
@@ -367,7 +367,7 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, bool loop)
 	if (current && current->isSet(whichSet))
 		return;
 
-	queueNext(new MusicEntry(this, whichSet, "", loop));
+	queueNext(this, whichSet, "", loop);
 }
 
 
@@ -390,22 +390,34 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loo
 	if (current && current->isTrack( selectedEntry->second))
 		return;
 
-	queueNext(new MusicEntry(this, "", selectedEntry->second, loop));
 }
 
-void CMusicHandler::queueNext(MusicEntry *queued)
+void CMusicHandler::queueNext(unique_ptr<MusicEntry> queued)
 {
 	if (!initialized)
 		return;
 
 	boost::mutex::scoped_lock guard(musicMutex);
 
-	next.reset(queued);
+	next = std::move(queued);
 
 	if (current.get() == nullptr || !current->stop(1000))
 	{
 		current.reset(next.release());
 		current->play();
+	}
+}
+
+void CMusicHandler::queueNext(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped)
+{
+	try
+	{
+		queueNext(make_unique<MusicEntry>(owner, setName, musicURI, looped));
+	}
+	catch(std::exception &e)
+	{
+		logGlobal->errorStream() << "Failed to queue music. setName=" << setName << "\tmusicURI=" << musicURI; 
+		logGlobal->errorStream() << "Exception: " << e.what();
 	}
 }
 

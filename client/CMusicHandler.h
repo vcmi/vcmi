@@ -120,8 +120,9 @@ private:
 
 	unique_ptr<MusicEntry> current;
 	unique_ptr<MusicEntry> next;
-
-	void queueNext(MusicEntry *queued);
+	
+	void queueNext(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped);
+	void queueNext(unique_ptr<MusicEntry> queued);
 
 	std::map<std::string, std::map<int, std::string> > musicsSet;
 public:
