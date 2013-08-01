@@ -308,7 +308,7 @@ CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(const HeroLevelUp &Hlu)
 void CHeroLevelUpDialogQuery::onRemoval(CGameHandler *gh, PlayerColor color)
 {
 	assert(answer);
-	logGlobal->traceStream() << "Completing hero level-up query. " << hlu.hero->getHoverText() << " gains skill " << answer;
+	logGlobal->traceStream() << "Completing hero level-up query. " << hlu.hero->getHoverText() << " gains skill " << *answer;
 	gh->levelUpHero(hlu.hero, hlu.skills[*answer]);
 }
 
@@ -326,7 +326,7 @@ CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(const CommanderLevelU
 void CCommanderLevelUpDialogQuery::onRemoval(CGameHandler *gh, PlayerColor color)
 {
 	assert(answer);
-	logGlobal->traceStream() << "Completing commander level-up query. Commander of hero " << clu.hero->getHoverText() << " gains skill " << answer;
+	logGlobal->traceStream() << "Completing commander level-up query. Commander of hero " << clu.hero->getHoverText() << " gains skill " << *answer;
 	gh->levelUpCommander(clu.hero->commander, clu.skills[*answer]);
 }
 
