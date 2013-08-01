@@ -851,7 +851,7 @@ int LoadCentralDirectoryRecord(zip64_internal* pziinit)
 
 
 /************************************************************/
-extern zipFile DLL_EXPORT zipOpen3 (const void *pathname, int append, zipcharpc* globalcomment, zlib_filefunc64_32_def* pzlib_filefunc64_32_def)
+extern zipFile MINIZIP_EXPORT zipOpen3 (const void *pathname, int append, zipcharpc* globalcomment, zlib_filefunc64_32_def* pzlib_filefunc64_32_def)
 {
     zip64_internal ziinit;
     zip64_internal* zi;
@@ -922,7 +922,7 @@ extern zipFile DLL_EXPORT zipOpen3 (const void *pathname, int append, zipcharpc*
     }
 }
 
-extern zipFile DLL_EXPORT zipOpen2 (const char *pathname, int append, zipcharpc* globalcomment, zlib_filefunc_def* pzlib_filefunc32_def)
+extern zipFile MINIZIP_EXPORT zipOpen2 (const char *pathname, int append, zipcharpc* globalcomment, zlib_filefunc_def* pzlib_filefunc32_def)
 {
     if (pzlib_filefunc32_def != NULL)
     {
@@ -934,7 +934,7 @@ extern zipFile DLL_EXPORT zipOpen2 (const char *pathname, int append, zipcharpc*
         return zipOpen3(pathname, append, globalcomment, NULL);
 }
 
-extern zipFile DLL_EXPORT zipOpen2_64 (const void *pathname, int append, zipcharpc* globalcomment, zlib_filefunc64_def* pzlib_filefunc_def)
+extern zipFile MINIZIP_EXPORT zipOpen2_64 (const void *pathname, int append, zipcharpc* globalcomment, zlib_filefunc64_def* pzlib_filefunc_def)
 {
     if (pzlib_filefunc_def != NULL)
     {
@@ -950,12 +950,12 @@ extern zipFile DLL_EXPORT zipOpen2_64 (const void *pathname, int append, zipchar
 
 
 
-extern zipFile DLL_EXPORT zipOpen (const char* pathname, int append)
+extern zipFile MINIZIP_EXPORT zipOpen (const char* pathname, int append)
 {
     return zipOpen3((const void*)pathname,append,NULL,NULL);
 }
 
-extern zipFile DLL_EXPORT zipOpen64 (const void* pathname, int append)
+extern zipFile MINIZIP_EXPORT zipOpen64 (const void* pathname, int append)
 {
     return zipOpen3(pathname,append,NULL,NULL);
 }
@@ -1057,7 +1057,7 @@ int Write_LocalFileHeader(zip64_internal* zi, const char* filename, uInt size_ex
  It is not done here because then we need to realloc a new buffer since parameters are 'const' and I want to minimize
  unnecessary allocations.
  */
-extern int DLL_EXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, const zip_fileinfo* zipfi,
+extern int MINIZIP_EXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, const zip_fileinfo* zipfi,
                                          const void* extrafield_local, uInt size_extrafield_local,
                                          const void* extrafield_global, uInt size_extrafield_global,
                                          const char* comment, int method, int level, int raw,
@@ -1267,7 +1267,7 @@ extern int DLL_EXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filenam
     return err;
 }
 
-extern int DLL_EXPORT zipOpenNewFileInZip4 (zipFile file, const char* filename, const zip_fileinfo* zipfi,
+extern int MINIZIP_EXPORT zipOpenNewFileInZip4 (zipFile file, const char* filename, const zip_fileinfo* zipfi,
                                          const void* extrafield_local, uInt size_extrafield_local,
                                          const void* extrafield_global, uInt size_extrafield_global,
                                          const char* comment, int method, int level, int raw,
@@ -1283,7 +1283,7 @@ extern int DLL_EXPORT zipOpenNewFileInZip4 (zipFile file, const char* filename, 
                                  password, crcForCrypting, versionMadeBy, flagBase, 0);
 }
 
-extern int DLL_EXPORT zipOpenNewFileInZip3 (zipFile file, const char* filename, const zip_fileinfo* zipfi,
+extern int MINIZIP_EXPORT zipOpenNewFileInZip3 (zipFile file, const char* filename, const zip_fileinfo* zipfi,
                                          const void* extrafield_local, uInt size_extrafield_local,
                                          const void* extrafield_global, uInt size_extrafield_global,
                                          const char* comment, int method, int level, int raw,
@@ -1298,7 +1298,7 @@ extern int DLL_EXPORT zipOpenNewFileInZip3 (zipFile file, const char* filename, 
                                  password, crcForCrypting, VERSIONMADEBY, 0, 0);
 }
 
-extern int DLL_EXPORT zipOpenNewFileInZip3_64(zipFile file, const char* filename, const zip_fileinfo* zipfi,
+extern int MINIZIP_EXPORT zipOpenNewFileInZip3_64(zipFile file, const char* filename, const zip_fileinfo* zipfi,
                                          const void* extrafield_local, uInt size_extrafield_local,
                                          const void* extrafield_global, uInt size_extrafield_global,
                                          const char* comment, int method, int level, int raw,
@@ -1313,7 +1313,7 @@ extern int DLL_EXPORT zipOpenNewFileInZip3_64(zipFile file, const char* filename
                                  password, crcForCrypting, VERSIONMADEBY, 0, zip64);
 }
 
-extern int DLL_EXPORT zipOpenNewFileInZip2(zipFile file, const char* filename, const zip_fileinfo* zipfi,
+extern int MINIZIP_EXPORT zipOpenNewFileInZip2(zipFile file, const char* filename, const zip_fileinfo* zipfi,
                                         const void* extrafield_local, uInt size_extrafield_local,
                                         const void* extrafield_global, uInt size_extrafield_global,
                                         const char* comment, int method, int level, int raw)
@@ -1326,7 +1326,7 @@ extern int DLL_EXPORT zipOpenNewFileInZip2(zipFile file, const char* filename, c
                                  NULL, 0, VERSIONMADEBY, 0, 0);
 }
 
-extern int DLL_EXPORT zipOpenNewFileInZip2_64(zipFile file, const char* filename, const zip_fileinfo* zipfi,
+extern int MINIZIP_EXPORT zipOpenNewFileInZip2_64(zipFile file, const char* filename, const zip_fileinfo* zipfi,
                                         const void* extrafield_local, uInt size_extrafield_local,
                                         const void* extrafield_global, uInt size_extrafield_global,
                                         const char* comment, int method, int level, int raw, int zip64)
@@ -1339,7 +1339,7 @@ extern int DLL_EXPORT zipOpenNewFileInZip2_64(zipFile file, const char* filename
                                  NULL, 0, VERSIONMADEBY, 0, zip64);
 }
 
-extern int DLL_EXPORT zipOpenNewFileInZip64 (zipFile file, const char* filename, const zip_fileinfo* zipfi,
+extern int MINIZIP_EXPORT zipOpenNewFileInZip64 (zipFile file, const char* filename, const zip_fileinfo* zipfi,
                                         const void* extrafield_local, uInt size_extrafield_local,
                                         const void*extrafield_global, uInt size_extrafield_global,
                                         const char* comment, int method, int level, int zip64)
@@ -1352,7 +1352,7 @@ extern int DLL_EXPORT zipOpenNewFileInZip64 (zipFile file, const char* filename,
                                  NULL, 0, VERSIONMADEBY, 0, zip64);
 }
 
-extern int DLL_EXPORT zipOpenNewFileInZip (zipFile file, const char* filename, const zip_fileinfo* zipfi,
+extern int MINIZIP_EXPORT zipOpenNewFileInZip (zipFile file, const char* filename, const zip_fileinfo* zipfi,
                                         const void* extrafield_local, uInt size_extrafield_local,
                                         const void*extrafield_global, uInt size_extrafield_global,
                                         const char* comment, int method, int level)
@@ -1404,7 +1404,7 @@ local int zip64FlushWriteBuffer(zip64_internal* zi)
     return err;
 }
 
-extern int DLL_EXPORT zipWriteInFileInZip (zipFile file,const void* buf,unsigned int len)
+extern int MINIZIP_EXPORT zipWriteInFileInZip (zipFile file,const void* buf,unsigned int len)
 {
     zip64_internal* zi;
     int err=ZIP_OK;
@@ -1511,12 +1511,12 @@ extern int DLL_EXPORT zipWriteInFileInZip (zipFile file,const void* buf,unsigned
     return err;
 }
 
-extern int DLL_EXPORT zipCloseFileInZipRaw (zipFile file, uLong uncompressed_size, uLong crc32)
+extern int MINIZIP_EXPORT zipCloseFileInZipRaw (zipFile file, uLong uncompressed_size, uLong crc32)
 {
     return zipCloseFileInZipRaw64 (file, uncompressed_size, crc32);
 }
 
-extern int DLL_EXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_size, uLong crc32)
+extern int MINIZIP_EXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_size, uLong crc32)
 {
     zip64_internal* zi;
     ZPOS64_T compressed_size;
@@ -1752,7 +1752,7 @@ extern int DLL_EXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompresse
     return err;
 }
 
-extern int DLL_EXPORT zipCloseFileInZip (zipFile file)
+extern int MINIZIP_EXPORT zipCloseFileInZip (zipFile file)
 {
     return zipCloseFileInZipRaw (file,0,0);
 }
@@ -1884,7 +1884,7 @@ int Write_GlobalComment(zip64_internal* zi, const char* global_comment)
   return err;
 }
 
-extern int DLL_EXPORT zipClose (zipFile file, const char* global_comment)
+extern int MINIZIP_EXPORT zipClose (zipFile file, const char* global_comment)
 {
     zip64_internal* zi;
     int err = 0;
@@ -1953,7 +1953,7 @@ extern int DLL_EXPORT zipClose (zipFile file, const char* global_comment)
     return err;
 }
 
-extern int DLL_EXPORT zipRemoveExtraInfoBlock (char* pData, int* dataLen, short sHeader)
+extern int MINIZIP_EXPORT zipRemoveExtraInfoBlock (char* pData, int* dataLen, short sHeader)
 {
   char* p = pData;
   int size = 0;

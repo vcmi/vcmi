@@ -122,11 +122,14 @@ typedef uint64_t ZPOS64_T;
 #      endif
 #  endif  /* ZLIB_DLL */
 
-#define DLL_EXPORT __declspec(dllexport)
-
+#ifdef MINIZIP_DLL
+#define MINIZIP_EXPORT __declspec(dllexport)
+#else
+#define MINIZIP_EXPORT __declspec(dllimport)
 #endif
-
-
+#else //not MSVC
+#define MINIZIP_EXPORT
+#endif
 
 #ifdef __cplusplus
 extern "C" {

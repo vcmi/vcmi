@@ -387,7 +387,7 @@ local int strcmpcasenosensitive_internal (const char* fileName1, const char* fil
         (like 1 on Unix, 2 on Windows)
 
 */
-extern int DLL_EXPORT unzStringFileNameCompare (const char*  fileName1,
+extern int MINIZIP_EXPORT unzStringFileNameCompare (const char*  fileName1,
                                                  const char*  fileName2,
                                                  int iCaseSensitivity)
 
@@ -762,7 +762,7 @@ local unzFile unzOpenInternal (const void *path,
 }
 
 
-extern unzFile DLL_EXPORT unzOpen2 (const char *path,
+extern unzFile MINIZIP_EXPORT unzOpen2 (const char *path,
                                         zlib_filefunc_def* pzlib_filefunc32_def)
 {
     if (pzlib_filefunc32_def != NULL)
@@ -775,7 +775,7 @@ extern unzFile DLL_EXPORT unzOpen2 (const char *path,
         return unzOpenInternal(path, NULL, 0);
 }
 
-extern unzFile DLL_EXPORT unzOpen2_64 (const void *path,
+extern unzFile MINIZIP_EXPORT unzOpen2_64 (const void *path,
                                      zlib_filefunc64_def* pzlib_filefunc_def)
 {
     if (pzlib_filefunc_def != NULL)
@@ -790,12 +790,12 @@ extern unzFile DLL_EXPORT unzOpen2_64 (const void *path,
         return unzOpenInternal(path, NULL, 1);
 }
 
-extern unzFile DLL_EXPORT unzOpen (const char *path)
+extern unzFile MINIZIP_EXPORT unzOpen (const char *path)
 {
     return unzOpenInternal(path, NULL, 0);
 }
 
-extern unzFile DLL_EXPORT unzOpen64 (const void *path)
+extern unzFile MINIZIP_EXPORT unzOpen64 (const void *path)
 {
     return unzOpenInternal(path, NULL, 1);
 }
@@ -805,7 +805,7 @@ extern unzFile DLL_EXPORT unzOpen64 (const void *path)
   If there is files inside the .Zip opened with unzOpenCurrentFile (see later),
     these files MUST be closed with unzCloseCurrentFile before call unzClose.
   return UNZ_OK if there is no problem. */
-extern int DLL_EXPORT unzClose (unzFile file)
+extern int MINIZIP_EXPORT unzClose (unzFile file)
 {
     unz64_s* s;
     if (file==NULL)
@@ -825,7 +825,7 @@ extern int DLL_EXPORT unzClose (unzFile file)
   Write info about the ZipFile in the *pglobal_info structure.
   No preparation of the structure is needed
   return UNZ_OK if there is no problem. */
-extern int DLL_EXPORT unzGetGlobalInfo64 (unzFile file, unz_global_info64* pglobal_info)
+extern int MINIZIP_EXPORT unzGetGlobalInfo64 (unzFile file, unz_global_info64* pglobal_info)
 {
     unz64_s* s;
     if (file==NULL)
@@ -835,7 +835,7 @@ extern int DLL_EXPORT unzGetGlobalInfo64 (unzFile file, unz_global_info64* pglob
     return UNZ_OK;
 }
 
-extern int DLL_EXPORT unzGetGlobalInfo (unzFile file, unz_global_info* pglobal_info32)
+extern int MINIZIP_EXPORT unzGetGlobalInfo (unzFile file, unz_global_info* pglobal_info32)
 {
     unz64_s* s;
     if (file==NULL)
@@ -1121,7 +1121,7 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
   No preparation of the structure is needed
   return UNZ_OK if there is no problem.
 */
-extern int DLL_EXPORT unzGetCurrentFileInfo64 (unzFile file,
+extern int MINIZIP_EXPORT unzGetCurrentFileInfo64 (unzFile file,
                                           unz_file_info64 * pfile_info,
                                           char * szFileName, uLong fileNameBufferSize,
                                           void *extraField, uLong extraFieldBufferSize,
@@ -1133,7 +1133,7 @@ extern int DLL_EXPORT unzGetCurrentFileInfo64 (unzFile file,
                                                 szComment,commentBufferSize);
 }
 
-extern int DLL_EXPORT unzGetCurrentFileInfo (unzFile file,
+extern int MINIZIP_EXPORT unzGetCurrentFileInfo (unzFile file,
                                           unz_file_info * pfile_info,
                                           char * szFileName, uLong fileNameBufferSize,
                                           void *extraField, uLong extraFieldBufferSize,
@@ -1175,7 +1175,7 @@ extern int DLL_EXPORT unzGetCurrentFileInfo (unzFile file,
   Set the current file of the zipfile to the first file.
   return UNZ_OK if there is no problem
 */
-extern int DLL_EXPORT unzGoToFirstFile (unzFile file)
+extern int MINIZIP_EXPORT unzGoToFirstFile (unzFile file)
 {
     int err=UNZ_OK;
     unz64_s* s;
@@ -1196,7 +1196,7 @@ extern int DLL_EXPORT unzGoToFirstFile (unzFile file)
   return UNZ_OK if there is no problem
   return UNZ_END_OF_LIST_OF_FILE if the actual file was the latest.
 */
-extern int DLL_EXPORT unzGoToNextFile (unzFile  file)
+extern int MINIZIP_EXPORT unzGoToNextFile (unzFile  file)
 {
     unz64_s* s;
     int err;
@@ -1229,7 +1229,7 @@ extern int DLL_EXPORT unzGoToNextFile (unzFile  file)
   UNZ_OK if the file is found. It becomes the current file.
   UNZ_END_OF_LIST_OF_FILE if the file is not found
 */
-extern int DLL_EXPORT unzLocateFile (unzFile file, const char *szFileName, int iCaseSensitivity)
+extern int MINIZIP_EXPORT unzLocateFile (unzFile file, const char *szFileName, int iCaseSensitivity)
 {
     unz64_s* s;
     int err;
@@ -1305,7 +1305,7 @@ typedef struct unz_file_pos_s
 } unz_file_pos;
 */
 
-extern int DLL_EXPORT unzGetFilePos64(unzFile file, unz64_file_pos*  file_pos)
+extern int MINIZIP_EXPORT unzGetFilePos64(unzFile file, unz64_file_pos*  file_pos)
 {
     unz64_s* s;
 
@@ -1321,7 +1321,7 @@ extern int DLL_EXPORT unzGetFilePos64(unzFile file, unz64_file_pos*  file_pos)
     return UNZ_OK;
 }
 
-extern int DLL_EXPORT unzGetFilePos(
+extern int MINIZIP_EXPORT unzGetFilePos(
     unzFile file,
     unz_file_pos* file_pos)
 {
@@ -1335,7 +1335,7 @@ extern int DLL_EXPORT unzGetFilePos(
     return err;
 }
 
-extern int DLL_EXPORT unzGoToFilePos64(unzFile file, const unz64_file_pos* file_pos)
+extern int MINIZIP_EXPORT unzGoToFilePos64(unzFile file, const unz64_file_pos* file_pos)
 {
     unz64_s* s;
     int err;
@@ -1357,7 +1357,7 @@ extern int DLL_EXPORT unzGoToFilePos64(unzFile file, const unz64_file_pos* file_
     return err;
 }
 
-extern int DLL_EXPORT unzGoToFilePos(
+extern int MINIZIP_EXPORT unzGoToFilePos(
     unzFile file,
     unz_file_pos* file_pos)
 {
@@ -1469,7 +1469,7 @@ local int unz64local_CheckCurrentFileCoherencyHeader (unz64_s* s, uInt* piSizeVa
   Open for reading data the current file in the zipfile.
   If there is no error and the file is opened, the return value is UNZ_OK.
 */
-extern int DLL_EXPORT unzOpenCurrentFile3 (unzFile file, int* method,
+extern int MINIZIP_EXPORT unzOpenCurrentFile3 (unzFile file, int* method,
                                             int* level, int raw, const char* password)
 {
     int err=UNZ_OK;
@@ -1638,24 +1638,24 @@ extern int DLL_EXPORT unzOpenCurrentFile3 (unzFile file, int* method,
     return UNZ_OK;
 }
 
-extern int DLL_EXPORT unzOpenCurrentFile (unzFile file)
+extern int MINIZIP_EXPORT unzOpenCurrentFile (unzFile file)
 {
     return unzOpenCurrentFile3(file, NULL, NULL, 0, NULL);
 }
 
-extern int DLL_EXPORT unzOpenCurrentFilePassword (unzFile file, const char*  password)
+extern int MINIZIP_EXPORT unzOpenCurrentFilePassword (unzFile file, const char*  password)
 {
     return unzOpenCurrentFile3(file, NULL, NULL, 0, password);
 }
 
-extern int DLL_EXPORT unzOpenCurrentFile2 (unzFile file, int* method, int* level, int raw)
+extern int MINIZIP_EXPORT unzOpenCurrentFile2 (unzFile file, int* method, int* level, int raw)
 {
     return unzOpenCurrentFile3(file, method, level, raw, NULL);
 }
 
 /** Addition for GDAL : START */
 
-extern ZPOS64_T DLL_EXPORT unzGetCurrentFileZStreamPos64( unzFile file)
+extern ZPOS64_T MINIZIP_EXPORT unzGetCurrentFileZStreamPos64( unzFile file)
 {
     unz64_s* s;
     file_in_zip64_read_info_s* pfile_in_zip_read_info;
@@ -1681,7 +1681,7 @@ extern ZPOS64_T DLL_EXPORT unzGetCurrentFileZStreamPos64( unzFile file)
   return <0 with error code if there is an error
     (UNZ_ERRNO for IO error, or zLib error for uncompress error)
 */
-extern int DLL_EXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
+extern int MINIZIP_EXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
 {
     int err=UNZ_OK;
     uInt iRead = 0;
@@ -1886,7 +1886,7 @@ extern int DLL_EXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len
 /*
   Give the current position in uncompressed data
 */
-extern z_off_t DLL_EXPORT unztell (unzFile file)
+extern z_off_t MINIZIP_EXPORT unztell (unzFile file)
 {
     unz64_s* s;
     file_in_zip64_read_info_s* pfile_in_zip_read_info;
@@ -1901,7 +1901,7 @@ extern z_off_t DLL_EXPORT unztell (unzFile file)
     return (z_off_t)pfile_in_zip_read_info->stream.total_out;
 }
 
-extern ZPOS64_T DLL_EXPORT unztell64 (unzFile file)
+extern ZPOS64_T MINIZIP_EXPORT unztell64 (unzFile file)
 {
 
     unz64_s* s;
@@ -1921,7 +1921,7 @@ extern ZPOS64_T DLL_EXPORT unztell64 (unzFile file)
 /*
   return 1 if the end of file was reached, 0 elsewhere
 */
-extern int DLL_EXPORT unzeof (unzFile file)
+extern int MINIZIP_EXPORT unzeof (unzFile file)
 {
     unz64_s* s;
     file_in_zip64_read_info_s* pfile_in_zip_read_info;
@@ -1953,7 +1953,7 @@ more info in the local-header version than in the central-header)
   the return value is the number of bytes copied in buf, or (if <0)
     the error code
 */
-extern int DLL_EXPORT unzGetLocalExtrafield (unzFile file, voidp buf, unsigned len)
+extern int MINIZIP_EXPORT unzGetLocalExtrafield (unzFile file, voidp buf, unsigned len)
 {
     unz64_s* s;
     file_in_zip64_read_info_s* pfile_in_zip_read_info;
@@ -2001,7 +2001,7 @@ extern int DLL_EXPORT unzGetLocalExtrafield (unzFile file, voidp buf, unsigned l
   Close the file in zip opened with unzOpenCurrentFile
   Return UNZ_CRCERROR if all the file was read but the CRC is not good
 */
-extern int DLL_EXPORT unzCloseCurrentFile (unzFile file)
+extern int MINIZIP_EXPORT unzCloseCurrentFile (unzFile file)
 {
     int err=UNZ_OK;
 
@@ -2048,7 +2048,7 @@ extern int DLL_EXPORT unzCloseCurrentFile (unzFile file)
   uSizeBuf is the size of the szComment buffer.
   return the number of byte copied or an error code <0
 */
-extern int DLL_EXPORT unzGetGlobalComment (unzFile file, char * szComment, uLong uSizeBuf)
+extern int MINIZIP_EXPORT unzGetGlobalComment (unzFile file, char * szComment, uLong uSizeBuf)
 {
     unz64_s* s;
     uLong uReadThis ;
@@ -2076,7 +2076,7 @@ extern int DLL_EXPORT unzGetGlobalComment (unzFile file, char * szComment, uLong
 }
 
 /* Additions by RX '2004 */
-extern ZPOS64_T DLL_EXPORT unzGetOffset64(unzFile file)
+extern ZPOS64_T MINIZIP_EXPORT unzGetOffset64(unzFile file)
 {
     unz64_s* s;
 
@@ -2091,7 +2091,7 @@ extern ZPOS64_T DLL_EXPORT unzGetOffset64(unzFile file)
     return s->pos_in_central_dir;
 }
 
-extern uLong DLL_EXPORT unzGetOffset (unzFile file)
+extern uLong MINIZIP_EXPORT unzGetOffset (unzFile file)
 {
     ZPOS64_T offset64;
 
@@ -2101,7 +2101,7 @@ extern uLong DLL_EXPORT unzGetOffset (unzFile file)
     return (uLong)offset64;
 }
 
-extern int DLL_EXPORT unzSetOffset64(unzFile file, ZPOS64_T pos)
+extern int MINIZIP_EXPORT unzSetOffset64(unzFile file, ZPOS64_T pos)
 {
     unz64_s* s;
     int err;
@@ -2119,7 +2119,7 @@ extern int DLL_EXPORT unzSetOffset64(unzFile file, ZPOS64_T pos)
     return err;
 }
 
-extern int DLL_EXPORT unzSetOffset (unzFile file, uLong pos)
+extern int MINIZIP_EXPORT unzSetOffset (unzFile file, uLong pos)
 {
     return unzSetOffset64(file,pos);
 }
