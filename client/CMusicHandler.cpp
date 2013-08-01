@@ -390,6 +390,7 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loo
 	if (current && current->isTrack( selectedEntry->second))
 		return;
 
+	queueNext(this, whichSet, "", loop);
 }
 
 void CMusicHandler::queueNext(unique_ptr<MusicEntry> queued)
