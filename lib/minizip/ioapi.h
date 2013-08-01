@@ -121,6 +121,9 @@ typedef uint64_t ZPOS64_T;
 #        define ZEXPORT __declspec(dllimport)
 #      endif
 #  endif  /* ZLIB_DLL */
+
+#define DLL_EXPORT __declspec(dllexport)
+
 #endif
 
 
@@ -225,5 +228,4 @@ void    fill_zlib_filefunc64_32_def_from_filefunc32(zlib_filefunc64_32_def* p_fi
 #ifdef __cplusplus
 }
 #endif
-
 #endif

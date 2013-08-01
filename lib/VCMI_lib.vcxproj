@@ -113,7 +113,7 @@
       <PreprocessorDefinitions>VCMI_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>minizip.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -127,7 +127,7 @@
       <PreprocessorDefinitions>VCMI_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>minizip.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
@@ -139,7 +139,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>minizip.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>
       </Version>
       <LinkTimeCodeGeneration>
@@ -155,7 +155,7 @@
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>minizip.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>
       </Version>
       <LinkTimeCodeGeneration>
@@ -185,15 +185,16 @@
     <ClCompile Include="CSpellHandler.cpp" />
     <ClCompile Include="CThreadHelper.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
+    <ClCompile Include="filesystem\AdapterLoaders.cpp" />
+    <ClCompile Include="filesystem\CArchiveLoader.cpp" />
     <ClCompile Include="filesystem\CBinaryReader.cpp" />
     <ClCompile Include="filesystem\CCompressedStream.cpp" />
     <ClCompile Include="filesystem\CFileInfo.cpp" />
     <ClCompile Include="filesystem\CFileInputStream.cpp" />
     <ClCompile Include="filesystem\CFilesystemLoader.cpp" />
-    <ClCompile Include="filesystem\CLodArchiveLoader.cpp" />
-    <ClCompile Include="filesystem\CMappedFileLoader.cpp" />
     <ClCompile Include="filesystem\CMemoryStream.cpp" />
-    <ClCompile Include="filesystem\CResourceLoader.cpp" />
+    <ClCompile Include="filesystem\CZipLoader.cpp" />
+    <ClCompile Include="filesystem\Filesystem.cpp" />
     <ClCompile Include="GameConstants.cpp" />
     <ClCompile Include="mapping\CCampaignHandler.cpp" />
     <ClCompile Include="mapping\CMap.cpp" />
@@ -253,16 +254,17 @@
     <ClInclude Include="CStopWatch.h" />
     <ClInclude Include="CThreadHelper.h" />
     <ClInclude Include="CTownHandler.h" />
+    <ClInclude Include="filesystem\AdapterLoaders.h" />
+    <ClInclude Include="filesystem\CArchiveLoader.h" />
     <ClInclude Include="filesystem\CBinaryReader.h" />
     <ClInclude Include="filesystem\CCompressedStream.h" />
     <ClInclude Include="filesystem\CFileInfo.h" />
     <ClInclude Include="filesystem\CFileInputStream.h" />
     <ClInclude Include="filesystem\CFilesystemLoader.h" />
     <ClInclude Include="filesystem\CInputStream.h" />
-    <ClInclude Include="filesystem\CLodArchiveLoader.h" />
-    <ClInclude Include="filesystem\CMappedFileLoader.h" />
     <ClInclude Include="filesystem\CMemoryStream.h" />
-    <ClInclude Include="filesystem\CResourceLoader.h" />
+    <ClInclude Include="filesystem\CZipLoader.h" />
+    <ClInclude Include="filesystem\Filesystem.h" />
     <ClInclude Include="filesystem\ISimpleResourceLoader.h" />
     <ClInclude Include="IBonusTypeHandler.h" />
     <ClInclude Include="mapping\CCampaignHandler.h" />
