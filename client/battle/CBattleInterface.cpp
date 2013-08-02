@@ -34,12 +34,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../CMT.h"
 
-#if defined(_MSC_VER) && _MSC_VER >= 1800
-#define _USE_MATH_DEFINES
-#include <cmath>
-#else
-const double M_PI = 3.14159265358979323846;
-#endif
+
 #include "../../lib/UnlockGuard.h"
 
 using namespace boost::assign;
