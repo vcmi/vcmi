@@ -4623,7 +4623,7 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 
 	//helper info
 	const SpellCreatedObstacle *spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(&obstacle); //not nice but we may need spell params
-	const ui8 side = curStack->attackerOwned; //if enemy is defending (false = 0), side of our hero is also 0 (attacker)
+	const ui8 side = !curStack->attackerOwned; //if enemy is defending (false = 0), side of enemy hero is 1 (true)
 	const CGHeroInstance *hero = gs->curB->battleGetFightingHero(side);
 
 	if(obstacle.obstacleType == CObstacleInstance::MOAT)
