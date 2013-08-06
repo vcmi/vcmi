@@ -1160,7 +1160,8 @@ bool CBattleInterface::isCatapultAttackable(BattleHex hex) const
 	if(wallUnder < 0) //invalid or indestructible
 		return false;
 
-	return curInt->cb->battleGetWallState(wallUnder) < EWallState::DESTROYED;
+	auto state = curInt->cb->battleGetWallState(wallUnder);
+	return state != EWallState::DESTROYED && state != EWallState::NONE;
 }
 
 const CGHeroInstance * CBattleInterface::getActiveHero()

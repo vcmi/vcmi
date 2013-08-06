@@ -416,7 +416,7 @@ bool CBattleInfoEssentials::battleHasHero(ui8 side) const
 	return getBattle()->sides[side].hero;
 }
 
-ui8 CBattleInfoEssentials::battleGetWallState(int partOfWall) const
+si8 CBattleInfoEssentials::battleGetWallState(int partOfWall) const
 {
 	RETURN_IF_NOT_BATTLE(0);
 	if(getBattle()->siege == CGTownInstance::NONE)
@@ -1410,33 +1410,41 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 	return attackedCres;
 }
 
-bool CBattleInfoCallback::isToReverseHlp (BattleHex hexFrom, BattleHex hexTo, bool curDir) const //TODO: this should apply also to mechanics and cursor interface
+//TODO: this should apply also to mechanics and cursor interface
+bool CBattleInfoCallback::isToReverseHlp (BattleHex hexFrom, BattleHex hexTo, bool curDir) const
 {
-	int fromMod = hexFrom % GameConstants::BFIELD_WIDTH;
-	int fromDiv = hexFrom / GameConstants::BFIELD_WIDTH;
-	int toMod = hexTo % GameConstants::BFIELD_WIDTH;
+	int fromX = hexFrom.getX();
+	int fromY = hexFrom.getY();
+	int toX = hexTo.getX();
+	int toY = hexTo.getY();
 
-	if(curDir && fromMod < toMod)
-		return false;
-	else if(curDir && fromMod > toMod)
-		return true;
-	else if(curDir && fromMod == toMod)
+	if (curDir) // attacker, facing right
 	{
-		return fromDiv % 2 == 0;
-	}
-	else if(!curDir && fromMod < toMod)
-		return true;
-	else if(!curDir && fromMod > toMod)
+		if (fromX < toX)
+			return false;
+		if (fromX > toX)
+			return true;
+
+		if (fromY % 2 == 0 && toY % 2 == 1)
+
+			return true;
 		return false;
-	else if(!curDir && fromMod == toMod)
-	{
-		return fromDiv % 2 == 1;
 	}
-    logGlobal->errorStream() << "Catastrope in CBattleInfoCallback::isToReverse!";
-	return false; //should never happen
+	else // defender, facing left
+	{
+		if(fromX < toX)
+			return true;
+		if(fromX > toX)
+			return false;
+
+		if (fromY % 2 == 1 && toY % 2 == 0)
+			return true;
+		return false;
+	}
 }
 
-bool CBattleInfoCallback::isToReverse (BattleHex hexFrom, BattleHex hexTo, bool curDir, bool toDoubleWide, bool toDir) const //TODO: this should apply also to mechanics and cursor interface
+//TODO: this should apply also to mechanics and cursor interface
+bool CBattleInfoCallback::isToReverse (BattleHex hexFrom, BattleHex hexTo, bool curDir, bool toDoubleWide, bool toDir) const
 {
 	if (hexTo < 0  ||  hexFrom < 0) //turret
 		return false;

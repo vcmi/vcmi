@@ -61,6 +61,9 @@ bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 
 	for(auto & elem : owner->pendingAnims)
 	{
+		if (elem.first == this)
+			continue;
+
 		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(elem.first);
 		CSpellEffectAnimation * sen = dynamic_cast<CSpellEffectAnimation *>(elem.first);
 		if(perStackConcurrency && stAnim && thAnim && stAnim->stack->ID != thAnim->stack->ID)
@@ -155,6 +158,9 @@ bool CDefenceAnimation::init()
 	ui32 lowestMoveID = owner->animIDhelper + 5;
 	for(auto & elem : owner->pendingAnims)
 	{
+		if (elem.first == this)
+			continue;
+
 		CDefenceAnimation * defAnim = dynamic_cast<CDefenceAnimation *>(elem.first);
 		if(defAnim && defAnim->stack->ID != stack->ID)
 			continue;
@@ -165,7 +171,7 @@ bool CDefenceAnimation::init()
 
 		CReverseAnimation * animAsRev = dynamic_cast<CReverseAnimation *>(elem.first);
 
-		if(animAsRev /*&& animAsRev->priority*/)
+		if(animAsRev)
 			return false;
 
 		if(elem.first)
@@ -174,6 +180,7 @@ bool CDefenceAnimation::init()
 
 	if(ID > lowestMoveID)
 		return false;
+
 
 	//reverse unit if necessary
 	if (attacker && owner->curInt->cb->isToReverse(stack->position, attacker->position, owner->creDir[stack->ID], attacker->doubleWide(), owner->creDir[attacker->ID]))

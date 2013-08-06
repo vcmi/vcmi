@@ -1539,7 +1539,6 @@ struct BattleAttack : public CPackForClient//3006
 	}
 	bool unlucky() const
 	{
-		//TODO: support?
 		return flags & UNLUCKY;
 	}
 	bool ballistaDoubleDmg() const //if it's ballista attack and does double dmg
