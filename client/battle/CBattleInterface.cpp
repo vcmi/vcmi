@@ -1189,16 +1189,16 @@ void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 	for(auto it = ca.attackedParts.begin(); it != ca.attackedParts.end(); ++it)
 	{
 		const CStack * stack = curInt->cb->battleGetStackByID(ca.attacker);
-		addNewAnim(new CShootingAnimation(this, stack, it->first.second, nullptr, true, it->second));
+		addNewAnim(new CShootingAnimation(this, stack, it->destinationTile, nullptr, true, it->damageDealt));
 	}
 
 	waitForAnims();
 
 	for(auto it = ca.attackedParts.begin(); it != ca.attackedParts.end(); ++it)
 	{
-		SDL_FreeSurface(siegeH->walls[it->first.first + 2]);
-		siegeH->walls[it->first.first + 2] = BitmapHandler::loadBitmap(
-			siegeH->getSiegeName(it->first.first + 2, curInt->cb->battleGetWallState(it->first.first)) );
+		SDL_FreeSurface(siegeH->walls[it->attackedPart + 2]);
+		siegeH->walls[it->attackedPart + 2] = BitmapHandler::loadBitmap(
+			siegeH->getSiegeName(it->attackedPart + 2, curInt->cb->battleGetWallState(it->attackedPart)) );
 	}
 }
 
@@ -2873,15 +2873,30 @@ CBattleInterface::SiegeHelper::~SiegeHelper()
 	}
 }
 
-std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInfo) const
+std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what) const
 {
-	if(what == 2 || what == 3 || what == 8)
-		vstd::amin(additInfo, 2);
-	else
-		vstd::amin(additInfo, 3);
+	return getSiegeName(what, EWallState::INTACT);
+}
+
+std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, int state) const
+{
+	auto getImageIndex = [&]() -> int
+	{
+		switch (state)
+		{
+		case EWallState::INTACT : return 1;
+		case EWallState::DAMAGED : return 2;
+		case EWallState::DESTROYED :
+			if(what == 2 || what == 3 || what == 8) // towers don't have separate image here
+				return 2;
+			else
+				return 3;
+		}
+		return 1;
+	};
 
 	std::string & prefix = town->town->clientInfo.siegePrefix;
-	std::string addit = boost::lexical_cast<std::string>(additInfo);
+	std::string addit = boost::lexical_cast<std::string>(getImageIndex());
 
 	switch(what)
 	{

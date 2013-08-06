@@ -33,7 +33,22 @@ struct BattleStackAttacked;
 //only for use in BattleInfo
 struct DLL_LINKAGE SiegeInfo
 {
-	ui8 wallState[EWallParts::PARTS_COUNT];
+	std::array<si8, EWallParts::PARTS_COUNT> wallState;
+
+	// return EWallState decreased by value of damage points
+	static EWallState::EWallState applyDamage(EWallState::EWallState state, unsigned int value)
+	{
+		if (value == 0)
+			return state;
+
+		switch (applyDamage(state, value - 1))
+		{
+		case EWallState::INTACT    : return EWallState::DAMAGED;
+		case EWallState::DAMAGED   : return EWallState::DESTROYED;
+		case EWallState::DESTROYED : return EWallState::DESTROYED;
+		default: return EWallState::NONE;
+		}
+	}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

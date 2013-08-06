@@ -5,7 +5,7 @@
 	"title" : "VCMI siege screen format",
 	"description" : "Format used to define town siege screen in VCMI",
 	"required" : [
-		"gate", "imagePrefix", "moat", "shooterHeight", "shooter",
+		"gate", "imagePrefix", "moat", "shooter",
 		"static", "towers", "walls"
 	 ],
 	

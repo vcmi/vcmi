@@ -1947,7 +1947,7 @@ void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 		if(answer)
 			cb->startBattleI(hero, this);
 	}
-	else if(relations == PlayerRelations::SAME_PLAYER && answer)
+	else if(answer)
 	{
 		heroAcceptsCreatures(hero);
 	}

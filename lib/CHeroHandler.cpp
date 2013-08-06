@@ -418,6 +418,8 @@ void CHeroHandler::loadBallistics()
 		bli.twoDmg = ballParser.readNumber();
 		bli.sum    = ballParser.readNumber();
 		ballistics.push_back(bli);
+
+		assert(bli.noDmg + bli.oneDmg + bli.twoDmg == 100 && bli.sum == 100);
 	}
 	while (ballParser.endLine());
 }

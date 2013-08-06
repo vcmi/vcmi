@@ -248,6 +248,8 @@ public:
 	si8 battleHasDistancePenalty(const IBonusBearer *bonusBearer, BattleHex shooterPosition, BattleHex destHex ) const;
 	si8 battleHasWallPenalty(const CStack * stack, BattleHex destHex) const; //checks if given stack has wall penalty
 	si8 battleHasWallPenalty(const IBonusBearer *bonusBearer, BattleHex shooterPosition, BattleHex destHex) const; //checks if given stack has wall penalty
+
+	BattleHex wallPartToBattleHex(EWallParts::EWallParts part) const;
 	EWallParts::EWallParts battleHexToWallPart(BattleHex hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 
 	//*** MAGIC 

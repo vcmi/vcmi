@@ -379,9 +379,20 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	//setting up siege obstacles
 	if (town && town->hasFort())
 	{
-		for (int b = 0; b < ARRAY_COUNT (curB->si.wallState); ++b)
+		for (int b = 0; b < curB->si.wallState.size(); ++b)
 		{
-			curB->si.wallState[b] = 1;
+			curB->si.wallState[b] = EWallState::INTACT;
+		}
+
+		if (!town->hasBuilt(BuildingID::CITADEL))
+		{
+			curB->si.wallState[EWallParts::KEEP] = EWallState::NONE;
+		}
+
+		if (!town->hasBuilt(BuildingID::CASTLE))
+		{
+			curB->si.wallState[EWallParts::UPPER_TOWER] = EWallState::NONE;
+			curB->si.wallState[EWallParts::BOTTOM_TOWER] = EWallState::NONE;
 		}
 	}
 

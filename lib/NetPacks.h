@@ -1665,14 +1665,24 @@ struct ObstaclesRemoved : public CPackForClient //3014
 
 struct CatapultAttack : public CPackForClient //3015
 {
+	struct AttackInfo
+	{
+		si16 destinationTile;
+		ui8 attackedPart;
+		ui8 damageDealt;
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & destinationTile & attackedPart & damageDealt;
+		}
+	};
+
 	CatapultAttack(){type = 3015;}
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	std::set< std::pair< std::pair< ui8, si16 >, ui8> > attackedParts; // < <attackedPartOfWall, attacked hex >, damageDealt>
-	//attackedPartOfWall; //[0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate;
-	//damageDealt;
+	std::vector< AttackInfo > attackedParts;
 
 	int attacker; //if -1, then a spell caused this
 

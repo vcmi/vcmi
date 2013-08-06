@@ -199,7 +199,13 @@ private:
 		~SiegeHelper(); //d-tor
 
 		//filename getters
-		std::string getSiegeName(ui16 what, ui16 additInfo = 1) const; //what: 0 - background, 1 - background wall, 2 - keep, 3 - bottom tower, 4 - bottom wall, 5 - below gate, 6 - over gate, 7 - upper wall, 8 - uppert tower, 9 - gate, 10 - gate arch, 11 - bottom static wall, 12 - upper static wall, 13 - moat, 14 - mlip, 15 - keep creature cover, 16 - bottom turret creature cover, 17 - upper turret creature cover; additInfo: 1 - intact, 2 - damaged, 3 - destroyed
+		//what: 0 - background,  1 - background wall,  2 - keep,          3 - bottom tower,  4 - bottom wall,
+		//      5 - below gate,  6 - over gate,        7 - upper wall,    8 - upper tower,   9 - gate,
+		//      10 - gate arch, 11 - bottom static    12 - upper static, 13 - moat,         14 - moat background,
+		//      15 - keep battlement, 16 - bottom battlement, 17 - upper battlement;
+		//      state uses EWallState enum
+		std::string getSiegeName(ui16 what) const;
+		std::string getSiegeName(ui16 what, int state) const;
 
 		void printPartOfWall(SDL_Surface * to, int what);//what: 1 - background wall, 2 - keep, 3 - bottom tower, 4 - bottom wall, 5 - below gate, 6 - over gate, 7 - upper wall, 8 - uppert tower, 9 - gate, 10 - gate arch, 11 - bottom static wall, 12 - upper static wall, 15 - keep creature cover, 16 - bottom turret creature cover, 17 - upper turret creature cover
 

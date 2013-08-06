@@ -3513,102 +3513,139 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case Battle::CATAPULT:
 		{
+			auto getCatapultHitChance = [&](EWallParts::EWallParts part, const CHeroHandler::SBallisticsLevelInfo & sbi) -> int
+			{
+				switch(part)
+				{
+				case EWallParts::GATE:
+					return sbi.gate;
+				case EWallParts::KEEP:
+					return sbi.keep;
+				case EWallParts::BOTTOM_TOWER:
+				case EWallParts::UPPER_TOWER:
+					return sbi.tower;
+				case EWallParts::BOTTOM_WALL:
+				case EWallParts::BELOW_GATE:
+				case EWallParts::OVER_GATE:
+				case EWallParts::UPPER_WALL:
+					return sbi.wall;
+				default:
+					return 0;
+				}
+			};
+
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
 			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(SecondarySkill::BALLISTICS)];
 
-			EWallParts::EWallParts attackedPart = gs->curB->battleHexToWallPart(ba.destinationTile);
-			if(attackedPart < 0)
+			EWallParts::EWallParts desiredTarget = gs->curB->battleHexToWallPart(ba.destinationTile);
+			if(desiredTarget < 0)
 			{
 				complain("catapult tried to attack non-catapultable hex!");
 				break;
 			}
-			int wallInitHP = gs->curB->si.wallState[attackedPart];
-			int dmgAlreadyDealt = 0; //in successive iterations damage is dealt but not yet subtracted from wall's HPs
+
+			//in successive iterations damage is dealt but not yet subtracted from wall's HPs
+			auto currentHP = gs->curB->si.wallState;
+
+			if (currentHP[desiredTarget] != EWallState::DESTROYED &&
+			    currentHP[desiredTarget] != EWallState::NONE)
+				desiredTarget = EWallParts::INVALID;
+
 			for(int g=0; g<sbi.shots; ++g)
 			{
-				if(wallInitHP + dmgAlreadyDealt == 3) //it's not destroyed
-					continue;
+				bool hitSuccessfull = false;
+				EWallParts::EWallParts attackedPart = desiredTarget;
+
+				do // catapult has chance to attack desired target. Othervice - attacks randomly
+				{
+					if(currentHP[attackedPart] != EWallState::DESTROYED && // this part can be hit
+					   currentHP[attackedPart] != EWallState::NONE &&
+					   rand()%100 < getCatapultHitChance(attackedPart, sbi))//hit is successful
+					{
+						hitSuccessfull = true;
+					}
+					else // select new target
+					{
+						std::vector<EWallParts::EWallParts> allowedTargets;
+						for (size_t i=0; i< currentHP.size(); i++)
+						{
+							if (currentHP[i] != EWallState::DESTROYED &&
+							    currentHP[i] != EWallState::NONE)
+								allowedTargets.push_back(EWallParts::EWallParts(i));
+						}
+						if (allowedTargets.empty())
+							break;
+						attackedPart = allowedTargets[rand()%allowedTargets.size()];
+					}
+				}
+				while (!hitSuccessfull);
+
+				if (!hitSuccessfull) // break triggered - no target to shoot at
+					break;
 
 				CatapultAttack ca; //package for clients
-				std::pair< std::pair< ui8, si16 >, ui8> attack; //<< attackedPart , destination tile >, damageDealt >
-				attack.first.first = attackedPart;
-				attack.first.second = ba.destinationTile;
-				attack.second = 0;
+				CatapultAttack::AttackInfo attack;
+				attack.attackedPart = attackedPart;
+				attack.destinationTile = ba.destinationTile;
+				attack.damageDealt = 0;
 
-				int chanceForHit = 0;
 				int dmgChance[] = { sbi.noDmg, sbi.oneDmg, sbi.twoDmg }; //dmgChance[i] - chance for doing i dmg when hit is successful
-				switch(attackedPart)
+
+				int dmgRand = rand()%100;
+				//accumulating dmgChance
+				dmgChance[1] += dmgChance[0];
+				dmgChance[2] += dmgChance[1];
+				//calculating dealt damage
+				for(int damage = 0; damage < ARRAY_COUNT(dmgChance); ++damage)
 				{
-				case EWallParts::KEEP:
-					chanceForHit = sbi.keep;
-					break;
-				case EWallParts::BOTTOM_TOWER:
-				case EWallParts::UPPER_TOWER:
-					chanceForHit = sbi.tower;
-					break;
-				case EWallParts::BOTTOM_WALL:
-				case EWallParts::BELOW_GATE:
-				case EWallParts::OVER_GATE:
-				case EWallParts::UPPER_WAL:
-					chanceForHit = sbi.wall;
-					break;
-				case EWallParts::GATE:
-					chanceForHit = sbi.gate;
-					break;
+					if(dmgRand <= dmgChance[damage])
+					{
+						currentHP[attackedPart] = SiegeInfo::applyDamage(EWallState::EWallState(currentHP[attackedPart]), damage);
+
+						attack.damageDealt = damage;
+						break;
+					}
 				}
+				// attacked tile may have changed - update destination
+				attack.destinationTile = gs->curB->wallPartToBattleHex(EWallParts::EWallParts(attack.attackedPart));
 
-				if(rand()%100 <= chanceForHit) //hit is successful
+				logGlobal->traceStream() << "Catapult attacks " << (int)attack.attackedPart
+				                         << " dealing " << (int)attack.damageDealt << " damage";
+
+				//removing creatures in turrets / keep if one is destroyed
+				if(attack.damageDealt > 0 && (attackedPart == EWallParts::KEEP ||
+					attackedPart == EWallParts::BOTTOM_TOWER || attackedPart == EWallParts::UPPER_TOWER))
 				{
-					int dmgRand = rand()%100;
-					//accumulating dmgChance
-					dmgChance[1] += dmgChance[0];
-					dmgChance[2] += dmgChance[1];
-					//calculating dealt damage
-					for(int v = 0; v < ARRAY_COUNT(dmgChance); ++v)
+					int posRemove = -1;
+					switch(attackedPart)
 					{
-						if(dmgRand <= dmgChance[v])
+					case EWallParts::KEEP:
+						posRemove = -2;
+						break;
+					case EWallParts::BOTTOM_TOWER:
+						posRemove = -3;
+						break;
+					case EWallParts::UPPER_TOWER:
+						posRemove = -4;
+						break;
+					}
+
+					BattleStacksRemoved bsr;
+					for(auto & elem : gs->curB->stacks)
+					{
+						if(elem->position == posRemove)
 						{
-							attack.second = std::min(3 - dmgAlreadyDealt - wallInitHP, v);
-							dmgAlreadyDealt += attack.second;
+							bsr.stackIDs.insert( elem->ID );
 							break;
 						}
 					}
 
-					//removing creatures in turrets / keep if one is destroyed
-					if(attack.second > 0 && (attackedPart == EWallParts::KEEP ||
-						attackedPart == EWallParts::BOTTOM_TOWER || attackedPart == EWallParts::UPPER_TOWER))
-					{
-						int posRemove = -1;
-						switch(attackedPart)
-						{
-						case EWallParts::KEEP:
-							posRemove = -2;
-							break;
-						case EWallParts::BOTTOM_TOWER:
-							posRemove = -3;
-							break;
-						case EWallParts::UPPER_TOWER:
-							posRemove = -4;
-							break;
-						}
-
-						BattleStacksRemoved bsr;
-						for(auto & elem : gs->curB->stacks)
-						{
-							if(elem->position == posRemove)
-							{
-								bsr.stackIDs.insert( elem->ID );
-								break;
-							}
-						}
-
-						sendAndApply(&bsr);
-					}
+					sendAndApply(&bsr);
 				}
 				ca.attacker = ba.stackNumber;
-				ca.attackedParts.insert(attack);
+				ca.attackedParts.push_back(attack);
 
 				sendAndApply(&ca);
 			}

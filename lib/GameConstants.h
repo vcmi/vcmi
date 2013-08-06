@@ -444,7 +444,7 @@ namespace EWallParts
 	enum EWallParts
 	{
 		INDESTRUCTIBLE_PART = -2, INVALID = -1,
-		KEEP = 0, BOTTOM_TOWER, BOTTOM_WALL, BELOW_GATE, OVER_GATE, UPPER_WAL, UPPER_TOWER, GATE,
+		KEEP = 0, BOTTOM_TOWER, BOTTOM_WALL, BELOW_GATE, OVER_GATE, UPPER_WALL, UPPER_TOWER, GATE,
 		PARTS_COUNT
 	};
 }
@@ -453,10 +453,12 @@ namespace EWallState
 {
 	enum EWallState
 	{
-		NONE, //no wall
-		INTACT,
+		NONE = -1, //no wall
+		DESTROYED,
 		DAMAGED,
-		DESTROYED
+		INTACT
+
+
 	};
 }
 

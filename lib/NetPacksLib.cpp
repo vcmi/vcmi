@@ -246,7 +246,10 @@ DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 		&& gs->map->objects[bonus.sid]->ID == Obj::EVENT) //it's morale/luck bonus from an event without description
 	{
 		descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
+
+		// Some of(?) versions of H3 use %s here instead of %d. Try to replace both of them
 		boost::replace_first(descr,"%d",boost::lexical_cast<std::string>(std::abs(bonus.val)));
+		boost::replace_first(descr,"%s",boost::lexical_cast<std::string>(std::abs(bonus.val)));
 	}
 	else
 	{
@@ -1471,8 +1474,8 @@ DLL_LINKAGE void CatapultAttack::applyGs( CGameState *gs )
 	{
 		for(const auto &it :attackedParts)
 		{
-			gs->curB->si.wallState[it.first.first] =
-				std::min( gs->curB->si.wallState[it.first.first] + it.second, 3 );
+			gs->curB->si.wallState[it.attackedPart] =
+			        SiegeInfo::applyDamage(EWallState::EWallState(gs->curB->si.wallState[it.attackedPart]), it.damageDealt);
 		}
 	}
 }

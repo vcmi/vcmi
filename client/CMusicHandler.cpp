@@ -476,10 +476,9 @@ MusicEntry::~MusicEntry()
 {
 	logGlobal->traceStream()<<"Del-ing music file "<<currentName;
 	if (music)
-	{
 		Mix_FreeMusic(music);
-		SDL_FreeRW(musicFile);
-	}
+	/*if (musicFile) // Mix_FreeMusic will also free file data? Needs checking
+		SDL_FreeRW(musicFile);*/
 }
 
 void MusicEntry::load(std::string musicURI)
@@ -488,8 +487,13 @@ void MusicEntry::load(std::string musicURI)
 	{
 		logGlobal->traceStream()<<"Del-ing music file "<<currentName;
 		Mix_FreeMusic(music);
-		SDL_FreeRW(musicFile);
+		music = nullptr;
 	}
+	/*if (musicFile) // Mix_FreeMusic will also free file data? Needs checking
+	{
+		SDL_FreeRW(musicFile);
+		musicFile = nullptr;
+	}*/
 
 	currentName = musicURI;
 
@@ -502,6 +506,7 @@ void MusicEntry::load(std::string musicURI)
 	if(!music)
 	{
 		SDL_FreeRW(musicFile);
+		musicFile = nullptr;
 		logGlobal->warnStream() << "Warning: Cannot open " << currentName << ": " << Mix_GetError();
 		return;
 	}

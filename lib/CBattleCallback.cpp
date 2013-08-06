@@ -54,27 +54,26 @@ namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 		return stackLeft != destLeft;
 	}
 
+	//potentially attackable parts of wall
+	static const std::pair<int, EWallParts::EWallParts> attackable[] =
+	{
+		std::make_pair(50,  EWallParts::KEEP),
+		std::make_pair(183, EWallParts::BOTTOM_TOWER),
+		std::make_pair(182, EWallParts::BOTTOM_WALL),
+		std::make_pair(130, EWallParts::BELOW_GATE),
+		std::make_pair(62,  EWallParts::OVER_GATE),
+		std::make_pair(29,  EWallParts::UPPER_WALL),
+		std::make_pair(12,  EWallParts::UPPER_TOWER),
+		std::make_pair(95,  EWallParts::GATE),
+		std::make_pair(96,  EWallParts::GATE),
+		std::make_pair(45,  EWallParts::INDESTRUCTIBLE_PART),
+		std::make_pair(78,  EWallParts::INDESTRUCTIBLE_PART),
+		std::make_pair(112, EWallParts::INDESTRUCTIBLE_PART),
+		std::make_pair(147, EWallParts::INDESTRUCTIBLE_PART)
+	};
+
 	static EWallParts::EWallParts hexToWallPart(BattleHex hex)
 	{
-		//potentially attackable parts of wall
-		// -2 - indestructible walls
-		static const std::pair<int, EWallParts::EWallParts> attackable[] =
-		{
-			std::make_pair(50,  EWallParts::KEEP),
-			std::make_pair(183, EWallParts::BOTTOM_TOWER),
-			std::make_pair(182, EWallParts::BOTTOM_WALL),
-			std::make_pair(130, EWallParts::BELOW_GATE),
-			std::make_pair(62,  EWallParts::OVER_GATE),
-			std::make_pair(29,  EWallParts::UPPER_WAL),
-			std::make_pair(12,  EWallParts::UPPER_TOWER),
-			std::make_pair(95,  EWallParts::GATE),
-			std::make_pair(96,  EWallParts::GATE),
-			std::make_pair(45,  EWallParts::INDESTRUCTIBLE_PART),
-			std::make_pair(78,  EWallParts::INDESTRUCTIBLE_PART),
-			std::make_pair(112, EWallParts::INDESTRUCTIBLE_PART),
-			std::make_pair(147, EWallParts::INDESTRUCTIBLE_PART)
-		};
-
 		for(auto & elem : attackable)
 		{
 			if(elem.first == hex)
@@ -82,6 +81,17 @@ namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 		}
 
 		return EWallParts::INVALID; //not found!
+	}
+
+	static BattleHex WallPartToHex(EWallParts::EWallParts part)
+	{
+		for(auto & elem : attackable)
+		{
+			if(elem.second == part)
+				return elem.first;
+		}
+
+		return BattleHex::INVALID; //not found!
 	}
 }
 
@@ -410,7 +420,7 @@ ui8 CBattleInfoEssentials::battleGetWallState(int partOfWall) const
 {
 	RETURN_IF_NOT_BATTLE(0);
 	if(getBattle()->siege == CGTownInstance::NONE)
-		return 0;
+		return EWallState::NONE;
 
 	assert(partOfWall >= 0 && partOfWall < EWallParts::PARTS_COUNT);
 	return getBattle()->si.wallState[partOfWall];
@@ -1079,7 +1089,7 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	}
 
 	//gate -> should be before stacks
-	if(battleGetSiegeLevel() > 0 && battleGetWallState(EWallParts::GATE) < 3) //gate is not destroyed
+	if(battleGetSiegeLevel() > 0 && battleGetWallState(EWallParts::GATE) != EWallState::DESTROYED)
 	{
 		ret[95] = ret[96] = EAccessibility::GATE; //block gate's hexes
 	}
@@ -1113,7 +1123,7 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 
 		for(auto & elem : lockedIfNotDestroyed)
 		{
-			if(battleGetWallState(elem.first) < 3)
+			if(battleGetWallState(elem.first) != EWallState::DESTROYED)
 				ret[elem.second] = EAccessibility::DESTRUCTIBLE_WALL;
 		}
 	}
@@ -1489,6 +1499,12 @@ si8 CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer *bonusBeare
 	}
 
 	return true;
+}
+
+BattleHex CBattleInfoCallback::wallPartToBattleHex(EWallParts::EWallParts part) const
+{
+	RETURN_IF_NOT_BATTLE(BattleHex::INVALID);
+	return WallPartToHex(part);
 }
 
 EWallParts::EWallParts CBattleInfoCallback::battleHexToWallPart(BattleHex hex) const
