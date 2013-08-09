@@ -61,8 +61,6 @@ bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 
 	for(auto & elem : owner->pendingAnims)
 	{
-		if (elem.first == this)
-			continue;
 
 		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(elem.first);
 		CSpellEffectAnimation * sen = dynamic_cast<CSpellEffectAnimation *>(elem.first);
@@ -146,7 +144,7 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 
 CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, CBattleInterface * _owner)
 : CBattleStackAnimation(_owner, _attackedInfo.defender),
-attacker(_attackedInfo.attacker), rangedAttack(_attackedInfo.rangedAttack),
+attacker(_attackedInfo.attacker), rangedAttack(_attackedInfo.indirectAttack),
 killed(_attackedInfo.killed) 
 {}
 
@@ -158,8 +156,6 @@ bool CDefenceAnimation::init()
 	ui32 lowestMoveID = owner->animIDhelper + 5;
 	for(auto & elem : owner->pendingAnims)
 	{
-		if (elem.first == this)
-			continue;
 
 		CDefenceAnimation * defAnim = dynamic_cast<CDefenceAnimation *>(elem.first);
 		if(defAnim && defAnim->stack->ID != stack->ID)
@@ -167,6 +163,10 @@ bool CDefenceAnimation::init()
 
 		CAttackAnimation * attAnim = dynamic_cast<CAttackAnimation *>(elem.first);
 		if(attAnim && attAnim->stack->ID != stack->ID)
+			continue;
+
+		CSpellEffectAnimation * sen = dynamic_cast<CSpellEffectAnimation *>(elem.first);
+		if (sen)
 			continue;
 
 		CReverseAnimation * animAsRev = dynamic_cast<CReverseAnimation *>(elem.first);

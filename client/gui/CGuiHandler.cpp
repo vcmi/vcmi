@@ -525,7 +525,8 @@ void CFramerateManager::framerateDelay()
 
 	fps = ceil(1000.0 / timeElapsed);
 
-	//recalculate timeElapsed for external calls via getElapsed()
-	timeElapsed = currentTicks - lastticks;
+	// recalculate timeElapsed for external calls via getElapsed()
+	// limit it to 1000 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)
+	timeElapsed = std::min<ui32>(currentTicks - lastticks, 1000);
 	lastticks = SDL_GetTicks();
 }

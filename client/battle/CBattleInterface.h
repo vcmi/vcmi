@@ -57,7 +57,7 @@ struct StackAttackedInfo
 	unsigned int dmg; //damage dealt
 	unsigned int amountKilled; //how many creatures in stack has been killed
 	const CStack * attacker; //attacking stack
-	bool rangedAttack; //if true, stack has been attacked by shooting
+	bool indirectAttack; //if true, stack was attacked indirectly - spell or ranged attack
 	bool killed; //if true, stack has been killed
 	bool rebirth; //if true, play rebirth animation after all
 	bool cloneKilled;

@@ -1494,7 +1494,7 @@ struct BattleStackAttacked : public CPackForClient//3005
 	{
 		return flags & SECONDARY;
 	}
-	bool willRebirth() const//if stack was not a primary target (receives no spell effects)
+	bool willRebirth() const//resurrection, e.g. Phoenix
 	{
 		return flags & REBIRTH;
 	}
