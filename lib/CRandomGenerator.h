@@ -19,7 +19,7 @@ typedef std::function<double()> TRand;
 
 /// The random generator randomly generates integers and real numbers("doubles") between
 /// a given range. This is a header only class and mainly a wrapper for
-/// convenient usage of the boost random API.
+/// convenient usage of the standard random API.
 class CRandomGenerator
 {
 public:
@@ -38,7 +38,7 @@ public:
 	/// e.g.: auto a = gen.getRangeI(0,10); a(); a(); a();
 	TRandI getRangeI(int lower, int upper)
 	{
-		return boost::bind(TIntDist(lower, upper), gen);
+		return boost::bind(TIntDist(lower, upper), boost::ref(gen));
 	}
 	
 	int getInteger(int lower, int upper)
@@ -50,7 +50,7 @@ public:
 	/// e.g.: auto a = gen.getRangeI(0,10); a(); a(); a();
 	TRand getRange(double lower, double upper)
 	{
-		return boost::bind(TRealDist(lower, upper), gen);
+		return boost::bind(TRealDist(lower, upper), boost::ref(gen));
 	}
 	
 	double getDouble(double lower, double upper)

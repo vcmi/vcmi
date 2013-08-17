@@ -4,6 +4,7 @@
 #include "../JsonNode.h"
 #include "../filesystem/Filesystem.h"
 #include "../CDefObjInfoHandler.h"
+#include "../VCMI_Lib.h"
 
 MapRect::MapRect() : x(0), y(0), z(0), width(0), height(0)
 {
@@ -304,15 +305,6 @@ bool TerrainViewPattern::WeightedRule::isStandardRule() const
 		|| TerrainViewPattern::RULE_TRANSITION == name || TerrainViewPattern::RULE_NATIVE_STRONG == name;
 }
 
-boost::mutex CTerrainViewPatternConfig::smx;
-
-CTerrainViewPatternConfig & CTerrainViewPatternConfig::get()
-{
-	TLockGuard _(smx);
-	static CTerrainViewPatternConfig instance;
-	return instance;
-}
-
 CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 {
 	const JsonNode config(ResourceID("config/terrainViewPatterns.json"));
@@ -565,7 +557,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 	for(const auto & pos : invalidatedTerViews)
 	{
 		const auto & patterns =
-				CTerrainViewPatternConfig::get().getTerrainViewPatternsForGroup(getTerrainGroup(map->getTile(pos).terType));
+				VLC->terviewh->getTerrainViewPatternsForGroup(getTerrainGroup(map->getTile(pos).terType));
 
 		// Detect a pattern which fits best
 		int bestPattern = -1;
@@ -696,7 +688,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 				{
 					if(terType == centerTerType)
 					{
-						const auto & patternForRule = CTerrainViewPatternConfig::get().getTerrainViewPatternById(getTerrainGroup(centerTerType), rule.name);
+						const auto & patternForRule = VLC->terviewh->getTerrainViewPatternById(getTerrainGroup(centerTerType), rule.name);
 						if(patternForRule)
 						{
 							auto rslt = validateTerrainView(currentPos, *patternForRule, 1);
@@ -841,9 +833,9 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 	{
 		if(map->isInTheMap(pos))
 		{
-			auto & ptrConfig = CTerrainViewPatternConfig::get();
+			auto ptrConfig = VLC->terviewh;
 			auto terType = map->getTile(pos).terType;
-			auto valid = validateTerrainView(pos, ptrConfig.getTerrainTypePatternById("n1")).result;
+			auto valid = validateTerrainView(pos, ptrConfig->getTerrainTypePatternById("n1")).result;
 
 			// Special validity check for rock & water
 			if(valid && centerTerType != terType && (terType == ETerrainType::WATER || terType == ETerrainType::ROCK))
@@ -851,7 +843,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 				static const std::string patternIds[] = { "s1", "s2" };
 				for(auto & patternId : patternIds)
 				{
-					valid = !validateTerrainView(pos, ptrConfig.getTerrainTypePatternById(patternId)).result;
+					valid = !validateTerrainView(pos, ptrConfig->getTerrainTypePatternById(patternId)).result;
 					if(!valid) break;
 				}
 			}
@@ -861,7 +853,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 				static const std::string patternIds[] = { "n2", "n3" };
 				for(auto & patternId : patternIds)
 				{
-					valid = validateTerrainView(pos, ptrConfig.getTerrainTypePatternById(patternId)).result;
+					valid = validateTerrainView(pos, ptrConfig->getTerrainTypePatternById(patternId)).result;
 					if(valid) break;
 				}
 			}

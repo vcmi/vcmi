@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="BattleAction.cpp" />
+    <ClCompile Include="BattleHex.cpp" />
+    <ClCompile Include="BattleState.cpp" />
+    <ClCompile Include="CArtHandler.cpp" />
+    <ClCompile Include="CBonusTypeHandler.cpp" />
+    <ClCompile Include="CBuildingHandler.cpp" />
+    <ClCompile Include="CConfigHandler.cpp" />
+    <ClCompile Include="CConsoleHandler.cpp" />
+    <ClCompile Include="CCreatureHandler.cpp" />
+    <ClCompile Include="CCreatureSet.cpp" />
+    <ClCompile Include="CDefObjInfoHandler.cpp" />
+    <ClCompile Include="CGameInterface.cpp" />
+    <ClCompile Include="CGameState.cpp" />
+    <ClCompile Include="CGeneralTextHandler.cpp" />
+    <ClCompile Include="CHeroHandler.cpp" />
+    <ClCompile Include="CModHandler.cpp" />
+    <ClCompile Include="CObjectHandler.cpp" />
+    <ClCompile Include="CObstacleInstance.cpp" />
+    <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="CSpellHandler.cpp" />
+    <ClCompile Include="CThreadHelper.cpp" />
+    <ClCompile Include="CTownHandler.cpp" />
+    <ClCompile Include="GameConstants.cpp" />
+    <ClCompile Include="mapping\CCampaignHandler.cpp" />
+    <ClCompile Include="RegisterTypes.cpp" />
+    <ClCompile Include="HeroBonus.cpp" />
+    <ClCompile Include="CBattleCallback.cpp" />
+    <ClCompile Include="IGameCallback.cpp" />
+    <ClCompile Include="JsonNode.cpp" />
+    <ClCompile Include="NetPacksLib.cpp" />
+    <ClCompile Include="ResourceSet.cpp" />
+    <ClCompile Include="StdInc.cpp" />
+    <ClCompile Include="VCMIDirs.cpp" />
+    <ClCompile Include="VCMI_Lib.cpp" />
+    <ClCompile Include="rmg\CMapGenerator.cpp">
+      <Filter>rmg</Filter>
+    </ClCompile>
+    <ClCompile Include="rmg\CMapGenOptions.cpp">
+      <Filter>rmg</Filter>
+    </ClCompile>
+    <ClCompile Include="rmg\CRmgTemplate.cpp">
+      <Filter>rmg</Filter>
+    </ClCompile>
+    <ClCompile Include="rmg\CRmgTemplateStorage.cpp">
+      <Filter>rmg</Filter>
+    </ClCompile>
+    <ClCompile Include="rmg\CRmgTemplateZone.cpp">
+      <Filter>rmg</Filter>
+    </ClCompile>
+    <ClCompile Include="rmg\CZoneGraphGenerator.cpp">
+      <Filter>rmg</Filter>
+    </ClCompile>
+    <ClCompile Include="rmg\CZonePlacer.cpp">
+      <Filter>rmg</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\AdapterLoaders.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\CArchiveLoader.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="logging\CBasicLogConfigurator.cpp">
+      <Filter>logging</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\CBinaryReader.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\CCompressedStream.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\CMemoryStream.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\CZipLoader.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\Filesystem.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="mapping\MapFormatH3M.cpp">
+      <Filter>mapping</Filter>
+    </ClCompile>
+    <ClCompile Include="mapping\CMapService.cpp">
+      <Filter>mapping</Filter>
+    </ClCompile>
+    <ClCompile Include="mapping\CMapInfo.cpp">
+      <Filter>mapping</Filter>
+    </ClCompile>
+    <ClCompile Include="mapping\CMapEditManager.cpp">
+      <Filter>mapping</Filter>
+    </ClCompile>
+    <ClCompile Include="mapping\CMap.cpp">
+      <Filter>mapping</Filter>
+    </ClCompile>
+    <ClCompile Include="logging\CLogger.cpp">
+      <Filter>logging</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\CFilesystemLoader.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\CFileInputStream.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\CFileInfo.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Global.h" />
+    <ClInclude Include="AI_Base.h" />
+    <ClInclude Include="BattleAction.h" />
+    <ClInclude Include="BattleHex.h" />
+    <ClInclude Include="BattleState.h" />
+    <ClInclude Include="CArtHandler.h" />
+    <ClInclude Include="CBonusTypeHandler.h" />
+    <ClInclude Include="CBuildingHandler.h" />
+    <ClInclude Include="CConfigHandler.h" />
+    <ClInclude Include="CConsoleHandler.h" />
+    <ClInclude Include="CCreatureHandler.h" />
+    <ClInclude Include="CCreatureSet.h" />
+    <ClInclude Include="CDefObjInfoHandler.h" />
+    <ClInclude Include="CGameInterface.h" />
+    <ClInclude Include="CGameState.h" />
+    <ClInclude Include="CGeneralTextHandler.h" />
+    <ClInclude Include="CHeroHandler.h" />
+    <ClInclude Include="CModHandler.h" />
+    <ClInclude Include="CObjectHandler.h" />
+    <ClInclude Include="CObstacleInstance.h" />
+    <ClInclude Include="CondSh.h" />
+    <ClInclude Include="Connection.h" />
+    <ClInclude Include="ConstTransitivePtr.h" />
+    <ClInclude Include="CRandomGenerator.h" />
+    <ClInclude Include="CScriptingModule.h" />
+    <ClInclude Include="CSpellHandler.h" />
+    <ClInclude Include="CStopWatch.h" />
+    <ClInclude Include="CThreadHelper.h" />
+    <ClInclude Include="CTownHandler.h" />
+    <ClInclude Include="IBonusTypeHandler.h" />
+    <ClInclude Include="mapping\CCampaignHandler.h" />
+    <ClInclude Include="GameConstants.h" />
+    <ClInclude Include="HeroBonus.h" />
+    <ClInclude Include="CBattleCallback.h" />
+    <ClInclude Include="IGameCallback.h" />
+    <ClInclude Include="IGameEventsReceiver.h" />
+    <ClInclude Include="int3.h" />
+    <ClInclude Include="Interprocess.h" />
+    <ClInclude Include="JsonNode.h" />
+    <ClInclude Include="NetPacks.h" />
+    <ClInclude Include="RegisterTypes.h" />
+    <ClInclude Include="ResourceSet.h" />
+    <ClInclude Include="StartInfo.h" />
+    <ClInclude Include="StdInc.h" />
+    <ClInclude Include="UnlockGuard.h" />
+    <ClInclude Include="VCMI_Lib.h" />
+    <ClInclude Include="VCMIDirs.h" />
+    <ClInclude Include="rmg\CMapGenerator.h">
+      <Filter>rmg</Filter>
+    </ClInclude>
+    <ClInclude Include="rmg\CMapGenOptions.h">
+      <Filter>rmg</Filter>
+    </ClInclude>
+    <ClInclude Include="rmg\CRmgTemplate.h">
+      <Filter>rmg</Filter>
+    </ClInclude>
+    <ClInclude Include="rmg\CRmgTemplateStorage.h">
+      <Filter>rmg</Filter>
+    </ClInclude>
+    <ClInclude Include="rmg\CRmgTemplateZone.h">
+      <Filter>rmg</Filter>
+    </ClInclude>
+    <ClInclude Include="rmg\CZoneGraphGenerator.h">
+      <Filter>rmg</Filter>
+    </ClInclude>
+    <ClInclude Include="rmg\CZonePlacer.h">
+      <Filter>rmg</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\AdapterLoaders.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CArchiveLoader.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="logging\CBasicLogConfigurator.h">
+      <Filter>logging</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CBinaryReader.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CCompressedStream.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CInputStream.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CMemoryStream.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CZipLoader.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\Filesystem.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\ISimpleResourceLoader.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="mapping\MapFormatH3M.h">
+      <Filter>mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="mapping\CMapService.h">
+      <Filter>mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="mapping\CMapInfo.h">
+      <Filter>mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="mapping\CMapEditManager.h">
+      <Filter>mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="mapping\CMap.h">
+      <Filter>mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="logging\CLogger.h">
+      <Filter>logging</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CFilesystemLoader.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CFileInputStream.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CFileInfo.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="rmg">
+      <UniqueIdentifier>{3d02cdc5-d660-4937-8753-9633a07ad25a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mapping">
+      <UniqueIdentifier>{00f77034-143f-4867-b422-c16e9f2bd3cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="logging">
+      <UniqueIdentifier>{e967e59c-781a-4794-9382-4a7a6d166cbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="filesystem">
+      <UniqueIdentifier>{96f9ac5c-05d9-43ae-b715-a1e6234075cd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

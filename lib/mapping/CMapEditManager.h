@@ -279,7 +279,8 @@ struct DLL_LINKAGE TerrainViewPattern
 class DLL_LINKAGE CTerrainViewPatternConfig : public boost::noncopyable
 {
 public:
-	static CTerrainViewPatternConfig & get();
+	CTerrainViewPatternConfig();
+	~CTerrainViewPatternConfig();
 
 	const std::vector<TerrainViewPattern> & getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
 	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
@@ -287,12 +288,8 @@ public:
 	ETerrainGroup::ETerrainGroup getTerrainGroup(const std::string & terGroup) const;
 
 private:
-	CTerrainViewPatternConfig();
-	~CTerrainViewPatternConfig();
-
 	std::map<ETerrainGroup::ETerrainGroup, std::vector<TerrainViewPattern> > terrainViewPatterns;
 	std::map<std::string, TerrainViewPattern> terrainTypePatterns;
-	static boost::mutex smx;
 };
 
 /// The CDrawTerrainOperation class draws a terrain area on the map.

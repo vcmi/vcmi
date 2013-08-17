@@ -892,6 +892,7 @@ typedef std::pair<ui32, ui32> TDmgRange;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;
 
+typedef int TRmgTemplateZoneId;
 
 #undef ID_LIKE_CLASS_COMMON
 #undef ID_LIKE_OPERATORS_DECLS

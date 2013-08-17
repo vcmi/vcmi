@@ -27,6 +27,8 @@
 #include "VCMIDirs.h"
 #include "filesystem/Filesystem.h"
 #include "CConsoleHandler.h"
+#include "rmg/CRmgTemplateStorage.h"
+#include "mapping/CMapEditManager.h"
 
 LibClasses * VLC = nullptr;
 
@@ -111,6 +113,10 @@ void LibClasses::init()
 
 	createHandler(spellh, "Spell", pomtime);
 
+	createHandler(terviewh, "Terrain view pattern", pomtime);
+
+	createHandler(tplh, "Template", pomtime);
+
 	logGlobal->infoStream()<<"\tInitializing handlers: "<< totalTime.getDiff();
 
 	modh->loadGameContent();
@@ -133,6 +139,8 @@ void LibClasses::clear()
 	delete spellh;
 	delete modh;
 	delete bth;
+	delete tplh;
+	delete terviewh;
 	makeNull();
 }
 
@@ -148,6 +156,8 @@ void LibClasses::makeNull()
 	spellh = nullptr;
 	modh = nullptr;
 	bth = nullptr;
+	tplh = nullptr;
+	terviewh = nullptr;
 }
 
 LibClasses::LibClasses()

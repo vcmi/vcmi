@@ -21,6 +21,7 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/int3.h"
 #include "../lib/CRandomGenerator.h"
+#include "../lib/VCMI_Lib.h"
 
 BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 {
@@ -102,10 +103,10 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 			if(patternParts.size() != 2) throw std::runtime_error("A pattern should consist of two parts, the group and the id. Continue with next pattern.");
 			const auto & groupStr = patternParts[0];
 			const auto & id = patternParts[1];
-			auto terGroup = CTerrainViewPatternConfig::get().getTerrainGroup(groupStr);
+			auto terGroup = VLC->terviewh->getTerrainGroup(groupStr);
 
 			// Get mapping range
-			const auto & pattern = CTerrainViewPatternConfig::get().getTerrainViewPatternById(terGroup, id);
+			const auto & pattern = VLC->terviewh->getTerrainViewPatternById(terGroup, id);
 			const auto & mapping = (*pattern).mapping;
 
 			const auto & positionsNode = node["pos"].Vector();

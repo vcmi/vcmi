@@ -27,6 +27,12 @@ set(lib_SRCS
 		mapping/MapFormatH3M.cpp
 
 		rmg/CMapGenerator.cpp
+		rmg/CMapGenOptions.cpp
+		rmg/CRmgTemplate.cpp
+		rmg/CRmgTemplateZone.cpp
+		rmg/CRmgTemplateStorage.cpp
+		rmg/CZoneGraphGenerator.cpp
+		rmg/CZonePlacer.cpp
 
 		BattleAction.cpp
 		BattleHex.cpp

@@ -22,6 +22,8 @@ class CGeneralTextHandler;
 class CModHandler;
 class IBonusTypeHandler;
 class CBonusTypeHandler;
+class CTerrainViewPatternConfig;
+class CRmgTemplateStorage;
 
 /// Loads and constructs several handlers
 class DLL_LINKAGE LibClasses
@@ -44,6 +46,8 @@ public:
 	CTownHandler * townh;
 	CGeneralTextHandler * generaltexth;
 	CModHandler * modh;
+	CTerrainViewPatternConfig * terviewh;
+	CRmgTemplateStorage * tplh;
 
 	LibClasses(); //c-tor, loads .lods and NULLs handlers
 	~LibClasses();

@@ -212,6 +212,12 @@
     <ClCompile Include="JsonNode.cpp" />
     <ClCompile Include="NetPacksLib.cpp" />
     <ClCompile Include="ResourceSet.cpp" />
+    <ClCompile Include="rmg\CMapGenOptions.cpp" />
+    <ClCompile Include="rmg\CRmgTemplate.cpp" />
+    <ClCompile Include="rmg\CRmgTemplateStorage.cpp" />
+    <ClCompile Include="rmg\CRmgTemplateZone.cpp" />
+    <ClCompile Include="rmg\CZoneGraphGenerator.cpp" />
+    <ClCompile Include="rmg\CZonePlacer.cpp" />
     <ClCompile Include="StdInc.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VCMI_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -287,6 +293,12 @@
     <ClInclude Include="NetPacks.h" />
     <ClInclude Include="RegisterTypes.h" />
     <ClInclude Include="ResourceSet.h" />
+    <ClInclude Include="rmg\CMapGenOptions.h" />
+    <ClInclude Include="rmg\CRmgTemplate.h" />
+    <ClInclude Include="rmg\CRmgTemplateStorage.h" />
+    <ClInclude Include="rmg\CRmgTemplateZone.h" />
+    <ClInclude Include="rmg\CZoneGraphGenerator.h" />
+    <ClInclude Include="rmg\CZonePlacer.h" />
     <ClInclude Include="StartInfo.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="UnlockGuard.h" />

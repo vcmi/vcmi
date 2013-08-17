@@ -58,7 +58,9 @@ if (ENABLE_EDITOR)
 endif()
 
 if(ENABLE_TEST)
-	find_package(Boost 1.46.0 COMPONENTS unit_test_framework REQUIRED)
+	# find_package overwrites BOOST_* variables which are already set, so all components have to be
+	# included again
+	find_package(Boost 1.46.0 COMPONENTS program_options filesystem system thread unit_test_framework REQUIRED)
 endif()
 
 if(NOT WIN32)
@@ -80,7 +82,7 @@ if(NOT WIN32)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wno-switch -Wno-sign-compare -Wno-unused-parameter -Wno-overloaded-virtual")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wno-switch -Wno-sign-compare -Wno-unused-parameter -Wno-overloaded-virtual -Wno-mismatched-tags")
 endif()
 
 if(WIN32) # on Win everything goes into H3 root directory
