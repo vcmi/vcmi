@@ -628,9 +628,9 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	}
 
 	//give exp
-	if (battleResult.data->exp[0] && hero1)
+	if (battleResult.data->exp[0] && hero1 && battleResult.get()->winner == 0)
 		changePrimSkill(hero1, PrimarySkill::EXPERIENCE, battleResult.data->exp[0]);
-	else if (battleResult.data->exp[1] && hero2)
+	else if (battleResult.data->exp[1] && hero2 && battleResult.get()->winner == 1)
 		changePrimSkill(hero2, PrimarySkill::EXPERIENCE, battleResult.data->exp[1]);
 
 	queries.popIfTop(battleQuery);
@@ -3536,6 +3536,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
+			auto makeScopeGuard([&]{ sendAndApply(&end_action); }); //if we started than we have to finish
+
 			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(SecondarySkill::BALLISTICS)];
 
@@ -3547,11 +3549,13 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			}
 
 			//in successive iterations damage is dealt but not yet subtracted from wall's HPs
-			auto currentHP = gs->curB->si.wallState;
+			auto &currentHP = gs->curB->si.wallState;
 
-			if (currentHP[desiredTarget] != EWallState::DESTROYED &&
-			    currentHP[desiredTarget] != EWallState::NONE)
-				desiredTarget = EWallParts::INVALID;
+			if (currentHP[desiredTarget] == EWallState::DESTROYED  ||  currentHP[desiredTarget] == EWallState::NONE)
+			{
+				complain("catapult tried to attack already destroyed wall part!");
+				break;
+			}
 
 			for(int g=0; g<sbi.shots; ++g)
 			{
@@ -3649,7 +3653,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 				sendAndApply(&ca);
 			}
-			sendAndApply(&end_action);
+			//finish by scope guard
 			break;
 		}
 		case Battle::STACK_HEAL: //healing with First Aid Tent
