@@ -290,6 +290,15 @@ void CClient::loadGame( const std::string & fname )
 	serv->enableStackSendingByID();
 	serv->disableSmartPointerSerialization();
 
+// 	logGlobal->traceStream() << "Objects:";
+// 	for(int i = 0; i < gs->map->objects.size(); i++)
+// 	{
+// 		auto o = gs->map->objects[i];
+// 		if(o)
+// 			logGlobal->traceStream() << boost::format("\tindex=%5d, id=%5d; address=%5d, pos=%s, name=%s") % i % o->id % (int)o.get() % o->pos % o->getHoverText();
+// 		else
+// 			logGlobal->traceStream() << boost::format("\tindex=%5d --- nullptr") % i;
+// 	}
 }
 
 void CClient::newGame( CConnection *con, StartInfo *si )

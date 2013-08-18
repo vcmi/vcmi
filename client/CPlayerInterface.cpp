@@ -1183,7 +1183,12 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	if(h.saving)
 	{
 		for(auto &p : paths)
-			pathsMap[p.first] = p.second.endPos();
+		{
+			if(p.second.nodes.size())
+				pathsMap[p.first] = p.second.endPos();
+			else
+				logGlobal->errorStream() << p.first->name << " has assigned an empty path! Ignoring it...";
+		}
 		h & pathsMap;
 	}
 	else

@@ -268,6 +268,16 @@ public:
 
 };
 
+template<typename T>
+std::ostream &operator<<(std::ostream &out, const boost::optional<T> &opt)
+{
+	if(opt)
+		return out << *opt;
+	else
+		return out<< "empty";
+}
+
+
 namespace vstd
 {
 	

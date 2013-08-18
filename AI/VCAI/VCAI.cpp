@@ -907,6 +907,7 @@ void VCAI::saveGame(COSer<CSaveFile> &h, const int version)
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
+	validateVisitableObjs();
 	CAdventureAI::saveGame(h, version);
 	serializeInternal(h, version);
 }
@@ -1018,6 +1019,11 @@ void VCAI::makeTurnInternal()
 			boost::sort (hero.second, isCloser);
 			for (auto obj : hero.second)
 			{
+				if(!obj || !obj->defInfo || !cb->getObj(obj->id))
+				{
+					logAi->errorStream() << "Error: there is wrong object on list for hero " << hero.first->name;
+					continue;
+				}
 				striveToGoal (CGoal(VISIT_TILE).sethero(hero.first).settile(obj->visitablePos()));
 			}
 		}
@@ -1102,7 +1108,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 
 void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 {
-	if(t->visitingHero && t->armedGarrison())
+	if(t->visitingHero && t->armedGarrison() && t->visitingHero->tempOwner == t->tempOwner)
 	{
 		pickBestCreatures (t->visitingHero, t);
 	}
@@ -1110,6 +1116,13 @@ void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 
 bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * source)
 { //TODO: merge with pickBestCreatures
+	if(army->tempOwner != source->tempOwner)
+	{
+		logAi->errorStream() << "Why are we even considering exchange between heroes from different players?";
+		return false;
+	}
+
+
 	const CArmedInstance *armies[] = {army, source};
 	int armySize = 0; 
 	//we calculate total strength for each creature type available in armies
@@ -1438,6 +1451,7 @@ void VCAI::wander(HeroPtr h)
 {
 	while(1)
 	{
+		validateVisitableObjs();
 		std::vector <ObjectIdRef> dests;
 		range::copy(reservedHeroesMap[h], std::back_inserter(dests));
 		if (!dests.size())
@@ -1598,21 +1612,41 @@ void VCAI::reserveObject(HeroPtr h, const CGObjectInstance *obj)
 {
 	reservedObjs.push_back(obj);
 	reservedHeroesMap[h].push_back(obj);
+	logAi->debugStream() << "reserved object id=" << obj->id << "; address=" << (int)obj << "; name=" << obj->getHoverText();
 }
 
 void VCAI::validateVisitableObjs()
 {
 	std::vector<const CGObjectInstance *> hlp;
 	retreiveVisitableObjs(hlp, true);
-	erase_if(visitableObjs, [&](const CGObjectInstance *obj) -> bool
+
+	std::string errorMsg;
+	auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
 	{
 		if(!vstd::contains(hlp, obj))
 		{
-            logAi->errorStream() << helperObjInfo[obj].name << " at " << helperObjInfo[obj].pos << " shouldn't be on list!";
+			logAi->errorStream() << helperObjInfo[obj].name << " at " << helperObjInfo[obj].pos << errorMsg;
 			return true;
 		}
 		return false;
-	});
+	};
+
+	//errorMsg is captured by ref so lambda will take the new text
+	errorMsg = " shouldn't be on the visitable objects list!";
+	erase_if(visitableObjs, shouldBeErased);
+
+	for(auto &p : reservedHeroesMap)
+	{
+		errorMsg = " shouldn't be on list for hero " + p.first->name + "!";
+		erase_if(p.second, shouldBeErased);
+	}
+
+	errorMsg = " shouldn't be on the reserved objs list!";
+	erase_if(reservedObjs, shouldBeErased);
+
+	//TODO overkill, hidden object should not be removed. However, we can't know if hidden object is erased from game.
+	errorMsg = " shouldn't be on the already visited objs list!";
+	erase_if(alreadyVisited, shouldBeErased);
 }
 
 void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned /*= false*/) const
@@ -2575,6 +2609,8 @@ void VCAI::validateObject(ObjectIdRef obj)
 
 		for(auto &p : reservedHeroesMap)
 			erase_if(p.second, matchesId);
+
+		erase_if(reservedObjs, matchesId);
 	}
 }
 

@@ -300,9 +300,9 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 
 DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 {
-	logGlobal->debugStream() << "removing object oid=" << id;
 
 	CGObjectInstance *obj = gs->getObjInstance(id);
+	logGlobal->debugStream() << "removing object id=" << id << "; address=" << (int)obj << "; name=" << obj->getHoverText();
 	//unblock tiles
 	if(obj->defInfo)
 	{
@@ -594,7 +594,10 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 	gs->map->addBlockVisTiles(o);
 	o->initObj();
 	assert(o->defInfo);
+
+	logGlobal->debugStream() << "added object id=" << id << "; address=" << (int)o << "; name=" << o->getHoverText();
 }
+
 DLL_LINKAGE void NewArtifact::applyGs( CGameState *gs )
 {
 	assert(!vstd::contains(gs->map->artInstances, art));
