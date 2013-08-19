@@ -19,10 +19,10 @@ class CRmgTemplateZone;
 class CPlacedZone
 {
 public:
-	CPlacedZone(CRmgTemplateZone * zone);
+	explicit CPlacedZone(const CRmgTemplateZone * zone);
 
 private:
-	CRmgTemplateZone * zone;
+	const CRmgTemplateZone * zone;
 
 	//TODO exact outline data of zone
 	//TODO perhaps further zone data, guards, obstacles, etc...

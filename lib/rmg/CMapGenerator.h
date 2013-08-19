@@ -21,10 +21,10 @@ class CMapEditManager;
 class DLL_LINKAGE CMapGenerator
 {
 public:
-	explicit CMapGenerator(const CMapGenOptions & mapGenOptions, int randomSeed = std::time(nullptr));
+	CMapGenerator();
 	~CMapGenerator(); // required due to unique_ptr
 
-	std::unique_ptr<CMap> generate();
+	std::unique_ptr<CMap> generate(CMapGenOptions * mapGenOptions, int randomSeed = std::time(nullptr));
 
 private:
 	/// Generation methods
@@ -34,7 +34,7 @@ private:
 	void genTerrain();
 	void genTowns();
 
-	CMapGenOptions mapGenOptions;
+	CMapGenOptions * mapGenOptions;
 	std::unique_ptr<CMap> map;
 	CRandomGenerator gen;
 	int randomSeed;

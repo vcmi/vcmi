@@ -22,10 +22,9 @@
 #include "../StringConstants.h"
 #include "CRmgTemplate.h"
 
-CMapGenerator::CMapGenerator(const CMapGenOptions & mapGenOptions, int randomSeed /*= std::time(nullptr)*/) :
-	mapGenOptions(mapGenOptions), randomSeed(randomSeed)
+CMapGenerator::CMapGenerator()
 {
-	gen.seed(randomSeed);
+
 }
 
 CMapGenerator::~CMapGenerator()
@@ -33,9 +32,11 @@ CMapGenerator::~CMapGenerator()
 
 }
 
-std::unique_ptr<CMap> CMapGenerator::generate()
+std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, int randomSeed /*= std::time(nullptr)*/)
 {
-	mapGenOptions.finalize(gen);
+	gen.seed(randomSeed);
+	this->mapGenOptions = mapGenOptions;
+	this->mapGenOptions->finalize(gen);
 
 	map = make_unique<CMap>();
 	editManager = map->getEditManager();
@@ -55,12 +56,12 @@ std::string CMapGenerator::getMapDescription() const
 
     std::stringstream ss;
     ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
-        ", levels %s, humans %d, computers %d, water %s, monster %s, second expansion map") % mapGenOptions.getMapTemplate()->getName() %
-		randomSeed % map->width % map->height % (map->twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions.getPlayerCount()) %
-		static_cast<int>(mapGenOptions.getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions.getWaterContent()] %
-        monsterStrengthStr[mapGenOptions.getMonsterStrength()]);
+		", levels %s, humans %d, computers %d, water %s, monster %s, second expansion map") % mapGenOptions->getMapTemplate()->getName() %
+		randomSeed % map->width % map->height % (map->twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions->getPlayerCount()) %
+		static_cast<int>(mapGenOptions->getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions->getWaterContent()] %
+		monsterStrengthStr[mapGenOptions->getMonsterStrength()]);
 
-	for(const auto & pair : mapGenOptions.getPlayersSettings())
+	for(const auto & pair : mapGenOptions->getPlayersSettings())
 	{
 		const auto & pSettings = pair.second;
 		if(pSettings.getPlayerType() == EPlayerType::HUMAN)
@@ -84,8 +85,8 @@ void CMapGenerator::addPlayerInfo()
 	int teamOffset = 0;
 	for(int i = 0; i < 2; ++i)
 	{
-		int playerCount = i == 0 ? mapGenOptions.getPlayerCount() : mapGenOptions.getCompOnlyPlayerCount();
-		int teamCount = i == 0 ? mapGenOptions.getTeamCount() : mapGenOptions.getCompOnlyTeamCount();
+		int playerCount = i == 0 ? mapGenOptions->getPlayerCount() : mapGenOptions->getCompOnlyPlayerCount();
+		int teamCount = i == 0 ? mapGenOptions->getTeamCount() : mapGenOptions->getCompOnlyTeamCount();
 
 		if(playerCount == 0)
 		{
@@ -113,7 +114,7 @@ void CMapGenerator::addPlayerInfo()
 	}
 
 	// Team numbers are assigned randomly to every player
-	for(const auto & pair : mapGenOptions.getPlayersSettings())
+	for(const auto & pair : mapGenOptions->getPlayersSettings())
 	{
 		const auto & pSettings = pair.second;
 		PlayerInfo player;
@@ -129,8 +130,8 @@ void CMapGenerator::addPlayerInfo()
 		map->players[pSettings.getColor().getNum()] = player;
 	}
 
-	map->howManyTeams = (mapGenOptions.getTeamCount() == 0 ? mapGenOptions.getPlayerCount() : mapGenOptions.getTeamCount())
-			+ (mapGenOptions.getCompOnlyTeamCount() == 0 ? mapGenOptions.getCompOnlyPlayerCount() : mapGenOptions.getCompOnlyTeamCount());
+	map->howManyTeams = (mapGenOptions->getTeamCount() == 0 ? mapGenOptions->getPlayerCount() : mapGenOptions->getTeamCount())
+			+ (mapGenOptions->getCompOnlyTeamCount() == 0 ? mapGenOptions->getCompOnlyPlayerCount() : mapGenOptions->getCompOnlyTeamCount());
 }
 
 void CMapGenerator::genTerrain()
@@ -155,7 +156,7 @@ void CMapGenerator::genTowns()
 		int side = i % 2;
 		auto  town = new CGTownInstance();
 		town->ID = Obj::TOWN;
-		int townId = mapGenOptions.getPlayersSettings().find(PlayerColor(i))->second.getStartingTown();
+		int townId = mapGenOptions->getPlayersSettings().find(PlayerColor(i))->second.getStartingTown();
 		if(townId == CMapGenOptions::CPlayerSettings::RANDOM_TOWN) townId = gen.getInteger(0, 8); // Default towns
 		town->subID = townId;
 		town->tempOwner = owner;
@@ -176,9 +177,9 @@ void CMapGenerator::genTowns()
 void CMapGenerator::addHeaderInfo()
 {
 	map->version = EMapFormat::SOD;
-	map->width = mapGenOptions.getWidth();
-	map->height = mapGenOptions.getHeight();
-	map->twoLevel = mapGenOptions.getHasTwoLevels();
+	map->width = mapGenOptions->getWidth();
+	map->height = mapGenOptions->getHeight();
+	map->twoLevel = mapGenOptions->getHasTwoLevels();
 	map->name = VLC->generaltexth->allTexts[740];
 	map->description = getMapDescription();
 	map->difficulty = 1;

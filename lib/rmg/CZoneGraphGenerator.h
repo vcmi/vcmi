@@ -18,10 +18,10 @@ class CMapGenOptions;
 class CZoneCell
 {
 public:
-	CZoneCell(CRmgTemplateZone * zone);
+	explicit CZoneCell(const CRmgTemplateZone * zone);
 
 private:
-	CRmgTemplateZone * zone;
+	const CRmgTemplateZone * zone;
 
 	//TODO additional data
 };

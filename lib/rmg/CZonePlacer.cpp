@@ -14,7 +14,7 @@
 
 #include "CZoneGraphGenerator.h"
 
-CPlacedZone::CPlacedZone(CRmgTemplateZone * zone) : zone(zone)
+CPlacedZone::CPlacedZone(const CRmgTemplateZone * zone) : zone(zone)
 {
 
 }
