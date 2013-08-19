@@ -22,7 +22,7 @@
 #include "../StringConstants.h"
 #include "CRmgTemplate.h"
 
-CMapGenerator::CMapGenerator()
+CMapGenerator::CMapGenerator() : mapGenOptions(nullptr), randomSeed(0)
 {
 
 }
@@ -34,7 +34,8 @@ CMapGenerator::~CMapGenerator()
 
 std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, int randomSeed /*= std::time(nullptr)*/)
 {
-	gen.seed(randomSeed);
+	this->randomSeed = randomSeed;
+	gen.seed(this->randomSeed);
 	this->mapGenOptions = mapGenOptions;
 	this->mapGenOptions->finalize(gen);
 
