@@ -22,6 +22,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/ScopeGuard.h"
 #include "../client/CSoundBase.h"
 #include "CGameHandler.h"
 #include "CVCMIServer.h"
@@ -3536,7 +3537,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
-			auto makeScopeGuard([&]{ sendAndApply(&end_action); }); //if we started than we have to finish
+			auto onExit = vstd::makeScopeGuard([&]{ sendAndApply(&end_action); }); //if we started than we have to finish
 
 			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(SecondarySkill::BALLISTICS)];

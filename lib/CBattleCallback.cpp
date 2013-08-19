@@ -2184,7 +2184,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 				break;
 			case SpellID::SLAYER://only if monsters are present
 				{
-					auto kingMonster = getStackIf([&](const CStack *stack) //look for enemy, non-shooting stack
+					auto kingMonster = getStackIf([&](const CStack *stack) -> bool //look for enemy, non-shooting stack
 					{
 						const auto isKing = Selector::type(Bonus::KING1)
 							.Or(Selector::type(Bonus::KING2))

@@ -1,5 +1,8 @@
 project(vcmi)
 cmake_minimum_required(VERSION 2.6)
+# TODO:
+# 1) Detection of system version of minizip and use it instead of local
+# 2) Detection of Qt5 and compilation of launcher, unless explicitly disabled
 
 # where to look for cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
@@ -16,6 +19,7 @@ set(VCMI_VERSION_PATCH 0)
 
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_EDITOR "Enable compilation of map editor" OFF)
+option(ENABLE_LAUNCHER "Enable compilation of launcher" OFF)
 option(ENABLE_TEST "Enable compilation of unit tests" OFF)
 
 ############################################
@@ -52,9 +56,13 @@ find_package(SDL_mixer REQUIRED)
 find_package(SDL_ttf REQUIRED)
 find_package(ZLIB REQUIRED)
 
-if (ENABLE_EDITOR)
+if (ENABLE_EDITOR OR ENABLE_LAUNCHER)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(Qt5Widgets REQUIRED)
+endif()
+
+if (ENABLE_LAUNCHER)
+	find_package(Qt5Network REQUIRED)
 endif()
 
 if(ENABLE_TEST)
@@ -132,6 +140,9 @@ if (ENABLE_ERM)
 endif()
 if (ENABLE_EDITOR)
 	add_subdirectory(editor)
+endif()
+if (ENABLE_LAUNCHER)
+	add_subdirectory(launcher)
 endif()
 if(ENABLE_TEST)
 	add_subdirectory(test)

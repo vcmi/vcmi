@@ -1612,7 +1612,7 @@ void VCAI::reserveObject(HeroPtr h, const CGObjectInstance *obj)
 {
 	reservedObjs.push_back(obj);
 	reservedHeroesMap[h].push_back(obj);
-	logAi->debugStream() << "reserved object id=" << obj->id << "; address=" << (int)obj << "; name=" << obj->getHoverText();
+	logAi->debugStream() << "reserved object id=" << obj->id << "; address=" << (intptr_t)obj << "; name=" << obj->getHoverText();
 }
 
 void VCAI::validateVisitableObjs()

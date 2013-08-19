@@ -55,3 +55,16 @@ public:
 	std::string getMountPoint() const override;
 	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
 };
+
+
+namespace ZipArchive
+{
+	/// List all files present in archive
+	std::vector<std::string> DLL_LINKAGE listFiles(std::string filename);
+
+	/// extracts all files from archive "from" into destination directory "where". Directory must exist
+	bool DLL_LINKAGE extract(std::string from, std::string where);
+
+	///same as above, but extracts only files mentioned in "what" list
+	bool DLL_LINKAGE extract(std::string from, std::string where, std::vector<std::string> what);
+}

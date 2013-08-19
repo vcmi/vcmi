@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema": "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "battle", "server", "logging" ],
+	"required" : [ "general", "video", "adventure", "battle", "server", "logging", "launcher" ],
 	"definitions" : {
 		"logLevelEnum" : { 
 			"type" : "string", 
@@ -221,6 +221,21 @@
 							"level" : { "$ref" : "#/definitions/logLevelEnum" }
 						}
 
+					}
+				}
+			}
+		},
+		"launcher" : {
+			"type" : "object",
+			"default": {},
+			"additionalProperties" : false,
+			"required" : [ "repositoryURL" ],
+			"properties" : {
+				"repositoryURL" : {
+					"type" : "array",
+					"default" : [ ],
+					"items" : {
+						"type" : "string"
 					}
 				}
 			}

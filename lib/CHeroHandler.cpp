@@ -294,18 +294,11 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 
 	for(const JsonNode & spell : node["spellbook"].Vector())
 	{
-		if (spell.getType() == JsonNode::DATA_FLOAT) // for compatibility
+		VLC->modh->identifiers.requestIdentifier("spell", spell,
+		[=](si32 spellID)
 		{
-			hero->spells.insert(SpellID(spell.Float()));
-		}
-		else
-		{
-			VLC->modh->identifiers.requestIdentifier("spell", spell,
-			[=](si32 spellID)
-			{
-				hero->spells.insert(SpellID(spellID));
-			});
-		}
+			hero->spells.insert(SpellID(spellID));
+		});
 	}
 }
 

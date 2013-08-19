@@ -14,6 +14,8 @@
 
 struct z_stream_s;
 
+/// Abstract class that provides buffer for one-directional input streams (e.g. compressed data)
+/// Used for zip archives support and in .lod deflate compression
 class CBufferedStream : public CInputStream
 {
 public:
@@ -86,7 +88,7 @@ private:
 
 /**
  * A class which provides method definitions for reading a gzip-compressed file
- * This class implements lazy loading - data will be decompressed (and cached by this class) only by request
+ * This class implements lazy loading - data will be decompressed (and cached) only by request
  */
 class DLL_LINKAGE CCompressedStream : public CBufferedStream
 {
@@ -103,7 +105,7 @@ public:
 	~CCompressedStream();
 
 	/**
-	 * Prepare stream for decompression of next block (e.g. nect part of h3c)
+	 * Prepare stream for decompression of next block (e.g. next part of h3c)
 	 * Applicable only for streams that contain multiple concatenated compressed data
 	 *
 	 * @return false if next block was not found, true othervice

@@ -1,4 +1,25 @@
 {
+	"name" : "In The Wake of Gods",
+	"description" : "Unnofficial addon for Heroes of Might and Magic III",
+
+	"version" : "3.58.0",
+	"author" : "WoG Team",
+
+	"artifacts" : 
+	[
+		"config/wog/artifacts.json"
+	],
+
+	"creatures" : 
+	[
+		"config/wog/creatures.json"
+	],
+
+	"factions" : 
+	[
+		"config/wog/factions.json"
+	],
+
 	"filesystem":
 	{
 		"" :
@@ -39,23 +60,5 @@
 		[
 			{"type" : "dir", "path" : "/Maps"}
 		]
-	},
-
-	"name" : "In The Wake of Gods",
-	"description" : "Unnofficial addon for Heroes of Might and Magic III",
-
-	"artifacts" : 
-	[
-		"config/wog/artifacts.json"
-	],
-
-	"creatures" : 
-	[
-		"config/wog/creatures.json"
-	],
-
-	"factions" : 
-	[
-		"config/wog/factions.json"
-	]
+	}
 }

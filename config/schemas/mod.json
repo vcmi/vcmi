@@ -3,7 +3,7 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI mod file format",
 	"description" : "Format used to define main mod file (mod.json) in VCMI",
-	"required" : [ "name", "description" ],
+	"required" : [ "name", "description", "version", "author" ],
 
 	"additionalProperties" : false,
 	"properties":{
@@ -14,6 +14,26 @@
 		"description": {
 			"type":"string",
 			"description": "More lengthy description of mod. No hard limit"
+		},
+
+		"modType" : {
+			"type":"string",
+			"description": "Type of mod, e.g. Town, Artifacts, Graphical."
+		},
+
+		"version" : {
+			"type":"string",
+			"description": "Current mod version, up to 3 numbers, dot-separated. Format: A.B.C"
+		},
+
+		"author" : {
+			"type":"string",
+			"description": "Author of the mod. Can be nickname, real name or name of team"
+		},
+
+		"weblink" : {
+			"type":"string",
+			"description": "Home page of mod or link to forum thread"
 		},
 
 		"depends": {
@@ -69,7 +89,7 @@
 						},
 						"type": {
 							"type" : "string",
-							"enum" : [ "dir", "lod", "snd", "vid", "map" ],
+							"enum" : [ "dir", "lod", "snd", "vid", "map", "zip" ],
 							"description" : "Type of data source"
 						}
 					}

@@ -302,7 +302,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 {
 
 	CGObjectInstance *obj = gs->getObjInstance(id);
-	logGlobal->debugStream() << "removing object id=" << id << "; address=" << (int)obj << "; name=" << obj->getHoverText();
+	logGlobal->debugStream() << "removing object id=" << id << "; address=" << (intptr_t)obj << "; name=" << obj->getHoverText();
 	//unblock tiles
 	if(obj->defInfo)
 	{
@@ -595,7 +595,7 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 	o->initObj();
 	assert(o->defInfo);
 
-	logGlobal->debugStream() << "added object id=" << id << "; address=" << (int)o << "; name=" << o->getHoverText();
+	logGlobal->debugStream() << "added object id=" << id << "; address=" << (intptr_t)o << "; name=" << o->getHoverText();
 }
 
 DLL_LINKAGE void NewArtifact::applyGs( CGameState *gs )

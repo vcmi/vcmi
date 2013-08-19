@@ -156,10 +156,6 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
 		{
 			logGlobal->errorStream() << "\tID is available in mod " << it->second.scope;
 		}
-
-		// temporary code to smooth 0.92->0.93 transition
-		request.callback(entries.first->second.id);
-		return true;
 	}
 	logGlobal->errorStream() << "Unknown identifier " << request.type << "." << request.name << " from mod " << request.localScope;
 	return false;

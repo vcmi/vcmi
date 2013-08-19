@@ -339,7 +339,7 @@ void JsonWriter::writeEntry(JsonVector::const_iterator entry)
 
 void JsonWriter::writeString(const std::string &string)
 {
-	static const std::string escaped = "\"\\/\b\f\n\r\t";
+	static const std::string escaped = "\"\\\b\f\n\r\t";
 
 	out <<'\"';
 	size_t pos=0, start=0;
@@ -506,7 +506,6 @@ bool JsonParser::extractEscaping(std::string &str)
 	{
 		break; case '\"': str += '\"';
 		break; case '\\': str += '\\';
-		break; case  '/': str += '/';
 		break; case 'b': str += '\b';
 		break; case 'f': str += '\f';
 		break; case 'n': str += '\n';

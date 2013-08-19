@@ -1,4 +1,10 @@
 {
+	"name" : "VCMI essential files",
+	"description" : "Essential files required for VCMI to run correctly",
+
+	"version" : "0.0",
+	"author" : "VCMI Team",
+
 	"filesystem":
 	{
 		"DATA/" :
@@ -13,8 +19,5 @@
 		[
 			{"type" : "dir",  "path" : "/Maps"}
 		]
-	},
-
-	"name" : "VCMI essential files",
-	"description" : "Essential files required for VCMI to run correctly"
+	}
 }
