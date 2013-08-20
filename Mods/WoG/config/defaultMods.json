@@ -7,13 +7,5 @@
 		"faction"    : 9,
 		"hero"       : 156,
 		"mapVersion" : 51 // WoG
-	},
-
-	"modules":
-	{
-		"STACK_EXPERIENCE": true,
-		"STACK_ARTIFACTS": true,
-		"COMMANDERS": true,
-		"MITHRIL": false //so far unused
 	}
 }
