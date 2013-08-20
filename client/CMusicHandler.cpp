@@ -367,6 +367,7 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, bool loop)
 	if (current && current->isSet(whichSet))
 		return;
 
+	// in this mode - play random track from set
 	queueNext(this, whichSet, "", loop);
 }
 
@@ -390,7 +391,8 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loo
 	if (current && current->isTrack( selectedEntry->second))
 		return;
 
-	queueNext(this, whichSet, "", loop);
+	// in this mode - play specific track from set
+	queueNext(this, "", selectedEntry->second, loop);
 }
 
 void CMusicHandler::queueNext(unique_ptr<MusicEntry> queued)
