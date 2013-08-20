@@ -354,7 +354,7 @@
 		{
 			"dragon" :
 			{
-				"type" : "DRAGON_NATURE",
+				"type" : "DRAGON_NATURE"
 			},
 			"age" :
 			{

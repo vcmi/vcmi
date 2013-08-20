@@ -3,7 +3,7 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI mod file format",
 	"description" : "Format used to define main mod file (mod.json) in VCMI",
-	"required" : [ "name", "description", "version", "author", "contact" ],
+	"required" : [ "name", "description", "version", "author", "contact", "modType" ],
 
 	"additionalProperties" : false,
 	"properties":{

@@ -4,6 +4,8 @@
 
 	"version" : "3.58.0",
 	"author" : "WoG Team",
+	"contact" : "http://forum.vcmi.eu/index.php",
+	"modType" : "Expansion",
 
 	"artifacts" : 
 	[

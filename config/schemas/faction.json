@@ -73,7 +73,7 @@
 		},
 		"nativeTerrain": {
 			"type":"string",
-			"description": "Native terrain for creatures. Creatures fighting on native terrain receive several bonuses",
+			"description": "Native terrain for creatures. Creatures fighting on native terrain receive several bonuses"
 		},
 		"puzzleMap": {
 			"type":"object",

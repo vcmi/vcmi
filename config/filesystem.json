@@ -39,7 +39,7 @@
 		],
 		"CONFIG/":
 		[
-			{"type" : "dir",  "path" : "config",}
+			{"type" : "dir",  "path" : "config"}
 		],
 		"MAPS/":
 		[

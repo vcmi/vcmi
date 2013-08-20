@@ -12,19 +12,19 @@
 				{ "type" : "string" },
 				{ "type" : "number" }
 			],
-			"description": "addInfo",
+			"description": "addInfo"
 		},
 		"description": {
 			"type":"string",
-			"description": "description",
+			"description": "description"
 		},
 		"duration": {
 			"type":"string",
-			"description": "duration",
+			"description": "duration"
 		},
 		"effectRange": {
 			"type":"string",
-			"description": "effectRange",
+			"description": "effectRange"
 		},
 		"limiters": {
 			"type":"array",
@@ -42,7 +42,7 @@
 							},
 							"type": {
 								"type":"string",
-								"description": "type",
+								"description": "type"
 							}
 						}
 					},
@@ -62,41 +62,41 @@
 					"type":"array",
 					"items": {
 							"type":"string",
-							"description": "0",
+							"description": "0"
 					}
 				}
-			],
+			]
 		},
 		"sourceID": {
 			"type":"number",
-			"description": "sourceID",
+			"description": "sourceID"
 		},
 		"sourceType": {
 			"type":"string",
-			"description": "sourceType",
+			"description": "sourceType"
 		},
 		"subtype": {
 			"anyOf" : [
 				{ "type" : "string" },
 				{ "type" : "number" }
 			],
-			"description": "subtype",
+			"description": "subtype"
 		},
 		"turns": {
 			"type":"number",
-			"description": "turns",
+			"description": "turns"
 		},
 		"type": {
 			"type":"string",
-			"description": "type",
+			"description": "type"
 		},
 		"val": {
 			"type":"number",
-			"description": "val",
+			"description": "val"
 		},
 		"valueType": {
 			"type":"string",
-			"description": "valueType",
+			"description": "valueType"
 		}
 	}
 }

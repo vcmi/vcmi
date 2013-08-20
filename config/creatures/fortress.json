@@ -40,7 +40,7 @@
 	{
 		"index": 100,
 		"level": 2,
-		"extraNames": [ "primitiveLizardman", ],
+		"extraNames": [ "primitiveLizardman" ],
 		"faction": "fortress",
 		"upgrades": ["lizardWarrior"],
 		"hasDoubleWeek": true,

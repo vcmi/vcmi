@@ -28,15 +28,15 @@
 				"properties":{
 					"creature": {
 						"type":"string",
-						"description": "creature",
+						"description": "creature"
 					},
 					"max": {
 						"type":"number",
-						"description": "max",
+						"description": "max"
 					},
 					"min": {
 						"type":"number",
-						"description": "min",
+						"description": "min"
 					}
 				}
 			}

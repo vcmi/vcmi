@@ -635,6 +635,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	creature->level = config["level"].Float();
 	creature->animDefName = config["graphics"]["animation"].String();
 
+	//FIXME: MOD COMPATIBILITY
 	if (config["abilities"].getType() == JsonNode::DATA_STRUCT)
 	{
 		for(auto &ability : config["abilities"].Struct())

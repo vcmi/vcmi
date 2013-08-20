@@ -699,7 +699,12 @@ bool JsonParser::extractElement(JsonNode &node, char terminator)
 	}
 
 	if (input[pos] == terminator)
+	{
+		//FIXME: MOD COMPATIBILITY: Too many of these right now, re-enable later
+		//if (comma)
+			//error("Extra comma found!", true);
 		return true;
+	}
 
 	if (!comma)
 		error("Comma expected!", true);

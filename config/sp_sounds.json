@@ -177,7 +177,7 @@
 		},
 		{
 			"id": 34,
-			"soundfile": "ANIMDEAD.wav",
+			"soundfile": "ANIMDEAD.wav"
 		},
 		{
 			"id": 35,
@@ -201,7 +201,7 @@
 		},
 		{
 			"id": 39,
-			"soundfile": "ANIMDEAD.wav",
+			"soundfile": "ANIMDEAD.wav"
 		},
 		{
 			"id": 40 ,
@@ -315,7 +315,7 @@
 		},
 		{
 			"id": 62,
-			"soundfile": "BLIND.wav",
+			"soundfile": "BLIND.wav"
 		},
 		{
 			"id": 63 ,

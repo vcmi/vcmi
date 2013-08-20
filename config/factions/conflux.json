@@ -75,7 +75,7 @@
 			},
 			"structures" :
 			{
-				"extraAnimation2":{ "animation" : "TBELEXT5.def", "x" : 682, "y" : 183,  "z" : -1, },
+				"extraAnimation2":{ "animation" : "TBELEXT5.def", "x" : 682, "y" : 183,  "z" : -1 },
 				"extraAnimation": { "animation" : "TBELEXT1.def", "x" : 23,  "y" : 218 },
 				"mageGuild1":     { "id" : 0,  "animation" : "TBELMAGE.def", "x" : 206, "y" : 58,  "z" : 4,  "border" : "TOELMAGE.bmp", "area" : "TZELMAGE.bmp" },
 				"mageGuild2":     { "id" : 1,  "animation" : "TBELMAG2.def", "x" : 206, "y" : 58,  "z" : 4,  "border" : "TOELMAG2.bmp", "area" : "TZELMAG2.bmp" },

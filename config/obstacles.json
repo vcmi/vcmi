@@ -921,7 +921,7 @@
 		"blockedTiles" :  [0, 1, -14, -15],
 		"defname" : "ObMCs02.def",
 		"unknown" : 1
-	},
+	}
 ],
 "absoluteObstacles" : [
 	{
@@ -931,7 +931,7 @@
 		"width" : 124,
 		"height" : 254,
 		"blockedTiles" :  [80, 94, 95, 96, 97, 105, 106, 107, 108, 109, 110],
-		"defname" : "ObDtL04.pcx",
+		"defname" : "ObDtL04.pcx"
 	},
 	{
 		"id" : 1,
@@ -940,7 +940,7 @@
 		"width" : 256,
 		"height" : 254,
 		"blockedTiles" :  [73, 91, 108, 109, 110, 111, 112, 113],
-		"defname" : "ObDtL06.pcx",
+		"defname" : "ObDtL06.pcx"
 	},
 	{
 		"id" : 2,
@@ -949,7 +949,7 @@
 		"width" : 168,
 		"height" : 212,
 		"blockedTiles" :  [60, 61, 62, 63, 64, 72, 73, 74, 75, 76, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149],
-		"defname" : "ObDtL10.pcx",
+		"defname" : "ObDtL10.pcx"
 	},
 	{
 		"id" : 3,
@@ -958,7 +958,7 @@
 		"width" : 124,
 		"height" : 254,
 		"blockedTiles" :  [88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
-		"defname" : "ObDtL02.pcx",
+		"defname" : "ObDtL02.pcx"
 	},
 	{
 		"id" : 4,
@@ -967,7 +967,7 @@
 		"width" : 146,
 		"height" : 254,
 		"blockedTiles" :  [76, 77, 78, 79, 80, 89, 90, 91, 92, 93],
-		"defname" : "ObDtL03.pcx",
+		"defname" : "ObDtL03.pcx"
 	},
 	{
 		"id" : 5,
@@ -976,7 +976,7 @@
 		"width" : 173,
 		"height" : 221,
 		"blockedTiles" :  [55, 56, 57, 58, 75, 76, 77, 95, 112, 113, 131],
-		"defname" : "ObGrL01.pcx",
+		"defname" : "ObGrL01.pcx"
 	},
 	{
 		"id" : 6,
@@ -985,7 +985,7 @@
 		"width" : 180,
 		"height" : 264,
 		"blockedTiles" :  [81, 91, 92, 93, 94, 95, 96, 97, 98, 106, 107, 123],
-		"defname" : "ObGrL02.pcx",
+		"defname" : "ObGrL02.pcx"
 	},
 	{
 		"id" : 7,
@@ -994,7 +994,7 @@
 		"width" : 166,
 		"height" : 255,
 		"blockedTiles" :  [76, 77, 78, 79, 91, 92, 93, 97, 98, 106, 107, 108],
-		"defname" : "ObSnL01.pcx",
+		"defname" : "ObSnL01.pcx"
 	},
 	{
 		"id" : 8,
@@ -1003,7 +1003,7 @@
 		"width" : 302,
 		"height" : 172,
 		"blockedTiles" :  [41, 42, 43, 58, 75, 92, 108, 126, 143],
-		"defname" : "ObSnL14.pcx",
+		"defname" : "ObSnL14.pcx"
 	},
 	{
 		"id" : 9,
@@ -1012,7 +1012,7 @@
 		"width" : 300,
 		"height" : 170,
 		"blockedTiles" :  [40, 41, 58, 59, 74, 75, 92, 93, 109, 110, 111, 127, 128, 129, 130],
-		"defname" : "ObSwL15.pcx",
+		"defname" : "ObSwL15.pcx"
 	},
 	{
 		"id" : 10,
@@ -1021,7 +1021,7 @@
 		"width" : 278,
 		"height" : 171,
 		"blockedTiles" :  [43, 60, 61, 77, 93, 94, 95, 109, 110, 126, 127],
-		"defname" : "ObSwL14.pcx",
+		"defname" : "ObSwL14.pcx"
 	},
 	{
 		"id" : 11,
@@ -1030,7 +1030,7 @@
 		"width" : 256,
 		"height" : 254,
 		"blockedTiles" :  [74, 75, 76, 77, 91, 92, 93, 94, 95, 109, 110, 111, 112],
-		"defname" : "ObSwL22.pcx",
+		"defname" : "ObSwL22.pcx"
 	},
 	{
 		"id" : 12,
@@ -1039,7 +1039,7 @@
 		"width" : 124,
 		"height" : 254,
 		"blockedTiles" :  [77, 78, 79, 80, 81, 91, 92, 93, 94, 105, 106, 107],
-		"defname" : "ObLvL01.pcx",
+		"defname" : "ObLvL01.pcx"
 	},
 	{
 		"id" : 13,
@@ -1048,7 +1048,7 @@
 		"width" : 256,
 		"height" : 128,
 		"blockedTiles" :  [43, 60, 61, 76, 77, 93, 109, 126, 127, 142, 143],
-		"defname" : "OBLvL02.pcx",
+		"defname" : "OBLvL02.pcx"
 	},
 	{
 		"id" : 14,
@@ -1057,7 +1057,7 @@
 		"width" : 186,
 		"height" : 212,
 		"blockedTiles" :  [55, 72, 90, 107, 125, 126, 127, 128, 129, 130, 131, 132],
-		"defname" : "ObRgL01.pcx",
+		"defname" : "ObRgL01.pcx"
 	},
 	{
 		"id" : 15,
@@ -1066,7 +1066,7 @@
 		"width" : 347,
 		"height" : 174,
 		"blockedTiles" :  [41, 59, 76, 94, 111, 129, 143, 144, 145],
-		"defname" : "ObRgL02.pcx",
+		"defname" : "ObRgL02.pcx"
 	},
 	{
 		"id" : 16,
@@ -1075,7 +1075,7 @@
 		"width" : 294,
 		"height" : 169,
 		"blockedTiles" :  [40, 41, 42, 43, 58, 75, 93, 110, 128, 145],
-		"defname" : "ObRgL03.pcx",
+		"defname" : "ObRgL03.pcx"
 	},
 	{
 		"id" : 17,
@@ -1084,7 +1084,7 @@
 		"width" : 165,
 		"height" : 257,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 89, 105],
-		"defname" : "ObRgL04.pcx",
+		"defname" : "ObRgL04.pcx"
 	},
 	{
 		"id" : 18,
@@ -1093,7 +1093,7 @@
 		"width" : 208,
 		"height" : 268,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 90, 91, 92, 93, 94, 95, 96, 97],
-		"defname" : "ObRgL05.pcx",
+		"defname" : "ObRgL05.pcx"
 	},
 	{
 		"id" : 19,
@@ -1102,7 +1102,7 @@
 		"width" : 252,
 		"height" : 254,
 		"blockedTiles" :  [73, 74, 75, 76, 77, 78, 91, 92, 93, 94],
-		"defname" : "ObRgL06.pcx",
+		"defname" : "ObRgL06.pcx"
 	},
 	{
 		"id" : 20,
@@ -1111,7 +1111,7 @@
 		"width" : 278,
 		"height" : 128,
 		"blockedTiles" :  [23, 40, 58, 75, 93, 110, 128, 145, 163],
-		"defname" : "ObRgL15.pcx",
+		"defname" : "ObRgL15.pcx"
 	},
 	{
 		"id" : 21,
@@ -1120,7 +1120,7 @@
 		"width" : 208,
 		"height" : 268,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 90, 91, 92, 93, 94, 95, 96, 97],
-		"defname" : "ObRgL05.pcx",
+		"defname" : "ObRgL05.pcx"
 	},
 	{
 		"id" : 22,
@@ -1129,7 +1129,7 @@
 		"width" : 168,
 		"height" : 212,
 		"blockedTiles" :  [73, 74, 75, 76, 77, 78, 79, 90, 91, 92, 93, 94, 95, 96, 97, 106, 107, 108, 109, 110, 111, 112],
-		"defname" : "ObRgL22.pcx",
+		"defname" : "ObRgL22.pcx"
 	},
 	{
 		"id" : 23,
@@ -1138,7 +1138,7 @@
 		"width" : 147,
 		"height" : 264,
 		"blockedTiles" :  [72, 73, 74, 75, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
-		"defname" : "ObBhL02.pcx",
+		"defname" : "ObBhL02.pcx"
 	},
 	{
 		"id" : 24,
@@ -1147,7 +1147,7 @@
 		"width" : 178,
 		"height" : 262,
 		"blockedTiles" :  [71, 72, 73, 74, 75, 76, 77, 78, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
-		"defname" : "ObBhL03.pcx",
+		"defname" : "ObBhL03.pcx"
 	},
 	{
 		"id" : 25,
@@ -1156,7 +1156,7 @@
 		"width" : 173,
 		"height" : 257,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 89, 90, 105, 106],
-		"defname" : "ObBhL05.pcx",
+		"defname" : "ObBhL05.pcx"
 	},
 	{
 		"id" : 26,
@@ -1165,7 +1165,7 @@
 		"width" : 241,
 		"height" : 272,
 		"blockedTiles" :  [73, 91, 108, 109, 110, 111, 112, 113],
-		"defname" : "ObBhL06.pcx",
+		"defname" : "ObBhL06.pcx"
 	},
 	{
 		"id" : 27,
@@ -1174,7 +1174,7 @@
 		"width" : 261,
 		"height" : 129,
 		"blockedTiles" :  [27, 28, 43, 44, 60, 61, 76, 77, 93, 94, 109, 110, 126, 127, 142, 143, 159],
-		"defname" : "ObBhL14.pcx",
+		"defname" : "ObBhL14.pcx"
 	},
 	{
 		"id" : 28,
@@ -1183,7 +1183,7 @@
 		"width" : 180,
 		"height" : 154,
 		"blockedTiles" :  [22, 38, 39, 40, 44, 45, 46, 55, 56, 57, 62, 63, 123, 124, 125, 130, 131, 140, 141, 146, 147, 148],
-		"defname" : "ObBhL16.pcx",
+		"defname" : "ObBhL16.pcx"
 	},
 	{
 		"id" : 29,
@@ -1192,7 +1192,7 @@
 		"width" : 304,
 		"height" : 264,
 		"blockedTiles" :  [76, 77, 92, 93, 94, 95, 109, 110, 111],
-		"defname" : "ObCFL00.pcx",
+		"defname" : "ObCFL00.pcx"
 	},
 	{
 		"id" : 30,
@@ -1201,7 +1201,7 @@
 		"width" : 256,
 		"height" : 257,
 		"blockedTiles" :  [76, 77, 78, 92, 93, 94, 107, 108, 109],
-		"defname" : "ObLPL00.pcx",
+		"defname" : "ObLPL00.pcx"
 	},
 	{
 		"id" : 31,
@@ -1210,7 +1210,7 @@
 		"width" : 257,
 		"height" : 255,
 		"blockedTiles" :  [76, 77, 91, 92, 93, 94, 95, 108, 109, 110, 111],
-		"defname" : "ObFFL00.pcx",
+		"defname" : "ObFFL00.pcx"
 	},
 	{
 		"id" : 32,
@@ -1219,7 +1219,7 @@
 		"width" : 277,
 		"height" : 218,
 		"blockedTiles" :  [60, 61, 75, 76, 77, 91, 92, 93, 94, 95],
-		"defname" : "ObRLL00.pcx",
+		"defname" : "ObRLL00.pcx"
 	},
 	{
 		"id" : 33,
@@ -1228,7 +1228,7 @@
 		"width" : 300,
 		"height" : 214,
 		"blockedTiles" :  [59, 60, 74, 75, 76, 93, 94, 95, 111, 112],
-		"defname" : "ObMCL00.pcx",
+		"defname" : "ObMCL00.pcx"
 	}
 ]
 

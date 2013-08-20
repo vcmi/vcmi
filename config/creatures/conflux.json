@@ -494,7 +494,7 @@
 			{
 				"type" : "FIRE_IMMUNITY",
 				"subtype" : 0 //this IS important
-			},
+			}
 		},
 		"graphics" :
 		{
