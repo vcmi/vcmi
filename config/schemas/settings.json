@@ -229,14 +229,18 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "repositoryURL" ],
+			"required" : [ "repositoryURL", "enableInstalledMods" ],
 			"properties" : {
 				"repositoryURL" : {
 					"type" : "array",
 					"default" : [ ],
 					"items" : {
 						"type" : "string"
-					}
+					},
+				},
+				"enableInstalledMods" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		}
