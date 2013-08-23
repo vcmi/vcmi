@@ -88,7 +88,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(QTDIR)\lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>VCMI_lib.lib;Qt5Core.lib;Qt5Widgets.lib;Qt5Network.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\libs;..\..;$(QTDIR)\lib</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
@@ -105,41 +105,99 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="VCMI_launcher.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="small.ico" />
     <Image Include="VCMI_launcher.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\mainwindow.ui" />
-    <None Include="..\modManager\cmodlistview.ui" />
-    <None Include="..\settingsView\csettingsview.ui" />
-    <None Include="modManager\cmodlistview.ui" />
-    <None Include="settingsView\csettingsview.ui" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="launcherdirs.h" />
-    <ClInclude Include="mainwindow.h" />
+    <ClInclude Include="mainwindow.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(QTDIR)\bin\moc.exe "%(FullPath)" -o "%(RootDir)%(Directory)ui_%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using MOC</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">%(RootDir)%(Directory)ui_%(Filename).h</Outputs>
+    </ClInclude>
     <ClInclude Include="modManager\cdownloadmanager.h" />
     <ClInclude Include="modManager\cmodlist.h" />
     <ClInclude Include="modManager\cmodlistmodel.h" />
-    <ClInclude Include="modManager\cmodlistview.h" />
-    <ClInclude Include="modManager\cmodmanager.h" />
-    <ClInclude Include="settingsView\csettingsview.h" />
+    <ClInclude Include="modManager\cmodlistview.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">false</ExcludedFromBuild>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">%(RootDir)%(Directory)ui_%(Filename).h</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using MOC</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(QTDIR)\bin\moc.exe "%(FullPath)" -o "%(RootDir)%(Directory)ui_%(Filename).h"</Command>
+    </ClInclude>
+    <ClInclude Include="modManager\cmodmanager.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
+      </Command>
+    </ClInclude>
+    <ClInclude Include="settingsView\csettingsview.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">false</ExcludedFromBuild>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">%(RootDir)%(Directory)ui_%(Filename).h</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using MOC</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(QTDIR)\bin\moc.exe "%(FullPath)" -o "%(RootDir)%(Directory)ui_%(Filename).h"</Command>
+    </ClInclude>
     <ClInclude Include="StdInc.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="launcherdirs.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="mainwindow.cpp" />
-    <ClCompile Include="modManager\cdownloadmanager.cpp" />
+    <ClCompile Include="mainwindow.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">false</ExcludedFromBuild>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
+      </Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
+      </Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
+      </Command>
+    </ClCompile>
+    <CustomBuild Include="modManager\cdownloadmanager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">false</ExcludedFromBuild>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">%(RootDir)%(Directory)moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(QTDIR)\bin\moc.exe "%(FullPath)" -o "%(RootDir)%(Directory)ui_%(Filename).cpp"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using MOC</Message>
+    </CustomBuild>
     <ClCompile Include="modManager\cmodlist.cpp" />
-    <ClCompile Include="modManager\cmodlistmodel.cpp" />
-    <ClCompile Include="modManager\cmodlistview.cpp" />
-    <ClCompile Include="modManager\cmodmanager.cpp" />
-    <ClCompile Include="settingsView\csettingsview.cpp" />
+    <CustomBuild Include="modManager\cmodlistmodel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">false</ExcludedFromBuild>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">%(RootDir)%(Directory)moc_%(Filename).cpp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using MOC</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(QTDIR)\bin\moc.exe "%(FullPath)" -o "%(RootDir)%(Directory)ui_%(Filename).cpp"</Command>
+    </CustomBuild>
+    <CustomBuild Include="modManager\cmodlistview.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">false</ExcludedFromBuild>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">%(RootDir)%(Directory)moc_%(Filename).cpp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using MOC</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(QTDIR)\bin\moc.exe "%(FullPath)" -o "%(RootDir)%(Directory)ui_%(Filename).cpp"</Command>
+    </CustomBuild>
+    <CustomBuild Include="modManager\cmodmanager.cpp">
+      <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using MOC</Message>
+    </CustomBuild>
+    <CustomBuild Include="settingsView\csettingsview.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">false</ExcludedFromBuild>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">%(RootDir)%(Directory)moc_%(Filename).cpp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using MOC</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(QTDIR)\bin\moc.exe "%(FullPath)" -o "%(RootDir)%(Directory)ui_%(Filename).cpp"</Command>
+    </CustomBuild>
     <ClCompile Include="StdInc.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="mainwindow.ui">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(QTDIR)\bin\uic.exe "%(FullPath)" -o "%(RootDir)%(Directory)ui_%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using UIC</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">%(RootDir)%(Directory)ui_%(Filename).h</Outputs>
+      <SubType>Designer</SubType>
+    </CustomBuild>
+    <CustomBuild Include="modManager\cmodlistview.ui">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(QTDIR)\bin\uic.exe "%(FullPath)" -o "%(RootDir)%(Directory)ui_%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using UIC</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">%(RootDir)%(Directory)ui_%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="settingsView\csettingsview.ui">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(QTDIR)\bin\uic.exe "%(FullPath)" -o "%(RootDir)%(Directory)ui_%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using UIC</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">%(RootDir)%(Directory)ui_%(Filename).h</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
