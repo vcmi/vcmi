@@ -129,7 +129,7 @@ private:
 
 	enum EState
 	{
-		ERROR,
+		ERROR_OCCURED,
 		INITIALIZED,
 		IN_PROGRESS,
 		STREAM_END,

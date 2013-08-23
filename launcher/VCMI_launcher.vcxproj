@@ -93,18 +93,18 @@
       <AdditionalOptions>/ENTRY:"mainCRTStartup" %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <CustomBuildStep>
-      <Command>$(QTDIR)\bin\moc.exe "%(FullPath)" -o "%(RootDir)%(Directory)moc_%(Filename).cpp"</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Message>Compiling %(Filename).%(Extension) using MOC</Message>
+      <Message>
+      </Message>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Outputs>%(RootDir)%(Directory)moc_%(Filename).cpp</Outputs>
+      <Outputs>
+      </Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico" />
     <Image Include="VCMI_launcher.ico" />
@@ -160,6 +160,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
       </Command>
     </ClCompile>
+    <ClCompile Include="moc_mainwindow.cpp" />
     <ClCompile Include="modManager\cdownloadmanager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">false</ExcludedFromBuild>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">%(RootDir)%(Directory)moc_%(Filename).cpp</Outputs>
@@ -183,12 +184,16 @@
     <ClCompile Include="modManager\cmodmanager.cpp">
       <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using MOC</Message>
     </ClCompile>
+    <ClCompile Include="modManager\moc_cdownloadmanager.cpp" />
+    <ClCompile Include="modManager\moc_cmodlistmodel.cpp" />
+    <ClCompile Include="modManager\moc_cmodlistview.cpp" />
     <ClCompile Include="settingsView\csettingsview.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">false</ExcludedFromBuild>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">%(RootDir)%(Directory)moc_%(Filename).cpp</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Compiling %(Filename)%(Extension) using MOC</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(QTDIR)\bin\moc.exe "%(FullPath)" -o "%(RootDir)%(Directory)ui_%(Filename).cpp"</Command>
     </ClCompile>
+    <ClCompile Include="settingsView\moc_csettingsview.cpp" />
     <ClCompile Include="StdInc.cpp" />
   </ItemGroup>
   <ItemGroup>
