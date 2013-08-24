@@ -39,7 +39,10 @@ public:
 	/// Paths to global system-wide data directories. First items have higher priority
 	std::vector<std::string> dataPaths() const;
 
-	/// Full path to vcmiserver executable, including server name (e.g. /usr/bin/vcmiserver)
+	/// Full path to client executable, including server name (e.g. /usr/bin/vcmiclient)
+	std::string clientPath() const;
+
+	/// Full path to server executable, including server name (e.g. /usr/bin/vcmiserver)
 	std::string serverPath() const;
 
 	/// Path where vcmi libraries can be found (in AI and Scripting subdirectories)

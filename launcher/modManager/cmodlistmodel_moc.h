@@ -29,6 +29,7 @@ class CModListModel : public QAbstractTableModel, public CModList
 	void endResetModel();
 public:
 	/// CModListContainer overrides
+	void resetRepositories();
 	void addRepository(QJsonObject data);
 	void setLocalModList(QJsonObject data);
 	void setModSettings(QJsonObject data);

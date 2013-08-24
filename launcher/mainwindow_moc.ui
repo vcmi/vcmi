@@ -187,13 +187,13 @@
   <customwidget>
    <class>CModListView</class>
    <extends>QWidget</extends>
-   <header>modManager/cmodlistview.h</header>
+   <header>modManager/cmodlistview_moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>CSettingsView</class>
    <extends>QWidget</extends>
-   <header>settingsView/csettingsview.h</header>
+   <header>settingsView/csettingsview_moc.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

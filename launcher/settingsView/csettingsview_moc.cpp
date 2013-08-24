@@ -1,6 +1,6 @@
 #include "StdInc.h"
-#include "csettingsview.h"
-#include "ui_csettingsview.h"
+#include "csettingsview_moc.h"
+#include "ui_csettingsview_moc.h"
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/VCMIDirs.h"

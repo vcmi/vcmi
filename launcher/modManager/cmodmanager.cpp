@@ -61,6 +61,11 @@ void CModManager::loadModSettings()
 	modList->setModSettings(modSettings["activeMods"].toObject());
 }
 
+void CModManager::resetRepositories()
+{
+	modList->resetRepositories();
+}
+
 void CModManager::loadRepository(QString file)
 {
 	modList->addRepository(JsonFromFile(file));
@@ -182,7 +187,7 @@ bool CModManager::canDisableMod(QString modname)
 		auto current = modList->getMod(modEntry);
 
 		if (current.getValue("depends").toStringList().contains(modname) &&
-		    !current.isDisabled())
+		    current.isEnabled())
 			return false; // this mod must be disabled first
 	}
 	return true;

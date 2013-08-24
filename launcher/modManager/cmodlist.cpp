@@ -111,9 +111,14 @@ QJsonObject CModList::copyField(QJsonObject data, QString from, QString to)
 	return renamed;
 }
 
+void CModList::resetRepositories()
+{
+	repositories.clear();
+}
+
 void CModList::addRepository(QJsonObject data)
 {
-	repositores.push_back(copyField(data, "version", "latestVersion"));
+	repositories.push_back(copyField(data, "version", "latestVersion"));
 }
 
 void CModList::setLocalModList(QJsonObject data)
@@ -134,7 +139,7 @@ CModEntry CModList::getMod(QString modname) const
 	QJsonObject local = localModList[modname].toObject();
 	QJsonValue settings = modSettings[modname];
 
-	for (auto entry : repositores)
+	for (auto entry : repositories)
 	{
 		if (entry.contains(modname))
 		{
@@ -157,7 +162,7 @@ bool CModList::hasMod(QString modname) const
 	if (localModList.contains(modname))
 		return true;
 
-	for (auto entry : repositores)
+	for (auto entry : repositories)
 		if (entry.contains(modname))
 			return true;
 
@@ -184,7 +189,7 @@ QVector<QString> CModList::getModList() const
 {
 	QSet<QString> knownMods;
 	QVector<QString> modList;
-	for (auto repo : repositores)
+	for (auto repo : repositories)
 	{
 		for (auto it = repo.begin(); it != repo.end(); it++)
 		{

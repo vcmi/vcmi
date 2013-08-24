@@ -19,6 +19,7 @@ class CModManager
 public:
 	CModManager(CModList * modList);
 
+	void resetRepositories();
 	void loadRepository(QString filename);
 	void loadModSettings();
 	void loadMods();

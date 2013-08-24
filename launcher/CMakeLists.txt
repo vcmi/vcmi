@@ -5,29 +5,29 @@ include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS})
 
 set(launcher_modmanager_SRCS
-	modManager/cdownloadmanager.cpp
+	modManager/cdownloadmanager_moc.cpp
 	modManager/cmodlist.cpp
-	modManager/cmodlistmodel.cpp
-	modManager/cmodlistview.cpp
+	modManager/cmodlistmodel_moc.cpp
+	modManager/cmodlistview_moc.cpp
 	modManager/cmodmanager.cpp
 )
 
 set(launcher_settingsview_SRCS
-	settingsView/csettingsview.cpp
+	settingsView/csettingsview_moc.cpp
 )
 
 set(launcher_SRCS
 	${launcher_modmanager_SRCS}
 	${launcher_settingsview_SRCS}
 	main.cpp
-	mainwindow.cpp
+	mainwindow_moc.cpp
 	launcherdirs.cpp
 )
 
 set(launcher_FORMS
-	modManager/cmodlistview.ui
-	settingsView/csettingsview.ui
-	mainwindow.ui
+	modManager/cmodlistview_moc.ui
+	settingsView/csettingsview_moc.ui
+	mainwindow_moc.ui
 )
 
 # Tell CMake to run moc when necessary:

@@ -1,13 +1,13 @@
 #include "StdInc.h"
-#include "cmodlistview.h"
-#include "ui_cmodlistview.h"
+#include "cmodlistview_moc.h"
+#include "ui_cmodlistview_moc.h"
 
 #include <QJsonArray>
 #include <QCryptographicHash>
 
-#include "cmodlistmodel.h"
+#include "cmodlistmodel_moc.h"
 #include "cmodmanager.h"
-#include "cdownloadmanager.h"
+#include "cdownloadmanager_moc.h"
 #include "launcherdirs.h"
 
 #include "../lib/CConfigHandler.h"
@@ -42,12 +42,16 @@ void CModListView::setupModsView()
 
 	connect( filterModel, SIGNAL( modelReset()),
 	         this, SLOT( modelReset()));
+
+	selectMod(filterModel->rowCount() > 0 ? 0 : -1);
 }
 
 CModListView::CModListView(QWidget *parent) :
 	QWidget(parent),
+    settingsListener(settings.listen["launcher"]["repositoryURL"]),
 	ui(new Ui::CModListView)
 {
+	settingsListener([&](const JsonNode &){ repositoriesChanged = true; });
 	ui->setupUi(this);
 
 	setupModModel();
@@ -56,10 +60,12 @@ CModListView::CModListView(QWidget *parent) :
 
 	ui->progressWidget->setVisible(false);
 	dlManager = nullptr;
+	loadRepositories();
+}
 
-	// hide mod description on start. looks better this way
-	hideModInfo();
-
+void CModListView::loadRepositories()
+{
+	manager->resetRepositories();
 	for (auto entry : settings["launcher"]["repositoryURL"].Vector())
 	{
 		QString str = QString::fromUtf8(entry.String().c_str());
@@ -75,6 +81,16 @@ CModListView::CModListView(QWidget *parent) :
 CModListView::~CModListView()
 {
 	delete ui;
+}
+
+void CModListView::showEvent(QShowEvent * event)
+{
+	QWidget::showEvent(event);
+	if (repositoriesChanged)
+	{
+		repositoriesChanged = false;
+		loadRepositories();
+	}
 }
 
 void CModListView::showModInfo()
@@ -174,6 +190,7 @@ QString CModListView::genModInfoText(CModEntry &mod)
 
 void CModListView::enableModInfo()
 {
+	showModInfo();
 	ui->hideModInfoButton->setEnabled(true);
 }
 
@@ -514,5 +531,6 @@ void CModListView::on_pushButton_clicked()
 
 void CModListView::modelReset()
 {
-	selectMod(filterModel->mapToSource(ui->allModsView->currentIndex()).row());
+	//selectMod(filterModel->mapToSource(ui->allModsView->currentIndex()).row());
+	selectMod(filterModel->rowCount() > 0 ? 0 : -1);
 }

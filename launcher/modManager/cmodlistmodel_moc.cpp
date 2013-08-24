@@ -1,5 +1,5 @@
 #include "StdInc.h"
-#include "cmodlistmodel.h"
+#include "cmodlistmodel_moc.h"
 
 #include <QIcon>
 
@@ -108,6 +108,13 @@ QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int
 	if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
 		return ModFields::header[section];
 	return QVariant();
+}
+
+void CModListModel::resetRepositories()
+{
+	beginResetModel();
+	CModList::resetRepositories();
+	endResetModel();
 }
 
 void CModListModel::addRepository(QJsonObject data)

@@ -1,5 +1,5 @@
 #include "StdInc.h"
-#include "cdownloadmanager.h"
+#include "cdownloadmanager_moc.h"
 
 #include "launcherdirs.h"
 

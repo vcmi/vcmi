@@ -1,5 +1,5 @@
 #include "StdInc.h"
-#include "mainwindow.h"
+#include "mainwindow_moc.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])

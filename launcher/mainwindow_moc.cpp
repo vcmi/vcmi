@@ -1,6 +1,6 @@
 #include "StdInc.h"
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "mainwindow_moc.h"
+#include "ui_mainwindow_moc.h"
 
 #include <QProcess>
 #include <QDir>
@@ -46,13 +46,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_startGameButon_clicked()
 {
-#if defined(Q_OS_WIN)
-	QString clientName = "VCMI_Client.exe";
-#else
-	// TODO: Right now launcher will only start vcmi from system-default locations
-	QString clientName = "vcmiclient";
-#endif
-	startExecutable(clientName);
+	startExecutable(QString::fromUtf8(VCMIDirs::get().clientPath().c_str()));
 }
 
 void MainWindow::startExecutable(QString name)
@@ -68,7 +62,8 @@ void MainWindow::startExecutable(QString name)
 	{
 		QMessageBox::critical(this,
 		                      "Error starting executable",
-		                      "Failed to start " + name + ": " + process.errorString(),
+		                      "Failed to start " + name + "\n"
+		                      "Reason: " + process.errorString(),
 		                      QMessageBox::Ok,
 		                      QMessageBox::Ok);
 		return;

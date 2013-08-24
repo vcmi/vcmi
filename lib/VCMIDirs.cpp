@@ -60,6 +60,11 @@ std::string VCMIDirs::libraryPath() const
 	return userDataPath();
 }
 
+std::string VCMIDirs::clientPath() const
+{
+	return userDataPath() + "\\" + "VCMI_client.exe";
+}
+
 std::string VCMIDirs::serverPath() const
 {
 	return userDataPath() + "\\" + "VCMI_server.exe";
@@ -96,9 +101,14 @@ std::string VCMIDirs::libraryPath() const
 	return ".";
 }
 
+std::string VCMIDirs::clientPath() const
+{
+	return userDataPath() + "\\" + "VCMI_client.exe";
+}
+
 std::string VCMIDirs::serverPath() const
 {
-	return "./vcmiserver";
+	return userDataPath() + "\\" + "VCMI_server.exe";
 }
 
 std::vector<std::string> VCMIDirs::dataPaths() const
@@ -123,6 +133,11 @@ std::string VCMIDirs::userDataPath() const
 std::string VCMIDirs::libraryPath() const
 {
 	return M_LIB_DIR;
+}
+
+std::string VCMIDirs::clientPath() const
+{
+	return std::string(M_BIN_DIR) + "/" + "vcmiclient";
 }
 
 std::string VCMIDirs::serverPath() const

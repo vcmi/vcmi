@@ -52,12 +52,13 @@ public:
 
 class CModList
 {
-	QVector<QJsonObject> repositores;
+	QVector<QJsonObject> repositories;
 	QJsonObject localModList;
 	QJsonObject modSettings;
 
 	QJsonObject copyField(QJsonObject data, QString from, QString to);
 public:
+	virtual void resetRepositories();
 	virtual void addRepository(QJsonObject data);
 	virtual void setLocalModList(QJsonObject data);
 	virtual void setModSettings(QJsonObject data);

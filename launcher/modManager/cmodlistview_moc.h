@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Global.h"
+#include "../../lib/CConfigHandler.h"
+
 namespace Ui {
 	class CModListView;
 }
@@ -21,11 +24,17 @@ class CModListView : public QWidget
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
 
+	SettingsListener settingsListener;
+	bool repositoriesChanged;
+
+	void showEvent(QShowEvent * event);
+
 	void keyPressEvent(QKeyEvent * event);
 
 	void setupModModel();
 	void setupFilterModel();
 	void setupModsView();
+	void loadRepositories();
 
 	// find mods unknown to mod list (not present in repo and not installed)
 	QStringList findInvalidDependencies(QString mod);
