@@ -113,6 +113,10 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 
 		return attack;
 	}
+	else if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON))
+	{
+		return BattleAction::makeDefend(stack);
+	}
 
 	for (const CStack *s : cb->battleGetStacks(CBattleCallback::ONLY_ENEMY))
 	{

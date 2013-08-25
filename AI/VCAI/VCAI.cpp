@@ -3412,10 +3412,32 @@ TSubgoal CGoal::whatToDoToAchieve()
 				}
 
 				std::vector<const CGObjectInstance *> objs; //here we'll gather all dwellings
-				ai->retreiveVisitableObjs(objs);
+				ai->retreiveVisitableObjs(objs, true);
 				erase_if(objs, [&](const CGObjectInstance *obj)
 				{
-					return (obj->ID != Obj::CREATURE_GENERATOR1);
+					if(obj->ID != Obj::CREATURE_GENERATOR1)
+						return true;
+
+					auto relationToOwner = cb->getPlayerRelations(obj->getOwner(), ai->playerID);
+					if(relationToOwner == PlayerRelations::ALLIES)
+						return true;
+
+					//Use flagged dwellings only when there are available creatures that we can afford
+					if(relationToOwner == PlayerRelations::SAME_PLAYER)
+					{
+						auto dwelling = dynamic_cast<const CGDwelling*>(obj);
+						for(auto & creLevel : dwelling->creatures)
+						{
+							if(creLevel.first)
+							{
+								auto creature = VLC->creh->creatures[creLevel.second.front()];
+								if(cb->getResourceAmount().canAfford(creature->cost))
+									return false;
+							}
+						}
+					}
+
+					return true;
 				});
 				if(objs.empty()) //no possible objects, we did eveyrthing already
 					return CGoal(EXPLORE).sethero(hero);

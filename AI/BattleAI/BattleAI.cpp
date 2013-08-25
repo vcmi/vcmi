@@ -112,6 +112,20 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		print("activeStack called for " + stack->nodeName());
 		if(stack->type->idNumber == CreatureID::CATAPULT)
 			return useCatapult(stack);
+		
+		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->hasBonusOfType(Bonus::HEALER))
+		{
+			auto healingTargets = cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
+			std::map<int, const CStack*> woundHpToStack;
+			for(auto stack : healingTargets)
+				if(auto woundHp = stack->MaxHealth() - stack->firstHPleft)
+					woundHpToStack[woundHp] = stack;
+
+			if(woundHpToStack.size())
+				return BattleAction::makeHeal(stack, woundHpToStack.rbegin()->second); //last element of the woundHpToStack is the most wounded stack
+			else
+				return BattleAction::makeDefend(stack);
+		}
 
 		if(cb->battleCanCastSpell())
 			attemptCastingSpell();

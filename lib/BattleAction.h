@@ -32,6 +32,7 @@ struct DLL_LINKAGE BattleAction
 
 	BattleAction();
 
+	static BattleAction makeHeal(const CStack *healer, const CStack *healed);
 	static BattleAction makeDefend(const CStack *stack);
 	static BattleAction makeWait(const CStack *stack);
 	static BattleAction makeMeleeAttack(const CStack *stack, const CStack * attacked, BattleHex attackFrom = BattleHex::INVALID);

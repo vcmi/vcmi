@@ -24,6 +24,16 @@ BattleAction::BattleAction()
 	additionalInfo = -1;
 }
 
+BattleAction BattleAction::makeHeal(const CStack *healer, const CStack *healed)
+{
+	BattleAction ba;
+	ba.side = !healer->attackerOwned;
+	ba.actionType = STACK_HEAL;
+	ba.stackNumber = healer->ID;
+	ba.destinationTile = healed->position;
+	return ba;
+}
+
 BattleAction BattleAction::makeDefend(const CStack *stack)
 {
 	BattleAction ba;
