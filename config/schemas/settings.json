@@ -233,7 +233,9 @@
 			"properties" : {
 				"repositoryURL" : {
 					"type" : "array",
-					"default" : [ ],
+					"default" : [
+						"http://download.vcmi.eu/mods/repository/repository.json"
+					],
 					"items" : {
 						"type" : "string"
 					},
