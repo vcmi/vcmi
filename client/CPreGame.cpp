@@ -2019,6 +2019,9 @@ void InfoCard::showAll(SDL_Surface * to)
 
 			if(!chatOn)
 			{
+				CDefHandler * loss    = CGP ? CGP->loss    : CDefHandler::giveDef("SCNRLOSS.DEF");
+				CDefHandler * victory = CGP ? CGP->victory : CDefHandler::giveDef("SCNRVICT.DEF");
+
 				//victory conditions
 				temp = SEL->current->mapHeader->victoryCondition.condition+1;
 				if (temp>20) temp=0;
@@ -2028,7 +2031,7 @@ void InfoCard::showAll(SDL_Surface * to)
 
 				temp = SEL->current->mapHeader->victoryCondition.condition;
 				if (temp>12) temp=11;
-				blitAtLoc(CGP->victory->ourImages[temp].bitmap, 24, 302, to); //victory cond descr
+				blitAtLoc(victory->ourImages[temp].bitmap, 24, 302, to); //victory cond descr
 
 				//loss conditoins
 				temp = SEL->current->mapHeader->lossCondition.typeOfLossCon+1;
@@ -2038,7 +2041,13 @@ void InfoCard::showAll(SDL_Surface * to)
 
 				temp=SEL->current->mapHeader->lossCondition.typeOfLossCon;
 				if (temp>12) temp=3;
-				blitAtLoc(CGP->loss->ourImages[temp].bitmap, 24, 359, to); //loss cond
+				blitAtLoc(loss->ourImages[temp].bitmap, 24, 359, to); //loss cond
+
+				if (!CGP)
+				{
+					delete loss;
+					delete victory;
+				}
 			}
 
 			//difficulty
