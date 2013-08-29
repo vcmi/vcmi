@@ -379,7 +379,7 @@ public:
 	// total size of text, x = longest line of text, y = total height of lines
 	Point textSize;
 
-	CMultiLineLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
+	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
 
 	void setText(const std::string &Txt);
 	void showAll(SDL_Surface * to);

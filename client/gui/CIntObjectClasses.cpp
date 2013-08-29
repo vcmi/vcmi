@@ -1204,10 +1204,12 @@ void CLabel::setText(const std::string &Txt)
 	}
 }
 
-CMultiLineLabel::CMultiLineLabel(int x, int y, EFonts Font, EAlignment Align, const SDL_Color &Color, const std::string &Text):
-    CLabel(x, y, Font, Align, Color, Text),
-    visibleSize(0, 0, 0, 0)
+CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, EAlignment Align, const SDL_Color &Color, const std::string &Text):
+    CLabel(position.x, position.y, Font, Align, Color, Text),
+    visibleSize(0, 0, position.w, position.h)
 {
+	pos.w = position.w;
+	pos.h = position.h;
 	splitText(Text);
 }
 
@@ -1298,9 +1300,20 @@ void CMultiLineLabel::showAll(SDL_Surface * to)
 	const IFont * f = graphics->fonts[font];
 
 	// calculate which lines should be visible
-	size_t totalLines = lines.size();
-	size_t beginLine  = visibleSize.y / f->getLineHeight();
-	size_t endLine    = (getTextLocation().h + visibleSize.y) / f->getLineHeight() + 1;
+	int totalLines = lines.size();
+	int beginLine  = visibleSize.y;
+	int endLine    = getTextLocation().h + visibleSize.y;
+
+	if (beginLine < 0)
+		beginLine = 0;
+	else
+		beginLine /= f->getLineHeight();
+
+	if (endLine < 0)
+		endLine = 0;
+	else
+		endLine /= f->getLineHeight();
+	endLine++;
 
 	// and where they should be displayed
 	Point lineStart = getTextLocation().topLeft() - visibleSize + Point(0, beginLine * f->getLineHeight());
@@ -1308,7 +1321,7 @@ void CMultiLineLabel::showAll(SDL_Surface * to)
 
 	CSDL_Ext::CClipRectGuard guard(to, getTextLocation()); // to properly trim text that is too big to fit
 
-	for (size_t i = beginLine; i < std::min(totalLines, endLine); i++)
+	for (int i = beginLine; i < std::min(totalLines, endLine); i++)
 	{
 		if (!lines[i].empty()) //non-empty line
 			blitLine(to, Rect(lineStart, lineSize), lines[i]);
@@ -1369,11 +1382,11 @@ CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts F
     slider(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	label = new CMultiLineLabel(rect.x, rect.y, Font, Align, Color);
+	label = new CMultiLineLabel(rect, Font, Align, Color);
 
 	type |= REDRAW_PARENT;
-	label->pos.h = pos.h = rect.h;
-	label->pos.w = pos.w = rect.w;
+	pos.h = rect.h;
+	pos.w = rect.w;
 
 	assert(pos.w >= 40); //we need some space
 	setText(Text);

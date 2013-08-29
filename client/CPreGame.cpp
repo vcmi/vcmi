@@ -396,7 +396,8 @@ CMenuEntry::CMenuEntry(CMenuScreen* parent, const JsonNode &config)
 	}
 }
 
-CreditsScreen::CreditsScreen()
+CreditsScreen::CreditsScreen():
+    positionCounter(0)
 {
 	addUsedEvents(LCLICK | RCLICK);
 	type |= REDRAW_PARENT;
@@ -407,34 +408,19 @@ CreditsScreen::CreditsScreen()
 	std::string text((char*)textFile.first.get(), textFile.second);
 	size_t firstQuote = text.find('\"')+1;
 	text = text.substr(firstQuote, text.find('\"', firstQuote) - firstQuote );
-	credits = new CTextBox(text, Rect(pos.w - 350, 600, 350, 32000), 0, FONT_CREDITS, CENTER, Colors::WHITE);
-	credits->pos.h = credits->label->textSize.y;
-}
-
-void CreditsScreen::showAll(SDL_Surface * to)
-{
-	//Do not draw anything
+	credits = new CMultiLineLabel(Rect(pos.w - 350, 0, 350, 600), FONT_CREDITS, CENTER, Colors::WHITE, text);
+	credits->scrollTextTo(-600); // move all text below the screen
 }
 
 void CreditsScreen::show(SDL_Surface * to)
 {
-	static int count = 0;
-	count++;
-	if (count == 2)
-	{
-		credits->pos.y--;
-		count = 0;
-	}
-	Rect creditsArea = credits->pos & pos;
-	SDL_SetClipRect(screenBuf, &creditsArea);
-	SDL_SetClipRect(screen, &creditsArea);
-	redraw();
-	CIntObject::showAll(to);
-	SDL_SetClipRect(screen, nullptr);
-	SDL_SetClipRect(screenBuf, nullptr);
+	CIntObject::show(to);
+	positionCounter++;
+	if (positionCounter % 2 == 0)
+		credits->scrollTextBy(1);
 
 	//end of credits, close this screen
-	if (credits->pos.y + credits->pos.h < 0)
+	if (credits->textSize.y + 600 < positionCounter / 2)
 		clickRight(false, false);
 }
 
@@ -4091,45 +4077,51 @@ void CLoadingScreen::showAll(SDL_Surface *to)
 	CWindowObject::showAll(to);
 }
 
-CPrologEpilogVideo::CPrologEpilogVideo( CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback )
-	: spe(_spe), decrementDelayCounter(0), exitCb(callback)
+CPrologEpilogVideo::CPrologEpilogVideo( CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback ):
+    CWindowObject(BORDERED),
+    spe(_spe),
+    positionCounter(0),
+    voiceSoundHandle(-1),
+    exitCb(callback)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	addUsedEvents(LCLICK);
-	pos = Rect(screen);
+	pos = center(Rect(0,0, 800, 600));
+	updateShadow();
 
 	CCS->videoh->open(CCampaignHandler::prologVideoName(spe.prologVideo));
+	CCS->musich->playMusic("Music/" + CCampaignHandler::prologMusicName(spe.prologMusic), true);
+	voiceSoundHandle = CCS->soundh->playSound(CCampaignHandler::prologVoiceName(spe.prologVideo));
 
-	auto lines = CMessage::breakText(spe.prologText, 500, EFonts::FONT_BIG);
-
-	txt = CSDL_Ext::newSurface(500, 20 * lines.size() + 10);
-	curTxtH = screen->h;
-	graphics->fonts[FONT_BIG]->renderTextLinesCenter(txt, lines, Colors::METALLIC_GOLD, Point(txt->w/2, txt->h/2 + 5));
+	text = new CMultiLineLabel(Rect(100, 500, 600, 100), EFonts::FONT_BIG, CENTER, Colors::METALLIC_GOLD, spe.prologText );
+	text->scrollTextTo(-100);
 }
 
 void CPrologEpilogVideo::show( SDL_Surface * to )
 {
-	memset(to->pixels, 0, to->h*to->pitch); //make bg black
-	CCS->videoh->update(pos.x, pos.y, to, true, false);
-	SDL_Rect tmp, our;
-	our = Rect(0, to->h-100, to->w, 100);
-	SDL_GetClipRect(to, &tmp);
-	SDL_SetClipRect(to, &our);
-	blitAt(txt, (to->w-txt->w)/2, curTxtH, to);
-	SDL_SetClipRect(to, &tmp);
+	CSDL_Ext::fillRect(to, &pos, 0); // fill screen with black
+	//BUG: some videos are 800x600 in size while some are 800x400
+	//VCMI should center them in the middle of the screen. Possible but needs modification
+	//of video player API which I'd like to avoid untill we'll get rid of Windows-specific player
+	CCS->videoh->update(pos.x, pos.y, to, false, false);
 
 	//move text every 5 calls/frames; seems to be good enough
-	++decrementDelayCounter;
-	if(decrementDelayCounter == 5)
+	++positionCounter;
+	if(positionCounter % 5 == 0)
 	{
-		curTxtH = std::max(curTxtH - 1, to->h - txt->h);
-		decrementDelayCounter = 0;
+		text->scrollTextBy(1);
 	}
+	else
+		text->showAll(to);// blit text over video, if needed
+
+	if (text->textSize.y + 100 < positionCounter / 5)
+		clickLeft(false, false);
 }
 
 void CPrologEpilogVideo::clickLeft( tribool down, bool previousState )
 {
 	GH.popInt(this);
+	CCS->soundh->stopSound(voiceSoundHandle);
 	exitCb();
 }
 

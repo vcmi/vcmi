@@ -181,6 +181,7 @@ class DLL_LINKAGE CCampaignHandler
 public:
 	static std::string prologVideoName(ui8 index);
 	static std::string prologMusicName(ui8 index);
+	static std::string prologVoiceName(ui8 index);
 
 	static CCampaignHeader getHeader( const std::string & name); //name - name of appropriate file
 

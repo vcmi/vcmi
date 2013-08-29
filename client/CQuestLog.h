@@ -38,8 +38,8 @@ class CQuestLabel : public LRClickableAreaWText, public CMultiLineLabel
 public:
 	std::function<void()> callback;
 
-	CQuestLabel (int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "")
-		: CMultiLineLabel (x, y, FONT_SMALL, TOPLEFT, Colors::WHITE, Text){};
+	CQuestLabel (Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "")
+		: CMultiLineLabel (position, FONT_SMALL, TOPLEFT, Colors::WHITE, Text){};
 	void clickLeft(tribool down, bool previousState);
 	void showAll(SDL_Surface * to);
 };

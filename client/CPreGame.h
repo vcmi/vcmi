@@ -89,12 +89,12 @@ public:
 
 class CreditsScreen : public CIntObject
 {
-	CTextBox* credits;
+	int positionCounter;
+	CMultiLineLabel* credits;
 public:
 	CreditsScreen();
 
 	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
 
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
@@ -434,12 +434,14 @@ public:
 };
 
 
-class CPrologEpilogVideo : public CIntObject
+class CPrologEpilogVideo : public CWindowObject
 {
 	CCampaignScenario::SScenarioPrologEpilog spe;
-	SDL_Surface * txt;
-	int curTxtH, decrementDelayCounter;
+	int positionCounter;
+	int voiceSoundHandle;
 	std::function<void()> exitCb;
+
+	CMultiLineLabel * text;
 public:
 	CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback);
 

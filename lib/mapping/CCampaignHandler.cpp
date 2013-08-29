@@ -482,6 +482,20 @@ std::string CCampaignHandler::prologVideoName(ui8 index)
 
 std::string CCampaignHandler::prologMusicName(ui8 index)
 {
+	std::vector<std::string> music;
+
+	VLC->generaltexth->readToVector("Data/CmpMusic.txt", music);
+	if(index < music.size())
+		return music[index];
+	return "";
+}
+
+std::string CCampaignHandler::prologVoiceName(ui8 index)
+{
+	JsonNode config(ResourceID(std::string("CONFIG/campaignMedia"), EResType::TEXT));
+	auto audio = config["voice"].Vector();
+	if(index < audio.size())
+		return audio[index].String();
 	return "";
 }
 

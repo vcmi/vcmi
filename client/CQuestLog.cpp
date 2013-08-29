@@ -142,9 +142,8 @@ void CQuestLog::init()
 		quests[i].quest->getRolloverText (text, false);
 		if (quests[i].obj)
 			text.addReplacement (quests[i].obj->getHoverText()); //get name of the object
-		CQuestLabel * label = new CQuestLabel (28, 199 + i * 24, FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
+		CQuestLabel * label = new CQuestLabel (Rect(28, 199 + i * 24, 172,30), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
 		label->callback = boost::bind(&CQuestLog::selectQuest, this, i);
-		label->setVisibleSize (Rect(0, 0, 172, 30));
 		labels.push_back(label);
 	}
 

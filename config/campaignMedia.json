@@ -125,9 +125,11 @@
 		"H3x2_UAl.smk", //UnholyAlliance_l
  		"H3x2_UAm.smk", //UnholyAlliance_end //H3x2_UAm.bik?
 	],
+
 	"music" : [
-		
+		// Use CmpMusic.txt from H3 instead
 	],
+
 	"voice" : [
 	//Restoration of Erathia
 		"G1A", //Long live the Queen 1 
