@@ -128,7 +128,7 @@
 	"music" : [
 		
 	],
-	"voice" : {
+	"voice" : [
 	//Restoration of Erathia
 		"G1A", //Long live the Queen 1 
 		"G1B", //Long live the Queen 2 
@@ -233,5 +233,5 @@
 		"H3x2UAk", //Unholy alliance 11 
 		"H3x2UAl", //Unholy alliance 12 
 		"H3x2UAm" //Unholy alliance 12end
-	}
+	]
 }

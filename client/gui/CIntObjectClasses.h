@@ -192,10 +192,11 @@ class CSlider : public CIntObject
 {
 public:
 	CAdventureMapButton *left, *right, *slider; //if vertical then left=up
-	int capacity,//how many elements can be active at same time
-		amount, //how many elements
-		positions, //number of highest position (0 if there is only one)
-		value; //first active element
+	int capacity;//how many elements can be active at same time (e.g. hero list = 5)
+	int amount; //total amount of elements (e.g. hero list = 0-8)
+	int positions; //number of highest position (0 if there is only one)
+	int value; //first active element
+	int scrollStep; // how many elements will be scrolled via one click, default = 1
 	bool horizontal;
 	bool wheelScrolling;
 	bool keyScrolling;
@@ -279,7 +280,7 @@ public:
 	//Pos - position of first item
 	//ItemOffset - distance between items in the list
 	//VisibleSize - maximal number of displayable at once items
-	//TotalSize 
+	//TotalSize
 	//Slider - slider style, bit field: 1 = present(disabled), 2=horisontal(vertical), 4=blue(brown)
 	//SliderPos - position of slider, if present
 	CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point ItemOffset, size_t VisibleSize,
@@ -312,109 +313,121 @@ public:
 	size_t getPos();
 };
 
+/// Small helper class to manage group of similar labels
+class CLabelGroup : public CIntObject
+{
+	std::list<CLabel*> labels;
+	EFonts font;
+	EAlignment align;
+	SDL_Color color;
+public:
+	CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
+	void add(int x=0, int y=0, const std::string &text =  "");
+};
+
+/// Base class for all text-related widgets.
+/// Controls text blitting-related options
 class CTextContainer : public virtual CIntObject
 {
 protected:
-	void blitLine(SDL_Surface * to, Point where, std::string what);
+	/// returns size of border, for left- or right-aligned text
+	virtual Point getBorderSize() = 0;
+	/// do actual blitting of line. Text "what" will be placed at "where" and aligned according to alignment
+	void blitLine(SDL_Surface * to, Rect where, std::string what);
 
 	CTextContainer(EAlignment alignment, EFonts font, SDL_Color color);
-	//CTextContainer() {};
 
 public:
 	EAlignment alignment;
 	EFonts font;
-	SDL_Color color;
+	SDL_Color color; // default font color. Can be overriden by placing "{}" into the string
 };
 
 /// Label which shows text
 class CLabel : public CTextContainer
 {
 protected:
-	virtual std::string visibleText();
+	Point getBorderSize() override;
 
-public:
-	std::string text;
 	CPicture *bg;
-	bool autoRedraw;  //whether control will redraw itself on setTxt
-	Point textOffset; //text will be blitted at pos + textOffset with appropriate alignment
-	bool ignoreLeadingWhitespace; 
+public:
 
-	virtual void setTxt(const std::string &Txt);
+	std::string text;
+	bool autoRedraw;  //whether control will redraw itself on setTxt
+
+	std::string getText();
+	virtual void setText(const std::string &Txt);
+
+	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT,
+	       const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
 	void showAll(SDL_Surface * to); //shows statusbar (with current text)
-    CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
 };
 
-class CBoundedLabel : public CLabel
+/// Multi-line label that can display multiple lines of text
+/// If text is too big to fit into requested area remaining part will not be visible
+class CMultiLineLabel : public CLabel
 {
-public:
-
-	int maxW; //longest line of text in px
-	int maxH; //total height needed to print all lines
-
+	// text to blit, split into lines that are no longer than widget width
 	std::vector<std::string> lines;
 
-    CBoundedLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "")
-		: CLabel (x, y, Font, Align, Color, Text){};
-	void setTxt(const std::string &Txt);
-	void setBounds(int limitW, int limitH);
-	virtual void recalculateLines(const std::string &Txt);
+	// area of text that actually will be printed, default is widget size
+	Rect visibleSize;
+
+	void splitText(const std::string &Txt);
+	Rect getTextLocation();
+public:
+	// total size of text, x = longest line of text, y = total height of lines
+	Point textSize;
+
+	CMultiLineLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
+
+	void setText(const std::string &Txt);
 	void showAll(SDL_Surface * to);
+
+	void setVisibleSize(Rect visibleSize);
+	// scrolls text visible in widget. Positive value will move text up
+	void scrollTextTo(int distance);
+	void scrollTextBy(int distance);
 };
 
-//Small helper class to manage group of similar labels 
-class CLabelGroup : public CIntObject
+/// a multi-line label that tries to fit text with given available width and height;
+/// if not possible, it creates a slider for scrolling text
+class CTextBox : public CIntObject
 {
-	std::list<CLabel*> labels;
-	EFonts font;
-	EAlignment align;
-	const SDL_Color &color;
-public:
-    CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
-	void add(int x=0, int y=0, const std::string &text =  "");
-};
-
-/// a multi-line label that tries to fit text with given available width and height; if not possible, it creates a slider for scrolling text
-class CTextBox : public CBoundedLabel
-{
-public:
-
 	int sliderStyle;
-
-	std::vector<CAnimImage* > effects;
+public:
+	CMultiLineLabel * label;
 	CSlider *slider;
 
-    //CTextBox( std::string Text, const Point &Pos, int w, int h, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
-    CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
-	void showAll(SDL_Surface * to); //shows statusbar (with current text)
-	void recalculateLines(const std::string &Txt);
+	CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
 
+	void resize(Point newSize);
+	void setText(const std::string &Txt);
 	void sliderMoved(int to);
 };
 
 /// Status bar which is shown at the bottom of the in-game screens
 class CGStatusBar : public CLabel
 {
-    bool textLock; //Used for blocking changes to the text
+	bool textLock; //Used for blocking changes to the text
 	void init();
-public:
-	CGStatusBar *oldStatusBar;
 
-	//statusbar interface overloads
-	void print(const std::string & Text); //prints text and refreshes statusbar
+	CGStatusBar *oldStatusBar;
+protected:
+	Point getBorderSize() override;
+
+public:
+
 	void clear();//clears statusbar and refreshes
-	std::string getCurrent(); //returns currently displayed text
+	void setText(const std::string & Text) override; //prints text and refreshes statusbar
+
 	void show(SDL_Surface * to); //shows statusbar (with current text)
 
-    //CGStatusBar(int x, int y, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
-    CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::WHITE); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
-	CGStatusBar(int x, int y, std::string name, int maxw=-1); 
-
+	CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::WHITE); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
+	CGStatusBar(int x, int y, std::string name, int maxw=-1);
 	~CGStatusBar();
-	void calcOffset();
 
-    void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called
-
-    const static Point edgeOffset; //Amount to move text from side when alignment is left or right
+	void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called
 };
 
 /// UIElement which can get input focus
@@ -441,7 +454,7 @@ protected:
 public:
 	CFunctionList<void(const std::string &)> cb;
 	CFunctionList<void(std::string &, const std::string &)> filters;
-	void setTxt(const std::string &nText, bool callCb = false);
+	void setText(const std::string &nText, bool callCb = false);
 
 	CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(const std::string &)> &CB);
 	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);

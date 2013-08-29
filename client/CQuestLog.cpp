@@ -43,7 +43,7 @@ void CQuestLabel::clickLeft(tribool down, bool previousState)
 void CQuestLabel::showAll(SDL_Surface * to)
 {
 	if (active)
-		CBoundedLabel::showAll (to);
+		CMultiLineLabel::showAll (to);
 }
 
 CQuestIcon::CQuestIcon (const std::string &defname, int index, int x, int y) :
@@ -144,7 +144,7 @@ void CQuestLog::init()
 			text.addReplacement (quests[i].obj->getHoverText()); //get name of the object
 		CQuestLabel * label = new CQuestLabel (28, 199 + i * 24, FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
 		label->callback = boost::bind(&CQuestLog::selectQuest, this, i);
-		label->setBounds (172, 30);
+		label->setVisibleSize (Rect(0, 0, 172, 30));
 		labels.push_back(label);
 	}
 
@@ -192,7 +192,7 @@ void CQuestLog::selectQuest (int which)
 	MetaString text;
 	std::vector<Component> components; //TODO: display them
 	currentQuest->quest->getVisitText (text, components , currentQuest->quest->isCustomFirst, true);
-	description->setTxt (text.toString()); //TODO: use special log entry text
+	description->setText (text.toString()); //TODO: use special log entry text
 	redraw();
 }
 

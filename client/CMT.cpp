@@ -443,7 +443,7 @@ void printInfoAboutIntObject(const CIntObject *obj, int level)
         sbuffer << "inactive";
     sbuffer << " at " << obj->pos.x <<"x"<< obj->pos.y;
     sbuffer << " (" << obj->pos.w <<"x"<< obj->pos.h << ")";
-    logGlobal->debugStream() << sbuffer.str();
+    logGlobal->infoStream() << sbuffer.str();
 
 	for(const CIntObject *child : obj->children)
 		printInfoAboutIntObject(child, level+1);

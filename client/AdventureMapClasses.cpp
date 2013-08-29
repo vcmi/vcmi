@@ -71,7 +71,7 @@ void CList::CListItem::clickLeft(tribool down, bool previousState)
 void CList::CListItem::hover(bool on)
 {
 	if (on)
-		GH.statusbar->print(getHoverText());
+		GH.statusbar->setText(getHoverText());
 	else
 		GH.statusbar->clear();
 }
@@ -561,7 +561,7 @@ void CMinimap::clickRight(tribool down, bool previousState)
 void CMinimap::hover(bool on)
 {
 	if (on)
-		GH.statusbar->print(CGI->generaltexth->zelp[291].first);
+		GH.statusbar->setText(CGI->generaltexth->zelp[291].first);
 	else
 		GH.statusbar->clear();
 }
@@ -872,7 +872,7 @@ void CInfoBar::clickRight(tribool down, bool previousState)
 void CInfoBar::hover(bool on)
 {
 	if (on)
-		GH.statusbar->print(CGI->generaltexth->zelp[292].first);
+		GH.statusbar->setText(CGI->generaltexth->zelp[292].first);
 	else
 		GH.statusbar->clear();
 }

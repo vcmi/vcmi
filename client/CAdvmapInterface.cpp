@@ -1231,13 +1231,13 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	{
 		std::string text = objAtTile->getHoverText();
 		boost::replace_all(text,"\n"," ");
-		statusbar.print(text);
+		statusbar.setText(text);
 	}
 	else
 	{
 		std::string hlp;
 		CGI->mh->getTerrainDescr(mapPos, hlp, false);
-		statusbar.print(hlp);
+		statusbar.setText(hlp);
 	}
 
 	const CGPathNode *pnode = LOCPLINT->cb->getPathInfo(mapPos);

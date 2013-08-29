@@ -33,13 +33,13 @@ extern CAdvMapInt *adventureInt;
 
 const int QUEST_COUNT = 9;
 
-class CQuestLabel : public LRClickableAreaWText, public CBoundedLabel
+class CQuestLabel : public LRClickableAreaWText, public CMultiLineLabel
 {
 public:
 	std::function<void()> callback;
 
 	CQuestLabel (int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "")
-		: CBoundedLabel (x, y, FONT_SMALL, TOPLEFT, Colors::WHITE, Text){};
+		: CMultiLineLabel (x, y, FONT_SMALL, TOPLEFT, Colors::WHITE, Text){};
 	void clickLeft(tribool down, bool previousState);
 	void showAll(SDL_Surface * to);
 };

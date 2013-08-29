@@ -282,7 +282,7 @@ void CGarrisonSlot::hover (bool on)
 				temp = CGI->generaltexth->tcommands[11]; //Empty
 			}
 		}
-		GH.statusbar->print(temp);
+		GH.statusbar->setText(temp);
 	}
 	else
 	{
@@ -464,7 +464,7 @@ void CGarrisonSlot::update()
 		creatureImage->setFrame(creature->iconIndex);
 
 		stackCount->enable();
-		stackCount->setTxt(boost::lexical_cast<std::string>(myStack->count));
+		stackCount->setText(boost::lexical_cast<std::string>(myStack->count));
 	}
 	else
 	{
@@ -510,7 +510,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, int 
 	if (!creature)
 		stackCount->disable();
 	else
-		stackCount->setTxt(boost::lexical_cast<std::string>(myStack->count));
+		stackCount->setText(boost::lexical_cast<std::string>(myStack->count));
 }
 
 void CGarrisonInt::addSplitBtn(CAdventureMapButton * button)
@@ -667,8 +667,7 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::WHITE);
 	if(!text->slider)
 	{
-		text->pos.w = text->maxW;
-		text->pos.h = text->maxH;
+		text->resize(text->label->textSize);
 	}
 
 	if(buttons.size())
@@ -1397,7 +1396,7 @@ void CRecruitmentWindow::CCostBox::set(TResources res)
 	//just update values
 	for(auto & item : resources)
 	{
-		item.second.first->setTxt(boost::lexical_cast<std::string>(res[item.first]));
+		item.second.first->setText(boost::lexical_cast<std::string>(res[item.first]));
 	}
 }
 
@@ -1469,7 +1468,7 @@ void CRecruitmentWindow::select(CCreatureCard *card)
 		totalCostValue->set(card->creature->cost * maxAmount);
 
 		//Recruit %s
-		title->setTxt(boost::str(boost::format(CGI->generaltexth->tcommands[21]) % card->creature->namePl));
+		title->setText(boost::str(boost::format(CGI->generaltexth->tcommands[21]) % card->creature->namePl));
 
 		maxButton->block(maxAmount == 0);
 		slider->block(maxAmount == 0);
@@ -1626,8 +1625,8 @@ void CRecruitmentWindow::sliderMoved(int to)
 		return;
 
 	buyButton->block(!to);
-	availableValue->setTxt(boost::lexical_cast<std::string>(selected->amount - to));
-	toRecruitValue->setTxt(boost::lexical_cast<std::string>(to));
+	availableValue->setText(boost::lexical_cast<std::string>(selected->amount - to));
+	toRecruitValue->setText(boost::lexical_cast<std::string>(to));
 
 	totalCostValue->set(selected->creature->cost * to);
 }
@@ -1660,8 +1659,8 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	leftInput->filters.add(boost::bind(&CTextInput::numberFilter, _1, _2, leftMin, leftMax));
 	rightInput->filters.add(boost::bind(&CTextInput::numberFilter, _1, _2, rightMin, rightMax));
 
-	leftInput->setTxt(boost::lexical_cast<std::string>(leftAmount), false);
-	rightInput->setTxt(boost::lexical_cast<std::string>(rightAmount), false);
+	leftInput->setText(boost::lexical_cast<std::string>(leftAmount), false);
+	rightInput->setText(boost::lexical_cast<std::string>(rightAmount), false);
 
 	animLeft = new CCreaturePic(20, 54, creature, true, false);
 	animRight = new CCreaturePic(177, 54,creature, true, false);
@@ -1691,8 +1690,8 @@ void CSplitWindow::setAmount(int value, bool left)
 	leftAmount  = left ? value : total - value;
 	rightAmount = left ? total - value : value;
 
-	leftInput->setTxt(boost::lexical_cast<std::string>(leftAmount));
-	rightInput->setTxt(boost::lexical_cast<std::string>(rightAmount));
+	leftInput->setText(boost::lexical_cast<std::string>(leftAmount));
+	rightInput->setText(boost::lexical_cast<std::string>(rightAmount));
 }
 
 void CSplitWindow::apply()
@@ -2157,13 +2156,13 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 	{
 	case CREATURE:
 	case CREATURE_PLACEHOLDER:
-		GH.statusbar->print(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->creatures[id]->namePl));
+		GH.statusbar->setText(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->creatures[id]->namePl));
 		break;
 	case ARTIFACT_PLACEHOLDER:
 		if(id < 0)
-			GH.statusbar->print(CGI->generaltexth->zelp[582].first);
+			GH.statusbar->setText(CGI->generaltexth->zelp[582].first);
 		else
-			GH.statusbar->print(CGI->arth->artifacts[id]->Name());
+			GH.statusbar->setText(CGI->arth->artifacts[id]->Name());
 		break;
 	}
 }
@@ -2964,27 +2963,27 @@ void CMarketplaceWindow::updateTraderText()
 		if(mode == EMarketMode::RESOURCE_PLAYER)
 		{
 			//I can give %s to the %s player.
-			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[165]) % hLeft->getName() % hRight->getName()));
+			traderText->setText(boost::str(boost::format(CGI->generaltexth->allTexts[165]) % hLeft->getName() % hRight->getName()));
 		}
 		else if(mode == EMarketMode::RESOURCE_ARTIFACT)
 		{
 			//I can offer you the %s for %d %s of %s.
-			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[267]) % hRight->getName() % r1 % CGI->generaltexth->allTexts[160 + (r1==1)] % hLeft->getName()));
+			traderText->setText(boost::str(boost::format(CGI->generaltexth->allTexts[267]) % hRight->getName() % r1 % CGI->generaltexth->allTexts[160 + (r1==1)] % hLeft->getName()));
 		}
 		else if(mode == EMarketMode::RESOURCE_RESOURCE)
 		{
 			//I can offer you %d %s of %s for %d %s of %s.
-			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[157]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % r1 % CGI->generaltexth->allTexts[160 + (r1==1)] % hLeft->getName()));
+			traderText->setText(boost::str(boost::format(CGI->generaltexth->allTexts[157]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % r1 % CGI->generaltexth->allTexts[160 + (r1==1)] % hLeft->getName()));
 		}
 		else if(mode == EMarketMode::CREATURE_RESOURCE)
 		{
 			//I can offer you %d %s of %s for %d %s.
-			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[269]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % r1 % hLeft->getName(r1)));
+			traderText->setText(boost::str(boost::format(CGI->generaltexth->allTexts[269]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % r1 % hLeft->getName(r1)));
 		}
 		else if(mode == EMarketMode::ARTIFACT_RESOURCE)
 		{
 			//I can offer you %d %s of %s for your %s.
-			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[268]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % hLeft->getName(r1)));
+			traderText->setText(boost::str(boost::format(CGI->generaltexth->allTexts[268]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % hLeft->getName(r1)));
 		}
 		return;
 	}
@@ -3004,7 +3003,7 @@ void CMarketplaceWindow::updateTraderText()
 		else
 			gnrtxtnr = 163; //Please inspect our fine wares.  If you feel like offering a trade, click on the items you wish to trade with and for.
 	}
-	traderText->setTxt(CGI->generaltexth->allTexts[gnrtxtnr]);
+	traderText->setText(CGI->generaltexth->allTexts[gnrtxtnr]);
 }
 
 CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*= nullptr*/, EMarketMode::EMarketMode Mode)
@@ -3297,12 +3296,12 @@ void CAltarWindow::calcTotalExp()
 		}
 	}
 	val = hero->calculateXp(val);
-	expOnAltar->setTxt(boost::lexical_cast<std::string>(val));
+	expOnAltar->setText(boost::lexical_cast<std::string>(val));
 }
 
 void CAltarWindow::setExpToLevel()
 {
-	expToLevel->setTxt(boost::lexical_cast<std::string>(CGI->heroh->reqExp(CGI->heroh->level(hero->exp)+1) - hero->exp));
+	expToLevel->setText(boost::lexical_cast<std::string>(CGI->heroh->reqExp(CGI->heroh->level(hero->exp)+1) - hero->exp));
 }
 
 void CAltarWindow::blockTrade()
@@ -3609,7 +3608,7 @@ void CSystemOptionsWindow::setGameRes(int index)
 	resText += boost::lexical_cast<std::string>(iter->first.first);
 	resText += "x";
 	resText += boost::lexical_cast<std::string>(iter->first.second);
-	gameResLabel->setTxt(resText);
+	gameResLabel->setText(resText);
 }
 
 void CSystemOptionsWindow::toggleReminder(bool on)
@@ -3814,7 +3813,7 @@ void CTavernWindow::HeroPortrait::hover( bool on )
 {
 	//Hoverable::hover(on);
 	if(on)
-		GH.statusbar->print(hoverName);
+		GH.statusbar->setText(hoverName);
 	else
 		GH.statusbar->clear();
 }
@@ -3977,12 +3976,11 @@ void CInGameConsole::startEnteringText()
 	enteredText = "_";
 	if(GH.topInt() == adventureInt)
 	{
-        GH.statusbar->alignment = TOPLEFT;
-        GH.statusbar->calcOffset();
-		GH.statusbar->print(enteredText);
+		GH.statusbar->alignment = TOPLEFT;
+		GH.statusbar->setText(enteredText);
 
-        //Prevent changes to the text from mouse interaction with the adventure map
-        GH.statusbar->lock(true);
+		//Prevent changes to the text from mouse interaction with the adventure map
+		GH.statusbar->lock(true);
 	}
 	else if(LOCPLINT->battleInt)
 	{
@@ -4003,10 +4001,9 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 	enteredText = "";
 	if(GH.topInt() == adventureInt)
 	{
-        GH.statusbar->alignment = CENTER;
-        GH.statusbar->calcOffset();
-        GH.statusbar->lock(false);
-        GH.statusbar->clear();
+		GH.statusbar->alignment = CENTER;
+		GH.statusbar->lock(false);
+		GH.statusbar->clear();
 	}
 	else if(LOCPLINT->battleInt)
 	{
@@ -4018,10 +4015,10 @@ void CInGameConsole::refreshEnteredText()
 {
 	if(GH.topInt() == adventureInt)
 	{
-        GH.statusbar->lock(false);
-        GH.statusbar->clear();
-		GH.statusbar->print(enteredText);
-        GH.statusbar->lock(true);
+		GH.statusbar->lock(false);
+		GH.statusbar->clear();
+		GH.statusbar->setText(enteredText);
+		GH.statusbar->lock(true);
 	}
 	else if(LOCPLINT->battleInt)
 	{
@@ -4521,7 +4518,7 @@ void CHeroArea::clickRight(tribool down, bool previousState)
 void CHeroArea::hover(bool on)
 {
 	if (on && hero)
-		GH.statusbar->print(hero->hoverName);
+		GH.statusbar->setText(hero->hoverName);
 	else
 		GH.statusbar->clear();
 }
@@ -5438,7 +5435,7 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 void CUniversityWindow::CItem::hover(bool on)
 {
 	if (on)
-		GH.statusbar->print(CGI->generaltexth->skillName[ID]);
+		GH.statusbar->setText(CGI->generaltexth->skillName[ID]);
 	else
 		GH.statusbar->clear();
 }

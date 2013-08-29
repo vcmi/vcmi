@@ -232,11 +232,17 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 			&& ret->text->slider;
 		i++)
 	{
-		ret->text->setBounds(sizes[i][0], sizes[i][1]);
+		ret->text->resize(Point(sizes[i][0], sizes[i][1]));
 	}
 
 	if(ret->text->slider)
+	{
 		ret->text->slider->addUsedEvents(CIntObject::WHEEL | CIntObject::KEYBOARD);
+	}
+	else
+	{
+		ret->text->resize(ret->text->label->textSize + Point(10, 10));
+	}
 
 	std::pair<int,int> winSize(ret->text->pos.w, ret->text->pos.h); //start with text size
 

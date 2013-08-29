@@ -376,8 +376,8 @@ void CAdventureMapButton::hover (bool on)
 		else if(GH.statusbar) //for other buttons
 		{
 			if (on)
-				GH.statusbar->print(*name);
-			else if ( GH.statusbar->getCurrent()==(*name) )
+				GH.statusbar->setText(*name);
+			else if ( GH.statusbar->getText()==(*name) )
 				GH.statusbar->clear();
 		}
 	}
@@ -725,8 +725,12 @@ CSlider::~CSlider()
 
 }
 
-CSlider::CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, int style)
-:capacity(Capacity),amount(Amount),horizontal(Horizontal), moved(Moved)
+CSlider::CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, int style):
+    capacity(Capacity),
+    amount(Amount),
+    scrollStep(1),
+    horizontal(Horizontal),
+    moved(Moved)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	setAmount(amount);
@@ -827,7 +831,7 @@ void CSlider::showAll(SDL_Surface * to)
 
 void CSlider::wheelScrolled(bool down, bool in)
 {
-	moveTo(value + 3 * (down ? +1 : -1));
+	moveTo(value + 3 * (down ? +scrollStep : -scrollStep));
 }
 
 void CSlider::keyPressed(const SDL_KeyboardEvent & key)
@@ -839,17 +843,17 @@ void CSlider::keyPressed(const SDL_KeyboardEvent & key)
 	{
 	case SDLK_UP:
 	case SDLK_LEFT:
-		moveDest = value - 1;
+		moveDest = value - scrollStep;
 		break;
 	case SDLK_DOWN:
 	case SDLK_RIGHT:
-		moveDest = value + 1;
+		moveDest = value + scrollStep;
 		break;
 	case SDLK_PAGEUP:
-		moveDest = value - capacity + 1;
+		moveDest = value - capacity + scrollStep;
 		break;
 	case SDLK_PAGEDOWN:
-		moveDest = value + capacity - 1;
+		moveDest = value + capacity - scrollStep;
 		break;
 	case SDLK_HOME:
 		moveDest = 0;
@@ -1104,8 +1108,8 @@ CSimpleWindow::~CSimpleWindow()
 void CHoverableArea::hover (bool on)
 {
 	if (on)
-		GH.statusbar->print(hoverText);
-	else if (GH.statusbar->getCurrent()==hoverText)
+		GH.statusbar->setText(hoverText);
+	else if (GH.statusbar->getText()==hoverText)
 		GH.statusbar->clear();
 }
 
@@ -1156,24 +1160,20 @@ void CLabel::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
-	std::string toPrint = visibleText();
-	if(!toPrint.length())
-		return;
-
-	//blitLine(to, pos.topLeft()/2 + pos.bottomRight()/2, toPrint);
-    blitLine(to, pos.topLeft() + textOffset, toPrint);
+	if(!text.empty())
+		blitLine(to, pos, text);
 
 }
 
 CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= Colors::WHITE*/, const std::string &Text /*= ""*/)
 :CTextContainer(Align, Font, Color), text(Text)
 {
+	type |= REDRAW_PARENT;
 	autoRedraw = true;
 	pos.x += x;
 	pos.y += y;
 	pos.w = pos.h = 0;
 	bg = nullptr;
-	ignoreLeadingWhitespace = false;
 
 	if (alignment == TOPLEFT) // causes issues for MIDDLE
 	{
@@ -1182,15 +1182,17 @@ CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, con
 	}
 }
 
-std::string CLabel::visibleText()
+Point CLabel::getBorderSize()
 {
-	std::string ret = text;
-	if(ignoreLeadingWhitespace)
-		boost::trim_left(ret);
-	return ret;
+	return Point(0, 0);
 }
 
-void CLabel::setTxt(const std::string &Txt)
+std::string CLabel::getText()
+{
+	return text;
+}
+
+void CLabel::setText(const std::string &Txt)
 {
 	text = Txt;
 	if(autoRedraw)
@@ -1202,33 +1204,60 @@ void CLabel::setTxt(const std::string &Txt)
 	}
 }
 
-void CBoundedLabel::setBounds(int limitW, int limitH)
+CMultiLineLabel::CMultiLineLabel(int x, int y, EFonts Font, EAlignment Align, const SDL_Color &Color, const std::string &Text):
+    CLabel(x, y, Font, Align, Color, Text),
+    visibleSize(0, 0, 0, 0)
 {
-	pos.h = limitH;
-	pos.w = limitW;
-	recalculateLines(text);
+	splitText(Text);
 }
 
-void CBoundedLabel::setTxt(const std::string &Txt)
+void CMultiLineLabel::setVisibleSize(Rect visibleSize)
 {
-	recalculateLines(Txt);
-	CLabel::setTxt(Txt);
+	this->visibleSize = visibleSize;
+	redraw();
 }
 
-void CTextContainer::blitLine(SDL_Surface *to, Point where, std::string what)
+void CMultiLineLabel::scrollTextBy(int distance)
+{
+	scrollTextTo(visibleSize.y + distance);
+}
+
+void CMultiLineLabel::scrollTextTo(int distance)
+{
+	Rect size = visibleSize;
+	size.y = distance;
+	setVisibleSize(size);
+}
+
+void CMultiLineLabel::setText(const std::string &Txt)
+{
+	splitText(Txt);
+	CLabel::setText(Txt);
+}
+
+void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
 {
 	const IFont * f = graphics->fonts[font];
+	Point where = destRect.topLeft();
+
+	// input is rect in which given text should be placed
+	// calculate proper position for top-left corner of the text
+	if (alignment == TOPLEFT)
+	{
+		where.x += getBorderSize().x;
+		where.y += getBorderSize().y;
+	}
 
 	if (alignment == CENTER)
 	{
-		where.x -= f->getStringWidth(what) / 2;
-		where.y -= f->getLineHeight() / 2;
+		where.x += (destRect.w - f->getStringWidth(what)) / 2;
+		where.y += (destRect.h - f->getLineHeight()) / 2;
 	}
 
 	if (alignment == BOTTOMRIGHT)
 	{
-		where.x -= f->getStringWidth(what);
-		where.y -= f->getLineHeight();
+		where.x += getBorderSize().x + destRect.w - f->getStringWidth(what);
+		where.y += getBorderSize().y + destRect.h - f->getLineHeight();
 	}
 
 	size_t begin = 0;
@@ -1245,11 +1274,11 @@ void CTextContainer::blitLine(SDL_Surface *to, Point where, std::string what)
 
 			if (currDelimeter % 2) // Enclosed in {} text - set to yellow
 				f->renderTextLeft(to, toPrint, Colors::YELLOW, where);
-			else // Non-enclosed text
+			else // Non-enclosed text, use default color
 				f->renderTextLeft(to, toPrint, color, where);
 			begin = end;
 
-			where.x += f->getStringWidth(toPrint);
+			destRect.x += f->getStringWidth(toPrint);
 		}
 		currDelimeter++;
 	}
@@ -1262,36 +1291,33 @@ CTextContainer::CTextContainer(EAlignment alignment, EFonts font, SDL_Color colo
 	color(color)
 {}
 
-void CBoundedLabel::showAll(SDL_Surface * to)
+void CMultiLineLabel::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
 	const IFont * f = graphics->fonts[font];
-	int lineHeight =  f->getLineHeight();
-	int lineCapacity = pos.h / lineHeight;
 
-	int dy = f->getLineHeight(); //line height
-	int base_y = pos.y;
-	if(alignment == CENTER)
-		base_y += std::max((pos.h - maxH)/2,0);
+	// calculate which lines should be visible
+	size_t totalLines = lines.size();
+	size_t beginLine  = visibleSize.y / f->getLineHeight();
+	size_t endLine    = (getTextLocation().h + visibleSize.y) / f->getLineHeight() + 1;
 
-	for (int i = 0; i < lineCapacity; i++)
+	// and where they should be displayed
+	Point lineStart = getTextLocation().topLeft() - visibleSize + Point(0, beginLine * f->getLineHeight());
+	Point lineSize  = Point(getTextLocation().w, f->getLineHeight());
+
+	CSDL_Ext::CClipRectGuard guard(to, getTextLocation()); // to properly trim text that is too big to fit
+
+	for (size_t i = beginLine; i < std::min(totalLines, endLine); i++)
 	{
-		const std::string &line = lines[i];
-		if ( !(lines.size() && line.size())) //empty message or empty line
-			continue;
+		if (!lines[i].empty()) //non-empty line
+			blitLine(to, Rect(lineStart, lineSize), lines[i]);
 
-		int x = pos.x;
-		if(alignment == CENTER)
-		{
-			x += pos.w - f->getStringWidth(line.c_str()) / 2;
-		}
-
-		blitLine(to, Point(x, base_y + i * dy), line);
+		lineStart.y += f->getLineHeight();
 	}
 }
 
-void CBoundedLabel::recalculateLines(const std::string &Txt)
+void CMultiLineLabel::splitText(const std::string &Txt)
 {
 	lines.clear();
 
@@ -1300,10 +1326,32 @@ void CBoundedLabel::recalculateLines(const std::string &Txt)
 
 	lines = CMessage::breakText(Txt, pos.w, font);
 
-	maxH = lineHeight * lines.size();
-	maxW = 0;
+	 textSize.y = lineHeight * lines.size();
+	 textSize.x = 0;
 	for(const std::string &line : lines)
-		vstd::amax(maxW, f->getStringWidth(line.c_str()));
+		vstd::amax( textSize.x, f->getStringWidth(line.c_str()));
+	redraw();
+}
+
+Rect CMultiLineLabel::getTextLocation()
+{
+	// this method is needed for vertical alignment alignment of text
+	// when height of available text is smaller than height of widget
+	// in this case - we should add proper offset to display text at required position
+	if (pos.h <= textSize.y)
+		return pos;
+
+	Point textSize(pos.w, graphics->fonts[font]->getLineHeight() * lines.size());
+	Point textOffset(pos.w - textSize.x, pos.h - textSize.y);
+
+	switch(alignment)
+	{
+	case TOPLEFT:     return Rect(pos.topLeft(), textSize);
+	case CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSize);
+	case BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSize);
+	}
+	assert(0);
+	return Rect();
 }
 
 CLabelGroup::CLabelGroup(EFonts Font, EAlignment Align, const SDL_Color &Color):
@@ -1316,103 +1364,71 @@ void CLabelGroup::add(int x, int y, const std::string &text)
 	new CLabel(x, y, font, align, color, text);
 }
 
-CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= Colors::WHITE*/)
-:CBoundedLabel(rect.x, rect.y, Font, Align, Color, Text), sliderStyle(SliderStyle), slider(nullptr)
+CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= Colors::WHITE*/):
+    sliderStyle(SliderStyle),
+    slider(nullptr)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	label = new CMultiLineLabel(rect.x, rect.y, Font, Align, Color);
+
 	type |= REDRAW_PARENT;
-	autoRedraw = false;
-	pos.h = rect.h;
-	pos.w = rect.w;
-	assert(Align == TOPLEFT || Align == CENTER); //TODO: support for other alignments
+	label->pos.h = pos.h = rect.h;
+	label->pos.w = pos.w = rect.w;
+
 	assert(pos.w >= 40); //we need some space
-	setTxt(Text);
-}
-
-void CTextBox::recalculateLines(const std::string &Txt)
-{
-	//TODO: merge with CBoundedlabel::recalculateLines
-
-	vstd::clear_pointer(slider);
-	lines.clear();
-	const IFont * f = graphics->fonts[font];
-	int lineHeight =  f->getLineHeight();
-	int lineCapacity = pos.h / lineHeight;
-
-	lines = CMessage::breakText(Txt, pos.w, font);
-	if (lines.size() > lineCapacity) //we need to add a slider
-	{
-		lines = CMessage::breakText(Txt, pos.w - 32 - 10, font);
-		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(pos.w - 32, 0, pos.h, boost::bind(&CTextBox::sliderMoved, this, _1), lineCapacity, lines.size(), 0, false, sliderStyle);
-		if(active)
-			slider->activate();
-	}
-
-	maxH = lineHeight * lines.size();
-	maxW = 0;
-	for(const std::string &line : lines)
-		vstd::amax(maxW, f->getStringWidth(line));
-}
-
-void CTextBox::showAll(SDL_Surface * to)
-{
-	CIntObject::showAll(to);
-
-	const IFont * f = graphics->fonts[font];
-	int dy = f->getLineHeight(); //line height
-	int base_y = pos.y;
-
-	if (alignment == CENTER)
-		base_y += std::max((pos.h - maxH)/2,0);
-
-	int howManyLinesToPrint = slider ? slider->capacity : lines.size();
-	int firstLineToPrint = slider ? slider->value : 0;
-
-	for (int i = 0; i < howManyLinesToPrint; i++)
-	{
-		const std::string &line = lines[i + firstLineToPrint];
-		if(!line.size()) continue;
-
-		int width = pos.w + (slider ? (slider->pos.w) : 0);
-		int x = pos.x + int(alignment) * width / 2;
-
-		blitLine(to, Point(x, base_y + i * dy), line);
-	}
-
+	setText(Text);
 }
 
 void CTextBox::sliderMoved(int to)
 {
-	if(!slider)
-		return;
-
-	redraw();
+	label->scrollTextTo(to);
 }
 
-const Point CGStatusBar::edgeOffset = Point(5, 1);
-
-void CGStatusBar::print(const std::string & Text)
+void CTextBox::resize(Point newSize)
 {
-    if(!textLock)
-	    setTxt(Text);
+	pos.w = newSize.x;
+	pos.h = newSize.y;
+	label->pos.w = pos.w;
+	label->pos.h = pos.h;
+	if (slider)
+		vstd::clear_pointer(slider); // will be recreated if needed later
+
+	setText(label->getText()); // force refresh
+}
+
+void CTextBox::setText(const std::string &text)
+{
+	label->setText(text);
+	if (label->textSize.y <= label->pos.h && slider)
+	{
+		// slider is no longer needed
+		vstd::clear_pointer(slider);
+		label->pos.w = pos.w;
+		label->setText(text);
+	}
+	else if (label->textSize.y > label->pos.h && !slider)
+	{
+		// create slider and update widget
+		label->pos.w = pos.w - 32;
+		label->setText(text);
+
+		OBJ_CONSTRUCTION_CAPTURING_ALL;
+		slider = new CSlider(pos.w - 32, 0, pos.h, boost::bind(&CTextBox::sliderMoved, this, _1),
+		                     label->pos.h, label->textSize.y, 0, false, sliderStyle);
+		slider->scrollStep = graphics->fonts[label->font]->getLineHeight();
+	}
+}
+
+void CGStatusBar::setText(const std::string & Text)
+{
+	if(!textLock)
+		CLabel::setText(Text);
 }
 
 void CGStatusBar::clear()
 {
-    if(!textLock)
-	    setTxt("");
+	setText("");
 }
-
-std::string CGStatusBar::getCurrent()
-{
-	return text;
-}
-
-//CGStatusBar::CGStatusBar(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= Colors::WHITE*/, const std::string &Text /*= ""*/)
-//: CLabel(x, y, Font, Align, Color, Text)
-//{
-//	init();
-//}
 
 CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= CENTER*/, const SDL_Color &Color /*= Colors::WHITE*/)
 : CLabel(BG->pos.x, BG->pos.y, Font, Align, Color, "")
@@ -1421,7 +1437,7 @@ CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment 
 	bg = BG;
 	addChild(bg);
 	pos = bg->pos;
-	calcOffset();
+	getBorderSize();
     textLock = false;
 }
 
@@ -1437,7 +1453,6 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name/*="ADROLLVR.bmp"*/, int 
 		vstd::amin(pos.w, maxw);
 		bg->srcRect = new Rect(0, 0, maxw, pos.h);
 	}
-	calcOffset();
     textLock = false;
 }
 
@@ -1457,20 +1472,19 @@ void CGStatusBar::init()
 	GH.statusbar = this;
 }
 
-void CGStatusBar::calcOffset()
+Point CGStatusBar::getBorderSize()
 {
+	//Width of borders where text should not be printed
+	static const Point borderSize(5,1);
+
 	switch(alignment)
 	{
-	case TOPLEFT:
-		textOffset = Point(edgeOffset.x, edgeOffset.y);
-		break;
-	case CENTER:
-		textOffset = Point(pos.w/2, pos.h/2);
-		break;
-	case BOTTOMRIGHT:
-		textOffset = Point(pos.w - edgeOffset.x, pos.h - edgeOffset.y);
-		break;
+	case TOPLEFT:     return Point(borderSize.x, borderSize.y);
+	case CENTER:      return Point(pos.w/2, pos.h/2);
+	case BOTTOMRIGHT: return Point(pos.w - borderSize.x, pos.h - borderSize.y);
 	}
+	assert(0);
+	return Point();
 }
 
 void CGStatusBar::lock(bool shouldLock)
@@ -1486,7 +1500,6 @@ CTextInput::CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(co
 	focus = false;
 	pos.h = Pos.h;
 	pos.w = Pos.w;
-	textOffset = Point(pos.w/2, pos.h/2);
 	captureAllKeys = true;
 	bg = nullptr;
 	addUsedEvents(LCLICK | KEYBOARD);
@@ -1570,9 +1583,9 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 	}
 }
 
-void CTextInput::setTxt( const std::string &nText, bool callCb )
+void CTextInput::setText( const std::string &nText, bool callCb )
 {
-	CLabel::setTxt(nText);
+	CLabel::setText(nText);
 	if(callCb)
 		cb(text);
 }

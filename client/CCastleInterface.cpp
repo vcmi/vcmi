@@ -247,7 +247,7 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 			  || (*parent->selectedBuilding)<(*this)) //or we are on top
 			{
 				parent->selectedBuilding = this;
-				GH.statusbar->print(getSubtitle());
+				GH.statusbar->setText(getSubtitle());
 			}
 		}
 	}
@@ -335,7 +335,7 @@ void CHeroGSlot::hover (bool on)
 		}
 	}
 	if(temp.size())
-		GH.statusbar->print(temp);
+		GH.statusbar->setText(temp);
 }
 
 void CHeroGSlot::clickLeft(tribool down, bool previousState)
@@ -961,7 +961,7 @@ void CCastleInterface::recreateIcons()
 	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
 
 	icon->setFrame(iconIndex);
-	income->setTxt(boost::lexical_cast<std::string>(town->dailyIncome()));
+	income->setText(boost::lexical_cast<std::string>(town->dailyIncome()));
 
 	hall = new CTownInfo( 80, 413, town, true);
 	fort = new CTownInfo(122, 413, town, false);
@@ -1031,7 +1031,7 @@ void CCreaInfo::update()
 			value = boost::lexical_cast<std::string>(town->creatureGrowth(level));
 
 		if (value != label->text)
-			label->setTxt(value);
+			label->setText(value);
 	}
 }
 
@@ -1042,9 +1042,9 @@ void CCreaInfo::hover(bool on)
 
 	if(on)
 	{
-		GH.statusbar->print(message);
+		GH.statusbar->setText(message);
 	}
-	else if (message == GH.statusbar->getCurrent())
+	else if (message == GH.statusbar->getText())
 		GH.statusbar->clear();
 }
 
@@ -1122,7 +1122,7 @@ void CTownInfo::hover(bool on)
 	if(on)
 	{
 		if ( building )
-			GH.statusbar->print(building->Name());
+			GH.statusbar->setText(building->Name());
 	}
 	else
 		GH.statusbar->clear();
@@ -1244,7 +1244,7 @@ void CHallInterface::CBuildingBox::hover(bool on)
 		else
 			toPrint = CGI->generaltexth->hcommands[state];
 		boost::algorithm::replace_first(toPrint,"%s",building->Name());
-		GH.statusbar->print(toPrint);
+		GH.statusbar->setText(toPrint);
 	}
 	else
 		GH.statusbar->clear();
@@ -1508,7 +1508,7 @@ void LabeledValue::init(std::string nameText, std::string descr, int min, int ma
 void LabeledValue::hover(bool on)
 {
 	if(on)
-		GH.statusbar->print(hoverText);
+		GH.statusbar->setText(hoverText);
 	else
 	{
 		GH.statusbar->clear();
@@ -1570,7 +1570,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 void CFortScreen::RecruitArea::hover(bool on)
 {
 	if(on)
-		GH.statusbar->print(hoverText);
+		GH.statusbar->setText(hoverText);
 	else
 		GH.statusbar->clear();
 }
@@ -1581,7 +1581,7 @@ void CFortScreen::RecruitArea::creaturesChanged()
 	{
 		std::string availableText = CGI->generaltexth->allTexts[217] +
 		            boost::lexical_cast<std::string>(town->creatures[level].first);
-		availableCount->setTxt(availableText);
+		availableCount->setText(availableText);
 	}
 }
 
@@ -1659,7 +1659,7 @@ void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
 void CMageGuildScreen::Scroll::hover(bool on)
 {
 	if(on)
-		GH.statusbar->print(spell->name);
+		GH.statusbar->setText(spell->name);
 	else
 		GH.statusbar->clear();
 

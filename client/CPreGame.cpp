@@ -408,7 +408,7 @@ CreditsScreen::CreditsScreen()
 	size_t firstQuote = text.find('\"')+1;
 	text = text.substr(firstQuote, text.find('\"', firstQuote) - firstQuote );
 	credits = new CTextBox(text, Rect(pos.w - 350, 600, 350, 32000), 0, FONT_CREDITS, CENTER, Colors::WHITE);
-	credits->pos.h = credits->maxH;
+	credits->pos.h = credits->label->textSize.y;
 }
 
 void CreditsScreen::showAll(SDL_Surface * to)
@@ -1291,7 +1291,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 	case CMenuScreen::saveGame:;
 		if(saveGameName.empty())
 		{
-			txt->setTxt("NEWGAME");
+			txt->setText("NEWGAME");
 		}
 		else
 		{
@@ -1353,7 +1353,7 @@ void SelectionTab::select( int position )
 	{
 		std::string filename = *CResourceHandler::get()->getResourceName(
 								   ResourceID(curItems[py]->fileURI, EResType::CLIENT_SAVEGAME));
-		txt->setTxt(CFileInfo(filename).getBaseName());
+		txt->setText(CFileInfo(filename).getBaseName());
 	}
 
 	onSelect(curItems[py]);
@@ -1901,7 +1901,7 @@ CChatBox::CChatBox(const Rect &rect)
 	inputBox->removeUsedEvents(KEYBOARD);
 	chatHistory = new CTextBox("", Rect(0, 0, rect.w, rect.h - height), 1);
 
-	chatHistory->color = Colors::GREEN;
+	chatHistory->label->color = Colors::GREEN;
 }
 
 void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
@@ -1909,7 +1909,7 @@ void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
 	if(key.keysym.sym == SDLK_RETURN  &&  key.state == SDL_PRESSED  &&  inputBox->text.size())
 	{
 		SEL->postChatMessage(inputBox->text);
-		inputBox->setTxt("");
+		inputBox->setText("");
 	}
 	else
 		inputBox->keyPressed(key);
@@ -1917,7 +1917,7 @@ void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
 
 void CChatBox::addNewMessage(const std::string &text)
 {
-	chatHistory->setTxt(chatHistory->text + text + "\n");
+	chatHistory->setText(chatHistory->label->text + text + "\n");
 	if(chatHistory->slider)
 		chatHistory->slider->moveToMax();
 }
@@ -1964,8 +1964,6 @@ InfoCard::InfoCard( bool Network )
 		if(SEL->screenType != CMenuScreen::newGame)
 			difficulty->block(true);
 
-		//description needs bg
-		mapDescription->addChild(new CPicture(*bg, descriptionRect), true); //move subpicture bg to our description control (by default it's our (Infocard) child)
 
 		if(network)
 		{
@@ -2152,9 +2150,9 @@ void InfoCard::changeSelection( const CMapInfo *to )
 	if(to && mapDescription)
 	{
 		if (SEL->screenType == CMenuScreen::campaignList)
-			mapDescription->setTxt(to->campaignHeader->description);
+			mapDescription->setText(to->campaignHeader->description);
 		else
-			mapDescription->setTxt(to->mapHeader->description);
+			mapDescription->setText(to->mapHeader->description);
 
 		if(SEL->screenType != CMenuScreen::newGame && SEL->screenType != CMenuScreen::campaignList) {
 			difficulty->block(true);
@@ -2926,7 +2924,7 @@ OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, 
 void OptionsTab::SelectedBox::update()
 {
 	image->setFrame(getImageIndex());
-	subtitle->setTxt(getName());
+	subtitle->setText(getName());
 }
 
 void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
@@ -3048,7 +3046,7 @@ CMultiMode::CMultiMode()
 
 	bar = new CGStatusBar(new CPicture(Rect(7, 465, 440, 18), 0));//226, 472
 	txt = new CTextInput(Rect(19, 436, 334, 16), *bg);
-	txt->setTxt(settings["general"]["playerName"].String()); //Player
+	txt->setText(settings["general"]["playerName"].String()); //Player
 
 	btns[0] = new CAdventureMapButton(CGI->generaltexth->zelp[266], boost::bind(&CMultiMode::openHotseat, this), 373, 78, "MUBHOT.DEF");
 	btns[1] = new CAdventureMapButton("Host TCP/IP game", "", boost::bind(&CMultiMode::hostTCP, this), 373, 78 + 57*1, "MUBHOST.DEF");
@@ -3097,7 +3095,7 @@ CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[561], boost::bind(&CGuiHandler::popIntTotally, boost::ref(GH), this), 205, 338, "MUBCANC.DEF", SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(Rect(7, 381, 348, 18), 0));//226, 472
 
-	txt[0]->setTxt(firstPlayer, true);
+	txt[0]->setText(firstPlayer, true);
 	txt[0]->giveFocus();
 }
 
@@ -3331,7 +3329,7 @@ void CBonusSelection::selectMap( int whichOne, bool initialSelect )
 		sInfo.turnTime = 0;
 		sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;
 
-		mapDesc->setTxt(ourHeader->description);
+		mapDesc->setText(ourHeader->description);
 
 		updateBonusSelection();
 	}
@@ -3602,13 +3600,9 @@ void CBonusSelection::startMap()
 	if (scenario.prolog.hasPrologEpilog)
 	{
 		GH.pushInt(new CPrologEpilogVideo(scenario.prolog, exitCb));
-        logGlobal->infoStream() << "Video: " << scenario.prolog.prologVideo;
-        logGlobal->infoStream() << "Audio: " << scenario.prolog.prologMusic;
-        logGlobal->infoStream() << "Text:  " << scenario.prolog.prologText;
 	}
 	else
 	{
-        logGlobal->infoStream() << "Without prolog";
 		exitCb();
 	}
 }
@@ -3991,9 +3985,9 @@ void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousStat
 void CCampaignScreen::CCampaignButton::hover(bool on)
 {
 	if (on)
-		hoverLabel->setTxt(hoverText); // Shows the name of the campaign when you get into the bounds of the button
+		hoverLabel->setText(hoverText); // Shows the name of the campaign when you get into the bounds of the button
 	else
-		hoverLabel->setTxt(" ");
+		hoverLabel->setText(" ");
 }
 
 void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
@@ -4111,7 +4105,6 @@ CPrologEpilogVideo::CPrologEpilogVideo( CCampaignScenario::SScenarioPrologEpilog
 	txt = CSDL_Ext::newSurface(500, 20 * lines.size() + 10);
 	curTxtH = screen->h;
 	graphics->fonts[FONT_BIG]->renderTextLinesCenter(txt, lines, Colors::METALLIC_GOLD, Point(txt->w/2, txt->h/2 + 5));
-	//SDL_SaveBMP(txt, "txtsrfc.bmp");
 }
 
 void CPrologEpilogVideo::show( SDL_Surface * to )
@@ -4160,8 +4153,8 @@ CSimpleJoinScreen::CSimpleJoinScreen()
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[561], boost::bind(&CGuiHandler::popIntTotally, boost::ref(GH), this), 142, 142, "MUBCANC.DEF", SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(Rect(7, 186, 218, 18), 0));
 
-	port->setTxt(boost::lexical_cast<std::string>(settings["server"]["port"].Float()), true);
-	address->setTxt(settings["server"]["server"].String(), true);
+	port->setText(boost::lexical_cast<std::string>(settings["server"]["port"].Float()), true);
+	address->setText(settings["server"]["server"].String(), true);
 	address->giveFocus();
 }
 
