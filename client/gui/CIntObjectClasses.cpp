@@ -1252,8 +1252,8 @@ void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
 
 	if (alignment == CENTER)
 	{
-		where.x += (destRect.w - f->getStringWidth(what)) / 2;
-		where.y += (destRect.h - f->getLineHeight()) / 2;
+		where.x += (int(destRect.w) - int(f->getStringWidth(what))) / 2;
+		where.y += (int(destRect.h) - int(f->getLineHeight())) / 2;
 	}
 
 	if (alignment == BOTTOMRIGHT)
