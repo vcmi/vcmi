@@ -351,9 +351,17 @@ void CCallback::castSpell(const CGHeroInstance *hero, SpellID spellID, const int
 void CCallback::unregisterMyInterface()
 {
 	ASSERT_IF_CALLED_WITH_PLAYER
+	auto playerInt = cl->playerint[*player];
+
 	cl->playerint.erase(*player);
 	cl->battleints.erase(*player);
 	//TODO? should callback be disabled as well?
+
+	//Disabled interface will be deleted very soon, so switch LOCPLINT to next player available
+	if(playerInt == LOCPLINT  &&  cl->playerint.size())
+	{
+		LOCPLINT = dynamic_cast<CPlayerInterface*>(cl->playerint.begin()->second.get());
+	}
 }
 
 void CCallback::validatePaths()

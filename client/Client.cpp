@@ -190,7 +190,6 @@ void CClient::endGame( bool closeConnection /*= true*/ )
     logNetwork->infoStream() << "Closed connection.";
 
 	GH.curInt = nullptr;
-	LOCPLINT->terminate_cond.setn(true);
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
         logNetwork->infoStream() << "Ending current game!";
@@ -606,9 +605,11 @@ void CClient::battleStarted(const BattleInfo * info)
 	if(!gNoGUI && (!!att || !!def || gs->scenarioOps->mode == StartInfo::DUEL))
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
-		new CBattleInterface(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero,
+		auto bi = new CBattleInterface(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero,
 			Rect((screen->w - 800)/2, 
 			     (screen->h - 600)/2, 800, 600), att, def);
+
+		GH.pushInt(bi);
 	}
 
 	auto callBattleStart = [&](PlayerColor color, ui8 side){

@@ -649,7 +649,8 @@ void CAdvMapInt::deactivate()
 		townList.deactivate();
 		terrain.deactivate();
 		infoBar.deactivate();
-		LOCPLINT->cingconsole->deactivate();
+		if(LOCPLINT)
+			LOCPLINT->cingconsole->deactivate();
 	}
 }
 void CAdvMapInt::showAll(SDL_Surface * to)

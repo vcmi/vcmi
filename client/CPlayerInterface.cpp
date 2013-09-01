@@ -129,21 +129,14 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 
 CPlayerInterface::~CPlayerInterface()
 {
-	howManyPeople--;
+	logGlobal->traceStream() << "\tHuman player interface for player " << playerID << " being destructed";
+	//howManyPeople--;
 	//delete pim;
 	//vstd::clear_pointer(pim);
 	delete showingDialog;
-	if(adventureInt)
-	{
-		if(adventureInt->active & CIntObject::KEYBOARD)
-			adventureInt->deactivateKeyboard();
-		delete adventureInt;
-		adventureInt = nullptr;
-	}
-
 	delete cingconsole;
-
-	LOCPLINT = nullptr;
+	if(LOCPLINT == this)
+		LOCPLINT = nullptr;
 }
 void CPlayerInterface::init(shared_ptr<CCallback> CB)
 {
@@ -381,6 +374,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->name % playerID);
 
 	const CArmedInstance *newSelection = nullptr;
 	if (makingTurn)
@@ -405,9 +399,9 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 		paths.erase(hero);
 
 	adventureInt->heroList.update(hero);
-	if (makingTurn)
+	if (makingTurn && newSelection)
 		adventureInt->select(newSelection, true);
-	else
+	else if(adventureInt->selection == hero)
 		adventureInt->selection = nullptr;
 }
 
@@ -619,14 +613,11 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 		cb->registerBattleInterface(autofightingAI);
 	}
 	
-	waitForAllDialogs();
-
-	if(isAutoFightOn)
-		GH.topInt()->deactivate();
-
+	//Don't wait for dialogs when we are non-active hot-seat player
+	if(LOCPLINT == this)
+		waitForAllDialogs();
+	
 	BATTLE_EVENT_POSSIBLE_RETURN;
-
-	GH.pushInt(battleInt);
 }
 
 
@@ -1569,6 +1560,10 @@ void CPlayerInterface::update()
 	if(terminate_cond.get())
 		return;
 
+	//While mutexes were locked away we may be have stopped being the active interface
+	if(LOCPLINT != this)
+		return;
+
 	//make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 
@@ -2067,8 +2062,6 @@ void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &h
 void CPlayerInterface::gameOver(PlayerColor player, bool victory )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT != this)
-		return;
 
 	if(player == playerID)
 	{
@@ -2076,17 +2069,30 @@ void CPlayerInterface::gameOver(PlayerColor player, bool victory )
 			showInfoDialog(CGI->generaltexth->allTexts[95]);
 // 		else
 // 			showInfoDialog("Placeholder message: you won!");
-
-		makingTurn = true;
-		waitForAllDialogs(); //wait till all dialogs are displayed and closed
-		makingTurn = false;
+		if(LOCPLINT == this)
+		{
+			GH.curInt = this; //waiting for dialogs requires this to get events
+			waitForAllDialogs(); //wait till all dialogs are displayed and closed
+		}
 
 		howManyPeople--;
 		if(!howManyPeople //all human players eliminated
 			&& cb->getStartInfo()->mode != StartInfo::CAMPAIGN) //campaigns are handled in proposeNextMission
 		{
+			if(adventureInt)
+			{
+				terminate_cond.setn(true);
+				adventureInt->deactivate();
+				if(GH.topInt() == adventureInt)
+					GH.popInt(adventureInt);
+				delete adventureInt;
+				adventureInt = nullptr;
+			}
 			requestReturningToMainMenu();
 		}
+		if(GH.curInt == this)
+			GH.curInt = nullptr;
+
 		cb->unregisterMyInterface(); //we already won/lost, nothing else matters
 	}
 

@@ -401,7 +401,7 @@ ui8 * CCreatureAnimation::getPixelAddr(SDL_Surface * dest, int X, int Y) const
 template<int bpp>
 inline void CCreatureAnimation::putPixelAt(SDL_Surface * dest, int X, int Y, size_t index, const std::array<SDL_Color, 8> & special) const
 {
-	if ( X < pos.x + pos.w && Y < pos.y + pos.h)
+	if ( X < pos.x + pos.w && Y < pos.y + pos.h && X >= 0 && Y >= 0)
 		putPixel<bpp>(getPixelAddr(dest, X, Y), palette[index], index, special);
 }
 

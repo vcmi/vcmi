@@ -5098,7 +5098,7 @@ void CGameHandler::checkLossVictory( PlayerColor player )
 			if(*i  &&  (*i)->tempOwner == player)
 				setOwner(*i,PlayerColor::NEUTRAL);
 		}
-
+		
 		//eliminating one player may cause victory of another:
 		winLoseHandle(GameConstants::ALL_PLAYERS & ~(1<<player.getNum()));
 	}
@@ -5134,6 +5134,12 @@ void CGameHandler::checkLossVictory( PlayerColor player )
 			ucs.camp = gs->scenarioOps->campState;
 			sendAndApply(&ucs);
 		}
+	}
+
+	//If player making turn has lost his turn must be over as well
+	if(gs->getPlayer(gs->currentPlayer)->status != EPlayerStatus::INGAME)
+	{
+		states.setFlag(gs->currentPlayer, &PlayerStatus::makingTurn, false);
 	}
 }
 
