@@ -348,6 +348,7 @@ class CLabel : public CTextContainer
 {
 protected:
 	Point getBorderSize() override;
+	virtual std::string visibleText();
 
 	CPicture *bg;
 public:
@@ -449,7 +450,7 @@ public:
 class CTextInput : public CLabel, public CFocusable
 {
 protected:
-	std::string visibleText();
+	std::string visibleText() override;
 
 public:
 	CFunctionList<void(const std::string &)> cb;

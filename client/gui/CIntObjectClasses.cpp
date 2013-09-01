@@ -1156,12 +1156,17 @@ void LRClickableAreaWText::init()
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 }
 
+std::string CLabel::visibleText()
+{
+	return text;
+}
+
 void CLabel::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
-	if(!text.empty())
-		blitLine(to, pos, text);
+	if(!visibleText().empty())
+		blitLine(to, pos, visibleText());
 
 }
 
@@ -1177,7 +1182,7 @@ CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, con
 
 	if (alignment == TOPLEFT) // causes issues for MIDDLE
 	{
-		pos.w = graphics->fonts[font]->getStringWidth(text.c_str());
+		pos.w = graphics->fonts[font]->getStringWidth(visibleText().c_str());
 		pos.h = graphics->fonts[font]->getLineHeight();
 	}
 }
@@ -1576,6 +1581,8 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 	std::string oldText = text;
 	switch(key.keysym.sym)
 	{
+	case SDLK_DELETE: // have index > ' ' so it won't be filtered out by default section
+		return;
 	case SDLK_BACKSPACE:
 		if(!text.empty())
 			text.resize(text.size()-1);
