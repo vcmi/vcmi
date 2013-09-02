@@ -358,7 +358,7 @@ void CCallback::unregisterMyInterface()
 	//TODO? should callback be disabled as well?
 
 	//Disabled interface will be deleted very soon, so switch LOCPLINT to next player available
-	if(playerInt == LOCPLINT  &&  cl->playerint.size())
+	if(playerInt.get() == LOCPLINT  &&  cl->playerint.size())
 	{
 		LOCPLINT = dynamic_cast<CPlayerInterface*>(cl->playerint.begin()->second.get());
 	}
