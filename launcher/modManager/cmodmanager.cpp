@@ -1,9 +1,9 @@
 #include "StdInc.h"
 #include "cmodmanager.h"
 
-#include "../lib/VCMIDirs.h"
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/CZipLoader.h"
+#include "../../lib/VCMIDirs.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/filesystem/CZipLoader.h"
 
 #include "../launcherdirs.h"
 

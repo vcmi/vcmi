@@ -2,8 +2,8 @@
 #include "csettingsview_moc.h"
 #include "ui_csettingsview_moc.h"
 
-#include "../lib/CConfigHandler.h"
-#include "../lib/VCMIDirs.h"
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/VCMIDirs.h"
 
 void CSettingsView::loadSettings()
 {

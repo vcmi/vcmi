@@ -8,9 +8,9 @@
 #include "cmodlistmodel_moc.h"
 #include "cmodmanager.h"
 #include "cdownloadmanager_moc.h"
-#include "launcherdirs.h"
+#include "../launcherdirs.h"
 
-#include "../lib/CConfigHandler.h"
+#include "../../lib/CConfigHandler.h"
 
 void CModListView::setupModModel()
 {

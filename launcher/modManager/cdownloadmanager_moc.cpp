@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "cdownloadmanager_moc.h"
 
-#include "launcherdirs.h"
+#include "../launcherdirs.h"
 
 CDownloadManager::CDownloadManager()
 {
