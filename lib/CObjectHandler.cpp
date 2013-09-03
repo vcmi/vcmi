@@ -1532,6 +1532,8 @@ int CGHeroInstance::getSpellCost(const CSpell *sp) const
 
 void CGHeroInstance::pushPrimSkill( PrimarySkill::PrimarySkill which, int val )
 {
+	assert(!hasBonus(Selector::typeSubtype(Bonus::PRIMARY_SKILL, which)
+						.And(Selector::sourceType(Bonus::HERO_BASE_SKILL))));
 	addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id.getNum(), which));
 }
 
@@ -4969,7 +4971,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->m13489val);
 	if(allowNull && !o)
 		return nullptr;
-	assert(o && o->ID == Obj::HERO);
+	assert(o && (o->ID == Obj::HERO  ||  o->ID == Obj::PRISON));
 	return static_cast<const CGHeroInstance*>(o);
 }
 

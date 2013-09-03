@@ -589,6 +589,14 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 	// True if artifact set is not default (hero has some artifacts)
 	if(artSet)
 	{
+		if(hero->artifactsWorn.size() ||  hero->artifactsInBackpack.size())
+		{
+			logGlobal->warnStream() << boost::format("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...") % hero->name % hero->pos;
+			hero->artifactsInBackpack.clear();
+			while(hero->artifactsWorn.size())
+				hero->eraseArtSlot(hero->artifactsWorn.begin()->first);
+		}
+
 		for(int pom = 0; pom < 16; pom++)
 		{
 			loadArtifactToSlot(hero, pom);
@@ -597,9 +605,11 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 		// misc5 art //17
 		if(map->version >= EMapFormat::SOD)
 		{
+			assert(!hero->getArt(ArtifactPosition::MACH4));
 			if(!loadArtifactToSlot(hero, ArtifactPosition::MACH4))
 			{
 				// catapult by default
+				assert(!hero->getArt(ArtifactPosition::MACH4));
 				hero->putArtifact(ArtifactPosition::MACH4, createArtifact(ArtifactID::CATAPULT));
 			}
 		}
@@ -1537,6 +1547,8 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 	PlayerColor owner = PlayerColor(reader.readUInt8());
 	nhi->subID = reader.readUInt8();
 
+	assert(!nhi->getArt(ArtifactPosition::MACH4));
+
 	//If hero of this type has been predefined, use that as a base.
 	//Instance data will overwrite the predefined values where appropriate.
 	for(auto & elem : map->predefinedHeroes)
@@ -1600,6 +1612,12 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 	bool hasSecSkills = reader.readBool();
 	if(hasSecSkills)
 	{
+		if(nhi->secSkills.size())
+		{
+			nhi->secSkills.clear();
+			//logGlobal->warnStream() << boost::format("Hero %s subID=%d has set secondary skills twice (in map properties and on adventure map instance). Using the latter set...") % nhi->name % nhi->subID;
+		}
+
 		int howMany = reader.readUInt32();
 		nhi->secSkills.resize(howMany);
 		for(int yy = 0; yy < howMany; ++yy)
@@ -1651,6 +1669,12 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 	if(map->version > EMapFormat::AB)
 	{
 		bool hasCustomSpells = reader.readBool();
+		if(nhi->spells.size())
+		{
+			nhi->clear();
+			logGlobal->warnStream() << boost::format("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...") % nhi->name % nhi->subID;
+		}
+
 		if(hasCustomSpells)
 		{
 			nhi->spells.insert(SpellID::PRESET); //placeholder "preset spells"
@@ -1677,6 +1701,16 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 		bool hasCustomPrimSkills = reader.readBool();
 		if(hasCustomPrimSkills)
 		{
+			auto ps = nhi->getAllBonuses(Selector::type(Bonus::PRIMARY_SKILL)
+								.And(Selector::sourceType(Bonus::HERO_BASE_SKILL)), nullptr);
+			if(ps->size())
+			{
+				logGlobal->warnStream() << boost::format("Hero %s subID=%d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...") % nhi->name % nhi->subID;
+				for(auto b : *ps)
+					nhi->removeBonus(b);
+			}
+
+
 			for(int xx = 0; xx < GameConstants::PRIMARY_SKILLS; ++xx)
 			{
 				nhi->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(xx), reader.readUInt8());
