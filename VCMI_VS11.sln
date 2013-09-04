@@ -44,6 +44,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "test\Test.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minizip", "lib\minizip\minizip.vcxproj", "{AA3CC588-9D08-4178-A1E8-C71561E99723}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_launcher", "launcher\VCMI_launcher.vcxproj", "{5B6946C8-A24F-4223-8415-5E16A238ACED}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B952FFC5-3039-4DE1-9F08-90ACDA483D8F} = {B952FFC5-3039-4DE1-9F08-90ACDA483D8F}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -146,6 +151,12 @@ Global
 		{AA3CC588-9D08-4178-A1E8-C71561E99723}.RD|Win32.Build.0 = RD|Win32
 		{AA3CC588-9D08-4178-A1E8-C71561E99723}.RD|x64.ActiveCfg = RD|x64
 		{AA3CC588-9D08-4178-A1E8-C71561E99723}.RD|x64.Build.0 = RD|x64
+		{5B6946C8-A24F-4223-8415-5E16A238ACED}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5B6946C8-A24F-4223-8415-5E16A238ACED}.Debug|Win32.Build.0 = Debug|Win32
+		{5B6946C8-A24F-4223-8415-5E16A238ACED}.Debug|x64.ActiveCfg = Debug|Win32
+		{5B6946C8-A24F-4223-8415-5E16A238ACED}.RD|Win32.ActiveCfg = RD|Win32
+		{5B6946C8-A24F-4223-8415-5E16A238ACED}.RD|Win32.Build.0 = RD|Win32
+		{5B6946C8-A24F-4223-8415-5E16A238ACED}.RD|x64.ActiveCfg = RD|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
