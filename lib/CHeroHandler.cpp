@@ -23,21 +23,23 @@
 
 SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possibles) const //picks secondary skill out from given possibilities
 {
-	if(possibles.size()==1)
-		return *possibles.begin();
 	int totalProb = 0;
 	for(auto & possible : possibles)
 	{
 		totalProb += secSkillProbability[possible];
 	}
-	int ran = rand()%totalProb;
-	for(auto & possible : possibles)
+	if (totalProb != 0) // may trigger if set contains only banned skills (0 probability)
 	{
-		ran -= secSkillProbability[possible];
-		if(ran<0)
-			return possible;
+		int ran = rand()%totalProb;
+		for(auto & possible : possibles)
+		{
+			ran -= secSkillProbability[possible];
+			if(ran<0)
+				return possible;
+		}
 	}
-	throw std::runtime_error("Cannot pick secondary skill!");
+	// FIXME: select randomly? How H3 handles such rare situation?
+	return *possibles.begin();
 }
 
 EAlignment::EAlignment CHeroClass::getAlignment() const

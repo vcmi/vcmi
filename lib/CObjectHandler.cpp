@@ -828,10 +828,6 @@ void CGHeroInstance::initHero()
 		commander->giveStackExp (exp); //after our exp is set
 	}
 
-	hoverName = VLC->generaltexth->allTexts[15];
-	boost::algorithm::replace_first(hoverName,"%s",name);
-	boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
-
 	if (mana < 0)
 		mana = manaLimit();
 }
@@ -967,6 +963,21 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 
 		showInfoDialog(h,txt_id,soundBase::ROGUE);
 	}
+}
+
+const std::string & CGHeroInstance::getHoverText() const
+{
+	if(ID != Obj::PRISON)
+	{
+		hoverName = VLC->generaltexth->allTexts[15];
+		boost::algorithm::replace_first(hoverName,"%s",name);
+		boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
+		return hoverName;
+	}
+	else
+		hoverName = VLC->generaltexth->names[ID];
+
+	return hoverName;
 }
 
 const std::string & CGHeroInstance::getBiography() const

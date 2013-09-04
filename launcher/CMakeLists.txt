@@ -54,5 +54,7 @@ target_link_libraries(vcmilauncher vcmi ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIB
 
 if (NOT APPLE) # Already inside bundle
     install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
+	# copy whole directory but .svn control files
+	install(DIRECTORY icons DESTINATION ${DATA_DIR}/launcher PATTERN ".svn" EXCLUDE)
 endif()
 

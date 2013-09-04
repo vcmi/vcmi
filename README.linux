@@ -2,7 +2,6 @@ This readme covers VCMI compilation on Unix-like systems.
 
 To run the game you will need:
 1) Heroes 3 data files (SoD or Complete editions);
-2) Unofficial WoG addon
 2) VCMI data pack (http://download.vcmi.eu/core.zip)
 All of them can be installed manually or using vcmibuilder script
 
@@ -11,7 +10,7 @@ http://wiki.vcmi.eu/index.php?title=Installation_on_Linux#Preparing_data
 
 I. Prerequisites
 
-To compile, at least the following packages (and their development counterparts) are needed to build:
+To compile, the following packages (and their development counterparts) are needed to build:
 	* libstdc++ devel
 	* CMake build system
 	* SDL and SDL-devel
@@ -19,6 +18,7 @@ To compile, at least the following packages (and their development counterparts)
 	* SDL_image and SDL_image-devel
 	* SDL_ttf and SDL_ttf-devel
 	* zlib and zlib-devel
+	* (optional) Qt 5, widget and network modules
 	* the ffmpeg libraries (libavformat and libswscale). Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names.
 	* boost c++ libraries v1.46+ (www.boost.org):
 		- program-options
@@ -47,7 +47,11 @@ III. Compilation
 
 Run configure:
   mkdir build && cd build
-  cmake ../src -DCMAKE_BUILD_TYPE=Debug (to enable debugging)
+  cmake ../src <any other options, see below>
+
+Additional options that you may want to use:
+To enable debugging: -DCMAKE_BUILD_TYPE=Debug
+To enable launcher: -DENABLE_LAUNCHER=Yes
 
 Notice:
 The ../src/ is not a typo, it will place makefile scripts into the build dir 
@@ -60,14 +64,14 @@ That will generate vcmiclient, vcmiserver as well as 3 .so libraries.
 
 III. Installing binaries
 
-To install VCMI type (as root):
-  make install
+To install VCMI you can use "make install" command however generation of distribution-specific packages is usually a better idea. In most cases this can be achieved using tool called "checkinstall"
 
-For development puposes, it's better to use links instead.
+If you're compiling vcmi for development puposes, it's better to use links instead.
 Go to /BIN_PATH/, and type:
 
   ln -s .../trunk/build/client/vcmiclient
   ln -s .../trunk/build/server/vcmiserver
+  ln -s .../trunk/build/launcher/vcmilauncher
   
 Go to /LIB_PATH/vcmi, and type:
 
