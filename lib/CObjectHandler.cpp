@@ -6500,7 +6500,12 @@ void CGPyramid::battleFinished(const CGHeroInstance *hero, const BattleResult &r
 void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
 {
 	if (what >= 101 && what <= (100 + PlayerColor::PLAYER_LIMIT_I))
-		playerKeyMap.find(PlayerColor(what-101))->second.insert((ui8)val);
+	{
+		PlayerColor player(what-101);
+		playerKeyMap[player].insert((ui8)val);
+	}
+	else
+		logGlobal->errorStream() << boost::format("Unexpected properties requested to set: what=%d, val=%d") % (int)what % val;
 }
 
 bool CGKeys::wasMyColorVisited (PlayerColor player) const
