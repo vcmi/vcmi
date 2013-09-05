@@ -341,6 +341,7 @@ void CModListView::on_enableButton_clicked()
 	for (auto & name : modModel->getRequirements(modName))
 		if (modModel->getMod(name).isDisabled())
 			manager->enableMod(name);
+	checkManagerErrors();
 }
 
 void CModListView::on_disableButton_clicked()
@@ -351,6 +352,7 @@ void CModListView::on_disableButton_clicked()
 		if (modModel->hasMod(name) &&
 		    modModel->getMod(name).isEnabled())
 			manager->disableMod(name);
+	checkManagerErrors();
 }
 
 void CModListView::on_updateButton_clicked()
@@ -379,6 +381,7 @@ void CModListView::on_uninstallButton_clicked()
 		manager->disableMod(modName);
 		manager->uninstallMod(modName);
 	}
+	checkManagerErrors();
 }
 
 void CModListView::on_installButton_clicked()
@@ -488,8 +491,6 @@ void CModListView::installFiles(QStringList files)
 
 void CModListView::installMods(QStringList archives)
 {
-	//TODO: check return status of all calls to manager!!!
-
 	QStringList modNames;
 
 	for (QString archive : archives)
@@ -503,11 +504,17 @@ void CModListView::installMods(QStringList archives)
 
 	// disable mod(s), to properly recalculate dependencies, if changed
 	for (QString mod : boost::adaptors::reverse(modNames))
-		manager->disableMod(mod);
+	{
+		if (modModel->getMod(mod).isInstalled())
+			manager->disableMod(mod);
+	}
 
 	// uninstall old version of mod, if installed
 	for (QString mod : boost::adaptors::reverse(modNames))
-		manager->uninstallMod(mod);
+	{
+		if (modModel->getMod(mod).isInstalled())
+			manager->uninstallMod(mod);
+	}
 
 	for (int i=0; i<modNames.size(); i++)
 		manager->installMod(modNames[i], archives[i]);
@@ -520,6 +527,8 @@ void CModListView::installMods(QStringList archives)
 
 	for (QString archive : archives)
 		QFile::remove(archive);
+
+	checkManagerErrors();
 }
 
 void CModListView::on_pushButton_clicked()
@@ -533,4 +542,15 @@ void CModListView::modelReset()
 {
 	//selectMod(filterModel->mapToSource(ui->allModsView->currentIndex()).row());
 	selectMod(filterModel->rowCount() > 0 ? 0 : -1);
+}
+
+void CModListView::checkManagerErrors()
+{
+	QString errors = manager->getErrors().join('\n');
+	if (errors.size() != 0)
+	{
+		QString title = "Operation failed";
+		QString description = "Encountered errors:\n" + errors;
+		QMessageBox::warning(this, title, description, QMessageBox::Ok, QMessageBox::Ok );
+	}
 }

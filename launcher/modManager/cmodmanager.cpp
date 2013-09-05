@@ -93,6 +93,19 @@ void CModManager::loadMods()
 	modList->setLocalModList(localMods);
 }
 
+bool CModManager::addError(QString modname, QString message)
+{
+	recentErrors.push_back(QString("%1: %2").arg(modname).arg(message));
+	return false;
+}
+
+QStringList CModManager::getErrors()
+{
+	QStringList ret = recentErrors;
+	recentErrors.clear();
+	return ret;
+}
+
 bool CModManager::installMod(QString modname, QString archivePath)
 {
 	return canInstallMod(modname) && doInstallMod(modname, archivePath);
@@ -118,10 +131,10 @@ bool CModManager::canInstallMod(QString modname)
 	auto mod = modList->getMod(modname);
 
 	if (mod.isInstalled())
-		return false;
+		return addError(modname, "Mod is already installed");
 
 	if (!mod.isAvailable())
-		return false;
+		return addError(modname, "Mod is not available");
 	return true;
 }
 
@@ -130,10 +143,10 @@ bool CModManager::canUninstallMod(QString modname)
 	auto mod = modList->getMod(modname);
 
 	if (!mod.isInstalled())
-		return false;
+		return addError(modname, "Mod is not installed");
 
 	if (mod.isEnabled())
-		return false;
+		return addError(modname, "Mod must be disabled first");
 	return true;
 }
 
@@ -142,32 +155,33 @@ bool CModManager::canEnableMod(QString modname)
 	auto mod = modList->getMod(modname);
 
 	if (mod.isEnabled())
-		return false;
+		return addError(modname, "Mod is already enabled");
 
 	if (!mod.isInstalled())
-		return false;
+		return addError(modname, "Mod must be installed first");
 
 	for (auto modEntry : mod.getValue("depends").toStringList())
 	{
 		if (!modList->hasMod(modEntry)) // required mod is not available
-			return false;
+			return addError(modname, QString("Required mod %1 is missing").arg(modEntry));
 		if (!modList->getMod(modEntry).isEnabled())
-			return false;
+			return addError(modname, QString("Required mod %1 is not enabled").arg(modEntry));
 	}
 
-	for (QString name : modList->getModList())
+	for (QString modEntry : modList->getModList())
 	{
-		auto mod = modList->getMod(name);
+		auto mod = modList->getMod(modEntry);
 
+		// "reverse conflict" - enabled mod has this one as conflict
 		if (mod.isEnabled() && mod.getValue("conflicts").toStringList().contains(modname))
-			return false; // "reverse conflict" - enabled mod has this one as conflict
+			return addError(modname, QString("This mod conflicts with %1").arg(modEntry));
 	}
 
 	for (auto modEntry : mod.getValue("conflicts").toStringList())
 	{
 		if (modList->hasMod(modEntry) &&
 		    modList->getMod(modEntry).isEnabled()) // conflicting mod installed and enabled
-			return false;
+			return addError(modname, QString("This mod conflicts with %1").arg(modEntry));
 	}
 	return true;
 }
@@ -177,10 +191,10 @@ bool CModManager::canDisableMod(QString modname)
 	auto mod = modList->getMod(modname);
 
 	if (mod.isDisabled())
-		return false;
+		return addError(modname, "Mod is already disabled");
 
 	if (!mod.isInstalled())
-		return false;
+		return addError(modname, "Mod must be installed first");
 
 	for (QString modEntry : modList->getModList())
 	{
@@ -188,7 +202,7 @@ bool CModManager::canDisableMod(QString modname)
 
 		if (current.getValue("depends").toStringList().contains(modname) &&
 		    current.isEnabled())
-			return false; // this mod must be disabled first
+			return addError(modname, QString("This mod is needed to run %1").arg(modEntry));
 	}
 	return true;
 }
@@ -213,22 +227,22 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	QString destDir = CLauncherDirs::get().modsPath() + "/";
 
 	if (!QFile(archivePath).exists())
-		return false; // archive with mod data exists
+		return addError(modname, "Mod archive is missing");
 
 	if (QDir(destDir + modname).exists()) // FIXME: recheck wog/vcmi data behavior - they have bits of data in our trunk
-		return false; // no mod with such name installed
+		return addError(modname, "Mod with such name is already installed");
 
 	if (localMods.contains(modname))
-		return false; // no installed data known
+		return addError(modname, "Mod with such name is already installed");
 
 	QString modDirName = detectModArchive(archivePath, modname);
 	if (!modDirName.size())
-		return false; // archive content looks like mod FS
+		return addError(modname, "Mod archive is invalid or corrupted");
 
 	if (!ZipArchive::extract(archivePath.toUtf8().data(), destDir.toUtf8().data()))
 	{
 		QDir(destDir + modDirName).removeRecursively();
-		return false; // extraction failed
+		return addError(modname, "Failed to extract mod data");
 	}
 
 	QJsonObject json = JsonFromFile(destDir + modDirName + "/mod.json");
@@ -246,13 +260,13 @@ bool CModManager::doUninstallMod(QString modname)
 	QString modDir = QString::fromUtf8(CResourceHandler::get()->getResourceName(resID)->c_str());
 
 	if (!QDir(modDir).exists())
-		return false;
+		return addError(modname, "Data with this mod was not found");
 
 	if (!localMods.contains(modname))
-		return false;
+		return addError(modname, "Data with this mod was not found");
 
 	if (!QDir(modDir).removeRecursively())
-		return false;
+		return addError(modname, "Failed to delete mod data");
 
 	localMods.remove(modname);
 	modList->setLocalModList(localMods);

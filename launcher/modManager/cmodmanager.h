@@ -16,6 +16,8 @@ class CModManager
 	QJsonObject modSettings;
 	QJsonObject localMods;
 
+	QStringList recentErrors;
+	bool addError(QString modname, QString message);
 public:
 	CModManager(CModList * modList);
 
@@ -23,6 +25,8 @@ public:
 	void loadRepository(QString filename);
 	void loadModSettings();
 	void loadMods();
+
+	QStringList getErrors();
 
 	/// mod management functions. Return true if operation was successful
 
