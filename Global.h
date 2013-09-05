@@ -601,6 +601,34 @@ namespace vstd
 			return nullptr;
 	}
 
+	template <typename Container, typename Index>
+	bool isValidIndex(const Container &c, Index i)
+	{
+		return i >= 0  &&  i < c.size();
+	}
+
+	template <typename Container, typename Index>
+	boost::optional<typename Container::const_reference> tryAt(const Container &c, Index i)
+	{
+		if(isValidIndex(c, i))
+		{
+			auto itr = c.begin();
+			std::advance(itr, i);
+			return *itr;
+		}
+		return boost::none;
+	}
+
+	template <typename Container, typename Pred>
+	static boost::optional<typename Container::const_reference> tryFindIf(const Container &r, const Pred &t)
+	{
+		auto pos = range::find_if(r, t);
+		if(pos == boost::end(r))
+			return boost::none;
+		else
+			return *pos;
+	}
+
 	using boost::math::round;
 }
 using vstd::operator-=;

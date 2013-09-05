@@ -33,7 +33,7 @@ public:
 
 	CreatureID idNumber;
 	TFaction faction;
-	ui8 level; // 0 - unknown
+	ui8 level; // 0 - unknown; 1-7 for "usual" creatures
 
 	//stats that are not handled by bonus system
 	ui32 fightValue, AIValue, growth, hordeGrowth;
