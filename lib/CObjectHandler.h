@@ -586,7 +586,7 @@ public:
 	enum EFortLevel {NONE = 0, FORT = 1, CITADEL = 2, CASTLE = 3};
 
 	CTownAndVisitingHero townAndVis;
-	CTown * town;
+	const CTown * town;
 	std::string name; // name of town
 	si32 builded; //how many buildings has been built this turn
 	si32 destroyed; //how many buildings has been destroyed this turn

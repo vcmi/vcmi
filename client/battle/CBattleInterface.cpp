@@ -2896,7 +2896,7 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, int state) co
 		return 1;
 	};
 
-	std::string & prefix = town->town->clientInfo.siegePrefix;
+	const std::string & prefix = town->town->clientInfo.siegePrefix;
 	std::string addit = boost::lexical_cast<std::string>(getImageIndex());
 
 	switch(what)

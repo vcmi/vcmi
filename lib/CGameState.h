@@ -126,7 +126,7 @@ struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
 
 	} *details;
 
-	CTown *tType;
+	const CTown *tType;
 
 	si32 built;
 	si32 fortLevel; //0 - none
