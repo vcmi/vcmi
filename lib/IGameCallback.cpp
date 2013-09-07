@@ -567,10 +567,11 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", EBuildingState::TOWN_NOT_OWNED);
 
+	if(!t->town->buildings.count(ID))
+		return EBuildingState::BUILDING_ERROR;
+
 	const CBuilding * pom = t->town->buildings[ID];
 
-	if(!pom)
-		return EBuildingState::BUILDING_ERROR;
 
 	if(t->hasBuilt(ID))	//already built
 		return EBuildingState::ALREADY_PRESENT;
@@ -632,6 +633,7 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 std::set<BuildingID> CGameInfoCallback::getBuildingRequiments( const CGTownInstance *t, BuildingID ID )
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", std::set<BuildingID>());
+	ERROR_RET_VAL_IF(!t->town->buildings.count(ID), "No such building!", std::set<BuildingID>());
 
 	std::set<int> used;
 	used.insert(ID);
