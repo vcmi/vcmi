@@ -688,7 +688,7 @@ void processCommand(const std::string &message)
 			auto data = CResourceHandler::get()->load(ResourceID(URI))->readAll();
 
 			boost::filesystem::create_directories(fullPath.substr(0, fullPath.find_last_of("/")));
-			std::ofstream outFile(outPath + outName);
+			std::ofstream outFile(outPath + outName, std::ofstream::binary);
 			outFile.write((char*)data.first.get(), data.second);
 		}
 		else

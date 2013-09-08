@@ -316,6 +316,7 @@ void Graphics::loadFonts()
 
 	const JsonVector & bmpConf = config["bitmap"].Vector();
 	const JsonNode   & ttfConf = config["trueType"];
+	const JsonNode   & hanConf = config["bitmapHan"];
 
 	assert(bmpConf.size() == FONTS_NUMBER);
 
@@ -323,11 +324,12 @@ void Graphics::loadFonts()
 	{
 		std::string filename = bmpConf[i].String();
 
-		if (!ttfConf[filename].isNull()) // no ttf override
+		if (!hanConf[filename].isNull())
+			fonts[i] = new CBitmapHanFont(hanConf[filename]);
+		else if (!ttfConf[filename].isNull()) // no ttf override
 			fonts[i] = new CTrueTypeFont(ttfConf[filename]);
 		else
 			fonts[i] = new CBitmapFont(filename);
-
 	}
 }
 

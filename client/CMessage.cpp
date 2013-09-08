@@ -138,49 +138,45 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 	while (text.length())
 	{
 		ui32 lineLength = 0;	//in characters or given char metric
-		ui32 z = 0; //our position in text
+		ui32 wordBreak = -1;
+		ui32 currPos = 0; //our position in text
 		bool opened = false;//if we have an unclosed brace in current line
 		bool lineManuallyBroken = false;
 
-		while(z < text.length()  &&  text[z] != 0x0a  &&  lineLength < maxLineSize)
+		while(currPos < text.length()  &&  text[currPos] != 0x0a  &&  lineLength < maxLineSize)
 		{
+			if (ui8(text[currPos]) <= ui8(' ')) // candidate for line break
+				wordBreak = currPos;
 			/* We don't count braces in string length. */
-			if (text[z] == '{')
+			if (text[currPos] == '{')
 				opened=true;
-			else if (text[z]=='}')
+			else if (text[currPos]=='}')
 				opened=false;
 			else
-				lineLength += graphics->fonts[font]->getSymbolWidth(text[z]);
-			z++;
+				lineLength += graphics->fonts[font]->getGlyphWidth(text.data() + currPos);
+			currPos += graphics->fonts[font]->getCharacterSize(text[currPos]);
 		}
 
-		if (z < text.length()  &&  (text[z] != 0x0a))
+		if (currPos < text.length()  &&  (text[currPos] != 0x0a))
 		{
-			/* We have a long line. Try to do a nice line break, if
-			 * possible. We backtrack on the line until we find a
-			 * suitable character.
-			 * Note: Cyrillic symbols have indexes 220-255 so we need
-			 * to use ui8 for comparison
-			 */
-			int pos = z-1;
-			while(pos > 0 &&  ((ui8)text[pos]) > ' ' )
-				pos --;
-
-			if (pos > 0)
-				z = pos+1;
+			// We have a long line. Try to do a nice line break, if possible
+			if (wordBreak != ui32(-1))
+				currPos = wordBreak;
+			else
+				currPos--;
 		}
 
-		if(z) //non-blank line
+		if(currPos) //non-blank line
 		{
-			ret.push_back(text.substr(0, z));
+			ret.push_back(text.substr(0, currPos));
 
 			if (opened)
 				/* Close the brace for the current line. */
 				ret.back() += '}';
 
-			text.erase(0, z);
+			text.erase(0, currPos);
 		}
-		else if(text[z] == 0x0a) //blank line
+		else if(text[currPos] == 0x0a) //blank line
 		{
 			ret.push_back(""); //add empty string, no extra actions needed
 		}

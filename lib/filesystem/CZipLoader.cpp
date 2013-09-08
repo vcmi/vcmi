@@ -191,7 +191,7 @@ bool ZipArchive::extract(std::string from, std::string where, std::vector<std::s
 		if (boost::algorithm::ends_with(file, "/"))
 			continue;
 
-		std::ofstream destFile(fullName);
+		std::ofstream destFile(fullName, std::ofstream::binary);
 		if (!destFile.good())
 			return false;
 

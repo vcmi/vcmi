@@ -18,6 +18,16 @@
  *
  */
 
+size_t IFont::getStringWidth(const std::string & data) const
+{
+	size_t width = 0;
+
+	for(size_t i=0; i<data.size(); i += getCharacterSize(data[i]))
+	{
+		width += getGlyphWidth(data.data() + i);
+	}
+	return width;
+}
 
 void IFont::renderTextLeft(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
 {
@@ -105,21 +115,10 @@ size_t CBitmapFont::getLineHeight() const
 	return height;
 }
 
-size_t CBitmapFont::getSymbolWidth(char data) const
+size_t CBitmapFont::getGlyphWidth(const char * data) const
 {
-	const Char & ch = chars[ui8(data)];
+	const Char & ch = chars[ui8(*data)];
 	return ch.leftOffset + ch.width + ch.rightOffset;
-}
-
-size_t CBitmapFont::getStringWidth(const std::string & data) const
-{
-	size_t width = 0;
-
-	for(auto & ch : data)
-	{
-		width += getSymbolWidth(ch);
-	}
-	return width;
 }
 
 void CBitmapFont::renderCharacter(SDL_Surface * surface, const Char & character, const SDL_Color & color, int &posX, int &posY) const
@@ -195,6 +194,11 @@ void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, co
 	SDL_UnlockSurface(surface);
 }
 
+size_t CBitmapFont::getCharacterSize(char data) const
+{
+	return 1;
+}
+
 std::pair<std::unique_ptr<ui8[]>, ui64> CTrueTypeFont::loadData(const JsonNode & config)
 {
 	std::string filename = "Data/" + config["file"].String();
@@ -240,10 +244,10 @@ size_t CTrueTypeFont::getLineHeight() const
 	return TTF_FontHeight(font.get());
 }
 
-size_t CTrueTypeFont::getSymbolWidth(char data) const
+size_t CTrueTypeFont::getGlyphWidth(const char *data) const
 {
 	int advance;
-	TTF_GlyphMetrics(font.get(), data, nullptr, nullptr, nullptr, nullptr, &advance);
+	TTF_GlyphMetrics(font.get(), *data, nullptr, nullptr, nullptr, nullptr, &advance);
 	return advance;
 }
 
@@ -276,4 +280,110 @@ void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, 
 		SDL_BlitSurface(rendered, nullptr, surface, &rect);
 		SDL_FreeSurface(rendered);
 	}
+}
+
+size_t CTrueTypeFont::getCharacterSize(char data) const
+{
+	return 1;
+}
+
+size_t CBitmapHanFont::getCharacterDataOffset(size_t index) const
+{
+	size_t rowSize  = (size + 7) / 8; // 1 bit per pixel, rounded up
+	size_t charSize = rowSize * size; // glyph contains "size" rows
+	return index * charSize;
+}
+
+size_t CBitmapHanFont::getCharacterIndex(ui8 first, ui8 second) const
+{
+	if (second > 0x7f )
+		second--;
+
+	return (first - 0x81) * (12*16 - 2) + (second - 0x40);
+}
+
+void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, const SDL_Color & color, int &posX, int &posY) const
+{
+	//TODO: somewhat duplicated with CBitmapFont::renderCharacter();
+	Rect clipRect;
+	SDL_GetClipRect(surface, &clipRect);
+
+	TColorPutter colorPutter = CSDL_Ext::getPutterFor(surface, 0);
+	Uint8 bpp = surface->format->BytesPerPixel;
+
+	// start of line, may differ from 0 due to end of surface or clipped surface
+	int lineBegin = std::max<int>(0, clipRect.y - posY);
+	int lineEnd   = std::min<int>(size, clipRect.y + clipRect.h - posY - 1);
+
+	// start end end of each row, may differ from 0
+	int rowBegin = std::max<int>(0, clipRect.x - posX);
+	int rowEnd   = std::min<int>(size, clipRect.x + clipRect.w - posX - 1);
+
+	//for each line in symbol
+	for(int dy = lineBegin; dy <lineEnd; dy++)
+	{
+		Uint8 *dstLine = (Uint8*)surface->pixels;
+		Uint8 *source = data.first.get() + getCharacterDataOffset(characterIndex);
+
+		// shift source\destination pixels to current position
+		dstLine += (posY+dy) * surface->pitch + posX * bpp;
+		source += ((size + 7) / 8) * dy;
+
+		//for each column in line
+		for(int dx = rowBegin; dx < rowEnd; dx++)
+		{
+			// select current bit in bitmap
+			int bit = (source[dx / 8] << (dx % 8)) & 0x80;
+
+			Uint8* dstPixel = dstLine + dx*bpp;
+			if (bit != 0)
+				colorPutter(dstPixel, color.r, color.g, color.b);
+		}
+	}
+	posX += size;
+}
+
+void CBitmapHanFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+{
+	int posX = pos.x;
+	int posY = pos.y;
+
+	SDL_LockSurface(surface);
+
+	for(size_t i=0; i<data.size(); i += getCharacterSize(data[i]))
+	{
+		if (ui8(data[i]) < 0x80)
+			renderCharacter(surface, getCharacterIndex(0xa3, data[i] + 0x80), color, posX, posY);
+		else
+			renderCharacter(surface, getCharacterIndex(data[i], data[i+1]), color, posX, posY);
+	}
+	SDL_UnlockSurface(surface);
+}
+
+CBitmapHanFont::CBitmapHanFont(const JsonNode &config):
+    data(CResourceHandler::get()->load(ResourceID("data/" + config["name"].String(), EResType::OTHER))->readAll()),
+    size(config["size"].Float())
+{
+	// basic tests to make sure that fonts are OK
+	// 1) fonts must contain 190 "sections", 126 symbols each.
+	assert(getCharacterIndex(0xfe, 0xff) == 190*126);
+	// ensure that font size is correct - enough to fit all possible symbols
+	assert(getCharacterDataOffset(getCharacterIndex(0xfe, 0xff)) == data.second);
+}
+
+size_t CBitmapHanFont::getLineHeight() const
+{
+	return size;
+}
+
+size_t CBitmapHanFont::getGlyphWidth(const char * data) const
+{
+	return size;
+}
+
+size_t CBitmapHanFont::getCharacterSize(char data) const
+{
+	if (ui8(data) < 0x80)
+		return 1;
+	return 2;
 }

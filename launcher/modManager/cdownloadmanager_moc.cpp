@@ -66,8 +66,6 @@ void CDownloadManager::downloadFinished(QNetworkReply *reply)
 		file.status = FileEntry::FINISHED;
 	}
 
-	file.reply->deleteLater();
-
 	bool downloadComplete = true;
 	for (auto & entry : currentDownloads)
 	{
@@ -91,6 +89,9 @@ void CDownloadManager::downloadFinished(QNetworkReply *reply)
 
 	if (downloadComplete)
 		emit finished(successful, failed, encounteredErrors);
+
+	file.reply->deleteLater();
+	file.reply = nullptr;
 }
 
 void CDownloadManager::downloadProgressChanged(qint64 bytesReceived, qint64 bytesTotal)

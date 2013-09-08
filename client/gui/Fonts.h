@@ -18,6 +18,9 @@ struct SDL_Color;
 
 typedef struct _TTF_Font TTF_Font;
 
+class CBitmapFont;
+class CBitmapHanFont;
+
 class IFont
 {
 protected:
@@ -30,10 +33,13 @@ public:
 
 	/// Returns height of font
 	virtual size_t getLineHeight() const = 0;
-	/// Returns width of a single symbol
-	virtual size_t getSymbolWidth(char data) const = 0;
+	/// Returns width, in pixels of a character glyph. Pointer must contain at least characterSize valid bytes
+	virtual size_t getGlyphWidth(const char * data) const = 0;
+	/// Returns size (in bytes) of one char in current encoding, may be bigger than one for non-ascii
+	/// TODO: move it out of this class. Separate entity for handling localization/different encodings?
+	virtual size_t getCharacterSize(char data) const = 0;
 	/// Return width of the string
-	virtual size_t getStringWidth(const std::string & data) const = 0;
+	virtual size_t getStringWidth(const std::string & data) const;
 
 	/**
 	 * @param surface - destination to print text on
@@ -77,13 +83,37 @@ class CBitmapFont : public IFont
 
 	void renderCharacter(SDL_Surface * surface, const Char & character, const SDL_Color & color, int &posX, int &posY) const;
 
-	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const;
+	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const override;
 public:
 	CBitmapFont(const std::string & filename);
 
-	size_t getLineHeight() const;
-	size_t getSymbolWidth(char data) const;
-	size_t getStringWidth(const std::string & data) const;
+	size_t getLineHeight() const override;
+	size_t getGlyphWidth(const char * data) const override;
+	size_t getCharacterSize(char data) const override;
+
+	friend class CBitmapHanFont;
+};
+
+/// supports multi-byte characters for such languages like Chinese
+class CBitmapHanFont : public IFont
+{
+	// data, directly copied from file
+	const std::pair<std::unique_ptr<ui8[]>, ui64> data;
+
+	// size of the font. Not available in file but needed for proper rendering
+	const size_t size;
+
+	size_t getCharacterDataOffset(size_t index) const;
+	size_t getCharacterIndex(ui8 first, ui8 second) const;
+
+	void renderCharacter(SDL_Surface * surface, int characterIndex, const SDL_Color & color, int &posX, int &posY) const;
+	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const override;
+public:
+	CBitmapHanFont(const JsonNode & config);
+
+	size_t getLineHeight() const override;
+	size_t getGlyphWidth(const char * data) const override;
+	size_t getCharacterSize(char data) const override;
 };
 
 class CTrueTypeFont : public IFont
@@ -97,11 +127,12 @@ class CTrueTypeFont : public IFont
 	TTF_Font * loadFont(const JsonNode & config);
 	int getFontStyle(const JsonNode & config);
 
-	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const;
+	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const override;
 public:
 	CTrueTypeFont(const JsonNode & fontConfig);
 
-	size_t getLineHeight() const;
-	size_t getSymbolWidth(char data) const;
-	size_t getStringWidth(const std::string & data) const;
+	size_t getLineHeight() const override;
+	size_t getGlyphWidth(const char * data) const override;
+	size_t getCharacterSize(char data) const override;
+	size_t getStringWidth(const std::string & data) const override;
 };
