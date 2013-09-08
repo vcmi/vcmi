@@ -1284,7 +1284,7 @@ void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
 				f->renderTextLeft(to, toPrint, color, where);
 			begin = end;
 
-			destRect.x += f->getStringWidth(toPrint);
+			where.x += f->getStringWidth(toPrint);
 		}
 		currDelimeter++;
 	}

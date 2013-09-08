@@ -351,10 +351,10 @@ void CModListView::on_disableButton_clicked()
 {
 	QString modName = modModel->modIndexToName(filterModel->mapToSource(ui->allModsView->currentIndex()).row());
 
-	for (auto & name : modModel->getRequirements(modName))
-		if (modModel->hasMod(name) &&
-		    modModel->getMod(name).isEnabled())
-			manager->disableMod(name);
+	if (modModel->hasMod(modName) &&
+	    modModel->getMod(modName).isEnabled())
+			manager->disableMod(modName);
+
 	checkManagerErrors();
 }
 

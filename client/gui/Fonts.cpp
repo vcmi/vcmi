@@ -313,11 +313,11 @@ void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, 
 
 	// start of line, may differ from 0 due to end of surface or clipped surface
 	int lineBegin = std::max<int>(0, clipRect.y - posY);
-	int lineEnd   = std::min<int>(size, clipRect.y + clipRect.h - posY - 1);
+	int lineEnd   = std::min<int>(size, clipRect.y + clipRect.h - posY);
 
 	// start end end of each row, may differ from 0
 	int rowBegin = std::max<int>(0, clipRect.x - posX);
-	int rowEnd   = std::min<int>(size, clipRect.x + clipRect.w - posX - 1);
+	int rowEnd   = std::min<int>(size, clipRect.x + clipRect.w - posX);
 
 	//for each line in symbol
 	for(int dy = lineBegin; dy <lineEnd; dy++)
