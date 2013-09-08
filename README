@@ -1,6 +1,12 @@
     VCMI Project
-    Copyright (C) 2007-2009  VCMI Team (check AUTHORS file for the contributors list)
+    Copyright (C) 2007-2013  VCMI Team (check AUTHORS file for the contributors list)
 
+    VCMI is an open-source project aiming to reimplement HMM3:WoG game engine, 
+	giving it new and extended possibilities. 
+	Wiki:   http://wiki.vcmi.eu
+	Forums: http://forum.vcmi.eu
+	Bugtracker: http://bugs.vcmi.eu/
+	
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 (included in the license.txt)
