@@ -324,6 +324,9 @@ QStringList CModListView::findDependentMods(QString mod, bool excludeDisabled)
 	{
 		auto current = modModel->getMod(modName);
 
+		if (!current.isInstalled())
+			continue;
+
 		if (current.getValue("depends").toStringList().contains(mod) &&
 		    !(current.isDisabled() && excludeDisabled))
 			ret += modName;

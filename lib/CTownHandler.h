@@ -199,14 +199,15 @@ public:
 		h & names & faction & creatures & dwellings & dwellingNames & buildings & hordeLvl & mageLevel
 			& primaryRes & warMachine & clientInfo & moatDamage;
 
+		auto findNull = [](const std::pair<BuildingID, ConstTransitivePtr<CBuilding>> &building)
+		{ return building.second == nullptr; };
+
 		//Fix #1444 corrupted save
-		while(auto badElem = vstd::tryFindIf(buildings, [](const std::pair<BuildingID, ConstTransitivePtr<CBuilding>> &building)
-														{ return building.second == nullptr; }))
+		while(auto badElem = vstd::tryFindIf(buildings, findNull))
 		{
 			std::cout << "#1444-like bug encountered, fixing buildings list by removing bogus entry " << badElem->first << " from " << faction->name << std::endl;
 			buildings.erase(badElem->first);
 		}
-
 	}
 };
 

@@ -172,7 +172,6 @@ void CPicture::colorizeAndConvert(PlayerColor player)
 void CPicture::colorize(PlayerColor player)
 {
 	assert(bg);
-	assert(bg->format->BitsPerPixel == 8);
 	graphics->blueToPlayersAdv(bg, player);
 }
 

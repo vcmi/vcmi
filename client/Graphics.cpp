@@ -282,9 +282,7 @@ void Graphics::loadHeroFlags()
 
 void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 {
-// 	if(player==1) //it is actually blue...
-// 		return;
-	if(sur->format->BitsPerPixel == 8)
+	if(sur->format->palette)
 	{
 		SDL_Color *palette = nullptr;
 		if(player < PlayerColor::PLAYER_LIMIT)
@@ -300,75 +298,15 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
             logGlobal->errorStream() << "Wrong player id in blueToPlayersAdv (" << player << ")!";
 			return;
 		}
-
 		SDL_SetColors(sur, palette, 224, 32);
-		//for(int i=0; i<32; ++i)
-		//{
-		//	sur->format->palette->colors[224+i] = palette[i];
-		//}
 	}
-	else if(sur->format->BitsPerPixel == 24) //should never happen in general
+	else
 	{
-		for(int y=0; y<sur->h; ++y)
-		{
-			for(int x=0; x<sur->w; ++x)
-			{
-				Uint8* cp = (Uint8*)sur->pixels + y*sur->pitch + x*3;
-				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-				{
-					if(cp[2]>cp[1] && cp[2]>cp[0])
-					{
-						std::vector<long long int> sort1;
-						sort1.push_back(cp[0]);
-						sort1.push_back(cp[1]);
-						sort1.push_back(cp[2]);
-						std::vector< std::pair<long long int, Uint8*> > sort2;
-						sort2.push_back(std::make_pair(graphics->playerColors[player.getNum()].r, &(cp[0])));
-						sort2.push_back(std::make_pair(graphics->playerColors[player.getNum()].g, &(cp[1])));
-						sort2.push_back(std::make_pair(graphics->playerColors[player.getNum()].b, &(cp[2])));
-						std::sort(sort1.begin(), sort1.end());
-						if(sort2[0].first>sort2[1].first)
-							std::swap(sort2[0], sort2[1]);
-						if(sort2[1].first>sort2[2].first)
-							std::swap(sort2[1], sort2[2]);
-						if(sort2[0].first>sort2[1].first)
-							std::swap(sort2[0], sort2[1]);
-						for(int hh=0; hh<3; ++hh)
-						{
-							(*sort2[hh].second) = (sort1[hh] + sort2[hh].first)/2.2;
-						}
-					}
-				}
-				else
-				{
-					if(
-						(/*(mode==0) && (cp[0]>cp[1]) && (cp[0]>cp[2])) ||
-						((mode==1) &&*/ (cp[2]<45) && (cp[0]>80) && (cp[1]<70) && ((cp[0]-cp[1])>40))
-					  )
-					{
-						std::vector<long long int> sort1;
-						sort1.push_back(cp[2]);
-						sort1.push_back(cp[1]);
-						sort1.push_back(cp[0]);
-						std::vector< std::pair<long long int, Uint8*> > sort2;
-						sort2.push_back(std::make_pair(graphics->playerColors[player.getNum()].r, &(cp[2])));
-						sort2.push_back(std::make_pair(graphics->playerColors[player.getNum()].g, &(cp[1])));
-						sort2.push_back(std::make_pair(graphics->playerColors[player.getNum()].b, &(cp[0])));
-						std::sort(sort1.begin(), sort1.end());
-						if(sort2[0].first>sort2[1].first)
-							std::swap(sort2[0], sort2[1]);
-						if(sort2[1].first>sort2[2].first)
-							std::swap(sort2[1], sort2[2]);
-						if(sort2[0].first>sort2[1].first)
-							std::swap(sort2[0], sort2[1]);
-						for(int hh=0; hh<3; ++hh)
-						{
-							(*sort2[hh].second) = (sort1[hh]*0.8 + sort2[hh].first)/2;
-						}
-					}
-				}
-			}
-		}
+		//TODO: implement. H3 method works only for images with palettes.
+		// Add some kind of player-colored overlay?
+		// Or keep palette approach here and replace only colors of specific value(s)
+		// Or just wait for OpenGL support?
+		logGlobal->warnStream() << "Image must have palette to be player-colored!";
 	}
 }
 
@@ -385,10 +323,11 @@ void Graphics::loadFonts()
 	{
 		std::string filename = bmpConf[i].String();
 
-		if (ttfConf[filename].isNull()) // no ttf override
-			fonts[i] = new CBitmapFont(filename);
-		else
+		if (!ttfConf[filename].isNull()) // no ttf override
 			fonts[i] = new CTrueTypeFont(ttfConf[filename]);
+		else
+			fonts[i] = new CBitmapFont(filename);
+
 	}
 }
 
