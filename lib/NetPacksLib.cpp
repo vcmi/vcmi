@@ -334,6 +334,12 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 
 		gs->map->objects[id.getNum()] = nullptr;
 
+		//If hero on Boat is removed, the Boat disappears
+		if(h->boat)
+		{
+			gs->map->objects[h->boat->id.getNum()].dellNull();
+			h->boat = nullptr;
+		}
 
 		return;
 	}
@@ -500,6 +506,9 @@ DLL_LINKAGE void HeroRecruited::applyGs( CGameState *gs )
 	CGHeroInstance *h = gs->hpool.heroesPool[hid];
 	CGTownInstance *t = gs->getTown(tid);
 	PlayerState *p = gs->getPlayer(player);
+
+	assert(!h->boat);
+
 	h->setOwner(player);
 	h->pos = tile;
 	h->movement =  h->maxMovePoints(true);
