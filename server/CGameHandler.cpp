@@ -3433,7 +3433,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				}
 
 				//counterattack
-				if (!stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
+				if (stackAtEnd
+					&& !stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
 					&& stackAtEnd->ableToRetaliate()
 					&& stack->alive()) //attacker may have died (fire shield)
 				{
@@ -3451,6 +3452,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				moveStack(ba.stackNumber, startingPos);
 				//NOTE: curStack->ID == ba.stackNumber (rev 1431)
 			}
+
 			sendAndApply(&end_action);
 			break;
 		}
@@ -3773,7 +3775,6 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 				handleSpellCasting(spellID, spellLvl, destination, casterSide, stack->owner, nullptr, secHero, 0, ECastingMode::CREATURE_ACTIVE_CASTING, stack);
 			}
-
 			sendAndApply(&end_action);
 			break;
 		}
@@ -5895,7 +5896,21 @@ void CGameHandler::runBattle()
 
 		const BattleInfo & curB = *gs->curB;
 
+		//remove clones after all mechanics and animations are handled!
+		std::set <const CStack*> stacksToRemove;
+		for (auto stack : curB.stacks)
+		{
+			if (stack->idDeadClone()) 
+				stacksToRemove.insert(stack);
+		}
+		for (auto stack : stacksToRemove)
+		{
+			BattleStacksRemoved bsr;
+			bsr.stackIDs.insert(stack->ID);
+			sendAndApply(&bsr);
+		}
 		//stack loop
+
 		const CStack *next;
 		while(!battleResult.get() && (next = curB.getNextStack()) && next->willMove())
 		{

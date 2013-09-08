@@ -1185,9 +1185,9 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 	}
 	if (cloneKilled())
 	{
-		BattleStacksRemoved bsr; //remove body
-		bsr.stackIDs.insert(at->ID);
-		bsr.applyGs(gs);
+		//"hide" killed creatures instead so we keep info about it
+		at->state.insert(EBattleStackState::DEAD_CLONE);
+
 	}
 }
 

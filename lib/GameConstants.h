@@ -429,7 +429,7 @@ namespace EMarketMode
 
 namespace EBattleStackState
 {
-	enum EBattleStackState{ALIVE = 180, SUMMONED, CLONED, HAD_MORALE, WAITING, MOVED, DEFENDING, FEAR,
+	enum EBattleStackState{ALIVE = 180, SUMMONED, CLONED, DEAD_CLONE, HAD_MORALE, WAITING, MOVED, DEFENDING, FEAR,
 		DRAINED_MANA /*remember to drain mana only once per turn*/};
 }
 

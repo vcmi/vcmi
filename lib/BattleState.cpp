@@ -1201,7 +1201,7 @@ bool CStack::isMeleeAttackPossible(const CStack * attacker, const CStack * defen
 
 }
 
-bool CStack::ableToRetaliate() const
+bool CStack::ableToRetaliate() const //FIXME: crash after clone is killed
 {
 	return alive()
 		&& (counterAttacks > 0 || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
