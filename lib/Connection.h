@@ -1247,7 +1247,8 @@ public:
 	{
 		std::vector<ui8> convData;
 		loadSerializable(convData);
-		std::copy(convData.begin(), convData.end(), std::back_inserter(data));
+		convData.resize(data.size());
+		range::copy(convData, data.begin());
 	}
 };
 
