@@ -116,6 +116,7 @@ public:
 	std::string imageMapMale;
 	std::string imageMapFemale;
 
+	bool isMagicHero() const;
 	SecondarySkill chooseSecSkill(const std::set<SecondarySkill> & possibles) const; //picks secondary skill out from given possibilities
 
 	template <typename Handler> void serialize(Handler &h, const int version)

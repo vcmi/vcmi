@@ -986,7 +986,26 @@ const std::string & CGHeroInstance::getBiography() const
 		return biography;
 	return type->biography;
 }
-void CGHeroInstance::initObj() //TODO: use bonus system
+
+ui8 CGHeroInstance::maxlevelsToMagicSchool() const
+{
+	return type->heroClass->isMagicHero() ? 3 : 4;
+}
+ui8 CGHeroInstance::maxlevelsToWisdom() const
+{
+	return type->heroClass->isMagicHero() ? 3 : 6;
+}
+
+void CGHeroInstance::SecondarySkillsInfo::resetMagicSchoolCounter()
+{
+	magicSchoolCounter = 1;
+}
+void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
+{
+	wisdomCounter = 1;
+}
+
+void CGHeroInstance::initObj()
 {
 	blockVisit = true;
 	auto  hs = new HeroSpecial();
@@ -995,6 +1014,10 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 
 	if(!type)
 		initHero(); //TODO: set up everything for prison before specialties are configured
+
+	skillsInfo.randomSeed = rand();
+	skillsInfo.resetMagicSchoolCounter();
+	skillsInfo.resetWisdomCounter();
 
 	for(const auto &spec : type->spec) //TODO: unfity with bonus system
 	{
@@ -1636,6 +1659,33 @@ ArtBearer::ArtBearer CGHeroInstance::bearerType() const
 
 std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 {
+	std::vector<SecondarySkill> obligatorySkills; //hero is offered magic school or wisdom if possible
+	if (!skillsInfo.magicSchoolCounter)
+	{
+		std::vector<SecondarySkill> ss;
+		ss += SecondarySkill::FIRE_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC, SecondarySkill::EARTH_MAGIC;
+
+		auto rng = [=](ui32 val)-> ui32
+		{
+			return skillsInfo.randomSeed % val; //must be determined
+		};
+		std::random_shuffle(ss.begin(), ss.end(), rng);
+
+		for (auto skill : ss)
+		{
+			if (cb->isAllowed(2, skill) && !getSecSkillLevel(skill)) //only schools hero doesn't know yet
+			{
+				obligatorySkills.push_back(skill);
+				break; //only one
+			}
+		}
+	}
+	if (!skillsInfo.wisdomCounter)
+	{
+		if (cb->isAllowed(2, SecondarySkill::WISDOM) && !getSecSkillLevel(SecondarySkill::WISDOM))
+			obligatorySkills.push_back(SecondarySkill::WISDOM);
+	}
+
 	std::vector<SecondarySkill> skills;
 	//picking sec. skills for choice
 	std::set<SecondarySkill> basicAndAdv, expert, none;
@@ -1651,9 +1701,19 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 			expert.insert(elem.first);
 		none.erase(elem.first);
 	}
+	for (auto s : obligatorySkills) //don't duplicate them
+	{
+		none.erase (s);
+		basicAndAdv.erase (s);
+		expert.erase (s);
+	}
 
 	//first offered skill
-	if(basicAndAdv.size())
+	if (canLearnSkill() && obligatorySkills.size()) //offer always if possible
+	{
+		skills.push_back (obligatorySkills[0]);
+	}
+	else if(basicAndAdv.size())
 	{
 		SecondarySkill s = type->heroClass->chooseSecSkill(basicAndAdv);//upgrade existing
 		skills.push_back(s);
@@ -1666,7 +1726,11 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 	}
 
 	//second offered skill
-	if(none.size() && canLearnSkill()) //hero have free skill slot
+	if (canLearnSkill() && obligatorySkills.size() > 1)
+	{
+		skills.push_back (obligatorySkills[1]);
+	}
+	else if(none.size() && canLearnSkill()) //hero have free skill slot
 	{
 		skills.push_back(type->heroClass->chooseSecSkill(none)); //new skill
 	}

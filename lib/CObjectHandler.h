@@ -346,6 +346,21 @@ public:
 
 	std::vector<HeroSpecial*> specialty;
 
+	struct DLL_LINKAGE SecondarySkillsInfo
+	{
+		ui32 randomSeed; //skills are determined, initialized at map start
+		ui8 magicSchoolCounter;
+		ui8 wisdomCounter;
+
+		void resetMagicSchoolCounter();
+		void resetWisdomCounter();
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & randomSeed & magicSchoolCounter & wisdomCounter;
+		}
+	} skillsInfo;
+
 	//BonusList bonuses;
 	//////////////////////////////////////////////////////////////////////////
 
@@ -355,7 +370,7 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & static_cast<CArtifactSet&>(*this);
 		h & exp & level & name & biography & portrait & mana & secSkills & movement
-			& sex & inTownGarrison & spells & patrol & moveDir;
+			& sex & inTownGarrison & spells & patrol & moveDir & skillsInfo;
 		h & visitedTown & boat;
 		h & type & specialty & commander;
 		BONUS_TREE_DESERIALIZATION_FIX
@@ -415,6 +430,8 @@ public:
 	//void giveArtifact (ui32 aid);
 	void initHeroDefInfo();
 	void pushPrimSkill(PrimarySkill::PrimarySkill which, int val);
+	ui8 maxlevelsToMagicSchool() const;
+	ui8 maxlevelsToWisdom() const;
 	void Updatespecialty();
 	void updateSkill(SecondarySkill which, int val);
 

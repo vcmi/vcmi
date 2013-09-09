@@ -42,6 +42,11 @@ SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possi
 	return *possibles.begin();
 }
 
+bool CHeroClass::isMagicHero() const
+{
+	return id % 2; // 0 - might, 1 - magic
+}
+
 EAlignment::EAlignment CHeroClass::getAlignment() const
 {
 	return EAlignment::EAlignment(VLC->townh->factions[faction]->alignment);

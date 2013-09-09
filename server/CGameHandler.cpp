@@ -205,7 +205,11 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	else if(hlu.skills.size() == 1  ||  hero->tempOwner == PlayerColor::NEUTRAL)  //choose skill automatically
 	{
 		sendAndApply(&hlu);
-		levelUpHero(hero, vstd::pickRandomElementOf (hlu.skills, rand));
+		auto rng = [&]()-> ui32
+		{
+			return hero->skillsInfo.randomSeed; //must be determined
+		};
+		levelUpHero(hero, vstd::pickRandomElementOf (hlu.skills, rng));
 	}
 	else if(hlu.skills.size() > 1)
 	{
