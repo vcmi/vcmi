@@ -23,6 +23,10 @@ public:
 	ConstTransitivePtr(T *Ptr = nullptr)
 		: ptr(Ptr) 
 	{}
+	ConstTransitivePtr(std::nullptr_t)
+		: ptr(nullptr) 
+	{}
+
 
 	const T& operator*() const
 	{

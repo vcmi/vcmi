@@ -629,6 +629,15 @@ namespace vstd
 			return *pos;
 	}
 
+	template <typename Container>
+	typename Container::const_reference atOrDefault(const Container &r, size_t index, const typename Container::const_reference &defaultValue)
+	{
+		if(isValidIndex(r, index))
+			return r[index];
+		
+		return defaultValue;
+	}
+
 	using boost::math::round;
 }
 using vstd::operator-=;
