@@ -420,6 +420,7 @@ public:
 
 	std::vector<HeroPtr> getUnblockedHeroes() const;
 	HeroPtr primaryHero() const;
+	TResources freeResources() const; //owned resources minus gold reserve
 	TResources estimateIncome() const;
 	bool containsSavedRes(const TResources &cost) const;
 	void checkHeroArmy (HeroPtr h);

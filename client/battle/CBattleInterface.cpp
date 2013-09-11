@@ -1431,7 +1431,10 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					break;
 				default:
 					text = CGI->generaltexth->allTexts[565]; //The %s casts %s
-					boost::algorithm::replace_first(text, "%s", CGI->creh->creatures[sc->attackerType]->namePl); //casting stack
+					if(auto castingCreature = vstd::atOrDefault(CGI->creh->creatures, sc->attackerType, nullptr))
+						boost::algorithm::replace_first(text, "%s", castingCreature->namePl); //casting stack
+					else
+						boost::algorithm::replace_first(text, "%s", "@Unknown caster@"); //should not happen
 			}
 			if (plural)
 			{
@@ -1459,9 +1462,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		{
 			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetHeroInfo(sc->side).name);
 		}
-		else if(sc->attackerType < CGI->creh->creatures.size())
+		if(auto castingCreature = vstd::atOrDefault(CGI->creh->creatures, sc->attackerType, nullptr))
 		{
-			boost::algorithm::replace_first(text, "%s", CGI->creh->creatures[sc->attackerType]->namePl); //creature caster
+			boost::algorithm::replace_first(text, "%s", castingCreature->namePl); //creature caster
 		}
 		else
 		{

@@ -1228,9 +1228,7 @@ void VCAI::recruitCreatures(const CGDwelling * d)
 // 		if(containsSavedRes(c->cost))
 // 			continue;
 
-		TResources myRes = cb->getResourceAmount();
-		myRes[Res::GOLD] -= GOLD_RESERVE;
-		amin(count, myRes / VLC->creh->creatures[creID]->cost);
+		amin(count, freeResources() / VLC->creh->creatures[creID]->cost);
 		if(count > 0)
 			cb->recruitCreatures(d, creID, count, i);
 	}
@@ -1900,6 +1898,11 @@ void VCAI::tryRealize(CGoal g)
 			//cb->recalculatePaths();
 			if(!g.hero->movement)
 				throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
+			if(g.tile == g.hero->visitablePos()  &&  cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
+			{
+				logAi->warnStream() << boost::format("Why do I want to move hero %s to tile %s? Already standing on that tile! ") % g.hero->name % g.tile;
+				throw goalFulfilledException (g);
+			}
 			//if(!g.isBlockedBorderGate(g.tile))
 			//{
 				if (ai->moveHeroToTile(g.tile, g.hero.get()))
@@ -2614,6 +2617,14 @@ void VCAI::validateObject(ObjectIdRef obj)
 	}
 }
 
+TResources VCAI::freeResources() const
+{
+	TResources myRes = cb->getResourceAmount();
+	myRes[Res::GOLD] -= GOLD_RESERVE;
+	vstd::amax(myRes[Res::GOLD], 0);
+	return myRes;
+}
+
 AIStatus::AIStatus()
 {
 	battle = NO_BATTLE;
@@ -3264,7 +3275,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 					{
 						for (auto type : creature.second)
 						{
-							if (type == objid)
+							if (type == objid  &&  ai->freeResources().canAfford(VLC->creh->creatures[type]->cost))
 								dwellings.push_back(d);
 						}
 					}
@@ -3273,7 +3284,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			if (dwellings.size())
 			{
 				boost::sort(dwellings, isCloser);
-				return CGoal(GET_OBJ).setobjid (dwellings.front()->id.getNum()); //TODO: consider needed resources
+				return CGoal(GET_OBJ).setobjid (dwellings.front()->id.getNum());
 			}
 			else
 				return CGoal(EXPLORE);
@@ -3435,9 +3446,12 @@ TSubgoal CGoal::whatToDoToAchieve()
 						{
 							if(creLevel.first)
 							{
-								auto creature = VLC->creh->creatures[creLevel.second.front()];
-								if(cb->getResourceAmount().canAfford(creature->cost))
-									return false;
+								for(auto & creatureID : creLevel.second)
+								{
+									auto creature = VLC->creh->creatures[creatureID];
+									if(ai->freeResources().canAfford(creature->cost))
+										return false;
+								}
 							}
 						}
 					}
