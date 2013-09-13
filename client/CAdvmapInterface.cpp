@@ -134,7 +134,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 				{-1,  1,  2, 23, -1,  3, 22, 21, 12}
 			}; //table of magic values TODO meaning, change variable name
 
-	for (size_t i=0; i < currentPath->nodes.size()-1; ++i)
+	for (int i=0; i < (int)currentPath->nodes.size()-1; ++i)
 	{
 		const int3 &curPos = currentPath->nodes[i].coord, &nextPos = currentPath->nodes[i+1].coord;
 		if(curPos.z != adventureInt->position.z)
