@@ -1357,6 +1357,8 @@ struct BattleInfo;
 struct BattleStart : public CPackForClient//3000
 {
 	BattleStart(){type = 3000;};
+
+	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
