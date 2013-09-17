@@ -193,8 +193,8 @@ public:
 	void setOwner(PlayerColor ow);
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
-	bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
-	int3 getVisitableOffset() const; //returns (x,y,0) offset to first visitable tile from bottom right obj tile (0,0,0) (h3m pos)
+	virtual bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
+	virtual int3 getVisitableOffset() const; //returns (x,y,0) offset to first visitable tile from bottom right obj tile (0,0,0) (h3m pos)
 	int3 visitablePos() const;
 	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) form left top tile of image (x, y in tiles)
 	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) form left top tile of maximal possible image (8 x 6 tiles) (x, y in tiles)
@@ -1036,7 +1036,7 @@ public:
 
 	bool wasVisited(PlayerColor player) const;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void newTurn() const override;
+	virtual void newTurn() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1079,14 +1079,24 @@ public:
 
 class DLL_LINKAGE CGMagicSpring : public CGVisitableOPW
 {///unfortunately, this one is quite different than others
+	enum EVisitedEntrance
+	{
+		CLEAR = 0, LEFT = 1, RIGHT
+	};
 public:
+	EVisitedEntrance visitedTile; //only one entrance was visited - there are two
+
+	std::vector<int3> getVisitableOffsets() const;
+	int3 getVisitableOffset() const override;
+	void setPropertyDer(ui8 what, ui32 val) override;
+	void newTurn() const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	const std::string & getHoverText() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & visited;
+		h & visitedTile & visited;
 	}
 };
 

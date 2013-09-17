@@ -27,7 +27,7 @@
 #include "mapping/CCampaignHandler.h" //for CCampaignState
 #include "rmg/CMapGenerator.h" // for CMapGenOptions
 
-const ui32 version = 742;
+const ui32 version = 743;
 
 class CConnection;
 class CGObjectInstance;

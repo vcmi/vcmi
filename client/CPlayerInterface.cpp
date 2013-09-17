@@ -712,7 +712,6 @@ void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 	for(auto & elem : bsr.stackIDs) //for each removed stack
 	{
 		battleInt->stackRemoved(elem);
-		//battleInt->stackRemoved(LOCPLINT->cb->battleGetStackByID(*it));
 	}
 }
 

@@ -5333,6 +5333,61 @@ void CGBonusingObject::initObj()
 	}
 }
 
+void CGMagicSpring::setPropertyDer(ui8 what, ui32 val)
+{
+	CGVisitableOPW::setPropertyDer (what, val); //set visitable if applicable
+	if (what == ObjProperty::LEFT_VISITED)
+	{
+		if (visitedTile == RIGHT)
+			visited = true; //both field were used, object is not available this week
+		else
+			visitedTile = LEFT;
+	}
+	else if (what == ObjProperty::RIGHT_VISITED)
+	{
+		if (visitedTile == LEFT)
+			visited = true;
+		else
+			visitedTile = RIGHT;
+	}
+	else if (what == ObjProperty::LEFTRIGHT_CLEAR)
+		visitedTile = CLEAR;
+}
+std::vector<int3> CGMagicSpring::getVisitableOffsets() const
+{
+	std::vector <int3> visitableTiles;
+
+	for(int y = 0; y < 6; y++)
+		for (int x = 0; x < 8; x++) //starting from left
+			if((defInfo->visitMap[5-y] >> x) & 1)
+				visitableTiles.push_back (int3(x, y , 0));
+
+	return visitableTiles;
+}
+
+int3 CGMagicSpring::getVisitableOffset() const
+{
+	//FIXME: this also shoudl stop AI from passing through already visited spring, is that ok?
+	auto visitableTiles = getVisitableOffsets();
+
+	if (visitableTiles.size() < 2)
+	{
+		logGlobal->warnStream() << "Warning: Magic Spring should have at least two visitable offsets!";
+		return int3(-1,-1,-1);
+	}
+    if (visited)
+		return int3(-1,-1,-1);
+	else
+	{
+		if (visitedTile == RIGHT)
+			return visitableTiles[0]; //visit teh other one now
+		else if (visitedTile == LEFT)
+			return visitableTiles[1];
+		else
+			return visitableTiles[0]; //only left one?
+	}
+}
+
 void CGMagicSpring::onHeroVisit(const CGHeroInstance * h) const
 {
 	int messageID;
@@ -5344,17 +5399,39 @@ void CGMagicSpring::onHeroVisit(const CGHeroInstance * h) const
 		else
 		{
 			messageID = 74;
-			cb->setManaPoints (h->id, 2 * h->manaLimit());
-			cb->setObjProperty (id, ObjProperty::VISITED, true);
+			cb->setManaPoints (h->id, 2 * h->manaLimit());//TODO: mark left or right tile visited
+			if (visitedTile) //visitng the second tile
+				cb->setObjProperty (id, ObjProperty::VISITED, true);
+			else
+			{
+				auto visitableTiles = getVisitableOffsets();
+				assert (visitableTiles.size() >= 2);
+				if (h->getPosition() == pos - visitableTiles[0])
+					cb->setObjProperty (id, ObjProperty::LEFT_VISITED, true);
+				else if (h->getPosition() == pos - visitableTiles[1])
+					cb->setObjProperty (id, ObjProperty::RIGHT_VISITED, true);
+				else
+					logGlobal->warnStream() << "Warning: hero is not on any Magic Spring visitable offsets!";
+			}
 		}
 	}
 	else
 		messageID = 75;
 	showInfoDialog(h,messageID,soundBase::GENIE);
 }
+void CGMagicSpring::newTurn() const
+{
+	CGVisitableOPW::newTurn();
+	if (cb->getDate(Date::DAY_OF_WEEK) == 1)
+	{
+		cb->setObjProperty(id, ObjProperty::LEFTRIGHT_CLEAR, false);
+	}
+}
+
 
 const std::string & CGMagicSpring::getHoverText() const
 {
+	//TODO: change hover text depending on hovered tile
 	hoverName = VLC->generaltexth->names[ID] + " " + visitedTxt(visited);
 	return hoverName;
 }

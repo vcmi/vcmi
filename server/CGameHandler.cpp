@@ -4236,6 +4236,27 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				sendAndApply(&shr);
 			if (spellID == SpellID::SACRIFICE) //remove victim
 			{
+				if (selectedStack == gs->curB->activeStack)
+				//set another active stack than the one removed, or bad things will happen
+				//TODO: make that part of BattleStacksRemoved? what about client update?
+				{
+					//makeStackDoNothing(gs->curB->getStack (selectedStack));
+
+					BattleSetActiveStack sas;
+
+					//std::vector<const CStack *> hlp;
+					//battleGetStackQueue(hlp, 1, selectedStack); //next after this one
+
+					//if(hlp.size())
+					//{
+					//	sas.stack = hlp[0]->ID;
+					//}
+					//else
+					//	complain ("No new stack to activate!");
+					sas.stack = gs->curB->getNextStack()->ID; //why the hell next stack has same ID as current?
+					sendAndApply(&sas);
+
+				}
 				BattleStacksRemoved bsr;
 				bsr.stackIDs.insert (selectedStack); //somehow it works for teleport?
 				sendAndApply(&bsr);
@@ -4491,7 +4512,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 									ECastingMode::HERO_CASTING, nullptr, ba.selectedStack);
 
 				sendAndApply(&end_action);
-				if( !gs->curB->battleGetStackByID(gs->curB->activeStack, false)->alive() )
+				if( !gs->curB->battleGetStackByID(gs->curB->activeStack, true))
 				{
 					battleMadeAction.setn(true);
 				}
@@ -6052,7 +6073,7 @@ void CGameHandler::runBattle()
 						sendAndApply(&sas);
 						boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
 						battleMadeAction.data = false;
-						while (next->alive() &&
+						while (next->alive() && //next is invalid after sacrificing current stack :?
 							(!battleMadeAction.data  &&  !battleResult.get())) //active stack hasn't made its action and battle is still going
 							battleMadeAction.cond.wait(lock);
 					}

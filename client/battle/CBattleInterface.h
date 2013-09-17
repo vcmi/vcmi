@@ -145,7 +145,7 @@ private:
 	const CStack * mouseHoveredStack; // stack below mouse pointer, used for border animation
 	const CStack * stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; nullptr of none
 	const CStack * selectedStack; //for Teleport / Sacrifice
-	void activateStack(); //sets activeStack to stackToActivate etc.
+	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 	std::vector<BattleHex> occupyableHexes, //hexes available for active stack
 		attackableHexes; //hexes attackable by active stack
     bool stackCountOutsideHexes[GameConstants::BFIELD_SIZE]; // hexes that when in front of a unit cause it's amount box to move back
