@@ -13,8 +13,8 @@ class CModManager
 	bool doInstallMod(QString mod, QString archivePath);
 	bool doUninstallMod(QString mod);
 
-	QJsonObject modSettings;
-	QJsonObject localMods;
+	QVariantMap modSettings;
+	QVariantMap localMods;
 
 	QStringList recentErrors;
 	bool addError(QString modname, QString message);

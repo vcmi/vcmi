@@ -7,13 +7,82 @@
     <x>0</x>
     <y>0</y>
     <width>700</width>
-    <height>303</height>
+    <height>308</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="1">
+    <widget class="QComboBox" name="comboBoxFullScreen">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <item>
+      <property name="text">
+       <string>Off</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>On</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="11" column="0" colspan="5">
+    <widget class="QPlainTextEdit" name="plainTextEditRepos">
+     <property name="lineWrapMode">
+      <enum>QPlainTextEdit::NoWrap</enum>
+     </property>
+     <property name="plainText">
+      <string>http://downloads.vcmi.eu/Mods/repository.json</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QLineEdit" name="lineEditUserDataDir">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>150</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>/home/user/.vcmi</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="labelPlayerAI">
+     <property name="text">
+      <string>Player AI</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <spacer name="spacerColumns">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>8</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
    <item row="1" column="4">
     <widget class="QLineEdit" name="lineEditGameDir">
      <property name="enabled">
@@ -33,7 +102,54 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="7" column="3">
+    <widget class="QLabel" name="labelEnableMods">
+     <property name="text">
+      <string>Enable mods on install</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="4">
+    <widget class="QSpinBox" name="spinBoxNetworkPort">
+     <property name="minimum">
+      <number>1024</number>
+     </property>
+     <property name="maximum">
+      <number>65535</number>
+     </property>
+     <property name="value">
+      <number>3030</number>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QLabel" name="labelUserDataDir">
+     <property name="text">
+      <string>User data directory</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QLabel" name="labelGameDir">
+     <property name="text">
+      <string>Game directory</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QLabel" name="labelAISettings">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>AI Settings</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
     <spacer name="spacerRepos">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -56,39 +172,55 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <spacer name="spacerSections">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="labelVideo">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
      </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>56</width>
-       <height>8</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="labelFullScreen">
      <property name="text">
-      <string>Fullscreen</string>
+      <string>Video</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="4">
-    <widget class="QSpinBox" name="spinBoxNetworkPort">
-     <property name="minimum">
-      <number>1024</number>
+   <item row="0" column="3" colspan="2">
+    <widget class="QLabel" name="labelDataDirs">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
      </property>
-     <property name="maximum">
-      <number>65535</number>
+     <property name="text">
+      <string>Data Directories (unchangeable)</string>
      </property>
-     <property name="value">
-      <number>3030</number>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="2">
+    <widget class="QLabel" name="labelRepositories">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Repositories</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3" colspan="2">
+    <widget class="QLabel" name="labelGeneral">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>General</string>
      </property>
     </widget>
    </item>
@@ -167,14 +299,7 @@
      </item>
     </widget>
    </item>
-   <item row="2" column="3">
-    <widget class="QLabel" name="labelUserDataDir">
-     <property name="text">
-      <string>User data directory</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="4">
+   <item row="7" column="4">
     <widget class="QComboBox" name="comboBoxEnableMods">
      <property name="currentIndex">
       <number>1</number>
@@ -191,100 +316,61 @@
      </item>
     </widget>
    </item>
-   <item row="8" column="0" colspan="2">
-    <widget class="QLabel" name="labelRepositories">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Repositories</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0" colspan="5">
-    <widget class="QPlainTextEdit" name="plainTextEditRepos">
-     <property name="lineWrapMode">
-      <enum>QPlainTextEdit::NoWrap</enum>
-     </property>
-     <property name="plainText">
-      <string>http://downloads.vcmi.eu/Mods/repository.json</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="labelPlayerAI">
-     <property name="text">
-      <string>Player AI</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <spacer name="spacerColumns">
+   <item row="3" column="0">
+    <spacer name="spacerSections">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeType">
       <enum>QSizePolicy::Fixed</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>8</width>
-       <height>20</height>
+       <width>56</width>
+       <height>8</height>
       </size>
      </property>
     </spacer>
    </item>
-   <item row="2" column="1">
-    <widget class="QComboBox" name="comboBoxFullScreen">
-     <property name="currentIndex">
-      <number>0</number>
+   <item row="2" column="0">
+    <widget class="QLabel" name="labelFullScreen">
+     <property name="text">
+      <string>Fullscreen</string>
      </property>
+    </widget>
+   </item>
+   <item row="6" column="4">
+    <widget class="QComboBox" name="comboBoxEncoding">
      <item>
       <property name="text">
-       <string>Off</string>
+       <string>Native (unicode disabled)</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>On</string>
+       <string>Central European (Windows 1250)</string>
       </property>
      </item>
-    </widget>
-   </item>
-   <item row="6" column="3">
-    <widget class="QLabel" name="labelEnableMods">
-     <property name="text">
-      <string>Enable mods on install</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="4">
-    <widget class="QLineEdit" name="lineEditUserDataDir">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>150</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>/home/user/.vcmi</string>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="labelNeutralAI">
-     <property name="text">
-      <string>Neutral AI</string>
-     </property>
+     <item>
+      <property name="text">
+       <string>Cyrillic script (Windows 1251)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Western European (Windows 1252)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Simplified Chinese (GBK)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Simplified Chinese (GB2312)</string>
+      </property>
+     </item>
     </widget>
    </item>
    <item row="6" column="1">
@@ -301,62 +387,17 @@
      </item>
     </widget>
    </item>
-   <item row="1" column="3">
-    <widget class="QLabel" name="labelGameDir">
+   <item row="6" column="0">
+    <widget class="QLabel" name="labelNeutralAI">
      <property name="text">
-      <string>Game directory</string>
+      <string>Neutral AI</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
-    <widget class="QLabel" name="labelAISettings">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
+   <item row="6" column="3">
+    <widget class="QLabel" name="labelEncoding">
      <property name="text">
-      <string>AI Settings</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="labelVideo">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Video</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="3" colspan="2">
-    <widget class="QLabel" name="labelDataDirs">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Data Directories (unchangeable)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="3" colspan="2">
-    <widget class="QLabel" name="labelGeneral">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>General</string>
+      <string>Heroes III character set</string>
      </property>
     </widget>
    </item>

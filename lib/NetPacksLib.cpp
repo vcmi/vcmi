@@ -1011,15 +1011,15 @@ DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )
 	CGHeroInstance* h = gs->getHero(hero->id);
 	h->level = level;
 	//deterministic secondary skills
-	h->skillsInfo.magicSchoolCounter = (++h->skillsInfo.magicSchoolCounter) % h->maxlevelsToMagicSchool();
-	h->skillsInfo.wisdomCounter = (++h->skillsInfo.wisdomCounter) % h->maxlevelsToWisdom();
+	h->skillsInfo.magicSchoolCounter = (h->skillsInfo.magicSchoolCounter + 1) % h->maxlevelsToMagicSchool();
+	h->skillsInfo.wisdomCounter = (h->skillsInfo.wisdomCounter + 1) % h->maxlevelsToWisdom();
 	if (vstd::contains(skills, SecondarySkill::WISDOM))
 		h->skillsInfo.resetWisdomCounter();
 	SecondarySkill spellSchools[] = {
 		SecondarySkill::FIRE_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC, SecondarySkill::EARTH_MAGIC};
 	for (auto skill : spellSchools)
 	{
-		if (vstd::contains(skills, SecondarySkill::WISDOM))
+		if (vstd::contains(skills, skill))
 		{
 			h->skillsInfo.resetMagicSchoolCounter();
 			break;

@@ -141,17 +141,29 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
 	auto entries = registeredObjects.equal_range(fullID);
 	if (entries.first != entries.second)
 	{
+		size_t matchesFound = 0;
+
 		for (auto it = entries.first; it != entries.second; it++)
 		{
 			if (vstd::contains(allowedScopes, it->second.scope))
 			{
-				request.callback(it->second.id);
-				return true;
+				if (matchesFound == 0) // trigger only once
+					request.callback(it->second.id);
+				matchesFound++;
 			}
 		}
 
+		if (matchesFound == 1)
+			return true; // success, only one matching ID
+
 		// error found. Try to generate some debug info
-		logGlobal->errorStream() << "Unknown identifier " << request.type << "." << request.name << " from mod " << request.localScope;
+		if (matchesFound == 0)
+			logGlobal->errorStream() << "Unknown identifier!";
+		else
+			logGlobal->errorStream() << "Ambiguous identifier request!";
+
+		 logGlobal->errorStream() << "Request for " << request.type << "." << request.name << " from mod " << request.localScope;
+
 		for (auto it = entries.first; it != entries.second; it++)
 		{
 			logGlobal->errorStream() << "\tID is available in mod " << it->second.scope;

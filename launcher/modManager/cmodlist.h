@@ -1,8 +1,9 @@
 #pragma once
 
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QVariantMap>
 #include <QVariant>
+
+class JsonNode;
 
 namespace ModStatus
 {
@@ -19,13 +20,13 @@ namespace ModStatus
 class CModEntry
 {
 	// repository contains newest version only (if multiple are available)
-	QJsonObject repository;
-	QJsonObject localData;
-	QJsonValue modSettings;
+	QVariantMap repository;
+	QVariantMap localData;
+	QVariant modSettings;
 
 	QString modname;
 public:
-	CModEntry(QJsonObject repository, QJsonObject localData, QJsonValue modSettings, QString modname);
+	CModEntry(QVariantMap repository, QVariantMap localData, QVariant modSettings, QString modname);
 
 	// installed and enabled
 	bool isEnabled() const;
@@ -52,16 +53,16 @@ public:
 
 class CModList
 {
-	QVector<QJsonObject> repositories;
-	QJsonObject localModList;
-	QJsonObject modSettings;
+	QVector<QVariantMap> repositories;
+	QVariantMap localModList;
+	QVariantMap modSettings;
 
-	QJsonObject copyField(QJsonObject data, QString from, QString to);
+	QVariantMap copyField(QVariantMap data, QString from, QString to);
 public:
 	virtual void resetRepositories();
-	virtual void addRepository(QJsonObject data);
-	virtual void setLocalModList(QJsonObject data);
-	virtual void setModSettings(QJsonObject data);
+	virtual void addRepository(QVariantMap data);
+	virtual void setLocalModList(QVariantMap data);
+	virtual void setModSettings(QVariant data);
 
 	// returns mod by name. Note: mod MUST exist
 	CModEntry getMod(QString modname) const;

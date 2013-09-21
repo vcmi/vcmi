@@ -5,22 +5,8 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CZipLoader.h"
 
+#include "../jsonutils.h"
 #include "../launcherdirs.h"
-
-static QJsonObject JsonFromFile(QString filename)
-{
-	QFile file(filename);
-	file.open(QFile::ReadOnly);
-
-	return QJsonDocument::fromJson(file.readAll()).object();
-}
-
-static void JsonToFile(QString filename, QJsonObject object)
-{
-	QFile file(filename);
-	file.open(QFile::WriteOnly);
-	file.write(QJsonDocument(object).toJson());
-}
 
 static QString detectModArchive(QString path, QString modName)
 {
@@ -57,8 +43,8 @@ QString CModManager::settingsPath()
 
 void CModManager::loadModSettings()
 {
-	modSettings = JsonFromFile(settingsPath());
-	modList->setModSettings(modSettings["activeMods"].toObject());
+	modSettings = JsonUtils::JsonFromFile(settingsPath()).toMap();
+	modList->setModSettings(modSettings["activeMods"]);
 }
 
 void CModManager::resetRepositories()
@@ -68,7 +54,7 @@ void CModManager::resetRepositories()
 
 void CModManager::loadRepository(QString file)
 {
-	modList->addRepository(JsonFromFile(file));
+	modList->addRepository(JsonUtils::JsonFromFile(file).toMap());
 }
 
 void CModManager::loadMods()
@@ -78,17 +64,9 @@ void CModManager::loadMods()
 	for (auto modname : installedMods)
 	{
 		ResourceID resID("Mods/" + modname + "/mod.json");
-
-		if (CResourceHandler::get()->existsResource(resID))
-		{
-			auto data = CResourceHandler::get()->load(resID)->readAll();
-			auto array = QByteArray(reinterpret_cast<char *>(data.first.get()), data.second);
-
-			auto mod = QJsonDocument::fromJson(array);
-			assert (mod.isObject()); // TODO: use JsonNode from vcmi code here - QJsonNode parser is just too pedantic
-
-			localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), QJsonValue(mod.object()));
-		}
+		std::string name = *CResourceHandler::get()->getResourceName(resID);
+		auto mod = JsonUtils::JsonFromFile(QString::fromUtf8(name.c_str()));
+		localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);
 	}
 	modList->setLocalModList(localMods);
 }
@@ -209,15 +187,15 @@ bool CModManager::canDisableMod(QString modname)
 
 bool CModManager::doEnableMod(QString mod, bool on)
 {
-	QJsonValue value(on);
-	QJsonObject list = modSettings["activeMods"].toObject();
+	QVariant value(on);
+	QVariantMap list = modSettings["activeMods"].toMap();
 
 	list.insert(mod, value);
 	modSettings.insert("activeMods", list);
 
-	modList->setModSettings(modSettings["activeMods"].toObject());
+	modList->setModSettings(modSettings["activeMods"]);
 
-	JsonToFile(settingsPath(), modSettings);
+	JsonUtils::JsonToFile(settingsPath(), modSettings);
 
 	return true;
 }
@@ -245,7 +223,7 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 		return addError(modname, "Failed to extract mod data");
 	}
 
-	QJsonObject json = JsonFromFile(destDir + modDirName + "/mod.json");
+	QVariantMap json = JsonUtils::JsonFromFile(destDir + modDirName + "/mod.json").toMap();
 
 	localMods.insert(modname, json);
 	modList->setLocalModList(localMods);

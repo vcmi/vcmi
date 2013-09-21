@@ -117,21 +117,21 @@ void CModListModel::resetRepositories()
 	endResetModel();
 }
 
-void CModListModel::addRepository(QJsonObject data)
+void CModListModel::addRepository(QVariantMap data)
 {
 	beginResetModel();
 	CModList::addRepository(data);
 	endResetModel();
 }
 
-void CModListModel::setLocalModList(QJsonObject data)
+void CModListModel::setLocalModList(QVariantMap data)
 {
 	beginResetModel();
 	CModList::setLocalModList(data);
 	endResetModel();
 }
 
-void CModListModel::setModSettings(QJsonObject data)
+void CModListModel::setModSettings(QVariant data)
 {
 	beginResetModel();
 	CModList::setModSettings(data);

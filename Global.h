@@ -632,7 +632,7 @@ namespace vstd
 	template <typename Container>
 	typename Container::const_reference atOrDefault(const Container &r, size_t index, const typename Container::const_reference &defaultValue)
 	{
-		if(isValidIndex(r, index))
+		if(index < r.size())
 			return r[index];
 		
 		return defaultValue;

@@ -4494,12 +4494,13 @@ void CQuest::getVisitText (MetaString &iwText, std::vector<Component> &component
 		}
 			break;
 		case MISSION_KILL_HERO:
-			components.push_back(Component(Component::HERO, heroPortrait, 0, 0));
+			components.push_back(Component(Component::HERO_PORTRAIT, heroPortrait, 0, 0));
 			if (!isCustom)
 				addReplacements(iwText, text);
 			break;
 		case MISSION_HERO:
-			components.push_back(Component (Component::HERO, m13489val, 0, 0));
+            //FIXME: portrait may not match hero, if custom portrait was set in map editor
+			components.push_back(Component (Component::HERO_PORTRAIT, VLC->heroh->heroes[m13489val]->imageIndex, 0, 0));
 			if (!isCustom)
 				iwText.addReplacement(VLC->heroh->heroes[m13489val]->name);
 			break;

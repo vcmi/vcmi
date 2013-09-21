@@ -174,7 +174,7 @@
 		"faction": "fortress",
 		"abilities" : 
 		{
-			"SHOOTER" : null
+			"SHOOTING_ARMY" : null
 		},
 		"graphics" :
 		{

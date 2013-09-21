@@ -108,5 +108,17 @@ void CSettingsView::on_plainTextEditRepos_textChanged()
 			node->Vector().push_back(entry);
 		}
 	}
+}
 
+void CSettingsView::on_comboBoxEncoding_currentIndexChanged(int index)
+{
+	std::string encodings[] =
+	{
+	    "native", // right now indicates disabled unicode, may be removed in future
+	    "CP1250", "CP1251", "CP1252", // european Windows-125X encoding
+	    "GBK", "gb2312"  // chinese, aka CP936. Same encoding rules but different font files.
+	};
+
+	Settings node = settings.write["general"]["encoding"];
+	node->String() = encodings[index];
 }

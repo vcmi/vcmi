@@ -30,9 +30,9 @@ class CModListModel : public QAbstractTableModel, public CModList
 public:
 	/// CModListContainer overrides
 	void resetRepositories();
-	void addRepository(QJsonObject data);
-	void setLocalModList(QJsonObject data);
-	void setModSettings(QJsonObject data);
+	void addRepository(QVariantMap data);
+	void setLocalModList(QVariantMap data);
+	void setModSettings(QVariant data);
 
 	QString modIndexToName(int index) const;
 

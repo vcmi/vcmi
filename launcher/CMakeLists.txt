@@ -22,6 +22,7 @@ set(launcher_SRCS
 	main.cpp
 	mainwindow_moc.cpp
 	launcherdirs.cpp
+	jsonutils.cpp
 )
 
 set(launcher_FORMS

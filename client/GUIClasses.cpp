@@ -943,7 +943,7 @@ size_t CComponent::getIndex()
 	case morale:     return val+3;
 	case luck:       return val+3;
 	case building:   return val;
-	case hero:       return CGI->heroh->heroes[subtype]->imageIndex;
+	case hero:       return subtype;
 	case flag:       return subtype;
 	}
 	assert(0);
@@ -965,7 +965,7 @@ std::string CComponent::getDescription()
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
 	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
 	case building:   return CGI->townh->factions[subtype]->town->buildings[BuildingID(val)]->Description();
-	case hero:       return CGI->heroh->heroes[subtype]->name;
+	case hero:       return "";
 	case flag:       return "";
 	}
 	assert(0);
@@ -1007,7 +1007,7 @@ std::string CComponent::getSubtitleInternal()
 	case morale:     return "";
 	case luck:       return "";
 	case building:   return CGI->townh->factions[subtype]->town->buildings[BuildingID(val)]->Name();
-	case hero:       return CGI->heroh->heroes[subtype]->name;
+	case hero:       return "";
 	case flag:       return CGI->generaltexth->capColors[subtype];
 	}
 	assert(0);

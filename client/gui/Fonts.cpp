@@ -270,9 +270,9 @@ void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, 
 	{
 		SDL_Surface * rendered;
 		if (blended)
-			rendered = TTF_RenderText_Blended(font.get(), data.c_str(), color);
+			rendered = TTF_RenderUTF8_Blended(font.get(), data.c_str(), color);
 		else
-			rendered = TTF_RenderText_Solid(font.get(), data.c_str(), color);
+			rendered = TTF_RenderUTF8_Solid(font.get(), data.c_str(), color);
 
 		assert(rendered);
 

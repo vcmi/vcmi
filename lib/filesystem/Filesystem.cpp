@@ -300,7 +300,9 @@ std::vector<std::string> CResourceHandler::getAvailableMods()
 				continue;
 			}
 		}
-		foundMods.push_back(name);
+
+		if (!name.empty())
+			foundMods.push_back(name);
 	}
 	return foundMods;
 }

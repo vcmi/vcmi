@@ -17,7 +17,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "classicCreatureWindow", "playerName", "showfps", "music", "sound" ],
+			"required" : [ "classicCreatureWindow", "playerName", "showfps", "music", "sound", "encoding" ],
 			"properties" : {
 				"classicCreatureWindow" : {
 					"type" : "boolean",
@@ -38,6 +38,10 @@
 				"sound" : {
 					"type" : "number",
 					"default" : 88
+				},
+				"encoding" : {
+					"type" : "string",
+					"default" : "native"
 				}
 			}
 		},

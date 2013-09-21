@@ -1,6 +1,9 @@
 #include "StdInc.h"
 #include "cmodlist.h"
 
+#include "../../lib/JsonNode.h"
+#include "../../lib/filesystem/CFileInputStream.h"
+
 bool CModEntry::compareVersions(QString lesser, QString greater)
 {
 	static const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
@@ -25,7 +28,7 @@ bool CModEntry::compareVersions(QString lesser, QString greater)
 	return false;
 }
 
-CModEntry::CModEntry(QJsonObject repository, QJsonObject localData, QJsonValue modSettings, QString modname):
+CModEntry::CModEntry(QVariantMap repository, QVariantMap localData, QVariant modSettings, QString modname):
     repository(repository),
     localData(localData),
     modSettings(modSettings),
@@ -38,7 +41,7 @@ bool CModEntry::isEnabled() const
 	if (!isInstalled())
 		return false;
 
-	return modSettings.toBool(false);
+	return modSettings.toBool();
 }
 
 bool CModEntry::isDisabled() const
@@ -89,24 +92,24 @@ QString CModEntry::getName() const
 QVariant CModEntry::getValue(QString value) const
 {
 	if (repository.contains(value))
-		return repository[value].toVariant();
+		return repository[value];
 
 	if (localData.contains(value))
-		return localData[value].toVariant();
+		return localData[value];
 
 	return QVariant();
 }
 
-QJsonObject CModList::copyField(QJsonObject data, QString from, QString to)
+QVariantMap CModList::copyField(QVariantMap data, QString from, QString to)
 {
-	QJsonObject renamed;
+	QVariantMap renamed;
 
 	for (auto it = data.begin(); it != data.end(); it++)
 	{
-		QJsonObject object = it.value().toObject();
+		QVariant object = it.value();
 
-		object.insert(to, object.value(from));
-		renamed.insert(it.key(), QJsonValue(object));
+		object.toMap().insert(to, object.toMap().value(from));
+		renamed.insert(it.key(), object.toMap());
 	}
 	return renamed;
 }
@@ -116,40 +119,40 @@ void CModList::resetRepositories()
 	repositories.clear();
 }
 
-void CModList::addRepository(QJsonObject data)
+void CModList::addRepository(QVariantMap data)
 {
 	repositories.push_back(copyField(data, "version", "latestVersion"));
 }
 
-void CModList::setLocalModList(QJsonObject data)
+void CModList::setLocalModList(QVariantMap data)
 {
 	localModList = copyField(data, "version", "installedVersion");
 }
 
-void CModList::setModSettings(QJsonObject data)
+void CModList::setModSettings(QVariant data)
 {
-	modSettings = data;
+	modSettings = data.toMap();
 }
 
 CModEntry CModList::getMod(QString modname) const
 {
 	assert(hasMod(modname));
 
-	QJsonObject repo;
-	QJsonObject local = localModList[modname].toObject();
-	QJsonValue settings = modSettings[modname];
+	QVariantMap repo;
+	QVariantMap local = localModList[modname].toMap();
+	QVariant settings = modSettings[modname];
 
 	for (auto entry : repositories)
 	{
 		if (entry.contains(modname))
 		{
 			if (repo.empty())
-				repo = entry[modname].toObject();
+				repo = entry[modname].toMap();
 			else
 			{
 				if (CModEntry::compareVersions(repo["version"].toString(),
-				                               entry[modname].toObject()["version"].toString()))
-					repo = entry[modname].toObject();
+				                               entry[modname].toMap()["version"].toString()))
+					repo = entry[modname].toMap();
 			}
 		}
 	}

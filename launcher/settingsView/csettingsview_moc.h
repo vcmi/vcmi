@@ -29,6 +29,8 @@ private slots:
 
 	void on_plainTextEditRepos_textChanged();
 
+	void on_comboBoxEncoding_currentIndexChanged(int index);
+
 private:
 	Ui::CSettingsView *ui;
 };
