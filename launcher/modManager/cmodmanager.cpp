@@ -64,9 +64,12 @@ void CModManager::loadMods()
 	for (auto modname : installedMods)
 	{
 		ResourceID resID("Mods/" + modname + "/mod.json");
-		std::string name = *CResourceHandler::get()->getResourceName(resID);
-		auto mod = JsonUtils::JsonFromFile(QString::fromUtf8(name.c_str()));
-		localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);
+		if (CResourceHandler::get()->existsResource(resID))
+		{
+			std::string name = *CResourceHandler::get()->getResourceName(resID);
+			auto mod = JsonUtils::JsonFromFile(QString::fromUtf8(name.c_str()));
+			localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);
+		}
 	}
 	modList->setLocalModList(localMods);
 }

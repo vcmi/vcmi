@@ -340,7 +340,7 @@ void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, 
 				colorPutter(dstPixel, color.r, color.g, color.b);
 		}
 	}
-	posX += size;
+	posX += size + 1;
 }
 
 void CBitmapHanFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
@@ -373,12 +373,12 @@ CBitmapHanFont::CBitmapHanFont(const JsonNode &config):
 
 size_t CBitmapHanFont::getLineHeight() const
 {
-	return size;
+	return size + 1;
 }
 
 size_t CBitmapHanFont::getGlyphWidth(const char * data) const
 {
-	return size;
+	return size + 1;
 }
 
 size_t CBitmapHanFont::getCharacterSize(char data) const
