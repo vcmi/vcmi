@@ -260,13 +260,14 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		blTemp.remove_if (Selector::typeSubtype(b->type, b->subtype)); //remove used bonuses
 	}
 
-	std::string text;
+	std::string text, img;
 	for(Bonus* b : bl)
 	{
 		text = stack->bonusToString(b, false);
-		if (text.size()) //if it's possible to give any description for this kind of bonus
+		img = stack->bonusToGraphics(b);
+		if (text.size() || img.size()) //if it's possible to give any description or image for this kind of bonus
 		{
-			bonusItems.push_back (new CBonusItem(genRect(0, 0, 251, 57), text, stack->bonusToString(b, true), stack->bonusToGraphics(b)));
+			bonusItems.push_back (new CBonusItem(genRect(0, 0, 251, 57), text, stack->bonusToString(b, true), img));
 		}
 	}
 
