@@ -168,7 +168,7 @@ public:
 	ETerrainType battleTerrainType() const;
 	BFieldType battleGetBattlefieldType() const;
 	std::vector<shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
-	TStacks battleGetAllStacks() const; //returns all stacks, alive or dead or undead or mechanical :)
+	TStacks battleGetAllStacks(bool includeTurrets = false) const; //returns all stacks, alive or dead or undead or mechanical :)
 	bool battleHasNativeStack(ui8 side) const;
 	si8 battleGetWallState(int partOfWall) const; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
 	int battleGetMoatDmg() const; //what dmg unit will suffer if ending turn in the moat

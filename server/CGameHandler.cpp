@@ -3249,13 +3249,18 @@ static EndAction end_action;
 
 bool CGameHandler::makeBattleAction( BattleAction &ba )
 {
-    logGlobal->errorStream() << "\tMaking action of type " << ba.actionType;
 	bool ok = true;
-
-
+	
 	const CStack *stack = battleGetStackByID(ba.stackNumber); //may be nullptr if action is not about stack
+	const CStack *destinationStack = ba.actionType == Battle::WALK_AND_ATTACK ? gs->curB->battleGetStackByPos(ba.additionalInfo)
+								   : ba.actionType == Battle::SHOOT			  ? gs->curB->battleGetStackByPos(ba.destinationTile)
+																			  : nullptr;
 	const bool isAboutActiveStack = stack && (stack == battleActiveStack());
 
+	logGlobal->traceStream() << boost::format(
+		"Making action: type=%d; side=%d; stack=%s; dst=%s; additionalInfo=%d; stackAtDst=%s")
+		% ba.actionType % (int)ba.side % (stack ? stack->getName() : std::string("none")) 
+		% ba.destinationTile % ba.additionalInfo % (destinationStack ? destinationStack->getName() : std::string("none"));
 
 	switch(ba.actionType)
 	{
@@ -3366,8 +3371,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			StartAction start_action(ba);
 			sendAndApply(&start_action); //start movement and attack
 
-			const CStack *stackAtEnd = gs->curB->battleGetStackByPos(ba.additionalInfo);
-			if(!stack || !stackAtEnd)
+			if(!stack || !destinationStack)
 			{
 				sendAndApply(&end_action);
 				break;
@@ -3376,7 +3380,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			BattleHex startingPos = stack->position;
 			int distance = moveStack(ba.stackNumber, ba.destinationTile);
 
-            logGlobal->traceStream() << stack->nodeName() << " will attack " << stackAtEnd->nodeName();
+            logGlobal->traceStream() << stack->nodeName() << " will attack " << destinationStack->nodeName();
 
 			if(stack->position != ba.destinationTile //we wasn't able to reach destination tile
 				&& !(stack->doubleWide()
@@ -3392,12 +3396,12 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				break;
 			}
 
-			if(stackAtEnd && stack->ID == stackAtEnd->ID) //we should just move, it will be handled by following check
+			if(destinationStack && stack->ID == destinationStack->ID) //we should just move, it will be handled by following check
 			{
-				stackAtEnd = nullptr;
+				destinationStack = nullptr;
 			}
 
-			if(!stackAtEnd)
+			if(!destinationStack)
 			{
 				complain(boost::str(boost::format("walk and attack error: no stack at additionalInfo tile (%d)!\n") % ba.additionalInfo));
 				ok = false;
@@ -3405,7 +3409,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				break;
 			}
 
-			if( !CStack::isMeleeAttackPossible(stack, stackAtEnd) )
+			if( !CStack::isMeleeAttackPossible(stack, destinationStack) )
 			{
 				complain("Attack cannot be performed!");
 				sendAndApply(&end_action);
@@ -3422,10 +3426,10 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			{
 				if (stack &&
 					stack->alive() && //move can cause death, eg. by walking into the moat
-					stackAtEnd->alive())
+					destinationStack->alive())
 				{
 					BattleAttack bat;
-					prepareAttack(bat, stack, stackAtEnd, (i ? 0 : distance),  ba.additionalInfo); //no distance travelled on second attack
+					prepareAttack(bat, stack, destinationStack, (i ? 0 : distance),  ba.additionalInfo); //no distance travelled on second attack
 					//prepareAttack(bat, stack, stackAtEnd, 0, ba.additionalInfo); 
 					handleAttackBeforeCasting(bat); //only before first attack
 					sendAndApply(&bat);
@@ -3433,13 +3437,13 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				}
 
 				//counterattack
-				if (stackAtEnd
+				if (destinationStack
 					&& !stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
-					&& stackAtEnd->ableToRetaliate()
+					&& destinationStack->ableToRetaliate()
 					&& stack->alive()) //attacker may have died (fire shield)
 				{
 					BattleAttack bat;
-					prepareAttack(bat, stackAtEnd, stack, 0, stack->position);
+					prepareAttack(bat, destinationStack, stack, 0, stack->position);
 					bat.flags |= BattleAttack::COUNTER;
 					sendAndApply(&bat);
 					handleAfterAttackCasting(bat);
@@ -3458,7 +3462,6 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case Battle::SHOOT:
 		{
-			const CStack *destStack= gs->curB->battleGetStackByPos(ba.destinationTile);
 			if( !gs->curB->battleCanShoot(stack, ba.destinationTile) )
 			{
 				complain("Cannot shoot!");
@@ -3471,7 +3474,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			{
 				BattleAttack bat;
 				bat.flags |= BattleAttack::SHOT;
-				prepareAttack(bat, stack, destStack, 0, ba.destinationTile);
+				prepareAttack(bat, stack, destinationStack, 0, ba.destinationTile);
 				handleAttackBeforeCasting(bat);
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);
@@ -3481,14 +3484,14 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 
-			if( destStack->alive()
+			if( destinationStack->alive()
 			    && (stack->getCreature()->idNumber == CreatureID::BALLISTA)
 			    && (attackingHero->getSecSkillLevel(SecondarySkill::ARTILLERY) >= SecSkillLevel::ADVANCED)
 			   )
 			{
 				BattleAttack bat2;
 				bat2.flags |= BattleAttack::SHOT;
-				prepareAttack(bat2, stack, destStack, 0, ba.destinationTile);
+				prepareAttack(bat2, stack, destinationStack, 0, ba.destinationTile);
 				sendAndApply(&bat2);
 			}
 			//allow more than one additional attack
@@ -3499,13 +3502,13 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			{
 				if(
 					stack->alive()
-					&& destStack->alive()
+					&& destinationStack->alive()
 					&& stack->shots
 					)
 				{
 					BattleAttack bat;
 					bat.flags |= BattleAttack::SHOT;
-					prepareAttack(bat, stack, destStack, 0, ba.destinationTile);
+					prepareAttack(bat, stack, destinationStack, 0, ba.destinationTile);
 					sendAndApply(&bat);
 					handleAfterAttackCasting(bat);
 				}
