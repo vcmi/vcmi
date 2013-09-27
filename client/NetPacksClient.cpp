@@ -791,7 +791,7 @@ void SystemMessage::applyCl( CClient *cl )
 
 void PlayerBlocked::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(player,playerBlocked,reason);
+	INTERFACE_CALL_IF_PRESENT(player,playerBlocked,reason, startOrEnd==BLOCKADE_STARTED);
 }
 
 void YourTurn::applyCl( CClient *cl )

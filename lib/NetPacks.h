@@ -230,14 +230,16 @@ struct PlayerBlocked : public CPackForClient //96
 	PlayerBlocked(){type = 96;};
 	void applyCl(CClient *cl);
 
-	enum EReason { UPCOMING_BATTLE };
-
+	enum EReason { UPCOMING_BATTLE, ONGOING_MOVEMENT };
+	enum EMode { BLOCKADE_STARTED, BLOCKADE_ENDED };
+	
 	EReason reason;
+	EMode startOrEnd;
 	PlayerColor player;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & reason & player;
+		h & reason & startOrEnd & player;
 	}
 };
 

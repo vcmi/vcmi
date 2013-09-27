@@ -5037,6 +5037,7 @@ void CGameHandler::engageIntoBattle( PlayerColor player )
 	PlayerBlocked pb;
 	pb.player = player;
 	pb.reason = PlayerBlocked::UPCOMING_BATTLE;
+	pb.startOrEnd = PlayerBlocked::BLOCKADE_STARTED;
 	sendAndApply(&pb);
 }
 

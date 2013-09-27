@@ -75,6 +75,8 @@ class AIStatus
 	BattleState battle;
 	std::map<QueryID, std::string> remainingQueries;
 	std::map<int, QueryID> requestToQueryID; //IDs of answer-requests sent to server => query ids (so we can match answer confirmation from server to the query)
+	std::vector<const CGObjectInstance*> objectsBeingVisited;
+	bool ongoingHeroMovement;
 
 	bool havingTurn;
 
@@ -82,6 +84,7 @@ public:
 	AIStatus();
 	~AIStatus();
 	void setBattle(BattleState BS);
+	void setMove(bool ongoing);
 	BattleState getBattle();
 	void addQuery(QueryID ID, std::string description);
 	void removeQuery(QueryID ID);
@@ -92,6 +95,7 @@ public:
 	bool haveTurn();
 	void attemptedAnsweringQuery(QueryID queryID, int answerRequestID);
 	void receivedAnswerConfirmation(int answerRequestID, int result);
+	void heroVisit(const CGObjectInstance *obj, bool started);
 
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -327,7 +331,7 @@ public:
 	virtual void artifactAssembled(const ArtifactLocation &al) override;
 	virtual void showTavernWindow(const CGObjectInstance *townOrTavern) override;
 	virtual void showThievesGuildWindow (const CGObjectInstance * obj) override;
-	virtual void playerBlocked(int reason) override;
+	virtual void playerBlocked(int reason, bool start) override;
 	virtual void showPuzzleMap() override;
 	virtual void showShipyardDialog(const IShipyard *obj) override;
 	virtual void gameOver(PlayerColor player, bool victory) override;
