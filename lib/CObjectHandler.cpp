@@ -2685,7 +2685,6 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 	}
 }
 
-
 bool CGVisitableOPH::wasVisited (const CGHeroInstance * h) const
 {
 	return vstd::contains(visitors, h->id);

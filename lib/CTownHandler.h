@@ -205,7 +205,7 @@ public:
 		//Fix #1444 corrupted save
 		while(auto badElem = vstd::tryFindIf(buildings, findNull))
 		{
-			std::cout << "#1444-like bug encountered, fixing buildings list by removing bogus entry " << badElem->first << " from " << faction->name << std::endl;
+			logGlobal->errorStream() << "#1444-like bug encountered in CTown::serialize, fixing buildings list by removing bogus entry " << badElem->first << " from " << faction->name;
 			buildings.erase(badElem->first);
 		}
 	}

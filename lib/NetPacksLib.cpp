@@ -13,6 +13,7 @@
 #include "CCreatureHandler.h"
 #include "CGameState.h"
 #include "BattleState.h"
+#include "CTownHandler.h"
 
 #undef min
 #undef max
@@ -448,6 +449,7 @@ DLL_LINKAGE void NewStructures::applyGs( CGameState *gs )
 	CGTownInstance *t = gs->getTown(tid);
 	for(const auto & id : bid)
 	{
+		assert(t->town->buildings[id]);
 		t->builtBuildings.insert(id);
 	}
 	t->builded = builded;
