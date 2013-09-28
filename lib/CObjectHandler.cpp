@@ -1167,7 +1167,7 @@ void CGHeroInstance::initObj()
 				hs->addNewBonus(bonus);
 				break;
 			case 11://starting skill with mastery (Adrienne)
-				cb->changeSecSkill(this, SecondarySkill(spec.val), spec.additionalinfo); //simply give it and forget
+				setSecSkillLevel(SecondarySkill(spec.val), spec.additionalinfo, true);
 				break;
 			case 12://army speed
 				bonus->type = Bonus::STACKS_SPEED;

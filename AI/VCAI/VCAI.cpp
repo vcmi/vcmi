@@ -1020,6 +1020,14 @@ void VCAI::makeTurnInternal()
 		auto reservedHeroesCopy = reservedHeroesMap; //work on copy => the map may be changed while iterating (eg because hero died when attempting a goal)
 		for (auto hero : reservedHeroesCopy)
 		{
+			if(reservedHeroesMap.count(hero.first))
+				continue; //hero might have been removed while we were in this loop
+			if(!hero.first.validAndSet())
+			{
+				logAi->errorStream() << "Hero " << hero.first.name << " present on reserved map. Shouldn't be. ";
+				continue;
+			}
+
 			cb->setSelection(hero.first.get());
 			boost::sort (hero.second, isCloser);
 			for (auto obj : hero.second)

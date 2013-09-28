@@ -420,11 +420,13 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStac
 	else
 	{
 		CCreatureSet cres;
+		SlotID j;
 
 		//get types of creatures that need their own slot
 		for(auto & elem : cs.stacks)
-			cres.addToSlot(elem.first, elem.second->type->idNumber, 1, true);
-		SlotID j;
+			if ((j = cres.getSlotFor(elem.second->type)).validSlot())
+				cres.addToSlot(j, elem.second->type->idNumber, 1, true);  //merge if possible
+			//cres.addToSlot(elem.first, elem.second->type->idNumber, 1, true);
 		for(auto & elem : stacks)
 		{
 			if ((j = cres.getSlotFor(elem.second->type)).validSlot())
