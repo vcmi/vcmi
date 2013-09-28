@@ -246,7 +246,7 @@ void DisassembledArtifact::applyCl( CClient *cl )
 void HeroVisit::applyCl( CClient *cl )
 {
 	assert(hero);
-	INTERFACE_CALL_IF_PRESENT(hero->tempOwner, heroVisit, hero, obj, starting);
+	INTERFACE_CALL_IF_PRESENT(player, heroVisit, hero, obj, starting);
 }
 
 void NewTurn::applyCl( CClient *cl )

@@ -1092,6 +1092,7 @@ struct HeroVisit : CPackForClient //531
 {
 	const CGHeroInstance *hero;
 	const CGObjectInstance *obj;
+	PlayerColor player; //if hero was killed during the visit, its color is already reset
 	bool starting; //false -> ending
 
 	void applyCl(CClient *cl);
@@ -1099,7 +1100,7 @@ struct HeroVisit : CPackForClient //531
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hero & obj & starting;
+		h & hero & obj & player & starting;
 	}
 };
 

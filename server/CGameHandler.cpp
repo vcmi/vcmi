@@ -4961,6 +4961,7 @@ void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInst
 	HeroVisit hv;
 	hv.obj = obj;
 	hv.hero = h;
+	hv.player = h->tempOwner;
 	hv.starting = true;
 	sendAndApply(&hv);
 
@@ -4974,6 +4975,7 @@ void CGameHandler::objectVisitEnded(const CObjectVisitQuery &query)
 	logGlobal->traceStream() << query.visitingHero->nodeName() << " visit ends.\n";
 
 	HeroVisit hv;
+	hv.player = query.players.front();
 	hv.obj = nullptr; //not necessary, moreover may have been deleted in the meantime
 	hv.hero = query.visitingHero;
 	assert(hv.hero);
