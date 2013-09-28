@@ -964,6 +964,6 @@ void handleQuit()
 	if(!gNoGUI)
 		SDL_Quit();
 
-	std::cout << "Ending...";
+	std::cout << "Ending...\n";
 	exit(0);
 }

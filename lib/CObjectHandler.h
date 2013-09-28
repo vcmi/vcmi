@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../lib/CCreatureSet.h"
+#include "../lib/CTownHandler.h"
 #include "CArtHandler.h"
 #include "../lib/ConstTransitivePtr.h"
 #include "int3.h"
