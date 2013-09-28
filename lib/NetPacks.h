@@ -230,14 +230,16 @@ struct PlayerBlocked : public CPackForClient //96
 	PlayerBlocked(){type = 96;};
 	void applyCl(CClient *cl);
 
-	enum EReason { UPCOMING_BATTLE };
-
+	enum EReason { UPCOMING_BATTLE, ONGOING_MOVEMENT };
+	enum EMode { BLOCKADE_STARTED, BLOCKADE_ENDED };
+	
 	EReason reason;
+	EMode startOrEnd;
 	PlayerColor player;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & reason & player;
+		h & reason & startOrEnd & player;
 	}
 };
 
@@ -1090,6 +1092,7 @@ struct HeroVisit : CPackForClient //531
 {
 	const CGHeroInstance *hero;
 	const CGObjectInstance *obj;
+	PlayerColor player; //if hero was killed during the visit, its color is already reset
 	bool starting; //false -> ending
 
 	void applyCl(CClient *cl);
@@ -1097,7 +1100,7 @@ struct HeroVisit : CPackForClient //531
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hero & obj & starting;
+		h & hero & obj & player & starting;
 	}
 };
 
@@ -1360,6 +1363,8 @@ struct BattleInfo;
 struct BattleStart : public CPackForClient//3000
 {
 	BattleStart(){type = 3000;};
+
+	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 

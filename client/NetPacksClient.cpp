@@ -246,7 +246,7 @@ void DisassembledArtifact::applyCl( CClient *cl )
 void HeroVisit::applyCl( CClient *cl )
 {
 	assert(hero);
-	INTERFACE_CALL_IF_PRESENT(hero->tempOwner, heroVisit, hero, obj, starting);
+	INTERFACE_CALL_IF_PRESENT(player, heroVisit, hero, obj, starting);
 }
 
 void NewTurn::applyCl( CClient *cl )
@@ -600,6 +600,17 @@ void ExchangeDialog::applyCl(CClient *cl)
 	INTERFACE_CALL_IF_PRESENT(heroes[0]->tempOwner, heroExchangeStarted, heroes[0]->id, heroes[1]->id, queryID);
 }
 
+void BattleStart::applyFirstCl( CClient *cl )
+{
+	//Cannot use the usual macro because curB is not set yet
+	CALL_ONLY_THAT_BATTLE_INTERFACE(info->sides[0].color, battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
+		info->tile, info->sides[0].hero, info->sides[1].hero);
+	CALL_ONLY_THAT_BATTLE_INTERFACE(info->sides[1].color, battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
+		info->tile, info->sides[0].hero, info->sides[1].hero);
+	BATTLE_INTERFACE_CALL_RECEIVERS(battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
+		info->tile, info->sides[0].hero, info->sides[1].hero);
+}
+
 void BattleStart::applyCl( CClient *cl )
 {
 	cl->battleStarted(info);
@@ -780,7 +791,7 @@ void SystemMessage::applyCl( CClient *cl )
 
 void PlayerBlocked::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(player,playerBlocked,reason);
+	INTERFACE_CALL_IF_PRESENT(player,playerBlocked,reason, startOrEnd==BLOCKADE_STARTED);
 }
 
 void YourTurn::applyCl( CClient *cl )

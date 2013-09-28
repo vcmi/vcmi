@@ -153,7 +153,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	//initializing armies
 	this->army1 = army1;
 	this->army2 = army2;
-	std::vector<const CStack*> stacks = curInt->cb->battleGetAllStacks();
+	std::vector<const CStack*> stacks = curInt->cb->battleGetAllStacks(true);
 	for(const CStack *s : stacks)
 	{
 		newStack(s);
@@ -3652,7 +3652,7 @@ void CBattleInterface::showPiecesOfWall(SDL_Surface * to, std::vector<int> piece
 
 			const CStack *turret = nullptr;
 
-			for(auto & stack : curInt->cb->battleGetAllStacks())
+			for(auto & stack : curInt->cb->battleGetAllStacks(true))
 			{
 				if(stack->position == stackPos)
 				{

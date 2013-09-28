@@ -493,12 +493,15 @@ void VCAI::showThievesGuildWindow (const CGObjectInstance * obj)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::playerBlocked(int reason)
+void VCAI::playerBlocked(int reason, bool start)
 {
-	LOG_TRACE_PARAMS(logAi, "reason '%i'", reason);
+	LOG_TRACE_PARAMS(logAi, "reason '%i', start '%i'", reason % start);
 	NET_EVENT_HANDLER;
-	if (reason == PlayerBlocked::UPCOMING_BATTLE)
+	if (start && reason == PlayerBlocked::UPCOMING_BATTLE)
 		status.setBattle(UPCOMING_BATTLE);
+
+	if(reason == PlayerBlocked::ONGOING_MOVEMENT)
+		status.setMove(start);
 }
 
 void VCAI::showPuzzleMap()
@@ -571,15 +574,17 @@ void VCAI::artifactDisassembled(const ArtifactLocation &al)
 
 void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start)
 {
-	LOG_TRACE_PARAMS(logAi, "start '%i'", start);
+	LOG_TRACE_PARAMS(logAi, "start '%i'; obj '%s'", start % (visitedObj ? visitedObj->hoverName : std::string("n/a")));
 	NET_EVENT_HANDLER;
-	if (start)
+	if(start)
 	{
 		markObjectVisited (visitedObj);
 		erase_if_present(reservedObjs, visitedObj); //unreserve objects
 		erase_if_present(reservedHeroesMap[visitor], visitedObj);
 		completeGoal (CGoal(GET_OBJ).sethero(visitor)); //we don't need to visit in anymore
 	}
+
+	status.heroVisit(visitedObj, start);
 }
 
 void VCAI::availableArtifactsChanged(const CGBlackMarket *bm /*= nullptr*/)
@@ -2629,6 +2634,7 @@ AIStatus::AIStatus()
 {
 	battle = NO_BATTLE;
 	havingTurn = false;
+	ongoingHeroMovement = false;
 }
 
 AIStatus::~AIStatus()
@@ -2701,8 +2707,8 @@ void AIStatus::madeTurn()
 void AIStatus::waitTillFree()
 {
 	boost::unique_lock<boost::mutex> lock(mx);
-	while(battle != NO_BATTLE || remainingQueries.size())
-		cv.wait(lock);
+	while(battle != NO_BATTLE || remainingQueries.size() || objectsBeingVisited.size() || ongoingHeroMovement)
+		cv.timed_wait(lock, boost::posix_time::milliseconds(100));
 }
 
 bool AIStatus::haveTurn()
@@ -2736,6 +2742,26 @@ void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
         logAi->errorStream() << "Something went really wrong, failed to answer query " << query << ": " << remainingQueries[query];
 		//TODO safely retry
 	}
+}
+
+void AIStatus::heroVisit(const CGObjectInstance *obj, bool started)
+{
+	boost::unique_lock<boost::mutex> lock(mx);
+	if(started)
+		objectsBeingVisited.push_back(obj);
+	else
+	{
+		assert(objectsBeingVisited.size() == 1);
+		objectsBeingVisited.clear();
+	}
+	cv.notify_all();
+}
+
+void AIStatus::setMove(bool ongoing)
+{
+	boost::unique_lock<boost::mutex> lock(mx);
+	ongoingHeroMovement = ongoing;
+	cv.notify_all();
 }
 
 int3 whereToExplore(HeroPtr h)

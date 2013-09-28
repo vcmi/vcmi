@@ -634,6 +634,17 @@ public:
 
 		h & town & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
+
+		vstd::erase_if(builtBuildings, [this](BuildingID building) -> bool
+		{
+			if(!town->buildings.count(building) ||  !town->buildings.at(building))
+			{
+				logGlobal->errorStream() << boost::format("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s")
+					% name % pos % building;
+				return true;
+			}
+			return false;
+		});
 	}
 	//////////////////////////////////////////////////////////////////////////
 

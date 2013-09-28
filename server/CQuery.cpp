@@ -86,6 +86,11 @@ void CQuery::onExposure(CGameHandler *gh, QueryPtr topQuery)
 	gh->queries.popQuery(*this);
 }
 
+void CQuery::onAdding(CGameHandler *gh, PlayerColor color)
+{
+
+}
+
 CObjectVisitQuery::CObjectVisitQuery(const CGObjectInstance *Obj, const CGHeroInstance *Hero, int3 Tile)
 	: visitedObject(Obj), visitingHero(Hero), tile(Tile), removeObjectAfterVisit(false)
 {
@@ -169,6 +174,7 @@ void Queries::addQuery(QueryPtr query)
 void Queries::addQuery(PlayerColor player, QueryPtr query)
 {
 	LOG_TRACE_PARAMS(logGlobal, "player='%s', query='%s'", player % query);
+	query->onAdding(gh, player);
 	queries[player].push_back(query);
 }
 
@@ -371,4 +377,22 @@ void CHeroMovementQuery::onExposure(CGameHandler *gh, QueryPtr topQuery)
 	}
 
 	gh->queries.popIfTop(*this);
+}
+
+void CHeroMovementQuery::onRemoval(CGameHandler *gh, PlayerColor color)
+{
+	PlayerBlocked pb;
+	pb.player = color;
+	pb.reason = PlayerBlocked::ONGOING_MOVEMENT;
+	pb.startOrEnd = PlayerBlocked::BLOCKADE_ENDED;
+	gh->sendAndApply(&pb);
+}
+
+void CHeroMovementQuery::onAdding(CGameHandler *gh, PlayerColor color)
+{
+	PlayerBlocked pb;
+	pb.player = color;
+	pb.reason = PlayerBlocked::ONGOING_MOVEMENT;
+	pb.startOrEnd = PlayerBlocked::BLOCKADE_STARTED;
+	gh->sendAndApply(&pb);
 }

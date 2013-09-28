@@ -203,6 +203,7 @@ public:
 	void battleStacksEffectsSet(const SetStackEffect & sse) override; //called when a specific effect is set to stacks
 	void battleTriggerEffect(const BattleTriggerEffect & bte) override; //various one-shot effect
 	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) override;
+	void battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) override; //called by engine just before battle starts; side=0 - left, side=1 - right
 	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override; //called by engine when battle starts; side=0 - left, side=1 - right
 	void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom) override; //called when stacks are healed / resurrected
 	void battleNewStackAppeared(const CStack * stack) override; //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned

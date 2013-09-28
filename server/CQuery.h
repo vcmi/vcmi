@@ -36,6 +36,7 @@ public:
 	virtual bool blocksPack(const CPack *pack) const; //query can block attempting actions by player. Eg. he can't move hero during the battle.
 
 	virtual bool endsByPlayerAnswer() const; //query is removed after player gives answer (like dialogs)
+	virtual void onAdding(CGameHandler *gh, PlayerColor color); //called just before query is pushed on stack
 	virtual void onRemoval(CGameHandler *gh, PlayerColor color); //called after query is removed from stack
 	virtual void onExposure(CGameHandler *gh, QueryPtr topQuery);//called when query immediately above is removed and this is exposed (becomes top)
 	virtual std::string toString() const;
@@ -98,6 +99,8 @@ public:
 	virtual void onExposure(CGameHandler *gh, QueryPtr topQuery);
 
 	CHeroMovementQuery(const TryMoveHero &Tmh, const CGHeroInstance *Hero, bool VisitDestAfterVictory = false);
+	virtual void onAdding(CGameHandler *gh, PlayerColor color) override;
+	virtual void onRemoval(CGameHandler *gh, PlayerColor color) override;
 };
 
 class CDialogQuery : public CQuery

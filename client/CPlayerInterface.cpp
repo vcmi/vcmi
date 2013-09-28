@@ -601,6 +601,13 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 	castleInt->townlist->update(town);
 }
 
+void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
+{
+	//Don't wait for dialogs when we are non-active hot-seat player
+	if(LOCPLINT == this)
+		waitForAllDialogs();
+}
+
 void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -990,6 +997,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, CComponent * comp
 
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<CComponent*> & components, int soundID, bool delComps)
 {
+	LOG_TRACE_PARAMS(logGlobal, "player=%s, text=%s, is LOCPLINT=%d", playerID % text % (this==LOCPLINT));
 	waitWhileDialog();
 
 	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())

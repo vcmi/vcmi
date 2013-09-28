@@ -85,7 +85,9 @@ CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * owner, const CSt
     : CBattleAnimation(owner),
       myAnim(owner->creAnims[stack->ID]),
       stack(stack)
-{}
+{
+	assert(myAnim);
+}
 
 void CAttackAnimation::nextFrame()
 {

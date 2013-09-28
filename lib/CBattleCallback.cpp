@@ -177,11 +177,14 @@ bool CBattleInfoEssentials::battleHasNativeStack(ui8 side) const
 	return false;
 }
 
-TStacks CBattleInfoEssentials::battleGetAllStacks() const /*returns all stacks, alive or dead or undead or mechanical :) */
+TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets /*= false*/) const /*returns all stacks, alive or dead or undead or mechanical :) */
 {
 	TStacks ret;
 	RETURN_IF_NOT_BATTLE(ret);
 	boost::copy(getBattle()->stacks, std::back_inserter(ret));
+	if(!includeTurrets)
+		vstd::erase_if(ret, [](const CStack *stack) { return stack->type->idNumber == CreatureID::ARROW_TOWERS; });
+
 	return ret;
 }
 
@@ -245,7 +248,7 @@ const CStack* CBattleInfoEssentials::battleGetStackByID(int ID, bool onlyAlive) 
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
 
-	for(auto s : battleGetAllStacks())
+	for(auto s : battleGetAllStacks(true))
 		if(s->ID == ID  &&  (!onlyAlive || s->alive()))
 			return s;
 
@@ -512,7 +515,7 @@ SpellID CBattleInfoCallback::battleGetRandomStackSpell(const CStack * stack, ERa
 const CStack* CBattleInfoCallback::battleGetStackByPos(BattleHex pos, bool onlyAlive) const
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
-	for(auto s : battleGetAllStacks())
+	for(auto s : battleGetAllStacks(true))
 		if(vstd::contains(s->getHexes(), pos) && (!onlyAlive || s->alive()))
 				return s;
 
@@ -594,7 +597,7 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 			return;
 	}
 
-	auto allStacks = battleGetAllStacks();
+	auto allStacks = battleGetAllStacks(true);
 	if(!vstd::contains_if(allStacks, [](const CStack *stack) { return stack->willMove(100000); })) //little evil, but 100000 should be enough for all effects to disappear
 	{
 		//No stack will be able to move, battle is over.
@@ -602,7 +605,7 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 		return;
 	}
 
-	for(auto s : battleGetAllStacks())
+	for(auto s : battleGetAllStacks(true))
 	{
 		if((turn <= 0 && !s->willMove()) //we are considering current round and stack won't move
 			|| (turn > 0 && !s->canMove(turn)) //stack won't be able to move in later rounds
