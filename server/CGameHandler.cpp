@@ -1555,21 +1555,9 @@ void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], cons
 
 void CGameHandler::checkForBattleEnd()
 {
-	auto &stacks = gs->curB->stacks;
-
-	//checking winning condition
-	bool hasStack[2]; //hasStack[0] - true if attacker has a living stack; defender similarly
-	hasStack[0] = hasStack[1] = false;
-	for(auto & stack : stacks)
+	if(auto result = battleIsFinished())
 	{
-		if(stack->alive() && !stack->hasBonusOfType(Bonus::SIEGE_WEAPON))
-		{
-			hasStack[1-stack->attackerOwned] = true;
-		}
-	}
-	if(!hasStack[0] || !hasStack[1]) //somebody has won
-	{
-		setBattleResult(BattleResult::NORMAL, hasStack[1]);
+		setBattleResult(BattleResult::NORMAL, *result);
 	}
 }
 

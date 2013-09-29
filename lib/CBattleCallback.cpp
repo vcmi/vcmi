@@ -2276,6 +2276,31 @@ si8 CBattleInfoCallback::battleMaxSpellLevel() const
 	return GameConstants::SPELL_LEVELS;
 }
 
+boost::optional<int> CBattleInfoCallback::battleIsFinished() const
+{
+	auto &stacks = battleGetAllStacks();
+
+	//checking winning condition
+	bool hasStack[2]; //hasStack[0] - true if attacker has a living stack; defender similarly
+	hasStack[0] = hasStack[1] = false;
+
+	for(auto & stack : stacks)
+	{
+		if(stack->alive() && !stack->hasBonusOfType(Bonus::SIEGE_WEAPON))
+		{
+			hasStack[1-stack->attackerOwned] = true;
+		}
+	}
+
+	if(!hasStack[0] && !hasStack[1])
+		return 2;
+	if(!hasStack[1])
+		return 1;
+	if(!hasStack[0])
+		return 0;
+	return boost::none;
+}
+
 bool AccessibilityInfo::accessible(BattleHex tile, const CStack *stack) const
 {
 	return accessible(tile, stack->doubleWide(), stack->attackerOwned);
