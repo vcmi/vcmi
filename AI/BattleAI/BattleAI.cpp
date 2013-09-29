@@ -99,7 +99,7 @@ void CBattleAI::init(shared_ptr<CBattleCallback> CB)
 
 static bool thereRemainsEnemy()
 {
-	return cbc->battleIsFinished();
+	return !cbc->battleIsFinished();
 }
 
 BattleAction CBattleAI::activeStack( const CStack * stack )
