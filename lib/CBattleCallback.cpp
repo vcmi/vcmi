@@ -2295,9 +2295,9 @@ boost::optional<int> CBattleInfoCallback::battleIsFinished() const
 	if(!hasStack[0] && !hasStack[1])
 		return 2;
 	if(!hasStack[1])
-		return 1;
-	if(!hasStack[0])
 		return 0;
+	if(!hasStack[0])
+		return 1;
 	return boost::none;
 }
 
