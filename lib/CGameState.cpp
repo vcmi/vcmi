@@ -1347,6 +1347,10 @@ void CGameState::init(StartInfo * si)
 				vti->builtBuildings.insert(BuildingID::DWELL_LVL_2);
 		}
 
+		//#1444 - remove entries that don't have buildings defined (like some unused extra town hall buildings)
+		vstd::erase_if(vti->builtBuildings, [vti](BuildingID bid){  
+			return !vti->town->buildings.count(bid) || !vti->town->buildings.at(bid); });
+
 		if (vstd::contains(vti->builtBuildings, BuildingID::SHIPYARD) && vti->shipyardStatus()==IBoatGenerator::TILE_BLOCKED)
 			vti->builtBuildings.erase(BuildingID::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
 
