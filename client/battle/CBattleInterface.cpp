@@ -3234,11 +3234,6 @@ void CBattleInterface::showBattlefieldObjects(SDL_Surface * to)
 		showBattleEffects(to, hex.effects);
 	};
 
-	if(attackingHero)
-		attackingHero->show(to);
-	if(defendingHero)
-		defendingHero->show(to);
-
 	BattleObjectsByHex objects = sortObjectsByHex();
 
 	// dead stacks should be blit first
@@ -3249,6 +3244,13 @@ void CBattleInterface::showBattlefieldObjects(SDL_Surface * to)
 
 	// display objects that must be blit before anything else (e.g. topmost walls)
 	showHexEntry(objects.beforeAll);
+
+	// show heroes after "beforeAll" - e.g. topmost wall in siege
+	if(attackingHero)
+		attackingHero->show(to);
+	if(defendingHero)
+		defendingHero->show(to);
+
 	// actual blit of most of objects, hex by hex
 	// NOTE: row-by-row blitting may be a better approach
 	for( auto & data : objects.hex )

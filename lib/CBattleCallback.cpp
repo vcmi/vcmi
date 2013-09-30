@@ -2278,7 +2278,7 @@ si8 CBattleInfoCallback::battleMaxSpellLevel() const
 
 boost::optional<int> CBattleInfoCallback::battleIsFinished() const
 {
-	auto &stacks = battleGetAllStacks();
+	auto stacks = battleGetAllStacks();
 
 	//checking winning condition
 	bool hasStack[2]; //hasStack[0] - true if attacker has a living stack; defender similarly
