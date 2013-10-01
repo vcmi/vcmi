@@ -1,3 +1,9 @@
+vcmi (0.94) precise; urgency=low
+
+  * New upstream release
+
+ -- Ivan Savenko <saven.ivan@gmail.com>  Tue, 01 Oct 2013 20:50:01 +0300
+
 vcmi (0.93) precise; urgency=low
 
   * New upstream release
