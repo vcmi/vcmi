@@ -106,10 +106,10 @@ QVariantMap CModList::copyField(QVariantMap data, QString from, QString to)
 
 	for (auto it = data.begin(); it != data.end(); it++)
 	{
-		QVariant object = it.value();
+		QVariantMap modConf = it.value().toMap();
 
-		object.toMap().insert(to, object.toMap().value(from));
-		renamed.insert(it.key(), object.toMap());
+		modConf.insert(to, modConf.value(from));
+		renamed.insert(it.key(), modConf);
 	}
 	return renamed;
 }
