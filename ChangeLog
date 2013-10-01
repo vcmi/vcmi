@@ -1,3 +1,46 @@
+0.93 -> 0.94 (Oct 01 2013)
+GENERAL:
+* New Launcher application, see 
+* Filesystem now supports zip archives. They can be loaded similarly to other archives in filesystem.json. Mods can use Content.zip instead of Content/ directory.
+* fixed "get txt" console command
+* command "extract" to extract file by name
+* command "def2bmp" to convert def into set of frames.
+* fixed crash related to cammander's SPELL_AFTER_ATTACK spell id not initialized properly (text id was resolved on copy of bonus)
+* fixed duels, added no-GUI mode for automatic AI testing
+* Sir Mullich is available at the start of the game
+* Upgrade cost will never be negative.
+* support for Chinese fonts (GBK 2-byte encoding)
+
+ADVENTURE MAP
+* if Quick Combat option is turned on, battles will be resolved by AI
+* first hero is awakened on new turn
+* fixed 3000 gems reward in shipwreck
+
+
+BATTLES:
+* autofight implemented
+* most of the animations is time-based
+* simplified postioning of units in battle, should fix remaining issues with unit positioning
+* synchronized attack/defence animation
+* spell animation speed uses game settings
+* fixed disrupting ray duration
+* added logging domain for battle animations
+* Fixed crashes on Land Mines / Fire Wall casting.
+* UI will be correctly greyed-out during opponent turn
+* fixed remaining issues with blit order
+* Catapult attacks should be identical to H3. Catapult may miss and attack another part of wall instead (this is how it works in H3)
+* Fixed Remove Obstacle.
+*defeating hero will yield 500 XP
+* Added lots of missing spell immunities from Strategija
+* Added stone gaze immunity for Troglodytes (did you know about it?)
+* damage done by turrets is properly increased by built buldings
+* Wyverns will cast Poison instead of Stone Gaze.
+
+TOWN:
+* Fixed issue that allowed to build multiple boats in town.
+* fix for lookout tower
+
+
 0.92 -> 0.93 (Jun 01 2013)
 GENERAL:
 * Support for SoD-only installations, WoG becomes optional addition
