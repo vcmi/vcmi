@@ -2,7 +2,7 @@ project(vcmilauncher)
 cmake_minimum_required(VERSION 2.8.7)
 
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS})
 
 set(launcher_modmanager_SRCS
 	modManager/cdownloadmanager_moc.cpp

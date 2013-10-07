@@ -57,7 +57,7 @@ elseif(APPLE)
     target_link_libraries(vcmiclient ${SPARKLE_FRAMEWORK})
 
     # Because server and AI libs would be copies to bundle they need to be built before client
-    add_dependencies(vcmiclient vcmiserver VCAI EmptyAI StupidAI BattleAI)
+    add_dependencies(vcmiclient vcmiserver VCAI EmptyAI StupidAI BattleAI minizip)
 
     # Custom Info.plist
     set_target_properties(vcmiclient PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
@@ -73,6 +73,7 @@ elseif(APPLE)
         mkdir -p ${BUNDLE_PATH}/MacOS/AI &&
         cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiserver ${BUNDLE_PATH}/MacOS/vcmiserver &&
         cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libvcmi.dylib ${BUNDLE_PATH}/MacOS/libvcmi.dylib &&
+        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libminizip.dylib ${BUNDLE_PATH}/MacOS/libminizip.dylib &&
         cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libVCAI.dylib ${BUNDLE_PATH}/MacOS/AI/libVCAI.dylib &&
         cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libStupidAI.dylib ${BUNDLE_PATH}/MacOS/AI/libStupidAI.dylib &&
         cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libEmptyAI.dylib ${BUNDLE_PATH}/MacOS/AI/libEmptyAI.dylib &&

@@ -47,6 +47,9 @@ if (APPLE)
 	# On OS X we use Sparkle framework for updates
 	find_path(SPARKLE_INCLUDE_DIR Sparkle.h)
 	find_library(SPARKLE_FRAMEWORK NAMES Sparkle)
+
+	# Xcode 5.0 fix
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
 endif()
 
 find_package(Boost 1.46.0 COMPONENTS program_options filesystem system thread REQUIRED)

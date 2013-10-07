@@ -12,6 +12,9 @@ set(lib_SRCS
 )
 
 add_library(minizip SHARED ${lib_SRCS})
+set_target_properties(minizip PROPERTIES XCODE_ATTRIBUTE_LD_DYLIB_INSTALL_NAME "@executable_path/libminizip.dylib")
 target_link_libraries(minizip ${ZLIB_LIBRARIES})
 
-install(TARGETS minizip DESTINATION ${LIB_DIR})
+if (NOT APPLE) # Already inside vcmiclient bundle
+    install(TARGETS minizip DESTINATION ${LIB_DIR})
+endif()
