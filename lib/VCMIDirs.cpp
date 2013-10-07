@@ -103,12 +103,12 @@ std::string VCMIDirs::libraryPath() const
 
 std::string VCMIDirs::clientPath() const
 {
-	return userDataPath() + "\\" + "VCMI_client.exe";
+	return "./vcmiclient";
 }
 
 std::string VCMIDirs::serverPath() const
 {
-	return userDataPath() + "\\" + "VCMI_server.exe";
+	return "./vcmiserver";
 }
 
 std::vector<std::string> VCMIDirs::dataPaths() const
