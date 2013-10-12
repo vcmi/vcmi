@@ -1015,7 +1015,10 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	}
 	else
 	{
-		lastVal = parser.readNumber(); //basic value, not particularly useful but existent
+		lastVal = parser.readNumber();
+		if (b.type == Bonus::HATE)
+			lastVal *= 10; //odd fix
+		//FIXME: value for zero level should be stored in our config files (independent of stack exp)
 		for (int i = 1; i < 11; ++i)
 		{
 			curVal = parser.readNumber();
