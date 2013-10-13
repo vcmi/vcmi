@@ -279,6 +279,8 @@ int CObjectHandler::bankObjToIndex (const CGObjectInstance * obj)
 		return 9;
 	case Obj::SHIPWRECK:
 		return 7;
+	case Obj::PYRAMID:
+		return 21;
 	default:
         logGlobal->warnStream() << "Unrecognized Bank indetifier!";
 		return 0;
