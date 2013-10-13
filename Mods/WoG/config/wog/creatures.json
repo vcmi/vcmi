@@ -4,6 +4,29 @@
 		"index": 150,
 		"level": 8,
 		"faction": "castle",
+		"abilities":
+		{
+			"resurrection100hp" : 
+			{
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "spell.resurrection",
+				"val" : 100
+			},
+			"resurrects" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.resurrection"
+			},
+			"fearless" :
+			{
+				"type" : "FEARLESS"
+			},
+			"spellpoints" :
+			{
+				"type" : "CASTS",
+				"val" : 2
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM150Z.DEF"
@@ -24,14 +47,27 @@
 		"faction": "rampart",
 		"abilities":
 		{
-			"dragon" : 
+			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
-			}
+			},
+			"fireBreath" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
+			},
+			"spellImmunity" :
+			{
+				"type" : "LEVEL_SPELL_IMMUNITY",
+				"val" : 5
+			},
+			"fearless" :
+			{
+				"type" : "FEARLESS"
+			},
 		},
 		"graphics" :
 		{
-			"animation": "ZM151Z.DEF"
+			"animation": "ZM151Z.DEF",
 		},
 		"sound" :
 		{
@@ -47,6 +83,41 @@
 		"index": 152,
 		"level": 8,
 		"faction": "tower",
+		"abilities" :
+		{
+			"additionalAttack" :
+			{
+				"type" : "ADDITIONAL_ATTACK",
+				"val" : 1
+			},
+			"thunderStrength" :
+			{
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "spell.thunderbolt",
+				"val" : 10
+			},
+			"thunderOnAttack" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.thunderbolt",
+				"val" : 20
+			},
+			"castsAirShield" :
+			{
+				"type" : "ENCHANTED",
+				"subtype" : "spell.airShield",
+				"val" : 3,
+				"addInfo" : 1
+			},
+			"noPenalty" : 
+			{
+				"type" : "NO_WALL_PENALTY"
+			},
+			"noDistancePenalty" :
+			{
+				"type" : "NO_DISTANCE_PENALTY"
+			}
+		},		
 		"graphics" :
 		{
 			"animation": "ZM152Z.DEF",
@@ -72,10 +143,26 @@
 		"faction": "inferno",
 		"abilities":
 		{
-			"teleport" :
+			"fearless" :
 			{
-				"type" : "FLYING",
-				"subtype" : 1
+				"type" : "FEARLESS"
+			},
+			"petrify" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.stoneGaze",
+				"val" : 50,
+				"addInfo" : 3
+			},
+			"descreaseLuck" :
+			{
+				"type" : "LUCK",
+				"effectRange" : "ONLY_ENEMY_ARMY",
+				"val" : -1
+			},
+			"blockRetaliation" :
+			{
+				"type" : "BLOCKS_RETALIATION"
 			}
 		},
 		"graphics" :
@@ -109,6 +196,16 @@
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"descreaseLuck" :
+			{
+				"type" : "LUCK",
+				"effectRange" : "ONLY_ENEMY_ARMY",
+				"val" : -1
+			},
+			"fearless" :
+			{
+				"type" : "FEARLESS"
 			}
 		},
 		"graphics" :
@@ -134,6 +231,25 @@
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"spellImmunity" :
+			{
+				"type" : "LEVEL_SPELL_IMMUNITY",
+				"val" : 5
+			},
+			"fearless" :
+			{
+				"type" : "FEARLESS"
+			},
+			"fear" :
+			{
+				"type" : "FEAR"
+			},
+			"strikeAndReturn" : 
+			{
+				"type" : "RETURN_AFTER_STRIKE",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
 			}
 		},
 		"graphics" :
@@ -154,6 +270,37 @@
 		"index": 156,
 		"level": 8,
 		"faction": "stronghold",
+		"abilities" :
+		{
+			"canFly" : 
+			{
+				"type" : "FLYING"
+			},
+			"fearless" :
+			{
+				"type" : "FEARLESS"
+			},
+			"fear" :
+			{
+				"type" : "FEAR"
+			},
+			"selfMorale" :
+			{
+				"type" : "SELF_MORALE",
+				"effectRange" : "ONLY_ENEMY_ARMY",
+				"val" : 1
+			},
+			"extraRetaliation" :
+			{
+				"type" : "ADDITIONAL_RETALIATION",
+				"val" : 2
+			},
+			"reduceDefence" :
+			{
+				"type" : "ENEMY_DEFENCE_REDUCTION",
+				"val" : 100
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM156Z.DEF"
@@ -172,9 +319,34 @@
 		"index": 157,
 		"level": 8,
 		"faction": "fortress",
-		"abilities" : 
+		"abilities":
 		{
-			"SHOOTING_ARMY" : null
+			"acidBreath" :
+			{
+				"type" : "ACID_BREATH",
+				"val" : 25,
+				"addInfo" : 20
+			},
+			"reduceDefence" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.acidBreath",
+				"val" : 100
+			},
+			"noRetaliation" : 
+			{
+				"type" : "BLOCKS_RETALIATION"
+			},
+			"regenerates" :
+			{
+				"type" : "HP_REGENERATION",
+				"val" : 40
+			},
+			"fearless" :
+			{
+				"type" : "FEARLESS"
+			},
+			"SHOOTER" : null
 		},
 		"graphics" :
 		{
@@ -194,6 +366,46 @@
 		"index": 158,
 		"level": 8,
 		"faction": "conflux",
+		"abilities":
+		{
+			"rebirthOnce" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			},
+			"immuneToFire" :
+			{
+				"type" : "FIRE_IMMUNITY",
+				"subtype" : 0 //this IS important
+			},
+			"rebirth" : 
+			{
+				"type" : "REBIRTH",
+				"val" : 100
+			},
+			"fireShield" :
+			{
+				"type" : "FIRE_SHIELD",
+				"subtype" : 100,
+				"val" : 100
+			},
+			"spellSlayer" :
+			{
+				"type" : "ENCHANTED",
+				"subtype" : "spell.slayer",
+				"val" : 3,
+				"addInfo" : 100
+			},
+			"fearless" :
+			{
+				"type" : "FEARLESS"
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 100
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM158Z.DEF"
@@ -210,8 +422,21 @@
 	"ghost" :
 	{
 		"index": 159,
+		"growth" : 7,
 		"level": 3,
-		"faction": "neutral",
+		"faction": "necropolis",
+		"abilities":
+		{
+			"fearless" :
+			{
+				"type" : "FEARLESS"
+			},
+			"armageddonImmunity" : 
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.armageddon"
+			},
+		},
 		"graphics" :
 		{
 			"animation": "ZM159G.DEF"
@@ -344,13 +569,21 @@
 	"gorynych" :
 	{
 		"index": 168,
-		"level": 7,
+		"level": 6,
 		"faction": "neutral",
 		"abilities":
 		{
 			"canFly" :
 			{
 				"type" : "FLYING"
+			},
+			"noRetaliation" : 
+			{
+				"type" : "BLOCKS_RETALIATION"
+			},
+			"fearless" :
+			{
+				"type" : "FEARLESS"
 			}
 		},
 		"graphics" :
@@ -369,8 +602,23 @@
 	"warZealot" :
 	{
 		"index": 169,
-		"level": 6,
-		"faction": "neutral",
+		"level": 5,
+		"growth" : 3,
+		"faction": "castle",
+		"abilities":
+		{
+			"spellMagicMirror" :
+			{
+				"type" : "ENCHANTED",
+				"subtype" : "spell.magicMirror",
+				"val" : 3,
+				"addInfo" : 100
+			},
+			"fearless" :
+			{
+				"type" : "FEARLESS"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM169ZL.DEF",
@@ -389,10 +637,10 @@
 			"wince": "ZELTWNCE.wav"
 		}
 	},
-	"arcticSharpshooter" :
+	"myriad" :
 	{
 		"index": 170,
-		"level": 5,
+		"level": 0,
 		"faction": "neutral",
 		"graphics" :
 		{
@@ -412,10 +660,10 @@
 			"wince": "HCRSWNCE.wav"
 		}
 	},
-	"lavaSharpshooter" :
+	"medusaMatriarch" :
 	{
 		"index": 171,
-		"level": 5,
+		"level": 0,
 		"faction": "neutral",
 		"graphics" :
 		{
@@ -440,6 +688,24 @@
 		"index": 172,
 		"level": 6,
 		"faction": "neutral",
+		"abilities":
+		{
+			"deathStare" : 
+			{
+				"type" : "DEATH_STARE",
+				"subtype" : 0,
+				"val" : 10
+			},
+			"mindImmunity" :
+			{
+				"type" : "MIND_IMMUNITY"
+			},
+			"fearless" :
+			{
+				"type" : "FEARLESS"
+			}
+		},
+		"upgrades": ["hellSteed"],
 		"graphics" :
 		{
 			"animation": "ZM172N.DEF"
@@ -450,21 +716,39 @@
 			"defend": "BGORDFND.wav",
 			"killed": "BGORKILL.wav",
 			"move": "BGORMOVE.wav",
+			"shoot": "BGORSHOT.wav",
 			"wince": "BGORWNCE.wav"
 		}
 	},
 	"santaGremlin" :
 	{
 		"index": 173,
-		"level": 2,
-		"faction": "neutral",
+		"level": 3,
+		"faction": "tower",
+		"growth" : 16,
+		"abilities":
+		{
+			"castsImplosion" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.iceBolt",
+				"addInfo" : 2,
+				"val" : 2
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 100
+			},
+			"casts" :
+			{
+				"type" : "CASTS",
+				"val" : 12
+			},
+		},	
 		"graphics" :
 		{
 			"animation": "ZM173M.DEF"
-			//"missile" :
-			//{
-			//	"projectile": "CPRGRE.DEF"
-			//}
 		},
 		"sound" :
 		{
@@ -1092,8 +1376,25 @@
 	"sylvanCentaur" :
 	{
 		"index": 192,
-		"level": 3,
-		"faction": "neutral",
+		"growth" : 14,
+		"level": 1,
+		"doubleWide" : true,
+		"faction": "rampart",
+		"abilities" :
+		{
+			"additionalAttack" :
+			{
+				"type" : "ADDITIONAL_ATTACK",
+				"val" : 1
+			},
+			"spellMirth" :
+			{
+				"type" : "ENCHANTED",
+				"subtype" : "spell.mirth",
+				"val" : 1,
+				"addInfo" : 3 
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM192Z.DEF",
@@ -1112,7 +1413,7 @@
 			"wince": "ECNTWNCE.wav"
 		}
 	},
-	"sorceresses" :
+	"sorceress" :
 	{
 		"index": 193,
 		"level": 6,
@@ -1150,18 +1451,45 @@
 		"index": 195,
 		"level": 6,
 		"faction": "neutral",
+		"abilities":
+		{
+			"immuneToFire" :
+			{
+				"type" : "FIRE_IMMUNITY",
+				"subtype" : 0 //this IS important
+			},
+			"fireShield" :
+			{
+				"type" : "FIRE_SHIELD",
+				"subtype" : 100,
+				"val" : 100
+			},
+			"spellFireWall" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.fireWall",
+				"val" : 12,
+				"addInfo" : 3
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 100
+			}
+		},
+		"upgrades": ["nightmare"],
 		"graphics" :
 		{
 			"animation": "ZM195Z.DEF"
 		},
 		"sound" :
 		{
-			"attack": "MONKATTK.wav",
-			"defend": "MONKDFND.wav",
-			"killed": "MONKKILL.wav",
-			"move": "MONKMOVE.wav",
-			"shoot": "MONKSHOT.wav",
-			"wince": "MONKWNCE.wav"
+			"attack": "BGORATTK.wav",
+			"defend": "BGORDFND.wav",
+			"killed": "BGORKILL.wav",
+			"move": "BGORMOVE.wav",
+			"shoot": "BGORSHOT.wav",
+			"wince": "BGORWNCE.wav"
 		}
 	},
 	"dracolich" :
