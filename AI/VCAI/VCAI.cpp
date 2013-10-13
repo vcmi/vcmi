@@ -2759,8 +2759,11 @@ void AIStatus::heroVisit(const CGObjectInstance *obj, bool started)
 		objectsBeingVisited.push_back(obj);
 	else
 	{
-		assert(objectsBeingVisited.size() == 1);
-		objectsBeingVisited.clear();
+		// There can be more than one object visited at the time (eg. hero visits Subterranean Gate 
+		// causing visit to hero on the other side. 
+		// However, we are guaranteed that start/end visit notification maintain stack order.
+		assert(!objectsBeingVisited.empty());
+		objectsBeingVisited.pop_back();
 	}
 	cv.notify_all();
 }
