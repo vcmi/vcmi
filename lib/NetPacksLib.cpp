@@ -407,8 +407,12 @@ void TryMoveHero::applyGs( CGameState *gs )
 	CGHeroInstance *h = gs->getHero(id);
 	h->movement = movePoints;
 
-	if((result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK) && start != end) {
-		h->moveDir = getDir(start,end);
+	if((result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK) && start != end) 
+	{
+		auto dir = getDir(start,end);
+		if(dir > 0  &&  dir <= 8)
+			h->moveDir = dir;
+		//else dont change movedir - hero might have traversed the subterranean gate, dorectopm shpuld be kept
 	}
 
 	if(result == EMBARK) //hero enters boat at dest tile
