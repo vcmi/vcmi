@@ -1,5 +1,51 @@
 <html>
 <body>
+    <h2>0.94</h2>
+    <b>GENERAL</b>
+    <ul>
+        <li>Filesystem now supports zip archives. They can be loaded similarly to other archives in filesystem.json. Mods can use Content.zip instead of Content/ directory.</li>
+        <li>fixed "get txt" console command</li>
+        <li>command "extract" to extract file by name</li>
+        <li>command "def2bmp" to convert def into set of frames.</li>
+        <li>fixed crash related to cammander's SPELL_AFTER_ATTACK spell id not initialized properly (text id was resolved on copy of bonus)</li>
+        <li>fixed duels, added no-GUI mode for automatic AI testing</li>
+        <li>Sir Mullich is available at the start of the game</li>
+        <li>Upgrade cost will never be negative.</li>
+        <li>support for Chinese fonts (GBK 2-byte encoding)</li>
+    </ul>
+    <b>ADVENTURE MAP</b>
+    <ul>
+        <li>if Quick Combat option is turned on, battles will be resolved by AI</li>
+        <li>first hero is awakened on new turn</li>
+        <li>fixed 3000 gems reward in shipwreck</li>
+    </ul>
+    <b>BATTLES</b>
+    <ul>
+        <li>autofight implemented</li>
+        <li>most of the animations is time-based</li>
+        <li>simplified postioning of units in battle, should fix remaining issues with unit positioning</li>
+        <li>synchronized attack/defence animation</li>
+        <li>spell animation speed uses game settings</li>
+        <li>fixed disrupting ray duration</li>
+        <li>added logging domain for battle animations</li>
+        <li>Fixed crashes on Land Mines / Fire Wall casting.</li>
+        <li>UI will be correctly greyed-out during opponent turn</li>
+        <li>fixed remaining issues with blit order</li>
+        <li>Catapult attacks should be identical to H3. Catapult may miss and attack another part of wall instead (this is how it works in H3)</li>
+        <li>Fixed Remove Obstacle.</li>
+        <li>defeating hero will yield 500 XP</li>
+        <li>Added lots of missing spell immunities from Strategija</li>
+        <li>Added stone gaze immunity for Troglodytes (did you know about it?)</li>
+        <li>damage done by turrets is properly increased by built buldings</li>
+        <li>Wyverns will cast Poison instead of Stone Gaze.</li>
+    </ul>
+    <b>TOWN</b>
+    <ul>
+        <li>Fixed issue that allowed to build multiple boats in town.</li>
+        <li>fix for lookout tower</li>
+    </ul>
+    <br>
+
     <h2>0.93</h2>
     <b>GENERAL</b>
     <ul>
@@ -56,6 +102,7 @@
         <li>Cheat code with grant all artifacts, including the ones added by mods</li>
     </ul>
     <br>
+    
     <h2>0.92</h2>
     <b>GENERAL</b>
     <ul>

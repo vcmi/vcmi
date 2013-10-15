@@ -6,6 +6,13 @@
       <description>Most recent changes with links to updates.</description>
       <language>en</language>      
          <item>
+            <title>Version 0.94</title>
+            <description>Version 0.94</description>
+            <pubDate>Wed, 09 Jan 2006 19:20:11 +0000</pubDate>
+            <sparkle:releaseNotesLink>http://vcmi.eu/sparkle_release_notes.html</sparkle:releaseNotesLink>
+            <enclosure url="http://download.vcmi.eu/vcmi-0.94.dmg" sparkle:version="0.94" length="35355069" type="application/octet-stream" sparkle:dsaSignature="MC0CFC13LTYNtAd5Nzq3Xu5R7Sle8aRuAhUA56mj9AAiYWARBkw07emy68HBUt8=" />
+         </item>
+         <item>
             <title>Version 0.93</title>
             <description>Version 0.93</description>
             <pubDate>Wed, 09 Jan 2006 19:20:11 +0000</pubDate>
