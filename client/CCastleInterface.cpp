@@ -924,6 +924,7 @@ void CCastleInterface::castleTeleport(int where)
 {
 	const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(where));
 	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
+	LOCPLINT->eraseCurrentPathOf(town->visitingHero, false);
 }
 
 void CCastleInterface::townChange()

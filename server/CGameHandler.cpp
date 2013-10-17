@@ -1794,9 +1794,9 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	const CGTownInstance *from = h->visitedTown;
 	if(((h->getOwner() != t->getOwner())
 		&& complain("Cannot teleport hero to another player"))
-	|| ((!from || from->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
+	|| ((!from || !from->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
 		&& complain("Hero must be in town with Castle gate for teleporting"))
-	|| (t->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO)
+	|| (!t->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO)
 		&& complain("Cannot teleport hero to town without Castle gate in it")))
 			return false;
 	int3 pos = t->visitablePos();
