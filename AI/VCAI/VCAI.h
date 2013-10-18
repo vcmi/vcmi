@@ -1,9 +1,10 @@
 #pragma once
 
+#include "AIUtility.h"
+#include "Goals.h"
 #include "../../lib/AI_Base.h"
 #include "../../CCallback.h"
 #include "../../lib/CDefObjInfoHandler.h"
-#include "../../lib/CObjectHandler.h"
 
 #include "../../lib/CThreadHelper.h"
 
@@ -18,54 +19,21 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/CondSh.h"
-#include "../../lib/CStopWatch.h"
+
+static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
+	int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
 
 struct QuestInfo;
 
-typedef const int3& crint3;
-typedef const std::string& crstring;
-
-//provisional class for AI to store a reference to an owned hero object
-//checks if it's valid on access, should be used in place of const CGHeroInstance*
-struct HeroPtr
-{
-	const CGHeroInstance *h;
-	ObjectInstanceID hid;
-
-public:
-	std::string name;
-
-	
-	HeroPtr();
-	HeroPtr(const CGHeroInstance *H);
-	~HeroPtr();
-
-	operator bool() const
-	{
-		return validAndSet();
-	}
-
-	bool operator<(const HeroPtr &rhs) const;
-	const CGHeroInstance *operator->() const;
-	const CGHeroInstance *operator*() const; //not that consistent with -> but all interfaces use CGHeroInstance*, so it's convenient
-
-	const CGHeroInstance *get(bool doWeExpectNull = false) const;
-	bool validAndSet() const;
-
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & this->h & hid & name;
-	}
-};
-
-enum BattleState
-{
-	NO_BATTLE,
-	UPCOMING_BATTLE,
-	ONGOING_BATTLE,
-	ENDING_BATTLE
-};
+/*
+ * VCAI.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 class AIStatus
 {
@@ -101,96 +69,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & battle & remainingQueries & requestToQueryID & havingTurn;
-	}
-};
-
-enum EGoals
-{
-	INVALID = -1,
-	WIN, DO_NOT_LOSE, CONQUER, BUILD, //build needs to get a real reasoning
-	EXPLORE, GATHER_ARMY, BOOST_HERO,
-	RECRUIT_HERO,
-	BUILD_STRUCTURE, //if hero set, then in visited town
-	COLLECT_RES,
-	GATHER_TROOPS, // val of creatures with objid
-
-	OBJECT_GOALS_BEGIN,
-	GET_OBJ, //visit or defeat or collect the object
-	FIND_OBJ, //find and visit any obj with objid + resid //TODO: consider universal subid for various types (aid, bid)
-	VISIT_HERO, //heroes can move around - set goal abstract and track hero every turn
-
-	GET_ART_TYPE,
-
-	//BUILD_STRUCTURE,
-	ISSUE_COMMAND,
-
-	VISIT_TILE, //tile, in conjunction with hero elementar; assumes tile is reachable
-	CLEAR_WAY_TO,
-	DIG_AT_TILE //elementar with hero on tile
-};
-
-struct CGoal;
-typedef CGoal TSubgoal;
-
-#define SETTER(type, field) CGoal &set ## field(const type &rhs) { field = rhs; return *this; }
-#if 0
-	#define SETTER
-#endif // _DEBUG
-
-enum {LOW_PR = -1};
-
-struct CGoal
-{
-	EGoals goalType;
-	bool isElementar; SETTER(bool, isElementar)
-	bool isAbstract; SETTER(bool, isAbstract) //allows to remember abstract goals
-	int priority; SETTER(bool, priority)
-	std::string name() const;
-
-	virtual TSubgoal whatToDoToAchieve();
-
-	CGoal(EGoals goal = INVALID) : goalType(goal)
-	{
-		priority = 0;
-		isElementar = false;
-		isAbstract = false;
-		value = 0;
-		aid = -1;
-		resID = -1;
-		tile = int3(-1, -1, -1);
-		town = nullptr;
-	}
-
-	bool invalid() const;
-
-	static TSubgoal goVisitOrLookFor(const CGObjectInstance *obj); //if obj is nullptr, then we'll explore
-	static TSubgoal lookForArtSmart(int aid); //checks non-standard ways of obtaining art (merchants, quests, etc.)
-	static TSubgoal tryRecruitHero();
-
-	int value; SETTER(int, value)
-	int resID; SETTER(int, resID)
-	int objid; SETTER(int, objid)
-	int aid; SETTER(int, aid)
-	int3 tile; SETTER(int3, tile)
-	HeroPtr hero; SETTER(HeroPtr, hero)
-	const CGTownInstance *town; SETTER(CGTownInstance *, town)
-	int bid; SETTER(int, bid)
-
-	bool operator== (CGoal &g)
-	{
-		switch (goalType)
-		{
-			case EGoals::GET_OBJ:
-				return objid == g.objid;
-		}
-		return false;
-	}
-
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & goalType & isElementar & isAbstract & priority;
-		h & value & resID & objid & aid & tile & hero & town & bid;
 	}
 };
 
@@ -231,39 +109,6 @@ struct SectorMap
 	int3 firstTileToGet(HeroPtr h, crint3 dst); //if h wants to reach tile dst, which tile he should visit to clear the way?
 };
 
-struct CIssueCommand : CGoal
-{
-	std::function<bool()> command;
-
-	CIssueCommand(std::function<bool()> _command): CGoal(ISSUE_COMMAND), command(_command) {}
-};
-
-
-// AI lives in a dangerous world. CGObjectInstances under pointer may got deleted/hidden.
-// This class stores object id, so we can detect when we lose access to the underlying object.
-struct ObjectIdRef
-{
-	ObjectInstanceID id;
-
-	const CGObjectInstance *operator->() const;
-	operator const CGObjectInstance *() const;
-
-	ObjectIdRef(ObjectInstanceID _id);
-	ObjectIdRef(const CGObjectInstance *obj);
-
-	bool operator<(const ObjectIdRef &rhs) const;
-
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & id;
-	}
-};
-
-class ObjsVector : public std::vector<ObjectIdRef>
-{
-private:
-};
 
 class VCAI : public CAdventureAI
 {
@@ -482,15 +327,5 @@ public:
 	}
 };
 
-template<int id>
-bool objWithID(const CGObjectInstance *obj)
-{
-	return obj->ID == id;
-}
-bool isBlockedBorderGate(int3 tileToHit);
-
-bool isWeeklyRevisitable (const CGObjectInstance * obj);
-bool shouldVisit (HeroPtr h, const CGObjectInstance * obj);
-
 void makePossibleUpgrades(const CArmedInstance *obj);
-bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2);
+
