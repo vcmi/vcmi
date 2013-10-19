@@ -1697,11 +1697,11 @@ void VCAI::striveToGoal(const Goals::CGoal &ultimateGoal)
 	if (ultimateGoal.invalid())
 		return;
 
-	Goals::CGoal abstractGoal;
+	Goals::CGoal &abstractGoal = Goals::CGoal(); //reference must be initialized
 
 	while(1)
 	{
-		Goals::CGoal goal = ultimateGoal;
+		Goals::CGoal &goal = const_cast<Goals::CGoal&>(ultimateGoal);
         logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal.name();
 		int maxGoals = 100; //preventing deadlock for mutually dependent goals, FIXME: do not try to realize goal when loop didn't suceed
 		while(!goal.isElementar && !goal.isAbstract && maxGoals)
@@ -1710,7 +1710,7 @@ void VCAI::striveToGoal(const Goals::CGoal &ultimateGoal)
 			try
 			{
 				boost::this_thread::interruption_point();
-				goal = goal.whatToDoToAchieve();
+				goal = goal.whatToDoToAchieve(); //FIXME: must keep information about goal class
 				--maxGoals;
 			}
 			catch(std::exception &e)

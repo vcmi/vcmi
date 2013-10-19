@@ -113,61 +113,73 @@ struct CGoal
 class Invalid : public CGoal
 {
 	public:
+	Invalid() : CGoal (Goals::INVALID){};
 	TSubgoal whatToDoToAchieve() override;
 };
 class Win : public CGoal
 {
 	public:
+	Win() : CGoal (Goals::WIN){};
 	TSubgoal whatToDoToAchieve() override;
 };
 class NotLose : public CGoal
 {
 	public:
+	NotLose() : CGoal (Goals::DO_NOT_LOSE){};
 	TSubgoal whatToDoToAchieve() override;
 };
 class Conquer : public CGoal
 {
 	public:
+	Conquer() : CGoal (Goals::CONQUER){};
 	TSubgoal whatToDoToAchieve() override;
 };
 class Build : public CGoal
 {
 	public:
+	Build() : CGoal (Goals::BUILD){};
 	TSubgoal whatToDoToAchieve() override;
 };
 class Explore : public CGoal
 {
 	public:
+	Explore() : CGoal (Goals::EXPLORE){};
 	TSubgoal whatToDoToAchieve() override;
 };
 class GatherArmy : public CGoal
 {
 	public:
+	GatherArmy() : CGoal (Goals::GATHER_ARMY){};
 	TSubgoal whatToDoToAchieve() override;
 };
 class BoostHero : public CGoal
 {
 	public:
+	BoostHero() : CGoal (Goals::INVALID){}; //TODO
 	TSubgoal whatToDoToAchieve() override;
 };
 class RecruitHero : public CGoal
 {
 	public:
+	RecruitHero() : CGoal (Goals::RECRUIT_HERO){};
 	TSubgoal whatToDoToAchieve() override;
 };
 class BuildThis : public CGoal
 {
 	public:
+	BuildThis() : CGoal (Goals::BUILD_STRUCTURE){};
 	TSubgoal whatToDoToAchieve() override;
 };
 class CollectRes : public CGoal
 {
 	public:
+	CollectRes() : CGoal (Goals::COLLECT_RES){};
 	TSubgoal whatToDoToAchieve() override;
 };
 class GatherTroops : public CGoal
 {
 	public:
+	GatherTroops() : CGoal (Goals::GATHER_TROOPS){};
 	TSubgoal whatToDoToAchieve() override;
 };
 class GetObj : public CGoal
@@ -175,7 +187,7 @@ class GetObj : public CGoal
 	private:
 		GetObj() {}; // empty constructor not allowed
 	public:
-	GetObj(const int Objid) {setobjid(Objid);};
+		GetObj(const int Objid) : CGoal(Goals::GET_OBJ) {setobjid(Objid);};
 	TSubgoal whatToDoToAchieve() override;
 };
 class FindObj : public CGoal
@@ -183,49 +195,52 @@ class FindObj : public CGoal
 	private:
 		FindObj() {}; // empty constructor not allowed
 	public:
-	FindObj(int ID) {setobjid(ID);};
-	FindObj(int ID, int subID) {setobjid(ID).setresID(subID);};
+	FindObj(int ID) : CGoal(Goals::FIND_OBJ) {setobjid(ID);};
+	FindObj(int ID, int subID) : CGoal(Goals::FIND_OBJ) {setobjid(ID).setresID(subID);};
 	TSubgoal whatToDoToAchieve() override;
 };
 class VisitHero : public CGoal
 {
 	public:
+	VisitHero() : CGoal (Goals::VISIT_HERO){};
 	TSubgoal whatToDoToAchieve() override;
 };
 class GetArtOfType : public CGoal
 {
 	public:
+	GetArtOfType() : CGoal (Goals::GET_ART_TYPE){};
 	TSubgoal whatToDoToAchieve() override;
 };
-class IssueCommand : public CGoal
-{
-	public:
-	TSubgoal whatToDoToAchieve() override;
-};
-class VisitTile : public CGoal //tile, in conjunction with hero elementar; assumes tile is reachable
+class VisitTile : public CGoal
+	//tile, in conjunction with hero elementar; assumes tile is reachable
 {
 	private:
 		VisitTile() {}; // empty constructor not allowed
 	public:
-	VisitTile(int3 Tile) {settile(Tile);};
+		VisitTile(int3 Tile) : CGoal (Goals::VISIT_TILE) {settile(Tile);};
 	TSubgoal whatToDoToAchieve() override;
 }; 
 class ClearWayTo : public CGoal
 {
 	public:
+	ClearWayTo(int3 Tile) : CGoal (Goals::CLEAR_WAY_TO) {settile(Tile);};
 	TSubgoal whatToDoToAchieve() override;
 };
-class DigAtTile : public CGoal //elementar with hero on tile
+class DigAtTile : public CGoal
+	//elementar with hero on tile
 {
 	public:
+	DigAtTile() : CGoal (Goals::DIG_AT_TILE){};
 	TSubgoal whatToDoToAchieve() override;
 };
 
-struct CIssueCommand : CGoal
+class CIssueCommand : CGoal
 {
 	std::function<bool()> command;
 
+	public:
 	CIssueCommand(std::function<bool()> _command): CGoal(ISSUE_COMMAND), command(_command) {}
+	TSubgoal whatToDoToAchieve() override;
 };
 
 }
