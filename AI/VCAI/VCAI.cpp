@@ -256,7 +256,7 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 		markObjectVisited (visitedObj);
 		erase_if_present(reservedObjs, visitedObj); //unreserve objects
 		erase_if_present(reservedHeroesMap[visitor], visitedObj);
-		completeGoal (Goals::GetObj().sethero(visitor)); //we don't need to visit in anymore
+		completeGoal (Goals::CGoal(Goals::GET_OBJ).sethero(visitor)); //we don't need to visit in anymore
 	}
 
 	status.heroVisit(visitedObj, start);
@@ -712,7 +712,7 @@ void VCAI::makeTurnInternal()
 					logAi->errorStream() << "Error: there is wrong object on list for hero " << hero.first->name;
 					continue;
 				}
-				striveToGoal (Goals::VisitTile().sethero(hero.first).settile(obj->visitablePos()));
+				striveToGoal (Goals::VisitTile(obj->visitablePos()).sethero(hero.first));
 			}
 		}
 
@@ -1155,7 +1155,7 @@ void VCAI::wander(HeroPtr h)
 	            const CGTownInstance *t = townsNotReachable.back();
                 logAi->debugStream() << boost::format("%s can't reach any town, we'll try to make our way to %s at %s") % h->name % t->name % t->visitablePos();
 				int3 pos1 = h->pos;
-				striveToGoal(Goals::VisitTile().settile(t->visitablePos()).sethero(h));
+				striveToGoal(Goals::VisitTile(t->visitablePos()).sethero(h));
 				if (pos1 == h->pos && h == primaryHero()) //hero can't move
 				{
 					if(cb->getResourceAmount(Res::GOLD) >= HERO_GOLD_COST && cb->getHeroesInfo().size() < ALLOWED_ROAMING_HEROES && cb->getAvailableHeroes(t).size())
@@ -1424,7 +1424,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		{
             logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
 			//setGoal(h, INVALID);
-			completeGoal (Goals::VisitTile().sethero(h));
+			completeGoal (Goals::CGoal(Goals::VISIT_TILE).sethero(h));
 			cb->recalculatePaths();
 			throw std::runtime_error("Wrong move order!");
 		}
@@ -1844,7 +1844,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (Goals::GetObj().setobjid(q.obj->id.getNum()).sethero(hero));
+						striveToGoal (Goals::GetObj(q.obj->id.getNum()).sethero(hero));
 						return;
 					}
 				}
@@ -1861,11 +1861,11 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (Goals::GetObj().setobjid(q.obj->id.getNum()).sethero(hero));
+						striveToGoal (Goals::GetObj(q.obj->id.getNum()).sethero(hero));
 						return;
 					}
 				}
-				striveToGoal (Goals::FindObj().setobjid(Obj::PRISON)); //rule of a thumb - quest heroes usually are locked in prisons
+				striveToGoal (Goals::FindObj(Obj::PRISON)); //rule of a thumb - quest heroes usually are locked in prisons
 				//BNLOG ("Don't know how to recruit hero with id %d\n", q.quest->m13489val);
 				break;
 			}
@@ -1875,7 +1875,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero)) //veyr bad info - stacks can be split between multiple heroes :(
 					{
-						striveToGoal (Goals::GetObj().setobjid(q.obj->id.getNum()).sethero(hero));
+						striveToGoal (Goals::GetObj(q.obj->id.getNum()).sethero(hero));
 						return;
 					}
 				}
@@ -1893,7 +1893,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(heroes.front())) //it doesn't matter which hero it is
 					{
-						 striveToGoal (Goals::VisitTile().settile(q.tile));
+						 striveToGoal (Goals::VisitTile(q.tile));
 					}
 					else
 					{
@@ -1913,9 +1913,9 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			{
 				auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
 				if (obj)
-					striveToGoal (Goals::GetObj().setobjid(obj->id.getNum()));
+					striveToGoal (Goals::GetObj(obj->id.getNum()));
 				else
-					striveToGoal (Goals::VisitTile().settile(q.tile)); //visit seer hut
+					striveToGoal (Goals::VisitTile(q.tile)); //visit seer hut
 				break;
 			}
 			case CQuest::MISSION_PRIMARY_STAT:
@@ -1925,7 +1925,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (Goals::GetObj().setobjid(q.obj->id.getNum()).sethero(hero));
+						striveToGoal (Goals::GetObj(q.obj->id.getNum()).sethero(hero));
 						return;
 					}
 				}
@@ -1942,7 +1942,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (Goals::VisitTile().settile(q.tile).sethero(hero)); //TODO: causes infinite loop :/
+						striveToGoal (Goals::VisitTile(q.tile).sethero(hero)); //TODO: causes infinite loop :/
 						return;
 					}
 				}
@@ -1957,7 +1957,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			}
 			case CQuest::MISSION_KEYMASTER:
 			{
-				striveToGoal (Goals::FindObj().setobjid(Obj::KEYMASTER).setresID(q.obj->subID));
+				striveToGoal (Goals::FindObj(Obj::KEYMASTER, q.obj->subID));
 				break;
 			}
 		}

@@ -172,12 +172,19 @@ class GatherTroops : public CGoal
 };
 class GetObj : public CGoal
 {
+	private:
+		GetObj() {}; // empty constructor not allowed
 	public:
+	GetObj(const int Objid) {setobjid(Objid);};
 	TSubgoal whatToDoToAchieve() override;
 };
 class FindObj : public CGoal
 {
+	private:
+		FindObj() {}; // empty constructor not allowed
 	public:
+	FindObj(int ID) {setobjid(ID);};
+	FindObj(int ID, int subID) {setobjid(ID).setresID(subID);};
 	TSubgoal whatToDoToAchieve() override;
 };
 class VisitHero : public CGoal
@@ -197,7 +204,10 @@ class IssueCommand : public CGoal
 };
 class VisitTile : public CGoal //tile, in conjunction with hero elementar; assumes tile is reachable
 {
+	private:
+		VisitTile() {}; // empty constructor not allowed
 	public:
+	VisitTile(int3 Tile) {settile(Tile);};
 	TSubgoal whatToDoToAchieve() override;
 }; 
 class ClearWayTo : public CGoal
