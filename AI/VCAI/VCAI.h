@@ -128,7 +128,7 @@ public:
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::vector<const CGTownInstance *> > townVisitsThisWeek;
 
-	std::map<HeroPtr, CGoal> lockedHeroes; //TODO: allow non-elementar objectives
+	std::map<HeroPtr, Goals::CGoal> lockedHeroes; //TODO: allow non-elementar objectives
 	std::map<HeroPtr, std::vector<const CGObjectInstance *> > reservedHeroesMap; //objects reserved by specific heroes
 
 	std::vector<const CGObjectInstance *> visitableObjs;
@@ -147,7 +147,16 @@ public:
 	VCAI(void);
 	~VCAI(void);
 
-	void tryRealize(CGoal g);
+	void tryRealize(Goals::CGoal g);
+	void tryRealize(Goals::Explore g);
+	void tryRealize(Goals::RecruitHero g);
+	void tryRealize(Goals::VisitTile g);
+	void tryRealize(Goals::VisitHero g);
+	void tryRealize(Goals::BuildThis g);
+	void tryRealize(Goals::DigAtTile g);
+	void tryRealize(Goals::CollectRes g);
+	void tryRealize(Goals::Build g);
+	void tryRealize(Goals::Invalid g);
 
 	int3 explorationBestNeighbour(int3 hpos, int radius, HeroPtr h);
 	int3 explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<int3> > &tiles);
@@ -222,15 +231,15 @@ public:
 	void performTypicalActions();
 
 	void buildArmyIn(const CGTownInstance * t);
-	void striveToGoal(const CGoal &ultimateGoal);
+	void striveToGoal(const Goals::CGoal &ultimateGoal);
 	void endTurn();
 	void wander(HeroPtr h);
-	void setGoal(HeroPtr h, const CGoal goal);
-	void setGoal(HeroPtr h, EGoals goalType = INVALID);
-	void completeGoal (const CGoal goal); //safely removes goal from reserved hero
+	void setGoal(HeroPtr h, const Goals::CGoal goal);
+	void setGoal(HeroPtr h, Goals::EGoals goalType = Goals::INVALID);
+	void completeGoal (const Goals::CGoal goal); //safely removes goal from reserved hero
 	void striveToQuest (const QuestInfo &q);
-	bool fulfillsGoal (CGoal &goal, CGoal &mainGoal);
-	bool fulfillsGoal (CGoal &goal, const CGoal &mainGoal); //TODO: something smarter
+	bool fulfillsGoal (Goals::CGoal &goal, Goals::CGoal &mainGoal);
+	bool fulfillsGoal (Goals::CGoal &goal, const Goals::CGoal &mainGoal); //TODO: something smarter
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	std::vector<const CGObjectInstance *> getPossibleDestinations(HeroPtr h);
@@ -311,9 +320,9 @@ public:
 class goalFulfilledException : public std::exception
 {
 public:
-	CGoal goal;
+	Goals::CGoal goal;
 
-	explicit goalFulfilledException(CGoal Goal) : goal(Goal)
+	explicit goalFulfilledException(Goals::CGoal Goal) : goal(Goal)
 	{
 	}
 

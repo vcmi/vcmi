@@ -16,8 +16,9 @@ extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 
 using namespace vstd;
+using namespace Goals;
 
-std::string CGoal::name() const
+std::string Goals::CGoal::name() const //TODO: virtualize
 {
 	switch (goalType)
 	{
@@ -66,7 +67,7 @@ std::string CGoal::name() const
 	}
 }
 
-#define I_AM_ELEMENTAR return CGoal(*this).setisElementar(true)
+#define I_AM_ELEMENTAR return Goals::CGoal(*this).setisElementar(true) //FIXME: we loose some information about clas here?
 
 TSubgoal Win::whatToDoToAchieve()
 {

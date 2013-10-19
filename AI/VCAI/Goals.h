@@ -18,7 +18,12 @@
  */
 struct HeroPtr;
 
-enum EGoals
+namespace Goals
+{
+	struct CGoal;
+	typedef CGoal TSubgoal;
+
+	enum EGoals
 {
 	INVALID = -1,
 	WIN, DO_NOT_LOSE, CONQUER, BUILD, //build needs to get a real reasoning
@@ -42,9 +47,6 @@ enum EGoals
 	CLEAR_WAY_TO,
 	DIG_AT_TILE //elementar with hero on tile
 };
-
-struct CGoal;
-typedef CGoal TSubgoal;
 
 #define SETTER(type, field) CGoal &set ## field(const type &rhs) { field = rhs; return *this; }
 #if 0
@@ -215,3 +217,5 @@ struct CIssueCommand : CGoal
 
 	CIssueCommand(std::function<bool()> _command): CGoal(ISSUE_COMMAND), command(_command) {}
 };
+
+}
