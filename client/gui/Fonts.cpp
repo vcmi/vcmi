@@ -353,7 +353,7 @@ void CBitmapHanFont::renderText(SDL_Surface * surface, const std::string & data,
 	for(size_t i=0; i<data.size(); i += getCharacterSize(data[i]))
 	{
 		if (ui8(data[i]) < 0x80)
-			renderCharacter(surface, getCharacterIndex(0xa3, data[i] + 0x80), color, posX, posY);
+			fallback->renderCharacter(surface, fallback->chars[data[i]], color, posX, posY);
 		else
 			renderCharacter(surface, getCharacterIndex(data[i], data[i+1]), color, posX, posY);
 	}
@@ -361,6 +361,7 @@ void CBitmapHanFont::renderText(SDL_Surface * surface, const std::string & data,
 }
 
 CBitmapHanFont::CBitmapHanFont(const JsonNode &config):
+    fallback(new CBitmapFont(config["fallback"].String())),
     data(CResourceHandler::get()->load(ResourceID("data/" + config["name"].String(), EResType::OTHER))->readAll()),
     size(config["size"].Float())
 {
@@ -378,6 +379,8 @@ size_t CBitmapHanFont::getLineHeight() const
 
 size_t CBitmapHanFont::getGlyphWidth(const char * data) const
 {
+	if (ui8(data[0]) < 0x80)
+		return fallback->getGlyphWidth(data);
 	return size + 1;
 }
 

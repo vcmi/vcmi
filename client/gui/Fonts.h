@@ -97,6 +97,7 @@ public:
 /// supports multi-byte characters for such languages like Chinese
 class CBitmapHanFont : public IFont
 {
+	std::unique_ptr<CBitmapFont> fallback;
 	// data, directly copied from file
 	const std::pair<std::unique_ptr<ui8[]>, ui64> data;
 

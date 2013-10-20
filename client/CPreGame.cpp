@@ -332,7 +332,8 @@ static std::function<void()> genCommand(CMenuScreen* menu, std::vector<std::stri
 						case 0: return boost::bind(&CGPreGame::openSel, CGP, CMenuScreen::newGame, CMenuScreen::SINGLE_PLAYER);
 						case 1: return &pushIntT<CMultiMode>;
 						case 2: return boost::bind(&CGPreGame::openSel, CGP, CMenuScreen::campaignList, CMenuScreen::SINGLE_PLAYER);
-						case 3: return std::function<void()>();//TODO: start tutorial
+						//TODO: start tutorial
+						case 3: return boost::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", (const std::vector<CComponent*>*)nullptr, false, PlayerColor(1));
 					}
 				}
 				break; case 3://load
@@ -341,8 +342,10 @@ static std::function<void()> genCommand(CMenuScreen* menu, std::vector<std::stri
 					{
 						case 0: return boost::bind(&CGPreGame::openSel, CGP, CMenuScreen::loadGame, CMenuScreen::SINGLE_PLAYER);
 						case 1: return boost::bind(&CGPreGame::openSel, CGP, CMenuScreen::loadGame, CMenuScreen::MULTI_HOT_SEAT);
-						case 2: return std::function<void()>();//TODO: load campaign
-						case 3: return std::function<void()>();//TODO: load tutorial
+						//TODO: load campaign
+						case 2: return boost::bind(CInfoWindow::showInfoDialog, "This function is not implemented yet. Campaign saves can be loaded from \"Single Player\" menu", (const std::vector<CComponent*>*)nullptr, false, PlayerColor(1));
+						//TODO: load tutorial
+						case 3: return boost::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", (const std::vector<CComponent*>*)nullptr, false, PlayerColor(1));
 					}
 				}
 				break; case 4://exit
@@ -351,7 +354,8 @@ static std::function<void()> genCommand(CMenuScreen* menu, std::vector<std::stri
 				}
 				break; case 5://highscores
 				{
-					return std::function<void()>(); //TODO: high scores &pushIntT<CHighScores>;
+					//TODO: high scores
+					return boost::bind(CInfoWindow::showInfoDialog, "Sorry, high scores menu is not implemented yet\n", (const std::vector<CComponent*>*)nullptr, false, PlayerColor(1));
 				}
 			}
 		}

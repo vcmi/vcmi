@@ -129,44 +129,54 @@ SDL_Surface * CMessage::drawDialogBox(int w, int h, PlayerColor playerColor)
 	return ret;
 }
 
-std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSize, EFonts font )
+std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWidth, EFonts font )
 {
 	std::vector<std::string> ret;
 
 	boost::algorithm::trim_right_if(text,boost::algorithm::is_any_of(std::string(" ")));
 
+	// each interation generates one output line
 	while (text.length())
 	{
-		ui32 lineLength = 0;	//in characters or given char metric
-		ui32 wordBreak = -1;
-		ui32 currPos = 0; //our position in text
-		bool opened = false;//if we have an unclosed brace in current line
-		bool lineManuallyBroken = false;
+		ui32 lineWidth = 0;    //in characters or given char metric
+		ui32 wordBreak = -1;    //last position for line break (last space character)
+		ui32 currPos = 0;       //current position in text
+		bool opened = false;    //set to true when opening brace is found
 
-		while(currPos < text.length()  &&  text[currPos] != 0x0a  &&  lineLength < maxLineSize)
+		size_t symbolSize = 0; // width of character, in bytes
+		size_t glyphWidth = 0; // width of printable glyph, pixels
+
+		// loops till line is full or end of text reached
+		while(currPos < text.length()  &&  text[currPos] != 0x0a  &&  lineWidth < maxLineWidth)
 		{
-			if (ui8(text[currPos]) <= ui8(' ')) // candidate for line break
+			symbolSize = graphics->fonts[font]->getCharacterSize(text[currPos]);
+			glyphWidth = graphics->fonts[font]->getGlyphWidth(text.data() + currPos);
+
+			// candidate for line break
+			if (ui8(text[currPos]) <= ui8(' '))
 				wordBreak = currPos;
+
 			/* We don't count braces in string length. */
 			if (text[currPos] == '{')
 				opened=true;
 			else if (text[currPos]=='}')
 				opened=false;
 			else
-				lineLength += graphics->fonts[font]->getGlyphWidth(text.data() + currPos);
-			currPos += graphics->fonts[font]->getCharacterSize(text[currPos]);
+				lineWidth += glyphWidth;
+			currPos += symbolSize;
 		}
 
+		// long line, create line break
 		if (currPos < text.length()  &&  (text[currPos] != 0x0a))
 		{
-			// We have a long line. Try to do a nice line break, if possible
 			if (wordBreak != ui32(-1))
 				currPos = wordBreak;
 			else
-				currPos--;
+				currPos -= symbolSize;
 		}
 
-		if(currPos) //non-blank line
+		//non-blank line
+		if(currPos != 0)
 		{
 			ret.push_back(text.substr(0, currPos));
 
@@ -176,39 +186,34 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 
 			text.erase(0, currPos);
 		}
-		else if(text[currPos] == 0x0a) //blank line
+		else if(text[currPos] == 0x0a)
 		{
 			ret.push_back(""); //add empty string, no extra actions needed
 		}
 
-		if (text.length() && text[0] == 0x0a)
+		if (text.length() != 0 && text[0] == 0x0a)
 		{
-			/* Braces do not carry over lines. The map author forgot
-			 * to close it. */
-			opened = false;
-
 			/* Remove LF */
 			text.erase(0, 1);
-
-			lineManuallyBroken = true;
 		}
-
-		//if(!allowLeadingWhitespace || !lineManuallyBroken)
-		if(!lineManuallyBroken)
+		else
+		{
+			// trim only if line does not starts with LF
+			// FIXME: necessary? All lines will be trimmed before returning anyway
 			boost::algorithm::trim_left_if(text,boost::algorithm::is_any_of(std::string(" ")));
+		}
 
 		if (opened)
 		{
 			/* Add an opening brace for the next line. */
-			if (text.length())
+			if (text.length() != 0)
 				text.insert(0, "{");
 		}
 	}
 
 	/* Trim whitespaces of every line. */
-	//if(!allowLeadingWhitespace)
-		for (auto & elem : ret)
-			boost::algorithm::trim(elem);
+	for (auto & elem : ret)
+		boost::algorithm::trim(elem);
 
 	return ret;
 }

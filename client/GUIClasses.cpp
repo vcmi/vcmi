@@ -721,6 +721,12 @@ void CInfoWindow::showAll(SDL_Surface * to)
 	CIntObject::showAll(to);
 }
 
+void CInfoWindow::showInfoDialog(const std::string &text, const std::vector<CComponent *> *components, bool DelComps, PlayerColor player)
+{
+	CInfoWindow * window = CInfoWindow::create(text, player, components, DelComps);
+	GH.pushInt(window);
+}
+
 void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<CComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps, PlayerColor player)
 {
 	assert(!LOCPLINT || LOCPLINT->showingDialog->get());
