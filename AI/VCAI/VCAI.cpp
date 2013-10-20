@@ -1697,7 +1697,7 @@ void VCAI::striveToGoal(const Goals::CGoal &ultimateGoal)
 	if (ultimateGoal.invalid())
 		return;
 
-	Goals::CGoal &abstractGoal = Goals::CGoal(); //reference must be initialized
+	Goals::CGoal abstractGoal; //can't create reference from temporary
 
 	while(1)
 	{

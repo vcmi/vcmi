@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 2.6)
 include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib ${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite)
 
 set(VCAI_SRCS
+        AIUtility.cpp
+        Goals.cpp
         main.cpp
         VCAI.cpp
         Fuzzy.cpp

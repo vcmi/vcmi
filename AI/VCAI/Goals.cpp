@@ -152,6 +152,7 @@ TSubgoal Win::whatToDoToAchieve()
 	default:
 		assert(0);
 	}
+	return TSubgoal(Goals::INVALID);
 }
 
 TSubgoal FindObj::whatToDoToAchieve()
@@ -202,6 +203,7 @@ TSubgoal VisitHero::whatToDoToAchieve()
 
 	if (hero && ai->isAccessibleForHero(pos, hero, true) && isSafeToVisit(hero, pos)) //enemy heroes can get reinforcements
 		return (*this).settile(pos).setisElementar(true);
+	return TSubgoal(Goals::INVALID);
 }
 
 TSubgoal GetArtOfType::whatToDoToAchieve()
@@ -209,6 +211,7 @@ TSubgoal GetArtOfType::whatToDoToAchieve()
 	TSubgoal alternativeWay = CGoal::lookForArtSmart(aid); //TODO: use
 	if(alternativeWay.invalid())
 		return Goals::FindObj(Obj::ARTIFACT, aid);
+	return TSubgoal(Goals::INVALID);
 }
 
 TSubgoal ClearWayTo::whatToDoToAchieve()

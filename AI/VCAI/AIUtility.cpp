@@ -5,7 +5,7 @@
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CObjectHandler.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CHeroHandler.h""
+#include "../../lib/CHeroHandler.h"
 
 /*
  * AIUtility.cpp, part of VCMI engine
