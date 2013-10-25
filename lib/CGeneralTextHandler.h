@@ -10,6 +10,34 @@
  *
  */
 
+/// Namespace that provides utilites for unicode support (UTF-8)
+namespace Unicode
+{
+	/// evaluates size of UTF-8 character
+	size_t getCharacterSize(ui8 firstByte);
+
+	/// test if character is a valid UTF-8 symbol
+	/// maxSize - maximum number of bytes this symbol may consist from ( = remainer of string)
+	bool isValidCharacter(const ui8 *character, size_t maxSize);
+
+	/// test if text contains ASCII-string (no need for unicode conversion)
+	bool isValidASCII(const std::string & text);
+	bool isValidASCII(const char * data, size_t size);
+
+	/// test if text contains valid UTF-8 sequence
+	bool isValidString(const std::string & text);
+	bool isValidString(const char * data, size_t size);
+
+	/// converts text to unicode from specified encoding or from one specified in settings
+	std::string toUnicode(const std::string & text);
+	std::string toUnicode(const std::string & text, const std::string & encoding);
+
+	/// converts text from unicode to specified encoding or to one specified in settings
+	/// NOTE: usage of these functions should be avoided if possible
+	std::string fromUnicode(const std::string & text);
+	std::string fromUnicode(const std::string & text, const std::string & encoding);
+};
+
 class CInputStream;
 
 /// Parser for any text files from H3
@@ -30,6 +58,8 @@ class CLegacyConfigParser
 	/// extracts non-quoted string
 	std::string extractNormalString();
 
+	/// reads "raw" string without encoding conversion
+	std::string readRawString();
 public:
 	/// read one entry from current line. Return ""/0 if end of line reached
 	std::string readString();

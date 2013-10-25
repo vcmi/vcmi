@@ -149,7 +149,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 		// loops till line is full or end of text reached
 		while(currPos < text.length()  &&  text[currPos] != 0x0a  &&  lineWidth < maxLineWidth)
 		{
-			symbolSize = graphics->fonts[font]->getCharacterSize(text[currPos]);
+			symbolSize = Unicode::getCharacterSize(text[currPos]);
 			glyphWidth = graphics->fonts[font]->getGlyphWidth(text.data() + currPos);
 
 			// candidate for line break

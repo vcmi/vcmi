@@ -35,9 +35,6 @@ public:
 	virtual size_t getLineHeight() const = 0;
 	/// Returns width, in pixels of a character glyph. Pointer must contain at least characterSize valid bytes
 	virtual size_t getGlyphWidth(const char * data) const = 0;
-	/// Returns size (in bytes) of one char in current encoding, may be bigger than one for non-ascii
-	/// TODO: move it out of this class. Separate entity for handling localization/different encodings?
-	virtual size_t getCharacterSize(char data) const = 0;
 	/// Return width of the string
 	virtual size_t getStringWidth(const std::string & data) const;
 
@@ -66,7 +63,7 @@ class CBitmapFont : public IFont
 {
 	static const size_t totalChars = 256;
 
-	struct Char
+	struct BitmapChar
 	{
 		si32 leftOffset;
 		ui32 width;
@@ -76,12 +73,12 @@ class CBitmapFont : public IFont
 
 	const std::pair<std::unique_ptr<ui8[]>, ui64> data;
 
-	const std::array<Char, totalChars> chars;
+	const std::array<BitmapChar, totalChars> chars;
 	const ui8 height;
 
-	std::array<Char, totalChars> loadChars() const;
+	std::array<BitmapChar, totalChars> loadChars() const;
 
-	void renderCharacter(SDL_Surface * surface, const Char & character, const SDL_Color & color, int &posX, int &posY) const;
+	void renderCharacter(SDL_Surface * surface, const BitmapChar & character, const SDL_Color & color, int &posX, int &posY) const;
 
 	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const override;
 public:
@@ -89,7 +86,6 @@ public:
 
 	size_t getLineHeight() const override;
 	size_t getGlyphWidth(const char * data) const override;
-	size_t getCharacterSize(char data) const override;
 
 	friend class CBitmapHanFont;
 };
@@ -114,7 +110,6 @@ public:
 
 	size_t getLineHeight() const override;
 	size_t getGlyphWidth(const char * data) const override;
-	size_t getCharacterSize(char data) const override;
 };
 
 class CTrueTypeFont : public IFont
@@ -134,6 +129,5 @@ public:
 
 	size_t getLineHeight() const override;
 	size_t getGlyphWidth(const char * data) const override;
-	size_t getCharacterSize(char data) const override;
 	size_t getStringWidth(const std::string & data) const override;
 };

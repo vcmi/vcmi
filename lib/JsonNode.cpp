@@ -17,6 +17,7 @@
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h" //for identifier resolution
 #include "CModHandler.h"
+#include "CGeneralTextHandler.h"
 
 using namespace JsonDetail;
 
@@ -417,6 +418,9 @@ JsonNode JsonParser::parse(std::string fileName)
 {
 	JsonNode root;
 
+	if (!Unicode::isValidString(&input[0], input.size()))
+		error("Not a valid UTF-8 file", false);
+
 	extractValue(root);
 	extractWhitespace(false);
 
@@ -426,8 +430,8 @@ JsonNode JsonParser::parse(std::string fileName)
 
 	if (!errors.empty())
 	{
-        logGlobal->warnStream()<<"File " << fileName << " is not a valid JSON file!";
-        logGlobal->warnStream()<<errors;
+		logGlobal->warnStream()<<"File " << fileName << " is not a valid JSON file!";
+		logGlobal->warnStream()<<errors;
 	}
 	return root;
 }

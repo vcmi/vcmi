@@ -3,7 +3,7 @@
 
 #include <SDL_endian.h>
 #include "CInputStream.h"
-
+#include "../CGeneralTextHandler.h"
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 template <typename CData>
@@ -41,19 +41,19 @@ void CBinaryReader::setStream(CInputStream * stream)
 
 si64 CBinaryReader::read(ui8 * data, si64 size)
 {
-	return stream->read(data, size);
+	si64 bytesRead = stream->read(data, size);
+	if(bytesRead != size)
+	{
+		throw std::runtime_error(getEndOfStreamExceptionMsg(size));
+	}
+	return bytesRead;
 }
 
 template <typename CData>
 CData CBinaryReader::readInteger()
 {
 	CData val;
-	si64 b = stream->read(reinterpret_cast<unsigned char *>(&val), sizeof(val));
-	if(b < sizeof(val))
-	{
-		throw std::runtime_error(getEndOfStreamExceptionMsg(sizeof(val)));
-	}
-
+	stream->read(reinterpret_cast<unsigned char *>(&val), sizeof(val));
 	return readLE(val);
 }
 
@@ -78,15 +78,20 @@ INSTANTIATE(si64, readInt64)
 
 std::string CBinaryReader::readString()
 {
-    int len = readUInt32();
-	assert(len >= 0 && len <= 500000); //not too long
-    std::string ret;
-    ret.reserve(len);
-    for(int gg = 0; gg < len; ++gg)
+	unsigned int len = readUInt32();
+	assert(len <= 500000); //not too long
+	if (len > 0)
 	{
-        ret += readInt8();
+		std::string ret;
+		ret.resize(len);
+		read(reinterpret_cast<ui8*>(&ret[0]), len);
+		//FIXME: any need to move this into separate "read localized string" method?
+		if (Unicode::isValidASCII(ret))
+			return ret;
+		return Unicode::toUnicode(ret);
 	}
-	return ret;
+	return "";
+
 }
 
 void CBinaryReader::skip(int count)

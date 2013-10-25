@@ -52,7 +52,7 @@ if (APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
 endif()
 
-find_package(Boost 1.46.0 COMPONENTS program_options filesystem system thread REQUIRED)
+find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale REQUIRED)
 find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)

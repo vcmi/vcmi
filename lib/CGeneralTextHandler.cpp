@@ -1,12 +1,13 @@
 #include "StdInc.h"
 #include "CGeneralTextHandler.h"
 
-#include "filesystem/Filesystem.h"
-#include "GameConstants.h"
-#include "CModHandler.h"
-#include "VCMI_Lib.h"
+#include <boost/locale.hpp>
 
-// #include <locale> //needed?
+#include "filesystem/Filesystem.h"
+#include "CConfigHandler.h"
+#include "CModHandler.h"
+#include "GameConstants.h"
+#include "VCMI_Lib.h"
 
 /*
  * CGeneralTextHandler.cpp, part of VCMI engine
@@ -17,6 +18,110 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+size_t Unicode::getCharacterSize(ui8 firstByte)
+{
+	// length of utf-8 character can be determined from 1st byte by counting number of highest bits set to 1:
+	// 0xxxxxxx -> 1 -  ASCII chars
+	// 110xxxxx -> 2
+	// 11110xxx -> 4 - last allowed in current standard
+	// 1111110x -> 6 - last allowed in original standard
+
+	if (firstByte < 0x80)
+		return 1; // ASCII
+
+	size_t ret = 0;
+
+	for (size_t i=0; i<8; i++)
+	{
+		if ((firstByte & (0x80 >> i)) != 0)
+			ret++;
+		else
+			break;
+	}
+	return ret;
+}
+
+bool Unicode::isValidCharacter(const ui8 *character, size_t maxSize)
+{
+	// first character must follow rules checked in getCharacterSize
+	size_t size = getCharacterSize(character[0]);
+
+	if (character[0] > 0xF4)
+		return false; // above maximum allowed in standard (UTF codepoints are capped at 0x0010FFFF)
+
+	if (size > maxSize)
+		return false;
+
+	// remaining characters must have highest bit set to 1
+	for (size_t i = 1; i < size; i++)
+	{
+		if ((character[i] & 0x80) == 0)
+			return false;
+	}
+	return true;
+}
+
+bool Unicode::isValidASCII(const std::string & text)
+{
+	for (const char & ch : text)
+		if (ui8(ch) >= 0x80 )
+			return false;
+	return true;
+}
+
+bool Unicode::isValidASCII(const char * data, size_t size)
+{
+	for (size_t i=0; i<size; i++)
+		if (ui8(data[i]) >= 0x80 )
+			return false;
+	return true;
+}
+
+bool Unicode::isValidString(const std::string & text)
+{
+	for (size_t i=0; i<text.size(); i += getCharacterSize(text[i]))
+	{
+		if (!isValidCharacter(reinterpret_cast<const ui8*>(text.data() + i), text.size() - i))
+			return false;
+	}
+	return true;
+}
+
+bool Unicode::isValidString(const char * data, size_t size)
+{
+	for (size_t i=0; i<size; i += getCharacterSize(data[i]))
+	{
+		if (!isValidCharacter(reinterpret_cast<const ui8*>(data + i), size - i))
+			return false;
+	}
+	return true;
+}
+
+static std::string getSelectedEncoding()
+{
+	return settings["general"]["encoding"].String();
+}
+
+std::string Unicode::toUnicode(const std::string &text)
+{
+	return toUnicode(text, getSelectedEncoding());
+}
+
+std::string Unicode::toUnicode(const std::string &text, const std::string &encoding)
+{
+	return boost::locale::conv::to_utf<char>(text, encoding);
+}
+
+std::string Unicode::fromUnicode(const std::string & text)
+{
+	return fromUnicode(text, getSelectedEncoding());
+}
+
+std::string Unicode::fromUnicode(const std::string &text, const std::string &encoding)
+{
+	return boost::locale::conv::from_utf<char>(text, encoding);
+}
 
 //Helper for string -> float conversion
 class LocaleWithComma: public std::numpunct<char>
@@ -90,7 +195,7 @@ std::string CLegacyConfigParser::extractNormalString()
 	return std::string(begin, curr);
 }
 
-std::string CLegacyConfigParser::readString()
+std::string CLegacyConfigParser::readRawString()
 {
 	if (curr >= end || *curr == '\n')
 		return "";
@@ -106,9 +211,18 @@ std::string CLegacyConfigParser::readString()
 	return ret;
 }
 
+std::string CLegacyConfigParser::readString()
+{
+	// do not convert strings that are already in ASCII - this will only slow down loading process
+	std::string str = readRawString();
+	if (Unicode::isValidASCII(str))
+		return str;
+	return Unicode::toUnicode(str);
+}
+
 float CLegacyConfigParser::readNumber()
 {
-	std::string input = readString();
+	std::string input = readRawString();
 
 	std::istringstream stream(input);
 

@@ -5,6 +5,19 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/VCMIDirs.h"
 
+/// List of encoding which can be selected from Launcher.
+/// Note that it is possible to specify enconding manually in settings.json
+static const std::string knownEncodingsList[] = //TODO: remove hardcode
+{
+    // European Windows-125X encodings
+    "CP1250", // West European, covers mostly Slavic languages that use latin script
+    "CP1251", // Covers languages that use cyrillic scrypt
+    "CP1252", // Latin/East European, covers most of latin languages
+    // Chinese encodings
+    "GBK",    // extension of GB2312, also known as CP936
+    "GB2312"  // basic set for Simplified Chinese. Separate from GBK to allow proper detection of H3 fonts
+};
+
 void CSettingsView::loadSettings()
 {
 	int resX = settings["video"]["screenRes"]["width"].Float();
@@ -37,6 +50,11 @@ void CSettingsView::loadSettings()
 	for (auto string : VCMIDirs::get().dataPaths())
 		dataDirs += QString::fromUtf8(string.c_str());
 	ui->lineEditGameDir->setText(dataDirs.join(':'));
+
+	std::string encoding = settings["general"]["encoding"].String();
+	size_t encodingIndex = boost::range::find(knownEncodingsList, encoding) - knownEncodingsList;
+	if (encodingIndex < ui->comboBoxEncoding->count())
+		ui->comboBoxEncoding->setCurrentIndex(encodingIndex);
 }
 
 CSettingsView::CSettingsView(QWidget *parent) :
@@ -112,13 +130,6 @@ void CSettingsView::on_plainTextEditRepos_textChanged()
 
 void CSettingsView::on_comboBoxEncoding_currentIndexChanged(int index)
 {
-	std::string encodings[] =
-	{
-	    "native", // right now indicates disabled unicode, may be removed in future
-	    "CP1250", "CP1251", "CP1252", // european Windows-125X encoding
-	    "GBK", "gb2312"  // chinese, aka CP936. Same encoding rules but different font files.
-	};
-
 	Settings node = settings.write["general"]["encoding"];
-	node->String() = encodings[index];
+	node->String() = knownEncodingsList[index];
 }

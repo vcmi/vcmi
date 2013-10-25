@@ -41,7 +41,7 @@
 				},
 				"encoding" : {
 					"type" : "string",
-					"default" : "native"
+					"default" : "CP1252"
 				}
 			}
 		},
