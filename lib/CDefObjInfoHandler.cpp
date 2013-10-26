@@ -34,15 +34,26 @@ CGDefInfo::CGDefInfo()
 
 void CGDefInfo::fetchInfoFromMSK()
 {
+	ResourceID resID("SPRITES/" + name, EResType::MASK);
 
-	auto msk = CResourceHandler::get()->load(ResourceID(std::string("SPRITES/") + name, EResType::MASK))->readAll();
-
-	width = msk.first.get()[0];
-	height = msk.first.get()[1];
-	for(int i=0; i<6; ++i)
+	if (CResourceHandler::get()->existsResource(resID))
 	{
-		coverageMap[i] = msk.first.get()[i+2];
-		shadowCoverage[i] = msk.first.get()[i+8];
+		auto msk = CResourceHandler::get()->load(resID)->readAll();
+
+		width = msk.first.get()[0];
+		height = msk.first.get()[1];
+		for(int i=0; i<6; ++i)
+		{
+			coverageMap[i] = msk.first.get()[i+2];
+			shadowCoverage[i] = msk.first.get()[i+8];
+		}
+	}
+	else
+	{
+		//maximum possible size of H3 object
+		//TODO: remove hardcode and move this data into modding system
+		width = 8;
+		height = 6;
 	}
 }
 

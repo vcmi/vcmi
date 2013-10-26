@@ -87,7 +87,6 @@
 			"defend": "HARPDFND.wav",
 			"killed": "HARPKILL.wav",
 			"move": "HARPMOVE.wav",
-			"shoot": "silence",
 			"wince": "HARPWNCE.wav"
 		}
 	},

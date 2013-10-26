@@ -8,15 +8,18 @@
 	"properties":{
 		"animation": {
 			"type":"string",
-			"description" : "Main animation file for this building"
+			"description" : "Main animation file for this building",
+			"format" : "animationFile"
 		},
 		"area": {
 			"type":"string",
-			"description" : "Area that indicate when building is selected. Must be 8-bit image"
+			"description" : "Area that indicate when building is selected. Must be 8-bit image",
+			"format" : "imageFile"
 		},
 		"border": {
 			"type":"string",
-			"description" : "Golden border around building, displayed when building is selected"
+			"description" : "Golden border around building, displayed when building is selected",
+			"format" : "imageFile"
 		},
 		"builds": {
 			"type":"number",

@@ -24,11 +24,13 @@
 					"properties":{
 						"female": {
 							"type":"string",
-							"description": "Female version"
+							"description": "Female version",
+							"format" : "defFile"
 						},
 						"male": {
 							"type":"string",
-							"description": "Male version"
+							"description": "Male version",
+							"format" : "defFile"
 						}
 					}
 				},
@@ -40,11 +42,13 @@
 					"properties":{
 						"female": {
 							"type":"string",
-							"description": "Female version. Warning: not implemented!"
+							"description": "Female version. Warning: not implemented!",
+							"format" : "defFile"
 						},
 						"male": {
 							"type":"string",
-							"description": "Male version"
+							"description": "Male version",
+							"format" : "defFile"
 						}
 					}
 				}

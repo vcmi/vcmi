@@ -365,11 +365,6 @@ void Graphics::addImageListEntry(size_t index, std::string listName, std::string
 {
 	if (!imageName.empty())
 	{
-		ResourceID resID("SPRITES/" + imageName, EResType::IMAGE);
-		if (!CResourceHandler::get()->existsResource(resID) && // file not found
-		    imageName.find(':') == std::string::npos)          // and entry does not refers to frame in def file
-			logGlobal->errorStream() << "Required image " << "SPRITES/" << imageName << " is missing!";
-
 		JsonNode entry;
 		entry["frame"].Float() = index;
 		entry["file"].String() = imageName;

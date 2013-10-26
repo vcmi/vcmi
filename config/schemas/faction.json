@@ -6,8 +6,8 @@
 			"additionalProperties" : false,
 			"required" : [ "small", "large" ],
 			"properties" : {
-				"small" : { "type" : "string" },
-				"large" : { "type" : "string" }
+				"small" : { "type" : "string", "format" : "imageFile" },
+				"large" : { "type" : "string", "format" : "imageFile" }
 			}
 		},
 		"townIconPair" : {
@@ -63,11 +63,13 @@
 			"properties":{
 				"120px": {
 					"type":"string",
-					"description": "Version that is 120 pixels in height"
+					"description": "Version that is 120 pixels in height",
+					"format" : "imageFile"
 				},
 				"130px": {
 					"type":"string",
-					"description": "Version that is 130 pixels in height"
+					"description": "Version that is 130 pixels in height",
+					"format" : "imageFile"
 				}
 			}
 		},
@@ -120,15 +122,18 @@
 					"properties":{
 						"capitol": {
 							"type":"string",
-							"description": "Town with capitol"
+							"description": "Town with capitol",
+							"format" : "defFile"
 						},
 						"castle": {
 							"type":"string",
-							"description": "Town with built fort"
+							"description": "Town with built fort",
+							"format" : "defFile"
 						},
 						"village": {
 							"type":"string",
-							"description": "Village without built fort"
+							"description": "Village without built fort",
+							"format" : "defFile"
 						},
 						"dwellings" : {
 							"type" : "array",
@@ -141,7 +146,7 @@
 								"required" : [ "name", "graphics" ],
 								"properties" : {
 									"name":     { "type":"string" },
-									"graphics": { "type":"string" }
+									"graphics": { "type":"string", "format" : "defFile" }
 								}
 							}
 						}
@@ -169,7 +174,8 @@
 				},
 				"buildingsIcons": {
 					"type" : "string",
-					"description": "Path to .def file with building icons"
+					"description": "Path to .def file with building icons",
+					"format" : "animationFile"
 				},
 				"buildings": {
 					"type" : "object",
@@ -193,7 +199,8 @@
 				},
 				"hallBackground": {
 					"type":"string",
-					"description": "background image for town hall"
+					"description": "background image for town hall",
+					"format" : "imageFile"
 				},
 				"hallSlots": {
 					"type":"array",
@@ -243,7 +250,8 @@
 				},
 				"musicTheme": {
 					"type":"string",
-					"description": "Path to town music theme"
+					"description": "Path to town music theme",
+					"format" : "musicFile"
 				},
 				"siege": {
 					"$ref" : "vcmi:townSiege"
@@ -256,7 +264,8 @@
 				},
 				"townBackground": {
 					"type":"string",
-					"description": "Background for town screen"
+					"description": "Background for town screen",
+					"format" : "imageFile"
 				},
 				"primaryResource": {
 					"type":"string",

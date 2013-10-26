@@ -153,7 +153,7 @@
 						"minItems" : 10,
 						"maxItems" : 10,
 						"description": "Strength of the bonus",
-						"anyof" : [
+						"anyOf" : [
 							{ "items": { "type" : "number"  } },
 							{ "items": { "type" : "boolean" } }
 						]
@@ -191,20 +191,24 @@
 				},
 				"iconLarge": {
 					"type":"string",
-					"description": "Large icon for this creature, used for example in town screen"
+					"description": "Large icon for this creature, used for example in town screen",
+					"format" : "imageFile"
 				},
 				"iconSmall": {
 					"type":"string",
-					"description": "Small icon for this creature, used for example in exchange screen"
+					"description": "Small icon for this creature, used for example in exchange screen",
+					"format" : "imageFile"
 				},
 
 				"map": {
 					"type":"string",
-					"description": ".def file with animation of this creature on adventure map"
+					"description": ".def file with animation of this creature on adventure map",
+					"format" : "defFile"
 				},
 				"animation": {
 					"type":"string",
-					"description": ".def file with animation of this creature in battles"
+					"description": ".def file with animation of this creature in battles",
+					"format" : "defFile"
 				},
 				"missile": {
 					"type":"object",
@@ -214,7 +218,8 @@
 					"properties":{
 						"projectile": {
 							"type":"string",
-							"description": "Path to projectile animation"
+							"description": "Path to projectile animation",
+							"format" : "defFile"
 						},
 						"frameAngles": {
 							"type":"array",
@@ -261,14 +266,14 @@
 			"additionalProperties" : false,
 			"description": "Various sound files associated with this creature",
 			"properties":{
-				"attack":      { "type":"string" },
-				"defend":      { "type":"string" },
-				"killed":      { "type":"string" },
-				"startMoving": { "type":"string" },
-				"endMoving":   { "type":"string" },
-				"move":        { "type":"string" },
-				"shoot":       { "type":"string" },
-				"wince":       { "type":"string" }
+				"attack":      { "type":"string", "format" : "soundFile" },
+				"defend":      { "type":"string", "format" : "soundFile" },
+				"killed":      { "type":"string", "format" : "soundFile" },
+				"startMoving": { "type":"string", "format" : "soundFile" },
+				"endMoving":   { "type":"string", "format" : "soundFile" },
+				"move":        { "type":"string", "format" : "soundFile" },
+				"shoot":       { "type":"string", "format" : "soundFile" },
+				"wince":       { "type":"string", "format" : "soundFile" }
 			}
 		}
 	}

@@ -192,10 +192,6 @@ namespace JsonUtils
 	DLL_LINKAGE const JsonNode & getSchema(std::string URI);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-// End of public section of the file. Anything below should be only used internally in JsonNode.cpp //
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
 namespace JsonDetail
 {
 	// convertion helpers for JsonNode::convertTo (partial template function instantiation is illegal in c++)
@@ -292,123 +288,6 @@ namespace JsonDetail
 			return node.Bool();
 		}
 	};
-
-	class JsonWriter
-	{
-		//prefix for each line (tabulation)
-		std::string prefix;
-		std::ostream &out;
-	public:
-		template<typename Iterator>
-		void writeContainer(Iterator begin, Iterator end);
-		void writeEntry(JsonMap::const_iterator entry);
-		void writeEntry(JsonVector::const_iterator entry);
-		void writeString(const std::string &string);
-		void writeNode(const JsonNode &node);
-		JsonWriter(std::ostream &output, const JsonNode &node);
-	};
-
-	//Tiny string class that uses const char* as data for speed, members are private
-	//for ease of debugging and some compatibility with std::string
-	class constString
-	{
-		const char *data;
-		const size_t datasize;
-
-	public:
-		constString(const char * inputString, size_t stringSize):
-			data(inputString),
-			datasize(stringSize)
-		{
-		}
-
-		inline size_t size() const
-		{
-			return datasize;
-		};
-
-		inline const char& operator[] (size_t position)
-		{
-			assert (position < datasize);
-			return data[position];
-		}
-	};
-
-	//Internal class for string -> JsonNode conversion
-	class JsonParser
-	{
-		std::string errors;     // Contains description of all encountered errors
-		constString input;      // Input data
-		ui32 lineCount; // Currently parsed line, starting from 1
-		size_t lineStart;       // Position of current line start
-		size_t pos;             // Current position of parser
-
-		//Helpers
-		bool extractEscaping(std::string &str);
-		bool extractLiteral(const std::string &literal);
-		bool extractString(std::string &string);
-		bool extractWhitespace(bool verbose = true);
-		bool extractSeparator();
-		bool extractElement(JsonNode &node, char terminator);
-
-		//Methods for extracting JSON data
-		bool extractArray(JsonNode &node);
-		bool extractFalse(JsonNode &node);
-		bool extractFloat(JsonNode &node);
-		bool extractNull(JsonNode &node);
-		bool extractString(JsonNode &node);
-		bool extractStruct(JsonNode &node);
-		bool extractTrue(JsonNode &node);
-		bool extractValue(JsonNode &node);
-
-		//Add error\warning message to list
-		bool error(const std::string &message, bool warning=false);
-
-	public:
-		JsonParser(const char * inputString, size_t stringSize);
-
-		/// do actual parsing. filename is name of file that will printed to console if any errors were found
-		JsonNode parse(std::string fileName);
-	};
-
-	//Internal class for Json validation. Mostly compilant with json-schema v4 draft
-	class JsonValidator
-	{
-		// path from root node to current one.
-		// JsonNode is used as variant - either string (name of node) or as float (index in list)
-		std::vector<JsonNode> currentPath;
-		// Stack of used schemas. Last schema is the one used currently.
-		// May contain multiple items in case if remote references were found
-		std::vector<std::string> usedSchemas;
-
-		/// helpers for other validation methods
-		std::string validateVectorItem(const JsonVector items, const JsonNode & schema, const JsonNode & additional, size_t index);
-		std::string validateStructItem(const JsonNode &node, const JsonNode &schema, const JsonNode & additional, std::string nodeName);
-
-		std::string validateEnum(const JsonNode &node, const JsonVector &enumeration);
-		std::string validateNodeType(const JsonNode &node, const JsonNode &schema);
-		std::string validatesSchemaList(const JsonNode &node, const JsonNode &schemas, std::string errorMsg, std::function<bool(size_t)> isValid);
-
-		/// contains all type-independent checks
-		std::string validateNode(const JsonNode &node, const JsonNode &schema);
-
-		/// type-specific checks
-		std::string validateVector(const JsonNode &node, const JsonNode &schema);
-		std::string validateStruct(const JsonNode &node, const JsonNode &schema);
-		std::string validateString(const JsonNode &node, const JsonNode &schema);
-		std::string validateNumber(const JsonNode &node, const JsonNode &schema);
-
-		/// validation of root node of both schema and input data
-		std::string validateRoot(const JsonNode &node, std::string schemaName);
-
-		/// add error message to list and return false
-		std::string fail(const std::string &message);
-	public:
-
-		/// returns true if parsed data is fully compilant with schema
-		bool validate(const JsonNode &root, std::string schemaName, std::string name);
-	};
-
 } // namespace JsonDetail
 
 template<typename Type>

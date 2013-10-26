@@ -115,7 +115,7 @@
 		"abilities": { "shooter" : { "type" : "SHOOTER" } },
 		"graphics" :
 		{
-			"animation" : "This should never be used"
+			"animation": "CLCBOW.DEF" // needed to pass validation, never used
 		},
 		"sound": {}
 	}

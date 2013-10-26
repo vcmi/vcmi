@@ -50,15 +50,18 @@
 			"properties":{
 				"image": {
 					"type":"string",
-					"description": "Base image for this artifact, used for example in hero screen"
+					"description": "Base image for this artifact, used for example in hero screen",
+					"format" : "imageFile"
 				},
 				"large": {
 					"type":"string",
-					"description": "Large image, used for drag-and-drop and popup messages"
+					"description": "Large image, used for drag-and-drop and popup messages",
+					"format" : "imageFile"
 				},
 				"map": {
 					"type":"string",
-					"description": ".def file for adventure map"
+					"description": ".def file for adventure map",
+					"format" : "defFile"
 				}
 			}
 		},

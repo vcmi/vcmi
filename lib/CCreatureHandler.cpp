@@ -525,7 +525,6 @@ void CCreatureHandler::loadAnimationInfo(std::vector<JsonNode> &h3Data)
 
 void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser & parser)
 {
-	graphics["map"].String(); //create empty string. Real value will be loaded from H3 txt's
 	graphics["timeBetweenFidgets"].Float() = parser.readNumber();
 
 	JsonNode & animationTime = graphics["animationTime"];

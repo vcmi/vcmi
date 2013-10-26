@@ -32,11 +32,13 @@
 					},
 					"max": {
 						"type":"number",
-						"description": "max"
+						"description": "max",
+						"minimum" : 1
 					},
 					"min": {
 						"type":"number",
-						"description": "min"
+						"description": "min",
+						"minimum" : 1
 					}
 				}
 			}
@@ -65,19 +67,23 @@
 			"properties":{
 				"large": {
 					"type":"string",
-					"description": "Large version of portrait for use in hero screen"
+					"description": "Large version of portrait for use in hero screen",
+					"format" : "imageFile"
 				},
 				"small": {
 					"type":"string",
-					"description": "Small version of portrait for use on adventure map"
+					"description": "Small version of portrait for use on adventure map",
+					"format" : "imageFile"
 				},
 				"specialtyLarge": {
 					"type":"string",
-					"description": "Large image of hero specilty, used in hero screen"
+					"description": "Large image of hero specilty, used in hero screen",
+					"format" : "imageFile"
 				},
 				"specialtySmall": {
 					"type":"string",
-					"description": "Small image of hero specialty for use in exchange screen"
+					"description": "Small image of hero specialty for use in exchange screen",
+					"format" : "imageFile"
 				}
 			}
 		},

@@ -60,6 +60,7 @@ set(lib_SRCS
 		GameConstants.cpp
 		HeroBonus.cpp
 		IGameCallback.cpp
+		JsonDetail.cpp
 		JsonNode.cpp
 		NetPacksLib.cpp
 		ResourceSet.cpp

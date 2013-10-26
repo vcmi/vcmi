@@ -50,27 +50,27 @@
 		"artifacts": {
 			"type":"array",
 			"description": "List of configuration files for artifacts",
-			"items": { "type":"string" }
+			"items": { "type":"string", "format" : "textFile" }
 		},
 		"creatures": {
 			"type":"array",
 			"description": "List of configuration files for creatures",
-			"items": { "type":"string" }
+			"items": { "type":"string", "format" : "textFile" }
 		},
 		"factions": {
 			"type":"array",
 			"description": "List of configuration files for towns/factions",
-			"items": { "type":"string" }
+			"items": { "type":"string", "format" : "textFile" }
 		},
 		"heroClasses": {
 			"type":"array",
 			"description": "List of configuration files for hero classes",
-			"items": { "type":"string" }
+			"items": { "type":"string", "format" : "textFile" }
 		},
 		"heroes": {
 			"type":"array",
 			"description": "List of configuration files for heroes",
-			"items": { "type":"string" }
+			"items": { "type":"string", "format" : "textFile" }
 		},
 
 		"filesystem": {
