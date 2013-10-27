@@ -3231,24 +3231,24 @@ const std::string & CGCreature::getHoverText() const
 
 	if(const CGHeroInstance *selHero = cb->getSelectedHero(cb->getCurrentPlayer()))
 	{
-		std::vector<std::string> * texts = &VLC->generaltexth->threat;
-		hoverName += "\n\n ";
-		hoverName += (*texts)[0];
+		const JsonNode & texts = VLC->generaltexth->localizedTexts["adventureMap"]["monsterThreat"];
+
+		hoverName += texts["title"].String();
 		int choice;
 		double ratio = ((double)getArmyStrength() / selHero->getTotalStrength());
-		if (ratio < 0.1) choice = 1;
-		else if (ratio < 0.25) choice = 2;
-		else if (ratio < 0.6) choice = 3;
-		else if (ratio < 0.9) choice = 4;
-		else if (ratio < 1.1) choice = 5;
-		else if (ratio < 1.3) choice = 6;
-		else if (ratio < 1.8) choice = 7;
-		else if (ratio < 2.5) choice = 8;
-		else if (ratio < 4) choice = 9;
-		else if (ratio < 8) choice = 10;
-		else if (ratio < 20) choice = 11;
-		else choice = 12;
-		hoverName += (*texts)[choice];
+		     if (ratio < 0.1)  choice = 0;
+		else if (ratio < 0.25) choice = 1;
+		else if (ratio < 0.6)  choice = 2;
+		else if (ratio < 0.9)  choice = 3;
+		else if (ratio < 1.1)  choice = 4;
+		else if (ratio < 1.3)  choice = 5;
+		else if (ratio < 1.8)  choice = 6;
+		else if (ratio < 2.5)  choice = 7;
+		else if (ratio < 4)    choice = 8;
+		else if (ratio < 8)    choice = 9;
+		else if (ratio < 20)   choice = 10;
+		else                   choice = 11;
+		hoverName += texts["levels"].Vector()[choice].String();
 	}
 	return hoverName;
 }

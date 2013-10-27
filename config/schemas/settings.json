@@ -49,7 +49,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "screenRes", "bitsPerPixel", "fullscreen" ],
+			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "spellbookAnimation" ],
 			"properties" : {
 				"screenRes" : {
 					"type" : "object",
@@ -68,7 +68,11 @@
 				"fullscreen" : {
 					"type" : "boolean",
 					"default" : false
-				}
+				},
+				"spellbookAnimation" :  {
+					"type" : "boolean",
+					"default" : true
+				},
 			}
 		},
 		"adventure" : {

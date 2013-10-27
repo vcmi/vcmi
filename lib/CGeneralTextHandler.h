@@ -10,6 +10,8 @@
  *
  */
 
+#include "JsonNode.h"
+
 /// Namespace that provides utilites for unicode support (UTF-8)
 namespace Unicode
 {
@@ -88,6 +90,8 @@ public:
 class DLL_LINKAGE CGeneralTextHandler //Handles general texts
 {
 public:
+	JsonNode localizedTexts;
+
 	std::vector<std::string> allTexts;
 
 	std::vector<std::string> arraytxt;
@@ -122,7 +126,6 @@ public:
 	//type: quest, progress, complete, rollover, log OR time limit //index: 0-2 seer hut, 3-5 border guard
 	std::vector<std::string> seerNames;
 	std::vector<std::string> tentColors;
-	std::vector<std::string> threat; //power rating for neutral stacks
 
 	//sec skills
 	std::vector <std::string>  skillName;

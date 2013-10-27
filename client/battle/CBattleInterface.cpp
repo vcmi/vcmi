@@ -3487,6 +3487,7 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 	if (siegeH)
 	{
 		sorted.beforeAll.walls.push_back(1);  // 1. background wall
+		sorted.hex[135].walls.push_back(2);   // 2. keep
 		sorted.afterAll.walls.push_back(3);   // 3. bottom tower
 		sorted.hex[182].walls.push_back(4);   // 4. bottom wall
 		sorted.hex[130].walls.push_back(5);   // 5. wall below gate,
@@ -3497,11 +3498,11 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 		sorted.hex[112].walls.push_back(10);  // 10. gate arch
 		sorted.hex[165].walls.push_back(11);  // 11. bottom static wall
 		sorted.hex[45].walls.push_back(12);   // 12. upper static wall
+
 		if (siegeH && siegeH->town->hasBuilt(BuildingID::CITADEL))
 		{
 			sorted.beforeAll.walls.push_back(13); // 13. moat
 			//sorted.beforeAll.walls.push_back(14); // 14. mlip (moat background terrain), blit as absolute obstacle
-			sorted.hex[135].walls.push_back(2);   // 2. keep
 			sorted.hex[135].walls.push_back(15);  // 15. keep turret cover
 		}
 		if (siegeH && siegeH->town->hasBuilt(BuildingID::CASTLE))

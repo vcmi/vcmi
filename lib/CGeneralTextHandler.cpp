@@ -289,6 +289,8 @@ CGeneralTextHandler::CGeneralTextHandler()
 	readToVector("DATA/SKILLLEV.TXT", levels);
 	readToVector("DATA/OBJNAMES.TXT", names);
 
+	localizedTexts = JsonNode(ResourceID("config/translate.json", EResType::TEXT));
+
 	{
 		CLegacyConfigParser parser("DATA/GENRLTXT.TXT");
 		parser.endLine();
@@ -432,14 +434,5 @@ CGeneralTextHandler::CGeneralTextHandler()
 			zcrexp.push_back(parser.readString());
 		}
 		while (parser.endLine());
-	}
-
-	std::string buffer;
-	std::ifstream ifs(*CResourceHandler::get()->getResourceName(ResourceID("config/threatlevel.txt")), std::ios::binary);
-	getline(ifs, buffer); //skip 1st line
-	for (int i = 0; i < 13; ++i)
-	{
-		getline(ifs, buffer);
-		threat.push_back(buffer);
 	}
 }

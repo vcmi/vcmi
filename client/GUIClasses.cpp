@@ -3457,23 +3457,17 @@ CSystemOptionsWindow::CSystemOptionsWindow():
     CWindowObject(PLAYER_COLORED, "SysOpBck"),
     onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
-	//TODO: translation and\or config file
-	static const std::string fsLabel = "Fullscreen";
-	static const std::string fsHelp  = "{Fullscreen}\n\n If selected, VCMI will run in fullscreen mode, othervice VCMI will run in window";
-	static const std::string cwLabel = "Classic creature window";
-	static const std::string cwHelp  = "{Classic creature window}\n\n Enable original Heroes 3 creature window instead of new window from VCMI";
-	static const std::string rsLabel = "Resolution";
-	static const std::string rsHelp = "{Select resolution}\n\n Change in-game screen resolution. Will only affect adventure map. Game restart required to apply new resolution.";
-
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	title = new CLabel(242, 32, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[568]);
+
+	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"];
 
 	//left window section
 	leftGroup =  new CLabelGroup(FONT_MEDIUM, CENTER, Colors::YELLOW);
 	leftGroup->add(122,  64, CGI->generaltexth->allTexts[569]);
 	leftGroup->add(122, 130, CGI->generaltexth->allTexts[570]);
 	leftGroup->add(122, 196, CGI->generaltexth->allTexts[571]);
-	leftGroup->add(122, 262, rsLabel); //CGI->generaltexth->allTexts[20]
+	leftGroup->add(122, 262, texts["resolutionButton"]["label"].String());
 	leftGroup->add(122, 347, CGI->generaltexth->allTexts[394]);
 	leftGroup->add(122, 412, CGI->generaltexth->allTexts[395]);
 
@@ -3482,9 +3476,9 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	rightGroup->add(282, 57,  CGI->generaltexth->allTexts[572]);
 	rightGroup->add(282, 89,  CGI->generaltexth->allTexts[573]);
 	rightGroup->add(282, 121, CGI->generaltexth->allTexts[574]);
-	rightGroup->add(282, 153, CGI->generaltexth->allTexts[575]);
-	rightGroup->add(282, 185, cwLabel); //CGI->generaltexth->allTexts[576]
-	rightGroup->add(282, 217, fsLabel); //CGI->generaltexth->allTexts[577]
+	rightGroup->add(282, 153, CGI->generaltexth->allTexts[577]);
+	rightGroup->add(282, 185, texts["creatureWindowButton"]["label"].String());
+	rightGroup->add(282, 217, texts["fullscreenButton"]["label"].String());
 
 	//setting up buttons
 	load = new CAdventureMapButton (CGI->generaltexth->zelp[321].first, CGI->generaltexth->zelp[321].second,
@@ -3554,22 +3548,29 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 		boost::bind(&CSystemOptionsWindow::toggleQuickCombat, this, true), boost::bind(&CSystemOptionsWindow::toggleQuickCombat, this, false),
 		std::map<int,std::string>(), CGI->generaltexth->zelp[362].second, false, "sysopchk.def", nullptr, 246, 87+32, false);
 
+	spellbookAnim = new CHighlightableButton(
+		boost::bind(&CSystemOptionsWindow::toggleSpellbookAnim, this, true), boost::bind(&CSystemOptionsWindow::toggleSpellbookAnim, this, false),
+		std::map<int,std::string>(), CGI->generaltexth->zelp[364].second, false, "sysopchk.def", nullptr, 246, 87+64, false);
+
 	newCreatureWin = new CHighlightableButton(
 		boost::bind(&CSystemOptionsWindow::toggleCreatureWin, this, true), boost::bind(&CSystemOptionsWindow::toggleCreatureWin, this, false),
-		std::map<int,std::string>(), cwHelp, false, "sysopchk.def", nullptr, 246, 183, false);
+		std::map<int,std::string>(), texts["creatureWindowButton"]["help"].String(), false, "sysopchk.def", nullptr, 246, 183, false);
 
 	fullscreen = new CHighlightableButton(
 		boost::bind(&CSystemOptionsWindow::toggleFullscreen, this, true), boost::bind(&CSystemOptionsWindow::toggleFullscreen, this, false),
-		std::map<int,std::string>(), fsHelp, false, "sysopchk.def", nullptr, 246, 215, false);
+		std::map<int,std::string>(), texts["fullscreenButton"]["help"].String(), false, "sysopchk.def", nullptr, 246, 215, false);
 
 	showReminder->select(settings["adventure"]["heroReminder"].Bool());
 	quickCombat->select(settings["adventure"]["quickCombat"].Bool());
+	spellbookAnim->select(settings["video"]["spellbookAnimation"].Bool());
 	newCreatureWin->select(settings["general"]["classicCreatureWindow"].Bool());
 	fullscreen->select(settings["video"]["fullscreen"].Bool());
 
 	onFullscreenChanged([&](const JsonNode &newState){ fullscreen->select(newState.Bool());});
 
-	gameResButton = new CAdventureMapButton("", rsHelp, boost::bind(&CSystemOptionsWindow::selectGameRes, this), 28, 275,"SYSOB12", SDLK_g);
+	gameResButton = new CAdventureMapButton("", texts["resolutionButton"]["help"].String(),
+	                                        boost::bind(&CSystemOptionsWindow::selectGameRes, this),
+	                                        28, 275,"SYSOB12", SDLK_g);
 
 	std::string resText;
 	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["width"].Float());
@@ -3581,11 +3582,8 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 
 void CSystemOptionsWindow::selectGameRes()
 {
-	//TODO: translation and\or config file
-	static const std::string rsLabel = "Select resolution";
-	static const std::string rsHelp = "Change in-game screen resolution.";
-
 	std::vector<std::string> items;
+	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"]["resolutionMenu"];
 
 	for( config::CConfigHandler::GuiOptionsMap::value_type& value : conf.guiOptions)
 	{
@@ -3594,7 +3592,7 @@ void CSystemOptionsWindow::selectGameRes()
 		items.push_back(resX + 'x' + resY);
 	}
 
-	GH.pushInt(new CObjectListWindow(items, nullptr, rsLabel, rsHelp,
+	GH.pushInt(new CObjectListWindow(items, nullptr, texts["label"].String(), texts["help"].String(),
 			   boost::bind(&CSystemOptionsWindow::setGameRes, this, _1)));
 }
 
@@ -3626,6 +3624,12 @@ void CSystemOptionsWindow::toggleReminder(bool on)
 void CSystemOptionsWindow::toggleQuickCombat(bool on)
 {
 	Settings quickCombat = settings.write["adventure"]["quickCombat"];
+	quickCombat->Bool() = on;
+}
+
+void CSystemOptionsWindow::toggleSpellbookAnim(bool on)
+{
+	Settings quickCombat = settings.write["video"]["spellbookAnimation"];
 	quickCombat->Bool() = on;
 }
 
