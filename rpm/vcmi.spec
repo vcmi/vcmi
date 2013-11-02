@@ -18,13 +18,14 @@ BuildRequires:		SDL-devel
 BuildRequires:		SDL_image-devel
 BuildRequires:		SDL_ttf-devel
 BuildRequires:		SDL_mixer-devel >= 1.2.8
-BuildRequires:		boost >= 1.44
-BuildRequires:		boost-devel >= 1.44
-BuildRequires:		boost-filesystem >= 1.44
-BuildRequires:		boost-iostreams >= 1.44
-BuildRequires:		boost-system >= 1.44
-BuildRequires:		boost-thread >= 1.44
-BuildRequires:		boost-program-options >= 1.44
+BuildRequires:		boost >= 1.51
+BuildRequires:		boost-devel >= 1.51
+BuildRequires:		boost-filesystem >= 1.51
+BuildRequires:		boost-iostreams >= 1.51
+BuildRequires:		boost-system >= 1.51
+BuildRequires:		boost-thread >= 1.51
+BuildRequires:		boost-program-options >= 1.51
+BuildRequires:		boost-locale >= 1.51
 BuildRequires:		zlib-devel
 BuildRequires:		ffmpeg-devel
 BuildRequires:		ffmpeg-libs

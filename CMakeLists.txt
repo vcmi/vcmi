@@ -71,7 +71,7 @@ endif()
 if(ENABLE_TEST)
 	# find_package overwrites BOOST_* variables which are already set, so all components have to be
 	# included again
-	find_package(Boost 1.46.0 COMPONENTS program_options filesystem system thread unit_test_framework REQUIRED)
+	find_package(Boost 1.46.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
 endif()
 
 if(NOT WIN32)
