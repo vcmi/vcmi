@@ -1679,13 +1679,13 @@ void CBattleInterface::setHoveredStack(const CStack * stack)
 
 void CBattleInterface::activateStack()
 {
+	myTurn = true;
+	if(!!attackerInt && defenderInt) //hotseat -> need to pick which interface "takes over" as active
+		curInt = attackerInt->playerID == stackToActivate->owner ? attackerInt : defenderInt;
+
 	setActiveStack(stackToActivate);
 	stackToActivate = nullptr;
 	const CStack *s = activeStack;
-
-	myTurn = true;
-	if(!!attackerInt && defenderInt) //hotseat -> need to pick which interface "takes over" as active
-		curInt = attackerInt->playerID == s->owner ? attackerInt : defenderInt;
 
 	queue->update();
 	redrawBackgroundWithHexes(activeStack);
