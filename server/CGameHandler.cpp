@@ -582,7 +582,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		}
 	}
 	//Eagle Eye secondary skill handling
-	if(cs.spells.size())
+	if(!cs.spells.empty())
 	{
 		cs.learn = 1;
 		cs.hid = finishingBattle->winnerHero->id;
@@ -1586,7 +1586,7 @@ void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h 
 			}
 		}
 	}
-	if(cs.spells.size())
+	if(!cs.spells.empty())
 		sendAndApply(&cs);
 }
 
@@ -2079,7 +2079,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 		if ( h1Lvl >= it.toSpell()->level && !vstd::contains(h1->spells, it))
 			cs2.spells.insert(it);
 
-	if (cs1.spells.size() || cs2.spells.size())//create a message
+	if (!cs1.spells.empty() || !cs2.spells.empty())//create a message
 	{
 		InfoWindow iw;
 		iw.player = h1->tempOwner;
@@ -2088,7 +2088,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 		iw.text.addTxt(MetaString::GENERAL_TXT, 139);//"%s, who has studied magic extensively,
 		iw.text.addReplacement(h1->name);
 
-		if (cs2.spells.size())//if found new spell - apply
+		if (!cs2.spells.empty())//if found new spell - apply
 		{
 			iw.text.addTxt(MetaString::GENERAL_TXT, 140);//learns
 			int size = cs2.spells.size();
@@ -2108,12 +2108,12 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 			sendAndApply(&cs2);
 		}
 
-		if (cs1.spells.size() && cs2.spells.size() )
+		if (!cs1.spells.empty() && !cs2.spells.empty() )
 		{
 			iw.text.addTxt(MetaString::GENERAL_TXT, 141);//and
 		}
 
-		if (cs1.spells.size())
+		if (!cs1.spells.empty())
 		{
 			iw.text.addTxt(MetaString::GENERAL_TXT, 147);//teaches
 			int size = cs1.spells.size();
@@ -2482,7 +2482,7 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 	std::queue<const CBuilding*> buildingsToAdd;
 	buildingsToAdd.push(requestedBuilding);
 
-	while(buildingsToAdd.size())
+	while(!buildingsToAdd.empty())
 	{
 		auto b = buildingsToAdd.front();
 		buildingsToAdd.pop();
@@ -4263,7 +4263,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 			for(int i = 0; i < GameConstants::BFIELD_SIZE; i += 1)
 			{
 				BattleHex hex = i;
-				if(hex.getX() > 2 && hex.getX() < 14 && !battleGetStackByPos(hex, false) & !battleGetObstacleOnPos(hex, false))
+				if(hex.getX() > 2 && hex.getX() < 14 && !battleGetStackByPos(hex, false) && !battleGetObstacleOnPos(hex, false))
 					availableTiles.push_back(hex);
 			}
 			boost::range::random_shuffle(availableTiles);

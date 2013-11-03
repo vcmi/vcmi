@@ -1542,7 +1542,7 @@ void CGameState::initDuel()
 			for(int i = 0; i < ss.heroPrimSkills.size(); i++)
 				h->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(i), ss.heroPrimSkills[i]);
 
-			if(ss.spells.size())
+			if(!ss.spells.empty())
 			{
 				h->putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
 				boost::copy(ss.spells, std::inserter(h->spells, h->spells.begin()));

@@ -1715,7 +1715,7 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 	{
 		skills.push_back (obligatorySkills[0]);
 	}
-	else if(basicAndAdv.size())
+	else if(!basicAndAdv.empty())
 	{
 		SecondarySkill s = type->heroClass->chooseSecSkill(basicAndAdv);//upgrade existing
 		skills.push_back(s);
@@ -1736,7 +1736,7 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 	{
 		skills.push_back(type->heroClass->chooseSecSkill(none)); //new skill
 	}
-	else if(basicAndAdv.size())
+	else if(!basicAndAdv.empty())
 	{
 		skills.push_back(type->heroClass->chooseSecSkill(basicAndAdv)); //upgrade existing
 	}
@@ -5573,7 +5573,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 				spellsToGive.insert(*i);
 			}
 		}
-		if(spellsToGive.size())
+		if(!spellsToGive.empty())
 		{
 			cb->changeSpells(h,true,spellsToGive);
 			cb->showInfoDialog(&iw);
@@ -7264,7 +7264,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		b->val = +1;
 		b->description = VLC->generaltexth->arraytxt[115]; //All troops of one alignment +1
 	}
-	else if (factions.size()) // no bonus from empty garrison
+	else if (!factions.empty()) // no bonus from empty garrison
 	{
 	 	b->val = 2 - factionsInArmy;
 		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d

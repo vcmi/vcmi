@@ -1255,10 +1255,7 @@ public:
 class DLL_LINKAGE CSaveFile
 	: public COSer<CSaveFile>
 {
-	void dummyMagicFunction()
-	{
-		*this << std::string("This function makes stuff working.");
-	}
+
 public:
 	std::string fName;
 	unique_ptr<std::ofstream> sfile;
@@ -1277,11 +1274,7 @@ public:
 class DLL_LINKAGE CLoadFile
 	: public CISer<CLoadFile>
 {
-	void dummyMagicFunction()
-	{
-		std::string dummy = "This function makes stuff working.";
-		*this >> dummy;
-	}
+
 public:
 	std::string fName;
 	unique_ptr<std::ifstream> sfile;

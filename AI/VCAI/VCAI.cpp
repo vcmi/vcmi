@@ -1458,7 +1458,6 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				lostHero(h);
 				//we need to throw, otherwise hero will be assigned to sth again
 				throw std::runtime_error("Hero was lost!");
-				break;
 			}
 
 		}
@@ -2305,7 +2304,7 @@ void AIStatus::madeTurn()
 void AIStatus::waitTillFree()
 {
 	boost::unique_lock<boost::mutex> lock(mx);
-	while(battle != NO_BATTLE || remainingQueries.size() || objectsBeingVisited.size() || ongoingHeroMovement)
+	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
 		cv.timed_wait(lock, boost::posix_time::milliseconds(100));
 }
 
@@ -2423,7 +2422,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num)
 
 	std::queue<int3> toVisit;
 	toVisit.push(pos);
-	while(toVisit.size())
+	while(!toVisit.empty())
 	{
 		int3 curPos = toVisit.front();
 		toVisit.pop();
@@ -2513,7 +2512,6 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 				}
 			}
 			return true; //we don't have this quest yet
-			break;
 		}
 		case Obj::SEER_HUT:
 		case Obj::QUEST_GUARD:
@@ -2529,7 +2527,6 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 				}
 			}
 			return true; //we don't have this quest yet
-			break;
 		}
 		case Obj::CREATURE_GENERATOR1:
 		{
@@ -2546,7 +2543,6 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 				}
 			}
 			return canRecruitCreatures;
-			break;
 		}
 		case Obj::HILL_FORT:
 		{	
@@ -2556,7 +2552,6 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 					return true; //TODO: check price?
 			}
 			return false;
-			break;
 		}
 		case Obj::MONOLITH1:
 		case Obj::MONOLITH2:
@@ -2564,7 +2559,6 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::WHIRLPOOL:
 			//TODO: mechanism for handling monoliths
 			return false;
-			break;
 		case Obj::SCHOOL_OF_MAGIC:
 		case Obj::SCHOOL_OF_WAR:
 			{
@@ -2778,7 +2772,7 @@ void SectorMap::makeParentBFS(crint3 source)
 	int mySector = retreiveTile(source);
 	std::queue<int3> toVisit;
 	toVisit.push(source);
-	while(toVisit.size())
+	while(!toVisit.empty())
 	{
 		int3 curPos = toVisit.front();
 		toVisit.pop();

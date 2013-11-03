@@ -208,7 +208,7 @@ public:
 	}
 	operator bool() const
 	{
-		return stacks.size() > 0;
+		return !stacks.empty();
 	}
 	void sweep();
 };

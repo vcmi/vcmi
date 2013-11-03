@@ -986,7 +986,7 @@ void CSelectionScreen::setSInfo(const StartInfo &si)
 void CSelectionScreen::processPacks()
 {
 	boost::unique_lock<boost::recursive_mutex> lll(*mx);
-	while(upcomingPacks.size())
+	while(!upcomingPacks.empty())
 	{
 		CPackForSelectionScreen *pack = upcomingPacks.front();
 		upcomingPacks.pop_front();
@@ -3759,7 +3759,7 @@ ISelectionScreenInfo::ISelectionScreenInfo(const std::map<ui8, std::string> *Nam
 	SEL = this;
 	current = nullptr;
 
-	if(Names && Names->size()) //if have custom set of player names - use it
+	if(Names && !Names->empty()) //if have custom set of player names - use it
 		playerNames = *Names;
 	else
 		playerNames[1] = settings["general"]["playerName"].String(); //by default we have only one player and his name is "Player" (or whatever the last used name was)

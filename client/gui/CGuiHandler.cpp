@@ -86,7 +86,7 @@ void CGuiHandler::popInt( IShowActivatable *top )
 	top->deactivate();
 	listInt.pop_front();
 	objsToBlit -= top;
-	if(listInt.size())
+	if(!listInt.empty())
 		listInt.front()->activate();
 	totalRedraw();
 }
@@ -107,7 +107,7 @@ void CGuiHandler::pushInt( IShowActivatable *newInt )
 	//a new interface will be present, we'll need to use buffer surface (unless it's advmapint that will alter screenBuf on activate anyway)
 	screenBuf = screen2; 
 
-	if(listInt.size())
+	if(!listInt.empty())
 		listInt.front()->deactivate();
 	listInt.push_front(newInt);
 	newInt->activate();
@@ -128,7 +128,7 @@ void CGuiHandler::popInts( int howMany )
 		listInt.pop_front();
 	}
 
-	if(listInt.size())
+	if(!listInt.empty())
 	{
 		listInt.front()->activate();
 		totalRedraw();
@@ -138,7 +138,7 @@ void CGuiHandler::popInts( int howMany )
 
 IShowActivatable * CGuiHandler::topInt()
 {
-	if(!listInt.size())
+	if(listInt.empty())
 		return nullptr;
 	else 
 		return listInt.front();

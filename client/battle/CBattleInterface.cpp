@@ -758,12 +758,12 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 			attackingHex = myNumber - GameConstants::BFIELD_WIDTH + zigzagCorrection; //top right
 			break;
 		case 3:
-			break;
 			attackingHex = myNumber + 1; //right
+            break;
 		case 4:
-			break;
 			attackingHex = myNumber + GameConstants::BFIELD_WIDTH + zigzagCorrection; //bottom right
-		case 5:
+            break;
+        case 5:
 			attackingHex = myNumber + GameConstants::BFIELD_WIDTH - 1 + zigzagCorrection; //bottom left
 			break;
 	}
@@ -3033,7 +3033,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	showInterface(to);
 
 	//activation of next stack
-	if(pendingAnims.size() == 0 && stackToActivate != nullptr)
+	if(pendingAnims.empty() && stackToActivate != nullptr)
 	{
 		activateStack();
 
@@ -3542,7 +3542,7 @@ void CBattleInterface::updateBattleAnimations()
 		}
 	}
 
-	if(preSize > 0 && pendingAnims.size() == 0)
+	if(preSize > 0 && pendingAnims.empty())
 	{
 		//anims ended
 		blockUI(activeStack == nullptr);

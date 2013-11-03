@@ -268,7 +268,6 @@ private:
 	void repairEncoding(std::string & str) const; //removes nonstandard ascii characters from string
 	enum ELineType{COMMAND_FULL, COMMENT, UNFINISHED, END_OF};
 	int countHatsBeforeSemicolon(const std::string & line) const;
-	ELineType classifyLine(const std::string & line, bool inString) const;
 	ERM::TLine parseLine(const std::string & line, int realLineNo);
 
 

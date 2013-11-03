@@ -58,7 +58,7 @@ int BattleInfo::getAvaliableHex(CreatureID creID, bool attackerOwned, int initia
 		if(accessibility.accessible(i, twoHex, attackerOwned))
 			occupyable.insert(i);
 
-	if (!occupyable.size())
+	if (occupyable.empty())
 	{
 		return BattleHex::INVALID; //all tiles are covered
 	}

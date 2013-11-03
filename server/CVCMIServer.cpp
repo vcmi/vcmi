@@ -119,7 +119,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 		announceTxt(cpc->name + " left the game");
 		toAnnounce.push_back(pl);
 
-		if(!connections.size())
+		if(connections.empty())
 		{
             logNetwork->errorStream() << "Last connection lost, server will close itself...";
 			boost::this_thread::sleep(boost::posix_time::seconds(2)); //we should never be hasty when networking
@@ -141,7 +141,7 @@ void CPregameServer::run()
 	{
 		{
 			boost::unique_lock<boost::recursive_mutex> myLock(mx);
-			while(toAnnounce.size())
+			while(!toAnnounce.empty())
 			{
 				processPack(toAnnounce.front());
 				toAnnounce.pop_front();

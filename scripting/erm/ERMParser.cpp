@@ -488,34 +488,6 @@ ERM::TLine ERMParser::parseLine(const std::string & line)
 	return AST;
 }
 
-ERMParser::ELineType ERMParser::classifyLine( const std::string & line, bool inString ) const
-{
-	ERMParser::ELineType ret;
-	if(line[0] == '!')
-	{
-		if(countHatsBeforeSemicolon(line) % 2 == 1)
-			ret = ERMParser::UNFINISHED;
-		else
-			ret = ERMParser::COMMAND_FULL;
-	}
-	else
-	{
-		if(inString)
-		{
-			if(countHatsBeforeSemicolon(line) % 2 == 1)
-				ret = ERMParser::END_OF;
-			else
-				ret = ERMParser::UNFINISHED;
-		}
-		else
-		{
-			ret = ERMParser::COMMENT;
-		}
-	}
-
-	return ret;
-}
-
 int ERMParser::countHatsBeforeSemicolon( const std::string & line ) const
 {
 	//CHECK: omit macros? or anything else? 

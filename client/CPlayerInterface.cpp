@@ -338,7 +338,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	//check if user cancelled movement
 	{
 		boost::unique_lock<boost::mutex> un(eventsM);
-		while(events.size())
+		while(!events.empty())
 		{
 			SDL_Event ev = events.front();
 			events.pop();
@@ -1075,7 +1075,7 @@ void CPlayerInterface::tileRevealed(const std::unordered_set<int3, ShashInt3> &p
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	for(auto & po : pos)
 		adventureInt->minimap.showTile(po);
-	if(pos.size())
+	if(!pos.empty())
 		GH.totalRedraw();
 }
 
@@ -1084,7 +1084,7 @@ void CPlayerInterface::tileHidden(const std::unordered_set<int3, ShashInt3> &pos
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	for(auto & po : pos)
 		adventureInt->minimap.hideTile(po);
-	if(pos.size())
+	if(!pos.empty())
 		GH.totalRedraw();
 }
 
@@ -1233,7 +1233,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 		return false; //can't find hero
 
 	//It shouldn't be possible to move hero with open dialog (or dialog waiting in bg)
-	if(showingDialog->get() || dialogs.size())
+	if(showingDialog->get() || !dialogs.empty())
 		return false;
 
 
@@ -1578,7 +1578,7 @@ void CPlayerInterface::update()
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 
 	//if there are any waiting dialogs, show them
-	if((howManyPeople <= 1 || makingTurn) && dialogs.size() && !showingDialog->get())
+	if((howManyPeople <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->get())
 	{
 		showingDialog->set(true);
 		GH.pushInt(dialogs.front());
@@ -1637,7 +1637,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 		}
 	}
 
-	if(dates.size())
+	if(!dates.empty())
 		return (--dates.end())->second; //return latest file number
 	return 0;
 }
@@ -2506,7 +2506,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 
 void CPlayerInterface::waitForAllDialogs(bool unlockPim /*= true*/)
 {
-	while(dialogs.size())
+	while(!dialogs.empty())
 	{
 		auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
 		SDL_Delay(5);
