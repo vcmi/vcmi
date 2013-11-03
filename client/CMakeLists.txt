@@ -6,9 +6,15 @@ include_directories(${SDL_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUD
 include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR} ${FFMPEG_INCLUDE_DIRS})
 
 set(client_SRCS
+        CPreGame.cpp
+        Client.cpp
+        CPlayerInterface.cpp
+        CMT.cpp
+        GUIClasses.cpp
+        battle/CBattleInterface.cpp
+
         ../CCallback.cpp
         battle/CBattleAnimations.cpp
-        battle/CBattleInterface.cpp
         battle/CBattleInterfaceClasses.cpp
         battle/CCreatureAnimation.cpp
         gui/CGuiHandler.cpp
@@ -28,17 +34,12 @@ set(client_SRCS
         CGameInfo.cpp
         CHeroWindow.cpp
         CKingdomInterface.cpp
-        Client.cpp
         CMessage.cpp
-        CMT.cpp
         CMusicHandler.cpp
-        CPlayerInterface.cpp
-        CPreGame.cpp
         CSpellWindow.cpp
         CVideoHandler.cpp
         CQuestLog.cpp
         Graphics.cpp
-        GUIClasses.cpp
         mapHandler.cpp
         NetPacksClient.cpp
 )

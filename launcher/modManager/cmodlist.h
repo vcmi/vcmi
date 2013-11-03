@@ -22,11 +22,11 @@ class CModEntry
 	// repository contains newest version only (if multiple are available)
 	QVariantMap repository;
 	QVariantMap localData;
-	QVariant modSettings;
+	QVariantMap modSettings;
 
 	QString modname;
 public:
-	CModEntry(QVariantMap repository, QVariantMap localData, QVariant modSettings, QString modname);
+	CModEntry(QVariantMap repository, QVariantMap localData, QVariantMap modSettings, QString modname);
 
 	// installed and enabled
 	bool isEnabled() const;

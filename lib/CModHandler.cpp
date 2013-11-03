@@ -445,16 +445,30 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input
 	return output;
 }
 
+static void updateModSettingsFormat(JsonNode & config)
+{
+	for (auto & entry : config.Struct())
+	{
+		if (entry.second.getType() == JsonNode::DATA_BOOL)
+		{
+			entry.second["active"].Bool() = entry.second.Bool();
+		}
+	}
+}
+
 void CModHandler::initialize(std::vector<std::string> availableMods)
 {
 	std::string confName = "config/modSettings.json";
 	JsonNode modConfig;
 
-	// Porbably new install. Create initial configuration
+	// Probably new install. Create initial configuration
 	if (!CResourceHandler::get()->existsResource(ResourceID(confName)))
 		CResourceHandler::get()->createResource(confName);
 	else
 		modConfig = JsonNode(ResourceID(confName));
+
+	// mod compatibility: check if modSettings has old, 0.94 format
+	updateModSettingsFormat(modConfig["activeMods"]);
 
 	const JsonNode & modList = modConfig["activeMods"];
 	JsonNode resultingList;
@@ -473,12 +487,12 @@ void CModHandler::initialize(std::vector<std::string> availableMods)
 			if (config.isNull())
 				continue;
 
-			if (!modList[name].isNull() && modList[name].Bool() == false )
+			if (!modList[name].isNull() && modList[name]["active"].Bool() == false )
 			{
-				resultingList[name].Bool() = false;
+				resultingList[name]["active"].Bool() = false;
 				continue; // disabled mod
 			}
-			resultingList[name].Bool() = true;
+			resultingList[name]["active"].Bool() = true;
 
 			CModInfo & mod = allMods[name];
 

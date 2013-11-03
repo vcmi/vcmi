@@ -120,6 +120,7 @@
 			},
 
 			"musicTheme" : "music/Rampart",
+			"defaultTavern" : 5,
 
 			"townBackground": "TBRMBACK.bmp",
 			"guildWindow": "TPMAGERM.bmp",

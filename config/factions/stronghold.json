@@ -114,6 +114,7 @@
 			},
 
 			"musicTheme" : "music/Stronghold",
+			"defaultTavern" : 5,
 
 			"townBackground": "TBSTBACK.bmp",
 			"guildWindow": "TPMAGEST.bmp",

@@ -120,6 +120,7 @@
 			},
 
 			"musicTheme" : "music/ElemTown",
+			"defaultTavern" : 5,
 
 			"townBackground": "TBELBACK.bmp",
 			"guildWindow": "TPMAGEEL.bmp",

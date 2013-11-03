@@ -148,6 +148,9 @@ public:
 	ui16 primaryRes;
 	ArtifactID warMachine;
 	si32 moatDamage;
+	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
+	// resulting chance = sqrt(town.chance * heroClass.chance)
+	ui32 defaultTavernChance;
 
 	// Client-only data. Should be moved away from lib
 	struct ClientInfo
@@ -197,7 +200,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & names & faction & creatures & dwellings & dwellingNames & buildings & hordeLvl & mageLevel
-			& primaryRes & warMachine & clientInfo & moatDamage;
+			& primaryRes & warMachine & clientInfo & moatDamage & defaultTavernChance;
 
 		auto findNull = [](const std::pair<BuildingID, ConstTransitivePtr<CBuilding>> &building)
 		{ return building.second == nullptr; };

@@ -109,7 +109,7 @@
 			"additionalProperties" : false,
 			"required" : [
 				"adventureMap", "buildingsIcons", "buildings", "creatures", "guildWindow", "names",
-				"hallBackground", "hallSlots", "horde", "mageGuild", "moatDamage",
+				"hallBackground", "hallSlots", "horde", "mageGuild", "moatDamage", "defaultTavern",
 				"musicTheme", "siege", "structures", "townBackground", "warMachine"
 			],
 			"description": "town",
@@ -158,12 +158,18 @@
 					"additionalProperties" : {
 						"type" : "number"
 					}
+				},				
+				"defaultTavern" : {
+					"type" : "number",
+					"description" : "Default chance for hero to appear in tavern, used only when value vas not set in tavern field",
+					"minimum" : 0
 				},
 				"tavern" : {
 					"type" : "object",
 					"description" : "Hero classes available in tavern. Value indicates chance for hero of this class to appear",
 					"additionalProperties" : {
-						"type" : "number"
+						"type" : "number",
+						"minimum" : 0
 					}
 				},
 				"names" : {

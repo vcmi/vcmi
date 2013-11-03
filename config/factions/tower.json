@@ -115,6 +115,7 @@
 			},
 
 			"musicTheme" : "music/TowerTown",
+			"defaultTavern" : 5,
 
 			"townBackground": "TBTWBACK.bmp",
 			"guildWindow": "TPMAGETW.bmp",

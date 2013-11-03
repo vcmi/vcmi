@@ -5,6 +5,13 @@ include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIRECTORY} ${
 include_directories(${Boost_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
 set(lib_SRCS
+		RegisterTypes.cpp
+		IGameCallback.cpp
+		CGameState.cpp
+		CObjectHandler.cpp
+		Connection.cpp
+		NetPacksLib.cpp
+
 		filesystem/AdapterLoaders.cpp
 		filesystem/CCompressedStream.cpp
 		filesystem/CFilesystemLoader.cpp
@@ -47,24 +54,18 @@ set(lib_SRCS
 		CCreatureSet.cpp
 		CDefObjInfoHandler.cpp
 		CGameInterface.cpp
-		CGameState.cpp
 		CGeneralTextHandler.cpp
 		CHeroHandler.cpp
 		CModHandler.cpp
-		CObjectHandler.cpp
 		CObstacleInstance.cpp
-		Connection.cpp
 		CSpellHandler.cpp
 		CThreadHelper.cpp
 		CTownHandler.cpp
 		GameConstants.cpp
 		HeroBonus.cpp
-		IGameCallback.cpp
 		JsonDetail.cpp
 		JsonNode.cpp
-		NetPacksLib.cpp
 		ResourceSet.cpp
-		RegisterTypes.cpp
 		VCMI_Lib.cpp
 		VCMIDirs.cpp
 )

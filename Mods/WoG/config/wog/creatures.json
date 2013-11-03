@@ -716,7 +716,6 @@
 			"defend": "BGORDFND.wav",
 			"killed": "BGORKILL.wav",
 			"move": "BGORMOVE.wav",
-			"shoot": "BGORSHOT.wav",
 			"wince": "BGORWNCE.wav"
 		}
 	},
@@ -1488,7 +1487,6 @@
 			"defend": "BGORDFND.wav",
 			"killed": "BGORKILL.wav",
 			"move": "BGORMOVE.wav",
-			"shoot": "BGORSHOT.wav",
 			"wince": "BGORWNCE.wav"
 		}
 	},

@@ -116,6 +116,7 @@
 			},
 
 			"musicTheme" : "music/CstleTown",
+			"defaultTavern" : 5,
 
 			"townBackground": "TBCSBACK.bmp",
 			"guildWindow": "TPMAGECS.bmp",

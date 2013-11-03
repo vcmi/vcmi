@@ -120,6 +120,7 @@
 			},
 
 			"musicTheme" : "music/NecroTown",
+			"defaultTavern" : 5,
 
 			"townBackground": "TBNCBACK.bmp",
 			"guildWindow": "TPMAGENC.bmp",

@@ -116,6 +116,7 @@
 			},
 
 			"musicTheme" : "music/FortressTown",
+			"defaultTavern" : 5,
 
 			"townBackground": "TBFRBACK.bmp",
 			"guildWindow": "TPMAGEFR.bmp",

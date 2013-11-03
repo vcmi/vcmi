@@ -115,6 +115,7 @@
 			},
 
 			"musicTheme" : "music/Dungeon",
+			"defaultTavern" : 5,
 
 			"townBackground": "TBDNBACK.bmp",
 			"guildWindow": "TPMAGEDN.bmp",

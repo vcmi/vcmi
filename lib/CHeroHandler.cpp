@@ -108,6 +108,7 @@ CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 		heroClass->secSkillProbability.push_back(node["secondarySkills"][secSkill].Float());
 	}
 
+	heroClass->defaultTavernChance = node["defaultTavern"].Float();
 	for(auto & tavern : node["tavern"].Struct())
 	{
 		int value = tavern.second.Float();
@@ -187,6 +188,24 @@ void CHeroClassHandler::loadObject(std::string scope, std::string name, const Js
 	heroClasses[index] = object;
 
 	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->id);
+}
+
+void CHeroClassHandler::afterLoadFinalization()
+{
+	// for each pair <class, town> set selection probability if it was not set before in tavern entries
+	for (CHeroClass * heroClass : heroClasses)
+	{
+		for (CFaction * faction : VLC->townh->factions)
+		{
+			if (!faction->town)
+				continue;
+			if (heroClass->selectionProbability.count(faction->index))
+				continue;
+
+			float chance = heroClass->defaultTavernChance * faction->town->defaultTavernChance;
+			heroClass->selectionProbability[faction->index] = round(sqrt(chance));
+		}
+	}
 }
 
 std::vector<bool> CHeroClassHandler::getDefaultAllowed() const

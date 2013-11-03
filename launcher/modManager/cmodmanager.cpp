@@ -192,8 +192,10 @@ bool CModManager::doEnableMod(QString mod, bool on)
 {
 	QVariant value(on);
 	QVariantMap list = modSettings["activeMods"].toMap();
+	QVariantMap modData = list[mod].toMap();
 
-	list.insert(mod, value);
+	modData.insert("active", value);
+	list.insert(mod, modData);
 	modSettings.insert("activeMods", list);
 
 	modList->setModSettings(modSettings["activeMods"]);

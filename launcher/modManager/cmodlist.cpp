@@ -28,7 +28,7 @@ bool CModEntry::compareVersions(QString lesser, QString greater)
 	return false;
 }
 
-CModEntry::CModEntry(QVariantMap repository, QVariantMap localData, QVariant modSettings, QString modname):
+CModEntry::CModEntry(QVariantMap repository, QVariantMap localData, QVariantMap modSettings, QString modname):
     repository(repository),
     localData(localData),
     modSettings(modSettings),
@@ -41,7 +41,7 @@ bool CModEntry::isEnabled() const
 	if (!isInstalled())
 		return false;
 
-	return modSettings.toBool();
+	return modSettings["active"].toBool();
 }
 
 bool CModEntry::isDisabled() const
@@ -140,7 +140,13 @@ CModEntry CModList::getMod(QString modname) const
 
 	QVariantMap repo;
 	QVariantMap local = localModList[modname].toMap();
-	QVariant settings = modSettings[modname];
+	QVariantMap settings;
+
+	QVariant conf = modSettings[modname];
+	if (conf.canConvert<QVariantMap>())
+		settings = modSettings[modname].toMap();
+	else
+		settings.insert("active", conf);
 
 	for (auto entry : repositories)
 	{

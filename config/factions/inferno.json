@@ -116,6 +116,7 @@
 			},
 
 			"musicTheme" : "music/InfernoTown",
+			"defaultTavern" : 5,
 
 			"townBackground": "TBINBACK.bmp",
 			"guildWindow": "TPMAGEIN.bmp",

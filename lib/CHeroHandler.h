@@ -103,6 +103,10 @@ public:
 	TFaction faction;
 	ui8 id;
 
+	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
+	// resulting chance = sqrt(town.chance * heroClass.chance)
+	ui32 defaultTavernChance;
+
 	std::vector<int> primarySkillInitial;  // initial primary skills
 	std::vector<int> primarySkillLowLevel; // probability (%) of getting point of primary skill when getting level
 	std::vector<int> primarySkillHighLevel;// same for high levels (> 10)
@@ -121,7 +125,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & identifier & name & faction & id;// & aggression;
+		h & identifier & name & faction & id & defaultTavernChance;// & aggression;
 		h & primarySkillInitial   & primarySkillLowLevel;
 		h & primarySkillHighLevel & secSkillProbability;
 		h & selectionProbability;
@@ -161,6 +165,8 @@ public:
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+
+	void afterLoadFinalization();
 
 	std::vector<bool> getDefaultAllowed() const;
 

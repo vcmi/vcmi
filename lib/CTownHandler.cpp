@@ -503,6 +503,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 		}
 	}
 
+	town.defaultTavernChance = source["defaultTavern"].Float();
 	/// set chance of specific hero class to appear in this town
 	for(auto &node : source["tavern"].Struct())
 	{
