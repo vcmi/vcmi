@@ -208,9 +208,12 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 		}
 	}
 
-	selectedTab = battleSpellsOnly ? LOCPLINT->spellbookSettings.spellbookLastTabBattle : LOCPLINT->spellbookSettings.spellbookLastTabAdvmap;
-	currentPage = battleSpellsOnly ? LOCPLINT->spellbookSettings.spellbookLastPageBattle : LOCPLINT->spellbookSettings.spellbokLastPageAdvmap;
-	vstd::abetween(currentPage, 0, pagesWithinCurrentTab());
+	selectedTab = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap;
+	currentPage = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap;
+
+	// spellbook last page battle index is not reset after battle, so this needs to stay here
+	vstd::abetween(currentPage, 0, pagesWithinCurrentTab() - 1);
+
 	computeSpellsPerArea();
 	addUsedEvents(KEYBOARD);
 }
@@ -248,8 +251,8 @@ CSpellWindow::~CSpellWindow()
 
 void CSpellWindow::fexitb()
 {
-	(LOCPLINT->battleInt ? LOCPLINT->spellbookSettings.spellbookLastTabBattle : LOCPLINT->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
-	(LOCPLINT->battleInt ? LOCPLINT->spellbookSettings.spellbookLastPageBattle : LOCPLINT->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
+	(LOCPLINT->battleInt ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
+	(LOCPLINT->battleInt ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
 
 	GH.popIntTotally(this);
 }
