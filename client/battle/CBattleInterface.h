@@ -213,6 +213,7 @@ private:
 	} * siegeH;
 
 	shared_ptr<CPlayerInterface> attackerInt, defenderInt; //because LOCPLINT is not enough in hotSeat
+	shared_ptr<CPlayerInterface> curInt; //current player interface
 	const CGHeroInstance * getActiveHero(); //returns hero that can currently cast a spell
 
 	/** Methods for displaying battle screen */
@@ -243,7 +244,6 @@ private:
 	/** End of battle screen blitting methods */
 
 public:
-	shared_ptr<CPlayerInterface> curInt; //current player interface
 	std::list<std::pair<CBattleAnimation *, bool> > pendingAnims; //currently displayed animations <anim, initialized>
 	void addNewAnim(CBattleAnimation * anim); //adds new anim to pendingAnims
 	ui32 animIDhelper; //for giving IDs for animations
@@ -258,6 +258,7 @@ public:
 	void setPrintMouseShadow(bool set); //if true, hex under mouse will be shaded
 	void setAnimSpeed(int set); //speed of animation; range 1..100
 	int getAnimSpeed() const; //speed of animation; range 1..100
+	CPlayerInterface * getCurrentPlayerInterface() const;
 
 	std::vector<CClickableHex*> bfield; //11 lines, 17 hexes on each
 	SDL_Surface * cellBorder, * cellShade;

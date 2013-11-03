@@ -138,7 +138,7 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 
 	assert(attackingStack && "attackingStack is nullptr in CBattleAttack::CBattleAttack !\n");
 	bool isCatapultAttack = attackingStack->hasBonusOfType(Bonus::CATAPULT) 
-							&& owner->curInt->cb->battleHexToWallPart(_dest) >= 0;
+							&& owner->getCurrentPlayerInterface()->cb->battleHexToWallPart(_dest) >= 0;
 
 	assert(attackedStack || isCatapultAttack);
 	attackingStackPosBeforeReturn = attackingStack->position;
@@ -185,7 +185,7 @@ bool CDefenceAnimation::init()
 
 
 	//reverse unit if necessary
-	if (attacker && owner->curInt->cb->isToReverse(stack->position, attacker->position, owner->creDir[stack->ID], attacker->doubleWide(), owner->creDir[attacker->ID]))
+	if (attacker && owner->getCurrentPlayerInterface()->cb->isToReverse(stack->position, attacker->position, owner->creDir[stack->ID], attacker->doubleWide(), owner->creDir[attacker->ID]))
 	{
 		owner->addNewAnim(new CReverseAnimation(owner, stack, stack->position, true));
 		return false;
@@ -309,7 +309,7 @@ bool CMeleeAttackAnimation::init()
 		return false;
 	}
 
-	bool toReverse = owner->curInt->cb->isToReverse(attackingStackPosBeforeReturn, dest, owner->creDir[stack->ID], attackedStack->doubleWide(), owner->creDir[attackedStack->ID]);
+	bool toReverse = owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStackPosBeforeReturn, dest, owner->creDir[stack->ID], attackedStack->doubleWide(), owner->creDir[attackedStack->ID]);
 
 	if (toReverse)
 	{
@@ -668,7 +668,7 @@ bool CShootingAnimation::init()
 	}
 
 	//reverse unit if necessary
-	if (attackingStack && attackedStack && owner->curInt->cb->isToReverse(attackingStack->position, attackedStack->position, owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
+	if (attackingStack && attackedStack && owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->position, attackedStack->position, owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
 	{
 		owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->position, true));
 		return false;
@@ -902,7 +902,7 @@ bool CSpellEffectAnimation::init()
 	{
 		if(effect == -1 || graphics->battleACToDef[effect].size() != 0)
 		{
-			const CStack* destStack = owner->curInt->cb->battleGetStackByPos(destTile, false);
+			const CStack* destStack = owner->getCurrentPlayerInterface()->cb->battleGetStackByPos(destTile, false);
 			Rect &tilePos = owner->bfield[destTile]->pos;
 			BattleEffect be;
 			be.effectID = ID;

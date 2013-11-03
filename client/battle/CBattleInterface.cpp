@@ -1643,6 +1643,11 @@ int CBattleInterface::getAnimSpeed() const
 	return vstd::round(settings["battle"]["animationSpeed"].Float() * 100);
 }
 
+CPlayerInterface * CBattleInterface::getCurrentPlayerInterface() const
+{
+	return curInt.get();
+}
+
 void CBattleInterface::setActiveStack(const CStack * stack)
 {
 	if (activeStack) // update UI

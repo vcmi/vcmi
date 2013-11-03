@@ -175,7 +175,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 	if(myOwner->spellDestSelectMode) //we are casting a spell
 		return;
 
-	if(!down && myHero != nullptr && myOwner->myTurn && myOwner->curInt->cb->battleCanCastSpell()) //check conditions
+	if(!down && myHero != nullptr && myOwner->myTurn && myOwner->getCurrentPlayerInterface()->cb->battleCanCastSpell()) //check conditions
 	{
 		for(int it=0; it<GameConstants::BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
 		{
@@ -184,7 +184,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 		}
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 
-		auto  spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, myOwner->curInt.get());
+		auto  spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, myOwner->getCurrentPlayerInterface());
 		GH.pushInt(spellWindow);
 	}
 }
@@ -256,7 +256,7 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos = position;
 	background = new CPicture("comopbck.bmp");
-	background->colorize(owner->curInt->playerID);
+	background->colorize(owner->getCurrentPlayerInterface()->playerID);
 
 	viewGrid = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintCellBorders, owner, true), boost::bind(&CBattleInterface::setPrintCellBorders, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[427].first)(3,CGI->generaltexth->zelp[427].first), CGI->generaltexth->zelp[427].second, false, "sysopchk.def", nullptr, 25, 56, false);
 	viewGrid->select(settings["battle"]["cellBorders"].Bool());
@@ -570,9 +570,9 @@ void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 
 	if(hovered && strictHovered) //print attacked creature to console
 	{
-		const CStack * attackedStack = myInterface->curInt->cb->battleGetStackByPos(myNumber);
+		const CStack * attackedStack = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber);
 		if(myInterface->console->alterTxt.size() == 0 &&attackedStack != nullptr &&
-			attackedStack->owner != myInterface->curInt->playerID &&
+			attackedStack->owner != myInterface->getCurrentPlayerInterface()->playerID &&
 			attackedStack->alive())
 		{
 			char tabh[160];
@@ -599,7 +599,7 @@ void CClickableHex::clickLeft(tribool down, bool previousState)
 
 void CClickableHex::clickRight(tribool down, bool previousState)
 {
-	const CStack * myst = myInterface->curInt->cb->battleGetStackByPos(myNumber); //stack info
+	const CStack * myst = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber); //stack info
 	if(hovered && strictHovered && myst!=nullptr)
 	{
 
@@ -614,7 +614,7 @@ void CClickableHex::clickRight(tribool down, bool previousState)
 void CStackQueue::update()
 {
 	stacksSorted.clear();
-	owner->curInt->cb->battleGetStackQueue(stacksSorted, stackBoxes.size());
+	owner->getCurrentPlayerInterface()->cb->battleGetStackQueue(stacksSorted, stackBoxes.size());
 	if(stacksSorted.size())
 	{
 		for (int i = 0; i < stackBoxes.size() ; i++)
