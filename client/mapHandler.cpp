@@ -104,7 +104,7 @@ void CMapHandler::prepareFOWDefs()
 	for(auto & elem : missRot)
 	{
 		nw = graphics->FoWpartialHide->ourImages[elem];
-		nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+		nw.bitmap = CSDL_Ext::verticalFlip(nw.bitmap);
 		graphics->FoWpartialHide->ourImages.push_back(nw);
 	}
 	//necessaary rotations added

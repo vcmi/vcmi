@@ -2176,28 +2176,28 @@ void CGameHandler::applyAndSend(CPackForClient * info)
 
 void CGameHandler::sendAndApply(CGarrisonOperationPack * info)
 {
-	sendAndApply((CPackForClient*)info);
+	sendAndApply(static_cast<CPackForClient*>(info));
 	if(gs->map->victoryCondition.condition == EVictoryConditionType::GATHERTROOP)
 		winLoseHandle();
 }
 
 void CGameHandler::sendAndApply( SetResource * info )
 {
-	sendAndApply((CPackForClient*)info);
+	sendAndApply(static_cast<CPackForClient*>(info));
 	if(gs->map->victoryCondition.condition == EVictoryConditionType::GATHERRESOURCE)
 		checkLossVictory(info->player);
 }
 
 void CGameHandler::sendAndApply( SetResources * info )
 {
-	sendAndApply((CPackForClient*)info);
+	sendAndApply(static_cast<CPackForClient*>(info));
 	if(gs->map->victoryCondition.condition == EVictoryConditionType::GATHERRESOURCE)
 		checkLossVictory(info->player);
 }
 
 void CGameHandler::sendAndApply( NewStructures * info )
 {
-	sendAndApply((CPackForClient*)info);
+	sendAndApply(static_cast<CPackForClient*>(info));
 	if(gs->map->victoryCondition.condition == EVictoryConditionType::BUILDCITY)
 		checkLossVictory(getTown(info->tid)->tempOwner);
 }

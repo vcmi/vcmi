@@ -543,6 +543,7 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 		const CStack *fastest = st[i], *other = nullptr;
 		int bestSpeed = fastest->Speed(turn);
 
+		//FIXME: comparison between bool and integer. Logic does not makes sense either
 		if(fastest->attackerOwned != lastMoved)
 		{
 			ret = fastest;
@@ -648,6 +649,7 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 	{
 		if(active)
 		{
+			//FIXME: both branches contain same code!!!
 			if(out.size() && out.front() == active)
 				lastMoved = active->attackerOwned;
 			else

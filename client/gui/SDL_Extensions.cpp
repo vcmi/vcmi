@@ -62,96 +62,56 @@ void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst)
 		blitAt(src,pos.x,pos.y,dst);
 }
 
-void updateRect (SDL_Rect * rect, SDL_Surface * scr)
-{
-	SDL_UpdateRect(scr,rect->x,rect->y,rect->w,rect->h);
-}
-
 // Vertical flip
-SDL_Surface * CSDL_Ext::rotate01(SDL_Surface * toRot)
+SDL_Surface * CSDL_Ext::verticalFlip(SDL_Surface * toRot)
 {
 	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
-	const int bpl = ret->pitch;
 	const int bpp = ret->format->BytesPerPixel;
 
-	for(int i=0; i<ret->h; i++) {
-		char *src = (char *)toRot->pixels + i*bpl;
-		char *dst = (char *)ret->pixels + i*bpl;
-		for(int j=0; j<ret->w; j++) {
-			for (int k=0; k<bpp; k++) {
-				dst[j*bpp + k] = src[(ret->w-j-1)*bpp + k];
+	char * src = reinterpret_cast<char *>(toRot->pixels);
+	char * dst = reinterpret_cast<char *>(ret->pixels);
+
+	for(int i=0; i<ret->h; i++)
+	{
+		char * srcPxl = src;
+		char * dstPxl = dst + ret->w * bpp;
+
+		if (bpp == 1)
+		{
+			// much faster for 8-bit surfaces (majority of our data)
+			std::reverse_copy(src, src + ret->pitch, dst);
+		}
+		else
+		{
+			for(int j=0; j<ret->w; j++)
+			{
+				dstPxl -= bpp;
+				std::copy(srcPxl, srcPxl + bpp, dstPxl);
+				srcPxl += bpp;
 			}
 		}
+		src += toRot->pitch;
+		dst += ret->pitch;
 	}
-
 	return ret;
 }
 
 // Horizontal flip
-SDL_Surface * CSDL_Ext::hFlip(SDL_Surface * toRot)
+SDL_Surface * CSDL_Ext::horizontalFlip(SDL_Surface * toRot)
 {
 	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
-	int bpl = ret->pitch;
+	char * src = reinterpret_cast<char *>(toRot->pixels);
+	char * dst = reinterpret_cast<char *>(ret->pixels) + ret->h * ret->pitch;
 
-	for(int i=0; i<ret->h; i++) {
-		memcpy((char *)ret->pixels + i*bpl, (char *)toRot->pixels + (ret->h-i-1)*bpl, bpl);
+	for(int i=0; i<ret->h; i++)
+	{
+		dst -= ret->pitch;
+		std::copy(src, src + toRot->pitch, dst);
+		src += toRot->pitch;
 	}
-
 	return ret;
 };
 
-///**************/
-///Rotates toRot surface by 90 degrees left
-///**************/
-SDL_Surface * CSDL_Ext::rotate02(SDL_Surface * toRot)
-{
-	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
-	//SDL_SetColorKey(ret, SDL_SRCCOLORKEY, toRot->format->colorkey);
-	for(int i=0; i<ret->w; ++i)
-	{
-		for(int j=0; j<ret->h; ++j)
-		{
-			{
-				Uint8 *p = (Uint8 *)toRot->pixels + i * toRot->pitch + j * toRot->format->BytesPerPixel;
-				SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0]);
-			}
-		}
-	}
-	return ret;
-}
-
-///*************/
-///Rotates toRot surface by 180 degrees
-///*************/
-SDL_Surface * CSDL_Ext::rotate03(SDL_Surface * toRot)
-{
-	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
-	if(ret->format->BytesPerPixel!=1)
-	{
-		for(int i=0; i<ret->w; ++i)
-		{
-			for(int j=0; j<ret->h; ++j)
-			{
-				{
-					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j - 1) * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel+2;
-					SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0], 0);
-				}
-			}
-		}
-	}
-	else
-	{
-		for(int i=0; i<ret->w; ++i)
-		{
-			for(int j=0; j<ret->h; ++j)
-			{
-				Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j - 1) * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel;
-				(*((Uint8*)ret->pixels + j*ret->pitch + i*ret->format->BytesPerPixel)) = *p;
-			}
-		}
-	}
-	return ret;
-}
 Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte)
 {
 	int bpp = surface->format->BytesPerPixel;
@@ -162,9 +122,7 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
 	{
 	case 1:
 		if(colorByte)
-		{
 			return colorToUint32(surface->format->palette->colors+(*p));
-		}
 		else
 			return *p;
 

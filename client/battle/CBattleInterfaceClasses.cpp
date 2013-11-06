@@ -222,7 +222,7 @@ CBattleHero::CBattleHero(const std::string & defName, bool flipG, PlayerColor pl
 	{
 		if(flip)
 		{
-			SDL_Surface * hlp = CSDL_Ext::rotate01(elem.bitmap);
+			SDL_Surface * hlp = CSDL_Ext::verticalFlip(elem.bitmap);
 			SDL_FreeSurface(elem.bitmap);
 			elem.bitmap = hlp;
 		}

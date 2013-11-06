@@ -172,12 +172,16 @@
 				"animationTime": {
 					"type":"object",
 					"additionalProperties" : false,
-					"required" : [ "attack", "flight", "walk" ],
+					"required" : [ "attack", "flight", "walk", "idle" ],
 					"description": "Length of several animations",
 					"properties":{
 						"attack": {
 							"type":"number",
 							"description": "attack"
+						},
+						"idle": {
+							"type":"number",
+							"description": "idle"
 						},
 						"flight": {
 							"type":"number",

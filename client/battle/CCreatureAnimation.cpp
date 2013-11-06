@@ -68,8 +68,9 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 		return speed * 2 * creature->animation.walkAnimationTime / anim->framesInGroup(type);
 
 	case CCreatureAnim::MOUSEON:
-	case CCreatureAnim::HOLDING:
 		return baseSpeed;
+	case CCreatureAnim::HOLDING:
+		return baseSpeed * creature->animation.idleAnimationTime / anim->framesInGroup(type);
 
 	case CCreatureAnim::SHOOT_UP:
 	case CCreatureAnim::SHOOT_FRONT:
@@ -452,5 +453,7 @@ void CCreatureAnimation::pause()
 
 void CCreatureAnimation::play()
 {
-	speed = 1 / speedController(this, type);
+    speed = 0;
+    if (speedController(this, type) != 0)
+        speed = 1 / speedController(this, type);
 }

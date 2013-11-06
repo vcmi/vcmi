@@ -265,7 +265,7 @@ void CContentHandler::ContentTypeHandler::loadMod(std::string modName)
 				continue;
 			}
 		}
-		// normal new object
+		// normal new object or one with index bigger that data size
 		JsonUtils::validate(data, "vcmi:" + objectName, name);
 		handler->loadObject(modName, name, data);
 	}
@@ -533,22 +533,6 @@ CModInfo & CModHandler::getModData(TModID modId)
 	assert(vstd::contains(activeMods, modId)); // not really necessary but won't hurt
 	return mod;
 }
-
-template<typename Handler>
-void CModHandler::handleData(Handler handler, const JsonNode & source, std::string listName, std::string schemaName)
-{
-	JsonNode config = JsonUtils::assembleFromFiles(source[listName].convertTo<std::vector<std::string> >());
-
-	for(auto & entry : config.Struct())
-	{
-		if (!entry.second.isNull()) // may happens if mod removed object by setting json entry to null
-		{
-			JsonUtils::validate(entry.second, schemaName, entry.first);
-			handler->load(entry.first, entry.second);
-		}
-	}
-}
-
 void CModHandler::beforeLoad()
 {
 	loadConfigFromFile("defaultMods.json");

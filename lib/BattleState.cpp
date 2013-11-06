@@ -300,12 +300,12 @@ struct RangeGenerator
 	{
 	};
 
-	RangeGenerator(int _min, int _max, std::function<int()> _myRand)
+	RangeGenerator(int _min, int _max, std::function<int()> _myRand):
+		min(_min),
+		remainingCount(_max - _min + 1),
+		remaining(remainingCount, true),
+		myRand(_myRand)
 	{
-		myRand = _myRand;
-		min = _min;
-		remainingCount = _max - _min + 1;
-		remaining.resize(remainingCount, true);
 	}
 
 	int generateNumber()

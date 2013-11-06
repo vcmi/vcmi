@@ -113,7 +113,7 @@ JsonWriter::JsonWriter(std::ostream &output, const JsonNode &node):
 
 std::ostream & operator<<(std::ostream &out, const JsonNode &node)
 {
-	JsonWriter(out, node);
+	JsonWriter writer(out, node);
 	return out << "\n";
 }
 
@@ -580,7 +580,7 @@ namespace
 		{
 			JsonNode::JsonType type = stringToType.find(schema.String())->second;
 			if(type != data.getType() && data.getType() != JsonNode::DATA_NULL)
-				return validator.makeErrorMessage("Type mismatch!");
+				return validator.makeErrorMessage("Type mismatch! Expected " + schema.String());
 			return "";
 		}
 
@@ -591,7 +591,6 @@ namespace
 			//Local reference. Turn it into more easy to handle remote ref
 			if (boost::algorithm::starts_with(URI, "#"))
 				URI = validator.usedSchemas.back() + URI;
-
 			return check(JsonUtils::getSchema(URI), data, validator);
 		}
 
@@ -607,7 +606,7 @@ namespace
 					errors += validator.makeErrorMessage(result);
 			}
 			else
-				errors += validator.makeErrorMessage("Unknown format: " + schema.String());
+				errors += validator.makeErrorMessage("Unsupported format type: " + schema.String());
 			return errors;
 		}
 	}
@@ -617,14 +616,14 @@ namespace
 		std::string maxLengthCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
 			if (data.String().size() > schema.Float())
-				return validator.makeErrorMessage("String too long");
+				return validator.makeErrorMessage((boost::format("String is longer than %d symbols") % schema.Float()).str());
 			return "";
 		}
 
 		std::string minLengthCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
 			if (data.String().size() < schema.Float())
-				return validator.makeErrorMessage("String too short");
+				return validator.makeErrorMessage((boost::format("String is shorter than %d symbols") % schema.Float()).str());
 			return "";
 		}
 	}
@@ -637,12 +636,12 @@ namespace
 			if (baseSchema["exclusiveMaximum"].Bool())
 			{
 				if (data.Float() >= schema.Float())
-					return validator.makeErrorMessage("Value is too large");
+					return validator.makeErrorMessage((boost::format("Value is bigger than %d") % schema.Float()).str());
 			}
 			else
 			{
 				if (data.Float() >  schema.Float())
-					return validator.makeErrorMessage("Value is too large");
+					return validator.makeErrorMessage((boost::format("Value is bigger than %d") % schema.Float()).str());
 			}
 			return "";
 		}
@@ -652,12 +651,12 @@ namespace
 			if (baseSchema["exclusiveMinimum"].Bool())
 			{
 				if (data.Float() <= schema.Float())
-					return validator.makeErrorMessage("Value is too small");
+					return validator.makeErrorMessage((boost::format("Value is smaller than %d") % schema.Float()).str());
 			}
 			else
 			{
 				if (data.Float() <  schema.Float())
-					return validator.makeErrorMessage("Value is too small");
+					return validator.makeErrorMessage((boost::format("Value is smaller than %d") % schema.Float()).str());
 			}
 			return "";
 		}
@@ -666,7 +665,7 @@ namespace
 		{
 			double result = data.Float() / schema.Float();
 			if (floor(result) != result)
-				return validator.makeErrorMessage("Value is not divisible");
+				return validator.makeErrorMessage((boost::format("Value is not divisible by %d") % schema.Float()).str());
 			return "";
 		}
 	}
@@ -726,14 +725,14 @@ namespace
 		std::string minItemsCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
 			if (data.Vector().size() < schema.Float())
-				return validator.makeErrorMessage("Too few items in the list");
+				return validator.makeErrorMessage((boost::format("Length is smaller than %d") % schema.Float()).str());
 			return "";
 		}
 
 		std::string maxItemsCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
 			if (data.Vector().size() > schema.Float())
-				return validator.makeErrorMessage("Too many items in the list!");
+				return validator.makeErrorMessage((boost::format("Length is bigger than %d") % schema.Float()).str());
 			return "";
 		}
 
@@ -760,14 +759,14 @@ namespace
 		std::string maxPropertiesCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
 			if (data.Struct().size() > schema.Float())
-				return validator.makeErrorMessage("Too many items in the list!");
+				return validator.makeErrorMessage((boost::format("Number of entries is bigger than %d") % schema.Float()).str());
 			return "";
 		}
 
 		std::string minPropertiesCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
 			if (data.Struct().size() < schema.Float())
-				return validator.makeErrorMessage("Too few items in the list");
+				return validator.makeErrorMessage((boost::format("Number of entries is less than %d") % schema.Float()).str());
 			return "";
 		}
 
@@ -855,11 +854,11 @@ namespace
 				{
 					// try generic additionalItems schema
 					if (schema.getType() == JsonNode::DATA_STRUCT)
-						return propertyEntryCheck(validator, entry.second, schema, entry.first);
+                        errors += propertyEntryCheck(validator, entry.second, schema, entry.first);
 
 					// or, additionalItems field can be bool which indicates if such items are allowed
-					if (!schema.isNull() && schema.Bool() == false) // present and set to false - error
-						return validator.makeErrorMessage("Unknown entry found: " + entry.first);
+                    else if (!schema.isNull() && schema.Bool() == false) // present and set to false - error
+                        errors += validator.makeErrorMessage("Unknown entry found: " + entry.first);
 				}
 			}
 			return errors;
@@ -914,7 +913,7 @@ namespace
 			TEST_FILE("Sprites/", node.String(), EResType::IMAGE);
 			if (node.String().find(':') != std::string::npos)
 				return testAnimation(node.String().substr(0, node.String().find(':')));
-			return "Image file not found";
+			return "Image file \"" + node.String() + "\" was not found";
 		}
 
 		#undef TEST_FILE

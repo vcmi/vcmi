@@ -50,9 +50,9 @@ JsonNode::JsonNode(ResourceID && fileURI):
 }
 
 JsonNode::JsonNode(const JsonNode &copy):
-	type(DATA_NULL)
+	type(DATA_NULL),
+	meta(copy.meta)
 {
-	meta = copy.meta;
 	setType(copy.getType());
 	switch(type)
 	{

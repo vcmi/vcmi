@@ -19,19 +19,19 @@ BattleHex& BattleHex::moveInDir(EDir dir, bool hasToBeValid)
 	switch(dir)
 	{
 	case TOP_LEFT:
-		setXY(y%2 ? x-1 : x, y-1, hasToBeValid);
+		setXY((y%2) ? x-1 : x, y-1, hasToBeValid);
 		break;
 	case TOP_RIGHT:
-		setXY(y%2 ? x : x+1, y-1, hasToBeValid);
+		setXY((y%2) ? x : x+1, y-1, hasToBeValid);
 		break;
 	case RIGHT:
 		setXY(x+1, y, hasToBeValid);
 		break;
 	case BOTTOM_RIGHT:
-		setXY(y%2 ? x : x+1, y+1, hasToBeValid);
+		setXY((y%2) ? x : x+1, y+1, hasToBeValid);
 		break;
 	case BOTTOM_LEFT:
-		setXY(y%2 ? x-1 : x, y+1, hasToBeValid);
+		setXY((y%2) ? x-1 : x, y+1, hasToBeValid);
 		break;
 	case LEFT:
 		setXY(x-1, y, hasToBeValid);

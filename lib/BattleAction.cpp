@@ -15,13 +15,14 @@
 
 using namespace Battle;
 
-BattleAction::BattleAction()
+BattleAction::BattleAction():
+	side(-1),
+	stackNumber(-1),
+	actionType(INVALID),
+	destinationTile(-1),
+	additionalInfo(-1),
+	selectedStack(-1)
 {
-	side = -1;
-	stackNumber = -1;
-	actionType = INVALID;
-	destinationTile = -1;
-	additionalInfo = -1;
 }
 
 BattleAction BattleAction::makeHeal(const CStack *healer, const CStack *healed)

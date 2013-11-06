@@ -1336,10 +1336,10 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 	//displaying message in console
 	bool customSpell = false;
-	bool plural = false; //add singular / plural form of creature text if this is true
-	int textID = 0;
 	if(sc->affectedCres.size() == 1)
 	{
+		bool plural = false; //add singular / plural form of creature text if this is true
+		int textID = 0;
 		std::string text = CGI->generaltexth->allTexts[195];
 		if(sc->castedByHero)
 		{
@@ -1970,8 +1970,6 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 	redraw(); // redraw after deactivation, including proper handling of hovered hexes
 
-	char txt[400];
-
 	if (action->actionType == Battle::HERO_SPELL) //when hero casts spell
 	{
 		if(action->side)
@@ -2006,8 +2004,8 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 	if(txtid)
 	{
-		sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str(), 0);
-		console->addText(txt);
+		std::string name = (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str();
+		console->addText((boost::format(CGI->generaltexth->allTexts[txtid].c_str()) % name).str());
 	}
 
 	//displaying special abilities
@@ -3186,7 +3184,7 @@ void CBattleInterface::showProjectiles(SDL_Surface * to)
 
 		if(it->reverse)
 		{
-			SDL_Surface * rev = CSDL_Ext::rotate01(image);
+			SDL_Surface * rev = CSDL_Ext::verticalFlip(image);
 			CSDL_Ext::blit8bppAlphaTo24bpp(rev, nullptr, to, &dst);
 			SDL_FreeSurface(rev);
 		}

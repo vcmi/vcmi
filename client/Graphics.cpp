@@ -176,7 +176,7 @@ CDefEssential * Graphics::loadHeroAnim( const std::string &name, const std::vect
 				for(int e=0; e<8; ++e)
 				{
 					Cimage nci;
-					nci.bitmap = CSDL_Ext::rotate01(anim->ourImages[o+e].bitmap);
+					nci.bitmap = CSDL_Ext::verticalFlip(anim->ourImages[o+e].bitmap);
 					nci.groupNumber = rotations[p].second;
 					nci.imName = std::string();
 					anim->ourImages.push_back(nci);
@@ -218,7 +218,7 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 					for(int e=0; e<8; ++e)
 					{
 						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(curImgs[o+e].bitmap);
+						nci.bitmap = CSDL_Ext::verticalFlip(curImgs[o+e].bitmap);
 						nci.groupNumber = rotation.second;
 						nci.imName = std::string();
 						curImgs.push_back(nci);
@@ -236,7 +236,7 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 					for(int e=0; e<8; ++e)
 					{
 						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(curImgs[o+e].bitmap);
+						nci.bitmap = CSDL_Ext::verticalFlip(curImgs[o+e].bitmap);
 						nci.groupNumber = 12 + curImgs[o].groupNumber;
 						nci.imName = std::string();
 						curImgs.push_back(nci);

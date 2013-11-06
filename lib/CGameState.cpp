@@ -2940,10 +2940,10 @@ DuelParameters::SideSettings::SideSettings()
 	heroId = -1;
 }
 
-DuelParameters::DuelParameters()
+DuelParameters::DuelParameters():
+    terType(ETerrainType::DIRT),
+    bfieldType(BFieldType::ROCKLANDS)
 {
-    terType = ETerrainType::DIRT;
-	bfieldType = BFieldType::ROCKLANDS;
 }
 
 DuelParameters DuelParameters::fromJSON(const std::string &fname)

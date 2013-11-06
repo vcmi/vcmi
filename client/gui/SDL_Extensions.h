@@ -34,7 +34,6 @@ struct Rect;
 extern SDL_Surface * screen, *screen2, *screenBuf;
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=screen);
 void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst=screen);
-void updateRect (SDL_Rect * rect, SDL_Surface * scr = screen);
 bool isItIn(const SDL_Rect * rect, int x, int y);
 
 /**
@@ -137,15 +136,11 @@ namespace CSDL_Ext
 	void SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);
 	void SDL_PutPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);
 
-	SDL_Surface * rotate01(SDL_Surface * toRot); //vertical flip
-	SDL_Surface * hFlip(SDL_Surface * toRot); //horizontal flip
-	SDL_Surface * rotate02(SDL_Surface * toRot); //rotate 90 degrees left
-	SDL_Surface * rotate03(SDL_Surface * toRot); //rotate 180 degrees
-	SDL_Cursor * SurfaceToCursor(SDL_Surface *image, int hx, int hy); //creates cursor from bitmap
+	SDL_Surface * verticalFlip(SDL_Surface * toRot); //vertical flip
+	SDL_Surface * horizontalFlip(SDL_Surface * toRot); //horizontal flip
 	Uint32 SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte = false);
 	void alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
 	bool isTransparent(SDL_Surface * srf, int x, int y); //checks if surface is transparent at given position
-
 
 	Uint8 *getPxPtr(const SDL_Surface * const &srf, const int x, const int y);
 	TColorPutter getPutterFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1

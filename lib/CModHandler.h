@@ -156,10 +156,6 @@ class DLL_LINKAGE CModHandler
 	// returns load order in which all dependencies are resolved, e.g. loaded after required mods
 	// function assumes that input list is valid (checkDependencies returned true)
 	std::vector <TModID> resolveDependencies(std::vector<TModID> input) const;
-
-	// helper for loadActiveMods. Loads content from list of files
-	template<typename Handler>
-	void handleData(Handler handler, const JsonNode & source, std::string listName, std::string schemaName);
 public:
 
 	CIdentifierStorage identifiers;

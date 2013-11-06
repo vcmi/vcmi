@@ -55,7 +55,8 @@ public:
 
 	struct CreatureAnimation
 	{
-		double timeBetweenFidgets, walkAnimationTime, attackAnimationTime, flightAnimationDistance;
+		double timeBetweenFidgets, idleAnimationTime,
+			   walkAnimationTime, attackAnimationTime, flightAnimationDistance;
 		int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX,
 		    upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
 
@@ -67,7 +68,8 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & timeBetweenFidgets & walkAnimationTime & attackAnimationTime & flightAnimationDistance;
+			h & timeBetweenFidgets & idleAnimationTime;
+			h & walkAnimationTime & attackAnimationTime & flightAnimationDistance;
 			h & upperRightMissleOffsetX & rightMissleOffsetX & lowerRightMissleOffsetX;
 			h & upperRightMissleOffsetY & rightMissleOffsetY & lowerRightMissleOffsetY;
 			h & missleFrameAngles & troopCountLocationOffset & attackClimaxFrame;

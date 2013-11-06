@@ -294,15 +294,14 @@ PlayerColor CGObjectInstance::getOwner() const
 		return tempOwner; //won't have owner
 }
 
-CGObjectInstance::CGObjectInstance()
+CGObjectInstance::CGObjectInstance():
+	pos(-1,-1,-1),
+	ID(Obj::NO_OBJ),
+	subID(-1),
+	defInfo(nullptr),
+	tempOwner(PlayerColor::UNFLAGGABLE),
+	blockVisit(false)
 {
-	pos = int3(-1,-1,-1);
-	//state = new CLuaObjectScript();
-	ID = Obj::NO_OBJ;
-	subID = -1;
-	defInfo = nullptr;
-	tempOwner = PlayerColor::UNFLAGGABLE;
-	blockVisit = false;
 }
 CGObjectInstance::~CGObjectInstance()
 {
@@ -1036,17 +1035,17 @@ void CGHeroInstance::initObj()
 
 					const CCreature &specCreature = *VLC->creh->creatures[spec.additionalinfo]; //creature in which we have specialty
 
-					int creLevel = specCreature.level;
-					if(!creLevel)
-					{
-						if(spec.additionalinfo == 146)
-							creLevel = 5; //treat ballista as 5-level
-						else
-						{
-                            logGlobal->warnStream() << "Warning: unknown level of " << specCreature.namePl;
-							continue;
-						}
-					}
+					//int creLevel = specCreature.level;
+					//if(!creLevel)
+					//{
+					//	if(spec.additionalinfo == 146)
+					//		creLevel = 5; //treat ballista as 5-level
+					//	else
+					//	{
+					//        logGlobal->warnStream() << "Warning: unknown level of " << specCreature.namePl;
+					//		continue;
+					//	}
+					//}
 
 					//bonus->additionalInfo = spec.additionalinfo; //creature id, should not be used again - this works only with limiter
 					bonus->limiter.reset(new CCreatureTypeLimiter (specCreature, true)); //with upgrades
