@@ -882,8 +882,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 				auto i = curt.objects.begin();
 				for(; i != curt.objects.end(); i++)
 				{
-					OCM_HLP cmp;
-					if(cmp(toAdd, *i))
+					if(ocmptwo(toAdd, *i))
 					{
 						curt.objects.insert(i, toAdd);
 						i = curt.objects.begin(); //to validate and avoid adding it second time

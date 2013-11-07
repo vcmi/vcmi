@@ -77,10 +77,10 @@ struct ObjInfo
 	int3 pos;
 	std::string name;
 	ObjInfo(){}
-	ObjInfo(const CGObjectInstance *obj)
+	ObjInfo(const CGObjectInstance *obj):
+		pos(obj->pos),
+		name(obj->getHoverText())
 	{
-		pos = obj->pos;
-		name = obj->getHoverText();
 	}
 };
 
@@ -1397,7 +1397,7 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /
 	{ //don't visit tile occupied by allied hero
 		for (auto obj : cb->getVisitableObjs(pos))
 		{
-			if (obj->ID == Obj::HERO && obj->tempOwner == h->tempOwner && obj != h)
+			if (obj->ID == Obj::HERO && obj->tempOwner == h->tempOwner && obj != h.get())
 				return false;
 		}
 	}
@@ -2488,11 +2488,9 @@ bool isWeeklyRevisitable (const CGObjectInstance * obj)
 		case Obj::MAGIC_WELL:
 		case Obj::HILL_FORT:
 			return true;
-			break;
 		case Obj::BORDER_GATE:
 		case Obj::BORDERGUARD:
 			return (dynamic_cast <const CGKeys *>(obj))->wasMyColorVisited (ai->playerID); //FIXME: they could be revisited sooner than in a week
-			break;
 	}
 	return false;
 }
@@ -2580,10 +2578,8 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			break;
 		case Obj::MAGIC_WELL:
 			return h->mana < h->manaLimit();
-			break;
 		case Obj::PRISON:
 			return ai->myCb->getHeroesInfo().size() < GameConstants::MAX_HEROES_PER_PLAYER;
-			break;
 
 		case Obj::BOAT:
 			return false;

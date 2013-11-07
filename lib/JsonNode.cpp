@@ -90,12 +90,12 @@ bool JsonNode::operator == (const JsonNode &other) const
 	{
 		switch(type)
 		{
-			break; case DATA_NULL:   return true;
-			break; case DATA_BOOL:   return Bool() == other.Bool();
-			break; case DATA_FLOAT:  return Float() == other.Float();
-			break; case DATA_STRING: return String() == other.String();
-			break; case DATA_VECTOR: return Vector() == other.Vector();
-			break; case DATA_STRUCT: return Struct() == other.Struct();
+			case DATA_NULL:   return true;
+			case DATA_BOOL:   return Bool() == other.Bool();
+			case DATA_FLOAT:  return Float() == other.Float();
+			case DATA_STRING: return String() == other.String();
+			case DATA_VECTOR: return Vector() == other.Vector();
+			case DATA_STRUCT: return Struct() == other.Struct();
 		}
 	}
 	return false;
@@ -521,7 +521,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 
 //returns first Key with value equal to given one
 template<class Key, class Val>
-Key reverseMapFirst(const Val & val, const std::map<Key, Val> map)
+Key reverseMapFirst(const Val & val, const std::map<Key, Val> & map)
 {
 	for(auto it : map)
 	{

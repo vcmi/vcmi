@@ -126,7 +126,10 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 			}
 		}
 		else
-            logGlobal->errorStream()<<"Failed to open "<<fname<<" as H3 PCX!";
+		{
+			logGlobal->errorStream()<<"Failed to open "<<fname<<" as H3 PCX!";
+			return nullptr;
+		}
 	}
 	else
 	{ //loading via SDL_Image
@@ -147,6 +150,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 		{
             logGlobal->errorStream()<<"Failed to open "<<fname<<" via SDL_Image";
 			logGlobal->errorStream()<<"Reason: " << IMG_GetError();
+			return nullptr;
 		}
 	}
 

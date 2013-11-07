@@ -79,7 +79,7 @@ public:
 	/**
 	 * Ctor. Can be used to create indentifier for resource loading using one parameter
 	 *
-	 * @param name The resource name including extension.
+	 * @param fullName The resource name including extension.
 	 */
 	explicit ResourceID(std::string fullName);
 
@@ -166,8 +166,8 @@ public:
 	 * Will load all filesystem data from Json data at this path (config/filesystem.json)
 	 * @param prefix - prefix for all paths in filesystem config
 	 */
-	static void loadMainFileSystem(const std::string & fsConfigURI);
 	static void loadModFileSystem(const std::string &prefix, const JsonNode & fsConfig);
+	static void loadMainFileSystem(const std::string & fsConfigURI);
 	static void loadDirectory(const std::string &prefix, const std::string & mountPoint, const JsonNode & config);
 	static void loadZipArchive(const std::string &prefix, const std::string & mountPoint, const JsonNode & config);
 	static void loadArchive(const std::string &prefix, const std::string & mountPoint, const JsonNode & config, EResType::Type archiveType);

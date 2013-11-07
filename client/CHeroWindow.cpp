@@ -201,12 +201,11 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	portraitImage->setFrame(curHero->portrait);
 
 	{
-		CAdventureMapButton * split = nullptr;
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
 		if(!garr)
 		{
 			garr = new CGarrisonInt(15, 485, 8, Point(), background->bg, Point(15,485), curHero);
-			split = new CAdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32],
+			auto split = new CAdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32],
 					boost::bind(&CGarrisonInt::splitClick,garr), 539, 519, "hsbtns9.def", false, nullptr, false); //deleted by garrison destructor
 			boost::algorithm::replace_first(split->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
 

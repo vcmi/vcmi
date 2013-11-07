@@ -1535,12 +1535,11 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 
 CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 {
-	auto  nhi = new CGHeroInstance();
+	auto nhi = new CGHeroInstance();
 
-	int identifier = 0;
 	if(map->version > EMapFormat::ROE)
 	{
-		identifier = reader.readUInt32();
+		unsigned int identifier = reader.readUInt32();
 		map->questIdentifierToId[identifier] = idToBeGiven;
 	}
 

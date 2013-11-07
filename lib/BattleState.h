@@ -144,7 +144,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 
 	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
 
-	std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::vector<const CStack*> affectedCreatures, PlayerColor casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const;
+	std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::vector<const CStack*> & affectedCreatures, PlayerColor casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const;
 
 	const CStack * battleGetStack(BattleHex pos, bool onlyAlive); //returns stack at given tile
 	const CGHeroInstance * battleGetOwner(const CStack * stack) const; //returns hero that owns given stack; nullptr if none

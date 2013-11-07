@@ -429,11 +429,9 @@ void CVCMIServer::start()
 		case 0:
 			firstConnection->close();
 			exit(0);
-			break;
 		case 1:
 			firstConnection->close();
 			return;
-			break;
 		case 2:
 			newGame();
 			break;

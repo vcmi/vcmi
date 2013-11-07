@@ -268,7 +268,7 @@ CGarrisonDialogQuery::CGarrisonDialogQuery(const CArmedInstance *up, const CArme
 
 bool CGarrisonDialogQuery::blocksPack(const CPack *pack) const 
 {
-	std::set<ObjectInstanceID> ourIds, idsAttempted;
+	std::set<ObjectInstanceID> ourIds;
 	ourIds.insert(this->exchangingArmies[0]->id);
 	ourIds.insert(this->exchangingArmies[1]->id);
 

@@ -102,7 +102,7 @@ void FuzzyHelper::initBank()
 			bankBlock.addRule(new fl::MamdaniRule("if BankInput is SET then BankDanger is Bank" + boost::lexical_cast<std::string>(i), engine));
 		}
 	}
-	catch (fl::FuzzyException fe)
+	catch (fl::FuzzyException & fe)
 	{
         logAi->errorStream() << "initBank " << fe.name() << ": " << fe.message();
 	}
@@ -178,11 +178,11 @@ void FuzzyHelper::initTacticalAdvantage()
 
 		engine.addRuleBlock (&tacticalAdvantage);
 	}
-	catch(fl::ParsingException pe)
+	catch(fl::ParsingException & pe)
 	{
         logAi->errorStream() << "initTacticalAdvantage " << pe.name() << ": " << pe.message();
 	}
-	catch (fl::FuzzyException fe)
+	catch (fl::FuzzyException & fe)
 	{
         logAi->errorStream() << "initTacticalAdvantage " << fe.name() << ": " << fe.message();
 	}
@@ -199,10 +199,9 @@ ui64 FuzzyHelper::estimateBankDanger (int ID)
 			case 4:
 				try
 				{
-					int bankVal;
 					for (int i = 0; i < 4; ++i)
 					{
-						bankVal = evaluateBankConfig (VLC->objh->banksInfo[ID][i]);
+						int bankVal = evaluateBankConfig (VLC->objh->banksInfo[ID][i]);
 						bankDanger->term("Bank" + boost::lexical_cast<std::string>(i))->setMinimum(bankVal * 0.5f);
 						bankDanger->term("Bank" + boost::lexical_cast<std::string>(i))->setMaximum(bankVal * 1.5f);
 					}
@@ -213,7 +212,7 @@ ui64 FuzzyHelper::estimateBankDanger (int ID)
 					engine.process (BANK_DANGER);
 					val = bankDanger->output().defuzzify(); //some expected value of this bank
 				}
-				catch (fl::FuzzyException fe)
+				catch (fl::FuzzyException & fe)
 				{
                     logAi->errorStream() << fe.name() << ": " << fe.message();
 				}
@@ -225,7 +224,7 @@ ui64 FuzzyHelper::estimateBankDanger (int ID)
                 logAi->warnStream() << ("Uhnandled bank config!");
 		}
 	}
-	catch (fl::FuzzyException fe)
+	catch (fl::FuzzyException & fe)
 	{
         logAi->errorStream() << "estimateBankDanger " << fe.name() << ": " << fe.message();
 	}
@@ -268,7 +267,7 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 		engine.process (TACTICAL_ADVANTAGE);
 		output = threat->output().defuzzify();
 	}
-	catch (fl::FuzzyException fe)
+	catch (fl::FuzzyException & fe)
 	{
         logAi->errorStream() << "getTacticalAdvantage " << fe.name() << ": " << fe.message();
 	}

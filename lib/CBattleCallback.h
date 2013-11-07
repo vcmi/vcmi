@@ -302,8 +302,8 @@ public:
 	AccessibilityInfo getAccesibility(const std::vector<BattleHex> &accessibleHexes) const; //given hexes will be marked as accessible
 	std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const;
 protected:
-	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters params) const;
-	ReachabilityInfo makeBFS(const AccessibilityInfo &accessibility, const ReachabilityInfo::Parameters params) const;
+	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters &params) const;
+	ReachabilityInfo makeBFS(const AccessibilityInfo &accessibility, const ReachabilityInfo::Parameters &params) const;
 	ReachabilityInfo makeBFS(const CStack *stack) const; //uses default parameters -> stack position and owner's perspective
 	std::set<BattleHex> getStoppers(BattlePerspective::BattlePerspective whichSidePerspective) const; //get hexes with stopping obstacles (quicksands)
 

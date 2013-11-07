@@ -2401,7 +2401,6 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 
 		case CBuilding::BUILD_SPECIAL:
 			COMPLAIN_RET("This building can not be constructed!");
-			break;
 
 		case CBuilding::BUILD_GRAIL  :
 			if(requestedBuilding->mode == CBuilding::BUILD_GRAIL) //needs grail
@@ -3357,7 +3356,6 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			}
 			break;
 		}
-		break;
 	case Battle::WALK_AND_ATTACK: //walk or attack
 		{
 			StartAction start_action(ba);
@@ -5346,7 +5344,6 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 				}
 			}
 			bool castMe = false;
-			int meleeRanged;
 			if(oneOfAttacked == nullptr) //all attacked creatures have been killed
 				return;
 			int spellLevel = 0;
@@ -5354,7 +5351,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			for(const Bonus *sf : *spellsByType)
 			{
 				vstd::amax(spellLevel, sf->additionalInfo % 1000); //pick highest level
-				meleeRanged = sf->additionalInfo / 1000;
+				int meleeRanged = sf->additionalInfo / 1000;
 				if (meleeRanged == 0 || (meleeRanged == 1 && bat.shot()) || (meleeRanged == 2 && !bat.shot()))
 					castMe = true;
 			}
@@ -5648,7 +5645,6 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int
 	case SpellID::VIEW_AIR:
 	default:
 		COMPLAIN_RET("This spell is not implemented yet!");
-		break;
 	}
 
 	SetMana sm;

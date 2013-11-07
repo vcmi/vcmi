@@ -14,7 +14,7 @@
  *
  */
 
-using namespace boost::logic;
+using boost::logic::tribool;
 class CCallback;
 class CBattleCallback;
 class ICallback;

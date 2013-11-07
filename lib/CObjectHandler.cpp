@@ -2311,6 +2311,7 @@ void CGTownInstance::initObj()
 			break;
 		case 5:
 			bonusingBuildings.push_back (new COPWBonus(BuildingID::MANA_VORTEX, this));
+			//fallthrough
 		case 2: case 3: case 6:
 			bonusingBuildings.push_back (new CTownBonus(BuildingID::SPECIAL_4, this));
 			break;
@@ -3524,12 +3525,11 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	{
 		stacksCount = 3;
 	}
-	int stackSize;
 	SlotID sourceSlot = stacks.begin()->first;
 	SlotID destSlot;
 	for (int stacksLeft = stacksCount; stacksLeft > 1; --stacksLeft)
 	{
-		stackSize = stacks.begin()->second->count / stacksLeft;
+		int stackSize = stacks.begin()->second->count / stacksLeft;
 		if (stackSize)
 		{
 			if ((destSlot = getFreeSlot()).validSlot())
@@ -6066,7 +6066,6 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 			cb->showBlockingDialog(&bd);
 			return;
 		}
-		break;
 	default:
         logGlobal->errorStream() << "Error: Unknown object (" << ID <<") treated as CGOnceVisitable!";
 		return;
@@ -7197,7 +7196,6 @@ void CArmedInstance::randomizeArmy(int type)
 			int level = (randID-VLC->creh->creatures.size()) / 2 -1;
 			bool upgrade = !(randID % 2);
 			elem.second->setType(VLC->townh->factions[type]->town->creatures[level][upgrade]);
-			randID = -1;
 		}
 
 		assert(elem.second->armyObj == this);
@@ -7431,8 +7429,6 @@ std::vector<int> IMarket::availableItemsIds(EMarketMode::EMarketMode mode) const
 	case EMarketMode::CREATURE_RESOURCE:
 		for (int i = 0; i < 7; i++)
 			ret.push_back(i);
-	default:
-		break;
 	}
 	return ret;
 }

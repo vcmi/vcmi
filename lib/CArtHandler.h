@@ -122,7 +122,7 @@ public:
 	SpellID getGivenSpellID() const; //to be used with scrolls (and similar arts), -1 if none
 
 	virtual bool canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved = false) const;
-	bool canBePutAt(const ArtifactLocation al, bool assumeDestRemoved = false) const;  //forwards to the above one
+	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;  //forwards to the above one
 	virtual bool canBeDisassembled() const;
 	virtual void putAt(ArtifactLocation al);
 	virtual void removeFrom(ArtifactLocation al);

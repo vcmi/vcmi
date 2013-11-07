@@ -168,7 +168,7 @@ void CGuiHandler::handleEvents()
 	{
 		SDL_Event ev;
 		boost::unique_lock<boost::mutex> lock(eventsM);
-		if(!events.size())
+		if(events.empty())
 		{
 			return;
 		}

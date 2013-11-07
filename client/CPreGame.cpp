@@ -671,17 +671,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 
 	start->assignedKeys.insert(SDLK_RETURN);
 
-	std::string backName;
-	if(Type == CMenuScreen::campaignList)
-	{
-		backName = "SCNRBACK.DEF";
-	}
-	else
-	{
-		backName = "SCNRBACK.DEF";
-	}
-
-	back = new CAdventureMapButton("", CGI->generaltexth->zelp[105].second, boost::bind(&CGuiHandler::popIntTotally, &GH, this), 581, 535, backName, SDLK_ESCAPE);
+	back = new CAdventureMapButton("", CGI->generaltexth->zelp[105].second, boost::bind(&CGuiHandler::popIntTotally, &GH, this), 581, 535, "SCNRBACK.DEF", SDLK_ESCAPE);
 
 	if(network)
 	{
@@ -1196,7 +1186,6 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 	}
 	else
 	{
-		std::vector<CCampaignHeader> cpm;
 		switch(tabType)
 		{
 		case CMenuScreen::newGame:

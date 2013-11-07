@@ -94,7 +94,7 @@ endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		set(CLANG_SPECIFIC_FLAGS "-Wno-mismatched-tags")
+                set(CLANG_SPECIFIC_FLAGS "-Wno-mismatched-tags")
 	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wno-switch -Wno-sign-compare -Wno-unused-parameter -Wno-overloaded-virtual ${CLANG_SPECIFIC_FLAGS}")
 endif()
@@ -115,7 +115,7 @@ else()
 	include(GNUInstallDirs)
 
 	if (NOT BIN_DIR)
-			set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
+                set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
 	endif()
 	if (NOT LIB_DIR)
 		set(LIB_DIR "${CMAKE_INSTALL_LIBDIR}/vcmi" CACHE STRING "Where to install main library")

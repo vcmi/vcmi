@@ -711,7 +711,7 @@ ArtifactPosition CArtifactInstance::firstBackpackSlot(const CArtifactSet *h) con
 	return ArtifactPosition::PRE_FIRST;
 }
 
-bool CArtifactInstance::canBePutAt(const ArtifactLocation al, bool assumeDestRemoved /*= false*/) const
+bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved /*= false*/) const
 {
 	return canBePutAt(al.getHolderArtSet(), al.slot, assumeDestRemoved);
 }

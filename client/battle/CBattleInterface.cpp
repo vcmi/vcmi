@@ -8,7 +8,7 @@
 #include "../CBitmapHandler.h"
 #include "../../lib/CObjectHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../CDefHandler.h"
+# include "../CDefHandler.h"
 #include "../../lib/CSpellHandler.h"
 #include "../CMusicHandler.h"
 #include "../CMessage.h"
@@ -1338,8 +1338,6 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	bool customSpell = false;
 	if(sc->affectedCres.size() == 1)
 	{
-		bool plural = false; //add singular / plural form of creature text if this is true
-		int textID = 0;
 		std::string text = CGI->generaltexth->allTexts[195];
 		if(sc->castedByHero)
 		{
@@ -1349,6 +1347,8 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		}
 		else
 		{
+			bool plural = false; //add singular / plural form of creature text if this is true
+			int textID = 0;
 			switch(sc->id)
 			{
 				case SpellID::STONE_GAZE:
@@ -1544,6 +1544,7 @@ void CBattleInterface::castThisSpell(int spellID)
 
 	//choosing possible tragets
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
+	assert(castingHero); // code below assumes non-null hero
 	sp = CGI->spellh->spells[spellID];
 	spellSelMode = ANY_LOCATION;
 	if(sp->getTargetType() == CSpell::CREATURE)
@@ -1552,7 +1553,7 @@ void CBattleInterface::castThisSpell(int spellID)
 	}
 	if(sp->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
 	{
-		if(castingHero && castingHero->getSpellSchoolLevel(sp) < 3)
+		if(castingHero->getSpellSchoolLevel(sp) < 3)
 			spellSelMode = selectionTypeByPositiveness(*sp);
 		else
 			spellSelMode = NO_LOCATION;
@@ -1960,10 +1961,10 @@ void CBattleInterface::startAction(const BattleAction* action)
 	if(action->actionType == Battle::WALK
 		|| (action->actionType == Battle::WALK_AND_ATTACK && action->destinationTile != stack->position))
 	{
+		assert(stack);
 		moveStarted = true;
 		if(creAnims[action->stackNumber]->framesInGroup(CCreatureAnim::MOVE_START))
 		{
-			const CStack * stack = curInt->cb->battleGetStackByID(action->stackNumber);
 			pendingAnims.push_back(std::make_pair(new CMovementStartAnimation(this, stack), false));
 		}
 	}

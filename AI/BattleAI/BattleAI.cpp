@@ -121,10 +121,10 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 				if(auto woundHp = stack->MaxHealth() - stack->firstHPleft)
 					woundHpToStack[woundHp] = stack;
 
-			if(woundHpToStack.size())
-				return BattleAction::makeHeal(stack, woundHpToStack.rbegin()->second); //last element of the woundHpToStack is the most wounded stack
-			else
+			if(woundHpToStack.empty())
 				return BattleAction::makeDefend(stack);
+			else
+				return BattleAction::makeHeal(stack, woundHpToStack.rbegin()->second); //last element of the woundHpToStack is the most wounded stack
 		}
 
 		if(cb->battleCanCastSpell())

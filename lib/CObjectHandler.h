@@ -80,6 +80,7 @@ public:
 	bool isCustomFirst, isCustomNext, isCustomComplete;
 
 	CQuest(){missionType = MISSION_NONE;}; //default constructor
+	virtual ~CQuest(){};
 
 	virtual bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
@@ -841,7 +842,8 @@ class DLL_LINKAGE IQuestObject
 public:
 	CQuest * quest;
 
-	IQuestObject(){quest = new CQuest;};
+	IQuestObject(): quest(new CQuest()){};
+	virtual ~IQuestObject() {};
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	virtual bool checkQuest (const CGHeroInstance * h) const;
 

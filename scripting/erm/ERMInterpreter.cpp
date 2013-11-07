@@ -889,7 +889,6 @@ struct IFPerformer : StandardReceiverVisitor<TUnusedType>
 
 	void operator()(TNormalBodyOption const& trig) const override
 	{
-		std::string message; //to be shown
 		switch(trig.optionCode)
 		{
 		case 'M': //Show the message (Text) or contents of z$ variable on the screen immediately.
@@ -1380,9 +1379,9 @@ struct ERMExpDispatch : boost::static_visitor<>
 		}
 		else if(trig.name == "HE")
 		{
-			const CGHeroInstance * hero = nullptr;
 			if(trig.identifier.is_initialized())
 			{
+				const CGHeroInstance * hero = nullptr;
 				ERM::Tidentifier tid = trig.identifier.get();
 				switch(tid.size())
 				{

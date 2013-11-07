@@ -136,20 +136,17 @@ void CClient::run()
 	setThreadName("CClient::run");
 	try
 	{
-		CPack *pack = nullptr;
 		while(!terminate)
 		{
-			pack = serv->retreivePack(); //get the package from the server
+			CPack *pack = serv->retreivePack(); //get the package from the server
 			
 			if (terminate) 
 			{
-				delete pack;
-				pack = nullptr;
+				vstd::clear_pointer(pack);
 				break;
 			}
 
 			handlePack(pack);
-			pack = nullptr;
 		}
 	} 
 	//catch only asio exceptions

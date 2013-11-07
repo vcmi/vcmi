@@ -68,12 +68,12 @@ struct CPackForServer : public CPack
 	PlayerColor player;
 	CConnection *c;
 	CGameState* GS(CGameHandler *gh);
-	CPackForServer()
+	CPackForServer():
+		player(PlayerColor::NEUTRAL),
+		c(nullptr)
 	{
 		type = 2;
-		c = nullptr;
-		player = PlayerColor::NEUTRAL;
-	};
+	}
 
 	bool applyGh(CGameHandler *gh);//called after applying to gs
 };
@@ -177,10 +177,10 @@ struct StackLocation
 
 	StackLocation()
 	{}
-	StackLocation(const CArmedInstance *Army, SlotID Slot)
+	StackLocation(const CArmedInstance *Army, SlotID Slot):
+		army(const_cast<CArmedInstance*>(Army)), //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
+		slot(Slot)
 	{
-		army = const_cast<CArmedInstance*>(Army); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
-		slot = Slot;
 	}
 
 	DLL_LINKAGE const CStackInstance *getStack();

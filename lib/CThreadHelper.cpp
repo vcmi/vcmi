@@ -31,9 +31,9 @@ void CThreadHelper::run()
 }
 void CThreadHelper::processTasks()
 {
-	int pom;
 	while(true)
 	{
+		int pom;
 		{
 			boost::unique_lock<boost::mutex> lock(rtinm);
 			if((pom = currentTask) >= amount)

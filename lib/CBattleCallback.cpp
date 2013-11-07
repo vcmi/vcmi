@@ -1151,7 +1151,7 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility(const std::vector<BattleH
 	return ret;
 }
 
-ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibility, const ReachabilityInfo::Parameters params) const
+ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibility, const ReachabilityInfo::Parameters &params) const
 {
 	ReachabilityInfo ret;
 	ret.accessibility = accessibility;
@@ -1304,7 +1304,7 @@ ReachabilityInfo CBattleInfoCallback::getReachability(const ReachabilityInfo::Pa
 		return makeBFS(getAccesibility(params.knownAccessible), params);
 }
 
-ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityInfo::Parameters params) const
+ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityInfo::Parameters &params) const
 {
 	ReachabilityInfo ret;
 	ret.accessibility = getAccesibility(params.knownAccessible);
@@ -1684,7 +1684,8 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	int spellIDs[] = {	SpellID::SUMMON_FIRE_ELEMENTAL, SpellID::SUMMON_EARTH_ELEMENTAL,
 						SpellID::SUMMON_WATER_ELEMENTAL, SpellID::SUMMON_AIR_ELEMENTAL };
 	//(fire, earth, water, air) elementals
-	int creIDs[] = {114, 113, 115, 112};
+	int creIDs[] = {CreatureID::FIRE_ELEMENTAL,  CreatureID::EARTH_ELEMENTAL,
+					CreatureID::WATER_ELEMENTAL, CreatureID::AIR_ELEMENTAL};
 
 	int arpos = vstd::find_pos(spellIDs, spell->id);
 	if(arpos < ARRAY_COUNT(spellIDs))

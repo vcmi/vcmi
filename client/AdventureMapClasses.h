@@ -59,7 +59,7 @@ protected:
 
 	/**
 	 * @brief CList - protected constructor
-	 * @param Size - maximal amount of visible at once items
+	 * @param size - maximal amount of visible at once items
 	 * @param position - cordinates
 	 * @param btnUp - path to image to use as top button
 	 * @param btnDown - path to image to use as bottom button
@@ -129,7 +129,7 @@ class CHeroList	: public CList
 public:
 	/**
 	 * @brief CHeroList
-	 * @param Size, position, btnUp, btnDown @see CList::CList
+	 * @param size, position, btnUp, btnDown @see CList::CList
 	 */
 	CHeroList(int size, Point position, std::string btnUp, std::string btnDown);
 
@@ -163,7 +163,7 @@ class CTownList	: public CList
 public:
 	/**
 	 * @brief CTownList
-	 * @param Size, position, btnUp, btnDown @see CList::CList
+	 * @param size, position, btnUp, btnDown @see CList::CList
 	 */
 	CTownList(int size, Point position, std::string btnUp, std::string btnDown);
 

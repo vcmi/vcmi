@@ -1267,13 +1267,12 @@ void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
 	}
 
 	size_t begin = 0;
-	size_t end;
 	std::string delimeters = "{}";
 	size_t currDelimeter = 0;
 
 	do
 	{
-		end = what.find_first_of(delimeters[currDelimeter % 2], begin);
+		size_t end = what.find_first_of(delimeters[currDelimeter % 2], begin);
 		if (begin != end)
 		{
 			std::string toPrint = what.substr(begin, end-1);

@@ -45,7 +45,7 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 	#define CONSOLE_TEAL FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
 #endif
 
-TColor defColor;
+static TColor defColor;
 
 #ifdef _WIN32
 

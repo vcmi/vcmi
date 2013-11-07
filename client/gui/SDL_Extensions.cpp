@@ -175,13 +175,13 @@ static void prepareOutRect(SDL_Rect *src, SDL_Rect *dst, const SDL_Rect & clip_r
 template<int bpp>
 void CSDL_Ext::blitWithRotateClip(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect, ui8 rotation)//srcRect is not used, works with 8bpp sources and 24bpp dests
 {
-	static void (*blitWithRotate[])(const SDL_Surface *, const SDL_Rect *, SDL_Surface *, const SDL_Rect *) = {blitWithRotate1<bpp>, blitWithRotate2<bpp>, blitWithRotate3<bpp>};
 	if(!rotation)
 	{
 		CSDL_Ext::blitSurface(src, srcRect, dst, dstRect);
 	}
 	else
 	{
+		static void (*blitWithRotate[])(const SDL_Surface *, const SDL_Rect *, SDL_Surface *, const SDL_Rect *) = {blitWithRotate1<bpp>, blitWithRotate2<bpp>, blitWithRotate3<bpp>};
 		prepareOutRect(srcRect, dstRect, dst->clip_rect);
 		blitWithRotate[rotation-1](src, srcRect, dst, dstRect);
 	}
@@ -196,13 +196,13 @@ void CSDL_Ext::blitWithRotateClipVal( SDL_Surface *src,SDL_Rect srcRect, SDL_Sur
 template<int bpp>
 void CSDL_Ext::blitWithRotateClipWithAlpha(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect, ui8 rotation)//srcRect is not used, works with 8bpp sources and 24bpp dests
 {
-	static void (*blitWithRotate[])(const SDL_Surface *, const SDL_Rect *, SDL_Surface *, const SDL_Rect *) = {blitWithRotate1WithAlpha<bpp>, blitWithRotate2WithAlpha<bpp>, blitWithRotate3WithAlpha<bpp>};
 	if(!rotation)
 	{
 		blit8bppAlphaTo24bpp(src, srcRect, dst, dstRect);
 	}
 	else
 	{
+		static void (*blitWithRotate[])(const SDL_Surface *, const SDL_Rect *, SDL_Surface *, const SDL_Rect *) = {blitWithRotate1WithAlpha<bpp>, blitWithRotate2WithAlpha<bpp>, blitWithRotate3WithAlpha<bpp>};
 		prepareOutRect(srcRect, dstRect, dst->clip_rect);
 		blitWithRotate[rotation-1](src, srcRect, dst, dstRect);
 	}

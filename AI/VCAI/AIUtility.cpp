@@ -80,8 +80,6 @@ ui64 evaluateDanger(crint3 tile)
 
 	//TODO mozna odwiedzic blockvis nie ruszajac straznika
 	return std::max(objectDanger, guardDanger);
-
-	return 0;
 }
 
 ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)

@@ -724,7 +724,7 @@ const CGHeroInstance * BattleInfo::getHero( PlayerColor player ) const
 	return nullptr;
 }
 
-std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::vector<const CStack*> affectedCreatures, PlayerColor casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const
+std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::vector<const CStack*> & affectedCreatures, PlayerColor casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const
 {
 	std::vector<ui32> ret;
 	for(auto & affectedCreature : affectedCreatures)

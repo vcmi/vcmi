@@ -719,29 +719,22 @@ int CGameState::getDate(Date::EDateType mode) const
 	{
 	case Date::DAY:
 		return day;
-		break;
 	case Date::DAY_OF_WEEK: //day of week
 		temp = (day)%7; // 1 - Monday, 7 - Sunday
-		if (temp)
-			return temp;
-		else return 7;
-		break;
+		return temp ? temp : 7;
 	case Date::WEEK:  //current week
 		temp = ((day-1)/7)+1;
 		if (!(temp%4))
 			return 4;
 		else
 			return (temp%4);
-		break;
 	case Date::MONTH: //current month
 		return ((day-1)/28)+1;
-		break;
 	case Date::DAY_OF_MONTH: //day of month
 		temp = (day)%28;
 		if (temp)
 			return temp;
 		else return 28;
-		break;
 	}
 	return 0;
 }
@@ -2152,7 +2145,6 @@ int CGameState::victoryCheck( PlayerColor player ) const
 				}
 			}
 			return 1;
-			break;
 		case EVictoryConditionType::TAKEMINES:
 			for(auto & elem : map->objects)
 			{
@@ -2166,7 +2158,6 @@ int CGameState::victoryCheck( PlayerColor player ) const
 				}
 			}
 			return 1;
-			break;
 		case EVictoryConditionType::TRANSPORTITEM:
 			{
 				const CGTownInstance *t = static_cast<const CGTownInstance *>(map->victoryCondition.obj);

@@ -1137,7 +1137,6 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 	if(!LOCPLINT->cb->isVisible(mapPos) || !LOCPLINT->makingTurn)
 		return;
 
-	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mapPos);//blocking objects at tile
 	const TerrainTile *tile = LOCPLINT->cb->getTile(mapPos);
 
 	const CGObjectInstance *topBlocking = getBlockingObject(mapPos);
