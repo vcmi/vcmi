@@ -49,6 +49,16 @@ JsonNode::JsonNode(ResourceID && fileURI):
 	*this = parser.parse(fileURI.getName());
 }
 
+JsonNode::JsonNode(ResourceID && fileURI, bool &isValidSyntax):
+	type(DATA_NULL)
+{
+	auto file = CResourceHandler::get()->load(fileURI)->readAll();
+
+	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second);
+	*this = parser.parse(fileURI.getName());
+	isValidSyntax = parser.isValid();
+}
+
 JsonNode::JsonNode(const JsonNode &copy):
 	type(DATA_NULL),
 	meta(copy.meta)
@@ -636,8 +646,8 @@ bool JsonUtils::validate(const JsonNode &node, std::string schemaName, std::stri
 	std::string log = Validation::check(schemaName, node);
 	if (!log.empty())
 	{
-		logGlobal->errorStream() << "Data in " << dataName << " is invalid!";
-		logGlobal->errorStream() << log;
+		logGlobal->warnStream() << "Data in " << dataName << " is invalid!";
+		logGlobal->warnStream() << log;
 	}
 	return log.empty();
 }
@@ -743,12 +753,21 @@ void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source)
 
 JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files)
 {
+	bool isValid;
+	return assembleFromFiles(files, isValid);
+}
+
+JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files, bool &isValid)
+{
+	isValid = true;
 	JsonNode result;
 
 	for(std::string file : files)
 	{
-		JsonNode section(ResourceID(file, EResType::TEXT));
+		bool isValidFile;
+		JsonNode section(ResourceID(file, EResType::TEXT), isValidFile);
 		merge(result, section);
+		isValid |= isValidFile;
 	}
 	return result;
 }

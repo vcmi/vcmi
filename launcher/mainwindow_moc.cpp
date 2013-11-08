@@ -17,7 +17,7 @@ void MainWindow::load()
 	logConfig.configureDefault();
 
 	CResourceHandler::initialize();
-	CResourceHandler::loadMainFileSystem("config/filesystem.json");
+	CResourceHandler::load("config/filesystem.json");
 
 	for (auto & string : VCMIDirs::get().dataPaths())
 		QDir::addSearchPath("icons", QString::fromUtf8(string.c_str()) + "/launcher/icons");

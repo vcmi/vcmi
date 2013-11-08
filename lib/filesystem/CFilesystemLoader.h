@@ -11,7 +11,7 @@
  */
 
 #include "ISimpleResourceLoader.h"
-#include "Filesystem.h"
+#include "ResourceID.h"
 
 class CFileInfo;
 class CInputStream;

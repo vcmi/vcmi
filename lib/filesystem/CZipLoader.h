@@ -12,7 +12,7 @@
 
 #include "ISimpleResourceLoader.h"
 #include "CInputStream.h"
-#include "Filesystem.h"
+#include "ResourceID.h"
 #include "CCompressedStream.h"
 
 // Necessary here in order to get all types

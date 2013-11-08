@@ -204,9 +204,10 @@ CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, 
 	}
 }
 
-void CContentHandler::ContentTypeHandler::preloadModData(std::string modName, std::vector<std::string> fileList)
+bool CContentHandler::ContentTypeHandler::preloadModData(std::string modName, std::vector<std::string> fileList)
 {
-	JsonNode data = JsonUtils::assembleFromFiles(fileList);
+	bool result;
+	JsonNode data = JsonUtils::assembleFromFiles(fileList, result);
 	data.setMeta(modName);
 
 	ModInfo & modInfo = modData[modName];
@@ -234,11 +235,13 @@ void CContentHandler::ContentTypeHandler::preloadModData(std::string modName, st
 			JsonUtils::merge(remoteConf, entry.second);
 		}
 	}
+	return result;
 }
 
-void CContentHandler::ContentTypeHandler::loadMod(std::string modName)
+bool CContentHandler::ContentTypeHandler::loadMod(std::string modName)
 {
 	ModInfo & modInfo = modData[modName];
+	bool result = true;
 
 	// apply patches
 	if (!modInfo.patches.isNull())
@@ -257,7 +260,7 @@ void CContentHandler::ContentTypeHandler::loadMod(std::string modName)
 			if (originalData.size() > index)
 			{
 				JsonUtils::merge(originalData[index], data);
-				JsonUtils::validate(originalData[index], "vcmi:" + objectName, name);
+				result &= JsonUtils::validate(originalData[index], "vcmi:" + objectName, name);
 				handler->loadObject(modName, name, originalData[index], index);
 
 				originalData[index].clear(); // do not use same data twice (same ID)
@@ -266,9 +269,10 @@ void CContentHandler::ContentTypeHandler::loadMod(std::string modName)
 			}
 		}
 		// normal new object or one with index bigger that data size
-		JsonUtils::validate(data, "vcmi:" + objectName, name);
+		result &= JsonUtils::validate(data, "vcmi:" + objectName, name);
 		handler->loadObject(modName, name, data);
 	}
+	return result;
 }
 
 void CContentHandler::ContentTypeHandler::afterLoadFinalization()
@@ -287,20 +291,24 @@ CContentHandler::CContentHandler()
 	//TODO: spells, bonuses, something else?
 }
 
-void CContentHandler::preloadModData(std::string modName, JsonNode modConfig)
+bool CContentHandler::preloadModData(std::string modName, JsonNode modConfig)
 {
+	bool result = true;
 	for(auto & handler : handlers)
 	{
-		handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >());
+		result &= handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >());
 	}
+	return result;
 }
 
-void CContentHandler::loadMod(std::string modName)
+bool CContentHandler::loadMod(std::string modName)
 {
+	bool result = true;
 	for(auto & handler : handlers)
 	{
-		handler.second.loadMod(modName);
+		result &= handler.second.loadMod(modName);
 	}
+	return result;
 }
 
 void CContentHandler::afterLoadFinalization()
@@ -520,11 +528,70 @@ void CModHandler::initialize(std::vector<std::string> availableMods)
 
 	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);
 	file << modConfig;
+
+	loadModFilesystems();
 }
 
-std::vector<std::string> CModHandler::getActiveMods()
+static JsonNode genDefaultFS()
 {
-	return activeMods;
+	// default FS config for mods: directory "Content" that acts as H3 root directory
+	JsonNode defaultFS;
+	defaultFS[""].Vector().resize(2);
+	defaultFS[""].Vector()[0]["type"].String() = "zip";
+	defaultFS[""].Vector()[0]["path"].String() = "/Content.zip";
+	defaultFS[""].Vector()[1]["type"].String() = "dir";
+	defaultFS[""].Vector()[1]["path"].String() = "/Content";
+	return defaultFS;
+}
+
+static ISimpleResourceLoader * genModFilesystem(const std::string & modName, const JsonNode & conf)
+{
+	static const JsonNode defaultFS = genDefaultFS();
+
+	if (!conf["filesystem"].isNull())
+		return CResourceHandler::createFileSystem("mods/" + modName, conf["filesystem"]);
+	else
+		return CResourceHandler::createFileSystem("mods/" + modName, defaultFS);
+}
+
+static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoader * filesystem)
+{
+	boost::crc_32_type modChecksum;
+	// first - add current VCMI version into checksum to force re-validation on VCMI updates
+	modChecksum.process_bytes(reinterpret_cast<const void*>(GameConstants::VCMI_VERSION.data()), GameConstants::VCMI_VERSION.size());
+
+	// second - add mod.json into checksum because filesystem does not contains this file
+	ResourceID modConfFile("mods/" + modName + "/mod", EResType::TEXT);
+	ui32 configChecksum = CResourceHandler::getInitial()->load(modConfFile)->calculateCRC32();
+	modChecksum.process_bytes(reinterpret_cast<const void *>(&configChecksum), sizeof(configChecksum));
+
+	// third - add all loaded files from this mod into checksum
+	auto files = filesystem->getFilteredFiles([](const ResourceID & resID)
+	{
+		return resID.getType() == EResType::TEXT;
+	});
+
+	for (const ResourceID & file : files)
+	{
+		ui32 fileChecksum = filesystem->load(file)->calculateCRC32();
+		modChecksum.process_bytes(reinterpret_cast<const void *>(&fileChecksum), sizeof(fileChecksum));
+	}
+	return modChecksum.checksum();
+}
+
+void CModHandler::loadModFilesystems()
+{
+	for(std::string & modName : activeMods)
+	{
+		ResourceID modConfFile("mods/" + modName + "/mod", EResType::TEXT);
+		auto fsConfigData = CResourceHandler::getInitial()->load(modConfFile)->readAll();
+		const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
+
+		auto filesystem = genModFilesystem(modName, fsConfig);
+
+		CResourceHandler::get()->addLoader(filesystem, false);
+		allMods[modName].checksum = calculateModChecksum(modName, filesystem);
+	}
 }
 
 CModInfo & CModHandler::getModData(TModID modId)
@@ -552,14 +619,16 @@ void CModHandler::loadGameContent()
 
 	for(const TModID & modName : activeMods)
 	{
-		logGlobal->infoStream() << "\t\t" << allMods[modName].name;
+		// print message in format [<8-symbols checksum>] <modname>
+		logGlobal->infoStream() << "\t\t[" << std::noshowbase << std::hex << std::setw(8) << std::setfill('0')
+								<< allMods[modName].checksum << "] " << allMods[modName].name;
 
 		std::string modFileName = "mods/" + modName + "/mod.json";
 
 		const JsonNode config = JsonNode(ResourceID(modFileName));
-		JsonUtils::validate(config, "vcmi:mod", modName);
+		allMods[modName].validated = JsonUtils::validate(config, "vcmi:mod", modName);
 
-		content.preloadModData(modName, config);
+		allMods[modName].validated &= content.preloadModData(modName, config);
 	}
 	logGlobal->infoStream() << "\tParsing mod data: " << timer.getDiff() << " ms";
 
@@ -568,8 +637,11 @@ void CModHandler::loadGameContent()
 
 	for(const TModID & modName : activeMods)
 	{
-		content.loadMod(modName);
-		logGlobal->infoStream() << "\t\t" << allMods[modName].name;
+		allMods[modName].validated &= content.loadMod(modName);
+		if (allMods[modName].validated)
+			logGlobal->infoStream()  << "\t\t[DONE] " << allMods[modName].name;
+		else
+			logGlobal->errorStream() << "\t\t[FAIL] " << allMods[modName].name;
 	}
 	logGlobal->infoStream() << "\tLoading mod data: " << timer.getDiff() << "ms";
 

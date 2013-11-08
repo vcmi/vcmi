@@ -2,6 +2,7 @@
 #include "AdapterLoaders.h"
 
 #include "../JsonNode.h"
+#include "Filesystem.h"
 
 CMappedFileLoader::CMappedFileLoader(const std::string & mountPoint, const JsonNode &config)
 {
@@ -130,19 +131,4 @@ void CFilesystemList::addLoader(ISimpleResourceLoader * loader, bool writeable)
 	loaders->push_back(std::unique_ptr<ISimpleResourceLoader>(loader));
 	if (writeable)
 		writeableLoaders.insert(loader);
-}
-
-ISimpleResourceLoader * CResourceHandler::get()
-{
-	if(resourceLoader != nullptr)
-	{
-		return resourceLoader;
-	}
-	else
-	{
-		std::stringstream string;
-		string << "Error: Resource loader wasn't initialized. "
-			   << "Make sure that you set one via FilesystemFactory::initialize";
-		throw std::runtime_error(string.str());
-	}
 }

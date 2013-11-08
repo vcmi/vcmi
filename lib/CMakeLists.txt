@@ -22,6 +22,7 @@ set(lib_SRCS
 		filesystem/CFileInputStream.cpp
 		filesystem/CZipLoader.cpp
 		filesystem/Filesystem.cpp
+		filesystem/ResourceID.cpp
 
 		logging/CBasicLogConfigurator.cpp
 		logging/CLogger.cpp

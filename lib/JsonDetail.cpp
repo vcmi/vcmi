@@ -149,6 +149,11 @@ JsonNode JsonParser::parse(std::string fileName)
 	return root;
 }
 
+bool JsonParser::isValid()
+{
+	return errors.empty();
+}
+
 bool JsonParser::extractSeparator()
 {
 	if (!extractWhitespace())

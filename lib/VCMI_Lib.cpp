@@ -65,14 +65,13 @@ void LibClasses::loadFilesystem()
 	CResourceHandler::initialize();
     logGlobal->infoStream()<<"\t Initialization: "<<loadTime.getDiff();
 
-	CResourceHandler::loadMainFileSystem("config/filesystem.json");
+	CResourceHandler::load("config/filesystem.json");
     logGlobal->infoStream()<<"\t Data loading: "<<loadTime.getDiff();
 
 	modh = new CModHandler;
     logGlobal->infoStream()<<"\tMod handler: "<<loadTime.getDiff();
 
 	modh->initialize(CResourceHandler::getAvailableMods());
-	CResourceHandler::setActiveMods(modh->getActiveMods());
     logGlobal->infoStream()<<"\t Mod filesystems: "<<loadTime.getDiff();
 
     logGlobal->infoStream()<<"Basic initialization: "<<totalTime.getDiff();

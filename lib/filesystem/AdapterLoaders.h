@@ -11,10 +11,11 @@
  */
 
 #include "ISimpleResourceLoader.h"
-#include "Filesystem.h"
+#include "ResourceID.h"
 
 class CFileInfo;
 class CInputStream;
+class JsonNode;
 
 /**
  * Class that implements file mapping (aka *nix symbolic links)

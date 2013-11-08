@@ -10,7 +10,7 @@
  *
  */
 
-#include "Filesystem.h"
+#include "ResourceID.h"
 
 /**
  * A class which holds information about a file.

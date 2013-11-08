@@ -69,9 +69,27 @@ public:
 	{
 		std::unique_ptr<ui8[]> data(new ui8[getSize()]);
 
+		seek(0);
 		size_t readSize = read(data.get(), getSize());
 		assert(readSize == getSize());
 
 		return std::make_pair(std::move(data), getSize());
+	}
+
+	/**
+	 * @brief calculateCRC32 calculates CRC32 checksum for the whole file
+	 * @return calculated checksum
+	 */
+	virtual ui32 calculateCRC32()
+	{
+		si64 originalPos = tell();
+
+		boost::crc_32_type checksum;
+		auto data = readAll();
+		checksum.process_bytes(reinterpret_cast<const void *>(data.first.get()), data.second);
+
+		seek(originalPos);
+
+		return checksum.checksum();
 	}
 };

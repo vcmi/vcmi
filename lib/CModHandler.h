@@ -91,8 +91,9 @@ class CContentHandler
 		ContentTypeHandler(IHandlerBase * handler, std::string objectName);
 
 		/// local version of methods in ContentHandler
-		void preloadModData(std::string modName, std::vector<std::string> fileList);
-		void loadMod(std::string modName);
+		/// returns true if loading was successfull
+		bool preloadModData(std::string modName, std::vector<std::string> fileList);
+		bool loadMod(std::string modName);
 		void afterLoadFinalization();
 	};
 
@@ -101,11 +102,13 @@ public:
 	/// fully initialize object. Will cause reading of H3 config files
 	CContentHandler();
 
-	/// preloads all data from fileList as data from modName
-	void preloadModData(std::string modName, JsonNode modConfig);
+	/// preloads all data from fileList as data from modName.
+	/// returns true if loading was successfull
+	bool preloadModData(std::string modName, JsonNode modConfig);
 
 	/// actually loads data in mod
-	void loadMod(std::string modName);
+	/// returns true if loading was successfull
+	bool loadMod(std::string modName);
 
 	/// all data was loaded, time for final validation / integration
 	void afterLoadFinalization();
@@ -129,12 +132,18 @@ public:
 	/// list of mods that can't be used in the same time as this one
 	std::set <TModID> conflicts;
 
+	/// CRC-32 checksum of the mod
+	ui32 checksum;
+
+	/// true if mod has passed validation successfully
+	bool validated;
+
 	// mod configuration (mod.json). (no need to store it right now)
 	// std::shared_ptr<JsonNode> config; //TODO: unique_ptr can't be serialized
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & identifier & description & name & dependencies & conflicts;
+		h & identifier & description & name & dependencies & conflicts & checksum & validated;
 	}
 };
 
@@ -143,7 +152,8 @@ class DLL_LINKAGE CModHandler
 	std::map <TModID, CModInfo> allMods;
 	std::vector <TModID> activeMods;//active mods, in order in which they were loaded
 
-	void loadConfigFromFile (std::string name);
+	void loadConfigFromFile(std::string name);
+	void loadModFilesystems();
 
 	bool hasCircularDependency(TModID mod, std::set <TModID> currentList = std::set <TModID>()) const;
 
@@ -162,9 +172,6 @@ public:
 
 	/// receives list of available mods and trying to load mod.json from all of them
 	void initialize(std::vector<std::string> availableMods);
-
-	/// returns list of mods that should be active with order in which they shoud be loaded
-	std::vector<std::string> getActiveMods();
 
 	CModInfo & getModData(TModID modId);
 

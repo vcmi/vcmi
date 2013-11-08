@@ -55,6 +55,7 @@ public:
 	explicit JsonNode(const char * data, size_t datasize);
 	//Create tree from JSON file
  	explicit JsonNode(ResourceID && fileURI);
+	explicit JsonNode(ResourceID && fileURI, bool & isValidSyntax);
 	//Copy c-tor
 	JsonNode(const JsonNode &copy);
 
@@ -164,6 +165,7 @@ namespace JsonUtils
 	 * @param files - list of filenames with parts of json structure
 	 */
 	DLL_LINKAGE JsonNode assembleFromFiles(std::vector<std::string> files);
+	DLL_LINKAGE JsonNode assembleFromFiles(std::vector<std::string> files, bool & isValid);
 
 	/// This version loads all files with same name (overriden by mods)
 	DLL_LINKAGE JsonNode assembleFromFiles(std::string filename);
