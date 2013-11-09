@@ -113,3 +113,5 @@ struct DLL_LINKAGE BattleHex
 	bool isAvailable() const; //valid position not in first or last column
 	static BattleHex getClosestTile(bool attackerOwned, BattleHex initialPos, std::set<BattleHex> & possibilities); //TODO: vector or set? copying one to another is bad
 };
+
+std::ostream & operator<<(std::ostream & os, const BattleHex & hex);

@@ -103,3 +103,28 @@ bool PlayerColor::isValidPlayer() const
 {
 	return num < PLAYER_LIMIT_I;
 }
+
+std::ostream & operator<<(std::ostream & os, const Battle::ActionType actionType)
+{
+	static const std::map<Battle::ActionType, std::string> actionTypeToString = boost::assign::map_list_of
+			(Battle::END_TACTIC_PHASE, "End tactic phase")
+			(Battle::INVALID, "Invalid")
+			(Battle::NO_ACTION, "No action")
+			(Battle::HERO_SPELL, "Hero spell")
+			(Battle::WALK, "Walk")
+			(Battle::DEFEND, "Defend")
+			(Battle::RETREAT, "Retreat")
+			(Battle::SURRENDER, "Surrender")
+			(Battle::WALK_AND_ATTACK, "Walk and attack")
+			(Battle::SHOOT, "Shoot")
+			(Battle::WAIT, "Wait")
+			(Battle::CATAPULT, "Catapult")
+			(Battle::MONSTER_SPELL, "Monster spell")
+			(Battle::BAD_MORALE, "Bad morale")
+			(Battle::STACK_HEAL, "Stack heal")
+			(Battle::DAEMON_SUMMONING, "Daemon summoning");
+
+	auto it = actionTypeToString.find(actionType);
+	if (it == actionTypeToString.end()) return os << "<Unknown type>";
+	else return os << it->second;
+}

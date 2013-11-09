@@ -118,12 +118,14 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	strongInterest = true;
 	givenCommand = new CondSh<BattleAction *>(nullptr);
 
-	if(attackerInt && attackerInt->cb->battleGetTacticDist()) //hot-seat -> check tactics for both players (defender may be local human)
+	//hot-seat -> check tactics for both players (defender may be local human)
+	if(attackerInt && attackerInt->cb->battleGetTacticDist())
 		tacticianInterface = attackerInt;
 	else if(defenderInt && defenderInt->cb->battleGetTacticDist())
 		tacticianInterface = defenderInt;
 
-	tacticsMode = static_cast<bool>(tacticianInterface);  //if we found interface of player with tactics, then enter tactics mode
+	//if we found interface of player with tactics, then enter tactics mode
+	tacticsMode = static_cast<bool>(tacticianInterface);
 
 	//create stack queue
 	bool embedQueue = screen->h < 700;
@@ -2848,11 +2850,24 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 
 	boost::thread aiThread([&] 
 	{
-		auto  ba = new BattleAction(curInt->autofightingAI->activeStack(activeStack));
+		auto ba = new BattleAction(curInt->autofightingAI->activeStack(activeStack));
 
 		if(curInt->isAutoFightOn)
 		{
-			givenCommand->setn(ba);
+			if(tacticsMode)
+			{
+				// Always end tactics mode. Player interface is blocked currently, so it's not possible that
+				// the AI can take any action except end tactics phase (AI actions won't be triggered)
+				//TODO implement the possibility that the AI will be triggered for further actions
+				//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
+				setActiveStack(nullptr);
+				blockUI(true);
+				tacticsMode = false;
+			}
+			else
+			{
+				givenCommand->setn(ba);
+			}
 		}
 		else
 		{

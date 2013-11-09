@@ -682,6 +682,8 @@ namespace Battle
 	};
 }
 
+std::ostream & operator<<(std::ostream & os, const Battle::ActionType actionType);
+
 class ETerrainType
 {
 public:

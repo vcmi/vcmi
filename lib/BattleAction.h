@@ -40,3 +40,5 @@ struct DLL_LINKAGE BattleAction
 	static BattleAction makeMove(const CStack *stack, BattleHex dest);
 	static BattleAction makeEndOFTacticPhase(ui8 side);
 };
+
+std::ostream & operator<<(std::ostream & os, const BattleAction & ba);
