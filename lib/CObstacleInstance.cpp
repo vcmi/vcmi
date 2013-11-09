@@ -37,7 +37,7 @@ const CObstacleInfo & CObstacleInstance::getInfo() const
 	default:
 		assert(0);
 	}
-
+	throw std::runtime_error("Unknown obstacle type in CObstacleInstance::getInfo()");
 }
 
 std::vector<BattleHex> CObstacleInstance::getBlockedTiles() const

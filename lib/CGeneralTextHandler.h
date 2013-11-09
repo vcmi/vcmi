@@ -16,34 +16,34 @@
 namespace Unicode
 {
 	/// evaluates size of UTF-8 character
-	size_t getCharacterSize(ui8 firstByte);
+	size_t DLL_LINKAGE getCharacterSize(ui8 firstByte);
 
 	/// test if character is a valid UTF-8 symbol
 	/// maxSize - maximum number of bytes this symbol may consist from ( = remainer of string)
-	bool isValidCharacter(const ui8 *character, size_t maxSize);
+	bool DLL_LINKAGE isValidCharacter(const ui8 *character, size_t maxSize);
 
 	/// test if text contains ASCII-string (no need for unicode conversion)
-	bool isValidASCII(const std::string & text);
-	bool isValidASCII(const char * data, size_t size);
+	bool DLL_LINKAGE isValidASCII(const std::string & text);
+	bool DLL_LINKAGE isValidASCII(const char * data, size_t size);
 
 	/// test if text contains valid UTF-8 sequence
-	bool isValidString(const std::string & text);
-	bool isValidString(const char * data, size_t size);
+	bool DLL_LINKAGE isValidString(const std::string & text);
+	bool DLL_LINKAGE isValidString(const char * data, size_t size);
 
 	/// converts text to unicode from specified encoding or from one specified in settings
-	std::string toUnicode(const std::string & text);
-	std::string toUnicode(const std::string & text, const std::string & encoding);
+	std::string DLL_LINKAGE toUnicode(const std::string & text);
+	std::string DLL_LINKAGE toUnicode(const std::string & text, const std::string & encoding);
 
 	/// converts text from unicode to specified encoding or to one specified in settings
 	/// NOTE: usage of these functions should be avoided if possible
-	std::string fromUnicode(const std::string & text);
-	std::string fromUnicode(const std::string & text, const std::string & encoding);
+	std::string DLL_LINKAGE fromUnicode(const std::string & text);
+	std::string DLL_LINKAGE fromUnicode(const std::string & text, const std::string & encoding);
 };
 
 class CInputStream;
 
 /// Parser for any text files from H3
-class CLegacyConfigParser
+class DLL_LINKAGE CLegacyConfigParser
 {
 	std::unique_ptr<char[]> data;
 	char * curr;

@@ -374,7 +374,7 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 			break;
 		}
 	}
-	assert(0);
+	throw std::runtime_error("failed to find color for requested domain/level pair");
 }
 
 CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) : console(console), threshold(ELogLevel::INFO), coloredOutputEnabled(true)

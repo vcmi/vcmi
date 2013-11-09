@@ -338,6 +338,7 @@ void CCreatureSet::joinStack(SlotID slot, CStackInstance * stack)
 	const CCreature *c = getCreature(slot);
 	assert(c == stack->type);
 	assert(c);
+	UNUSED(c);
 
 	//TODO move stuff
 	changeStackCount(slot, stack->count);

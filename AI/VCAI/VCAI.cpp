@@ -2774,6 +2774,7 @@ void SectorMap::makeParentBFS(crint3 source)
 		toVisit.pop();
 		ui8 &sec = retreiveTile(curPos);
 		assert(sec == mySector); //consider only tiles from the same sector
+		UNUSED(sec);
 
 		//const TerrainTile *t = cb->getTile(curPos);
 		foreach_neighbour(curPos, [&](crint3 neighPos)

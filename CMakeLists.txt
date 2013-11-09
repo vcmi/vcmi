@@ -96,7 +96,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support suc
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
                 set(CLANG_SPECIFIC_FLAGS "-Wno-mismatched-tags")
 	endif()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wno-switch -Wno-sign-compare -Wno-unused-parameter -Wno-overloaded-virtual ${CLANG_SPECIFIC_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wno-switch -Wno-sign-compare -Wno-unused-parameter -Wuninitialized -Wno-overloaded-virtual ${CLANG_SPECIFIC_FLAGS}")
 endif()
 
 if(WIN32) # on Win everything goes into H3 root directory

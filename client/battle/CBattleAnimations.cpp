@@ -141,6 +141,7 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 							&& owner->getCurrentPlayerInterface()->cb->battleHexToWallPart(_dest) >= 0;
 
 	assert(attackedStack || isCatapultAttack);
+	UNUSED(isCatapultAttack);
 	attackingStackPosBeforeReturn = attackingStack->position;
 }
 

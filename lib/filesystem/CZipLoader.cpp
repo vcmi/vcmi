@@ -39,6 +39,13 @@ si64 CZipStream::getSize()
 	return info.uncompressed_size;
 }
 
+ui32 CZipStream::calculateCRC32()
+{
+	unz_file_info info;
+	unzGetCurrentFileInfo (file, &info, nullptr, 0, nullptr, 0, nullptr, 0);
+	return info.crc;
+}
+
 CZipLoader::CZipLoader(const std::string & mountPoint, const std::string & archive):
     archiveName(archive),
     mountPoint(mountPoint),

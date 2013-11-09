@@ -327,6 +327,7 @@ void CCreatureAnimation::nextFrameT(SDL_Surface * dest, bool rotate)
 	const size_t baseOffset = reader.getStream()->tell();
 
 	assert(defType2 == 1);
+	UNUSED(defType2);
 
 	auto specialPalette = genSpecialPalette();
 

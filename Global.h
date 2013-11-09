@@ -219,6 +219,9 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 #define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
 
+// should be used for variables that becomes unused in release builds (e.g. only used for assert checks)
+#define UNUSED(VAR) ((void)VAR)
+
 /* ---------------------------------------------------------------------------- */
 /* VCMI standard library */
 /* ---------------------------------------------------------------------------- */

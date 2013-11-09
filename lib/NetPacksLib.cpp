@@ -759,6 +759,7 @@ DLL_LINKAGE void RebalanceStacks::applyGs( CGameState *gs )
 		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> merge
 		{
 			assert(c == srcType);
+			UNUSED(c);
 			auto alHere = ArtifactLocation (src.getStack(), ArtifactPosition::CREATURE_SLOT);
 			auto alDest = ArtifactLocation (dst.getStack(), ArtifactPosition::CREATURE_SLOT);
 			auto artHere = alHere.getArt();
@@ -809,6 +810,7 @@ DLL_LINKAGE void RebalanceStacks::applyGs( CGameState *gs )
 		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> rebalance
 		{
 			assert(c == srcType);
+			UNUSED(c);
 			if (stackExp)
 			{
 				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
@@ -875,6 +877,7 @@ DLL_LINKAGE void AssembledArtifact::applyGs( CGameState *gs )
 	const CArtifactInstance *transformedArt = al.getArt();
 	assert(transformedArt);
 	assert(vstd::contains(transformedArt->assemblyPossibilities(artSet), builtArt));
+	UNUSED(transformedArt);
 
 	auto combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);

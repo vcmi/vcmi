@@ -1368,7 +1368,10 @@ void CGameState::init(StartInfo * si)
 
 		//Early check for #1444-like problems
 		for(auto building : vti->builtBuildings)
+		{
 			assert(vti->town->buildings[building]);
+			UNUSED(building);
+		}
 
 		//town events
 		for(CCastleEvent &ev : vti->events)

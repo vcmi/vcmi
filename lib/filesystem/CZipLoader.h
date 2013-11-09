@@ -31,7 +31,8 @@ public:
 	CZipStream(const std::string & archive, unz_file_pos filepos);
 	~CZipStream();
 
-	si64 getSize();
+	si64 getSize() override;
+	ui32 calculateCRC32() override;
 
 protected:
 	si64 readMore(ui8 * data, si64 size) override;
