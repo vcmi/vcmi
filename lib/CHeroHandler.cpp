@@ -10,6 +10,7 @@
 #include "CModHandler.h"
 #include "CTownHandler.h"
 #include "CObjectHandler.h" //for hero specialty
+#include <math.h>
 
 /*
  * CHeroHandler.cpp, part of VCMI engine
@@ -203,7 +204,7 @@ void CHeroClassHandler::afterLoadFinalization()
 				continue;
 
 			float chance = heroClass->defaultTavernChance * faction->town->defaultTavernChance;
-			heroClass->selectionProbability[faction->index] = round(sqrt(chance));
+			heroClass->selectionProbability[faction->index] = static_cast<int>(sqrt(chance) + 0.5); //FIXME: replace with std::round once MVS supports it
 		}
 	}
 }

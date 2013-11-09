@@ -18,6 +18,7 @@
 extern FuzzyHelper *fh;
 
 class CGVisitableOPW;
+class TSubgoal;
 
 const double SAFE_ATTACK_CONSTANT = 1.5;
 const int GOLD_RESERVE = 10000; //when buying creatures we want to keep at least this much gold (10000 so at least we'll be able to reach capitol)
@@ -1696,25 +1697,25 @@ void VCAI::striveToGoal(const Goals::CGoal &ultimateGoal)
 	if (ultimateGoal.invalid())
 		return;
 
-	Goals::CGoal abstractGoal; //can't create reference from temporary
+	std::shared_ptr<Goals::CGoal> abstractGoal = make_shared<Goals::CGoal>(Goals::Invalid());
 
 	while(1)
 	{
-		Goals::CGoal &goal = const_cast<Goals::CGoal&>(ultimateGoal);
+		std::shared_ptr<Goals::CGoal> goal = make_shared<Goals::CGoal>(ultimateGoal);
         logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal.name();
 		int maxGoals = 100; //preventing deadlock for mutually dependent goals, FIXME: do not try to realize goal when loop didn't suceed
-		while(!goal.isElementar && !goal.isAbstract && maxGoals)
+		while(!goal->isElementar && !goal->isAbstract && maxGoals)
 		{
-            logAi->debugStream() << boost::format("Considering goal %s") % goal.name();
+            logAi->debugStream() << boost::format("Considering goal %s") % goal->name();
 			try
 			{
 				boost::this_thread::interruption_point();
-				goal = goal.whatToDoToAchieve(); //FIXME: must keep information about goal class
+				goal = goal->whatToDoToAchieve(); //FIXME: why it calls always base class?
 				--maxGoals;
 			}
 			catch(std::exception &e)
 			{
-                logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal.name() % e.what();
+                logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal->name() % e.what();
 				//setGoal (goal.hero, INVALID); //test: if we don't know how to realize goal, we should abandon it for now
 				return;
 			}
@@ -1730,26 +1731,26 @@ void VCAI::striveToGoal(const Goals::CGoal &ultimateGoal)
 				throw (e);
 			}
 
-			if (goal.hero) //lock this hero to fulfill ultimate goal
+			if (goal->hero) //lock this hero to fulfill ultimate goal
 			{
 				if (maxGoals)
 				{
-					setGoal(goal.hero, goal);
+					setGoal(goal->hero, *goal.get());
 				}
 				else
 				{
-					setGoal(goal.hero, Goals::INVALID); // we seemingly don't know what to do with hero
+					setGoal(goal->hero, Goals::INVALID); // we seemingly don't know what to do with hero
 				}
 			}
 
-			if (goal.isAbstract)
+			if (goal->isAbstract)
 			{
 				abstractGoal = goal; //allow only one abstract goal per call
-                logAi->debugStream() << boost::format("Choosing abstract goal %s") % goal.name();
+                logAi->debugStream() << boost::format("Choosing abstract goal %s") % goal->name();
 				break;
 			}
 			else
-				tryRealize(goal);
+				tryRealize(*goal);
 
 			boost::this_thread::interruption_point();
 		}
@@ -1760,36 +1761,38 @@ void VCAI::striveToGoal(const Goals::CGoal &ultimateGoal)
 		}
 		catch(goalFulfilledException &e)
 		{
-			completeGoal (goal);
-			if (fulfillsGoal (goal, ultimateGoal) || maxGoals > 98) //completed goal was main goal //TODO: find better condition
+			completeGoal (*goal);
+			if (fulfillsGoal (*goal, ultimateGoal) || maxGoals > 98) //completed goal was main goal //TODO: find better condition
 				return; 
 		}
 		catch(std::exception &e)
 		{
-            logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal.name() % ultimateGoal.name();
+            logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal.name();
             logAi->debugStream() << boost::format("The error message was: %s") % e.what();
 			break;
 		}
 	}
 
 	//TODO: save abstract goals not related to hero
-	if (!abstractGoal.invalid()) //try to realize our one goal
+	//TODO: refactor, duplicated code
+	if (!abstractGoal->invalid()) //try to realize our one goal
 	{
 		while (1)
 		{
-			Goals::CGoal goal = Goals::CGoal(abstractGoal).setisAbstract(false);
+			std::shared_ptr<Goals::CGoal> goal(abstractGoal);
+			goal->setisAbstract(false);
 			int maxGoals = 50;
-			while (!goal.isElementar && maxGoals) //find elementar goal and fulfill it
+			while (!goal->isElementar && maxGoals) //find elementar goal and fulfill it
 			{
 				try
 				{
 					boost::this_thread::interruption_point();
-					goal = goal.whatToDoToAchieve();
+					goal = goal->whatToDoToAchieve();
 					--maxGoals;
 				}
 				catch(std::exception &e)
 				{
-                    logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal.name() % e.what();
+                    logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal->name() % e.what();
 					//setGoal (goal.hero, INVALID);
 					return;
 				}
@@ -1802,7 +1805,7 @@ void VCAI::striveToGoal(const Goals::CGoal &ultimateGoal)
 					std::runtime_error e("Too many subgoals, don't know what to do");
 					throw (e);
 				}
-				tryRealize(goal);
+				tryRealize(*goal);
 				boost::this_thread::interruption_point();
 			}
 			catch(boost::thread_interrupted &e)
@@ -1812,13 +1815,13 @@ void VCAI::striveToGoal(const Goals::CGoal &ultimateGoal)
 			}
 			catch(goalFulfilledException &e)
 			{
-				completeGoal (goal); //FIXME: deduce that we have realized GET_OBJ goal
-				if (fulfillsGoal (goal, abstractGoal) || maxGoals > 98) //completed goal was main goal
+				completeGoal (*goal); //FIXME: deduce that we have realized GET_OBJ goal
+				if (fulfillsGoal (*goal, *abstractGoal) || maxGoals > 98) //completed goal was main goal
 					return;
 			}
 			catch(std::exception &e)
 			{
-                logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal.name() % ultimateGoal.name();
+                logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal.name();
                 logAi->debugStream() << boost::format("The error message was: %s") % e.what();
 				break;
 			}

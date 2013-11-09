@@ -67,7 +67,7 @@ std::string Goals::CGoal::name() const //TODO: virtualize
 	}
 }
 
-#define I_AM_ELEMENTAR return (*this).setisElementar(true)
+#define I_AM_ELEMENTAR return make_shared<Goals::CGoal>(setisElementar(true))
 
 TSubgoal Win::whatToDoToAchieve()
 {
@@ -83,11 +83,11 @@ TSubgoal Win::whatToDoToAchieve()
 	switch(cond)
 	{
 	case EVictoryConditionType::ARTIFACT:
-		return Goals::GetArtOfType().setaid(vc.objectId);
+		return make_shared<Goals::CGoal> (Goals::GetArtOfType().setaid(vc.objectId));
 	case EVictoryConditionType::BEATHERO:
-		return Goals::GetObj(vc.obj->id.getNum());
+		return make_shared<Goals::CGoal> (Goals::GetObj(vc.obj->id.getNum()));
 	case EVictoryConditionType::BEATMONSTER:
-		return Goals::GetObj(vc.obj->id.getNum());
+		return make_shared<Goals::CGoal> (Goals::GetObj(vc.obj->id.getNum()));
 	case EVictoryConditionType::BUILDCITY:
 		//TODO build castle/capitol
 		break;
@@ -99,7 +99,7 @@ TSubgoal Win::whatToDoToAchieve()
 				if(h->visitedTown && !vstd::contains(h->visitedTown->forbiddenBuildings, BuildingID::GRAIL))
 				{
 					const CGTownInstance *t = h->visitedTown;
-					return Goals::BuildThis().setbid(BuildingID::GRAIL).settown(t);
+					return make_shared<Goals::CGoal> (Goals::BuildThis().setbid(BuildingID::GRAIL).settown(t));
 				}
 				else
 				{
@@ -113,7 +113,7 @@ TSubgoal Win::whatToDoToAchieve()
 					boost::sort(towns, isCloser);
 					if(towns.size())
 					{
-						return Goals::VisitTile(towns.front()->visitablePos()).sethero(h);
+						return make_shared<Goals::CGoal> (Goals::VisitTile(towns.front()->visitablePos()).sethero(h));
 					}
 				}
 			}
@@ -121,25 +121,25 @@ TSubgoal Win::whatToDoToAchieve()
 			int3 grailPos = cb->getGrailPos(ratio);
 			if(ratio > 0.99)
 			{
-				return Goals::DigAtTile().settile(grailPos);
+				return make_shared<Goals::CGoal> (Goals::DigAtTile().settile(grailPos));
 			} //TODO: use FIND_OBJ
 			else if(const CGObjectInstance * obj = ai->getUnvisitedObj(objWithID<Obj::OBELISK>)) //there are unvisited Obelisks
 			{
-				return Goals::GetObj(obj->id.getNum());
+				return make_shared<Goals::CGoal> (Goals::GetObj(obj->id.getNum()));
 			}
 			else
-				return Goals::Explore();
+				return make_shared<Goals::CGoal> (Goals::Explore());
 		}
 		break;
 	case EVictoryConditionType::CAPTURECITY:
-		return Goals::GetObj(vc.obj->id.getNum());
+		return make_shared<Goals::CGoal> (Goals::GetObj(vc.obj->id.getNum()));
 	case EVictoryConditionType::GATHERRESOURCE:
-        return Goals::CollectRes().setresID(static_cast<Res::ERes>(vc.objectId)).setvalue(vc.count);
+        return make_shared<Goals::CGoal> (Goals::CollectRes().setresID(static_cast<Res::ERes>(vc.objectId)).setvalue(vc.count));
 		//TODO mines? piles? marketplace?
 		//save?
 		break;
 	case EVictoryConditionType::GATHERTROOP:
-		return Goals::GatherTroops().setobjid(vc.objectId).setvalue(vc.count);
+		return make_shared<Goals::CGoal> (Goals::GatherTroops().setobjid(vc.objectId).setvalue(vc.count));
 		break;
 	case EVictoryConditionType::TAKEDWELLINGS:
 		break;
@@ -148,11 +148,11 @@ TSubgoal Win::whatToDoToAchieve()
 	case EVictoryConditionType::TRANSPORTITEM:
 		break;
 	case EVictoryConditionType::WINSTANDARD:
-		return Goals::Conquer();
+		return make_shared<Goals::CGoal> (Goals::Conquer());
 	default:
 		assert(0);
 	}
-	return TSubgoal(Goals::INVALID);
+	return make_shared<Goals::CGoal> (Goals::INVALID);
 }
 
 TSubgoal FindObj::whatToDoToAchieve()
@@ -181,37 +181,37 @@ TSubgoal FindObj::whatToDoToAchieve()
 		}
 	}
 	if (o && isReachable(o))
-		return Goals::GetObj(o->id.getNum());
+		return make_shared<Goals::CGoal> (Goals::GetObj(o->id.getNum()));
 	else
-		return Goals::Explore();
+		return make_shared<Goals::CGoal> (Goals::Explore());
 }
 TSubgoal GetObj::whatToDoToAchieve()
 {
 	const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(objid));
 	if(!obj)
-		return Goals::Explore();
+		return make_shared<Goals::CGoal> (Goals::Explore());
 	int3 pos = obj->visitablePos();
-	return Goals::VisitTile(pos);
+	return make_shared<Goals::CGoal> (Goals::VisitTile(pos));
 }
 
 TSubgoal VisitHero::whatToDoToAchieve()
 {
 	const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(objid));
 	if(!obj)
-		return Goals::Explore();
+		return make_shared<Goals::CGoal> (Goals::Explore());
 	int3 pos = obj->visitablePos();
 
 	if (hero && ai->isAccessibleForHero(pos, hero, true) && isSafeToVisit(hero, pos)) //enemy heroes can get reinforcements
-		return (*this).settile(pos).setisElementar(true);
-	return TSubgoal(Goals::INVALID);
+		return make_shared<Goals::CGoal> (settile(pos).setisElementar(true));
+	return make_shared<Goals::CGoal> (Goals::INVALID);
 }
 
 TSubgoal GetArtOfType::whatToDoToAchieve()
 {
 	TSubgoal alternativeWay = CGoal::lookForArtSmart(aid); //TODO: use
-	if(alternativeWay.invalid())
-		return Goals::FindObj(Obj::ARTIFACT, aid);
-	return TSubgoal(Goals::INVALID);
+	if(alternativeWay->invalid())
+		return make_shared<Goals::CGoal> (Goals::FindObj(Obj::ARTIFACT, aid));
+	return make_shared<Goals::CGoal> (Goals::INVALID);
 }
 
 TSubgoal ClearWayTo::whatToDoToAchieve()
@@ -220,12 +220,12 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 	if(!cb->isVisible(tile))
 	{
         logAi->errorStream() << "Clear way should be used with visible tiles!";
-		return Goals::Explore();
+		return make_shared<Goals::CGoal> (Goals::Explore());
 	}
 
 	HeroPtr h = hero ? hero : ai->primaryHero();
 	if(!h)
-		return Goals::RecruitHero();
+		return make_shared<Goals::CGoal> (Goals::RecruitHero());
 
 	cb->setSelection(*h);
 
@@ -238,7 +238,7 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 	//if(isSafeToVisit(h, tileToHit))
 	if(isBlockedBorderGate(tileToHit))
 	{	//FIXME: this way we'll not visit gate and activate quest :?
-		return Goals::FindObj (Obj::KEYMASTER, cb->getTile(tileToHit)->visitableObjects.back()->subID);
+		return make_shared<Goals::CGoal> (Goals::FindObj (Obj::KEYMASTER, cb->getTile(tileToHit)->visitableObjects.back()->subID));
 	}
 
 	//FIXME: this code shouldn't be necessary
@@ -256,7 +256,8 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 		throw cannotFulfillGoalException(problem);
 	}
 
-	return Goals::VisitTile(tileToHit).sethero(h); //FIXME:: attempts to visit completely unreachable tile with hero results in stall
+	return make_shared<Goals::CGoal> (Goals::VisitTile(tileToHit).sethero(h));
+	//FIXME:: attempts to visit completely unreachable tile with hero results in stall
 
 	//TODO czy istnieje lepsza droga?
 
@@ -295,7 +296,7 @@ TSubgoal Explore::whatToDoToAchieve()
 				auto pos = obj->visitablePos();
 				//FIXME: this confition fails if everything but guarded subterranen gate was explored. in this case we should gather army for hero
 				if (isSafeToVisit(hero, pos) && ai->isAccessibleForHero(pos, hero))
-					return Goals::VisitTile(pos).sethero(hero);
+					return make_shared<Goals::CGoal> (Goals::VisitTile(pos).sethero(hero));
 			}
 		}
 		else
@@ -304,7 +305,7 @@ TSubgoal Explore::whatToDoToAchieve()
 			{
 				auto pos = obj->visitablePos();
 				if (ai->isAccessible (pos)) //TODO: check safety?
-					return Goals::VisitTile(pos).sethero(hero);
+					return make_shared<Goals::CGoal> (Goals::VisitTile(pos).sethero(hero));
 			}
 		}
 	}
@@ -332,12 +333,12 @@ TSubgoal Explore::whatToDoToAchieve()
 			});
 			if (objs.size())
 			{
-				return Goals::VisitTile(objs.front()->visitablePos()).sethero(hero).setisAbstract(true);
+				return make_shared<Goals::CGoal> (Goals::VisitTile(objs.front()->visitablePos()).sethero(hero).setisAbstract(true));
 			}
 			else
 				throw cannotFulfillGoalException("Cannot explore - no possible ways found!");
 		}
-		return Goals::VisitTile(t).sethero(hero);
+		return make_shared<Goals::CGoal> (Goals::VisitTile(t).sethero(hero));
 	}
 
 	auto hs = cb->getHeroesInfo();
@@ -350,7 +351,7 @@ TSubgoal Explore::whatToDoToAchieve()
 	if(hs.empty()) //all heroes are busy. buy new one
 	{
 		if (howManyHeroes < 3  && ai->findTownWithTavern()) //we may want to recruit second hero. TODO: make it smart finally
-			return Goals::RecruitHero();
+			return make_shared<Goals::CGoal> (Goals::RecruitHero());
 		else //find mobile hero with weakest army
 		{
 			hs = cb->getHeroesInfo();
@@ -361,7 +362,7 @@ TSubgoal Explore::whatToDoToAchieve()
 			if (hs.empty())
 			{
 				if (howManyHeroes < GameConstants::MAX_HEROES_PER_PLAYER)
-					return Goals::RecruitHero();
+					return make_shared<Goals::CGoal> (Goals::RecruitHero());
 				else
 					throw cannotFulfillGoalException("No heroes with remaining MPs for exploring!\n");
 			}
@@ -371,7 +372,7 @@ TSubgoal Explore::whatToDoToAchieve()
 
 	const CGHeroInstance *h = hs.front();
 
-	return (*this).sethero(h).setisAbstract(true);
+	return make_shared<Goals::CGoal> (sethero(h).setisAbstract(true));
 
 	I_AM_ELEMENTAR; //FIXME: how can this be called?
 };
@@ -380,10 +381,10 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 {
 	const CGTownInstance *t = ai->findTownWithTavern();
 	if(!t)
-		return Goals::BuildThis().setbid(BuildingID::TAVERN);
+		return make_shared<Goals::CGoal> (Goals::BuildThis().setbid(BuildingID::TAVERN));
 
 	if(cb->getResourceAmount(Res::GOLD) < HERO_GOLD_COST)
-		return Goals::CollectRes().setresID(Res::GOLD).setvalue(HERO_GOLD_COST);
+		return make_shared<Goals::CGoal> (Goals::CollectRes().setresID(Res::GOLD).setvalue(HERO_GOLD_COST));
 
 	I_AM_ELEMENTAR;
 }
@@ -391,7 +392,7 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 TSubgoal VisitTile::whatToDoToAchieve()
 {
 	if(!cb->isVisible(tile))
-		return Goals::Explore();
+		return make_shared<Goals::CGoal> (Goals::Explore());
 
 	if(hero && !ai->isAccessibleForHero(tile, hero))
 		hero = nullptr;
@@ -400,7 +401,7 @@ TSubgoal VisitTile::whatToDoToAchieve()
 	{
 		if(cb->getHeroesInfo().empty())
 		{
-			return Goals::RecruitHero();
+			return make_shared<Goals::CGoal> (Goals::RecruitHero());
 		}
 
 		for(const CGHeroInstance *h : cb->getHeroesInfo())
@@ -416,15 +417,15 @@ TSubgoal VisitTile::whatToDoToAchieve()
 	if(hero)
 	{
 		if(isSafeToVisit(hero, tile))
-			return (*this).setisElementar(true);
+			return make_shared<Goals::CGoal>(setisElementar(true));
 		else
 		{
-			return Goals::GatherArmy().sethero(hero).setvalue(evaluateDanger(tile, *hero) * SAFE_ATTACK_CONSTANT); //TODO: should it be abstract?
+			return make_shared<Goals::CGoal>(Goals::GatherArmy().sethero(hero).setvalue(evaluateDanger(tile, *hero) * SAFE_ATTACK_CONSTANT)); //TODO: should it be abstract?
 		}
 	}
 	else	//inaccessible for all heroes
 	{
-		return Goals::ClearWayTo(tile);
+		return make_shared<Goals::CGoal>(Goals::ClearWayTo(tile));
 	}
 }
 
@@ -434,10 +435,10 @@ TSubgoal DigAtTile::whatToDoToAchieve()
 	if(firstObj && firstObj->ID == Obj::HERO && firstObj->tempOwner == ai->playerID) //we have hero at dest
 	{
 		const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(firstObj);
-		return (*this).sethero(h).setisElementar(true);
+		return make_shared<Goals::CGoal> (sethero(h).setisElementar(true));
 	}
 
-	return Goals::VisitTile(tile);
+	return make_shared<Goals::CGoal>(Goals::VisitTile(tile));
 }
 
 TSubgoal BuildThis::whatToDoToAchieve()
@@ -481,7 +482,7 @@ TSubgoal CollectRes::whatToDoToAchieve()
 		for(const CGTownInstance *t : cb->getTownsInfo())
 		{
 			if(cb->canBuildStructure(t, BuildingID::MARKETPLACE) == EBuildingState::ALLOWED)
-				return Goals::BuildThis().settown(t).setbid(BuildingID::MARKETPLACE);
+				return make_shared<Goals::CGoal>(Goals::BuildThis().settown(t).setbid(BuildingID::MARKETPLACE));
 		}
 	}
 	else
@@ -503,11 +504,11 @@ TSubgoal CollectRes::whatToDoToAchieve()
 			auto backObj = backOrNull(cb->getVisitableObjs(m->o->visitablePos())); //it'll be a hero if we have one there; otherwise marketplace
 			assert(backObj);
 			if(backObj->tempOwner != ai->playerID)
-				return Goals::GetObj(m->o->id.getNum());
-			return setobjid(m->o->id.getNum()).setisElementar(true);
+				return make_shared<Goals::CGoal>(Goals::GetObj(m->o->id.getNum()));
+			return make_shared<Goals::CGoal>(setobjid(m->o->id.getNum()).setisElementar(true));
 		}
 	}
-	return Goals::Invalid(); //FIXME: unused?
+	return make_shared<Goals::CGoal>(Goals::Invalid()); //FIXME: unused?
 }
 
 TSubgoal GatherTroops::whatToDoToAchieve()
@@ -533,7 +534,7 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 			}
 			else
 			{
-				return Goals::BuildThis().settown(t).setbid(bid);
+				return make_shared<Goals::CGoal>(Goals::BuildThis().settown(t).setbid(bid));
 			}
 		}
 	}
@@ -558,10 +559,10 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 	if (dwellings.size())
 	{
 		boost::sort(dwellings, isCloser);
-		return Goals::GetObj(dwellings.front()->id.getNum());
+		return make_shared<Goals::CGoal>(Goals::GetObj(dwellings.front()->id.getNum()));
 	}
 	else
-		return Goals::Explore();
+		return make_shared<Goals::CGoal>(Goals::Explore());
 	//TODO: exchange troops between heroes
 }
 
@@ -577,7 +578,7 @@ TSubgoal Conquer::whatToDoToAchieve()
 	if(hs.empty()) //all heroes are busy. buy new one
 	{
 		if (howManyHeroes < 3  && ai->findTownWithTavern()) //we may want to recruit second hero. TODO: make it smart finally
-			return Goals::RecruitHero();
+			return make_shared<Goals::CGoal>(Goals::RecruitHero());
 		else //find mobile hero with weakest army
 		{
 			hs = cb->getHeroesInfo();
@@ -588,7 +589,7 @@ TSubgoal Conquer::whatToDoToAchieve()
 			if (hs.empty())
 			{
 				if (howManyHeroes < GameConstants::MAX_HEROES_PER_PLAYER)
-					return Goals::RecruitHero();
+					return make_shared<Goals::CGoal>(Goals::RecruitHero());
 				else
 					throw cannotFulfillGoalException("No heroes with remaining MPs for exploring!\n");
 			}
@@ -617,7 +618,7 @@ TSubgoal Conquer::whatToDoToAchieve()
 	}
 
 	if(objs.empty())
-		return Goals::Explore(); //we need to find an enemy
+		return make_shared<Goals::CGoal>(Goals::Explore()); //we need to find an enemy
 
 	erase_if(objs,  [&](const CGObjectInstance *obj)
 	{
@@ -635,13 +636,15 @@ TSubgoal Conquer::whatToDoToAchieve()
 			ai->reserveObject(h, obj); //no one else will capture same object until we fail
 
 			if (obj->ID == Obj::HERO)
-				return Goals::VisitHero().sethero(h).setobjid(obj->id.getNum()).setisAbstract(true); //track enemy hero
+				return make_shared<Goals::CGoal>(
+					Goals::VisitHero().sethero(h).setobjid(obj->id.getNum()).setisAbstract(true));
+					//track enemy hero
 			else
-				return Goals::VisitTile(obj->visitablePos()).sethero(h);
+				return make_shared<Goals::CGoal>(Goals::VisitTile(obj->visitablePos()).sethero(h));
 		}
 	}
 
-	return Goals::Explore(); //enemy is inaccessible
+	return make_shared<Goals::CGoal>(Goals::Explore()); //enemy is inaccessible
 }
 
 TSubgoal Build::whatToDoToAchieve()
@@ -678,7 +681,8 @@ TSubgoal GatherArmy::whatToDoToAchieve()
 	if(townsReachable.size()) //try towns first
 	{
 		boost::sort(townsReachable, compareReinforcements);
-		return Goals::VisitTile(townsReachable.back()->visitablePos()).sethero(hero);
+		return make_shared<Goals::CGoal>(
+			Goals::VisitTile(townsReachable.back()->visitablePos()).sethero(hero));
 	}
 	else
 	{
@@ -701,9 +705,13 @@ TSubgoal GatherArmy::whatToDoToAchieve()
 				secondaryPath = cb->getPathInfo(hero->visitablePos())->turns;
 
 				if (primaryPath < secondaryPath)
-					return Goals::VisitHero().setisAbstract(true).setobjid(h->id.getNum()).sethero(hero); //go to the other hero if we are faster
+					return make_shared<Goals::CGoal>(
+						Goals::VisitHero().setisAbstract(true).setobjid(h->id.getNum()).sethero(hero));
+						//go to the other hero if we are faster
 				else
-					return Goals::VisitHero().setisAbstract(true).setobjid(hero->id.getNum()).sethero(h); //let the other hero come to us
+					return make_shared<Goals::CGoal>(
+						Goals::VisitHero().setisAbstract(true).setobjid(hero->id.getNum()).sethero(h))
+						; //let the other hero come to us
 			}
 		}
 
@@ -739,7 +747,7 @@ TSubgoal GatherArmy::whatToDoToAchieve()
 			return true;
 		});
 		if(objs.empty()) //no possible objects, we did eveyrthing already
-			return Goals::Explore().sethero(hero);
+			return make_shared<Goals::CGoal>(Goals::Explore().sethero(hero));
 		//TODO: check if we can recruit any creatures there, evaluate army
 		else
 		{
@@ -759,31 +767,31 @@ TSubgoal GatherArmy::whatToDoToAchieve()
 					}
 				}
 				if (h && isSafeToVisit(h, pos) && ai->isAccessibleForHero(pos, h))
-					return Goals::VisitTile(pos).sethero(h);
+					return make_shared<Goals::CGoal>(Goals::VisitTile(pos).sethero(h));
 			}
 		}
 	}
 
-	return Goals::Explore().sethero(hero); //find dwelling. use current hero to prevent him from doing nothing.
+	return make_shared<Goals::CGoal>(Goals::Explore().sethero(hero)); //find dwelling. use current hero to prevent him from doing nothing.
 }
 
 TSubgoal CGoal::whatToDoToAchieve()
 {
     logAi->debugStream() << boost::format("Decomposing goal of type %s") % name();
-	return Goals::Explore();
+	return make_shared<Goals::CGoal>(Goals::Explore());
 }
 
 TSubgoal CGoal::goVisitOrLookFor(const CGObjectInstance *obj)
 {
 	if(obj)
-		return Goals::GetObj(obj->id.getNum());
+		return make_shared<Goals::CGoal>(Goals::GetObj(obj->id.getNum()));
 	else
-		return Goals::Explore();
+		return make_shared<Goals::CGoal>(Goals::Explore());
 }
 
 TSubgoal CGoal::lookForArtSmart(int aid)
 {
-	return Goals::Invalid();
+	return make_shared<Goals::CGoal>(Goals::Invalid());
 }
 
 bool CGoal::invalid() const

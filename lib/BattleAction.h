@@ -41,4 +41,4 @@ struct DLL_LINKAGE BattleAction
 	static BattleAction makeEndOFTacticPhase(ui8 side);
 };
 
-std::ostream & operator<<(std::ostream & os, const BattleAction & ba);
+DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleAction & ba);

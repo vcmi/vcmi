@@ -114,4 +114,4 @@ struct DLL_LINKAGE BattleHex
 	static BattleHex getClosestTile(bool attackerOwned, BattleHex initialPos, std::set<BattleHex> & possibilities); //TODO: vector or set? copying one to another is bad
 };
 
-std::ostream & operator<<(std::ostream & os, const BattleHex & hex);
+DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleHex & hex);

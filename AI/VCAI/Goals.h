@@ -21,7 +21,7 @@ struct HeroPtr;
 namespace Goals
 {
 	struct CGoal;
-	typedef CGoal TSubgoal;
+	typedef std::shared_ptr<Goals::CGoal> TSubgoal;
 
 	enum EGoals
 {
