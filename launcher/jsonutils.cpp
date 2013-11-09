@@ -64,8 +64,16 @@ QVariant JsonFromFile(QString filename)
 	file.open(QFile::ReadOnly);
 	auto data = file.readAll();
 
-	JsonNode node(data.data(), data.size());
-	return toVariant(node);
+	if (data.size() == 0)
+	{
+		logGlobal->errorStream() << "Failed to open file " << filename.toUtf8().data();
+		return QVariant();
+	}
+	else
+	{
+		JsonNode node(data.data(), data.size());
+		return toVariant(node);
+	}
 }
 
 JsonNode toJson(QVariant object)
@@ -74,14 +82,14 @@ JsonNode toJson(QVariant object)
 
 	if (object.canConvert<QVariantMap>())
 		ret.Struct() = VariantToMap(object.toMap());
-	if (object.canConvert<QVariantList>())
+	else if (object.canConvert<QVariantList>())
 		ret.Vector() = VariantToList(object.toList());
-	if (object.canConvert<QString>())
+	else if (object.type() == QMetaType::QString)
 		ret.String() = object.toString().toUtf8().data();
-	if (object.canConvert<double>())
-		ret.Bool() = object.toFloat();
-	if (object.canConvert<bool>())
+	else if (object.type() == QMetaType::Bool)
 		ret.Bool() = object.toBool();
+	else if (object.canConvert<double>())
+		ret.Float() = object.toFloat();
 
 	return ret;
 }

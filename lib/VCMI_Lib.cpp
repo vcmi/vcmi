@@ -71,7 +71,7 @@ void LibClasses::loadFilesystem()
 	modh = new CModHandler;
     logGlobal->infoStream()<<"\tMod handler: "<<loadTime.getDiff();
 
-	modh->initialize(CResourceHandler::getAvailableMods());
+	modh->initializeMods(CResourceHandler::getAvailableMods());
     logGlobal->infoStream()<<"\t Mod filesystems: "<<loadTime.getDiff();
 
     logGlobal->infoStream()<<"Basic initialization: "<<totalTime.getDiff();
@@ -92,7 +92,7 @@ void LibClasses::init()
 {
 	CStopWatch pomtime, totalTime;
 
-	modh->beforeLoad();
+	modh->initializeConfig();
 
 	createHandler(bth, "Bonus type", pomtime);
 	
@@ -118,8 +118,8 @@ void LibClasses::init()
 
 	logGlobal->infoStream()<<"\tInitializing handlers: "<< totalTime.getDiff();
 
-	modh->loadGameContent();
-	modh->reload();
+	modh->load();
+	modh->afterLoad();
 	//FIXME: make sure that everything is ok after game restart
 	//TODO: This should be done every time mod config changes
 

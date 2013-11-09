@@ -92,8 +92,8 @@ class CContentHandler
 
 		/// local version of methods in ContentHandler
 		/// returns true if loading was successfull
-		bool preloadModData(std::string modName, std::vector<std::string> fileList);
-		bool loadMod(std::string modName);
+		bool preloadModData(std::string modName, std::vector<std::string> fileList, bool validate);
+		bool loadMod(std::string modName, bool validate);
 		void afterLoadFinalization();
 	};
 
@@ -104,11 +104,11 @@ public:
 
 	/// preloads all data from fileList as data from modName.
 	/// returns true if loading was successfull
-	bool preloadModData(std::string modName, JsonNode modConfig);
+	bool preloadModData(std::string modName, JsonNode modConfig, bool validate);
 
 	/// actually loads data in mod
 	/// returns true if loading was successfull
-	bool loadMod(std::string modName);
+	bool loadMod(std::string modName, bool validate);
 
 	/// all data was loaded, time for final validation / integration
 	void afterLoadFinalization();
@@ -138,12 +138,15 @@ public:
 	/// true if mod has passed validation successfully
 	bool validated;
 
+	/// true if mod is enabled
+	bool enabled;
+
 	// mod configuration (mod.json). (no need to store it right now)
 	// std::shared_ptr<JsonNode> config; //TODO: unique_ptr can't be serialized
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & identifier & description & name & dependencies & conflicts & checksum & validated;
+		h & identifier & description & name & dependencies & conflicts & checksum & validated & enabled;
 	}
 };
 
@@ -171,13 +174,14 @@ public:
 	CIdentifierStorage identifiers;
 
 	/// receives list of available mods and trying to load mod.json from all of them
-	void initialize(std::vector<std::string> availableMods);
+	void initializeMods(std::vector<std::string> availableMods);
+	void initializeConfig();
 
 	CModInfo & getModData(TModID modId);
 
 	/// load content from all available mods
-	void beforeLoad();
-	void loadGameContent();
+	void load();
+	void afterLoad();
 
 	/// actions that should be triggered on map restart
 	/// TODO: merge into appropriate handlers?

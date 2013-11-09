@@ -204,7 +204,7 @@ CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, 
 	}
 }
 
-bool CContentHandler::ContentTypeHandler::preloadModData(std::string modName, std::vector<std::string> fileList)
+bool CContentHandler::ContentTypeHandler::preloadModData(std::string modName, std::vector<std::string> fileList, bool validate)
 {
 	bool result;
 	JsonNode data = JsonUtils::assembleFromFiles(fileList, result);
@@ -238,7 +238,7 @@ bool CContentHandler::ContentTypeHandler::preloadModData(std::string modName, st
 	return result;
 }
 
-bool CContentHandler::ContentTypeHandler::loadMod(std::string modName)
+bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool validate)
 {
 	ModInfo & modInfo = modData[modName];
 	bool result = true;
@@ -260,7 +260,8 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName)
 			if (originalData.size() > index)
 			{
 				JsonUtils::merge(originalData[index], data);
-				result &= JsonUtils::validate(originalData[index], "vcmi:" + objectName, name);
+				if (validate)
+					result &= JsonUtils::validate(originalData[index], "vcmi:" + objectName, name);
 				handler->loadObject(modName, name, originalData[index], index);
 
 				originalData[index].clear(); // do not use same data twice (same ID)
@@ -269,7 +270,8 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName)
 			}
 		}
 		// normal new object or one with index bigger that data size
-		result &= JsonUtils::validate(data, "vcmi:" + objectName, name);
+		if (validate)
+			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);
 		handler->loadObject(modName, name, data);
 	}
 	return result;
@@ -291,22 +293,22 @@ CContentHandler::CContentHandler()
 	//TODO: spells, bonuses, something else?
 }
 
-bool CContentHandler::preloadModData(std::string modName, JsonNode modConfig)
+bool CContentHandler::preloadModData(std::string modName, JsonNode modConfig, bool validate)
 {
 	bool result = true;
 	for(auto & handler : handlers)
 	{
-		result &= handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >());
+		result &= handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >(), validate);
 	}
 	return result;
 }
 
-bool CContentHandler::loadMod(std::string modName)
+bool CContentHandler::loadMod(std::string modName, bool validate)
 {
 	bool result = true;
 	for(auto & handler : handlers)
 	{
-		result &= handler.second.loadMod(modName);
+		result &= handler.second.loadMod(modName, validate);
 	}
 	return result;
 }
@@ -453,33 +455,60 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input
 	return output;
 }
 
-static void updateModSettingsFormat(JsonNode & config)
+static JsonNode updateModSettingsFormat(JsonNode config)
 {
-	for (auto & entry : config.Struct())
+	for (auto & entry : config["activeMods"].Struct())
 	{
 		if (entry.second.getType() == JsonNode::DATA_BOOL)
 		{
 			entry.second["active"].Bool() = entry.second.Bool();
 		}
 	}
+	return config;
 }
 
-void CModHandler::initialize(std::vector<std::string> availableMods)
+static JsonNode loadModSettings(std::string path)
 {
-	std::string confName = "config/modSettings.json";
-	JsonNode modConfig;
-
+	if (CResourceHandler::get()->existsResource(ResourceID(path)))
+	{
+		// mod compatibility: check if modSettings has old, 0.94 format
+		return updateModSettingsFormat(JsonNode(ResourceID(path, EResType::TEXT)));
+	}
 	// Probably new install. Create initial configuration
-	if (!CResourceHandler::get()->existsResource(ResourceID(confName)))
-		CResourceHandler::get()->createResource(confName);
+	CResourceHandler::get()->createResource(path);
+	return JsonNode();
+}
+
+/// loads mod info data from mod.json
+static void loadModInfoJson(CModInfo & mod, const JsonNode & config)
+{
+	mod.name = config["name"].String();
+	mod.description =  config["description"].String();
+	mod.dependencies = config["depends"].convertTo<std::set<std::string> >();
+	mod.conflicts =    config["conflicts"].convertTo<std::set<std::string> >();
+}
+
+/// load mod info from local config
+static void loadModInfoConfig(CModInfo & mod, const JsonNode & config)
+{
+	if (config.isNull())
+	{
+		mod.enabled = true;
+		mod.validated = false;
+		mod.checksum = 0;
+	}
 	else
-		modConfig = JsonNode(ResourceID(confName));
+	{
+		mod.enabled   = config["active"].Bool();
+		mod.validated = config["validated"].Bool();
+		mod.checksum  = strtol(config["checksum"].String().c_str(), nullptr, 16);
+	}
+}
 
-	// mod compatibility: check if modSettings has old, 0.94 format
-	updateModSettingsFormat(modConfig["activeMods"]);
-
+void CModHandler::initializeMods(std::vector<std::string> availableMods)
+{
+	const JsonNode modConfig = loadModSettings("config/modSettings.json");
 	const JsonNode & modList = modConfig["activeMods"];
-	JsonNode resultingList;
 
 	std::vector <TModID> detectedMods;
 
@@ -491,25 +520,16 @@ void CModHandler::initialize(std::vector<std::string> availableMods)
 		if (CResourceHandler::get()->existsResource(ResourceID(modFileName)))
 		{
 			const JsonNode config = JsonNode(ResourceID(modFileName));
-
-			if (config.isNull())
-				continue;
-
-			if (!modList[name].isNull() && modList[name]["active"].Bool() == false )
-			{
-				resultingList[name]["active"].Bool() = false;
-				continue; // disabled mod
-			}
-			resultingList[name]["active"].Bool() = true;
+			assert(!config.isNull());
 
 			CModInfo & mod = allMods[name];
 
 			mod.identifier = name;
-			mod.name = config["name"].String();
-			mod.description =  config["description"].String();
-			mod.dependencies = config["depends"].convertTo<std::set<std::string> >();
-			mod.conflicts =    config["conflicts"].convertTo<std::set<std::string> >();
-			detectedMods.push_back(name);
+			loadModInfoJson(mod, config);
+			loadModInfoConfig(mod, modList[name]);
+
+			if (mod.enabled)
+				detectedMods.push_back(name);
 		}
 		else
             logGlobal->warnStream() << "\t\t Directory " << name << " does not contains VCMI mod";
@@ -522,13 +542,6 @@ void CModHandler::initialize(std::vector<std::string> availableMods)
 	}
 
 	activeMods = resolveDependencies(detectedMods);
-
-	modConfig["activeMods"] = resultingList;
-	CResourceHandler::get()->createResource("CONFIG/modSettings.json");
-
-	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);
-	file << modConfig;
-
 	loadModFilesystems();
 }
 
@@ -590,7 +603,12 @@ void CModHandler::loadModFilesystems()
 		auto filesystem = genModFilesystem(modName, fsConfig);
 
 		CResourceHandler::get()->addLoader(filesystem, false);
-		allMods[modName].checksum = calculateModChecksum(modName, filesystem);
+		ui32 newChecksum = calculateModChecksum(modName, filesystem);
+		if (allMods[modName].checksum != newChecksum)
+		{
+			allMods[modName].checksum = newChecksum;
+			allMods[modName].validated = false; // force (re-)validation
+		}
 	}
 }
 
@@ -600,25 +618,35 @@ CModInfo & CModHandler::getModData(TModID modId)
 	assert(vstd::contains(activeMods, modId)); // not really necessary but won't hurt
 	return mod;
 }
-void CModHandler::beforeLoad()
+
+void CModHandler::initializeConfig()
 {
 	loadConfigFromFile("defaultMods.json");
 }
 
-void CModHandler::loadGameContent()
+void CModHandler::load()
 {
-	CStopWatch timer, totalTime;
+	CStopWatch totalTime, timer;
+
+	std::set<std::string> modsForValidation;
+	for (auto & mod : allMods)
+	{
+		if (mod.second.enabled && !mod.second.validated)
+			modsForValidation.insert(mod.first);
+	}
 
 	CContentHandler content;
 	logGlobal->infoStream() << "\tInitializing content handler: " << timer.getDiff() << " ms";
 
 	// first - load virtual "core" mod that contains all data
 	// TODO? move all data into real mods? RoE, AB, SoD, WoG
-	content.preloadModData("core", JsonNode(ResourceID("config/gameConfig.json")));
+	content.preloadModData("core", JsonNode(ResourceID("config/gameConfig.json")), true);
 	logGlobal->infoStream() << "\tParsing original game data: " << timer.getDiff() << " ms";
 
 	for(const TModID & modName : activeMods)
 	{
+		bool needsValidation = modsForValidation.count(modName);
+
 		// print message in format [<8-symbols checksum>] <modname>
 		logGlobal->infoStream() << "\t\t[" << std::noshowbase << std::hex << std::setw(8) << std::setfill('0')
 								<< allMods[modName].checksum << "] " << allMods[modName].name;
@@ -626,27 +654,36 @@ void CModHandler::loadGameContent()
 		std::string modFileName = "mods/" + modName + "/mod.json";
 
 		const JsonNode config = JsonNode(ResourceID(modFileName));
-		allMods[modName].validated = JsonUtils::validate(config, "vcmi:mod", modName);
+		if (needsValidation)
+			allMods[modName].validated = JsonUtils::validate(config, "vcmi:mod", modName);
 
-		allMods[modName].validated &= content.preloadModData(modName, config);
+		allMods[modName].validated &= content.preloadModData(modName, config, needsValidation);
 	}
 	logGlobal->infoStream() << "\tParsing mod data: " << timer.getDiff() << " ms";
 
-	content.loadMod("core");
+	content.loadMod("core", true);
 	logGlobal->infoStream() << "\tLoading original game data: " << timer.getDiff() << " ms";
 
 	for(const TModID & modName : activeMods)
 	{
-		allMods[modName].validated &= content.loadMod(modName);
-		if (allMods[modName].validated)
-			logGlobal->infoStream()  << "\t\t[DONE] " << allMods[modName].name;
+		bool needsValidation = modsForValidation.count(modName);
+
+		allMods[modName].validated &= content.loadMod(modName, needsValidation);
+		if (needsValidation)
+		{
+			if (allMods[modName].validated)
+				logGlobal->infoStream()  << "\t\t[DONE] " << allMods[modName].name;
+			else
+				logGlobal->errorStream() << "\t\t[FAIL] " << allMods[modName].name;
+		}
 		else
-			logGlobal->errorStream() << "\t\t[FAIL] " << allMods[modName].name;
+			logGlobal->infoStream()  << "\t\t[SKIP] " << allMods[modName].name;
 	}
 	logGlobal->infoStream() << "\tLoading mod data: " << timer.getDiff() << "ms";
 
 	VLC->creh->loadCrExpBon();
 	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded
+
 	identifiers.finalize();
 	logGlobal->infoStream() << "\tResolving identifiers: " << timer.getDiff() << " ms";
 
@@ -654,6 +691,29 @@ void CModHandler::loadGameContent()
 	logGlobal->infoStream() << "\tHandlers post-load finalization: " << timer.getDiff() << " ms";
 
 	logGlobal->infoStream() << "\tAll game content loaded in " << totalTime.getDiff() << " ms";
+}
+
+static JsonNode modInfoToJson(const CModInfo & mod)
+{
+	std::ostringstream stream;
+	stream << std::noshowbase << std::hex << std::setw(8) << std::setfill('0') << mod.checksum;
+
+	JsonNode conf;
+	conf["active"].Bool() = mod.enabled;
+	conf["validated"].Bool() = mod.validated;
+	conf["checksum"].String() = stream.str();
+	return conf;
+}
+
+void CModHandler::afterLoad()
+{
+	JsonNode modSettings;
+	for (auto & modEntry : allMods)
+		modSettings["activeMods"][modEntry.first] = modInfoToJson(modEntry.second);
+
+	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);
+	file << modSettings;
+	reload();
 }
 
 void CModHandler::reload()
