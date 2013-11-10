@@ -702,7 +702,7 @@ void CClient::campaignMapFinished( shared_ptr<CCampaignState> camp )
 
 	GH.curInt = CGPreGame::create();
 	auto & epilogue = camp->camp->scenarios[camp->mapsConquered.back()].epilog;
-	auto finisher = [&]()
+	auto finisher = [=]()
 	{
 		if(camp->mapsRemaining.size())
 			proposeNextMission(camp);
