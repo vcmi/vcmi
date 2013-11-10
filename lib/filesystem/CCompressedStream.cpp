@@ -149,7 +149,10 @@ si64 CCompressedStream::readMore(ui8 *data, si64 size)
 			endLoop = true;
 			break;
 		default:
-			throw std::runtime_error("Decompression error!\n");
+			if (inflateState->msg == nullptr)
+				throw std::runtime_error("Decompression error. Return code was " + boost::lexical_cast<std::string>(ret));
+			else
+				throw std::runtime_error(std::string("Decompression error: ") + inflateState->msg);
 		}
 	}
 	while (endLoop == false && inflateState->avail_out != 0 );

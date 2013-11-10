@@ -603,6 +603,7 @@ void CModHandler::loadModFilesystems()
 		auto filesystem = genModFilesystem(modName, fsConfig);
 
 		CResourceHandler::get()->addLoader(filesystem, false);
+		logGlobal->traceStream() << "Generating checksum for " << modName;
 		ui32 newChecksum = calculateModChecksum(modName, filesystem);
 		if (allMods[modName].checksum != newChecksum)
 		{
