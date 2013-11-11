@@ -61,6 +61,7 @@ public:
 	 */
 	static CFilesystemList * get();
 	static CFilesystemList * getInitial();
+	static CFilesystemList * getCoreData();
 
 	/**
 	 * Creates instance of initial resource loader.
@@ -99,4 +100,5 @@ private:
 	/** Instance of resource loader */
 	static CFilesystemList * resourceLoader;
 	static CFilesystemList * initialLoader;
+	static CFilesystemList * coreDataLoader;
 };

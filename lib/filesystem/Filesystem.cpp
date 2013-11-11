@@ -16,6 +16,7 @@
 
 CFilesystemList * CResourceHandler::resourceLoader = nullptr;
 CFilesystemList * CResourceHandler::initialLoader = nullptr;
+CFilesystemList * CResourceHandler::coreDataLoader = nullptr;
 
 CFilesystemGenerator::CFilesystemGenerator(std::string prefix):
 	filesystem(new CFilesystemList()),
@@ -162,13 +163,21 @@ CFilesystemList * CResourceHandler::getInitial()
 	return initialLoader;
 }
 
+CFilesystemList * CResourceHandler::getCoreData()
+{
+	assert(coreDataLoader);
+	return coreDataLoader;
+}
+
 void CResourceHandler::load(const std::string &fsConfigURI)
 {
 	auto fsConfigData = initialLoader->load(ResourceID(fsConfigURI, EResType::TEXT))->readAll();
 
 	const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
 
-	resourceLoader = createFileSystem("", fsConfig["filesystem"]);
+	coreDataLoader = createFileSystem("", fsConfig["filesystem"]);
+	resourceLoader = new CFilesystemList();
+	resourceLoader->addLoader(coreDataLoader, false);
 
 	// hardcoded system-specific path, may not be inside any of data directories
 	resourceLoader->addLoader(new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath()), true);

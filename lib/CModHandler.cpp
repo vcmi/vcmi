@@ -321,6 +321,41 @@ void CContentHandler::afterLoadFinalization()
 	}
 }
 
+void CContentHandler::preloadData(CModInfo & mod)
+{
+	bool validate = (mod.validation != CModInfo::PASSED);
+
+	// print message in format [<8-symbols checksum>] <modname>
+	logGlobal->infoStream() << "\t\t[" << std::noshowbase << std::hex << std::setw(8) << std::setfill('0')
+							<< mod.checksum << "] " << mod.name;
+
+	if (validate && mod.identifier != "core")
+	{
+		if (!JsonUtils::validate(mod.config, "vcmi:mod", mod.identifier))
+			mod.validation = CModInfo::FAILED;
+	}
+	if (!preloadModData(mod.identifier, mod.config, validate))
+		mod.validation = CModInfo::FAILED;
+}
+
+void CContentHandler::load(CModInfo & mod)
+{
+	bool validate = (mod.validation != CModInfo::PASSED);
+
+	if (!loadMod(mod.identifier, validate))
+		mod.validation = CModInfo::FAILED;
+
+	if (validate)
+	{
+		if (mod.validation != CModInfo::FAILED)
+			logGlobal->infoStream()  << "\t\t[DONE] " << mod.name;
+		else
+			logGlobal->errorStream() << "\t\t[FAIL] " << mod.name;
+	}
+	else
+		logGlobal->infoStream()  << "\t\t[SKIP] " << mod.name;
+}
+
 CModHandler::CModHandler()
 {
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
@@ -479,30 +514,58 @@ static JsonNode loadModSettings(std::string path)
 	return JsonNode();
 }
 
-/// loads mod info data from mod.json
-static void loadModInfoJson(CModInfo & mod, const JsonNode & config)
+CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode & config):
+	identifier(identifier),
+	name(config["name"].String()),
+	description(config["description"].String()),
+	dependencies(config["depends"].convertTo<std::set<std::string> >()),
+	conflicts(config["conflicts"].convertTo<std::set<std::string> >()),
+	validation(PENDING),
+	config(config)
 {
-	mod.name = config["name"].String();
-	mod.description =  config["description"].String();
-	mod.dependencies = config["depends"].convertTo<std::set<std::string> >();
-	mod.conflicts =    config["conflicts"].convertTo<std::set<std::string> >();
+	loadLocalData(local);
 }
 
-/// load mod info from local config
-static void loadModInfoConfig(CModInfo & mod, const JsonNode & config)
+JsonNode CModInfo::saveLocalData()
 {
-	if (config.isNull())
+	std::ostringstream stream;
+	stream << std::noshowbase << std::hex << std::setw(8) << std::setfill('0') << checksum;
+
+	JsonNode conf;
+	conf["active"].Bool() = enabled;
+	conf["validated"].Bool() = validation != FAILED;
+	conf["checksum"].String() = stream.str();
+	return conf;
+}
+
+void CModInfo::updateChecksum(ui32 newChecksum)
+{
+	if (newChecksum != checksum)
 	{
-		mod.enabled = true;
-		mod.validated = false;
-		mod.checksum = 0;
+		checksum = newChecksum;
+		validation = PENDING;
+	}
+}
+
+void CModInfo::loadLocalData(const JsonNode & data)
+{
+	bool validated = false;
+	if (data.isNull())
+	{
+		enabled = true;
+		checksum = 0;
 	}
 	else
 	{
-		mod.enabled   = config["active"].Bool();
-		mod.validated = config["validated"].Bool();
-		mod.checksum  = strtol(config["checksum"].String().c_str(), nullptr, 16);
+		enabled   = data["active"].Bool();
+		validated = data["validated"].Bool();
+		checksum  = strtol(data["checksum"].String().c_str(), nullptr, 16);
 	}
+
+	if (enabled)
+		validation = validated ? PASSED : PENDING;
+	else
+		validation = validated ? PASSED : FAILED;
 }
 
 void CModHandler::initializeMods(std::vector<std::string> availableMods)
@@ -519,21 +582,17 @@ void CModHandler::initializeMods(std::vector<std::string> availableMods)
 
 		if (CResourceHandler::get()->existsResource(ResourceID(modFileName)))
 		{
-			const JsonNode config = JsonNode(ResourceID(modFileName));
-			assert(!config.isNull());
+			CModInfo mod(name, modList[name], JsonNode(ResourceID(modFileName)));
 
-			CModInfo & mod = allMods[name];
-
-			mod.identifier = name;
-			loadModInfoJson(mod, config);
-			loadModInfoConfig(mod, modList[name]);
-
+			allMods[name] = mod;
 			if (mod.enabled)
 				detectedMods.push_back(name);
 		}
 		else
             logGlobal->warnStream() << "\t\t Directory " << name << " does not contains VCMI mod";
 	}
+	coreMod = CModInfo("core", modConfig["core"], JsonNode(ResourceID("config/gameConfig.json")));
+	coreMod.name = "Original game files";
 
 	if (!checkDependencies(detectedMods))
 	{
@@ -574,15 +633,24 @@ static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoade
 	modChecksum.process_bytes(reinterpret_cast<const void*>(GameConstants::VCMI_VERSION.data()), GameConstants::VCMI_VERSION.size());
 
 	// second - add mod.json into checksum because filesystem does not contains this file
-	ResourceID modConfFile("mods/" + modName + "/mod", EResType::TEXT);
-	ui32 configChecksum = CResourceHandler::getInitial()->load(modConfFile)->calculateCRC32();
-	modChecksum.process_bytes(reinterpret_cast<const void *>(&configChecksum), sizeof(configChecksum));
-
-	// third - add all loaded files from this mod into checksum
+	// FIXME: remove workaround for core mod
+	if (modName != "core")
+	{
+		ResourceID modConfFile("mods/" + modName + "/mod", EResType::TEXT);
+		ui32 configChecksum = CResourceHandler::getInitial()->load(modConfFile)->calculateCRC32();
+		modChecksum.process_bytes(reinterpret_cast<const void *>(&configChecksum), sizeof(configChecksum));
+	}
+	// third - add all detected text files from this mod into checksum
 	auto files = filesystem->getFilteredFiles([](const ResourceID & resID)
 	{
-		return resID.getType() == EResType::TEXT;
+		return resID.getType() == EResType::TEXT &&
+			   ( boost::starts_with(resID.getName(), "DATA") ||
+				 boost::starts_with(resID.getName(), "CONFIG"));
 	});
+
+	// these two files may change between two runs of vcmi and must be handled separately
+	files.erase(ResourceID("CONFIG/SETTINGS", EResType::TEXT));
+	files.erase(ResourceID("CONFIG/MODSETTINGS", EResType::TEXT));
 
 	for (const ResourceID & file : files)
 	{
@@ -594,22 +662,16 @@ static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoade
 
 void CModHandler::loadModFilesystems()
 {
+	coreMod.updateChecksum(calculateModChecksum("core", CResourceHandler::getCoreData()));
+
 	for(std::string & modName : activeMods)
 	{
-		ResourceID modConfFile("mods/" + modName + "/mod", EResType::TEXT);
-		auto fsConfigData = CResourceHandler::getInitial()->load(modConfFile)->readAll();
-		const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
-
-		auto filesystem = genModFilesystem(modName, fsConfig);
+		CModInfo & mod = allMods[modName];
+		auto filesystem = genModFilesystem(modName, mod.config);
 
 		CResourceHandler::get()->addLoader(filesystem, false);
 		logGlobal->traceStream() << "Generating checksum for " << modName;
-		ui32 newChecksum = calculateModChecksum(modName, filesystem);
-		if (allMods[modName].checksum != newChecksum)
-		{
-			allMods[modName].checksum = newChecksum;
-			allMods[modName].validated = false; // force (re-)validation
-		}
+		mod.updateChecksum(calculateModChecksum(modName, filesystem));
 	}
 }
 
@@ -629,57 +691,20 @@ void CModHandler::load()
 {
 	CStopWatch totalTime, timer;
 
-	std::set<std::string> modsForValidation;
-	for (auto & mod : allMods)
-	{
-		if (mod.second.enabled && !mod.second.validated)
-			modsForValidation.insert(mod.first);
-	}
-
 	CContentHandler content;
 	logGlobal->infoStream() << "\tInitializing content handler: " << timer.getDiff() << " ms";
 
 	// first - load virtual "core" mod that contains all data
 	// TODO? move all data into real mods? RoE, AB, SoD, WoG
-	content.preloadModData("core", JsonNode(ResourceID("config/gameConfig.json")), true);
-	logGlobal->infoStream() << "\tParsing original game data: " << timer.getDiff() << " ms";
-
+	content.preloadData(coreMod);
 	for(const TModID & modName : activeMods)
-	{
-		bool needsValidation = modsForValidation.count(modName);
-
-		// print message in format [<8-symbols checksum>] <modname>
-		logGlobal->infoStream() << "\t\t[" << std::noshowbase << std::hex << std::setw(8) << std::setfill('0')
-								<< allMods[modName].checksum << "] " << allMods[modName].name;
-
-		std::string modFileName = "mods/" + modName + "/mod.json";
-
-		const JsonNode config = JsonNode(ResourceID(modFileName));
-		if (needsValidation)
-			allMods[modName].validated = JsonUtils::validate(config, "vcmi:mod", modName);
-
-		allMods[modName].validated &= content.preloadModData(modName, config, needsValidation);
-	}
+		content.preloadData(allMods[modName]);
 	logGlobal->infoStream() << "\tParsing mod data: " << timer.getDiff() << " ms";
 
-	content.loadMod("core", true);
-	logGlobal->infoStream() << "\tLoading original game data: " << timer.getDiff() << " ms";
-
+	content.load(coreMod);
 	for(const TModID & modName : activeMods)
-	{
-		bool needsValidation = modsForValidation.count(modName);
+		content.load(allMods[modName]);
 
-		allMods[modName].validated &= content.loadMod(modName, needsValidation);
-		if (needsValidation)
-		{
-			if (allMods[modName].validated)
-				logGlobal->infoStream()  << "\t\t[DONE] " << allMods[modName].name;
-			else
-				logGlobal->errorStream() << "\t\t[FAIL] " << allMods[modName].name;
-		}
-		else
-			logGlobal->infoStream()  << "\t\t[SKIP] " << allMods[modName].name;
-	}
 	logGlobal->infoStream() << "\tLoading mod data: " << timer.getDiff() << "ms";
 
 	VLC->creh->loadCrExpBon();
@@ -690,27 +715,15 @@ void CModHandler::load()
 
 	content.afterLoadFinalization();
 	logGlobal->infoStream() << "\tHandlers post-load finalization: " << timer.getDiff() << " ms";
-
 	logGlobal->infoStream() << "\tAll game content loaded in " << totalTime.getDiff() << " ms";
-}
-
-static JsonNode modInfoToJson(const CModInfo & mod)
-{
-	std::ostringstream stream;
-	stream << std::noshowbase << std::hex << std::setw(8) << std::setfill('0') << mod.checksum;
-
-	JsonNode conf;
-	conf["active"].Bool() = mod.enabled;
-	conf["validated"].Bool() = mod.validated;
-	conf["checksum"].String() = stream.str();
-	return conf;
 }
 
 void CModHandler::afterLoad()
 {
 	JsonNode modSettings;
 	for (auto & modEntry : allMods)
-		modSettings["activeMods"][modEntry.first] = modInfoToJson(modEntry.second);
+		modSettings["activeMods"][modEntry.first] = modEntry.second.saveLocalData();
+	modSettings["core"] = coreMod.saveLocalData();
 
 	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);
 	file << modSettings;

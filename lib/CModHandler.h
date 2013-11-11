@@ -97,18 +97,22 @@ class CContentHandler
 		void afterLoadFinalization();
 	};
 
+	/// preloads all data from fileList as data from modName.
+	bool preloadModData(std::string modName, JsonNode modConfig, bool validate);
+
+	/// actually loads data in mod
+	bool loadMod(std::string modName, bool validate);
+
 	std::map<std::string, ContentTypeHandler> handlers;
 public:
 	/// fully initialize object. Will cause reading of H3 config files
 	CContentHandler();
 
 	/// preloads all data from fileList as data from modName.
-	/// returns true if loading was successfull
-	bool preloadModData(std::string modName, JsonNode modConfig, bool validate);
+	void preloadData(CModInfo & mod);
 
 	/// actually loads data in mod
-	/// returns true if loading was successfull
-	bool loadMod(std::string modName, bool validate);
+	void load(CModInfo & mod);
 
 	/// all data was loaded, time for final validation / integration
 	void afterLoadFinalization();
@@ -119,6 +123,13 @@ typedef std::string TModID;
 class DLL_LINKAGE CModInfo
 {
 public:
+	enum EValidationStatus
+	{
+		PENDING,
+		FAILED,
+		PASSED
+	};
+
 	/// identifier, identical to name of folder with mod
 	std::string identifier;
 
@@ -135,25 +146,34 @@ public:
 	/// CRC-32 checksum of the mod
 	ui32 checksum;
 
-	/// true if mod has passed validation successfully
-	bool validated;
-
 	/// true if mod is enabled
 	bool enabled;
 
-	// mod configuration (mod.json). (no need to store it right now)
-	// std::shared_ptr<JsonNode> config; //TODO: unique_ptr can't be serialized
+	EValidationStatus validation;
+
+	JsonNode config;
+
+	CModInfo(){}
+	CModInfo(std::string identifier, const JsonNode & local, const JsonNode & config);
+
+	JsonNode saveLocalData();
+	void updateChecksum(ui32 newChecksum);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & identifier & description & name & dependencies & conflicts & checksum & validated & enabled;
+		h & identifier & description & name;
+		h & dependencies & conflicts & config;
+		h & checksum & validation & enabled;
 	}
+private:
+	void loadLocalData(const JsonNode & data);
 };
 
 class DLL_LINKAGE CModHandler
 {
 	std::map <TModID, CModInfo> allMods;
 	std::vector <TModID> activeMods;//active mods, in order in which they were loaded
+	CModInfo coreMod;
 
 	void loadConfigFromFile(std::string name);
 	void loadModFilesystems();
