@@ -412,11 +412,11 @@ void NewStructures::applyCl( CClient *cl )
 	{
 		if(id == BuildingID::CAPITOL) //fort or capitol
 		{
-			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->capitols[town->subID].get());
+			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->capitols.at(town->subID).get());
 		}
 		if(id == BuildingID::FORT)
 		{
-			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->gobjs[Obj::TOWN][town->subID].get());
+			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->gobjs.at(Obj::TOWN).at(town->subID).get());
 		}
 		if(vstd::contains(cl->playerint,town->tempOwner))
 			cl->playerint[town->tempOwner]->buildChanged(town,id,1);
@@ -429,7 +429,7 @@ void RazeStructures::applyCl (CClient *cl)
 	{
 		if (id == BuildingID::CAPITOL) //fort or capitol
 		{
-			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->gobjs[Obj::TOWN][town->subID].get());
+			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->gobjs.at(Obj::TOWN).at(town->subID).get());
 		}
 		if(vstd::contains (cl->playerint,town->tempOwner))
 			cl->playerint[town->tempOwner]->buildChanged (town,id,2);
@@ -535,7 +535,7 @@ void InfoWindow::applyCl( CClient *cl )
 	text.toString(str);
 
 	if(vstd::contains(cl->playerint,player))
-		cl->playerint[player]->showInfoDialog(str,comps,(soundBase::soundID)soundID);
+		cl->playerint.at(player)->showInfoDialog(str,comps,(soundBase::soundID)soundID);
 	else
         logNetwork->warnStream() << "We received InfoWindow for not our player...";
 }
@@ -578,7 +578,7 @@ void BlockingDialog::applyCl( CClient *cl )
 	text.toString(str);
 
 	if(vstd::contains(cl->playerint,player))
-		cl->playerint[player]->showBlockingDialog(str,components,queryID,(soundBase::soundID)soundID,selection(),cancel());
+		cl->playerint.at(player)->showBlockingDialog(str,components,queryID,(soundBase::soundID)soundID,selection(),cancel());
 	else
         logNetwork->warnStream() << "We received YesNoDialog for not our player...";
 }
@@ -591,7 +591,7 @@ void GarrisonDialog::applyCl(CClient *cl)
 	if(!vstd::contains(cl->playerint,h->getOwner()))
 		return;
 
-	cl->playerint[h->getOwner()]->showGarrisonDialog(obj,h,removableUnits,queryID);
+	cl->playerint.at(h->getOwner())->showGarrisonDialog(obj,h,removableUnits,queryID);
 }
 
 void ExchangeDialog::applyCl(CClient *cl)
@@ -948,7 +948,7 @@ void SetAvailableArtifacts::applyCl(CClient *cl)
 
 void TradeComponents::applyCl(CClient *cl)
 {///Shop handler
-	switch (CGI->mh->map->objects[objectid]->ID)
+	switch (CGI->mh->map->objects.at(objectid)->ID)
 	{
 	case Obj::BLACK_MARKET:
 		break;

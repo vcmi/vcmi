@@ -378,7 +378,7 @@ public:
 	std::vector< ConstTransitivePtr<CGHeroInstance> > heroesOnMap;
 
 	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
-	bmap<si32, ObjectInstanceID> questIdentifierToId;
+	std::map<si32, ObjectInstanceID> questIdentifierToId;
 
 	unique_ptr<CMapEditManager> editManager;
 

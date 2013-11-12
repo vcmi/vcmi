@@ -49,10 +49,10 @@ void fetchInfoFromMSK();
 class DLL_LINKAGE CDefObjInfoHandler
 {
 public:
-	bmap<int, bmap<int, ConstTransitivePtr<CGDefInfo> > > gobjs;
+	std::map<int, std::map<int, ConstTransitivePtr<CGDefInfo> > > gobjs;
 
-	bmap<TFaction, ConstTransitivePtr<CGDefInfo> > capitols;
-	bmap<TFaction, ConstTransitivePtr<CGDefInfo> > villages;
+	std::map<TFaction, ConstTransitivePtr<CGDefInfo> > capitols;
+	std::map<TFaction, ConstTransitivePtr<CGDefInfo> > villages;
 
 	CDefObjInfoHandler();
 	~CDefObjInfoHandler();

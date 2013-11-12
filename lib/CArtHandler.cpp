@@ -689,7 +689,7 @@ void CArtifactInstance::init()
 
 ArtifactPosition CArtifactInstance::firstAvailableSlot(const CArtifactSet *h) const
 {
-	for(auto slot : artType->possibleSlots[h->bearerType()])
+	for(auto slot : artType->possibleSlots.at(h->bearerType()))
 	{
 		if(canBePutAt(h, slot)) //if(artType->fitsAt(h->artifWorn, slot))
 		{
@@ -1095,7 +1095,7 @@ bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= false*/) const
 const ArtSlotInfo * CArtifactSet::getSlot(ArtifactPosition pos) const
 {
 	if(vstd::contains(artifactsWorn, pos))
-		return &artifactsWorn[pos];
+		return &artifactsWorn.at(pos);
 	if(pos >= ArtifactPosition::AFTER_LAST )
 	{
 		int backpackPos = (int)pos - GameConstants::BACKPACK_START;

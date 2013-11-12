@@ -375,7 +375,7 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 	return nobj;
 }
 
-CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass /*= nullptr*/) const
+CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor player, const CTown *town, std::map<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass /*= nullptr*/) const
 {
 	CGHeroInstance *ret = nullptr;
 
@@ -1340,13 +1340,13 @@ void CGameState::init(StartInfo * si)
 			if (vstd::contains(vti->builtBuildings,(-31-i))) //if we have horde for this level
 			{
 				vti->builtBuildings.erase(BuildingID(-31-i));//remove old ID
-				if (vti->town->hordeLvl[0] == i)//if town first horde is this one
+				if (vti->town->hordeLvl.at(0) == i)//if town first horde is this one
 				{
 					vti->builtBuildings.insert(BuildingID::HORDE_1);//add it
 					if (vstd::contains(vti->builtBuildings,(BuildingID::DWELL_UP_FIRST+i)))//if we have upgraded dwelling as well
 						vti->builtBuildings.insert(BuildingID::HORDE_1_UPGR);//add it as well
 				}
-				if (vti->town->hordeLvl[1] == i)//if town second horde is this one
+				if (vti->town->hordeLvl.at(1) == i)//if town second horde is this one
 				{
 					vti->builtBuildings.insert(BuildingID::HORDE_2);
 					if (vstd::contains(vti->builtBuildings,(BuildingID::DWELL_UP_FIRST+i)))
@@ -1357,7 +1357,7 @@ void CGameState::init(StartInfo * si)
 		//Early check for #1444-like problems
 		for(auto building : vti->builtBuildings)
 		{
-			assert(vti->town->buildings[building]);
+			assert(vti->town->buildings.at(building) != nullptr);
 			UNUSED(building);
 		}
 
@@ -1368,9 +1368,9 @@ void CGameState::init(StartInfo * si)
 				if (vstd::contains(ev.buildings,(-31-i))) //if we have horde for this level
 				{
 					ev.buildings.erase(BuildingID(-31-i));
-					if (vti->town->hordeLvl[0] == i)
+					if (vti->town->hordeLvl.at(0) == i)
 						ev.buildings.insert(BuildingID::HORDE_1);
-					if (vti->town->hordeLvl[1] == i)
+					if (vti->town->hordeLvl.at(1) == i)
 						ev.buildings.insert(BuildingID::HORDE_2);
 				}
 		}
@@ -2433,9 +2433,9 @@ int CGameState::lossCheck( PlayerColor player ) const
 	return false;
 }
 
-bmap<ui32, ConstTransitivePtr<CGHeroInstance> > CGameState::unusedHeroesFromPool()
+std::map<ui32, ConstTransitivePtr<CGHeroInstance> > CGameState::unusedHeroesFromPool()
 {
-	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > pool = hpool.heroesPool;
+	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > pool = hpool.heroesPool;
 	for ( auto i = players.cbegin() ; i != players.cend();i++)
 		for(auto j = i->second.availableHeroes.cbegin(); j != i->second.availableHeroes.cend(); j++)
 			if(*j)

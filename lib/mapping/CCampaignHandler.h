@@ -151,7 +151,7 @@ public:
 	std::vector<ui8> mapsConquered, mapsRemaining;
 	ui8 currentMap; 
 
-	bmap<ui8, ui8> chosenCampaignBonuses; //used only for mode CAMPAIGN
+	std::map<ui8, ui8> chosenCampaignBonuses; //used only for mode CAMPAIGN
 
 	//void initNewCampaign(const StartInfo &si);
 	void mapConquered(const std::vector<CGHeroInstance*> & heroes);

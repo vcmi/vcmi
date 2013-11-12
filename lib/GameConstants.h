@@ -609,7 +609,7 @@ public:
 
 	ID_LIKE_CLASS_COMMON(Obj, EObj)
 
-	bmap<int, ConstTransitivePtr<CGDefInfo> > & toDefObjInfo() const;
+	std::map<int, ConstTransitivePtr<CGDefInfo> > & toDefObjInfo() const;
 
 	EObj num;
 };

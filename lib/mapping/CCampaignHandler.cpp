@@ -456,7 +456,7 @@ const CCampaignScenario & CCampaignState::getCurrentScenario() const
 
 ui8 CCampaignState::currentBonusID() const
 {
-	return chosenCampaignBonuses[currentMap];
+	return chosenCampaignBonuses.at(currentMap);
 }
 
 CCampaignState::CCampaignState()

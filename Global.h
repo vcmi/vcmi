@@ -225,53 +225,6 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 /* ---------------------------------------------------------------------------- */
 /* VCMI standard library */
 /* ---------------------------------------------------------------------------- */
-//a normal std::map with a const operator[] for sanity
-template<typename KeyT, typename ValT>
-class bmap : public std::map<KeyT, ValT>
-{
-public:
-	const ValT & operator[](KeyT key) const
-	{
-		return this->find(key)->second;
-	}
-	ValT & operator[](KeyT key)
-	{
-		return static_cast<std::map<KeyT, ValT> &>(*this)[key];
-	}
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<std::map<KeyT, ValT> &>(*this);
-	}
-
-	bmap()
-	{}
-	explicit bmap(const typename std::map<KeyT, ValT>::key_compare& _Pred)
-		: std::map<KeyT, ValT>(_Pred)
-	{}
-
-	bmap(const typename std::map<KeyT, ValT>::key_compare& _Pred, const typename std::map<KeyT, ValT>::allocator_type& _Al)
-		: std::map<KeyT, ValT>(_Pred, _Al)
-	{}
-
-	template<class _Iter>
-	bmap(_Iter _First, _Iter _Last)
-		: std::map<KeyT, ValT>(_First, _Last)
-	{}
-
-	template<class _Iter>
-	bmap(_Iter _First, _Iter _Last,
-		const typename std::map<KeyT, ValT>::key_compare& _Pred)
-		: std::map<KeyT, ValT>(_First, _Last, _Pred)
-	{}
-
-	template<class _Iter>
-	bmap(_Iter _First, _Iter _Last,
-		const typename std::map<KeyT, ValT>::key_compare& _Pred, const typename std::map<KeyT, ValT>::allocator_type& _Al)
-		: std::map<KeyT, ValT>(_First, _Last, _Pred, _Al)
-	{}
-
-};
-
 template<typename T>
 std::ostream &operator<<(std::ostream &out, const boost::optional<T> &opt)
 {
@@ -310,13 +263,6 @@ namespace vstd
 	//returns true if map c contains item i
 	template <typename V, typename Item, typename Item2>
 	bool contains(const std::map<Item,V> & c, const Item2 &i)
-	{
-		return c.find(i)!=c.end();
-	}
-
-	//returns true if bmap c contains item i
-	template <typename V, typename Item, typename Item2>
-	bool contains(const bmap<Item,V> & c, const Item2 &i)
 	{
 		return c.find(i)!=c.end();
 	}
@@ -520,7 +466,7 @@ namespace vstd
 		}
 	}
 
-	//works for map and bmap, maybe something else
+	//works for map and std::map, maybe something else
 	template<typename Key, typename Val, typename Predicate>
 	void erase_if(std::map<Key, Val> &container, Predicate pred)
 	{

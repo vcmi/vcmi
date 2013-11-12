@@ -2115,7 +2115,7 @@ int CGTownInstance::creatureDwellingLevel(int dwelling) const
 }
 int CGTownInstance::getHordeLevel(const int & HID)  const//HID - 0 or 1; returns creature level or -1 if that horde structure is not present
 {
-	return town->hordeLvl[HID];
+	return town->hordeLvl.at(HID);
 }
 int CGTownInstance::creatureGrowth(const int & level) const
 {
@@ -2142,11 +2142,11 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	else if (hasBuilt(BuildingID::CITADEL))
 		ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::CITADEL, castleBonus = base / 2));
 
-	if(town->hordeLvl[0] == level)//horde 1
+	if(town->hordeLvl.at(0) == level)//horde 1
 		if(hasBuilt(BuildingID::HORDE_1))
 			ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::HORDE_1, creature->hordeGrowth));
 
-	if(town->hordeLvl[1] == level)//horde 2
+	if(town->hordeLvl.at(1) == level)//horde 2
 		if(hasBuilt(BuildingID::HORDE_2))
 			ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::HORDE_2, creature->hordeGrowth));
 
@@ -2620,7 +2620,7 @@ bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type,
 	if(hasBuilt(building))
 	{
 		std::ostringstream descr;
-		descr << town->buildings[building]->Name() << " ";
+		descr << town->buildings.at(building)->Name() << " ";
 		if(val > 0)
 			descr << "+";
 		else if(val < 0)
@@ -2695,7 +2695,7 @@ int CGTownInstance::getTownLevel() const
 	// count all buildings that are not upgrades
 	return boost::range::count_if(builtBuildings, [&](const BuildingID & build)
 	{
-		return town->buildings[build] && town->buildings[build]->upgrade == -1;
+		return town->buildings.at(build) && town->buildings.at(build)->upgrade == -1;
 	});
 }
 

@@ -962,7 +962,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 
 	for(const auto & buildID : toBuild)
 	{
-		const CBuilding *b = t->town->buildings[buildID];
+		const CBuilding *b = t->town->buildings.at(buildID);
 
 		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if(canBuild == EBuildingState::ALLOWED)
@@ -977,7 +977,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 		}
 		else if(canBuild == EBuildingState::NO_RESOURCES)
 		{
-			TResources cost = t->town->buildings[buildID]->resources;
+			TResources cost = t->town->buildings.at(buildID)->resources;
 			for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
 			{
 				int diff = currentRes[i] - cost[i] + income[i];

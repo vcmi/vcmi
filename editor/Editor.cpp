@@ -2,7 +2,7 @@
 #include "Editor.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
@@ -13,7 +13,7 @@ Editor::Editor(QWidget *parent)
 {
 	// Setup default logging(enough for now)
 	console = new CConsoleHandler;
-	CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Editor_log.txt", console);
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() + "/VCMI_Editor_log.txt", console);
 	logConfig.configureDefault();
 
 	preinitDLL(console);

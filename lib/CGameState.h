@@ -364,16 +364,16 @@ public:
 	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
 	ConstTransitivePtr<CMap> map;
-	bmap<PlayerColor, PlayerState> players;
-	bmap<TeamID, TeamState> teams;
+	std::map<PlayerColor, PlayerState> players;
+	std::map<TeamID, TeamState> teams;
 	CBonusSystemNode globalEffects;
 
 	struct DLL_LINKAGE HeroesPool
 	{
-		bmap<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; nullptr if not available
-		bmap<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
+		std::map<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; nullptr if not available
+		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
 
-		CGHeroInstance * pickHeroFor(bool native, PlayerColor player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass = nullptr) const;
+		CGHeroInstance * pickHeroFor(bool native, PlayerColor player, const CTown *town, std::map<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass = nullptr) const;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -409,7 +409,7 @@ public:
 	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
 	bool checkForStandardLoss(PlayerColor player) const; //checks if given player lost the game
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
-	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
+	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 	BattleInfo * setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town);
 
 	void buildBonusSystemTree();

@@ -453,7 +453,7 @@ DLL_LINKAGE void NewStructures::applyGs( CGameState *gs )
 	CGTownInstance *t = gs->getTown(tid);
 	for(const auto & id : bid)
 	{
-		assert(t->town->buildings[id]);
+		assert(t->town->buildings.at(id) != nullptr);
 		t->builtBuildings.insert(id);
 	}
 	t->builded = builded;

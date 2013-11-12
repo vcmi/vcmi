@@ -570,7 +570,7 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	if(!t->town->buildings.count(ID))
 		return EBuildingState::BUILDING_ERROR;
 
-	const CBuilding * pom = t->town->buildings[ID];
+	const CBuilding * pom = t->town->buildings.at(ID);
 
 
 	if(t->hasBuilt(ID))	//already built
@@ -637,7 +637,7 @@ std::set<BuildingID> CGameInfoCallback::getBuildingRequiments( const CGTownInsta
 
 	std::set<int> used;
 	used.insert(ID);
-	auto reqs = t->town->buildings[ID]->requirements;
+	auto reqs = t->town->buildings.at(ID)->requirements;
 
 	bool found;
 	do
@@ -648,7 +648,7 @@ std::set<BuildingID> CGameInfoCallback::getBuildingRequiments( const CGTownInsta
 			if(used.find(*i)==used.end()) //we haven't added requirements for this building
 			{
 				found = true;
-				auto & requires = t->town->buildings[*i]->requirements;
+				auto & requires = t->town->buildings.at(*i)->requirements;
 
 				used.insert(*i);
 				for(auto & require : requires)

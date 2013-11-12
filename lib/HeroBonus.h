@@ -967,8 +967,8 @@ extern DLL_LINKAGE const std::map<std::string, Bonus::ValueType> bonusValueMap;
 extern DLL_LINKAGE const std::map<std::string, Bonus::BonusSource> bonusSourceMap;
 extern DLL_LINKAGE const std::map<std::string, ui16> bonusDurationMap;
 extern DLL_LINKAGE const std::map<std::string, Bonus::LimitEffect> bonusLimitEffect;
-extern DLL_LINKAGE const bmap<std::string, TLimiterPtr> bonusLimiterMap;
-extern DLL_LINKAGE const bmap<std::string, TPropagatorPtr> bonusPropagatorMap;
+extern DLL_LINKAGE const std::map<std::string, TLimiterPtr> bonusLimiterMap;
+extern DLL_LINKAGE const std::map<std::string, TPropagatorPtr> bonusPropagatorMap;
 
 
 // BonusList template that requires full interface of CBonusSystemNode

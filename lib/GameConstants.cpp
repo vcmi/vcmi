@@ -76,7 +76,7 @@ ID_LIKE_OPERATORS(BuildingID, BuildingID::EBuildingID)
 ID_LIKE_OPERATORS(BFieldType, BFieldType::EBFieldType)
 
 
-bmap<int, ConstTransitivePtr<CGDefInfo> > & Obj::toDefObjInfo() const
+std::map<int, ConstTransitivePtr<CGDefInfo> > & Obj::toDefObjInfo() const
 {
 	return VLC->dobjinfo->gobjs[*this];
 }
