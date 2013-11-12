@@ -463,35 +463,24 @@ int CGameState::pickHero(PlayerColor owner)
 		}
 	}
 
-	//list of heroes for this faction and others
+	//list of available heroes for this faction and others
 	std::vector<HeroTypeID> factionHeroes, otherHeroes;
 
-	const size_t firstHero = ps.castle*GameConstants::HEROES_PER_TYPE*2;
-	const size_t lastHero  = std::min(firstHero + GameConstants::HEROES_PER_TYPE*2, VLC->heroh->heroes.size()) - 1;
-	const auto heroesToConsider = getUnusedAllowedHeroes();
-
-	for(auto hid : heroesToConsider)
+	for(HeroTypeID hid : getUnusedAllowedHeroes())
 	{
-		if(vstd::iswithin(hid.getNum(), firstHero, lastHero))
+		if(VLC->heroh->heroes[hid.getNum()]->heroClass->faction == ps.castle)
 			factionHeroes.push_back(hid);
 		else
 			otherHeroes.push_back(hid);
 	}
 
-	// we need random order to select hero
-	auto randGen = [](size_t range)
-	{
-		return ran() % range;
-	};
-	boost::random_shuffle(factionHeroes, randGen); // generator must be reference
-
-	if(factionHeroes.size())
-		return factionHeroes.front().getNum();
+	// select random hero native to "our" faction
+	if (!factionHeroes.empty())
+		return factionHeroes.at(ran() % factionHeroes.size()).getNum();
 
 	logGlobal->warnStream() << "Cannot find free hero of appropriate faction for player " << owner << " - trying to get first available...";
-	if(otherHeroes.size())
-		return otherHeroes.front().getNum();
-
+	if(!otherHeroes.empty())
+		return otherHeroes.at(ran() % otherHeroes.size()).getNum();
 
 	logGlobal->errorStream() << "No free allowed heroes!";
 	auto notAllowedHeroesButStillBetterThanCrash = getUnusedAllowedHeroes(true);
@@ -502,7 +491,6 @@ int CGameState::pickHero(PlayerColor owner)
 	assert(0); //current code can't handle this situation
 	return -1; // no available heroes at all
 }
-
 
 std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 {
