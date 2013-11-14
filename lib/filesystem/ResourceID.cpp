@@ -3,6 +3,30 @@
 
 #include "CFileInfo.h"
 
+// trivial to_upper that completely ignores localization and only work with ASCII
+// Technically not a problem since
+// 1) Right now VCMI does not supports unicode in filenames on Win
+// 2) Filesystem case-sensivity is only problem for H3 data which uses ASCII-only symbols
+// for me (Ivan) this define gives notable decrease in loading times
+// #define ENABLE_TRIVIAL_TOUPPER
+
+#ifdef ENABLE_TRIVIAL_TOUPPER
+static inline void toUpper(char & symbol)
+{
+	static const int diff = 'a' - 'A';
+	if (symbol >= 'a' && symbol <= 'z')
+		symbol -= diff;
+}
+
+static inline void toUpper(std::string & string)
+{
+	for (char & symbol : string)
+		toUpper(symbol);
+}
+
+#endif
+
+
 ResourceID::ResourceID()
 	:type(EResType::OTHER)
 {
@@ -40,8 +64,12 @@ void ResourceID::setName(std::string name)
 	if(dotPos != std::string::npos && this->name[dotPos] == '.')
 		this->name.erase(dotPos);
 
+#ifdef ENABLE_TRIVIAL_TOUPPER
+	toUpper(this->name);
+#else
 	// strangely enough but this line takes 40-50% of filesystem loading time
 	boost::to_upper(this->name);
+#endif
 }
 
 void ResourceID::setType(EResType::Type type)
@@ -51,7 +79,11 @@ void ResourceID::setType(EResType::Type type)
 
 EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 {
+#ifdef ENABLE_TRIVIAL_TOUPPER
+	toUpper(extension);
+#else
 	boost::to_upper(extension);
+#endif
 
 	static const std::map<std::string, EResType::Type> stringToRes =
 			boost::assign::map_list_of

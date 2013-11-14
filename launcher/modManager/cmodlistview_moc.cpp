@@ -381,7 +381,8 @@ void CModListView::on_uninstallButton_clicked()
 	if (modModel->hasMod(modName) &&
 	    modModel->getMod(modName).isInstalled())
 	{
-		manager->disableMod(modName);
+		if (modModel->getMod(modName).isEnabled())
+			manager->disableMod(modName);
 		manager->uninstallMod(modName);
 	}
 	checkManagerErrors();

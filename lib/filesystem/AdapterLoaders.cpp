@@ -69,7 +69,10 @@ std::unique_ptr<CInputStream> CFilesystemList::load(const ResourceID & resourceN
 
 bool CFilesystemList::existsResource(const ResourceID & resourceName) const
 {
-	return !getResourcesWithName(resourceName).empty();
+	for (auto & loader : *loaders)
+		if (loader->existsResource(resourceName))
+			return true;
+	return false;
 }
 
 std::string CFilesystemList::getMountPoint() const

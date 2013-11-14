@@ -247,7 +247,7 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 	if (!modInfo.patches.isNull())
 		JsonUtils::merge(modInfo.modData, modInfo.patches);
 
-	for(auto entry : modInfo.modData.Struct())
+	for(auto & entry : modInfo.modData.Struct())
 	{
 		const std::string & name = entry.first;
 		JsonNode & data = entry.second;

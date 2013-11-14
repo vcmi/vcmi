@@ -385,7 +385,7 @@ void CCreatureHandler::loadObject(std::string scope, std::string name, const Jso
 	creatures[index] = object;
 
 	VLC->modh->identifiers.registerObject(scope, "creature", name, object->idNumber);
-	for(auto node : data["extraNames"].Vector())
+	for(auto & node : data["extraNames"].Vector())
 	{
 		VLC->modh->identifiers.registerObject(scope, "creature", node.String(), object->idNumber);
 	}
