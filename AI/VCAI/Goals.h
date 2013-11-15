@@ -20,8 +20,8 @@ struct HeroPtr;
 
 namespace Goals
 {
-	struct CGoal;
-	typedef std::shared_ptr<Goals::CGoal> TSubgoal;
+	struct AbstractGoal;
+	typedef std::shared_ptr<Goals::AbstractGoal> TSubgoal;
 
 	enum EGoals
 {
@@ -48,24 +48,32 @@ namespace Goals
 	DIG_AT_TILE //elementar with hero on tile
 };
 
-#define SETTER(type, field) CGoal &set ## field(const type &rhs) { field = rhs; return *this; }
+	//method chaining + clone pattern
+#define VSETTER(type, field) AbstractGoal & set ## field(const type &rhs) { field = rhs; return *this; };
+#define OSETTER(type, field) CGoal<T> & set ## field(const type &rhs) { field = rhs; return *this; };
+
 #if 0
 	#define SETTER
 #endif // _DEBUG
 
 enum {LOW_PR = -1};
 
-struct CGoal
+class AbstractGoal
 {
-	EGoals goalType;
-	bool isElementar; SETTER(bool, isElementar)
-	bool isAbstract; SETTER(bool, isAbstract) //allows to remember abstract goals
-	int priority; SETTER(bool, priority)
-	std::string name() const;
+public:
+	bool isElementar; VSETTER(bool, isElementar)
+	bool isAbstract; VSETTER(bool, isAbstract)
+	int priority; VSETTER(bool, priority)
+	int value; VSETTER(int, value)
+	int resID; VSETTER(int, resID)
+	int objid; VSETTER(int, objid)
+	int aid; VSETTER(int, aid)
+	int3 tile; VSETTER(int3, tile)
+	HeroPtr hero; VSETTER(HeroPtr, hero)
+	const CGTownInstance *town; VSETTER(CGTownInstance *, town)
+	int bid; VSETTER(int, bid)
 
-	virtual TSubgoal whatToDoToAchieve();
-
-	CGoal(EGoals goal = INVALID) : goalType(goal)
+	AbstractGoal (EGoals goal = INVALID) : goalType (goal)
 	{
 		priority = 0;
 		isElementar = false;
@@ -77,22 +85,18 @@ struct CGoal
 		town = nullptr;
 	}
 
+	EGoals goalType;
+	std::string name() const;
+
 	bool invalid() const;
 
 	static TSubgoal goVisitOrLookFor(const CGObjectInstance *obj); //if obj is nullptr, then we'll explore
 	static TSubgoal lookForArtSmart(int aid); //checks non-standard ways of obtaining art (merchants, quests, etc.)
 	static TSubgoal tryRecruitHero();
 
-	int value; SETTER(int, value)
-	int resID; SETTER(int, resID)
-	int objid; SETTER(int, objid)
-	int aid; SETTER(int, aid)
-	int3 tile; SETTER(int3, tile)
-	HeroPtr hero; SETTER(HeroPtr, hero)
-	const CGTownInstance *town; SETTER(CGTownInstance *, town)
-	int bid; SETTER(int, bid)
+	virtual TSubgoal whatToDoToAchieve();
 
-	bool operator== (CGoal &g)
+	bool operator== (AbstractGoal &g) //TODO: virtualize - comparison returns true only for same subclasses
 	{
 		switch (goalType)
 		{
@@ -110,131 +114,188 @@ struct CGoal
 	}
 };
 
-class Invalid : public CGoal
+template <typename T = CGoal> class CGoal : public AbstractGoal
+{
+public:
+	CGoal<T> (EGoals goal = INVALID) : AbstractGoal (goal)
+	{
+		priority = 0;
+		isElementar = false;
+		isAbstract = false;
+		value = 0;
+		aid = -1;
+		resID = -1;
+		tile = int3(-1, -1, -1);
+		town = nullptr;
+	}
+	OSETTER(bool, isElementar)
+	OSETTER(bool, isAbstract) //FIXME: find out why this setter does not compile?
+	OSETTER(bool, priority)
+	OSETTER(int, value)
+	OSETTER(int, resID)
+	OSETTER(int, objid)
+	OSETTER(int, aid)
+	OSETTER(int3, tile)
+	OSETTER(HeroPtr, hero)
+	OSETTER(CGTownInstance *, town)
+	OSETTER(int, bid)
+	shared_ptr<CGoal<T>> iAmElementar()
+	{
+		return make_shared<CGoal<T>> (setisElementar(true));
+	}
+};
+
+//There seems to be some ambiguity on these two, template function keeps form consitent
+template <typename T> shared_ptr<CGoal<T>> sptr(CGoal<T>& tmp)
+{
+	return make_shared<CGoal<T>> (tmp);
+}
+template <typename T> shared_ptr<CGoal<T>> sptr(T& obj)
+{
+	return make_shared<CGoal<T>> (obj);
+}
+
+class Invalid : public CGoal<Invalid>
 {
 	public:
 	Invalid() : CGoal (Goals::INVALID){};
 	TSubgoal whatToDoToAchieve() override;
 };
-class Win : public CGoal
+class Win : public CGoal<Win>
 {
 	public:
 	Win() : CGoal (Goals::WIN){};
 	TSubgoal whatToDoToAchieve() override;
 };
-class NotLose : public CGoal
+class NotLose : public CGoal<NotLose>
 {
 	public:
 	NotLose() : CGoal (Goals::DO_NOT_LOSE){};
 	TSubgoal whatToDoToAchieve() override;
 };
-class Conquer : public CGoal
+class Conquer : public CGoal<Conquer>
 {
 	public:
 	Conquer() : CGoal (Goals::CONQUER){};
 	TSubgoal whatToDoToAchieve() override;
 };
-class Build : public CGoal
+class Build : public CGoal<Build>
 {
 	public:
 	Build() : CGoal (Goals::BUILD){};
 	TSubgoal whatToDoToAchieve() override;
 };
-class Explore : public CGoal
+class Explore : public CGoal<Explore>
 {
 	public:
 	Explore() : CGoal (Goals::EXPLORE){};
+	Explore(HeroPtr h) : CGoal (Goals::EXPLORE){hero = h;};
 	TSubgoal whatToDoToAchieve() override;
 };
-class GatherArmy : public CGoal
+class GatherArmy : public CGoal<GatherArmy>
 {
-	public:
+private:
 	GatherArmy() : CGoal (Goals::GATHER_ARMY){};
+public:
+	GatherArmy(int val) : CGoal (Goals::GATHER_ARMY){value = val;};
 	TSubgoal whatToDoToAchieve() override;
 };
-class BoostHero : public CGoal
+class BoostHero : public CGoal<BoostHero>
 {
 	public:
 	BoostHero() : CGoal (Goals::INVALID){}; //TODO
 	TSubgoal whatToDoToAchieve() override;
 };
-class RecruitHero : public CGoal
+class RecruitHero : public CGoal<RecruitHero>
 {
 	public:
 	RecruitHero() : CGoal (Goals::RECRUIT_HERO){};
 	TSubgoal whatToDoToAchieve() override;
 };
-class BuildThis : public CGoal
+class BuildThis : public CGoal<BuildThis>
 {
-	public:
+private:
 	BuildThis() : CGoal (Goals::BUILD_STRUCTURE){};
+public:
+	BuildThis(BuildingID Bid, const CGTownInstance *tid) : CGoal (Goals::BUILD_STRUCTURE) {bid = Bid; town = tid;};
+	BuildThis(BuildingID Bid) : CGoal (Goals::BUILD_STRUCTURE) {bid = Bid;};
 	TSubgoal whatToDoToAchieve() override;
 };
-class CollectRes : public CGoal
+class CollectRes : public CGoal<CollectRes>
 {
-	public:
+private:	
 	CollectRes() : CGoal (Goals::COLLECT_RES){};
+public:
+	CollectRes(int rid, int val) : CGoal (Goals::COLLECT_RES) {resID = rid; value = val;};
 	TSubgoal whatToDoToAchieve() override;
 };
-class GatherTroops : public CGoal
+class GatherTroops : public CGoal<GatherTroops>
 {
-	public:
+private:
 	GatherTroops() : CGoal (Goals::GATHER_TROOPS){};
+public:
+	GatherTroops(int type, int val) : CGoal (Goals::GATHER_TROOPS){objid = type; value = val;};
 	TSubgoal whatToDoToAchieve() override;
 };
-class GetObj : public CGoal
+class GetObj : public CGoal<GetObj>
 {
 	private:
 		GetObj() {}; // empty constructor not allowed
 	public:
-		GetObj(const int Objid) : CGoal(Goals::GET_OBJ) {setobjid(Objid);};
+		GetObj(int Objid) : CGoal(Goals::GET_OBJ) {objid = Objid;};
 	TSubgoal whatToDoToAchieve() override;
 };
-class FindObj : public CGoal
+class FindObj : public CGoal<FindObj>
 {
 	private:
 		FindObj() {}; // empty constructor not allowed
 	public:
-	FindObj(int ID) : CGoal(Goals::FIND_OBJ) {setobjid(ID);};
-	FindObj(int ID, int subID) : CGoal(Goals::FIND_OBJ) {setobjid(ID).setresID(subID);};
+	FindObj(int ID) : CGoal(Goals::FIND_OBJ) {objid = ID;};
+	FindObj(int ID, int subID) : CGoal(Goals::FIND_OBJ) {objid = ID; resID = subID;};
 	TSubgoal whatToDoToAchieve() override;
 };
-class VisitHero : public CGoal
+class VisitHero : public CGoal<VisitHero>
 {
-	public:
+private:
 	VisitHero() : CGoal (Goals::VISIT_HERO){};
+public:
+	VisitHero(int hid) : CGoal (Goals::VISIT_HERO){objid = hid;};
 	TSubgoal whatToDoToAchieve() override;
 };
-class GetArtOfType : public CGoal
+class GetArtOfType : public CGoal<GetArtOfType>
 {
-	public:
+private:
 	GetArtOfType() : CGoal (Goals::GET_ART_TYPE){};
+public:
+	GetArtOfType(int type) : CGoal (Goals::GET_ART_TYPE){aid = type;};
 	TSubgoal whatToDoToAchieve() override;
 };
-class VisitTile : public CGoal
+class VisitTile : public CGoal<VisitTile>
 	//tile, in conjunction with hero elementar; assumes tile is reachable
 {
-	private:
-		VisitTile() {}; // empty constructor not allowed
-	public:
-		VisitTile(int3 Tile) : CGoal (Goals::VISIT_TILE) {settile(Tile);};
+private:
+	VisitTile() {}; // empty constructor not allowed
+public:
+	VisitTile(int3 Tile) : CGoal (Goals::VISIT_TILE) {tile = Tile;};
 	TSubgoal whatToDoToAchieve() override;
 }; 
-class ClearWayTo : public CGoal
+class ClearWayTo : public CGoal<ClearWayTo>
 {
-	public:
-	ClearWayTo(int3 Tile) : CGoal (Goals::CLEAR_WAY_TO) {settile(Tile);};
+public:
+	ClearWayTo(int3 Tile) : CGoal (Goals::CLEAR_WAY_TO) {tile = Tile;};
 	TSubgoal whatToDoToAchieve() override;
 };
-class DigAtTile : public CGoal
+class DigAtTile : public CGoal<DigAtTile>
 	//elementar with hero on tile
 {
-	public:
+private:
 	DigAtTile() : CGoal (Goals::DIG_AT_TILE){};
+public:
+	DigAtTile(int3 Tile) : CGoal (Goals::DIG_AT_TILE) {tile = Tile;};
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class CIssueCommand : CGoal
+class CIssueCommand : public CGoal<CIssueCommand>
 {
 	std::function<bool()> command;
 

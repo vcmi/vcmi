@@ -257,7 +257,7 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 		markObjectVisited (visitedObj);
 		erase_if_present(reservedObjs, visitedObj); //unreserve objects
 		erase_if_present(reservedHeroesMap[visitor], visitedObj);
-		completeGoal (Goals::CGoal(Goals::GET_OBJ).sethero(visitor)); //we don't need to visit in anymore
+		completeGoal (Goals::GetObj(visitedObj->id.getNum()).sethero(visitor)); //we don't need to visit in anymore
 	}
 
 	status.heroVisit(visitedObj, start);
@@ -311,8 +311,8 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 		else if (canGetArmy (secondHero, firstHero))
 			pickBestCreatures (secondHero, firstHero);
 
-		completeGoal(Goals::VisitHero().sethero(firstHero)); //TODO: what if we were visited by other hero in the meantime?
-		completeGoal(Goals::VisitHero().sethero(secondHero));
+		completeGoal(Goals::AbstractGoal(Goals::VISIT_HERO).sethero(firstHero)); //TODO: what if we were visited by other hero in the meantime?
+		completeGoal(Goals::AbstractGoal(Goals::VISIT_HERO).sethero(secondHero));
 		//TODO: exchange artifacts
 
 		answerQuery(query, 0);
@@ -667,7 +667,7 @@ void VCAI::makeTurn()
 				ui64 averageDanger = totalDanger / std::max(dangerousObjects, 1);
 				if (dangerousObjects && averageDanger > h->getHeroStrength())
 				{
-					setGoal (h, Goals::GatherArmy().sethero(h).setvalue(averageDanger * SAFE_ATTACK_CONSTANT).setisAbstract(true));
+					setGoal (h, Goals::GatherArmy(averageDanger * SAFE_ATTACK_CONSTANT).sethero(h).setisAbstract(true));
 				}
 			}
 		}
@@ -723,10 +723,10 @@ void VCAI::makeTurnInternal()
 		//finally, continue our abstract long-term goals
 
 		//heroes tend to die in the process and loose their goals, unsafe to iterate it
-		std::vector<std::pair<HeroPtr, Goals::CGoal> > safeCopy;
+		std::vector<std::pair<HeroPtr, Goals::AbstractGoal> > safeCopy;
 		boost::copy(lockedHeroes, std::back_inserter(safeCopy));
 
-		typedef std::pair<HeroPtr, Goals::CGoal> TItrType;
+		typedef std::pair<HeroPtr, Goals::AbstractGoal> TItrType;
 
 		auto lockedHeroesSorter = [](TItrType h1, TItrType h2) -> bool
 		{
@@ -1213,12 +1213,12 @@ void VCAI::wander(HeroPtr h)
 	}
 }
 
-void VCAI::setGoal(HeroPtr h, const Goals::CGoal goal)
+void VCAI::setGoal(HeroPtr h, const Goals::AbstractGoal &goal)
 { //TODO: check for presence?
-	if (goal.goalType == Goals::INVALID)
+	if (goal.invalid())
 		erase_if_present(lockedHeroes, h);
 	else
-		lockedHeroes[h] = Goals::CGoal(goal).setisElementar(false); //always evaluate goals before realizing
+		lockedHeroes[h] = Goals::AbstractGoal(goal).setisElementar(false); //always evaluate goals before realizing
 }
 
 void VCAI::setGoal(HeroPtr h, Goals::EGoals goalType)
@@ -1226,10 +1226,10 @@ void VCAI::setGoal(HeroPtr h, Goals::EGoals goalType)
 	if (goalType == Goals::INVALID)
 		erase_if_present(lockedHeroes, h);
 	else
-		lockedHeroes[h] = Goals::CGoal(goalType).setisElementar(false); //always evaluate goals before realizing;
+		lockedHeroes[h] = Goals::AbstractGoal(goalType).setisElementar(false); //always evaluate goals before realizing;
 }
 
-void VCAI::completeGoal (const Goals::CGoal goal)
+void VCAI::completeGoal (const Goals::AbstractGoal &goal)
 {
 	if (const CGHeroInstance * h = goal.hero.get(true))
 	{
@@ -1425,7 +1425,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		{
             logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
 			//setGoal(h, INVALID);
-			completeGoal (Goals::CGoal(Goals::VISIT_TILE).sethero(h));
+			completeGoal (Goals::AbstractGoal(Goals::VISIT_TILE).sethero(h));
 			cb->recalculatePaths();
 			throw std::runtime_error("Wrong move order!");
 		}
@@ -1617,7 +1617,7 @@ void VCAI::tryRealize(Goals::Invalid g)
 	throw cannotFulfillGoalException("I don't know how to fulfill this!");
 }
 
-void VCAI::tryRealize(Goals::CGoal g)
+void VCAI::tryRealize(Goals::AbstractGoal g)
 {
     logAi->debugStream() << boost::format("Attempting realizing goal with code %s") % g.name();
 	throw cannotFulfillGoalException("Unknown type of goal !");
@@ -1673,7 +1673,7 @@ void VCAI::endTurn()
     logAi->debugStream() << "Player " << static_cast<int>(playerID.getNum()) << " ended turn";
 }
 
-bool VCAI::fulfillsGoal (Goals::CGoal &goal, Goals::CGoal &mainGoal)
+bool VCAI::fulfillsGoal (Goals::AbstractGoal &goal, Goals::AbstractGoal &mainGoal)
 {
 	if (mainGoal.goalType == Goals::GET_OBJ && goal.goalType == Goals::VISIT_TILE) //deduce that GET_OBJ was completed by visiting object's tile
 	{ //TODO: more universal mechanism
@@ -1682,26 +1682,21 @@ bool VCAI::fulfillsGoal (Goals::CGoal &goal, Goals::CGoal &mainGoal)
 	}
 	return false;
 }
-bool VCAI::fulfillsGoal (Goals::CGoal &goal, const Goals::CGoal &mainGoal)
+bool VCAI::fulfillsGoal (Goals::AbstractGoal &goal, const Goals::AbstractGoal &mainGoal)
 {
-	if (mainGoal.goalType == Goals::GET_OBJ && goal.goalType == Goals::VISIT_TILE) //deduce that GET_OBJ was completed by visiting object's tile
-	{ //TODO: more universal mechanism
-		if (cb->getObj(ObjectInstanceID(mainGoal.objid))->visitablePos() == goal.tile)
-			return true;
-	}
-	return false;
+	return fulfillsGoal (goal, const_cast<Goals::AbstractGoal&>(mainGoal));
 }
 
-void VCAI::striveToGoal(const Goals::CGoal &ultimateGoal)
+void VCAI::striveToGoal(const Goals::AbstractGoal &ultimateGoal)
 {
 	if (ultimateGoal.invalid())
 		return;
 
-	std::shared_ptr<Goals::CGoal> abstractGoal = make_shared<Goals::CGoal>(Goals::Invalid());
+	std::shared_ptr<Goals::AbstractGoal> abstractGoal = make_shared<Goals::AbstractGoal>(Goals::Invalid());
 
 	while(1)
 	{
-		std::shared_ptr<Goals::CGoal> goal = make_shared<Goals::CGoal>(ultimateGoal);
+		std::shared_ptr<Goals::AbstractGoal> goal = make_shared<Goals::AbstractGoal>(ultimateGoal); //FIXME: preserve subclass of goal
         logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal.name();
 		int maxGoals = 100; //preventing deadlock for mutually dependent goals, FIXME: do not try to realize goal when loop didn't suceed
 		while(!goal->isElementar && !goal->isAbstract && maxGoals)
@@ -1779,7 +1774,7 @@ void VCAI::striveToGoal(const Goals::CGoal &ultimateGoal)
 	{
 		while (1)
 		{
-			std::shared_ptr<Goals::CGoal> goal(abstractGoal);
+			std::shared_ptr<Goals::AbstractGoal> goal(abstractGoal);
 			goal->setisAbstract(false);
 			int maxGoals = 50;
 			while (!goal->isElementar && maxGoals) //find elementar goal and fulfill it
@@ -1852,7 +1847,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				}
 				for (auto art : q.quest->m5arts)
 				{
-					striveToGoal (Goals::GetArtOfType().setaid(art)); //TODO: transport?
+					striveToGoal (Goals::GetArtOfType(art)); //TODO: transport?
 				}
 				break;
 			}
@@ -1883,7 +1878,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				}
 				for (auto creature : q.quest->m6creatures)
 				{
-					striveToGoal (Goals::GatherTroops().setobjid(creature.type->idNumber).setvalue(creature.count));
+					striveToGoal (Goals::GatherTroops(creature.type->idNumber, creature.count));
 				}
 				//TODO: exchange armies... oh my
 				//BNLOG ("Don't know how to recruit %d of %s\n", (int)(creature.count) % creature.type->namePl);
@@ -1902,7 +1897,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 						for (int i = 0; i < q.quest->m7resources.size(); ++i)
 						{
 							if (q.quest->m7resources[i])
-								striveToGoal (Goals::CollectRes().setresID(i).setvalue(q.quest->m7resources[i]));
+								striveToGoal (Goals::CollectRes(i, q.quest->m7resources[i]));
 						}
 					}
 				}
@@ -2123,7 +2118,7 @@ void VCAI::checkHeroArmy (HeroPtr h)
 	if (it != lockedHeroes.end())
 	{
 		if (it->second.goalType == Goals::GATHER_ARMY && it->second.value <= h->getArmyStrength())
-			completeGoal(Goals::GatherArmy().sethero(h));
+			completeGoal(Goals::GatherArmy(it->second.value).sethero(h));
 	}
 }
 
@@ -2630,7 +2625,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 		if(!preds[dst])
 		{
 			write("test.txt");
-			ai->completeGoal (Goals::Explore().sethero(h)); //if we can't find the way, seemingly all tiles were explored
+			ai->completeGoal (Goals::Explore(h)); //if we can't find the way, seemingly all tiles were explored
 			//TODO: more organized way?
             throw cannotFulfillGoalException(boost::str(boost::format("Cannot find connection between sectors %d and %d") % src->id % dst->id));
 		}

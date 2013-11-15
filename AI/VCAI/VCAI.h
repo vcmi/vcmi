@@ -128,7 +128,7 @@ public:
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::vector<const CGTownInstance *> > townVisitsThisWeek;
 
-	std::map<HeroPtr, Goals::CGoal> lockedHeroes; //TODO: allow non-elementar objectives
+	std::map<HeroPtr, Goals::AbstractGoal> lockedHeroes; //TODO: allow non-elementar objectives
 	std::map<HeroPtr, std::vector<const CGObjectInstance *> > reservedHeroesMap; //objects reserved by specific heroes
 
 	std::vector<const CGObjectInstance *> visitableObjs;
@@ -147,7 +147,7 @@ public:
 	VCAI(void);
 	~VCAI(void);
 
-	void tryRealize(Goals::CGoal g);
+	void tryRealize(Goals::AbstractGoal g);
 	void tryRealize(Goals::Explore g);
 	void tryRealize(Goals::RecruitHero g);
 	void tryRealize(Goals::VisitTile g);
@@ -231,15 +231,15 @@ public:
 	void performTypicalActions();
 
 	void buildArmyIn(const CGTownInstance * t);
-	void striveToGoal(const Goals::CGoal & ultimateGoal);
+	void striveToGoal(const Goals::AbstractGoal & ultimateGoal);
 	void endTurn();
 	void wander(HeroPtr h);
-	void setGoal(HeroPtr h, const Goals::CGoal goal);
+	void setGoal(HeroPtr h, const Goals::AbstractGoal &goal);
 	void setGoal(HeroPtr h, Goals::EGoals goalType = Goals::INVALID);
-	void completeGoal (const Goals::CGoal goal); //safely removes goal from reserved hero
+	void completeGoal (const Goals::AbstractGoal &goal); //safely removes goal from reserved hero
 	void striveToQuest (const QuestInfo &q);
-	bool fulfillsGoal (Goals::CGoal &goal, Goals::CGoal &mainGoal);
-	bool fulfillsGoal (Goals::CGoal &goal, const Goals::CGoal &mainGoal); //TODO: something smarter
+	bool fulfillsGoal (Goals::AbstractGoal &goal, Goals::AbstractGoal &mainGoal);
+	bool fulfillsGoal (Goals::AbstractGoal &goal, const Goals::AbstractGoal &mainGoal); //TODO: something smarter
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	std::vector<const CGObjectInstance *> getPossibleDestinations(HeroPtr h);
@@ -320,9 +320,9 @@ public:
 class goalFulfilledException : public std::exception
 {
 public:
-	Goals::CGoal goal;
+	Goals::AbstractGoal goal;
 
-	explicit goalFulfilledException(Goals::CGoal Goal) : goal(Goal)
+	explicit goalFulfilledException(Goals::AbstractGoal Goal) : goal(Goal)
 	{
 	}
 
