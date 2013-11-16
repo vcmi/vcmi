@@ -71,7 +71,7 @@ endif()
 if(ENABLE_TEST)
 	# find_package overwrites BOOST_* variables which are already set, so all components have to be
 	# included again
-	find_package(Boost 1.46.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
+        find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
 endif()
 
 if(NOT WIN32)
@@ -80,7 +80,7 @@ if(NOT WIN32)
 
 	INCLUDE(CheckLibraryExists)
 
-	#check if some platform-specific libraries are needed for linking client and server
+        #check if some platform-specific libraries are needed for linking
 	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
 	if(HAVE_RT_LIB)
 		set(RT_LIB -lrt)
@@ -181,11 +181,15 @@ if(WIN32)
 elseif(APPLE)
 else()
 	#install icons and desktop file on Linux
+	#FIXME: move to client makefile?
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"   DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"   DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"   DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png" DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"     DESTINATION share/applications)
+	if (ENABLE_LAUNCHER) #FIXME: move to launcher makefile?
+		install(FILES "${CMAKE_SOURCE_DIR}/launcher/vcmilauncher.desktop"     DESTINATION share/applications)
+	endif()
 endif()
 
 #######################################
