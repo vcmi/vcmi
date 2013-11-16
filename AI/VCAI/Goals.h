@@ -114,7 +114,7 @@ public:
 	}
 };
 
-template <typename T = CGoal> class CGoal : public AbstractGoal
+template <typename T> class CGoal : public AbstractGoal
 {
 public:
 	CGoal<T> (EGoals goal = INVALID) : AbstractGoal (goal)
@@ -146,11 +146,11 @@ public:
 };
 
 //There seems to be some ambiguity on these two, template function keeps form consitent
-template <typename T> shared_ptr<CGoal<T>> sptr(CGoal<T>& tmp)
+template <typename T> shared_ptr<CGoal<T>> sptr(const CGoal<T> & tmp)
 {
 	return make_shared<CGoal<T>> (tmp);
 }
-template <typename T> shared_ptr<CGoal<T>> sptr(T& obj)
+template <typename T> shared_ptr<CGoal<T>> sptr(const T & obj)
 {
 	return make_shared<CGoal<T>> (obj);
 }

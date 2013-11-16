@@ -14,12 +14,12 @@
 
 #include "CZoneGraphGenerator.h"
 
-CPlacedZone::CPlacedZone(const CRmgTemplateZone * zone) : zone(zone)
+CPlacedZone::CPlacedZone(const CRmgTemplateZone * zone)// : zone(zone)
 {
 
 }
 
-CZonePlacer::CZonePlacer() : map(nullptr), gen(nullptr)
+CZonePlacer::CZonePlacer()// : map(nullptr), gen(nullptr)
 {
 
 }

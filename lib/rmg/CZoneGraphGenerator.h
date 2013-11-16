@@ -21,7 +21,7 @@ public:
 	explicit CZoneCell(const CRmgTemplateZone * zone);
 
 private:
-	const CRmgTemplateZone * zone;
+	//const CRmgTemplateZone * zone;
 
 	//TODO additional data
 };
@@ -44,5 +44,5 @@ public:
 
 private:
 	unique_ptr<CZoneGraph> graph;
-	CRandomGenerator * gen;
+	//CRandomGenerator * gen;
 };

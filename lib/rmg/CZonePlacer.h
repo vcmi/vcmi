@@ -22,7 +22,7 @@ public:
 	explicit CPlacedZone(const CRmgTemplateZone * zone);
 
 private:
-	const CRmgTemplateZone * zone;
+	//const CRmgTemplateZone * zone;
 
 	//TODO exact outline data of zone
 	//TODO perhaps further zone data, guards, obstacles, etc...
@@ -39,7 +39,7 @@ public:
 	void placeZones(CMap * map, unique_ptr<CZoneGraph> graph, CRandomGenerator * gen);
 
 private:
-	CMap * map;
+	//CMap * map;
 	unique_ptr<CZoneGraph> graph;
-	CRandomGenerator * gen;
+	//CRandomGenerator * gen;
 };
