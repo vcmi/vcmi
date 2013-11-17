@@ -192,14 +192,14 @@ void VCAI::showShipyardDialog(const IShipyard *obj)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::gameOver(PlayerColor player, bool victory)
+void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult)
 {
-	LOG_TRACE_PARAMS(logAi, "victory '%i'", victory);
+	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult);
 	NET_EVENT_HANDLER;
-    logAi->debugStream() << boost::format("Player %d: I heard that player %d %s.") % playerID % player.getNum() % (victory ? "won" : "lost");
+	logAi->debugStream() << boost::format("Player %d: I heard that player %d %s.") % playerID % player.getNum() % (victoryLossCheckResult.victory() ? "won" : "lost");
 	if(player == playerID)
 	{
-		if(victory)
+		if(victoryLossCheckResult.victory())
 		{
             logAi->debugStream() << "VCAI: I won! Incredible!";
             logAi->debugStream() << "Turn nr " << myCb->getDate();

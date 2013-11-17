@@ -188,7 +188,7 @@ public:
 	virtual void playerBlocked(int reason, bool start) override;
 	virtual void showPuzzleMap() override;
 	virtual void showShipyardDialog(const IShipyard *obj) override;
-	virtual void gameOver(PlayerColor player, bool victory) override;
+	virtual void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	virtual void artifactPut(const ArtifactLocation &al) override;
 	virtual void artifactRemoved(const ArtifactLocation &al) override;
 	virtual void stacksErased(const StackLocation &location) override;

@@ -81,8 +81,6 @@ struct CasualtiesAfterBattle
 
 class CGameHandler : public IGameCallback, CBattleInfoCallback
 {
-private:
-	void makeStackDoNothing(const CStack * next);
 public:
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
@@ -110,7 +108,6 @@ public:
 	void runBattle();
 	void checkLossVictory(PlayerColor player);
 	void winLoseHandle(ui8 players=255); //players: bit field - colours of players to be checked; default: all
-	void getLossVicMessage(PlayerColor player, si8 standard, bool victory, InfoWindow &out) const;
 
 	////used only in endBattle - don't touch elsewhere
 	bool visitObjectAfterVictory;
@@ -292,6 +289,10 @@ public:
 	void spawnWanderingMonsters(CreatureID creatureID);
 	friend class CVCMIServer;
 	friend class CScriptCallback;
+
+private:
+	void makeStackDoNothing(const CStack * next);
+	void getVictoryLossMessage(PlayerColor player, EVictoryLossCheckResult victoryLossCheckResult, InfoWindow & out) const;
 };
 
 void makeStackDoNothing();

@@ -481,11 +481,11 @@ struct PlayerEndsGame : public CPackForClient //117
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	PlayerColor player;
-	ui8 victory;
+	EVictoryLossCheckResult victoryLossCheckResult;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player & victory;
+		h & player & victoryLossCheckResult;
 	}
 };
 

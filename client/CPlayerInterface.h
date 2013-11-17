@@ -184,7 +184,7 @@ public:
 	void centerView (int3 pos, int focusTime) override;
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
 	void objectRemoved(const CGObjectInstance *obj) override;
-	void gameOver(PlayerColor player, bool victory) override;
+	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active itnerface
 	void showComp(const Component &comp, std::string message) override; //display component in the advmapint infobox
 	void saveGame(COSer<CSaveFile> &h, const int version) override; //saving

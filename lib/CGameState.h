@@ -356,6 +356,34 @@ public:
 
 struct BattleInfo;
 
+class DLL_LINKAGE EVictoryLossCheckResult
+{
+public:
+	static const EVictoryLossCheckResult NO_VICTORY_OR_LOSS;
+	static const EVictoryLossCheckResult VICTORY_STANDARD;
+	static const EVictoryLossCheckResult VICTORY_SPECIAL;
+	static const EVictoryLossCheckResult LOSS_STANDARD_HEROES_AND_TOWNS;
+	static const EVictoryLossCheckResult LOSS_STANDARD_TOWNS_AND_TIME_OVER;
+	static const EVictoryLossCheckResult LOSS_SPECIAL;
+
+	EVictoryLossCheckResult();
+	bool operator==(EVictoryLossCheckResult const & other) const;
+	bool operator!=(EVictoryLossCheckResult const & other) const;
+	bool victory() const;
+	bool loss() const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & intValue;
+	}
+
+private:
+	EVictoryLossCheckResult(si32 intValue);
+	si32 intValue;
+};
+
+DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
+
 class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 {
 public:
@@ -404,10 +432,8 @@ public:
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 	int3 guardingCreaturePosition (int3 pos) const;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
-	int victoryCheck(PlayerColor player) const; //checks if given player is winner; -1 if std victory, 1 if special victory, 0 else
-	int lossCheck(PlayerColor player) const; //checks if given player is loser;  -1 if std loss, 1 if special, 0 else
-	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
-	bool checkForStandardLoss(PlayerColor player) const; //checks if given player lost the game
+	EVictoryLossCheckResult checkForVictoryAndLoss(PlayerColor player) const;
+
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
 	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 	BattleInfo * setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town);
@@ -438,6 +464,12 @@ public:
 	friend class IGameCallback;
 	friend class CMapHandler;
 	friend class CGameHandler;
+
+private:
+	EVictoryLossCheckResult checkForVictory(PlayerColor player) const; //checks if given player is winner
+	EVictoryLossCheckResult checkForLoss(PlayerColor player) const; //checks if given player is loser
+	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
+	bool checkForStandardLoss(PlayerColor player) const; //checks if given player lost the game
 };
 
 struct DLL_LINKAGE QuestInfo //universal interface for human and AI

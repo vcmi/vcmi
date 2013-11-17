@@ -2032,23 +2032,29 @@ bool CGameState::checkForVisitableDir( const int3 & src, const TerrainTile *pom,
 	return true;
 }
 
+EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(PlayerColor player) const
+{
+	auto result = checkForVictory(player);
+	if (result == EVictoryLossCheckResult::NO_VICTORY_OR_LOSS) result = checkForLoss(player);
+	return result;
+}
 
-int CGameState::victoryCheck( PlayerColor player ) const
+EVictoryLossCheckResult CGameState::checkForVictory( PlayerColor player ) const
 {
 	const PlayerState *p = CGameInfoCallback::getPlayer(player);
 	if(map->victoryCondition.condition == EVictoryConditionType::WINSTANDARD  ||  map->victoryCondition.allowNormalVictory
 		|| (!p->human && !map->victoryCondition.appliesToAI)) //if the special victory condition applies only to human, AI has the standard)
 	{
 		if(player == checkForStandardWin())
-			return -1;
+			return EVictoryLossCheckResult::VICTORY_STANDARD;
 	}
 
 	if (p->enteredWinningCheatCode)
 	{ //cheater or tester, but has entered the code...
 		if(map->victoryCondition.condition == EVictoryConditionType::WINSTANDARD)
-			return -1;
+			return EVictoryLossCheckResult::VICTORY_STANDARD;
 		else
-			return 1;
+			return EVictoryLossCheckResult::VICTORY_SPECIAL;
 	}
 
 	if(p->human || map->victoryCondition.appliesToAI)
@@ -2059,7 +2065,7 @@ int CGameState::victoryCheck( PlayerColor player ) const
 			//check if any hero has winning artifact
 			for(auto & elem : p->heroes)
                 if(elem->hasArt(map->victoryCondition.objectId))
-					return 1;
+					return EVictoryLossCheckResult::VICTORY_SPECIAL;
 
 			break;
 
@@ -2081,13 +2087,13 @@ int CGameState::victoryCheck( PlayerColor player ) const
 				}
 
 				if(total >= map->victoryCondition.count)
-					return 1;
+					return EVictoryLossCheckResult::VICTORY_SPECIAL;
 			}
 			break;
 
 		case EVictoryConditionType::GATHERRESOURCE:
             if(p->resources[map->victoryCondition.objectId] >= map->victoryCondition.count)
-				return 1;
+				return EVictoryLossCheckResult::VICTORY_SPECIAL;
 
 			break;
 
@@ -2095,7 +2101,7 @@ int CGameState::victoryCheck( PlayerColor player ) const
 			{
 				const CGTownInstance *t = static_cast<const CGTownInstance *>(map->victoryCondition.obj);
                 if(t->tempOwner == player && t->fortLevel()-1 >= map->victoryCondition.objectId && t->hallLevel()-1 >= map->victoryCondition.count)
-					return 1;
+					return EVictoryLossCheckResult::VICTORY_SPECIAL;
 			}
 			break;
 
@@ -2104,22 +2110,22 @@ int CGameState::victoryCheck( PlayerColor player ) const
 				if((t == map->victoryCondition.obj || !map->victoryCondition.obj)
 					&& t->tempOwner == player
 					&& t->hasBuilt(BuildingID::GRAIL))
-					return 1;
+					return EVictoryLossCheckResult::VICTORY_SPECIAL;
 			break;
 
 		case EVictoryConditionType::BEATHERO:
 			if(map->victoryCondition.obj->tempOwner >= PlayerColor::PLAYER_LIMIT) //target hero not present on map
-				return 1;
+				return EVictoryLossCheckResult::VICTORY_SPECIAL;
 			break;
 		case EVictoryConditionType::CAPTURECITY:
 			{
 				if(map->victoryCondition.obj->tempOwner == player)
-					return 1;
+					return EVictoryLossCheckResult::VICTORY_SPECIAL;
 			}
 			break;
 		case EVictoryConditionType::BEATMONSTER:
 			if(!getObj(map->victoryCondition.obj->id)) //target monster not present on map
-				return 1;
+				return EVictoryLossCheckResult::VICTORY_SPECIAL;
 			break;
 		case EVictoryConditionType::TAKEDWELLINGS:
 			for(auto & elem : map->objects)
@@ -2131,11 +2137,11 @@ int CGameState::victoryCheck( PlayerColor player ) const
 					case Obj::CREATURE_GENERATOR1: case Obj::CREATURE_GENERATOR2:
 					case Obj::CREATURE_GENERATOR3: case Obj::CREATURE_GENERATOR4:
 					case Obj::RANDOM_DWELLING: case Obj::RANDOM_DWELLING_LVL: case Obj::RANDOM_DWELLING_FACTION:
-						return 0; //found not flagged dwelling - player not won
+						return EVictoryLossCheckResult::NO_VICTORY_OR_LOSS; //found not flagged dwelling - player not won
 					}
 				}
 			}
-			return 1;
+			return EVictoryLossCheckResult::VICTORY_SPECIAL;
 		case EVictoryConditionType::TAKEMINES:
 			for(auto & elem : map->objects)
 			{
@@ -2144,25 +2150,25 @@ int CGameState::victoryCheck( PlayerColor player ) const
 					switch(elem->ID)
 					{
 					case Obj::MINE: case Obj::ABANDONED_MINE:
-						return 0; //found not flagged mine - player not won
+						return EVictoryLossCheckResult::NO_VICTORY_OR_LOSS; //found not flagged mine - player not won
 					}
 				}
 			}
-			return 1;
+			return EVictoryLossCheckResult::VICTORY_SPECIAL;
 		case EVictoryConditionType::TRANSPORTITEM:
 			{
 				const CGTownInstance *t = static_cast<const CGTownInstance *>(map->victoryCondition.obj);
                 if((t->visitingHero && t->visitingHero->hasArt(map->victoryCondition.objectId))
                     || (t->garrisonHero && t->garrisonHero->hasArt(map->victoryCondition.objectId)))
 				{
-					return 1;
+					return EVictoryLossCheckResult::VICTORY_SPECIAL;
 				}
 			}
 			break;
  		}
 	}
 
-	return 0;
+	return EVictoryLossCheckResult::NO_VICTORY_OR_LOSS;
 }
 
 PlayerColor CGameState::checkForStandardWin() const
@@ -2395,16 +2401,16 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 #undef FILL_FIELD
 }
 
-int CGameState::lossCheck( PlayerColor player ) const
+EVictoryLossCheckResult CGameState::checkForLoss( PlayerColor player ) const
 {
 	const PlayerState *p = CGameInfoCallback::getPlayer(player);
 	//if(map->lossCondition.typeOfLossCon == lossStandard)
 		if(checkForStandardLoss(player))
-			return -1;
+			return EVictoryLossCheckResult::LOSS_STANDARD_HEROES_AND_TOWNS;
 
 	if (p->enteredLosingCheatCode)
 	{
-		return 1;
+		return EVictoryLossCheckResult::LOSS_SPECIAL;
 	}
 
 	if(p->human) //special loss condition applies only to human player
@@ -2417,20 +2423,20 @@ int CGameState::lossCheck( PlayerColor player ) const
 				const CGObjectInstance *obj = map->lossCondition.obj;
 				assert(obj);
 				if(obj->tempOwner != player)
-					return 1;
+					return EVictoryLossCheckResult::LOSS_SPECIAL;
 			}
 			break;
 		case ELossConditionType::TIMEEXPIRES:
 			if(map->lossCondition.timeLimit < day)
-				return 1;
+				return EVictoryLossCheckResult::LOSS_SPECIAL;
 			break;
 		}
 	}
 
 	if(!p->towns.size() && p->daysWithoutCastle >= 7)
-		return 2;
+		return EVictoryLossCheckResult::LOSS_STANDARD_TOWNS_AND_TIME_OVER;
 
-	return false;
+	return EVictoryLossCheckResult::NO_VICTORY_OR_LOSS;
 }
 
 std::map<ui32, ConstTransitivePtr<CGHeroInstance> > CGameState::unusedHeroesFromPool()
@@ -3282,4 +3288,54 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 {
 	useSubterraneanGates = true;
 	allowEmbarkAndDisembark = true;
+}
+
+const EVictoryLossCheckResult EVictoryLossCheckResult::NO_VICTORY_OR_LOSS = EVictoryLossCheckResult(0);
+const EVictoryLossCheckResult EVictoryLossCheckResult::VICTORY_STANDARD = EVictoryLossCheckResult(1);
+const EVictoryLossCheckResult EVictoryLossCheckResult::VICTORY_SPECIAL = EVictoryLossCheckResult(2);
+const EVictoryLossCheckResult EVictoryLossCheckResult::LOSS_STANDARD_HEROES_AND_TOWNS = EVictoryLossCheckResult(3);
+const EVictoryLossCheckResult EVictoryLossCheckResult::LOSS_STANDARD_TOWNS_AND_TIME_OVER = EVictoryLossCheckResult(4);
+const EVictoryLossCheckResult EVictoryLossCheckResult::LOSS_SPECIAL = EVictoryLossCheckResult(5);
+
+EVictoryLossCheckResult::EVictoryLossCheckResult() : intValue(0)
+{
+
+}
+
+EVictoryLossCheckResult::EVictoryLossCheckResult(si32 intValue) : intValue(intValue)
+{
+
+}
+
+bool EVictoryLossCheckResult::operator==(EVictoryLossCheckResult const & other) const
+{
+	return intValue == other.intValue;
+}
+
+bool EVictoryLossCheckResult::operator!=(EVictoryLossCheckResult const & other) const
+{
+	return intValue != other.intValue;
+}
+
+bool EVictoryLossCheckResult::victory() const
+{
+	return *this == VICTORY_STANDARD || *this == VICTORY_SPECIAL;
+}
+
+bool EVictoryLossCheckResult::loss() const
+{
+	return !victory();
+}
+
+std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult)
+{
+	if(victoryLossCheckResult == EVictoryLossCheckResult::NO_VICTORY_OR_LOSS) os << "No victory or loss";
+	else if(victoryLossCheckResult == EVictoryLossCheckResult::VICTORY_STANDARD) os << "Victory standard";
+	else if(victoryLossCheckResult == EVictoryLossCheckResult::VICTORY_SPECIAL) os << "Victory special";
+	else if(victoryLossCheckResult == EVictoryLossCheckResult::LOSS_STANDARD_HEROES_AND_TOWNS) os << "Loss standard heroes and towns";
+	else if(victoryLossCheckResult == EVictoryLossCheckResult::LOSS_STANDARD_TOWNS_AND_TIME_OVER) os << "Loss standard towns and time over";
+	else if(victoryLossCheckResult == EVictoryLossCheckResult::LOSS_SPECIAL) os << "Loss special";
+	else os << "Unknown type";
+
+	return os;
 }

@@ -2069,13 +2069,13 @@ void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &h
 	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
 }
 
-void CPlayerInterface::gameOver(PlayerColor player, bool victory )
+void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
 	if(player == playerID)
 	{
-		if(!victory)
+		if(victoryLossCheckResult.loss())
 			showInfoDialog(CGI->generaltexth->allTexts[95]);
 // 		else
 // 			showInfoDialog("Placeholder message: you won!");
@@ -2108,9 +2108,18 @@ void CPlayerInterface::gameOver(PlayerColor player, bool victory )
 
 	else
 	{
-		if(!victory && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME) //enemy has lost
+		if(victoryLossCheckResult.loss() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME) //enemy has lost
 		{
-			std::string txt = CGI->generaltexth->allTexts[5]; //%s has been vanquished!
+			std::string txt;
+			if(victoryLossCheckResult == EVictoryLossCheckResult::LOSS_STANDARD_TOWNS_AND_TIME_OVER)
+			{
+				txt = CGI->generaltexth->allTexts[8]; // %s's heroes have abandoned him, and he is banished from this land.
+			}
+			else
+			{
+				txt = CGI->generaltexth->allTexts[5]; // %s has been vanquished!
+			}
+
 			boost::algorithm::replace_first(txt, "%s", CGI->generaltexth->capColors[player.getNum()]);
 			showInfoDialog(txt,std::vector<CComponent*>(1, new CComponent(CComponent::flag, player.getNum(), 0)));
 		}

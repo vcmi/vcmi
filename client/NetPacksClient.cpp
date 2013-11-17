@@ -292,7 +292,7 @@ void ChangeObjPos::applyCl( CClient *cl )
 
 void PlayerEndsGame::applyCl( CClient *cl )
 {
-	CALL_IN_ALL_INTERFACES(gameOver, player, victory);
+	CALL_IN_ALL_INTERFACES(gameOver, player, victoryLossCheckResult);
 }
 
 void RemoveBonus::applyCl( CClient *cl )
