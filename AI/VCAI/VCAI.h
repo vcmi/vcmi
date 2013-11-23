@@ -231,7 +231,7 @@ public:
 	void performTypicalActions();
 
 	void buildArmyIn(const CGTownInstance * t);
-	void striveToGoal(const Goals::AbstractGoal & ultimateGoal);
+	void striveToGoal(Goals::TSubgoal ultimateGoal);
 	void endTurn();
 	void wander(HeroPtr h);
 	void setGoal(HeroPtr h, const Goals::AbstractGoal &goal);

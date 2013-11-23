@@ -128,8 +128,10 @@ public:
 		tile = int3(-1, -1, -1);
 		town = nullptr;
 	}
+	//virtual TSubgoal whatToDoToAchieve() override;
+
 	OSETTER(bool, isElementar)
-	OSETTER(bool, isAbstract) //FIXME: find out why this setter does not compile?
+	OSETTER(bool, isAbstract)
 	OSETTER(bool, priority)
 	OSETTER(int, value)
 	OSETTER(int, resID)
@@ -142,6 +144,10 @@ public:
 	shared_ptr<CGoal<T>> iAmElementar()
 	{
 		return make_shared<CGoal<T>> (setisElementar(true));
+	}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<AbstractGoal&>(*this);
 	}
 };
 

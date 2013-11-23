@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include "VCAI.h"
+#include "Goals.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CObjectHandler.h"
 #include "../../lib/CConfigHandler.h"
@@ -713,12 +714,12 @@ void VCAI::makeTurnInternal()
 					logAi->errorStream() << "Error: there is wrong object on list for hero " << hero.first->name;
 					continue;
 				}
-				striveToGoal (Goals::VisitTile(obj->visitablePos()).sethero(hero.first));
+				striveToGoal (sptr(Goals::VisitTile(obj->visitablePos()).sethero(hero.first)));
 			}
 		}
 
 		//now try to win
-		striveToGoal(Goals::Win());
+		striveToGoal(sptr(Goals::Win()));
 
 		//finally, continue our abstract long-term goals
 
@@ -740,7 +741,7 @@ void VCAI::makeTurnInternal()
 			if (it->first && it->first->tempOwner == playerID && vstd::contains(lockedHeroes, it->first)) //make sure hero still has his goal
 			{
 				cb->setSelection(*it->first);
-				striveToGoal (it->second);
+				striveToGoal (make_shared<Goals::AbstractGoal>(it->second));
 			}
 			safeCopy.erase(it);
 		}
@@ -751,7 +752,7 @@ void VCAI::makeTurnInternal()
 			striveToQuest (quest);
 		}
 
-		striveToGoal(Goals::Build()); //TODO: smarter building management
+		striveToGoal(sptr(Goals::Build())); //TODO: smarter building management
 	}
 	catch(boost::thread_interrupted &e)
 	{
@@ -1156,7 +1157,7 @@ void VCAI::wander(HeroPtr h)
 	            const CGTownInstance *t = townsNotReachable.back();
                 logAi->debugStream() << boost::format("%s can't reach any town, we'll try to make our way to %s at %s") % h->name % t->name % t->visitablePos();
 				int3 pos1 = h->pos;
-				striveToGoal(Goals::VisitTile(t->visitablePos()).sethero(h));
+				striveToGoal(sptr(Goals::VisitTile(t->visitablePos()).sethero(h)));
 				if (pos1 == h->pos && h == primaryHero()) //hero can't move
 				{
 					if(cb->getResourceAmount(Res::GOLD) >= HERO_GOLD_COST && cb->getHeroesInfo().size() < ALLOWED_ROAMING_HEROES && cb->getAvailableHeroes(t).size())
@@ -1687,18 +1688,19 @@ bool VCAI::fulfillsGoal (Goals::AbstractGoal &goal, const Goals::AbstractGoal &m
 	return fulfillsGoal (goal, const_cast<Goals::AbstractGoal&>(mainGoal));
 }
 
-void VCAI::striveToGoal(const Goals::AbstractGoal &ultimateGoal)
+void VCAI::striveToGoal(Goals::TSubgoal ultimateGoal)
 {
-	if (ultimateGoal.invalid())
+	if (ultimateGoal->invalid())
 		return;
 
-	std::shared_ptr<Goals::AbstractGoal> abstractGoal = make_shared<Goals::AbstractGoal>(Goals::Invalid());
+	Goals::TSubgoal abstractGoal = sptr(Goals::Invalid());
 
 	while(1)
 	{
-		std::shared_ptr<Goals::AbstractGoal> goal = make_shared<Goals::AbstractGoal>(ultimateGoal); //FIXME: preserve subclass of goal
-        logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal.name();
-		int maxGoals = 100; //preventing deadlock for mutually dependent goals, FIXME: do not try to realize goal when loop didn't suceed
+		Goals::TSubgoal goal = ultimateGoal; //FIXME: preserve subclass of goal
+        logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal->name();
+		int maxGoals = 100; //preventing deadlock for mutually dependent goals
+		//FIXME: do not try to realize goal when loop didn't suceed
 		while(!goal->isElementar && !goal->isAbstract && maxGoals)
 		{
             logAi->debugStream() << boost::format("Considering goal %s") % goal->name();
@@ -1757,12 +1759,12 @@ void VCAI::striveToGoal(const Goals::AbstractGoal &ultimateGoal)
 		catch(goalFulfilledException &e)
 		{
 			completeGoal (*goal);
-			if (fulfillsGoal (*goal, ultimateGoal) || maxGoals > 98) //completed goal was main goal //TODO: find better condition
+			if (fulfillsGoal (*goal, *ultimateGoal.get()) || maxGoals > 98) //completed goal was main goal //TODO: find better condition
 				return; 
 		}
 		catch(std::exception &e)
 		{
-            logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal.name();
+            logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal->name();
             logAi->debugStream() << boost::format("The error message was: %s") % e.what();
 			break;
 		}
@@ -1816,7 +1818,7 @@ void VCAI::striveToGoal(const Goals::AbstractGoal &ultimateGoal)
 			}
 			catch(std::exception &e)
 			{
-                logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal.name();
+                logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal->name();
                 logAi->debugStream() << boost::format("The error message was: %s") % e.what();
 				break;
 			}
@@ -1841,13 +1843,13 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (Goals::GetObj(q.obj->id.getNum()).sethero(hero));
+						striveToGoal (sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero)));
 						return;
 					}
 				}
 				for (auto art : q.quest->m5arts)
 				{
-					striveToGoal (Goals::GetArtOfType(art)); //TODO: transport?
+					striveToGoal (sptr(Goals::GetArtOfType(art))); //TODO: transport?
 				}
 				break;
 			}
@@ -1858,11 +1860,11 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (Goals::GetObj(q.obj->id.getNum()).sethero(hero));
+						striveToGoal (sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero)));
 						return;
 					}
 				}
-				striveToGoal (Goals::FindObj(Obj::PRISON)); //rule of a thumb - quest heroes usually are locked in prisons
+				striveToGoal (sptr(Goals::FindObj(Obj::PRISON))); //rule of a thumb - quest heroes usually are locked in prisons
 				//BNLOG ("Don't know how to recruit hero with id %d\n", q.quest->m13489val);
 				break;
 			}
@@ -1872,13 +1874,13 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero)) //veyr bad info - stacks can be split between multiple heroes :(
 					{
-						striveToGoal (Goals::GetObj(q.obj->id.getNum()).sethero(hero));
+						striveToGoal (sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero)));
 						return;
 					}
 				}
 				for (auto creature : q.quest->m6creatures)
 				{
-					striveToGoal (Goals::GatherTroops(creature.type->idNumber, creature.count));
+					striveToGoal (sptr(Goals::GatherTroops(creature.type->idNumber, creature.count)));
 				}
 				//TODO: exchange armies... oh my
 				//BNLOG ("Don't know how to recruit %d of %s\n", (int)(creature.count) % creature.type->namePl);
@@ -1890,19 +1892,19 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(heroes.front())) //it doesn't matter which hero it is
 					{
-						 striveToGoal (Goals::VisitTile(q.tile));
+						 striveToGoal (sptr(Goals::VisitTile(q.tile)));
 					}
 					else
 					{
 						for (int i = 0; i < q.quest->m7resources.size(); ++i)
 						{
 							if (q.quest->m7resources[i])
-								striveToGoal (Goals::CollectRes(i, q.quest->m7resources[i]));
+								striveToGoal (sptr(Goals::CollectRes(i, q.quest->m7resources[i])));
 						}
 					}
 				}
 				else
-					striveToGoal (Goals::RecruitHero()); //FIXME: checkQuest requires any hero belonging to player :(
+					striveToGoal (sptr(Goals::RecruitHero())); //FIXME: checkQuest requires any hero belonging to player :(
 				break;
 			}
 			case CQuest::MISSION_KILL_HERO:
@@ -1910,9 +1912,9 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			{
 				auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
 				if (obj)
-					striveToGoal (Goals::GetObj(obj->id.getNum()));
+					striveToGoal (sptr(Goals::GetObj(obj->id.getNum())));
 				else
-					striveToGoal (Goals::VisitTile(q.tile)); //visit seer hut
+					striveToGoal (sptr(Goals::VisitTile(q.tile))); //visit seer hut
 				break;
 			}
 			case CQuest::MISSION_PRIMARY_STAT:
@@ -1922,7 +1924,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (Goals::GetObj(q.obj->id.getNum()).sethero(hero));
+						striveToGoal (sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero)));
 						return;
 					}
 				}
@@ -1939,7 +1941,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (Goals::VisitTile(q.tile).sethero(hero)); //TODO: causes infinite loop :/
+						striveToGoal (sptr(Goals::VisitTile(q.tile).sethero(hero))); //TODO: causes infinite loop :/
 						return;
 					}
 				}
@@ -1954,7 +1956,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			}
 			case CQuest::MISSION_KEYMASTER:
 			{
-				striveToGoal (Goals::FindObj(Obj::KEYMASTER, q.obj->subID));
+				striveToGoal (sptr(Goals::FindObj(Obj::KEYMASTER, q.obj->subID)));
 				break;
 			}
 		}
