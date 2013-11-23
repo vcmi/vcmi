@@ -18,6 +18,13 @@ extern boost::thread_specific_ptr<VCAI> ai;
 using namespace vstd;
 using namespace Goals;
 
+TSubgoal Goals::sptr(const AbstractGoal & tmp)
+{
+	shared_ptr<AbstractGoal> ptr;
+	ptr.reset(tmp.clone());
+	return ptr;
+}
+
 std::string Goals::AbstractGoal::name() const //TODO: virtualize
 {
 	switch (goalType)
@@ -67,7 +74,11 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 	}
 }
 
-
+//TSubgoal AbstractGoal::whatToDoToAchieve()
+//{
+//    logAi->debugStream() << boost::format("Decomposing goal of type %s") % name();
+//        return sptr (Goals::Explore());
+//}
 
 TSubgoal Win::whatToDoToAchieve()
 {
@@ -780,11 +791,11 @@ TSubgoal GatherArmy::whatToDoToAchieve()
 	return sptr (Goals::Explore(hero)); //find dwelling. use current hero to prevent him from doing nothing.
 }
 
-TSubgoal AbstractGoal::whatToDoToAchieve()
-{
-    logAi->debugStream() << boost::format("Decomposing goal of type %s") % name();
-	return sptr (Goals::Explore());
-}
+//TSubgoal AbstractGoal::whatToDoToAchieve()
+//{
+//    logAi->debugStream() << boost::format("Decomposing goal of type %s") % name();
+//	return sptr (Goals::Explore());
+//}
 
 TSubgoal AbstractGoal::goVisitOrLookFor(const CGObjectInstance *obj)
 {
@@ -803,3 +814,8 @@ bool AbstractGoal::invalid() const
 {
 	return goalType == INVALID;
 }
+
+void AbstractGoal::accept (VCAI * ai)
+{
+	ai->tryRealize(*this);
+};

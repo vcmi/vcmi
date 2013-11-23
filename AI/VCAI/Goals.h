@@ -17,6 +17,7 @@
  *
  */
 struct HeroPtr;
+class VCAI;
 
 namespace Goals
 {
@@ -49,8 +50,8 @@ namespace Goals
 };
 
 	//method chaining + clone pattern
-#define VSETTER(type, field) AbstractGoal & set ## field(const type &rhs) { field = rhs; return *this; };
-#define OSETTER(type, field) CGoal<T> & set ## field(const type &rhs) { field = rhs; return *this; };
+#define VSETTER(type, field) virtual AbstractGoal & set ## field(const type &rhs) = 0;
+#define OSETTER(type, field) CGoal<T> & set ## field(const type &rhs) override { field = rhs; return *this; };
 
 #if 0
 	#define SETTER
@@ -84,6 +85,8 @@ public:
 		tile = int3(-1, -1, -1);
 		town = nullptr;
 	}
+	virtual ~AbstractGoal(){};
+	virtual AbstractGoal * clone() const = 0;
 
 	EGoals goalType;
 	std::string name() const;
@@ -94,7 +97,9 @@ public:
 	static TSubgoal lookForArtSmart(int aid); //checks non-standard ways of obtaining art (merchants, quests, etc.)
 	static TSubgoal tryRecruitHero();
 
-	virtual TSubgoal whatToDoToAchieve();
+	virtual TSubgoal whatToDoToAchieve() = 0;
+	//TODO: make accept work for shared_ptr... somehow
+	virtual void accept (VCAI * ai); //unhandled goal will report standard error
 
 	bool operator== (AbstractGoal &g) //TODO: virtualize - comparison returns true only for same subclasses
 	{
@@ -107,11 +112,11 @@ public:
 	}
 
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & goalType & isElementar & isAbstract & priority;
-		h & value & resID & objid & aid & tile & hero & town & bid;
-	}
+	//template <typename Handler> void serialize(Handler &h, const int version)
+	//{
+	//	h & goalType & isElementar & isAbstract & priority;
+	//	h & value & resID & objid & aid & tile & hero & town & bid;
+	//}
 };
 
 template <typename T> class CGoal : public AbstractGoal
@@ -128,7 +133,7 @@ public:
 		tile = int3(-1, -1, -1);
 		town = nullptr;
 	}
-	//virtual TSubgoal whatToDoToAchieve() override;
+	//virtual TSubgoal whatToDoToAchieve() override; //can't have virtual and template class at once
 
 	OSETTER(bool, isElementar)
 	OSETTER(bool, isAbstract)
@@ -141,25 +146,31 @@ public:
 	OSETTER(HeroPtr, hero)
 	OSETTER(CGTownInstance *, town)
 	OSETTER(int, bid)
-	shared_ptr<CGoal<T>> iAmElementar()
+
+	void accept (VCAI * ai) override
 	{
-		return make_shared<CGoal<T>> (setisElementar(true));
+		ai->tryRealize(static_cast<T&>(*this));
+	}
+
+	CGoal<T> * clone() const override
+	{
+		return new T(static_cast<T const&>(*this));
+	}
+	TSubgoal iAmElementar()
+	{
+		setisElementar(true);
+		shared_ptr<AbstractGoal> ptr;
+		ptr.reset(clone());
+		return ptr;
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<AbstractGoal&>(*this);
+		h & goalType & isElementar & isAbstract & priority;
+		h & value & resID & objid & aid & tile & hero & town & bid;
 	}
 };
 
-//There seems to be some ambiguity on these two, template function keeps form consitent
-template <typename T> shared_ptr<CGoal<T>> sptr(const CGoal<T> & tmp)
-{
-	return make_shared<CGoal<T>> (tmp);
-}
-template <typename T> shared_ptr<CGoal<T>> sptr(const T & obj)
-{
-	return make_shared<CGoal<T>> (obj);
-}
+TSubgoal sptr(const AbstractGoal & tmp);
 
 class Invalid : public CGoal<Invalid>
 {
@@ -190,6 +201,7 @@ class Build : public CGoal<Build>
 	public:
 	Build() : CGoal (Goals::BUILD){};
 	TSubgoal whatToDoToAchieve() override;
+	void accept (const VCAI *);
 };
 class Explore : public CGoal<Explore>
 {

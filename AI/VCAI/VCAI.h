@@ -128,7 +128,7 @@ public:
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::vector<const CGTownInstance *> > townVisitsThisWeek;
 
-	std::map<HeroPtr, Goals::AbstractGoal> lockedHeroes; //TODO: allow non-elementar objectives
+	std::map<HeroPtr, Goals::TSubgoal> lockedHeroes; //TODO: allow non-elementar objectives
 	std::map<HeroPtr, std::vector<const CGObjectInstance *> > reservedHeroesMap; //objects reserved by specific heroes
 
 	std::vector<const CGObjectInstance *> visitableObjs;
@@ -147,16 +147,17 @@ public:
 	VCAI(void);
 	~VCAI(void);
 
-	void tryRealize(Goals::AbstractGoal g);
-	void tryRealize(Goals::Explore g);
-	void tryRealize(Goals::RecruitHero g);
-	void tryRealize(Goals::VisitTile g);
-	void tryRealize(Goals::VisitHero g);
-	void tryRealize(Goals::BuildThis g);
-	void tryRealize(Goals::DigAtTile g);
-	void tryRealize(Goals::CollectRes g);
-	void tryRealize(Goals::Build g);
-	void tryRealize(Goals::Invalid g);
+	//TODO: use only smart pointers?
+	void tryRealize(Goals::Explore & g);
+	void tryRealize(Goals::RecruitHero & g);
+	void tryRealize(Goals::VisitTile & g);
+	void tryRealize(Goals::VisitHero & g);
+	void tryRealize(Goals::BuildThis & g);
+	void tryRealize(Goals::DigAtTile & g);
+	void tryRealize(Goals::CollectRes & g);
+	void tryRealize(Goals::Build & g);
+	void tryRealize(Goals::Invalid & g);
+	void tryRealize(Goals::AbstractGoal & g);
 
 	int3 explorationBestNeighbour(int3 hpos, int radius, HeroPtr h);
 	int3 explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<int3> > &tiles);
@@ -234,12 +235,10 @@ public:
 	void striveToGoal(Goals::TSubgoal ultimateGoal);
 	void endTurn();
 	void wander(HeroPtr h);
-	void setGoal(HeroPtr h, const Goals::AbstractGoal &goal);
-	void setGoal(HeroPtr h, Goals::EGoals goalType = Goals::INVALID);
-	void completeGoal (const Goals::AbstractGoal &goal); //safely removes goal from reserved hero
+	void setGoal(HeroPtr h, Goals::TSubgoal goal);
+	void completeGoal (Goals::TSubgoal goal); //safely removes goal from reserved hero
 	void striveToQuest (const QuestInfo &q);
-	bool fulfillsGoal (Goals::AbstractGoal &goal, Goals::AbstractGoal &mainGoal);
-	bool fulfillsGoal (Goals::AbstractGoal &goal, const Goals::AbstractGoal &mainGoal); //TODO: something smarter
+	bool fulfillsGoal (Goals::TSubgoal goal, Goals::TSubgoal mainGoal);
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	std::vector<const CGObjectInstance *> getPossibleDestinations(HeroPtr h);
@@ -291,7 +290,7 @@ public:
 
 	template <typename Handler> void serializeInternal(Handler &h, const int version)
 	{
-		h & knownSubterraneanGates & townVisitsThisWeek & lockedHeroes & reservedHeroesMap;
+		h & knownSubterraneanGates & townVisitsThisWeek;// & lockedHeroes & reservedHeroesMap; //FIXME: cannot instantiate abstract class
 		h & visitableObjs & alreadyVisited & reservedObjs;
 		h & saving & status & battlename;
 
@@ -320,9 +319,9 @@ public:
 class goalFulfilledException : public std::exception
 {
 public:
-	Goals::AbstractGoal goal;
+	Goals::TSubgoal goal;
 
-	explicit goalFulfilledException(Goals::AbstractGoal Goal) : goal(Goal)
+	explicit goalFulfilledException(Goals::TSubgoal Goal) : goal(Goal)
 	{
 	}
 
@@ -332,7 +331,7 @@ public:
 
 	const char *what() const throw () override
 	{
-		return goal.name().c_str();
+		return goal->name().c_str();
 	}
 };
 
