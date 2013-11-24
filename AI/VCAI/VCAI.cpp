@@ -1220,8 +1220,10 @@ void VCAI::setGoal(HeroPtr h, Goals::TSubgoal goal)
 	if (goal->invalid())
 		erase_if_present(lockedHeroes, h);
 	else
+	{
 		lockedHeroes[h] = goal;
 		goal->setisElementar(false); //always evaluate goals before realizing
+	}
 }
 
 void VCAI::completeGoal (Goals::TSubgoal goal)

@@ -752,7 +752,7 @@ TSubgoal GatherArmy::whatToDoToAchieve()
 					return sptr (Goals::VisitHero(h->id.getNum()).setisAbstract(true).sethero(hero));
 						//go to the other hero if we are faster
 				else
-					return sptr (Goals::VisitHero(h->id.getNum()).setisAbstract(true).sethero(h));
+					return sptr (Goals::VisitHero(hero->id.getNum()).setisAbstract(true).sethero(h));
 						//let the other hero come to us
 			}
 		}
