@@ -233,6 +233,7 @@ public:
 
 	void buildArmyIn(const CGTownInstance * t);
 	void striveToGoal(Goals::TSubgoal ultimateGoal);
+	Goals::TSubgoal striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool onlyAbstract);
 	void endTurn();
 	void wander(HeroPtr h);
 	void setGoal(HeroPtr h, Goals::TSubgoal goal);

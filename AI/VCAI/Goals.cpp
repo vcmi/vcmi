@@ -851,3 +851,15 @@ void CGoal<T>::accept (VCAI * ai)
 {
 	ai->tryRealize(static_cast<T&>(*this)); //casting enforces template instantiation
 }
+
+//TODO: find out why the following are not generated automatically on MVS?
+void CGoal<Win>::accept (VCAI * ai)
+{
+	ai->tryRealize(static_cast<Win&>(*this));
+}
+
+void CGoal<Build>::accept (VCAI * ai)
+{
+	ai->tryRealize(static_cast<Build&>(*this));
+}
+

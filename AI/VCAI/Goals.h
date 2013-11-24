@@ -100,10 +100,11 @@ public:
 	static TSubgoal tryRecruitHero();
 
 	virtual TSubgoal whatToDoToAchieve() = 0;
+	///Visitor pattern
 	//TODO: make accept work for shared_ptr... somehow
 	virtual void accept (VCAI * ai); //unhandled goal will report standard error
 
-	virtual bool operator== (AbstractGoal &g) //TODO: virtualize - comparison returns true only for same subclasses
+	virtual bool operator== (AbstractGoal &g)
 	{
 		return false;
 	}
@@ -195,7 +196,6 @@ class Build : public CGoal<Build>
 	public:
 	Build() : CGoal (Goals::BUILD){};
 	TSubgoal whatToDoToAchieve() override;
-	void accept (const VCAI *);
 };
 class Explore : public CGoal<Explore>
 {

@@ -1703,28 +1703,42 @@ void VCAI::striveToGoal(Goals::TSubgoal ultimateGoal)
 	if (ultimateGoal->invalid())
 		return;
 
+	//we are looking for abstract goals
+	auto abstractGoal = striveToGoalInternal (ultimateGoal, false);
+
+	if (abstractGoal->invalid())
+		return;
+
+	//we received abstratc goal, need to find concrete goals
+	striveToGoalInternal (abstractGoal, true);
+
+	//TODO: save abstract goals not related to hero
+}
+
+Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool onlyAbstract)
+{
 	Goals::TSubgoal abstractGoal = sptr(Goals::Invalid());
 
 	while(1)
 	{
-		Goals::TSubgoal goal = ultimateGoal; //FIXME: preserve subclass of goal
+		Goals::TSubgoal goal = ultimateGoal;
         logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal->name();
 		int maxGoals = 100; //preventing deadlock for mutually dependent goals
 		//FIXME: do not try to realize goal when loop didn't suceed
-		while(!goal->isElementar && !goal->isAbstract && maxGoals)
+		while(!goal->isElementar && maxGoals && (onlyAbstract || !goal->isAbstract))
 		{
             logAi->debugStream() << boost::format("Considering goal %s") % goal->name();
 			try
 			{
 				boost::this_thread::interruption_point();
-				goal = goal->whatToDoToAchieve(); //FIXME: why it calls always base class?
+				goal = goal->whatToDoToAchieve();
 				--maxGoals;
 			}
 			catch(std::exception &e)
 			{
                 logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal->name() % e.what();
 				//setGoal (goal.hero, INVALID); //test: if we don't know how to realize goal, we should abandon it for now
-				return;
+				return sptr(Goals::Invalid());
 			}
 		}
 
@@ -1770,7 +1784,7 @@ void VCAI::striveToGoal(Goals::TSubgoal ultimateGoal)
 		{
 			completeGoal (goal);
 			if (fulfillsGoal (goal, ultimateGoal) || maxGoals > 98) //completed goal was main goal //TODO: find better condition
-				return; 
+				return sptr(Goals::Invalid()); 
 		}
 		catch(std::exception &e)
 		{
@@ -1779,61 +1793,7 @@ void VCAI::striveToGoal(Goals::TSubgoal ultimateGoal)
 			break;
 		}
 	}
-
-	//TODO: save abstract goals not related to hero
-	//TODO: refactor, duplicated code
-	if (!abstractGoal->invalid()) //try to realize our one goal
-	{
-		while (1)
-		{
-			std::shared_ptr<Goals::AbstractGoal> goal(abstractGoal);
-			goal->setisAbstract(false);
-			int maxGoals = 50;
-			while (!goal->isElementar && maxGoals) //find elementar goal and fulfill it
-			{
-				try
-				{
-					boost::this_thread::interruption_point();
-					goal = goal->whatToDoToAchieve();
-					--maxGoals;
-				}
-				catch(std::exception &e)
-				{
-                    logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal->name() % e.what();
-					//setGoal (goal.hero, INVALID);
-					return;
-				}
-			}
-			try
-			{
-				boost::this_thread::interruption_point();
-				if (!maxGoals)
-				{
-					std::runtime_error e("Too many subgoals, don't know what to do");
-					throw (e);
-				}
-				goal->accept(this);
-				boost::this_thread::interruption_point();
-			}
-			catch(boost::thread_interrupted &e)
-			{
-                logAi->debugStream() << boost::format("Player %d: Making turn thread received an interruption!") % playerID;
-				throw; //rethrow, we want to truly end this thread
-			}
-			catch(goalFulfilledException &e)
-			{
-				completeGoal (goal); //FIXME: deduce that we have realized GET_OBJ goal
-				if (fulfillsGoal (goal, abstractGoal) || maxGoals > 98) //completed goal was main goal
-					return;
-			}
-			catch(std::exception &e)
-			{
-                logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal->name();
-                logAi->debugStream() << boost::format("The error message was: %s") % e.what();
-				break;
-			}
-		}
-	}
+	return abstractGoal;
 }
 
 void VCAI::striveToQuest (const QuestInfo &q)
