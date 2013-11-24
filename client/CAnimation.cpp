@@ -610,6 +610,7 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 	if (surf == nullptr)
 	{
         logGlobal->errorStream() << "Error: failed to load image "<<filename;
+		return;
 	}
 	else
 	{

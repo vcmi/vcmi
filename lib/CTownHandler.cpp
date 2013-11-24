@@ -480,9 +480,12 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 
 	//  Horde building creature level
 	for(const JsonNode &node : source["horde"].Vector())
-	{
 		town.hordeLvl[town.hordeLvl.size()] = node.Float();
-	}
+
+	// town needs to have exactly 2 horde entries. Validation will take care of 2+ entries
+	// but anything below 2 must be handled here
+	for (size_t i=source["horde"].Vector().size(); i<2; i++)
+		town.hordeLvl[i] = -1;
 
 	const JsonVector & creatures = source["creatures"].Vector();
 

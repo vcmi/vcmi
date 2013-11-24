@@ -133,8 +133,8 @@ void CPrivilagedInfoCallback::getAllTiles (std::unordered_set<int3, ShashInt3> &
 		{
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
-				if ((getTile (int3 (xd,yd,zd))->terType == 8 && water)
-					|| (getTile (int3 (xd,yd,zd))->terType != 8 && land))
+				if ((getTile (int3 (xd,yd,zd))->terType == ETerrainType::WATER && water)
+					|| (getTile (int3 (xd,yd,zd))->terType != ETerrainType::WATER && land))
 					tiles.insert(int3(xd,yd,zd));
 			}
 		}
@@ -157,7 +157,7 @@ void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
-				if (tinfo->terType != 8 && !tinfo->blocked) //land and free
+				if (tinfo->terType != ETerrainType::WATER && !tinfo->blocked) //land and free
 					tiles.push_back (int3 (xd,yd,zd));
 			}
 		}

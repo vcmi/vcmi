@@ -844,4 +844,10 @@ bool AbstractGoal::invalid() const
 void AbstractGoal::accept (VCAI * ai)
 {
 	ai->tryRealize(*this);
-};
+}
+
+template<typename T>
+void CGoal<T>::accept (VCAI * ai)
+{
+	ai->tryRealize(static_cast<T&>(*this)); //casting enforces template instantiation
+}

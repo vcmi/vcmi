@@ -144,10 +144,7 @@ public:
 	OSETTER(CGTownInstance *, town)
 	OSETTER(int, bid)
 
-	void accept (VCAI * ai) override
-	{
-		ai->tryRealize(static_cast<T&>(*this)); //casting enforces template instantiation
-	}
+	void accept (VCAI * ai) override;
 
 	CGoal<T> * clone() const override
 	{

@@ -744,13 +744,18 @@ public:
 	{
 		FIRST_AVAILABLE = -2,
 		PRE_FIRST = -1, //sometimes used as error, sometimes as first free in backpack
-		HEAD, SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, RIGHT_RING, LEFT_RING, FEET, MISC1, MISC2, MISC3, MISC4,
-		MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5,
+		HEAD, SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, //5
+		RIGHT_RING, LEFT_RING, FEET, //8
+		MISC1, MISC2, MISC3, MISC4, //12
+		MACH1, MACH2, MACH3, MACH4, //16
+		SPELLBOOK, MISC5, //18
 		AFTER_LAST,
 		//cres
 		CREATURE_SLOT = 0,
 		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6, COMMANDER_AFTER_LAST
 	};
+
+	static_assert (AFTER_LAST == 19, "incorrect number of artifact slots");
 
 	ArtifactPosition(EArtifactPosition _num = PRE_FIRST) : num(_num)
 	{}
