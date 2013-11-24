@@ -191,7 +191,7 @@ TSubgoal FindObj::whatToDoToAchieve()
 			}
 		}
 	}
-	if (o && isReachable(o))
+	if (o && isReachable(o)) //we don't use isAccessibleForHero as we don't know which hero it is
 		return sptr (Goals::GetObj(o->id.getNum()));
 	else
 		return sptr (Goals::Explore());
@@ -208,6 +208,14 @@ TSubgoal GetObj::whatToDoToAchieve()
 		return sptr (Goals::Explore());
 	int3 pos = obj->visitablePos();
 	return sptr (Goals::VisitTile(pos));
+}
+
+bool GetObj::fulfillsMe (shared_ptr<VisitTile> goal)
+{
+	if (cb->getObj(ObjectInstanceID(objid))->visitablePos() == goal->tile)
+		return true;
+	else
+		return false;
 }
 
 std::string VisitHero::completeMessage() const
@@ -229,6 +237,14 @@ TSubgoal VisitHero::whatToDoToAchieve()
 		return sptr (*this);
 	}
 	return sptr (Goals::Invalid());
+}
+
+bool VisitHero::fulfillsMe (shared_ptr<VisitTile> goal)
+{
+	if (cb->getObj(ObjectInstanceID(objid))->visitablePos() == goal->tile)
+		return true;
+	else
+		return false;
 }
 
 TSubgoal GetArtOfType::whatToDoToAchieve()
@@ -718,7 +734,7 @@ TSubgoal GatherArmy::whatToDoToAchieve()
 	{
 		if(!t->visitingHero && howManyReinforcementsCanGet(hero,t))
 		{
-			if(isReachable(t) && !vstd::contains (ai->townVisitsThisWeek[hero], t))
+			if (ai->isAccessibleForHero(t->pos, hero) && !vstd::contains (ai->townVisitsThisWeek[hero], t))
 				townsReachable.push_back(t);
 		}
 	}

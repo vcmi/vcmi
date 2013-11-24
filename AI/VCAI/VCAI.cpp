@@ -259,7 +259,8 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 		markObjectVisited (visitedObj);
 		erase_if_present(reservedObjs, visitedObj); //unreserve objects
 		erase_if_present(reservedHeroesMap[visitor], visitedObj);
-		completeGoal (sptr(Goals::GetObj(visitedObj->id.getNum()).sethero(visitor))); //we don't need to visit in anymore
+		completeGoal (sptr(Goals::GetObj(visitedObj->id.getNum()).sethero(visitor))); //we don't need to visit it anymore
+		//TODO: what if we visited one-time visitable object that was reserved by another hero (shouldn't, but..)
 	}
 
 	status.heroVisit(visitedObj, start);
@@ -1083,7 +1084,7 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 	std::vector<const CGObjectInstance *> possibleDestinations;
 	for(const CGObjectInstance *obj : visitableObjs)
 	{
-		if(cb->getPathInfo(obj->visitablePos())->reachable() && !obj->wasVisited(playerID) &&
+		if(isAccessibleForHero(obj->visitablePos(), h) && !obj->wasVisited(playerID) &&
 			(obj->tempOwner != playerID || isWeeklyRevisitable(obj))) //flag or get weekly resources / creatures
 			possibleDestinations.push_back(obj);
 	}
@@ -1122,8 +1123,15 @@ void VCAI::wander(HeroPtr h)
 	while(1)
 	{
 		validateVisitableObjs();
-		std::vector <ObjectIdRef> dests;
-		range::copy(reservedHeroesMap[h], std::back_inserter(dests));
+		std::vector <ObjectIdRef> dests, tmp;
+
+		range::copy(reservedHeroesMap[h], std::back_inserter(tmp)); //visit our reserved objects first
+		for (auto obj : tmp)
+		{
+			if (isAccessibleForHero (obj->visitablePos(), h)) //even nearby objects could be blocked by other heroes :(
+				dests.push_back(obj); //can't use lambda for member function :(
+		}
+
 		if (!dests.size())
 			range::copy(getPossibleDestinations(h), std::back_inserter(dests));
 
@@ -1140,7 +1148,7 @@ void VCAI::wander(HeroPtr h)
 	        {
 	            if(!t->visitingHero && howManyReinforcementsCanGet(h,t) && !vstd::contains(townVisitsThisWeek[h], t))
 	            {
-	                if(isReachable(t))
+	                if (isAccessibleForHero (t->visitablePos(), h))
 						townsReachable.push_back(t);
 	                else
 						townsNotReachable.push_back(t);
@@ -1243,9 +1251,9 @@ void VCAI::completeGoal (Goals::TSubgoal goal)
 	{
 		for (auto p : lockedHeroes)
 		{
-			if (p.second == goal)
+			if (p.second == goal || p.second->fulfillsMe(goal)) //we could have fulfilled goals of other heroes by chance
 			{
-				logAi->debugStream() << boost::format("%s") % goal->completeMessage();
+				logAi->debugStream() << boost::format("%s") % p.second->completeMessage();
 				lockedHeroes.erase (lockedHeroes.find(p.first)); //is it safe?
 			}
 		}
@@ -1688,16 +1696,6 @@ void VCAI::endTurn()
     logAi->debugStream() << "Player " << static_cast<int>(playerID.getNum()) << " ended turn";
 }
 
-bool VCAI::fulfillsGoal (Goals::TSubgoal goal, Goals::TSubgoal mainGoal)
-{
-	if (mainGoal->goalType == Goals::GET_OBJ && goal->goalType == Goals::VISIT_TILE) //deduce that GET_OBJ was completed by visiting object's tile
-	{ //TODO: more universal mechanism
-		if (cb->getObj(ObjectInstanceID(mainGoal->objid))->visitablePos() == goal->tile)
-			return true;
-	}
-	return false;
-}
-
 void VCAI::striveToGoal(Goals::TSubgoal ultimateGoal)
 {
 	if (ultimateGoal->invalid())
@@ -1783,7 +1781,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 		catch(goalFulfilledException &e)
 		{
 			completeGoal (goal);
-			if (fulfillsGoal (goal, ultimateGoal) || maxGoals > 98) //completed goal was main goal //TODO: find better condition
+			if (ultimateGoal->fulfillsMe(goal) || maxGoals > 98) //completed goal was main goal //TODO: find better condition
 				return sptr(Goals::Invalid()); 
 		}
 		catch(std::exception &e)

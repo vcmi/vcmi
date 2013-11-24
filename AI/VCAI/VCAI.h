@@ -239,7 +239,6 @@ public:
 	void setGoal(HeroPtr h, Goals::TSubgoal goal);
 	void completeGoal (Goals::TSubgoal goal); //safely removes goal from reserved hero
 	void striveToQuest (const QuestInfo &q);
-	bool fulfillsGoal (Goals::TSubgoal goal, Goals::TSubgoal mainGoal);
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	std::vector<const CGObjectInstance *> getPossibleDestinations(HeroPtr h);

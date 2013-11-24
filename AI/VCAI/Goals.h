@@ -22,6 +22,7 @@ class VCAI;
 namespace Goals
 {
 	struct AbstractGoal;
+	class VisitTile;
 	typedef std::shared_ptr<Goals::AbstractGoal> TSubgoal;
 	typedef std::vector<TSubgoal> TGoalVec;
 
@@ -105,6 +106,14 @@ public:
 	virtual void accept (VCAI * ai); //unhandled goal will report standard error
 
 	virtual bool operator== (AbstractGoal &g)
+	{
+		return false;
+	}
+	virtual bool fulfillsMe (Goals::TSubgoal goal)
+	{
+		return false;
+	}
+	virtual bool fulfillsMe (shared_ptr<VisitTile> goal)
 	{
 		return false;
 	}
@@ -259,6 +268,7 @@ public:
 	GetObj(int Objid) : CGoal(Goals::GET_OBJ) {objid = Objid;};
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (GetObj &g) {return g.objid ==  objid;}
+	bool fulfillsMe (shared_ptr<VisitTile> goal) override;
 	std::string completeMessage() const override;
 };
 class FindObj : public CGoal<FindObj>
@@ -278,6 +288,7 @@ public:
 	VisitHero(int hid) : CGoal (Goals::VISIT_HERO){objid = hid;};
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (VisitHero &g) {return g.objid == objid;}
+	bool fulfillsMe (shared_ptr<VisitTile> goal) override;
 	std::string completeMessage() const override;
 };
 class GetArtOfType : public CGoal<GetArtOfType>
