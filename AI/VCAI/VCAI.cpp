@@ -1226,13 +1226,29 @@ void VCAI::setGoal(HeroPtr h, Goals::TSubgoal goal)
 
 void VCAI::completeGoal (Goals::TSubgoal goal)
 {
+	logAi->debugStream() << boost::format("Completing goal: %s") % goal->name();
 	if (const CGHeroInstance * h = goal->hero.get(true))
 	{
 		auto it = lockedHeroes.find(h);
 		if (it != lockedHeroes.end())
-			if (it->second->goalType == goal->goalType)
+			if (it->second == goal)
+			{
+				logAi->debugStream() << boost::format("%s") % goal->completeMessage();
 				lockedHeroes.erase(it); //goal fulfilled, free hero
+			}
 	}
+	else //complete goal for all heroes maybe?
+	{
+		for (auto p : lockedHeroes)
+		{
+			if (p.second == goal)
+			{
+				logAi->debugStream() << boost::format("%s") % goal->completeMessage();
+				lockedHeroes.erase (lockedHeroes.find(p.first)); //is it safe?
+			}
+		}
+	}
+
 }
 
 void VCAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
@@ -1407,6 +1423,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	bool ret = false;
 	if(startHpos == dst)
 	{
+		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
 		cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
 		waitTillFree(); //movement may cause battle or blocking dialog
@@ -1420,7 +1437,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		{
             logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
 			//setGoal(h, INVALID);
-			completeGoal (sptr(Goals::VisitTile(int3(-1,-1,-1)).sethero(h))); //TODO: better mechanism to determine goal
+			completeGoal (sptr(Goals::VisitTile(dst).sethero(h))); //TODO: better mechanism to determine goal
 			cb->recalculatePaths();
 			throw std::runtime_error("Wrong move order!");
 		}

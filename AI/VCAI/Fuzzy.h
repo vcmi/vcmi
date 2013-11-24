@@ -13,6 +13,9 @@
 
 class VCAI;
 class CArmedInstance;
+//class TSubgoal;
+//class TGoalVec;
+//class AbstractGoal;
 
 class FuzzyHelper
 {
@@ -40,4 +43,8 @@ public:
 
 	ui64 estimateBankDanger (int ID);
 	float getTacticalAdvantage (const CArmedInstance *we, const CArmedInstance *enemy); //returns factor how many times enemy is stronger than us
+
+	//FIXME: use Goals namespace
+	//Goals::TSubgoal chooseSolution (Goals::TGoalVec & vec);
+	//shared_ptr<AbstractGoal> chooseSolution (std::vector<shared_ptr<AbstractGoal>> & vec);
 };

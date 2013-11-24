@@ -23,6 +23,7 @@ namespace Goals
 {
 	struct AbstractGoal;
 	typedef std::shared_ptr<Goals::AbstractGoal> TSubgoal;
+	typedef std::vector<TSubgoal> TGoalVec;
 
 	enum EGoals
 {
@@ -90,6 +91,7 @@ public:
 
 	EGoals goalType;
 	std::string name() const;
+	virtual std::string completeMessage() const {return "This goal is unspecified!";};
 
 	bool invalid() const;
 
@@ -101,13 +103,8 @@ public:
 	//TODO: make accept work for shared_ptr... somehow
 	virtual void accept (VCAI * ai); //unhandled goal will report standard error
 
-	bool operator== (AbstractGoal &g) //TODO: virtualize - comparison returns true only for same subclasses
+	virtual bool operator== (AbstractGoal &g) //TODO: virtualize - comparison returns true only for same subclasses
 	{
-		switch (goalType)
-		{
-			case EGoals::GET_OBJ:
-				return objid == g.objid;
-		}
 		return false;
 	}
 
@@ -149,12 +146,12 @@ public:
 
 	void accept (VCAI * ai) override
 	{
-		ai->tryRealize(static_cast<T&>(*this));
+		ai->tryRealize(static_cast<T&>(*this)); //casting enforces template instantiation
 	}
 
 	CGoal<T> * clone() const override
 	{
-		return new T(static_cast<T const&>(*this));
+		return new T(static_cast<T const&>(*this)); //casting enforces template instantiation
 	}
 	TSubgoal iAmElementar()
 	{
@@ -209,6 +206,7 @@ class Explore : public CGoal<Explore>
 	Explore() : CGoal (Goals::EXPLORE){};
 	Explore(HeroPtr h) : CGoal (Goals::EXPLORE){hero = h;};
 	TSubgoal whatToDoToAchieve() override;
+	std::string completeMessage() const override;
 };
 class GatherArmy : public CGoal<GatherArmy>
 {
@@ -217,6 +215,7 @@ private:
 public:
 	GatherArmy(int val) : CGoal (Goals::GATHER_ARMY){value = val;};
 	TSubgoal whatToDoToAchieve() override;
+	std::string completeMessage() const override;
 };
 class BoostHero : public CGoal<BoostHero>
 {
@@ -257,17 +256,19 @@ public:
 };
 class GetObj : public CGoal<GetObj>
 {
-	private:
-		GetObj() {}; // empty constructor not allowed
-	public:
-		GetObj(int Objid) : CGoal(Goals::GET_OBJ) {objid = Objid;};
+private:
+	GetObj() {}; // empty constructor not allowed
+public:
+	GetObj(int Objid) : CGoal(Goals::GET_OBJ) {objid = Objid;};
 	TSubgoal whatToDoToAchieve() override;
+	bool operator== (GetObj &g) {return g.objid ==  objid;}
+	std::string completeMessage() const override;
 };
 class FindObj : public CGoal<FindObj>
 {
-	private:
-		FindObj() {}; // empty constructor not allowed
-	public:
+private:
+	FindObj() {}; // empty constructor not allowed
+public:
 	FindObj(int ID) : CGoal(Goals::FIND_OBJ) {objid = ID;};
 	FindObj(int ID, int subID) : CGoal(Goals::FIND_OBJ) {objid = ID; resID = subID;};
 	TSubgoal whatToDoToAchieve() override;
@@ -279,6 +280,8 @@ private:
 public:
 	VisitHero(int hid) : CGoal (Goals::VISIT_HERO){objid = hid;};
 	TSubgoal whatToDoToAchieve() override;
+	bool operator== (VisitHero &g) {return g.objid == objid;}
+	std::string completeMessage() const override;
 };
 class GetArtOfType : public CGoal<GetArtOfType>
 {
@@ -296,12 +299,15 @@ private:
 public:
 	VisitTile(int3 Tile) : CGoal (Goals::VISIT_TILE) {tile = Tile;};
 	TSubgoal whatToDoToAchieve() override;
+	bool operator== (VisitTile &g) {return g.tile == tile;}
+	std::string completeMessage() const override;
 }; 
 class ClearWayTo : public CGoal<ClearWayTo>
 {
 public:
 	ClearWayTo(int3 Tile) : CGoal (Goals::CLEAR_WAY_TO) {tile = Tile;};
 	TSubgoal whatToDoToAchieve() override;
+	bool operator== (ClearWayTo &g) {return g.tile == tile;}
 };
 class DigAtTile : public CGoal<DigAtTile>
 	//elementar with hero on tile
@@ -311,6 +317,7 @@ private:
 public:
 	DigAtTile(int3 Tile) : CGoal (Goals::DIG_AT_TILE) {tile = Tile;};
 	TSubgoal whatToDoToAchieve() override;
+	bool operator== (DigAtTile &g) {return g.tile == tile;}
 };
 
 class CIssueCommand : public CGoal<CIssueCommand>

@@ -196,6 +196,11 @@ TSubgoal FindObj::whatToDoToAchieve()
 	else
 		return sptr (Goals::Explore());
 }
+std::string GetObj::completeMessage() const
+{
+	return "hero " + hero.get()->name + " captured Object ID = " + boost::lexical_cast<std::string>(objid); 
+}
+
 TSubgoal GetObj::whatToDoToAchieve()
 {
 	const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(objid));
@@ -203,6 +208,11 @@ TSubgoal GetObj::whatToDoToAchieve()
 		return sptr (Goals::Explore());
 	int3 pos = obj->visitablePos();
 	return sptr (Goals::VisitTile(pos));
+}
+
+std::string VisitHero::completeMessage() const
+{
+	return "hero " + hero.get()->name + " visited hero " + boost::lexical_cast<std::string>(objid); 
 }
 
 TSubgoal VisitHero::whatToDoToAchieve()
@@ -214,6 +224,7 @@ TSubgoal VisitHero::whatToDoToAchieve()
 
 	if (hero && ai->isAccessibleForHero(pos, hero, true) && isSafeToVisit(hero, pos)) //enemy heroes can get reinforcements
 	{
+		assert (hero->pos != pos); //don't try to visit yourself
 		settile(pos).setisElementar(true);
 		return sptr (*this);
 	}
@@ -277,6 +288,11 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 
 	throw cannotFulfillGoalException("Cannot reach given tile!"); //how and when could this be used?
 }
+
+std::string Explore::completeMessage() const
+{
+	return "Hero " + hero.get()->name + " completed exploration";
+};
 
 TSubgoal Explore::whatToDoToAchieve()
 {
@@ -401,6 +417,11 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 		return sptr (Goals::CollectRes(Res::GOLD, HERO_GOLD_COST));
 
 	return iAmElementar();
+}
+
+std::string VisitTile::completeMessage() const
+{
+	return "Hero " + hero.get()->name + " visited tile " + tile();
 }
 
 TSubgoal VisitTile::whatToDoToAchieve()
@@ -675,6 +696,11 @@ TSubgoal Invalid::whatToDoToAchieve()
 {
 	return iAmElementar();
 }
+
+std::string GatherArmy::completeMessage() const
+{
+	return "Hero " + hero.get()->name + " gathered army of value " + boost::lexical_cast<std::string>(value);
+};
 
 TSubgoal GatherArmy::whatToDoToAchieve()
 {

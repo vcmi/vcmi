@@ -5,6 +5,8 @@
 #include "../../lib/CObjectHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/VCMI_Lib.h"
+//#include "Goals.h"
+//#include "VCAI.h"
 
 /*
  * Fuzzy.cpp, part of VCMI engine
@@ -25,6 +27,7 @@ class CGTownInstance;
 
 using namespace boost::assign;
 using namespace vstd;
+//using namespace Goals;
 
 FuzzyHelper *fh;
 
@@ -273,3 +276,22 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 	}
 	return output;
 }
+
+//shared_ptr<AbstractGoal> chooseSolution (std::vector<shared_ptr<AbstractGoal>> & vec)
+//{
+//	typedef std::pair<shared_ptr<AbstractGoal>, float> goalValue;
+//	std::vector <goalValue> values;
+//
+//	for (auto g : vec)
+//	{
+//		values.push_back (std::make_pair(g, 66.6f));
+//	}
+//
+//	auto compareGoals = [&](const goalValue & lhs, const goalValue & rhs) -> bool
+//	{
+//		return lhs.second < rhs.second;
+//	};
+//
+//	boost::sort (values, compareGoals);
+//	return values.end()->first;
+//}
