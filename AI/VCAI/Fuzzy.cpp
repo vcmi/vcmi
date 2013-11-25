@@ -278,20 +278,21 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 }
 
 //shared_ptr<AbstractGoal> chooseSolution (std::vector<shared_ptr<AbstractGoal>> & vec)
-//{
-//	typedef std::pair<shared_ptr<AbstractGoal>, float> goalValue;
-//	std::vector <goalValue> values;
-//
-//	for (auto g : vec)
-//	{
-//		values.push_back (std::make_pair(g, 66.6f));
-//	}
-//
-//	auto compareGoals = [&](const goalValue & lhs, const goalValue & rhs) -> bool
-//	{
-//		return lhs.second < rhs.second;
-//	};
-//
-//	boost::sort (values, compareGoals);
-//	return values.end()->first;
-//}
+Goals::TSubgoal chooseSolution (Goals::TGoalVec & vec)
+{
+	typedef std::pair<Goals::TSubgoal, float> goalValue;
+	std::vector <goalValue> values;
+
+	for (auto g : vec)
+	{
+		values.push_back (std::make_pair(g, 66.6f));
+	}
+
+	auto compareGoals = [&](const goalValue & lhs, const goalValue & rhs) -> bool
+	{
+		return lhs.second < rhs.second;
+	};
+
+	boost::sort (values, compareGoals);
+	return values.end()->first;
+}

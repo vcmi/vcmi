@@ -869,13 +869,19 @@ void CGoal<T>::accept (VCAI * ai)
 }
 
 //TODO: find out why the following are not generated automatically on MVS?
-void CGoal<Win>::accept (VCAI * ai)
-{
-	ai->tryRealize(static_cast<Win&>(*this));
-}
 
-void CGoal<Build>::accept (VCAI * ai)
-{
-	ai->tryRealize(static_cast<Build&>(*this));
+namespace Goals 
+{ 
+	template <>
+	void CGoal<Win>::accept (VCAI * ai)
+	{
+		ai->tryRealize(static_cast<Win&>(*this));
+	}
+
+	template <>
+	void CGoal<Build>::accept (VCAI * ai)
+	{
+		ai->tryRealize(static_cast<Build&>(*this));
+	}
 }
 
