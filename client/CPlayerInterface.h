@@ -229,9 +229,14 @@ public:
 	void updateInfo(const CGObjectInstance * specific);
 	void init(shared_ptr<CCallback> CB);
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
+
+	// show dialogs
 	void showInfoDialog(const std::string &text, CComponent * component);
 	void showInfoDialog(const std::string &text, const std::vector<CComponent*> & components = std::vector<CComponent*>(), int soundID = 0, bool delComps = false);
+	void showInfoDialogAndWait(std::vector<Component> & components, const MetaString & text);
+	void showOkDialog(std::vector<Component> & components, const MetaString & text, const boost::function<void()> & onOk);
 	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps = false, const std::vector<CComponent*> & components = std::vector<CComponent*>()); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
+
 	void stopMovement();
 	bool moveHero(const CGHeroInstance *h, CGPath path);
 	void initMovement(const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp );//initializing objects and performing first step of move

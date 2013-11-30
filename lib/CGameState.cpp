@@ -3327,15 +3327,19 @@ bool EVictoryLossCheckResult::loss() const
 	return !victory();
 }
 
+std::string EVictoryLossCheckResult::toString() const
+{
+	if(*this == EVictoryLossCheckResult::NO_VICTORY_OR_LOSS) return "No victory or loss";
+	else if(*this == EVictoryLossCheckResult::VICTORY_STANDARD) return "Victory standard";
+	else if(*this == EVictoryLossCheckResult::VICTORY_SPECIAL) return "Victory special";
+	else if(*this == EVictoryLossCheckResult::LOSS_STANDARD_HEROES_AND_TOWNS) return "Loss standard heroes and towns";
+	else if(*this == EVictoryLossCheckResult::LOSS_STANDARD_TOWNS_AND_TIME_OVER) return "Loss standard towns and time over";
+	else if(*this == EVictoryLossCheckResult::LOSS_SPECIAL) return "Loss special";
+	else return "Unknown type";
+}
+
 std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult)
 {
-	if(victoryLossCheckResult == EVictoryLossCheckResult::NO_VICTORY_OR_LOSS) os << "No victory or loss";
-	else if(victoryLossCheckResult == EVictoryLossCheckResult::VICTORY_STANDARD) os << "Victory standard";
-	else if(victoryLossCheckResult == EVictoryLossCheckResult::VICTORY_SPECIAL) os << "Victory special";
-	else if(victoryLossCheckResult == EVictoryLossCheckResult::LOSS_STANDARD_HEROES_AND_TOWNS) os << "Loss standard heroes and towns";
-	else if(victoryLossCheckResult == EVictoryLossCheckResult::LOSS_STANDARD_TOWNS_AND_TIME_OVER) os << "Loss standard towns and time over";
-	else if(victoryLossCheckResult == EVictoryLossCheckResult::LOSS_SPECIAL) os << "Loss special";
-	else os << "Unknown type";
-
+	os << victoryLossCheckResult.toString();
 	return os;
 }

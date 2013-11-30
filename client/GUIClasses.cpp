@@ -742,6 +742,16 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<CC
 	GH.pushInt(temp);
 }
 
+void CInfoWindow::showOkDialog(const std::string & text, const std::vector<CComponent*> *components, const boost::function<void()> & onOk, bool delComps, PlayerColor player)
+{
+	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+	CInfoWindow * temp = new CInfoWindow(text, player, *components, pom, delComps);
+	temp->buttons[0]->callback += onOk;
+
+	GH.pushInt(temp);
+}
+
 CInfoWindow * CInfoWindow::create(const std::string &text, PlayerColor playerID /*= 1*/, const std::vector<CComponent*> *components /*= nullptr*/, bool DelComps)
 {
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;

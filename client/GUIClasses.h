@@ -106,6 +106,7 @@ public:
 
 	//use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
 	static void showInfoDialog( const std::string & text, const std::vector<CComponent*> *components, bool DelComps = true, PlayerColor player = PlayerColor(1));
+	static void showOkDialog(const std::string & text, const std::vector<CComponent*> *components, const boost::function<void()> & onOk, bool delComps = true, PlayerColor player = PlayerColor(1));
 	static void showYesNoDialog( const std::string & text, const std::vector<CComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps = true, PlayerColor player = PlayerColor(1));
 	static CInfoWindow *create(const std::string &text, PlayerColor playerID = PlayerColor(1), const std::vector<CComponent*> *components = nullptr, bool DelComps = false);
 

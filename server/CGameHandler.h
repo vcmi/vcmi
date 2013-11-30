@@ -106,8 +106,6 @@ public:
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	int moveStack(int stack, BattleHex dest); //returned value - travelled distance
 	void runBattle();
-	void checkLossVictory(PlayerColor player);
-	void winLoseHandle(ui8 players=255); //players: bit field - colours of players to be checked; default: all
 
 	////used only in endBattle - don't touch elsewhere
 	bool visitObjectAfterVictory;
@@ -293,6 +291,11 @@ public:
 private:
 	void makeStackDoNothing(const CStack * next);
 	void getVictoryLossMessage(PlayerColor player, EVictoryLossCheckResult victoryLossCheckResult, InfoWindow & out) const;
+
+	// Check for victory and loss conditions
+	void checkVictoryLossConditionsForPlayer(PlayerColor player);
+	void checkVictoryLossConditions(const std::set<PlayerColor> & playerColors);
+	void checkVictoryLossConditionsForAll();
 };
 
 void makeStackDoNothing();

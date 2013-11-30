@@ -171,14 +171,14 @@ public:
 class CHighlightableButtonsGroup : public CIntObject
 {
 public:
-	CFunctionList2<void(int)> onChange; //called when changing selected button with new button's id
+	CFunctionList<void(int)> onChange; //called when changing selected button with new button's id
 	std::vector<CHighlightableButton*> buttons;
 	bool musicLike; //determines the behaviour of this group
 
 	//void addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid);
 	void addButton(CHighlightableButton* bt);//add existing button, it'll be deleted by CHighlightableButtonsGroup destructor
 	void addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid, const CFunctionList<void()> &OnSelect=0, int key=0); //creates new button
-	CHighlightableButtonsGroup(const CFunctionList2<void(int)> &OnChange, bool musicLikeButtons = false);
+	CHighlightableButtonsGroup(const CFunctionList<void(int)> & OnChange, bool musicLikeButtons = false);
 	~CHighlightableButtonsGroup();
 	void select(int id, bool mode); //mode==0: id is serial; mode==1: id is unique button id
 	void selectionChanged(int to);

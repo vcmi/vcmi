@@ -534,7 +534,7 @@ void CHighlightableButtonsGroup::addButton(const std::map<int,std::string> &tool
 	buttons.push_back(bt);
 }
 
-CHighlightableButtonsGroup::CHighlightableButtonsGroup(const CFunctionList2<void(int)> &OnChange, bool musicLikeButtons)
+CHighlightableButtonsGroup::CHighlightableButtonsGroup(const CFunctionList<void(int)> &OnChange, bool musicLikeButtons)
 : onChange(OnChange), musicLike(musicLikeButtons)
 {}
 

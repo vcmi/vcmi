@@ -371,6 +371,7 @@ public:
 	bool operator!=(EVictoryLossCheckResult const & other) const;
 	bool victory() const;
 	bool loss() const;
+	std::string toString() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

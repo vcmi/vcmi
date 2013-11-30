@@ -685,7 +685,9 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 	}
 	visitObjectAfterVictory = false;
 
-	winLoseHandle(1<<finishingBattle->loser.getNum() | 1<<finishingBattle->victor.getNum()); //handle victory/loss of engaged players
+	//handle victory/loss of engaged players
+	std::set<PlayerColor> playerColors = boost::assign::list_of(finishingBattle->loser)(finishingBattle->victor);
+	checkVictoryLossConditions(playerColors);
 
 	if(result.result == BattleResult::SURRENDER || result.result == BattleResult::ESCAPE) //loser has escaped or surrendered
 	{
@@ -1411,39 +1413,7 @@ void CGameHandler::newTurn()
 			elem->newTurn();
 	}
 
-	winLoseHandle(0xff);
-
-	//warn players without town
-	if(gs->day)
-	{
-		for (auto i=gs->players.cbegin() ; i!=gs->players.cend();i++)
-		{
-			if(i->second.status || i->second.towns.size() || i->second.color >= PlayerColor::PLAYER_LIMIT)
-				continue;
-
-			InfoWindow iw;
-			iw.player = i->first;
-			iw.components.push_back(Component(Component::FLAG, i->first.getNum(), 0, 0));
-
-			if(!i->second.daysWithoutCastle)
-			{
-				iw.text.addTxt(MetaString::GENERAL_TXT,6); //%s, you have lost your last town.  If you do not conquer another town in the next week, you will be eliminated.
-				iw.text.addReplacement(MetaString::COLOR, i->first.getNum());
-			}
-			else if(i->second.daysWithoutCastle == 6)
-			{
-				iw.text.addTxt(MetaString::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
-				iw.text.addReplacement(MetaString::COLOR, i->first.getNum());
-			}
-			else
-			{
-				iw.text.addTxt(MetaString::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
-				iw.text.addReplacement(MetaString::COLOR, i->first.getNum());
-				iw.text.addReplacement(7 - i->second.daysWithoutCastle);
-			}
-			sendAndApply(&iw);
-		}
-	}
+	checkVictoryLossConditionsForAll();
 
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
 }
@@ -1515,27 +1485,21 @@ void CGameHandler::run(bool resume)
 		resume = false;
 		for(; i != gs->players.end(); i++)
 		{
-			if((i->second.towns.size()==0 && i->second.heroes.size()==0)
-				|| i->first>=PlayerColor::PLAYER_LIMIT
-				|| i->second.status)
+			if(i->second.status == EPlayerStatus::INGAME)
 			{
-				continue;
-			}
-			states.setFlag(i->first,&PlayerStatus::makingTurn,true);
+				states.setFlag(i->first,&PlayerStatus::makingTurn,true);
 
-			{
 				YourTurn yt;
 				yt.player = i->first;
 				applyAndSend(&yt);
-			}
 
-			//wait till turn is done
-			boost::unique_lock<boost::mutex> lock(states.mx);
-			while(states.players.at(i->first).makingTurn && !end2)
-			{
-				static time_duration p = milliseconds(200);
-				states.cv.timed_wait(lock,p);
-
+				//wait till turn is done
+				boost::unique_lock<boost::mutex> lock(states.mx);
+				while(states.players.at(i->first).makingTurn && !end2)
+				{
+					static time_duration p = milliseconds(200);
+					states.cv.timed_wait(lock,p);
+				}
 			}
 		}
 	}
@@ -1608,7 +1572,7 @@ bool CGameHandler::removeObject( const CGObjectInstance * obj )
 	ro.id = obj->id;
 	sendAndApply(&ro);
 
-	winLoseHandle(255); //eg if monster escaped (removing objs after battle is done dircetly by endBattle, not this function)
+	checkVictoryLossConditionsForAll(); //eg if monster escaped (removing objs after battle is done dircetly by endBattle, not this function)
 	return true;
 }
 
@@ -1811,7 +1775,9 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 	SetObjectProperty sop(obj->id, 1, owner.getNum());
 	sendAndApply(&sop);
 
-	winLoseHandle(1<<owner.getNum() | 1<<oldOwner.getNum());
+	std::set<PlayerColor> playerColors = boost::assign::list_of(owner)(oldOwner);
+	checkVictoryLossConditions(playerColors);
+
 	if(owner < PlayerColor::PLAYER_LIMIT && dynamic_cast<const CGTownInstance *>(obj)) //town captured
 	{
 		const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
@@ -1933,7 +1899,7 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 	giveSpells (obj, hero);
 
 	if(gs->map->victoryCondition.condition == EVictoryConditionType::TRANSPORTITEM)
-		checkLossVictory(hero->tempOwner); //transported artifact?
+		checkVictoryLossConditionsForPlayer(hero->tempOwner); //transported artifact?
 }
 
 void CGameHandler::vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h)
@@ -2178,28 +2144,28 @@ void CGameHandler::sendAndApply(CGarrisonOperationPack * info)
 {
 	sendAndApply(static_cast<CPackForClient*>(info));
 	if(gs->map->victoryCondition.condition == EVictoryConditionType::GATHERTROOP)
-		winLoseHandle();
+		checkVictoryLossConditionsForAll();
 }
 
 void CGameHandler::sendAndApply( SetResource * info )
 {
 	sendAndApply(static_cast<CPackForClient*>(info));
 	if(gs->map->victoryCondition.condition == EVictoryConditionType::GATHERRESOURCE)
-		checkLossVictory(info->player);
+		checkVictoryLossConditionsForPlayer(info->player);
 }
 
 void CGameHandler::sendAndApply( SetResources * info )
 {
 	sendAndApply(static_cast<CPackForClient*>(info));
 	if(gs->map->victoryCondition.condition == EVictoryConditionType::GATHERRESOURCE)
-		checkLossVictory(info->player);
+		checkVictoryLossConditionsForPlayer(info->player);
 }
 
 void CGameHandler::sendAndApply( NewStructures * info )
 {
 	sendAndApply(static_cast<CPackForClient*>(info));
 	if(gs->map->victoryCondition.condition == EVictoryConditionType::BUILDCITY)
-		checkLossVictory(getTown(info->tid)->tempOwner);
+		checkVictoryLossConditionsForPlayer(getTown(info->tid)->tempOwner);
 }
 
 void CGameHandler::save(const std::string & filename )
@@ -2525,7 +2491,7 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 	if(t->garrisonHero)
 		vistiCastleObjects (t, t->garrisonHero);
 
-	checkLossVictory(t->tempOwner);
+	checkVictoryLossConditionsForPlayer(t->tempOwner);
 	return true;
 }
 bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
@@ -3927,7 +3893,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	{
 		SystemMessage temp_message(VLC->generaltexth->allTexts.at(260));
 		sendAndApply(&temp_message);
-		checkLossVictory(player);//Player enter win code or got required art\creature
+		checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
 	}
 }
 
@@ -5055,21 +5021,28 @@ void CGameHandler::engageIntoBattle( PlayerColor player )
 	sendAndApply(&pb);
 }
 
-void CGameHandler::winLoseHandle(ui8 players )
+void CGameHandler::checkVictoryLossConditions(const std::set<PlayerColor> & playerColors)
 {
-	for(size_t i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
+	for(auto playerColor : playerColors)
 	{
-		if(players & 1<<i  &&  gs->getPlayer(PlayerColor(i)))
-		{
-			checkLossVictory(PlayerColor(i));
-		}
+		if(gs->getPlayer(playerColor)) checkVictoryLossConditionsForPlayer(playerColor);
 	}
 }
 
-void CGameHandler::checkLossVictory( PlayerColor player )
+void CGameHandler::checkVictoryLossConditionsForAll()
+{
+	std::set<PlayerColor> playerColors;
+	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
+	{
+		playerColors.insert(PlayerColor(i));
+	}
+	checkVictoryLossConditions(playerColors);
+}
+
+void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 {
 	const PlayerState *p = gs->getPlayer(player);
-	if(p->status == EPlayerStatus::WINNER || p->status == EPlayerStatus::LOSER || p->status == EPlayerStatus::WRONG) return;
+	if(p->status != EPlayerStatus::INGAME) return;
 
 	auto victoryLossCheckResult = gs->checkForVictoryAndLoss(player);
 
@@ -5091,7 +5064,7 @@ void CGameHandler::checkLossVictory( PlayerColor player )
 
 			for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
 			{
-				if(i->first < PlayerColor::PLAYER_LIMIT && i->first != player)//FIXME: skip already eliminated players?
+				if(i->first != player && gs->getPlayer(i->first)->status == EPlayerStatus::INGAME)
 				{
 					iw.player = i->first;
 					sendAndApply(&iw);
@@ -5150,7 +5123,13 @@ void CGameHandler::checkLossVictory( PlayerColor player )
 			}
 
 			//eliminating one player may cause victory of another:
-			winLoseHandle(GameConstants::ALL_PLAYERS & ~(1<<player.getNum()));
+			std::set<PlayerColor> playerColors;
+			for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
+			{
+				if(player.getNum() != i) playerColors.insert(PlayerColor(i));
+			}
+
+			checkVictoryLossConditions(playerColors);
 		}
 
 		//If player making turn has lost his turn must be over as well

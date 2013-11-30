@@ -6,17 +6,13 @@ include_directories(${SDL_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUD
 include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR} ${FFMPEG_INCLUDE_DIRS})
 
 set(client_SRCS
-        CPreGame.cpp
-        Client.cpp
-        CPlayerInterface.cpp
-        CMT.cpp
-        GUIClasses.cpp
-        battle/CBattleInterface.cpp
-
         ../CCallback.cpp
+
+		battle/CBattleInterface.cpp
         battle/CBattleAnimations.cpp
         battle/CBattleInterfaceClasses.cpp
         battle/CCreatureAnimation.cpp
+
         gui/CGuiHandler.cpp
         gui/CIntObject.cpp
         gui/CIntObjectClasses.cpp
@@ -24,6 +20,12 @@ set(client_SRCS
         gui/Geometries.cpp
         gui/CCursorHandler.cpp
         gui/SDL_Extensions.cpp
+
+		CPreGame.cpp
+		Client.cpp
+		CPlayerInterface.cpp
+		CMT.cpp
+		GUIClasses.cpp
         AdventureMapClasses.cpp
         CAdvmapInterface.cpp
         CAnimation.cpp
@@ -44,15 +46,22 @@ set(client_SRCS
         NetPacksClient.cpp
 )
 
+set(client_HEADERS
+		CSoundBase.h
+		FunctionList.h
+
+		gui/SDL_Pixels.h
+)
+
 if(WIN32)
-    add_executable(vcmiclient WIN32 ${client_SRCS})
+	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS})
 elseif(APPLE)
     # OS X specific includes
     include_directories(${SPARKLE_INCLUDE_DIR})
 
     # OS X specific source files
     set(client_SRCS ${client_SRCS} SDLMain.m OSX.mm Info.plist vcmi.icns ../osx/vcmi_dsa_public.pem)
-    add_executable(vcmiclient MACOSX_BUNDLE ${client_SRCS})
+	add_executable(vcmiclient MACOSX_BUNDLE ${client_SRCS} ${client_HEADERS})
 
     # OS X specific libraries
     target_link_libraries(vcmiclient ${SPARKLE_FRAMEWORK})
@@ -93,7 +102,7 @@ elseif(APPLE)
         
     add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
 else()
-    add_executable(vcmiclient ${client_SRCS})
+	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 endif()
 
 target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${RT_LIB} ${DL_LIB})

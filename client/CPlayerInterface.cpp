@@ -1022,6 +1022,21 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	}
 }
 
+void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components, const MetaString & text)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	std::vector<Component*> comps;
+	for(auto & elem : components)
+	{
+		comps.push_back(&elem);
+	}
+	std::string str;
+	text.toString(str);
+
+	showInfoDialog(str,comps, 0);
+	waitWhileDialog();
+}
+
 void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps, const std::vector<CComponent*> & components)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -1029,6 +1044,27 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<vo
 	stopMovement();
 	LOCPLINT->showingDialog->setn(true);
 	CInfoWindow::showYesNoDialog(text, &components, onYes, onNo, DelComps, playerID);
+}
+
+void CPlayerInterface::showOkDialog(std::vector<Component> & components, const MetaString & text, const boost::function<void()> & onOk)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+
+	std::vector<Component*> comps;
+	for(auto & elem : components)
+	{
+		comps.push_back(&elem);
+	}
+	std::string str;
+	text.toString(str);
+
+	stopMovement();
+	showingDialog->setn(true);
+
+	std::vector<CComponent*> intComps;
+	for(auto & component : comps)
+		intComps.push_back(new CComponent(*component));
+	CInfoWindow::showOkDialog(str, &intComps, onOk, true, playerID);
 }
 
 void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, QueryID askID, int soundID, bool selection, bool cancel )
@@ -2250,6 +2286,31 @@ void CPlayerInterface::acceptTurn()
 			iw->close();
 
 		adventureInt->endTurn.callback();
+	}
+
+	// warn player if he has no town
+	if(cb->howManyTowns() == 0)
+	{
+		auto playerColor = *cb->getPlayerID();
+
+		std::vector<Component> components;
+		components.push_back(Component(Component::FLAG, playerColor.getNum(), 0, 0));
+		MetaString text;
+
+		auto daysWithoutCastle = cb->getPlayer(playerColor)->daysWithoutCastle;
+		if(daysWithoutCastle == 6)
+		{
+			text.addTxt(MetaString::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
+			text.addReplacement(MetaString::COLOR, playerColor.getNum());
+		}
+		else
+		{
+			text.addTxt(MetaString::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
+			text.addReplacement(MetaString::COLOR, playerColor.getNum());
+			text.addReplacement(7 - daysWithoutCastle);
+		}
+
+		showInfoDialogAndWait(components, text);
 	}
 }
 

@@ -2,7 +2,6 @@
 
 
 #include "BattleHex.h"
-#include "../client/FunctionList.h"
 #include "ResourceSet.h"
 #include "int3.h"
 #include "GameConstants.h"

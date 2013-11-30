@@ -752,10 +752,10 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 	}
 
 	bool bufOnScreen = (screenBuf == screen);
-	
+
 	if(suggestedBpp != bpp)
 	{
-        logGlobal->warnStream() << "Note: SDL suggests to use " << suggestedBpp << " bpp instead of"  << bpp << " bpp ";
+		logGlobal->infoStream() << boost::format("Using %s bpp (bits per pixel) for the video mode. Default or overriden setting was %s bpp.") % suggestedBpp % bpp;
 	}
 
 	//For some reason changing fullscreen via config window checkbox result in SDL_Quit event
