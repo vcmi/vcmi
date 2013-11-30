@@ -74,6 +74,23 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 	}
 }
 
+//TODO: find out why the following are not generated automatically on MVS?
+
+namespace Goals 
+{ 
+	template <>
+	void CGoal<Win>::accept (VCAI * ai)
+	{
+		ai->tryRealize(static_cast<Win&>(*this));
+	}
+
+	template <>
+	void CGoal<Build>::accept (VCAI * ai)
+	{
+		ai->tryRealize(static_cast<Build&>(*this));
+	}
+}
+
 //TSubgoal AbstractGoal::whatToDoToAchieve()
 //{
 //    logAi->debugStream() << boost::format("Decomposing goal of type %s") % name();
@@ -866,22 +883,5 @@ template<typename T>
 void CGoal<T>::accept (VCAI * ai)
 {
 	ai->tryRealize(static_cast<T&>(*this)); //casting enforces template instantiation
-}
-
-//TODO: find out why the following are not generated automatically on MVS?
-
-namespace Goals 
-{ 
-	template <>
-	void CGoal<Win>::accept (VCAI * ai)
-	{
-		ai->tryRealize(static_cast<Win&>(*this));
-	}
-
-	template <>
-	void CGoal<Build>::accept (VCAI * ai)
-	{
-		ai->tryRealize(static_cast<Build&>(*this));
-	}
 }
 

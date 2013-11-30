@@ -5,7 +5,7 @@
 #include "../../lib/CObjectHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/VCMI_Lib.h"
-//#include "Goals.h"
+//#include "Goals.cpp"
 //#include "VCAI.h"
 
 /*
