@@ -26,17 +26,39 @@
     <ClCompile Include="NetPacksClient.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="CQuestLog.cpp" />
-    <ClCompile Include="battle\CBattleAnimations.cpp" />
-    <ClCompile Include="battle\CBattleInterface.cpp" />
-    <ClCompile Include="battle\CBattleInterfaceClasses.cpp" />
-    <ClCompile Include="battle\CCreatureAnimation.cpp" />
-    <ClCompile Include="gui\CCursorHandler.cpp" />
-    <ClCompile Include="gui\CGuiHandler.cpp" />
-    <ClCompile Include="gui\CIntObject.cpp" />
-    <ClCompile Include="gui\CIntObjectClasses.cpp" />
-    <ClCompile Include="gui\Fonts.cpp" />
-    <ClCompile Include="gui\Geometries.cpp" />
-    <ClCompile Include="gui\SDL_Extensions.cpp" />
+    <ClCompile Include="battle\CBattleAnimations.cpp">
+      <Filter>battle</Filter>
+    </ClCompile>
+    <ClCompile Include="battle\CBattleInterface.cpp">
+      <Filter>battle</Filter>
+    </ClCompile>
+    <ClCompile Include="battle\CBattleInterfaceClasses.cpp">
+      <Filter>battle</Filter>
+    </ClCompile>
+    <ClCompile Include="battle\CCreatureAnimation.cpp">
+      <Filter>battle</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\CCursorHandler.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\CGuiHandler.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\CIntObject.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\CIntObjectClasses.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\Fonts.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\Geometries.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\SDL_Extensions.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Global.h" />
@@ -69,18 +91,42 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClInclude Include="mapHandler.h" />
-    <ClInclude Include="battle\CBattleAnimations.h" />
-    <ClInclude Include="battle\CBattleInterface.h" />
-    <ClInclude Include="battle\CBattleInterfaceClasses.h" />
-    <ClInclude Include="battle\CCreatureAnimation.h" />
-    <ClInclude Include="gui\CCursorHandler.h" />
-    <ClInclude Include="gui\CGuiHandler.h" />
-    <ClInclude Include="gui\CIntObject.h" />
-    <ClInclude Include="gui\CIntObjectClasses.h" />
-    <ClInclude Include="gui\Fonts.h" />
-    <ClInclude Include="gui\Geometries.h" />
-    <ClInclude Include="gui\SDL_Extensions.h" />
-    <ClInclude Include="gui\SDL_Pixels.h" />
+    <ClInclude Include="battle\CBattleAnimations.h">
+      <Filter>battle</Filter>
+    </ClInclude>
+    <ClInclude Include="battle\CBattleInterface.h">
+      <Filter>battle</Filter>
+    </ClInclude>
+    <ClInclude Include="battle\CBattleInterfaceClasses.h">
+      <Filter>battle</Filter>
+    </ClInclude>
+    <ClInclude Include="battle\CCreatureAnimation.h">
+      <Filter>battle</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\CCursorHandler.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\CGuiHandler.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\CIntObject.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\CIntObjectClasses.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\Fonts.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\Geometries.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\SDL_Extensions.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\SDL_Pixels.h">
+      <Filter>gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VCMI_client.rc" />
@@ -91,5 +137,13 @@
   <ItemGroup>
     <None Include="..\ChangeLog" />
     <None Include="vcmi.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="battle">
+      <UniqueIdentifier>{c25dc848-6e1b-4a9b-b6f2-517626e9a23d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui">
+      <UniqueIdentifier>{cec5376d-0f32-475e-bf51-3dbae35c6b98}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

@@ -91,7 +91,7 @@
       </AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
-      <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm195 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>VCMI_lib.lib;FuzzyLite.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -138,7 +138,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AIUtility.cpp" />
     <ClCompile Include="Fuzzy.cpp" />
+    <ClCompile Include="Goals.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="StdInc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -149,7 +151,9 @@
     <ClCompile Include="VCAI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AIUtility.h" />
     <ClInclude Include="Fuzzy.h" />
+    <ClInclude Include="Goals.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="VCAI.h" />
   </ItemGroup>

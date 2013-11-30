@@ -195,7 +195,9 @@
     <ClCompile Include="filesystem\CMemoryStream.cpp" />
     <ClCompile Include="filesystem\CZipLoader.cpp" />
     <ClCompile Include="filesystem\Filesystem.cpp" />
+    <ClCompile Include="filesystem\ResourceID.cpp" />
     <ClCompile Include="GameConstants.cpp" />
+    <ClCompile Include="JsonDetail.cpp" />
     <ClCompile Include="mapping\CCampaignHandler.cpp" />
     <ClCompile Include="mapping\CMap.cpp" />
     <ClCompile Include="mapping\CMapInfo.cpp" />
@@ -272,8 +274,10 @@
     <ClInclude Include="filesystem\CZipLoader.h" />
     <ClInclude Include="filesystem\Filesystem.h" />
     <ClInclude Include="filesystem\ISimpleResourceLoader.h" />
-	<ClInclude Include="FunctionList.h" />
+    <ClInclude Include="filesystem\ResourceID.h" />
+    <ClInclude Include="FunctionList.h" />
     <ClInclude Include="IBonusTypeHandler.h" />
+    <ClInclude Include="JsonDetail.h" />
     <ClInclude Include="mapping\CCampaignHandler.h" />
     <ClInclude Include="mapping\CMap.h" />
     <ClInclude Include="mapping\CMapInfo.h" />
