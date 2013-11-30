@@ -60,7 +60,6 @@
     <ClInclude Include="CSpellWindow.h" />
     <ClInclude Include="CVideoHandler.h" />
     <ClInclude Include="FontBase.h" />
-    <ClInclude Include="FunctionList.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GUIClasses.h" />
     <ClInclude Include="resource.h" />

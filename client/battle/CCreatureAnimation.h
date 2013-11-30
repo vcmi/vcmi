@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../FunctionList.h"
+#include "../../lib/FunctionList.h"
 //#include "../CDefHandler.h"
 #include "../CAnimation.h"
 

@@ -73,8 +73,10 @@ set(lib_SRCS
 
 set(lib_HEADERS
 		../Global.h
+
 		filesystem/CInputStream.h
 		filesystem/ISimpleResourceLoader.h
+
 		AI_Base.h
 		CondSh.h
 		ConstTransitivePtr.h
@@ -82,6 +84,7 @@ set(lib_HEADERS
 		CRandomGenerator.h
 		CScriptingModule.h
 		CStopWatch.h
+		FunctionList.h
 		GameConstants.h
 		StringConstants.h
 		IGameEventsReceiver.h

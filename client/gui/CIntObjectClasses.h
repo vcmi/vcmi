@@ -2,7 +2,7 @@
 
 #include "CIntObject.h"
 #include "SDL_Extensions.h"
-#include "../FunctionList.h"
+#include "../../lib/FunctionList.h"
 
 struct SDL_Surface;
 struct Rect;

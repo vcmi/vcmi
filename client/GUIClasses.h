@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CAnimation.h"
-#include "FunctionList.h"
+#include "../lib/FunctionList.h"
 #include "../lib/ResourceSet.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameConstants.h"

@@ -4,7 +4,7 @@
 #include <SDL.h>
 #include "../lib/StartInfo.h"
 #include "GUIClasses.h"
-#include "FunctionList.h"
+#include "../lib/FunctionList.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/rmg/CMapGenerator.h"
 

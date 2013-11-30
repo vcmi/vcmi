@@ -272,6 +272,7 @@
     <ClInclude Include="filesystem\CZipLoader.h" />
     <ClInclude Include="filesystem\Filesystem.h" />
     <ClInclude Include="filesystem\ISimpleResourceLoader.h" />
+	<ClInclude Include="FunctionList.h" />
     <ClInclude Include="IBonusTypeHandler.h" />
     <ClInclude Include="mapping\CCampaignHandler.h" />
     <ClInclude Include="mapping\CMap.h" />

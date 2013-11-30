@@ -231,6 +231,9 @@
     <ClInclude Include="Filesystem\CCompressedStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FunctionList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="CModHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
