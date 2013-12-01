@@ -4467,6 +4467,27 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 			type = art->artType->iconIndex;
 			bonusValue = 0;
 		}
+		if (art->artType->constituents) //display info about components of combined artifact
+		{
+			//TODO
+		}
+		else if (art->artType->constituentOf.size()) //display info about set
+		{
+			std::string artList;
+			auto combinedArt = art->artType->constituentOf[0];
+			text += "\n\n";
+			text += "{" + combinedArt->Name() + "}";
+			int wornArtifacts = 0;
+			for (auto a : *combinedArt->constituents) //TODO: can the artifact be a part of more than one set?
+			{
+				artList += "\n" + a->Name();
+				if (ourOwner->curHero->hasArt(a->id, true))
+					wornArtifacts++;
+			}
+			text += " (" + boost::str(boost::format("%d") % wornArtifacts) +  " / " +
+				boost::str(boost::format("%d") % combinedArt->constituents->size()) + ")" + artList;
+			//TODO: fancy colors and fonts for this text
+		}
 
 		if (locked) // Locks should appear as empty.
 			hoverText = CGI->generaltexth->allTexts[507];
