@@ -1275,7 +1275,7 @@ void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
 		size_t end = what.find_first_of(delimeters[currDelimeter % 2], begin);
 		if (begin != end)
 		{
-			std::string toPrint = what.substr(begin, end-1);
+			std::string toPrint = what.substr(begin, end - begin);
 
 			if (currDelimeter % 2) // Enclosed in {} text - set to yellow
 				f->renderTextLeft(to, toPrint, Colors::YELLOW, where);
@@ -1388,6 +1388,8 @@ CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts F
 	label = new CMultiLineLabel(rect, Font, Align, Color);
 
 	type |= REDRAW_PARENT;
+	pos.x += rect.x;
+	pos.y += rect.y;
 	pos.h = rect.h;
 	pos.w = rect.w;
 

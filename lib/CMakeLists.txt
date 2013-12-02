@@ -66,6 +66,7 @@ set(lib_SRCS
 		HeroBonus.cpp
 		JsonDetail.cpp
 		JsonNode.cpp
+		LogicalExpression.cpp
 		ResourceSet.cpp
 		VCMI_Lib.cpp
 		VCMIDirs.cpp

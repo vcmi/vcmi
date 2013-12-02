@@ -2352,7 +2352,8 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 	const CBuilding * requestedBuilding = t->town->buildings.at(requestedID);
 
 	//Vector with future list of built building and buildings in auto-mode that are not yet built.
-	std::vector<const CBuilding*> buildingsThatWillBe, remainingAutoBuildings;
+	std::vector<const CBuilding*> remainingAutoBuildings;
+	std::set<BuildingID> buildingsThatWillBe;
 
 	//Check validity of request
 	if(!force)
@@ -2360,13 +2361,13 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 		switch (requestedBuilding->mode)
 		{
 		case CBuilding::BUILD_NORMAL :
-		case CBuilding::BUILD_AUTO   :
 			if (gs->canBuildStructure(t, requestedID) != EBuildingState::ALLOWED)
 				COMPLAIN_RET("Cannot build that building!");
 			break;
 
+		case CBuilding::BUILD_AUTO   :
 		case CBuilding::BUILD_SPECIAL:
-			COMPLAIN_RET("This building can not be constructed!");
+			COMPLAIN_RET("This building can not be constructed normally!");
 
 		case CBuilding::BUILD_GRAIL  :
 			if(requestedBuilding->mode == CBuilding::BUILD_GRAIL) //needs grail
@@ -2421,22 +2422,21 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 	};
 
 	//Checks if all requirements will be met with expected building list "buildingsThatWillBe"
-	auto allRequirementsFullfilled = [&buildingsThatWillBe, t](const CBuilding *b)
+	auto areRequirementsFullfilled = [&](const BuildingID & buildID)
 	{
-		for(auto requirementID : b->requirements)
-			if(!vstd::contains(buildingsThatWillBe, t->town->buildings.at(requirementID)))
-				return false;
-
-		return true;
+		return buildingsThatWillBe.count(buildID);
 	};
 
 	//Init the vectors
 	for(auto & build : t->town->buildings)
 	{
 		if(t->hasBuilt(build.first))
-			buildingsThatWillBe.push_back(build.second);
-		else if(build.second->mode == CBuilding::BUILD_AUTO) //not built auto building
-			remainingAutoBuildings.push_back(build.second);
+			buildingsThatWillBe.insert(build.first);
+		else
+		{
+			if(build.second->mode == CBuilding::BUILD_AUTO) //not built auto building
+				remainingAutoBuildings.push_back(build.second);
+		}
 	}
 
 	//Prepare structure (list of building ids will be filled later)
@@ -2453,12 +2453,12 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 		buildingsToAdd.pop();
 
 		ns.bid.insert(b->bid);
-		buildingsThatWillBe.push_back(b);
+		buildingsThatWillBe.insert(b->bid);
 		remainingAutoBuildings -= b;
 
 		for(auto autoBuilding : remainingAutoBuildings)
 		{
-			if(allRequirementsFullfilled(autoBuilding))
+			if (autoBuilding->requirements.test(areRequirementsFullfilled))
 				buildingsToAdd.push(autoBuilding);
 		}
 	}

@@ -570,7 +570,7 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	if(!t->town->buildings.count(ID))
 		return EBuildingState::BUILDING_ERROR;
 
-	const CBuilding * pom = t->town->buildings.at(ID);
+	const CBuilding * building = t->town->buildings.at(ID);
 
 
 	if(t->hasBuilt(ID))	//already built
@@ -580,26 +580,19 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	if(vstd::contains(t->forbiddenBuildings, ID))
 		return EBuildingState::FORBIDDEN; //forbidden
 
-	//checking for requirements
-	std::set<BuildingID> reqs = getBuildingRequiments(t, ID);//getting all requirements
-
-	bool notAllBuilt = false;
-	for(auto & req : reqs)
+	auto buildTest = [&](const BuildingID & id)
 	{
-		if(!t->hasBuilt(req)) //lack of requirements - cannot build
-		{
-			if(vstd::contains(t->forbiddenBuildings, req)) // not built requirement forbidden - same goes to this build
-				return EBuildingState::FORBIDDEN;
-			else
-				notAllBuilt = true; // no return here - we need to check if any required builds are forbidden
-		}
-	}
+		return t->hasBuilt(id);
+	};
 
 	if(t->builded >= VLC->modh->settings.MAX_BUILDING_PER_TURN)
 		return EBuildingState::CANT_BUILD_TODAY; //building limit
 
-	if (notAllBuilt)
+	if (!building->requirements.test(buildTest))
 		return EBuildingState::PREREQUIRES;
+
+	if (building->upgrade != BuildingID::NONE && !t->hasBuilt(building->upgrade))
+		return EBuildingState::MISSING_BASE;
 
 	if(ID == BuildingID::CAPITOL)
 	{
@@ -624,41 +617,10 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	}
 
 	//checking resources
-	if(!pom->resources.canBeAfforded(getPlayer(t->tempOwner)->resources))
+	if(!building->resources.canBeAfforded(getPlayer(t->tempOwner)->resources))
 		return EBuildingState::NO_RESOURCES; //lack of res
 
 	return EBuildingState::ALLOWED;
-}
-
-std::set<BuildingID> CGameInfoCallback::getBuildingRequiments( const CGTownInstance *t, BuildingID ID )
-{
-	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", std::set<BuildingID>());
-	ERROR_RET_VAL_IF(!t->town->buildings.count(ID), "No such building!", std::set<BuildingID>());
-
-	std::set<int> used;
-	used.insert(ID);
-	auto reqs = t->town->buildings.at(ID)->requirements;
-
-	bool found;
-	do
-	{
-		found = false;
-		for(auto i=reqs.begin();i!=reqs.end();i++)
-		{
-			if(used.find(*i)==used.end()) //we haven't added requirements for this building
-			{
-				found = true;
-				auto & requires = t->town->buildings.at(*i)->requirements;
-
-				used.insert(*i);
-				for(auto & require : requires)
-					reqs.insert(require);//creating full list of requirements
-			}
-		}
-	}
-	while (found);
-
-	return reqs;
 }
 
 const CMapHeader * CGameInfoCallback::getMapHeader() const

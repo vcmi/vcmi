@@ -32,8 +32,9 @@ class CIdentifierStorage
 		std::string type;        /// type, e.g. creature, faction, hero, etc
 		std::string name;        /// string ID
 		std::function<void(si32)> callback;
+		bool optional;
 
-		ObjectCallback(std::string localScope, std::string remoteScope, std::string type, std::string name, const std::function<void(si32)> & callback);
+		ObjectCallback(std::string localScope, std::string remoteScope, std::string type, std::string name, const std::function<void(si32)> & callback, bool optional);
 	};
 
 	struct ObjectData // entry created on ID registration
@@ -50,14 +51,22 @@ class CIdentifierStorage
 
 	void requestIdentifier(ObjectCallback callback);
 	bool resolveIdentifier(const ObjectCallback & callback);
+	std::vector<ObjectData> getIdentifier(const ObjectCallback & callback);
 public:
-	/// request identifier for specific object name. If ID is not yet resolved callback will be queued
-	/// and will be called later
+	/// request identifier for specific object name.
+	/// Function callback will be called during ID resolution phase of loading
 	void requestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback);
 	void requestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback);
 	void requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback);
 
-	/// registers new object, calls all associated callbacks
+	/// try to request ID. If ID with such name won't be loaded, callback function will not be called
+	void tryRequestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback);
+	void tryRequestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback);
+
+	/// get identifier immediately. If identifier is not know and not silent call will result in error message
+	boost::optional<si32> getIdentifier(std::string type, const JsonNode & name, bool silent = false);
+
+	/// registers new object
 	void registerObject(std::string scope, std::string type, std::string name, si32 identifier);
 
 	/// called at the very end of loading to check for any missing ID's

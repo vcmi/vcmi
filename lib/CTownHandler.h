@@ -5,6 +5,7 @@
 #include "int3.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
+#include "LogicalExpression.h"
 
 /*
  * CTownHandler.h, part of VCMI engine
@@ -31,11 +32,14 @@ class DLL_LINKAGE CBuilding
 	std::string description;
 
 public:
-	CTown * town; // town this building belongs to
-	BuildingID bid; //structure ID
-	TResources resources;
+	typedef LogicalExpression<BuildingID> TRequired;
 
-	std::set<BuildingID> requirements; /// set of required buildings, includes upgradeOf;
+	CTown * town; // town this building belongs to
+	TResources resources;
+	TRequired requirements;
+	std::string identifier;
+
+	BuildingID bid; //structure ID
 	BuildingID upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty
 
 	enum EBuildMode
@@ -57,7 +61,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & town & bid & resources & name & description & requirements & upgrade & mode;
+		h & identifier & town & bid & resources & name & description & requirements & upgrade & mode;
 	}
 
 	friend class CTownHandler;
@@ -71,14 +75,13 @@ struct DLL_LINKAGE CStructure
 	CBuilding * building;  // base building. If null - this structure will be always present on screen
 	CBuilding * buildable; // building that will be used to determine built building and visible cost. Usually same as "building"
 
-	bool hiddenUpgrade; // used only if "building" is upgrade, if true - structure on town screen will behave exactly like parent (mouse clicks, hover texts, etc)
-
 	int3 pos;
-	std::string defName, borderName, areaName;
+	std::string defName, borderName, areaName, identifier;
 
+	bool hiddenUpgrade; // used only if "building" is upgrade, if true - structure on town screen will behave exactly like parent (mouse clicks, hover texts, etc)
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & pos & defName & borderName & areaName & building & buildable & hiddenUpgrade;
+		h & pos & defName & borderName & areaName & identifier & building & buildable & hiddenUpgrade;
 	}
 };
 
@@ -102,6 +105,7 @@ public:
 	~CFaction();
 
 	std::string name; //town name, by default - from TownName.txt
+	std::string identifier;
 
 	TFaction index;
 
@@ -119,7 +123,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & index & nativeTerrain & alignment & commander & town & creatureBg120 & creatureBg130 & puzzleMap;
+		h & name & identifier & index & nativeTerrain & alignment & commander & town & creatureBg120 & creatureBg130 & puzzleMap;
 	}
 };
 
@@ -216,12 +220,23 @@ public:
 
 class DLL_LINKAGE CTownHandler : public IHandlerBase
 {
+	struct BuildingRequirementsHelper
+	{
+		JsonNode json;
+		CBuilding * building;
+		CFaction * faction;
+	};
+
+	std::vector<BuildingRequirementsHelper> requirementsToLoad;
+	void initializeRequirements();
+
 	/// loads CBuilding's into town
-	void loadBuilding(CTown &town, const JsonNode & source);
+	void loadBuildingRequirements(CTown &town, CBuilding & building, const JsonNode & source);
+	void loadBuilding(CTown &town, const std::string & stringID, const JsonNode & source);
 	void loadBuildings(CTown &town, const JsonNode & source);
 
 	/// loads CStructure's into town
-	void loadStructure(CTown &town, const JsonNode & source);
+	void loadStructure(CTown &town, const std::string & stringID, const JsonNode & source);
 	void loadStructures(CTown &town, const JsonNode & source);
 
 	/// loads town hall vector (hallSlots)
@@ -234,7 +249,7 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 
 	void loadPuzzle(CFaction & faction, const JsonNode & source);
 
-	CFaction * loadFromJson(const JsonNode & data);
+	CFaction * loadFromJson(const JsonNode & data, std::string identifier);
 
 public:
 	std::vector<ConstTransitivePtr<CFaction> > factions;
@@ -246,6 +261,8 @@ public:
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+
+	void afterLoadFinalization() override;
 
 	std::vector<bool> getDefaultAllowed() const override;
 

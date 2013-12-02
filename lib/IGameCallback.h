@@ -130,14 +130,12 @@ public:
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const; //heroes that can be recruited
 	std::string getTavernGossip(const CGObjectInstance * townOrTavern) const; 
 	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
-	std::set<BuildingID> getBuildingRequiments(const CGTownInstance *t, BuildingID ID);
 	virtual bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
 	const CTown *getNativeTown(PlayerColor color) const;
 
 	//from gs
 	const TeamState *getTeam(TeamID teamID) const;
 	const TeamState *getPlayerTeam(PlayerColor color) const;
-	std::set<BuildingID> getBuildingRequiments(const CGTownInstance *t, BuildingID ID) const;
 	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID) const;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 };
 

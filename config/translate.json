@@ -44,5 +44,15 @@
 			"label" : "Select resolution",
 			"help" : "Change in-game screen resolution."
 		}
+	},
+	"townHall" :
+	{
+		"missingBase" : "Base building %s must be built first"
+	},
+	"logicalExpressions" :
+	{
+		"anyOf"  :  "Any of the following:",
+		"allOf"  :  "All of the following:",
+		"noneOf" : "None of the following:"
 	}
 }

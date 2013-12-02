@@ -1238,7 +1238,7 @@ void CHallInterface::CBuildingBox::hover(bool on)
 	if(on)
 	{
 		std::string toPrint;
-		if(state==EBuildingState::PREREQUIRES)
+		if(state==EBuildingState::PREREQUIRES || state == EBuildingState::MISSING_BASE)
 			toPrint = CGI->generaltexth->hcommands[5];
 		else if(state==EBuildingState::CANT_BUILD_TODAY)
 			toPrint = CGI->generaltexth->allTexts[223];
@@ -1276,8 +1276,8 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	
 	state = LOCPLINT->cb->canBuildStructure(town,building->bid);
 	assert(state < EBuildingState::BUILDING_ERROR);
-	static int panelIndex[9] = { 3,  3,  3, 0, 0, 2, 2,  1, 2};
-	static int  iconIndex[9] = {-1, -1, -1, 0, 0, 1, 2, -1, 1};
+	static int panelIndex[10] = { 3,  3,  3, 0, 0, 2, 2,  1, 2, 2};
+	static int  iconIndex[10] = {-1, -1, -1, 0, 0, 1, 2, -1, 1, 1};
 
 	picture = new CAnimImage(town->town->clientInfo.buildingsIcons, building->bid, 0, 2, 2);
 	panel = new CAnimImage("TPTHBAR", panelIndex[state], 0,   1, 73);
@@ -1336,27 +1336,37 @@ void CBuildWindow::buyFunc()
 std::string CBuildWindow::getTextForState(int state)
 {
 	std::string ret;
-	if(state<7)
+	if(state < EBuildingState::ALLOWED)
 		ret =  CGI->generaltexth->hcommands[state];
 	switch (state)
 	{
-	case 4:	case 5: case 6:
-		ret.replace(ret.find_first_of("%s"),2,building->Name());
+	case EBuildingState::ALREADY_PRESENT:
+	case EBuildingState::CANT_BUILD_TODAY:
+	case EBuildingState::NO_RESOURCES:
+		ret.replace(ret.find_first_of("%s"), 2, building->Name());
 		break;
-	case 7:
+	case EBuildingState::ALLOWED:
 		return CGI->generaltexth->allTexts[219]; //all prereq. are met
-	case 8:
+	case EBuildingState::PREREQUIRES:
 		{
-			ret = CGI->generaltexth->allTexts[52];
-			std::set<BuildingID> reqs= LOCPLINT->cb->getBuildingRequiments(town, building->bid);
-
-			for(const auto & i : reqs)
+			auto toStr = [&](const BuildingID build) -> std::string
 			{
-				if (vstd::contains(town->builtBuildings, i))
-					continue;//skipping constructed buildings
-				ret+= town->town->buildings.at(i)->Name() + ", ";
-			}
-			ret.erase(ret.size()-2);
+				return town->town->buildings.at(build)->Name();
+			};
+			/*auto toBool = [&](const BuildingID build)
+			{
+				return town->hasBuilt(build);
+			};*/
+
+			ret = CGI->generaltexth->allTexts[52];
+			ret += "\n" + building->requirements.toString(toStr);
+			break;
+		}
+	case EBuildingState::MISSING_BASE:
+		{
+			std::string msg = CGI->generaltexth->localizedTexts["townHall"]["missingBase"].String();
+			ret = boost::str(boost::format(msg) % town->town->buildings.at(building->upgrade)->Name());
+			break;
 		}
 	}
 	return ret;

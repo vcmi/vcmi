@@ -934,18 +934,13 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 	if (t->hasBuilt(building)) //Already built? Shouldn't happen in general
 		return true;
 
-	std::set<BuildingID> toBuild = cb->getBuildingRequiments(t, building);
+	const CBuilding * buildPtr = t->town->buildings.at(building);
 
-	//erase all already built buildings
-	for (auto buildIter = toBuild.begin(); buildIter != toBuild.end();)
+	auto toBuild = buildPtr->requirements.getFulfillmentCandidates([&](const BuildingID & buildID)
 	{
-		if (t->hasBuilt(*buildIter))
-			toBuild.erase(buildIter++);
-		else
-			buildIter++;
-	}
-
-	toBuild.insert(building);
+		return t->hasBuilt(buildID);
+	});
+	toBuild.push_back(building);
 
 	for(BuildingID buildID : toBuild)
 	{
@@ -988,6 +983,17 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 					saving[i] = 1;
 			}
 			continue;
+		}
+		else if (canBuild == EBuildingState::PREREQUIRES)
+		{
+			// can happen when dependencies have their own missing dependencies
+			if (tryBuildStructure(t, buildID, maxDays - 1))
+				return true;
+		}
+		else if (canBuild == EBuildingState::MISSING_BASE)
+		{
+			if (tryBuildStructure(t, b->upgrade, maxDays - 1))
+				 return true;
 		}
 	}
 	return false;

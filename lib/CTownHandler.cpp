@@ -260,7 +260,31 @@ std::vector<JsonNode> CTownHandler::loadLegacyData(size_t dataSize)
 	return dest;
 }
 
-void CTownHandler::loadBuilding(CTown &town, const JsonNode & source)
+void CTownHandler::loadBuildingRequirements(CTown &town, CBuilding & building, const JsonNode & source)
+{
+	if (source.isNull())
+		return;
+	if (source.Vector()[0].getType() == JsonNode::DATA_FLOAT)
+	{
+		// MODS COMPATIBILITY
+		CBuilding::TRequired::OperatorAll required;
+
+		for(const JsonNode &building : source.Vector())
+			required.expressions.push_back(BuildingID(building.Float()));
+
+		building.requirements = CBuilding::TRequired(required);
+	}
+	else
+	{
+		BuildingRequirementsHelper hlp;
+		hlp.building = &building;
+		hlp.faction  = town.faction;
+		hlp.json = source;
+		requirementsToLoad.push_back(hlp);
+	}
+}
+
+void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const JsonNode & source)
 {
 	auto  ret = new CBuilding;
 
@@ -268,65 +292,71 @@ void CTownHandler::loadBuilding(CTown &town, const JsonNode & source)
 
 	ret->mode = static_cast<CBuilding::EBuildMode>(boost::find(modes, source["mode"].String()) - modes);
 
+	ret->identifier = stringID;
 	ret->town = &town;
 	ret->bid = BuildingID(source["id"].Float());
 	ret->name = source["name"].String();
 	ret->description = source["description"].String();
 	ret->resources = TResources(source["cost"]);
 
-	for(const JsonNode &building : source["requires"].Vector())
-		ret->requirements.insert(BuildingID(building.Float()));
+	loadBuildingRequirements(town, *ret, source["requires"]);
 
 	if (!source["upgrades"].isNull())
-	{
-		ret->requirements.insert(BuildingID(source["upgrades"].Float()));
 		ret->upgrade = BuildingID(source["upgrades"].Float());
-	}
 	else
 		ret->upgrade = BuildingID::NONE;
 
 	town.buildings[ret->bid] = ret;
+	VLC->modh->identifiers.registerObject(source.meta, "building." + town.faction->identifier, ret->identifier, ret->bid);
 }
 
 void CTownHandler::loadBuildings(CTown &town, const JsonNode & source)
 {
-	if (source.getType() == JsonNode::DATA_VECTOR)
+	for(auto &node : source.Struct())
 	{
-		for(auto &node : source.Vector())
+		if (!node.second.isNull())
 		{
-			if (!node.isNull())
-				loadBuilding(town, node);
-		}
-	}
-	else
-	{
-		for(auto &node : source.Struct())
-		{
-			if (!node.second.isNull())
-				loadBuilding(town, node.second);
+			loadBuilding(town, node.first, node.second);
 		}
 	}
 }
 
-void CTownHandler::loadStructure(CTown &town, const JsonNode & source)
+void CTownHandler::loadStructure(CTown &town, const std::string & stringID, const JsonNode & source)
 {
-	auto  ret = new CStructure;
+	auto ret = new CStructure;
 
-	if (source["id"].isNull())
+	//Note: MODS COMPATIBILITY CODE
+	ret->building = nullptr;
+	ret->buildable = nullptr;
+
+	VLC->modh->identifiers.tryRequestIdentifier( source.meta, "building." + town.faction->identifier, stringID, [=, &town](si32 identifier) mutable
 	{
-		ret->building = nullptr;
-		ret->buildable = nullptr;
+		ret->building = town.buildings[BuildingID(identifier)];
+	});
+
+	if (source["builds"].isNull())
+	{
+		VLC->modh->identifiers.tryRequestIdentifier( source.meta, "building." + town.faction->identifier, stringID, [=, &town](si32 identifier) mutable
+		{
+			ret->building = town.buildings[BuildingID(identifier)];
+		});
 	}
 	else
 	{
-		ret->building = town.buildings[BuildingID(source["id"].Float())];
-
-		if (source["builds"].isNull())
-			ret->buildable = ret->building;
-		else
+		if (source["builds"].getType() == JsonNode::DATA_FLOAT)
+		{
 			ret->buildable = town.buildings[BuildingID(source["builds"].Float())];
+		}
+		else
+		{
+			VLC->modh->identifiers.tryRequestIdentifier("building." + town.faction->identifier, source["builds"], [=, &town](si32 identifier) mutable
+			{
+				ret->buildable = town.buildings[BuildingID(identifier)];
+			});
+		}
 	}
 
+	ret->identifier = stringID;
 	ret->pos.x = source["x"].Float();
 	ret->pos.y = source["y"].Float();
 	ret->pos.z = source["z"].Float();
@@ -341,21 +371,10 @@ void CTownHandler::loadStructure(CTown &town, const JsonNode & source)
 
 void CTownHandler::loadStructures(CTown &town, const JsonNode & source)
 {
-	if (source.getType() == JsonNode::DATA_VECTOR)
+	for(auto &node : source.Struct())
 	{
-		for(auto &node : source.Vector())
-		{
-			if (!node.isNull())
-				loadStructure(town, node);
-		}
-	}
-	else
-	{
-		for(auto &node : source.Struct())
-		{
-			if (!node.second.isNull())
-				loadStructure(town, node.second);
-		}
+		if (!node.second.isNull())
+			loadStructure(town, node.first, node.second);
 	}
 }
 
@@ -564,11 +583,12 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-CFaction * CTownHandler::loadFromJson(const JsonNode &source)
+CFaction * CTownHandler::loadFromJson(const JsonNode &source, std::string identifier)
 {
 	auto  faction = new CFaction();
 
 	faction->name = source["name"].String();
+	faction->identifier = identifier;
 
 	VLC->modh->identifiers.requestIdentifier ("creature", source["commander"],
 		[=](si32 commanderID)
@@ -604,7 +624,7 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source)
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, name);
 	object->index = factions.size();
 	if (object->town)
 	{
@@ -622,7 +642,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, name);
 	object->index = index;
 	if (object->town)
 	{
@@ -637,6 +657,24 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 	factions[index] = object;
 
 	VLC->modh->identifiers.registerObject(scope, "faction", name, object->index);
+}
+
+void CTownHandler::afterLoadFinalization()
+{
+	initializeRequirements();
+}
+
+void CTownHandler::initializeRequirements()
+{
+	// must be done separately after all ID's are known
+	for (auto & requirement : requirementsToLoad)
+	{
+		requirement.building->requirements = CBuilding::TRequired(requirement.json, [&](const JsonNode & node)
+		{
+			return BuildingID(VLC->modh->identifiers.getIdentifier("building." + requirement.faction->identifier, node.Vector()[0]).get());
+		});
+	}
+	requirementsToLoad.clear();
 }
 
 std::vector<bool> CTownHandler::getDefaultAllowed() const

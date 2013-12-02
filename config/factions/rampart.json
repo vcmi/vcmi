@@ -184,7 +184,7 @@
 				"dwellingLvl3":   { "id" : 32, "requires" : [ 30 ] },
 				"dwellingLvl4":   { "id" : 33, "requires" : [ 32 ] },
 				"dwellingLvl5":   { "id" : 34, "requires" : [ 32 ] },
-				"dwellingLvl6":   { "id" : 35, "requires" : [ 33, 34 ] },
+				"dwellingLvl6":   { "id" : 35, "requires" : [ "allOf", [ "dwellingLvl3" ], [ "dwellingLvl4" ] ] },
 				"dwellingLvl7":   { "id" : 36, "requires" : [ 35, 1 ] },
 				"dwellingUpLvl1": { "id" : 37, "upgrades" : 30 },
 				"dwellingUpLvl2": { "id" : 38, "upgrades" : 31 },

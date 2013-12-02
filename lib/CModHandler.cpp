@@ -44,12 +44,13 @@ void CIdentifierStorage::checkIdentifier(std::string & ID)
 }
 
 CIdentifierStorage::ObjectCallback::ObjectCallback(std::string localScope, std::string remoteScope, std::string type,
-                                                   std::string name, const std::function<void(si32)> & callback):
+												   std::string name, const std::function<void(si32)> & callback, bool optional):
     localScope(localScope),
     remoteScope(remoteScope),
     type(type),
     name(name),
-    callback(callback)
+	callback(callback),
+	optional(optional)
 {}
 
 static std::pair<std::string, std::string> splitString(std::string input, char separator)
@@ -84,14 +85,14 @@ void CIdentifierStorage::requestIdentifier(std::string scope, std::string type, 
 {
 	auto pair = splitString(name, ':'); // remoteScope:name
 
-	requestIdentifier(ObjectCallback(scope, pair.first, type, pair.second, callback));
+	requestIdentifier(ObjectCallback(scope, pair.first, type, pair.second, callback, false));
 }
 
 void CIdentifierStorage::requestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback)
 {
 	auto pair = splitString(name.String(), ':'); // remoteScope:name
 
-	requestIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, callback));
+	requestIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, callback, false));
 }
 
 void CIdentifierStorage::requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback)
@@ -99,7 +100,34 @@ void CIdentifierStorage::requestIdentifier(const JsonNode & name, const std::fun
 	auto pair  = splitString(name.String(), ':'); // remoteScope:<type.name>
 	auto pair2 = splitString(pair.second,   '.'); // type.name
 
-	requestIdentifier(ObjectCallback(name.meta, pair.first, pair2.first, pair2.second, callback));
+	requestIdentifier(ObjectCallback(name.meta, pair.first, pair2.first, pair2.second, callback, false));
+}
+
+void CIdentifierStorage::tryRequestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback)
+{
+	auto pair = splitString(name, ':'); // remoteScope:name
+
+	requestIdentifier(ObjectCallback(scope, pair.first, type, pair.second, callback, true));
+}
+
+void CIdentifierStorage::tryRequestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback)
+{
+	auto pair = splitString(name.String(), ':'); // remoteScope:name
+
+	requestIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, callback, true));
+}
+
+boost::optional<si32> CIdentifierStorage::getIdentifier(std::string type, const JsonNode & name, bool silent)
+{
+	auto pair = splitString(name.String(), ':'); // remoteScope:name
+	auto idList = getIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, std::function<void(si32)>(), silent));
+
+	if (idList.size() == 1)
+		return idList.front().id;
+	if (!silent)
+		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " from mod " << type;
+
+	return boost::optional<si32>();
 }
 
 void CIdentifierStorage::registerObject(std::string scope, std::string type, std::string name, si32 identifier)
@@ -114,7 +142,7 @@ void CIdentifierStorage::registerObject(std::string scope, std::string type, std
 	registeredObjects.insert(std::make_pair(fullID, data));
 }
 
-bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
+std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getIdentifier(const ObjectCallback & request)
 {
 	std::set<std::string> allowedScopes;
 
@@ -141,35 +169,44 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
 	auto entries = registeredObjects.equal_range(fullID);
 	if (entries.first != entries.second)
 	{
-		size_t matchesFound = 0;
+		std::vector<ObjectData> locatedIDs;
 
 		for (auto it = entries.first; it != entries.second; it++)
 		{
 			if (vstd::contains(allowedScopes, it->second.scope))
 			{
-				if (matchesFound == 0) // trigger only once
-					request.callback(it->second.id);
-				matchesFound++;
+				locatedIDs.push_back(it->second);
 			}
 		}
-
-		if (matchesFound == 1)
-			return true; // success, only one matching ID
-
-		// error found. Try to generate some debug info
-		if (matchesFound == 0)
-			logGlobal->errorStream() << "Unknown identifier!";
-		else
-			logGlobal->errorStream() << "Ambiguous identifier request!";
-
-		 logGlobal->errorStream() << "Request for " << request.type << "." << request.name << " from mod " << request.localScope;
-
-		for (auto it = entries.first; it != entries.second; it++)
-		{
-			logGlobal->errorStream() << "\tID is available in mod " << it->second.scope;
-		}
+		return locatedIDs;
 	}
-	logGlobal->errorStream() << "Unknown identifier " << request.type << "." << request.name << " from mod " << request.localScope;
+	return std::vector<ObjectData>();
+}
+
+bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
+{
+	auto identifiers = getIdentifier(request);
+	if (identifiers.size() == 1) // normally resolved ID
+	{
+		request.callback(identifiers.front().id);
+		return true;
+	}
+
+	if (request.optional && identifiers.empty()) // failed to resolve optinal ID
+		return true;
+
+	// error found. Try to generate some debug info
+	if (identifiers.size() == 0)
+		logGlobal->errorStream() << "Unknown identifier!";
+	else
+		logGlobal->errorStream() << "Ambiguous identifier request!";
+
+	 logGlobal->errorStream() << "Request for " << request.type << "." << request.name << " from mod " << request.localScope;
+
+	for (auto id : identifiers)
+	{
+		logGlobal->errorStream() << "\tID is available in mod " << id.scope;
+	}
 	return false;
 }
 
