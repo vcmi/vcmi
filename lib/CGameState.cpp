@@ -2957,8 +2957,8 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 		else
 			ss.heroId = -1;
 
-		for(const JsonNode &n : n["heroPrimSkills"].Vector())
-			ss.heroPrimSkills.push_back(n.Float());
+		for(const JsonNode &entry : n["heroPrimSkills"].Vector())
+			ss.heroPrimSkills.push_back(entry.Float());
 
 		for(const JsonNode &skillNode : n["heroSecSkills"].Vector())
 		{

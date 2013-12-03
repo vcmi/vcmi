@@ -19,6 +19,7 @@
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/identity.hpp>
+#include <boost/mpl/for_each.hpp>
 #include <boost/any.hpp>
 
 #include "ConstTransitivePtr.h"
@@ -245,6 +246,30 @@ struct LoadWrong
 	static void invoke(Ser &s, const T &data)
 	{
 		throw std::runtime_error("Wrong load serialization call!");
+	}
+};
+
+template<typename Variant, typename Source>
+struct VariantLoaderHelper
+{
+	Source & source;
+	std::vector<std::function<Variant()>> funcs;
+
+	VariantLoaderHelper(Source & source):
+		source(source)
+	{
+		mpl::for_each<typename Variant::types>(std::ref(*this));
+	}
+
+	template<typename Type>
+	void operator()(Type)
+	{
+		funcs.push_back([&]() -> Variant
+		{
+			Type obj;
+			source >> obj;
+			return Variant(obj);
+		});
 	}
 };
 
@@ -1179,27 +1204,20 @@ public:
 		data.resize(length);
 		this->This()->read((void*)data.c_str(),length);
 	}
+
 	template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 	void loadSerializable(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> &data)
 	{
+		typedef boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> TVariant;
+
+		VariantLoaderHelper<TVariant, CISer> loader(*this);
+
 		si32 which;
 		*this >> which;
-		if(which == 0)
-		{
-			T0 obj;
-			*this >> obj;
-			data = obj;
-		}
-		else if(which == 1)
-		{
-			T1 obj;
-			*this >> obj;
-			data = obj;
-		}
-		else
-			assert(0);
-		//TODO write more if needed, general solution would be much longer
+		assert(which < loader.funcs.size());
+		data = loader.funcs.at(which)();
 	}
+
 	template <typename T>
 	void loadSerializable(boost::optional<T> & data)
 	{

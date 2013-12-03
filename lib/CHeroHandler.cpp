@@ -22,7 +22,7 @@
  *
  */
 
-SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possibles) const //picks secondary skill out from given possibilities
+SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possibles, std::minstd_rand & distr) const //picks secondary skill out from given possibilities
 {
 	int totalProb = 0;
 	for(auto & possible : possibles)
@@ -31,7 +31,7 @@ SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possi
 	}
 	if (totalProb != 0) // may trigger if set contains only banned skills (0 probability)
 	{
-		int ran = rand()%totalProb;
+		int ran = distr()%totalProb;
 		for(auto & possible : possibles)
 		{
 			ran -= secSkillProbability[possible];

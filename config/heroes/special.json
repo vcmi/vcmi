@@ -170,12 +170,15 @@
 		"army" :
 		[
 			{
+				"min" : 10, "max" : 20,
 				"creature" : "troglodyte"
 			},
 			{
+				"min" : 4, "max" : 7,
 				"creature" : "harpy"
 			},
 			{
+				"min" : 2, "max" : 3,
 				"creature" : "evilEye"
 			}
 		]
@@ -198,12 +201,15 @@
 		"army" :
 		[
 			{
+				"min" : 10, "max" : 20,
 				"creature" : "goblin"
 			},
 			{
+				"min" : 4, "max" : 7,
 				"creature" : "goblinWolfRider"
 			},
 			{
+				"min" : 2, "max" : 3,
 				"creature" : "orc"
 			}
 		]
@@ -228,12 +234,15 @@
 		"army" :
 		[
 			{
+				"min" : 10, "max" : 20,
 				"creature" : "imp"
 			},
 			{
+				"min" : 4, "max" : 7,
 				"creature" : "hellHound"
 			},
 			{
+				"min" : 2, "max" : 3,
 				"creature" : "hellHound"
 			}
 		]

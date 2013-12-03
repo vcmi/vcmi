@@ -350,7 +350,9 @@ public:
 
 	struct DLL_LINKAGE SecondarySkillsInfo
 	{
-		ui32 randomSeed; //skills are determined, initialized at map start
+		//skills are determined, initialized at map start
+		//FIXME: remove mutable?
+		mutable std::minstd_rand distribution;
 		ui8 magicSchoolCounter;
 		ui8 wisdomCounter;
 
@@ -359,7 +361,21 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & randomSeed & magicSchoolCounter & wisdomCounter;
+			h & magicSchoolCounter & wisdomCounter;
+			if (h.saving)
+			{
+				std::ostringstream stream;
+				stream << distribution;
+				std::string str = stream.str();
+				h & str;
+			}
+			else
+			{
+				std::string str;
+				h & str;
+				std::istringstream stream(str);
+				stream >> distribution;
+			}
 		}
 	} skillsInfo;
 

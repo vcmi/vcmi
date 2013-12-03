@@ -580,20 +580,6 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	if(vstd::contains(t->forbiddenBuildings, ID))
 		return EBuildingState::FORBIDDEN; //forbidden
 
-	auto buildTest = [&](const BuildingID & id)
-	{
-		return t->hasBuilt(id);
-	};
-
-	if(t->builded >= VLC->modh->settings.MAX_BUILDING_PER_TURN)
-		return EBuildingState::CANT_BUILD_TODAY; //building limit
-
-	if (!building->requirements.test(buildTest))
-		return EBuildingState::PREREQUIRES;
-
-	if (building->upgrade != BuildingID::NONE && !t->hasBuilt(building->upgrade))
-		return EBuildingState::MISSING_BASE;
-
 	if(ID == BuildingID::CAPITOL)
 	{
 		const PlayerState *ps = getPlayer(t->tempOwner);
@@ -612,9 +598,23 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	{
 		const TerrainTile *tile = getTile(t->bestLocation(), false);
 
-        if(!tile || tile->terType != ETerrainType::WATER)
+		if(!tile || tile->terType != ETerrainType::WATER)
 			return EBuildingState::NO_WATER; //lack of water
 	}
+
+	auto buildTest = [&](const BuildingID & id)
+	{
+		return t->hasBuilt(id);
+	};
+
+	if(t->builded >= VLC->modh->settings.MAX_BUILDING_PER_TURN)
+		return EBuildingState::CANT_BUILD_TODAY; //building limit
+
+	if (!building->requirements.test(buildTest))
+		return EBuildingState::PREREQUIRES;
+
+	if (building->upgrade != BuildingID::NONE && !t->hasBuilt(building->upgrade))
+		return EBuildingState::MISSING_BASE;
 
 	//checking resources
 	if(!building->resources.canBeAfforded(getPlayer(t->tempOwner)->resources))

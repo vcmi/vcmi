@@ -17,3 +17,9 @@ Description: Rewrite of the Heroes of Might and Magic 3 engine
  .
  In its current state it already supports maps of any sizes, higher
  resolutions and extended engine limits.
+
+Package: vcmi-dbg
+Architecture: any
+Section: debug
+Depends: vcmi (= ${binary:Version}),    ${misc:Depends} 
+Description: Debug symbols for vcmi package

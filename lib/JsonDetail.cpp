@@ -131,15 +131,22 @@ JsonNode JsonParser::parse(std::string fileName)
 {
 	JsonNode root;
 
-	if (!Unicode::isValidString(&input[0], input.size()))
-		error("Not a valid UTF-8 file", false);
+	if (input.size() == 0)
+	{
+		error("File is empty", false);
+	}
+	else
+	{
+		if (!Unicode::isValidString(&input[0], input.size()))
+			error("Not a valid UTF-8 file", false);
 
-	extractValue(root);
-	extractWhitespace(false);
+		extractValue(root);
+		extractWhitespace(false);
 
-	//Warn if there are any non-whitespace symbols left
-	if (pos < input.size())
-		error("Not all file was parsed!", true);
+		//Warn if there are any non-whitespace symbols left
+		if (pos < input.size())
+			error("Not all file was parsed!", true);
+	}
 
 	if (!errors.empty())
 	{

@@ -12,6 +12,21 @@
 		"specialties":
 		[
 			{ "type":10, "val": 1, "subtype": 5, "info": 0 }
+		],
+		"army" :
+		[
+			{
+				"min" : 10, "max" : 20,
+				"creature" : "gnoll"
+			},
+			{
+				"min" : 4, "max" : 7,
+				"creature" : "basilisk"
+			},
+			{
+				"min" : 2, "max" : 4,
+				"creature" : "serpentFly"
+			}
 		]
 	},
 	"drakon":

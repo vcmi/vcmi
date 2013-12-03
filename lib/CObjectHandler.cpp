@@ -1016,7 +1016,7 @@ void CGHeroInstance::initObj()
 	if(!type)
 		initHero(); //TODO: set up everything for prison before specialties are configured
 
-	skillsInfo.randomSeed = rand();
+	skillsInfo.distribution.seed(rand());
 	skillsInfo.resetMagicSchoolCounter();
 	skillsInfo.resetWisdomCounter();
 
@@ -1661,14 +1661,19 @@ ArtBearer::ArtBearer CGHeroInstance::bearerType() const
 std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 {
 	std::vector<SecondarySkill> obligatorySkills; //hero is offered magic school or wisdom if possible
+	if (!skillsInfo.wisdomCounter)
+	{
+		if (cb->isAllowed(2, SecondarySkill::WISDOM) && !getSecSkillLevel(SecondarySkill::WISDOM))
+			obligatorySkills.push_back(SecondarySkill::WISDOM);
+	}
 	if (!skillsInfo.magicSchoolCounter)
 	{
 		std::vector<SecondarySkill> ss;
 		ss += SecondarySkill::FIRE_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC, SecondarySkill::EARTH_MAGIC;
 
-		auto rng = [=](ui32 val)-> ui32
+		auto rng = [=](ui32 val) mutable -> ui32
 		{
-			return skillsInfo.randomSeed % val; //must be determined
+			return skillsInfo.distribution() % val; //must be determined
 		};
 		std::random_shuffle(ss.begin(), ss.end(), rng);
 
@@ -1681,11 +1686,6 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 			}
 		}
 	}
-	if (!skillsInfo.wisdomCounter)
-	{
-		if (cb->isAllowed(2, SecondarySkill::WISDOM) && !getSecSkillLevel(SecondarySkill::WISDOM))
-			obligatorySkills.push_back(SecondarySkill::WISDOM);
-	}
 
 	std::vector<SecondarySkill> skills;
 	//picking sec. skills for choice
@@ -1696,7 +1696,7 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 
 	for(auto & elem : secSkills)
 	{
-		if(elem.second < 3)
+		if(elem.second < SecSkillLevel::EXPERT)
 			basicAndAdv.insert(elem.first);
 		else
 			expert.insert(elem.first);
@@ -1709,35 +1709,41 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 		expert.erase (s);
 	}
 
-	//first offered skill
-	if (canLearnSkill() && obligatorySkills.size()) //offer always if possible
+	//first offered skill:
+	// 1) give obligatory skill
+	// 2) give any other new skill
+	// 3) upgrade existing
+	if (canLearnSkill() && obligatorySkills.size() > 0)
 	{
 		skills.push_back (obligatorySkills[0]);
 	}
+	else if(none.size() && canLearnSkill()) //hero have free skill slot
+	{
+		skills.push_back(type->heroClass->chooseSecSkill(none, skillsInfo.distribution)); //new skill
+	}
 	else if(!basicAndAdv.empty())
 	{
-		SecondarySkill s = type->heroClass->chooseSecSkill(basicAndAdv);//upgrade existing
+		skills.push_back(type->heroClass->chooseSecSkill(basicAndAdv, skillsInfo.distribution)); //upgrade existing
+	}
+
+	//second offered skill:
+	//1) upgrade existing
+	//2) give obligatory skill
+	//3) give any other new skill
+	if(!basicAndAdv.empty())
+	{
+		SecondarySkill s = type->heroClass->chooseSecSkill(basicAndAdv, skillsInfo.distribution);//upgrade existing
 		skills.push_back(s);
 		basicAndAdv.erase(s);
 	}
-	else if(none.size() && canLearnSkill())
-	{
-		skills.push_back(type->heroClass->chooseSecSkill(none)); //give new skill
-		none.erase(skills.back());
-	}
-
-	//second offered skill
-	if (canLearnSkill() && obligatorySkills.size() > 1)
+	else if (canLearnSkill() && obligatorySkills.size() > 1)
 	{
 		skills.push_back (obligatorySkills[1]);
 	}
-	else if(none.size() && canLearnSkill()) //hero have free skill slot
+	else if(none.size() && canLearnSkill())
 	{
-		skills.push_back(type->heroClass->chooseSecSkill(none)); //new skill
-	}
-	else if(!basicAndAdv.empty())
-	{
-		skills.push_back(type->heroClass->chooseSecSkill(basicAndAdv)); //upgrade existing
+		skills.push_back(type->heroClass->chooseSecSkill(none, skillsInfo.distribution)); //give new skill
+		none.erase(skills.back());
 	}
 
 	return skills;
