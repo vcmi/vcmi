@@ -7,7 +7,7 @@ namespace LogicalExpressionDetail
 {
 	/// class that defines required types for logical expressions
 	template<typename ContainedClass>
-	class DLL_LINKAGE ExpressionBase
+	class ExpressionBase
 	{
 		/// Possible logical operations, mostly needed to create different types for boost::variant
 		enum EOperations
@@ -35,7 +35,7 @@ namespace LogicalExpressionDetail
 
 		/// Variant element, contains list of expressions to which operation "tag" should be applied
 		template<EOperations tag>
-		class DLL_LINKAGE Element
+		class Element
 		{
 		public:
 			Element() {}
@@ -55,7 +55,7 @@ namespace LogicalExpressionDetail
 
 	/// Visitor to test result (true/false) of the expression
 	template <typename ContainedClass>
-	class DLL_LINKAGE TestVisitor : public boost::static_visitor<bool>
+	class TestVisitor : public boost::static_visitor<bool>
 	{
 		typedef ExpressionBase<ContainedClass> Base;
 
@@ -97,7 +97,7 @@ namespace LogicalExpressionDetail
 	/// visitor that is trying to generates candidates that must be fulfilled
 	/// to complete this expression
 	template <typename ContainedClass>
-	class DLL_LINKAGE CandidatesVisitor : public boost::static_visitor<std::vector<ContainedClass> >
+	class CandidatesVisitor : public boost::static_visitor<std::vector<ContainedClass> >
 	{
 		typedef ExpressionBase<ContainedClass> Base;
 		typedef std::vector<typename Base::Value> TValueList;
@@ -147,7 +147,7 @@ namespace LogicalExpressionDetail
 
 	/// Json parser for expressions
 	template <typename ContainedClass>
-	class DLL_LINKAGE Reader
+	class Reader
 	{
 		typedef ExpressionBase<ContainedClass> Base;
 
@@ -189,7 +189,7 @@ namespace LogicalExpressionDetail
 
 	/// Prints expression in human-readable format
 	template <typename ContainedClass>
-	class DLL_LINKAGE Printer : public boost::static_visitor<std::string>
+	class Printer : public boost::static_visitor<std::string>
 	{
 		typedef ExpressionBase<ContainedClass> Base;
 
@@ -254,7 +254,7 @@ namespace LogicalExpressionDetail
 /// Class for evaluation of logical expressions generated in runtime
 ///
 template<typename ContainedClass>
-class DLL_LINKAGE LogicalExpression
+class LogicalExpression
 {
 	typedef LogicalExpressionDetail::ExpressionBase<ContainedClass> Base;
 public:
