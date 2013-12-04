@@ -22,16 +22,12 @@
 			"format" : "imageFile"
 		},
 		"builds": {
-			"type":"number",
+			"type" : "string",
 			"description" : ""
 		},
 		"hidden": {
 			"type":"boolean",
 			"description" : "If upgrade, this building will replace parent animation but will not alter its behaviour"
-		},
-		"id": {
-			"type":"number",
-			"description" : "Numeric identifier of building"
 		},
 		"x": {
 			"type":"number",

@@ -2134,7 +2134,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 
 	if (level<0 || level >=GameConstants::CREATURES_PER_TOWN)
 		return ret;
-	if (!hasBuilt(BuildingID(BuildingID::DWELL_FIRST+level)))
+	if (creatures[level].second.empty())
 		return ret; //no dwelling
 
 	const CCreature *creature = VLC->creh->creatures[creatures[level].second.back()];

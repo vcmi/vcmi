@@ -2402,7 +2402,7 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 			SetAvailableCreatures ssi;
 			ssi.tid = t->id;
 			ssi.creatures = t->creatures;
-			if (buildingID <= BuildingID::DWELL_LAST)
+			if (ssi.creatures[level].second.empty()) // first creature in a dwelling
 				ssi.creatures[level].first = crea->growth;
 			ssi.creatures[level].second.push_back(crea->idNumber);
 			sendAndApply(&ssi);

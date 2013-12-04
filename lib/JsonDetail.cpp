@@ -603,7 +603,7 @@ namespace
 			//Local reference. Turn it into more easy to handle remote ref
 			if (boost::algorithm::starts_with(URI, "#"))
 				URI = validator.usedSchemas.back() + URI;
-			return check(JsonUtils::getSchema(URI), data, validator);
+			return check(URI, data, validator);
 		}
 
 		std::string formatCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)

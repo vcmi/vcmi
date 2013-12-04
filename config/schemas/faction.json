@@ -220,7 +220,7 @@
 						"items" : {
 							"type" : "array",
 							"description" : "List of buildings available in one slot",
-							"items" : { "type" : "number" }
+							"items" : { "type" : "string" }
 						}
 					}
 				},

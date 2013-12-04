@@ -715,25 +715,9 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source)
 		case JsonNode::DATA_BOOL:
 		case JsonNode::DATA_FLOAT:
 		case JsonNode::DATA_STRING:
-		{
-			std::swap(dest, source);
-			break;
-		}
 		case JsonNode::DATA_VECTOR:
 		{
-			size_t total = std::min(source.Vector().size(), dest.Vector().size());
-
-			for (size_t i=0; i< total; i++)
-				merge(dest.Vector()[i], source.Vector()[i]);
-
-			if (dest.Vector().size() < source.Vector().size())
-			{
-				//reserve place and *move* remaining data from source to dest
-				source.Vector().reserve(source.Vector().size() + dest.Vector().size());
-
-				std::move(source.Vector().begin() + total, source.Vector().end(),
-				          std::back_inserter(dest.Vector()));
-			}
+			std::swap(dest, source);
 			break;
 		}
 		case JsonNode::DATA_STRUCT:

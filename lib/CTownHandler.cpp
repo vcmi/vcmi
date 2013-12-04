@@ -302,7 +302,18 @@ void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const
 	loadBuildingRequirements(town, *ret, source["requires"]);
 
 	if (!source["upgrades"].isNull())
-		ret->upgrade = BuildingID(source["upgrades"].Float());
+	{
+		//MODS COMPATIBILITY
+		if (source["upgrades"].getType() == JsonNode::DATA_FLOAT)
+			ret->upgrade = BuildingID(source["upgrades"].Float());
+		else
+		{
+			VLC->modh->identifiers.requestIdentifier("building." + town.faction->identifier, source["upgrades"], [=](si32 identifier)
+			{
+				ret->upgrade = BuildingID(identifier);
+			});
+		}
+	}
 	else
 		ret->upgrade = BuildingID::NONE;
 
@@ -380,21 +391,39 @@ void CTownHandler::loadStructures(CTown &town, const JsonNode & source)
 
 void CTownHandler::loadTownHall(CTown &town, const JsonNode & source)
 {
-	for(const JsonNode &row : source.Vector())
+	auto & dstSlots = town.clientInfo.hallSlots;
+	auto & srcSlots = source.Vector();
+	dstSlots.resize(srcSlots.size());
+
+	for(size_t i=0; i<dstSlots.size(); i++)
 	{
-		std::vector< std::vector<BuildingID> > hallRow;
+		auto & dstRow = dstSlots[i];
+		auto & srcRow = srcSlots[i].Vector();
+		dstRow.resize(srcRow.size());
 
-		for(const JsonNode &box : row.Vector())
+		for(size_t j=0; j < dstRow.size(); j++)
 		{
-			std::vector<BuildingID> hallBox;
+			auto & dstBox = dstRow[j];
+			auto & srcBox = srcRow[j].Vector();
+			dstBox.resize(srcBox.size());
 
-			for(const JsonNode &value : box.Vector())
+			for(size_t k=0; k<dstBox.size(); k++)
 			{
-				hallBox.push_back(BuildingID(value.Float()));
+				auto & dst = dstBox[k];
+				auto & src = srcBox[k];
+
+				//MODS COMPATIBILITY
+				if (src.getType() == JsonNode::DATA_FLOAT)
+					dst = BuildingID(src.Float());
+				else
+				{
+					VLC->modh->identifiers.requestIdentifier("building." + town.faction->identifier, src, [&](si32 identifier)
+					{
+						dst = BuildingID(identifier);
+					});
+				}
 			}
-			hallRow.push_back(hallBox);
 		}
-		town.clientInfo.hallSlots.push_back(hallRow);
 	}
 }
 
