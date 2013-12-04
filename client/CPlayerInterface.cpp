@@ -1109,6 +1109,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 void CPlayerInterface::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	//FIXME: wait for dialog? Magi hut/eye would benefit from this but may break other areas
 	for(auto & po : pos)
 		adventureInt->minimap.showTile(po);
 	if(!pos.empty())
@@ -1571,14 +1572,9 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 	adventureInt->centerOn (pos);
 	if(focusTime)
 	{
-		bool activeAdv = (GH.topInt() == adventureInt  &&  adventureInt->isActive());
-		if(activeAdv)
-			adventureInt->deactivate();
-
+		GH.totalRedraw();
+		CSDL_Ext::update(screen);
 		SDL_Delay(focusTime);
-
-		if(activeAdv)
-			adventureInt->activate();
 	}
 }
 

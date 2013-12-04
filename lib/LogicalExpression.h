@@ -185,7 +185,7 @@ namespace LogicalExpressionDetail
 		}
 	};
 
-	std::string getTextForOperator(std::string operation);
+	std::string DLL_LINKAGE getTextForOperator(std::string operation);
 
 	/// Prints expression in human-readable format
 	template <typename ContainedClass>

@@ -2287,12 +2287,17 @@ struct statsHLP
 
 void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 {
+	auto playerInactive = [&](PlayerColor color)
+	{
+		return color == PlayerColor::NEUTRAL || players.at(color).status != EPlayerStatus::INGAME;
+	};
+
 #define FILL_FIELD(FIELD, VAL_GETTER) \
 	{ \
 		std::vector< std::pair< PlayerColor, si64 > > stats; \
 		for(auto g = players.begin(); g != players.end(); ++g) \
 		{ \
-			if(g->second.color == PlayerColor::NEUTRAL) \
+			if(playerInactive(g->second.color)) \
 				continue; \
 			std::pair< PlayerColor, si64 > stat; \
 			stat.first = g->second.color; \
@@ -2304,7 +2309,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 
 	for(auto & elem : players)
 	{
-		if(elem.second.color != PlayerColor::NEUTRAL)
+		if(!playerInactive(elem.second.color))
 			tgi.playerColors.push_back(elem.second.color);
 	}
 
@@ -2317,7 +2322,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		//best hero's portrait
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
-			if(g->second.color == PlayerColor::NEUTRAL)
+			if(playerInactive(g->second.color))
 				continue;
 			const CGHeroInstance * best = statsHLP::findBestHero(this, g->second.color);
 			InfoAboutHero iah;
@@ -2362,7 +2367,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	{
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
-			if(g->second.color == PlayerColor::NEUTRAL) //do nothing for neutral player
+			if(playerInactive(g->second.color)) //do nothing for neutral player
 				continue;
 			if(g->second.human)
 			{
@@ -2380,7 +2385,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		//best creatures belonging to player (highest AI value)
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
-			if(g->second.color == PlayerColor::NEUTRAL) //do nothing for neutral player
+			if(playerInactive(g->second.color)) //do nothing for neutral player
 				continue;
 			int bestCre = -1; //best creature's ID
 			for(auto & elem : g->second.heroes)
