@@ -119,7 +119,7 @@ public:
 	void unregisterGameInterface(shared_ptr<IGameEventsReceiver> gameEvents);
 	void unregisterBattleInterface(shared_ptr<IBattleEventsReceiver> battleEvents);
 
-	void unregisterMyInterface(); //stops delivering information about game events to that player's interface -> can be called ONLY after victory/loss
+	void unregisterAllInterfaces(); //stops delivering information about game events to player interfaces -> can be called ONLY after victory/loss
 
 //commands
 	bool moveHero(const CGHeroInstance *h, int3 dst); //dst must be free, neighbouring tile (this function can move hero only by one tile)

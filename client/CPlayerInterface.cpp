@@ -2107,37 +2107,40 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 
 	if(player == playerID)
 	{
-		if(victoryLossCheckResult.loss())
-			showInfoDialog(CGI->generaltexth->allTexts[95]);
-// 		else
-// 			showInfoDialog("Placeholder message: you won!");
+		if(victoryLossCheckResult.loss()) showInfoDialog(CGI->generaltexth->allTexts[95]);
+
 		if(LOCPLINT == this)
 		{
 			GH.curInt = this; //waiting for dialogs requires this to get events
 			waitForAllDialogs(); //wait till all dialogs are displayed and closed
 		}
 
-		howManyPeople--;
-		if(!howManyPeople //all human players eliminated
-			&& cb->getStartInfo()->mode != StartInfo::CAMPAIGN) //campaigns are handled in proposeNextMission
+		--howManyPeople;
+
+		if(cb->getStartInfo()->mode != StartInfo::CAMPAIGN) //campaigns are handled in proposeNextMission
 		{
-			if(adventureInt)
+			if(howManyPeople == 0) //all human players eliminated
 			{
-				terminate_cond.setn(true);
-				adventureInt->deactivate();
-				if(GH.topInt() == adventureInt)
-					GH.popInt(adventureInt);
-				delete adventureInt;
-				adventureInt = nullptr;
+				if(adventureInt)
+				{
+					terminate_cond.setn(true);
+					adventureInt->deactivate();
+					if(GH.topInt() == adventureInt)
+						GH.popInt(adventureInt);
+					delete adventureInt;
+					adventureInt = nullptr;
+				}
+
+				requestReturningToMainMenu();
 			}
-			requestReturningToMainMenu();
+			else if(victoryLossCheckResult.victory() && LOCPLINT == this) // end game if current human player has won
+			{
+				requestReturningToMainMenu();
+			}
 		}
-		if(GH.curInt == this)
-			GH.curInt = nullptr;
 
-		cb->unregisterMyInterface(); //we already won/lost, nothing else matters
+		if(GH.curInt == this) GH.curInt = nullptr;
 	}
-
 	else
 	{
 		if(victoryLossCheckResult.loss() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME) //enemy has lost
@@ -2293,17 +2296,17 @@ void CPlayerInterface::acceptTurn()
 		components.push_back(Component(Component::FLAG, playerColor.getNum(), 0, 0));
 		MetaString text;
 
-		auto daysWithoutCastle = cb->getPlayer(playerColor)->daysWithoutCastle;
-		if(daysWithoutCastle == 6)
-		{
-			text.addTxt(MetaString::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
-			text.addReplacement(MetaString::COLOR, playerColor.getNum());
-		}
-		else
+		auto daysWithoutCastle = *cb->getPlayer(playerColor)->daysWithoutCastle;
+		if (daysWithoutCastle < 6)
 		{
 			text.addTxt(MetaString::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
 			text.addReplacement(MetaString::COLOR, playerColor.getNum());
 			text.addReplacement(7 - daysWithoutCastle);
+		}
+		else if(daysWithoutCastle == 6)
+		{
+			text.addTxt(MetaString::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
+			text.addReplacement(MetaString::COLOR, playerColor.getNum());
 		}
 
 		showInfoDialogAndWait(components, text);
@@ -2434,6 +2437,7 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 void CPlayerInterface::requestReturningToMainMenu()
 {
 	sendCustomEvent(RETURN_TO_MAIN_MENU);
+	cb->unregisterAllInterfaces();
 }
 
 void CPlayerInterface::requestStoppingClient()

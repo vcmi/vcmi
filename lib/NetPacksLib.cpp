@@ -966,15 +966,6 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
-	//count days without town
-	for( auto i=gs->players.begin() ; i!=gs->players.end(); i++)
-	{
-		if(i->second.towns.size() || gs->day == 1)
-			i->second.daysWithoutCastle = 0;
-		else
-			i->second.daysWithoutCastle++;
-	}
-
 	for(CGTownInstance* t : gs->map->towns)
 		t->builded = 0;
 }
@@ -1595,6 +1586,18 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState *gs)
 DLL_LINKAGE void YourTurn::applyGs( CGameState *gs )
 {
 	gs->currentPlayer = player;
+
+	//count days without town
+	auto & playerState = gs->players[player];
+	if(playerState.towns.empty())
+	{
+		if(playerState.daysWithoutCastle) ++(*playerState.daysWithoutCastle);
+		else playerState.daysWithoutCastle = 0;
+	}
+	else
+	{
+		playerState.daysWithoutCastle = boost::none;
+	}
 }
 
 DLL_LINKAGE void SetSelection::applyGs( CGameState *gs )

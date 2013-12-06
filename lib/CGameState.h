@@ -176,7 +176,7 @@ public:
 
 	bool enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
 	EPlayerStatus::EStatus status;
-	ui8 daysWithoutCastle;
+	boost::optional<ui8> daysWithoutCastle;
 
 	PlayerState();
 	std::string nodeName() const override;

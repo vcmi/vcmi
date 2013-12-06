@@ -2438,8 +2438,10 @@ EVictoryLossCheckResult CGameState::checkForLoss( PlayerColor player ) const
 		}
 	}
 
-	if(!p->towns.size() && p->daysWithoutCastle >= 7)
+	if(p->towns.empty() && p->daysWithoutCastle && *p->daysWithoutCastle >= 6 && currentPlayer != player)
+	{
 		return EVictoryLossCheckResult::LOSS_STANDARD_TOWNS_AND_TIME_OVER;
+	}
 
 	return EVictoryLossCheckResult::NO_VICTORY_OR_LOSS;
 }
@@ -2752,7 +2754,7 @@ void CGPath::convert( ui8 mode )
 
 PlayerState::PlayerState()
  : color(-1), currentSelection(0xffffffff), enteredWinningCheatCode(0),
-   enteredLosingCheatCode(0), status(EPlayerStatus::INGAME), daysWithoutCastle(0)
+   enteredLosingCheatCode(0), status(EPlayerStatus::INGAME)
 {
 	setNodeType(PLAYER);
 }

@@ -206,6 +206,7 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 	}
 
 	playerint.clear();
+	battleints.clear();
 	callbacks.clear();
 	battleCallbacks.clear();
     logNetwork->infoStream() << "Deleted playerInts.";

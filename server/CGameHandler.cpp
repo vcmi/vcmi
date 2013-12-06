@@ -1413,8 +1413,6 @@ void CGameHandler::newTurn()
 			elem->newTurn();
 	}
 
-	checkVictoryLossConditionsForAll();
-
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
 }
 void CGameHandler::run(bool resume)
@@ -1492,6 +1490,8 @@ void CGameHandler::run(bool resume)
 				YourTurn yt;
 				yt.player = i->first;
 				applyAndSend(&yt);
+
+				checkVictoryLossConditionsForAll();
 
 				//wait till turn is done
 				boost::unique_lock<boost::mutex> lock(states.mx);
