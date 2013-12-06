@@ -141,10 +141,11 @@ void CMapLoaderH3M::init()
 void CMapLoaderH3M::readHeader()
 {
 	// Check map for validity
-	if(inputStream->getSize() < 50)
-	{
-		throw std::runtime_error("Corrupted map file.");
-	}
+	// Note: disabled, causes decompression of the entire file ( = SLOW)
+	//if(inputStream->getSize() < 50)
+	//{
+	//	throw std::runtime_error("Corrupted map file.");
+	//}
 
 	// Map version
 	mapHeader->version = (EMapFormat::EMapFormat)(reader.readUInt32());
