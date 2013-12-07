@@ -846,7 +846,7 @@ static void listenForEvents()
 			(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
 		{
 			handleQuit();
-			break;
+			continue;
 		}
 		else if(LOCPLINT && ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
 		{
@@ -949,21 +949,34 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 
 void handleQuit()
 {
-	if (client)
-		client->endGame();
-	if (mainGUIThread) 
+	auto quitApplication = []()
 	{
-		GH.terminate = true;
-		mainGUIThread->join();
-		delete mainGUIThread;
-		mainGUIThread = nullptr;
-	}
-	delete console;
-	console = nullptr;
-	boost::this_thread::sleep(boost::posix_time::milliseconds(750));
-	if(!gNoGUI)
-		SDL_Quit();
+		if(client) client->endGame();
 
-	std::cout << "Ending...\n";
-	exit(0);
+		if(mainGUIThread)
+		{
+			GH.terminate = true;
+			if(mainGUIThread->get_id() != boost::this_thread::get_id()) mainGUIThread->join();
+			delete mainGUIThread;
+			mainGUIThread = nullptr;
+		}
+		delete console;
+		console = nullptr;
+		boost::this_thread::sleep(boost::posix_time::milliseconds(750));
+		if(!gNoGUI)
+			SDL_Quit();
+
+		std::cout << "Ending...\n";
+		exit(0);
+	};
+
+	if(client && LOCPLINT)
+	{
+		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, 0);
+	}
+	else
+	{
+		quitApplication();
+	}
 }
