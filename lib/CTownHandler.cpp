@@ -37,7 +37,9 @@ BuildingID CBuilding::getBase() const
 {
 	const CBuilding * build = this;
 	while (build->upgrade >= 0)
+	{
 		build = build->town->buildings.at(build->upgrade);
+	}
 
 	return build->bid;
 }
@@ -312,6 +314,13 @@ void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const
 			{
 				ret->upgrade = BuildingID(identifier);
 			});
+		}
+
+		// building id and upgrades can't be the same
+		if(ret->upgrade == ret->bid)
+		{
+			throw std::runtime_error(boost::str(boost::format("Building with ID '%s' of town '%s' can't be an upgrade of the same building.") %
+												stringID % town.faction->name));
 		}
 	}
 	else
