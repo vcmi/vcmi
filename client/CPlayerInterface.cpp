@@ -2117,7 +2117,13 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 
 		--howManyPeople;
 
-		if(cb->getStartInfo()->mode != StartInfo::CAMPAIGN) //campaigns are handled in proposeNextMission
+		if(cb->getStartInfo()->mode == StartInfo::CAMPAIGN)
+		{
+			// if you lose the campaign go back to the main menu
+			// campaign wins are handled in proposeNextMission
+			if(victoryLossCheckResult.loss()) requestReturningToMainMenu();
+		}
+		else
 		{
 			if(howManyPeople == 0) //all human players eliminated
 			{
