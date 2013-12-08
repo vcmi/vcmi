@@ -506,11 +506,24 @@ void CModListView::installMods(QStringList archives)
 		modNames.push_back(modName);
 	}
 
+	QStringList modsToEnable;
+
 	// disable mod(s), to properly recalculate dependencies, if changed
 	for (QString mod : boost::adaptors::reverse(modNames))
 	{
-		if (modModel->getMod(mod).isInstalled())
-			manager->disableMod(mod);
+		CModEntry entry = modModel->getMod(mod);
+		if (entry.isInstalled())
+		{
+			// enable mod if installed and enabled
+			if (entry.isEnabled())
+				modsToEnable.push_back(mod);
+		}
+		else
+		{
+			// enable mod if m
+			if (settings["launcher"]["enableInstalledMods"].Bool())
+				modsToEnable.push_back(mod);
+		}
 	}
 
 	// uninstall old version of mod, if installed

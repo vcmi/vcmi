@@ -369,7 +369,7 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 		}
 		else
 		{
-			VLC->modh->identifiers.tryRequestIdentifier("building." + town.faction->identifier, source["builds"], [=, &town](si32 identifier) mutable
+			VLC->modh->identifiers.requestIdentifier("building." + town.faction->identifier, source["builds"], [=, &town](si32 identifier) mutable
 			{
 				ret->buildable = town.buildings[BuildingID(identifier)];
 			});

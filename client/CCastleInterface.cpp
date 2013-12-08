@@ -168,27 +168,29 @@ void CBuildingRect::show(SDL_Surface * to)
 				blitAtLoc(border,0,0,to);
 			return;
 		}
-		// key colors in glowing border
-		SDL_Color c1 = {200, 200, 200, 255};
-		SDL_Color c2 = {120, 100,  60, 255};
-		SDL_Color c3 = {200, 180, 110, 255};
+		if (border->format->palette != nullptr)
+		{
+			// key colors in glowing border
+			SDL_Color c1 = {200, 200, 200, 255};
+			SDL_Color c2 = {120, 100,  60, 255};
+			SDL_Color c3 = {200, 180, 110, 255};
 
-		ui32 colorID = SDL_MapRGB(border->format, c3.r, c3.g, c3.b);
-		SDL_Color oldColor = border->format->palette->colors[colorID];
-		SDL_Color newColor;
+			ui32 colorID = SDL_MapRGB(border->format, c3.r, c3.g, c3.b);
+			SDL_Color oldColor = border->format->palette->colors[colorID];
+			SDL_Color newColor;
 
-		if (stateCounter < S2_WHITE_B)
-			newColor = multiplyColors(c1, c2, static_cast<double>(stateCounter % stageDelay) / stageDelay);
-		else
-		if (stateCounter < S3_YELLOW_B)
-			newColor = multiplyColors(c2, c3, static_cast<double>(stateCounter % stageDelay) / stageDelay);
-		else
-			newColor = oldColor;
+			if (stateCounter < S2_WHITE_B)
+				newColor = multiplyColors(c1, c2, static_cast<double>(stateCounter % stageDelay) / stageDelay);
+			else
+			if (stateCounter < S3_YELLOW_B)
+				newColor = multiplyColors(c2, c3, static_cast<double>(stateCounter % stageDelay) / stageDelay);
+			else
+				newColor = oldColor;
 
-		SDL_SetColors(border, &newColor, colorID, 1);
-		blitAtLoc(border,0,0,to);
-		SDL_SetColors(border, &oldColor, colorID, 1);
-
+			SDL_SetColors(border, &newColor, colorID, 1);
+			blitAtLoc(border,0,0,to);
+			SDL_SetColors(border, &oldColor, colorID, 1);
+		}
 	}
 	if (stateCounter < BUILDED)
 		stateCounter++;
