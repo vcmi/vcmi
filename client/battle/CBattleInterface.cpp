@@ -1156,14 +1156,12 @@ bool CBattleInterface::isTileAttackable(const BattleHex & number) const
 
 bool CBattleInterface::isCatapultAttackable(BattleHex hex) const
 {
-	if(!siegeH  ||  tacticsMode)
-		return false;
+	if(!siegeH || tacticsMode) return false;
 
-	int wallUnder = curInt->cb->battleHexToWallPart(hex);
-	if(wallUnder < 0) //invalid or indestructible
-		return false;
+	auto wallPart = curInt->cb->battleHexToWallPart(hex);
+	if(!curInt->cb->isWallPartPotentiallyAttackable(wallPart)) return false;
 
-	auto state = curInt->cb->battleGetWallState(wallUnder);
+	auto state = curInt->cb->battleGetWallState(static_cast<int>(wallPart));
 	return state != EWallState::DESTROYED && state != EWallState::NONE;
 }
 

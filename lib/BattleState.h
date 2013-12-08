@@ -33,7 +33,7 @@ struct BattleStackAttacked;
 //only for use in BattleInfo
 struct DLL_LINKAGE SiegeInfo
 {
-	std::array<si8, EWallParts::PARTS_COUNT> wallState;
+	std::array<si8, EWallPart::PARTS_COUNT> wallState;
 
 	// return EWallState decreased by value of damage points
 	static EWallState::EWallState applyDamage(EWallState::EWallState state, unsigned int value)

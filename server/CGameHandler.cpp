@@ -3476,21 +3476,21 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case Battle::CATAPULT:
 		{
-			auto getCatapultHitChance = [&](EWallParts::EWallParts part, const CHeroHandler::SBallisticsLevelInfo & sbi) -> int
+			auto getCatapultHitChance = [&](EWallPart::EWallPart part, const CHeroHandler::SBallisticsLevelInfo & sbi) -> int
 			{
 				switch(part)
 				{
-				case EWallParts::GATE:
+				case EWallPart::GATE:
 					return sbi.gate;
-				case EWallParts::KEEP:
+				case EWallPart::KEEP:
 					return sbi.keep;
-				case EWallParts::BOTTOM_TOWER:
-				case EWallParts::UPPER_TOWER:
+				case EWallPart::BOTTOM_TOWER:
+				case EWallPart::UPPER_TOWER:
 					return sbi.tower;
-				case EWallParts::BOTTOM_WALL:
-				case EWallParts::BELOW_GATE:
-				case EWallParts::OVER_GATE:
-				case EWallParts::UPPER_WALL:
+				case EWallPart::BOTTOM_WALL:
+				case EWallPart::BELOW_GATE:
+				case EWallPart::OVER_GATE:
+				case EWallPart::UPPER_WALL:
 					return sbi.wall;
 				default:
 					return 0;
@@ -3504,8 +3504,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics.at(attackingHero->getSecSkillLevel(SecondarySkill::BALLISTICS));
 
-			EWallParts::EWallParts desiredTarget = gs->curB->battleHexToWallPart(ba.destinationTile);
-			if(desiredTarget < 0)
+			auto wallPart = gs->curB->battleHexToWallPart(ba.destinationTile);
+			if(!gs->curB->isWallPartPotentiallyAttackable(wallPart))
 			{
 				complain("catapult tried to attack non-catapultable hex!");
 				break;
@@ -3514,7 +3514,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			//in successive iterations damage is dealt but not yet subtracted from wall's HPs
 			auto &currentHP = gs->curB->si.wallState;
 
-			if (currentHP.at(desiredTarget) == EWallState::DESTROYED  ||  currentHP.at(desiredTarget) == EWallState::NONE)
+			if (currentHP.at(wallPart) == EWallState::DESTROYED  ||  currentHP.at(wallPart) == EWallState::NONE)
 			{
 				complain("catapult tried to attack already destroyed wall part!");
 				break;
@@ -3523,7 +3523,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			for(int g=0; g<sbi.shots; ++g)
 			{
 				bool hitSuccessfull = false;
-				EWallParts::EWallParts attackedPart = desiredTarget;
+				auto attackedPart = wallPart;
 
 				do // catapult has chance to attack desired target. Othervice - attacks randomly
 				{
@@ -3535,12 +3535,12 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 					}
 					else // select new target
 					{
-						std::vector<EWallParts::EWallParts> allowedTargets;
+						std::vector<EWallPart::EWallPart> allowedTargets;
 						for (size_t i=0; i< currentHP.size(); i++)
 						{
 							if (currentHP.at(i) != EWallState::DESTROYED &&
 							    currentHP.at(i) != EWallState::NONE)
-								allowedTargets.push_back(EWallParts::EWallParts(i));
+								allowedTargets.push_back(EWallPart::EWallPart(i));
 						}
 						if (allowedTargets.empty())
 							break;
@@ -3569,32 +3569,30 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				{
 					if(dmgRand <= dmgChance[damage])
 					{
-						currentHP[attackedPart] = SiegeInfo::applyDamage(EWallState::EWallState(currentHP.at(attackedPart)), damage);
-
 						attack.damageDealt = damage;
 						break;
 					}
 				}
 				// attacked tile may have changed - update destination
-				attack.destinationTile = gs->curB->wallPartToBattleHex(EWallParts::EWallParts(attack.attackedPart));
+				attack.destinationTile = gs->curB->wallPartToBattleHex(EWallPart::EWallPart(attack.attackedPart));
 
 				logGlobal->traceStream() << "Catapult attacks " << (int)attack.attackedPart
 				                         << " dealing " << (int)attack.damageDealt << " damage";
 
 				//removing creatures in turrets / keep if one is destroyed
-				if(attack.damageDealt > 0 && (attackedPart == EWallParts::KEEP ||
-					attackedPart == EWallParts::BOTTOM_TOWER || attackedPart == EWallParts::UPPER_TOWER))
+				if(attack.damageDealt > 0 && (attackedPart == EWallPart::KEEP ||
+					attackedPart == EWallPart::BOTTOM_TOWER || attackedPart == EWallPart::UPPER_TOWER))
 				{
 					int posRemove = -1;
 					switch(attackedPart)
 					{
-					case EWallParts::KEEP:
+					case EWallPart::KEEP:
 						posRemove = -2;
 						break;
-					case EWallParts::BOTTOM_TOWER:
+					case EWallPart::BOTTOM_TOWER:
 						posRemove = -3;
 						break;
-					case EWallParts::UPPER_TOWER:
+					case EWallPart::UPPER_TOWER:
 						posRemove = -4;
 						break;
 					}
@@ -5975,19 +5973,25 @@ void CGameHandler::runBattle()
 
 			if(next->getCreature()->idNumber == CreatureID::CATAPULT && (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::BALLISTICS) == 0)) //catapult, hero has no ballistics
 			{
-				BattleAction attack;
-				static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
+				const auto & attackableBattleHexes = curB.getAttackableBattleHexes();
 
-				attack.destinationTile = wallHexes[ rand()%ARRAY_COUNT(wallHexes) ];
-				attack.actionType = Battle::CATAPULT;
-				attack.additionalInfo = 0;
-				attack.side = !next->attackerOwned;
-				attack.stackNumber = next->ID;
+				if(!attackableBattleHexes.empty())
+				{
+					BattleAction attack;
+					attack.destinationTile = attackableBattleHexes[rand() % attackableBattleHexes.size()];
+					attack.actionType = Battle::CATAPULT;
+					attack.additionalInfo = 0;
+					attack.side = !next->attackerOwned;
+					attack.stackNumber = next->ID;
 
-				makeAutomaticAction(next, attack);
+					makeAutomaticAction(next, attack);
+				}
+				else
+				{
+					makeStackDoNothing(next);
+				}
 				continue;
 			}
-
 
 			if(next->getCreature()->idNumber == CreatureID::FIRST_AID_TENT)
 			{

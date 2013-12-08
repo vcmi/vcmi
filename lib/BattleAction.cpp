@@ -98,6 +98,6 @@ std::ostream & operator<<(std::ostream & os, const BattleAction & ba)
 	std::stringstream actionTypeStream;
 	actionTypeStream << ba.actionType;
 
-	return os << boost::str(boost::format("[BattleAction: side '%d', stackNumber '%d', actionType '%s', destinationTile '%s', additionalInfo '%d', selectedStack '%d']")
+	return os << boost::str(boost::format("{BattleAction: side '%d', stackNumber '%d', actionType '%s', destinationTile '%s', additionalInfo '%d', selectedStack '%d'}")
 			% static_cast<int>(ba.side) % ba.stackNumber % actionTypeStream.str() % ba.destinationTile % ba.additionalInfo % ba.selectedStack);
 }

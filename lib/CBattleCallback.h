@@ -170,7 +170,6 @@ public:
 	std::vector<shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
 	TStacks battleGetAllStacks(bool includeTurrets = false) const; //returns all stacks, alive or dead or undead or mechanical :)
 	bool battleHasNativeStack(ui8 side) const;
-	si8 battleGetWallState(int partOfWall) const; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
 	int battleGetMoatDmg() const; //what dmg unit will suffer if ending turn in the moat
 	const CGTownInstance * battleGetDefendedTown() const; //returns defended town if current battle is a siege, nullptr instead
 	const CStack *battleActiveStack() const;
@@ -185,6 +184,10 @@ public:
 	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //depracated for players callback, easy to get wrong
 	const CArmedInstance * battleGetArmyObject(ui8 side) const; 
 	InfoAboutHero battleGetHeroInfo(ui8 side) const;
+
+	// for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall,
+	// [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
+	si8 battleGetWallState(int partOfWall) const;
 
 	//helpers
 	TStacks battleAliveStacks() const;
@@ -251,8 +254,10 @@ public:
 	si8 battleHasWallPenalty(const CStack * stack, BattleHex destHex) const; //checks if given stack has wall penalty
 	si8 battleHasWallPenalty(const IBonusBearer *bonusBearer, BattleHex shooterPosition, BattleHex destHex) const; //checks if given stack has wall penalty
 
-	BattleHex wallPartToBattleHex(EWallParts::EWallParts part) const;
-	EWallParts::EWallParts battleHexToWallPart(BattleHex hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
+	BattleHex wallPartToBattleHex(EWallPart::EWallPart part) const;
+	EWallPart::EWallPart battleHexToWallPart(BattleHex hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
+	bool isWallPartPotentiallyAttackable(EWallPart::EWallPart wallPart) const; // returns true if the wall part is potentially attackable (independent of wall state), false if not
+	std::vector<BattleHex> getAttackableBattleHexes() const;
 
 	//*** MAGIC 
 	si8 battleMaxSpellLevel() const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned

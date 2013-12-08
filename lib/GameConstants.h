@@ -439,13 +439,13 @@ namespace ECommander
 	const int MAX_SKILL_LEVEL = 5;
 }
 
-namespace EWallParts
+namespace EWallPart
 {
-	enum EWallParts
+	enum EWallPart
 	{
-		INDESTRUCTIBLE_PART = -2, INVALID = -1,
+		INDESTRUCTIBLE_PART_OF_GATE = -3, INDESTRUCTIBLE_PART = -2, INVALID = -1,
 		KEEP = 0, BOTTOM_TOWER, BOTTOM_WALL, BELOW_GATE, OVER_GATE, UPPER_WALL, UPPER_TOWER, GATE,
-		PARTS_COUNT
+		PARTS_COUNT /* This constant SHOULD always stay as the last item in the enum. */
 	};
 }
 

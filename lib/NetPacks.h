@@ -48,9 +48,11 @@ struct CPack
 	{
         logNetwork->errorStream() << "CPack serialized... this should not happen!";
 	}
-	void applyGs(CGameState *gs)
-	{};
+	void applyGs(CGameState *gs) { }
+	virtual std::string toString() const { return boost::str(boost::format("{CPack: type '%d'}") % type); }
 };
+
+std::ostream & operator<<(std::ostream & out, const CPack * pack);
 
 struct CPackForClient : public CPack
 {
@@ -1678,6 +1680,8 @@ struct CatapultAttack : public CPackForClient //3015
 		ui8 attackedPart;
 		ui8 damageDealt;
 
+		DLL_LINKAGE std::string toString() const;
+
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & destinationTile & attackedPart & damageDealt;
@@ -1688,9 +1692,9 @@ struct CatapultAttack : public CPackForClient //3015
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
+	DLL_LINKAGE std::string toString() const override;
 
 	std::vector< AttackInfo > attackedParts;
-
 	int attacker; //if -1, then a spell caused this
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1698,6 +1702,8 @@ struct CatapultAttack : public CPackForClient //3015
 		h & attackedParts & attacker;
 	}
 };
+
+DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CatapultAttack::AttackInfo & attackInfo);
 
 struct BattleStacksRemoved : public CPackForClient //3016
 {

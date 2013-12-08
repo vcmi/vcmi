@@ -386,13 +386,13 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 
 		if (!town->hasBuilt(BuildingID::CITADEL))
 		{
-			curB->si.wallState[EWallParts::KEEP] = EWallState::NONE;
+			curB->si.wallState[EWallPart::KEEP] = EWallState::NONE;
 		}
 
 		if (!town->hasBuilt(BuildingID::CASTLE))
 		{
-			curB->si.wallState[EWallParts::UPPER_TOWER] = EWallState::NONE;
-			curB->si.wallState[EWallParts::BOTTOM_TOWER] = EWallState::NONE;
+			curB->si.wallState[EWallPart::UPPER_TOWER] = EWallState::NONE;
+			curB->si.wallState[EWallPart::BOTTOM_TOWER] = EWallState::NONE;
 		}
 	}
 

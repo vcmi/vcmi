@@ -226,14 +226,23 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 /* VCMI standard library */
 /* ---------------------------------------------------------------------------- */
 template<typename T>
-std::ostream &operator<<(std::ostream &out, const boost::optional<T> &opt)
+std::ostream & operator<<(std::ostream & out, const boost::optional<T> & opt)
 {
-	if(opt)
-		return out << *opt;
-	else
-		return out<< "empty";
+	if(opt) return out << *opt;
+	else return out << "empty";
 }
 
+template<typename T>
+std::ostream & operator<<(std::ostream & out, const std::vector<T> & container)
+{
+	out << "[";
+	for(auto it = container.begin(); it != container.end(); ++it)
+	{
+		out << *it;
+		if(std::prev(container.end()) != it) out << ", ";
+	}
+	return out << "]";
+}
 
 namespace vstd
 {

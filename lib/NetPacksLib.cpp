@@ -35,6 +35,11 @@
 #undef max
 #endif
 
+std::ostream & operator<<(std::ostream & out, const CPack * pack)
+{
+	return out << pack->toString();
+}
+
 DLL_LINKAGE void SetResource::applyGs( CGameState *gs )
 {
 	assert(player < PlayerColor::PLAYER_LIMIT);
@@ -1506,6 +1511,22 @@ DLL_LINKAGE void CatapultAttack::applyGs( CGameState *gs )
 			        SiegeInfo::applyDamage(EWallState::EWallState(gs->curB->si.wallState[it.attackedPart]), it.damageDealt);
 		}
 	}
+}
+
+DLL_LINKAGE std::string CatapultAttack::AttackInfo::toString() const
+{
+	return boost::str(boost::format("{AttackInfo: destinationTile '%d', attackedPart '%d', damageDealt '%d'}")
+					  % destinationTile % static_cast<int>(attackedPart) % static_cast<int>(damageDealt));
+}
+
+DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CatapultAttack::AttackInfo & attackInfo)
+{
+	return out << attackInfo.toString();
+}
+
+DLL_LINKAGE std::string CatapultAttack::toString() const
+{
+	return boost::str(boost::format("{CatapultAttack: attackedParts '%s', attacker '%d'}") % attackedParts % attacker);
 }
 
 DLL_LINKAGE void BattleStacksRemoved::applyGs( CGameState *gs )

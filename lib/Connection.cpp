@@ -224,7 +224,7 @@ CPack * CConnection::retreivePack()
 	boost::unique_lock<boost::mutex> lock(*rmx);
     logNetwork->traceStream() << "Listening... ";
 	*this >> ret;
-    logNetwork->traceStream() << "\treceived server message of type " << typeid(*ret).name();
+	logNetwork->traceStream() << "\treceived server message of type " << typeid(*ret).name() << ", data: " << ret;
 	return ret;
 }
 
