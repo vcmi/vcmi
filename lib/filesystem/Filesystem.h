@@ -11,9 +11,10 @@
  */
 
 #include "CInputStream.h"
-#include "AdapterLoaders.h"
+#include "ISimpleResourceLoader.h"
 #include "ResourceID.h"
 
+class CFilesystemList;
 class JsonNode;
 
 /// Helper class that allows generation of a ISimpleResourceLoader entry out of Json config(s)
@@ -59,9 +60,9 @@ public:
 	 *
 	 * @return Returns an instance of resource loader.
 	 */
-	static CFilesystemList * get();
-	static CFilesystemList * getInitial();
-	static CFilesystemList * getCoreData();
+	static ISimpleResourceLoader * get();
+	static ISimpleResourceLoader * get(std::string identifier);
+	static ISimpleResourceLoader * getInitial();
 
 	/**
 	 * Creates instance of initial resource loader.
@@ -84,12 +85,19 @@ public:
 	static void load(const std::string & fsConfigURI);
 
 	/**
+	 * @brief addFilesystem adds filesystem into global resource loader
+	 * @param identifier name of this loader by which it can be retrieved later
+	 * @param loader resource loader to add
+	 */
+	static void addFilesystem(const std::string & identifier, ISimpleResourceLoader * loader);
+
+	/**
 	 * @brief createModFileSystem - creates filesystem out of config file
 	 * @param prefix - prefix for all paths in filesystem config
 	 * @param fsConfig - configuration to load
 	 * @return generated filesystem that contains all config entries
 	 */
-	static CFilesystemList * createFileSystem(const std::string &prefix, const JsonNode & fsConfig);
+	static ISimpleResourceLoader * createFileSystem(const std::string &prefix, const JsonNode & fsConfig);
 
 	/**
 	 * Checks all subfolders of MODS directory for presence of mods
@@ -98,7 +106,7 @@ public:
 	static std::vector<std::string> getAvailableMods();
 private:
 	/** Instance of resource loader */
+	static std::map<std::string, ISimpleResourceLoader*> knownLoaders;
 	static CFilesystemList * resourceLoader;
 	static CFilesystemList * initialLoader;
-	static CFilesystemList * coreDataLoader;
 };

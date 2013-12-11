@@ -16,7 +16,7 @@
 
 CFilesystemList * CResourceHandler::resourceLoader = nullptr;
 CFilesystemList * CResourceHandler::initialLoader = nullptr;
-CFilesystemList * CResourceHandler::coreDataLoader = nullptr;
+std::map<std::string, ISimpleResourceLoader*> CResourceHandler::knownLoaders = std::map<std::string, ISimpleResourceLoader*>();
 
 CFilesystemGenerator::CFilesystemGenerator(std::string prefix):
 	filesystem(new CFilesystemList()),
@@ -151,22 +151,21 @@ void CResourceHandler::initialize()
 	recurseInDir("MODS", 2); // look for mods. Depth 2 is required for now but won't cause speed issues if no mods present
 }
 
-CFilesystemList * CResourceHandler::get()
+ISimpleResourceLoader * CResourceHandler::get()
 {
 	assert(resourceLoader);
 	return resourceLoader;
 }
 
-CFilesystemList * CResourceHandler::getInitial()
+ISimpleResourceLoader * CResourceHandler::get(std::string identifier)
+{
+	return knownLoaders.at(identifier);
+}
+
+ISimpleResourceLoader * CResourceHandler::getInitial()
 {
 	assert(initialLoader);
 	return initialLoader;
-}
-
-CFilesystemList * CResourceHandler::getCoreData()
-{
-	assert(coreDataLoader);
-	return coreDataLoader;
 }
 
 void CResourceHandler::load(const std::string &fsConfigURI)
@@ -175,16 +174,21 @@ void CResourceHandler::load(const std::string &fsConfigURI)
 
 	const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
 
-	coreDataLoader = createFileSystem("", fsConfig["filesystem"]);
 	resourceLoader = new CFilesystemList();
-	resourceLoader->addLoader(coreDataLoader, false);
+	addFilesystem("core", createFileSystem("", fsConfig["filesystem"]));
 
 	// hardcoded system-specific path, may not be inside any of data directories
 	resourceLoader->addLoader(new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath()), true);
 	resourceLoader->addLoader(new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath()), true);
 }
 
-CFilesystemList * CResourceHandler::createFileSystem(const std::string & prefix, const JsonNode &fsConfig)
+void CResourceHandler::addFilesystem(const std::string & identifier, ISimpleResourceLoader * loader)
+{
+	resourceLoader->addLoader(loader, false);
+	knownLoaders[identifier] = loader;
+}
+
+ISimpleResourceLoader * CResourceHandler::createFileSystem(const std::string & prefix, const JsonNode &fsConfig)
 {
 	CFilesystemGenerator generator(prefix);
 	generator.loadConfig(fsConfig);

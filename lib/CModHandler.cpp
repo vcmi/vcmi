@@ -699,16 +699,12 @@ static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoade
 
 void CModHandler::loadModFilesystems()
 {
-	coreMod.updateChecksum(calculateModChecksum("core", CResourceHandler::getCoreData()));
+	coreMod.updateChecksum(calculateModChecksum("core", CResourceHandler::get("core")));
 
 	for(std::string & modName : activeMods)
 	{
 		CModInfo & mod = allMods[modName];
-		auto filesystem = genModFilesystem(modName, mod.config);
-
-		CResourceHandler::get()->addLoader(filesystem, false);
-		logGlobal->traceStream() << "Generating checksum for " << modName;
-		mod.updateChecksum(calculateModChecksum(modName, filesystem));
+		CResourceHandler::addFilesystem(modName, genModFilesystem(modName, mod.config));
 	}
 }
 
@@ -730,6 +726,12 @@ void CModHandler::load()
 
 	CContentHandler content;
 	logGlobal->infoStream() << "\tInitializing content handler: " << timer.getDiff() << " ms";
+
+	for(const TModID & modName : activeMods)
+	{
+		logGlobal->traceStream() << "Generating checksum for " << modName;
+		allMods[modName].updateChecksum(calculateModChecksum(modName, CResourceHandler::get(modName)));
+	}
 
 	// first - load virtual "core" mod that contains all data
 	// TODO? move all data into real mods? RoE, AB, SoD, WoG

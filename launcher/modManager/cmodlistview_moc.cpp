@@ -536,11 +536,8 @@ void CModListView::installMods(QStringList archives)
 	for (int i=0; i<modNames.size(); i++)
 		manager->installMod(modNames[i], archives[i]);
 
-	if (settings["launcher"]["enableInstalledMods"].Bool())
-	{
-		for (QString mod : modNames)
-			manager->enableMod(mod);
-	}
+	for (QString mod : modsToEnable)
+		manager->enableMod(mod);
 
 	for (QString archive : archives)
 		QFile::remove(archive);

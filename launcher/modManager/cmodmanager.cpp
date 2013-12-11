@@ -212,8 +212,10 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	if (!QFile(archivePath).exists())
 		return addError(modname, "Mod archive is missing");
 
-	if (QDir(destDir + modname).exists()) // FIXME: recheck wog/vcmi data behavior - they have bits of data in our trunk
-		return addError(modname, "Mod with such name is already installed");
+	// FIXME: recheck wog/vcmi data behavior - they have bits of data in our trunk
+	// FIXME: breaks when there is Era mod with same name
+	//if (QDir(destDir + modname).exists())
+	//	return addError(modname, "Mod with such name is already installed");
 
 	if (localMods.contains(modname))
 		return addError(modname, "Mod with such name is already installed");
