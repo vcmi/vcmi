@@ -74,6 +74,10 @@ if(ENABLE_TEST)
         find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
 endif()
 
+if(APPLE)
+	set(Boost_LIBRARIES ${Boost_LIBRARIES} libiconv.dylib) # Our prebuilt boost_locale for OS X depends on iconv
+endif()
+
 if(NOT WIN32)
 	set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
 	find_package(FFmpeg REQUIRED)
