@@ -5,6 +5,7 @@
 #include "CGeneralTextHandler.h"
 #include "JsonNode.h"
 #include "StringConstants.h"
+#include "CCreatureHandler.h"
 #include "CModHandler.h"
 #include "CHeroHandler.h"
 #include "CArtHandler.h"
@@ -628,11 +629,19 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source, std::string identi
 	faction->name = source["name"].String();
 	faction->identifier = identifier;
 
-	VLC->modh->identifiers.requestIdentifier ("creature", source["commander"],
+	//FIXME: MODS COMPATIBILITY
+	if (!source["commander"].isNull())
+	{
+		VLC->modh->identifiers.requestIdentifier ("creature", source["commander"],
 		[=](si32 commanderID)
 		{
-			faction->commander = CreatureID(commanderID);
+			for (auto ptr : VLC->heroh->classes.heroClasses)
+			{
+				if (ptr->commander == nullptr && ptr->faction == faction->index)
+					ptr->commander = VLC->creh->creatures[commanderID];
+			}
 		});
+	}
 
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();

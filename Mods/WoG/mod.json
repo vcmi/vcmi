@@ -17,9 +17,9 @@
 		"config/wog/creatures.json"
 	],
 
-	"factions" : 
+	"heroClasses" : 
 	[
-		"config/wog/factions.json"
+		"config/wog/heroClasses.json"
 	],
 
 	"filesystem":

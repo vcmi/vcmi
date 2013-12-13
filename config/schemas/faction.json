@@ -33,7 +33,7 @@
 	"description": "Json format for defining new faction (aka towns) in VCMI",
 	"required" : [ "name", "alignment", "creatureBackground" ],
 	"dependencies" : {
-		"town" : [ "puzzleMap", "commander" ]
+		"town" : [ "puzzleMap" ]
 	},
 	
 	"additionalProperties" : false,
@@ -50,10 +50,6 @@
 			"type":"string",
 			"enum" : [ "good", "neutral", "evil" ],
 			"description": "Town alignment, good, neutral or evil"
-		},
-		"commander": {
-			"type":"string",
-			"description": "Identifier of creature that is used as commander by heroes"
 		},
 		"creatureBackground": {
 			"type":"object",

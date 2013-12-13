@@ -7,6 +7,7 @@
 #include "JsonNode.h"
 #include "StringConstants.h"
 #include "BattleHex.h"
+#include "CCreatureHandler.h"
 #include "CModHandler.h"
 #include "CTownHandler.h"
 #include "CObjectHandler.h" //for hero specialty
@@ -45,7 +46,7 @@ SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possi
 
 bool CHeroClass::isMagicHero() const
 {
-	return id % 2; // 0 - might, 1 - magic
+	return affinity == MAGIC;
 }
 
 EAlignment::EAlignment CHeroClass::getAlignment() const
@@ -88,6 +89,8 @@ bool CObstacleInfo::isAppropriate(ETerrainType terrainType, int specialBattlefie
 
 CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 {
+	std::string affinityStr[2] = { "might", "magic" };
+
 	auto  heroClass = new CHeroClass();
 
 	heroClass->imageBattleFemale = node["animation"]["battle"]["female"].String();
@@ -96,6 +99,9 @@ CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 	heroClass->imageMapMale      = node["animation"]["map"]["male"].String();
 
 	heroClass->name = node["name"].String();
+	heroClass->affinity = vstd::find_pos(affinityStr, node["affinity"].String());
+	if (heroClass->affinity >= 2) //FIXME: MODS COMPATIBILITY
+		heroClass->affinity = 0;
 
 	for(const std::string & pSkill : PrimarySkill::names)
 	{
@@ -107,6 +113,16 @@ CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 	for(const std::string & secSkill : NSecondarySkill::names)
 	{
 		heroClass->secSkillProbability.push_back(node["secondarySkills"][secSkill].Float());
+	}
+
+	//FIXME: MODS COMPATIBILITY
+	if (!node["commander"].isNull())
+	{
+		VLC->modh->identifiers.requestIdentifier ("creature", node["commander"],
+		[=](si32 commanderID)
+		{
+			heroClass->commander = VLC->creh->creatures[commanderID];
+		});
 	}
 
 	heroClass->defaultTavernChance = node["defaultTavern"].Float();

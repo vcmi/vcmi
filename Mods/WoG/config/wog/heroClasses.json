@@ -1,0 +1,74 @@
+{
+        "core:knight" :
+        {
+                "commander" : "paladin1"
+        },
+        "core:cleric" :
+        {
+                "commander" : "paladin1"
+        },
+        "core:planeswalker" :
+        {
+                "commander" : "astralSpirit1"
+        },
+        "core:elementalist" :
+        {
+                "commander" : "astralSpirit1"
+        },
+        "core:warlock" :
+        {
+                "commander" : "brute1"
+        },
+        "core:overlord" :
+        {
+                "commander" : "brute1"
+        },
+        "core:beastmaster" :
+        {
+                "commander" : "shaman1"
+        },
+        "core:witch" :
+        {
+                "commander" : "shaman1"
+        },
+        "core:demoniac" :
+        {
+                "commander" : "succubus1"
+        },
+        "core:heretic" :
+        {
+                "commander" : "succubus1"
+        },
+        "core:deathknight" :
+        {
+                "commander" : "soulEater1"
+        },
+        "core:necromancer" :
+        {
+                "commander" : "soulEater1"
+        },
+        "core:ranger" :
+        {
+                "commander" : "hierophant1"
+        },
+        "core:druid" :
+        {
+                "commander" : "hierophant1"
+        },
+        "core:barbarian" :
+        {
+                "commander" : "ogreLeader1"
+        },
+        "core:battlemage" :
+        {
+                "commander" : "ogreLeader1"
+        },
+        "core:alchemist" :
+        {
+                "commander" : "templeGuardian1"
+        },
+        "core:wizard" :
+        {
+                "commander" : "templeGuardian1"
+        }
+}

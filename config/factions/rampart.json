@@ -4,7 +4,6 @@
 		"index" : 1,
 		"nativeTerrain": "grass",
 		"alignment" : "good",
-		"commander" : "grandElf",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASRAM",

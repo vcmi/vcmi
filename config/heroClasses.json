@@ -4,6 +4,8 @@
 		"index": 0,
 		"faction" : "castle",
 		"defaultTavern" : 5,
+		"affinity" : "might",
+		"commander" : "zealot",
 		"animation":
 		{
 			"battle" : { "male" : "CH00.DEF",  "female" : "CH01.DEF" },
@@ -15,6 +17,8 @@
 		"index": 1,
 		"faction" : "castle",
 		"defaultTavern" : 5,
+		"affinity" : "magic",
+		"commander" : "zealot",
 		"animation":
 		{
 			"battle" : { "male" : "CH00.DEF",  "female" : "CH01.DEF" },
@@ -26,6 +30,8 @@
 		"index": 2,
 		"faction" : "rampart",
 		"defaultTavern" : 5,
+		"affinity" : "might",
+		"commander" : "grandElf",
 		"animation":
 		{
 			"battle" : { "male" : "CH02.DEF",  "female" : "CH03.DEF" },
@@ -37,6 +43,8 @@
 		"index": 3,
 		"faction" : "rampart",
 		"defaultTavern" : 5,
+		"affinity" : "magic",
+		"commander" : "grandElf",
 		"animation":
 		{
 			"battle" : { "male" : "CH02.DEF",  "female" : "CH03.DEF" },
@@ -48,6 +56,8 @@
 		"index": 4,
 		"faction" : "tower",
 		"defaultTavern" : 5,
+		"affinity" : "might",
+		"commander" : "archMage",
 		"animation":
 		{
 			"battle" : { "male" : "CH05.DEF",  "female" : "CH04.DEF" },
@@ -59,6 +69,8 @@
 		"index": 5,
 		"faction" : "tower",
 		"defaultTavern" : 5,
+		"affinity" : "magic",
+		"commander" : "archMage",
 		"animation":
 		{
 			"battle" : { "male" : "CH05.DEF",  "female" : "CH04.DEF" },
@@ -70,6 +82,8 @@
 		"index": 6,
 		"faction" : "inferno",
 		"defaultTavern" : 5,
+		"affinity" : "might",
+		"commander" : "magog",
 		"animation":
 		{
 			"battle" : { "male" : "CH06.DEF",  "female" : "CH07.DEF" },
@@ -81,6 +95,8 @@
 		"index": 7,
 		"faction" : "inferno",
 		"defaultTavern" : 5,
+		"affinity" : "magic",
+		"commander" : "magog",
 		"animation":
 		{
 			"battle" : { "male" : "CH06.DEF",  "female" : "CH07.DEF" },
@@ -92,6 +108,8 @@
 		"index": 8,
 		"faction" : "necropolis",
 		"defaultTavern" : 5,
+		"affinity" : "might",
+		"commander" : "powerLich",
 		"animation":
 		{
 			"battle" : { "male" : "CH08.DEF",  "female" : "CH09.DEF" },
@@ -103,6 +121,8 @@
 		"index": 9,
 		"faction" : "necropolis",
 		"defaultTavern" : 5,
+		"affinity" : "magic",
+		"commander" : "powerLich",
 		"animation":
 		{
 			"battle" : { "male" : "CH08.DEF",  "female" : "CH09.DEF" },
@@ -114,6 +134,8 @@
 		"index": 10,
 		"faction" : "dungeon",
 		"defaultTavern" : 5,
+		"affinity" : "might",
+		"commander" : "medusaQueen",
 		"animation":
 		{
 			"battle" : { "male" : "CH010.DEF", "female" : "CH11.DEF" },
@@ -125,6 +147,8 @@
 		"index": 11,
 		"faction" : "dungeon",
 		"defaultTavern" : 5,
+		"affinity" : "magic",
+		"commander" : "medusaQueen",
 		"animation":
 		{
 			"battle" : { "male" : "CH010.DEF", "female" : "CH11.DEF" },
@@ -136,6 +160,8 @@
 		"index": 12,
 		"faction" : "stronghold",
 		"defaultTavern" : 5,
+		"affinity" : "might",
+		"commander" : "orcChieftain",
 		"animation":
 		{
 			"battle" : { "male" : "CH013.DEF", "female" : "CH012.DEF" },
@@ -147,6 +173,8 @@
 		"index": 13,
 		"faction" : "stronghold",
 		"defaultTavern" : 5,
+		"affinity" : "magic",
+		"commander" : "orcChieftain",
 		"animation":
 		{
 			"battle" : { "male" : "CH013.DEF", "female" : "CH012.DEF" },
@@ -158,6 +186,8 @@
 		"index": 14,
 		"faction" : "fortress",
 		"defaultTavern" : 5,
+		"affinity" : "might",
+		"commander" : "lizardWarrior",
 		"animation":
 		{
 			"battle" : { "male" : "CH014.DEF", "female" : "CH015.DEF" },
@@ -169,6 +199,8 @@
 		"index": 15,
 		"faction" : "fortress",
 		"defaultTavern" : 5,
+		"affinity" : "magic",
+		"commander" : "lizardWarrior",
 		"animation":
 		{
 			"battle" : { "male" : "CH014.DEF", "female" : "CH015.DEF" },
@@ -180,9 +212,11 @@
 		"index": 16,
 		"faction" : "conflux",
 		"defaultTavern" : 5,
+		"affinity" : "might",
+		"commander" : "iceElemental",
 		"animation":
 		{
-			"battle" : { "male" : "CH16.DEF",  "female" : "CH17.DEF" },
+			"battle" : { "male" : "CH16.DEF",  "female" : "CH16.DEF" },
 			"map":     { "male" : "AH16_.def", "female" : "AH16_.def" }
 		}
 	},
@@ -191,9 +225,11 @@
 		"index": 17,
 		"faction" : "conflux",
 		"defaultTavern" : 5,
+		"affinity" : "magic",
+		"commander" : "iceElemental",
 		"animation":
 		{
-			"battle" : { "male" : "CH16.DEF",  "female" : "CH17.DEF" },
+			"battle" : { "male" : "CH17.DEF",  "female" : "CH17.DEF" },
 			"map":     { "male" : "AH17_.def", "female" : "AH17_.def" }
 		}
 	}

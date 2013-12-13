@@ -5,7 +5,8 @@
 	"description" : "Format used to define classes of heroes in VCMI",
 	"required" : [
 		"animation", "faction", "highLevelChance", "lowLevelChance",
-		"name", "primarySkills", "secondarySkills", "tavern", "defaultTavern"
+		"name", "primarySkills", "secondarySkills", "tavern", "defaultTavern",
+		"affinity", "commander"
 	],
 
 	"additionalProperties" : false,
@@ -61,6 +62,15 @@
 		"faction": {
 			"type":"string",
 			"description": "Faction this hero class belongs to"
+		},
+		"affinity" : {
+			"type" : "string",
+			"description" : "Affinity of hero class, might or magic",
+			"enum" : [ "might", "magic"]
+		},
+		"commander": {
+			"type":"string",
+			"description": "Identifier of creature that is used as commander by heroes"
 		},
 		"highLevelChance": {
 			"type":"object",

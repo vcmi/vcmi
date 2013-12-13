@@ -824,7 +824,7 @@ void CGHeroInstance::initHero()
 
 	if (VLC->modh->modules.COMMANDERS && !commander)
 	{
-		commander = new CCommanderInstance (VLC->townh->factions[type->heroClass->faction]->commander);
+		commander = new CCommanderInstance(type->heroClass->commander->idNumber);
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
 		commander->giveStackExp (exp); //after our exp is set
 	}

@@ -4,7 +4,6 @@
 		"index" : 4,
 		"nativeTerrain": "dirt",
 		"alignment" : "evil",
-		"commander" : "powerLich",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASNEC",

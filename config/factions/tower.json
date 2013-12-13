@@ -4,7 +4,6 @@
 		"index" : 2,
 		"nativeTerrain" : "snow",
 		"alignment" : "good",
-		"commander" : "archMage",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASTOW",

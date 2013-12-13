@@ -4,7 +4,6 @@
 		"index" : 6,
 		"nativeTerrain": "rough",
 		"alignment" : "neutral",
-		"commander" : "orcChieftain",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASSTR",

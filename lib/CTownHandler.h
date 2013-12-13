@@ -112,8 +112,6 @@ public:
 	ETerrainType nativeTerrain;
 	EAlignment::EAlignment alignment;
 
-	CreatureID commander;
-
 	CTown * town; //NOTE: can be null
 
 	std::string creatureBg120;
@@ -123,7 +121,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & identifier & index & nativeTerrain & alignment & commander & town & creatureBg120 & creatureBg130 & puzzleMap;
+		h & name & identifier & index & nativeTerrain & alignment & town & creatureBg120 & creatureBg130 & puzzleMap;
 	}
 };
 

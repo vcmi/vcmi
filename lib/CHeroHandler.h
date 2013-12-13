@@ -97,15 +97,24 @@ public:
 class DLL_LINKAGE CHeroClass
 {
 public:
+	enum EClassAffinity
+	{
+		MIGHT,
+		MAGIC
+	};
+
 	std::string identifier;
 	std::string name; // translatable
 	//double aggression; // not used in vcmi.
 	TFaction faction;
 	ui8 id;
+	ui8 affinity; // affility, using EClassAffinity enum
 
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
 	// resulting chance = sqrt(town.chance * heroClass.chance)
 	ui32 defaultTavernChance;
+
+	CCreature * commander;
 
 	std::vector<int> primarySkillInitial;  // initial primary skills
 	std::vector<int> primarySkillLowLevel; // probability (%) of getting point of primary skill when getting level
@@ -128,7 +137,7 @@ public:
 		h & identifier & name & faction & id & defaultTavernChance;// & aggression;
 		h & primarySkillInitial   & primarySkillLowLevel;
 		h & primarySkillHighLevel & secSkillProbability;
-		h & selectionProbability;
+		h & selectionProbability & affinity & commander;
 		h & imageBattleMale & imageBattleFemale & imageMapMale & imageMapFemale;
 	}
 	EAlignment::EAlignment getAlignment() const;
