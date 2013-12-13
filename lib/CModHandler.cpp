@@ -551,6 +551,12 @@ static JsonNode loadModSettings(std::string path)
 	return JsonNode();
 }
 
+JsonNode addMeta(JsonNode config, std::string meta)
+{
+	config.setMeta(meta);
+	return std::move(config);
+}
+
 CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode & config):
 	identifier(identifier),
 	name(config["name"].String()),
@@ -558,7 +564,7 @@ CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode
 	dependencies(config["depends"].convertTo<std::set<std::string> >()),
 	conflicts(config["conflicts"].convertTo<std::set<std::string> >()),
 	validation(PENDING),
-	config(config)
+	config(addMeta(config, identifier))
 {
 	loadLocalData(local);
 }
@@ -577,6 +583,7 @@ JsonNode CModInfo::saveLocalData()
 
 void CModInfo::updateChecksum(ui32 newChecksum)
 {
+	// comment-out next line to force validation of all mods ignoring checksum
 	if (newChecksum != checksum)
 	{
 		checksum = newChecksum;

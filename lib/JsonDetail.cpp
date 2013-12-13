@@ -11,7 +11,10 @@
 #include "StdInc.h"
 #include "JsonDetail.h"
 
+#include "VCMI_Lib.h"
 #include "CGeneralTextHandler.h"
+#include "CModHandler.h"
+
 #include "filesystem/Filesystem.h"
 #include "ScopeGuard.h"
 
@@ -879,52 +882,71 @@ namespace
 
 	namespace Formats
 	{
-		#define TEST_FILE(prefix, file, type) \
-			if (CResourceHandler::get()->existsResource(ResourceID(prefix + file, type))) \
+		bool testFilePresence(std::string scope, ResourceID resource)
+		{
+			std::set<std::string> allowedScopes;
+			if (scope != "core" && scope != "") // all real mods may have dependencies
+			{
+				//NOTE: recursive dependencies are not allowed at the moment - update code if this changes
+				allowedScopes = VLC->modh->getModData(scope).dependencies;
+				allowedScopes.insert("core"); // all mods can use H3 files
+			}
+			allowedScopes.insert(scope); // mods can use their own files
+
+			for (auto & entry : allowedScopes)
+			{
+				if (CResourceHandler::get(entry)->existsResource(resource))
+					return true;
+			}
+			return false;
+		}
+
+		#define TEST_FILE(scope, prefix, file, type) \
+			if (testFilePresence(scope, ResourceID(prefix + file, type))) \
 				return ""
 
-		std::string testAnimation(std::string path)
+		std::string testAnimation(std::string path, std::string scope)
 		{
-			TEST_FILE("Sprites/", path, EResType::ANIMATION);
-			TEST_FILE("Sprites/", path, EResType::TEXT);
+			TEST_FILE(scope, "Sprites/", path, EResType::ANIMATION);
+			TEST_FILE(scope, "Sprites/", path, EResType::TEXT);
 			return "Animation file \"" + path + "\" was not found";
 		}
 
 		std::string textFile(const JsonNode & node)
 		{
-			TEST_FILE("", node.String(), EResType::TEXT);
+			TEST_FILE(node.meta, "", node.String(), EResType::TEXT);
 			return "Text file \"" + node.String() + "\" was not found";
 		}
 
 		std::string musicFile(const JsonNode & node)
 		{
-			TEST_FILE("", node.String(), EResType::MUSIC);
+			TEST_FILE(node.meta, "", node.String(), EResType::MUSIC);
 			return "Music file \"" + node.String() + "\" was not found";
 		}
 
 		std::string soundFile(const JsonNode & node)
 		{
-			TEST_FILE("Sounds/", node.String(), EResType::SOUND);
+			TEST_FILE(node.meta, "Sounds/", node.String(), EResType::SOUND);
 			return "Sound file \"" + node.String() + "\" was not found";
 		}
 
 		std::string defFile(const JsonNode & node)
 		{
-			TEST_FILE("Sprites/", node.String(), EResType::ANIMATION);
+			TEST_FILE(node.meta, "Sprites/", node.String(), EResType::ANIMATION);
 			return "Def file \"" + node.String() + "\" was not found";
 		}
 
 		std::string animationFile(const JsonNode & node)
 		{
-			return testAnimation(node.String());
+			return testAnimation(node.String(), node.meta);
 		}
 
 		std::string imageFile(const JsonNode & node)
 		{
-			TEST_FILE("Data/", node.String(), EResType::IMAGE);
-			TEST_FILE("Sprites/", node.String(), EResType::IMAGE);
+			TEST_FILE(node.meta, "Data/", node.String(), EResType::IMAGE);
+			TEST_FILE(node.meta, "Sprites/", node.String(), EResType::IMAGE);
 			if (node.String().find(':') != std::string::npos)
-				return testAnimation(node.String().substr(0, node.String().find(':')));
+				return testAnimation(node.String().substr(0, node.String().find(':')), node.meta);
 			return "Image file \"" + node.String() + "\" was not found";
 		}
 

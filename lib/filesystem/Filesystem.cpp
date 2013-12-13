@@ -153,8 +153,7 @@ void CResourceHandler::initialize()
 
 ISimpleResourceLoader * CResourceHandler::get()
 {
-	assert(resourceLoader);
-	return resourceLoader;
+	return get("");
 }
 
 ISimpleResourceLoader * CResourceHandler::get(std::string identifier)
@@ -175,6 +174,7 @@ void CResourceHandler::load(const std::string &fsConfigURI)
 	const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
 
 	resourceLoader = new CFilesystemList();
+	knownLoaders[""] = resourceLoader;
 	addFilesystem("core", createFileSystem("", fsConfig["filesystem"]));
 
 	// hardcoded system-specific path, may not be inside any of data directories
@@ -184,6 +184,7 @@ void CResourceHandler::load(const std::string &fsConfigURI)
 
 void CResourceHandler::addFilesystem(const std::string & identifier, ISimpleResourceLoader * loader)
 {
+	assert(knownLoaders.count(identifier) == 0);
 	resourceLoader->addLoader(loader, false);
 	knownLoaders[identifier] = loader;
 }
