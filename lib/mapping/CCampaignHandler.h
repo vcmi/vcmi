@@ -149,9 +149,9 @@ public:
 	unique_ptr<CCampaign> camp;
 	std::string campaignName; 
 	std::vector<ui8> mapsConquered, mapsRemaining;
-	ui8 currentMap; 
+	boost::optional<si32> currentMap;
 
-	std::map<ui8, ui8> chosenCampaignBonuses; //used only for mode CAMPAIGN
+	std::map<ui8, ui8> chosenCampaignBonuses;
 
 	//void initNewCampaign(const StartInfo &si);
 	void mapConquered(const std::vector<CGHeroInstance*> & heroes);

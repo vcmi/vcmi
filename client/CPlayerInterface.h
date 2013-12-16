@@ -78,7 +78,8 @@ enum
 	STOP_CLIENT = 3,
 	RESTART_GAME,
 	RETURN_TO_MENU_LOAD,
-	FULLSCREEN_TOGGLED
+	FULLSCREEN_TOGGLED,
+	PREPARE_RESTART_CAMPAIGN
 };
 
 /// Central class for managing user interface logic

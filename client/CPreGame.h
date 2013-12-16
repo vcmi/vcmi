@@ -452,12 +452,15 @@ public:
 /// Campaign screen where you can choose one out of three starting bonuses
 class CBonusSelection : public CIntObject
 {
-	SDL_Surface * background;
-	CAdventureMapButton * startB, * backB;
+public:
+	CBonusSelection(const std::string & campaignFName);
+	CBonusSelection(shared_ptr<CCampaignState> _ourCampaign);
+	~CBonusSelection();
 
-	//campaign & map descriptions:
-	CTextBox * cmpgDesc, * mapDesc;
+	void showAll(SDL_Surface * to) override;
+	void show(SDL_Surface * to) override;
 
+private:
 	struct SCampPositions
 	{
 		std::string campPrefix;
@@ -473,8 +476,6 @@ class CBonusSelection : public CIntObject
 
 	};
 
-	std::vector<SCampPositions> campDescriptions;
-
 	class CRegion : public CIntObject
 	{
 		CBonusSelection * owner;
@@ -482,6 +483,7 @@ class CBonusSelection : public CIntObject
 		bool accessible; //false if region should be striped
 		bool selectable; //true if region should be selectable
 		int myNumber; //number of region
+
 	public:
 		std::string rclickText;
 		CRegion(CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber);
@@ -492,40 +494,40 @@ class CBonusSelection : public CIntObject
 		void show(SDL_Surface * to);
 	};
 
-	std::vector<CRegion *> regions;
-	CRegion * highlightedRegion;
-
-	void loadPositionsOfGraphics();
-	shared_ptr<CCampaignState> ourCampaign;
-	CMapHeader *ourHeader;
-	CDefHandler *sizes; //icons of map sizes
-	SDL_Surface* diffPics[5]; //pictures of difficulties, user-selectable (or not if campaign locks this)
-	CAdventureMapButton * diffLb, * diffRb; //buttons for changing difficulty
-	void changeDiff(bool increase); //if false, then decrease
-
-
-	void updateStartButtonState(int selected = -1); //-1 -- no bonus is selected
-	//bonus selection
-	void updateBonusSelection();
-	CHighlightableButtonsGroup * bonuses;
-
-public:
-	StartInfo sInfo;
-	CDefHandler *sFlags;
-
-	void selectMap(int whichOne, bool initialSelect);
-	void selectBonus(int id);
 	void init();
+	void loadPositionsOfGraphics();
+	void updateStartButtonState(int selected = -1); //-1 -- no bonus is selected
+	void updateBonusSelection();
+	void updateCampaignState();
 
-	CBonusSelection(std::string campaignFName);
-	CBonusSelection(shared_ptr<CCampaignState> _ourCampaign);
-	~CBonusSelection();
-
-	void showAll(SDL_Surface * to);
-	void show(SDL_Surface * to);
-
+	// Event handlers
 	void goBack();
 	void startMap();
+	void restartMap();
+	void selectMap(int mapNr, bool initialSelect);
+	void selectBonus(int id);
+	void increaseDifficulty();
+	void decreaseDifficulty();
+
+	// GUI components
+	SDL_Surface * background;
+	CAdventureMapButton * startB, * restartB, * backB;
+	CTextBox * campaignDescription, * mapDescription;
+	std::vector<SCampPositions> campDescriptions;
+	std::vector<CRegion *> regions;
+	CRegion * highlightedRegion;
+	CHighlightableButtonsGroup * bonuses;
+	SDL_Surface * diffPics[5]; //pictures of difficulties, user-selectable (or not if campaign locks this)
+	CAdventureMapButton * diffLb, * diffRb; //buttons for changing difficulty
+	CDefHandler * sizes; //icons of map sizes
+	CDefHandler * sFlags;
+
+	// Data
+	shared_ptr<CCampaignState> ourCampaign;
+	int selectedMap;
+	boost::optional<int> selectedBonus;
+	StartInfo startInfo;
+	CMapHeader * ourHeader;
 };
 
 /// Campaign selection screen

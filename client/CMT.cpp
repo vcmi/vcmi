@@ -886,6 +886,13 @@ static void listenForEvents()
 					startGame(&si);
 				}
 				break;
+			case PREPARE_RESTART_CAMPAIGN:
+				{
+					auto si = reinterpret_cast<StartInfo *>(ev.user.data1);
+					endGame();
+					startGame(si);
+				}
+				break;
 			case RETURN_TO_MENU_LOAD:
 				endGame();
 				CGPreGame::create();

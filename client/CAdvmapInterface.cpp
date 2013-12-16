@@ -1536,5 +1536,13 @@ CAdventureOptions::CAdventureOptions():
 
 void CAdventureOptions::showScenarioInfo()
 {
-	GH.pushInt(new CScenarioInfo(LOCPLINT->cb->getMapHeader(), LOCPLINT->cb->getStartInfo()));
+	auto campState = LOCPLINT->cb->getStartInfo()->campState;
+	if(campState)
+	{
+		GH.pushInt(new CBonusSelection(campState));
+	}
+	else
+	{
+		GH.pushInt(new CScenarioInfo(LOCPLINT->cb->getMapHeader(), LOCPLINT->cb->getStartInfo()));
+	}
 }

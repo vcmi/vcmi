@@ -807,7 +807,7 @@ void CGameState::init(StartInfo * si)
 						{
 							continue;
 						}
-						auto bb = new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CAMPAIGN_BONUS, val, scenarioOps->campState->currentMap, g);
+						auto bb = new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CAMPAIGN_BONUS, val, *scenarioOps->campState->currentMap, g);
 						hero->addNewBonus(bb);
 					}
 				}
@@ -886,9 +886,9 @@ void CGameState::init(StartInfo * si)
 		{
             logGlobal->infoStream() << "Open campaign map file: " << scenarioOps->campState->currentMap;
 			auto campaign = scenarioOps->campState;
-			assert(vstd::contains(campaign->camp->mapPieces, scenarioOps->campState->currentMap));
+			assert(vstd::contains(campaign->camp->mapPieces, *scenarioOps->campState->currentMap));
 
-			std::string & mapContent = campaign->camp->mapPieces[scenarioOps->campState->currentMap];
+			std::string & mapContent = campaign->camp->mapPieces[*scenarioOps->campState->currentMap];
 			auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
 			map = CMapService::loadMap(buffer, mapContent.size()).release();
 		}

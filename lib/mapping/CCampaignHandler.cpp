@@ -433,16 +433,16 @@ bool CScenarioTravel::STravelBonus::isBonusForHero() const
 
 void CCampaignState::mapConquered( const std::vector<CGHeroInstance*> & heroes )
 {
-	camp->scenarios[currentMap].prepareCrossoverHeroes(heroes);
-	mapsConquered.push_back(currentMap);
-	mapsRemaining -= currentMap;
-	camp->scenarios[currentMap].conquered = true;
+	camp->scenarios[*currentMap].prepareCrossoverHeroes(heroes);
+	mapsConquered.push_back(*currentMap);
+	mapsRemaining -= *currentMap;
+	camp->scenarios[*currentMap].conquered = true;
 }
 
 boost::optional<CScenarioTravel::STravelBonus> CCampaignState::getBonusForCurrentMap() const
 {
 	auto bonuses = getCurrentScenario().travelOptions.bonusesToChoose;
-	assert(chosenCampaignBonuses.count(currentMap) || bonuses.size() == 0);
+	assert(chosenCampaignBonuses.count(*currentMap) || bonuses.size() == 0);
 	if(bonuses.size())
 		return bonuses[currentBonusID()];
 	else
@@ -451,16 +451,18 @@ boost::optional<CScenarioTravel::STravelBonus> CCampaignState::getBonusForCurren
 
 const CCampaignScenario & CCampaignState::getCurrentScenario() const
 {
-	return camp->scenarios[currentMap];
+	return camp->scenarios[*currentMap];
 }
 
 ui8 CCampaignState::currentBonusID() const
 {
-	return chosenCampaignBonuses.at(currentMap);
+	return chosenCampaignBonuses.at(*currentMap);
 }
 
 CCampaignState::CCampaignState()
-{}
+{
+
+}
 
 CCampaignState::CCampaignState( unique_ptr<CCampaign> _camp ) : camp(std::move(_camp))
 {
