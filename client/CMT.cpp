@@ -89,6 +89,7 @@ void playIntro();
 static void listenForEvents();
 //void requestChangingResolution();
 void startGame(StartInfo * options, CConnection *serv = nullptr);
+void endGame();
 
 #ifndef _WIN32
 #ifndef _GNU_SOURCE
@@ -856,17 +857,6 @@ static void listenForEvents()
 		}
 		else if(ev.type == SDL_USEREVENT)
 		{
-			auto endGame = []
-			{
-				client->endGame();
-				vstd::clear_pointer(client);
-
-				delete CGI->dobjinfo.get();
-				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler; 
-
-				const_cast<CGameInfo*>(CGI)->modh->reload(); //add info about new creatures to dobjinfo
-			};
-
 			switch(ev.user.code)
 			{
 			case RETURN_TO_MAIN_MENU:
@@ -952,6 +942,17 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 	}
 
 		client->connectionHandler = new boost::thread(&CClient::run, client);
+}
+
+void endGame()
+{
+	client->endGame();
+	vstd::clear_pointer(client);
+
+	delete CGI->dobjinfo.get();
+	const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
+
+	const_cast<CGameInfo*>(CGI)->modh->reload(); //add info about new creatures to dobjinfo
 }
 
 void handleQuit()

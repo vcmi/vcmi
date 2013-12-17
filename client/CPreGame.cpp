@@ -55,6 +55,7 @@
 namespace fs = boost::filesystem;
 
 void startGame(StartInfo * options, CConnection *serv = nullptr);
+void endGame();
 
 CGPreGame * CGP = nullptr;
 ISelectionScreenInfo *SEL;
@@ -440,15 +441,30 @@ void CreditsScreen::clickRight(tribool down, bool previousState)
 	menu->setActive(0);
 }
 
-CGPreGame::CGPreGame():
-	pregameConfig(new JsonNode(ResourceID("config/mainmenu.json")))
+CGPreGameConfig & CGPreGameConfig::get()
+{
+	static CGPreGameConfig config;
+	return config;
+}
+
+const JsonNode & CGPreGameConfig::getConfig() const
+{
+	return config;
+}
+
+CGPreGameConfig::CGPreGameConfig() : config(JsonNode(ResourceID("config/mainmenu.json")))
+{
+
+}
+
+CGPreGame::CGPreGame()
 {
 	pos.w = screen->w;
 	pos.h = screen->h;
 
 	GH.defActionsDef = 63;
 	CGP = this;
-	menu = new CMenuScreen((*pregameConfig)["window"]);
+	menu = new CMenuScreen(CGPreGameConfig::get().getConfig()["window"]);
 	loadGraphics();
 }
 
@@ -519,7 +535,7 @@ void CGPreGame::update()
 
 void CGPreGame::openCampaignScreen(std::string name)
 {
-	for(const JsonNode& node : (*pregameConfig)["campaignsset"].Vector())
+	for(const JsonNode& node : CGPreGameConfig::get().getConfig()["campaignsset"].Vector())
 	{
 		if (node["name"].String() == name)
 		{
@@ -582,7 +598,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 	{
 		bordered = true;
 		//load random background
-		const JsonVector & bgNames = (*CGP->pregameConfig)["game-select"].Vector();
+		const JsonVector & bgNames = CGPreGameConfig::get().getConfig()["game-select"].Vector();
 		bg = new CPicture(bgNames[rand() % bgNames.size()].String(), 0, 0);
 		pos = bg->center();
 	}
@@ -3594,35 +3610,52 @@ void CBonusSelection::updateCampaignState()
 
 void CBonusSelection::startMap()
 {
-	updateCampaignState();
-
-	logGlobal->infoStream() << "Starting scenario " << selectedMap;
-
-	const CCampaignScenario & scenario = ourCampaign->camp->scenarios[selectedMap];
 	auto si = new StartInfo(startInfo);
-	auto exitCb = [si]()
+	auto showPrologVideo = [=]()
 	{
-		CGP->showLoadingScreen(boost::bind(&startGame, si, (CConnection *)nullptr));
+		auto exitCb = [=]()
+		{
+			logGlobal->infoStream() << "Starting scenario " << selectedMap;
+			CGP->showLoadingScreen(boost::bind(&startGame, si, (CConnection *)nullptr));
+		};
+
+		const CCampaignScenario & scenario = ourCampaign->camp->scenarios[selectedMap];
+		if (scenario.prolog.hasPrologEpilog)
+		{
+			GH.pushInt(new CPrologEpilogVideo(scenario.prolog, exitCb));
+		}
+		else
+		{
+			exitCb();
+		}
 	};
 
-	if (scenario.prolog.hasPrologEpilog)
+	if(LOCPLINT) // we're currently ingame, so ask for starting new map and end game
 	{
-		GH.pushInt(new CPrologEpilogVideo(scenario.prolog, exitCb));
+		GH.popInt(this);
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]
+		{
+			updateCampaignState();
+			endGame();
+			GH.curInt = CGPreGame::create();
+			showPrologVideo();
+		}, 0);
 	}
 	else
 	{
-		exitCb();
+		updateCampaignState();
+		showPrologVideo();
 	}
 }
 
 void CBonusSelection::restartMap()
 {
-	updateCampaignState();
-	auto si = new StartInfo(startInfo); // copy before this object will be destroyed
-
-	GH.popIntTotally(this);
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [si]
+	GH.popInt(this);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]
 	{
+		updateCampaignState();
+		auto si = new StartInfo(startInfo);
+
 		SDL_Event event;
 		event.type = SDL_USEREVENT;
 		event.user.code = PREPARE_RESTART_CAMPAIGN;
@@ -4089,11 +4122,16 @@ void CGPreGame::showLoadingScreen(std::function<void()> loader)
 
 std::string CLoadingScreen::getBackground()
 {
-	const JsonVector & conf = (*CGP->pregameConfig)["loading"].Vector();
+	const auto & conf = CGPreGameConfig::get().getConfig()["loading"].Vector();
 
-	if (conf.empty())
+	if(conf.empty())
+	{
 		return "loadbar";
-	return conf[ rand() % conf.size() ].String();
+	}
+	else
+	{
+		return conf[ rand() % conf.size() ].String();
+	}
 }
 
 CLoadingScreen::CLoadingScreen(std::function<void ()> loader):

@@ -572,6 +572,19 @@ public:
 	void showAll(SDL_Surface *to);
 };
 
+/// Manages the configuration of pregame GUI elements like campaign screen, main menu, loading screen,...
+class CGPreGameConfig
+{
+public:
+	static CGPreGameConfig & get();
+	const JsonNode & getConfig() const;
+
+private:
+	CGPreGameConfig();
+
+	const JsonNode config;
+};
+
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
 class CGPreGame : public CIntObject, public IUpdateable
 {
@@ -581,9 +594,7 @@ class CGPreGame : public CIntObject, public IUpdateable
 	CGPreGame(); //Use createIfNotPresent
 
 public:
-	const JsonNode * const pregameConfig;
-
-	CMenuScreen* menu;
+	CMenuScreen * menu;
 
 	CDefHandler *victory, *loss;
 
