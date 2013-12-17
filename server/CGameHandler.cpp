@@ -1469,33 +1469,39 @@ void CGameHandler::run(bool resume)
 		return;
 	}
 
-	while (!end2)
-	{
-		if(!resume)
-			newTurn();
+	auto playerTurnOrder = generatePlayerTurnOrder();
 
-		std::map<PlayerColor,PlayerState>::iterator i;
-		if(!resume)
-			i = gs->players.begin();
+	while(!end2)
+	{
+		if(!resume) newTurn();
+
+		std::list<PlayerColor>::iterator it;
+		if(resume)
+		{
+			it = std::find(playerTurnOrder.begin(), playerTurnOrder.end(), gs->currentPlayer);
+		}
 		else
-			i = gs->players.find(gs->currentPlayer);
+		{
+			it = playerTurnOrder.begin();
+		}
 
 		resume = false;
-		for(; i != gs->players.end(); i++)
+		for(; it != playerTurnOrder.end(); it++)
 		{
-			if(i->second.status == EPlayerStatus::INGAME)
+			auto playerColor = *it;
+			if(gs->players[playerColor].status == EPlayerStatus::INGAME)
 			{
-				states.setFlag(i->first,&PlayerStatus::makingTurn,true);
+				states.setFlag(playerColor, &PlayerStatus::makingTurn, true);
 
 				YourTurn yt;
-				yt.player = i->first;
+				yt.player = playerColor;
 				applyAndSend(&yt);
 
 				checkVictoryLossConditionsForAll();
 
 				//wait till turn is done
 				boost::unique_lock<boost::mutex> lock(states.mx);
-				while(states.players.at(i->first).makingTurn && !end2)
+				while(states.players.at(playerColor).makingTurn && !end2)
 				{
 					static time_duration p = milliseconds(200);
 					states.cv.timed_wait(lock,p);
@@ -1505,6 +1511,27 @@ void CGameHandler::run(bool resume)
 	}
 	while(conns.size() && (*conns.begin())->isOpen())
 		boost::this_thread::sleep(boost::posix_time::milliseconds(5)); //give time client to close socket
+}
+
+std::list<PlayerColor> CGameHandler::generatePlayerTurnOrder() const
+{
+	// Generate player turn order
+	std::list<PlayerColor> playerTurnOrder;
+
+	bool playCampaign = gs->scenarioOps->campState != nullptr;
+	for(const auto & player : gs->players) // add human players for campaign only first OR all players for normal game
+	{
+		if(player.second.human || !playCampaign) playerTurnOrder.push_back(player.first);
+	}
+	if(playCampaign)
+	{
+		for(const auto & player : gs->players) // then add non-human players for campaign
+		{
+			if(!player.second.human) playerTurnOrder.push_back(player.first);
+		}
+	}
+
+	return std::move(playerTurnOrder);
 }
 
 void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town )

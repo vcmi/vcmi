@@ -3186,16 +3186,20 @@ void CBonusSelection::init()
 	bonuses = new CHighlightableButtonsGroup(bind(&CBonusSelection::selectBonus, this, _1));
 
 	//set left part of window
-	for (int g=0; g<ourCampaign->camp->scenarios.size(); ++g)
+	bool isCurrentMapConquerable = ourCampaign->currentMap && ourCampaign->camp->conquerable(*ourCampaign->currentMap);
+	for(int g = 0; g < ourCampaign->camp->scenarios.size(); ++g)
 	{
 		if(ourCampaign->camp->conquerable(g))
 		{
 			regions.push_back(new CRegion(this, true, true, g));
 			regions[regions.size()-1]->rclickText = ourCampaign->camp->scenarios[g].regionText;
-			if (highlightedRegion == nullptr)
+			if(highlightedRegion == nullptr)
 			{
-				highlightedRegion = regions.back();
-				selectMap(g, true);
+				if(!isCurrentMapConquerable || (isCurrentMapConquerable && g == *ourCampaign->currentMap))
+				{
+					highlightedRegion = regions.back();
+					selectMap(g, true);
+				}
 			}
 		}
 		else if (ourCampaign->camp->scenarios[g].conquered) //display as striped
