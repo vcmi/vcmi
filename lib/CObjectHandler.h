@@ -25,7 +25,6 @@ struct BattleInfo;
 struct QuestInfo;
 class IGameCallback;
 struct BattleResult;
-class CCPPObjectScript;
 class CGObjectInstance;
 class CScript;
 class CObjectScript;

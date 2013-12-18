@@ -24,8 +24,6 @@ class CGameHandler;
 class CVCMIServer;
 class CGameState;
 struct StartInfo;
-class CCPPObjectScript;
-class CScriptCallback;
 struct BattleResult;
 struct BattleAttack;
 struct BattleStackAttacked;
@@ -286,7 +284,6 @@ public:
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
 	friend class CVCMIServer;
-	friend class CScriptCallback;
 
 private:
 	std::list<PlayerColor> generatePlayerTurnOrder() const;

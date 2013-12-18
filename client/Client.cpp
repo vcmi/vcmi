@@ -699,7 +699,6 @@ int CClient::sendRequest(const CPack *request, PlayerColor player)
 void CClient::campaignMapFinished( shared_ptr<CCampaignState> camp )
 {
 	endGame(false);
-	LOCPLINT = nullptr; //TODO free res
 
 	GH.curInt = CGPreGame::create();
 	auto & epilogue = camp->camp->scenarios[camp->mapsConquered.back()].epilog;

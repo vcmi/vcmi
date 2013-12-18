@@ -29,11 +29,8 @@
  */
 
 class CTown;
-class CScriptCallback;
 class CCallback;
 class IGameCallback;
-class CLuaCallback;
-class CCPPObjectScript;
 class CCreatureSet;
 class CStack;
 class CQuest;
@@ -388,15 +385,6 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheck
 class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 {
 public:
-	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
-	PlayerColor currentPlayer; //ID of player currently having turn
-	ConstTransitivePtr<BattleInfo> curB; //current battle
-	ui32 day; //total number of days in game
-	ConstTransitivePtr<CMap> map;
-	std::map<PlayerColor, PlayerState> players;
-	std::map<TeamID, TeamState> teams;
-	CBonusSystemNode globalEffects;
-
 	struct DLL_LINKAGE HeroesPool
 	{
 		std::map<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; nullptr if not available
@@ -410,18 +398,22 @@ public:
 		}
 	} hpool; //we have here all heroes available on this map that are not hired
 
-	boost::shared_mutex *mx;
+	CGameState();
+	virtual ~CGameState();
 
 	void init(StartInfo * si);
 
-	bool isUsedHero(HeroTypeID hid) const; //looks in heroes and prisons
-	void placeCampaignHeroes(const std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > &campHeroReplacements);
-	std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > campaignHeroesToReplace(); //returns heroes and placeholders in where heroes will be put; may remove some placeholders
-	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
-	void initDuel();
-	void randomizeObject(CGObjectInstance *cur);
-	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
-	int pickHero(PlayerColor owner);
+	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
+	PlayerColor currentPlayer; //ID of player currently having turn
+	ConstTransitivePtr<BattleInfo> curB; //current battle
+	ui32 day; //total number of days in game
+	ConstTransitivePtr<CMap> map;
+	std::map<PlayerColor, PlayerState> players;
+	std::map<TeamID, TeamState> teams;
+	CBonusSystemNode globalEffects;
+
+	boost::shared_mutex *mx;
+
 	void giveHeroArtifact(CGHeroInstance *h, ArtifactID aid);
 
 	void apply(CPack *pack);
@@ -439,38 +431,65 @@ public:
 	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 	BattleInfo * setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town);
 
-	void buildBonusSystemTree();
-	void attachArmedObjects();
-	void buildGlobalTeamPlayerTree();
-	void deserializationFix();
-
 	bool isVisible(int3 pos, PlayerColor player);
 	bool isVisible(const CGObjectInstance *obj, boost::optional<PlayerColor> player);
 
-	CGameState(); //c-tor
-	virtual ~CGameState(); //d-tor
 	void getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing);
 	int getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, int remainingMovePoints=-1, bool checkLast=true);
 	int getDate(Date::EDateType mode=Date::DAY) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 
-	friend class CCallback;
-	friend class CLuaCallback;
-	friend class CClient;
-	friend void initGameState(CMap * map, CGameInfo * cgi);
-	friend class IGameCallback;
-	friend class CMapHandler;
-	friend class CGameHandler;
-
 private:
+	// Init game state
+	void initNewGame();
+	void initCampaign();
+	void initDuel();
+	void checkMapChecksum();
+	void initGrailPosition();
+	void initRandomFactionsForPlayers();
+	void randomizeMapObjects();
+	void randomizeObject(CGObjectInstance *cur);
+	void initPlayerStates();
+	void initHeroPlaceholders();
+	void placeCampaignHeroes(const std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > &campHeroReplacements);
+	void placeStartingHeroes();
+	void initStartingResources();
+	void initHeroes();
+	void giveCampaignBonusToHero(CGHeroInstance * hero);
+	void initFogOfWar();
+	void initStartingBonus();
+	void initTowns();
+	void initMapObjects();
+	void initVisitingAndGarrisonedHeroes();
+
+	// Victory / Loss condition checks
 	EVictoryLossCheckResult checkForVictory(PlayerColor player) const; //checks if given player is winner
 	EVictoryLossCheckResult checkForLoss(PlayerColor player) const; //checks if given player is loser
 	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
 	bool checkForStandardLoss(PlayerColor player) const; //checks if given player lost the game
+
+	// Bonus system handling
+	void buildBonusSystemTree();
+	void attachArmedObjects();
+	void buildGlobalTeamPlayerTree();
+	void deserializationFix();
+
+	bool isUsedHero(HeroTypeID hid) const; //looks in heroes and prisons
+	std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > campaignHeroesToReplace(); //returns heroes and placeholders in where heroes will be put; may remove some placeholders
+	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
+	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
+	int pickHero(PlayerColor owner);
+
+	friend class CCallback;
+	friend class CClient;
+	friend class IGameCallback;
+	friend class CMapHandler;
+	friend class CGameHandler;
 };
 
 struct DLL_LINKAGE QuestInfo //universal interface for human and AI

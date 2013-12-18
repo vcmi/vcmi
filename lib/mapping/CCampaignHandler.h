@@ -83,16 +83,6 @@ public:
 class DLL_LINKAGE CCampaignScenario
 {
 public:
-	std::string mapName; //*.h3m
-	std::string scenarioName; //from header. human-readble
-	ui32 packedMapSize; //generally not used
-	std::set<ui8> preconditionRegions; //what we need to conquer to conquer this one (stored as bitfield in h3c)
-	ui8 regionColor;
-	ui8 difficulty;
-	bool conquered;
-
-	std::string regionText;
-
 	struct DLL_LINKAGE SScenarioPrologEpilog
 	{
 		bool hasPrologEpilog;
@@ -106,17 +96,23 @@ public:
 		}
 	};
 
+	std::string mapName; //*.h3m
+	std::string scenarioName; //from header. human-readble
+	ui32 packedMapSize; //generally not used
+	std::set<ui8> preconditionRegions; //what we need to conquer to conquer this one (stored as bitfield in h3c)
+	ui8 regionColor;
+	ui8 difficulty;
+	bool conquered;
+
+	std::string regionText;
 	SScenarioPrologEpilog prolog, epilog;
 
 	CScenarioTravel travelOptions;
-
 	std::vector<CGHeroInstance *> crossoverHeroes;
 
 	const CGHeroInstance * strongestHero(PlayerColor owner) const;
-
 	void loadPreconditionRegions(ui32 regions);
 	void prepareCrossoverHeroes(std::vector<CGHeroInstance *> heroes);
-
 	bool isNotVoid() const;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
