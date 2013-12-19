@@ -735,6 +735,12 @@ void dispose()
 {
 	if (console)
 		delete console;
+
+	// cleanup, mostly to remove false leaks from analyzer
+	CResourceHandler::clear();
+	CCS->musich->release();
+	CCS->soundh->release();
+	CMessage::dispose();
 }
 
 //used only once during initialization

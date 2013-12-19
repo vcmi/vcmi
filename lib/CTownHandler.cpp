@@ -311,17 +311,17 @@ void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const
 			ret->upgrade = BuildingID(source["upgrades"].Float());
 		else
 		{
+			// building id and upgrades can't be the same
+			if(stringID == source["upgrades"].String())
+			{
+				throw std::runtime_error(boost::str(boost::format("Building with ID '%s' of town '%s' can't be an upgrade of the same building.") %
+													stringID % town.faction->name));
+			}
+
 			VLC->modh->identifiers.requestIdentifier("building." + town.faction->identifier, source["upgrades"], [=](si32 identifier)
 			{
 				ret->upgrade = BuildingID(identifier);
 			});
-		}
-
-		// building id and upgrades can't be the same
-		if(ret->upgrade == ret->bid)
-		{
-			throw std::runtime_error(boost::str(boost::format("Building with ID '%s' of town '%s' can't be an upgrade of the same building.") %
-												stringID % town.faction->name));
 		}
 	}
 	else

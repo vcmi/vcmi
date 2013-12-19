@@ -85,6 +85,7 @@ class CMusicHandler;
 //Class for handling one music file
 class MusicEntry
 {
+	std::pair<std::unique_ptr<ui8[]>, size_t> data;
 	CMusicHandler *owner;
 	Mix_Music *music;
 	SDL_RWops *musicFile;

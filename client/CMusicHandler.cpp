@@ -501,8 +501,8 @@ void MusicEntry::load(std::string musicURI)
 
 	logGlobal->traceStream()<<"Loading music file "<<musicURI;
 
-	auto data = CResourceHandler::get()->load(ResourceID(musicURI, EResType::MUSIC))->readAll();
-	musicFile = SDL_RWFromConstMem(data.first.release(), data.second);
+	data = CResourceHandler::get()->load(ResourceID(musicURI, EResType::MUSIC))->readAll();
+	musicFile = SDL_RWFromConstMem(data.first.get(), data.second);
 	music = Mix_LoadMUS_RW(musicFile);
 
 	if(!music)

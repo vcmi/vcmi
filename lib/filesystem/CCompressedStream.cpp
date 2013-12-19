@@ -102,7 +102,8 @@ CCompressedStream::CCompressedStream(std::unique_ptr<CInputStream> stream, bool 
 
 CCompressedStream::~CCompressedStream()
 {
-	delete inflateState;
+	inflateEnd(inflateState);
+	//delete inflateState;
 }
 
 si64 CCompressedStream::readMore(ui8 *data, si64 size)
@@ -163,7 +164,7 @@ si64 CCompressedStream::readMore(ui8 *data, si64 size)
 	if (fileEnded)
 	{
 		inflateEnd(inflateState);
-		vstd::clear_pointer(inflateState);
+		//vstd::clear_pointer(inflateState);
 	}
 	return decompressed;
 }

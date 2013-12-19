@@ -150,7 +150,7 @@
 				"tavern":         { "id" : 5 },
 				"fort":           { "id" : 7 },
 				"citadel":        { "id" : 8,  "upgrades" : "fort" },
-				"castle":         { "id" : 9,  "upgrades" : "castle" },
+				"castle":         { "id" : 9,  "upgrades" : "citadel" },
 				"villageHall":    { "id" : 10, "mode" : "auto" },
 				"townHall":       { "id" : 11, "upgrades" : "villageHall", "requires" : [ "tavern" ] },
 				"cityHall":       { "id" : 12, "upgrades" : "townHall", "requires" : [ "allOf", [ "mageGuild1" ], [ "marketplace" ], [ "blacksmith" ] ] },
