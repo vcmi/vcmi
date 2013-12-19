@@ -387,36 +387,45 @@ void CArtHandler::loadGrowingArt(CGrowingArtifact * art, const JsonNode & node)
 	}
 }
 
+//TODO: use bimap
 ArtifactID CArtHandler::creatureToMachineID(CreatureID id)
 {
-	int dif = 142;
 	switch (id)
 	{
-	case 147:
-		dif--;
+	case CreatureID::CATAPULT: //Catapult
+		return ArtifactID::CATAPULT;
 		break;
-	case 148:
-		dif++;
+	case CreatureID::BALLISTA: //Ballista
+		return ArtifactID::BALLISTA;
+		break;
+	case CreatureID::FIRST_AID_TENT: //First Aid tent
+		return ArtifactID::FIRST_AID_TENT;
+		break;
+	case CreatureID::AMMO_CART: //Ammo cart
+		return ArtifactID::AMMO_CART;
 		break;
 	}
-	dif = -dif;
-	return ArtifactID(id+dif);
+	return ArtifactID::NONE; //this creature is not artifact
 }
 
 CreatureID CArtHandler::machineIDToCreature(ArtifactID id)
 {
-	int dif = 142;
-
 	switch (id)
 	{
-	case 6:
-		dif--;
+	case ArtifactID::CATAPULT:
+		return CreatureID::CATAPULT;
 		break;
-	case 5:
-		dif++;
+	case ArtifactID::BALLISTA:
+		return CreatureID::BALLISTA;
+		break;
+	case ArtifactID::FIRST_AID_TENT:
+		return CreatureID::FIRST_AID_TENT;
+		break;
+	case ArtifactID::AMMO_CART:
+		return CreatureID::AMMO_CART;
 		break;
 	}
-	return CreatureID(id + dif);
+	return CreatureID::NONE; //this artifact is not a creature
 }
 
 ArtifactID CArtHandler::getRandomArt(int flags)

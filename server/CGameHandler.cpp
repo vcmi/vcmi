@@ -618,7 +618,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		sendAndApply(&cs);
 	}
 	
-	cab1.takeFromArmy(this); cab2.takeFromArmy(this); //take casualties after battle is deleted
+	cab1.takeFromArmy(this);
+	cab2.takeFromArmy(this); //take casualties after battle is deleted
 
 	//if one hero has lost we will erase him
 	if(battleResult.data->winner!=0 && hero1)
@@ -6353,11 +6354,24 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleI
 	{
 		if(vstd::contains(st->state, EBattleStackState::SUMMONED)) //don't take into account summoned stacks
 			continue;
+		if (st->owner != color) //remove only our stacks
+			continue;
 
 		//FIXME: this info is also used in BattleInfo::calculateCasualties, refactor
 		st->count = std::max (0, st->count - st->resurrected);
 
-		if(st->owner==color && !army->slotEmpty(st->slot) && st->count < army->getStackCount(st->slot))
+		if (!st->count && !st->base) //we can imagine stacks of war mahcines that are not spawned by artifacts?
+		{
+			auto warMachine = VLC->arth->creatureToMachineID(st->type->idNumber);
+			if (warMachine != ArtifactID::NONE)
+			{
+				auto hero = dynamic_cast<const CGHeroInstance*> (army);
+				if (hero)
+					removedWarMachines.push_back (ArtifactLocation(hero, hero->getArtPos(warMachine, true)));
+			}
+		}
+
+		if(!army->slotEmpty(st->slot) && st->count < army->getStackCount(st->slot))
 		{
 			StackLocation sl(army, st->slot);
 			if(st->alive())
@@ -6386,6 +6400,10 @@ void CasualtiesAfterBattle::takeFromArmy(CGameHandler *gh)
 			gh->changeStackCount(ncount.first, ncount.second, true);
 		else
 			gh->eraseStack(ncount.first, true);
+	}
+	for (auto al : removedWarMachines)
+	{
+		gh->removeArtifact(al);
 	}
 	if (heroWithDeadCommander != ObjectInstanceID())
 	{
