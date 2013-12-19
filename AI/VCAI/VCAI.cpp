@@ -1130,6 +1130,19 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 	return possibleDestinations;
 }
 
+bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
+{
+	//TODO: make gathering gold, building tavern or conquering town (?) possible subgoals
+	if (!t)
+		t = findTownWithTavern();
+	if (t)
+		return cb->getResourceAmount(Res::GOLD) >= HERO_GOLD_COST &&
+			cb->getHeroesInfo().size() < ALLOWED_ROAMING_HEROES &&
+			cb->getAvailableHeroes(t).size();
+	else
+		return false;
+}
+
 void VCAI::wander(HeroPtr h)
 {
 	while(1)
@@ -1181,8 +1194,8 @@ void VCAI::wander(HeroPtr h)
 				striveToGoal(sptr(Goals::VisitTile(t->visitablePos()).sethero(h)));
 				if (pos1 == h->pos && h == primaryHero()) //hero can't move
 				{
-					if(cb->getResourceAmount(Res::GOLD) >= HERO_GOLD_COST && cb->getHeroesInfo().size() < ALLOWED_ROAMING_HEROES && cb->getAvailableHeroes(t).size())
-					recruitHero(t);
+					if (canRecruitAnyHero(t))
+						recruitHero(t);
 				}
 	            break;
 			}

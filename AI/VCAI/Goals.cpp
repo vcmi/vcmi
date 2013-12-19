@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "Goals.h"
 #include "VCAI.h"
+#include "Fuzzy.h"
 
 /*
  * Goals.cpp, part of VCMI engine
@@ -88,6 +89,17 @@ namespace Goals
 	void CGoal<Build>::accept (VCAI * ai)
 	{
 		ai->tryRealize(static_cast<Build&>(*this));
+	}
+	template <>
+	float CGoal<Win>::accept (FuzzyHelper * f)
+	{
+		return f->evaluate(static_cast<Win&>(*this));
+	}
+
+	template <>
+	float CGoal<Build>::accept (FuzzyHelper * f)
+	{
+		return f->evaluate(static_cast<Build&>(*this));
 	}
 }
 
@@ -497,6 +509,23 @@ TSubgoal VisitTile::whatToDoToAchieve()
 	}
 }
 
+TGoalVec VisitTile::getAllPossibleSubgoals()
+{
+	TGoalVec ret;
+	if (!cb->isVisible(tile))
+		ret.push_back (sptr(Goals::Explore())); //what sense does it make?
+	else
+	{
+		for (auto h : cb->getHeroesInfo())
+		{
+			ret.push_back (sptr(Goals::VisitTile(tile).sethero(h)));
+		}
+		if (ai->canRecruitAnyHero())
+			ret.push_back (sptr(Goals::RecruitHero()));
+	}
+	return ret;
+}
+
 TSubgoal DigAtTile::whatToDoToAchieve()
 {
 	const CGObjectInstance *firstObj = frontOrNull(cb->getVisitableObjs(tile));
@@ -879,9 +908,22 @@ void AbstractGoal::accept (VCAI * ai)
 	ai->tryRealize(*this);
 }
 
+
 template<typename T>
 void CGoal<T>::accept (VCAI * ai)
 {
 	ai->tryRealize(static_cast<T&>(*this)); //casting enforces template instantiation
 }
+
+float AbstractGoal::accept (FuzzyHelper * f)
+{
+	return f->evaluate(*this);
+}
+
+template<typename T>
+float  CGoal<T>::accept (FuzzyHelper * f)
+{
+	return f->evaluate(static_cast<T&>(*this)); //casting enforces template instantiation
+}
+
 

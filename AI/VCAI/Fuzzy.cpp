@@ -278,14 +278,14 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 }
 
 //shared_ptr<AbstractGoal> chooseSolution (std::vector<shared_ptr<AbstractGoal>> & vec)
-Goals::TSubgoal chooseSolution (Goals::TGoalVec & vec)
+Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec & vec)
 {
 	typedef std::pair<Goals::TSubgoal, float> goalValue;
 	std::vector <goalValue> values;
 
 	for (auto g : vec)
 	{
-		values.push_back (std::make_pair(g, 66.6f));
+		values.push_back (std::make_pair(g, g->accept(this)));
 	}
 
 	auto compareGoals = [&](const goalValue & lhs, const goalValue & rhs) -> bool
@@ -295,4 +295,46 @@ Goals::TSubgoal chooseSolution (Goals::TGoalVec & vec)
 
 	boost::sort (values, compareGoals);
 	return values.end()->first;
+}
+
+float FuzzyHelper::evaluate (Goals::Explore & g)
+{
+	return 0;
+}
+float FuzzyHelper::evaluate (Goals::RecruitHero & g)
+{
+	return 0;
+}
+float FuzzyHelper::evaluate (Goals::VisitTile & g)
+{
+	return 0;
+}
+float FuzzyHelper::evaluate (Goals::VisitHero & g)
+{
+	return 0;
+}
+float FuzzyHelper::evaluate (Goals::BuildThis & g)
+{
+	return 0;
+}
+float FuzzyHelper::evaluate (Goals::DigAtTile & g)
+{
+	return 0;
+}
+float FuzzyHelper::evaluate (Goals::CollectRes & g)
+{
+	return 0;
+}
+float FuzzyHelper::evaluate (Goals::Build & g)
+{
+	return 0;
+}
+float FuzzyHelper::evaluate (Goals::Invalid & g)
+{
+	return -1e10;
+}
+float FuzzyHelper::evaluate (Goals::AbstractGoal & g)
+{
+	logAi->debugStream() << boost::format("Cannot evaluate goal %s") % g.name();
+	return -1e10;
 }

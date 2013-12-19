@@ -42,6 +42,17 @@ public:
 	void initBank();
 	void initTacticalAdvantage();
 
+	float evaluate (Goals::Explore & g);
+	float evaluate (Goals::RecruitHero & g);
+	float evaluate (Goals::VisitTile & g);
+	float evaluate (Goals::VisitHero & g);
+	float evaluate (Goals::BuildThis & g);
+	float evaluate (Goals::DigAtTile & g);
+	float evaluate (Goals::CollectRes & g);
+	float evaluate (Goals::Build & g);
+	float evaluate (Goals::Invalid & g);
+	float evaluate (Goals::AbstractGoal & g);
+
 	ui64 estimateBankDanger (int ID);
 	float getTacticalAdvantage (const CArmedInstance *we, const CArmedInstance *enemy); //returns factor how many times enemy is stronger than us
 

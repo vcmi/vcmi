@@ -274,6 +274,7 @@ public:
 	bool isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies = false) const;
 
 	const CGTownInstance *findTownWithTavern() const;
+	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;
 
 	std::vector<HeroPtr> getUnblockedHeroes() const;
 	HeroPtr primaryHero() const;

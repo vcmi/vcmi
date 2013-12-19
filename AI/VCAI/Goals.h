@@ -18,6 +18,7 @@
  */
 struct HeroPtr;
 class VCAI;
+class FuzzyHelper;
 
 namespace Goals
 {
@@ -100,10 +101,12 @@ public:
 	static TSubgoal lookForArtSmart(int aid); //checks non-standard ways of obtaining art (merchants, quests, etc.)
 	static TSubgoal tryRecruitHero();
 
+	virtual TGoalVec getAllPossibleSubgoals() = 0;
 	virtual TSubgoal whatToDoToAchieve() = 0;
 	///Visitor pattern
 	//TODO: make accept work for shared_ptr... somehow
 	virtual void accept (VCAI * ai); //unhandled goal will report standard error
+	virtual float accept (FuzzyHelper * f);
 
 	virtual bool operator== (AbstractGoal &g)
 	{
@@ -155,6 +158,7 @@ public:
 	OSETTER(int, bid)
 
 	void accept (VCAI * ai) override;
+	float accept (FuzzyHelper * f) override;
 
 	CGoal<T> * clone() const override
 	{
@@ -180,30 +184,35 @@ class Invalid : public CGoal<Invalid>
 {
 	public:
 	Invalid() : CGoal (Goals::INVALID){};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class Win : public CGoal<Win>
 {
 	public:
 	Win() : CGoal (Goals::WIN){};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class NotLose : public CGoal<NotLose>
 {
 	public:
 	NotLose() : CGoal (Goals::DO_NOT_LOSE){};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class Conquer : public CGoal<Conquer>
 {
 	public:
 	Conquer() : CGoal (Goals::CONQUER){};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class Build : public CGoal<Build>
 {
 	public:
 	Build() : CGoal (Goals::BUILD){};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class Explore : public CGoal<Explore>
@@ -211,6 +220,7 @@ class Explore : public CGoal<Explore>
 	public:
 	Explore() : CGoal (Goals::EXPLORE){};
 	Explore(HeroPtr h) : CGoal (Goals::EXPLORE){hero = h;};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 	std::string completeMessage() const override;
 };
@@ -220,6 +230,7 @@ private:
 	GatherArmy() : CGoal (Goals::GATHER_ARMY){};
 public:
 	GatherArmy(int val) : CGoal (Goals::GATHER_ARMY){value = val;};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 	std::string completeMessage() const override;
 };
@@ -227,12 +238,14 @@ class BoostHero : public CGoal<BoostHero>
 {
 	public:
 	BoostHero() : CGoal (Goals::INVALID){}; //TODO
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class RecruitHero : public CGoal<RecruitHero>
 {
 	public:
 	RecruitHero() : CGoal (Goals::RECRUIT_HERO){};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class BuildThis : public CGoal<BuildThis>
@@ -242,6 +255,7 @@ private:
 public:
 	BuildThis(BuildingID Bid, const CGTownInstance *tid) : CGoal (Goals::BUILD_STRUCTURE) {bid = Bid; town = tid;};
 	BuildThis(BuildingID Bid) : CGoal (Goals::BUILD_STRUCTURE) {bid = Bid;};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class CollectRes : public CGoal<CollectRes>
@@ -250,6 +264,7 @@ private:
 	CollectRes() : CGoal (Goals::COLLECT_RES){};
 public:
 	CollectRes(int rid, int val) : CGoal (Goals::COLLECT_RES) {resID = rid; value = val;};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class GatherTroops : public CGoal<GatherTroops>
@@ -258,6 +273,7 @@ private:
 	GatherTroops() : CGoal (Goals::GATHER_TROOPS){};
 public:
 	GatherTroops(int type, int val) : CGoal (Goals::GATHER_TROOPS){objid = type; value = val;};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class GetObj : public CGoal<GetObj>
@@ -266,6 +282,7 @@ private:
 	GetObj() {}; // empty constructor not allowed
 public:
 	GetObj(int Objid) : CGoal(Goals::GET_OBJ) {objid = Objid;};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (GetObj &g) {return g.objid ==  objid;}
 	bool fulfillsMe (shared_ptr<VisitTile> goal) override;
@@ -278,6 +295,7 @@ private:
 public:
 	FindObj(int ID) : CGoal(Goals::FIND_OBJ) {objid = ID;};
 	FindObj(int ID, int subID) : CGoal(Goals::FIND_OBJ) {objid = ID; resID = subID;};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class VisitHero : public CGoal<VisitHero>
@@ -286,6 +304,7 @@ private:
 	VisitHero() : CGoal (Goals::VISIT_HERO){};
 public:
 	VisitHero(int hid) : CGoal (Goals::VISIT_HERO){objid = hid;};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (VisitHero &g) {return g.objid == objid;}
 	bool fulfillsMe (shared_ptr<VisitTile> goal) override;
@@ -297,6 +316,7 @@ private:
 	GetArtOfType() : CGoal (Goals::GET_ART_TYPE){};
 public:
 	GetArtOfType(int type) : CGoal (Goals::GET_ART_TYPE){aid = type;};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class VisitTile : public CGoal<VisitTile>
@@ -306,6 +326,7 @@ private:
 	VisitTile() {}; // empty constructor not allowed
 public:
 	VisitTile(int3 Tile) : CGoal (Goals::VISIT_TILE) {tile = Tile;};
+	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (VisitTile &g) {return g.tile == tile;}
 	std::string completeMessage() const override;
@@ -314,6 +335,7 @@ class ClearWayTo : public CGoal<ClearWayTo>
 {
 public:
 	ClearWayTo(int3 Tile) : CGoal (Goals::CLEAR_WAY_TO) {tile = Tile;};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (ClearWayTo &g) {return g.tile == tile;}
 };
@@ -324,6 +346,7 @@ private:
 	DigAtTile() : CGoal (Goals::DIG_AT_TILE){};
 public:
 	DigAtTile(int3 Tile) : CGoal (Goals::DIG_AT_TILE) {tile = Tile;};
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (DigAtTile &g) {return g.tile == tile;}
 };
@@ -334,6 +357,7 @@ class CIssueCommand : public CGoal<CIssueCommand>
 
 	public:
 	CIssueCommand(std::function<bool()> _command): CGoal(ISSUE_COMMAND), command(_command) {}
+	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 
