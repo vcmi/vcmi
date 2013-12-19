@@ -928,6 +928,12 @@ void VCAI::recruitCreatures(const CGDwelling * d)
 
 bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays)
 {
+	if (maxDays == 0)
+	{
+		logAi->warnStream() << "Request to build building " << building <<  " in 0 days!";
+		return false;
+	}
+
 	if (!vstd::contains(t->town->buildings, building))
 		return false; // no such building in town
 
