@@ -15,6 +15,7 @@
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
+extern FuzzyHelper * fh; //TODO: this logic should be moved inside VCAI
 
 using namespace vstd;
 using namespace Goals;
@@ -225,6 +226,11 @@ TSubgoal FindObj::whatToDoToAchieve()
 	else
 		return sptr (Goals::Explore());
 }
+float FindObj::importanceWhenLocked() const
+{
+	return 1; //we will probably fins it anyway, someday
+}
+
 std::string GetObj::completeMessage() const
 {
 	return "hero " + hero.get()->name + " captured Object ID = " + boost::lexical_cast<std::string>(objid); 
@@ -238,6 +244,12 @@ TSubgoal GetObj::whatToDoToAchieve()
 	int3 pos = obj->visitablePos();
 	return sptr (Goals::VisitTile(pos));
 }
+
+float GetObj::importanceWhenLocked() const
+{
+	return 3;
+}
+
 
 bool GetObj::fulfillsMe (shared_ptr<VisitTile> goal)
 {
@@ -268,6 +280,11 @@ TSubgoal VisitHero::whatToDoToAchieve()
 	return sptr (Goals::Invalid());
 }
 
+float VisitHero::importanceWhenLocked() const
+{
+	return 4;
+}
+
 bool VisitHero::fulfillsMe (shared_ptr<VisitTile> goal)
 {
 	if (cb->getObj(ObjectInstanceID(objid))->visitablePos() == goal->tile)
@@ -282,6 +299,11 @@ TSubgoal GetArtOfType::whatToDoToAchieve()
 	if(alternativeWay->invalid())
 		return sptr (Goals::FindObj(Obj::ARTIFACT, aid));
 	return sptr (Goals::Invalid());
+}
+
+float GetArtOfType::importanceWhenLocked() const
+{
+	return 2;
 }
 
 TSubgoal ClearWayTo::whatToDoToAchieve()
@@ -332,6 +354,11 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 	//TODO czy istnieje lepsza droga?
 
 	throw cannotFulfillGoalException("Cannot reach given tile!"); //how and when could this be used?
+}
+
+float ClearWayTo::importanceWhenLocked() const
+{
+	return 5;
 }
 
 std::string Explore::completeMessage() const
@@ -452,6 +479,11 @@ TSubgoal Explore::whatToDoToAchieve()
 	return iAmElementar(); //FIXME: how can this be called?
 };
 
+float Explore::importanceWhenLocked() const
+{
+	return 1; //exploration is natural and lowpriority process
+}
+
 TSubgoal RecruitHero::whatToDoToAchieve()
 {
 	const CGTownInstance *t = ai->findTownWithTavern();
@@ -471,42 +503,63 @@ std::string VisitTile::completeMessage() const
 
 TSubgoal VisitTile::whatToDoToAchieve()
 {
-	if(!cb->isVisible(tile))
-		return sptr (Goals::Explore());
+	//here only temporarily
+	auto ret = fh->chooseSolution (getAllPossibleSubgoals());
 
-	if(hero && !ai->isAccessibleForHero(tile, hero))
-		hero = nullptr;
-
-	if(!hero)
+	if (ret->hero)
 	{
-		if(cb->getHeroesInfo().empty())
+		if (isSafeToVisit(ret->hero, tile))
 		{
-			return sptr (Goals::RecruitHero());
+			ret->setisElementar(true);
+			return ret;
 		}
-
-		for(const CGHeroInstance *h : cb->getHeroesInfo())
-		{
-			if(ai->isAccessibleForHero(tile, h))
-			{
-				hero = h;
-				break;
-			}
-		}
-	}
-
-	if(hero)
-	{
-		if(isSafeToVisit(hero, tile))
-			return sptr (setisElementar(true));
 		else
 		{
-			return sptr (Goals::GatherArmy(evaluateDanger(tile, *hero) * SAFE_ATTACK_CONSTANT).sethero(hero));
+			return sptr (Goals::GatherArmy(evaluateDanger(tile, *ret->hero) * SAFE_ATTACK_CONSTANT).sethero(ret->hero));
 		}
 	}
-	else	//inaccessible for all heroes
-	{
-		return sptr (Goals::ClearWayTo(tile));
-	}
+	return ret;
+	//if(!cb->isVisible(tile))
+	//	return sptr (Goals::Explore());
+
+	//if(hero && !ai->isAccessibleForHero(tile, hero))
+	//	hero = nullptr;
+
+	//if(!hero)
+	//{
+	//	if(cb->getHeroesInfo().empty())
+	//	{
+	//		return sptr (Goals::RecruitHero());
+	//	}
+
+	//	for(const CGHeroInstance *h : cb->getHeroesInfo())
+	//	{
+	//		if(ai->isAccessibleForHero(tile, h))
+	//		{
+	//			hero = h;
+	//			break;
+	//		}
+	//	}
+	//}
+
+	//if(hero)
+	//{
+	//	if(isSafeToVisit(hero, tile))
+	//		return sptr (setisElementar(true));
+	//	else
+	//	{
+	//		return sptr (Goals::GatherArmy(evaluateDanger(tile, *hero) * SAFE_ATTACK_CONSTANT).sethero(hero));
+	//	}
+	//}
+	//else	//inaccessible for all heroes
+	//{
+	//	return sptr (Goals::ClearWayTo(tile));
+	//}
+}
+
+float VisitTile::importanceWhenLocked() const
+{
+	return 5; //depends on a distance, but we should really reach the tile once it was selected
 }
 
 TGoalVec VisitTile::getAllPossibleSubgoals()
@@ -518,11 +571,15 @@ TGoalVec VisitTile::getAllPossibleSubgoals()
 	{
 		for (auto h : cb->getHeroesInfo())
 		{
-			ret.push_back (sptr(Goals::VisitTile(tile).sethero(h)));
+			if (ai->isAccessibleForHero(tile, h))
+				ret.push_back (sptr(Goals::VisitTile(tile).sethero(h)));
 		}
 		if (ai->canRecruitAnyHero())
 			ret.push_back (sptr(Goals::RecruitHero()));
 	}
+	if (ret.empty())
+		ret.push_back (sptr(Goals::ClearWayTo(tile)));
+	//important - at least one sub-goal must handle case which is impossible to fulfill (unreachable tile)
 	return ret;
 }
 
@@ -539,12 +596,22 @@ TSubgoal DigAtTile::whatToDoToAchieve()
 	return sptr (Goals::VisitTile(tile));
 }
 
+float DigAtTile::importanceWhenLocked() const
+{
+	return 20; //do not! interrupt tile digging
+}
+
 TSubgoal BuildThis::whatToDoToAchieve()
 {
 	//TODO check res
 	//look for town
 	//prerequisites?
 	return iAmElementar();
+}
+
+float BuildThis::importanceWhenLocked() const
+{
+	return 5;
 }
 
 TSubgoal CollectRes::whatToDoToAchieve()
@@ -614,6 +681,11 @@ TSubgoal CollectRes::whatToDoToAchieve()
 	return sptr (Goals::Invalid()); //FIXME: unused?
 }
 
+float CollectRes::importanceWhenLocked() const
+{
+	return 2;
+}
+
 TSubgoal GatherTroops::whatToDoToAchieve()
 {
 	std::vector<const CGDwelling *> dwellings;
@@ -667,6 +739,11 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 	else
 		return sptr (Goals::Explore());
 	//TODO: exchange troops between heroes
+}
+
+float GatherTroops::importanceWhenLocked() const
+{
+	return 2;
 }
 
 TSubgoal Conquer::whatToDoToAchieve()
@@ -748,10 +825,20 @@ TSubgoal Conquer::whatToDoToAchieve()
 
 	return sptr (Goals::Explore()); //enemy is inaccessible
 }
+float Conquer::importanceWhenLocked() const
+{
+	return 10; //defeating opponent is hig priority, always
+}
+
 
 TSubgoal Build::whatToDoToAchieve()
 {
 	return iAmElementar();
+}
+
+float Build::importanceWhenLocked() const
+{
+	return 1;
 }
 
 TSubgoal Invalid::whatToDoToAchieve()
@@ -877,6 +964,11 @@ TSubgoal GatherArmy::whatToDoToAchieve()
 	}
 
 	return sptr (Goals::Explore(hero)); //find dwelling. use current hero to prevent him from doing nothing.
+}
+
+float GatherArmy::importanceWhenLocked() const
+{
+	return 2.5;
 }
 
 //TSubgoal AbstractGoal::whatToDoToAchieve()

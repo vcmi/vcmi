@@ -108,6 +108,7 @@ public:
 
 	//client-specific functionalities (pathfinding)
 	virtual const CGPathNode *getPathInfo(int3 tile); //uses main, client pathfinder info
+	virtual const int getDistance(int3 tile);
 	virtual bool getPath2(int3 dest, CGPath &ret); //uses main, client pathfinder info
 
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1);

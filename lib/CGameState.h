@@ -227,8 +227,8 @@ struct DLL_LINKAGE CGPathNode
 
 	EAccessibility accessible;
 	ui8 land;
-	ui8 turns;
-	ui32 moveRemains;
+	ui8 turns; //how many turns we have to wait before reachng the tile - 0 means current turn
+	ui32 moveRemains; //remaining tiles after hero reaches the tile
 	CGPathNode * theNodeBefore;
 	int3 coord; //coordinates
 

@@ -28,19 +28,37 @@ class FuzzyHelper
 	fl::OutputLVar* bankDanger;
 	fl::RuleBlock bankBlock;
 
-	fl::InputLVar * ourWalkers, * ourShooters, * ourFlyers, * enemyWalkers, * enemyShooters, * enemyFlyers;
-	fl::InputLVar * ourSpeed, * enemySpeed;
-	fl::InputLVar * bankPresent;
-	fl::InputLVar * castleWalls;
-	fl::OutputLVar * threat;
-	fl::RuleBlock tacticalAdvantage;
+	class TacticalAdvantage
+	{
+	public:
+		fl::InputLVar * ourWalkers, * ourShooters, * ourFlyers, * enemyWalkers, * enemyShooters, * enemyFlyers;
+		fl::InputLVar * ourSpeed, * enemySpeed;
+		fl::InputLVar * bankPresent;
+		fl::InputLVar * castleWalls;
+		fl::OutputLVar * threat;
+		fl::RuleBlock tacticalAdvantage;
+		~TacticalAdvantage();
+	} ta;
+
+	class EvalVisitTile
+	{
+	public:
+		fl::InputLVar * strengthRatio;
+		fl::InputLVar * heroStrength;
+		fl::InputLVar * tileDistance;
+		fl::InputLVar * missionImportance;
+		fl::OutputLVar * value;
+		fl::RuleBlock rules;
+		~EvalVisitTile();
+	} vt;
 
 public:
-	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE};
+	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE, VISIT_TILE}; //where is it used and why it's needed?
 
 	FuzzyHelper();
 	void initBank();
 	void initTacticalAdvantage();
+	void initVisitTile();
 
 	float evaluate (Goals::Explore & g);
 	float evaluate (Goals::RecruitHero & g);
