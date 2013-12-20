@@ -503,7 +503,6 @@ std::string VisitTile::completeMessage() const
 
 TSubgoal VisitTile::whatToDoToAchieve()
 {
-	//here only temporarily
 	auto ret = fh->chooseSolution (getAllPossibleSubgoals());
 
 	if (ret->hero)
@@ -519,42 +518,6 @@ TSubgoal VisitTile::whatToDoToAchieve()
 		}
 	}
 	return ret;
-	//if(!cb->isVisible(tile))
-	//	return sptr (Goals::Explore());
-
-	//if(hero && !ai->isAccessibleForHero(tile, hero))
-	//	hero = nullptr;
-
-	//if(!hero)
-	//{
-	//	if(cb->getHeroesInfo().empty())
-	//	{
-	//		return sptr (Goals::RecruitHero());
-	//	}
-
-	//	for(const CGHeroInstance *h : cb->getHeroesInfo())
-	//	{
-	//		if(ai->isAccessibleForHero(tile, h))
-	//		{
-	//			hero = h;
-	//			break;
-	//		}
-	//	}
-	//}
-
-	//if(hero)
-	//{
-	//	if(isSafeToVisit(hero, tile))
-	//		return sptr (setisElementar(true));
-	//	else
-	//	{
-	//		return sptr (Goals::GatherArmy(evaluateDanger(tile, *hero) * SAFE_ATTACK_CONSTANT).sethero(hero));
-	//	}
-	//}
-	//else	//inaccessible for all heroes
-	//{
-	//	return sptr (Goals::ClearWayTo(tile));
-	//}
 }
 
 float VisitTile::importanceWhenLocked() const
@@ -748,88 +711,52 @@ float GatherTroops::importanceWhenLocked() const
 
 TSubgoal Conquer::whatToDoToAchieve()
 {
-	auto hs = cb->getHeroesInfo();
-	int howManyHeroes = hs.size();
+	return fh->chooseSolution (getAllPossibleSubgoals());
+}
+TGoalVec Conquer::getAllPossibleSubgoals()
+{
+	TGoalVec ret;
 
-	erase(hs, [](const CGHeroInstance *h)
-	{
-		return contains(ai->lockedHeroes, h);
-	});
-	if(hs.empty()) //all heroes are busy. buy new one
-	{
-		if (howManyHeroes < 3  && ai->findTownWithTavern()) //we may want to recruit second hero. TODO: make it smart finally
-			return sptr (Goals::RecruitHero());
-		else //find mobile hero with weakest army
-		{
-			hs = cb->getHeroesInfo();
-			erase_if(hs, [](const CGHeroInstance *h)
-			{
-				return !h->movement; //only hero with movement are of interest for us
-			});
-			if (hs.empty())
-			{
-				if (howManyHeroes < GameConstants::MAX_HEROES_PER_PLAYER)
-					return sptr (Goals::RecruitHero());
-				else
-					throw cannotFulfillGoalException("No heroes with remaining MPs for exploring!\n");
-			}
-			boost::sort(hs, compareHeroStrength);
-		}
-	}
-
-	const CGHeroInstance *h = hs.back();
-	cb->setSelection(h);
 	std::vector<const CGObjectInstance *> objs; //here we'll gather enemy towns and heroes
 	ai->retreiveVisitableObjs(objs);
 	erase_if(objs, [&](const CGObjectInstance *obj)
 	{
-		return (obj->ID != Obj::TOWN && obj->ID != Obj::HERO) //not town/hero
-			|| cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES;
+		return (obj->ID != Obj::TOWN && obj->ID != Obj::HERO && //not town/hero
+			obj->ID != Obj::CREATURE_GENERATOR1 && obj->ID != Obj::MINE) //not dwelling or mine
+			|| cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES; //only enemy objects are interesting
 	});
-			
-	if (objs.empty()) //experiment - try to conquer dwellings and mines, it should pay off
-	{
-		ai->retreiveVisitableObjs(objs);
-		erase_if(objs, [&](const CGObjectInstance *obj)
-		{
-			return (obj->ID != Obj::CREATURE_GENERATOR1 && obj->ID != Obj::MINE) //not dwelling or mine
-				|| cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES;
-		});
-	}
-
-	if(objs.empty())
-		return sptr (Goals::Explore()); //we need to find an enemy
-
 	erase_if(objs,  [&](const CGObjectInstance *obj)
 	{
-		return !isSafeToVisit(h, obj->visitablePos()) || vstd::contains (ai->reservedObjs, obj); //no need to capture same object twice
+		return vstd::contains (ai->reservedObjs, obj);
+		//no need to capture same object twice
 	});
 
-	if(objs.empty())
-		return iAmElementar();
-
-	boost::sort(objs, isCloser);
-	for(const CGObjectInstance *obj : objs)
+	for (auto h : cb->getHeroesInfo())
 	{
-		if (ai->isAccessibleForHero(obj->visitablePos(), h))
+		for (auto obj : objs) //double loop, performance risk?
 		{
-			ai->reserveObject(h, obj); //no one else will capture same object until we fail
-
-			if (obj->ID == Obj::HERO)
-				return sptr (Goals::VisitHero(obj->id.getNum()).sethero(h).setisAbstract(true));
+			if (ai->isAccessibleForHero(obj->visitablePos(), h) && isSafeToVisit(h, obj->visitablePos()))
+			{
+				if (obj->ID == Obj::HERO)
+					ret.push_back (sptr (Goals::VisitHero(obj->id.getNum()).sethero(h).setisAbstract(true)));
 					//track enemy hero
-			else
-				return sptr (Goals::VisitTile(obj->visitablePos()).sethero(h));
+				else
+					ret.push_back (sptr (Goals::VisitTile(obj->visitablePos()).sethero(h)));
+			}
 		}
 	}
+	if (!objs.empty() && ai->canRecruitAnyHero()) //probably no point to recruit hero if we see no objects to capture
+		ret.push_back (sptr(Goals::RecruitHero()));
 
-	return sptr (Goals::Explore()); //enemy is inaccessible
+	if (ret.empty())
+		ret.push_back (sptr(Goals::Explore())); //we need to find an enemy
+	return ret;
 }
+
 float Conquer::importanceWhenLocked() const
 {
 	return 10; //defeating opponent is hig priority, always
 }
-
 
 TSubgoal Build::whatToDoToAchieve()
 {

@@ -212,7 +212,7 @@ class Conquer : public CGoal<Conquer>
 {
 	public:
 	Conquer() : CGoal (Goals::CONQUER){};
-	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
+	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	float importanceWhenLocked() const override;
 };

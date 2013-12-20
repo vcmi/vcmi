@@ -390,6 +390,7 @@ void FuzzyHelper::initVisitTile()
 }
 float FuzzyHelper::evaluate (Goals::VisitTile & g)
 {
+	//we assume that hero is already set and we want to choose most suitable one for the mission
 	if (!g.hero)
 		return 0;
 
@@ -426,7 +427,9 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 }
 float FuzzyHelper::evaluate (Goals::VisitHero & g)
 {
-	return 0;
+	auto obj = cb->getObj(ObjectInstanceID(g.objid)); //we assume for now that these goals are similiar
+	return Goals::VisitTile(obj->pos).sethero(g.hero).setisAbstract(g.isAbstract).accept(this);
+	//TODO: consider direct copy (constructor?)
 }
 float FuzzyHelper::evaluate (Goals::BuildThis & g)
 {
