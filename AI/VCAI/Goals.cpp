@@ -383,15 +383,15 @@ TSubgoal Explore::whatToDoToAchieve()
 TGoalVec Explore::getAllPossibleSubgoals()
 {
 	TGoalVec ret;
-	std::vector<const CGHeroInstance *> heroes;
+	std::vector<HeroPtr> heroes;
 	if (hero)
-		heroes.push_back(hero.h);
+		heroes.push_back(hero);
 	else
 	{
-		heroes = cb->getHeroesInfo();
-		erase_if(heroes, [](const CGHeroInstance *h)
+		heroes = ai->getUnblockedHeroes();
+		erase_if (heroes, [](const HeroPtr h)
 		{
-			return !h->movement; //only hero with movement are of interest for us
+			return !h->movement; //saves time, immobile heroes are useless anyway
 		});
 	}
 
