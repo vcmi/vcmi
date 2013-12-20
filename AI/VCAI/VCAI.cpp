@@ -1453,6 +1453,7 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /
 
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
+	cb->setSelection(h.h); //make sure we are using the RIGHT pathfinder
 	logAi->debugStream() << boost::format("Moving hero %s to tile %s") % h->name % dst;
 	int3 startHpos = h->visitablePos();
 	bool ret = false;
