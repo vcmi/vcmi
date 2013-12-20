@@ -368,6 +368,33 @@ std::string Explore::completeMessage() const
 
 TSubgoal Explore::whatToDoToAchieve()
 {
+	auto ret = fh->chooseSolution(getAllPossibleSubgoals());
+	if (hero) //use best step for this hero
+		return ret;
+	else
+	{
+		if (ret->hero.get(true))
+			return sptr (sethero(ret->hero.h).setisAbstract(true)); //choose this hero and then continue with him
+		else
+			return ret; //other solutions, like buying hero from tavern
+	}
+};
+
+TGoalVec Explore::getAllPossibleSubgoals()
+{
+	TGoalVec ret;
+	std::vector<const CGHeroInstance *> heroes;
+	if (hero)
+		heroes.push_back(hero.h);
+	else
+	{
+		heroes = cb->getHeroesInfo();
+		erase_if(heroes, [](const CGHeroInstance *h)
+		{
+			return !h->movement; //only hero with movement are of interest for us
+		});
+	}
+
 	auto objs = ai->visitableObjs; //try to use buildings that uncover map
 	erase_if(objs, [&](const CGObjectInstance *obj) -> bool
 	{
@@ -389,94 +416,28 @@ TSubgoal Explore::whatToDoToAchieve()
 				return true;
 		}
 	});
-	if (objs.size())
+
+	for (auto h : heroes)
 	{
-		if (hero.get(true))
+		for (auto obj : objs) //double loop, performance risk?
 		{
-			for (auto obj : objs)
+			if (ai->isAccessibleForHero(obj->visitablePos(), h) && isSafeToVisit(h, obj->visitablePos()))
 			{
-				auto pos = obj->visitablePos();
-				//FIXME: this confition fails if everything but guarded subterranen gate was explored. in this case we should gather army for hero
-				if (isSafeToVisit(hero, pos) && ai->isAccessibleForHero(pos, hero))
-					return sptr (Goals::VisitTile(pos).sethero(hero));
+				ret.push_back (sptr (Goals::VisitTile(obj->visitablePos()).sethero(h)));
 			}
 		}
-		else
-		{
-			for (auto obj : objs)
-			{
-				auto pos = obj->visitablePos();
-				if (ai->isAccessible (pos)) //TODO: check safety?
-					return sptr (Goals::VisitTile(pos).sethero(hero));
-			}
-		}
+
+		int3 t = whereToExplore(h);
+		if (t.z != -1) //no safe tile to explore - we need to break!
+		ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
 	}
+	if (!hero && ai->canRecruitAnyHero())//if hero is assigned to that goal, no need to buy another one yet
+		ret.push_back (sptr(Goals::RecruitHero()));
 
-	if (hero)
-	{
-		int3 t = whereToExplore(hero);
-		if (t.z == -1) //no safe tile to explore - we need to break!
-		{
-			erase_if (objs, [&](const CGObjectInstance *obj) -> bool
-			{
-				switch (obj->ID.num)
-				{
-					case Obj::CARTOGRAPHER:
-					case Obj::SUBTERRANEAN_GATE:
-					//case Obj::MONOLITH1:
-					//case obj::MONOLITH2:
-					//case obj::MONOLITH3:
-					//case Obj::WHIRLPOOL:
-						return false; //do not erase
-						break;
-					default:
-						return true;
-				}
-			});
-			if (objs.size())
-			{
-				return sptr (Goals::VisitTile(objs.front()->visitablePos()).sethero(hero).setisAbstract(true));
-			}
-			else
-				throw cannotFulfillGoalException("Cannot explore - no possible ways found!");
-		}
-		return sptr (Goals::VisitTile(t).sethero(hero));
-	}
+	if (ret.empty())
+		throw cannotFulfillGoalException("Cannot explore - no possible ways found!");
 
-	auto hs = cb->getHeroesInfo();
-	int howManyHeroes = hs.size();
-
-	erase(hs, [](const CGHeroInstance *h)
-	{
-		return contains(ai->lockedHeroes, h);
-	});
-	if(hs.empty()) //all heroes are busy. buy new one
-	{
-		if (howManyHeroes < 3  && ai->findTownWithTavern()) //we may want to recruit second hero. TODO: make it smart finally
-			return sptr (Goals::RecruitHero());
-		else //find mobile hero with weakest army
-		{
-			hs = cb->getHeroesInfo();
-			erase_if(hs, [](const CGHeroInstance *h)
-			{
-				return !h->movement; //only hero with movement are of interest for us
-			});
-			if (hs.empty())
-			{
-				if (howManyHeroes < GameConstants::MAX_HEROES_PER_PLAYER)
-					return sptr (Goals::RecruitHero());
-				else
-					throw cannotFulfillGoalException("No heroes with remaining MPs for exploring!\n");
-			}
-			boost::sort(hs, compareMovement); //closer to what?
-		}
-	}
-
-	const CGHeroInstance *h = hs.front();
-
-	return sptr (sethero(h).setisAbstract(true));
-
-	return iAmElementar(); //FIXME: how can this be called?
+	return ret;
 };
 
 float Explore::importanceWhenLocked() const

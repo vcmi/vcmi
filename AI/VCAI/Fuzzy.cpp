@@ -159,7 +159,7 @@ void FuzzyHelper::initTacticalAdvantage()
 		ta.castleWalls = new fl::InputLVar("CastleWalls");
 		ta.castleWalls->addTerm(new fl::SingletonTerm("NONE", CGTownInstance::NONE));
 		ta.castleWalls->addTerm(new fl::TrapezoidalTerm("MEDIUM", CGTownInstance::FORT, 2.5));
-		ta.castleWalls->addTerm(new fl::ShoulderTerm("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE));
+		ta.castleWalls->addTerm(new fl::ShoulderTerm("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE, false));
 		engine.addInputLVar(ta.castleWalls);
 
 		ta.bankPresent = new fl::InputLVar("Bank");
