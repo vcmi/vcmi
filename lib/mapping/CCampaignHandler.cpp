@@ -242,7 +242,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const ui8 * buff
 			for (int g=0; g<numOfBonuses; ++g)
 			{
 				CScenarioTravel::STravelBonus bonus;
-				bonus.type = CScenarioTravel::STravelBonus::PLAYER_PREV_SCENARIO;
+				bonus.type = CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO;
 				bonus.info1 = buffer[outIt++]; //player color
 				bonus.info2 = buffer[outIt++]; //from what scenario
 
@@ -322,87 +322,6 @@ bool CCampaignScenario::isNotVoid() const
 	return mapName.size() > 0;
 }
 
-void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> heroes )
-{
-	crossoverHeroes = heroes;
-
-
-	if (!(travelOptions.whatHeroKeeps & 1))
-	{
-		//trimming experience
-		for(CGHeroInstance * cgh : crossoverHeroes)
-		{
-			cgh->initExp();
-		}
-	}
-	if (!(travelOptions.whatHeroKeeps & 2))
-	{
-		//trimming prim skills
-		for(CGHeroInstance * cgh : crossoverHeroes)
-		{
-			for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
-			{
-				auto sel = Selector::type(Bonus::PRIMARY_SKILL)
-					.And(Selector::subtype(g))
-					.And(Selector::sourceType(Bonus::HERO_BASE_SKILL));
-
-				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g];
-			}
-		}
-	}
-	if (!(travelOptions.whatHeroKeeps & 4))
-	{
-		//trimming sec skills
-		for(CGHeroInstance * cgh : crossoverHeroes)
-		{
-			cgh->secSkills = cgh->type->secSkillsInit;
-		}
-	}
-	if (!(travelOptions.whatHeroKeeps & 8))
-	{
-		//trimming spells
-		for(CGHeroInstance * cgh : crossoverHeroes)
-		{
-			cgh->spells.clear();
-		}
-	}
-	if (!(travelOptions.whatHeroKeeps & 16))
-	{
-		//trimming artifacts
-		for(CGHeroInstance * hero : crossoverHeroes)
-		{
-			size_t totalArts = GameConstants::BACKPACK_START + hero->artifactsInBackpack.size();
-			for (size_t i=0; i<totalArts; i++ )
-			{
-				const ArtSlotInfo *info = hero->getSlot(ArtifactPosition(i));
-				if (!info)
-					continue;
-
-				const CArtifactInstance *art = info->artifact;
-				if (!art)//FIXME: check spellbook and catapult behaviour
-					continue;
-
-				int id  = art->artType->id;
-				assert( 8*18 > id );//number of arts that fits into h3m format
-				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
-
-				if (!takeable)
-					hero->eraseArtSlot(ArtifactPosition(i));
-			}
-		}
-	}
-
-	//trimming creatures
-	for(CGHeroInstance * cgh : crossoverHeroes)
-	{
-		vstd::erase_if(cgh->stacks, [&](const std::pair<SlotID, CStackInstance *> & j) -> bool
-		{
-			CreatureID::ECreatureID crid = j.second->getCreatureID().toEnum();
-			return !(travelOptions.monstersKeptByHero[crid / 8] & (1 << (crid % 8)) );
-		});
-	}
-}
-
 const CGHeroInstance * CCampaignScenario::strongestHero( PlayerColor owner ) const
 {
 	using boost::adaptors::filtered;
@@ -431,9 +350,9 @@ bool CScenarioTravel::STravelBonus::isBonusForHero() const
 // 		mapsRemaining.push_back(i);
 // }
 
-void CCampaignState::mapConquered( const std::vector<CGHeroInstance*> & heroes )
+void CCampaignState::setCurrentMapAsConquered( const std::vector<CGHeroInstance*> & heroes )
 {
-	camp->scenarios[*currentMap].prepareCrossoverHeroes(heroes);
+	camp->scenarios[*currentMap].crossoverHeroes = heroes;
 	mapsConquered.push_back(*currentMap);
 	mapsRemaining -= *currentMap;
 	camp->scenarios[*currentMap].conquered = true;

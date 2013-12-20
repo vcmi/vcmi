@@ -503,7 +503,7 @@ std::string VisitTile::completeMessage() const
 
 TSubgoal VisitTile::whatToDoToAchieve()
 {
-	auto ret = fh->chooseSolution (getAllPossibleSubgoals());
+	auto ret = fh->chooseSolution(getAllPossibleSubgoals());
 
 	if (ret->hero)
 	{

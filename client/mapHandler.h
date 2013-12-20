@@ -36,13 +36,10 @@ struct TerrainTile2
 template <typename T> class PseudoV
 {
 public:
-	int offset;
-	std::vector<T> inver;
-	PseudoV(){};
-	PseudoV(std::vector<T> &src, int rest, int before, int after, const T& fill)
+	PseudoV() : offset(0) { }
+	PseudoV(std::vector<T> &src, int rest, int before, int after, const T& fill) : offset(before)
 	{
 		inver.resize(before + rest + after);
-		offset=before;
 		for(int i=0; i<before;i++)
 			inver[i] = fill;
 		for(int i=0;i<src.size();i++)
@@ -67,6 +64,10 @@ public:
 	{
 		return inver.size();
 	}
+
+private:
+	int offset;
+	std::vector<T> inver;
 };
 
 class CMapHandler

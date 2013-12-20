@@ -311,7 +311,7 @@ const CGPathNode * CCallback::getPathInfo( int3 tile )
 	return &cl->pathInfo->nodes[tile.x][tile.y][tile.z];
 }
 
-const int CCallback::getDistance( int3 tile )
+int CCallback::getDistance( int3 tile )
 {
 	CGPath ret;
 	if (getPath2 (tile, ret))

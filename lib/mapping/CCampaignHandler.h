@@ -59,7 +59,7 @@ public:
 	struct DLL_LINKAGE STravelBonus
 	{
 		enum EBonusType {SPELL, MONSTER, BUILDING, ARTIFACT, SPELL_SCROLL, PRIMARY_SKILL, SECONDARY_SKILL, RESOURCE,
-			PLAYER_PREV_SCENARIO, HERO};
+			HEROES_FROM_PREVIOUS_SCENARIO, HERO};
 		EBonusType type; //uses EBonusType
 		si32 info1, info2, info3; //purpose depends on type
 
@@ -108,7 +108,7 @@ public:
 	SScenarioPrologEpilog prolog, epilog;
 
 	CScenarioTravel travelOptions;
-	std::vector<CGHeroInstance *> crossoverHeroes;
+	std::vector<CGHeroInstance *> crossoverHeroes; // contains all heroes with the same state when the camapign scenario was finished
 
 	const CGHeroInstance * strongestHero(PlayerColor owner) const;
 	void loadPreconditionRegions(ui32 regions);
@@ -150,7 +150,7 @@ public:
 	std::map<ui8, ui8> chosenCampaignBonuses;
 
 	//void initNewCampaign(const StartInfo &si);
-	void mapConquered(const std::vector<CGHeroInstance*> & heroes);
+	void setCurrentMapAsConquered(const std::vector<CGHeroInstance*> & heroes);
 	boost::optional<CScenarioTravel::STravelBonus> getBonusForCurrentMap() const;
 	const CCampaignScenario &getCurrentScenario() const;
 	ui8 currentBonusID() const;

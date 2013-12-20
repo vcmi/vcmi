@@ -59,6 +59,7 @@ class CGGarrison;
 class CGameInfo;
 struct QuestInfo;
 class CQuest;
+class CCampaignScenario;
 
 namespace boost
 {
@@ -445,7 +446,8 @@ public:
 	}
 
 private:
-	// Init game state
+	// ----- initialization -----
+
 	void initNewGame();
 	void initCampaign();
 	void initDuel();
@@ -456,6 +458,12 @@ private:
 	void randomizeObject(CGObjectInstance *cur);
 	void initPlayerStates();
 	void initHeroPlaceholders();
+	const CCampaignScenario * getCampaignScenarioForCrossoverHeroes() const;
+	std::vector<CGHeroInstance *> prepareCrossoverHeroes(const CCampaignScenario * campaignScenario);
+
+	// returns heroes and placeholders in where heroes will be put
+	std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > generateCampaignHeroesToReplace(std::vector<CGHeroInstance *> & crossoverHeroes);
+
 	void placeCampaignHeroes(const std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > &campHeroReplacements);
 	void placeStartingHeroes();
 	void initStartingResources();
@@ -467,20 +475,23 @@ private:
 	void initMapObjects();
 	void initVisitingAndGarrisonedHeroes();
 
-	// Victory / Loss condition checks
+	// ----- victory, loss condition checks -----
+
 	EVictoryLossCheckResult checkForVictory(PlayerColor player) const; //checks if given player is winner
 	EVictoryLossCheckResult checkForLoss(PlayerColor player) const; //checks if given player is loser
 	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
 	bool checkForStandardLoss(PlayerColor player) const; //checks if given player lost the game
 
-	// Bonus system handling
+	// ----- bonus system handling -----
+
 	void buildBonusSystemTree();
 	void attachArmedObjects();
 	void buildGlobalTeamPlayerTree();
 	void deserializationFix();
 
+	// ---- misc helpers -----
+
 	bool isUsedHero(HeroTypeID hid) const; //looks in heroes and prisons
-	std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > campaignHeroesToReplace(); //returns heroes and placeholders in where heroes will be put; may remove some placeholders
 	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
 	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
 	int pickHero(PlayerColor owner);

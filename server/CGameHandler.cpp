@@ -5108,15 +5108,12 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 				if(gs->scenarioOps->campState)
 				{
-					std::vector<CGHeroInstance *> hes;
-					for(CGHeroInstance * ghi : gs->map->heroesOnMap)
+					std::vector<CGHeroInstance *> heroesBelongingToPlayer;
+					for(CGHeroInstance * hero : gs->map->heroesOnMap)
 					{
-						if (ghi->tempOwner == player)
-						{
-							hes.push_back(ghi);
-						}
+						if(hero->tempOwner == player) heroesBelongingToPlayer.push_back(hero);
 					}
-					gs->scenarioOps->campState->mapConquered(hes);
+					gs->scenarioOps->campState->setCurrentMapAsConquered(heroesBelongingToPlayer);
 
 					//Request clients to change connection mode
 					PrepareForAdvancingCampaign pfac;

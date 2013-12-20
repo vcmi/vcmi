@@ -3557,7 +3557,7 @@ void CBonusSelection::updateBonusSelection()
 				boost::algorithm::replace_first(desc, "%s", replacement);
 			}
 			break;
-		case CScenarioTravel::STravelBonus::PLAYER_PREV_SCENARIO:
+		case CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO:
 			{
 				auto superhero = ourCampaign->camp->scenarios[bonDescs[i].info2].strongestHero(PlayerColor(bonDescs[i].info1));
 				if (!superhero) logGlobal->warnStream() << "No superhero! How could it be transfered?";

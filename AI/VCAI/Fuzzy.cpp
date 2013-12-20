@@ -301,7 +301,7 @@ FuzzyHelper::TacticalAdvantage::~TacticalAdvantage()
 }
 
 //shared_ptr<AbstractGoal> chooseSolution (std::vector<shared_ptr<AbstractGoal>> & vec)
-Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec & vec)
+Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
 {
 	if (vec.empty()) //no possibilities found
 		return sptr(Goals::Invalid());
