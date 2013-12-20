@@ -680,10 +680,12 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			if (pos.x < 0 || pos.x >= sizes.x ||
 				pos.y < 0 || pos.y >= sizes.y)
 			{
+				// outside of the map - print borders
 				SDL_Rect temp_rect = genRect(sr.h, sr.w, 0, 0);
+				SDL_Surface * src = ttiles[pos.x][pos.y][top_tile.z].terbitmap;
+				assert(src);
 
-				CSDL_Ext::blitSurface(ttiles[pos.x][pos.y][top_tile.z].terbitmap,
-								&temp_rect,extSurf,&sr);
+				CSDL_Ext::blitSurface(src, &temp_rect,extSurf,&sr);
 			}
 			else 
 			{

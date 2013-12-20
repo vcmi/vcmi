@@ -2117,6 +2117,19 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 
 		--howManyPeople;
 
+		if(howManyPeople == 0) //all human players eliminated
+		{
+			if(adventureInt)
+			{
+				terminate_cond.setn(true);
+				adventureInt->deactivate();
+				if(GH.topInt() == adventureInt)
+					GH.popInt(adventureInt);
+				delete adventureInt;
+				adventureInt = nullptr;
+			}
+		}
+
 		if(cb->getStartInfo()->mode == StartInfo::CAMPAIGN)
 		{
 			// if you lose the campaign go back to the main menu
@@ -2127,16 +2140,6 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		{
 			if(howManyPeople == 0) //all human players eliminated
 			{
-				if(adventureInt)
-				{
-					terminate_cond.setn(true);
-					adventureInt->deactivate();
-					if(GH.topInt() == adventureInt)
-						GH.popInt(adventureInt);
-					delete adventureInt;
-					adventureInt = nullptr;
-				}
-
 				requestReturningToMainMenu();
 			}
 			else if(victoryLossCheckResult.victory() && LOCPLINT == this) // end game if current human player has won

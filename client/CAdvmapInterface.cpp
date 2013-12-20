@@ -403,6 +403,7 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	pos.x = pos.y = 0;
 	pos.w = screen->w;
 	pos.h = screen->h;
+	position = int3(0,0,0);
 	selection = nullptr;
 	townList.onSelect = boost::bind(&CAdvMapInt::selectionChanged,this);
 	adventureInt=this;
@@ -747,6 +748,13 @@ void CAdvMapInt::show(SDL_Surface * to)
 	}
 	if(updateScreen)
 	{
+		int3 betterPos = LOCPLINT->repairScreenPos(position);
+		if (betterPos != position)
+		{
+			logGlobal->warnStream() << "Incorrect position for adventure map!";
+			position = betterPos;
+		}
+
 		terrain.show(to);
 		for(int i=0;i<4;i++)
 			blitAt(gems[i]->ourImages[LOCPLINT->playerID.getNum()].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
