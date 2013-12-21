@@ -351,7 +351,7 @@ void FuzzyHelper::initVisitTile()
 
 	helper += vt.strengthRatio, vt.heroStrength, vt.tileDistance, vt.missionImportance;
 
-	vt.strengthRatio->addTerm (new fl::ShoulderTerm("LOW", 0.3, SAFE_ATTACK_CONSTANT, true));
+	vt.strengthRatio->addTerm (new fl::ShoulderTerm("LOW", 0.9, SAFE_ATTACK_CONSTANT, true));
 	vt.strengthRatio->addTerm (new fl::ShoulderTerm("HIGH", SAFE_ATTACK_CONSTANT, SAFE_ATTACK_CONSTANT * 3, false));
 
 	vt.heroStrength->addTerm (new fl::ShoulderTerm("LOW", 1, 2500, true)); //assumed strength of new hero from tavern
@@ -378,6 +378,8 @@ void FuzzyHelper::initVisitTile()
 	//vt.rules.addRule (new fl::MamdaniRule("if OurShooters is MANY and EnemySpeed is LOW then Threat is very LOW", engine));
 	//use unarmed scouts if possible
 	vt.rules.addRule (new fl::MamdaniRule("if strengthRatio is HIGH and heroStrength is LOW then Value is very HIGH", engine));
+	//don't assign targets to heroes who are too weak
+	vt.rules.addRule (new fl::MamdaniRule("if strengthRatio is very LOW then Value is very LOW", engine));
 	//if medium heroes can't scratch enemy, don't try to arm them
 	vt.rules.addRule (new fl::MamdaniRule("if strengthRatio is LOW and heroStrength is MEDIUM then Value is LOW", engine));
 	//do not cancel important goals

@@ -1096,36 +1096,31 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 	std::vector<const CGObjectInstance *> possibleDestinations;
 	for(const CGObjectInstance *obj : visitableObjs)
 	{
-		if(isAccessibleForHero(obj->visitablePos(), h) && !obj->wasVisited(playerID) &&
-			(obj->tempOwner != playerID || isWeeklyRevisitable(obj))) //flag or get weekly resources / creatures
+		const int3 pos = obj->visitablePos();
+		if (isAccessibleForHero(obj->visitablePos(), h) &&
+			!obj->wasVisited(playerID) &&
+			(obj->tempOwner != playerID || isWeeklyRevisitable(obj)) && //flag or get weekly resources / creatures
+			isSafeToVisit(h, pos) &&
+			shouldVisit(h, obj) &&
+			!vstd::contains(alreadyVisited, obj) &&
+			!vstd::contains(reservedObjs, obj))
+		{
 			possibleDestinations.push_back(obj);
+		}
 	}
-
-	boost::sort(possibleDestinations, isCloser);
 
 	possibleDestinations.erase(boost::remove_if(possibleDestinations, [&](const CGObjectInstance *obj) -> bool
 		{
-			const int3 pos = obj->visitablePos();
-			if(vstd::contains(alreadyVisited, obj))
-				return true;
-
-			if(!isSafeToVisit(h, pos))
-				return true;
-
-			if (!shouldVisit(h, obj))
-				return true;
-
-			if (vstd::contains(reservedObjs, obj)) //does checking for our own reserved objects make sense? here?
-				return true;
-
-			const CGObjectInstance *topObj = cb->getVisitableObjs(pos).back(); //it may be hero visiting this obj
+			const CGObjectInstance *topObj = cb->getVisitableObjs(obj->visitablePos()).back(); //it may be hero visiting this obj
 			//we don't try visiting object on which allied or owned hero stands
 			// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
 			if(topObj->ID == Obj::HERO  &&  cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
 				return true;
 
 			return false;
-		}),possibleDestinations.end());
+		}), possibleDestinations.end());
+
+	boost::sort(possibleDestinations, isCloser);
 
 	return possibleDestinations;
 }
@@ -2004,12 +1999,11 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 	std::map<int3, int> dstToRevealedTiles;
 	for(crint3 dir : dirs)
 		if(cb->isInTheMap(hpos+dir))
-			dstToRevealedTiles[hpos + dir] = howManyTilesWillBeDiscovered(radius, hpos, dir) * isSafeToVisit(h, hpos + dir);
+			if (isSafeToVisit(h, hpos + dir) && isAccessibleForHero (hpos + dir, h))
+				dstToRevealedTiles[hpos + dir] = howManyTilesWillBeDiscovered(radius, hpos, dir);
 
 	auto best = dstToRevealedTiles.begin();
-	best->second *= cb->getPathInfo(best->first)->reachable();
-	best->second *= cb->getPathInfo(best->first)->accessible == CGPathNode::ACCESSIBLE;
-	for(auto i = dstToRevealedTiles.begin(); i != dstToRevealedTiles.end(); i++)
+	for (auto i = dstToRevealedTiles.begin(); i != dstToRevealedTiles.end(); i++)
 	{
 		const CGPathNode *pn = cb->getPathInfo(i->first);
 		//const TerrainTile *t = cb->getTile(i->first);
@@ -2042,13 +2036,17 @@ int3 VCAI::explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<in
 
 		for(const int3 &tile : tiles[i])
 		{
-			if(cb->getPathInfo(tile)->reachable() && isSafeToVisit(h, tile) && howManyTilesWillBeDiscovered(tile, radius) && !isBlockedBorderGate(tile))
+			if (cb->getTile(tile)->blocked) //does it shorten the time?
+				continue;
+			if(cb->getPathInfo(tile)->reachable() && howManyTilesWillBeDiscovered(tile, radius) &&
+				isSafeToVisit(h, tile) && !isBlockedBorderGate(tile))
 			{
-				return tile;
+				return tile; //return first tile that will discover anything
 			}
 		}
 	}
-	throw cannotFulfillGoalException("No accessible tile will bring discoveries!");
+	return int3 (-1,-1,-1);
+	//throw cannotFulfillGoalException("No accessible tile will bring discoveries!");
 }
 
 TResources VCAI::estimateIncome() const

@@ -184,12 +184,12 @@ bool compareDanger(const CGObjectInstance *lhs, const CGObjectInstance *rhs)
 bool isSafeToVisit(HeroPtr h, crint3 tile)
 {
 	const ui64 heroStrength = h->getTotalStrength(),
-		dangerStrength = evaluateDanger(tile, *h);
+				dangerStrength = evaluateDanger(tile, *h);
 	if(dangerStrength)
 	{
 		if(heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength)
 		{
-            logAi->debugStream() << boost::format("It's, safe for %s to visit tile %s") % h->name % tile;
+            logAi->traceStream() << boost::format("It's safe for %s to visit tile %s") % h->name % tile;
 			return true;
 		}
 		else
@@ -240,28 +240,7 @@ int3 whereToExplore(HeroPtr h)
 	catch(cannotFulfillGoalException &e)
 	{
 		std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
-		try
-		{
-			return ai->explorationNewPoint(radius, h, tiles);
-		}
-		catch(cannotFulfillGoalException &e)
-		{
-			std::map<int, std::vector<int3> > profits;
-			{
-				TimeCheck tc("Evaluating exploration possibilities");
-				tiles[0].clear(); //we can't reach FoW anyway
-				for(auto &vt : tiles)
-					for(auto &tile : vt)
-						profits[howManyTilesWillBeDiscovered(tile, radius)].push_back(tile);
-			}
-
-			if(profits.empty())
-				return int3 (-1,-1,-1);
-
-			auto bestDest = profits.end();
-			bestDest--;
-			return bestDest->second.front(); //TODO which is the real best tile?
-		}
+		return ai->explorationNewPoint(radius, h, tiles);
 	}
 }
 

@@ -354,7 +354,6 @@ public:
 	void checkForObjectives();
 
 	ui32 checksum;
-	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
@@ -383,6 +382,7 @@ public:
 	unique_ptr<CMapEditManager> editManager;
 
 private:
+	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	TerrainTile*** terrain;
 
 public:

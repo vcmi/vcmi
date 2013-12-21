@@ -273,9 +273,13 @@ TSubgoal VisitHero::whatToDoToAchieve()
 
 	if (hero && ai->isAccessibleForHero(pos, hero, true) && isSafeToVisit(hero, pos)) //enemy heroes can get reinforcements
 	{
-		assert (hero->pos != pos); //don't try to visit yourself
-		settile(pos).setisElementar(true);
-		return sptr (*this);
+		if (hero->pos == pos)
+			logAi->errorStream() << "Hero " << hero.name << " tries to visit himself.";
+		else
+		{
+			settile(pos).setisElementar(true);
+			return sptr (*this);
+		}
 	}
 	return sptr (Goals::Invalid());
 }
@@ -395,28 +399,22 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		});
 	}
 
-	auto objs = ai->visitableObjs; //try to use buildings that uncover map
-	erase_if(objs, [&](const CGObjectInstance *obj) -> bool
+	//try to use buildings that uncover map
+	std::vector<const CGObjectInstance *> objs;
+	for (auto obj : ai->visitableObjs)
 	{
-		if (vstd::contains(ai->alreadyVisited, obj))
-			return true;
-		switch (obj->ID.num)
+		if (!vstd::contains(ai->alreadyVisited, obj))
 		{
-			case Obj::REDWOOD_OBSERVATORY:
-			case Obj::PILLAR_OF_FIRE:
-			case Obj::CARTOGRAPHER:
-			case Obj::SUBTERRANEAN_GATE: //TODO: check ai->knownSubterraneanGates
-			//case Obj::MONOLITH1:
-			//case obj::MONOLITH2:
-			//case obj::MONOLITH3:
-			//case Obj::WHIRLPOOL:
-				return false; //do not erase
-				break;
-			default:
-				return true;
+			switch (obj->ID.num)
+			{
+				case Obj::REDWOOD_OBSERVATORY:
+				case Obj::PILLAR_OF_FIRE:
+				case Obj::CARTOGRAPHER:
+				case Obj::SUBTERRANEAN_GATE: //TODO: check ai->knownSubterraneanGates
+					objs.push_back (obj);
+			}
 		}
-	});
-
+	}
 	for (auto h : heroes)
 	{
 		for (auto obj : objs) //double loop, performance risk?
@@ -428,8 +426,8 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		}
 
 		int3 t = whereToExplore(h);
-		if (t.z != -1) //no safe tile to explore - we need to break!
-		ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
+		if (t.z != -1) //no valid tile was found
+			ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
 	}
 	if (!hero && ai->canRecruitAnyHero())//if hero is assigned to that goal, no need to buy another one yet
 		ret.push_back (sptr(Goals::RecruitHero()));
