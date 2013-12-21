@@ -1090,6 +1090,29 @@ void VCAI::buildStructure(const CGTownInstance * t)
 		return;
 }
 
+bool VCAI::isGoodForVisit(const CGObjectInstance *obj, HeroPtr h)
+{
+	const int3 pos = obj->visitablePos();
+	if (isAccessibleForHero(obj->visitablePos(), h) &&
+			!obj->wasVisited(playerID) &&
+			(obj->tempOwner != playerID || isWeeklyRevisitable(obj)) && //flag or get weekly resources / creatures
+			isSafeToVisit(h, pos) &&
+			shouldVisit(h, obj) &&
+			!vstd::contains(alreadyVisited, obj) &&
+			!vstd::contains(reservedObjs, obj))
+	{
+		const CGObjectInstance *topObj = cb->getVisitableObjs(obj->visitablePos()).back(); //it may be hero visiting this obj
+		//we don't try visiting object on which allied or owned hero stands
+		// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
+		if (topObj->ID == Obj::HERO  &&  cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
+			return false;
+		else
+			return true; //all of the following is met
+	}
+
+	return false;
+}
+
 std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 {
 	validateVisitableObjs();
@@ -1097,28 +1120,11 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 	for(const CGObjectInstance *obj : visitableObjs)
 	{
 		const int3 pos = obj->visitablePos();
-		if (isAccessibleForHero(obj->visitablePos(), h) &&
-			!obj->wasVisited(playerID) &&
-			(obj->tempOwner != playerID || isWeeklyRevisitable(obj)) && //flag or get weekly resources / creatures
-			isSafeToVisit(h, pos) &&
-			shouldVisit(h, obj) &&
-			!vstd::contains(alreadyVisited, obj) &&
-			!vstd::contains(reservedObjs, obj))
+		if (isGoodForVisit(obj, h))
 		{
 			possibleDestinations.push_back(obj);
 		}
 	}
-
-	possibleDestinations.erase(boost::remove_if(possibleDestinations, [&](const CGObjectInstance *obj) -> bool
-		{
-			const CGObjectInstance *topObj = cb->getVisitableObjs(obj->visitablePos()).back(); //it may be hero visiting this obj
-			//we don't try visiting object on which allied or owned hero stands
-			// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
-			if(topObj->ID == Obj::HERO  &&  cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
-				return true;
-
-			return false;
-		}), possibleDestinations.end());
 
 	boost::sort(possibleDestinations, isCloser);
 
@@ -1995,7 +2001,6 @@ void VCAI::buildArmyIn(const CGTownInstance * t)
 
 int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 {
-	TimeCheck tc("looking for best exploration neighbour");
 	std::map<int3, int> dstToRevealedTiles;
 	for(crint3 dir : dirs)
 		if(cb->isInTheMap(hpos+dir))
@@ -2019,7 +2024,6 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 
 int3 VCAI::explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<int3> > &tiles)
 {
-	TimeCheck tc("looking for new exploration point");
     logAi->debugStream() << "Looking for an another place for exploration...";
 	tiles.resize(radius);
 

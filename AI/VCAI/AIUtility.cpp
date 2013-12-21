@@ -213,6 +213,7 @@ bool canBeEmbarkmentPoint(const TerrainTile *t)
 
 int3 whereToExplore(HeroPtr h)
 {
+	TimeCheck tc ("where to explore");
 	//TODO it's stupid and ineffective, write sth better
 	cb->setSelection(*h);
 	int radius = h->getSightRadious();
@@ -221,13 +222,20 @@ int3 whereToExplore(HeroPtr h)
 	//look for nearby objs -> visit them if they're close enouh
 	const int DIST_LIMIT = 3;
 	std::vector<const CGObjectInstance *> nearbyVisitableObjs;
-	for(const CGObjectInstance *obj : ai->getPossibleDestinations(h))
+	for (int x = hpos.x - DIST_LIMIT; x <= hpos.y + DIST_LIMIT; ++x) //get only local objects instead of all possible objects on the map
 	{
-		int3 op = obj->visitablePos();
-		CGPath p;
-		cb->getPath2(op, p);
-		if(p.nodes.size() && p.endPos() == op && p.nodes.size() <= DIST_LIMIT)
-			nearbyVisitableObjs.push_back(obj);
+		for (int y = hpos.y - DIST_LIMIT; y <= hpos.y + DIST_LIMIT; ++y)
+		{
+			for (auto obj : cb->getVisitableObjs (int3(x,y,hpos.z), false))
+			{
+				int3 op = obj->visitablePos();
+				CGPath p;
+				cb->getPath2(op, p);
+				if (p.nodes.size() && p.endPos() == op && p.nodes.size() <= DIST_LIMIT)
+					if (ai->isGoodForVisit(obj, h))
+						nearbyVisitableObjs.push_back(obj);
+			}
+		}
 	}
 	boost::sort(nearbyVisitableObjs, isCloser);
 	if(nearbyVisitableObjs.size())

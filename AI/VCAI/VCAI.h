@@ -241,6 +241,7 @@ public:
 	void striveToQuest (const QuestInfo &q);
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
+	bool isGoodForVisit(const CGObjectInstance *obj, HeroPtr h);
 	std::vector<const CGObjectInstance *> getPossibleDestinations(HeroPtr h);
 	void buildStructure(const CGTownInstance * t);
 	//void recruitCreatures(const CGTownInstance * t);
