@@ -493,7 +493,13 @@ TGoalVec VisitTile::getAllPossibleSubgoals()
 		ret.push_back (sptr(Goals::Explore())); //what sense does it make?
 	else
 	{
-		for (auto h : cb->getHeroesInfo())
+		std::vector<const CGHeroInstance *> heroes;
+		if (hero)
+			heroes.push_back(hero.h); //use assigned hero if any
+		else
+			heroes = cb->getHeroesInfo(); //use most convenient hero
+
+		for (auto h : heroes)
 		{
 			if (ai->isAccessibleForHero(tile, h))
 				ret.push_back (sptr(Goals::VisitTile(tile).sethero(h)));
