@@ -242,7 +242,7 @@ TSubgoal GetObj::whatToDoToAchieve()
 	if(!obj)
 		return sptr (Goals::Explore());
 	int3 pos = obj->visitablePos();
-	return sptr (Goals::VisitTile(pos));
+	return sptr (Goals::VisitTile(pos).sethero(hero)); //we must visit object with same hero, if any
 }
 
 float GetObj::importanceWhenLocked() const
@@ -426,7 +426,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		}
 
 		int3 t = whereToExplore(h);
-		if (t.z != -1) //no valid tile was found
+		if (cb->isInTheMap(t)) //valid tile was found - could be invalid (none)
 			ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
 	}
 	if (!hero && ai->canRecruitAnyHero())//if hero is assigned to that goal, no need to buy another one yet

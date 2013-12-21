@@ -796,6 +796,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 			}
 			break;
 	}
+	completeGoal (sptr(Goals::GetObj(obj->id.getNum()).sethero(h)));
 }
 
 void VCAI::moveCreaturesToHero(const CGTownInstance * t)
@@ -1823,7 +1824,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 
 void VCAI::striveToQuest (const QuestInfo &q)
 {
-	if (q.quest->missionType && q.quest->progress != CQuest::COMPLETE) //FIXME: quests are never synchronized. Pointer handling needed
+	if (q.quest->missionType && q.quest->progress != CQuest::COMPLETE)
 	{
 		MetaString ms;
 		q.quest->getRolloverText(ms, false);
@@ -2494,8 +2495,7 @@ bool isWeeklyRevisitable (const CGObjectInstance * obj)
 bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 {
 	switch (obj->ID)
-	{
-		case Obj::BORDERGUARD:
+	{	
 		case Obj::BORDER_GATE:
 		{
 			for (auto q : ai->myCb->getMyQuests())
@@ -2507,6 +2507,8 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			}
 			return true; //we don't have this quest yet
 		}
+			break;
+		case Obj::BORDERGUARD: //open borderguard if possible
 		case Obj::SEER_HUT:
 		case Obj::QUEST_GUARD:
 		{
@@ -2514,7 +2516,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			{
 				if (q.obj == obj)
 				{
-					if (q.quest->checkQuest(*h))
+					if (q.quest->checkQuest(h.h))
 						return true; //we completed the quest
 					else
 						return false; //we can't complete this quest
@@ -2522,6 +2524,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			}
 			return true; //we don't have this quest yet
 		}
+			break;
 		case Obj::CREATURE_GENERATOR1:
 		{
 			if (obj->tempOwner != h->tempOwner)
