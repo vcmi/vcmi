@@ -406,9 +406,11 @@ void VCAI::newStackInserted(const StackLocation &location, const CStackInstance 
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::heroCreated(const CGHeroInstance*)
+void VCAI::heroCreated(const CGHeroInstance* h)
 {
 	LOG_TRACE(logAi);
+	if (h->visitedTown)
+		townVisitsThisWeek[HeroPtr(h)].push_back(h->visitedTown);
 	NET_EVENT_HANDLER;
 }
 
@@ -523,6 +525,9 @@ void VCAI::init(shared_ptr<CCallback> CB)
 		fh = new FuzzyHelper();
 
 	retreiveVisitableObjs(visitableObjs);
+	//for (auto h : myCb->getHeroesInfo()) //make sure heroes won't try to revisit town in first move
+	//	if (h->visitedTown)
+	//		markObjectVisited(h->visitedTown);
 }
 
 void VCAI::yourTurn()
@@ -647,30 +652,6 @@ void VCAI::makeTurn()
 					auto o = std::find (alreadyVisited.begin(), alreadyVisited.end(), obj);
 					if (o != alreadyVisited.end())
 						alreadyVisited.erase(o);
-				}
-			}
-		}
-			break;
-		case 7: //reconsider strategy
-		{
-			if(auto h = primaryHero()) //check if our primary hero can handle danger
-			{
-				ui64 totalDanger = 0;
-				int dangerousObjects = 0;
-				std::vector<const CGObjectInstance *> objs;
-				retreiveVisitableObjs(objs, false);
-				for (auto obj : objs)
-				{
-					if (evaluateDanger(obj)) //potentilaly dnagerous
-					{
-						totalDanger += evaluateDanger(obj->visitablePos(), *h);
-						++dangerousObjects;
-					}
-				}
-				ui64 averageDanger = totalDanger / std::max(dangerousObjects, 1);
-				if (dangerousObjects && averageDanger > h->getHeroStrength())
-				{
-					setGoal (h, sptr(Goals::GatherArmy(averageDanger * SAFE_ATTACK_CONSTANT).sethero(h).setisAbstract(true)));
 				}
 			}
 		}
@@ -1006,6 +987,84 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 	return false;
 }
 
+//bool VCAI::canBuildStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays=7)
+//{
+//		if (maxDays == 0)
+//	{
+//		logAi->warnStream() << "Request to build building " << building <<  " in 0 days!";
+//		return false;
+//	}
+//
+//	if (!vstd::contains(t->town->buildings, building))
+//		return false; // no such building in town
+//
+//	if (t->hasBuilt(building)) //Already built? Shouldn't happen in general
+//		return true;
+//
+//	const CBuilding * buildPtr = t->town->buildings.at(building);
+//
+//	auto toBuild = buildPtr->requirements.getFulfillmentCandidates([&](const BuildingID & buildID)
+//	{
+//		return t->hasBuilt(buildID);
+//	});
+//	toBuild.push_back(building);
+//
+//	for(BuildingID buildID : toBuild)
+//	{
+//		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
+//		if (canBuild == EBuildingState::HAVE_CAPITAL
+//		 || canBuild == EBuildingState::FORBIDDEN
+//		 || canBuild == EBuildingState::NO_WATER)
+//			return false; //we won't be able to build this
+//	}
+//
+//	if (maxDays && toBuild.size() > maxDays)
+//		return false;
+//
+//	TResources currentRes = cb->getResourceAmount();
+//	TResources income = estimateIncome();
+//	//TODO: calculate if we have enough resources to build it in maxDays
+//
+//	for(const auto & buildID : toBuild)
+//	{
+//		const CBuilding *b = t->town->buildings.at(buildID);
+//
+//		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
+//		if(canBuild == EBuildingState::ALLOWED)
+//		{
+//			if(!containsSavedRes(b->resources))
+//			{
+//                logAi->debugStream() << boost::format("Player %d will build %s in town of %s at %s") % playerID % b->Name() % t->name % t->pos;
+//				return true;
+//			}
+//			continue;
+//		}
+//		else if(canBuild == EBuildingState::NO_RESOURCES)
+//		{
+//			TResources cost = t->town->buildings.at(buildID)->resources;
+//			for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+//			{
+//				int diff = currentRes[i] - cost[i] + income[i];
+//				if(diff < 0)
+//					saving[i] = 1;
+//			}
+//			continue;
+//		}
+//		else if (canBuild == EBuildingState::PREREQUIRES)
+//		{
+//			// can happen when dependencies have their own missing dependencies
+//			if (canBuildStructure(t, buildID, maxDays - 1))
+//				return true;
+//		}
+//		else if (canBuild == EBuildingState::MISSING_BASE)
+//		{
+//			if (canBuildStructure(t, b->upgrade, maxDays - 1))
+//				 return true;
+//		}
+//	}
+//	return false;
+//}
+
 bool VCAI::tryBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays)
 {
 	for(const auto & building : buildList)
@@ -1016,6 +1075,18 @@ bool VCAI::tryBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID
 			return true;
 	}
 	return false; //Can't build anything
+}
+
+BuildingID VCAI::canBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays)
+{
+	for(const auto & building : buildList)
+	{
+		if(t->hasBuilt(building))
+			continue;
+		if (cb->canBuildStructure(t, building))
+			return building;
+	}
+	return BuildingID::NONE; //Can't build anything
 }
 
 bool VCAI::tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays)
@@ -1035,20 +1106,6 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	//TODO: faction-specific development: use special buildings, build dwellings in better order, etc
 	//TODO: build resource silo, defences when needed
 	//Possible - allow "locking" on specific building (build prerequisites and then building itself)
-
-	//Set of buildings for different goals. Does not include any prerequisites.
-	const BuildingID essential[] = {BuildingID::TAVERN, BuildingID::TOWN_HALL};
-	const BuildingID goldSource[] = {BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL};
-	const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
-		BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7};
-	const BuildingID unitsUpgrade[] = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
-		BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP};
-	const BuildingID unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
-		BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR};
-	const BuildingID spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
-		BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
-	const BuildingID extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
-		BuildingID::SPECIAL_4, BuildingID::SHIPYARD}; // all remaining buildings
 
 	TResources currentRes = cb->getResourceAmount();
 	TResources income = estimateIncome();
@@ -1147,6 +1204,7 @@ bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
 
 void VCAI::wander(HeroPtr h)
 {
+	TimeCheck tc("looking for wander destination");
 	while(1)
 	{
 		validateVisitableObjs();
@@ -1164,6 +1222,9 @@ void VCAI::wander(HeroPtr h)
 
 		if(!dests.size())
 		{
+			if (cb->getVisitableObjs(h->visitablePos()).size() > 1)
+				moveHeroToTile(h->visitablePos(), h); //just in case we're standing on blocked subterranean gate
+
 			auto compareReinforcements = [h](const CGTownInstance *lhs, const CGTownInstance *rhs) -> bool
 	        {
 				return howManyReinforcementsCanGet(h, lhs) < howManyReinforcementsCanGet(h, rhs);
@@ -1189,20 +1250,22 @@ void VCAI::wander(HeroPtr h)
 			else if(townsNotReachable.size())
 			{
 				boost::sort(townsNotReachable, compareReinforcements);
-	            //TODO pick the truly best
-	            const CGTownInstance *t = townsNotReachable.back();
-                logAi->debugStream() << boost::format("%s can't reach any town, we'll try to make our way to %s at %s") % h->name % t->name % t->visitablePos();
+				//TODO pick the truly best
+				const CGTownInstance *t = townsNotReachable.back();
+				logAi->debugStream() << boost::format("%s can't reach any town, we'll try to make our way to %s at %s") % h->name % t->name % t->visitablePos();
 				int3 pos1 = h->pos;
-				striveToGoal(sptr(Goals::VisitTile(t->visitablePos()).sethero(h)));
+				striveToGoal(sptr(Goals::ClearWayTo(t->visitablePos()).sethero(h)));
+				//if out hero is stuck, we may need to request another hero to clear the way we see
+
 				if (pos1 == h->pos && h == primaryHero()) //hero can't move
 				{
 					if (canRecruitAnyHero(t))
 						recruitHero(t);
 				}
-	            break;
+				break;
 			}
 			else if(cb->getResourceAmount(Res::GOLD) >= HERO_GOLD_COST)
-	        {
+			{
 				std::vector<const CGTownInstance *> towns = cb->getTownsInfo();
 				erase_if(towns, [](const CGTownInstance *t) -> bool
 				{
@@ -1212,13 +1275,13 @@ void VCAI::wander(HeroPtr h)
 					return false;
 				});
 				boost::sort(towns, compareArmyStrength);
-	            if(towns.size())
-	                    recruitHero(towns.back());
-	            break;
-	        }
-            else
-            {
-                logAi->debugStream() << "Nowhere more to go...";
+				if(towns.size())
+						recruitHero(towns.back());
+				break;
+			}
+			else
+			{
+				logAi->debugStream() << "Nowhere more to go...";
 				break;
 			}
 		}
@@ -1233,10 +1296,6 @@ void VCAI::wander(HeroPtr h)
 			else
 			{
                 logAi->debugStream() << boost::format("Hero %s apparently used all MPs (%d left)") % h->name % h->movement;
-				reserveObject(h, dest); //reserve that object - we predict it will be reached soon
-
-				//removed - do not forget abstract goal so easily
-				//setGoal(h, CGoal(VISIT_TILE).sethero(h).settile(dest->visitablePos()));
 			}
 			break;
 		}
@@ -1520,9 +1579,15 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		//BNLOG("Hero %s moved from %s to %s at %s", h->name % startHpos % visitedObject->hoverName % h->visitablePos());
 		//throw goalFulfilledException (CGoal(GET_OBJ).setobjid(visitedObject->id));
 	}
-
 	if(h) //we could have lost hero after last move
 	{
+		if (!ret) //reserve object we are heading towards
+		{
+			auto obj = frontOrNull(cb->getVisitableObjs(dst));
+			if (obj)
+				reserveObject(h, obj);
+		}
+
 		cb->recalculatePaths();
 		if (startHpos == h->visitablePos() && !ret) //we didn't move and didn't reach the target
 		{
@@ -2023,9 +2088,11 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 	throw cannotFulfillGoalException("No neighbour will bring new discoveries!");
 }
 
-int3 VCAI::explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<int3> > &tiles)
+int3 VCAI::explorationNewPoint(int radius, HeroPtr h, bool breakUnsafe)
 {
     logAi->debugStream() << "Looking for an another place for exploration...";
+
+	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
 	tiles.resize(radius);
 
 	foreach_tile_pos([&](const int3 &pos)
@@ -2033,6 +2100,9 @@ int3 VCAI::explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<in
 		if(!cb->isVisible(pos))
 			tiles[0].push_back(pos);
 	});
+
+	int bestValue = 0;
+	int3 bestTile(-1,-1,-1);
 
 	for (int i = 1; i < radius; i++)
 	{
@@ -2043,15 +2113,18 @@ int3 VCAI::explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<in
 		{
 			if (cb->getTile(tile)->blocked) //does it shorten the time?
 				continue;
-			if(cb->getPathInfo(tile)->reachable() && howManyTilesWillBeDiscovered(tile, radius) &&
-				isSafeToVisit(h, tile) && !isBlockedBorderGate(tile))
+			int ourValue = howManyTilesWillBeDiscovered(tile, radius);
+			if (ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
 			{
-				return tile; //return first tile that will discover anything
+				if(cb->getPathInfo(tile)->reachable()  && (isSafeToVisit(h, tile) || breakUnsafe) && !isBlockedBorderGate(tile))
+				{
+					bestTile = tile; //return first tile that will discover anything
+					bestValue = ourValue;
+				}
 			}
 		}
 	}
-	return int3 (-1,-1,-1);
-	//throw cannotFulfillGoalException("No accessible tile will bring discoveries!");
+	return bestTile;
 }
 
 TResources VCAI::estimateIncome() const
@@ -2125,8 +2198,17 @@ void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 {
     logAi->debugStream() << boost::format("Trying to recruit a hero in %s at %s") % t->name % t->visitablePos();
 
-	if(auto availableHero = frontOrNull(cb->getAvailableHeroes(t)))
-		cb->recruitHero(t, availableHero);
+	auto heroes = cb->getAvailableHeroes(t);
+	if(heroes.size())
+	{
+		auto hero = heroes[0];
+		if (heroes.size() >= 2) //makes sense to recruit two heroes with starting amries in first week
+		{
+			if (heroes[1]->getTotalStrength() > hero->getTotalStrength())
+				hero = heroes[1];
+		}
+		cb->recruitHero(t, hero);
+	}
 	else if(throwing)
 		throw cannotFulfillGoalException("No available heroes in tavern in " + t->nodeName());
 }
@@ -2496,6 +2578,9 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 {
 	switch (obj->ID)
 	{	
+		case Obj::TOWN:
+			return obj->tempOwner != h->tempOwner; //do not visit our towns at random
+			break;
 		case Obj::BORDER_GATE:
 		{
 			for (auto q : ai->myCb->getMyQuests())

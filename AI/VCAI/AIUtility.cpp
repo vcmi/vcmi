@@ -237,6 +237,7 @@ int3 whereToExplore(HeroPtr h)
 			}
 		}
 	}
+	removeDuplicates (nearbyVisitableObjs); //one object may occupy multiple tiles
 	boost::sort(nearbyVisitableObjs, isCloser);
 	if(nearbyVisitableObjs.size())
 		return nearbyVisitableObjs.back()->visitablePos();
@@ -247,8 +248,7 @@ int3 whereToExplore(HeroPtr h)
 	}
 	catch(cannotFulfillGoalException &e)
 	{
-		std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
-		return ai->explorationNewPoint(radius, h, tiles);
+		return ai->explorationNewPoint(radius, h);
 	}
 }
 

@@ -240,7 +240,7 @@ private:
 	GatherArmy() : CGoal (Goals::GATHER_ARMY){};
 public:
 	GatherArmy(int val) : CGoal (Goals::GATHER_ARMY){value = val;};
-	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
+	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	std::string completeMessage() const override;
 	float importanceWhenLocked() const override;
@@ -356,7 +356,7 @@ class ClearWayTo : public CGoal<ClearWayTo>
 {
 public:
 	ClearWayTo(int3 Tile) : CGoal (Goals::CLEAR_WAY_TO) {tile = Tile;};
-	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
+	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (ClearWayTo &g) {return g.tile == tile;}
 	float importanceWhenLocked() const override;

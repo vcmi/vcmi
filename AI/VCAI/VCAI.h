@@ -8,6 +8,7 @@
 
 #include "../../lib/CThreadHelper.h"
 
+#include "../../lib/GameConstants.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/CBuildingHandler.h"
 #include "../../lib/CCreatureHandler.h"
@@ -109,19 +110,34 @@ struct SectorMap
 	int3 firstTileToGet(HeroPtr h, crint3 dst); //if h wants to reach tile dst, which tile he should visit to clear the way?
 };
 
+//Set of buildings for different goals. Does not include any prerequisites.
+const BuildingID essential[] = {BuildingID::TAVERN, BuildingID::TOWN_HALL};
+const BuildingID goldSource[] = {BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL};
+const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
+	BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7};
+const BuildingID unitsUpgrade[] = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
+	BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP};
+const BuildingID unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
+	BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR};
+const BuildingID spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
+	BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
+const BuildingID extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
+	BuildingID::SPECIAL_4, BuildingID::SHIPYARD}; // all remaining buildings
 
 class VCAI : public CAdventureAI
 {
+public:
 	//internal methods for town development
 
 	//try build an unbuilt structure in maxDays at most (0 = indefinite)
+	/*bool canBuildStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays=7);*/
 	bool tryBuildStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays=7);
 	//try build ANY unbuilt structure
+	BuildingID canBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays=7);
 	bool tryBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays=7);
 	//try build first unbuilt structure
 	bool tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays=7);
 
-public:
 	friend class FuzzyHelper;
 
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
@@ -160,7 +176,7 @@ public:
 	void tryRealize(Goals::AbstractGoal & g);
 
 	int3 explorationBestNeighbour(int3 hpos, int radius, HeroPtr h);
-	int3 explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<int3> > &tiles);
+	int3 explorationNewPoint(int radius, HeroPtr h, bool breakUnsafe = false);
 	void recruitHero();
 
 	virtual std::string getBattleAIName() const override;
@@ -259,7 +275,7 @@ public:
 
 	void addVisitableObj(const CGObjectInstance *obj);
 	void markObjectVisited (const CGObjectInstance *obj);
-	void reserveObject (HeroPtr h, const CGObjectInstance *obj);
+	void reserveObject (HeroPtr h, const CGObjectInstance *obj); //TODO: reserve all objects that heroes attempt to visit
 	//void removeVisitableObj(const CGObjectInstance *obj);
 	void validateObject(const CGObjectInstance *obj); //checks if object is still visible and if not, removes references to it
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it

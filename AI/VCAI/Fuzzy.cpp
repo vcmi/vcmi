@@ -337,6 +337,7 @@ FuzzyHelper::EvalVisitTile::~EvalVisitTile()
 	delete heroStrength;
 	delete tileDistance;
 	delete missionImportance;
+	delete movement;
 }
 
 void FuzzyHelper::initVisitTile()
@@ -347,9 +348,10 @@ void FuzzyHelper::initVisitTile()
 	vt.heroStrength = new fl::InputLVar("heroStrength"); //we want to use weakest possible hero
 	vt.tileDistance = new fl::InputLVar("tileDistance"); //we want to use hero who is near
 	vt.missionImportance = new fl::InputLVar("lockedMissionImportance"); //we may want to preempt hero with low-priority mission
+	vt.movement = new fl::InputLVar("movement");
 	vt.value = new fl::OutputLVar("Value");
 
-	helper += vt.strengthRatio, vt.heroStrength, vt.tileDistance, vt.missionImportance;
+	helper += vt.strengthRatio, vt.heroStrength, vt.tileDistance, vt.missionImportance, vt.movement;
 
 	vt.strengthRatio->addTerm (new fl::ShoulderTerm("LOW", 0.9, SAFE_ATTACK_CONSTANT, true));
 	vt.strengthRatio->addTerm (new fl::ShoulderTerm("HIGH", SAFE_ATTACK_CONSTANT, SAFE_ATTACK_CONSTANT * 3, false));
@@ -368,6 +370,9 @@ void FuzzyHelper::initVisitTile()
 
 	vt.value->addTerm (new fl::ShoulderTerm("LOW", 0, 1.1, true));
 	vt.value->addTerm (new fl::ShoulderTerm("HIGH", 1, 5, false));
+
+	vt.movement->addTerm (new fl::ShoulderTerm("LOW", 1, 200, true));
+	vt.movement->addTerm (new fl::ShoulderTerm("HIGH", 1000, 2000, false));
 	
 	for (auto val : helper)
 	{
@@ -387,6 +392,9 @@ void FuzzyHelper::initVisitTile()
 	//pick nearby objects if it's easy, avoid long walks
 	vt.rules.addRule (new fl::MamdaniRule("if tileDistance is SMALL then Value is HIGH", engine));
 	vt.rules.addRule (new fl::MamdaniRule("if tileDistance is LONG then Value is LOW", engine));
+	//use heroes with movement points first
+	vt.rules.addRule (new fl::MamdaniRule("if movement is LOW then Value is somewhat LOW", engine));
+	vt.rules.addRule (new fl::MamdaniRule("if movement is HIGH then Value is somewhat HIGH", engine));
 
 	engine.addRuleBlock (&vt.rules);
 }
@@ -416,6 +424,7 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 		vt.heroStrength->setInput (g.hero->getTotalStrength());
 		vt.tileDistance->setInput (distance);
 		vt.missionImportance->setInput (missionImportance);
+		vt.movement->setInput(g.hero->movement);
 
 		engine.process (VISIT_TILE);
 		output = vt.value->output().defuzzify();
@@ -435,7 +444,7 @@ float FuzzyHelper::evaluate (Goals::VisitHero & g)
 }
 float FuzzyHelper::evaluate (Goals::BuildThis & g)
 {
-	return 0;
+	return 1;
 }
 float FuzzyHelper::evaluate (Goals::DigAtTile & g)
 {

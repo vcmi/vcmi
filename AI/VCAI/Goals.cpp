@@ -29,6 +29,7 @@ TSubgoal Goals::sptr(const AbstractGoal & tmp)
 
 std::string Goals::AbstractGoal::name() const //TODO: virtualize
 {
+	std::string desc;
 	switch (goalType)
 	{
 		case INVALID:
@@ -42,38 +43,53 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 		case BUILD:
 			return "BUILD";
 		case EXPLORE:
-			return "EXPLORE";
+			desc = "EXPLORE";
+			break;
 		case GATHER_ARMY:
-			return "GATHER ARMY";
+			desc = "GATHER ARMY";
+			break;
 		case BOOST_HERO:
-			return "BOOST_HERO (unsupported)";
+			desc = "BOOST_HERO (unsupported)";
+			break;
 		case RECRUIT_HERO:
 			return "RECRUIT HERO";
 		case BUILD_STRUCTURE:
 			return "BUILD STRUCTURE";
 		case COLLECT_RES:
-			return "COLLECT RESOURCE";
+			desc = "COLLECT RESOURCE";
+			break;
 		case GATHER_TROOPS:
-			return "GATHER TROOPS";
+			desc = "GATHER TROOPS";
+			break;
 		case GET_OBJ:
-			return "GET OBJECT " + boost::lexical_cast<std::string>(objid);
+			desc = "GET OBJ " + cb->getObjInstance(ObjectInstanceID(objid))->getHoverText();
+			break;
 		case FIND_OBJ:
-			return "FIND OBJECT " + boost::lexical_cast<std::string>(objid);
+			desc = "FIND OBJ " + boost::lexical_cast<std::string>(objid);
+			break;
 		case VISIT_HERO:
-			return "VISIT HERO " + boost::lexical_cast<std::string>(objid);
+			desc = "VISIT HERO " + cb->getObjInstance(ObjectInstanceID(objid))->getHoverText();
+			break;
 		case GET_ART_TYPE:
-			return "GET ARTIFACT OF TYPE " + VLC->arth->artifacts[aid]->Name();
+			desc = "GET ARTIFACT OF TYPE " + VLC->arth->artifacts[aid]->Name();
+			break;
 		case ISSUE_COMMAND:
 			return "ISSUE COMMAND (unsupported)";
 		case VISIT_TILE:
-			return "VISIT TILE " + tile();
+			desc = "VISIT TILE " + tile();
+			break;
 		case CLEAR_WAY_TO:
-			return "CLEAR WAY TO " + tile();
+			desc = "CLEAR WAY TO " + tile();
+			break;
 		case DIG_AT_TILE:
-			return "DIG AT TILE " + tile();
+			desc = "DIG AT TILE " + tile();
+			break;
 		default:
 			return boost::lexical_cast<std::string>(goalType);
 	}
+	if (hero.h)
+		desc += " (" + hero->name + ")";
+	return desc;
 }
 
 //TODO: find out why the following are not generated automatically on MVS?
@@ -312,52 +328,56 @@ float GetArtOfType::importanceWhenLocked() const
 
 TSubgoal ClearWayTo::whatToDoToAchieve()
 {
-	assert(tile.x >= 0); //set tile
+	assert(cb->isInTheMap(tile)); //set tile
 	if(!cb->isVisible(tile))
 	{
         logAi->errorStream() << "Clear way should be used with visible tiles!";
 		return sptr (Goals::Explore());
 	}
 
-	HeroPtr h = hero ? hero : ai->primaryHero();
-	if(!h)
-		return sptr (Goals::RecruitHero());
+	return (fh->chooseSolution(getAllPossibleSubgoals()));	
+}
 
-	cb->setSelection(*h);
-
-	SectorMap sm;
-	bool dropToFile = false;
-	if(dropToFile) //for debug purposes
-		sm.write("test.txt");
-
-	int3 tileToHit = sm.firstTileToGet(h, tile);
-	//if(isSafeToVisit(h, tileToHit))
-	if(isBlockedBorderGate(tileToHit))
-	{	//FIXME: this way we'll not visit gate and activate quest :?
-		return sptr (Goals::FindObj (Obj::KEYMASTER, cb->getTile(tileToHit)->visitableObjects.back()->subID));
-	}
-
-	//FIXME: this code shouldn't be necessary
-	if(tileToHit == tile)
+TGoalVec ClearWayTo::getAllPossibleSubgoals()
+{
+	TGoalVec ret;
+	for (auto h : cb->getHeroesInfo())
 	{
-        logAi->errorStream() << boost::format("Very strange, tile to hit is %s and tile is also %s, while hero %s is at %s\n")
-			% tileToHit % tile % h->name % h->visitablePos();
-		throw cannotFulfillGoalException("Retrieving first tile to hit failed (probably)!");
+		cb->setSelection(h);
+
+		SectorMap sm;
+
+		int3 tileToHit = sm.firstTileToGet(hero ? hero : h, tile);
+		//if our hero is trapped, make sure we request clearing the way from OUR perspective
+
+		if (isBlockedBorderGate(tileToHit))
+		{	//FIXME: this way we'll not visit gate and activate quest :?
+			ret.push_back  (sptr (Goals::FindObj (Obj::KEYMASTER, cb->getTile(tileToHit)->visitableObjects.back()->subID)));
+		}
+
+		////FIXME: this code shouldn't be necessary
+		//if(tileToHit == tile)
+		//{
+		//	logAi->errorStream() << boost::format("Very strange, tile to hit is %s and tile is also %s, while hero %s is at %s\n")
+		//		% tileToHit % tile % h->name % h->visitablePos();
+		//	throw cannotFulfillGoalException("Retrieving first tile to hit failed (probably)!");
+		//}
+
+		auto topObj = backOrNull(cb->getVisitableObjs(tileToHit));
+		if(topObj && topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
+		{
+			logAi->errorStream() << boost::format("%s stands in the way of %s.\n") % topObj->getHoverText()  % h->getHoverText();
+		}
+		else
+			ret.push_back (sptr (Goals::VisitTile(tileToHit).sethero(h)));
 	}
+	if (ai->canRecruitAnyHero())
+		ret.push_back (sptr (Goals::RecruitHero()));
 
-	auto topObj = backOrNull(cb->getVisitableObjs(tileToHit));
-	if(topObj && topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
-	{
-		std::string problem = boost::str(boost::format("%s stands in the way of %s.\n") % topObj->getHoverText()  % h->getHoverText());
-		throw cannotFulfillGoalException(problem);
-	}
+	if (ret.empty())
+		throw cannotFulfillGoalException("There is no known way to clear the way to tile " + tile());
 
-	return sptr (Goals::VisitTile(tileToHit).sethero(h));
-	//FIXME:: attempts to visit completely unreachable tile with hero results in stall
-
-	//TODO czy istnieje lepsza droga?
-
-	throw cannotFulfillGoalException("Cannot reach given tile!"); //how and when could this be used?
+	return ret;
 }
 
 float ClearWayTo::importanceWhenLocked() const
@@ -387,12 +407,15 @@ TSubgoal Explore::whatToDoToAchieve()
 TGoalVec Explore::getAllPossibleSubgoals()
 {
 	TGoalVec ret;
-	std::vector<HeroPtr> heroes;
+	std::vector<const CGHeroInstance *> heroes;
+	//std::vector<HeroPtr> heroes;
 	if (hero)
-		heroes.push_back(hero);
+		//heroes.push_back(hero);
+		heroes.push_back(hero.h);
 	else
 	{
-		heroes = ai->getUnblockedHeroes();
+		//heroes = ai->getUnblockedHeroes();
+		heroes = cb->getHeroesInfo();
 		erase_if (heroes, [](const HeroPtr h)
 		{
 			return !h->movement; //saves time, immobile heroes are useless anyway
@@ -429,9 +452,20 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		if (cb->isInTheMap(t)) //valid tile was found - could be invalid (none)
 			ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
 	}
-	if (!hero && ai->canRecruitAnyHero())//if hero is assigned to that goal, no need to buy another one yet
+	//we either don't have hero yet or none of heroes can explore
+	if ((!hero || ret.empty()) && ai->canRecruitAnyHero())
 		ret.push_back (sptr(Goals::RecruitHero()));
 
+	if (ret.empty())
+	{
+		auto h = ai->primaryHero(); //we may need to gather big army to break!
+		if (h.h)
+		{
+			int3 t = ai->explorationNewPoint(h->getSightRadious(), h, true);
+			if (cb->isInTheMap(t))
+				ret.push_back (sptr(ClearWayTo(t).setisAbstract(true).sethero(ai->primaryHero())));
+		}
+	}
 	if (ret.empty())
 		throw cannotFulfillGoalException("Cannot explore - no possible ways found!");
 
@@ -473,7 +507,8 @@ TSubgoal VisitTile::whatToDoToAchieve()
 		}
 		else
 		{
-			return sptr (Goals::GatherArmy(evaluateDanger(tile, *ret->hero) * SAFE_ATTACK_CONSTANT).sethero(ret->hero));
+			return sptr (Goals::GatherArmy(evaluateDanger(tile, *ret->hero) * SAFE_ATTACK_CONSTANT)
+						.sethero(ret->hero).setisAbstract(true));
 		}
 	}
 	return ret;
@@ -507,6 +542,7 @@ TGoalVec VisitTile::getAllPossibleSubgoals()
 	}
 	if (ret.empty())
 		ret.push_back (sptr(Goals::ClearWayTo(tile)));
+
 	//important - at least one sub-goal must handle case which is impossible to fulfill (unreachable tile)
 	return ret;
 }
@@ -746,68 +782,54 @@ std::string GatherArmy::completeMessage() const
 TSubgoal GatherArmy::whatToDoToAchieve()
 {
 	//TODO: find hero if none set
-	assert(hero);
+	assert(hero.h);
 
-	cb->setSelection(*hero);
-	auto compareReinforcements = [this](const CGTownInstance *lhs, const CGTownInstance *rhs) -> bool
+	return fh->chooseSolution (getAllPossibleSubgoals()); //find dwelling. use current hero to prevent him from doing nothing.
+}
+TGoalVec GatherArmy::getAllPossibleSubgoals()
+{
+	//get all possible towns, heroes and dwellings we may use
+	TGoalVec ret;
+	
+	//TODO: include evaluation of monsters gather in calculation
+	for (auto t : cb->getTownsInfo())
 	{
-		return howManyReinforcementsCanGet(hero, lhs) < howManyReinforcementsCanGet(hero, rhs);
-	};
-
-	std::vector<const CGTownInstance *> townsReachable;
-	for(const CGTownInstance *t : cb->getTownsInfo())
-	{
-		if(!t->visitingHero && howManyReinforcementsCanGet(hero,t))
+		auto pos = t->visitablePos();
+		if (ai->isAccessibleForHero(pos, hero))
 		{
-			if (ai->isAccessibleForHero(t->pos, hero) && !vstd::contains (ai->townVisitsThisWeek[hero], t))
-				townsReachable.push_back(t);
-		}
-	}
-
-	if(townsReachable.size()) //try towns first
-	{
-		boost::sort(townsReachable, compareReinforcements);
-		return sptr (Goals::VisitTile(townsReachable.back()->visitablePos()).sethero(hero));
-	}
-	else
-	{
-		if (hero == ai->primaryHero()) //we can get army from other heroes
-		{
-			auto otherHeroes = cb->getHeroesInfo();
-			auto heroDummy = hero;
-			erase_if(otherHeroes, [heroDummy](const CGHeroInstance * h)
+			if(!t->visitingHero && howManyReinforcementsCanGet(hero,t))
 			{
-				return (h == heroDummy.h || !ai->isAccessibleForHero(heroDummy->visitablePos(), h, true) || !ai->canGetArmy(heroDummy.h, h));
-			});
-			if (otherHeroes.size())
-			{
-				boost::sort(otherHeroes, compareArmyStrength); //TODO:  check if hero has at least one stack more powerful than ours? not likely to fail
-				int primaryPath, secondaryPath;
-				auto h = otherHeroes.back();
-				cb->setSelection(hero.h);
-				primaryPath = cb->getPathInfo(h->visitablePos())->turns;
-				cb->setSelection(h);
-				secondaryPath = cb->getPathInfo(hero->visitablePos())->turns;
-
-				if (primaryPath < secondaryPath)
-					return sptr (Goals::VisitHero(h->id.getNum()).setisAbstract(true).sethero(hero));
-						//go to the other hero if we are faster
-				else
-					return sptr (Goals::VisitHero(hero->id.getNum()).setisAbstract(true).sethero(h));
-						//let the other hero come to us
+				if (!vstd::contains (ai->townVisitsThisWeek[hero], t))
+					ret.push_back (sptr (Goals::VisitTile(pos).sethero(hero)));
 			}
+			auto bid = ai->canBuildAnyStructure(t, std::vector<BuildingID>
+							(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
+			if (bid != BuildingID::NONE)
+				ret.push_back (sptr(BuildThis(bid, t)));
 		}
+	}
 
-		std::vector<const CGObjectInstance *> objs; //here we'll gather all dwellings
-		ai->retreiveVisitableObjs(objs, true);
-		erase_if(objs, [&](const CGObjectInstance *obj)
+	auto otherHeroes = cb->getHeroesInfo();
+	auto heroDummy = hero;
+	erase_if(otherHeroes, [heroDummy](const CGHeroInstance * h)
+	{
+		return (h == heroDummy.h || !ai->isAccessibleForHero(heroDummy->visitablePos(), h, true) || !ai->canGetArmy(heroDummy.h, h));
+	});
+	for (auto h : otherHeroes)
+	{
+
+		ret.push_back (sptr (Goals::VisitHero(h->id.getNum()).setisAbstract(true).sethero(hero)));
+				//go to the other hero if we are faster
+		ret.push_back (sptr (Goals::VisitHero(hero->id.getNum()).setisAbstract(true).sethero(h)));
+				//let the other hero come to us
+	}
+
+	std::vector <const CGObjectInstance *> objs;
+	for (auto obj : ai->visitableObjs)
+	{
+		if(obj->ID == Obj::CREATURE_GENERATOR1)
 		{
-			if(obj->ID != Obj::CREATURE_GENERATOR1)
-				return true;
-
 			auto relationToOwner = cb->getPlayerRelations(obj->getOwner(), ai->playerID);
-			if(relationToOwner == PlayerRelations::ALLIES)
-				return true;
 
 			//Use flagged dwellings only when there are available creatures that we can afford
 			if(relationToOwner == PlayerRelations::SAME_PLAYER)
@@ -820,42 +842,27 @@ TSubgoal GatherArmy::whatToDoToAchieve()
 						for(auto & creatureID : creLevel.second)
 						{
 							auto creature = VLC->creh->creatures[creatureID];
-							if(ai->freeResources().canAfford(creature->cost))
-								return false;
+							if (ai->freeResources().canAfford(creature->cost))
+								objs.push_back(obj);
 						}
 					}
 				}
 			}
-
-			return true;
-		});
-		if(objs.empty()) //no possible objects, we did eveyrthing already
-			return sptr (Goals::Explore(hero));
-		//TODO: check if we can recruit any creatures there, evaluate army
-		else
-		{
-			boost::sort(objs, isCloser);
-			HeroPtr h = nullptr;
-			for(const CGObjectInstance *obj : objs)
-			{ //find safe dwelling
-				auto pos = obj->visitablePos();
-				if (shouldVisit (hero, obj)) //creatures fit in army
-					h = hero;
-				else
-				{
-					for(auto ourHero : cb->getHeroesInfo()) //make use of multiple heroes
-					{
-						if (shouldVisit(ourHero, obj))
-							h = ourHero;
-					}
-				}
-				if (h && isSafeToVisit(h, pos) && ai->isAccessibleForHero(pos, h))
-					return sptr (Goals::VisitTile(pos).sethero(h));
-			}
 		}
 	}
+	for(auto h : cb->getHeroesInfo())
+	{
+		for (auto obj : objs)
+		{ //find safe dwelling
+			auto pos = obj->visitablePos();
+			if (shouldVisit (h, obj) && isSafeToVisit(h, pos) && ai->isAccessibleForHero(pos, h))
+				ret.push_back (sptr (Goals::VisitTile(pos).sethero(h)));
+		}
+	}
+	if (ret.empty())
+		ret.push_back (sptr(Goals::Explore()));
 
-	return sptr (Goals::Explore(hero)); //find dwelling. use current hero to prevent him from doing nothing.
+	return ret;
 }
 
 float GatherArmy::importanceWhenLocked() const
