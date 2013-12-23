@@ -1720,10 +1720,12 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 	else if(none.size() && canLearnSkill()) //hero have free skill slot
 	{
 		skills.push_back(type->heroClass->chooseSecSkill(none, skillsInfo.distribution)); //new skill
+		none.erase(skills.back());
 	}
 	else if(!basicAndAdv.empty())
 	{
 		skills.push_back(type->heroClass->chooseSecSkill(basicAndAdv, skillsInfo.distribution)); //upgrade existing
+		basicAndAdv.erase(skills.back());
 	}
 
 	//second offered skill:
