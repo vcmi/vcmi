@@ -265,7 +265,6 @@ void CConnection::prepareForSendingHeroes()
 	savedPointers.clear();
 	disableSmartVectorMemberSerialization();
 	enableSmartPointerSerializatoin();
-	//disableSmartPointerSerializatoin();
 	disableStackSendingByID();
 }
 

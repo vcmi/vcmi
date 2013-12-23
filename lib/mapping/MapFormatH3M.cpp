@@ -250,19 +250,19 @@ void CMapLoaderH3M::readPlayerInfo()
 			mapHeader->players[i].posOfMainTown = readInt3();
 		}
 
-		mapHeader->players[i].hasHero = reader.readBool();
-		mapHeader->players[i].customHeroID = reader.readUInt8();
+		mapHeader->players[i].hasRandomHero = reader.readBool();
+		mapHeader->players[i].mainCustomHeroId = reader.readUInt8();
 
-		if(mapHeader->players[i].customHeroID != 0xff)
+		if(mapHeader->players[i].mainCustomHeroId != 0xff)
 		{
-			mapHeader->players[i].mainHeroPortrait = reader.readUInt8();
-			if (mapHeader->players[i].mainHeroPortrait == 0xff)
-				mapHeader->players[i].mainHeroPortrait = -1; //correct 1-byte -1 (0xff) into 4-byte -1
+			mapHeader->players[i].mainCustomHeroPortrait = reader.readUInt8();
+			if (mapHeader->players[i].mainCustomHeroPortrait == 0xff)
+				mapHeader->players[i].mainCustomHeroPortrait = -1; //correct 1-byte -1 (0xff) into 4-byte -1
 
-			mapHeader->players[i].mainHeroName = reader.readString();
+			mapHeader->players[i].mainCustomHeroName = reader.readString();
 		}
 		else
-			mapHeader->players[i].customHeroID = -1; //correct 1-byte -1 (0xff) into 4-byte -1
+			mapHeader->players[i].mainCustomHeroId = -1; //correct 1-byte -1 (0xff) into 4-byte -1
 
 		if(mapHeader->version != EMapFormat::ROE)
 		{

@@ -174,21 +174,13 @@ void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader *
 		pset.castle = pinfo.defaultCastle();
 		pset.hero = pinfo.defaultHero();
 
-
-		if(pinfo.customHeroID >= 0)
+		if(pset.hero != PlayerSettings::RANDOM && pinfo.hasCustomMainHero())
 		{
-			pset.hero = pinfo.customHeroID;
-
-			if (!pinfo.mainHeroName.empty())
-				pset.heroName = pinfo.mainHeroName;
-			else
-				pset.heroName = CGI->heroh->heroes[pinfo.customHeroID]->name;
-
-			if (pinfo.mainHeroPortrait >= 0)
-				pset.heroPortrait = pinfo.mainHeroPortrait;
-			else
-				pset.heroPortrait = pinfo.customHeroID;
+			pset.hero = pinfo.mainCustomHeroId;
+			pset.heroName = pinfo.mainCustomHeroName;
+			pset.heroPortrait = pinfo.mainCustomHeroPortrait;
 		}
+
 		pset.handicap = PlayerSettings::NO_HANDICAP;
 	}
 }
@@ -2299,7 +2291,7 @@ void OptionsTab::nextCastle( PlayerColor player, int dir )
 		}
 	}
 
-	if(s.hero >= 0 && SEL->current->mapHeader->players[s.color.getNum()].customHeroID < 0) // remove hero unless it set to fixed one in map editor
+	if(s.hero >= 0 && !SEL->current->mapHeader->players[s.color.getNum()].hasCustomMainHero()) // remove hero unless it set to fixed one in map editor
 		s.hero =  PlayerSettings::RANDOM;
 	if(cur < 0  &&  s.bonus == PlayerSettings::RESOURCE)
 		s.bonus = PlayerSettings::RANDOM;
@@ -2938,7 +2930,7 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 		// cases when we do not need to display a message
 		if (settings.castle == -2 && CPlayerSettingsHelper::type == TOWN )
 			return;
-		if (settings.hero == -2 && SEL->current->mapHeader->players[settings.color.getNum()].customHeroID == -1 && CPlayerSettingsHelper::type == HERO)
+		if (settings.hero == -2 && !SEL->current->mapHeader->players[settings.color.getNum()].hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
 			return;
 
 		GH.pushInt(new CPregameTooltipBox(*this));

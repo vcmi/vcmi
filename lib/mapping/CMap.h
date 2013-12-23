@@ -68,24 +68,28 @@ struct DLL_LINKAGE PlayerInfo
 	/// Gets the default hero id or -1 for a random hero.
 	si8 defaultHero() const;
 	bool canAnyonePlay() const;
+	bool hasCustomMainHero() const;
 
 	bool canHumanPlay;
 	bool canComputerPlay;
 	EAiTactic::EAiTactic aiTactic; /// The default value is EAiTactic::RANDOM.
+
 	std::set<TFaction> allowedFactions;
 	bool isFactionRandom;
-	si32 mainHeroPortrait; /// The default value is -1.
-	std::string mainHeroName;
-	std::vector<SHeroName> heroesNames; /// List of renamed heroes.
+
+	si32 mainCustomHeroPortrait; /// The default value is -1.
+	std::string mainCustomHeroName;
+	si32 mainCustomHeroId; /// ID of custom hero (only if portrait and hero name are set, otherwise unpredicted value), -1 if none (not always -1)
+
+	std::vector<SHeroName> heroesNames; /// list of placed heroes on the map
 	bool hasMainTown; /// The default value is false.
 	bool generateHeroAtMainTown; /// The default value is false.
 	int3 posOfMainTown;
 	TeamID team; /// The default value is 255 representing that the player belongs to no team.
+	bool hasRandomHero; /// Player has a random hero
 
 	bool generateHero; /// Unused.
 	si32 p7; /// Unknown and unused.
-	bool hasHero; /// Player has a (custom?) hero
-	si32 customHeroID; /// ID of custom hero, -1 if none
 	/// Unused. Count of hero placeholders containing hero type.
 	/// WARNING: powerPlaceholders sometimes gives false 0 (eg. even if there is one placeholder), maybe different meaning ???
 	ui8 powerPlaceholders;
@@ -93,8 +97,8 @@ struct DLL_LINKAGE PlayerInfo
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & p7 & hasHero & customHeroID & canHumanPlay & canComputerPlay & aiTactic & allowedFactions & isFactionRandom &
-				mainHeroPortrait & mainHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
+		h & p7 & hasRandomHero & mainCustomHeroId & canHumanPlay & canComputerPlay & aiTactic & allowedFactions & isFactionRandom &
+				mainCustomHeroPortrait & mainCustomHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
 				posOfMainTown & team & generateHero;
 	}
 };

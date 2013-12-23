@@ -15,8 +15,8 @@ SHeroName::SHeroName() : heroId(-1)
 }
 
 PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
-	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainHeroPortrait(-1), hasMainTown(false),
-	generateHeroAtMainTown(false), team(255), generateHero(false), p7(0), hasHero(false), customHeroID(-1), powerPlaceholders(-1)
+	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainCustomHeroPortrait(-1), mainCustomHeroId(-1), hasMainTown(false),
+	generateHeroAtMainTown(false), team(255), hasRandomHero(false), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
 {
 	auto allowed = VLC->townh->getDefaultAllowed();
 	for (size_t i=0; i<allowed.size(); i++)
@@ -40,7 +40,7 @@ si8 PlayerInfo::defaultCastle() const
 si8 PlayerInfo::defaultHero() const
 {
 	// we will generate hero in front of main town
-	if((generateHeroAtMainTown && hasMainTown) || hasHero)
+	if((generateHeroAtMainTown && hasMainTown) || hasRandomHero)
 	{
 		//random hero
 		return -1;
@@ -52,6 +52,11 @@ si8 PlayerInfo::defaultHero() const
 bool PlayerInfo::canAnyonePlay() const
 {
 	return canHumanPlay || canComputerPlay;
+}
+
+bool PlayerInfo::hasCustomMainHero() const
+{
+	return !mainCustomHeroName.empty() && mainCustomHeroPortrait != -1;
 }
 
 LossCondition::LossCondition() : typeOfLossCon(ELossConditionType::LOSSSTANDARD),
