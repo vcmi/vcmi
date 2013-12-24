@@ -116,15 +116,10 @@ public:
 	{
 		return false;
 	}
-	virtual bool fulfillsMe (Goals::TSubgoal goal)
+	virtual bool fulfillsMe (Goals::TSubgoal goal) //TODO: multimethod instead of type check
 	{
 		return false;
 	}
-	virtual bool fulfillsMe (shared_ptr<VisitTile> goal)
-	{
-		return false;
-	}
-
 
 	//template <typename Handler> void serialize(Handler &h, const int version)
 	//{
@@ -301,7 +296,7 @@ public:
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (GetObj &g) {return g.objid ==  objid;}
-	bool fulfillsMe (shared_ptr<VisitTile> goal) override;
+	bool fulfillsMe (TSubgoal goal) override;
 	std::string completeMessage() const override;
 	float importanceWhenLocked() const override;
 };
@@ -325,7 +320,7 @@ public:
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (VisitHero &g) {return g.objid == objid;}
-	bool fulfillsMe (shared_ptr<VisitTile> goal) override;
+	bool fulfillsMe (TSubgoal goal) override;
 	std::string completeMessage() const override;
 	float importanceWhenLocked() const override;
 };

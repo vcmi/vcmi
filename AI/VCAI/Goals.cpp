@@ -258,7 +258,17 @@ TSubgoal GetObj::whatToDoToAchieve()
 	if(!obj)
 		return sptr (Goals::Explore());
 	int3 pos = obj->visitablePos();
-	return sptr (Goals::VisitTile(pos).sethero(hero)); //we must visit object with same hero, if any
+	if (hero)
+	{
+		if (ai->isAccessibleForHero(pos, hero))
+			return sptr (Goals::VisitTile(pos).sethero(hero));
+	}
+	else
+	{
+		if (isReachable(obj))
+			return sptr (Goals::VisitTile(pos).sethero(hero)); //we must visit object with same hero, if any
+	}
+	return sptr (Goals::ClearWayTo(pos).sethero(hero));
 }
 
 float GetObj::importanceWhenLocked() const
@@ -266,10 +276,9 @@ float GetObj::importanceWhenLocked() const
 	return 3;
 }
 
-
-bool GetObj::fulfillsMe (shared_ptr<VisitTile> goal)
+bool GetObj::fulfillsMe (TSubgoal goal)
 {
-	if (cb->getObj(ObjectInstanceID(objid))->visitablePos() == goal->tile)
+	if (goal->goalType == Goals::VISIT_TILE && cb->getObj(ObjectInstanceID(objid))->visitablePos() == goal->tile)
 		return true;
 	else
 		return false;
@@ -305,9 +314,9 @@ float VisitHero::importanceWhenLocked() const
 	return 4;
 }
 
-bool VisitHero::fulfillsMe (shared_ptr<VisitTile> goal)
+bool VisitHero::fulfillsMe (TSubgoal goal)
 {
-	if (cb->getObj(ObjectInstanceID(objid))->visitablePos() == goal->tile)
+	if (goal->goalType == Goals::VISIT_TILE && cb->getObj(ObjectInstanceID(objid))->visitablePos() == goal->tile)
 		return true;
 	else
 		return false;
@@ -355,18 +364,24 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 			ret.push_back  (sptr (Goals::FindObj (Obj::KEYMASTER, cb->getTile(tileToHit)->visitableObjects.back()->subID)));
 		}
 
-		////FIXME: this code shouldn't be necessary
-		//if(tileToHit == tile)
-		//{
-		//	logAi->errorStream() << boost::format("Very strange, tile to hit is %s and tile is also %s, while hero %s is at %s\n")
-		//		% tileToHit % tile % h->name % h->visitablePos();
-		//	throw cannotFulfillGoalException("Retrieving first tile to hit failed (probably)!");
-		//}
-
 		auto topObj = backOrNull(cb->getVisitableObjs(tileToHit));
-		if(topObj && topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
+		if(topObj)
 		{
-			logAi->errorStream() << boost::format("%s stands in the way of %s.\n") % topObj->getHoverText()  % h->getHoverText();
+			if (topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
+				logAi->errorStream() << boost::format("%s stands in the way of %s") % topObj->getHoverText()  % h->getHoverText();
+			if (topObj->ID == Obj::QUEST_GUARD || topObj->ID == Obj::BORDERGUARD)
+			{
+				if (shouldVisit(h, topObj))
+				{
+					//do NOT use VISIT_TILE, as tile with quets guard can't be visited
+					ret.push_back (sptr (Goals::GetObj(topObj->id.getNum()).sethero(h)));
+				}
+				else
+				{
+					//TODO: we should be able to return apriopriate quest here (VCAI::striveToQuest)
+					logAi->debugStream() << "Quest guard blocks the way to " + tile();
+				}
+			}
 		}
 		else
 			ret.push_back (sptr (Goals::VisitTile(tileToHit).sethero(h)));
@@ -375,7 +390,10 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 		ret.push_back (sptr (Goals::RecruitHero()));
 
 	if (ret.empty())
-		throw cannotFulfillGoalException("There is no known way to clear the way to tile " + tile());
+	{
+		logAi->warnStream() << "There is no known way to clear the way to tile " + tile();
+		throw goalFulfilledException (sptr(*this)); //make sure asigned hero gets unlocked
+	}
 
 	return ret;
 }
@@ -642,7 +660,7 @@ TSubgoal CollectRes::whatToDoToAchieve()
 			}
 		}
 	}
-	return sptr (Goals::Invalid()); //FIXME: unused?
+	return sptr (setisElementar(true)); //all the conditions for trade are met
 }
 
 float CollectRes::importanceWhenLocked() const
@@ -916,5 +934,3 @@ float  CGoal<T>::accept (FuzzyHelper * f)
 {
 	return f->evaluate(static_cast<T&>(*this)); //casting enforces template instantiation
 }
-
-

@@ -1153,7 +1153,7 @@ bool VCAI::isGoodForVisit(const CGObjectInstance *obj, HeroPtr h)
 	const int3 pos = obj->visitablePos();
 	if (isAccessibleForHero(obj->visitablePos(), h) &&
 			!obj->wasVisited(playerID) &&
-			(obj->tempOwner != playerID || isWeeklyRevisitable(obj)) && //flag or get weekly resources / creatures
+			(cb->getPlayerRelations(ai->playerID, obj->tempOwner) == PlayerRelations::ENEMIES || isWeeklyRevisitable(obj)) && //flag or get weekly resources / creatures
 			isSafeToVisit(h, pos) &&
 			shouldVisit(h, obj) &&
 			!vstd::contains(alreadyVisited, obj) &&
@@ -1505,7 +1505,9 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /
 	{ //don't visit tile occupied by allied hero
 		for (auto obj : cb->getVisitableObjs(pos))
 		{
-			if (obj->ID == Obj::HERO && obj->tempOwner == h->tempOwner && obj != h.get())
+			if (obj->ID == Obj::HERO &&
+				cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES &&
+				obj != h.get())
 				return false;
 		}
 	}
@@ -1614,7 +1616,6 @@ void VCAI::tryRealize(Goals::RecruitHero & g)
 
 void VCAI::tryRealize(Goals::VisitTile & g)
 {
-	//cb->recalculatePaths();
 	if(!g.hero->movement)
 		throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
 	if(g.tile == g.hero->visitablePos()  &&  cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
@@ -1623,15 +1624,10 @@ void VCAI::tryRealize(Goals::VisitTile & g)
 												% g.hero->name % g.tile;
 		throw goalFulfilledException (sptr(g));
 	}
-	//if(!g.isBlockedBorderGate(g.tile))
-	//{
-		if (ai->moveHeroToTile(g.tile, g.hero.get()))
-		{
-			throw goalFulfilledException (sptr(g));
-		}
-	//}
-	//else
-	//	throw cannotFulfillGoalException("There's a blocked gate!, we should never be here"); //CLEAR_WAY_TO should get keymaster tent
+	if (ai->moveHeroToTile(g.tile, g.hero.get()))
+	{
+		throw goalFulfilledException (sptr(g));
+	}
 }
 
 void VCAI::tryRealize(Goals::VisitHero & g)
@@ -1953,7 +1949,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(heroes.front())) //it doesn't matter which hero it is
 					{
-						 striveToGoal (sptr(Goals::VisitTile(q.tile)));
+						 striveToGoal (sptr(Goals::GetObj(q.obj->id.getNum())));
 					}
 					else
 					{
@@ -1975,7 +1971,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				if (obj)
 					striveToGoal (sptr(Goals::GetObj(obj->id.getNum())));
 				else
-					striveToGoal (sptr(Goals::VisitTile(q.tile))); //visit seer hut
+					striveToGoal (sptr(Goals::GetObj(q.obj->id.getNum()))); //visit seer hut
 				break;
 			}
 			case CQuest::MISSION_PRIMARY_STAT:
@@ -2002,7 +1998,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (sptr(Goals::VisitTile(q.tile).sethero(hero))); //TODO: causes infinite loop :/
+						striveToGoal (sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero))); //TODO: causes infinite loop :/
 						return;
 					}
 				}
