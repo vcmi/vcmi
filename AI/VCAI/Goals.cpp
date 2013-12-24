@@ -278,8 +278,12 @@ float GetObj::importanceWhenLocked() const
 
 bool GetObj::fulfillsMe (TSubgoal goal)
 {
-	if (goal->goalType == Goals::VISIT_TILE && cb->getObj(ObjectInstanceID(objid))->visitablePos() == goal->tile)
-		return true;
+	if (goal->goalType == Goals::VISIT_TILE)
+	{
+		auto obj = cb->getObj(ObjectInstanceID(objid));
+		if (obj && obj->visitablePos() == goal->tile) //object could be removed
+			return true;
+	}
 	else
 		return false;
 }
