@@ -67,7 +67,7 @@ class AbstractGoal
 public:
 	bool isElementar; VSETTER(bool, isElementar)
 	bool isAbstract; VSETTER(bool, isAbstract)
-	int priority; VSETTER(bool, priority)
+	float priority; VSETTER(float, priority)
 	int value; VSETTER(int, value)
 	int resID; VSETTER(int, resID)
 	int objid; VSETTER(int, objid)
@@ -104,8 +104,6 @@ public:
 
 	virtual TGoalVec getAllPossibleSubgoals() = 0;
 	virtual TSubgoal whatToDoToAchieve() = 0;
-	virtual float importanceWhenLocked() const {return -1e10;}; //how much would it cost to interrupt the goal
-	//probably could use some sophisticated fuzzy evalluation for it as well
 
 	///Visitor pattern
 	//TODO: make accept work for shared_ptr... somehow
@@ -146,7 +144,7 @@ public:
 
 	OSETTER(bool, isElementar)
 	OSETTER(bool, isAbstract)
-	OSETTER(bool, priority)
+	OSETTER(float, priority)
 	OSETTER(int, value)
 	OSETTER(int, resID)
 	OSETTER(int, objid)
@@ -158,6 +156,7 @@ public:
 
 	void accept (VCAI * ai) override;
 	float accept (FuzzyHelper * f) override;
+	//float importanceWhenLocked() const override;
 
 	CGoal<T> * clone() const override
 	{
@@ -182,157 +181,141 @@ TSubgoal sptr(const AbstractGoal & tmp);
 class Invalid : public CGoal<Invalid>
 {
 	public:
-	Invalid() : CGoal (Goals::INVALID){};
+	Invalid() : CGoal (Goals::INVALID) {priority = -1e10;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	//float importanceWhenLocked() const override;
 };
 class Win : public CGoal<Win>
 {
 	public:
-	Win() : CGoal (Goals::WIN){};
+	Win() : CGoal (Goals::WIN) {priority = 100;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	//float importanceWhenLocked() const override; //can't be locked, doesn't make much sense anyway
 };
 class NotLose : public CGoal<NotLose>
 {
 	public:
-	NotLose() : CGoal (Goals::DO_NOT_LOSE){};
+	NotLose() : CGoal (Goals::DO_NOT_LOSE) {priority = 100;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	float importanceWhenLocked() const override;
 };
 class Conquer : public CGoal<Conquer>
 {
 	public:
-	Conquer() : CGoal (Goals::CONQUER){};
+	Conquer() : CGoal (Goals::CONQUER) {priority = 10;};
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
-	float importanceWhenLocked() const override;
 };
 class Build : public CGoal<Build>
 {
 	public:
-	Build() : CGoal (Goals::BUILD){};
+	Build() : CGoal (Goals::BUILD) {priority = 1;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	float importanceWhenLocked() const override;
 };
 class Explore : public CGoal<Explore>
 {
 	public:
-	Explore() : CGoal (Goals::EXPLORE){};
+	Explore() : CGoal (Goals::EXPLORE){priority = 1;};
 	Explore(HeroPtr h) : CGoal (Goals::EXPLORE){hero = h;};
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	std::string completeMessage() const override;
-	float importanceWhenLocked() const override;
 };
 class GatherArmy : public CGoal<GatherArmy>
 {
 private:
 	GatherArmy() : CGoal (Goals::GATHER_ARMY){};
 public:
-	GatherArmy(int val) : CGoal (Goals::GATHER_ARMY){value = val;};
+	GatherArmy(int val) : CGoal (Goals::GATHER_ARMY){value = val; priority = 2.5;};
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	std::string completeMessage() const override;
-	float importanceWhenLocked() const override;
 };
 class BoostHero : public CGoal<BoostHero>
 {
 	public:
-	BoostHero() : CGoal (Goals::INVALID){}; //TODO
+	BoostHero() : CGoal (Goals::INVALID){priority = -1e10;}; //TODO
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	float importanceWhenLocked() const override;
 };
 class RecruitHero : public CGoal<RecruitHero>
 {
 	public:
-	RecruitHero() : CGoal (Goals::RECRUIT_HERO){};
+	RecruitHero() : CGoal (Goals::RECRUIT_HERO){priority = 1;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	//float importanceWhenLocked() const override;
 };
 class BuildThis : public CGoal<BuildThis>
 {
 private:
 	BuildThis() : CGoal (Goals::BUILD_STRUCTURE){};
 public:
-	BuildThis(BuildingID Bid, const CGTownInstance *tid) : CGoal (Goals::BUILD_STRUCTURE) {bid = Bid; town = tid;};
-	BuildThis(BuildingID Bid) : CGoal (Goals::BUILD_STRUCTURE) {bid = Bid;};
+	BuildThis(BuildingID Bid, const CGTownInstance *tid) : CGoal (Goals::BUILD_STRUCTURE) {bid = Bid; town = tid; priority =  5;};
+	BuildThis(BuildingID Bid) : CGoal (Goals::BUILD_STRUCTURE) {bid = Bid; priority = 5;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	float importanceWhenLocked() const override;
 };
 class CollectRes : public CGoal<CollectRes>
 {
 private:	
 	CollectRes() : CGoal (Goals::COLLECT_RES){};
 public:
-	CollectRes(int rid, int val) : CGoal (Goals::COLLECT_RES) {resID = rid; value = val;};
+	CollectRes(int rid, int val) : CGoal (Goals::COLLECT_RES) {resID = rid; value = val; priority = 2;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	float importanceWhenLocked() const override;
 };
 class GatherTroops : public CGoal<GatherTroops>
 {
 private:
-	GatherTroops() : CGoal (Goals::GATHER_TROOPS){};
+	GatherTroops() : CGoal (Goals::GATHER_TROOPS){priority = 2;};
 public:
-	GatherTroops(int type, int val) : CGoal (Goals::GATHER_TROOPS){objid = type; value = val;};
+	GatherTroops(int type, int val) : CGoal (Goals::GATHER_TROOPS){objid = type; value = val; priority = 2;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	float importanceWhenLocked() const override;
 };
 class GetObj : public CGoal<GetObj>
 {
 private:
 	GetObj() {}; // empty constructor not allowed
 public:
-	GetObj(int Objid) : CGoal(Goals::GET_OBJ) {objid = Objid;};
+	GetObj(int Objid) : CGoal(Goals::GET_OBJ) {objid = Objid; priority = 3;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (GetObj &g) {return g.objid ==  objid;}
 	bool fulfillsMe (TSubgoal goal) override;
 	std::string completeMessage() const override;
-	float importanceWhenLocked() const override;
 };
 class FindObj : public CGoal<FindObj>
 {
 private:
 	FindObj() {}; // empty constructor not allowed
 public:
-	FindObj(int ID) : CGoal(Goals::FIND_OBJ) {objid = ID;};
-	FindObj(int ID, int subID) : CGoal(Goals::FIND_OBJ) {objid = ID; resID = subID;};
+	FindObj(int ID) : CGoal(Goals::FIND_OBJ) {objid = ID; priority = 1;};
+	FindObj(int ID, int subID) : CGoal(Goals::FIND_OBJ) {objid = ID; resID = subID; priority = 1;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	float importanceWhenLocked() const override;
 };
 class VisitHero : public CGoal<VisitHero>
 {
 private:
 	VisitHero() : CGoal (Goals::VISIT_HERO){};
 public:
-	VisitHero(int hid) : CGoal (Goals::VISIT_HERO){objid = hid;};
+	VisitHero(int hid) : CGoal (Goals::VISIT_HERO){objid = hid; priority = 4;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (VisitHero &g) {return g.objid == objid;}
 	bool fulfillsMe (TSubgoal goal) override;
 	std::string completeMessage() const override;
-	float importanceWhenLocked() const override;
 };
 class GetArtOfType : public CGoal<GetArtOfType>
 {
 private:
 	GetArtOfType() : CGoal (Goals::GET_ART_TYPE){};
 public:
-	GetArtOfType(int type) : CGoal (Goals::GET_ART_TYPE){aid = type;};
+	GetArtOfType(int type) : CGoal (Goals::GET_ART_TYPE){aid = type; priority = 2;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	float importanceWhenLocked() const override;
 };
 class VisitTile : public CGoal<VisitTile>
 	//tile, in conjunction with hero elementar; assumes tile is reachable
@@ -340,21 +323,19 @@ class VisitTile : public CGoal<VisitTile>
 private:
 	VisitTile() {}; // empty constructor not allowed
 public:
-	VisitTile(int3 Tile) : CGoal (Goals::VISIT_TILE) {tile = Tile;};
+	VisitTile(int3 Tile) : CGoal (Goals::VISIT_TILE) {tile = Tile; priority = 5;};
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (VisitTile &g) {return g.tile == tile;}
 	std::string completeMessage() const override;
-	float importanceWhenLocked() const override;
 }; 
 class ClearWayTo : public CGoal<ClearWayTo>
 {
 public:
-	ClearWayTo(int3 Tile) : CGoal (Goals::CLEAR_WAY_TO) {tile = Tile;};
+	ClearWayTo(int3 Tile) : CGoal (Goals::CLEAR_WAY_TO) {tile = Tile; priority = 5;};
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (ClearWayTo &g) {return g.tile == tile;}
-	float importanceWhenLocked() const override;
 };
 class DigAtTile : public CGoal<DigAtTile>
 	//elementar with hero on tile
@@ -362,11 +343,10 @@ class DigAtTile : public CGoal<DigAtTile>
 private:
 	DigAtTile() : CGoal (Goals::DIG_AT_TILE){};
 public:
-	DigAtTile(int3 Tile) : CGoal (Goals::DIG_AT_TILE) {tile = Tile;};
+	DigAtTile(int3 Tile) : CGoal (Goals::DIG_AT_TILE) {tile = Tile; priority = 20;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (DigAtTile &g) {return g.tile == tile;}
-	float importanceWhenLocked() const override;
 };
 
 class CIssueCommand : public CGoal<CIssueCommand>
@@ -374,10 +354,9 @@ class CIssueCommand : public CGoal<CIssueCommand>
 	std::function<bool()> command;
 
 	public:
-	CIssueCommand(std::function<bool()> _command): CGoal(ISSUE_COMMAND), command(_command) {}
+	CIssueCommand(std::function<bool()> _command): CGoal(ISSUE_COMMAND), command(_command) {priority = 1e10;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	//float importanceWhenLocked() const override; //unsupported yet, but shoudl be highest
 };
 
 }

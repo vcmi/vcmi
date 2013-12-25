@@ -242,10 +242,6 @@ TSubgoal FindObj::whatToDoToAchieve()
 	else
 		return sptr (Goals::Explore());
 }
-float FindObj::importanceWhenLocked() const
-{
-	return 1; //we will probably fins it anyway, someday
-}
 
 std::string GetObj::completeMessage() const
 {
@@ -269,11 +265,6 @@ TSubgoal GetObj::whatToDoToAchieve()
 			return sptr (Goals::VisitTile(pos).sethero(hero)); //we must visit object with same hero, if any
 	}
 	return sptr (Goals::ClearWayTo(pos).sethero(hero));
-}
-
-float GetObj::importanceWhenLocked() const
-{
-	return 3;
 }
 
 bool GetObj::fulfillsMe (TSubgoal goal)
@@ -313,11 +304,6 @@ TSubgoal VisitHero::whatToDoToAchieve()
 	return sptr (Goals::Invalid());
 }
 
-float VisitHero::importanceWhenLocked() const
-{
-	return 4;
-}
-
 bool VisitHero::fulfillsMe (TSubgoal goal)
 {
 	if (goal->goalType == Goals::VISIT_TILE && cb->getObj(ObjectInstanceID(objid))->visitablePos() == goal->tile)
@@ -332,11 +318,6 @@ TSubgoal GetArtOfType::whatToDoToAchieve()
 	if(alternativeWay->invalid())
 		return sptr (Goals::FindObj(Obj::ARTIFACT, aid));
 	return sptr (Goals::Invalid());
-}
-
-float GetArtOfType::importanceWhenLocked() const
-{
-	return 2;
 }
 
 TSubgoal ClearWayTo::whatToDoToAchieve()
@@ -400,11 +381,6 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 	}
 
 	return ret;
-}
-
-float ClearWayTo::importanceWhenLocked() const
-{
-	return 5;
 }
 
 std::string Explore::completeMessage() const
@@ -494,11 +470,6 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	return ret;
 };
 
-float Explore::importanceWhenLocked() const
-{
-	return 1; //exploration is natural and lowpriority process
-}
-
 TSubgoal RecruitHero::whatToDoToAchieve()
 {
 	const CGTownInstance *t = ai->findTownWithTavern();
@@ -534,11 +505,6 @@ TSubgoal VisitTile::whatToDoToAchieve()
 		}
 	}
 	return ret;
-}
-
-float VisitTile::importanceWhenLocked() const
-{
-	return 5; //depends on a distance, but we should really reach the tile once it was selected
 }
 
 TGoalVec VisitTile::getAllPossibleSubgoals()
@@ -582,22 +548,12 @@ TSubgoal DigAtTile::whatToDoToAchieve()
 	return sptr (Goals::VisitTile(tile));
 }
 
-float DigAtTile::importanceWhenLocked() const
-{
-	return 20; //do not! interrupt tile digging
-}
-
 TSubgoal BuildThis::whatToDoToAchieve()
 {
 	//TODO check res
 	//look for town
 	//prerequisites?
 	return iAmElementar();
-}
-
-float BuildThis::importanceWhenLocked() const
-{
-	return 5;
 }
 
 TSubgoal CollectRes::whatToDoToAchieve()
@@ -667,11 +623,6 @@ TSubgoal CollectRes::whatToDoToAchieve()
 	return sptr (setisElementar(true)); //all the conditions for trade are met
 }
 
-float CollectRes::importanceWhenLocked() const
-{
-	return 2;
-}
-
 TSubgoal GatherTroops::whatToDoToAchieve()
 {
 	std::vector<const CGDwelling *> dwellings;
@@ -727,11 +678,6 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 	//TODO: exchange troops between heroes
 }
 
-float GatherTroops::importanceWhenLocked() const
-{
-	return 2;
-}
-
 TSubgoal Conquer::whatToDoToAchieve()
 {
 	return fh->chooseSolution (getAllPossibleSubgoals());
@@ -776,19 +722,9 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 	return ret;
 }
 
-float Conquer::importanceWhenLocked() const
-{
-	return 10; //defeating opponent is hig priority, always
-}
-
 TSubgoal Build::whatToDoToAchieve()
 {
 	return iAmElementar();
-}
-
-float Build::importanceWhenLocked() const
-{
-	return 1;
 }
 
 TSubgoal Invalid::whatToDoToAchieve()
@@ -885,11 +821,6 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		ret.push_back (sptr(Goals::Explore()));
 
 	return ret;
-}
-
-float GatherArmy::importanceWhenLocked() const
-{
-	return 2.5;
 }
 
 //TSubgoal AbstractGoal::whatToDoToAchieve()

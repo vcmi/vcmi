@@ -306,21 +306,18 @@ Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
 	if (vec.empty()) //no possibilities found
 		return sptr(Goals::Invalid());
 
-	typedef std::pair<Goals::TSubgoal, float> goalValue;
-	std::vector <goalValue> values;
-
 	for (auto g : vec)
 	{
-		values.push_back (std::make_pair(g, g->accept(this)));
+		g->setpriority (g->accept(this));
 	}
 
-	auto compareGoals = [&](const goalValue & lhs, const goalValue & rhs) -> bool
+	auto compareGoals = [&](Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
 	{
-		return lhs.second < rhs.second;
+		return lhs->priority < rhs->priority;
 	};
 
-	boost::sort (values, compareGoals);
-	return values.back().first;
+	boost::sort (vec, compareGoals);
+	return vec.back();
 }
 
 float FuzzyHelper::evaluate (Goals::Explore & g)
@@ -404,14 +401,12 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 	if (!g.hero)
 		return 0;
 
-	float output = 0;
-
 	cb->setSelection (g.hero.h);
 	int distance = cb->getDistance(g.tile); //at this point we already assume tile is reachable
 	
 	float missionImportance = 0;
 	if (vstd::contains(ai->lockedHeroes, g.hero))
-		missionImportance = ai->lockedHeroes[g.hero]->importanceWhenLocked();
+		missionImportance = ai->lockedHeroes[g.hero]->priority;
 
 	float strengthRatio = 100; //we are much stronger than enemy
 	ui64 danger = evaluateDanger (g.tile, g.hero.h);
@@ -427,13 +422,13 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 		vt.movement->setInput(g.hero->movement);
 
 		engine.process (VISIT_TILE);
-		output = vt.value->output().defuzzify();
+		g.priority = vt.value->output().defuzzify();
 	}
 	catch (fl::FuzzyException & fe)
 	{
         logAi->errorStream() << "evaluate VisitTile " << fe.name() << ": " << fe.message();
 	}
-	return output;
+	return g.priority;
 
 }
 float FuzzyHelper::evaluate (Goals::VisitHero & g)
