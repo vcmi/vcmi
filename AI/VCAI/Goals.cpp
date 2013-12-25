@@ -284,8 +284,8 @@ bool GetObj::fulfillsMe (TSubgoal goal)
 		if (obj && obj->visitablePos() == goal->tile) //object could be removed
 			return true;
 	}
-	else
-		return false;
+
+	return false;
 }
 
 std::string VisitHero::completeMessage() const

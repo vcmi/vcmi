@@ -410,7 +410,7 @@ void VCAI::heroCreated(const CGHeroInstance* h)
 {
 	LOG_TRACE(logAi);
 	if (h->visitedTown)
-		townVisitsThisWeek[HeroPtr(h)].push_back(h->visitedTown);
+		townVisitsThisWeek[HeroPtr(h)].insert(h->visitedTown);
 	NET_EVENT_HANDLER;
 }
 
@@ -647,11 +647,8 @@ void VCAI::makeTurn()
 			{
 				if (isWeeklyRevisitable(obj))
 				{
-					if (!vstd::contains(visitableObjs, obj))
-						visitableObjs.push_back(obj);
-					auto o = std::find (alreadyVisited.begin(), alreadyVisited.end(), obj);
-					if (o != alreadyVisited.end())
-						alreadyVisited.erase(o);
+					visitableObjs.insert(obj); //set doesn't need duplicate check
+					erase_if_present (alreadyVisited, obj);
 				}
 			}
 		}
@@ -689,8 +686,9 @@ void VCAI::makeTurnInternal()
 			}
 
 			cb->setSelection(hero.first.get());
-			boost::sort (hero.second, isCloser);
-			for (auto obj : hero.second)
+			std::vector<const CGObjectInstance *> vec(hero.second.begin(), hero.second.end());
+			boost::sort (vec, isCloser);
+			for (auto obj : vec)
 			{
 				if(!obj || !obj->defInfo || !cb->getObj(obj->id))
 				{
@@ -770,7 +768,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 			moveCreaturesToHero (dynamic_cast<const CGTownInstance *>(obj));
 			if (h->visitedTown) //we are inside, not just attacking
 			{
-				townVisitsThisWeek[h].push_back(h->visitedTown);
+				townVisitsThisWeek[h].insert(h->visitedTown);
 				if (!h->hasSpellbook() && cb->getResourceAmount(Res::GOLD) >= GameConstants::SPELLBOOK_GOLD_COST + saving[Res::GOLD] &&
 					h->visitedTown->hasBuilt (BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
@@ -1302,7 +1300,7 @@ void VCAI::wander(HeroPtr h)
 
 		if(h->visitedTown)
 		{
-			townVisitsThisWeek[h].push_back(h->visitedTown);
+			townVisitsThisWeek[h].insert(h->visitedTown);
 			buildArmyIn(h->visitedTown);
 			break;
 		}
@@ -1380,13 +1378,13 @@ void VCAI::markObjectVisited (const CGObjectInstance *obj)
 		dynamic_cast<const CGBonusingObject *>(obj) || //or another time
 		(obj->ID == Obj::MONSTER))
 		return;
-	alreadyVisited.push_back(obj);
+	alreadyVisited.insert(obj);
 }
 
 void VCAI::reserveObject(HeroPtr h, const CGObjectInstance *obj)
 {
-	reservedObjs.push_back(obj);
-	reservedHeroesMap[h].push_back(obj);
+	reservedObjs.insert(obj);
+	reservedHeroesMap[h].insert(obj);
 	logAi->debugStream() << "reserved object id=" << obj->id << "; address=" << (intptr_t)obj << "; name=" << obj->getHoverText();
 }
 
@@ -1435,6 +1433,17 @@ void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, boo
 		}
 	});
 }
+void VCAI::retreiveVisitableObjs(std::set<const CGObjectInstance *> &out, bool includeOwned /*= false*/) const
+{
+	foreach_tile_pos([&](const int3 &pos)
+	{
+		for(const CGObjectInstance *obj : myCb->getVisitableObjs(pos, false))
+		{
+			if(includeOwned || obj->tempOwner != playerID)
+				out.insert(obj);
+		}
+	});
+}
 
 std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
 {
@@ -1449,7 +1458,7 @@ std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
 
 void VCAI::addVisitableObj(const CGObjectInstance *obj)
 {
-	visitableObjs.push_back(obj);
+	visitableObjs.insert(obj);
 	helperObjInfo[obj] = ObjInfo(obj);
 }
 
