@@ -525,9 +525,6 @@ void VCAI::init(shared_ptr<CCallback> CB)
 		fh = new FuzzyHelper();
 
 	retreiveVisitableObjs(visitableObjs);
-	//for (auto h : myCb->getHeroesInfo()) //make sure heroes won't try to revisit town in first move
-	//	if (h->visitedTown)
-	//		markObjectVisited(h->visitedTown);
 }
 
 void VCAI::yourTurn()
@@ -704,27 +701,51 @@ void VCAI::makeTurnInternal()
 
 		//finally, continue our abstract long-term goals
 
-		//heroes tend to die in the process and loose their goals, unsafe to iterate it
-		std::vector<std::pair<HeroPtr, Goals::TSubgoal> > safeCopy;
-		boost::copy(lockedHeroes, std::back_inserter(safeCopy));
-
-		typedef std::pair<HeroPtr, Goals::TSubgoal> TItrType;
-
-		auto lockedHeroesSorter = [](TItrType h1, TItrType h2) -> bool
+		//int i = 100;
+		int oldMovement = 0;
+		int newMovement = 0;
+		while (true)
 		{
-			return compareMovement (h1.first, h2.first);
-		};
-		boost::sort(safeCopy, lockedHeroesSorter);
-
-		while (safeCopy.size()) //continue our goals
-		{
-			auto it = safeCopy.begin();
-			if (it->first && it->first->tempOwner == playerID && vstd::contains(lockedHeroes, it->first)) //make sure hero still has his goal
+			//if (!i)
+			//{
+			//	logAi->warnStream() << "Locked heroes: exhaustive decomposition failed!";
+			//	break;
+			//	/*If we are here, it can mean two things:
+			//	1. W are striving to impossible goal (bug!)
+			//	2. Our strategy seems perfect and no move can bring improvement
+			//	*/
+			//}
+			//--i;
+			oldMovement = newMovement; //remember old value
+			newMovement = 0;
+			std::vector<std::pair<HeroPtr, Goals::TSubgoal> > safeCopy;
+			for (auto mission : lockedHeroes)
 			{
-				cb->setSelection(*it->first);
-				striveToGoal (it->second);
+				mission.second->accept(fh); //re-evaluate
+				if (canAct(mission.first))
+				{
+					newMovement += mission.first->movement;
+					safeCopy.push_back (mission);
+				}
 			}
-			safeCopy.erase(it);
+			if (newMovement == oldMovement) //means our heroes didn't move or didn't re-assign their goals
+			{
+				logAi->warnStream() << "Our heroes don't move anymore, exhaustive decomposition failed";
+			}
+				break;
+			if (safeCopy.empty())
+				break; //all heroes exhausted their locked goals
+			else
+			{
+				typedef std::pair<HeroPtr, Goals::TSubgoal> TItrType;
+
+				auto lockedHeroesSorter = [](TItrType m1, TItrType m2) -> bool
+				{
+					return m1.second->priority < m2.second->priority;
+				};
+				boost::sort(safeCopy, lockedHeroesSorter);
+				striveToGoal (safeCopy.back().second);
+			}
 		}
 
 		auto quests = myCb->getMyQuests();
@@ -734,6 +755,14 @@ void VCAI::makeTurnInternal()
 		}
 
 		striveToGoal(sptr(Goals::Build())); //TODO: smarter building management
+		performTypicalActions();
+
+		//for debug purpose
+		for (auto h : cb->getHeroesInfo())
+		{
+			if (h->movement)
+				logAi->warnStream() << boost::format("hero %s has %d MP left") % h->name % h->movement;
+		}	
 	}
 	catch(boost::thread_interrupted &e)
 	{
@@ -1544,10 +1573,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		if(path.nodes.empty())
 		{
             logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
-			//setGoal(h, INVALID);
-			completeGoal (sptr(Goals::VisitTile(dst).sethero(h))); //TODO: better mechanism to determine goal
 			cb->recalculatePaths();
-			throw std::runtime_error("Wrong move order!");
+			throw goalFulfilledException (sptr(Goals::VisitTile(dst).sethero(h)));
 		}
 
 		int i=path.nodes.size()-1;
@@ -1586,23 +1613,26 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	}
 	if (auto visitedObject = frontOrNull(cb->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
 	{
-		performObjectInteraction (visitedObject, h);
+		if (visitedObject != *h)
+			performObjectInteraction (visitedObject, h);
 		//BNLOG("Hero %s moved from %s to %s at %s", h->name % startHpos % visitedObject->hoverName % h->visitablePos());
 		//throw goalFulfilledException (CGoal(GET_OBJ).setobjid(visitedObject->id));
 	}
 	if(h) //we could have lost hero after last move
 	{
+		completeGoal (sptr(Goals::VisitTile(dst).sethero(h))); //we stepped on some tile, anyway
 		if (!ret) //reserve object we are heading towards
 		{
 			auto obj = frontOrNull(cb->getVisitableObjs(dst));
-			if (obj)
+			if (obj && obj != *h)
 				reserveObject(h, obj);
 		}
 
 		cb->recalculatePaths();
 		if (startHpos == h->visitablePos() && !ret) //we didn't move and didn't reach the target
 		{
-			throw cannotFulfillGoalException("Invalid path found!");
+			erase_if_present (lockedHeroes, h); //hero seemingly is confused
+			throw cannotFulfillGoalException("Invalid path found!"); //FIXME: should never happen
 		}
 	}
     logAi->debugStream() << boost::format("Hero %s moved from %s to %s. Returning %d.") % h->name % startHpos % h->visitablePos() % ret;
@@ -1684,7 +1714,7 @@ void VCAI::tryRealize(Goals::DigAtTile & g)
 	if (g.hero->diggingStatus() == CGHeroInstance::CAN_DIG)
 	{
 		cb->dig(g.hero.get());
-		setGoal(g.hero, sptr(Goals::Invalid())); // finished digging
+		completeGoal(sptr(g)); // finished digging
 	}
 	else
 	{
@@ -1730,7 +1760,20 @@ void VCAI::tryRealize(Goals::CollectRes & g)
 
 void VCAI::tryRealize(Goals::Build & g)
 {
-	performTypicalActions(); //TODO: separate build and wander
+	for(const CGTownInstance *t : cb->getTownsInfo())
+	{
+        logAi->debugStream() << boost::format("Looking into %s") % t->name;
+		buildStructure(t);
+		buildArmyIn(t);
+
+		if(!ai->primaryHero() ||
+			(t->getArmyStrength() > ai->primaryHero()->getArmyStrength() * 2 && !isAccessibleForHero(t->visitablePos(), ai->primaryHero())))
+		{
+			recruitHero(t);
+			buildArmyIn(t);
+		}
+	}
+
 	throw cannotFulfillGoalException("BUILD has been realized as much as possible.");
 }
 void VCAI::tryRealize(Goals::Invalid & g)
@@ -1756,15 +1799,29 @@ const CGTownInstance * VCAI::findTownWithTavern() const
 std::vector<HeroPtr> VCAI::getUnblockedHeroes() const
 {
 	std::vector<HeroPtr> ret;
-	boost::copy(cb->getHeroesInfo(), std::back_inserter(ret));
-
-	for(auto h : lockedHeroes)
+	for (auto h : cb->getHeroesInfo())
 	{
-		//if (!h.second.invalid()) //we can use heroes without valid goal
-		if (h.second->goalType == Goals::DIG_AT_TILE || !h.first->movement) //experiment: use all heroes that have movement left, TODO: unlock heroes that couldn't realize their goals 
-			erase_if_present(ret, h.first);
+		//&& !vstd::contains(lockedHeroes, h)
+		//at this point we assume heroes exhausted their locked goals
+		if (canAct(h))
+			ret.push_back(h);
 	}
 	return ret;
+}
+
+bool VCAI::canAct (HeroPtr h) const
+{
+	bool digsTile = false;
+	
+	auto mission = lockedHeroes.find(h);
+	if (mission != lockedHeroes.end())
+	{
+		//FIXME: I'm afraid there can be other conditions when heroes can act but not move :?
+		if (mission->second->goalType == Goals::DIG_AT_TILE && !mission->second->isElementar)
+			return false;
+	}
+
+	return h->movement;
 }
 
 HeroPtr VCAI::primaryHero() const
@@ -1856,7 +1913,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 				}
 				else
 				{
-					setGoal(goal->hero, sptr(Goals::Invalid())); // we seemingly don't know what to do with hero
+					erase_if_present (lockedHeroes, goal->hero); // we seemingly don't know what to do with hero
 				}
 			}
 
@@ -2031,20 +2088,6 @@ void VCAI::striveToQuest (const QuestInfo &q)
 
 void VCAI::performTypicalActions()
 {
-	for(const CGTownInstance *t : cb->getTownsInfo())
-	{
-        logAi->debugStream() << boost::format("Looking into %s") % t->name;
-		buildStructure(t);
-		buildArmyIn(t);
-
-		if(!ai->primaryHero() ||
-			(t->getArmyStrength() > ai->primaryHero()->getArmyStrength() * 2 && !isAccessibleForHero(t->visitablePos(), ai->primaryHero())))
-		{
-			recruitHero(t);
-			buildArmyIn(t);
-		}
-	}
-
 	for(auto h : getUnblockedHeroes())
 	{
         logAi->debugStream() << boost::format("Looking into %s, MP=%d") % h->name.c_str() % h->movement;
@@ -2083,7 +2126,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 	{
 		const CGPathNode *pn = cb->getPathInfo(i->first);
 		//const TerrainTile *t = cb->getTile(i->first);
-		if(best->second < i->second  && i->second && pn->reachable() && pn->accessible == CGPathNode::ACCESSIBLE)
+		if(best->second < i->second && pn->reachable() && pn->accessible == CGPathNode::ACCESSIBLE)
 			best = i;
 	}
 
@@ -2096,6 +2139,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 int3 VCAI::explorationNewPoint(int radius, HeroPtr h, bool breakUnsafe)
 {
     logAi->debugStream() << "Looking for an another place for exploration...";
+	cb->setSelection(h.h);
 
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
 	tiles.resize(radius);
@@ -2584,6 +2628,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	switch (obj->ID)
 	{	
 		case Obj::TOWN:
+		case Obj::HERO: //never visit our heroes at random
 			return obj->tempOwner != h->tempOwner; //do not visit our towns at random
 			break;
 		case Obj::BORDER_GATE:
@@ -2846,6 +2891,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 			}
 		}
 	}
+
 
 	throw cannotFulfillGoalException("Impossible happened.");
 }

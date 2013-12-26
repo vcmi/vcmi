@@ -221,6 +221,7 @@ class Explore : public CGoal<Explore>
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	std::string completeMessage() const override;
+	bool fulfillsMe (TSubgoal goal) override;
 };
 class GatherArmy : public CGoal<GatherArmy>
 {

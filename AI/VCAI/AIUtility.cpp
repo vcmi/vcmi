@@ -214,7 +214,6 @@ bool canBeEmbarkmentPoint(const TerrainTile *t)
 int3 whereToExplore(HeroPtr h)
 {
 	TimeCheck tc ("where to explore");
-	//TODO it's stupid and ineffective, write sth better
 	cb->setSelection(*h);
 	int radius = h->getSightRadious();
 	int3 hpos = h->visitablePos();
@@ -242,12 +241,13 @@ int3 whereToExplore(HeroPtr h)
 	if(nearbyVisitableObjs.size())
 		return nearbyVisitableObjs.back()->visitablePos();
 
-	try
+	try //check if nearby tiles allow us to reveal anything - this is quick
 	{
 		return ai->explorationBestNeighbour(hpos, radius, h);
 	}
 	catch(cannotFulfillGoalException &e)
 	{
+		//perform exhaustive search
 		return ai->explorationNewPoint(radius, h);
 	}
 }

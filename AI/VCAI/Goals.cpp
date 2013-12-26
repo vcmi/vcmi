@@ -62,13 +62,20 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 			desc = "GATHER TROOPS";
 			break;
 		case GET_OBJ:
-			desc = "GET OBJ " + cb->getObjInstance(ObjectInstanceID(objid))->getHoverText();
-			break;
+		{
+			auto obj = cb->getObjInstance(ObjectInstanceID(objid));
+			if (obj)
+				desc = "GET OBJ " + obj->getHoverText();
+		}
 		case FIND_OBJ:
 			desc = "FIND OBJ " + boost::lexical_cast<std::string>(objid);
 			break;
 		case VISIT_HERO:
-			desc = "VISIT HERO " + cb->getObjInstance(ObjectInstanceID(objid))->getHoverText();
+		{
+			auto obj = cb->getObjInstance(ObjectInstanceID(objid));
+			if (obj)
+				desc = "VISIT HERO " + obj->getHoverText();
+		}
 			break;
 		case GET_ART_TYPE:
 			desc = "GET ARTIFACT OF TYPE " + VLC->arth->artifacts[aid]->Name();
@@ -337,6 +344,10 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 	TGoalVec ret;
 	for (auto h : cb->getHeroesInfo())
 	{
+		if ((hero && hero->visitablePos() == tile && hero == *h) || //we can't free the way ourselves
+			h->visitablePos() == tile) //we are already on that tile! what does it mean?
+			continue;
+
 		cb->setSelection(h);
 
 		SectorMap sm;
@@ -353,7 +364,8 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 		if(topObj)
 		{
 			if (topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
-				logAi->errorStream() << boost::format("%s stands in the way of %s") % topObj->getHoverText()  % h->getHoverText();
+				if (topObj != hero.get(true)) //the hero we wnat to free
+					logAi->errorStream() << boost::format("%s stands in the way of %s") % topObj->getHoverText()  % h->getHoverText();
 			if (topObj->ID == Obj::QUEST_GUARD || topObj->ID == Obj::BORDERGUARD)
 			{
 				if (shouldVisit(h, topObj))
@@ -465,10 +477,26 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		}
 	}
 	if (ret.empty())
-		throw cannotFulfillGoalException("Cannot explore - no possible ways found!");
+	{
+		throw goalFulfilledException (sptr(*this));
+	}
+	//throw cannotFulfillGoalException("Cannot explore - no possible ways found!");
 
 	return ret;
 };
+
+bool Explore::fulfillsMe (TSubgoal goal)
+{
+	if (goal->goalType == Goals::EXPLORE)
+	{
+		if (goal->hero)
+			return hero == goal->hero;
+		else
+			return true; //cancel ALL exploration
+	}
+	return false;
+}
+
 
 TSubgoal RecruitHero::whatToDoToAchieve()
 {
@@ -493,7 +521,7 @@ TSubgoal VisitTile::whatToDoToAchieve()
 
 	if (ret->hero)
 	{
-		if (isSafeToVisit(ret->hero, tile))
+		if (isSafeToVisit(ret->hero, tile) && ai->isAccessibleForHero(tile, ret->hero))
 		{
 			ret->setisElementar(true);
 			return ret;
@@ -529,7 +557,13 @@ TGoalVec VisitTile::getAllPossibleSubgoals()
 			ret.push_back (sptr(Goals::RecruitHero()));
 	}
 	if (ret.empty())
-		ret.push_back (sptr(Goals::ClearWayTo(tile)));
+	{
+		auto obj = frontOrNull(cb->getVisitableObjs(tile));
+		if (obj && obj->ID == Obj::HERO && obj->tempOwner == ai->playerID) //our own hero stands on that tile
+			ret.push_back (sptr(Goals::VisitTile(tile).sethero(dynamic_cast<const CGHeroInstance *>(obj)).setisElementar(true)));
+		else
+			ret.push_back (sptr(Goals::ClearWayTo(tile)));
+	}
 
 	//important - at least one sub-goal must handle case which is impossible to fulfill (unreachable tile)
 	return ret;

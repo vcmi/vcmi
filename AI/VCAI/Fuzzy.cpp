@@ -459,6 +459,6 @@ float FuzzyHelper::evaluate (Goals::Invalid & g)
 }
 float FuzzyHelper::evaluate (Goals::AbstractGoal & g)
 {
-	logAi->debugStream() << boost::format("Cannot evaluate goal %s") % g.name();
-	return -1e10;
+	logAi->warnStream() << boost::format("Cannot evaluate goal %s") % g.name();
+	return g.priority;
 }
