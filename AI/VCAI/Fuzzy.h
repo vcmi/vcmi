@@ -14,9 +14,6 @@
 
 class VCAI;
 class CArmedInstance;
-//class TSubgoal;
-//class TGoalVec;
-//class AbstractGoal;
 
 class FuzzyHelper
 {
@@ -71,6 +68,7 @@ public:
 	float evaluate (Goals::Build & g);
 	float evaluate (Goals::Invalid & g);
 	float evaluate (Goals::AbstractGoal & g);
+	void setPriority (Goals::TSubgoal & g);
 
 	ui64 estimateBankDanger (int ID);
 	float getTacticalAdvantage (const CArmedInstance *we, const CArmedInstance *enemy); //returns factor how many times enemy is stronger than us

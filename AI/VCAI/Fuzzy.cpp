@@ -308,7 +308,7 @@ Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
 
 	for (auto g : vec)
 	{
-		g->setpriority (g->accept(this));
+		setPriority(g);
 	}
 
 	auto compareGoals = [&](Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
@@ -353,9 +353,10 @@ void FuzzyHelper::initVisitTile()
 	vt.strengthRatio->addTerm (new fl::ShoulderTerm("LOW", 0.9, SAFE_ATTACK_CONSTANT, true));
 	vt.strengthRatio->addTerm (new fl::ShoulderTerm("HIGH", SAFE_ATTACK_CONSTANT, SAFE_ATTACK_CONSTANT * 3, false));
 
-	vt.heroStrength->addTerm (new fl::ShoulderTerm("LOW", 1, 2500, true)); //assumed strength of new hero from tavern
-	vt.heroStrength->addTerm (new fl::TriangularTerm("MEDIUM", 2500, 40000)); //assumed strength of hero able to defeat bank
-	vt.heroStrength->addTerm (new fl::ShoulderTerm("HIGH", 40000, 1e5, false)); //assumed strength of hero able to clear utopia
+	//strength compared to our main hero
+	vt.heroStrength->addTerm (new fl::ShoulderTerm("LOW", 0.01, 0.2, true));
+	vt.heroStrength->addTerm (new fl::TriangularTerm("MEDIUM", 0.1, 0.6));
+	vt.heroStrength->addTerm (new fl::ShoulderTerm("HIGH", 0.5, 0.99, false));
 
 	vt.tileDistance->addTerm (new fl::ShoulderTerm("SMALL", 0, 3.5, true));
 	vt.tileDistance->addTerm (new fl::TriangularTerm("MEDIUM", 3, 10.5));
@@ -416,7 +417,7 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 	try
 	{
 		vt.strengthRatio->setInput (strengthRatio);
-		vt.heroStrength->setInput (g.hero->getTotalStrength());
+		vt.heroStrength->setInput (g.hero->getTotalStrength()/ai->primaryHero()->getTotalStrength());
 		vt.tileDistance->setInput (distance);
 		vt.missionImportance->setInput (missionImportance);
 		vt.movement->setInput(g.hero->movement);
@@ -434,8 +435,9 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 float FuzzyHelper::evaluate (Goals::VisitHero & g)
 {
 	auto obj = cb->getObj(ObjectInstanceID(g.objid)); //we assume for now that these goals are similiar
-	return Goals::VisitTile(obj->pos).sethero(g.hero).setisAbstract(g.isAbstract).accept(this);
 	//TODO: consider direct copy (constructor?)
+	g.setpriority(Goals::VisitTile(obj->visitablePos()).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
+	return g.priority;	
 }
 float FuzzyHelper::evaluate (Goals::BuildThis & g)
 {
@@ -461,4 +463,8 @@ float FuzzyHelper::evaluate (Goals::AbstractGoal & g)
 {
 	logAi->warnStream() << boost::format("Cannot evaluate goal %s") % g.name();
 	return g.priority;
+}
+void FuzzyHelper::setPriority (Goals::TSubgoal & g)
+{
+	g->setpriority(g->accept(this)); //this enforces returned value is set
 }

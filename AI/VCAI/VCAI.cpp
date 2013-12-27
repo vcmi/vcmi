@@ -700,28 +700,16 @@ void VCAI::makeTurnInternal()
 		striveToGoal(sptr(Goals::Win()));
 
 		//finally, continue our abstract long-term goals
-
-		//int i = 100;
 		int oldMovement = 0;
 		int newMovement = 0;
 		while (true)
 		{
-			//if (!i)
-			//{
-			//	logAi->warnStream() << "Locked heroes: exhaustive decomposition failed!";
-			//	break;
-			//	/*If we are here, it can mean two things:
-			//	1. W are striving to impossible goal (bug!)
-			//	2. Our strategy seems perfect and no move can bring improvement
-			//	*/
-			//}
-			//--i;
 			oldMovement = newMovement; //remember old value
 			newMovement = 0;
 			std::vector<std::pair<HeroPtr, Goals::TSubgoal> > safeCopy;
 			for (auto mission : lockedHeroes)
 			{
-				mission.second->accept(fh); //re-evaluate
+				fh->setPriority (mission.second); //re-evaluate
 				if (canAct(mission.first))
 				{
 					newMovement += mission.first->movement;
@@ -1589,15 +1577,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 			int3 endpos = path.nodes[i-1].coord;
 			if(endpos == h->visitablePos())
-			//if (endpos == h->pos)
 				continue;
-// 			if(i > 1)
-// 			{
-// 				int3 afterEndPos = path.nodes[i-2].coord;
-// 				if(afterEndPos.z != endpos.z)
-//
-// 			}
-            //logAi->debugStream() << "Moving " << h->name << " from " << h->getPosition() << " to " << endpos;
+
 			cb->moveHero(*h, CGHeroInstance::convertPosition(endpos, true));
 			waitTillFree(); //movement may cause battle or blocking dialog
 			boost::this_thread::interruption_point();
@@ -1672,11 +1653,18 @@ void VCAI::tryRealize(Goals::VisitTile & g)
 void VCAI::tryRealize(Goals::VisitHero & g)
 {
 	if(!g.hero->movement)
-		throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
-	if (ai->moveHeroToTile(g.tile, g.hero.get()))
+		throw cannotFulfillGoalException("Cannot visit target hero: hero is out of MPs!");
+
+	const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid));
+	if (obj)
 	{
-		throw goalFulfilledException (sptr(g));
+		if (ai->moveHeroToTile(obj->visitablePos(), g.hero.get()))
+		{
+			throw goalFulfilledException (sptr(g));
+		}
 	}
+	else
+		throw cannotFulfillGoalException("Cannot visit hero: object not found!");
 }
 
 void VCAI::tryRealize(Goals::BuildThis & g)

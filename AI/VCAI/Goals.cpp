@@ -304,8 +304,9 @@ TSubgoal VisitHero::whatToDoToAchieve()
 			logAi->errorStream() << "Hero " << hero.name << " tries to visit himself.";
 		else
 		{
-			settile(pos).setisElementar(true);
-			return sptr (*this);
+			//can't use VISIT_TILE here as tile appears blocked by target hero
+			//FIXME: elementar goal should not be abstract
+			return sptr (Goals::VisitHero(objid).sethero(hero).settile(pos).setisElementar(true));
 		}
 	}
 	return sptr (Goals::Invalid());
