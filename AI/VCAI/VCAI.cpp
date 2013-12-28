@@ -358,6 +358,25 @@ void VCAI::newObject(const CGObjectInstance * obj)
 	NET_EVENT_HANDLER;
 	if(obj->isVisitable())
 		addVisitableObj(obj);
+
+	//AI should reconsider strategy when spawning monsters block the way and free reserved objects
+
+	//FIXME: AI tends to freeze forever on a week of double growth if this code is active 
+	//auto safeCopy = reservedHeroesMap;
+	//for (auto hero : safeCopy)
+	//{
+	//	auto h = hero.first;
+	//	for (auto reservedObj : hero.second)
+	//	{
+	//		auto pos = reservedObj->visitablePos();
+	//		if (!(isAccessibleForHero(pos, h) && isSafeToVisit(h, pos)))
+	//		{
+	//			erase_if_present (reservedObjs, reservedObj);
+	//			for(auto &p : reservedHeroesMap)
+	//				erase_if_present (p.second, reservedObj);
+	//		}
+	//	}
+	//}
 }
 
 void VCAI::objectRemoved(const CGObjectInstance *obj)
