@@ -32,6 +32,10 @@
 
 #include "../lib/UnlockGuard.h"
 
+#ifdef __GNUC__
+#include <execinfo.h>
+#endif
+
 std::string NAME_AFFIX = "server";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 using namespace boost;
@@ -531,8 +535,41 @@ static void handleCommandOptions(int argc, char *argv[])
 	po::notify(cmdLineOptions);
 }
 
+#ifdef __GNUC__
+void handleLinuxSignal(int sig)
+{
+	const int STACKTRACE_SIZE = 100;
+	void * buffer[STACKTRACE_SIZE];
+	int ptrCount = backtrace(buffer, STACKTRACE_SIZE);
+	char ** strings;
+
+	logGlobal->errorStream() << "Error: signal " << sig << ":";
+	strings = backtrace_symbols(buffer, ptrCount);
+	if(strings == nullptr)
+	{
+		logGlobal->errorStream() << "There are no symbols.";
+	}
+	else
+	{
+		for(int i = 0; i < ptrCount; ++i)
+		{
+			logGlobal->errorStream() << strings[i];
+		}
+		free(strings);
+	}
+
+	_exit(EXIT_FAILURE);
+}
+#endif
+
 int main(int argc, char** argv)
 {
+	// Installs a sig sev segmentation violation handler
+	// to log stacktrace
+	#ifdef __GNUC__
+	signal(SIGSEGV, handleLinuxSignal);
+	#endif
+
 	console = new CConsoleHandler;
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() + "/VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
@@ -564,7 +601,11 @@ int main(int argc, char** argv)
 		{
             logNetwork->errorStream() << e.what();
 			end2 = true;
-		}HANDLE_EXCEPTION
+		}
+		catch(...)
+		{
+			handleException();
+		}
 	}
 	catch(boost::system::system_error &e)
 	{

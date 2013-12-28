@@ -26,6 +26,7 @@
 #include "GameConstants.h"
 #include "rmg/CMapGenerator.h"
 #include "CStopWatch.h"
+#include "mapping/CMapEditManager.h"
 
 DLL_LINKAGE std::minstd_rand ran;
 class CGObjectInstance;
@@ -444,28 +445,23 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 	return ret;
 }
 
-int CGameState::pickHero(PlayerColor owner)
+int CGameState::pickNextHeroType(PlayerColor owner) const
 {
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
-    if(!isUsedHero(HeroTypeID(ps.hero)) &&  ps.hero >= 0) //we haven't used selected hero
-		return ps.hero;
-
-	if(scenarioOps->mode == StartInfo::CAMPAIGN)
+	if(ps.hero >= 0 && !isUsedHero(HeroTypeID(ps.hero))) //we haven't used selected hero
 	{
-		auto bonus = scenarioOps->campState->getBonusForCurrentMap();
-		if(bonus && bonus->type == CScenarioTravel::STravelBonus::HERO && owner == PlayerColor(bonus->info1))
-		{
-			//TODO what if hero chosen as bonus is placed in the prison on map
-			if(bonus->info2 != 0xffff && !isUsedHero(HeroTypeID(bonus->info2))) //not random and not taken
-			{
-				return bonus->info2;
-			}
-		}
+		return ps.hero;
 	}
 
+	return pickUnusedHeroTypeRandomly(owner);
+}
+
+int CGameState::pickUnusedHeroTypeRandomly(PlayerColor owner) const
+{
 	//list of available heroes for this faction and others
 	std::vector<HeroTypeID> factionHeroes, otherHeroes;
 
+	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
 	for(HeroTypeID hid : getUnusedAllowedHeroes())
 	{
 		if(VLC->heroh->heroes[hid.getNum()]->heroClass->faction == ps.castle)
@@ -507,7 +503,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 	case Obj::RANDOM_RELIC_ART:
 		return std::make_pair(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_RELIC));
 	case Obj::RANDOM_HERO:
-		return std::make_pair(Obj::HERO, pickHero(obj->tempOwner));
+		return std::make_pair(Obj::HERO, pickNextHeroType(obj->tempOwner));
 	case Obj::RANDOM_MONSTER:
 		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran)));
 	case Obj::RANDOM_MONSTER_L1:
@@ -794,11 +790,11 @@ void CGameState::init(StartInfo * si)
 
     logGlobal->debugStream() << "Initialization:";
 
+	initPlayerStates();
+	placeCampaignHeroes();
 	initGrailPosition();
 	initRandomFactionsForPlayers();
 	randomizeMapObjects();
-	initPlayerStates();
-	initHeroPlaceholders();
 	placeStartingHeroes();
 	initStartingResources();
 	initHeroes();
@@ -1095,10 +1091,31 @@ void CGameState::initPlayerStates()
 	}
 }
 
-void CGameState::initHeroPlaceholders()
+void CGameState::placeCampaignHeroes()
 {
 	if (scenarioOps->campState)
 	{
+		// place bonus hero
+		auto campaignBonus = scenarioOps->campState->getBonusForCurrentMap();
+		bool campaignGiveHero = campaignBonus && campaignBonus.get().type == CScenarioTravel::STravelBonus::HERO;
+
+		if(campaignGiveHero)
+		{
+			auto playerColor = PlayerColor(campaignBonus->info1);
+			auto it = scenarioOps->playerInfos.find(playerColor);
+			if(it != scenarioOps->playerInfos.end())
+			{
+				auto heroTypeId = campaignBonus->info2;
+				if(heroTypeId == 0xffff) // random bonus hero
+				{
+					heroTypeId = pickUnusedHeroTypeRandomly(playerColor);
+				}
+
+				placeStartingHero(playerColor, HeroTypeID(heroTypeId), map->players[playerColor.getNum()].posOfMainTown);
+			}
+		}
+
+		// replace heroes placeholders
 		auto campaignScenario = getCampaignScenarioForCrossoverHeroes();
 
 		if(campaignScenario)
@@ -1107,12 +1124,27 @@ void CGameState::initHeroPlaceholders()
 			auto crossoverHeroes = prepareCrossoverHeroes(campaignScenario);
 
 			logGlobal->debugStream() << "\tGenerate list of hero placeholders";
-			auto campaignHeroReplacements = generateCampaignHeroesToReplace(crossoverHeroes);
+			const auto campaignHeroReplacements = generateCampaignHeroesToReplace(crossoverHeroes);
+
+			// remove same heroes on the map which will be added through crossover heroes
+			/*for(auto & campaignHeroReplacement : campaignHeroReplacement)
+			{
+				campaignHeroReplacement.first->subID
+			}*/
 
 			logGlobal->debugStream() << "\tReplace placeholders with heroes";
-			placeCampaignHeroes(campaignHeroReplacements);
+			replaceHeroesPlaceholders(campaignHeroReplacements);
 		}
 	}
+}
+
+void CGameState::placeStartingHero(PlayerColor playerColor, HeroTypeID heroTypeId, int3 townPos)
+{
+	townPos.x += 1;
+
+	CGHeroInstance * hero =  static_cast<CGHeroInstance*>(createObject(Obj::HERO, heroTypeId.getNum(), townPos, playerColor));
+	hero->initHero();
+	map->getEditManager()->insertObject(hero, townPos);
 }
 
 const CCampaignScenario * CGameState::getCampaignScenarioForCrossoverHeroes() const
@@ -1223,36 +1255,26 @@ std::vector<CGHeroInstance *> CGameState::prepareCrossoverHeroes(const CCampaign
 void CGameState::placeStartingHeroes()
 {
 	logGlobal->debugStream() << "\tGiving starting hero";
-	bool campaignGiveHero = false;
-	if(scenarioOps->campState)
+
+	for(auto & playerSettingPair : scenarioOps->playerInfos)
 	{
-		if(auto bonus = scenarioOps->campState->getBonusForCurrentMap())
+		auto playerColor = playerSettingPair.first;
+		auto & playerInfo = map->players[playerColor.getNum()];
+		if(playerInfo.generateHeroAtMainTown && playerInfo.hasMainTown)
 		{
-			campaignGiveHero =  scenarioOps->mode == StartInfo::CAMPAIGN &&
-				bonus.get().type == CScenarioTravel::STravelBonus::HERO;
-		}
-	}
+			// Do not place a starting hero if the hero was already placed due to a campaign bonus
+			if(scenarioOps->campState)
+			{
+				if(auto campaignBonus = scenarioOps->campState->getBonusForCurrentMap())
+				{
+					if(campaignBonus->type == CScenarioTravel::STravelBonus::HERO && playerColor == PlayerColor(campaignBonus->info1)) continue;
+				}
+			}
 
-	for(auto it = scenarioOps->playerInfos.begin(); it != scenarioOps->playerInfos.end(); ++it)
-	{
-		const PlayerInfo &p = map->players[it->first.getNum()];
-		bool generateHero = (p.generateHeroAtMainTown ||
-							 (it->second.playerID != PlayerSettings::PLAYER_AI && campaignGiveHero)) && p.hasMainTown;
-		if(generateHero && vstd::contains(scenarioOps->playerInfos, it->first))
-		{
-			int3 hpos = p.posOfMainTown;
-			hpos.x+=1;
+			int heroTypeId = pickNextHeroType(playerColor);
+			if(playerSettingPair.second.hero == -1) playerSettingPair.second.hero = heroTypeId;
 
-			int h = pickHero(it->first);
-			if(it->second.hero == -1)
-				it->second.hero = h;
-
-			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(Obj::HERO,h,hpos,it->first));
-			nnn->id = ObjectInstanceID(map->objects.size());
-			nnn->initHero();
-			map->heroesOnMap.push_back(nnn);
-			map->objects.push_back(nnn);
-			map->addBlockVisTiles(nnn);
+			placeStartingHero(playerColor, HeroTypeID(heroTypeId), playerInfo.posOfMainTown);
 		}
 	}
 }
@@ -2781,7 +2803,7 @@ std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > CGameState::generateC
 	return campaignHeroReplacements;
 }
 
-void CGameState::placeCampaignHeroes(const std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > &campHeroReplacements)
+void CGameState::replaceHeroesPlaceholders(const std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > &campHeroReplacements)
 {
 	for(auto obj : campHeroReplacements)
 	{

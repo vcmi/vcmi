@@ -311,7 +311,7 @@ Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
 		setPriority(g);
 	}
 
-	auto compareGoals = [&](Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
+	auto compareGoals = [](const Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
 	{
 		return lhs->priority < rhs->priority;
 	};

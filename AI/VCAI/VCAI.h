@@ -295,7 +295,7 @@ public:
 	const CGTownInstance *findTownWithTavern() const;
 	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;
 
-	bool VCAI::canAct (HeroPtr h) const;
+	bool canAct(HeroPtr h) const;
 	std::vector<HeroPtr> getUnblockedHeroes() const;
 	HeroPtr primaryHero() const;
 	TResources freeResources() const; //owned resources minus gold reserve

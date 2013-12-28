@@ -457,15 +457,16 @@ private:
 	void randomizeMapObjects();
 	void randomizeObject(CGObjectInstance *cur);
 	void initPlayerStates();
-	void initHeroPlaceholders();
+	void placeCampaignHeroes();
 	const CCampaignScenario * getCampaignScenarioForCrossoverHeroes() const;
 	std::vector<CGHeroInstance *> prepareCrossoverHeroes(const CCampaignScenario * campaignScenario);
 
 	// returns heroes and placeholders in where heroes will be put
 	std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > generateCampaignHeroesToReplace(std::vector<CGHeroInstance *> & crossoverHeroes);
 
-	void placeCampaignHeroes(const std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > &campHeroReplacements);
+	void replaceHeroesPlaceholders(const std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > &campHeroReplacements);
 	void placeStartingHeroes();
+	void placeStartingHero(PlayerColor playerColor, HeroTypeID heroTypeId, int3 townPos);
 	void initStartingResources();
 	void initHeroes();
 	void giveCampaignBonusToHero(CGHeroInstance * hero);
@@ -494,7 +495,8 @@ private:
 	bool isUsedHero(HeroTypeID hid) const; //looks in heroes and prisons
 	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
 	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
-	int pickHero(PlayerColor owner);
+	int pickUnusedHeroTypeRandomly(PlayerColor owner) const; // picks a unused hero type randomly
+	int pickNextHeroType(PlayerColor owner) const; // picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
 
 	friend class CCallback;
 	friend class CClient;

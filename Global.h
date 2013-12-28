@@ -225,6 +225,28 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 /* ---------------------------------------------------------------------------- */
 /* VCMI standard library */
 /* ---------------------------------------------------------------------------- */
+#include "lib/logging/CLogger.h"
+
+void inline handleException()
+{
+	try
+	{
+		throw;
+	}
+	catch(const std::exception & ex)
+	{
+		logGlobal->errorStream() << ex.what();
+	}
+	catch(const std::string & ex)
+	{
+		logGlobal->errorStream() << ex;
+	}
+	catch(...)
+	{
+		logGlobal->errorStream() << "Sorry, caught unknown exception type. No more info available.";
+	}
+}
+
 template<typename T>
 std::ostream & operator<<(std::ostream & out, const boost::optional<T> & opt)
 {
@@ -601,8 +623,3 @@ namespace vstd
 }
 using vstd::operator-=;
 using vstd::make_unique;
-
-/* ---------------------------------------------------------------------------- */
-/* VCMI headers */
-/* ---------------------------------------------------------------------------- */
-#include "lib/logging/CLogger.h"
