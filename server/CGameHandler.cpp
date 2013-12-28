@@ -1519,19 +1519,16 @@ std::list<PlayerColor> CGameHandler::generatePlayerTurnOrder() const
 	// Generate player turn order
 	std::list<PlayerColor> playerTurnOrder;
 
-	bool playCampaign = gs->scenarioOps->campState != nullptr;
-	for(const auto & player : gs->players) // add human players for campaign only first OR all players for normal game
+	for(const auto & player : gs->players) // add human players first
 	{
-		if(player.second.human || !playCampaign) playerTurnOrder.push_back(player.first);
+		if(player.second.human)
+			playerTurnOrder.push_back(player.first);
 	}
-	if(playCampaign)
+	for(const auto & player : gs->players) // then add non-human players
 	{
-		for(const auto & player : gs->players) // then add non-human players for campaign
-		{
-			if(!player.second.human) playerTurnOrder.push_back(player.first);
-		}
+		if(!player.second.human)
+			playerTurnOrder.push_back(player.first);
 	}
-
 	return std::move(playerTurnOrder);
 }
 

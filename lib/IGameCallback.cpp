@@ -633,10 +633,10 @@ bool CGameInfoCallback::hasAccess(boost::optional<PlayerColor> playerId) const
 	return !player || gs->getPlayerRelations( *playerId, *player ) != PlayerRelations::ENEMIES;
 }
 
-EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player) const
+EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbose) const
 {
-	const PlayerState *ps = gs->getPlayer(player, false);
-	ERROR_RET_VAL_IF(!ps, "No such player!", EPlayerStatus::WRONG);
+	const PlayerState *ps = gs->getPlayer(player, verbose);
+	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!ps, verbose, "No such player!", EPlayerStatus::WRONG);
 
 	return ps->status;
 }

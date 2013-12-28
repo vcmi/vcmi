@@ -2515,6 +2515,7 @@ void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	adventureInt->infoBar.showSelection();
 	for(IShowActivatable *isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa);
@@ -2526,6 +2527,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	adventureInt->infoBar.showSelection();
 	for(IShowActivatable *isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa);
@@ -2537,6 +2539,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	adventureInt->infoBar.showSelection();
 	for(IShowActivatable *isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa);
@@ -2548,6 +2551,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	adventureInt->infoBar.showSelection();
 	for(IShowActivatable *isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa);
@@ -2559,7 +2563,7 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-
+	adventureInt->infoBar.showSelection();
 	if (!vstd::contains (GH.listInt, adventureInt))
 	{
 		GH.popInts (GH.listInt.size()); //after map load - remove everything else

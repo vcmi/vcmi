@@ -9,7 +9,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
 
 # enable Release mode but only if it was not set
 if (NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE Release)
+        set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
 # VCMI version

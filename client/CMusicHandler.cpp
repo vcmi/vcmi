@@ -8,6 +8,7 @@
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/StringConstants.h"
 
 /*
  * CMusicHandler.cpp, part of VCMI engine
@@ -307,16 +308,21 @@ CMusicHandler::CMusicHandler():
 	// Vectors for helper
 	const std::string setEnemy[] = {"AITheme0", "AITheme1", "AITheme2"};
 	const std::string setBattle[] = {"Combat01", "Combat02", "Combat03", "Combat04"};
-	const std::string setTerrain[] = {"Dirt",	"Sand",	"Grass", "Snow", "Swamp", "Rough", "Underground", "Lava", "Water"};
 
 	auto fillSet = [=](std::string setName, const std::string list[], size_t amount)
 	{
 		for (size_t i=0; i < amount; i++)
-	        addEntryToSet(setName, i, std::string("music/") + list[i]);
+			addEntryToSet(setName, i, "music/" + list[i]);
 	};
 	fillSet("enemy-turn", setEnemy, ARRAY_COUNT(setEnemy));
 	fillSet("battle", setBattle, ARRAY_COUNT(setBattle));
-	fillSet("terrain", setTerrain, ARRAY_COUNT(setTerrain));
+
+	JsonNode terrains(ResourceID("config/terrains.json"));
+	for (auto entry : terrains.Struct())
+	{
+		int terrIndex = vstd::find_pos(GameConstants::TERRAIN_NAMES, entry.first);
+		addEntryToSet("terrain", terrIndex, "Music/" + entry.second["music"].String());
+	}
 }
 
 void CMusicHandler::addEntryToSet(std::string set, int musicID, std::string musicURI)
@@ -479,8 +485,6 @@ MusicEntry::~MusicEntry()
 	logGlobal->traceStream()<<"Del-ing music file "<<currentName;
 	if (music)
 		Mix_FreeMusic(music);
-	/*if (musicFile) // Mix_FreeMusic will also free file data? Needs checking
-		SDL_FreeRW(musicFile);*/
 }
 
 void MusicEntry::load(std::string musicURI)
@@ -491,11 +495,6 @@ void MusicEntry::load(std::string musicURI)
 		Mix_FreeMusic(music);
 		music = nullptr;
 	}
-	/*if (musicFile) // Mix_FreeMusic will also free file data? Needs checking
-	{
-		SDL_FreeRW(musicFile);
-		musicFile = nullptr;
-	}*/
 
 	currentName = musicURI;
 

@@ -85,7 +85,7 @@ public:
 	bool isVisible(int3 pos) const;
 	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const;
 	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
-	EPlayerStatus::EStatus getPlayerStatus(PlayerColor player) const; //-1 if no such player
+	EPlayerStatus::EStatus getPlayerStatus(PlayerColor player, bool verbose = true) const; //-1 if no such player
 	PlayerColor getCurrentPlayer() const; //player that currently makes move // TODO synchronous turns
 	virtual PlayerColor getLocalPlayer() const; //player that is currently owning given client (if not a client, then returns current player)
 	const PlayerSettings * getPlayerSettings(PlayerColor color) const;
