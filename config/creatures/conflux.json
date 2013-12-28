@@ -36,10 +36,6 @@
 		"upgrades": ["stormElemental"],
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CAELEM.DEF"
 		},
 		"sound" :
@@ -86,10 +82,6 @@
 		"upgrades": ["magmaElemental"],
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CEELEM.DEF"
 		},
 		"sound" :
@@ -137,10 +129,6 @@
 		"upgrades": ["energyElemental"],
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CFELEM.DEF"
 		},
 		"sound" :
@@ -192,25 +180,16 @@
 				"subtype" : "spell.fireWall",
 				"val" : 100
 			},
-			"iceBoltImmunity" :
+			"immuneToWater" :
 			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.iceBolt"
-			},
-			"frostRingImmunity" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.frostRing"
+				"type" : "WATER_IMMUNITY",
+				"subtype" : 2 //immune to damage spells only
 			}
 		},
 		"doubleWide" : true,
 		"upgrades": ["iceElemental"],
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CWELEM.DEF"
 		},
 		"sound" :
@@ -344,16 +323,17 @@
 				"type" : "SPELLCASTER",
 				"subtype" : "spell.protectWater",
 				"val" : 2
+			},
+			"immuneToWater" :
+			{
+				"type" : "WATER_IMMUNITY",
+				"subtype" : 2 //immune to damage spells only
 			}
 		},
 		"doubleWide" : true,
 		"graphics" :
 		{
 			"animation": "CICEE.DEF",
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"missile" :
 			{
 				"projectile": "PICEE.DEF"
@@ -399,10 +379,6 @@
 		},
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CSTONE.DEF"
 		},
 		"sound" :
@@ -444,10 +420,6 @@
 		},
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CSTORM.DEF",
 			"missile" :
 			{
@@ -499,10 +471,6 @@
 		},
 		"graphics" :
 		{
-			"animationTime" :
-			{
-				"idle" : 0
-			},
 			"animation": "CNRG.DEF"
 		},
 		"sound" :
