@@ -138,7 +138,7 @@ struct DLL_LINKAGE EventCondition
 
 typedef LogicalExpression<EventCondition> EventExpression;
 
-struct EventEffect
+struct DLL_LINKAGE EventEffect
 {
 	enum EType
 	{
@@ -159,9 +159,8 @@ struct EventEffect
 	}
 };
 
-struct TriggeredEvent
+struct DLL_LINKAGE TriggeredEvent
 {
-
 	/// base condition that must be evaluated
 	EventExpression trigger;
 
