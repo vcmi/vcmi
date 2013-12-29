@@ -1906,6 +1906,7 @@ InfoCard::InfoCard( bool Network )
 	difficulty(nullptr), sizes(nullptr), sFlags(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	CIntObject::type |= REDRAW_PARENT;
 	pos.x += 393;
 	pos.y += 6;
 	addUsedEvents(RCLICK);
@@ -2135,7 +2136,7 @@ void InfoCard::changeSelection( const CMapInfo *to )
 			difficulty->select(SEL->sInfo.difficulty, 0);
 		}
 	}
-	GH.totalRedraw();
+	redraw();
 }
 
 void InfoCard::clickRight( tribool down, bool previousState )
