@@ -2107,7 +2107,8 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 
 	if(player == playerID)
 	{
-		if(victoryLossCheckResult.loss()) showInfoDialog(CGI->generaltexth->allTexts[95]);
+		if(victoryLossCheckResult.loss())
+			showInfoDialog(CGI->generaltexth->allTexts[95]);
 
 		if(LOCPLINT == this)
 		{
@@ -2154,18 +2155,9 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 	{
 		if(victoryLossCheckResult.loss() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME) //enemy has lost
 		{
-			std::string txt;
-			if(victoryLossCheckResult == EVictoryLossCheckResult::LOSS_STANDARD_TOWNS_AND_TIME_OVER)
-			{
-				txt = CGI->generaltexth->allTexts[8]; // %s's heroes have abandoned him, and he is banished from this land.
-			}
-			else
-			{
-				txt = CGI->generaltexth->allTexts[5]; // %s has been vanquished!
-			}
-
-			boost::algorithm::replace_first(txt, "%s", CGI->generaltexth->capColors[player.getNum()]);
-			showInfoDialog(txt,std::vector<CComponent*>(1, new CComponent(CComponent::flag, player.getNum(), 0)));
+			std::string str = victoryLossCheckResult.messageToSelf;
+			boost::algorithm::replace_first(str, "%s", CGI->generaltexth->capColors[player.getNum()]);
+			showInfoDialog(str, std::vector<CComponent*>(1, new CComponent(CComponent::flag, player.getNum(), 0)));
 		}
 	}
 }

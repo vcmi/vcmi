@@ -290,17 +290,6 @@ public:
 
 ID_LIKE_OPERATORS_DECLS(SecondarySkill, SecondarySkill::ESecondarySkill)
 
-namespace EVictoryConditionType
-{
-	enum EVictoryConditionType { ARTIFACT, GATHERTROOP, GATHERRESOURCE, BUILDCITY, BUILDGRAIL, BEATHERO,
-		CAPTURECITY, BEATMONSTER, TAKEDWELLINGS, TAKEMINES, TRANSPORTITEM, WINSTANDARD = 255 };
-}
-
-namespace ELossConditionType
-{
-	enum ELossConditionType { LOSSCASTLE, LOSSHERO, TIMEEXPIRES, LOSSSTANDARD = 255 };
-}
-
 namespace EAlignment
 {
 	enum EAlignment { GOOD, EVIL, NEUTRAL };

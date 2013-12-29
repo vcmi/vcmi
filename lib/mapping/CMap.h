@@ -16,6 +16,7 @@
 #include "../ResourceSet.h"
 #include "../int3.h"
 #include "../GameConstants.h"
+#include "../LogicalExpression.h"
 
 class CArtifactInstance;
 class CGDefInfo;
@@ -104,45 +105,82 @@ struct DLL_LINKAGE PlayerInfo
 };
 
 /// The loss condition describes the condition to lose the game. (e.g. lose all own heroes/castles)
-struct DLL_LINKAGE LossCondition
+struct DLL_LINKAGE EventCondition
 {
-	LossCondition();
+	enum EWinLoseType {
+		HAVE_ARTIFACT,     // type - required artifact
+		HAVE_CREATURES,    // type - creatures to collect, value - amount to collect
+		HAVE_RESOURCES,    // type - resource ID, value - amount to collect
+		HAVE_BUILDING,     // position - town, optional, type - building to build
+		CONTROL,           // position - position of object, optional, type - type of object
+		DESTROY,           // position - position of object, optional, type - type of object
+		TRANSPORT,         // position - where artifact should be transported, type - type of artifact
+		DAYS_PASSED,       // value - number of days from start of the game
+		IS_HUMAN,          // value - 0 = player is AI, 1 = player is human
+		DAYS_WITHOUT_TOWN, // value - how long player can live without town, 0=instakill
+		STANDARD_WIN       // normal defeat all enemies condition
+	};
 
-	ELossConditionType::ELossConditionType typeOfLossCon;
-	int3 pos; /// the position of an object which mustn't be lost
-	si32 timeLimit; /// time limit in days, -1 if not used
-	const CGObjectInstance * obj;
+	EventCondition(EWinLoseType condition = STANDARD_WIN);
+
+	const CGObjectInstance * object; // object that was at specified position on start
+	si32 value;
+	si32 objectType;
+	int3 position;
+	EWinLoseType condition;
 
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & typeOfLossCon & pos & timeLimit & obj;
+		h & object & value & objectType & position & condition;
 	}
 };
 
-/// The victory condition describes the condition to win the game. (e.g. defeat all enemy heroes/castles,
-/// receive a specific artifact, ...)
-struct DLL_LINKAGE VictoryCondition
-{
-	VictoryCondition();
+typedef LogicalExpression<EventCondition> EventExpression;
 
-	EVictoryConditionType::EVictoryConditionType condition;
-	bool allowNormalVictory; /// true if a normal victory is allowed (defeat all enemy towns, heroes)
-	bool appliesToAI;
-	/// pos of city to upgrade (3); pos of town to build grail, {-1,-1,-1} if not relevant (4); hero pos (5); town pos(6);
-	///	monster pos (7); destination pos(8)
-	int3 pos;
-	/// artifact ID (0); monster ID (1); resource ID (2); needed fort level in upgraded town (3); artifact ID (8)
-	si32 objectId;
-	/// needed count for creatures (1) / resource (2); upgraded town hall level (3);
-	si32 count;
-	/// object of specific monster / city / hero instance (nullptr if not used); set during map parsing
-	const CGObjectInstance * obj;
+struct EventEffect
+{
+	enum EType
+	{
+		VICTORY,
+		DEFEAT
+	};
+
+	/// effect type, using EType enum
+	si8 type;
+
+	/// message that will be sent to other players
+	std::string toOtherMessage;
 
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & condition & allowNormalVictory & appliesToAI & pos & objectId & count & obj;
+		h & type & toOtherMessage;
+	}
+};
+
+struct TriggeredEvent
+{
+
+	/// base condition that must be evaluated
+	EventExpression trigger;
+
+	/// string identifier read from config file (e.g. captureKreelah)
+	std::string identifier;
+
+	/// string-description, for use in UI (capture town to win)
+	std::string description;
+
+	/// Message that will be displayed when this event is triggered (You captured town. You won!)
+	std::string onFulfill;
+
+	/// Effect of this event. TODO: refactor into something more flexible
+	EventEffect effect;
+
+	template <typename Handler>
+	void serialize(Handler & h, const int version)
+	{
+		h & identifier & trigger & description & onFulfill & effect;
 	}
 };
 
@@ -287,6 +325,7 @@ enum EMapFormat
 	ROE = 0x0e, // 14
 	AB  = 0x15, // 21
 	SOD = 0x1c, // 28
+// HOTA = 0x1e ... 0x20 // 28 ... 30
 	WOG = 0x33  // 51
 };
 }
@@ -294,6 +333,7 @@ enum EMapFormat
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
 class DLL_LINKAGE CMapHeader
 {
+	void setupEvents();
 public:
 	static const int MAP_SIZE_SMALL;
 	static const int MAP_SIZE_MIDDLE;
@@ -313,19 +353,27 @@ public:
 	/// Specifies the maximum level to reach for a hero. A value of 0 states that there is no
 	///	maximum level for heroes. This is the default value.
 	ui8 levelLimit;
-	LossCondition lossCondition; /// The default value is lose all your towns and heroes.
-	VictoryCondition victoryCondition; /// The default value is defeat all enemies.
+
+	std::string victoryMessage;
+	std::string defeatMessage;
+	ui16 victoryIconIndex;
+	ui16 defeatIconIndex;
+
 	std::vector<PlayerInfo> players; /// The default size of the vector is PlayerColor::PLAYER_LIMIT.
 	ui8 howManyTeams;
 	std::vector<bool> allowedHeroes;
 	std::vector<ui16> placeholdedHeroes;
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
 
+	/// "main quests" of the map that describe victory and loss conditions
+	std::vector<TriggeredEvent> triggeredEvents;
+
 	template <typename Handler>
 	void serialize(Handler & h, const int Version)
 	{
 		h & version & name & description & width & height & twoLevel & difficulty & levelLimit & areAnyPlayers;
-		h & players & lossCondition & victoryCondition & howManyTeams & allowedHeroes;
+		h & players & howManyTeams & allowedHeroes & triggeredEvents;
+		h & victoryMessage & victoryIconIndex & defeatMessage & defeatIconIndex;
 	}
 };
 
@@ -350,8 +398,8 @@ public:
 	void eraseArtifactInstance(CArtifactInstance * art);
 	void addQuest(CGObjectInstance * quest);
 
-	/// Gets the topmost object or the lowermost object depending on the flag lookForHero from the specified position.
-	const CGObjectInstance * getObjectiveObjectFrom(int3 pos, bool lookForHero);
+	/// Gets object of specified type on requested position
+	const CGObjectInstance * getObjectiveObjectFrom(int3 pos, Obj::EObj type);
 	CGHeroInstance * getHero(int heroId);
 
 	/// Sets the victory/loss condition objectives ??

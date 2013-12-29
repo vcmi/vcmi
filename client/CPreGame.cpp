@@ -1437,18 +1437,10 @@ void SelectionTab::printMaps(SDL_Surface *to)
 			blitAtLoc(format->ourImages[temp].bitmap, 88, 117 + line * 25, to);
 
 			//victory conditions
-			if (currentItem->mapHeader->victoryCondition.condition == EVictoryConditionType::WINSTANDARD)
-				temp = 11;
-			else
-				temp = currentItem->mapHeader->victoryCondition.condition;
-			blitAtLoc(CGP->victory->ourImages[temp].bitmap, 306, 117 + line * 25, to);
+			blitAtLoc(CGP->victory->ourImages[currentItem->mapHeader->victoryIconIndex].bitmap, 306, 117 + line * 25, to);
 
 			//loss conditions
-			if (currentItem->mapHeader->lossCondition.typeOfLossCon == ELossConditionType::LOSSSTANDARD)
-				temp=3;
-			else
-				temp=currentItem->mapHeader->lossCondition.typeOfLossCon;
-			blitAtLoc(CGP->loss->ourImages[temp].bitmap, 339, 117 + line * 25, to);
+			blitAtLoc(CGP->loss->ourImages[currentItem->mapHeader->defeatIconIndex].bitmap, 339, 117 + line * 25, to);
 		}
 		else //if campaign
 		{
@@ -2023,26 +2015,14 @@ void InfoCard::showAll(SDL_Surface * to)
 				CDefHandler * loss    = CGP ? CGP->loss    : CDefHandler::giveDef("SCNRLOSS.DEF");
 				CDefHandler * victory = CGP ? CGP->victory : CDefHandler::giveDef("SCNRVICT.DEF");
 
+				CMapHeader * header = SEL->current->mapHeader.get();
 				//victory conditions
-				temp = SEL->current->mapHeader->victoryCondition.condition+1;
-				if (temp>20) temp=0;
-				std::string sss = CGI->generaltexth->victoryConditions[temp];
-				if (temp && SEL->current->mapHeader->victoryCondition.allowNormalVictory) sss+= "/" + CGI->generaltexth->victoryConditions[0];
-				printAtLoc(sss, 60, 307, FONT_SMALL, Colors::WHITE, to);
-
-				temp = SEL->current->mapHeader->victoryCondition.condition;
-				if (temp>12) temp=11;
-				blitAtLoc(victory->ourImages[temp].bitmap, 24, 302, to); //victory cond descr
+				printAtLoc(header->victoryMessage, 60, 307, FONT_SMALL, Colors::WHITE, to);
+				blitAtLoc(victory->ourImages[header->victoryIconIndex].bitmap, 24, 302, to); //victory cond descr
 
 				//loss conditoins
-				temp = SEL->current->mapHeader->lossCondition.typeOfLossCon+1;
-				if (temp>20) temp=0;
-				sss = CGI->generaltexth->lossCondtions[temp];
-				printAtLoc(sss, 60, 366, FONT_SMALL, Colors::WHITE, to);
-
-				temp=SEL->current->mapHeader->lossCondition.typeOfLossCon;
-				if (temp>12) temp=3;
-				blitAtLoc(loss->ourImages[temp].bitmap, 24, 359, to); //loss cond
+				printAtLoc(header->defeatMessage, 60, 366, FONT_SMALL, Colors::WHITE, to);
+				blitAtLoc(loss->ourImages[header->defeatIconIndex].bitmap, 24, 359, to); //loss cond
 
 				if (!CGP)
 				{
@@ -2987,7 +2967,7 @@ bool mapSorter::operator()(const CMapInfo *aaa, const CMapInfo *bbb)
 			return (a->version<b->version);
 			break;
 		case _loscon: //by loss conditions
-			return (a->lossCondition.typeOfLossCon<b->lossCondition.typeOfLossCon);
+			return (a->defeatMessage < b->defeatMessage);
 			break;
 		case _playerAm: //by player amount
 			int playerAmntB,humenPlayersB,playerAmntA,humenPlayersA;
@@ -3008,7 +2988,7 @@ bool mapSorter::operator()(const CMapInfo *aaa, const CMapInfo *bbb)
 			return (a->width<b->width);
 			break;
 		case _viccon: //by victory conditions
-			return (a->victoryCondition.condition < b->victoryCondition.condition);
+			return (a->victoryMessage < b->victoryMessage);
 			break;
 		case _name: //by name
 			return boost::ilexicographical_compare(a->name, b->name);

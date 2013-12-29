@@ -20,6 +20,7 @@
 
 #include "../CSpellHandler.h"
 #include "../CCreatureHandler.h"
+#include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../CObjectHandler.h"
 #include "../CDefObjInfoHandler.h"
@@ -281,98 +282,292 @@ void CMapLoaderH3M::readPlayerInfo()
 	}
 }
 
+namespace EVictoryConditionType
+{
+	enum EVictoryConditionType { ARTIFACT, GATHERTROOP, GATHERRESOURCE, BUILDCITY, BUILDGRAIL, BEATHERO,
+		CAPTURECITY, BEATMONSTER, TAKEDWELLINGS, TAKEMINES, TRANSPORTITEM, WINSTANDARD = 255 };
+}
+
+namespace ELossConditionType
+{
+	enum ELossConditionType { LOSSCASTLE, LOSSHERO, TIMEEXPIRES, LOSSSTANDARD = 255 };
+}
+
 void CMapLoaderH3M::readVictoryLossConditions()
 {
-	mapHeader->victoryCondition.obj = nullptr;
-	mapHeader->victoryCondition.condition = (EVictoryConditionType::EVictoryConditionType)reader.readUInt8();
+	mapHeader->triggeredEvents.clear();
+
+	auto vicCondition = (EVictoryConditionType::EVictoryConditionType)reader.readUInt8();
+
+	EventCondition victoryCondition(EventCondition::STANDARD_WIN);
+	EventCondition defeatCondition(EventCondition::DAYS_WITHOUT_TOWN);
+	defeatCondition.value = 7;
+
+	TriggeredEvent standardVictory;
+	standardVictory.effect.type = EventEffect::VICTORY;
+	standardVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[5];
+	standardVictory.identifier = "standardVictory";
+	standardVictory.description = ""; // TODO: display in quest window
+	standardVictory.onFulfill = VLC->generaltexth->allTexts[659];
+	standardVictory.trigger = EventExpression(victoryCondition);
+
+	TriggeredEvent standardDefeat;
+	standardDefeat.effect.type = EventEffect::DEFEAT;
+	standardDefeat.effect.toOtherMessage = VLC->generaltexth->allTexts[8];
+	standardDefeat.identifier = "standardDefeat";
+	standardDefeat.description = ""; // TODO: display in quest window
+	standardDefeat.onFulfill = VLC->generaltexth->allTexts[7];
+	standardDefeat.trigger = EventExpression(defeatCondition);
 
 	// Specific victory conditions
-	if(mapHeader->victoryCondition.condition != EVictoryConditionType::WINSTANDARD)
+	if(vicCondition == EVictoryConditionType::WINSTANDARD)
 	{
-		mapHeader->victoryCondition.allowNormalVictory = reader.readBool();
-		mapHeader->victoryCondition.appliesToAI = reader.readBool();
+		// create normal condition
+		mapHeader->triggeredEvents.push_back(standardVictory);
+		mapHeader->victoryIconIndex = 11;
+		mapHeader->victoryMessage = VLC->generaltexth->victoryConditions[0];
+	}
+	else
+	{
+		TriggeredEvent specialVictory;
+		specialVictory.effect.type = EventEffect::VICTORY;
+		specialVictory.identifier = "specialVictory";
+		specialVictory.description = ""; // TODO: display in quest window
 
-		// Read victory conditions
-//		int nr = 0;
-		switch(mapHeader->victoryCondition.condition)
+		mapHeader->victoryIconIndex = ui16(vicCondition);
+		mapHeader->victoryMessage = VLC->generaltexth->victoryConditions[size_t(vicCondition) + 1];
+
+		bool allowNormalVictory = reader.readBool();
+		bool appliesToAI = reader.readBool();
+
+		switch(vicCondition)
 		{
 		case EVictoryConditionType::ARTIFACT:
 			{
-				mapHeader->victoryCondition.objectId = reader.readUInt8();
+				EventCondition cond(EventCondition::HAVE_ARTIFACT);
+				cond.objectType = reader.readUInt8();
 				if (mapHeader->version != EMapFormat::ROE)
 					reader.skip(1);
+
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[281];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[280];
+				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
 		case EVictoryConditionType::GATHERTROOP:
 			{
-				mapHeader->victoryCondition.objectId = reader.readUInt8();
+				EventCondition cond(EventCondition::HAVE_CREATURES);
+				cond.objectType = reader.readUInt8();
 				if (mapHeader->version != EMapFormat::ROE)
 					reader.skip(1);
-				mapHeader->victoryCondition.count = reader.readUInt32();
+				cond.value = reader.readUInt32();
+
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[277];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[276];
+				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
 		case EVictoryConditionType::GATHERRESOURCE:
 			{
-				mapHeader->victoryCondition.objectId = reader.readUInt8();
-				mapHeader->victoryCondition.count = reader.readUInt32();
+				EventCondition cond(EventCondition::HAVE_RESOURCES);
+				cond.objectType = reader.readUInt8();
+				cond.value = reader.readUInt32();
+
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[279];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[278];
+				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
 		case EVictoryConditionType::BUILDCITY:
 			{
-				mapHeader->victoryCondition.pos = readInt3();
-				mapHeader->victoryCondition.count = reader.readUInt8();
-				mapHeader->victoryCondition.objectId = reader.readUInt8();
+				EventExpression::OperatorAll oper;
+				EventCondition cond(EventCondition::HAVE_BUILDING);
+				cond.position = readInt3();
+				cond.objectType = BuildingID::VILLAGE_HALL + reader.readUInt8();
+				oper.expressions.push_back(cond);
+				cond.objectType = BuildingID::FORT + reader.readUInt8();
+				oper.expressions.push_back(cond);
+
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[283];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[282];
+				specialVictory.trigger = EventExpression(oper);
 				break;
 			}
 		case EVictoryConditionType::BUILDGRAIL:
 			{
-				int3 p = readInt3();
-				if(p.z > 2)
-				{
-					p = int3(-1,-1,-1);
-				}
-				mapHeader->victoryCondition.pos = p;
+				EventCondition cond(EventCondition::HAVE_BUILDING);
+				cond.objectType = BuildingID::GRAIL;
+				cond.position = readInt3();
+				if(cond.position.z > 2)
+					cond.position = int3(-1,-1,-1);
+
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[285];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[284];
+				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
 		case EVictoryConditionType::BEATHERO:
+			{
+				EventCondition cond(EventCondition::DESTROY);
+				cond.objectType = Obj::HERO;
+				cond.position = readInt3();
+
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[253];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[252];
+				specialVictory.trigger = EventExpression(cond);
+				break;
+			}
 		case EVictoryConditionType::CAPTURECITY:
+			{
+				EventCondition cond(EventCondition::CONTROL);
+				cond.objectType = Obj::TOWN;
+				cond.position = readInt3();
+
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[250];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[249];
+				specialVictory.trigger = EventExpression(cond);
+				break;
+			}
 		case EVictoryConditionType::BEATMONSTER:
 			{
-				mapHeader->victoryCondition.pos = readInt3();
+				EventCondition cond(EventCondition::DESTROY);
+				cond.objectType = Obj::MONSTER;
+				cond.position = readInt3();
+
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[287];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[286];
+				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
 		case EVictoryConditionType::TAKEDWELLINGS:
+			{
+				EventCondition cond(EventCondition::CONTROL);
+				cond.objectType = Obj::CREATURE_GENERATOR1; // FIXME: generators 2-4?
+				cond.position = readInt3();
+
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[289];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[288];
+				specialVictory.trigger = EventExpression(cond);
+				break;
+			}
 		case EVictoryConditionType::TAKEMINES:
 			{
+				EventCondition cond(EventCondition::CONTROL);
+				cond.objectType = Obj::MINE;
+
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[291];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[290];
+				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
 		case EVictoryConditionType::TRANSPORTITEM:
 			{
-				mapHeader->victoryCondition.objectId = reader.readUInt8();
-				mapHeader->victoryCondition.pos = readInt3();
+				EventCondition cond(EventCondition::TRANSPORT);
+				cond.objectType = reader.readUInt8();
+				cond.position = readInt3();
+
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[293];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[292];
+				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
 		default:
 			assert(0);
 		}
+		//bool allowNormalVictory = reader.readBool();
+		// if condition is human-only turn it into following construction: AllOf(human, condition)
+		if (!appliesToAI)
+		{
+			EventExpression::OperatorAll oper;
+			EventCondition notAI(EventCondition::IS_HUMAN);
+			notAI.value = 1;
+			oper.expressions.push_back(notAI);
+			oper.expressions.push_back(specialVictory.trigger.get());
+			specialVictory.trigger = EventExpression(oper);
+		}
+
+		// if normal victory allowed - add one more quest
+		if (allowNormalVictory)
+		{
+			mapHeader->victoryMessage += " / ";
+			mapHeader->victoryMessage += VLC->generaltexth->victoryConditions[0];
+			mapHeader->triggeredEvents.push_back(standardVictory);
+		}
+		mapHeader->triggeredEvents.push_back(specialVictory);
 	}
 
 	// Read loss conditions
-	mapHeader->lossCondition.typeOfLossCon = (ELossConditionType::ELossConditionType) reader.readUInt8();
-	switch(mapHeader->lossCondition.typeOfLossCon)
+	auto lossCond = (ELossConditionType::ELossConditionType)reader.readUInt8();
+	if (lossCond == ELossConditionType::LOSSSTANDARD)
 	{
-	case ELossConditionType::LOSSCASTLE:
-	case ELossConditionType::LOSSHERO:
-		{
-			mapHeader->lossCondition.pos = readInt3();
-			break;
-		}
-	case ELossConditionType::TIMEEXPIRES:
-		{
-			mapHeader->lossCondition.timeLimit = reader.readUInt16();
-			break;
-		}
+		mapHeader->defeatIconIndex = 3;
+		mapHeader->defeatMessage = VLC->generaltexth->lossCondtions[0];
 	}
+	else
+	{
+		TriggeredEvent specialDefeat;
+		specialDefeat.effect.type = EventEffect::DEFEAT;
+		specialDefeat.effect.toOtherMessage = VLC->generaltexth->allTexts[5];
+		specialDefeat.identifier = "specialDefeat";
+		specialDefeat.description = ""; // TODO: display in quest window
+
+		mapHeader->defeatIconIndex = ui16(lossCond);
+		mapHeader->defeatMessage = VLC->generaltexth->lossCondtions[size_t(lossCond) + 1];
+
+		switch(lossCond)
+		{
+		case ELossConditionType::LOSSCASTLE:
+			{
+				EventExpression::OperatorNone noneOf;
+				EventCondition cond(EventCondition::CONTROL);
+				cond.objectType = Obj::TOWN;
+				cond.position = readInt3();
+
+				noneOf.expressions.push_back(cond);
+				specialDefeat.onFulfill = VLC->generaltexth->allTexts[251];
+				specialDefeat.trigger = EventExpression(noneOf);
+				break;
+			}
+		case ELossConditionType::LOSSHERO:
+			{
+				EventExpression::OperatorNone noneOf;
+				EventCondition cond(EventCondition::CONTROL);
+				cond.objectType = Obj::HERO;
+				cond.position = readInt3();
+
+				noneOf.expressions.push_back(cond);
+				specialDefeat.onFulfill = VLC->generaltexth->allTexts[253];
+				specialDefeat.trigger = EventExpression(noneOf);
+				break;
+			}
+		case ELossConditionType::TIMEEXPIRES:
+			{
+				EventCondition cond(EventCondition::DAYS_PASSED);
+				cond.value = reader.readUInt16();
+
+				specialDefeat.onFulfill = VLC->generaltexth->allTexts[254];
+				specialDefeat.trigger = EventExpression(cond);
+				break;
+			}
+		}
+		// turn simple loss condition into complete one that can be evaluated later:
+		// - any of :
+		//   - days without town: 7
+		//   - all of:
+		//     - is human
+		//     - (expression)
+
+		EventExpression::OperatorAll allOf;
+		EventCondition isHuman(EventCondition::IS_HUMAN);
+		isHuman.value = 1;
+
+		allOf.expressions.push_back(isHuman);
+		allOf.expressions.push_back(specialDefeat.trigger.get());
+		specialDefeat.trigger = EventExpression(allOf);
+
+		mapHeader->triggeredEvents.push_back(specialDefeat);
+	}
+	mapHeader->triggeredEvents.push_back(standardDefeat);
 }
 
 void CMapLoaderH3M::readTeamInfo()
@@ -470,10 +665,18 @@ void CMapLoaderH3M::readAllowedArtifacts()
 	}
 
 	// Messy, but needed
-	if(map->victoryCondition.condition == EVictoryConditionType::ARTIFACT
-			|| map->victoryCondition.condition == EVictoryConditionType::TRANSPORTITEM)
+	for (TriggeredEvent & event : map->triggeredEvents)
 	{
-		map->allowedArtifact[map->victoryCondition.objectId] = false;
+		auto patcher = [&](EventCondition & cond)
+		{
+			if (cond.condition == EventCondition::HAVE_ARTIFACT ||
+				cond.condition == EventCondition::TRANSPORT)
+			{
+				map->allowedArtifact[cond.objectType] = false;
+			}
+		};
+
+		event.trigger.forEach(patcher);
 	}
 }
 

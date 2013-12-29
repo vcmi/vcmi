@@ -2225,141 +2225,151 @@ bool CGameState::checkForVisitableDir( const int3 & src, const TerrainTile *pom,
 
 EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(PlayerColor player) const
 {
-	auto result = checkForVictory(player);
-	if (result == EVictoryLossCheckResult::NO_VICTORY_OR_LOSS) result = checkForLoss(player);
-	return result;
+	const std::string & messageWonSelf = VLC->generaltexth->allTexts[659];
+	const std::string & messageWonOther = VLC->generaltexth->allTexts[5];
+	const std::string & messageLostSelf = VLC->generaltexth->allTexts[7];
+	const std::string & messageLostOther = VLC->generaltexth->allTexts[8];
+
+	auto evaluateEvent = [=](const EventCondition & condition)
+	{
+		return this->checkForVictory(player, condition);
+	};
+
+	const PlayerState *p = CGameInfoCallback::getPlayer(player);
+
+	//cheater or tester, but has entered the code...
+	if (p->enteredWinningCheatCode)
+		return EVictoryLossCheckResult::victory(messageWonSelf, messageWonOther);
+
+	if (p->enteredLosingCheatCode)
+		return EVictoryLossCheckResult::defeat(messageLostSelf, messageLostOther);
+
+	for (const TriggeredEvent & event : map->triggeredEvents)
+	{
+		if ((event.trigger.test(evaluateEvent)))
+		{
+			if (event.effect.type == EventEffect::VICTORY)
+				return EVictoryLossCheckResult::victory(event.onFulfill, event.effect.toOtherMessage);
+
+			if (event.effect.type == EventEffect::DEFEAT)
+				return EVictoryLossCheckResult::defeat(event.onFulfill, event.effect.toOtherMessage);
+		}
+	}
+
+	if (checkForStandardLoss(player))
+	{
+		return EVictoryLossCheckResult::defeat(messageLostSelf, messageLostOther);
+	}
+	return EVictoryLossCheckResult();
 }
 
-EVictoryLossCheckResult CGameState::checkForVictory( PlayerColor player ) const
+bool CGameState::checkForVictory( PlayerColor player, const EventCondition & condition ) const
 {
 	const PlayerState *p = CGameInfoCallback::getPlayer(player);
-	if(map->victoryCondition.condition == EVictoryConditionType::WINSTANDARD  ||  map->victoryCondition.allowNormalVictory
-		|| (!p->human && !map->victoryCondition.appliesToAI)) //if the special victory condition applies only to human, AI has the standard)
+	switch (condition.condition)
 	{
-		if(player == checkForStandardWin())
-			return EVictoryLossCheckResult::VICTORY_STANDARD;
-	}
-
-	if (p->enteredWinningCheatCode)
-	{ //cheater or tester, but has entered the code...
-		if(map->victoryCondition.condition == EVictoryConditionType::WINSTANDARD)
-			return EVictoryLossCheckResult::VICTORY_STANDARD;
-		else
-			return EVictoryLossCheckResult::VICTORY_SPECIAL;
-	}
-
-	if(p->human || map->victoryCondition.appliesToAI)
-	{
- 		switch(map->victoryCondition.condition)
+		case EventCondition::STANDARD_WIN:
 		{
-		case EVictoryConditionType::ARTIFACT:
-			//check if any hero has winning artifact
+			return player == checkForStandardWin();
+		}
+		case EventCondition::HAVE_ARTIFACT: //check if any hero has winning artifact
+		{
 			for(auto & elem : p->heroes)
-                if(elem->hasArt(map->victoryCondition.objectId))
-					return EVictoryLossCheckResult::VICTORY_SPECIAL;
-
-			break;
-
-		case EVictoryConditionType::GATHERTROOP:
+				if(elem->hasArt(condition.objectType))
+					return true;
+			return false;
+		}
+		case EventCondition::HAVE_CREATURES:
+		{
+			//check if in players armies there is enough creatures
+			int total = 0; //creature counter
+			for(size_t i = 0; i < map->objects.size(); i++)
 			{
-				//check if in players armies there is enough creatures
-				int total = 0; //creature counter
-				for(size_t i = 0; i < map->objects.size(); i++)
+				const CArmedInstance *ai = nullptr;
+				if(map->objects[i]
+					&& map->objects[i]->tempOwner == player //object controlled by player
+					&&  (ai = dynamic_cast<const CArmedInstance*>(map->objects[i].get()))) //contains army
 				{
-					const CArmedInstance *ai = nullptr;
-					if(map->objects[i]
-						&& map->objects[i]->tempOwner == player //object controlled by player
-						&&  (ai = dynamic_cast<const CArmedInstance*>(map->objects[i].get()))) //contains army
-					{
-						for(auto & elem : ai->Slots()) //iterate through army
-                            if(elem.second->type->idNumber == map->victoryCondition.objectId) //it's searched creature
-								total += elem.second->count;
-					}
-				}
-
-				if(total >= map->victoryCondition.count)
-					return EVictoryLossCheckResult::VICTORY_SPECIAL;
-			}
-			break;
-
-		case EVictoryConditionType::GATHERRESOURCE:
-            if(p->resources[map->victoryCondition.objectId] >= map->victoryCondition.count)
-				return EVictoryLossCheckResult::VICTORY_SPECIAL;
-
-			break;
-
-		case EVictoryConditionType::BUILDCITY:
-			{
-				const CGTownInstance *t = static_cast<const CGTownInstance *>(map->victoryCondition.obj);
-                if(t->tempOwner == player && t->fortLevel()-1 >= map->victoryCondition.objectId && t->hallLevel()-1 >= map->victoryCondition.count)
-					return EVictoryLossCheckResult::VICTORY_SPECIAL;
-			}
-			break;
-
-		case EVictoryConditionType::BUILDGRAIL:
-			for(const CGTownInstance *t : map->towns)
-				if((t == map->victoryCondition.obj || !map->victoryCondition.obj)
-					&& t->tempOwner == player
-					&& t->hasBuilt(BuildingID::GRAIL))
-					return EVictoryLossCheckResult::VICTORY_SPECIAL;
-			break;
-
-		case EVictoryConditionType::BEATHERO:
-			if(map->victoryCondition.obj->tempOwner >= PlayerColor::PLAYER_LIMIT) //target hero not present on map
-				return EVictoryLossCheckResult::VICTORY_SPECIAL;
-			break;
-		case EVictoryConditionType::CAPTURECITY:
-			{
-				if(map->victoryCondition.obj->tempOwner == player)
-					return EVictoryLossCheckResult::VICTORY_SPECIAL;
-			}
-			break;
-		case EVictoryConditionType::BEATMONSTER:
-			if(!getObj(map->victoryCondition.obj->id)) //target monster not present on map
-				return EVictoryLossCheckResult::VICTORY_SPECIAL;
-			break;
-		case EVictoryConditionType::TAKEDWELLINGS:
-			for(auto & elem : map->objects)
-			{
-				if(elem && elem->tempOwner != player) //check not flagged objs
-				{
-					switch(elem->ID)
-					{
-					case Obj::CREATURE_GENERATOR1: case Obj::CREATURE_GENERATOR2:
-					case Obj::CREATURE_GENERATOR3: case Obj::CREATURE_GENERATOR4:
-					case Obj::RANDOM_DWELLING: case Obj::RANDOM_DWELLING_LVL: case Obj::RANDOM_DWELLING_FACTION:
-						return EVictoryLossCheckResult::NO_VICTORY_OR_LOSS; //found not flagged dwelling - player not won
-					}
+					for(auto & elem : ai->Slots()) //iterate through army
+						if(elem.second->type->idNumber == condition.objectType) //it's searched creature
+							total += elem.second->count;
 				}
 			}
-			return EVictoryLossCheckResult::VICTORY_SPECIAL;
-		case EVictoryConditionType::TAKEMINES:
-			for(auto & elem : map->objects)
+			return total >= condition.value;
+		}
+		case EventCondition::HAVE_RESOURCES:
+		{
+			return p->resources[condition.objectType] >= condition.value;
+		}
+		case EventCondition::HAVE_BUILDING:
+		{
+			const CGTownInstance *t = static_cast<const CGTownInstance *>(condition.object);
+			return (t->tempOwner == player && t->hasBuilt(BuildingID(condition.objectType)));
+		}
+		case EventCondition::DESTROY:
+		{
+			if (condition.object) // mode A - destroy specific object of this type
 			{
-				if(elem && elem->tempOwner != player) //check not flagged objs
-				{
-					switch(elem->ID)
-					{
-					case Obj::MINE: case Obj::ABANDONED_MINE:
-						return EVictoryLossCheckResult::NO_VICTORY_OR_LOSS; //found not flagged mine - player not won
-					}
-				}
+				if (auto hero = dynamic_cast<const CGHeroInstance*>(condition.object))
+					return boost::range::find(gs->map->heroesOnMap, hero) == gs->map->heroesOnMap.end();
+				else
+					return getObj(condition.object->id) == nullptr;
 			}
-			return EVictoryLossCheckResult::VICTORY_SPECIAL;
-		case EVictoryConditionType::TRANSPORTITEM:
+			else
 			{
-				const CGTownInstance *t = static_cast<const CGTownInstance *>(map->victoryCondition.obj);
-                if((t->visitingHero && t->visitingHero->hasArt(map->victoryCondition.objectId))
-                    || (t->garrisonHero && t->garrisonHero->hasArt(map->victoryCondition.objectId)))
+				for(auto & elem : map->objects) // mode B - destroy all objects of this type
 				{
-					return EVictoryLossCheckResult::VICTORY_SPECIAL;
+					if(elem && elem->ID == condition.objectType)
+						return false;
 				}
+				return true;
 			}
-			break;
- 		}
+		}
+		case EventCondition::CONTROL:
+		{
+			if (condition.object) // mode A - flag one specific object, like town
+			{
+				return condition.object->tempOwner == player;
+			}
+			else
+			{
+				for(auto & elem : map->objects) // mode B - flag all objects of this type
+				{
+					 //check not flagged objs
+					if(elem && elem->tempOwner != player && elem->ID == condition.objectType)
+						return false;
+				}
+				return true;
+			}
+		}
+		case EventCondition::TRANSPORT:
+		{
+			const CGTownInstance *t = static_cast<const CGTownInstance *>(condition.object);
+			if((t->visitingHero && t->visitingHero->hasArt(condition.objectType))
+				|| (t->garrisonHero && t->garrisonHero->hasArt(condition.objectType)))
+			{
+				return true;
+			}
+			return false;
+		}
+		case EventCondition::DAYS_PASSED:
+		{
+			return gs->day > condition.value;
+		}
+		case EventCondition::IS_HUMAN:
+		{
+			return p->human ? condition.value == 1 : condition.value == 0;
+		}
+		case EventCondition::DAYS_WITHOUT_TOWN:
+		{
+			if (p->daysWithoutCastle)
+				return p->daysWithoutCastle.get() >= condition.value;
+			else
+				return false;
+		}
 	}
-
-	return EVictoryLossCheckResult::NO_VICTORY_OR_LOSS;
+	assert(0);
+	return false;
 }
 
 PlayerColor CGameState::checkForStandardWin() const
@@ -2595,46 +2605,6 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 
 #undef FILL_FIELD
-}
-
-EVictoryLossCheckResult CGameState::checkForLoss( PlayerColor player ) const
-{
-	const PlayerState *p = CGameInfoCallback::getPlayer(player);
-	//if(map->lossCondition.typeOfLossCon == lossStandard)
-		if(checkForStandardLoss(player))
-			return EVictoryLossCheckResult::LOSS_STANDARD_HEROES_AND_TOWNS;
-
-	if (p->enteredLosingCheatCode)
-	{
-		return EVictoryLossCheckResult::LOSS_SPECIAL;
-	}
-
-	if(p->human) //special loss condition applies only to human player
-	{
-		switch(map->lossCondition.typeOfLossCon)
-		{
-		case ELossConditionType::LOSSCASTLE:
-		case ELossConditionType::LOSSHERO:
-			{
-				const CGObjectInstance *obj = map->lossCondition.obj;
-				assert(obj);
-				if(obj->tempOwner != player)
-					return EVictoryLossCheckResult::LOSS_SPECIAL;
-			}
-			break;
-		case ELossConditionType::TIMEEXPIRES:
-			if(map->lossCondition.timeLimit < day)
-				return EVictoryLossCheckResult::LOSS_SPECIAL;
-			break;
-		}
-	}
-
-	if(p->towns.empty() && p->daysWithoutCastle && *p->daysWithoutCastle >= 6 && currentPlayer != player)
-	{
-		return EVictoryLossCheckResult::LOSS_STANDARD_TOWNS_AND_TIME_OVER;
-	}
-
-	return EVictoryLossCheckResult::NO_VICTORY_OR_LOSS;
 }
 
 std::map<ui32, ConstTransitivePtr<CGHeroInstance> > CGameState::unusedHeroesFromPool()
@@ -3479,21 +3449,16 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 	allowEmbarkAndDisembark = true;
 }
 
-const EVictoryLossCheckResult EVictoryLossCheckResult::NO_VICTORY_OR_LOSS = EVictoryLossCheckResult(0);
-const EVictoryLossCheckResult EVictoryLossCheckResult::VICTORY_STANDARD = EVictoryLossCheckResult(1);
-const EVictoryLossCheckResult EVictoryLossCheckResult::VICTORY_SPECIAL = EVictoryLossCheckResult(2);
-const EVictoryLossCheckResult EVictoryLossCheckResult::LOSS_STANDARD_HEROES_AND_TOWNS = EVictoryLossCheckResult(3);
-const EVictoryLossCheckResult EVictoryLossCheckResult::LOSS_STANDARD_TOWNS_AND_TIME_OVER = EVictoryLossCheckResult(4);
-const EVictoryLossCheckResult EVictoryLossCheckResult::LOSS_SPECIAL = EVictoryLossCheckResult(5);
-
-EVictoryLossCheckResult::EVictoryLossCheckResult() : intValue(0)
+EVictoryLossCheckResult::EVictoryLossCheckResult() :
+	intValue(0)
 {
-
 }
 
-EVictoryLossCheckResult::EVictoryLossCheckResult(si32 intValue) : intValue(intValue)
+EVictoryLossCheckResult::EVictoryLossCheckResult(si32 intValue, std::string toSelf, std::string toOthers) :
+	messageToSelf(toSelf),
+	messageToOthers(toOthers),
+	intValue(intValue)
 {
-
 }
 
 bool EVictoryLossCheckResult::operator==(EVictoryLossCheckResult const & other) const
@@ -3508,27 +3473,31 @@ bool EVictoryLossCheckResult::operator!=(EVictoryLossCheckResult const & other) 
 
 bool EVictoryLossCheckResult::victory() const
 {
-	return *this == VICTORY_STANDARD || *this == VICTORY_SPECIAL;
+	return intValue == VICTORY;
 }
 
 bool EVictoryLossCheckResult::loss() const
 {
-	return !victory();
+	return intValue == DEFEAT;
 }
 
-std::string EVictoryLossCheckResult::toString() const
+EVictoryLossCheckResult EVictoryLossCheckResult::invert()
 {
-	if(*this == EVictoryLossCheckResult::NO_VICTORY_OR_LOSS) return "No victory or loss";
-	else if(*this == EVictoryLossCheckResult::VICTORY_STANDARD) return "Victory standard";
-	else if(*this == EVictoryLossCheckResult::VICTORY_SPECIAL) return "Victory special";
-	else if(*this == EVictoryLossCheckResult::LOSS_STANDARD_HEROES_AND_TOWNS) return "Loss standard heroes and towns";
-	else if(*this == EVictoryLossCheckResult::LOSS_STANDARD_TOWNS_AND_TIME_OVER) return "Loss standard towns and time over";
-	else if(*this == EVictoryLossCheckResult::LOSS_SPECIAL) return "Loss special";
-	else return "Unknown type";
+	return EVictoryLossCheckResult(-intValue, messageToOthers, messageToSelf);
+}
+
+EVictoryLossCheckResult EVictoryLossCheckResult::victory(std::string toSelf, std::string toOthers)
+{
+	return EVictoryLossCheckResult(VICTORY, toSelf, toOthers);
+}
+
+EVictoryLossCheckResult EVictoryLossCheckResult::defeat(std::string toSelf, std::string toOthers)
+{
+	return EVictoryLossCheckResult(DEFEAT, toSelf, toOthers);
 }
 
 std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult)
 {
-	os << victoryLossCheckResult.toString();
+	os << victoryLossCheckResult.messageToSelf;
 	return os;
 }

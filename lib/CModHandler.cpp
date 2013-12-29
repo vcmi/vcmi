@@ -3,6 +3,8 @@
 #include "CDefObjInfoHandler.h"
 #include "JsonNode.h"
 #include "filesystem/Filesystem.h"
+#include "filesystem/AdapterLoaders.h"
+#include "filesystem/CFilesystemLoader.h"
 
 #include "CCreatureHandler.h"
 #include "CArtHandler.h"

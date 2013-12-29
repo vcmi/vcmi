@@ -1612,7 +1612,8 @@ DLL_LINKAGE void YourTurn::applyGs( CGameState *gs )
 	auto & playerState = gs->players[player];
 	if(playerState.towns.empty())
 	{
-		if(playerState.daysWithoutCastle) ++(*playerState.daysWithoutCastle);
+		if(playerState.daysWithoutCastle)
+			++(*playerState.daysWithoutCastle);
 		else playerState.daysWithoutCastle = 0;
 	}
 	else

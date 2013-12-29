@@ -3,9 +3,11 @@
 
 #include "../CArtHandler.h"
 #include "../VCMI_Lib.h"
+#include "../CCreatureHandler.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
 #include "../CDefObjInfoHandler.h"
+#include "../CGeneralTextHandler.h"
 #include "../CSpellHandler.h"
 #include "CMapEditManager.h"
 
@@ -59,17 +61,13 @@ bool PlayerInfo::hasCustomMainHero() const
 	return !mainCustomHeroName.empty() && mainCustomHeroPortrait != -1;
 }
 
-LossCondition::LossCondition() : typeOfLossCon(ELossConditionType::LOSSSTANDARD),
-	pos(int3(-1, -1, -1)), timeLimit(-1), obj(nullptr)
+EventCondition::EventCondition(EWinLoseType condition):
+	object(nullptr),
+	value(-1),
+	objectType(-1),
+	position(-1, -1, -1),
+	condition(condition)
 {
-
-}
-
-VictoryCondition::VictoryCondition() : condition(EVictoryConditionType::WINSTANDARD),
-	allowNormalVictory(false), appliesToAI(false), pos(int3(-1, -1, -1)), objectId(0),
-	count(0), obj(nullptr)
-{
-
 }
 
 DisposedHero::DisposedHero() : heroId(0), portrait(255), players(0)
@@ -146,9 +144,44 @@ const int CMapHeader::MAP_SIZE_MIDDLE = 72;
 const int CMapHeader::MAP_SIZE_LARGE = 108;
 const int CMapHeader::MAP_SIZE_XLARGE = 144;
 
+void CMapHeader::setupEvents()
+{
+	EventCondition victoryCondition(EventCondition::STANDARD_WIN);
+	EventCondition defeatCondition(EventCondition::DAYS_WITHOUT_TOWN);
+	defeatCondition.value = 7;
+
+	//Victory condition - defeat all
+	TriggeredEvent standardVictory;
+	standardVictory.effect.type = EventEffect::VICTORY;
+	standardVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[5];
+	standardVictory.identifier = "standardVictory";
+	standardVictory.description = ""; // TODO: display in quest window
+	standardVictory.onFulfill = VLC->generaltexth->allTexts[659];
+	standardVictory.trigger = EventExpression(victoryCondition);
+
+	//Loss condition - 7 days without town
+	TriggeredEvent standardDefeat;
+	standardDefeat.effect.type = EventEffect::DEFEAT;
+	standardDefeat.effect.toOtherMessage = VLC->generaltexth->allTexts[8];
+	standardDefeat.identifier = "standardDefeat";
+	standardDefeat.description = ""; // TODO: display in quest window
+	standardDefeat.onFulfill = VLC->generaltexth->allTexts[7];
+	standardDefeat.trigger = EventExpression(defeatCondition);
+
+	triggeredEvents.push_back(standardVictory);
+	triggeredEvents.push_back(standardDefeat);
+
+	victoryIconIndex = 11;
+	victoryMessage = VLC->generaltexth->victoryConditions[0];
+
+	defeatIconIndex = 3;
+	defeatMessage = VLC->generaltexth->lossCondtions[0];
+}
+
 CMapHeader::CMapHeader() : version(EMapFormat::SOD), height(72), width(72),
 	twoLevel(true), difficulty(1), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
 {
+	setupEvents();
 	allowedHeroes = VLC->heroh->getDefaultAllowed();
 	players.resize(PlayerColor::PLAYER_LIMIT_I);
 }
@@ -272,29 +305,75 @@ bool CMap::isWaterTile(const int3 &pos) const
 	return isInTheMap(pos) && getTile(pos).terType == ETerrainType::WATER;
 }
 
-const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, bool lookForHero)
+const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, Obj::EObj type)
 {
-	const std::vector<CGObjectInstance *> & objs = getTile(pos).visitableObjects;
-	assert(objs.size());
-	if(objs.size() > 1 && lookForHero && objs.front()->ID != Obj::HERO)
+	for (CGObjectInstance * object : getTile(pos).visitableObjects)
 	{
-		assert(objs.back()->ID == Obj::HERO);
-		return objs.back();
+		if (object->ID == type)
+			return object;
 	}
-	else
-		return objs.front();
+	// possibly may trigger for empty placeholders in campaigns
+	logGlobal->warnStream() << "Failed to find object of type " << int(type) << " at " << pos;
+	return nullptr;
 }
 
 void CMap::checkForObjectives()
 {
-	if(isInTheMap(victoryCondition.pos))
+	// NOTE: probably should be moved to MapFormatH3M.cpp
+	for (TriggeredEvent & event : triggeredEvents)
 	{
-		victoryCondition.obj = getObjectiveObjectFrom(victoryCondition.pos, victoryCondition.condition == EVictoryConditionType::BEATHERO);
-	}
+		auto patcher = [&](EventCondition & cond)
+		{
+			switch (cond.condition)
+			{
+				break; case EventCondition::HAVE_ARTIFACT:
+					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->arth->artifacts[cond.objectType]->Name());
 
-	if(isInTheMap(lossCondition.pos))
-	{
-		lossCondition.obj = getObjectiveObjectFrom(lossCondition.pos, lossCondition.typeOfLossCon == ELossConditionType::LOSSHERO);
+				break; case EventCondition::HAVE_CREATURES:
+					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->creh->creatures[cond.objectType]->nameSing);
+					boost::algorithm::replace_first(event.onFulfill, "%d", boost::lexical_cast<std::string>(cond.value));
+
+				break; case EventCondition::HAVE_RESOURCES:
+					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->generaltexth->restypes[cond.objectType]);
+					boost::algorithm::replace_first(event.onFulfill, "%d", boost::lexical_cast<std::string>(cond.value));
+
+				break; case EventCondition::HAVE_BUILDING:
+					if (isInTheMap(cond.position))
+						cond.object = getObjectiveObjectFrom(cond.position, Obj::TOWN);
+
+				break; case EventCondition::CONTROL:
+					if (isInTheMap(cond.position))
+						cond.object = getObjectiveObjectFrom(cond.position, Obj::EObj(cond.objectType));
+
+					if (cond.object)
+					{
+						const CGTownInstance *town = dynamic_cast<const CGTownInstance*>(cond.object);
+						if (town)
+							boost::algorithm::replace_first(event.onFulfill, "%s", town->name);
+						const CGHeroInstance *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
+						if (hero)
+							boost::algorithm::replace_first(event.onFulfill, "%s", hero->name);
+					}
+
+				break; case EventCondition::DESTROY:
+					if (isInTheMap(cond.position))
+						cond.object = getObjectiveObjectFrom(cond.position, Obj::EObj(cond.objectType));
+
+					if (cond.object)
+					{
+						const CGHeroInstance *hero = dynamic_cast<const CGHeroInstance*>(cond.object);
+						if (hero)
+							boost::algorithm::replace_first(event.onFulfill, "%s", hero->name);
+					}
+				break; case EventCondition::TRANSPORT:
+					cond.object = getObjectiveObjectFrom(cond.position, Obj::TOWN);
+				//break; case EventCondition::DAYS_PASSED:
+				//break; case EventCondition::IS_HUMAN:
+				//break; case EventCondition::DAYS_WITHOUT_TOWN:
+				//break; case EventCondition::STANDARD_WIN:
+			}
+		};
+		event.trigger.forEach(patcher);
 	}
 }
 

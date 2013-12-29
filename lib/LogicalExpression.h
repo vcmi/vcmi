@@ -9,6 +9,7 @@ namespace LogicalExpressionDetail
 	template<typename ContainedClass>
 	class ExpressionBase
 	{
+	public:
 		/// Possible logical operations, mostly needed to create different types for boost::variant
 		enum EOperations
 		{
@@ -16,7 +17,6 @@ namespace LogicalExpressionDetail
 			ALL_OF,
 			NONE_OF
 		};
-	public:
 		template<EOperations tag> class Element;
 
 		typedef Element<ANY_OF> OperatorAny;
@@ -142,6 +142,44 @@ namespace LogicalExpressionDetail
 				return TValueList();
 			else
 				return TValueList(1, element);
+		}
+	};
+
+	/// Simple foreach visitor
+	template <typename ContainedClass>
+	class ForEachVisitor : public boost::static_visitor<void>
+	{
+		typedef ExpressionBase<ContainedClass> Base;
+
+		std::function<void(typename Base::Value &)> visitor;
+
+	public:
+		ForEachVisitor(std::function<void(typename Base::Value &)> visitor):
+			visitor(visitor)
+		{}
+
+		//FIXME: duplicated code
+		void operator()(typename Base::OperatorAny & element) const
+		{
+			for (auto & entry : element.expressions)
+				boost::apply_visitor(*this, entry);
+		}
+
+		void operator()(typename Base::OperatorAll & element) const
+		{
+			for (auto & entry : element.expressions)
+				boost::apply_visitor(*this, entry);
+		}
+
+		void operator()(typename Base::OperatorNone & element) const
+		{
+			for (auto & entry : element.expressions)
+				boost::apply_visitor(*this, entry);
+		}
+
+		void operator()(typename Base::Value & element) const
+		{
+			visitor(element);
 		}
 	};
 
@@ -287,6 +325,18 @@ public:
 		LogicalExpressionDetail::Reader<Value> reader(parser);
 		LogicalExpression expr(reader(input));
 		std::swap(data, expr.data);
+	}
+
+	Variant get()
+	{
+		return data;
+	}
+
+	/// Simple visitor that visits all entries in expression
+	void forEach(std::function<void(Value &)> visitor)
+	{
+		LogicalExpressionDetail::ForEachVisitor<Value> testVisitor(visitor);
+		boost::apply_visitor(testVisitor, data);
 	}
 
 	/// calculates if expression evaluates to "true".

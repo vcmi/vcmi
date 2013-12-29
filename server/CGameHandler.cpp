@@ -1923,8 +1923,7 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 	vistiCastleObjects (obj, hero);
 	giveSpells (obj, hero);
 
-	if(gs->map->victoryCondition.condition == EVictoryConditionType::TRANSPORTITEM)
-		checkVictoryLossConditionsForPlayer(hero->tempOwner); //transported artifact?
+	checkVictoryLossConditionsForPlayer(hero->tempOwner); //transported artifact?
 }
 
 void CGameHandler::vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h)
@@ -2168,29 +2167,25 @@ void CGameHandler::applyAndSend(CPackForClient * info)
 void CGameHandler::sendAndApply(CGarrisonOperationPack * info)
 {
 	sendAndApply(static_cast<CPackForClient*>(info));
-	if(gs->map->victoryCondition.condition == EVictoryConditionType::GATHERTROOP)
-		checkVictoryLossConditionsForAll();
+	checkVictoryLossConditionsForAll();
 }
 
 void CGameHandler::sendAndApply( SetResource * info )
 {
 	sendAndApply(static_cast<CPackForClient*>(info));
-	if(gs->map->victoryCondition.condition == EVictoryConditionType::GATHERRESOURCE)
-		checkVictoryLossConditionsForPlayer(info->player);
+	checkVictoryLossConditionsForPlayer(info->player);
 }
 
 void CGameHandler::sendAndApply( SetResources * info )
 {
 	sendAndApply(static_cast<CPackForClient*>(info));
-	if(gs->map->victoryCondition.condition == EVictoryConditionType::GATHERRESOURCE)
-		checkVictoryLossConditionsForPlayer(info->player);
+	checkVictoryLossConditionsForPlayer(info->player);
 }
 
 void CGameHandler::sendAndApply( NewStructures * info )
 {
 	sendAndApply(static_cast<CPackForClient*>(info));
-	if(gs->map->victoryCondition.condition == EVictoryConditionType::BUILDCITY)
-		checkVictoryLossConditionsForPlayer(getTown(info->tid)->tempOwner);
+	checkVictoryLossConditionsForPlayer(getTown(info->tid)->tempOwner);
 }
 
 void CGameHandler::save(const std::string & filename )
@@ -5048,7 +5043,8 @@ void CGameHandler::checkVictoryLossConditions(const std::set<PlayerColor> & play
 {
 	for(auto playerColor : playerColors)
 	{
-		if(gs->getPlayer(playerColor)) checkVictoryLossConditionsForPlayer(playerColor);
+		if(gs->getPlayer(playerColor))
+			checkVictoryLossConditionsForPlayer(playerColor);
 	}
 }
 
@@ -5069,7 +5065,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 	auto victoryLossCheckResult = gs->checkForVictoryAndLoss(player);
 
-	if(victoryLossCheckResult != EVictoryLossCheckResult::NO_VICTORY_OR_LOSS)
+	if(victoryLossCheckResult.victory() || victoryLossCheckResult.loss())
 	{
 		InfoWindow iw;
 		getVictoryLossMessage(player, victoryLossCheckResult, iw);
@@ -5083,18 +5079,19 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		if(victoryLossCheckResult.victory())
 		{
 			//one player won -> all enemies lost
-			iw.text.localStrings.front().second++; //message about losing because enemy won first is just after victory message
-
 			for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
 			{
 				if(i->first != player && gs->getPlayer(i->first)->status == EPlayerStatus::INGAME)
 				{
-					iw.player = i->first;
-					sendAndApply(&iw);
-
 					peg.player = i->first;
 					peg.victoryLossCheckResult = gameState()->getPlayerRelations(player, i->first) == PlayerRelations::ALLIES ?
-								victoryLossCheckResult : EVictoryLossCheckResult::LOSS_STANDARD_HEROES_AND_TOWNS; // ally of winner
+								victoryLossCheckResult : victoryLossCheckResult.invert(); // ally of winner
+
+					InfoWindow iw;
+					getVictoryLossMessage(player, peg.victoryLossCheckResult, iw);
+					iw.player = i->first;
+
+					sendAndApply(&iw);
 					sendAndApply(&peg);
 				}
 			}
@@ -5122,7 +5119,6 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 							connection->prepareForSendingHeroes();
 					}
 
-
 					UpdateCampaignState ucs;
 					ucs.camp = gs->scenarioOps->campState;
 					sendAndApply(&ucs);
@@ -5149,6 +5145,19 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 				if(player.getNum() != i) playerColors.insert(PlayerColor(i));
 			}
 
+			//notify all players
+			for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
+			{
+				if(i->first != player && gs->getPlayer(i->first)->status == EPlayerStatus::INGAME)
+				{
+					InfoWindow iw;
+					getVictoryLossMessage(player, victoryLossCheckResult.invert(), iw);
+					iw.player = i->first;
+					sendAndApply(&iw);
+				}
+			}
+
+
 			checkVictoryLossConditions(playerColors);
 		}
 
@@ -5162,110 +5171,14 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 void CGameHandler::getVictoryLossMessage(PlayerColor player, EVictoryLossCheckResult victoryLossCheckResult, InfoWindow & out) const
 {
-//	const PlayerState *p = gs->getPlayer(player);
-// 	if(!p->human)
-// 		return; //AI doesn't need text info of loss
-
 	out.player = player;
+	out.text.clear();
+	out.text << victoryLossCheckResult.messageToSelf;
+	// hackish, insert one player-specific string, if applicable
+	if (victoryLossCheckResult.messageToSelf.find("%s") != std::string::npos)
+		out.text.addReplacement(MetaString::COLOR, player.getNum());
 
-	if(victoryLossCheckResult == EVictoryLossCheckResult::VICTORY_SPECIAL)
-	{
-		switch(gs->map->victoryCondition.condition)
-		{
-		case EVictoryConditionType::ARTIFACT:
-			out.text.addTxt(MetaString::GENERAL_TXT, 280); //Congratulations! You have found the %s, and can claim victory!
-			out.text.addReplacement(MetaString::ART_NAMES,gs->map->victoryCondition.objectId); //artifact name
-			break;
-		case EVictoryConditionType::GATHERTROOP:
-			out.text.addTxt(MetaString::GENERAL_TXT, 276); //Congratulations! You have over %d %s in your armies. Your enemies have no choice but to bow down before your power!
-			out.text.addReplacement(gs->map->victoryCondition.count);
-			out.text.addReplacement(MetaString::CRE_PL_NAMES, gs->map->victoryCondition.objectId);
-			break;
-		case EVictoryConditionType::GATHERRESOURCE:
-			out.text.addTxt(MetaString::GENERAL_TXT, 278); //Congratulations! You have collected over %d %s in your treasury. Victory is yours!
-			out.text.addReplacement(gs->map->victoryCondition.count);
-			out.text.addReplacement(MetaString::RES_NAMES, gs->map->victoryCondition.objectId);
-			break;
-		case EVictoryConditionType::BUILDCITY:
-			out.text.addTxt(MetaString::GENERAL_TXT, 282); //Congratulations! You have successfully upgraded your town, and can claim victory!
-			break;
-		case EVictoryConditionType::BUILDGRAIL:
-			out.text.addTxt(MetaString::GENERAL_TXT, 284); //Congratulations! You have constructed a permanent home for the Grail, and can claim victory!
-			break;
-		case EVictoryConditionType::BEATHERO:
-			{
-				out.text.addTxt(MetaString::GENERAL_TXT, 252); //Congratulations! You have completed your quest to defeat the enemy hero %s. Victory is yours!
-				const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(gs->map->victoryCondition.obj);
-				assert(h);
-				out.text.addReplacement(h->name);
-			}
-			break;
-		case EVictoryConditionType::CAPTURECITY:
-			{
-				out.text.addTxt(MetaString::GENERAL_TXT, 249); //Congratulations! You captured %s, and are victorious!
-				const CGTownInstance *t = dynamic_cast<const CGTownInstance*>(gs->map->victoryCondition.obj);
-				assert(t);
-				out.text.addReplacement(t->name);
-			}
-			break;
-		case EVictoryConditionType::BEATMONSTER:
-			out.text.addTxt(MetaString::GENERAL_TXT, 286); //Congratulations! You have completed your quest to kill the fearsome beast, and can claim victory!
-			break;
-		case EVictoryConditionType::TAKEDWELLINGS:
-			out.text.addTxt(MetaString::GENERAL_TXT, 288); //Congratulations! Your flag flies on the dwelling of every creature. Victory is yours!
-			break;
-		case EVictoryConditionType::TAKEMINES:
-			out.text.addTxt(MetaString::GENERAL_TXT, 290); //Congratulations! Your flag flies on every mine. Victory is yours!
-			break;
-		case EVictoryConditionType::TRANSPORTITEM:
-			out.text.addTxt(MetaString::GENERAL_TXT, 292); //Congratulations! You have reached your destination, precious cargo intact, and can claim victory!
-			break;
-		}
-	}
-	else if(victoryLossCheckResult == EVictoryLossCheckResult::VICTORY_STANDARD)
-	{
-		out.text.addTxt(MetaString::GENERAL_TXT, 659); // Congratulations! All your enemies have been defeated! Victory is yours!
-	}
-	else if(victoryLossCheckResult == EVictoryLossCheckResult::LOSS_STANDARD_TOWNS_AND_TIME_OVER)
-	{
-			out.text.addTxt(MetaString::GENERAL_TXT, 7);//%s, your heroes abandon you, and you are banished from this land.
-			out.text.addReplacement(MetaString::COLOR, player.getNum());
-			out.components.push_back(Component(Component::FLAG, player.getNum(), 0, 0));
-	}
-	else if(victoryLossCheckResult == EVictoryLossCheckResult::LOSS_SPECIAL)
-	{
-		switch(gs->map->lossCondition.typeOfLossCon)
-		{
-		case ELossConditionType::LOSSCASTLE:
-			{
-				out.text.addTxt(MetaString::GENERAL_TXT, 251); //The town of %s has fallen - all is lost!
-				const CGTownInstance *t = dynamic_cast<const CGTownInstance*>(gs->map->lossCondition.obj);
-				assert(t);
-				out.text.addReplacement(t->name);
-			}
-			break;
-		case ELossConditionType::LOSSHERO:
-			{
-				out.text.addTxt(MetaString::GENERAL_TXT, 253); //The hero, %s, has suffered defeat - your quest is over!
-				const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(gs->map->lossCondition.obj);
-				assert(h);
-				out.text.addReplacement(h->name);
-			}
-			break;
-		case ELossConditionType::TIMEEXPIRES:
-			out.text.addTxt(MetaString::GENERAL_TXT, 254); //Alas, time has run out on your quest. All is lost.
-			break;
-		}
-	}
-	else if(victoryLossCheckResult == EVictoryLossCheckResult::LOSS_STANDARD_HEROES_AND_TOWNS)
-	{
-		out.text.addTxt(MetaString::GENERAL_TXT, 660); //All your forces have been defeated, and you are banished from this land!
-	}
-	else
-	{
-		assert(0);
-		logGlobal->warnStream() << "Unknown victory loss check result";
-	}
+	out.components.push_back(Component(Component::FLAG, player.getNum(), 0, 0));
 }
 
 bool CGameHandler::dig( const CGHeroInstance *h )

@@ -54,7 +54,7 @@ private:
 
 class DLL_LINKAGE CFilesystemList : public ISimpleResourceLoader
 {
-	std::vector<std::unique_ptr<ISimpleResourceLoader> >* loaders;
+	std::vector<std::unique_ptr<ISimpleResourceLoader> > loaders;
 
 	std::set<ISimpleResourceLoader *> writeableLoaders;
 

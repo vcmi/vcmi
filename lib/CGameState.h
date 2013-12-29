@@ -357,28 +357,34 @@ struct BattleInfo;
 class DLL_LINKAGE EVictoryLossCheckResult
 {
 public:
-	static const EVictoryLossCheckResult NO_VICTORY_OR_LOSS;
-	static const EVictoryLossCheckResult VICTORY_STANDARD;
-	static const EVictoryLossCheckResult VICTORY_SPECIAL;
-	static const EVictoryLossCheckResult LOSS_STANDARD_HEROES_AND_TOWNS;
-	static const EVictoryLossCheckResult LOSS_STANDARD_TOWNS_AND_TIME_OVER;
-	static const EVictoryLossCheckResult LOSS_SPECIAL;
+	static EVictoryLossCheckResult victory(std::string toSelf, std::string toOthers);
+	static EVictoryLossCheckResult defeat(std::string toSelf, std::string toOthers);
 
 	EVictoryLossCheckResult();
 	bool operator==(EVictoryLossCheckResult const & other) const;
 	bool operator!=(EVictoryLossCheckResult const & other) const;
 	bool victory() const;
 	bool loss() const;
-	std::string toString() const;
+
+	EVictoryLossCheckResult invert();
+
+	std::string messageToSelf;
+	std::string messageToOthers;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & intValue;
+		h & intValue & messageToSelf & messageToOthers;
 	}
-
 private:
-	EVictoryLossCheckResult(si32 intValue);
-	si32 intValue;
+	enum EResult
+	{
+		DEFEAT = -1,
+		INGAME =  0,
+		VICTORY= +1
+	};
+
+	EVictoryLossCheckResult(si32 intValue, std::string toSelf, std::string toOthers);
+	si32 intValue; // uses EResult
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
@@ -426,7 +432,13 @@ public:
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 	int3 guardingCreaturePosition (int3 pos) const;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
+
+	// ----- victory, loss condition checks -----
+
 	EVictoryLossCheckResult checkForVictoryAndLoss(PlayerColor player) const;
+	bool checkForVictory(PlayerColor player, const EventCondition & condition) const; //checks if given player is winner
+	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
+	bool checkForStandardLoss(PlayerColor player) const; //checks if given player lost the game
 
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
 	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
@@ -475,13 +487,6 @@ private:
 	void initTowns();
 	void initMapObjects();
 	void initVisitingAndGarrisonedHeroes();
-
-	// ----- victory, loss condition checks -----
-
-	EVictoryLossCheckResult checkForVictory(PlayerColor player) const; //checks if given player is winner
-	EVictoryLossCheckResult checkForLoss(PlayerColor player) const; //checks if given player is loser
-	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
-	bool checkForStandardLoss(PlayerColor player) const; //checks if given player lost the game
 
 	// ----- bonus system handling -----
 
