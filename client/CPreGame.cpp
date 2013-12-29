@@ -42,6 +42,7 @@
 #include "gui/CGuiHandler.h"
 #include "gui/CIntObjectClasses.h"
 #include "../lib/mapping/CMapService.h"
+#include "../lib/mapping/CMap.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine

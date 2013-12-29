@@ -2,6 +2,7 @@
 #include "Goals.h"
 #include "VCAI.h"
 #include "Fuzzy.h"
+#include "../../lib/mapping/CMap.h" //for victory conditions
 
 /*
  * Goals.cpp, part of VCMI engine

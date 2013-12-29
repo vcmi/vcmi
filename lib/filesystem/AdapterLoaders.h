@@ -58,6 +58,17 @@ class DLL_LINKAGE CFilesystemList : public ISimpleResourceLoader
 
 	std::set<ISimpleResourceLoader *> writeableLoaders;
 
+	//FIXME: this is only compile fix, should be removed in the end
+	CFilesystemList(CFilesystemList &) 
+    { 
+		//class is not copyable 
+    } 
+    CFilesystemList &operator=(CFilesystemList &) 
+    { 
+        //class is not copyable 
+        return *this; 
+    }
+
 public:
 	CFilesystemList();
 	~CFilesystemList();

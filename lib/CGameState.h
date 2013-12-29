@@ -60,6 +60,7 @@ class CGameInfo;
 struct QuestInfo;
 class CQuest;
 class CCampaignScenario;
+struct EventCondition;
 
 namespace boost
 {
