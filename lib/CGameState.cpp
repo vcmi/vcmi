@@ -1127,13 +1127,55 @@ void CGameState::placeCampaignHeroes()
 			const auto campaignHeroReplacements = generateCampaignHeroesToReplace(crossoverHeroes);
 
 			// remove same heroes on the map which will be added through crossover heroes
-			/*for(auto & campaignHeroReplacement : campaignHeroReplacement)
+			// INFO: we will remove heroes because later it may be possible that the API doesn't allow having heroes
+			// with the same hero type id
+			std::vector<CGHeroInstance *> removedHeroes;
+
+			for(auto & campaignHeroReplacement : campaignHeroReplacements)
 			{
-				campaignHeroReplacement.first->subID
-			}*/
+				auto hero = getUsedHero(HeroTypeID(campaignHeroReplacement.first->subID));
+				if(hero)
+				{
+					removedHeroes.push_back(hero);
+					map->heroesOnMap -= hero;
+					map->objects[hero->id.getNum()] = nullptr;
+					map->removeBlockVisTiles(hero, true);
+				}
+			}
 
 			logGlobal->debugStream() << "\tReplace placeholders with heroes";
 			replaceHeroesPlaceholders(campaignHeroReplacements);
+
+			// now add removed heroes again with unused type ID
+			for(auto hero : removedHeroes)
+			{
+				si32 heroTypeId = 0;
+				if(hero->ID == Obj::HERO)
+				{
+					heroTypeId = pickUnusedHeroTypeRandomly(hero->tempOwner);
+				}
+				else if(hero->ID == Obj::PRISON)
+				{
+					auto unusedHeroTypeIds = getUnusedAllowedHeroes();
+					if(!unusedHeroTypeIds.empty())
+					{
+						heroTypeId = std::next(unusedHeroTypeIds.begin(), ran() % unusedHeroTypeIds.size())->getNum();
+					}
+					else
+					{
+						logGlobal->errorStream() << "No free hero type ID found to replace prison.";
+						assert(0);
+					}
+				}
+				else
+				{
+					assert(0); // should not happen
+				}
+
+				hero->subID = heroTypeId;
+				hero->portrait = hero->subID;
+				map->getEditManager()->insertObject(hero, hero->pos);
+			}
 		}
 	}
 }
@@ -1143,7 +1185,7 @@ void CGameState::placeStartingHero(PlayerColor playerColor, HeroTypeID heroTypeI
 	townPos.x += 1;
 
 	CGHeroInstance * hero =  static_cast<CGHeroInstance*>(createObject(Obj::HERO, heroTypeId.getNum(), townPos, playerColor));
-	hero->initHero();
+	hero->initHeroDefInfo();
 	map->getEditManager()->insertObject(hero, townPos);
 }
 
@@ -2721,7 +2763,8 @@ std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > CGameState::generateC
 				if(!found)
 				{
 					auto nh = new CGHeroInstance();
-					nh->initHero(HeroTypeID(hp->subID));
+					nh->subID = hp->subID;
+					nh->initHeroDefInfo();
 					campaignHeroReplacements.push_back(std::make_pair(nh, gid));
 				}
 
@@ -2803,22 +2846,33 @@ void CGameState::replaceHeroesPlaceholders(const std::vector<std::pair<CGHeroIns
 		map->heroesOnMap.push_back(heroToPlace);
 		map->objects[heroToPlace->id.getNum()] = heroToPlace;
 		map->addBlockVisTiles(heroToPlace);
-
-		//const auto & travelOptions = scenarioOps->campState->getCurrentScenario().travelOptions;
 	}
 }
 
 bool CGameState::isUsedHero(HeroTypeID hid) const
 {
+	return getUsedHero(hid);
+}
+
+CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
+{
 	for(auto hero : map->heroesOnMap)  //heroes instances initialization
+	{
 		if(hero->subID == hid.getNum())
-			return true;
+		{
+			return hero;
+		}
+	}
 
 	for(auto obj : map->objects) //prisons
-		if(obj && obj->ID == Obj::PRISON  && obj->subID == hid.getNum())
-			return true;
+	{
+		if(obj && obj->ID == Obj::PRISON && obj->subID == hid.getNum())
+		{
+			return dynamic_cast<CGHeroInstance *>(obj.get());
+		}
+	}
 
-	return false;
+	return nullptr;
 }
 
 CGPathNode::CGPathNode()

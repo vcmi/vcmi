@@ -498,6 +498,7 @@ private:
 
 	// ---- misc helpers -----
 
+	CGHeroInstance * getUsedHero(HeroTypeID hid) const;
 	bool isUsedHero(HeroTypeID hid) const; //looks in heroes and prisons
 	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
 	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
