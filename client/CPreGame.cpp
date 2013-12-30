@@ -3306,11 +3306,15 @@ void CBonusSelection::selectMap(int mapNr, bool initialSelect)
 		selectedMap = mapNr;
 		selectedBonus = boost::none;
 
+		std::string scenarioName = ourCampaign->camp->header.filename.substr(0, ourCampaign->camp->header.filename.find('.'));
+		boost::to_lower(scenarioName);
+		scenarioName += ':' + boost::lexical_cast<std::string>(selectedMap);
+
 		//get header
 		delete ourHeader;
 		std::string & headerStr = ourCampaign->camp->mapPieces.find(mapNr)->second;
 		auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
-		ourHeader = CMapService::loadMapHeader(buffer, headerStr.size()).release();
+		ourHeader = CMapService::loadMapHeader(buffer, headerStr.size(), scenarioName).release();
 
 		std::map<ui8, std::string> names;
 		names[1] = settings["general"]["playerName"].String();

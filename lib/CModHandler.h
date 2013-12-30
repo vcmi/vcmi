@@ -51,7 +51,7 @@ class CIdentifierStorage
 
 	void requestIdentifier(ObjectCallback callback);
 	bool resolveIdentifier(const ObjectCallback & callback);
-	std::vector<ObjectData> getIdentifier(const ObjectCallback & callback);
+	std::vector<ObjectData> getPossibleIdentifiers(const ObjectCallback & callback);
 public:
 	/// request identifier for specific object name.
 	/// Function callback will be called during ID resolution phase of loading
@@ -65,6 +65,7 @@ public:
 
 	/// get identifier immediately. If identifier is not know and not silent call will result in error message
 	boost::optional<si32> getIdentifier(std::string type, const JsonNode & name, bool silent = false);
+	boost::optional<si32> getIdentifier(const JsonNode & name, bool silent = false);
 
 	/// registers new object
 	void registerObject(std::string scope, std::string type, std::string name, si32 identifier);

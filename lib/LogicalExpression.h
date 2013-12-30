@@ -223,6 +223,49 @@ namespace LogicalExpressionDetail
 		}
 	};
 
+	/// Prints expression in human-readable format
+	template <typename ContainedClass>
+	class Writer : public boost::static_visitor<JsonNode>
+	{
+		typedef ExpressionBase<ContainedClass> Base;
+
+		std::function<JsonNode(const typename Base::Value &)> classPrinter;
+
+		JsonNode printExpressionList(std::string name, const std::vector<typename Base::Variant> & element) const
+		{
+			JsonNode ret;
+			ret.Vector().resize(1);
+			ret.Vector().back().String() = name;
+			for (auto & expr : element)
+				ret.Vector().push_back(boost::apply_visitor(*this, expr));
+			return ret;
+		}
+	public:
+		Writer(std::function<JsonNode(const typename Base::Value &)> classPrinter):
+			classPrinter(classPrinter)
+		{}
+
+		JsonNode operator()(const typename Base::OperatorAny & element) const
+		{
+			return printExpressionList("anyOf", element.expressions);
+		}
+
+		JsonNode operator()(const typename Base::OperatorAll & element) const
+		{
+			return printExpressionList("allOf", element.expressions);
+		}
+
+		JsonNode operator()(const typename Base::OperatorNone & element) const
+		{
+			return printExpressionList("noneOf", element.expressions);
+		}
+
+		JsonNode operator()(const typename Base::Value & element) const
+		{
+			return classPrinter(element);
+		}
+	};
+
 	std::string DLL_LINKAGE getTextForOperator(std::string operation);
 
 	/// Prints expression in human-readable format
@@ -366,6 +409,12 @@ public:
 	{
 		LogicalExpressionDetail::Printer<Value> printVisitor(toStr, toBool);
 		return boost::apply_visitor(printVisitor, data);
+	}
+
+	JsonNode toJson(std::function<JsonNode(const Value &)> toJson) const
+	{
+		LogicalExpressionDetail::Writer<Value> writeVisitor(toJson);
+		return boost::apply_visitor(writeVisitor, data);
 	}
 
 	template <typename Handler>

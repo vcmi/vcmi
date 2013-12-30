@@ -122,12 +122,26 @@ void CIdentifierStorage::tryRequestIdentifier(std::string type, const JsonNode &
 boost::optional<si32> CIdentifierStorage::getIdentifier(std::string type, const JsonNode & name, bool silent)
 {
 	auto pair = splitString(name.String(), ':'); // remoteScope:name
-	auto idList = getIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, std::function<void(si32)>(), silent));
+	auto idList = getPossibleIdentifiers(ObjectCallback(name.meta, pair.first, type, pair.second, std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
 		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " from mod " << type;
+
+	return boost::optional<si32>();
+}
+
+boost::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, bool silent)
+{
+	auto pair  = splitString(name.String(), ':'); // remoteScope:<type.name>
+	auto pair2 = splitString(pair.second,   '.'); // type.name
+	auto idList = getPossibleIdentifiers(ObjectCallback(name.meta, pair.first, pair2.first, pair2.second, std::function<void(si32)>(), silent));
+
+	if (idList.size() == 1)
+		return idList.front().id;
+	if (!silent)
+		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " from mod " << pair2.first;
 
 	return boost::optional<si32>();
 }
@@ -144,14 +158,14 @@ void CIdentifierStorage::registerObject(std::string scope, std::string type, std
 	registeredObjects.insert(std::make_pair(fullID, data));
 }
 
-std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getIdentifier(const ObjectCallback & request)
+std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdentifiers(const ObjectCallback & request)
 {
 	std::set<std::string> allowedScopes;
 
 	if (request.remoteScope.empty())
 	{
 		// normally ID's from all required mods, own mod and virtual "core" mod are allowed
-		if (request.localScope != "core")
+		if (request.localScope != "core" && request.localScope != "")
 			allowedScopes = VLC->modh->getModData(request.localScope).dependencies;
 
 		allowedScopes.insert(request.localScope);
@@ -187,7 +201,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getIdentifier(co
 
 bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
 {
-	auto identifiers = getIdentifier(request);
+	auto identifiers = getPossibleIdentifiers(request);
 	if (identifiers.size() == 1) // normally resolved ID
 	{
 		request.callback(identifiers.front().id);

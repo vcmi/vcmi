@@ -8,30 +8,47 @@
 #include "CMap.h"
 
 #include "MapFormatH3M.h"
+#include "MapFormatJson.h"
 
 
 std::unique_ptr<CMap> CMapService::loadMap(const std::string & name)
 {
 	auto stream = getStreamFromFS(name);
-	return getMapLoader(stream)->loadMap();
+	std::unique_ptr<CMap> map(getMapLoader(stream)->loadMap());
+	std::unique_ptr<CMapHeader> header(map.get());
+
+	getMapPatcher(name)->patchMapHeader(header);
+	header.release();
+
+	return std::move(map);
 }
 
 std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const std::string & name)
 {
 	auto stream = getStreamFromFS(name);
-	return getMapLoader(stream)->loadMapHeader();
+	std::unique_ptr<CMapHeader> header = getMapLoader(stream)->loadMapHeader();
+	getMapPatcher(name)->patchMapHeader(header);
+	return std::move(header);
 }
 
-std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size)
+std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const std::string & name)
 {
 	auto stream = getStreamFromMem(buffer, size);
-	return getMapLoader(stream)->loadMap();
+	std::unique_ptr<CMap> map(getMapLoader(stream)->loadMap());
+	std::unique_ptr<CMapHeader> header(map.get());
+
+	getMapPatcher(name)->patchMapHeader(header);
+	header.release();
+
+	return std::move(map);
 }
 
-std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ui8 * buffer, int size)
+std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ui8 * buffer, int size, const std::string & name)
 {
 	auto stream = getStreamFromMem(buffer, size);
-	return getMapLoader(stream)->loadMapHeader();
+	std::unique_ptr<CMapHeader> header = getMapLoader(stream)->loadMapHeader();
+	getMapPatcher(name)->patchMapHeader(header);
+	return std::move(header);
 }
 
 std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const std::string & name)
@@ -67,4 +84,12 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 		default :
 			throw std::runtime_error("Unknown map format");
 	}
+}
+
+std::unique_ptr<IMapPatcher> CMapService::getMapPatcher(std::string scenarioName)
+{
+	boost::to_lower(scenarioName);
+	logGlobal->debugStream() << "Request to patch map " << scenarioName;
+	JsonNode node = JsonUtils::assembleFromFiles("config/mapOverrides.json");
+	return std::unique_ptr<IMapPatcher>(new CMapLoaderJson(node[scenarioName]));
 }

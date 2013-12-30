@@ -16,6 +16,7 @@ class CMapHeader;
 class CInputStream;
 
 class IMapLoader;
+class IMapPatcher;
 
 /**
  * The map service provides loading of VCMI/H3 map files. It can
@@ -49,9 +50,10 @@ public:
 	 *
 	 * @param buffer a pointer to a buffer containing the map data
 	 * @param size the size of the buffer
+	 * @param name indicates name of file that will be used during map header patching
 	 * @return a unique ptr to the loaded map class
 	 */
-	static std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size);
+	static std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name);
 
 	/**
 	 * Loads the VCMI/H3 map header from a buffer. This method is temporarily
@@ -62,9 +64,10 @@ public:
 	 *
 	 * @param buffer a pointer to a buffer containing the map header data
 	 * @param size the size of the buffer
+	 * @param name indicates name of file that will be used during map header patching
 	 * @return a unique ptr to the loaded map class
 	 */
-	static std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size);
+	static std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name);
 
 private:
 	/**
@@ -92,6 +95,14 @@ private:
 	 * @return the constructed map loader
 	 */
 	static std::unique_ptr<IMapLoader> getMapLoader(std::unique_ptr<CInputStream> & stream);
+
+	/**
+	 * Gets a map patcher for specified scenario
+	 *
+	 * @param scenarioName for patcher
+	 * @return the constructed map patcher
+	 */
+	static std::unique_ptr<IMapPatcher> getMapPatcher(std::string scenarioName);
 };
 
 /**
@@ -115,4 +126,12 @@ public:
 	virtual std::unique_ptr<CMapHeader> loadMapHeader() = 0;
 };
 
-
+class DLL_LINKAGE IMapPatcher : public IMapLoader
+{
+public:
+	/**
+	 * Modifies supplied map header using Json data
+	 *
+	 */
+	virtual void patchMapHeader(std::unique_ptr<CMapHeader> & header) = 0;
+};

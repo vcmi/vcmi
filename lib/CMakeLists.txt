@@ -33,6 +33,7 @@ set(lib_SRCS
 		mapping/CMapInfo.cpp
 		mapping/CMapService.cpp
 		mapping/MapFormatH3M.cpp
+		mapping/MapFormatJson.cpp
 
 		rmg/CMapGenerator.cpp
 		rmg/CMapGenOptions.cpp

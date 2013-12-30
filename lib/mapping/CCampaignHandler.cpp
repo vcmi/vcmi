@@ -64,9 +64,13 @@ unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
 			scenarioID++;
 		}
 
+		std::string scenarioName = name.substr(0, name.find('.'));
+		boost::to_lower(scenarioName);
+		scenarioName += ':' + boost::lexical_cast<std::string>(g-1);
+
 		//set map piece appropriately, convert vector to string
 		ret->mapPieces[scenarioID].assign(reinterpret_cast< const char* >(file[g].data()), file[g].size());
-		ret->scenarios[scenarioID].scenarioName = CMapService::loadMapHeader((const ui8*)ret->mapPieces[scenarioID].c_str(), ret->mapPieces[scenarioID].size())->name;
+		ret->scenarios[scenarioID].scenarioName = CMapService::loadMapHeader((const ui8*)ret->mapPieces[scenarioID].c_str(), ret->mapPieces[scenarioID].size(), scenarioName)->name;
 		scenarioID++;
 	}
 

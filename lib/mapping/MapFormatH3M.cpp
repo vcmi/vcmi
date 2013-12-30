@@ -1563,9 +1563,11 @@ void CMapLoaderH3M::readObjects()
 				if(htid == 0xff)
 				{
 					hp->power = reader.readUInt8();
+					logGlobal->infoStream() << "Hero placeholder: by power at " << objPos;
 				}
 				else
 				{
+					logGlobal->infoStream() << "Hero placeholder: " << VLC->heroh->heroes[htid]->name << " at " << objPos;
 					hp->power = 0;
 				}
 
@@ -1684,6 +1686,7 @@ void CMapLoaderH3M::readObjects()
 		}
 		if(nobj->ID == Obj::HERO)
 		{
+			logGlobal->infoStream() << "Hero: " << VLC->heroh->heroes[nobj->subID]->name << " at " << objPos;
 			map->heroesOnMap.push_back(static_cast<CGHeroInstance*>(nobj));
 		}
 	}
