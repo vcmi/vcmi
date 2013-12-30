@@ -108,11 +108,10 @@ public:
 	SScenarioPrologEpilog prolog, epilog;
 
 	CScenarioTravel travelOptions;
-	std::vector<CGHeroInstance *> crossoverHeroes; // contains all heroes with the same state when the camapign scenario was finished
+	std::vector<CGHeroInstance *> crossoverHeroes; // contains all heroes with the same state when the campaign scenario was finished
 
 	const CGHeroInstance * strongestHero(PlayerColor owner) const;
 	void loadPreconditionRegions(ui32 regions);
-	void prepareCrossoverHeroes(std::vector<CGHeroInstance *> heroes);
 	bool isNotVoid() const;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)

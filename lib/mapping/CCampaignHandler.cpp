@@ -329,7 +329,7 @@ const CGHeroInstance * CCampaignScenario::strongestHero( PlayerColor owner ) con
 	auto ownedHeroes = crossoverHeroes | filtered(isOwned);
 
 	auto i = vstd::maxElementByFun(ownedHeroes,
-									[](const CGHeroInstance * h) {return h->getTotalStrength();});
+									[](const CGHeroInstance * h) {return h->getHeroStrength();});
 	return i == ownedHeroes.end() ? nullptr : *i;
 }
 

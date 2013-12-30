@@ -1212,7 +1212,7 @@ const CCampaignScenario * CGameState::getCampaignScenarioForCrossoverHeroes() co
 
 std::vector<CGHeroInstance *> CGameState::prepareCrossoverHeroes(const CCampaignScenario * campaignScenario)
 {
-	auto crossoverHeroes = campaignScenario->crossoverHeroes; //TODO check if hero instances need to be copied
+	auto crossoverHeroes = campaignScenario->crossoverHeroes; //TODO hero instances need to be copied, warning not trivial
 	const auto & travelOptions = campaignScenario->travelOptions;
 
 	if (!(travelOptions.whatHeroKeeps & 1))
@@ -2767,8 +2767,6 @@ std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > CGameState::generateC
 					nh->initHeroDefInfo();
 					campaignHeroReplacements.push_back(std::make_pair(nh, gid));
 				}
-
-				//TODO delete hero placeholder
 			}
 		}
 	}
