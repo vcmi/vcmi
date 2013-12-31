@@ -2742,11 +2742,18 @@ std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > CGameState::generateC
 {
 	std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > campaignHeroReplacements;
 
+	auto removeHeroPlaceholder = [this](CGHeroPlaceholder * heroPlaceholder)
+	{
+		map->removeBlockVisTiles(heroPlaceholder, true);
+		map->objects[heroPlaceholder->id.getNum()] = nullptr;
+		delete heroPlaceholder;
+	};
+
 	//selecting heroes by type
 	for(int g = 0; g < map->objects.size(); ++g)
 	{
 		CGObjectInstance * obj = map->objects[g];
-		if (obj->ID == Obj::HERO_PLACEHOLDER)
+		if (obj && obj->ID == Obj::HERO_PLACEHOLDER)
 		{
 			CGHeroPlaceholder * hp = static_cast<CGHeroPlaceholder*>(obj);
 
@@ -2766,10 +2773,7 @@ std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > CGameState::generateC
 				}
 				if(!found)
 				{
-					auto nh = new CGHeroInstance();
-					nh->subID = hp->subID;
-					nh->initHeroDefInfo();
-					campaignHeroReplacements.push_back(std::make_pair(nh, gid));
+					removeHeroPlaceholder(hp);
 				}
 			}
 		}
@@ -2786,7 +2790,7 @@ std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > CGameState::generateC
 	for(int g = 0; g < map->objects.size(); ++g)
 	{
 		CGObjectInstance * obj = map->objects[g];
-		if(obj->ID == Obj::HERO_PLACEHOLDER)
+		if(obj && obj->ID == Obj::HERO_PLACEHOLDER)
 		{
 			CGHeroPlaceholder * hp = dynamic_cast<CGHeroPlaceholder*>(obj);
 			if(hp->subID == 0xFF) //select by power
@@ -2809,9 +2813,7 @@ std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > CGameState::generateC
 		}
 		else
 		{
-			map->removeBlockVisTiles(heroPlaceholder, true);
-			delete heroPlaceholder;
-			map->objects[heroPlaceholder->id.getNum()] = nullptr;
+			removeHeroPlaceholder(heroPlaceholder);
 		}
 	}
 
@@ -2828,7 +2830,7 @@ void CGameState::replaceHeroesPlaceholders(const std::vector<std::pair<CGHeroIns
 		heroToPlace->id = obj.second;
 		heroToPlace->tempOwner = placeholder->tempOwner;
 		heroToPlace->pos = placeholder->pos;
-		heroToPlace->type = VLC->heroh->heroes[heroToPlace->type->ID.getNum()]; //TODO is this reasonable? either old type can be still used or it can be deleted?
+		heroToPlace->type = VLC->heroh->heroes[heroToPlace->subID];
 
 		for(auto &&i : heroToPlace->stacks)
 			i.second->type = VLC->creh->creatures[i.second->getCreatureID()];
