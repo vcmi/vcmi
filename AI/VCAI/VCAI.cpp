@@ -309,7 +309,7 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 
 	requestActionASAP([=]()
 	{
-		if (firstHero->getHeroStrength() > secondHero->getHeroStrength() && canGetArmy (firstHero, secondHero))
+		if (firstHero->getFightingStrength() > secondHero->getFightingStrength() && canGetArmy (firstHero, secondHero))
 			pickBestCreatures (firstHero, secondHero);
 		else if (canGetArmy (secondHero, firstHero))
 			pickBestCreatures (secondHero, firstHero);

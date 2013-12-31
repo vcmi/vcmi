@@ -1362,15 +1362,24 @@ void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 		setStackCount(SlotID(0), val);
 }
 
+double CGHeroInstance::getFightingStrength() const
+{
+	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::ATTACK)) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::DEFENSE)));
+}
+
+double CGHeroInstance::getMagicStrength() const
+{
+	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::KNOWLEDGE)) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::SPELL_POWER)));
+}
+
 double CGHeroInstance::getHeroStrength() const
 {
-	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::ATTACK)) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::DEFENSE)) *
-				(1.0 + 0.05*getPrimSkillLevel(PrimarySkill::KNOWLEDGE)) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::SPELL_POWER)));
+	return sqrt(pow(getFightingStrength(), 2.0) * pow(getMagicStrength(), 2.0));
 }
 
 ui64 CGHeroInstance::getTotalStrength() const
 {
-	double ret = getHeroStrength() * getArmyStrength();
+	double ret = getFightingStrength() * getArmyStrength();
 	return (ui64) ret;
 }
 
