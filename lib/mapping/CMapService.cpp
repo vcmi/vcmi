@@ -86,10 +86,22 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 	}
 }
 
+static JsonNode loadPatches(std::string path)
+{
+	JsonNode node = JsonUtils::assembleFromFiles(path);
+	for (auto & entry : node.Struct())
+		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
+	return node;
+}
+
 std::unique_ptr<IMapPatcher> CMapService::getMapPatcher(std::string scenarioName)
 {
+	static JsonNode node;
+
+	if (node.isNull())
+		node = loadPatches("config/mapOverrides.json");
+
 	boost::to_lower(scenarioName);
 	logGlobal->debugStream() << "Request to patch map " << scenarioName;
-	JsonNode node = JsonUtils::assembleFromFiles("config/mapOverrides.json");
 	return std::unique_ptr<IMapPatcher>(new CMapLoaderJson(node[scenarioName]));
 }
