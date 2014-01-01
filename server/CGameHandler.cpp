@@ -373,6 +373,27 @@ void CGameHandler::expGiven(const CGHeroInstance *hero)
 
 void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs)
 {
+	if (which == PrimarySkill::EXPERIENCE) // Check if scenario limit reached
+	{
+		if (gs->map->levelLimit != 0)
+		{
+			TExpType expLimit = VLC->heroh->reqExp(gs->map->levelLimit);
+			TExpType resultingExp = abs ? val : hero->exp + val;
+			if (resultingExp > expLimit)
+			{
+				// set given experience to max possible, but don't decrease if hero already over top
+				abs = true;
+				val = std::max(expLimit, hero->exp);
+
+				InfoWindow iw;
+				iw.player = hero->tempOwner;
+				iw.text.addTxt(MetaString::GENERAL_TXT, 1); //can gain no more XP
+				iw.text.addReplacement(hero->name);
+				sendAndApply(&iw);
+			}
+		}
+	}
+
 	SetPrimSkill sps;
 	sps.id = hero->id;
 	sps.which = which;
@@ -385,6 +406,7 @@ void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill::Pr
 	{
 		if(hero->commander && hero->commander->alive)
 		{
+			//FIXME: trim experience according to map limit?
 			SetCommanderProperty scp;
 			scp.heroid = hero->id;
 			scp.which = SetCommanderProperty::EXPERIENCE;

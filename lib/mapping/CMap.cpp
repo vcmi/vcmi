@@ -312,9 +312,30 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, Obj::EObj type)
 		if (object->ID == type)
 			return object;
 	}
-	// possibly may trigger for empty placeholders in campaigns
-	logGlobal->warnStream() << "Failed to find object of type " << int(type) << " at " << pos;
-	return nullptr;
+	// There is weird bug because of which sometimes heroes will not be found properly despite having correct position
+	// Try to workaround that and find closest object that we can use
+
+	logGlobal->errorStream() << "Failed to find object of type " << int(type) << " at " << pos;
+	logGlobal->errorStream() << "Will try to find closest matching object";
+
+	CGObjectInstance * bestMatch = nullptr;
+	for (CGObjectInstance * object : objects)
+	{
+		if (object->ID == type)
+		{
+			if (bestMatch == nullptr)
+				bestMatch = object;
+			else
+			{
+				if (object->pos.dist2d(pos) < bestMatch->pos.dist2d(pos))
+					bestMatch = object;// closer than one we already found
+			}
+		}
+	}
+	assert(bestMatch != nullptr); // if this happens - victory conditions or map itself is very, very broken
+
+	logGlobal->errorStream() << "Will use " << bestMatch->getHoverText() << " from " << bestMatch->pos;
+	return bestMatch;
 }
 
 void CMap::checkForObjectives()
