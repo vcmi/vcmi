@@ -213,10 +213,6 @@ public:
 	void load();
 	void afterLoad();
 
-	/// actions that should be triggered on map restart
-	/// TODO: merge into appropriate handlers?
-	void reload();
-
 	struct DLL_LINKAGE hardcodedFeatures
 	{
 		JsonNode data;

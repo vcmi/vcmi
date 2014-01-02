@@ -161,7 +161,7 @@ void CMapGenerator::genTowns()
 		if(townId == CMapGenOptions::CPlayerSettings::RANDOM_TOWN) townId = gen.getInteger(0, 8); // Default towns
 		town->subID = townId;
 		town->tempOwner = owner;
-		town->defInfo = VLC->dobjinfo->gobjs[town->ID][town->subID];
+		town->appearance = VLC->dobjinfo->pickCandidates(town->ID, town->subID, map->getTile(townPos[side]).terType).front();
 		town->builtBuildings.insert(BuildingID::FORT);
 		town->builtBuildings.insert(BuildingID::DEFAULT);
 		editManager->insertObject(town, int3(townPos[side].x, townPos[side].y + (i / 2) * 5, 0));

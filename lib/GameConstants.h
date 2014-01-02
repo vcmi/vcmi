@@ -55,7 +55,6 @@ namespace GameConstants
 
 class CArtifact;
 class CArtifactInstance;
-class CGDefInfo;
 class CCreature;
 class CSpell;
 class CGameInfoCallback;
@@ -597,8 +596,6 @@ public:
 	{}
 
 	ID_LIKE_CLASS_COMMON(Obj, EObj)
-
-	std::map<int, ConstTransitivePtr<CGDefInfo> > & toDefObjInfo() const;
 
 	EObj num;
 };

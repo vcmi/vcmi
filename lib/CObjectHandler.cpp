@@ -33,11 +33,6 @@
 
 using namespace boost::assign;
 
-// It looks that we can't rely on shadowCoverage correctness (Mantis #866). This may result
-// in notable performance decrease (SDL blit with custom alpha blit) not notable on my system (Ivan)
-#define USE_COVERAGE_MAP 0
-
-
 std::map<Obj, std::map<int, std::vector<ObjectInstanceID> > > CGTeleport::objs;
 std::vector<std::pair<ObjectInstanceID, ObjectInstanceID> > CGTeleport::gates;
 IGameCallback * IObjectInterface::cb = nullptr;
@@ -298,7 +293,6 @@ CGObjectInstance::CGObjectInstance():
 	pos(-1,-1,-1),
 	ID(Obj::NO_OBJ),
 	subID(-1),
-	defInfo(nullptr),
 	tempOwner(PlayerColor::UNFLAGGABLE),
 	blockVisit(false)
 {
@@ -323,62 +317,24 @@ void CGObjectInstance::setOwner(PlayerColor ow)
 }
 int CGObjectInstance::getWidth() const//returns width of object graphic in tiles
 {
-	return defInfo->width;
+	return appearance.getWidth();
 }
 int CGObjectInstance::getHeight() const //returns height of object graphic in tiles
 {
-	return defInfo->height;
+	return appearance.getHeight();
 }
 bool CGObjectInstance::visitableAt(int x, int y) const //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
 {
-	if(defInfo==nullptr)
-	{
-        logGlobal->warnStream() << "Warning: VisitableAt for obj "<< id.getNum() <<": nullptr defInfo!";
-		return false;
-	}
-
-	if((defInfo->visitMap[y] >> (7-x) ) & 1)
-	{
-		return true;
-	}
-
-	return false;
+	return appearance.isVisitableAt(pos.x - x, pos.y - y);
 }
 bool CGObjectInstance::blockingAt(int x, int y) const
 {
-	if(x<0 || y<0 || x>=getWidth() || y>=getHeight() || defInfo==nullptr)
-		return false;
-	if((defInfo->blockMap[y+6-getHeight()] >> (7-(8-getWidth()+x) )) & 1)
-		return false;
-	return true;
+	return appearance.isBlockedAt(pos.x - x, pos.y - y);
 }
 
 bool CGObjectInstance::coveringAt(int x, int y) const
 {
-	//input coordinates are always negative
-	x = -x;
-	y = -y;
-#if USE_COVERAGE_MAP
-	//NOTE: this code may be broken
-	if((defInfo->coverageMap[y] >> (7-(x) )) & 1
-		||  (defInfo->shadowCoverage[y] >> (7-(x) )) & 1)
-		return true;
-	return false;
-#else
-	return x >= 0 && y >= 0 && x < getWidth() && y < getHeight();
-#endif
-}
-
-bool CGObjectInstance::hasShadowAt( int x, int y ) const
-{
-#if USE_COVERAGE_MAP
-	//NOTE: this code may be broken
-	if( (defInfo->shadowCoverage[y] >> (7-(x) )) & 1 )
-		return true;
-	return false;
-#else
-	return coveringAt(x,y);// ignore unreliable shadowCoverage map
-#endif
+	return appearance.isVisibleAt(pos.x - x, pos.y - y);
 }
 
 std::set<int3> CGObjectInstance::getBlockedPos() const
@@ -388,8 +344,8 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 	{
 		for(int h=0; h<getHeight(); ++h)
 		{
-			if(blockingAt(w, h))
-				ret.insert(int3(pos.x - getWidth() + w + 1, pos.y - getHeight() + h + 1, pos.z));
+			if (appearance.isBlockedAt(-w, -h))
+				ret.insert(int3(pos.x - w, pos.y - h, pos.z));
 		}
 	}
 	return ret;
@@ -397,21 +353,20 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 
 bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen printing priority comparing
 {
-	if(defInfo->printPriority==1 && cmp.defInfo->printPriority==0)
-		return true;
-	if(cmp.defInfo->printPriority==1 && defInfo->printPriority==0)
-		return false;
-	if(this->pos.y<cmp.pos.y)
-		return true;
-	if(this->pos.y>cmp.pos.y)
-		return false;
+	if (appearance.printPriority != cmp.appearance.printPriority)
+		return appearance.printPriority > cmp.appearance.printPriority;
+
+	if(pos.y != cmp.pos.y)
+		return pos.y < cmp.pos.y;
+
 	if(cmp.ID==Obj::HERO && ID!=Obj::HERO)
 		return true;
 	if(cmp.ID!=Obj::HERO && ID==Obj::HERO)
 		return false;
-	if(!defInfo->isVisitable() && cmp.defInfo->isVisitable())
+
+	if(!isVisitable() && cmp.isVisitable())
 		return true;
-	if(!cmp.defInfo->isVisitable() && defInfo->isVisitable())
+	if(!cmp.isVisitable() && isVisitable())
 		return false;
 	if(this->pos.x<cmp.pos.x)
 		return true;
@@ -490,13 +445,13 @@ void CGObjectInstance::hideTiles(PlayerColor ourplayer, int radius) const
 }
 int3 CGObjectInstance::getVisitableOffset() const
 {
-	for(int y = 0; y < 6; y++)
-		for (int x = 0; x < 8; x++)
-			if((defInfo->visitMap[5-y] >> x) & 1)
+	for(int y = 0; y < appearance.getHeight(); y++)
+		for (int x = 0; x < appearance.getWidth(); x++)
+			if (appearance.isVisitableAt(x, y))
 				return int3(x,y,0);
 
     logGlobal->warnStream() << "Warning: getVisitableOffset called on non-visitable obj!";
-	return int3(-1,-1,-1);
+	return int3(0,0,0);
 }
 
 void CGObjectInstance::getNameVis( std::string &hname ) const
@@ -556,14 +511,7 @@ int3 CGObjectInstance::visitablePos() const
 
 bool CGObjectInstance::isVisitable() const
 {
-	for(int g=0; g<ARRAY_COUNT(defInfo->visitMap); ++g)
-	{
-		if(defInfo->visitMap[g] != 0)
-		{
-			return true;
-		}
-	}
-	return false;
+	return appearance.isVisitable();
 }
 
 bool CGObjectInstance::passableFor(PlayerColor color) const
@@ -766,10 +714,11 @@ void CGHeroInstance::initHero(HeroTypeID SUBID)
 void CGHeroInstance::initHero()
 {
 	assert(validTypes(true));
-	if(ID == Obj::HERO)
-		initHeroDefInfo();
 	if(!type)
 		type = VLC->heroh->heroes[subID];
+
+	if (ID == Obj::HERO)
+		appearance = VLC->dobjinfo->pickCandidates(Obj::HERO, type->heroClass->id).front();
 
 	if(!vstd::contains(spells, SpellID::PRESET)) //hero starts with a spell
 	{
@@ -888,27 +837,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= nullptr*/)
 			dst->setCreature(SlotID(stackNo-warMachinesGiven), stack.creature, count);
 	}
 }
-void CGHeroInstance::initHeroDefInfo()
-{
-	if(!defInfo  ||  defInfo->id != Obj::HERO)
-	{
-		defInfo = new CGDefInfo();
-		defInfo->id = Obj::HERO;
-		defInfo->subid = subID;
-		defInfo->printPriority = 0;
-		defInfo->visitDir = 0xff;
-	}
-	for(int i=0;i<6;i++)
-	{
-		defInfo->blockMap[i] = 255;
-		defInfo->visitMap[i] = 0;
-		defInfo->coverageMap[i] = 0;
-		defInfo->shadowCoverage[i] = 0;
-	}
-	defInfo->blockMap[5] = 253;
-	defInfo->visitMap[5] = 2;
-	defInfo->coverageMap[4] = defInfo->coverageMap[5] = 224;
-}
+
 CGHeroInstance::~CGHeroInstance()
 {
 	commander.dellNull();
@@ -1780,8 +1709,8 @@ void CGDwelling::initObj()
 			if (subID >= VLC->generaltexth->creGens.size()) //very messy workaround
 			{
 				auto & dwellingNames = VLC->townh->factions[crs->faction]->town->dwellingNames;
-				assert (!dwellingNames.empty());
-				hoverName = dwellingNames[VLC->creh->creatures[subID]->level - 1];
+				assert (dwellingNames.size() > crs->level - 1);
+				hoverName = dwellingNames[crs->level - 1];
 			}
 			else
 				hoverName = VLC->generaltexth->creGens[subID];
@@ -2535,6 +2464,16 @@ std::vector<int> CGTownInstance::availableItemsIds(EMarketMode::EMarketMode mode
 	}
 	else
 		return IMarket::availableItemsIds(mode);
+}
+
+void CGTownInstance::updateAppearance()
+{
+	if (!hasFort())
+		appearance.animationFile = town->clientInfo.advMapVillage;
+	else if(hasCapitol())
+		appearance.animationFile = town->clientInfo.advMapCapitol;
+	else
+		appearance.animationFile = town->clientInfo.advMapCastle;
 }
 
 std::string CGTownInstance::nodeName() const
@@ -5378,7 +5317,7 @@ std::vector<int3> CGMagicSpring::getVisitableOffsets() const
 
 	for(int y = 0; y < 6; y++)
 		for (int x = 0; x < 8; x++) //starting from left
-			if((defInfo->visitMap[5-y] >> x) & 1)
+			if (appearance.isVisitableAt(x, y))
 				visitableTiles.push_back (int3(x, y , 0));
 
 	return visitableTiles;

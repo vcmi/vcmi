@@ -410,14 +410,8 @@ void NewStructures::applyCl( CClient *cl )
 	CGTownInstance *town = GS(cl)->getTown(tid);
 	for(const auto & id : bid)
 	{
-		if(id == BuildingID::CAPITOL) //fort or capitol
-		{
-			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->capitols.at(town->subID).get());
-		}
-		if(id == BuildingID::FORT)
-		{
-			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->gobjs.at(Obj::TOWN).at(town->subID).get());
-		}
+		town->updateAppearance();
+
 		if(vstd::contains(cl->playerint,town->tempOwner))
 			cl->playerint[town->tempOwner]->buildChanged(town,id,1);
 	}
@@ -427,10 +421,8 @@ void RazeStructures::applyCl (CClient *cl)
 	CGTownInstance *town = GS(cl)->getTown(tid);
 	for(const auto & id : bid)
 	{
-		if (id == BuildingID::CAPITOL) //fort or capitol
-		{
-			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->gobjs.at(Obj::TOWN).at(town->subID).get());
-		}
+		town->updateAppearance();
+
 		if(vstd::contains (cl->playerint,town->tempOwner))
 			cl->playerint[town->tempOwner]->buildChanged (town,id,2);
 	}

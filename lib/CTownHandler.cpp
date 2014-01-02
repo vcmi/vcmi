@@ -11,6 +11,8 @@
 #include "CArtHandler.h"
 #include "CSpellHandler.h"
 #include "filesystem/Filesystem.h"
+#include "CDefObjInfoHandler.h"
+#include "CObjectHandler.h"
 
 /*
  * CTownHandler.cpp, part of VCMI engine
@@ -709,6 +711,38 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 void CTownHandler::afterLoadFinalization()
 {
 	initializeRequirements();
+	ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::TOWN, 0).front();
+	for (CFaction * fact : factions)
+	{
+		if (fact->town)
+		{
+			base.animationFile = fact->town->clientInfo.advMapCastle;
+			base.subid = fact->index;
+
+			// replace existing (if any) and add new template.
+			// Necessary for objects added via mods that don't have any templates in H3
+			VLC->dobjinfo->eraseAll(Obj::TOWN, fact->index);
+			VLC->dobjinfo->registerTemplate(base);
+
+			assert(fact->town->dwellings.size() == fact->town->dwellingNames.size());
+			for (size_t i=0; i<fact->town->dwellings.size(); i++)
+			{
+				ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::CREATURE_GENERATOR1, 0).front();
+
+				//both unupgraded and upgraded get same dwelling
+				 for (auto cre : fact->town->creatures[i])
+				 {
+					base.subid = 80 + cre;
+					base.animationFile = fact->town->dwellings[i];
+					if (VLC->objh->cregens.count(cre) == 0)
+					{
+						VLC->dobjinfo->registerTemplate(base);
+						VLC->objh->cregens[80 + cre] = cre; //map of dwelling -> creature id
+					}
+				 }
+			}
+		}
+	}
 }
 
 void CTownHandler::initializeRequirements()

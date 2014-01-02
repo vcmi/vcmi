@@ -706,7 +706,7 @@ void VCAI::makeTurnInternal()
 			boost::sort (vec, isCloser);
 			for (auto obj : vec)
 			{
-				if(!obj || !obj->defInfo || !cb->getObj(obj->id))
+				if(!obj || !cb->getObj(obj->id))
 				{
 					logAi->errorStream() << "Error: there is wrong object on list for hero " << hero.first->name;
 					continue;

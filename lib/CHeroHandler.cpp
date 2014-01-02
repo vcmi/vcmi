@@ -223,6 +223,18 @@ void CHeroClassHandler::afterLoadFinalization()
 			heroClass->selectionProbability[faction->index] = static_cast<int>(sqrt(chance) + 0.5); //FIXME: replace with std::round once MVS supports it
 		}
 	}
+
+	ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::HERO, 0).front();
+	for (CHeroClass * hc : heroClasses)
+	{
+		base.animationFile = hc->imageMapMale;
+		base.subid = hc->id;
+
+		// replace existing (if any) and add new template.
+		// Necessary for objects added via mods that don't have any templates in H3
+		VLC->dobjinfo->eraseAll(Obj::HERO, hc->id);
+		VLC->dobjinfo->registerTemplate(base);
+	}
 }
 
 std::vector<bool> CHeroClassHandler::getDefaultAllowed() const

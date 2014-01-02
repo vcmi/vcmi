@@ -2,6 +2,7 @@
 
 #include "../lib/CCreatureSet.h"
 #include "../lib/CTownHandler.h"
+#include "../lib/CDefObjInfoHandler.h"
 #include "CArtHandler.h"
 #include "../lib/ConstTransitivePtr.h"
 #include "int3.h"
@@ -36,7 +37,6 @@ class CSpell;
 class CGTownInstance;
 class CGTownBuilding;
 class CArtifact;
-class CGDefInfo;
 class CSpecObjInfo;
 class CCastleEvent;
 struct TerrainTile;
@@ -180,7 +180,7 @@ public:
 	Obj ID;
 	si32 subID; //normal subID (this one from OH3 maps ;])
 	ObjectInstanceID id;//number of object in map's vector
-	CGDefInfo * defInfo;
+	ObjectTemplate appearance;
 
 	PlayerColor tempOwner;
 	bool blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
@@ -194,12 +194,11 @@ public:
 	void setOwner(PlayerColor ow);
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
-	virtual bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
+	virtual bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) (h3m pos)
 	virtual int3 getVisitableOffset() const; //returns (x,y,0) offset to first visitable tile from bottom right obj tile (0,0,0) (h3m pos)
 	int3 visitablePos() const;
-	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) form left top tile of image (x, y in tiles)
-	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) form left top tile of maximal possible image (8 x 6 tiles) (x, y in tiles)
-	bool hasShadowAt(int x, int y) const;//returns true if object covers with shadow location (x, y) form left top tile of maximal possible image (8 x 6 tiles) (x, y in tiles)
+	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) (h3m pos)
+	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) (h3m pos)
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
 	bool isVisitable() const; //returns true if object is visitable
 	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
@@ -220,7 +219,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hoverName & pos & ID & subID & id & tempOwner & blockVisit & defInfo;
+		h & hoverName & pos & ID & subID & id & tempOwner & blockVisit & appearance;
 		//definfo is handled by map serializer
 	}
 protected:
@@ -446,7 +445,6 @@ public:
 	void initExp();
 	void initArmy(IArmyDescriptor *dst = nullptr);
 	//void giveArtifact (ui32 aid);
-	void initHeroDefInfo();
 	void pushPrimSkill(PrimarySkill::PrimarySkill which, int val);
 	ui8 maxlevelsToMagicSchool() const;
 	ui8 maxlevelsToWisdom() const;
@@ -688,6 +686,7 @@ public:
 	bool allowsTrade(EMarketMode::EMarketMode mode) const;
 	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
 
+	void updateAppearance();
 
 	//////////////////////////////////////////////////////////////////////////
 

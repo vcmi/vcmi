@@ -5221,7 +5221,7 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 	NewObject no;
 	no.ID = Obj::HOLE;
 	no.pos = h->getPosition();
-	no.subID = getTile(no.pos)->terType;
+	no.subID = 0;
 	sendAndApply(&no);
 
 	//take MPs

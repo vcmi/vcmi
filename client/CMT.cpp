@@ -954,11 +954,6 @@ void endGame()
 {
 	client->endGame();
 	vstd::clear_pointer(client);
-
-	delete CGI->dobjinfo.get();
-	const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
-
-	const_cast<CGameInfo*>(CGI)->modh->reload(); //add info about new creatures to dobjinfo
 }
 
 void handleQuit()

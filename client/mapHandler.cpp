@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "mapHandler.h"
 
+#include "CBitmapHandler.h"
 #include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "../lib/CDefObjInfoHandler.h"
@@ -229,26 +230,26 @@ void CMapHandler::borderAndTerrainBitmapInit()
 	delete bord;
 }
 
-static void processDef (const CGDefInfo* def)
+static void processDef (const ObjectTemplate & objTempl)
 {
-	if(def->id == Obj::EVENT)
+	if(objTempl.id == Obj::EVENT)
 	{
-		graphics->advmapobjGraphics[def->name] = nullptr;
+		graphics->advmapobjGraphics[objTempl.animationFile] = nullptr;
 		return;
 	}
-	CDefEssential * ourDef = graphics->getDef(def);
+	CDefEssential * ourDef = graphics->getDef(objTempl);
 	if(!ourDef) //if object has already set handler (eg. heroes) it should not be overwritten
 	{
-		if(def->name.size())
+		if(objTempl.animationFile.size())
 		{
-			graphics->advmapobjGraphics[def->name] = CDefHandler::giveDefEss(def->name);
+			graphics->advmapobjGraphics[objTempl.animationFile] = CDefHandler::giveDefEss(objTempl.animationFile);
 		}
 		else
 		{
-            logGlobal->warnStream() << "No def name for " << def->id << "  " << def->subid;
+			logGlobal->warnStream() << "No def name for " << objTempl.id << "  " << objTempl.subid;
 			return;
 		}
-		ourDef = graphics->getDef(def);
+		ourDef = graphics->getDef(objTempl);
 
 	}
 	//alpha transformation
@@ -266,44 +267,40 @@ void CMapHandler::initObjectRects()
 		const CGObjectInstance *obj = elem;
 		if(	!obj
 			|| (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
-			|| (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero) //boat with hero (hero graphics is used)
-			|| !obj->defInfo )
+			|| (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero)) //boat with hero (hero graphics is used)
 		{
 			continue;
 		}
 		if (!graphics->getDef(obj)) //try to load it
-			processDef(obj->defInfo);
+			processDef(obj->appearance);
 		if (!graphics->getDef(obj)) // stil no graphics? exit
 			continue;
 
 		const SDL_Surface *bitmap = graphics->getDef(obj)->ourImages[0].bitmap;
-		for(int fx=0; fx<bitmap->w>>5; ++fx) //bitmap->w/32
+		for(int fx=0; fx < obj->getWidth(); ++fx)
 		{
-			for(int fy=0; fy<bitmap->h>>5; ++fy) //bitmap->h/32
+			for(int fy=0; fy < obj->getHeight(); ++fy)
 			{
+				int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
 				SDL_Rect cr;
 				cr.w = 32;
 				cr.h = 32;
-				cr.x = fx<<5; //fx*32
-				cr.y = fy<<5; //fy*32
+				cr.x = bitmap->w - fx * 32 - 32;
+				cr.y = bitmap->h - fy * 32 - 32;
 				std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj,cr);
 				
-				if(    (obj->pos.x + fx - bitmap->w/32+1)  >=  0 
-					&& (obj->pos.x + fx - bitmap->w/32+1)  <  ttiles.size() - frameW 
-					&& (obj->pos.y + fy - bitmap->h/32+1)  >=  0 
-					&& (obj->pos.y + fy - bitmap->h/32+1)  <  ttiles[0].size() - frameH
+
+				if( map->isInTheMap(currTile) && // within map
+					cr.x + cr.w > 0 &&           // image has data on this tile
+					cr.y + cr.h > 0 &&
+					obj->coveringAt(currTile.x, currTile.y) // object is visible here
 				  )
 				{
-					//TerrainTile2 & curt =
-					//	ttiles
-					//	[obj->pos.x + fx - bitmap->w/32]
-					//[obj->pos.y + fy - bitmap->h/32]
-					//[obj->pos.z];
-					ttiles[obj->pos.x + fx - bitmap->w/32+1][obj->pos.y + fy - bitmap->h/32+1][obj->pos.z].objects.push_back(toAdd);
+					ttiles[currTile.x][currTile.y][currTile.z].objects.push_back(toAdd);
 				}
-			} // for(int fy=0; fy<bitmap->h/32; ++fy)
-		} //for(int fx=0; fx<bitmap->w/32; ++fx)
-	} // for(int f=0; f<map->objects.size(); ++f)
+			}
+		}
+	}
 
 	for(int ix=0; ix<ttiles.size()-frameW; ++ix)
 	{
@@ -319,7 +316,7 @@ void CMapHandler::initObjectRects()
 
 void CMapHandler::initHeroDef(const CGHeroInstance * h)
 {
-	graphics->advmapobjGraphics[h->defInfo->name] = graphics->flags1[0];
+	graphics->advmapobjGraphics[h->appearance.animationFile] = graphics->flags1[0];
 }
 
 void CMapHandler::init()
@@ -366,9 +363,6 @@ void CMapHandler::init()
 			initHeroDef(elem);
 		}
 	}
-
-    std::for_each(map->customDefs.begin(),map->customDefs.end(),processDef); //load h3m defs
-    logGlobal->infoStream()<<"\tUnpacking and handling defs: "<<th.getDiff();
 
 	prepareFOWDefs();
 	roadsRiverTerrainInit();	//road's and river's DefHandlers; and simple values initialization
@@ -510,12 +504,16 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			{
 				const CGObjectInstance *obj = object.first;
 				if (!graphics->getDef(obj))
-					processDef(obj->defInfo);
+					processDef(obj->appearance);
+				if (!graphics->getDef(obj) && !obj->appearance.animationFile.empty())
+				{
+					logGlobal->errorStream() << "Failed to load image " << obj->appearance.animationFile;
+				}
 
 				PlayerColor color = obj->tempOwner;
 
 				//checking if object has non-empty graphic on this tile
-				if(obj->ID != Obj::HERO && !obj->coveringAt(top_tile.x + bx - obj->pos.x, top_tile.y + by - obj->pos.y))
+				if(obj->ID != Obj::HERO && !obj->coveringAt(top_tile.x + bx, top_tile.y + by))
 					continue;
 
 				static const int notBlittedInPuzzleMode[] = {124};
@@ -640,10 +638,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 					if(color < PlayerColor::PLAYER_LIMIT || color==PlayerColor::NEUTRAL)
 						CSDL_Ext::setPlayerColor(bitmap, color);
 
-					if( obj->hasShadowAt(top_tile.x + bx - obj->pos.x, top_tile.y + by - obj->pos.y) )
-						CSDL_Ext::blit8bppAlphaTo24bpp(bitmap,&pp,extSurf,&sr2);
-					else
-						CSDL_Ext::blitSurface(bitmap,&pp,extSurf,&sr2);
+					CSDL_Ext::blit8bppAlphaTo24bpp(bitmap,&pp,extSurf,&sr2);
 				}
 			}
 			//objects blitted
@@ -708,33 +703,41 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				
 				//FoW blitted
 
-				// TODO: these should be activable by the console
-#ifdef MARK_BLOCKED_POSITIONS
-				if(map->getTile(int3(pos.x, pos.y, top_tile.z)).blocked) //temporary hiding blocked positions
+				SDL_Rect tileRect = genRect(sr.h, sr.w, 0, 0);
+
+				if (settings["session"]["showBlock"].Bool())
 				{
-					SDL_Rect sr;
+					if(map->getTile(int3(pos.x, pos.y, top_tile.z)).blocked) //temporary hiding blocked positions
+					{
+						static SDL_Surface * block = nullptr;
+						if (!block)
+							block = BitmapHandler::loadBitmap("blocked");
 
-					sr.x=srx;
-					sr.y=sry;
-					sr.h=sr.w=32;
+						SDL_Rect sr;
 
-					memset(rSurf->pixels, 128, rSurf->pitch * rSurf->h);
-					CSDL_Ext::blitSurface(rSurf,&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
+						sr.x=srx;
+						sr.y=sry;
+						sr.h=sr.w=32;
+
+						CSDL_Ext::blitSurface(block, &tileRect, extSurf, &sr);
+					}
 				}
-#endif
-#ifdef MARK_VISITABLE_POSITIONS
-				if(map->getTile(int3(pos.x, pos.y, top_tile.z)).visitable) //temporary hiding visitable positions
+				if (settings["session"]["showVisit"].Bool())
 				{
-					SDL_Rect sr;
+					if(map->getTile(int3(pos.x, pos.y, top_tile.z)).visitable) //temporary hiding visitable positions
+					{
+						static SDL_Surface * visit = nullptr;
+						if (!visit)
+							visit = BitmapHandler::loadBitmap("visitable");
 
-					sr.x=srx;
-					sr.y=sry;
-					sr.h=sr.w=32;
+						SDL_Rect sr;
 
-					memset(rSurf->pixels, 128, rSurf->pitch * rSurf->h);
-					CSDL_Ext::blitSurface(rSurf,&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
+						sr.x=srx;
+						sr.y=sry;
+						sr.h=sr.w=32;
+						CSDL_Ext::blitSurface(visit, &tileRect, extSurf, &sr);
+					}
 				}
-#endif
 			}
 		}
 	}
@@ -849,7 +852,7 @@ std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, cons
 bool CMapHandler::printObject(const CGObjectInstance *obj)
 {
     if (!graphics->getDef(obj))
-		processDef(obj->defInfo);
+		processDef(obj->appearance);
 
 	const SDL_Surface *bitmap = graphics->getDef(obj)->ourImages[0].bitmap; 
 	const int tilesW = bitmap->w/32;

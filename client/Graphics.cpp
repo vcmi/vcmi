@@ -335,12 +335,12 @@ void Graphics::loadFonts()
 
 CDefEssential * Graphics::getDef( const CGObjectInstance * obj )
 {
-	return advmapobjGraphics[obj->defInfo->name];
+	return advmapobjGraphics[obj->appearance.animationFile];
 }
 
-CDefEssential * Graphics::getDef( const CGDefInfo * info )
+CDefEssential * Graphics::getDef( const ObjectTemplate & info )
 {
-	return advmapobjGraphics[info->name];
+	return advmapobjGraphics[info.animationFile];
 }
 
 void Graphics::loadErmuToPicture()

@@ -124,7 +124,6 @@ void CMapLoaderH3M::init()
 	// Calculate blocked / visitable positions
 	for(auto & elem : map->objects)
 	{
-		if(!elem->defInfo) continue;
 		map->addBlockVisTiles(elem);
 	}
 	times.push_back(MapLoadingTime("blocked/visitable tiles", sw.getDiff()));
@@ -945,78 +944,14 @@ void CMapLoaderH3M::readDefInfo()
 {
 	int defAmount = reader.readUInt32();
 
-	map->customDefs.reserve(defAmount + 8);
+	templates.reserve(defAmount);
 
 	// Read custom defs
 	for(int idd = 0; idd < defAmount; ++idd)
 	{
-		auto  defInfo = new CGDefInfo();
-
-		defInfo->name = reader.readString();
-		std::transform(defInfo->name.begin(),defInfo->name.end(),defInfo->name.begin(),(int(*)(int))toupper);
-
-		ui8 bytes[12];
-		for(auto & byte : bytes)
-		{
-			byte = reader.readUInt8();
-		}
-
-		defInfo->terrainAllowed = reader.readUInt16();
-		defInfo->terrainMenu = reader.readUInt16();
-		defInfo->id = Obj(reader.readUInt32());
-		defInfo->subid = reader.readUInt32();
-		defInfo->type = reader.readUInt8();
-		defInfo->printPriority = reader.readUInt8();
-
-		for(int zi = 0; zi < 6; ++zi)
-		{
-			defInfo->blockMap[zi] = reverse(bytes[zi]);
-		}
-		for(int zi = 0; zi < 6; ++zi)
-		{
-			defInfo->visitMap[zi] = reverse(bytes[6 + zi]);
-		}
-
-		reader.skip(16);
-		if(defInfo->id != Obj::HERO && defInfo->id != Obj::RANDOM_HERO)
-		{
-			CGDefInfo * h = VLC->dobjinfo->gobjs[defInfo->id][defInfo->subid];
-			if(!h)
-			{
-				//remove fake entry
-				VLC->dobjinfo->gobjs[defInfo->id].erase(defInfo->subid);
-				if(VLC->dobjinfo->gobjs[defInfo->id].size())
-				{
-					VLC->dobjinfo->gobjs.erase(defInfo->id);
-				}
-                logGlobal->warnStream() << "\t\tWarning: no defobjinfo entry for object ID="
-                      << defInfo->id << " subID=" << defInfo->subid;
-			}
-			else
-			{
-				defInfo->visitDir = VLC->dobjinfo->gobjs[defInfo->id][defInfo->subid]->visitDir;
-			}
-		}
-		else
-		{
-			defInfo->visitDir = 0xff;
-		}
-
-		if(defInfo->id == Obj::EVENT)
-		{
-			std::memset(defInfo->blockMap, 255, 6);
-		}
-
-		//calculating coverageMap
-		defInfo->fetchInfoFromMSK();
-
-		map->customDefs.push_back(defInfo);
-	}
-
-	//add holes - they always can appear
-	for(int i = 0; i < 8 ; ++i)
-	{
-		map->customDefs.push_back(VLC->dobjinfo->gobjs[Obj::HOLE][i]);
+		ObjectTemplate tmpl;
+		tmpl.readMap(reader);
+		templates.push_back(tmpl);
 	}
 }
 
@@ -1033,10 +968,10 @@ void CMapLoaderH3M::readObjects()
 		int defnum = reader.readUInt32();
 		ObjectInstanceID idToBeGiven = ObjectInstanceID(map->objects.size());
 
-		CGDefInfo * defInfo = map->customDefs.at(defnum);
+		ObjectTemplate & objTempl = templates.at(defnum);
 		reader.skip(5);
 
-		switch(defInfo->id)
+		switch(objTempl.id)
 		{
 		case Obj::EVENT:
 			{
@@ -1142,7 +1077,7 @@ void CMapLoaderH3M::readObjects()
 				break;
 			}
 		case Obj::TREASURE_CHEST:
-				if(defInfo->subid == 0)
+				if(objTempl.subid == 0)
 				{
 					nobj = new CGPickable();
 				}
@@ -1315,15 +1250,15 @@ void CMapLoaderH3M::readObjects()
 
 				readMessageAndGuards(art->message, art);
 
-				if(defInfo->id == Obj::SPELL_SCROLL)
+				if(objTempl.id == Obj::SPELL_SCROLL)
 				{
 					spellID = reader.readUInt32();
 					artID = 1;
 				}
-				else if(defInfo->id == Obj::ARTIFACT)
+				else if(objTempl.id == Obj::ARTIFACT)
 				{
 					//specific artifact
-					artID = defInfo->subid;
+					artID = objTempl.subid;
 				}
 
 				art->storedArtifact = createArtifact(artID, spellID);
@@ -1338,7 +1273,7 @@ void CMapLoaderH3M::readObjects()
 				readMessageAndGuards(res->message, res);
 
 				res->amount = reader.readUInt32();
-				if(defInfo->subid == Res::GOLD)
+				if(objTempl.subid == Res::GOLD)
 				{
 					// Gold is multiplied by 100.
 					res->amount *= 100;
@@ -1349,7 +1284,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::RANDOM_TOWN:
 		case Obj::TOWN:
 			{
-				nobj = readTown(defInfo->subid);
+				nobj = readTown(objTempl.subid);
 				break;
 			}
 		case Obj::MINE:
@@ -1455,7 +1390,7 @@ void CMapLoaderH3M::readObjects()
 			{
 				nobj = new CGDwelling();
 				CSpecObjInfo * spec = nullptr;
-				switch(defInfo->id)
+				switch(objTempl.id)
 				{
 					break; case Obj::RANDOM_DWELLING: spec = new CCreGenLeveledCastleInfo();
 					break; case Obj::RANDOM_DWELLING_LVL: spec = new CCreGenAsCastleInfo();
@@ -1607,7 +1542,7 @@ void CMapLoaderH3M::readObjects()
 			}
 		case Obj::PYRAMID: //Pyramid of WoG object
 			{
-				if(defInfo->subid == 0)
+				if(objTempl.subid == 0)
 				{
 					nobj = new CGPyramid();
 				}
@@ -1671,13 +1606,13 @@ void CMapLoaderH3M::readObjects()
 		}
 
 		nobj->pos = objPos;
-		nobj->ID = defInfo->id;
+		nobj->ID = objTempl.id;
 		nobj->id = idToBeGiven;
 		if(nobj->ID != Obj::HERO && nobj->ID != Obj::HERO_PLACEHOLDER && nobj->ID != Obj::PRISON)
 		{
-			nobj->subID = defInfo->subid;
+			nobj->subID = objTempl.subid;
 		}
-		nobj->defInfo = defInfo;
+		nobj->appearance = objTempl;
 		assert(idToBeGiven == ObjectInstanceID(map->objects.size()));
 		map->objects.push_back(nobj);
 		if(nobj->ID == Obj::TOWN)

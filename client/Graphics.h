@@ -25,7 +25,7 @@ struct SDL_Color;
 struct InfoAboutHero;
 struct InfoAboutTown;
 class CGObjectInstance;
-class CGDefInfo;
+class ObjectTemplate;
 
 enum EFonts
 {
@@ -60,7 +60,7 @@ public:
 
 	std::map<std::string, CDefEssential *> advmapobjGraphics;
 	CDefEssential * getDef(const CGObjectInstance * obj);
-	CDefEssential * getDef(const CGDefInfo * info);
+	CDefEssential * getDef(const ObjectTemplate & info);
 	//towns
 	std::map<int, std::string> ERMUtoPicture[GameConstants::F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles

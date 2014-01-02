@@ -19,7 +19,6 @@
 #include "../LogicalExpression.h"
 
 class CArtifactInstance;
-class CGDefInfo;
 class CGObjectInstance;
 class CGHeroInstance;
 class CCommanderInstance;
@@ -408,7 +407,6 @@ public:
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
-	std::vector<ConstTransitivePtr<CGDefInfo> > customDefs;
 	std::vector<bool> allowedSpell;
 	std::vector<bool> allowedArtifact;
 	std::vector<bool> allowedAbilities;
@@ -484,7 +482,7 @@ public:
 			}
 		}
 
-		h & customDefs & objects;
+		h & objects;
 		h & heroesOnMap & towns & artInstances;
 
 		// static members

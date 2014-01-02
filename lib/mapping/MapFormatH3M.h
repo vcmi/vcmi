@@ -14,6 +14,7 @@
 #include "CMapService.h"
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
+#include "../CDefObjInfoHandler.h"
 
 #include "../int3.h"
 
@@ -249,6 +250,10 @@ private:
 		p.z = reader.readUInt8();
 		return p;
 	}
+
+	/** List of templates loaded from the map, used on later stage to create
+	 *  objects but not needed for fully functional CMap */
+	std::vector<ObjectTemplate> templates;
 
 	/** ptr to the map object which gets filled by data from the buffer */
 	CMap * map;

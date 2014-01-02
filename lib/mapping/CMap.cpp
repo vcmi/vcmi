@@ -215,22 +215,22 @@ CMap::~CMap()
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 {
-	for(int fx=0; fx<8; ++fx)
+	for(int fx=0; fx<obj->getWidth(); ++fx)
 	{
-		for(int fy=0; fy<6; ++fy)
+		for(int fy=0; fy<obj->getHeight(); ++fy)
 		{
-			int xVal = obj->pos.x + fx - 7;
-			int yVal = obj->pos.y + fy - 5;
+			int xVal = obj->pos.x - fx;
+			int yVal = obj->pos.y - fy;
 			int zVal = obj->pos.z;
 			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
 			{
 				TerrainTile & curt = terrain[xVal][yVal][zVal];
-				if(total || ((obj->defInfo->visitMap[fy] >> (7 - fx)) & 1))
+				if(total || obj->visitableAt(xVal, yVal))
 				{
 					curt.visitableObjects -= obj;
 					curt.visitable = curt.visitableObjects.size();
 				}
-				if(total || !((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+				if(total || obj->blockingAt(xVal, yVal))
 				{
 					curt.blockingObjects -= obj;
 					curt.blocked = curt.blockingObjects.size();
@@ -242,22 +242,22 @@ void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 
 void CMap::addBlockVisTiles(CGObjectInstance * obj)
 {
-	for(int fx=0; fx<8; ++fx)
+	for(int fx=0; fx<obj->getWidth(); ++fx)
 	{
-		for(int fy=0; fy<6; ++fy)
+		for(int fy=0; fy<obj->getHeight(); ++fy)
 		{
-			int xVal = obj->pos.x + fx - 7;
-			int yVal = obj->pos.y + fy - 5;
+			int xVal = obj->pos.x - fx;
+			int yVal = obj->pos.y - fy;
 			int zVal = obj->pos.z;
 			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
 			{
 				TerrainTile & curt = terrain[xVal][yVal][zVal];
-				if(((obj->defInfo->visitMap[fy] >> (7 - fx)) & 1))
+				if( obj->visitableAt(xVal, yVal))
 				{
 					curt.visitableObjects.push_back(obj);
 					curt.visitable = true;
 				}
-				if(!((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+				if( obj->blockingAt(xVal, yVal))
 				{
 					curt.blockingObjects.push_back(obj);
 					curt.blocked = true;

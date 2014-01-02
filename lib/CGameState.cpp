@@ -343,36 +343,23 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 	switch(id)
 	{
 	case Obj::HERO:
-		{
-			auto  nobj = new CGHeroInstance();
-			nobj->pos = pos;
-			nobj->tempOwner = owner;
-			nobj->subID = subid;
-			//nobj->initHero(ran);
-			return nobj;
-		}
+		nobj = new CGHeroInstance();
+		nobj->appearance = VLC->dobjinfo->pickCandidates(id, VLC->heroh->heroes[subid]->heroClass->id).front();
+		break;
 	case Obj::TOWN:
 		nobj = new CGTownInstance;
 		break;
 	default: //rest of objects
 		nobj = new CGObjectInstance;
-		nobj->defInfo = id.toDefObjInfo()[subid];
 		break;
 	}
 	nobj->ID = id;
 	nobj->subID = subid;
-	if(!nobj->defInfo)
-        logGlobal->warnStream() <<"No def declaration for " <<id <<" "<<subid;
 	nobj->pos = pos;
-	//nobj->state = nullptr;//new CLuaObjectScript();
 	nobj->tempOwner = owner;
-	nobj->defInfo->id = id;
-	nobj->defInfo->subid = subid;
+	if (id != Obj::HERO)
+		nobj->appearance = VLC->dobjinfo->pickCandidates(id, subid).front();
 
-	//assigning defhandler
-	if(nobj->ID==Obj::HERO || nobj->ID==Obj::TOWN)
-		return nobj;
-	nobj->defInfo = id.toDefObjInfo()[subid];
 	return nobj;
 }
 
@@ -641,14 +628,11 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	{
 		if(cur->ID==Obj::TOWN) //town - set def
 		{
+			const TerrainTile &tile = map->getTile(cur->pos);
 			CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
 			t->town = VLC->townh->factions[t->subID]->town;
-			if(t->hasCapitol())
-				t->defInfo = VLC->dobjinfo->capitols[t->subID];
-			else if(t->hasFort())
-				t->defInfo = VLC->dobjinfo->gobjs[Obj::TOWN][t->subID];
-			else
-				t->defInfo = VLC->dobjinfo->villages[t->subID];
+			t->appearance = VLC->dobjinfo->pickCandidates(Obj::TOWN, t->subID, tile.terType).front();
+			t->updateAppearance();
 		}
 		return;
 	}
@@ -666,33 +650,33 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	}
 	else if(ran.first==Obj::TOWN)//special code for town
 	{
+		const TerrainTile &tile = map->getTile(cur->pos);
 		CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
         if(!t) {logGlobal->warnStream()<<"Wrong random town at "<<cur->pos; return;}
 		cur->ID = ran.first;
 		cur->subID = ran.second;
 		//FIXME: copy-pasted from above
 		t->town = VLC->townh->factions[t->subID]->town;
-		if(t->hasCapitol())
-			t->defInfo = VLC->dobjinfo->capitols[t->subID];
-		else if(t->hasFort())
-			t->defInfo = VLC->dobjinfo->gobjs[Obj::TOWN][t->subID];
-		else
-			t->defInfo = VLC->dobjinfo->villages[t->subID];
+		t->appearance = VLC->dobjinfo->pickCandidates(Obj::TOWN,t->subID, tile.terType).front();
+		t->updateAppearance();
+
 		t->randomizeArmy(t->subID);
 		map->towns.push_back(t);
 		return;
 	}
+	else
+	{
+		if (ran.first  != cur->appearance.id ||
+			ran.second != cur->appearance.subid)
+		{
+			const TerrainTile &tile = map->getTile(cur->pos);
+			cur->appearance = VLC->dobjinfo->pickCandidates(Obj(ran.first),ran.second, tile.terType).front();
+		}
+	}
 	//we have to replace normal random object
 	cur->ID = ran.first;
 	cur->subID = ran.second;
-	map->removeBlockVisTiles(cur); //recalculate blockvis tiles - picked object might have different than random placeholder
-	map->customDefs.push_back(cur->defInfo = ran.first.toDefObjInfo()[ran.second]);
-	if(!cur->defInfo)
-	{
-        logGlobal->errorStream()<<"*BIG* WARNING: Missing def declaration for "<<cur->ID<<" "<<cur->subID;
-		return;
-	}
-
+	map->removeBlockVisTiles(cur, true); //recalculate blockvis tiles - picked object might have different than random placeholder
 	map->addBlockVisTiles(cur);
 }
 
@@ -1189,7 +1173,6 @@ void CGameState::placeStartingHero(PlayerColor playerColor, HeroTypeID heroTypeI
 	townPos.x += 1;
 
 	CGHeroInstance * hero =  static_cast<CGHeroInstance*>(createObject(Obj::HERO, heroTypeId.getNum(), townPos, playerColor));
-	hero->initHeroDefInfo();
 	map->getEditManager()->insertObject(hero, townPos);
 }
 
@@ -2205,14 +2188,15 @@ bool CGameState::isVisible( const CGObjectInstance *obj, boost::optional<PlayerC
 	if(*player == PlayerColor::NEUTRAL) //-> TODO ??? needed?
 		return false;
 	//object is visible when at least one blocked tile is visible
-	for(int fx=0; fx<8; ++fx)
+	for(int fy=0; fy < obj->getHeight(); ++fy)
 	{
-		for(int fy=0; fy<6; ++fy)
+		for(int fx=0; fx < obj->getWidth(); ++fx)
 		{
-			int3 pos = obj->pos + int3(fx-7,fy-5,0);
-			if(map->isInTheMap(pos)
-				&& !((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1)
-				&& isVisible(pos, *player)  )
+			int3 pos = obj->pos + int3(-fx, -fy, 0);
+
+			if ( map->isInTheMap(pos) &&
+				 obj->coveringAt(pos.x, pos.y) &&
+				 isVisible(pos, *player))
 				return true;
 		}
 	}
@@ -2232,39 +2216,10 @@ bool CGameState::checkForVisitableDir( const int3 & src, const TerrainTile *pom,
 		if(!vstd::contains(pom->blockingObjects, pom->visitableObjects[b])) //this visitable object is not blocking, ignore
 			continue;
 
-		CGDefInfo * di = pom->visitableObjects[b]->defInfo;
-		if( (dst.x == src.x-1 && dst.y == src.y-1) && !(di->visitDir & (1<<4)) )
-		{
+		const CGObjectInstance * obj = pom->visitableObjects[b];
+
+		if (!obj->appearance.isVisitableFrom(src.x - dst.x, src.y - dst.y))
 			return false;
-		}
-		if( (dst.x == src.x && dst.y == src.y-1) && !(di->visitDir & (1<<5)) )
-		{
-			return false;
-		}
-		if( (dst.x == src.x+1 && dst.y == src.y-1) && !(di->visitDir & (1<<6)) )
-		{
-			return false;
-		}
-		if( (dst.x == src.x+1 && dst.y == src.y) && !(di->visitDir & (1<<7)) )
-		{
-			return false;
-		}
-		if( (dst.x == src.x+1 && dst.y == src.y+1) && !(di->visitDir & (1<<0)) )
-		{
-			return false;
-		}
-		if( (dst.x == src.x && dst.y == src.y+1) && !(di->visitDir & (1<<1)) )
-		{
-			return false;
-		}
-		if( (dst.x == src.x-1 && dst.y == src.y+1) && !(di->visitDir & (1<<2)) )
-		{
-			return false;
-		}
-		if( (dst.x == src.x-1 && dst.y == src.y) && !(di->visitDir & (1<<3)) )
-		{
-			return false;
-		}
 	}
 	return true;
 }

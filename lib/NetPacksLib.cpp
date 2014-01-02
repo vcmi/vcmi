@@ -311,10 +311,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 	CGObjectInstance *obj = gs->getObjInstance(id);
 	logGlobal->debugStream() << "removing object id=" << id << "; address=" << (intptr_t)obj << "; name=" << obj->getHoverText();
 	//unblock tiles
-	if(obj->defInfo)
-	{
-		gs->map->removeBlockVisTiles(obj);
-	}
+	gs->map->removeBlockVisTiles(obj);
 
 	if(obj->ID==Obj::HERO)
 	{
@@ -534,7 +531,6 @@ DLL_LINKAGE void HeroRecruited::applyGs( CGameState *gs )
 	else
 		gs->map->objects[h->id.getNum()] = h;
 
-	h->initHeroDefInfo();
 	gs->map->heroesOnMap.push_back(h);
 	p->heroes.push_back(h);
 	h->attachTo(p);
@@ -558,7 +554,6 @@ DLL_LINKAGE void GiveHero::applyGs( CGameState *gs )
 	gs->map->removeBlockVisTiles(h,true);
 	h->setOwner(player);
 	h->movement =  h->maxMovePoints(true);
-	h->initHeroDefInfo();
 	gs->map->heroesOnMap.push_back(h);
 	gs->getPlayer(h->getOwner())->heroes.push_back(h);
 	gs->map->addBlockVisTiles(h);
@@ -594,27 +589,14 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 	o->ID = ID;
 	o->subID = subID;
 	o->pos = pos;
-	o->defInfo = VLC->dobjinfo->gobjs[ID][subID];
+	const TerrainTile &t = gs->map->getTile(pos);
+	o->appearance = VLC->dobjinfo->pickCandidates(o->ID, o->subID, t.terType).front();
 	id = o->id = ObjectInstanceID(gs->map->objects.size());
 	o->hoverName = VLC->generaltexth->names[ID];
-
-	switch(ID)
-	{
-		case Obj::MONSTER:
-			o->defInfo = VLC->dobjinfo->gobjs[ID][subID];
-			assert(o->defInfo);
-			break;
-		case Obj::HOLE:
-			const TerrainTile &t = gs->map->getTile(pos);
-			o->defInfo = VLC->dobjinfo->gobjs[ID][t.terType];
-			assert(o->defInfo);
-		break;
-	}
 
 	gs->map->objects.push_back(o);
 	gs->map->addBlockVisTiles(o);
 	o->initObj();
-	assert(o->defInfo);
 
 	logGlobal->debugStream() << "added object id=" << id << "; address=" << (intptr_t)o << "; name=" << o->getHoverText();
 }
