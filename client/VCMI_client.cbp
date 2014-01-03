@@ -71,14 +71,6 @@
 		<Unit filename="../CCallback.h" />
 		<Unit filename="AdventureMapClasses.cpp" />
 		<Unit filename="AdventureMapClasses.h" />
-		<Unit filename="battle/CBattleAnimations.cpp" />
-		<Unit filename="battle/CBattleAnimations.h" />
-		<Unit filename="battle/CBattleInterface.cpp" />
-		<Unit filename="battle/CBattleInterface.h" />
-		<Unit filename="battle/CBattleInterfaceClasses.cpp" />
-		<Unit filename="battle/CBattleInterfaceClasses.h" />
-		<Unit filename="battle/CCreatureAnimation.cpp" />
-		<Unit filename="battle/CCreatureAnimation.h" />
 		<Unit filename="CAdvmapInterface.cpp" />
 		<Unit filename="CAdvmapInterface.h" />
 		<Unit filename="CAnimation.cpp" />
@@ -98,6 +90,7 @@
 		<Unit filename="CKingdomInterface.cpp" />
 		<Unit filename="CKingdomInterface.h" />
 		<Unit filename="CMT.cpp" />
+		<Unit filename="CMT.h" />
 		<Unit filename="CMessage.cpp" />
 		<Unit filename="CMessage.h" />
 		<Unit filename="CMusicHandler.cpp" />
@@ -121,10 +114,22 @@
 		<Unit filename="Graphics.cpp" />
 		<Unit filename="Graphics.h" />
 		<Unit filename="NetPacksClient.cpp" />
+		<Unit filename="SDLMain.h" />
 		<Unit filename="StdInc.h">
 			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
+		<Unit filename="VCMI_client.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="battle/CBattleAnimations.cpp" />
+		<Unit filename="battle/CBattleAnimations.h" />
+		<Unit filename="battle/CBattleInterface.cpp" />
+		<Unit filename="battle/CBattleInterface.h" />
+		<Unit filename="battle/CBattleInterfaceClasses.cpp" />
+		<Unit filename="battle/CBattleInterfaceClasses.h" />
+		<Unit filename="battle/CCreatureAnimation.cpp" />
+		<Unit filename="battle/CCreatureAnimation.h" />
 		<Unit filename="gui/CCursorHandler.cpp" />
 		<Unit filename="gui/CCursorHandler.h" />
 		<Unit filename="gui/CGuiHandler.cpp" />
@@ -140,9 +145,6 @@
 		<Unit filename="gui/SDL_Extensions.cpp" />
 		<Unit filename="gui/SDL_Extensions.h" />
 		<Unit filename="gui/SDL_Pixels.h" />
-		<Unit filename="VCMI_client.rc">
-			<Option compilerVar="WINDRES" />
-		</Unit>
 		<Unit filename="mapHandler.cpp" />
 		<Unit filename="mapHandler.h" />
 		<Unit filename="resource.h" />

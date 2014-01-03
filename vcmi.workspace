@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="vcmi">
+		<Project filename="lib/minizip/minizip.cbp" />
 		<Project filename="lib/VCMI_lib.cbp" />
 		<Project filename="client/VCMI_client.cbp">
 			<Depends filename="lib/VCMI_lib.cbp" />
