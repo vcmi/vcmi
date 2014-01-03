@@ -61,6 +61,7 @@ struct QuestInfo;
 class CQuest;
 class CCampaignScenario;
 struct EventCondition;
+class CScenarioTravel;
 
 namespace boost
 {
@@ -471,10 +472,12 @@ private:
 	void randomizeObject(CGObjectInstance *cur);
 	void initPlayerStates();
 	void placeCampaignHeroes();
-	const CCampaignScenario * getCampaignScenarioForCrossoverHeroes() const;
-	std::vector<CGHeroInstance *> prepareCrossoverHeroes(const CCampaignScenario * campaignScenario);
+	std::vector<CGHeroInstance *> getCrossoverHeroesFromPreviousScenario() const;
 
-	// returns heroes and placeholders in where heroes will be put
+	/// gets prepared and copied hero instances with crossover heroes from prev. scenario and travel options from current scenario
+	std::vector<CGHeroInstance *> prepareCrossoverHeroes(const std::vector<CGHeroInstance *> & sourceCrossoverHeroes, const CScenarioTravel & travelOptions);
+
+	/// returns heroes and placeholders in where heroes will be put
 	std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > generateCampaignHeroesToReplace(std::vector<CGHeroInstance *> & crossoverHeroes);
 
 	void replaceHeroesPlaceholders(const std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > &campHeroReplacements);

@@ -1104,12 +1104,12 @@ void CGameState::placeCampaignHeroes()
 		}
 
 		// replace heroes placeholders
-		auto campaignScenario = getCampaignScenarioForCrossoverHeroes();
+		auto sourceCrossoverHeroes = getCrossoverHeroesFromPreviousScenario();
 
-		if(campaignScenario)
+		if(!sourceCrossoverHeroes.empty())
 		{
 			logGlobal->debugStream() << "\tPrepare crossover heroes";
-			auto crossoverHeroes = prepareCrossoverHeroes(campaignScenario);
+			auto crossoverHeroes = prepareCrossoverHeroes(sourceCrossoverHeroes, scenarioOps->campState->getCurrentScenario().travelOptions);
 
 			logGlobal->debugStream() << "\tGenerate list of hero placeholders";
 			const auto campaignHeroReplacements = generateCampaignHeroesToReplace(crossoverHeroes);
@@ -1176,33 +1176,32 @@ void CGameState::placeStartingHero(PlayerColor playerColor, HeroTypeID heroTypeI
 	map->getEditManager()->insertObject(hero, townPos);
 }
 
-const CCampaignScenario * CGameState::getCampaignScenarioForCrossoverHeroes() const
+std::vector<CGHeroInstance *> CGameState::getCrossoverHeroesFromPreviousScenario() const
 {
-	const CCampaignScenario * campaignScenario = nullptr;
+	std::vector<CGHeroInstance *> crossoverHeroes;
 
 	auto campaignState = scenarioOps->campState;
 	auto bonus = campaignState->getBonusForCurrentMap();
 	if (bonus->type == CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO)
 	{
-		campaignScenario = &campaignState->camp->scenarios[bonus->info2];
+		crossoverHeroes = campaignState->camp->scenarios[bonus->info2].crossoverHeroes;
 	}
 	else
 	{
 		if(!campaignState->mapsConquered.empty())
 		{
-			campaignScenario = &campaignState->camp->scenarios[campaignState->mapsConquered.back()];
+			crossoverHeroes = campaignState->camp->scenarios[campaignState->mapsConquered.back()].crossoverHeroes;
 		}
 	}
 
-	return campaignScenario;
+	return std::move(crossoverHeroes);
 }
 
-std::vector<CGHeroInstance *> CGameState::prepareCrossoverHeroes(const CCampaignScenario * campaignScenario)
+std::vector<CGHeroInstance *> CGameState::prepareCrossoverHeroes(const std::vector<CGHeroInstance *> & sourceCrossoverHeroes, const CScenarioTravel & travelOptions)
 {
-	auto crossoverHeroes = campaignScenario->crossoverHeroes; //TODO hero instances need to be copied, warning not trivial
-	const auto & travelOptions = campaignScenario->travelOptions;
+	auto crossoverHeroes = sourceCrossoverHeroes; //TODO deep copy hero instances
 
-	if (!(travelOptions.whatHeroKeeps & 1))
+	if(!(travelOptions.whatHeroKeeps & 1))
 	{
 		//trimming experience
 		for(CGHeroInstance * cgh : crossoverHeroes)
@@ -1210,7 +1209,8 @@ std::vector<CGHeroInstance *> CGameState::prepareCrossoverHeroes(const CCampaign
 			cgh->initExp();
 		}
 	}
-	if (!(travelOptions.whatHeroKeeps & 2))
+
+	if(!(travelOptions.whatHeroKeeps & 2))
 	{
 		//trimming prim skills
 		for(CGHeroInstance * cgh : crossoverHeroes)
@@ -1225,7 +1225,8 @@ std::vector<CGHeroInstance *> CGameState::prepareCrossoverHeroes(const CCampaign
 			}
 		}
 	}
-	if (!(travelOptions.whatHeroKeeps & 4))
+
+	if(!(travelOptions.whatHeroKeeps & 4))
 	{
 		//trimming sec skills
 		for(CGHeroInstance * cgh : crossoverHeroes)
@@ -1233,7 +1234,8 @@ std::vector<CGHeroInstance *> CGameState::prepareCrossoverHeroes(const CCampaign
 			cgh->secSkills = cgh->type->secSkillsInit;
 		}
 	}
-	if (!(travelOptions.whatHeroKeeps & 8))
+
+	if(!(travelOptions.whatHeroKeeps & 8))
 	{
 		//trimming spells
 		for(CGHeroInstance * cgh : crossoverHeroes)
@@ -1242,7 +1244,8 @@ std::vector<CGHeroInstance *> CGameState::prepareCrossoverHeroes(const CCampaign
 			cgh->eraseArtSlot(ArtifactPosition(ArtifactPosition::SPELLBOOK)); // spellbook will also be removed
 		}
 	}
-	if (!(travelOptions.whatHeroKeeps & 16))
+
+	if(!(travelOptions.whatHeroKeeps & 16))
 	{
 		//trimming artifacts
 		for(CGHeroInstance * hero : crossoverHeroes)

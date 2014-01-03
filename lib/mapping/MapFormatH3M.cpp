@@ -1621,7 +1621,7 @@ void CMapLoaderH3M::readObjects()
 		}
 		if(nobj->ID == Obj::HERO)
 		{
-			logGlobal->infoStream() << "Hero: " << VLC->heroh->heroes[nobj->subID]->name << " at " << objPos;
+			logGlobal->debugStream() << "Hero: " << VLC->heroh->heroes[nobj->subID]->name << " at " << objPos;
 			map->heroesOnMap.push_back(static_cast<CGHeroInstance*>(nobj));
 		}
 	}
