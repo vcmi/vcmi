@@ -132,6 +132,10 @@
       <Filter>filesystem</Filter>
     </ClCompile>
     <ClCompile Include="JsonDetail.cpp" />
+    <ClCompile Include="mapping\MapFormatJson.cpp">
+      <Filter>mapping</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicalExpression.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -360,6 +364,12 @@
       <Filter>filesystem</Filter>
     </ClInclude>
     <ClInclude Include="JsonDetail.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapping\MapFormatJson.h">
+      <Filter>mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="LogicalExpression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
