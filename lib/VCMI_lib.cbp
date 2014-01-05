@@ -46,6 +46,7 @@
 			<Add option="-Wno-sign-compare" />
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
+			<Add option="-Wno-unused-local-typedefs" />
 			<Add option="-DVCMI_DLL" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
@@ -62,8 +63,10 @@
 			<Add option="-lboost_system$(#boost.libsuffix)" />
 			<Add option="-lboost_thread$(#boost.libsuffix)" />
 			<Add option="-lboost_chrono$(#boost.libsuffix)" />
+			<Add option="-lboost_locale$(#boost.libsuffix)" />
 			<Add directory="$(#boost.lib)" />
 			<Add directory="$(#sdl.lib)" />
+			<Add directory="../" />
 		</Linker>
 		<Unit filename="AI_Base.h" />
 		<Unit filename="BattleAction.cpp" />
@@ -143,7 +146,6 @@
 		<Unit filename="ScopeGuard.h" />
 		<Unit filename="StartInfo.h" />
 		<Unit filename="StdInc.h">
-			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="StringConstants.h" />
@@ -169,7 +171,6 @@
 		<Unit filename="filesystem/CInputStream.h" />
 		<Unit filename="filesystem/CMemoryStream.cpp" />
 		<Unit filename="filesystem/CMemoryStream.h" />
-		<Unit filename="filesystem/CResourceLoader.cpp" />
 		<Unit filename="filesystem/CZipLoader.cpp" />
 		<Unit filename="filesystem/CZipLoader.h" />
 		<Unit filename="filesystem/Filesystem.cpp" />

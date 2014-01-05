@@ -193,7 +193,7 @@ static void prog_help(const po::options_description &opts)
 void OSX_checkForUpdates();
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined (__GNUC__)
 int wmain(int argc, wchar_t* argv[])
 #elif defined(__APPLE__)
 int SDL_main(int argc, char *argv[])

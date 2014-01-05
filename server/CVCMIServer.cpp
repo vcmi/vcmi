@@ -32,7 +32,7 @@
 
 #include "../lib/UnlockGuard.h"
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined (__MINGW32__)
 #include <execinfo.h>
 #endif
 
@@ -535,7 +535,7 @@ static void handleCommandOptions(int argc, char *argv[])
 	po::notify(cmdLineOptions);
 }
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined (__MINGW32__)
 void handleLinuxSignal(int sig)
 {
 	const int STACKTRACE_SIZE = 100;
@@ -566,7 +566,7 @@ int main(int argc, char** argv)
 {
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
-	#ifdef __GNUC__
+	#if defined(__GNUC__) && !defined (__MINGW32__)
 	signal(SIGSEGV, handleLinuxSignal);
 	#endif
 

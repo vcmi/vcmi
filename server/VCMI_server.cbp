@@ -67,7 +67,6 @@
 		<Unit filename="CVCMIServer.h" />
 		<Unit filename="NetPacksServer.cpp" />
 		<Unit filename="StdInc.h">
-			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
 		<Extensions>

@@ -116,7 +116,6 @@
 		<Unit filename="NetPacksClient.cpp" />
 		<Unit filename="SDLMain.h" />
 		<Unit filename="StdInc.h">
-			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="VCMI_client.rc">

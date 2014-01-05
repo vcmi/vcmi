@@ -2,7 +2,9 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="vcmi">
 		<Project filename="lib/minizip/minizip.cbp" />
-		<Project filename="lib/VCMI_lib.cbp" />
+		<Project filename="lib/VCMI_lib.cbp">
+			<Depends filename="lib/minizip/minizip.cbp" />
+		</Project>
 		<Project filename="client/VCMI_client.cbp">
 			<Depends filename="lib/VCMI_lib.cbp" />
 		</Project>
