@@ -492,7 +492,6 @@ void HeroRecruited::applyCl( CClient *cl )
         logNetwork->errorStream() << "Something wrong with hero recruited!";
 	}
 
-	CGI->mh->initHeroDef(h);
 	CGI->mh->printObject(h);
 
 	if(vstd::contains(cl->playerint,h->tempOwner))
@@ -506,7 +505,6 @@ void HeroRecruited::applyCl( CClient *cl )
 void GiveHero::applyCl( CClient *cl )
 {
 	CGHeroInstance *h = GS(cl)->getHero(id);
-	CGI->mh->initHeroDef(h);
 	CGI->mh->printObject(h);
 	cl->playerint[h->tempOwner]->heroCreated(h);
 }

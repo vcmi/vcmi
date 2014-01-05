@@ -3136,6 +3136,8 @@ void CBonusSelection::init()
 	startB = new CAdventureMapButton("", "", boost::bind(&CBonusSelection::startMap, this), 475, 536, "CBBEGIB.DEF", SDLK_RETURN);
 	restartB = new CAdventureMapButton("", "", boost::bind(&CBonusSelection::restartMap, this), 475, 536, "CBRESTB.DEF", SDLK_RETURN);
 	backB = new CAdventureMapButton("", "", boost::bind(&CBonusSelection::goBack, this), 624, 536, "CBCANCB.DEF", SDLK_ESCAPE);
+	// block back button for in-progress campaigns. May not be H3 behaviour but avoids the crash
+	backB->block(!ourCampaign->mapsConquered.empty());
 
 	//campaign name
 	if (ourCampaign->camp->header.name.length())

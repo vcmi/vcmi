@@ -314,11 +314,6 @@ void CMapHandler::initObjectRects()
 	}
 }
 
-void CMapHandler::initHeroDef(const CGHeroInstance * h)
-{
-	graphics->advmapobjGraphics[h->appearance.animationFile] = graphics->flags1[0];
-}
-
 void CMapHandler::init()
 {
 	CStopWatch th;
@@ -355,14 +350,6 @@ void CMapHandler::init()
 
 	offsetX = (mapW - (2*frameW+1)*32)/2;
 	offsetY = (mapH - (2*frameH+1)*32)/2;
-
-	for(auto & elem : map->heroesOnMap)
-	{
-		if( !graphics->getDef(elem) )
-		{
-			initHeroDef(elem);
-		}
-	}
 
 	prepareFOWDefs();
 	roadsRiverTerrainInit();	//road's and river's DefHandlers; and simple values initialization
@@ -894,25 +881,23 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 
 bool CMapHandler::hideObject(const CGObjectInstance *obj)
 {
-	CDefEssential * curd = graphics->getDef(obj);
-	if(!curd) return false;
-	const SDL_Surface *bitmap = curd->ourImages[0].bitmap;
-	for(int fx=0; fx<bitmap->w/32; ++fx)
+	for (size_t i=0; i<map->width; i++)
 	{
-		for(int fy=0; fy<bitmap->h/32; ++fy)
+		for (size_t j=0; j<map->height; j++)
 		{
-			if((obj->pos.x + fx - bitmap->w/32+1)>=0 && (obj->pos.x + fx - bitmap->w/32+1)<ttiles.size()-frameW && (obj->pos.y + fy - bitmap->h/32+1)>=0 && (obj->pos.y + fy - bitmap->h/32+1)<ttiles[0].size()-frameH)
+			for (size_t k=0; k<(map->twoLevel ? 2 : 1); k++)
 			{
-				std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & ctile = ttiles[obj->pos.x + fx - bitmap->w/32+1][obj->pos.y + fy - bitmap->h/32+1][obj->pos.z].objects;
-				for(size_t dd=0; dd < ctile.size(); ++dd)
+				for(size_t x=0; x < ttiles[i][j][k].objects.size(); x++)
 				{
-					if(ctile[dd].first->id==obj->id)
-						ctile.erase(ctile.begin() + dd);
+					if (ttiles[i][j][k].objects[x].first->id == obj->id)
+					{
+						ttiles[i][j][k].objects.erase(ttiles[i][j][k].objects.begin() + x);
+						break;
+					}
 				}
 			}
-
-		} // for(int fy=0; fy<bitmap->h/32; ++fy)
-	} //for(int fx=0; fx<bitmap->w/32; ++fx)
+		}
+	}
 	return true;
 }
 bool CMapHandler::removeObject(CGObjectInstance *obj)

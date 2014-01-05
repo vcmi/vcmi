@@ -550,6 +550,7 @@ DLL_LINKAGE void GiveHero::applyGs( CGameState *gs )
 	//bonus system
 	h->detachFrom(&gs->globalEffects);
 	h->attachTo(gs->getPlayer(player));
+	h->appearance = VLC->dobjinfo->pickCandidates(Obj::HERO, h->type->heroClass->id).front();
 
 	gs->map->removeBlockVisTiles(h,true);
 	h->setOwner(player);
