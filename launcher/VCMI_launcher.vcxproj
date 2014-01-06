@@ -114,10 +114,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='RD|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include=".\**\*.cpp" Exclude=".\StdInc.cpp" />
+    <ClCompile Include=".\**\*.cpp" Exclude=".\**\moc_*.cpp;.\StdInc.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include=".\**\*.h" />
+    <ClInclude Include=".\**\*.h" Exclude=".\**\*_moc.h" />
     <ClInclude Include="GeneratedFiles\*.h" />
     <CustomBuild Include=".\**\*_moc.h" Exclude=".\**\ui_*.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
