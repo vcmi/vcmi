@@ -21,7 +21,7 @@ static bool keyDown()
 	return false;
 }
 
-#ifdef _WIN32
+#if defined(_WIN32)  &&  (_MSC_VER < 1800 ||  !defined(USE_FFMPEG))
 
 void checkForError(bool throwing = true)
 {
@@ -568,6 +568,14 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 }
 
 #else
+
+#ifdef _MSC_VER
+#pragma comment(lib, "avcodec.lib")
+#pragma comment(lib, "avutil.lib")
+#pragma comment(lib, "avformat.lib")
+#pragma comment(lib, "swscale.lib")
+#endif // _MSC_VER
+
 
 #ifndef DISABLE_VIDEO
 
