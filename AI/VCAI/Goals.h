@@ -53,7 +53,7 @@ namespace Goals
 };
 
 	//method chaining + clone pattern
-#define VSETTER(type, field) virtual AbstractGoal & set ## field(const type &rhs) = 0;
+#define VSETTER(type, field) virtual AbstractGoal & set ## field(const type &rhs) {field = rhs; return *this;};
 #define OSETTER(type, field) CGoal<T> & set ## field(const type &rhs) override { field = rhs; return *this; };
 
 #if 0
@@ -61,6 +61,8 @@ namespace Goals
 #endif // _DEBUG
 
 enum {LOW_PR = -1};
+
+TSubgoal sptr(const AbstractGoal & tmp);
 
 class AbstractGoal
 {
@@ -89,7 +91,10 @@ public:
 		town = nullptr;
 	}
 	virtual ~AbstractGoal(){};
-	virtual AbstractGoal * clone() const = 0;
+	//FIXME: abstract goal should be abstract, but serializer fails to instantiate subgoals in such case
+	virtual AbstractGoal * clone() const {return const_cast<AbstractGoal*>(this);};
+	virtual TGoalVec getAllPossibleSubgoals() {TGoalVec vec; return vec;};
+	virtual TSubgoal whatToDoToAchieve() {return sptr(AbstractGoal());};
 
 	EGoals goalType;
 
@@ -101,9 +106,6 @@ public:
 	static TSubgoal goVisitOrLookFor(const CGObjectInstance *obj); //if obj is nullptr, then we'll explore
 	static TSubgoal lookForArtSmart(int aid); //checks non-standard ways of obtaining art (merchants, quests, etc.)
 	static TSubgoal tryRecruitHero();
-
-	virtual TGoalVec getAllPossibleSubgoals() = 0;
-	virtual TSubgoal whatToDoToAchieve() = 0;
 
 	///Visitor pattern
 	//TODO: make accept work for shared_ptr... somehow
@@ -119,11 +121,11 @@ public:
 		return false;
 	}
 
-	//template <typename Handler> void serialize(Handler &h, const int version)
-	//{
-	//	h & goalType & isElementar & isAbstract & priority;
-	//	h & value & resID & objid & aid & tile & hero & town & bid;
-	//}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & goalType & isElementar & isAbstract & priority;
+		h & value & resID & objid & aid & tile & hero & town & bid;
+	}
 };
 
 template <typename T> class CGoal : public AbstractGoal
@@ -171,12 +173,11 @@ public:
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & goalType & isElementar & isAbstract & priority;
-		h & value & resID & objid & aid & tile & hero & town & bid;
+		h & static_cast<AbstractGoal&> (*this);
+		//h & goalType & isElementar & isAbstract & priority;
+		//h & value & resID & objid & aid & tile & hero & town & bid;
 	}
 };
-
-TSubgoal sptr(const AbstractGoal & tmp);
 
 class Invalid : public CGoal<Invalid>
 {
