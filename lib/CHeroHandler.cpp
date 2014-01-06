@@ -54,6 +54,11 @@ EAlignment::EAlignment CHeroClass::getAlignment() const
 	return EAlignment::EAlignment(VLC->townh->factions[faction]->alignment);
 }
 
+CHeroClass::CHeroClass()
+ : commander(nullptr)
+{
+}
+
 std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 {
 	std::vector<BattleHex> ret;

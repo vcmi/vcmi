@@ -129,6 +129,8 @@ public:
 	std::string imageMapMale;
 	std::string imageMapFemale;
 
+	CHeroClass();
+
 	bool isMagicHero() const;
 	SecondarySkill chooseSecSkill(const std::set<SecondarySkill> & possibles, std::minstd_rand & distr) const; //picks secondary skill out from given possibilities
 
