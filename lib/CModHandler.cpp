@@ -543,24 +543,11 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input
 	return output;
 }
 
-static JsonNode updateModSettingsFormat(JsonNode config)
-{
-	for (auto & entry : config["activeMods"].Struct())
-	{
-		if (entry.second.getType() == JsonNode::DATA_BOOL)
-		{
-			entry.second["active"].Bool() = entry.second.Bool();
-		}
-	}
-	return config;
-}
-
 static JsonNode loadModSettings(std::string path)
 {
 	if (CResourceHandler::get()->existsResource(ResourceID(path)))
 	{
-		// mod compatibility: check if modSettings has old, 0.94 format
-		return updateModSettingsFormat(JsonNode(ResourceID(path, EResType::TEXT)));
+		return JsonNode(ResourceID(path, EResType::TEXT));
 	}
 	// Probably new install. Create initial configuration
 	CResourceHandler::get()->createResource(path);
@@ -610,10 +597,11 @@ void CModInfo::updateChecksum(ui32 newChecksum)
 void CModInfo::loadLocalData(const JsonNode & data)
 {
 	bool validated = false;
-	if (data.isNull())
+	enabled = true;
+	checksum = 0;
+	if (data.getType() == JsonNode::DATA_BOOL)
 	{
-		enabled = true;
-		checksum = 0;
+		enabled = data.Bool();
 	}
 	else
 	{
