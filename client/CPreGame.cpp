@@ -2862,7 +2862,10 @@ void OptionsTab::CPregameTooltipBox::genTownWindow()
 	const CTown * town = CGI->townh->factions[settings.castle]->town;
 
 	for (auto & elem : town->creatures)
-		components.push_back(new CComponent(CComponent::creature, elem.front(), 0, CComponent::tiny));
+	{
+		if (!elem.empty())
+			components.push_back(new CComponent(CComponent::creature, elem.front(), 0, CComponent::tiny));
+	}
 
 	new CComponentBox(components, Rect(10, 140, pos.w - 20, 140));
 }

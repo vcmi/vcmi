@@ -344,7 +344,7 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 	{
 		for(int h=0; h<getHeight(); ++h)
 		{
-			if (appearance.isBlockedAt(-w, -h))
+			if (appearance.isBlockedAt(w, h))
 				ret.insert(int3(pos.x - w, pos.y - h, pos.z));
 		}
 	}
@@ -2050,20 +2050,11 @@ int CGTownInstance::mageGuildLevel() const
 	return 0;
 }
 
-int CGTownInstance::creatureDwellingLevel(int dwelling) const
-{
-	if ( dwelling<0 || dwelling >= GameConstants::CREATURES_PER_TOWN )
-		return -1;
-	for (int i=0; ; i++)
-	{
-		if (!hasBuilt(BuildingID(BuildingID::DWELL_FIRST+dwelling+i*GameConstants::CREATURES_PER_TOWN)))
-			return i-1;
-	}
-}
 int CGTownInstance::getHordeLevel(const int & HID)  const//HID - 0 or 1; returns creature level or -1 if that horde structure is not present
 {
 	return town->hordeLvl.at(HID);
 }
+
 int CGTownInstance::creatureGrowth(const int & level) const
 {
 	return getGrowthInfo(level).totalGrowth();
@@ -2243,12 +2234,16 @@ void CGTownInstance::initObj()
 		creatures.resize(GameConstants::CREATURES_PER_TOWN+1);//extra dwelling for Dungeon
 	else
 		creatures.resize(GameConstants::CREATURES_PER_TOWN);
-	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; i++)
+	for (int level = 0; level < GameConstants::CREATURES_PER_TOWN; level++)
 	{
-		int dwellingLevel = creatureDwellingLevel(i);
-		int creaturesTotal = town->creatures[i].size();
-		for (int j=0; j< std::min(dwellingLevel + 1, creaturesTotal); j++)
-			creatures[i].second.push_back(town->creatures[i][j]);
+		BuildingID buildID = BuildingID(BuildingID::DWELL_FIRST).advance(level);
+		int upgradeNum = 0;
+
+		for (; town->buildings.count(buildID); upgradeNum++, buildID.advance(GameConstants::CREATURES_PER_TOWN))
+		{
+			if (hasBuilt(buildID) && town->creatures.at(level).size() > upgradeNum)
+				creatures[level].second.push_back(town->creatures[level][upgradeNum]);
+		}
 	}
 
 	switch (subID)
@@ -2321,23 +2316,26 @@ void CGTownInstance::newTurn() const
 				}
 				if ((stacksCount() < GameConstants::ARMY_SIZE && rand()%100 < 25) || Slots().empty()) //add new stack
 				{
-					int i = rand() % std::min (GameConstants::ARMY_SIZE, cb->getDate(Date::MONTH)<<1);
-					CreatureID c = town->creatures[i][0];
-					SlotID n;
+					int i = rand() % std::min (GameConstants::CREATURES_PER_TOWN, cb->getDate(Date::MONTH)<<1);
+					if (!town->creatures[i].empty())
+					{
+						CreatureID c = town->creatures[i][0];
+						SlotID n;
 
-					TQuantity count = creatureGrowth(i);
-					if (!count) // no dwelling
-						count = VLC->creh->creatures[c]->growth;
+						TQuantity count = creatureGrowth(i);
+						if (!count) // no dwelling
+							count = VLC->creh->creatures[c]->growth;
 
-					{//no lower tiers or above current month
+						{//no lower tiers or above current month
 
-						if ((n = getSlotFor(c)).validSlot())
-						{
-							StackLocation sl(this, n);
-							if (slotEmpty(n))
-								cb->insertNewStack(sl, VLC->creh->creatures[c], count);
-							else //add to existing
-								cb->changeStackCount(sl, count);
+							if ((n = getSlotFor(c)).validSlot())
+							{
+								StackLocation sl(this, n);
+								if (slotEmpty(n))
+									cb->insertNewStack(sl, VLC->creh->creatures[c], count);
+								else //add to existing
+									cb->changeStackCount(sl, count);
+							}
 						}
 					}
 				}

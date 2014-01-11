@@ -315,8 +315,10 @@ class CFortScreen : public CWindowObject
 		CAnimImage * buildingPic;
 		CCreaturePic *creatureAnim;
 
+		const CCreature * getMyCreature();
+		const CBuilding * getMyBuilding();
 	public:
-		RecruitArea(int posX, int posY, const CGTownInstance *town, BuildingID buildingID, int level);
+		RecruitArea(int posX, int posY, const CGTownInstance *town, int level);
 		
 		void creaturesChanged();
 		void hover(bool on);

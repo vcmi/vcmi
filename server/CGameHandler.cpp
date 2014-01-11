@@ -1290,7 +1290,7 @@ void CGameHandler::newTurn()
 
 			for (int k=0; k < GameConstants::CREATURES_PER_TOWN; k++) //creature growths
 			{
-				if(t->creatureDwellingLevel(k) >= 0)//there is dwelling (k-level)
+				if (!t->creatures.at(k).second.empty()) // there are creatures at this level
 				{
 					ui32 &availableCount = sac.creatures.at(k).first;
 					const CCreature *cre = VLC->creh->creatures.at(t->creatures.at(k).second.back());
@@ -4853,7 +4853,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 
 			for(si32 i=0;i<ev.creatures.size();i++) //creature growths
 			{
-				if(town->creatureDwellingLevel(i) >= 0 && ev.creatures.at(i))//there is dwelling
+				if(!town->creatures.at(i).second.empty() && ev.creatures.at(i) > 0)//there is dwelling
 				{
 					sac.creatures[i].first += ev.creatures.at(i);
 					iw.components.push_back(Component(Component::CREATURE,

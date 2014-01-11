@@ -1467,7 +1467,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		}
 		else
 			buildingID = BuildingID::SPECIAL_3;
-		recAreas.push_back(new RecruitArea(positions[i].x, positions[i].y, town, buildingID, i));
+		recAreas.push_back(new RecruitArea(positions[i].x, positions[i].y, town, i));
 	}
 
 	resdatabar = new CMinorResDataBar;
@@ -1529,7 +1529,36 @@ void LabeledValue::hover(bool on)
 	}
 }
 
-CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *Town, BuildingID buildingID, int Level):
+const CCreature * CFortScreen::RecruitArea::getMyCreature()
+{
+	if (!town->creatures.at(level).second.empty()) // built
+		return VLC->creh->creatures[town->creatures.at(level).second.back()];
+	if (!town->town->creatures.at(level).empty()) // there are creatures on this level
+		return VLC->creh->creatures[town->town->creatures.at(level).front()];
+	return nullptr;
+}
+
+const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
+{
+	BuildingID myID = BuildingID(BuildingID::DWELL_FIRST).advance(level);
+
+	if (level == GameConstants::CREATURES_PER_TOWN)
+		return town->town->buildings.at(BuildingID::PORTAL_OF_SUMMON);
+
+	if (!town->town->buildings.count(myID))
+		return nullptr;
+
+	const CBuilding * build = town->town->buildings.at(myID);
+	while (town->town->buildings.count(myID))
+	{
+		if (town->hasBuilt(myID))
+			build = town->town->buildings.at(myID);
+		myID.advance(GameConstants::CREATURES_PER_TOWN);
+	}
+	return build;
+}
+
+CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *Town, int Level):
 	town(Town),
 	level(Level),
 	availableCount(nullptr)
@@ -1544,39 +1573,37 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 		addUsedEvents(LCLICK | RCLICK | HOVER);//Activate only if dwelling is present
 	
 	icons = new CPicture("TPCAINFO", 261, 3);
-	buildingPic = new CAnimImage(town->town->clientInfo.buildingsIcons, buildingID, 0, 4, 21);
-
-	const CCreature* creature = nullptr;
-
-	if (!town->creatures[level].second.empty())
-		creature = CGI->creh->creatures[town->creatures[level].second.back()];
-	else
-		creature = CGI->creh->creatures[town->town->creatures[level][0]];
-
-	hoverText = boost::str(boost::format(CGI->generaltexth->tcommands[21]) % creature->namePl);
-	creatureAnim = new CCreaturePic(159, 4, creature, false);
-
-	Rect sizes(287, 4, 96, 18);
-	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[190], CGI->generaltexth->fcommands[0], creature->Attack()));
-	sizes.y+=20;
-	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[191], CGI->generaltexth->fcommands[1], creature->Defense()));
-	sizes.y+=21;
-	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[199], CGI->generaltexth->fcommands[2], creature->getMinDamage(), creature->getMaxDamage()));
-	sizes.y+=20;
-	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[388], CGI->generaltexth->fcommands[3], creature->MaxHealth()));
-	sizes.y+=21;
-	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[193], CGI->generaltexth->fcommands[4], creature->valOfBonuses(Bonus::STACKS_SPEED)));
-	sizes.y+=20;
-	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[194], CGI->generaltexth->fcommands[5], town->creatureGrowth(level)));
-
-	creatureName = new CLabel(78,  11, FONT_SMALL, CENTER, Colors::WHITE, creature->namePl);
-	dwellingName = new CLabel(78, 101, FONT_SMALL, CENTER, Colors::WHITE, town->town->buildings.at(buildingID)->Name());
-
-	if (vstd::contains(town->builtBuildings, buildingID))
+	if (getMyBuilding() != nullptr)
 	{
-		ui32 available = town->creatures[level].first;
-		std::string availableText = CGI->generaltexth->allTexts[217]+ boost::lexical_cast<std::string>(available);
-		availableCount = new CLabel(78, 119, FONT_SMALL, CENTER, Colors::WHITE, availableText);
+		buildingPic = new CAnimImage(town->town->clientInfo.buildingsIcons, getMyBuilding()->bid, 0, 4, 21);
+		dwellingName = new CLabel(78, 101, FONT_SMALL, CENTER, Colors::WHITE, getMyBuilding()->Name());
+
+		if (vstd::contains(town->builtBuildings, getMyBuilding()->bid))
+		{
+			ui32 available = town->creatures[level].first;
+			std::string availableText = CGI->generaltexth->allTexts[217]+ boost::lexical_cast<std::string>(available);
+			availableCount = new CLabel(78, 119, FONT_SMALL, CENTER, Colors::WHITE, availableText);
+		}
+	}
+
+	if (getMyCreature() != nullptr)
+	{
+		hoverText = boost::str(boost::format(CGI->generaltexth->tcommands[21]) % getMyCreature()->namePl);
+		creatureAnim = new CCreaturePic(159, 4, getMyCreature(), false);
+		creatureName = new CLabel(78,  11, FONT_SMALL, CENTER, Colors::WHITE, getMyCreature()->namePl);
+
+		Rect sizes(287, 4, 96, 18);
+		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[190], CGI->generaltexth->fcommands[0], getMyCreature()->Attack()));
+		sizes.y+=20;
+		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[191], CGI->generaltexth->fcommands[1], getMyCreature()->Defense()));
+		sizes.y+=21;
+		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[199], CGI->generaltexth->fcommands[2], getMyCreature()->getMinDamage(), getMyCreature()->getMaxDamage()));
+		sizes.y+=20;
+		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[388], CGI->generaltexth->fcommands[3], getMyCreature()->MaxHealth()));
+		sizes.y+=21;
+		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[193], CGI->generaltexth->fcommands[4], getMyCreature()->valOfBonuses(Bonus::STACKS_SPEED)));
+		sizes.y+=20;
+		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[194], CGI->generaltexth->fcommands[5], town->creatureGrowth(level)));
 	}
 }
 
