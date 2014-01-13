@@ -2390,6 +2390,8 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 		COMPLAIN_RETF("No such town (ID=%s)!", tid);
 	if(!t->town->buildings.count(requestedID))
 		COMPLAIN_RETF("Town of faction %s does not have info about building ID=%s!", t->town->faction->name % tid);
+	if (t->hasBuilt(requestedID))
+		COMPLAIN_RETF("Building %s is already built in %s", t->town->buildings.at(requestedID)->Name() % t->name);
 
 	const CBuilding * requestedBuilding = t->town->buildings.at(requestedID);
 

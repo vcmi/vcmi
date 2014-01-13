@@ -1911,9 +1911,9 @@ void CBattleInterface::blockUI(bool on)
 	bFlee->block(on || !curInt->cb->battleCanFlee());
 	bSurrender->block(on || curInt->cb->battleGetSurrenderCost() < 0);
 
-	// never block autofight button
-	//FIXME: is that correct?
-	bAutofight->block(false); //curInt->isAutoFightOn
+	// block only if during enemy turn and auto-fight is off
+	// othervice - crash on accessing non-exisiting active stack
+	bAutofight->block(curInt->isAutoFightOn || activeStack);
 
 	if(tacticsMode && btactEnd && btactNext)
 	{

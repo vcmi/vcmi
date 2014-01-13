@@ -309,6 +309,22 @@ CAdventureMapButton::CAdventureMapButton( const std::pair<std::string, std::stri
 	pom[0] = help.first;
 	init(Callback, pom, help.second, playerColoredButton, defName, add, x, y, key);
 }
+
+void CAdventureMapButton::onButtonClicked()
+{
+	// debug logging to figure out pressed button (and as result - player actions) in case of crash
+	logAnim->traceStream() << "Button clicked at " << pos.x << "x" << pos.y;
+	CIntObject * parent = this->parent;
+	std::string prefix = "Parent is";
+	while (parent)
+	{
+		logAnim->traceStream() << prefix << typeid(*parent).name() << " at " << parent->pos.x << "x" << parent->pos.y;
+		parent = parent->parent;
+		prefix = '\t' + prefix;
+	}
+	callback();
+}
+
 void CAdventureMapButton::clickLeft(tribool down, bool previousState)
 {
 	if(isBlocked())
@@ -327,11 +343,11 @@ void CAdventureMapButton::clickLeft(tribool down, bool previousState)
 
 	if (actOnDown && down)
 	{
-		callback();
+		onButtonClicked();
 	}
 	else if (!actOnDown && previousState && (down==false))
 	{
-		callback();
+		onButtonClicked();
 	}
 }
 

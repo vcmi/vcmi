@@ -35,6 +35,7 @@ static bool isVisitableFromTop(int identifier, int type)
 		Obj::BOAT,
 		Obj::WHIRLPOOL,
 		Obj::GARRISON,
+		Obj::GARRISON2,
 		Obj::SCHOLAR,
 		Obj::CAMPFIRE,
 		Obj::BORDERGUARD,

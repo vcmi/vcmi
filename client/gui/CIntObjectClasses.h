@@ -124,6 +124,8 @@ class CAdventureMapButton : public CButtonBase
 {
 	std::vector<std::string> imageNames;//store list of images that can be used by this button
 	size_t currentImage;
+
+	void onButtonClicked(); // calls callback
 public:
 	std::map<int, std::string> hoverTexts; //text for statusbar
 	std::string helpBox; //for right-click help
