@@ -771,7 +771,12 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 
 	CBattleInterface *b = battleInt;
 
-	assert(!b->givenCommand->get()); //command buffer must be clean (we don't want to use old command)
+	if (b->givenCommand->get())
+	{
+		logGlobal->errorStream() << "Command buffer must be clean! (we don't want to use old command)";
+		vstd::clear_pointer(b->givenCommand->data);
+	}
+
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
 		b->stackActivated(stack);

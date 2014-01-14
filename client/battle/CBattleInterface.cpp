@@ -1913,7 +1913,7 @@ void CBattleInterface::blockUI(bool on)
 
 	// block only if during enemy turn and auto-fight is off
 	// othervice - crash on accessing non-exisiting active stack
-	bAutofight->block(curInt->isAutoFightOn || activeStack);
+	bAutofight->block(!curInt->isAutoFightOn && !activeStack);
 
 	if(tacticsMode && btactEnd && btactNext)
 	{
