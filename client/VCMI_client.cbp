@@ -108,7 +108,6 @@
 		<Unit filename="CVideoHandler.h" />
 		<Unit filename="Client.cpp" />
 		<Unit filename="Client.h" />
-		<Unit filename="FunctionList.h" />
 		<Unit filename="GUIClasses.cpp" />
 		<Unit filename="GUIClasses.h" />
 		<Unit filename="Graphics.cpp" />

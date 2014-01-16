@@ -454,7 +454,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 std::string Explore::completeMessage() const
 {
 	return "Hero " + hero.get()->name + " completed exploration";
-};
+}
 
 TSubgoal Explore::whatToDoToAchieve()
 {
@@ -468,7 +468,7 @@ TSubgoal Explore::whatToDoToAchieve()
 		else
 			return ret; //other solutions, like buying hero from tavern
 	}
-};
+}
 
 TGoalVec Explore::getAllPossibleSubgoals()
 {
@@ -539,7 +539,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	//throw cannotFulfillGoalException("Cannot explore - no possible ways found!");
 
 	return ret;
-};
+}
 
 bool Explore::fulfillsMe (TSubgoal goal)
 {
@@ -825,7 +825,7 @@ TSubgoal Invalid::whatToDoToAchieve()
 std::string GatherArmy::completeMessage() const
 {
 	return "Hero " + hero.get()->name + " gathered army of value " + boost::lexical_cast<std::string>(value);
-};
+}
 
 TSubgoal GatherArmy::whatToDoToAchieve()
 {

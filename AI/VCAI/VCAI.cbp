@@ -57,8 +57,12 @@
 			<Add directory="$(#boost.lib)" />
 			<Add directory="../.." />
 		</Linker>
+		<Unit filename="AIUtility.cpp" />
+		<Unit filename="AIUtility.h" />
 		<Unit filename="Fuzzy.cpp" />
 		<Unit filename="Fuzzy.h" />
+		<Unit filename="Goals.cpp" />
+		<Unit filename="Goals.h" />
 		<Unit filename="StdInc.h">
 			<Option weight="0" />
 		</Unit>

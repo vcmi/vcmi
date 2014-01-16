@@ -138,6 +138,7 @@
 		<Unit filename="LogicalExpression.cpp" />
 		<Unit filename="LogicalExpression.h" />
 		<Unit filename="NetPacks.h" />
+		<Unit filename="NetPacksBase.h" />
 		<Unit filename="NetPacksLib.cpp" />
 		<Unit filename="RegisterTypes.cpp" />
 		<Unit filename="RegisterTypes.h" />

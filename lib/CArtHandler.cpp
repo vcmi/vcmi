@@ -7,7 +7,7 @@
 #include "CModHandler.h"
 #include "CSpellHandler.h"
 #include "CObjectHandler.h"
-#include "NetPacks.h"
+#include "NetPacksBase.h"
 #include "GameConstants.h"
 
 using namespace boost::assign;

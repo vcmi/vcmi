@@ -20,7 +20,7 @@
 #include "../lib/BattleState.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CArtHandler.h"
-#include "../lib/NetPacks.h" //ArtifactLocation
+#include "../lib/NetPacksBase.h" //ArtifactLocation
 #include "../lib/CModHandler.h"
 #include "../lib/IBonusTypeHandler.h"
 

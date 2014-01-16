@@ -10,7 +10,7 @@
 #include "../lib/CGameState.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CTownHandler.h"
-#include "../lib/NetPacks.h"
+#include "../lib/NetPacksBase.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/StringConstants.h"
 #include "CAdvmapInterface.h"

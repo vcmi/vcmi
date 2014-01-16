@@ -6,10 +6,8 @@
 class CGObjectInstance;
 class CGHeroInstance;
 class CArmedInstance;
-struct CPack;
 class CGameHandler;
 class CObjectVisitQuery;
-struct TryMoveHero;
 class CQuery;
 
 typedef shared_ptr<CQuery> QueryPtr;

@@ -1,31 +1,32 @@
 {
-	// Additional spell info, not included in original heroes III files
-	//   id: spell ID
-	//   effect: -1 -> spell is negative for influenced creatures,
+    // http://wiki.vcmi.eu/index.php?title=Spell_Format
+	
+    // Additional spell info, not included in original heroes III files
+    //   id: numeric id of spell
+    //   effect: -1 -> spell is negative for influenced creatures,
     //			  0 -> spell is indifferent for them
     //			  1 -> spell is positive for them
-	//   anim: main effect animation (AC format), -1 - none
+    //   anim: main effect animation (AC format), -1 - none
     //   ranges: spell range description in SRSL ([no magic] [basic] [advanced] [expert])
     //	 counters: array of ids of countering spells
-
+    //
     // flags: string array of
     //		damage - ATM used only in CBattleInfoCallback::calculateSpellDmg
     //		offensive
     //		rising
     //		summoning //todo:
-
+    //
     //effects: array of structure for bonuses for permanent effects
     // {bonus format} - effect //todo
     // + values: [4 int values] (OPTIONAL default from sptraits) values for levels
     // + ainfos: [4 int values] (optional) additional infos for levels (atm only CURSE)
-
     //
-    //immunity - name of bonus granting immunity to this spell
     //
-    // 	immunity: array any of these bonus grants immunity
-    //  limit: array required bonus to be affected, all required
-
-    //graphics - OPTIONAL; object;
+    //
+    // 	immunity: string array of bonus names, any one of these bonus grants immunity
+    //  limit: string array of bonus names, presence of all bonuses required to be affected by
+    //
+    //	graphics - OPTIONAL; object;
     //  iconImmune - OPTIONAL; string; resourse path of icon for SPELL_IMMUNITY bonus (relative to DATA or SPRITES)
 
 	"spells":
@@ -114,7 +115,7 @@
 			"anim": -1,
 			"ranges": [ "X", "X", "X", "X" ],
 			"flags" : ["damage"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 
 		},
 		"forceField"     :
@@ -131,7 +132,7 @@
 			"anim": -1,
 			"ranges": [ "0", "0", "0", "0" ],
 			"flags" : ["damage"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"earthquake"     :
 		{
@@ -147,7 +148,7 @@
 			"anim": 64,
 			"ranges": [ "0", "0", "0", "0" ],
 			"flags" : ["damage", "offensive"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"iceBolt"        :
 		{
@@ -156,7 +157,7 @@
 			"anim": 46,
 			"ranges": [ "0", "0", "0", "0" ],
 			"flags" : ["damage", "offensive"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"lightningBolt"  :
 		{
@@ -165,7 +166,7 @@
 			"anim": 38,
 			"ranges": [ "0", "0", "0", "0" ],
 			"flags" : ["damage", "offensive"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"implosion"      :
 		{
@@ -177,7 +178,7 @@
 				"iconImmune":"ZVS/LIB1.RES/E_SPIMP"
 			},
 			"flags" : ["damage", "offensive"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"chainLightning" :
 		{
@@ -194,7 +195,7 @@
 			"anim": 45,
 			"ranges": [ "1", "1", "1", "1" ],
 			"flags" : ["damage", "offensive"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"fireball"       :
 		{
@@ -203,7 +204,7 @@
 			"anim": 53,
 			"ranges": [ "0,1", "0,1", "0,1", "0,1" ],
 			"flags" : ["damage", "offensive"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"inferno"        :
 		{
@@ -212,7 +213,7 @@
 			"anim": 9,
 			"ranges": [ "0-2", "0-2", "0-2", "0-2" ],
 			"flags" : ["damage", "offensive"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"meteorShower"   :
 		{
@@ -224,7 +225,7 @@
 				"iconImmune":"ZVS/LIB1.RES/E_SPMET"
 			},
 			"flags" : ["damage", "offensive"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"deathRipple"    :
 		{
@@ -233,8 +234,7 @@
 			"anim": 8,
 			"ranges": [ "X", "X", "X", "X" ],
 			"flags" : ["damage", "offensive"],
-			"immunity":  ["SIEGE_WEAPON","UNDEAD"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity":  ["SIEGE_WEAPON","UNDEAD","DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"destroyUndead"  :
 		{
@@ -244,7 +244,7 @@
 			"ranges": [ "X", "X", "X", "X" ],
 			"flags" : ["damage", "offensive"],
 			"limit":["UNDEAD"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 
 		},
 		"armageddon"     :
@@ -257,7 +257,7 @@
 				"iconImmune":"ZVS/LIB1.RES/E_SPARM"
 			},
 			"flags" : ["damage", "offensive"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"shield"         :
 		{
@@ -1068,7 +1068,7 @@
 			"anim": 81,
 			"ranges": [ "0", "0", "0", "0" ],
 			"flags" : ["damage"],
-			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
 
 		}
 	}

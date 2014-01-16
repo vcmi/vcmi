@@ -31,7 +31,7 @@
 #include "../lib/mapping/CMap.h"
 #include "mapHandler.h"
 #include "../lib/CStopWatch.h"
-#include "../lib/NetPacks.h"
+#include "../lib/NetPacksBase.h"
 #include "CSpellWindow.h"
 #include "CHeroWindow.h"
 #include "CVideoHandler.h"
