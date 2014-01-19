@@ -13,7 +13,7 @@
 #include "JsonNode.h"
 #include "filesystem/Filesystem.h"
 
-#include "VCMI_Lib.h"
+#include "GameConstants.h"
 #include "CCreatureHandler.h"
 #include "CSpellHandler.h"
 
@@ -136,11 +136,13 @@ std::string CBonusTypeHandler::bonusToString(const Bonus *bonus, const IBonusBea
 		}
 		else if (name == "subtype.creature")
 		{
-			return VLC->creh->creatures[bonus->subtype]->namePl;
+			const CreatureID cre(bonus->subtype);
+			return cre.toCreature()->namePl;
 		}
 		else if (name == "subtype.spell")
 		{
-			 return VLC->spellh->spells[bonus->subtype]->name;
+			const SpellID sp(bonus->subtype);
+			return sp.toSpell()->name;
 		}		
 		else if (name == "MR")
 		{
@@ -153,20 +155,10 @@ std::string CBonusTypeHandler::bonusToString(const Bonus *bonus, const IBonusBea
 		}
 	};
 	
-	const CBonusType& bt = bonusTypes[bonus->type];
+	const CBonusType& bt = bonusTypes[bonus->type];	
+	const MacroString& macro = description ? bt.description : bt.name;
 	
-	std::string text;
-	
-	if (description)
-	{
-		text = bt.description.build(getValue);
-	}
-	else
-	{
-		text = bt.name.build(getValue);
-	}
-	
-	return text;	
+	return macro.build(getValue);	
 }
 
 std::string CBonusTypeHandler::bonusToGraphics(const Bonus* bonus) const
