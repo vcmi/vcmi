@@ -104,9 +104,9 @@ public:
 		message.push_back(TREPLACE_PLUSNUMBER);
 		numbers.push_back(txt);
 	}
-	DLL_LINKAGE void addCreReplacement(CreatureID id, TQuantity count); //adds sing or plural name;
-	DLL_LINKAGE void addReplacement(const CStackBasicDescriptor &stack); //adds sing or plural name;
-	DLL_LINKAGE std::string buildList () const;
+	void addCreReplacement(CreatureID id, TQuantity count); //adds sing or plural name;
+	void addReplacement(const CStackBasicDescriptor &stack); //adds sing or plural name;
+	std::string buildList () const;
 	void clear()
 	{
 		exactStrings.clear();
@@ -114,8 +114,8 @@ public:
 		message.clear();
 		numbers.clear();
 	}
-	DLL_LINKAGE void toString(std::string &dst) const;
-	DLL_LINKAGE std::string toString() const;
+	void toString(std::string &dst) const;
+	std::string toString() const;
 	void getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst) const;
 
 	MetaString()
