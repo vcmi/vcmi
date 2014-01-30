@@ -23,7 +23,7 @@ namespace ModFields
 		"Type",
 		"Name",
 		"Version",
-		"Size (KB)",
+		"Size",
 		"Author"
 	};
 }
@@ -47,42 +47,70 @@ QString CModListModel::modIndexToName(int index) const
 	return indexToName[index];
 }
 
+QVariant CModListModel::getValue(const CModEntry &mod, int field) const
+{
+	switch(field)
+	{
+		case ModFields::STATUS_ENABLED:
+			return mod.getModStatus() & (ModStatus::ENABLED | ModStatus::INSTALLED);
+
+		case ModFields::STATUS_UPDATE:
+			return mod.getModStatus() & (ModStatus::UPDATEABLE | ModStatus::INSTALLED);
+
+		default:
+			return mod.getValue(ModFields::names[field]);
+	}
+}
+
+QVariant CModListModel::getText(const CModEntry & mod, int field) const
+{
+	switch(field)
+	{
+		case ModFields::STATUS_ENABLED:
+		case ModFields::STATUS_UPDATE:
+			return "";
+		case ModFields::SIZE:
+			return CModEntry::sizeToString(getValue(mod, field).toDouble());
+		default:
+			return getValue(mod, field);
+	}
+}
+
+QVariant CModListModel::getIcon(const CModEntry & mod, int field) const
+{
+	if (field == ModFields::STATUS_ENABLED && mod.isEnabled())
+		return QIcon(ModStatus::iconEnabled);
+	if (field == ModFields::STATUS_ENABLED && mod.isDisabled())
+		return QIcon(ModStatus::iconDisabled);
+
+	if (field == ModFields::STATUS_UPDATE  && mod.isUpdateable())
+		return QIcon(ModStatus::iconUpdate);
+	if (field == ModFields::STATUS_UPDATE  && !mod.isInstalled())
+		return QIcon(ModStatus::iconDownload);
+
+	return QVariant();
+}
+
+QVariant CModListModel::getTextAlign(int field) const
+{
+	if (field == ModFields::SIZE)
+		return QVariant(Qt::AlignRight | Qt::AlignVCenter);
+	else
+		return QVariant(Qt::AlignLeft  | Qt::AlignVCenter);
+}
+
 QVariant CModListModel::data(const QModelIndex &index, int role) const
 {
 	if (index.isValid())
 	{
 		auto mod = getMod(modIndexToName(index.row()));
 
-		if (index.column() == ModFields::STATUS_ENABLED)
+		switch (role)
 		{
-			if (role == Qt::DecorationRole)
-			{
-				if (mod.isEnabled())
-					return QIcon(ModStatus::iconEnabled);
-
-				if (mod.isDisabled())
-					return QIcon(ModStatus::iconDisabled);
-
-				return QVariant();
-			}
-		}
-		if (index.column() == ModFields::STATUS_UPDATE)
-		{
-			if (role == Qt::DecorationRole)
-			{
-				if (mod.isUpdateable())
-					return QIcon(ModStatus::iconUpdate);
-
-				if (!mod.isInstalled())
-					return QIcon(ModStatus::iconDownload);
-
-				return QVariant();
-			}
-		}
-
-		if (role == Qt::DisplayRole)
-		{
-			return mod.getValue(ModFields::names[index.column()]);
+			case Qt::DecorationRole:    return getIcon(mod, index.column());
+			case Qt::DisplayRole:       return getText(mod, index.column());
+			case Qt::UserRole:          return getValue(mod, index.column());
+			case Qt::TextAlignmentRole: return getTextAlign(index.column());
 		}
 	}
 	return QVariant();
@@ -165,32 +193,6 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
 	return false;
 }
 
-bool CModFilterModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
-{
-	assert(left.column() == right.column());
-
-	CModEntry modLeft = base->getMod(base->modIndexToName(left.row()));
-	CModEntry modRight = base->getMod(base->modIndexToName(left.row()));
-
-	switch (left.column())
-	{
-		case ModFields::STATUS_ENABLED:
-		{
-			return (modLeft.getModStatus() & (ModStatus::ENABLED | ModStatus::INSTALLED))
-				 < (modRight.getModStatus() & (ModStatus::ENABLED | ModStatus::INSTALLED));
-		}
-		case ModFields::STATUS_UPDATE:
-		{
-			return (modLeft.getModStatus() & (ModStatus::UPDATEABLE | ModStatus::INSTALLED))
-				 < (modRight.getModStatus() & (ModStatus::UPDATEABLE | ModStatus::INSTALLED));
-		}
-		default:
-		{
-			return QSortFilterProxyModel::lessThan(left, right);
-		}
-	}
-}
-
 CModFilterModel::CModFilterModel(CModListModel * model, QObject * parent):
     QSortFilterProxyModel(parent),
     base(model),
@@ -198,4 +200,5 @@ CModFilterModel::CModFilterModel(CModListModel * model, QObject * parent):
     filterMask(ModStatus::MASK_NONE)
 {
 	setSourceModel(model);
+	setSortRole(Qt::UserRole);
 }

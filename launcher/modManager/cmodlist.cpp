@@ -28,6 +28,21 @@ bool CModEntry::compareVersions(QString lesser, QString greater)
 	return false;
 }
 
+QString CModEntry::sizeToString(double size)
+{
+	static const QString sizes[] =
+	{
+		/*"%1 B", */"%1 KiB", "%1 MiB", "%1 GiB", "%1 TiB"
+	};
+	size_t index = 0;
+	while (size > 1024 && index < 4)
+	{
+		size /= 1024;
+		index++;
+	}
+	return sizes[index].arg(QString::number(size, 'f', 1));
+}
+
 CModEntry::CModEntry(QVariantMap repository, QVariantMap localData, QVariantMap modSettings, QString modname):
     repository(repository),
     localData(localData),

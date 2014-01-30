@@ -33,8 +33,9 @@ void CModListView::setupModsView()
 	ui->allModsView->sortByColumn(ModFields::TYPE, Qt::AscendingOrder);
 	ui->allModsView->setColumnWidth(ModFields::STATUS_ENABLED, 30);
 	ui->allModsView->setColumnWidth(ModFields::STATUS_UPDATE, 30);
-	ui->allModsView->setColumnWidth(ModFields::NAME, 120);
-	ui->allModsView->setColumnWidth(ModFields::SIZE, 60);
+	ui->allModsView->setColumnWidth(ModFields::TYPE, 80);
+	ui->allModsView->setColumnWidth(ModFields::NAME, 180);
+	ui->allModsView->setColumnWidth(ModFields::SIZE, 80);
 	ui->allModsView->setColumnWidth(ModFields::VERSION, 60);
 
 	connect( ui->allModsView->selectionModel(), SIGNAL( currentRowChanged( const QModelIndex &, const QModelIndex & )),
@@ -119,24 +120,6 @@ static QString replaceIfNotEmpty(QVariant value, QString pattern)
 	return "";
 }
 
-static QVariant sizeToString(QVariant value)
-{
-	if (value.canConvert<QString>())
-	{
-		static QString symbols = "kMGTPE";
-		auto number = value.toUInt();
-		size_t i=0;
-
-		while (number >= 1000)
-		{
-			number /= 1000;
-			i++;
-		}
-		return QVariant(QString("%1 %2B").arg(number).arg(symbols.at(i)));
-	}
-	return value;
-}
-
 static QString replaceIfNotEmpty(QStringList value, QString pattern)
 {
 	if (!value.empty())
@@ -158,7 +141,7 @@ QString CModListView::genModInfoText(CModEntry &mod)
 	result += replaceIfNotEmpty(mod.getValue("name"), lineTemplate.arg("Mod name"));
 	result += replaceIfNotEmpty(mod.getValue("installedVersion"), lineTemplate.arg("Installed version"));
 	result += replaceIfNotEmpty(mod.getValue("latestVersion"), lineTemplate.arg("Latest version"));
-	result += replaceIfNotEmpty(sizeToString(mod.getValue("size")), lineTemplate.arg("Download size"));
+	result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("size").toDouble()), lineTemplate.arg("Download size"));
 	result += replaceIfNotEmpty(mod.getValue("author"), lineTemplate.arg("Authors"));
 	result += replaceIfNotEmpty(mod.getValue("contact"), urlTemplate.arg("Home"));
 	result += replaceIfNotEmpty(mod.getValue("depends"), lineTemplate.arg("Required mods"));

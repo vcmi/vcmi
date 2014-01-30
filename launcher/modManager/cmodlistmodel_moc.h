@@ -27,6 +27,11 @@ class CModListModel : public QAbstractTableModel, public CModList
 	QVector<QString> indexToName;
 
 	void endResetModel();
+
+	QVariant getTextAlign(int field) const;
+	QVariant getValue(const CModEntry & mod, int field) const;
+	QVariant getText(const CModEntry & mod, int field) const;
+	QVariant getIcon(const CModEntry & mod, int field) const;
 public:
 	/// CModListContainer overrides
 	void resetRepositories();
@@ -60,8 +65,6 @@ class CModFilterModel : public QSortFilterProxyModel
 	bool filterMatches(int modIndex) const;
 
 	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
-
-	bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 public:
 	void setTypeFilter(int filteredType, int filterMask);
 
