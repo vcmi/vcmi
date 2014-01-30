@@ -337,6 +337,23 @@ const CGHeroInstance * CCampaignScenario::strongestHero( PlayerColor owner ) con
 	return i == ownedHeroes.end() ? nullptr : *i;
 }
 
+std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes() const
+{
+	std::vector<CGHeroInstance *> lostCrossoverHeroes;
+	if(conquered)
+	{
+		for(auto hero : placedCrossoverHeroes)
+		{
+			auto it = range::find_if(crossoverHeroes, CGObjectInstanceBySubIdFinder(hero));
+			if(it == crossoverHeroes.end())
+			{
+				lostCrossoverHeroes.push_back(hero);
+			}
+		}
+	}
+	return std::move(lostCrossoverHeroes);
+}
+
 bool CScenarioTravel::STravelBonus::isBonusForHero() const
 {
 	return type == SPELL || type == MONSTER || type == ARTIFACT || type == SPELL_SCROLL || type == PRIMARY_SKILL
@@ -372,6 +389,11 @@ boost::optional<CScenarioTravel::STravelBonus> CCampaignState::getBonusForCurren
 }
 
 const CCampaignScenario & CCampaignState::getCurrentScenario() const
+{
+	return camp->scenarios[*currentMap];
+}
+
+CCampaignScenario & CCampaignState::getCurrentScenario()
 {
 	return camp->scenarios[*currentMap];
 }

@@ -228,6 +228,18 @@ protected:
 	void getNameVis(std::string &hname) const;
 	void giveDummyBonus(ObjectInstanceID heroID, ui8 duration = Bonus::ONE_DAY) const;
 };
+
+/// function object which can be used to find an object with an specific sub ID
+class CGObjectInstanceBySubIdFinder
+{
+public:
+	CGObjectInstanceBySubIdFinder(CGObjectInstance * obj);
+	bool operator()(CGObjectInstance * obj) const;
+
+private:
+	CGObjectInstance * obj;
+};
+
 class CGHeroPlaceholder : public CGObjectInstance
 {
 public:

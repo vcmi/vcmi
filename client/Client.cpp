@@ -326,10 +326,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		c << ui8(2) << ui8(1); //new game; one client
 		c << *si;
 		c >> pom8;
-		if(pom8) 
-			throw std::runtime_error("Server cannot open the map!");
-		else
-            logNetwork->infoStream() << "Server opened map properly.";
+		if(pom8) throw std::runtime_error("Server cannot open the map!");
 	}
 
 	c >> si;

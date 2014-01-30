@@ -94,6 +94,7 @@ set(lib_HEADERS
 		int3.h
 		Interprocess.h
 		NetPacks.h
+		NetPacksBase.h
 		RegisterTypes.h
 		StartInfo.h
 		UnlockGuard.h

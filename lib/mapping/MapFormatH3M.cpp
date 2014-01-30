@@ -9,23 +9,21 @@
  */
 
 #include "StdInc.h"
-#include "MapFormatH3M.h"
-
 #include <boost/crc.hpp>
 
-#include "../CStopWatch.h"
-
-#include "../filesystem/Filesystem.h"
+#include "MapFormatH3M.h"
 #include "CMap.h"
 
+#include "../CStopWatch.h"
+#include "../filesystem/Filesystem.h"
 #include "../CSpellHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../CObjectHandler.h"
 #include "../CDefObjInfoHandler.h"
-
 #include "../VCMI_Lib.h"
+#include "../NetPacksBase.h"
 
 
 const bool CMapLoaderH3M::IS_PROFILING_ENABLED = false;
@@ -442,7 +440,6 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			{
 				EventCondition cond(EventCondition::CONTROL);
 				cond.objectType = Obj::CREATURE_GENERATOR1; // FIXME: generators 2-4?
-				cond.position = readInt3();
 
 				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[289];
 				specialVictory.onFulfill = VLC->generaltexth->allTexts[288];
@@ -473,7 +470,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		default:
 			assert(0);
 		}
-		//bool allowNormalVictory = reader.readBool();
+
 		// if condition is human-only turn it into following construction: AllOf(human, condition)
 		if (!appliesToAI)
 		{
@@ -869,7 +866,17 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 			slot = ArtifactPosition::SPELLBOOK;
 		}
 
-		hero->putArtifact(ArtifactPosition(slot), createArtifact(aid));
+		// this is needed, because some H3M maps (last scenario of ROE map) contain invalid data like misplaced artifacts
+		auto artifact = createArtifact(aid);
+		auto artifactPos = ArtifactPosition(slot);
+		if (artifact->canBePutAt(ArtifactLocation(hero, artifactPos)))
+		{
+			hero->putArtifact(artifactPos, artifact);
+		}
+		else
+		{
+			logGlobal->debugStream() << "Artifact can't be put at the specified location."; //TODO add more debugging information
+		}
 	}
 
 	return isArt;

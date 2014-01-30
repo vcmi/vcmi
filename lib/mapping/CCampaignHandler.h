@@ -109,15 +109,17 @@ public:
 
 	CScenarioTravel travelOptions;
 	std::vector<CGHeroInstance *> crossoverHeroes; // contains all heroes with the same state when the campaign scenario was finished
+	std::vector<CGHeroInstance *> placedCrossoverHeroes; // contains all placed crossover heroes defined by hero placeholders when the scenario was started
 
 	const CGHeroInstance * strongestHero(PlayerColor owner) const;
 	void loadPreconditionRegions(ui32 regions);
 	bool isNotVoid() const;
+	std::vector<CGHeroInstance *> getLostCrossoverHeroes() const; /// returns a list of crossover heroes which started the scenario, but didn't complete it
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & mapName & scenarioName & packedMapSize & preconditionRegions & regionColor & difficulty & conquered & regionText & 
-			prolog & epilog & travelOptions & crossoverHeroes;
+			prolog & epilog & travelOptions & crossoverHeroes & placedCrossoverHeroes;
 	}
 };
 
@@ -151,7 +153,8 @@ public:
 	//void initNewCampaign(const StartInfo &si);
 	void setCurrentMapAsConquered(const std::vector<CGHeroInstance*> & heroes);
 	boost::optional<CScenarioTravel::STravelBonus> getBonusForCurrentMap() const;
-	const CCampaignScenario &getCurrentScenario() const;
+	const CCampaignScenario & getCurrentScenario() const;
+	CCampaignScenario & getCurrentScenario();
 	ui8 currentBonusID() const;
 
 	CCampaignState();

@@ -460,6 +460,20 @@ public:
 	}
 
 private:
+	struct CrossoverHeroesList
+	{
+		std::vector<CGHeroInstance *> heroesFromPreviousScenario, heroesFromAnyPreviousScenarios;
+		void addHeroToBothLists(CGHeroInstance * hero);
+		void removeHeroFromBothLists(CGHeroInstance * hero);
+	};
+
+	struct CampaignHeroReplacement
+	{
+		CampaignHeroReplacement(CGHeroInstance * hero, ObjectInstanceID heroPlaceholderId);
+		CGHeroInstance * hero;
+		ObjectInstanceID heroPlaceholderId;
+	};
+
 	// ----- initialization -----
 
 	void initNewGame();
@@ -472,15 +486,15 @@ private:
 	void randomizeObject(CGObjectInstance *cur);
 	void initPlayerStates();
 	void placeCampaignHeroes();
-	std::vector<CGHeroInstance *> getCrossoverHeroesFromPreviousScenario() const;
-
-	/// gets prepared and copied hero instances with crossover heroes from prev. scenario and travel options from current scenario
-	std::vector<CGHeroInstance *> prepareCrossoverHeroes(const std::vector<CGHeroInstance *> & sourceCrossoverHeroes, const CScenarioTravel & travelOptions);
+	CrossoverHeroesList getCrossoverHeroesFromPreviousScenarios() const;
 
 	/// returns heroes and placeholders in where heroes will be put
-	std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > generateCampaignHeroesToReplace(std::vector<CGHeroInstance *> & crossoverHeroes);
+	std::vector<CampaignHeroReplacement> generateCampaignHeroesToReplace(CrossoverHeroesList & crossoverHeroes);
 
-	void replaceHeroesPlaceholders(const std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > &campHeroReplacements);
+	/// gets prepared and copied hero instances with crossover heroes from prev. scenario and travel options from current scenario
+	void prepareCrossoverHeroes(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions) const;
+
+	void replaceHeroesPlaceholders(const std::vector<CampaignHeroReplacement> & campaignHeroReplacements);
 	void placeStartingHeroes();
 	void placeStartingHero(PlayerColor playerColor, HeroTypeID heroTypeId, int3 townPos);
 	void initStartingResources();

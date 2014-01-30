@@ -519,6 +519,16 @@ bool CGObjectInstance::passableFor(PlayerColor color) const
 	return getPassableness() & 1<<color.getNum();
 }
 
+CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)
+{
+
+}
+
+bool CGObjectInstanceBySubIdFinder::operator()(CGObjectInstance * obj) const
+{
+	return this->obj->subID == obj->subID;
+}
+
 static int lowestSpeed(const CGHeroInstance * chi)
 {
 	if(!chi->Slots().size())
