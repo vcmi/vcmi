@@ -2301,8 +2301,11 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 	}
 	else if(what==3) //split
 	{
-		if ( (s1->tempOwner != player && s1->getStackCount(p1) < s1->getStackCount(p1) )
-			|| (s2->tempOwner != player && s2->getStackCount(p2) < s2->getStackCount(p2) ) )
+		const int countToMove = val - s2->getStackCount(p2);
+		const int countLeftOnSrc = s1->getStackCount(p1) - countToMove;
+
+		if (   (s1->tempOwner != player && countLeftOnSrc < s1->getStackCount(p1) )
+			|| (s2->tempOwner != player && val < s2->getStackCount(p2) ) )
 		{
 			complain("Can't move troops of another player!");
 			return false;
@@ -2326,7 +2329,7 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 				return false;
 			}
 
-			moveStack(sl1, sl2, val - s2->getStackCount(p2));
+			moveStack(sl1, sl2, countToMove);
 			//S2.slots[p2]->count = val;
 			//S1.slots[p1]->count = total - val;
 		}
