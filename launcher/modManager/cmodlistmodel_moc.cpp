@@ -169,19 +169,20 @@ bool CModFilterModel::lessThan(const QModelIndex &left, const QModelIndex &right
 {
 	assert(left.column() == right.column());
 
-	CModEntry mod = base->getMod(base->modIndexToName(left.row()));
+	CModEntry modLeft = base->getMod(base->modIndexToName(left.row()));
+	CModEntry modRight = base->getMod(base->modIndexToName(left.row()));
 
 	switch (left.column())
 	{
 		case ModFields::STATUS_ENABLED:
 		{
-			return (mod.getModStatus() & (ModStatus::ENABLED | ModStatus::INSTALLED))
-			     < (mod.getModStatus() & (ModStatus::ENABLED | ModStatus::INSTALLED));
+			return (modLeft.getModStatus() & (ModStatus::ENABLED | ModStatus::INSTALLED))
+				 < (modRight.getModStatus() & (ModStatus::ENABLED | ModStatus::INSTALLED));
 		}
 		case ModFields::STATUS_UPDATE:
 		{
-			return (mod.getModStatus() & (ModStatus::UPDATEABLE | ModStatus::INSTALLED))
-			     < (mod.getModStatus() & (ModStatus::UPDATEABLE | ModStatus::INSTALLED));
+			return (modLeft.getModStatus() & (ModStatus::UPDATEABLE | ModStatus::INSTALLED))
+				 < (modRight.getModStatus() & (ModStatus::UPDATEABLE | ModStatus::INSTALLED));
 		}
 		default:
 		{

@@ -738,8 +738,8 @@ void VCAI::makeTurnInternal()
 			if (newMovement == oldMovement) //means our heroes didn't move or didn't re-assign their goals
 			{
 				logAi->warnStream() << "Our heroes don't move anymore, exhaustive decomposition failed";
-			}
 				break;
+			}
 			if (safeCopy.empty())
 				break; //all heroes exhausted their locked goals
 			else

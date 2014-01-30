@@ -4489,7 +4489,12 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			}
 
 			const CSpell *s = SpellID(ba.additionalInfo).toSpell();
-			if (s->mainEffectAnim > -1 || (s->id >= 66 || s->id <= 69) || s->id == SpellID::CLONE) //allow summon elementals
+			if (s->mainEffectAnim > -1
+				|| s->id == SpellID::CLONE
+				|| s->id >= SpellID::SUMMON_FIRE_ELEMENTAL
+				|| s->id <= SpellID::SUMMON_AIR_ELEMENTAL
+				|| s->id <= SpellID::SUMMON_EARTH_ELEMENTAL
+				|| s->id <= SpellID::SUMMON_WATER_ELEMENTAL)
 				//TODO: special effects, like Clone
 			{
 				ui8 skill = h->getSpellSchoolLevel(s); //skill level

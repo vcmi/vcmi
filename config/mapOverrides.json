@@ -1163,6 +1163,58 @@
 		"victoryIconIndex" : 11,
 		"victoryString" : "Defeat All Enemies"
 	},
+	"data/yog:0" : { // On the Run
+		"defeatIconIndex" : 2,
+		"defeatString" : "Time Expires",
+		"triggeredEvents" : {
+			"heroMustSurvive" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf", [ "control", { "position" : [ 71, 14, 0 ], "type" : 34 } ] ]
+				],
+				"effect" : {
+					"messageToSend" : "%s has been vanquished!",
+					"type" : "defeat"
+				},
+				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+			},
+			"specialDefeat" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "daysPassed", { "value" : 140 } ]
+				],
+				"effect" : {
+					"messageToSend" : "%s has been vanquished!",
+					"type" : "defeat"
+				},
+				"message" : "Alas, time has run out on your quest. All is lost."
+			},
+			"specialVictory" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "control", { "position" : [ 68, 4, 0 ], "type" : 98 } ]
+				],
+				"effect" : {
+					"messageToSend" : "The enemy has captured %s, and claims victory!",
+					"type" : "victory"
+				},
+				"message" : "Congratulations! You captured %s, and are victorious!"
+			},
+			"standardDefeat" : {
+				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
+				"effect" : {
+					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"type" : "defeat"
+				},
+				"message" : "%s, your heroes abandon you, and you are banished from this land."
+			}
+		},
+		"victoryIconIndex" : 6,
+		"victoryString" : "Capture Town"
+	},
 	"data/final:3" : { // Final Peace
 		"defeatIconIndex" : 1,
 		"defeatString" : "Lose Hero",

@@ -4464,7 +4464,7 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 		else
 		{
 			baseType = CComponent::artifact;
-			type = art->artType->iconIndex;
+			type = art->artType->id;
 			bonusValue = 0;
 		}
 		if (art->artType->constituents) //display info about components of combined artifact
