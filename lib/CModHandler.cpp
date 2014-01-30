@@ -603,7 +603,7 @@ void CModInfo::loadLocalData(const JsonNode & data)
 	{
 		enabled = data.Bool();
 	}
-	else
+	if (data.getType() == JsonNode::DATA_STRUCT)
 	{
 		enabled   = data["active"].Bool();
 		validated = data["validated"].Bool();

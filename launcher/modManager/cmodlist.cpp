@@ -158,10 +158,17 @@ CModEntry CModList::getMod(QString modname) const
 	QVariantMap settings;
 
 	QVariant conf = modSettings[modname];
-	if (conf.canConvert<QVariantMap>())
-		settings = modSettings[modname].toMap();
+	if (conf.isNull())
+	{
+		settings["active"] = true; // default
+	}
 	else
-		settings.insert("active", conf);
+	{
+		if (conf.canConvert<QVariantMap>())
+			settings = modSettings[modname].toMap();
+		else
+			settings.insert("active", conf);
+	}
 
 	for (auto entry : repositories)
 	{
