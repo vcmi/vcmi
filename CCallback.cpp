@@ -195,6 +195,7 @@ int CBattleCallback::sendRequest(const CPack *request)
 		cl->waitingRequest.waitWhileContains(requestID);
 	}
 
+	boost::this_thread::interruption_point();
 	return requestID;
 }
 
