@@ -5193,9 +5193,11 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			checkVictoryLossConditions(playerColors);
 		}
 
-		//If player making turn has lost his turn must be over as well
-		if(gs->getPlayer(gs->currentPlayer)->status != EPlayerStatus::INGAME)
+		auto playerInfo = gs->getPlayer(gs->currentPlayer, false);  
+		// If we are called before the actual game start, there might be no current player
+		if(playerInfo && playerInfo->status != EPlayerStatus::INGAME)
 		{
+			// If player making turn has lost his turn must be over as well
 			states.setFlag(gs->currentPlayer, &PlayerStatus::makingTurn, false);
 		}
 	}
