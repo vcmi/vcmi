@@ -42,6 +42,8 @@ void JsonWriter::writeContainer(Iterator begin, Iterator end)
 
 void JsonWriter::writeEntry(JsonMap::const_iterator entry)
 {
+	if (!entry->second.meta.empty())
+		out << prefix << " // " << entry->second.meta << "\n";
 	out << prefix;
 	writeString(entry->first);
 	out << " : ";
@@ -50,6 +52,8 @@ void JsonWriter::writeEntry(JsonMap::const_iterator entry)
 
 void JsonWriter::writeEntry(JsonVector::const_iterator entry)
 {
+	if (!entry->meta.empty())
+		out << prefix << " // " << entry->meta << "\n";
 	out << prefix;
 	writeNode(*entry);
 }
@@ -104,8 +108,6 @@ void JsonWriter::writeNode(const JsonNode &node)
 			writeContainer(node.Struct().begin(), node.Struct().end());
 			out << prefix << "}";
 	}
-	if (!node.meta.empty()) // write metainf as comment
-		out << " //" << node.meta;
 }
 
 JsonWriter::JsonWriter(std::ostream &output, const JsonNode &node):
@@ -305,7 +307,7 @@ bool JsonParser::extractLiteral(const std::string &literal)
 	if (literal.compare(0, literal.size(), &input[pos], literal.size()) != 0)
 	{
 		while (pos < input.size() && ((input[pos]>'a' && input[pos]<'z')
-		                           || (input[pos]>'A' && input[pos]<'Z')))
+								   || (input[pos]>'A' && input[pos]<'Z')))
 			pos++;
 		return error("Unknown literal found", true);
 	}
@@ -496,7 +498,7 @@ bool JsonParser::error(const std::string &message, bool warning)
 	std::string type(warning?" warning: ":" error: ");
 
 	stream << "At line " << lineCount << ", position "<<pos-lineStart
-	       << type << message <<"\n";
+		   << type << message <<"\n";
 	errors += stream.str();
 
 	return warning;
@@ -869,11 +871,11 @@ namespace
 				{
 					// try generic additionalItems schema
 					if (schema.getType() == JsonNode::DATA_STRUCT)
-                        errors += propertyEntryCheck(validator, entry.second, schema, entry.first);
+						errors += propertyEntryCheck(validator, entry.second, schema, entry.first);
 
 					// or, additionalItems field can be bool which indicates if such items are allowed
-                    else if (!schema.isNull() && schema.Bool() == false) // present and set to false - error
-                        errors += validator.makeErrorMessage("Unknown entry found: " + entry.first);
+					else if (!schema.isNull() && schema.Bool() == false) // present and set to false - error
+						errors += validator.makeErrorMessage("Unknown entry found: " + entry.first);
 				}
 			}
 			return errors;
