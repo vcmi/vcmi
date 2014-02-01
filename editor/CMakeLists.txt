@@ -38,6 +38,7 @@ add_executable(vcmieditor ${maped_SRCS} ${maped_FORMS_OUT})
 
 # The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
 target_link_libraries(vcmieditor vcmi ${Qt5Widgets_LIBRARIES})
+cotire(vcmieditor)
 
 if (NOT APPLE) # Already inside bundle
     install(TARGETS vcmieditor DESTINATION ${BIN_DIR})

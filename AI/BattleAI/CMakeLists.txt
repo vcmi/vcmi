@@ -11,6 +11,10 @@ set(battleAI_SRCS
 add_library(BattleAI SHARED ${battleAI_SRCS})
 target_link_libraries(BattleAI vcmi)
 
+if(COMMAND cotire)
+	cotire(BattleAI)
+endif()
+
 if (NOT APPLE) # Already inside vcmiclient bundle
     install(TARGETS BattleAI DESTINATION ${AI_LIB_DIR})
 endif()

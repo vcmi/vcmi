@@ -106,6 +106,10 @@ add_library(vcmi SHARED ${lib_SRCS} ${lib_HEADERS})
 set_target_properties(vcmi PROPERTIES XCODE_ATTRIBUTE_LD_DYLIB_INSTALL_NAME "@executable_path/libvcmi.dylib")
 target_link_libraries(vcmi minizip ${Boost_LIBRARIES} ${SDL_LIBRARY} ${ZLIB_LIBRARIES} ${RT_LIB} ${DL_LIB})
 
+if(COMMAND cotire)
+	cotire(vcmi)
+endif()
+
 if (NOT APPLE) # Already inside vcmiclient bundle
     install(TARGETS vcmi DESTINATION ${LIB_DIR})
 endif()

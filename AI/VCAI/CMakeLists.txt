@@ -18,6 +18,10 @@ set(VCAI_HEADERS
 add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})
 target_link_libraries(VCAI FuzzyLite_lib vcmi)
 
+if(COMMAND cotire)
+	cotire(VCAI)
+endif()
+
 if (NOT APPLE) # Already inside vcmiclient bundle
     install(TARGETS VCAI DESTINATION ${AI_LIB_DIR})
 endif()

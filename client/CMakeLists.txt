@@ -108,5 +108,11 @@ endif()
 
 target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${RT_LIB} ${DL_LIB})
 
+set_property(DIRECTORY PROPERTY COTIRE_PREFIX_HEADER_IGNORE_PATH "${FFMPEG_INCLUDE_DIRS}" "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}")
+
+if(COMMAND cotire)
+	cotire(vcmiclient)
+endif()
+
 install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
 

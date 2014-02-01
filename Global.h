@@ -90,7 +90,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/version.hpp>
 
 #define BOOST_FILESYSTEM_VERSION 3
-#if ( BOOST_VERSION>105000 )
+#if ( BOOST_VERSION>105000 && !defined(BOOST_THREAD_VERSION))
 #define BOOST_THREAD_VERSION 3
 #endif
 #define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1

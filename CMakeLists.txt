@@ -21,6 +21,7 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_EDITOR "Enable compilation of map editor" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_TEST "Enable compilation of unit tests" OFF)
+option(ENABLE_PCH "Enable precompiled headers" OFF)
 
 ############################################
 #        Building section                  #
@@ -58,6 +59,10 @@ find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
 find_package(SDL_ttf REQUIRED)
 find_package(ZLIB REQUIRED)
+
+if(ENABLE_PCH)
+	include(cotire)
+endif()
 
 if (ENABLE_EDITOR OR ENABLE_LAUNCHER)
 	# Widgets finds its own dependencies (QtGui and QtCore).

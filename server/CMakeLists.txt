@@ -19,6 +19,10 @@ endif()
 
 target_link_libraries(vcmiserver vcmi ${Boost_LIBRARIES} ${RT_LIB} ${DL_LIB})
 
+if(COMMAND cotire)
+	cotire(vcmiserver)
+endif()
+
 if (NOT APPLE) # Already inside vcmiclient bundle
     install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
 endif()

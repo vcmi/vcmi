@@ -53,6 +53,10 @@ add_executable(vcmilauncher ${launcher_SRCS} ${launcher_UI_HEADERS})
 # The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
 target_link_libraries(vcmilauncher vcmi ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES})
 
+if(COMMAND cotire)
+	cotire(vcmilauncher)
+endif()
+
 if (NOT APPLE) # Already inside bundle
     install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
 	# copy whole directory but .svn control files
