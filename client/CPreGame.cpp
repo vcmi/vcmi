@@ -512,10 +512,10 @@ void CGPreGame::update()
 	GH.updateTime();
 	GH.handleEvents();
 
-	//if (GH.curInt == nullptr) // no redraw, when a new game was created
-		//return;
-
-	GH.topInt()->show(screen);
+	// check for null othervice crash on finishing a campaign
+	// /FIXME: find out why GH.listInt is empty to begin with
+	if (GH.topInt() != nullptr)
+		GH.topInt()->show(screen);
 
 	if (settings["general"]["showfps"].Bool())
 		GH.drawFPSCounter();
