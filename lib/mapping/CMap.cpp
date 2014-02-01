@@ -321,7 +321,7 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, Obj::EObj type)
 	CGObjectInstance * bestMatch = nullptr;
 	for (CGObjectInstance * object : objects)
 	{
-		if (object->ID == type)
+		if (object && object->ID == type)
 		{
 			if (bestMatch == nullptr)
 				bestMatch = object;
