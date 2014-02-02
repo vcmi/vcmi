@@ -28,7 +28,7 @@
 			{ "skill" : "fireMagic", "level": "expert" } ],
 		"specialties":
 		[
-			{ "type":11, "val": 14, "subtype": 0, "info": 0 }
+			{ "type":11, "val": 14, "subtype": 0, "info": 3 }
 		]
 	},
 	"catherine":
