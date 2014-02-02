@@ -501,6 +501,9 @@ CLoadIntegrityValidator::CLoadIntegrityValidator( const std::string &primaryFile
 	registerTypes(*this);
 	primaryFile = make_unique<CLoadFile>(primaryFileName, minimalVersion);
 	controlFile = make_unique<CLoadFile>(controlFileName, minimalVersion);
+
+	assert(primaryFile->fileVersion == controlFile->fileVersion);
+	fileVersion = primaryFile->fileVersion;
 }
 
 int CLoadIntegrityValidator::read( const void * data, unsigned size )
