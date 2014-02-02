@@ -68,7 +68,46 @@
 		"victoryIconIndex" : 11,
 		"victoryString" : "Defeat All Enemies"
 	},
-
+	"data/secret1:0" : { // The Grail
+		"defeatIconIndex" : 2,
+		"defeatString" : "Time Expires",
+		"triggeredEvents" : {
+			"specialDefeat" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "daysPassed", { "value" : 56 } ]
+				],
+				"effect" : {
+					"messageToSend" : "%s has been vanquished!",
+					"type" : "defeat"
+				},
+				"message" : "Alas, time has run out on your quest. All is lost."
+			},
+			"specialVictory" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "haveArtifact", { "type" : 2 } ]
+				],
+				"effect" : {
+					"messageToSend" : "The enemy has found the %s, and can claim victory!",
+					"type" : "victory"
+				},
+				"message" : "Congratulations! You have found the %s, and can claim victory!"
+			},
+			"standardDefeat" : {
+				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
+				"effect" : {
+					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"type" : "defeat"
+				},
+				"message" : "%s, your heroes abandon you, and you are banished from this land."
+			}
+		},
+		"victoryIconIndex" : 0,
+		"victoryString" : "Acquire Artifact"
+	},
 	"data/ab:1" : { // Seeking Armageddon
 		"defeatIconIndex" : 1,
 		"defeatString" : "Lose Hero",

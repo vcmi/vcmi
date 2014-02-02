@@ -141,7 +141,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, b
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " from mod " << pair2.first;
+		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " from mod " << name.meta;
 
 	return boost::optional<si32>();
 }
