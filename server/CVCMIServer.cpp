@@ -477,7 +477,7 @@ void CVCMIServer::loadGame()
 // 	}
 
 	{
-		CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)));
+		CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)), minSupportedVersion);
 		gh.loadCommonState(lf);
 		lf >> gh;
 	}

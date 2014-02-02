@@ -244,7 +244,7 @@ void CClient::loadGame( const std::string & fname )
 
 		unique_ptr<CLoadFile> loader;
 		{
-			CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName);
+			CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, minSupportedVersion);
 			loadCommonState(checkingLoader);
 			loader = checkingLoader.decay();
 		}

@@ -1119,7 +1119,7 @@ void SelectionTab::parseGames(const std::unordered_set<ResourceID> &files, bool 
 	{
 		try
 		{
-			CLoadFile lf(*CResourceHandler::get()->getResourceName(file));
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(file), minSupportedVersion);
 			lf.checkMagicBytes(SAVEGAME_MAGIC);
 // 			ui8 sign[8];
 // 			lf >> sign;

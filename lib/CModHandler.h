@@ -41,6 +41,18 @@ class CIdentifierStorage
 	{
 		si32 id;
 		std::string scope; /// scope in which this ID located
+
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			if(version >= 744)
+				h & id & scope;
+			else if(h.saving)
+			{
+				logGlobal->warnStream() << "Save compatibility, making object data with id -1 (can this happen?)";
+				id = -1;
+			}
+		}
 	};
 
 	std::multimap<std::string, ObjectData > registeredObjects;
@@ -72,6 +84,12 @@ public:
 
 	/// called at the very end of loading to check for any missing ID's
 	void finalize();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		if(version >= 744)
+			h & registeredObjects;
+	}
 };
 
 /// class used to load all game data into handlers. Used only during loading
@@ -249,5 +267,9 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & allMods & activeMods & settings & modules;
+		if(version >= 744)
+			h & identifiers;
+		else
+			logGlobal->warnStream() << "Savegame compatibility mode, omitting identifiers in modhandler. Related bugs will persist.";
 	}
 };

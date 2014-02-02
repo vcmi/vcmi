@@ -28,7 +28,8 @@
 #include "mapping/CCampaignHandler.h" //for CCampaignState
 #include "rmg/CMapGenerator.h" // for CMapGenOptions
 
-const ui32 version = 743;
+const ui32 version = 744;
+const ui32 minSupportedVersion = 743;
 
 class CConnection;
 class CGObjectInstance;
@@ -798,6 +799,13 @@ public:
 		for(typename std::map<T1,T2>::const_iterator i=data.begin();i!=data.end();i++)
 			*this << i->first << i->second;
 	}
+	template <typename T1, typename T2>
+	void saveSerializable(const std::multimap<T1, T2> &data)
+	{
+		*this << ui32(data.size());
+		for(typename std::map<T1, T2>::const_iterator i = data.begin(); i != data.end(); i++)
+			*this << i->first << i->second;
+	}
 	template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 	void saveSerializable(const boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> &data)
 	{
@@ -1196,6 +1204,19 @@ public:
 		{
 			*this >> t;
 			*this >> data[t];
+		}
+	}
+	template <typename T1, typename T2>
+	void loadSerializable(std::multimap<T1, T2> &data)
+	{
+		READ_CHECK_U32(length);
+		data.clear();
+		T1 key;
+		T2 value;
+		for(ui32 i = 0; i < length; i++)
+		{
+			*this >> key >> value;
+			data.insert(std::pair<T1, T2>(std::move(key), std::move(value)));
 		}
 	}
 	void loadSerializable(std::string &data)
