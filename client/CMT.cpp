@@ -715,6 +715,11 @@ void processCommand(const std::string &message)
             logGlobal->warnStream() << "Setting not changes, AI not found or invalid!";
 		}
 	}
+	else if(cn == "autoskip")
+	{
+		Settings session = settings.write["session"];
+		session["autoSkip"].Bool() = !session["autoSkip"].Bool();
+	}
 	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
