@@ -650,7 +650,7 @@ void VCAI::makeTurn()
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 	setThreadName("VCAI::makeTurn");
 
-    logAi->debugStream() << boost::format("Player %d starting turn") % static_cast<int>(playerID.getNum());
+    logGlobal->infoStream() << boost::format("Player %d starting turn") % static_cast<int>(playerID.getNum());
 
 	switch(cb->getDate(Date::DAY_OF_WEEK))
 	{
@@ -1239,7 +1239,8 @@ bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
 void VCAI::wander(HeroPtr h)
 {
 	TimeCheck tc("looking for wander destination");
-	while(1)
+
+	while (h->movement)
 	{
 		validateVisitableObjs();
 		std::vector <ObjectIdRef> dests, tmp;
@@ -1260,24 +1261,24 @@ void VCAI::wander(HeroPtr h)
 				moveHeroToTile(h->visitablePos(), h); //just in case we're standing on blocked subterranean gate
 
 			auto compareReinforcements = [h](const CGTownInstance *lhs, const CGTownInstance *rhs) -> bool
-	        {
+			{
 				return howManyReinforcementsCanGet(h, lhs) < howManyReinforcementsCanGet(h, rhs);
-	        };
+			};
 
-	        std::vector<const CGTownInstance *> townsReachable;
-	        std::vector<const CGTownInstance *> townsNotReachable;
-	        for(const CGTownInstance *t : cb->getTownsInfo())
-	        {
-	            if(!t->visitingHero && howManyReinforcementsCanGet(h,t) && !vstd::contains(townVisitsThisWeek[h], t))
-	            {
-	                if (isAccessibleForHero (t->visitablePos(), h))
+			std::vector<const CGTownInstance *> townsReachable;
+			std::vector<const CGTownInstance *> townsNotReachable;
+			for(const CGTownInstance *t : cb->getTownsInfo())
+			{
+				if(!t->visitingHero && howManyReinforcementsCanGet(h,t) && !vstd::contains(townVisitsThisWeek[h], t))
+				{
+					if (isAccessibleForHero (t->visitablePos(), h))
 						townsReachable.push_back(t);
-	                else
+					else
 						townsNotReachable.push_back(t);
-	            }
+				}
 			}
-            if(townsReachable.size())
-            {
+			if(townsReachable.size())
+			{
 				boost::sort(townsReachable, compareReinforcements);
 				dests.emplace_back(townsReachable.back());
 			}
@@ -1310,7 +1311,7 @@ void VCAI::wander(HeroPtr h)
 				});
 				boost::sort(towns, compareArmyStrength);
 				if(towns.size())
-						recruitHero(towns.back());
+					recruitHero(towns.back());
 				break;
 			}
 			else
@@ -1319,26 +1320,52 @@ void VCAI::wander(HeroPtr h)
 				break;
 			}
 		}
-		const ObjectIdRef&dest = dests.front();
-		logAi->debugStream() << boost::format("Of all %d destinations, object oid=%d seems nice") % dests.size() % dest.id.getNum();
-		if(!goVisitObj(dest, h))
+		//end of objs empty
+
+		while (dests.size()) //performance improvement
 		{
-			if(!dest)
+			//wander should not cause heroes to be reserved - they are always considered free
+			const ObjectIdRef&dest = dests.front();
+			logAi->debugStream() << boost::format("Of all %d destinations, object oid=%d seems nice") % dests.size() % dest.id.getNum();
+			if(!goVisitObj(dest, h))
 			{
-                logAi->debugStream() << boost::format("Visit attempt made the object (id=%d) gone...") % dest.id.getNum();
+				if(!dest)
+				{
+					logAi->debugStream() << boost::format("Visit attempt made the object (id=%d) gone...") % dest.id.getNum();
+				}
+				else
+				{
+					logAi->debugStream() << boost::format("Hero %s apparently used all MPs (%d left)") % h->name % h->movement;
+					break;
+				}
 			}
 			else
 			{
-                logAi->debugStream() << boost::format("Hero %s apparently used all MPs (%d left)") % h->name % h->movement;
+				//if (dest)
+					erase_if_present(dests, dest);
+
+				////TODO: refactor removing deleted objects from the list
+				//std::vector<const CGObjectInstance *> hlp;
+				//retreiveVisitableObjs(hlp, true);
+
+				//auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
+				//{
+				//	if(!vstd::contains(hlp, obj))
+				//	{
+				//		return true;
+				//	}
+				//	return false;
+				//};
+				//erase_if(dests, shouldBeErased);
+
+				boost::sort(dests, isCloser); //find next closest one
 			}
-			break;
 		}
 
-		if(h->visitedTown)
+		if (h->visitedTown)
 		{
 			townVisitsThisWeek[h].insert(h->visitedTown);
 			buildArmyIn(h->visitedTown);
-			break;
 		}
 	}
 }
@@ -1356,7 +1383,7 @@ void VCAI::setGoal(HeroPtr h, Goals::TSubgoal goal)
 
 void VCAI::completeGoal (Goals::TSubgoal goal)
 {
-	logAi->debugStream() << boost::format("Completing goal: %s") % goal->name();
+	logAi->traceStream() << boost::format("Completing goal: %s") % goal->name();
 	if (const CGHeroInstance * h = goal->hero.get(true))
 	{
 		auto it = lockedHeroes.find(h);
@@ -1844,18 +1871,19 @@ HeroPtr VCAI::primaryHero() const
 
 void VCAI::endTurn()
 {
-    logAi->debugStream() << "Player " << static_cast<int>(playerID.getNum()) << " ends turn";
+    logAi->infoStream() << "Player " << static_cast<int>(playerID.getNum()) << " ends turn";
 	if(!status.haveTurn())
 	{
         logAi->errorStream() << "Not having turn at the end of turn???";
 	}
+	logAi->debugStream() << "Resources at the end of turn: " << cb->getResourceAmount();
 
 	do
 	{
 		cb->endTurn();
 	} while(status.haveTurn()); //for some reasons, our request may fail -> stop requesting end of turn only after we've received a confirmation that it's over
 
-    logAi->debugStream() << "Player " << static_cast<int>(playerID.getNum()) << " ended turn";
+    logGlobal->infoStream() << "Player " << static_cast<int>(playerID.getNum()) << " ended turn";
 }
 
 void VCAI::striveToGoal(Goals::TSubgoal ultimateGoal)
@@ -1931,7 +1959,10 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 				break;
 			}
 			else
+			{
+				logAi->debugStream() << boost::format("Trying to realize %s (value %2.3f)") % goal->name() % goal->priority;
 				goal->accept(this);
+			}
 
 			boost::this_thread::interruption_point();
 		}

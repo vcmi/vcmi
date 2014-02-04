@@ -108,7 +108,7 @@ struct TimeCheck
 
 	~TimeCheck()
 	{
-        logAi->debugStream() << boost::format("Time of %s was %d ms.") % txt % time.getDiff();
+        logAi->traceStream() << boost::format("Time of %s was %d ms.") % txt % time.getDiff();
 	}
 };
 
