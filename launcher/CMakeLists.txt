@@ -17,6 +17,7 @@ set(launcher_settingsview_SRCS
 )
 
 set(launcher_SRCS
+	StdInc.cpp
 	${launcher_modmanager_SRCS}
 	${launcher_settingsview_SRCS}
 	main.cpp
@@ -53,9 +54,8 @@ add_executable(vcmilauncher ${launcher_SRCS} ${launcher_UI_HEADERS})
 # The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
 target_link_libraries(vcmilauncher vcmi ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES})
 
-if(COMMAND cotire)
-	cotire(vcmilauncher)
-endif()
+set_target_properties(vcmilauncher PROPERTIES ${PCH_PROPERTIES})
+cotire(vcmilauncher)
 
 if (NOT APPLE) # Already inside bundle
     install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})

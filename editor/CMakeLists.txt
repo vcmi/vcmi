@@ -6,6 +6,7 @@ include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
 
 set(maped_SRCS
+	StdInc.cpp
 	Editor.cpp
 	Main.cpp
 )
@@ -38,6 +39,8 @@ add_executable(vcmieditor ${maped_SRCS} ${maped_FORMS_OUT})
 
 # The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
 target_link_libraries(vcmieditor vcmi ${Qt5Widgets_LIBRARIES})
+
+set_target_properties(vcmieditor PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmieditor)
 
 if (NOT APPLE) # Already inside bundle

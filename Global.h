@@ -90,7 +90,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/version.hpp>
 
 #define BOOST_FILESYSTEM_VERSION 3
-#if ( BOOST_VERSION>105000 && !defined(BOOST_THREAD_VERSION))
+#if BOOST_VERSION > 105000
 #define BOOST_THREAD_VERSION 3
 #endif
 #define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
@@ -527,8 +527,12 @@ namespace vstd
 	template<class ForwardRange, class ValueFunction>
 	auto minElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
 	{
-		typedef decltype(*std::begin(rng)) ElemType;
-		return boost::min_element(rng, [&] (ElemType lhs, ElemType rhs) -> bool
+		/* Clang crashes when instantiating this function template and having PCH compilation enabled.
+		 * There is a bug report here: http://llvm.org/bugs/show_bug.cgi?id=18744
+		 * Current bugfix is to don't use a typedef for decltype(*std::begin(rng)) and to use decltype
+		 * directly for both function parameters.
+		 */
+		return boost::min_element(rng, [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
 		});
@@ -538,8 +542,12 @@ namespace vstd
 	template<class ForwardRange, class ValueFunction>
 	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
 	{
-		typedef decltype(*std::begin(rng)) ElemType;
-		return boost::max_element(rng, [&] (ElemType lhs, ElemType rhs) -> bool
+		/* Clang crashes when instantiating this function template and having PCH compilation enabled.
+		 * There is a bug report here: http://llvm.org/bugs/show_bug.cgi?id=18744
+		 * Current bugfix is to don't use a typedef for decltype(*std::begin(rng)) and to use decltype
+		 * directly for both function parameters.
+		 */
+		return boost::max_element(rng, [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
 		});

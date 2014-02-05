@@ -14,11 +14,8 @@ add_executable(vcmitest ${test_SRCS})
 target_link_libraries(vcmitest vcmi ${Boost_LIBRARIES} ${RT_LIB} ${DL_LIB})
 add_test(vcmitest vcmitest)
 
-set_property(DIRECTORY PROPERTY COTIRE_PREFIX_HEADER_IGNORE_PATH "${Boost_INCLUDE_DIRS}/boost/test" "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}")
-
-if(COMMAND cotire)
-	cotire(vcmitest)
-endif()
+set_target_properties(vcmitest PROPERTIES ${PCH_PROPERTIES})
+cotire(vcmitest)
 
 # Files to copy to the build directory
 add_custom_target(vcmitestFiles ALL)

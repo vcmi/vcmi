@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib ${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite)
 
 set(VCAI_SRCS
+		StdInc.cpp
         VCAI.cpp
         Goals.cpp
         AIUtility.cpp
@@ -11,16 +12,11 @@ set(VCAI_SRCS
         Fuzzy.cpp
 )
 
-set(VCAI_HEADERS
-		StdInc.h
-)
-
-add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})
+add_library(VCAI SHARED ${VCAI_SRCS})
 target_link_libraries(VCAI FuzzyLite_lib vcmi)
 
-if(COMMAND cotire)
-	cotire(VCAI)
-endif()
+set_target_properties(VCAI PROPERTIES ${PCH_PROPERTIES})
+cotire(VCAI)
 
 if (NOT APPLE) # Already inside vcmiclient bundle
     install(TARGETS VCAI DESTINATION ${AI_LIB_DIR})

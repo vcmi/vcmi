@@ -151,6 +151,8 @@ namespace Res
 
 		};
 	};
+
+	using ::operator<<;
 }
 
 typedef Res::ResourceSet TResources;

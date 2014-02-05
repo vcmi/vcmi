@@ -5,6 +5,7 @@ include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_
 include_directories(${Boost_INCLUDE_DIRS})
 
 set(server_SRCS
+		StdInc.cpp
         CGameHandler.cpp
         CVCMIServer.cpp
         CQuery.cpp
@@ -19,9 +20,9 @@ endif()
 
 target_link_libraries(vcmiserver vcmi ${Boost_LIBRARIES} ${RT_LIB} ${DL_LIB})
 
-if(COMMAND cotire)
-	cotire(vcmiserver)
-endif()
+set_target_properties(vcmiserver PROPERTIES ${PCH_PROPERTIES})
+cotire(vcmiserver)
+
 
 if (NOT APPLE) # Already inside vcmiclient bundle
     install(TARGETS vcmiserver DESTINATION ${BIN_DIR})

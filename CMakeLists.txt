@@ -21,7 +21,7 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_EDITOR "Enable compilation of map editor" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_TEST "Enable compilation of unit tests" OFF)
-option(ENABLE_PCH "Enable precompiled headers" OFF)
+option(ENABLE_PCH "Enable compilation using precompiled headers" OFF)
 
 ############################################
 #        Building section                  #
@@ -59,10 +59,7 @@ find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
 find_package(SDL_ttf REQUIRED)
 find_package(ZLIB REQUIRED)
-
-if(ENABLE_PCH)
-	include(cotire)
-endif()
+include(cotire)
 
 if (ENABLE_EDITOR OR ENABLE_LAUNCHER)
 	# Widgets finds its own dependencies (QtGui and QtCore).
@@ -144,6 +141,13 @@ add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/vcmi")
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# precompiled header configuration
+SET(PCH_PROPERTIES
+	COTIRE_ENABLE_PRECOMPILED_HEADER ${ENABLE_PCH}
+	COTIRE_ADD_UNITY_BUILD FALSE 
+	COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
+)
 
 if (ENABLE_ERM)
         add_subdirectory(scripting/erm)
