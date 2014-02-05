@@ -1332,6 +1332,20 @@ void VCAI::wander(HeroPtr h)
 				if(!dest)
 				{
 					logAi->debugStream() << boost::format("Visit attempt made the object (id=%d) gone...") % dest.id.getNum();
+
+					//TODO: refactor removing deleted objects from the list
+					std::vector<const CGObjectInstance *> hlp;
+					retreiveVisitableObjs(hlp, true);
+
+					auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
+					{
+						if(!vstd::contains(hlp, obj))
+						{
+							return true;
+						}
+						return false;
+					};
+					erase_if(dests, shouldBeErased);
 				}
 				else
 				{
@@ -1341,23 +1355,7 @@ void VCAI::wander(HeroPtr h)
 			}
 			else
 			{
-				//if (dest)
-					erase_if_present(dests, dest);
-
-				////TODO: refactor removing deleted objects from the list
-				//std::vector<const CGObjectInstance *> hlp;
-				//retreiveVisitableObjs(hlp, true);
-
-				//auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
-				//{
-				//	if(!vstd::contains(hlp, obj))
-				//	{
-				//		return true;
-				//	}
-				//	return false;
-				//};
-				//erase_if(dests, shouldBeErased);
-
+				erase_if_present(dests, dest); //why that fails sometimes when removing monsters?
 				boost::sort(dests, isCloser); //find next closest one
 			}
 		}
