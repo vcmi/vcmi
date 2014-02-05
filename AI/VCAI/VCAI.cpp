@@ -1329,23 +1329,23 @@ void VCAI::wander(HeroPtr h)
 			logAi->debugStream() << boost::format("Of all %d destinations, object oid=%d seems nice") % dests.size() % dest.id.getNum();
 			if(!goVisitObj(dest, h))
 			{
+				//TODO: refactor removing deleted objects from the list
+				std::vector<const CGObjectInstance *> hlp;
+				retreiveVisitableObjs(hlp, true);
+
+				auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
+				{
+					if(!vstd::contains(hlp, obj))
+					{
+						return true;
+					}
+					return false;
+				};
+				erase_if(dests, shouldBeErased);
+
 				if(!dest)
 				{
 					logAi->debugStream() << boost::format("Visit attempt made the object (id=%d) gone...") % dest.id.getNum();
-
-					//TODO: refactor removing deleted objects from the list
-					std::vector<const CGObjectInstance *> hlp;
-					retreiveVisitableObjs(hlp, true);
-
-					auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
-					{
-						if(!vstd::contains(hlp, obj))
-						{
-							return true;
-						}
-						return false;
-					};
-					erase_if(dests, shouldBeErased);
 				}
 				else
 				{

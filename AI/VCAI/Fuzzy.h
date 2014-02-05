@@ -51,7 +51,8 @@ class FuzzyHelper
 	} vt;
 
 public:
-	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE, VISIT_TILE}; //where is it used and why it's needed?
+	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE, VISIT_TILE};
+	//blocks should be initialized in this order, which may be confusing :/
 
 	FuzzyHelper();
 	void initBank();

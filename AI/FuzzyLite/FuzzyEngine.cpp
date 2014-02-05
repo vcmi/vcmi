@@ -321,7 +321,7 @@ namespace fl {
         }
 
         for (int i = 0; i < numberOfRuleBlocks(); ++i) {
-            ss << ruleBlock(i)->toString() << "\n\n";
+            ss << "Block " << i << " " << ruleBlock(i)->toString() << "\n\n";
         }
 
         ss << "END_FUNCTION_BLOCK";

@@ -93,6 +93,8 @@ FuzzyHelper::FuzzyHelper()
 	initBank();
 	initTacticalAdvantage();
 	initVisitTile();
+	
+	logAi->infoStream() << engine.toString();
 }
 
 void FuzzyHelper::initBank()
@@ -102,11 +104,12 @@ void FuzzyHelper::initBank()
 		//Trivial bank estimation
 		bankInput = new fl::InputLVar("BankInput");
 		bankDanger = new fl::OutputLVar("BankDanger");
-		bankInput->addTerm(new fl::SingletonTerm ("SET"));
+		bankInput->addTerm(new fl::SingletonTerm ("SET", 0.5));
 
-		engine.addRuleBlock (&bankBlock); //have to be added before the rules are parsed
 		engine.addInputLVar (bankInput);
 		engine.addOutputLVar (bankDanger);
+		engine.addRuleBlock (&bankBlock);
+		
 		for (int i = 0; i < 4; ++i)
 		{
 			bankDanger->addTerm(new fl::TriangularTerm ("Bank" + boost::lexical_cast<std::string>(i), 0, 1));
@@ -126,7 +129,6 @@ void FuzzyHelper::initTacticalAdvantage()
 		//Tactical advantage calculation
 		std::vector<fl::InputLVar*> helper;
 
-		//TODO: delete all that stuff upon destruction
 		ta.ourShooters = new fl::InputLVar("OurShooters");
 		ta.ourWalkers = new fl::InputLVar("OurWalkers");
 		ta.ourFlyers = new fl::InputLVar("OurFlyers");
@@ -138,9 +140,9 @@ void FuzzyHelper::initTacticalAdvantage()
 
 		for (auto val : helper)
 		{
+			engine.addInputLVar(val);
 			val->addTerm (new fl::ShoulderTerm("FEW", 0, 0.75, true));
 			val->addTerm (new fl::ShoulderTerm("MANY", 0.25, 1, false));
-			engine.addInputLVar(val);
 		}
 		helper.clear();
 
@@ -151,33 +153,38 @@ void FuzzyHelper::initTacticalAdvantage()
 
 		for (auto val : helper)
 		{
-			val->addTerm (new fl::ShoulderTerm("LOW", 3, 8.1, true));
-			val->addTerm (new fl::TriangularTerm("MEDIUM", 6.9, 13.1));
-			val->addTerm (new fl::ShoulderTerm("HIGH", 10.5, 16, false));
 			engine.addInputLVar(val);
+			val->addTerm (new fl::ShoulderTerm("LOW", 3, 6.5, true));
+			val->addTerm (new fl::TriangularTerm("MEDIUM", 5.5, 10.5));
+			val->addTerm (new fl::ShoulderTerm("HIGH", 8.5, 16, false));
 		}
+		
 		ta.castleWalls = new fl::InputLVar("CastleWalls");
+		engine.addInputLVar(ta.castleWalls);
 		ta.castleWalls->addTerm(new fl::SingletonTerm("NONE", CGTownInstance::NONE));
 		ta.castleWalls->addTerm(new fl::TrapezoidalTerm("MEDIUM", CGTownInstance::FORT, 2.5));
 		ta.castleWalls->addTerm(new fl::ShoulderTerm("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE, false));
-		engine.addInputLVar(ta.castleWalls);
 
 		ta.bankPresent = new fl::InputLVar("Bank");
+		engine.addInputLVar(ta.bankPresent);
 		ta.bankPresent->addTerm(new fl::SingletonTerm("FALSE", 0));
 		ta.bankPresent->addTerm(new fl::SingletonTerm("TRUE", 1));
-		engine.addInputLVar(ta.bankPresent);
 
 		ta.threat = new fl::OutputLVar("Threat");
-		ta.threat->addTerm (new fl::TriangularTerm("LOW", MIN_AI_STRENGHT, 1));
+		engine.addOutputLVar(ta.threat);
+		ta.threat->addTerm (new fl::ShoulderTerm("LOW", MIN_AI_STRENGHT, 1, true));
 		ta.threat->addTerm (new fl::TriangularTerm("MEDIUM", 0.8, 1.2));
 		ta.threat->addTerm (new fl::ShoulderTerm("HIGH", 1, 1.5, false));
-		engine.addOutputLVar(ta.threat);
+
+		engine.addRuleBlock (&ta.tacticalAdvantage);
 
 		ta.tacticalAdvantage.addRule(new fl::MamdaniRule("if OurShooters is MANY and EnemySpeed is LOW then Threat is very LOW", engine));
 		ta.tacticalAdvantage.addRule(new fl::MamdaniRule("if OurSpeed is LOW and OurShooters is FEW and EnemyShooters is MANY then Threat is very HIGH", engine));
 		ta.tacticalAdvantage.addRule(new fl::MamdaniRule("if (OurShooters is MANY and OurFlyers is MANY) and EnemyShooters is MANY then Threat is LOW", engine));
 		ta.tacticalAdvantage.addRule(new fl::MamdaniRule("if OurShooters is MANY and EnemySpeed is HIGH then Threat is somewhat HIGH", engine));
-		//tacticalAdvantage.addRule(new fl::MamdaniRule("if OurShooters is MANY and EnemyShooters is MANY then Threat is MEDIUM", engine));
+		//just to cover all cases
+		ta.tacticalAdvantage.addRule(new fl::MamdaniRule("if EnemySpeed is MEDIUM then Threat is MEDIUM", engine));
+		ta.tacticalAdvantage.addRule(new fl::MamdaniRule("if EnemySpeed is LOW and OurShooters is FEW then Threat is MEDIUM", engine));
 
 		ta.tacticalAdvantage.addRule(new fl::MamdaniRule("if Bank is TRUE and OurShooters is MANY then Threat is somewhat HIGH", engine));
 		ta.tacticalAdvantage.addRule(new fl::MamdaniRule("if Bank is TRUE and EnemyShooters is MANY then Threat is LOW", engine));
@@ -186,7 +193,6 @@ void FuzzyHelper::initTacticalAdvantage()
 		ta.tacticalAdvantage.addRule(new fl::MamdaniRule("if CastleWalls is HIGH and OurFlyers is MANY and OurShooters is MANY then Threat is MEDIUM", engine));
 		ta.tacticalAdvantage.addRule(new fl::MamdaniRule("if CastleWalls is MEDIUM and OurShooters is MANY and EnemyWalkers is MANY then Threat is LOW", engine));
 
-		engine.addRuleBlock (&ta.tacticalAdvantage);
 	}
 	catch(fl::ParsingException & pe)
 	{
@@ -217,9 +223,10 @@ ui64 FuzzyHelper::estimateBankDanger (int ID)
 					}
 					//comparison purposes
 					//int averageValue = (evaluateBankConfig (VLC->objh->banksInfo[ID][0]) + evaluateBankConfig (VLC->objh->banksInfo[ID][3])) * 0.5;
-					dynamic_cast<fl::SingletonTerm*>(bankInput->term("SET"))->setValue(0.5);
+					//dynamic_cast<fl::SingletonTerm*>(bankInput->term("SET"))->setValue(0.5);
 					bankInput->setInput (0.5);
 					engine.process (BANK_DANGER);
+					//engine.process();
 					val = bankDanger->output().defuzzify(); //some expected value of this bank
 				}
 				catch (fl::FuzzyException & fe)
@@ -275,6 +282,7 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 			ta.castleWalls->setInput(0);
 
 		engine.process (TACTICAL_ADVANTAGE);
+		//engine.process();
 		output = ta.threat->output().defuzzify();
 	}
 	catch (fl::FuzzyException & fe)
@@ -339,62 +347,76 @@ FuzzyHelper::EvalVisitTile::~EvalVisitTile()
 
 void FuzzyHelper::initVisitTile()
 {
-	std::vector<fl::InputLVar*> helper;
-
-	vt.strengthRatio = new fl::InputLVar("strengthRatio"); //hero must be strong enough to defeat guards
-	vt.heroStrength = new fl::InputLVar("heroStrength"); //we want to use weakest possible hero
-	vt.tileDistance = new fl::InputLVar("tileDistance"); //we want to use hero who is near
-	vt.missionImportance = new fl::InputLVar("lockedMissionImportance"); //we may want to preempt hero with low-priority mission
-	vt.movement = new fl::InputLVar("movement");
-	vt.value = new fl::OutputLVar("Value");
-
-	helper += vt.strengthRatio, vt.heroStrength, vt.tileDistance, vt.missionImportance, vt.movement;
-
-	vt.strengthRatio->addTerm (new fl::ShoulderTerm("LOW", 0.9, SAFE_ATTACK_CONSTANT, true));
-	vt.strengthRatio->addTerm (new fl::ShoulderTerm("HIGH", SAFE_ATTACK_CONSTANT, SAFE_ATTACK_CONSTANT * 3, false));
-
-	//strength compared to our main hero
-	vt.heroStrength->addTerm (new fl::ShoulderTerm("LOW", 0.01, 0.2, true));
-	vt.heroStrength->addTerm (new fl::TriangularTerm("MEDIUM", 0.1, 0.6));
-	vt.heroStrength->addTerm (new fl::ShoulderTerm("HIGH", 0.5, 0.99, false));
-
-	vt.tileDistance->addTerm (new fl::ShoulderTerm("SMALL", 0, 3.5, true));
-	vt.tileDistance->addTerm (new fl::TriangularTerm("MEDIUM", 3, 10.5));
-	vt.tileDistance->addTerm (new fl::ShoulderTerm("LONG", 10, 50, false));
-
-	vt.missionImportance->addTerm (new fl::ShoulderTerm("LOW", 0, 3.1, true));
-	vt.missionImportance->addTerm (new fl::TriangularTerm("MEDIUM", 2, 9.5));
-	vt.missionImportance->addTerm (new fl::ShoulderTerm("HIGH", 4.5, 10, false));
-
-	vt.value->addTerm (new fl::ShoulderTerm("LOW", 0, 1.1, true));
-	vt.value->addTerm (new fl::ShoulderTerm("HIGH", 1, 5, false));
-
-	vt.movement->addTerm (new fl::ShoulderTerm("LOW", 1, 200, true));
-	vt.movement->addTerm (new fl::ShoulderTerm("HIGH", 1000, 2000, false));
-	
-	for (auto val : helper)
+	try
 	{
-		engine.addInputLVar(val);
+		std::vector<fl::InputLVar*> helper;
+
+		vt.strengthRatio = new fl::InputLVar("strengthRatio"); //hero must be strong enough to defeat guards
+		vt.heroStrength = new fl::InputLVar("heroStrength"); //we want to use weakest possible hero
+		vt.tileDistance = new fl::InputLVar("tileDistance"); //we want to use hero who is near
+		vt.missionImportance = new fl::InputLVar("lockedMissionImportance"); //we may want to preempt hero with low-priority mission
+		vt.movement = new fl::InputLVar("movement");
+		vt.value = new fl::OutputLVar("Value");
+
+		helper += vt.strengthRatio, vt.heroStrength, vt.tileDistance, vt.missionImportance, vt.movement;
+		for (auto val : helper)
+		{
+			engine.addInputLVar(val);
+		}
+		engine.addOutputLVar (vt.value);
+
+		vt.strengthRatio->addTerm (new fl::ShoulderTerm("LOW", 0.9, SAFE_ATTACK_CONSTANT, true));
+		vt.strengthRatio->addTerm (new fl::ShoulderTerm("HIGH", SAFE_ATTACK_CONSTANT, 101, false));
+
+		//strength compared to our main hero
+		vt.heroStrength->addTerm (new fl::ShoulderTerm("LOW", 0.1, 0.2, true));
+		vt.heroStrength->addTerm (new fl::TriangularTerm("MEDIUM", 0.2, 0.8));
+		vt.heroStrength->addTerm (new fl::ShoulderTerm("HIGH", 0.5, 0.99, false));
+
+		vt.tileDistance->addTerm (new fl::ShoulderTerm("SMALL", 0, 3.5, true));
+		vt.tileDistance->addTerm (new fl::TriangularTerm("MEDIUM", 3, 10.5));
+		vt.tileDistance->addTerm (new fl::ShoulderTerm("LONG", 10, 50, false));
+
+		vt.missionImportance->addTerm (new fl::ShoulderTerm("LOW", 0, 3.1, true));
+		vt.missionImportance->addTerm (new fl::TriangularTerm("MEDIUM", 2, 9.5));
+		vt.missionImportance->addTerm (new fl::ShoulderTerm("HIGH", 4.5, 10, false));
+
+		vt.movement->addTerm (new fl::ShoulderTerm("LOW", 1, 201, true));
+		vt.movement->addTerm (new fl::TriangularTerm("MEDIUM", 199, 1500));
+		vt.movement->addTerm (new fl::ShoulderTerm("HIGH", 1000, 2000, false));
+
+		vt.value->addTerm (new fl::ShoulderTerm("LOW", 0, 3, true));
+		vt.value->addTerm (new fl::TriangularTerm("MEDIUM", 1, 3));
+		vt.value->addTerm (new fl::ShoulderTerm("HIGH", 2.5, 5, false));
+
+		engine.addRuleBlock (&vt.rules);
+
+		//use unarmed scouts if possible
+		vt.rules.addRule (new fl::MamdaniRule("if strengthRatio is HIGH and heroStrength is LOW then Value is very HIGH", engine));
+		//we may want to use secondary hero(es) rather than main hero
+		vt.rules.addRule (new fl::MamdaniRule("if strengthRatio is HIGH and heroStrength is MEDIUM then Value is somewhat HIGH", engine));
+		vt.rules.addRule (new fl::MamdaniRule("if strengthRatio is HIGH and heroStrength is HIGH then Value is somewhat LOW", engine));
+		//don't assign targets to heroes who are too weak, but prefer targets of our main hero (in case we need to gather army)
+		vt.rules.addRule (new fl::MamdaniRule("if strengthRatio is LOW and heroStrength is LOW then Value is very LOW", engine));
+		vt.rules.addRule (new fl::MamdaniRule("if strengthRatio is LOW and heroStrength is HIGH then Value is LOW", engine));
+		
+		//do not cancel important goals
+		vt.rules.addRule (new fl::MamdaniRule("if lockedMissionImportance is HIGH then Value is very LOW", engine));
+		vt.rules.addRule (new fl::MamdaniRule("if lockedMissionImportance is MEDIUM then Value is somewhat LOW", engine));
+		vt.rules.addRule (new fl::MamdaniRule("if lockedMissionImportance is LOW then Value is HIGH", engine));
+		//pick nearby objects if it's easy, avoid long walks
+		vt.rules.addRule (new fl::MamdaniRule("if tileDistance is SMALL then Value is HIGH", engine));
+		vt.rules.addRule (new fl::MamdaniRule("if tileDistance is MEDIUM then Value is MEDIUM", engine));
+		vt.rules.addRule (new fl::MamdaniRule("if tileDistance is LONG then Value is LOW", engine));
+		//use heroes with movement points first
+		vt.rules.addRule (new fl::MamdaniRule("if movement is LOW then Value is somewhat LOW", engine));
+		vt.rules.addRule (new fl::MamdaniRule("if movement is MEDIUM then Value is MEDIUM", engine));
+		vt.rules.addRule (new fl::MamdaniRule("if movement is HIGH then Value is somewhat HIGH", engine));
 	}
-	engine.addOutputLVar (vt.value);
-
-	//vt.rules.addRule (new fl::MamdaniRule("if OurShooters is MANY and EnemySpeed is LOW then Threat is very LOW", engine));
-	//use unarmed scouts if possible
-	vt.rules.addRule (new fl::MamdaniRule("if strengthRatio is HIGH and heroStrength is LOW then Value is very HIGH", engine));
-	//don't assign targets to heroes who are too weak
-	vt.rules.addRule (new fl::MamdaniRule("if strengthRatio is very LOW then Value is very LOW", engine));
-	//if medium heroes can't scratch enemy, don't try to arm them
-	vt.rules.addRule (new fl::MamdaniRule("if strengthRatio is LOW and heroStrength is MEDIUM then Value is LOW", engine));
-	//do not cancel important goals
-	vt.rules.addRule (new fl::MamdaniRule("if lockedMissionImportance is HIGH then Value is very LOW", engine));
-	//pick nearby objects if it's easy, avoid long walks
-	vt.rules.addRule (new fl::MamdaniRule("if tileDistance is SMALL then Value is HIGH", engine));
-	vt.rules.addRule (new fl::MamdaniRule("if tileDistance is LONG then Value is LOW", engine));
-	//use heroes with movement points first
-	vt.rules.addRule (new fl::MamdaniRule("if movement is LOW then Value is somewhat LOW", engine));
-	vt.rules.addRule (new fl::MamdaniRule("if movement is HIGH then Value is somewhat HIGH", engine));
-
-	engine.addRuleBlock (&vt.rules);
+	catch (fl::FuzzyException & fe)
+	{
+        logAi->errorStream() << "visitTile " << fe.name() << ": " << fe.message();
+	}
 }
 float FuzzyHelper::evaluate (Goals::VisitTile & g)
 {
@@ -412,16 +434,17 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 	float strengthRatio = 100; //we are much stronger than enemy
 	ui64 danger = evaluateDanger (g.tile, g.hero.h);
 	if (danger)
-		strengthRatio = g.hero.h->getTotalStrength() / danger;
+		strengthRatio = (fl::flScalar)g.hero.h->getTotalStrength() / danger;
 
 	try
 	{
 		vt.strengthRatio->setInput (strengthRatio);
-		vt.heroStrength->setInput (g.hero->getTotalStrength()/ai->primaryHero()->getTotalStrength());
+		vt.heroStrength->setInput ((fl::flScalar)g.hero->getTotalStrength()/ai->primaryHero()->getTotalStrength());
 		vt.tileDistance->setInput (distance);
 		vt.missionImportance->setInput (missionImportance);
 		vt.movement->setInput(g.hero->movement);
 
+		//engine.process();
 		engine.process (VISIT_TILE);
 		g.priority = vt.value->output().defuzzify();
 	}
