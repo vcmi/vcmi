@@ -365,11 +365,11 @@ void FuzzyHelper::initVisitTile()
 		}
 		engine.addOutputLVar (vt.value);
 
-		vt.strengthRatio->addTerm (new fl::ShoulderTerm("LOW", 0.9, SAFE_ATTACK_CONSTANT, true));
-		vt.strengthRatio->addTerm (new fl::ShoulderTerm("HIGH", SAFE_ATTACK_CONSTANT, 101, false));
+		vt.strengthRatio->addTerm (new fl::ShoulderTerm("LOW", 0, SAFE_ATTACK_CONSTANT, true));
+		vt.strengthRatio->addTerm (new fl::ShoulderTerm("HIGH", SAFE_ATTACK_CONSTANT, SAFE_ATTACK_CONSTANT * 5, false));
 
 		//strength compared to our main hero
-		vt.heroStrength->addTerm (new fl::ShoulderTerm("LOW", 0.1, 0.2, true));
+		vt.heroStrength->addTerm (new fl::ShoulderTerm("LOW", 0, 0.2, true));
 		vt.heroStrength->addTerm (new fl::TriangularTerm("MEDIUM", 0.2, 0.8));
 		vt.heroStrength->addTerm (new fl::ShoulderTerm("HIGH", 0.5, 0.99, false));
 
@@ -377,16 +377,16 @@ void FuzzyHelper::initVisitTile()
 		vt.tileDistance->addTerm (new fl::TriangularTerm("MEDIUM", 3, 10.5));
 		vt.tileDistance->addTerm (new fl::ShoulderTerm("LONG", 10, 50, false));
 
-		vt.missionImportance->addTerm (new fl::ShoulderTerm("LOW", 0, 3.1, true));
-		vt.missionImportance->addTerm (new fl::TriangularTerm("MEDIUM", 2, 9.5));
-		vt.missionImportance->addTerm (new fl::ShoulderTerm("HIGH", 4.5, 10, false));
+		vt.missionImportance->addTerm (new fl::ShoulderTerm("LOW", 0, 2.5, true));
+		vt.missionImportance->addTerm (new fl::TriangularTerm("MEDIUM", 2, 3));
+		vt.missionImportance->addTerm (new fl::ShoulderTerm("HIGH", 2.5, 5, false));
 
-		vt.movement->addTerm (new fl::ShoulderTerm("LOW", 1, 201, true));
-		vt.movement->addTerm (new fl::TriangularTerm("MEDIUM", 199, 1500));
+		vt.movement->addTerm (new fl::ShoulderTerm("LOW", 0, 600, true));
+		vt.movement->addTerm (new fl::TriangularTerm("MEDIUM", 500, 1500));
 		vt.movement->addTerm (new fl::ShoulderTerm("HIGH", 1000, 2000, false));
 
-		vt.value->addTerm (new fl::ShoulderTerm("LOW", 0, 3, true));
-		vt.value->addTerm (new fl::TriangularTerm("MEDIUM", 1, 3));
+		vt.value->addTerm (new fl::ShoulderTerm("LOW", 0, 2.5, true)); //should be same as "mission Importance" to keep consistency
+		vt.value->addTerm (new fl::TriangularTerm("MEDIUM", 2, 3));
 		vt.value->addTerm (new fl::ShoulderTerm("HIGH", 2.5, 5, false));
 
 		engine.addRuleBlock (&vt.rules);

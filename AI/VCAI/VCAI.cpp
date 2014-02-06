@@ -1329,20 +1329,6 @@ void VCAI::wander(HeroPtr h)
 			logAi->debugStream() << boost::format("Of all %d destinations, object oid=%d seems nice") % dests.size() % dest.id.getNum();
 			if(!goVisitObj(dest, h))
 			{
-				//TODO: refactor removing deleted objects from the list
-				std::vector<const CGObjectInstance *> hlp;
-				retreiveVisitableObjs(hlp, true);
-
-				auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
-				{
-					if(!vstd::contains(hlp, obj))
-					{
-						return true;
-					}
-					return false;
-				};
-				erase_if(dests, shouldBeErased);
-
 				if(!dest)
 				{
 					logAi->debugStream() << boost::format("Visit attempt made the object (id=%d) gone...") % dest.id.getNum();
@@ -1350,14 +1336,25 @@ void VCAI::wander(HeroPtr h)
 				else
 				{
 					logAi->debugStream() << boost::format("Hero %s apparently used all MPs (%d left)") % h->name % h->movement;
-					break;
+					return;
 				}
 			}
-			else
+			//TODO: refactor removing deleted objects from the list
+			std::vector<const CGObjectInstance *> hlp;
+			retreiveVisitableObjs(hlp, true);
+
+			auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
 			{
-				erase_if_present(dests, dest); //why that fails sometimes when removing monsters?
-				boost::sort(dests, isCloser); //find next closest one
-			}
+				if(!vstd::contains(hlp, obj))
+				{
+					return true;
+				}
+				return false;
+			};
+			erase_if(dests, shouldBeErased);
+
+			erase_if_present(dests, dest); //why that fails sometimes when removing monsters?
+			boost::sort(dests, isCloser); //find next closest one
 		}
 
 		if (h->visitedTown)
