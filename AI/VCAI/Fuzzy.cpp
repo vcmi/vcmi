@@ -471,6 +471,13 @@ float FuzzyHelper::evaluate (Goals::VisitHero & g)
 	g.setpriority(Goals::VisitTile(obj->visitablePos()).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
 	return g.priority;	
 }
+float FuzzyHelper::evaluate (Goals::GatherArmy & g)
+{
+	//the more army we need, the more important goal
+	//the more army we lack, the less important goal
+	float army = g.hero->getArmyStrength();
+	return g.value / std::min(g.value - army, 1000.0f);
+}
 float FuzzyHelper::evaluate (Goals::BuildThis & g)
 {
 	return 1;

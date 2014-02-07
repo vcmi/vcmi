@@ -1239,6 +1239,12 @@ bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
 
 void VCAI::wander(HeroPtr h)
 {
+	//unclaim objects that are now dangerous for us
+	erase_if(reservedHeroesMap[h], [h](const CGObjectInstance * obj) -> bool
+	{
+		return !isSafeToVisit(h, obj->visitablePos());
+	});
+
 	TimeCheck tc("looking for wander destination");
 
 	while (h->movement)
@@ -1907,8 +1913,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 	{
 		Goals::TSubgoal goal = ultimateGoal;
         logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal->name();
-		int maxGoals = 100; //preventing deadlock for mutually dependent goals
-		//FIXME: do not try to realize goal when loop didn't suceed
+		int maxGoals = 30; //preventing deadlock for mutually dependent goals
 		while(!goal->isElementar && maxGoals && (onlyAbstract || !goal->isAbstract))
 		{
             logAi->debugStream() << boost::format("Considering goal %s") % goal->name();
@@ -1970,7 +1975,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 		catch(goalFulfilledException &e)
 		{
 			completeGoal (goal);
-			if (ultimateGoal->fulfillsMe(goal) || maxGoals > 98) //completed goal was main goal //TODO: find better condition
+			if (ultimateGoal->fulfillsMe(goal) || maxGoals > 28) //completed goal was main goal //TODO: find better condition
 				return sptr(Goals::Invalid()); 
 		}
 		catch(std::exception &e)
@@ -2172,7 +2177,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 
 int3 VCAI::explorationNewPoint(int radius, HeroPtr h, bool breakUnsafe)
 {
-    logAi->debugStream() << "Looking for an another place for exploration...";
+    //logAi->debugStream() << "Looking for an another place for exploration...";
 	cb->setSelection(h.h);
 
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
@@ -2184,7 +2189,7 @@ int3 VCAI::explorationNewPoint(int radius, HeroPtr h, bool breakUnsafe)
 			tiles[0].push_back(pos);
 	});
 
-	int bestValue = 0;
+	float bestValue = 0; //discovered tile to node distance ratio
 	int3 bestTile(-1,-1,-1);
 
 	for (int i = 1; i < radius; i++)
@@ -2196,10 +2201,16 @@ int3 VCAI::explorationNewPoint(int radius, HeroPtr h, bool breakUnsafe)
 		{
 			if (cb->getTile(tile)->blocked) //does it shorten the time?
 				continue;
-			int ourValue = howManyTilesWillBeDiscovered(tile, radius);
+			if (!cb->getPathInfo(tile)->reachable())
+				continue;
+
+			CGPath path;
+			cb->getPath2(tile, path);
+			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius) / (path.nodes.size() + 1); //+1 prevents erratic jumps
+
 			if (ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
 			{
-				if(cb->getPathInfo(tile)->reachable()  && (isSafeToVisit(h, tile) || breakUnsafe) && !isBlockedBorderGate(tile))
+				if((isSafeToVisit(h, tile) || breakUnsafe) && !isBlockedBorderGate(tile))
 				{
 					bestTile = tile; //return first tile that will discover anything
 					bestValue = ourValue;

@@ -522,15 +522,26 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	if ((!hero || ret.empty()) && ai->canRecruitAnyHero())
 		ret.push_back (sptr(Goals::RecruitHero()));
 
-	if (!hero && ret.empty())
+	if (ret.empty())
 	{
-		auto h = ai->primaryHero(); //we may need to gather big army to break!
+		HeroPtr h;
+		if (hero) //there is some hero set and it's us
+		{
+			 if (hero == ai->primaryHero())
+				h = hero;
+		}
+		else //no hero is set, so we choose our main
+			h = ai->primaryHero();
+		 //we may need to gather big army to break!
 		if (h.h)
 		{
 			//FIXME: it never finds anything :?
 			int3 t = ai->explorationNewPoint(h->getSightRadious(), h, true);
-			if (cb->isInTheMap(t))
+			if (cb->isInTheMap(t)) 
 				ret.push_back (sptr(ClearWayTo(t).setisAbstract(true).sethero(h)));
+			else //just in case above fails - gather army if no further exploration possible
+				ret.push_back (sptr(GatherArmy(h->getArmyStrength() + 1).sethero(h)));
+			//do not set abstract to keep our hero free once he gets reinforcements
 		}
 	}
 	if (ret.empty())
