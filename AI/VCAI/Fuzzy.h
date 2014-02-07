@@ -42,9 +42,8 @@ class FuzzyHelper
 	public:
 		fl::InputLVar * strengthRatio;
 		fl::InputLVar * heroStrength;
-		fl::InputLVar * tileDistance;
+		fl::InputLVar * turnDistance;
 		fl::InputLVar * missionImportance;
-		fl::InputLVar * movement;
 		fl::OutputLVar * value;
 		fl::RuleBlock rules;
 		~EvalVisitTile();

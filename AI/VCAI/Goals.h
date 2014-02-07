@@ -218,7 +218,7 @@ class Explore : public CGoal<Explore>
 {
 	public:
 	Explore() : CGoal (Goals::EXPLORE){priority = 1;};
-	Explore(HeroPtr h) : CGoal (Goals::EXPLORE){hero = h;};
+	Explore(HeroPtr h) : CGoal (Goals::EXPLORE){hero = h; priority = 1;};
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	std::string completeMessage() const override;

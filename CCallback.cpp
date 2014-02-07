@@ -332,6 +332,11 @@ bool CCallback::getPath2( int3 dest, CGPath &ret )
 	return cl->pathInfo->getPath(dest, ret);
 }
 
+int CCallback::getMovementCost(const CGHeroInstance * hero, int3 dest)
+{
+	return gs->getMovementCost(hero, hero->visitablePos(), dest, hero->movement);
+}
+
 void CCallback::recalculatePaths()
 {
 	cl->calculatePaths(cl->IGameCallback::getSelectedHero(*player));

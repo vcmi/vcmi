@@ -110,6 +110,7 @@ public:
 	virtual const CGPathNode *getPathInfo(int3 tile); //uses main, client pathfinder info
 	virtual int getDistance(int3 tile);
 	virtual bool getPath2(int3 dest, CGPath &ret); //uses main, client pathfinder info
+	virtual int getMovementCost(const CGHeroInstance * hero, int3 dest);
 
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1);
 	virtual void recalculatePaths(); //updates main, client pathfinder info (should be called when moving hero is over)

@@ -728,6 +728,7 @@ void VCAI::makeTurnInternal()
 			std::vector<std::pair<HeroPtr, Goals::TSubgoal> > safeCopy;
 			for (auto mission : lockedHeroes)
 			{
+				//FIXME: for some reason when called here, priority is always the same
 				fh->setPriority (mission.second); //re-evaluate
 				if (canAct(mission.first))
 				{

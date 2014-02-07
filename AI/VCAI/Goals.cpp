@@ -522,19 +522,20 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	if ((!hero || ret.empty()) && ai->canRecruitAnyHero())
 		ret.push_back (sptr(Goals::RecruitHero()));
 
-	if (ret.empty())
+	if (!hero && ret.empty())
 	{
 		auto h = ai->primaryHero(); //we may need to gather big army to break!
 		if (h.h)
 		{
+			//FIXME: it never finds anything :?
 			int3 t = ai->explorationNewPoint(h->getSightRadious(), h, true);
 			if (cb->isInTheMap(t))
-				ret.push_back (sptr(ClearWayTo(t).setisAbstract(true).sethero(ai->primaryHero())));
+				ret.push_back (sptr(ClearWayTo(t).setisAbstract(true).sethero(h)));
 		}
 	}
 	if (ret.empty())
 	{
-		throw goalFulfilledException (sptr(*this));
+		throw goalFulfilledException (sptr(Goals::Explore().sethero(hero)));
 	}
 	//throw cannotFulfillGoalException("Cannot explore - no possible ways found!");
 
