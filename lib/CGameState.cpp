@@ -1232,13 +1232,26 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 		}
 	}
 
-	return std::move(crossoverHeroes);
+	// Now we need to perform deep copies of all heroes
+	// The lambda below replaces pointer to a hero with a pointer to its deep copy.
+	auto replaceWithDeepCopy = [](CGHeroInstance *&hero)
+	{
+		// We cache map original hero => copy.
+		// We may be called multiple times with the same hero and should return a single copy.
+		static std::map<CGHeroInstance*, CGHeroInstance*> oldToCopy;
+		if(!oldToCopy[hero])
+			oldToCopy[hero] = CMemorySerializer::deepCopy(*hero).release();
+
+		hero = oldToCopy[hero];
+	};
+	range::for_each(crossoverHeroes.heroesFromAnyPreviousScenarios, replaceWithDeepCopy);
+	range::for_each(crossoverHeroes.heroesFromPreviousScenario,     replaceWithDeepCopy);
+
+	return crossoverHeroes;
 }
 
 void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions) const
 {
-	//TODO deep copy hero instances
-
 	// create heroes list for convenience iterating
 	std::vector<CGHeroInstance *> crossoverHeroes;
 	for(auto & campaignHeroReplacement : campaignHeroReplacements)
@@ -1246,6 +1259,8 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		crossoverHeroes.push_back(campaignHeroReplacement.hero);
 	}
 
+	// TODO replace magic numbers with named constants
+	// TODO this logic (what should be kept) should be part of CScenarioTravel and be exposed via some clean set of methods
 	if(!(travelOptions.whatHeroKeeps & 1))
 	{
 		//trimming experience
