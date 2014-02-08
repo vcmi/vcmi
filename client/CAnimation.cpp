@@ -1369,7 +1369,7 @@ void CShowableAnim::clipRect(int posX, int posY, int width, int height)
 
 void CShowableAnim::show(SDL_Surface * to)
 {
-	if ( flags & BASE && frame != first)
+	if ( flags & BASE )// && frame != first) // FIXME: results in graphical glytch in Fortress, upgraded hydra's dwelling
 		blitImage(first, group, to);
 	blitImage(frame, group, to);
 
@@ -1386,7 +1386,7 @@ void CShowableAnim::show(SDL_Surface * to)
 
 void CShowableAnim::showAll(SDL_Surface * to)
 {
-	if ( flags & BASE && frame != first)
+	if ( flags & BASE )// && frame != first)
 		blitImage(first, group, to);
 	blitImage(frame, group, to);
 }

@@ -164,7 +164,7 @@ si64 CCompressedStream::readMore(ui8 *data, si64 size)
 	if (fileEnded)
 	{
 		inflateEnd(inflateState);
-		//vstd::clear_pointer(inflateState);
+		inflateState = nullptr;
 	}
 	return decompressed;
 }
