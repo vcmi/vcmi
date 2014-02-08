@@ -3595,7 +3595,8 @@ void CBonusSelection::updateBonusSelection()
 void CBonusSelection::updateCampaignState()
 {
 	ourCampaign->currentMap = selectedMap;
-	ourCampaign->chosenCampaignBonuses[selectedMap] = *selectedBonus;
+	if (selectedBonus)
+		ourCampaign->chosenCampaignBonuses[selectedMap] = *selectedBonus;
 }
 
 void CBonusSelection::startMap()

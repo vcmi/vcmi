@@ -384,8 +384,10 @@ boost::optional<CScenarioTravel::STravelBonus> CCampaignState::getBonusForCurren
 	auto bonuses = getCurrentScenario().travelOptions.bonusesToChoose;
 	assert(chosenCampaignBonuses.count(*currentMap) || bonuses.size() == 0);
 
-	if(bonuses.empty()) return boost::optional<CScenarioTravel::STravelBonus>();
-	else return bonuses[currentBonusID()];
+	if(bonuses.empty())
+		return boost::optional<CScenarioTravel::STravelBonus>();
+	else
+		return bonuses[currentBonusID()];
 }
 
 const CCampaignScenario & CCampaignState::getCurrentScenario() const

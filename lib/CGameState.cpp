@@ -645,7 +645,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	{
 		if(cur->ID==Obj::TOWN) //town - set def
 		{
-			const TerrainTile &tile = map->getTile(cur->pos);
+			const TerrainTile &tile = map->getTile(cur->visitablePos());
 			CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
 			t->town = VLC->townh->factions[t->subID]->town;
 			t->appearance = VLC->dobjinfo->pickCandidates(Obj::TOWN, t->subID, tile.terType).front();
@@ -667,7 +667,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	}
 	else if(ran.first==Obj::TOWN)//special code for town
 	{
-		const TerrainTile &tile = map->getTile(cur->pos);
+		const TerrainTile &tile = map->getTile(cur->visitablePos());
 		CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
         if(!t) {logGlobal->warnStream()<<"Wrong random town at "<<cur->pos; return;}
 		cur->ID = ran.first;
@@ -686,7 +686,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		if (ran.first  != cur->appearance.id ||
 			ran.second != cur->appearance.subid)
 		{
-			const TerrainTile &tile = map->getTile(cur->pos);
+			const TerrainTile &tile = map->getTile(cur->visitablePos());
 			cur->appearance = VLC->dobjinfo->pickCandidates(Obj(ran.first),ran.second, tile.terType).front();
 		}
 	}
@@ -1199,7 +1199,7 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 
 	auto campaignState = scenarioOps->campState;
 	auto bonus = campaignState->getBonusForCurrentMap();
-	if (bonus->type == CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO)
+	if (bonus && bonus->type == CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO)
 	{
 		crossoverHeroes.heroesFromAnyPreviousScenarios = crossoverHeroes.heroesFromPreviousScenario = campaignState->camp->scenarios[bonus->info2].crossoverHeroes;
 	}
@@ -2350,8 +2350,20 @@ bool CGameState::checkForVictory( PlayerColor player, const EventCondition & con
 		}
 		case EventCondition::HAVE_BUILDING:
 		{
-			const CGTownInstance *t = static_cast<const CGTownInstance *>(condition.object);
-			return (t->tempOwner == player && t->hasBuilt(BuildingID(condition.objectType)));
+			if (condition.object) // specific town
+			{
+				const CGTownInstance *t = static_cast<const CGTownInstance *>(condition.object);
+				return (t->tempOwner == player && t->hasBuilt(BuildingID(condition.objectType)));
+			}
+			else // any town
+			{
+				for (const CGTownInstance * t : p->towns)
+				{
+					if (t->hasBuilt(BuildingID(condition.objectType)))
+						return true;
+				}
+				return false;
+			}
 		}
 		case EventCondition::DESTROY:
 		{
