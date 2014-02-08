@@ -17,7 +17,7 @@ class CStackInstance;
 class CArmedInstance;
 class CArtifactSet;
 class CBonusSystemNode;
-class ArtSlotInfo;
+struct ArtSlotInfo;
 
 
 

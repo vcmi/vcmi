@@ -20,6 +20,8 @@ using namespace boost::asio::ip;
 
 extern template void registerTypes<CISer<CConnection> >(CISer<CConnection>& s);
 extern template void registerTypes<COSer<CConnection> >(COSer<CConnection>& s);
+extern template void registerTypes<CISer<CMemorySerializer> >(CISer<CMemorySerializer>& s);
+extern template void registerTypes<COSer<CMemorySerializer> >(COSer<CMemorySerializer>& s);
 extern template void registerTypes<CSaveFile>(CSaveFile & s);
 extern template void registerTypes<CLoadFile>(CLoadFile & s);
 extern template void registerTypes<CTypeList>(CTypeList & s);
@@ -39,6 +41,7 @@ CTypeList typeList;
 #else
 #define LIL_ENDIAN
 #endif
+
 
 void CConnection::init()
 {
@@ -354,9 +357,9 @@ CLoadFile::~CLoadFile()
 {
 }
 
-int CLoadFile::read( const void * data, unsigned size )
+int CLoadFile::read(void * data, unsigned size)
 {
-	sfile->read((char *)data,size);
+	sfile->read((char*)data,size);
 	return size;
 }
 
@@ -427,7 +430,7 @@ void CLoadFile::clear()
 void CLoadFile::checkMagicBytes( const std::string &text )
 {
 	std::string loaded = text;
-	read(loaded.c_str(), text.length());
+	read((void*)loaded.data(), text.length());
 	if(loaded != text)
 		throw std::runtime_error("Magic bytes doesn't match!");
 }
@@ -506,7 +509,7 @@ CLoadIntegrityValidator::CLoadIntegrityValidator( const std::string &primaryFile
 	fileVersion = primaryFile->fileVersion;
 }
 
-int CLoadIntegrityValidator::read( const void * data, unsigned size )
+int CLoadIntegrityValidator::read( void * data, unsigned size )
 {
 	assert(primaryFile);
 	assert(controlFile);
@@ -544,3 +547,29 @@ void CLoadIntegrityValidator::checkMagicBytes( const std::string &text )
 	primaryFile->checkMagicBytes(text);
 	controlFile->checkMagicBytes(text);
 }
+
+int CMemorySerializer::read(void * data, unsigned size)
+{
+	if(buffer.size() < readPos + size)
+		throw std::runtime_error(boost::str(boost::format("Cannot read past the buffer (accessing index %d, while size is %d)!") % (readPos + size - 1) % buffer.size()));
+
+	std::memcpy(data, buffer.data() + readPos, size);
+	readPos += size;
+	return size;
+}
+
+int CMemorySerializer::write(const void * data, unsigned size)
+{
+	auto oldSize = buffer.size(); //and the pos to write from
+	buffer.resize(oldSize + size);
+	std::memcpy(buffer.data() + oldSize, data, size);
+	return size;
+}
+
+CMemorySerializer::CMemorySerializer()
+{
+	readPos = 0;
+	registerTypes(static_cast<CISer<CMemorySerializer>&>(*this));
+	registerTypes(static_cast<COSer<CMemorySerializer>&>(*this));
+}
+

@@ -31,6 +31,8 @@
 
 template void registerTypes<CISer<CConnection>>(CISer<CConnection>& s);
 template void registerTypes<COSer<CConnection>>(COSer<CConnection>& s);
+template void registerTypes<CISer<CMemorySerializer>>(CISer<CMemorySerializer>& s);
+template void registerTypes<COSer<CMemorySerializer>>(COSer<CMemorySerializer>& s);
 template void registerTypes<CSaveFile>(CSaveFile & s);
 template void registerTypes<CLoadFile>(CLoadFile & s);
 template void registerTypes<CTypeList>(CTypeList & s);

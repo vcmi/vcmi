@@ -65,12 +65,12 @@ public:
 	 *
 	 * @return pair, first = raw data, second = size of data
 	 */
-	std::pair<std::unique_ptr<ui8[]>, size_t> readAll()
+	std::pair<std::unique_ptr<ui8[]>, si64> readAll()
 	{
 		std::unique_ptr<ui8[]> data(new ui8[getSize()]);
 
 		seek(0);
-		size_t readSize = read(data.get(), getSize());
+		auto readSize = read(data.get(), getSize());
 		assert(readSize == getSize());
 		UNUSED(readSize);
 

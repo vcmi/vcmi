@@ -763,8 +763,8 @@ void CGameState::init(StartInfo * si)
 {
     logGlobal->infoStream() << "\tUsing random seed: "<< si->seedToBeUsed;
 	ran.seed((boost::int32_t)si->seedToBeUsed);
-	scenarioOps = new StartInfo(*si);
-	initialOpts = new StartInfo(*si);
+	scenarioOps = CMemorySerializer::deepCopy(*si).release();
+	initialOpts = CMemorySerializer::deepCopy(*si).release();
 	si = nullptr;
 
 	switch(scenarioOps->mode)

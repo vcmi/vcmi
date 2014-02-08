@@ -26,7 +26,7 @@ public:
 	/// Seeds the generator with the current time by default.
 	CRandomGenerator() 
 	{
-		gen.seed(std::time(nullptr));
+		gen.seed((unsigned long)std::time(nullptr));
 	}
 
 	void seed(int value)

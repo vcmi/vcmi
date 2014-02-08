@@ -1320,7 +1320,7 @@ public:
 
 	CLoadFile(const std::string &fname, int minimalVersion = version); //throws!
 	~CLoadFile();
-	int read(const void * data, unsigned size); //throws!
+	int read(void * data, unsigned size); //throws!
 
 	void openNextFile(const std::string &fname, int minimalVersion); //throws!
 	void clear();
@@ -1337,7 +1337,7 @@ public:
 	
 	CLoadIntegrityValidator(const std::string &primaryFileName, const std::string &controlFileName, int minimalVersion = version); //throws!
 
-	int read(const void * data, unsigned size); //throws!
+	int read( void * data, unsigned size); //throws!
 	void checkMagicBytes(const std::string &text);
 
 	unique_ptr<CLoadFile> decay(); //returns primary file. CLoadIntegrityValidator stops being usable anymore
@@ -1347,7 +1347,7 @@ typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::s
 typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > TAcceptor;
 
 class DLL_LINKAGE CConnection
-	:public CISer<CConnection>, public COSer<CConnection>
+	: public CISer<CConnection>, public COSer<CConnection>
 {
 	//CGameState *gs;
 	CConnection(void);
@@ -1395,6 +1395,32 @@ public:
 };
 
 DLL_LINKAGE std::ostream &operator<<(std::ostream &str, const CConnection &cpc);
+
+
+// Serializer that stores objects in the dynamic buffer. Allows performing deep object copies.
+class DLL_LINKAGE CMemorySerializer
+	: public CISer<CMemorySerializer>, public COSer<CMemorySerializer>
+{
+	std::vector<ui8> buffer;
+
+	size_t readPos; //index of the next byte to be read
+public:
+	int read(void * data, unsigned size); //throws!
+	int write(const void * data, unsigned size);
+
+	CMemorySerializer();
+
+	template <typename T>
+	static unique_ptr<T> deepCopy(const T &data)
+	{
+		CMemorySerializer mem;
+		mem << &data;
+
+		unique_ptr<T> ret;
+		mem >> ret;
+		return ret;
+	}
+};
 
 template<typename T>
 class CApplier
