@@ -1292,16 +1292,19 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
 			cgh->secSkills = cgh->type->secSkillsInit;
+			cgh->recreateSecondarySkillsBonuses();
 		}
 	}
 
-	if(!(travelOptions.whatHeroKeeps & 8))
+	if(!(travelOptions.whatHeroKeeps & 8)) 
 	{
-		//trimming spells
 		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
+			// Trimming spells
 			cgh->spells.clear();
-			cgh->eraseArtSlot(ArtifactPosition(ArtifactPosition::SPELLBOOK)); // spellbook will also be removed
+
+			// Spellbook will also be removed
+			ArtifactLocation(cgh, ArtifactPosition(ArtifactPosition::SPELLBOOK)).removeArtifact();
 		}
 	}
 
@@ -1311,22 +1314,26 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		for(CGHeroInstance * hero : crossoverHeroes)
 		{
 			size_t totalArts = GameConstants::BACKPACK_START + hero->artifactsInBackpack.size();
-			for (size_t i=0; i<totalArts; i++ )
+			for (size_t i = 0; i < totalArts; i++ )
 			{
 				auto artifactPosition = ArtifactPosition(i);
 				if(artifactPosition == ArtifactPosition::SPELLBOOK) continue; // do not handle spellbook this way
 
+				// TODO: why would there be nullptr artifacts?
 				const ArtSlotInfo *info = hero->getSlot(artifactPosition);
-				if(!info) continue;
+				if(!info) 
+					continue;
 
 				const CArtifactInstance *art = info->artifact;
-				if(!art) continue;
+				if(!art) 
+					continue;
 
 				int id  = art->artType->id;
 				assert( 8*18 > id );//number of arts that fits into h3m format
 				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
 
-				if(!takeable) hero->eraseArtSlot(ArtifactPosition(i));
+				if(!takeable) 
+					ArtifactLocation(hero, artifactPosition).removeArtifact();
 			}
 		}
 	}
@@ -1334,11 +1341,16 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 	//trimming creatures
 	for(CGHeroInstance * cgh : crossoverHeroes)
 	{
-		vstd::erase_if(cgh->stacks, [&](const std::pair<SlotID, CStackInstance *> & j) -> bool
+		auto shouldSlotBeErased = [&](const std::pair<SlotID, CStackInstance *> & j) -> bool
 		{
 			CreatureID::ECreatureID crid = j.second->getCreatureID().toEnum();
-			return !(travelOptions.monstersKeptByHero[crid / 8] & (1 << (crid % 8)) );
-		});
+			return !(travelOptions.monstersKeptByHero[crid / 8] & (1 << (crid % 8)));
+		};
+
+		auto stacksCopy = cgh->stacks; //copy of the map, so we can iterate iover it and remove stacks
+		for(auto &slotPair : stacksCopy)
+			if(shouldSlotBeErased(slotPair))
+				cgh->eraseStack(slotPair.first);
 	}
 }
 

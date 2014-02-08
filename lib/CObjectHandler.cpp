@@ -1150,8 +1150,7 @@ void CGHeroInstance::initObj()
 	}
 
 	//initialize bonuses
-	for(auto skill_info : secSkills)
-		updateSkill(SecondarySkill(skill_info.first), skill_info.second);
+	recreateSecondarySkillsBonuses();
 	Updatespecialty();
 
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
@@ -1212,6 +1211,17 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 		}
 	}
 }
+
+void CGHeroInstance::recreateSecondarySkillsBonuses()
+{
+	auto secondarySkillsBonuses = getBonuses(Selector::sourceType(Bonus::SECONDARY_SKILL));
+	for(auto bonus : *secondarySkillsBonuses)
+		removeBonus(bonus);
+
+	for(auto skill_info : secSkills)
+		updateSkill(SecondarySkill(skill_info.first), skill_info.second);
+}
+
 void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 {
 	if(which == SecondarySkill::LEADERSHIP || which == SecondarySkill::LUCK)

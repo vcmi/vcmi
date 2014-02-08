@@ -181,6 +181,8 @@ struct ArtifactLocation
 		return false;
 	}
 
+	DLL_LINKAGE void removeArtifact(); // BE CAREFUL, this operation modifies holder (gs)
+
 	DLL_LINKAGE const CArmedInstance *relatedObj() const; //hero or the stack owner
 	DLL_LINKAGE PlayerColor owningPlayer() const;
 	DLL_LINKAGE CArtifactSet *getHolderArtSet();

@@ -638,6 +638,14 @@ struct GetBase : boost::static_visitor<T*>
 	}
 };
 
+
+DLL_LINKAGE void ArtifactLocation::removeArtifact()
+{
+	CArtifactInstance *a = getArt();
+	assert(a);
+	a->removeFrom(*this);
+}
+
 DLL_LINKAGE const CArmedInstance * ArtifactLocation::relatedObj() const
 {
 	return boost::apply_visitor(ObjectRetriever(), artHolder);
@@ -828,9 +836,7 @@ DLL_LINKAGE void PutArtifact::applyGs( CGameState *gs )
 
 DLL_LINKAGE void EraseArtifact::applyGs( CGameState *gs )
 {
-	CArtifactInstance *a = al.getArt();
-	assert(a);
-	a->removeFrom(al);
+	al.removeArtifact();
 }
 
 DLL_LINKAGE void MoveArtifact::applyGs( CGameState *gs )

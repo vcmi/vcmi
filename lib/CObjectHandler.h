@@ -461,6 +461,7 @@ public:
 	ui8 maxlevelsToMagicSchool() const;
 	ui8 maxlevelsToWisdom() const;
 	void Updatespecialty();
+	void recreateSecondarySkillsBonuses();
 	void updateSkill(SecondarySkill which, int val);
 
 	CGHeroInstance();
