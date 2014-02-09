@@ -122,6 +122,7 @@ struct DLL_LINKAGE EventCondition
 	};
 
 	EventCondition(EWinLoseType condition = STANDARD_WIN);
+	EventCondition(EWinLoseType condition, si32 value, si32 objectType, int3 position = int3(-1, -1, -1));
 
 	const CGObjectInstance * object; // object that was at specified position on start
 	si32 value;

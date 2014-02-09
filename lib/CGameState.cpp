@@ -799,12 +799,12 @@ void CGameState::init(StartInfo * si)
 	placeStartingHeroes();
 	initStartingResources();
 	initHeroes();
-	initFogOfWar();
 	initStartingBonus();
 	initTowns();
 	initMapObjects();
 	buildBonusSystemTree();
 	initVisitingAndGarrisonedHeroes();
+	initFogOfWar();
 
     logGlobal->debugStream() << "\tChecking objectives";
 	map->checkForObjectives(); //needs to be run when all objects are properly placed

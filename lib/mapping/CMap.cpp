@@ -70,6 +70,14 @@ EventCondition::EventCondition(EWinLoseType condition):
 {
 }
 
+EventCondition::EventCondition(EWinLoseType condition, si32 value, si32 objectType, int3 position):
+	object(nullptr),
+	value(value),
+	objectType(objectType),
+	position(position),
+	condition(condition)
+{}
+
 DisposedHero::DisposedHero() : heroId(0), portrait(255), players(0)
 {
 

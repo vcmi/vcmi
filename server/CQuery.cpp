@@ -273,11 +273,11 @@ bool CGarrisonDialogQuery::blocksPack(const CPack *pack) const
 	ourIds.insert(this->exchangingArmies[1]->id);
 
 
-	if(auto stacks = dynamic_cast<const ArrangeStacks*>(pack))
+	if (auto stacks = dynamic_cast<const ArrangeStacks*>(pack))
 	{
 		return !vstd::contains(ourIds, stacks->id1) || !vstd::contains(ourIds, stacks->id2);
 	}
-	else if(auto arts = dynamic_cast<const ExchangeArtifacts*>(pack))
+	if (auto arts = dynamic_cast<const ExchangeArtifacts*>(pack))
 	{
 		if(auto id1 = boost::apply_visitor(GetEngagedHeroIds(), arts->src.artHolder))
 			if(!vstd::contains(ourIds, *id1))
@@ -286,8 +286,11 @@ bool CGarrisonDialogQuery::blocksPack(const CPack *pack) const
 		if(auto id2 = boost::apply_visitor(GetEngagedHeroIds(), arts->dst.artHolder))
 			if(!vstd::contains(ourIds, *id2))
 				return true;
-
 		return false;
+	}
+	if (auto dismiss = dynamic_cast<const DisbandCreature*>(pack))
+	{
+		return !vstd::contains(ourIds, dismiss->id);
 	}
 
 	return CDialogQuery::blocksPack(pack);

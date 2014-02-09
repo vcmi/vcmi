@@ -449,12 +449,13 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 		case EVictoryConditionType::TAKEDWELLINGS:
 			{
-				EventCondition cond(EventCondition::CONTROL);
-				cond.objectType = Obj::CREATURE_GENERATOR1; // FIXME: generators 2-4?
+				EventExpression::OperatorAll oper;
+				oper.expressions.push_back(EventCondition(EventCondition::CONTROL, 0, Obj::CREATURE_GENERATOR1));
+				oper.expressions.push_back(EventCondition(EventCondition::CONTROL, 0, Obj::CREATURE_GENERATOR4));
 
 				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[289];
 				specialVictory.onFulfill = VLC->generaltexth->allTexts[288];
-				specialVictory.trigger = EventExpression(cond);
+				specialVictory.trigger = EventExpression(oper);
 				break;
 			}
 		case EVictoryConditionType::TAKEMINES:
