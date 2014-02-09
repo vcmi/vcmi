@@ -1319,11 +1319,11 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 				auto artifactPosition = ArtifactPosition(i);
 				if(artifactPosition == ArtifactPosition::SPELLBOOK) continue; // do not handle spellbook this way
 
-				// TODO: why would there be nullptr artifacts?
 				const ArtSlotInfo *info = hero->getSlot(artifactPosition);
 				if(!info) 
 					continue;
 
+				// TODO: why would there be nullptr artifacts?
 				const CArtifactInstance *art = info->artifact;
 				if(!art) 
 					continue;
@@ -1352,6 +1352,17 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 			if(shouldSlotBeErased(slotPair))
 				cgh->eraseStack(slotPair.first);
 	}
+
+	// Removing short-term bonuses
+	for(CGHeroInstance * cgh : crossoverHeroes)
+	{
+		cgh->popBonuses(Selector::durationType(Bonus::ONE_DAY));
+		cgh->popBonuses(Selector::durationType(Bonus::ONE_WEEK));
+		cgh->popBonuses(Selector::durationType(Bonus::N_TURNS));
+		cgh->popBonuses(Selector::durationType(Bonus::N_DAYS));
+		cgh->popBonuses(Selector::durationType(Bonus::ONE_BATTLE));
+	}
+
 }
 
 void CGameState::placeStartingHeroes()
