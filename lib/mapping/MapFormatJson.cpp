@@ -16,9 +16,9 @@
 #include "../VCMI_Lib.h"
 
 static const std::string conditionNames[] = {
-"haveArtifact", "haveCreatures", "haveResources",   "haveBuilding",
-"control",      "destroy",       "transport",
-"daysPassed",   "isHuman",       "daysWithoutTown", "standardWin"
+"haveArtifact", "haveCreatures",   "haveResources",   "haveBuilding",
+"control",      "destroy",         "transport",       "daysPassed",
+"isHuman",      "daysWithoutTown", "standardWin",     "constValue"
 };
 
 static const std::string typeNames[] = { "victory", "defeat" };

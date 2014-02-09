@@ -337,6 +337,17 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		bool allowNormalVictory = reader.readBool();
 		bool appliesToAI = reader.readBool();
 
+		if (allowNormalVictory)
+		{
+			size_t playersOnMap = boost::range::count_if(mapHeader->players,[](const PlayerInfo & info) { return info.canAnyonePlay();});
+
+			if (playersOnMap == 1)
+			{
+				logGlobal->warnStream() << "Map " << mapHeader->name << " has only one player but allows normal victory?";
+				allowNormalVictory = false; // makes sense? Not much. Works as H3? Yes!
+			}
+		}
+
 		switch(vicCondition)
 		{
 		case EVictoryConditionType::ARTIFACT:
@@ -1660,7 +1671,8 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 		count = reader.readUInt16();
 
 		// Empty slot
-		if(creID == maxID) continue;
+		if(creID == maxID)
+			continue;
 
 		auto  hlp = new CStackInstance();
 		hlp->count = count;
@@ -1668,8 +1680,7 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 		if(creID > maxID - 0xf)
 		{
 			//this will happen when random object has random army
-			creID = CreatureID(maxID + 1 - creID + VLC->creh->creatures.size());
-			hlp->idRand = creID;
+			hlp->idRand = maxID - creID - 1;
 		}
 		else
 		{

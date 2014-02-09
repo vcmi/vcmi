@@ -630,7 +630,7 @@ std::string CStackInstance::nodeName() const
 	oss << "Stack of " << count << " of ";
 	if(type)
 		oss << type->namePl;
-	else if(idRand)
+	else if(idRand >= 0)
 		oss << "[no type, idRand=" << idRand << "]";
 	else
 		oss << "[UNDEFINED TYPE]";

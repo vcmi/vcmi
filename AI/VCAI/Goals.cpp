@@ -267,6 +267,8 @@ TSubgoal Win::whatToDoToAchieve()
 			break; // goal.value = number of days to trigger this
 		case EventCondition::IS_HUMAN:
 			break; // Should be only used in calculation of candidates (see toBool lambda)
+		case EventCondition::CONST_VALUE:
+			break;
 		default:
 			assert(0);
 		}

@@ -117,7 +117,8 @@ struct DLL_LINKAGE EventCondition
 		DAYS_PASSED,       // value - number of days from start of the game
 		IS_HUMAN,          // value - 0 = player is AI, 1 = player is human
 		DAYS_WITHOUT_TOWN, // value - how long player can live without town, 0=instakill
-		STANDARD_WIN       // normal defeat all enemies condition
+		STANDARD_WIN,      // normal defeat all enemies condition
+		CONST_VALUE        // condition that always evaluates to "value" (0 = false, 1 = true)
 	};
 
 	EventCondition(EWinLoseType condition = STANDARD_WIN);

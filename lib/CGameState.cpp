@@ -2464,6 +2464,10 @@ bool CGameState::checkForVictory( PlayerColor player, const EventCondition & con
 			else
 				return false;
 		}
+		case EventCondition::CONST_VALUE:
+		{
+			return condition.value; // just convert to bool
+		}
 	}
 	assert(0);
 	return false;

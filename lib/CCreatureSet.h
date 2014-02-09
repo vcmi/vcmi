@@ -41,7 +41,11 @@ class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDe
 protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
 public:
-	int idRand; //hlp variable used during loading game -> "id" placeholder for randomization
+	// hlp variable used during loading map, when object (hero or town) have creatures that must have same alignment.
+	// idRand < 0 -> normal, non-random creature
+	// idRand / 2 -> level
+	// idRand % 2 -> upgrade number
+	int idRand;
 
 	const CArmedInstance * const & armyObj; //stack must be part of some army, army must be part of some object
 	TExpType experience;//commander needs same amount of exp as hero

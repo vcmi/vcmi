@@ -7162,17 +7162,18 @@ void CGLighthouse::giveBonusTo( PlayerColor player ) const
 
 void CArmedInstance::randomizeArmy(int type)
 {
-	int max = VLC->creh->creatures.size();
 	for (auto & elem : stacks)
 	{
-		int randID = elem.second->idRand;
-		if(randID > max)
+		int & randID = elem.second->idRand;
+		if(randID >= 0)
 		{
-			int level = (randID-VLC->creh->creatures.size()) / 2 -1;
-			bool upgrade = !(randID % 2);
+			int level = randID / 2;
+			bool upgrade = randID % 2;
 			elem.second->setType(VLC->townh->factions[type]->town->creatures[level][upgrade]);
-		}
 
+			randID = -1;
+		}
+		assert(elem.second->valid(false));
 		assert(elem.second->armyObj == this);
 	}
 	return;
