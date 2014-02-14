@@ -3,6 +3,8 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CCompressedStream.h"
+#include "../filesystem/CMemoryStream.h"
+#include "../filesystem/CBinaryReader.h"
 #include "../VCMI_Lib.h"
 #include "../vcmi_endian.h"
 #include "../CGeneralTextHandler.h"
@@ -30,8 +32,9 @@ CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 {
 	std::vector<ui8> cmpgn = getFile(name, true)[0];
 
-	int it = 0;//iterator for reading
-	CCampaignHeader ret = readHeaderFromMemory(cmpgn.data(), it);
+	CMemoryStream stream(cmpgn.data(), cmpgn.size());
+	CBinaryReader reader(&stream);
+	CCampaignHeader ret = readHeaderFromMemory(reader);
 	ret.filename = name;
 
 	return ret;
@@ -43,14 +46,15 @@ unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
 
 	std::vector<std::vector<ui8>> file = getFile(name, false);
 
-	int it = 0; //iterator for reading
-	ret->header = readHeaderFromMemory(file[0].data(), it);
+	CMemoryStream stream(file[0].data(), file[0].size());
+	CBinaryReader reader(&stream);
+	ret->header = readHeaderFromMemory(reader);
 	ret->header.filename = name;
 
 	int howManyScenarios = VLC->generaltexth->campaignRegionNames[ret->header.mapVersion].size();
 	for(int g=0; g<howManyScenarios; ++g)
 	{
-		CCampaignScenario sc = readScenarioFromMemory(file[0].data(), it, ret->header.version, ret->header.mapVersion);
+		CCampaignScenario sc = readScenarioFromMemory(reader, ret->header.version, ret->header.mapVersion);
 		ret->scenarios.push_back(sc);
 	}
 
@@ -77,59 +81,56 @@ unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
 	return ret;
 }
 
-CCampaignHeader CCampaignHandler::readHeaderFromMemory( const ui8 *buffer, int & outIt )
+CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader )
 {
 	CCampaignHeader ret;
-	ret.version = read_le_u32(buffer + outIt); outIt+=4;
-	ret.mapVersion = buffer[outIt++]; //1 byte only
-	ret.mapVersion -= 1; //change range of it from [1, 20] to [0, 19]
-	ret.name = readString(buffer, outIt);
-	ret.description = readString(buffer, outIt);
+
+	ret.version = reader.readUInt32();
+	ret.mapVersion = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
+	ret.name = reader.readString();
+	ret.description = reader.readString();
 	if (ret.version > CampaignVersion::RoE)
-		ret.difficultyChoosenByPlayer = readChar(buffer, outIt);
+		ret.difficultyChoosenByPlayer = reader.readInt8();
 	else
 		ret.difficultyChoosenByPlayer = 0;
-	ret.music = readChar(buffer, outIt);
+	ret.music = reader.readInt8();
 	return ret;
 }
 
-CCampaignScenario CCampaignHandler::readScenarioFromMemory( const ui8 *buffer, int & outIt, int version, int mapVersion )
+CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & reader, int version, int mapVersion )
 {
-	struct HLP
+	auto prologEpilogReader = [&]() -> CCampaignScenario::SScenarioPrologEpilog
 	{
-		//reads prolog/epilog info from memory
-		static CCampaignScenario::SScenarioPrologEpilog prologEpilogReader( const ui8 *buffer, int & outIt )
+		CCampaignScenario::SScenarioPrologEpilog ret;
+		ret.hasPrologEpilog = reader.readUInt8();
+		if(ret.hasPrologEpilog)
 		{
-			CCampaignScenario::SScenarioPrologEpilog ret;
-			ret.hasPrologEpilog = buffer[outIt++];
-			if(ret.hasPrologEpilog)
-			{
-				ret.prologVideo = buffer[outIt++];
-				ret.prologMusic = buffer[outIt++];
-				ret.prologText = readString(buffer, outIt);
-			}
-			return ret;
+			ret.prologVideo = reader.readUInt8();
+			ret.prologMusic = reader.readUInt8();
+			ret.prologText = reader.readString();
 		}
+		return ret;
 	};
+
 	CCampaignScenario ret;
 	ret.conquered = false;
-	ret.mapName = readString(buffer, outIt);
-	ret.packedMapSize = read_le_u32(buffer + outIt); outIt += 4;
+	ret.mapName = reader.readString();
+	ret.packedMapSize = reader.readUInt32();
 	if(mapVersion == 18)//unholy alliance
 	{
-		ret.loadPreconditionRegions(read_le_u16(buffer + outIt)); outIt += 2;
+		ret.loadPreconditionRegions(reader.readUInt16());
 	}
 	else
 	{
-		ret.loadPreconditionRegions(buffer[outIt++]);
+		ret.loadPreconditionRegions(reader.readUInt8());
 	}
-	ret.regionColor = buffer[outIt++];
-	ret.difficulty = buffer[outIt++];
-	ret.regionText = readString(buffer, outIt);
-	ret.prolog = HLP::prologEpilogReader(buffer, outIt);
-	ret.epilog = HLP::prologEpilogReader(buffer, outIt);
+	ret.regionColor = reader.readUInt8();
+	ret.difficulty = reader.readUInt8();
+	ret.regionText = reader.readString();
+	ret.prolog = prologEpilogReader();
+	ret.epilog = prologEpilogReader();
 
-	ret.travelOptions = readScenarioTravelFromMemory(buffer, outIt, version);
+	ret.travelOptions = readScenarioTravelFromMemory(reader, version);
 
 	return ret;
 }
@@ -143,28 +144,25 @@ void CCampaignScenario::loadPreconditionRegions(ui32 regions)
 	}
 }
 
-CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const ui8 * buffer, int & outIt , int version )
+CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & reader, int version )
 {
 	CScenarioTravel ret;
 
-	ret.whatHeroKeeps = buffer[outIt++];
-	memcpy(ret.monstersKeptByHero, buffer+outIt, ARRAY_COUNT(ret.monstersKeptByHero));
-	outIt += ARRAY_COUNT(ret.monstersKeptByHero);
-	int artifBytes;
+	ret.whatHeroKeeps = reader.readUInt8();
+	reader.getStream()->read(ret.monstersKeptByHero.data(), ret.monstersKeptByHero.size());
+
 	if (version < CampaignVersion::SoD)
 	{
-		artifBytes = 17;
-		ret.artifsKeptByHero[17] = 0;
+		ret.artifsKeptByHero.fill(0);
+		reader.getStream()->read(ret.artifsKeptByHero.data(), ret.artifsKeptByHero.size() - 1);
 	} 
 	else
 	{
-		artifBytes = 18;
+		reader.getStream()->read(ret.artifsKeptByHero.data(), ret.artifsKeptByHero.size());
 	}
-	memcpy(ret.artifsKeptByHero, buffer+outIt, artifBytes);
-	outIt += artifBytes;
 
-	ret.startOptions = buffer[outIt++];
-	
+	ret.startOptions = reader.readUInt8();
+
 	switch(ret.startOptions)
 	{
 	case 0:
@@ -172,64 +170,64 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const ui8 * buff
 		break;
 	case 1: //reading of bonuses player can choose
 		{
-			ret.playerColor = buffer[outIt++];
-			ui8 numOfBonuses = buffer[outIt++];
+			ret.playerColor = reader.readUInt8();
+			ui8 numOfBonuses = reader.readUInt8();
 			for (int g=0; g<numOfBonuses; ++g)
 			{
 				CScenarioTravel::STravelBonus bonus;
-				bonus.type = static_cast<CScenarioTravel::STravelBonus::EBonusType>(buffer[outIt++]);
+				bonus.type = static_cast<CScenarioTravel::STravelBonus::EBonusType>(reader.readUInt8());
 				//hero: FFFD means 'most powerful' and FFFE means 'generated'
 				switch(bonus.type)
 				{
 				case CScenarioTravel::STravelBonus::SPELL:
 					{
-						bonus.info1 = read_le_u16(buffer + outIt); outIt += 2; //hero
-						bonus.info2 = buffer[outIt++]; //spell ID
+						bonus.info1 = reader.readUInt16(); //hero
+						bonus.info2 = reader.readUInt8(); //spell ID
 						break;
 					}
 				case CScenarioTravel::STravelBonus::MONSTER:
 					{
-						bonus.info1 = read_le_u16(buffer + outIt); outIt += 2; //hero
-						bonus.info2 = read_le_u16(buffer + outIt); outIt += 2; //monster type
-						bonus.info3 = read_le_u16(buffer + outIt); outIt += 2; //monster count
+						bonus.info1 = reader.readUInt16(); //hero
+						bonus.info2 = reader.readUInt16(); //monster type
+						bonus.info3 = reader.readUInt16(); //monster count
 						break;
 					}
 				case CScenarioTravel::STravelBonus::BUILDING:
 					{
-						bonus.info1 = buffer[outIt++]; //building ID (0 - town hall, 1 - city hall, 2 - capitol, etc)
+						bonus.info1 = reader.readUInt8(); //building ID (0 - town hall, 1 - city hall, 2 - capitol, etc)
 						break;
 					}
 				case CScenarioTravel::STravelBonus::ARTIFACT:
 					{
-						bonus.info1 = read_le_u16(buffer + outIt); outIt += 2; //hero
-						bonus.info2 = read_le_u16(buffer + outIt); outIt += 2; //artifact ID
+						bonus.info1 = reader.readUInt16(); //hero
+						bonus.info2 = reader.readUInt16(); //artifact ID
 						break;
 					}
 				case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 					{
-						bonus.info1 = read_le_u16(buffer + outIt); outIt += 2; //hero
-						bonus.info2 = buffer[outIt++]; //spell ID
+						bonus.info1 = reader.readUInt16(); //hero
+						bonus.info2 = reader.readUInt8(); //spell ID
 						break;
 					}
 				case CScenarioTravel::STravelBonus::PRIMARY_SKILL:
 					{
-						bonus.info1 = read_le_u16(buffer + outIt); outIt += 2; //hero
-						bonus.info2 = read_le_u32(buffer + outIt); outIt += 4; //bonuses (4 bytes for 4 skills)
+						bonus.info1 = reader.readUInt16(); //hero
+						bonus.info2 = reader.readUInt32(); //bonuses (4 bytes for 4 skills)
 						break;
 					}
 				case CScenarioTravel::STravelBonus::SECONDARY_SKILL:
 					{
-						bonus.info1 = read_le_u16(buffer + outIt); outIt += 2; //hero
-						bonus.info2 = buffer[outIt++]; //skill ID
-						bonus.info3 = buffer[outIt++]; //skill level
+						bonus.info1 = reader.readUInt16(); //hero
+						bonus.info2 = reader.readUInt8(); //skill ID
+						bonus.info3 = reader.readUInt8(); //skill level
 						break;
 					}
 				case CScenarioTravel::STravelBonus::RESOURCE:
 					{
-						bonus.info1 = buffer[outIt++]; //type
+						bonus.info1 = reader.readUInt8(); //type
 						//FD - wood+ore
 						//FE - mercury+sulfur+crystal+gem
-						bonus.info2 = read_le_u32(buffer + outIt); outIt += 4; //count
+						bonus.info2 = reader.readUInt32(); //count
 						break;
 					}
 				default:
@@ -242,13 +240,13 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const ui8 * buff
 		}
 	case 2: //reading of players (colors / scenarios ?) player can choose
 		{
-			ui8 numOfBonuses = buffer[outIt++];
+			ui8 numOfBonuses = reader.readUInt8();
 			for (int g=0; g<numOfBonuses; ++g)
 			{
 				CScenarioTravel::STravelBonus bonus;
 				bonus.type = CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO;
-				bonus.info1 = buffer[outIt++]; //player color
-				bonus.info2 = buffer[outIt++]; //from what scenario
+				bonus.info1 = reader.readUInt8(); //player color
+				bonus.info2 = reader.readUInt8(); //from what scenario
 
 				ret.bonusesToChoose.push_back(bonus);
 			}
@@ -256,13 +254,13 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const ui8 * buff
 		}
 	case 3: //heroes player can choose between
 		{
-			ui8 numOfBonuses = buffer[outIt++];
+			ui8 numOfBonuses = reader.readUInt8();
 			for (int g=0; g<numOfBonuses; ++g)
 			{
 				CScenarioTravel::STravelBonus bonus;
 				bonus.type = CScenarioTravel::STravelBonus::HERO;
-				bonus.info1 = buffer[outIt++]; //player color
-				bonus.info2 = read_le_u16(buffer + outIt); outIt += 2; //hero, FF FF - random
+				bonus.info1 = reader.readUInt8(); //player color
+				bonus.info2 = reader.readUInt16(); //hero, FF FF - random
 
 				ret.bonusesToChoose.push_back(bonus);
 			}
@@ -359,17 +357,6 @@ bool CScenarioTravel::STravelBonus::isBonusForHero() const
 	return type == SPELL || type == MONSTER || type == ARTIFACT || type == SPELL_SCROLL || type == PRIMARY_SKILL
 		|| type == SECONDARY_SKILL;
 }
-
-// void CCampaignState::initNewCampaign( const StartInfo &si )
-// {
-// 	assert(si.mode == StartInfo::CAMPAIGN);
-// 	campaignName = si.mapname;
-// 	currentMap = si.campState->currentMap;
-// 
-// 	camp = CCampaignHandler::getCampaign(campaignName);
-// 	for (ui8 i = 0; i < camp->mapPieces.size(); i++)
-// 		mapsRemaining.push_back(i);
-// }
 
 void CCampaignState::setCurrentMapAsConquered( const std::vector<CGHeroInstance*> & heroes )
 {

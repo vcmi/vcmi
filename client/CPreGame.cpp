@@ -445,7 +445,15 @@ const JsonNode & CGPreGameConfig::getConfig() const
 	return config;
 }
 
-CGPreGameConfig::CGPreGameConfig() : config(JsonNode(ResourceID("config/mainmenu.json")))
+const JsonNode & CGPreGameConfig::getCampaigns() const
+{
+	return campaignSets;
+}
+
+
+CGPreGameConfig::CGPreGameConfig() :
+	campaignSets(JsonNode(ResourceID("config/campaignSets.json"))),
+	config(JsonNode(ResourceID("config/mainmenu.json")))
 {
 
 }
@@ -528,15 +536,12 @@ void CGPreGame::update()
 
 void CGPreGame::openCampaignScreen(std::string name)
 {
-	for(const JsonNode& node : CGPreGameConfig::get().getConfig()["campaignsset"].Vector())
+	if (vstd::contains(CGPreGameConfig::get().getCampaigns().Struct(), name))
 	{
-		if (node["name"].String() == name)
-		{
-			GH.pushInt(new CCampaignScreen(node));
-			return;
-		}
+		GH.pushInt(new CCampaignScreen(CGPreGameConfig::get().getCampaigns()[name]));
+		return;
 	}
-    logGlobal->errorStream()<<"Unknown campaign set: "<<name;
+	logGlobal->errorStream()<<"Unknown campaign set: "<<name;
 }
 
 CGPreGame *CGPreGame::create()

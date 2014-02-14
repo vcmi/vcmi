@@ -15,6 +15,7 @@
 
 struct StartInfo;
 class CGHeroInstance;
+class CBinaryReader;
 
 namespace CampaignVersion
 {
@@ -49,8 +50,8 @@ class DLL_LINKAGE CScenarioTravel
 {
 public:
 	ui8 whatHeroKeeps; //bitfield [0] - experience, [1] - prim skills, [2] - sec skills, [3] - spells, [4] - artifacts
-	ui8 monstersKeptByHero[19];
-	ui8 artifsKeptByHero[18];
+	std::array<ui8, 19> monstersKeptByHero;
+	std::array<ui8, 18> artifsKeptByHero;
 
 	ui8 startOptions; //1 - start bonus, 2 - traveling hero, 3 - hero options
 
@@ -170,9 +171,9 @@ public:
 
 class DLL_LINKAGE CCampaignHandler
 {
-	static CCampaignHeader readHeaderFromMemory( const ui8 *buffer, int & outIt );
-	static CCampaignScenario readScenarioFromMemory( const ui8 *buffer, int & outIt, int version, int mapVersion );
-	static CScenarioTravel readScenarioTravelFromMemory( const ui8 * buffer, int & outIt , int version);
+	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader);
+	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, int version, int mapVersion );
+	static CScenarioTravel readScenarioTravelFromMemory(CBinaryReader & reader, int version);
 	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
 	static std::vector< std::vector<ui8> > getFile(const std::string & name, bool headerOnly);

@@ -578,10 +578,12 @@ class CGPreGameConfig
 public:
 	static CGPreGameConfig & get();
 	const JsonNode & getConfig() const;
+	const JsonNode & getCampaigns() const;
 
 private:
 	CGPreGameConfig();
 
+	const JsonNode campaignSets;
 	const JsonNode config;
 };
 

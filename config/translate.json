@@ -37,7 +37,7 @@
 		"resolutionButton" :
 		{
 			"label" : "Resolution",
-			"help"  : "{Select resolution}\n\n Change in-game screen resolution. Will only affect adventure map. Game restart required to apply new resolution."
+			"help"  : "{Select resolution}\n\n Change in-game screen resolution. Game restart required to apply new resolution."
 		},
 		"resolutionMenu" :
 		{
