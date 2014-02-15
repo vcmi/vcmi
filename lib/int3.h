@@ -84,6 +84,10 @@ public:
 				" " + boost::lexical_cast<std::string>(y) +
 				" " + boost::lexical_cast<std::string>(z) + ")";
 	}
+	inline bool valid() const
+	{
+		return z >= 0; //minimal condition that needs to be fulfilled for tiles in the map
+	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & x & y & z;

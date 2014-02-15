@@ -407,11 +407,12 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 			continue;
 
 		cb->setSelection(h);
-
 		SectorMap sm;
 
 		int3 tileToHit = sm.firstTileToGet(hero ? hero : h, tile);
 		//if our hero is trapped, make sure we request clearing the way from OUR perspective
+		if (!tileToHit.valid())
+			continue;
 
 		if (isBlockedBorderGate(tileToHit))
 		{	//FIXME: this way we'll not visit gate and activate quest :?
@@ -510,42 +511,35 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	{
 		for (auto obj : objs) //double loop, performance risk?
 		{
-			if (ai->isAccessibleForHero(obj->visitablePos(), h) && isSafeToVisit(h, obj->visitablePos()))
+			cb->setSelection(h);
+			SectorMap sm; //seems to depend on hero
+			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
+			if (t.valid())
 			{
-				ret.push_back (sptr (Goals::VisitTile(obj->visitablePos()).sethero(h)));
+				//auto topObj = backOrNull(cb->getVisitableObjs(t));
+				//if (topObj && topObj->ID == Obj::HERO && topObj != h)
+				//	continue; //if the tile is occupied by another hero, we are not interested in going there
+
+				if (isSafeToVisit(h, t))
+				{
+					ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
+				}
+				else
+				{
+					ret.push_back (sptr (Goals::GatherArmy(evaluateDanger(t, h)*SAFE_ATTACK_CONSTANT).
+						sethero(h).setisAbstract(true)));
+				}
 			}
 		}
 
 		int3 t = whereToExplore(h);
-		if (cb->isInTheMap(t)) //valid tile was found - could be invalid (none)
+		if (t.valid())
 			ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
 	}
 	//we either don't have hero yet or none of heroes can explore
 	if ((!hero || ret.empty()) && ai->canRecruitAnyHero())
 		ret.push_back (sptr(Goals::RecruitHero()));
 
-	if (ret.empty())
-	{
-		HeroPtr h;
-		if (hero) //there is some hero set and it's us
-		{
-			 if (hero == ai->primaryHero())
-				h = hero;
-		}
-		else //no hero is set, so we choose our main
-			h = ai->primaryHero();
-		 //we may need to gather big army to break!
-		if (h.h)
-		{
-			//FIXME: it never finds anything :?
-			int3 t = ai->explorationNewPoint(h->getSightRadious(), h, true);
-			if (cb->isInTheMap(t)) 
-				ret.push_back (sptr(ClearWayTo(t).setisAbstract(true).sethero(h)));
-			else //just in case above fails - gather army if no further exploration possible
-				ret.push_back (sptr(GatherArmy(h->getArmyStrength() + 1).sethero(h)));
-			//do not set abstract to keep our hero free once he gets reinforcements
-		}
-	}
 	if (ret.empty())
 	{
 		throw goalFulfilledException (sptr(Goals::Explore().sethero(hero)));
@@ -790,31 +784,50 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 {
 	TGoalVec ret;
 
-	std::vector<const CGObjectInstance *> objs; //here we'll gather enemy towns and heroes
-	ai->retreiveVisitableObjs(objs);
-	erase_if(objs, [&](const CGObjectInstance *obj)
+	std::vector<const CGObjectInstance *> objs;
+	for (auto obj : ai->visitableObjs)
 	{
-		return (obj->ID != Obj::TOWN && obj->ID != Obj::HERO && //not town/hero
-			obj->ID != Obj::CREATURE_GENERATOR1 && obj->ID != Obj::MINE) //not dwelling or mine
-			|| cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES; //only enemy objects are interesting
-	});
-	erase_if(objs,  [&](const CGObjectInstance *obj)
-	{
-		return vstd::contains (ai->reservedObjs, obj);
-		//no need to capture same object twice
-	});
+		if (!vstd::contains (ai->reservedObjs, obj) && //no need to capture same object twice
+			cb->getPlayerRelations(ai->playerID, obj->tempOwner) == PlayerRelations::ENEMIES) //only enemy objects are interesting
+		{
+			switch (obj->ID.num)
+			{
+				case Obj::TOWN:
+				case Obj::HERO:
+				case Obj::CREATURE_GENERATOR1:
+				case Obj::MINE: //TODO: check ai->knownSubterraneanGates
+					objs.push_back (obj);
+			}
+		}
+	}
 
 	for (auto h : cb->getHeroesInfo())
 	{
 		for (auto obj : objs) //double loop, performance risk?
 		{
-			if (ai->isAccessibleForHero(obj->visitablePos(), h) && isSafeToVisit(h, obj->visitablePos()))
+			cb->setSelection(h);
+			SectorMap sm; //seems to depend on hero
+			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
+			if (t.valid())
 			{
-				if (obj->ID == Obj::HERO)
-					ret.push_back (sptr (Goals::VisitHero(obj->id.getNum()).sethero(h).setisAbstract(true)));
-					//track enemy hero
+				//auto topObj = backOrNull(cb->getVisitableObjs(t));
+				//if (topObj && topObj->ID == Obj::HERO && topObj != h)
+				//	continue; //if the tile is occupied by another hero, we are not interested in going there
+
+				//FIXME: should firstTileToGet return position of our other hero?
+
+				if (isSafeToVisit(h, t))
+				{
+					if (obj->ID == Obj::HERO)
+						ret.push_back (sptr (Goals::VisitHero(obj->id.getNum()).sethero(h).setisAbstract(true)));
+						//track enemy hero
+					else
+						ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
+				}
 				else
-					ret.push_back (sptr (Goals::VisitTile(obj->visitablePos()).sethero(h)));
+				{
+					ret.push_back (sptr (Goals::GatherArmy(evaluateDanger(t,h)*SAFE_ATTACK_CONSTANT).sethero(h).setisAbstract(true)));
+				}
 			}
 		}
 	}
@@ -917,7 +930,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		for (auto obj : objs)
 		{ //find safe dwelling
 			auto pos = obj->visitablePos();
-			if (shouldVisit (h, obj) && isSafeToVisit(h, pos) && ai->isAccessibleForHero(pos, h))
+			if (ai->isGoodForVisit(obj, h))
 				ret.push_back (sptr (Goals::VisitTile(pos).sethero(h)));
 		}
 	}

@@ -2770,7 +2770,14 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 }
 
 int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
+/*
+this functions returns one target tile or invalid tile. We will use it to poll possible destinations
+For ship construction etc, another function (goal?) is needed
+*/
 {
+	int3 ret(-1,-1,-1);
+	cb->setSelection(h.h);
+
 	int sourceSector = retreiveTile(h->visitablePos()),
 		destinationSector = retreiveTile(dst);
 
@@ -2806,7 +2813,9 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 			write("test.txt");
 			ai->completeGoal (sptr(Goals::Explore(h))); //if we can't find the way, seemingly all tiles were explored
 			//TODO: more organized way?
-            throw cannotFulfillGoalException(boost::str(boost::format("Cannot find connection between sectors %d and %d") % src->id % dst->id));
+
+			return ret;
+            //throw cannotFulfillGoalException(boost::str(boost::format("Cannot find connection between sectors %d and %d") % src->id % dst->id));
 		}
 
 		std::vector<const Sector*> toTraverse;
@@ -2861,7 +2870,9 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 					if(!shipyards.size())
 					{
 						//TODO consider possibility of building shipyard in a town
-						throw cannotFulfillGoalException("There is no known shipyard!");
+						return ret;
+
+						//throw cannotFulfillGoalException("There is no known shipyard!");
 					}
 
 					//we have only shipyards that possibly can build ships onto the appropriate EP
@@ -2878,13 +2889,15 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 						if(cb->getResourceAmount().canAfford(shipCost))
 						{
 							int3 ret = s->bestLocation();
-							cb->buildBoat(s);
+							cb->buildBoat(s); //TODO: move actions elsewhere
 							return ret;
 						}
 						else
 						{
 							//TODO gather res
-							throw cannotFulfillGoalException("Not enough resources to build a boat");
+							return ret;
+
+							//throw cannotFulfillGoalException("Not enough resources to build a boat");
 						}
 					}
 					else
@@ -2898,17 +2911,20 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 			{
 				//TODO
 				//disembark
+				return ret;
 			}
 			else
 			{
 				//TODO
 				//transition between two land/water sectors. Monolith? Whirlpool? ...
-				throw cannotFulfillGoalException("Land-land and water-water inter-sector transitions are not implemented!");
+				return ret;
+				//throw cannotFulfillGoalException("Land-land and water-water inter-sector transitions are not implemented!");
 			}
 		}
 		else
 		{
-			throw cannotFulfillGoalException("Inter-sector route detection failed: not connected sectors?");
+			return ret;
+			//throw cannotFulfillGoalException("Inter-sector route detection failed: not connected sectors?");
 		}
 	}
 	else
@@ -2917,6 +2933,12 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 		int3 curtile = dst;
 		while(curtile != h->visitablePos())
 		{
+			auto topObj = backOrNull(cb->getVisitableObjs(curtile));
+			if (topObj && topObj->ID == Obj::HERO && topObj != h.h)
+			{
+				logAi->warnStream() << ("Another allied hero stands in our way");
+				return ret;
+			}
 			if(cb->getPathInfo(curtile)->reachable())
 			{
 				return curtile;
@@ -2930,13 +2952,17 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 					curtile = i->second;
 				}
 				else
-					throw cannotFulfillGoalException("Unreachable tile in sector? Should not happen!");
+				{
+					return ret;
+					//throw cannotFulfillGoalException("Unreachable tile in sector? Should not happen!");
+				}
 			}
 		}
 	}
 
-
-	throw cannotFulfillGoalException("Impossible happened.");
+	//FIXME: find out why this line is reached
+	logAi->errorStream() << ("Impossible happened at SectorMap::firstTileToGet");
+	return ret;
 }
 
 void SectorMap::makeParentBFS(crint3 source)
