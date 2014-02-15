@@ -98,6 +98,7 @@ struct SectorMap
 	std::map<int, Sector> infoOnSectors;
 
 	SectorMap();
+	SectorMap(HeroPtr h);
 	void update();
 	void clear();
 	void exploreNewSector(crint3 pos, int num);

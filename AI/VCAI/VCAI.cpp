@@ -2537,15 +2537,14 @@ void AIStatus::setMove(bool ongoing)
 
 SectorMap::SectorMap()
 {
-// 	int3 sizes = cb->getMapSize();
-// 	sector.resize(sizes.x);
-// 	for(auto &i : sector)
-// 		i.resize(sizes.y);
-//
-// 	for(auto &i : sector)
-// 		for(auto &j : i)
-// 			j.resize(sizes.z, 0);
 	update();
+}
+
+SectorMap::SectorMap(HeroPtr h)
+{
+	cb->setSelection(h.h);
+	update();
+	makeParentBFS(h->visitablePos());
 }
 
 bool markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
@@ -2776,7 +2775,6 @@ For ship construction etc, another function (goal?) is needed
 */
 {
 	int3 ret(-1,-1,-1);
-	cb->setSelection(h.h);
 
 	int sourceSector = retreiveTile(h->visitablePos()),
 		destinationSector = retreiveTile(dst);
@@ -2929,7 +2927,6 @@ For ship construction etc, another function (goal?) is needed
 	}
 	else
 	{
-		makeParentBFS(h->visitablePos());
 		int3 curtile = dst;
 		while(curtile != h->visitablePos())
 		{
@@ -2985,8 +2982,11 @@ void SectorMap::makeParentBFS(crint3 source)
 		{
 			if(retreiveTile(neighPos) == mySector && !vstd::contains(parent, neighPos))
 			{
-				toVisit.push(neighPos);
-				parent[neighPos] = curPos;
+				if (cb->canMoveBetween(curPos, neighPos))
+				{
+					toVisit.push(neighPos);
+					parent[neighPos] = curPos;
+				}
 			}
 		});
 	}

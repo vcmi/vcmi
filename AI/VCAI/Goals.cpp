@@ -406,8 +406,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 			h->visitablePos() == tile) //we are already on that tile! what does it mean?
 			continue;
 
-		cb->setSelection(h);
-		SectorMap sm;
+		SectorMap sm(h);
 
 		int3 tileToHit = sm.firstTileToGet(hero ? hero : h, tile);
 		//if our hero is trapped, make sure we request clearing the way from OUR perspective
@@ -509,10 +508,9 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	}
 	for (auto h : heroes)
 	{
+		SectorMap sm(h);
 		for (auto obj : objs) //double loop, performance risk?
 		{
-			cb->setSelection(h);
-			SectorMap sm; //seems to depend on hero
 			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
 			if (t.valid())
 			{
@@ -803,10 +801,9 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 
 	for (auto h : cb->getHeroesInfo())
 	{
+		SectorMap sm(h);
 		for (auto obj : objs) //double loop, performance risk?
 		{
-			cb->setSelection(h);
-			SectorMap sm; //seems to depend on hero
 			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
 			if (t.valid())
 			{

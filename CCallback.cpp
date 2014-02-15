@@ -321,6 +321,12 @@ int CCallback::getDistance( int3 tile )
 		return 255;
 }
 
+bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
+{
+	//TODO: merge with Pathfinder::canMoveBetween
+	return gs->checkForVisitableDir(a, b) && gs->checkForVisitableDir(b, a);
+}
+
 bool CCallback::getPath2( int3 dest, CGPath &ret )
 {
 	if (!gs->map->isInTheMap(dest))
