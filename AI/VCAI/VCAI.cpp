@@ -823,6 +823,9 @@ void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 
 bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * source)
 { //TODO: merge with pickBestCreatures
+	if (ai->primaryHero().h == source)
+		return false; //TODO: allow exchange back and forth
+
 	if(army->tempOwner != source->tempOwner)
 	{
 		logAi->errorStream() << "Why are we even considering exchange between heroes from different players?";
@@ -2157,6 +2160,9 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 		if(cb->isInTheMap(hpos+dir))
 			if (isSafeToVisit(h, hpos + dir) && isAccessibleForHero (hpos + dir, h))
 				dstToRevealedTiles[hpos + dir] = howManyTilesWillBeDiscovered(radius, hpos, dir);
+
+	if (dstToRevealedTiles.empty()) //yes, it DID happen!
+		throw cannotFulfillGoalException("No neighbour will bring new discoveries!");
 
 	auto best = dstToRevealedTiles.begin();
 	for (auto i = dstToRevealedTiles.begin(); i != dstToRevealedTiles.end(); i++)

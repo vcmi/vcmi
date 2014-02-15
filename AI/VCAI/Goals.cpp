@@ -514,10 +514,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
 			if (t.valid())
 			{
-				//auto topObj = backOrNull(cb->getVisitableObjs(t));
-				//if (topObj && topObj->ID == Obj::HERO && topObj != h)
-				//	continue; //if the tile is occupied by another hero, we are not interested in going there
-
+				assert(cb->isInTheMap(t));
 				if (isSafeToVisit(h, t))
 				{
 					ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
@@ -532,7 +529,10 @@ TGoalVec Explore::getAllPossibleSubgoals()
 
 		int3 t = whereToExplore(h);
 		if (t.valid())
+		{
+			assert(cb->isInTheMap(t));
 			ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
+		}
 	}
 	//we either don't have hero yet or none of heroes can explore
 	if ((!hero || ret.empty()) && ai->canRecruitAnyHero())
@@ -599,6 +599,8 @@ TSubgoal VisitTile::whatToDoToAchieve()
 
 TGoalVec VisitTile::getAllPossibleSubgoals()
 {
+	assert(cb->isInTheMap(tile));
+
 	TGoalVec ret;
 	if (!cb->isVisible(tile))
 		ret.push_back (sptr(Goals::Explore())); //what sense does it make?
@@ -807,12 +809,6 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
 			if (t.valid())
 			{
-				//auto topObj = backOrNull(cb->getVisitableObjs(t));
-				//if (topObj && topObj->ID == Obj::HERO && topObj != h)
-				//	continue; //if the tile is occupied by another hero, we are not interested in going there
-
-				//FIXME: should firstTileToGet return position of our other hero?
-
 				if (isSafeToVisit(h, t))
 				{
 					if (obj->ID == Obj::HERO)
