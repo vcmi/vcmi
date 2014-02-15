@@ -14,6 +14,7 @@
 				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-ggdb" />
+					<Add option="-Og" />
 				</Compiler>
 			</Target>
 			<Target title="Release">

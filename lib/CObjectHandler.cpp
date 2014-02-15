@@ -1628,7 +1628,7 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 	if (!skillsInfo.magicSchoolCounter)
 	{
 		std::vector<SecondarySkill> ss;
-		ss += SecondarySkill::FIRE_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC, SecondarySkill::EARTH_MAGIC;
+		ss += SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC;
 
 		auto rng = [=](ui32 val) mutable -> ui32
 		{
@@ -2712,7 +2712,7 @@ void CGTownInstance::addHeroToStructureVisitors( const CGHeroInstance *h, si32 s
 	}
 }
 
-void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == 0)
 	{
@@ -3040,7 +3040,7 @@ void CGVisitableOPH::schoolSelected(const CGHeroInstance * h, ui32 which) const
 	cb->changePrimSkill (h, static_cast<PrimarySkill::PrimarySkill>(base + which-1), +1); //give appropriate skill
 }
 
-void CGVisitableOPH::blockingDialogAnswered(const CGHeroInstance *h, ui32 answer) const 
+void CGVisitableOPH::blockingDialogAnswered(const CGHeroInstance *h, ui32 answer) const
 {
 	switch (ID)
 	{
@@ -3191,7 +3191,7 @@ const std::string & CGCreature::getHoverText() const
 	{
 		static const std::string errorValue("!!!INVALID_STACK!!!");
 
-		//should not happen... 
+		//should not happen...
 		logGlobal->errorStream() << "Invalid stack at tile " << pos << ": subID=" << subID << "; id=" << id;
 		return errorValue; // references to temporary are illegal - use pre-constructed string
 	}
@@ -3544,9 +3544,9 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 	cb->showBlockingDialog(&ynd);
 }
 
-void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	
+
 	if(result.winner==0)
 	{
 		cb->removeObject(this);
@@ -3599,7 +3599,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 	}
 }
 
-void CGCreature::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+void CGCreature::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	auto action = takenAction(hero);
 	if(!refusedJoining && action >= JOIN_FOR_FREE) //higher means price
@@ -3718,7 +3718,7 @@ ui32 CGMine::defaultResProduction()
 	}
 }
 
-void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == 0) //attacker won
 	{
@@ -3730,7 +3730,7 @@ void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &resu
 	}
 }
 
-void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	if(answer)
 		cb->startBattleI(hero, this);
@@ -3799,13 +3799,13 @@ void CGResource::collectRes( PlayerColor player ) const
 	cb->removeObject(this);
 }
 
-void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == 0) //attacker won
 		collectRes(hero->getOwner());
 }
 
-void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	if(answer)
 		cb->startBattleI(hero, this);
@@ -4070,7 +4070,7 @@ void CGArtifact::initObj()
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;
-	
+
 	assert(storedArtifact->artType);
 	assert(storedArtifact->getParentNodes().size());
 
@@ -4138,13 +4138,13 @@ void CGArtifact::pick(const CGHeroInstance * h) const
 	cb->removeObject(this);
 }
 
-void CGArtifact::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+void CGArtifact::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == 0) //attacker won
 		pick(hero);
 }
 
-void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	if(answer)
 		cb->startBattleI(hero, this);
@@ -4347,7 +4347,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 	cb->removeObject(this);
 }
 
-void CGPickable::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+void CGPickable::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	switch(answer)
 	{
@@ -5035,7 +5035,7 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 	return static_cast<const CGCreature*>(o);
 }
 
-void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	finishQuest(hero, answer);
 }
@@ -5698,7 +5698,7 @@ void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int val, int nega
 	}
 }
 
-void CGPandoraBox::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+void CGPandoraBox::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner)
 		return;
@@ -5706,7 +5706,7 @@ void CGPandoraBox::battleFinished(const CGHeroInstance *hero, const BattleResult
 	giveContentsUpToExp(hero);
 }
 
-void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	if (answer)
 	{
@@ -5731,7 +5731,7 @@ void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answe
 	}
 }
 
-void CGPandoraBox::heroLevelUpDone(const CGHeroInstance *hero) const 
+void CGPandoraBox::heroLevelUpDone(const CGHeroInstance *hero) const
 {
 	giveContentsAfterExp(hero);
 }
@@ -6006,7 +6006,7 @@ ui8 CGGarrison::getPassableness() const
 	return mask;
 }
 
-void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if (result.winner == 0)
 		onHeroVisit(hero);
@@ -6170,7 +6170,7 @@ void CGOnceVisitable::initObj()
 	}
 }
 
-void CGOnceVisitable::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+void CGOnceVisitable::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	//must have been Tomb
 	if(answer)
@@ -6236,10 +6236,10 @@ void CBank::reset(ui16 var1) //prevents desync
 void CBank::initialize() const
 {
 	cb->setObjProperty (id, ObjProperty::BANK_RESET, ran()); //synchronous reset
-	
+
 	for (ui8 i = 0; i <= 3; i++)
 	{
-		for (ui8 n = 0; n < bc->artifacts[i]; n++) 
+		for (ui8 n = 0; n < bc->artifacts[i]; n++)
 		{
 			CArtifact::EartClass artClass;
 			switch(i)
@@ -6252,7 +6252,7 @@ void CBank::initialize() const
 			}
 
 			int artID = cb->getArtSync(ran(), artClass, true);
-			cb->setObjProperty(id, ObjProperty::BANK_ADD_ARTIFACT, artID); 
+			cb->setObjProperty(id, ObjProperty::BANK_ADD_ARTIFACT, artID);
 		}
 	}
 
@@ -6421,7 +6421,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 	}
 }
 
-void CBank::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+void CBank::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if (result.winner == 0)
 	{
@@ -6548,7 +6548,7 @@ void CBank::battleFinished(const CGHeroInstance *hero, const BattleResult &resul
 	}
 }
 
-void CBank::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+void CBank::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	if (answer)
 	{
@@ -6600,7 +6600,7 @@ void CGPyramid::onHeroVisit (const CGHeroInstance * h) const
 	}
 }
 
-void CGPyramid::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+void CGPyramid::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if (result.winner == 0)
 	{
@@ -6720,7 +6720,7 @@ void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const
 	}
 }
 
-void CGBorderGuard::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+void CGBorderGuard::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	if (answer)
 		cb->removeObject(this);
@@ -7033,7 +7033,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 	}
 }
 
-void CCartographer::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+void CCartographer::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	if (answer) //if hero wants to buy map
 	{

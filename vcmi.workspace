@@ -7,6 +7,7 @@
 		</Project>
 		<Project filename="client/VCMI_client.cbp">
 			<Depends filename="lib/VCMI_lib.cbp" />
+			<Depends filename="server/VCMI_server.cbp" />
 		</Project>
 		<Project filename="server/VCMI_server.cbp">
 			<Depends filename="lib/VCMI_lib.cbp" />

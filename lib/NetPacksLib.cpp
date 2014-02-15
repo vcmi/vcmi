@@ -425,7 +425,7 @@ void TryMoveHero::applyGs( CGameState *gs )
 	CGHeroInstance *h = gs->getHero(id);
 	h->movement = movePoints;
 
-	if((result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK) && start != end) 
+	if((result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK) && start != end)
 	{
 		auto dir = getDir(start,end);
 		if(dir > 0  &&  dir <= 8)
@@ -1026,7 +1026,7 @@ DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )
 	if (vstd::contains(skills, SecondarySkill::WISDOM))
 		h->skillsInfo.resetWisdomCounter();
 	SecondarySkill spellSchools[] = {
-		SecondarySkill::FIRE_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC, SecondarySkill::EARTH_MAGIC};
+		SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC};
 	for (auto skill : spellSchools)
 	{
 		if (vstd::contains(skills, skill))
@@ -1166,7 +1166,7 @@ void BattleResult::applyGs( CGameState *gs )
 		for(int i = 0; i < 2; i++)
 			if(exp[i])
 				gs->curB->battleGetArmyObject(i)->giveStackExp(exp[i]);
-		
+
 		CBonusSystemNode::treeHasChanged();
 	}
 
@@ -1512,7 +1512,7 @@ DLL_LINKAGE CatapultAttack::CatapultAttack()
 
 DLL_LINKAGE CatapultAttack::~CatapultAttack()
 {
-	
+
 }
 
 DLL_LINKAGE void CatapultAttack::applyGs( CGameState *gs )
