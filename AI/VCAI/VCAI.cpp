@@ -24,8 +24,6 @@ const double SAFE_ATTACK_CONSTANT = 1.5;
 const int GOLD_RESERVE = 10000; //when buying creatures we want to keep at least this much gold (10000 so at least we'll be able to reach capitol)
 
 using namespace vstd;
-//extern Goals::TSubgoal sptr(const Goals::AbstractGoal & tmp);
-//#define sptr(x) Goals::sptr(x)
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
 boost::thread_specific_ptr<CCallback> cb;
@@ -2971,104 +2969,5 @@ void SectorMap::makeParentBFS(crint3 source)
 unsigned char & SectorMap::retreiveTile(crint3 pos)
 {
 	return retreiveTileN(sector, pos);
-}
-
-const CGObjectInstance * ObjectIdRef::operator->() const
-{
-	return cb->getObj(id, false);
-}
-
-ObjectIdRef::operator const CGObjectInstance*() const
-{
-	return cb->getObj(id, false);
-}
-
-ObjectIdRef::ObjectIdRef(ObjectInstanceID _id) : id(_id)
-{
-
-}
-
-ObjectIdRef::ObjectIdRef(const CGObjectInstance *obj) : id(obj->id)
-{
-
-}
-
-bool ObjectIdRef::operator<(const ObjectIdRef &rhs) const
-{
-	return id < rhs.id;
-}
-
-HeroPtr::HeroPtr(const CGHeroInstance *H)
-{
-	if(!H)
-	{
-		//init from nullptr should equal to default init
-		*this = HeroPtr();
-		return;
-	}
-
-	h = H;
-	name = h->name;
-
-	hid = H->id;
-//	infosCount[ai->playerID][hid]++;
-}
-
-HeroPtr::HeroPtr()
-{
-	h = nullptr;
-	hid = ObjectInstanceID();
-}
-
-HeroPtr::~HeroPtr()
-{
-// 	if(hid >= 0)
-// 		infosCount[ai->playerID][hid]--;
-}
-
-bool HeroPtr::operator<(const HeroPtr &rhs) const
-{
-	return hid < rhs.hid;
-}
-
-const CGHeroInstance * HeroPtr::get(bool doWeExpectNull /*= false*/) const
-{
-	//TODO? check if these all assertions every time we get info about hero affect efficiency
-	//
-	//behave terribly when attempting unauthorized access to hero that is not ours (or was lost)
-	assert(doWeExpectNull || h);
-
-	if(h)
-	{
-		auto obj = cb->getObj(hid);
-		const bool owned = obj && obj->tempOwner == ai->playerID;
-
-		if(doWeExpectNull && !owned)
-		{
-			return nullptr;
-		}
-		else
-		{
-			assert(obj);
-			assert(owned);
-		}
-	}
-
-	return h;
-}
-
-const CGHeroInstance * HeroPtr::operator->() const
-{
-	return get();
-}
-
-bool HeroPtr::validAndSet() const
-{
-	return get(true);
-}
-
-const CGHeroInstance * HeroPtr::operator*() const
-{
-	return get();
 }
 

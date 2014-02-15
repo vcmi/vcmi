@@ -22,9 +22,6 @@
  *
  */
 
-//provisional class for AI to store a reference to an owned hero object
-//checks if it's valid on access, should be used in place of const CGHeroInstance*
-
 typedef const int3& crint3;
 typedef const std::string& crstring;
 
@@ -36,6 +33,9 @@ const int ALLOWED_ROAMING_HEROES = 8;
 //implementation-dependent
 extern const double SAFE_ATTACK_CONSTANT;
 extern const int GOLD_RESERVE;
+
+//provisional class for AI to store a reference to an owned hero object
+//checks if it's valid on access, should be used in place of const CGHeroInstance*
 
 struct HeroPtr
 {

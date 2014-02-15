@@ -23,6 +23,105 @@ extern FuzzyHelper *fh;
 
 //extern static const int3 dirs[8];
 
+const CGObjectInstance * ObjectIdRef::operator->() const
+{
+	return cb->getObj(id, false);
+}
+
+ObjectIdRef::operator const CGObjectInstance*() const
+{
+	return cb->getObj(id, false);
+}
+
+ObjectIdRef::ObjectIdRef(ObjectInstanceID _id) : id(_id)
+{
+
+}
+
+ObjectIdRef::ObjectIdRef(const CGObjectInstance *obj) : id(obj->id)
+{
+
+}
+
+bool ObjectIdRef::operator<(const ObjectIdRef &rhs) const
+{
+	return id < rhs.id;
+}
+
+HeroPtr::HeroPtr(const CGHeroInstance *H)
+{
+	if(!H)
+	{
+		//init from nullptr should equal to default init
+		*this = HeroPtr();
+		return;
+	}
+
+	h = H;
+	name = h->name;
+
+	hid = H->id;
+//	infosCount[ai->playerID][hid]++;
+}
+
+HeroPtr::HeroPtr()
+{
+	h = nullptr;
+	hid = ObjectInstanceID();
+}
+
+HeroPtr::~HeroPtr()
+{
+// 	if(hid >= 0)
+// 		infosCount[ai->playerID][hid]--;
+}
+
+bool HeroPtr::operator<(const HeroPtr &rhs) const
+{
+	return hid < rhs.hid;
+}
+
+const CGHeroInstance * HeroPtr::get(bool doWeExpectNull /*= false*/) const
+{
+	//TODO? check if these all assertions every time we get info about hero affect efficiency
+	//
+	//behave terribly when attempting unauthorized access to hero that is not ours (or was lost)
+	assert(doWeExpectNull || h);
+
+	if(h)
+	{
+		auto obj = cb->getObj(hid);
+		const bool owned = obj && obj->tempOwner == ai->playerID;
+
+		if(doWeExpectNull && !owned)
+		{
+			return nullptr;
+		}
+		else
+		{
+			assert(obj);
+			assert(owned);
+		}
+	}
+
+	return h;
+}
+
+const CGHeroInstance * HeroPtr::operator->() const
+{
+	return get();
+}
+
+bool HeroPtr::validAndSet() const
+{
+	return get(true);
+}
+
+const CGHeroInstance * HeroPtr::operator*() const
+{
+	return get();
+}
+
 void foreach_tile_pos(std::function<void(const int3& pos)> foo)
 {
 	for(int i = 0; i < cb->getMapSize().x; i++)
