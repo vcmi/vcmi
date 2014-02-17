@@ -111,6 +111,7 @@ public:
 	std::vector <const CGObjectInstance * > getBlockingObjs(int3 pos)const;
 	std::vector <const CGObjectInstance * > getVisitableObjs(int3 pos, bool verbose = true)const;
 	std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
+	const CGObjectInstance * getTopObj (int3 pos) const;
 	std::vector <std::string > getObjDescriptions(int3 pos)const; //returns descriptions of objects at pos in order from the lowest to the highest
 	PlayerColor getOwner(ObjectInstanceID heroID) const;
 	const CGObjectInstance *getObjByQuestIdentifier(int identifier) const; //nullptr if object has been removed (eg. killed)

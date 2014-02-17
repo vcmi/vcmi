@@ -347,7 +347,7 @@ int3 whereToExplore(HeroPtr h)
 	catch(cannotFulfillGoalException &e)
 	{
 		//perform exhaustive search
-		return ai->explorationNewPoint(radius, h);
+		return ai->explorationNewPoint(h);
 	}
 }
 

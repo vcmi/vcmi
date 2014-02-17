@@ -418,7 +418,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 			ret.push_back  (sptr (Goals::FindObj (Obj::KEYMASTER, cb->getTile(tileToHit)->visitableObjects.back()->subID)));
 		}
 
-		auto topObj = backOrNull(cb->getVisitableObjs(tileToHit));
+		auto topObj = cb->getTopObj(tileToHit);
 		if(topObj)
 		{
 			if (topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
@@ -516,18 +516,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		for (auto obj : objs) //double loop, performance risk?
 		{
 			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
-			if (t.valid())
-			{
-				if (isSafeToVisit(h, t))
-				{
-					ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
-				}
-				else
-				{
-					ret.push_back (sptr (Goals::GatherArmy(evaluateDanger(t, h)*SAFE_ATTACK_CONSTANT).
-						sethero(h).setisAbstract(true)));
-				}
-			}
+			ai->whatToDoToReachTile(h, t, ret);
 		}
 
 		int3 t = whereToExplore(h);
@@ -537,19 +526,8 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		}
 		else if (hero.h == h || (!hero && h == ai->primaryHero().h)) //check this only ONCE, high cost
 		{
-			t = ai->explorationDesperate(h->getSightRadious(), h);
-			if (t.valid())
-			{
-				if (isSafeToVisit(h, t))
-				{
-					ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
-				}
-				else
-				{
-					ret.push_back (sptr (Goals::GatherArmy(evaluateDanger(t, h)*SAFE_ATTACK_CONSTANT).
-						sethero(h).setisAbstract(true)));
-				}
-			}
+			t = ai->explorationDesperate(h);
+			ai->whatToDoToReachTile(h, t, ret);
 		}
 	}
 	//we either don't have hero yet or none of heroes can explore
@@ -560,7 +538,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	//{
 	//	for (auto h : heroes) //this is costly function, use only when there is no other way
 	//	{
-	//		auto t = ai->explorationDesperate (h->getSightRadious(), h); //we assume that no more than one tile on the way is guarded
+	//		auto t = ai->explorationDesperate (h); //we assume that no more than one tile on the way is guarded
 	//		if (t.valid())
 	//		{
 	//			if (isSafeToVisit(h, t))
@@ -744,7 +722,7 @@ TSubgoal CollectRes::whatToDoToAchieve()
 
 		if(howManyCanWeBuy + cb->getResourceAmount(static_cast<Res::ERes>(resID)) >= value)
 		{
-			auto backObj = backOrNull(cb->getVisitableObjs(m->o->visitablePos())); //it'll be a hero if we have one there; otherwise marketplace
+			auto backObj = cb->getTopObj(m->o->visitablePos()); //it'll be a hero if we have one there; otherwise marketplace
 			assert(backObj);
 			if (backObj->tempOwner != ai->playerID)
 			{
@@ -858,21 +836,7 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 		for (auto obj : ourObjs) //double loop, performance risk?
 		{
 			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
-			if (t.valid())
-			{
-				if (isSafeToVisit(h, t))
-				{
-					if (obj->ID == Obj::HERO)
-						ret.push_back (sptr (Goals::VisitHero(obj->id.getNum()).sethero(h).setisAbstract(true)));
-						//track enemy hero
-					else
-						ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
-				}
-				else
-				{
-					ret.push_back (sptr (Goals::GatherArmy(evaluateDanger(t,h)*SAFE_ATTACK_CONSTANT).sethero(h).setisAbstract(true)));
-				}
-			}
+			ai->whatToDoToReachTile (h, t, ret);
 		}
 	}
 	if (!objs.empty() && ai->canRecruitAnyHero()) //probably no point to recruit hero if we see no objects to capture
@@ -978,6 +942,9 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 				ret.push_back (sptr (Goals::VisitTile(pos).sethero(h)));
 		}
 	}
+	if (ai->canRecruitAnyHero()) //this is not stupid in early phase of game
+		ret.push_back (sptr(Goals::RecruitHero()));
+
 	if (ret.empty())
 	{
 		if (hero == ai->primaryHero() || value >= 1.1f)

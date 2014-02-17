@@ -132,6 +132,11 @@ int TerrainTile::topVisitableId() const
 	return visitableObjects.size() ? visitableObjects.back()->ID : -1;
 }
 
+CGObjectInstance * TerrainTile::topVisitableObj() const
+{
+	return visitableObjects.size() ? visitableObjects.back() : nullptr;
+}
+
 bool TerrainTile::isCoastal() const
 {
 	return extTileFlags & 64;

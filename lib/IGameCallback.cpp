@@ -521,6 +521,10 @@ std::vector <const CGObjectInstance * > CGameInfoCallback::getVisitableObjs(int3
 
 	return ret;
 }
+const CGObjectInstance * CGameInfoCallback::getTopObj (int3 pos) const
+{
+	return vstd::backOrNull(getVisitableObjs(pos));
+}
 
 std::vector < const CGObjectInstance * > CGameInfoCallback::getFlaggableObjects(int3 pos) const
 {

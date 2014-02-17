@@ -288,6 +288,7 @@ struct DLL_LINKAGE TerrainTile
 	bool isClear(const TerrainTile * from = nullptr) const;
 	/// Gets the ID of the top visitable object or -1 if there is none.
 	int topVisitableId() const;
+	CGObjectInstance * topVisitableObj() const;
 	bool isWater() const;
 	bool isCoastal() const;
 	bool hasFavourableWinds() const;

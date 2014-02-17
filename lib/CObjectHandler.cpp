@@ -1567,10 +1567,10 @@ void CGHeroInstance::deserializationFix()
 {
 	artDeserializationFix(this);
 
-	//for (auto hs : specialty)
-	//{
-	//	attachTo (hs);
-	//}
+	for (auto hs : specialty)
+	{
+		attachTo (hs);
+	}
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)

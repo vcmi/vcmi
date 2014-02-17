@@ -467,6 +467,8 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 float FuzzyHelper::evaluate (Goals::VisitHero & g)
 {
 	auto obj = cb->getObj(ObjectInstanceID(g.objid)); //we assume for now that these goals are similiar
+	if (!obj)
+		return -100; //hero died in the meantime
 	//TODO: consider direct copy (constructor?)
 	g.setpriority(Goals::VisitTile(obj->visitablePos()).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
 	return g.priority;	

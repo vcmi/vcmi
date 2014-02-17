@@ -742,7 +742,6 @@ void VCAI::makeTurnInternal()
 			std::vector<std::pair<HeroPtr, Goals::TSubgoal> > safeCopy;
 			for (auto mission : lockedHeroes)
 			{
-				//FIXME: for some reason when called here, priority is always the same
 				fh->setPriority (mission.second); //re-evaluate
 				if (canAct(mission.first))
 				{
@@ -1239,6 +1238,26 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 	boost::sort(possibleDestinations, isCloser);
 
 	return possibleDestinations;
+}
+
+void VCAI::whatToDoToReachTile (const CGHeroInstance * h, int3 t, Goals::TGoalVec& vec)
+///TODO: possibly merge with Goals::ClearWayTo
+{
+	if (t.valid())
+	{
+		auto obj = cb->getTopObj(t);
+		if (obj && vstd::contains(ai->reservedObjs, obj) && !vstd::contains(reservedHeroesMap[h], obj))
+				return; //do not capture object reserved by another hero
+		if (isSafeToVisit(h, t))
+		{
+			vec.push_back (sptr (Goals::VisitTile(t).sethero(h)));
+		}
+		else
+		{
+			vec.push_back (sptr (Goals::GatherArmy(evaluateDanger(t, h)*SAFE_ATTACK_CONSTANT).
+				sethero(h).setisAbstract(true)));
+		}
+	}
 }
 
 bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
@@ -2205,10 +2224,11 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 	throw cannotFulfillGoalException("No neighbour will bring new discoveries!");
 }
 
-int3 VCAI::explorationNewPoint(int radius, HeroPtr h)
+int3 VCAI::explorationNewPoint(HeroPtr h)
 {
     //logAi->debugStream() << "Looking for an another place for exploration...";
 	cb->setSelection(h.h);
+	int radius = h->getSightRadious();
 
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
 	tiles.resize(radius);
@@ -2288,10 +2308,11 @@ int3 VCAI::explorationNewPoint(int radius, HeroPtr h)
 	return bestTile;
 }
 
-int3 VCAI::explorationDesperate(int radius, HeroPtr h)
+int3 VCAI::explorationDesperate(HeroPtr h)
 {
     //logAi->debugStream() << "Looking for an another place for exploration...";
 	SectorMap sm(h);
+	int radius = h->getSightRadious();
 	
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
 	tiles.resize(radius);
@@ -3049,7 +3070,7 @@ For ship construction etc, another function (goal?) is needed
 		int3 curtile = dst;
 		while(curtile != h->visitablePos())
 		{
-			auto topObj = backOrNull(cb->getVisitableObjs(curtile));
+			auto topObj = cb->getTopObj(curtile);
 			if (topObj && topObj->ID == Obj::HERO && topObj != h.h)
 			{
 				logAi->warnStream() << ("Another allied hero stands in our way");
@@ -3095,8 +3116,7 @@ void SectorMap::makeParentBFS(crint3 source)
 		ui8 &sec = retreiveTile(curPos);
 		assert(sec == mySector); //consider only tiles from the same sector
 		UNUSED(sec);
-
-		//const TerrainTile *t = cb->getTile(curPos);
+	
 		foreach_neighbour(curPos, [&](crint3 neighPos)
 		{
 			if(retreiveTile(neighPos) == mySector && !vstd::contains(parent, neighPos))
@@ -3108,6 +3128,19 @@ void SectorMap::makeParentBFS(crint3 source)
 				}
 			}
 		});
+		//this code is unused, as tiles on both sides of game are different sectors
+
+		//const TerrainTile *t = cb->getTile(curPos);
+		//if(t->topVisitableId() == Obj::SUBTERRANEAN_GATE)
+		//{
+		//	//try finding the exit gate
+		//	auto it = ai->knownSubterraneanGates.find(t->topVisitableObj());
+		//	if (it != ai->knownSubterraneanGates.end())
+		//	{
+		//		const int3 outPos = it->second->visitablePos();
+		//		parent[outPos] = curPos; //TODO: is it only one tile?
+		//	}
+		//}
 	}
 }
 
