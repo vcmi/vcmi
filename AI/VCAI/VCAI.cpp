@@ -307,14 +307,30 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 
 	requestActionASAP([=]()
 	{
-		if (firstHero->getFightingStrength() > secondHero->getFightingStrength() && canGetArmy (firstHero, secondHero))
-			pickBestCreatures (firstHero, secondHero);
-		else if (canGetArmy (secondHero, firstHero))
-			pickBestCreatures (secondHero, firstHero);
+		float goalpriority1 = 0, goalpriority2 = 0;
 
-		completeGoal(sptr(Goals::VisitHero(firstHero->id.getNum()))); //TODO: what if we were visited by other hero in the meantime?
-		completeGoal(sptr(Goals::VisitHero(secondHero->id.getNum())));
+		auto firstGoal = getGoal(firstHero);
+		if (firstGoal->goalType == Goals::GATHER_ARMY)
+			goalpriority1 = firstGoal->priority;
+		auto secondGoal = getGoal(secondHero);
+		if (secondGoal->goalType == Goals::GATHER_ARMY)
+			goalpriority2 = secondGoal->priority;
+
+		if (goalpriority1 > goalpriority2)
+			pickBestCreatures (firstHero, secondHero);
+		else if (goalpriority1 < goalpriority2)
+			pickBestCreatures (secondHero, firstHero);
+		else //regular criteria
+		{
+			if (firstHero->getFightingStrength() > secondHero->getFightingStrength() && canGetArmy (firstHero, secondHero))
+				pickBestCreatures (firstHero, secondHero);
+			else if (canGetArmy (secondHero, firstHero))
+				pickBestCreatures (secondHero, firstHero);
+
+			completeGoal(sptr(Goals::VisitHero(firstHero->id.getNum()))); //TODO: what if we were visited by other hero in the meantime?
+			completeGoal(sptr(Goals::VisitHero(secondHero->id.getNum())));
 		//TODO: exchange artifacts
+		}
 
 		answerQuery(query, 0);
 	});
@@ -866,7 +882,7 @@ bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * sourc
 		for(auto armyPtr : armies)
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
-				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst slot
+				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  armyPtr != army) //it's a searched creature not in dst ARMY
 					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1 && armyPtr != army)) //can't take away last creature
 						return true; //at least one exchange will be performed
 			}
@@ -910,7 +926,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 		for(auto armyPtr : armies)
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
-				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst slot
+				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst SLOT
 					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1 && armyPtr != army))
 						cb->mergeOrSwapStacks(armyPtr, army, SlotID(j), SlotID(i));
 			}
@@ -1833,6 +1849,16 @@ const CGTownInstance * VCAI::findTownWithTavern() const
 	return nullptr;
 }
 
+Goals::TSubgoal VCAI::getGoal (HeroPtr h) const
+{
+	auto it = lockedHeroes.find(h);
+	if (it != lockedHeroes.end())
+		return it->second;
+	else
+		return sptr(Goals::Invalid());
+}
+
+
 std::vector<HeroPtr> VCAI::getUnblockedHeroes() const
 {
 	std::vector<HeroPtr> ret;
@@ -2179,7 +2205,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 	throw cannotFulfillGoalException("No neighbour will bring new discoveries!");
 }
 
-int3 VCAI::explorationNewPoint(int radius, HeroPtr h, bool breakUnsafe)
+int3 VCAI::explorationNewPoint(int radius, HeroPtr h)
 {
     //logAi->debugStream() << "Looking for an another place for exploration...";
 	cb->setSelection(h.h);
@@ -2205,7 +2231,7 @@ int3 VCAI::explorationNewPoint(int radius, HeroPtr h, bool breakUnsafe)
 		{
 			if (cb->getTile(tile)->blocked) //does it shorten the time?
 				continue;
-			if (!cb->getPathInfo(tile)->reachable())
+			if (!cb->getPathInfo(tile)->reachable()) //this will remove tiles that are guarded by monsters (or removable objects)
 				continue;
 
 			CGPath path;
@@ -2214,10 +2240,97 @@ int3 VCAI::explorationNewPoint(int radius, HeroPtr h, bool breakUnsafe)
 
 			if (ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
 			{
-				if((isSafeToVisit(h, tile) || breakUnsafe) && !isBlockedBorderGate(tile))
+				if(isSafeToVisit(h, tile) && !isBlockedBorderGate(tile))
 				{
-					bestTile = tile; //return first tile that will discover anything
+					bestTile = tile;
 					bestValue = ourValue;
+				}
+			}
+		}
+	}
+	//if (!bestValue) //no free spot, we need to fight
+	//{
+	//	SectorMap sm(h);
+
+	//	ui64 lowestDanger = -1;
+
+	//	for (int i = 1; i < radius; i++)
+	//	{
+	//		getVisibleNeighbours(tiles[i-1], tiles[i]);
+	//		removeDuplicates(tiles[i]);
+
+	//		for(const int3 &tile : tiles[i])
+	//		{
+	//			if (cb->getTile(tile)->blocked) //does it shorten the time?
+	//				continue;
+	//			if (!howManyTilesWillBeDiscovered(tile, radius)) //avoid costly checks of tiles that don't reveal much
+	//				continue;
+
+	//			auto t = sm.firstTileToGet(h, tile);
+	//			if (t.valid())
+	//			{
+	//				ui64 ourDanger = evaluateDanger(tile, h.h);
+	//				if (ourDanger < lowestDanger)
+	//				{
+	//					if(!isBlockedBorderGate(tile))
+	//					{
+	//						if (!ourDanger) //at least one safe place found
+	//							return tile;
+
+	//						bestTile = tile;
+	//						lowestDanger = ourDanger;
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+	return bestTile;
+}
+
+int3 VCAI::explorationDesperate(int radius, HeroPtr h)
+{
+    //logAi->debugStream() << "Looking for an another place for exploration...";
+	SectorMap sm(h);
+	
+	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
+	tiles.resize(radius);
+
+	foreach_tile_pos([&](const int3 &pos)
+	{
+		if(!cb->isVisible(pos))
+			tiles[0].push_back(pos);
+	});
+
+	ui64 lowestDanger = -1;
+	int3 bestTile(-1,-1,-1);
+
+	for (int i = 1; i < radius; i++)
+	{
+		getVisibleNeighbours(tiles[i-1], tiles[i]);
+		removeDuplicates(tiles[i]);
+
+		for(const int3 &tile : tiles[i])
+		{
+			if (cb->getTile(tile)->blocked) //does it shorten the time?
+				continue;
+			if (!howManyTilesWillBeDiscovered(tile, radius)) //avoid costly checks of tiles that don't reveal much
+				continue;
+
+			auto t = sm.firstTileToGet(h, tile);
+			if (t.valid())
+			{
+				ui64 ourDanger = evaluateDanger(t, h.h);
+				if (ourDanger < lowestDanger)
+				{
+					if(!isBlockedBorderGate(t))
+					{
+						if (!ourDanger) //at least one safe place found
+							return t;
+
+						bestTile = t;
+						lowestDanger = ourDanger;
+					}
 				}
 			}
 		}

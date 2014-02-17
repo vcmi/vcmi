@@ -178,7 +178,8 @@ public:
 	void tryRealize(Goals::AbstractGoal & g);
 
 	int3 explorationBestNeighbour(int3 hpos, int radius, HeroPtr h);
-	int3 explorationNewPoint(int radius, HeroPtr h, bool breakUnsafe = false);
+	int3 explorationNewPoint(int radius, HeroPtr h);
+	int3 explorationDesperate(int radius, HeroPtr h);
 	void recruitHero();
 
 	virtual std::string getBattleAIName() const override;
@@ -296,6 +297,7 @@ public:
 	const CGTownInstance *findTownWithTavern() const;
 	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;
 
+	Goals::TSubgoal getGoal (HeroPtr h) const;
 	bool canAct(HeroPtr h) const;
 	std::vector<HeroPtr> getUnblockedHeroes() const;
 	HeroPtr primaryHero() const;

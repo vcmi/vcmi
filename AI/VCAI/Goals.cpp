@@ -486,6 +486,10 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		heroes = cb->getHeroesInfo();
 		erase_if (heroes, [](const HeroPtr h)
 		{
+			if (vstd::contains(ai->lockedHeroes, h))
+				if (ai->lockedHeroes[h]->goalType == Goals::EXPLORE) //do not reassign hero who is already explorer
+					return true;
+
 			return !h->movement; //saves time, immobile heroes are useless anyway
 		});
 	}
@@ -514,7 +518,6 @@ TGoalVec Explore::getAllPossibleSubgoals()
 			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
 			if (t.valid())
 			{
-				assert(cb->isInTheMap(t));
 				if (isSafeToVisit(h, t))
 				{
 					ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
@@ -530,13 +533,48 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		int3 t = whereToExplore(h);
 		if (t.valid())
 		{
-			assert(cb->isInTheMap(t));
 			ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
+		}
+		else if (hero.h == h || (!hero && h == ai->primaryHero().h)) //check this only ONCE, high cost
+		{
+			t = ai->explorationDesperate(h->getSightRadious(), h);
+			if (t.valid())
+			{
+				if (isSafeToVisit(h, t))
+				{
+					ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
+				}
+				else
+				{
+					ret.push_back (sptr (Goals::GatherArmy(evaluateDanger(t, h)*SAFE_ATTACK_CONSTANT).
+						sethero(h).setisAbstract(true)));
+				}
+			}
 		}
 	}
 	//we either don't have hero yet or none of heroes can explore
 	if ((!hero || ret.empty()) && ai->canRecruitAnyHero())
 		ret.push_back (sptr(Goals::RecruitHero()));
+
+	//if (ret.empty())
+	//{
+	//	for (auto h : heroes) //this is costly function, use only when there is no other way
+	//	{
+	//		auto t = ai->explorationDesperate (h->getSightRadious(), h); //we assume that no more than one tile on the way is guarded
+	//		if (t.valid())
+	//		{
+	//			if (isSafeToVisit(h, t))
+	//			{
+	//				ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
+	//			}
+	//			else
+	//			{
+	//				ret.push_back (sptr (Goals::GatherArmy(evaluateDanger(t, h)*SAFE_ATTACK_CONSTANT).
+	//					sethero(h).setisAbstract(true)));
+	//			}
+	//		}
+	//	}
+	//}
 
 	if (ret.empty())
 	{
@@ -784,11 +822,9 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 {
 	TGoalVec ret;
 
-	std::vector<const CGObjectInstance *> objs;
-	for (auto obj : ai->visitableObjs)
+	auto conquerable = [](const CGObjectInstance * obj) -> bool
 	{
-		if (!vstd::contains (ai->reservedObjs, obj) && //no need to capture same object twice
-			cb->getPlayerRelations(ai->playerID, obj->tempOwner) == PlayerRelations::ENEMIES) //only enemy objects are interesting
+		if (cb->getPlayerRelations(ai->playerID, obj->tempOwner) == PlayerRelations::ENEMIES)
 		{
 			switch (obj->ID.num)
 			{
@@ -796,15 +832,30 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 				case Obj::HERO:
 				case Obj::CREATURE_GENERATOR1:
 				case Obj::MINE: //TODO: check ai->knownSubterraneanGates
-					objs.push_back (obj);
+					return true;
 			}
 		}
+		return false;
+	};
+
+	std::vector<const CGObjectInstance *> objs;
+	for (auto obj : ai->visitableObjs)
+	{
+		if (conquerable(obj)) 
+			objs.push_back (obj);
 	}
 
 	for (auto h : cb->getHeroesInfo())
 	{
 		SectorMap sm(h);
-		for (auto obj : objs) //double loop, performance risk?
+		std::vector<const CGObjectInstance *> ourObjs(objs); //copy common objects
+
+		for (auto obj : ai->reservedHeroesMap[h]) //add objects reserved by this hero
+		{
+			if (conquerable(obj))
+				ourObjs.push_back(obj);
+		}
+		for (auto obj : ourObjs) //double loop, performance risk?
 		{
 			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
 			if (t.valid())
@@ -881,11 +932,11 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	auto heroDummy = hero;
 	erase_if(otherHeroes, [heroDummy](const CGHeroInstance * h)
 	{
-		return (h == heroDummy.h || !ai->isAccessibleForHero(heroDummy->visitablePos(), h, true) || !ai->canGetArmy(heroDummy.h, h));
+		return (h == heroDummy.h || !ai->isAccessibleForHero(heroDummy->visitablePos(), h, true)
+			|| !ai->canGetArmy(heroDummy.h, h) || ai->getGoal(h)->goalType == Goals::GATHER_ARMY);
 	});
 	for (auto h : otherHeroes)
 	{
-
 		ret.push_back (sptr (Goals::VisitHero(h->id.getNum()).setisAbstract(true).sethero(hero)));
 				//go to the other hero if we are faster
 		ret.push_back (sptr (Goals::VisitHero(hero->id.getNum()).setisAbstract(true).sethero(h)));
@@ -928,7 +979,12 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		}
 	}
 	if (ret.empty())
-		ret.push_back (sptr(Goals::Explore()));
+	{
+		if (hero == ai->primaryHero() || value >= 1.1f)
+			ret.push_back (sptr(Goals::Explore()));
+		else //workaround to break loop - seemingly there are no ways to explore left
+			throw goalFulfilledException (sptr(Goals::GatherArmy(0).sethero(hero)));
+	}
 
 	return ret;
 }
