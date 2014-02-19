@@ -1018,7 +1018,7 @@ class DLL_LINKAGE CLoaderBase : public virtual CSerializer
 class CBasicPointerLoader
 {
 public:
-	virtual const type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
+	virtual const std::type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
 	virtual ~CBasicPointerLoader(){}
 };
 
@@ -1027,7 +1027,7 @@ struct ClassObjectCreator
 {
 	static T *invoke()
 	{
-		static_assert(!typename std::is_abstract<T>::value, "Cannot call new upon abstract classes!");
+		static_assert(!std::is_abstract<T>::value, "Cannot call new upon abstract classes!");
 		return new T();
 	}
 };
@@ -1044,7 +1044,7 @@ struct ClassObjectCreator<T, typename std::enable_if<std::is_abstract<T>::value>
 template <typename Serializer, typename T> class CPointerLoader : public CBasicPointerLoader
 {
 public:
-	const type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const //data is pointer to the ACTUAL POINTER
+	const std::type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const //data is pointer to the ACTUAL POINTER
 	{
 		Serializer &s = static_cast<Serializer&>(ar);
 		T *&ptr = *static_cast<T**>(data);
@@ -1655,7 +1655,10 @@ public:
 	void addApplier(ui16 ID)
 	{
 		if(!apps.count(ID))
-			apps[ID] = T::getApplier<RegisteredType>();
+		{
+			RegisteredType * rtype = nullptr;
+			apps[ID] = T::getApplier(rtype);
+		}
 	}
 
 	template<typename Base, typename Derived> 

@@ -1304,7 +1304,8 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 			cgh->spells.clear();
 
 			// Spellbook will also be removed
-			ArtifactLocation(cgh, ArtifactPosition(ArtifactPosition::SPELLBOOK)).removeArtifact();
+			if (cgh->hasSpellbook())
+				ArtifactLocation(cgh, ArtifactPosition(ArtifactPosition::SPELLBOOK)).removeArtifact();
 		}
 	}
 
