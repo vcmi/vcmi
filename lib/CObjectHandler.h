@@ -128,6 +128,11 @@ public:
 
 	static void preInit(); //called before objs receive their initObj
 	static void postInit();//called after objs receive their initObj
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		logGlobal->errorStream() << "IObjectInterface serialized, unexpected, should not happen!";
+	}
 };
 
 class DLL_LINKAGE IBoatGenerator
@@ -136,6 +141,8 @@ public:
 	const CGObjectInstance *o;
 
 	IBoatGenerator(const CGObjectInstance *O);
+	virtual ~IBoatGenerator() {}
+
 	virtual int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	virtual void getOutOffsets(std::vector<int3> &offsets) const =0; //offsets to obj pos when we boat can be placed
 	int3 bestLocation() const; //returns location when the boat should be placed
@@ -143,16 +150,28 @@ public:
 	enum EGeneratorState {GOOD, BOAT_ALREADY_BUILT, TILE_BLOCKED, NO_WATER};
 	EGeneratorState shipyardStatus() const; //0 - can buid, 1 - there is already a boat at dest tile, 2 - dest tile is blocked, 3 - no water
 	void getProblemText(MetaString &out, const CGHeroInstance *visitor = nullptr) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & o;
+	}
 };
 
 class DLL_LINKAGE IShipyard : public IBoatGenerator
 {
 public:
 	IShipyard(const CGObjectInstance *O);
+	virtual ~IShipyard() {}
+
 	virtual void getBoatCost(std::vector<si32> &cost) const;
 
 	static const IShipyard *castFrom(const CGObjectInstance *obj);
 	static IShipyard *castFrom(CGObjectInstance *obj);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<IBoatGenerator&>(*this);
+	}
 };
 
 class DLL_LINKAGE IMarket
@@ -161,6 +180,8 @@ public:
 	const CGObjectInstance *o;
 
 	IMarket(const CGObjectInstance *O);
+	virtual ~IMarket() {}
+
 	virtual int getMarketEfficiency() const =0;
 	virtual bool allowsTrade(EMarketMode::EMarketMode mode) const;
 	virtual int availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
@@ -170,6 +191,11 @@ public:
 	std::vector<EMarketMode::EMarketMode> availableModes() const;
 
 	static const IMarket *castFrom(const CGObjectInstance *obj, bool verbose = true);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & o;
+	}
 };
 
 class DLL_LINKAGE CGObjectInstance : public IObjectInterface
@@ -653,6 +679,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGDwelling&>(*this);
+		h & static_cast<IShipyard&>(*this);
+		h & static_cast<IMarket&>(*this);
 		h & name & builded & destroyed & identifier;
 		h & garrisonHero & visitingHero;
 		h & alignment & forbiddenBuildings & builtBuildings & bonusValue
@@ -1333,6 +1361,12 @@ public:
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
 	CGShipyard();
 	void onHeroVisit(const CGHeroInstance * h) const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<IShipyard&>(*this);
+	}
 };
 
 class DLL_LINKAGE CGMagi : public CGObjectInstance
@@ -1417,6 +1451,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<IMarket&>(*this);
 	}
 };
 

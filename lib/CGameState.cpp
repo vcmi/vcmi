@@ -75,61 +75,61 @@ public:
 
 static CApplier<CBaseForGSApply> *applierGs = nullptr;
 
-class IObjectCaller
-{
-public:
-	virtual ~IObjectCaller(){};
-	virtual void preInit()=0;
-	virtual void postInit()=0;
-};
+// class IObjectCaller
+// {
+// public:
+// 	virtual ~IObjectCaller(){};
+// 	virtual void preInit()=0;
+// 	virtual void postInit()=0;
+// };
+// 
+// template <typename T>
+// class CObjectCaller : public IObjectCaller
+// {
+// public:
+// 	void preInit()
+// 	{
+// 		//T::preInit();
+// 	}
+// 	void postInit()
+// 	{
+// 		//T::postInit();
+// 	}
+// };
 
-template <typename T>
-class CObjectCaller : public IObjectCaller
-{
-public:
-	void preInit()
-	{
-		//T::preInit();
-	}
-	void postInit()
-	{
-		//T::postInit();
-	}
-};
-
-class CObjectCallersHandler
-{
-public:
-	std::vector<IObjectCaller*> apps;
-
-	template<typename T> void registerType(const T * t=nullptr)
-	{
-		apps.push_back(new CObjectCaller<T>);
-	}
-
-	CObjectCallersHandler()
-	{
-		registerTypes1(*this);
-	}
-
-	~CObjectCallersHandler()
-	{
-		for (auto & elem : apps)
-			delete elem;
-	}
-
-	void preInit()
-	{
-// 		for (size_t i = 0; i < apps.size(); i++)
-// 			apps[i]->preInit();
-	}
-
-	void postInit()
-	{
-	//for (size_t i = 0; i < apps.size(); i++)
-	//apps[i]->postInit();
-	}
-} *objCaller = nullptr;
+// class CObjectCallersHandler
+// {
+// public:
+// 	std::vector<IObjectCaller*> apps;
+// 
+// 	template<typename T> void registerType(const T * t=nullptr)
+// 	{
+// 		apps.push_back(new CObjectCaller<T>);
+// 	}
+// 
+// 	CObjectCallersHandler()
+// 	{
+// 		registerTypes1(*this);
+// 	}
+// 
+// 	~CObjectCallersHandler()
+// 	{
+// 		for (auto & elem : apps)
+// 			delete elem;
+// 	}
+// 
+// 	void preInit()
+// 	{
+// // 		for (size_t i = 0; i < apps.size(); i++)
+// // 			apps[i]->preInit();
+// 	}
+// 
+// 	void postInit()
+// 	{
+// 	//for (size_t i = 0; i < apps.size(); i++)
+// 	//apps[i]->postInit();
+// 	}
+// } *objCaller = nullptr;
 
 void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst) const
 {
@@ -730,7 +730,7 @@ CGameState::CGameState()
 	mx = new boost::shared_mutex();
 	applierGs = new CApplier<CBaseForGSApply>;
 	registerTypes2(*applierGs);
-	objCaller = new CObjectCallersHandler;
+	//objCaller = new CObjectCallersHandler;
 	globalEffects.setDescription("Global effects");
 }
 
@@ -742,7 +742,7 @@ CGameState::~CGameState()
 	//delete scenarioOps; //TODO: fix for loading ind delete
 	//delete initialOpts;
 	delete applierGs;
-	delete objCaller;
+	//delete objCaller;
 
 	for(auto ptr : hpool.heroesPool) // clean hero pool
 		ptr.second.dellNull();
@@ -1838,7 +1838,7 @@ void CGameState::initTowns()
 void CGameState::initMapObjects()
 {
 	logGlobal->debugStream() << "\tObject initialization";
-	objCaller->preInit();
+//	objCaller->preInit();
 	for(CGObjectInstance *obj : map->objects)
 	{
 		if(obj)

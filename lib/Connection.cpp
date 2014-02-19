@@ -440,25 +440,102 @@ CTypeList::CTypeList()
 	registerTypes(*this);
 }
 
-ui16 CTypeList::registerType( const std::type_info *type )
+CTypeList::TypeInfoPtr CTypeList::registerType( const std::type_info *type )
 {
-	TTypeMap::const_iterator i = types.find(type);
-	if(i != types.end())
-		return i->second; //type found, return ID
+	if(auto typeDescr = getTypeDescriptor(type, false))
+		return typeDescr;  //type found, return ptr to structure
 
 	//type not found - add it to the list and return given ID
-	ui16 id = types.size() + 1;
-	types.insert(std::make_pair(type,id));
-	return id;
+	auto newType = make_shared<TypeDescriptor>();
+	newType->typeID = typeInfos.size() + 1;
+	newType->name = type->name();
+	typeInfos[type] = newType;
+
+	return newType;
 }
 
 ui16 CTypeList::getTypeID( const std::type_info *type )
 {
-	TTypeMap::const_iterator i = types.find(type);
-	if(i != types.end())
-		return i->second;
+	auto i = typeInfos.find(type);
+	if(i != typeInfos.end())
+		return i->second->typeID;
 	else
 		return 0;
+}
+
+std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, TypeInfoPtr to)
+{
+	if(from == to)
+		return std::vector<CTypeList::TypeInfoPtr>();
+
+	// Perform a simple BFS in the class hierarchy.
+
+	auto BFS = [&](bool upcast)
+	{
+		std::map<TypeInfoPtr, TypeInfoPtr> previous;
+		std::queue<TypeInfoPtr> q;
+		q.push(to);
+		while(q.size())
+		{
+			auto typeNode = q.front();
+			q.pop();
+			for(auto &nodeBase : upcast ? typeNode->parents : typeNode->children)
+			{
+				if(!previous.count(nodeBase))
+				{
+					previous[nodeBase] = typeNode;
+					q.push(nodeBase);
+				}
+			}
+		}
+		
+		std::vector<TypeInfoPtr> ret;
+
+		if(!previous.count(from))
+			return ret;
+
+		ret.push_back(from);
+		TypeInfoPtr ptr = from;
+		do
+		{
+			ptr = previous.at(ptr);
+			ret.push_back(ptr);
+		} while(ptr != to);
+
+		return ret;
+	};
+
+	// Try looking both up and down.
+	auto ret = BFS(true);
+	if(ret.empty())
+		ret = BFS(false);
+
+	if(ret.empty())
+		THROW_FORMAT("Cannot find relation between types %s and %s. Were they (and all classes between them) properly registered?", from->name % to->name);
+
+	return ret;
+}
+
+std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(const std::type_info *from, const std::type_info *to)
+{
+	//This additional if is needed because getTypeDescriptor might fail if type is not registered
+	// (and if casting is not needed, then registereing should no  be required)
+	if(*from == *to)
+		return std::vector<CTypeList::TypeInfoPtr>();
+
+	return castSequence(getTypeDescriptor(from), getTypeDescriptor(to));
+}
+
+CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(const std::type_info *type, bool throws)
+{
+	auto i = typeInfos.find(type);
+	if(i != typeInfos.end())
+		return i->second; //type found, return ptr to structure	
+
+	if(!throws)
+		return nullptr;
+
+	THROW_FORMAT("Cannot find type descriptor for type %s. Was it registered?", type->name());
 }
 
  std::ostream & operator<<(std::ostream &str, const CConnection &cpc)
@@ -536,6 +613,7 @@ int CLoadIntegrityValidator::read( void * data, unsigned size )
 unique_ptr<CLoadFile> CLoadIntegrityValidator::decay()
 {
 	primaryFile->loadedPointers = this->loadedPointers;
+	primaryFile->loadedPointersTypes = this->loadedPointersTypes;
 	return std::move(primaryFile);
 }
 

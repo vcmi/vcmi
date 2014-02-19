@@ -79,6 +79,22 @@ public:
 	}
 };
 
+template <> class CApplyOnCL<CPack> : public CBaseForCLApply
+{
+public:
+	void applyOnClAfter(CClient *cl, void *pack) const
+	{
+		logGlobal->errorStream() << "Cannot apply on CL plain CPack!";
+		assert(0);
+	}
+	void applyOnClBefore(CClient *cl, void *pack) const
+	{
+		logGlobal->errorStream() << "Cannot apply on CL plain CPack!";
+		assert(0);
+	}
+};
+
+
 static CApplier<CBaseForCLApply> *applier = nullptr;
 
 void CClient::init()

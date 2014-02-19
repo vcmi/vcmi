@@ -45,13 +45,7 @@ class CIdentifierStorage
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			if(version >= 744)
-				h & id & scope;
-			else if(h.saving)
-			{
-				logGlobal->warnStream() << "Save compatibility, making object data with id -1 (can this happen?)";
-				id = -1;
-			}
+			h & id & scope;
 		}
 	};
 
@@ -87,8 +81,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		if(version >= 744)
-			h & registeredObjects;
+		h & registeredObjects;
 	}
 };
 
@@ -266,10 +259,6 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & allMods & activeMods & settings & modules;
-		if(version >= 744)
-			h & identifiers;
-		else
-			logGlobal->warnStream() << "Savegame compatibility mode, omitting identifiers in modhandler. Related bugs will persist.";
+		h & allMods & activeMods & settings & modules & identifiers;
 	}
 };

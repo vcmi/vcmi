@@ -209,6 +209,16 @@ public:
 	}
 };
 
+template <> class CApplyOnPG<CPack> : public CBaseForPGApply
+{
+public:
+	void applyOnPG(CSelectionScreen *selScr, void *pack) const
+	{
+			logGlobal->errorStream() << "Cannot apply on PG plain CPack!";
+			assert(0);
+	}
+};
+
 static CApplier<CBaseForPGApply> *applier = nullptr;
 
 static CPicture* createPicture(const JsonNode& config)

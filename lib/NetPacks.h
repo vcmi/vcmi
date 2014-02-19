@@ -47,9 +47,9 @@ struct CPackForClient : public CPack
 
 	CGameState* GS(CClient *cl);
 	void applyFirstCl(CClient *cl)//called before applying to gs
-	{};
+	{}
 	void applyCl(CClient *cl)//called after applying to gs
-	{};
+	{}
 };
 
 struct CPackForServer : public CPack
@@ -64,7 +64,11 @@ struct CPackForServer : public CPack
 		type = 2;
 	}
 
-	bool applyGh(CGameHandler *gh);//called after applying to gs
+	bool applyGh(CGameHandler *gh) //called after applying to gs
+	{
+		logGlobal->errorStream() << "Should not happen... applying plain CPackForServer";
+		return false;
+	}
 };
 
 

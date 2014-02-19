@@ -23,237 +23,268 @@
 template<typename Serializer>
 void registerTypes1(Serializer &s)
 {
-	//map objects
-	s.template registerType<CGHeroPlaceholder>();
-	s.template registerType<CGHeroInstance>();
-	s.template registerType<CGTownInstance>();
-	s.template registerType<CTownBonus>();
-	s.template registerType<CGPandoraBox>();
-	s.template registerType<CGEvent>();
-	s.template registerType<CGDwelling>();
-	s.template registerType<CGVisitableOPH>();
-	s.template registerType<CGVisitableOPW>();
-	s.template registerType<CGTeleport>();
-	s.template registerType<CGPickable>();
-	s.template registerType<CGCreature>();
-	s.template registerType<CGSignBottle>();
-	s.template registerType<CQuest>();
-	s.template registerType<IQuestObject>();
-	s.template registerType<CGSeerHut>();
-	s.template registerType<CGQuestGuard>();
-	s.template registerType<CGWitchHut>();
-	s.template registerType<CGScholar>();
-	s.template registerType<CGGarrison>();
-	s.template registerType<CGArtifact>();
-	s.template registerType<CGResource>();
-	s.template registerType<CGMine>();
-	s.template registerType<CGShrine>();
-	s.template registerType<CGBonusingObject>();
-	s.template registerType<CGMagicSpring>();
-	s.template registerType<CGMagicWell>();
-	s.template registerType<CGObservatory>();
-	s.template registerType<CGKeys>();
-	s.template registerType<CGKeymasterTent>();
-	s.template registerType<CGBorderGuard>();
-	s.template registerType<CGBorderGate>();
-	s.template registerType<CGBoat>();
-	s.template registerType<CGMagi>();
-	s.template registerType<CGSirens>();
-	s.template registerType<CGOnceVisitable>();
-	s.template registerType<CBank>();
-	s.template registerType<CGPyramid>();
-	s.template registerType<CGShipyard>();
-	s.template registerType<CCartographer>();
-	s.template registerType<CGObjectInstance>();
-	s.template registerType<COPWBonus>();
-	s.template registerType<CGDenOfthieves>();
-	s.template registerType<CGObelisk>();
-	s.template registerType<CGLighthouse>();
-	s.template registerType<CGMarket>();
-	s.template registerType<CGBlackMarket>();
-	s.template registerType<CGUniversity>();
+	//////////////////////////////////////////////////////////////////////////
+	// Adventure map objects (and related)
+	////////////////////////////////////////////////////////////////////////// 
+	s.template registerType<IObjectInterface, CGObjectInstance>();
+
+	// Non-armed objects
+	s.template registerType<CGObjectInstance, CGTeleport>();
+	s.template registerType<CGObjectInstance, CGPickable>();
+	s.template registerType<CGObjectInstance, CGSignBottle>();
+	s.template registerType<CGObjectInstance, CGScholar>();
+	s.template registerType<CGObjectInstance, CGBonusingObject>();
+	s.template registerType<CGObjectInstance, CGMagicWell>();
+	s.template registerType<CGObjectInstance, CGObservatory>();
+	s.template registerType<CGObjectInstance, CGKeys>();
+		s.template registerType<CGKeys, CGKeymasterTent>();
+		s.template registerType<CGKeys, CGBorderGuard>(); s.template registerType<IQuestObject, CGBorderGuard>();
+			s.template registerType<CGBorderGuard, CGBorderGate>();
+	s.template registerType<CGObjectInstance, CGBoat>();
+	s.template registerType<CGObjectInstance, CGMagi>();
+	s.template registerType<CGObjectInstance, CGSirens>();
+	s.template registerType<CGObjectInstance, CGShipyard>(); s.template registerType<IShipyard, CGShipyard>();
+	s.template registerType<CGObjectInstance, CGDenOfthieves>();
+	s.template registerType<CGObjectInstance, CGLighthouse>();
+	s.template registerType<CGObjectInstance, CGMarket>(); s.template registerType<IMarket, CGMarket>();
+		s.template registerType<CGMarket, CGBlackMarket>();
+		s.template registerType<CGMarket, CGUniversity>();
+	s.template registerType<CGObjectInstance, CGHeroPlaceholder>();
+
+	s.template registerType<CGObjectInstance, CArmedInstance>(); s.template registerType<CBonusSystemNode, CArmedInstance>(); s.template registerType<CCreatureSet, CArmedInstance>();
+
+	// Armed objects
+	s.template registerType<CArmedInstance, CGHeroInstance>(); s.template registerType<IBoatGenerator, CGHeroInstance>(); s.template registerType<CArtifactSet, CGHeroInstance>();
+	s.template registerType<CArmedInstance, CGDwelling>();
+		s.template registerType<CGDwelling, CGTownInstance>(); s.template registerType<IShipyard, CGTownInstance>(); s.template registerType<IMarket, CGTownInstance>();
+	s.template registerType<CArmedInstance, CGPandoraBox>();
+		s.template registerType<CGPandoraBox, CGEvent>();
+	s.template registerType<CArmedInstance, CGCreature>();
+	s.template registerType<CArmedInstance, CGGarrison>();
+	s.template registerType<CArmedInstance, CGArtifact>();
+	s.template registerType<CArmedInstance, CGResource>();
+	s.template registerType<CArmedInstance, CGMine>();
+	s.template registerType<CArmedInstance, CBank>();
+		s.template registerType<CBank, CGPyramid>();
+	s.template registerType<CArmedInstance, CGSeerHut>(); s.template registerType<IQuestObject, CGSeerHut>();
+	s.template registerType<CGSeerHut, CGQuestGuard>();
+
+
+	//Other object-related
+	s.template registerType<IObjectInterface, CGTownBuilding>();
+		s.template registerType<CGTownBuilding, CTownBonus>();
+			s.template registerType<CGTownBuilding, COPWBonus>();
+
+
+	s.template registerType<CGObjectInstance, CGVisitableOPH>();
+
+	s.template registerType<CGObjectInstance, CGVisitableOPW>();
+	s.template registerType<CGVisitableOPW, CGMagicSpring>();
+
+	s.template registerType<CGObjectInstance, CPlayersVisited>();
+		s.template registerType<CPlayersVisited, CGWitchHut>();
+		s.template registerType<CPlayersVisited, CGShrine>();
+		s.template registerType<CPlayersVisited, CGOnceVisitable>();
+		s.template registerType<CPlayersVisited, CCartographer>();
+		s.template registerType<CPlayersVisited, CGObelisk>();
+
+	//s.template registerType<CQuest>();
+	//s.template registerType<IQuestObject>();
+
 	//end of objects
-	s.template registerType<IPropagator>();
-	s.template registerType<CPropagatorNodeType>();
 
-	s.template registerType<ILimiter>();
-	s.template registerType<LimiterList>();
-	s.template registerType<CCreatureTypeLimiter>();
-	s.template registerType<HasAnotherBonusLimiter>();
-	s.template registerType<CreatureNativeTerrainLimiter>();
-	s.template registerType<CreatureFactionLimiter>();
-	s.template registerType<CreatureAlignmentLimiter>();
-	s.template registerType<RankRangeLimiter>();
-	s.template registerType<StackOwnerLimiter>();
+	//////////////////////////////////////////////////////////////////////////
+	// Bonus system
+	////////////////////////////////////////////////////////////////////////// 
+	//s.template registerType<IPropagator>();
+	s.template registerType<IPropagator, CPropagatorNodeType>();
 
-	s.template registerType<CModInfo>();
+	// Limiters
+	//s.template registerType<ILimiter>();
+	s.template registerType<ILimiter, LimiterList>();
+	s.template registerType<ILimiter, CCreatureTypeLimiter>();
+	s.template registerType<ILimiter, HasAnotherBonusLimiter>();
+	s.template registerType<ILimiter, CreatureNativeTerrainLimiter>();
+	s.template registerType<ILimiter, CreatureFactionLimiter>();
+	s.template registerType<ILimiter, CreatureAlignmentLimiter>();
+	s.template registerType<ILimiter, RankRangeLimiter>();
+	s.template registerType<ILimiter, StackOwnerLimiter>();
+	
+//	s.template registerType<CBonusSystemNode>();
+	s.template registerType<CBonusSystemNode, CArtifact>();
+	s.template registerType<CArtifact, CGrowingArtifact>();
+	s.template registerType<CBonusSystemNode, CCreature>();
+	s.template registerType<CBonusSystemNode, CStackInstance>();
+	s.template registerType<CStackInstance, CCommanderInstance>();
+	s.template registerType<CBonusSystemNode, PlayerState>();
+	s.template registerType<CBonusSystemNode, TeamState>();
+	//s.template registerType<CGameState>(); //TODO
+	s.template registerType<CBonusSystemNode, CGHeroInstance::HeroSpecial>();
+	//s.template registerType<CArmedInstance>();
+	s.template registerType<CBonusSystemNode, CStack>();
+	s.template registerType<CBonusSystemNode, BattleInfo>();
+	//s.template registerType<QuestInfo>();
+	s.template registerType<CBonusSystemNode, CArtifactInstance>();
+	s.template registerType<CArtifactInstance, CCombinedArtifactInstance>();
 
-	s.template registerType<CBonusSystemNode>();
-	s.template registerType<CArtifact>();
-	s.template registerType<CGrowingArtifact>();
-	s.template registerType<CCreature>();
-	s.template registerType<CStackInstance>();
-	s.template registerType<CCommanderInstance>();
-	s.template registerType<PlayerState>();
-	s.template registerType<TeamState>();
-	s.template registerType<CGameState>();
-	s.template registerType<CGHeroInstance::HeroSpecial>();
-	s.template registerType<CArmedInstance>();
-	s.template registerType<CStack>();
-	s.template registerType<BattleInfo>();
-	s.template registerType<QuestInfo>();
-	s.template registerType<CArtifactInstance>();
-	s.template registerType<CCombinedArtifactInstance>();
-
-	s.template registerType<CObstacleInstance>();
-	s.template registerType<MoatObstacle>();
-	s.template registerType<SpellCreatedObstacle>();
-
-	//s.template registerType<CCreatureArtifactInstance>();
-	//s.template registerType<ArtSlotInfo>();
-	//s.template registerType<ArtifactLocation>();
-	//s.template registerType<StackLocation>();
+	//s.template registerType<CObstacleInstance>();
+		s.template registerType<CObstacleInstance, MoatObstacle>();
+		s.template registerType<CObstacleInstance, SpellCreatedObstacle>();
 }
 
 template<typename Serializer>
 void registerTypes2(Serializer &s)
 {
-	s.template registerType<PackageApplied>();
-	s.template registerType<SystemMessage>();
-	s.template registerType<PlayerBlocked>();
-	s.template registerType<YourTurn>();
-	s.template registerType<SetResource>();
-	s.template registerType<SetResources>();
-	s.template registerType<SetPrimSkill>();
-	s.template registerType<SetSecSkill>();
-	s.template registerType<HeroVisitCastle>();
-	s.template registerType<ChangeSpells>();
-	s.template registerType<SetMana>();
-	s.template registerType<SetMovePoints>();
-	s.template registerType<FoWChange>();
-	s.template registerType<SetAvailableHeroes>();
-	s.template registerType<GiveBonus>();
-	s.template registerType<ChangeObjPos>();
-	s.template registerType<PlayerEndsGame>();
-	s.template registerType<RemoveBonus>();
-	s.template registerType<UpdateCampaignState>();
-	s.template registerType<PrepareForAdvancingCampaign>();
-	s.template registerType<UpdateArtHandlerLists>();
-	s.template registerType<UpdateMapEvents>();
-	s.template registerType<UpdateCastleEvents>();
-	s.template registerType<RemoveObject>();
-	s.template registerType<TryMoveHero>();
-	//s.template registerType<SetGarrisons>();
-	s.template registerType<NewStructures>();
-	s.template registerType<RazeStructures>();
-	s.template registerType<SetAvailableCreatures>();
-	s.template registerType<SetHeroesInTown>();
-	//s.template registerType<SetHeroArtifacts>();
-	s.template registerType<HeroRecruited>();
-	s.template registerType<GiveHero>();
-	s.template registerType<NewTurn>();
-	s.template registerType<InfoWindow>();
-	s.template registerType<SetObjectProperty>();
-	s.template registerType<SetHoverName>();
-	s.template registerType<HeroLevelUp>();
-	s.template registerType<CommanderLevelUp>();
-	s.template registerType<SetCommanderProperty>();
-	s.template registerType<BlockingDialog>();
-	s.template registerType<GarrisonDialog>();
-	s.template registerType<ExchangeDialog>();
-	s.template registerType<BattleStart>();
-	s.template registerType<BattleNextRound>();
-	s.template registerType<BattleSetActiveStack>();
-	s.template registerType<BattleResult>();
-	s.template registerType<BattleStackMoved>();
-	s.template registerType<BattleStackAttacked>();
-	s.template registerType<BattleAttack>();
-	s.template registerType<StartAction>();
-	s.template registerType<EndAction>();
-	s.template registerType<BattleSpellCast>();
-	s.template registerType<SetStackEffect>();
-	s.template registerType<BattleTriggerEffect>();
-	s.template registerType<BattleObstaclePlaced>();
-	s.template registerType<BattleSetStackProperty>();
-	s.template registerType<StacksInjured>();
-	s.template registerType<BattleResultsApplied>();
-	s.template registerType<StacksHealedOrResurrected>();
-	s.template registerType<ObstaclesRemoved>();
-	s.template registerType<CatapultAttack>();
-	s.template registerType<BattleStacksRemoved>();
-	s.template registerType<BattleStackAdded>();
-	s.template registerType<ShowInInfobox>();
-	s.template registerType<AdvmapSpellCast>();
-	s.template registerType<OpenWindow>();
-	s.template registerType<NewObject>();
-	s.template registerType<NewArtifact>();
-	s.template registerType<AddQuest>();
-	s.template registerType<ChangeStackCount>();
-	s.template registerType<SetStackType>();
-	s.template registerType<EraseStack>();
-	s.template registerType<SwapStacks>();
-	s.template registerType<InsertNewStack>();
-	s.template registerType<RebalanceStacks>();
-	s.template registerType<SetAvailableArtifacts>();
-	s.template registerType<PutArtifact>();
-	s.template registerType<EraseArtifact>();
-	s.template registerType<MoveArtifact>();
-	s.template registerType<AssembledArtifact>();
-	s.template registerType<DisassembledArtifact>();
-	s.template registerType<HeroVisit>();
+	s.template registerType<CPack, CPackForClient>();
 
-	s.template registerType<SaveGame>();
-	s.template registerType<SetSelection>();
-	s.template registerType<PlayerMessage>();
-	s.template registerType<CenterView>();
+	s.template registerType<CPackForClient, PackageApplied>();
+	s.template registerType<CPackForClient, SystemMessage>();
+	s.template registerType<CPackForClient, PlayerBlocked>();
+	s.template registerType<CPackForClient, YourTurn>();
+	s.template registerType<CPackForClient, SetResource>();
+	s.template registerType<CPackForClient, SetResources>();
+	s.template registerType<CPackForClient, SetPrimSkill>();
+	s.template registerType<CPackForClient, SetSecSkill>();
+	s.template registerType<CPackForClient, HeroVisitCastle>();
+	s.template registerType<CPackForClient, ChangeSpells>();
+	s.template registerType<CPackForClient, SetMana>();
+	s.template registerType<CPackForClient, SetMovePoints>();
+	s.template registerType<CPackForClient, FoWChange>();
+	s.template registerType<CPackForClient, SetAvailableHeroes>();
+	s.template registerType<CPackForClient, GiveBonus>();
+	s.template registerType<CPackForClient, ChangeObjPos>();
+	s.template registerType<CPackForClient, PlayerEndsGame>();
+	s.template registerType<CPackForClient, RemoveBonus>();
+	s.template registerType<CPackForClient, UpdateCampaignState>();
+	s.template registerType<CPackForClient, PrepareForAdvancingCampaign>();
+	s.template registerType<CPackForClient, UpdateArtHandlerLists>();
+	s.template registerType<CPackForClient, UpdateMapEvents>();
+	s.template registerType<CPackForClient, UpdateCastleEvents>();
+	s.template registerType<CPackForClient, RemoveObject>();
+	s.template registerType<CPackForClient, TryMoveHero>();
+	//s.template registerType<CPackForClient, SetGarrisons>();
+	s.template registerType<CPackForClient, NewStructures>();
+	s.template registerType<CPackForClient, RazeStructures>();
+	s.template registerType<CPackForClient, SetAvailableCreatures>();
+	s.template registerType<CPackForClient, SetHeroesInTown>();
+	//s.template registerType<CPackForClient, SetHeroArtifacts>();
+	s.template registerType<CPackForClient, HeroRecruited>();
+	s.template registerType<CPackForClient, GiveHero>();
+	s.template registerType<CPackForClient, NewTurn>();
+	s.template registerType<CPackForClient, InfoWindow>();
+	s.template registerType<CPackForClient, SetObjectProperty>();
+	s.template registerType<CPackForClient, SetHoverName>();
+	s.template registerType<CPackForClient, BattleStart>();
+	s.template registerType<CPackForClient, BattleNextRound>();
+	s.template registerType<CPackForClient, BattleSetActiveStack>();
+	s.template registerType<CPackForClient, BattleResult>();
+	s.template registerType<CPackForClient, BattleStackMoved>();
+	s.template registerType<CPackForClient, BattleStackAttacked>();
+	s.template registerType<CPackForClient, BattleAttack>();
+	s.template registerType<CPackForClient, StartAction>();
+	s.template registerType<CPackForClient, EndAction>();
+	s.template registerType<CPackForClient, BattleSpellCast>();
+	s.template registerType<CPackForClient, SetStackEffect>();
+	s.template registerType<CPackForClient, BattleTriggerEffect>();
+	s.template registerType<CPackForClient, BattleObstaclePlaced>();
+	s.template registerType<CPackForClient, BattleSetStackProperty>();
+	s.template registerType<CPackForClient, StacksInjured>();
+	s.template registerType<CPackForClient, BattleResultsApplied>();
+	s.template registerType<CPackForClient, StacksHealedOrResurrected>();
+	s.template registerType<CPackForClient, ObstaclesRemoved>();
+	s.template registerType<CPackForClient, CatapultAttack>();
+	s.template registerType<CPackForClient, BattleStacksRemoved>();
+	s.template registerType<CPackForClient, BattleStackAdded>();
+	s.template registerType<CPackForClient, ShowInInfobox>();
+	s.template registerType<CPackForClient, AdvmapSpellCast>();
+	s.template registerType<CPackForClient, OpenWindow>();
+	s.template registerType<CPackForClient, NewObject>();
+	s.template registerType<CPackForClient, NewArtifact>();
+	s.template registerType<CPackForClient, AddQuest>();
+	s.template registerType<CPackForClient, SetAvailableArtifacts>();
+	s.template registerType<CPackForClient, CenterView>();
+	s.template registerType<CPackForClient, HeroVisit>();
+	s.template registerType<CPackForClient, SetCommanderProperty>();
+
+	s.template registerType<CPackForClient, Query>();
+	s.template registerType<Query, HeroLevelUp>();
+	s.template registerType<Query, CommanderLevelUp>();
+	s.template registerType<Query, BlockingDialog>();
+	s.template registerType<Query, GarrisonDialog>();
+	s.template registerType<Query, ExchangeDialog>();
+
+	s.template registerType<CPackForClient, CGarrisonOperationPack>();
+	s.template registerType<CGarrisonOperationPack, ChangeStackCount>();
+	s.template registerType<CGarrisonOperationPack, SetStackType>();
+	s.template registerType<CGarrisonOperationPack, EraseStack>();
+	s.template registerType<CGarrisonOperationPack, SwapStacks>();
+	s.template registerType<CGarrisonOperationPack, InsertNewStack>();
+	s.template registerType<CGarrisonOperationPack, RebalanceStacks>();
+
+	s.template registerType<CPackForClient, CArtifactOperationPack>();
+	s.template registerType<CArtifactOperationPack, PutArtifact>();
+	s.template registerType<CArtifactOperationPack, EraseArtifact>();
+	s.template registerType<CArtifactOperationPack, MoveArtifact>();
+	s.template registerType<CArtifactOperationPack, AssembledArtifact>();
+	s.template registerType<CArtifactOperationPack, DisassembledArtifact>();
+
+	s.template registerType<CPackForClient, SaveGame>();
+	s.template registerType<CPackForClient, SetSelection>();
+	s.template registerType<CPackForClient, PlayerMessage>();
 }
 
 template<typename Serializer>
 void registerTypes3(Serializer &s)
 {
-	s.template registerType<CloseServer>();
-	s.template registerType<EndTurn>();
-	s.template registerType<DismissHero>();
-	s.template registerType<MoveHero>();
-	s.template registerType<ArrangeStacks>();
-	s.template registerType<DisbandCreature>();
-	s.template registerType<BuildStructure>();
-	s.template registerType<RecruitCreatures>();
-	s.template registerType<UpgradeCreature>();
-	s.template registerType<GarrisonHeroSwap>();
-	s.template registerType<ExchangeArtifacts>();
-	s.template registerType<AssembleArtifacts>();
-	s.template registerType<BuyArtifact>();
-	s.template registerType<TradeOnMarketplace>();
-	s.template registerType<SetFormation>();
-	s.template registerType<HireHero>();
-	s.template registerType<BuildBoat>();
-	s.template registerType<QueryReply>();
-	s.template registerType<MakeAction>();
-	s.template registerType<MakeCustomAction>();
-	s.template registerType<DigWithHero>();
-	s.template registerType<CastAdvSpell>();
-	s.template registerType<CastleTeleportHero>();
+	s.template registerType<CPack, CPackForServer>();
+	s.template registerType<CPackForServer, CloseServer>();
+	s.template registerType<CPackForServer, EndTurn>();
+	s.template registerType<CPackForServer, DismissHero>();
+	s.template registerType<CPackForServer, MoveHero>();
+	s.template registerType<CPackForServer, ArrangeStacks>();
+	s.template registerType<CPackForServer, DisbandCreature>();
+	s.template registerType<CPackForServer, BuildStructure>();
+	s.template registerType<CPackForServer, RecruitCreatures>();
+	s.template registerType<CPackForServer, UpgradeCreature>();
+	s.template registerType<CPackForServer, GarrisonHeroSwap>();
+	s.template registerType<CPackForServer, ExchangeArtifacts>();
+	s.template registerType<CPackForServer, AssembleArtifacts>();
+	s.template registerType<CPackForServer, BuyArtifact>();
+	s.template registerType<CPackForServer, TradeOnMarketplace>();
+	s.template registerType<CPackForServer, SetFormation>();
+	s.template registerType<CPackForServer, HireHero>();
+	s.template registerType<CPackForServer, BuildBoat>();
+	s.template registerType<CPackForServer, QueryReply>();
+	s.template registerType<CPackForServer, MakeAction>();
+	s.template registerType<CPackForServer, MakeCustomAction>();
+	s.template registerType<CPackForServer, DigWithHero>();
+	s.template registerType<CPackForServer, CastAdvSpell>();
+	s.template registerType<CPackForServer, CastleTeleportHero>();
+	s.template registerType<CPackForServer, CommitPackage>();
 
-	s.template registerType<SaveGame>();
-	s.template registerType<CommitPackage>();
-	s.template registerType<SetSelection>();
-	s.template registerType<PlayerMessage>();
+	s.template registerType<CPackForServer, SaveGame>();
+	s.template registerType<CPackForServer, SetSelection>();
+	s.template registerType<CPackForServer, PlayerMessage>();
 }
 
 template<typename Serializer>
 void registerTypes4(Serializer &s)
 {
-	s.template registerType<ChatMessage>();
-	s.template registerType<QuitMenuWithoutStarting>();
-	s.template registerType<PlayerJoined>();
-	s.template registerType<SelectMap>();
-	s.template registerType<UpdateStartOptions>();
-	s.template registerType<PregameGuiAction>();
-	s.template registerType<RequestOptionsChange>();
-	s.template registerType<PlayerLeft>();
-	s.template registerType<PlayersNames>();
-	s.template registerType<StartWithCurrentSettings>();
+	s.template registerType<CPack, CPackForSelectionScreen>();
+	s.template registerType<CPackForSelectionScreen, CPregamePackToPropagate>();
+	s.template registerType<CPackForSelectionScreen, CPregamePackToHost>();
+
+	s.template registerType<CPregamePackToPropagate, ChatMessage>();
+	s.template registerType<CPregamePackToPropagate, QuitMenuWithoutStarting>();
+	s.template registerType<CPregamePackToPropagate, SelectMap>();
+	s.template registerType<CPregamePackToPropagate, UpdateStartOptions>();
+	s.template registerType<CPregamePackToPropagate, PregameGuiAction>();
+	s.template registerType<CPregamePackToPropagate, PlayerLeft>();
+	s.template registerType<CPregamePackToPropagate, PlayersNames>();
+	s.template registerType<CPregamePackToPropagate, StartWithCurrentSettings>();
+
+	s.template registerType<CPregamePackToHost, PlayerJoined>();
+	s.template registerType<CPregamePackToHost, RequestOptionsChange>();
 }
 
 template<typename Serializer>

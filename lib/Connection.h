@@ -28,8 +28,8 @@
 #include "mapping/CCampaignHandler.h" //for CCampaignState
 #include "rmg/CMapGenerator.h" // for CMapGenOptions
 
-const ui32 version = 744;
-const ui32 minSupportedVersion = 743;
+const ui32 version = 745;
+const ui32 minSupportedVersion = version;
 
 class CConnection;
 class CGObjectInstance;
@@ -86,22 +86,173 @@ struct TypeComparer
 	}
 };
 
+struct IPointerCaster
+{
+	virtual boost::any castRawPtr(const boost::any &ptr) const = 0; // takes From*, performs dynamic cast, returns To*
+	virtual boost::any castSharedPtr(const boost::any &ptr) const = 0; // takes std::shared_ptr<From>, performs dynamic cast, returns std::shared_ptr<To>
+	virtual boost::any castWeakPtr(const boost::any &ptr) const = 0; // takes std::weak_ptr<From>, performs dynamic cast, returns std::weak_ptr<To>. The object under poitner must live.
+	//virtual boost::any castUniquePtr(const boost::any &ptr) const = 0; // takes std::unique_ptr<From>, performs dynamic cast, returns std::unique_ptr<To>
+};
+
+template <typename From, typename To>
+struct PointerCaster : IPointerCaster
+{
+	virtual boost::any castRawPtr(const boost::any &ptr) const override // takes void* pointing to From object, performs dynamic cast, returns void* pointing to To object
+	{
+		From * from = (From*)boost::any_cast<void*>(ptr);
+		To * ret = dynamic_cast<To*>(from);
+		return (void*)ret;
+	}
+
+	// Helper function performing casts between smart pointers using dynamic_pointer_cast
+	template<typename SmartPt>
+	boost::any castSmartPtr(const boost::any &ptr) const
+	{
+		try
+		{
+			auto from = boost::any_cast<SmartPt>(ptr);
+			auto ret = std::dynamic_pointer_cast<To>(from);
+			return ret;
+		}
+		catch(std::exception &e)
+		{
+			THROW_FORMAT("Failed cast %s -> %s. Given argument was %s. Error message: %s", typeid(From).name() % typeid(To).name() % ptr.type().name() % e.what());
+		}
+	}
+
+	virtual boost::any castSharedPtr(const boost::any &ptr) const override 
+	{
+		return castSmartPtr<std::shared_ptr<From>>(ptr);
+	}
+	virtual boost::any castWeakPtr(const boost::any &ptr) const override 
+	{
+		auto from = boost::any_cast<std::weak_ptr<From>>(ptr);
+		return castSmartPtr<std::shared_ptr<From>>(from.lock());
+	}
+// 	virtual boost::any castUniquePtr(const boost::any &ptr) const override
+// 	{
+// 		return castSmartPtr<std::unique_ptr<From>>(ptr);
+// 	}
+};
+
 class DLL_LINKAGE CTypeList
 {
-	typedef std::multimap<const std::type_info *,ui16,TypeComparer> TTypeMap;
-	TTypeMap types;
 public:
-	CTypeList();
-	ui16 registerType(const std::type_info *type);
-	template <typename T> ui16 registerType(const T * t = nullptr)
+	struct TypeDescriptor;
+	typedef std::shared_ptr<TypeDescriptor> TypeInfoPtr;
+	struct TypeDescriptor
 	{
-		return registerType(getTypeInfo(t));
+		ui16 typeID;
+		const char *name;
+		std::vector<TypeInfoPtr> children, parents;
+	};
+private:
+
+	std::map<const std::type_info *, TypeInfoPtr, TypeComparer> typeInfos;
+	std::map<std::pair<TypeInfoPtr, TypeInfoPtr>, std::unique_ptr<const IPointerCaster>> casters; //for each pair <Base, Der> we provide a caster (each registered relations creates a single entry here)
+
+	CTypeList(CTypeList &)
+	{
+		// This type is non-copyable.
+		// Unfortunately on Windows it is required for DLL_EXPORT-ed type to provide copy c-tor, so we can't =delete it.
+		assert(0); 
+	}
+	CTypeList &operator=(CTypeList &)
+	{
+		// As above.
+		assert(0);
+		return *this;
+	}
+public:
+
+	CTypeList();
+
+	TypeInfoPtr registerType(const std::type_info *type);
+
+
+	template <typename Base, typename Derived> 
+	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
+	{
+		static_assert(std::is_base_of<Base, Derived>::value, "First registerType template parameter needs to ba a base class of the second one.");
+		static_assert(std::has_virtual_destructor<Base>::value, "Base class needs to have a virtual destructor.");
+		static_assert(!std::is_same<Base, Derived>::value, "Parameters of registerTypes should be two diffrenet types.");
+		auto bt = getTypeInfo(b), dt = getTypeInfo(d); //obtain std::type_info
+		auto bti = registerType(bt), dti = registerType(dt); //obtain our TypeDescriptor
+
+		// register the relation between classes
+		bti->children.push_back(dti);
+		dti->parents.push_back(bti);
+		casters[std::make_pair(bti, dti)] = make_unique<const PointerCaster<Base, Derived>>();
+		casters[std::make_pair(dti, bti)] = make_unique<const PointerCaster<Derived, Base>>();
 	}
 
 	ui16 getTypeID(const std::type_info *type);
-	template <typename T> ui16 getTypeID(const T * t = nullptr)
+	TypeInfoPtr getTypeDescriptor(const std::type_info *type, bool throws = true); //if not throws, failure returns nullptr
+
+	template <typename T> 
+	ui16 getTypeID(const T * t = nullptr)
 	{
 		return getTypeID(getTypeInfo(t));
+	}
+	
+
+	// Returns sequence of types starting from "from" and ending on "to". Every next type is derived from the previous.
+	// Throws if there is no link registered.
+	std::vector<TypeInfoPtr> castSequence(TypeInfoPtr from, TypeInfoPtr to);
+	std::vector<TypeInfoPtr> castSequence(const std::type_info *from, const std::type_info *to);
+
+	template<boost::any(IPointerCaster::*CastingFunction)(const boost::any &) const>
+	boost::any castHelper(boost::any inputPtr, const std::type_info *fromArg, const std::type_info *toArg)
+	{
+		auto typesSequence = castSequence(fromArg, toArg);
+
+		boost::any ptr = inputPtr;
+		for(int i = 0; i < (int)typesSequence.size() - 1; i++)
+		{
+			auto &from = typesSequence[i];
+			auto &to = typesSequence[i + 1];
+			auto castingPair = std::make_pair(from, to);
+			if(!casters.count(castingPair))
+				THROW_FORMAT("Cannot find caster for conversion %s -> %s which is needed to cast %s -> %s", from->name % to->name % fromArg->name() % toArg->name());
+
+			auto &caster = casters.at(castingPair);
+			ptr = (*caster.*CastingFunction)(ptr); //Why does unique_ptr does not have operator->* ..?
+		}
+
+		return ptr;
+	}
+
+	template<typename TInput>
+	void *castToMostDerived(const TInput *inputPtr)
+	{
+		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
+		auto derivedType = getTypeInfo(inputPtr);
+
+		if(baseType == *derivedType)
+			return (void*)inputPtr;
+
+		return boost::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>((void*)inputPtr, &baseType, derivedType));
+	}
+
+	template<typename TInput>
+	boost::any castSharedToMostDerived(const std::shared_ptr<TInput> inputPtr)
+	{
+		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
+		auto derivedType = getTypeInfo(inputPtr.get());
+
+		if(baseType == *derivedType)
+			return inputPtr;
+
+		return castHelper<&IPointerCaster::castSharedPtr>(inputPtr, &baseType, derivedType);
+	}
+
+	void* castRaw(void *inputPtr, const std::type_info *from, const std::type_info *to)
+	{
+		return boost::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>(inputPtr, from, to));
+	}
+	boost::any castShared(boost::any inputPtr, const std::type_info *from, const std::type_info *to)
+	{
+		return castHelper<&IPointerCaster::castSharedPtr>(inputPtr, from, to);
 	}
 
 
@@ -583,10 +734,19 @@ public:
 			delete iter->second;
 	}
 
-	template<typename T> void registerType(const T * t=nullptr)
+	template<typename T>
+	void addSaver(const T * t = nullptr)
 	{
-		ui16 ID = typeList.registerType(t);
-		savers[ID] = new CPointerSaver<COSer<Serializer>,T>;
+		auto ID = typeList.getTypeID(t);
+		if(!savers.count(ID))
+			savers[ID] = new CPointerSaver<COSer<Serializer>, T>;
+	}
+
+	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
+	{
+		typeList.registerType(b, d);
+		addSaver(b);
+		addSaver(d);
 	}
 
     Serializer * This()
@@ -650,7 +810,10 @@ public:
 
 		if(smartPointerSerialization)
 		{
-			std::map<const void*,ui32>::iterator i = savedPointers.find(data);
+			// We might have an object that has multiple inheritance and store it via the non-first base pointer.
+			// Therefore, all pointers need to be normalized to the actual object address.
+			auto actualPointer = typeList.castToMostDerived(data);
+			std::map<const void*,ui32>::iterator i = savedPointers.find(actualPointer);
 			if(i != savedPointers.end())
 			{
 				//this pointer has been already serialized - write only it's id
@@ -660,7 +823,7 @@ public:
 
 			//give id to this pointer
 			ui32 pid = (ui32)savedPointers.size();
-			savedPointers[data] = pid;
+			savedPointers[actualPointer] = pid;
 			*this << pid;
 		}
 
@@ -678,7 +841,7 @@ public:
 		if(!tid)
 			*this << *data;	 //if type is unregistered simply write all data in a standard way
 		else
-			savers[tid]->savePtr(*this,data);  //call serializer specific for our real type
+			savers[tid]->savePtr(*this, typeList.castToMostDerived(data));  //call serializer specific for our real type
 	}
 
 	template <typename T>
@@ -855,24 +1018,44 @@ class DLL_LINKAGE CLoaderBase : public virtual CSerializer
 class CBasicPointerLoader
 {
 public:
-	virtual void loadPtr(CLoaderBase &ar, void *data, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
+	virtual const type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
 	virtual ~CBasicPointerLoader(){}
+};
+
+template <typename T, typename Enable = void>
+struct ClassObjectCreator
+{
+	static T *invoke()
+	{
+		static_assert(!typename std::is_abstract<T>::value, "Cannot call new upon abstract classes!");
+		return new T();
+	}
+};
+
+template<typename T>
+struct ClassObjectCreator<T, typename std::enable_if<std::is_abstract<T>::value>::type>
+{
+	static T *invoke()
+	{
+		throw std::runtime_error("Something went really wrong during deserialization. Attempted creating an object of an abstract class " + std::string(typeid(T).name()));
+	}
 };
 
 template <typename Serializer, typename T> class CPointerLoader : public CBasicPointerLoader
 {
 public:
-	void loadPtr(CLoaderBase &ar, void *data, ui32 pid) const //data is pointer to the ACTUAL POINTER
+	const type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const //data is pointer to the ACTUAL POINTER
 	{
 		Serializer &s = static_cast<Serializer&>(ar);
 		T *&ptr = *static_cast<T**>(data);
 
 		//create new object under pointer
 		typedef typename boost::remove_pointer<T>::type npT;
-		ptr = new npT;
+		ptr = ClassObjectCreator<npT>::invoke(); //does new npT or throws for abstract classes
 		s.ptrAllocated(ptr, pid);
 		//T is most derived known type, it's time to call actual serialize
 		ptr->serialize(s,version);
+		return &typeid(T);
 	}
 };
 
@@ -882,10 +1065,11 @@ template <typename Serializer> class DLL_LINKAGE CISer : public CLoaderBase
 public:
 	bool saving;
 	std::map<ui16,CBasicPointerLoader*> loaders; // typeID => CPointerSaver<serializer,type>
-	ui32 fileVersion;
+	si32 fileVersion;
 	bool reverseEndianess; //if source has different endianess than us, we reverse bytes
 
 	std::map<ui32, void*> loadedPointers;
+	std::map<ui32, const std::type_info*> loadedPointersTypes;
 	std::map<const void*, boost::any> loadedSharedPointers;
 
 	bool smartPointerSerialization;
@@ -906,10 +1090,19 @@ public:
 			delete iter->second;
 	}
 
-	template<typename T> void registerType(const T * t=nullptr)
+	template<typename T>
+	void addLoader(const T * t = nullptr)
 	{
-		ui16 ID = typeList.registerType(t);
-		loaders[ID] = new CPointerLoader<CISer<Serializer>,T>;
+		auto ID = typeList.getTypeID(t);
+		if(!loaders.count(ID))
+			loaders[ID] = new CPointerLoader<CISer<Serializer>, T>;
+	}
+
+	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
+	{
+		typeList.registerType(b, d);
+		addLoader(b);
+		addLoader(d);
 	}
 
     Serializer * This()
@@ -1049,8 +1242,10 @@ public:
 
 			if(i != loadedPointers.end())
 			{
-				//we already got this pointer
-				data = static_cast<T>(i->second);
+				// We already got this pointer
+				// Cast it in case we are loading it to a non-first base pointer
+				assert(loadedPointersTypes.count(pid));
+				data = reinterpret_cast<T>(typeList.castRaw(i->second, loadedPointersTypes.at(pid), &typeid(typename boost::remove_const<typename boost::remove_pointer<T>::type>::type)));
 				return;
 			}
 		}
@@ -1069,13 +1264,14 @@ public:
 		{
 			typedef typename boost::remove_pointer<T>::type npT;
 			typedef typename boost::remove_const<npT>::type ncpT;
-			data = new ncpT;
+			data = ClassObjectCreator<ncpT>::invoke();
 			ptrAllocated(data, pid);
 			*this >> *data;
 		}
 		else
 		{
-			loaders[tid]->loadPtr(*this,&data, pid);
+			auto typeInfo = loaders[tid]->loadPtr(*this,&data, pid);
+			data = reinterpret_cast<T>(typeList.castRaw((void*)data, typeInfo, &typeid(typename boost::remove_const<typename boost::remove_pointer<T>::type>::type)));
 		}
 	}
 
@@ -1083,7 +1279,10 @@ public:
 	void ptrAllocated(const T *ptr, ui32 pid)
 	{
 		if(smartPointerSerialization && pid != 0xffffffff)
+		{
+			loadedPointersTypes[pid] = &typeid(T);
 			loadedPointers[pid] = (void*)ptr; //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
+		}
 	}
 
 #define READ_CHECK_U32(x)			\
@@ -1099,19 +1298,34 @@ public:
 	template <typename T>
 	void loadSerializable(shared_ptr<T> &data)
 	{
-		T *internalPtr;
+		typedef typename boost::remove_const<T>::type NonConstT;
+		NonConstT *internalPtr;
 		*this >> internalPtr;
 		
+		void *internalPtrDerived = typeList.castToMostDerived(internalPtr);
+
 		if(internalPtr)
 		{
-			auto itr = loadedSharedPointers.find(internalPtr);
+			auto itr = loadedSharedPointers.find(internalPtrDerived);
 			if(itr != loadedSharedPointers.end())
 			{
 				// This pointers is already loaded. The "data" needs to be pointed to it, 
 				// so their shared state is actually shared.
 				try
 				{
-					data = boost::any_cast<std::shared_ptr<T>>(itr->second);
+					auto actualType = typeList.getTypeInfo(internalPtr);
+					auto typeWeNeedToReturn = typeList.getTypeInfo<T>();
+					if(*actualType == *typeWeNeedToReturn)
+					{
+						// No casting needed, just unpack already stored shared_ptr and return it
+						data = boost::any_cast<std::shared_ptr<T>>(itr->second);
+					}
+					else
+					{
+						// We need to perform series of casts
+						auto ret = typeList.castShared(itr->second, actualType, typeWeNeedToReturn);
+						data = boost::any_cast<std::shared_ptr<T>>(ret);
+					}
 				}
 				catch(std::exception &e)
 				{
@@ -1124,8 +1338,9 @@ public:
 			}
 			else
 			{
-				data = std::shared_ptr<T>(internalPtr);
-				loadedSharedPointers[internalPtr] = data;
+				auto hlp = std::shared_ptr<NonConstT>(internalPtr);
+				data = hlp; //possibly adds const
+				loadedSharedPointers[internalPtrDerived] = typeList.castSharedToMostDerived(hlp);
 			}
 		}
 		else
@@ -1435,10 +1650,20 @@ public:
 		for(iter = apps.begin(); iter != apps.end(); iter++)
 			delete iter->second;
 	}
-	template<typename U> void registerType(const U * t=nullptr)
+
+	template<typename RegisteredType>
+	void addApplier(ui16 ID)
 	{
-		ui16 ID = typeList.registerType(t);
-		apps[ID] = T::getApplier(t);
+		if(!apps.count(ID))
+			apps[ID] = T::getApplier<RegisteredType>();
+	}
+
+	template<typename Base, typename Derived> 
+	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
+	{
+		typeList.registerType(b, d);
+		addApplier<Base>(typeList.getTypeID(b));
+		addApplier<Derived>(typeList.getTypeID(d));
 	}
 
 };

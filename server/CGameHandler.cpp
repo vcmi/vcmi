@@ -88,6 +88,18 @@ public:
 	}
 };
 
+template <> 
+class CApplyOnGH<CPack> : public CBaseForGHApply
+{
+public:
+	bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack, PlayerColor player) const
+	{
+		logGlobal->errorStream() << "Cannot apply on GH plain CPack!";
+		assert(0);
+		return false;
+	}
+};
+
 static CApplier<CBaseForGHApply> *applier = nullptr;
 
 CMP_stack cmpst ;
