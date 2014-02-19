@@ -209,16 +209,6 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
             logAi->debugStream() << "VCAI: Player " << player << " lost. It's me. What a disappointment! :(";
 		}
 
-// 		//let's make Impossible difficulty finally standing to its name :>
-// 		if(myCb->getStartInfo()->difficulty == 4 && !victory)
-// 		{
-// 			//play dirty: crash the whole engine to avoid lose
-// 			//that way AI is unbeatable!
-// 			*(int*)nullptr = 666;
-// 		}
-
-// 		TODO - at least write some insults on stdout
-
 		finish();
 	}
 }
@@ -372,25 +362,6 @@ void VCAI::newObject(const CGObjectInstance * obj)
 	NET_EVENT_HANDLER;
 	if(obj->isVisitable())
 		addVisitableObj(obj);
-
-	//AI should reconsider strategy when spawning monsters block the way and free reserved objects
-
-	//FIXME: AI tends to freeze forever on a week of double growth if this code is active 
-	//auto safeCopy = reservedHeroesMap;
-	//for (auto hero : safeCopy)
-	//{
-	//	auto h = hero.first;
-	//	for (auto reservedObj : hero.second)
-	//	{
-	//		auto pos = reservedObj->visitablePos();
-	//		if (!(isAccessibleForHero(pos, h) && isSafeToVisit(h, pos)))
-	//		{
-	//			erase_if_present (reservedObjs, reservedObj);
-	//			for(auto &p : reservedHeroesMap)
-	//				erase_if_present (p.second, reservedObj);
-	//		}
-	//	}
-	//}
 }
 
 void VCAI::objectRemoved(const CGObjectInstance *obj)
@@ -838,8 +809,7 @@ void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 
 bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * source)
 { //TODO: merge with pickBestCreatures
-	if (ai->primaryHero().h == source)
-		return false; //TODO: allow exchange back and forth
+	//if (ai->primaryHero().h == source)
 
 	if(army->tempOwner != source->tempOwner)
 	{
@@ -849,17 +819,17 @@ bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * sourc
 
 
 	const CArmedInstance *armies[] = {army, source};
-	int armySize = 0; 
+ 
 	//we calculate total strength for each creature type available in armies
 	std::map<const CCreature*, int> creToPower;
 	for(auto armyPtr : armies)
 		for(auto &i : armyPtr->Slots())
 		{
-			++armySize;//TODO: allow splitting stacks?
+			//TODO: allow splitting stacks?
 			creToPower[i.second->type] += i.second->getPower();
 		}
 	//TODO - consider more than just power (ie morale penalty, hero specialty in certain stacks, etc)
-
+	int armySize = creToPower.size();
 	armySize = std::min ((source->needsLastStack() ? armySize - 1 : armySize), GameConstants::ARMY_SIZE); //can't move away last stack
 	std::vector<const CCreature *> bestArmy; //types that'll be in final dst army
 	for (int i = 0; i < armySize; i++) //pick the creatures from which we can get most power, as many as dest can fit
@@ -882,8 +852,13 @@ bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * sourc
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
 				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  armyPtr != army) //it's a searched creature not in dst ARMY
-					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1 && armyPtr != army)) //can't take away last creature
+				{
+					//FIXME: line below is useless when simulating exchange between two non-singular armies
+					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1)) //can't take away last creature
 						return true; //at least one exchange will be performed
+					else
+						return false; //no further exchange possible
+				}
 			}
 	}
 	return false;
@@ -893,16 +868,16 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 {
 	//TODO - what if source is a hero (the last stack problem) -> it'd good to create a single stack of weakest cre
 	const CArmedInstance *armies[] = {army, source};
-	int armySize = 0; 
+
 	//we calculate total strength for each creature type available in armies
 	std::map<const CCreature*, int> creToPower;
 	for(auto armyPtr : armies)
 		for(auto &i : armyPtr->Slots())
-		{
-			++armySize;//TODO: allow splitting stacks?
+		{//TODO: allow splitting stacks?
 			creToPower[i.second->type] += i.second->getPower();
 		}
 	//TODO - consider more than just power (ie morale penalty, hero specialty in certain stacks, etc)
+	int armySize = creToPower.size();
 
 	armySize = std::min ((source->needsLastStack() ? armySize - 1 : armySize), GameConstants::ARMY_SIZE); //can't move away last stack
 	std::vector<const CCreature *> bestArmy; //types that'll be in final dst army
@@ -926,7 +901,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
 				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst SLOT
-					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1 && armyPtr != army))
+					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1)) //can't take away last creature
 						cb->mergeOrSwapStacks(armyPtr, army, SlotID(j), SlotID(i));
 			}
 	}
@@ -1945,7 +1920,7 @@ void VCAI::striveToGoal(Goals::TSubgoal ultimateGoal)
 	if (abstractGoal->invalid())
 		return;
 
-	//we received abstratc goal, need to find concrete goals
+	//we received abstract goal, need to find concrete goals
 	striveToGoalInternal (abstractGoal, true);
 
 	//TODO: save abstract goals not related to hero
@@ -1953,13 +1928,15 @@ void VCAI::striveToGoal(Goals::TSubgoal ultimateGoal)
 
 Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool onlyAbstract)
 {
+	const int searchDepth = 30;
+	const int searchDepth2 = searchDepth-2;
 	Goals::TSubgoal abstractGoal = sptr(Goals::Invalid());
 
 	while(1)
 	{
 		Goals::TSubgoal goal = ultimateGoal;
         logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal->name();
-		int maxGoals = 30; //preventing deadlock for mutually dependent goals
+		int maxGoals = searchDepth; //preventing deadlock for mutually dependent goals
 		while(!goal->isElementar && maxGoals && (onlyAbstract || !goal->isAbstract))
 		{
             logAi->debugStream() << boost::format("Considering goal %s") % goal->name();
@@ -1968,11 +1945,19 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 				boost::this_thread::interruption_point();
 				goal = goal->whatToDoToAchieve();
 				--maxGoals;
+				if (*goal == *ultimateGoal) //compare objects by value
+					throw cannotFulfillGoalException("Goal dependency loop detected!");
+			}
+			catch(goalFulfilledException &e)
+			{
+				//it is impossible to continue some goals (like exploration, for example)
+				completeGoal (goal);
+                logAi->debugStream() << boost::format("Goal %s decomposition failed: goal was completed as much as possible") % goal->name();
+				return sptr(Goals::Invalid());
 			}
 			catch(std::exception &e)
 			{
                 logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal->name() % e.what();
-				//setGoal (goal.hero, INVALID); //test: if we don't know how to realize goal, we should abandon it for now
 				return sptr(Goals::Invalid());
 			}
 		}
@@ -2020,8 +2005,10 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 		}
 		catch(goalFulfilledException &e)
 		{
+			//the goal was completed successfully
 			completeGoal (goal);
-			if (ultimateGoal->fulfillsMe(goal) || maxGoals > 28) //completed goal was main goal //TODO: find better condition
+			//completed goal was main goal //TODO: find better condition
+			if (ultimateGoal->fulfillsMe(goal) || maxGoals > searchDepth2)
 				return sptr(Goals::Invalid()); 
 		}
 		catch(std::exception &e)
@@ -2268,43 +2255,6 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 			}
 		}
 	}
-	//if (!bestValue) //no free spot, we need to fight
-	//{
-	//	SectorMap sm(h);
-
-	//	ui64 lowestDanger = -1;
-
-	//	for (int i = 1; i < radius; i++)
-	//	{
-	//		getVisibleNeighbours(tiles[i-1], tiles[i]);
-	//		removeDuplicates(tiles[i]);
-
-	//		for(const int3 &tile : tiles[i])
-	//		{
-	//			if (cb->getTile(tile)->blocked) //does it shorten the time?
-	//				continue;
-	//			if (!howManyTilesWillBeDiscovered(tile, radius)) //avoid costly checks of tiles that don't reveal much
-	//				continue;
-
-	//			auto t = sm.firstTileToGet(h, tile);
-	//			if (t.valid())
-	//			{
-	//				ui64 ourDanger = evaluateDanger(tile, h.h);
-	//				if (ourDanger < lowestDanger)
-	//				{
-	//					if(!isBlockedBorderGate(tile))
-	//					{
-	//						if (!ourDanger) //at least one safe place found
-	//							return tile;
-
-	//						bestTile = tile;
-	//						lowestDanger = ourDanger;
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
 	return bestTile;
 }
 

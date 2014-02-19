@@ -100,6 +100,58 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 	return desc;
 }
 
+//TODO: virtualize if code gets complex?
+bool Goals::AbstractGoal::operator== (AbstractGoal &g)
+{
+	if (g.goalType != goalType)
+		return false;
+	if (g.isElementar != isElementar) //elementar goals fulfill long term non-elementar goals (VisitTile)
+		return false;
+
+	switch (goalType)
+	{
+		//no parameters
+		case INVALID:
+		case WIN:
+		case DO_NOT_LOSE:
+		case RECRUIT_HERO: //recruit any hero, as yet
+			return true;
+			break;
+
+		//assigned to hero, no parameters
+		case CONQUER:
+		case EXPLORE:
+		case GATHER_ARMY: //actual value is indifferent
+		case BOOST_HERO:
+			return g.hero.h == hero.h; //how comes HeroPtrs are equal for different heroes?
+			break;
+
+		//assigned hero and tile
+		case VISIT_TILE:
+		case CLEAR_WAY_TO:
+			return (g.hero.h == hero.h && g.tile == tile);
+			break;
+
+		//assigned hero and object
+		case GET_OBJ:
+		case FIND_OBJ: //TODO: use subtype?
+		case VISIT_HERO:
+		case GET_ART_TYPE:
+		case DIG_AT_TILE:
+			return (g.hero.h == hero.h && g.objid == objid);
+			break;
+
+		//no check atm
+		case COLLECT_RES:
+		case GATHER_TROOPS:
+		case ISSUE_COMMAND:
+		case BUILD: //TODO: should be decomposed to build specific structures
+		case BUILD_STRUCTURE:
+		default:
+			return false;
+	}
+}
+
 //TODO: find out why the following are not generated automatically on MVS?
 
 namespace Goals 
@@ -476,9 +528,8 @@ TGoalVec Explore::getAllPossibleSubgoals()
 {
 	TGoalVec ret;
 	std::vector<const CGHeroInstance *> heroes;
-	//std::vector<HeroPtr> heroes;
+
 	if (hero)
-		//heroes.push_back(hero);
 		heroes.push_back(hero.h);
 	else
 	{
@@ -486,9 +537,8 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		heroes = cb->getHeroesInfo();
 		erase_if (heroes, [](const HeroPtr h)
 		{
-			if (vstd::contains(ai->lockedHeroes, h))
-				if (ai->lockedHeroes[h]->goalType == Goals::EXPLORE) //do not reassign hero who is already explorer
-					return true;
+			if (ai->getGoal(h)->goalType == Goals::EXPLORE) //do not reassign hero who is already explorer
+				return true;
 
 			return !h->movement; //saves time, immobile heroes are useless anyway
 		});

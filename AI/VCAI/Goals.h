@@ -112,10 +112,7 @@ public:
 	virtual void accept (VCAI * ai); //unhandled goal will report standard error
 	virtual float accept (FuzzyHelper * f);
 
-	virtual bool operator== (AbstractGoal &g)
-	{
-		return false;
-	}
+	virtual bool operator== (AbstractGoal &g);
 	virtual bool fulfillsMe (Goals::TSubgoal goal) //TODO: multimethod instead of type check
 	{
 		return false;
@@ -142,7 +139,6 @@ public:
 		tile = int3(-1, -1, -1);
 		town = nullptr;
 	}
-	//virtual TSubgoal whatToDoToAchieve() override; //can't have virtual and template class at once
 
 	OSETTER(bool, isElementar)
 	OSETTER(bool, isAbstract)
@@ -158,7 +154,6 @@ public:
 
 	void accept (VCAI * ai) override;
 	float accept (FuzzyHelper * f) override;
-	//float importanceWhenLocked() const override;
 
 	CGoal<T> * clone() const override
 	{
@@ -306,7 +301,7 @@ public:
 	VisitHero(int hid) : CGoal (Goals::VISIT_HERO){objid = hid; priority = 4;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	bool operator== (VisitHero &g) {return g.objid == objid;}
+	//bool operator== (VisitHero &g) {return g.objid == objid;}
 	bool fulfillsMe (TSubgoal goal) override;
 	std::string completeMessage() const override;
 };
@@ -328,7 +323,7 @@ public:
 	VisitTile(int3 Tile) : CGoal (Goals::VISIT_TILE) {tile = Tile; priority = 5;};
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
-	bool operator== (VisitTile &g) {return g.tile == tile;}
+	//bool operator== (VisitTile &g) {return g.tile == tile;}
 	std::string completeMessage() const override;
 }; 
 class ClearWayTo : public CGoal<ClearWayTo>
