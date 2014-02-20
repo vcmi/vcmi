@@ -67,6 +67,7 @@ public:
 	float evaluate (Goals::CollectRes & g);
 	float evaluate (Goals::Build & g);
 	float evaluate (Goals::GatherArmy & g);
+	float evaluate (Goals::ClearWayTo & g);
 	float evaluate (Goals::Invalid & g);
 	float evaluate (Goals::AbstractGoal & g);
 	void setPriority (Goals::TSubgoal & g);

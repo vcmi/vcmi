@@ -193,7 +193,7 @@ class NotLose : public CGoal<NotLose>
 	public:
 	NotLose() : CGoal (Goals::DO_NOT_LOSE) {priority = 100;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
-	TSubgoal whatToDoToAchieve() override;
+	//TSubgoal whatToDoToAchieve() override;
 };
 class Conquer : public CGoal<Conquer>
 {
@@ -221,9 +221,9 @@ class Explore : public CGoal<Explore>
 };
 class GatherArmy : public CGoal<GatherArmy>
 {
-private:
-	GatherArmy() : CGoal (Goals::GATHER_ARMY){};
 public:
+	GatherArmy() : CGoal (Goals::GATHER_ARMY){};
+
 	GatherArmy(int val) : CGoal (Goals::GATHER_ARMY){value = val; priority = 2.5;};
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
@@ -234,7 +234,7 @@ class BoostHero : public CGoal<BoostHero>
 	public:
 	BoostHero() : CGoal (Goals::INVALID){priority = -1e10;}; //TODO
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
-	TSubgoal whatToDoToAchieve() override;
+	//TSubgoal whatToDoToAchieve() override {return sptr(Invalid());};
 };
 class RecruitHero : public CGoal<RecruitHero>
 {
@@ -245,9 +245,9 @@ class RecruitHero : public CGoal<RecruitHero>
 };
 class BuildThis : public CGoal<BuildThis>
 {
-private:
-	BuildThis() : CGoal (Goals::BUILD_STRUCTURE){};
 public:
+	BuildThis() : CGoal (Goals::BUILD_STRUCTURE){}; //FIXME: should be not allowed (private)
+
 	BuildThis(BuildingID Bid, const CGTownInstance *tid) : CGoal (Goals::BUILD_STRUCTURE) {bid = Bid; town = tid; priority =  5;};
 	BuildThis(BuildingID Bid) : CGoal (Goals::BUILD_STRUCTURE) {bid = Bid; priority = 5;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
@@ -255,27 +255,27 @@ public:
 };
 class CollectRes : public CGoal<CollectRes>
 {
-private:	
+public:	
 	CollectRes() : CGoal (Goals::COLLECT_RES){};
-public:
+
 	CollectRes(int rid, int val) : CGoal (Goals::COLLECT_RES) {resID = rid; value = val; priority = 2;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class GatherTroops : public CGoal<GatherTroops>
 {
-private:
-	GatherTroops() : CGoal (Goals::GATHER_TROOPS){priority = 2;};
 public:
+	GatherTroops() : CGoal (Goals::GATHER_TROOPS){priority = 2;};
+
 	GatherTroops(int type, int val) : CGoal (Goals::GATHER_TROOPS){objid = type; value = val; priority = 2;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
 };
 class GetObj : public CGoal<GetObj>
 {
-private:
-	GetObj() {}; // empty constructor not allowed
 public:
+	GetObj() {}; // empty constructor not allowed
+
 	GetObj(int Objid) : CGoal(Goals::GET_OBJ) {objid = Objid; priority = 3;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
@@ -285,9 +285,9 @@ public:
 };
 class FindObj : public CGoal<FindObj>
 {
-private:
-	FindObj() {}; // empty constructor not allowed
 public:
+	FindObj() {}; // empty constructor not allowed
+
 	FindObj(int ID) : CGoal(Goals::FIND_OBJ) {objid = ID; priority = 1;};
 	FindObj(int ID, int subID) : CGoal(Goals::FIND_OBJ) {objid = ID; resID = subID; priority = 1;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
@@ -295,9 +295,9 @@ public:
 };
 class VisitHero : public CGoal<VisitHero>
 {
-private:
-	VisitHero() : CGoal (Goals::VISIT_HERO){};
 public:
+	VisitHero() : CGoal (Goals::VISIT_HERO){};
+
 	VisitHero(int hid) : CGoal (Goals::VISIT_HERO){objid = hid; priority = 4;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
@@ -307,9 +307,9 @@ public:
 };
 class GetArtOfType : public CGoal<GetArtOfType>
 {
-private:
-	GetArtOfType() : CGoal (Goals::GET_ART_TYPE){};
 public:
+	GetArtOfType() : CGoal (Goals::GET_ART_TYPE){};
+
 	GetArtOfType(int type) : CGoal (Goals::GET_ART_TYPE){aid = type; priority = 2;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
@@ -317,9 +317,9 @@ public:
 class VisitTile : public CGoal<VisitTile>
 	//tile, in conjunction with hero elementar; assumes tile is reachable
 {
-private:
-	VisitTile() {}; // empty constructor not allowed
 public:
+	VisitTile() {}; // empty constructor not allowed
+
 	VisitTile(int3 Tile) : CGoal (Goals::VISIT_TILE) {tile = Tile; priority = 5;};
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
@@ -329,7 +329,10 @@ public:
 class ClearWayTo : public CGoal<ClearWayTo>
 {
 public:
+	ClearWayTo() : CGoal (Goals::CLEAR_WAY_TO){};
+
 	ClearWayTo(int3 Tile) : CGoal (Goals::CLEAR_WAY_TO) {tile = Tile; priority = 5;};
+	ClearWayTo(int3 Tile, HeroPtr h) : CGoal (Goals::CLEAR_WAY_TO) {tile = Tile; hero = h; priority = 5;};
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	bool operator== (ClearWayTo &g) {return g.tile == tile;}
@@ -337,9 +340,9 @@ public:
 class DigAtTile : public CGoal<DigAtTile>
 	//elementar with hero on tile
 {
-private:
-	DigAtTile() : CGoal (Goals::DIG_AT_TILE){};
 public:
+	DigAtTile() : CGoal (Goals::DIG_AT_TILE){};
+
 	DigAtTile(int3 Tile) : CGoal (Goals::DIG_AT_TILE) {tile = Tile; priority = 20;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
@@ -351,9 +354,11 @@ class CIssueCommand : public CGoal<CIssueCommand>
 	std::function<bool()> command;
 
 	public:
+	CIssueCommand(): CGoal(ISSUE_COMMAND){};
+
 	CIssueCommand(std::function<bool()> _command): CGoal(ISSUE_COMMAND), command(_command) {priority = 1e10;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
-	TSubgoal whatToDoToAchieve() override;
+	//TSubgoal whatToDoToAchieve() override {return sptr(Invalid());};
 };
 
 }

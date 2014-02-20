@@ -83,6 +83,7 @@ struct SectorMap
 		int id;
 		std::vector<int3> tiles;
 		std::vector<int3> embarkmentPoints; //tiles of other sectors onto which we can (dis)embark
+		std::vector<const CGObjectInstance *> subterraneanGates;
 		bool water; //all tiles of sector are land or water
 		Sector()
 		{
@@ -180,7 +181,7 @@ public:
 	int3 explorationBestNeighbour(int3 hpos, int radius, HeroPtr h);
 	int3 explorationNewPoint(HeroPtr h);
 	int3 explorationDesperate(HeroPtr h);
-	void whatToDoToReachTile (const CGHeroInstance * h, int3 t, Goals::TGoalVec& vec);
+	bool canReachTile (const CGHeroInstance * h, int3 t);
 	void recruitHero();
 
 	virtual std::string getBattleAIName() const override;
@@ -312,6 +313,29 @@ public:
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
 	void requestActionASAP(std::function<void()> whatToDo); 
 
+	template <typename Handler> void registerGoals(Handler &h)
+	{
+		//h.registerType<Goals::AbstractGoal, Goals::BoostHero>();
+		h.registerType<Goals::AbstractGoal, Goals::Build>(); 
+		h.registerType<Goals::AbstractGoal, Goals::BuildThis>(); 
+		//h.registerType<Goals::AbstractGoal, Goals::CIssueCommand>(); 
+		h.registerType<Goals::AbstractGoal, Goals::ClearWayTo>(); 
+		h.registerType<Goals::AbstractGoal, Goals::CollectRes>(); 
+		h.registerType<Goals::AbstractGoal, Goals::Conquer>(); 
+		h.registerType<Goals::AbstractGoal, Goals::DigAtTile>(); 
+		h.registerType<Goals::AbstractGoal, Goals::Explore>(); 
+		h.registerType<Goals::AbstractGoal, Goals::FindObj>(); 
+		h.registerType<Goals::AbstractGoal, Goals::GatherArmy>(); 
+		h.registerType<Goals::AbstractGoal, Goals::GatherTroops>();
+		h.registerType<Goals::AbstractGoal, Goals::GetArtOfType>(); 
+		h.registerType<Goals::AbstractGoal, Goals::GetObj>(); 
+		h.registerType<Goals::AbstractGoal, Goals::Invalid>(); 
+		//h.registerType<Goals::AbstractGoal, Goals::NotLose>();
+		h.registerType<Goals::AbstractGoal, Goals::RecruitHero>();
+		h.registerType<Goals::AbstractGoal, Goals::VisitHero>(); 
+		h.registerType<Goals::AbstractGoal, Goals::VisitTile>(); 
+		h.registerType<Goals::AbstractGoal, Goals::Win>(); 
+	}
 
 	template <typename Handler> void serializeInternal(Handler &h, const int version)
 	{

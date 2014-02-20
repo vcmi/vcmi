@@ -598,6 +598,8 @@ void VCAI::saveGame(COSer<CSaveFile> &h, const int version)
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
 	validateVisitableObjs();
+
+	registerGoals(h);
 	CAdventureAI::saveGame(h, version);
 	serializeInternal(h, version);
 }
@@ -606,6 +608,8 @@ void VCAI::loadGame(CISer<CLoadFile> &h, const int version)
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
+
+	registerGoals(h);
 	CAdventureAI::loadGame(h, version);
 	serializeInternal(h, version);
 }
@@ -1215,24 +1219,18 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 	return possibleDestinations;
 }
 
-void VCAI::whatToDoToReachTile (const CGHeroInstance * h, int3 t, Goals::TGoalVec& vec)
-///TODO: possibly merge with Goals::ClearWayTo
+bool VCAI::canReachTile (const CGHeroInstance * h, int3 t)
 {
 	if (t.valid())
 	{
 		auto obj = cb->getTopObj(t);
 		if (obj && vstd::contains(ai->reservedObjs, obj) && !vstd::contains(reservedHeroesMap[h], obj))
-				return; //do not capture object reserved by another hero
-		if (isSafeToVisit(h, t))
-		{
-			vec.push_back (sptr (Goals::VisitTile(t).sethero(h)));
-		}
+			return false; //do not capture object reserved by another hero
 		else
-		{
-			vec.push_back (sptr (Goals::GatherArmy(evaluateDanger(t, h)*SAFE_ATTACK_CONSTANT).
-				sethero(h).setisAbstract(true)));
-		}
+			return true;
 	}
+	else
+		return false;
 }
 
 bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
@@ -2709,8 +2707,16 @@ void SectorMap::exploreNewSector(crint3 pos, int num)
 							s.embarkmentPoints.push_back(neighPos);
 						}
 					});
-					if(t->visitable && vstd::contains(ai->knownSubterraneanGates, t->visitableObjects.front()))
-						toVisit.push(ai->knownSubterraneanGates[t->visitableObjects.front()]->visitablePos());
+					
+					if(t->visitable)
+					{
+						auto obj = t->visitableObjects.front();
+						if (vstd::contains(ai->knownSubterraneanGates, obj))
+						{ //not really sure what does it do, but subtrranean gates do not make one sector
+							toVisit.push(ai->knownSubterraneanGates[obj]->visitablePos());
+							s.subterraneanGates.push_back (obj);
+						}
+					}
 				}
 			}
 		}
@@ -2893,7 +2899,20 @@ For ship construction etc, another function (goal?) is needed
 				}
 			}
 
-			//TODO consider other types of connections between sectors?
+			for (auto gate : s->subterraneanGates)
+			{
+				auto gatePair = ai->knownSubterraneanGates.find(gate);
+				if (gatePair != ai->knownSubterraneanGates.end())
+				{
+					//check the other side of gate
+					Sector *neigh = &infoOnSectors[retreiveTile(gatePair->second->visitablePos())];
+					if(!preds[neigh]) //if we didn't come into this sector yet
+					{
+						preds[neigh] = s; //it becomes our new target sector
+						sq.push(neigh);
+					}
+				}
+			}
 		}
 
 		if(!preds[dst])
@@ -3001,10 +3020,19 @@ For ship construction etc, another function (goal?) is needed
 				//disembark
 				return ret;
 			}
-			else
+			else //use subterranean gates
 			{
+				auto firstGate = boost::find_if(src->subterraneanGates, [=](const CGObjectInstance * gate) -> bool
+				{
+					return retreiveTile(gate->visitablePos()) == sectorToReach->id;
+				});
+
+				if(firstGate != src->subterraneanGates.end())
+				{
+					return (*firstGate)->visitablePos();
+				}
 				//TODO
-				//transition between two land/water sectors. Monolith? Whirlpool? ...
+				//Monolith? Whirlpool? ...
 				return ret;
 				//throw cannotFulfillGoalException("Land-land and water-water inter-sector transitions are not implemented!");
 			}
@@ -3078,19 +3106,6 @@ void SectorMap::makeParentBFS(crint3 source)
 				}
 			}
 		});
-		//this code is unused, as tiles on both sides of game are different sectors
-
-		//const TerrainTile *t = cb->getTile(curPos);
-		//if(t->topVisitableId() == Obj::SUBTERRANEAN_GATE)
-		//{
-		//	//try finding the exit gate
-		//	auto it = ai->knownSubterraneanGates.find(t->topVisitableObj());
-		//	if (it != ai->knownSubterraneanGates.end())
-		//	{
-		//		const int3 outPos = it->second->visitablePos();
-		//		parent[outPos] = curPos; //TODO: is it only one tile?
-		//	}
-		//}
 	}
 }
 

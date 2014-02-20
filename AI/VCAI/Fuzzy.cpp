@@ -480,6 +480,32 @@ float FuzzyHelper::evaluate (Goals::GatherArmy & g)
 	float army = g.hero->getArmyStrength();
 	return g.value / std::max(g.value - army, 1000.0f);
 }
+
+float FuzzyHelper::evaluate (Goals::ClearWayTo & g)
+{
+	if (!g.hero.h)
+		throw cannotFulfillGoalException("ClearWayTo called without hero!");
+
+	SectorMap sm(g.hero);
+	int3 t = sm.firstTileToGet(g.hero, g.tile);
+
+	if (t.valid())
+	{
+		if (isSafeToVisit(g.hero, t))
+		{
+			g.setpriority(Goals::VisitTile(g.tile).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
+		}
+		else
+		{
+			g.setpriority (Goals::GatherArmy(evaluateDanger(t, g.hero.h)*SAFE_ATTACK_CONSTANT).
+				sethero(g.hero).setisAbstract(true).accept(this));
+		}
+		return g.priority;
+	}
+	else
+		return -1;
+}
+
 float FuzzyHelper::evaluate (Goals::BuildThis & g)
 {
 	return 1;

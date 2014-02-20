@@ -452,16 +452,28 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 TGoalVec ClearWayTo::getAllPossibleSubgoals()
 {
 	TGoalVec ret;
-	for (auto h : cb->getHeroesInfo())
+
+	std::vector<const CGHeroInstance *> heroes;
+
+	if (hero)
+		heroes.push_back(hero.h);
+	else
 	{
-		if ((hero && hero->visitablePos() == tile && hero == *h) || //we can't free the way ourselves
-			h->visitablePos() == tile) //we are already on that tile! what does it mean?
-			continue;
+		heroes = cb->getHeroesInfo();
+	}
+
+	for (auto h : heroes)
+	{
+		//TODO: handle clearing way to allied heroes that are blocked
+		//if ((hero && hero->visitablePos() == tile && hero == *h) || //we can't free the way ourselves
+		//	h->visitablePos() == tile) //we are already on that tile! what does it mean?
+		//	continue;
+
+		//if our hero is trapped, make sure we request clearing the way from OUR perspective
 
 		SectorMap sm(h);
 
-		int3 tileToHit = sm.firstTileToGet(hero ? hero : h, tile);
-		//if our hero is trapped, make sure we request clearing the way from OUR perspective
+		int3 tileToHit = sm.firstTileToGet(h, tile);
 		if (!tileToHit.valid())
 			continue;
 
@@ -471,10 +483,13 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 		}
 
 		auto topObj = cb->getTopObj(tileToHit);
-		if(topObj)
+		if (topObj)
 		{
+			if (vstd::contains(ai->reservedObjs, topObj) && !vstd::contains(ai->reservedHeroesMap[h], topObj))
+				continue; //do not capure object reserved by other hero
+
 			if (topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
-				if (topObj != hero.get(true)) //the hero we wnat to free
+				if (topObj != hero.get(true)) //the hero we want to free
 					logAi->errorStream() << boost::format("%s stands in the way of %s") % topObj->getHoverText()  % h->getHoverText();
 			if (topObj->ID == Obj::QUEST_GUARD || topObj->ID == Obj::BORDERGUARD)
 			{
@@ -482,6 +497,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 				{
 					//do NOT use VISIT_TILE, as tile with quets guard can't be visited
 					ret.push_back (sptr (Goals::GetObj(topObj->id.getNum()).sethero(h)));
+					continue; //do not try to visit tile or gather army
 				}
 				else
 				{
@@ -490,8 +506,16 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 				}
 			}
 		}
-		else
+
+		if (isSafeToVisit(h, tileToHit)) //this makes sense only if tile is guarded, but there i no quest object
+		{
 			ret.push_back (sptr (Goals::VisitTile(tileToHit).sethero(h)));
+		}
+		else
+		{
+			ret.push_back (sptr (Goals::GatherArmy(evaluateDanger(tileToHit, h)*SAFE_ATTACK_CONSTANT).
+				sethero(h).setisAbstract(true)));
+		}
 	}
 	if (ai->canRecruitAnyHero())
 		ret.push_back (sptr (Goals::RecruitHero()));
@@ -563,10 +587,12 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	for (auto h : heroes)
 	{
 		SectorMap sm(h);
+
 		for (auto obj : objs) //double loop, performance risk?
 		{
 			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
-			ai->whatToDoToReachTile(h, t, ret);
+			if (ai->canReachTile(h, t))
+				ret.push_back (sptr(Goals::ClearWayTo(obj->visitablePos(), h).setisAbstract(true)));
 		}
 
 		int3 t = whereToExplore(h);
@@ -577,32 +603,13 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		else if (hero.h == h || (!hero && h == ai->primaryHero().h)) //check this only ONCE, high cost
 		{
 			t = ai->explorationDesperate(h);
-			ai->whatToDoToReachTile(h, t, ret);
+			if (t.valid()) //don't waste time if we are completely blocked
+				ret.push_back (sptr(Goals::ClearWayTo(t, h).setisAbstract(true)));
 		}
 	}
 	//we either don't have hero yet or none of heroes can explore
 	if ((!hero || ret.empty()) && ai->canRecruitAnyHero())
 		ret.push_back (sptr(Goals::RecruitHero()));
-
-	//if (ret.empty())
-	//{
-	//	for (auto h : heroes) //this is costly function, use only when there is no other way
-	//	{
-	//		auto t = ai->explorationDesperate (h); //we assume that no more than one tile on the way is guarded
-	//		if (t.valid())
-	//		{
-	//			if (isSafeToVisit(h, t))
-	//			{
-	//				ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
-	//			}
-	//			else
-	//			{
-	//				ret.push_back (sptr (Goals::GatherArmy(evaluateDanger(t, h)*SAFE_ATTACK_CONSTANT).
-	//					sethero(h).setisAbstract(true)));
-	//			}
-	//		}
-	//	}
-	//}
 
 	if (ret.empty())
 	{
@@ -886,7 +893,8 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 		for (auto obj : ourObjs) //double loop, performance risk?
 		{
 			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
-			ai->whatToDoToReachTile (h, t, ret);
+			if (ai->canReachTile(h, t))
+				ret.push_back (sptr(Goals::ClearWayTo(obj->visitablePos(), h).setisAbstract(true)));
 		}
 	}
 	if (!objs.empty() && ai->canRecruitAnyHero()) //probably no point to recruit hero if we see no objects to capture
