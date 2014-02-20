@@ -1,3 +1,7 @@
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
+
 #include "StdInc.h"
 #include "CLogger.h"
 
@@ -398,6 +402,11 @@ void CLogConsoleTarget::write(const LogRecord & record)
 	if(threshold > record.level) return;
 
 	std::string message = formatter.format(record);
+
+#ifdef __ANDROID__
+	__android_log_print(ANDROID_LOG_INFO, "VCMI", "%s", message.c_str());
+#endif
+
 	bool printToStdErr = record.level >= ELogLevel::WARN;
 	if(console)
 	{

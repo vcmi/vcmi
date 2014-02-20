@@ -5,7 +5,13 @@
 #define strcpy_s(a, b, c) strncpy(a, c, b)
 #endif
 
-const char *g_cszAiName = "VCAI";
+#ifdef __ANDROID__
+#define GetGlobalAiVersion VCAI_GetGlobalAiVersion
+#define GetAiName VCAI_GetAiName
+#define GetNewAI VCAI_GetNewAI
+#endif
+
+static const char *g_cszAiName = "VCAI";
 
 extern "C" DLL_EXPORT int GetGlobalAiVersion()
 {

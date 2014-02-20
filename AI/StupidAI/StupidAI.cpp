@@ -5,7 +5,7 @@
 #include "../../CCallback.h"
 #include "../../lib/CCreatureHandler.h"
 
-shared_ptr<CBattleCallback> cbc;
+static shared_ptr<CBattleCallback> cbc;
 
 CStupidAI::CStupidAI(void)
 	: side(-1)
@@ -60,6 +60,8 @@ bool isMoreProfitable(const EnemyInfo &ei1, const EnemyInfo& ei2)
 	return (ei1.adi-ei1.adr) < (ei2.adi - ei2.adr);
 }
 
+namespace {
+
 int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = nullptr)
 {
 	int ret = 1000000;
@@ -79,6 +81,8 @@ int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& di
 bool isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const ReachabilityInfo::TDistances & dists)
 {
 	return distToNearestNeighbour(ei1.s->position, dists) < distToNearestNeighbour(ei2.s->position, dists);
+}
+
 }
 
 static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const BattleHex &h2)
@@ -328,4 +332,3 @@ void CStupidAI::loadGame(CISer<CLoadFile> &h, const int version)
 	//TODO to be implemented with saving/loading during the battles
 	assert(0);
 }
-
