@@ -315,26 +315,26 @@ public:
 
 	template <typename Handler> void registerGoals(Handler &h)
 	{
-		//h.registerType<Goals::AbstractGoal, Goals::BoostHero>();
-		h.registerType<Goals::AbstractGoal, Goals::Build>(); 
-		h.registerType<Goals::AbstractGoal, Goals::BuildThis>(); 
-		//h.registerType<Goals::AbstractGoal, Goals::CIssueCommand>(); 
-		h.registerType<Goals::AbstractGoal, Goals::ClearWayTo>(); 
-		h.registerType<Goals::AbstractGoal, Goals::CollectRes>(); 
-		h.registerType<Goals::AbstractGoal, Goals::Conquer>(); 
-		h.registerType<Goals::AbstractGoal, Goals::DigAtTile>(); 
-		h.registerType<Goals::AbstractGoal, Goals::Explore>(); 
-		h.registerType<Goals::AbstractGoal, Goals::FindObj>(); 
-		h.registerType<Goals::AbstractGoal, Goals::GatherArmy>(); 
-		h.registerType<Goals::AbstractGoal, Goals::GatherTroops>();
-		h.registerType<Goals::AbstractGoal, Goals::GetArtOfType>(); 
-		h.registerType<Goals::AbstractGoal, Goals::GetObj>(); 
-		h.registerType<Goals::AbstractGoal, Goals::Invalid>(); 
-		//h.registerType<Goals::AbstractGoal, Goals::NotLose>();
-		h.registerType<Goals::AbstractGoal, Goals::RecruitHero>();
-		h.registerType<Goals::AbstractGoal, Goals::VisitHero>(); 
-		h.registerType<Goals::AbstractGoal, Goals::VisitTile>(); 
-		h.registerType<Goals::AbstractGoal, Goals::Win>(); 
+		//h.template registerType<Goals::AbstractGoal, Goals::BoostHero>();
+		h.template registerType<Goals::AbstractGoal, Goals::Build>();
+		h.template registerType<Goals::AbstractGoal, Goals::BuildThis>();
+		//h.template registerType<Goals::AbstractGoal, Goals::CIssueCommand>();
+		h.template registerType<Goals::AbstractGoal, Goals::ClearWayTo>();
+		h.template registerType<Goals::AbstractGoal, Goals::CollectRes>();
+		h.template registerType<Goals::AbstractGoal, Goals::Conquer>();
+		h.template registerType<Goals::AbstractGoal, Goals::DigAtTile>();
+		h.template registerType<Goals::AbstractGoal, Goals::Explore>();
+		h.template registerType<Goals::AbstractGoal, Goals::FindObj>();
+		h.template registerType<Goals::AbstractGoal, Goals::GatherArmy>();
+		h.template registerType<Goals::AbstractGoal, Goals::GatherTroops>();
+		h.template registerType<Goals::AbstractGoal, Goals::GetArtOfType>();
+		h.template registerType<Goals::AbstractGoal, Goals::GetObj>();
+		h.template registerType<Goals::AbstractGoal, Goals::Invalid>();
+		//h.template registerType<Goals::AbstractGoal, Goals::NotLose>();
+		h.template registerType<Goals::AbstractGoal, Goals::RecruitHero>();
+		h.template registerType<Goals::AbstractGoal, Goals::VisitHero>();
+		h.template registerType<Goals::AbstractGoal, Goals::VisitTile>();
+		h.template registerType<Goals::AbstractGoal, Goals::Win>();
 	}
 
 	template <typename Handler> void serializeInternal(Handler &h, const int version)
