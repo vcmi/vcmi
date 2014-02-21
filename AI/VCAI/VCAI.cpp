@@ -2918,7 +2918,7 @@ For ship construction etc, another function (goal?) is needed
 		if(!preds[dest])
 		{
 			//write("test.txt");
-			ai->completeGoal (sptr(Goals::Explore(h))); //if we can't find the way, seemingly all tiles were explored
+			//ai->completeGoal (sptr(Goals::Explore(h))); //if we can't find the way, seemingly all tiles were explored
 			//TODO: more organized way?
 
 			return ret;
@@ -3024,11 +3024,16 @@ For ship construction etc, another function (goal?) is needed
 			{
 				auto firstGate = boost::find_if(src->subterraneanGates, [=](const CGObjectInstance * gate) -> bool
 				{
-					return retreiveTile(ai->knownSubterraneanGates[gate]->visitablePos()) == sectorToReach->id;
+					//make sure no hero block the way
+					auto pos = ai->knownSubterraneanGates[gate]->visitablePos();
+					const TerrainTile *t = cb->getTile(pos);
+					return t && t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::SUBTERRANEAN_GATE
+						&& retreiveTile(pos) == sectorToReach->id;
 				});
 
 				if(firstGate != src->subterraneanGates.end())
 				{
+					//TODO: pahtfinder can find path through subterranean gates, but this function only reaches closest gate
 					return (*firstGate)->visitablePos();
 				}
 				//TODO
