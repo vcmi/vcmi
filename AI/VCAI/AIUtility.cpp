@@ -207,6 +207,19 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 			if(armedObj)
 				objectDanger *= fh->getTacticalAdvantage(visitor, armedObj); //this line tends to go infinite for allied towns (?)
 		}
+		if (dangerousObject->ID == Obj::SUBTERRANEAN_GATE)
+		{ //check guard on the other side of the gate
+			auto it = ai->knownSubterraneanGates.find(dangerousObject);
+			if (it != ai->knownSubterraneanGates.end())
+			{
+				auto guards = cb->getGuardingCreatures(it->second->visitablePos());
+				for (auto cre : guards)
+				{
+					vstd::amax (guardDanger, evaluateDanger(cre) *
+						fh->getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance*>(cre)));
+				}
+			}
+		}
 	}
 
 	auto guards = cb->getGuardingCreatures(tile);
@@ -214,6 +227,7 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 	{
 		vstd::amax (guardDanger, evaluateDanger(cre) * fh->getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance*>(cre))); //we are interested in strongest monster around
 	}
+
 
 	//TODO mozna odwiedzic blockvis nie ruszajac straznika
 	return std::max(objectDanger, guardDanger);

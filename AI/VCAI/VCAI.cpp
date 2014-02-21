@@ -2713,7 +2713,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num)
 						auto obj = t->visitableObjects.front();
 						if (vstd::contains(ai->knownSubterraneanGates, obj))
 						{ //not really sure what does it do, but subtrranean gates do not make one sector
-							toVisit.push(ai->knownSubterraneanGates[obj]->visitablePos());
+							//toVisit.push(ai->knownSubterraneanGates[obj]->visitablePos());
 							s.subterraneanGates.push_back (obj);
 						}
 					}
@@ -2878,15 +2878,15 @@ For ship construction etc, another function (goal?) is needed
 	if(sourceSector != destinationSector)
 	{
 		const Sector *src = &infoOnSectors[sourceSector],
-			*dst = &infoOnSectors[destinationSector];
+			*dest = &infoOnSectors[destinationSector];
 
 		std::map<const Sector*, const Sector*> preds;
-		std::queue<const Sector *> sq;
-		sq.push(src);
-		while(!sq.empty())
+		std::queue<const Sector *> sectorQueue;
+		sectorQueue.push(src);
+		while(!sectorQueue.empty())
 		{
-			const Sector *s = sq.front();
-			sq.pop();
+			const Sector *s = sectorQueue.front();
+			sectorQueue.pop();
 
 			for(int3 ep : s->embarkmentPoints)
 			{
@@ -2895,7 +2895,7 @@ For ship construction etc, another function (goal?) is needed
 				if(!preds[neigh])
 				{
 					preds[neigh] = s;
-					sq.push(neigh);
+					sectorQueue.push(neigh);
 				}
 			}
 
@@ -2909,15 +2909,15 @@ For ship construction etc, another function (goal?) is needed
 					if(!preds[neigh]) //if we didn't come into this sector yet
 					{
 						preds[neigh] = s; //it becomes our new target sector
-						sq.push(neigh);
+						sectorQueue.push(neigh);
 					}
 				}
 			}
 		}
 
-		if(!preds[dst])
+		if(!preds[dest])
 		{
-			write("test.txt");
+			//write("test.txt");
 			ai->completeGoal (sptr(Goals::Explore(h))); //if we can't find the way, seemingly all tiles were explored
 			//TODO: more organized way?
 
@@ -2926,13 +2926,13 @@ For ship construction etc, another function (goal?) is needed
 		}
 
 		std::vector<const Sector*> toTraverse;
-		toTraverse.push_back(dst);
+		toTraverse.push_back(dest);
 		while(toTraverse.back() != src)
 		{
 			toTraverse.push_back(preds[toTraverse.back()]);
 		}
 
-		if(preds[dst])
+		if(preds[dest])
 		{
 			const Sector *sectorToReach  = toTraverse.at(toTraverse.size() - 2);
 			if(!src->water && sectorToReach->water) //embark
@@ -3024,7 +3024,7 @@ For ship construction etc, another function (goal?) is needed
 			{
 				auto firstGate = boost::find_if(src->subterraneanGates, [=](const CGObjectInstance * gate) -> bool
 				{
-					return retreiveTile(gate->visitablePos()) == sectorToReach->id;
+					return retreiveTile(ai->knownSubterraneanGates[gate]->visitablePos()) == sectorToReach->id;
 				});
 
 				if(firstGate != src->subterraneanGates.end())
