@@ -109,6 +109,7 @@ public:
 	SScenarioPrologEpilog prolog, epilog;
 
 	CScenarioTravel travelOptions;
+	std::vector<HeroTypeID> keepHeroes; // contains list of heroes which should be kept for next scenario (doesn't matter if they lost)
 	std::vector<CGHeroInstance *> crossoverHeroes; // contains all heroes with the same state when the campaign scenario was finished
 	std::vector<CGHeroInstance *> placedCrossoverHeroes; // contains all placed crossover heroes defined by hero placeholders when the scenario was started
 
@@ -120,7 +121,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & mapName & scenarioName & packedMapSize & preconditionRegions & regionColor & difficulty & conquered & regionText & 
-			prolog & epilog & travelOptions & crossoverHeroes & placedCrossoverHeroes;
+			prolog & epilog & travelOptions & crossoverHeroes & placedCrossoverHeroes & keepHeroes;
 	}
 };
 

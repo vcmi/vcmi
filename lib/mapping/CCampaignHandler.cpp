@@ -78,6 +78,20 @@ unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
 		scenarioID++;
 	}
 
+	// handle campaign specific discrepancies
+	if(name == "DATA/AB.H3C")
+	{
+		ret->scenarios[6].keepHeroes.push_back(HeroTypeID(155)); // keep hero Xeron for map 7 To Kill A Hero
+	}
+	else if(name == "DATA/FINAL.H3C")
+	{
+		// keep following heroes for map 8 Final H
+		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(148)); // Gelu
+		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(27)); // Gem
+		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(102)); // Crag Hack
+		ret->scenarios[7].keepHeroes.push_back(HeroTypeID(96)); // Yog
+	}
+
 	return ret;
 }
 

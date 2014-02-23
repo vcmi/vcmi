@@ -5146,12 +5146,21 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 				if(gs->scenarioOps->campState)
 				{
-					std::vector<CGHeroInstance *> heroesBelongingToPlayer;
+					std::vector<CGHeroInstance *> crossoverHeroes;
 					for(CGHeroInstance * hero : gs->map->heroesOnMap)
 					{
-						if(hero->tempOwner == player) heroesBelongingToPlayer.push_back(hero);
+						if(hero->tempOwner == player)
+						{
+							// keep all heroes from the winning player
+							crossoverHeroes.push_back(hero);
+						}
+						else if(vstd::contains(gs->scenarioOps->campState->getCurrentScenario().keepHeroes, HeroTypeID(hero->subID)))
+						{
+							// keep hero whether lost or won (like Xeron in AB campaign)
+							crossoverHeroes.push_back(hero);
+						}
 					}
-					gs->scenarioOps->campState->setCurrentMapAsConquered(heroesBelongingToPlayer);
+					gs->scenarioOps->campState->setCurrentMapAsConquered(crossoverHeroes);
 
 					//Request clients to change connection mode
 					PrepareForAdvancingCampaign pfac;

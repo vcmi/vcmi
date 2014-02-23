@@ -2823,24 +2823,10 @@ std::vector<CGameState::CampaignHeroReplacement> CGameState::generateCampaignHer
 					return hero->subID == heroPlaceholder->subID;
 				});
 
-				CGHeroInstance * hero = nullptr;
-				if(it == crossoverHeroes.heroesFromAnyPreviousScenarios.end())
+				if(it != crossoverHeroes.heroesFromAnyPreviousScenarios.end())
 				{
-					if(scenarioOps->campState->camp->header.mapVersion == 12) // AB:AB campaign
-					{
-						// special case for this campaign, not found heroes will be newly created
-						hero = new CGHeroInstance();
-						hero->initHero(HeroTypeID(heroPlaceholder->subID));
-					}
-				}
-				else
-				{
-					hero = *it;
+					auto hero = *it;
 					crossoverHeroes.removeHeroFromBothLists(hero);
-				}
-
-				if(hero)
-				{
 					campaignHeroReplacements.push_back(CampaignHeroReplacement(hero, heroPlaceholder->id));
 				}
 			}
