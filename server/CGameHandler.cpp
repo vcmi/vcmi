@@ -5160,6 +5160,15 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 							crossoverHeroes.push_back(hero);
 						}
 					}
+					// keep lost heroes which are in heroes pool
+					for(auto & heroPair : gs->hpool.heroesPool)
+					{
+						if(vstd::contains(gs->scenarioOps->campState->getCurrentScenario().keepHeroes, HeroTypeID(heroPair.first)))
+						{
+							crossoverHeroes.push_back(heroPair.second.get());
+						}
+					}
+
 					gs->scenarioOps->campState->setCurrentMapAsConquered(crossoverHeroes);
 
 					//Request clients to change connection mode
