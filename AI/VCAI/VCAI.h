@@ -110,6 +110,7 @@ struct SectorMap
 	void makeParentBFS(crint3 source);
 
 	int3 firstTileToGet(HeroPtr h, crint3 dst); //if h wants to reach tile dst, which tile he should visit to clear the way?
+	int3 findFirstVisitableTile(HeroPtr h, crint3 dst);
 };
 
 //Set of buildings for different goals. Does not include any prerequisites.

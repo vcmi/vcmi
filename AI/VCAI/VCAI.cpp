@@ -1409,7 +1409,7 @@ void VCAI::completeGoal (Goals::TSubgoal goal)
 	{
 		for (auto p : lockedHeroes)
 		{
-			if (p.second == goal || p.second->fulfillsMe(goal)) //we could have fulfilled goals of other heroes by chance
+			if (*(p.second) == *goal || p.second->fulfillsMe(goal)) //we could have fulfilled goals of other heroes by chance
 			{
 				logAi->debugStream() << boost::format("%s") % p.second->completeMessage();
 				lockedHeroes.erase (lockedHeroes.find(p.first)); //is it safe?
@@ -2712,8 +2712,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num)
 					{
 						auto obj = t->visitableObjects.front();
 						if (vstd::contains(ai->knownSubterraneanGates, obj))
-						{ //not really sure what does it do, but subtrranean gates do not make one sector
-							//toVisit.push(ai->knownSubterraneanGates[obj]->visitablePos());
+						{
 							s.subterraneanGates.push_back (obj);
 						}
 					}
@@ -2875,10 +2874,13 @@ For ship construction etc, another function (goal?) is needed
 	int sourceSector = retreiveTile(h->visitablePos()),
 		destinationSector = retreiveTile(dst);
 
-	if(sourceSector != destinationSector)
+	const Sector *src = &infoOnSectors[sourceSector],
+		*dest = &infoOnSectors[destinationSector];
+
+	if(sourceSector != destinationSector) //use ships, shipyards etc..
 	{
-		const Sector *src = &infoOnSectors[sourceSector],
-			*dest = &infoOnSectors[destinationSector];
+		if (ai->isAccessibleForHero(dst, h)) //pathfinder can find a way using ships and gates if tile is not blocked by objects
+			return dst;
 
 		std::map<const Sector*, const Sector*> preds;
 		std::queue<const Sector *> sectorQueue;
@@ -2918,8 +2920,6 @@ For ship construction etc, another function (goal?) is needed
 		if(!preds[dest])
 		{
 			//write("test.txt");
-			//ai->completeGoal (sptr(Goals::Explore(h))); //if we can't find the way, seemingly all tiles were explored
-			//TODO: more organized way?
 
 			return ret;
             //throw cannotFulfillGoalException(boost::str(boost::format("Cannot find connection between sectors %d and %d") % src->id % dst->id));
@@ -2934,7 +2934,9 @@ For ship construction etc, another function (goal?) is needed
 
 		if(preds[dest])
 		{
+			//TODO: would be nice to find sectors in loop
 			const Sector *sectorToReach  = toTraverse.at(toTraverse.size() - 2);
+
 			if(!src->water && sectorToReach->water) //embark
 			{
 				//embark on ship -> look for an EP with a boat
@@ -3022,6 +3024,12 @@ For ship construction etc, another function (goal?) is needed
 			}
 			else //use subterranean gates
 			{
+				//auto t = findFirstVisitableTile (h, dst);
+				//if (t.valid())
+				//	return t;
+
+				//TODO: pop sectors linked by Subterranean Gate in loop
+
 				auto firstGate = boost::find_if(src->subterraneanGates, [=](const CGObjectInstance * gate) -> bool
 				{
 					//make sure no hero block the way
@@ -3050,38 +3058,46 @@ For ship construction etc, another function (goal?) is needed
 	}
 	else
 	{
-		int3 curtile = dst;
-		while(curtile != h->visitablePos())
-		{
-			auto topObj = cb->getTopObj(curtile);
-			if (topObj && topObj->ID == Obj::HERO && topObj != h.h)
-			{
-				logAi->warnStream() << ("Another allied hero stands in our way");
-				return ret;
-			}
-			if(cb->getPathInfo(curtile)->reachable())
-			{
-				return curtile;
-			}
-			else
-			{
-				auto i = parent.find(curtile);
-				if(i != parent.end())
-				{
-					assert(curtile != i->second);
-					curtile = i->second;
-				}
-				else
-				{
-					return ret;
-					//throw cannotFulfillGoalException("Unreachable tile in sector? Should not happen!");
-				}
-			}
-		}
+		return findFirstVisitableTile(h, dst);
 	}
 
 	//FIXME: find out why this line is reached
 	logAi->errorStream() << ("Impossible happened at SectorMap::firstTileToGet");
+	return ret;
+}
+
+int3 SectorMap::findFirstVisitableTile (HeroPtr h, crint3 dst)
+{
+	int3 ret(-1,-1,-1);
+	int3 curtile = dst;
+
+	while(curtile != h->visitablePos())
+	{
+		auto topObj = cb->getTopObj(curtile);
+		if (topObj && topObj->ID == Obj::HERO && topObj != h.h)
+		{
+			logAi->warnStream() << ("Another allied hero stands in our way");
+			return ret;
+		}
+		if(cb->getPathInfo(curtile)->reachable())
+		{
+			return curtile;
+		}
+		else
+		{
+			auto i = parent.find(curtile);
+			if(i != parent.end())
+			{
+				assert(curtile != i->second);
+				curtile = i->second;
+			}
+			else
+			{
+				return ret;
+				//throw cannotFulfillGoalException("Unreachable tile in sector? Should not happen!");
+			}
+		}
+	}
 	return ret;
 }
 

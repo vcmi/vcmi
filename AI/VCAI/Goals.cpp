@@ -486,7 +486,10 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 		if (topObj)
 		{
 			if (vstd::contains(ai->reservedObjs, topObj) && !vstd::contains(ai->reservedHeroesMap[h], topObj))
+			{
+				throw goalFulfilledException (sptr(Goals::ClearWayTo(tile, h)));
 				continue; //do not capure object reserved by other hero
+			}
 
 			if (topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
 				if (topObj != hero.get(true)) //the hero we want to free
@@ -523,7 +526,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 	if (ret.empty())
 	{
 		logAi->warnStream() << "There is no known way to clear the way to tile " + tile();
-		throw goalFulfilledException (sptr(*this)); //make sure asigned hero gets unlocked
+		throw goalFulfilledException (sptr(Goals::ClearWayTo(tile))); //make sure asigned hero gets unlocked
 	}
 
 	return ret;
