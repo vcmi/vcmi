@@ -245,8 +245,7 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 	if(start)
 	{
 		markObjectVisited (visitedObj);
-		erase_if_present(reservedObjs, visitedObj); //unreserve objects
-		erase_if_present(reservedHeroesMap[visitor], visitedObj);
+		unreserveObject(visitor, visitedObj);
 		completeGoal (sptr(Goals::GetObj(visitedObj->id.getNum()).sethero(visitor))); //we don't need to visit it anymore
 		//TODO: what if we visited one-time visitable object that was reserved by another hero (shouldn't, but..)
 	}
@@ -1249,10 +1248,11 @@ bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
 void VCAI::wander(HeroPtr h)
 {
 	//unclaim objects that are now dangerous for us
-	erase_if(reservedHeroesMap[h], [h](const CGObjectInstance * obj) -> bool
+	for (auto obj : reservedHeroesMap[h])
 	{
-		return !isSafeToVisit(h, obj->visitablePos());
-	});
+		if (!isSafeToVisit(h, obj->visitablePos()))
+			unreserveObject(h, obj);
+	}
 
 	TimeCheck tc("looking for wander destination");
 
@@ -1460,6 +1460,12 @@ void VCAI::reserveObject(HeroPtr h, const CGObjectInstance *obj)
 	reservedObjs.insert(obj);
 	reservedHeroesMap[h].insert(obj);
 	logAi->debugStream() << "reserved object id=" << obj->id << "; address=" << (intptr_t)obj << "; name=" << obj->getHoverText();
+}
+
+void VCAI::unreserveObject(HeroPtr h, const CGObjectInstance *obj)
+{
+	erase_if_present(reservedObjs, obj); //unreserve objects
+	erase_if_present(reservedHeroesMap[h], obj);
 }
 
 void VCAI::validateVisitableObjs()

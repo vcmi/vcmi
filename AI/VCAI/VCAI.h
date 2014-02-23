@@ -282,6 +282,7 @@ public:
 	void addVisitableObj(const CGObjectInstance *obj);
 	void markObjectVisited (const CGObjectInstance *obj);
 	void reserveObject (HeroPtr h, const CGObjectInstance *obj); //TODO: reserve all objects that heroes attempt to visit
+	void unreserveObject (HeroPtr h, const CGObjectInstance *obj); 
 	//void removeVisitableObj(const CGObjectInstance *obj);
 	void validateObject(const CGObjectInstance *obj); //checks if object is still visible and if not, removes references to it
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
