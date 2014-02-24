@@ -29,7 +29,7 @@
 #include "../lib/CCreatureSet.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/GameConstants.h"
-#include "../lib/RegisterTypes.h"
+#include "../lib/registerTypes/RegisterTypes.h"
 
 /*
  * CGameHandler.cpp, part of VCMI engine
@@ -1065,7 +1065,7 @@ CGameHandler::CGameHandler(void)
 	//gs = nullptr;
 	IObjectInterface::cb = this;
 	applier = new CApplier<CBaseForGHApply>;
-	registerTypes3(*applier);
+	registerTypesServerPacks(*applier);
 	visitObjectAfterVictory = false;
 	queries.gh = this;
 }

@@ -18,7 +18,7 @@
 #include "mapping/CMapService.h"
 #include "StartInfo.h"
 #include "NetPacks.h"
-#include "RegisterTypes.h"
+#include "registerTypes/RegisterTypes.h"
 #include "mapping/CMapInfo.h"
 #include "BattleState.h"
 #include "JsonNode.h"
@@ -109,7 +109,7 @@ static CApplier<CBaseForGSApply> *applierGs = nullptr;
 // 
 // 	CObjectCallersHandler()
 // 	{
-// 		registerTypes1(*this);
+// 		registerTypesMapObjects(*this);
 // 	}
 // 
 // 	~CObjectCallersHandler()
@@ -729,7 +729,8 @@ CGameState::CGameState()
 	gs = this;
 	mx = new boost::shared_mutex();
 	applierGs = new CApplier<CBaseForGSApply>;
-	registerTypes2(*applierGs);
+	registerTypesClientPacks1(*applierGs);
+	registerTypesClientPacks2(*applierGs);
 	//objCaller = new CObjectCallersHandler;
 	globalEffects.setDescription("Global effects");
 }

@@ -21,7 +21,7 @@
  */
 
 template<typename Serializer>
-void registerTypes1(Serializer &s)
+void registerTypesMapObjects(Serializer &s)
 {
 	//////////////////////////////////////////////////////////////////////////
 	// Adventure map objects (and related)
@@ -133,7 +133,7 @@ void registerTypes1(Serializer &s)
 }
 
 template<typename Serializer>
-void registerTypes2(Serializer &s)
+void registerTypesClientPacks1(Serializer &s)
 {
 	s.template registerType<CPack, CPackForClient>();
 
@@ -174,6 +174,21 @@ void registerTypes2(Serializer &s)
 	s.template registerType<CPackForClient, InfoWindow>();
 	s.template registerType<CPackForClient, SetObjectProperty>();
 	s.template registerType<CPackForClient, SetHoverName>();
+	s.template registerType<CPackForClient, ShowInInfobox>();
+	s.template registerType<CPackForClient, AdvmapSpellCast>();
+	s.template registerType<CPackForClient, OpenWindow>();
+	s.template registerType<CPackForClient, NewObject>();
+	s.template registerType<CPackForClient, NewArtifact>();
+	s.template registerType<CPackForClient, AddQuest>();
+	s.template registerType<CPackForClient, SetAvailableArtifacts>();
+	s.template registerType<CPackForClient, CenterView>();
+	s.template registerType<CPackForClient, HeroVisit>();
+	s.template registerType<CPackForClient, SetCommanderProperty>();
+}
+
+template<typename Serializer>
+void registerTypesClientPacks2(Serializer &s)
+{
 	s.template registerType<CPackForClient, BattleStart>();
 	s.template registerType<CPackForClient, BattleNextRound>();
 	s.template registerType<CPackForClient, BattleSetActiveStack>();
@@ -195,16 +210,6 @@ void registerTypes2(Serializer &s)
 	s.template registerType<CPackForClient, CatapultAttack>();
 	s.template registerType<CPackForClient, BattleStacksRemoved>();
 	s.template registerType<CPackForClient, BattleStackAdded>();
-	s.template registerType<CPackForClient, ShowInInfobox>();
-	s.template registerType<CPackForClient, AdvmapSpellCast>();
-	s.template registerType<CPackForClient, OpenWindow>();
-	s.template registerType<CPackForClient, NewObject>();
-	s.template registerType<CPackForClient, NewArtifact>();
-	s.template registerType<CPackForClient, AddQuest>();
-	s.template registerType<CPackForClient, SetAvailableArtifacts>();
-	s.template registerType<CPackForClient, CenterView>();
-	s.template registerType<CPackForClient, HeroVisit>();
-	s.template registerType<CPackForClient, SetCommanderProperty>();
 
 	s.template registerType<CPackForClient, Query>();
 	s.template registerType<Query, HeroLevelUp>();
@@ -234,7 +239,7 @@ void registerTypes2(Serializer &s)
 }
 
 template<typename Serializer>
-void registerTypes3(Serializer &s)
+void registerTypesServerPacks(Serializer &s)
 {
 	s.template registerType<CPack, CPackForServer>();
 	s.template registerType<CPackForServer, CloseServer>();
@@ -268,7 +273,7 @@ void registerTypes3(Serializer &s)
 }
 
 template<typename Serializer>
-void registerTypes4(Serializer &s)
+void registerTypesPregamePacks(Serializer &s)
 {
 	s.template registerType<CPack, CPackForSelectionScreen>();
 	s.template registerType<CPackForSelectionScreen, CPregamePackToPropagate>();
@@ -290,18 +295,21 @@ void registerTypes4(Serializer &s)
 template<typename Serializer>
 void registerTypes(Serializer &s)
 {
-	registerTypes1(s);
-	registerTypes2(s);
-	registerTypes3(s);
-	registerTypes4(s);
+	registerTypesMapObjects(s);
+	registerTypesClientPacks1(s);
+	registerTypesClientPacks2(s);
+	registerTypesServerPacks(s);
+	registerTypesPregamePacks(s);
 }
 
-#ifndef DO_NOT_DISABLE_REGISTER_TYPES_INSTANTIATION
+#ifndef INSTANTIATE_REGISTER_TYPES_HERE
 extern template DLL_LINKAGE void registerTypes<CISer<CConnection>>(CISer<CConnection>& s);
 extern template DLL_LINKAGE void registerTypes<COSer<CConnection>>(COSer<CConnection>& s);
 extern template DLL_LINKAGE void registerTypes<CSaveFile>(CSaveFile & s);
 extern template DLL_LINKAGE void registerTypes<CLoadFile>(CLoadFile & s);
 extern template DLL_LINKAGE void registerTypes<CTypeList>(CTypeList & s);
 extern template DLL_LINKAGE void registerTypes<CLoadIntegrityValidator>(CLoadIntegrityValidator & s);
+extern template DLL_LINKAGE void registerTypes<CISer<CMemorySerializer>>(CISer<CMemorySerializer> & s);
+extern template DLL_LINKAGE void registerTypes<COSer<CMemorySerializer>>(COSer<CMemorySerializer> & s);
 #endif
 

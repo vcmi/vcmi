@@ -35,7 +35,7 @@
 #include "CBitmapHandler.h"
 #include "Client.h"
 #include "../lib/NetPacks.h"
-#include "../lib/RegisterTypes.h"
+#include "../lib/registerTypes//RegisterTypes.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameConstants.h"
@@ -734,7 +734,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		}
 
 		applier = new CApplier<CBaseForPGApply>;
-		registerTypes4(*applier);
+		registerTypesPregamePacks(*applier);
 		serverHandlingThread = new boost::thread(&CSelectionScreen::handleConnection, this);
 	}
 	delete sh;

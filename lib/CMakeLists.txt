@@ -6,12 +6,18 @@ include_directories(${Boost_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR}
 
 set(lib_SRCS
 		StdInc.cpp
-		RegisterTypes.cpp
 		IGameCallback.cpp
 		CGameState.cpp
 		CObjectHandler.cpp
 		Connection.cpp
 		NetPacksLib.cpp
+
+		registerTypes/RegisterTypes.cpp
+		registerTypes/TypesClientPacks1.cpp
+		registerTypes/TypesClientPacks2.cpp
+		registerTypes/TypesMapObjects.cpp
+		registerTypes/TypesPregamePacks.cpp
+		registerTypes/TypesServerPacks.cpp
 
 		filesystem/AdapterLoaders.cpp
 		filesystem/CCompressedStream.cpp
@@ -96,7 +102,6 @@ set(lib_HEADERS
 		Interprocess.h
 		NetPacks.h
 		NetPacksBase.h
-		RegisterTypes.h
 		StartInfo.h
 		UnlockGuard.h
 		VCMIDirs.h

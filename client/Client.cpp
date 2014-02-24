@@ -32,7 +32,7 @@
 #include "battle/CBattleInterface.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/CScriptingModule.h"
-#include "../lib/RegisterTypes.h"
+#include "../lib/registerTypes/RegisterTypes.h"
 #include "gui/CGuiHandler.h"
 #include "CMT.h"
 
@@ -103,7 +103,8 @@ void CClient::init()
 	connectionHandler = nullptr;
 	pathInfo = nullptr;
 	applier = new CApplier<CBaseForCLApply>;
-	registerTypes2(*applier);
+	registerTypesClientPacks1(*applier);
+	registerTypesClientPacks2(*applier);
 	IObjectInterface::cb = this;
 	serv = nullptr;
 	gs = nullptr;

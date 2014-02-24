@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "Connection.h"
 
-#include "RegisterTypes.h"
+#include "registerTypes/RegisterTypes.h"
 
 #include <boost/asio.hpp>
 
