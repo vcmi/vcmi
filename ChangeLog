@@ -1,3 +1,21 @@
+0.94 -> 0.95
+
+GENERAL:
+* Components of combined artifacts will now display info about entire set.
+* Added WoG creature abilities by Kuririn
+
+ADVENTURE AI:
+* AI will use fuzzy logic to compare and choose multiple possible subgoals.
+More info http://wiki.vcmi.eu/index.php?title=Adventure_AI
+* AI will now use SectorMap to find a way to guarded / covered objects. 
+* Significantly improved exploration algorithm.
+* Locked heroes now try to decompose their goals exhaustively.
+* Fixed (common) issue when AI found neutral stacks infinitely strong.
+* Improvements for army exchange criteria.
+* GatherArmy may include building dwellings in town (experimental).
+* AI should now conquer map more agressively and much faster
+* Fuzzy rules will be printed out at map launch (if AI log is enabled)
+
 0.93 -> 0.94 (Oct 01 2013)
 GENERAL:
 * New Launcher application, see 
