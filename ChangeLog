@@ -3,6 +3,10 @@
 GENERAL:
 * Components of combined artifacts will now display info about entire set.
 * Added WoG creature abilities by Kuririn
+* Added a SIGSEV violation handler to vcmiserver executable for logging stacktrace (for convenience only)
+* Implemented a confirmation dialog when pressing Alt + F4 to quit the game 
+* Added functionality to trace net packages, std::vectors and various structs (e.g. BattleHex)
+* Added pre compiled header compilation for CMake (can be enabled per flag)
 
 ADVENTURE AI:
 * AI will use fuzzy logic to compare and choose multiple possible subgoals.
@@ -15,6 +19,30 @@ More info http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * GatherArmy may include building dwellings in town (experimental).
 * AI should now conquer map more agressively and much faster
 * Fuzzy rules will be printed out at map launch (if AI log is enabled)
+
+CAMPAIGNS:
+* Implemented move heroes to next scenario
+* Fixed crash after win on the first map of campaign "Long Live the King"
+* Fixed crash when losing a campaign scenario
+* Campaigns use window with bonus & scenario selection than scenario information window from normal maps
+* Fixed starting another map from campaign bonus selection screen while playing a campaign mission
+* Human players have now turn before AI players in campaigns
+* Implemented hero recreate handling correctly (e.g. Xeron will be recreated on AB campaign)
+* Moved place bonus hero before normal random hero and starting hero placement -> same behaviour as in OH3
+* Moved placing campaign heroes before random object generation -> same behaviour as in OH3 
+
+BATTLES:
+* Fixed can't open spellbook in hotseat game when one player had used a spell
+* Fixed a crash which occured when opening spellbook with different amount of pages from different players
+* Fixed a crash when selecting auto-battle during tactics mode
+* Fixed 'catapult tried to attack non-catapultable hex!' problem, now catapult attacks attackable wall parts only
+* Fixed problem that the server performed applying damage on a wall part twice
+* Fixed a bug where the part in front of the gate could be targeted during siege
+
+ADVENTURE MAP:
+* Victory, loss conditions are checked every turn instead of every day to correctly detect player without town loss condition
+* Fixed player without town message (shows correct number of days left to conquer a town)
+* Fixed crash when player lost game due to player without town loss condition
 
 0.93 -> 0.94 (Oct 01 2013)
 GENERAL:

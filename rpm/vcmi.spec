@@ -1,15 +1,15 @@
 Summary:			VCMI is an open-source project aiming to reimplement HMM3:WoG game engine, giving it new and extended possibilities.
 Name:				vcmi
-Version:			0.9.4
+Version:			0.9.5
 Release:			1%{?dist}
 License:			GPLv2+
 Group:				Amusements/Games
 
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export -r HEAD https://vcmi.svn.sourceforge.net/svnroot/vcmi/tags/0.94 vcmi-0.9.4-1
-#  tar -cJf vcmi-0.9.4-1.tar.xz vcmi-0.9.4-1
-Source:				vcmi-0.9.4-1.tar.xz
+#  svn export -r HEAD https://vcmi.svn.sourceforge.net/svnroot/vcmi/tags/0.95 vcmi-0.9.5-1
+#  tar -cJf vcmi-0.9.5-1.tar.xz vcmi-0.9.5-1
+Source:				vcmi-0.9.5-1.tar.xz
 
 URL:				http://forum.vcmi.eu/portal.php
 BuildRequires:		cmake
@@ -38,7 +38,7 @@ VCMI is an open-source project aiming to reimplement HMM3:WoG game engine, givin
 %setup -q -n %{name}-%{version}-1
 
 %build
-cmake -DCMAKE_INSTALL_PREFIX=/usr ./ -DENABLE_LAUNCHER=ON
+cmake -DCMAKE_INSTALL_PREFIX=/usr ./ -DENABLE_LAUNCHER=ON -DENABLE_PCH=ON
 make %{?_smp_mflags}
 
 %install
@@ -58,6 +58,9 @@ make DESTDIR=%{buildroot} install
 %{_datadir}/icons/*
 
 %changelog
+* Sat Mar 01 2014 VCMI - 0.9.5-1
+- New upstream release
+
 * Wed Oct 02 2013 VCMI - 0.9.4-1
 - New upstream release
 
