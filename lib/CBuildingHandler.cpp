@@ -32,7 +32,7 @@ BuildingID CBuildingHandler::campToERMU( int camp, int townType, std::set<Buildi
 		list_of(0), list_of(0), list_of(0), list_of(0), list_of(0)};
 
 	int curPos = campToERMU.size();
-	for (int i=0; i<7; ++i)
+	for (int i=0; i<GameConstants::CREATURES_PER_TOWN; ++i)
 	{
 		if(camp == curPos) //non-upgraded
 			return BuildingID(30 + i);
@@ -40,31 +40,34 @@ BuildingID CBuildingHandler::campToERMU( int camp, int townType, std::set<Buildi
 		if(camp == curPos) //upgraded
 			return BuildingID(37 + i);
 		curPos++;
-		//horde building
-		if (vstd::contains(hordeLvlsPerTType[townType], i))
+
+		if (i < 5) // last two levels don't have reserved horde ID. Yet another H3C weirdeness
 		{
-			if (camp == curPos)
+			if (vstd::contains(hordeLvlsPerTType[townType], i))
 			{
-				if (hordeLvlsPerTType[townType][0] == i)
+				if (camp == curPos)
 				{
-					if(vstd::contains(builtBuildings, 37 + hordeLvlsPerTType[townType][0])) //if upgraded dwelling is built
-						return BuildingID::HORDE_1_UPGR;
-					else //upgraded dwelling not presents
-						return BuildingID::HORDE_1;
-				}
-				else
-				{
-					if(hordeLvlsPerTType[townType].size() > 1)
+					if (hordeLvlsPerTType[townType][0] == i)
 					{
-						if(vstd::contains(builtBuildings, 37 + hordeLvlsPerTType[townType][1])) //if upgraded dwelling is built
-							return BuildingID::HORDE_2_UPGR;
+						if(vstd::contains(builtBuildings, 37 + hordeLvlsPerTType[townType][0])) //if upgraded dwelling is built
+							return BuildingID::HORDE_1_UPGR;
 						else //upgraded dwelling not presents
-							return BuildingID::HORDE_2;
+							return BuildingID::HORDE_1;
+					}
+					else
+					{
+						if(hordeLvlsPerTType[townType].size() > 1)
+						{
+							if(vstd::contains(builtBuildings, 37 + hordeLvlsPerTType[townType][1])) //if upgraded dwelling is built
+								return BuildingID::HORDE_2_UPGR;
+							else //upgraded dwelling not presents
+								return BuildingID::HORDE_2;
+						}
 					}
 				}
 			}
+			curPos++;
 		}
-		curPos++;
 	}
 	assert(0);
 	return BuildingID::NONE; //not found

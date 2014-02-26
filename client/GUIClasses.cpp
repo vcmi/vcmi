@@ -5147,7 +5147,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
     CWindowObject(PLAYER_COLORED | BORDERED, "TRADE2")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	char bufor[400];
 	heroInst[0] = LOCPLINT->cb->getHero(hero1);
 	heroInst[1] = LOCPLINT->cb->getHero(hero2);
 
@@ -5175,8 +5174,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		primSkillAreas[g]->type = g;
 		primSkillAreas[g]->bonusValue = -1;
 		primSkillAreas[g]->baseType = 0;
-		sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), CGI->generaltexth->primarySkillNames[g].c_str());
-		primSkillAreas[g]->hoverText = std::string(bufor);
+		primSkillAreas[g]->hoverText = CGI->generaltexth->heroscrn[1];
+		boost::replace_first(primSkillAreas[g]->hoverText, "%s", CGI->generaltexth->primarySkillNames[g]);
 	}
 
 	//heroes related thing
@@ -5195,8 +5194,9 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			secSkillAreas[b][g]->bonusValue = level;
 			secSkillAreas[b][g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
 
-			sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->generaltexth->levels[level - 1].c_str(), CGI->generaltexth->skillName[skill].c_str());
-			secSkillAreas[b][g]->hoverText = std::string(bufor);
+			secSkillAreas[b][g]->hoverText = CGI->generaltexth->heroscrn[21];
+			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->generaltexth->levels[level - 1]);
+			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->generaltexth->skillName[skill]);
 		}
 
 		portrait[b] = new CHeroArea(257 + 228*b, 13, heroInst[b]);
@@ -5210,15 +5210,17 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		experience[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + 45);
 		experience[b]->hoverText = CGI->generaltexth->heroscrn[9];
 		experience[b]->text = CGI->generaltexth->allTexts[2].c_str();
-		boost::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->level));
-		boost::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(heroInst[b]->level+1)));
-		boost::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->exp));
+		boost::algorithm::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->level));
+		boost::algorithm::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(heroInst[b]->level+1)));
+		boost::algorithm::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->exp));
 
 		spellPoints[b] = new LRClickableAreaWText();
 		spellPoints[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + 45);
 		spellPoints[b]->hoverText = CGI->generaltexth->heroscrn[22];
-		sprintf(bufor, CGI->generaltexth->allTexts[205].c_str(), heroInst[b]->name.c_str(), heroInst[b]->mana, heroInst[b]->manaLimit());
-		spellPoints[b]->text = std::string(bufor);
+		spellPoints[b]->text = CGI->generaltexth->allTexts[205];
+		boost::algorithm::replace_first(spellPoints[b]->text, "%s", heroInst[b]->name);
+		boost::algorithm::replace_first(spellPoints[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->mana));
+		boost::algorithm::replace_first(spellPoints[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->manaLimit()));
 
 		//setting morale
 		morale[b] = new MoraleLuckBox(true, genRect(32, 32, 176 + 490*b, 39), true);
