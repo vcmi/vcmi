@@ -334,7 +334,7 @@ int3 whereToExplore(HeroPtr h)
 	//look for nearby objs -> visit them if they're close enouh
 	const int DIST_LIMIT = 3;
 	std::vector<const CGObjectInstance *> nearbyVisitableObjs;
-	for (int x = hpos.x - DIST_LIMIT; x <= hpos.y + DIST_LIMIT; ++x) //get only local objects instead of all possible objects on the map
+	for (int x = hpos.x - DIST_LIMIT; x <= hpos.x + DIST_LIMIT; ++x) //get only local objects instead of all possible objects on the map
 	{
 		for (int y = hpos.y - DIST_LIMIT; y <= hpos.y + DIST_LIMIT; ++y)
 		{
