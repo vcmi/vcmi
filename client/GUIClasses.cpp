@@ -3782,7 +3782,7 @@ void CTavernWindow::show(SDL_Surface * to)
 			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",sel->h->type->heroClass->name);
 		}
 
-		printAtMiddleWBLoc(sel->descr, 146, 395, FONT_SMALL, 200, Colors::WHITE, to);
+		printAtMiddleWBLoc(sel->description, 146, 395, FONT_SMALL, 200, Colors::WHITE, to);
 		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
 	}
 }
@@ -3821,9 +3821,12 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
 			if(vstd::contains(h->artifactsWorn, ArtifactPosition(i)))
 				artifs--;
-		sprintf_s(descr, sizeof(descr),CGI->generaltexth->allTexts[215].c_str(),
-				  h->name.c_str(), h->level, h->type->heroClass->name.c_str(), artifs);
-		descr[sizeof(descr)-1] = '\0';
+
+		description = CGI->generaltexth->allTexts[215];
+		boost::algorithm::replace_first(description, "%s", h->name);
+		boost::algorithm::replace_first(description, "%d", boost::lexical_cast<std::string>(h->level));
+		boost::algorithm::replace_first(description, "%s", h->type->heroClass->name);
+		boost::algorithm::replace_first(description, "%d", boost::lexical_cast<std::string>(artifs));
 
 		new CAnimImage("portraitsLarge", h->portrait);
 	}

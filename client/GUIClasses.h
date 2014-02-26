@@ -790,8 +790,8 @@ public:
 	{
 	public:
 		std::string hoverName;
+		std::string description; // "XXX is a level Y ZZZ with N artifacts"
 		const CGHeroInstance *h;
-		char descr[100];		// "XXX is a level Y ZZZ with N artifacts"
 
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
