@@ -1231,15 +1231,25 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 				// remove heroes which didn't reached the end of the scenario, but were available at the start
 				for(auto hero : lostCrossoverHeroes)
 				{
-					range::remove_if(crossoverHeroes.heroesFromAnyPreviousScenarios, CGObjectInstanceBySubIdFinder(hero));
+					crossoverHeroes.heroesFromAnyPreviousScenarios.erase(range::remove_if(crossoverHeroes.heroesFromAnyPreviousScenarios,
+						CGObjectInstanceBySubIdFinder(hero)), crossoverHeroes.heroesFromAnyPreviousScenarios.end());
 				}
 
 				// now add heroes which completed the scenario
 				for(auto hero : scenario.crossoverHeroes)
 				{
 					// add new heroes and replace old heroes with newer ones
-					range::remove_if(crossoverHeroes.heroesFromAnyPreviousScenarios, CGObjectInstanceBySubIdFinder(hero));
-					crossoverHeroes.heroesFromAnyPreviousScenarios.push_back(hero);
+					auto it = range::find_if(crossoverHeroes.heroesFromAnyPreviousScenarios, CGObjectInstanceBySubIdFinder(hero));
+					if (it != crossoverHeroes.heroesFromAnyPreviousScenarios.end())
+					{
+						// replace old hero with newer one
+						crossoverHeroes.heroesFromAnyPreviousScenarios[it - crossoverHeroes.heroesFromAnyPreviousScenarios.begin()] = hero;
+					}
+					else
+					{
+						// add new hero
+						crossoverHeroes.heroesFromAnyPreviousScenarios.push_back(hero);
+					}
 				}
 			}
 		}
