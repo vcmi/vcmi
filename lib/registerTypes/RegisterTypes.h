@@ -1,14 +1,14 @@
 #pragma  once
 
-#include "Connection.h"
-#include "NetPacks.h"
-#include "VCMI_Lib.h"
-#include "CArtHandler.h"
-#include "CObjectHandler.h"
-#include "CGameState.h"
-#include "CHeroHandler.h"
-#include "CTownHandler.h"
-#include "CModHandler.h" //needed?
+#include "../Connection.h"
+#include "../NetPacks.h"
+#include "../VCMI_Lib.h"
+#include "../CArtHandler.h"
+#include "../CObjectHandler.h"
+#include "../CGameState.h"
+#include "../CHeroHandler.h"
+#include "../CTownHandler.h"
+#include "../CModHandler.h" //needed?
 
 /*
  * RegisterTypes.h, part of VCMI engine
