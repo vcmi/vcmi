@@ -52,22 +52,24 @@ std::vector<std::string> VCMIDirs::configPaths() const
 
 std::string VCMIDirs::userDataPath() const
 {
-	return dataPaths()[0];
+	const std::string homeDir = std::getenv("userprofile");
+	return homeDir + "\\vcmi";
+	//return dataPaths()[0];
 }
 
 std::string VCMIDirs::libraryPath() const
 {
-	return userDataPath();
+	return ".";
 }
 
 std::string VCMIDirs::clientPath() const
 {
-	return userDataPath() + "\\" + "VCMI_client.exe";
+	return libraryPath() + "\\" + "VCMI_client.exe";
 }
 
 std::string VCMIDirs::serverPath() const
 {
-	return userDataPath() + "\\" + "VCMI_server.exe";
+	return libraryPath() + "\\" + "VCMI_server.exe";
 }
 
 std::vector<std::string> VCMIDirs::dataPaths() const

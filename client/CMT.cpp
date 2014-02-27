@@ -280,9 +280,11 @@ int main(int argc, char** argv)
 	console->start();
 	atexit(dispose);
 
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() + "/VCMI_Client_log.txt", console);
+	const auto logPath = VCMIDirs::get().userCachePath() + "/VCMI_Client_log.txt";
+	CBasicLogConfigurator logConfig(logPath, console);
     logConfig.configureDefault();
-	logGlobal->infoStream() <<"Creating console "<<pomtime.getDiff();
+	logGlobal->infoStream() << "Creating console and configuring logger: " << pomtime.getDiff();
+	logGlobal->infoStream() << "The log file will be saved to " << logPath;
 
     // Init filesystem and settings
 	preinitDLL(::console);
