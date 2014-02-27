@@ -20,6 +20,9 @@
     <Filter Include="mapping">
       <UniqueIdentifier>{401483eb-380a-4e36-b532-207491622703}</UniqueIdentifier>
     </Filter>
+    <Filter Include="registerTypes">
+      <UniqueIdentifier>{927d9b6e-3dc5-4370-b603-1b9887095509}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BattleAction.cpp" />
@@ -53,7 +56,6 @@
     <ClCompile Include="CBattleCallback.cpp" />
     <ClCompile Include="Mapping\CCampaignHandler.cpp" />
     <ClCompile Include="GameConstants.cpp" />
-    <ClCompile Include="RegisterTypes.cpp" />
     <ClCompile Include="VCMIDirs.cpp" />
     <ClCompile Include="CBonusTypeHandler.cpp" />
     <ClCompile Include="rmg\CRmgTemplate.cpp">
@@ -136,6 +138,24 @@
       <Filter>mapping</Filter>
     </ClCompile>
     <ClCompile Include="LogicalExpression.cpp" />
+    <ClCompile Include="registerTypes\TypesClientPacks2.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="registerTypes\TypesMapObjects.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="registerTypes\TypesPregamePacks.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="registerTypes\TypesServerPacks.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="registerTypes\RegisterTypes.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="registerTypes\TypesClientPacks1.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -160,9 +180,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NetPacks.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RegisterTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VCMI_Lib.h">
@@ -370,6 +387,9 @@
       <Filter>mapping</Filter>
     </ClInclude>
     <ClInclude Include="LogicalExpression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="registerTypes\RegisterTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

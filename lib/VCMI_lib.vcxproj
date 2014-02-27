@@ -206,7 +206,12 @@
     <ClCompile Include="mapping\CMapEditManager.cpp" />
     <ClCompile Include="mapping\MapFormatH3M.cpp" />
     <ClCompile Include="mapping\MapFormatJson.cpp" />
-    <ClCompile Include="RegisterTypes.cpp" />
+    <ClCompile Include="registerTypes\RegisterTypes.cpp" />
+    <ClCompile Include="registerTypes\TypesClientPacks1.cpp" />
+    <ClCompile Include="registerTypes\TypesClientPacks2.cpp" />
+    <ClCompile Include="registerTypes\TypesMapObjects.cpp" />
+    <ClCompile Include="registerTypes\TypesPregamePacks.cpp" />
+    <ClCompile Include="registerTypes\TypesServerPacks.cpp" />
     <ClCompile Include="rmg\CMapGenerator.cpp" />
     <ClCompile Include="logging\CLogger.cpp" />
     <ClCompile Include="logging\CBasicLogConfigurator.cpp" />
@@ -288,6 +293,7 @@
     <ClInclude Include="mapping\CMapEditManager.h" />
     <ClInclude Include="mapping\MapFormatH3M.h" />
     <ClInclude Include="mapping\MapFormatJson.h" />
+    <ClInclude Include="registerTypes\RegisterTypes.h" />
     <ClInclude Include="rmg\CMapGenerator.h" />
     <ClInclude Include="logging\CLogger.h" />
     <ClInclude Include="logging\CBasicLogConfigurator.h" />
@@ -300,7 +306,6 @@
     <ClInclude Include="Interprocess.h" />
     <ClInclude Include="JsonNode.h" />
     <ClInclude Include="NetPacks.h" />
-    <ClInclude Include="RegisterTypes.h" />
     <ClInclude Include="ResourceSet.h" />
     <ClInclude Include="rmg\CMapGenOptions.h" />
     <ClInclude Include="rmg\CRmgTemplate.h" />
