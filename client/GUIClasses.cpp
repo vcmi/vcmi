@@ -5961,7 +5961,9 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 		text += CGI->generaltexth->arraytxt[noneTxtId];
 	else
 	{
-		if (node->hasBonusOfType (Bonus::UNDEAD) || node->hasBonusOfType(Bonus::BLOCK_MORALE) || node->hasBonusOfType(Bonus::NON_LIVING)) //it's a creature window
+		//it's a creature window
+		if (morale && node->hasBonusOfType (Bonus::UNDEAD) ||
+			node->hasBonusOfType(Bonus::BLOCK_MORALE) || node->hasBonusOfType(Bonus::NON_LIVING))
 		{
 			text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
 		}

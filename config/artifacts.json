@@ -1338,7 +1338,7 @@
 			{
 				"type" : "STACK_HEALTH",
 				"val" : 1,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "ADDITIVE_VALUE"
 			}
 		],
 		"index" : 94,
@@ -1350,7 +1350,7 @@
 			{
 				"type" : "STACK_HEALTH",
 				"val" : 1,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "ADDITIVE_VALUE"
 			}
 		],
 		"index" : 95,
@@ -1362,7 +1362,7 @@
 			{
 				"type" : "STACK_HEALTH",
 				"val" : 2,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "ADDITIVE_VALUE"
 			}
 		],
 		"index" : 96,
@@ -1893,12 +1893,24 @@
 			{
 				"type" : "STACK_HEALTH",
 				"val" : 25,
-				"valueType" : "PERCENT_TO_BASE"
+				"valueType" : "PERCENT_TO_BASE",
+			},
+			{
+				"type" : "STACK_HEALTH",
+				"val" : -25,
+				"valueType" : "PERCENT_TO_BASE",
+				"limiters" : ["IS_UNDEAD"]
 			},
 			{
 				"type" : "HP_REGENERATION",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"type" : "HP_REGENERATION",
+				"val" : -50,
+				"valueType" : "BASE_NUMBER",
+				"limiters" : ["IS_UNDEAD"]
 			}
 		],
 		"index" : 131,
