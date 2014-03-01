@@ -4186,7 +4186,7 @@ void CPrologEpilogVideo::show( SDL_Surface * to )
 	//BUG: some videos are 800x600 in size while some are 800x400
 	//VCMI should center them in the middle of the screen. Possible but needs modification
 	//of video player API which I'd like to avoid untill we'll get rid of Windows-specific player
-	CCS->videoh->update(pos.x, pos.y, to, false, false);
+	CCS->videoh->update(pos.x, pos.y, to, true, false);
 
 	//move text every 5 calls/frames; seems to be good enough
 	++positionCounter;
