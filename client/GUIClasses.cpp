@@ -3699,7 +3699,8 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(TavernObj);
-	assert(h.size() == 2);
+	if(h.size() < 2)
+		h.resize(2, nullptr);
 
 	h1 = new HeroPortrait(selected,0,72,299,h[0]);
 	h2 = new HeroPortrait(selected,1,162,299,h[1]);

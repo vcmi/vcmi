@@ -554,8 +554,8 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 	std::vector<const CGHeroInstance *> ret;
 	//ERROR_RET_VAL_IF(!isOwnedOrVisited(townOrTavern), "Town or tavern must be owned or visited!", ret);
 	//TODO: town needs to be owned, advmap tavern needs to be visited; to be reimplemented when visit tracking is done
-	ret.resize(gs->players[*player].availableHeroes.size());
-	std::copy(gs->players[*player].availableHeroes.begin(),gs->players[*player].availableHeroes.end(),ret.begin());
+	range::copy(gs->players[*player].availableHeroes, std::back_inserter(ret));
+	vstd::erase_if(ret, [](const CGHeroInstance *h) { return h == nullptr; });
 	return ret;
 }
 
