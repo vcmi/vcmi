@@ -1355,9 +1355,10 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 				int id  = art->artType->id;
 				assert( 8*18 > id );//number of arts that fits into h3m format
 				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
-
-				if(!takeable) 
-					ArtifactLocation(hero, artifactPosition).removeArtifact();
+				
+				ArtifactLocation al(hero, artifactPosition);
+				if(!takeable  &&  !al.getSlot()->locked)  //don't try removing locked artifacts -> it crashes #1719
+					al.removeArtifact();
 			}
 		}
 	}
