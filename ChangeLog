@@ -1,5 +1,4 @@
-0.94 -> 0.95
-
+0.94 -> 0.95 (Mar 01 2014)
 GENERAL:
 * Components of combined artifacts will now display info about entire set.
 * Implements level limit
