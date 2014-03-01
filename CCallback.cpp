@@ -238,10 +238,23 @@ void CCallback::setFormation(const CGHeroInstance * hero, bool tight)
 
 void CCallback::setSelection(const CArmedInstance * obj)
 {
+	if(!player || obj->getOwner() != *player)
+	{
+		logGlobal->errorStream() << boost::format("Cannot set selection to the object that is not owned. Object owner is %s, callback player %s") % obj->getOwner() % player;
+		return;
+	}
+
 	SetSelection ss;
 	ss.player = *player;
 	ss.id = obj->id;
 	sendRequest(&(CPackForClient&)ss);
+
+	if(obj->getOwner() != *player)
+	{
+		// Cf. bug #1679 http://bugs.vcmi.eu/view.php?id=1679
+		logGlobal->warnStream() << "The selection request became invalid because of event that occurred after it was made. Object owner is now " << obj->getOwner();
+		throw std::runtime_error("setSelection not allowed");
+	}
 
 	if(obj->ID == Obj::HERO)
 	{
