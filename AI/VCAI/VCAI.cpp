@@ -1248,7 +1248,8 @@ bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
 void VCAI::wander(HeroPtr h)
 {
 	//unclaim objects that are now dangerous for us
-	for (auto obj : reservedHeroesMap[h])
+	auto reservedObjsSetCopy = reservedHeroesMap[h];
+	for (auto obj : reservedObjsSetCopy)
 	{
 		if (!isSafeToVisit(h, obj->visitablePos()))
 			unreserveObject(h, obj);
