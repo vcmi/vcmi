@@ -21,8 +21,8 @@ endif()
 target_link_libraries(vcmiserver vcmi ${Boost_LIBRARIES} ${RT_LIB} ${DL_LIB})
 
 set_target_properties(vcmiserver PROPERTIES ${PCH_PROPERTIES})
+set_target_properties(vcmiserver PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks @executable_path/")
 cotire(vcmiserver)
-
 
 if (NOT APPLE) # Already inside vcmiclient bundle
     install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
