@@ -140,10 +140,11 @@ void CResourceHandler::initialize()
 	initialLoader = new CFilesystemList;
 
 	for (auto & path : VCMIDirs::get().dataPaths())
-		initialLoader->addLoader(new CFilesystemLoader("", path, 0, true), false);
-
-	if (VCMIDirs::get().dataPaths().back() != VCMIDirs::get().userDataPath())
-		initialLoader->addLoader(new CFilesystemLoader("", VCMIDirs::get().userDataPath(), 0, true), false);
+	{
+		if (boost::filesystem::is_directory(path)) // some of system-provided paths may not exist
+			initialLoader->addLoader(new CFilesystemLoader("", path, 0, true), false);
+	}
+	initialLoader->addLoader(new CFilesystemLoader("", VCMIDirs::get().userDataPath(), 0, true), false);
 
 	recurseInDir("CONFIG", 0);// look for configs
 	recurseInDir("DATA", 0); // look for archives

@@ -163,7 +163,12 @@ fi
 
 if [[ -z "$dest_dir" ]]
 then
-	dest_dir="$HOME/.vcmi"
+	if [[ -z "$XDG_DATA_HOME" ]]
+	then
+		dest_dir="$HOME/.local/share/vcmi"
+	else
+		dest_dir="$XDG_DATA_HOME/vcmi"
+	fi
 fi
 
 temp_dir="$dest_dir"/buildertmp

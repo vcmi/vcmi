@@ -33,9 +33,6 @@ public:
 	/// Path to saved games
 	std::string userSavePath() const;
 
-	/// Path to config directories, e.g. <data dir>/config. First items have higher priority
-	std::vector<std::string> configPaths() const;
-
 	/// Paths to global system-wide data directories. First items have higher priority
 	std::vector<std::string> dataPaths() const;
 

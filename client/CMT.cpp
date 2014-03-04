@@ -171,9 +171,14 @@ void init()
 static void prog_version(void)
 {
 	printf("%s\n", GameConstants::VCMI_VERSION.c_str());
-	printf("  data directory:    %s\n", VCMIDirs::get().dataPaths().back().c_str());
-	printf("  library directory: %s\n", VCMIDirs::get().libraryPath().c_str());
-	printf("  path to server:    %s\n", VCMIDirs::get().serverPath().c_str());
+	printf("  game data:   %s\n", boost::algorithm::join(VCMIDirs::get().dataPaths(), ":").c_str());
+	printf("  libraries:   %s\n", VCMIDirs::get().libraryPath().c_str());
+	printf("  server:      %s\n", VCMIDirs::get().serverPath().c_str());
+	printf("\n");
+	printf("  user data:   %s\n", VCMIDirs::get().userDataPath().c_str());
+	printf("  user cache:  %s\n", VCMIDirs::get().userCachePath().c_str());
+	printf("  user config: %s\n", VCMIDirs::get().userConfigPath().c_str());
+	printf("  user saves:  %s\n", VCMIDirs::get().userSavePath().c_str());
 }
 
 static void prog_help(const po::options_description &opts)

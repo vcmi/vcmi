@@ -8,6 +8,7 @@ static CLauncherDirs launcherDirsGlobal;
 CLauncherDirs::CLauncherDirs()
 {
 	QDir().mkdir(downloadsPath());
+	QDir().mkdir(modsPath());
 }
 
 CLauncherDirs & CLauncherDirs::get()
@@ -22,5 +23,5 @@ QString CLauncherDirs::downloadsPath()
 
 QString CLauncherDirs::modsPath()
 {
-	return QString::fromUtf8(VCMIDirs::get().userCachePath().c_str()) + "/Mods";
+	return QString::fromUtf8(VCMIDirs::get().userDataPath().c_str()) + "/Mods";
 }

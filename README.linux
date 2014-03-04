@@ -28,7 +28,7 @@ To compile, the following packages (and their development counterparts) are need
 		- locale
 
 On Debian-based systems (e.g. Ubuntu) run:
-  sudo apt-get install cmake g++ libsdl1.2debian libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev
+  sudo apt-get install cmake g++ libsdl1.2debian libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev qtbase5-dev
 
 On RPM-based distributions (e.g. Fedora) run:
   sudo yum install cmake gcc-c++ SDL-devel SDL_image-devel SDL_ttf-devel SDL_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale zlib-devel ffmpeg-devel ffmpeg-libs
