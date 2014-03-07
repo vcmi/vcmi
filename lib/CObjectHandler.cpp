@@ -1521,7 +1521,7 @@ void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
 
 int CGHeroInstance::getSpellCost(const CSpell *sp) const
 {
-	return sp->costs[getSpellSchoolLevel(sp)];
+	return sp->getCost(getSpellSchoolLevel(sp));
 }
 
 void CGHeroInstance::pushPrimSkill( PrimarySkill::PrimarySkill which, int val )
@@ -5538,7 +5538,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 			iw.text.addTxt(MetaString::ADVOB_TXT, 184); //%s learns a spell
 		}
 		iw.text.addReplacement(h->name);
-		std::vector<ConstTransitivePtr<CSpell> > * sp = &VLC->spellh->spells;
+		std::vector<ConstTransitivePtr<CSpell> > * sp = &VLC->spellh->objects;
 		for(auto i=spells.cbegin(); i != spells.cend(); i++)
 		{
 			if ((*sp)[*i]->level <= h->getSecSkillLevel(SecondarySkill::WISDOM) + 2) //enough wisdom

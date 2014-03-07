@@ -17,8 +17,8 @@
 				<Option run_host_application_in_terminal="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-O1" />
-					<Add option="-O" />
+					<Add option="-Og" />
+					<Add option="-g" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -64,7 +64,7 @@
 			<Add option="-lboost_thread$(#boost.libsuffix)" />
 			<Add option="-lboost_chrono$(#boost.libsuffix)" />
 			<Add option="-lboost_locale$(#boost.libsuffix)" />
-			<Add directory="$(#boost.lib)" />
+			<Add directory="$(#boost.lib32)" />
 			<Add directory="$(#sdl.lib)" />
 			<Add directory="../" />
 		</Linker>
@@ -140,8 +140,6 @@
 		<Unit filename="NetPacks.h" />
 		<Unit filename="NetPacksBase.h" />
 		<Unit filename="NetPacksLib.cpp" />
-		<Unit filename="RegisterTypes.cpp" />
-		<Unit filename="RegisterTypes.h" />
 		<Unit filename="ResourceSet.cpp" />
 		<Unit filename="ResourceSet.h" />
 		<Unit filename="ScopeGuard.h" />
@@ -198,6 +196,14 @@
 		<Unit filename="mapping/MapFormatH3M.h" />
 		<Unit filename="mapping/MapFormatJson.cpp" />
 		<Unit filename="mapping/MapFormatJson.h" />
+		<Unit filename="registerTypes/RegisterTypes.cpp" />
+		<Unit filename="registerTypes/RegisterTypes.h" />
+		<Unit filename="registerTypes/TypesClientPacks1.cpp" />
+		<Unit filename="registerTypes/TypesClientPacks2.cpp" />
+		<Unit filename="registerTypes/TypesMapObjects1.cpp" />
+		<Unit filename="registerTypes/TypesMapObjects2.cpp" />
+		<Unit filename="registerTypes/TypesPregamePacks.cpp" />
+		<Unit filename="registerTypes/TypesServerPacks.cpp" />
 		<Unit filename="rmg/CMapGenOptions.cpp" />
 		<Unit filename="rmg/CMapGenOptions.h" />
 		<Unit filename="rmg/CMapGenerator.cpp" />

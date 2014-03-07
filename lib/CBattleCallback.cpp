@@ -808,8 +808,8 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	auto battleBonusValue = [&](const IBonusBearer * bearer, CSelector selector) -> int
 	{
 		auto noLimit = Selector::effectRange(Bonus::NO_LIMIT);
-		auto limitMatches = info.shooting 
-				? Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT) 
+		auto limitMatches = info.shooting
+				? Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT)
 				: Selector::effectRange(Bonus::ONLY_MELEE_FIGHT);
 
 		//any regular bonuses or just ones for melee/ranged
@@ -872,7 +872,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 		{
 			if(defenderType->idNumber == affectedId)
 			{
-				attackDefenceDifference += SpellID(SpellID::SLAYER).toSpell()->powers[spLevel];
+				attackDefenceDifference += SpellID(SpellID::SLAYER).toSpell()->getPower(spLevel);
 				break;
 			}
 		}
@@ -1573,7 +1573,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 			{
 				//can't clone already cloned creature
 				if (vstd::contains(subject->state, EBattleStackState::CLONED))
-					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL; 
+					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 				//TODO: how about stacks casting Clone?
 				//currently Clone casted by stack is assumed Expert level
 				ui8 schoolLevel;
@@ -1585,14 +1585,14 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 				{
 					schoolLevel = 3;
 				}
-				
+
 				if (schoolLevel < 3)
 				{
 					int maxLevel = (std::max(schoolLevel, (ui8)1) + 4);
 					int creLevel = subject->getCreature()->level;
 					if (maxLevel < creLevel) //tier 1-5 for basic, 1-6 for advanced, any level for expert
-						return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;	
-				}					
+						return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+				}
 			}
 			break;
 		case SpellID::DISPEL_HELPFUL_SPELLS:
@@ -1630,7 +1630,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 			ui64 subjectHealth = (subject->count - 1) * subject->MaxHealth() + subject->firstHPleft;
 			//apply 'damage' bonus for hypnotize, including hero specialty
 			ui64 maxHealth = calculateSpellBonus (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
-				* spell->power + spell->powers[caster->getSpellSchoolLevel(spell)], spell, caster, subject);
+				* spell->power + spell->getPower(caster->getSpellSchoolLevel(spell)), spell, caster, subject);
 			if (subjectHealth > maxHealth)
 				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 		}
@@ -1689,7 +1689,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		bool allStacksImmune = true;
 		//we are interested only in enemy stacks when casting offensive spells
 		auto stacks = spell->isNegative() ? battleAliveStacks(!side) : battleAliveStacks();
-		for(auto stack : stacks) 
+		for(auto stack : stacks)
 		{
 			if(!battleIsImmune(castingHero, spell, mode, stack->position))
 			{
@@ -1866,19 +1866,19 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 				switch (obstacle->obstacleType)
 				{
 				case CObstacleInstance::ABSOLUTE_OBSTACLE: //cliff-like obstacles cant be removed
-				case CObstacleInstance::MOAT: 
+				case CObstacleInstance::MOAT:
 					return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 				case CObstacleInstance::USUAL:
 					return ESpellCastProblem::OK;
 
 // 				//TODO FIRE_WALL only for ADVANCED level casters
 // 				case CObstacleInstance::FIRE_WALL:
-// 					return 
+// 					return
 // 				//TODO other magic obstacles for EXPERT
 // 				case CObstacleInstance::QUICKSAND:
 // 				case CObstacleInstance::LAND_MINE:
 // 				case CObstacleInstance::FORCE_FIELD:
-// 					return 
+// 					return
 				default:
 //					assert(0);
 					return ESpellCastProblem::OK;
@@ -1959,7 +1959,7 @@ ui32 CBattleInfoCallback::calculateSpellDmg( const CSpell * sp, const CGHeroInst
 		return 0;
 
 	ret = usedSpellPower * sp->power;
-	ret += sp->powers[spellSchoolLevel];
+	ret += sp->getPower(spellSchoolLevel);
 
 	//affected creature-specific part
 	if(affectedCreature)
@@ -2156,7 +2156,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 	std::vector<SpellID> possibleSpells;
 
-	for(const CSpell *spell : VLC->spellh->spells)
+	for(const CSpell *spell : VLC->spellh->objects)
 	{
 		if (spell->isPositive()) //only positive
 		{

@@ -22,6 +22,11 @@
 		"config/wog/heroClasses.json"
 	],
 
+        "spells" :
+        [
+                "config/wog/spells.json"
+        ],
+
 	"filesystem":
 	{
 		"" :

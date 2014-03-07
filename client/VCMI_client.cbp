@@ -4,7 +4,6 @@
 	<Project>
 		<Option title="VCMI_client" />
 		<Option pch_mode="2" />
-		<Option default_target="Release" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
@@ -64,7 +63,7 @@
 			<Add option="-lSDL_mixer" />
 			<Add option="-lSDL_ttf" />
 			<Add option="-lVCMI_lib" />
-			<Add directory="$(#boost.lib)" />
+			<Add directory="$(#boost.lib32)" />
 			<Add directory="$(#sdl.lib)" />
 			<Add directory="../" />
 		</Linker>

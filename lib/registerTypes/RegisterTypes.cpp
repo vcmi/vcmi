@@ -37,7 +37,9 @@ extern template DLL_LINKAGE void METHODNAME<CLoadFile>(CLoadFile & s); \
 extern template DLL_LINKAGE void METHODNAME<CTypeList>(CTypeList & s); \
 extern template DLL_LINKAGE void METHODNAME<CLoadIntegrityValidator>(CLoadIntegrityValidator & s);
 
-DEFINE_EXTERNAL_METHOD(registerTypesMapObjects)
+//DEFINE_EXTERNAL_METHOD(registerTypesMapObjects)
+DEFINE_EXTERNAL_METHOD(registerTypesMapObjects1)
+DEFINE_EXTERNAL_METHOD(registerTypesMapObjects2)
 DEFINE_EXTERNAL_METHOD(registerTypesClientPacks1)
 DEFINE_EXTERNAL_METHOD(registerTypesClientPacks2)
 DEFINE_EXTERNAL_METHOD(registerTypesServerPacks)

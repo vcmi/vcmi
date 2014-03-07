@@ -72,6 +72,11 @@
 			"description": "List of configuration files for heroes",
 			"items": { "type":"string", "format" : "textFile" }
 		},
+                "spells": {
+			"type":"array",
+			"description": "List of configuration files for spells",
+			"items": { "type":"string", "format" : "textFile" }
+		},
 
 		"filesystem": {
 			"type":"object",

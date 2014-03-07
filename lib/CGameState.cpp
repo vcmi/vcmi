@@ -82,7 +82,7 @@ static CApplier<CBaseForGSApply> *applierGs = nullptr;
 // 	virtual void preInit()=0;
 // 	virtual void postInit()=0;
 // };
-// 
+//
 // template <typename T>
 // class CObjectCaller : public IObjectCaller
 // {
@@ -101,29 +101,29 @@ static CApplier<CBaseForGSApply> *applierGs = nullptr;
 // {
 // public:
 // 	std::vector<IObjectCaller*> apps;
-// 
+//
 // 	template<typename T> void registerType(const T * t=nullptr)
 // 	{
 // 		apps.push_back(new CObjectCaller<T>);
 // 	}
-// 
+//
 // 	CObjectCallersHandler()
 // 	{
 // 		registerTypesMapObjects(*this);
 // 	}
-// 
+//
 // 	~CObjectCallersHandler()
 // 	{
 // 		for (auto & elem : apps)
 // 			delete elem;
 // 	}
-// 
+//
 // 	void preInit()
 // 	{
 // // 		for (size_t i = 0; i < apps.size(); i++)
 // // 			apps[i]->preInit();
 // 	}
-// 
+//
 // 	void postInit()
 // 	{
 // 	//for (size_t i = 0; i < apps.size(); i++)
@@ -1319,7 +1319,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		}
 	}
 
-	if(!(travelOptions.whatHeroKeeps & 8)) 
+	if(!(travelOptions.whatHeroKeeps & 8))
 	{
 		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
@@ -1344,18 +1344,18 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 				if(artifactPosition == ArtifactPosition::SPELLBOOK) continue; // do not handle spellbook this way
 
 				const ArtSlotInfo *info = hero->getSlot(artifactPosition);
-				if(!info) 
+				if(!info)
 					continue;
 
 				// TODO: why would there be nullptr artifacts?
 				const CArtifactInstance *art = info->artifact;
-				if(!art) 
+				if(!art)
 					continue;
 
 				int id  = art->artType->id;
 				assert( 8*18 > id );//number of arts that fits into h3m format
 				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
-				
+
 				ArtifactLocation al(hero, artifactPosition);
 				if(!takeable  &&  !al.getSlot()->locked)  //don't try removing locked artifacts -> it crashes #1719
 					al.removeArtifact();
@@ -1818,6 +1818,7 @@ void CGameState::initTowns()
 				}
 		}
 		//init spells
+		logGlobal->debugStream() << "\t\tTown init spells";
 		vti->spells.resize(GameConstants::SPELL_LEVELS);
 
 		for(ui32 z=0; z<vti->obligatorySpells.size();z++)
@@ -1826,13 +1827,14 @@ void CGameState::initTowns()
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
+		logGlobal->debugStream() << "\t\tTown init spells2";
 		while(vti->possibleSpells.size())
 		{
 			ui32 total=0;
 			int sel = -1;
 
 			for(ui32 ps=0;ps<vti->possibleSpells.size();ps++)
-				total += vti->possibleSpells[ps].toSpell()->probabilities[vti->subID];
+				total += vti->possibleSpells[ps].toSpell()->getProbability(vti->subID);
 
 			if (total == 0) // remaining spells have 0 probability
 				break;
@@ -1840,7 +1842,7 @@ void CGameState::initTowns()
 			int r = ran()%total;
 			for(ui32 ps=0; ps<vti->possibleSpells.size();ps++)
 			{
-				r -= vti->possibleSpells[ps].toSpell()->probabilities[vti->subID];
+				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->subID);
 				if(r<0)
 				{
 					sel = ps;
@@ -1857,6 +1859,8 @@ void CGameState::initTowns()
 		vti->possibleSpells.clear();
 		if(vti->getOwner() != PlayerColor::NEUTRAL)
 			getPlayer(vti->getOwner())->towns.push_back(vti);
+        logGlobal->debugStream() << "\t\tTown init spells3";
+
 	}
 }
 
@@ -3259,7 +3263,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 			const JsonNode & spells = n["spells"];
 			if(spells.getType() == JsonNode::DATA_STRING  &&  spells.String() == "all")
 			{
-				for(auto spell : VLC->spellh->spells)
+				for(auto spell : VLC->spellh->objects)
 					if(spell->id <= SpellID::SUMMON_AIR_ELEMENTAL)
 						ss.spells.insert(spell->id);
 			}

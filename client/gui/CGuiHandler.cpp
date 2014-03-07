@@ -43,14 +43,14 @@ SSetCaptureState::~SSetCaptureState()
 	GH.defActionsDef = prevActions;
 }
 
-static inline void 
+static inline void
 processList(const ui16 mask, const ui16 flag, std::list<CIntObject*> *lst, std::function<void (std::list<CIntObject*> *)> cb)
 {
 	if (mask & flag)
-		cb(lst);	
+		cb(lst);
 }
 
-void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb) 
+void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb)
 {
 	processList(CIntObject::LCLICK,activityFlag,&lclickable,cb);
 	processList(CIntObject::RCLICK,activityFlag,&rclickable,cb);
@@ -58,14 +58,14 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 	processList(CIntObject::MOVE,activityFlag,&motioninterested,cb);
 	processList(CIntObject::KEYBOARD,activityFlag,&keyinterested,cb);
 	processList(CIntObject::TIME,activityFlag,&timeinterested,cb);
-	processList(CIntObject::WHEEL,activityFlag,&wheelInterested,cb);	
-	processList(CIntObject::DOUBLECLICK,activityFlag,&doubleClickInterested,cb);	
+	processList(CIntObject::WHEEL,activityFlag,&wheelInterested,cb);
+	processList(CIntObject::DOUBLECLICK,activityFlag,&doubleClickInterested,cb);
 }
 
 void CGuiHandler::handleElementActivate(CIntObject * elem, ui16 activityFlag)
 {
 	processLists(activityFlag,[&](std::list<CIntObject*> * lst){
-		lst->push_front(elem);		
+		lst->push_front(elem);
 	});
 	elem->active_m |= activityFlag;
 }
@@ -75,7 +75,7 @@ void CGuiHandler::handleElementDeActivate(CIntObject * elem, ui16 activityFlag)
 	processLists(activityFlag,[&](std::list<CIntObject*> * lst){
 		auto hlp = std::find(lst->begin(),lst->end(),elem);
 		assert(hlp != lst->end());
-		lst->erase(hlp);		
+		lst->erase(hlp);
 	});
 	elem->active_m &= ~activityFlag;
 }
@@ -105,7 +105,7 @@ void CGuiHandler::pushInt( IShowActivatable *newInt )
 	assert(boost::range::find(listInt, newInt) == listInt.end()); // do not add same object twice
 
 	//a new interface will be present, we'll need to use buffer surface (unless it's advmapint that will alter screenBuf on activate anyway)
-	screenBuf = screen2; 
+	screenBuf = screen2;
 
 	if(!listInt.empty())
 		listInt.front()->deactivate();
@@ -140,7 +140,7 @@ IShowActivatable * CGuiHandler::topInt()
 {
 	if(listInt.empty())
 		return nullptr;
-	else 
+	else
 		return listInt.front();
 }
 
@@ -345,7 +345,7 @@ void CGuiHandler::simpleRedraw()
 }
 
 void CGuiHandler::handleMoveInterested( const SDL_MouseMotionEvent & motion )
-{	
+{
 	//sending active, MotionInterested objects mouseMoved() call
 	std::list<CIntObject*> miCopy = motioninterested;
 	for(auto & elem : miCopy)
@@ -407,7 +407,7 @@ CGuiHandler::CGuiHandler()
 
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
 	mainFPSmng = new CFramerateManager(48);
-	mainFPSmng->init(); // resets internal clock, needed for FPS manager
+	//do not init CFramerateManager here --AVS
 }
 
 CGuiHandler::~CGuiHandler()

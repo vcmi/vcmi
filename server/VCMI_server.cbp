@@ -57,7 +57,7 @@
 			<Add option="-lboost_thread$(#boost.libsuffix)" />
 			<Add option="-lboost_chrono$(#boost.libsuffix)" />
 			<Add option="-lVCMI_lib" />
-			<Add directory="$(#boost.lib)" />
+			<Add directory="$(#boost.lib32)" />
 			<Add directory="../" />
 		</Linker>
 		<Unit filename="CGameHandler.cpp" />

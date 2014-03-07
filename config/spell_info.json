@@ -1,1075 +1,3284 @@
 {
-    // http://wiki.vcmi.eu/index.php?title=Spell_Format
-	
-    // Additional spell info, not included in original heroes III files
-    //   id: numeric id of spell
-    //   effect: -1 -> spell is negative for influenced creatures,
-    //			  0 -> spell is indifferent for them
-    //			  1 -> spell is positive for them
-    //   anim: main effect animation (AC format), -1 - none
-    //   ranges: spell range description in SRSL ([no magic] [basic] [advanced] [expert])
-    //	 counters: array of ids of countering spells
-    //
-    // flags: string array of
-    //		damage - ATM used only in CBattleInfoCallback::calculateSpellDmg
-    //		offensive
-    //		rising
-    //		summoning //todo:
-    //
-    //effects: array of structure for bonuses for permanent effects
-    // {bonus format} - effect //todo
-    // + values: [4 int values] (OPTIONAL default from sptraits) values for levels
-    // + ainfos: [4 int values] (optional) additional infos for levels (atm only CURSE)
-    //
-    //
-    //
-    // 	immunity: string array of bonus names, any one of these bonus grants immunity
-    //  limit: string array of bonus names, presence of all bonuses required to be affected by
-    //
-    //	graphics - OPTIONAL; object;
-    //  iconImmune - OPTIONAL; string; resourse path of icon for SPELL_IMMUNITY bonus (relative to DATA or SPRITES)
-
-	"spells":
-	{
-		"summonBoat"     :
-		{
-			"id": 0,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"scuttleBoat"    :
-		{
-			"id": 1,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"visions"        :
-		{
-			"id": 2,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"viewEarth"      :
-		{
-			"id": 3,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"disguise"       :
-		{
-			"id": 4,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"viewAir"        :
-		{
-			"id": 5,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"fly"            :
-		{
-			"id": 6,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"waterWalk"      :
-		{
-			"id": 7,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"dimensionDoor"  :
-		{
-			"id": 8,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"townPortal"     :
-		{
-			"id": 9,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"quicksand"      :
-		{
-			"id": 10,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"landMine"       :
-		{
-			"id": 11,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ],
-			"flags" : ["damage"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
-
-		},
-		"forceField"     :
-		{
-			"id": 12,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "0", "0", "0", "0" ]
-		},
-		"fireWall"       :
-		{
-			"id": 13,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
-		},
-		"earthquake"     :
-		{
-			"id": 14,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"magicArrow"     :
-		{
-			"id": 15,
-			"effect": -1,
-			"anim": 64,
-			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage", "offensive"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
-		},
-		"iceBolt"        :
-		{
-			"id": 16,
-			"effect": -1,
-			"anim": 46,
-			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage", "offensive"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
-		},
-		"lightningBolt"  :
-		{
-			"id": 17,
-			"effect": -1,
-			"anim": 38,
-			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage", "offensive"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
-		},
-		"implosion"      :
-		{
-			"id": 18,
-			"effect": -1,
-			"anim": 10,
-			"ranges": [ "0", "0", "0", "0" ],
-			"graphics":{
-				"iconImmune":"ZVS/LIB1.RES/E_SPIMP"
+	"summonBoat" : {
+		"index" : 0,
+		"anim" : -1,
+		"levels" :{
+                        "none":{
+				"range" : "X"
 			},
-			"flags" : ["damage", "offensive"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
-		},
-		"chainLightning" :
-		{
-			"id": 19,
-			"effect": -1,
-			"anim": 38,
-			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage", "offensive"]
-		},
-		"frostRing"      :
-		{
-			"id": 20,
-			"effect": -1,
-			"anim": 45,
-			"ranges": [ "1", "1", "1", "1" ],
-			"flags" : ["damage", "offensive"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
-		},
-		"fireball"       :
-		{
-			"id": 21,
-			"effect": -1,
-			"anim": 53,
-			"ranges": [ "0,1", "0,1", "0,1", "0,1" ],
-			"flags" : ["damage", "offensive"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
-		},
-		"inferno"        :
-		{
-			"id": 22,
-			"effect": -1,
-			"anim": 9,
-			"ranges": [ "0-2", "0-2", "0-2", "0-2" ],
-			"flags" : ["damage", "offensive"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
-		},
-		"meteorShower"   :
-		{
-			"id": 23,
-			"effect": -1,
-			"anim": 16,
-			"ranges": [ "0,1", "0,1", "0,1", "0,1" ],
-			"graphics":{
-				"iconImmune":"ZVS/LIB1.RES/E_SPMET"
+                        "basic":{
+				"range" : "X"
 			},
-			"flags" : ["damage", "offensive"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
-		},
-		"deathRipple"    :
-		{
-			"id": 24,
-			"effect": -1,
-			"anim": 8,
-			"ranges": [ "X", "X", "X", "X" ],
-			"flags" : ["damage", "offensive"],
-			"immunity":  ["SIEGE_WEAPON","UNDEAD","DIRECT_DAMAGE_IMMUNITY"]
-		},
-		"destroyUndead"  :
-		{
-			"id": 25,
-			"effect": -1,
-			"anim": 29,
-			"ranges": [ "X", "X", "X", "X" ],
-			"flags" : ["damage", "offensive"],
-			"limit":["UNDEAD"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
-
-		},
-		"armageddon"     :
-		{
-			"id": 26,
-			"effect": -1,
-			"anim": 12,
-			"ranges": [ "X", "X", "X", "X" ],
-			"graphics":{
-				"iconImmune":"ZVS/LIB1.RES/E_SPARM"
+                        "advanced":{
+				"range" : "X"
 			},
-			"flags" : ["damage", "offensive"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
-		},
-		"shield"         :
-		{
-			"id": 27,
-			"effect": 1,
-			"anim": 27,
-			"ranges": [ "0", "0", "0", "X" ],
-			"effects":
-			[
-
-				{
-					"type": 	"GENERAL_DAMAGE_REDUCTION",
-					"subtype":0,
-					"duration": "N_TURNS"
-				}
-			]
-		},
-		"airShield"      :
-		{
-			"id": 28,
-			"effect": 1,
-			"anim": 2,
-			"ranges": [ "0", "0", "0", "X" ],
-			"effects":
-			[
-				{
-					"type": 	"GENERAL_DAMAGE_REDUCTION",
-					"subtype":1,
-					"duration": "N_TURNS"
-				}
-			]
-		},
-		"fireShield"     :
-		{
-			"id": 29,
-			"effect": 1,
-			"anim": 11,
-			"ranges": [ "0", "0", "0", "X" ],
-			"effects":
-			[
-				{
-					"type": 	"FIRE_SHIELD",
-					"duration": "N_TURNS"
-				}
-			]
-		},
-		"protectAir"     :
-		{
-			"id": 30,
-			"effect": 1,
-			"anim": 22,
-			"ranges": [ "0", "0", "0", "X" ],
-			"effects":
-			[
-				{
-
-					"type": 	"SPELL_DAMAGE_REDUCTION",
-					"subtype":0,
-					"duration": "N_TURNS"
-
-				}
-			]
-
-		},
-		"protectFire"    :
-		{
-			"id": 31,
-			"effect": 1,
-			"anim": 24,
-			"ranges": [ "0", "0", "0", "X" ],
-			"effects":
-			[
-				{
-					"type": 	"SPELL_DAMAGE_REDUCTION",
-					"subtype":1,
-					"duration": "N_TURNS"
-				}
-			]
-		},
-		"protectWater"   :
-		{
-			"id": 32,
-			"effect": 1,
-			"anim": 23,
-			"ranges": [ "0", "0", "0", "X" ],
-			"effects":
-			[
-				{
-					"type": 	"SPELL_DAMAGE_REDUCTION",
-					"subtype":2,
-					"duration": "N_TURNS"
-				}
-			]
-		},
-		"protectEarth"   :
-		{
-			"id": 33,
-			"effect": 1,
-			"anim": 26,
-			"ranges": [ "0", "0", "0", "X" ],
-			"effects":
-			[
-				{
-					"type": 	"SPELL_DAMAGE_REDUCTION",
-					"subtype":3,
-					"duration": "N_TURNS"
-				}
-			]
-		},
-		"antiMagic"      :
-		{
-			"id": 34,
-			"effect": 1,
-			"anim": 5,
-			"ranges": [ "0", "0", "0", "0" ],
-			"effects":
-			[
-				{
-					"type": 	"LEVEL_SPELL_IMMUNITY",
-					"valType":"INDEPENDENT_MAX",
-					"duration": "N_TURNS",
-					"values":[3,3,4,5]
-				}
-			]
-		},
-		"dispel"         :
-		{
-			"id": 35,
-			"effect": 0,
-			"anim": 41,
-			"ranges": [ "0", "0", "0", "X" ],
-			"graphics":{
-				"iconImmune":"ZVS/LIB1.RES/E_SPDISP"
+                        "expert":{
+				"range" : "X"
 			}
 		},
-		"magicMirror"    :
-		{
-			"id": 36,
-			"effect": 1,
-			"anim": 3,
-			"ranges": [ "0", "0", "0", "0" ],
-			"effects":
-			[
-				{
-					"type": 	"MAGIC_MIRROR",
-					"valType":"INDEPENDENT_MAX",
-					"duration": "N_TURNS"
-				}
-			]
-		},
-		"cure"           :
-		{
-			"id": 37,
-			"effect": 1,
-			"anim": 39,
-			"ranges": [ "0", "0", "0", "0" ]
-		},
-		"resurrection"   :
-		{
-			"id": 38,
-			"effect": 1,
-			"anim": 79,
-			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["rising"],
-			"immunity":["UNDEAD", "NON_LIVING"]
-		},
-		"animateDead"    :
-		{
-			"id": 39,
-			"effect": 1,
-			"anim": 79,
-			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["rising"],
-			"limit":["UNDEAD"]
-		},
-		"sacrifice"      :
-		{
-			"id": 40,
-			"effect": 1,
-			"anim": 79,
-			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["rising"],
-			"immunity":["UNDEAD", "NON_LIVING"]
-		},
-		"bless"          :
-		{
-			"id": 41,
-			"effect": 1,
-			"anim": 36,
-			"ranges": [ "0", "0", "0", "X" ],
-			"counters" : [42],
-			"effects":
-			[
-				{
-					"type": 	"ALWAYS_MAXIMUM_DAMAGE",
-					"subtype": -1, //any attack
-					"valType":"INDEPENDENT_MAX",
-					"duration": "N_TURNS",
-					"values":[0, 0, 1, 1]
-				}
-			],
-			"immunity":["UNDEAD"]
-		},
-		"curse"          :
-		{
-			"id": 42,
-			"effect": -1,
-			"anim": 40,
-			"ranges": [ "0", "0", "0", "X" ], 
-			"counters" : [41],
-			"effects":
-			[
-				{
-					"type": 	"ALWAYS_MINIMUM_DAMAGE",
-					"subtype": -1, //any attack
-					"valType":	"INDEPENDENT_MAX",
-					"duration": "N_TURNS",
-					"values":[0, 0, 1, 1],
-					"ainfos":[0,0,20,20]
-				}
-			],
-			"immunity":["UNDEAD"]
-		},
-		"bloodlust"      :
-		{
-			"id": 43,
-			"effect": 1,
-			"anim": 4,
-			"ranges": [ "0", "0", "0", "X" ], 
-			"counters" : [45],
-			"effects":
-			[
-				{
-					"type": 	"PRIMARY_SKILL",
-					"subtype": "primSkill.attack",
-					"effectRange" : "ONLY_MELEE_FIGHT",
-					"duration": "N_TURNS",
-					"values":[3, 3, 6, 6]
-				}
-			]
-		},
-		"precision"      :
-		{
-			"id": 44,
-			"effect": 1,
-			"anim": 25,
-			"ranges": [ "0", "0", "0", "X" ],
-			"effects":
-			[
-				{
-					"type": 	"PRIMARY_SKILL",
-					"subtype": "primSkill.attack",
-					"effectRange" : "ONLY_DISTANCE_FIGHT",
-					"duration": "N_TURNS",
-					"values":[3, 3, 6, 6]
-				}
-			],
-			"limit":["SHOOTER"]
-		},
-		"weakness"       :
-		{
-			"id": 45,
-			"effect": -1,
-			"anim": 56,
-			"ranges": [ "0", "0", "0", "X" ], 
-			"counters" : [43],
-			"effects":
-			[
-				{
-					"type": 	"PRIMARY_SKILL",
-					"subtype": "primSkill.attack",
-					"duration": "N_TURNS",
-					"values":[-3,-3,-6,-6]
-				}
-			]
-		},
-		"stoneSkin"      :
-		{
-			"id": 46,
-			"effect": 1,
-			"anim": 54,
-			"ranges": [ "0", "0", "0", "X" ],
-			"effects":
-			[
-				{
-					"type": 	"PRIMARY_SKILL",
-					"subtype": "primSkill.defence",
-					"duration": "N_TURNS",
-					"values":[3, 3, 6, 6]
-				}
-			]
-		},
-		"disruptingRay"  :
-		{
-			"id": 47,
-			"effect": -1,
-			"anim": 14,
-			"ranges": [ "0", "0", "0", "0" ],
-			"effects":
-			[
-				{
-					"type": 	"PRIMARY_SKILL",
-					"subtype": "primSkill.defence",
-					"valueType": "ADDITIVE_VALUE",
-					"duration": "N_TURNS",
-					"values":[-3,-3,-4,-5]
-				}
-			]
-		},
-		"prayer"         :
-		{
-			"id": 48,
-			"effect": 1,
-			"anim": 0,
-			"ranges": [ "0", "0", "0", "X" ],
-			"effects":
-			[
-				{
-					"type": 	"PRIMARY_SKILL",
-					"subtype": "primSkill.attack",
-					"duration": "N_TURNS",
-					"values":[2, 2, 4, 4]
-				},
-				{
-					"type": 	"PRIMARY_SKILL",
-					"subtype": "primSkill.defence",
-					"duration": "N_TURNS",
-					"values":[2, 2, 4, 4]
-				},
-				{
-					"type": 	"STACKS_SPEED",
-					"duration": "N_TURNS",
-					"values":[2, 2, 4, 4],
-					"ainfos":[0,0,0,0]
-				}
-			]
-		},
-		"mirth"          :
-		{
-			"id": 49,
-			"effect": 1,
-			"anim": 20,
-			"ranges": [ "0", "0", "0", "X" ],
-			"counters" : [50],
-			"effects":
-			[
-				{
-					"type": 	"MORALE",
-					"duration": "N_TURNS",
-					"values":[1, 1, 2, 2]
-				}
-			]
-		},
-		"sorrow"         :
-		{
-			"id": 50,
-			"effect": -1,
-			"anim": 30,
-			"ranges": [ "0", "0", "0", "X" ], 
-			"counters" : [49],
-			"effects":
-			[
-				{
-					"type": 	"MORALE",
-					"duration": "N_TURNS",
-					"values":[-1,-1,-2,-2]
-				}
-			],
-			"immunity":["MIND_IMMUNITY", "UNDEAD", "NON_LIVING"]
-		},
-		"fortune"        :
-		{
-			"id": 51,
-			"effect": 1,
-			"anim": 18,
-			"ranges": [ "0", "0", "0", "X" ],
-			"counters" : [52],
-			"effects":
-			[
-				{
-					"type": 	"LUCK",
-					"duration": "N_TURNS",
-					"values":[1, 1, 2, 2]
-				}
-			]
-		},
-		"misfortune"     :
-		{
-			"id": 52,
-			"effect": -1,
-			"anim": 48,
-			"ranges": [ "0", "0", "0", "X" ],
-			"counters" : [51],
-			"effects":
-			[
-				{
-					"type": 	"LUCK",
-					"duration": "N_TURNS",
-					"values":[-1,-1,-2,-2]
-				}
-			]
-		},
-		"haste"          :
-		{
-			"id": 53,
-			"effect": 1,
-			"anim": 31,
-			"ranges": [ "0", "0", "0", "X" ],
-			"counters" : [54],
-			"effects":
-			[
-				{
-					"type": 	"STACKS_SPEED",
-					"duration": "N_TURNS",
-					"values":[3, 3, 5, 5],
-					"ainfos":[0,0,0,0]
-				}
-			],
-			"immunity":["SIEGE_WEAPON"]
-		},
-		"slow"           :
-		{
-			"id": 54,
-			"effect": -1,
-			"anim": 19,
-			"ranges": [ "0", "0", "0", "X" ],
-			"graphics":{
-				"iconImmune":"ZVS/LIB1.RES/E_SPSLOW"
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"scuttleBoat" : {
+		"index" : 1,
+		"anim" : -1,
+		"levels" :
+                {
+                        "none":	{
+				"range" : "X"
 			},
-			"counters" : [53],
-			"effects":
-			[
-				{
-					"type": 	"STACKS_SPEED",
-					"valueType": "PERCENT_TO_ALL",
-					"duration": "N_TURNS",
-					"values":[-25,-25,-50,-50],
-					"ainfos":[0,0,0,0]
-				}
-			],
-			"immunity":["SIEGE_WEAPON"]
-		},
-		"slayer"         :
-		{
-			"id": 55,
-			"effect": 1,
-			"anim": 28,
-			"ranges": [ "0", "0", "0", "0" ],
-			"effects":
-			[
-				{
-					"type": 	"SLAYER",
-					"duration": "N_TURNS",
-					"values":[0,1,2,3]
-				}
-			]
-		},
-		"frenzy"         :
-		{
-			"id": 56,
-			"effect": 1,
-			"anim": 17,
-			"ranges": [ "0", "0", "0", "0" ],
-			"effects":
-			[
-				{
-					"type": 	"IN_FRENZY",
-					"duration": "STACK_GETS_TURN",
-					"values":[100, 100, 150, 200]
-				}
-			]
-		},
-		"titanBolt"      :
-		{
-			"id": 57,
-			"effect": -1,
-			"anim": 38,
-			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage", "offensive"]
-		},
-		"counterstrike"  :
-		{
-			"id": 58,
-			"effect": 1,
-			"anim": 7,
-			"ranges": [ "0", "0", "0", "X" ],
-			"effects":
-			[
-				{
-					"type": 	"ADDITIONAL_RETALIATION",
-					"duration": "N_TURNS",
-					"values":[1, 1, 2, 2]
-				}
-			]
-		},
-		"berserk"        :
-		{
-			"id": 59,
-			"effect": -1,
-			"anim": 35,
-			"ranges": [ "0", "0", "0-1", "0-2" ],
-			"graphics":{
-				"iconImmune":"ZVS/LIB1.RES/E_SPBERS"
+                        "basic":{
+				"range" : "X"
 			},
-			"effects":
-			[
-				{
-					"type": 	"ATTACKS_NEAREST_CREATURE",
-					"duration": "N_TURNS",
-					"values":[0,1,2,3]
-				}
-			],
-			"immunity":["MIND_IMMUNITY", "UNDEAD", "NON_LIVING"]
-		},
-		"hypnotize"      :
-		{
-			"id": 60,
-			"effect": -1,
-			"anim": 21,
-			"ranges": [ "0", "0", "0", "0" ],
-			"graphics":{
-				"iconImmune":"ZVS/LIB1.RES/E_SPHYPN"
+                        "advanced":{
+				"range" : "X"
 			},
-			"effects":
-			[
-				{
-					"type": 	"HYPNOTIZED",
-					"duration": "N_TURNS",
-					"values":[0,1,2,3]
-				}
-			],
-			"immunity":["MIND_IMMUNITY", "UNDEAD", "NON_LIVING"]
-		},
-		"forgetfulness"  :
-		{
-			"id": 61,
-			"effect": -1,
-			"anim": 42,
-			"ranges": [ "0", "0", "0", "X" ],
-			"effects":
-			[
-				{
-					"type": 	"FORGETFULL",
-					"duration": "N_TURNS",
-					"values":[0,1,2,3]
-				}
-			],
-			"limit":["SHOOTER"],
-			"immunity":["MIND_IMMUNITY", "UNDEAD", "NON_LIVING"]
-		},
-		"blind"          :
-		{
-			"id": 62,
-			"effect": -1,
-			"anim": 6,
-			"ranges": [ "0", "0", "0", "0" ],
-			"graphics":{
-				"iconImmune":"ZVS/LIB1.RES/E_SPBLIND"
-			},
-			"effects":
-			[
-				{
-					"type": 	"NOT_ACTIVE",
-					"subtype": 	62,
-					"duration":	["UNITL_BEING_ATTACKED","N_TURNS"],
-					"values":[0,0,0,0]
-				},
-				{
-					"type": 	"GENERAL_ATTACK_REDUCTION",
-					"duration":	["UNITL_BEING_ATTACKED","N_TURNS"]
-				},
-				{
-					"type": 	"NO_RETALIATION",
-					"duration":	"UNITL_BEING_ATTACKED",
-					"values":[0,0,0,0]
-				}
-			],
-			"immunity":["MIND_IMMUNITY", "UNDEAD", "NON_LIVING"]
-		},
-		"teleport"       :
-		{
-			"id": 63,
-			"effect": 1,
-			"anim": -1,
-			"ranges": [ "0", "0", "0", "0" ],
-			"immunity":["SIEGE_WEAPON"]
-		},
-		"removeObstacle" :
-		{
-			"id": 64,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"clone"          :
-		{
-			"id": 65,
-			"effect": 1,
-			"anim": -1,
-			"ranges": [ "0", "0", "0", "0" ],
-			"immunity":["SIEGE_WEAPON"]
-		},
-		"fireElemental"  :
-		{
-			"id": 66,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"earthElemental" :
-		{
-			"id": 67,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"waterElemental" :
-		{
-			"id": 68,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"airElemental"   :
-		{
-			"id": 69,
-			"effect": 0,
-			"anim": -1,
-			"ranges": [ "X", "X", "X", "X" ]
-		},
-		"stoneGaze"      :
-		{
-			"id": 70,
-			"effect": 0,
-			"anim": 70,
-			"ranges": [ "0", "0", "0", "0" ],
-			"effects":
-			[
-				{
-					"type": 	"NOT_ACTIVE",
-					"subtype": 	62,
-					"duration":	["UNITL_BEING_ATTACKED","N_TURNS"],
-					"values":[0,0,0,0]
-				},
-				{
-					"type": 	"NO_RETALIATION",
-					"duration":	"UNITL_BEING_ATTACKED",
-					"values":[0,0,0,0]
-				}
-			]
-		},
-		"poison"         :
-		{
-			"id": 71,
-			"effect": -1,
-			"anim": 67,
-			"ranges": [ "0", "0", "0", "0" ],
-			"effects":
-			[
-				{
-					"type": 	"POISON",
-					"valueType": 	"INDEPENDENT_MAX",
-					"duration": "N_TURNS",
-					"values":[30,30,30,30]
-				},
-				{
-					"type": 	"STACK_HEALTH",
-					"val" : 	-10,
-					"valueType": 	"PERCENT_TO_ALL",
-					"duration": "N_TURNS",
-					"values":[-10,-10,-10,-10]
-				}
-			],
-			"immunity":["UNDEAD", "NON_LIVING"]
-		},
-		"bind"           :
-		{
-			"id": 72,
-			"effect": 0,
-			"anim": 68,
-			"ranges": [ "0", "0", "0", "0" ],
-			"effects":
-			[
-				{
-					"type": 	"BIND_EFFECT",
-					"duration" : 	"PERMANENT",
-					"addInfo" : 	-1,
-					"values":[0,0,0,0]
-				}
-			]
-		},
-		"disease"        :
-		{
-			"id": 73,
-			"effect": -1,
-			"anim": 69,
-			"ranges": [ "0", "0", "0", "0" ],
-			"effects":
-			[
-				{
-					"type": 	"PRIMARY_SKILL",
-					"subtype": 	"primSkill.attack",
-					"duration": "N_TURNS",
-					"values":[-2,-2,-2,-2]
-				},
-				{
-					"type": 	"PRIMARY_SKILL",
-					"subtype": 	"primSkill.defence",
-					"duration": "N_TURNS",
-					"values":[-2,-2,-2,-2]
-				}
-			],
-			"immunity":["UNDEAD", "NON_LIVING"]
-		},
-		"paralyze"       :
-		{
-			"id": 74,
-			"effect": -1,
-			"anim": 70,
-			"ranges": [ "0", "0", "0", "0" ],
-			"effects":
-			[
-				{
-					"type": 	"NOT_ACTIVE",
-					"subtype": 	74,
-					"duration":	["UNITL_BEING_ATTACKED","N_TURNS"],
-					"values":[0,0,0,0]
-				},
-				{
-					"type": 	"NO_RETALIATION",
-					"duration":	"UNITL_BEING_ATTACKED",
-					"values":[0,0,0,0]
-				}
-			]
-		},
-		"age"            :
-		{
-			"id": 75,
-			"effect": -1,
-			"anim": 71,
-			"ranges": [ "0", "0", "0", "0" ],
-			"effects":
-			[
-				{
-					"type": 	"STACK_HEALTH",
-					"valueType": 	"PERCENT_TO_ALL",
-					"duration": "N_TURNS",
-					"values":[-50,-50,-50,-50]
-				}
-			],
-			"immunity":["UNDEAD", "NON_LIVING"]
-		},
-		"deathCloud"     :
-		{
-			"id": 76,
-			"effect": 0,
-			"anim": 72,
-			"ranges": [ "0-1", "0-1", "0-1", "0-1" ],
-			"immunity":["UNDEAD", "NON_LIVING"]
-		},
-		"thunderbolt"    :
-		{
-			"id": 77,
-			"effect": -1,
-			"anim": 38,
-			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage", "offensive"]
-		},
-		"dispelHelpful"  :
-		{
-			"id": 78,
-			"effect": -1,
-			"anim": 41,
-			"ranges": [ "0", "0", "0", "0" ],
-			"graphics":{
-				"iconImmune":"ZVS/LIB1.RES/E_SPDISB"
+                        "expert":{
+				"range" : "X"
 			}
 		},
-		"deathStare"     :
-		{
-			"id": 79,
-			"effect": 0,
-			"anim": 80,
-			"ranges": [ "0", "0", "0", "0" ],
-			"immunity":["UNDEAD", "NON_LIVING"]
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"visions" : {
+		"index" : 2,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
 		},
-		"acidBreath"     :
-		{
-			"id": 80,
-			"effect": 0,
-			"anim": 81,
-			"ranges": [ "0", "0", "0", "0" ],
-			"effects":
-			[
-				{
-					"type": 	"PRIMARY_SKILL",
-					"subtype": 	"primSkill.attack",
-					"duration" : 	"PERMANENT",
-					"valueType": 	"ADDITIVE_VALUE",
-					"values":[-3,-3,-3,-3]
-				}
-			]
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"viewEarth" : {
+		"index" : 3,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
 		},
-		"acidBreathDamage"     :
-		{
-			"id": 81,
-			"effect": 0,
-			"anim": 81,
-			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage"],
-			"immunity" : ["DIRECT_DAMAGE_IMMUNITY"]
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"disguise" : {
+		"index" : 4,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"viewAir" : {
+		"index" : 5,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"fly" : {
+		"index" : 6,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"waterWalk" : {
+		"index" : 7,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"dimensionDoor" : {
+		"index" : 8,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"townPortal" : {
+		"index" : 9,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"quicksand" : {
+		"index" : 10,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"landMine" : {
+		"index" : 11,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"indifferent": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"forceField" : {
+		"index" : 12,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"fireWall" : {
+		"index" : 13,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"indifferent": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"earthquake" : {
+		"index" : 14,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"magicArrow" : {
+		"index" : 15,
+		"anim" : 64,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"iceBolt" : {
+		"index" : 16,
+		"anim" : 46,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"lightningBolt" : {
+		"index" : 17,
+		"anim" : 38,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"implosion" : {
+		"index" : 18,
+		"anim" : 10,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
 
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"chainLightning" : {
+		"index" : 19,
+		"anim" : 38,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		}
+	},
+	"frostRing" : {
+		"index" : 20,
+		"anim" : 45,
+		"levels" : {
+			"none":{
+				"range" : "1"
+			},
+			"basic":{
+				"range" : "1"
+			},
+			"advanced":{
+				"range" : "1"
+			},
+			"expert":{
+				"range" : "1"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"fireball" : {
+		"index" : 21,
+		"anim" : 53,
+		"levels" : {
+			"none":{
+				"range" : "0,1"
+			},
+			"basic":{
+				"range" : "0,1"
+			},
+			"advanced":{
+				"range" : "0,1"
+			},
+			"expert":{
+				"range" : "0,1"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"inferno" : {
+		"index" : 22,
+		"anim" : 9,
+		"levels" : {
+			"none":{
+				"range" : "0-2"
+			},
+			"basic":{
+				"range" : "0-2"
+			},
+			"advanced":{
+				"range" : "0-2"
+			},
+			"expert":{
+				"range" : "0-2"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"meteorShower" : {
+		"index" : 23,
+		"anim" : 16,
+		"levels" : {
+			"none":{
+				"range" : "0,1"
+			},
+			"basic":{
+				"range" : "0,1"
+			},
+			"advanced":{
+				"range" : "0,1"
+			},
+			"expert":{
+				"range" : "0,1"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"deathRipple" : {
+		"index" : 24,
+		"anim" : 8,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"SIEGE_WEAPON": true,
+			"UNDEAD": true,
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"destroyUndead" : {
+		"index" : 25,
+		"anim" : 29,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"limit" : {
+			"UNDEAD": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"armageddon" : {
+		"index" : 26,
+		"anim" : 12,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"shield" : {
+		"index" : 27,
+		"anim" : 27,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"generalDamageReduction" : {
+						"type" : "GENERAL_DAMAGE_REDUCTION",
+						"subtype" : 0,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"generalDamageReduction" : {
+						"type" : "GENERAL_DAMAGE_REDUCTION",
+						"subtype" : 0,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"generalDamageReduction" : {
+						"type" : "GENERAL_DAMAGE_REDUCTION",
+						"subtype" : 0,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"generalDamageReduction" : {
+						"type" : "GENERAL_DAMAGE_REDUCTION",
+						"subtype" : 0,
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"airShield" : {
+		"index" : 28,
+		"anim" : 2,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"generalDamageReduction" : {
+						"type" : "GENERAL_DAMAGE_REDUCTION",
+						"subtype" : 1,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"generalDamageReduction" : {
+						"type" : "GENERAL_DAMAGE_REDUCTION",
+						"subtype" : 1,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"generalDamageReduction" : {
+						"type" : "GENERAL_DAMAGE_REDUCTION",
+						"subtype" : 1,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"generalDamageReduction" : {
+						"type" : "GENERAL_DAMAGE_REDUCTION",
+						"subtype" : 1,
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"fireShield" : {
+		"index" : 29,
+		"anim" : 11,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"fireShield" : {
+						"type" : "FIRE_SHIELD",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"fireShield" : {
+						"type" : "FIRE_SHIELD",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"fireShield" : {
+						"type" : "FIRE_SHIELD",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"fireShield" : {
+						"type" : "FIRE_SHIELD",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"protectAir" : {
+		"index" : 30,
+		"anim" : 22,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 0,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 0,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 0,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 0,
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"protectFire" : {
+		"index" : 31,
+		"anim" : 24,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 1,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 1,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 1,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 1,
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"protectWater" : {
+		"index" : 32,
+		"anim" : 23,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 2,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 2,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 2,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 2,
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"protectEarth" : {
+		"index" : 33,
+		"anim" : 26,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 3,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 3,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 3,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 3,
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"antiMagic" : {
+		"index" : 34,
+		"anim" : 5,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"levelSpellImmunity" : {
+						"val" : 3,
+						"type" : "LEVEL_SPELL_IMMUNITY",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"levelSpellImmunity" : {
+						"val" : 3,
+						"type" : "LEVEL_SPELL_IMMUNITY",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"levelSpellImmunity" : {
+						"val" : 4,
+						"type" : "LEVEL_SPELL_IMMUNITY",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"levelSpellImmunity" : {
+						"val" : 5,
+						"type" : "LEVEL_SPELL_IMMUNITY",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"dispel" : {
+		"index" : 35,
+		"anim" : 41,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"magicMirror" : {
+		"index" : 36,
+		"anim" : 3,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"magicMirror" : {
+						"type" : "MAGIC_MIRROR",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"magicMirror" : {
+						"type" : "MAGIC_MIRROR",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"magicMirror" : {
+						"type" : "MAGIC_MIRROR",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"magicMirror" : {
+						"type" : "MAGIC_MIRROR",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"cure" : {
+		"index" : 37,
+		"anim" : 39,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"resurrection" : {
+		"index" : 38,
+		"anim" : 79,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"rising": true,
+			"positive": true
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		}
+	},
+	"animateDead" : {
+		"index" : 39,
+		"anim" : 79,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"rising": true,
+			"positive": true
+		},
+		"limit" : {
+			"UNDEAD": true
+		}
+	},
+	"sacrifice" : {
+		"index" : 40,
+		"anim" : 79,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"rising": true,
+			"positive": true
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		}
+	},
+	"bless" : {
+		"index" : 41,
+		"anim" : 36,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"alwaysMaximumDamage" : {
+						"val" : 0,
+						"type" : "ALWAYS_MAXIMUM_DAMAGE",
+						"subtype" : -1,
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"alwaysMaximumDamage" : {
+						"val" : 0,
+						"type" : "ALWAYS_MAXIMUM_DAMAGE",
+						"subtype" : -1,
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"alwaysMaximumDamage" : {
+						"val" : 1,
+						"type" : "ALWAYS_MAXIMUM_DAMAGE",
+						"subtype" : -1,
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"alwaysMaximumDamage" : {
+						"val" : 1,
+						"type" : "ALWAYS_MAXIMUM_DAMAGE",
+						"subtype" : -1,
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.curse": true
+		},
+		"immunity" : {
+			"UNDEAD": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"curse" : {
+		"index" : 42,
+		"anim" : 40,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"alwaysMinimumDamage" : {
+						"addInfo" : 0,
+						"val" : 0,
+						"type" : "ALWAYS_MINIMUM_DAMAGE",
+						"subtype" : -1,
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"alwaysMinimumDamage" : {
+						"addInfo" : 0,
+						"val" : 0,
+						"type" : "ALWAYS_MINIMUM_DAMAGE",
+						"subtype" : -1,
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"alwaysMinimumDamage" : {
+						"addInfo" : 20,
+						"val" : 1,
+						"type" : "ALWAYS_MINIMUM_DAMAGE",
+						"subtype" : -1,
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"alwaysMinimumDamage" : {
+						"addInfo" : 20,
+						"val" : 1,
+						"type" : "ALWAYS_MINIMUM_DAMAGE",
+						"subtype" : -1,
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.bless": true
+		},
+		"immunity" : {
+			"UNDEAD": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"bloodlust" : {
+		"index" : 43,
+		"anim" : 4,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"effectRange" : "ONLY_MELEE_FIGHT",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"effectRange" : "ONLY_MELEE_FIGHT",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 6,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"effectRange" : "ONLY_MELEE_FIGHT",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 6,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"effectRange" : "ONLY_MELEE_FIGHT",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.weakness": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"precision" : {
+		"index" : 44,
+		"anim" : 25,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"effectRange" : "ONLY_DISTANCE_FIGHT",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"effectRange" : "ONLY_DISTANCE_FIGHT",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 6,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"effectRange" : "ONLY_DISTANCE_FIGHT",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 6,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"effectRange" : "ONLY_DISTANCE_FIGHT",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"limit" : {
+			"SHOOTER": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"weakness" : {
+		"index" : 45,
+		"anim" : 56,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -6,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -6,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.bloodlust": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"stoneSkin" : {
+		"index" : 46,
+		"anim" : 54,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 6,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 6,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"disruptingRay" : {
+		"index" : 47,
+                "targetType" : "CREATURE", //fix, dont remove
+		"anim" : 14,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"valueType" : "ADDITIVE_VALUE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"valueType" : "ADDITIVE_VALUE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -4,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"valueType" : "ADDITIVE_VALUE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -5,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"valueType" : "ADDITIVE_VALUE",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"prayer" : {
+		"index" : 48,
+		"anim" : 0,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"attack" : {
+						"val" : 2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					},
+					"defence" : {
+						"val" : 2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					},
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"val" : 2,
+						"type" : "STACKS_SPEED",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"attack" : {
+						"val" : 2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					},
+					"defence" : {
+						"val" : 2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					},
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"val" : 2,
+						"type" : "STACKS_SPEED",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"attack" : {
+						"val" : 4,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					},
+					"defence" : {
+						"val" : 4,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					},
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"val" : 4,
+						"type" : "STACKS_SPEED",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"attack" : {
+						"val" : 4,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					},
+					"defence" : {
+						"val" : 4,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					},
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"val" : 4,
+						"type" : "STACKS_SPEED",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"mirth" : {
+		"index" : 49,
+		"anim" : 20,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"morale" : {
+						"val" : 1,
+						"type" : "MORALE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"morale" : {
+						"val" : 1,
+						"type" : "MORALE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"morale" : {
+						"val" : 2,
+						"type" : "MORALE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"morale" : {
+						"val" : 2,
+						"type" : "MORALE",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.sorrow":true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"sorrow" : {
+		"index" : 50,
+		"anim" : 30,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"morale" : {
+						"val" : -1,
+						"type" : "MORALE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"morale" : {
+						"val" : -1,
+						"type" : "MORALE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"morale" : {
+						"val" : -2,
+						"type" : "MORALE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"morale" : {
+						"val" : -2,
+						"type" : "MORALE",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.mirth":true
+		},
+		"immunity" : {
+			"MIND_IMMUNITY": true,
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"fortune" : {
+		"index" : 51,
+		"anim" : 18,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"luck" : {
+						"val" : 1,
+						"type" : "LUCK",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"luck" : {
+						"val" : 1,
+						"type" : "LUCK",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"luck" : {
+						"val" : 2,
+						"type" : "LUCK",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"luck" : {
+						"val" : 2,
+						"type" : "LUCK",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.misfortune": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"misfortune" : {
+		"index" : 52,
+		"anim" : 48,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"luck" : {
+						"val" : -1,
+						"type" : "LUCK",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"luck" : {
+						"val" : -1,
+						"type" : "LUCK",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"luck" : {
+						"val" : -2,
+						"type" : "LUCK",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"luck" : {
+						"val" : -2,
+						"type" : "LUCK",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.fortune":true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"haste" : {
+		"index" : 53,
+		"anim" : 31,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"val" : 3,
+						"type" : "STACKS_SPEED",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"val" : 3,
+						"type" : "STACKS_SPEED",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"val" : 5,
+						"type" : "STACKS_SPEED",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"val" : 5,
+						"type" : "STACKS_SPEED",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.slow": true
+		},
+		"immunity" : {
+			"SIEGE_WEAPON": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"slow" : {
+		"index" : 54,
+		"anim" : 19,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"val" : -25,
+						"type" : "STACKS_SPEED",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"val" : -25,
+						"type" : "STACKS_SPEED",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"val" : -50,
+						"type" : "STACKS_SPEED",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"val" : -50,
+						"type" : "STACKS_SPEED",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+
+		"counters" : {
+			"spell.haste":true
+		},
+		"immunity" : {
+			"SIEGE_WEAPON": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"slayer" : {
+		"index" : 55,
+		"anim" : 28,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"slayer" : {
+						"val" : 0,
+						"type" : "SLAYER",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"slayer" : {
+						"val" : 1,
+						"type" : "SLAYER",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"slayer" : {
+						"val" : 2,
+						"type" : "SLAYER",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"slayer" : {
+						"val" : 3,
+						"type" : "SLAYER",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"frenzy" : {
+		"index" : 56,
+		"anim" : 17,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"inFrenzy" : {
+						"val" : 100,
+						"type" : "IN_FRENZY",
+						"duration" : "STACK_GETS_TURN"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"inFrenzy" : {
+						"val" : 100,
+						"type" : "IN_FRENZY",
+						"duration" : "STACK_GETS_TURN"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"inFrenzy" : {
+						"val" : 150,
+						"type" : "IN_FRENZY",
+						"duration" : "STACK_GETS_TURN"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"inFrenzy" : {
+						"val" : 200,
+						"type" : "IN_FRENZY",
+						"duration" : "STACK_GETS_TURN"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"titanBolt" : {
+		"index" : 57,
+		"anim" : 38,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		}
+	},
+	"counterstrike" : {
+		"index" : 58,
+		"anim" : 7,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"additionalRetaliation" : {
+						"val" : 1,
+						"type" : "ADDITIONAL_RETALIATION",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"additionalRetaliation" : {
+						"val" : 1,
+						"type" : "ADDITIONAL_RETALIATION",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"additionalRetaliation" : {
+						"val" : 2,
+						"type" : "ADDITIONAL_RETALIATION",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"additionalRetaliation" : {
+						"val" : 2,
+						"type" : "ADDITIONAL_RETALIATION",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"berserk" : {
+		"index" : 59,
+		"anim" : 35,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"attacksNearestCreature" : {
+						"val" : 0,
+						"type" : "ATTACKS_NEAREST_CREATURE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"attacksNearestCreature" : {
+						"val" : 1,
+						"type" : "ATTACKS_NEAREST_CREATURE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0-1",
+				"effects" : {
+					"attacksNearestCreature" : {
+						"val" : 2,
+						"type" : "ATTACKS_NEAREST_CREATURE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0-2",
+				"effects" : {
+					"attacksNearestCreature" : {
+						"val" : 3,
+						"type" : "ATTACKS_NEAREST_CREATURE",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+
+		"immunity" : {
+			"MIND_IMMUNITY": true,
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"hypnotize" : {
+		"index" : 60,
+		"anim" : 21,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"hypnotized" : {
+						"val" : 0,
+						"type" : "HYPNOTIZED",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"hypnotized" : {
+						"val" : 1,
+						"type" : "HYPNOTIZED",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"hypnotized" : {
+						"val" : 2,
+						"type" : "HYPNOTIZED",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"hypnotized" : {
+						"val" : 3,
+						"type" : "HYPNOTIZED",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+
+		"immunity" : {
+			"MIND_IMMUNITY": true,
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"forgetfulness" : {
+		"index" : 61,
+                "targetType" : "CREATURE_EXPERT_MASSIVE", //fix dont remove
+		"anim" : 42,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"forgetfull" : {
+						"val" : 0,
+						"type" : "FORGETFULL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"forgetfull" : {
+						"val" : 1,
+						"type" : "FORGETFULL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"forgetfull" : {
+						"val" : 2,
+						"type" : "FORGETFULL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"forgetfull" : {
+						"val" : 3,
+						"type" : "FORGETFULL",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"limit" : {
+			"SHOOTER": true
+		},
+		"immunity" : {
+			"MIND_IMMUNITY": true,
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"blind" : {
+		"index" : 62,
+		"anim" : 6,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 62,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"generalAttackReduction" : {
+						"type" : "GENERAL_ATTACK_REDUCTION",
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 62,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"generalAttackReduction" : {
+						"type" : "GENERAL_ATTACK_REDUCTION",
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 62,
+						"duration" :[
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"generalAttackReduction" : {
+						"type" : "GENERAL_ATTACK_REDUCTION",
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 62,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"generalAttackReduction" : {
+						"type" : "GENERAL_ATTACK_REDUCTION",
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			}
+		},
+
+		"immunity" : {
+			"MIND_IMMUNITY": true,
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"teleport" : {
+		"index" : 63,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"immunity" : {
+			"SIEGE_WEAPON": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"removeObstacle" : {
+		"index" : 64,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"clone" : {
+		"index" : 65,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"immunity" : {
+			"SIEGE_WEAPON": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"fireElemental" : {
+		"index" : 66,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"earthElemental" : {
+		"index" : 67,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"waterElemental" : {
+		"index" : 68,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"airElemental" : {
+		"index" : 69,
+		"anim" : -1,
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"stoneGaze" : {
+		"index" : 70,
+		"anim" : 70,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 62,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 62,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 62,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 62,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"poison" : {
+		"index" : 71,
+		"anim" : 67,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"poison" : {
+						"val" : 30,
+						"type" : "POISON",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					},
+					"stackHealth" : {
+						"val" : -10,
+						"type" : "STACK_HEALTH",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"poison" : {
+						"val" : 30,
+						"type" : "POISON",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					},
+					"stackHealth" : {
+						"val" : -10,
+						"type" : "STACK_HEALTH",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"poison" : {
+						"val" : 30,
+						"type" : "POISON",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					},
+					"stackHealth" : {
+						"val" : -10,
+						"type" : "STACK_HEALTH",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"poison" : {
+						"val" : 30,
+						"type" : "POISON",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					},
+					"stackHealth" : {
+						"val" : -10,
+						"type" : "STACK_HEALTH",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"bind" : {
+		"index" : 72,
+		"anim" : 68,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"bindEffect" : {
+						"val" : 0,
+						"type" : "BIND_EFFECT",
+						"duration" : "PERMANENT",
+						"addInfo" : -1
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"bindEffect" : {
+						"val" : 0,
+						"type" : "BIND_EFFECT",
+						"duration" : "PERMANENT",
+						"addInfo" : -1
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"bindEffect" : {
+						"val" : 0,
+						"type" : "BIND_EFFECT",
+						"duration" : "PERMANENT",
+						"addInfo" : -1
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"bindEffect" : {
+						"val" : 0,
+						"type" : "BIND_EFFECT",
+						"duration" : "PERMANENT",
+						"addInfo" : -1
+					}
+				}
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"disease" : {
+		"index" : 73,
+		"anim" : 69,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"attack" : {
+						"val" : -2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					},
+					"defence" : {
+						"val" : -2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"attack" : {
+						"val" : -2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					},
+					"defence" : {
+						"val" : -2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"attack" : {
+						"val" : -2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					},
+					"defence" : {
+						"val" : -2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"attack" : {
+						"val" : -2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					},
+					"defence" : {
+						"val" : -2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"paralyze" : {
+		"index" : 74,
+		"anim" : 70,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 74,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 74,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 74,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 74,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"age" : {
+		"index" : 75,
+		"anim" : 71,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"stackHealth" : {
+						"val" : -50,
+						"type" : "STACK_HEALTH",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"stackHealth" : {
+						"val" : -50,
+						"type" : "STACK_HEALTH",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"stackHealth" : {
+						"val" : -50,
+						"type" : "STACK_HEALTH",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"stackHealth" : {
+						"val" : -50,
+						"type" : "STACK_HEALTH",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"deathCloud" : {
+		"index" : 76,
+		"anim" : 72,
+		"levels" : {
+			"none":{
+				"range" : "0-1"
+			},
+			"basic":{
+				"range" : "0-1"
+			},
+			"advanced":{
+				"range" : "0-1"
+			},
+			"expert":{
+				"range" : "0-1"
+			}
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"thunderbolt" : {
+		"index" : 77,
+		"anim" : 38,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		}
+	},
+	"dispelHelpful" : {
+		"index" : 78,
+		"anim" : 41,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+
+		"flags" : {
+			"negative": true
+		}
+	},
+	"deathStare" : {
+		"index" : 79,
+		"anim" : 80,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"acidBreath" : {
+		"index" : 80,
+		"anim" : 81,
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "PERMANENT",
+						"valueType" : "ADDITIVE_VALUE"
+					}
+				}
+			},
+			"basic":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "PERMANENT",
+						"valueType" : "ADDITIVE_VALUE"
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "PERMANENT",
+						"valueType" : "ADDITIVE_VALUE"
+					}
+				}
+			},
+			"expert":{
+				"range" : "0",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "PERMANENT",
+						"valueType" : "ADDITIVE_VALUE"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"acidBreathDamage" : {
+		"index" : 81,
+		"anim" : 81,
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"indifferent": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
 		}
 	}
 }

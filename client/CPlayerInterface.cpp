@@ -267,7 +267,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
 			if(adventureInt->terrain.currentPath)
-			{ 
+			{
 				assert(adventureInt->terrain.currentPath->nodes.size() >= 2);
 				std::vector<CGPathNode>::const_iterator nodesIt = adventureInt->terrain.currentPath->nodes.end() - 1;
 
@@ -491,7 +491,7 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 	waitWhileDialog();
 	CCS->soundh->playSound(soundBase::heroNewLevel);
 
-	CCreatureWindow * cw = new CCreatureWindow(skills, commander, 
+	CCreatureWindow * cw = new CCreatureWindow(skills, commander,
 												[=](ui32 selection){ cb->selectionMade(selection, queryID); });
 	GH.pushInt(cw);
 }
@@ -619,11 +619,11 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 		isAutoFightOn = true;
 		cb->registerBattleInterface(autofightingAI);
 	}
-	
+
 	//Don't wait for dialogs when we are non-active hot-seat player
 	if(LOCPLINT == this)
 		waitForAllDialogs();
-	
+
 	BATTLE_EVENT_POSSIBLE_RETURN;
 }
 
@@ -860,7 +860,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
-	
+
 	std::vector<StackAttackedInfo> arg;
 	for(auto & elem : bsa)
 	{
@@ -1204,7 +1204,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus &bonus, bool gain )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(bonus.type == Bonus::NONE)	
+	if(bonus.type == Bonus::NONE)
 		return;
 
 	updateInfo(hero);
@@ -1601,9 +1601,9 @@ bool CPlayerInterface::ctrlPressed() const
 void CPlayerInterface::update()
 {
 	// Updating GUI requires locking pim mutex (that protects screen and GUI state).
-	// When ending the game, the pim mutex might be hold bo other thread, 
+	// When ending the game, the pim mutex might be hold bo other thread,
 	// that will notify us about the ending game by setting terminate_cond flag.
-	
+
 	bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
 	while(!terminate_cond.get() && !(acquiredTheLockOnPim = pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
 		boost::this_thread::sleep(boost::posix_time::milliseconds(15));
@@ -1616,7 +1616,7 @@ void CPlayerInterface::update()
 	}
 
 	// If we are here, pim mutex has been successfully locked - let's store it in a safe RAII lock.
-	boost::unique_lock<boost::recursive_mutex> un(*pim, boost::adopt_lock); 
+	boost::unique_lock<boost::recursive_mutex> un(*pim, boost::adopt_lock);
 
 	// While mutexes were locked away we may be have stopped being the active interface
 	if(LOCPLINT != this)
@@ -2202,7 +2202,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 	{
 		eraseCurrentPathOf(caster, false);
 	}
-	const CSpell * spell = CGI->spellh->spells[spellID];
+	const CSpell * spell = CGI->spellh->objects[spellID];
 	if (vstd::contains(CCS->soundh->spellSounds, spell))
 		CCS->soundh->playSound(CCS->soundh->spellSounds[spell]);
 }

@@ -166,9 +166,9 @@ ui32 CBattleInfoCallback::calculateHealedHP(const CGHeroInstance * caster, const
 	bool resurrect = spell->isRisingSpell();
 	int healedHealth;
 	if (spell->id == SpellID::SACRIFICE && sacrificedStack)
-		healedHealth = (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + sacrificedStack->MaxHealth() + spell->powers[caster->getSpellSchoolLevel(spell)]) * sacrificedStack->count;
+		healedHealth = (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + sacrificedStack->MaxHealth() + spell->getPower(caster->getSpellSchoolLevel(spell))) * sacrificedStack->count;
 	else
-		healedHealth = caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) * spell->power + spell->powers[caster->getSpellSchoolLevel(spell)];
+		healedHealth = caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) * spell->power + spell->getPower(caster->getSpellSchoolLevel(spell)); //???
 	healedHealth = calculateSpellBonus(healedHealth, spell, caster, stack);
 	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
 }
@@ -182,7 +182,7 @@ ui32 CBattleInfoCallback::calculateHealedHP(int healedHealth, const CSpell * spe
 ui32 CBattleInfoCallback::calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const
 {
 	bool resurrect = spell->isRisingSpell();
-	int healedHealth = usedSpellPower * spell->power + spell->powers[spellSchoolLevel];
+	int healedHealth = usedSpellPower * spell->power + spell->getPower(spellSchoolLevel);
 	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
 }
 bool BattleInfo::resurrects(SpellID spellid) const

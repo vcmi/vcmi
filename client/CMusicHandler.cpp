@@ -186,7 +186,7 @@ void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpel
 		for(const JsonNode &node : config["spell_sounds"].Vector())
 		{
 			int spellid = node["id"].Float();
-			const CSpell *s = CGI->spellh->spells[spellid];
+			const CSpell *s = CGI->spellh->objects[spellid];
 
 			if (vstd::contains(spellSounds, s))
                 logGlobal->errorStream() << "Spell << " << spellid << " already has a sound";
@@ -425,7 +425,7 @@ void CMusicHandler::queueNext(CMusicHandler *owner, std::string setName, std::st
 	}
 	catch(std::exception &e)
 	{
-		logGlobal->errorStream() << "Failed to queue music. setName=" << setName << "\tmusicURI=" << musicURI; 
+		logGlobal->errorStream() << "Failed to queue music. setName=" << setName << "\tmusicURI=" << musicURI;
 		logGlobal->errorStream() << "Exception: " << e.what();
 	}
 }

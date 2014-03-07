@@ -14,6 +14,7 @@
 #include "StringConstants.h"
 #include "CStopWatch.h"
 #include "IHandlerBase.h"
+#include "CSpellHandler.h"
 
 /*
  * CModHandler.cpp, part of VCMI engine
@@ -337,13 +338,14 @@ void CContentHandler::ContentTypeHandler::afterLoadFinalization()
 
 CContentHandler::CContentHandler()
 {
-	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, "heroClass")));
+ 	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, "heroClass")));
 	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, "artifact")));
 	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh, "creature")));
 	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh, "faction")));
 	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh, "hero")));
+    handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
 
-	//TODO: spells, bonuses, something else?
+	//TODO: bonuses, something else?
 }
 
 bool CContentHandler::preloadModData(std::string modName, JsonNode modConfig, bool validate)

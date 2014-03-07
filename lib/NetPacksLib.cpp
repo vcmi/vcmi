@@ -1378,6 +1378,12 @@ void actualizeEffect(CStack * s, const Bonus & ef)
 
 DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 {
+    if (effect.empty())
+    {
+        logGlobal->errorStream() << "Trying to apply SetStackEffect with no effects";
+        return;
+    }
+
 	int spellid = effect.begin()->sid; //effects' source ID
 
 	for(ui32 id : stacks)

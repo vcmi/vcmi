@@ -20,12 +20,14 @@
  *
  */
 
+
+
 template<typename Serializer>
-void registerTypesMapObjects(Serializer &s)
+void registerTypesMapObjects1(Serializer &s)
 {
 	//////////////////////////////////////////////////////////////////////////
-	// Adventure map objects (and related)
-	////////////////////////////////////////////////////////////////////////// 
+	// Adventure map objects
+	//////////////////////////////////////////////////////////////////////////
 	s.template registerType<IObjectInterface, CGObjectInstance>();
 
 	// Non-armed objects
@@ -68,8 +70,11 @@ void registerTypesMapObjects(Serializer &s)
 		s.template registerType<CBank, CGPyramid>();
 	s.template registerType<CArmedInstance, CGSeerHut>(); s.template registerType<IQuestObject, CGSeerHut>();
 	s.template registerType<CGSeerHut, CGQuestGuard>();
+}
 
-
+template<typename Serializer>
+void registerTypesMapObjects2(Serializer &s)
+{
 	//Other object-related
 	s.template registerType<IObjectInterface, CGTownBuilding>();
 		s.template registerType<CGTownBuilding, CTownBonus>();
@@ -95,7 +100,7 @@ void registerTypesMapObjects(Serializer &s)
 
 	//////////////////////////////////////////////////////////////////////////
 	// Bonus system
-	////////////////////////////////////////////////////////////////////////// 
+	//////////////////////////////////////////////////////////////////////////
 	//s.template registerType<IPropagator>();
 	s.template registerType<IPropagator, CPropagatorNodeType>();
 
@@ -109,7 +114,7 @@ void registerTypesMapObjects(Serializer &s)
 	s.template registerType<ILimiter, CreatureAlignmentLimiter>();
 	s.template registerType<ILimiter, RankRangeLimiter>();
 	s.template registerType<ILimiter, StackOwnerLimiter>();
-	
+
 //	s.template registerType<CBonusSystemNode>();
 	s.template registerType<CBonusSystemNode, CArtifact>();
 	s.template registerType<CArtifact, CGrowingArtifact>();
@@ -131,7 +136,6 @@ void registerTypesMapObjects(Serializer &s)
 		s.template registerType<CObstacleInstance, MoatObstacle>();
 		s.template registerType<CObstacleInstance, SpellCreatedObstacle>();
 }
-
 template<typename Serializer>
 void registerTypesClientPacks1(Serializer &s)
 {
@@ -295,7 +299,8 @@ void registerTypesPregamePacks(Serializer &s)
 template<typename Serializer>
 void registerTypes(Serializer &s)
 {
-	registerTypesMapObjects(s);
+	registerTypesMapObjects1(s);
+	registerTypesMapObjects2(s);
 	registerTypesClientPacks1(s);
 	registerTypesClientPacks2(s);
 	registerTypesServerPacks(s);

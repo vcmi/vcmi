@@ -115,7 +115,7 @@ void startGameFromFile(const std::string &fname)
 	}
 	catch(std::exception &e)
 	{
-		logGlobal->errorStream() << "Failed to start from the file: " + fname << ". Error: " << e.what() 
+		logGlobal->errorStream() << "Failed to start from the file: " + fname << ". Error: " << e.what()
 			<< " Falling back to main menu.";
 		GH.curInt = CGPreGame::create();
 		return;
@@ -145,7 +145,7 @@ void init()
 
 	loadDLLClasses();
 	const_cast<CGameInfo*>(CGI)->setFromLib();
-	CCS->soundh->initSpellsSounds(CGI->spellh->spells);
+	CCS->soundh->initSpellsSounds(CGI->spellh->objects);
     logGlobal->infoStream()<<"Initializing VCMI_Lib: "<<tmh.getDiff();
 
 	pomtime.getDiff();
@@ -211,7 +211,7 @@ int main(int argc, char** argv)
     std::string executablePath = argv[0];
     std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
     chdir(workDir.c_str());
-    
+
     // Check for updates
     OSX_checkForUpdates();
 
@@ -244,7 +244,7 @@ int main(int argc, char** argv)
 		{
 			po::store(po::parse_command_line(argc, argv, opts), vm);
 		}
-		catch(std::exception &e) 
+		catch(std::exception &e)
 		{
             std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
@@ -322,7 +322,7 @@ int main(int argc, char** argv)
     logGlobal->infoStream() << NAME;
 
 	srand ( time(nullptr) );
-	
+
 
 	const JsonNode& video = settings["video"];
 	const JsonNode& res = video["screenRes"];
@@ -345,6 +345,7 @@ int main(int argc, char** argv)
 			logGlobal->errorStream()<<"Something was wrong: "<< SDL_GetError();
 			exit(-1);
 		}
+		GH.mainFPSmng->init(); //(!)init here AFTER SDL_Init() while using SDL for FPS management
 		atexit(SDL_Quit);
 		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
 		logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
@@ -784,7 +785,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 			SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		SDL_InitSubSystem(SDL_INIT_VIDEO);
 	}
-	
+
 	if((screen = SDL_SetVideoMode(w, h, suggestedBpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == nullptr)
 	{
         logGlobal->errorStream() << "Requested screen resolution is not available (" << w << "x" << h << "x" << suggestedBpp << "bpp)";
@@ -918,9 +919,9 @@ static void listenForEvents()
 			}
 
 			continue;
-		} 
+		}
 		{
-			boost::unique_lock<boost::mutex> lock(eventsM); 
+			boost::unique_lock<boost::mutex> lock(eventsM);
 			events.push(ev);
 		}
 	}

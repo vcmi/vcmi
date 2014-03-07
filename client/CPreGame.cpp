@@ -481,7 +481,7 @@ CGPreGame::CGPreGame()
 
 CGPreGame::~CGPreGame()
 {
-	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim); 
+	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 	disposeGraphics();
 	if(CGP == this)
 		CGP = nullptr;
@@ -512,7 +512,7 @@ void CGPreGame::disposeGraphics()
 
 void CGPreGame::update()
 {
-	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim); 
+	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 	if(CGP != this) //don't update if you are not a main interface
 		return;
 
@@ -3067,7 +3067,7 @@ void CMultiMode::joinTCP()
 {
 	Settings name = settings.write["general"]["playerName"];
 	name->String() = txt->text;
-	GH.pushInt(new CSimpleJoinScreen);	
+	GH.pushInt(new CSimpleJoinScreen);
 }
 
 CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
@@ -3448,7 +3448,7 @@ void CBonusSelection::updateBonusSelection()
 		{
 		case CScenarioTravel::STravelBonus::SPELL:
 			desc = CGI->generaltexth->allTexts[715];
-			boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2]->name);
+			boost::algorithm::replace_first(desc, "%s", CGI->spellh->objects[bonDescs[i].info2]->name);
 			break;
 		case CScenarioTravel::STravelBonus::MONSTER:
 			picNumber = bonDescs[i].info2 + 2;
@@ -3484,7 +3484,7 @@ void CBonusSelection::updateBonusSelection()
 			break;
 		case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 			desc = CGI->generaltexth->allTexts[716];
-			boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2]->name);
+			boost::algorithm::replace_first(desc, "%s", CGI->spellh->objects[bonDescs[i].info2]->name);
 			break;
 		case CScenarioTravel::STravelBonus::PRIMARY_SKILL:
 			{

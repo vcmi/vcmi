@@ -493,11 +493,11 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	}
 	if(battleQuery != queries.topQuery(gs->curB->sides[0].color))
 		complain("Player " + boost::lexical_cast<std::string>(gs->curB->sides[0].color) + " although in battle has no battle query at the top!");
-		
+
 	battleQuery->result = *battleResult.data;
 
 	//Check how many battle queries were created (number of players blocked by battle)
-	const int queriedPlayers = battleQuery ? boost::count(queries.allQueries(), battleQuery) : 0; 
+	const int queriedPlayers = battleQuery ? boost::count(queries.allQueries(), battleQuery) : 0;
 	finishingBattle = make_unique<FinishingBattleHelper>(battleQuery, gs->initialOpts->mode == StartInfo::DUEL, queriedPlayers);
 
 
@@ -651,7 +651,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		sendAndApply(&iw);
 		sendAndApply(&cs);
 	}
-	
+
 	cab1.takeFromArmy(this);
 	cab2.takeFromArmy(this); //take casualties after battle is deleted
 
@@ -691,7 +691,7 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 		return;
 
 	//TODO consider if we really want it to work like above. ATM each player as unblocked as soon as possible
-	// but the battle consequences are applied after final player is unblocked. Hard to abuse... 
+	// but the battle consequences are applied after final player is unblocked. Hard to abuse...
 	// Still, it looks like a hole.
 
 	// Necromancy if applicable.
@@ -704,8 +704,8 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 	{
 		finishingBattle->winnerHero->showNecromancyDialog(raisedStack);
 		addToSlot(StackLocation(finishingBattle->winnerHero, necroSlot), raisedStack.type, raisedStack.count);
-	}	
-	
+	}
+
 	BattleResultsApplied resultsApplied;
 	resultsApplied.player1 = finishingBattle->victor;
 	resultsApplied.player2 = finishingBattle->loser;
@@ -749,7 +749,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	bat.bsa.clear();
 	bat.stackAttacking = att->ID;
 	const int attackerLuck = att->LuckVal();
-	
+
 	auto sideHeroBlocksLuck = [](const SideInBattle &side){ return NBonus::hasOfType(side.hero, Bonus::BLOCK_LUCK); };
 
 	if(!vstd::contains_if(gs->curB->sides, sideHeroBlocksLuck))
@@ -802,7 +802,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	if (bonus && (bat.shot())) //TODO: make it work in meele?
 	{
 		bat.bsa.front().flags |= BattleStackAttacked::EFFECT;
-		bat.bsa.front().effect = VLC->spellh->spells.at(bonus->subtype)->mainEffectAnim; //hopefully it does not interfere with any other effect?
+		bat.bsa.front().effect = VLC->spellh->objects.at(bonus->subtype)->mainEffectAnim; //hopefully it does not interfere with any other effect?
 
 		std::set<const CStack*> attackedCreatures = gs->curB->getAffectedCreatures(SpellID(bonus->subtype).toSpell(), bonus->val, att->owner, targetHex);
 		//TODO: get exact attacked hex for defender
@@ -1712,7 +1712,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, Pl
 		this->getTilesInRange(tmh.fowRevealed, h->getSightCenter()+(tmh.end-tmh.start), h->getSightRadious(), h->tempOwner, 1);
 	};
 
-	auto doMove = [&](TryMoveHero::EResult result, EGuardLook lookForGuards, 
+	auto doMove = [&](TryMoveHero::EResult result, EGuardLook lookForGuards,
 								EVisitDest visitDest, ELEaveTile leavingTile) -> bool
 	{
 		LOG_TRACE_PARAMS(logGlobal, "Hero %s starts movement from %s to %s", h->name % tmh.start % tmh.end);
@@ -1732,7 +1732,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, Pl
 
 			const TerrainTile &guardTile = *gs->getTile(guardPos);
 			objectVisited(guardTile.visitableObjects.back(), h);
-			
+
 			moveQuery->visitDestAfterVictory = visitDest==VISIT_DEST;
 		}
 		else if(visitDest == VISIT_DEST)
@@ -1794,8 +1794,8 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, Pl
 
 	//still here? it is standard movement!
 	{
-		tmh.movePoints = h->movement >= cost 
-						? h->movement - cost 
+		tmh.movePoints = h->movement >= cost
+						? h->movement - cost
 						: 0;
 
 		if(blockingVisit())
@@ -1982,8 +1982,8 @@ void CGameHandler::removeArtifact(const ArtifactLocation &al)
 	ea.al = al;
 	sendAndApply(&ea);
 }
-void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, 
-								const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, 
+void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
+								const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank,
 								const CGTownInstance *town) //use hero=nullptr for no hero
 {
 	engageIntoBattle(army1->tempOwner);
@@ -3267,7 +3267,7 @@ static EndAction end_action;
 bool CGameHandler::makeBattleAction( BattleAction &ba )
 {
 	bool ok = true;
-	
+
 	const CStack *stack = battleGetStackByID(ba.stackNumber); //may be nullptr if action is not about stack
 	const CStack *destinationStack = ba.actionType == Battle::WALK_AND_ATTACK ? gs->curB->battleGetStackByPos(ba.additionalInfo)
 								   : ba.actionType == Battle::SHOOT			  ? gs->curB->battleGetStackByPos(ba.destinationTile)
@@ -3276,7 +3276,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 	logGlobal->traceStream() << boost::format(
 		"Making action: type=%d; side=%d; stack=%s; dst=%s; additionalInfo=%d; stackAtDst=%s")
-		% ba.actionType % (int)ba.side % (stack ? stack->getName() : std::string("none")) 
+		% ba.actionType % (int)ba.side % (stack ? stack->getName() : std::string("none"))
 		% ba.destinationTile % ba.additionalInfo % (destinationStack ? destinationStack->getName() : std::string("none"));
 
 	switch(ba.actionType)
@@ -3446,7 +3446,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				{
 					BattleAttack bat;
 					prepareAttack(bat, stack, destinationStack, (i ? 0 : distance),  ba.additionalInfo); //no distance travelled on second attack
-					//prepareAttack(bat, stack, stackAtEnd, 0, ba.additionalInfo); 
+					//prepareAttack(bat, stack, stackAtEnd, 0, ba.additionalInfo);
 					handleAttackBeforeCasting(bat); //only before first attack
 					sendAndApply(&bat);
 					handleAfterAttackCasting(bat);
@@ -3819,7 +3819,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 
 		//give all spells
 		cs.learn = 1;
-		for(auto spell : VLC->spellh->spells)
+		for(auto spell : VLC->spellh->objects)
 		{
 			if(!spell->creatureAbility)
 				cs.spells.insert(spell->id);
@@ -4060,7 +4060,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 			}
 		}
 	}
-	
+
 	for (auto cre : attackedCres)
 	{
 		sc.affectedCres.insert (cre->ID);
@@ -4354,7 +4354,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 			int percentBonus = caster ? caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spellID.toEnum()) : 0;
 
 			bsa.amount = usedSpellPower
-				* SpellID(spellID).toSpell()->powers.at(spellLvl)
+				* SpellID(spellID).toSpell()->getPower(spellLvl)
 				* (100 + percentBonus) / 100.0; //new feature - percentage bonus
 			if(bsa.amount)
 				sendAndApply(&bsa);
@@ -4488,7 +4488,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 	case Battle::HERO_SPELL:
 		{
 			COMPLAIN_RET_FALSE_IF(ba.side > 1, "Side must be 0 or 1!");
-				
+
 
 			const CGHeroInstance *h = gs->curB->battleGetFightingHero(ba.side);
 			const CGHeroInstance *secondHero = gs->curB->battleGetFightingHero(!ba.side);
@@ -4497,7 +4497,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
                 logGlobal->warnStream() << "Wrong caster!";
 				return false;
 			}
-			if(ba.additionalInfo >= VLC->spellh->spells.size())
+			if(ba.additionalInfo >= VLC->spellh->objects.size())
 			{
                 logGlobal->warnStream() << "Wrong spell id (" << ba.additionalInfo << ")!";
 				return false;
@@ -4920,7 +4920,7 @@ void CGameHandler::showGarrisonDialog( ObjectInstanceID upobj, ObjectInstanceID 
 	//PlayerColor player = getOwner(hid);
 	auto upperArmy = dynamic_cast<const CArmedInstance*>(getObj(upobj));
 	auto lowerArmy = dynamic_cast<const CArmedInstance*>(getObj(hid));
-	
+
 	assert(lowerArmy);
 	assert(upperArmy);
 
@@ -5007,7 +5007,7 @@ void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInst
 
 	obj->onHeroVisit(h);
 
-	queries.popIfTop(visitQuery); //visit ends here if no queries were created 
+	queries.popIfTop(visitQuery); //visit ends here if no queries were created
 }
 
 void CGameHandler::objectVisitEnded(const CObjectVisitQuery &query)
@@ -5223,7 +5223,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			checkVictoryLossConditions(playerColors);
 		}
 
-		auto playerInfo = gs->getPlayer(gs->currentPlayer, false);  
+		auto playerInfo = gs->getPlayer(gs->currentPlayer, false);
 		// If we are called before the actual game start, there might be no current player
 		if(playerInfo && playerInfo->status != EPlayerStatus::INGAME)
 		{
@@ -5433,7 +5433,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int
 	case SpellID::SUMMON_BOAT:
 		{
 			//check if spell works at all
-			if(rand() % 100 >= s->powers.at(schoolLevel)) //power is % chance of success
+			if(rand() % 100 >= s->getPower(schoolLevel)) //power is % chance of success
 			{
 				InfoWindow iw;
 				iw.player = h->tempOwner;
@@ -5495,7 +5495,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int
 	case SpellID::SCUTTLE_BOAT:
 		{
 			//check if spell works at all
-			if(rand() % 100 >= s->powers.at(schoolLevel)) //power is % chance of success
+			if(rand() % 100 >= s->getPower(schoolLevel)) //power is % chance of success
 			{
 				InfoWindow iw;
 				iw.player = h->tempOwner;
@@ -5526,7 +5526,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int
 				COMPLAIN_RET("Destination tile doesn't exist!");
 			if(!h->movement)
 				COMPLAIN_RET("Hero needs movement points to cast Dimension Door!");
-			if(h->getBonusesCount(Bonus::SPELL_EFFECT, SpellID::DIMENSION_DOOR) >= s->powers.at(schoolLevel)) //limit casts per turn
+			if(h->getBonusesCount(Bonus::SPELL_EFFECT, SpellID::DIMENSION_DOOR) >= s->getPower(schoolLevel)) //limit casts per turn
 			{
 				InfoWindow iw;
 				iw.player = h->tempOwner;
@@ -5890,7 +5890,7 @@ void CGameHandler::runBattle()
 		std::set <const CStack*> stacksToRemove;
 		for (auto stack : curB.stacks)
 		{
-			if (stack->idDeadClone()) 
+			if (stack->idDeadClone())
 				stacksToRemove.insert(stack);
 		}
 		for (auto stack : stacksToRemove)
@@ -6276,7 +6276,7 @@ void CGameHandler::duelFinished()
 	auto getName = [&](int i){ return si->getIthPlayersSettings(gs->curB->sides.at(i).color).name; };
 
 	int casualtiesPoints = 0;
-	logGlobal->debugStream() << boost::format("Winner side %d\nWinner casualties:") 
+	logGlobal->debugStream() << boost::format("Winner side %d\nWinner casualties:")
 		% (int)battleResult.data->winner;
 
 	for(auto & elem : battleResult.data->casualties[battleResult.data->winner])
@@ -6295,7 +6295,7 @@ void CGameHandler::duelFinished()
 	if(out)
 	{
 		out << boost::format("%s\t%s\t%s\t%d\t%d\t%d\t%s\n") % si->mapname % getName(0) % getName(1)
-			% battleResult.data->winner % battleResult.data->result % casualtiesPoints 
+			% battleResult.data->winner % battleResult.data->result % casualtiesPoints
 			% asctime(localtime(&timeNow));
 	}
 	else

@@ -1,0 +1,206 @@
+{
+
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+
+	"title" : "VCMI spell format",
+	"description" : "Format used to define new spells in VCMI",
+
+
+        "definitions" : {
+            "flags" :{
+                "type" : "object",
+                "additionalProperties" : {
+	            "type":"boolean"
+                }
+            },
+            "levelInfo":{
+                    "type": "object",
+                    "required":["range","description","cost","power","aiValue","range"],
+
+                    "additionalProperties" : false,
+		    "properties":{
+                            "description":{
+                                                 "type": "string",
+                                                 "description": "Localizable description. Use {xxx} for formatting"
+                            },
+                            "cost":{
+                                                 "type": "number",
+                                                 "description":"Cost in mana points"
+                            },
+                            "power":{
+                                                 "type": "number",
+                            },
+                            "aiValue":{
+                                                 "type": "number",
+                            },
+
+                            "range":{
+                                                 "type": "string",
+                                                 "description": "spell range description in SRSL"
+                            },
+                            "effects":{
+                                                 "type": "object",
+                                                 "description": "Timed effects",
+                                                 "additionalProperties" : {
+                                                     "$ref" : "vcmi:bonus"
+                                                 }
+                            }
+
+                    }
+            }
+        },
+
+        "required" : ["type", "name", "school", "level", "power","gainChance","flags","levels"],
+        "additionalProperties" : false,
+
+        "properties": {
+                "index":{
+                        "type": "number",
+                        "description": "numeric id of spell required only for original spells, prohibited for new spells"
+                },
+                "type":{
+                        "type": "string",
+                        "enum": ["adventure", "combat", "ability"],
+                        "description":"Spell type"
+                },
+                "name":{
+                        "type": "string",
+                        "description": "Localizable name"
+
+                },
+                "school":{
+                        "type": "object",
+                        "description": "Spell schools",
+                        "additionalProperties": false,
+
+                        "properties":{
+
+                                "air":{"type": "boolean"},
+                                "fire":{"type": "boolean"},
+                                "earth":{"type": "boolean"},
+                                "water":{"type": "boolean"}
+                        }
+
+                },
+                "level":{
+                        "type": "number",
+                        "description": "Spell level",
+                        "minimum" : 0,
+                        "maximum" : 5
+                },
+
+                "power":{
+                        "type": "number",
+                        "description": "Base power",
+                },
+
+                "defaultGainChance":{
+                        "type": "nomber",
+                        "description": "Gain chance by default for all factions"
+
+                },
+
+                "gainChance":{
+                        "type": "object",
+                        "description": "Chance in % to gain for faction. NOTE: this field is merged with faction config",
+                        "additionalProperties" : {
+			     "type": "number",
+			     "minimum" : 0
+		        }
+                },
+                "targetType":{
+                          "type": "string",
+                          "enum": ["NO_TARGET","CREATURE","OBSTACLE","CREATURE_EXPERT_MASSIVE"]
+                },
+                "anim":{
+                        "type": "number",
+                        "description": "Main effect animation (AC format), -1 - none",
+                        "minimum": -1
+                },
+                "counters":{
+                         "$ref" : "#/definitions/flags",
+                         "description": "Flags structure ids of countering spells"
+                },
+                "flags":{
+                        "type": "object",
+                        "description": "Various flags",
+                        "additionalProperties" : false,
+                        "properties":{
+                                "indifferent": {
+                                        "type":"boolean",
+                                        "description": "Spell is indifferent for target"
+                                },
+                                "negative": {
+                                        "type":"boolean",
+                                        "description": "Spell is negative for target"
+                                },
+                                "positive": {
+                                        "type":"boolean",
+                                        "description": "Spell is positive for target"
+                                },
+                                "damage": {
+                                        "type":"boolean",
+                                        "description": "Spell does damage (direct or indirect)"
+                                },
+                                "offensive": {
+                                        "type":"boolean",
+                                        "description": "Spell does direct damage (implicitly sets damage and negative)"
+                                },
+                                "rising":{
+                                        "type":"boolean",
+                                        "description": "Rising spell (implicitly sets positive)"
+                                }
+                        }
+                },
+                "immunity":{
+                        "$ref" : "#/definitions/flags",
+                         "description": "flags structure of bonus names, any one of these bonus grants immunity"
+                },
+                "absoluteImmunity":{
+                         "$ref" : "#/definitions/flags",
+                         "description": "flags structure of bonus names. Any one of these bonus grants immunity, cant be negated"
+                },
+                "limit":{
+                         "$ref" : "#/definitions/flags",
+                         "description": "flags structure of bonus names, presence of all bonuses required to be affected by"
+                },
+
+                "graphics":{
+                         "type": "object",
+                         "additionalProperties" : false,
+                         "properties":{
+                                 "iconImmune":{
+                                      "type":"string",
+                                      "description":"Resourse path of icon for SPELL_IMMUNITY bonus (relative to DATA or SPRITES)",
+                                      "format" : "imageFile"
+                                 }
+                         }
+
+                },
+
+                "levels":{
+                         "type": "object",
+                         "additionalProperties" : false,
+                         "required" : ["none", "basic", "advanced", "expert"],
+
+                         "properties":{
+                                 "none":{
+                                      "$ref" : "#/definitions/levelInfo"
+                                 },
+                                 "basic":{
+                                      "$ref" : "#/definitions/levelInfo"
+                                 },
+                                 "advanced":{
+                                      "$ref" : "#/definitions/levelInfo"
+                                 },
+                                 "expert":{
+                                      "$ref" : "#/definitions/levelInfo"
+                                 }
+                         }
+
+
+
+                }
+        }
+}

@@ -1,0 +1,57 @@
+{
+
+        "core:implosion" :
+        {
+                "graphics" : {
+			"iconImmune" : "ZVS/LIB1.RES/E_SPIMP"
+		}
+        },
+
+        "core:meteorShower" : {
+		"graphics" : {
+			"iconImmune" : "ZVS/LIB1.RES/E_SPMET"
+		}
+	},
+	"core:armageddon" : {
+
+		"graphics" : {
+			"iconImmune" : "ZVS/LIB1.RES/E_SPARM"
+		}
+
+	},
+	"core:dispel" : {
+
+		"graphics" : {
+			"iconImmune" : "ZVS/LIB1.RES/E_SPDISP"
+		}
+
+	},
+        "core:slow" : {
+		"graphics" : {
+			"iconImmune" : "ZVS/LIB1.RES/E_SPSLOW"
+		}
+        },
+
+        "core:berserk" : {
+		"graphics" : {
+			"iconImmune" : "ZVS/LIB1.RES/E_SPBERS"
+		}
+        },
+	"core:hypnotize" : {
+                "graphics" : {
+			"iconImmune" : "ZVS/LIB1.RES/E_SPHYPN"
+		}
+        },
+
+        "core:blind" : {
+		"graphics" : {
+			"iconImmune" : "ZVS/LIB1.RES/E_SPBLIND"
+		}
+        },
+
+        "core:dispelHelpful" : {
+		"graphics" : {
+			"iconImmune" : "ZVS/LIB1.RES/E_SPDISB"
+		}
+        }
+}

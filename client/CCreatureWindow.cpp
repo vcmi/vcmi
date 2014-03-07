@@ -240,7 +240,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				else
 				{
 					selectableSkill->pos = Rect (95, 256, 55, 55); //TODO: scroll
-					const Bonus *b = CGI->creh->skillRequirements[option-100].first; 
+					const Bonus *b = CGI->creh->skillRequirements[option-100].first;
 					bonusItems.push_back (new CBonusItem (genRect(0, 0, 251, 57), stack->bonusToString(b, false), stack->bonusToString(b, true), stack->bonusToGraphics(b)));
 					selectableBonuses.push_back (selectableSkill); //insert these before other bonuses
 				}
@@ -274,19 +274,19 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 	//handle Magic resistance separately :/
 	const IBonusBearer *temp = stack;
-	
+
 	if (battleStack)
 	{
 		temp = battleStack;
 	}
 
-	int magicResistance = temp->magicResistance(); 
-	
+	int magicResistance = temp->magicResistance();
+
 	if (magicResistance)
 	{
 		Bonus b;
 		b.type = Bonus::MAGIC_RESISTANCE;
-		
+
 		text = VLC->getBth()->bonusToString(&b,temp,false);
 		const std::string description = VLC->getBth()->bonusToString(&b,temp,true);
 		bonusItems.push_back (new CBonusItem(genRect(0, 0, 251, 57), text, description, stack->bonusToGraphics(&b)));
@@ -423,7 +423,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 			if (effect < graphics->spellEffectsPics->ourImages.size()) //not all effects have graphics (for eg. Acid Breath)
 			{
 				spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
-				boost::replace_first (spellText, "%s", CGI->spellh->spells[effect]->name);
+				boost::replace_first (spellText, "%s", CGI->spellh->objects[effect]->name);
 				int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
 				boost::replace_first (spellText, "%d", boost::lexical_cast<std::string>(duration));
 
@@ -558,7 +558,7 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 	if (upgradeOptions.size() && (type == COMMANDER_LEVEL_UP && upgradeOptions[selectedOption] >= 100)) //add frame to selected skill
 	{
 		int index = selectedOption - selectableSkills.size(); //this is screwed
-		CSDL_Ext::drawBorder(to, Rect::around(selectableBonuses[index]->pos), int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b)); 
+		CSDL_Ext::drawBorder(to, Rect::around(selectableBonuses[index]->pos), int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b));
 	}
 }
 
@@ -633,7 +633,7 @@ void CCreatureWindow::setArt(const CArtifactInstance *art)
 	}
 	else
 		artifactImage = nullptr;
-	
+
 	redraw();
 }
 
@@ -664,7 +664,7 @@ void CCreatureWindow::artifactRemoved (const ArtifactLocation &artLoc)
 	//align artifacts to remove holes
 	for (auto al : stack->artifactsWorn)
 	{
-		ArtifactPosition freeSlot = al.second.artifact->firstAvailableSlot(stack); 
+		ArtifactPosition freeSlot = al.second.artifact->firstAvailableSlot(stack);
 		if (freeSlot < al.first)
 			LOCPLINT->cb->swapArtifacts (ArtifactLocation(stack, al.first), ArtifactLocation(stack, freeSlot));
 	}

@@ -977,7 +977,7 @@ std::string CComponent::getDescription()
 	case creature:   return "";
 	case artifact:   return CGI->arth->artifacts[subtype]->Description();
 	case experience: return CGI->generaltexth->allTexts[241];
-	case spell:      return CGI->spellh->spells[subtype]->descriptions[val];
+	case spell:      return CGI->spellh->objects[subtype]->descriptions[val];
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
 	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
 	case building:   return CGI->townh->factions[subtype]->town->buildings[BuildingID(val)]->Description();
@@ -1019,7 +1019,7 @@ std::string CComponent::getSubtitleInternal()
 			else
 				return boost::lexical_cast<std::string>(val); //amount of experience OR level required for seer hut;
 		}
-	case spell:      return CGI->spellh->spells[subtype]->name;
+	case spell:      return CGI->spellh->objects[subtype]->name;
 	case morale:     return "";
 	case luck:       return "";
 	case building:   return CGI->townh->factions[subtype]->town->buildings[BuildingID(val)]->Name();
@@ -4457,7 +4457,7 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 			if(spellID >= 0)
 			{
 				if(nameStart != std::string::npos  &&  nameEnd != std::string::npos)
-					text = text.replace(nameStart, nameEnd - nameStart + 1, CGI->spellh->spells[spellID]->name);
+					text = text.replace(nameStart, nameEnd - nameStart + 1, CGI->spellh->objects[spellID]->name);
 
 				//add spell component info (used to provide a pic in r-click popup)
 				baseType = CComponent::spell;

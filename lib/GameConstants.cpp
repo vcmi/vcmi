@@ -87,7 +87,7 @@ CCreature * CreatureID::toCreature() const
 
 CSpell * SpellID::toSpell() const
 {
-	return VLC->spellh->spells[*this];
+	return VLC->spellh->objects[*this];
 }
 
 //template std::ostream & operator << <ArtifactInstanceID>(std::ostream & os, BaseForID<ArtifactInstanceID> id);

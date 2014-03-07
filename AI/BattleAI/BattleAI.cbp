@@ -44,7 +44,7 @@
 		<Linker>
 			<Add option="-lboost_system$(#boost.libsuffix)" />
 			<Add option="-lVCMI_lib" />
-			<Add directory="$(#boost.lib)" />
+			<Add directory="$(#boost.lib32)" />
 			<Add directory="../.." />
 		</Linker>
 		<Unit filename="BattleAI.cpp" />

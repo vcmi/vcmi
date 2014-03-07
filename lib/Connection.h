@@ -28,7 +28,7 @@
 #include "mapping/CCampaignHandler.h" //for CCampaignState
 #include "rmg/CMapGenerator.h" // for CMapGenOptions
 
-const ui32 version = 745;
+const ui32 version = 746;
 const ui32 minSupportedVersion = version;
 
 class CConnection;
@@ -120,11 +120,11 @@ struct PointerCaster : IPointerCaster
 		}
 	}
 
-	virtual boost::any castSharedPtr(const boost::any &ptr) const override 
+	virtual boost::any castSharedPtr(const boost::any &ptr) const override
 	{
 		return castSmartPtr<std::shared_ptr<From>>(ptr);
 	}
-	virtual boost::any castWeakPtr(const boost::any &ptr) const override 
+	virtual boost::any castWeakPtr(const boost::any &ptr) const override
 	{
 		auto from = boost::any_cast<std::weak_ptr<From>>(ptr);
 		return castSmartPtr<std::shared_ptr<From>>(from.lock());
@@ -155,7 +155,7 @@ private:
 	{
 		// This type is non-copyable.
 		// Unfortunately on Windows it is required for DLL_EXPORT-ed type to provide copy c-tor, so we can't =delete it.
-		assert(0); 
+		assert(0);
 	}
 	CTypeList &operator=(CTypeList &)
 	{
@@ -170,7 +170,7 @@ public:
 	TypeInfoPtr registerType(const std::type_info *type);
 
 
-	template <typename Base, typename Derived> 
+	template <typename Base, typename Derived>
 	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
 	{
 		static_assert(std::is_base_of<Base, Derived>::value, "First registerType template parameter needs to ba a base class of the second one.");
@@ -189,12 +189,12 @@ public:
 	ui16 getTypeID(const std::type_info *type);
 	TypeInfoPtr getTypeDescriptor(const std::type_info *type, bool throws = true); //if not throws, failure returns nullptr
 
-	template <typename T> 
+	template <typename T>
 	ui16 getTypeID(const T * t = nullptr)
 	{
 		return getTypeID(getTypeInfo(t));
 	}
-	
+
 
 	// Returns sequence of types starting from "from" and ending on "to". Every next type is derived from the previous.
 	// Throws if there is no link registered.
@@ -1301,7 +1301,7 @@ public:
 		typedef typename boost::remove_const<T>::type NonConstT;
 		NonConstT *internalPtr;
 		*this >> internalPtr;
-		
+
 		void *internalPtrDerived = typeList.castToMostDerived(internalPtr);
 
 		if(internalPtr)
@@ -1309,7 +1309,7 @@ public:
 			auto itr = loadedSharedPointers.find(internalPtrDerived);
 			if(itr != loadedSharedPointers.end())
 			{
-				// This pointers is already loaded. The "data" needs to be pointed to it, 
+				// This pointers is already loaded. The "data" needs to be pointed to it,
 				// so their shared state is actually shared.
 				try
 				{
@@ -1329,8 +1329,8 @@ public:
 				}
 				catch(std::exception &e)
 				{
-					logGlobal->errorStream() << e.what(); 
-					logGlobal->errorStream() << boost::format("Failed to cast stored shared ptr. Real type: %s. Needed type %s. FIXME FIXME FIXME") 
+					logGlobal->errorStream() << e.what();
+					logGlobal->errorStream() << boost::format("Failed to cast stored shared ptr. Real type: %s. Needed type %s. FIXME FIXME FIXME")
 						% itr->second.type().name() % typeid(std::shared_ptr<T>).name();
 					//TODO scenario with inheritance -> we can have stored ptr to base and load ptr to derived (or vice versa)
 					assert(0);
@@ -1549,7 +1549,7 @@ class DLL_LINKAGE CLoadIntegrityValidator : public CISer<CLoadIntegrityValidator
 public:
 	unique_ptr<CLoadFile> primaryFile, controlFile;
 	bool foundDesync;
-	
+
 	CLoadIntegrityValidator(const std::string &primaryFileName, const std::string &controlFileName, int minimalVersion = version); //throws!
 
 	int read( void * data, unsigned size); //throws!
@@ -1661,7 +1661,7 @@ public:
 		}
 	}
 
-	template<typename Base, typename Derived> 
+	template<typename Base, typename Derived>
 	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
 	{
 		typeList.registerType(b, d);

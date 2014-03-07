@@ -112,7 +112,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		print("activeStack called for " + stack->nodeName());
 		if(stack->type->idNumber == CreatureID::CATAPULT)
 			return useCatapult(stack);
-		
+
 		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->hasBonusOfType(Bonus::HEALER))
 		{
 			auto healingTargets = cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
@@ -343,7 +343,7 @@ SpellTypes spellType(const CSpell *spell)
 	if (spell->isOffensiveSpell())
 		return OFFENSIVE_SPELL;
 	if (spell->hasEffects())
-		return TIMED_EFFECT;	
+		return TIMED_EFFECT;
 	return OTHER;
 
 }
@@ -384,13 +384,13 @@ struct CurrentOffensivePotential
 };
 
 
-// 
+//
 // //set has its own order, so remove_if won't work. TODO - reuse for map
 // template<typename Elem, typename Predicate>
 // void erase_if(std::set<Elem> &setContainer, Predicate pred)
 // {
 // 	auto itr = setContainer.begin();
-// 	auto endItr = setContainer.end(); 
+// 	auto endItr = setContainer.end();
 // 	while(itr != endItr)
 // 	{
 // 		auto tmpItr = itr++;
@@ -409,14 +409,14 @@ void CBattleAI::attemptCastingSpell()
 
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
-	vstd::copy_if(VLC->spellh->spells, std::back_inserter(possibleSpells), [this] (const CSpell *s) -> bool
-	{ 
-		auto problem = cbc->battleCanCastThisSpell(s); 
-		return problem == ESpellCastProblem::OK; 
+	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [this] (const CSpell *s) -> bool
+	{
+		auto problem = cbc->battleCanCastThisSpell(s);
+		return problem == ESpellCastProblem::OK;
 	});
 	LOGFL("I can cast %d spells.", possibleSpells.size());
 
-	vstd::erase_if(possibleSpells, [](const CSpell *s) 
+	vstd::erase_if(possibleSpells, [](const CSpell *s)
 	{return spellType(s) == OTHER; });
 	LOGFL("I know about workings of %d of them.", possibleSpells.size());
 
@@ -606,7 +606,7 @@ ThreatMap::ThreatMap(const CStack *Endangered) : endangered(Endangered)
 	}
 }
 
-const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= nullptr*/, const std::string &cachingStr /*= ""*/) const 
+const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= nullptr*/, const std::string &cachingStr /*= ""*/) const
 {
 	TBonusListPtr ret = make_shared<BonusList>();
 	const TBonusListPtr originalList = stack->getAllBonuses(selector, limit, root, cachingStr);
@@ -658,7 +658,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo &AttackInfo
 
 		curBai.attackerCount = attacker->count - attacker->countKilledByAttack(ap.damageReceived).first;
 		curBai.defenderCount = enemy->count - enemy->countKilledByAttack(ap.damageDealt).first;
-		if(!curBai.attackerCount) 
+		if(!curBai.attackerCount)
 			break;
 		//TODO what about defender? should we break? but in pessimistic scenario defender might be alive
 	}
@@ -689,7 +689,7 @@ PotentialTargets::PotentialTargets(const CStack *attacker, const HypotheticChang
 			auto bai = BattleAttackInfo(attacker, enemy, shooting);
 			bai.attackerBonuses = getValOr(state.bonusesOfStacks, bai.attacker, bai.attacker);
 			bai.defenderBonuses = getValOr(state.bonusesOfStacks, bai.defender, bai.defender);
-			
+
 			if(hex.isValid())
 			{
 				assert(dists[hex] <= attacker->Speed());

@@ -95,9 +95,9 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 	animsAreDisplayed.setn(true);
 }
 
-CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, 
-								   const CGHeroInstance *hero1, const CGHeroInstance *hero2, 
-								   const SDL_Rect & myRect, 
+CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2,
+								   const CGHeroInstance *hero1, const CGHeroInstance *hero2,
+								   const SDL_Rect & myRect,
 								   shared_ptr<CPlayerInterface> att, shared_ptr<CPlayerInterface> defen)
 	: background(nullptr), queue(nullptr), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
       activeStack(nullptr), mouseHoveredStack(nullptr), stackToActivate(nullptr), selectedStack(nullptr), previouslyHoveredHex(-1),
@@ -110,7 +110,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	if(!curInt)
 	{
 		//May happen when we are defending during network MP game -> attacker interface is just not present
-		curInt = defenderInt; 
+		curInt = defenderInt;
 	}
 
 	animsAreDisplayed.setn(false);
@@ -463,7 +463,7 @@ CBattleInterface::~CBattleInterface()
 	delete bigForceField[1];
 
 	delete siegeH;
-	
+
 	//TODO: play AI tracks if battle was during AI turn
 	//if (!curInt->makingTurn)
 	//CCS->musich->playMusicFromSet(CCS->musich->aiMusics, -1);
@@ -865,7 +865,7 @@ void CBattleInterface::bAutofightf()
 {
 	if(spellDestSelectMode) //we are casting a spell
 		return;
-	
+
 	//Stop auto-fight mode
 	if(curInt->isAutoFightOn)
 	{
@@ -875,7 +875,7 @@ void CBattleInterface::bAutofightf()
 	}
 	else
 	{
-		curInt->isAutoFightOn = true;	
+		curInt->isAutoFightOn = true;
 		blockUI(true);
 
 		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
@@ -911,7 +911,7 @@ void CBattleInterface::bSpellf()
 		auto blockingBonus = currentHero()->getBonusLocalFirst(Selector::type(Bonus::BLOCK_ALL_MAGIC));
 		if(!blockingBonus)
 			return;;
-		
+
 		if(blockingBonus->source == Bonus::ARTIFACT)
 		{
 			const int artID = blockingBonus->sid;
@@ -920,7 +920,7 @@ void CBattleInterface::bSpellf()
 			std::string heroName = myHero->hasArt(artID) ? myHero->name : enemyHero().name;
 
 			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
-			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[683]) 
+			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[683])
 										% heroName % CGI->arth->artifacts[artID]->Name()));
 		}
 	}
@@ -1004,7 +1004,7 @@ void CBattleInterface::newStack(const CStack * stack)
 	creAnims[stack->ID]->pos.y = coords.y;
 	creAnims[stack->ID]->pos.w = creAnims[stack->ID]->getWidth();
 	creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
-	
+
 }
 
 void CBattleInterface::stackRemoved(int stackID)
@@ -1226,7 +1226,7 @@ void CBattleInterface::displayBattleFinished()
 
 void CBattleInterface::spellCast( const BattleSpellCast * sc )
 {
-	const CSpell &spell = *CGI->spellh->spells[sc->id];
+	const CSpell &spell = *CGI->spellh->objects[sc->id];
 
 	std::vector< std::string > anims; //for magic arrow and ice bolt
 
@@ -1342,7 +1342,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		if(sc->castedByHero)
 		{
 			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetHeroInfo(sc->side).name);
-			boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name); //spell name
+			boost::algorithm::replace_first(text, "%s", CGI->spellh->objects[sc->id]->name); //spell name
 			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl ); //target
 		}
 		else
@@ -1452,7 +1452,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			}
 		}
 		if (!customSpell && !sc->dmgToDisplay)
-			boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name); //simple spell name
+			boost::algorithm::replace_first(text, "%s", CGI->spellh->objects[sc->id]->name); //simple spell name
 		if (text.size())
 			console->addText(text);
 	}
@@ -1472,13 +1472,13 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			//TODO artifacts that cast spell; scripts some day
 			boost::algorithm::replace_first(text, "%s", "Something");
 		}
-		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name);
+		boost::algorithm::replace_first(text, "%s", CGI->spellh->objects[sc->id]->name);
 		console->addText(text);
 	}
 	if(sc->dmgToDisplay && !customSpell)
 	{
 		std::string dmgInfo = CGI->generaltexth->allTexts[376];
-		boost::algorithm::replace_first(dmgInfo, "%s", CGI->spellh->spells[sc->id]->name); //simple spell name
+		boost::algorithm::replace_first(dmgInfo, "%s", CGI->spellh->objects[sc->id]->name); //simple spell name
 		boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
 		console->addText(dmgInfo); //todo: casualties (?)
 	}
@@ -1500,8 +1500,8 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 	{
 		for(auto & elem : sse.stacks)
 		{
-			bool areaEffect(CGI->spellh->spells[effID]->getTargetType() == CSpell::ETargetType::NO_TARGET);
-			displayEffect(CGI->spellh->spells[effID]->mainEffectAnim, curInt->cb->battleGetStackByID(elem)->position, areaEffect);
+			bool areaEffect(CGI->spellh->objects[effID]->getTargetType() == CSpell::ETargetType::NO_TARGET);
+			displayEffect(CGI->spellh->objects[effID]->mainEffectAnim, curInt->cb->battleGetStackByID(elem)->position, areaEffect);
 		}
 	}
 	else if (sse.stacks.size() == 1 && sse.effect.size() == 2)
@@ -1545,7 +1545,7 @@ void CBattleInterface::castThisSpell(int spellID)
 	//choosing possible tragets
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
 	assert(castingHero); // code below assumes non-null hero
-	sp = CGI->spellh->spells[spellID];
+	sp = CGI->spellh->objects[spellID];
 	spellSelMode = ANY_LOCATION;
 	if(sp->getTargetType() == CSpell::CREATURE)
 	{
@@ -1755,7 +1755,7 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 				BonusList spellBonuses = *stack->getBonuses (Selector::type(Bonus::SPELLCASTER));
 				for (Bonus * spellBonus : spellBonuses)
 				{
-					spell = CGI->spellh->spells[spellBonus->subtype];
+					spell = CGI->spellh->objects[spellBonus->subtype];
 					switch (spellBonus->subtype)
 					{
 						case SpellID::REMOVE_OBSTACLE:
@@ -1856,7 +1856,7 @@ void CBattleInterface::endAction(const BattleAction* action)
 	queue->update();
 
 	if(tacticsMode) //stack ended movement in tactics phase -> select the next one
-		bTacticNextStack(stack); 
+		bTacticNextStack(stack);
 
 	if( action->actionType == Battle::HERO_SPELL) //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
 		redrawBackgroundWithHexes(activeStack);
@@ -2096,10 +2096,10 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	if(!myTurn) //we are not permit to do anything
 		return;
 
-	// This function handles mouse move over hexes and l-clicking on them. 
+	// This function handles mouse move over hexes and l-clicking on them.
 	// First we decide what happens if player clicks on this hex and set appropriately
 	// consoleMsg, cursorFrame/Type and prepare lambda realizeAction.
-	// 
+	//
 	// Then, depending whether it was hover/click we either call the action or set tooltip/cursor.
 
 	//used when hovering -> tooltip message and cursor to be set
@@ -2107,7 +2107,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	bool setCursor = true; //if we want to suppress setting cursor
 	ECursor::ECursorTypes cursorType = ECursor::COMBAT;
 	int cursorFrame = ECursor::COMBAT_POINTER; //TODO: is this line used?
-	
+
 	//used when l-clicking -> action to be called upon the click
 	std::function<void()> realizeAction;
 
@@ -2123,7 +2123,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	bool ourStack = false;
 	if (shere)
 		ourStack = shere->owner == curInt->playerID;
-	
+
 	//stack changed, update selection border
 	if (shere != mouseHoveredStack)
 	{
@@ -2137,9 +2137,9 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	{
 		bool legalAction = false; //this action is legal and can be performed
 		bool notLegal = false; //this action is not legal and should display message
-		
+
 		switch (action)
-		{ 
+		{
 			case CHOOSE_TACTICS_STACK:
 				if (shere && ourStack)
 					legalAction = true;
@@ -2191,7 +2191,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				if (isCastingPossibleHere (sactive, shere, myNumber)) //need to be called before sp is determined
 				{
 					bool rise = false; //TODO: can you imagine rising hostile creatures?
-					sp = CGI->spellh->spells[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo];
+					sp = CGI->spellh->objects[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo];
 					if (sp && sp->isRisingSpell())
 							rise = true;
 					if (shere && (shere->alive() || rise) && ourStack)
@@ -2221,7 +2221,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				if (creatureCasting)
 					skill = sactive->valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, SpellID::TELEPORT));
 				else
-					skill = getActiveHero()->getSpellSchoolLevel (CGI->spellh->spells[spellToCast->additionalInfo]); 
+					skill = getActiveHero()->getSpellSchoolLevel (CGI->spellh->objects[spellToCast->additionalInfo]);
 				//TODO: explicitely save power, skill
 				if (curInt->cb->battleCanTeleportTo(selectedStack, myNumber, skill))
 					legalAction = true;
@@ -2247,7 +2247,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					auto tilesThatMustBeClear = sp->rangeInHexes(myNumber, hero->getSpellSchoolLevel(sp), side, &hexesOutsideBattlefield);
 					for(BattleHex hex : tilesThatMustBeClear)
 					{
-						if(curInt->cb->battleGetStackByPos(hex, false)  ||  !!curInt->cb->battleGetObstacleOnPos(hex, false) 
+						if(curInt->cb->battleGetStackByPos(hex, false)  ||  !!curInt->cb->battleGetObstacleOnPos(hex, false)
 						 || !hex.isAvailable())
 						{
 							legalAction = false;
@@ -2377,7 +2377,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case HOSTILE_CREATURE_SPELL:
 			case FRIENDLY_CREATURE_SPELL:
-				sp = CGI->spellh->spells[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo]; //necessary if creature has random Genie spell at same time
+				sp = CGI->spellh->objects[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo]; //necessary if creature has random Genie spell at same time
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
 				switch (sp->id)
 				{
@@ -2390,7 +2390,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				isCastingPossible = true;
 				break;
 			case ANY_LOCATION:
-				sp = CGI->spellh->spells[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo]; //necessary if creature has random Genie spell at same time
+				sp = CGI->spellh->objects[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo]; //necessary if creature has random Genie spell at same time
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
 				isCastingPossible = true;
 				break;
@@ -2412,7 +2412,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case SACRIFICE:
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[549]) % shere->getName()).str(); //sacrifice the %s
-				cursorFrame = ECursor::COMBAT_SACRIFICE; 
+				cursorFrame = ECursor::COMBAT_SACRIFICE;
 				spellToCast->selectedStack = shere->ID; //sacrificed creature is selected
 				isCastingPossible = true;
 				break;
@@ -2487,7 +2487,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
 				break;
 		}
-		
+
 		realizeAction = [=]
 		{
 			if (secondaryTarget) //select that target now
@@ -2495,7 +2495,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				possibleActions.clear();
 				switch (sp->id.toEnum())
 				{
-					case SpellID::TELEPORT: //don't cast spell yet, only select target		
+					case SpellID::TELEPORT: //don't cast spell yet, only select target
 						possibleActions.push_back (TELEPORT);
 						spellToCast->selectedStack = selectedStack->ID;
 						break;
@@ -2548,14 +2548,14 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		}
 		if(eventType == LCLICK && realizeAction)
 		{
-			//opening creature window shouldn't affect myTurn... 
+			//opening creature window shouldn't affect myTurn...
 			if ((currentAction != CREATURE_INFO) && !secondaryTarget)
 			{
 				myTurn = false; //tends to crash with empty calls
 			}
 			realizeAction();
 			if (!secondaryTarget) //do not replace teleport or sacrifice cursor
-				CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER); 
+				CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
 			this->console->alterText("");
 		}
 	};
@@ -2566,7 +2566,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CStack * shere, BattleHex myNumber)
 {
 	creatureCasting = stackCanCastSpell && !spellDestSelectMode; //TODO: allow creatures to cast aimed spells
-							
+
 	bool isCastingPossible = true;
 
 	int spellID = -1;
@@ -2579,8 +2579,8 @@ bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CSta
 		spellID  = spellToCast->additionalInfo;
 
 	sp = nullptr;
-	if (spellID >= 0) 
-		sp = CGI->spellh->spells[spellID];
+	if (spellID >= 0)
+		sp = CGI->spellh->objects[spellID];
 
 	if (sp)
 	{
@@ -2846,7 +2846,7 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 {
 	assert(curInt->isAutoFightOn);
 
-	boost::thread aiThread([&] 
+	boost::thread aiThread([&]
 	{
 		auto ba = new BattleAction(curInt->autofightingAI->activeStack(activeStack));
 
@@ -2874,7 +2874,7 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 			activateStack();
 		}
 	});
-	
+
 	aiThread.detach();
 }
 
@@ -3116,7 +3116,7 @@ void CBattleInterface::showHighlightedHexes(SDL_Surface * to)
 				if(spellToCast) //when casting spell
 				{
 					//calculating spell school level
-					const CSpell & spToCast =  *CGI->spellh->spells[spellToCast->additionalInfo];
+					const CSpell & spToCast =  *CGI->spellh->objects[spellToCast->additionalInfo];
 					ui8 schoolLevel = 0;
 
 					auto caster = activeStack->attackerOwned ? attackingHeroInstance : defendingHeroInstance;
@@ -3304,7 +3304,7 @@ void CBattleInterface::showAliveStacks(SDL_Surface * to, std::vector<const CStac
 		int pos = 0;
 		for(auto & spellId : stack->activeSpells())
 		{
-			pos += CGI->spellh->spells[ spellId ]->positiveness;
+			pos += CGI->spellh->objects[ spellId ]->positiveness;
 		}
 		return pos;
 	};
