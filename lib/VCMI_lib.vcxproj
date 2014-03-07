@@ -209,7 +209,8 @@
     <ClCompile Include="registerTypes\RegisterTypes.cpp" />
     <ClCompile Include="registerTypes\TypesClientPacks1.cpp" />
     <ClCompile Include="registerTypes\TypesClientPacks2.cpp" />
-    <ClCompile Include="registerTypes\TypesMapObjects.cpp" />
+    <ClCompile Include="registerTypes\TypesMapObjects1.cpp" />
+    <ClCompile Include="registerTypes\TypesMapObjects2.cpp" />
     <ClCompile Include="registerTypes\TypesPregamePacks.cpp" />
     <ClCompile Include="registerTypes\TypesServerPacks.cpp" />
     <ClCompile Include="rmg\CMapGenerator.cpp" />
