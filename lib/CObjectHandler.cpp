@@ -1375,17 +1375,32 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 	if(!getArt(ArtifactPosition::SPELLBOOK)) //if hero has no spellbook
 		return false;
 
-	if(vstd::contains(spells, spell->id) //hero has this spell in spellbook
-		|| (spell->air && hasBonusOfType(Bonus::AIR_SPELLS)) // this is air spell and hero can cast all air spells
-		|| (spell->fire && hasBonusOfType(Bonus::FIRE_SPELLS)) // this is fire spell and hero can cast all fire spells
-		|| (spell->water && hasBonusOfType(Bonus::WATER_SPELLS)) // this is water spell and hero can cast all water spells
-		|| (spell->earth && hasBonusOfType(Bonus::EARTH_SPELLS)) // this is earth spell and hero can cast all earth spells
-		|| hasBonusOfType(Bonus::SPELL, spell->id)
-		|| hasBonusOfType(Bonus::SPELLS_OF_LEVEL, spell->level)
-		)
-		return true;
+    if (spell->isSpecialSpell())
+    {
+        if (vstd::contains(spells, spell->id))
+        {//hero has this spell in spellbook
+            logGlobal->errorStream() << "Special spell in spellbook "<<spell->name;
+        }
 
-	return false;
+        if (hasBonusOfType(Bonus::SPELL, spell->id))
+            return true;
+
+        return false;
+    }
+    else
+    {
+        if(vstd::contains(spells, spell->id) //hero has this spell in spellbook
+            || (spell->air && hasBonusOfType(Bonus::AIR_SPELLS)) // this is air spell and hero can cast all air spells
+            || (spell->fire && hasBonusOfType(Bonus::FIRE_SPELLS)) // this is fire spell and hero can cast all fire spells
+            || (spell->water && hasBonusOfType(Bonus::WATER_SPELLS)) // this is water spell and hero can cast all water spells
+            || (spell->earth && hasBonusOfType(Bonus::EARTH_SPELLS)) // this is earth spell and hero can cast all earth spells
+            || hasBonusOfType(Bonus::SPELL, spell->id)
+            || hasBonusOfType(Bonus::SPELLS_OF_LEVEL, spell->level)
+            )
+            return true;
+
+        return false;
+    }
 }
 
 /**

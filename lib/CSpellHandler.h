@@ -76,6 +76,8 @@ public:
 	inline bool isDamageSpell() const;
 	inline bool isOffensiveSpell() const;
 
+	inline bool isSpecialSpell() const;
+
 	inline bool hasEffects() const;
 	void getEffects(std::vector<Bonus> &lst, const int level) const;
 
@@ -110,6 +112,8 @@ public:
 		h & effects & immunities & limiters;
 		h & iconImmune;
         h & absoluteImmunities & defaultProbability;
+
+        h & isSpecial;
 	}
 	friend class CSpellHandler;
 
@@ -127,6 +131,7 @@ private:
 	bool isRising;
 	bool isDamage;
 	bool isOffensive;
+	bool isSpecial;
 
 	std::string attributes; //reference only attributes //todo: remove or include in configuration format, currently unused
 
@@ -187,6 +192,11 @@ bool CSpell::isDamageSpell() const
 bool CSpell::isOffensiveSpell() const
 {
 	return isOffensive;
+}
+
+bool CSpell::isSpecialSpell() const
+{
+    return isSpecial;
 }
 
 bool CSpell::hasEffects() const

@@ -701,7 +701,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
         logGlobal->errorStream() << "No positiveness specified, assumed NEUTRAL";
     }
 
-
+    spell->isSpecial = readFlag(flags,"special");
 
     auto find_in_map = [&](std::string name, std::vector<Bonus::BonusType> &vec)
     {

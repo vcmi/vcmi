@@ -150,6 +150,10 @@
                                 "rising":{
                                         "type":"boolean",
                                         "description": "Rising spell (implicitly sets positive)"
+                                },
+                                "special":{
+                                        "type": "boolean",
+                                        "description": "Special spell. Can be given only by Bonus::SPELL"
                                 }
                         }
                 },
