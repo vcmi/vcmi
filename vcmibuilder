@@ -273,7 +273,7 @@ then
 	OIFS="$IFS"
 	IFS=$'\n' 
 
-	for file in `find "$dest_dir" -type f -name "*.mp3"`
+	for file in `find "$dest_dir" -type f -iname "*.mp3"`
 	do
 		echo "Converting $file"
 		ogg=${file%.*}

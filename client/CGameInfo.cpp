@@ -14,7 +14,7 @@
  */
 
 const CGameInfo * CGI; //game info for general use
-CClientState * CCS;
+CClientState * CCS = nullptr;
 
 CGameInfo::CGameInfo()
 {

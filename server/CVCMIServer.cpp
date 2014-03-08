@@ -464,7 +464,7 @@ void CVCMIServer::loadGame()
 // 		CMapHeader dum;
 // 		StartInfo *si;
 // 
-// 		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::LIB_SAVEGAME)));
+// 		CLoadFile lf(CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::LIB_SAVEGAME)));
 // 		lf >> sig >> dum >> si;
 // 		logNetwork->infoStream() <<"Reading save signature";
 // 
@@ -477,7 +477,7 @@ void CVCMIServer::loadGame()
 // 	}
 
 	{
-		CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)), minSupportedVersion);
+		CLoadFile lf(*CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)), minSupportedVersion);
 		gh.loadCommonState(lf);
 		lf >> gh;
 	}

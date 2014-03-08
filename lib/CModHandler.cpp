@@ -547,12 +547,12 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input
 
 static JsonNode loadModSettings(std::string path)
 {
-	if (CResourceHandler::get()->existsResource(ResourceID(path)))
+	if (CResourceHandler::get("local")->existsResource(ResourceID(path)))
 	{
 		return JsonNode(ResourceID(path, EResType::TEXT));
 	}
 	// Probably new install. Create initial configuration
-	CResourceHandler::get()->createResource(path);
+	CResourceHandler::get("local")->createResource(path);
 	return JsonNode();
 }
 
@@ -687,7 +687,7 @@ static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoade
 	if (modName != "core")
 	{
 		ResourceID modConfFile("mods/" + modName + "/mod", EResType::TEXT);
-		ui32 configChecksum = CResourceHandler::getInitial()->load(modConfFile)->calculateCRC32();
+		ui32 configChecksum = CResourceHandler::get("initial")->load(modConfFile)->calculateCRC32();
 		modChecksum.process_bytes(reinterpret_cast<const void *>(&configChecksum), sizeof(configChecksum));
 	}
 	// third - add all detected text files from this mod into checksum
@@ -717,7 +717,7 @@ void CModHandler::loadModFilesystems()
 	for(std::string & modName : activeMods)
 	{
 		CModInfo & mod = allMods[modName];
-		CResourceHandler::addFilesystem(modName, genModFilesystem(modName, mod.config));
+		CResourceHandler::addFilesystem("data", modName, genModFilesystem(modName, mod.config));
 	}
 }
 

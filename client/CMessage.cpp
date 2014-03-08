@@ -63,7 +63,7 @@ struct ComponentsToBlit
 
 namespace
 {
-	CDefHandler * ok, *cancel;
+	CDefHandler * ok = nullptr, *cancel = nullptr;
 	std::vector<std::vector<SDL_Surface*> > piecesOfBox; //in colors of all players
 	SDL_Surface * background = nullptr;
 }
@@ -100,9 +100,9 @@ void CMessage::init()
 
 void CMessage::dispose()
 {
-	for (int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
+	for (auto & piece : piecesOfBox)
 	{
-		for (auto & elem : piecesOfBox[i])
+		for (auto & elem : piece)
 		{
 			SDL_FreeSurface(elem);
 		}

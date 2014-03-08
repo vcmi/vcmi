@@ -59,11 +59,11 @@ void SettingsStorage::init()
 {
 	std::string confName = "config/settings.json";
 
-	// Porbably new install. Create initial configuration
-	if (!CResourceHandler::get()->existsResource(ResourceID(confName)))
-		CResourceHandler::get()->createResource(confName);
-	else
-		JsonNode(ResourceID("config/settings.json")).swap(config);
+	JsonUtils::assembleFromFiles(confName).swap(config);
+
+	// Probably new install. Create config file to save settings to
+	if (!CResourceHandler::get("local")->existsResource(ResourceID(confName)))
+		CResourceHandler::get("local")->createResource(confName);
 
 	JsonUtils::maximize(config, "vcmi:settings");
 	JsonUtils::validate(config, "vcmi:settings", "settings");

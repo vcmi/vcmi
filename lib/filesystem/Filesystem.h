@@ -52,6 +52,12 @@ public:
  */
 class DLL_LINKAGE CResourceHandler
 {
+	/**
+	 * @brief createInitial - creates instance of initial loader
+	 * that contains data necessary to load main FS
+	 */
+	static ISimpleResourceLoader * createInitial();
+
 public:
 	/**
 	 * Gets an instance of resource loader.
@@ -62,7 +68,6 @@ public:
 	 */
 	static ISimpleResourceLoader * get();
 	static ISimpleResourceLoader * get(std::string identifier);
-	static ISimpleResourceLoader * getInitial();
 
 	/**
 	 * Creates instance of initial resource loader.
@@ -89,7 +94,7 @@ public:
 	 * @param identifier name of this loader by which it can be retrieved later
 	 * @param loader resource loader to add
 	 */
-	static void addFilesystem(const std::string & identifier, ISimpleResourceLoader * loader);
+	static void addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader);
 
 	/**
 	 * @brief createModFileSystem - creates filesystem out of config file
@@ -107,6 +112,4 @@ public:
 private:
 	/** Instance of resource loader */
 	static std::map<std::string, ISimpleResourceLoader*> knownLoaders;
-	static CFilesystemList * resourceLoader;
-	static CFilesystemList * initialLoader;
 };

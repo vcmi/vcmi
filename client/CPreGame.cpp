@@ -920,7 +920,7 @@ void CSelectionScreen::startScenario()
 		overWrite += boost::bind(&CCallback::save, LOCPLINT->cb.get(), saveGameName);
 		overWrite += boost::bind(&CGuiHandler::popIntTotally, &GH, this);
 
-		if(CResourceHandler::get()->existsResource(ResourceID(saveGameName, EResType::CLIENT_SAVEGAME)))
+		if(CResourceHandler::get("local")->existsResource(ResourceID(saveGameName, EResType::CLIENT_SAVEGAME)))
 		{
 			std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
 			boost::algorithm::replace_first(hlp, "%s", sel->txt->text);
@@ -1354,7 +1354,7 @@ void SelectionTab::select( int position )
 
 	if(txt)
 	{
-		std::string filename = *CResourceHandler::get()->getResourceName(
+		std::string filename = *CResourceHandler::get("local")->getResourceName(
 								   ResourceID(curItems[py]->fileURI, EResType::CLIENT_SAVEGAME));
 		txt->setText(CFileInfo(filename).getBaseName());
 	}
@@ -1479,7 +1479,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 		}
 		else
 		{
-			name = CFileInfo(*CResourceHandler::get()->getResourceName(
+			name = CFileInfo(*CResourceHandler::get("local")->getResourceName(
 								 ResourceID(currentItem->fileURI, EResType::CLIENT_SAVEGAME))).getBaseName();
 		}
 

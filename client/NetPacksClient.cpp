@@ -793,7 +793,7 @@ void YourTurn::applyCl( CClient *cl )
 void SaveGame::applyCl(CClient *cl)
 {
 	CFileInfo info(fname);
-	CResourceHandler::get()->createResource(info.getStem() + ".vcgm1");
+	CResourceHandler::get("local")->createResource(info.getStem() + ".vcgm1");
 
 	try
 	{

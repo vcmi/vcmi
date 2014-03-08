@@ -14,8 +14,6 @@
 #include "../VCMIDirs.h"
 #include "../CStopWatch.h"
 
-CFilesystemList * CResourceHandler::resourceLoader = nullptr;
-CFilesystemList * CResourceHandler::initialLoader = nullptr;
 std::map<std::string, ISimpleResourceLoader*> CResourceHandler::knownLoaders = std::map<std::string, ISimpleResourceLoader*>();
 
 CFilesystemGenerator::CFilesystemGenerator(std::string prefix):
@@ -75,7 +73,7 @@ void CFilesystemGenerator::loadDirectory(const std::string &mountPoint, const Js
 
 	ResourceID resID(URI, EResType::DIRECTORY);
 
-	for(auto & loader : CResourceHandler::getInitial()->getResourcesWithName(resID))
+	for(auto & loader : CResourceHandler::get("initial")->getResourcesWithName(resID))
 	{
 		auto filename = loader->getResourceName(resID);
 		filesystem->addLoader(new CFilesystemLoader(mountPoint, *filename, depth), false);
@@ -85,7 +83,7 @@ void CFilesystemGenerator::loadDirectory(const std::string &mountPoint, const Js
 void CFilesystemGenerator::loadZipArchive(const std::string &mountPoint, const JsonNode & config)
 {
 	std::string URI = prefix + config["path"].String();
-	auto filename = CResourceHandler::getInitial()->getResourceName(ResourceID(URI, EResType::ARCHIVE_ZIP));
+	auto filename = CResourceHandler::get("initial")->getResourceName(ResourceID(URI, EResType::ARCHIVE_ZIP));
 	if (filename)
 		filesystem->addLoader(new CZipLoader(mountPoint, *filename), false);
 }
@@ -94,7 +92,7 @@ template<EResType::Type archiveType>
 void CFilesystemGenerator::loadArchive(const std::string &mountPoint, const JsonNode & config)
 {
 	std::string URI = prefix + config["path"].String();
-	auto filename = CResourceHandler::getInitial()->getResourceName(ResourceID(URI, archiveType));
+	auto filename = CResourceHandler::get("initial")->getResourceName(ResourceID(URI, archiveType));
 	if (filename)
 		filesystem->addLoader(new CArchiveLoader(mountPoint, *filename), false);
 }
@@ -102,10 +100,10 @@ void CFilesystemGenerator::loadArchive(const std::string &mountPoint, const Json
 void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const JsonNode & config)
 {
 	std::string URI = prefix + config["path"].String();
-	auto filename = CResourceHandler::getInitial()->getResourceName(ResourceID(URI, EResType::TEXT));
+	auto filename = CResourceHandler::get("initial")->getResourceName(ResourceID(URI, EResType::TEXT));
 	if (filename)
 	{
-		auto configData = CResourceHandler::getInitial()->load(ResourceID(URI, EResType::TEXT))->readAll();
+		auto configData = CResourceHandler::get("initial")->load(ResourceID(URI, EResType::TEXT))->readAll();
 		const JsonNode config((char*)configData.first.get(), configData.second);
 		filesystem->addLoader(new CMappedFileLoader(mountPoint, config), false);
 	}
@@ -113,14 +111,17 @@ void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const Json
 
 void CResourceHandler::clear()
 {
-	delete resourceLoader;
-	delete initialLoader;
+	delete knownLoaders["root"];
 }
 
-void CResourceHandler::initialize()
+ISimpleResourceLoader * CResourceHandler::createInitial()
 {
+	//temporary filesystem that will be used to initialize main one.
+	//used to solve several case-sensivity issues like Mp3 vs MP3
+	auto initialLoader = new CFilesystemList;
+
 	//recurse only into specific directories
-	auto recurseInDir = [](std::string URI, int depth)
+	auto recurseInDir = [&](std::string URI, int depth)
 	{
 		ResourceID ID(URI, EResType::DIRECTORY);
 
@@ -135,10 +136,6 @@ void CResourceHandler::initialize()
 		}
 	};
 
-	//temporary filesystem that will be used to initialize main one.
-	//used to solve several case-sensivity issues like Mp3 vs MP3
-	initialLoader = new CFilesystemList;
-
 	for (auto & path : VCMIDirs::get().dataPaths())
 	{
 		if (boost::filesystem::is_directory(path)) // some of system-provided paths may not exist
@@ -148,13 +145,43 @@ void CResourceHandler::initialize()
 
 	recurseInDir("CONFIG", 0);// look for configs
 	recurseInDir("DATA", 0); // look for archives
-	//TODO: improve mod loading process so depth 2 will no longer be needed
-	recurseInDir("MODS", 2); // look for mods. Depth 2 is required for now but won't cause speed issues if no mods present
+	recurseInDir("MODS", 64); // look for mods.
+
+	return initialLoader;
+}
+
+void CResourceHandler::initialize()
+{
+	// Create tree-loke structure that looks like this:
+	// root
+	// |
+	// |- initial
+	// |
+	// |- data
+	// |  |-core
+	// |  |-mod1
+	// |  |-modN
+	// |
+	// |- local
+	//    |-saves
+	//    |-config
+
+	knownLoaders["root"] = new CFilesystemList();
+	knownLoaders["saves"] = new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath());
+	knownLoaders["config"] = new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath());
+
+	auto localFS = new CFilesystemList();
+	localFS->addLoader(knownLoaders["saves"], true);
+	localFS->addLoader(knownLoaders["config"], true);
+
+	addFilesystem("root", "initial", createInitial());
+	addFilesystem("root", "data", new CFilesystemList());
+	addFilesystem("root", "local", localFS);
 }
 
 ISimpleResourceLoader * CResourceHandler::get()
 {
-	return get("");
+	return get("root");
 }
 
 ISimpleResourceLoader * CResourceHandler::get(std::string identifier)
@@ -162,31 +189,22 @@ ISimpleResourceLoader * CResourceHandler::get(std::string identifier)
 	return knownLoaders.at(identifier);
 }
 
-ISimpleResourceLoader * CResourceHandler::getInitial()
-{
-	assert(initialLoader);
-	return initialLoader;
-}
-
 void CResourceHandler::load(const std::string &fsConfigURI)
 {
-	auto fsConfigData = initialLoader->load(ResourceID(fsConfigURI, EResType::TEXT))->readAll();
+	auto fsConfigData = get("initial")->load(ResourceID(fsConfigURI, EResType::TEXT))->readAll();
 
 	const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
 
-	resourceLoader = new CFilesystemList();
-	knownLoaders[""] = resourceLoader;
-	addFilesystem("core", createFileSystem("", fsConfig["filesystem"]));
-
-	// hardcoded system-specific path, may not be inside any of data directories
-	resourceLoader->addLoader(new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath()), true);
-	resourceLoader->addLoader(new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath()), true);
+	addFilesystem("data", "core", createFileSystem("", fsConfig["filesystem"]));
 }
 
-void CResourceHandler::addFilesystem(const std::string & identifier, ISimpleResourceLoader * loader)
+void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader)
 {
 	assert(knownLoaders.count(identifier) == 0);
-	resourceLoader->addLoader(loader, false);
+
+	auto list = dynamic_cast<CFilesystemList *>(knownLoaders.at(parent));
+	assert(list);
+	list->addLoader(loader, false);
 	knownLoaders[identifier] = loader;
 }
 
@@ -201,7 +219,7 @@ std::vector<std::string> CResourceHandler::getAvailableMods()
 {
 	static const std::string modDir = "MODS/";
 
-	auto list = initialLoader->getFilteredFiles([](const ResourceID & id) ->  bool
+	auto list = get("initial")->getFilteredFiles([](const ResourceID & id) ->  bool
 	{
 		return id.getType() == EResType::DIRECTORY
 			&& boost::range::count(id.getName(), '/') == 1
@@ -218,8 +236,8 @@ std::vector<std::string> CResourceHandler::getAvailableMods()
 
 		if (name == "WOG") // check if wog is actually present. Hack-ish but better than crash
 		{
-			if (!initialLoader->existsResource(ResourceID("DATA/ZVS", EResType::DIRECTORY)) &&
-				!initialLoader->existsResource(ResourceID("MODS/WOG/DATA/ZVS", EResType::DIRECTORY)))
+			if (!get("initial")->existsResource(ResourceID("DATA/ZVS", EResType::DIRECTORY)) &&
+				!get("initial")->existsResource(ResourceID("MODS/WOG/DATA/ZVS", EResType::DIRECTORY)))
 			{
 				continue;
 			}

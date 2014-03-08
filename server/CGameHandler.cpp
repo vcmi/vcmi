@@ -2226,8 +2226,8 @@ void CGameHandler::save(const std::string & filename )
 {
     logGlobal->errorStream() << "Saving to " << filename;
 	CFileInfo info(filename);
-	//CResourceHandler::get()->createResource(info.getStem() + ".vlgm1");
-	CResourceHandler::get()->createResource(info.getStem() + ".vsgm1");
+	//CResourceHandler::get("local")->createResource(info.getStem() + ".vlgm1");
+	CResourceHandler::get("local")->createResource(info.getStem() + ".vsgm1");
 
 	{
         logGlobal->infoStream() << "Ordering clients to serialize...";
@@ -2239,14 +2239,14 @@ void CGameHandler::save(const std::string & filename )
 	{
 // 		{
 // 			logGlobal->infoStream() << "Serializing game info...";
-// 			CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::LIB_SAVEGAME)));
+// 			CSaveFile save(CResourceHandler::get("local")->getResourceName(ResourceID(info.getStem(), EResType::LIB_SAVEGAME)));
 // // 			char hlp[8] = "VCMISVG";
 // // 			save << hlp;
 // 			saveCommonState(save);
 // 		}
 
 		{
-			CSaveFile save(*CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::SERVER_SAVEGAME)));
+			CSaveFile save(*CResourceHandler::get("local")->getResourceName(ResourceID(info.getStem(), EResType::SERVER_SAVEGAME)));
 			saveCommonState(save);
             logGlobal->infoStream() << "Saving server state";
 			save << *this;
