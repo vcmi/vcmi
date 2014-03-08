@@ -257,7 +257,7 @@ public:
 	 */
 	std::vector<bool> getDefaultAllowed() const override;
 
-	const std::string getTypeName() override;
+	const std::string getTypeName() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

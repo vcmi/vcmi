@@ -49,53 +49,53 @@ public:
 template <class _ObjectID, class _Object> class CHandlerBase: public IHandlerBase
 {
 public:
-    virtual ~CHandlerBase()
-    {
-        for(auto & o : objects)
-        {
-            o.dellNull();
-        }
+	virtual ~CHandlerBase()
+	{
+		for(auto & o : objects)
+		{
+			o.dellNull();
+		}
 
-    }
+	}
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override
 	{
-	    auto type_name = getTypeName();
-        auto object = loadFromJson(data);
-        object->id = _ObjectID(objects.size());
+		auto type_name = getTypeName();
+		auto object = loadFromJson(data);
+		object->id = _ObjectID(objects.size());
 
-        objects.push_back(object);
+		objects.push_back(object);
 
-        VLC->modh->identifiers.registerObject(scope, type_name, name, object->id);
+		VLC->modh->identifiers.registerObject(scope, type_name, name, object->id);
 	}
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override
 	{
-	    auto type_name = getTypeName();
-        auto object = loadFromJson(data);
-        object->id = _ObjectID(index);
+		auto type_name = getTypeName();
+		auto object = loadFromJson(data);
+		object->id = _ObjectID(index);
 
 
-        assert(objects[index] == nullptr); // ensure that this id was not loaded before
-        objects[index] = object;
+		assert(objects[index] == nullptr); // ensure that this id was not loaded before
+		objects[index] = object;
 
-        VLC->modh->identifiers.registerObject(scope,type_name, name, object->id);
+		VLC->modh->identifiers.registerObject(scope,type_name, name, object->id);
 
 	}
 
 	ConstTransitivePtr<_Object> operator[] (const _ObjectID id) const
 	{
-	    const auto raw_id = id.toEnum();
+		const auto raw_id = id.toEnum();
 
-	    if (raw_id < 0 || raw_id >= objects.size())
-	    {
-	        logGlobal->errorStream() << getTypeName() << " id " << static_cast<si64>(raw_id) << "is invalid";
-	        throw std::runtime_error ("internal error");
-	    }
+		if (raw_id < 0 || raw_id >= objects.size())
+		{
+			logGlobal->errorStream() << getTypeName() << " id " << static_cast<si64>(raw_id) << "is invalid";
+			throw std::runtime_error ("internal error");
+		}
 
-	    return objects[raw_id];
+		return objects[raw_id];
 	}
 protected:
-    virtual _Object * loadFromJson(const JsonNode & json) = 0;
-    virtual const std::string getTypeName() = 0;
+	virtual _Object * loadFromJson(const JsonNode & json) = 0;
+	virtual const std::string getTypeName() const = 0;
 public: //todo: make private
-    std::vector<ConstTransitivePtr<_Object>> objects;
+	std::vector<ConstTransitivePtr<_Object>> objects;
 };

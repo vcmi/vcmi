@@ -542,7 +542,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 	return legacyData;
 }
 
-const std::string CSpellHandler::getTypeName()
+const std::string CSpellHandler::getTypeName() const
 {
     return "spell";
 }
