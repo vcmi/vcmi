@@ -20,9 +20,10 @@
  *
  */
 
-namespace SpellConfigJson
+namespace SpellConfig
 {
-    static const std::string level_names[] = {"none","basic","advanced","expert"};
+    static const std::string LEVEL_NAMES[] = {"none", "basic", "advanced", "expert"};
+     
 }
 
 using namespace boost::assign;
@@ -132,26 +133,24 @@ namespace SRSLPraserHelpers
 using namespace SRSLPraserHelpers;
 
 CSpell::CSpell():
-    id(SpellID::NONE), level(0),
-    earth(false),water(false),fire(false),air(false),
-    power(0),
-    combatSpell(false),creatureAbility(false),
-    positiveness(ESpellPositiveness::NEUTRAL),
-    mainEffectAnim(-1),
-    defaultProbability(0),
-    isRising(false),isDamage(false),isOffensive(false),targetType(ETargetType::NO_TARGET)
-
+	id(SpellID::NONE), level(0),
+	earth(false), water(false), fire(false), air(false),
+	power(0),
+	combatSpell(false), creatureAbility(false),
+	positiveness(ESpellPositiveness::NEUTRAL),
+	mainEffectAnim(-1),
+	defaultProbability(0),
+	isRising(false), isDamage(false), isOffensive(false),
+	targetType(ETargetType::NO_TARGET)
 {
 
 }
 
 CSpell::~CSpell()
 {
-	for (auto & elem : effects)
-	{
-		for (size_t j=0; j<elem.size(); j++)
+	for(auto & elem : effects)
+		for(size_t j=0; j<elem.size(); j++)
 			delete elem[j];
-	}
 }
 
 std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
@@ -202,7 +201,7 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 		bool readingFirst = true;
 		for(auto & elem : rng)
 		{
-			if( std::isdigit(elem) ) //reading numer
+			if(std::isdigit(elem) ) //reading numer
 			{
 				if(readingFirst)
 					number1 += elem;
@@ -259,25 +258,104 @@ CSpell::ETargetType CSpell::getTargetType() const
 	return targetType;
 }
 
+bool CSpell::isCombatSpell() const
+{
+	return combatSpell;
+}
+
+bool CSpell::isAdventureSpell() const
+{
+	return !combatSpell;
+}
+
+bool CSpell::isCreatureAbility() const
+{
+	return creatureAbility;
+}
+
+bool CSpell::isPositive() const
+{
+	return positiveness == POSITIVE;
+}
+
+bool CSpell::isNegative() const
+{
+	return positiveness == NEGATIVE;
+}
+
+bool CSpell::isRisingSpell() const
+{
+	return isRising;
+}
+
+bool CSpell::isDamageSpell() const
+{
+	return isDamage;
+}
+
+bool CSpell::isOffensiveSpell() const
+{
+	return isOffensive;
+}
+
+bool CSpell::isSpecialSpell() const
+{
+    return isSpecial;
+}
+
+bool CSpell::hasEffects() const
+{
+	return effects.size() && effects[0].size();
+}
+
+const std::string& CSpell::getIconImmune() const
+{
+	return iconImmune;
+}
+
+si32 CSpell::getCost(const int skillLevel) const
+{
+    return costs[skillLevel];
+}
+
+si32 CSpell::getPower(const int skillLevel) const
+{
+    return powers[skillLevel];
+}
+
+//si32 CSpell::calculatePower(const int skillLevel) const
+//{
+//    return power + getPower(skillLevel);
+//}
+
+si32 CSpell::getProbability(const TFaction factionId) const
+{
+    if(!vstd::contains(probabilities,factionId))
+    {
+        return defaultProbability;
+    }
+    return probabilities.at(factionId);
+}
+
 
 void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 {
-	if (level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
+	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
 	{
         logGlobal->errorStream() << __FUNCTION__ << " invalid school level " << level;
 		return;
 	}
-	if (effects.empty())
+	if(effects.empty())
 	{
         logGlobal->errorStream() << __FUNCTION__ << " This spell ("  + name + ") has no bonus effects! " << name;
 		return;
 	}
-	if (effects.size() <= level)
+	if(effects.size() <= level)
 	{
 		logGlobal->errorStream() << __FUNCTION__ << " This spell ("  + name + ") is missing entry for level " << level;
 		return;
 	}
-	if (effects[level].empty())
+	if(effects[level].empty())
     {
 		logGlobal->errorStream() << __FUNCTION__ << " This spell ("  + name + ") has no effects for level " << level;
 		return;
@@ -285,7 +363,7 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 
 	lst.reserve(lst.size() + effects[level].size());
 
-	for (Bonus *b : effects[level])
+	for(Bonus *b : effects[level])
 	{
 		lst.push_back(Bonus(*b));
 	}
@@ -310,7 +388,7 @@ bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 	}
 
     //3. Check negation
-	if (obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES)) //Orb of vulnerability
+	if(obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES)) //Orb of vulnerability
 		return false;
 
     //4. Check negatable immunities
@@ -322,36 +400,36 @@ bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 
 	auto battleTestElementalImmunity = [&,this](Bonus::BonusType element) -> bool
 	{
-		if (obj->hasBonusOfType(element, 0)) //always resist if immune to all spells altogether
+		if(obj->hasBonusOfType(element, 0)) //always resist if immune to all spells altogether
 				return true;
-		else if (!isPositive()) //negative or indifferent
+		else if(!isPositive()) //negative or indifferent
 		{
-			if ((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
+			if((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
 				return true;
 		}
 		return false;
 	};
 
     //4. Check elemental immunities
-	if (fire)
+	if(fire)
 	{
-		if (battleTestElementalImmunity(Bonus::FIRE_IMMUNITY))
+		if(battleTestElementalImmunity(Bonus::FIRE_IMMUNITY))
 			return true;
 	}
-	if (water)
+	if(water)
 	{
-		if (battleTestElementalImmunity(Bonus::WATER_IMMUNITY))
+		if(battleTestElementalImmunity(Bonus::WATER_IMMUNITY))
 			return true;
 	}
 
-	if (earth)
+	if(earth)
 	{
-		if (battleTestElementalImmunity(Bonus::EARTH_IMMUNITY))
+		if(battleTestElementalImmunity(Bonus::EARTH_IMMUNITY))
 			return true;
 	}
-	if (air)
+	if(air)
 	{
-		if (battleTestElementalImmunity(Bonus::AIR_IMMUNITY))
+		if(battleTestElementalImmunity(Bonus::AIR_IMMUNITY))
 			return true;
 	}
 
@@ -384,7 +462,7 @@ void CSpell::setIsOffensive(const bool val)
 {
    isOffensive = val;
 
-   if (val)
+   if(val)
    {
        positiveness = CSpell::NEGATIVE;
        isDamage = true;
@@ -395,7 +473,7 @@ void CSpell::setIsRising(const bool val)
 {
     isRising = val;
 
-    if (val)
+    if(val)
     {
         positiveness = CSpell::POSITIVE;
     }
@@ -419,7 +497,7 @@ CSpellHandler::CSpellHandler()
 
 std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 {
-    using namespace SpellConfigJson;
+    using namespace SpellConfig;
     std::vector<JsonNode> legacyData;
 
 	CLegacyConfigParser parser("DATA/SPTRAITS.TXT");
@@ -457,13 +535,10 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 
             auto& levels = lineNode["levels"].Struct();
 
-
-
             auto getLevel = [&](const size_t idx)->JsonMap&
             {
                 assert(idx < GameConstants::SPELL_SCHOOL_LEVELS);
-                return levels[level_names[idx]].Struct();
-
+                return levels[LEVEL_NAMES[idx]].Struct();
             };
 
             auto costs = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
@@ -472,14 +547,14 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 
             auto& chances = lineNode["gainChance"].Struct();
 
-            for (size_t i = 0; i < GameConstants::F_NUMBER ; i++){
+            for(size_t i = 0; i < GameConstants::F_NUMBER ; i++){
                 chances[ETownType::names[i]].Float() = parser.readNumber();
             }
 
             auto AIVals = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
 
             std::vector<std::string> descriptions;
-            for (size_t i = 0; i < GameConstants::SPELL_SCHOOL_LEVELS ; i++)
+            for(size_t i = 0; i < GameConstants::SPELL_SCHOOL_LEVELS ; i++)
                 descriptions.push_back(parser.readString());
 
             std::string attributes = parser.readString();
@@ -496,21 +571,16 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 
             lineNode["targetType"].String() = targetType;
 
-
-
             //save parsed level specific data
-            for (size_t i = 0; i < GameConstants::SPELL_SCHOOL_LEVELS; i++)
+            for(size_t i = 0; i < GameConstants::SPELL_SCHOOL_LEVELS; i++)
             {
                 auto& level = getLevel(i);
                 level["description"].String() = descriptions[i];
                 level["cost"].Float() = costs[i];
                 level["power"].Float() = powers[i];
                 level["aiValue"].Float() = AIVals[i];
-
             }
 
-
-//            logGlobal->errorStream() << lineNode;
 		    legacyData.push_back(lineNode);
 
 
@@ -544,81 +614,47 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 
 const std::string CSpellHandler::getTypeName() const
 {
-    return "spell";
-}
-
-static void fatalConfigurationError()
-{
-   throw std::runtime_error("SpellHandler: Fatal configuration error, See log for details");
+	return "spell";
 }
 
 CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 {
-    using namespace SpellConfigJson;
+	using namespace SpellConfig;
 
-    CSpell * spell = new CSpell();
+	CSpell * spell = new CSpell();
 
-    const auto type_str = json["type"].String();
+	const auto type = json["type"].String();
 
-    if (type_str == "ability")
-    {
-        spell->creatureAbility = true;
-        spell->combatSpell = true;
-    }
-    else
-    {
-       spell->creatureAbility = false;
-       spell->combatSpell = type_str == "combat";
-    }
-
-    spell->name = json["name"].String();
-
-    logGlobal->traceStream() << __FUNCTION__ << ": loading spell " << spell->name;
-
-    auto readFlag = [](const JsonNode& flagsNode, const std::string& name)
-    {
-        if (flagsNode.getType() != JsonNode::DATA_STRUCT)
-        {
-            logGlobal->errorStream() << "Flags node shall be object";
-            return false;
-        }
-
-        const JsonNode& flag = flagsNode[name];
-
-        if (flag.isNull())
-        {
-            return false;
-        }
-        else if (flag.getType() == JsonNode::DATA_BOOL)
-        {
-            return flag.Bool();
-        }
-        else
-        {
-            logGlobal->errorStream() << "Flag shall be boolean: "<<name;
-            return false;
-        }
-
-    };
-
-    const auto school_names = json["school"];
-
-    spell->air = readFlag(school_names, "air");
-    spell->earth = readFlag(school_names, "earth");
-    spell->fire = readFlag(school_names, "fire");
-    spell->water = readFlag(school_names, "water");
-
-    spell->level = json["level"].Float();
-    spell->power = json["power"].Float();
-
-    //TODO: default chance
-    spell->defaultProbability = json["defaultGainChance"].Float();
-
-    auto chances = json["gainChance"].Struct();
-
-    for(auto &node : chances)
+	if(type == "ability")
 	{
-		int chance = node.second.Float();
+		spell->creatureAbility = true;
+		spell->combatSpell = true;
+	}
+	else
+	{
+		spell->creatureAbility = false;
+		spell->combatSpell = type == "combat";
+	}
+
+	spell->name = json["name"].String();
+
+	logGlobal->traceStream() << __FUNCTION__ << ": loading spell " << spell->name;
+
+	const auto schoolNames = json["school"];
+
+	spell->air   = schoolNames["air"].Bool();
+	spell->earth = schoolNames["earth"].Bool();
+	spell->fire  = schoolNames["fire"].Bool();
+	spell->water = schoolNames["water"].Bool();
+
+	spell->level = json["level"].Float();
+	spell->power = json["power"].Float();
+
+	spell->defaultProbability = json["defaultGainChance"].Float();
+
+	for(const auto & node : json["gainChance"].Struct())
+	{
+		const int chance = node.second.Float();
 
 		VLC->modh->identifiers.requestIdentifier(node.second.meta, "faction",node.first, [=](si32 factionID)
 		{
@@ -626,87 +662,80 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 		});
 	}
 
+	auto targetType = json["targetType"].String();
 
-    auto target_type_str = json["targetType"].String();
+	if(targetType == "NO_TARGET")
+		spell->targetType = CSpell::NO_TARGET;
+	else if(targetType == "CREATURE")
+		spell->targetType = CSpell::CREATURE;
+	else if(targetType == "OBSTACLE")
+		spell->targetType = CSpell::OBSTACLE;
+	else if(targetType == "CREATURE_EXPERT_MASSIVE")
+		spell->targetType = CSpell::CREATURE_EXPERT_MASSIVE;
 
-    if (target_type_str == "NO_TARGET")
-        spell->targetType = CSpell::NO_TARGET;
-    else if (target_type_str == "CREATURE")
-        spell->targetType = CSpell::CREATURE;
-    else if (target_type_str == "OBSTACLE")
-        spell->targetType = CSpell::OBSTACLE;
-    else if (target_type_str == "CREATURE_EXPERT_MASSIVE")
-        spell->targetType = CSpell::CREATURE_EXPERT_MASSIVE;
-    else
-    {
-        logGlobal->errorStream() << spell->name << ": invalid target type '" <<target_type_str<<"'";
-        fatalConfigurationError();
-    }
 
-    spell->mainEffectAnim = json["anim"].Float();
+	spell->mainEffectAnim = json["anim"].Float();
 
-    for(const auto& k_v: json["counters"].Struct())
-    {
-        if (k_v.second.Bool())
-        {
-            JsonNode tmp(JsonNode::DATA_STRING);
-            tmp.meta = json.meta;
-            tmp.String() = k_v.first;
+	for(const auto & counteredSpell: json["counters"].Struct())
+		if (counteredSpell.second.Bool())
+		{
+			JsonNode tmp(JsonNode::DATA_STRING);
+			tmp.meta = json.meta;
+			tmp.String() = counteredSpell.first;
 
-            VLC->modh->identifiers.requestIdentifier(tmp,[=](si32 id){
-                spell->counteredSpells.push_back(SpellID(id));
-            });
+			VLC->modh->identifiers.requestIdentifier(tmp,[=](si32 id){
+				spell->counteredSpells.push_back(SpellID(id));
+			});
+		}
 
-        }
-    }
-    //TODO: more error checking - f.e. conflicting flags
-    const auto flags = json["flags"];
+	//TODO: more error checking - f.e. conflicting flags
+	const auto flags = json["flags"];
 
-    //by default all flags are set to false in constructor
+	//by default all flags are set to false in constructor
 
-    if (readFlag(flags,"summoning"))
-    {
-        logGlobal->warnStream() << spell->name << ": summoning flag in unimplemented";
-    }
+	if(flags["summoning"].Bool())
+	{
+		logGlobal->warnStream() << spell->name << ": summoning flag in unimplemented";
+	}
 
-    spell->isDamage = readFlag(flags,"damage"); //do this before "offensive"
+	spell->isDamage = flags["damage"].Bool(); //do this before "offensive"
 
-    if (readFlag(flags,"offensive"))
-    {
-        spell->setIsOffensive(true);
-    }
+	if(flags["offensive"].Bool())
+	{
+		spell->setIsOffensive(true);
+	}
 
-    if (readFlag(flags,"rising"))
-    {
-        spell->setIsRising(true);
-    }
+	if(flags["rising"].Bool())
+	{
+		spell->setIsRising(true);
+	}
 
-    const bool implicit_positiveness = spell->isOffensive || spell->isRising; //(!) "damage" does not mean NEGATIVE  --AVS
+	const bool implicitPositiveness = spell->isOffensive || spell->isRising; //(!) "damage" does not mean NEGATIVE  --AVS
 
-    if (readFlag(flags,"indifferent"))
-    {
-        spell->positiveness = CSpell::NEUTRAL;
-    }
-    else if (readFlag(flags,"negative"))
-    {
-        spell->positiveness = CSpell::NEGATIVE;
-    }
-    else if (readFlag(flags,"positive"))
-    {
-        spell->positiveness = CSpell::POSITIVE;
-    }
-    else if(!implicit_positiveness)
-    {
-        spell->positiveness = CSpell::NEUTRAL; //duplicates constructor but, just in case
-        logGlobal->errorStream() << "No positiveness specified, assumed NEUTRAL";
-    }
+	if(flags["indifferent"].Bool())
+	{
+		spell->positiveness = CSpell::NEUTRAL;
+	}
+	else if(flags["negative"].Bool())
+	{
+		spell->positiveness = CSpell::NEGATIVE;
+	}
+	else if(flags["positive"].Bool())
+	{
+		spell->positiveness = CSpell::POSITIVE;
+	}
+	else if(!implicitPositiveness)
+	{
+		spell->positiveness = CSpell::NEUTRAL; //duplicates constructor but, just in case
+		logGlobal->errorStream() << "No positiveness specified, assumed NEUTRAL";
+	}
 
-    spell->isSpecial = readFlag(flags,"special");
+    spell->isSpecial = flags["special"].Bool();
 
-    auto find_in_map = [&](std::string name, std::vector<Bonus::BonusType> &vec)
+    auto findBonus = [&](std::string name, std::vector<Bonus::BonusType> &vec)
     {
         auto it = bonusNameMap.find(name);
-        if (it == bonusNameMap.end())
+        if(it == bonusNameMap.end())
         {
             logGlobal->errorStream() << spell->name << ": invalid bonus name" << name;
         }
@@ -716,187 +745,88 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
         }
     };
 
-    auto read_node = [&](std::string name, std::vector<Bonus::BonusType> &vec)
+    auto readBonusStruct = [&](std::string name, std::vector<Bonus::BonusType> &vec)
     {
-        const JsonNode & node = json[name];
+		for(auto bonusData: json[name].Struct())
+		{
+			const std::string bonusId = bonusData.first;
+			const bool flag = bonusData.second.Bool();
 
-        if (!node.isNull())
-        {
-            for (auto key_value: node.Struct())
-            {
-                const std::string bonus_id = key_value.first;
-                const bool flag = key_value.second.Bool();
-
-                if (flag)
-                {
-                   find_in_map(bonus_id, vec);
-                }
-            }
-        }
+			if(flag)
+				findBonus(bonusId, vec);
+		}
     };
 
-    read_node("immunity",spell->immunities);
+    readBonusStruct("immunity", spell->immunities);
 
-    read_node("absoluteImmunity", spell->absoluteImmunities);
+    readBonusStruct("absoluteImmunity", spell->absoluteImmunities);
 
-    read_node("limit",spell->limiters);
+    readBonusStruct("limit", spell->limiters);
 
 
     const JsonNode & graphicsNode = json["graphics"];
-    if (!graphicsNode.isNull())
-    {
-        spell->iconImmune = graphicsNode["iconImmune"].String();
-    }
+ 
+	spell->iconImmune = graphicsNode["iconImmune"].String();
+
 
     //load level attributes
 
-    const int level_count = GameConstants::SPELL_SCHOOL_LEVELS;
+    const int levelsCount = GameConstants::SPELL_SCHOOL_LEVELS;
 
-    spell->AIVals.resize(level_count);
-    spell->costs.resize(level_count);
-    spell->descriptions.resize(level_count);
+    spell->AIVals.resize(levelsCount);
+    spell->costs.resize(levelsCount);
+    spell->descriptions.resize(levelsCount);
 
-    spell->powers.resize(level_count);
-    spell->range.resize(level_count);
+    spell->powers.resize(levelsCount);
+    spell->range.resize(levelsCount);
 
+	for(int levelIndex = 0; levelIndex < levelsCount; levelIndex++)
+	{
+		const JsonNode & levelNode = json["levels"][LEVEL_NAMES[levelIndex]];
 
-    const JsonNode & levels_node = json["levels"];
+		spell->descriptions[levelIndex] = levelNode["description"].String();
+		spell->costs[levelIndex] = levelNode["cost"].Float();
+		spell->powers[levelIndex] = levelNode["power"].Float();
+		spell->AIVals[levelIndex] = levelNode["aiValue"].Float();
 
-    if (levels_node.isNull())
-    {
-        logGlobal->errorStream() << spell->name << ": no level specific data";
-        fatalConfigurationError();
-    }
+		const JsonNode & effectsNode = levelNode["effects"];
 
-    if (levels_node.getType()!=JsonNode::DATA_STRUCT)
-    {
-        logGlobal->errorStream() << spell->name << ": level specific data shall be JSON object";
-        fatalConfigurationError();
-    }
+		if(!effectsNode.isNull())
+		{
+			if(spell->effects.empty())
+				spell->effects.resize(levelsCount);
 
-    const JsonMap & levels = json["levels"].Struct();
-
-
-    for(int level_idx = 0; level_idx < level_count; level_idx++)
-    {
-        const auto& level_node = levels.at(level_names[level_idx]);
-
-
-        if (level_node.getType()!=JsonNode::DATA_STRUCT)
-        {
-            logGlobal->errorStream() << spell->name << ": level specific data shall be JSON object";
-            fatalConfigurationError();
-        }
-
-        auto ensure_field = [&](const std::string json_name,JsonNode::JsonType type)->JsonNode
-        {
-            const auto& node = level_node[json_name];
-
-            if (node.isNull())
-            {
-                logGlobal->errorStream() << spell->name << ": mandatory field "<<json_name<<" missing";
-                fatalConfigurationError();
-            }
-
-            if (node.getType()!=type)
-            {
-                logGlobal->errorStream() << spell->name << ": field "<<json_name<<" - type mismatch";
-                fatalConfigurationError();
-            }
-            return node;
-        };
-
-
-        auto get_string_mandatory = [&](const std::string json_name, std::vector<std::string>& target)
-        {
-            const auto& node = ensure_field(json_name, JsonNode::DATA_STRING);
-            target[level_idx] = node.String();
-
-        };
-
-        auto get_string = [&](const std::string json_name, std::vector<std::string>& target)
-        {
-            const auto& node = level_node[json_name];
-            if (node.getType() == JsonNode::DATA_STRING)
-            {
-                target[level_idx] = node.String();
-            }
-        };
-
-        auto get_nomber = [&](const std::string json_name, std::vector<si32>& target)
-        {
-            const auto& node = level_node[json_name];
-            if (node.getType() == JsonNode::DATA_FLOAT)
-            {
-                target[level_idx] = node.Float();
-            }
-        };
-
-        auto get_nomber_mandatory = [&](const std::string json_name, std::vector<si32>& target)
-        {
-            const auto& node = ensure_field(json_name, JsonNode::DATA_FLOAT);
-            target[level_idx] = node.Float();
-        };
-
-        if (spell->isCreatureAbility())
-        {
-            get_string("description", spell->descriptions);
-            get_nomber("cost", spell->costs);
-            get_nomber("power", spell->powers);
-            get_nomber("aiValue", spell->AIVals);
-
-        }
-        else
-        {
-            get_string_mandatory("description", spell->descriptions);
-            get_nomber_mandatory("cost", spell->costs);
-            get_nomber_mandatory("power", spell->powers);
-            get_nomber_mandatory("aiValue", spell->AIVals);
-        }
-
-
-
-        const JsonNode& effects_node = level_node["effects"];
-
-        if (!effects_node.isNull())
-        {
-            if (spell->effects.empty())
-                spell->effects.resize(level_count);
-
-            for (const auto& elem : effects_node.Struct())
-            {
-                const JsonNode& bonus_node = elem.second;
-                Bonus * b = JsonUtils::parseBonus(bonus_node);
-                const bool usePowerAsValue = bonus_node["val"].isNull();
+			for(const auto & elem : effectsNode.Struct())
+			{
+				const JsonNode & bonusNode = elem.second;
+				Bonus * b = JsonUtils::parseBonus(bonusNode);
+				const bool usePowerAsValue = bonusNode["val"].isNull();
 
 				//TODO: make this work. see CSpellHandler::afterLoadFinalization()
 				//b->sid = spell->id; //for all
+				
 				b->source = Bonus::SPELL_EFFECT;//for all
 
-				if (usePowerAsValue)
-                {
-                   b->val = spell->powers[level_idx];
-                }
+				if(usePowerAsValue)
+				{
+					b->val = spell->powers[levelIndex];
+				}
 
-				spell->effects[level_idx].push_back(b);
-
-            }
-        }
-    }
+				spell->effects[levelIndex].push_back(b);
+			}
+		}
+	}
 
     return spell;
 }
 
 void CSpellHandler::afterLoadFinalization()
 {
-    //FIXME: this a bad place for this code, should refactor loadFromJson to know object id during load
-
-    for (auto spell: objects)
-        for (auto & level: spell->effects)
-            for (auto * bonus: level)
-                bonus->sid = spell->id;
-
-
+    //FIXME: it is a bad place for this code, should refactor loadFromJson to know object id during loading
+	for(auto spell: objects)
+		for(auto & level: spell->effects)
+			for(auto * bonus: level)
+				bonus->sid = spell->id;
 }
 
 

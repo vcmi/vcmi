@@ -65,43 +65,43 @@ public:
 	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)
 	ETargetType getTargetType() const;
 
-	inline bool isCombatSpell() const;
-	inline bool isAdventureSpell() const;
-	inline bool isCreatureAbility() const;
+	bool isCombatSpell() const;
+	bool isAdventureSpell() const;
+	bool isCreatureAbility() const;
 
-	inline bool isPositive() const;
-	inline bool isNegative() const;
+	bool isPositive() const;
+	bool isNegative() const;
 
-	inline bool isRisingSpell() const;
-	inline bool isDamageSpell() const;
-	inline bool isOffensiveSpell() const;
+	bool isRisingSpell() const;
+	bool isDamageSpell() const;
+	bool isOffensiveSpell() const;
 
-	inline bool isSpecialSpell() const;
+	bool isSpecialSpell() const;
 
-	inline bool hasEffects() const;
+	bool hasEffects() const;
 	void getEffects(std::vector<Bonus> &lst, const int level) const;
 
 	bool isImmuneBy(const IBonusBearer *obj) const;
 
-	inline si32 getCost(const int skillLevel) const;
+	si32 getCost(const int skillLevel) const;
 
     /**
 	* Returns spell level power, base power ignored
 	*/
-	inline si32 getPower(const int skillLevel) const;
+	si32 getPower(const int skillLevel) const;
 
 //    /**
 //	* Returns spell power, taking base power into account
 //	*/
-//	inline si32 calculatePower(const int skillLevel) const;
+//	si32 calculatePower(const int skillLevel) const;
 
 
-    inline si32 getProbability(const TFaction factionId) const;
+	si32 getProbability(const TFaction factionId) const;
 
 	/**
 	* Returns resource name of icon for SPELL_IMMUNITY bonus
 	*/
-	inline const std::string& getIconImmune() const;
+	const std::string& getIconImmune() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -152,86 +152,6 @@ private:
 
 };
 
-///CSpell inlines
-
-bool CSpell::isCombatSpell() const
-{
-	return combatSpell;
-}
-
-bool CSpell::isAdventureSpell() const
-{
-	return !combatSpell;
-}
-
-bool CSpell::isCreatureAbility() const
-{
-	return creatureAbility;
-}
-
-bool CSpell::isPositive() const
-{
-	return positiveness == POSITIVE;
-}
-
-bool CSpell::isNegative() const
-{
-	return positiveness == NEGATIVE;
-}
-
-bool CSpell::isRisingSpell() const
-{
-	return isRising;
-}
-
-bool CSpell::isDamageSpell() const
-{
-	return isDamage;
-}
-
-bool CSpell::isOffensiveSpell() const
-{
-	return isOffensive;
-}
-
-bool CSpell::isSpecialSpell() const
-{
-    return isSpecial;
-}
-
-bool CSpell::hasEffects() const
-{
-	return effects.size() && effects[0].size();
-}
-
-const std::string& CSpell::getIconImmune() const
-{
-	return iconImmune;
-}
-
-si32 CSpell::getCost(const int skillLevel) const
-{
-    return costs[skillLevel];
-}
-
-si32 CSpell::getPower(const int skillLevel) const
-{
-    return powers[skillLevel];
-}
-
-//si32 CSpell::calculatePower(const int skillLevel) const
-//{
-//    return power + getPower(skillLevel);
-//}
-
-si32 CSpell::getProbability(const TFaction factionId) const
-{
-    if (! vstd::contains(probabilities,factionId))
-    {
-        return defaultProbability;
-    }
-    return probabilities.at(factionId);
-}
 
 
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spells like Dimension Door
