@@ -2151,6 +2151,11 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 			}
 		}
 	}
+	//add all spells from mods
+	for (int i = SpellID::AFTER_LAST; i < VLC->spellh->objects.size(); ++i)
+	{
+		nt->possibleSpells.push_back(SpellID(i));
+	}
 
 	// Read castle events
 	int numberOfEvent = reader.readUInt32();
