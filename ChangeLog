@@ -1,3 +1,17 @@
+0.95 -> 0.next
+GENERAL:
+* (linux) now VCMI follows XDG specifications. See http://forum.vcmi.eu/viewtopic.php?t=858
+
+ADVENTURE AI:
+
+ADVENTURE MAP:
+
+BATTLES:
+
+SPELLS:
+
+MODS:
+
 0.94 -> 0.95 (Mar 01 2014)
 GENERAL:
 * Components of combined artifacts will now display info about entire set.
