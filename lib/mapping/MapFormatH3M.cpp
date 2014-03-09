@@ -690,8 +690,8 @@ void CMapLoaderH3M::readAllowedArtifacts()
 
 void CMapLoaderH3M::readAllowedSpellsAbilities()
 {
-	// Read allowed spells
-	map->allowedSpell.resize(GameConstants::SPELLS_QUANTITY, true);
+	// Read allowed spells, including new ones
+	map->allowedSpell.resize(VLC->spellh->objects.size(), true);
 
 	// Read allowed abilities
 	map->allowedAbilities.resize(GameConstants::SKILL_QUANTITY, true);
@@ -706,6 +706,11 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
 		const int abil_bytes = 4;
 		readBitmask(map->allowedAbilities, abil_bytes, GameConstants::SKILL_QUANTITY);
 	}
+
+	//do not generate special abilities and spells
+	for (auto spell : VLC->spellh->objects)
+		if (spell->isSpecialSpell() || spell->isCreatureAbility())
+			map->allowedSpell[spell->id] = false;
 }
 
 void CMapLoaderH3M::readRumors()
