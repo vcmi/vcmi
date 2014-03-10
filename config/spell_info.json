@@ -2,17 +2,20 @@
 	"summonBoat" : {
 		"index" : 0,
 		"anim" : -1,
+		"sounds": {
+			"cast": "SUMMBOAT"
+		},
 		"levels" :{
-                        "none":{
+			"none":{
 				"range" : "X"
 			},
-                        "basic":{
+			"basic":{
 				"range" : "X"
 			},
-                        "advanced":{
+			"advanced":{
 				"range" : "X"
 			},
-                        "expert":{
+			"expert":{
 				"range" : "X"
 			}
 		},
@@ -23,18 +26,20 @@
 	"scuttleBoat" : {
 		"index" : 1,
 		"anim" : -1,
-		"levels" :
-                {
-                        "none":	{
+		"sounds": {
+			"cast": "SCUTBOAT"
+		},
+		"levels" : {
+			"none":	{
 				"range" : "X"
 			},
-                        "basic":{
+			"basic":{
 				"range" : "X"
 			},
-                        "advanced":{
+			"advanced":{
 				"range" : "X"
 			},
-                        "expert":{
+			"expert":{
 				"range" : "X"
 			}
 		},
@@ -45,6 +50,9 @@
 	"visions" : {
 		"index" : 2,
 		"anim" : -1,
+		"sounds": {
+			"cast": "VISIONS"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -66,6 +74,9 @@
 	"viewEarth" : {
 		"index" : 3,
 		"anim" : -1,
+		"sounds": {
+			"cast": "VIEW"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -87,6 +98,9 @@
 	"disguise" : {
 		"index" : 4,
 		"anim" : -1,
+		"sounds": {
+			"cast": "DISGUISE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -108,6 +122,9 @@
 	"viewAir" : {
 		"index" : 5,
 		"anim" : -1,
+		"sounds": {
+			"cast": "VIEW"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -129,6 +146,9 @@
 	"fly" : {
 		"index" : 6,
 		"anim" : -1,
+		"sounds": {
+			"cast": "FLYSPELL"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -150,6 +170,9 @@
 	"waterWalk" : {
 		"index" : 7,
 		"anim" : -1,
+		"sounds": {
+			"cast": "WATRWALK"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -171,6 +194,9 @@
 	"dimensionDoor" : {
 		"index" : 8,
 		"anim" : -1,
+		"sounds": {
+			"cast": "TELPTOUT"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -192,6 +218,9 @@
 	"townPortal" : {
 		"index" : 9,
 		"anim" : -1,
+		"sounds": {
+			"cast": "TELPTOUT"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -213,6 +242,9 @@
 	"quicksand" : {
 		"index" : 10,
 		"anim" : -1,
+		"sounds": {
+			"cast": "QUIKSAND"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -234,6 +266,9 @@
 	"landMine" : {
 		"index" : 11,
 		"anim" : -1,
+		"sounds": {
+			"cast": ""
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -259,6 +294,9 @@
 	"forceField" : {
 		"index" : 12,
 		"anim" : -1,
+		"sounds": {
+			"cast": "FORCEFLD"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -280,6 +318,9 @@
 	"fireWall" : {
 		"index" : 13,
 		"anim" : -1,
+		"sounds": {
+			"cast": "FIREWALL"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -305,6 +346,9 @@
 	"earthquake" : {
 		"index" : 14,
 		"anim" : -1,
+		"sounds": {
+			"cast": "ERTHQUAK"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -326,6 +370,9 @@
 	"magicArrow" : {
 		"index" : 15,
 		"anim" : 64,
+		"sounds": {
+			"cast": "MAGICBLT"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -352,6 +399,9 @@
 	"iceBolt" : {
 		"index" : 16,
 		"anim" : 46,
+		"sounds": {
+			"cast": "ICERAY"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -378,6 +428,9 @@
 	"lightningBolt" : {
 		"index" : 17,
 		"anim" : 38,
+		"sounds": {
+			"cast": "LIGHTBLT"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -404,6 +457,9 @@
 	"implosion" : {
 		"index" : 18,
 		"anim" : 10,
+		"sounds": {
+			"cast": "DECAY"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -431,6 +487,9 @@
 	"chainLightning" : {
 		"index" : 19,
 		"anim" : 38,
+		"sounds": {
+			"cast": "CHAINLTE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -454,6 +513,9 @@
 	"frostRing" : {
 		"index" : 20,
 		"anim" : 45,
+		"sounds": {
+			"cast": "FROSTING"
+		},
 		"levels" : {
 			"none":{
 				"range" : "1"
@@ -480,6 +542,9 @@
 	"fireball" : {
 		"index" : 21,
 		"anim" : 53,
+		"sounds": {
+			"cast": "FIREBALL"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0,1"
@@ -506,6 +571,9 @@
 	"inferno" : {
 		"index" : 22,
 		"anim" : 9,
+		"sounds": {
+			"cast": "FIREBLST"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0-2"
@@ -532,6 +600,9 @@
 	"meteorShower" : {
 		"index" : 23,
 		"anim" : 16,
+		"sounds": {
+			"cast": "METEOR"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0,1"
@@ -558,6 +629,9 @@
 	"deathRipple" : {
 		"index" : 24,
 		"anim" : 8,
+		"sounds": {
+			"cast": "DEATHRIP"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -586,6 +660,9 @@
 	"destroyUndead" : {
 		"index" : 25,
 		"anim" : 29,
+		"sounds": {
+			"cast": "COLDRING"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -615,6 +692,9 @@
 	"armageddon" : {
 		"index" : 26,
 		"anim" : 12,
+		"sounds": {
+			"cast": "ARMGEDN"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -641,6 +721,9 @@
 	"shield" : {
 		"index" : 27,
 		"anim" : 27,
+		"sounds": {
+			"cast": "SHIELD"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -690,6 +773,9 @@
 	"airShield" : {
 		"index" : 28,
 		"anim" : 2,
+		"sounds": {
+			"cast": "AIRSHELD"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -739,6 +825,12 @@
 	"fireShield" : {
 		"index" : 29,
 		"anim" : 11,
+		"sounds": {
+			"cast": "FIRESHIE"
+		},
+		// It looks that fireshield has two separate sounds
+		//			"soundfile":"FIRESHLD.wav"
+		//		
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -784,6 +876,9 @@
 	"protectAir" : {
 		"index" : 30,
 		"anim" : 22,
+		"sounds": {
+			"cast": "PROTECTA"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -833,6 +928,9 @@
 	"protectFire" : {
 		"index" : 31,
 		"anim" : 24,
+		"sounds": {
+			"cast": "PROTECTF"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -882,6 +980,9 @@
 	"protectWater" : {
 		"index" : 32,
 		"anim" : 23,
+		"sounds": {
+			"cast": "PROTECTW"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -931,6 +1032,9 @@
 	"protectEarth" : {
 		"index" : 33,
 		"anim" : 26,
+		"sounds": {
+			"cast": "PROTECTE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -980,6 +1084,9 @@
 	"antiMagic" : {
 		"index" : 34,
 		"anim" : 5,
+		"sounds": {
+			"cast": "ANTIMAGK"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1033,6 +1140,9 @@
 	"dispel" : {
 		"index" : 35,
 		"anim" : 41,
+		"sounds": {
+			"cast": "DISPELL"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -1054,6 +1164,9 @@
 	"magicMirror" : {
 		"index" : 36,
 		"anim" : 3,
+		"sounds": {
+			"cast": "BACKLASH"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1103,6 +1216,9 @@
 	"cure" : {
 		"index" : 37,
 		"anim" : 39,
+		"sounds": {
+			"cast": "CURE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -1124,6 +1240,9 @@
 	"resurrection" : {
 		"index" : 38,
 		"anim" : 79,
+		"sounds": {
+			"cast": "RESURECT"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -1150,6 +1269,9 @@
 	"animateDead" : {
 		"index" : 39,
 		"anim" : 79,
+		"sounds": {
+			"cast": "ANIMDEAD"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -1175,6 +1297,9 @@
 	"sacrifice" : {
 		"index" : 40,
 		"anim" : 79,
+		"sounds": {
+			"cast": "SACRIF1"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -1201,6 +1326,9 @@
 	"bless" : {
 		"index" : 41,
 		"anim" : 36,
+		"sounds": {
+			"cast": "BLESS"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1264,6 +1392,9 @@
 	"curse" : {
 		"index" : 42,
 		"anim" : 40,
+		"sounds": {
+			"cast": "CURSE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1331,6 +1462,9 @@
 	"bloodlust" : {
 		"index" : 43,
 		"anim" : 4,
+		"sounds": {
+			"cast": "BLOODLUS"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1391,6 +1525,9 @@
 	"precision" : {
 		"index" : 44,
 		"anim" : 25,
+		"sounds": {
+			"cast": "PRECISON"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1451,6 +1588,9 @@
 	"weakness" : {
 		"index" : 45,
 		"anim" : 56,
+		"sounds": {
+			"cast": "WEAKNESS"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1507,6 +1647,9 @@
 	"stoneSkin" : {
 		"index" : 46,
 		"anim" : 54,
+		"sounds": {
+			"cast": "TUFFSKIN"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1559,8 +1702,11 @@
 	},
 	"disruptingRay" : {
 		"index" : 47,
-                "targetType" : "CREATURE", //fix, dont remove
+				"targetType" : "CREATURE", //fix, dont remove
 		"anim" : 14,
+		"sounds": {
+			"cast": "DISRUPTR"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1618,6 +1764,9 @@
 	"prayer" : {
 		"index" : 48,
 		"anim" : 0,
+		"sounds": {
+			"cast": "PRAYER"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1719,6 +1868,9 @@
 	"mirth" : {
 		"index" : 49,
 		"anim" : 20,
+		"sounds": {
+			"cast": "MIRTH"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1771,6 +1923,9 @@
 	"sorrow" : {
 		"index" : 50,
 		"anim" : 30,
+		"sounds": {
+			"cast": "SORROW"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1828,6 +1983,9 @@
 	"fortune" : {
 		"index" : 51,
 		"anim" : 18,
+		"sounds": {
+			"cast": "FORTUNE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1880,6 +2038,9 @@
 	"misfortune" : {
 		"index" : 52,
 		"anim" : 48,
+		"sounds": {
+			"cast": "MISFORT"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1932,6 +2093,9 @@
 	"haste" : {
 		"index" : 53,
 		"anim" : 31,
+		"sounds": {
+			"cast": "HASTE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -1991,6 +2155,9 @@
 	"slow" : {
 		"index" : 54,
 		"anim" : 19,
+		"sounds": {
+			"cast": "MUCKMIRE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -2055,6 +2222,9 @@
 	"slayer" : {
 		"index" : 55,
 		"anim" : 28,
+		"sounds": {
+			"cast": "SLAYER"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -2104,6 +2274,9 @@
 	"frenzy" : {
 		"index" : 56,
 		"anim" : 17,
+		"sounds": {
+			"cast": "FRENZY"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -2153,6 +2326,9 @@
 	"titanBolt" : {
 		"index" : 57,
 		"anim" : 38,
+		"sounds": {
+			"cast": "LIGHTBLT"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -2171,12 +2347,15 @@
 			"damage": true,
 			"offensive": true,
 			"negative": true,
-                        "special": true
+						"special": true
 		}
 	},
 	"counterstrike" : {
 		"index" : 58,
 		"anim" : 7,
+		"sounds": {
+			"cast": "CNTRSTRK"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -2226,6 +2405,9 @@
 	"berserk" : {
 		"index" : 59,
 		"anim" : 35,
+		"sounds": {
+			"cast": "BERSERK"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -2281,6 +2463,9 @@
 	"hypnotize" : {
 		"index" : 60,
 		"anim" : 21,
+		"sounds": {
+			"cast": "HYPNOTIZ"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -2335,8 +2520,11 @@
 	},
 	"forgetfulness" : {
 		"index" : 61,
-                "targetType" : "CREATURE_EXPERT_MASSIVE", //fix dont remove
+		"targetType" : "CREATURE_EXPERT_MASSIVE", //fix dont remove
 		"anim" : 42,
+		"sounds": {
+			"cast": "FORGET"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -2394,6 +2582,9 @@
 	"blind" : {
 		"index" : 62,
 		"anim" : 6,
+		"sounds": {
+			"cast": "BLIND"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -2513,6 +2704,9 @@
 	"teleport" : {
 		"index" : 63,
 		"anim" : -1,
+		"sounds": {
+			"cast": "TELPTOUT"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -2537,6 +2731,9 @@
 	"removeObstacle" : {
 		"index" : 64,
 		"anim" : -1,
+		"sounds": {
+			"cast": "REMOVEOB"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -2558,6 +2755,9 @@
 	"clone" : {
 		"index" : 65,
 		"anim" : -1,
+		"sounds": {
+			"cast": "CLONE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -2582,6 +2782,9 @@
 	"fireElemental" : {
 		"index" : 66,
 		"anim" : -1,
+		"sounds": {
+			"cast": "SUMNELM"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -2603,6 +2806,9 @@
 	"earthElemental" : {
 		"index" : 67,
 		"anim" : -1,
+		"sounds": {
+			"cast": "SUMNELM"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -2624,6 +2830,9 @@
 	"waterElemental" : {
 		"index" : 68,
 		"anim" : -1,
+		"sounds": {
+			"cast": "SUMNELM"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -2645,6 +2854,9 @@
 	"airElemental" : {
 		"index" : 69,
 		"anim" : -1,
+		"sounds": {
+			"cast": "SUMNELM"
+		},
 		"levels" : {
 			"none":{
 				"range" : "X"
@@ -2666,6 +2878,9 @@
 	"stoneGaze" : {
 		"index" : 70,
 		"anim" : 70,
+		"sounds": {
+			"cast": "PARALYZE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -2751,6 +2966,9 @@
 	"poison" : {
 		"index" : 71,
 		"anim" : 67,
+		"sounds": {
+			"cast": "POISON"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -2832,6 +3050,9 @@
 	"bind" : {
 		"index" : 72,
 		"anim" : 68,
+		"sounds": {
+			"cast": "BIND"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -2885,6 +3106,9 @@
 	"disease" : {
 		"index" : 73,
 		"anim" : 69,
+		"sounds": {
+			"cast": "DISEASE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -2966,6 +3190,9 @@
 	"paralyze" : {
 		"index" : 74,
 		"anim" : 70,
+		"sounds": {
+			"cast": "PARALYZE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -3051,6 +3278,9 @@
 	"age" : {
 		"index" : 75,
 		"anim" : 71,
+		"sounds": {
+			"cast": "AGE"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -3108,6 +3338,9 @@
 	"deathCloud" : {
 		"index" : 76,
 		"anim" : 72,
+		"sounds": {
+			"cast": "DEATHCLD"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0-1"
@@ -3133,6 +3366,9 @@
 	"thunderbolt" : {
 		"index" : 77,
 		"anim" : 38,
+		"sounds": {
+			"cast": "LIGHTBLT"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -3156,6 +3392,9 @@
 	"dispelHelpful" : {
 		"index" : 78,
 		"anim" : 41,
+		"sounds": {
+			"cast": "DISPELL"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -3178,6 +3417,9 @@
 	"deathStare" : {
 		"index" : 79,
 		"anim" : 80,
+		"sounds": {
+			"cast": "DEATHSTR"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"
@@ -3203,6 +3445,9 @@
 	"acidBreath" : {
 		"index" : 80,
 		"anim" : 81,
+		"sounds": {
+			"cast": "ACID"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0",
@@ -3260,6 +3505,9 @@
 	"acidBreathDamage" : {
 		"index" : 81,
 		"anim" : 81,
+		"sounds": {
+			"cast": "ACID"
+		},
 		"levels" : {
 			"none":{
 				"range" : "0"

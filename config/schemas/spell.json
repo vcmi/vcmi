@@ -1,4 +1,4 @@
-{
+        {
 
 	"type":"object",
 	"$schema": "http://json-schema.org/draft-04/schema",
@@ -96,7 +96,7 @@
                 },
 
                 "defaultGainChance":{
-                        "type": "nomber",
+                        "type": "number",
                         "description": "Gain chance by default for all factions"
 
                 },
@@ -115,7 +115,7 @@
                 },
                 "anim":{
                         "type": "number",
-                        "description": "Main effect animation (AC format), -1 - none",
+                        "description": "Main effect animation (AC format), -1 - none, deprecated",
                         "minimum": -1
                 },
                 "counters":{
@@ -175,12 +175,43 @@
                          "additionalProperties" : false,
                          "properties":{
                                  "iconImmune":{
-                                      "type":"string",
-                                      "description":"Resourse path of icon for SPELL_IMMUNITY bonus (relative to DATA or SPRITES)",
+                                      "type": "string",
+                                      "description": "Resourse path of icon for SPELL_IMMUNITY bonus (relative to DATA or SPRITES)",
                                       "format" : "imageFile"
+                                 },
+                                 "iconScenarioBonus":{
+                                      "type": "string",
+                                      "description": "Resourse path of icon for scenario bonus" ,
+                                      "format" : "imageFile"
+                                 },
+                                 "iconEffect":{
+                                      "type": "string",
+                                      "description": "Resourse path of icon for spell effects during battle" ,
+                                      "format" : "imageFile"
+                                 },
+                                 "iconBook":{
+                                      "type": "string",
+                                      "description":"Resourse path of icon for spellbook" ,
+                                      "format" : "imageFile"
+                                 },
+                                 "iconScroll":{
+                                      "type": "string",
+                                      "description": "Resourse path of icon for spell scrolls",
+                                      "format": "imageFile"
                                  }
                          }
 
+                },
+
+                "sounds":{
+                         "type": "object",
+                         "additionalProperties" : false,
+                         "properties":{
+                                 "cast":{
+                                      "type": "string",
+                                      "description": "Resourse path of cast sound"
+                                 }
+                         }
                 },
 
                 "levels":{

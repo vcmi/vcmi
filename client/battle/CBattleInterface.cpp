@@ -1230,8 +1230,10 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 	std::vector< std::string > anims; //for magic arrow and ice bolt
 
-	if (vstd::contains(CCS->soundh->spellSounds, &spell))
-		CCS->soundh->playSound(CCS->soundh->spellSounds[&spell]);
+	const std::string& castSoundPath = spell.getCastSound();
+	
+	if(!castSoundPath.empty())
+		CCS->soundh->playSound(castSoundPath);
 
 	switch(sc->id)
 	{

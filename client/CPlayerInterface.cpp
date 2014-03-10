@@ -2203,8 +2203,10 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 		eraseCurrentPathOf(caster, false);
 	}
 	const CSpell * spell = CGI->spellh->objects[spellID];
-	if (vstd::contains(CCS->soundh->spellSounds, spell))
-		CCS->soundh->playSound(CCS->soundh->spellSounds[spell]);
+	
+	auto castSoundPath = spell->getCastSound();
+	if (!castSoundPath.empty())
+		CCS->soundh->playSound(castSoundPath);
 }
 
 void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho, bool checkForExistanceOfPath /*= true */ )

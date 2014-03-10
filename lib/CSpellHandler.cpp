@@ -313,6 +313,13 @@ const std::string& CSpell::getIconImmune() const
 	return iconImmune;
 }
 
+const std::string& CSpell::getCastSound() const
+{
+	return castSound;
+}
+
+
+
 si32 CSpell::getCost(const int skillLevel) const
 {
     return costs[skillLevel];
@@ -693,11 +700,6 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 
 	//by default all flags are set to false in constructor
 
-	if(flags["summoning"].Bool())
-	{
-		logGlobal->warnStream() << spell->name << ": summoning flag in unimplemented";
-	}
-
 	spell->isDamage = flags["damage"].Bool(); //do this before "offensive"
 
 	if(flags["offensive"].Bool())
@@ -767,6 +769,16 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
     const JsonNode & graphicsNode = json["graphics"];
  
 	spell->iconImmune = graphicsNode["iconImmune"].String();
+	spell->iconBook = graphicsNode["iconBook"].String();
+	spell->iconEffect = graphicsNode["iconEffect"].String();
+	spell->iconScenarioBonus = graphicsNode["iconScenarioBonus"].String();
+	spell->iconScroll = graphicsNode["iconScroll"].String();
+	
+	
+	
+	const JsonNode & soundsNode = json["sounds"];
+	
+	spell->castSound = soundsNode["cast"].String();
 
 
     //load level attributes

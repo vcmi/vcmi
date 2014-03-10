@@ -17,12 +17,14 @@
 #include "../lib/CCreatureHandler.h"
 #include "CBitmapHandler.h"
 #include "../lib/CObjectHandler.h"
+#include "../lib/CSpellHandler.h"
 #include "../lib/CDefObjInfoHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
 #include "../lib/GameConstants.h"
 #include "../lib/CStopWatch.h"
+#include "CAnimation.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;
@@ -115,9 +117,7 @@ void Graphics::initializeBattleGraphics()
 		}
 
 		battleACToDef[ACid] = toAdd;
-	}
-
-	spellEffectsPics = CDefHandler::giveDefEss("SpellInt.def");
+	}	
 }
 Graphics::Graphics()
 {
@@ -128,8 +128,7 @@ Graphics::Graphics()
 	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += boost::bind(&Graphics::loadErmuToPicture,this);
 	tasks += boost::bind(&Graphics::initializeImageLists,this);
-	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
-	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
+	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");	
 	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
 
 	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
@@ -410,5 +409,13 @@ void Graphics::initializeImageLists()
 			addImageListEntry(info.icons[1][0] + 2, "ITPA", info.iconSmall[1][0]);
 			addImageListEntry(info.icons[1][1] + 2, "ITPA", info.iconSmall[1][1]);
 		}
+	}
+	
+	for(const CSpell * spell : CGI->spellh->objects)
+	{
+		addImageListEntry(spell->id, "SPELLS", spell->iconBook);
+		addImageListEntry(spell->id+1, "SPELLINT", spell->iconEffect);
+		addImageListEntry(spell->id, "SPELLBON", spell->iconScenarioBonus);
+		addImageListEntry(spell->id, "SPELLSCR", spell->iconScroll);		
 	}
 }

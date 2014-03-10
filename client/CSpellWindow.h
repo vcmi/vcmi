@@ -51,6 +51,7 @@ private:
 		int spellCost;
 		CSpellWindow * owner;
 
+
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
 
 		void setSpell(SpellID spellID);
@@ -62,8 +63,10 @@ private:
 	};
 
 	SDL_Surface * leftCorner, * rightCorner;
-	CDefHandler * spells, //pictures of spells
-		* spellTab, //school select
+	
+	CAnimation * spells; //pictures of spells
+	
+	CDefHandler	* spellTab, //school select
 		* schools, //schools' pictures
 		* schoolBorders [4]; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
 

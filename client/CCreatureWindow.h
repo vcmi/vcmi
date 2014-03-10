@@ -65,7 +65,8 @@ public:
 	CAdventureMapButton *dismiss, *upgrade, *ok;
 	CAdventureMapButton * leftArtRoll, * rightArtRoll; //artifact selection
 	CAdventureMapButton * passArtToHero;
-	CAnimImage *artifactImage;
+	CAnimImage * artifactImage;
+	CAnimation * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
 
 	//commander level-up
 	int selectedOption; //index for upgradeOptions

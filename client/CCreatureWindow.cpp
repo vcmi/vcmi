@@ -185,6 +185,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 {
 	creatureArtifact = nullptr; //may be set later
 	artifactImage = nullptr;
+	spellEffectsPics = nullptr;
 	stack = Stack;
 	c = stack->type;
 	if(!StackNode)
@@ -411,28 +412,35 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				passArtToHero = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::passArtifactToHero, this), 437, 148, "OVBUTN1.DEF", SDLK_HOME);
 		}
 	}
-
+	
 	if (battleStack) //only during battle
 	{
+		spellEffectsPics = new CAnimation("SpellInt.def");
+
 		//spell effects
 		int printed=0; //how many effect pics have been printed
 		std::vector<si32> spells = battleStack->activeSpells();
 		for(si32 effect : spells)
 		{
+			const si32 imageIndex = effect+1; //there is "null" frame with index 0 in SpellInt.def
 			std::string spellText;
-			if (effect < graphics->spellEffectsPics->ourImages.size()) //not all effects have graphics (for eg. Acid Breath)
+			spellEffectsPics->load(imageIndex);
+			IImage * effectIcon = spellEffectsPics->getImage(imageIndex,0,false); //todo: better way to determine presence of icon
+			spellEffectsPics->unload(imageIndex);
+			if (effectIcon != nullptr) //not all effects have graphics (for eg. Acid Breath)
 			{
 				spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
 				boost::replace_first (spellText, "%s", CGI->spellh->objects[effect]->name);
 				int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
 				boost::replace_first (spellText, "%d", boost::lexical_cast<std::string>(duration));
 
-				new CAnimImage("SpellInt", effect + 1, 0, 20 + 52 * printed, 184);
+				new CAnimImage("SpellInt.def", imageIndex, 0, 20 + 52 * printed, 184);
 				spellEffects.push_back(new LRClickableAreaWText(Rect(20 + 52 * printed, 184, 50, 38), spellText, spellText));
 				if (++printed >= 10) //we can fit only 10 effects
 					break;
 			}
 		}
+		
 		//print current health
 		printLine (5, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
 	}
@@ -689,6 +697,9 @@ CCreatureWindow::~CCreatureWindow()
  	for (auto & elem : upgResCost)
  		delete elem;
 	bonusItems.clear();
+	
+	if(spellEffectsPics!=nullptr)
+		delete spellEffectsPics;
 }
 
 CBonusItem::CBonusItem()

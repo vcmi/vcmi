@@ -177,28 +177,6 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound)
 	}
 }
 
-void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpell> > &spells)
-{
-	const JsonNode config(ResourceID("config/sp_sounds.json"));
-
-	if (!config["spell_sounds"].isNull())
-	{
-		for(const JsonNode &node : config["spell_sounds"].Vector())
-		{
-			int spellid = node["id"].Float();
-			const CSpell *s = CGI->spellh->objects[spellid];
-
-			if (vstd::contains(spellSounds, s))
-                logGlobal->errorStream() << "Spell << " << spellid << " already has a sound";
-
-			std::string sound = node["soundfile"].String();
-			if (sound.empty())
-                logGlobal->errorStream() << "Error: invalid sound for id "<< spellid;
-			spellSounds[s] = sound;
-		}
-	}
-}
-
 // Plays a sound, and return its channel so we can fade it out later
 int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
 {

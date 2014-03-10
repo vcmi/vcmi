@@ -147,7 +147,9 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 
 	leftCorner = BitmapHandler::loadBitmap("SpelTrnL.bmp", true);
 	rightCorner = BitmapHandler::loadBitmap("SpelTrnR.bmp", true);
-	spells = CDefHandler::giveDef("Spells.def");
+	
+	spells = new CAnimation("Spells.def");
+		
 	spellTab = CDefHandler::giveDef("SpelTab.def");
 	schools = CDefHandler::giveDef("Schools.def");
 	schoolBorders[0] = CDefHandler::giveDef("SplevA.def");
@@ -222,6 +224,7 @@ CSpellWindow::~CSpellWindow()
 {
 	SDL_FreeSurface(leftCorner);
 	SDL_FreeSurface(rightCorner);
+	spells->unload();
 	delete spells;
 	delete spellTab;
 	delete schools;
@@ -775,7 +778,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 							LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
 						else
 							GH.pushInt (new CObjectListWindow(availableTowns,
-								new CPicture(graphics->spellscr->ourImages[spell].bitmap, 0, 0, false),
+								new CAnimImage("SPELLSCR",spell),
 								CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
 								boost::bind (&CSpellWindow::teleportTo, owner, _1, h)));
 					}
@@ -835,9 +838,16 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 	if(mySpell < 0)
 		return;
 
-	const CSpell * spell = mySpell.toSpell();
+	const CSpell * spell = mySpell.toSpell();	
+	owner->spells->load(mySpell);
+	
+	IImage * icon = owner->spells->getImage(mySpell,0,false);
+	
+	if(icon != nullptr)
+		icon->draw(to, pos.x, pos.y);
+	else
+		logGlobal->errorStream() << __FUNCTION__ << ": failed to load spell icon for spell with id " << mySpell;
 
-	blitAt(owner->spells->ourImages[mySpell].bitmap, pos.x, pos.y, to);
 	blitAt(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->ourImages[schoolLevel].bitmap, pos.x, pos.y, to); //printing border (indicates level of magic school)
 
 	SDL_Color firstLineColor, secondLineColor;

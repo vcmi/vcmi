@@ -537,21 +537,21 @@ class CObjectListWindow : public CWindowObject
 	CLabel * title;
 	CLabel * descr;
 
-	CListBox *list;
-	CPicture *titleImage;//title image (castle gate\town portal picture)
+	CListBox * list;
+	CIntObject * titleImage;//title image (castle gate\town portal picture)
 	CAdventureMapButton *ok, *exit;
 
 	std::vector< std::pair<int, std::string> > items;//all items present in list
 
-	void init(CPicture * titlePic, std::string _title, std::string _descr);
+	void init(CIntObject * titlePic, std::string _title, std::string _descr);
 public:
 	size_t selected;//index of currently selected item
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
-	CObjectListWindow(const std::vector<int> &_items, CPicture * titlePic, std::string _title, std::string _descr,
+	CObjectListWindow(const std::vector<int> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
                       std::function<void(int)> Callback);
-	CObjectListWindow(const std::vector<std::string> &_items, CPicture * titlePic, std::string _title, std::string _descr,
+	CObjectListWindow(const std::vector<std::string> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
                       std::function<void(int)> Callback);
 
 	CIntObject *genItem(size_t index);

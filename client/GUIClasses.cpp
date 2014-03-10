@@ -1841,7 +1841,7 @@ void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 		parent->changeSelection(index);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CPicture * titlePic, std::string _title, std::string _descr,
+CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
 				std::function<void(int)> Callback):
     CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback)
@@ -1855,7 +1855,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CPicture * 
 	init(titlePic, _title, _descr);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> &_items, CPicture * titlePic, std::string _title, std::string _descr,
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
 				std::function<void(int)> Callback):
     CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback)
@@ -1868,7 +1868,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> &_items, CPi
 	init(titlePic, _title, _descr);
 }
 
-void CObjectListWindow::init(CPicture * titlePic, std::string _title, std::string _descr)
+void CObjectListWindow::init(CIntObject * titlePic, std::string _title, std::string _descr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 

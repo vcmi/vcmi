@@ -102,6 +102,8 @@ public:
 	* Returns resource name of icon for SPELL_IMMUNITY bonus
 	*/
 	const std::string& getIconImmune() const;
+	
+	const std::string& getCastSound() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -114,8 +116,12 @@ public:
         h & absoluteImmunities & defaultProbability;
 
         h & isSpecial;
+        
+        h & castSound & iconBook & iconEffect & iconScenarioBonus & iconScroll ;
+		
 	}
 	friend class CSpellHandler;
+	friend class Graphics;
 
 private:
     void setIsOffensive(const bool val);
@@ -147,9 +153,14 @@ private:
 	///graphics related stuff
 
 	std::string iconImmune;
+	
+	std::string iconBook;
+	std::string iconEffect;
+	std::string iconScenarioBonus;	
+	std::string iconScroll;
 
-
-
+	///sound related stuff
+	std::string castSound;
 };
 
 

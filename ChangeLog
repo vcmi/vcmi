@@ -9,8 +9,10 @@ ADVENTURE MAP:
 BATTLES:
 
 SPELLS:
+* New configuration format: http://wiki.vcmi.eu/index.php?title=Spell_Format
 
 MODS:
+* Mods cas now add new (offensive, buffs, debuffs) spells and change existing
 
 0.94 -> 0.95 (Mar 01 2014)
 GENERAL:

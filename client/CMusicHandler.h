@@ -57,7 +57,6 @@ public:
 	void init();
 	void release();
 
-	void initSpellsSounds(const std::vector< ConstTransitivePtr<CSpell> > &spells);
 	void setVolume(ui32 percent);
 
 	// Sounds
@@ -68,8 +67,6 @@ public:
 
 	void setCallback(int channel, std::function<void()> function);
 	void soundFinishedCallback(int channel);
-
-	std::map<const CSpell*, std::string> spellSounds;
 
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;

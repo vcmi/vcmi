@@ -4127,7 +4127,8 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 					++chainLightningModifier;
 			}
 	}
-	else if (spell->hasEffects())
+	
+	if (spell->hasEffects())
 	{
 			int stackSpellPower = 0;
 			if (stack && mode != ECastingMode::MAGIC_MIRROR)
@@ -4142,7 +4143,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 			CStack::stackEffectToFeature(sse.effect, pseudoBonus);
 			if (spellID == SpellID::SHIELD || spellID == SpellID::AIR_SHIELD)
 			{
-				sse.effect.back().val = (100 - sse.effect.back().val); //fix to original config: shiled should display damage reduction
+				sse.effect.back().val = (100 - sse.effect.back().val); //fix to original config: shield should display damage reduction
 			}
 			if (spellID == SpellID::BIND && stack)//bind
 			{
@@ -4209,7 +4210,8 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				sendAndApply(&sse);
 
 	}
-	else if (spell->isRisingSpell() || spell->id == SpellID::CURE)
+	
+	if (spell->isRisingSpell() || spell->id == SpellID::CURE)
 	{
 			int hpGained = 0;
 			if (stack)
@@ -4275,7 +4277,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				sendAndApply(&bsr);
 			}
 	}
-	else
+
 	switch (spellID)
 	{
 	case SpellID::QUICKSAND:
@@ -4370,7 +4372,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 			if (!clonedStack)
 			{
 				complain ("No target stack to clone!");
-				return;
+				break;
 			}
 
 			BattleStackAdded bsa;

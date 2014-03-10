@@ -2063,7 +2063,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 		{
 			if(const CStack * st = battleGetStackByPos(hex, onlyAlive))
 			{
-				if (spell->id == 76) //Death Cloud //TODO: fireball and fire immunity
+				if (spell->id == SpellID::DEATH_CLOUD) //Death Cloud //TODO: fireball and fire immunity
 				{
 					if (st->isLiving() || st->coversPos(destinationTile)) //directly hit or alive
 					{

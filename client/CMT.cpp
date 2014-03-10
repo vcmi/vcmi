@@ -145,7 +145,7 @@ void init()
 
 	loadDLLClasses();
 	const_cast<CGameInfo*>(CGI)->setFromLib();
-	CCS->soundh->initSpellsSounds(CGI->spellh->objects);
+
     logGlobal->infoStream()<<"Initializing VCMI_Lib: "<<tmh.getDiff();
 
 	pomtime.getDiff();
