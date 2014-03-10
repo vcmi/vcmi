@@ -595,7 +595,14 @@ namespace
 
 		std::string typeCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
-			JsonNode::JsonType type = stringToType.find(schema.String())->second;
+			const auto typeName = schema.String();
+			auto it = stringToType.find(typeName);
+			if(it == stringToType.end())
+			{
+				return validator.makeErrorMessage("Unknown type in schema:" + typeName);
+			}
+			
+			JsonNode::JsonType type = it->second;
 			if(type != data.getType() && data.getType() != JsonNode::DATA_NULL)
 				return validator.makeErrorMessage("Type mismatch! Expected " + schema.String());
 			return "";
