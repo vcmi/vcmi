@@ -4,6 +4,7 @@
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CZipLoader.h"
+#include "../../lib/CModHandler.h"
 
 #include "../jsonutils.h"
 #include "../launcherdirs.h"
@@ -59,7 +60,9 @@ void CModManager::loadRepository(QString file)
 
 void CModManager::loadMods()
 {
-	auto installedMods = CResourceHandler::getAvailableMods();
+	CModHandler handler;
+	handler.loadMods();
+	auto installedMods = handler.getAllMods();
 
 	for (auto modname : installedMods)
 	{

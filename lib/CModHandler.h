@@ -177,8 +177,11 @@ public:
 	CModInfo(){}
 	CModInfo(std::string identifier, const JsonNode & local, const JsonNode & config);
 
-	JsonNode saveLocalData();
+	JsonNode saveLocalData() const;
 	void updateChecksum(ui32 newChecksum);
+
+	static std::string getModDir(std::string name);
+	static std::string getModFile(std::string name);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -197,7 +200,6 @@ class DLL_LINKAGE CModHandler
 	CModInfo coreMod;
 
 	void loadConfigFromFile(std::string name);
-	void loadModFilesystems();
 
 	bool hasCircularDependency(TModID mod, std::set <TModID> currentList = std::set <TModID>()) const;
 
@@ -210,15 +212,23 @@ class DLL_LINKAGE CModHandler
 	// returns load order in which all dependencies are resolved, e.g. loaded after required mods
 	// function assumes that input list is valid (checkDependencies returned true)
 	std::vector <TModID> resolveDependencies(std::vector<TModID> input) const;
+
+	std::vector<std::string> getModList(std::string path);
+	void loadMods(std::string path, std::string namePrefix, const JsonNode & modSettings);
 public:
 
 	CIdentifierStorage identifiers;
 
 	/// receives list of available mods and trying to load mod.json from all of them
-	void initializeMods(std::vector<std::string> availableMods);
 	void initializeConfig();
+	void loadMods();
+	void loadModFilesystems();
 
 	CModInfo & getModData(TModID modId);
+
+	/// returns list of all (active) mods
+	std::vector<std::string> getAllMods();
+	std::vector<std::string> getActiveMods();
 
 	/// load content from all available mods
 	void load();

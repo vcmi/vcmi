@@ -104,11 +104,6 @@ public:
 	 */
 	static ISimpleResourceLoader * createFileSystem(const std::string &prefix, const JsonNode & fsConfig);
 
-	/**
-	 * Checks all subfolders of MODS directory for presence of mods
-	 * If this directory has mod.json file it will be added to resources
-	 */
-	static std::vector<std::string> getAvailableMods();
 private:
 	/** Instance of resource loader */
 	static std::map<std::string, ISimpleResourceLoader*> knownLoaders;

@@ -411,6 +411,89 @@ void CContentHandler::load(CModInfo & mod)
 		logGlobal->infoStream()  << "\t\t[SKIP] " << mod.name;
 }
 
+static JsonNode loadModSettings(std::string path)
+{
+	if (CResourceHandler::get("local")->existsResource(ResourceID(path)))
+	{
+		return JsonNode(ResourceID(path, EResType::TEXT));
+	}
+	// Probably new install. Create initial configuration
+	CResourceHandler::get("local")->createResource(path);
+	return JsonNode();
+}
+
+JsonNode addMeta(JsonNode config, std::string meta)
+{
+	config.setMeta(meta);
+	return std::move(config);
+}
+
+CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode & config):
+	identifier(identifier),
+	name(config["name"].String()),
+	description(config["description"].String()),
+	dependencies(config["depends"].convertTo<std::set<std::string> >()),
+	conflicts(config["conflicts"].convertTo<std::set<std::string> >()),
+	validation(PENDING),
+	config(addMeta(config, identifier))
+{
+	loadLocalData(local);
+}
+
+JsonNode CModInfo::saveLocalData() const
+{
+	std::ostringstream stream;
+	stream << std::noshowbase << std::hex << std::setw(8) << std::setfill('0') << checksum;
+
+	JsonNode conf;
+	conf["active"].Bool() = enabled;
+	conf["validated"].Bool() = validation != FAILED;
+	conf["checksum"].String() = stream.str();
+	return conf;
+}
+
+std::string CModInfo::getModDir(std::string name)
+{
+	return "MODS/" + boost::algorithm::replace_all_copy(name, ".", "/MODS/");
+}
+
+std::string CModInfo::getModFile(std::string name)
+{
+	return getModDir(name) + "/mod.json";
+}
+
+void CModInfo::updateChecksum(ui32 newChecksum)
+{
+	// comment-out next line to force validation of all mods ignoring checksum
+	if (newChecksum != checksum)
+	{
+		checksum = newChecksum;
+		validation = PENDING;
+	}
+}
+
+void CModInfo::loadLocalData(const JsonNode & data)
+{
+	bool validated = false;
+	enabled = true;
+	checksum = 0;
+	if (data.getType() == JsonNode::DATA_BOOL)
+	{
+		enabled = data.Bool();
+	}
+	if (data.getType() == JsonNode::DATA_STRUCT)
+	{
+		enabled   = data["active"].Bool();
+		validated = data["validated"].Bool();
+		checksum  = strtol(data["checksum"].String().c_str(), nullptr, 16);
+	}
+
+	if (enabled)
+		validation = validated ? PASSED : PENDING;
+	else
+		validation = validated ? PASSED : FAILED;
+}
+
 CModHandler::CModHandler()
 {
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
@@ -450,8 +533,8 @@ bool CModHandler::hasCircularDependency(TModID modID, std::set <TModID> currentL
 	// Mod already present? We found a loop
 	if (vstd::contains(currentList, modID))
 	{
-        logGlobal->errorStream() << "Error: Circular dependency detected! Printing dependency list:";
-        logGlobal->errorStream() << "\t" << mod.name << " -> ";
+		logGlobal->errorStream() << "Error: Circular dependency detected! Printing dependency list:";
+		logGlobal->errorStream() << "\t" << mod.name << " -> ";
 		return true;
 	}
 
@@ -462,7 +545,7 @@ bool CModHandler::hasCircularDependency(TModID modID, std::set <TModID> currentL
 	{
 		if (hasCircularDependency(dependency, currentList))
 		{
-            logGlobal->errorStream() << "\t" << mod.name << " ->\n"; // conflict detected, print dependency list
+			logGlobal->errorStream() << "\t" << mod.name << " ->\n"; // conflict detected, print dependency list
 			return true;
 		}
 	}
@@ -479,7 +562,7 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 		{
 			if (!vstd::contains(input, dep))
 			{
-                logGlobal->errorStream() << "Error: Mod " << mod.name << " requires missing " << dep << "!";
+				logGlobal->errorStream() << "Error: Mod " << mod.name << " requires missing " << dep << "!";
 				return false;
 			}
 		}
@@ -488,7 +571,7 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 		{
 			if (vstd::contains(input, conflicting))
 			{
-                logGlobal->errorStream() << "Error: Mod " << mod.name << " conflicts with " << allMods.at(conflicting).name << "!";
+				logGlobal->errorStream() << "Error: Mod " << mod.name << " conflicts with " << allMods.at(conflicting).name << "!";
 				return false;
 			}
 		}
@@ -545,113 +628,90 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input
 	return output;
 }
 
-static JsonNode loadModSettings(std::string path)
+std::vector<std::string> CModHandler::getModList(std::string path)
 {
-	if (CResourceHandler::get("local")->existsResource(ResourceID(path)))
+	std::string modDir = boost::to_upper_copy(path + "MODS/");
+	size_t depth = boost::range::count(modDir, '/');
+
+	auto list = CResourceHandler::get("initial")->getFilteredFiles([&](const ResourceID & id) ->  bool
 	{
-		return JsonNode(ResourceID(path, EResType::TEXT));
-	}
-	// Probably new install. Create initial configuration
-	CResourceHandler::get("local")->createResource(path);
-	return JsonNode();
-}
+		if (id.getType() != EResType::DIRECTORY)
+			return false;
+		if (!boost::algorithm::starts_with(id.getName(), modDir))
+			return false;
+		if (boost::range::count(id.getName(), '/') != depth )
+			return false;
+		return true;
+	});
 
-JsonNode addMeta(JsonNode config, std::string meta)
-{
-	config.setMeta(meta);
-	return std::move(config);
-}
-
-CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode & config):
-	identifier(identifier),
-	name(config["name"].String()),
-	description(config["description"].String()),
-	dependencies(config["depends"].convertTo<std::set<std::string> >()),
-	conflicts(config["conflicts"].convertTo<std::set<std::string> >()),
-	validation(PENDING),
-	config(addMeta(config, identifier))
-{
-	loadLocalData(local);
-}
-
-JsonNode CModInfo::saveLocalData()
-{
-	std::ostringstream stream;
-	stream << std::noshowbase << std::hex << std::setw(8) << std::setfill('0') << checksum;
-
-	JsonNode conf;
-	conf["active"].Bool() = enabled;
-	conf["validated"].Bool() = validation != FAILED;
-	conf["checksum"].String() = stream.str();
-	return conf;
-}
-
-void CModInfo::updateChecksum(ui32 newChecksum)
-{
-	// comment-out next line to force validation of all mods ignoring checksum
-	if (newChecksum != checksum)
+	//storage for found mods
+	std::vector<std::string> foundMods;
+	for (auto & entry : list)
 	{
-		checksum = newChecksum;
-		validation = PENDING;
+		std::string name = entry.getName();
+		name.erase(0, modDir.size()); //Remove path prefix
+
+		// check if wog is actually present. Hack-ish but better than crash
+		// TODO: remove soon (hopefully - before 0.96)
+		if (name == "WOG")
+		{
+			if (!CResourceHandler::get("initial")->existsResource(ResourceID("DATA/ZVS", EResType::DIRECTORY)) &&
+				!CResourceHandler::get("initial")->existsResource(ResourceID("MODS/WOG/DATA/ZVS", EResType::DIRECTORY)))
+			{
+				continue;
+			}
+		}
+
+		if (!name.empty())
+			foundMods.push_back(name);
 	}
+	return foundMods;
 }
 
-void CModInfo::loadLocalData(const JsonNode & data)
+void CModHandler::loadMods(std::string path, std::string parent, const JsonNode & modSettings)
 {
-	bool validated = false;
-	enabled = true;
-	checksum = 0;
-	if (data.getType() == JsonNode::DATA_BOOL)
+	for (std::string modName : getModList(path))
 	{
-		enabled = data.Bool();
-	}
-	if (data.getType() == JsonNode::DATA_STRUCT)
-	{
-		enabled   = data["active"].Bool();
-		validated = data["validated"].Bool();
-		checksum  = strtol(data["checksum"].String().c_str(), nullptr, 16);
-	}
+		boost::to_lower(modName);
+		std::string modFullName = parent.empty() ? modName : parent + '.' + modName;
 
-	if (enabled)
-		validation = validated ? PASSED : PENDING;
-	else
-		validation = validated ? PASSED : FAILED;
+		if (CResourceHandler::get("initial")->existsResource(ResourceID(CModInfo::getModFile(modFullName))))
+		{
+			CModInfo mod(modFullName, modSettings[modName], JsonNode(ResourceID(CModInfo::getModFile(modFullName))));
+			if (!parent.empty()) // this is submod, add parent to dependecies
+				mod.dependencies.insert(parent);
+
+			allMods[modFullName] = mod;
+			if (mod.enabled)
+			{
+				activeMods.push_back(modFullName);
+				loadMods(CModInfo::getModDir(modFullName) + '/', modFullName, modSettings[modName]["mods"]);
+			}
+		}
+	}
 }
 
-void CModHandler::initializeMods(std::vector<std::string> availableMods)
+void CModHandler::loadMods()
 {
 	const JsonNode modConfig = loadModSettings("config/modSettings.json");
-	const JsonNode & modList = modConfig["activeMods"];
 
-	std::vector <TModID> detectedMods;
+	loadMods("", "", modConfig["activeMods"]);
 
-	for(std::string name : availableMods)
-	{
-		boost::to_lower(name);
-		std::string modFileName = "mods/" + name + "/mod.json";
-
-		if (CResourceHandler::get()->existsResource(ResourceID(modFileName)))
-		{
-			CModInfo mod(name, modList[name], JsonNode(ResourceID(modFileName)));
-
-			allMods[name] = mod;
-			if (mod.enabled)
-				detectedMods.push_back(name);
-		}
-		else
-            logGlobal->warnStream() << "\t\t Directory " << name << " does not contains VCMI mod";
-	}
 	coreMod = CModInfo("core", modConfig["core"], JsonNode(ResourceID("config/gameConfig.json")));
 	coreMod.name = "Original game files";
+}
 
-	if (!checkDependencies(detectedMods))
-	{
-        logGlobal->errorStream() << "Critical error: failed to load mods! Exiting...";
-		exit(1);
-	}
+std::vector<std::string> CModHandler::getAllMods()
+{
+	std::vector<std::string> modlist;
+	for (auto & entry : allMods)
+		modlist.push_back(entry.first);
+	return modlist;
+}
 
-	activeMods = resolveDependencies(detectedMods);
-	loadModFilesystems();
+std::vector<std::string> CModHandler::getActiveMods()
+{
+	return activeMods;
 }
 
 static JsonNode genDefaultFS()
@@ -671,9 +731,9 @@ static ISimpleResourceLoader * genModFilesystem(const std::string & modName, con
 	static const JsonNode defaultFS = genDefaultFS();
 
 	if (!conf["filesystem"].isNull())
-		return CResourceHandler::createFileSystem("mods/" + modName, conf["filesystem"]);
+		return CResourceHandler::createFileSystem(CModInfo::getModDir(modName), conf["filesystem"]);
 	else
-		return CResourceHandler::createFileSystem("mods/" + modName, defaultFS);
+		return CResourceHandler::createFileSystem(CModInfo::getModDir(modName), defaultFS);
 }
 
 static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoader * filesystem)
@@ -686,7 +746,7 @@ static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoade
 	// FIXME: remove workaround for core mod
 	if (modName != "core")
 	{
-		ResourceID modConfFile("mods/" + modName + "/mod", EResType::TEXT);
+		ResourceID modConfFile(CModInfo::getModFile(modName), EResType::TEXT);
 		ui32 configChecksum = CResourceHandler::get("initial")->load(modConfFile)->calculateCRC32();
 		modChecksum.process_bytes(reinterpret_cast<const void *>(&configChecksum), sizeof(configChecksum));
 	}
@@ -698,10 +758,6 @@ static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoade
 				 boost::starts_with(resID.getName(), "CONFIG"));
 	});
 
-	// these two files may change between two runs of vcmi and must be handled separately
-	files.erase(ResourceID("CONFIG/SETTINGS", EResType::TEXT));
-	files.erase(ResourceID("CONFIG/MODSETTINGS", EResType::TEXT));
-
 	for (const ResourceID & file : files)
 	{
 		ui32 fileChecksum = filesystem->load(file)->calculateCRC32();
@@ -712,6 +768,8 @@ static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoade
 
 void CModHandler::loadModFilesystems()
 {
+	activeMods = resolveDependencies(activeMods);
+
 	coreMod.updateChecksum(calculateModChecksum("core", CResourceHandler::get("core")));
 
 	for(std::string & modName : activeMods)
@@ -774,7 +832,11 @@ void CModHandler::afterLoad()
 {
 	JsonNode modSettings;
 	for (auto & modEntry : allMods)
-		modSettings["activeMods"][modEntry.first] = modEntry.second.saveLocalData();
+	{
+		std::string pointer = "/" + boost::algorithm::replace_all_copy(modEntry.first, ".", "/mods/");
+
+		modSettings["activeMods"].resolvePointer(pointer) = modEntry.second.saveLocalData();
+	}
 	modSettings["core"] = coreMod.saveLocalData();
 
 	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);

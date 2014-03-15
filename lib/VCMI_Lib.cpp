@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- 
+
 #include "StdInc.h"
 #include "VCMI_Lib.h"
 
@@ -63,18 +63,19 @@ void LibClasses::loadFilesystem()
 	CStopWatch loadTime;
 
 	CResourceHandler::initialize();
-    logGlobal->infoStream()<<"\t Initialization: "<<loadTime.getDiff();
+	logGlobal->infoStream()<<"\t Initialization: "<<loadTime.getDiff();
 
 	CResourceHandler::load("config/filesystem.json");
-    logGlobal->infoStream()<<"\t Data loading: "<<loadTime.getDiff();
+	logGlobal->infoStream()<<"\t Data loading: "<<loadTime.getDiff();
 
 	modh = new CModHandler;
-    logGlobal->infoStream()<<"\tMod handler: "<<loadTime.getDiff();
+	logGlobal->infoStream()<<"\tMod handler: "<<loadTime.getDiff();
 
-	modh->initializeMods(CResourceHandler::getAvailableMods());
-    logGlobal->infoStream()<<"\t Mod filesystems: "<<loadTime.getDiff();
+	modh->loadMods();
+	modh->loadModFilesystems();
+	logGlobal->infoStream()<<"\t Mod filesystems: "<<loadTime.getDiff();
 
-    logGlobal->infoStream()<<"Basic initialization: "<<totalTime.getDiff();
+	logGlobal->infoStream()<<"Basic initialization: "<<totalTime.getDiff();
 }
 
 static void logHandlerLoaded(const std::string& name, CStopWatch &timer)
@@ -86,7 +87,7 @@ template <class Handler> void createHandler(Handler *&handler, const std::string
 {
 	handler = new Handler();
 	logHandlerLoaded(name, timer);
-} 
+}
 
 void LibClasses::init()
 {
@@ -95,7 +96,7 @@ void LibClasses::init()
 	modh->initializeConfig();
 
 	createHandler(bth, "Bonus type", pomtime);
-	
+
 	createHandler(generaltexth, "General text", pomtime);
 
 	createHandler(heroh, "Hero", pomtime);
@@ -105,9 +106,9 @@ void LibClasses::init()
 	createHandler(creh, "Creature", pomtime);
 
 	createHandler(townh, "Town", pomtime);
-	
+
 	createHandler(objh, "Object", pomtime);
-	
+
 	createHandler(dobjinfo, "Def information", pomtime);
 
 	createHandler(spellh, "Spell", pomtime);

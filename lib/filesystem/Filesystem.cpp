@@ -214,37 +214,3 @@ ISimpleResourceLoader * CResourceHandler::createFileSystem(const std::string & p
 	generator.loadConfig(fsConfig);
 	return generator.getFilesystem();
 }
-
-std::vector<std::string> CResourceHandler::getAvailableMods()
-{
-	static const std::string modDir = "MODS/";
-
-	auto list = get("initial")->getFilteredFiles([](const ResourceID & id) ->  bool
-	{
-		return id.getType() == EResType::DIRECTORY
-			&& boost::range::count(id.getName(), '/') == 1
-			&& boost::algorithm::starts_with(id.getName(), modDir);
-	});
-
-	//storage for found mods
-	std::vector<std::string> foundMods;
-	for (auto & entry : list)
-	{
-		std::string name = entry.getName();
-
-		name.erase(0, modDir.size()); //Remove path prefix
-
-		if (name == "WOG") // check if wog is actually present. Hack-ish but better than crash
-		{
-			if (!get("initial")->existsResource(ResourceID("DATA/ZVS", EResType::DIRECTORY)) &&
-				!get("initial")->existsResource(ResourceID("MODS/WOG/DATA/ZVS", EResType::DIRECTORY)))
-			{
-				continue;
-			}
-		}
-
-		if (!name.empty())
-			foundMods.push_back(name);
-	}
-	return foundMods;
-}
