@@ -28,7 +28,7 @@
 #include "mapping/CCampaignHandler.h" //for CCampaignState
 #include "rmg/CMapGenerator.h" // for CMapGenOptions
 
-const ui32 version = 747;
+const ui32 version = 748;
 const ui32 minSupportedVersion = version;
 
 class CConnection;

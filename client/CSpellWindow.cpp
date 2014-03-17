@@ -630,7 +630,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			|| (!sp->combatSpell && owner->myInt->battleInt))
 		{
 			std::vector<CComponent*> hlp(1, new CComponent(CComponent::spell, mySpell, 0));
-			LOCPLINT->showInfoDialog(sp->descriptions[schoolLevel], hlp);
+			LOCPLINT->showInfoDialog(sp->getLevelInfo(schoolLevel).description, hlp);
 			return;
 		}
 
@@ -810,7 +810,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 			boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(causedDmg));
 		}
 
-		CRClickPopup::createAndPush(CGI->spellh->objects[mySpell]->descriptions[schoolLevel] + dmgInfo,
+		CRClickPopup::createAndPush(CGI->spellh->objects[mySpell]->getLevelInfo(schoolLevel).description + dmgInfo,
 		                            new CComponent(CComponent::spell, mySpell));
 	}
 }

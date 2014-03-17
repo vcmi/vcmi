@@ -977,7 +977,7 @@ std::string CComponent::getDescription()
 	case creature:   return "";
 	case artifact:   return CGI->arth->artifacts[subtype]->Description();
 	case experience: return CGI->generaltexth->allTexts[241];
-	case spell:      return CGI->spellh->objects[subtype]->descriptions[val];
+	case spell:      return CGI->spellh->objects[subtype]->getLevelInfo(val).description;
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
 	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
 	case building:   return CGI->townh->factions[subtype]->town->buildings[BuildingID(val)]->Description();

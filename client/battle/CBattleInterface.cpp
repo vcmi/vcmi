@@ -1549,31 +1549,23 @@ void CBattleInterface::castThisSpell(int spellID)
 	assert(castingHero); // code below assumes non-null hero
 	sp = CGI->spellh->objects[spellID];
 	spellSelMode = ANY_LOCATION;
-	if(sp->getTargetType() == CSpell::CREATURE)
+	
+	const CSpell::TargetInfo ti = sp->getTargetInfo(castingHero->getSpellSchoolLevel(sp));
+	
+	if(ti.massive)
+		spellSelMode = NO_LOCATION;	
+	else if(ti.type == CSpell::CREATURE)
 	{
-		spellSelMode = selectionTypeByPositiveness(*sp);
-	}
-	if(sp->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
-	{
-		if(castingHero->getSpellSchoolLevel(sp) < 3)
+		if(ti.smart)
 			spellSelMode = selectionTypeByPositiveness(*sp);
 		else
-			spellSelMode = NO_LOCATION;
-	}
-	if(sp->getTargetType() == CSpell::OBSTACLE)
+			spellSelMode = ANY_CREATURE;
+	}	
+	else if(ti.type == CSpell::OBSTACLE)
 	{
 		spellSelMode = OBSTACLE;
-	} //FIXME: Remove Obstacle has range X, unfortunatelly :(
-	else if(sp->range[ castingHero->getSpellSchoolLevel(sp) ] == "X") //spell has no range
-	{
-		spellSelMode = NO_LOCATION;
-	}
-
-	if(sp->range[ castingHero->getSpellSchoolLevel(sp) ].size() > 1) //spell has many-hex range
-	{
-		spellSelMode = ANY_LOCATION;
-	}
-
+	} 
+	//todo: move to JSON config
 	if(spellID == SpellID::FIRE_WALL  ||  spellID == SpellID::FORCE_FIELD)
 	{
 		spellSelMode = FREE_LOCATION;

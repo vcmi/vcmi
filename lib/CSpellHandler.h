@@ -23,26 +23,49 @@ struct BattleHex;
 class DLL_LINKAGE CSpell
 {
 public:
-//    struct LevelInfo
-//    {
-//
-//    };
-//
-//    /** \brief Low level accessor. Don`t use it if absolutely necessary
-//     *
-//     * \param level. spell school level
-//     * \return Spell level info structure
-//     *
-//     */
-//    const LevelInfo& getLevelInfo(const int level);
+    struct LevelInfo
+    {
+        std::string description; //descriptions of spell for skill level
+        si32 cost; //per skill level: 0 - none, 1 - basic, etc
+        si32 power; //per skill level: 0 - none, 1 - basic, etc
+        si32 AIValue; //AI values: per skill level: 0 - none, 1 - basic, etc
+
+        bool smartTarget;
+        std::string range;
+
+        std::vector<Bonus> effects;
+
+        LevelInfo();
+        ~LevelInfo();
+
+        template <typename Handler> void serialize(Handler &h, const int version)
+        {
+            h & description & cost & power & AIValue & smartTarget & range & effects;
+        }
+    };
+
+    /** \brief Low level accessor. Don`t use it if absolutely necessary
+     *
+     * \param level. spell school level
+     * \return Spell level info structure
+     *
+     */
+    const CSpell::LevelInfo& getLevelInfo(const int level) const;
 public:
-	enum ETargetType {NO_TARGET, CREATURE, CREATURE_EXPERT_MASSIVE, OBSTACLE};
+	enum ETargetType {NO_TARGET, CREATURE, OBSTACLE};
 	enum ESpellPositiveness {NEGATIVE = -1, NEUTRAL = 0, POSITIVE = 1};
+
+	struct TargetInfo
+	{
+	    ETargetType type;
+	    bool smart;
+	    bool massive;
+	};
+
 	SpellID id;
 	std::string identifier; //???
 	std::string name;
-	std::string abbName; //abbreviated name
-	std::vector<std::string> descriptions; //descriptions of spell for skill levels: 0 - none, 1 - basic, etc
+
 	si32 level;
 	bool earth;
 	bool water;
@@ -55,7 +78,7 @@ public:
 	bool combatSpell; //is this spell combat (true) or adventure (false)
 	bool creatureAbility; //if true, only creatures can use this spell
 	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
-	std::vector<std::string> range; //description of spell's range in SRSL by magic school level
+
 	std::vector<SpellID> counteredSpells; //spells that are removed when effect of this spell is placed on creature (for bless-curse, haste-slow, and similar pairs)
 
 	CSpell();
@@ -63,7 +86,9 @@ public:
 
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr ) const; //convert range to specific hexes; last optional out parameter is set to true, if spell would cover unavailable hexes (that are not included in ret)
 	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)
-	ETargetType getTargetType() const;
+	ETargetType getTargetType() const; //deprecated
+
+	const CSpell::TargetInfo getTargetInfo(const int level) const;
 
 	bool isCombatSpell() const;
 	bool isAdventureSpell() const;
@@ -102,23 +127,25 @@ public:
 	* Returns resource name of icon for SPELL_IMMUNITY bonus
 	*/
 	const std::string& getIconImmune() const;
-	
+
 	const std::string& getCastSound() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & identifier & id & name & abbName & descriptions & level & earth & water & fire & air & power & costs
-			& powers & probabilities & AIVals & attributes & combatSpell & creatureAbility & positiveness & range & counteredSpells & mainEffectAnim;
+		h & identifier & id & name & level & earth & water & fire & air & power
+            & probabilities  & attributes & combatSpell & creatureAbility & positiveness & counteredSpells & mainEffectAnim;
 		h & isRising & isDamage & isOffensive;
 		h & targetType;
-		h & effects & immunities & limiters;
+		h & immunities & limiters;
 		h & iconImmune;
         h & absoluteImmunities & defaultProbability;
 
         h & isSpecial;
-        
-        h & castSound & iconBook & iconEffect & iconScenarioBonus & iconScroll ;
-		
+
+        h & castSound & iconBook & iconEffect & iconScenarioBonus & iconScroll;
+
+        h & levels;
+
 	}
 	friend class CSpellHandler;
 	friend class Graphics;
@@ -126,13 +153,9 @@ public:
 private:
     void setIsOffensive(const bool val);
     void setIsRising(const bool val);
-    void setAttributes(const std::string& newValue);
 
 private:
     si32 defaultProbability;
-	std::vector<si32> costs; //per skill level: 0 - none, 1 - basic, etc
-	std::vector<si32> powers; //per skill level: 0 - none, 1 - basic, etc
-	std::vector<si32> AIVals; //AI values: per skill level: 0 - none, 1 - basic, etc
 
 	bool isRising;
 	bool isDamage;
@@ -141,11 +164,8 @@ private:
 
 	std::string attributes; //reference only attributes //todo: remove or include in configuration format, currently unused
 
-
-
 	ETargetType targetType;
 
-	std::vector<std::vector<Bonus *> > effects; // [level 0-3][list of effects]
 	std::vector<Bonus::BonusType> immunities; //any of these grants immunity
 	std::vector<Bonus::BonusType> absoluteImmunities; //any of these grants immunity, cant be negated
 	std::vector<Bonus::BonusType> limiters; //all of them are required to be affected
@@ -153,14 +173,16 @@ private:
 	///graphics related stuff
 
 	std::string iconImmune;
-	
+
 	std::string iconBook;
 	std::string iconEffect;
-	std::string iconScenarioBonus;	
+	std::string iconScenarioBonus;
 	std::string iconScroll;
 
 	///sound related stuff
 	std::string castSound;
+
+	std::vector<LevelInfo> levels;
 };
 
 

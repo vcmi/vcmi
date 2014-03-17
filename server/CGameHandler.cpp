@@ -4082,50 +4082,50 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 
 	if (spell->isOffensiveSpell())
 	{
-			int spellDamage = 0;
-			if (stack && mode != ECastingMode::MAGIC_MIRROR)
+		int spellDamage = 0;
+		if (stack && mode != ECastingMode::MAGIC_MIRROR)
+		{
+			int unitSpellPower = stack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spellID.toEnum());
+			if (unitSpellPower)
+				sc.dmgToDisplay = spellDamage = stack->count * unitSpellPower; //TODO: handle immunities
+			else //Faerie Dragon
 			{
-				int unitSpellPower = stack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spellID.toEnum());
-				if (unitSpellPower)
-					sc.dmgToDisplay = spellDamage = stack->count * unitSpellPower; //TODO: handle immunities
-				else //Faerie Dragon
-				{
-					usedSpellPower = stack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * stack->count / 100;
-					sc.dmgToDisplay = 0;
-				}
+				usedSpellPower = stack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * stack->count / 100;
+				sc.dmgToDisplay = 0;
 			}
-			int chainLightningModifier = 0;
-			for(auto & attackedCre : attackedCres)
+		}
+		int chainLightningModifier = 0;
+		for(auto & attackedCre : attackedCres)
+		{
+			if(vstd::contains(sc.resisted, (attackedCre)->ID)) //this creature resisted the spell
+				continue;
+
+			BattleStackAttacked bsa;
+			if ((destination > -1 && (attackedCre)->coversPos(destination)) || (spell->getLevelInfo(spellLvl).range == "X" || mode == ECastingMode::ENCHANTER_CASTING))
+				//display effect only upon primary target of area spell
+				//FIXME: if no stack is attacked, there is no animation and interface freezes
 			{
-				if(vstd::contains(sc.resisted, (attackedCre)->ID)) //this creature resisted the spell
-					continue;
-
-				BattleStackAttacked bsa;
-				if ((destination > -1 && (attackedCre)->coversPos(destination)) || (spell->range.at(spellLvl) == "X" || mode == ECastingMode::ENCHANTER_CASTING))
-					//display effect only upon primary target of area spell
-					//FIXME: if no stack is attacked, ther eis no animation and interface freezes
-				{
-					bsa.flags |= BattleStackAttacked::EFFECT;
-					bsa.effect = spell->mainEffectAnim;
-				}
-				if (spellDamage)
-					bsa.damageAmount = spellDamage >> chainLightningModifier;
-				else
-					bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, attackedCre, spellLvl, usedSpellPower) >> chainLightningModifier;
-
-				sc.dmgToDisplay += bsa.damageAmount;
-
-				bsa.stackAttacked = (attackedCre)->ID;
-				if (mode == ECastingMode::ENCHANTER_CASTING) //multiple damage spells cast
-					bsa.attackerID = stack->ID;
-				else
-					bsa.attackerID = -1;
-				(attackedCre)->prepareAttacked(bsa);
-				si.stacks.push_back(bsa);
-
-				if (spellID == SpellID::CHAIN_LIGHTNING)
-					++chainLightningModifier;
+				bsa.flags |= BattleStackAttacked::EFFECT;
+				bsa.effect = spell->mainEffectAnim;
 			}
+			if (spellDamage)
+				bsa.damageAmount = spellDamage >> chainLightningModifier;
+			else
+				bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, attackedCre, spellLvl, usedSpellPower) >> chainLightningModifier;
+
+			sc.dmgToDisplay += bsa.damageAmount;
+
+			bsa.stackAttacked = (attackedCre)->ID;
+			if (mode == ECastingMode::ENCHANTER_CASTING) //multiple damage spells cast
+				bsa.attackerID = stack->ID;
+			else
+				bsa.attackerID = -1;
+			(attackedCre)->prepareAttacked(bsa);
+			si.stacks.push_back(bsa);
+
+			if (spellID == SpellID::CHAIN_LIGHTNING)
+				++chainLightningModifier;
+		}
 	}
 	
 	if (spell->hasEffects())
@@ -4456,7 +4456,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 	}
 
 	//Magic Mirror effect
-	if (spell->isNegative() && mode != ECastingMode::MAGIC_MIRROR && spell->level && spell->range.at(0) == "0") //it is actual spell and can be reflected to single target, no recurrence
+	if (spell->isNegative() && mode != ECastingMode::MAGIC_MIRROR && spell->level && spell->getLevelInfo(0).range == "0") //it is actual spell and can be reflected to single target, no recurrence
 	{
 		for(auto & attackedCre : attackedCres)
 		{
@@ -5354,7 +5354,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 void CGameHandler::handleAttackBeforeCasting (const BattleAttack & bat)
 {
 	const CStack * attacker = gs->curB->battleGetStackByID(bat.stackAttacking);
-	attackCasting(bat, Bonus::SPELL_BEFORE_ATTACK, attacker); //no detah stare / acid bretah needed?
+	attackCasting(bat, Bonus::SPELL_BEFORE_ATTACK, attacker); //no death stare / acid breath needed?
 }
 
 void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )

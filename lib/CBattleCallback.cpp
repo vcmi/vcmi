@@ -1617,10 +1617,13 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 
 		if (spell->isRisingSpell())
 		{
-			if (caster) //TODO: what with Archangels?
+			if(subject->count >= subject->baseAmount)
+				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+			
+			if (caster) //FIXME: Archangels can cast immune stack
 			{
 				auto maxHealth = calculateHealedHP (caster, spell, subject);
-				if (subject->count >= subject->baseAmount || maxHealth < subject->MaxHealth()) //must be able to rise at least one full creature
+				if (maxHealth < subject->MaxHealth()) //must be able to rise at least one full creature
 					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 			}
 		}
@@ -1637,13 +1640,20 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 	}
 	else //no target stack on this tile
 	{
-		if(spell->getTargetType() == CSpell::CREATURE
-			|| (spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE
-				&& mode == ECastingMode::HERO_CASTING //TODO why???
-				&& caster
-				&& caster->getSpellSchoolLevel(spell) < SecSkillLevel::EXPERT))
+		if(spell->getTargetType() == CSpell::CREATURE)
 		{
-			return ESpellCastProblem::WRONG_SPELL_TARGET;
+			if(caster && mode == ECastingMode::HERO_CASTING) //TODO why???
+			{
+				const CSpell::TargetInfo ti = spell->getTargetInfo(caster->getSpellSchoolLevel(spell));
+				
+				if(!ti.massive)
+					return ESpellCastProblem::WRONG_SPELL_TARGET;					
+			}
+			else
+			{
+ 				return ESpellCastProblem::WRONG_SPELL_TARGET;
+			}
+			
 		}
 	}
 
@@ -1688,6 +1698,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	{
 		bool allStacksImmune = true;
 		//we are interested only in enemy stacks when casting offensive spells
+		//TODO: should hero be able to cast non-smart negative spell if all enemy stacks are immune?
 		auto stacks = spell->isNegative() ? battleAliveStacks(!side) : battleAliveStacks();
 		for(auto stack : stacks)
 		{
@@ -1726,43 +1737,38 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	switch(spell->getTargetType())
 	{
 	case CSpell::CREATURE:
-	case CSpell::CREATURE_EXPERT_MASSIVE:
 		if(mode == ECastingMode::HERO_CASTING)
 		{
 			const CGHeroInstance * caster = battleGetFightingHero(side);
+			const CSpell::TargetInfo ti = spell->getTargetInfo(caster->getSpellSchoolLevel(spell));
 			bool targetExists = false;
 			for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
 			{
-				switch (spell->positiveness)
-				{
-				case CSpell::POSITIVE:
-					if(stack->owner == caster->getOwner())
+				bool immune = battleIsImmune(caster, spell, mode, stack->position) != ESpellCastProblem::OK;
+				bool casterStack = stack->owner == caster->getOwner();
+				
+				if(!immune)
+					switch (spell->positiveness)
 					{
-						if(battleIsImmune(caster, spell, mode, stack->position) == ESpellCastProblem::OK)
+					case CSpell::POSITIVE:
+						if(casterStack || !ti.smart)
 						{
 							targetExists = true;
 							break;
 						}
-					}
-					break;
-				case CSpell::NEUTRAL:
-					if(battleIsImmune(caster, spell, mode, stack->position) == ESpellCastProblem::OK)
-					{
-						targetExists = true;
+						break;
+					case CSpell::NEUTRAL:
+							targetExists = true;
+							break;
+						break;
+					case CSpell::NEGATIVE:
+						if(!casterStack || !ti.smart)
+						{
+							targetExists = true;
+							break;
+						}
 						break;
 					}
-					break;
-				case CSpell::NEGATIVE:
-					if(stack->owner != caster->getOwner())
-					{
-						if(battleIsImmune(caster, spell, mode, stack->position) == ESpellCastProblem::OK)
-						{
-							targetExists = true;
-							break;
-						}
-					}
-					break;
-				}
 			}
 			if(!targetExists)
 			{
@@ -1787,31 +1793,32 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor
 	switch(spell->getTargetType())
 	{
 	case CSpell::CREATURE:
-	case CSpell::CREATURE_EXPERT_MASSIVE:
 		{
 			const CGHeroInstance * caster = battleGetFightingHero(playerToSide(player)); //TODO
-
+			const CSpell::TargetInfo ti = spell->getTargetInfo(caster->getSpellSchoolLevel(spell));
+			
 			for(const CStack * stack : battleAliveStacks())
 			{
-				switch (spell->positiveness)
-				{
-				case CSpell::POSITIVE:
-					if(stack->owner == caster->getOwner())
-						if(battleIsImmune(caster, spell, mode, stack->position) == ESpellCastProblem::OK)
+				bool immune = battleIsImmune(caster, spell, mode, stack->position) != ESpellCastProblem::OK;
+				bool casterStack = stack->owner == caster->getOwner();
+				
+				if(!immune)
+					switch (spell->positiveness)
+					{
+					case CSpell::POSITIVE:
+						if(casterStack || ti.smart)
 							ret.push_back(stack->position);
-					break;
+						break;
 
-				case CSpell::NEUTRAL:
-					if(battleIsImmune(caster, spell, mode, stack->position) == ESpellCastProblem::OK)
+					case CSpell::NEUTRAL:
 						ret.push_back(stack->position);
-					break;
+						break;
 
-				case CSpell::NEGATIVE:
-					if(stack->owner != caster->getOwner())
-						if(battleIsImmune(caster, spell, mode, stack->position) == ESpellCastProblem::OK)
+					case CSpell::NEGATIVE:
+						if(!casterStack || ti.smart)
 							ret.push_back(stack->position);
-					break;
-				}
+						break;
+					}
 			}
 		}
 		break;
@@ -1909,7 +1916,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		if(deadStack && deadStack->owner != player) //you can resurrect only your own stacks //FIXME: it includes alive stacks as well
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
-	else if(spell->getTargetType() == CSpell::CREATURE  ||  spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
+	else if(spell->getTargetType() == CSpell::CREATURE)
 	{
 		if(!aliveStack)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
@@ -2011,14 +2018,14 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	const auto attackedHexes = spell->rangeInHexes(destinationTile, skillLevel, attackerSide);
 	const bool onlyAlive = !spell->isRisingSpell(); //when casting resurrection or animate dead we should be allow to select dead stack
 
+	const CSpell::TargetInfo ti = spell->getTargetInfo(skillLevel);
 	//TODO: more generic solution for mass spells
-	if(spell->id == SpellID::DEATH_RIPPLE || spell->id == SpellID::DESTROY_UNDEAD || spell->id == SpellID::ARMAGEDDON)
+	if(spell->id == SpellID::DEATH_RIPPLE || spell->id == SpellID::DESTROY_UNDEAD )
 	{
 		for(const CStack *stack : battleGetAllStacks())
 		{
 			if((spell->id == SpellID::DEATH_RIPPLE && !stack->getCreature()->isUndead()) //death ripple
 				|| (spell->id == SpellID::DESTROY_UNDEAD && stack->getCreature()->isUndead()) //destroy undead
-				|| (spell->id == SpellID::ARMAGEDDON) //Armageddon
 				)
 			{
 				if(stack->isValidTarget())
@@ -2057,7 +2064,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 			lightningHex = BattleHex::getClosestTile (stack->attackerOwned, destinationTile, possibleHexes);
 		}
 	}
-	else if (spell->range[skillLevel].size() > 1) //custom many-hex range
+	else if (spell->getLevelInfo(skillLevel).range.size() > 1) //custom many-hex range
 	{
 		for(BattleHex hex : attackedHexes)
 		{
@@ -2075,33 +2082,34 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 			}
 		}
 	}
-	else if(spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
+	else if(spell->getTargetType() == CSpell::CREATURE)
 	{
-		if(skillLevel < 3)  /*not expert */
+		if (ti.massive)
 		{
-			const CStack * st = battleGetStackByPos(destinationTile, onlyAlive);
-			if(st)
-				attackedCres.insert(st);
+			TStacks stacks = battleGetAllStacks();
+
+			vstd::erase_if(stacks,[&](const CStack * stack){
+				return ti.smart && spell->isNegative() && stack->owner == attackerOwner);
+			});
+
+			vstd::erase_if(stacks,[&](const CStack * stack){
+				return ti.smart && spell->isPositive() && stack->owner != attackerOwner);
+			});
+
+			vstd::erase_if(stacks,[&](const CStack * stack){
+				return !stack->isValidTarget(!onlyAlive);
+			});
+			
+			for (auto stack : stacks)
+				attackedCres.insert(stack);
+
 		}
 		else
 		{
-			for (auto stack : battleGetAllStacks())
-			{
-				/*if it's non negative spell and our unit or non positive spell and hostile unit */
-				if((!spell->isNegative() && stack->owner == attackerOwner)
-					||(!spell->isPositive() && stack->owner != attackerOwner )
-					)
-				{
-					if(stack->isValidTarget(!onlyAlive))
-						attackedCres.insert(stack);
-				}
-			}
-		} //if(caster->getSpellSchoolLevel(s) < 3)
-	}
-	else if(spell->getTargetType() == CSpell::CREATURE)
-	{
-		if(const CStack * st = battleGetStackByPos(destinationTile, onlyAlive))
-			attackedCres.insert(st);
+			if(const CStack * st = battleGetStackByPos(destinationTile, onlyAlive))
+				attackedCres.insert(st);			
+		}
+		
 	}
 	else //custom range from attackedHexes
 	{

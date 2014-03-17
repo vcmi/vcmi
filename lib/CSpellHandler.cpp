@@ -23,7 +23,7 @@
 namespace SpellConfig
 {
     static const std::string LEVEL_NAMES[] = {"none", "basic", "advanced", "expert"};
-     
+
 }
 
 using namespace boost::assign;
@@ -130,12 +130,21 @@ namespace SRSLPraserHelpers
 	}
 }
 
-using namespace SRSLPraserHelpers;
+CSpell::LevelInfo::LevelInfo()
+    :description(""),cost(0),power(0),AIValue(0),smartTarget(true),range("0")
+{
+
+}
+
+CSpell::LevelInfo::~LevelInfo()
+{
+
+}
+
 
 CSpell::CSpell():
 	id(SpellID::NONE), level(0),
 	earth(false), water(false), fire(false), air(false),
-	power(0),
 	combatSpell(false), creatureAbility(false),
 	positiveness(ESpellPositiveness::NEUTRAL),
 	mainEffectAnim(-1),
@@ -143,18 +152,29 @@ CSpell::CSpell():
 	isRising(false), isDamage(false), isOffensive(false),
 	targetType(ETargetType::NO_TARGET)
 {
-
+    levels.resize(GameConstants::SPELL_SCHOOL_LEVELS);
 }
 
 CSpell::~CSpell()
 {
-	for(auto & elem : effects)
-		for(size_t j=0; j<elem.size(); j++)
-			delete elem[j];
 }
+
+const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
+{
+	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
+	{
+        logGlobal->errorStream() << __FUNCTION__ << " invalid school level " << level;
+        throw new std::runtime_error("Invalid school level");
+	}
+
+	return levels.at(level);
+}
+
 
 std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
 {
+    using namespace SRSLPraserHelpers;
+
 	std::vector<BattleHex> ret;
 
 	if(id == SpellID::FIRE_WALL  ||  id == SpellID::FORCE_FIELD)
@@ -192,7 +212,7 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 	}
 
 
-	std::string rng = range[schoolLvl] + ','; //copy + artificial comma for easier handling
+	std::string rng = getLevelInfo(schoolLvl).range + ','; //copy + artificial comma for easier handling
 
 	if(rng.size() >= 1 && rng[0] != 'X') //there is at lest one hex in range
 	{
@@ -201,7 +221,7 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 		bool readingFirst = true;
 		for(auto & elem : rng)
 		{
-			if(std::isdigit(elem) ) //reading numer
+			if(std::isdigit(elem) ) //reading number
 			{
 				if(readingFirst)
 					number1 += elem;
@@ -258,6 +278,20 @@ CSpell::ETargetType CSpell::getTargetType() const
 	return targetType;
 }
 
+const CSpell::TargetInfo CSpell::getTargetInfo(const int level) const
+{
+    TargetInfo info;
+
+    auto & levelInfo = getLevelInfo(level);
+
+    info.type = getTargetType();
+    info.smart = levelInfo.smartTarget;
+    info.massive = levelInfo.range == "X";
+
+    return info;
+}
+
+
 bool CSpell::isCombatSpell() const
 {
 	return combatSpell;
@@ -305,7 +339,7 @@ bool CSpell::isSpecialSpell() const
 
 bool CSpell::hasEffects() const
 {
-	return effects.size() && effects[0].size();
+	return !levels[0].effects.empty();
 }
 
 const std::string& CSpell::getIconImmune() const
@@ -322,12 +356,12 @@ const std::string& CSpell::getCastSound() const
 
 si32 CSpell::getCost(const int skillLevel) const
 {
-    return costs[skillLevel];
+    return getLevelInfo(skillLevel).cost;
 }
 
 si32 CSpell::getPower(const int skillLevel) const
 {
-    return powers[skillLevel];
+    return getLevelInfo(skillLevel).power;
 }
 
 //si32 CSpell::calculatePower(const int skillLevel) const
@@ -352,27 +386,20 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
         logGlobal->errorStream() << __FUNCTION__ << " invalid school level " << level;
 		return;
 	}
+
+    const std::vector<Bonus> & effects = levels[level].effects;
+
 	if(effects.empty())
-	{
-        logGlobal->errorStream() << __FUNCTION__ << " This spell ("  + name + ") has no bonus effects! " << name;
-		return;
-	}
-	if(effects.size() <= level)
-	{
-		logGlobal->errorStream() << __FUNCTION__ << " This spell ("  + name + ") is missing entry for level " << level;
-		return;
-	}
-	if(effects[level].empty())
     {
 		logGlobal->errorStream() << __FUNCTION__ << " This spell ("  + name + ") has no effects for level " << level;
 		return;
     }
 
-	lst.reserve(lst.size() + effects[level].size());
+	lst.reserve(lst.size() + effects.size());
 
-	for(Bonus *b : effects[level])
+	for(const Bonus & b : effects)
 	{
-		lst.push_back(Bonus(*b));
+		lst.push_back(Bonus(b));
 	}
 }
 
@@ -449,20 +476,6 @@ bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 	}
 
 	return false;
-}
-
-void CSpell::setAttributes(const std::string& newValue)
-{
-	attributes = newValue;
-	if(attributes.find("CREATURE_TARGET_1") != std::string::npos
-		|| attributes.find("CREATURE_TARGET_2") != std::string::npos)
-		targetType = CREATURE_EXPERT_MASSIVE;
-	else if(attributes.find("CREATURE_TARGET") != std::string::npos)
-		targetType = CREATURE;
-	else if(attributes.find("OBSTACLE_TARGET") != std::string::npos)
-		targetType = OBSTACLE;
-	else
-		targetType = NO_TARGET;
 }
 
 void CSpell::setIsOffensive(const bool val)
@@ -576,8 +589,6 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
             else if(attributes.find("OBSTACLE_TARGET") != std::string::npos)
                 targetType = "OBSTACLE";
 
-            lineNode["targetType"].String() = targetType;
-
             //save parsed level specific data
             for(size_t i = 0; i < GameConstants::SPELL_SCHOOL_LEVELS; i++)
             {
@@ -586,6 +597,16 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
                 level["cost"].Float() = costs[i];
                 level["power"].Float() = powers[i];
                 level["aiValue"].Float() = AIVals[i];
+            }
+
+            if(targetType == "CREATURE_EXPERT_MASSIVE")
+            {
+                lineNode["targetType"].String() = "CREATURE";
+                getLevel(3)["range"].String() = "X";
+            }
+            else
+            {
+                lineNode["targetType"].String() = targetType;
             }
 
 		    legacyData.push_back(lineNode);
@@ -677,8 +698,6 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 		spell->targetType = CSpell::CREATURE;
 	else if(targetType == "OBSTACLE")
 		spell->targetType = CSpell::OBSTACLE;
-	else if(targetType == "CREATURE_EXPERT_MASSIVE")
-		spell->targetType = CSpell::CREATURE_EXPERT_MASSIVE;
 
 
 	spell->mainEffectAnim = json["anim"].Float();
@@ -767,17 +786,17 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 
 
     const JsonNode & graphicsNode = json["graphics"];
- 
+
 	spell->iconImmune = graphicsNode["iconImmune"].String();
 	spell->iconBook = graphicsNode["iconBook"].String();
 	spell->iconEffect = graphicsNode["iconEffect"].String();
 	spell->iconScenarioBonus = graphicsNode["iconScenarioBonus"].String();
 	spell->iconScroll = graphicsNode["iconScroll"].String();
-	
-	
-	
+
+
+
 	const JsonNode & soundsNode = json["sounds"];
-	
+
 	spell->castSound = soundsNode["cast"].String();
 
 
@@ -785,48 +804,37 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 
     const int levelsCount = GameConstants::SPELL_SCHOOL_LEVELS;
 
-    spell->AIVals.resize(levelsCount);
-    spell->costs.resize(levelsCount);
-    spell->descriptions.resize(levelsCount);
-
-    spell->powers.resize(levelsCount);
-    spell->range.resize(levelsCount);
-
 	for(int levelIndex = 0; levelIndex < levelsCount; levelIndex++)
 	{
 		const JsonNode & levelNode = json["levels"][LEVEL_NAMES[levelIndex]];
+		
+		CSpell::LevelInfo & levelObject = spell->levels[levelIndex];
 
-		spell->descriptions[levelIndex] = levelNode["description"].String();
-		spell->costs[levelIndex] = levelNode["cost"].Float();
-		spell->powers[levelIndex] = levelNode["power"].Float();
-		spell->AIVals[levelIndex] = levelNode["aiValue"].Float();
-
-		const JsonNode & effectsNode = levelNode["effects"];
-
-		if(!effectsNode.isNull())
+		const si32 levelPower   = levelNode["power"].Float();		
+		
+		levelObject.description = levelNode["description"].String();
+		levelObject.cost        = levelNode["cost"].Float();
+		levelObject.power       = levelPower;
+		levelObject.AIValue     = levelNode["aiValue"].Float();
+		levelObject.smartTarget = levelNode["targetModifier"]["smart"].Bool();
+		
+		for(const auto & elem : levelNode["effects"].Struct())
 		{
-			if(spell->effects.empty())
-				spell->effects.resize(levelsCount);
+			const JsonNode & bonusNode = elem.second;
+			Bonus * b = JsonUtils::parseBonus(bonusNode);
+			const bool usePowerAsValue = bonusNode["val"].isNull();
 
-			for(const auto & elem : effectsNode.Struct())
-			{
-				const JsonNode & bonusNode = elem.second;
-				Bonus * b = JsonUtils::parseBonus(bonusNode);
-				const bool usePowerAsValue = bonusNode["val"].isNull();
+			//TODO: make this work. see CSpellHandler::afterLoadFinalization()
+			//b->sid = spell->id; //for all
 
-				//TODO: make this work. see CSpellHandler::afterLoadFinalization()
-				//b->sid = spell->id; //for all
-				
-				b->source = Bonus::SPELL_EFFECT;//for all
+			b->source = Bonus::SPELL_EFFECT;//for all
 
-				if(usePowerAsValue)
-				{
-					b->val = spell->powers[levelIndex];
-				}
+			if(usePowerAsValue)
+				b->val = levelPower;
 
-				spell->effects[levelIndex].push_back(b);
-			}
+			levelObject.effects.push_back(*b);
 		}
+		
 	}
 
     return spell;
@@ -836,9 +844,9 @@ void CSpellHandler::afterLoadFinalization()
 {
     //FIXME: it is a bad place for this code, should refactor loadFromJson to know object id during loading
 	for(auto spell: objects)
-		for(auto & level: spell->effects)
-			for(auto * bonus: level)
-				bonus->sid = spell->id;
+		for(auto & level: spell->levels)
+			for(auto & bonus: level.effects)
+				bonus.sid = spell->id;
 }
 
 
