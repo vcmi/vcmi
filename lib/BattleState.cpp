@@ -1,4 +1,14 @@
-﻿#include "StdInc.h"
+﻿/*
+ * BattleState.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
+#include "StdInc.h"
 #include "BattleState.h"
 
 #include <numeric>
@@ -11,18 +21,7 @@
 #include "NetPacks.h"
 #include "JsonNode.h"
 #include "filesystem/Filesystem.h"
-
-
-/*
- * BattleState.h, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
-extern std::minstd_rand ran;
+#include "CRandomGenerator.h"
 
 const CStack * BattleInfo::getNextStack() const
 {
@@ -1133,7 +1132,7 @@ std::pair<int,int> CStack::countKilledByAttack(int damageReceived) const
 	return std::make_pair(killedCount, newRemainingHP);
 }
 
-void CStack::prepareAttacked(BattleStackAttacked &bsa, boost::optional<int> customCount /*= boost::none*/) const
+void CStack::prepareAttacked(BattleStackAttacked &bsa, CRandomGenerator & rand, boost::optional<int> customCount /*= boost::none*/) const
 {
 	auto afterAttack = countKilledByAttack(bsa.damageAmount);
 
@@ -1141,7 +1140,7 @@ void CStack::prepareAttacked(BattleStackAttacked &bsa, boost::optional<int> cust
 	bsa.newHP = afterAttack.second;
 
 
-	if (bsa.damageAmount && vstd::contains(state, EBattleStackState::CLONED)) // block ability should not kill clone (0 damage)
+	if(bsa.damageAmount && vstd::contains(state, EBattleStackState::CLONED)) // block ability should not kill clone (0 damage)
 	{
 		bsa.flags |= BattleStackAttacked::CLONE_KILLED;
 		return; // no rebirth I believe
@@ -1156,19 +1155,27 @@ void CStack::prepareAttacked(BattleStackAttacked &bsa, boost::optional<int> cust
 		bsa.killedAmount = countToUse; //we cannot kill more creatures than we have
 
 		int resurrectFactor = valOfBonuses(Bonus::REBIRTH);
-		if (resurrectFactor > 0 && casts) //there must be casts left
+		if(resurrectFactor > 0 && casts) //there must be casts left
 		{
-			int resurrectedCount = base->count * resurrectFactor / 100;
-			if (resurrectedCount)
-				resurrectedCount += ((base->count * resurrectFactor / 100.0 - resurrectedCount) > ran()%100 / 100.0) ? 1 : 0; //last stack has proportional chance to rebirth
-			else //only one unit
-				resurrectedCount += ((base->count * resurrectFactor / 100.0) > ran()%100 / 100.0) ? 1 : 0;
-			if (hasBonusOfType(Bonus::REBIRTH, 1))
-				vstd::amax (resurrectedCount, 1); //resurrect at least one Sacred Phoenix
-			if (resurrectedCount)
+			int resurrectedStackCount = base->count * resurrectFactor / 100;
+
+			// last stack has proportional chance to rebirth
+			auto diff = base->count * resurrectFactor / 100.0 - resurrectedStackCount;
+			if (diff > rand.nextDouble(0, 0.99))
+			{
+				resurrectedStackCount += 1;
+			}
+
+			if(hasBonusOfType(Bonus::REBIRTH, 1))
+			{
+				// resurrect at least one Sacred Phoenix
+				vstd::amax(resurrectedStackCount, 1);
+			}
+
+			if(resurrectedStackCount > 0)
 			{
 				bsa.flags |= BattleStackAttacked::REBIRTH;
-				bsa.newAmount = resurrectedCount; //risky?
+				bsa.newAmount = resurrectedStackCount; //risky?
 				bsa.newHP = MaxHealth(); //resore full health
 			}
 		}

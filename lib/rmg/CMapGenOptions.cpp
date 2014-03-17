@@ -177,15 +177,15 @@ const std::map<std::string, CRmgTemplate *> & CMapGenOptions::getAvailableTempla
 
 void CMapGenOptions::finalize()
 {
-	CRandomGenerator gen;
-	finalize(gen);
+	CRandomGenerator rand;
+	finalize(rand);
 }
 
-void CMapGenOptions::finalize(CRandomGenerator & gen)
+void CMapGenOptions::finalize(CRandomGenerator & rand)
 {
 	if(!mapTemplate)
 	{
-		mapTemplate = getPossibleTemplate(gen);
+		mapTemplate = getPossibleTemplate(rand);
 		assert(mapTemplate);
 	}
 
@@ -194,22 +194,22 @@ void CMapGenOptions::finalize(CRandomGenerator & gen)
 		auto possiblePlayers = mapTemplate->getPlayers().getNumbers();
 		possiblePlayers.erase(possiblePlayers.begin(), possiblePlayers.lower_bound(countHumanPlayers()));
 		assert(!possiblePlayers.empty());
-		playerCount = *std::next(possiblePlayers.begin(), gen.getInteger(0, possiblePlayers.size() - 1));
+		playerCount = *RandomGeneratorUtil::nextItem(possiblePlayers, rand);
 		updatePlayers();
 	}
 	if(teamCount == RANDOM_SIZE)
 	{
-		teamCount = gen.getInteger(0, playerCount - 1);
+		teamCount = rand.nextInt(playerCount - 1);
 	}
 	if(compOnlyPlayerCount == RANDOM_SIZE)
 	{
 		auto possiblePlayers = mapTemplate->getCpuPlayers().getNumbers();
-		compOnlyPlayerCount = *std::next(possiblePlayers.begin(), gen.getInteger(0, possiblePlayers.size() - 1));
+		compOnlyPlayerCount = *RandomGeneratorUtil::nextItem(possiblePlayers, rand);
 		updateCompOnlyPlayers();
 	}
 	if(compOnlyTeamCount == RANDOM_SIZE)
 	{
-		compOnlyTeamCount = gen.getInteger(0, std::max(compOnlyPlayerCount - 1, 0));
+		compOnlyTeamCount = rand.nextInt(std::max(compOnlyPlayerCount - 1, 0));
 	}
 
 	// 1 team isn't allowed
@@ -220,11 +220,11 @@ void CMapGenOptions::finalize(CRandomGenerator & gen)
 
 	if(waterContent == EWaterContent::RANDOM)
 	{
-		waterContent = static_cast<EWaterContent::EWaterContent>(gen.getInteger(0, 2));
+		waterContent = static_cast<EWaterContent::EWaterContent>(rand.nextInt(2));
 	}
 	if(monsterStrength == EMonsterStrength::RANDOM)
 	{
-		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(gen.getInteger(0, 2));
+		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(2));
 	}
 }
 
@@ -313,7 +313,7 @@ bool CMapGenOptions::checkOptions() const
 	}
 }
 
-const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & gen) const
+const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand) const
 {
 	// Find potential templates
 	const auto & tpls = getAvailableTemplates();
@@ -363,7 +363,7 @@ const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & gen)
 	}
 	else
 	{
-		return *std::next(potentialTpls.begin(), gen.getInteger(0, potentialTpls.size() - 1));
+		return *RandomGeneratorUtil::nextItem(potentialTpls, rand);
 	}
 }
 

@@ -24,6 +24,7 @@ class CGHeroInstance;
 struct ArtifactLocation;
 class CArtifactSet;
 class CArtifactInstance;
+class CRandomGenerator;
 
 #define ART_BEARER_LIST \
 	ART_BEARER(HERO)\
@@ -188,18 +189,6 @@ public:
 
 class DLL_LINKAGE CArtHandler : public IHandlerBase //handles artifacts
 {
-	CArtifact * loadFromJson(const JsonNode & node);
-
-	void addSlot(CArtifact * art, const std::string & slotID);
-	void loadSlots(CArtifact * art, const JsonNode & node);
-	void loadClass(CArtifact * art, const JsonNode & node);
-	void loadType(CArtifact * art, const JsonNode & node);
-	void loadComponents(CArtifact * art, const JsonNode & node);
-	void loadGrowingArt(CGrowingArtifact * art, const JsonNode & node);
-
-	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalinfo = 0);
-	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
-	void giveArtBonus(ArtifactID aid, Bonus *bonus);
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics; //tmp vectors!!! do not touch if you don't know what you are doing!!!
 
@@ -213,9 +202,9 @@ public:
 	void fillList(std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass); //fills given empty list with allowed artifacts of gibven class. No side effects
 
 	boost::optional<std::vector<CArtifact*>&> listFromClass(CArtifact::EartClass artifactClass);
-	void erasePickedArt(ArtifactID id);
-	ArtifactID getRandomArt (int flags);
-	ArtifactID getArtSync (ui32 rand, int flags, bool erasePicked = false);
+
+	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
+	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags);
 	bool legalArtifact(ArtifactID id);
 	void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
 	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
@@ -245,6 +234,22 @@ public:
 			& growingArtifacts;
 		//if(!h.saving) sortArts();
 	}
+
+private:
+	CArtifact * loadFromJson(const JsonNode & node);
+
+	void addSlot(CArtifact * art, const std::string & slotID);
+	void loadSlots(CArtifact * art, const JsonNode & node);
+	void loadClass(CArtifact * art, const JsonNode & node);
+	void loadType(CArtifact * art, const JsonNode & node);
+	void loadComponents(CArtifact * art, const JsonNode & node);
+	void loadGrowingArt(CGrowingArtifact * art, const JsonNode & node);
+
+	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalinfo = 0);
+	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
+	void giveArtBonus(ArtifactID aid, Bonus *bonus);
+
+	void erasePickedArt(ArtifactID id);
 };
 
 struct DLL_LINKAGE ArtSlotInfo

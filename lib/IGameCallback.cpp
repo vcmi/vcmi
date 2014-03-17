@@ -1,3 +1,13 @@
+/*
+ * IGameCallback.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 #include "StdInc.h"
 #include "IGameCallback.h"
 
@@ -20,23 +30,11 @@
 
 #include "Connection.h"
 
-/*
- * IGameCallback.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
-
 //TODO make clean
 #define ERROR_SILENT_RET_VAL_IF(cond, txt, retVal) do {if(cond){return retVal;}} while(0)
 #define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
 #define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return;}} while(0)
 #define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
-
-extern std::minstd_rand ran;
 
 CGameState * CPrivilagedInfoCallback::gameState ()
 {
@@ -182,21 +180,11 @@ bool CGameInfoCallback::isAllowed( int type, int id )
 void CPrivilagedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact*> &out)
 {
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(VLC->arth->artifacts[getRandomArt(CArtifact::ART_TREASURE)]);
+		out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(gameState()->getRandomGenerator(), CArtifact::ART_TREASURE)]);
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(VLC->arth->artifacts[getRandomArt(CArtifact::ART_MINOR)]);
+		out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(gameState()->getRandomGenerator(), CArtifact::ART_MINOR)]);
 
-	out.push_back(VLC->arth->artifacts[getRandomArt(CArtifact::ART_MAJOR)]);
-}
-
-ArtifactID CPrivilagedInfoCallback::getRandomArt (int flags)
-{
-	return VLC->arth->getRandomArt(flags);
-}
-
-ArtifactID CPrivilagedInfoCallback::getArtSync (ui32 rand, int flags, bool erasePicked)
-{
-	return VLC->arth->getArtSync (rand, flags, erasePicked);
+	out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(gameState()->getRandomGenerator(), CArtifact::ART_MAJOR)]);
 }
 
 void CPrivilagedInfoCallback::getAllowedSpells(std::vector<SpellID> &out, ui16 level)

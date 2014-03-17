@@ -36,7 +36,7 @@ private:
 
 	CMapGenOptions * mapGenOptions;
 	std::unique_ptr<CMap> map;
-	CRandomGenerator gen;
+	CRandomGenerator rand;
 	int randomSeed;
 	CMapEditManager * editManager;
 };

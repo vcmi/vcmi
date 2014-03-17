@@ -16,7 +16,7 @@
 #include "int3.h"
 #include "CObjectHandler.h"
 #include "IGameCallback.h"
-
+#include "CRandomGenerator.h"
 
 /*
  * CGameState.h, part of VCMI engine
@@ -399,7 +399,8 @@ public:
 		std::map<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; nullptr if not available
 		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
 
-		CGHeroInstance * pickHeroFor(bool native, PlayerColor player, const CTown *town, std::map<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass = nullptr) const;
+		CGHeroInstance * pickHeroFor(bool native, PlayerColor player, const CTown *town,
+			std::map<ui32, ConstTransitivePtr<CGHeroInstance> > &available, CRandomGenerator & rand, const CHeroClass *bannedClass = nullptr) const;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -426,7 +427,7 @@ public:
 	void giveHeroArtifact(CGHeroInstance *h, ArtifactID aid);
 
 	void apply(CPack *pack);
-	BFieldType battleGetBattlefieldType(int3 tile) const;
+	BFieldType battleGetBattlefieldType(int3 tile);
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
 	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
@@ -452,6 +453,9 @@ public:
 	void getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing);
 	int getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, int remainingMovePoints=-1, bool checkLast=true);
 	int getDate(Date::EDateType mode=Date::DAY) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
+
+	// ----- getters, setters -----
+	CRandomGenerator & getRandomGenerator();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -519,8 +523,11 @@ private:
 	bool isUsedHero(HeroTypeID hid) const; //looks in heroes and prisons
 	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
 	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
-	int pickUnusedHeroTypeRandomly(PlayerColor owner) const; // picks a unused hero type randomly
-	int pickNextHeroType(PlayerColor owner) const; // picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
+	int pickUnusedHeroTypeRandomly(PlayerColor owner); // picks a unused hero type randomly
+	int pickNextHeroType(PlayerColor owner); // picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
+
+	// ---- data -----
+	CRandomGenerator rand;
 
 	friend class CCallback;
 	friend class CClient;

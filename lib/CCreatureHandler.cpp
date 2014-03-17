@@ -1054,14 +1054,14 @@ CCreatureHandler::~CCreatureHandler()
 		creature.dellNull();
 }
 
-CreatureID CCreatureHandler::pickRandomMonster(const std::function<int()> &randGen, int tier) const
+CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier) const
 {
 	int r = 0;
 	if(tier == -1) //pick any allowed creature
 	{
 		do
 		{
-			r = vstd::pickRandomElementOf(creatures, randGen)->idNumber;
+			r = (*RandomGeneratorUtil::nextItem(creatures, rand))->idNumber;
 		} while (VLC->creh->creatures[r] && VLC->creh->creatures[r]->special); // find first "not special" creature
 	}
 	else
@@ -1082,7 +1082,7 @@ CreatureID CCreatureHandler::pickRandomMonster(const std::function<int()> &randG
 			return CreatureID::NONE;
 		}
 
-		return vstd::pickRandomElementOf(allowed, randGen);
+		return *RandomGeneratorUtil::nextItem(allowed, rand);
 	}
 	assert (r >= 0); //should always be, but it crashed
 	return CreatureID(r);

@@ -1873,8 +1873,6 @@ std::vector<HeroPtr> VCAI::getUnblockedHeroes() const
 
 bool VCAI::canAct (HeroPtr h) const
 {
-	bool digsTile = false;
-	
 	auto mission = lockedHeroes.find(h);
 	if (mission != lockedHeroes.end())
 	{

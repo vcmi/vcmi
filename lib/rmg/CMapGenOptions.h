@@ -143,7 +143,7 @@ public:
 	/// a random number generator by keeping the options in a valid state. Check options should return true, otherwise
 	/// this function fails.
 	void finalize();
-	void finalize(CRandomGenerator & gen);
+	void finalize(CRandomGenerator & rand);
 
 	/// Returns false if there is no template available which fits to the currently selected options.
 	bool checkOptions() const;
@@ -156,7 +156,7 @@ private:
 	PlayerColor getNextPlayerColor() const;
 	void updateCompOnlyPlayers();
 	void updatePlayers();
-	const CRmgTemplate * getPossibleTemplate(CRandomGenerator & gen) const;
+	const CRmgTemplate * getPossibleTemplate(CRandomGenerator & rand) const;
 
 	si32 width, height;
 	bool hasTwoLevels;

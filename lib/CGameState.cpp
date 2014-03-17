@@ -28,7 +28,6 @@
 #include "CStopWatch.h"
 #include "mapping/CMapEditManager.h"
 
-DLL_LINKAGE std::minstd_rand ran;
 class CGObjectInstance;
 
 #ifdef min
@@ -363,7 +362,8 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 	return nobj;
 }
 
-CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor player, const CTown *town, std::map<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass /*= nullptr*/) const
+CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor player, const CTown *town,
+	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > &available, CRandomGenerator & rand, const CHeroClass * bannedClass /*= nullptr*/) const
 {
 	CGHeroInstance *ret = nullptr;
 
@@ -388,11 +388,11 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		if(!pool.size())
 		{
             logGlobal->errorStream() << "Cannot pick native hero for " << player << ". Picking any...";
-			return pickHeroFor(false, player, town, available);
+			return pickHeroFor(false, player, town, available, rand);
 		}
 		else
 		{
-			ret = pool[rand()%pool.size()];
+			ret = *RandomGeneratorUtil::nextItem(pool, rand);
 		}
 	}
 	else
@@ -414,7 +414,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 			return nullptr;
 		}
 
-		r = rand()%sum;
+		r = rand.nextInt(sum - 1);
 		for (auto & elem : pool)
 		{
 			r -= elem->type->heroClass->selectionProbability[town->faction->index];
@@ -449,7 +449,7 @@ CGameState::CampaignHeroReplacement::CampaignHeroReplacement(CGHeroInstance * he
 
 }
 
-int CGameState::pickNextHeroType(PlayerColor owner) const
+int CGameState::pickNextHeroType(PlayerColor owner)
 {
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
 	if(ps.hero >= 0 && !isUsedHero(HeroTypeID(ps.hero))) //we haven't used selected hero
@@ -460,7 +460,7 @@ int CGameState::pickNextHeroType(PlayerColor owner) const
 	return pickUnusedHeroTypeRandomly(owner);
 }
 
-int CGameState::pickUnusedHeroTypeRandomly(PlayerColor owner) const
+int CGameState::pickUnusedHeroTypeRandomly(PlayerColor owner)
 {
 	//list of available heroes for this faction and others
 	std::vector<HeroTypeID> factionHeroes, otherHeroes;
@@ -475,12 +475,16 @@ int CGameState::pickUnusedHeroTypeRandomly(PlayerColor owner) const
 	}
 
 	// select random hero native to "our" faction
-	if (!factionHeroes.empty())
-		return factionHeroes.at(ran() % factionHeroes.size()).getNum();
+	if(!factionHeroes.empty())
+	{
+		return RandomGeneratorUtil::nextItem(factionHeroes, rand)->getNum();
+	}
 
 	logGlobal->warnStream() << "Cannot find free hero of appropriate faction for player " << owner << " - trying to get first available...";
 	if(!otherHeroes.empty())
-		return otherHeroes.at(ran() % otherHeroes.size()).getNum();
+	{
+		return RandomGeneratorUtil::nextItem(otherHeroes, rand)->getNum();
+	}
 
 	logGlobal->errorStream() << "No free allowed heroes!";
 	auto notAllowedHeroesButStillBetterThanCrash = getUnusedAllowedHeroes(true);
@@ -497,29 +501,29 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 	switch(obj->ID)
 	{
 	case Obj::RANDOM_ART:
-		return std::make_pair(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
 	case Obj::RANDOM_TREASURE_ART:
-		return std::make_pair(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_TREASURE));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE));
 	case Obj::RANDOM_MINOR_ART:
-		return std::make_pair(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_MINOR));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MINOR));
 	case Obj::RANDOM_MAJOR_ART:
-		return std::make_pair(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_MAJOR));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR));
 	case Obj::RANDOM_RELIC_ART:
-		return std::make_pair(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_RELIC));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(rand, CArtifact::ART_RELIC));
 	case Obj::RANDOM_HERO:
 		return std::make_pair(Obj::HERO, pickNextHeroType(obj->tempOwner));
 	case Obj::RANDOM_MONSTER:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran)));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand));
 	case Obj::RANDOM_MONSTER_L1:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 1));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 1));
 	case Obj::RANDOM_MONSTER_L2:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 2));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 2));
 	case Obj::RANDOM_MONSTER_L3:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 3));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 3));
 	case Obj::RANDOM_MONSTER_L4:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 4));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 4));
 	case Obj::RANDOM_RESOURCE:
-		return std::make_pair(Obj::RESOURCE,ran()%7); //now it's OH3 style, use %8 for mithril
+		return std::make_pair(Obj::RESOURCE,rand.nextInt(6)); //now it's OH3 style, use %8 for mithril
 	case Obj::RANDOM_TOWN:
 		{
 			PlayerColor align = PlayerColor((static_cast<CGTownInstance*>(obj))->alignment);
@@ -539,18 +543,18 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			{
 				do
 				{
-					f = ran()%VLC->townh->factions.size();
+					f = rand.nextInt(VLC->townh->factions.size() - 1);
 				}
 				while (VLC->townh->factions[f]->town == nullptr); // find playable faction
 			}
 			return std::make_pair(Obj::TOWN,f);
 		}
 	case Obj::RANDOM_MONSTER_L5:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 5));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 5));
 	case Obj::RANDOM_MONSTER_L6:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 6));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 6));
 	case Obj::RANDOM_MONSTER_L7:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(std::ref(ran), 7));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 7));
 	case Obj::RANDOM_DWELLING:
 	case Obj::RANDOM_DWELLING_LVL:
 	case Obj::RANDOM_DWELLING_FACTION:
@@ -561,7 +565,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			//if castle alignment available
 			if (auto info = dynamic_cast<CCreGenAsCastleInfo*>(dwl->info))
 			{
-				faction = ran() % VLC->townh->factions.size();
+				faction = rand.nextInt(VLC->townh->factions.size() - 1);
 				if (info->asCastle)
 				{
 					for(auto & elem : map->objects)
@@ -586,11 +590,11 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 				}
 				else
 				{
-					while((!(info->castles[0]&(1<<faction))))
+					while(!(info->castles[0]&(1<<faction)))
 					{
 						if((faction>7) && (info->castles[1]&(1<<(faction-8))))
 							break;
-						faction = ran()%GameConstants::F_NUMBER;
+						faction = rand.nextInt(GameConstants::F_NUMBER - 1);
 					}
 				}
 			}
@@ -601,9 +605,13 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 
 			//if level set to range
 			if (auto info = dynamic_cast<CCreGenLeveledInfo*>(dwl->info))
-				level = ((info->maxLevel-info->minLevel) ? (ran()%(info->maxLevel-info->minLevel)+info->minLevel) : (info->minLevel));
+			{
+				level = rand.nextInt(info->minLevel, info->maxLevel);
+			}
 			else // fixed level
+			{
 				level = obj->subID;
+			}
 
 			delete dwl->info;
 			dwl->info = nullptr;
@@ -627,9 +635,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			if (result.first == Obj::NO_OBJ)
 			{
                 logGlobal->errorStream() << "Error: failed to find creature for dwelling of "<< int(faction) << " of level " << int(level);
-				auto iter = VLC->objh->cregens.begin();
-				std::advance(iter, ran() % VLC->objh->cregens.size() );
-				result = std::make_pair(Obj::CREATURE_GENERATOR1, iter->first);
+				result = std::make_pair(Obj::CREATURE_GENERATOR1, RandomGeneratorUtil::nextItem(VLC->objh->cregens, rand)->first);
 			}
 
 			return result;
@@ -763,7 +769,7 @@ BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2],
 void CGameState::init(StartInfo * si)
 {
     logGlobal->infoStream() << "\tUsing random seed: "<< si->seedToBeUsed;
-	ran.seed((boost::int32_t)si->seedToBeUsed);
+	rand.setSeed(si->seedToBeUsed);
 	scenarioOps = CMemorySerializer::deepCopy(*si).release();
 	initialOpts = CMemorySerializer::deepCopy(*si).release();
 	si = nullptr;
@@ -810,7 +816,7 @@ void CGameState::init(StartInfo * si)
     logGlobal->debugStream() << "\tChecking objectives";
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
 
-	int seedAfterInit = ran();
+	auto seedAfterInit = rand.nextInt();
     logGlobal->infoStream() << "Seed after init is " << seedAfterInit << " (before was " << scenarioOps->seedToBeUsed << ")";
 	if(scenarioOps->seedPostInit > 0)
 	{
@@ -1034,10 +1040,14 @@ void CGameState::initGrailPosition()
 			if(elem && elem->ID == Obj::HOLE)
 				allowedPos -= elem->pos;
 
-		if(allowedPos.size())
-			map->grailPos = allowedPos[ran() % allowedPos.size()];
+		if(!allowedPos.empty())
+		{
+			map->grailPos = *RandomGeneratorUtil::nextItem(allowedPos, rand);
+		}
 		else
+		{
 			logGlobal->warnStream() << "Warning: Grail cannot be placed, no appropriate tile found!";
+		}
 	}
 }
 
@@ -1048,7 +1058,7 @@ void CGameState::initRandomFactionsForPlayers()
 	{
 		if(elem.second.castle==-1)
 		{
-			int randomID = ran() % map->players[elem.first.getNum()].allowedFactions.size();
+			auto randomID = rand.nextInt(map->players[elem.first.getNum()].allowedFactions.size() - 1);
 			auto iter = map->players[elem.first.getNum()].allowedFactions.begin();
 			std::advance(iter, randomID);
 
@@ -1177,7 +1187,7 @@ void CGameState::placeCampaignHeroes()
 					auto unusedHeroTypeIds = getUnusedAllowedHeroes();
 					if(!unusedHeroTypeIds.empty())
 					{
-						heroTypeId = std::next(unusedHeroTypeIds.begin(), ran() % unusedHeroTypeIds.size())->getNum();
+						heroTypeId = (*RandomGeneratorUtil::nextItem(unusedHeroTypeIds, rand)).getNum();
 					}
 					else
 					{
@@ -1680,23 +1690,23 @@ void CGameState::initStartingBonus()
 	{
 		//starting bonus
 		if(scenarioOps->playerInfos[elem.first].bonus==PlayerSettings::RANDOM)
-			scenarioOps->playerInfos[elem.first].bonus = static_cast<PlayerSettings::Ebonus>(ran()%3);
+			scenarioOps->playerInfos[elem.first].bonus = static_cast<PlayerSettings::Ebonus>(rand.nextInt(2));
 		switch(scenarioOps->playerInfos[elem.first].bonus)
 		{
 		case PlayerSettings::GOLD:
-			elem.second.resources[Res::GOLD] += 500 + (ran()%6)*100;
+			elem.second.resources[Res::GOLD] += rand.nextInt(500, 1000);
 			break;
 		case PlayerSettings::RESOURCE:
 			{
 				int res = VLC->townh->factions[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
 				if(res == Res::WOOD_AND_ORE)
 				{
-					elem.second.resources[Res::WOOD] += 5 + ran()%6;
-					elem.second.resources[Res::ORE] += 5 + ran()%6;
+					elem.second.resources[Res::WOOD] += rand.nextInt(5, 10);
+					elem.second.resources[Res::ORE] += rand.nextInt(5, 10);
 				}
 				else
 				{
-					elem.second.resources[res] += 3 + ran()%4;
+					elem.second.resources[res] += rand.nextInt(3, 6);
 				}
 				break;
 			}
@@ -1708,7 +1718,7 @@ void CGameState::initStartingBonus()
 					break;
 				}
 				CArtifact *toGive;
-				toGive = VLC->arth->artifacts[VLC->arth->getRandomArt (CArtifact::ART_TREASURE)];
+				toGive = VLC->arth->artifacts[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE)];
 
 				CGHeroInstance *hero = elem.second.heroes[0];
 				giveHeroArtifact(hero, toGive->id);
@@ -1756,9 +1766,13 @@ void CGameState::initTowns()
 	{
 		CGTownInstance * vti =(elem);
 		if(!vti->town)
+		{
 			vti->town = VLC->townh->factions[vti->subID]->town;
-		if (vti->name.length()==0) // if town hasn't name we draw it
-			vti->name = vti->town->names[ran()%vti->town->names.size()];
+		}
+		if(vti->name.empty())
+		{
+			vti->name = *RandomGeneratorUtil::nextItem(vti->town->names, rand);
+		}
 
 		//init buildings
 		if(vstd::contains(vti->builtBuildings, BuildingID::DEFAULT)) //give standard set of buildings
@@ -1767,8 +1781,10 @@ void CGameState::initTowns()
 			vti->builtBuildings.insert(BuildingID::VILLAGE_HALL);
 			vti->builtBuildings.insert(BuildingID::TAVERN);
 			vti->builtBuildings.insert(BuildingID::DWELL_FIRST);
-			if(ran()%2)
+			if(rand.nextInt(1) == 1)
+			{
 				vti->builtBuildings.insert(BuildingID::DWELL_LVL_2);
+			}
 		}
 
 		//#1444 - remove entries that don't have buildings defined (like some unused extra town hall buildings)
@@ -1839,7 +1855,7 @@ void CGameState::initTowns()
 			if (total == 0) // remaining spells have 0 probability
 				break;
 
-			int r = ran()%total;
+			auto r = rand.nextInt(total - 1);
 			for(ui32 ps=0; ps<vti->possibleSpells.size();ps++)
 			{
 				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->subID);
@@ -1921,7 +1937,7 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 	}
 }
 
-BFieldType CGameState::battleGetBattlefieldType(int3 tile) const
+BFieldType CGameState::battleGetBattlefieldType(int3 tile)
 {
 	if(tile==int3() && curB)
 		tile = curB->tile;
@@ -1971,13 +1987,13 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile) const
     switch(t.terType)
 	{
     case ETerrainType::DIRT:
-		return BFieldType(rand()%3+3);
+		return BFieldType(rand.nextInt(3, 5));
     case ETerrainType::SAND:
 		return BFieldType::SAND_MESAS; //TODO: coast support
     case ETerrainType::GRASS:
-		return BFieldType(rand()%2+6);
+		return BFieldType(rand.nextInt(6, 7));
     case ETerrainType::SNOW:
-		return BFieldType(rand()%2+10);
+		return BFieldType(rand.nextInt(10, 11));
     case ETerrainType::SWAMP:
 		return BFieldType::SWAMP_TREES;
     case ETerrainType::ROUGH:
@@ -3629,4 +3645,9 @@ std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & vic
 {
 	os << victoryLossCheckResult.messageToSelf;
 	return os;
+}
+
+CRandomGenerator & CGameState::getRandomGenerator()
+{
+	return rand;
 }

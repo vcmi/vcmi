@@ -27,7 +27,7 @@ class CArmedInstance;
 class CGTownInstance;
 class CStackInstance;
 struct BattleStackAttacked;
-
+class CRandomGenerator;
 
 
 //only for use in BattleInfo
@@ -222,7 +222,7 @@ public:
 	std::vector<BattleHex> getSurroundingHexes(BattleHex attackerPos = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
 
 	std::pair<int,int> countKilledByAttack(int damageReceived) const; //returns pair<killed count, new left HP>
-	void prepareAttacked(BattleStackAttacked &bsa, boost::optional<int> customCount = boost::none) const; //requires bsa.damageAmout filled
+	void prepareAttacked(BattleStackAttacked &bsa, CRandomGenerator & rand, boost::optional<int> customCount = boost::none) const; //requires bsa.damageAmout filled
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

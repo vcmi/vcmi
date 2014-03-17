@@ -598,7 +598,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 		auto & tile = map->getTile(pos);
 		if(!pattern.diffImages)
 		{
-			tile.terView = gen->getInteger(mapping.first, mapping.second);
+			tile.terView = gen->nextInt(mapping.first, mapping.second);
 			tile.extTileFlags = valRslt.flip;
 		}
 		else
@@ -606,7 +606,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 			const int framesPerRot = (mapping.second - mapping.first + 1) / pattern.rotationTypesCount;
 			int flip = (pattern.rotationTypesCount == 2 && valRslt.flip == 2) ? 1 : valRslt.flip;
 			int firstFrame = mapping.first + flip * framesPerRot;
-			tile.terView = gen->getInteger(firstFrame, firstFrame + framesPerRot - 1);
+			tile.terView = gen->nextInt(firstFrame, firstFrame + framesPerRot - 1);
 			tile.extTileFlags =	0;
 		}
 	}

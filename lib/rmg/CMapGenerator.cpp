@@ -35,9 +35,9 @@ CMapGenerator::~CMapGenerator()
 std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, int randomSeed /*= std::time(nullptr)*/)
 {
 	this->randomSeed = randomSeed;
-	gen.seed(this->randomSeed);
+	rand.setSeed(this->randomSeed);
 	this->mapGenOptions = mapGenOptions;
-	this->mapGenOptions->finalize(gen);
+	this->mapGenOptions->finalize(rand);
 
 	map = make_unique<CMap>();
 	editManager = map->getEditManager();
@@ -125,7 +125,8 @@ void CMapGenerator::addPlayerInfo()
 		{
 			player.canHumanPlay = true;
 		}
-		auto itTeam = std::next(teamNumbers[j].begin(), gen.getInteger(0, teamNumbers[j].size() - 1));
+
+		auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
 		player.team = TeamID(*itTeam);
 		teamNumbers[j].erase(itTeam);
 		map->players[pSettings.getColor().getNum()] = player;
@@ -138,9 +139,9 @@ void CMapGenerator::addPlayerInfo()
 void CMapGenerator::genTerrain()
 {
 	map->initTerrain();
-	editManager->clearTerrain(&gen);
+	editManager->clearTerrain(&rand);
     editManager->getTerrainSelection().selectRange(MapRect(int3(4, 4, 0), 24, 30));
-	editManager->drawTerrain(ETerrainType::GRASS, &gen);
+	editManager->drawTerrain(ETerrainType::GRASS, &rand);
 }
 
 void CMapGenerator::genTowns()
@@ -158,7 +159,11 @@ void CMapGenerator::genTowns()
 		auto  town = new CGTownInstance();
 		town->ID = Obj::TOWN;
 		int townId = mapGenOptions->getPlayersSettings().find(PlayerColor(i))->second.getStartingTown();
-		if(townId == CMapGenOptions::CPlayerSettings::RANDOM_TOWN) townId = gen.getInteger(0, 8); // Default towns
+		if(townId == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
+		{
+			// select default towns
+			townId = rand.nextInt(8);
+		}
 		town->subID = townId;
 		town->tempOwner = owner;
 		town->appearance = VLC->dobjinfo->pickCandidates(town->ID, town->subID, map->getTile(townPos[side]).terType).front();

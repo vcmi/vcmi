@@ -1052,7 +1052,7 @@ std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(const BattleAtta
 			{
 				BattleStackAttacked bsa;
 				bsa.damageAmount = ret.*pairElems[i];
-				bai.defender->prepareAttacked(bsa, bai.defenderCount);
+				bai.defender->prepareAttacked(bsa, gs->getRandomGenerator(), bai.defenderCount);
 
 				auto retaliationAttack = bai.reverse();
 				retaliationAttack.attackerCount = bsa.newAmount;

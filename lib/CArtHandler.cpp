@@ -1,3 +1,13 @@
+/*
+ * CArtHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 #include "StdInc.h"
 #include "CArtHandler.h"
 
@@ -9,20 +19,10 @@
 #include "CObjectHandler.h"
 #include "NetPacksBase.h"
 #include "GameConstants.h"
+#include "CRandomGenerator.h"
 
 using namespace boost::assign;
 
-/*
- * CArtHandler.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
-
-extern std::minstd_rand ran;
 // Note: list must match entries in ArtTraits.txt
 #define ART_POS_LIST    \
 	ART_POS(SPELLBOOK)  \
@@ -422,11 +422,7 @@ CreatureID CArtHandler::machineIDToCreature(ArtifactID id)
 	return CreatureID::NONE; //this artifact is not a creature
 }
 
-ArtifactID CArtHandler::getRandomArt(int flags)
-{
-	return getArtSync(ran(), flags, true);
-}
-ArtifactID CArtHandler::getArtSync (ui32 rand, int flags, bool erasePicked)
+ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags)
 {
 	auto getAllowedArts = [&](std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, CArtifact::EartClass flag)
 	{
@@ -466,9 +462,8 @@ ArtifactID CArtHandler::getArtSync (ui32 rand, int flags, bool erasePicked)
 
 	std::vector<ConstTransitivePtr<CArtifact> > out;
 	getAllowed(out);
-	ArtifactID artID = out[rand % out.size()]->id;
-	if(erasePicked)
-		erasePickedArt (artID);
+	ArtifactID artID = (*RandomGeneratorUtil::nextItem(out, rand))->id;
+	erasePickedArt(artID);
 	return artID;
 }
 

@@ -7,7 +7,7 @@ Group:				Amusements/Games
 
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export -r HEAD https://vcmi.svn.sourceforge.net/svnroot/vcmi/tags/0.95 vcmi-0.9.5-1
+#  svn export -r HEAD https://svn.code.sf.net/p/vcmi/code/tags/0.95 vcmi-0.9.5-1
 #  tar -cJf vcmi-0.9.5-1.tar.xz vcmi-0.9.5-1
 Source:				vcmi-0.9.5-1.tar.xz
 

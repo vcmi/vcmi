@@ -824,7 +824,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 	bsa.attackerID = att->ID;
 	bsa.stackAttacked = def->ID;
 	bsa.damageAmount = gs->curB->calculateDmg(att, def, gs->curB->battleGetOwner(att), gs->curB->battleGetOwner(def), bat.shot(), distance, bat.lucky(), bat.unlucky(), bat.deathBlow(), bat.ballistaDoubleDmg());
-	def->prepareAttacked(bsa); //calculate casualties
+	def->prepareAttacked(bsa, gameState()->getRandomGenerator()); //calculate casualties
 
 	//life drain handling
 	if (att->hasBonusOfType(Bonus::LIFE_DRAIN) && def->isLiving())
@@ -858,7 +858,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		bsa2.effect = 11;
 
 		bsa2.damageAmount = (bsa.damageAmount * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100; //TODO: scale with attack/defense
-		att->prepareAttacked(bsa2);
+		att->prepareAttacked(bsa2, gameState()->getRandomGenerator());
 		bat.bsa.push_back(bsa2);
 	}
 }
@@ -1079,9 +1079,10 @@ CGameHandler::~CGameHandler(void)
 
 void CGameHandler::init(StartInfo *si)
 {
-	//extern DLL_LINKAGE std::minstd_rand ran;
-	if(!si->seedToBeUsed)
+	if(si->seedToBeUsed == 0)
+	{
 		si->seedToBeUsed = std::time(nullptr);
+	}
 
 	gs = new CGameState();
     logGlobal->infoStream() << "Gamestate created!";
@@ -1089,7 +1090,9 @@ void CGameHandler::init(StartInfo *si)
     logGlobal->infoStream() << "Gamestate initialized!";
 
 	for(auto & elem : gs->players)
+	{
 		states.addPlayer(elem.first);
+	}
 }
 
 static bool evntCmp(const CMapEvent &a, const CMapEvent &b)
@@ -1187,7 +1190,7 @@ void CGameHandler::newTurn()
 					n.specialWeek = NewTurn::DOUBLE_GROWTH;
 					if (VLC->modh->settings.ALL_CREATURES_GET_DOUBLE_MONTHS)
 					{
-						std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster([]{ return rand(); }));
+						std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster(gs->getRandomGenerator()));
 						n.creatureid = newMonster.second;
 					}
 					else if(VLC->creh->doubledCreatures.size())
@@ -1209,7 +1212,7 @@ void CGameHandler::newTurn()
 				if (monthType < 25)
 				{
 					n.specialWeek = NewTurn::BONUS_GROWTH; //+5
-					std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster([]{ return rand(); }));
+					std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster(gs->getRandomGenerator()));
 					//TODO do not pick neutrals
 					n.creatureid = newMonster.second;
 				}
@@ -1238,7 +1241,8 @@ void CGameHandler::newTurn()
 			CHeroClass *banned = nullptr;
 			for (int j = 0; j < GameConstants::AVAILABLE_HEROES_PER_PLAYER; j++)
 			{
-				if(CGHeroInstance *h = gs->hpool.pickHeroFor(j == 0, elem.first, getNativeTown(elem.first), pool, banned)) //first hero - native if possible, second hero -> any other class
+				//first hero - native if possible, second hero -> any other class
+				if(CGHeroInstance *h = gs->hpool.pickHeroFor(j == 0, elem.first, getNativeTown(elem.first), pool, gs->getRandomGenerator(), banned))
 				{
 					sah.hid[j] = h->subID;
 					h->initArmy(&sah.army[j]);
@@ -3213,7 +3217,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	const CGHeroInstance *theOtherHero = p->availableHeroes.at(!hid);
 	const CGHeroInstance *newHero = nullptr;
 	if (theOtherHero) //on XXL maps all heroes can be imprisoned :(
-		newHero = gs->hpool.pickHeroFor(false, player, getNativeTown(player), pool, theOtherHero->type->heroClass);
+		newHero = gs->hpool.pickHeroFor(false, player, getNativeTown(player), pool, gs->getRandomGenerator(), theOtherHero->type->heroClass);
 
 	SetAvailableHeroes sah;
 	sah.player = player;
@@ -4120,7 +4124,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				bsa.attackerID = stack->ID;
 			else
 				bsa.attackerID = -1;
-			(attackedCre)->prepareAttacked(bsa);
+			(attackedCre)->prepareAttacked(bsa, gs->getRandomGenerator());
 			si.stacks.push_back(bsa);
 
 			if (spellID == SpellID::CHAIN_LIGHTNING)
@@ -4419,7 +4423,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				bsa.damageAmount = usedSpellPower * (attackedCre)->valOfBonuses(Bonus::STACK_HEALTH);
 				bsa.stackAttacked = (attackedCre)->ID;
 				bsa.attackerID = -1;
-				(attackedCre)->prepareAttacked(bsa);
+				(attackedCre)->prepareAttacked(bsa, gameState()->getRandomGenerator());
 				si.stacks.push_back(bsa);
 			}
 		}
@@ -4434,7 +4438,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				bsa.damageAmount = usedSpellPower; //damage times the number of attackers
 				bsa.stackAttacked = (attackedCre)->ID;
 				bsa.attackerID = -1;
-				(attackedCre)->prepareAttacked(bsa);
+				(attackedCre)->prepareAttacked(bsa, gameState()->getRandomGenerator());
 				si.stacks.push_back(bsa);
 			}
 		}
@@ -4751,7 +4755,7 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 	bsa.damageAmount = damage;
 	bsa.stackAttacked = curStack->ID;
 	bsa.attackerID = -1;
-	curStack->prepareAttacked(bsa);
+	curStack->prepareAttacked(bsa, gameState()->getRandomGenerator());
 
 	StacksInjured si;
 	si.stacks.push_back(bsa);

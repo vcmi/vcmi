@@ -36,7 +36,6 @@ using namespace boost::assign;
 std::map<Obj, std::map<int, std::vector<ObjectInstanceID> > > CGTeleport::objs;
 std::vector<std::pair<ObjectInstanceID, ObjectInstanceID> > CGTeleport::gates;
 IGameCallback * IObjectInterface::cb = nullptr;
-extern std::minstd_rand ran;
 std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
 ui8 CGObelisk::obeliskCount; //how many obelisks are on map
@@ -798,7 +797,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= nullptr*/)
 		dst = this;
 
 	int howManyStacks = 0; //how many stacks will hero receives <1 - 3>
-	int pom = ran()%100;
+	int pom = cb->gameState()->getRandomGenerator().nextInt(99);
 	int warMachinesGiven = 0;
 
 	if(pom < 9)
@@ -814,8 +813,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= nullptr*/)
 	{
 		auto & stack = type->initialArmy[stackNo];
 
-		int range = stack.maxAmount - stack.minAmount;
-		int count = ran()%(range+1) + stack.minAmount;
+		int count = cb->gameState()->getRandomGenerator().nextInt(stack.minAmount, stack.maxAmount);
 
 		if(stack.creature >= CreatureID::CATAPULT &&
 		   stack.creature <= CreatureID::ARROW_TOWERS) //war machine
@@ -1465,7 +1463,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const
 {
 	InfoWindow iw;
-	iw.soundID = soundBase::pickup01 + ran() % 7;
+	iw.soundID = soundBase::pickup01 + cb->gameState()->getRandomGenerator().nextInt(6);
 	iw.player = tempOwner;
 	iw.components.push_back(Component(raisedStack));
 
@@ -1553,7 +1551,7 @@ EAlignment::EAlignment CGHeroInstance::getAlignment() const
 
 void CGHeroInstance::initExp()
 {
-	exp=40+  (ran())  % 50;
+	exp = cb->gameState()->getRandomGenerator().nextInt(40, 89);
 	level = 1;
 }
 
@@ -1894,7 +1892,7 @@ void CGDwelling::newTurn() const
 
 	if(ID == Obj::REFUGEE_CAMP) //if it's a refugee camp, we need to pick an available creature
 	{
-		cb->setObjProperty(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster());
+		cb->setObjProperty(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster(cb->gameState()->getRandomGenerator()));
 	}
 
 	bool change = false;
@@ -2774,7 +2772,7 @@ void CGVisitableOPH::initObj()
 {
 	if(ID==Obj::TREE_OF_KNOWLEDGE)
 	{
-		switch (ran() % 3)
+		switch (cb->gameState()->getRandomGenerator().nextInt(2))
 		{
 		case 1:
 			treePrice[Res::GOLD] = 2000;
@@ -3292,13 +3290,13 @@ void CGCreature::initObj()
 		character = -4;
 		break;
 	case 1:
-		character = 1 + ran()%7;
+		character = cb->gameState()->getRandomGenerator().nextInt(1, 7);
 		break;
 	case 2:
-		character = 1 + ran()%10;
+		character = cb->gameState()->getRandomGenerator().nextInt(1, 10);
 		break;
 	case 3:
-		character = 4 + ran()%7;
+		character = cb->gameState()->getRandomGenerator().nextInt(4, 10);
 		break;
 	case 4:
 		character = 10;
@@ -3308,14 +3306,11 @@ void CGCreature::initObj()
 	stacks[SlotID(0)]->setType(CreatureID(subID));
 	TQuantity &amount = stacks[SlotID(0)]->count;
 	CCreature &c = *VLC->creh->creatures[subID];
-	if(!amount)
+	if(amount == 0)
 	{
-		if(c.ammMax == c.ammMin)
-			amount = c.ammMax;
-		else
-			amount = c.ammMin + (ran() % (c.ammMax - c.ammMin));
+		amount = cb->gameState()->getRandomGenerator().nextInt(c.ammMin, c.ammMax);
 
-		if(!amount) //armies with 0 creatures are illegal
+		if(amount == 0) //armies with 0 creatures are illegal
 		{
             logGlobal->warnStream() << "Problem: stack " << nodeName() << " cannot have 0 creatures. Check properties of " << c.nodeName();
 			amount = 1;
@@ -3666,7 +3661,7 @@ void CGMine::initObj()
 	if(subID >= 7) //Abandoned Mine
 	{
 		//set guardians
-		int howManyTroglodytes = 100 + ran()%100;
+		int howManyTroglodytes = cb->gameState()->getRandomGenerator().nextInt(100, 199);
 		auto troglodytes = new CStackInstance(CreatureID::TROGLODYTES, howManyTroglodytes);
 		putStack(SlotID(0), troglodytes);
 
@@ -3676,8 +3671,8 @@ void CGMine::initObj()
 			if(tempOwner.getNum() & 1<<i) //NOTE: reuse of tempOwner
 				possibleResources.push_back(static_cast<Res::ERes>(i));
 
-		assert(possibleResources.size());
-		producedResource = possibleResources[ran()%possibleResources.size()];
+		assert(!possibleResources.empty());
+		producedResource = *RandomGeneratorUtil::nextItem(possibleResources, cb->gameState()->getRandomGenerator());
 		tempOwner = PlayerColor::NEUTRAL;
 		hoverName = VLC->generaltexth->mines[7].first + "\n" + VLC->generaltexth->allTexts[202] + " " + troglodytes->getQuantityTXT(false) + " " + troglodytes->type->namePl;
 	}
@@ -3761,13 +3756,13 @@ void CGResource::initObj()
 		switch(subID)
 		{
 		case 6:
-			amount = 500 + (ran()%6)*100;
+			amount = cb->gameState()->getRandomGenerator().nextInt(500, 1000);
 			break;
 		case 0: case 2:
-			amount = 6 + (ran()%5);
+			amount = cb->gameState()->getRandomGenerator().nextInt(6, 10);
 			break;
 		default:
-			amount = 3 + (ran()%3);
+			amount = cb->gameState()->getRandomGenerator().nextInt(3, 5);
 			break;
 		}
 	}
@@ -4171,12 +4166,12 @@ void CGPickable::initObj()
 	switch(ID)
 	{
 	case Obj::CAMPFIRE:
-		val2 = (ran()%3) + 4; //4 - 6
+		val2 = cb->gameState()->getRandomGenerator().nextInt(4, 6);
 		val1 = val2 * 100;
-		type = ran()%6; //given resource
+		type = cb->gameState()->getRandomGenerator().nextInt(5); // given resource
 		break;
 	case Obj::FLOTSAM:
-		switch(type = ran()%4)
+		switch(type = cb->gameState()->getRandomGenerator().nextInt(3))
 		{
 		case 0:
 			val1 = val2 = 0;
@@ -4197,7 +4192,7 @@ void CGPickable::initObj()
 		break;
 	case Obj::SEA_CHEST:
 		{
-			int hlp = ran()%100;
+			int hlp = cb->gameState()->getRandomGenerator().nextInt(99);
 			if(hlp < 20)
 			{
 				val1 = 0;
@@ -4211,31 +4206,31 @@ void CGPickable::initObj()
 			else
 			{
 				val1 = 1000;
-				val2 = cb->getRandomArt (CArtifact::ART_TREASURE);
+				val2 = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), CArtifact::ART_TREASURE);
 				type = 1;
 			}
 		}
 		break;
 	case Obj::SHIPWRECK_SURVIVOR:
 		{
-			int hlp = ran()%100;
+			int hlp = cb->gameState()->getRandomGenerator().nextInt(99);
 			if(hlp < 55)
-				val1 = cb->getRandomArt (CArtifact::ART_TREASURE);
+				val1 = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), CArtifact::ART_TREASURE);
 			else if(hlp < 75)
-				val1 = cb->getRandomArt (CArtifact::ART_MINOR);
+				val1 = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), CArtifact::ART_MINOR);
 			else if(hlp < 95)
-				val1 = cb->getRandomArt (CArtifact::ART_MAJOR);
+				val1 = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), CArtifact::ART_MAJOR);
 			else
-				val1 = cb->getRandomArt (CArtifact::ART_RELIC);
+				val1 = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), CArtifact::ART_RELIC);
 		}
 		break;
 	case Obj::TREASURE_CHEST:
 		{
-			int hlp = ran()%100;
+			int hlp = cb->gameState()->getRandomGenerator().nextInt(99);
 			if(hlp >= 95)
 			{
 				type = 1;
-				val1 = cb->getRandomArt (CArtifact::ART_TREASURE);
+				val1 = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), CArtifact::ART_TREASURE);
 				return;
 			}
 			else if (hlp >= 65)
@@ -4733,8 +4728,8 @@ void CGSeerHut::setObjToKill()
 
 void CGSeerHut::init()
 {
-	seerName = VLC->generaltexth->seerNames[ran()%VLC->generaltexth->seerNames.size()];
-	quest->textOption = ran() % 3;
+	seerName = *RandomGeneratorUtil::nextItem(VLC->generaltexth->seerNames, cb->gameState()->getRandomGenerator());
+	quest->textOption = cb->gameState()->getRandomGenerator().nextInt(2);
 }
 
 void CGSeerHut::initObj()
@@ -5058,7 +5053,7 @@ void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) 
 void CGQuestGuard::init()
 {
 	blockVisit = true;
-	quest->textOption = (ran() % 3) + 3; //3-5
+	quest->textOption = cb->gameState()->getRandomGenerator().nextInt(3, 5);
 }
 void CGQuestGuard::completeQuest(const CGHeroInstance *h) const
 {
@@ -5066,7 +5061,7 @@ void CGQuestGuard::completeQuest(const CGHeroInstance *h) const
 }
 void CGWitchHut::initObj()
 {
-	ability = allowedAbilities[ran()%allowedAbilities.size()];
+	ability = *RandomGeneratorUtil::nextItem(allowedAbilities, cb->gameState()->getRandomGenerator());
 }
 
 void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
@@ -5862,13 +5857,13 @@ void CGShrine::initObj()
 		std::vector<SpellID> possibilities;
 		cb->getAllowedSpells (possibilities, level);
 
-		if(!possibilities.size())
+		if(possibilities.empty())
 		{
             logGlobal->errorStream() << "Error: cannot init shrine, no allowed spells!";
 			return;
 		}
 
-		spell = possibilities[ran() % possibilities.size()];
+		spell = *RandomGeneratorUtil::nextItem(possibilities, cb->gameState()->getRandomGenerator());
 	}
 }
 
@@ -5889,8 +5884,10 @@ const std::string & CGShrine::getHoverText() const
 void CGSignBottle::initObj()
 {
 	//if no text is set than we pick random from the predefined ones
-	if(!message.size())
-		message = VLC->generaltexth->randsign[ran()%VLC->generaltexth->randsign.size()];
+	if(message.empty())
+	{
+		message = *RandomGeneratorUtil::nextItem(VLC->generaltexth->randsign, cb->gameState()->getRandomGenerator());
+	}
 
 	if(ID == Obj::OCEAN_BOTTLE)
 	{
@@ -5930,9 +5927,8 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 		))) //hero doesn't have a spellbook or already knows the spell or doesn't have Wisdom
 	{
 		type = PRIM_SKILL;
-		bid = ran() % GameConstants::PRIMARY_SKILLS;
+		bid = cb->gameState()->getRandomGenerator().nextInt(GameConstants::PRIMARY_SKILLS - 1);
 	}
-
 
 	InfoWindow iw;
 	iw.soundID = soundBase::gazebo;
@@ -5971,20 +5967,20 @@ void CGScholar::initObj()
 	blockVisit = true;
 	if(bonusType == RANDOM)
 	{
-		bonusType = static_cast<EBonusType>(ran()%3);
+		bonusType = static_cast<EBonusType>(cb->gameState()->getRandomGenerator().nextInt(2));
 		switch(bonusType)
 		{
 		case PRIM_SKILL:
-			bonusID = ran() % GameConstants::PRIMARY_SKILLS;
+			bonusID = cb->gameState()->getRandomGenerator().nextInt(GameConstants::PRIMARY_SKILLS -1);
 			break;
 		case SECONDARY_SKILL:
-			bonusID = ran() % GameConstants::SKILL_QUANTITY;
+			bonusID = cb->gameState()->getRandomGenerator().nextInt(GameConstants::SKILL_QUANTITY -1);
 			break;
 		case SPELL:
 			std::vector<SpellID> possibilities;
 			for (int i = 1; i < 6; ++i)
 				cb->getAllowedSpells (possibilities, i);
-			bonusID = possibilities[ran() % possibilities.size()];
+			bonusID = *RandomGeneratorUtil::nextItem(possibilities, cb->gameState()->getRandomGenerator());
 			break;
 		}
 	}
@@ -6124,11 +6120,11 @@ void CGOnceVisitable::initObj()
 	case Obj::CORPSE:
 		{
 			blockVisit = true;
-			int hlp = ran()%100;
+			int hlp = cb->gameState()->getRandomGenerator().nextInt(99);
 			if(hlp < 20)
 			{
 				artOrRes = 1;
-				bonusType = cb->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR);
+				bonusType = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR);
 			}
 			else
 			{
@@ -6140,8 +6136,8 @@ void CGOnceVisitable::initObj()
 	case Obj::LEAN_TO:
 		{
 			artOrRes = 2;
-			bonusType = ran()%6; //any basic resource without gold
-			bonusVal = ran()%4 + 1;
+			bonusType = cb->gameState()->getRandomGenerator().nextInt(5); //any basic resource without gold
+			bonusVal = cb->gameState()->getRandomGenerator().nextInt(1, 4);
 		}
 		break;
 
@@ -6149,21 +6145,21 @@ void CGOnceVisitable::initObj()
 		{
 			artOrRes = 1;
 
-			int hlp = ran()%100;
+			int hlp = cb->gameState()->getRandomGenerator().nextInt(99);
 			if(hlp < 30)
-				bonusType = cb->getRandomArt (CArtifact::ART_TREASURE);
+				bonusType = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), CArtifact::ART_TREASURE);
 			else if(hlp < 80)
-				bonusType = cb->getRandomArt (CArtifact::ART_MINOR);
+				bonusType = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), CArtifact::ART_MINOR);
 			else if(hlp < 95)
-				bonusType = cb->getRandomArt (CArtifact::ART_MAJOR);
+				bonusType = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), CArtifact::ART_MAJOR);
 			else
-				bonusType = cb->getRandomArt (CArtifact::ART_RELIC);
+				bonusType = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), CArtifact::ART_RELIC);
 		}
 		break;
 
 	case Obj::WAGON:
 		{
-			int hlp = ran()%100;
+			int hlp = cb->gameState()->getRandomGenerator().nextInt(99);
 
 			if(hlp < 10)
 			{
@@ -6172,13 +6168,13 @@ void CGOnceVisitable::initObj()
 			else if(hlp < 50) //minor or treasure art
 			{
 				artOrRes = 1;
-				bonusType = cb->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR);
+				bonusType = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), CArtifact::ART_TREASURE | CArtifact::ART_MINOR);
 			}
 			else //2 - 5 of non-gold resource
 			{
 				artOrRes = 2;
-				bonusType = ran()%6;
-				bonusVal = ran()%4 + 2;
+				bonusType = cb->gameState()->getRandomGenerator().nextInt(5);
+				bonusVal = cb->gameState()->getRandomGenerator().nextInt(2, 5);
 			}
 		}
 		break;
@@ -6250,7 +6246,7 @@ void CBank::reset(ui16 var1) //prevents desync
 
 void CBank::initialize() const
 {
-	cb->setObjProperty (id, ObjProperty::BANK_RESET, ran()); //synchronous reset
+	cb->setObjProperty(id, ObjProperty::BANK_RESET, cb->gameState()->getRandomGenerator().nextInt()); //synchronous reset
 
 	for (ui8 i = 0; i <= 3; i++)
 	{
@@ -6266,12 +6262,12 @@ void CBank::initialize() const
 			default: assert(0); continue;
 			}
 
-			int artID = cb->getArtSync(ran(), artClass, true);
+			int artID = VLC->arth->pickRandomArtifact(cb->gameState()->getRandomGenerator(), artClass);
 			cb->setObjProperty(id, ObjProperty::BANK_ADD_ARTIFACT, artID);
 		}
 	}
 
-	cb->setObjProperty (id, ObjProperty::BANK_INIT_ARMY, ran()); //get army
+	cb->setObjProperty(id, ObjProperty::BANK_INIT_ARMY, cb->gameState()->getRandomGenerator().nextInt()); //get army
 }
 void CBank::setPropertyDer (ui8 what, ui32 val)
 /// random values are passed as arguments and processed identically on all clients
@@ -6578,13 +6574,13 @@ void CGPyramid::initObj()
 	if (available.size())
 	{
 		bc = VLC->objh->banksInfo[21].front(); //TODO: remove hardcoded value?
-		spell = (available[ran()%available.size()]);
+		spell = *RandomGeneratorUtil::nextItem(available, cb->gameState()->getRandomGenerator());
 	}
 	else
 	{
         logGlobal->errorStream() <<"No spells available for Pyramid! Object set to empty.";
 	}
-	setPropertyDer (ObjProperty::BANK_INIT_ARMY,ran()); //set guards at game start
+	setPropertyDer(ObjProperty::BANK_INIT_ARMY, cb->gameState()->getRandomGenerator().nextInt()); //set guards at game start
 }
 const std::string & CGPyramid::getHoverText() const
 {
@@ -7556,21 +7552,27 @@ void CGBlackMarket::newTurn() const
 
 void CGUniversity::initObj()
 {
-	std::vector <int> toChoose;
-	for (int i=0; i<GameConstants::SKILL_QUANTITY; i++)
-		if (cb->isAllowed(2,i))
+	std::vector<int> toChoose;
+	for(int i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
+	{
+		if(cb->isAllowed(2, i))
+		{
 			toChoose.push_back(i);
-	if (toChoose.size() < 4)
+		}
+	}
+	if(toChoose.size() < 4)
 	{
         logGlobal->warnStream()<<"Warning: less then 4 available skills was found by University initializer!";
 		return;
 	}
 
-	for (int i=0; i<4; i++)//get 4 skills
+	// get 4 skills
+	for(int i = 0; i < 4; ++i)
 	{
-		int skillPos = ran()%toChoose.size();
-		skills.push_back(toChoose[skillPos]);//move it to selected
-		toChoose.erase(toChoose.begin()+skillPos);//remove from list
+		// move randomly one skill to selected and remove from list
+		auto it = RandomGeneratorUtil::nextItem(toChoose, cb->gameState()->getRandomGenerator());
+		skills.push_back(*it);
+		toChoose.erase(it);
 	}
 }
 
