@@ -664,6 +664,7 @@
 	},
 	"deathRipple" : {
 		"index" : 24,
+		"targetType" : "CREATURE",
 		"anim" : 8,
 		"sounds": {
 			"cast": "DEATHRIP"
@@ -699,6 +700,7 @@
 	},
 	"destroyUndead" : {
 		"index" : 25,
+		"targetType" : "CREATURE",
 		"anim" : 29,
 		"sounds": {
 			"cast": "COLDRING"
@@ -735,6 +737,7 @@
 	},
 	"armageddon" : {
 		"index" : 26,
+		"targetType" : "CREATURE",
 		"anim" : 12,
 		"sounds": {
 			"cast": "ARMGEDN"

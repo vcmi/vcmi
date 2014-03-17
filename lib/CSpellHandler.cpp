@@ -817,6 +817,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 		levelObject.power       = levelPower;
 		levelObject.AIValue     = levelNode["aiValue"].Float();
 		levelObject.smartTarget = levelNode["targetModifier"]["smart"].Bool();
+		levelObject.range       = levelNode["range"].String();
 		
 		for(const auto & elem : levelNode["effects"].Struct())
 		{
