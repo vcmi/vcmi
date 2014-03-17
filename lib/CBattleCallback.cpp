@@ -2089,11 +2089,11 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 			TStacks stacks = battleGetAllStacks();
 
 			vstd::erase_if(stacks,[&](const CStack * stack){
-				return ti.smart && spell->isNegative() && stack->owner == attackerOwner);
+				return ti.smart && spell->isNegative() && stack->owner == attackerOwner;
 			});
 
 			vstd::erase_if(stacks,[&](const CStack * stack){
-				return ti.smart && spell->isPositive() && stack->owner != attackerOwner);
+				return ti.smart && spell->isPositive() && stack->owner != attackerOwner;
 			});
 
 			vstd::erase_if(stacks,[&](const CStack * stack){
