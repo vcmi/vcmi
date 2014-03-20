@@ -59,7 +59,7 @@ then
 	echo "                  " "Requires unzip"
 	echo
 	echo " --convertMP3     " "Convert all mp3 files into ogg/vorbis"
-	echo "                  " "Requires ffmpeg"
+	echo "                  " "Requires ffmpeg or avconv"
 	echo
 	echo " --download       " "Automatically download requied packages using wget"
 	echo "                  " "Requires wget and Internet connection"
@@ -116,7 +116,12 @@ fi
 
 if [[ -n "$useffmpeg" ]] 
 then
-	test_utility "ffmpeg" "-version"
+	ffmpeg -version > /dev/null 2>&1 && AUDIO_CONV=ffmpeg
+	avconv -version > /dev/null 2>&1 && AUDIO_CONV=avconv
+	if [[ -z "$AUDIO_CONV" ]]
+	then
+		fail "Error: neither ffmpeg nor avconv were found. Please install it."
+	fi
 fi
 
 if [[ -n "$cd1_dir" ]] 
@@ -277,7 +282,7 @@ then
 	do
 		echo "Converting $file"
 		ogg=${file%.*}
-		ffmpeg -y -i "$file" -acodec libvorbis "$ogg".ogg 2>/dev/null || fail "Error: failed to convert $file to ogg/vorbis using ffmpeg" "rm -f "$ogg".ogg"
+		$AUDIO_CONV -y -i "$file" -acodec libvorbis "$ogg".ogg 2>/dev/null || fail "Error: failed to convert $file to ogg/vorbis using $AUDIO_CONV" "rm -f "$ogg".ogg"
 		rm -f $file
 	done
 

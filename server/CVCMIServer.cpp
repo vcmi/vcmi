@@ -533,6 +533,25 @@ static void handleCommandOptions(int argc, char *argv[])
 	}
 
 	po::notify(cmdLineOptions);
+
+	if (cmdLineOptions.count("help"))
+	{
+		printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
+		printf("Copyright (C) 2007-2014 VCMI dev team - see AUTHORS file\n");
+		printf("This is free software; see the source for copying conditions. There is NO\n");
+		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+		printf("\n");
+		printf("Usage:\n");
+		std::cout << opts;
+		exit(0);
+	}
+
+	if (cmdLineOptions.count("version"))
+	{
+		printf("%s\n", GameConstants::VCMI_VERSION.c_str());
+		std::cout << VCMIDirs::get().genHelpString();
+		exit(0);
+	}
 }
 
 #if defined(__GNUC__) && !defined (__MINGW32__)

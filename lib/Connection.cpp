@@ -389,15 +389,15 @@ void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 
 		if(fileVersion > version)
 		{
-            logGlobal->warnStream() << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % fileVersion % version % fname;
+			logGlobal->warnStream() << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % fileVersion % version % fname;
 
 			auto versionptr = (char*)&fileVersion;
 			std::reverse(versionptr, versionptr + 4);
-            logGlobal->warnStream() << "Version number reversed is " << fileVersion << ", checking...";
+			logGlobal->warnStream() << "Version number reversed is " << fileVersion << ", checking...";
 
 			if(fileVersion == version)
 			{
-                logGlobal->warnStream() << fname << " seems to have different endianess! Entering reversing mode.";
+				logGlobal->warnStream() << fname << " seems to have different endianness! Entering reversing mode.";
 				reverseEndianess = true;
 			}
 			else

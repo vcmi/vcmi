@@ -171,14 +171,7 @@ void init()
 static void prog_version(void)
 {
 	printf("%s\n", GameConstants::VCMI_VERSION.c_str());
-	printf("  game data:   %s\n", boost::algorithm::join(VCMIDirs::get().dataPaths(), ":").c_str());
-	printf("  libraries:   %s\n", VCMIDirs::get().libraryPath().c_str());
-	printf("  server:      %s\n", VCMIDirs::get().serverPath().c_str());
-	printf("\n");
-	printf("  user data:   %s\n", VCMIDirs::get().userDataPath().c_str());
-	printf("  user cache:  %s\n", VCMIDirs::get().userCachePath().c_str());
-	printf("  user config: %s\n", VCMIDirs::get().userConfigPath().c_str());
-	printf("  user saves:  %s\n", VCMIDirs::get().userSavePath().c_str());
+	std::cout << VCMIDirs::get().genHelpString();
 }
 
 static void prog_help(const po::options_description &opts)
@@ -770,7 +763,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 	int suggestedBpp = SDL_VideoModeOK(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
 	if(suggestedBpp == 0)
 	{
-        logGlobal->errorStream() << "Error: SDL says that " << w << "x" << h << " resolution is not available!";
+		logGlobal->errorStream() << "Error: SDL says that " << w << "x" << h << " resolution is not available!";
 		return;
 	}
 
@@ -778,7 +771,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 
 	if(suggestedBpp != bpp)
 	{
-		logGlobal->infoStream() << boost::format("Using %s bpp (bits per pixel) for the video mode. Default or overriden setting was %s bpp.") % suggestedBpp % bpp;
+		logGlobal->infoStream() << boost::format("Using %s bpp (bits per pixel) for the video mode. Default or overridden setting was %s bpp.") % suggestedBpp % bpp;
 	}
 
 	//For some reason changing fullscreen via config window checkbox result in SDL_Quit event
@@ -791,11 +784,11 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 
 	if((screen = SDL_SetVideoMode(w, h, suggestedBpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == nullptr)
 	{
-        logGlobal->errorStream() << "Requested screen resolution is not available (" << w << "x" << h << "x" << suggestedBpp << "bpp)";
+		logGlobal->errorStream() << "Requested screen resolution is not available (" << w << "x" << h << "x" << suggestedBpp << "bpp)";
 		throw std::runtime_error("Requested screen resolution is not available\n");
 	}
 
-    logGlobal->infoStream() << "New screen flags: " << screen->flags;
+	logGlobal->infoStream() << "New screen flags: " << screen->flags;
 
 	if(screen2)
 		SDL_FreeSurface(screen2);

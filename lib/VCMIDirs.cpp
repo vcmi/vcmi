@@ -220,3 +220,16 @@ std::vector<std::string> VCMIDirs::dataPaths() const
 }
 
 #endif
+
+std::string VCMIDirs::genHelpString() const
+{
+	return
+	"  game data:   " + boost::algorithm::join(dataPaths(), ":") + "\n" +
+	"  libraries:   " + libraryPath() + "\n" +
+	"  server:      " + serverPath() + "\n" +
+	"\n" +
+	"  user data:   " + userDataPath() + "\n" +
+	"  user cache:  " + userCachePath() + "\n" +
+	"  user config: " + userConfigPath() + "\n" +
+	"  user saves:  " + userSavePath() + "\n";
+}

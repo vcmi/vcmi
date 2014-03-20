@@ -632,7 +632,7 @@ DLL_LINKAGE const CStackInstance * StackLocation::getStack()
 {
 	if(!army->hasStackAtSlot(slot))
 	{
-        logNetwork->warnStream() << "Warning: " << army->nodeName() << " dont have a stack at slot " << slot;
+		logNetwork->warnStream() << "Warning: " << army->nodeName() << " don't have a stack at slot " << slot;
 		return nullptr;
 	}
 	return &army->getStack(slot);

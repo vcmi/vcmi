@@ -47,4 +47,6 @@ public:
 
 	/// Returns system-specific name for dynamic libraries ( StupidAI => "libStupidAI.so" or "StupidAI.dll")
 	std::string libraryName(std::string basename) const;
+
+	std::string genHelpString() const;
 };
