@@ -106,6 +106,18 @@ QString CModEntry::getName() const
 
 QVariant CModEntry::getValue(QString value) const
 {
+	if (repository.contains(value) && localData.contains(value))
+	{
+		// value is present in both repo and locally installed. Select one from latest version
+		QString installedVer = localData["installedVersion"].toString();
+		QString availableVer = repository["latestVersion"].toString();
+
+		if (compareVersions(installedVer, availableVer))
+			return repository[value];
+		else
+			return localData[value];
+	}
+
 	if (repository.contains(value))
 		return repository[value];
 
@@ -149,15 +161,36 @@ void CModList::setModSettings(QVariant data)
 	modSettings = data.toMap();
 }
 
+void CModList::modChanged(QString modID)
+{
+}
+
+static QVariant getValue(QVariantMap input, QString path)
+{
+	if (path.size() > 1)
+	{
+		QString entryName = path.section('/', 0, 1);
+		QString remainder = "/" + path.section('/', 2, -1);
+
+		entryName.remove(0, 1);
+		return getValue(input.value(entryName).toMap(), remainder);
+	}
+	else
+	{
+		return input;
+	}
+}
+
 CModEntry CModList::getMod(QString modname) const
 {
-	assert(hasMod(modname));
-
 	QVariantMap repo;
 	QVariantMap local = localModList[modname].toMap();
 	QVariantMap settings;
 
-	QVariant conf = modSettings[modname];
+	QString path = modname;
+	path = "/" + path.replace(".", "/mods/");
+	QVariant conf = getValue(modSettings, path);
+
 	if (conf.isNull())
 	{
 		settings["active"] = true; // default
@@ -165,22 +198,22 @@ CModEntry CModList::getMod(QString modname) const
 	else
 	{
 		if (conf.canConvert<QVariantMap>())
-			settings = modSettings[modname].toMap();
+			settings = conf.toMap();
 		else
 			settings.insert("active", conf);
 	}
 
 	for (auto entry : repositories)
 	{
-		if (entry.contains(modname))
+		QVariant repoVal = getValue(entry, path);
+		if (repoVal.isValid())
 		{
 			if (repo.empty())
-				repo = entry[modname].toMap();
+				repo = repoVal.toMap();
 			else
 			{
-				if (CModEntry::compareVersions(repo["version"].toString(),
-				                               entry[modname].toMap()["version"].toString()))
-					repo = entry[modname].toMap();
+				if (CModEntry::compareVersions(repo["version"].toString(), repoVal.toMap()["version"].toString()))
+					repo = repoVal.toMap();
 			}
 		}
 	}

@@ -214,7 +214,7 @@ class DLL_LINKAGE CModHandler
 	std::vector <TModID> resolveDependencies(std::vector<TModID> input) const;
 
 	std::vector<std::string> getModList(std::string path);
-	void loadMods(std::string path, std::string namePrefix, const JsonNode & modSettings);
+	void loadMods(std::string path, std::string namePrefix, const JsonNode & modSettings, bool enableMods);
 public:
 
 	CIdentifierStorage identifiers;

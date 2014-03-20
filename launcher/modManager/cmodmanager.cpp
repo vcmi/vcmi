@@ -66,7 +66,7 @@ void CModManager::loadMods()
 
 	for (auto modname : installedMods)
 	{
-		ResourceID resID("Mods/" + modname + "/mod.json");
+		ResourceID resID(CModInfo::getModFile(modname));
 		if (CResourceHandler::get()->existsResource(resID))
 		{
 			std::string name = *CResourceHandler::get()->getResourceName(resID);
@@ -114,6 +114,9 @@ bool CModManager::canInstallMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
+	if (mod.getName().contains('.'))
+		return addError(modname, "Can not install submod");
+
 	if (mod.isInstalled())
 		return addError(modname, "Mod is already installed");
 
@@ -125,6 +128,9 @@ bool CModManager::canInstallMod(QString modname)
 bool CModManager::canUninstallMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
+
+	if (mod.getName().contains('.'))
+		return addError(modname, "Can not uninstall submod");
 
 	if (!mod.isInstalled())
 		return addError(modname, "Mod is not installed");
@@ -191,17 +197,32 @@ bool CModManager::canDisableMod(QString modname)
 	return true;
 }
 
+static QVariant writeValue(QString path, QVariantMap input, QVariant value)
+{
+	if (path.size() > 1)
+	{
+
+		QString entryName = path.section('/', 0, 1);
+		QString remainder = "/" + path.section('/', 2, -1);
+
+		entryName.remove(0, 1);
+		input.insert(entryName, writeValue(remainder, input.value(entryName).toMap(), value));
+		return input;
+	}
+	else
+	{
+		return value;
+	}
+}
+
 bool CModManager::doEnableMod(QString mod, bool on)
 {
-	QVariant value(on);
-	QVariantMap list = modSettings["activeMods"].toMap();
-	QVariantMap modData = list[mod].toMap();
+	QString path = mod;
+	path = "/activeMods/" + path.replace(".", "/mods/") + "/active";
 
-	modData.insert("active", value);
-	list.insert(mod, modData);
-	modSettings.insert("activeMods", list);
-
+	modSettings = writeValue(path, modSettings, QVariant(on)).toMap();
 	modList->setModSettings(modSettings["activeMods"]);
+	modList->modChanged(mod);
 
 	JsonUtils::JsonToFile(settingsPath(), modSettings);
 
@@ -214,11 +235,6 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 
 	if (!QFile(archivePath).exists())
 		return addError(modname, "Mod archive is missing");
-
-	// FIXME: recheck wog/vcmi data behavior - they have bits of data in our trunk
-	// FIXME: breaks when there is Era mod with same name
-	//if (QDir(destDir + modname).exists())
-	//	return addError(modname, "Mod with such name is already installed");
 
 	if (localMods.contains(modname))
 		return addError(modname, "Mod with such name is already installed");
@@ -237,6 +253,7 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 
 	localMods.insert(modname, json);
 	modList->setLocalModList(localMods);
+	modList->modChanged(modname);
 
 	return true;
 }
@@ -258,6 +275,7 @@ bool CModManager::doUninstallMod(QString modname)
 
 	localMods.remove(modname);
 	modList->setLocalModList(localMods);
+	modList->modChanged(modname);
 
 	return true;
 }

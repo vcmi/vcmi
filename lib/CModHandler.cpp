@@ -668,7 +668,7 @@ std::vector<std::string> CModHandler::getModList(std::string path)
 	return foundMods;
 }
 
-void CModHandler::loadMods(std::string path, std::string parent, const JsonNode & modSettings)
+void CModHandler::loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods)
 {
 	for (std::string modName : getModList(path))
 	{
@@ -682,11 +682,10 @@ void CModHandler::loadMods(std::string path, std::string parent, const JsonNode 
 				mod.dependencies.insert(parent);
 
 			allMods[modFullName] = mod;
-			if (mod.enabled)
-			{
+			if (mod.enabled && enableMods)
 				activeMods.push_back(modFullName);
-				loadMods(CModInfo::getModDir(modFullName) + '/', modFullName, modSettings[modName]["mods"]);
-			}
+
+			loadMods(CModInfo::getModDir(modFullName) + '/', modFullName, modSettings[modName]["mods"], enableMods && mod.enabled);
 		}
 	}
 }
@@ -695,7 +694,7 @@ void CModHandler::loadMods()
 {
 	const JsonNode modConfig = loadModSettings("config/modSettings.json");
 
-	loadMods("", "", modConfig["activeMods"]);
+	loadMods("", "", modConfig["activeMods"], true);
 
 	coreMod = CModInfo("core", modConfig["core"], JsonNode(ResourceID("config/gameConfig.json")));
 	coreMod.name = "Original game files";

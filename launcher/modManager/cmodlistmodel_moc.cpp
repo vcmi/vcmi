@@ -7,10 +7,10 @@ namespace ModFields
 {
 	static const QString names [ModFields::COUNT] =
 	{
+		"name",
 		"",
 		"",
 		"modType",
-		"name",
 		"version",
 		"size",
 		"author"
@@ -18,10 +18,10 @@ namespace ModFields
 
 	static const QString header [ModFields::COUNT] =
 	{
+		"Name",
 		"", // status icon
 		"", // status icon
 		"Type",
-		"Name",
 		"Version",
 		"Size",
 		"Author"
@@ -38,13 +38,17 @@ namespace ModStatus
 }
 
 CModListModel::CModListModel(QObject *parent) :
-    QAbstractTableModel(parent)
+	QAbstractItemModel(parent)
 {
 }
 
-QString CModListModel::modIndexToName(int index) const
+QString CModListModel::modIndexToName(const QModelIndex & index) const
 {
-	return indexToName[index];
+	if (index.isValid())
+	{
+		return modNameToID.at(index.internalId());
+	}
+	return "";
 }
 
 QVariant CModListModel::getValue(const CModEntry &mod, int field) const
@@ -95,30 +99,34 @@ QVariant CModListModel::getTextAlign(int field) const
 {
 	if (field == ModFields::SIZE)
 		return QVariant(Qt::AlignRight | Qt::AlignVCenter);
-	else
-		return QVariant(Qt::AlignLeft  | Qt::AlignVCenter);
+	//if (field == ModFields::NAME)
+	//	return QVariant(Qt::AlignHCenter | Qt::AlignVCenter);
+	return QVariant(Qt::AlignLeft  | Qt::AlignVCenter);
 }
 
 QVariant CModListModel::data(const QModelIndex &index, int role) const
 {
 	if (index.isValid())
 	{
-		auto mod = getMod(modIndexToName(index.row()));
+		auto mod = getMod(modIndexToName(index));
 
 		switch (role)
 		{
 			case Qt::DecorationRole:    return getIcon(mod, index.column());
 			case Qt::DisplayRole:       return getText(mod, index.column());
-			case Qt::UserRole:          return getValue(mod, index.column());
 			case Qt::TextAlignmentRole: return getTextAlign(index.column());
+			case ModRoles::ValueRole:   return getValue(mod, index.column());
+			case ModRoles::ModNameRole: return mod.getName();
 		}
 	}
 	return QVariant();
 }
 
-int CModListModel::rowCount(const QModelIndex &) const
+int CModListModel::rowCount(const QModelIndex & index) const
 {
-	return indexToName.size();
+	if (index.isValid())
+		return modIndex[modIndexToName(index)].size();
+	return modIndex[""].size();
 }
 
 int CModListModel::columnCount(const QModelIndex &) const
@@ -152,24 +160,58 @@ void CModListModel::addRepository(QVariantMap data)
 	endResetModel();
 }
 
-void CModListModel::setLocalModList(QVariantMap data)
+void CModListModel::modChanged(QString modID)
 {
-	beginResetModel();
-	CModList::setLocalModList(data);
-	endResetModel();
-}
-
-void CModListModel::setModSettings(QVariant data)
-{
-	beginResetModel();
-	CModList::setModSettings(data);
-	endResetModel();
+	int index = modNameToID.indexOf(modID);
+	QModelIndex parent  = this->parent(createIndex(0, 0, index));
+	int row = modIndex[modIndexToName(parent)].indexOf(modID);
+	emit dataChanged(createIndex(row, 0, index), createIndex(row, 4, index));
 }
 
 void CModListModel::endResetModel()
 {
-	indexToName = getModList();
+	modNameToID = getModList();
+	modIndex.clear();
+	for (const QString & str : modNameToID)
+	{
+		if (str.contains('.'))
+		{
+			modIndex[str.section('.', 0, -2)].append(str);
+		}
+		else
+		{
+			modIndex[""].append(str);
+		}
+	}
 	QAbstractItemModel::endResetModel();
+}
+
+QModelIndex CModListModel::index(int row, int column, const QModelIndex &parent) const
+{
+	if (parent.isValid())
+	{
+		if (modIndex[modIndexToName(parent)].size() > row)
+			return createIndex(row, column, modNameToID.indexOf(modIndex[modIndexToName(parent)][row]));
+	}
+	else
+	{
+		if (modIndex[""].size() > row)
+			return createIndex(row, column, modNameToID.indexOf(modIndex[""][row]));
+	}
+	return QModelIndex();
+}
+
+QModelIndex CModListModel::parent(const QModelIndex &child) const
+{
+	QString modID = modNameToID[child.internalId()];
+	for (auto entry = modIndex.begin(); entry != modIndex.end(); entry++) // because using range-for entry type is QMap::value_type oO
+	{
+		if (entry.key() != "" && entry.value().indexOf(modID) != -1)
+		{
+			return createIndex(entry.value().indexOf(modID), child.column(), modNameToID.indexOf(entry.key()));
+		}
+	}
+	return QModelIndex();
 }
 
 void CModFilterModel::setTypeFilter(int filteredType, int filterMask)
@@ -179,17 +221,35 @@ void CModFilterModel::setTypeFilter(int filteredType, int filterMask)
 	invalidateFilter();
 }
 
-bool CModFilterModel::filterMatches(int modIndex) const
+bool CModFilterModel::filterMatchesThis(const QModelIndex &source) const
 {
-	CModEntry mod = base->getMod(base->modIndexToName(modIndex));
-
-	return (mod.getModStatus() & filterMask) == filteredType;
+	CModEntry mod = base->getMod(source.data(ModRoles::ModNameRole).toString());
+	return (mod.getModStatus() & filterMask) == filteredType &&
+			QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent());
 }
 
 bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-	if (filterMatches(source_row))
-		return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+	QModelIndex index = base->index(source_row, 0, source_parent);
+
+	if (filterMatchesThis(index))
+	{
+		return true;
+	}
+
+	for (size_t i=0; i<base->rowCount(index); i++)
+	{
+		if (filterMatchesThis(index.child(i, 0)))
+			return true;
+	}
+
+	QModelIndex parent = source_parent;
+	while (parent.isValid())
+	{
+		if (filterMatchesThis(parent))
+			return true;
+		parent = parent.parent();
+	}
 	return false;
 }
 
@@ -200,5 +260,5 @@ CModFilterModel::CModFilterModel(CModListModel * model, QObject * parent):
     filterMask(ModStatus::MASK_NONE)
 {
 	setSourceModel(model);
-	setSortRole(Qt::UserRole);
+	setSortRole(ModRoles::ValueRole);
 }

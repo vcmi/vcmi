@@ -61,9 +61,10 @@ public:
 	void enableModInfo();
 	void disableModInfo();
 
-	void selectMod(int index);
+	void selectMod(const QModelIndex & index);
 
 private slots:
+	void dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight);
 	void modSelected(const QModelIndex & current, const QModelIndex & previous);
 	void downloadProgress(qint64 current, qint64 max);
 	void downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors);
@@ -71,8 +72,6 @@ private slots:
 	void hideProgressBar();
 
 	void on_hideModInfoButton_clicked();
-
-	void on_allModsView_doubleClicked(const QModelIndex &index);
 
 	void on_lineEdit_textChanged(const QString &arg1);
 
@@ -89,6 +88,8 @@ private slots:
 	void on_installButton_clicked();
 
 	void on_pushButton_clicked();
+
+	void on_allModsView_activated(const QModelIndex &index);
 
 private:
 	Ui::CModListView *ui;

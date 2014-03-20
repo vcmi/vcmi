@@ -24,6 +24,7 @@ void CModListView::setupFilterModel()
 
 	filterModel->setFilterKeyColumn(-1); // filter across all columns
 	filterModel->setSortCaseSensitivity(Qt::CaseInsensitive); // to make it more user-friendly
+	filterModel->setDynamicSortFilter(true);
 }
 
 void CModListView::setupModsView()
@@ -31,12 +32,17 @@ void CModListView::setupModsView()
 	ui->allModsView->setModel(filterModel);
 	// input data is not sorted - sort it before display
 	ui->allModsView->sortByColumn(ModFields::TYPE, Qt::AscendingOrder);
+	ui->allModsView->setColumnWidth(ModFields::NAME, 185);
 	ui->allModsView->setColumnWidth(ModFields::STATUS_ENABLED, 30);
 	ui->allModsView->setColumnWidth(ModFields::STATUS_UPDATE, 30);
-	ui->allModsView->setColumnWidth(ModFields::TYPE, 80);
-	ui->allModsView->setColumnWidth(ModFields::NAME, 180);
+	ui->allModsView->setColumnWidth(ModFields::TYPE, 75);
 	ui->allModsView->setColumnWidth(ModFields::SIZE, 80);
 	ui->allModsView->setColumnWidth(ModFields::VERSION, 60);
+
+	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_ENABLED, QHeaderView::Fixed);
+	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_UPDATE,  QHeaderView::Fixed);
+
+	ui->allModsView->setUniformRowHeights(true);
 
 	connect( ui->allModsView->selectionModel(), SIGNAL( currentRowChanged( const QModelIndex &, const QModelIndex & )),
 	         this, SLOT( modSelected( const QModelIndex &, const QModelIndex & )));
@@ -44,7 +50,8 @@ void CModListView::setupModsView()
 	connect( filterModel, SIGNAL( modelReset()),
 	         this, SLOT( modelReset()));
 
-	selectMod(filterModel->rowCount() > 0 ? 0 : -1);
+	connect( modModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+			 this, SLOT(dataChanged(QModelIndex,QModelIndex)));
 }
 
 CModListView::CModListView(QWidget *parent) :
@@ -61,7 +68,8 @@ CModListView::CModListView(QWidget *parent) :
 
 	ui->progressWidget->setVisible(false);
 	dlManager = nullptr;
-	loadRepositories();
+	//loadRepositories();
+	hideModInfo();
 }
 
 void CModListView::loadRepositories()
@@ -133,39 +141,45 @@ QString CModListView::genModInfoText(CModEntry &mod)
 	QString lineTemplate = prefix + "%2</p>";
 	QString urlTemplate  = prefix + "<a href=\"%2\"><span style=\" text-decoration: underline; color:#0000ff;\">%2</span></a></p>";
 	QString textTemplate = prefix + "</p><p align=\"justify\">%2</p>";
-	QString noteTemplate = "<p align=\"justify\">%1: %2</p>";
+	QString listTemplate = "<p align=\"justify\">%1: %2</p>";
+	QString noteTemplate = "<p align=\"justify\">%1</p>";
 
 	QString result;
 
 	result += "<html><body>";
-	result += replaceIfNotEmpty(mod.getValue("name"), lineTemplate.arg("Mod name"));
-	result += replaceIfNotEmpty(mod.getValue("installedVersion"), lineTemplate.arg("Installed version"));
-	result += replaceIfNotEmpty(mod.getValue("latestVersion"), lineTemplate.arg("Latest version"));
-	result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("size").toDouble()), lineTemplate.arg("Download size"));
-	result += replaceIfNotEmpty(mod.getValue("author"), lineTemplate.arg("Authors"));
-	result += replaceIfNotEmpty(mod.getValue("contact"), urlTemplate.arg("Home"));
-	result += replaceIfNotEmpty(mod.getValue("depends"), lineTemplate.arg("Required mods"));
-	result += replaceIfNotEmpty(mod.getValue("conflicts"), lineTemplate.arg("Conflicting mods"));
-	result += replaceIfNotEmpty(mod.getValue("description"), textTemplate.arg("Description"));
+	result += replaceIfNotEmpty(mod.getValue("name"), lineTemplate.arg(tr("Mod name")));
+	result += replaceIfNotEmpty(mod.getValue("installedVersion"), lineTemplate.arg(tr("Installed version")));
+	result += replaceIfNotEmpty(mod.getValue("latestVersion"), lineTemplate.arg(tr("Latest version")));
+	if (mod.getValue("size").toDouble() != 0)
+		result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("size").toDouble()), lineTemplate.arg(tr("Download size")));
+	result += replaceIfNotEmpty(mod.getValue("author"), lineTemplate.arg(tr("Authors")));
+	result += replaceIfNotEmpty(mod.getValue("contact"), urlTemplate.arg(tr("Home")));
+	result += replaceIfNotEmpty(mod.getValue("depends"), lineTemplate.arg(tr("Required mods")));
+	result += replaceIfNotEmpty(mod.getValue("conflicts"), lineTemplate.arg(tr("Conflicting mods")));
+	result += replaceIfNotEmpty(mod.getValue("description"), textTemplate.arg(tr("Description")));
 
 	result += "<p></p>"; // to get some empty space
 
-	QString unknownDeps  = "This mod can not be installed or enabled because following dependencies are not present";
-	QString blockingMods = "This mod can not be enabled because following mods are incompatible with this mod";
-	QString hasActiveDependentMods = "This mod can not be disabled because it is required to run following mods";
-	QString hasDependentMods = "This mod can not be uninstalled or updated because it is required to run following mods";
+	QString unknownDeps  = tr("This mod can not be installed or enabled because following dependencies are not present");
+	QString blockingMods = tr("This mod can not be enabled because following mods are incompatible with this mod");
+	QString hasActiveDependentMods = tr("This mod can not be disabled because it is required to run following mods");
+	QString hasDependentMods = tr("This mod can not be uninstalled or updated because it is required to run following mods");
+	QString thisIsSubmod = tr("This is submod and it can not be installed or uninstalled separately from parent mod");
 
 	QString notes;
 
-	notes += replaceIfNotEmpty(findInvalidDependencies(mod.getName()), noteTemplate.arg(unknownDeps));
-	notes += replaceIfNotEmpty(findBlockingMods(mod.getName()), noteTemplate.arg(blockingMods));
+	notes += replaceIfNotEmpty(findInvalidDependencies(mod.getName()), listTemplate.arg(unknownDeps));
+	notes += replaceIfNotEmpty(findBlockingMods(mod.getName()), listTemplate.arg(blockingMods));
 	if (mod.isEnabled())
-		notes += replaceIfNotEmpty(findDependentMods(mod.getName(), true), noteTemplate.arg(hasActiveDependentMods));
+		notes += replaceIfNotEmpty(findDependentMods(mod.getName(), true), listTemplate.arg(hasActiveDependentMods));
 	if (mod.isInstalled())
-		notes += replaceIfNotEmpty(findDependentMods(mod.getName(), false), noteTemplate.arg(hasDependentMods));
+		notes += replaceIfNotEmpty(findDependentMods(mod.getName(), false), listTemplate.arg(hasDependentMods));
+
+	if (mod.getName().contains('.'))
+		notes += noteTemplate.arg(thisIsSubmod);
 
 	if (notes.size())
-		result += textTemplate.arg("Notes").arg(notes);
+		result += textTemplate.arg(tr("Notes")).arg(notes);
 
 	result += "</body></html>";
 	return result;
@@ -183,28 +197,31 @@ void CModListView::disableModInfo()
 	ui->hideModInfoButton->setEnabled(false);
 }
 
-void CModListView::selectMod(int index)
+void CModListView::dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight)
 {
-	if (index < 0)
+	selectMod(ui->allModsView->currentIndex());
+}
+
+void CModListView::selectMod(const QModelIndex & index)
+{
+	if (!index.isValid())
 	{
 		disableModInfo();
 	}
 	else
 	{
-		enableModInfo();
-
-		auto mod = modModel->getMod(modModel->modIndexToName(index));
+		auto mod = modModel->getMod(index.data(ModRoles::ModNameRole).toString());
 
 		ui->textBrowser->setHtml(genModInfoText(mod));
 
-		bool hasInvalidDeps = !findInvalidDependencies(modModel->modIndexToName(index)).empty();
-		bool hasBlockingMods = !findBlockingMods(modModel->modIndexToName(index)).empty();
-		bool hasDependentMods = !findDependentMods(modModel->modIndexToName(index), true).empty();
+		bool hasInvalidDeps = !findInvalidDependencies(index.data(ModRoles::ModNameRole).toString()).empty();
+		bool hasBlockingMods = !findBlockingMods(index.data(ModRoles::ModNameRole).toString()).empty();
+		bool hasDependentMods = !findDependentMods(index.data(ModRoles::ModNameRole).toString(), true).empty();
 
 		ui->disableButton->setVisible(mod.isEnabled());
 		ui->enableButton->setVisible(mod.isDisabled());
-		ui->installButton->setVisible(mod.isAvailable());
-		ui->uninstallButton->setVisible(mod.isInstalled());
+		ui->installButton->setVisible(mod.isAvailable() && !mod.getName().contains('.'));
+		ui->uninstallButton->setVisible(mod.isInstalled() && !mod.getName().contains('.'));
 		ui->updateButton->setVisible(mod.isUpdateable());
 
 		// Block buttons if action is not allowed at this time
@@ -232,7 +249,7 @@ void CModListView::keyPressEvent(QKeyEvent * event)
 
 void CModListView::modSelected(const QModelIndex & current, const QModelIndex & )
 {
-	selectMod(filterModel->mapToSource(current).row());
+	selectMod(current);
 }
 
 void CModListView::on_hideModInfoButton_clicked()
@@ -243,10 +260,10 @@ void CModListView::on_hideModInfoButton_clicked()
 		showModInfo();
 }
 
-void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
+void CModListView::on_allModsView_activated(const QModelIndex &index)
 {
 	showModInfo();
-	selectMod(filterModel->mapToSource(index).row());
+	selectMod(index);
 }
 
 void CModListView::on_lineEdit_textChanged(const QString &arg1)
@@ -319,7 +336,7 @@ QStringList CModListView::findDependentMods(QString mod, bool excludeDisabled)
 
 void CModListView::on_enableButton_clicked()
 {
-	QString modName = modModel->modIndexToName(filterModel->mapToSource(ui->allModsView->currentIndex()).row());
+	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
 	assert(findBlockingMods(modName).empty());
 	assert(findInvalidDependencies(modName).empty());
@@ -332,7 +349,7 @@ void CModListView::on_enableButton_clicked()
 
 void CModListView::on_disableButton_clicked()
 {
-	QString modName = modModel->modIndexToName(filterModel->mapToSource(ui->allModsView->currentIndex()).row());
+	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
 	if (modModel->hasMod(modName) &&
 	    modModel->getMod(modName).isEnabled())
@@ -343,7 +360,7 @@ void CModListView::on_disableButton_clicked()
 
 void CModListView::on_updateButton_clicked()
 {
-	QString modName = modModel->modIndexToName(filterModel->mapToSource(ui->allModsView->currentIndex()).row());
+	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
 	assert(findInvalidDependencies(modName).empty());
 
@@ -358,7 +375,7 @@ void CModListView::on_updateButton_clicked()
 
 void CModListView::on_uninstallButton_clicked()
 {
-	QString modName = modModel->modIndexToName(filterModel->mapToSource(ui->allModsView->currentIndex()).row());
+	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 	// NOTE: perhaps add "manually installed" flag and uninstall those dependencies that don't have it?
 
 	if (modModel->hasMod(modName) &&
@@ -373,7 +390,7 @@ void CModListView::on_uninstallButton_clicked()
 
 void CModListView::on_installButton_clicked()
 {
-	QString modName = modModel->modIndexToName(filterModel->mapToSource(ui->allModsView->currentIndex()).row());
+	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
 	assert(findInvalidDependencies(modName).empty());
 
@@ -537,8 +554,8 @@ void CModListView::on_pushButton_clicked()
 
 void CModListView::modelReset()
 {
-	//selectMod(filterModel->mapToSource(ui->allModsView->currentIndex()).row());
-	selectMod(filterModel->rowCount() > 0 ? 0 : -1);
+	if (ui->modInfoWidget->isVisible())
+		selectMod(filterModel->rowCount() > 0 ? filterModel->index(0,0) : QModelIndex());
 }
 
 void CModListView::checkManagerErrors()

@@ -65,6 +65,7 @@ public:
 	virtual void addRepository(QVariantMap data);
 	virtual void setLocalModList(QVariantMap data);
 	virtual void setModSettings(QVariant data);
+	virtual void modChanged(QString modID);
 
 	// returns mod by name. Note: mod MUST exist
 	CModEntry getMod(QString modname) const;

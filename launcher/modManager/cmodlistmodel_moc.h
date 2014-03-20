@@ -9,10 +9,10 @@ namespace ModFields
 {
 	enum EModFields
 	{
+		NAME,
 		STATUS_ENABLED,
 		STATUS_UPDATE,
 		TYPE,
-		NAME,
 		VERSION,
 		SIZE,
 		AUTHOR,
@@ -20,36 +20,50 @@ namespace ModFields
 	};
 }
 
-class CModListModel : public QAbstractTableModel, public CModList
+namespace ModRoles
+{
+	enum EModRoles
+	{
+		ValueRole = Qt::UserRole,
+		ModNameRole
+	};
+}
+
+class CModListModel : public QAbstractItemModel, public CModList
 {
 	Q_OBJECT
 
-	QVector<QString> indexToName;
+	QVector<QString> modNameToID;
+	// contains mapping mod -> numbered list of submods
+	// mods that have no parent located under "" key (empty string)
+	QMap<QString, QVector<QString>> modIndex;
 
 	void endResetModel();
+
+	QString modIndexToName(const QModelIndex & index) const;
 
 	QVariant getTextAlign(int field) const;
 	QVariant getValue(const CModEntry & mod, int field) const;
 	QVariant getText(const CModEntry & mod, int field) const;
 	QVariant getIcon(const CModEntry & mod, int field) const;
 public:
-	/// CModListContainer overrides
-	void resetRepositories();
-	void addRepository(QVariantMap data);
-	void setLocalModList(QVariantMap data);
-	void setModSettings(QVariant data);
-
-	QString modIndexToName(int index) const;
-
 	explicit CModListModel(QObject *parent = 0);
-	
-	QVariant data(const QModelIndex &index, int role) const;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
-	int rowCount(const QModelIndex &parent) const;
-	int columnCount(const QModelIndex &parent) const;
+	/// CModListContainer overrides
+	void resetRepositories() override;
+	void addRepository(QVariantMap data) override;
+	void modChanged(QString modID);
 
-	Qt::ItemFlags flags(const QModelIndex &index) const;
+	QVariant data(const QModelIndex &index, int role) const override;
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+
+	int rowCount(const QModelIndex &parent) const override;
+	int columnCount(const QModelIndex &parent) const override;
+
+	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+	QModelIndex parent(const QModelIndex &child) const override;
+
+	Qt::ItemFlags flags(const QModelIndex &index) const override;
 signals:
 	
 public slots:
@@ -62,7 +76,7 @@ class CModFilterModel : public QSortFilterProxyModel
 	int filteredType;
 	int filterMask;
 
-	bool filterMatches(int modIndex) const;
+	bool filterMatchesThis(const QModelIndex & source) const;
 
 	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 public:
