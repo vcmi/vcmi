@@ -1,0 +1,55 @@
+#include "StdInc.h"
+
+#include <QDesktopWidget>
+
+#include "imageviewer.h"
+#include "ui_imageviewer.h"
+
+ImageViewer::ImageViewer(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::ImageViewer)
+{
+	ui->setupUi(this);
+}
+
+ImageViewer::~ImageViewer()
+{
+	delete ui;
+}
+
+QSize ImageViewer::calculateWindowSize()
+{
+	QDesktopWidget desktop;
+	return desktop.availableGeometry(desktop.primaryScreen()).size() * 0.8;
+}
+
+void ImageViewer::showPixmap(QPixmap & pixmap, QWidget *parent)
+{
+	assert(!pixmap.isNull());
+
+	ImageViewer * iw = new ImageViewer(parent);
+
+	QSize size = pixmap.size();
+	size.scale(iw->calculateWindowSize(), Qt::KeepAspectRatio);
+	iw->resize(size);
+
+	iw->setPixmap(pixmap);
+	iw->setAttribute(Qt::WA_DeleteOnClose, true);
+	iw->setModal(Qt::WindowModal);
+	iw->show();
+}
+
+void ImageViewer::setPixmap(QPixmap & pixmap)
+{
+	ui->label->setPixmap(pixmap);
+}
+
+void ImageViewer::mousePressEvent(QMouseEvent * event)
+{
+	close();
+}
+
+void ImageViewer::keyPressEvent(QKeyEvent * event)
+{
+	close(); // FIXME: it also closes on pressing modifiers (e.g. Ctrl/Alt). Not exactly expected
+}

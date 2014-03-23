@@ -79,4 +79,6 @@ public:
 
 	// returns list of all available mods
 	QVector<QString> getModList() const;
+
+	QVector<QString> getChildren(QString parent) const;
 };

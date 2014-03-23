@@ -12,6 +12,8 @@ SPELLS:
 * New configuration format: http://wiki.vcmi.eu/index.php?title=Spell_Format
 
 MODS:
+* Support for submods - mod may have their own "submods" located in <modname>/Mods directory
+* Mods may provide their own changelogs and screenshots that will be visible in Launcher
 * Mods cas now add new (offensive, buffs, debuffs) spells and change existing
 
 0.94 -> 0.95 (Mar 01 2014)

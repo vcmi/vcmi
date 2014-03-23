@@ -271,3 +271,16 @@ QVector<QString> CModList::getModList() const
 	}
 	return modList;
 }
+
+QVector<QString> CModList::getChildren(QString parent) const
+{
+	QVector<QString> children;
+
+	int depth = parent.count('.') + 1;
+	for (const QString & mod : getModList())
+	{
+		if (mod.count('.') == depth && mod.startsWith(parent))
+			children.push_back(mod);
+	}
+	return children;
+}

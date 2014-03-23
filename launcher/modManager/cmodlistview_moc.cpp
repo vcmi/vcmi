@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "cmodlistview_moc.h"
 #include "ui_cmodlistview_moc.h"
+#include "imageviewer.h"
 
 #include <QJsonArray>
 #include <QCryptographicHash>
@@ -68,7 +69,7 @@ CModListView::CModListView(QWidget *parent) :
 
 	ui->progressWidget->setVisible(false);
 	dlManager = nullptr;
-	//loadRepositories();
+	loadRepositories();
 	hideModInfo();
 }
 
@@ -106,6 +107,7 @@ void CModListView::showModInfo()
 {
 	ui->modInfoWidget->show();
 	ui->hideModInfoButton->setArrowType(Qt::RightArrow);
+	loadScreenshots();
 }
 
 void CModListView::hideModInfo()
@@ -135,25 +137,60 @@ static QString replaceIfNotEmpty(QStringList value, QString pattern)
 	return "";
 }
 
+QString CModListView::genChangelogText(CModEntry &mod)
+{
+	QString headerTemplate = "<p><span style=\" font-weight:600;\">%1: </span></p>";
+	QString entryBegin = "<p align=\"justify\"><ul>";
+	QString entryEnd = "</ul></p>";
+	QString entryLine = "<li>%1</li>";
+	//QString versionSeparator = "<hr/>";
+
+	QString result;
+
+	QVariantMap changelog = mod.getValue("changelog").toMap();
+	QList<QString> versions = changelog.keys();
+
+	std::sort(versions.begin(), versions.end(), [](QString lesser, QString greater)
+	{
+		return !CModEntry::compareVersions(lesser, greater);
+	});
+
+	for (auto & version : versions)
+	{
+		result += headerTemplate.arg(version);
+		result += entryBegin;
+		for (auto & line : changelog.value(version).toStringList())
+			result += entryLine.arg(line);
+		result += entryEnd;
+	}
+	return result;
+}
+
 QString CModListView::genModInfoText(CModEntry &mod)
 {
 	QString prefix = "<p><span style=\" font-weight:600;\">%1: </span>"; // shared prefix
 	QString lineTemplate = prefix + "%2</p>";
-	QString urlTemplate  = prefix + "<a href=\"%2\"><span style=\" text-decoration: underline; color:#0000ff;\">%2</span></a></p>";
+	QString urlTemplate  = prefix + "<a href=\"%2\">%3</a></p>";
 	QString textTemplate = prefix + "</p><p align=\"justify\">%2</p>";
 	QString listTemplate = "<p align=\"justify\">%1: %2</p>";
 	QString noteTemplate = "<p align=\"justify\">%1</p>";
 
 	QString result;
 
-	result += "<html><body>";
 	result += replaceIfNotEmpty(mod.getValue("name"), lineTemplate.arg(tr("Mod name")));
 	result += replaceIfNotEmpty(mod.getValue("installedVersion"), lineTemplate.arg(tr("Installed version")));
 	result += replaceIfNotEmpty(mod.getValue("latestVersion"), lineTemplate.arg(tr("Latest version")));
-	if (mod.getValue("size").toDouble() != 0)
+
+	if (mod.getValue("size").isValid())
 		result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("size").toDouble()), lineTemplate.arg(tr("Download size")));
 	result += replaceIfNotEmpty(mod.getValue("author"), lineTemplate.arg(tr("Authors")));
-	result += replaceIfNotEmpty(mod.getValue("contact"), urlTemplate.arg(tr("Home")));
+
+	if (mod.getValue("licenseURL").isValid())
+		result += urlTemplate.arg(tr("License")).arg(mod.getValue("licenseURL").toString()).arg(mod.getValue("licenseName").toString());
+
+	if (mod.getValue("contact").isValid())
+		result += urlTemplate.arg(tr("Home")).arg(mod.getValue("contact").toString()).arg(mod.getValue("contact").toString());
+
 	result += replaceIfNotEmpty(mod.getValue("depends"), lineTemplate.arg(tr("Required mods")));
 	result += replaceIfNotEmpty(mod.getValue("conflicts"), lineTemplate.arg(tr("Conflicting mods")));
 	result += replaceIfNotEmpty(mod.getValue("description"), textTemplate.arg(tr("Description")));
@@ -181,7 +218,6 @@ QString CModListView::genModInfoText(CModEntry &mod)
 	if (notes.size())
 		result += textTemplate.arg(tr("Notes")).arg(notes);
 
-	result += "</body></html>";
 	return result;
 }
 
@@ -212,7 +248,8 @@ void CModListView::selectMod(const QModelIndex & index)
 	{
 		auto mod = modModel->getMod(index.data(ModRoles::ModNameRole).toString());
 
-		ui->textBrowser->setHtml(genModInfoText(mod));
+		ui->modInfoBrowser->setHtml(genModInfoText(mod));
+		ui->changelogBrowser->setHtml(genChangelogText(mod));
 
 		bool hasInvalidDeps = !findInvalidDependencies(index.data(ModRoles::ModNameRole).toString()).empty();
 		bool hasBlockingMods = !findBlockingMods(index.data(ModRoles::ModNameRole).toString()).empty();
@@ -232,6 +269,8 @@ void CModListView::selectMod(const QModelIndex & index)
 		ui->installButton->setEnabled(!hasInvalidDeps);
 		ui->uninstallButton->setEnabled(!hasDependentMods);
 		ui->updateButton->setEnabled(!hasInvalidDeps && !hasDependentMods);
+
+		loadScreenshots();
 	}
 }
 
@@ -239,7 +278,7 @@ void CModListView::keyPressEvent(QKeyEvent * event)
 {
 	if (event->key() == Qt::Key_Escape && ui->modInfoWidget->isVisible() )
 	{
-		ui->modInfoWidget->hide();
+		hideModInfo();
 	}
 	else
 	{
@@ -480,17 +519,23 @@ void CModListView::hideProgressBar()
 void CModListView::installFiles(QStringList files)
 {
 	QStringList mods;
+	QStringList images;
 
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for (QString filename : files)
 	{
-		if (filename.contains(".zip"))
+		if (filename.endsWith(".zip"))
 			mods.push_back(filename);
-		if (filename.contains(".json"))
+		if (filename.endsWith(".json"))
 			manager->loadRepository(filename);
+		if (filename.endsWith(".png"))
+			images.push_back(filename);
 	}
 	if (!mods.empty())
 		installMods(mods);
+
+	if (!images.empty())
+		loadScreenshots();
 }
 
 void CModListView::installMods(QStringList archives)
@@ -536,8 +581,23 @@ void CModListView::installMods(QStringList archives)
 	for (int i=0; i<modNames.size(); i++)
 		manager->installMod(modNames[i], archives[i]);
 
+	std::function<void(QString)> enableMod = [&](QString modName)
+	{
+		auto mod = modModel->getMod(modName);
+		if (mod.isInstalled() && !mod.getValue("keepDisabled").toBool())
+		{
+			if (manager->enableMod(modName))
+			{
+				for (QString child : modModel->getChildren(modName))
+					enableMod(child);
+			}
+		}
+	};
+
 	for (QString mod : modsToEnable)
-		manager->enableMod(mod);
+	{
+		enableMod(mod);
+	}
 
 	for (QString archive : archives)
 		QFile::remove(archive);
@@ -566,5 +626,52 @@ void CModListView::checkManagerErrors()
 		QString title = "Operation failed";
 		QString description = "Encountered errors:\n" + errors;
 		QMessageBox::warning(this, title, description, QMessageBox::Ok, QMessageBox::Ok );
+	}
+}
+
+void CModListView::on_tabWidget_currentChanged(int index)
+{
+	loadScreenshots();
+}
+
+void CModListView::loadScreenshots()
+{
+	if (ui->tabWidget->currentIndex() == 2 && ui->modInfoWidget->isVisible())
+	{
+		ui->screenshotsList->clear();
+		QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
+		assert(modModel->hasMod(modName)); //should be filtered out by check above
+
+		for (QString & url : modModel->getMod(modName).getValue("screenshots").toStringList())
+		{
+			// URL must be encoded to something else to get rid of symbols illegal in file names
+			auto hashed = QCryptographicHash::hash(url.toUtf8(), QCryptographicHash::Md5);
+			auto hashedStr = QString::fromUtf8(hashed.toHex());
+
+			QString fullPath = CLauncherDirs::get().downloadsPath() + '/' + hashedStr + ".png";
+			QPixmap pixmap(fullPath);
+			if (pixmap.isNull())
+			{
+				// image file not exists or corrupted - try to redownload
+				downloadFile(hashedStr + ".png", url, "screenshots");
+			}
+			else
+			{
+				// managed to load cached image
+				QIcon icon(pixmap);
+				QListWidgetItem * item = new QListWidgetItem(icon, QString(tr("Screenshot %1")).arg(ui->screenshotsList->count() + 1));
+				ui->screenshotsList->addItem(item);
+			}
+		}
+	}
+}
+
+void CModListView::on_screenshotsList_clicked(const QModelIndex &index)
+{
+	if (index.isValid())
+	{
+		QIcon icon = ui->screenshotsList->item(index.row())->icon();
+		auto pixmap = icon.pixmap(icon.availableSizes()[0]);
+		ImageViewer::showPixmap(pixmap, this);
 	}
 }

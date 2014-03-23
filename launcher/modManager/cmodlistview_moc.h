@@ -50,6 +50,7 @@ class CModListView : public QWidget
 	void installMods(QStringList archives);
 	void installFiles(QStringList mods);
 
+	QString genChangelogText(CModEntry & mod);
 	QString genModInfoText(CModEntry & mod);
 public:
 	explicit CModListView(QWidget *parent = 0);
@@ -57,6 +58,7 @@ public:
 	
 	void showModInfo();
 	void hideModInfo();
+	void loadScreenshots();
 
 	void enableModInfo();
 	void disableModInfo();
@@ -90,6 +92,10 @@ private slots:
 	void on_pushButton_clicked();
 
 	void on_allModsView_activated(const QModelIndex &index);
+
+	void on_tabWidget_currentChanged(int index);
+
+	void on_screenshotsList_clicked(const QModelIndex &index);
 
 private:
 	Ui::CModListView *ui;

@@ -113,3 +113,13 @@ void CDownloadManager::downloadProgressChanged(qint64 bytesReceived, qint64 byte
 
 	emit downloadProgress(received, total);
 }
+
+bool CDownloadManager::downloadInProgress(const QUrl &url)
+{
+	for (auto & entry : currentDownloads)
+	{
+		if (entry.reply->url() == url)
+			return true;
+	}
+	return false;
+}
