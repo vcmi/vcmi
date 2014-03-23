@@ -282,6 +282,8 @@ void VCAI::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
 	for(int3 tile : pos)
 		for(const CGObjectInstance *obj : myCb->getVisitableObjs(tile))
 			addVisitableObj(obj);
+
+	clearHeroesUnableToExplore();
 }
 
 void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
@@ -361,6 +363,8 @@ void VCAI::newObject(const CGObjectInstance * obj)
 	NET_EVENT_HANDLER;
 	if(obj->isVisitable())
 		addVisitableObj(obj);
+
+	clearHeroesUnableToExplore();
 }
 
 void VCAI::objectRemoved(const CGObjectInstance *obj)
@@ -660,6 +664,8 @@ void VCAI::makeTurn()
 	}
 	if(cb->getSelectedHero())
 		cb->recalculatePaths();
+
+	markHeroAbleToExplore (primaryHero());
 
 	makeTurnInternal();
 	makingTurn.reset();
@@ -1467,6 +1473,23 @@ void VCAI::unreserveObject(HeroPtr h, const CGObjectInstance *obj)
 {
 	erase_if_present(reservedObjs, obj); //unreserve objects
 	erase_if_present(reservedHeroesMap[h], obj);
+}
+
+void VCAI::markHeroUnableToExplore (HeroPtr h)
+{
+	heroesUnableToExplore.insert(h);
+}
+void VCAI::markHeroAbleToExplore (HeroPtr h)
+{
+	erase_if_present(heroesUnableToExplore, h);
+}
+bool VCAI::isAbleToExplore (HeroPtr h)
+{
+	return !vstd::contains (heroesUnableToExplore, h);
+}
+void VCAI::clearHeroesUnableToExplore()
+{
+	heroesUnableToExplore.clear();
 }
 
 void VCAI::validateVisitableObjs()

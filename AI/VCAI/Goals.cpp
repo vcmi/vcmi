@@ -567,6 +567,9 @@ TGoalVec Explore::getAllPossibleSubgoals()
 			if (ai->getGoal(h)->goalType == Goals::EXPLORE) //do not reassign hero who is already explorer
 				return true;
 
+			if (!ai->isAbleToExplore(h))
+				return true;
+
 			return !h->movement; //saves time, immobile heroes are useless anyway
 		});
 	}
@@ -603,11 +606,17 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		{
 			ret.push_back (sptr (Goals::VisitTile(t).sethero(h)));
 		}
-		else if (hero.h == h || (!hero && h == ai->primaryHero().h)) //check this only ONCE, high cost
+		else
 		{
-			t = ai->explorationDesperate(h);
-			if (t.valid()) //don't waste time if we are completely blocked
-				ret.push_back (sptr(Goals::ClearWayTo(t, h).setisAbstract(true)));
+			ai->markHeroUnableToExplore (h); //there is no freely accessible tile, do not poll this hero anymore
+			//possible issues when gathering army to break
+
+			if (hero.h == h || (!hero && h == ai->primaryHero().h)) //check this only ONCE, high cost
+			{
+				t = ai->explorationDesperate(h);
+				if (t.valid()) //don't waste time if we are completely blocked
+					ret.push_back (sptr(Goals::ClearWayTo(t, h).setisAbstract(true)));
+			}
 		}
 	}
 	//we either don't have hero yet or none of heroes can explore

@@ -149,6 +149,7 @@ public:
 
 	std::map<HeroPtr, Goals::TSubgoal> lockedHeroes; //TODO: allow non-elementar objectives
 	std::map<HeroPtr, std::set<const CGObjectInstance *> > reservedHeroesMap; //objects reserved by specific heroes
+	std::set<HeroPtr> heroesUnableToExplore; //these heroes will not be polled for exploration in current state of game
 
 	//sets are faster to search, also do not contain duplicates
 	std::set<const CGObjectInstance *> visitableObjs;
@@ -282,8 +283,13 @@ public:
 	void addVisitableObj(const CGObjectInstance *obj);
 	void markObjectVisited (const CGObjectInstance *obj);
 	void reserveObject (HeroPtr h, const CGObjectInstance *obj); //TODO: reserve all objects that heroes attempt to visit
-	void unreserveObject (HeroPtr h, const CGObjectInstance *obj); 
-	//void removeVisitableObj(const CGObjectInstance *obj);
+	void unreserveObject (HeroPtr h, const CGObjectInstance *obj);
+
+	void markHeroUnableToExplore (HeroPtr h);
+	void markHeroAbleToExplore (HeroPtr h);
+	bool isAbleToExplore (HeroPtr h);
+	void clearHeroesUnableToExplore();
+
 	void validateObject(const CGObjectInstance *obj); //checks if object is still visible and if not, removes references to it
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
 	void validateVisitableObjs();
@@ -344,7 +350,7 @@ public:
 		h & knownSubterraneanGates & townVisitsThisWeek & lockedHeroes & reservedHeroesMap; //FIXME: cannot instantiate abstract class
 		h & visitableObjs & alreadyVisited & reservedObjs;
 		h & saving & status & battlename;
-
+		h & heroesUnableToExplore;
 
 		//myCB is restored after load by init call
 	}
