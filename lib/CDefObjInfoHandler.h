@@ -42,6 +42,9 @@ public:
 	/// animation file that should be used to display object
 	std::string animationFile;
 
+	/// string ID, equals to def base name for h3m files (lower case, no extension) or specified in mod data
+	std::string stringID;
+
 	ui32 getWidth() const;
 	ui32 getHeight() const;
 	void setSize(ui32 width, ui32 height);
@@ -70,7 +73,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & usedTiles & allowedTerrains & animationFile;
+		h & usedTiles & allowedTerrains & animationFile & stringID;
 		h & id & subid & printPriority & visitDir;
 	}
 };
@@ -97,9 +100,8 @@ public:
 	std::vector<ObjectTemplate> pickCandidates(Obj type, si32 subtype) const;
 	/// picks all candidates for <type, subtype> and of possible - also filters them by terrain
 	std::vector<ObjectTemplate> pickCandidates(Obj type, si32 subtype, ETerrainType terrain) const;
-
-	// TODO: as above, but also filters out templates that are not applicable according to accepted test
-	// std::vector<ObjectTemplate> pickCandidates(Obj type, si32 subtype, ETerrainType terrain, std::function<bool(ObjectTemplate &)> accept) const;
+	/// as above, but also filters out templates that are not applicable according to accepted test
+	std::vector<ObjectTemplate> pickCandidates(Obj type, si32 subtype, ETerrainType terrain, std::function<bool(ObjectTemplate &)> filter) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

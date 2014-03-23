@@ -64,6 +64,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	assert(strings.size() == 9);
 
 	animationFile = strings[0];
+	stringID = strings[0];
 
 	std::string & blockStr = strings[1]; //block map, 0 = blocked, 1 = unblocked
 	std::string & visitStr = strings[2]; //visit map, 1 = visitable, 0 = not visitable
@@ -182,7 +183,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 void ObjectTemplate::readJson(const JsonNode &node)
 {
-	id = Obj(node["basebase"].Float()); // temporary, should be replaced
+	id = Obj(node["basebase"].Float()); // temporary, should be removed and determined indirectly via object type parent (e.g. base->base)
 	subid = node["base"].Float();
 	animationFile = node["animation"].String();
 
@@ -199,48 +200,51 @@ void ObjectTemplate::readJson(const JsonNode &node)
 		if (visitDirs[1].String()[0] == '+') visitDir |= 128;
 	}
 	else
-		visitDir = 0xff;
+		visitDir = 0x00;
 
-	for (auto & entry : node["allowedTerrains"].Vector())
-		allowedTerrains.insert(ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES, entry.String())));
+	if (!node["allowedTerrains"].isNull())
+	{
+		for (auto & entry : node["allowedTerrains"].Vector())
+			allowedTerrains.insert(ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES, entry.String())));
+	}
+	else
+	{
+		for (size_t i=0; i< GameConstants::TERRAIN_TYPES; i++)
+			allowedTerrains.insert(ETerrainType(i));
+	}
 
 	auto charToTile = [&](const char & ch) -> ui8
 	{
 		switch (ch)
 		{
+			case ' ' : return 0;
 			case '0' : return 0;
 			case 'V' : return VISIBLE;
 			case 'B' : return VISIBLE | BLOCKED;
 			case 'H' : return BLOCKED;
 			case 'A' : return VISIBLE | BLOCKED | VISITABLE;
-			case 'T' : return VISIBLE | VISITABLE;
+			case 'T' : return BLOCKED | VISITABLE;
 			default:
 				logGlobal->errorStream() << "Unrecognized char " << ch << " in template mask";
 				return 0;
 		}
 	};
 
-	size_t maxHeight = 0, maxWidth = 0;
-	size_t width  = node["mask"].Vector()[0].String().size();
-	size_t height = node["mask"].Vector().size();
+	const JsonVector & mask = node["mask"].Vector();
+
+	size_t height = mask.size();
+	size_t width  = 0;
+	for (auto & line : mask)
+		vstd::amax(width, line.String().size());
+
 	setSize(width, height);
 
-	for (size_t i=0; i<height; i++)
+	for (size_t i=0; i<mask.size(); i++)
 	{
-		const std::string & line = node["mask"].Vector()[i].String();
-		assert(line.size() == width);
-		for (size_t j=0; j < width; j++)
-		{
-			ui8 tile = charToTile(line[j]);
-			if (tile != 0)
-			{
-				vstd::amax(maxHeight, i);
-				vstd::amax(maxWidth,  j);
-				usedTiles[i][j] = tile;
-			}
-		}
+		const std::string & line = mask[i].String();
+		for (size_t j=0; j < line.size(); j++)
+			usedTiles[mask.size() - 1 - i][line.size() - 1 - j] = charToTile(line[j]);
 	}
-	setSize(maxWidth, maxHeight);
 
 	printPriority = node["zIndex"].Float();
 }
@@ -259,7 +263,7 @@ void ObjectTemplate::setSize(ui32 width, ui32 height)
 {
 	usedTiles.resize(height);
 	for (auto & line : usedTiles)
-		line.resize(width);
+		line.resize(width, 0);
 }
 
 bool ObjectTemplate::isVisitable() const
@@ -345,14 +349,19 @@ CDefObjInfoHandler::CDefObjInfoHandler()
 	readTextFile("Data/Objects.txt");
 	readTextFile("Data/Heroes.txt");
 
-	const JsonNode node = JsonUtils::assembleFromFiles("config/objectTemplates.json");
+	// TODO: merge into modding system
+	JsonNode node = JsonUtils::assembleFromFiles("config/objectTemplates.json");
+	node.setMeta("core");
 	std::vector<ObjectTemplate> newTemplates;
 	newTemplates.reserve(node.Struct().size());
 
 	// load all new templates
 	for (auto & entry : node.Struct())
 	{
+		JsonUtils::validate(entry.second, "vcmi:objectTemplate", entry.first);
+
 		ObjectTemplate templ;
+		templ.stringID = entry.first;
 		templ.readJson(entry.second);
 		newTemplates.push_back(templ);
 	}
@@ -389,6 +398,7 @@ std::vector<ObjectTemplate> CDefObjInfoHandler::pickCandidates(Obj type, si32 su
 	});
 	if (ret.empty())
 		logGlobal->errorStream() << "Failed to find template for " << type << ":" << subtype;
+
 	assert(!ret.empty()); // Can't create object of this type/subtype
 	return ret;
 }
@@ -402,6 +412,16 @@ std::vector<ObjectTemplate> CDefObjInfoHandler::pickCandidates(Obj type, si32 su
 	{
 		return obj.canBePlacedAt(terrain);
 	});
+	// it is possible that there are no templates usable on specific terrain. In this case - return list before filtering
+	return filtered.empty() ? ret : filtered;
+}
+
+std::vector<ObjectTemplate> CDefObjInfoHandler::pickCandidates(Obj type, si32 subtype, ETerrainType terrain, std::function<bool(ObjectTemplate &)> filter) const
+{
+	std::vector<ObjectTemplate> ret = pickCandidates(type, subtype, terrain);
+	std::vector<ObjectTemplate> filtered;
+
+	std::copy_if(ret.begin(), ret.end(), std::back_inserter(filtered), filter);
 	// it is possible that there are no templates usable on specific terrain. In this case - return list before filtering
 	return filtered.empty() ? ret : filtered;
 }
