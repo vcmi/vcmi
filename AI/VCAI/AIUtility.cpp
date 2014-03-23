@@ -124,18 +124,25 @@ const CGHeroInstance * HeroPtr::operator*() const
 
 void foreach_tile_pos(std::function<void(const int3& pos)> foo)
 {
-	for(int i = 0; i < cb->getMapSize().x; i++)
-		for(int j = 0; j < cb->getMapSize().y; j++)
-			for(int k = 0; k < cb->getMapSize().z; k++)
+	// some micro-optimizations since this function gets called a LOT
+	// callback pointer is thread-specific and slow to retrieve -> read map size only once
+	int3 mapSize = cb->getMapSize();
+
+	for(int i = 0; i < mapSize.x; i++)
+		for(int j = 0; j < mapSize.y; j++)
+			for(int k = 0; k < mapSize.z; k++)
 				foo(int3(i,j,k));
+
 }
 
 void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo)
 {
+	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
+
 	for(const int3 &dir : dirs)
 	{
 		const int3 n = pos + dir;
-		if(cb->isInTheMap(n))
+		if(cbp->isInTheMap(n))
 			foo(pos+dir);
 	}
 }

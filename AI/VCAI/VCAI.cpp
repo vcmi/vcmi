@@ -978,7 +978,6 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 		return false;
 
 	TResources currentRes = cb->getResourceAmount();
-	TResources income = estimateIncome();
 	//TODO: calculate if we have enough resources to build it in maxDays
 
 	for(const auto & buildID : toBuild)
@@ -998,10 +997,12 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 		}
 		else if(canBuild == EBuildingState::NO_RESOURCES)
 		{
+			//TResources income = estimateIncome();
 			TResources cost = t->town->buildings.at(buildID)->resources;
 			for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
 			{
-				int diff = currentRes[i] - cost[i] + income[i];
+				//int diff = currentRes[i] - cost[i] + income[i];
+				int diff = currentRes[i] - cost[i];
 				if(diff < 0)
 					saving[i] = 1;
 			}
@@ -1143,13 +1144,13 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	//Possible - allow "locking" on specific building (build prerequisites and then building itself)
 
 	TResources currentRes = cb->getResourceAmount();
-	TResources income = estimateIncome();
+	int townIncome = t->dailyIncome();
 
 	if (tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
 		return;
 
 	//we're running out of gold - try to build something gold-producing. Multiplier can be tweaked, 6 is minimum due to buildings costs
-	if (currentRes[Res::GOLD] < income[Res::GOLD] * 6)
+	if (currentRes[Res::GOLD] < townIncome * 6)
 		if (tryBuildNextStructure(t, std::vector<BuildingID>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
 			return;
 

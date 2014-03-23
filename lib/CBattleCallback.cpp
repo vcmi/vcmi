@@ -1455,8 +1455,14 @@ bool CBattleInfoCallback::isToReverse (BattleHex hexFrom, BattleHex hexTo, bool 
 
 	if (toDoubleWide)
 	{
-		return (isToReverseHlp (hexFrom, hexTo, curDir)) &&
-			(toDir ? isToReverseHlp (hexFrom, hexTo-1, curDir) : isToReverseHlp (hexFrom, hexTo+1, curDir));
+		if (isToReverseHlp (hexFrom, hexTo, curDir))
+		{
+			if (toDir)
+				return isToReverseHlp (hexFrom, hexTo-1, curDir);
+			else
+				return isToReverseHlp (hexFrom, hexTo+1, curDir);
+		}
+		return false;
 	}
 	else
 	{

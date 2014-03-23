@@ -56,8 +56,9 @@ add_executable(vcmilauncher ${launcher_SRCS} ${launcher_UI_HEADERS})
 # The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
 target_link_libraries(vcmilauncher vcmi ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES})
 
-set_target_properties(vcmilauncher PROPERTIES ${PCH_PROPERTIES})
-cotire(vcmilauncher)
+# temporary(?) disabled - generation of PCH takes too much time since cotire is trying to collect all Qt headers
+#set_target_properties(vcmilauncher PROPERTIES ${PCH_PROPERTIES})
+#cotire(vcmilauncher)
 
 if (NOT APPLE) # Already inside bundle
     install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})

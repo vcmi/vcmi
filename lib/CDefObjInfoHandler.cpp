@@ -344,7 +344,7 @@ CDefObjInfoHandler::CDefObjInfoHandler()
 {
 	readTextFile("Data/Objects.txt");
 	readTextFile("Data/Heroes.txt");
-/*
+
 	const JsonNode node = JsonUtils::assembleFromFiles("config/objectTemplates.json");
 	std::vector<ObjectTemplate> newTemplates;
 	newTemplates.reserve(node.Struct().size());
@@ -363,7 +363,6 @@ CDefObjInfoHandler::CDefObjInfoHandler()
 
 	// merge new templates into storage
 	objects.insert(objects.end(), newTemplates.begin(), newTemplates.end());
-*/
 }
 
 void CDefObjInfoHandler::eraseAll(Obj type, si32 subtype)

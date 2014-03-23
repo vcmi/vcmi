@@ -310,7 +310,7 @@ bool CMeleeAttackAnimation::init()
 		return false;
 	}
 
-	bool toReverse = owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStackPosBeforeReturn, dest, owner->creDir[stack->ID], attackedStack->doubleWide(), owner->creDir[attackedStack->ID]);
+	bool toReverse = owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStackPosBeforeReturn, attackedStack->position, owner->creDir[stack->ID], attackedStack->doubleWide(), owner->creDir[attackedStack->ID]);
 
 	if (toReverse)
 	{
