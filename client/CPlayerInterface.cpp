@@ -239,7 +239,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	if(!hero)
 	{
 		//AI hero left the visible area (we can't obtain info)
-		//TODO very evil workaround -> retreive pointer to hero so we could animate it
+		//TODO very evil workaround -> retrieve pointer to hero so we could animate it
 		// TODO -> we should not need full CGHeroInstance structure to display animation or it should not be handled by playerint (but by the client itself)
 		const TerrainTile2 &tile = CGI->mh->ttiles[hp.x-1][hp.y][hp.z];
 		for(auto & elem : tile.objects)

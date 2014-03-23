@@ -2278,7 +2278,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 
 	if (vstd::contains(localActions, selectedAction)) //try to use last selected action by default
 		currentAction = selectedAction;
-	else if (localActions.size()) //if not possible, select first avaliable action 9they are sorted by suggested priority)
+	else if (localActions.size()) //if not possible, select first available action 9they are sorted by suggested priority)
 		currentAction = localActions.front();
 	else //no legal action possible
 	{
@@ -2388,7 +2388,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
 				isCastingPossible = true;
 				break;
-			case RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be avaliable as random spell
+			case RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
 				sp = nullptr;
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %
 				creatureCasting = true;

@@ -202,7 +202,7 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 		objectDanger = evaluateDanger(dangerousObject); //unguarded objects can also be dangerous or unhandled
 		if (objectDanger)
 		{
-			//TODO: don't downcast objects AI shouldnt know about!
+			//TODO: don't downcast objects AI shouldn't know about!
 			auto armedObj = dynamic_cast<const CArmedInstance*>(dangerousObject);
 			if(armedObj)
 				objectDanger *= fh->getTacticalAdvantage(visitor, armedObj); //this line tends to go infinite for allied towns (?)
@@ -404,7 +404,7 @@ bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2) //determines if two points 
 			int3 tile = int3(x, y, pos1.z); //use only on same level, ofc
 			if (abs(pos1.dist2d(tile) - pos2.dist2d(tile)) < 1.5)
 			{
-				if (!(cb->isVisible(tile) && cb->getTile(tile)->blocked)) //if there's invisible or unblocked tile inbetween, it's good 
+				if (!(cb->isVisible(tile) && cb->getTile(tile)->blocked)) //if there's invisible or unblocked tile between, it's good
 					return false;
 			}
 		}

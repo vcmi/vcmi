@@ -1066,7 +1066,7 @@ public:
 	bool saving;
 	std::map<ui16,CBasicPointerLoader*> loaders; // typeID => CPointerSaver<serializer,type>
 	si32 fileVersion;
-	bool reverseEndianess; //if source has different endianess than us, we reverse bytes
+	bool reverseEndianess; //if source has different endianness than us, we reverse bytes
 
 	std::map<ui32, void*> loadedPointers;
 	std::map<ui32, const std::type_info*> loadedPointersTypes;
@@ -1574,7 +1574,7 @@ public:
 	TSocket * socket;
 	bool logging;
 	bool connected;
-	bool myEndianess, contactEndianess; //true if little endian, if endianess is different we'll have to revert received multi-byte vars
+	bool myEndianess, contactEndianess; //true if little endian, if endianness is different we'll have to revert received multi-byte vars
     boost::asio::io_service *io_service;
 	std::string name; //who uses this connection
 

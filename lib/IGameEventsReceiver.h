@@ -133,6 +133,6 @@ public:
 	virtual void playerStartsTurn(PlayerColor player){};
 	virtual void showComp(const Component &comp, std::string message) {}; //display component in the advmapint infobox
 
-	//TODO shouldnt be moved down the tree?
+	//TODO shouldn't be moved down the tree?
 	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID){};
 };

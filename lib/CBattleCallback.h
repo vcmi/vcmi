@@ -111,7 +111,7 @@ namespace BattlePerspective
 	};
 }
 
-// Reachability info is result of BFS calculation. It's dependant on stack (it's owner, whether it's flying),
+// Reachability info is result of BFS calculation. It's dependent on stack (it's owner, whether it's flying),
 // startPosition and perpective.
 struct DLL_LINKAGE ReachabilityInfo
 {

@@ -540,7 +540,7 @@ std::vector<BattleHex> CBattleAI::getTargetsToConsider( const CSpell *spell ) co
 	}
 	else
 	{
-		//TODO when massive effect -> doesnt matter where cast
+		//TODO when massive effect -> doesn't matter where cast
 		return cbc->battleGetPossibleTargets(playerID, spell);
 	}
 }

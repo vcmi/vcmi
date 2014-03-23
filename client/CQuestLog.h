@@ -47,7 +47,7 @@ public:
 class CQuestIcon : public CAnimImage
 {
 public:
-	std::function<void()> callback; //TODO: merge with other similiar classes?
+	std::function<void()> callback; //TODO: merge with other similar classes?
 
 	CQuestIcon (const std::string &defname, int index, int x=0, int y=0);
 

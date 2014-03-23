@@ -1594,7 +1594,7 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 			{
 				if(initV > 0 && initV <= FunctionLocalVars::NUM_LOCALS)
 				{
-					int &valPtr = curFunc ? curFunc->getLocal(initV) : const_cast<ERMInterpreter&>(*this).getFuncVars(0)->getLocal(initV); //retreive local var if in function or use global set otherwise
+					int &valPtr = curFunc ? curFunc->getLocal(initV) : const_cast<ERMInterpreter&>(*this).getFuncVars(0)->getLocal(initV); //retrieve local var if in function or use global set otherwise
 					if(retIt)
 						ret = IexpValStr(&valPtr);
 					else

@@ -200,7 +200,7 @@ int main(int argc, char** argv)
 #endif
 {
 #ifdef __APPLE__
-	// Correct working dir executable folder (not bundle folder) so we can use executable relative pathes
+	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
     std::string executablePath = argv[0];
     std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
     chdir(workDir.c_str());
@@ -386,7 +386,7 @@ int main(int argc, char** argv)
 			fileToStartFrom = vm["start"].as<std::string>();
 
 		if(fileToStartFrom.size() && boost::filesystem::exists(fileToStartFrom))
-			startGameFromFile(fileToStartFrom); //ommit pregame and start the game using settings from fiel
+			startGameFromFile(fileToStartFrom); //ommit pregame and start the game using settings from file
 		else
 		{
 			if(fileToStartFrom.size())

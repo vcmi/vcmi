@@ -137,7 +137,7 @@ void Queries::popQuery(PlayerColor player, QueryPtr query)
 
 	query->onRemoval(gh, player);
 
-	//Exposure on query below happens only if removal didnt trigger any new query
+	//Exposure on query below happens only if removal didn't trigger any new query
 	if(nextQuery && nextQuery == topQuery(player))
 	{
 		nextQuery->onExposure(gh, query);

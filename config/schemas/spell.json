@@ -172,7 +172,7 @@
 		},
 		"absoluteImmunity":{
 				 "$ref" : "#/definitions/flags",
-				 "description": "flags structure of bonus names. Any one of these bonus grants immunity, cant be negated"
+				 "description": "flags structure of bonus names. Any one of these bonus grants immunity, can't be negated"
 		},
 		"limit":{
 				 "$ref" : "#/definitions/flags",

@@ -170,7 +170,7 @@ public:
 	void endingTurn();
 	void aiTurnStarted();
 
-	void adjustActiveness(bool aiTurnStart); //should be called everytime at AI/human turn transition; blocks GUI during AI turn
+	void adjustActiveness(bool aiTurnStart); //should be called every time at AI/human turn transition; blocks GUI during AI turn
 	void tileLClicked(const int3 &mapPos);
 	void tileHovered(const int3 &mapPos);
 	void tileRClicked(const int3 &mapPos);

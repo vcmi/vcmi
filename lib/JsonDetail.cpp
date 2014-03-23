@@ -731,7 +731,7 @@ namespace
 		std::string additionalItemsCheck(Validation::ValidationData & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 		{
 			std::string errors;
-			// "items" is struct or empty (defaults to empty struct) - validation always successfull
+			// "items" is struct or empty (defaults to empty struct) - validation always successful
 			const JsonNode & items = baseSchema["items"];
 			if (items.getType() != JsonNode::DATA_VECTOR)
 				return "";

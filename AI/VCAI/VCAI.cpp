@@ -2070,7 +2070,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			{
 				for (auto hero : heroes)
 				{
-					if (q.quest->checkQuest(hero)) //veyr bad info - stacks can be split between multiple heroes :(
+					if (q.quest->checkQuest(hero)) //very bad info - stacks can be split between multiple heroes :(
 					{
 						striveToGoal (sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero)));
 						return;

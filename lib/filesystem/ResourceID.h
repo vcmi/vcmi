@@ -72,7 +72,7 @@ public:
 	ResourceID();
 
 	/**
-	 * Ctor. Can be used to create indentifier for resource loading using one parameter
+	 * Ctor. Can be used to create identifier for resource loading using one parameter
 	 *
 	 * @param fullName The resource name including extension.
 	 */

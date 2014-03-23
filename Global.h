@@ -25,7 +25,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #endif
 
 #if !defined(__clang__) && defined(__GNUC__) && (GCC_VERSION < 460)
-#  error VCMI requires at least gcc-4.6 for successfull compilation or clang-3.1. Please update your compiler
+#  error VCMI requires at least gcc-4.6 for successful compilation or clang-3.1. Please update your compiler
 #endif
 
 #if defined(__GNUC__) && (GCC_VERSION == 470 || GCC_VERSION == 471)

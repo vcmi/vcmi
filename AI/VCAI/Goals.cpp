@@ -265,7 +265,7 @@ TSubgoal Win::whatToDoToAchieve()
 					}
 					double ratio = 0;
 					// maybe make this check a bit more complex? For example:
-					// 0.75 -> dig randomly withing 3 tiles radius
+					// 0.75 -> dig randomly within 3 tiles radius
 					// 0.85 -> radius now 2 tiles
 					// 0.95 -> 1 tile radius, position is fully known
 					// AFAIK H3 AI does something like this

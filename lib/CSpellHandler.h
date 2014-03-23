@@ -167,7 +167,7 @@ private:
 	ETargetType targetType;
 
 	std::vector<Bonus::BonusType> immunities; //any of these grants immunity
-	std::vector<Bonus::BonusType> absoluteImmunities; //any of these grants immunity, cant be negated
+	std::vector<Bonus::BonusType> absoluteImmunities; //any of these grants immunity, can't be negated
 	std::vector<Bonus::BonusType> limiters; //all of them are required to be affected
 
 	///graphics related stuff

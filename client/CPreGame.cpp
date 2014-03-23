@@ -3561,7 +3561,7 @@ void CBonusSelection::updateBonusSelection()
 		case CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO:
 			{
 				auto superhero = ourCampaign->camp->scenarios[bonDescs[i].info2].strongestHero(PlayerColor(bonDescs[i].info1));
-				if (!superhero) logGlobal->warnStream() << "No superhero! How could it be transfered?";
+				if (!superhero) logGlobal->warnStream() << "No superhero! How could it be transferred?";
 				picNumber = superhero ? superhero->portrait : 0;
 				desc = CGI->generaltexth->allTexts[719];
 
@@ -4185,7 +4185,7 @@ void CPrologEpilogVideo::show( SDL_Surface * to )
 	CSDL_Ext::fillRect(to, &pos, 0); // fill screen with black
 	//BUG: some videos are 800x600 in size while some are 800x400
 	//VCMI should center them in the middle of the screen. Possible but needs modification
-	//of video player API which I'd like to avoid untill we'll get rid of Windows-specific player
+	//of video player API which I'd like to avoid until we'll get rid of Windows-specific player
 	CCS->videoh->update(pos.x, pos.y, to, true, false);
 
 	//move text every 5 calls/frames; seems to be good enough

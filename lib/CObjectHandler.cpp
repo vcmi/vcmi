@@ -4714,7 +4714,7 @@ void CGSeerHut::setObjToKill()
 {
 	if (quest->missionType == CQuest::MISSION_KILL_CREATURE)
 	{
-		quest->stackToKill = getCreatureToKill(false)->getStack(SlotID(0)); //FIXME: stacks tend to dissapear (desync?) on server :?
+		quest->stackToKill = getCreatureToKill(false)->getStack(SlotID(0)); //FIXME: stacks tend to disappear (desync?) on server :?
 		assert(quest->stackToKill.type);
 		quest->stackToKill.count = 0; //no count in info window
 		quest->stackDirection = checkDirection();
@@ -5353,7 +5353,7 @@ std::vector<int3> CGMagicSpring::getVisitableOffsets() const
 
 int3 CGMagicSpring::getVisitableOffset() const
 {
-	//FIXME: this also shoudl stop AI from passing through already visited spring, is that ok?
+	//FIXME: this also should stop AI from passing through already visited spring, is that ok?
 	auto visitableTiles = getVisitableOffsets();
 
 	if (visitableTiles.size() < 2)
@@ -5366,7 +5366,7 @@ int3 CGMagicSpring::getVisitableOffset() const
 	else
 	{
 		if (visitedTile == RIGHT)
-			return visitableTiles[0]; //visit teh other one now
+			return visitableTiles[0]; //visit the other one now
 		else if (visitedTile == LEFT)
 			return visitableTiles[1];
 		else

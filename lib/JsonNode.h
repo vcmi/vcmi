@@ -196,7 +196,7 @@ namespace JsonUtils
 
 namespace JsonDetail
 {
-	// convertion helpers for JsonNode::convertTo (partial template function instantiation is illegal in c++)
+	// conversion helpers for JsonNode::convertTo (partial template function instantiation is illegal in c++)
 
 	template <typename T, int arithm> 
 	struct JsonConvImpl;

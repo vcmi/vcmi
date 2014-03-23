@@ -622,7 +622,7 @@ std::string CCreatureWindow::skillToFile (int skill)
 			if (upgradeOptions.size() && upgradeOptions[selectedOption] == skill)//that one specific skill is selected
 				sufix += "="; //level-up highlight
 			else if (!vstd::contains(upgradeOptions, skill))
-				sufix = "no"; //not avaliable - no number
+				sufix = "no"; //not available - no number
 		}
 		file += sufix += ".bmp";
 

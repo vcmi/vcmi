@@ -37,7 +37,7 @@ More info at http://wiki.vcmi.eu/index.php?title=Adventure_AI
 * Fixed (common) issue when AI found neutral stacks infinitely strong.
 * Improvements for army exchange criteria.
 * GatherArmy may include building dwellings in town (experimental).
-* AI should now conquer map more agressively and much faster
+* AI should now conquer map more aggressively and much faster
 * Fuzzy rules will be printed out at map launch (if AI log is enabled)
 
 CAMPAIGNS:
@@ -160,7 +160,7 @@ MODS:
 * Extended usefulness of ONLY_DISTANCE_FIGHT, ONLY_MELEE_FIGHT ranges
 * Double growth creatures are configurable now
 * Drain Life now has % effect depending on bonus value
-* Stack can use more than 2 attacks. Additional attacks can now be seperated as "ONLY_MELEE_FIGHT and "ONLY_DISTANCE_FIGHT".
+* Stack can use more than 2 attacks. Additional attacks can now be separated as "ONLY_MELEE_FIGHT and "ONLY_DISTANCE_FIGHT".
 * Moat damage configurable
 * More config options for spells:
  - mind immunity handled by config
@@ -627,7 +627,7 @@ BATTLES:
 * 'Q' pressing toggles the stack queue displaying (so it can be enabled/disabled it with single key press)
 * more creatures special abilities supported
 * battle settings will be stored
-* fixed crashes occuring on attacking two hex creatures from back
+* fixed crashes occurring on attacking two hex creatures from back
 * fixed crash when clicking on enemy stack without moving mouse just after receiving action
 * even large stack numbers will fit the boxes
 * when active stack is killed by spell, game behaves properly
@@ -660,7 +660,7 @@ TOWNS:
 * enemy castle can be taken over
 * only one capitol per player allowed (additional ones will be lost)
 * garrisoned hero can buy a spellbook
-* heroes available in tavern sould be always different
+* heroes available in tavern should be always different
 * ship bought in town will be correctly placed
 * new special town structures supported:
 - Lookout Tower
@@ -676,7 +676,7 @@ PREGAME:
 * advanced options tab: r-click popups for selected town, hero and bonus
 * starting scenario / game by double click
 * arrows in options tab are hidden when not available 
-* subtitles for choosen hero/town/bonus in pregame
+* subtitles for chosen hero/town/bonus in pregame
 
 OBJECTS:
 * fixed pairing Subterranean Gates
@@ -923,7 +923,7 @@ TOWN INTERFACE:
 * cannot build shipyard if town is not near water
 * Rampart's Treasury requires Miner's Guild 
 * minor improvements in Recruitment Window
-* fixed crash occuring when clicking on hero portrait in Tavern Window, minor improvements for Tavern Window
+* fixed crash occurring when clicking on hero portrait in Tavern Window, minor improvements for Tavern Window
 * proper updating resdatabar after building structure in town or buying creatures (non 800x600 res)
 * fixed blinking resdatabar in town screen when buying (800x600) 
 * fixed horde buildings displaying in town hall
@@ -965,7 +965,7 @@ GENERAL:
 * partial support for new screen resolutions
 * it's possible to set game resolution in pregame (type 'resolution' in the console) 
 * /Data and /Sprites subfolders can be used for adding files not present in .lod archives
-* fixed crashbug occuring when hero levelled above 15 level
+* fixed crashbug occurring when hero levelled above 15 level
 * support for non-standard screen resolutions
 * F4 toggles between full-screen and windowed mode
 * minor improvements in creature card window
@@ -1204,7 +1204,7 @@ Bugfixes:
 * partially done attacking in battles
 * screen isn't now refreshed while blitting creature info window
 * r-click creature info windows in battles
-* no more divison by 0 in slider
+* no more division by 0 in slider
 * "plural" reference names for Conflux creatures (starting armies of Conflux heroes should now be working)
 * fixed estate problems
 * fixed blinking mana vortex
@@ -1247,7 +1247,7 @@ Battles:
 * starting battles
 * displaying terrain, animations of heroes, units, grid, range of units, battle menu with console, amounts of units in stacks
 * leaving battle by pressing flee button
-* moving units in battles and displaying thier ranges
+* moving units in battles and displaying their ranges
 * defend command for units
 General:
 * a number of minor fixes and improvements

@@ -127,7 +127,7 @@ static bool extractCurrent(unzFile file, std::ostream & where)
 		if (readSize == 0) // end-of-file. Also performs CRC check
 			return unzCloseCurrentFile(file) == UNZ_OK;
 
-		if (readSize > 0) // successfull read
+		if (readSize > 0) // successful read
 		{
 			where.write(buffer.data(), readSize);
 			if (!where.good())

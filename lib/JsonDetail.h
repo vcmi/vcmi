@@ -89,7 +89,7 @@ public:
 	/// do actual parsing. filename is name of file that will printed to console if any errors were found
 	JsonNode parse(std::string fileName);
 
-	/// returns true if parsing was successfull
+	/// returns true if parsing was successful
 	bool isValid();
 };
 

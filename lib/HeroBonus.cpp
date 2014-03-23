@@ -505,7 +505,7 @@ ui32 IBonusBearer::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
 bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
 {
 	std::stringstream cachingStr;
-	cachingStr << "type_" << Bonus::UNDEAD << "s_-1Otype_" << Bonus::NON_LIVING << "s_-11type_" << Bonus::SIEGE_WEAPON; //I don't relaly get what string labels mean?
+	cachingStr << "type_" << Bonus::UNDEAD << "s_-1Otype_" << Bonus::NON_LIVING << "s_-11type_" << Bonus::SIEGE_WEAPON; //I don't really get what string labels mean?
 	return !hasBonus(Selector::type(Bonus::UNDEAD)
 					.Or(Selector::type(Bonus::NON_LIVING))
 					.Or(Selector::type(Bonus::SIEGE_WEAPON)), cachingStr.str());
@@ -1327,7 +1327,7 @@ Bonus * Bonus::addLimiter(TLimiterPtr Limiter)
 {
 	if (limiter)
 	{
-		//If we already have limiter list, retreive it
+		//If we already have limiter list, retrieve it
 		auto limiterList = std::dynamic_pointer_cast<LimiterList>(limiter);
 		if(!limiterList)
 		{

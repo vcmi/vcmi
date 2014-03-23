@@ -379,7 +379,7 @@ void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string 
 				});
 				break;
 			default:
-                logGlobal->errorStream() << "Error! Wrong indentifier used for value of " << name;
+                logGlobal->errorStream() << "Error! Wrong identifier used for value of " << name;
 		}
 	}
 }
@@ -398,7 +398,7 @@ void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
 			});
 			break;
 		default:
-            logGlobal->errorStream() << "Error! Wrong indentifier used for identifier!";
+            logGlobal->errorStream() << "Error! Wrong identifier used for identifier!";
 	}
 }
 

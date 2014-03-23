@@ -3312,18 +3312,18 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 		CusomCreature cc;
 		cc.id = n["id"].Float();
 
-#define retreive(name)								\
+#define retrieve(name)								\
 	if(n[ #name ].getType() == JsonNode::DATA_FLOAT)\
 	cc.name = n[ #name ].Float();			\
 	else											\
 	cc.name = -1;
 
-		retreive(attack);
-		retreive(defense);
-		retreive(HP);
-		retreive(dmg);
-		retreive(shoots);
-		retreive(speed);
+		retrieve(attack);
+		retrieve(defense);
+		retrieve(HP);
+		retrieve(dmg);
+		retrieve(shoots);
+		retrieve(speed);
 		ret.creatures.push_back(cc);
 	}
 

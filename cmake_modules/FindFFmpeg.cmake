@@ -7,7 +7,7 @@
 #  FFMPEG_LIBRARIES     - Link these to use the required ffmpeg components.
 #  FFMPEG_DEFINITIONS   - Compiler switches required for using the required ffmpeg components.
 #
-# For each of the components it will additionaly set.
+# For each of the components it will additionally set.
 #   - AVCODEC
 #   - AVDEVICE
 #   - AVFORMAT

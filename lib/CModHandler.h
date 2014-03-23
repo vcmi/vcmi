@@ -112,7 +112,7 @@ class CContentHandler
 		ContentTypeHandler(IHandlerBase * handler, std::string objectName);
 
 		/// local version of methods in ContentHandler
-		/// returns true if loading was successfull
+		/// returns true if loading was successful
 		bool preloadModData(std::string modName, std::vector<std::string> fileList, bool validate);
 		bool loadMod(std::string modName, bool validate);
 		void afterLoadFinalization();

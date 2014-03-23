@@ -1242,7 +1242,7 @@ std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const 
 		if(boost::logic::indeterminate(attackerOwned) || atG->attackerOwned == attackerOwned)
 		{
 			if (reachability.isReachable(g))
-			//FIXME: hexes occupied by enemy stack are not accessible. Need to use BattleInfo::getPath or similiar
+			//FIXME: hexes occupied by enemy stack are not accessible. Need to use BattleInfo::getPath or similar
 			{
 				DistStack hlp = {reachability.distances[reachability.predecessors[g]], atG};
 				stackPairs.push_back(hlp);
@@ -1872,7 +1872,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 			{
 				switch (obstacle->obstacleType)
 				{
-				case CObstacleInstance::ABSOLUTE_OBSTACLE: //cliff-like obstacles cant be removed
+				case CObstacleInstance::ABSOLUTE_OBSTACLE: //cliff-like obstacles can't be removed
 				case CObstacleInstance::MOAT:
 					return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 				case CObstacleInstance::USUAL:
