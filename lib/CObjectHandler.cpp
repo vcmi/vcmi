@@ -947,7 +947,7 @@ void CGHeroInstance::initObj()
 {
 	blockVisit = true;
 	auto  hs = new HeroSpecial();
-	hs->setNodeType(CBonusSystemNode::specialty);
+	hs->setNodeType(CBonusSystemNode::SPECIALTY);
 	attachTo(hs); //do we ever need to detach it?
 
 	if(!type)
@@ -1137,7 +1137,7 @@ void CGHeroInstance::initObj()
 		auto  hs = new HeroSpecial();
 		attachTo(hs); //do we ever need to detach it?
 
-		hs->setNodeType(CBonusSystemNode::specialty);
+		hs->setNodeType(CBonusSystemNode::SPECIALTY);
 		for (auto bonus : hs2.bonuses)
 		{
 			hs->addNewBonus (bonus);

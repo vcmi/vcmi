@@ -374,11 +374,9 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 
 	erase_if_present(visitableObjs, obj);
 	erase_if_present(alreadyVisited, obj);
-	erase_if_present(reservedObjs, obj);
 
-
-	for(auto &p : reservedHeroesMap)
-		erase_if_present(p.second, obj);
+	for (auto h : cb->getHeroesInfo())
+		unreserveObject(h, obj);
 
 	//TODO
 	//there are other places where CGObjectinstance ptrs are stored...

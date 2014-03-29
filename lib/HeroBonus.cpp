@@ -67,7 +67,9 @@ const std::map<std::string, TPropagatorPtr> bonusPropagatorMap = boost::assign::
 	("BATTLE_WIDE", make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE))
 	("VISITED_TOWN_AND_VISITOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::TOWN_AND_VISITOR))
 	("PLAYER_PROPAGATOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::PLAYER))
-	("HERO", make_shared<CPropagatorNodeType>(CBonusSystemNode::HERO));
+	("HERO", make_shared<CPropagatorNodeType>(CBonusSystemNode::HERO))
+	("TEAM_PROPAGATOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::TEAM)) //untested
+	("GLOBAL_EFFECT", make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)); //untested
 
 
 #define BONUS_LOG_LINE(x) logBonus->traceStream() << x

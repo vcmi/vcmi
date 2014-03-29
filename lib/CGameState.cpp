@@ -739,6 +739,7 @@ CGameState::CGameState()
 	registerTypesClientPacks2(*applierGs);
 	//objCaller = new CObjectCallersHandler;
 	globalEffects.setDescription("Global effects");
+	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
 }
 
 CGameState::~CGameState()
