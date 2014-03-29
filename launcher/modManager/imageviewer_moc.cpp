@@ -2,8 +2,8 @@
 
 #include <QDesktopWidget>
 
-#include "imageviewer.h"
-#include "ui_imageviewer.h"
+#include "imageviewer_moc.h"
+#include "ui_imageviewer_moc.h"
 
 ImageViewer::ImageViewer(QWidget *parent) :
     QDialog(parent),

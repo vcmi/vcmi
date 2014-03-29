@@ -10,7 +10,7 @@ set(launcher_modmanager_SRCS
 	modManager/cmodlistmodel_moc.cpp
 	modManager/cmodlistview_moc.cpp
 	modManager/cmodmanager.cpp
-	modManager/imageviewer.cpp
+	modManager/imageviewer_moc.cpp
 )
 
 set(launcher_settingsview_SRCS
@@ -29,7 +29,7 @@ set(launcher_SRCS
 
 set(launcher_FORMS
 	modManager/cmodlistview_moc.ui
-	modManager/imageviewer.ui
+	modManager/imageviewer_moc.ui
 	settingsView/csettingsview_moc.ui
 	mainwindow_moc.ui
 )

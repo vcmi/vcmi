@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "cmodlistview_moc.h"
 #include "ui_cmodlistview_moc.h"
-#include "imageviewer.h"
+#include "imageviewer_moc.h"
 
 #include <QJsonArray>
 #include <QCryptographicHash>
