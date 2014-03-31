@@ -2094,6 +2094,7 @@ void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<i
 	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
 
+	//vec.reserve(8); //optimization
 	for (auto & dir : dirs)
 	{
 		const int3 hlp = tile + dir;
@@ -2171,6 +2172,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	if(checkLast  &&  left > 0  &&  remainingMovePoints-ret < 250) //it might be the last tile - if no further move possible we take all move points
 	{
 		std::vector<int3> vec;
+		vec.reserve(8); //optimization
         getNeighbours(d, dest, vec, s.terType != ETerrainType::WATER, true);
 		for(auto & elem : vec)
 		{
@@ -2286,7 +2288,7 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 				{
 					for (CGObjectInstance* obj : tile.visitableObjects)
 					{
-						if (obj->ID == Obj::MONSTER  &&  checkForVisitableDir(pos, &map->getTile(originalPos), originalPos)) // Monster being able to attack investigated tile
+						if (obj->ID == Obj::MONSTER  &&  checkForVisitableDir(pos, &posTile, originalPos)) // Monster being able to attack investigated tile
 						{
 							return pos;
 						}
