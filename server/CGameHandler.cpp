@@ -1666,7 +1666,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, Pl
 	}
 
 	const TerrainTile t = *gs->getTile(hmpos);
-	const int cost = gs->getMovementCost(h, h->getPosition(), hmpos, h->movement);
+	const int cost = gs->getMovementCost(h, h->getPosition(), hmpos, h->hasBonusOfType(Bonus::FLYING_MOVEMENT), h->movement);
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
 	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::BOAT;

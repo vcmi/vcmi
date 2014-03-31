@@ -1252,6 +1252,7 @@ bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
 
 void VCAI::wander(HeroPtr h)
 {
+	cb->setSelection(*h);
 	//unclaim objects that are now dangerous for us
 	auto reservedObjsSetCopy = reservedHeroesMap[h];
 	for (auto obj : reservedObjsSetCopy)
@@ -2189,7 +2190,6 @@ void VCAI::performTypicalActions()
 	{
         logAi->debugStream() << boost::format("Looking into %s, MP=%d") % h->name.c_str() % h->movement;
 		makePossibleUpgrades(*h);
-		cb->setSelection(*h);
 		try
 		{
 			wander(h);

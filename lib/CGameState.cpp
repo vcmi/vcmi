@@ -2127,7 +2127,7 @@ void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<i
 	}
 }
 
-int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, int remainingMovePoints, bool checkLast)
+int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, bool flying, int remainingMovePoints, bool checkLast)
 {
 	if(src == dest) //same tile
 		return 0;
@@ -2138,7 +2138,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	//get basic cost
 	int ret = h->getTileCost(d,s);
 
-	if(d.blocked && h->hasBonusOfType(Bonus::FLYING_MOVEMENT))
+	if(d.blocked && flying)
 	{
 		bool freeFlying = h->getBonusesCount(Selector::typeSubtype(Bonus::FLYING_MOVEMENT, 1)) > 0;
 
@@ -2174,7 +2174,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
         getNeighbours(d, dest, vec, s.terType != ETerrainType::WATER, true);
 		for(auto & elem : vec)
 		{
-			int fcost = getMovementCost(h,dest,elem,left,false);
+			int fcost = getMovementCost(h,dest, elem, flying, left, false);
 			if(fcost <= left)
 			{
 				return ret;
@@ -3369,6 +3369,14 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 		src = hero->getPosition(false);
 	if(movement < 0)
 		movement = hero->movement;
+	bool flying = hero->hasBonusOfType(Bonus::FLYING_MOVEMENT);
+	int maxMovePointsLand = hero->maxMovePoints(true);
+	int maxMovePointsWater = hero->maxMovePoints(false);
+
+	auto maxMovePoints = [&](CGPathNode *cp) -> int
+	{
+		return cp->land ? maxMovePointsLand : maxMovePointsWater;
+	};
 
 	out.hero = hero;
 	out.hpos = src;
@@ -3402,7 +3410,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 		int movement = cp->moveRemains, turn = cp->turns;
 		if(!movement)
 		{
-			movement = hero->maxMovePoints(cp->land);
+			movement = maxMovePoints(cp);
 			turn++;
 		}
 
@@ -3454,7 +3462,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
             if(cp->accessible == CGPathNode::VISITABLE && guardedSource && cp->theNodeBefore->land && ct->topVisitableId() == Obj::BOAT)
 				guardedSource = false;
 
-			int cost = gs->getMovementCost(hero, cp->coord, dp->coord, movement);
+			int cost = gs->getMovementCost(hero, cp->coord, dp->coord, flying, movement);
 
 			//special case -> moving from src Subterranean gate to dest gate -> it's free
 			if(subterraneanEntry && destTopVisObjID == Obj::SUBTERRANEAN_GATE && cp->coord.z != dp->coord.z)
@@ -3472,8 +3480,8 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 			{
 				//occurs rarely, when hero with low movepoints tries to leave the road
 				turnAtNextTile++;
-				int moveAtNextTile = hero->maxMovePoints(cp->land);
-				cost = gs->getMovementCost(hero, cp->coord, dp->coord, moveAtNextTile); //cost must be updated, movement points changed :(
+				int moveAtNextTile = maxMovePoints(cp);
+				cost = gs->getMovementCost(hero, cp->coord, dp->coord, flying, moveAtNextTile); //cost must be updated, movement points changed :(
 				remains = moveAtNextTile - cost;
 			}
 

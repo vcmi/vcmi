@@ -353,7 +353,7 @@ bool CCallback::getPath2( int3 dest, CGPath &ret )
 
 int CCallback::getMovementCost(const CGHeroInstance * hero, int3 dest)
 {
-	return gs->getMovementCost(hero, hero->visitablePos(), dest, hero->movement);
+	return gs->getMovementCost(hero, hero->visitablePos(), dest, hero->hasBonusOfType (Bonus::FLYING_MOVEMENT), hero->movement);
 }
 
 void CCallback::recalculatePaths()

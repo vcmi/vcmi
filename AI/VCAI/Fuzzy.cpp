@@ -319,6 +319,13 @@ Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
 	if (vec.empty()) //no possibilities found
 		return sptr(Goals::Invalid());
 
+	//a trick to switch between heroes less often - calculatePaths is costly
+	auto sortByHeroes = [](const Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
+	{
+		return lhs->hero.h < rhs->hero.h;
+	};
+	boost::sort (vec, sortByHeroes);
+
 	for (auto g : vec)
 	{
 		setPriority(g);
@@ -328,8 +335,8 @@ Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
 	{
 		return lhs->priority < rhs->priority;
 	};
-
 	boost::sort (vec, compareGoals);
+
 	return vec.back();
 }
 
