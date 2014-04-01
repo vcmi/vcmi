@@ -102,7 +102,7 @@ struct SectorMap
 	SectorMap(HeroPtr h);
 	void update();
 	void clear();
-	void exploreNewSector(crint3 pos, int num);
+	void exploreNewSector(crint3 pos, int num, CCallback * cbp);
 	void write(crstring fname);
 
 	unsigned char &retreiveTile(crint3 pos);

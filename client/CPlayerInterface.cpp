@@ -1344,7 +1344,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 				stillMoveHero.data = WAITING_MOVE;
 
 				int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
-				bool guarded = CGI->mh->map->isInTheMap(cb->guardingCreaturePosition(endpos - int3(1, 0, 0)));
+				bool guarded = CGI->mh->map->isInTheMap(cb->getGuardingCreaturePosition(endpos - int3(1, 0, 0)));
 
                 logGlobal->traceStream() << "Requesting hero movement to " << endpos;
 				cb->moveHero(h,endpos);

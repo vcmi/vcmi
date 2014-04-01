@@ -1279,7 +1279,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		}
 	}
 
-	const bool guardingCreature = CGI->mh->map->isInTheMap(LOCPLINT->cb->guardingCreaturePosition(mapPos));
+	const bool guardingCreature = CGI->mh->map->isInTheMap(LOCPLINT->cb->getGuardingCreaturePosition(mapPos));
 
 	if(selection->ID == Obj::TOWN)
 	{

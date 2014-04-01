@@ -175,9 +175,11 @@ void removeDuplicates(std::vector<T> &vec)
 
 std::string strFromInt3(int3 pos);
 void foreach_tile_pos(std::function<void(const int3& pos)> foo);
+void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3& pos)> foo); // avoid costly retrieval of thread-specific pointer
 void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo);
+void foreach_neighbour(CCallback * cbp, const int3 &pos, std::function<void(CCallback * cbp, const int3& pos)> foo); // avoid costly retrieval of thread-specific pointer
 
-int howManyTilesWillBeDiscovered(const int3 &pos, int radious);
+int howManyTilesWillBeDiscovered(const int3 &pos, int radious, CCallback * cbp);
 int howManyTilesWillBeDiscovered(int radious, int3 pos, crint3 dir);
 void getVisibleNeighbours(const std::vector<int3> &tiles, std::vector<int3> &out);
 
@@ -192,7 +194,7 @@ bool shouldVisit (HeroPtr h, const CGObjectInstance * obj);
 ui64 evaluateDanger(const CGObjectInstance *obj);
 ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor);
 bool isSafeToVisit(HeroPtr h, crint3 tile);
-bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2);
+bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2, CCallback * cbp);
 
 bool compareMovement(HeroPtr lhs, HeroPtr rhs);
 bool compareHeroStrength(HeroPtr h1, HeroPtr h2);

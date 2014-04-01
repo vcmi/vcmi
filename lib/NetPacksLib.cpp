@@ -380,6 +380,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 	}
 
 	gs->map->objects[id.getNum()].dellNull();
+	gs->map->calculateGuardingGreaturePositions();
 }
 
 static int getDir(int3 src, int3 dst)
@@ -613,6 +614,7 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 	gs->map->objects.push_back(o);
 	gs->map->addBlockVisTiles(o);
 	o->initObj();
+	gs->map->calculateGuardingGreaturePositions();
 
 	logGlobal->debugStream() << "added object id=" << id << "; address=" << (intptr_t)o << "; name=" << o->getHoverText();
 }

@@ -216,13 +216,18 @@ CMap::~CMap()
 {
 	if(terrain)
 	{
-		for(int ii=0;ii<width;ii++)
+		for (int i=0; i<width; i++)
 		{
-			for(int jj=0;jj<height;jj++)
-				delete [] terrain[ii][jj];
-			delete [] terrain[ii];
+			for(int j=0; j<height; j++)
+			{
+				delete [] terrain[i][j];
+				delete [] guardingCreaturePositions[i][j];
+			}
+			delete [] terrain[i];
+			delete [] guardingCreaturePositions[i];
 		}
 		delete [] terrain;
+		delete [] guardingCreaturePositions;
 	}
 }
 
@@ -280,6 +285,19 @@ void CMap::addBlockVisTiles(CGObjectInstance * obj)
 	}
 }
 
+void CMap::calculateGuardingGreaturePositions()
+{
+	int levels = twoLevel ? 2 : 1;
+	for (int i=0; i<width; i++)
+	{
+		for(int j=0; j<height; j++)
+		{
+			for (int k = 0; k < levels; k++)
+				guardingCreaturePositions[i][j][k] = guardingCreaturePosition(int3(i,j,k));
+		}
+	}
+}
+
 CGHeroInstance * CMap::getHero(int heroID)
 {
 	for(auto & elem : heroesOnMap)
@@ -316,6 +334,75 @@ const TerrainTile & CMap::getTile(const int3 & tile) const
 bool CMap::isWaterTile(const int3 &pos) const
 {
 	return isInTheMap(pos) && getTile(pos).terType == ETerrainType::WATER;
+}
+
+bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst ) const
+{
+	for(ui32 b=0; b<pom->visitableObjects.size(); ++b) //checking destination tile
+	{
+		if(!vstd::contains(pom->blockingObjects, pom->visitableObjects[b])) //this visitable object is not blocking, ignore
+			continue;
+
+		const CGObjectInstance * obj = pom->visitableObjects[b];
+
+		if (!obj->appearance.isVisitableFrom(src.x - dst.x, src.y - dst.y))
+			return false;
+	}
+	return true;
+}
+
+int3 CMap::guardingCreaturePosition (int3 pos) const
+{
+
+	const int3 originalPos = pos;
+	// Give monster at position priority.
+	if (!isInTheMap(pos))
+		return int3(-1, -1, -1);
+	const TerrainTile &posTile = getTile(pos);
+	if (posTile.visitable)
+	{
+		for (CGObjectInstance* obj : posTile.visitableObjects)
+		{
+			if(obj->blockVisit)
+			{
+				if (obj->ID == Obj::MONSTER) // Monster
+					return pos;
+				else
+					return int3(-1, -1, -1); //blockvis objects are not guarded by neighbouring creatures
+			}
+		}
+	}
+
+	// See if there are any monsters adjacent.
+	bool water = posTile.isWater();
+
+	pos -= int3(1, 1, 0); // Start with top left.
+	for (int dx = 0; dx < 3; dx++)
+	{
+		for (int dy = 0; dy < 3; dy++)
+		{
+			if (isInTheMap(pos))
+			{
+				const auto & tile = getTile(pos);
+                if (tile.visitable && (tile.isWater() == water))
+				{
+					for (CGObjectInstance* obj : tile.visitableObjects)
+					{
+						if (obj->ID == Obj::MONSTER  &&  checkForVisitableDir(pos, &posTile, originalPos)) // Monster being able to attack investigated tile
+						{
+							return pos;
+						}
+					}
+				}
+			}
+
+			pos.y++;
+		}
+		pos.y -= 3;
+		pos.x++;
+	}
+
+	return int3(-1, -1, -1);
 }
 
 const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, Obj::EObj type)
@@ -432,13 +519,17 @@ void CMap::addQuest(CGObjectInstance * quest)
 
 void CMap::initTerrain()
 {
+	int level = twoLevel ? 2 : 1;
 	terrain = new TerrainTile**[width];
-	for(int i = 0; i < width; ++i)
+	guardingCreaturePositions = new int3**[width];
+	for (int i = 0; i < width; ++i)
 	{
 		terrain[i] = new TerrainTile*[height];
-		for(int j = 0; j < height; ++j)
+		guardingCreaturePositions[i] = new int3*[height];
+		for (int j = 0; j < height; ++j)
 		{
-			terrain[i][j] = new TerrainTile[twoLevel ? 2 : 1];
+			terrain[i][j] = new TerrainTile[level];
+			guardingCreaturePositions[i][j] = new int3[level];
 		}
 	}
 }

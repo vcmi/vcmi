@@ -112,6 +112,7 @@ public:
 	virtual bool getPath2(int3 dest, CGPath &ret); //uses main, client pathfinder info
 	virtual bool canMoveBetween(const int3 &a, const int3 &b);
 	virtual int getMovementCost(const CGHeroInstance * hero, int3 dest);
+	virtual int3 getGuardingCreaturePosition(int3 tile); //uses main, client pathfinder info
 
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1);
 	virtual void recalculatePaths(); //updates main, client pathfinder info (should be called when moving hero is over)

@@ -391,9 +391,12 @@ public:
 	const TerrainTile & getTile(const int3 & tile) const;
 	bool isInTheMap(const int3 & pos) const;
 	bool isWaterTile(const int3 & pos) const;
+	bool checkForVisitableDir( const int3 & src, const TerrainTile *pom, const int3 & dst ) const;
+	int3 guardingCreaturePosition (int3 pos) const;
 
 	void addBlockVisTiles(CGObjectInstance * obj);
 	void removeBlockVisTiles(CGObjectInstance * obj, bool total = false);
+	void calculateGuardingGreaturePositions();
 
 	void addNewArtifactInstance(CArtifactInstance * art);
 	void eraseArtifactInstance(CArtifactInstance * art);
@@ -433,6 +436,8 @@ public:
 
 	unique_ptr<CMapEditManager> editManager;
 
+	int3 ***guardingCreaturePositions;
+
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	TerrainTile*** terrain;
@@ -447,6 +452,7 @@ public:
 		h & questIdentifierToId;
 
 		//TODO: viccondetails
+		int level = twoLevel ? 2 : 1;
 		if(h.saving)
 		{
 			// Save terrain
@@ -454,9 +460,10 @@ public:
 			{
 				for(int j = 0; j < height ; ++j)
 				{
-					for(int k = 0; k < (twoLevel ? 2 : 1); ++k)
+					for(int k = 0; k < level; ++k)
 					{
 						h & terrain[i][j][k];
+						h & guardingCreaturePositions[i][j][k];
 					}
 				}
 			}
@@ -465,21 +472,25 @@ public:
 		{
 			// Load terrain
 			terrain = new TerrainTile**[width];
-			for(int ii = 0; ii < width; ++ii)
+			guardingCreaturePositions = new int3**[width];
+			for(int i = 0; i < width; ++i)
 			{
-				terrain[ii] = new TerrainTile*[height];
-				for(int jj = 0; jj < height; ++jj)
+				terrain[i] = new TerrainTile*[height];
+				guardingCreaturePositions[i] = new int3*[height];
+				for(int j = 0; j < height; ++j)
 				{
-					terrain[ii][jj] = new TerrainTile[twoLevel ? 2 : 1];
+					terrain[i][j] = new TerrainTile[level];
+					guardingCreaturePositions[i][j] = new int3[level];
 				}
 			}
 			for(int i = 0; i < width ; ++i)
 			{
 				for(int j = 0; j < height ; ++j)
 				{
-					for(int k = 0; k < (twoLevel ? 2 : 1); ++k)
+					for(int k = 0; k < level; ++k)
 					{
 						h & terrain[i][j][k];
+						h & guardingCreaturePositions[i][j][k];
 					}
 				}
 			}

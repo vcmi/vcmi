@@ -356,6 +356,17 @@ int CCallback::getMovementCost(const CGHeroInstance * hero, int3 dest)
 	return gs->getMovementCost(hero, hero->visitablePos(), dest, hero->hasBonusOfType (Bonus::FLYING_MOVEMENT), hero->movement);
 }
 
+int3 CCallback::getGuardingCreaturePosition(int3 tile)
+{
+	if (!gs->map->isInTheMap(tile))
+		return int3(-1,-1,-1);
+
+	validatePaths();
+
+	boost::unique_lock<boost::mutex> pathLock(cl->pathMx);
+	return gs->map->guardingCreaturePositions[tile.x][tile.y][tile.z];
+}
+
 void CCallback::recalculatePaths()
 {
 	cl->calculatePaths(cl->IGameCallback::getSelectedHero(*player));

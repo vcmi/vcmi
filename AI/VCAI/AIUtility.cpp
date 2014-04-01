@@ -135,6 +135,16 @@ void foreach_tile_pos(std::function<void(const int3& pos)> foo)
 
 }
 
+void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3& pos)> foo)
+{
+	int3 mapSize = cbp->getMapSize();
+
+	for(int i = 0; i < mapSize.x; i++)
+		for(int j = 0; j < mapSize.y; j++)
+			for(int k = 0; k < mapSize.z; k++)
+				foo(cbp, int3(i,j,k));
+}
+
 void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo)
 {
 	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
@@ -144,6 +154,16 @@ void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo
 		const int3 n = pos + dir;
 		if(cbp->isInTheMap(n))
 			foo(pos+dir);
+	}
+}
+
+void foreach_neighbour(CCallback * cbp, const int3 &pos, std::function<void(CCallback * cbp, const int3& pos)> foo)
+{
+	for(const int3 &dir : dirs)
+	{
+		const int3 n = pos + dir;
+		if(cbp->isInTheMap(n))
+			foo(cbp, pos+dir);
 	}
 }
 
@@ -180,7 +200,7 @@ ui64 evaluateDanger(crint3 tile)
 	if(visObjs.size())
 		objectDanger = evaluateDanger(visObjs.back());
 
-	int3 guardPos = cb->guardingCreaturePosition(tile);
+	int3 guardPos = cb->getGuardingCreaturePosition(tile);
 	if(guardPos.x >= 0 && guardPos != tile)
 		guardDanger = evaluateDanger(guardPos);
 
@@ -378,7 +398,7 @@ bool isBlockedBorderGate(int3 tileToHit)
 		&& cb->getPathInfo(tileToHit)->accessible != CGPathNode::ACCESSIBLE;
 }
 
-int howManyTilesWillBeDiscovered(const int3 &pos, int radious)
+int howManyTilesWillBeDiscovered(const int3 &pos, int radious, CCallback * cbp)
 { //TODO: do not explore dead-end boundaries
 	int ret = 0;
 	for(int x = pos.x - radious; x <= pos.x + radious; x++)
@@ -386,9 +406,9 @@ int howManyTilesWillBeDiscovered(const int3 &pos, int radious)
 		for(int y = pos.y - radious; y <= pos.y + radious; y++)
 		{
 			int3 npos = int3(x,y,pos.z);
-			if(cb->isInTheMap(npos) && pos.dist2d(npos) - 0.5 < radious  && !cb->isVisible(npos))
+			if(cbp->isInTheMap(npos) && pos.dist2d(npos) - 0.5 < radious  && !cbp->isVisible(npos))
 			{
-				if (!boundaryBetweenTwoPoints (pos, npos))
+				if (!boundaryBetweenTwoPoints (pos, npos, cbp))
 					ret++;
 			}
 		}
@@ -397,7 +417,7 @@ int howManyTilesWillBeDiscovered(const int3 &pos, int radious)
 	return ret;
 }
 
-bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2) //determines if two points are separated by known barrier
+bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2, CCallback * cbp) //determines if two points are separated by known barrier
 {
 	int xMin = std::min (pos1.x, pos2.x);
 	int xMax = std::max (pos1.x, pos2.x);
@@ -411,7 +431,7 @@ bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2) //determines if two points 
 			int3 tile = int3(x, y, pos1.z); //use only on same level, ofc
 			if (abs(pos1.dist2d(tile) - pos2.dist2d(tile)) < 1.5)
 			{
-				if (!(cb->isVisible(tile) && cb->getTile(tile)->blocked)) //if there's invisible or unblocked tile between, it's good
+				if (!(cbp->isVisible(tile) && cbp->getTile(tile)->blocked)) //if there's invisible or unblocked tile between, it's good
 					return false;
 			}
 		}
@@ -421,7 +441,7 @@ bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2) //determines if two points 
 
 int howManyTilesWillBeDiscovered(int radious, int3 pos, crint3 dir)
 {
-	return howManyTilesWillBeDiscovered(pos + dir, radious);
+	return howManyTilesWillBeDiscovered(pos + dir, radious, cb.get());
 }
 
 void getVisibleNeighbours(const std::vector<int3> &tiles, std::vector<int3> &out)

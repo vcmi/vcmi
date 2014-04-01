@@ -134,6 +134,7 @@ void CMapLoaderH3M::init()
             logGlobal->debugStream() << "\tReading " << mlt.name << " took " << mlt.time << " ms.";
 		}
 	}
+	map->calculateGuardingGreaturePositions();
 }
 
 void CMapLoaderH3M::readHeader()

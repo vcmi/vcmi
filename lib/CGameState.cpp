@@ -2237,7 +2237,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 				{
 					for (CGObjectInstance* obj : tile.visitableObjects)
 					{
-						if (obj->ID == Obj::MONSTER  &&  checkForVisitableDir(pos, &map->getTile(originalPos), originalPos)) // Monster being able to attack investigated tile
+						if (obj->ID == Obj::MONSTER  &&  map->checkForVisitableDir(pos, &map->getTile(originalPos), originalPos)) // Monster being able to attack investigated tile
 						{
 							guards.push_back(obj);
 						}
@@ -2256,53 +2256,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
-	const int3 originalPos = pos;
-	// Give monster at position priority.
-	if (!map->isInTheMap(pos))
-		return int3(-1, -1, -1);
-	const TerrainTile &posTile = map->getTile(pos);
-	if (posTile.visitable)
-	{
-		for (CGObjectInstance* obj : posTile.visitableObjects)
-		{
-			if(obj->blockVisit)
-			{
-				if (obj->ID == Obj::MONSTER) // Monster
-					return pos;
-				else
-					return int3(-1, -1, -1); //blockvis objects are not guarded by neighbouring creatures
-			}
-		}
-	}
-
-	// See if there are any monsters adjacent.
-	pos -= int3(1, 1, 0); // Start with top left.
-	for (int dx = 0; dx < 3; dx++)
-	{
-		for (int dy = 0; dy < 3; dy++)
-		{
-			if (map->isInTheMap(pos))
-			{
-				const auto & tile = map->getTile(pos);
-                if (tile.visitable && (tile.isWater() == posTile.isWater()))
-				{
-					for (CGObjectInstance* obj : tile.visitableObjects)
-					{
-						if (obj->ID == Obj::MONSTER  &&  checkForVisitableDir(pos, &posTile, originalPos)) // Monster being able to attack investigated tile
-						{
-							return pos;
-						}
-					}
-				}
-			}
-
-			pos.y++;
-		}
-		pos.y -= 3;
-		pos.x++;
-	}
-
-	return int3(-1, -1, -1);
+	return gs->map->guardingCreaturePositions[pos.x][pos.y][pos.z];
 }
 
 bool CGameState::isVisible(int3 pos, PlayerColor player)
@@ -2338,22 +2292,7 @@ bool CGameState::isVisible( const CGObjectInstance *obj, boost::optional<PlayerC
 bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
 {
 	const TerrainTile * pom = &map->getTile(dst);
-	return checkForVisitableDir(src, pom, dst);
-}
-
-bool CGameState::checkForVisitableDir( const int3 & src, const TerrainTile *pom, const int3 & dst ) const
-{
-	for(ui32 b=0; b<pom->visitableObjects.size(); ++b) //checking destination tile
-	{
-		if(!vstd::contains(pom->blockingObjects, pom->visitableObjects[b])) //this visitable object is not blocking, ignore
-			continue;
-
-		const CGObjectInstance * obj = pom->visitableObjects[b];
-
-		if (!obj->appearance.isVisitableFrom(src.x - dst.x, src.y - dst.y))
-			return false;
-	}
-	return true;
+	return map->checkForVisitableDir(src, pom, dst);
 }
 
 EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(PlayerColor player) const
@@ -3350,6 +3289,7 @@ void CPathfinder::initializeGraph()
 				curPos = int3(i,j,k);
 				const TerrainTile *tinfo = &gs->map->getTile(int3(i, j, k));
 				CGPathNode &node = graph[i][j][k];
+
 				node.accessible = evaluateAccessibility(tinfo);
 				node.turns = 0xff;
 				node.moveRemains = 0;
@@ -3405,7 +3345,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 		cp = mq.front();
 		mq.pop_front();
 
-		const int3 sourceGuardPosition = guardingCreaturePosition(cp->coord);
+		const int3 sourceGuardPosition = gs->map->guardingCreaturePositions[cp->coord.x][cp->coord.y][cp->coord.z];
 		bool guardedSource = (sourceGuardPosition != int3(-1, -1, -1) && cp->coord != src);
 		ct = &gs->map->getTile(cp->coord);
 
@@ -3498,7 +3438,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 				dp->turns = turnAtNextTile;
 				dp->theNodeBefore = cp;
 
-				const bool guardedDst = guardingCreaturePosition(dp->coord) != int3(-1, -1, -1)
+				const bool guardedDst = gs->map->guardingCreaturePositions[dp->coord.x][dp->coord.y][dp->coord.z].valid()
 										&& dp->accessible == CGPathNode::BLOCKVIS;
 
 				if (dp->accessible == CGPathNode::ACCESSIBLE
@@ -3558,7 +3498,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 			}
 		}
 	}
-	else if (gs->map->isInTheMap(guardingCreaturePosition(curPos))
+	else if (gs->map->guardingCreaturePositions[curPos.x][curPos.y][curPos.z].valid()
 		&& !tinfo->blocked)
 	{
 		// Monster close by; blocked visit for battle.

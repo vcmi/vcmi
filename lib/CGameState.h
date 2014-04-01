@@ -431,7 +431,6 @@ public:
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
 	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
-	bool checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst) const; //check if src tile is visitable from dst tile
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 	int3 guardingCreaturePosition (int3 pos) const;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;

@@ -406,7 +406,7 @@ bool CGameInfoCallback::getTownInfo( const CGObjectInstance *town, InfoAboutTown
 	return true;
 }
 
-int3 CGameInfoCallback::guardingCreaturePosition (int3 pos) const
+int3 CGameInfoCallback::guardingCreaturePosition (int3 pos) const //FIXME: redundant?
 {
 	ERROR_RET_VAL_IF(!isVisible(pos), "Tile is not visible!", int3(-1,-1,-1));
 	return gs->guardingCreaturePosition(pos);

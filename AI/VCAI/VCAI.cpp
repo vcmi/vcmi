@@ -2245,9 +2245,11 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
 	tiles.resize(radius);
 
+	CCallback * cbp = cb.get();
+
 	foreach_tile_pos([&](const int3 &pos)
 	{
-		if(!cb->isVisible(pos))
+		if(!cbp->isVisible(pos))
 			tiles[0].push_back(pos);
 	});
 
@@ -2261,14 +2263,14 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 		for(const int3 &tile : tiles[i])
 		{
-			if (cb->getTile(tile)->blocked) //does it shorten the time?
+			if (cbp->getTile(tile)->blocked) //does it shorten the time?
 				continue;
-			if (!cb->getPathInfo(tile)->reachable()) //this will remove tiles that are guarded by monsters (or removable objects)
+			if (!cbp->getPathInfo(tile)->reachable()) //this will remove tiles that are guarded by monsters (or removable objects)
 				continue;
 
 			CGPath path;
-			cb->getPath2(tile, path);
-			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius) / (path.nodes.size() + 1); //+1 prevents erratic jumps
+			cbp->getPath2(tile, path);
+			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius, cbp) / (path.nodes.size() + 1); //+1 prevents erratic jumps
 
 			if (ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
 			{
@@ -2292,9 +2294,11 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
 	tiles.resize(radius);
 
+	CCallback * cbp = cb.get();
+
 	foreach_tile_pos([&](const int3 &pos)
 	{
-		if(!cb->isVisible(pos))
+		if(!cbp->isVisible(pos))
 			tiles[0].push_back(pos);
 	});
 
@@ -2308,9 +2312,9 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 
 		for(const int3 &tile : tiles[i])
 		{
-			if (cb->getTile(tile)->blocked) //does it shorten the time?
+			if (cbp->getTile(tile)->blocked) //does it shorten the time?
 				continue;
-			if (!howManyTilesWillBeDiscovered(tile, radius)) //avoid costly checks of tiles that don't reveal much
+			if (!howManyTilesWillBeDiscovered(tile, radius, cbp)) //avoid costly checks of tiles that don't reveal much
 				continue;
 
 			auto t = sm.firstTileToGet(h, tile);
@@ -2682,12 +2686,14 @@ void SectorMap::update()
 {
 	clear();
 	int curSector = 3; //0 is invisible, 1 is not explored
+
+	CCallback * cbp = cb.get(); //optimization
 	foreach_tile_pos([&](crint3 pos)
 	{
 		if(retreiveTile(pos) == NOT_CHECKED)
 		{
 			if(!markIfBlocked(retreiveTile(pos), pos))
-				exploreNewSector(pos, curSector++);
+				exploreNewSector(pos, curSector++, cbp);
 		}
 	});
 	valid = true;
@@ -2699,11 +2705,11 @@ void SectorMap::clear()
 	valid = false;
 }
 
-void SectorMap::exploreNewSector(crint3 pos, int num)
+void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 {
 	Sector &s = infoOnSectors[num];
 	s.id = num;
-	s.water = cb->getTile(pos)->isWater();
+	s.water = cbp->getTile(pos)->isWater();
 
 	std::queue<int3> toVisit;
 	toVisit.push(pos);
@@ -2714,21 +2720,21 @@ void SectorMap::exploreNewSector(crint3 pos, int num)
 		ui8 &sec = retreiveTile(curPos);
 		if(sec == NOT_CHECKED)
 		{
-			const TerrainTile *t = cb->getTile(curPos);
+			const TerrainTile *t = cbp->getTile(curPos);
 			if(!markIfBlocked(sec, curPos, t))
 			{
 				if(t->isWater() == s.water) //sector is only-water or only-land
 				{
 					sec = num;
 					s.tiles.push_back(curPos);
-					foreach_neighbour(curPos, [&](crint3 neighPos)
+					foreach_neighbour(cbp, curPos, [&](CCallback * cbp, crint3 neighPos)
 					{
 						if(retreiveTile(neighPos) == NOT_CHECKED)
 						{
 							toVisit.push(neighPos);
 							//parent[neighPos] = curPos;
 						}
-						const TerrainTile *nt = cb->getTile(neighPos, false);
+						const TerrainTile *nt = cbp->getTile(neighPos, false);
 						if(nt && nt->isWater() != s.water && canBeEmbarkmentPoint(nt))
 						{
 							s.embarkmentPoints.push_back(neighPos);
