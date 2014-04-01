@@ -210,6 +210,9 @@ public:
 	CLogFormatter();
 	CLogFormatter(const std::string & pattern);
 
+	CLogFormatter(const CLogFormatter & other);
+	CLogFormatter & operator=(const CLogFormatter & other);
+
 	void setPattern(const std::string & pattern);
 	const std::string & getPattern() const;
 
@@ -217,6 +220,7 @@ public:
 
 private:
 	std::string pattern;
+	mutable std::stringstream dateStream;
 };
 
 /// The interface ILogTarget is used by all log target implementations. It holds

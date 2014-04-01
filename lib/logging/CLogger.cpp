@@ -272,7 +272,8 @@ CLogger * CLogManager::getLogger(const CLoggerDomain & domain)
 
 CLogFormatter::CLogFormatter() : pattern("%m")
 {
-
+	boost::posix_time::time_facet * facet = new boost::posix_time::time_facet("%H:%M:%S");
+	dateStream.imbue(std::locale(dateStream.getloc(), facet));
 }
 
 CLogFormatter::CLogFormatter(const std::string & pattern)
@@ -280,16 +281,26 @@ CLogFormatter::CLogFormatter(const std::string & pattern)
 	setPattern(pattern);
 }
 
+CLogFormatter::CLogFormatter(const CLogFormatter & other)
+{
+	*this = other;
+}
+
+CLogFormatter & CLogFormatter::operator=(const CLogFormatter & other)
+{
+	pattern = other.pattern;
+	return *this;
+}
+
 std::string CLogFormatter::format(const LogRecord & record) const
 {
 	std::string message = pattern;
 
 	// Format date
-	std::stringstream dateStream;
-	boost::posix_time::time_facet * facet = new boost::posix_time::time_facet("%H:%M:%S");
-	dateStream.imbue(std::locale(dateStream.getloc(), facet));
+	dateStream.str(std::string());
+	dateStream.clear();
 	dateStream << record.timeStamp;
-	boost::algorithm::replace_all(message, "%d", dateStream.str());
+	boost::algorithm::replace_first(message, "%d", dateStream.str());
 
 	// Format log level
 	std::string level;
@@ -311,12 +322,12 @@ std::string CLogFormatter::format(const LogRecord & record) const
 		level = "ERROR";
 		break;
 	}
-	boost::algorithm::replace_all(message, "%l", level);
+	boost::algorithm::replace_first(message, "%l", level);
 
 	// Format name, thread id and message
-	boost::algorithm::replace_all(message, "%n", record.domain.getName());
-	boost::algorithm::replace_all(message, "%t", boost::lexical_cast<std::string>(record.threadId));
-	boost::algorithm::replace_all(message, "%m", record.message);
+	boost::algorithm::replace_first(message, "%n", record.domain.getName());
+	boost::algorithm::replace_first(message, "%t", boost::lexical_cast<std::string>(record.threadId));
+	boost::algorithm::replace_first(message, "%m", record.message);
 
 	return message;
 }
