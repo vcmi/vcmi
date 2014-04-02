@@ -83,7 +83,15 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 	try
 	{
 		// Load maps and json config
-		auto loader = new CFilesystemLoader("test/", ".");
+		
+		#if defined(__MINGW32__)
+		const std::string TEST_DATA_DIR = "test/"; 
+		#else
+		const std::string TEST_DATA_DIR = "."; 
+		#endif // defined
+		
+		
+		auto loader = new CFilesystemLoader("test/", TEST_DATA_DIR);
 		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
 		const auto originalMap = CMapService::loadMap("test/TerrainViewTest");
 		auto map = CMapService::loadMap("test/TerrainViewTest");

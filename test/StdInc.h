@@ -2,7 +2,7 @@
 
 #include "../Global.h"
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
 	#define BOOST_TEST_DYN_LINK
 #endif
 
