@@ -117,13 +117,13 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-						"crystals" :
+		        "crystals" :
 			{
 				"type" : "GENERATE_RESOURCE",
-				"subtype" : "resource.crystal"
+				"subtype" : "resource.crystal",
 				"val" : 1,
 				"propagator" : "HERO"
-			}
+			},
 			"FLYING_ARMY" : null
 		},
 		"graphics" :
