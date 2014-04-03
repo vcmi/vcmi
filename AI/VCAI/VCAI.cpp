@@ -2995,9 +2995,7 @@ For ship construction etc, another function (goal?) is needed
 							shipyards.push_back(t);
 					}
 
-					std::vector<const CGObjectInstance*> visObjs;
-					ai->retreiveVisitableObjs(visObjs, true);
-					for(const CGObjectInstance *obj : visObjs)
+					for(const CGObjectInstance *obj : ai->visitableObjs)
 					{
 						if(obj->ID != Obj::TOWN) //towns were handled in the previous loop
 							if(const IShipyard *shipyard = IShipyard::castFrom(obj))
