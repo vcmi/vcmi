@@ -1,0 +1,320 @@
+#pragma once
+
+#include "CObjectHandler.h"
+#include "NetPacksBase.h"
+
+/*
+ * CObjectWithReward.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
+/// Limiters of rewards. Rewards will be granted to hero only if he satisfies requirements
+/// Note: for this is only a test - it won't remove anything from hero (e.g. artifacts or creatures)
+/// NOTE: in future should (partially) replace seer hut/quest guard quests checks
+class DLL_LINKAGE CRewardLimiter
+{
+public:
+	/// how many times this reward can be granted, 0 for unlimited
+	si32 numOfGrants;
+
+	/// day of week, unused if 0, 1-7 will test for current day of week
+	si32 dayOfWeek;
+
+	/// level that hero needs to have
+	si32 minLevel;
+
+	/// resources player needs to have in order to trigger reward
+	TResources resources;
+
+	/// skills hero needs to have
+	std::vector<si32> primary;
+	std::map<SecondarySkill, si32> secondary;
+
+	/// artifacts that hero needs to have (equipped or in backpack) to trigger this
+	/// Note: does not checks for multiple copies of the same arts
+	std::vector<ArtifactID> artifacts;
+
+	/// creatures that hero needs to have
+	std::vector<CStackBasicDescriptor> creatures;
+
+	CRewardLimiter():
+		numOfGrants(1),
+		dayOfWeek(0),
+		minLevel(0)
+	{}
+
+	bool heroAllowed(const CGHeroInstance * hero) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & numOfGrants & dayOfWeek & minLevel & resources;
+		h & primary & secondary & artifacts & creatures;
+	}
+};
+
+/// Reward that can be granted to a hero
+/// NOTE: eventually should replace seer hut rewards and events/pandoras
+class DLL_LINKAGE CRewardInfo
+{
+public:
+	/// resources that will be given to player
+	TResources resources;
+
+	/// received experience
+	ui32 gainedExp;
+	/// received levels (converted into XP during grant)
+	ui32 gainedLevels;
+
+	/// mana given to/taken from hero, fixed value
+	si32 manaDiff;
+	/// fixed value, in form of percentage from max
+	si32 manaPercentage;
+
+	/// movement points, only for current day. Bonuses should be used to grant MP on any other day
+	si32 movePoints;
+	/// fixed value, in form of percentage from max
+	si32 movePercentage;
+
+	/// list of bonuses, e.g. morale/luck
+	std::vector<Bonus> bonuses;
+
+	/// skills that hero may receive or lose
+	std::vector<si32> primary;
+	std::map<SecondarySkill, si32> secondary;
+
+	/// objects that hero may receive
+	std::vector<ArtifactID> artifacts;
+	std::vector<SpellID> spells;
+	std::vector<CStackBasicDescriptor> creatures;
+
+	/// Generates list of components that describes reward
+	virtual void loadComponents(std::vector<Component> & comps) const;
+	Component getDisplayedComponent() const;
+
+	CRewardInfo() :
+		gainedExp(0),
+		gainedLevels(0),
+		manaDiff(0),
+		manaPercentage(-1),
+		movePoints(0),
+		movePercentage(-1)
+	{}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & resources;
+		h & gainedExp & gainedLevels & manaDiff & movePoints;
+		h & primary & secondary & bonuses;
+		h & artifacts & spells & creatures;
+	}
+};
+
+class CVisitInfo
+{
+public:
+	CRewardLimiter limiter;
+	CRewardInfo reward;
+
+	MetaString message;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & limiter & reward & message;
+	}
+};
+
+/// Base class that can handle granting rewards to visiting heroes.
+/// Inherits from CArmedInstance for proper trasfer of armies
+class DLL_LINKAGE CObjectWithReward : public CArmedInstance
+{
+	/// function that must be called if hero got level-up during grantReward call
+	void grantRewardAfterLevelup(const CVisitInfo & reward, const CGHeroInstance * hero) const;
+
+protected:
+	/// controls selection of reward granted to player
+	enum ESelectMode
+	{
+		SELECT_FIRST,  // first reward that matches limiters
+		SELECT_PLAYER, // player can select from all allowed rewards
+		SELECT_RANDOM  // reward will be selected from allowed randomly
+	};
+
+	enum EVisitMode
+	{
+		VISIT_UNLIMITED, // any number of times
+		VISIT_ONCE,      // only once, first to visit get all the rewards
+		VISIT_HERO,      // every hero can visit object once
+		VISIT_PLAYER     // every player can visit object once
+	};
+
+	/// filters list of visit info and returns rewards that can be granted to current hero
+	virtual std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const;
+
+	/// grants reward to hero
+	void grantReward(const CVisitInfo & reward, const CGHeroInstance * hero) const;
+
+	/// Rewars that can be granted by an object
+	std::vector<CVisitInfo> info;
+
+	/// How many times these rewards have been granted since last reset
+	std::vector<ui32> numOfGrants;
+
+	/// MetaString's that contain text for messages for specific situations
+	MetaString onGrant;
+	MetaString onVisited;
+	MetaString onEmpty;
+
+	/// sound that will be played alongside with *any* message
+	ui16 soundID;
+	/// how reward will be selected, uses ESelectMode enum
+	ui8 selectMode;
+	/// contols who can visit an object, uses EVisitMode enum
+	ui8 visitMode;
+	/// reward selected by player
+	ui16 selectedReward;
+
+	/// object visitability info will be reset each resetDuration days
+	ui16 resetDuration;
+
+public:
+	void setPropertyDer(ui8 what, ui32 val) override;
+	const std::string & getHoverText() const override;
+
+	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
+	bool wasVisited (PlayerColor player) const override;
+	bool wasVisited (const CGHeroInstance * h) const override;
+
+	/// gives reward to player or ask for choice in case of multiple rewards
+	void onHeroVisit(const CGHeroInstance *h) const override;
+
+	///possibly resets object state
+	void newTurn() const override;
+
+	/// gives second part of reward after hero level-ups for proper granting of spells/mana
+	void heroLevelUpDone(const CGHeroInstance *hero) const override;
+
+	/// applies player selection of reward
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+
+	/// function that will be called once reward is fully granted to hero
+	virtual void onRewardGiven(const CGHeroInstance * hero) const;
+
+	CObjectWithReward();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArmedInstance&>(*this);
+		h & info & numOfGrants;
+		h & onGrant & onVisited & onEmpty;
+		h & soundID & selectMode & selectedReward;
+	}
+};
+
+class DLL_LINKAGE CGPickable : public CObjectWithReward //campfire, treasure chest, Flotsam, Shipwreck Survivor, Sea Chest
+{
+public:
+	void initObj() override;
+	void onRewardGiven(const CGHeroInstance *hero) const;
+
+	CGPickable();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CObjectWithReward&>(*this);
+	}
+};
+
+class DLL_LINKAGE CGBonusingObject : public CObjectWithReward //objects giving bonuses to luck/morale/movement
+{
+public:
+	void initObj() override;
+
+	CGBonusingObject();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+	}
+};
+
+class DLL_LINKAGE CGOnceVisitable : public CObjectWithReward // wagon, corpse, lean to, warriors tomb
+{
+public:
+	void initObj() override;
+
+	CGOnceVisitable();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CObjectWithReward&>(*this);
+	}
+};
+
+class DLL_LINKAGE CGVisitableOPH : public CObjectWithReward //objects visitable only once per hero
+{
+public:
+	void initObj() override;
+
+	CGVisitableOPH();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CObjectWithReward&>(*this);
+	}
+};
+
+class DLL_LINKAGE CGVisitableOPW : public CObjectWithReward //objects visitable once per week
+{
+public:
+	void initObj() override;
+
+	CGVisitableOPW();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CObjectWithReward&>(*this);
+	}
+};
+
+///Special case - magic spring that has two separate visitable entrances
+class DLL_LINKAGE CGMagicSpring : public CGVisitableOPW
+{
+protected:
+	std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const override;
+
+public:
+	std::vector<int3> getVisitableOffsets() const;
+	int3 getVisitableOffset() const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGVisitableOPW&>(*this);
+	}
+};
+
+//TODO:
+
+// MAX
+// class DLL_LINKAGE CGPandoraBox : public CArmedInstance
+// class DLL_LINKAGE CGEvent : public CGPandoraBox  //event objects
+// class DLL_LINKAGE CGSeerHut : public CArmedInstance, public IQuestObject //army is used when giving reward
+// class DLL_LINKAGE CGQuestGuard : public CGSeerHut
+// class DLL_LINKAGE CBank : public CArmedInstance
+// class DLL_LINKAGE CGPyramid : public CBank
+
+// EXTRA
+// class DLL_LINKAGE COPWBonus : public CGTownBuilding
+// class DLL_LINKAGE CTownBonus : public CGTownBuilding
+// class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
+// class DLL_LINKAGE CGKeymasterTent : public CGKeys
+// class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
+
+// POSSIBLE
+// class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
+// class DLL_LINKAGE CGWitchHut : public CPlayersVisited
+// class DLL_LINKAGE CGScholar : public CGObjectInstance

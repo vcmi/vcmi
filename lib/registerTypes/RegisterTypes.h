@@ -5,6 +5,7 @@
 #include "../VCMI_Lib.h"
 #include "../CArtHandler.h"
 #include "../CObjectHandler.h"
+#include "../CObjectWithReward.h"
 #include "../CGameState.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
@@ -32,7 +33,6 @@ void registerTypesMapObjects1(Serializer &s)
 
 	// Non-armed objects
 	s.template registerType<CGObjectInstance, CGTeleport>();
-	s.template registerType<CGObjectInstance, CGPickable>();
 	s.template registerType<CGObjectInstance, CGSignBottle>();
 	s.template registerType<CGObjectInstance, CGScholar>();
 	s.template registerType<CGObjectInstance, CGBonusingObject>();
@@ -80,16 +80,16 @@ void registerTypesMapObjects2(Serializer &s)
 		s.template registerType<CGTownBuilding, CTownBonus>();
 			s.template registerType<CGTownBuilding, COPWBonus>();
 
-
-	s.template registerType<CGObjectInstance, CGVisitableOPH>();
-
-	s.template registerType<CGObjectInstance, CGVisitableOPW>();
-	s.template registerType<CGVisitableOPW, CGMagicSpring>();
+	s.template registerType<CGObjectInstance, CObjectWithReward>();
+		s.template registerType<CObjectWithReward, CGPickable>();
+		s.template registerType<CObjectWithReward, CGVisitableOPH>();
+		s.template registerType<CObjectWithReward, CGVisitableOPW>();
+		s.template registerType<CObjectWithReward, CGOnceVisitable>();
+			s.template registerType<CGVisitableOPW, CGMagicSpring>();
 
 	s.template registerType<CGObjectInstance, CPlayersVisited>();
 		s.template registerType<CPlayersVisited, CGWitchHut>();
 		s.template registerType<CPlayersVisited, CGShrine>();
-		s.template registerType<CPlayersVisited, CGOnceVisitable>();
 		s.template registerType<CPlayersVisited, CCartographer>();
 		s.template registerType<CPlayersVisited, CGObelisk>();
 

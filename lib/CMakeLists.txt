@@ -16,7 +16,7 @@ set(lib_SRCS
 		registerTypes/TypesClientPacks1.cpp
 		registerTypes/TypesClientPacks2.cpp
 		registerTypes/TypesMapObjects1.cpp
-                registerTypes/TypesMapObjects2.cpp
+		registerTypes/TypesMapObjects2.cpp
 		registerTypes/TypesPregamePacks.cpp
 		registerTypes/TypesServerPacks.cpp
 
@@ -68,6 +68,8 @@ set(lib_SRCS
 		CHeroHandler.cpp
 		CModHandler.cpp
 		CObstacleInstance.cpp
+		CObjectWithReward.cpp
+		CObjectWithReward.h
 		CSpellHandler.cpp
 		CThreadHelper.cpp
 		CTownHandler.cpp

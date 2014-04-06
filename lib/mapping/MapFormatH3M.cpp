@@ -21,6 +21,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../CObjectHandler.h"
+#include "../CObjectWithReward.h"
 #include "../CDefObjInfoHandler.h"
 #include "../VCMI_Lib.h"
 #include "../NetPacksBase.h"

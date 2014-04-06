@@ -3,6 +3,7 @@
 #include "Goals.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CObjectHandler.h"
+#include "../../lib/CObjectWithReward.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 

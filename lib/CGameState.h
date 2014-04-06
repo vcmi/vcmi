@@ -168,6 +168,7 @@ public:
 	ObjectInstanceID currentSelection; //id of hero/town, 0xffffffff if none
 	TeamID team;
 	TResources resources;
+	std::set<ObjectInstanceID> visitedObjects; // as a std::set, since most accesses here will be from visited status checks
 	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;
 	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > availableHeroes; //heroes available in taverns
@@ -184,7 +185,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color & human & currentSelection & team & resources & status;
-		h & heroes & towns & availableHeroes & dwellings;
+		h & heroes & towns & availableHeroes & dwellings & visitedObjects;
 		h & getBonusList(); //FIXME FIXME FIXME
 		h & status & daysWithoutCastle;
 		h & enteredLosingCheatCode & enteredWinningCheatCode;
