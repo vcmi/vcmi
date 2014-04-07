@@ -45,7 +45,8 @@ public:
 	CRewardLimiter():
 		numOfGrants(1),
 		dayOfWeek(0),
-		minLevel(0)
+		minLevel(0),
+		primary(4, 0)
 	{}
 
 	bool heroAllowed(const CGHeroInstance * hero) const;
@@ -102,7 +103,8 @@ public:
 		manaDiff(0),
 		manaPercentage(-1),
 		movePoints(0),
-		movePercentage(-1)
+		movePercentage(-1),
+		primary(4, 0)
 	{}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -120,7 +122,15 @@ public:
 	CRewardLimiter limiter;
 	CRewardInfo reward;
 
+	/// Message that will be displayed on granting of this reward, if not empty
 	MetaString message;
+
+	/// How many times this reward has been granted since last reset
+	si32 numOfGrants;
+
+	CVisitInfo():
+		numOfGrants(0)
+	{}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -160,9 +170,6 @@ protected:
 
 	/// Rewars that can be granted by an object
 	std::vector<CVisitInfo> info;
-
-	/// How many times these rewards have been granted since last reset
-	std::vector<ui32> numOfGrants;
 
 	/// MetaString's that contain text for messages for specific situations
 	MetaString onGrant;
@@ -209,7 +216,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & info & numOfGrants;
+		h & info;
 		h & onGrant & onVisited & onEmpty;
 		h & soundID & selectMode & selectedReward;
 	}

@@ -71,7 +71,7 @@ std::vector<ui32> CObjectWithReward::getAvailableRewards(const CGHeroInstance * 
 	{
 		const CVisitInfo & visit = info[i];
 
-		if (numOfGrants[i] < visit.limiter.numOfGrants && visit.limiter.heroAllowed(hero))
+		if (visit.numOfGrants < visit.limiter.numOfGrants && visit.limiter.heroAllowed(hero))
 		{
 			ret.push_back(i);
 		}
@@ -81,7 +81,7 @@ std::vector<ui32> CObjectWithReward::getAvailableRewards(const CGHeroInstance * 
 
 void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
 {
-	if (wasVisited(h))
+	if (!wasVisited(h))
 	{
 		auto rewards = getAvailableRewards(h);
 		switch (rewards.size())
@@ -252,7 +252,11 @@ bool CObjectWithReward::wasVisited (PlayerColor player) const
 		case VISIT_UNLIMITED:
 			return false;
 		case VISIT_ONCE:
-			return numOfGrants.empty() || *boost::range::max_element(numOfGrants) == 0;
+			for (auto & visit : info)
+			{
+				if (visit.numOfGrants != 0)
+					return true;
+			}
 		case VISIT_HERO:
 			return false;
 		case VISIT_PLAYER:
@@ -324,9 +328,12 @@ const std::string & CObjectWithReward::getHoverText() const
 {
 	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
 	hoverName = VLC->generaltexth->names[ID];
-	if(h && wasVisited(h))
+	if(visitMode != VISIT_UNLIMITED)
 	{
-		bool visited = h->hasBonusFrom(Bonus::OBJECT,ID);
+		bool visited = wasVisited(cb->getCurrentPlayer());
+		if (h)
+			visited |= wasVisited(h) || h->hasBonusFrom(Bonus::OBJECT,ID);
+
 		hoverName += " " + visitedTxt(visited);
 	}
 	return hoverName;
@@ -337,21 +344,27 @@ void CObjectWithReward::setPropertyDer(ui8 what, ui32 val)
 	switch (what)
 	{
 		case ObjProperty::REWARD_RESET:
-			numOfGrants.clear();
-			numOfGrants.resize(info.size(), 0);
+			for (auto & visit : info)
+				visit.numOfGrants = 0;
 			break;
 		case ObjProperty::REWARD_SELECT:
 			selectedReward = val;
 			break;
 		case ObjProperty::REWARD_ADD_VISITOR:
-			//cb->getHero(ObjectInstanceID(val))->visitedObjects.insert(ObjectInstanceID(ID));
+		{
+			//FIXME: Not sure if modifying another object here is a good idea
+			CGHeroInstance * hero = cb->gameState()->getHero(ObjectInstanceID(val));
+			assert(hero && hero->tempOwner.isValidPlayer());
+			hero->visitedObjects.insert(ObjectInstanceID(ID));
+			cb->gameState()->getPlayer(hero->tempOwner)->visitedObjects.insert(ObjectInstanceID(ID));
 			break;
+		}
 	}
 }
 
 void CObjectWithReward::newTurn() const
 {
-	if (cb->getDate(Date::DAY) % resetDuration == 0)
+	if (resetDuration != 0 && cb->getDate(Date::DAY) % resetDuration == 0)
 		cb->setObjProperty(id, ObjProperty::REWARD_RESET, 0);
 }
 
@@ -365,7 +378,6 @@ CObjectWithReward::CObjectWithReward():
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///               END OF CODE FOR COBJECTWITHREWARD AND RELATED CLASSES                         ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 /// Helper, selects random art class based on weights
 static int selectRandomArtClass(int treasure, int minor, int major, int relic)
@@ -973,7 +985,7 @@ int3 CGMagicSpring::getVisitableOffset() const
 
 	for (size_t i=0; i<visitableTiles.size(); i++)
 	{
-		if (numOfGrants[i] == 0)
+		if (info[i].numOfGrants == 0)
 			return visitableTiles[i];
 	}
 	return visitableTiles[0]; // return *something*. This is valid visitable tile but already used
@@ -984,7 +996,7 @@ std::vector<ui32> CGMagicSpring::getAvailableRewards(const CGHeroInstance * hero
 	auto tiles = getVisitableOffsets();
 	for (size_t i=0; i<tiles.size(); i++)
 	{
-		if (pos - tiles[i] == hero->getPosition() && numOfGrants[i] == 0)
+		if (pos - tiles[i] == hero->getPosition() && info[i].numOfGrants == 0)
 		{
 			return std::vector<ui32>(1, i);
 		}
