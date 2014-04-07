@@ -1,3 +1,7 @@
 *.dll
 *.exe
-/vcmi.workspace.layout
+*.depend
+*.o
+*.a
+*.res
+*.layout
