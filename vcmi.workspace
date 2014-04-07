@@ -26,5 +26,6 @@
 		<Project filename="AI/BattleAI/BattleAI.cbp">
 			<Depends filename="lib/VCMI_lib.cbp" />
 		</Project>
+		<Project filename="test/Test.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
