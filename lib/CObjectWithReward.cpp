@@ -39,18 +39,18 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 	if (!IObjectInterface::cb->getPlayer(hero->tempOwner)->resources.canAfford(resources))
 		return false;
 
-	if (hero->level < minLevel)
+	if (minLevel > hero->level)
 		return false;
 
 	for (size_t i=0; i<primary.size(); i++)
 	{
-		if (primary[i] < hero->getPrimSkillLevel(PrimarySkill::PrimarySkill(i)))
+		if (primary[i] > hero->getPrimSkillLevel(PrimarySkill::PrimarySkill(i)))
 			return false;
 	}
 
 	for (auto & skill : secondary)
 	{
-		if (skill.second < hero->getSecSkillLevel(skill.first))
+		if (skill.second > hero->getSecSkillLevel(skill.first))
 			return false;
 	}
 
@@ -98,6 +98,8 @@ void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
 			}
 			case 1: // one reward. Just give it with message
 			{
+				//FIXME: merge into grantReward call?
+				cb->setObjProperty(id, ObjProperty::REWARD_SELECT, rewards[0]);
 				grantReward(info[rewards[0]], h);
 				InfoWindow iw;
 				iw.player = h->tempOwner;
@@ -109,7 +111,7 @@ void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
 				break;
 			}
 			default: // multiple rewards. Let player select
-			{
+			{//TODO: implement various modes
 				BlockingDialog sd(false,true);
 				sd.player = h->tempOwner;
 				sd.soundID = soundID;
@@ -141,6 +143,7 @@ void CObjectWithReward::blockingDialogAnswered(const CGHeroInstance *hero, ui32 
 	if (answer > 0 && answer-1 < info.size())
 	{
 		auto list = getAvailableRewards(hero);
+		cb->setObjProperty(id, ObjProperty::REWARD_SELECT, list[answer - 1]);
 		grantReward(info[list[answer - 1]], hero);
 	}
 	else
@@ -161,6 +164,10 @@ void CObjectWithReward::grantReward(const CVisitInfo & info, const CGHeroInstanc
 	assert(stacks.empty());
 	assert(info.reward.creatures.size() <= GameConstants::ARMY_SIZE);
 	assert(!cb->isVisitCoveredByAnotherQuery(this, hero));
+
+	//FIXME: move somewhere?
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD, id, hero->id);
+	cb->sendAndApply(&cov);
 
 	cb->giveResources(hero->tempOwner, info.reward.resources);
 
@@ -349,16 +356,8 @@ void CObjectWithReward::setPropertyDer(ui8 what, ui32 val)
 			break;
 		case ObjProperty::REWARD_SELECT:
 			selectedReward = val;
+			info[val].numOfGrants++;
 			break;
-		case ObjProperty::REWARD_ADD_VISITOR:
-		{
-			//FIXME: Not sure if modifying another object here is a good idea
-			CGHeroInstance * hero = cb->gameState()->getHero(ObjectInstanceID(val));
-			assert(hero && hero->tempOwner.isValidPlayer());
-			hero->visitedObjects.insert(ObjectInstanceID(ID));
-			cb->gameState()->getPlayer(hero->tempOwner)->visitedObjects.insert(ObjectInstanceID(ID));
-			break;
-		}
 	}
 }
 

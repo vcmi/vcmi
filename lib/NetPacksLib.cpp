@@ -269,6 +269,23 @@ DLL_LINKAGE void ChangeObjPos::applyGs( CGameState *gs )
 	gs->map->addBlockVisTiles(obj);
 }
 
+DLL_LINKAGE void ChangeObjectVisitors::applyGs( CGameState *gs )
+{
+	switch (mode) {
+		case VISITOR_ADD:
+			gs->getHero(hero)->visitedObjects.insert(object);
+			gs->getPlayer(gs->getHero(hero)->tempOwner)->visitedObjects.insert(object);
+			break;
+		case VISITOR_CLEAR:
+			for (CGHeroInstance * hero : gs->map->allHeroes)
+				hero->visitedObjects.erase(object); // remove visit info from all heroes, including those that are not present on map
+			break;
+		case VISITOR_REMOVE:
+			gs->getHero(hero)->visitedObjects.erase(object);
+			break;
+	}
+}
+
 DLL_LINKAGE void PlayerEndsGame::applyGs( CGameState *gs )
 {
 	PlayerState *p = gs->getPlayer(player);
