@@ -5,3 +5,5 @@
 *.a
 *.res
 *.layout
+*.pro.user
+*.pro.user.*
