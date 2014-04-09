@@ -2355,6 +2355,7 @@ void CTradeWindow::initItems(bool Left)
 	}
 
 	initSubs(Left);
+    ids->clear();
 }
 
 std::vector<int> *CTradeWindow::getItemsIds(bool Left)

@@ -1636,7 +1636,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 		else if(spell->id == SpellID::HYPNOTIZE && caster) //do not resist hypnotize casted after attack, for example
 		{
 			//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
-			ui64 subjectHealth = (subject->count - 1) * subject->MaxHealth() + subject->firstHPleft;
+			ui64 subjectHealth = (ui64)(subject->count - 1) * (ui64)subject->MaxHealth() + (ui64)subject->firstHPleft;
 			//apply 'damage' bonus for hypnotize, including hero specialty
 			ui64 maxHealth = calculateSpellBonus (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
 				* spell->power + spell->getPower(caster->getSpellSchoolLevel(spell)), spell, caster, subject);
