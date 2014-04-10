@@ -4,6 +4,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/ISimpleResourceLoader.h"
 #include "../lib/JsonNode.h"
+#include "../lib/CRandomGenerator.h"
 
 #include "CBitmapHandler.h"
 #include "Graphics.h"
@@ -1432,7 +1433,7 @@ void CCreatureAnim::loopPreview(bool warMachine)
 		if (anim.size(elem))
 			available.push_back(elem);
 
-	size_t rnd = rand()%(available.size()*2);
+	size_t rnd = CRandomGenerator::getDefault().nextInt(available.size() * 2 - 1);
 
 	if (rnd >= available.size())
 	{

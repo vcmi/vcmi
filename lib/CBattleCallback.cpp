@@ -2251,10 +2251,14 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 		}
 	}
 
-	if (possibleSpells.size())
-		return possibleSpells[rand() % possibleSpells.size()];
+	if(!possibleSpells.empty())
+	{
+		return *RandomGeneratorUtil::nextItem(possibleSpells, gs->getRandomGenerator());
+	}
 	else
+	{
 		return SpellID::NONE;
+	}
 }
 
 SpellID CBattleInfoCallback::getRandomCastedSpell(const CStack * caster) const
@@ -2269,7 +2273,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(const CStack * caster) const
 	{
 		totalWeight += std::max(b->additionalInfo, 1); //minimal chance to cast is 1
 	}
-	int randomPos = rand() % totalWeight;
+	int randomPos = gs->getRandomGenerator().nextInt(totalWeight - 1);
 	for(Bonus * b : *bl)
 	{
 		randomPos -= std::max(b->additionalInfo, 1);

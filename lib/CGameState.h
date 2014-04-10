@@ -458,7 +458,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects;
+		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects & rand;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 

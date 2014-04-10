@@ -1,6 +1,8 @@
 #include "StdInc.h"
 #include "CEmptyAI.h"
 
+#include "CRandomGenerator.h"
+
 void CEmptyAI::init(shared_ptr<CCallback> CB)
 {
 	cb = CB;
@@ -15,12 +17,12 @@ void CEmptyAI::yourTurn()
 
 void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)
 {
-	cb->selectionMade(rand() % skills.size(), queryID);
+	cb->selectionMade(CRandomGenerator::getDefault().nextInt(skills.size() - 1), queryID);
 }
 
 void CEmptyAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
 {
-	cb->selectionMade(rand() % skills.size(), queryID);
+	cb->selectionMade(CRandomGenerator::getDefault().nextInt(skills.size() - 1), queryID);
 }
 
 void CEmptyAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel)

@@ -553,19 +553,6 @@ namespace vstd
 		});
 	}
 
-	static inline int retreiveRandNum(const std::function<int()> &randGen)
-	{
-		if (randGen)
-			return randGen();
-		else
-			return rand();
-	}
-
-	template <typename T> const T & pickRandomElementOf(const std::vector<T> &v, const std::function<int()> &randGen)
-	{
-		return v.at(retreiveRandNum(randGen) % v.size());
-	}
-
 	template<typename T>
 	void advance(T &obj, int change)
 	{

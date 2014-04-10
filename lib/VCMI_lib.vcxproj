@@ -185,6 +185,7 @@
     <ClCompile Include="CSpellHandler.cpp" />
     <ClCompile Include="CThreadHelper.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
+    <ClCompile Include="CRandomGenerator.cpp" />
     <ClCompile Include="filesystem\AdapterLoaders.cpp" />
     <ClCompile Include="filesystem\CArchiveLoader.cpp" />
     <ClCompile Include="filesystem\CBinaryReader.cpp" />

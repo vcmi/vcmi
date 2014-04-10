@@ -23,7 +23,7 @@
  *
  */
 
-SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possibles, std::minstd_rand & distr) const //picks secondary skill out from given possibilities
+SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possibles, CRandomGenerator & rand) const //picks secondary skill out from given possibilities
 {
 	int totalProb = 0;
 	for(auto & possible : possibles)
@@ -32,12 +32,14 @@ SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possi
 	}
 	if (totalProb != 0) // may trigger if set contains only banned skills (0 probability)
 	{
-		int ran = distr()%totalProb;
+		auto ran = rand.nextInt(totalProb - 1);
 		for(auto & possible : possibles)
 		{
 			ran -= secSkillProbability[possible];
-			if(ran<0)
+			if(ran < 0)
+			{
 				return possible;
+			}
 		}
 	}
 	// FIXME: select randomly? How H3 handles such rare situation?

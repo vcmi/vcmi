@@ -39,6 +39,7 @@
     <ClCompile Include="CCreatureSet.cpp" />
     <ClCompile Include="CGameState.cpp" />
     <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="CRandomGenerator.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
     <ClCompile Include="NetPacksLib.cpp" />

@@ -8,7 +8,6 @@
 //#include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/random/poisson_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/system/system_error.hpp>
 //#include <boost/asio.hpp>

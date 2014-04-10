@@ -17,6 +17,7 @@
 #include "../lib/GameConstants.h"
 #include "../lib/CStopWatch.h"
 #include "CMT.h"
+#include "../lib/CRandomGenerator.h"
 
 /*
  * mapHandler.cpp, part of VCMI engine
@@ -129,7 +130,7 @@ void CMapHandler::prepareFOWDefs()
 			elem[j].resize(sizes.z);
 			for(int k = 0; k < sizes.z; ++k)
 			{
-				elem[j][k] = rand()%graphics->FoWfullHide->ourImages.size();
+				elem[j][k] = CRandomGenerator::getDefault().nextInt(graphics->FoWfullHide->ourImages.size() - 1);
 			}
 		}
 	}
@@ -199,6 +200,8 @@ void CMapHandler::borderAndTerrainBitmapInit()
 				{
 					int terBitmapNum = -1;
 
+					auto & rand = CRandomGenerator::getDefault();
+
 					if(i==-1 && j==-1)
 						terBitmapNum = 16;
 					else if(i==-1 && j==(sizes.y))
@@ -208,15 +211,15 @@ void CMapHandler::borderAndTerrainBitmapInit()
 					else if(i==(sizes.x) && j==(sizes.y))
 						terBitmapNum = 18;
 					else if(j == -1 && i > -1 && i < sizes.y)
-						terBitmapNum = 22+rand()%2;
+						terBitmapNum = rand.nextInt(22, 23);
 					else if(i == -1 && j > -1 && j < sizes.y)
-						terBitmapNum = 33+rand()%2;
+						terBitmapNum = rand.nextInt(33, 34);
 					else if(j == sizes.y && i >-1 && i < sizes.x)
-						terBitmapNum = 29+rand()%2;
+						terBitmapNum = rand.nextInt(29, 30);
 					else if(i == sizes.x && j > -1 && j < sizes.y)
-						terBitmapNum = 25+rand()%2;
+						terBitmapNum = rand.nextInt(25, 26);
 					else
-						terBitmapNum = rand()%16;
+						terBitmapNum = rand.nextInt(15);
 
 					if(terBitmapNum != -1)
 					{
@@ -1083,7 +1086,7 @@ ui8 CMapHandler::getPhaseShift(const CGObjectInstance *object) const
 	auto i = animationPhase.find(object);
 	if(i == animationPhase.end())
 	{
-		ui8 ret = rand() % 255;
+		ui8 ret = CRandomGenerator::getDefault().nextInt(254);
 		animationPhase[object] = ret;
 		return ret;
 	}

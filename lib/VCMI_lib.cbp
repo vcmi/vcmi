@@ -107,6 +107,7 @@
 		<Unit filename="CObjectHandler.h" />
 		<Unit filename="CObstacleInstance.cpp" />
 		<Unit filename="CObstacleInstance.h" />
+		<Unit filename="CRandomGenerator.cpp" />
 		<Unit filename="CRandomGenerator.h" />
 		<Unit filename="CScriptingModule.h" />
 		<Unit filename="CSpellHandler.cpp" />

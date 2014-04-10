@@ -19,77 +19,80 @@ typedef std::function<double()> TRand;
 
 /// The random generator randomly generates integers and real numbers("doubles") between
 /// a given range. This is a header only class and mainly a wrapper for
-/// convenient usage of the standard random API.
-class CRandomGenerator : boost::noncopyable
+/// convenient usage of the standard random API. An instance of this RNG is not thread safe.
+class DLL_LINKAGE CRandomGenerator : boost::noncopyable
 {
 public:
-	/// Seeds the generator with the current time by default.
-	CRandomGenerator() 
-	{
-		rand.seed(static_cast<unsigned long>(std::time(nullptr)));
-	}
+	/// Seeds the generator by default with the product of the current time in milliseconds and the
+	/// current thread ID.
+	CRandomGenerator();
 
-	void setSeed(int seed)
-	{
-		rand.seed(seed);
-	}
+	void setSeed(int seed);
+
+	/// Resets the seed to the product of the current time in milliseconds and the
+	/// current thread ID.
+	void resetSeed();
 
 	/// Generate several integer numbers within the same range.
 	/// e.g.: auto a = gen.getIntRange(0,10); a(); a(); a();
 	/// requires: lower <= upper
-	TRandI getIntRange(int lower, int upper)
-	{
-		return boost::bind(TIntDist(lower, upper), boost::ref(rand));
-	}
+	TRandI getIntRange(int lower, int upper);
 	
 	/// Generates an integer between 0 and upper.
 	/// requires: 0 <= upper
-	int nextInt(int upper)
-	{
-		return getIntRange(0, upper)();
-	}
+	int nextInt(int upper);
 
 	/// requires: lower <= upper
-	int nextInt(int lower, int upper)
-	{
-		return getIntRange(lower, upper)();
-	}
+	int nextInt(int lower, int upper);
 	
 	/// Generates an integer between 0 and the maximum value it can hold.
-	int nextInt()
-	{
-		return TIntDist()(rand);
-	}
+	int nextInt();
 
 	/// Generate several double/real numbers within the same range.
 	/// e.g.: auto a = gen.getDoubleRange(4.5,10.2); a(); a(); a();
 	/// requires: lower <= upper
-	TRand getDoubleRange(double lower, double upper)
-	{
-		return boost::bind(TRealDist(lower, upper), boost::ref(rand));
-	}
+	TRand getDoubleRange(double lower, double upper);
 	
 	/// Generates a double between 0 and upper.
 	/// requires: 0 <= upper
-	double nextDouble(double upper)
-	{
-		return getDoubleRange(0, upper)();
-	}
+	double nextDouble(double upper);
 
 	/// requires: lower <= upper
-	double nextDouble(double lower, double upper)
-	{
-		return getDoubleRange(lower, upper)();
-	}
+	double nextDouble(double lower, double upper);
 
 	/// Generates a double between 0.0 and 1.0.
-	double nextDouble()
-	{
-		return TRealDist()(rand);
-	}
+	double nextDouble();
+
+	/// Gets a globally accessible RNG which will be constructed once per thread. For the
+	/// seed a combination of the thread ID and current time in milliseconds will be used.
+	static CRandomGenerator & getDefault();
+
+	/// Provide method so that this RNG can be used with legacy std:: API
+	TGenerator & getStdGenerator();
 
 private:
 	TGenerator rand;
+	static boost::thread_specific_ptr<CRandomGenerator> defaultRand;
+
+public:
+	template <typename Handler>
+	void serialize(Handler & h, const int version)
+	{
+		if(h.saving)
+		{
+			std::ostringstream stream;
+			stream << rand;
+			std::string str = stream.str();
+			h & str;
+		}
+		else
+		{
+			std::string str;
+			h & str;
+			std::istringstream stream(str);
+			stream >> rand;
+		}
+	}
 };
 
 namespace RandomGeneratorUtil

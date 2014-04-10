@@ -68,6 +68,7 @@ set(lib_SRCS
 		CHeroHandler.cpp
 		CModHandler.cpp
 		CObstacleInstance.cpp
+		CRandomGenerator.cpp
 		CSpellHandler.cpp
 		CThreadHelper.cpp
 		CTownHandler.cpp
@@ -91,7 +92,6 @@ set(lib_HEADERS
 		CondSh.h
 		ConstTransitivePtr.h
 		CBonusTypeHandler.h
-		CRandomGenerator.h
 		CScriptingModule.h
 		CStopWatch.h
 		FunctionList.h

@@ -49,28 +49,9 @@ DLL_LINKAGE void SetResources::applyGs( CGameState *gs )
 
 DLL_LINKAGE void SetPrimSkill::applyGs( CGameState *gs )
 {
-	CGHeroInstance *hero = gs->getHero(id);
+	CGHeroInstance * hero = gs->getHero(id);
 	assert(hero);
-
-	if(which < PrimarySkill::EXPERIENCE)
-	{
-		Bonus *skill = hero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL)
-											.And(Selector::subtype(which))
-											.And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
-		assert(skill);
-
-		if(abs)
-			skill->val = val;
-		else
-			skill->val += val;
-	}
-	else if(which == PrimarySkill::EXPERIENCE)
-	{
-		if(abs)
-			hero->exp = val;
-		else
-			hero->exp += val;
-	}
+	hero->setPrimarySkill(which, val, abs);
 }
 
 DLL_LINKAGE void SetSecSkill::applyGs( CGameState *gs )
@@ -1020,25 +1001,8 @@ DLL_LINKAGE void SetHoverName::applyGs( CGameState *gs )
 
 DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )
 {
-	CGHeroInstance* h = gs->getHero(hero->id);
-	h->level = level;
-	//deterministic secondary skills
-	h->skillsInfo.magicSchoolCounter = (h->skillsInfo.magicSchoolCounter + 1) % h->maxlevelsToMagicSchool();
-	h->skillsInfo.wisdomCounter = (h->skillsInfo.wisdomCounter + 1) % h->maxlevelsToWisdom();
-	if (vstd::contains(skills, SecondarySkill::WISDOM))
-		h->skillsInfo.resetWisdomCounter();
-	SecondarySkill spellSchools[] = {
-		SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC};
-	for (auto skill : spellSchools)
-	{
-		if (vstd::contains(skills, skill))
-		{
-			h->skillsInfo.resetMagicSchoolCounter();
-			break;
-		}
-	}
-	//specialty
-	h->Updatespecialty();
+	CGHeroInstance * h = gs->getHero(hero->id);
+	h->levelUp(skills);
 }
 
 DLL_LINKAGE void CommanderLevelUp::applyGs (CGameState *gs)

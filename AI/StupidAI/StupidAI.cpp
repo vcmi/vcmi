@@ -104,8 +104,9 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	if(stack->type->idNumber == CreatureID::CATAPULT)
 	{
 		BattleAction attack;
-		static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
-		attack.destinationTile = wallHexes[ rand()%ARRAY_COUNT(wallHexes) ];
+		static const std::vector<int> wallHexes = boost::assign::list_of(50)(183)(182)(130)(62)(29)(12)(95);
+
+		attack.destinationTile = *RandomGeneratorUtil::nextItem(wallHexes, CRandomGenerator::getDefault());
 		attack.actionType = Battle::CATAPULT;
 		attack.additionalInfo = 0;
 		attack.side = side;

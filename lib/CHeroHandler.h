@@ -21,6 +21,7 @@ class CGameInfo;
 class CGHeroInstance;
 struct BattleHex;
 class JsonNode;
+class CRandomGenerator;
 
 struct SSpecialtyInfo
 {	si32 type;
@@ -132,7 +133,7 @@ public:
 	CHeroClass();
 
 	bool isMagicHero() const;
-	SecondarySkill chooseSecSkill(const std::set<SecondarySkill> & possibles, std::minstd_rand & distr) const; //picks secondary skill out from given possibilities
+	SecondarySkill chooseSecSkill(const std::set<SecondarySkill> & possibles, CRandomGenerator & rand) const; //picks secondary skill out from given possibilities
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

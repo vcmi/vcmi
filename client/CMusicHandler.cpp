@@ -9,6 +9,7 @@
 #include "../lib/GameConstants.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/StringConstants.h"
+#include "../lib/CRandomGenerator.h"
 
 /*
  * CMusicHandler.cpp, part of VCMI engine
@@ -230,7 +231,7 @@ int CSoundHandler::playSound(std::string sound, int repeats)
 // Helper. Randomly select a sound from an array and play it
 int CSoundHandler::playSoundFromSet(std::vector<soundBase::soundID> &sound_vec)
 {
-	return playSound(sound_vec[rand() % sound_vec.size()]);
+	return playSound(*RandomGeneratorUtil::nextItem(sound_vec, CRandomGenerator::getDefault()));
 }
 
 void CSoundHandler::stopSound( int handler )
@@ -504,10 +505,7 @@ bool MusicEntry::play()
 	if (!setName.empty())
 	{
 		auto set = owner->musicsSet[setName];
-		size_t entryID = rand() % set.size();
-		auto iterator = set.begin();
-		std::advance(iterator, entryID);
-		load(iterator->second);
+		load(RandomGeneratorUtil::nextItem(set, CRandomGenerator::getDefault())->second);
 	}
 
     logGlobal->traceStream()<<"Playing music file "<<currentName;
