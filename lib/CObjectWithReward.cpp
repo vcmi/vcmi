@@ -81,44 +81,58 @@ std::vector<ui32> CObjectWithReward::getAvailableRewards(const CGHeroInstance * 
 
 void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
 {
+	auto grantRewardWithMessage = [&](int index) -> void
+	{
+		grantReward(index, h);
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.soundID = soundID;
+		iw.text = info[index].message;
+		info[index].reward.loadComponents(iw.components);
+		cb->showInfoDialog(&iw);
+	};
+
 	if (!wasVisited(h))
 	{
 		auto rewards = getAvailableRewards(h);
 		switch (rewards.size())
 		{
-			case 0: // no rewards, e.g. empty flotsam
+			case 0: // no available rewards, e.g. empty flotsam
 			{
 				InfoWindow iw;
 				iw.player = h->tempOwner;
 				iw.soundID = soundID;
 				iw.text = onEmpty;
 				cb->showInfoDialog(&iw);
-				onRewardGiven(h);
+				onRewardGiven(h); // FIXME: dummy call to properly act on empty objects (e.g. Floatsam that must be removed after visit)
 				break;
 			}
 			case 1: // one reward. Just give it with message
 			{
-				//FIXME: merge into grantReward call?
-				cb->setObjProperty(id, ObjProperty::REWARD_SELECT, rewards[0]);
-				grantReward(info[rewards[0]], h);
-				InfoWindow iw;
-				iw.player = h->tempOwner;
-				iw.soundID = soundID;
-				iw.text = onGrant;
-				info[rewards[0]].reward.loadComponents(iw.components);
-				cb->showInfoDialog(&iw);
-				onRewardGiven(h);
+				grantRewardWithMessage(rewards[0]);
 				break;
 			}
-			default: // multiple rewards. Let player select
-			{//TODO: implement various modes
-				BlockingDialog sd(false,true);
-				sd.player = h->tempOwner;
-				sd.soundID = soundID;
-				sd.text = onGrant;
-				for (auto index : rewards)
-					sd.components.push_back(info[index].reward.getDisplayedComponent());
-				cb->showBlockingDialog(&sd);
+			default: // multiple rewards. Act according to select mode
+			{
+				switch (selectMode) {
+					case SELECT_PLAYER: // player must select
+					{
+						BlockingDialog sd(canRefuse, true);
+						sd.player = h->tempOwner;
+						sd.soundID = soundID;
+						sd.text = onSelect;
+						for (auto index : rewards)
+							sd.components.push_back(info[index].reward.getDisplayedComponent());
+						cb->showBlockingDialog(&sd);
+						break;
+					}
+					case SELECT_FIRST: // give first available
+						grantRewardWithMessage(rewards[0]);
+						break;
+					case SELECT_RANDOM: // select one randomly
+						grantRewardWithMessage(rewards[cb->gameState()->getRandomGenerator().nextInt(rewards.size()-1)]);
+						break;
+				}
 				return;
 			}
 		}
@@ -140,11 +154,14 @@ void CObjectWithReward::heroLevelUpDone(const CGHeroInstance *hero) const
 
 void CObjectWithReward::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
+	if (answer == 0)
+		return; // player refused
+
 	if (answer > 0 && answer-1 < info.size())
 	{
+		//NOTE: this relies on assumption that there won't be any changes in player/hero during blocking dialog
 		auto list = getAvailableRewards(hero);
-		cb->setObjProperty(id, ObjProperty::REWARD_SELECT, list[answer - 1]);
-		grantReward(info[list[answer - 1]], hero);
+		grantReward(list[answer - 1], hero);
 	}
 	else
 	{
@@ -157,17 +174,22 @@ void CObjectWithReward::onRewardGiven(const CGHeroInstance * hero) const
 	// no implementation, virtual function for overrides
 }
 
-void CObjectWithReward::grantReward(const CVisitInfo & info, const CGHeroInstance * hero) const
+void CObjectWithReward::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
+{
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD, id, hero->id);
+	cb->sendAndApply(&cov);
+	cb->setObjProperty(id, ObjProperty::REWARD_SELECT, rewardID);
+
+	grantRewardBeforeLevelup(info[rewardID], hero);
+}
+
+void CObjectWithReward::grantRewardBeforeLevelup(const CVisitInfo & info, const CGHeroInstance * hero) const
 {
 	assert(hero);
 	assert(hero->tempOwner.isValidPlayer());
 	assert(stacks.empty());
 	assert(info.reward.creatures.size() <= GameConstants::ARMY_SIZE);
 	assert(!cb->isVisitCoveredByAnotherQuery(this, hero));
-
-	//FIXME: move somewhere?
-	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD, id, hero->id);
-	cb->sendAndApply(&cov);
 
 	cb->giveResources(hero->tempOwner, info.reward.resources);
 
@@ -184,7 +206,6 @@ void CObjectWithReward::grantReward(const CVisitInfo & info, const CGHeroInstanc
 	for(int i=0; i< info.reward.primary.size(); i++)
 		if(info.reward.primary[i] > 0)
 			cb->changePrimSkill(hero, static_cast<PrimarySkill::PrimarySkill>(i), info.reward.primary[i], false);
-
 
 	si64 expToGive = 0;
 	expToGive += VLC->heroh->reqExp(hero->level+info.reward.gainedLevels) - VLC->heroh->reqExp(hero->level);
@@ -371,7 +392,8 @@ CObjectWithReward::CObjectWithReward():
 	soundID(soundBase::invalid),
 	selectMode(0),
 	selectedReward(0),
-	resetDuration(0)
+	resetDuration(0),
+	canRefuse(false)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -416,30 +438,28 @@ void CGPickable::initObj()
 	case Obj::CAMPFIRE:
 		{
 			soundID = soundBase::experience;
-			onGrant.addTxt(MetaString::ADVOB_TXT,23);
 			int givenRes = cb->gameState()->getRandomGenerator().nextInt(5);
 			int givenAmm = cb->gameState()->getRandomGenerator().nextInt(4, 6);
 
 			info.resize(1);
 			info[0].reward.resources[givenRes] = givenAmm;
 			info[0].reward.resources[Res::GOLD]= givenAmm * 100;
+			info[0].message.addTxt(MetaString::ADVOB_TXT,23);
 			break;
 		}
 	case Obj::FLOTSAM:
 		{
 			int type = cb->gameState()->getRandomGenerator().nextInt(3);
 			soundID = soundBase::GENIE;
-			if (type == 0)
-				onEmpty.addTxt(MetaString::ADVOB_TXT, 51+type);
-			else
-				onGrant.addTxt(MetaString::ADVOB_TXT, 51+type);
 			switch(type)
 			{
-			//case 0:
+			case 0:
+					onEmpty.addTxt(MetaString::ADVOB_TXT, 51);
 			case 1:
 				{
 					info.resize(1);
 					info[0].reward.resources[Res::WOOD] = 5;
+					info[0].message.addTxt(MetaString::ADVOB_TXT, 52);
 					break;
 				}
 			case 2:
@@ -447,6 +467,7 @@ void CGPickable::initObj()
 					info.resize(1);
 					info[0].reward.resources[Res::WOOD] = 5;
 					info[0].reward.resources[Res::GOLD] = 200;
+					info[0].message.addTxt(MetaString::ADVOB_TXT, 53);
 					break;
 				}
 			case 3:
@@ -454,6 +475,7 @@ void CGPickable::initObj()
 					info.resize(1);
 					info[0].reward.resources[Res::WOOD] = 10;
 					info[0].reward.resources[Res::GOLD] = 500;
+					info[0].message.addTxt(MetaString::ADVOB_TXT, 54);
 					break;
 				}
 			}
@@ -465,21 +487,21 @@ void CGPickable::initObj()
 			int hlp = cb->gameState()->getRandomGenerator().nextInt(99);
 			if(hlp < 20)
 			{
-				onGrant.addTxt(MetaString::ADVOB_TXT, 116);
+				onEmpty.addTxt(MetaString::ADVOB_TXT, 116);
 			}
 			else if(hlp < 90)
 			{
 				info.resize(1);
 				info[0].reward.resources[Res::GOLD] = 1500;
-				onGrant.addTxt(MetaString::ADVOB_TXT, 118);
+				info[0].message.addTxt(MetaString::ADVOB_TXT, 118);
 			}
 			else
 			{
 				info.resize(1);
 				loadRandomArtifact(info[0], 100, 0, 0, 0);
 				info[0].reward.resources[Res::GOLD] = 1000;
-				onGrant.addTxt(MetaString::ADVOB_TXT, 117);
-				onGrant.addReplacement(MetaString::ART_NAMES, info[0].reward.artifacts.back());
+				info[0].message.addTxt(MetaString::ADVOB_TXT, 117);
+				info[0].message.addReplacement(MetaString::ART_NAMES, info[0].reward.artifacts.back());
 			}
 		}
 		break;
@@ -488,8 +510,8 @@ void CGPickable::initObj()
 			soundID = soundBase::experience;
 			info.resize(1);
 			loadRandomArtifact(info[0], 55, 20, 20, 5);
-			onGrant.addTxt(MetaString::ADVOB_TXT, 125);
-			onGrant.addReplacement(MetaString::ART_NAMES, info[0].reward.artifacts.back());
+			info[0].message.addTxt(MetaString::ADVOB_TXT, 125);
+			info[0].message.addReplacement(MetaString::ART_NAMES, info[0].reward.artifacts.back());
 		}
 		break;
 	case Obj::TREASURE_CHEST:
@@ -500,14 +522,14 @@ void CGPickable::initObj()
 				soundID = soundBase::treasure;
 				info.resize(1);
 				loadRandomArtifact(info[0], 100, 0, 0, 0);
-				onGrant.addTxt(MetaString::ADVOB_TXT,145);
-				onGrant.addReplacement(MetaString::ART_NAMES, info[0].reward.artifacts.back());
+				info[0].message.addTxt(MetaString::ADVOB_TXT,145);
+				info[0].message.addReplacement(MetaString::ART_NAMES, info[0].reward.artifacts.back());
 				return;
 			}
 			else if (hlp >= 65)
 			{
 				soundID = soundBase::chest;
-				onGrant.addTxt(MetaString::ADVOB_TXT,146);
+				onSelect.addTxt(MetaString::ADVOB_TXT,146);
 				info.resize(2);
 				info[0].reward.resources[Res::GOLD] = 2000;
 				info[1].reward.gainedExp = 1500;
@@ -515,7 +537,7 @@ void CGPickable::initObj()
 			else if(hlp >= 33)
 			{
 				soundID = soundBase::chest;
-				onGrant.addTxt(MetaString::ADVOB_TXT,146);
+				onSelect.addTxt(MetaString::ADVOB_TXT,146);
 				info.resize(2);
 				info[0].reward.resources[Res::GOLD] = 1500;
 				info[1].reward.gainedExp = 1000;
@@ -523,7 +545,7 @@ void CGPickable::initObj()
 			else
 			{
 				soundID = soundBase::chest;
-				onGrant.addTxt(MetaString::ADVOB_TXT,146);
+				onSelect.addTxt(MetaString::ADVOB_TXT,146);
 				info.resize(2);
 				info[0].reward.resources[Res::GOLD] = 1000;
 				info[1].reward.gainedExp = 500;
@@ -559,9 +581,9 @@ void CGBonusingObject::initObj()
 		configureBonusDuration(visit, Bonus::ONE_BATTLE, type, value, descrID);
 	};
 
-	auto configureMessage = [&](int onGrantID, int onVisitedID, soundBase::soundID sound)
+	auto configureMessage = [&](CVisitInfo & visit, int onGrantID, int onVisitedID, soundBase::soundID sound)
 	{
-		onGrant.addTxt(MetaString::ADVOB_TXT, onGrantID);
+		visit.message.addTxt(MetaString::ADVOB_TXT, onGrantID);
 		onVisited.addTxt(MetaString::ADVOB_TXT, onVisitedID);
 		soundID = sound;
 	};
@@ -575,28 +597,28 @@ void CGBonusingObject::initObj()
 	switch(ID)
 	{
 	case Obj::BUOY:
-		configureMessage(21, 22, soundBase::MORALE);
+		configureMessage(visit, 21, 22, soundBase::MORALE);
 		configureBonus(visit, Bonus::MORALE, +1, 94);
 		break;
 	case Obj::SWAN_POND:
-		configureMessage(29, 30, soundBase::LUCK);
+		configureMessage(visit, 29, 30, soundBase::LUCK);
 		configureBonus(visit, Bonus::LUCK, 2, 67);
 		visit.reward.movePercentage = 0;
 		break;
 	case Obj::FAERIE_RING:
-		configureMessage(49, 50, soundBase::LUCK);
+		configureMessage(visit, 49, 50, soundBase::LUCK);
 		configureBonus(visit, Bonus::LUCK, 2, 71);
 		break;
 	case Obj::FOUNTAIN_OF_FORTUNE:
 		selectMode = SELECT_RANDOM;
-		configureMessage(55, 56, soundBase::LUCK);
+		configureMessage(visit, 55, 56, soundBase::LUCK);
 		info.resize(5);
 		for (int i=0; i<5; i++)
 			configureBonus(info[i], Bonus::LUCK, i-1, 69); //NOTE: description have %d that should be replaced with value
 		break;
 	case Obj::IDOL_OF_FORTUNE:
 
-		configureMessage(62, 63, soundBase::experience);
+		configureMessage(visit, 62, 63, soundBase::experience);
 		info.resize(7);
 		for (int i=0; i<6; i++)
 		{
@@ -609,40 +631,41 @@ void CGBonusingObject::initObj()
 
 		break;
 	case Obj::MERMAID:
-		configureMessage(83, 82, soundBase::LUCK);
+		configureMessage(visit, 83, 82, soundBase::LUCK);
 		configureBonus(visit, Bonus::LUCK, 1, 72);
 		break;
 	case Obj::RALLY_FLAG:
-		configureMessage(111, 110, soundBase::MORALE);
+		configureMessage(visit, 111, 110, soundBase::MORALE);
 		configureBonus(visit, Bonus::MORALE, 1, 102);
 		configureBonus(visit, Bonus::LUCK,   1, 102);
 		visit.reward.movePoints = 400;
 		break;
 	case Obj::OASIS:
-		configureMessage(95, 94, soundBase::MORALE);
-		onGrant.addTxt(MetaString::ADVOB_TXT, 95);
+		configureMessage(visit, 95, 94, soundBase::MORALE);
 		configureBonus(visit, Bonus::MORALE, 1, 95);
 		visit.reward.movePoints = 800;
 		break;
 	case Obj::TEMPLE:
-		configureMessage(140, 141, soundBase::temple);
 		info[0].limiter.dayOfWeek = 7;
 		info.resize(2);
 		configureBonus(info[0], Bonus::MORALE, 2, 96);
 		configureBonus(info[1], Bonus::MORALE, 1, 97);
+
+		configureMessage(visit, 140, 141, soundBase::temple);
+		configureMessage(info[1], 140, 141, soundBase::temple);
 		break;
 	case Obj::WATERING_HOLE:
-		configureMessage(166, 167, soundBase::MORALE);
+		configureMessage(visit, 166, 167, soundBase::MORALE);
 		configureBonus(visit, Bonus::MORALE, 1, 100);
 		visit.reward.movePoints = 400;
 		break;
 	case Obj::FOUNTAIN_OF_YOUTH:
-		configureMessage(57, 58, soundBase::MORALE);
+		configureMessage(visit, 57, 58, soundBase::MORALE);
 		configureBonus(visit, Bonus::MORALE, 1, 103);
 		visit.reward.movePoints = 400;
 		break;
 	case Obj::STABLES:
-		configureMessage(137, 136, soundBase::STORE);
+		configureMessage(visit, 137, 136, soundBase::STORE);
 
 		configureBonusDuration(visit, Bonus::ONE_WEEK, Bonus::LAND_MOVEMENT, 600, 0);
 		visit.reward.movePoints = 600;
@@ -681,7 +704,6 @@ void CGOnceVisitable::initObj()
 	{
 	case Obj::CORPSE:
 		{
-			onGrant.addTxt(MetaString::ADVOB_TXT, 37);
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 38);
 			soundID = soundBase::MYSTERY;
 			blockVisit = true;
@@ -689,6 +711,7 @@ void CGOnceVisitable::initObj()
 			{
 				info.resize(1);
 				loadRandomArtifact(info[0], 10, 10, 10, 0);
+				info[0].message.addTxt(MetaString::ADVOB_TXT, 37);
 			}
 		}
 		break;
@@ -696,21 +719,19 @@ void CGOnceVisitable::initObj()
 	case Obj::LEAN_TO:
 		{
 			soundID = soundBase::GENIE;
-			onGrant.addTxt(MetaString::ADVOB_TXT, 64);
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 65);
 			info.resize(1);
 			int type =  cb->gameState()->getRandomGenerator().nextInt(5); //any basic resource without gold
 			int value = cb->gameState()->getRandomGenerator().nextInt(1, 4);
 			info[0].reward.resources[type] = value;
+			info[0].message.addTxt(MetaString::ADVOB_TXT, 64);
 		}
 		break;
 
 	case Obj::WARRIORS_TOMB:
 		{
-			// TODO: line 161 - ask if player wants to search the Tomb
 			soundID = soundBase::GRAVEYARD;
-			onGrant.addTxt(MetaString::ADVOB_TXT, 162);
-			onVisited.addTxt(MetaString::ADVOB_TXT, 163);
+			onSelect.addTxt(MetaString::ADVOB_TXT, 161);
 
 			info.resize(2);
 			loadRandomArtifact(info[0], 30, 50, 25, 5);
@@ -718,6 +739,8 @@ void CGOnceVisitable::initObj()
 			Bonus bonus(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::OBJECT, -3, ID);
 			info[0].reward.bonuses.push_back(bonus);
 			info[1].reward.bonuses.push_back(bonus);
+			info[0].message.addTxt(MetaString::ADVOB_TXT, 162);
+			info[1].message.addTxt(MetaString::ADVOB_TXT, 163);
 		}
 		break;
 	case Obj::WAGON:
@@ -729,17 +752,17 @@ void CGOnceVisitable::initObj()
 
 			if(hlp < 40) //minor or treasure art
 			{
-				onGrant.addTxt(MetaString::ADVOB_TXT, 155);
 				info.resize(1);
 				loadRandomArtifact(info[0], 10, 10, 0, 0);
+				info[0].message.addTxt(MetaString::ADVOB_TXT, 155);
 			}
 			else if(hlp < 90) //2 - 5 of non-gold resource
 			{
-				onGrant.addTxt(MetaString::ADVOB_TXT, 154);
 				info.resize(1);
 				int type  = cb->gameState()->getRandomGenerator().nextInt(5);
 				int value = cb->gameState()->getRandomGenerator().nextInt(2, 5);
 				info[0].reward.resources[type] = value;
+				info[0].message.addTxt(MetaString::ADVOB_TXT, 154);
 			}
 			// or nothing
 		}
@@ -761,64 +784,76 @@ void CGVisitableOPH::initObj()
 	{
 		case Obj::ARENA:
 			soundID = soundBase::NOMAD;
-			onGrant.addTxt(MetaString::ADVOB_TXT, 0);
 			info.resize(2);
 			info[0].reward.primary[PrimarySkill::ATTACK] = 2;
 			info[1].reward.primary[PrimarySkill::DEFENSE] = 2;
+			onSelect.addTxt(MetaString::ADVOB_TXT, 0);
+			onVisited.addTxt(MetaString::ADVOB_TXT, 1);
+			canRefuse = true;
 			break;
 		case Obj::MERCENARY_CAMP:
 			info.resize(1);
 			info[0].reward.primary[PrimarySkill::ATTACK] = 1;
 			soundID = soundBase::NOMAD;
-			onGrant.addTxt(MetaString::ADVOB_TXT, 80);
+			info[0].message.addTxt(MetaString::ADVOB_TXT, 80);
+			onVisited.addTxt(MetaString::ADVOB_TXT, 81);
 			break;
 		case Obj::MARLETTO_TOWER:
 			info.resize(1);
 			info[0].reward.primary[PrimarySkill::DEFENSE] = 1;
 			soundID = soundBase::NOMAD;
-			onGrant.addTxt(MetaString::ADVOB_TXT, 39);
+			info[0].message.addTxt(MetaString::ADVOB_TXT, 39);
+			onVisited.addTxt(MetaString::ADVOB_TXT, 40);
 			break;
 		case Obj::STAR_AXIS:
 			info.resize(1);
 			info[0].reward.primary[PrimarySkill::SPELL_POWER] = 1;
 			soundID = soundBase::gazebo;
-			onGrant.addTxt(MetaString::ADVOB_TXT, 100);
+			info[0].message.addTxt(MetaString::ADVOB_TXT, 100);
+			onVisited.addTxt(MetaString::ADVOB_TXT, 101);
 			break;
 		case Obj::GARDEN_OF_REVELATION:
 			info.resize(1);
 			info[0].reward.primary[PrimarySkill::KNOWLEDGE] = 1;
 			soundID = soundBase::GETPROTECTION;
-			onGrant.addTxt(MetaString::ADVOB_TXT, 59);
+			info[0].message.addTxt(MetaString::ADVOB_TXT, 59);
+			onVisited.addTxt(MetaString::ADVOB_TXT, 60);
 			break;
 		case Obj::LEARNING_STONE:
 			info.resize(1);
 			info[0].reward.gainedExp = 1000;
 			soundID = soundBase::gazebo;
-			onGrant.addTxt(MetaString::ADVOB_TXT, 143);
+			info[0].message.addTxt(MetaString::ADVOB_TXT, 143);
+			onVisited.addTxt(MetaString::ADVOB_TXT, 144);
 			break;
 		case Obj::TREE_OF_KNOWLEDGE:
 			soundID = soundBase::gazebo;
 			info.resize(1);
+			canRefuse = true;
 			info[0].reward.gainedLevels = 1;
-
+			onVisited.addTxt(MetaString::ADVOB_TXT, 147);
 			info.resize(1);
 			switch (cb->gameState()->getRandomGenerator().nextInt(2))
 			{
 			case 0: // free
+				onSelect.addTxt(MetaString::ADVOB_TXT, 148);
 				break;
 			case 1:
 				info[0].limiter.resources[Res::GOLD] = 2000;
 				info[0].reward.resources[Res::GOLD] = -2000;
+				onSelect.addTxt(MetaString::ADVOB_TXT, 149);
+				onEmpty.addTxt(MetaString::ADVOB_TXT, 150);
 				break;
 			case 2:
 				info[0].limiter.resources[Res::GEMS] = 10;
 				info[0].reward.resources[Res::GEMS] = -10;
+				onSelect.addTxt(MetaString::ADVOB_TXT, 151);
+				onEmpty.addTxt(MetaString::ADVOB_TXT, 152);
 				break;
 			}
 			break;
 		case Obj::LIBRARY_OF_ENLIGHTENMENT:
 		{
-			onGrant.addTxt(MetaString::ADVOB_TXT, 66);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 67);
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 68);
 
@@ -834,6 +869,7 @@ void CGVisitableOPH::initObj()
 			{
 				visit.limiter.minLevel = 10 - i * 2;
 				visit.limiter.secondary[SecondarySkill::DIPLOMACY] = i;
+				visit.message.addTxt(MetaString::ADVOB_TXT, 66);
 				info.push_back(visit);
 			}
 			soundID = soundBase::gazebo;
@@ -843,15 +879,21 @@ void CGVisitableOPH::initObj()
 			info.resize(2);
 			info[0].reward.primary[PrimarySkill::SPELL_POWER] = 1;
 			info[1].reward.primary[PrimarySkill::KNOWLEDGE] = 1;
+			onSelect.addTxt(MetaString::ADVOB_TXT, 71);
+			onVisited.addTxt(MetaString::ADVOB_TXT, 72);
+			onEmpty.addTxt(MetaString::ADVOB_TXT, 73);
 			soundID = soundBase::faerie;
-			onGrant.addTxt(MetaString::ADVOB_TXT, 71);
+			canRefuse = true;
 			break;
 		case Obj::SCHOOL_OF_WAR:
 			info.resize(2);
 			info[0].reward.primary[PrimarySkill::ATTACK] = 1;
 			info[1].reward.primary[PrimarySkill::DEFENSE] = 1;
+			onSelect.addTxt(MetaString::ADVOB_TXT, 158);
+			onVisited.addTxt(MetaString::ADVOB_TXT, 159);
+			onEmpty.addTxt(MetaString::ADVOB_TXT, 160);
 			soundID = soundBase::MILITARY;
-			onGrant.addTxt(MetaString::ADVOB_TXT, 158);
+			canRefuse = true;
 			break;
 	}
 }
@@ -922,15 +964,15 @@ void CGVisitableOPW::initObj()
 	{
 	case Obj::MYSTICAL_GARDEN:
 		soundID = soundBase::experience;
-		onGrant.addTxt(MetaString::ADVOB_TXT, 92);
 		onEmpty.addTxt(MetaString::ADVOB_TXT, 93);
 		info.resize(2);
 		info[0].reward.resources[Res::GEMS] = 5;
 		info[1].reward.resources[Res::GOLD] = 500;
+		info[0].message.addTxt(MetaString::ADVOB_TXT, 92);
+		info[1].message.addTxt(MetaString::ADVOB_TXT, 92);
 		break;
 	case Obj::WINDMILL:
 		soundID = soundBase::GENIE;
-		onGrant.addTxt(MetaString::ADVOB_TXT, 170);
 		onEmpty.addTxt(MetaString::ADVOB_TXT, 169);
 		// 3-6 of any resource but wood and gold
 		// this is UGLY. TODO: find better way to describe this
@@ -940,25 +982,31 @@ void CGVisitableOPW::initObj()
 			{
 				CVisitInfo visit;
 				visit.reward.resources[resID] = val;
+				visit.message.addTxt(MetaString::ADVOB_TXT, 92);
 				info.push_back(visit);
 			}
 		}
 		break;
 	case Obj::WATER_WHEEL:
 		soundID = soundBase::GENIE;
-		onGrant.addTxt(MetaString::ADVOB_TXT, 164);
 		onEmpty.addTxt(MetaString::ADVOB_TXT, 165);
 
 		info.resize(2);
 		info[0].limiter.dayOfWeek = 7; // double amount on sunday
 		info[0].reward.resources[Res::GOLD] = 1000;
 		info[1].reward.resources[Res::GOLD] = 500;
+		info[0].message.addTxt(MetaString::ADVOB_TXT, 164);
+		info[1].message.addTxt(MetaString::ADVOB_TXT, 164);
 		break;
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+void CGMagicSpring::initObj()
+{
+
+}
 
 std::vector<int3> CGMagicSpring::getVisitableOffsets() const
 {

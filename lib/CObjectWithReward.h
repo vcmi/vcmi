@@ -145,6 +145,8 @@ class DLL_LINKAGE CObjectWithReward : public CArmedInstance
 	/// function that must be called if hero got level-up during grantReward call
 	void grantRewardAfterLevelup(const CVisitInfo & reward, const CGHeroInstance * hero) const;
 
+	/// grants reward to hero
+	void grantRewardBeforeLevelup(const CVisitInfo & reward, const CGHeroInstance * hero) const;
 protected:
 	/// controls selection of reward granted to player
 	enum ESelectMode
@@ -165,14 +167,13 @@ protected:
 	/// filters list of visit info and returns rewards that can be granted to current hero
 	virtual std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const;
 
-	/// grants reward to hero
-	void grantReward(const CVisitInfo & reward, const CGHeroInstance * hero) const;
+	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
 
 	/// Rewars that can be granted by an object
 	std::vector<CVisitInfo> info;
 
 	/// MetaString's that contain text for messages for specific situations
-	MetaString onGrant;
+	MetaString onSelect;
 	MetaString onVisited;
 	MetaString onEmpty;
 
@@ -187,6 +188,9 @@ protected:
 
 	/// object visitability info will be reset each resetDuration days
 	ui16 resetDuration;
+
+	/// if true - player can refuse visiting an object (e.g. Tomb)
+	bool canRefuse;
 
 public:
 	void setPropertyDer(ui8 what, ui32 val) override;
@@ -216,8 +220,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & info;
-		h & onGrant & onVisited & onEmpty;
+		h & info & canRefuse;
+		h & onSelect & onVisited & onEmpty;
 		h & soundID & selectMode & selectedReward;
 	}
 };
@@ -295,6 +299,7 @@ protected:
 	std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const override;
 
 public:
+	void initObj() override;
 	std::vector<int3> getVisitableOffsets() const;
 	int3 getVisitableOffset() const override;
 
