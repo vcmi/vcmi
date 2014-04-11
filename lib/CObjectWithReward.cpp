@@ -84,12 +84,16 @@ void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
 	auto grantRewardWithMessage = [&](int index) -> void
 	{
 		grantReward(index, h);
-		InfoWindow iw;
-		iw.player = h->tempOwner;
-		iw.soundID = soundID;
-		iw.text = info[index].message;
-		info[index].reward.loadComponents(iw.components);
-		cb->showInfoDialog(&iw);
+		// show message only if it is not empty
+		if (!info[index].message.toString().empty())
+		{
+			InfoWindow iw;
+			iw.player = h->tempOwner;
+			iw.soundID = soundID;
+			iw.text = info[index].message;
+			info[index].reward.loadComponents(iw.components);
+			cb->showInfoDialog(&iw);
+		}
 	};
 
 	if (!wasVisited(h))
@@ -102,7 +106,10 @@ void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
 				InfoWindow iw;
 				iw.player = h->tempOwner;
 				iw.soundID = soundID;
-				iw.text = onEmpty;
+				if (!onEmpty.toString().empty())
+					iw.text = onEmpty;
+				else
+					iw.text = onVisited;
 				cb->showInfoDialog(&iw);
 				onRewardGiven(h); // FIXME: dummy call to properly act on empty objects (e.g. Floatsam that must be removed after visit)
 				break;
@@ -142,7 +149,10 @@ void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
 		InfoWindow iw;
 		iw.player = h->tempOwner;
 		iw.soundID = soundID;
-		iw.text = onVisited;
+		if (!onVisited.toString().empty())
+			iw.text = onVisited;
+		else
+			iw.text = onEmpty;
 		cb->showInfoDialog(&iw);
 	}
 }

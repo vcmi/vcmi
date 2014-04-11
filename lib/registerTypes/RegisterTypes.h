@@ -188,6 +188,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, CenterView>();
 	s.template registerType<CPackForClient, HeroVisit>();
 	s.template registerType<CPackForClient, SetCommanderProperty>();
+	s.template registerType<CPackForClient, ChangeObjectVisitors>();
 }
 
 template<typename Serializer>

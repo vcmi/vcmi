@@ -1076,6 +1076,9 @@ struct ChangeObjectVisitors : public CPackForClient // 1003
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
+	ChangeObjectVisitors()
+	{ type = 1003; }
+
 	ChangeObjectVisitors(ui32 mode, ObjectInstanceID object, ObjectInstanceID heroID = ObjectInstanceID(-1)):
 		mode(mode),
 		object(object),
