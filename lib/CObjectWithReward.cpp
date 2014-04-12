@@ -322,6 +322,9 @@ bool CObjectWithReward::wasVisited (const CGHeroInstance * h) const
 
 void CRewardInfo::loadComponents(std::vector<Component> & comps) const
 {
+	for (auto comp : extraComponents)
+		comps.push_back(comp);
+
 	for (size_t i=0; i<resources.size(); i++)
 	{
 		if (resources[i] !=0)
@@ -589,6 +592,10 @@ void CGBonusingObject::initObj()
 	{
 		Bonus b(duration, type, Bonus::OBJECT, value, ID, descrID != 0 ? VLC->generaltexth->advobtxt[descrID] : "");
 		visit.reward.bonuses.push_back(b);
+		if (type == Bonus::MORALE)
+			visit.reward.extraComponents.push_back(Component(Component::MORALE, 0, value, 0));
+		if (type == Bonus::LUCK)
+			visit.reward.extraComponents.push_back(Component(Component::LUCK, 0, value, 0));
 	};
 
 	auto configureBonus = [&](CVisitInfo & visit, Bonus::BonusType type, si32 value, si32 descrID)

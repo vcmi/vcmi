@@ -93,6 +93,9 @@ public:
 	std::vector<SpellID> spells;
 	std::vector<CStackBasicDescriptor> creatures;
 
+	/// list of components that will be added to reward description. First entry in list will override displayed component
+	std::vector<Component> extraComponents;
+
 	/// Generates list of components that describes reward
 	virtual void loadComponents(std::vector<Component> & comps) const;
 	Component getDisplayedComponent() const;
