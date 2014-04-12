@@ -226,10 +226,10 @@ void CObjectWithReward::grantRewardBeforeLevelup(const CVisitInfo & info, const 
 	expToGive += VLC->heroh->reqExp(hero->level+info.reward.gainedLevels) - VLC->heroh->reqExp(hero->level);
 	expToGive += hero->calculateXp(info.reward.gainedExp);
 	if (expToGive)
-	{
 		cb->changePrimSkill(hero, PrimarySkill::EXPERIENCE, expToGive);
-	}
-	else
+
+	// hero is not blocked by levelup dialog - grant remainer immediately
+	if (!cb->isVisitCoveredByAnotherQuery(this, hero))
 	{
 		grantRewardAfterLevelup(info, hero);
 	}
@@ -286,6 +286,9 @@ void CObjectWithReward::grantRewardAfterLevelup(const CVisitInfo & info, const C
 	}
 
 	onRewardGiven(hero);
+
+	if (info.reward.removeObject)
+		cb->removeObject(this);
 }
 
 bool CObjectWithReward::wasVisited (PlayerColor player) const
@@ -314,7 +317,7 @@ bool CObjectWithReward::wasVisited (const CGHeroInstance * h) const
 	switch (visitMode)
 	{
 		case VISIT_HERO:
-			return vstd::contains(h->visitedObjects, ObjectInstanceID(ID));
+			return vstd::contains(h->visitedObjects, ObjectInstanceID(ID)) || h->hasBonusFrom(Bonus::OBJECT, ID);
 		default:
 			return wasVisited(h->tempOwner);
 	}
@@ -378,7 +381,7 @@ const std::string & CObjectWithReward::getHoverText() const
 	{
 		bool visited = wasVisited(cb->getCurrentPlayer());
 		if (h)
-			visited |= wasVisited(h) || h->hasBonusFrom(Bonus::OBJECT,ID);
+			visited |= wasVisited(h);
 
 		hoverName += " " + visitedTxt(visited);
 	}
@@ -463,6 +466,7 @@ void CGPickable::initObj()
 			info[0].reward.resources[givenRes] = givenAmm;
 			info[0].reward.resources[Res::GOLD]= givenAmm * 100;
 			info[0].message.addTxt(MetaString::ADVOB_TXT,23);
+			info[0].reward.removeObject = true;
 			break;
 		}
 	case Obj::FLOTSAM:
@@ -472,12 +476,15 @@ void CGPickable::initObj()
 			switch(type)
 			{
 			case 0:
-					onEmpty.addTxt(MetaString::ADVOB_TXT, 51);
+					info.resize(1);
+					info[0].message.addTxt(MetaString::ADVOB_TXT, 51);
+					info[0].reward.removeObject = true;
 			case 1:
 				{
 					info.resize(1);
 					info[0].reward.resources[Res::WOOD] = 5;
 					info[0].message.addTxt(MetaString::ADVOB_TXT, 52);
+					info[0].reward.removeObject = true;
 					break;
 				}
 			case 2:
@@ -486,6 +493,7 @@ void CGPickable::initObj()
 					info[0].reward.resources[Res::WOOD] = 5;
 					info[0].reward.resources[Res::GOLD] = 200;
 					info[0].message.addTxt(MetaString::ADVOB_TXT, 53);
+					info[0].reward.removeObject = true;
 					break;
 				}
 			case 3:
@@ -494,6 +502,7 @@ void CGPickable::initObj()
 					info[0].reward.resources[Res::WOOD] = 10;
 					info[0].reward.resources[Res::GOLD] = 500;
 					info[0].message.addTxt(MetaString::ADVOB_TXT, 54);
+					info[0].reward.removeObject = true;
 					break;
 				}
 			}
@@ -505,13 +514,16 @@ void CGPickable::initObj()
 			int hlp = cb->gameState()->getRandomGenerator().nextInt(99);
 			if(hlp < 20)
 			{
-				onEmpty.addTxt(MetaString::ADVOB_TXT, 116);
+				info.resize(1);
+				info[0].message.addTxt(MetaString::ADVOB_TXT, 116);
+				info[0].reward.removeObject = true;
 			}
 			else if(hlp < 90)
 			{
 				info.resize(1);
 				info[0].reward.resources[Res::GOLD] = 1500;
 				info[0].message.addTxt(MetaString::ADVOB_TXT, 118);
+				info[0].reward.removeObject = true;
 			}
 			else
 			{
@@ -520,6 +532,7 @@ void CGPickable::initObj()
 				info[0].reward.resources[Res::GOLD] = 1000;
 				info[0].message.addTxt(MetaString::ADVOB_TXT, 117);
 				info[0].message.addReplacement(MetaString::ART_NAMES, info[0].reward.artifacts.back());
+				info[0].reward.removeObject = true;
 			}
 		}
 		break;
@@ -530,6 +543,7 @@ void CGPickable::initObj()
 			loadRandomArtifact(info[0], 55, 20, 20, 5);
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 125);
 			info[0].message.addReplacement(MetaString::ART_NAMES, info[0].reward.artifacts.back());
+			info[0].reward.removeObject = true;
 		}
 		break;
 	case Obj::TREASURE_CHEST:
@@ -542,6 +556,7 @@ void CGPickable::initObj()
 				loadRandomArtifact(info[0], 100, 0, 0, 0);
 				info[0].message.addTxt(MetaString::ADVOB_TXT,145);
 				info[0].message.addReplacement(MetaString::ART_NAMES, info[0].reward.artifacts.back());
+				info[0].reward.removeObject = true;
 				return;
 			}
 			else if (hlp >= 65)
@@ -551,6 +566,8 @@ void CGPickable::initObj()
 				info.resize(2);
 				info[0].reward.resources[Res::GOLD] = 2000;
 				info[1].reward.gainedExp = 1500;
+				info[0].reward.removeObject = true;
+				info[1].reward.removeObject = true;
 			}
 			else if(hlp >= 33)
 			{
@@ -559,6 +576,8 @@ void CGPickable::initObj()
 				info.resize(2);
 				info[0].reward.resources[Res::GOLD] = 1500;
 				info[1].reward.gainedExp = 1000;
+				info[0].reward.removeObject = true;
+				info[1].reward.removeObject = true;
 			}
 			else
 			{
@@ -567,15 +586,12 @@ void CGPickable::initObj()
 				info.resize(2);
 				info[0].reward.resources[Res::GOLD] = 1000;
 				info[1].reward.gainedExp = 500;
+				info[0].reward.removeObject = true;
+				info[1].reward.removeObject = true;
 			}
 		}
 		break;
 	}
-}
-
-void CGPickable::onRewardGiven(const CGHeroInstance * hero) const
-{
-	cb->removeObject(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

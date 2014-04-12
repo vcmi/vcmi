@@ -96,6 +96,9 @@ public:
 	/// list of components that will be added to reward description. First entry in list will override displayed component
 	std::vector<Component> extraComponents;
 
+	/// if set to true, object will be removed after granting reward
+	bool removeObject;
+
 	/// Generates list of components that describes reward
 	virtual void loadComponents(std::vector<Component> & comps) const;
 	Component getDisplayedComponent() const;
@@ -107,12 +110,13 @@ public:
 		manaPercentage(-1),
 		movePoints(0),
 		movePercentage(-1),
-		primary(4, 0)
+		primary(4, 0),
+		removeObject(false)
 	{}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & resources;
+		h & resources & extraComponents & removeObject;
 		h & gainedExp & gainedLevels & manaDiff & movePoints;
 		h & primary & secondary & bonuses;
 		h & artifacts & spells & creatures;
@@ -233,7 +237,6 @@ class DLL_LINKAGE CGPickable : public CObjectWithReward //campfire, treasure che
 {
 public:
 	void initObj() override;
-	void onRewardGiven(const CGHeroInstance *hero) const;
 
 	CGPickable();
 
