@@ -95,6 +95,16 @@ void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
 			cb->showInfoDialog(&iw);
 		}
 	};
+	auto selectRewardsMessage = [&](std::vector<ui32> rewards) -> void
+	{
+		BlockingDialog sd(canRefuse, rewards.size() > 1);
+		sd.player = h->tempOwner;
+		sd.soundID = soundID;
+		sd.text = onSelect;
+		for (auto index : rewards)
+			sd.components.push_back(info[index].reward.getDisplayedComponent());
+		cb->showBlockingDialog(&sd);
+	};
 
 	if (!wasVisited(h))
 	{
@@ -116,23 +126,18 @@ void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
 			}
 			case 1: // one reward. Just give it with message
 			{
-				grantRewardWithMessage(rewards[0]);
+				if (canRefuse)
+					selectRewardsMessage(rewards);
+				else
+					grantRewardWithMessage(rewards[0]);
 				break;
 			}
 			default: // multiple rewards. Act according to select mode
 			{
 				switch (selectMode) {
 					case SELECT_PLAYER: // player must select
-					{
-						BlockingDialog sd(canRefuse, true);
-						sd.player = h->tempOwner;
-						sd.soundID = soundID;
-						sd.text = onSelect;
-						for (auto index : rewards)
-							sd.components.push_back(info[index].reward.getDisplayedComponent());
-						cb->showBlockingDialog(&sd);
+						selectRewardsMessage(rewards);
 						break;
-					}
 					case SELECT_FIRST: // give first available
 						grantRewardWithMessage(rewards[0]);
 						break;
@@ -445,7 +450,7 @@ void CGPickable::initObj()
 	blockVisit = true;
 	switch(ID)
 	{
-	case Obj::CAMPFIRE:
+	case Obj::CAMPFIRE: //FIXME: campfire is not functioning correctly in game (no visible message)
 		{
 			soundID = soundBase::experience;
 			int givenRes = cb->gameState()->getRandomGenerator().nextInt(5);
