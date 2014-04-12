@@ -598,15 +598,13 @@ void CGBonusingObject::initObj()
 		soundID = sound;
 	};
 
-	if(ID == Obj::BUOY || ID == Obj::MERMAID)
-		blockVisit = true;
-
 	info.resize(1);
 	CVisitInfo & visit = info[0];
 
 	switch(ID)
 	{
 	case Obj::BUOY:
+			blockVisit = true;
 		configureMessage(visit, 21, 22, soundBase::MORALE);
 		configureBonus(visit, Bonus::MORALE, +1, 94);
 		break;
@@ -621,26 +619,30 @@ void CGBonusingObject::initObj()
 		break;
 	case Obj::FOUNTAIN_OF_FORTUNE:
 		selectMode = SELECT_RANDOM;
-		configureMessage(visit, 55, 56, soundBase::LUCK);
 		info.resize(5);
 		for (int i=0; i<5; i++)
+		{
 			configureBonus(info[i], Bonus::LUCK, i-1, 69); //NOTE: description have %d that should be replaced with value
+			configureMessage(info[i], 55, 56, soundBase::LUCK);
+		}
 		break;
 	case Obj::IDOL_OF_FORTUNE:
 
-		configureMessage(visit, 62, 63, soundBase::experience);
 		info.resize(7);
 		for (int i=0; i<6; i++)
 		{
 			info[i].limiter.dayOfWeek = i+1;
 			configureBonus(info[i], i%2 ? Bonus::MORALE : Bonus::LUCK, 1, 68);
+			configureMessage(info[i], 62, 63, soundBase::experience);
 		}
 		info.back().limiter.dayOfWeek = 7;
 		configureBonus(info.back(), Bonus::MORALE, 1, 68); // on last day of week
 		configureBonus(info.back(), Bonus::LUCK,   1, 68);
+		configureMessage(info.back(), 62, 63, soundBase::experience);
 
 		break;
 	case Obj::MERMAID:
+		blockVisit = true;
 		configureMessage(visit, 83, 82, soundBase::LUCK);
 		configureBonus(visit, Bonus::LUCK, 1, 72);
 		break;
@@ -725,7 +727,6 @@ void CGOnceVisitable::initObj()
 			}
 		}
 		break;
-
 	case Obj::LEAN_TO:
 		{
 			soundID = soundBase::GENIE;
@@ -737,7 +738,6 @@ void CGOnceVisitable::initObj()
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 64);
 		}
 		break;
-
 	case Obj::WARRIORS_TOMB:
 		{
 			soundID = soundBase::GRAVEYARD;
@@ -1015,7 +1015,13 @@ void CGVisitableOPW::initObj()
 
 void CGMagicSpring::initObj()
 {
-
+	CVisitInfo visit; // TODO: "player above max mana" limiter
+	visit.reward.manaPercentage = 200;
+	visit.message.addTxt(MetaString::ADVOB_TXT, 74);
+	info.push_back(visit); // two rewards, one for each entrance
+	info.push_back(visit);
+	onEmpty.addTxt(MetaString::ADVOB_TXT, 75);
+	soundID = soundBase::GENIE;
 }
 
 std::vector<int3> CGMagicSpring::getVisitableOffsets() const
