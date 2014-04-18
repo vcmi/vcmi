@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CEmptyAI.h"
 
-#include "CRandomGenerator.h"
+#include "../../lib/CRandomGenerator.h"
 
 void CEmptyAI::init(shared_ptr<CCallback> CB)
 {
