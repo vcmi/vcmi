@@ -11,11 +11,11 @@
 #include "HeroBonus.h"
 #include "CCreatureSet.h"
 #include "ConstTransitivePtr.h"
-#include "IGameCallback.h"
+#include "IGameCallback2.h"
 #include "ResourceSet.h"
 #include "int3.h"
 #include "CObjectHandler.h"
-#include "IGameCallback.h"
+//#include "IGameCallback.h"
 #include "CRandomGenerator.h"
 
 /*

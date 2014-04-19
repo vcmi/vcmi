@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "lib/IGameCallback.h"
+#include "lib/IGameCallback2.h"
 
 /*
  * CCallback.h, part of VCMI engine

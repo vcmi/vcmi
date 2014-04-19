@@ -7,6 +7,7 @@ include_directories(${Boost_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR}
 set(lib_SRCS
 		StdInc.cpp
 		IGameCallback.cpp
+		IGameCallback2.cpp
 		CGameState.cpp
 		CObjectHandler.cpp
 		Connection.cpp
