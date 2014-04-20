@@ -172,7 +172,7 @@ void CPrivilagedInfoCallback::saveCommonState(Saver &out) const
 	out << gs;
 }
 
-// hardly memory usage for `-ggdb3 -O0 -fstack-protector -fvar-tracking-assignments -gdwarf-4` flags
+// hardly memory usage for `-gdwarf-4` flag
 template DLL_LINKAGE void CPrivilagedInfoCallback::loadCommonState<CLoadIntegrityValidator>(CLoadIntegrityValidator&);
 template DLL_LINKAGE void CPrivilagedInfoCallback::loadCommonState<CLoadFile>(CLoadFile&);
 template DLL_LINKAGE void CPrivilagedInfoCallback::saveCommonState<CSaveFile>(CSaveFile&) const;
