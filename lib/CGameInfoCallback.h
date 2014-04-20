@@ -4,7 +4,7 @@
 #include "CBattleCallback.h" //for CCallbackBase
 
 /*
- * IGameCallback.h, part of VCMI engine
+ * CGameInfoCallback.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

@@ -1,5 +1,5 @@
 /*
- * IGameCallback.cpp, part of VCMI engine
+ * CGameInfoCallback.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,7 @@
  */
 
 #include "StdInc.h"
-#include "IGameCallback2.h"
+#include "CGameInfoCallback.h"
 
 #include "CGameState.h" // PlayerState
 #include "CObjectHandler.h" // for CGObjectInstance

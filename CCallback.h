@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "lib/IGameCallback2.h"
+#include "lib/CGameInfoCallback.h"
 #include "int3.h" // for int3
 
 /*

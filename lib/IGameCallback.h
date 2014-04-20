@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IGameCallback2.h" // for CGameInfoCallback
+#include "CGameInfoCallback.h" // for CGameInfoCallback
 
 /*
  * IGameCallback.h, part of VCMI engine
