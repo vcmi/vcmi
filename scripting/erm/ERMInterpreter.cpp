@@ -6,6 +6,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/VCMIDirs.h"
+#include "../../lib/IGameCallback.h"
 
 /*
  * ERMInterpreter.cpp, part of VCMI engine

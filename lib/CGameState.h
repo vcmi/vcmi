@@ -11,7 +11,7 @@
 #include "HeroBonus.h"
 #include "CCreatureSet.h"
 #include "ConstTransitivePtr.h"
-#include "IGameCallback2.h"
+#include "IGameCallback.h"
 #include "ResourceSet.h"
 #include "int3.h"
 #include "CObjectHandler.h"

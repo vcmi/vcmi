@@ -2,7 +2,7 @@
 
 
 #include "IGameEventsReceiver.h"
-#include "IGameCallback2.h"
+//#include "IGameCallback2.h"
 
 /*
  * CScriptingModule.h, part of VCMI engine
@@ -13,6 +13,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+class IGameEventRealizer;
+class CPrivilagedInfoCallback;
 
 class CScriptingModule : public IGameEventsReceiver, public IBattleEventsReceiver
 {

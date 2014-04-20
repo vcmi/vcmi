@@ -2,6 +2,7 @@
 
 
 #include "lib/IGameCallback2.h"
+#include "int3.h" // for int3
 
 /*
  * CCallback.h, part of VCMI engine
@@ -29,6 +30,9 @@ struct CPathsInfo;
 struct CPack;
 class IBattleEventsReceiver;
 class IGameEventsReceiver;
+
+//my
+struct ArtifactLocation;
 
 class IBattleCallback
 {

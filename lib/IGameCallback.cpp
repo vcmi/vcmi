@@ -13,28 +13,228 @@
 
 /*#include "CGameState.h"
 #include "mapping/CMap.h"
-#include "CObjectHandler.h"
-#include "CHeroHandler.h"
-#include "StartInfo.h"
-#include "CArtHandler.h"
-#include "CSpellHandler.h"
-#include "VCMI_Lib.h"
+#include "CObjectHandler.h"*/
+#include "CHeroHandler.h" // for CHeroHandler
+/*#include "StartInfo.h"
+#include "CArtHandler.h"*/
+#include "CSpellHandler.h" // for CSpell
+/*#include "VCMI_Lib.h"
 #include "CTownHandler.h"
 #include "BattleState.h"*/
 #include "NetPacks.h"
 /*#include "CBuildingHandler.h"
 #include "GameConstants.h"
 #include "CModHandler.h"
-#include "CDefObjInfoHandler.h"
-#include "CBonusTypeHandler.h"
+#include "CDefObjInfoHandler.h"*/
+#include "CBonusTypeHandler.h" // for CBonusTypeHandler
 
-#include "Connection.h"*/
+#include "Connection.h" // for SAVEGAME_MAGIC
 
 //TODO make clean
 /*#define ERROR_SILENT_RET_VAL_IF(cond, txt, retVal) do {if(cond){return retVal;}} while(0)
 #define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
 #define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return;}} while(0)
 #define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)*/
+
+void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
+{
+	std::vector<int> floors;
+	for (int b = 0; b < (gs->map->twoLevel ? 2 : 1); ++b)
+	{
+		floors.push_back(b);
+	}
+	const TerrainTile *tinfo;
+	for (auto zd : floors)
+	{
+
+		for (int xd = 0; xd < gs->map->width; xd++)
+		{
+			for (int yd = 0; yd < gs->map->height; yd++)
+			{
+				tinfo = getTile(int3 (xd,yd,zd));
+				if (tinfo->terType != ETerrainType::WATER && !tinfo->blocked) //land and free
+					tiles.push_back (int3 (xd,yd,zd));
+			}
+		}
+	}
+}
+
+void CPrivilagedInfoCallback::getTilesInRange( std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player/*=uninit*/, int mode/*=0*/ ) const
+{
+	if(!!player && *player >= PlayerColor::PLAYER_LIMIT)
+	{
+        logGlobal->errorStream() << "Illegal call to getTilesInRange!";
+		return;
+	}
+	if (radious == -1) //reveal entire map
+		getAllTiles (tiles, player, -1, 0);
+	else
+	{
+		const TeamState * team = !player ? nullptr : gs->getPlayerTeam(*player);
+		for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gs->map->width - 1); xd++)
+		{
+			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gs->map->height - 1); yd++)
+			{
+				double distance = pos.dist2d(int3(xd,yd,pos.z)) - 0.5;
+				if(distance <= radious)
+				{
+					if(!player
+						|| (mode == 1  && team->fogOfWarMap[xd][yd][pos.z]==0)
+						|| (mode == -1 && team->fogOfWarMap[xd][yd][pos.z]==1)
+					)
+						tiles.insert(int3(xd,yd,pos.z));
+				}
+			}
+		}
+	}
+}
+
+void CPrivilagedInfoCallback::getAllTiles (std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> Player/*=uninit*/, int level, int surface ) const
+{
+	if(!!Player && *Player >= PlayerColor::PLAYER_LIMIT)
+	{
+        logGlobal->errorStream() << "Illegal call to getAllTiles !";
+		return;
+	}
+	bool water = surface == 0 || surface == 2,
+		land = surface == 0 || surface == 1;
+
+	std::vector<int> floors;
+	if(level == -1)
+	{
+		for(int b = 0; b < (gs->map->twoLevel ? 2 : 1); ++b)
+		{
+			floors.push_back(b);
+		}
+	}
+	else
+		floors.push_back(level);
+
+	for (auto zd : floors)
+	{
+
+		for (int xd = 0; xd < gs->map->width; xd++)
+		{
+			for (int yd = 0; yd < gs->map->height; yd++)
+			{
+				if ((getTile (int3 (xd,yd,zd))->terType == ETerrainType::WATER && water)
+					|| (getTile (int3 (xd,yd,zd))->terType != ETerrainType::WATER && land))
+					tiles.insert(int3(xd,yd,zd));
+			}
+		}
+	}
+}
+
+void CPrivilagedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact*> &out)
+{
+	for (int j = 0; j < 3 ; j++)
+		out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(gameState()->getRandomGenerator(), CArtifact::ART_TREASURE)]);
+	for (int j = 0; j < 3 ; j++)
+		out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(gameState()->getRandomGenerator(), CArtifact::ART_MINOR)]);
+
+	out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(gameState()->getRandomGenerator(), CArtifact::ART_MAJOR)]);
+}
+
+void CPrivilagedInfoCallback::getAllowedSpells(std::vector<SpellID> &out, ui16 level)
+{
+	for (ui32 i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
+	{
+
+		const CSpell *spell = SpellID(i).toSpell();
+		if (isAllowed (0, spell->id) && spell->level == level)
+		{
+			out.push_back(spell->id);
+		}
+	}
+}
+
+CGameState * CPrivilagedInfoCallback::gameState ()
+{
+	return gs;
+}
+
+template<typename Loader>
+void CPrivilagedInfoCallback::loadCommonState(Loader &in)
+{
+    logGlobal->infoStream() << "Loading lib part of game...";
+	in.checkMagicBytes(SAVEGAME_MAGIC);
+
+	CMapHeader dum;
+	StartInfo *si;
+
+    logGlobal->infoStream() <<"\tReading header";
+	in >> dum;
+
+    logGlobal->infoStream() << "\tReading options";
+	in >> si;
+
+    logGlobal->infoStream() <<"\tReading handlers";
+	in >> *VLC;
+
+    logGlobal->infoStream() <<"\tReading gamestate";
+	in >> gs;
+}
+
+template<typename Saver>
+void CPrivilagedInfoCallback::saveCommonState(Saver &out) const
+{
+    logGlobal->infoStream() << "Saving lib part of game...";
+	out.putMagicBytes(SAVEGAME_MAGIC);
+    logGlobal->infoStream() <<"\tSaving header";
+	out << static_cast<CMapHeader&>(*gs->map);
+    logGlobal->infoStream() << "\tSaving options";
+	out << gs->scenarioOps;
+    logGlobal->infoStream() << "\tSaving handlers";
+	out << *VLC;
+    logGlobal->infoStream() << "\tSaving gamestate";
+	out << gs;
+}
+
+template DLL_LINKAGE void CPrivilagedInfoCallback::loadCommonState<CLoadIntegrityValidator>(CLoadIntegrityValidator&);
+template DLL_LINKAGE void CPrivilagedInfoCallback::loadCommonState<CLoadFile>(CLoadFile&);
+template DLL_LINKAGE void CPrivilagedInfoCallback::saveCommonState<CSaveFile>(CSaveFile&) const;
+
+TerrainTile * CNonConstInfoCallback::getTile( int3 pos )
+{
+	if(!gs->map->isInTheMap(pos))
+		return nullptr;
+	return &gs->map->getTile(pos);
+}
+
+CGHeroInstance *CNonConstInfoCallback::getHero(ObjectInstanceID objid)
+{
+	return const_cast<CGHeroInstance*>(CGameInfoCallback::getHero(objid));
+}
+
+CGTownInstance *CNonConstInfoCallback::getTown(ObjectInstanceID objid)
+{
+	return const_cast<CGTownInstance*>(CGameInfoCallback::getTown(objid));
+}
+
+TeamState *CNonConstInfoCallback::getTeam(TeamID teamID)
+{
+	return const_cast<TeamState*>(CGameInfoCallback::getTeam(teamID));
+}
+
+TeamState *CNonConstInfoCallback::getPlayerTeam(PlayerColor color)
+{
+	return const_cast<TeamState*>(CGameInfoCallback::getPlayerTeam(color));
+}
+
+PlayerState * CNonConstInfoCallback::getPlayer( PlayerColor color, bool verbose )
+{
+	return const_cast<PlayerState*>(CGameInfoCallback::getPlayer(color, verbose));
+}
+
+CArtifactInstance * CNonConstInfoCallback::getArtInstance( ArtifactInstanceID aid )
+{
+	return gs->map->artInstances[aid.num];
+}
+
+CGObjectInstance * CNonConstInfoCallback::getObjInstance( ObjectInstanceID oid )
+{
+	return gs->map->objects[oid.num];
+}
 
 const CGObjectInstance * IGameCallback::putNewObject(Obj ID, int subID, int3 pos)
 {
