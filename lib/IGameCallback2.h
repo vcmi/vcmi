@@ -1,9 +1,6 @@
 #pragma once
 
-/*#include "BattleHex.h"*/
 #include "ResourceSet.h" // for Res::ERes
-/*#include "int3.h" // for int3
-#include "GameConstants.h"*/
 #include "CBattleCallback.h" //for CCallbackBase
 
 /*
@@ -16,51 +13,23 @@
  *
  */
 
-/*struct SetMovePoints;
-struct GiveBonus;*/
 class CGObjectInstance;
-/*class CGTownInstance;
-class CGHeroInstance;
-struct BlockingDialog;*/
 struct InfoWindow;
-/*struct MetaString;
-struct ShowInInfobox;
-struct BattleResult;
-struct Component;
-class CGameState;*/
 struct PlayerSettings;
 struct CPackForClient;
-/*class CArtHandler;
-class CArtifact;
-class CArmedInstance;*/
 struct TerrainTile;
 struct PlayerState;
 class CTown;
-/*struct StackLocation;
-struct ArtifactLocation;
-class CArtifactInstance;*/
 struct StartInfo;
 struct InfoAboutTown;
 struct UpgradeInfo;
 struct SThievesGuildInfo;
-/*struct CPath;*/
 class CGDwelling;
-/*struct InfoAboutHero;*/
 class CMapHeader;
-/*struct BattleAction;
-class CStack;
-class CSpell;
-class CCreatureSet;
-class CCreature;
-class CStackBasicDescriptor;*/
 struct TeamState;
 struct QuestInfo;
-/*class CGCreature;
-class CSaveFile;
-class CLoadFile;*/
-
-// my
 class int3;
+
 
 class DLL_LINKAGE CGameInfoCallback : public virtual CCallbackBase
 {
@@ -141,7 +110,6 @@ public:
 	const TeamState *getPlayerTeam(PlayerColor color) const;
 	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID) const;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 };
-
 
 class DLL_LINKAGE CPlayerSpecificInfoCallback : public CGameInfoCallback
 {

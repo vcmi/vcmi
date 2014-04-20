@@ -2,7 +2,6 @@
 
 
 #include "IGameEventsReceiver.h"
-//#include "IGameCallback2.h"
 
 /*
  * CScriptingModule.h, part of VCMI engine
@@ -28,3 +27,4 @@ public:
 	CScriptingModule(){}
 	virtual ~CScriptingModule(){}
 };
+

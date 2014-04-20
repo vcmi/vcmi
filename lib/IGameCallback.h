@@ -2,12 +2,6 @@
 
 #include "IGameCallback2.h" // for CGameInfoCallback
 
-/*#include "BattleHex.h"
-#include "ResourceSet.h"
-#include "int3.h"
-#include "GameConstants.h"
-#include "CBattleCallback.h"*/
-
 /*
  * IGameCallback.h, part of VCMI engine
  *
@@ -20,48 +14,14 @@
 
 struct SetMovePoints;
 struct GiveBonus;
-/*class CGObjectInstance;
-class CGTownInstance;
-class CGHeroInstance;*/
 struct BlockingDialog;
-/*struct InfoWindow;*/
 struct MetaString;
 struct ShowInInfobox;
-/*struct BattleResult;
-struct Component;
-class CGameState;
-struct PlayerSettings;
-struct CPackForClient;
-class CArtHandler;
-class CArtifact;
-class CArmedInstance;
-struct TerrainTile;
-struct PlayerState;
-class CTown;*/
 struct StackLocation;
 struct ArtifactLocation;
-/*class CArtifactInstance;
-struct StartInfo;
-struct InfoAboutTown;
-struct UpgradeInfo;
-struct SThievesGuildInfo;
-struct CPath;
-class CGDwelling;
-struct InfoAboutHero;
-class CMapHeader;
-struct BattleAction;
-class CStack;
-class CSpell;*/
 class CCreatureSet;
-/*class CCreature;*/
 class CStackBasicDescriptor;
-/*struct TeamState;
-struct QuestInfo;*/
 class CGCreature;
-/*class CSaveFile;
-class CLoadFile;*/
-
-//my
 struct ShashInt3;
 
 class DLL_LINKAGE CPrivilagedInfoCallback : public CGameInfoCallback

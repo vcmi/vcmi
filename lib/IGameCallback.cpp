@@ -11,30 +11,12 @@
 #include "StdInc.h"
 #include "IGameCallback.h"
 
-/*#include "CGameState.h"
-#include "mapping/CMap.h"
-#include "CObjectHandler.h"*/
 #include "CHeroHandler.h" // for CHeroHandler
-/*#include "StartInfo.h"
-#include "CArtHandler.h"*/
 #include "CSpellHandler.h" // for CSpell
-/*#include "VCMI_Lib.h"
-#include "CTownHandler.h"
-#include "BattleState.h"*/
 #include "NetPacks.h"
-/*#include "CBuildingHandler.h"
-#include "GameConstants.h"
-#include "CModHandler.h"
-#include "CDefObjInfoHandler.h"*/
 #include "CBonusTypeHandler.h" // for CBonusTypeHandler
 
 #include "Connection.h" // for SAVEGAME_MAGIC
-
-//TODO make clean
-/*#define ERROR_SILENT_RET_VAL_IF(cond, txt, retVal) do {if(cond){return retVal;}} while(0)
-#define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
-#define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return;}} while(0)
-#define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)*/
 
 void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 {

@@ -30,8 +30,6 @@ struct CPathsInfo;
 struct CPack;
 class IBattleEventsReceiver;
 class IGameEventsReceiver;
-
-//my
 struct ArtifactLocation;
 
 class IBattleCallback

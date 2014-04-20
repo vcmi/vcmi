@@ -12,26 +12,12 @@
 #include "IGameCallback2.h"
 
 #include "CGameState.h" // PlayerState
-/*#include "mapping/CMap.h"*/
 #include "CObjectHandler.h" // for CGObjectInstance
-/*#include "CHeroHandler.h"*/
 #include "StartInfo.h" // for StartInfo
-/*#include "CArtHandler.h"
-#include "CSpellHandler.h"
-#include "VCMI_Lib.h"
-#include "CTownHandler.h"*/
 #include "BattleState.h" // for BattleInfo
 #include "NetPacks.h" // for InfoWindow
-/*#include "CBuildingHandler.h"
-#include "GameConstants.h"
-#include "CModHandler.h"
-#include "CDefObjInfoHandler.h"
-#include "CBonusTypeHandler.h"
-
-#include "Connection.h"*/
 
 //TODO make clean
-/*#define ERROR_SILENT_RET_VAL_IF(cond, txt, retVal) do {if(cond){return retVal;}} while(0)*/
 #define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
 #define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return;}} while(0)
 #define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
