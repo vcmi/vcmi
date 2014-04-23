@@ -361,17 +361,18 @@ std::string InfoBoxHeroData::getHoverText()
 
 std::string InfoBoxHeroData::getValueText()
 {
-	switch (type)
+	if (hero)
 	{
-	case HERO_MANA:
-		if (hero)
+		switch (type)
+		{
+		case HERO_MANA:
 			return boost::lexical_cast<std::string>(hero->mana) + '/' +
-			       boost::lexical_cast<std::string>(hero->manaLimit());
-	case HERO_EXPERIENCE:
-		return boost::lexical_cast<std::string>(hero->exp);
-	default:
-		return InfoBoxAbstractHeroData::getValueText();
+				boost::lexical_cast<std::string>(hero->manaLimit());
+		case HERO_EXPERIENCE:
+			return boost::lexical_cast<std::string>(hero->exp);
+		}
 	}
+	return InfoBoxAbstractHeroData::getValueText();
 }
 
 bool InfoBoxHeroData::prepareMessage(std::string &text, CComponent**comp)
