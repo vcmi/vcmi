@@ -55,7 +55,7 @@ si64 CFileInputStream::seek(si64 position)
 
 si64 CFileInputStream::tell()
 {
-	return fileStream.tellg() - dataStart;
+	return static_cast<si64>(fileStream.tellg()) - dataStart;
 }
 
 si64 CFileInputStream::skip(si64 delta)

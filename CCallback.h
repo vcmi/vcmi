@@ -1,7 +1,8 @@
 #pragma once
 
 
-#include "lib/IGameCallback.h"
+#include "lib/CGameInfoCallback.h"
+#include "int3.h" // for int3
 
 /*
  * CCallback.h, part of VCMI engine
@@ -29,6 +30,7 @@ struct CPathsInfo;
 struct CPack;
 class IBattleEventsReceiver;
 class IGameEventsReceiver;
+struct ArtifactLocation;
 
 class IBattleCallback
 {

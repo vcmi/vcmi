@@ -15,7 +15,6 @@
 #include "ResourceSet.h"
 #include "int3.h"
 #include "CObjectHandler.h"
-#include "IGameCallback.h"
 #include "CRandomGenerator.h"
 
 /*
