@@ -220,6 +220,7 @@
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="CBattleCallback.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
+    <ClCompile Include="CGameInfoCallback.cpp" />
     <ClCompile Include="JsonNode.cpp" />
     <ClCompile Include="NetPacksLib.cpp" />
     <ClCompile Include="ResourceSet.cpp" />
@@ -303,6 +304,7 @@
     <ClInclude Include="HeroBonus.h" />
     <ClInclude Include="CBattleCallback.h" />
     <ClInclude Include="IGameCallback.h" />
+    <ClInclude Include="CGameInfoCallback.h" />
     <ClInclude Include="IGameEventsReceiver.h" />
     <ClInclude Include="int3.h" />
     <ClInclude Include="Interprocess.h" />
