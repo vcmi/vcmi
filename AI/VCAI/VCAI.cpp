@@ -2355,7 +2355,8 @@ TResources VCAI::estimateIncome() const
 			}
 			else
 			{
-				ret[t->town->primaryRes] ++;
+			  if (t->town->primaryRes != Res::GOLD)
+				ret[t->town->primaryRes]++;
 			}
 		}
 	}

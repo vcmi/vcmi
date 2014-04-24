@@ -3742,8 +3742,8 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 		if(selected == -1)
 			recruit->block(true);
 	}
+    CCS->videoh->open(LOCPLINT->castleInt->town->town->clientInfo.tavernVideo);
 
-	CCS->videoh->open("TAVERN.BIK");
 }
 
 void CTavernWindow::recruitb()

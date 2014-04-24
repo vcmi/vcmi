@@ -847,7 +847,9 @@ void CCastleBuildings::enterTownHall()
 
 void CCastleBuildings::openMagesGuild()
 {
-	GH.pushInt(new CMageGuildScreen(LOCPLINT->castleInt));
+	std::string mageGuildBackground;
+	mageGuildBackground = LOCPLINT->castleInt->town->town->clientInfo.guildBackground;
+	GH.pushInt(new CMageGuildScreen(LOCPLINT->castleInt,mageGuildBackground));
 }
 
 void CCastleBuildings::openTownHall()
@@ -1636,9 +1638,12 @@ void CFortScreen::RecruitArea::clickRight(tribool down, bool previousState)
 	clickLeft(down, false); //r-click does same as l-click - opens recr. window
 }
 
-CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner):
-    CWindowObject(BORDERED, "TPMAGE")
+
+
+
+CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem) :CWindowObject(BORDERED,imagem)
 {
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	window = new CPicture(owner->town->town->clientInfo.guildWindow , 332, 76);

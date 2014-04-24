@@ -116,6 +116,8 @@ public:
 
 	std::string creatureBg120;
 	std::string creatureBg130;
+	
+	
 
 	std::vector<SPuzzleInfo> puzzleMap;
 
@@ -132,7 +134,7 @@ public:
 	~CTown();
 
 	CFaction * faction;
-
+	
 	std::vector<std::string> names; //names of the town instances
 
 	/// level -> list of creatures on this tier
@@ -170,9 +172,10 @@ public:
 		int icons[2][2];
 		std::string iconSmall[2][2]; /// icon names used during loading
 		std::string iconLarge[2][2];
-
+		std::string tavernVideo;
 		std::string musicTheme;
 		std::string townBackground;
+		std::string guildBackground;
 		std::string guildWindow;
 		std::string buildingsIcons;
 		std::string hallBackground;
@@ -193,7 +196,7 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & icons & iconSmall & iconLarge & musicTheme & townBackground & guildWindow & buildingsIcons & hallBackground;
+			h & icons & iconSmall & iconLarge & tavernVideo & musicTheme & townBackground & guildBackground & guildWindow & buildingsIcons & hallBackground;
 			h & advMapVillage & advMapCastle & advMapCapitol & hallSlots & structures;
 			h & siegePrefix & siegePositions & siegeShooter;
 		}
