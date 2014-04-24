@@ -42,6 +42,7 @@
     <ClCompile Include="CRandomGenerator.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
+    <ClCompile Include="CGameInfoCallback.cpp" />
     <ClCompile Include="NetPacksLib.cpp" />
     <ClCompile Include="VCMI_Lib.cpp" />
     <ClCompile Include="ResourceSet.cpp" />
@@ -175,6 +176,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IGameCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CGameInfoCallback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Interprocess.h">

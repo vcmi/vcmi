@@ -93,6 +93,8 @@
 		<Unit filename="CCreatureSet.h" />
 		<Unit filename="CDefObjInfoHandler.cpp" />
 		<Unit filename="CDefObjInfoHandler.h" />
+		<Unit filename="CGameInfoCallback.cpp" />
+		<Unit filename="CGameInfoCallback.h" />
 		<Unit filename="CGameInterface.cpp" />
 		<Unit filename="CGameInterface.h" />
 		<Unit filename="CGameState.cpp" />
