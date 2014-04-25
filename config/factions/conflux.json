@@ -120,7 +120,8 @@
 
 			"musicTheme" : "music/ElemTown",
 			"defaultTavern" : 5,
-
+            "tavernVideo" : "TAVERN.BIK",
+			"guildBackground" : "TPMAGE.bmp",
 			"townBackground": "TBELBACK.bmp",
 			"guildWindow": "TPMAGEEL.bmp",
 			"buildingsIcons": "HALLELEM.DEF",

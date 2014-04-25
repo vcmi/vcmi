@@ -116,7 +116,8 @@
 
 			"musicTheme" : "music/InfernoTown",
 			"defaultTavern" : 5,
-
+            "tavernVideo" : "TAVERN.BIK",
+			"guildBackground" : "TPMAGE.bmp",
 			"townBackground": "TBINBACK.bmp",
 			"guildWindow": "TPMAGEIN.bmp",
 			"buildingsIcons": "HALLINFR.DEF",

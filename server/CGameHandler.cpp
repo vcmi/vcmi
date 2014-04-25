@@ -1339,7 +1339,8 @@ void CGameHandler::newTurn()
 				}
 				else
 				{
-					n.res[player][t->town->primaryRes] ++;
+					if (t->town->primaryRes != Res::GOLD)
+					  n.res[player][t->town->primaryRes] ++;
 				}
 			}
 

@@ -360,7 +360,7 @@ class CMageGuildScreen : public CWindowObject
 	CGStatusBar *statusBar;
 
 public:
-	CMageGuildScreen(CCastleInterface * owner);
+	CMageGuildScreen(CCastleInterface * owner,std::string image);
 };
 
 /// The blacksmith window where you can buy available in town war machine

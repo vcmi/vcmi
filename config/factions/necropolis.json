@@ -120,7 +120,8 @@
 
 			"musicTheme" : "music/NecroTown",
 			"defaultTavern" : 5,
-
+            "tavernVideo" : "TAVERN.BIK",
+			"guildBackground" : "TPMAGE.bmp",
 			"townBackground": "TBNCBACK.bmp",
 			"guildWindow": "TPMAGENC.bmp",
 			"buildingsIcons": "HALLNECR.DEF",

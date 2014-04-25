@@ -510,6 +510,17 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 	info.guildWindow = source["guildWindow"].String();
 	info.buildingsIcons = source["buildingsIcons"].String();
 
+	//left for back compatibility - will be removed later
+	if (source["guildBackground"].String() != "")
+		info.guildBackground = source["guildBackground"].String();
+	else
+		info.guildBackground = "TPMAGE.bmp";
+	if (source["tavernVideo"].String() != "")
+	    info.tavernVideo = source["tavernVideo"].String();
+	else
+		info.tavernVideo = "TAVERN.BIK";
+	//end of legacy assignment 
+
 	info.advMapVillage = source["adventureMap"]["village"].String();
 	info.advMapCastle  = source["adventureMap"]["castle"].String();
 	info.advMapCapitol = source["adventureMap"]["capitol"].String();
@@ -534,6 +545,8 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	});
 
 	town.moatDamage = source["moatDamage"].Float();
+
+	
 
 	town.mageLevel = source["mageGuild"].Float();
 	town.names = source["names"].convertTo<std::vector<std::string> >();
@@ -647,6 +660,7 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source, std::string identi
 
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();
+
 
 	faction->nativeTerrain = ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES,
 		source["nativeTerrain"].String()));

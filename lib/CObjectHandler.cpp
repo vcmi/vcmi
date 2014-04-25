@@ -2283,6 +2283,8 @@ int CGTownInstance::dailyIncome() const
 		ret+=1000;
 	else if (hasBuilt(BuildingID::VILLAGE_HALL))
 		ret+=500;
+	if (hasBuilt(BuildingID::RESOURCE_SILO)&&(town->primaryRes==Res::GOLD))
+		ret += 500;
 	return ret;
 }
 bool CGTownInstance::hasFort() const
