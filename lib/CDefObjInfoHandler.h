@@ -108,3 +108,60 @@ public:
 		h & objects;
 	}
 };
+
+class IObjectInfo
+{
+public:
+	virtual bool givesResources() const = 0;
+
+	virtual bool givesExperience() const = 0;
+	virtual bool givesMana() const = 0;
+	virtual bool givesMovement() const = 0;
+
+	virtual bool givesPrimarySkills() const = 0;
+	virtual bool givesSecondarySkills() const = 0;
+
+	virtual bool givesArtifacts() const = 0;
+	virtual bool givesCreatures() const = 0;
+	virtual bool givesSpells() const = 0;
+
+	virtual bool givesBonuses() const = 0;
+};
+
+class CGObjectInstance;
+
+class IObjectTypeHandler
+{
+public:
+	virtual CGObjectInstance * create(ui32 id, ui32 subID) const = 0;
+
+	virtual bool handlesID(ui32 id) const = 0;
+
+	virtual void configureObject(CGObjectInstance * object) const = 0;
+
+	virtual IObjectInfo * getObjectInfo(ui32 id, ui32 subID) const = 0;
+};
+
+typedef std::shared_ptr<IObjectTypeHandler> TObjectTypeHandler;
+
+class CObjectTypesHandler
+{
+	/// list of object handlers, each of them handles 1 or more object type
+	std::vector<TObjectTypeHandler> objectTypes;
+
+public:
+	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
+	IObjectTypeHandler * getHandlerFor(CObjectTemplate tmpl) const;
+
+	/// creates object based on specified template
+	CGObjectInstance * createObject(CObjectTemplate tmpl);
+
+	template<typename CObjectClass>
+	CObjectClass * createObjectTyped(CObjectTemplate tmpl)
+	{
+		auto objInst  = createObject(tmpl);
+		auto objClass = dynamic_cast<CObjectClass*>(objInst);
+		assert(objClass);
+		return objClass;
+	}
+}

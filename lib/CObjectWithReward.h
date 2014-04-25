@@ -13,6 +13,8 @@
  *
  */
 
+class CRandomRewardObjectInfo;
+
 /// Limiters of rewards. Rewards will be granted to hero only if he satisfies requirements
 /// Note: for this is only a test - it won't remove anything from hero (e.g. artifacts or creatures)
 /// NOTE: in future should (partially) replace seer hut/quest guard quests checks
@@ -165,7 +167,7 @@ protected:
 
 	enum EVisitMode
 	{
-		VISIT_UNLIMITED, // any number of times
+		VISIT_UNLIMITED, // any number of times. Side effect - object hover text won't contain visited/not visited text
 		VISIT_ONCE,      // only once, first to visit get all the rewards
 		VISIT_HERO,      // every hero can visit object once
 		VISIT_PLAYER     // every player can visit object once
@@ -231,6 +233,9 @@ public:
 		h & onSelect & onVisited & onEmpty;
 		h & soundID & selectMode & selectedReward;
 	}
+
+	// for configuration/object setup
+	friend class CRandomRewardObjectInfo;
 };
 
 class DLL_LINKAGE CGPickable : public CObjectWithReward //campfire, treasure chest, Flotsam, Shipwreck Survivor, Sea Chest

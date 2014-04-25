@@ -447,7 +447,7 @@ static void loadRandomArtifact(CVisitInfo & info, int treasure, int minor, int m
 
 CGPickable::CGPickable()
 {
-	visitMode = VISIT_ONCE;
+	visitMode = VISIT_UNLIMITED;
 	selectMode = SELECT_PLAYER;
 }
 
@@ -935,6 +935,8 @@ void CGVisitableOPH::initObj()
 			break;
 	}
 }
+
+//TODO: re-enable. Probably in some different form but still necessary
 /*
 const std::string & CGVisitableOPH::getHoverText() const
 {

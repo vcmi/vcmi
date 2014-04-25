@@ -69,7 +69,7 @@ set(lib_SRCS
 		CModHandler.cpp
 		CObstacleInstance.cpp
 		CObjectWithReward.cpp
-		CObjectWithReward.h
+		CObjectConstructor.cpp
 		CSpellHandler.cpp
 		CThreadHelper.cpp
 		CTownHandler.cpp
@@ -119,5 +119,5 @@ set_target_properties(vcmi PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmi)
 
 if (NOT APPLE) # Already inside vcmiclient bundle
-    install(TARGETS vcmi DESTINATION ${LIB_DIR})
+	install(TARGETS vcmi DESTINATION ${LIB_DIR})
 endif()
