@@ -6,6 +6,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 
+
 /*
  * CCreatureHandler.h, part of VCMI engine
  *
@@ -1142,7 +1143,8 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	//Possible - allow "locking" on specific building (build prerequisites and then building itself)
 
 	TResources currentRes = cb->getResourceAmount();
-	int townIncome = t->dailyIncome();
+	TResources currentIncome = t->dailyIncome();
+	int townIncome = currentIncome[Res::GOLD];
 
 	if (tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
 		return;
@@ -2343,23 +2345,15 @@ TResources VCAI::estimateIncome() const
 	TResources ret;
 	for(const CGTownInstance *t : cb->getTownsInfo())
 	{
-		ret[Res::GOLD] += t->dailyIncome();
-
-		//TODO duplikuje newturn
-		if(t->hasBuilt(BuildingID::RESOURCE_SILO)) //there is resource silo
-		{
-			if(t->town->primaryRes == Res::WOOD_AND_ORE) //we'll give wood and ore
-			{
-				ret[Res::WOOD] ++;
-				ret[Res::ORE] ++;
-			}
-			else
-			{
-			  if (t->town->primaryRes != Res::GOLD)
-				ret[t->town->primaryRes]++;
-			}
-		}
+//		TResources townIncome = t->dailyIncome();
+		ret = ret + t->dailyIncome();
+//     	for (auto i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
+//				{
+//			ret[i] += townIncome[i];
+//				}
 	}
+
+
 
 	for(const CGObjectInstance *obj : getFlaggedObjects())
 	{

@@ -63,6 +63,21 @@
 				"gems":    { "type":"number"},
 				"gold":    { "type":"number"}
 			}
+	    },		
+		"produce": {
+			"type":"object",
+			"additionalProperties" : false,
+			"description": "Resources this building produce each day",
+			"properties":{
+				"wood":    { "type":"number"},
+				"mercury": { "type":"number"},
+				"ore":     { "type":"number"},
+				"sulfur":  { "type":"number"},
+				"crystal": { "type":"number"},
+				"gems":    { "type":"number"},
+				"gold":    { "type":"number"}
+			}
 		}
+	  
 	}
 }

@@ -105,9 +105,12 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	for(const std::string & resID : GameConstants::RESOURCE_NAMES)
 		cost[resID].Float() = parser.readNumber();
 
+
+
 	cost.Struct().erase("mithril"); // erase mithril to avoid confusing validator
 
 	parser.endLine();
+
 	return ret;
 }
 
@@ -303,6 +306,39 @@ void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const
 	ret->name = source["name"].String();
 	ret->description = source["description"].String();
 	ret->resources = TResources(source["cost"]);
+	ret->produce =   TResources(source["produce"]);
+
+	//for compatibility with older town mods
+	if ((ret->bid == BuildingID::VILLAGE_HALL) && (ret->produce[Res::WOOD] == 0) && (ret->produce[Res::MERCURY] == 0) && (ret->produce[Res::ORE] == 0)
+		&& (ret->produce[Res::SULFUR] == 0) && (ret->produce[Res::CRYSTAL] == 0) && (ret->produce[Res::GEMS] == 0) && (ret->produce[Res::GOLD] == 0)) ret->produce[Res::GOLD] = 500;
+
+	if ((ret->bid == BuildingID::TOWN_HALL) && (ret->produce[Res::WOOD] == 0) && (ret->produce[Res::MERCURY] == 0) && (ret->produce[Res::ORE] == 0)
+		&& (ret->produce[Res::SULFUR] == 0) && (ret->produce[Res::CRYSTAL] == 0) && (ret->produce[Res::GEMS] == 0) && (ret->produce[Res::GOLD] == 0)) ret->produce[Res::GOLD] = 1000;
+
+	if ((ret->bid == BuildingID::CITY_HALL) && (ret->produce[Res::WOOD] == 0) && (ret->produce[Res::MERCURY] == 0) && (ret->produce[Res::ORE] == 0)
+		&& (ret->produce[Res::SULFUR] == 0) && (ret->produce[Res::CRYSTAL] == 0) && (ret->produce[Res::GEMS] == 0) && (ret->produce[Res::GOLD] == 0)) ret->produce[Res::GOLD] = 2000;
+
+	if ((ret->bid == BuildingID::CAPITOL) && (ret->produce[Res::WOOD] == 0) && (ret->produce[Res::MERCURY] == 0) && (ret->produce[Res::ORE] == 0)
+		&& (ret->produce[Res::SULFUR] == 0) && (ret->produce[Res::CRYSTAL] == 0) && (ret->produce[Res::GEMS] == 0) && (ret->produce[Res::GOLD] == 0)) ret->produce[Res::GOLD] = 4000;
+
+	if ((ret->bid == BuildingID::GRAIL) && (ret->produce[Res::WOOD] == 0) && (ret->produce[Res::MERCURY] == 0) && (ret->produce[Res::ORE] == 0)
+		&& (ret->produce[Res::SULFUR] == 0) && (ret->produce[Res::CRYSTAL] == 0) && (ret->produce[Res::GEMS] == 0) && (ret->produce[Res::GOLD] == 0)) ret->produce[Res::GOLD] = 5000;
+	//
+	if ((ret->bid == BuildingID::RESOURCE_SILO) && (ret->produce[Res::WOOD] == 0) && (ret->produce[Res::MERCURY] == 0) && (ret->produce[Res::ORE] == 0)
+		&& (ret->produce[Res::SULFUR] == 0) && (ret->produce[Res::CRYSTAL] == 0) && (ret->produce[Res::GEMS] == 0) && (ret->produce[Res::GOLD] == 0))
+	{
+		if ((ret->town->primaryRes != Res::WOOD) && (ret->town->primaryRes != Res::ORE) && (ret->town->primaryRes != Res::GOLD))
+			ret->produce[ret->town->primaryRes] = 1;
+		else
+		{
+			if (ret->town->primaryRes == Res::GOLD) ret->produce[ret->town->primaryRes] = 500;
+			if ((ret->town->primaryRes == Res::WOOD) || (ret->town->primaryRes == Res::ORE))
+			{
+				ret->produce[Res::WOOD] = 1;
+				ret->produce[Res::ORE] = 1;
+			}
+		}
+	}
 
 	loadBuildingRequirements(town, *ret, source["requires"]);
 
@@ -688,6 +724,7 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source, std::string identi
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	auto object = loadFromJson(data, name);
+
 	object->index = factions.size();
 	if (object->town)
 	{

@@ -748,7 +748,7 @@ public:
 	//checks if building is constructed and town has same subID
 	bool hasBuilt(BuildingID buildingID) const;
 	bool hasBuilt(BuildingID buildingID, int townID) const;
-	int dailyIncome() const; //calculates daily income of this town
+	TResources dailyIncome() const; //calculates daily income of this town
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
 	int getTownLevel() const;

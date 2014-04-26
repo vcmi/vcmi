@@ -580,7 +580,8 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 	for(auto & town : towns)
 	{
-		totalIncome += town->dailyIncome();
+		TResources income = town->dailyIncome();
+		 totalIncome += income[Res::GOLD];  
 	}
 	for (int i=0; i<7; i++)
 	{
@@ -778,8 +779,8 @@ CTownItem::CTownItem(const CGTownInstance* Town):
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	background =  new CAnimImage("OVSLOT", 6);
 	name = new CLabel(74, 8, FONT_SMALL, TOPLEFT, Colors::WHITE, town->name);
-
-	income = new CLabel( 190, 60, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(town->dailyIncome()));
+	TResources townIncome = town->dailyIncome();
+	income = new CLabel(190, 60, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(townIncome[Res::GOLD]));
 	hall = new CTownInfo( 69, 31, town, true);
 	fort = new CTownInfo(111, 31, town, false);
 
@@ -810,7 +811,8 @@ void CTownItem::updateGarrisons()
 
 void CTownItem::update()
 {
-	std::string incomeVal = boost::lexical_cast<std::string>(town->dailyIncome());
+	TResources townIncome = town->dailyIncome();
+	std::string incomeVal = boost::lexical_cast<std::string>(townIncome[Res::GOLD]);
 	if (incomeVal != income->text)
 		income->setText(incomeVal);
 

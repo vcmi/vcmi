@@ -966,7 +966,8 @@ void CCastleInterface::recreateIcons()
 	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
 
 	icon->setFrame(iconIndex);
-	income->setText(boost::lexical_cast<std::string>(town->dailyIncome()));
+	TResources townIncome = town->dailyIncome();
+	income->setText(boost::lexical_cast<std::string>(townIncome[Res::GOLD]));
 
 	hall = new CTownInfo( 80, 413, town, true);
 	fort = new CTownInfo(122, 413, town, false);

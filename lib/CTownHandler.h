@@ -25,6 +25,9 @@ class CFaction;
 /// a typical building encountered in every castle ;]
 /// this is structure available to both client and server
 /// contains all mechanics-related data about town structures
+
+
+
 class DLL_LINKAGE CBuilding
 {
 
@@ -36,6 +39,7 @@ public:
 
 	CTown * town; // town this building belongs to
 	TResources resources;
+	TResources produce;
 	TRequired requirements;
 	std::string identifier;
 
@@ -61,11 +65,13 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & identifier & town & bid & resources & name & description & requirements & upgrade & mode;
+		h & identifier & town & bid & resources & produce & name & description & requirements & upgrade & mode;
 	}
 
 	friend class CTownHandler;
 };
+
+typedef std::pair<BuildingID, ConstTransitivePtr<CBuilding>> TPairCBuilding;
 
 /// This is structure used only by client
 /// Consists of all gui-related data about town structures
