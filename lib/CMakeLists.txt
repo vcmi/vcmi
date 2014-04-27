@@ -68,8 +68,8 @@ set(lib_SRCS
 		CHeroHandler.cpp
 		CModHandler.cpp
 		CObstacleInstance.cpp
-		CObjectWithReward.cpp
 		CObjectConstructor.cpp
+		CObjectWithReward.cpp
 		CSpellHandler.cpp
 		CThreadHelper.cpp
 		CTownHandler.cpp
