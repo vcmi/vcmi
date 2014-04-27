@@ -2,7 +2,7 @@
 
 
 #include "lib/CGameInfoCallback.h"
-#include "int3.h" // for int3
+#include "lib/int3.h" // for int3
 
 /*
  * CCallback.h, part of VCMI engine
