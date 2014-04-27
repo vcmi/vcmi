@@ -100,7 +100,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
     <IncludePath>$(SolutionDir)..\include;$(IncludePath)</IncludePath>
-    <OutDir>$(VCMI_Out)\</OutDir>
+    <OutDir>..</OutDir>
     <LibraryPath>$(SolutionDir)..\libs\$(PlatformShortName);$(VCMI_Out);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">
