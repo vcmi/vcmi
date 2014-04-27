@@ -1,4 +1,4 @@
-VCMI PROJECT CODE CONTRIBUTORS:
+﻿VCMI PROJECT CODE CONTRIBUTORS:
 
 Michał Urbańczyk aka Tow,        <impono@gmail.com>
    * project originator; programming, making releases, website
@@ -45,6 +45,9 @@ Ivan Savenko,				<saven.ivan@gmail.com>
    
 Benjamin Gentner aka beegee,		<>
    * battle support, programming
+
+Alexey aka Macron1Robot,                 <>
+   * minor modding changes
 
 Alexander Shishkin aka alexvins,
    * MinGW platform support, modding related programming
