@@ -1331,27 +1331,6 @@ void CGameHandler::newTurn()
 		if(!firstTurn  &&  player < PlayerColor::PLAYER_LIMIT)//not the first day and town not neutral
 		{
 			n.res[player] = n.res[player] + t->dailyIncome();
-//			TResources townIncome = t->dailyIncome();
-//			for (auto i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
-//		{
-//				n.res[player][i] += townIncome[i];
-//			}
-			
-//			if(t->hasBuilt(BuildingID::RESOURCE_SILO)) //there is resource silo
-//			{
-//				if(t->town->primaryRes == Res::WOOD_AND_ORE) //we'll give wood and ore
-//				{
-//					n.res[player][Res::WOOD] ++;
-//					n.res[player][Res::ORE] ++;
-//				}
-//				else
-//				{
-//					if (t->town->primaryRes != Res::GOLD)
-//					  n.res[player][t->town->primaryRes] ++;
-//				}
-//			}
-
-//			n.res[player][Res::GOLD] += t->dailyIncome();
 		}
 		if(t->hasBuilt(BuildingID::GRAIL, ETownType::TOWER))
 		{
