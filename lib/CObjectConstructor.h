@@ -16,8 +16,7 @@
 
 class CRandomRewardObjectInfo : public IObjectInfo
 {
-	JsonNode objectConfig;
-
+	JsonNode parameters;
 public:
 	bool givesResources() const override;
 
@@ -39,19 +38,30 @@ public:
 	CRandomRewardObjectInfo()
 	{}
 
-	void init(JsonNode objectConfig);
+	void init(const JsonNode & objectConfig);
 };
 
-class CObjectWithRewardConstructor : public IObjectTypeHandler
+class CObjectWithRewardConstructor : public IObjectTypesHandler
 {
-	std::map<ui32, std::map<ui32, CRewardObjectInfo> > objectConfigs;
+	struct ObjectInfo
+	{
+		CRandomRewardObjectInfo info;
+		std::vector<ObjectTemplate> templates;
+	};
+	std::map<ui32, std::map<ui32, ObjectInfo> > objectInfos;
 
 public:
-	CGObjectInstance * create(ui32 id, ui32 subID) const override;
+	CObjectWithRewardConstructor();
+	void init(const JsonNode & config);
 
-	bool handlesID(ui32 id) const override;
+	std::vector<ObjectTemplate> getTemplates(si32 type, si32 subType) const override;
+
+	CGObjectInstance * create(ObjectTemplate tmpl) const override;
+
+	bool handlesID(si32 id, si32 subID) const;
+	bool handlesID(ObjectTemplate tmpl) const override;
 
 	void configureObject(CGObjectInstance * object) const override;
 
-	IObjectInfo * getObjectInfo(ui32 id, ui32 subID) const override;
+	const IObjectInfo * getObjectInfo(ObjectTemplate tmpl) const override;
 };

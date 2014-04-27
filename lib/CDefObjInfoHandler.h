@@ -130,38 +130,40 @@ public:
 
 class CGObjectInstance;
 
-class IObjectTypeHandler
+class IObjectTypesHandler
 {
 public:
-	virtual CGObjectInstance * create(ui32 id, ui32 subID) const = 0;
+	virtual std::vector<ObjectTemplate> getTemplates(si32 type, si32 subType) const = 0;
 
-	virtual bool handlesID(ui32 id) const = 0;
+	virtual CGObjectInstance * create(ObjectTemplate tmpl) const = 0;
+
+	virtual bool handlesID(ObjectTemplate tmpl) const = 0;
 
 	virtual void configureObject(CGObjectInstance * object) const = 0;
 
-	virtual IObjectInfo * getObjectInfo(ui32 id, ui32 subID) const = 0;
+	virtual const IObjectInfo * getObjectInfo(ObjectTemplate tmpl) const = 0;
 };
 
-typedef std::shared_ptr<IObjectTypeHandler> TObjectTypeHandler;
+typedef std::shared_ptr<IObjectTypesHandler> TObjectTypeHandler;
 
-class CObjectTypesHandler
+class CObjectGroupsHandler
 {
 	/// list of object handlers, each of them handles 1 or more object type
 	std::vector<TObjectTypeHandler> objectTypes;
 
 public:
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
-	IObjectTypeHandler * getHandlerFor(CObjectTemplate tmpl) const;
+	IObjectTypesHandler * getHandlerFor(ObjectTemplate tmpl) const;
 
 	/// creates object based on specified template
-	CGObjectInstance * createObject(CObjectTemplate tmpl);
+	CGObjectInstance * createObject(ObjectTemplate tmpl);
 
 	template<typename CObjectClass>
-	CObjectClass * createObjectTyped(CObjectTemplate tmpl)
+	CObjectClass * createObjectTyped(ObjectTemplate tmpl)
 	{
 		auto objInst  = createObject(tmpl);
 		auto objClass = dynamic_cast<CObjectClass*>(objInst);
 		assert(objClass);
 		return objClass;
 	}
-}
+};

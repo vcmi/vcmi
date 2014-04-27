@@ -182,8 +182,8 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 void ObjectTemplate::readJson(const JsonNode &node)
 {
-	id = Obj(node["basebase"].Float()); // temporary, should be removed and determined indirectly via object type parent (e.g. base->base)
-	subid = node["base"].Float();
+	//id = Obj(node["basebase"].Float()); // temporary, should be removed and determined indirectly via object type parent (e.g. base->base)
+	//subid = node["base"].Float();
 	animationFile = node["animation"].String();
 
 	const JsonVector & visitDirs = node["visitableFrom"].Vector();
@@ -347,7 +347,7 @@ CDefObjInfoHandler::CDefObjInfoHandler()
 {
 	readTextFile("Data/Objects.txt");
 	readTextFile("Data/Heroes.txt");
-
+/*
 	// TODO: merge into modding system
 	JsonNode node = JsonUtils::assembleFromFiles("config/objectTemplates.json");
 	node.setMeta("core");
@@ -371,6 +371,7 @@ CDefObjInfoHandler::CDefObjInfoHandler()
 
 	// merge new templates into storage
 	objects.insert(objects.end(), newTemplates.begin(), newTemplates.end());
+*/
 }
 
 void CDefObjInfoHandler::eraseAll(Obj type, si32 subtype)
