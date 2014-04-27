@@ -876,7 +876,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	{
 		int txt_id;
 
-		if(cb->getHeroCount(h->tempOwner,false) < GameConstants::MAX_HEROES_PER_PLAYER) //free hero slot
+		if (cb->getHeroCount(h->tempOwner, false) < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)//GameConstants::MAX_HEROES_PER_PLAYER) //free hero slot
 		{
 			cb->changeObjPos(id,pos+int3(1,0,0),0);
 			//update hero parameters
@@ -2277,10 +2277,12 @@ TResources CGTownInstance::dailyIncome() const
 	{
 		ret[i] = 0;
 	}
-	BOOST_FOREACH(TPairCBuilding p, town->buildings)
+	//BOOST_FOREACH(TPairCBuilding p, town->buildings)
+	for (TPairCBuilding p : town->buildings)
 	{ 
 		BuildingID buildingUpgrade;
-		BOOST_FOREACH(TPairCBuilding p2, town->buildings)
+//		BOOST_FOREACH(TPairCBuilding p2, town->buildings)
+		for (TPairCBuilding p2 : town->buildings)
 		{ 
 			if (p2.second->upgrade == p.first)
 			{

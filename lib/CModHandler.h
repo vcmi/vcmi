@@ -199,7 +199,7 @@ class DLL_LINKAGE CModHandler
 	std::vector <TModID> activeMods;//active mods, in order in which they were loaded
 	CModInfo coreMod;
 
-	void loadConfigFromFile(std::string name);
+	bool loadConfigFromFile(std::string name);
 
 	bool hasCircularDependency(TModID mod, std::set <TModID> currentList = std::set <TModID>()) const;
 
@@ -244,11 +244,13 @@ public:
 		int MAX_BUILDING_PER_TURN;
 		bool DWELLINGS_ACCUMULATE_CREATURES;
 		bool ALL_CREATURES_GET_DOUBLE_MONTHS;
+		int MAX_HEROES_AVAILABLE_PER_PLAYER;
+		int MAX_HEROES_ON_MAP_PER_PLAYER;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & data & CREEP_SIZE & WEEKLY_GROWTH & NEUTRAL_STACK_EXP & MAX_BUILDING_PER_TURN;
-			h & DWELLINGS_ACCUMULATE_CREATURES & ALL_CREATURES_GET_DOUBLE_MONTHS;
+			h & DWELLINGS_ACCUMULATE_CREATURES & ALL_CREATURES_GET_DOUBLE_MONTHS & MAX_HEROES_AVAILABLE_PER_PLAYER & MAX_HEROES_ON_MAP_PER_PLAYER;
 		}
 	} settings;
 

@@ -506,15 +506,43 @@ CModHandler::CModHandler()
 
 }
 
-void CModHandler::loadConfigFromFile (std::string name)
+bool CModHandler::loadConfigFromFile (std::string name)
 {
 	settings.data = JsonUtils::assembleFromFiles("config/" + name);
 	const JsonNode & hardcodedFeatures = settings.data["hardcodedFeatures"];
 
+	settings.MAX_HEROES_AVAILABLE_PER_PLAYER = hardcodedFeatures["MAX_HEROES_AVAILABLE_PER_PLAYER"].Float();
+	settings.MAX_HEROES_ON_MAP_PER_PLAYER = hardcodedFeatures["MAX_HEROES_ON_MAP_PER_PLAYER"].Float();
+	if (settings.MAX_HEROES_AVAILABLE_PER_PLAYER<=0)
+	{
+		logGlobal->errorStream() << "Error: MAX_HEROES_AVAILABLE must be higher than MAX_HEROES_ON_MAP";
+		return true;
+	}
+	if (settings.MAX_HEROES_ON_MAP_PER_PLAYER <= 0)
+	{
+		logGlobal->errorStream() << "Error: MAX_HEROES_AVAILABLE must be higher than MAX_HEROES_ON_MAP";
+		return true;
+	}
+	if (settings.MAX_HEROES_AVAILABLE_PER_PLAYER<settings.MAX_HEROES_ON_MAP_PER_PLAYER)
+	{
+		logGlobal->errorStream() << "Error: MAX_HEROES_AVAILABLE must be higher than MAX_HEROES_ON_MAP";
+		return true;
+	}
 	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Float();
+	if (settings.CREEP_SIZE<=0)
+	{
+		logGlobal->errorStream() << "Error: CREEP_SIZE must be positive value";
+		return true;
+	}
 	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Float();
+	settings.WEEKLY_GROWTH = hardcodedFeatures["CREEP_SIZE"].Float();
 	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Float();
 	settings.MAX_BUILDING_PER_TURN = hardcodedFeatures["MAX_BUILDING_PER_TURN"].Float();
+	if (settings.MAX_BUILDING_PER_TURN <= 0)
+	{
+		logGlobal->errorStream() << "Error: MAX_BUILDING_PER_TURN must be positive value";
+		return true;
+	}
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
 	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
 
@@ -523,6 +551,7 @@ void CModHandler::loadConfigFromFile (std::string name)
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
 	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
+	return false;
 }
 
 // currentList is passed by value to get current list of depending mods
@@ -787,7 +816,10 @@ CModInfo & CModHandler::getModData(TModID modId)
 
 void CModHandler::initializeConfig()
 {
-	loadConfigFromFile("defaultMods.json");
+	if (loadConfigFromFile("defaultMods.json")==true)
+	{
+		logGlobal->errorStream() << "Error: defaultMods.json HAS ERRORS";
+	}
 }
 
 void CModHandler::load()

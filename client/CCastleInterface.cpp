@@ -358,7 +358,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 			bool allow = true;
 			if(upg) //moving hero out of town - check if it is allowed
 			{
-				if(!hero && LOCPLINT->cb->howManyHeroes(false) >= 8)
+				if(!hero && LOCPLINT->cb->howManyHeroes(false) >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
 				{
 					std::string tmp = CGI->generaltexth->allTexts[18]; //You already have %d adventuring heroes under your command.
 					boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes(false)));
