@@ -2273,15 +2273,11 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 TResources CGTownInstance::dailyIncome() const
 {
 	TResources ret;
-	for (auto i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
-	{
-		ret[i] = 0;
-	}
-	//BOOST_FOREACH(TPairCBuilding p, town->buildings)
+
 	for (TPairCBuilding p : town->buildings)
 	{ 
 		BuildingID buildingUpgrade;
-//		BOOST_FOREACH(TPairCBuilding p2, town->buildings)
+
 		for (TPairCBuilding p2 : town->buildings)
 		{ 
 			if (p2.second->upgrade == p.first)
@@ -2300,19 +2296,6 @@ TResources CGTownInstance::dailyIncome() const
 	
 	}
 
-//	if (hasBuilt(BuildingID::GRAIL))
-//		ret+=5000;
-
-//	if (hasBuilt(BuildingID::CAPITOL))
-//		ret+=4000;
-//	else if (hasBuilt(BuildingID::CITY_HALL))
-//		ret+=2000;
-//	else if (hasBuilt(BuildingID::TOWN_HALL))
-//		ret+=1000;
-//	else if (hasBuilt(BuildingID::VILLAGE_HALL))
-//		ret+=500;
-//	if (hasBuilt(BuildingID::RESOURCE_SILO)&&(town->primaryRes==Res::GOLD))
-//		ret += 500;
 	return ret;
 }
 bool CGTownInstance::hasFort() const
