@@ -2345,12 +2345,7 @@ TResources VCAI::estimateIncome() const
 	TResources ret;
 	for(const CGTownInstance *t : cb->getTownsInfo())
 	{
-//		TResources townIncome = t->dailyIncome();
-		ret = ret + t->dailyIncome();
-//     	for (auto i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
-//				{
-//			ret[i] += townIncome[i];
-//				}
+		ret += t->dailyIncome();
 	}
 
 
