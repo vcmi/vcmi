@@ -535,7 +535,6 @@ bool CModHandler::loadConfigFromFile (std::string name)
 		settings.CREEP_SIZE = 4000;
 	}
 	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Float();
-	settings.WEEKLY_GROWTH = hardcodedFeatures["CREEP_SIZE"].Float();
 	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Float();
 	settings.MAX_BUILDING_PER_TURN = hardcodedFeatures["MAX_BUILDING_PER_TURN"].Float();
 	if (settings.MAX_BUILDING_PER_TURN <= 0)
