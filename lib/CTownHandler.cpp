@@ -309,34 +309,31 @@ void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const
 	ret->produce =   TResources(source["produce"]);
 
 	//for compatibility with older town mods
-	if ((ret->bid == BuildingID::VILLAGE_HALL) && (ret->produce[Res::WOOD] == 0) && (ret->produce[Res::MERCURY] == 0) && (ret->produce[Res::ORE] == 0)
-		&& (ret->produce[Res::SULFUR] == 0) && (ret->produce[Res::CRYSTAL] == 0) && (ret->produce[Res::GEMS] == 0) && (ret->produce[Res::GOLD] == 0)) ret->produce[Res::GOLD] = 500;
-
-	if ((ret->bid == BuildingID::TOWN_HALL) && (ret->produce[Res::WOOD] == 0) && (ret->produce[Res::MERCURY] == 0) && (ret->produce[Res::ORE] == 0)
-		&& (ret->produce[Res::SULFUR] == 0) && (ret->produce[Res::CRYSTAL] == 0) && (ret->produce[Res::GEMS] == 0) && (ret->produce[Res::GOLD] == 0)) ret->produce[Res::GOLD] = 1000;
-
-	if ((ret->bid == BuildingID::CITY_HALL) && (ret->produce[Res::WOOD] == 0) && (ret->produce[Res::MERCURY] == 0) && (ret->produce[Res::ORE] == 0)
-		&& (ret->produce[Res::SULFUR] == 0) && (ret->produce[Res::CRYSTAL] == 0) && (ret->produce[Res::GEMS] == 0) && (ret->produce[Res::GOLD] == 0)) ret->produce[Res::GOLD] = 2000;
-
-	if ((ret->bid == BuildingID::CAPITOL) && (ret->produce[Res::WOOD] == 0) && (ret->produce[Res::MERCURY] == 0) && (ret->produce[Res::ORE] == 0)
-		&& (ret->produce[Res::SULFUR] == 0) && (ret->produce[Res::CRYSTAL] == 0) && (ret->produce[Res::GEMS] == 0) && (ret->produce[Res::GOLD] == 0)) ret->produce[Res::GOLD] = 4000;
-
-	if ((ret->bid == BuildingID::GRAIL) && (ret->produce[Res::WOOD] == 0) && (ret->produce[Res::MERCURY] == 0) && (ret->produce[Res::ORE] == 0)
-		&& (ret->produce[Res::SULFUR] == 0) && (ret->produce[Res::CRYSTAL] == 0) && (ret->produce[Res::GEMS] == 0) && (ret->produce[Res::GOLD] == 0)) ret->produce[Res::GOLD] = 5000;
-	//
-	if ((ret->bid == BuildingID::RESOURCE_SILO) && (ret->produce[Res::WOOD] == 0) && (ret->produce[Res::MERCURY] == 0) && (ret->produce[Res::ORE] == 0)
-		&& (ret->produce[Res::SULFUR] == 0) && (ret->produce[Res::CRYSTAL] == 0) && (ret->produce[Res::GEMS] == 0) && (ret->produce[Res::GOLD] == 0))
+	if(!ret->produce.nonZero())
 	{
+	if (ret->bid == BuildingID::VILLAGE_HALL) ret->produce[Res::GOLD] = 500;
+
+	if (ret->bid == BuildingID::TOWN_HALL) ret->produce[Res::GOLD] = 1000;
+
+	if (ret->bid == BuildingID::CITY_HALL) ret->produce[Res::GOLD] = 2000;
+
+	if (ret->bid == BuildingID::CAPITOL) ret->produce[Res::GOLD] = 4000;
+
+	if (ret->bid == BuildingID::GRAIL) ret->produce[Res::GOLD] = 5000;
+	//
+	if (ret->bid == BuildingID::RESOURCE_SILO)
+		{
 		if ((ret->town->primaryRes != Res::WOOD) && (ret->town->primaryRes != Res::ORE) && (ret->town->primaryRes != Res::GOLD))
 			ret->produce[ret->town->primaryRes] = 1;
 		else
 		{
 			if (ret->town->primaryRes == Res::GOLD) ret->produce[ret->town->primaryRes] = 500;
-			if ((ret->town->primaryRes == Res::WOOD) || (ret->town->primaryRes == Res::ORE))
+			else
 			{
 				ret->produce[Res::WOOD] = 1;
 				ret->produce[Res::ORE] = 1;
 			}
+		}
 		}
 	}
 
