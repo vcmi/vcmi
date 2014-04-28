@@ -71,8 +71,6 @@ public:
 	friend class CTownHandler;
 };
 
-typedef std::pair<BuildingID, ConstTransitivePtr<CBuilding>> TPairCBuilding;
-
 /// This is structure used only by client
 /// Consists of all gui-related data about town structures
 /// Should be moved from lib to client
