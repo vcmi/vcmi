@@ -2878,7 +2878,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::MAGIC_WELL:
 			return h->mana < h->manaLimit();
 		case Obj::PRISON:
-			return ai->myCb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER);// GameConstants::MAX_HEROES_PER_PLAYER;
+			return ai->myCb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER;// GameConstants::MAX_HEROES_PER_PLAYER;
 
 		case Obj::BOAT:
 			return false;
