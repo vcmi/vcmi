@@ -506,51 +506,23 @@ CModHandler::CModHandler()
 
 }
 
-bool CModHandler::loadConfigFromFile (std::string name)
+void CModHandler::loadConfigFromFile (std::string name)
 {
 	settings.data = JsonUtils::assembleFromFiles("config/" + name);
 	const JsonNode & hardcodedFeatures = settings.data["hardcodedFeatures"];
-
 	settings.MAX_HEROES_AVAILABLE_PER_PLAYER = hardcodedFeatures["MAX_HEROES_AVAILABLE_PER_PLAYER"].Float();
 	settings.MAX_HEROES_ON_MAP_PER_PLAYER = hardcodedFeatures["MAX_HEROES_ON_MAP_PER_PLAYER"].Float();
-	if (settings.MAX_HEROES_AVAILABLE_PER_PLAYER<=0)
-	{
-		logGlobal->errorStream() << "Error: MAX_HEROES_AVAILABLE_PER_PLAYER must be positive. Setting to 16";
-		settings.MAX_HEROES_AVAILABLE_PER_PLAYER = 16;
-	}
-	if (settings.MAX_HEROES_ON_MAP_PER_PLAYER <= 0)
-	{
-		logGlobal->errorStream() << "Error: MAX_HEROES_AVAILABLE_PER_PLAYER must be positive. Setting to 8";
-		settings.MAX_HEROES_ON_MAP_PER_PLAYER = 8;
-	}
-	if (settings.MAX_HEROES_AVAILABLE_PER_PLAYER<settings.MAX_HEROES_ON_MAP_PER_PLAYER)
-	{
-		logGlobal->errorStream() << "Error: MAX_HEROES_AVAILABLE_PER_PLAYER must be higher than MAX_HEROES_ON_MAP_PER_PLAYER. Setting to equal values";
-		settings.MAX_HEROES_AVAILABLE_PER_PLAYER = settings.MAX_HEROES_ON_MAP_PER_PLAYER;
-	}
 	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Float();
-	if (settings.CREEP_SIZE<=0)
-	{
-		logGlobal->errorStream() << "Error: CREEP_SIZE must be positive value. Setting to 4000";
-		settings.CREEP_SIZE = 4000;
-	}
 	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Float();
 	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Float();
 	settings.MAX_BUILDING_PER_TURN = hardcodedFeatures["MAX_BUILDING_PER_TURN"].Float();
-	if (settings.MAX_BUILDING_PER_TURN <= 0)
-	{
-		logGlobal->errorStream() << "Error: MAX_BUILDING_PER_TURN must be positive value. Setting to 1";
-		settings.MAX_BUILDING_PER_TURN=1;
-	}
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
 	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
-
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
 	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
-	return true;
 }
 
 // currentList is passed by value to get current list of depending mods
@@ -815,10 +787,7 @@ CModInfo & CModHandler::getModData(TModID modId)
 
 void CModHandler::initializeConfig()
 {
-	if (!loadConfigFromFile("defaultMods.json"))
-	{
-		logGlobal->errorStream() << "Error: defaultMods.json has errors";
-	}
+	loadConfigFromFile("defaultMods.json");
 }
 
 void CModHandler::load()
