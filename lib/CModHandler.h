@@ -199,7 +199,7 @@ class DLL_LINKAGE CModHandler
 	std::vector <TModID> activeMods;//active mods, in order in which they were loaded
 	CModInfo coreMod;
 
-	bool loadConfigFromFile(std::string name);
+	void loadConfigFromFile(std::string name);
 
 	bool hasCircularDependency(TModID mod, std::set <TModID> currentList = std::set <TModID>()) const;
 
