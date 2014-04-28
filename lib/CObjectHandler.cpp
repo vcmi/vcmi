@@ -2288,10 +2288,7 @@ TResources CGTownInstance::dailyIncome() const
 
 		if (!hasBuilt(buildingUpgrade)&&(hasBuilt(p.first)))
 		{
-			for (auto i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
-			{
-				ret[i] += p.second->produce[i];
-			}
+			ret += p.second->produce;
 		}
 	
 	}
