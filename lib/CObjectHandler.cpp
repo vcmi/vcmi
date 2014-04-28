@@ -2274,11 +2274,11 @@ TResources CGTownInstance::dailyIncome() const
 {
 	TResources ret;
 
-	for (TPairCBuilding p : town->buildings)
+	for (auto & p : town->buildings) 
 	{ 
 		BuildingID buildingUpgrade;
 
-		for (TPairCBuilding p2 : town->buildings)
+		for (auto & p2 : town->buildings) 
 		{ 
 			if (p2.second->upgrade == p.first)
 			{
