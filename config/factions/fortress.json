@@ -116,7 +116,7 @@
 
 			"musicTheme" : "music/FortressTown",
 			"defaultTavern" : 5,
-            "tavernVideo" : "TAVERN.BIK",
+			"tavernVideo" : "TAVERN.BIK",
 			"guildBackground" : "TPMAGE.bmp",
 			"townBackground": "TBFRBACK.bmp",
 			"guildWindow": "TPMAGEFR.bmp",
