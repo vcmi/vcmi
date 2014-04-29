@@ -3726,13 +3726,13 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[0]; //Cannot afford a Hero
 		recruit->block(true);
 	}
-	else if (LOCPLINT->castleInt && LOCPLINT->cb->howManyHeroes(true) >= VLC->modh->settings.MAX_HEROES_AVAILABLE_PER_PLAYER)
+	else if(LOCPLINT->castleInt && LOCPLINT->cb->howManyHeroes(true) >= VLC->modh->settings.MAX_HEROES_AVAILABLE_PER_PLAYER)
 	{
 		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[1]; //Cannot recruit. You already have %d Heroes.
 		boost::algorithm::replace_first(recruit->hoverTexts[0],"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes(true)));
 		recruit->block(true);
 	}
-	else if ((!LOCPLINT->castleInt) && LOCPLINT->cb->howManyHeroes(false) >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
+	else if((!LOCPLINT->castleInt) && LOCPLINT->cb->howManyHeroes(false) >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
 	{
 		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[1]; //Cannot recruit. You already have %d Heroes.
 		boost::algorithm::replace_first(recruit->hoverTexts[0], "%d", boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes(false)));
