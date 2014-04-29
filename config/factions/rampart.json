@@ -120,7 +120,7 @@
 
 			"musicTheme" : "music/Rampart",
 			"defaultTavern" : 5,
-            "tavernVideo" : "TAVERN.BIK",
+			"tavernVideo" : "TAVERN.BIK",
 			"guildBackground" : "TPMAGE.bmp",
 			"townBackground": "TBRMBACK.bmp",
 			"guildWindow": "TPMAGERM.bmp",
