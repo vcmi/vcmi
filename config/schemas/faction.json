@@ -169,7 +169,8 @@
 				},
 				"tavernVideo" : {
 					"type" : "string",
-					"description" : "Video for tavern window"
+					"description" : "Video for tavern window",
+					"format" : "videoFile"
 				},
 				"names" : {
 					"type" : "array",
