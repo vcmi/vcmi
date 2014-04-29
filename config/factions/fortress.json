@@ -144,7 +144,7 @@
 			"mageGuild" : 3,
 			"warMachine" : "firstAidTent",
 			"moatDamage" : 90,
-            "primaryResource":"ore",
+			"primaryResource":"ore",
 			"buildings" :
 			{
 				"mageGuild1":     { "id" : 0 },
