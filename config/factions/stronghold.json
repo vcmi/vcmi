@@ -114,7 +114,7 @@
 
 			"musicTheme" : "music/Stronghold",
 			"defaultTavern" : 5,
-            "tavernVideo" : "TAVERN.BIK",
+			"tavernVideo" : "TAVERN.BIK",
 			"guildBackground" : "TPMAGE.bmp",
 			"primaryResource": "ore",
 			"townBackground": "TBSTBACK.bmp",
