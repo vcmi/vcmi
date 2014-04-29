@@ -144,7 +144,7 @@
 			"mageGuild" : 4,
 			"warMachine" : "ballista",
 			"moatDamage" : 70,
-            "primaryResource": "ore",
+			"primaryResource": "ore",
 			"buildings" :
 			{
 				"mageGuild1":     { "id" : 0 },
