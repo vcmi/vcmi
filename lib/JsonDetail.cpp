@@ -949,12 +949,6 @@ namespace
 		{
 			return testAnimation(node.String(), node.meta);
 		}
-		
-		std::string videoFile(const JsonNode & node)
-		{
-			TEST_FILE(node.meta, "Video/", node.String(), EResType::VIDEO);
-			return "Video file \"" + node.String() + "\" was not found";
-		}
 
 		std::string imageFile(const JsonNode & node)
 		{
@@ -963,6 +957,12 @@ namespace
 			if (node.String().find(':') != std::string::npos)
 				return testAnimation(node.String().substr(0, node.String().find(':')), node.meta);
 			return "Image file \"" + node.String() + "\" was not found";
+		}
+		
+		std::string videoFile(const JsonNode & node)
+		{
+			TEST_FILE(node.meta, "Video/", node.String(), EResType::VIDEO);
+			return "Video file \"" + node.String() + "\" was not found";
 		}
 
 		#undef TEST_FILE
@@ -1046,8 +1046,8 @@ namespace
 		ret["soundFile"]     = Formats::soundFile;
 		ret["defFile"]       = Formats::defFile;
 		ret["animationFile"] = Formats::animationFile;
-		ret["videoFile"]     = Formats::videoFile;
 		ret["imageFile"]     = Formats::imageFile;
+		ret["videoFile"]     = Formats::videoFile;
 
 		return ret;
 	}
