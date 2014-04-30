@@ -23,43 +23,43 @@ struct BattleHex;
 class DLL_LINKAGE CSpell
 {
 public:
-    struct LevelInfo
-    {
-        std::string description; //descriptions of spell for skill level
-        si32 cost; //per skill level: 0 - none, 1 - basic, etc
-        si32 power; //per skill level: 0 - none, 1 - basic, etc
-        si32 AIValue; //AI values: per skill level: 0 - none, 1 - basic, etc
+	struct LevelInfo
+	{
+		std::string description; //descriptions of spell for skill level
+		si32 cost; //per skill level: 0 - none, 1 - basic, etc
+		si32 power; //per skill level: 0 - none, 1 - basic, etc
+		si32 AIValue; //AI values: per skill level: 0 - none, 1 - basic, etc
 
-        bool smartTarget;
-        std::string range;
+		bool smartTarget;
+		std::string range;
 
-        std::vector<Bonus> effects;
+		std::vector<Bonus> effects;
 
-        LevelInfo();
-        ~LevelInfo();
+		LevelInfo();
+		~LevelInfo();
 
-        template <typename Handler> void serialize(Handler &h, const int version)
-        {
-            h & description & cost & power & AIValue & smartTarget & range & effects;
-        }
-    };
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & description & cost & power & AIValue & smartTarget & range & effects;
+		}
+	};
 
-    /** \brief Low level accessor. Don`t use it if absolutely necessary
-     *
-     * \param level. spell school level
-     * \return Spell level info structure
-     *
-     */
-    const CSpell::LevelInfo& getLevelInfo(const int level) const;
+	/** \brief Low level accessor. Don`t use it if absolutely necessary
+	 *
+	 * \param level. spell school level
+	 * \return Spell level info structure
+	 *
+	 */
+	const CSpell::LevelInfo& getLevelInfo(const int level) const;
 public:
 	enum ETargetType {NO_TARGET, CREATURE, OBSTACLE};
 	enum ESpellPositiveness {NEGATIVE = -1, NEUTRAL = 0, POSITIVE = 1};
 
 	struct TargetInfo
 	{
-	    ETargetType type;
-	    bool smart;
-	    bool massive;
+		ETargetType type;
+		bool smart;
+		bool massive;
 	};
 
 	SpellID id;
@@ -110,12 +110,12 @@ public:
 
 	si32 getCost(const int skillLevel) const;
 
-    /**
-	* Returns spell level power, base power ignored
-	*/
+	/**
+	 * Returns spell level power, base power ignored
+	 */
 	si32 getPower(const int skillLevel) const;
 
-//    /**
+//	/**
 //	* Returns spell power, taking base power into account
 //	*/
 //	si32 calculatePower(const int skillLevel) const;
@@ -124,8 +124,8 @@ public:
 	si32 getProbability(const TFaction factionId) const;
 
 	/**
-	* Returns resource name of icon for SPELL_IMMUNITY bonus
-	*/
+	 * Returns resource name of icon for SPELL_IMMUNITY bonus
+	 */
 	const std::string& getIconImmune() const;
 
 	const std::string& getCastSound() const;
@@ -133,29 +133,29 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & identifier & id & name & level & earth & water & fire & air & power
-            & probabilities  & attributes & combatSpell & creatureAbility & positiveness & counteredSpells & mainEffectAnim;
+		  & probabilities  & attributes & combatSpell & creatureAbility & positiveness & counteredSpells & mainEffectAnim;
 		h & isRising & isDamage & isOffensive;
 		h & targetType;
 		h & immunities & limiters;
 		h & iconImmune;
-        h & absoluteImmunities & defaultProbability;
+		h & absoluteImmunities & defaultProbability;
 
-        h & isSpecial;
+		h & isSpecial;
 
-        h & castSound & iconBook & iconEffect & iconScenarioBonus & iconScroll;
+		h & castSound & iconBook & iconEffect & iconScenarioBonus & iconScroll;
 
-        h & levels;
+		h & levels;
 
 	}
 	friend class CSpellHandler;
 	friend class Graphics;
 
 private:
-    void setIsOffensive(const bool val);
-    void setIsRising(const bool val);
+	void setIsOffensive(const bool val);
+	void setIsRising(const bool val);
 
 private:
-    si32 defaultProbability;
+	si32 defaultProbability;
 
 	bool isRising;
 	bool isDamage;
@@ -198,10 +198,10 @@ public:
 	CSpellHandler();
 	virtual ~CSpellHandler();
 
-    ///IHandler base
+	///IHandler base
 
-    std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
-    void afterLoadFinalization() override;
+	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	void afterLoadFinalization() override;
 
 	/**
 	 * Gets a list of default allowed spells. OH3 spells are all allowed by default.
@@ -217,5 +217,5 @@ public:
 		h & objects ;
 	}
 protected:
-    CSpell * loadFromJson(const JsonNode & json) override;
+	CSpell * loadFromJson(const JsonNode & json) override;
 };
