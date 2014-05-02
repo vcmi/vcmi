@@ -6,6 +6,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 
+
 /*
  * CCreatureHandler.h, part of VCMI engine
  *
@@ -1142,7 +1143,8 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	//Possible - allow "locking" on specific building (build prerequisites and then building itself)
 
 	TResources currentRes = cb->getResourceAmount();
-	int townIncome = t->dailyIncome();
+	TResources currentIncome = t->dailyIncome();
+	int townIncome = currentIncome[Res::GOLD];
 
 	if (tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
 		return;
@@ -2343,22 +2345,10 @@ TResources VCAI::estimateIncome() const
 	TResources ret;
 	for(const CGTownInstance *t : cb->getTownsInfo())
 	{
-		ret[Res::GOLD] += t->dailyIncome();
-
-		//TODO duplikuje newturn
-		if(t->hasBuilt(BuildingID::RESOURCE_SILO)) //there is resource silo
-		{
-			if(t->town->primaryRes == Res::WOOD_AND_ORE) //we'll give wood and ore
-			{
-				ret[Res::WOOD] ++;
-				ret[Res::ORE] ++;
-			}
-			else
-			{
-				ret[t->town->primaryRes] ++;
-			}
-		}
+		ret += t->dailyIncome();
 	}
+
+
 
 	for(const CGObjectInstance *obj : getFlaggedObjects())
 	{
@@ -2883,7 +2873,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::MAGIC_WELL:
 			return h->mana < h->manaLimit();
 		case Obj::PRISON:
-			return ai->myCb->getHeroesInfo().size() < GameConstants::MAX_HEROES_PER_PLAYER;
+			return ai->myCb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER;// GameConstants::MAX_HEROES_PER_PLAYER;
 
 		case Obj::BOAT:
 			return false;

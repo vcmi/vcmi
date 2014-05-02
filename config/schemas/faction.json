@@ -105,8 +105,7 @@
 			"additionalProperties" : false,
 			"required" : [
 				"adventureMap", "buildingsIcons", "buildings", "creatures", "guildWindow", "names",
-				"hallBackground", "hallSlots", "horde", "mageGuild", "moatDamage", "defaultTavern",
-				"musicTheme", "siege", "structures", "townBackground", "warMachine"
+				"hallBackground", "hallSlots", "horde", "mageGuild", "moatDamage", "defaultTavern", "tavernVideo", "guildBackground", "musicTheme", "siege", "structures", "townBackground", "warMachine"
 			],
 			"description": "town",
 			"properties":{
@@ -168,6 +167,11 @@
 						"minimum" : 0
 					}
 				},
+				"tavernVideo" : {
+					"type" : "string",
+					"description" : "Video for tavern window",
+					"format" : "videoFile"
+				},
 				"names" : {
 					"type" : "array",
 					"description" : "Names for towns on adventure map",
@@ -199,6 +203,12 @@
 					"type":"string",
 					"description": "Image with small view on town from mage guild"
 				},
+				"guildBackground": {
+					"type":"string",
+					"description": "Image with background of mage guild",
+					"format" : "imageFile"
+				},
+
 				"hallBackground": {
 					"type":"string",
 					"description": "background image for town hall",

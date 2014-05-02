@@ -105,9 +105,12 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	for(const std::string & resID : GameConstants::RESOURCE_NAMES)
 		cost[resID].Float() = parser.readNumber();
 
+
+
 	cost.Struct().erase("mithril"); // erase mithril to avoid confusing validator
 
 	parser.endLine();
+
 	return ret;
 }
 
@@ -303,6 +306,36 @@ void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const
 	ret->name = source["name"].String();
 	ret->description = source["description"].String();
 	ret->resources = TResources(source["cost"]);
+	ret->produce =   TResources(source["produce"]);
+
+	//for compatibility with older town mods
+	if(!ret->produce.nonZero())
+	{
+	if (ret->bid == BuildingID::VILLAGE_HALL) ret->produce[Res::GOLD] = 500;
+
+	if (ret->bid == BuildingID::TOWN_HALL) ret->produce[Res::GOLD] = 1000;
+
+	if (ret->bid == BuildingID::CITY_HALL) ret->produce[Res::GOLD] = 2000;
+
+	if (ret->bid == BuildingID::CAPITOL) ret->produce[Res::GOLD] = 4000;
+
+	if (ret->bid == BuildingID::GRAIL) ret->produce[Res::GOLD] = 5000;
+	//
+	if (ret->bid == BuildingID::RESOURCE_SILO)
+		{
+		if ((ret->town->primaryRes != Res::WOOD) && (ret->town->primaryRes != Res::ORE) && (ret->town->primaryRes != Res::GOLD))
+			ret->produce[ret->town->primaryRes] = 1;
+		else
+		{
+			if (ret->town->primaryRes == Res::GOLD) ret->produce[ret->town->primaryRes] = 500;
+			else
+			{
+				ret->produce[Res::WOOD] = 1;
+				ret->produce[Res::ORE] = 1;
+			}
+		}
+		}
+	}
 
 	loadBuildingRequirements(town, *ret, source["requires"]);
 
@@ -510,6 +543,17 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 	info.guildWindow = source["guildWindow"].String();
 	info.buildingsIcons = source["buildingsIcons"].String();
 
+	//left for back compatibility - will be removed later
+	if (source["guildBackground"].String() != "")
+		info.guildBackground = source["guildBackground"].String();
+	else
+		info.guildBackground = "TPMAGE.bmp";
+	if (source["tavernVideo"].String() != "")
+	    info.tavernVideo = source["tavernVideo"].String();
+	else
+		info.tavernVideo = "TAVERN.BIK";
+	//end of legacy assignment 
+
 	info.advMapVillage = source["adventureMap"]["village"].String();
 	info.advMapCastle  = source["adventureMap"]["castle"].String();
 	info.advMapCapitol = source["adventureMap"]["capitol"].String();
@@ -534,6 +578,8 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	});
 
 	town.moatDamage = source["moatDamage"].Float();
+
+	
 
 	town.mageLevel = source["mageGuild"].Float();
 	town.names = source["names"].convertTo<std::vector<std::string> >();
@@ -648,6 +694,7 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source, std::string identi
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();
 
+
 	faction->nativeTerrain = ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES,
 		source["nativeTerrain"].String()));
 	int alignment = vstd::find_pos(EAlignment::names, source["alignment"].String());
@@ -674,6 +721,7 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source, std::string identi
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	auto object = loadFromJson(data, name);
+
 	object->index = factions.size();
 	if (object->town)
 	{

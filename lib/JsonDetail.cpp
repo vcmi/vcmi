@@ -958,6 +958,12 @@ namespace
 				return testAnimation(node.String().substr(0, node.String().find(':')), node.meta);
 			return "Image file \"" + node.String() + "\" was not found";
 		}
+		
+		std::string videoFile(const JsonNode & node)
+		{
+			TEST_FILE(node.meta, "Video/", node.String(), EResType::VIDEO);
+			return "Video file \"" + node.String() + "\" was not found";
+		}
 
 		#undef TEST_FILE
 	}
@@ -1041,6 +1047,7 @@ namespace
 		ret["defFile"]       = Formats::defFile;
 		ret["animationFile"] = Formats::animationFile;
 		ret["imageFile"]     = Formats::imageFile;
+		ret["videoFile"]     = Formats::videoFile;
 
 		return ret;
 	}

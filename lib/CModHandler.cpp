@@ -510,14 +510,14 @@ void CModHandler::loadConfigFromFile (std::string name)
 {
 	settings.data = JsonUtils::assembleFromFiles("config/" + name);
 	const JsonNode & hardcodedFeatures = settings.data["hardcodedFeatures"];
-
+	settings.MAX_HEROES_AVAILABLE_PER_PLAYER = hardcodedFeatures["MAX_HEROES_AVAILABLE_PER_PLAYER"].Float();
+	settings.MAX_HEROES_ON_MAP_PER_PLAYER = hardcodedFeatures["MAX_HEROES_ON_MAP_PER_PLAYER"].Float();
 	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Float();
 	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Float();
 	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Float();
 	settings.MAX_BUILDING_PER_TURN = hardcodedFeatures["MAX_BUILDING_PER_TURN"].Float();
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
 	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
-
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();

@@ -876,7 +876,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	{
 		int txt_id;
 
-		if(cb->getHeroCount(h->tempOwner,false) < GameConstants::MAX_HEROES_PER_PLAYER) //free hero slot
+		if (cb->getHeroCount(h->tempOwner, false) < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)//GameConstants::MAX_HEROES_PER_PLAYER) //free hero slot
 		{
 			cb->changeObjPos(id,pos+int3(1,0,0),0);
 			//update hero parameters
@@ -2179,6 +2179,7 @@ CGTownInstance::EFortLevel CGTownInstance::fortLevel() const //0 - none, 1 - for
 
 int CGTownInstance::hallLevel() const // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 {
+	
 	if (hasBuilt(BuildingID::CAPITOL))
 		return 3;
 	if (hasBuilt(BuildingID::CITY_HALL))
@@ -2269,20 +2270,29 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	return ret;
 }
 
-int CGTownInstance::dailyIncome() const
+TResources CGTownInstance::dailyIncome() const
 {
-	int ret = 0;
-	if (hasBuilt(BuildingID::GRAIL))
-		ret+=5000;
+	TResources ret;
 
-	if (hasBuilt(BuildingID::CAPITOL))
-		ret+=4000;
-	else if (hasBuilt(BuildingID::CITY_HALL))
-		ret+=2000;
-	else if (hasBuilt(BuildingID::TOWN_HALL))
-		ret+=1000;
-	else if (hasBuilt(BuildingID::VILLAGE_HALL))
-		ret+=500;
+	for (auto & p : town->buildings) 
+	{ 
+		BuildingID buildingUpgrade;
+
+		for (auto & p2 : town->buildings) 
+		{ 
+			if (p2.second->upgrade == p.first)
+			{
+				buildingUpgrade = p2.first;
+			}
+		}
+
+		if (!hasBuilt(buildingUpgrade)&&(hasBuilt(p.first)))
+		{
+			ret += p.second->produce;
+		}
+	
+	}
+
 	return ret;
 }
 bool CGTownInstance::hasFort() const

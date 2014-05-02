@@ -3118,7 +3118,8 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 	{
 		//include details about hero
 		details = new Details;
-		details->goldIncome = t->dailyIncome();
+		TResources income = t->dailyIncome();
+		details->goldIncome = income[Res::GOLD];
 		details->customRes = t->hasBuilt(BuildingID::RESOURCE_SILO);
 		details->hallLevel = t->hallLevel();
 		details->garrisonedHero = t->garrisonHero;

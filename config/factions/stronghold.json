@@ -114,7 +114,9 @@
 
 			"musicTheme" : "music/Stronghold",
 			"defaultTavern" : 5,
-
+			"tavernVideo" : "TAVERN.BIK",
+			"guildBackground" : "TPMAGE.bmp",
+			"primaryResource": "ore",
 			"townBackground": "TBSTBACK.bmp",
 			"guildWindow": "TPMAGEST.bmp",
 			"buildingsIcons": "HALLSTRN.DEF",
@@ -151,12 +153,12 @@
 				"fort":           { "id" : 7 },
 				"citadel":        { "id" : 8,  "upgrades" : "fort" },
 				"castle":         { "id" : 9,  "upgrades" : "citadel" },
-				"villageHall":    { "id" : 10, "mode" : "auto" },
-				"townHall":       { "id" : 11, "upgrades" : "villageHall", "requires" : [ "tavern" ] },
-				"cityHall":       { "id" : 12, "upgrades" : "townHall", "requires" : [ "allOf", [ "mageGuild1" ], [ "marketplace" ], [ "blacksmith" ] ] },
-				"capitol":        { "id" : 13, "upgrades" : "cityHall", "requires" : [ "castle" ] },
+				"villageHall":    { "id" : 10, "mode" : "auto", "produce": { "gold": 500 } },
+				"townHall":       { "id" : 11, "upgrades" : "villageHall", "requires" : [ "tavern" ], "produce": { "gold": 1000 } },
+				"cityHall":       { "id" : 12, "upgrades" : "townHall", "requires" : [ "allOf", [ "mageGuild1" ], [ "marketplace" ], [ "blacksmith" ] ], "produce": { "gold": 2000 } },
+				"capitol":        { "id" : 13, "upgrades" : "cityHall", "requires" : [ "castle" ], "produce": { "gold": 4000 } },
 				"marketplace":    { "id" : 14 },
-				"resourceSilo":   { "id" : 15, "requires" : [ "marketplace" ] },
+				"resourceSilo":   { "id" : 15, "requires" : [ "marketplace" ], "produce": { "ore": 1, "wood": 1 } },
 				"blacksmith":     { "id" : 16 },
 
 				"special1":       { "id" : 17, "requires" : [ "fort" ] },
@@ -165,7 +167,7 @@
 				"special2":       { "id" : 21, "requires" : [ "marketplace" ] },
 				"special3":       { "id" : 22, "requires" : [ "blacksmith" ] },
 				"special4":       { "id" : 23, "requires" : [ "fort" ] },
-				"grail":          { "id" : 26, "mode" : "grail"},
+				"grail":          { "id" : 26, "mode" : "grail", "produce": { "gold": 5000 }},
 
 				"dwellingLvl1":   { "id" : 30, "requires" : [ "fort" ] },
 				"dwellingLvl2":   { "id" : 31, "requires" : [ "dwellingLvl1" ] },
