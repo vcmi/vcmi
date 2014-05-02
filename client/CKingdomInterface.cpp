@@ -581,7 +581,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo(true);
 	for(auto & town : towns)
 	{
-		totalIncome += town->dailyIncome();
+		totalIncome += town->dailyIncome()[Res::GOLD];
 	}
 	for (int i=0; i<7; i++)
 	{
