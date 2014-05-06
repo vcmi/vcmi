@@ -60,8 +60,12 @@
 		"config/bonuses.json",
 		"config/bonuses_texts.json"
 	],
-        "spells" :
-        [
-                "config/spell_info.json"
-        ]
+	"spells" :
+	[
+		"config/spells/adventure.json",
+		"config/spells/offensive.json",
+		"config/spells/other.json",
+		"config/spells/timed.json",
+		"config/spells/ability.json"
+	]
 }

@@ -1,0 +1,463 @@
+{
+	"quicksand" : {
+		"index" : 10,
+		"anim" : -1,
+		"sounds": {
+			"cast": "QUIKSAND"
+		},
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"landMine" : {
+		"index" : 11,
+		"anim" : -1,
+		"sounds": {
+			"cast": ""
+		},
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"indifferent": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"forceField" : {
+		"index" : 12,
+		"anim" : -1,
+		"sounds": {
+			"cast": "FORCEFLD"
+		},
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"fireWall" : {
+		"index" : 13,
+		"anim" : -1,
+		"sounds": {
+			"cast": "FIREWALL"
+		},
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"indifferent": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"earthquake" : {
+		"index" : 14,
+		"anim" : -1,
+		"sounds": {
+			"cast": "ERTHQUAK"
+		},
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	
+	"dispel" : {
+		"index" : 35,
+		"anim" : 41,
+		"sounds": {
+			"cast": "DISPELL"
+		},
+		"levels" : {
+			"none":{
+				"range" : "0"
+			},
+			"basic":{
+				"range" : "0"
+			},
+			"advanced":{
+				"range" : "0"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"cure" : {
+		"index" : 37,
+		"anim" : 39,
+		"sounds": {
+			"cast": "CURE"
+		},
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"basic":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"advanced":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"expert":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"resurrection" : {
+		"index" : 38,
+		"anim" : 79,
+		"sounds": {
+			"cast": "RESURECT"
+		},
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"basic":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"advanced":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"expert":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			}
+		},
+		"flags" : {
+			"rising": true,
+			"positive": true
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		}
+	},
+	"animateDead" : {
+		"index" : 39,
+		"anim" : 79,
+		"sounds": {
+			"cast": "ANIMDEAD"
+		},
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"basic":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"advanced":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"expert":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			}
+		},
+		"flags" : {
+			"rising": true,
+			"positive": true
+		},
+		"limit" : {
+			"UNDEAD": true
+		}
+	},
+	"sacrifice" : {
+		"index" : 40,
+		"anim" : 79,
+		"sounds": {
+			"cast": "SACRIF1"
+		},
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"basic":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"advanced":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"expert":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			}
+		},
+		"flags" : {
+			"rising": true,
+			"positive": true
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		}
+	},
+	"teleport" : {
+		"index" : 63,
+		"anim" : -1,
+		"sounds": {
+			"cast": "TELPTOUT"
+		},
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"targetModifier":{"smart":false}
+			},
+			"basic":{
+				"range" : "0",
+				"targetModifier":{"smart":false}
+			},
+			"advanced":{
+				"range" : "0",
+				"targetModifier":{"smart":false}
+			},
+			"expert":{
+				"range" : "0",
+				"targetModifier":{"smart":false}
+			}
+		},
+		"immunity" : {
+			"SIEGE_WEAPON": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"removeObstacle" : {
+		"index" : 64,
+		"anim" : -1,
+		"sounds": {
+			"cast": "REMOVEOB"
+		},
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"clone" : {
+		"index" : 65,
+		"anim" : -1,
+		"sounds": {
+			"cast": "CLONE"
+		},
+		"levels" : {
+			"none":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"basic":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"advanced":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			},
+			"expert":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			}
+		},
+		"immunity" : {
+			"SIEGE_WEAPON": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"fireElemental" : {
+		"index" : 66,
+		"anim" : -1,
+		"sounds": {
+			"cast": "SUMNELM"
+		},
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"earthElemental" : {
+		"index" : 67,
+		"anim" : -1,
+		"sounds": {
+			"cast": "SUMNELM"
+		},
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"waterElemental" : {
+		"index" : 68,
+		"anim" : -1,
+		"sounds": {
+			"cast": "SUMNELM"
+		},
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"airElemental" : {
+		"index" : 69,
+		"anim" : -1,
+		"sounds": {
+			"cast": "SUMNELM"
+		},
+		"levels" : {
+			"none":{
+				"range" : "X"
+			},
+			"basic":{
+				"range" : "X"
+			},
+			"advanced":{
+				"range" : "X"
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	}
+}
