@@ -15,6 +15,7 @@ MODS:
 * Support for submods - mod may have their own "submods" located in <modname>/Mods directory
 * Mods may provide their own changelogs and screenshots that will be visible in Launcher
 * Mods can now add new (offensive, buffs, debuffs) spells and change existing
+* Mods can assign new boats animations and costs to factions
 * Mods can use custom mage guild background pictures and videos for taverns, setting of resources daily income for buildings
 
 GENERAL:
