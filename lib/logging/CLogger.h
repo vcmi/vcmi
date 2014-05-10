@@ -69,7 +69,8 @@ private:
 	std::stringstream * sbuffer;
 };
 
-/// The class CLogger is used to log messages to certain targets of a specific domain/name.
+/// The logger is used to log messages to certain targets of a specific domain/name.
+/// It is thread-safe and can be used concurrently by several threads.
 class DLL_LINKAGE CLogger
 {
 public:
@@ -109,7 +110,6 @@ public:
 
 private:
 	explicit CLogger(const CLoggerDomain & domain);
-	CLogger * getParent() const;
 	inline ELogLevel::ELogLevel getEffectiveLevel() const; /// Returns the log level applied on this logger whether directly or indirectly.
 	inline void callTargets(const LogRecord & record) const;
 
@@ -245,7 +245,9 @@ private:
 	std::map<std::string, std::map<ELogLevel::ELogLevel, EConsoleTextColor::EConsoleTextColor> > map;
 };
 
-/// The class CLogConsoleTarget is a logging target which writes message to the console.
+/// This target is a logging target which writes message to the console.
+/// The target may be shared among multiple loggers. All methods except write aren't thread-safe.
+/// The console target is intended to be configured once and then added to a logger.
 class DLL_LINKAGE CLogConsoleTarget : public ILogTarget
 {
 public:
@@ -274,7 +276,9 @@ private:
 	mutable boost::mutex mx;
 };
 
-/// The class CLogFileTarget is a logging target which writes messages to a log file.
+/// This target is a logging target which writes messages to a log file.
+/// The target may be shared among multiple loggers. All methods except write aren't thread-safe.
+/// The file target is intended to be configured once and then added to a logger.
 class DLL_LINKAGE CLogFileTarget : public ILogTarget
 {
 public:

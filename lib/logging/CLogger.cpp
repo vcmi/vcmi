@@ -60,7 +60,7 @@ DLL_LINKAGE CLogger * logAnim = CLogger::getLogger(CLoggerDomain("animation"));
 
 CLogger * CLogger::getLogger(const CLoggerDomain & domain)
 {
-	boost::lock_guard<boost::recursive_mutex> _(smx);
+	TLockGuardRec _(smx);
 
 	CLogger * logger = CLogManager::get().getLogger(domain);
 	if(logger)
