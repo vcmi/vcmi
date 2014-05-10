@@ -1551,9 +1551,10 @@ void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto state = obj->shipyardStatus();
-	std::vector<si32> cost;
-	obj->getBoatCost(cost);
-	CShipyardWindow *csw = new CShipyardWindow(cost, state, obj->getBoatType(), [=]{ cb->buildBoat(obj); });
+	int subID = obj->getBoatType();
+	TResources cost = obj->getBoatCost(subID);
+	std::string boatAnimationFilename = obj->getBoatAnimationName();
+	CShipyardWindow *csw = new CShipyardWindow(cost, state, boatAnimationFilename, [=]{ cb->buildBoat(obj, subID); });
 	GH.pushInt(csw);
 }
 

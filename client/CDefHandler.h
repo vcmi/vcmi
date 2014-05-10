@@ -71,6 +71,7 @@ class CDefEssential //DefHandler with images only
 {
 public:
 	std::vector<Cimage> ourImages;
+	std::string fileName;
 	~CDefEssential(); //d-tor
 };
 

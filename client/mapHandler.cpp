@@ -322,9 +322,15 @@ void CMapHandler::init()
 	CStopWatch th;
 	th.getDiff();
 
-	graphics->advmapobjGraphics["AB01_.DEF"] = graphics->boatAnims[0];
-	graphics->advmapobjGraphics["AB02_.DEF"] = graphics->boatAnims[1];
-	graphics->advmapobjGraphics["AB03_.DEF"] = graphics->boatAnims[2];
+
+	for (auto & anim : graphics->boatAnims)
+	{
+		CDefEssential * boatAnim = anim;
+		graphics->advmapobjGraphics[boatAnim->fileName] = boatAnim;
+	}
+//	graphics->advmapobjGraphics["AB01_.DEF"] = graphics->boatAnims[0];
+//	graphics->advmapobjGraphics["AB02_.DEF"] = graphics->boatAnims[1];
+//	graphics->advmapobjGraphics["AB03_.DEF"] = graphics->boatAnims[2];
 	// Size of visible terrain.
 	int mapW = conf.go()->ac.advmapW;
 	int mapH = conf.go()->ac.advmapH;
@@ -552,12 +558,27 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 						//pick appropriate flag set
 						if(themp->boat)
 						{
-							switch (themp->boat->subID)
+							if ((themp->boat->subID >= 0) && (themp->boat->subID <= 2))
 							{
-							case 0: flg = &Graphics::flags1; break;
-							case 1: flg = &Graphics::flags2; break;
-							case 2: flg = &Graphics::flags3; break;
-                            default: logGlobal->errorStream() << "Not supported boat subtype: " << themp->boat->subID;
+								switch (themp->boat->subID)
+								{
+								case 0: flg = &Graphics::flags1; break;
+								case 1: flg = &Graphics::flags2; break;
+								case 2: flg = &Graphics::flags3; break;
+								default: flg = &Graphics::flags1;
+								}
+							}
+							else
+							{
+								//then search factions for appropriate flag
+								CFaction * faction = VLC->townh->factions[themp->boat->subID - 3];
+								switch (faction->boat.flagSet - 1)
+								{
+								case 0: flg = &Graphics::flags1; break;
+								case 1: flg = &Graphics::flags2; break;
+								case 2: flg = &Graphics::flags3; break;
+								default: flg = &Graphics::flags1;
+								}
 							}
 						}
 						else

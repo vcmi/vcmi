@@ -157,9 +157,16 @@ void Graphics::loadHeroAnims()
 			heroAnims[hc->imageMapMale] = loadHeroAnim(hc->imageMapMale, rotations);
 	}
 
-	boatAnims.push_back(loadHeroAnim("AB01_.DEF", rotations));
-	boatAnims.push_back(loadHeroAnim("AB02_.DEF", rotations));
-	boatAnims.push_back(loadHeroAnim("AB03_.DEF", rotations));
+	boatAnims.push_back(loadHeroAnim("AB01_.def", rotations));
+	boatAnims.push_back(loadHeroAnim("AB02_.def", rotations));
+	boatAnims.push_back(loadHeroAnim("AB03_.def", rotations));
+	for (auto & elem : CGI->townh->factions)
+	{
+		const CFaction * faction = elem;  
+		boatAnims.push_back(loadHeroAnim(faction->boat.boatAnimation, rotations));
+		boatAnims[faction->index + 3]->fileName = faction->boat.boatAnimation;
+	}
+
 }
 
 CDefEssential * Graphics::loadHeroAnim( const std::string &name, const std::vector<std::pair<int,int> > &rotations)

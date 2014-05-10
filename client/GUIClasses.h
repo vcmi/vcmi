@@ -1061,7 +1061,7 @@ public:
 
 	CGStatusBar * statusBar;
 
-	CShipyardWindow(const std::vector<si32> &cost, int state, int boatType, const std::function<void()> &onBuy);
+	CShipyardWindow(const TResources cost, int state, std::string boatAnimationName, const std::function<void()> &onBuy);
 };
 
 /// Puzzle screen which gets uncovered when you visit obilisks

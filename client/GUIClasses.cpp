@@ -5266,29 +5266,49 @@ CExchangeWindow::~CExchangeWindow() //d-tor
 	artifs[1]->commonInfo = nullptr;
 }
 
-CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int boatType, const std::function<void()> &onBuy):
+CShipyardWindow::CShipyardWindow(const TResources cost, int state, std::string boatAnimationName, const std::function<void()> &onBuy) :
     CWindowObject(PLAYER_COLORED, "TPSHIP")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	bgWater = new CPicture("TPSHIPBK", 100, 69);
 
-	std::string boatFilenames[3] = {"AB01_", "AB02_", "AB03_"};
-
 	Point waterCenter = Point(bgWater->pos.x+bgWater->pos.w/2, bgWater->pos.y+bgWater->pos.h/2);
-	bgShip = new CAnimImage(boatFilenames[boatType], 0, 7, 120, 96, CShowableAnim::USE_RLE);
+	bgShip = new CAnimImage(boatAnimationName, 0, 7, 120, 96, CShowableAnim::USE_RLE);
 	bgShip->center(waterCenter);
 
 	// Create resource icons and costs.
-	std::string goldValue = boost::lexical_cast<std::string>(cost[Res::GOLD]);
-	std::string woodValue = boost::lexical_cast<std::string>(cost[Res::WOOD]);
+	int firstResourceId = -1;
+	int secondResourceId = -1;
+	
+	for (Res::ERes i = Res::WOOD; i <= Res::MITHRIL; vstd::advance(i, 1))
+	{
+		if (cost[i] != 0)
+		{
+			if (secondResourceId == -1)
+				secondResourceId = i;
+			else
+			{
+				firstResourceId = i;
+				break;
+			}
 
-	goldCost = new CLabel(118, 294, FONT_SMALL, CENTER, Colors::WHITE, goldValue);
-	woodCost = new CLabel(212, 294, FONT_SMALL, CENTER, Colors::WHITE, woodValue);
+		}
+	}
 
-	goldPic = new CAnimImage("RESOURCE", Res::GOLD, 0, 100, 244);
-	woodPic = new CAnimImage("RESOURCE", Res::WOOD, 0, 196, 244);
-
+	if (firstResourceId != -1)
+	{
+		std::string firstValue = boost::lexical_cast<std::string>(cost[firstResourceId]);
+		goldCost = new CLabel(118, 294, FONT_SMALL, CENTER, Colors::WHITE, firstValue);
+		goldPic = new CAnimImage("RESOURCE", firstResourceId, 0, 100, 244);
+	}
+	if (secondResourceId != -1)
+	{
+		std::string secondValue = boost::lexical_cast<std::string>(cost[secondResourceId]);
+		woodCost = new CLabel(212, 294, FONT_SMALL, CENTER, Colors::WHITE, secondValue);
+		woodPic = new CAnimImage("RESOURCE", secondResourceId, 0, 196, 244);
+	}
+	
 	quit = new CAdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CShipyardWindow::close, this), 224, 312, "ICANCEL", SDLK_RETURN);
 	build = new CAdventureMapButton(CGI->generaltexth->allTexts[598], "", boost::bind(&CShipyardWindow::close, this), 42, 312, "IBUY30", SDLK_RETURN);
 	build->callback += onBuy;
@@ -5301,7 +5321,6 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 			break;
 		}
 	}
-
 	statusBar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	title =     new CLabel(164, 27,  FONT_BIG,    CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[13]);
