@@ -221,8 +221,9 @@ bool HireHero::applyGh( CGameHandler *gh )
 
 bool BuildBoat::applyGh( CGameHandler *gh )
 {
+	
 	ERROR_IF_NOT_OWNS(objid);
-	return gh->buildBoat(objid);
+	return gh->buildBoat(objid,subID);
 }
 
 bool QueryReply::applyGh( CGameHandler *gh )
