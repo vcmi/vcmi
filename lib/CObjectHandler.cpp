@@ -1509,17 +1509,12 @@ si32 CGHeroInstance::manaRegain() const
 
 int CGHeroInstance::getBoatType() const
 {
-	switch(type->heroClass->getAlignment())
-	{
-	case EAlignment::GOOD:
-		return 1;
-	case EAlignment::EVIL:
-		return 0;
-	case EAlignment::NEUTRAL:
-		return 2;
-	default:
-		throw std::runtime_error("Wrong alignment!");
-	}
+	return VLC->townh->factions[type->heroClass->faction]->boat.id;
+}
+
+std::string CGHeroInstance::getBoatAnimationName() const
+{
+	return VLC->townh->factions[type->heroClass->faction]->boat.boatAnimation;
 }
 
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
@@ -2556,14 +2551,12 @@ void CGTownInstance::removeCapitols (PlayerColor owner) const
 
 int CGTownInstance::getBoatType() const
 {
-	switch (town->faction->alignment)
-	{
-	case EAlignment::EVIL : return 0;
-	case EAlignment::GOOD : return 1;
-	case EAlignment::NEUTRAL : return 2;
-	}
-	assert(0);
-	return -1;
+	return town->faction->boat.id;
+}
+
+std::string CGTownInstance::getBoatAnimationName() const
+{
+	return town->faction->boat.boatAnimation;
 }
 
 int CGTownInstance::getMarketEfficiency() const
@@ -7046,8 +7039,14 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 
 int IBoatGenerator::getBoatType() const
 {
-	//We make good ships by default
+	//We make first loaded ships by default
 	return 1;
+}
+
+std::string IBoatGenerator::getBoatAnimationName() const
+{
+	//We make good ships by default
+	return "AB02_";
 }
 
 
@@ -7078,11 +7077,23 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 	}
 }
 
-void IShipyard::getBoatCost( std::vector<si32> &cost ) const
+TResources IShipyard::getBoatCost(int BoatType) const
 {
+	TResources cost;
 	cost.resize(GameConstants::RESOURCE_QUANTITY);
-	cost[Res::WOOD] = 10;
-	cost[Res::GOLD] = 1000;
+
+	for (auto faction : VLC->townh->factions)
+	{
+		if (faction->boat.id == BoatType)
+			cost = faction->boat.cost;
+	}
+	//price by default
+	if (!cost.nonZero())
+	{
+		cost[Res::WOOD] = 10;
+		cost[Res::GOLD] = 1000;
+	}
+	return cost;
 }
 
 IShipyard::IShipyard(const CGObjectInstance *O)

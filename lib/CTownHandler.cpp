@@ -554,6 +554,7 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 		info.tavernVideo = "TAVERN.BIK";
 	//end of legacy assignment 
 
+
 	info.advMapVillage = source["adventureMap"]["village"].String();
 	info.advMapCastle  = source["adventureMap"]["castle"].String();
 	info.advMapCapitol = source["adventureMap"]["capitol"].String();
@@ -703,6 +704,44 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source, std::string identi
 	else
 		faction->alignment = static_cast<EAlignment::EAlignment>(alignment);
 
+	if (source["boat"]["boatAnimation"].String() != "")
+	{
+		faction->boat.boatAnimation = source["boat"]["boatAnimation"].String();
+	}
+	else
+	{
+
+		switch (faction->alignment)
+		{
+		case EAlignment::GOOD:
+			faction->boat.boatAnimation = "AB02_.DEF";
+			faction->boat.flagSet = 2;
+			break;
+		case EAlignment::EVIL:
+			faction->boat.boatAnimation = "AB01_.DEF";
+			faction->boat.flagSet = 1;
+			break;
+		case EAlignment::NEUTRAL:
+			faction->boat.boatAnimation = "AB03_.DEF";
+			faction->boat.flagSet = 3;
+			break;
+		default:
+			faction->boat.boatAnimation = "AB02_.DEF";
+			faction->boat.flagSet = 2;
+		}
+	}
+
+	faction->boat.flagSet=source["boat"]["flagSet"].Float();
+	if ((faction->boat.flagSet <= 0) || (faction->boat.flagSet > 3))
+		faction->boat.flagSet=1;
+
+	faction->boat.cost = TResources(source["boat"]["cost"]);
+	if (!faction->boat.cost.nonZero())
+	{
+		faction->boat.cost[Res::WOOD] = 10;
+		faction->boat.cost[Res::GOLD] = 1000;
+	}
+
 	if (!source["town"].isNull())
 	{
 		faction->town = new CTown;
@@ -760,6 +799,14 @@ void CTownHandler::afterLoadFinalization()
 {
 	initializeRequirements();
 	ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::TOWN, 0).front();
+	
+	
+	ObjectTemplate boatLegacy = VLC->dobjinfo->pickCandidates(Obj::BOAT, 0).front();
+//	VLC->dobjinfo->eraseAll(Obj::BOAT, 0);  //remove legacy boats from list
+//	VLC->dobjinfo->eraseAll(Obj::BOAT, 1);
+//	VLC->dobjinfo->eraseAll(Obj::BOAT, 2);
+	int boatId = 3; //to leave standard boats untouched
+
 	for (CFaction * fact : factions)
 	{
 		if (fact->town)
@@ -790,6 +837,17 @@ void CTownHandler::afterLoadFinalization()
 				 }
 			}
 		}
+		fact->boat.id = fact->index + boatId; //to prevent standard boats to be replaced (they still need to be used) 
+		boatLegacy.subid = fact->boat.id;
+		std::string boatAnimation = fact->boat.boatAnimation;
+		boatLegacy.animationFile = boatAnimation;
+		std::string suffix = ".DEF";
+		int posSuffix = boatAnimation.find_last_of(".DEF");
+		if (posSuffix > -1)
+			boatLegacy.stringID = boatAnimation.replace(posSuffix, suffix.length(), "");
+		VLC->dobjinfo->registerTemplate(boatLegacy);
+		
+		
 	}
 }
 

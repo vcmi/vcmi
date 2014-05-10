@@ -1919,11 +1919,11 @@ struct BuildBoat : public CPackForServer
 {
 	BuildBoat(){};
 	ObjectInstanceID objid; //where player wants to buy a boat
-
+	int subID;
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & objid;
+		h & objid & subID;
 	}
 
 };

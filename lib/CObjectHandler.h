@@ -144,8 +144,9 @@ public:
 	IBoatGenerator(const CGObjectInstance *O);
 	virtual ~IBoatGenerator() {}
 
-	virtual int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
-	virtual void getOutOffsets(std::vector<int3> &offsets) const =0; //offsets to obj pos when we boat can be placed
+	virtual std::string getBoatAnimationName() const; 
+	virtual int getBoatType() const;
+	virtual void getOutOffsets(std::vector<int3> &offsets) const = 0; //offsets to obj pos when we boat can be placed
 	int3 bestLocation() const; //returns location when the boat should be placed
 
 	enum EGeneratorState {GOOD, BOAT_ALREADY_BUILT, TILE_BLOCKED, NO_WATER};
@@ -164,7 +165,7 @@ public:
 	IShipyard(const CGObjectInstance *O);
 	virtual ~IShipyard() {}
 
-	virtual void getBoatCost(std::vector<si32> &cost) const;
+	virtual TResources getBoatCost(int boatType) const;
 
 	static const IShipyard *castFrom(const CGObjectInstance *obj);
 	static IShipyard *castFrom(CGObjectInstance *obj);
@@ -406,7 +407,8 @@ public:
 	int getSightRadious() const; //sight distance (should be used if player-owned structure)
 	//////////////////////////////////////////////////////////////////////////
 
-	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	std::string getBoatAnimationName() const; 
+	int getBoatType() const;
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
 
 	//////////////////////////////////////////////////////////////////////////
@@ -726,7 +728,8 @@ public:
 	ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
 	int3 getSightCenter() const override; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const override; //returns sight distance
-	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	std::string getBoatAnimationName() const;
+	int getBoatType() const;
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
 	int getMarketEfficiency() const override; //=market count
 	bool allowsTrade(EMarketMode::EMarketMode mode) const;
