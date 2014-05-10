@@ -3014,12 +3014,11 @@ For ship construction etc, another function (goal?) is needed
 					if(ownedGoodShipyard != shipyards.end())
 					{
 						const IShipyard *s = *ownedGoodShipyard;
-						TResources shipCost;
-						s->getBoatCost(shipCost);
+						TResources shipCost=s->getBoatCost(h->boat->subID);
 						if(cb->getResourceAmount().canAfford(shipCost))
 						{
 							int3 ret = s->bestLocation();
-							cb->buildBoat(s); //TODO: move actions elsewhere
+							cb->buildBoat(s,h->boat->subID); //TODO: move actions elsewhere
 							return ret;
 						}
 						else
