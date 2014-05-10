@@ -31,7 +31,7 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI faction format",
 	"description": "Json format for defining new faction (aka towns) in VCMI",
-	"required" : [ "name", "alignment", "creatureBackground" ],
+	"required" : [ "name", "alignment", "creatureBackground" , "boat" ],
 	"dependencies" : {
 		"town" : [ "puzzleMap" ]
 	},
@@ -50,6 +50,33 @@
 			"type":"string",
 			"enum" : [ "good", "neutral", "evil" ],
 			"description": "Town alignment, good, neutral or evil"
+		},
+		"boat": {
+			"type":"object",
+			"additionalProperties" : false,
+				"boatAnimation": {
+					"type" : "string",
+					"description": "Path to .def file with boat animation",
+					"format" : "animationFile"
+				},
+				"flagSet": {
+					"type" : "number",
+					"description": "Number of flag set to be used with boat (0-2)"
+				},
+				"cost": {
+					"type":"object",
+					"additionalProperties" : false,
+					"description": "Cost to build this building",
+					"properties":{
+						"wood":    { "type":"number"},
+						"mercury": { "type":"number"},
+						"ore":     { "type":"number"},
+						"sulfur":  { "type":"number"},
+						"crystal": { "type":"number"},
+						"gems":    { "type":"number"},
+						"gold":    { "type":"number"}
+					}
+				}
 		},
 		"creatureBackground": {
 			"type":"object",
