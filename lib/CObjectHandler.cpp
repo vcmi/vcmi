@@ -7088,7 +7088,7 @@ TResources IShipyard::getBoatCost(int BoatType) const
 			cost = faction->boat.cost;
 	}
 	//price by default
-	if (!cost.nonZero())
+	if (cost.isZero())
 	{
 		cost[Res::WOOD] = 10;
 		cost[Res::GOLD] = 1000;
