@@ -296,10 +296,12 @@ void CCallback::sendMessage(const std::string &mess)
 	sendRequest(&(CPackForClient&)pm);
 }
 
-void CCallback::buildBoat( const IShipyard *obj )
+void CCallback::buildBoat(const IShipyard *obj, int subID)
 {
 	BuildBoat bb;
 	bb.objid = obj->o->id;
+	bb.subID = subID;
+
 	sendRequest(&bb);
 }
 
