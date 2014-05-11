@@ -326,11 +326,11 @@ void CMapHandler::init()
 	for (auto & anim : graphics->boatAnims)
 	{
 		CDefEssential * boatAnim = anim;
-		graphics->advmapobjGraphics[boatAnim->fileName] = boatAnim;
+		if (graphics->advmapobjGraphics[boatAnim->fileName] == NULL)
+		{
+			graphics->advmapobjGraphics[boatAnim->fileName] = boatAnim;
+		}
 	}
-//	graphics->advmapobjGraphics["AB01_.DEF"] = graphics->boatAnims[0];
-//	graphics->advmapobjGraphics["AB02_.DEF"] = graphics->boatAnims[1];
-//	graphics->advmapobjGraphics["AB03_.DEF"] = graphics->boatAnims[2];
 	// Size of visible terrain.
 	int mapW = conf.go()->ac.advmapW;
 	int mapH = conf.go()->ac.advmapH;
@@ -368,6 +368,8 @@ void CMapHandler::init()
     logGlobal->infoStream()<<"\tMaking object rects: "<<th.getDiff();
 
 }
+
+
 
 // Update map window screen
 // top_tile top left tile to draw. Not necessarily visible.
@@ -549,36 +551,48 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 
 						//pick graphics of hero (or boat if hero is sailing)
 						if (themp->boat)
-							iv = &graphics->boatAnims[themp->boat->subID]->ourImages;
+						{
+							iv = &graphics->boatAnims[graphics->getBoatAnimationId(themp->boat->subID)]->ourImages;
+						}
 						else if (themp->sex)
 							iv = &graphics->heroAnims[themp->type->heroClass->imageMapFemale]->ourImages;
 						else
 							iv = &graphics->heroAnims[themp->type->heroClass->imageMapMale]->ourImages;
 
 						//pick appropriate flag set
-						if(themp->boat)
+						if (themp->boat)
 						{
+							//then search factions for appropriate flag
+							int flagSet=VLC->townh->factions[9]->boat.flagSet-1;
 							if ((themp->boat->subID >= 0) && (themp->boat->subID <= 2))
 							{
 								switch (themp->boat->subID)
 								{
-								case 0: flg = &Graphics::flags1; break;
-								case 1: flg = &Graphics::flags2; break;
-								case 2: flg = &Graphics::flags3; break;
-								default: flg = &Graphics::flags1;
+								case 0: flagSet = 0; break;
+								case 1: flagSet = 1; break;
+								case 2: flagSet = 2; break;
+								default: flagSet = 2;  //neutral ship flag by default
 								}
 							}
 							else
 							{
-								//then search factions for appropriate flag
-								CFaction * faction = VLC->townh->factions[themp->boat->subID - 3];
-								switch (faction->boat.flagSet - 1)
+								for (auto & elem : VLC->townh->factions)
 								{
-								case 0: flg = &Graphics::flags1; break;
-								case 1: flg = &Graphics::flags2; break;
-								case 2: flg = &Graphics::flags3; break;
-								default: flg = &Graphics::flags1;
+									const CFaction * faction = elem;
+									if (faction->boat.id == themp->boat->subID)
+									{
+										flagSet = faction->boat.flagSet - 1;
+										break;
+									}
 								}
+							}
+
+							switch (flagSet)
+							{
+							case 0: flg = &Graphics::flags1; break;
+							case 1: flg = &Graphics::flags2; break;
+							case 2: flg = &Graphics::flags3; break;
+							default: flg = &Graphics::flags3;
 							}
 						}
 						else
@@ -590,7 +604,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 					{
 						const CGBoat *boat = static_cast<const CGBoat*>(obj);
 						dir = boat->direction;
-						iv = &graphics->boatAnims[boat->subID]->ourImages;
+						iv = &graphics->boatAnims[graphics->getBoatAnimationId(boat->subID)]->ourImages;
 					}
 
 
