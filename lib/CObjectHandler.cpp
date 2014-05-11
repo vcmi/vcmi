@@ -7040,13 +7040,14 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 int IBoatGenerator::getBoatType() const
 {
 	//We make first loaded ships by default
-	return 1;
+	return VLC->townh->factions[9]->boat.id;
+
 }
 
 std::string IBoatGenerator::getBoatAnimationName() const
 {
-	//We make good ships by default
-	return "AB02_";
+	//We make neutral ships by default
+	return VLC->townh->factions[9]->boat.boatAnimation;
 }
 
 
@@ -7087,12 +7088,7 @@ TResources IShipyard::getBoatCost(int BoatType) const
 		if (faction->boat.id == BoatType)
 			cost = faction->boat.cost;
 	}
-	//price by default
-	if (cost.isZero())
-	{
-		cost[Res::WOOD] = 10;
-		cost[Res::GOLD] = 1000;
-	}
+
 	return cost;
 }
 
