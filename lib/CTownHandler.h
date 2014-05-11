@@ -89,6 +89,22 @@ struct DLL_LINKAGE CStructure
 	}
 };
 
+/// This is structure used only by client
+/// Consists of all faction data about boats
+/// Should be moved from lib to client
+struct DLL_LINKAGE CBoat
+{
+	TResources cost;	
+	std::string boatAnimation;
+	ui8 flagSet;
+	int id;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & cost & boatAnimation & id & flagSet;
+	}
+};
+
 struct DLL_LINKAGE SPuzzleInfo
 {
 	ui16 number; //type of puzzle
@@ -113,6 +129,8 @@ public:
 
 	TFaction index;
 
+	CBoat boat;
+
 	ETerrainType nativeTerrain;
 	EAlignment::EAlignment alignment;
 
@@ -127,7 +145,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & identifier & index & nativeTerrain & alignment & town & creatureBg120 & creatureBg130 & puzzleMap;
+		h & name & identifier & index & nativeTerrain & alignment & town & creatureBg120 & creatureBg130 & puzzleMap & boat;
 	}
 };
 

@@ -4,6 +4,16 @@
 		"name" : "Neutral",
 		"index" : 9,
 		"alignment" : "neutral",
+		"boat":
+		{
+			"boatAnimation" : "AB03_.DEF",
+			"flagSet" : 3,
+			"cost":
+				{
+					"wood" : 10,
+					"gold" : 1000
+				}
+		},
 		"creatureBackground" :
 		{
 			"120px" : "TPCASNEU",

@@ -5013,8 +5013,9 @@ void CGameHandler::objectVisitEnded(const CObjectVisitQuery &query)
 	sendAndApply(&hv);
 }
 
-bool CGameHandler::buildBoat( ObjectInstanceID objid )
+bool CGameHandler::buildBoat(ObjectInstanceID objid, int subID)
 {
+
 	const IShipyard *obj = IShipyard::castFrom(getObj(objid));
 
 	if(obj->shipyardStatus() != IBoatGenerator::GOOD)
@@ -5022,16 +5023,18 @@ bool CGameHandler::buildBoat( ObjectInstanceID objid )
 		complain("Cannot build boat in this shipyard!");
 		return false;
 	}
-	else if(obj->o->ID == Obj::TOWN
-	        && !static_cast<const CGTownInstance*>(obj)->hasBuilt(BuildingID::SHIPYARD))
+	else if (obj->o->ID == Obj::TOWN
+		&& !static_cast<const CGTownInstance*>(obj)->hasBuilt(BuildingID::SHIPYARD))
 	{
 		complain("Cannot build boat in the town - no shipyard!");
 		return false;
 	}
 
 	const PlayerColor playerID = obj->o->tempOwner;
-	TResources boatCost;
-	obj->getBoatCost(boatCost);
+	int boatId = subID;  
+
+	TResources boatCost = obj->getBoatCost(subID);
+
 	TResources aviable = gs->getPlayer(playerID)->resources;
 
 	if (!aviable.canAfford(boatCost))
@@ -5056,7 +5059,7 @@ bool CGameHandler::buildBoat( ObjectInstanceID objid )
 	//create boat
 	NewObject no;
 	no.ID = Obj::BOAT;
-	no.subID = obj->getBoatType();
+	no.subID = boatId;
 	no.pos = tile + int3(1,0,0);
 	sendAndApply(&no);
 

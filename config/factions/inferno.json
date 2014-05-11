@@ -4,6 +4,16 @@
 		"index" : 3,
 		"nativeTerrain": "lava",
 		"alignment" : "evil",
+		"boat":
+		{
+			"boatAnimation" : "AB01_.DEF",
+			"flagSet" : 1,
+			"cost":
+				{
+					"wood" : 10,
+					"gold" : 1000
+				}
+		},
 		"creatureBackground" :
 		{
 			"120px" : "TPCASINF",

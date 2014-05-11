@@ -157,9 +157,63 @@ void Graphics::loadHeroAnims()
 			heroAnims[hc->imageMapMale] = loadHeroAnim(hc->imageMapMale, rotations);
 	}
 
+	ui32 index = 0;
 	boatAnims.push_back(loadHeroAnim("AB01_.DEF", rotations));
+	boatAnims[index]->fileName = "AB01_.DEF";
+	index = index++;
 	boatAnims.push_back(loadHeroAnim("AB02_.DEF", rotations));
+	boatAnims[index]->fileName = "AB02_.DEF";
+	index = index++;
 	boatAnims.push_back(loadHeroAnim("AB03_.DEF", rotations));
+	boatAnims[index]->fileName = "AB03_.DEF";
+	index = index++;
+	
+	for (auto & elem : CGI->townh->factions)
+	{
+		const CFaction * faction = elem;
+		bool findPrevLoaded = false;
+		for (auto & anim : graphics->boatAnims)
+		{
+			CDefEssential * boatAnim = anim;
+			if (boatAnim->fileName == faction->boat.boatAnimation)
+			{
+				findPrevLoaded = true;
+				break;
+			}
+		}
+		if (findPrevLoaded==false)
+		{
+			boatAnims.push_back(loadHeroAnim(faction->boat.boatAnimation, rotations));
+			boatAnims[index]->fileName = faction->boat.boatAnimation;
+			index++;
+		}
+	}
+
+}
+
+si32 Graphics::getBoatAnimationId(si32 boatSubID)
+{
+	std::string boatAnimationName = "AB03_.DEF";
+	si32 boatAnimationID = 2;	//by default neutral ship is loaded
+	for (auto & elem : CGI->townh->factions)
+	{
+		const CFaction * faction = elem;
+		if (faction->boat.id == boatSubID)
+		{
+			boatAnimationName = faction->boat.boatAnimation;
+			break;
+		}
+	}
+	//now we have file name to load, will search for id
+	for (int index = 0; index < boatAnims.size(); index++)
+	{
+		if ((boatAnims[index] != NULL) && (boatAnims[index]->fileName == boatAnimationName))
+		{
+			boatAnimationID = index;
+			break;
+		}
+	}
+	return boatAnimationID;
 }
 
 CDefEssential * Graphics::loadHeroAnim( const std::string &name, const std::vector<std::pair<int,int> > &rotations)

@@ -9,6 +9,16 @@
 			"120px" : "TPCASRAM",
 			"130px" : "CRBKGRAM"
 		},
+		"boat":
+		{
+			"boatAnimation" : "AB02_.DEF",
+			"flagSet" : 2,
+			"cost":
+				{
+					"wood" : 10,
+					"gold" : 1000
+				}
+		},
 		"puzzleMap" :
 		{
 			"prefix" : "PUZRAM",

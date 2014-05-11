@@ -9,6 +9,16 @@
 			"120px" : "TPCASSTR",
 			"130px" : "CRBKGSTR"
 		},
+		"boat":
+		{
+			"boatAnimation" : "AB03_.DEF",
+			"flagSet" : 3,
+			"cost":
+				{
+					"wood" : 10,
+					"gold" : 1000
+				}
+		},
 		"puzzleMap" :
 		{
 			"prefix" : "PUZSTR",

@@ -77,7 +77,7 @@ public:
 
 	virtual void save(const std::string &fname) = 0;
 	virtual void sendMessage(const std::string &mess) = 0;
-	virtual void buildBoat(const IShipyard *obj) = 0;
+	virtual void buildBoat(const IShipyard *obj, int subID) = 0;
 };
 
 struct CPack;
@@ -154,7 +154,7 @@ public:
 	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero);
 	void save(const std::string &fname);
 	void sendMessage(const std::string &mess);
-	void buildBoat(const IShipyard *obj);
+	void buildBoat(const IShipyard *obj, int subID);
 	void dig(const CGObjectInstance *hero);
 	void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1));
 
