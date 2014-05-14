@@ -19,7 +19,7 @@
  *    memory. On big endian machines, the value will be byteswapped.
  */
 
-#if defined(linux) && (defined(sparc) || defined(__arm__))
+#if (defined(linux) || defined(__linux) || defined(__linux__)) && (defined(sparc) || defined(__arm__))
 /* SPARC does not support unaligned memory access. Let gcc know when
  * to emit the right code. */
 struct unaligned_Uint16 { ui16 val __attribute__(( packed )); };
