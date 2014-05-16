@@ -41,25 +41,15 @@ public:
 	void init(const JsonNode & objectConfig);
 };
 
-class CObjectWithRewardConstructor : public IObjectTypesHandler
+class CObjectWithRewardConstructor : public AObjectTypeHandler
 {
-	struct ObjectInfo
-	{
-		CRandomRewardObjectInfo info;
-		std::vector<ObjectTemplate> templates;
-	};
-	std::map<ui32, std::map<ui32, ObjectInfo> > objectInfos;
+	CRandomRewardObjectInfo objectInfo;
 
 public:
 	CObjectWithRewardConstructor();
 	void init(const JsonNode & config);
 
-	std::vector<ObjectTemplate> getTemplates(si32 type, si32 subType) const override;
-
 	CGObjectInstance * create(ObjectTemplate tmpl) const override;
-
-	bool handlesID(si32 id, si32 subID) const;
-	bool handlesID(ObjectTemplate tmpl) const override;
 
 	void configureObject(CGObjectInstance * object) const override;
 

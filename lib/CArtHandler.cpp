@@ -648,7 +648,7 @@ void CArtHandler::afterLoadFinalization()
 	}
 
 	//Note: "10" is used here because H3 text files don't define any template for art with ID 0
-	ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::ARTIFACT, 10).front();
+	ObjectTemplate base = VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, 10)->getTemplates().front();
 	for (CArtifact * art : artifacts)
 	{
 		if (!art->advMapDef.empty())
@@ -656,10 +656,9 @@ void CArtHandler::afterLoadFinalization()
 			base.animationFile = art->advMapDef;
 			base.subid = art->id;
 
-			// replace existing (if any) and add new template.
+			// add new template.
 			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->dobjinfo->eraseAll(Obj::ARTIFACT, art->id);
-			VLC->dobjinfo->registerTemplate(base);
+			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->id)->addTemplate(base);
 		}
 	}
 }

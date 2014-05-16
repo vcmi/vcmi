@@ -78,37 +78,6 @@ public:
 	}
 };
 
-class DLL_LINKAGE CDefObjInfoHandler
-{
-	/// list of all object templates loaded from text files
-	/// actual object have ObjectTemplate as member "appearance"
-	std::vector<ObjectTemplate> objects;
-
-	/// reads one of H3 text files that contain object templates description
-	void readTextFile(std::string path);
-public:
-
-	CDefObjInfoHandler();
-
-	/// Erases all templates with given type/subtype
-	void eraseAll(Obj type, si32 subtype);
-
-	/// Add new template into the list
-	void registerTemplate(ObjectTemplate obj);
-
-	/// picks all possible candidates for specific pair <type, subtype>
-	std::vector<ObjectTemplate> pickCandidates(Obj type, si32 subtype) const;
-	/// picks all candidates for <type, subtype> and of possible - also filters them by terrain
-	std::vector<ObjectTemplate> pickCandidates(Obj type, si32 subtype, ETerrainType terrain) const;
-	/// as above, but also filters out templates that are not applicable according to accepted test
-	std::vector<ObjectTemplate> pickCandidates(Obj type, si32 subtype, ETerrainType terrain, std::function<bool(ObjectTemplate &)> filter) const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & objects;
-	}
-};
-
 class IObjectInfo
 {
 public:
@@ -130,40 +99,57 @@ public:
 
 class CGObjectInstance;
 
-class IObjectTypesHandler
+class AObjectTypeHandler
 {
+	si32 type;
+	si32 subtype;
+
+	std::vector<ObjectTemplate> templates;
+protected:
+	void init(si32 type, si32 subtype);
+
+	/// loads templates from Json structure using fields "base" and "templates"
+	void load(const JsonNode & input);
+
+	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
 public:
-	virtual std::vector<ObjectTemplate> getTemplates(si32 type, si32 subType) const = 0;
+	void addTemplate(const ObjectTemplate & templ);
+
+	/// returns all templates, without any filters
+	std::vector<ObjectTemplate> getTemplates() const;
+
+	/// returns all templates that can be placed on specific terrain type
+	std::vector<ObjectTemplate> getTemplates(si32 terrainType) const;
+
+	/// returns template suitable for object. If returned template is not equal to current one
+	/// it must be replaced with this one (and properly updated on all clients)
+	ObjectTemplate selectTemplate(si32 terrainType, CGObjectInstance * object) const;
+
 
 	virtual CGObjectInstance * create(ObjectTemplate tmpl) const = 0;
-
-	virtual bool handlesID(ObjectTemplate tmpl) const = 0;
 
 	virtual void configureObject(CGObjectInstance * object) const = 0;
 
 	virtual const IObjectInfo * getObjectInfo(ObjectTemplate tmpl) const = 0;
 };
 
-typedef std::shared_ptr<IObjectTypesHandler> TObjectTypeHandler;
+typedef std::shared_ptr<AObjectTypeHandler> TObjectTypeHandler;
 
-class CObjectGroupsHandler
+class CObjectTypesHandler
 {
-	/// list of object handlers, each of them handles 1 or more object type
-	std::vector<TObjectTypeHandler> objectTypes;
+	/// list of object handlers, each of them handles only one type
+	std::map<si32, std::map<si32, TObjectTypeHandler> > objectTypes;
 
 public:
+	void init();
+
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
-	IObjectTypesHandler * getHandlerFor(ObjectTemplate tmpl) const;
+	TObjectTypeHandler getHandlerFor(si32 type, si32 subtype) const;
 
-	/// creates object based on specified template
-	CGObjectInstance * createObject(ObjectTemplate tmpl);
-
-	template<typename CObjectClass>
-	CObjectClass * createObjectTyped(ObjectTemplate tmpl)
+	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		auto objInst  = createObject(tmpl);
-		auto objClass = dynamic_cast<CObjectClass*>(objInst);
-		assert(objClass);
-		return objClass;
+		//h & objects;
+		if (!h.saving)
+			init(); // TODO: implement serialization
 	}
 };

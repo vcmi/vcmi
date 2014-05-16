@@ -711,7 +711,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 void CTownHandler::afterLoadFinalization()
 {
 	initializeRequirements();
-	ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::TOWN, 0).front();
+	ObjectTemplate base = VLC->objtypeh->getHandlerFor(Obj::TOWN, 0)->getTemplates().front();
 	for (CFaction * fact : factions)
 	{
 		if (fact->town)
@@ -721,13 +721,12 @@ void CTownHandler::afterLoadFinalization()
 
 			// replace existing (if any) and add new template.
 			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->dobjinfo->eraseAll(Obj::TOWN, fact->index);
-			VLC->dobjinfo->registerTemplate(base);
+			VLC->objtypeh->getHandlerFor(Obj::TOWN, fact->index)->addTemplate(base);
 
 			assert(fact->town->dwellings.size() == fact->town->dwellingNames.size());
 			for (size_t i=0; i<fact->town->dwellings.size(); i++)
 			{
-				ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::CREATURE_GENERATOR1, 0).front();
+				ObjectTemplate base = VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, 0)->getTemplates().front();
 
 				//both unupgraded and upgraded get same dwelling
 				 for (auto cre : fact->town->creatures[i])
@@ -736,7 +735,7 @@ void CTownHandler::afterLoadFinalization()
 					base.animationFile = fact->town->dwellings[i];
 					if (VLC->objh->cregens.count(cre) == 0)
 					{
-						VLC->dobjinfo->registerTemplate(base);
+						VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, 80 + cre)->addTemplate(base);
 						VLC->objh->cregens[80 + cre] = cre; //map of dwelling -> creature id
 					}
 				 }

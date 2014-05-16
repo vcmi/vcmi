@@ -229,7 +229,7 @@ void CHeroClassHandler::afterLoadFinalization()
 		}
 	}
 
-	ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::HERO, 0).front();
+	ObjectTemplate base = VLC->objtypeh->getHandlerFor(Obj::HERO, 0)->getTemplates().front();
 	for (CHeroClass * hc : heroClasses)
 	{
 		base.animationFile = hc->imageMapMale;
@@ -237,8 +237,7 @@ void CHeroClassHandler::afterLoadFinalization()
 
 		// replace existing (if any) and add new template.
 		// Necessary for objects added via mods that don't have any templates in H3
-		VLC->dobjinfo->eraseAll(Obj::HERO, hc->id);
-		VLC->dobjinfo->registerTemplate(base);
+		VLC->objtypeh->getHandlerFor(Obj::HERO, base.subid)->addTemplate(base);
 	}
 }
 

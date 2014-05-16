@@ -582,7 +582,7 @@ DLL_LINKAGE void GiveHero::applyGs( CGameState *gs )
 	//bonus system
 	h->detachFrom(&gs->globalEffects);
 	h->attachTo(gs->getPlayer(player));
-	h->appearance = VLC->dobjinfo->pickCandidates(Obj::HERO, h->type->heroClass->id).front();
+	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->id)->getTemplates().front();
 
 	gs->map->removeBlockVisTiles(h,true);
 	h->setOwner(player);
@@ -623,7 +623,7 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 	o->subID = subID;
 	o->pos = pos;
 	const TerrainTile &t = gs->map->getTile(pos);
-	o->appearance = VLC->dobjinfo->pickCandidates(o->ID, o->subID, t.terType).front();
+	o->appearance = VLC->objtypeh->getHandlerFor(o->ID, o->subID)->selectTemplate(t.terType, o);
 	id = o->id = ObjectInstanceID(gs->map->objects.size());
 	o->hoverName = VLC->generaltexth->names[ID];
 

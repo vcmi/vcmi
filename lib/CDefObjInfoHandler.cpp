@@ -7,6 +7,7 @@
 #include "GameConstants.h"
 #include "StringConstants.h"
 #include "CGeneralTextHandler.h"
+#include "CObjectHandler.h"
 #include "CModHandler.h"
 #include "JsonNode.h"
 
@@ -327,7 +328,7 @@ bool ObjectTemplate::canBePlacedAt(ETerrainType terrain) const
 {
 	return allowedTerrains.count(terrain) != 0;
 }
-
+/*
 void CDefObjInfoHandler::readTextFile(std::string path)
 {
 	CLegacyConfigParser parser(path);
@@ -347,81 +348,82 @@ CDefObjInfoHandler::CDefObjInfoHandler()
 {
 	readTextFile("Data/Objects.txt");
 	readTextFile("Data/Heroes.txt");
-/*
-	// TODO: merge into modding system
-	JsonNode node = JsonUtils::assembleFromFiles("config/objectTemplates.json");
-	node.setMeta("core");
-	std::vector<ObjectTemplate> newTemplates;
-	newTemplates.reserve(node.Struct().size());
-
-	// load all new templates
-	for (auto & entry : node.Struct())
-	{
-		JsonUtils::validate(entry.second, "vcmi:objectTemplate", entry.first);
-
-		ObjectTemplate templ;
-		templ.stringID = entry.first;
-		templ.readJson(entry.second);
-		newTemplates.push_back(templ);
-	}
-
-	// erase old ones to avoid conflicts
-	for (auto & entry : newTemplates)
-		eraseAll(entry.id, entry.subid);
-
-	// merge new templates into storage
-	objects.insert(objects.end(), newTemplates.begin(), newTemplates.end());
+}
 */
+void CObjectTypesHandler::init()
+{
+
 }
 
-void CDefObjInfoHandler::eraseAll(Obj type, si32 subtype)
+TObjectTypeHandler CObjectTypesHandler::getHandlerFor(si32 type, si32 subtype) const
 {
-	auto it = std::remove_if(objects.begin(), objects.end(), [&](const ObjectTemplate & obj)
+	if (objectTypes.count(type))
 	{
-		return obj.id == type && obj.subid == subtype;
-	});
-	objects.erase(it, objects.end());
+		if (objectTypes.at(type).count(subtype))
+			return objectTypes.at(type).at(subtype);
+	}
+	assert(0); // FIXME: throw error?
+	return nullptr;
 }
 
-void CDefObjInfoHandler::registerTemplate(ObjectTemplate obj)
+void AObjectTypeHandler::init(si32 type, si32 subtype)
 {
-	objects.push_back(obj);
+	this->type = type;
+	this->subtype = subtype;
 }
 
-std::vector<ObjectTemplate> CDefObjInfoHandler::pickCandidates(Obj type, si32 subtype) const
+void AObjectTypeHandler::load(const JsonNode & input)
 {
-	std::vector<ObjectTemplate> ret;
-
-	std::copy_if(objects.begin(), objects.end(), std::back_inserter(ret), [&](const ObjectTemplate & obj)
+	for (auto entry : input["templates"].Struct())
 	{
-		return obj.id == type && obj.subid == subtype;
-	});
-	if (ret.empty())
-		logGlobal->errorStream() << "Failed to find template for " << type << ":" << subtype;
+		JsonNode data = input["base"];
+		JsonUtils::merge(data, entry.second);
 
-	assert(!ret.empty()); // Can't create object of this type/subtype
-	return ret;
+		ObjectTemplate tmpl;
+		tmpl.id = Obj(type);
+		tmpl.subid = subtype;
+		tmpl.stringID = entry.first; // FIXME: create "fullID" - type.object.template?
+		tmpl.readJson(data);
+		templates.push_back(tmpl);
+	}
 }
 
-std::vector<ObjectTemplate> CDefObjInfoHandler::pickCandidates(Obj type, si32 subtype, ETerrainType terrain) const
+bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, const ObjectTemplate &) const
 {
-	std::vector<ObjectTemplate> ret = pickCandidates(type, subtype);
+	return true; // by default - accept all.
+}
+
+void AObjectTypeHandler::addTemplate(const ObjectTemplate & templ)
+{
+	templates.push_back(templ);
+}
+
+std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates() const
+{
+	return templates;
+}
+
+std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(si32 terrainType) const// FIXME: replace with ETerrainType
+{
+	std::vector<ObjectTemplate> ret = getTemplates();
 	std::vector<ObjectTemplate> filtered;
 
 	std::copy_if(ret.begin(), ret.end(), std::back_inserter(filtered), [&](const ObjectTemplate & obj)
 	{
-		return obj.canBePlacedAt(terrain);
+		return obj.canBePlacedAt(ETerrainType(terrainType));
 	});
 	// it is possible that there are no templates usable on specific terrain. In this case - return list before filtering
 	return filtered.empty() ? ret : filtered;
 }
 
-std::vector<ObjectTemplate> CDefObjInfoHandler::pickCandidates(Obj type, si32 subtype, ETerrainType terrain, std::function<bool(ObjectTemplate &)> filter) const
+ObjectTemplate AObjectTypeHandler::selectTemplate(si32 terrainType, CGObjectInstance * object) const
 {
-	std::vector<ObjectTemplate> ret = pickCandidates(type, subtype, terrain);
-	std::vector<ObjectTemplate> filtered;
-
-	std::copy_if(ret.begin(), ret.end(), std::back_inserter(filtered), filter);
-	// it is possible that there are no templates usable on specific terrain. In this case - return list before filtering
-	return filtered.empty() ? ret : filtered;
+	std::vector<ObjectTemplate> ret = getTemplates(terrainType);
+	for (auto & tmpl : ret)
+	{
+		if (objectFilter(object, tmpl))
+			return tmpl;
+	}
+	// FIXME: no matches found. Warn? Ask for torches? Die?
+	return ret.front();
 }

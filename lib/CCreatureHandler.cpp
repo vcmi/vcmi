@@ -1114,7 +1114,7 @@ void CCreatureHandler::buildBonusTreeForTiers()
 
 void CCreatureHandler::afterLoadFinalization()
 {
-	ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::MONSTER, 0).front();
+	ObjectTemplate base = VLC->objtypeh->getHandlerFor(Obj::MONSTER, 0)->getTemplates().front();
 	for (CCreature * crea : creatures)
 	{
 		if (!crea->advMapDef.empty())
@@ -1124,8 +1124,7 @@ void CCreatureHandler::afterLoadFinalization()
 
 			// replace existing (if any) and add new template.
 			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->dobjinfo->eraseAll(Obj::MONSTER, crea->idNumber);
-			VLC->dobjinfo->registerTemplate(base);
+			VLC->objtypeh->getHandlerFor(Obj::MONSTER, crea->idNumber)->addTemplate(base);
 		}
 	}
 }

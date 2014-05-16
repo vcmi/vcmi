@@ -109,7 +109,7 @@ void LibClasses::init()
 
 	createHandler(objh, "Object", pomtime);
 
-	createHandler(dobjinfo, "Def information", pomtime);
+	createHandler(objtypeh, "Object types information", pomtime);
 
 	createHandler(spellh, "Spell", pomtime);
 
@@ -135,7 +135,7 @@ void LibClasses::clear()
 	delete creh;
 	delete townh;
 	delete objh;
-	delete dobjinfo;
+	delete objtypeh;
 	delete spellh;
 	delete modh;
 	delete bth;
@@ -152,7 +152,7 @@ void LibClasses::makeNull()
 	creh = nullptr;
 	townh = nullptr;
 	objh = nullptr;
-	dobjinfo = nullptr;
+	objtypeh = nullptr;
 	spellh = nullptr;
 	modh = nullptr;
 	bth = nullptr;

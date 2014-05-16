@@ -727,7 +727,7 @@ void CGHeroInstance::initHero()
 		type = VLC->heroh->heroes[subID];
 
 	if (ID == Obj::HERO)
-		appearance = VLC->dobjinfo->pickCandidates(Obj::HERO, type->heroClass->id).front();
+		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->id)->getTemplates().front();
 
 	if(!vstd::contains(spells, SpellID::PRESET)) //hero starts with a spell
 	{

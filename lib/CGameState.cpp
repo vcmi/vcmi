@@ -342,9 +342,11 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 	switch(id)
 	{
 	case Obj::HERO:
-		nobj = new CGHeroInstance();
-		nobj->appearance = VLC->dobjinfo->pickCandidates(id, VLC->heroh->heroes[subid]->heroClass->id).front();
-		break;
+		{
+			auto handler = VLC->objtypeh->getHandlerFor(id, VLC->heroh->heroes[subid]->heroClass->id);
+			nobj = handler->create(handler->getTemplates().front());
+			break;
+		}
 	case Obj::TOWN:
 		nobj = new CGTownInstance;
 		break;
@@ -357,7 +359,7 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 	nobj->pos = pos;
 	nobj->tempOwner = owner;
 	if (id != Obj::HERO)
-		nobj->appearance = VLC->dobjinfo->pickCandidates(id, subid).front();
+		nobj->appearance = VLC->objtypeh->getHandlerFor(id, subid)->getTemplates().front();
 
 	return nobj;
 }
@@ -654,7 +656,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 			const TerrainTile &tile = map->getTile(cur->visitablePos());
 			CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
 			t->town = VLC->townh->factions[t->subID]->town;
-			t->appearance = VLC->dobjinfo->pickCandidates(Obj::TOWN, t->subID, tile.terType).front();
+			t->appearance = VLC->objtypeh->getHandlerFor(Obj::TOWN, t->subID)->selectTemplate(tile.terType, t);
 			t->updateAppearance();
 		}
 		return;
@@ -675,12 +677,12 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	{
 		const TerrainTile &tile = map->getTile(cur->visitablePos());
 		CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
-        if(!t) {logGlobal->warnStream()<<"Wrong random town at "<<cur->pos; return;}
+		if(!t) {logGlobal->warnStream()<<"Wrong random town at "<<cur->pos; return;}
 		cur->ID = ran.first;
 		cur->subID = ran.second;
 		//FIXME: copy-pasted from above
 		t->town = VLC->townh->factions[t->subID]->town;
-		t->appearance = VLC->dobjinfo->pickCandidates(Obj::TOWN,t->subID, tile.terType).front();
+		t->appearance = VLC->objtypeh->getHandlerFor(Obj::TOWN, t->subID)->selectTemplate(tile.terType, t);
 		t->updateAppearance();
 
 		t->randomizeArmy(t->subID);
@@ -693,7 +695,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 			ran.second != cur->appearance.subid)
 		{
 			const TerrainTile &tile = map->getTile(cur->visitablePos());
-			cur->appearance = VLC->dobjinfo->pickCandidates(Obj(ran.first),ran.second, tile.terType).front();
+			cur->appearance = VLC->objtypeh->getHandlerFor(ran.first, ran.second)->selectTemplate(tile.terType, cur);
 		}
 	}
 	//we have to replace normal random object
