@@ -1,3 +1,13 @@
+/*
+ * mapHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 #include "StdInc.h"
 #include "mapHandler.h"
 
@@ -18,19 +28,6 @@
 #include "../lib/CStopWatch.h"
 #include "CMT.h"
 #include "../lib/CRandomGenerator.h"
-
-/*
- * mapHandler.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
-
-const bool MARK_BLOCKED_POSITIONS = false;
-const bool MARK_VISITABLE_POSITIONS = false;
 
 #define ADVOPT (conf.go()->ac)
 
