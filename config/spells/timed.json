@@ -1138,6 +1138,11 @@
 		"counters" : {
 			"spell.sorrow":true
 		},
+		"immunity" : {
+			"MIND_IMMUNITY": true,
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
 		"flags" : {
 			"positive": true
 		}
