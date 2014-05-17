@@ -5983,12 +5983,9 @@ void CGameHandler::runBattle()
 
 			if(next->getCreature()->idNumber == CreatureID::FIRST_AID_TENT)
 			{
-				std::vector< const CStack * > possibleStacks;
-
-				//is there any clean algorithm for that? (boost.range seems to lack copy_if) -> remove_copy_if?
-				for(const CStack *s : battleGetAllStacks())
-					if(s->owner == next->owner  &&  s->canBeHealed())
-						possibleStacks.push_back(s);
+				TStacks possibleStacks = battleGetStacksIf([&](const CStack * s){
+					return s->owner == next->owner  &&  s->canBeHealed();
+				});
 
 				if(!possibleStacks.size())
 				{

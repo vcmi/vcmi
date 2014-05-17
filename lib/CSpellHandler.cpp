@@ -317,6 +317,12 @@ bool CSpell::isNegative() const
 	return positiveness == NEGATIVE;
 }
 
+bool CSpell::isNeutral() const
+{
+	return positiveness == NEUTRAL;
+}
+
+
 bool CSpell::isRisingSpell() const
 {
 	return isRising;

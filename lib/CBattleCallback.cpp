@@ -2097,31 +2097,24 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	}
 	else if(spell->getTargetType() == CSpell::CREATURE)
 	{
-		//start with all stacks. 
-		TStacks stacks = battleGetAllStacks();
+		auto predicate = [=](const CStack * s){
+			const bool positiveToAlly = spell->isPositive() && s->owner == attackerOwner;
+			const bool negativeToEnemy = spell->isNegative() && s->owner != attackerOwner;
+			const bool validTarget = s->isValidTarget(!onlyAlive); //todo: this should be handled by spell class
+	
+			//for single target spells select stacks covering destination tile
+			const bool rangeCovers = ti.massive || s->coversPos(destinationTile);
+			//handle smart targeting
+			const bool positivenessFlag = !ti.smart || spell->isNeutral() || positiveToAlly || negativeToEnemy;
+			
+			return rangeCovers  && positivenessFlag && validTarget;		
+		};
 		
-		//for single target spells remove stacks from other hexes
-		if(!ti.massive)
-		{
-			vstd::erase_if(stacks,[&](const CStack * stack){
-				return !vstd::contains(stack->getHexes(), destinationTile);
-			});
-		}
+		TStacks stacks = battleGetStacksIf(predicate);
 		
-		//now handle smart targeting and remove invalid targets
-		const bool smartNegative = ti.smart && spell->isNegative();
-		const bool smartPositive = ti.smart && spell->isPositive();
-		
-		vstd::erase_if(stacks,[&](const CStack * stack){
-			const bool negativeToAlly = smartNegative && stack->owner == attackerOwner;
-			const bool positiveToEnemy = smartPositive && stack->owner != attackerOwner;
-			const bool invalidTarget = !stack->isValidTarget(!onlyAlive); //todo: this should be handled by spell class
-			return negativeToAlly || positiveToEnemy || invalidTarget;
-		});
-
 		if (ti.massive)
 		{
-			//for massive spells add all remaining targets
+			//for massive spells add all targets
 			for (auto stack : stacks)
 				attackedCres.insert(stack);
 
@@ -2462,22 +2455,18 @@ bool CPlayerBattleCallback::battleCanFlee() const
 
 TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose /*= MINE_AND_ENEMY*/, bool onlyAlive /*= true*/) const
 {
-	TStacks ret;
-	RETURN_IF_NOT_BATTLE(ret);
 	if(whose != MINE_AND_ENEMY)
 	{
 		ASSERT_IF_CALLED_WITH_PLAYER
 	}
-	vstd::copy_if(battleGetAllStacks(), std::back_inserter(ret), [=](const CStack *s) -> bool
-	{
+	
+	return battleGetStacksIf([=](const CStack * s){
 		const bool ownerMatches = (whose == MINE_AND_ENEMY)
 			|| (whose == ONLY_MINE && s->owner == player)
 			|| (whose == ONLY_ENEMY && s->owner != player);
 		const bool alivenessMatches = s->alive()  ||  !onlyAlive;
-		return ownerMatches && alivenessMatches;
+		return ownerMatches && alivenessMatches;		
 	});
-
-	return ret;
 }
 
 int CPlayerBattleCallback::battleGetSurrenderCost() const

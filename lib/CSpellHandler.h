@@ -96,6 +96,7 @@ public:
 
 	bool isPositive() const;
 	bool isNegative() const;
+	bool isNeutral() const;
 
 	bool isRisingSpell() const;
 	bool isDamageSpell() const;
