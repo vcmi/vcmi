@@ -3719,8 +3719,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			bsa.attacker = summoner->attackerOwned;
 
 			bsa.creID = CreatureID(summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype); //in case summoner can summon more than one type of monsters... scream!
-			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID.toEnum());
-			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;
+			ui64 risedHp = (ui64)summoner->count * (ui64)summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID.toEnum());
+			ui64 targetHealth = (ui64)destStack->getCreature()->MaxHealth() * (ui64)destStack->baseAmount;
 
 			ui64 canRiseHp = std::min(targetHealth, risedHp);
 			ui32 canRiseAmount = canRiseHp / VLC->creh->creatures.at(bsa.creID)->MaxHealth();

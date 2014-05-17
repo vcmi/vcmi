@@ -665,7 +665,7 @@ std::string CStackInstance::getName() const
 ui64 CStackInstance::getPower() const
 {
 	assert(type);
-	return type->AIValue * count;
+	return (ui64)type->AIValue * (ui64)count;
 }
 
 ArtBearer::ArtBearer CStackInstance::bearerType() const

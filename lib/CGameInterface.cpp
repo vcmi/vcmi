@@ -104,6 +104,7 @@ shared_ptr<rett> createAny(std::string dllname, std::string methodName)
 	if(!ret)
         logGlobal->errorStream() << "Cannot get AI!";
 
+    dlclose(dll);
 	return ret;
 }
 

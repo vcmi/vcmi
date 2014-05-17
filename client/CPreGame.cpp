@@ -3653,6 +3653,7 @@ void CBonusSelection::startMap()
 		updateCampaignState();
 		showPrologVideo();
 	}
+    delete si;
 }
 
 void CBonusSelection::restartMap()

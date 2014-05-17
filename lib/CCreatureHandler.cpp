@@ -149,20 +149,26 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 
 	auto it = bonusNameMap.find(type);
 
-	if (it == bonusNameMap.end()) {
+	if (it == bonusNameMap.end())
+    {
 		if (type == "DOUBLE_WIDE")
 			cre->doubleWide = true;
-		else if (type == "ENEMY_MORALE_DECREASING") {
+		else if (type == "ENEMY_MORALE_DECREASING")
+        {
 			cre->addBonus(-1, Bonus::MORALE);
 			cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 		}
-		else if (type == "ENEMY_LUCK_DECREASING") {
+		else if (type == "ENEMY_LUCK_DECREASING")
+        {
 			cre->addBonus(-1, Bonus::LUCK);
 			cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
-		} else
+		} 
+        else
+        {
             logGlobal->errorStream() << "Error: invalid ability type " << type << " in creatures config";
-
-		return;
+            delete nsf;
+            return;
+        }
 	}
 
 	nsf->type = it->second;
