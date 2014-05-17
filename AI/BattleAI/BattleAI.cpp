@@ -8,7 +8,7 @@
 #include "../../lib/VCMI_Lib.h"
 
 using boost::optional;
-shared_ptr<CBattleCallback> cbc;
+static shared_ptr<CBattleCallback> cbc;
 
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
@@ -28,8 +28,12 @@ struct Priorities
 		range::copy(VLC->objh->resVals, std::back_inserter(resourceTypeBaseValues));
 		stackEvaluator = [](const CStack*){ return 1.0; };
 	}
-} priorities;
+};
 
+Priorities *priorities = nullptr;
+
+
+namespace {
 
 int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = nullptr)
 {
@@ -50,6 +54,8 @@ int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& di
 bool isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const ReachabilityInfo::TDistances & dists)
 {
 	return distToNearestNeighbour(ei1.s->position, dists) < distToNearestNeighbour(ei2.s->position, dists);
+}
+
 }
 
 template <typename Container, typename Pred>
@@ -624,8 +630,10 @@ const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector &selector, c
 
 int AttackPossibility::damageDiff() const
 {
-	const auto dealtDmgValue = priorities.stackEvaluator(enemy) * damageDealt;
-	const auto receivedDmgValue = priorities.stackEvaluator(attack.attacker) * damageReceived;
+	if (!priorities)
+		priorities = new Priorities;
+	const auto dealtDmgValue = priorities->stackEvaluator(enemy) * damageDealt;
+	const auto receivedDmgValue = priorities->stackEvaluator(attack.attacker) * damageReceived;
 	return dealtDmgValue - receivedDmgValue;
 }
 
