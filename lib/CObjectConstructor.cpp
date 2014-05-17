@@ -1,6 +1,10 @@
 #include "StdInc.h"
 #include "CObjectConstructor.h"
 
+#include "CRandomGenerator.h"
+#include "StringConstants.h"
+#include "CCreatureHandler.h"
+
 /*
  * CObjectConstructor.cpp, part of VCMI engine
  *
@@ -11,54 +15,224 @@
  *
  */
 
+namespace {
+	si32 loadValue(const JsonNode & value, CRandomGenerator & rng, si32 defaultValue = 0)
+	{
+		if (value.isNull())
+			return defaultValue;
+		if (value.getType() == JsonNode::DATA_FLOAT)
+			return value.Float();
+		si32 min = value["min"].Float();
+		si32 max = value["max"].Float();
+		return rng.getIntRange(min, max)();
+	}
+
+	TResources loadResources(const JsonNode & value, CRandomGenerator & rng)
+	{
+		TResources ret;
+		for (size_t i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
+		{
+			ret[i] = loadValue(value[GameConstants::RESOURCE_NAMES[i]], rng);
+		}
+		return ret;
+	}
+
+	std::vector<si32> loadPrimary(const JsonNode & value, CRandomGenerator & rng)
+	{
+		std::vector<si32> ret;
+		for (auto & name : PrimarySkill::names)
+		{
+			ret.push_back(loadValue(value[name], rng));
+		}
+		return ret;
+	}
+
+	std::map<SecondarySkill, si32> loadSecondary(const JsonNode & value, CRandomGenerator & rng)
+	{
+		std::map<SecondarySkill, si32> ret;
+		for (auto & pair : value.Struct())
+		{
+			SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", pair.first).get());
+			ret[id] = loadValue(pair.second, rng);
+		}
+		return ret;
+	}
+
+	std::vector<ArtifactID> loadArtifacts(const JsonNode & value, CRandomGenerator & rng)
+	{
+		std::vector<ArtifactID> ret;
+		for (const JsonNode & entry : value.Vector())
+		{
+			ArtifactID art(VLC->modh->identifiers.getIdentifier("artifact", entry).get());
+			ret.push_back(art);
+		}
+		return ret;
+	}
+
+	std::vector<SpellID> loadSpells(const JsonNode & value, CRandomGenerator & rng)
+	{
+		std::vector<SpellID> ret;
+		for (const JsonNode & entry : value.Vector())
+		{
+			SpellID spell(VLC->modh->identifiers.getIdentifier("spell", entry).get());
+			ret.push_back(spell);
+		}
+		return ret;
+	}
+
+	std::vector<CStackBasicDescriptor> loadCreatures(const JsonNode & value, CRandomGenerator & rng)
+	{
+		std::vector<CStackBasicDescriptor> ret;
+		for (auto & pair : value.Struct())
+		{
+			CStackBasicDescriptor stack;
+			stack.type = VLC->creh->creatures[VLC->modh->identifiers.getIdentifier(pair.second.meta, "creature", pair.first).get()];
+			stack.count = loadValue(pair.second, rng);
+			ret.push_back(stack);
+		}
+		return ret;
+	}
+
+	std::vector<Bonus> loadBonuses(const JsonNode & value)
+	{
+		std::vector<Bonus> ret;
+		for (const JsonNode & entry : value.Vector())
+		{
+			Bonus * bonus = JsonUtils::parseBonus(entry);
+			ret.push_back(*bonus);
+			delete bonus;
+		}
+		return ret;
+	}
+
+	std::vector<Component> loadComponents(const JsonNode & value)
+	{
+		//TODO
+	}
+
+	MetaString loadMessage(const JsonNode & value)
+	{
+		MetaString ret;
+		if (value.getType() == JsonNode::DATA_FLOAT)
+			ret.addTxt(MetaString::ADVOB_TXT, value.Float());
+		else
+			ret << value.String();
+		return ret;
+	}
+
+	bool testForKey(const JsonNode & value, const std::string & key)
+	{
+		for( auto & reward : value["rewards"].Vector() )
+		{
+			if (!reward[key].isNull())
+				return true;
+		}
+		return false;
+	}
+}
+
 void CRandomRewardObjectInfo::init(const JsonNode & objectConfig)
 {
 	parameters = objectConfig;
 }
 
-void CRandomRewardObjectInfo::configureObject(CObjectWithReward * object) const
+void CRandomRewardObjectInfo::configureObject(CObjectWithReward * object, CRandomGenerator & rng) const
 {
+	for (const JsonNode & reward : parameters["rewards"].Vector())
+	{
+		const JsonNode & limiter = reward["limiter"];
+		CVisitInfo info;
+		// load limiter
+		info.limiter.numOfGrants = loadValue(limiter["numOfGrants"], rng);
+		info.limiter.dayOfWeek = loadValue(limiter["dayOfWeek"], rng);
+		info.limiter.minLevel = loadValue(limiter["minLevel"], rng);
+		info.limiter.resources = loadResources(limiter["resources"], rng);
 
+		info.limiter.primary = loadPrimary(limiter["primary"], rng);
+		info.limiter.secondary = loadSecondary(limiter["secondary"], rng);
+		info.limiter.artifacts = loadArtifacts(limiter["artifacts"], rng);
+		info.limiter.creatures = loadCreatures(limiter["creatures"], rng);
+
+		info.reward.resources = loadResources(reward["resources"], rng);
+
+		info.reward.gainedExp = loadValue(reward["gainedExp"], rng);
+		info.reward.gainedLevels = loadValue(reward["gainedLevels"], rng);
+
+		info.reward.manaDiff = loadValue(reward["manaPoints"], rng);
+		info.reward.manaPercentage = loadValue(reward["manaPercentage"], rng, -1);
+
+		info.reward.movePoints = loadValue(reward["movePoints"], rng);
+		info.reward.movePercentage = loadValue(reward["movePercentage"], rng, -1);
+
+		info.reward.bonuses = loadBonuses(reward["bonuses"]);
+
+		info.reward.primary = loadPrimary(reward["primary"], rng);
+		info.reward.secondary = loadSecondary(reward["secondary"], rng);
+
+		info.reward.artifacts = loadArtifacts(reward["artifacts"], rng);
+		info.reward.spells = loadSpells(reward["spells"], rng);
+		info.reward.creatures = loadCreatures(reward["creatures"], rng);
+	}
+
+	object->onSelect  = loadMessage(parameters["onSelectMessage"]);
+	object->onVisited = loadMessage(parameters["onVisitedMessage"]);
+	object->onEmpty   = loadMessage(parameters["onEmptyMessage"]);
+
+	//TODO: visitMode and selectMode
+
+	object->soundID = parameters["soundID"].Float();
+	object->resetDuration = parameters["resetDuration"].Float();
+	object->canRefuse =parameters["canRefuse"].Bool();
 }
 
 bool CRandomRewardObjectInfo::givesResources() const
 {
+	return testForKey(parameters, "resources");
 }
 
 bool CRandomRewardObjectInfo::givesExperience() const
 {
+	return testForKey(parameters, "gainedExp") || testForKey(parameters, "gainedLevels");
 }
 
 bool CRandomRewardObjectInfo::givesMana() const
 {
+	return testForKey(parameters, "manaPoints") || testForKey(parameters, "manaPercentage");
 }
 
 bool CRandomRewardObjectInfo::givesMovement() const
 {
+	return testForKey(parameters, "movePoints") || testForKey(parameters, "movePercentage");
 }
 
 bool CRandomRewardObjectInfo::givesPrimarySkills() const
 {
+	return testForKey(parameters, "primary");
 }
 
 bool CRandomRewardObjectInfo::givesSecondarySkills() const
 {
+	return testForKey(parameters, "secondary");
 }
 
 bool CRandomRewardObjectInfo::givesArtifacts() const
 {
+	return testForKey(parameters, "artifacts");
 }
 
 bool CRandomRewardObjectInfo::givesCreatures() const
 {
+	return testForKey(parameters, "spells");
 }
 
 bool CRandomRewardObjectInfo::givesSpells() const
 {
+	return testForKey(parameters, "creatures");
 }
 
 bool CRandomRewardObjectInfo::givesBonuses() const
 {
+	return testForKey(parameters, "bonuses");
 }
 
 CObjectWithRewardConstructor::CObjectWithRewardConstructor()
@@ -77,9 +251,9 @@ CGObjectInstance * CObjectWithRewardConstructor::create(ObjectTemplate tmpl) con
 	return ret;
 }
 
-void CObjectWithRewardConstructor::configureObject(CGObjectInstance * object) const
+void CObjectWithRewardConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
 {
-	objectInfo.configureObject(dynamic_cast<CObjectWithReward*>(object));
+	objectInfo.configureObject(dynamic_cast<CObjectWithReward*>(object), rng);
 }
 
 const IObjectInfo * CObjectWithRewardConstructor::getObjectInfo(ObjectTemplate tmpl) const

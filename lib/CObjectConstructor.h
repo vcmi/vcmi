@@ -33,7 +33,7 @@ public:
 
 	bool givesBonuses() const override;
 
-	void configureObject(CObjectWithReward * object) const;
+	void configureObject(CObjectWithReward * object, CRandomGenerator & rng) const;
 
 	CRandomRewardObjectInfo()
 	{}
@@ -51,7 +51,7 @@ public:
 
 	CGObjectInstance * create(ObjectTemplate tmpl) const override;
 
-	void configureObject(CGObjectInstance * object) const override;
+	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 
 	const IObjectInfo * getObjectInfo(ObjectTemplate tmpl) const override;
 };

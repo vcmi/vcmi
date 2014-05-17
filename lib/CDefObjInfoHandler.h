@@ -16,6 +16,7 @@
 class CBinaryReader;
 class CLegacyConfigParser;
 class JsonNode;
+class CRandomGenerator;
 
 class DLL_LINKAGE ObjectTemplate
 {
@@ -128,7 +129,7 @@ public:
 
 	virtual CGObjectInstance * create(ObjectTemplate tmpl) const = 0;
 
-	virtual void configureObject(CGObjectInstance * object) const = 0;
+	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const = 0;
 
 	virtual const IObjectInfo * getObjectInfo(ObjectTemplate tmpl) const = 0;
 };

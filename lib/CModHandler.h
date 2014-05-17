@@ -70,6 +70,7 @@ public:
 	void tryRequestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback);
 
 	/// get identifier immediately. If identifier is not know and not silent call will result in error message
+	boost::optional<si32> getIdentifier(std::string scope, std::string type, std::string name, bool silent = false);
 	boost::optional<si32> getIdentifier(std::string type, const JsonNode & name, bool silent = false);
 	boost::optional<si32> getIdentifier(const JsonNode & name, bool silent = false);
 

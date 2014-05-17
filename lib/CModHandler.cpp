@@ -120,6 +120,19 @@ void CIdentifierStorage::tryRequestIdentifier(std::string type, const JsonNode &
 	requestIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, callback, true));
 }
 
+boost::optional<si32> CIdentifierStorage::getIdentifier(std::string scope, std::string type, std::string name, bool silent)
+{
+	auto pair = splitString(name, ':'); // remoteScope:name
+	auto idList = getPossibleIdentifiers(ObjectCallback(scope, pair.first, type, pair.second, std::function<void(si32)>(), silent));
+
+	if (idList.size() == 1)
+		return idList.front().id;
+	if (!silent)
+		logGlobal->errorStream() << "Failed to resolve identifier " << name << " from mod " << scope;
+
+	return boost::optional<si32>();
+}
+
 boost::optional<si32> CIdentifierStorage::getIdentifier(std::string type, const JsonNode & name, bool silent)
 {
 	auto pair = splitString(name.String(), ':'); // remoteScope:name
