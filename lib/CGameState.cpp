@@ -759,9 +759,9 @@ CGameState::~CGameState()
 BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town)
 {
 	const TerrainTile &t = map->getTile(tile);
-    ETerrainType terrain = t.terType;
+	ETerrainType terrain = t.terType;
 	if(t.isCoastal() && !t.isWater())
-        terrain = ETerrainType::SAND;
+		terrain = ETerrainType::SAND;
 
 	BFieldType terType = battleGetBattlefieldType(tile);
 	return BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
@@ -1953,8 +1953,7 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile)
 	for(auto &obj : map->objects)
 	{
 		//look only for objects covering given tile
-		if( !obj || obj->pos.z != tile.z
-		  || !obj->coveringAt(tile.x - obj->pos.x, tile.y - obj->pos.y))
+		if( !obj || obj->pos.z != tile.z || !obj->coveringAt(tile.x, tile.y))
 			continue;
 
 		switch(obj->ID)
@@ -1985,27 +1984,27 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile)
 	if(!t.isWater() && t.isCoastal())
 		return BFieldType::SAND_SHORE;
 
-    switch(t.terType)
+	switch(t.terType)
 	{
-    case ETerrainType::DIRT:
+	case ETerrainType::DIRT:
 		return BFieldType(rand.nextInt(3, 5));
-    case ETerrainType::SAND:
+	case ETerrainType::SAND:
 		return BFieldType::SAND_MESAS; //TODO: coast support
-    case ETerrainType::GRASS:
+	case ETerrainType::GRASS:
 		return BFieldType(rand.nextInt(6, 7));
-    case ETerrainType::SNOW:
+	case ETerrainType::SNOW:
 		return BFieldType(rand.nextInt(10, 11));
-    case ETerrainType::SWAMP:
+	case ETerrainType::SWAMP:
 		return BFieldType::SWAMP_TREES;
-    case ETerrainType::ROUGH:
+	case ETerrainType::ROUGH:
 		return BFieldType::ROUGH;
-    case ETerrainType::SUBTERRANEAN:
+	case ETerrainType::SUBTERRANEAN:
 		return BFieldType::SUBTERRANEAN;
-    case ETerrainType::LAVA:
+	case ETerrainType::LAVA:
 		return BFieldType::LAVA;
-    case ETerrainType::WATER:
+	case ETerrainType::WATER:
 		return BFieldType::SHIP;
-    case ETerrainType::ROCK:
+	case ETerrainType::ROCK:
 		return BFieldType::ROCKLANDS;
 	default:
 		return BFieldType::NONE;
