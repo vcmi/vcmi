@@ -2018,7 +2018,7 @@ ui32 CBattleInfoCallback::calculateSpellDmg( const CSpell * sp, const CGHeroInst
 
 std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell * spell, int skillLevel, PlayerColor attackerOwner, BattleHex destinationTile)
 {
-	std::set<const CStack*> attackedCres; /*std::set to exclude multiple occurrences of two hex creatures*/
+	std::set<const CStack*> attackedCres; //std::set to exclude multiple occurrences of two hex creatures
 
 	const ui8 attackerSide = playerToSide(attackerOwner) == 1;
 	const auto attackedHexes = spell->rangeInHexes(destinationTile, skillLevel, attackerSide);
@@ -2090,32 +2090,52 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	}
 	else if(spell->getTargetType() == CSpell::CREATURE)
 	{
+		//start with all stacks. 
+		TStacks stacks = battleGetAllStacks();
+		
+		//for single target spells remove stacks from other hexes
+		if(!ti.massive)
+		{
+			vstd::erase_if(stacks,[&](const CStack * stack){
+				return !vstd::contains(stack->getHexes(), destinationTile);
+			});
+		}
+		
+		//now handle smart targeting and remove invalid targets
+		const bool smartNegative = ti.smart && spell->isNegative();
+		const bool smartPositive = ti.smart && spell->isPositive();
+		
+		vstd::erase_if(stacks,[&](const CStack * stack){
+			const bool negativeToAlly = smartNegative && stack->owner == attackerOwner;
+			const bool positiveToEnemy = smartPositive && stack->owner != attackerOwner;
+			const bool invalidTarget = !stack->isValidTarget(!onlyAlive); //todo: this should be handled by spell class
+			return negativeToAlly || positiveToEnemy || invalidTarget;
+		});
+
 		if (ti.massive)
 		{
-			TStacks stacks = battleGetAllStacks();
-
-			vstd::erase_if(stacks,[&](const CStack * stack){
-				return ti.smart && spell->isNegative() && stack->owner == attackerOwner;
-			});
-
-			vstd::erase_if(stacks,[&](const CStack * stack){
-				return ti.smart && spell->isPositive() && stack->owner != attackerOwner;
-			});
-
-			vstd::erase_if(stacks,[&](const CStack * stack){
-				return !stack->isValidTarget(!onlyAlive);
-			});
-			
+			//for massive spells add all remaining targets
 			for (auto stack : stacks)
 				attackedCres.insert(stack);
 
 		}
 		else
 		{
-			if(const CStack * st = battleGetStackByPos(destinationTile, onlyAlive))
-				attackedCres.insert(st);			
+			//for single target spells we must select one target. Alive stack is preferred (issue #1763)
+			for(auto stack : stacks)
+			{
+				if(stack->alive())
+				{
+					attackedCres.insert(stack);
+					break;
+				}				
+			}	
+			
+			if(attackedCres.empty() && !stacks.empty())
+			{
+				attackedCres.insert(stacks.front());
+			}						
 		}
-		
 	}
 	else //custom range from attackedHexes
 	{
