@@ -593,7 +593,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			{
 				sendAndApply(&iw);
 				iw.components.clear();
-				iw.text.addTxt (MetaString::GENERAL_TXT, 30); //repeat
 			}
 		}
 		if (iw.components.size())
