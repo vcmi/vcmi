@@ -177,29 +177,36 @@ bool CBattleInfoEssentials::battleHasNativeStack(ui8 side) const
 	return false;
 }
 
-TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets /*= false*/) const /*returns all stacks, alive or dead or undead or mechanical :) */
+TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets /*= false*/) const
+{
+	return battleGetStacksIf([](const CStack * s){return true;},includeTurrets);
+}
+
+TStacks CBattleInfoEssentials::battleGetStacksIf(TStackFilter predicate, bool includeTurrets /*= false*/) const
 {
 	TStacks ret;
 	RETURN_IF_NOT_BATTLE(ret);
-	boost::copy(getBattle()->stacks, std::back_inserter(ret));
-	if(!includeTurrets)
-		vstd::erase_if(ret, [](const CStack *stack) { return stack->type->idNumber == CreatureID::ARROW_TOWERS; });
-
+	
+	vstd::copy_if(getBattle()->stacks, std::back_inserter(ret), [=](const CStack * s){
+		return predicate(s) && (includeTurrets || !(s->type->idNumber == CreatureID::ARROW_TOWERS));
+	});
+	
 	return ret;
 }
 
+
 TStacks CBattleInfoEssentials::battleAliveStacks() const
 {
-	TStacks ret;
-	vstd::copy_if(battleGetAllStacks(), std::back_inserter(ret), [](const CStack *s){ return s->alive(); });
-	return ret;
+	return battleGetStacksIf([](const CStack * s){
+		return s->alive();
+	});
 }
 
 TStacks CBattleInfoEssentials::battleAliveStacks(ui8 side) const
 {
-	TStacks ret;
-	vstd::copy_if(battleGetAllStacks(), std::back_inserter(ret), [=](const CStack *s){ return s->alive()  &&  s->attackerOwned == !side; });
-	return ret;
+	return battleGetStacksIf([=](const CStack * s){
+		return s->alive() && s->attackerOwned == !side;
+	});
 }
 
 int CBattleInfoEssentials::battleGetMoatDmg() const
