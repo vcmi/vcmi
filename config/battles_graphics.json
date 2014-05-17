@@ -59,7 +59,7 @@
 		{ "id": 26, "defnames": [ "C13SPA0.DEF" ] },
 		{ "id": 27, "defnames": [ "C13SPE0.DEF" ] },
 		{ "id": 28, "defnames": [ "C13SPW0.DEF" ] },
-		{ "id": 29, "defnames": [ "C04SPE0.DEF" ] },
+		{ "id": 29, "defnames": [ "C14SPA0.DEF" ] },
 		{ "id": 30, "defnames": [ "C14SPE0.DEF" ] },
 		{ "id": 31, "defnames": [ "C15SPA0.DEF" ] },
 		{ "id": 32, "defnames": [ "C15SPE0.DEF", "C15SPE1.DEF", "C15SPE2.DEF" ] },
