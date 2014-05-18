@@ -871,19 +871,14 @@ void CSpellHandler::beforeValidate(JsonNode & object)
 	JsonNode& levels = object["levels"];
 	JsonNode& base = levels["base"];
 	
-	auto inheritNode = [&](JsonNode & dest){
-		//merging destination node into copy of base node implements inheritance semantic
-		//detail configuration is priority
-		//this allows more simplification
-		JsonNode inheritedNode(base);		
-		JsonUtils::merge(inheritedNode,dest);
-		dest.swap(inheritedNode);
+	auto inheritNode = [&](const std::string & name){
+		JsonUtils::inherit(levels[name],base);
 	};
 	
-	inheritNode(levels["none"]);
-	inheritNode(levels["basic"]);
-	inheritNode(levels["advanced"]);
-	inheritNode(levels["expert"]);
+	inheritNode("none");
+	inheritNode("basic");
+	inheritNode("advanced");
+	inheritNode("expert");
 
 }
 
