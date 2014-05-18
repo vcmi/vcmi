@@ -176,9 +176,12 @@
 		},
 		"limit":{
 				 "$ref" : "#/definitions/flags",
-				 "description": "flags structure of bonus names, presence of all bonuses required to be affected by"
+				 "description": "flags structure of bonus names, presence of all bonuses required to be affected by."
 		},
-
+		"absoluteLimit":{
+				 "$ref" : "#/definitions/flags",
+				 "description": "flags structure of bonus names, presence of all bonuses required to be affected by, can't be negated."
+		},
 		"graphics":{
 				 "type": "object",
 				 "additionalProperties" : false,
@@ -228,20 +231,25 @@
 			 "additionalProperties" : false,
 			 "required" : ["none", "basic", "advanced", "expert"],
 
-			 "properties":{
-				 "none":{
-					  "$ref" : "#/definitions/levelInfo"
-				 },
-				 "basic":{
-					  "$ref" : "#/definitions/levelInfo"
-				 },
-				 "advanced":{
-					  "$ref" : "#/definitions/levelInfo"
-				 },
-				 "expert":{
-					  "$ref" : "#/definitions/levelInfo"
-				 }
-			 }
+			 "properties":{	
+				"base":{
+					"type": "object",
+					"description": "will be merged with all levels",
+					"additionalProperties": true
+				},
+				"none":{
+					"$ref" : "#/definitions/levelInfo"
+				},
+				"basic":{
+					"$ref" : "#/definitions/levelInfo"
+				},
+				"advanced":{
+					"$ref" : "#/definitions/levelInfo"
+				},
+				"expert":{
+					"$ref" : "#/definitions/levelInfo"
+				}
+			}
 		}
 	}
 }

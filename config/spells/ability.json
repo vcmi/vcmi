@@ -6,7 +6,7 @@
 			"cast": "PARALYZE"
 		},
 		"levels" : {
-			"none":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
@@ -24,67 +24,7 @@
 						"type" : "NO_RETALIATION",
 						"duration" : "UNITL_BEING_ATTACKED"
 					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"notActive" : {
-						"val" : 0,
-						"type" : "NOT_ACTIVE",
-						"subtype" : 62,
-						"duration" : [
-							"UNITL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
-						"duration" : "UNITL_BEING_ATTACKED"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"notActive" : {
-						"val" : 0,
-						"type" : "NOT_ACTIVE",
-						"subtype" : 62,
-						"duration" : [
-							"UNITL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
-						"duration" : "UNITL_BEING_ATTACKED"
-					}
-				}
-			},
-			"expert":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"notActive" : {
-						"val" : 0,
-						"type" : "NOT_ACTIVE",
-						"subtype" : 62,
-						"duration" : [
-							"UNITL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
-						"duration" : "UNITL_BEING_ATTACKED"
-					}
-				}
+				}				
 			}
 		},
 		"flags" : {
@@ -98,7 +38,7 @@
 			"cast": "POISON"
 		},
 		"levels" : {
-			"none":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
@@ -114,61 +54,7 @@
 						"valueType" : "PERCENT_TO_ALL",
 						"duration" : "N_TURNS"
 					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"poison" : {
-						"val" : 30,
-						"type" : "POISON",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					},
-					"stackHealth" : {
-						"val" : -10,
-						"type" : "STACK_HEALTH",
-						"valueType" : "PERCENT_TO_ALL",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"poison" : {
-						"val" : 30,
-						"type" : "POISON",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					},
-					"stackHealth" : {
-						"val" : -10,
-						"type" : "STACK_HEALTH",
-						"valueType" : "PERCENT_TO_ALL",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"expert":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"poison" : {
-						"val" : 30,
-						"type" : "POISON",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					},
-					"stackHealth" : {
-						"val" : -10,
-						"type" : "STACK_HEALTH",
-						"valueType" : "PERCENT_TO_ALL",
-						"duration" : "N_TURNS"
-					}
-				}
+				}			
 			}
 		},
 		"immunity" : {
@@ -186,7 +72,7 @@
 			"cast": "BIND"
 		},
 		"levels" : {
-			"none":{
+			"base":{
 				"range" : "0",
 				"effects" : {
 					"bindEffect" : {
@@ -195,40 +81,7 @@
 						"duration" : "PERMANENT",
 						"addInfo" : -1
 					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"bindEffect" : {
-						"val" : 0,
-						"type" : "BIND_EFFECT",
-						"duration" : "PERMANENT",
-						"addInfo" : -1
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
-				"effects" : {
-					"bindEffect" : {
-						"val" : 0,
-						"type" : "BIND_EFFECT",
-						"duration" : "PERMANENT",
-						"addInfo" : -1
-					}
-				}
-			},
-			"expert":{
-				"range" : "0",
-				"effects" : {
-					"bindEffect" : {
-						"val" : 0,
-						"type" : "BIND_EFFECT",
-						"duration" : "PERMANENT",
-						"addInfo" : -1
-					}
-				}
+				}			
 			}
 		},
 		"flags" : {
@@ -242,7 +95,7 @@
 			"cast": "DISEASE"
 		},
 		"levels" : {
-			"none":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
@@ -258,61 +111,7 @@
 						"subtype" : "primSkill.defence",
 						"duration" : "N_TURNS"
 					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"attack" : {
-						"val" : -2,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"duration" : "N_TURNS"
-					},
-					"defence" : {
-						"val" : -2,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"attack" : {
-						"val" : -2,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"duration" : "N_TURNS"
-					},
-					"defence" : {
-						"val" : -2,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"expert":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"attack" : {
-						"val" : -2,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"duration" : "N_TURNS"
-					},
-					"defence" : {
-						"val" : -2,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
-						"duration" : "N_TURNS"
-					}
-				}
+				}		
 			}
 		},
 		"immunity" : {
@@ -330,67 +129,7 @@
 			"cast": "PARALYZE"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"notActive" : {
-						"val" : 0,
-						"type" : "NOT_ACTIVE",
-						"subtype" : 74,
-						"duration" : [
-							"UNITL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
-						"duration" : "UNITL_BEING_ATTACKED"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"notActive" : {
-						"val" : 0,
-						"type" : "NOT_ACTIVE",
-						"subtype" : 74,
-						"duration" : [
-							"UNITL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
-						"duration" : "UNITL_BEING_ATTACKED"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"notActive" : {
-						"val" : 0,
-						"type" : "NOT_ACTIVE",
-						"subtype" : 74,
-						"duration" : [
-							"UNITL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
-						"duration" : "UNITL_BEING_ATTACKED"
-					}
-				}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
@@ -422,43 +161,7 @@
 			"cast": "AGE"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"stackHealth" : {
-						"val" : -50,
-						"type" : "STACK_HEALTH",
-						"valueType" : "PERCENT_TO_ALL",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"stackHealth" : {
-						"val" : -50,
-						"type" : "STACK_HEALTH",
-						"valueType" : "PERCENT_TO_ALL",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"stackHealth" : {
-						"val" : -50,
-						"type" : "STACK_HEALTH",
-						"valueType" : "PERCENT_TO_ALL",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
@@ -486,16 +189,7 @@
 			"cast": "DEATHCLD"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0-1"
-			},
-			"basic":{
-				"range" : "0-1"
-			},
-			"advanced":{
-				"range" : "0-1"
-			},
-			"expert":{
+			"base":{
 				"range" : "0-1"
 			}
 		},
@@ -514,16 +208,7 @@
 			"cast": "LIGHTBLT"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
-			},
-			"expert":{
+			"base":{
 				"range" : "0"
 			}
 		},
@@ -540,16 +225,7 @@
 			"cast": "DISPELL"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
-			},
-			"expert":{
+			"base":{
 				"range" : "0"
 			}
 		},
@@ -565,16 +241,7 @@
 			"cast": "DEATHSTR"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
-			},
-			"expert":{
+			"base":{
 				"range" : "0"
 			}
 		},
@@ -593,46 +260,7 @@
 			"cast": "ACID"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"primarySkill" : {
-						"val" : -3,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"duration" : "PERMANENT",
-						"valueType" : "ADDITIVE_VALUE"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"primarySkill" : {
-						"val" : -3,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"duration" : "PERMANENT",
-						"valueType" : "ADDITIVE_VALUE"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"primarySkill" : {
-						"val" : -3,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"duration" : "PERMANENT",
-						"valueType" : "ADDITIVE_VALUE"
-					}
-				}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
@@ -657,16 +285,7 @@
 			"cast": "ACID"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
-			},
-			"expert":{
+			"base":{
 				"range" : "0"
 			}
 		},

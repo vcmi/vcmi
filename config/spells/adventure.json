@@ -6,16 +6,7 @@
 			"cast": "SUMMBOAT"
 		},
 		"levels" :{
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -30,16 +21,7 @@
 			"cast": "SCUTBOAT"
 		},
 		"levels" : {
-			"none":	{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -54,16 +36,7 @@
 			"cast": "VISIONS"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -78,16 +51,7 @@
 			"cast": "VIEW"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -102,16 +66,7 @@
 			"cast": "DISGUISE"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -126,16 +81,7 @@
 			"cast": "VIEW"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -150,16 +96,7 @@
 			"cast": "FLYSPELL"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -174,16 +111,7 @@
 			"cast": "WATRWALK"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -198,16 +126,7 @@
 			"cast": "TELPTOUT"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -222,16 +141,7 @@
 			"cast": "TELPTOUT"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},

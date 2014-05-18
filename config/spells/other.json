@@ -6,16 +6,7 @@
 			"cast": "QUIKSAND"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -30,16 +21,7 @@
 			"cast": ""
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -58,16 +40,7 @@
 			"cast": "FORCEFLD"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
-			},
-			"expert":{
+			"base":{
 				"range" : "0"
 			}
 		},
@@ -82,16 +55,7 @@
 			"cast": "FIREWALL"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
-			},
-			"expert":{
+			"base":{
 				"range" : "0"
 			}
 		},
@@ -110,16 +74,7 @@
 			"cast": "ERTHQUAK"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -135,13 +90,7 @@
 			"cast": "DISPELL"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
+			"base":{
 				"range" : "0"
 			},
 			"expert":{
@@ -159,21 +108,12 @@
 			"cast": "CURE"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
+			"base":{
+				"targetModifier":{"smart":true},
+				"range" : "0"
 			},
 			"expert":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
+				"range" : "X"
 			}
 		},
 		"flags" : {
@@ -187,19 +127,7 @@
 			"cast": "RESURECT"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true}
 			}
@@ -220,19 +148,7 @@
 			"cast": "ANIMDEAD"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true}
 			}
@@ -241,7 +157,7 @@
 			"rising": true,
 			"positive": true
 		},
-		"limit" : {
+		"absoluteLimit" : {
 			"UNDEAD": true
 		}
 	},
@@ -252,19 +168,7 @@
 			"cast": "SACRIF1"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true}
 			}
@@ -285,19 +189,7 @@
 			"cast": "TELPTOUT"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":false}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":false}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":false}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":false}
 			}
@@ -316,16 +208,7 @@
 			"cast": "REMOVEOB"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -340,19 +223,7 @@
 			"cast": "CLONE"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true}
 			}
@@ -371,16 +242,7 @@
 			"cast": "SUMNELM"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -395,16 +257,7 @@
 			"cast": "SUMNELM"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -419,16 +272,7 @@
 			"cast": "SUMNELM"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},
@@ -443,16 +287,7 @@
 			"cast": "SUMNELM"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X"
-			},
-			"basic":{
-				"range" : "X"
-			},
-			"advanced":{
-				"range" : "X"
-			},
-			"expert":{
+			"base":{
 				"range" : "X"
 			}
 		},

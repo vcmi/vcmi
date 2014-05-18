@@ -296,6 +296,12 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 {
 	ModInfo & modInfo = modData[modName];
 	bool result = true;
+	
+	auto performValidate = [&,this](JsonNode & data, const std::string & name){
+		handler->beforeValidate(data);
+		if (validate)
+			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);	
+	};
 
 	// apply patches
 	if (!modInfo.patches.isNull())
@@ -314,8 +320,8 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			if (originalData.size() > index)
 			{
 				JsonUtils::merge(originalData[index], data);
-				if (validate)
-					result &= JsonUtils::validate(originalData[index], "vcmi:" + objectName, name);
+				
+				performValidate(originalData[index],name);
 				handler->loadObject(modName, name, originalData[index], index);
 
 				originalData[index].clear(); // do not use same data twice (same ID)
@@ -324,8 +330,7 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			}
 		}
 		// normal new object or one with index bigger that data size
-		if (validate)
-			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);
+		performValidate(data,name);
 		handler->loadObject(modName, name, data);
 	}
 	return result;

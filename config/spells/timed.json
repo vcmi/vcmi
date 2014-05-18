@@ -1,6 +1,4 @@
 {
-
-
 	"shield" : {
 		"index" : 27,
 		"anim" : 27,
@@ -8,30 +6,8 @@
 			"cast": "SHIELD"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"generalDamageReduction" : {
-						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"subtype" : 0,
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"generalDamageReduction" : {
-						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"subtype" : 0,
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"generalDamageReduction" : {
@@ -42,15 +18,7 @@
 				}
 			},
 			"expert":{
-				"range" : "X",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"generalDamageReduction" : {
-						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"subtype" : 0,
-						"duration" : "N_TURNS"
-					}
-				}
+				"range" : "X"
 			}
 		},
 		"flags" : {
@@ -64,30 +32,8 @@
 			"cast": "AIRSHELD"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"generalDamageReduction" : {
-						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"subtype" : 1,
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"generalDamageReduction" : {
-						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"subtype" : 1,
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"generalDamageReduction" : {
@@ -98,15 +44,7 @@
 				}
 			},
 			"expert":{
-				"range" : "X",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"generalDamageReduction" : {
-						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"subtype" : 1,
-						"duration" : "N_TURNS"
-					}
-				}
+				"range" : "X"
 			}
 		},
 		"flags" : {
@@ -123,28 +61,8 @@
 		//			"soundfile":"FIRESHLD.wav"
 		//		
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"fireShield" : {
-						"type" : "FIRE_SHIELD",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"fireShield" : {
-						"type" : "FIRE_SHIELD",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"fireShield" : {
@@ -154,14 +72,7 @@
 				}
 			},
 			"expert":{
-				"range" : "X",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"fireShield" : {
-						"type" : "FIRE_SHIELD",
-						"duration" : "N_TURNS"
-					}
-				}
+				"range" : "X"
 			}
 		},
 		"flags" : {
@@ -175,29 +86,7 @@
 			"cast": "PROTECTA"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 0,
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 0,
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
@@ -209,15 +98,7 @@
 				}
 			},
 			"expert":{
-				"range" : "X",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 0,
-						"duration" : "N_TURNS"
-					}
-				}
+				"range" : "X"
 			}
 		},
 		"flags" : {
@@ -231,29 +112,7 @@
 			"cast": "PROTECTF"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 1,
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 1,
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
@@ -265,15 +124,7 @@
 				}
 			},
 			"expert":{
-				"range" : "X",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 1,
-						"duration" : "N_TURNS"
-					}
-				}
+				"range" : "X"
 			}
 		},
 		"flags" : {
@@ -287,30 +138,8 @@
 			"cast": "PROTECTW"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 2,
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 2,
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"spellDamageReduction" : {
@@ -321,15 +150,7 @@
 				}
 			},
 			"expert":{
-				"range" : "X",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 2,
-						"duration" : "N_TURNS"
-					}
-				}
+				"range" : "X"
 			}
 		},
 		"flags" : {
@@ -343,29 +164,7 @@
 			"cast": "PROTECTE"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 3,
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 3,
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
@@ -377,15 +176,7 @@
 				}
 			},
 			"expert":{
-				"range" : "X",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : 3,
-						"duration" : "N_TURNS"
-					}
-				}
+				"range" : "X"
 			}
 		},
 		"flags" : {
@@ -399,24 +190,12 @@
 			"cast": "ANTIMAGK"
 		},
 		"levels" : {
-			"none":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"levelSpellImmunity" : {
-						"val" : 3,
-						"type" : "LEVEL_SPELL_IMMUNITY",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"levelSpellImmunity" : {
-						"val" : 3,
+						"val" : 3,					
 						"type" : "LEVEL_SPELL_IMMUNITY",
 						"valueType" : "INDEPENDENT_MAX",
 						"duration" : "N_TURNS"
@@ -424,26 +203,16 @@
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"levelSpellImmunity" : {
-						"val" : 4,
-						"type" : "LEVEL_SPELL_IMMUNITY",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
+						"val" : 4
 					}
 				}
 			},
 			"expert":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"levelSpellImmunity" : {
-						"val" : 5,
-						"type" : "LEVEL_SPELL_IMMUNITY",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
+						"val" : 5
 					}
 				}
 			}
@@ -460,40 +229,7 @@
 			"cast": "BACKLASH"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"magicMirror" : {
-						"type" : "MAGIC_MIRROR",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"magicMirror" : {
-						"type" : "MAGIC_MIRROR",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"magicMirror" : {
-						"type" : "MAGIC_MIRROR",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
@@ -517,38 +253,12 @@
 			"cast": "BLESS"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"alwaysMaximumDamage" : {
 						"val" : 0,
-						"type" : "ALWAYS_MAXIMUM_DAMAGE",
-						"subtype" : -1,
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"alwaysMaximumDamage" : {
-						"val" : 0,
-						"type" : "ALWAYS_MAXIMUM_DAMAGE",
-						"subtype" : -1,
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"alwaysMaximumDamage" : {
-						"val" : 1,
 						"type" : "ALWAYS_MAXIMUM_DAMAGE",
 						"subtype" : -1,
 						"valueType" : "INDEPENDENT_MAX",
@@ -557,17 +267,7 @@
 				}
 			},
 			"expert":{
-				"range" : "X",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"alwaysMaximumDamage" : {
-						"val" : 1,
-						"type" : "ALWAYS_MAXIMUM_DAMAGE",
-						"subtype" : -1,
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					}
-				}
+				"range" : "X"
 			}
 		},
 		"counters" : {
@@ -587,41 +287,13 @@
 			"cast": "CURSE"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"alwaysMinimumDamage" : {
 						"addInfo" : 0,
 						"val" : 0,
-						"type" : "ALWAYS_MINIMUM_DAMAGE",
-						"subtype" : -1,
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"alwaysMinimumDamage" : {
-						"addInfo" : 0,
-						"val" : 0,
-						"type" : "ALWAYS_MINIMUM_DAMAGE",
-						"subtype" : -1,
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"alwaysMinimumDamage" : {
-						"addInfo" : 20,
-						"val" : 1,
 						"type" : "ALWAYS_MINIMUM_DAMAGE",
 						"subtype" : -1,
 						"valueType" : "INDEPENDENT_MAX",
@@ -630,18 +302,7 @@
 				}
 			},
 			"expert":{
-				"range" : "X",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"alwaysMinimumDamage" : {
-						"addInfo" : 20,
-						"val" : 1,
-						"type" : "ALWAYS_MINIMUM_DAMAGE",
-						"subtype" : -1,
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					}
-				}
+				"range" : "X"
 			}
 		},
 		"counters" : {
@@ -661,25 +322,12 @@
 			"cast": "BLOODLUS"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : 3,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"effectRange" : "ONLY_MELEE_FIGHT",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"primarySkill" : {
-						"val" : 3,
+						"val" : 3,					
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.attack",
 						"effectRange" : "ONLY_MELEE_FIGHT",
@@ -688,28 +336,17 @@
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : 6,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"effectRange" : "ONLY_MELEE_FIGHT",
-						"duration" : "N_TURNS"
+						"val" : 6
 					}
 				}
 			},
 			"expert":{
 				"range" : "X",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : 6,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"effectRange" : "ONLY_MELEE_FIGHT",
-						"duration" : "N_TURNS"
+						"val" : 6
 					}
 				}
 			}
@@ -728,60 +365,36 @@
 			"cast": "PRECISON"
 		},
 		"levels" : {
-			"none":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : 3,
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.attack",
-						"effectRange" : "ONLY_DISTANCE_FIGHT",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"primarySkill" : {
 						"val" : 3,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
 						"effectRange" : "ONLY_DISTANCE_FIGHT",
 						"duration" : "N_TURNS"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : 6,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"effectRange" : "ONLY_DISTANCE_FIGHT",
-						"duration" : "N_TURNS"
+						"val" : 6
 					}
 				}
 			},
 			"expert":{
 				"range" : "X",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : 6,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"effectRange" : "ONLY_DISTANCE_FIGHT",
-						"duration" : "N_TURNS"
+						"val" : 6
 					}
 				}
 			}
 		},
-		"limit" : {
+		"absoluteLimit" : {
 			"SHOOTER": true
 		},
 		"flags" : {
@@ -795,51 +408,31 @@
 			"cast": "WEAKNESS"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : -3,
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.attack",
+						"val" : -3,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"primarySkill" : {
-						"val" : -3,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
+
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : -6,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"duration" : "N_TURNS"
+						"val" : -6
 					}
 				}
 			},
 			"expert":{
 				"range" : "X",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : -6,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"duration" : "N_TURNS"
+						"val" : -6
 					}
 				}
 			}
@@ -858,51 +451,30 @@
 			"cast": "TUFFSKIN"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : 3,
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.defence",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"primarySkill" : {
-						"val" : 3,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
+						"val" : 3,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : 6,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
-						"duration" : "N_TURNS"
+						"val" : 6
 					}
 				}
 			},
 			"expert":{
 				"range" : "X",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : 6,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
-						"duration" : "N_TURNS"
+						"val" : 6
 					}
 				}
 			}
@@ -913,61 +485,36 @@
 	},
 	"disruptingRay" : {
 		"index" : 47,
-				"targetType" : "CREATURE", //fix, dont remove
+		"targetType" : "CREATURE", //fix, dont remove
 		"anim" : 14,
 		"sounds": {
 			"cast": "DISRUPTR"
 		},
 		"levels" : {
-			"none":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : -3,
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.defence",
-						"valueType" : "ADDITIVE_VALUE",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"primarySkill" : {
-						"val" : -3,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
+						"val" : -3,						
 						"valueType" : "ADDITIVE_VALUE",
 						"duration" : "N_TURNS"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : -4,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
-						"valueType" : "ADDITIVE_VALUE",
-						"duration" : "N_TURNS"
+						"val" : -4
 					}
 				}
 			},
 			"expert":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
-						"val" : -5,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
-						"valueType" : "ADDITIVE_VALUE",
-						"duration" : "N_TURNS"
+						"val" : -5
 					}
 				}
 			}
@@ -983,99 +530,54 @@
 			"cast": "PRAYER"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"attack" : {
-						"val" : 2,
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.attack",
+						"val" : 2,						
 						"duration" : "N_TURNS"
 					},
 					"defence" : {
-						"val" : 2,
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.defence",
+						"val" : 2,						
 						"duration" : "N_TURNS"
 					},
 					"stacksSpeed" : {
 						"addInfo" : 0,
-						"val" : 2,
 						"type" : "STACKS_SPEED",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"attack" : {
-						"val" : 2,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"duration" : "N_TURNS"
-					},
-					"defence" : {
-						"val" : 2,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
-						"duration" : "N_TURNS"
-					},
-					"stacksSpeed" : {
-						"addInfo" : 0,
-						"val" : 2,
-						"type" : "STACKS_SPEED",
+						"val" : 2,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"attack" : {
-						"val" : 4,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"duration" : "N_TURNS"
+						"val" : 4
 					},
 					"defence" : {
-						"val" : 4,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
-						"duration" : "N_TURNS"
+						"val" : 4
 					},
 					"stacksSpeed" : {
-						"addInfo" : 0,
-						"val" : 4,
-						"type" : "STACKS_SPEED",
-						"duration" : "N_TURNS"
+						"val" : 4
 					}
 				}
 			},
 			"expert":{
 				"range" : "X",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"attack" : {
-						"val" : 4,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
-						"duration" : "N_TURNS"
+						"val" : 4
 					},
 					"defence" : {
-						"val" : 4,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
-						"duration" : "N_TURNS"
+						"val" : 4
 					},
 					"stacksSpeed" : {
-						"addInfo" : 0,
-						"val" : 4,
-						"type" : "STACKS_SPEED",
-						"duration" : "N_TURNS"
+						"val" : 4
 					}
 				}
 			}
@@ -1091,36 +593,21 @@
 			"cast": "MIRTH"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"morale" : {
-						"val" : 1,
 						"type" : "MORALE",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"morale" : {
-						"val" : 1,
-						"type" : "MORALE",
+						"val" : 1,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"morale" : {
-						"val" : 2,
-						"type" : "MORALE",
-						"duration" : "N_TURNS"
+						"val" : 2
 					}
 				}
 			},
@@ -1128,9 +615,7 @@
 				"range" : "X",
 				"effects" : {
 					"morale" : {
-						"val" : 2,
-						"type" : "MORALE",
-						"duration" : "N_TURNS"
+						"val" : 2
 					}
 				}
 			}
@@ -1156,47 +641,29 @@
 			"cast": "SORROW"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"morale" : {
-						"val" : -1,
 						"type" : "MORALE",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"morale" : {
-						"val" : -1,
-						"type" : "MORALE",
+						"val" : -1,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"morale" : {
-						"val" : -2,
-						"type" : "MORALE",
-						"duration" : "N_TURNS"
+						"val" : -2
 					}
 				}
 			},
 			"expert":{
 				"range" : "X",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"morale" : {
-						"val" : -2,
-						"type" : "MORALE",
-						"duration" : "N_TURNS"
+						"val" : -2
 					}
 				}
 			}
@@ -1222,47 +689,29 @@
 			"cast": "FORTUNE"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"luck" : {
-						"val" : 1,
 						"type" : "LUCK",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"luck" : {
-						"val" : 1,
-						"type" : "LUCK",
+						"val" : 1,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"luck" : {
-						"val" : 2,
-						"type" : "LUCK",
-						"duration" : "N_TURNS"
+						"val" : 2
 					}
 				}
 			},
 			"expert":{
 				"range" : "X",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"luck" : {
-						"val" : 2,
-						"type" : "LUCK",
-						"duration" : "N_TURNS"
+						"val" : 2
 					}
 				}
 			}
@@ -1281,47 +730,29 @@
 			"cast": "MISFORT"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"luck" : {
-						"val" : -1,
 						"type" : "LUCK",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"luck" : {
-						"val" : -1,
-						"type" : "LUCK",
+						"val" : -1,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"luck" : {
-						"val" : -2,
-						"type" : "LUCK",
-						"duration" : "N_TURNS"
+						"val" : -2
 					}
 				}
 			},
 			"expert":{
 				"range" : "X",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"luck" : {
-						"val" : -2,
-						"type" : "LUCK",
-						"duration" : "N_TURNS"
+						"val" : -2
 					}
 				}
 			}
@@ -1340,51 +771,30 @@
 			"cast": "HASTE"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"stacksSpeed" : {
 						"addInfo" : 0,
-						"val" : 3,
 						"type" : "STACKS_SPEED",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"stacksSpeed" : {
-						"addInfo" : 0,
-						"val" : 3,
-						"type" : "STACKS_SPEED",
+						"val" : 3,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"stacksSpeed" : {
-						"addInfo" : 0,
-						"val" : 5,
-						"type" : "STACKS_SPEED",
-						"duration" : "N_TURNS"
+						"val" : 5
 					}
 				}
 			},
 			"expert":{
 				"range" : "X",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"stacksSpeed" : {
-						"addInfo" : 0,
-						"val" : 5,
-						"type" : "STACKS_SPEED",
-						"duration" : "N_TURNS"
+						"val" : 5
 					}
 				}
 			}
@@ -1406,55 +816,31 @@
 			"cast": "MUCKMIRE"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"stacksSpeed" : {
 						"addInfo" : 0,
-						"val" : -25,
 						"type" : "STACKS_SPEED",
-						"valueType" : "PERCENT_TO_ALL",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"stacksSpeed" : {
-						"addInfo" : 0,
-						"val" : -25,
-						"type" : "STACKS_SPEED",
+						"val" : -25,						
 						"valueType" : "PERCENT_TO_ALL",
 						"duration" : "N_TURNS"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"stacksSpeed" : {
-						"addInfo" : 0,
-						"val" : -50,
-						"type" : "STACKS_SPEED",
-						"valueType" : "PERCENT_TO_ALL",
-						"duration" : "N_TURNS"
+						"val" : -50
 					}
 				}
 			},
 			"expert":{
 				"range" : "X",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"stacksSpeed" : {
-						"addInfo" : 0,
-						"val" : -50,
-						"type" : "STACKS_SPEED",
-						"valueType" : "PERCENT_TO_ALL",
-						"duration" : "N_TURNS"
+						"val" : -50
 					}
 				}
 			}
@@ -1477,47 +863,41 @@
 			"cast": "SLAYER"
 		},
 		"levels" : {
-			"none":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"slayer" : {
-						"val" : 0,
 						"type" : "SLAYER",
 						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"none":{
+				"effects" : {
+					"slayer" : {
+						"val" : 0
 					}
 				}
 			},
 			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"slayer" : {
-						"val" : 1,
-						"type" : "SLAYER",
-						"duration" : "N_TURNS"
+						"val" : 1
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"slayer" : {
-						"val" : 2,
-						"type" : "SLAYER",
-						"duration" : "N_TURNS"
+						"val" : 2
 					}
 				}
 			},
 			"expert":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"slayer" : {
-						"val" : 3,
-						"type" : "SLAYER",
-						"duration" : "N_TURNS"
+						"val" : 3
 					}
 				}
 			}
@@ -1533,47 +913,28 @@
 			"cast": "FRENZY"
 		},
 		"levels" : {
-			"none":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"inFrenzy" : {
-						"val" : 100,
 						"type" : "IN_FRENZY",
-						"duration" : "STACK_GETS_TURN"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"inFrenzy" : {
-						"val" : 100,
-						"type" : "IN_FRENZY",
+						"val" : 100,						
 						"duration" : "STACK_GETS_TURN"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"inFrenzy" : {
-						"val" : 150,
-						"type" : "IN_FRENZY",
-						"duration" : "STACK_GETS_TURN"
+						"val" : 150
 					}
 				}
 			},
 			"expert":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"inFrenzy" : {
-						"val" : 200,
-						"type" : "IN_FRENZY",
-						"duration" : "STACK_GETS_TURN"
+						"val" : 200
 					}
 				}
 			}
@@ -1582,37 +943,7 @@
 			"positive": true
 		}
 	},
-	"titanBolt" : {
-		"index" : 57,
-		"anim" : 38,
-		"sounds": {
-			"cast": "LIGHTBLT"
-		},
-		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"expert":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			}
-		},
-		"flags" : {
-			"damage": true,
-			"offensive": true,
-			"negative": true,
-						"special": true
-		}
-	},
+
 	"counterstrike" : {
 		"index" : 58,
 		"anim" : 7,
@@ -1620,47 +951,29 @@
 			"cast": "CNTRSTRK"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"additionalRetaliation" : {
-						"val" : 1,
 						"type" : "ADDITIONAL_RETALIATION",
-						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"additionalRetaliation" : {
-						"val" : 1,
-						"type" : "ADDITIONAL_RETALIATION",
+						"val" : 1,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"additionalRetaliation" : {
-						"val" : 2,
-						"type" : "ADDITIONAL_RETALIATION",
-						"duration" : "N_TURNS"
+						"val" : 2
 					}
 				}
 			},
 			"expert":{
 				"range" : "X",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"additionalRetaliation" : {
-						"val" : 2,
-						"type" : "ADDITIONAL_RETALIATION",
-						"duration" : "N_TURNS"
+						"val" : 2
 					}
 				}
 			}
@@ -1676,47 +989,43 @@
 			"cast": "BERSERK"
 		},
 		"levels" : {
-			"none":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"attacksNearestCreature" : {
-						"val" : 0,
 						"type" : "ATTACKS_NEAREST_CREATURE",
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
+			"none":{
 				"effects" : {
 					"attacksNearestCreature" : {
-						"val" : 1,
-						"type" : "ATTACKS_NEAREST_CREATURE",
-						"duration" : "N_TURNS"
+						"val" : 0
+					}
+				}
+			},
+			"basic":{
+				"effects" : {
+					"attacksNearestCreature" : {
+						"val" : 1
 					}
 				}
 			},
 			"advanced":{
 				"range" : "0-1",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"attacksNearestCreature" : {
-						"val" : 2,
-						"type" : "ATTACKS_NEAREST_CREATURE",
-						"duration" : "N_TURNS"
+						"val" : 2
 					}
 				}
 			},
 			"expert":{
 				"range" : "0-2",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"attacksNearestCreature" : {
-						"val" : 3,
-						"type" : "ATTACKS_NEAREST_CREATURE",
-						"duration" : "N_TURNS"
+						"val" : 3
 					}
 				}
 			}
@@ -1738,47 +1047,41 @@
 			"cast": "HYPNOTIZ"
 		},
 		"levels" : {
-			"none":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"hypnotized" : {
-						"val" : 0,
 						"type" : "HYPNOTIZED",
 						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"none":{
+				"effects" : {
+					"hypnotized" : {
+						"val" : 0
 					}
 				}
 			},
 			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"hypnotized" : {
-						"val" : 1,
-						"type" : "HYPNOTIZED",
-						"duration" : "N_TURNS"
+						"val" : 1
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"hypnotized" : {
-						"val" : 2,
-						"type" : "HYPNOTIZED",
-						"duration" : "N_TURNS"
+						"val" : 2
 					}
 				}
 			},
 			"expert":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
 					"hypnotized" : {
-						"val" : 3,
-						"type" : "HYPNOTIZED",
-						"duration" : "N_TURNS"
+						"val" : 3
 					}
 				}
 			}
@@ -1801,52 +1104,47 @@
 			"cast": "FORGET"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
-					"forgetfull" : {
-						"val" : 0,
+					"forgetful" : {
 						"type" : "FORGETFULL",
 						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"none":{
+				"effects" : {
+					"forgetful" : {
+						"val" : 0
 					}
 				}
 			},
 			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
-					"forgetfull" : {
-						"val" : 1,
-						"type" : "FORGETFULL",
-						"duration" : "N_TURNS"
+					"forgetful" : {
+						"val" : 1
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
 				"effects" : {
-					"forgetfull" : {
-						"val" : 2,
-						"type" : "FORGETFULL",
-						"duration" : "N_TURNS"
+					"forgetful" : {
+						"val" : 2
 					}
 				}
 			},
 			"expert":{
 				"range" : "X",
-				"targetModifier":{"smart":true},
 				"effects" : {
-					"forgetfull" : {
-						"val" : 3,
-						"type" : "FORGETFULL",
-						"duration" : "N_TURNS"
+					"forgetful" : {
+						"val" : 3
 					}
 				}
 			}
 		},
-		"limit" : {
+		"absoluteLimit" : {
 			"SHOOTER": true
 		},
 		"immunity" : {
@@ -1865,88 +1163,7 @@
 			"cast": "BLIND"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"notActive" : {
-						"val" : 0,
-						"type" : "NOT_ACTIVE",
-						"subtype" : 62,
-						"duration" : [
-							"UNITL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"generalAttackReduction" : {
-						"type" : "GENERAL_ATTACK_REDUCTION",
-						"duration" : [
-							"UNITL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
-						"duration" : "UNITL_BEING_ATTACKED"
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"notActive" : {
-						"val" : 0,
-						"type" : "NOT_ACTIVE",
-						"subtype" : 62,
-						"duration" : [
-							"UNITL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"generalAttackReduction" : {
-						"type" : "GENERAL_ATTACK_REDUCTION",
-						"duration" : [
-							"UNITL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
-						"duration" : "UNITL_BEING_ATTACKED"
-					}
-				}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"notActive" : {
-						"val" : 0,
-						"type" : "NOT_ACTIVE",
-						"subtype" : 62,
-						"duration" :[
-							"UNITL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"generalAttackReduction" : {
-						"type" : "GENERAL_ATTACK_REDUCTION",
-						"duration" : [
-							"UNITL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
-						"duration" : "UNITL_BEING_ATTACKED"
-					}
-				}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {

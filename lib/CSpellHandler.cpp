@@ -413,15 +413,14 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 {
 	//todo: use new bonus API
-	//1. Check limiters
-	for(auto b : limiters)
+	//1. Check absolute limiters
+	for(auto b : absoluteLimiters)
 	{
 		if (!obj->hasBonusOfType(b))
 			return true;
 	}
 
 	//2. Check absolute immunities
-	//todo: check config: some creatures are unaffected always, for example undead to resurrection.
 	for(auto b : absoluteImmunities)
 	{
 		if (obj->hasBonusOfType(b))
@@ -429,10 +428,19 @@ bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 	}
 
 	//3. Check negation
+	//FIXME: Orb of vulnerability mechanics is not such trivial
 	if(obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES)) //Orb of vulnerability
 		return false;
+		
+	//4. Check negatable limit
+	for(auto b : limiters)
+	{
+		if (!obj->hasBonusOfType(b))
+			return true;
+	}
 
-	//4. Check negatable immunities
+
+	//5. Check negatable immunities
 	for(auto b : immunities)
 	{
 		if (obj->hasBonusOfType(b))
@@ -451,7 +459,7 @@ bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 		return false;
 	};
 
-	//4. Check elemental immunities
+	//6. Check elemental immunities
 	if(fire)
 	{
 		if(battleTestElementalImmunity(Bonus::FIRE_IMMUNITY))
@@ -786,10 +794,9 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 	};
 
 	readBonusStruct("immunity", spell->immunities);
-
 	readBonusStruct("absoluteImmunity", spell->absoluteImmunities);
-
-	readBonusStruct("limit", spell->limiters);
+	readBonusStruct("limit", spell->limiters);	
+	readBonusStruct("absoluteLimit", spell->absoluteLimiters);
 
 
 	const JsonNode & graphicsNode = json["graphics"];
@@ -857,6 +864,23 @@ void CSpellHandler::afterLoadFinalization()
 				bonus.sid = spell->id;
 }
 
+void CSpellHandler::beforeValidate(JsonNode & object)
+{
+	//handle "base" level info
+	
+	JsonNode& levels = object["levels"];
+	JsonNode& base = levels["base"];
+	
+	auto inheritNode = [&](const std::string & name){
+		JsonUtils::inherit(levels[name],base);
+	};
+	
+	inheritNode("none");
+	inheritNode("basic");
+	inheritNode("advanced");
+	inheritNode("expert");
+
+}
 
 
 CSpellHandler::~CSpellHandler()
