@@ -4231,9 +4231,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 			shr.tentHealing = (ui8)false;
 			for(auto & attackedCre : attackedCres)
 			{
-				if(vstd::contains(sc.resisted, (attackedCre)->ID) //this creature resisted the spell
-					|| (spellID == SpellID::ANIMATE_DEAD && !(attackedCre)->hasBonusOfType(Bonus::UNDEAD)) //we try to cast animate dead on living stack, TODO: showuld be not affected earlier
-					)
+				if(vstd::contains(sc.resisted, (attackedCre)->ID)) //this creature resisted the spell					
 					continue;
 				StacksHealedOrResurrected::HealInfo hi;
 				hi.stackID = (attackedCre)->ID;
@@ -4411,12 +4409,6 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 		{
 			for(auto & attackedCre : attackedCres)
 			{
-				if((attackedCre)->hasBonusOfType(Bonus::UNDEAD) || (attackedCre)->hasBonusOfType(Bonus::NON_LIVING)) //this creature is immune
-				{
-					sc.dmgToDisplay = 0; //TODO: handle Death Stare for multiple targets (?)
-					continue;
-				}
-
 				BattleStackAttacked bsa;
 				bsa.flags |= BattleStackAttacked::EFFECT;
 				bsa.effect = spell->mainEffectAnim; //from config\spell-Info.txt

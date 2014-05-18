@@ -578,7 +578,7 @@
 				"range" : "0"
 			}
 		},
-		"immunity" : {
+		"absoluteImmunity" : {
 			"UNDEAD": true,
 			"NON_LIVING": true
 		},
