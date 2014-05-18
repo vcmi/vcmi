@@ -764,6 +764,8 @@ BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2],
         terrain = ETerrainType::SAND;
 
 	BFieldType terType = battleGetBattlefieldType(tile);
+	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
+		terType = BFieldType::SHIP_TO_SHIP;
 	return BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
 }
 
