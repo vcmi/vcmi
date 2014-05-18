@@ -3944,7 +3944,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex destination, ui8 casterSide, PlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
 	int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack, si32 selectedStack)
 {
-	const CSpell *spell = SpellID(spellID).toSpell();
+	const CSpell * spell = SpellID(spellID).toSpell();
 
 
 	//Helper local function that creates obstacle on given position. Obstacle type is inferred from spell type.
@@ -4008,7 +4008,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 
 	if (caster) //calculate spell cost
 	{
-		sc.spellCost = gs->curB->battleGetSpellCost(SpellID(spellID).toSpell(), caster);
+		sc.spellCost = gs->curB->battleGetSpellCost(spell, caster);
 
 		if (secHero && mode == ECastingMode::HERO_CASTING) //handle mana channel
 		{
@@ -4026,7 +4026,8 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 
 	//calculating affected creatures for all spells
 	//must be vector, as in Chain Lightning order matters
-	std::vector<const CStack*> attackedCres; //what is that and what is sc.afectedCres?
+	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
+
 	if (mode != ECastingMode::ENCHANTER_CASTING)
 	{
 		auto creatures = gs->curB->getAffectedCreatures(spell, spellLvl, casterColor, destination);
@@ -4047,6 +4048,10 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 			}
 		}
 	}
+
+	vstd::erase_if(attackedCres,[=](const CStack * s){
+		return gs->curB->battleIsImmune(caster,spell,mode,s->position);		
+	});
 
 	for (auto cre : attackedCres)
 	{
