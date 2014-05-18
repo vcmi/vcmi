@@ -2033,20 +2033,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 
 	const CSpell::TargetInfo ti = spell->getTargetInfo(skillLevel);
 	//TODO: more generic solution for mass spells
-	if(spell->id == SpellID::DEATH_RIPPLE || spell->id == SpellID::DESTROY_UNDEAD )
-	{
-		for(const CStack *stack : battleGetAllStacks())
-		{
-			if((spell->id == SpellID::DEATH_RIPPLE && !stack->getCreature()->isUndead()) //death ripple
-				|| (spell->id == SpellID::DESTROY_UNDEAD && stack->getCreature()->isUndead()) //destroy undead
-				)
-			{
-				if(stack->isValidTarget())
-					attackedCres.insert(stack);
-			}
-		}
-	}
-	else if (spell->id == SpellID::CHAIN_LIGHTNING)
+	if (spell->id == SpellID::CHAIN_LIGHTNING)
 	{
 		std::set<BattleHex> possibleHexes;
 		for (auto stack : battleGetAllStacks())
