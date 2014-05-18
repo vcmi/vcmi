@@ -231,20 +231,25 @@
 			 "additionalProperties" : false,
 			 "required" : ["none", "basic", "advanced", "expert"],
 
-			 "properties":{
-				 "none":{
-					  "$ref" : "#/definitions/levelInfo"
-				 },
-				 "basic":{
-					  "$ref" : "#/definitions/levelInfo"
-				 },
-				 "advanced":{
-					  "$ref" : "#/definitions/levelInfo"
-				 },
-				 "expert":{
-					  "$ref" : "#/definitions/levelInfo"
-				 }
-			 }
+			 "properties":{	
+				"base":{
+					"type": "object",
+					"description": "will be merged with all levels",
+					"additionalProperties": true
+				},
+				"none":{
+					"$ref" : "#/definitions/levelInfo"
+				},
+				"basic":{
+					"$ref" : "#/definitions/levelInfo"
+				},
+				"advanced":{
+					"$ref" : "#/definitions/levelInfo"
+				},
+				"expert":{
+					"$ref" : "#/definitions/levelInfo"
+				}
+			}
 		}
 	}
 }

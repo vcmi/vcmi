@@ -205,6 +205,7 @@ public:
 
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 	void afterLoadFinalization() override;
+	void beforeValidate(JsonNode & object) override;
 
 	/**
 	 * Gets a list of default allowed spells. OH3 spells are all allowed by default.

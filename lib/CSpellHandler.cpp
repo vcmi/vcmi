@@ -864,6 +864,22 @@ void CSpellHandler::afterLoadFinalization()
 				bonus.sid = spell->id;
 }
 
+void CSpellHandler::beforeValidate(JsonNode & object)
+{
+	//handle "base" level info
+	
+	JsonNode levels = object["levels"];
+	
+	if(levels["base"].getType() == JsonNode::DATA_STRUCT)
+	{
+		JsonUtils::mergeCopy(levels["none"],levels["base"]);
+		JsonUtils::mergeCopy(levels["basic"],levels["base"]);
+		JsonUtils::mergeCopy(levels["advanced"],levels["base"]);
+		JsonUtils::mergeCopy(levels["expert"],levels["base"]);
+	}
+	
+	
+}
 
 
 CSpellHandler::~CSpellHandler()
