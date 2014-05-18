@@ -6,19 +6,7 @@
 			"cast": "MAGICBLT"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true}
 			}
@@ -39,19 +27,7 @@
 			"cast": "ICERAY"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true}
 			}
@@ -72,19 +48,7 @@
 			"cast": "LIGHTBLT"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true}
 			}
@@ -105,19 +69,7 @@
 			"cast": "DECAY"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true}
 			}
@@ -139,19 +91,7 @@
 			"cast": "CHAINLTE"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"basic":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"advanced":{
-				"range" : "0",
-				"targetModifier":{"smart":true}
-			},
-			"expert":{
+			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true}
 			}
@@ -169,19 +109,7 @@
 			"cast": "FROSTING"
 		},
 		"levels" : {
-			"none":{
-				"range" : "1",
-				"targetModifier":{"smart":false}
-			},
-			"basic":{
-				"range" : "1",
-				"targetModifier":{"smart":false}
-			},
-			"advanced":{
-				"range" : "1",
-				"targetModifier":{"smart":false}
-			},
-			"expert":{
+			"base":{
 				"range" : "1",
 				"targetModifier":{"smart":false}
 			}
@@ -202,19 +130,7 @@
 			"cast": "FIREBALL"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0,1",
-				"targetModifier":{"smart":false}
-			},
-			"basic":{
-				"range" : "0,1",
-				"targetModifier":{"smart":false}
-			},
-			"advanced":{
-				"range" : "0,1",
-				"targetModifier":{"smart":false}
-			},
-			"expert":{
+			"base":{
 				"range" : "0,1",
 				"targetModifier":{"smart":false}
 			}
@@ -235,19 +151,7 @@
 			"cast": "FIREBLST"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0-2",
-				"targetModifier":{"smart":false}
-			},
-			"basic":{
-				"range" : "0-2",
-				"targetModifier":{"smart":false}
-			},
-			"advanced":{
-				"range" : "0-2",
-				"targetModifier":{"smart":false}
-			},
-			"expert":{
+			"base":{
 				"range" : "0-2",
 				"targetModifier":{"smart":false}
 			}
@@ -268,19 +172,7 @@
 			"cast": "METEOR"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0,1",
-				"targetModifier":{"smart":false}
-			},
-			"basic":{
-				"range" : "0,1",
-				"targetModifier":{"smart":false}
-			},
-			"advanced":{
-				"range" : "0,1",
-				"targetModifier":{"smart":false}
-			},
-			"expert":{
+			"base":{
 				"range" : "0,1",
 				"targetModifier":{"smart":false}
 			}
@@ -302,19 +194,7 @@
 			"cast": "DEATHRIP"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X",
-				"targetModifier":{"smart":false}
-			},
-			"basic":{
-				"range" : "X",
-				"targetModifier":{"smart":false}
-			},
-			"advanced":{
-				"range" : "X",
-				"targetModifier":{"smart":false}
-			},
-			"expert":{
+			"base":{
 				"range" : "X",
 				"targetModifier":{"smart":false}
 			}
@@ -340,19 +220,7 @@
 			"cast": "COLDRING"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X",
-				"targetModifier":{"smart":false}
-			},
-			"basic":{
-				"range" : "X",
-				"targetModifier":{"smart":false}
-			},
-			"advanced":{
-				"range" : "X",
-				"targetModifier":{"smart":false}
-			},
-			"expert":{
+			"base":{
 				"range" : "X",
 				"targetModifier":{"smart":false}
 			}
@@ -377,19 +245,7 @@
 			"cast": "ARMGEDN"
 		},
 		"levels" : {
-			"none":{
-				"range" : "X",
-				"targetModifier":{"smart":false}
-			},
-			"basic":{
-				"range" : "X",
-				"targetModifier":{"smart":false}
-			},
-			"advanced":{
-				"range" : "X",
-				"targetModifier":{"smart":false}
-			},
-			"expert":{
+			"base":{
 				"range" : "X",
 				"targetModifier":{"smart":false}
 			}
