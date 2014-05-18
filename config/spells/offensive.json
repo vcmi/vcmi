@@ -258,5 +258,24 @@
 		"immunity" : {
 			"DIRECT_DAMAGE_IMMUNITY": true
 		}
-	}
+	},
+	"titanBolt" : {
+		"index" : 57,
+		"anim" : 38,
+		"sounds": {
+			"cast": "LIGHTBLT"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true,
+			"special": true
+		}
+	},
 }
