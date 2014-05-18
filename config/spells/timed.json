@@ -573,7 +573,7 @@
 		"counters" : {
 			"spell.curse": true
 		},
-		"immunity" : {
+		"absoluteImmunity" : {
 			"UNDEAD": true
 		},
 		"flags" : {
@@ -647,7 +647,7 @@
 		"counters" : {
 			"spell.bless": true
 		},
-		"immunity" : {
+		"absoluteImmunity" : {
 			"UNDEAD": true
 		},
 		"flags" : {
@@ -1138,9 +1138,11 @@
 		"counters" : {
 			"spell.sorrow":true
 		},
+		"absoluteImmunity":{
+			"UNDEAD": true,		
+		},
 		"immunity" : {
 			"MIND_IMMUNITY": true,
-			"UNDEAD": true,
 			"NON_LIVING": true
 		},
 		"flags" : {
@@ -1202,9 +1204,11 @@
 		"counters" : {
 			"spell.mirth":true
 		},
+		"absoluteImmunity":{
+			"UNDEAD": true,		
+		},
 		"immunity" : {
 			"MIND_IMMUNITY": true,
-			"UNDEAD": true,
 			"NON_LIVING": true
 		},
 		"flags" : {

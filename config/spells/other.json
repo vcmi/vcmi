@@ -208,7 +208,7 @@
 			"rising": true,
 			"positive": true
 		},
-		"immunity" : {
+		"absoluteImmunity" : {
 			"UNDEAD": true,
 			"NON_LIVING": true
 		}
@@ -273,7 +273,7 @@
 			"rising": true,
 			"positive": true
 		},
-		"immunity" : {
+		"absoluteImmunity" : {
 			"UNDEAD": true,
 			"NON_LIVING": true
 		}
