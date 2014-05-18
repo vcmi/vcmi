@@ -4223,16 +4223,14 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				int unitSpellPower = stack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spellID.toEnum());
 				if (unitSpellPower)
 					hpGained = stack->count * unitSpellPower; //Archangel
-				else //Faerie Dragon-like effect - unused fo far
+				else //Faerie Dragon-like effect - unused so far
 					usedSpellPower = stack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * stack->count / 100;
 			}
 			StacksHealedOrResurrected shr;
-			shr.lifeDrain = (ui8)false;
-			shr.tentHealing = (ui8)false;
+			shr.lifeDrain = false;
+			shr.tentHealing = false;
 			for(auto & attackedCre : attackedCres)
 			{
-				if(vstd::contains(sc.resisted, (attackedCre)->ID)) //this creature resisted the spell					
-					continue;
 				StacksHealedOrResurrected::HealInfo hi;
 				hi.stackID = (attackedCre)->ID;
 				if (stack) //casted by creature
