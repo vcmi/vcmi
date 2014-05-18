@@ -241,7 +241,7 @@
 			"rising": true,
 			"positive": true
 		},
-		"limit" : {
+		"absoluteLimit" : {
 			"UNDEAD": true
 		}
 	},

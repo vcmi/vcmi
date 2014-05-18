@@ -362,7 +362,7 @@
 			"offensive": true,
 			"negative": true
 		},
-		"limit" : {
+		"absoluteLimit" : {
 			"UNDEAD": true
 		},
 		"immunity" : {

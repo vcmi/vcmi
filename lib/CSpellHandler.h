@@ -138,9 +138,9 @@ public:
 		  & probabilities  & attributes & combatSpell & creatureAbility & positiveness & counteredSpells & mainEffectAnim;
 		h & isRising & isDamage & isOffensive;
 		h & targetType;
-		h & immunities & limiters;
+		h & immunities & limiters & absoluteImmunities & absoluteLimiters;
 		h & iconImmune;
-		h & absoluteImmunities & defaultProbability;
+		h & defaultProbability;
 
 		h & isSpecial;
 
@@ -171,6 +171,7 @@ private:
 	std::vector<Bonus::BonusType> immunities; //any of these grants immunity
 	std::vector<Bonus::BonusType> absoluteImmunities; //any of these grants immunity, can't be negated
 	std::vector<Bonus::BonusType> limiters; //all of them are required to be affected
+	std::vector<Bonus::BonusType> absoluteLimiters; //all of them are required to be affected, can't be negated
 
 	///graphics related stuff
 

@@ -781,7 +781,7 @@
 				}
 			}
 		},
-		"limit" : {
+		"absoluteLimit" : {
 			"SHOOTER": true
 		},
 		"flags" : {
@@ -1846,7 +1846,7 @@
 				}
 			}
 		},
-		"limit" : {
+		"absoluteLimit" : {
 			"SHOOTER": true
 		},
 		"immunity" : {
