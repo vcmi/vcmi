@@ -287,6 +287,7 @@ const CSpell::TargetInfo CSpell::getTargetInfo(const int level) const
 	info.type = getTargetType();
 	info.smart = levelInfo.smartTarget;
 	info.massive = levelInfo.range == "X";
+	info.onlyAlive = !isRisingSpell();
 
 	return info;
 }

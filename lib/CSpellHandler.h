@@ -60,6 +60,7 @@ public:
 		ETargetType type;
 		bool smart;
 		bool massive;
+		bool onlyAlive;
 	};
 
 	SpellID id;

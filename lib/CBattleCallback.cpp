@@ -2029,8 +2029,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 
 	const ui8 attackerSide = playerToSide(attackerOwner) == 1;
 	const auto attackedHexes = spell->rangeInHexes(destinationTile, skillLevel, attackerSide);
-	const bool onlyAlive = !spell->isRisingSpell(); //when casting resurrection or animate dead we should be allow to select dead stack
-
+	
 	const CSpell::TargetInfo ti = spell->getTargetInfo(skillLevel);
 	//TODO: more generic solution for mass spells
 	if (spell->id == SpellID::CHAIN_LIGHTNING)
@@ -2068,7 +2067,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	{
 		for(BattleHex hex : attackedHexes)
 		{
-			if(const CStack * st = battleGetStackByPos(hex, onlyAlive))
+			if(const CStack * st = battleGetStackByPos(hex, ti.onlyAlive))
 			{
 				if (spell->id == SpellID::DEATH_CLOUD) //Death Cloud //TODO: fireball and fire immunity
 				{
@@ -2087,7 +2086,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 		auto predicate = [=](const CStack * s){
 			const bool positiveToAlly = spell->isPositive() && s->owner == attackerOwner;
 			const bool negativeToEnemy = spell->isNegative() && s->owner != attackerOwner;
-			const bool validTarget = s->isValidTarget(!onlyAlive); //todo: this should be handled by spell class
+			const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
 	
 			//for single target spells select stacks covering destination tile
 			const bool rangeCovers = ti.massive || s->coversPos(destinationTile);
@@ -2128,7 +2127,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	{
 		for(BattleHex hex : attackedHexes)
 		{
-			if(const CStack * st = battleGetStackByPos(hex, onlyAlive))
+			if(const CStack * st = battleGetStackByPos(hex, ti.onlyAlive))
 				attackedCres.insert(st);
 		}
 	}
