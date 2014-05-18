@@ -868,17 +868,23 @@ void CSpellHandler::beforeValidate(JsonNode & object)
 {
 	//handle "base" level info
 	
-	JsonNode levels = object["levels"];
+	JsonNode& levels = object["levels"];
+	JsonNode& base = levels["base"];
 	
-	if(levels["base"].getType() == JsonNode::DATA_STRUCT)
-	{
-		JsonUtils::mergeCopy(levels["none"],levels["base"]);
-		JsonUtils::mergeCopy(levels["basic"],levels["base"]);
-		JsonUtils::mergeCopy(levels["advanced"],levels["base"]);
-		JsonUtils::mergeCopy(levels["expert"],levels["base"]);
-	}
+	auto inheritNode = [&](JsonNode & dest){
+		//merging destination node into copy of base node implements inheritance semantic
+		//detail configuration is priority
+		//this allows more simplification
+		JsonNode inheritedNode(base);		
+		JsonUtils::merge(inheritedNode,dest);
+		dest.swap(inheritedNode);
+	};
 	
-	
+	inheritNode(levels["none"]);
+	inheritNode(levels["basic"]);
+	inheritNode(levels["advanced"]);
+	inheritNode(levels["expert"]);
+
 }
 
 
