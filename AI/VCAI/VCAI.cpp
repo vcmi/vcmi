@@ -1681,12 +1681,13 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		}
 		ret = !i;
 	}
-	if (auto visitedObject = frontOrNull(cb->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
+	if (h)
 	{
-		if (visitedObject != *h)
-			performObjectInteraction (visitedObject, h);
-		//BNLOG("Hero %s moved from %s to %s at %s", h->name % startHpos % visitedObject->hoverName % h->visitablePos());
-		//throw goalFulfilledException (CGoal(GET_OBJ).setobjid(visitedObject->id));
+		if (auto visitedObject = frontOrNull(cb->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
+		{
+			if (visitedObject != *h)
+				performObjectInteraction (visitedObject, h);
+		}
 	}
 	if(h) //we could have lost hero after last move
 	{
@@ -1704,8 +1705,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			erase_if_present (lockedHeroes, h); //hero seemingly is confused
 			throw cannotFulfillGoalException("Invalid path found!"); //FIXME: should never happen
 		}
+		logAi->debugStream() << boost::format("Hero %s moved from %s to %s. Returning %d.") % h->name % startHpos % h->visitablePos() % ret;
 	}
-    logAi->debugStream() << boost::format("Hero %s moved from %s to %s. Returning %d.") % h->name % startHpos % h->visitablePos() % ret;
 	return ret;
 }
 void VCAI::tryRealize(Goals::Explore & g)
@@ -2725,7 +2726,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 							//parent[neighPos] = curPos;
 						}
 						const TerrainTile *nt = cbp->getTile(neighPos, false);
-						if(nt && nt->isWater() != s.water && canBeEmbarkmentPoint(nt))
+						if(nt && nt->isWater() != s.water && canBeEmbarkmentPoint(nt, s.water))
 						{
 							s.embarkmentPoints.push_back(neighPos);
 						}

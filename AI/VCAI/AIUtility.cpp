@@ -344,11 +344,12 @@ bool isReachable(const CGObjectInstance *obj)
 	return cb->getPathInfo(obj->visitablePos())->turns < 255;
 }
 
-bool canBeEmbarkmentPoint(const TerrainTile *t)
+bool canBeEmbarkmentPoint(const TerrainTile *t, bool fromWater)
 {
 	//tile must be free of with unoccupied boat
 	return !t->blocked
-        || (t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::BOAT);
+        || (!fromWater && t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::BOAT);
+	//do not try to board when in water sector
 }
 
 int3 whereToExplore(HeroPtr h)
