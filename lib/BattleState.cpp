@@ -723,45 +723,6 @@ const CGHeroInstance * BattleInfo::getHero( PlayerColor player ) const
 	return nullptr;
 }
 
-std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2,
-	const std::vector<const CStack*> & affectedCreatures, PlayerColor casterSideOwner, ECastingMode::ECastingMode mode,
-	int usedSpellPower, int spellLevel, CRandomGenerator & rand) const
-{
-	std::vector<ui32> ret;
-	for(auto & affectedCreature : affectedCreatures)
-	{
-		if(battleIsImmune(caster, sp, mode, (affectedCreature)->position) != ESpellCastProblem::OK) //FIXME: immune stacks should not display resisted animation
-		{
-			ret.push_back((affectedCreature)->ID);
-			continue;
-		}
-
-		//non-negative spells should always succeed, unless immune
-		if(!sp->isNegative())// && (*it)->owner == casterSideOwner)
-			continue;
-
-		/*
-		const CGHeroInstance * bonusHero; //hero we should take bonuses from
-		if((*it)->owner == casterSideOwner)
-			bonusHero = caster;
-		else
-			bonusHero = hero2;*/
-
-		int prob = (affectedCreature)->magicResistance(); //probability of resistance in %
-
-		if(prob > 100) prob = 100;
-
-		//immunity from resistance
-		if(rand.nextInt(99) < prob)
-		{
-			ret.push_back((affectedCreature)->ID);
-		}
-
-	}
-
-	return ret;
-}
-
 PlayerColor BattleInfo::theOtherPlayer(PlayerColor player) const
 {
 	return sides[!whatSide(player)].color;

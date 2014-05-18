@@ -3944,7 +3944,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex destination, ui8 casterSide, PlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
 	int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack, si32 selectedStack)
 {
-	const CSpell *spell = SpellID(spellID).toSpell();
+	const CSpell * spell = SpellID(spellID).toSpell();
 
 
 	//Helper local function that creates obstacle on given position. Obstacle type is inferred from spell type.
@@ -4008,7 +4008,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 
 	if (caster) //calculate spell cost
 	{
-		sc.spellCost = gs->curB->battleGetSpellCost(SpellID(spellID).toSpell(), caster);
+		sc.spellCost = gs->curB->battleGetSpellCost(spell, caster);
 
 		if (secHero && mode == ECastingMode::HERO_CASTING) //handle mana channel
 		{
@@ -4026,7 +4026,8 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 
 	//calculating affected creatures for all spells
 	//must be vector, as in Chain Lightning order matters
-	std::vector<const CStack*> attackedCres; //what is that and what is sc.afectedCres?
+	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
+
 	if (mode != ECastingMode::ENCHANTER_CASTING)
 	{
 		auto creatures = gs->curB->getAffectedCreatures(spell, spellLvl, casterColor, destination);
@@ -4048,13 +4049,29 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 		}
 	}
 
+	vstd::erase_if(attackedCres,[=](const CStack * s){
+		return gs->curB->battleIsImmune(caster,spell,mode,s->position);		
+	});
+
 	for (auto cre : attackedCres)
 	{
 		sc.affectedCres.insert (cre->ID);
 	}
-
+	
 	//checking if creatures resist
-	sc.resisted = gs->curB->calculateResistedStacks(spell, caster, secHero, attackedCres, casterColor, mode, usedSpellPower, spellLvl, gs->getRandomGenerator());
+	//resistance is applied only to negative spells
+	if(spell->isNegative())
+	{
+		for(auto s : attackedCres)
+		{
+			const int prob = std::min((s)->magicResistance(), 100); //probability of resistance in %
+			
+			if(gs->getRandomGenerator().nextInt(99) < prob)
+			{
+				sc.resisted.push_back(s->ID);
+			}
+		}
+	}
 
 	//calculating dmg to display
 	if (spellID == SpellID::DEATH_STARE || spellID == SpellID::ACID_BREATH_DAMAGE)
@@ -4206,18 +4223,14 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				int unitSpellPower = stack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spellID.toEnum());
 				if (unitSpellPower)
 					hpGained = stack->count * unitSpellPower; //Archangel
-				else //Faerie Dragon-like effect - unused fo far
+				else //Faerie Dragon-like effect - unused so far
 					usedSpellPower = stack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * stack->count / 100;
 			}
 			StacksHealedOrResurrected shr;
-			shr.lifeDrain = (ui8)false;
-			shr.tentHealing = (ui8)false;
+			shr.lifeDrain = false;
+			shr.tentHealing = false;
 			for(auto & attackedCre : attackedCres)
 			{
-				if(vstd::contains(sc.resisted, (attackedCre)->ID) //this creature resisted the spell
-					|| (spellID == SpellID::ANIMATE_DEAD && !(attackedCre)->hasBonusOfType(Bonus::UNDEAD)) //we try to cast animate dead on living stack, TODO: showuld be not affected earlier
-					)
-					continue;
 				StacksHealedOrResurrected::HealInfo hi;
 				hi.stackID = (attackedCre)->ID;
 				if (stack) //casted by creature
@@ -4394,12 +4407,6 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 		{
 			for(auto & attackedCre : attackedCres)
 			{
-				if((attackedCre)->hasBonusOfType(Bonus::UNDEAD) || (attackedCre)->hasBonusOfType(Bonus::NON_LIVING)) //this creature is immune
-				{
-					sc.dmgToDisplay = 0; //TODO: handle Death Stare for multiple targets (?)
-					continue;
-				}
-
 				BattleStackAttacked bsa;
 				bsa.flags |= BattleStackAttacked::EFFECT;
 				bsa.effect = spell->mainEffectAnim; //from config\spell-Info.txt
@@ -5983,12 +5990,9 @@ void CGameHandler::runBattle()
 
 			if(next->getCreature()->idNumber == CreatureID::FIRST_AID_TENT)
 			{
-				std::vector< const CStack * > possibleStacks;
-
-				//is there any clean algorithm for that? (boost.range seems to lack copy_if) -> remove_copy_if?
-				for(const CStack *s : battleGetAllStacks())
-					if(s->owner == next->owner  &&  s->canBeHealed())
-						possibleStacks.push_back(s);
+				TStacks possibleStacks = battleGetStacksIf([&](const CStack * s){
+					return s->owner == next->owner  &&  s->canBeHealed();
+				});
 
 				if(!possibleStacks.size())
 				{

@@ -177,29 +177,36 @@ bool CBattleInfoEssentials::battleHasNativeStack(ui8 side) const
 	return false;
 }
 
-TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets /*= false*/) const /*returns all stacks, alive or dead or undead or mechanical :) */
+TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets /*= false*/) const
+{
+	return battleGetStacksIf([](const CStack * s){return true;},includeTurrets);
+}
+
+TStacks CBattleInfoEssentials::battleGetStacksIf(TStackFilter predicate, bool includeTurrets /*= false*/) const
 {
 	TStacks ret;
 	RETURN_IF_NOT_BATTLE(ret);
-	boost::copy(getBattle()->stacks, std::back_inserter(ret));
-	if(!includeTurrets)
-		vstd::erase_if(ret, [](const CStack *stack) { return stack->type->idNumber == CreatureID::ARROW_TOWERS; });
-
+	
+	vstd::copy_if(getBattle()->stacks, std::back_inserter(ret), [=](const CStack * s){
+		return predicate(s) && (includeTurrets || !(s->type->idNumber == CreatureID::ARROW_TOWERS));
+	});
+	
 	return ret;
 }
 
+
 TStacks CBattleInfoEssentials::battleAliveStacks() const
 {
-	TStacks ret;
-	vstd::copy_if(battleGetAllStacks(), std::back_inserter(ret), [](const CStack *s){ return s->alive(); });
-	return ret;
+	return battleGetStacksIf([](const CStack * s){
+		return s->alive();
+	});
 }
 
 TStacks CBattleInfoEssentials::battleAliveStacks(ui8 side) const
 {
-	TStacks ret;
-	vstd::copy_if(battleGetAllStacks(), std::back_inserter(ret), [=](const CStack *s){ return s->alive()  &&  s->attackerOwned == !side; });
-	return ret;
+	return battleGetStacksIf([=](const CStack * s){
+		return s->alive() && s->attackerOwned == !side;
+	});
 }
 
 int CBattleInfoEssentials::battleGetMoatDmg() const
@@ -2022,24 +2029,10 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 
 	const ui8 attackerSide = playerToSide(attackerOwner) == 1;
 	const auto attackedHexes = spell->rangeInHexes(destinationTile, skillLevel, attackerSide);
-	const bool onlyAlive = !spell->isRisingSpell(); //when casting resurrection or animate dead we should be allow to select dead stack
-
+	
 	const CSpell::TargetInfo ti = spell->getTargetInfo(skillLevel);
 	//TODO: more generic solution for mass spells
-	if(spell->id == SpellID::DEATH_RIPPLE || spell->id == SpellID::DESTROY_UNDEAD )
-	{
-		for(const CStack *stack : battleGetAllStacks())
-		{
-			if((spell->id == SpellID::DEATH_RIPPLE && !stack->getCreature()->isUndead()) //death ripple
-				|| (spell->id == SpellID::DESTROY_UNDEAD && stack->getCreature()->isUndead()) //destroy undead
-				)
-			{
-				if(stack->isValidTarget())
-					attackedCres.insert(stack);
-			}
-		}
-	}
-	else if (spell->id == SpellID::CHAIN_LIGHTNING)
+	if (spell->id == SpellID::CHAIN_LIGHTNING)
 	{
 		std::set<BattleHex> possibleHexes;
 		for (auto stack : battleGetAllStacks())
@@ -2074,7 +2067,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	{
 		for(BattleHex hex : attackedHexes)
 		{
-			if(const CStack * st = battleGetStackByPos(hex, onlyAlive))
+			if(const CStack * st = battleGetStackByPos(hex, ti.onlyAlive))
 			{
 				if (spell->id == SpellID::DEATH_CLOUD) //Death Cloud //TODO: fireball and fire immunity
 				{
@@ -2090,31 +2083,24 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	}
 	else if(spell->getTargetType() == CSpell::CREATURE)
 	{
-		//start with all stacks. 
-		TStacks stacks = battleGetAllStacks();
+		auto predicate = [=](const CStack * s){
+			const bool positiveToAlly = spell->isPositive() && s->owner == attackerOwner;
+			const bool negativeToEnemy = spell->isNegative() && s->owner != attackerOwner;
+			const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
+	
+			//for single target spells select stacks covering destination tile
+			const bool rangeCovers = ti.massive || s->coversPos(destinationTile);
+			//handle smart targeting
+			const bool positivenessFlag = !ti.smart || spell->isNeutral() || positiveToAlly || negativeToEnemy;
+			
+			return rangeCovers  && positivenessFlag && validTarget;		
+		};
 		
-		//for single target spells remove stacks from other hexes
-		if(!ti.massive)
-		{
-			vstd::erase_if(stacks,[&](const CStack * stack){
-				return !vstd::contains(stack->getHexes(), destinationTile);
-			});
-		}
+		TStacks stacks = battleGetStacksIf(predicate);
 		
-		//now handle smart targeting and remove invalid targets
-		const bool smartNegative = ti.smart && spell->isNegative();
-		const bool smartPositive = ti.smart && spell->isPositive();
-		
-		vstd::erase_if(stacks,[&](const CStack * stack){
-			const bool negativeToAlly = smartNegative && stack->owner == attackerOwner;
-			const bool positiveToEnemy = smartPositive && stack->owner != attackerOwner;
-			const bool invalidTarget = !stack->isValidTarget(!onlyAlive); //todo: this should be handled by spell class
-			return negativeToAlly || positiveToEnemy || invalidTarget;
-		});
-
 		if (ti.massive)
 		{
-			//for massive spells add all remaining targets
+			//for massive spells add all targets
 			for (auto stack : stacks)
 				attackedCres.insert(stack);
 
@@ -2141,7 +2127,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 	{
 		for(BattleHex hex : attackedHexes)
 		{
-			if(const CStack * st = battleGetStackByPos(hex, onlyAlive))
+			if(const CStack * st = battleGetStackByPos(hex, ti.onlyAlive))
 				attackedCres.insert(st);
 		}
 	}
@@ -2455,22 +2441,18 @@ bool CPlayerBattleCallback::battleCanFlee() const
 
 TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose /*= MINE_AND_ENEMY*/, bool onlyAlive /*= true*/) const
 {
-	TStacks ret;
-	RETURN_IF_NOT_BATTLE(ret);
 	if(whose != MINE_AND_ENEMY)
 	{
 		ASSERT_IF_CALLED_WITH_PLAYER
 	}
-	vstd::copy_if(battleGetAllStacks(), std::back_inserter(ret), [=](const CStack *s) -> bool
-	{
+	
+	return battleGetStacksIf([=](const CStack * s){
 		const bool ownerMatches = (whose == MINE_AND_ENEMY)
 			|| (whose == ONLY_MINE && s->owner == player)
 			|| (whose == ONLY_ENEMY && s->owner != player);
 		const bool alivenessMatches = s->alive()  ||  !onlyAlive;
-		return ownerMatches && alivenessMatches;
+		return ownerMatches && alivenessMatches;		
 	});
-
-	return ret;
 }
 
 int CPlayerBattleCallback::battleGetSurrenderCost() const
