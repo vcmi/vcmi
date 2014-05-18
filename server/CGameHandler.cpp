@@ -4057,9 +4057,21 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 	{
 		sc.affectedCres.insert (cre->ID);
 	}
-
+	
 	//checking if creatures resist
-	sc.resisted = gs->curB->calculateResistedStacks(spell, caster, secHero, attackedCres, casterColor, mode, usedSpellPower, spellLvl, gs->getRandomGenerator());
+	//resistance is applied only to negative spells
+	if(spell->isNegative())
+	{
+		for(auto s : attackedCres)
+		{
+			const int prob = std::min((s)->magicResistance(), 100); //probability of resistance in %
+			
+			if(gs->getRandomGenerator().nextInt(99) < prob)
+			{
+				sc.resisted.push_back(s->ID);
+			}
+		}
+	}
 
 	//calculating dmg to display
 	if (spellID == SpellID::DEATH_STARE || spellID == SpellID::ACID_BREATH_DAMAGE)
