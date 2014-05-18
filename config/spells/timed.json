@@ -7,6 +7,7 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"generalDamageReduction" : {
@@ -15,15 +16,6 @@
 						"duration" : "N_TURNS"
 					}
 				}
-			},
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
 			},
 			"expert":{
 				"range" : "X"
@@ -41,6 +33,7 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"generalDamageReduction" : {
@@ -49,15 +42,6 @@
 						"duration" : "N_TURNS"
 					}
 				}
-			},
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
 			},
 			"expert":{
 				"range" : "X"
@@ -78,6 +62,7 @@
 		//		
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"fireShield" : {
@@ -85,15 +70,6 @@
 						"duration" : "N_TURNS"
 					}
 				}
-			},
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
 			},
 			"expert":{
 				"range" : "X"
@@ -111,6 +87,7 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"spellDamageReduction" : {
@@ -119,15 +96,6 @@
 						"duration" : "N_TURNS"
 					}
 				}
-			},
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
 			},
 			"expert":{
 				"range" : "X"
@@ -145,6 +113,7 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"spellDamageReduction" : {
@@ -153,15 +122,6 @@
 						"duration" : "N_TURNS"
 					}
 				}
-			},
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
 			},
 			"expert":{
 				"range" : "X"
@@ -179,6 +139,7 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"spellDamageReduction" : {
@@ -187,15 +148,6 @@
 						"duration" : "N_TURNS"
 					}
 				}
-			},
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
 			},
 			"expert":{
 				"range" : "X"
@@ -213,6 +165,7 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"spellDamageReduction" : {
@@ -221,15 +174,6 @@
 						"duration" : "N_TURNS"
 					}
 				}
-			},
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
 			},
 			"expert":{
 				"range" : "X"
@@ -251,23 +195,10 @@
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"levelSpellImmunity" : {
+						"val" : 3,					
 						"type" : "LEVEL_SPELL_IMMUNITY",
 						"valueType" : "INDEPENDENT_MAX",
 						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"none":{
-				"effects" : {
-					"levelSpellImmunity" : {
-						"val" : 3
-					}
-				}
-			},
-			"basic":{
-				"effects" : {
-					"levelSpellImmunity" : {
-						"val" : 3
 					}
 				}
 			},
@@ -323,6 +254,7 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"alwaysMaximumDamage" : {
@@ -333,15 +265,6 @@
 						"duration" : "N_TURNS"
 					}
 				}
-			},
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
 			},
 			"expert":{
 				"range" : "X"
@@ -364,7 +287,8 @@
 			"cast": "CURSE"
 		},
 		"levels" : {
-			"none":{
+			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"alwaysMinimumDamage" : {
@@ -376,15 +300,6 @@
 						"duration" : "N_TURNS"
 					}
 				}
-			},
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
-				"range" : "0"
 			},
 			"expert":{
 				"range" : "X"
@@ -408,9 +323,11 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
+						"val" : 3,					
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.attack",
 						"effectRange" : "ONLY_MELEE_FIGHT",
@@ -418,24 +335,7 @@
 					}
 				}
 			},
-			"none":{
-				"range" : "0",
-				"effects" : {
-					"primarySkill" : {
-						"val" : 3
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"primarySkill" : {
-						"val" : 3
-					}
-				}
-			},
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"primarySkill" : {
 						"val" : 6
@@ -466,34 +366,19 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.attack",
+						"val" : 3,
 						"effectRange" : "ONLY_DISTANCE_FIGHT",
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"none":{
-				"range" : "0",
-				"effects" : {
-					"primarySkill" : {
-						"val" : 3
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"primarySkill" : {
-						"val" : 3
-					}
-				}
-			},
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"primarySkill" : {
 						"val" : 6
@@ -524,33 +409,19 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.attack",
+						"val" : -3,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"none":{
-				"range" : "0",
-				"effects" : {
-					"primarySkill" : {
-						"val" : -3
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"primarySkill" : {
-						"val" : -3
-					}
-				}
-			},
+
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"primarySkill" : {
 						"val" : -6
@@ -581,33 +452,18 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.defence",
+						"val" : 3,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"none":{
-				"range" : "0",
-				"effects" : {
-					"primarySkill" : {
-						"val" : 3
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"primarySkill" : {
-						"val" : 3
-					}
-				}
-			},
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"primarySkill" : {
 						"val" : 6
@@ -642,22 +498,9 @@
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.defence",
+						"val" : -3,						
 						"valueType" : "ADDITIVE_VALUE",
 						"duration" : "N_TURNS"
-					}
-				}
-			},
-			"none":{
-				"effects" : {
-					"primarySkill" : {
-						"val" : -3"
-					}
-				}
-			},
-			"basic":{
-				"effects" : {
-					"primarySkill" : {
-						"val" : -3
 					}
 				}
 			},
@@ -688,55 +531,30 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"attack" : {
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.attack",
+						"val" : 2,						
 						"duration" : "N_TURNS"
 					},
 					"defence" : {
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.defence",
+						"val" : 2,						
 						"duration" : "N_TURNS"
 					},
 					"stacksSpeed" : {
 						"addInfo" : 0,
 						"type" : "STACKS_SPEED",
+						"val" : 2,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"none":{
-				"range" : "0",
-				"effects" : {
-					"attack" : {
-						"val" : 2
-					},
-					"defence" : {
-						"val" : 2
-					},
-					"stacksSpeed" : {
-						"val" : 2
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"attack" : {
-						"val" : 2
-					},
-					"defence" : {
-						"val" : 2
-					},
-					"stacksSpeed" : {
-						"val" : 2
-					}
-				}
-			},
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"attack" : {
 						"val" : 4
@@ -776,32 +594,17 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"morale" : {
 						"type" : "MORALE",
+						"val" : 1,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"none":{
-				"range" : "0",
-				"effects" : {
-					"morale" : {
-						"val" : 1
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"morale" : {
-						"val" : 1
-					}
-				}
-			},
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"morale" : {
 						"val" : 2
@@ -839,32 +642,17 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"morale" : {
 						"type" : "MORALE",
+						"val" : -1,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"none":{
-				"range" : "0",
-				"effects" : {
-					"morale" : {
-						"val" : -1
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"morale" : {
-						"val" : -1
-					}
-				}
-			},
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"morale" : {
 						"val" : -2
@@ -902,32 +690,17 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"luck" : {
 						"type" : "LUCK",
+						"val" : 1,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"none":{
-				"range" : "0",
-				"effects" : {
-					"luck" : {
-						"val" : 1
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"luck" : {
-						"val" : 1
-					}
-				}
-			},
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"luck" : {
 						"val" : 2
@@ -958,32 +731,17 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"luck" : {
 						"type" : "LUCK",
+						"val" : -1,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"none":{
-				"range" : "0",
-				"effects" : {
-					"luck" : {
-						"val" : -1
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"luck" : {
-						"val" : -1
-					}
-				}
-			},
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"luck" : {
 						"val" : -2
@@ -1014,33 +772,18 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"stacksSpeed" : {
 						"addInfo" : 0,
 						"type" : "STACKS_SPEED",
+						"val" : 3,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"none":{
-				"range" : "0",
-				"effects" : {
-					"stacksSpeed" : {
-						"val" : 3
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"stacksSpeed" : {
-						"val" : 3
-					}
-				}
-			},
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"stacksSpeed" : {
 						"val" : 5
@@ -1074,34 +817,19 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"stacksSpeed" : {
 						"addInfo" : 0,
 						"type" : "STACKS_SPEED",
+						"val" : -25,						
 						"valueType" : "PERCENT_TO_ALL",
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"none":{
-				"range" : "0",
-				"effects" : {
-					"stacksSpeed" : {
-						"val" : -25
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"stacksSpeed" : {
-						"val" : -25
-					}
-				}
-			},
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"stacksSpeed" : {
 						"val" : -50
@@ -1191,21 +919,8 @@
 				"effects" : {
 					"inFrenzy" : {
 						"type" : "IN_FRENZY",
+						"val" : 100,						
 						"duration" : "STACK_GETS_TURN"
-					}
-				}
-			},
-			"none":{
-				"effects" : {
-					"inFrenzy" : {
-						"val" : 100
-					}
-				}
-			},
-			"basic":{
-				"effects" : {
-					"inFrenzy" : {
-						"val" : 100
 					}
 				}
 			},
@@ -1237,32 +952,17 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"additionalRetaliation" : {
 						"type" : "ADDITIONAL_RETALIATION",
+						"val" : 1,						
 						"duration" : "N_TURNS"
 					}
 				}
 			},
-			"none":{
-				"range" : "0",
-				"effects" : {
-					"additionalRetaliation" : {
-						"val" : 1
-					}
-				}
-			},
-			"basic":{
-				"range" : "0",
-				"effects" : {
-					"additionalRetaliation" : {
-						"val" : 1
-					}
-				}
-			},
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"additionalRetaliation" : {
 						"val" : 2
@@ -1290,6 +990,7 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"attacksNearestCreature" : {
@@ -1299,7 +1000,6 @@
 				}
 			},
 			"none":{
-				"range" : "0",
 				"effects" : {
 					"attacksNearestCreature" : {
 						"val" : 0
@@ -1307,7 +1007,6 @@
 				}
 			},
 			"basic":{
-				"range" : "0",
 				"effects" : {
 					"attacksNearestCreature" : {
 						"val" : 1
@@ -1406,6 +1105,7 @@
 		},
 		"levels" : {
 			"base":{
+				"range" : "0",			
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"forgetful" : {
@@ -1415,7 +1115,6 @@
 				}
 			},
 			"none":{
-				"range" : "0",
 				"effects" : {
 					"forgetful" : {
 						"val" : 0
@@ -1423,7 +1122,6 @@
 				}
 			},
 			"basic":{
-				"range" : "0",
 				"effects" : {
 					"forgetful" : {
 						"val" : 1
@@ -1431,7 +1129,6 @@
 				}
 			},
 			"advanced":{
-				"range" : "0",
 				"effects" : {
 					"forgetful" : {
 						"val" : 2

@@ -90,13 +90,7 @@
 			"cast": "DISPELL"
 		},
 		"levels" : {
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
+			"base":{
 				"range" : "0"
 			},
 			"expert":{
@@ -115,15 +109,7 @@
 		},
 		"levels" : {
 			"base":{
-				"targetModifier":{"smart":true}
-			},
-			"none":{
-				"range" : "0"
-			},
-			"basic":{
-				"range" : "0"
-			},
-			"advanced":{
+				"targetModifier":{"smart":true},
 				"range" : "0"
 			},
 			"expert":{
