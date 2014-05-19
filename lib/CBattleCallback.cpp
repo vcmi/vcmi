@@ -1569,87 +1569,33 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
 
-	// Get stack at destination hex -> subject of our spell.
-	const CStack * subject = battleGetStackByPos(dest, !spell->isRisingSpell()); //only alive if not rising spell
-
-	if(subject)
+	// Get all stacks at destination hex -> subject of our spell. only alive if not rising spell
+	TStacks stacks = battleGetStacksIf([=](const CStack * s){
+		return s->coversPos(dest) && (spell->isRisingSpell() || s->alive());
+	});
+	
+	if(!stacks.empty())
 	{
-		if (spell->isPositive() && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
-			return ESpellCastProblem::OK;
-
-		if (spell->isImmuneBy(subject)) //TODO: move all logic to spellhandler
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-
-		switch (spell->id) //TODO: more general logic for new spells?
+		bool allImmune = true;
+		
+		ESpellCastProblem::ESpellCastProblem problem;		
+		
+		for(auto s : stacks)
 		{
-		case SpellID::CLONE:
-			{
-				//can't clone already cloned creature
-				if (vstd::contains(subject->state, EBattleStackState::CLONED))
-					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-				//TODO: how about stacks casting Clone?
-				//currently Clone casted by stack is assumed Expert level
-				ui8 schoolLevel;
-				if (caster)
-				{
-					schoolLevel = caster->getSpellSchoolLevel(spell);
-				}
-				else
-				{
-					schoolLevel = 3;
-				}
-
-				if (schoolLevel < 3)
-				{
-					int maxLevel = (std::max(schoolLevel, (ui8)1) + 4);
-					int creLevel = subject->getCreature()->level;
-					if (maxLevel < creLevel) //tier 1-5 for basic, 1-6 for advanced, any level for expert
-						return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-				}
-			}
-			break;
-		case SpellID::DISPEL_HELPFUL_SPELLS:
-			{
-				TBonusListPtr spellBon = subject->getSpellBonuses();
-				bool hasPositiveSpell = false;
-				for(const Bonus * b : *spellBon)
-				{
-					if(SpellID(b->sid).toSpell()->isPositive())
-					{
-						hasPositiveSpell = true;
-						break;
-					}
-				}
-				if(!hasPositiveSpell)
-				{
-					return ESpellCastProblem::NO_SPELLS_TO_DISPEL;
-				}
-			}
-			break;
-		}
-
-		if (spell->isRisingSpell())
-		{
-			if(subject->count >= subject->baseAmount)
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+			ESpellCastProblem::ESpellCastProblem res = battleStackIsImmune(caster,spell,mode,s);
 			
-			if (caster) //FIXME: Archangels can cast immune stack
+			if(res == ESpellCastProblem::OK)
 			{
-				auto maxHealth = calculateHealedHP (caster, spell, subject);
-				if (maxHealth < subject->MaxHealth()) //must be able to rise at least one full creature
-					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+				allImmune = false;
+			}
+			else
+			{
+				problem = res;
 			}
 		}
-		else if(spell->id == SpellID::HYPNOTIZE && caster) //do not resist hypnotize casted after attack, for example
-		{
-			//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
-			ui64 subjectHealth = (subject->count - 1) * subject->MaxHealth() + subject->firstHPleft;
-			//apply 'damage' bonus for hypnotize, including hero specialty
-			ui64 maxHealth = calculateSpellBonus (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
-				* spell->power + spell->getPower(caster->getSpellSchoolLevel(spell)), spell, caster, subject);
-			if (subjectHealth > maxHealth)
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}
+		
+		if(allImmune)
+			return problem;
 	}
 	else //no target stack on this tile
 	{
@@ -1670,6 +1616,88 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 		}
 	}
 
+	return ESpellCastProblem::OK;
+}
+
+ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleStackIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, const CStack * subject) const
+{
+	if (spell->isPositive() && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
+		return ESpellCastProblem::OK;
+
+	if (spell->isImmuneBy(subject)) //TODO: move all logic to spellhandler
+		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+
+	switch (spell->id) //TODO: more general logic for new spells?
+	{
+	case SpellID::CLONE:
+		{
+			//can't clone already cloned creature
+			if (vstd::contains(subject->state, EBattleStackState::CLONED))
+				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+			//TODO: how about stacks casting Clone?
+			//currently Clone casted by stack is assumed Expert level
+			ui8 schoolLevel;
+			if (caster)
+			{
+				schoolLevel = caster->getSpellSchoolLevel(spell);
+			}
+			else
+			{
+				schoolLevel = 3;
+			}
+
+			if (schoolLevel < 3)
+			{
+				int maxLevel = (std::max(schoolLevel, (ui8)1) + 4);
+				int creLevel = subject->getCreature()->level;
+				if (maxLevel < creLevel) //tier 1-5 for basic, 1-6 for advanced, any level for expert
+					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+			}
+		}
+		break;
+	case SpellID::DISPEL_HELPFUL_SPELLS:
+		{
+			TBonusListPtr spellBon = subject->getSpellBonuses();
+			bool hasPositiveSpell = false;
+			for(const Bonus * b : *spellBon)
+			{
+				if(SpellID(b->sid).toSpell()->isPositive())
+				{
+					hasPositiveSpell = true;
+					break;
+				}
+			}
+			if(!hasPositiveSpell)
+			{
+				return ESpellCastProblem::NO_SPELLS_TO_DISPEL;
+			}
+		}
+		break;
+	}
+
+	if (spell->isRisingSpell())
+	{
+		if(subject->count >= subject->baseAmount)
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		
+		if (caster) //FIXME: Archangels can cast immune stack
+		{
+			auto maxHealth = calculateHealedHP (caster, spell, subject);
+			if (maxHealth < subject->MaxHealth()) //must be able to rise at least one full creature
+				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		}
+	}
+	else if(spell->id == SpellID::HYPNOTIZE && caster) //do not resist hypnotize casted after attack, for example
+	{
+		//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
+		ui64 subjectHealth = (subject->count - 1) * subject->MaxHealth() + subject->firstHPleft;
+		//apply 'damage' bonus for hypnotize, including hero specialty
+		ui64 maxHealth = calculateSpellBonus (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
+			* spell->power + spell->getPower(caster->getSpellSchoolLevel(spell)), spell, caster, subject);
+		if (subjectHealth > maxHealth)
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+	}	
+		
 	return ESpellCastProblem::OK;
 }
 
@@ -1715,7 +1743,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		auto stacks = spell->isNegative() ? battleAliveStacks(!side) : battleAliveStacks();
 		for(auto stack : stacks)
 		{
-			if(!battleIsImmune(castingHero, spell, mode, stack->position))
+			if( ESpellCastProblem::OK == battleStackIsImmune(castingHero, spell, mode, stack))
 			{
 				allStacksImmune = false;
 				break;
@@ -1757,7 +1785,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 			bool targetExists = false;
 			for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
 			{
-				bool immune = battleIsImmune(caster, spell, mode, stack->position) != ESpellCastProblem::OK;
+				bool immune =  ESpellCastProblem::OK != battleStackIsImmune(caster, spell, mode, stack);
 				bool casterStack = stack->owner == caster->getOwner();
 				
 				if(!immune)
@@ -1812,7 +1840,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor
 			
 			for(const CStack * stack : battleAliveStacks())
 			{
-				bool immune = battleIsImmune(caster, spell, mode, stack->position) != ESpellCastProblem::OK;
+				bool immune = ESpellCastProblem::OK != battleStackIsImmune(caster, spell, mode, stack);
 				bool casterStack = stack->owner == caster->getOwner();
 				
 				if(!immune)
