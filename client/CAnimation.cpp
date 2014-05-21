@@ -635,6 +635,7 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 	{
 		SDL_Surface *temp = surf;
 		// add RLE flag
+		#if 0
 		if (surf->format->palette)
 		{
 			const SDL_Color &c = temp->format->palette->colors[0];
@@ -643,6 +644,17 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 		}
 		else
 			SDL_SetColorKey(temp, SDL_RLEACCEL, 0);
+		#else
+		if (surf->format->palette)
+		{
+			const SDL_Color &c = temp->format->palette->colors[0];
+			SDL_SetColorKey(temp, (SDL_SRCCOLORKEY ),
+				SDL_MapRGB(temp -> format, c.r, c.g, c.b));
+		}
+		SDL_SetSurfaceRLE(temp, SDL_RLEACCEL);
+		
+		#endif
+		
 
 		// convert surface to enable RLE
 		surf = SDL_ConvertSurface(temp, temp->format, temp->flags);

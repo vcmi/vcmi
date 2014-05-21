@@ -173,23 +173,35 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 		add=0;
 
 	ret = SDL_CreateRGBSurface(SDL_SWSURFACE, FullWidth, FullHeight, 8, 0, 0, 0, 0);
+	
+	if(nullptr == ret)
+	{
+		logGlobal->errorStream() << __FUNCTION__ <<": Unable to create surface";
+		logGlobal->errorStream() << FullWidth << "X" << FullHeight;
+		logGlobal->errorStream() << SDL_GetError();
+		throw std::runtime_error("Unable to create surface");		
+	}
 
 	BaseOffset += sizeof(SSpriteDef);
 	int BaseOffsetor = BaseOffset;
 
+	#if 0
 	for(int i=0; i<256; ++i)
-	{
+	{		
 		SDL_Color pr;
 		pr.r = palette[i].r;
 		pr.g = palette[i].g;
 		pr.b = palette[i].b;
-		#if 0
 		pr.unused = palette[i].unused;
-		#else
-		pr.a = palette[i].a;
-		#endif // 0					
-		(*(ret->format->palette->colors+i))=pr;
+		(*(ret->format->palette->colors+i))=pr;		
 	}
+	#else
+	if(SDL_SetPaletteColors(ret->format->palette,palette,0,256) != 0)
+	{
+		throw std::runtime_error("Unable to set palette");	
+	}
+	
+	#endif
 
 	int ftcp=0;
 

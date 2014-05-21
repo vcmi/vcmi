@@ -401,6 +401,7 @@ void CGuiHandler::run()
 			if(curInt)
 				curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
 			
+			SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
 			SDL_RenderClear(mainRenderer);
 			SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL);
 

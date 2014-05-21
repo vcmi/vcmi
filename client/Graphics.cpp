@@ -141,6 +141,7 @@ void Graphics::initializeBattleGraphics()
 }
 Graphics::Graphics()
 {
+	#if 0
 	std::vector<Task> tasks; //preparing list of graphics to load
 	tasks += boost::bind(&Graphics::loadFonts,this);
 	tasks += boost::bind(&Graphics::loadPaletteAndColors,this);
@@ -153,6 +154,16 @@ Graphics::Graphics()
 
 	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
 	th.run();
+	#else
+	loadFonts();
+	loadPaletteAndColors();
+	loadHeroFlags();
+	initializeBattleGraphics();
+	loadErmuToPicture();
+	initializeImageLists();
+	resources32 = CDefHandler::giveDefEss("RESOURCE.DEF");
+	heroMoveArrows = CDefHandler::giveDefEss("ADAG.DEF");
+	#endif
 
 	for(auto & elem : heroMoveArrows->ourImages)
 	{
@@ -290,12 +301,19 @@ void Graphics::loadHeroFlags()
 	pr[3].first = &Graphics::flags4;
 	pr[3].second+=("AF00.DEF"),("AF01.DEF"),("AF02.DEF"),("AF03.DEF"),("AF04.DEF"),
 		("AF05.DEF"),("AF06.DEF"),("AF07.DEF");
+	#if 0
 	boost::thread_group grupa;
 	for(int g=3; g>=0; --g)
 	{
 		grupa.create_thread(boost::bind(&Graphics::loadHeroFlagsDetail, this, boost::ref(pr[g]), true));
 	}
 	grupa.join_all();
+	#else
+	for(auto p: pr)
+	{
+		loadHeroFlagsDetail(p,true);
+	}
+	#endif
     logGlobal->infoStream() << "Loading and transforming heroes' flags: "<<th.getDiff();
 }
 

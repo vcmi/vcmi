@@ -344,7 +344,11 @@ int main(int argc, char** argv)
 
 	if(!gNoGUI)
 	{
+		#if 0
 		if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO))
+		#else
+		if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE))
+		#endif
 		{
 			logGlobal->errorStream()<<"Something was wrong: "<< SDL_GetError();
 			exit(-1);
@@ -354,7 +358,7 @@ int main(int argc, char** argv)
 		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
 		logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
 	}
-
+#define DISABLE_VIDEO 1
 
 	CCS = new CClientState;
 	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler etc.)
@@ -371,14 +375,14 @@ int main(int argc, char** argv)
     logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
 
 
-
-#ifndef __ANDROID__
-	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
-	boost::thread loading(init);
-#else
+//
+//#ifndef __ANDROID__
+//	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
+//	boost::thread loading(init);
+//#else
 	// on Android threaded init is broken
 	init();
-#endif
+//#endif
 
 	if(!gNoGUI )
 	{
@@ -388,9 +392,9 @@ int main(int argc, char** argv)
 	}
 
 	CSDL_Ext::update(screen);
-#ifndef __ANDROID__
-	loading.join();
-#endif
+//#ifndef __ANDROID__
+//	loading.join();
+//#endif
     logGlobal->infoStream()<<"Initialization of VCMI (together): "<<total.getDiff();
 
 	if(!vm.count("battle"))
@@ -876,6 +880,10 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	}			
 	
 	screenBuf = bufOnScreen ? screen : screen2;
+
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
+	SDL_RenderClear(mainRenderer);
+	SDL_RenderPresent(mainRenderer);
 		
 	return true;	
 }
@@ -893,6 +901,9 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 
 	#if 0
 	SDL_EnableUNICODE(1);
+	#else
+
+		
 	#endif // 0
 
 	SDL_ShowCursor(SDL_DISABLE);
