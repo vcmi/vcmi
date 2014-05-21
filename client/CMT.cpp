@@ -842,13 +842,17 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	//logGlobal->infoStream() << "New screen flags: " << screen->flags;
 	SDL_FreeSurface(screen);
 
-	screen = SDL_CreateRGBSurface(0,w,h,bpp,0x00FF000,
+	screen = SDL_CreateRGBSurface(0,w,h,bpp,0x00FF0000,
                                         0x0000FF00,
                                         0x000000FF,
                                         0xFF000000);
 	if(nullptr == screen)
 	{
-		throw std::runtime_error("Unable to create surface\n");
+		logGlobal->errorStream() << "Unable to create surface";
+		logGlobal->errorStream() << w << " "<<  h << " "<< bpp;
+		
+		logGlobal->errorStream() << SDL_GetError();
+		throw std::runtime_error("Unable to create surface");
 	}	
 	
 	screenTexture = SDL_CreateTexture(mainRenderer,
@@ -858,7 +862,9 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 
 	if(nullptr == screenTexture)
 	{
-		throw std::runtime_error("Unable to create screen texture\n");
+		logGlobal->errorStream() << "Unable to create screen texture";
+		logGlobal->errorStream() << SDL_GetError();
+		throw std::runtime_error("Unable to create screen texture");
 	}	
 		
 	screen2 = CSDL_Ext::copySurface(screen);
