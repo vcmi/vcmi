@@ -139,7 +139,7 @@ bool CBIKHandler::open(std::string name)
         logGlobal->errorStream() << "BIK handler: failed to open " << name;
 		goto checkErrorAndClean;
 	}
-	//GCC wants scope of waveout to dont cross labels/swith/goto
+	//GCC wants scope of waveout to don`t cross labels/swith/goto
     {
 		void *waveout = GetProcAddress(dll,"_BinkOpenWaveOut@4");
 		if(waveout)

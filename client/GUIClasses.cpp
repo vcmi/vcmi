@@ -5761,7 +5761,7 @@ void CHillFortWindow::showAll (SDL_Surface *to)
 
 std::string CHillFortWindow::getTextForSlot(SlotID slot)
 {
-	if ( !hero->getCreature(slot) )//we dont have creature here
+	if ( !hero->getCreature(slot) )//we don`t have creature here
 		return "";
 
 	std::string str = CGI->generaltexth->allTexts[318];

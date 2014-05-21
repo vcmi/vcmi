@@ -412,20 +412,20 @@ void TryMoveHero::applyGs( CGameState *gs )
 		auto dir = getDir(start,end);
 		if(dir > 0  &&  dir <= 8)
 			h->moveDir = dir;
-		//else dont change movedir - hero might have traversed the subterranean gate, dorectopm shpuld be kept
+		//else don`t change move direction - hero might have traversed the subterranean gate, direction should be kept
 	}
 
-	if(result == EMBARK) //hero enters boat at dest tile
+	if(result == EMBARK) //hero enters boat at destination tile
 	{
 		const TerrainTile &tt = gs->map->getTile(CGHeroInstance::convertPosition(end, false));
-		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only vis obj at dest is Boat
+		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only visitable object at destination is Boat
 		CGBoat *boat = static_cast<CGBoat*>(tt.visitableObjects.back());
 
 		gs->map->removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
 		h->boat = boat;
 		boat->hero = h;
 	}
-	else if(result == DISEMBARK) //hero leaves boat to dest tile
+	else if(result == DISEMBARK) //hero leaves boat to destination tile
 	{
 		CGBoat *b = const_cast<CGBoat *>(h->boat);
 		b->direction = h->moveDir;

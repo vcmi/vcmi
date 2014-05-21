@@ -342,7 +342,7 @@ protected:
 public:
 	EAlignment alignment;
 	EFonts font;
-	SDL_Color color; // default font color. Can be overriden by placing "{}" into the string
+	SDL_Color color; // default font color. Can be overridden by placing "{}" into the string
 };
 
 /// Label which shows text

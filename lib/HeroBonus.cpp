@@ -1363,7 +1363,7 @@ int CCreatureTypeLimiter::limit(const BonusLimitationContext &context) const
 	if(!c)
 		return true;
 	return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c));
-	//drop bonus if it's not our creature and (we dont check upgrades or its not our upgrade)
+	//drop bonus if it's not our creature and (we don`t check upgrades or its not our upgrade)
 }
 
 CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, bool IncludeUpgrades /*= true*/)
