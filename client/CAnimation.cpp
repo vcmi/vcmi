@@ -157,7 +157,11 @@ CDefFile::CDefFile(std::string Name):
 		palette[i].r = data[it++];
 		palette[i].g = data[it++];
 		palette[i].b = data[it++];
+		#if 0
 		palette[i].unused = 255;
+		#else
+		palette[i].a = 255;
+		#endif // 0		
 	}
 	if (type == 71 || type == 64)//Buttons/buildings don't have shadows\semi-transparency
 		memset(palette, 0, sizeof(SDL_Color)*2);
@@ -356,7 +360,6 @@ void SDLImageLoader::init(Point SpriteSize, Point Margins, Point FullSize, SDL_C
 	//Prepare surface
 	SDL_SetColors(image->surf, pal, 0, 256);
 	SDL_LockSurface(image->surf);
-
 	lineStart = position = (ui8*)image->surf->pixels;
 }
 
@@ -387,7 +390,11 @@ inline void SDLImageLoader::EndLine()
 SDLImageLoader::~SDLImageLoader()
 {
 	SDL_UnlockSurface(image->surf);
+	#if 0
 	SDL_SetColorKey(image->surf, SDL_SRCCOLORKEY, 0);
+	#else
+	SDL_SetColorKey(image->surf, SDL_TRUE, 0);
+	#endif // 0	
 	//TODO: RLE if compressed and bpp>1
 }
 
@@ -444,8 +451,14 @@ inline ui8 CompImageLoader::typeOf(ui8 color)
 {
 	if (color == 0)
 		return 0;
+	#if 0
 	if (image->palette[color].unused != 255)
 		return 1;
+	#else
+	if (image->palette[color].a != 255)
+		return 1;
+	#endif // 0
+		
 	return 2;
 }
 
@@ -797,13 +810,21 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 			for (size_t i=0; i<size; i++)
 			{
 				SDL_Color col = palette[*(data++)];
+				#if 0
 				col.unused = (ui32)col.unused*alpha/255;
+				#else
+				col.a = (ui32)col.a*alpha/255;
+				#endif // 0				
 				ColorPutter<bpp, 1>::PutColorAlpha(dest, col);
 			}
 			return;
 		}
-
+		
+		#if 0
 		if (palette[color].unused == 255)
+		#else
+		if (palette[color].a == 255)
+		#endif // 0		
 		{
 			//Put row of RGB data
 			for (size_t i=0; i<size; i++)
@@ -820,6 +841,7 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 	//RLE-d sequence
 	else
 	{
+		#if 0
 		if (alpha != 255 && palette[type].unused !=0)//Per-surface alpha is set
 		{
 			SDL_Color col = palette[type];
@@ -827,9 +849,22 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 			for (size_t i=0; i<size; i++)
 				ColorPutter<bpp, 1>::PutColorAlpha(dest, col);
 			return;
-		}
+		}	
 
 		switch (palette[type].unused)
+				
+		#else
+		if (alpha != 255 && palette[type].a !=0)//Per-surface alpha is set
+		{
+			SDL_Color col = palette[type];
+			col.a = (int)col.a*(255-alpha)/255;
+			for (size_t i=0; i<size; i++)
+				ColorPutter<bpp, 1>::PutColorAlpha(dest, col);
+			return;
+		}
+		
+		switch (palette[type].a)
+		#endif // 0
 		{
 			case 0:
 			{
@@ -873,7 +908,11 @@ void CompImage::playerColored(PlayerColor player)
 		palette[224+i].r = pal[i].r;
 		palette[224+i].g = pal[i].g;
 		palette[224+i].b = pal[i].b;
+		#if 0
 		palette[224+i].unused = pal[i].unused;
+		#else
+		palette[224+i].a = pal[i].a;
+		#endif // 0		
 	}
 }
 

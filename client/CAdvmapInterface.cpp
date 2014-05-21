@@ -294,7 +294,12 @@ void CResDataBar::clickRight(tribool down, bool previousState)
 CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist)
 {
 	bg = BitmapHandler::loadBitmap(defname);
+	#if 0
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	#else
+	SDL_SetColorKey(bg,SDL_TRUE,SDL_MapRGB(bg->format,0,255,255));
+	#endif
+	
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h, bg->w, pos.x+x, pos.y+y);
 
@@ -313,7 +318,11 @@ CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int
 CResDataBar::CResDataBar()
 {
 	bg = BitmapHandler::loadBitmap(ADVOPT.resdatabarG);
+	#if 0
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	#else
+	SDL_SetColorKey(bg,SDL_TRUE,SDL_MapRGB(bg->format,0,255,255));
+	#endif
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h,bg->w,ADVOPT.resdatabarX,ADVOPT.resdatabarY);
 
@@ -921,8 +930,12 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			//numpad arrow
 			if(CGuiHandler::isArrowKey(SDLKey(k)))
 				k = CGuiHandler::arrowToNum(SDLKey(k));
-
+			
+			#if 0
 			k -= SDLK_KP0 + 1;
+			#else
+			k -= SDL_SCANCODE_KP_0 + 1;
+			#endif // 0			
 			if(k < 0 || k > 8)
 				return;
 

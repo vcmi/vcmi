@@ -133,8 +133,12 @@ void CPicture::convertToScreenBPP()
 }
 
 void CPicture::setAlpha(int value)
-{
-	SDL_SetAlpha(bg, SDL_SRCALPHA, value);
+{	
+	#if 0
+	SDL_SetAlpha(bg, SDL_SRCALPHA, value);	
+	#else
+	SDL_SetSurfaceAlphaMod(bg,value);
+	#endif // 0
 }
 
 void CPicture::scaleTo(Point size)
@@ -285,7 +289,11 @@ void CButtonBase::block(bool on)
 CAdventureMapButton::CAdventureMapButton ()
 {
 	hoverable = actOnDown = borderEnabled = soundDisabled = false;
+	#if 0
 	borderColor.unused = 1; // represents a transparent color, used for HighlightableButton
+	#else
+	borderColor.a = 1; // represents a transparent color, used for HighlightableButton
+	#endif // 0	
 	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
 }
 
@@ -404,7 +412,11 @@ void CAdventureMapButton::init(const CFunctionList<void()> &Callback, const std:
 	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
 	callback = Callback;
 	hoverable = actOnDown = borderEnabled = soundDisabled = false;
+	#if 0
 	borderColor.unused = 1; // represents a transparent color, used for HighlightableButton
+	#else
+	borderColor.a = 1; // represents a transparent color, used for HighlightableButton
+	#endif // 0	
 	hoverTexts = Name;
 	helpBox=HelpBox;
 
@@ -452,9 +464,14 @@ void CAdventureMapButton::setPlayerColor(PlayerColor player)
 void CAdventureMapButton::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-
+	
+	#if 0
 	if (borderEnabled && borderColor.unused == 0)
-		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor.r, borderColor.g, borderColor.b));
+		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor.r, borderColor.g, borderColor.b));	
+	#else
+	if (borderEnabled && borderColor.a == 0)
+		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor.r, borderColor.g, borderColor.b));	
+	#endif // 0
 }
 
 void CHighlightableButton::select(bool on)
@@ -1604,19 +1621,24 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 			text.resize(text.size()-1);
 		break;
 	default:
+		#if 0
 		if (key.keysym.unicode < ' ')
 			return;
 		else
 			text += key.keysym.unicode; //TODO 16-/>8
+		#endif // 0
 		break;
 	}
-
+	#if 0
 	filters(text, oldText);
 	if (text != oldText)
 	{
 		redraw();
 		cb(text);
 	}
+	#endif // 0
+	
+	//todo: handle text input for SDL2
 }
 
 void CTextInput::setText( const std::string &nText, bool callCb )
@@ -1630,12 +1652,16 @@ bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
 {
 	if(key.keysym.sym == SDLK_RETURN || key.keysym.sym == SDLK_KP_ENTER)
 		return false;
-
+	
+	#if 0
 	//this should allow all non-printable keys to go through (for example arrows)
 	if (key.keysym.unicode < ' ')
 		return false;
 
 	return true;
+	#else
+	return false; //todo:CTextInput::captureThisEvent
+	#endif
 }
 
 void CTextInput::filenameFilter(std::string & text, const std::string &)

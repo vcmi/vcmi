@@ -178,7 +178,11 @@ CCreatureAnimation::CCreatureAnimation(std::string name, TSpeedController contro
 		elem.r = reader.readUInt8();
 		elem.g = reader.readUInt8();
 		elem.b = reader.readUInt8();
+		#if 0
 		elem.unused = 0;
+		#else
+		elem.a = 0;
+		#endif		
 	}
 
 	for (int i=0; i<totalBlocks; i++)
@@ -267,7 +271,11 @@ static SDL_Color genShadow(ui8 alpha)
 
 static SDL_Color genBorderColor(ui8 alpha, const SDL_Color & base)
 {
+	#if 0
 	return CSDL_Ext::makeColor(base.r, base.g, base.b, ui8(base.unused * alpha / 256));
+	#else
+	return CSDL_Ext::makeColor(base.r, base.g, base.b, ui8(base.a * alpha / 256));
+	#endif
 }
 
 static ui8 mixChannels(ui8 c1, ui8 c2, ui8 a1, ui8 a2)
@@ -277,12 +285,22 @@ static ui8 mixChannels(ui8 c1, ui8 c2, ui8 a1, ui8 a2)
 
 static SDL_Color addColors(const SDL_Color & base, const SDL_Color & over)
 {
+	#if 0
 	return CSDL_Ext::makeColor(
-	            mixChannels(over.r, base.r, over.unused, base.unused),
-	            mixChannels(over.g, base.g, over.unused, base.unused),
-	            mixChannels(over.b, base.b, over.unused, base.unused),
-	            ui8(over.unused + base.unused * (255 - over.unused) / 256)
-	            );
+			mixChannels(over.r, base.r, over.unused, base.unused),
+			mixChannels(over.g, base.g, over.unused, base.unused),
+			mixChannels(over.b, base.b, over.unused, base.unused),
+			ui8(over.unused + base.unused * (255 - over.unused) / 256)
+			);
+	#else
+	return CSDL_Ext::makeColor(
+			mixChannels(over.r, base.r, over.a, base.a),
+			mixChannels(over.g, base.g, over.a, base.a),
+			mixChannels(over.b, base.b, over.a, base.a),
+			ui8(over.a + base.a * (255 - over.a) / 256)
+			);
+
+	#endif // 0
 }
 
 std::array<SDL_Color, 8> CCreatureAnimation::genSpecialPalette()
@@ -413,7 +431,11 @@ inline void CCreatureAnimation::putPixel(ui8 * dest, const SDL_Color & color, si
 	if (index < 8)
 	{
 		const SDL_Color & pal = special[index];
+		#if 0
 		ColorPutter<bpp, 0>::PutColor(dest, pal.r, pal.g, pal.b, pal.unused);
+		#else
+		ColorPutter<bpp, 0>::PutColor(dest, pal.r, pal.g, pal.b, pal.a);
+		#endif // 0		
 	}
 	else
 	{

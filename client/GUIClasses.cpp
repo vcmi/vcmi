@@ -3990,6 +3990,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		}
 	default:
 		{
+			#if 0
 			if(enteredText.size() > 0 && enteredText.size() < conf.go()->ac.inputLineLength)
 			{
 				if( key.keysym.unicode < 0x80 && key.keysym.unicode > 0 )
@@ -3999,6 +4000,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 					refreshEnteredText();
 				}
 			}
+			#endif // 0
 			break;
 		}
 	}

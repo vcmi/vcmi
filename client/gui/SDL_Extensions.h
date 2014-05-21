@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SDL_render.h>
 #include <SDL_video.h>
 #include <SDL_ttf.h>
 #include "../../lib/int3.h"
@@ -28,6 +29,53 @@
 #if SDL_VERSION_ATLEAST(1,3,0)
 #define SDL_GetKeyState SDL_GetKeyboardState
 #endif
+
+//compatibility stuff
+#if 0
+
+typedef Sint16 SDLX_Coord;
+typedef Uint16 SDLX_Size;
+
+#else
+
+extern SDL_Window * mainWindow;
+extern SDL_Renderer * mainRenderer;
+extern SDL_Texture * screenTexture;
+
+
+typedef int SDLX_Coord;
+typedef int SDLX_Size;
+
+typedef SDL_Keycode SDLKey;
+
+#define SDL_SRCCOLORKEY SDL_TRUE
+
+#define SDL_FULLSCREEN SDL_WINDOW_FULLSCREEN
+
+inline void SDL_SetColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
+{
+	SDL_SetPaletteColors(surface->format->palette,colors,firstcolor,ncolors);
+}
+
+inline void SDL_WarpMouse(int x, int y)
+{
+	SDL_WarpMouseInWindow(mainWindow,x,y);
+}
+
+inline void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
+{
+	Rect rect(x,y,w,h);
+	SDL_UpdateTexture(screenTexture, &rect, surface->pixels, surface->pitch);
+
+	SDL_RenderClear(mainRenderer);
+	SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL);
+
+	SDL_RenderPresent(mainRenderer);	
+	
+}
+
+
+#endif // 0
 
 struct Rect;
 

@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CGuiHandler.h"
 
-#include "SDL_Extensions.h"
+
 #include "CIntObject.h"
 #include "../CGameInfo.h"
 #include "CCursorHandler.h"
@@ -264,6 +264,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 				}
 			}
 		}
+		#if 0
 		else if(sEvent->button.button == SDL_BUTTON_WHEELDOWN || sEvent->button.button == SDL_BUTTON_WHEELUP)
 		{
 			std::list<CIntObject*> hlp = wheelInterested;
@@ -273,7 +274,20 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 				(*i)->wheelScrolled(sEvent->button.button == SDL_BUTTON_WHEELDOWN, isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y));
 			}
 		}
+		#endif
 	}
+	#if 0 
+	#else
+	else if ((sEvent->type == SDL_MOUSEWHEEL))
+	{
+		std::list<CIntObject*> hlp = wheelInterested;
+		for(auto i=hlp.begin(); i != hlp.end() && current; i++)
+		{
+			if(!vstd::contains(wheelInterested,*i)) continue;
+			(*i)->wheelScrolled(sEvent->wheel.y < 0, isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y));
+		}		
+	}
+	#endif // 0
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
 		std::list<CIntObject*> hlp = lclickable;
@@ -386,6 +400,11 @@ void CGuiHandler::run()
 		{
 			if(curInt)
 				curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
+			
+			SDL_RenderClear(mainRenderer);
+			SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL);
+
+			SDL_RenderPresent(mainRenderer);
 
 			mainFPSmng->framerateDelay(); // holds a constant FPS
 		}
@@ -432,6 +451,7 @@ void CGuiHandler::drawFPSCounter()
 
 SDLKey CGuiHandler::arrowToNum( SDLKey key )
 {
+	#if 0
 	switch(key)
 	{
 	case SDLK_DOWN:
@@ -444,14 +464,34 @@ SDLKey CGuiHandler::arrowToNum( SDLKey key )
 		return SDLK_KP6;
 	default:
 		assert(0);
-	}
+	}	
+	#else
+	switch(key)
+	{
+	case SDLK_DOWN:
+		return SDLK_KP_2;
+	case SDLK_UP:
+		return SDLK_KP_8;
+	case SDLK_LEFT:
+		return SDLK_KP_4;
+	case SDLK_RIGHT:
+		return SDLK_KP_6;
+	default:
+		assert(0);
+	}	
+	#endif // 0
 	throw std::runtime_error("Wrong key!");
 }
 
 SDLKey CGuiHandler::numToDigit( SDLKey key )
 {
+#if 0
 	if(key >= SDLK_KP0 && key <= SDLK_KP9)
 		return SDLKey(key - SDLK_KP0 + SDLK_0);
+#else
+	if(key >= SDLK_KP_0 && key <= SDLK_KP_9)
+		return SDLKey(key - SDLK_KP_0 + SDLK_0);
+#endif // 0
 
 #define REMOVE_KP(keyName) case SDLK_KP_ ## keyName : return SDLK_ ## keyName;
 	switch(key)
@@ -475,10 +515,17 @@ SDLKey CGuiHandler::numToDigit( SDLKey key )
 
 bool CGuiHandler::isNumKey( SDLKey key, bool number )
 {
+	#if 0
 	if(number)
 		return key >= SDLK_KP0 && key <= SDLK_KP9;
 	else
 		return key >= SDLK_KP0 && key <= SDLK_KP_EQUALS;
+	#else
+	if(number)
+		return key >= SDLK_KP_0 && key <= SDLK_KP_9;
+	else
+		return key >= SDLK_KP_0 && key <= SDLK_KP_EQUALS;
+	#endif // 0
 }
 
 bool CGuiHandler::isArrowKey( SDLKey key )

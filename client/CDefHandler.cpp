@@ -67,7 +67,11 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 		palette[it].r = de.palette[it].R;
 		palette[it].g = de.palette[it].G;
 		palette[it].b = de.palette[it].B;
+		#if 0
 		palette[it].unused = 255;
+		#else
+		palette[it].a = 255;
+		#endif // 0		
 	}
 
 	// The SDefEntryBlock starts just after the SDefEntry
@@ -179,7 +183,11 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 		pr.r = palette[i].r;
 		pr.g = palette[i].g;
 		pr.b = palette[i].b;
+		#if 0
 		pr.unused = palette[i].unused;
+		#else
+		pr.a = palette[i].a;
+		#endif // 0					
 		(*(ret->format->palette->colors+i))=pr;
 	}
 
@@ -347,8 +355,14 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 	}
 
 	SDL_Color ttcol = ret->format->palette->colors[0];
-	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.unused);
-	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, keycol);
+	#if 0
+	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.unused);	
+	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, keycol);	
+	#else
+	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.a);	
+	SDL_SetColorKey(ret, SDL_TRUE, keycol);	
+	#endif // 0
+
 	return ret;
 }
 

@@ -62,7 +62,11 @@ void Graphics::loadPaletteAndColors()
 		col.r = pals[startPoint++];
 		col.g = pals[startPoint++];
 		col.b = pals[startPoint++];
+		#if 0
 		col.unused = 255;
+		#else
+		col.a = 255;
+		#endif // 0		
 		startPoint++;
 		playerColorPalette[i] = col;
 	}
@@ -77,12 +81,18 @@ void Graphics::loadPaletteAndColors()
 		neutralColorPalette[i].r = reader.readUInt8();
 		neutralColorPalette[i].g = reader.readUInt8();
 		neutralColorPalette[i].b = reader.readUInt8();
+		#if 0
 		neutralColorPalette[i].unused = reader.readUInt8();
 		neutralColorPalette[i].unused = !neutralColorPalette[i].unused;
+		#else
+		neutralColorPalette[i].a = reader.readUInt8();
+		neutralColorPalette[i].a = !neutralColorPalette[i].a;
+		#endif // 0
 	}
 	//colors initialization
 	int3 kolory[] = {int3(0xff,0,0),int3(0x31,0x52,0xff),int3(0x9c,0x73,0x52),int3(0x42,0x94,0x29),
 		int3(0xff,0x84,0x0),int3(0x8c,0x29,0xa5),int3(0x09,0x9c,0xa5),int3(0xc6,0x7b,0x8c)};
+	#if 0
 	for(int i=0;i<8;i++)
 	{
 		playerColors[i].r = kolory[i].x;
@@ -91,6 +101,16 @@ void Graphics::loadPaletteAndColors()
 		playerColors[i].unused = 255;
 	}
 	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->unused = 255;//gray
+	#else
+	for(int i=0;i<8;i++)
+	{
+		playerColors[i].r = kolory[i].x;
+		playerColors[i].g = kolory[i].y;
+		playerColors[i].b = kolory[i].z;
+		playerColors[i].a = 255;
+	}
+	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->a = 255;//gray
+	#endif // 0
 }
 
 void Graphics::initializeBattleGraphics()
