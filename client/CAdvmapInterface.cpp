@@ -732,9 +732,8 @@ void CAdvMapInt::show(SDL_Surface * to)
 	if((animValHitCount % (4/scrollSpeed)) == 0
 		&&  (
 			(GH.topInt() == this)
-			|| SDL_GetKeyState(nullptr)[SDLK_LCTRL]
-			|| SDL_GetKeyState(nullptr)[SDLK_RCTRL]
-)
+			|| isCtrlKeyDown()
+		)
 	)
 	{
 		if( (scrollingDir & LEFT)   &&  (position.x>-CGI->mh->frameW) )
@@ -1054,7 +1053,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 {
 	//adventure map scrolling with mouse
-	if(!SDL_GetKeyState(nullptr)[SDLK_LCTRL]  &&  isActive())
+	if(!isCtrlKeyDown() &&  isActive())
 	{
 		if(sEvent.x<15)
 		{

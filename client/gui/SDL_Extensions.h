@@ -73,9 +73,35 @@ inline void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
 	SDL_RenderPresent(mainRenderer);	
 	
 }
-
-
 #endif // 0
+
+inline bool isCtrlKeyDown()
+{
+	#if 0
+	return SDL_GetKeyState(nullptr)[SDLK_LCTRL] || SDL_GetKeyState(nullptr)[SDLK_RCTRL];
+	#else
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
+	#endif // 0	
+}
+
+inline bool isAltKeyDown()
+{
+	#if 0
+	return SDL_GetKeyState(nullptr)[SDLK_LALT] || SDL_GetKeyState(nullptr)[SDLK_RALT];
+	#else
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LALT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RALT];
+	#endif // 0	
+}
+
+inline bool isShiftKeyDown()
+{
+	#if 0
+	return SDL_GetKeyState(nullptr)[SDLK_LSHIFT] || SDL_GetKeyState(nullptr)[SDLK_RSHIFT];
+	#else
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RSHIFT];
+	#endif // 0	
+}
+
 
 struct Rect;
 
