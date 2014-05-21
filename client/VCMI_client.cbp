@@ -45,7 +45,7 @@
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add directory="$(#boost.include)" />
-			<Add directory="$(#sdl.include)" />
+			<Add directory="$(#sdl2.include)" />
 			<Add directory="../include" />
 			<Add directory="../client" />
 		</Compiler>
@@ -58,13 +58,13 @@
 			<Add option="-lboost_system$(#boost.libsuffix)" />
 			<Add option="-lboost_thread$(#boost.libsuffix)" />
 			<Add option="-lboost_chrono$(#boost.libsuffix)" />
-			<Add option="-lSDL" />
-			<Add option="-lSDL_image" />
-			<Add option="-lSDL_mixer" />
-			<Add option="-lSDL_ttf" />
+			<Add option="-lSDL2.dll" />
+			<Add option="-lSDL2_image.dll" />
+			<Add option="-lSDL2_mixer.dll" />
+			<Add option="-lSDL2_ttf.dll" />
 			<Add option="-lVCMI_lib" />
 			<Add directory="$(#boost.lib32)" />
-			<Add directory="$(#sdl.lib)" />
+			<Add directory="$(#sdl2.lib)" />
 			<Add directory="../" />
 		</Linker>
 		<Unit filename="../CCallback.cpp" />
