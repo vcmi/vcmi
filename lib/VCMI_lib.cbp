@@ -50,14 +50,15 @@
 			<Add option="-DVCMI_DLL" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
+			<Add directory="$(#zlib.include)" />
 			<Add directory="$(#boost.include)" />
-			<Add directory="$(#sdl.include)" />
+			<Add directory="$(#sdl2.include)" />
 			<Add directory="../include" />
 			<Add directory="../lib" />
 		</Compiler>
 		<Linker>
 			<Add option="-lws2_32" />
-			<Add option="-lzlib" />
+			<Add option="-lz" />
 			<Add option="-lminizip" />
 			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
 			<Add option="-lboost_system$(#boost.libsuffix)" />
@@ -65,7 +66,8 @@
 			<Add option="-lboost_chrono$(#boost.libsuffix)" />
 			<Add option="-lboost_locale$(#boost.libsuffix)" />
 			<Add directory="$(#boost.lib32)" />
-			<Add directory="$(#sdl.lib)" />
+			<Add directory="$(#zlib.lib)" />
+			<Add directory="$(#sdl2.lib)" />
 			<Add directory="../" />
 		</Linker>
 		<Unit filename="AI_Base.h" />

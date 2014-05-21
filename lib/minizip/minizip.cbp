@@ -36,11 +36,11 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add directory="$(#sdl.include)" />
+			<Add directory="$(#zlib.include)" />
 		</Compiler>
 		<Linker>
-			<Add option="-lzlib" />
-			<Add directory="$(#sdl.lib)" />
+			<Add option="-lz" />
+			<Add directory="$(#zlib.lib)" />
 		</Linker>
 		<Unit filename="ioapi.c">
 			<Option compilerVar="CC" />
