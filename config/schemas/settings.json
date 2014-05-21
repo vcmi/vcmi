@@ -63,7 +63,7 @@
 				},
 				"bitsPerPixel" : {
 					"type" : "number",
-					"default" : 24
+					"default" : 32
 				},
 				"fullscreen" : {
 					"type" : "boolean",

@@ -358,7 +358,6 @@ int main(int argc, char** argv)
 		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
 		logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
 	}
-#define DISABLE_VIDEO 1
 
 	CCS = new CClientState;
 	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler etc.)
