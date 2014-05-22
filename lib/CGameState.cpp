@@ -840,7 +840,7 @@ void CGameState::initNewGame()
 		CStopWatch sw;
 
 		// Gen map
-		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, std::time(nullptr));
+		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, scenarioOps->seedToBeUsed);
 		map = mapGenerator.generate();
 
 		// Update starting options
