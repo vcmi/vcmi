@@ -194,17 +194,17 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 		auto possiblePlayers = mapTemplate->getPlayers().getNumbers();
 		possiblePlayers.erase(possiblePlayers.begin(), possiblePlayers.lower_bound(countHumanPlayers()));
 		assert(!possiblePlayers.empty());
-		playerCount = *RandomGeneratorUtil::nextItem(possiblePlayers, rand);
+		playerCount = *std::next(possiblePlayers.begin(), rand.nextInt(8));
 		updatePlayers();
 	}
 	if(teamCount == RANDOM_SIZE)
 	{
-		teamCount = rand.nextInt(playerCount - 1);
+		teamCount = rand.nextInt(8);
 	}
 	if(compOnlyPlayerCount == RANDOM_SIZE)
 	{
 		auto possiblePlayers = mapTemplate->getCpuPlayers().getNumbers();
-		compOnlyPlayerCount = *RandomGeneratorUtil::nextItem(possiblePlayers, rand);
+		compOnlyPlayerCount = *std::next(possiblePlayers.begin(), rand.nextInt(8));
 		updateCompOnlyPlayers();
 	}
 	if(compOnlyTeamCount == RANDOM_SIZE)
@@ -220,11 +220,11 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 
 	if(waterContent == EWaterContent::RANDOM)
 	{
-		waterContent = static_cast<EWaterContent::EWaterContent>(rand.nextInt(2));
+		waterContent = static_cast<EWaterContent::EWaterContent>(rand.nextInt(EWaterContent::TOTAL_COUNT));
 	}
 	if(monsterStrength == EMonsterStrength::RANDOM)
 	{
-		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(2));
+		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(EMonsterStrength::TOTAL_COUNT));
 	}
 }
 

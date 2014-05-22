@@ -11,9 +11,14 @@
 
 #include "StdInc.h"
 #include "CRmgTemplateZone.h"
+#include "../mapping/CMapEditManager.h"
+#include "../mapping/CMap.h"
 
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
+
+class CMap;
+class CMapEditManager;
 
 CRmgTemplateZone::CTownInfo::CTownInfo() : townCount(0), castleCount(0), townDensity(0), castleDensity(0)
 {
@@ -62,6 +67,52 @@ void CRmgTemplateZone::CTownInfo::setCastleDensity(int value)
 {
 	if(value < 0) throw std::runtime_error("Negative value for castle density not allowed.");
 	castleDensity = value;
+}
+
+CRmgTemplateZone::CTileInfo::CTileInfo():nearestObjectDistance(INT_MAX), obstacle(false), occupied(false), terrain(ETerrainType::WRONG) 
+{
+
+}
+
+int CRmgTemplateZone::CTileInfo::getNearestObjectDistance() const
+{
+	return nearestObjectDistance;
+}
+
+void CRmgTemplateZone::CTileInfo::setNearestObjectDistance(int value)
+{
+	if(value < 0) throw std::runtime_error("Negative value for nearest object distance not allowed.");
+	nearestObjectDistance = value;
+}
+
+bool CRmgTemplateZone::CTileInfo::isObstacle() const
+{
+	return obstacle;
+}
+
+void CRmgTemplateZone::CTileInfo::setObstacle(bool value)
+{
+	obstacle = value;
+}
+
+bool CRmgTemplateZone::CTileInfo::isOccupied() const
+{
+	return occupied;
+}
+
+void CRmgTemplateZone::CTileInfo::setOccupied(bool value)
+{
+	occupied = value;
+}
+
+ETerrainType CRmgTemplateZone::CTileInfo::getTerrainType() const
+{
+	return terrain;
+}
+
+void CRmgTemplateZone::CTileInfo::setTerrainType(ETerrainType value)
+{
+	terrain = value;
 }
 
 CRmgTemplateZone::CRmgTemplateZone() : id(0), type(ETemplateZoneType::PLAYER_START), size(1),
@@ -213,4 +264,281 @@ boost::optional<TRmgTemplateZoneId> CRmgTemplateZone::getTownTypeLikeZone() cons
 void CRmgTemplateZone::setTownTypeLikeZone(boost::optional<TRmgTemplateZoneId> value)
 {
 	townTypeLikeZone = value;
+}
+
+bool CRmgTemplateZone::pointIsIn(int x, int y)
+{
+	int i, j;
+	bool c = false;
+	int nvert = shape.size();
+	for (i = 0, j = nvert-1; i < nvert; j = i++) {
+		if ( ((shape[i].y>y) != (shape[j].y>y)) &&
+			(x < (shape[j].x-shape[i].x) * (y-shape[i].y) / (shape[j].y-shape[i].y) + shape[i].x) )
+			c = !c;
+	}
+	return c;
+}
+
+void CRmgTemplateZone::setShape(std::vector<int3> shape)
+{
+	int z = -1;
+	si32 minx = INT_MAX;
+	si32 maxx = -1;
+	si32 miny = INT_MAX;
+	si32 maxy = -1;
+	for(auto &point : shape)
+	{
+		if (z == -1)
+			z = point.z;
+		if (point.z != z)
+			throw std::runtime_error("Zone shape points should lie on same z.");
+		minx = std::min(minx, point.x);
+		maxx = std::max(maxx, point.x);
+		miny = std::min(miny, point.y);
+		maxy = std::max(maxy, point.y);
+	}
+	this->shape = shape;
+	for(int x = minx; x <= maxx; ++x)
+	{
+		for(int y = miny; y <= maxy; ++y)
+		{
+			if (pointIsIn(x, y))
+			{
+				tileinfo[int3(x,y,z)] = CTileInfo();
+			}
+		}
+	}
+}
+
+int3 CRmgTemplateZone::getCenter()
+{
+	si32 cx = 0;
+	si32 cy = 0;
+	si32 area = 0;
+	si32 sz = shape.size();
+	//include last->first too
+	for(si32 i = 0, j = sz-1; i < sz; j = i++) {
+		si32 sf = (shape[i].x * shape[j].y - shape[j].x * shape[i].y);
+		cx += (shape[i].x + shape[j].x) * sf;
+		cy += (shape[i].y + shape[j].y) * sf;
+		area += sf;
+	}
+	area /= 2;
+	return int3(std::abs(cx/area/6), std::abs(cy/area/6), shape[0].z);
+}
+
+bool CRmgTemplateZone::fill(CMapGenerator* gen)
+{
+	std::vector<CGObjectInstance*> required_objects;
+	if ((type == ETemplateZoneType::CPU_START) || (type == ETemplateZoneType::PLAYER_START))
+	{
+		logGlobal->infoStream() << "Preparing playing zone";
+		int player_id = *owner - 1;
+		auto & playerInfo = gen->map->players[player_id];
+		if (playerInfo.canAnyonePlay())
+		{
+			PlayerColor player(player_id);
+			auto  town = new CGTownInstance();
+			town->ID = Obj::TOWN;
+			int townId = gen->mapGenOptions.getPlayersSettings().find(player)->second.getStartingTown();
+
+			if(townId == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
+				townId = gen->rand.nextInt (VLC->townh->factions.size()); // all possible towns
+
+			town->subID = townId;
+			town->tempOwner = player;
+			town->builtBuildings.insert(BuildingID::FORT);
+			town->builtBuildings.insert(BuildingID::DEFAULT);
+			
+			placeObject(gen, town, getCenter());
+			logGlobal->infoStream() << "Placed object";
+
+			logGlobal->infoStream() << "Fill player info " << player_id;
+			auto & playerInfo = gen->map->players[player_id];
+			// Update player info
+			playerInfo.allowedFactions.clear();
+			playerInfo.allowedFactions.insert(town->subID);
+			playerInfo.hasMainTown = true;
+			playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
+			playerInfo.generateHeroAtMainTown = true;
+
+			//required_objects.push_back(town);
+
+			std::vector<Res::ERes> required_mines;
+			required_mines.push_back(Res::ERes::WOOD);
+			required_mines.push_back(Res::ERes::ORE);
+
+			for(const auto res : required_mines)
+			{			
+				auto mine = new CGMine();
+				mine->ID = Obj::MINE;
+				mine->subID = static_cast<si32>(res);
+				mine->producedResource = res;
+				mine->producedQuantity = mine->defaultResProduction();
+				required_objects.push_back(mine);
+			}
+		}
+		else
+		{			
+			type = ETemplateZoneType::TREASURE;
+			logGlobal->infoStream() << "Skipping this zone cause no player";
+		}
+	}
+	logGlobal->infoStream() << "Creating required objects";
+	for(const auto &obj : required_objects)
+	{
+		int3 pos;
+		logGlobal->infoStream() << "Looking for place";
+		if ( ! findPlaceForObject(gen, obj, 3, pos))		
+		{
+			logGlobal->errorStream() << "Failed to fill zone due to lack of space";
+			//TODO CLEANUP!
+			return false;
+		}
+		logGlobal->infoStream() << "Place found";
+
+		placeObject(gen, obj, pos);
+		logGlobal->infoStream() << "Placed object";
+	}
+	std::vector<CGObjectInstance*> guarded_objects;
+	static auto res_gen = gen->rand.getIntRange(Res::ERes::WOOD, Res::ERes::GOLD);
+	const double res_mindist = 5;
+	do {
+		auto obj = new CGResource();
+		auto restype = static_cast<Res::ERes>(res_gen());
+		obj->ID = Obj::RESOURCE;
+		obj->subID = static_cast<si32>(restype);
+		obj->amount = 0;
+		
+		int3 pos;
+		if ( ! findPlaceForObject(gen, obj, res_mindist, pos))		
+		{
+			delete obj;
+			break;
+		}
+		placeObject(gen, obj, pos);		
+		if ((restype != Res::ERes::WOOD) && (restype != Res::ERes::ORE))
+		{
+			guarded_objects.push_back(obj);
+		}
+	} while(true);
+
+	for(const auto &obj : guarded_objects)
+	{
+		if ( ! guardObject(gen, obj, 500))
+		{
+			//TODO, DEL obj from map
+		}
+	}
+
+	auto sel = gen->editManager->getTerrainSelection();
+	sel.clearSelection();
+	for(auto it = tileinfo.begin(); it != tileinfo.end(); ++it)
+	{
+		if (it->second.isObstacle())
+		{
+			auto obj = new CGObjectInstance();
+			obj->ID = static_cast<Obj>(130);
+			obj->subID = 0;
+			placeObject(gen, obj, it->first);
+		}
+	}
+	logGlobal->infoStream() << boost::format("Filling %d with ROCK") % sel.getSelectedItems().size();
+	//gen->editManager->drawTerrain(ETerrainType::ROCK, &gen->gen);
+	logGlobal->infoStream() << "Zone filled successfully";
+	return true;
+}
+
+bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos)
+{
+	//si32 min_dist = sqrt(tileinfo.size()/density);
+	int best_distance = 0;
+	bool result = false;
+	si32 w = gen->map->width;
+	si32 h = gen->map->height; 
+	auto ow = obj->getWidth();
+	auto oh = obj->getHeight();
+	//logGlobal->infoStream() << boost::format("Min dist for density %f is %d") % density % min_dist;
+	for(auto it = tileinfo.begin(); it != tileinfo.end(); ++it)
+	{
+		auto &ti = it->second;
+		auto p = it->first;
+		auto dist = ti.getNearestObjectDistance();
+		//avoid borders
+		if ((p.x < 3) || (w - p.x < 3) || (p.y < 3) || (h - p.y < 3))
+			continue;
+		if (!ti.isOccupied() && !ti.isObstacle()  && (dist >= min_dist) && (dist > best_distance))
+		{
+			best_distance = dist;
+			pos = p;
+			result = true;
+		}
+	}
+	return result;
+}
+
+void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos)
+{
+	logGlobal->infoStream() << boost::format("Insert object at %d %d") % pos.x % pos.y;
+	object->pos = pos;
+	gen->editManager->insertObject(object, pos);
+	logGlobal->infoStream() << "Inserted object";
+	auto points = object->getBlockedPos();
+	if (object->isVisitable())
+		points.emplace(pos + object->getVisitableOffset());
+	points.emplace(pos);
+	for(auto const &p : points)
+	{		
+		if (tileinfo.find(pos + p) != tileinfo.end())
+		{
+			tileinfo[pos + p].setOccupied(true);
+		}
+	}
+	for(auto it = tileinfo.begin(); it != tileinfo.end(); ++it)
+	{		
+		si32 d = pos.dist2d(it->first);
+		it->second.setNearestObjectDistance(std::min(d, it->second.getNearestObjectDistance()));
+	}
+}
+
+bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str)
+{
+	
+	logGlobal->infoStream() << boost::format("Guard object at %d %d") % object->pos.x % object->pos.y;
+	int3 visitable = object->pos + object->getVisitableOffset();
+	std::vector<int3> tiles;
+	for(int i = -1; i < 2; ++i)
+	{
+		for(int j = -1; j < 2; ++j)
+		{
+			auto it = tileinfo.find(visitable + int3(i, j, 0));
+			if (it != tileinfo.end())
+			{
+				logGlobal->infoStream() << boost::format("Block at %d %d") % it->first.x % it->first.y;
+				if ( ! it->second.isOccupied() &&  ! it->second.isObstacle())
+				{
+					tiles.push_back(it->first);
+					it->second.setObstacle(true);
+				}
+			}
+		}
+	}
+	if ( ! tiles.size())
+	{		
+		logGlobal->infoStream() << "Failed";
+		return false;
+	}
+	auto guard_tile = *std::next(tiles.begin(), gen->rand.nextInt(tiles.size()));
+	tileinfo[guard_tile].setObstacle(false);
+	auto guard = new CGCreature();
+	guard->ID = Obj::RANDOM_MONSTER;
+	guard->subID = 0;
+	auto  hlp = new CStackInstance();
+	hlp->count = 10;
+	//type will be set during initialization
+	guard->putStack(SlotID(0), hlp);
+
+	guard->pos = guard_tile;
+	gen->editManager->insertObject(guard, guard->pos);
+	return true;
 }
