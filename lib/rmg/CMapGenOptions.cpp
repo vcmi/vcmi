@@ -194,17 +194,17 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 		auto possiblePlayers = mapTemplate->getPlayers().getNumbers();
 		possiblePlayers.erase(possiblePlayers.begin(), possiblePlayers.lower_bound(countHumanPlayers()));
 		assert(!possiblePlayers.empty());
-		playerCount = *std::next(possiblePlayers.begin(), rand.nextInt(8));
+		playerCount = rand.nextInt(possiblePlayers.size());
 		updatePlayers();
 	}
 	if(teamCount == RANDOM_SIZE)
 	{
-		teamCount = rand.nextInt(8);
+		teamCount = rand.nextInt(playerCount - 1);
 	}
 	if(compOnlyPlayerCount == RANDOM_SIZE)
 	{
 		auto possiblePlayers = mapTemplate->getCpuPlayers().getNumbers();
-		compOnlyPlayerCount = *std::next(possiblePlayers.begin(), rand.nextInt(8));
+		compOnlyPlayerCount = rand.nextInt(possiblePlayers.size());
 		updateCompOnlyPlayers();
 	}
 	if(compOnlyTeamCount == RANDOM_SIZE)
