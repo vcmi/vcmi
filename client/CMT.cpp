@@ -344,7 +344,7 @@ int main(int argc, char** argv)
 
 	if(!gNoGUI)
 	{
-		#if 0
+		#ifdef VCMI_SDL1
 		if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO))
 		#else
 		if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE))
@@ -844,11 +844,20 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 		
 	//logGlobal->infoStream() << "New screen flags: " << screen->flags;
 	SDL_FreeSurface(screen);
+	
+	#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+		int bmask = 0xff000000;
+		int gmask = 0x00ff0000;
+		int rmask = 0x0000ff00;
+		int amask = 0x000000ff;
+	#else
+		int bmask = 0x000000ff;
+		int gmask = 0x0000ff00;
+		int rmask = 0x00ff0000;
+		int amask = 0xFF000000;
+	#endif
 
-	screen = SDL_CreateRGBSurface(0,w,h,bpp,0x00FF0000,
-                                        0x0000FF00,
-                                        0x000000FF,
-                                        0xFF000000);
+	screen = SDL_CreateRGBSurface(0,w,h,bpp,rmask,gmask,bmask,amask);
 	if(nullptr == screen)
 	{
 		logGlobal->errorStream() << "Unable to create surface";
@@ -898,7 +907,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 		return;
 	}
 
-	#if 0
+	#ifdef VCMI_SDL1
 	SDL_EnableUNICODE(1);
 	#else
 

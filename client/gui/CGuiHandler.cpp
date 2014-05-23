@@ -264,7 +264,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 				}
 			}
 		}
-		#if 0
+		#ifdef VCMI_SDL1
 		else if(sEvent->button.button == SDL_BUTTON_WHEELDOWN || sEvent->button.button == SDL_BUTTON_WHEELUP)
 		{
 			std::list<CIntObject*> hlp = wheelInterested;
@@ -276,8 +276,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		}
 		#endif
 	}
-	#if 0 
-	#else
+	#ifndef VCMI_SDL1	
 	else if ((sEvent->type == SDL_MOUSEWHEEL))
 	{
 		std::list<CIntObject*> hlp = wheelInterested;
@@ -287,7 +286,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 			(*i)->wheelScrolled(sEvent->wheel.y < 0, isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y));
 		}		
 	}
-	#endif // 0
+	#endif // VCMI_SDL1
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
 		std::list<CIntObject*> hlp = lclickable;
@@ -452,7 +451,7 @@ void CGuiHandler::drawFPSCounter()
 
 SDLKey CGuiHandler::arrowToNum( SDLKey key )
 {
-	#if 0
+	#ifdef VCMI_SDL1
 	switch(key)
 	{
 	case SDLK_DOWN:
@@ -486,7 +485,7 @@ SDLKey CGuiHandler::arrowToNum( SDLKey key )
 
 SDLKey CGuiHandler::numToDigit( SDLKey key )
 {
-#if 0
+#ifdef VCMI_SDL1
 	if(key >= SDLK_KP0 && key <= SDLK_KP9)
 		return SDLKey(key - SDLK_KP0 + SDLK_0);
 #else
@@ -516,7 +515,7 @@ SDLKey CGuiHandler::numToDigit( SDLKey key )
 
 bool CGuiHandler::isNumKey( SDLKey key, bool number )
 {
-	#if 0
+	#ifdef VCMI_SDL1
 	if(number)
 		return key >= SDLK_KP0 && key <= SDLK_KP9;
 	else

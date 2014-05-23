@@ -445,7 +445,7 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * sr
 				for(int x = w; x; x--)
 				{
 					const SDL_Color &tbc = colors[*color++]; //color to blit
-					#if 0
+					#ifdef VCMI_SDL1
 					ColorPutter<bpp, +1>::PutColorAlphaSwitch(p, tbc.r, tbc.g, tbc.b, tbc.unused);
 					#else
 					ColorPutter<bpp, +1>::PutColorAlphaSwitch(p, tbc.r, tbc.g, tbc.b, tbc.a);
@@ -474,7 +474,7 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * src
 Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
 {
 	Uint32 ret = 0;
-	#if 0
+	#ifdef VCMI_SDL1
 	ret+=color->unused;
 	#else
 	ret+=color->a;
@@ -490,7 +490,7 @@ Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
 
 void CSDL_Ext::update(SDL_Surface * what)
 {
-	#if 0
+	#ifdef VCMI_SDL1
 	if(what)
 		SDL_UpdateRect(what, 0, 0, what->w, what->h);
 	#else
@@ -615,7 +615,7 @@ bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
 
 	SDL_Color color;
 	
-	#if 0
+	#ifdef VCMI_SDL1
 	SDL_GetRGBA(SDL_GetPixel(srf, x, y), srf->format, &color.r, &color.g, &color.b, &color.unused);
 	#else
 	SDL_GetRGBA(SDL_GetPixel(srf, x, y), srf->format, &color.r, &color.g, &color.b, &color.a);
@@ -625,7 +625,7 @@ bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
 	// a) image has aplha: less than 50% transparency
 	// b) no alpha: color is cyan
 	if (srf->format->Amask)
-	#if 0
+	#ifdef VCMI_SDL1
 		return color.unused < 128; // almost transparent
 	#else
 		return color.a < 128; // almost transparent

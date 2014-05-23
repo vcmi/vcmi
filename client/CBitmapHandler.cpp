@@ -70,11 +70,7 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 			tp.r = pcx[it++];
 			tp.g = pcx[it++];
 			tp.b = pcx[it++];
-			#if 0
-			tp.unused = SDL_ALPHA_OPAQUE;
-			#else
-			tp.a = SDL_ALPHA_OPAQUE;
-			#endif // 0			
+			CSDL_Ext::colorSetAlpha(tp,SDL_ALPHA_OPAQUE);
 			ret->format->palette->colors[i] = tp;
 		}
 	}
@@ -126,11 +122,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 			if(ret->format->BytesPerPixel == 1  &&  setKey)
 			{
 				const SDL_Color &c = ret->format->palette->colors[0];
-				#if 0
-				SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format, c.r, c.g, c.b));
-				#else
-				SDL_SetColorKey(ret,SDL_TRUE,SDL_MapRGB(ret->format, c.r, c.g, c.b));
-				#endif // 0				
+				SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format, c.r, c.g, c.b));		
 			}
 		}
 		else
@@ -150,12 +142,8 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 			if (ret->format->palette)
 			{
 				//set correct value for alpha\unused channel
-				for (int i=0; i< ret->format->palette->ncolors; i++)
-					#if 0
-					ret->format->palette->colors[i].unused = 255;
-					#else
-					ret->format->palette->colors[i].a = 255;
-					#endif // 0					
+				for (int i=0; i < ret->format->palette->ncolors; i++)
+					CSDL_Ext::colorSetAlpha(ret->format->palette->colors[i],SDL_ALPHA_OPAQUE);				
 			}
 		}
 		else
@@ -178,19 +166,11 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 
 		// set color key only if exactly such color was found
 		if (color.r == 0 && color.g == 255 && color.b == 255)
-			#if 0
-			SDL_SetColorKey(ret, SDL_SRCCOLORKEY, colorID);
-			#else
-			SDL_SetColorKey(ret, SDL_TRUE, colorID);
-			#endif // 0			
+			SDL_SetColorKey(ret, SDL_SRCCOLORKEY, colorID);		
 	}
 	else // always set
 	{
-		#if 0
 		SDL_SetColorKey(ret, SDL_SRCCOLORKEY, colorID);
-		#else
-		SDL_SetColorKey(ret, SDL_TRUE, colorID);
-		#endif // 0			
 	}
 	return ret;
 }

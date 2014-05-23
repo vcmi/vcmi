@@ -134,7 +134,7 @@ void CPicture::convertToScreenBPP()
 
 void CPicture::setAlpha(int value)
 {	
-	#if 0
+	#ifdef VCMI_SDL1
 	SDL_SetAlpha(bg, SDL_SRCALPHA, value);	
 	#else
 	SDL_SetSurfaceAlphaMod(bg,value);
@@ -289,11 +289,7 @@ void CButtonBase::block(bool on)
 CAdventureMapButton::CAdventureMapButton ()
 {
 	hoverable = actOnDown = borderEnabled = soundDisabled = false;
-	#if 0
-	borderColor.unused = 1; // represents a transparent color, used for HighlightableButton
-	#else
-	borderColor.a = 1; // represents a transparent color, used for HighlightableButton
-	#endif // 0	
+	CSDL_Ext::colorSetAlpha(borderColor,1);// represents a transparent color, used for HighlightableButton
 	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
 }
 
@@ -412,11 +408,7 @@ void CAdventureMapButton::init(const CFunctionList<void()> &Callback, const std:
 	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
 	callback = Callback;
 	hoverable = actOnDown = borderEnabled = soundDisabled = false;
-	#if 0
-	borderColor.unused = 1; // represents a transparent color, used for HighlightableButton
-	#else
-	borderColor.a = 1; // represents a transparent color, used for HighlightableButton
-	#endif // 0	
+	CSDL_Ext::colorSetAlpha(borderColor,1);// represents a transparent color, used for HighlightableButton
 	hoverTexts = Name;
 	helpBox=HelpBox;
 
@@ -465,7 +457,7 @@ void CAdventureMapButton::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	
-	#if 0
+	#ifdef VCMI_SDL1
 	if (borderEnabled && borderColor.unused == 0)
 		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor.r, borderColor.g, borderColor.b));	
 	#else
@@ -1621,7 +1613,7 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 			text.resize(text.size()-1);
 		break;
 	default:
-		#if 0
+		#ifdef VCMI_SDL1
 		if (key.keysym.unicode < ' ')
 			return;
 		else
@@ -1629,7 +1621,7 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 		#endif // 0
 		break;
 	}
-	#if 0
+	#ifdef VCMI_SDL1
 	filters(text, oldText);
 	if (text != oldText)
 	{
@@ -1653,7 +1645,7 @@ bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
 	if(key.keysym.sym == SDLK_RETURN || key.keysym.sym == SDLK_KP_ENTER)
 		return false;
 	
-	#if 0
+	#ifdef VCMI_SDL1
 	//this should allow all non-printable keys to go through (for example arrows)
 	if (key.keysym.unicode < ' ')
 		return false;

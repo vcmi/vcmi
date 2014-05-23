@@ -157,11 +157,7 @@ CDefFile::CDefFile(std::string Name):
 		palette[i].r = data[it++];
 		palette[i].g = data[it++];
 		palette[i].b = data[it++];
-		#if 0
-		palette[i].unused = 255;
-		#else
-		palette[i].a = 255;
-		#endif // 0		
+		CSDL_Ext::colorSetAlpha(palette[i],255);	
 	}
 	if (type == 71 || type == 64)//Buttons/buildings don't have shadows\semi-transparency
 		memset(palette, 0, sizeof(SDL_Color)*2);
@@ -390,11 +386,7 @@ inline void SDLImageLoader::EndLine()
 SDLImageLoader::~SDLImageLoader()
 {
 	SDL_UnlockSurface(image->surf);
-	#if 0
 	SDL_SetColorKey(image->surf, SDL_SRCCOLORKEY, 0);
-	#else
-	SDL_SetColorKey(image->surf, SDL_TRUE, 0);
-	#endif // 0	
 	//TODO: RLE if compressed and bpp>1
 }
 
@@ -451,7 +443,7 @@ inline ui8 CompImageLoader::typeOf(ui8 color)
 {
 	if (color == 0)
 		return 0;
-	#if 0
+	#ifdef VCMI_SDL1
 	if (image->palette[color].unused != 255)
 		return 1;
 	#else
@@ -635,7 +627,7 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 	{
 		SDL_Surface *temp = surf;
 		// add RLE flag
-		#if 0
+		#ifdef VCMI_SDL1
 		if (surf->format->palette)
 		{
 			const SDL_Color &c = temp->format->palette->colors[0];
@@ -822,7 +814,7 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 			for (size_t i=0; i<size; i++)
 			{
 				SDL_Color col = palette[*(data++)];
-				#if 0
+				#ifdef VCMI_SDL1
 				col.unused = (ui32)col.unused*alpha/255;
 				#else
 				col.a = (ui32)col.a*alpha/255;
@@ -832,7 +824,7 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 			return;
 		}
 		
-		#if 0
+		#ifdef VCMI_SDL1
 		if (palette[color].unused == 255)
 		#else
 		if (palette[color].a == 255)
@@ -853,7 +845,7 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 	//RLE-d sequence
 	else
 	{
-		#if 0
+		#ifdef VCMI_SDL1
 		if (alpha != 255 && palette[type].unused !=0)//Per-surface alpha is set
 		{
 			SDL_Color col = palette[type];
@@ -917,14 +909,7 @@ void CompImage::playerColored(PlayerColor player)
 
 	for(int i=0; i<32; ++i)
 	{
-		palette[224+i].r = pal[i].r;
-		palette[224+i].g = pal[i].g;
-		palette[224+i].b = pal[i].b;
-		#if 0
-		palette[224+i].unused = pal[i].unused;
-		#else
-		palette[224+i].a = pal[i].a;
-		#endif // 0		
+		CSDL_Ext::colorAssign(palette[224+i],pal[i]);
 	}
 }
 

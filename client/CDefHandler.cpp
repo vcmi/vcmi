@@ -5,7 +5,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/VCMI_Lib.h"
 #include "CBitmapHandler.h"
-
+#include "gui/SDL_Extensions.h"
 /*
  * CDefHandler.cpp, part of VCMI engine
  *
@@ -67,11 +67,7 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 		palette[it].r = de.palette[it].R;
 		palette[it].g = de.palette[it].G;
 		palette[it].b = de.palette[it].B;
-		#if 0
-		palette[it].unused = 255;
-		#else
-		palette[it].a = 255;
-		#endif // 0		
+		CSDL_Ext::colorSetAlpha(palette[it],SDL_ALPHA_OPAQUE);	
 	}
 
 	// The SDefEntryBlock starts just after the SDefEntry
@@ -185,7 +181,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 	BaseOffset += sizeof(SSpriteDef);
 	int BaseOffsetor = BaseOffset;
 
-	#if 0
+	#ifdef VCMI_SDL1
 	for(int i=0; i<256; ++i)
 	{		
 		SDL_Color pr;
@@ -367,7 +363,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 	}
 
 	SDL_Color ttcol = ret->format->palette->colors[0];
-	#if 0
+	#ifdef VCMI_SDL1
 	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.unused);	
 	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, keycol);	
 	#else
