@@ -36,12 +36,15 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		addHeaderInfo();
 
 		genZones();
+		map->calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
 		fillZones();
 	}
 	catch (rmgException &e)
 	{
-		logGlobal->infoStream() << "Random map generation received exception: " << e.what();
+		logGlobal->errorStream() << "Random map generation received exception: " << e.what();
 	}
+
+	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed
 	return std::move(map);
 }
 

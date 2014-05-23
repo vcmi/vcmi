@@ -97,25 +97,6 @@ public:
 
 namespace RandomGeneratorUtil
 {
-	/// Gets an iterator to an element of a nonempty container randomly. Undefined behaviour if container is empty.
-	//template<typename T>
-	//auto nextItem(const std::set<T> & container, CRandomGenerator & rand) -> decltype(std::begin(container))
-	//{
-	//	assert(!container.empty());
-	//	auto ret = container.begin();
-	//	std::advance(ret, rand.nextInt(container.size() - 1));
-	//	return ret;
-	//}
-
-	//template<typename T>
-	//auto nextItem(std::set<T> & container, CRandomGenerator & rand) -> decltype(std::begin(container))
-	//{
-	//	assert(!container.empty());
-	//	auto ret = container.begin();
-	//	std::advance(ret, rand.nextInt(container.size() - 1));
-	//	return ret;
-	//}
-
 	template<typename Container>
 	auto nextItem(const Container & container, CRandomGenerator & rand) -> decltype(std::begin(container))
 	{

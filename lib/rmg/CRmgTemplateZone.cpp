@@ -85,9 +85,7 @@ int CRmgTemplateZone::CTileInfo::getNearestObjectDistance() const
 
 void CRmgTemplateZone::CTileInfo::setNearestObjectDistance(int value)
 {
-	if(value < 0)
-		throw rmgException(boost::to_string(boost::format("Negative value %d for nearest object distance not allowed.") %value));
-	nearestObjectDistance = value;
+	nearestObjectDistance = std::max(0, value); //never negative (or unitialized)
 }
 
 bool CRmgTemplateZone::CTileInfo::isObstacle() const
@@ -406,7 +404,6 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 		logGlobal->infoStream() << "Place found";
 
 		placeObject(gen, obj, pos);
-		logGlobal->infoStream() << "Placed object";
 	}
 	std::vector<CGObjectInstance*> guarded_objects;
 	static auto res_gen = gen->rand.getIntRange(Res::ERes::WOOD, Res::ERes::GOLD);
@@ -424,7 +421,8 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			delete obj;
 			break;
 		}
-		placeObject(gen, obj, pos);		
+		placeObject(gen, obj, pos);
+
 		if ((restype != Res::ERes::WOOD) && (restype != Res::ERes::ORE))
 		{
 			guarded_objects.push_back(obj);
@@ -451,7 +449,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			placeObject(gen, obj, it->first);
 		}
 	}
-	logGlobal->infoStream() << boost::format("Filling %d with ROCK") % sel.getSelectedItems().size();
+	//logGlobal->infoStream() << boost::format("Filling %d with ROCK") % sel.getSelectedItems().size();
 	//gen->editManager->drawTerrain(ETerrainType::ROCK, &gen->gen);
 	logGlobal->infoStream() << boost::format ("Zone %d filled successfully") %id;
 	return true;
@@ -487,9 +485,11 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 
 void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos)
 {
+	if (!gen->map->isInTheMap(pos))
+		throw rmgException(boost::to_string(boost::format("Position of object %d at %s is outside the map") % object->id % object->pos()));
 	object->pos = pos;
 
-	if (!gen->map->isInTheMap(object->visitablePos()))
+	if (object->isVisitable() && !gen->map->isInTheMap(object->visitablePos()))
 		throw rmgException(boost::to_string(boost::format("Visitable tile %s of object %d at %s is outside the map") % object->visitablePos() % object->id % object->pos()));
 	for (auto tile : object->getBlockedPos())
 	{
@@ -497,8 +497,14 @@ void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance*
 			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile() % object->id % object->pos()));
 	}
 
+	auto templates = VLC->dobjinfo->pickCandidates(object->ID, object->subID, gen->map->getTile(pos).terType);
+	if (templates.empty())
+		throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") %object->ID %object->subID %pos));
+	
+	object->appearance = templates.front();
+	gen->map->addBlockVisTiles(object);
 	gen->editManager->insertObject(object, pos);
-	logGlobal->infoStream() << boost::format ("Successfully inserted object (%d,%d) at pos %s") %object->ID %object->id %pos();
+	logGlobal->traceStream() << boost::format ("Successfully inserted object (%d,%d) at pos %s") %object->ID %object->subID %pos();
 }
 
 void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos)
@@ -529,7 +535,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 {
 	
 	logGlobal->infoStream() << boost::format("Guard object at %d %d") % object->pos.x % object->pos.y;
-	int3 visitable = object->pos + object->getVisitableOffset();
+	int3 visitable = object->visitablePos();
 	std::vector<int3> tiles;
 	for(int i = -1; i < 2; ++i)
 	{
@@ -552,7 +558,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 		logGlobal->infoStream() << "Failed";
 		return false;
 	}
-	auto guard_tile = *std::next(tiles.begin(), gen->rand.nextInt(tiles.size()));
+	auto guard_tile = *RandomGeneratorUtil::nextItem(tiles, gen->rand);
 	tileinfo[guard_tile].setObstacle(false);
 	auto guard = new CGCreature();
 	guard->ID = Obj::RANDOM_MONSTER;
