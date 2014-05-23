@@ -24,11 +24,11 @@ CMapGenerator::~CMapGenerator()
 
 }
 
-ConstTransitivePtr<CMap> CMapGenerator::generate()
+std::unique_ptr<CMap> CMapGenerator::generate()
 {
 	mapGenOptions->finalize(rand);
 
-	//map = make_unique<CMap>();
+	map = make_unique<CMap>();
 	editManager = map->getEditManager();
 	editManager->getUndoManager().setUndoRedoLimit(0);
 	addHeaderInfo();

@@ -36,10 +36,10 @@ public:
 	explicit CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int randomSeed = std::time(nullptr));
 	~CMapGenerator(); // required due to unique_ptr
 
-	ConstTransitivePtr<CMap> generate();
+	std::unique_ptr<CMap> generate();
 	
 	shared_ptr<CMapGenOptions> mapGenOptions;
-	ConstTransitivePtr<CMap> map;
+	std::unique_ptr<CMap> map;
 	CRandomGenerator rand;
 	int randomSeed;
 	CMapEditManager * editManager;
