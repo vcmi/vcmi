@@ -8,7 +8,7 @@
 #include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CBuildingHandler.h"
-#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CObjectClassesHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/CSpellHandler.h"

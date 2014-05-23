@@ -1,5 +1,5 @@
 #include "StdInc.h"
-#include "CDefObjInfoHandler.h"
+#include "CObjectClassesHandler.h"
 
 #include "filesystem/Filesystem.h"
 #include "filesystem/CBinaryReader.h"
@@ -14,7 +14,7 @@
 #include "CObjectConstructor.h"
 
 /*
- * CDefObjInfoHandler.cpp, part of VCMI engine
+ * CObjectClassesHandler.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -331,7 +331,7 @@ bool ObjectTemplate::canBePlacedAt(ETerrainType terrain) const
 	return allowedTerrains.count(terrain) != 0;
 }
 /*
-void CDefObjInfoHandler::readTextFile(std::string path)
+void CObjectClassesHandler::readTextFile(std::string path)
 {
 	CLegacyConfigParser parser(path);
 	size_t totalNumber = parser.readNumber(); // first line contains number of objects to read and nothing else
@@ -346,7 +346,7 @@ void CDefObjInfoHandler::readTextFile(std::string path)
 	}
 }
 
-CDefObjInfoHandler::CDefObjInfoHandler()
+CObjectClassesHandler::CObjectClassesHandler()
 {
 	readTextFile("Data/Objects.txt");
 	readTextFile("Data/Heroes.txt");
@@ -464,10 +464,12 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
+
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
+
 }
 
 std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const

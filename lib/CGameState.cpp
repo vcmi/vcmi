@@ -2,7 +2,7 @@
 #include "CGameState.h"
 
 #include "mapping/CCampaignHandler.h"
-#include "CDefObjInfoHandler.h"
+#include "CObjectClassesHandler.h"
 #include "CArtHandler.h"
 #include "CBuildingHandler.h"
 #include "CGeneralTextHandler.h"

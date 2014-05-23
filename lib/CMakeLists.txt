@@ -62,7 +62,7 @@ set(lib_SRCS
 		CConsoleHandler.cpp
 		CCreatureHandler.cpp
 		CCreatureSet.cpp
-		CDefObjInfoHandler.cpp
+		CObjectClassesHandler.cpp
 		CGameInterface.cpp
 		CGeneralTextHandler.cpp
 		CHeroHandler.cpp

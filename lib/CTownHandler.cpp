@@ -11,7 +11,7 @@
 #include "CArtHandler.h"
 #include "CSpellHandler.h"
 #include "filesystem/Filesystem.h"
-#include "CDefObjInfoHandler.h"
+#include "CObjectClassesHandler.h"
 #include "CObjectHandler.h"
 
 /*

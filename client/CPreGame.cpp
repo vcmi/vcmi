@@ -11,7 +11,7 @@
 #include "gui/CCursorHandler.h"
 #include "CAnimation.h"
 #include "CDefHandler.h"
-#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CObjectClassesHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/CHeroHandler.h"

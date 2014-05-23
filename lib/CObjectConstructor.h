@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CObjectWithReward.h"
-#include "CDefObjInfoHandler.h"
+#include "CObjectClassesHandler.h"
 #include "JsonNode.h"
 
 /*

@@ -1,6 +1,6 @@
 #include "StdInc.h"
 #include "CModHandler.h"
-#include "CDefObjInfoHandler.h"
+#include "CObjectClassesHandler.h"
 #include "JsonNode.h"
 #include "filesystem/Filesystem.h"
 #include "filesystem/AdapterLoaders.h"

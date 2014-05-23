@@ -6,7 +6,7 @@
 #include "../CCreatureHandler.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
-#include "../CDefObjInfoHandler.h"
+#include "../CObjectClassesHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSpellHandler.h"
 #include "CMapEditManager.h"

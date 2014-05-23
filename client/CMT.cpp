@@ -44,7 +44,7 @@
 #ifdef _WIN32
 #include "SDL_syswm.h"
 #endif
-#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CObjectClassesHandler.h"
 #include "../lib/UnlockGuard.h"
 #include "CMT.h"
 

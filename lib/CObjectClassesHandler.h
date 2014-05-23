@@ -5,7 +5,7 @@
 #include "IHandlerBase.h"
 
 /*
- * CDefObjInfoHandler.h, part of VCMI engine
+ * CObjectClassesHandler.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

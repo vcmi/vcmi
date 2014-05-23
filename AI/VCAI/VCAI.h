@@ -4,7 +4,7 @@
 #include "Goals.h"
 #include "../../lib/AI_Base.h"
 #include "../../CCallback.h"
-#include "../../lib/CDefObjInfoHandler.h"
+#include "../../lib/CObjectClassesHandler.h"
 
 #include "../../lib/CThreadHelper.h"
 

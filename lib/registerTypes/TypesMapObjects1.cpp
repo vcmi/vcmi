@@ -16,7 +16,7 @@
 #include "../CTownHandler.h"
 #include "../mapping/CCampaignHandler.h"
 #include "../NetPacks.h"
-#include "../CDefObjInfoHandler.h"
+#include "../CObjectClassesHandler.h"
 
 
 template void registerTypesMapObjects1<CISer<CConnection>>(CISer<CConnection>& s);

@@ -17,7 +17,7 @@
 #include "../CTownHandler.h"
 #include "../mapping/CCampaignHandler.h"
 #include "../NetPacks.h"
-#include "../CDefObjInfoHandler.h"
+#include "../CObjectClassesHandler.h"
 
 // For reference: peak memory usage by gcc during compilation of register type templates
 // registerTypesMapObjects:  1.9 Gb

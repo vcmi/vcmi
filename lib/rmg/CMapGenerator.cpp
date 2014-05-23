@@ -17,7 +17,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../CObjectHandler.h"
-#include "../CDefObjInfoHandler.h"
+#include "../CObjectClassesHandler.h"
 #include "../CTownHandler.h"
 #include "../StringConstants.h"
 #include "CRmgTemplate.h"

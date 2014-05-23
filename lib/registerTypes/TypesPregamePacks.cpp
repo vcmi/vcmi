@@ -16,7 +16,7 @@
 #include "../CTownHandler.h"
 #include "../mapping/CCampaignHandler.h"
 #include "../NetPacks.h"
-#include "../CDefObjInfoHandler.h"
+#include "../CObjectClassesHandler.h"
 
 template void registerTypesPregamePacks<CISer<CConnection>>(CISer<CConnection>& s);
 template void registerTypesPregamePacks<COSer<CConnection>>(COSer<CConnection>& s);

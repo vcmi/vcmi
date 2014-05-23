@@ -18,7 +18,7 @@
 #include "CBitmapHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/CSpellHandler.h"
-#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CObjectClassesHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"

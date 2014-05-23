@@ -9,7 +9,7 @@
 #include "CGameInfo.h"
 #include "../lib/Connection.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CObjectClassesHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/VCMI_Lib.h"

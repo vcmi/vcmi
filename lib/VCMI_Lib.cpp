@@ -14,7 +14,7 @@
 #include "CArtHandler.h"
 #include "CBonusTypeHandler.h"
 #include "CCreatureHandler.h"
-#include "CDefObjInfoHandler.h"
+#include "CObjectClassesHandler.h"
 #include "CHeroHandler.h"
 #include "CObjectHandler.h"
 #include "CTownHandler.h"

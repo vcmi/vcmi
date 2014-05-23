@@ -22,7 +22,7 @@
 #include "../CHeroHandler.h"
 #include "../CObjectHandler.h"
 #include "../CObjectWithReward.h"
-#include "../CDefObjInfoHandler.h"
+#include "../CObjectClassesHandler.h"
 #include "../VCMI_Lib.h"
 #include "../NetPacksBase.h"
 

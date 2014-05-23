@@ -4,7 +4,7 @@
 #include "CBitmapHandler.h"
 #include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
-#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CObjectClassesHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"

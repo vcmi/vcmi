@@ -25,7 +25,7 @@
 #include "CBuildingHandler.h"
 #include "GameConstants.h"
 #include "CModHandler.h"
-#include "CDefObjInfoHandler.h"
+#include "CObjectClassesHandler.h"
 #include "CBonusTypeHandler.h"
 
 #include "Connection.h"

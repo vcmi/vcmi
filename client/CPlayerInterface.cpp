@@ -1,5 +1,5 @@
 #include "StdInc.h"
-#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CObjectClassesHandler.h"
 #include "CAdvmapInterface.h"
 #include "battle/CBattleInterface.h"
 #include "battle/CBattleInterfaceClasses.h"

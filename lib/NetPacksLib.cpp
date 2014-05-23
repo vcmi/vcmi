@@ -2,7 +2,7 @@
 #include "NetPacks.h"
 
 #include "CGeneralTextHandler.h"
-#include "CDefObjInfoHandler.h"
+#include "CObjectClassesHandler.h"
 #include "CArtHandler.h"
 #include "CHeroHandler.h"
 #include "CObjectHandler.h"

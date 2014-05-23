@@ -13,7 +13,7 @@
 #include "StdInc.h"
 
 #include "VCMI_Lib.h"
-#include "CDefObjInfoHandler.h"
+#include "CObjectClassesHandler.h"
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
 #include "CSpellHandler.h"

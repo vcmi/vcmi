@@ -2,7 +2,7 @@
 
 #include "../lib/CCreatureSet.h"
 #include "../lib/CTownHandler.h"
-#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/CObjectClassesHandler.h"
 #include "CArtHandler.h"
 #include "../lib/ConstTransitivePtr.h"
 #include "int3.h"

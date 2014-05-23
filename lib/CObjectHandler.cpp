@@ -11,9 +11,9 @@
 #include "StdInc.h"
 #include "CObjectHandler.h"
 
-#include "CDefObjInfoHandler.h"
+#include "CObjectClassesHandler.h"
 #include "CGeneralTextHandler.h"
-#include "CDefObjInfoHandler.h"
+#include "CObjectClassesHandler.h"
 #include "CHeroHandler.h"
 #include "CSpellHandler.h"
 #include "CModHandler.h"

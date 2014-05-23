@@ -9,7 +9,7 @@
 #include "client/Client.h"
 #include "lib/mapping/CMap.h"
 #include "lib/CBuildingHandler.h"
-#include "lib/CDefObjInfoHandler.h"
+#include "lib/CObjectClassesHandler.h"
 #include "lib/CGeneralTextHandler.h"
 #include "lib/CHeroHandler.h"
 #include "lib/CObjectHandler.h"
