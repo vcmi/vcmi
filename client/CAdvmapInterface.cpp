@@ -924,7 +924,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			#ifdef VCMI_SDL1
 			k -= SDLK_KP0 + 1;
 			#else
-			k -= SDL_SCANCODE_KP_0 + 1;
+			k -= SDLK_KP_1;
 			#endif // 0			
 			if(k < 0 || k > 8)
 				return;
