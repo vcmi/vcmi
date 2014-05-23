@@ -60,6 +60,10 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 	processList(CIntObject::TIME,activityFlag,&timeinterested,cb);
 	processList(CIntObject::WHEEL,activityFlag,&wheelInterested,cb);
 	processList(CIntObject::DOUBLECLICK,activityFlag,&doubleClickInterested,cb);
+	
+	#ifndef VCMI_SDL1
+	processList(CIntObject::TEXTINPUT,activityFlag,&textInterested,cb);
+	#endif // VCMI_SDL1
 }
 
 void CGuiHandler::handleElementActivate(CIntObject * elem, ui16 activityFlag)
@@ -264,7 +268,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 				}
 			}
 		}
-		#ifdef VCMI_SDL1
+		#ifdef VCMI_SDL1 //SDL1x only events
 		else if(sEvent->button.button == SDL_BUTTON_WHEELDOWN || sEvent->button.button == SDL_BUTTON_WHEELUP)
 		{
 			std::list<CIntObject*> hlp = wheelInterested;
@@ -276,7 +280,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		}
 		#endif
 	}
-	#ifndef VCMI_SDL1	
+	#ifndef VCMI_SDL1 //SDL2x only events	
 	else if ((sEvent->type == SDL_MOUSEWHEEL))
 	{
 		std::list<CIntObject*> hlp = wheelInterested;
@@ -286,6 +290,20 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 			(*i)->wheelScrolled(sEvent->wheel.y < 0, isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y));
 		}		
 	}
+	else if(sEvent->type == SDL_TEXTINPUT)
+	{
+		for(auto it : textInterested)
+		{
+			it->textInputed(sEvent->text);
+		}
+	}	
+	else if(sEvent->type == SDL_TEXTEDITING)
+	{
+		for(auto it : textInterested)
+		{
+			it->textEdited(sEvent->edit);
+		}
+	}	
 	#endif // VCMI_SDL1
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{

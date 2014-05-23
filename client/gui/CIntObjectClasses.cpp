@@ -18,6 +18,7 @@
 #include "../GUIClasses.h"
 #include "CGuiHandler.h"
 #include "../CAdvmapInterface.h"
+#include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 {
@@ -1545,7 +1546,7 @@ CTextInput::CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(co
 	pos.w = Pos.w;
 	captureAllKeys = true;
 	bg = nullptr;
-	addUsedEvents(LCLICK | KEYBOARD);
+	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 	giveFocus();
 }
 
@@ -1557,7 +1558,7 @@ CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::strin
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(bgName, bgOffset.x, bgOffset.y);
-	addUsedEvents(LCLICK | KEYBOARD);
+	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 	giveFocus();
 }
 
@@ -1576,13 +1577,35 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
 	bg->pos = pos;
-	addUsedEvents(LCLICK | KEYBOARD);
+	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 	giveFocus();
 }
 
+void CTextInput::focusGot()
+{
+	#ifndef VCMI_SDL1
+	if (SDL_IsTextInputActive() == SDL_FALSE)		
+	{		
+		SDL_StartTextInput();		
+	}		
+	SDL_SetTextInputRect(&pos);
+	#endif	
+}
+
+void CTextInput::focusLost()
+{
+	#ifndef VCMI_SDL1
+	if (SDL_IsTextInputActive() == SDL_TRUE)
+	{		
+		SDL_StopTextInput();			
+	}		
+	#endif	
+}
+
+
 std::string CTextInput::visibleText()
 {
-	return focus ? text + "_" : text;
+	return focus ? text + newText + "_" : text;
 }
 
 void CTextInput::clickLeft( tribool down, bool previousState )
@@ -1593,6 +1616,30 @@ void CTextInput::clickLeft( tribool down, bool previousState )
 
 void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 {
+	auto trim = [](std::string & s){
+		if(s.empty())
+			return;
+		auto b = s.begin(); 
+		auto e = s.end();
+		size_t lastLen = 0;
+		size_t len = 0;
+		while (b != e) {
+			lastLen = len;
+			size_t n = Unicode::getCharacterSize(*b);
+			
+			if(!Unicode::isValidCharacter(&(*b),e-b))
+			{				
+				logGlobal->errorStream() << "Invalid UTF8 sequence";
+				break;//invalid sequence will be trimmed
+			}
+		
+			len += n;
+			b += n;
+		}		
+		
+		s.resize(lastLen);
+	};
+	
 	if(!focus || key.state != SDL_PRESSED)
 		return;
 
@@ -1603,32 +1650,43 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 		return;
 	}
 
-	std::string oldText = text;
+	bool redrawNeeded = false;
 	switch(key.keysym.sym)
 	{
 	case SDLK_DELETE: // have index > ' ' so it won't be filtered out by default section
 		return;
 	case SDLK_BACKSPACE:
-		if(!text.empty())
-			text.resize(text.size()-1);
+		if(!newText.empty())
+		{
+			trim(newText);
+			redrawNeeded = true;
+		}
+		else if(!text.empty())
+		{
+			trim(text);
+			redrawNeeded = true;
+		}			
 		break;
 	default:
 		#ifdef VCMI_SDL1
 		if (key.keysym.unicode < ' ')
 			return;
 		else
+		{
 			text += key.keysym.unicode; //TODO 16-/>8
+			redrawNeeded = true;
+		}			
 		#endif // 0
 		break;
 	}
 	#ifdef VCMI_SDL1
 	filters(text, oldText);
-	if (text != oldText)
+	#endif // 0
+	if (redrawNeeded)
 	{
 		redraw();
 		cb(text);
-	}
-	#endif // 0
+	}	
 	
 	//todo: handle text input for SDL2
 }
@@ -1652,9 +1710,40 @@ bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
 
 	return true;
 	#else
-	return false; //todo:CTextInput::captureThisEvent
+	return false;
 	#endif
 }
+
+#ifndef VCMI_SDL1
+void CTextInput::textInputed(const SDL_TextInputEvent & event)
+{
+	if(!focus)
+		return;
+	std::string oldText = text;
+	
+	text += event.text;	
+	
+	filters(text,oldText);
+	if (text != oldText)
+	{
+		redraw();
+		cb(text);
+	}	
+	newText = "";
+}
+
+void CTextInput::textEdited(const SDL_TextEditingEvent & event)
+{
+	if(!focus)
+		return;
+		
+	newText = event.text;
+	redraw();
+	cb(text+newText);	
+}
+
+#endif
+
 
 void CTextInput::filenameFilter(std::string & text, const std::string &)
 {
@@ -1708,7 +1797,10 @@ CFocusable::CFocusable()
 CFocusable::~CFocusable()
 {
 	if(inputWithFocus == this)
+	{
+		focusLost();
 		inputWithFocus = nullptr;
+	}	
 
 	focusables -= this;
 }
@@ -1717,12 +1809,14 @@ void CFocusable::giveFocus()
 	if(inputWithFocus)
 	{
 		inputWithFocus->focus = false;
+		inputWithFocus->focusLost();
 		inputWithFocus->redraw();
 	}
 
 	focus = true;
 	inputWithFocus = this;
-	redraw();
+	focusGot();
+	redraw();	
 }
 
 void CFocusable::moveFocus()

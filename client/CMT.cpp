@@ -1031,7 +1031,7 @@ static void listenForEvents()
 	while(1) //main SDL events loop
 	{
 		SDL_Event ev;
-
+		
 		int ret = SDL_WaitEvent(&ev);
 		if (ret == 0 || (ev.type==SDL_QUIT) ||
 			(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))

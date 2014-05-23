@@ -19,7 +19,7 @@
  *
  */
 
-size_t Unicode::getCharacterSize(ui8 firstByte)
+size_t Unicode::getCharacterSize(char firstByte)
 {
 	// length of utf-8 character can be determined from 1st byte by counting number of highest bits set to 1:
 	// 0xxxxxxx -> 1 -  ASCII chars
@@ -27,14 +27,14 @@ size_t Unicode::getCharacterSize(ui8 firstByte)
 	// 11110xxx -> 4 - last allowed in current standard
 	// 1111110x -> 6 - last allowed in original standard
 
-	if (firstByte < 0x80)
+	if ((ui8)firstByte < 0x80)
 		return 1; // ASCII
 
 	size_t ret = 0;
 
 	for (size_t i=0; i<8; i++)
 	{
-		if ((firstByte & (0x80 >> i)) != 0)
+		if (((ui8)firstByte & (0x80 >> i)) != 0)
 			ret++;
 		else
 			break;
@@ -42,12 +42,15 @@ size_t Unicode::getCharacterSize(ui8 firstByte)
 	return ret;
 }
 
-bool Unicode::isValidCharacter(const ui8 *character, size_t maxSize)
+bool Unicode::isValidCharacter(const char * character, size_t maxSize)
 {
+	// can't be first byte in UTF8
+	if ((ui8)character[0] >= 0x80 && (ui8)character[0] < 0xC0)
+		return false;
 	// first character must follow rules checked in getCharacterSize
-	size_t size = getCharacterSize(character[0]);
+	size_t size = getCharacterSize((ui8)character[0]);
 
-	if (character[0] > 0xF4)
+	if ((ui8)character[0] > 0xF4)
 		return false; // above maximum allowed in standard (UTF codepoints are capped at 0x0010FFFF)
 
 	if (size > maxSize)
@@ -56,7 +59,7 @@ bool Unicode::isValidCharacter(const ui8 *character, size_t maxSize)
 	// remaining characters must have highest bit set to 1
 	for (size_t i = 1; i < size; i++)
 	{
-		if ((character[i] & 0x80) == 0)
+		if (((ui8)character[i] & 0x80) == 0)
 			return false;
 	}
 	return true;
@@ -82,7 +85,7 @@ bool Unicode::isValidString(const std::string & text)
 {
 	for (size_t i=0; i<text.size(); i += getCharacterSize(text[i]))
 	{
-		if (!isValidCharacter(reinterpret_cast<const ui8*>(text.data() + i), text.size() - i))
+		if (!isValidCharacter(text.data() + i, text.size() - i))
 			return false;
 	}
 	return true;
@@ -92,7 +95,7 @@ bool Unicode::isValidString(const char * data, size_t size)
 {
 	for (size_t i=0; i<size; i += getCharacterSize(data[i]))
 	{
-		if (!isValidCharacter(reinterpret_cast<const ui8*>(data + i), size - i))
+		if (!isValidCharacter(data + i, size - i))
 			return false;
 	}
 	return true;

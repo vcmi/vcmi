@@ -481,7 +481,8 @@ void MusicEntry::load(std::string musicURI)
 
 	data = CResourceHandler::get()->load(ResourceID(musicURI, EResType::MUSIC))->readAll();
 	musicFile = SDL_RWFromConstMem(data.first.get(), data.second);
-	#if 0
+	
+	#ifdef VCMI_SDL1
 	music = Mix_LoadMUS_RW(musicFile);
 
 	if(!music)
