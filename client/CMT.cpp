@@ -822,7 +822,17 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	
 	bool bufOnScreen = (screenBuf == screen);
 	
-	mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, w, h, (fullscreen?SDL_FULLSCREEN:0));
+	if(fullscreen)
+	{
+		//in full-screen mode always use desktop resolution
+		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	}
+	else
+	{
+		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, w, h, 0);
+	}
+	
+	
 	
 	if(nullptr == mainWindow)
 	{
@@ -1039,7 +1049,12 @@ static void listenForEvents()
 			handleQuit();
 			continue;
 		}
+		#ifdef VCMI_SDL1
+		//FIXME: this should work even in pregame
 		else if(LOCPLINT && ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
+		#else
+		else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
+		#endif // VCMI_SDL1		
 		{
 			Settings full = settings.write["video"]["fullscreen"];
 			full->Bool() = !full->Bool();
