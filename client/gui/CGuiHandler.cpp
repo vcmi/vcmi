@@ -198,6 +198,9 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		if(key.keysym.sym == SDLK_KP_ENTER)
 		{
 			key.keysym.sym = (SDLKey)SDLK_RETURN;
+			#ifndef VCMI_SDL1
+			key.keysym.scancode = SDL_SCANCODE_RETURN;
+			#endif // VCMI_SDL1
 		}
 
 		bool keysCaptured = false;
@@ -391,8 +394,11 @@ void CGuiHandler::handleMoveInterested( const SDL_MouseMotionEvent & motion )
 void CGuiHandler::fakeMouseMove()
 {
 	SDL_Event evnt;
-
+#ifdef VCMI_SDL1
 	SDL_MouseMotionEvent sme = {SDL_MOUSEMOTION, 0, 0, 0, 0, 0, 0};
+#else
+	SDL_MouseMotionEvent sme = {SDL_MOUSEMOTION, 0, 0, 0, 0, 0, 0, 0, 0};
+#endif	
 	int x, y;
 	sme.state = SDL_GetMouseState(&x, &y);
 	sme.x = x;
@@ -506,18 +512,27 @@ SDLKey CGuiHandler::numToDigit( SDLKey key )
 #ifdef VCMI_SDL1
 	if(key >= SDLK_KP0 && key <= SDLK_KP9)
 		return SDLKey(key - SDLK_KP0 + SDLK_0);
-#else
-	if(key >= SDLK_KP_0 && key <= SDLK_KP_9)
-		return SDLKey(key - SDLK_KP_0 + SDLK_0);
 #endif // 0
 
 #define REMOVE_KP(keyName) case SDLK_KP_ ## keyName : return SDLK_ ## keyName;
 	switch(key)
 	{
+#ifndef VCMI_SDL1
+		REMOVE_KP(0)
+		REMOVE_KP(1)
+		REMOVE_KP(2)
+		REMOVE_KP(3)
+		REMOVE_KP(4)
+		REMOVE_KP(5)
+		REMOVE_KP(6)
+		REMOVE_KP(7)
+		REMOVE_KP(8)
+		REMOVE_KP(9)		
+#endif // VCMI_SDL1		
 		REMOVE_KP(PERIOD)
-			REMOVE_KP(MINUS)
-			REMOVE_KP(PLUS)
-			REMOVE_KP(EQUALS)
+		REMOVE_KP(MINUS)
+		REMOVE_KP(PLUS)
+		REMOVE_KP(EQUALS)
 
 	case SDLK_KP_MULTIPLY:
 		return SDLK_ASTERISK;
@@ -540,15 +555,19 @@ bool CGuiHandler::isNumKey( SDLKey key, bool number )
 		return key >= SDLK_KP0 && key <= SDLK_KP_EQUALS;
 	#else
 	if(number)
-		return key >= SDLK_KP_0 && key <= SDLK_KP_9;
+		return key >= SDLK_KP_1 && key <= SDLK_KP_0;
 	else
-		return key >= SDLK_KP_0 && key <= SDLK_KP_EQUALS;
+		return (key >= SDLK_KP_1 && key <= SDLK_KP_0) || key == SDLK_KP_MINUS || key == SDLK_KP_PLUS || key == SDLK_KP_EQUALS;
 	#endif // 0
 }
 
 bool CGuiHandler::isArrowKey( SDLKey key )
 {
+	#ifdef VCMI_SDL1
 	return key >= SDLK_UP && key <= SDLK_LEFT;
+	#else
+	return key == SDLK_UP || key == SDLK_DOWN || key == SDLK_LEFT || key == SDLK_RIGHT;
+	#endif
 }
 
 bool CGuiHandler::amIGuiThread()
