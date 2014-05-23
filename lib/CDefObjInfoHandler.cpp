@@ -11,6 +11,8 @@
 #include "CModHandler.h"
 #include "JsonNode.h"
 
+#include "CObjectConstructor.h"
+
 /*
  * CDefObjInfoHandler.cpp, part of VCMI engine
  *
@@ -350,29 +352,153 @@ CDefObjInfoHandler::CDefObjInfoHandler()
 	readTextFile("Data/Heroes.txt");
 }
 */
-void CObjectTypesHandler::init()
-{
 
+CObjectClassesHandler::CObjectClassesHandler()
+{
+	// list of all known handlers, hardcoded for now since the only way to add new objects is via C++ code
+	handlerConstructors["configurable"] = std::make_shared<CObjectWithRewardConstructor>;
+
+#define SET_HANDLER(STRING, TYPENAME) handlerConstructors[STRING] = std::make_shared<CDefaultObjectTypeHandler<TYPENAME> >
+
+	SET_HANDLER("", CGObjectInstance);
+	SET_HANDLER("generic", CGObjectInstance);
+
+	SET_HANDLER("market", CGMarket);
+	SET_HANDLER("bank", CBank);
+	SET_HANDLER("cartographer", CCartographer);
+	SET_HANDLER("artifact", CGArtifact);
+	SET_HANDLER("blackMarket", CGBlackMarket);
+	SET_HANDLER("boat", CGBoat);
+	SET_HANDLER("bonusingObject", CGBonusingObject);
+	SET_HANDLER("borderGate", CGBorderGate);
+	SET_HANDLER("borderGuard", CGBorderGuard);
+	SET_HANDLER("monster", CGCreature);
+	SET_HANDLER("denOfThieves", CGDenOfthieves);
+	SET_HANDLER("dwelling", CGDwelling);
+	SET_HANDLER("event", CGEvent);
+	SET_HANDLER("garrison", CGGarrison);
+	SET_HANDLER("hero", CGHeroInstance);
+	SET_HANDLER("heroPlaceholder", CGHeroPlaceholder);
+	SET_HANDLER("keymaster", CGKeymasterTent);
+	SET_HANDLER("lighthouse", CGLighthouse);
+	SET_HANDLER("magi", CGMagi);
+	SET_HANDLER("magicSpring", CGMagicSpring);
+	SET_HANDLER("magicWell", CGMagicWell);
+	SET_HANDLER("market", CGMarket);
+	SET_HANDLER("mine", CGMine);
+	SET_HANDLER("obelisk", CGObelisk);
+	SET_HANDLER("observatory", CGObservatory);
+	SET_HANDLER("onceVisitable", CGOnceVisitable);
+	SET_HANDLER("pandora", CGPandoraBox);
+	SET_HANDLER("pickable", CGPickable);
+	SET_HANDLER("pyramid", CGPyramid);
+	SET_HANDLER("questGuard", CGQuestGuard);
+	SET_HANDLER("resource", CGResource);
+	SET_HANDLER("scholar", CGScholar);
+	SET_HANDLER("seerHut", CGSeerHut);
+	SET_HANDLER("shipyard", CGShipyard);
+	SET_HANDLER("shrine", CGShrine);
+	SET_HANDLER("sign", CGSignBottle);
+	SET_HANDLER("siren", CGSirens);
+	SET_HANDLER("teleport", CGTeleport);
+	SET_HANDLER("town", CGTownInstance);
+	SET_HANDLER("university", CGUniversity);
+	SET_HANDLER("oncePerHero", CGVisitableOPH);
+	SET_HANDLER("oncePerWeek", CGVisitableOPW);
+	SET_HANDLER("witch", CGWitchHut);
+
+#undef SET_HANDLER
 }
 
-TObjectTypeHandler CObjectTypesHandler::getHandlerFor(si32 type, si32 subtype) const
+static std::vector<JsonNode> readTextFile(std::string path)
 {
-	if (objectTypes.count(type))
+	//TODO
+}
+
+std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
+{
+	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
+
+	auto parseFile = [&](std::string filename)
 	{
-		if (objectTypes.at(type).count(subtype))
-			return objectTypes.at(type).at(subtype);
+		auto entries = readTextFile(filename);
+		for (JsonNode & entry : entries)
+		{
+			si32 id = entry["basebase"].Float();
+			si32 subid = entry["base"].Float();
+
+			entry.Struct().erase("basebase");
+			entry.Struct().erase("base");
+
+			if (ret[id].Vector().size() <= subid)
+				ret[id].Vector().resize(subid+1);
+			ret[id]["legacyTypes"].Vector()[subid][entry["animation"].String()].swap(entry);
+		}
+	};
+
+	parseFile("Data/Objects.txt");
+	parseFile("Data/Heroes.txt");
+
+	CLegacyConfigParser parser("Data/ObjNames.txt");
+	for (size_t i=0; i<256; i++)
+	{
+		ret[i]["name"].String() = parser.readString();
+		parser.endLine();
+	}
+	return ret;
+}
+
+CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const JsonNode & json)
+{
+	auto obj = new ObjectContainter();
+	obj->name = json["name"].String();
+	obj->handlerName = json["handler"].String();
+	obj->base = json["base"];
+	for (auto entry : json["types"].Struct())
+	{
+		auto handler = handlerConstructors.at(obj->handlerName)();
+		handler->init(entry.second);
+	}
+	return obj;
+}
+
+void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+{
+}
+
+void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+{
+}
+
+std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
+{
+	return std::vector<bool>(); //TODO?
+}
+
+TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype) const
+{
+	if (objects.count(type))
+	{
+		if (objects.at(type)->objects.count(subtype))
+			return objects.at(type)->objects.at(subtype);
 	}
 	assert(0); // FIXME: throw error?
 	return nullptr;
 }
 
-void AObjectTypeHandler::init(si32 type, si32 subtype)
+std::string CObjectClassesHandler::getObjectName(si32 type) const
+{
+	assert(objects.count(type));
+	return objects.at(type)->name;
+}
+
+void AObjectTypeHandler::setType(si32 type, si32 subtype)
 {
 	this->type = type;
 	this->subtype = subtype;
 }
 
-void AObjectTypeHandler::load(const JsonNode & input)
+void AObjectTypeHandler::init(const JsonNode & input)
 {
 	for (auto entry : input["templates"].Struct())
 	{
@@ -416,7 +542,7 @@ std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(si32 terrainType) c
 	return filtered.empty() ? ret : filtered;
 }
 
-ObjectTemplate AObjectTypeHandler::selectTemplate(si32 terrainType, CGObjectInstance * object) const
+boost::optional<ObjectTemplate> AObjectTypeHandler::getOverride(si32 terrainType, const CGObjectInstance * object) const
 {
 	std::vector<ObjectTemplate> ret = getTemplates(terrainType);
 	for (auto & tmpl : ret)
@@ -424,6 +550,5 @@ ObjectTemplate AObjectTypeHandler::selectTemplate(si32 terrainType, CGObjectInst
 		if (objectFilter(object, tmpl))
 			return tmpl;
 	}
-	// FIXME: no matches found. Warn? Ask for torches? Die?
-	return ret.front();
+	return boost::optional<ObjectTemplate>();
 }

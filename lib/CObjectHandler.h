@@ -234,6 +234,8 @@ public:
 	//CGObjectInstance& operator=(const CGObjectInstance & right);
 	virtual const std::string & getHoverText() const;
 
+	void setType(si32 ID, si32 subID);
+
 	///IObjectInterface
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -474,6 +476,8 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
+	void setType(si32 ID, si32 subID);
+
 	void initHero();
 	void initHero(HeroTypeID SUBID);
 
@@ -698,6 +702,7 @@ public:
 	bool allowsTrade(EMarketMode::EMarketMode mode) const;
 	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
 
+	void setType(si32 ID, si32 subID);
 	void updateAppearance();
 
 	//////////////////////////////////////////////////////////////////////////

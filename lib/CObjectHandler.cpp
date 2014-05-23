@@ -372,6 +372,19 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 	return false;
 }
 
+void CGObjectInstance::setType(si32 ID, si32 subID)
+{
+	const TerrainTile &tile = cb->gameState()->map->getTile(visitablePos());
+
+	this->ID = Obj(ID);
+	this->subID = subID;
+	this->appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(tile.terType).front();
+
+	//recalculate blockvis tiles - new appearance might have different blockmap than before
+	cb->gameState()->map->removeBlockVisTiles(this, true);
+	cb->gameState()->map->addBlockVisTiles(this);
+}
+
 void CGObjectInstance::initObj()
 {
 	switch(ID)
@@ -456,7 +469,7 @@ int3 CGObjectInstance::getVisitableOffset() const
 void CGObjectInstance::getNameVis( std::string &hname ) const
 {
 	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
-	hname = VLC->generaltexth->names[ID];
+	hname = VLC->objtypeh->getObjectName(ID);
 	if(h)
 	{
 		const bool visited = h->hasBonusFrom(Bonus::OBJECT,ID);
@@ -720,6 +733,15 @@ void CGHeroInstance::initHero(HeroTypeID SUBID)
 	initHero();
 }
 
+void CGHeroInstance::setType(si32 ID, si32 subID)
+{
+	assert(ID == Obj::HERO); // just in case
+	CGObjectInstance::setType(ID, subID);
+	type = VLC->heroh->heroes[subID];
+	portrait = type->imageIndex;
+	randomizeArmy(type->heroClass->faction);
+}
+
 void CGHeroInstance::initHero()
 {
 	assert(validTypes(true));
@@ -913,7 +935,7 @@ const std::string & CGHeroInstance::getHoverText() const
 		return hoverName;
 	}
 	else
-		hoverName = VLC->generaltexth->names[ID];
+		hoverName = VLC->objtypeh->getObjectName(ID);
 
 	return hoverName;
 }
@@ -2495,6 +2517,15 @@ std::vector<int> CGTownInstance::availableItemsIds(EMarketMode::EMarketMode mode
 	}
 	else
 		return IMarket::availableItemsIds(mode);
+}
+
+void CGTownInstance::setType(si32 ID, si32 subID)
+{
+	assert(ID == Obj::TOWN); // just in case
+	CGObjectInstance::setType(ID, subID);
+	town = VLC->townh->factions[subID]->town;
+	randomizeArmy(subID);
+	updateAppearance();
 }
 
 void CGTownInstance::updateAppearance()
@@ -4126,10 +4157,10 @@ const std::string & CGSeerHut::getHoverText() const
 			boost::algorithm::replace_first(hoverName,"%s", seerName);
 		}
 		else //just seer hut
-			hoverName = VLC->generaltexth->names[ID];
+			hoverName = VLC->objtypeh->getObjectName(ID);
 		break;
 	case Obj::QUEST_GUARD:
-		hoverName = VLC->generaltexth->names[ID];
+		hoverName = VLC->objtypeh->getObjectName(ID);
 		break;
 	default:
         logGlobal->debugStream() << "unrecognized quest object";
@@ -4448,7 +4479,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 
 const std::string & CGWitchHut::getHoverText() const
 {
-	hoverName = VLC->generaltexth->names[ID];
+	hoverName = VLC->objtypeh->getObjectName(ID);
 	if(wasVisited(cb->getLocalPlayer()))
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
@@ -4907,7 +4938,7 @@ void CGShrine::initObj()
 
 const std::string & CGShrine::getHoverText() const
 {
-	hoverName = VLC->generaltexth->names[ID];
+	hoverName = VLC->objtypeh->getObjectName(ID);
 	if(wasVisited(cb->getCurrentPlayer())) //TODO: use local player, not current
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[355]; // + (learn %s)
@@ -5509,7 +5540,7 @@ const std::string& CGKeys::getHoverText() const
 const std::string CGKeys::getName() const
 {
 	std::string name;
-	name = VLC->generaltexth->tentColors[subID] + " " + VLC->generaltexth->names[ID];
+	name = VLC->generaltexth->tentColors[subID] + " " + VLC->objtypeh->getObjectName(ID);
 	return name;
 }
 
@@ -5545,7 +5576,7 @@ void CGBorderGuard::getVisitText (MetaString &text, std::vector<Component> &comp
 void CGBorderGuard::getRolloverText (MetaString &text, bool onHover) const
 {
 	if (!onHover)
-		text << VLC->generaltexth->tentColors[subID] << " " << VLC->generaltexth->names[Obj::KEYMASTER];
+		text << VLC->generaltexth->tentColors[subID] << " " << VLC->objtypeh->getObjectName(Obj::KEYMASTER);
 }
 
 bool CGBorderGuard::checkQuest (const CGHeroInstance * h) const
@@ -5945,7 +5976,7 @@ void CGObelisk::initObj()
 const std::string & CGObelisk::getHoverText() const
 {
 	bool visited = wasVisited(cb->getLocalPlayer());
-	hoverName = VLC->generaltexth->names[ID] + " " + visitedTxt(visited);
+	hoverName = VLC->objtypeh->getObjectName(ID) + " " + visitedTxt(visited);
 	return hoverName;
 }
 
@@ -5998,7 +6029,7 @@ void CGLighthouse::initObj()
 
 const std::string & CGLighthouse::getHoverText() const
 {
-	hoverName = VLC->generaltexth->names[ID];
+	hoverName = VLC->objtypeh->getObjectName(ID);
 	//TODO: owned by %s player
 	return hoverName;
 }

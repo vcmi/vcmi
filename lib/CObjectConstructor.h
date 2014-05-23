@@ -47,7 +47,7 @@ class CObjectWithRewardConstructor : public AObjectTypeHandler
 
 public:
 	CObjectWithRewardConstructor();
-	void init(const JsonNode & config);
+	void init(const JsonNode & config) override;
 
 	CGObjectInstance * create(ObjectTemplate tmpl) const override;
 

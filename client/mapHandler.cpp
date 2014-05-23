@@ -1073,7 +1073,7 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	}
 
 	if(t.hasFavourableWinds())
-		out = CGI->generaltexth->names[Obj::FAVORABLE_WINDS];
+		out = CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS);
 	else if(terName)
         out = CGI->generaltexth->terrainNames[t.terType];
 }

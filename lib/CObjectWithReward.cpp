@@ -121,7 +121,6 @@ void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
 				else
 					iw.text = onVisited;
 				cb->showInfoDialog(&iw);
-				onRewardGiven(h); // FIXME: dummy call to properly act on empty objects (e.g. Floatsam that must be removed after visit)
 				break;
 			}
 			case 1: // one reward. Just give it with message
@@ -141,7 +140,7 @@ void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
 					case SELECT_FIRST: // give first available
 						grantRewardWithMessage(rewards[0]);
 						break;
-					case SELECT_RANDOM: // select one randomly
+					case SELECT_RANDOM: // select one randomly //TODO: use weights
 						grantRewardWithMessage(rewards[cb->gameState()->getRandomGenerator().nextInt(rewards.size()-1)]);
 						break;
 				}
@@ -376,7 +375,7 @@ static std::string & visitedTxt(const bool visited)
 const std::string & CObjectWithReward::getHoverText() const
 {
 	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
-	hoverName = VLC->generaltexth->names[ID];
+	hoverName = VLC->objtypeh->getObjectName(ID);
 	if(visitMode != VISIT_UNLIMITED)
 	{
 		bool visited = wasVisited(cb->getCurrentPlayer());
@@ -975,7 +974,7 @@ const std::string & CGVisitableOPH::getHoverText() const
 	default:
 		throw std::runtime_error("Wrong CGVisitableOPH object ID!\n");
 	}
-	hoverName = VLC->generaltexth->names[ID];
+	hoverName = VLC->objtypeh->getObjectName(ID);
 	if(pom >= 0)
 		hoverName += ("\n" + VLC->generaltexth->xtrainfo[pom]);
 	const CGHeroInstance *h = cb->getSelectedHero (cb->getCurrentPlayer());
@@ -1015,7 +1014,6 @@ void CGVisitableOPW::initObj()
 		soundID = soundBase::GENIE;
 		onEmpty.addTxt(MetaString::ADVOB_TXT, 169);
 		// 3-6 of any resource but wood and gold
-		// this is UGLY. TODO: find better way to describe this
 		for (int resID = Res::MERCURY; resID < Res::GOLD; resID++)
 		{
 			for (int val = 3; val <=6; val++)
@@ -1045,7 +1043,7 @@ void CGVisitableOPW::initObj()
 
 void CGMagicSpring::initObj()
 {
-	CVisitInfo visit; // TODO: "player above max mana" limiter
+	CVisitInfo visit; // TODO: "player above max mana" limiter. Use logical expressions for limiters?
 	visit.reward.manaPercentage = 200;
 	visit.message.addTxt(MetaString::ADVOB_TXT, 74);
 	info.push_back(visit); // two rewards, one for each entrance

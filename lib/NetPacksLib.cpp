@@ -623,9 +623,9 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 	o->subID = subID;
 	o->pos = pos;
 	const TerrainTile &t = gs->map->getTile(pos);
-	o->appearance = VLC->objtypeh->getHandlerFor(o->ID, o->subID)->selectTemplate(t.terType, o);
+	o->appearance = VLC->objtypeh->getHandlerFor(o->ID, o->subID)->getTemplates(t.terType).front();
 	id = o->id = ObjectInstanceID(gs->map->objects.size());
-	o->hoverName = VLC->generaltexth->names[ID];
+	o->hoverName = VLC->objtypeh->getObjectName(ID);
 
 	gs->map->objects.push_back(o);
 	gs->map->addBlockVisTiles(o);

@@ -138,8 +138,32 @@ void CRandomRewardObjectInfo::init(const JsonNode & objectConfig)
 
 void CRandomRewardObjectInfo::configureObject(CObjectWithReward * object, CRandomGenerator & rng) const
 {
+	std::map<si32, si32> thrownDice;
+
 	for (const JsonNode & reward : parameters["rewards"].Vector())
 	{
+		if (!reward["appearChance"].isNull())
+		{
+			JsonNode chance = reward["appearChance"];
+			si32 diceID = chance["dice"].Float();
+
+			if (thrownDice.count(diceID) == 0)
+				thrownDice[diceID] = rng.getIntRange(1, 100)();
+
+			if (!chance["min"].isNull())
+			{
+				int min = chance["min"].Float();
+				if (min > thrownDice[diceID])
+					continue;
+			}
+			if (!chance["max"].isNull())
+			{
+				int max = chance["max"].Float();
+				if (max < thrownDice[diceID])
+					continue;
+			}
+		}
+
 		const JsonNode & limiter = reward["limiter"];
 		CVisitInfo info;
 		// load limiter
@@ -172,6 +196,9 @@ void CRandomRewardObjectInfo::configureObject(CObjectWithReward * object, CRando
 		info.reward.artifacts = loadArtifacts(reward["artifacts"], rng);
 		info.reward.spells = loadSpells(reward["spells"], rng);
 		info.reward.creatures = loadCreatures(reward["creatures"], rng);
+
+		info.message = loadMessage(reward["message"]);
+		info.selectChance = loadValue(reward["selectChance"], rng);
 	}
 
 	object->onSelect  = loadMessage(parameters["onSelectMessage"]);
@@ -241,6 +268,7 @@ CObjectWithRewardConstructor::CObjectWithRewardConstructor()
 
 void CObjectWithRewardConstructor::init(const JsonNode & config)
 {
+	AObjectTypeHandler::init(config);
 	objectInfo.init(config);
 }
 

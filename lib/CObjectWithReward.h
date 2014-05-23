@@ -119,6 +119,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & resources & extraComponents & removeObject;
+		h & manaPercentage & movePercentage;
 		h & gainedExp & gainedLevels & manaDiff & movePoints;
 		h & primary & secondary & bonuses;
 		h & artifacts & spells & creatures;
@@ -134,6 +135,9 @@ public:
 	/// Message that will be displayed on granting of this reward, if not empty
 	MetaString message;
 
+	/// Chance for this reward to be selected in case of random choice
+	si32 selectChance;
+
 	/// How many times this reward has been granted since last reset
 	si32 numOfGrants;
 
@@ -143,7 +147,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & limiter & reward & message;
+		h & limiter & reward & message & selectChance & numOfGrants;
 	}
 };
 
@@ -229,8 +233,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & info & canRefuse;
-		h & onSelect & onVisited & onEmpty;
+		h & info & canRefuse & resetDuration;
+		h & onSelect & onVisited & onEmpty & visitMode;
 		h & soundID & selectMode & selectedReward;
 	}
 

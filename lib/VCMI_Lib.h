@@ -16,7 +16,7 @@ class CCreatureHandler;
 class CSpellHandler;
 class CBuildingHandler;
 class CObjectHandler;
-class CObjectTypesHandler;
+class CObjectClassesHandler;
 class CTownHandler;
 class CGeneralTextHandler;
 class CModHandler;
@@ -42,7 +42,7 @@ public:
 	CCreatureHandler * creh;
 	CSpellHandler * spellh;
 	CObjectHandler * objh;
-	CObjectTypesHandler * objtypeh;
+	CObjectClassesHandler * objtypeh;
 	CTownHandler * townh;
 	CGeneralTextHandler * generaltexth;
 	CModHandler * modh;

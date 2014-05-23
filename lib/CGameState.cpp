@@ -166,6 +166,10 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		dst = VLC->arth->artifacts[ser]->EventText();
 	}
+	else if (type == OBJ_NAMES)
+	{
+		dst = VLC->objtypeh->getObjectName(ser);
+	}
 	else
 	{
 		std::vector<std::string> *vec;
@@ -176,9 +180,6 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 			break;
 		case XTRAINFO_TXT:
 			vec = &VLC->generaltexth->xtrainfo;
-			break;
-		case OBJ_NAMES:
-			vec = &VLC->generaltexth->names;
 			break;
 		case RES_NAMES:
 			vec = &VLC->generaltexth->restypes;
@@ -651,58 +652,25 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	std::pair<Obj,int> ran = pickObject(cur);
 	if(ran.first == Obj::NO_OBJ || ran.second<0) //this is not a random object, or we couldn't find anything
 	{
-		if(cur->ID==Obj::TOWN) //town - set def
-		{
-			const TerrainTile &tile = map->getTile(cur->visitablePos());
-			CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
-			t->town = VLC->townh->factions[t->subID]->town;
-			t->appearance = VLC->objtypeh->getHandlerFor(Obj::TOWN, t->subID)->selectTemplate(tile.terType, t);
-			t->updateAppearance();
-		}
+		if(cur->ID==Obj::TOWN)
+			cur->setType(cur->ID, cur->subID); // update def, if necessary
 		return;
 	}
 	else if(ran.first==Obj::HERO)//special code for hero
 	{
 		CGHeroInstance *h = dynamic_cast<CGHeroInstance *>(cur);
-        if(!h) {logGlobal->warnStream()<<"Wrong random hero at "<<cur->pos; return;}
-		cur->ID = ran.first;
-		cur->subID = ran.second;
-		h->type = VLC->heroh->heroes[ran.second];
-		h->portrait = h->type->imageIndex;
-		h->randomizeArmy(h->type->heroClass->faction);
+		cur->setType(ran.first, ran.second);
 		map->heroesOnMap.push_back(h);
-		return; //TODO: maybe we should do something with definfo?
+		return;
 	}
 	else if(ran.first==Obj::TOWN)//special code for town
 	{
-		const TerrainTile &tile = map->getTile(cur->visitablePos());
 		CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
-		if(!t) {logGlobal->warnStream()<<"Wrong random town at "<<cur->pos; return;}
-		cur->ID = ran.first;
-		cur->subID = ran.second;
-		//FIXME: copy-pasted from above
-		t->town = VLC->townh->factions[t->subID]->town;
-		t->appearance = VLC->objtypeh->getHandlerFor(Obj::TOWN, t->subID)->selectTemplate(tile.terType, t);
-		t->updateAppearance();
-
-		t->randomizeArmy(t->subID);
+		cur->setType(ran.first, ran.second);
 		map->towns.push_back(t);
 		return;
 	}
-	else
-	{
-		if (ran.first  != cur->appearance.id ||
-			ran.second != cur->appearance.subid)
-		{
-			const TerrainTile &tile = map->getTile(cur->visitablePos());
-			cur->appearance = VLC->objtypeh->getHandlerFor(ran.first, ran.second)->selectTemplate(tile.terType, cur);
-		}
-	}
-	//we have to replace normal random object
-	cur->ID = ran.first;
-	cur->subID = ran.second;
-	map->removeBlockVisTiles(cur, true); //recalculate blockvis tiles - picked object might have different than random placeholder
-	map->addBlockVisTiles(cur);
+	cur->setType(ran.first, ran.second);
 }
 
 int CGameState::getDate(Date::EDateType mode) const
@@ -1078,7 +1046,7 @@ void CGameState::randomizeMapObjects()
 		if(!obj) continue;
 
 		randomizeObject(obj);
-		obj->hoverName = VLC->generaltexth->names[obj->ID];
+		obj->hoverName = VLC->objtypeh->getObjectName(obj->ID);
 
 		//handle Favouring Winds - mark tiles under it
 		if(obj->ID == Obj::FAVORABLE_WINDS)

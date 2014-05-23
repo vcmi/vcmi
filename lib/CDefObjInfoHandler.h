@@ -2,6 +2,7 @@
 
 #include "GameConstants.h"
 #include "../lib/ConstTransitivePtr.h"
+#include "IHandlerBase.h"
 
 /*
  * CDefObjInfoHandler.h, part of VCMI engine
@@ -105,15 +106,17 @@ class AObjectTypeHandler
 	si32 type;
 	si32 subtype;
 
+	JsonNode base; /// describes base template
+
 	std::vector<ObjectTemplate> templates;
 protected:
-	void init(si32 type, si32 subtype);
-
-	/// loads templates from Json structure using fields "base" and "templates"
-	void load(const JsonNode & input);
+	void setType(si32 type, si32 subtype);
 
 	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
 public:
+	/// loads templates from Json structure using fields "base" and "templates"
+	virtual void init(const JsonNode & input);
+
 	void addTemplate(const ObjectTemplate & templ);
 
 	/// returns all templates, without any filters
@@ -122,35 +125,96 @@ public:
 	/// returns all templates that can be placed on specific terrain type
 	std::vector<ObjectTemplate> getTemplates(si32 terrainType) const;
 
-	/// returns template suitable for object. If returned template is not equal to current one
-	/// it must be replaced with this one (and properly updated on all clients)
-	ObjectTemplate selectTemplate(si32 terrainType, CGObjectInstance * object) const;
+	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
+	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
+	boost::optional<ObjectTemplate> getOverride(si32 terrainType, const CGObjectInstance * object) const;
 
-
+	/// Creates object and set up core properties (like ID/subID). Object is NOT initialized
+	/// to allow creating objects before game start (e.g. map loading)
 	virtual CGObjectInstance * create(ObjectTemplate tmpl) const = 0;
 
+	/// Configures object properties. Should be re-entrable, resetting state of the object if necessarily
 	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const = 0;
 
+	/// Returns object configuration, if available. Othervice returns NULL
 	virtual const IObjectInfo * getObjectInfo(ObjectTemplate tmpl) const = 0;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & type & subtype & templates;
+	}
+};
+
+template<class ObjectType>
+class CDefaultObjectTypeHandler : public AObjectTypeHandler
+{
+	CGObjectInstance * create(ObjectTemplate tmpl) const
+	{
+		auto obj = new ObjectType();
+		obj->ID = tmpl.id;
+		obj->subID = tmpl.subid;
+		obj->appearance = tmpl;
+		return obj;
+	}
+
+	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
+	{
+	}
+
+	virtual const IObjectInfo * getObjectInfo(ObjectTemplate tmpl) const
+	{
+		return nullptr;
+	}
 };
 
 typedef std::shared_ptr<AObjectTypeHandler> TObjectTypeHandler;
 
-class CObjectTypesHandler
+class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 {
-	/// list of object handlers, each of them handles only one type
-	std::map<si32, std::map<si32, TObjectTypeHandler> > objectTypes;
+	/// Small internal structure that contains information on specific group of objects
+	/// (creating separate entity is overcomplicating at least at this point)
+	struct ObjectContainter
+	{
+		si32 id;
 
+		std::string name; // human-readable name
+		std::string handlerName; // ID of handler that controls this object, shoul be determined using hadlerConstructor map
+
+		JsonNode base;
+		std::map<si32, TObjectTypeHandler> objects;
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & base & objects;
+		}
+	};
+
+	/// list of object handlers, each of them handles only one type
+	std::map<si32, ObjectContainter * > objects;
+
+	/// map that is filled during contruction with all known handlers. Not serializeable
+	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
+
+	ObjectContainter * loadFromJson(const JsonNode & json);
 public:
-	void init();
+	CObjectClassesHandler();
+
+	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize);
+
+	virtual void loadObject(std::string scope, std::string name, const JsonNode & data);
+	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index);
+
+	virtual void afterLoadFinalization(){};
+
+	virtual std::vector<bool> getDefaultAllowed() const;
 
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
 	TObjectTypeHandler getHandlerFor(si32 type, si32 subtype) const;
 
+	std::string getObjectName(si32 type) const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		//h & objects;
-		if (!h.saving)
-			init(); // TODO: implement serialization
+		h & objects;
 	}
 };

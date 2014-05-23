@@ -166,7 +166,7 @@ void CMapGenerator::genTowns()
 		}
 		town->subID = townId;
 		town->tempOwner = owner;
-		town->appearance = VLC->objtypeh->getHandlerFor(town->ID, town->subID)->selectTemplate(map->getTile(townPos[side]).terType, town);
+		town->appearance = VLC->objtypeh->getHandlerFor(town->ID, town->subID)->getTemplates(map->getTile(townPos[side]).terType).front();
 		town->builtBuildings.insert(BuildingID::FORT);
 		town->builtBuildings.insert(BuildingID::DEFAULT);
 		editManager->insertObject(town, int3(townPos[side].x, townPos[side].y + (i / 2) * 5, 0));
