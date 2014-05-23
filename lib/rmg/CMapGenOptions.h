@@ -24,7 +24,7 @@ namespace EWaterContent
 		NONE,
 		NORMAL,
 		ISLANDS,
-		TOTAL_COUNT
+		LAST_ITEM = ISLANDS
 	};
 }
 
@@ -36,7 +36,7 @@ namespace EMonsterStrength
 		WEAK,
 		NORMAL,
 		STRONG,
-		TOTAL_COUNT
+		LAST_ITEM = STRONG
 	};
 }
 

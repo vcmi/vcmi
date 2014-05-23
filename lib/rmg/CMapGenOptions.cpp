@@ -194,7 +194,7 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 		auto possiblePlayers = mapTemplate->getPlayers().getNumbers();
 		possiblePlayers.erase(possiblePlayers.begin(), possiblePlayers.lower_bound(countHumanPlayers()));
 		assert(!possiblePlayers.empty());
-		playerCount = rand.nextInt(possiblePlayers.size());
+		playerCount = *RandomGeneratorUtil::nextItem(possiblePlayers, rand);
 		updatePlayers();
 	}
 	if(teamCount == RANDOM_SIZE)
@@ -204,7 +204,7 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	if(compOnlyPlayerCount == RANDOM_SIZE)
 	{
 		auto possiblePlayers = mapTemplate->getCpuPlayers().getNumbers();
-		compOnlyPlayerCount = rand.nextInt(possiblePlayers.size());
+		compOnlyPlayerCount = *RandomGeneratorUtil::nextItem(possiblePlayers, rand);
 		updateCompOnlyPlayers();
 	}
 	if(compOnlyTeamCount == RANDOM_SIZE)
@@ -220,11 +220,11 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 
 	if(waterContent == EWaterContent::RANDOM)
 	{
-		waterContent = static_cast<EWaterContent::EWaterContent>(rand.nextInt(EWaterContent::TOTAL_COUNT));
+		waterContent = static_cast<EWaterContent::EWaterContent>(rand.nextInt(EWaterContent::LAST_ITEM));
 	}
 	if(monsterStrength == EMonsterStrength::RANDOM)
 	{
-		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(EMonsterStrength::TOTAL_COUNT));
+		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(EMonsterStrength::LAST_ITEM));
 	}
 }
 
