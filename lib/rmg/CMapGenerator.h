@@ -33,12 +33,12 @@ class CMapGenerator;
 class DLL_LINKAGE CMapGenerator
 {
 public:
-	explicit CMapGenerator(const CMapGenOptions & mapGenOptions, int randomSeed = std::time(nullptr));
+	explicit CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int randomSeed = std::time(nullptr));
 	~CMapGenerator(); // required due to unique_ptr
 
 	ConstTransitivePtr<CMap> generate();
 	
-	CMapGenOptions mapGenOptions;
+	shared_ptr<CMapGenOptions> mapGenOptions;
 	ConstTransitivePtr<CMap> map;
 	CRandomGenerator rand;
 	int randomSeed;

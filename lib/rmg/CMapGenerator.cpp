@@ -13,7 +13,7 @@
 #include "CRmgTemplate.h"
 #include "CRmgTemplateZone.h"
 
-CMapGenerator::CMapGenerator(const CMapGenOptions & mapGenOptions, int randomSeed /*= std::time(nullptr)*/) :
+CMapGenerator::CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int randomSeed /*= std::time(nullptr)*/) :
 	mapGenOptions(mapGenOptions), randomSeed(randomSeed)
 {
 	rand.setSeed(randomSeed);
@@ -26,7 +26,7 @@ CMapGenerator::~CMapGenerator()
 
 ConstTransitivePtr<CMap> CMapGenerator::generate()
 {
-	mapGenOptions.finalize(rand);
+	mapGenOptions->finalize(rand);
 
 	//map = make_unique<CMap>();
 	editManager = map->getEditManager();
@@ -46,12 +46,12 @@ std::string CMapGenerator::getMapDescription() const
 
     std::stringstream ss;
     ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
-        ", levels %s, humans %d, computers %d, water %s, monster %s, second expansion map") % mapGenOptions.getMapTemplate()->getName() %
-		randomSeed % map->width % map->height % (map->twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions.getPlayerCount()) %
-		static_cast<int>(mapGenOptions.getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions.getWaterContent()] %
-        monsterStrengthStr[mapGenOptions.getMonsterStrength()]);
+        ", levels %s, humans %d, computers %d, water %s, monster %s, second expansion map") % mapGenOptions->getMapTemplate()->getName() %
+		randomSeed % map->width % map->height % (map->twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions->getPlayerCount()) %
+		static_cast<int>(mapGenOptions->getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions->getWaterContent()] %
+        monsterStrengthStr[mapGenOptions->getMonsterStrength()]);
 
-	for(const auto & pair : mapGenOptions.getPlayersSettings())
+	for(const auto & pair : mapGenOptions->getPlayersSettings())
 	{
 		const auto & pSettings = pair.second;
 		if(pSettings.getPlayerType() == EPlayerType::HUMAN)
@@ -75,8 +75,8 @@ void CMapGenerator::addPlayerInfo()
 	int teamOffset = 0;
 	for(int i = 0; i < 2; ++i)
 	{
-		int playerCount = i == 0 ? mapGenOptions.getPlayerCount() : mapGenOptions.getCompOnlyPlayerCount();
-		int teamCount = i == 0 ? mapGenOptions.getTeamCount() : mapGenOptions.getCompOnlyTeamCount();
+		int playerCount = i == 0 ? mapGenOptions->getPlayerCount() : mapGenOptions->getCompOnlyPlayerCount();
+		int teamCount = i == 0 ? mapGenOptions->getTeamCount() : mapGenOptions->getCompOnlyTeamCount();
 
 		if(playerCount == 0)
 		{
@@ -104,7 +104,7 @@ void CMapGenerator::addPlayerInfo()
 	}
 
 	// Team numbers are assigned randomly to every player
-	for(const auto & pair : mapGenOptions.getPlayersSettings())
+	for(const auto & pair : mapGenOptions->getPlayersSettings())
 	{
 		const auto & pSettings = pair.second;
 		PlayerInfo player;
@@ -120,23 +120,23 @@ void CMapGenerator::addPlayerInfo()
 		map->players[pSettings.getColor().getNum()] = player;
 	}
 
-	map->howManyTeams = (mapGenOptions.getTeamCount() == 0 ? mapGenOptions.getPlayerCount() : mapGenOptions.getTeamCount())
-			+ (mapGenOptions.getCompOnlyTeamCount() == 0 ? mapGenOptions.getCompOnlyPlayerCount() : mapGenOptions.getCompOnlyTeamCount());
+	map->howManyTeams = (mapGenOptions->getTeamCount() == 0 ? mapGenOptions->getPlayerCount() : mapGenOptions->getTeamCount())
+			+ (mapGenOptions->getCompOnlyTeamCount() == 0 ? mapGenOptions->getCompOnlyPlayerCount() : mapGenOptions->getCompOnlyTeamCount());
 }
 
 void CMapGenerator::genZones()
 {
 	map->initTerrain();
 	editManager->clearTerrain(&rand);
-	editManager->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
+	editManager->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions->getWidth(), mapGenOptions->getHeight()));
 	editManager->drawTerrain(ETerrainType::GRASS, &rand);
 
-	auto pcnt = mapGenOptions.getPlayerCount();
-	auto w = mapGenOptions.getWidth();
-	auto h = mapGenOptions.getHeight();
+	auto pcnt = mapGenOptions->getPlayerCount();
+	auto w = mapGenOptions->getWidth();
+	auto h = mapGenOptions->getHeight();
 
 
-	auto tmpl = mapGenOptions.getMapTemplate();
+	auto tmpl = mapGenOptions->getMapTemplate();
 	auto zones = tmpl->getZones();
 
 	int player_per_side = zones.size() > 4 ? 3 : 2;
@@ -178,9 +178,9 @@ void CMapGenerator::fillZones()
 void CMapGenerator::addHeaderInfo()
 {
 	map->version = EMapFormat::SOD;
-	map->width = mapGenOptions.getWidth();
-	map->height = mapGenOptions.getHeight();
-	map->twoLevel = mapGenOptions.getHasTwoLevels();
+	map->width = mapGenOptions->getWidth();
+	map->height = mapGenOptions->getHeight();
+	map->twoLevel = mapGenOptions->getHasTwoLevels();
 	map->name = VLC->generaltexth->allTexts[740];
 	map->description = getMapDescription();
 	map->difficulty = 1;

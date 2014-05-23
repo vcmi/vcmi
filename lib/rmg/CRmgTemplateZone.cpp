@@ -340,7 +340,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			PlayerColor player(player_id);
 			auto  town = new CGTownInstance();
 			town->ID = Obj::TOWN;
-			int townId = gen->mapGenOptions.getPlayersSettings().find(player)->second.getStartingTown();
+			int townId = gen->mapGenOptions->getPlayersSettings().find(player)->second.getStartingTown();
 
 			if(townId == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
 				townId = gen->rand.nextInt (VLC->townh->factions.size()); // all possible towns
