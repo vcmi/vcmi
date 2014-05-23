@@ -32,7 +32,8 @@ int CRmgTemplateZone::CTownInfo::getTownCount() const
 
 void CRmgTemplateZone::CTownInfo::setTownCount(int value)
 {
-	if(value < 0) throw std::runtime_error("Negative value for town count not allowed.");
+	if(value < 0)
+		throw rmgException("Negative value for town count not allowed.");
 	townCount = value;
 }
 
@@ -43,7 +44,8 @@ int CRmgTemplateZone::CTownInfo::getCastleCount() const
 
 void CRmgTemplateZone::CTownInfo::setCastleCount(int value)
 {
-	if(value < 0) throw std::runtime_error("Negative value for castle count not allowed.");
+	if(value < 0)
+		throw rmgException("Negative value for castle count not allowed.");
 	castleCount = value;
 }
 
@@ -54,7 +56,8 @@ int CRmgTemplateZone::CTownInfo::getTownDensity() const
 
 void CRmgTemplateZone::CTownInfo::setTownDensity(int value)
 {
-	if(value < 0) throw std::runtime_error("Negative value for town density not allowed.");
+	if(value < 0)
+		throw rmgException("Negative value for town density not allowed.");
 	townDensity = value;
 }
 
@@ -65,7 +68,8 @@ int CRmgTemplateZone::CTownInfo::getCastleDensity() const
 
 void CRmgTemplateZone::CTownInfo::setCastleDensity(int value)
 {
-	if(value < 0) throw std::runtime_error("Negative value for castle density not allowed.");
+	if(value < 0)
+		throw rmgException("Negative value for castle density not allowed.");
 	castleDensity = value;
 }
 
@@ -81,7 +85,8 @@ int CRmgTemplateZone::CTileInfo::getNearestObjectDistance() const
 
 void CRmgTemplateZone::CTileInfo::setNearestObjectDistance(int value)
 {
-	if(value < 0) throw std::runtime_error("Negative value for nearest object distance not allowed.");
+	if(value < 0)
+		throw rmgException(boost::to_string(boost::format("Negative value %d for nearest object distance not allowed.") %value));
 	nearestObjectDistance = value;
 }
 
@@ -129,7 +134,8 @@ TRmgTemplateZoneId CRmgTemplateZone::getId() const
 
 void CRmgTemplateZone::setId(TRmgTemplateZoneId value)
 {
-	if(value <= 0) throw std::runtime_error("Zone id should be greater than 0.");
+	if(value <= 0)
+		throw rmgException(boost::to_string(boost::format("Zone %d id should be greater than 0.") %id));
 	id = value;
 }
 
@@ -149,7 +155,8 @@ int CRmgTemplateZone::getSize() const
 
 void CRmgTemplateZone::setSize(int value)
 {
-	if(value <= 0) throw std::runtime_error("Zone size needs to be greater than 0.");
+	if(value <= 0)
+		throw rmgException(boost::to_string(boost::format("Zone %d size needs to be greater than 0.") % id));
 	size = value;
 }
 
@@ -160,7 +167,8 @@ boost::optional<int> CRmgTemplateZone::getOwner() const
 
 void CRmgTemplateZone::setOwner(boost::optional<int> value)
 {
-	if(!(*value >= 0 && *value <= PlayerColor::PLAYER_LIMIT_I)) throw std::runtime_error("Owner has to be in range 0 to max player count.");
+	if(!(*value >= 0 && *value <= PlayerColor::PLAYER_LIMIT_I))
+		throw rmgException(boost::to_string(boost::format ("Owner of zone %d has to be in range 0 to max player count.") %id));
 	owner = value;
 }
 
@@ -291,7 +299,7 @@ void CRmgTemplateZone::setShape(std::vector<int3> shape)
 		if (z == -1)
 			z = point.z;
 		if (point.z != z)
-			throw std::runtime_error("Zone shape points should lie on same z.");
+			throw rmgException("Zone shape points should lie on same z.");
 		minx = std::min(minx, point.x);
 		maxx = std::max(maxx, point.x);
 		miny = std::min(miny, point.y);
@@ -343,7 +351,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			int townId = gen->mapGenOptions->getPlayersSettings().find(player)->second.getStartingTown();
 
 			if(townId == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
-				townId = gen->rand.nextInt (VLC->townh->factions.size()); // all possible towns
+				townId = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); // all possible towns, skip neutral
 
 			town->subID = townId;
 			town->tempOwner = player;
@@ -391,7 +399,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 		logGlobal->infoStream() << "Looking for place";
 		if ( ! findPlaceForObject(gen, obj, 3, pos))		
 		{
-			logGlobal->errorStream() << "Failed to fill zone due to lack of space";
+			logGlobal->errorStream() << boost::format("Failed to fill zone %d due to lack of space") %id;
 			//TODO CLEANUP!
 			return false;
 		}
@@ -445,7 +453,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	}
 	logGlobal->infoStream() << boost::format("Filling %d with ROCK") % sel.getSelectedItems().size();
 	//gen->editManager->drawTerrain(ETerrainType::ROCK, &gen->gen);
-	logGlobal->infoStream() << "Zone filled successfully";
+	logGlobal->infoStream() << boost::format ("Zone %d filled successfully") %id;
 	return true;
 }
 
@@ -477,12 +485,28 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 	return result;
 }
 
+void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos)
+{
+	object->pos = pos;
+
+	if (!gen->map->isInTheMap(object->visitablePos()))
+		throw rmgException(boost::to_string(boost::format("Visitable tile %s of object %d at %s is outside the map") % object->visitablePos() % object->id % object->pos()));
+	for (auto tile : object->getBlockedPos())
+	{
+		if (!gen->map->isInTheMap(tile))
+			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile() % object->id % object->pos()));
+	}
+
+	gen->editManager->insertObject(object, pos);
+	logGlobal->infoStream() << boost::format ("Successfully inserted object (%d,%d) at pos %s") %object->ID %object->id %pos();
+}
+
 void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos)
 {
-	logGlobal->infoStream() << boost::format("Insert object at %d %d") % pos.x % pos.y;
-	object->pos = pos;
-	gen->editManager->insertObject(object, pos);
-	logGlobal->infoStream() << "Inserted object";
+	logGlobal->infoStream() << boost::format("Inserting object at %d %d") % pos.x % pos.y;
+
+	checkAndPlaceObject (gen, object, pos);
+
 	auto points = object->getBlockedPos();
 	if (object->isVisitable())
 		points.emplace(pos + object->getVisitableOffset());
@@ -538,7 +562,6 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	//type will be set during initialization
 	guard->putStack(SlotID(0), hlp);
 
-	guard->pos = guard_tile;
-	gen->editManager->insertObject(guard, guard->pos);
+	checkAndPlaceObject(gen, guard, guard_tile);
 	return true;
 }

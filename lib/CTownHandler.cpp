@@ -815,3 +815,13 @@ std::vector<bool> CTownHandler::getDefaultAllowed() const
 	}
 	return allowedFactions;
 }
+std::set<TFaction> CTownHandler::getAllowedFactions() const
+{
+	std::set<TFaction> allowedFactions;
+	auto allowed = getDefaultAllowed();
+	for (size_t i=0; i<allowed.size(); i++)
+		if (allowed[i])
+			allowedFactions.insert(i);
+
+	return allowedFactions;
+}

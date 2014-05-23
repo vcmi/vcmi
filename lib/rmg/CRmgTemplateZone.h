@@ -120,6 +120,7 @@ private:
 	int3 getCenter();
 	bool pointIsIn(int x, int y);
 	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
+	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str);
 };

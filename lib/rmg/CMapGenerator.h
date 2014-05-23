@@ -29,6 +29,24 @@ typedef std::vector<JsonNode> JsonVector;
 
 class CMapGenerator;
 
+class rmgException : std::exception
+{
+	std::string msg;
+public:
+	explicit rmgException(const std::string& _Message) : msg(_Message)
+	{
+	}
+
+	virtual ~rmgException() throw ()
+	{
+	};
+
+	const char *what() const throw () override
+	{
+		return msg.c_str();
+	}
+};
+
 /// The map generator creates a map randomly.
 class DLL_LINKAGE CMapGenerator
 {

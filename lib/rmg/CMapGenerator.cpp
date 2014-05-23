@@ -26,16 +26,22 @@ CMapGenerator::~CMapGenerator()
 
 std::unique_ptr<CMap> CMapGenerator::generate()
 {
-	mapGenOptions->finalize(rand);
+		mapGenOptions->finalize(rand);
 
-	map = make_unique<CMap>();
-	editManager = map->getEditManager();
-	editManager->getUndoManager().setUndoRedoLimit(0);
-	addHeaderInfo();
+		map = make_unique<CMap>();
+		editManager = map->getEditManager();
+	try
+	{
+		editManager->getUndoManager().setUndoRedoLimit(0);
+		addHeaderInfo();
 
-	genZones();
-	fillZones();
-
+		genZones();
+		fillZones();
+	}
+	catch (rmgException &e)
+	{
+		logGlobal->infoStream() << "Random map generation received exception: " << e.what();
+	}
 	return std::move(map);
 }
 

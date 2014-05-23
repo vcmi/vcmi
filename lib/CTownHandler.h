@@ -270,6 +270,7 @@ public:
 	void afterLoadFinalization() override;
 
 	std::vector<bool> getDefaultAllowed() const override;
+	std::set<TFaction> getAllowedFactions() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
