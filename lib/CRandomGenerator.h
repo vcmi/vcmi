@@ -97,7 +97,6 @@ public:
 
 namespace RandomGeneratorUtil
 {
-	/// Gets an iterator to an element of a nonempty container randomly. Undefined behaviour if container is empty.
 	template<typename Container>
 	auto nextItem(const Container & container, CRandomGenerator & rand) -> decltype(std::begin(container))
 	{

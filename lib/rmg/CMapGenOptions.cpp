@@ -220,11 +220,11 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 
 	if(waterContent == EWaterContent::RANDOM)
 	{
-		waterContent = static_cast<EWaterContent::EWaterContent>(rand.nextInt(2));
+		waterContent = static_cast<EWaterContent::EWaterContent>(rand.nextInt(EWaterContent::LAST_ITEM));
 	}
 	if(monsterStrength == EMonsterStrength::RANDOM)
 	{
-		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(2));
+		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(EMonsterStrength::LAST_ITEM));
 	}
 }
 

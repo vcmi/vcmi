@@ -18,34 +18,36 @@ class CRmgTemplate;
 
 namespace EWaterContent
 {
-enum EWaterContent
-{
-	RANDOM = -1,
-	NONE,
-	NORMAL,
-	ISLANDS
-};
+	enum EWaterContent
+	{
+		RANDOM = -1,
+		NONE,
+		NORMAL,
+		ISLANDS,
+		LAST_ITEM = ISLANDS
+	};
 }
 
 namespace EMonsterStrength
 {
-enum EMonsterStrength
-{
-	RANDOM = -1,
-	WEAK,
-	NORMAL,
-	STRONG
-};
+	enum EMonsterStrength
+	{
+		RANDOM = -1,
+		WEAK,
+		NORMAL,
+		STRONG,
+		LAST_ITEM = STRONG
+	};
 }
 
 namespace EPlayerType
 {
-enum EPlayerType
-{
-	HUMAN,
-	AI,
-	COMP_ONLY
-};
+	enum EPlayerType
+	{
+		HUMAN,
+		AI,
+		COMP_ONLY
+	};
 }
 
 /// The map gen options class holds values about general map generation settings

@@ -12,6 +12,9 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "CMapGenerator.h"
+
+class CMapgenerator;
 
 namespace ETemplateZoneType
 {
@@ -45,6 +48,27 @@ public:
 	private:
 		int townCount, castleCount, townDensity, castleDensity;
 	};
+	
+	class DLL_LINKAGE CTileInfo
+	{
+	public:
+		CTileInfo();
+
+		int getNearestObjectDistance() const;
+		void setNearestObjectDistance(int value);
+		bool isObstacle() const;
+		void setObstacle(bool value);
+		bool isOccupied() const;
+		void setOccupied(bool value);
+		ETerrainType getTerrainType() const;
+		void setTerrainType(ETerrainType value);
+
+	private:
+		int nearestObjectDistance;
+		bool obstacle;
+		bool occupied;
+		ETerrainType terrain;
+	};
 
 	CRmgTemplateZone();
 
@@ -52,12 +76,10 @@ public:
 	void setId(TRmgTemplateZoneId value);
 	ETemplateZoneType::ETemplateZoneType getType() const; /// Default: ETemplateZoneType::PLAYER_START
 	void setType(ETemplateZoneType::ETemplateZoneType value);
-
 	int getSize() const; /// Default: 1
 	void setSize(int value);
 	boost::optional<int> getOwner() const;
 	void setOwner(boost::optional<int> value);
-
 	const CTownInfo & getPlayerTowns() const;
 	void setPlayerTowns(const CTownInfo & value);
 	const CTownInfo & getNeutralTowns() const;
@@ -69,7 +91,6 @@ public:
 	std::set<TFaction> getDefaultTownTypes() const;
 	bool getMatchTerrainToTown() const; /// Default: true
 	void setMatchTerrainToTown(bool value);
-
 	const std::set<ETerrainType> & getTerrainTypes() const; /// Default: all
 	void setTerrainTypes(const std::set<ETerrainType> & value);
 	std::set<ETerrainType> getDefaultTerrainTypes() const;
@@ -77,6 +98,8 @@ public:
 	void setTerrainTypeLikeZone(boost::optional<TRmgTemplateZoneId> value);
 	boost::optional<TRmgTemplateZoneId> getTownTypeLikeZone() const;
 	void setTownTypeLikeZone(boost::optional<TRmgTemplateZoneId> value);
+	void setShape(std::vector<int3> shape);
+	bool fill(CMapGenerator* gen);
 
 private:
 	TRmgTemplateZoneId id;
@@ -89,4 +112,15 @@ private:
 	bool matchTerrainToTown;
 	std::set<ETerrainType> terrainTypes;
 	boost::optional<TRmgTemplateZoneId> terrainTypeLikeZone, townTypeLikeZone;
+
+	std::vector<int3> shape;
+	std::map<int3, CTileInfo> tileinfo;
+	std::vector<CGObjectInstance*> objects;
+
+	int3 getCenter();
+	bool pointIsIn(int x, int y);
+	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
+	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
+	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
+	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str);
 };

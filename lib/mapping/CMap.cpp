@@ -20,10 +20,7 @@ PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
 	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainCustomHeroPortrait(-1), mainCustomHeroId(-1), hasMainTown(false),
 	generateHeroAtMainTown(false), team(255), hasRandomHero(false), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
 {
-	auto allowed = VLC->townh->getDefaultAllowed();
-	for (size_t i=0; i<allowed.size(); i++)
-		if (allowed[i])
-			allowedFactions.insert(i);
+	allowedFactions = VLC->townh->getAllowedFactions();
 }
 
 si8 PlayerInfo::defaultCastle() const

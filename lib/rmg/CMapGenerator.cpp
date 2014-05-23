@@ -1,14 +1,3 @@
-
-/*
- * CMapGenerator.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
-
 #include "StdInc.h"
 #include "CMapGenerator.h"
 
@@ -20,11 +9,14 @@
 #include "../CDefObjInfoHandler.h"
 #include "../CTownHandler.h"
 #include "../StringConstants.h"
+#include "../filesystem/Filesystem.h"
 #include "CRmgTemplate.h"
+#include "CRmgTemplateZone.h"
 
-CMapGenerator::CMapGenerator() : mapGenOptions(nullptr), randomSeed(0)
+CMapGenerator::CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int randomSeed /*= std::time(nullptr)*/) :
+	mapGenOptions(mapGenOptions), randomSeed(randomSeed)
 {
-
+	rand.setSeed(randomSeed);
 }
 
 CMapGenerator::~CMapGenerator()
@@ -32,21 +24,27 @@ CMapGenerator::~CMapGenerator()
 
 }
 
-std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, int randomSeed /*= std::time(nullptr)*/)
+std::unique_ptr<CMap> CMapGenerator::generate()
 {
-	this->randomSeed = randomSeed;
-	rand.setSeed(this->randomSeed);
-	this->mapGenOptions = mapGenOptions;
-	this->mapGenOptions->finalize(rand);
+		mapGenOptions->finalize(rand);
 
-	map = make_unique<CMap>();
-	editManager = map->getEditManager();
-	editManager->getUndoManager().setUndoRedoLimit(0);
-	addHeaderInfo();
+		map = make_unique<CMap>();
+		editManager = map->getEditManager();
+	try
+	{
+		editManager->getUndoManager().setUndoRedoLimit(0);
+		addHeaderInfo();
 
-	genTerrain();
-	genTowns();
+		genZones();
+		map->calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
+		fillZones();
+	}
+	catch (rmgException &e)
+	{
+		logGlobal->errorStream() << "Random map generation received exception: " << e.what();
+	}
 
+	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed
 	return std::move(map);
 }
 
@@ -57,10 +55,10 @@ std::string CMapGenerator::getMapDescription() const
 
     std::stringstream ss;
     ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
-		", levels %s, humans %d, computers %d, water %s, monster %s, second expansion map") % mapGenOptions->getMapTemplate()->getName() %
+        ", levels %s, humans %d, computers %d, water %s, monster %s, second expansion map") % mapGenOptions->getMapTemplate()->getName() %
 		randomSeed % map->width % map->height % (map->twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions->getPlayerCount()) %
 		static_cast<int>(mapGenOptions->getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions->getWaterContent()] %
-		monsterStrengthStr[mapGenOptions->getMonsterStrength()]);
+        monsterStrengthStr[mapGenOptions->getMonsterStrength()]);
 
 	for(const auto & pair : mapGenOptions->getPlayersSettings())
 	{
@@ -125,8 +123,7 @@ void CMapGenerator::addPlayerInfo()
 		{
 			player.canHumanPlay = true;
 		}
-
-		auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
+		auto itTeam = std::next(teamNumbers[j].begin(), rand.nextInt (teamNumbers[j].size()));
 		player.team = TeamID(*itTeam);
 		teamNumbers[j].erase(itTeam);
 		map->players[pSettings.getColor().getNum()] = player;
@@ -136,48 +133,55 @@ void CMapGenerator::addPlayerInfo()
 			+ (mapGenOptions->getCompOnlyTeamCount() == 0 ? mapGenOptions->getCompOnlyPlayerCount() : mapGenOptions->getCompOnlyTeamCount());
 }
 
-void CMapGenerator::genTerrain()
+void CMapGenerator::genZones()
 {
 	map->initTerrain();
 	editManager->clearTerrain(&rand);
-    editManager->getTerrainSelection().selectRange(MapRect(int3(4, 4, 0), 24, 30));
+	editManager->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions->getWidth(), mapGenOptions->getHeight()));
 	editManager->drawTerrain(ETerrainType::GRASS, &rand);
+
+	auto pcnt = mapGenOptions->getPlayerCount();
+	auto w = mapGenOptions->getWidth();
+	auto h = mapGenOptions->getHeight();
+
+
+	auto tmpl = mapGenOptions->getMapTemplate();
+	auto zones = tmpl->getZones();
+
+	int player_per_side = zones.size() > 4 ? 3 : 2;
+	int zones_cnt = zones.size() > 4 ? 9 : 4;
+		
+	logGlobal->infoStream() << boost::format("Map size %d %d, players per side %d") % w % h % player_per_side;
+
+	int i = 0;
+	int part_w = w/player_per_side;
+	int part_h = h/player_per_side;
+	for(auto const it : zones)
+	{
+		CRmgTemplateZone * zone = it.second;
+		std::vector<int3> shape;
+		int left = part_w*(i%player_per_side);
+		int top = part_h*(i/player_per_side);
+		shape.push_back(int3(left, top,  0));
+		shape.push_back(int3(left + part_w, top,  0));
+		shape.push_back(int3(left + part_w, top + part_h,  0));
+		shape.push_back(int3(left, top + part_h,  0));
+		zone->setShape(shape);
+		zone->setType(i < pcnt ? ETemplateZoneType::PLAYER_START : ETemplateZoneType::TREASURE);
+		this->zones[it.first] = zone;
+		++i;
+	}
+	logGlobal->infoStream() << "Zones generated successfully";
 }
 
-void CMapGenerator::genTowns()
-{
-	//FIXME mock gen
-	const int3 townPos[2] = { int3(11, 7, 0), int3(19,7, 0) };
-
-	for(size_t i = 0; i < map->players.size(); ++i)
+void CMapGenerator::fillZones()
+{	
+	logGlobal->infoStream() << "Started filling zones";
+	for(auto it : zones)
 	{
-		auto & playerInfo = map->players[i];
-		if(!playerInfo.canAnyonePlay()) break;
-
-		PlayerColor owner(i);
-		int side = i % 2;
-		auto  town = new CGTownInstance();
-		town->ID = Obj::TOWN;
-		int townId = mapGenOptions->getPlayersSettings().find(PlayerColor(i))->second.getStartingTown();
-		if(townId == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
-		{
-			// select default towns
-			townId = rand.nextInt(8);
-		}
-		town->subID = townId;
-		town->tempOwner = owner;
-		town->appearance = VLC->dobjinfo->pickCandidates(town->ID, town->subID, map->getTile(townPos[side]).terType).front();
-		town->builtBuildings.insert(BuildingID::FORT);
-		town->builtBuildings.insert(BuildingID::DEFAULT);
-		editManager->insertObject(town, int3(townPos[side].x, townPos[side].y + (i / 2) * 5, 0));
-
-		// Update player info
-		playerInfo.allowedFactions.clear();
-		playerInfo.allowedFactions.insert(townId);
-		playerInfo.hasMainTown = true;
-		playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
-		playerInfo.generateHeroAtMainTown = true;
-	}
+		it.second->fill(this);
+	}	
+	logGlobal->infoStream() << "Zones filled successfully";
 }
 
 void CMapGenerator::addHeaderInfo()
