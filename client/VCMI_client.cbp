@@ -140,6 +140,7 @@
 		<Unit filename="gui/Fonts.h" />
 		<Unit filename="gui/Geometries.cpp" />
 		<Unit filename="gui/Geometries.h" />
+		<Unit filename="gui/SDL_Compat.h" />
 		<Unit filename="gui/SDL_Extensions.cpp" />
 		<Unit filename="gui/SDL_Extensions.h" />
 		<Unit filename="gui/SDL_Pixels.h" />

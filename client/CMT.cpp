@@ -70,6 +70,7 @@ CGuiHandler GH;
 static CClient *client=nullptr;
 
 #ifndef VCMI_SDL1
+int preferedDriverIndex = -1;
 SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
 SDL_Texture * screenTexture = nullptr;
@@ -267,10 +268,11 @@ int main(int argc, char** argv)
 		gNoGUI = true;
 		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
 	}
-
+#ifdef VCMI_SDL1
 	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
 	putenv((char*)"SDL_VIDEO_WINDOW_POS");
 	putenv((char*)"SDL_VIDEO_CENTERED=1");
+#endif
 
 	// Have effect on X11 system only (Linux).
 	// For whatever reason in fullscreen mode SDL takes "raw" mouse input from DGA X11 extension
@@ -356,10 +358,32 @@ int main(int argc, char** argv)
 		}
 		GH.mainFPSmng->init(); //(!)init here AFTER SDL_Init() while using SDL for FPS management
 		atexit(SDL_Quit);
+		
+		#ifndef VCMI_SDL1
+		int driversCount = SDL_GetNumRenderDrivers();
+		
+		logGlobal->infoStream() << "Found " << driversCount << " render drivers";
+		
+		for(int it = 0; it < driversCount; it++)
+		{
+			SDL_RendererInfo info;
+			SDL_GetRenderDriverInfo(it,&info);
+			
+			std::string driverName(info.name);
+			
+			logGlobal->infoStream() << "\t" << driverName;
+			
+			if(driverName == "opengl")
+			{
+				preferedDriverIndex = it;
+				logGlobal->infoStream() << "\t\t will select this";
+			}					
+		}			
+		#endif // VCMI_SDL1	
+		
 		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
 		logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
 	}
-
 
 	CCS = new CClientState;
 	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler etc.)
@@ -799,6 +823,8 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	// VCMI will only work with 2, 3 or 4 bytes per pixel	
 	vstd::amax(bpp, 16);
 	vstd::amin(bpp, 32);
+	if(bpp>16)
+		bpp = 32;
 	
 	int suggestedBpp = bpp;
 
@@ -807,6 +833,30 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 		logGlobal->errorStream() << "Error: SDL says that " << w << "x" << h << " resolution is not available!";
 		return false;
 	}	
+	
+	bool bufOnScreen = (screenBuf == screen);
+
+	screenBuf = nullptr; //it`s a link - just nullify
+
+	if(nullptr != screen2)
+	{
+		SDL_FreeSurface(screen2);
+		screen2 = nullptr;
+	}
+		
+		
+	if(nullptr != screen)
+	{
+		SDL_FreeSurface(screen);
+		screen = nullptr;
+	}	
+		
+	
+	if(nullptr != screenTexture)
+	{
+		SDL_DestroyTexture(screenTexture);
+		screenTexture = nullptr;
+	}
 	
 	if(nullptr != mainRenderer)	
 	{
@@ -820,16 +870,15 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 		mainWindow = nullptr;
 	}	
 	
-	bool bufOnScreen = (screenBuf == screen);
 	
 	if(fullscreen)
 	{
 		//in full-screen mode always use desktop resolution
-		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_OPENGL);
 	}
 	else
 	{
-		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, w, h, 0);
+		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL);
 	}
 	
 	
@@ -840,24 +889,21 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	}
 	
 	
-	//create first available renderer. Use no flags, so HW accelerated will be preferred but SW renderer also will possible
-	mainRenderer = SDL_CreateRenderer(mainWindow,-1,0);
+	//create first available renderer if "opengl" not found. Use no flags, so HW accelerated will be preferred but SW renderer also will possible
+	mainRenderer = SDL_CreateRenderer(mainWindow,preferedDriverIndex,0);
 
 	if(nullptr == mainRenderer)
 	{
 		throw std::runtime_error("Unable to create renderer\n");
 	}	
 	
+	SDL_RendererInfo info;
+	SDL_GetRendererInfo(mainRenderer,&info);
+	logGlobal->infoStream() << "Created renderer " << info.name;	
+	
 	SDL_RenderSetLogicalSize(mainRenderer, w, h);
 
 
-	screenBuf = nullptr; //it`s a link - just nullify
-
-	if(screen2)
-		SDL_FreeSurface(screen2);
-		
-	//logGlobal->infoStream() << "New screen flags: " << screen->flags;
-	SDL_FreeSurface(screen);
 	
 	#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
 		int bmask = 0xff000000;

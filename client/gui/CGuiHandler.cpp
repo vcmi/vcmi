@@ -8,6 +8,7 @@
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/CConfigHandler.h"
 #include "../CMT.h"
+#include "../CPlayerInterface.h"
 
 extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
@@ -414,22 +415,28 @@ void CGuiHandler::run()
 	setThreadName("CGuiHandler::run");
 	inGuiThread.reset(new bool(true));
 	try
-	{
+	{		
 		if(settings["video"]["fullscreen"].Bool())
 			CCS->curh->centerCursor();
 
 		mainFPSmng->init(); // resets internal clock, needed for FPS manager
 		while(!terminate)
 		{
-			if(curInt)
-				curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
-			
-			SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
-			SDL_RenderClear(mainRenderer);
-			SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL);
+			{
+				//boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);			
+				if(curInt)
+					curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
 
-			SDL_RenderPresent(mainRenderer);
+#ifndef	 VCMI_SDL1
 
+				SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
+				SDL_RenderClear(mainRenderer);
+				SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL);
+
+				SDL_RenderPresent(mainRenderer);				
+
+#endif			
+			}
 			mainFPSmng->framerateDelay(); // holds a constant FPS
 		}
 	}
