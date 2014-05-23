@@ -544,11 +544,14 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 			auto it = tileinfo.find(visitable + int3(i, j, 0));
 			if (it != tileinfo.end())
 			{
-				logGlobal->infoStream() << boost::format("Block at %d %d") % it->first.x % it->first.y;
-				if ( ! it->second.isOccupied() &&  ! it->second.isObstacle())
+				if (it->first != visitable)
 				{
-					tiles.push_back(it->first);
-					it->second.setObstacle(true);
+					logGlobal->infoStream() << boost::format("Block at %d %d") % it->first.x % it->first.y;
+					if (!it->second.isOccupied() &&  !it->second.isObstacle())
+					{
+						tiles.push_back(it->first);
+						it->second.setObstacle(true);
+					}
 				}
 			}
 		}

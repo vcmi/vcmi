@@ -43,8 +43,6 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	{
 		logGlobal->errorStream() << "Random map generation received exception: " << e.what();
 	}
-
-	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed
 	return std::move(map);
 }
 
