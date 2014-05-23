@@ -368,6 +368,9 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
 			playerInfo.generateHeroAtMainTown = true;
 
+			gen->editManager->getTerrainSelection().selectRange(MapRect(shape[0], shape[2].y - shape[0].y, shape[2].x - shape[0].x));
+			gen->editManager->drawTerrain(VLC->townh->factions[townId]->nativeTerrain, &gen->rand);
+
 			//required_objects.push_back(town);
 
 			std::vector<Res::ERes> required_mines;
