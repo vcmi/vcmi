@@ -13,6 +13,7 @@
 
 #include "../GameConstants.h"
 #include "CMapGenerator.h"
+#include "float3.h"
 
 class CMapgenerator;
 
@@ -98,10 +99,20 @@ public:
 	void setTerrainTypeLikeZone(boost::optional<TRmgTemplateZoneId> value);
 	boost::optional<TRmgTemplateZoneId> getTownTypeLikeZone() const;
 	void setTownTypeLikeZone(boost::optional<TRmgTemplateZoneId> value);
+
+	float3 getCenter() const;
+	void setCenter(float3 f);
+	int3 getPos();
+	void setPos(int3 pos);
+
 	void setShape(std::vector<int3> shape);
 	bool fill(CMapGenerator* gen);
 
+	void addConnection(TRmgTemplateZoneId otherZone);
+	std::vector<TRmgTemplateZoneId> getConnections() const;
+
 private:
+	//template info
 	TRmgTemplateZoneId id;
 	ETemplateZoneType::ETemplateZoneType type;
 	int size;
@@ -113,11 +124,17 @@ private:
 	std::set<ETerrainType> terrainTypes;
 	boost::optional<TRmgTemplateZoneId> terrainTypeLikeZone, townTypeLikeZone;
 
-	std::vector<int3> shape;
-	std::map<int3, CTileInfo> tileinfo;
+	//content info
+	std::vector<int3> shape; //TODO: remove
 	std::vector<CGObjectInstance*> objects;
 
-	int3 getCenter();
+	//placement info
+	int3 pos;
+	float3 center;
+	std::map<int3, CTileInfo> tileinfo; //irregular area assined to zone
+	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
+	std::map<TRmgTemplateZoneId, bool> alreadyConnected; //TODO: allow multiple connections between two zones?
+
 	bool pointIsIn(int x, int y);
 	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);

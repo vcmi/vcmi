@@ -11,35 +11,41 @@
 
 #pragma once
 
+#include "CMapGenerator.h"
+#include "../mapping/CMap.h"
+
+#include "float3.h"
+#include "../int3.h"
+
 class CZoneGraph;
 class CMap;
 class CRandomGenerator;
 class CRmgTemplateZone;
+class CMapGenerator;
 
 class CPlacedZone
 {
 public:
-	explicit CPlacedZone(const CRmgTemplateZone * zone);
+	explicit CPlacedZone(const CRmgTemplateZone * Zone);
 
 private:
-	//const CRmgTemplateZone * zone;
+	const CRmgTemplateZone * zone;
 
 	//TODO exact outline data of zone
 	//TODO perhaps further zone data, guards, obstacles, etc...
 };
 
-//TODO add voronoi helper classes(?), etc...
-
 class CZonePlacer
 {
 public:
-	CZonePlacer();
+	explicit CZonePlacer(CMapGenerator * gen);
+	int3 cords (float3 f) const;
 	~CZonePlacer();
 
-	void placeZones(CMap * map, unique_ptr<CZoneGraph> graph, CRandomGenerator * gen);
+	void placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGenerator * rand);
 
 private:
 	//CMap * map;
-	unique_ptr<CZoneGraph> graph;
-	//CRandomGenerator * gen;
+	//unique_ptr<CZoneGraph> graph;
+	CMapGenerator * gen;
 };

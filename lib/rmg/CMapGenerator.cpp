@@ -12,6 +12,7 @@
 #include "../filesystem/Filesystem.h"
 #include "CRmgTemplate.h"
 #include "CRmgTemplateZone.h"
+#include "CZonePlacer.h"
 
 CMapGenerator::CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int randomSeed /*= std::time(nullptr)*/) :
 	mapGenOptions(mapGenOptions), randomSeed(randomSeed)
@@ -26,10 +27,10 @@ CMapGenerator::~CMapGenerator()
 
 std::unique_ptr<CMap> CMapGenerator::generate()
 {
-		mapGenOptions->finalize(rand);
+	mapGenOptions->finalize(rand);
 
-		map = make_unique<CMap>();
-		editManager = map->getEditManager();
+	map = make_unique<CMap>();
+	editManager = map->getEditManager();
 	try
 	{
 		editManager->getUndoManager().setUndoRedoLimit(0);
@@ -144,12 +145,15 @@ void CMapGenerator::genZones()
 
 
 	auto tmpl = mapGenOptions->getMapTemplate();
-	auto zones = tmpl->getZones();
+	zones = tmpl->getZones(); //copy from template (refactor?)
 
 	int player_per_side = zones.size() > 4 ? 3 : 2;
 	int zones_cnt = zones.size() > 4 ? 9 : 4;
 		
 	logGlobal->infoStream() << boost::format("Map size %d %d, players per side %d") % w % h % player_per_side;
+
+	CZonePlacer placer(this);
+	placer.placeZones(mapGenOptions, &rand);
 
 	int i = 0;
 	int part_w = w/player_per_side;
@@ -192,4 +196,9 @@ void CMapGenerator::addHeaderInfo()
 	map->description = getMapDescription();
 	map->difficulty = 1;
 	addPlayerInfo();
+}
+
+std::map<TRmgTemplateZoneId, CRmgTemplateZone*> CMapGenerator::getZones() const
+{
+	return zones;
 }

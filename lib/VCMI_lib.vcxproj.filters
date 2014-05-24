@@ -396,5 +396,8 @@
     <ClInclude Include="registerTypes\RegisterTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="rmg\float3.h">
+      <Filter>rmg</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

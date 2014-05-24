@@ -272,6 +272,26 @@ void CRmgTemplateZone::setTownTypeLikeZone(boost::optional<TRmgTemplateZoneId> v
 	townTypeLikeZone = value;
 }
 
+void CRmgTemplateZone::addConnection(TRmgTemplateZoneId otherZone)
+{
+	connections.push_back (otherZone);
+}
+
+std::vector<TRmgTemplateZoneId> CRmgTemplateZone::getConnections() const
+{
+	return connections;
+}
+float3 CRmgTemplateZone::getCenter() const
+{
+	return center;
+}
+void CRmgTemplateZone::setCenter(float3 f)
+{
+	//limit boundaries to (0,1) square
+	center = float3 (std::min(std::max(f.x, 0.f), 1.f), std::min(std::max(f.y, 0.f), 1.f), f.z);
+}
+
+
 bool CRmgTemplateZone::pointIsIn(int x, int y)
 {
 	int i, j;
@@ -316,21 +336,26 @@ void CRmgTemplateZone::setShape(std::vector<int3> shape)
 	}
 }
 
-int3 CRmgTemplateZone::getCenter()
+int3 CRmgTemplateZone::getPos()
 {
-	si32 cx = 0;
-	si32 cy = 0;
-	si32 area = 0;
-	si32 sz = shape.size();
-	//include last->first too
-	for(si32 i = 0, j = sz-1; i < sz; j = i++) {
-		si32 sf = (shape[i].x * shape[j].y - shape[j].x * shape[i].y);
-		cx += (shape[i].x + shape[j].x) * sf;
-		cy += (shape[i].y + shape[j].y) * sf;
-		area += sf;
-	}
-	area /= 2;
-	return int3(std::abs(cx/area/6), std::abs(cy/area/6), shape[0].z);
+	//si32 cx = 0;
+	//si32 cy = 0;
+	//si32 area = 0;
+	//si32 sz = shape.size();
+	////include last->first too
+	//for(si32 i = 0, j = sz-1; i < sz; j = i++) {
+	//	si32 sf = (shape[i].x * shape[j].y - shape[j].x * shape[i].y);
+	//	cx += (shape[i].x + shape[j].x) * sf;
+	//	cy += (shape[i].y + shape[j].y) * sf;
+	//	area += sf;
+	//}
+	//area /= 2;
+	//return int3(std::abs(cx/area/6), std::abs(cy/area/6), shape[0].z);
+	return pos;
+}
+void CRmgTemplateZone::setPos(int3 Pos)
+{
+	pos = Pos;
 }
 
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
@@ -356,7 +381,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			town->builtBuildings.insert(BuildingID::FORT);
 			town->builtBuildings.insert(BuildingID::DEFAULT);
 			
-			placeObject(gen, town, getCenter());
+			placeObject(gen, town, getPos());
 			logGlobal->infoStream() << "Placed object";
 
 			logGlobal->infoStream() << "Fill player info " << player_id;
@@ -512,7 +537,7 @@ void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance*
 
 void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos)
 {
-	logGlobal->infoStream() << boost::format("Inserting object at %d %d") % pos.x % pos.y;
+	logGlobal->traceStream() << boost::format("Inserting object at %d %d") % pos.x % pos.y;
 
 	checkAndPlaceObject (gen, object, pos);
 
@@ -537,7 +562,7 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str)
 {
 	
-	logGlobal->infoStream() << boost::format("Guard object at %d %d") % object->pos.x % object->pos.y;
+	logGlobal->traceStream() << boost::format("Guard object at %d %d") % object->pos.x % object->pos.y;
 	int3 visitable = object->visitablePos();
 	std::vector<int3> tiles;
 	for(int i = -1; i < 2; ++i)

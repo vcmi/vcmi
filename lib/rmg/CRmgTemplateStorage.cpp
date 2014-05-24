@@ -81,6 +81,16 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				connections.push_back(conn);
 			}
 			tpl->setConnections(connections);
+			{
+				auto zones = tpl->getZones();
+				for (auto con : tpl->getConnections())
+				{
+					auto idA = con.getZoneA()->getId();
+					auto idB = con.getZoneB()->getId();
+					zones[idA]->addConnection(idB);
+					zones[idB]->addConnection(idA);
+				}
+			}
 			tpl->validate();
 			templates[tpl->getName()] = tpl;
 		}

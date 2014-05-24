@@ -62,6 +62,8 @@ public:
 	int randomSeed;
 	CMapEditManager * editManager;
 
+	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> getZones() const;
+
 private:
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> zones;
 

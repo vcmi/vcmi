@@ -321,6 +321,7 @@
     <ClInclude Include="rmg\CRmgTemplateZone.h" />
     <ClInclude Include="rmg\CZoneGraphGenerator.h" />
     <ClInclude Include="rmg\CZonePlacer.h" />
+    <ClInclude Include="rmg\float3.h" />
     <ClInclude Include="StartInfo.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="UnlockGuard.h" />
