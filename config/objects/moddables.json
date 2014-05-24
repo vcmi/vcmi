@@ -1,0 +1,136 @@
+{
+	/// These are objects that have subtypes that change various aspects of their mechanics
+	/// Should be made configurable (either directly or via other parts of modding system ASAP)
+	/// Editing these objects either directly or via mod may have negative effect on game
+	
+	// subtype: artifact ID
+	"artifact" : {
+		"id" :5, 
+		"handler": "artifact",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VV", "VA"]
+			}
+		}
+	},
+	
+	// subtype: hero CLASS (not hero).
+	"hero" : {
+		"id" :34,
+		"handler": "hero",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VV", "AV"]
+			}
+		}
+	},
+	
+	// subtype: creatures
+	"monster" : {
+		"id" :54,
+		"handler": "monster"
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VV", "VA"]
+			}
+		}
+	},
+
+	// subtype: resource ID
+	"resource" : {
+		"id" :79,
+		"handler": "resource",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VA" ]
+			}
+		}
+	},
+	
+	// subtype: faction
+	"town" : {
+		"id" :98,
+		"handler": "town",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "---", "+++", "+++" ],
+				"mask" : [
+					"VVVVV", // a LOT of just visible rows due to towns like Tower
+					"VVVVV",
+					"VVVVV",
+					"VVBBBV",
+					"VBBBBB",
+					"VBBABB"
+				]
+			}
+		}
+	},
+
+	// subtype: one of 3 possible boats
+	"boat" : {
+		"id" :8,
+		"handler": "boat",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VVV", "VAV" ]
+			}
+		}
+	},
+
+	// subtype: color of guard
+	"borderGuard"					: { "id" :9,  "handler": "borderGuard" },
+	"borderGate"					: { "id" :212, "handler": "borderGate" },
+	"keymasterTent"					: { "id" :10, "handler": "keymaster" },
+
+	// subtype: different content
+	"creatureBank"					: { "id" :16, "handler": "bank" },
+
+	// subtype: different revealed areas
+	"cartographer"					: { "id" :13, "handler": "cartographer" },
+
+	// subtype: 0 = normal, 1 = anti-magic
+	"garrisonHorizontal"			: { "id" :33, "handler": "garrison" },
+	"garrisonVertical"				: { "id" :219, "handler": "garrison" },
+
+	// Subtype: paired monoliths
+	"monolithOneWayEntrance"		: { "id" :43, "handler": "teleport" },
+	"monolithOneWayExit"			: { "id" :44, "handler": "teleport" },
+	"monolithTwoWay"				: { "id" :45, "handler": "teleport" },
+	
+	// subtype: resource ID
+	"mine"							: { "id" :53, "handler": "mine" },
+	"abandonedMine"					: { "id" :220, "handler": "mine" },
+
+	// subtype: different appearance. That's all?
+	"seerHut"						: { "id" :83, "handler": "seerHut" },
+
+	// subtype: level
+	"randomDwellingLvl"				: { "id" :217, "handler": "dwelling" },
+	
+	// subtype: faction ID
+	"randomDwellingFaction"			: { "id" :218, "handler": "dwelling" },
+
+	// subtype: not well defined, describes various dwellings that can be placed as random
+	"creatureGeneratorCommon" : {
+		"id" :17,
+		"handler": "dwelling",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "---", "+++", "+++" ],
+				"mask" : [ "VVV", "VBB", "VAA" ]
+			}
+		}
+	},
+	
+	// subtype: unique special dwellings - golem factory, elemental conflux
+	"creatureGeneratorSpecial"		: { "id" :20, "handler": "dwelling" },
+	
+	// don't have subtypes (at least now), but closely connected to this objects
+	"spellScroll"					: { "id" :93, "handler": "artifact" },
+	"heroPlaceholder"				: { "id" :214, "handler": "heroPlaceholder" }
+}

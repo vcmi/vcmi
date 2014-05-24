@@ -1,0 +1,44 @@
+{
+	/// These are objects that covered by concept of "configurable object"
+	/// Most or even all of their configuration located in this file
+	"magicSpring"					: { "id" :48, "handler": "magicSpring" },
+
+	"mysticalGarden"				: { "id" :55, "handler": "oncePerWeek" },
+	"windmill"						: { "id" :112, "handler": "oncePerWeek" },
+	"waterWheel"					: { "id" :109, "handler": "oncePerWeek" },
+	
+	"leanTo"						: { "id" :39, "handler": "onceVisitable" },
+	"corpse"						: { "id" :22, "handler": "onceVisitable" },
+	"wagon"							: { "id" :105, "handler": "onceVisitable" },
+	"warriorTomb"					: { "id" :108, "handler": "onceVisitable" },
+
+	"campfire"						: { "id" :12, "handler": "pickable" },
+	"flotsam"						: { "id" :29, "handler": "pickable" },
+	"seaChest"						: { "id" :82, "handler": "pickable" },
+	"shipwreckSurvivor"				: { "id" :86, "handler": "pickable" },
+	"treasureChest"					: { "id" :101, "handler": "pickable" },
+
+	"arena"							: { "id" :4,  "handler": "oncePerHero" },
+	"marlettoTower"					: { "id" :23, "handler": "oncePerHero" },
+	"gardenOfRevelation"			: { "id" :32, "handler": "oncePerHero" },
+	"libraryOfEnlightenment"		: { "id" :41, "handler": "oncePerHero" },
+	"mercenaryCamp"					: { "id" :51, "handler": "oncePerHero" },
+	"starAxis"						: { "id" :61, "handler": "oncePerHero" },
+	"learningStone"					: { "id" :100, "handler": "oncePerHero" },
+	"treeOfKnowledge"				: { "id" :102, "handler": "oncePerHero" },
+	"schoolOfMagic"					: { "id" :47, "handler": "oncePerHero" },
+	"schoolOfWar"					: { "id" :107, "handler": "oncePerHero" },
+	
+	"buoy"							: { "id" :11, "handler": "bonusingObject" },
+	"swanPond"						: { "id" :14, "handler": "bonusingObject" },
+	"faerieRing"					: { "id" :28, "handler": "bonusingObject" },
+	"fountainOfFortune"				: { "id" :30, "handler": "bonusingObject" },
+	"fountainOfYouth"				: { "id" :31, "handler": "bonusingObject" },
+	"idolOfFortune"					: { "id" :38, "handler": "bonusingObject" },
+	"mermaids"						: { "id" :52, "handler": "bonusingObject" },
+	"oasis"							: { "id" :56, "handler": "bonusingObject" },
+	"stables"						: { "id" :94, "handler": "bonusingObject" },
+	"temple"						: { "id" :96, "handler": "bonusingObject" },
+	"rallyFlag"						: { "id" :64, "handler": "bonusingObject" },
+	"wateringHole"					: { "id" :110, "handler": "bonusingObject" },	
+}

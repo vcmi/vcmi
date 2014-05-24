@@ -355,10 +355,11 @@ CContentHandler::CContentHandler()
 	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, "artifact")));
 	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh, "creature")));
 	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh, "faction")));
+	handlers.insert(std::make_pair("objects", ContentTypeHandler(VLC->objtypeh, "object")));
 	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh, "hero")));
-    handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
+	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
 
-	//TODO: bonuses, something else?
+	//TODO: any other types of moddables?
 }
 
 bool CContentHandler::preloadModData(std::string modName, JsonNode modConfig, bool validate)

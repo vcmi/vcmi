@@ -330,28 +330,6 @@ bool ObjectTemplate::canBePlacedAt(ETerrainType terrain) const
 {
 	return allowedTerrains.count(terrain) != 0;
 }
-/*
-void CObjectClassesHandler::readTextFile(std::string path)
-{
-	CLegacyConfigParser parser(path);
-	size_t totalNumber = parser.readNumber(); // first line contains number of objects to read and nothing else
-	parser.endLine();
-
-	for (size_t i=0; i<totalNumber; i++)
-	{
-		ObjectTemplate templ;
-		templ.readTxt(parser);
-		parser.endLine();
-		objects.push_back(templ);
-	}
-}
-
-CObjectClassesHandler::CObjectClassesHandler()
-{
-	readTextFile("Data/Objects.txt");
-	readTextFile("Data/Heroes.txt");
-}
-*/
 
 CObjectClassesHandler::CObjectClassesHandler()
 {
@@ -417,6 +395,8 @@ static std::vector<JsonNode> readTextFile(std::string path)
 
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 {
+	objects.resize(dataSize);
+
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
 
 	auto parseFile = [&](std::string filename)
@@ -436,8 +416,8 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 		}
 	};
 
-	parseFile("Data/Objects.txt");
-	parseFile("Data/Heroes.txt");
+	//parseFile("Data/Objects.txt");
+	//parseFile("Data/Heroes.txt");
 
 	CLegacyConfigParser parser("Data/ObjNames.txt");
 	for (size_t i=0; i<256; i++)
@@ -464,12 +444,22 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
+	auto object = loadFromJson(data);
+	object->id = objects.size();
+	objects.push_back(object);
 
+	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
+	auto object = loadFromJson(data);
+	object->id = index;
 
+	assert(objects[index] == nullptr); // ensure that this id was not loaded before
+	objects[index] = object;
+
+	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
 
 std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
@@ -479,7 +469,7 @@ std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype) const
 {
-	if (objects.count(type))
+	if (objects.size() > type)
 	{
 		if (objects.at(type)->objects.count(subtype))
 			return objects.at(type)->objects.at(subtype);

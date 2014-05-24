@@ -114,6 +114,9 @@ protected:
 
 	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
 public:
+	/// returns true if type is not configurable and new objects can be created without valid config
+	virtual bool confFree();
+
 	/// loads templates from Json structure using fields "base" and "templates"
 	virtual void init(const JsonNode & input);
 
@@ -145,6 +148,7 @@ public:
 	}
 };
 
+/// Class that is used for objects that do not have dedicated handler
 template<class ObjectType>
 class CDefaultObjectTypeHandler : public AObjectTypeHandler
 {
@@ -190,7 +194,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	};
 
 	/// list of object handlers, each of them handles only one type
-	std::map<si32, ObjectContainter * > objects;
+	std::vector<ObjectContainter * > objects;
 
 	/// map that is filled during contruction with all known handlers. Not serializeable
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
