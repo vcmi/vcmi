@@ -243,7 +243,7 @@ class CVideoPlayer : public IMainVideoPlayer
 
 	// Destination. Either overlay or dest.
 #ifdef VCMI_SDL1
-	SDL_Overlay overlay;
+	SDL_Overlay * overlay;
 #else
 	SDL_Texture *texture;
 #endif
