@@ -70,7 +70,7 @@ CGuiHandler GH;
 static CClient *client=nullptr;
 
 #ifndef VCMI_SDL1
-int preferedDriverIndex = -1;
+int preferredDriverIndex = -1;
 SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
 SDL_Texture * screenTexture = nullptr;
@@ -361,6 +361,7 @@ int main(int argc, char** argv)
 		
 		#ifndef VCMI_SDL1
 		int driversCount = SDL_GetNumRenderDrivers();
+		std::string preferredDriverName = video["driver"].String();
 		
 		logGlobal->infoStream() << "Found " << driversCount << " render drivers";
 		
@@ -371,12 +372,13 @@ int main(int argc, char** argv)
 			
 			std::string driverName(info.name);
 			
+						
 			logGlobal->infoStream() << "\t" << driverName;
 			
-			if(driverName == "opengl")
+			if(!preferredDriverName.empty() && driverName == preferredDriverName)
 			{
-				preferedDriverIndex = it;
-				logGlobal->infoStream() << "\t\t will select this";
+				preferredDriverIndex = it;
+				logGlobal->infoStream() << "\t\twill select this";
 			}					
 		}			
 		#endif // VCMI_SDL1	
@@ -874,11 +876,12 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	if(fullscreen)
 	{
 		//in full-screen mode always use desktop resolution
-		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_OPENGL);
+		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	}
 	else
 	{
-		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL);
+		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, w, h, 0);
 	}
 	
 	
@@ -889,8 +892,8 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	}
 	
 	
-	//create first available renderer if "opengl" not found. Use no flags, so HW accelerated will be preferred but SW renderer also will possible
-	mainRenderer = SDL_CreateRenderer(mainWindow,preferedDriverIndex,0);
+	//create first available renderer if preferred not set. Use no flags, so HW accelerated will be preferred but SW renderer also will possible
+	mainRenderer = SDL_CreateRenderer(mainWindow,preferredDriverIndex,0);
 
 	if(nullptr == mainRenderer)
 	{

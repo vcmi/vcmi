@@ -490,12 +490,12 @@ Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
 
 void CSDL_Ext::update(SDL_Surface * what)
 {
-	#ifdef VCMI_SDL1
-	if(what)
+//	#ifdef VCMI_SDL1
+//	if(what)
 		SDL_UpdateRect(what, 0, 0, what->w, what->h);
-	#else
-		SDL_UpdateTexture(screenTexture, NULL, what->pixels, what->pitch);
-	#endif
+//	#else
+//		SDL_UpdateTexture(screenTexture, NULL, what->pixels, what->pitch);
+//	#endif
 }
 void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color)
 {
