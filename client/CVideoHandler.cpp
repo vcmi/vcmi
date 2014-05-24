@@ -31,12 +31,12 @@ void checkForError(bool throwing = true)
 	if(!error)
 		return;
 
-    logGlobal->errorStream() << "Error " << error << " encountered!";
+	logGlobal->errorStream() << "Error " << error << " encountered!";
 	std::string msg;
 	char* pTemp = nullptr;
 	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
 		nullptr, error,  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPSTR)&pTemp, 1, nullptr );
-    logGlobal->errorStream() << "Error: " << pTemp;
+	logGlobal->errorStream() << "Error: " << pTemp;
 	msg = pTemp;
 	LocalFree( pTemp );
 	pTemp = nullptr;
@@ -62,7 +62,7 @@ void DLLHandler::Instantiate(const char *filename)
 	dll = LoadLibraryA(filename);
 	if(!dll)
 	{
-        logGlobal->errorStream() << "Failed loading " << filename;
+		logGlobal->errorStream() << "Failed loading " << filename;
 		checkForError(true);
 	}
 }
@@ -73,13 +73,13 @@ void *DLLHandler::FindAddress(const char *symbol)
 
 	if(!dll)
 	{
-        logGlobal->errorStream() << "Cannot look for " << symbol << " because DLL hasn't been appropriately loaded!";
+		logGlobal->errorStream() << "Cannot look for " << symbol << " because DLL hasn't been appropriately loaded!";
 		return nullptr;
 	}
 	ret = (void*) GetProcAddress(dll,symbol);
 	if(!ret)
 	{
-        logGlobal->errorStream() << "Failed to find " << symbol << " in " << name;
+		logGlobal->errorStream() << "Failed to find " << symbol << " in " << name;
 		checkForError();
 	}
 	return ret;
@@ -91,7 +91,7 @@ DLLHandler::~DLLHandler()
 	{
 		if(!FreeLibrary(dll))
 		{
-            logGlobal->errorStream() << "Failed to free " << name;
+			logGlobal->errorStream() << "Failed to free " << name;
 			checkForError();
 		}
 	}
@@ -138,21 +138,21 @@ bool CBIKHandler::open(std::string name)
 
 	if(hBinkFile == INVALID_HANDLE_VALUE)
 	{
-        logGlobal->errorStream() << "BIK handler: failed to open " << name;
+		logGlobal->errorStream() << "BIK handler: failed to open " << name;
 		goto checkErrorAndClean;
 	}
 	//GCC wants scope of waveout to don`t cross labels/swith/goto
-    {
+	{
 		void *waveout = GetProcAddress(dll,"_BinkOpenWaveOut@4");
 		if(waveout)
 			binkSetSoundSystem(waveout,nullptr);
 
-    }
+	}
 
 	hBink = binkOpen(hBinkFile, 0x8a800000);
 	if(!hBink)
 	{
-        logGlobal->errorStream() << "bink failed to open " << name;
+		logGlobal->errorStream() << "bink failed to open " << name;
 		goto checkErrorAndClean;
 	}
 
@@ -302,7 +302,7 @@ bool CSmackPlayer::open( std::string name )
 	data = ptrSmackOpen( (void*)name.c_str(), flags[1], -1);
 	if (!data)
 	{
-        logGlobal->errorStream() << "Smack cannot open " << name;
+		logGlobal->errorStream() << "Smack cannot open " << name;
 		checkForError();
 		throw std::runtime_error("SMACK failed opening video");
 	}
@@ -436,7 +436,7 @@ bool CVideoPlayer::open(std::string name)
 	catch(std::exception &e)
 	{
 		current = nullptr;
-        logGlobal->warnStream() << "Failed to open video file " << name << ": " << e.what();
+		logGlobal->warnStream() << "Failed to open video file " << name << ": " << e.what();
 	}
 
 	return false;
@@ -446,7 +446,7 @@ void CVideoPlayer::close()
 {
 	if(!current)
 	{
-        logGlobal->warnStream() << "Closing no opened player...?";
+		logGlobal->warnStream() << "Closing no opened player...?";
 		return;
 	}
 
@@ -454,7 +454,7 @@ void CVideoPlayer::close()
 	current = nullptr;
 	if(!DeleteFileA(fname.c_str()))
 	{
-        logGlobal->errorStream() << "Cannot remove temporarily extracted video file: " << fname;
+		logGlobal->errorStream() << "Cannot remove temporarily extracted video file: " << fname;
 		checkForError(false);
 	}
 	fname.clear();
@@ -605,7 +605,11 @@ CVideoPlayer::CVideoPlayer()
 	frame = nullptr;
 	codec = nullptr;
 	sws = nullptr;
+#ifdef VCMI_SDL1
 	overlay = nullptr;
+#else
+	texture = nullptr;
+#endif
 	dest = nullptr;
 	context = nullptr;
 
@@ -635,7 +639,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 
 	if (!CResourceHandler::get()->existsResource(resource))
 	{
-        logGlobal->errorStream() << "Error: video " << resource.getName() << " was not found";
+		logGlobal->errorStream() << "Error: video " << resource.getName() << " was not found";
 		return false;
 	}
 
@@ -708,8 +712,13 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	// Allocate a place to put our YUV image on that screen
 	if (useOverlay)
 	{
+#ifdef VCMI_SDL1
 		overlay = SDL_CreateYUVOverlay(codecContext->width, codecContext->height,
 									   SDL_YV12_OVERLAY, screen);
+#else
+		texture = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STATIC, codecContext->width, codecContext->height);
+#endif
+
 	}
 	else
 	{
@@ -718,13 +727,18 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 		destRect.w = codecContext->width;
 		destRect.h = codecContext->height;
 	}
-
+#ifdef VCMI_SDL1
 	if (overlay == nullptr && dest == nullptr)
 		return false;
 
-	// Convert the image into YUV format that SDL uses
 	if (overlay)
-	{
+#else
+	if (texture == nullptr && dest == nullptr)
+		return false;
+
+	if (texture)
+#endif
+	{ // Convert the image into YUV format that SDL uses
 		sws = sws_getContext(codecContext->width, codecContext->height,
 							 codecContext->pix_fmt, codecContext->width, codecContext->height,
 							 PIX_FMT_YUV420P, SWS_BICUBIC, nullptr, nullptr, nullptr);
@@ -812,6 +826,7 @@ bool CVideoPlayer::nextFrame()
 				{
 					AVPicture pict;
 
+#ifdef VCMI_SDL1
 					if (overlay) {
 						SDL_LockYUVOverlay(overlay);
 
@@ -827,6 +842,18 @@ bool CVideoPlayer::nextFrame()
 								  0, codecContext->height, pict.data, pict.linesize);
 
 						SDL_UnlockYUVOverlay(overlay);
+#else
+					if (texture) {
+						avpicture_alloc(&pict, AV_PIX_FMT_YUV420P, codecContext->width, codecContext->height);
+
+						sws_scale(sws, frame->data, frame->linesize,
+								  0, codecContext->height, pict.data, pict.linesize);
+
+						SDL_UpdateYUVTexture(texture, NULL, pict.data[0], pict.linesize[0],
+								pict.data[1], pict.linesize[1],
+								pict.data[2], pict.linesize[2]);
+						avpicture_free(&pict);
+#endif
 					}
 					else
 					{
@@ -902,11 +929,21 @@ void CVideoPlayer::close()
 		sws = nullptr;
 	}
 
+#ifdef VCMI_SDL1
 	if (overlay)
 	{
 		SDL_FreeYUVOverlay(overlay);
 		overlay = nullptr;
 	}
+#else
+	if (texture)
+	{
+		SDL_DestroyTexture(texture);
+		texture = nullptr;
+	}
+
+#endif
+
 
 	if (dest)
 	{
@@ -960,7 +997,13 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 		if(stopOnKey && keyDown())
 			return false;
 
+#ifdef VCMI_SDL1
 		SDL_DisplayYUVOverlay(overlay, &pos);
+#else
+		SDL_RenderCopy(mainRenderer, texture, NULL, NULL);
+		SDL_RenderPresent(mainRenderer);
+#endif
+
 
 		// Wait 3 frames
 		GH.mainFPSmng->framerateDelay();

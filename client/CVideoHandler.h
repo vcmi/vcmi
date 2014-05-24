@@ -242,7 +242,12 @@ class CVideoPlayer : public IMainVideoPlayer
 	AVIOContext * context;
 
 	// Destination. Either overlay or dest.
-	SDL_Overlay *overlay;
+#ifdef VCMI_SDL1
+	SDL_Overlay overlay;
+#else
+	SDL_Texture *texture;
+#endif
+
 	SDL_Surface *dest;
 	SDL_Rect destRect;			// valid when dest is used
 	SDL_Rect pos;				// destination on screen

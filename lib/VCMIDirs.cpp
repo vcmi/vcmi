@@ -222,7 +222,6 @@ std::vector<std::string> VCMIDirs::dataPaths() const
 	{
 		std::string dataDirsEnv = getenv("XDG_DATA_DIRS");
 		std::vector<std::string> dataDirs;
-		std::cout << dataDirsEnv;
 		boost::split(dataDirs, dataDirsEnv, boost::is_any_of(":"));
 		for (auto & entry : boost::adaptors::reverse(dataDirs))
 			ret.push_back(entry + "/vcmi");
