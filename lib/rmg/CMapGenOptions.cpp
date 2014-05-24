@@ -65,7 +65,7 @@ si8 CMapGenOptions::getPlayerCount() const
 
 void CMapGenOptions::setPlayerCount(si8 value)
 {
-	assert((value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE);
+	assert((value >= 2 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE);
 	playerCount = value;
 	resetPlayersMap();
 }
@@ -200,6 +200,8 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	if(teamCount == RANDOM_SIZE)
 	{
 		teamCount = rand.nextInt(playerCount - 1);
+		if (teamCount == 1)
+			teamCount = 0;
 	}
 	if(compOnlyPlayerCount == RANDOM_SIZE)
 	{
@@ -210,12 +212,6 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	if(compOnlyTeamCount == RANDOM_SIZE)
 	{
 		compOnlyTeamCount = rand.nextInt(std::max(compOnlyPlayerCount - 1, 0));
-	}
-
-	// 1 team isn't allowed
-	if(teamCount == 1 && compOnlyPlayerCount == 0)
-	{
-		teamCount = 0;
 	}
 
 	if(waterContent == EWaterContent::RANDOM)

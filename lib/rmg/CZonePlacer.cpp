@@ -35,7 +35,7 @@ CZonePlacer::~CZonePlacer()
 
 int3 CZonePlacer::cords (float3 f) const
 {
-	return int3(f.x * gen->map->width, f.y * gen->map->height, f.z);
+	return int3(std::max(0.f, (f.x * gen->map->width)-1), std::max(0.f, (f.y * gen->map->height-1)), f.z);
 }
 
 void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGenerator * rand)
@@ -43,7 +43,7 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 	//some relaxation-simmulated annealing algorithm
 
 	const int iterations = 100;
-	float temperature = 1;
+	float temperature = 1e-2;;
 	const float temperatureModifier = 0.99;
 
 	logGlobal->infoStream() << "Starting zone placement";
@@ -55,94 +55,103 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 
 	//TODO: consider underground zones
 
+	/*
+		let's assume we try to fit N circular zones with radius = size on a map
+
+		formula: sum((prescaler*n)^2)*pi = WH
+
+		prescaler = sqrt((WH)/(sum(n^2)*pi))
+	*/
 	float totalSize = 0;
 	for (auto zone : zones)
 	{
-		totalSize += zone.second->getSize();
+		totalSize += (zone.second->getSize() * zone.second->getSize());
 		zone.second->setCenter (float3(rand->nextDouble(0.2,0.8), rand->nextDouble(0.2,0.8), 0)); //start away from borders
 	}
 	//prescale zones
-	float prescaler = sqrt (width * height / totalSize) / 3.14f; //let's assume we try to fit N circular zones with radius = size on a map
+	float prescaler = sqrt ((width * height) / (totalSize * 3.14f)); 
 	float mapSize = sqrt (width * height);
 	for (auto zone : zones)
 	{
 		zone.second->setSize (zone.second->getSize() * prescaler);
 	}
 
+	//gravity-based algorithm. connected zones attract, intersceting zones and map boundaries push back
+
+	auto getDistance = [](float distance) -> float
+	{
+		return (distance ? distance * distance : 1e-6);
+	};
+
+	std::map <CRmgTemplateZone *, float3> forces;
 	for (int i = 0; i < iterations; ++i)
 	{
 		for (auto zone : zones)
 		{
+			float3 forceVector(0,0,0);
+			float3 pos = zone.second->getCenter();
+
 			//attract connected zones
 			for (auto con : zone.second->getConnections())
 			{
 				auto otherZone = zones[con];
-				float distance = zone.second->getCenter().dist2d (otherZone->getCenter());
+				float distance = pos.dist2d (otherZone->getCenter());
 				float minDistance = (zone.second->getSize() + otherZone->getSize())/mapSize; //scale down to (0,1) coordinates
 				if (distance > minDistance)
 				{
-					//attract our zone
-					float scaler = (distance - minDistance)/distance * temperature; //positive
-					auto positionVector = (otherZone->getCenter() - zone.second->getCenter()); //positive value
-					zone.second->setCenter (zone.second->getCenter() + positionVector * scaler); //positive movement
-					break; //only one move for each zone
+					forceVector += (otherZone->getCenter() - pos) / getDistance(distance); //positive value
 				}
 			}
-		}
-		for (auto zone : zones)
-		{
 			//separate overlaping zones
 			for (auto otherZone : zones)
 			{
 				if (zone == otherZone)
 					continue;
 
-				float distance = zone.second->getCenter().dist2d (otherZone.second->getCenter());
+				float distance = pos.dist2d (otherZone.second->getCenter());
 				float minDistance = (zone.second->getSize() + otherZone.second->getSize())/mapSize;
 				if (distance < minDistance)
 				{
-					//move our zone away
-					float scaler = (distance ? (distance - minDistance)/distance : 1) * temperature; //negative
-					auto positionVector = (otherZone.second->getCenter() - zone.second->getCenter()); //positive value
-					zone.second->setCenter (zone.second->getCenter() + positionVector * scaler); //negative movement
-					break; //only one move for each zone
+					forceVector -= (otherZone.second->getCenter() - pos) / getDistance(distance); //negative value
 				}
 			}
-		}
-		for (auto zone : zones)
-		{
+
 			//move zones away from boundaries
-			auto pos = zone.second->getCenter();
 			float3 boundary(0,0,pos.z);
 			float size = zone.second->getSize() / mapSize;
 			if (pos.x < size)
 			{
 				boundary = float3 (0, pos.y, pos.z);
+				float distance = pos.dist2d(boundary);
+				forceVector -= (boundary - pos) / getDistance(distance); //negative value
 			}
-			else if (pos.x > 1-size)
+			if (pos.x > 1-size)
 			{
-				boundary = float3 (1-size, pos.y, pos.z);
+				boundary = float3 (1, pos.y, pos.z);
+				float distance = pos.dist2d(boundary);
+				forceVector -= (boundary - pos) / getDistance(distance); //negative value
 			}
-			else if (pos.y < size)
+			if (pos.y < size)
 			{
 				boundary = float3 (pos.x, 0, pos.z);
+				float distance = pos.dist2d(boundary);
+				forceVector -= (boundary - pos) / getDistance(distance); //negative value
 			}
-			else if (pos.y > 1-size)
+			if (pos.y > 1-size)
 			{
-				boundary = float3 (pos.x, 1-size, pos.z);
+				boundary = float3 (pos.x, 1, pos.z);
+				float distance = pos.dist2d(boundary);
+				forceVector -= (boundary - pos) / getDistance(distance); //negative value
 			}
-			else
-				continue;
 
-			float distance = pos.dist2d(boundary);
-			float minDistance = size;
-
-			//move our zone away from boundary
-			float scaler = (distance ? (distance - minDistance)/distance : 1) * temperature; //negative
-			auto positionVector = (boundary - pos); //positive value
-			zone.second->setCenter (pos + positionVector * scaler); //negative movement
+			forces[zone.second] = forceVector;
 		}
-		temperature *= temperatureModifier;
+		//update positions
+		for (auto zone : forces)
+		{
+			zone.first->setCenter (zone.first->getCenter() + zone.second * temperature);
+		}
+		temperature *= temperatureModifier; //decrease temperature (needed?)
 	}
 	for (auto zone : zones) //finalize zone positions
 	{
