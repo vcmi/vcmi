@@ -14,9 +14,17 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-g" />
 					<Add option="-Og" />
+					<Add option="-g" />
+					<Add directory="$(#sdl2.include)" />
 				</Compiler>
+				<Linker>
+					<Add option="-lSDL2.dll" />
+					<Add option="-lSDL2_image.dll" />
+					<Add option="-lSDL2_mixer.dll" />
+					<Add option="-lSDL2_ttf.dll" />
+					<Add directory="$(#sdl2.lib)" />
+				</Linker>
 			</Target>
 			<Target title="Release-win32-SDL2">
 				<Option platforms="Windows;" />
@@ -28,9 +36,56 @@
 				<Compiler>
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O2" />
+					<Add directory="$(#sdl2.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-lSDL2.dll" />
+					<Add option="-lSDL2_image.dll" />
+					<Add option="-lSDL2_mixer.dll" />
+					<Add option="-lSDL2_ttf.dll" />
+					<Add directory="$(#sdl2.lib)" />
+				</Linker>
+			</Target>
+			<Target title="Debug-win32-SDL1">
+				<Option platforms="Windows;" />
+				<Option output="../VCMI_client" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../" />
+				<Option object_output="../obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Og" />
+					<Add option="-g" />
+					<Add directory="$(#sdl.include)" />
+				</Compiler>
+				<Linker>
+					<Add option="-lSDL.dll" />
+					<Add option="-lSDL_image.dll" />
+					<Add option="-lSDL_mixer.dll" />
+					<Add option="-lSDL_ttf.dll" />
+					<Add directory="$(#sdl.lib)" />
+				</Linker>
+			</Target>
+			<Target title="Release-win32-SDL1">
+				<Option platforms="Windows;" />
+				<Option output="../VCMI_client" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../" />
+				<Option object_output="../obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-O2" />
+					<Add directory="$(#sdl.include)" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-lSDL.dll" />
+					<Add option="-lSDL_image.dll" />
+					<Add option="-lSDL_mixer.dll" />
+					<Add option="-lSDL_ttf.dll" />
+					<Add directory="$(#sdl.lib)" />
 				</Linker>
 			</Target>
 		</Build>
@@ -47,7 +102,6 @@
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add directory="$(#boost.include)" />
-			<Add directory="$(#sdl2.include)" />
 			<Add directory="../include" />
 			<Add directory="../client" />
 		</Compiler>
@@ -60,13 +114,8 @@
 			<Add option="-lboost_system$(#boost.libsuffix)" />
 			<Add option="-lboost_thread$(#boost.libsuffix)" />
 			<Add option="-lboost_chrono$(#boost.libsuffix)" />
-			<Add option="-lSDL2.dll" />
-			<Add option="-lSDL2_image.dll" />
-			<Add option="-lSDL2_mixer.dll" />
-			<Add option="-lSDL2_ttf.dll" />
 			<Add option="-lVCMI_lib" />
 			<Add directory="$(#boost.lib32)" />
-			<Add directory="$(#sdl2.lib)" />
 			<Add directory="../" />
 		</Linker>
 		<Unit filename="../CCallback.cpp" />

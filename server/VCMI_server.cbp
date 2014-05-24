@@ -14,8 +14,9 @@
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
 				<Compiler>
-					<Add option="-ggdb" />
 					<Add option="-Og" />
+					<Add option="-ggdb" />
+					<Add directory="$(#sdl2.include)" />
 				</Compiler>
 			</Target>
 			<Target title="Release-win32-SDL2">
@@ -28,6 +29,36 @@
 				<Compiler>
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O2" />
+					<Add directory="$(#sdl2.include)" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="Debug-win32-SDL1">
+				<Option platforms="Windows;" />
+				<Option output="../VCMI_server" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/Debug/Server" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-Og" />
+					<Add option="-ggdb" />
+					<Add directory="$(#sdl.include)" />
+				</Compiler>
+			</Target>
+			<Target title="Release-win32-SDL1">
+				<Option platforms="Windows;" />
+				<Option output="../VCMI_server" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/Release/Server" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-O2" />
+					<Add directory="$(#sdl.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -46,7 +77,6 @@
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add directory="$(#boost.include)" />
-			<Add directory="$(#sdl.include)" />
 			<Add directory="../include" />
 		</Compiler>
 		<Linker>
