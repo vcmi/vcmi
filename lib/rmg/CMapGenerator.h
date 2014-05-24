@@ -29,6 +29,9 @@ typedef std::vector<JsonNode> JsonVector;
 
 class CMapGenerator;
 
+//static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
+//	int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
+
 class rmgException : std::exception
 {
 	std::string msg;
@@ -63,6 +66,7 @@ public:
 	CMapEditManager * editManager;
 
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> getZones() const;
+	void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo);
 
 private:
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> zones;

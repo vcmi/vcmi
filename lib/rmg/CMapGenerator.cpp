@@ -14,6 +14,17 @@
 #include "CRmgTemplateZone.h"
 #include "CZonePlacer.h"
 
+void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo)
+{
+	//for(const int3 &dir : dirs)
+	//{
+	//	const int3 n = pos + dir;
+	//	if(map->isInTheMap(n))
+	//		foo(pos+dir);
+	//}
+}
+
+
 CMapGenerator::CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int randomSeed /*= std::time(nullptr)*/) :
 	mapGenOptions(mapGenOptions), randomSeed(randomSeed)
 {

@@ -42,9 +42,9 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 {
 	//some relaxation-simmulated annealing algorithm
 
-	const int iterations = 5;
+	const int iterations = 100;
 	float temperature = 1;
-	const float temperatureModifier = 0.9;
+	const float temperatureModifier = 0.99;
 
 	logGlobal->infoStream() << "Starting zone placement";
 
@@ -59,7 +59,7 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 	for (auto zone : zones)
 	{
 		totalSize += zone.second->getSize();
-		zone.second->setCenter (float3(rand->nextDouble(0,1), rand->nextDouble(0,1), 0));
+		zone.second->setCenter (float3(rand->nextDouble(0.2,0.8), rand->nextDouble(0.2,0.8), 0)); //start away from borders
 	}
 	//prescale zones
 	float prescaler = sqrt (width * height / totalSize) / 3.14f; //let's assume we try to fit N circular zones with radius = size on a map
@@ -85,6 +85,7 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 					float scaler = (distance - minDistance)/distance * temperature; //positive
 					auto positionVector = (otherZone->getCenter() - zone.second->getCenter()); //positive value
 					zone.second->setCenter (zone.second->getCenter() + positionVector * scaler); //positive movement
+					break; //only one move for each zone
 				}
 			}
 		}
@@ -104,8 +105,42 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 					float scaler = (distance ? (distance - minDistance)/distance : 1) * temperature; //negative
 					auto positionVector = (otherZone.second->getCenter() - zone.second->getCenter()); //positive value
 					zone.second->setCenter (zone.second->getCenter() + positionVector * scaler); //negative movement
+					break; //only one move for each zone
 				}
 			}
+		}
+		for (auto zone : zones)
+		{
+			//move zones away from boundaries
+			auto pos = zone.second->getCenter();
+			float3 boundary(0,0,pos.z);
+			float size = zone.second->getSize() / mapSize;
+			if (pos.x < size)
+			{
+				boundary = float3 (0, pos.y, pos.z);
+			}
+			else if (pos.x > 1-size)
+			{
+				boundary = float3 (1-size, pos.y, pos.z);
+			}
+			else if (pos.y < size)
+			{
+				boundary = float3 (pos.x, 0, pos.z);
+			}
+			else if (pos.y > 1-size)
+			{
+				boundary = float3 (pos.x, 1-size, pos.z);
+			}
+			else
+				continue;
+
+			float distance = pos.dist2d(boundary);
+			float minDistance = size;
+
+			//move our zone away from boundary
+			float scaler = (distance ? (distance - minDistance)/distance : 1) * temperature; //negative
+			auto positionVector = (boundary - pos); //positive value
+			zone.second->setCenter (pos + positionVector * scaler); //negative movement
 		}
 		temperature *= temperatureModifier;
 	}
@@ -133,11 +168,13 @@ Matlab code
 	float dy = abs(A.y - B.y) * scaleY;
 
 	//Horner scheme
-	return dx * (1 + dx * (0.1 + dx * 0.01)) + dy * (0.3 + dy * (-0.3 + dy * 0.03));
+	return dx * (1 + dx * (0.1 + dx * 0.01)) + dy * (0.2 + dy * (-0.2 + dy * 0.02));
 }
 
 void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
 {
+	logGlobal->infoStream()  << "Starting zone colouring";
+
 	auto width = mapGenOptions->getWidth();
 	auto height = mapGenOptions->getHeight();
 
@@ -174,4 +211,5 @@ void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
 			}
 		}
 	}
+	logGlobal->infoStream() << "Finished zone colouring";
 }

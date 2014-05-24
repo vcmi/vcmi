@@ -343,9 +343,9 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			town->builtBuildings.insert(BuildingID::DEFAULT);
 			
 			placeObject(gen, town, getPos());
-			logGlobal->infoStream() << "Placed object";
+			logGlobal->traceStream() << "Placed object";
 
-			logGlobal->infoStream() << "Fill player info " << player_id;
+			logGlobal->traceStream() << "Fill player info " << player_id;
 			auto & playerInfo = gen->map->players[player_id];
 			// Update player info
 			playerInfo.allowedFactions.clear();
@@ -394,14 +394,14 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	for(const auto &obj : required_objects)
 	{
 		int3 pos;
-		logGlobal->infoStream() << "Looking for place";
+		logGlobal->traceStream() << "Looking for place";
 		if ( ! findPlaceForObject(gen, obj, 3, pos))		
 		{
 			logGlobal->errorStream() << boost::format("Failed to fill zone %d due to lack of space") %id;
 			//TODO CLEANUP!
 			return false;
 		}
-		logGlobal->infoStream() << "Place found";
+		logGlobal->traceStream() << "Place found";
 
 		placeObject(gen, obj, pos);
 	}
@@ -546,7 +546,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 			{
 				if (it->first != visitable)
 				{
-					logGlobal->infoStream() << boost::format("Block at %d %d") % it->first.x % it->first.y;
+					logGlobal->traceStream() << boost::format("Block at %d %d") % it->first.x % it->first.y;
 					if (!it->second.isOccupied() &&  !it->second.isObstacle())
 					{
 						tiles.push_back(it->first);
