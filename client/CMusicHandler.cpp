@@ -506,10 +506,6 @@ void MusicEntry::load(std::string musicURI)
 
 	#endif // 0
 
-#ifdef _WIN32
-	//The assertion will fail if old MSVC libraries pack .dll is used
-	assert(Mix_GetMusicType(music) != MUS_MP3);
-#endif
 }
 
 bool MusicEntry::play()
