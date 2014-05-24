@@ -294,46 +294,46 @@ void CRmgTemplateZone::setCenter(float3 f)
 
 bool CRmgTemplateZone::pointIsIn(int x, int y)
 {
-	int i, j;
-	bool c = false;
-	int nvert = shape.size();
-	for (i = 0, j = nvert-1; i < nvert; j = i++) {
-		if ( ((shape[i].y>y) != (shape[j].y>y)) &&
-			(x < (shape[j].x-shape[i].x) * (y-shape[i].y) / (shape[j].y-shape[i].y) + shape[i].x) )
-			c = !c;
-	}
-	return c;
+	//int i, j;
+	//bool c = false;
+	//int nvert = shape.size();
+	//for (i = 0, j = nvert-1; i < nvert; j = i++) {
+	//	if ( ((shape[i].y>y) != (shape[j].y>y)) &&
+	//		(x < (shape[j].x-shape[i].x) * (y-shape[i].y) / (shape[j].y-shape[i].y) + shape[i].x) )
+	//		c = !c;
+	//}
+	return true;
 }
 
 void CRmgTemplateZone::setShape(std::vector<int3> shape)
 {
-	int z = -1;
-	si32 minx = INT_MAX;
-	si32 maxx = -1;
-	si32 miny = INT_MAX;
-	si32 maxy = -1;
-	for(auto &point : shape)
-	{
-		if (z == -1)
-			z = point.z;
-		if (point.z != z)
-			throw rmgException("Zone shape points should lie on same z.");
-		minx = std::min(minx, point.x);
-		maxx = std::max(maxx, point.x);
-		miny = std::min(miny, point.y);
-		maxy = std::max(maxy, point.y);
-	}
+	//int z = -1;
+	//si32 minx = INT_MAX;
+	//si32 maxx = -1;
+	//si32 miny = INT_MAX;
+	//si32 maxy = -1;
+	//for(auto &point : shape)
+	//{
+	//	if (z == -1)
+	//		z = point.z;
+	//	if (point.z != z)
+	//		throw rmgException("Zone shape points should lie on same z.");
+	//	minx = std::min(minx, point.x);
+	//	maxx = std::max(maxx, point.x);
+	//	miny = std::min(miny, point.y);
+	//	maxy = std::max(maxy, point.y);
+	//}
 	this->shape = shape;
-	for(int x = minx; x <= maxx; ++x)
-	{
-		for(int y = miny; y <= maxy; ++y)
-		{
-			if (pointIsIn(x, y))
-			{
-				tileinfo[int3(x,y,z)] = CTileInfo();
-			}
-		}
-	}
+	//for(int x = minx; x <= maxx; ++x)
+	//{
+	//	for(int y = miny; y <= maxy; ++y)
+	//	{
+	//		if (pointIsIn(x, y))
+	//		{
+	//			tileinfo[int3(x,y,z)] = CTileInfo();
+	//		}
+	//	}
+	//}
 }
 
 int3 CRmgTemplateZone::getPos()
@@ -353,9 +353,14 @@ int3 CRmgTemplateZone::getPos()
 	//return int3(std::abs(cx/area/6), std::abs(cy/area/6), shape[0].z);
 	return pos;
 }
-void CRmgTemplateZone::setPos(int3 Pos)
+void CRmgTemplateZone::setPos(int3 &Pos)
 {
 	pos = Pos;
+}
+
+void CRmgTemplateZone::addTile (int3 &pos)
+{
+	tileinfo[pos] = CTileInfo();
 }
 
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
@@ -393,7 +398,13 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
 			playerInfo.generateHeroAtMainTown = true;
 
-			gen->editManager->getTerrainSelection().selectRange(MapRect(shape[0], shape[2].y - shape[0].y, shape[2].x - shape[0].x));
+			//paint zone with matching terrain
+			std::vector<int3> tiles;
+			for (auto tile : tileinfo)
+			{
+				tiles.push_back (tile.first);
+			}
+			gen->editManager->getTerrainSelection().setSelection(tiles);
 			gen->editManager->drawTerrain(VLC->townh->factions[townId]->nativeTerrain, &gen->rand);
 
 			//required_objects.push_back(town);

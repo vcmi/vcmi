@@ -40,11 +40,17 @@ class CZonePlacer
 public:
 	explicit CZonePlacer(CMapGenerator * gen);
 	int3 cords (float3 f) const;
+	float metric (int3 &a, int3 &b) const;
 	~CZonePlacer();
 
 	void placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGenerator * rand);
+	void assignZones(shared_ptr<CMapGenOptions> mapGenOptions);
 
 private:
+	//metric coefiicients
+	float scaleX;
+	float scaleY;
+	float a1, b1, c1, a2, b2, c2;
 	//CMap * map;
 	//unique_ptr<CZoneGraph> graph;
 	CMapGenerator * gen;

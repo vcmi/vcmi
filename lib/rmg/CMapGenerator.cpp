@@ -154,10 +154,13 @@ void CMapGenerator::genZones()
 
 	CZonePlacer placer(this);
 	placer.placeZones(mapGenOptions, &rand);
+	placer.assignZones(mapGenOptions);
 
 	int i = 0;
 	int part_w = w/player_per_side;
 	int part_h = h/player_per_side;
+
+
 	for(auto const it : zones)
 	{
 		CRmgTemplateZone * zone = it.second;

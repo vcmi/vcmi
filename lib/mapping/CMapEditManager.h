@@ -91,6 +91,7 @@ public:
 	void deselectRange(const MapRect & rect) override;
 	void selectAll() override;
 	void clearSelection() override;
+	void setSelection(std::vector<int3> & vec);
 };
 
 /// Selection class to select objects.

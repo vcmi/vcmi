@@ -115,3 +115,63 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 		logGlobal->infoStream() << boost::format ("Placed zone %d at relative position %s and coordinates %s") % zone.first % zone.second->getCenter() % zone.second->getPos();
 	}
 }
+
+float CZonePlacer::metric (int3 &A, int3 &B) const
+{
+/*
+
+Matlab code
+
+	dx = abs(A(1) - B(1)); %distance must be symmetric
+	dy = abs(A(2) - B(2));
+
+	d = 0.01 * dx^3 + 0.1 * dx^2 + 1 * dx + ...
+    0.03 * dy^3 - 0.3 * dy^2 + 0.3 * dy;
+*/
+
+	float dx = abs(A.x - B.x) * scaleX;
+	float dy = abs(A.y - B.y) * scaleY;
+
+	//Horner scheme
+	return dx * (1 + dx * (0.1 + dx * 0.01)) + dy * (0.3 + dy * (-0.3 + dy * 0.03));
+}
+
+void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
+{
+	auto width = mapGenOptions->getWidth();
+	auto height = mapGenOptions->getHeight();
+
+	//scale to Medium map to ensure smooth results
+	scaleX = 72.f / width;
+	scaleY = 72.f / height;
+
+	auto zones = gen->getZones();
+
+	typedef std::pair<CRmgTemplateZone *, float> Dpair;
+	std::vector <Dpair> distances;
+	distances.reserve(zones.size());
+
+	auto compareByDistance = [](const Dpair & lhs, const Dpair & rhs) -> bool
+	{
+		return lhs.second < rhs.second;
+	};
+
+	int levels = gen->map->twoLevel ? 2 : 1;
+	for (int i=0; i<width; i++)
+	{
+		for(int j=0; j<height; j++)
+		{
+			for (int k = 0; k < levels; k++)
+			{
+				distances.clear();
+				int3 pos(i, j, k);
+				for (auto zone : zones)
+				{
+					distances.push_back (std::make_pair(zone.second, metric(pos, zone.second->getPos())));
+				}
+				boost::sort (distances, compareByDistance);
+				distances.front().first->addTile(pos); //closest tile belongs to zone
+			}
+		}
+	}
+}
