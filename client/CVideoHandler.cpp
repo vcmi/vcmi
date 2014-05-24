@@ -9,6 +9,7 @@
 
 extern CGuiHandler GH; //global gui handler
 
+#ifndef DISABLE_VIDEO
 //reads events and returns true on key down
 static bool keyDown()
 {
@@ -20,6 +21,7 @@ static bool keyDown()
 	}
 	return false;
 }
+#endif
 
 #if defined(_WIN32)  &&  (_MSC_VER < 1800 ||  !defined(USE_FFMPEG))
 

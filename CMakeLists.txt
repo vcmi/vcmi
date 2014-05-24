@@ -22,6 +22,7 @@ option(ENABLE_EDITOR "Enable compilation of map editor" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_TEST "Enable compilation of unit tests" OFF)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
+option(ENABLE_SDL2 "Use SDL2 for compilation instead of SDL 1.2" ON)
 
 ############################################
 #        Building section                  #
@@ -54,11 +55,27 @@ if (APPLE)
 endif()
 
 find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale REQUIRED)
-find_package(SDL REQUIRED)
-find_package(SDL_image REQUIRED)
-find_package(SDL_mixer REQUIRED)
-find_package(SDL_ttf REQUIRED)
 find_package(ZLIB REQUIRED)
+
+if (ENABLE_SDL2)
+	include (FindPkgConfig)
+	pkg_search_module(SDL REQUIRED sdl2)
+	pkg_search_module(SDL_TTF REQUIRED SDL2_ttf)
+	pkg_search_module(SDL_IMAGE REQUIRED SDL2_image)
+	pkg_search_module(SDL_MIXER REQUIRED SDL2_mixer)
+	
+	#This is weird - SDL defines singular variables while pkg_search defines plural
+	set(SDL_INCLUDE_DIR "${SDL_INCLUDE_DIRS}")
+	set(SDL_LIBRARY "${SDL_LIBRARIES}")
+	set(SDLTTF_LIBRARY "${SDL_TTF_LIBRARIES}")
+	set(SDLIMAGE_LIBRARY "${SDL_IMAGE_LIBRARIES}")
+	set(SDLMIXER_LIBRARY "${SDL_MIXER_LIBRARIES}")
+else()
+	find_package(SDL REQUIRED)
+	find_package(SDL_image REQUIRED)
+	find_package(SDL_mixer REQUIRED)
+	find_package(SDL_ttf REQUIRED)
+endif()
 include(cotire)
 
 if (ENABLE_EDITOR OR ENABLE_LAUNCHER)

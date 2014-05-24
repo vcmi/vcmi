@@ -390,7 +390,7 @@ int main(int argc, char** argv)
 	CCS = new CClientState;
 	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler etc.)
 	// Initialize video
-#if DISABLE_VIDEO
+#ifdef DISABLE_VIDEO
 	CCS->videoh = new CEmptyVideoPlayer;
 #else
 	if (!gNoGUI && !vm.count("disable-video"))

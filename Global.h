@@ -16,6 +16,8 @@
 // Fixed width bool data type is important for serialization
 static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
+#  define DISABLE_VIDEO
+
 #if defined _M_X64 && defined _WIN32 //Win64 -> cannot load 32-bit DLLs for video handling
 #  define DISABLE_VIDEO
 #endif

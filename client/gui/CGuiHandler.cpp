@@ -285,7 +285,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		#endif
 	}
 	#ifndef VCMI_SDL1 //SDL2x only events	
-	else if ((sEvent->type == SDL_MOUSEWHEEL))
+	else if (sEvent->type == SDL_MOUSEWHEEL)
 	{
 		std::list<CIntObject*> hlp = wheelInterested;
 		for(auto i=hlp.begin(); i != hlp.end() && current; i++)

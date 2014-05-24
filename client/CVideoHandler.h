@@ -221,7 +221,7 @@ public:
 
 #include <SDL.h>
 #include <SDL_video.h>
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(1,3,0) && !SDL_VERSION_ATLEAST(2,0,0)
 #include <SDL_compat.h>
 #endif
 
