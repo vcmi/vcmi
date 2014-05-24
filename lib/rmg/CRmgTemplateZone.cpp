@@ -294,63 +294,16 @@ void CRmgTemplateZone::setCenter(float3 f)
 
 bool CRmgTemplateZone::pointIsIn(int x, int y)
 {
-	//int i, j;
-	//bool c = false;
-	//int nvert = shape.size();
-	//for (i = 0, j = nvert-1; i < nvert; j = i++) {
-	//	if ( ((shape[i].y>y) != (shape[j].y>y)) &&
-	//		(x < (shape[j].x-shape[i].x) * (y-shape[i].y) / (shape[j].y-shape[i].y) + shape[i].x) )
-	//		c = !c;
-	//}
 	return true;
 }
 
 void CRmgTemplateZone::setShape(std::vector<int3> shape)
 {
-	//int z = -1;
-	//si32 minx = INT_MAX;
-	//si32 maxx = -1;
-	//si32 miny = INT_MAX;
-	//si32 maxy = -1;
-	//for(auto &point : shape)
-	//{
-	//	if (z == -1)
-	//		z = point.z;
-	//	if (point.z != z)
-	//		throw rmgException("Zone shape points should lie on same z.");
-	//	minx = std::min(minx, point.x);
-	//	maxx = std::max(maxx, point.x);
-	//	miny = std::min(miny, point.y);
-	//	maxy = std::max(maxy, point.y);
-	//}
 	this->shape = shape;
-	//for(int x = minx; x <= maxx; ++x)
-	//{
-	//	for(int y = miny; y <= maxy; ++y)
-	//	{
-	//		if (pointIsIn(x, y))
-	//		{
-	//			tileinfo[int3(x,y,z)] = CTileInfo();
-	//		}
-	//	}
-	//}
 }
 
 int3 CRmgTemplateZone::getPos()
 {
-	//si32 cx = 0;
-	//si32 cy = 0;
-	//si32 area = 0;
-	//si32 sz = shape.size();
-	////include last->first too
-	//for(si32 i = 0, j = sz-1; i < sz; j = i++) {
-	//	si32 sf = (shape[i].x * shape[j].y - shape[j].x * shape[i].y);
-	//	cx += (shape[i].x + shape[j].x) * sf;
-	//	cy += (shape[i].y + shape[j].y) * sf;
-	//	area += sf;
-	//}
-	//area /= 2;
-	//return int3(std::abs(cx/area/6), std::abs(cy/area/6), shape[0].z);
 	return pos;
 }
 void CRmgTemplateZone::setPos(int3 &Pos)
@@ -366,6 +319,9 @@ void CRmgTemplateZone::addTile (int3 &pos)
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
 {
 	std::vector<CGObjectInstance*> required_objects;
+
+	int townId = 0;
+
 	if ((type == ETemplateZoneType::CPU_START) || (type == ETemplateZoneType::PLAYER_START))
 	{
 		logGlobal->infoStream() << "Preparing playing zone";
@@ -376,7 +332,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			PlayerColor player(player_id);
 			auto  town = new CGTownInstance();
 			town->ID = Obj::TOWN;
-			int townId = gen->mapGenOptions->getPlayersSettings().find(player)->second.getStartingTown();
+			townId = gen->mapGenOptions->getPlayersSettings().find(player)->second.getStartingTown();
 
 			if(townId == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
 				townId = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); // all possible towns, skip neutral
@@ -398,15 +354,6 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
 			playerInfo.generateHeroAtMainTown = true;
 
-			//paint zone with matching terrain
-			std::vector<int3> tiles;
-			for (auto tile : tileinfo)
-			{
-				tiles.push_back (tile.first);
-			}
-			gen->editManager->getTerrainSelection().setSelection(tiles);
-			gen->editManager->drawTerrain(VLC->townh->factions[townId]->nativeTerrain, &gen->rand);
-
 			//required_objects.push_back(town);
 
 			std::vector<Res::ERes> required_mines;
@@ -426,9 +373,23 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 		else
 		{			
 			type = ETemplateZoneType::TREASURE;
+			townId = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand);
 			logGlobal->infoStream() << "Skipping this zone cause no player";
 		}
 	}
+	else //no player
+	{
+		townId = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand);
+	}
+	//paint zone with matching terrain
+	std::vector<int3> tiles;
+	for (auto tile : tileinfo)
+	{
+		tiles.push_back (tile.first);
+	}
+	gen->editManager->getTerrainSelection().setSelection(tiles);
+	gen->editManager->drawTerrain(VLC->townh->factions[townId]->nativeTerrain, &gen->rand);
+
 	logGlobal->infoStream() << "Creating required objects";
 	for(const auto &obj : required_objects)
 	{
