@@ -5596,11 +5596,11 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int
 				ObjectInstanceID nearest = town->id; //nearest town's ID
 				for(const CGTownInstance * currTown : gs->getPlayer(h->tempOwner)->towns)
 				{
-					si32 curDist = currTown->pos.dist2dSQ(h->pos);
-					if (nearest == ObjectInstanceID() || curDist < dist)
+					si32 currDist = currTown->pos.dist2dSQ(h->pos);
+					if (currDist < dist)
 					{
-						nearest = town->id;
-						dist = curDist;
+						nearest = currTown->id;
+						dist = currDist;
 					}
 				}
 				if (town->id != nearest)
