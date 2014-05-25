@@ -4173,13 +4173,13 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 		const CGObjectInstance *cur = gatesSplit[0][i];
 
 		//find nearest underground exit
-		std::pair<int,double> best(-1,150000); //pair<pos_in_vector, distance>
+		std::pair<int, si32> best(-1, 0x7FFFFFFF); //pair<pos_in_vector, distance^2>
 		for(int j = 0; j < gatesSplit[1].size(); j++)
 		{
 			const CGObjectInstance *checked = gatesSplit[1][j];
 			if(!checked)
 				continue;
-			double hlp = checked->pos.dist2d(cur->pos);
+			si32 hlp = checked->pos.dist2dSQ(cur->pos);
 			if(hlp < best.second)
 			{
 				best.first = j;
@@ -4193,9 +4193,7 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 			gatesSplit[1][best.first] = nullptr;
 		}
 		else
-		{
 			gates.push_back(std::make_pair(cur->id, ObjectInstanceID()));
-		}
 	}
 	objs.erase(Obj::SUBTERRANEAN_GATE);
 }

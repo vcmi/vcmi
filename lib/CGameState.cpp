@@ -1032,7 +1032,7 @@ void CGameState::initGrailPosition()
 						&& !t.visitable
 						&& t.terType != ETerrainType::WATER
 						&& t.terType != ETerrainType::ROCK
-						&& map->grailPos.dist2d(int3(i,j,k)) <= map->grailRadious)
+						&& map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadious * map->grailRadious))
 						allowedPos.push_back(int3(i,j,k));
 				}
 			}
