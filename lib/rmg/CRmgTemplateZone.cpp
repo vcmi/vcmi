@@ -306,12 +306,12 @@ int3 CRmgTemplateZone::getPos()
 {
 	return pos;
 }
-void CRmgTemplateZone::setPos(int3 &Pos)
+void CRmgTemplateZone::setPos(const int3 &Pos)
 {
 	pos = Pos;
 }
 
-void CRmgTemplateZone::addTile (int3 &pos)
+void CRmgTemplateZone::addTile (const int3 &pos)
 {
 	tileinfo[pos] = CTileInfo();
 }

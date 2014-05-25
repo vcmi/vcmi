@@ -33,7 +33,7 @@ CZonePlacer::~CZonePlacer()
 
 }
 
-int3 CZonePlacer::cords (float3 f) const
+int3 CZonePlacer::cords (const float3 f) const
 {
 	return int3(std::max(0.f, (f.x * gen->map->width)-1), std::max(0.f, (f.y * gen->map->height-1)), f.z);
 }
@@ -160,7 +160,7 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 	}
 }
 
-float CZonePlacer::metric (int3 &A, int3 &B) const
+float CZonePlacer::metric (const int3 &A, const int3 &B) const
 {
 /*
 
