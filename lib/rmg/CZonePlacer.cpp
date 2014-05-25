@@ -169,15 +169,15 @@ Matlab code
 	dx = abs(A(1) - B(1)); %distance must be symmetric
 	dy = abs(A(2) - B(2));
 
-	d = 0.01 * dx^3 + 0.1 * dx^2 + 1 * dx + ...
-    0.03 * dy^3 - 0.3 * dy^2 + 0.3 * dy;
+d = 0.01 * dx^3 - 0.1618 * dx^2 + 1 * dx + ...
+    0.01618 * dy^3 + 0.1 * dy^2 + 0.168 * dy;
 */
 
 	float dx = abs(A.x - B.x) * scaleX;
 	float dy = abs(A.y - B.y) * scaleY;
 
 	//Horner scheme
-	return dx * (1 + dx * (0.1 + dx * 0.01)) + dy * (0.2 + dy * (-0.2 + dy * 0.02));
+	return dx * (1 + dx * (-0.1618 + dx * 0.01)) + dy * (1.618 + dy * (0.1 + dy * 0.01618));
 }
 
 void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
