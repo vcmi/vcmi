@@ -60,10 +60,10 @@
 					<Add directory="$(#sdl.include)" />
 				</Compiler>
 				<Linker>
-					<Add option="-lSDL.dll" />
-					<Add option="-lSDL_image.dll" />
-					<Add option="-lSDL_mixer.dll" />
-					<Add option="-lSDL_ttf.dll" />
+					<Add option="-lSDL" />
+					<Add option="-lSDL_image" />
+					<Add option="-lSDL_mixer" />
+					<Add option="-lSDL_ttf" />
 					<Add directory="$(#sdl.lib)" />
 				</Linker>
 			</Target>
@@ -81,10 +81,10 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="-lSDL.dll" />
-					<Add option="-lSDL_image.dll" />
-					<Add option="-lSDL_mixer.dll" />
-					<Add option="-lSDL_ttf.dll" />
+					<Add option="-lSDL" />
+					<Add option="-lSDL_image" />
+					<Add option="-lSDL_mixer" />
+					<Add option="-lSDL_ttf" />
 					<Add directory="$(#sdl.lib)" />
 				</Linker>
 			</Target>

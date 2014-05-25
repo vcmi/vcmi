@@ -815,7 +815,7 @@ static bool checkVideoMode(int monitorIndex, int w, int h, int& bpp, bool fullsc
 	return false;	
 	#else
 	bpp = SDL_VideoModeOK(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
-	return !(bpp==0)
+	return !(bpp==0);
 	#endif // VCMI_SDL1
 }
 

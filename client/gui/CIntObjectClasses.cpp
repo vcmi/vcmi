@@ -1651,6 +1651,9 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 	}
 
 	bool redrawNeeded = false;
+	#ifdef VCMI_SDL1
+	std::string oldText = text;
+	#endif // 0	
 	switch(key.keysym.sym)
 	{
 	case SDLK_DELETE: // have index > ' ' so it won't be filtered out by default section
@@ -1687,8 +1690,6 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 		redraw();
 		cb(text);
 	}	
-	
-	//todo: handle text input for SDL2
 }
 
 void CTextInput::setText( const std::string &nText, bool callCb )
