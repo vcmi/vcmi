@@ -4173,7 +4173,7 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 		const CGObjectInstance *cur = gatesSplit[0][i];
 
 		//find nearest underground exit
-		std::pair<int, si32> best(-1, 0x7FFFFFFF); //pair<pos_in_vector, distance^2>
+		std::pair<int, si32> best(-1, std::numeric_limits<si32>::max()); //pair<pos_in_vector, distance^2>
 		for(int j = 0; j < gatesSplit[1].size(); j++)
 		{
 			const CGObjectInstance *checked = gatesSplit[1][j];
