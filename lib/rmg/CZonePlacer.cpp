@@ -177,7 +177,7 @@ d = 0.01 * dx^3 - 0.1618 * dx^2 + 1 * dx + ...
 	float dy = abs(A.y - B.y) * scaleY;
 
 	//Horner scheme
-	return dx * (1 + dx * (-0.1618 + dx * 0.01)) + dy * (1.618 + dy * (0.1 + dy * 0.01618));
+	return dx * (1 + dx * (0.1 + dx * 0.01)) + dy * (1.618 + dy * (-0.1618 + dy * 0.01618));
 }
 
 void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
