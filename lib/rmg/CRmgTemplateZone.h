@@ -103,9 +103,9 @@ public:
 	float3 getCenter() const;
 	void setCenter(float3 f);
 	int3 getPos();
-	void setPos(int3 &pos);
+	void setPos(const int3 &pos);
 
-	void addTile (int3 &pos);
+	void addTile (const int3 &pos);
 	void setShape(std::vector<int3> shape);
 	bool fill(CMapGenerator* gen);
 

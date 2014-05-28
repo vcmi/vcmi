@@ -39,8 +39,8 @@ class CZonePlacer
 {
 public:
 	explicit CZonePlacer(CMapGenerator * gen);
-	int3 cords (float3 f) const;
-	float metric (int3 &a, int3 &b) const;
+	int3 cords (const float3 f) const;
+	float metric (const int3 &a, const int3 &b) const;
 	~CZonePlacer();
 
 	void placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGenerator * rand);
