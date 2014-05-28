@@ -744,23 +744,26 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 
 					if (h->getSpellSchoolLevel(CGI->spellh->objects[spell]) < 2) //not advanced or expert - teleport to nearest available city
 					{
-						int nearest = -1; //nearest town's ID
-						double dist = -1;
-						for (int g=0; g<Towns.size(); ++g)
+						auto nearest = Towns.cbegin(); //nearest town's iterator
+						si32 dist = LOCPLINT->cb->getTown((*nearest)->id)->pos.dist2dSQ(h->pos);
+
+						for (auto i = nearest + 1; i != Towns.cend(); ++i)
 						{
-							const CGTownInstance * dest = LOCPLINT->cb->getTown(Towns[g]->id);
-							double curDist = dest->pos.dist2d(h->pos);
-							if (nearest == -1 || curDist < dist)
+							const CGTownInstance * dest = LOCPLINT->cb->getTown((*i)->id);
+							si32 curDist = dest->pos.dist2dSQ(h->pos);
+
+							if (curDist < dist)
 							{
-								nearest = g;
+								nearest = i;
 								dist = curDist;
 							}
 						}
-						if ( Towns[nearest]->visitingHero )
+
+						if ((*nearest)->visitingHero)
 							LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[123]);
 						else
 						{
-							const CGTownInstance * town = LOCPLINT->cb->getTown(Towns[nearest]->id);
+							const CGTownInstance * town = LOCPLINT->cb->getTown((*nearest)->id);
 							LOCPLINT->cb->castSpell(h, spell, town->visitablePos());// - town->getVisitableOffset());
 						}
 					}

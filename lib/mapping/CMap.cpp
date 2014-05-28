@@ -424,7 +424,7 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, Obj::EObj type)
 				bestMatch = object;
 			else
 			{
-				if (object->pos.dist2d(pos) < bestMatch->pos.dist2d(pos))
+				if (object->pos.dist2dSQ(pos) < bestMatch->pos.dist2dSQ(pos))
 					bestMatch = object;// closer than one we already found
 			}
 		}
