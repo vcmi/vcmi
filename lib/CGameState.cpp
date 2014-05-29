@@ -1268,21 +1268,6 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 		}
 	}
 
-	// Now we need to perform deep copies of all heroes
-	// The lambda below replaces pointer to a hero with a pointer to its deep copy.
-	auto replaceWithDeepCopy = [](CGHeroInstance *&hero)
-	{
-		// We cache map original hero => copy.
-		// We may be called multiple times with the same hero and should return a single copy.
-		static std::map<CGHeroInstance*, CGHeroInstance*> oldToCopy;
-		if(!oldToCopy[hero])
-			oldToCopy[hero] = CMemorySerializer::deepCopy(*hero).release();
-
-		hero = oldToCopy[hero];
-	};
-	range::for_each(crossoverHeroes.heroesFromAnyPreviousScenarios, replaceWithDeepCopy);
-	range::for_each(crossoverHeroes.heroesFromPreviousScenario,     replaceWithDeepCopy);
-
 	return crossoverHeroes;
 }
 
@@ -2808,7 +2793,7 @@ std::vector<CGameState::CampaignHeroReplacement> CGameState::generateCampaignHer
 				{
 					auto hero = *it;
 					crossoverHeroes.removeHeroFromBothLists(hero);
-					campaignHeroReplacements.push_back(CampaignHeroReplacement(hero, heroPlaceholder->id));
+                    campaignHeroReplacements.push_back(CampaignHeroReplacement(CMemorySerializer::deepCopy(*hero).release(), heroPlaceholder->id));
 				}
 			}
 		}
@@ -2843,7 +2828,8 @@ std::vector<CGameState::CampaignHeroReplacement> CGameState::generateCampaignHer
 		auto heroPlaceholder = heroPlaceholders[i];
 		if(crossoverHeroes.heroesFromPreviousScenario.size() > i)
 		{
-			campaignHeroReplacements.push_back(CampaignHeroReplacement(crossoverHeroes.heroesFromPreviousScenario[i], heroPlaceholder->id));
+            auto hero = crossoverHeroes.heroesFromPreviousScenario[i];
+            campaignHeroReplacements.push_back(CampaignHeroReplacement(CMemorySerializer::deepCopy(*hero).release(), heroPlaceholder->id));
 		}
 	}
 
