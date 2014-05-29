@@ -133,7 +133,8 @@ void CMapGenerator::addPlayerInfo()
 		{
 			player.canHumanPlay = true;
 		}
-		auto itTeam = std::next(teamNumbers[j].begin(), rand.nextInt (teamNumbers[j].size()));
+
+        auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
 		player.team = TeamID(*itTeam);
 		teamNumbers[j].erase(itTeam);
 		map->players[pSettings.getColor().getNum()] = player;
