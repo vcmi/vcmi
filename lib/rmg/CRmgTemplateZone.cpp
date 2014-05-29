@@ -515,8 +515,8 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 
 	auto points = object->getBlockedPos();
 	if (object->isVisitable())
-		points.emplace(pos + object->getVisitableOffset());
-	points.emplace(pos);
+		points.insert(pos + object->getVisitableOffset());
+	points.insert(pos);
 	for(auto const &p : points)
 	{		
 		if (tileinfo.find(pos + p) != tileinfo.end())
