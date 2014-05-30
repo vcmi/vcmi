@@ -14,11 +14,11 @@
 #include "CRmgTemplateZone.h"
 #include "CZonePlacer.h"
 
-void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo)
+void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo)
 {
 	for(const int3 &dir : dirs)
 	{
-		const int3 n = pos + dir;
+		int3 n = pos + dir;
 		if(map->isInTheMap(n))
 			foo(pos+dir);
 	}
@@ -227,6 +227,7 @@ void CMapGenerator::fillZones()
 	logGlobal->infoStream() << "Started filling zones";
 	for(auto it : zones)
 	{
+		it.second->createBorder(this);
 		it.second->fill(this);
 	}	
 	logGlobal->infoStream() << "Zones filled successfully";
@@ -249,28 +250,28 @@ std::map<TRmgTemplateZoneId, CRmgTemplateZone*> CMapGenerator::getZones() const
 	return zones;
 }
 
-bool CMapGenerator::isBlocked(int3 &tile) const
+bool CMapGenerator::isBlocked(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
 		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].isBlocked();
 }
-bool CMapGenerator::shouldBeBlocked(int3 &tile) const
+bool CMapGenerator::shouldBeBlocked(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
 		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].shouldBeBlocked();
 }
-bool CMapGenerator::isPossible(int3 &tile) const
+bool CMapGenerator::isPossible(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
 		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].isPossible();
 }
-bool CMapGenerator::isFree(int3 &tile) const
+bool CMapGenerator::isFree(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
 		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
@@ -283,4 +284,28 @@ void CMapGenerator::setOccupied(int3 &tile, ETileType::ETileType state)
 		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	tiles[tile.x][tile.y][tile.z].setOccupied(state);
+}
+
+CTileInfo CMapGenerator::getTile(int3 tile) const
+{
+	if (!map->isInTheMap(tile))
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+
+	return tiles[tile.x][tile.y][tile.z];
+}
+
+void CMapGenerator::setNearestObjectDistance(int3 &tile, int value)
+{
+	if (!map->isInTheMap(tile))
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+
+	tiles[tile.x][tile.y][tile.z].setNearestObjectDistance(value);
+}
+
+int CMapGenerator::getNearestObjectDistance(const int3 &tile) const
+{
+	if (!map->isInTheMap(tile))
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+
+	return tiles[tile.x][tile.y][tile.z].getNearestObjectDistance();
 }

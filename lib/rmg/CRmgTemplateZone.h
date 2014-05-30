@@ -112,6 +112,7 @@ public:
 	void addTile (const int3 &pos);
 	void setShape(std::vector<int3> shape);
 	bool fill(CMapGenerator* gen);
+	void createBorder(CMapGenerator* gen);
 
 	void addConnection(TRmgTemplateZoneId otherZone);
 	std::vector<TRmgTemplateZoneId> getConnections() const;
@@ -136,7 +137,7 @@ private:
 	//placement info
 	int3 pos;
 	float3 center;
-	std::map<int3, CTileInfo> tileinfo; //irregular area assined to zone
+	std::set<int3> tileinfo; //irregular area assined to zone
 	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
 	std::map<TRmgTemplateZoneId, bool> alreadyConnected; //TODO: allow multiple connections between two zones?
 

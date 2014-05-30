@@ -64,13 +64,17 @@ public:
 	CMapEditManager * editManager;
 
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> getZones() const;
-	void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo);
+	void foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo);
 
-	bool isBlocked(int3 &tile) const;
-	bool shouldBeBlocked(int3 &tile) const;
-	bool isPossible(int3 &tile) const;
-	bool isFree(int3 &tile) const;
+	bool isBlocked(const int3 &tile) const;
+	bool shouldBeBlocked(const int3 &tile) const;
+	bool isPossible(const int3 &tile) const;
+	bool isFree(const int3 &tile) const;
 	void setOccupied(int3 &tile, ETileType::ETileType state);
+	CTileInfo getTile(int3 tile) const;
+
+	int getNearestObjectDistance(const int3 &tile) const; 
+	void setNearestObjectDistance(int3 &tile, int value); 
 
 private:
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> zones;

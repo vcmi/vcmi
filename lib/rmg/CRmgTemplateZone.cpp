@@ -313,7 +313,19 @@ void CRmgTemplateZone::setPos(const int3 &Pos)
 
 void CRmgTemplateZone::addTile (const int3 &pos)
 {
-	tileinfo[pos] = CTileInfo();
+	tileinfo.insert(pos);
+}
+
+void CRmgTemplateZone::createBorder(CMapGenerator* gen)
+{
+	for (auto tile : tileinfo)
+	{
+		gen->foreach_neighbour (tile, [this, gen](int3 &pos)
+		{
+			if (!vstd::contains(this->tileinfo, pos))
+				gen->setOccupied (pos, ETileType::BLOCKED);
+		});
+	}
 }
 
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
@@ -385,7 +397,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	std::vector<int3> tiles;
 	for (auto tile : tileinfo)
 	{
-		tiles.push_back (tile.first);
+		tiles.push_back (tile);
 	}
 	gen->editManager->getTerrainSelection().setSelection(tiles);
 	gen->editManager->drawTerrain(VLC->townh->factions[townId]->nativeTerrain, &gen->rand);
@@ -439,14 +451,14 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 
 	auto sel = gen->editManager->getTerrainSelection();
 	sel.clearSelection();
-	for(auto it = tileinfo.begin(); it != tileinfo.end(); ++it)
+	for (auto tile : tileinfo)
 	{
-		if (it->second.shouldBeBlocked()) //fill tiles that should be blocked with obstacles
+		if (gen->shouldBeBlocked(tile)) //fill tiles that should be blocked with obstacles
 		{
 			auto obj = new CGObjectInstance();
 			obj->ID = static_cast<Obj>(130);
 			obj->subID = 0;
-			placeObject(gen, obj, it->first);
+			placeObject(gen, obj, tile);
 		}
 	}
 	//logGlobal->infoStream() << boost::format("Filling %d with ROCK") % sel.getSelectedItems().size();
@@ -465,18 +477,18 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 	auto ow = obj->getWidth();
 	auto oh = obj->getHeight();
 	//logGlobal->infoStream() << boost::format("Min dist for density %f is %d") % density % min_dist;
-	for(auto it = tileinfo.begin(); it != tileinfo.end(); ++it)
+	for(auto tile : tileinfo)
 	{
-		auto &ti = it->second;
-		auto p = it->first;
+		auto &ti = gen->getTile(tile);
 		auto dist = ti.getNearestObjectDistance();
 		//avoid borders
-		if ((p.x < 3) || (w - p.x < 3) || (p.y < 3) || (h - p.y < 3))
+		if ((tile.x < 3) || (w - tile.x < 3) || (tile.y < 3) || (h - tile.y < 3))
 			continue;
-		if (!ti.isBlocked()  && (dist >= min_dist) && (dist > best_distance))
+		if (gen->isPossible(tile) && (dist >= min_dist) && (dist > best_distance))
 		{
 			best_distance = dist;
-			pos = p;
+			pos = tile;
+			gen->setOccupied(pos, ETileType::BLOCKED);
 			result = true;
 		}
 	}
@@ -519,15 +531,15 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 	points.insert(pos);
 	for(auto const &p : points)
 	{		
-		if (tileinfo.find(pos + p) != tileinfo.end())
+		if (vstd::contains(tileinfo, pos + p))
 		{
-			tileinfo[pos + p].setOccupied(ETileType::USED);
+			gen->setOccupied(pos + p, ETileType::USED);
 		}
 	}
-	for(auto it = tileinfo.begin(); it != tileinfo.end(); ++it)
+	for(auto tile : tileinfo)
 	{		
-		si32 d = pos.dist2d(it->first);
-		it->second.setNearestObjectDistance(std::min(d, it->second.getNearestObjectDistance()));
+		si32 d = pos.dist2d(tile);
+		gen->setNearestObjectDistance(tile, std::min(d, gen->getNearestObjectDistance(tile)));
 	}
 }
 
@@ -537,32 +549,22 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	logGlobal->traceStream() << boost::format("Guard object at %d %d") % object->pos.x % object->pos.y;
 	int3 visitable = object->visitablePos();
 	std::vector<int3> tiles;
-	for(int i = -1; i < 2; ++i)
+	gen->foreach_neighbour(visitable, [&](int3& pos) 
 	{
-		for(int j = -1; j < 2; ++j)
+		logGlobal->traceStream() << boost::format("Block at %d %d") % pos.x % pos.y;
+		if (gen->isPossible(pos))
 		{
-			auto it = tileinfo.find(visitable + int3(i, j, 0));
-			if (it != tileinfo.end())
-			{
-				if (it->first != visitable)
-				{
-					logGlobal->traceStream() << boost::format("Block at %d %d") % it->first.x % it->first.y;
-					if (it->second.isPossible())
-					{
-						tiles.push_back(it->first);
-						it->second.setOccupied(ETileType::BLOCKED);
-					}
-				}
-			}
-		}
-	}
+			tiles.push_back(pos);
+			gen->setOccupied(pos, ETileType::BLOCKED);
+		};
+	});
 	if ( ! tiles.size())
 	{		
 		logGlobal->infoStream() << "Failed";
 		return false;
 	}
 	auto guard_tile = *RandomGeneratorUtil::nextItem(tiles, gen->rand);
-	tileinfo[guard_tile].setOccupied(ETileType::USED);
+	gen->setOccupied (guard_tile, ETileType::USED);
 	auto guard = new CGCreature();
 	guard->ID = Obj::RANDOM_MONSTER;
 	guard->subID = 0;
