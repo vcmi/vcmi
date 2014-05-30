@@ -14,6 +14,7 @@
 #include "../GameConstants.h"
 #include "../CRandomGenerator.h"
 #include "CMapGenOptions.h"
+#include "CRmgTemplateZone.h"
 #include "../CObjectHandler.h"
 #include "../int3.h"
 
@@ -24,13 +25,10 @@ class CMapGenOptions;
 class CTerrainViewPatternConfig;
 class CMapEditManager;
 class JsonNode;
+class CMapGenerator;
+class CTileInfo;
 
 typedef std::vector<JsonNode> JsonVector;
-
-class CMapGenerator;
-
-//static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
-//	int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
 
 class rmgException : std::exception
 {
@@ -68,19 +66,23 @@ public:
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> getZones() const;
 	void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo);
 
+	bool isBlocked(int3 &tile) const;
+	bool shouldBeBlocked(int3 &tile) const;
+	bool isPossible(int3 &tile) const;
+	bool isFree(int3 &tile) const;
+	void setOccupied(int3 &tile, ETileType::ETileType state);
+
 private:
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> zones;
+
+	CTileInfo*** tiles;
 
 	/// Generation methods
 	std::string getMapDescription() const;
 	void addPlayerInfo();
 	void addHeaderInfo();
+	void initTiles();
 	void genZones();
 	void fillZones();
 
 };
-
-/* ---------------------------------------------------------------------------- */
-/* Implementation/Detail classes, Private API */
-/* ---------------------------------------------------------------------------- */
-

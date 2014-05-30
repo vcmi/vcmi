@@ -14,19 +14,44 @@
 #include "../GameConstants.h"
 #include "CMapGenerator.h"
 #include "float3.h"
+#include "../int3.h"
 
-class CMapgenerator;
+class CMapGenerator;
+class CTileInfo;
+class int3;
+class CGObjectInstance;
 
 namespace ETemplateZoneType
 {
-enum ETemplateZoneType
-{
-	PLAYER_START,
-	CPU_START,
-	TREASURE,
-	JUNCTION
-};
+	enum ETemplateZoneType
+	{
+		PLAYER_START,
+		CPU_START,
+		TREASURE,
+		JUNCTION
+	};
 }
+class DLL_LINKAGE CTileInfo
+{
+public:
+
+	CTileInfo();
+
+	int getNearestObjectDistance() const;
+	void setNearestObjectDistance(int value);
+	bool isBlocked() const;
+	bool shouldBeBlocked() const;
+	bool isPossible() const;
+	bool isFree() const;
+	void setOccupied(ETileType::ETileType value);
+	ETerrainType getTerrainType() const;
+	void setTerrainType(ETerrainType value);
+
+private:
+	int nearestObjectDistance;
+	ETileType::ETileType occupied;
+	ETerrainType terrain;
+};
 
 /// The CRmgTemplateZone describes a zone in a template.
 class DLL_LINKAGE CRmgTemplateZone
@@ -48,27 +73,6 @@ public:
 
 	private:
 		int townCount, castleCount, townDensity, castleDensity;
-	};
-	
-	class DLL_LINKAGE CTileInfo
-	{
-	public:
-		CTileInfo();
-
-		int getNearestObjectDistance() const;
-		void setNearestObjectDistance(int value);
-		bool isObstacle() const;
-		void setObstacle(bool value);
-		bool isOccupied() const;
-		void setOccupied(bool value);
-		ETerrainType getTerrainType() const;
-		void setTerrainType(ETerrainType value);
-
-	private:
-		int nearestObjectDistance;
-		bool obstacle;
-		bool occupied;
-		ETerrainType terrain;
 	};
 
 	CRmgTemplateZone();
@@ -101,8 +105,8 @@ public:
 	void setTownTypeLikeZone(boost::optional<TRmgTemplateZoneId> value);
 
 	float3 getCenter() const;
-	void setCenter(float3 f);
-	int3 getPos();
+	void setCenter(const float3 &f);
+	int3 getPos() const;
 	void setPos(const int3 &pos);
 
 	void addTile (const int3 &pos);

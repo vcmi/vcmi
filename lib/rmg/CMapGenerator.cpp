@@ -16,12 +16,12 @@
 
 void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo)
 {
-	//for(const int3 &dir : dirs)
-	//{
-	//	const int3 n = pos + dir;
-	//	if(map->isInTheMap(n))
-	//		foo(pos+dir);
-	//}
+	for(const int3 &dir : dirs)
+	{
+		const int3 n = pos + dir;
+		if(map->isInTheMap(n))
+			foo(pos+dir);
+	}
 }
 
 
@@ -31,9 +31,40 @@ CMapGenerator::CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int rando
 	rand.setSeed(randomSeed);
 }
 
+void CMapGenerator::initTiles()
+{
+	map->initTerrain();
+
+	int width = map->width;
+	int height = map->height;
+
+	int level = map->twoLevel ? 2 : 1;
+	tiles = new CTileInfo**[width];
+	for (int i = 0; i < width; ++i)
+	{
+		tiles[i] = new CTileInfo*[height];
+		for (int j = 0; j < height; ++j)
+		{
+			tiles[i][j] = new CTileInfo[level];
+		}
+	}
+}
+
 CMapGenerator::~CMapGenerator()
 {
-
+	//FIXME: what if map is not present anymore?
+	if (tiles && map)
+	{
+		for (int i=0; i < map->width; i++)
+		{
+			for(int j=0; j < map->height; j++)
+			{
+				delete [] tiles[i][j];
+			}
+			delete [] tiles[i];
+		}
+		delete [] tiles;
+	}
 }
 
 std::unique_ptr<CMap> CMapGenerator::generate()
@@ -46,6 +77,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	{
 		editManager->getUndoManager().setUndoRedoLimit(0);
 		addHeaderInfo();
+		initTiles();
 
 		genZones();
 		map->calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
@@ -146,7 +178,6 @@ void CMapGenerator::addPlayerInfo()
 
 void CMapGenerator::genZones()
 {
-	map->initTerrain();
 	editManager->clearTerrain(&rand);
 	editManager->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions->getWidth(), mapGenOptions->getHeight()));
 	editManager->drawTerrain(ETerrainType::GRASS, &rand);
@@ -216,4 +247,40 @@ void CMapGenerator::addHeaderInfo()
 std::map<TRmgTemplateZoneId, CRmgTemplateZone*> CMapGenerator::getZones() const
 {
 	return zones;
+}
+
+bool CMapGenerator::isBlocked(int3 &tile) const
+{
+	if (!map->isInTheMap(tile))
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+
+	return tiles[tile.x][tile.y][tile.z].isBlocked();
+}
+bool CMapGenerator::shouldBeBlocked(int3 &tile) const
+{
+	if (!map->isInTheMap(tile))
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+
+	return tiles[tile.x][tile.y][tile.z].shouldBeBlocked();
+}
+bool CMapGenerator::isPossible(int3 &tile) const
+{
+	if (!map->isInTheMap(tile))
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+
+	return tiles[tile.x][tile.y][tile.z].isPossible();
+}
+bool CMapGenerator::isFree(int3 &tile) const
+{
+	if (!map->isInTheMap(tile))
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+
+	return tiles[tile.x][tile.y][tile.z].isFree();
+}
+void CMapGenerator::setOccupied(int3 &tile, ETileType::ETileType state)
+{
+	if (!map->isInTheMap(tile))
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+
+	tiles[tile.x][tile.y][tile.z].setOccupied(state);
 }

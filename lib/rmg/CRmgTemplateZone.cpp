@@ -73,47 +73,47 @@ void CRmgTemplateZone::CTownInfo::setCastleDensity(int value)
 	castleDensity = value;
 }
 
-CRmgTemplateZone::CTileInfo::CTileInfo():nearestObjectDistance(INT_MAX), obstacle(false), occupied(false), terrain(ETerrainType::WRONG) 
+CTileInfo::CTileInfo():nearestObjectDistance(INT_MAX), terrain(ETerrainType::WRONG) 
 {
-
+	occupied = ETileType::POSSIBLE; //all tiles are initially possible to place objects or passages
 }
 
-int CRmgTemplateZone::CTileInfo::getNearestObjectDistance() const
+int CTileInfo::getNearestObjectDistance() const
 {
 	return nearestObjectDistance;
 }
 
-void CRmgTemplateZone::CTileInfo::setNearestObjectDistance(int value)
+void CTileInfo::setNearestObjectDistance(int value)
 {
 	nearestObjectDistance = std::max(0, value); //never negative (or unitialized)
 }
-
-bool CRmgTemplateZone::CTileInfo::isObstacle() const
+bool CTileInfo::shouldBeBlocked() const
 {
-	return obstacle;
+	return occupied == ETileType::BLOCKED;
 }
-
-void CRmgTemplateZone::CTileInfo::setObstacle(bool value)
+bool CTileInfo::isBlocked() const
 {
-	obstacle = value;
+	return occupied == ETileType::BLOCKED || occupied == ETileType::USED;
 }
-
-bool CRmgTemplateZone::CTileInfo::isOccupied() const
+bool CTileInfo::isPossible() const
 {
-	return occupied;
+	return occupied == ETileType::POSSIBLE;
 }
-
-void CRmgTemplateZone::CTileInfo::setOccupied(bool value)
+bool CTileInfo::isFree() const
+{
+	return occupied == ETileType::FREE;
+}
+void CTileInfo::setOccupied(ETileType::ETileType value)
 {
 	occupied = value;
 }
 
-ETerrainType CRmgTemplateZone::CTileInfo::getTerrainType() const
+ETerrainType CTileInfo::getTerrainType() const
 {
 	return terrain;
 }
 
-void CRmgTemplateZone::CTileInfo::setTerrainType(ETerrainType value)
+void CTileInfo::setTerrainType(ETerrainType value)
 {
 	terrain = value;
 }
@@ -285,7 +285,7 @@ float3 CRmgTemplateZone::getCenter() const
 {
 	return center;
 }
-void CRmgTemplateZone::setCenter(float3 f)
+void CRmgTemplateZone::setCenter(const float3 &f)
 {
 	//limit boundaries to (0,1) square
 	center = float3 (std::min(std::max(f.x, 0.f), 1.f), std::min(std::max(f.y, 0.f), 1.f), f.z);
@@ -302,7 +302,7 @@ void CRmgTemplateZone::setShape(std::vector<int3> shape)
 	this->shape = shape;
 }
 
-int3 CRmgTemplateZone::getPos()
+int3 CRmgTemplateZone::getPos() const
 {
 	return pos;
 }
@@ -441,7 +441,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	sel.clearSelection();
 	for(auto it = tileinfo.begin(); it != tileinfo.end(); ++it)
 	{
-		if (it->second.isObstacle())
+		if (it->second.shouldBeBlocked()) //fill tiles that should be blocked with obstacles
 		{
 			auto obj = new CGObjectInstance();
 			obj->ID = static_cast<Obj>(130);
@@ -473,7 +473,7 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 		//avoid borders
 		if ((p.x < 3) || (w - p.x < 3) || (p.y < 3) || (h - p.y < 3))
 			continue;
-		if (!ti.isOccupied() && !ti.isObstacle()  && (dist >= min_dist) && (dist > best_distance))
+		if (!ti.isBlocked()  && (dist >= min_dist) && (dist > best_distance))
 		{
 			best_distance = dist;
 			pos = p;
@@ -521,7 +521,7 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 	{		
 		if (tileinfo.find(pos + p) != tileinfo.end())
 		{
-			tileinfo[pos + p].setOccupied(true);
+			tileinfo[pos + p].setOccupied(ETileType::USED);
 		}
 	}
 	for(auto it = tileinfo.begin(); it != tileinfo.end(); ++it)
@@ -547,10 +547,10 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 				if (it->first != visitable)
 				{
 					logGlobal->traceStream() << boost::format("Block at %d %d") % it->first.x % it->first.y;
-					if (!it->second.isOccupied() &&  !it->second.isObstacle())
+					if (it->second.isPossible())
 					{
 						tiles.push_back(it->first);
-						it->second.setObstacle(true);
+						it->second.setOccupied(ETileType::BLOCKED);
 					}
 				}
 			}
@@ -562,7 +562,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 		return false;
 	}
 	auto guard_tile = *RandomGeneratorUtil::nextItem(tiles, gen->rand);
-	tileinfo[guard_tile].setObstacle(false);
+	tileinfo[guard_tile].setOccupied(ETileType::USED);
 	auto guard = new CGCreature();
 	guard->ID = Obj::RANDOM_MONSTER;
 	guard->subID = 0;

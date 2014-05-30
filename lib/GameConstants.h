@@ -450,6 +450,17 @@ namespace EWallState
 	};
 }
 
+namespace ETileType
+{
+	enum ETileType
+	{
+		FREE,
+		POSSIBLE,
+		BLOCKED,
+		USED
+	};
+}
+
 class Obj
 {
 public:
