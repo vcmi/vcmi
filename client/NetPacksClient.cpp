@@ -332,7 +332,6 @@ void RemoveObject::applyFirstCl( CClient *cl )
 
 	CGI->mh->hideObject(o);
 
-	int3 pos = o->visitablePos();
 	//notify interfaces about removal
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{

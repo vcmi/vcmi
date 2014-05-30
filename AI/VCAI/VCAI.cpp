@@ -1213,7 +1213,6 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 	std::vector<const CGObjectInstance *> possibleDestinations;
 	for(const CGObjectInstance *obj : visitableObjs)
 	{
-		const int3 pos = obj->visitablePos();
 		if (isGoodForVisit(obj, h))
 		{
 			possibleDestinations.push_back(obj);
@@ -1305,7 +1304,7 @@ void VCAI::wander(HeroPtr h)
 			if(townsReachable.size())
 			{
 				boost::sort(townsReachable, compareReinforcements);
-				dests.emplace_back(townsReachable.back());
+				dests.push_back(townsReachable.back());
 			}
 			else if(townsNotReachable.size())
 			{
