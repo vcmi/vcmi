@@ -76,6 +76,7 @@
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
+			<Add directory="$(#zlib.include)" />
 			<Add directory="$(#boost.include)" />
 			<Add directory="../include" />
 		</Compiler>
