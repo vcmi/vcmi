@@ -553,6 +553,10 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	sel.clearSelection();
 	for (auto tile : tileinfo)
 	{
+		//test code - block all the map to show paths clearly
+		//if (gen->isPossible(tile))
+		//	gen->setOccupied(tile, ETileType::BLOCKED);
+
 		if (gen->shouldBeBlocked(tile)) //fill tiles that should be blocked with obstacles
 		{
 			auto obj = new CGObjectInstance();
@@ -569,6 +573,16 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 
 bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos)
 {
+	//we need object apperance to deduce free tiles
+	if (obj->appearance.id == Obj::NO_OBJ)
+	{
+		auto templates = VLC->dobjinfo->pickCandidates(obj->ID, obj->subID, gen->map->getTile(getPos()).terType);
+		if (templates.empty())
+			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") %obj->ID %obj->subID %pos));
+	
+		obj->appearance = templates.front();
+	}
+
 	//si32 min_dist = sqrt(tileinfo.size()/density);
 	int best_distance = 0;
 	bool result = false;
@@ -589,7 +603,8 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 			bool allTilesAvailable = true;
 			for (auto blockingTile : obj->getBlockedOffsets())
 			{
-				if (!gen->isPossible(pos + blockingTile))
+				int3 t = tile + blockingTile;
+				if (!gen->map->isInTheMap(t) || !gen->isPossible(t))
 				{
 					allTilesAvailable = false; //if at least one tile is not possible, object can't be placed here
 					break;
@@ -624,11 +639,15 @@ void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance*
 			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile() % object->id % object->pos()));
 	}
 
-	auto templates = VLC->dobjinfo->pickCandidates(object->ID, object->subID, gen->map->getTile(pos).terType);
-	if (templates.empty())
-		throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") %object->ID %object->subID %pos));
+	if (object->appearance.id == Obj::NO_OBJ)
+	{
+		auto templates = VLC->dobjinfo->pickCandidates(object->ID, object->subID, gen->map->getTile(pos).terType);
+		if (templates.empty())
+			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") %object->ID %object->subID %pos));
 	
-	object->appearance = templates.front();
+		object->appearance = templates.front();
+	}
+
 	gen->map->addBlockVisTiles(object);
 	gen->editManager->insertObject(object, pos);
 	logGlobal->traceStream() << boost::format ("Successfully inserted object (%d,%d) at pos %s") %object->ID %object->subID %pos();
