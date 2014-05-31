@@ -20,7 +20,7 @@ void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& 
 	{
 		int3 n = pos + dir;
 		if(map->isInTheMap(n))
-			foo(pos+dir);
+			foo(n);
 	}
 }
 
@@ -191,7 +191,6 @@ void CMapGenerator::genZones()
 	zones = tmpl->getZones(); //copy from template (refactor?)
 
 	int player_per_side = zones.size() > 4 ? 3 : 2;
-	int zones_cnt = zones.size() > 4 ? 9 : 4;
 		
 	logGlobal->infoStream() << boost::format("Map size %d %d, players per side %d") % w % h % player_per_side;
 
@@ -200,9 +199,6 @@ void CMapGenerator::genZones()
 	placer.assignZones(mapGenOptions);
 
 	int i = 0;
-	int part_w = w/player_per_side;
-	int part_h = h/player_per_side;
-
 
 	for(auto const it : zones)
 	{
@@ -276,7 +272,7 @@ bool CMapGenerator::isFree(const int3 &tile) const
 
 	return tiles[tile.x][tile.y][tile.z].isFree();
 }
-void CMapGenerator::setOccupied(int3 &tile, ETileType::ETileType state)
+void CMapGenerator::setOccupied(const int3 &tile, ETileType::ETileType state)
 {
 	if (!map->isInTheMap(tile))
 		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
@@ -284,7 +280,7 @@ void CMapGenerator::setOccupied(int3 &tile, ETileType::ETileType state)
 	tiles[tile.x][tile.y][tile.z].setOccupied(state);
 }
 
-CTileInfo CMapGenerator::getTile(int3 tile) const
+CTileInfo CMapGenerator::getTile(const int3&  tile) const
 {
 	if (!map->isInTheMap(tile))
 		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));

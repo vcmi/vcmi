@@ -115,7 +115,7 @@ public:
 	bool fill(CMapGenerator* gen);
 	void createConnections(CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
-	bool crunchPath (CMapGenerator* gen, int3 &src, int3 &dst, TRmgTemplateZoneId zone);
+	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone);
 
 	void addConnection(TRmgTemplateZoneId otherZone);
 	std::vector<TRmgTemplateZoneId> getConnections() const;
