@@ -297,11 +297,6 @@ bool CRmgTemplateZone::pointIsIn(int x, int y)
 	return true;
 }
 
-void CRmgTemplateZone::setShape(std::vector<int3> shape)
-{
-	this->shape = shape;
-}
-
 int3 CRmgTemplateZone::getPos() const
 {
 	return pos;
@@ -316,6 +311,44 @@ void CRmgTemplateZone::addTile (const int3 &pos)
 	tileinfo.insert(pos);
 }
 
+std::set<int3> CRmgTemplateZone::getTileInfo () const
+{
+	return tileinfo;
+}
+
+void CRmgTemplateZone::createConnections(CMapGenerator* gen)
+{
+	for (auto connection : connections)
+	{
+		if (getId() > connection) //only one connection between each pair
+			continue;
+
+		int3 guardPos(-1,-1,-1);
+
+		auto otherZoneTiles = gen->getZones()[connection]->getTileInfo();
+		auto otherZoneCenter = gen->getZones()[connection]->getPos();
+
+		for (auto tile : tileinfo)
+		{
+			gen->foreach_neighbour (tile, [&guardPos, tile, &otherZoneTiles](int3 &pos)
+			{
+				if (vstd::contains(otherZoneTiles, pos))
+					guardPos = tile;
+			});
+			if (guardPos.valid())
+			{
+				gen->setOccupied (pos, ETileType::FREE); //TODO: place monster here
+				//zones can make paths only in their own area
+				this->crunchPath (gen, guardPos, this->getPos(), this->getId()); //make connection towards our zone center
+				gen->getZones()[connection]->crunchPath (gen, guardPos, otherZoneCenter, connection); //make connection towards other zone center
+				break; //we're done with this connection
+			}
+		}
+		if (!guardPos.valid())
+			logGlobal->warnStream() << boost::format ("Did not find connection between zones %d and %d") %getId() %connection;
+	}
+}
+
 void CRmgTemplateZone::createBorder(CMapGenerator* gen)
 {
 	for (auto tile : tileinfo)
@@ -323,9 +356,76 @@ void CRmgTemplateZone::createBorder(CMapGenerator* gen)
 		gen->foreach_neighbour (tile, [this, gen](int3 &pos)
 		{
 			if (!vstd::contains(this->tileinfo, pos))
-				gen->setOccupied (pos, ETileType::BLOCKED);
+			{
+				gen->foreach_neighbour (pos, [this, gen](int3 &pos)
+				{
+					if (gen->isPossible(pos))
+						gen->setOccupied (pos, ETileType::BLOCKED);
+				});
+			}
 		});
 	}
+}
+
+bool CRmgTemplateZone::crunchPath (CMapGenerator* gen, int3 &src, int3 &dst, TRmgTemplateZoneId zone)
+{
+/*
+make shortest path with free tiles, reachning dst or closest already free tile. Avoid blocks.
+do not leave zone border
+*/
+	bool result = false;
+	bool end = false;
+
+	int3 currentPos = src;
+	float distance = currentPos.dist2dSQ (dst);
+
+	while (!end)
+	{
+		if (currentPos == dst)
+			break;
+
+		auto lastDistance = distance;
+		gen->foreach_neighbour (currentPos, [this, gen, &currentPos, dst, &distance, &result, &end](int3 &pos)
+		{
+			if (!result) //not sure if lambda is worth it...
+			{
+				if (pos == dst)
+				{
+					result = true;
+					end = true;
+				}
+				if (pos.dist2dSQ (dst) < distance)
+				{
+					if (!gen->isBlocked(pos))
+					{
+						if (vstd::contains (tileinfo, pos))
+						{
+							if (gen->isPossible(pos))
+							{
+								gen->setOccupied (pos, ETileType::FREE);
+								currentPos = pos;
+								distance = currentPos.dist2dSQ (dst);
+							}
+							else if (gen->isFree(pos))
+							{
+								end = true;
+								result = true;
+							}
+							else
+								throw rmgException(boost::to_string(boost::format("Tile %s of uknown type found on path") % pos()));
+						}
+					}
+				}
+			}
+		});
+		if (!(result || distance < lastDistance)) //we do not advance, use more avdnaced pathfinding algorithm?
+		{
+			logGlobal->warnStream() << boost::format ("No tile closer than %s found on path from %s to %s") %currentPos %src %dst;
+			break;
+		}
+	}
+
+	return result;
 }
 
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
@@ -486,11 +586,26 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 			continue;
 		if (gen->isPossible(tile) && (dist >= min_dist) && (dist > best_distance))
 		{
-			best_distance = dist;
-			pos = tile;
-			gen->setOccupied(pos, ETileType::BLOCKED);
-			result = true;
+			bool allTilesAvailable = true;
+			for (auto blockingTile : obj->getBlockedOffsets())
+			{
+				if (!gen->isPossible(pos + blockingTile))
+				{
+					allTilesAvailable = false; //if at least one tile is not possible, object can't be placed here
+					break;
+				}
+			}
+			if (allTilesAvailable)
+			{
+				best_distance = dist;
+				pos = tile;
+				result = true;
+			}
 		}
+	}
+	if (result)
+	{
+		gen->setOccupied(pos, ETileType::BLOCKED); //block that tile
 	}
 	return result;
 }

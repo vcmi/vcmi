@@ -350,6 +350,21 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 	return ret;
 }
 
+std::set<int3> CGObjectInstance::getBlockedOffsets() const
+{
+	std::set<int3> ret;
+	for(int w=0; w<getWidth(); ++w)
+	{
+		for(int h=0; h<getHeight(); ++h)
+		{
+			if (appearance.isBlockedAt(w, h))
+				ret.insert(int3(-w, -h, 0));
+		}
+	}
+	return ret;
+}
+
+
 bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen printing priority comparing
 {
 	if (appearance.printPriority != cmp.appearance.printPriority)

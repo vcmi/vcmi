@@ -227,6 +227,7 @@ public:
 	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) (h3m pos)
 	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) (h3m pos)
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
+	std::set<int3> getBlockedOffsets() const; //returns set of relative positions blocked by this object
 	bool isVisitable() const; //returns true if object is visitable
 	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
 	void hideTiles(PlayerColor ourplayer, int radius) const;

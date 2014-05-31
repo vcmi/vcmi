@@ -110,9 +110,12 @@ public:
 	void setPos(const int3 &pos);
 
 	void addTile (const int3 &pos);
-	void setShape(std::vector<int3> shape);
+	std::set<int3> getTileInfo () const;
+
 	bool fill(CMapGenerator* gen);
+	void createConnections(CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
+	bool crunchPath (CMapGenerator* gen, int3 &src, int3 &dst, TRmgTemplateZoneId zone);
 
 	void addConnection(TRmgTemplateZoneId otherZone);
 	std::vector<TRmgTemplateZoneId> getConnections() const;

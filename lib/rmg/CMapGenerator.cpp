@@ -207,14 +207,6 @@ void CMapGenerator::genZones()
 	for(auto const it : zones)
 	{
 		CRmgTemplateZone * zone = it.second;
-		std::vector<int3> shape;
-		int left = part_w*(i%player_per_side);
-		int top = part_h*(i/player_per_side);
-		shape.push_back(int3(left, top,  0));
-		shape.push_back(int3(left + part_w, top,  0));
-		shape.push_back(int3(left + part_w, top + part_h,  0));
-		shape.push_back(int3(left, top + part_h,  0));
-		zone->setShape(shape);
 		zone->setType(i < pcnt ? ETemplateZoneType::PLAYER_START : ETemplateZoneType::TREASURE);
 		this->zones[it.first] = zone;
 		++i;
@@ -225,8 +217,14 @@ void CMapGenerator::genZones()
 void CMapGenerator::fillZones()
 {	
 	logGlobal->infoStream() << "Started filling zones";
-	for(auto it : zones)
+
+	for (auto it : zones)
 	{
+		it.second->createConnections(this);
+	}
+	for (auto it : zones)
+	{
+		//make sure all connections are passable before creating borders
 		it.second->createBorder(this);
 		it.second->fill(this);
 	}	
