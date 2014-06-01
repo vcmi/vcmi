@@ -71,8 +71,8 @@ public:
 	bool shouldBeBlocked(const int3 &tile) const;
 	bool isPossible(const int3 &tile) const;
 	bool isFree(const int3 &tile) const;
-	void setOccupied(int3 &tile, ETileType::ETileType state);
-	CTileInfo getTile(int3 tile) const;
+	void setOccupied(const int3 &tile, ETileType::ETileType state);
+	CTileInfo getTile(const int3 & tile) const;
 
 	int getNearestObjectDistance(const int3 &tile) const; 
 	void setNearestObjectDistance(int3 &tile, int value);

@@ -3939,6 +3939,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 			{
 				captureAllKeys = false;
 				endEnteringText(true);
+                CCS->soundh->playSound("CHAT");
 			}
 			break;
 		}

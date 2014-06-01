@@ -335,7 +335,7 @@ void CRmgTemplateZone::createBorder(CMapGenerator* gen)
 	}
 }
 
-bool CRmgTemplateZone::crunchPath (CMapGenerator* gen, int3 &src, int3 &dst, TRmgTemplateZoneId zone)
+bool CRmgTemplateZone::crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone)
 {
 /*
 make shortest path with free tiles, reachning dst or closest already free tile. Avoid blocks.
@@ -586,12 +586,11 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 	bool result = false;
 	si32 w = gen->map->width;
 	si32 h = gen->map->height; 
-	auto ow = obj->getWidth();
-	auto oh = obj->getHeight();
+
 	//logGlobal->infoStream() << boost::format("Min dist for density %f is %d") % density % min_dist;
 	for(auto tile : tileinfo)
 	{
-		auto &ti = gen->getTile(tile);
+		auto ti = gen->getTile(tile);
 		auto dist = ti.getNearestObjectDistance();
 		//avoid borders
 		if ((tile.x < 3) || (w - tile.x < 3) || (tile.y < 3) || (h - tile.y < 3))
