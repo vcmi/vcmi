@@ -317,60 +317,6 @@ std::set<int3> CRmgTemplateZone::getTileInfo () const
 	return tileinfo;
 }
 
-void CRmgTemplateZone::createConnections(CMapGenerator* gen)
-{
-	//rearrange tiles in random order
-	std::vector<int3> tiles(tileinfo.begin(), tileinfo.end());
-	//TODO: hwo to use std::shuffle with our generator?
-	//std::random_shuffle (tiles.begin(), tiles.end(), &gen->rand.nextInt);
-
-	int i, n;
-	n = (tiles.end() - tiles.begin());
-	for (i=n-1; i>0; --i)
-	{
-		std::swap (tiles.begin()[i],tiles.begin()[gen->rand.nextInt(i+1)]);
-	}
-
-	for (auto connection : connections)
-	{
-		if (getId() > connection) //only one connection between each pair
-			continue;
-
-		int3 guardPos(-1,-1,-1);
-
-		auto otherZoneTiles = gen->getZones()[connection]->getTileInfo();
-		auto otherZoneCenter = gen->getZones()[connection]->getPos();
-
-		for (auto tile : tiles)
-		{
-			gen->foreach_neighbour (tile, [&guardPos, tile, &otherZoneTiles](int3 &pos)
-			{
-				if (vstd::contains(otherZoneTiles, pos))
-					guardPos = tile;
-			});
-			if (guardPos.valid())
-			{
-				addMonster (gen, guardPos, 10000); //TODO: set value according to template
-				//zones can make paths only in their own area
-				this->crunchPath (gen, guardPos, this->getPos(), this->getId()); //make connection towards our zone center
-				gen->getZones()[connection]->crunchPath (gen, guardPos, otherZoneCenter, connection); //make connection towards other zone center
-				break; //we're done with this connection
-			}
-		}
-		if (!guardPos.valid())
-		{
-			auto teleport1 = new CGTeleport;
-			teleport1->ID = Obj::MONOLITH_TWO_WAY;
-			teleport1->subID = gen->getNextMonlithIndex();
-
-			auto teleport2 = new CGTeleport(*teleport1);
-
-			addRequiredObject (teleport1);
-			gen->getZones()[connection]->addRequiredObject(teleport2);
-		}		
-	}
-}
-
 void CRmgTemplateZone::createBorder(CMapGenerator* gen)
 {
 	for (auto tile : tileinfo)
@@ -450,9 +396,9 @@ do not leave zone border
 	return result;
 }
 
-void CRmgTemplateZone::addRequiredObject(CGObjectInstance * obj)
+void CRmgTemplateZone::addRequiredObject(CGObjectInstance * obj, si32 strength)
 {
-	requiredObjects.push_back(obj);
+	requiredObjects.push_back(std::make_pair(obj, strength));
 }
 
 void CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
@@ -527,7 +473,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 				mine->subID = static_cast<si32>(res);
 				mine->producedResource = res;
 				mine->producedQuantity = mine->defaultResProduction();
-				requiredObjects.push_back(mine);
+				addRequiredObject(mine);
 			}
 		}
 		else
@@ -555,7 +501,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	{
 		int3 pos;
 		logGlobal->traceStream() << "Looking for place";
-		if ( ! findPlaceForObject(gen, obj, 3, pos))		
+		if ( ! findPlaceForObject(gen, obj.first, 3, pos))		
 		{
 			logGlobal->errorStream() << boost::format("Failed to fill zone %d due to lack of space") %id;
 			//TODO CLEANUP!
@@ -563,7 +509,11 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 		}
 		logGlobal->traceStream() << "Place found";
 
-		placeObject(gen, obj, pos);
+		placeObject(gen, obj.first, pos);
+		if (obj.second)
+		{
+			guardObject (gen, obj.first, obj.second); //FIXME: set apriopriate guard strength
+		}
 	}
 	std::vector<CGObjectInstance*> guarded_objects;
 	static auto res_gen = gen->rand.getIntRange(Res::ERes::WOOD, Res::ERes::GOLD);

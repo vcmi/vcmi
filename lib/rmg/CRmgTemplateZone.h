@@ -112,10 +112,9 @@ public:
 	void addTile (const int3 &pos);
 	std::set<int3> getTileInfo () const;
 
-	void addRequiredObject(CGObjectInstance * obj);
+	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addMonster(CMapGenerator* gen, int3 &pos, si32 strength);
 	bool fill(CMapGenerator* gen);
-	void createConnections(CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
 	bool crunchPath (CMapGenerator* gen, int3 &src, int3 &dst, TRmgTemplateZoneId zone);
 
@@ -137,7 +136,7 @@ private:
 
 	//content info
 	std::vector<int3> shape; //TODO: remove
-	std::vector<CGObjectInstance*> requiredObjects;
+	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
 	std::vector<CGObjectInstance*> objects;
 
 	//placement info
