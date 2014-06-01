@@ -80,7 +80,8 @@ public:
 
 	CGuiHandler();
 	~CGuiHandler();
-	void run(); // holds the main loop for the whole program after initialization and manages the update/rendering system
+	
+	void renderFrame();
 
 	void totalRedraw(); //forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
 	void simpleRedraw(); //update only top interface and draw background from buffer, sets a flag, method gets called at the end of the rendering

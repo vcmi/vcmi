@@ -14,6 +14,21 @@ const SDL_Color Colors::WHITE = { 255, 243, 222, 0 };
 const SDL_Color Colors::METALLIC_GOLD = { 173, 142, 66, 0 };
 const SDL_Color Colors::GREEN = { 0, 255, 0, 0 };
 
+#if (SDL_MAJOR_VERSION == 2)
+void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
+{
+	Rect rect(x,y,w,h);
+	if(0 !=SDL_UpdateTexture(screenTexture, &rect, surface->pixels, surface->pitch))
+		logGlobal->errorStream() << __FUNCTION__ << "SDL_UpdateTexture " << SDL_GetError();
+
+	SDL_RenderClear(mainRenderer);
+	if(0 != SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL))
+		logGlobal->errorStream() << __FUNCTION__ << "SDL_RenderCopy " <<  SDL_GetError();
+	SDL_RenderPresent(mainRenderer);	
+	
+}
+#endif // VCMI_SDL1
+
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
 	SDL_Surface * ret = SDL_CreateRGBSurface(mod->flags,w,h,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
@@ -490,12 +505,19 @@ Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
 
 void CSDL_Ext::update(SDL_Surface * what)
 {
-//	#ifdef VCMI_SDL1
-//	if(what)
-		SDL_UpdateRect(what, 0, 0, what->w, what->h);
-//	#else
-//		SDL_UpdateTexture(screenTexture, NULL, what->pixels, what->pitch);
-//	#endif
+	#ifdef VCMI_SDL1
+	if(what)
+		SDL_UpdateRect(what, 0, 0, what->w, what->h);	
+	#else
+	Rect rect(0,0,what->w,what->h);
+	if(!what)
+		return;
+	if(0 !=SDL_UpdateTexture(screenTexture, &rect, what->pixels, what->pitch))
+		logGlobal->errorStream() << __FUNCTION__ << "SDL_UpdateTexture " << SDL_GetError();		
+	#endif // VCMI_SDL1
+
+		
+	
 }
 void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color)
 {

@@ -74,14 +74,13 @@ int preferredDriverIndex = -1;
 SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
 SDL_Texture * screenTexture = nullptr;
+
 #endif // VCMI_SDL1
 
 SDL_Surface *screen = nullptr, //main screen surface
 	*screen2 = nullptr,//and hlp surface (used to store not-active interfaces layer)
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 	
-static boost::thread *mainGUIThread;
-
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
 
@@ -95,7 +94,7 @@ void processCommand(const std::string &message);
 static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo=true);
 void dispose();
 void playIntro();
-static void listenForEvents();
+static void mainLoop();
 //void requestChangingResolution();
 void startGame(StartInfo * options, CConnection *serv = nullptr);
 void endGame();
@@ -458,8 +457,7 @@ int main(int argc, char** argv)
 
 	if(!gNoGUI)
 	{
-		mainGUIThread = new boost::thread(&CGuiHandler::run, &GH);
-		listenForEvents();
+		mainLoop();
 	}
 	else
 	{
@@ -822,7 +820,7 @@ static bool checkVideoMode(int monitorIndex, int w, int h, int& bpp, bool fullsc
 #ifndef VCMI_SDL1
 static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 {
-	// VCMI will only work with 2, 3 or 4 bytes per pixel	
+	// VCMI will only work with 2 or 4 bytes per pixel	
 	vstd::amax(bpp, 16);
 	vstd::amin(bpp, 32);
 	if(bpp>16)
@@ -905,6 +903,8 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	logGlobal->infoStream() << "Created renderer " << info.name;	
 	
 	SDL_RenderSetLogicalSize(mainRenderer, w, h);
+	
+	SDL_RenderSetViewport(mainRenderer, nullptr);
 
 
 	
@@ -1082,83 +1082,97 @@ static void fullScreenChanged()
 	GH.totalRedraw();
 }
 
-static void listenForEvents()
+static void handleEvent(SDL_Event & ev)
+{
+	if((ev.type==SDL_QUIT) ||(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
+	{
+		handleQuit();	
+		return;
+	}
+
+	#ifdef VCMI_SDL1
+	//FIXME: this should work even in pregame
+	else if(LOCPLINT && ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
+	#else
+	else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
+	#endif // VCMI_SDL1		
+	{
+		Settings full = settings.write["video"]["fullscreen"];
+		full->Bool() = !full->Bool();
+		return;
+	}
+	else if(ev.type == SDL_USEREVENT)
+	{
+		switch(ev.user.code)
+		{
+		case RETURN_TO_MAIN_MENU:
+			{
+				endGame();
+				GH.curInt = CGPreGame::create();;
+				GH.defActionsDef = 63;
+			}
+			break;
+		case STOP_CLIENT:
+			client->endGame(false);
+			break;
+		case RESTART_GAME:
+			{
+				StartInfo si = *client->getStartInfo(true);
+				endGame();
+				startGame(&si);
+			}
+			break;
+		case PREPARE_RESTART_CAMPAIGN:
+			{
+				auto si = reinterpret_cast<StartInfo *>(ev.user.data1);
+				endGame();
+				startGame(si);
+			}
+			break;
+		case RETURN_TO_MENU_LOAD:
+			endGame();
+			CGPreGame::create();
+			GH.defActionsDef = 63;
+			CGP->update();
+			CGP->menu->switchToTab(vstd::find_pos(CGP->menu->menuNameToEntry, "load"));
+			GH.curInt = CGP;
+			break;
+		case FULLSCREEN_TOGGLED:
+			fullScreenChanged();
+			break;
+		default:
+			logGlobal->errorStream() << "Error: unknown user event. Code " << ev.user.code;		
+			break;	
+		}
+
+		return;
+	}
+	{
+		boost::unique_lock<boost::mutex> lock(eventsM);
+		events.push(ev);
+	}	
+	
+}
+
+
+static void mainLoop()
 {
 	SettingsListener resChanged = settings.listen["video"]["fullscreen"];
 	resChanged([](const JsonNode &newState){  CGuiHandler::pushSDLEvent(SDL_USEREVENT, FULLSCREEN_TOGGLED); });
+
+	GH.mainFPSmng->init();
 
 	while(1) //main SDL events loop
 	{
 		SDL_Event ev;
 		
-		int ret = SDL_WaitEvent(&ev);
-		if (ret == 0 || (ev.type==SDL_QUIT) ||
-			(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
+		while(1 == SDL_PollEvent(&ev))
 		{
-			handleQuit();
-			continue;
+			handleEvent(ev);
 		}
-		#ifdef VCMI_SDL1
-		//FIXME: this should work even in pregame
-		else if(LOCPLINT && ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
-		#else
-		else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
-		#endif // VCMI_SDL1		
-		{
-			Settings full = settings.write["video"]["fullscreen"];
-			full->Bool() = !full->Bool();
-			continue;
-		}
-		else if(ev.type == SDL_USEREVENT)
-		{
-			switch(ev.user.code)
-			{
-			case RETURN_TO_MAIN_MENU:
-				{
-                    endGame();
-                    GH.curInt = CGPreGame::create();;
-                    GH.defActionsDef = 63;
-				}
-				break;
-			case STOP_CLIENT:
-				client->endGame(false);
-				break;
-			case RESTART_GAME:
-				{
-					StartInfo si = *client->getStartInfo(true);
-					endGame();
-					startGame(&si);
-				}
-				break;
-			case PREPARE_RESTART_CAMPAIGN:
-				{
-					auto si = reinterpret_cast<StartInfo *>(ev.user.data1);
-					endGame();
-					startGame(si);
-				}
-				break;
-			case RETURN_TO_MENU_LOAD:
-				endGame();
-				CGPreGame::create();
-				GH.defActionsDef = 63;
-				CGP->update();
-				CGP->menu->switchToTab(vstd::find_pos(CGP->menu->menuNameToEntry, "load"));
-				GH.curInt = CGP;
-				break;
-			case FULLSCREEN_TOGGLED:
-				fullScreenChanged();
-				break;
-			default:
-                logGlobal->errorStream() << "Error: unknown user event. Code " << ev.user.code;
-				assert(0);
-			}
+		
+		GH.renderFrame();
 
-			continue;
-		}
-		{
-			boost::unique_lock<boost::mutex> lock(eventsM);
-			events.push(ev);
-		}
 	}
 }
 
@@ -1208,15 +1222,16 @@ void handleQuit()
 {
 	auto quitApplication = []()
 	{
-		if(client) client->endGame();
+		if(client)
+			endGame();
 
-		if(mainGUIThread)
-		{
-			GH.terminate = true;
-			if(mainGUIThread->get_id() != boost::this_thread::get_id()) mainGUIThread->join();
-			delete mainGUIThread;
-			mainGUIThread = nullptr;
-		}
+//		if(mainGUIThread)
+//		{
+//			GH.terminate = true;
+//			if(mainGUIThread->get_id() != boost::this_thread::get_id()) mainGUIThread->join();
+//			delete mainGUIThread;
+//			mainGUIThread = nullptr;
+//		}
 		delete console;
 		console = nullptr;
 		boost::this_thread::sleep(boost::posix_time::milliseconds(750));

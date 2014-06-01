@@ -410,42 +410,24 @@ void CGuiHandler::fakeMouseMove()
 	handleMouseMotion(&evnt);
 }
 
-void CGuiHandler::run()
+void CGuiHandler::renderFrame()
 {
-	setThreadName("CGuiHandler::run");
-	inGuiThread.reset(new bool(true));
-	try
-	{		
-		if(settings["video"]["fullscreen"].Bool())
-			CCS->curh->centerCursor();
-
-		mainFPSmng->init(); // resets internal clock, needed for FPS manager
-		while(!terminate)
-		{
-			{
-				//boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);			
-				if(curInt)
-					curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
+	if(!terminate)
+	{
+		if(curInt)
+			curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
 
 #ifndef	 VCMI_SDL1
+		if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
+			logGlobal->errorStream() << __FUNCTION__ << " SDL_RenderCopy " << SDL_GetError();
 
-				SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
-				SDL_RenderClear(mainRenderer);
-				SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL);
-
-				SDL_RenderPresent(mainRenderer);				
-
+		SDL_RenderPresent(mainRenderer);				
 #endif			
-			}
-			mainFPSmng->framerateDelay(); // holds a constant FPS
-		}
-	}
-	catch(const std::exception & e)
-	{
-        logGlobal->errorStream() << "Error: " << e.what();
-		exit(EXIT_FAILURE);
-	}
+		
+		mainFPSmng->framerateDelay(); // holds a constant FPS
+	}	
 }
+
 
 CGuiHandler::CGuiHandler()
 :lastClick(-500, -500)

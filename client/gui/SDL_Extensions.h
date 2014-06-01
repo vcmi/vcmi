@@ -52,17 +52,7 @@ inline void SDL_WarpMouse(int x, int y)
 	SDL_WarpMouseInWindow(mainWindow,x,y);
 }
 
-inline void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
-{
-	Rect rect(x,y,w,h);
-	SDL_UpdateTexture(screenTexture, &rect, surface->pixels, surface->pitch);
-
-	SDL_RenderClear(mainRenderer);
-	SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL);
-
-	SDL_RenderPresent(mainRenderer);	
-	
-}
+void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h);
 #endif
 
 inline bool isCtrlKeyDown()
