@@ -1084,9 +1084,9 @@ void CMapLoaderH3M::readObjects()
 				nobj = new CGVisitableOPW();
 				break;
 			}
-		case Obj::MONOLITH1:
-		case Obj::MONOLITH2:
-		case Obj::MONOLITH3:
+		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+		case Obj::MONOLITH_ONE_WAY_EXIT:
+		case Obj::MONOLITH_TWO_WAY:
 		case Obj::SUBTERRANEAN_GATE:
 		case Obj::WHIRLPOOL:
 			{

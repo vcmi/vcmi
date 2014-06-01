@@ -112,6 +112,7 @@ public:
 	void addTile (const int3 &pos);
 	std::set<int3> getTileInfo () const;
 
+	void addRequiredObject(CGObjectInstance * obj);
 	bool fill(CMapGenerator* gen);
 	void createConnections(CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
@@ -135,6 +136,7 @@ private:
 
 	//content info
 	std::vector<int3> shape; //TODO: remove
+	std::vector<CGObjectInstance*> requiredObjects;
 	std::vector<CGObjectInstance*> objects;
 
 	//placement info

@@ -349,7 +349,7 @@ void CRmgTemplateZone::createConnections(CMapGenerator* gen)
 			});
 			if (guardPos.valid())
 			{
-				gen->setOccupied (pos, ETileType::FREE); //TODO: place monster here
+				gen->setOccupied (guardPos, ETileType::FREE); //TODO: place monster here
 				//zones can make paths only in their own area
 				this->crunchPath (gen, guardPos, this->getPos(), this->getId()); //make connection towards our zone center
 				gen->getZones()[connection]->crunchPath (gen, guardPos, otherZoneCenter, connection); //make connection towards other zone center
@@ -357,7 +357,16 @@ void CRmgTemplateZone::createConnections(CMapGenerator* gen)
 			}
 		}
 		if (!guardPos.valid())
-			logGlobal->warnStream() << boost::format ("Did not find connection between zones %d and %d") %getId() %connection;
+		{
+			auto teleport1 = new CGTeleport;
+			teleport1->ID = Obj::MONOLITH_TWO_WAY;
+			teleport1->subID = gen->getNextMonlithIndex();
+
+			auto teleport2 = new CGTeleport(*teleport1);
+
+			addRequiredObject (teleport1);
+			gen->getZones()[connection]->addRequiredObject(teleport2);
+		}		
 	}
 }
 
@@ -440,10 +449,13 @@ do not leave zone border
 	return result;
 }
 
+void CRmgTemplateZone::addRequiredObject(CGObjectInstance * obj)
+{
+	requiredObjects.push_back(obj);
+}
+
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
 {
-	std::vector<CGObjectInstance*> required_objects;
-
 	int townId = 0;
 
 	if ((type == ETemplateZoneType::CPU_START) || (type == ETemplateZoneType::PLAYER_START))
@@ -478,7 +490,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
 			playerInfo.generateHeroAtMainTown = true;
 
-			//required_objects.push_back(town);
+			//requiredObjects.push_back(town);
 
 			std::vector<Res::ERes> required_mines;
 			required_mines.push_back(Res::ERes::WOOD);
@@ -491,7 +503,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 				mine->subID = static_cast<si32>(res);
 				mine->producedResource = res;
 				mine->producedQuantity = mine->defaultResProduction();
-				required_objects.push_back(mine);
+				requiredObjects.push_back(mine);
 			}
 		}
 		else
@@ -515,7 +527,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	gen->editManager->drawTerrain(VLC->townh->factions[townId]->nativeTerrain, &gen->rand);
 
 	logGlobal->infoStream() << "Creating required objects";
-	for(const auto &obj : required_objects)
+	for(const auto &obj : requiredObjects)
 	{
 		int3 pos;
 		logGlobal->traceStream() << "Looking for place";

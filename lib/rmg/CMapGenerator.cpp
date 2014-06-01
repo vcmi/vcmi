@@ -26,7 +26,7 @@ void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& 
 
 
 CMapGenerator::CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int randomSeed /*= std::time(nullptr)*/) :
-	mapGenOptions(mapGenOptions), randomSeed(randomSeed)
+	mapGenOptions(mapGenOptions), randomSeed(randomSeed), monolithIndex(0)
 {
 	rand.setSeed(randomSeed);
 }
@@ -306,4 +306,9 @@ int CMapGenerator::getNearestObjectDistance(const int3 &tile) const
 		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].getNearestObjectDistance();
+}
+
+int CMapGenerator::getNextMonlithIndex()
+{
+	return monolithIndex++;
 }

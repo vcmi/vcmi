@@ -74,12 +74,16 @@ public:
 	CTileInfo getTile(int3 tile) const;
 
 	int getNearestObjectDistance(const int3 &tile) const; 
-	void setNearestObjectDistance(int3 &tile, int value); 
+	void setNearestObjectDistance(int3 &tile, int value);
+
+	int getNextMonlithIndex();
 
 private:
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> zones;
 
 	CTileInfo*** tiles;
+
+	int monolithIndex;
 
 	/// Generation methods
 	std::string getMapDescription() const;

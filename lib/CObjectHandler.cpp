@@ -4071,11 +4071,11 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 	ObjectInstanceID destinationid;
 	switch(ID)
 	{
-	case Obj::MONOLITH1: //one way - find corresponding exit monolith
+	case Obj::MONOLITH_ONE_WAY_ENTRANCE: //one way - find corresponding exit monolith
 	{
-		if(vstd::contains(objs,Obj::MONOLITH2) && vstd::contains(objs[Obj::MONOLITH2],subID) && objs[Obj::MONOLITH2][subID].size())
+		if(vstd::contains(objs,Obj::MONOLITH_ONE_WAY_EXIT) && vstd::contains(objs[Obj::MONOLITH_ONE_WAY_EXIT],subID) && objs[Obj::MONOLITH_ONE_WAY_EXIT][subID].size())
 		{
-			destinationid = *RandomGeneratorUtil::nextItem(objs[Obj::MONOLITH2][subID], cb->gameState()->getRandomGenerator());
+			destinationid = *RandomGeneratorUtil::nextItem(objs[Obj::MONOLITH_ONE_WAY_EXIT][subID], cb->gameState()->getRandomGenerator());
 		}
 		else
 		{
@@ -4083,7 +4083,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 		}
 		break;
 	}
-	case Obj::MONOLITH3://two way monolith - pick any other one
+	case Obj::MONOLITH_TWO_WAY://two way monolith - pick any other one
 	case Obj::WHIRLPOOL: //Whirlpool
 		if(vstd::contains(objs,ID) && vstd::contains(objs[ID],subID) && objs[ID][subID].size()>1)
 		{
