@@ -509,10 +509,9 @@ void CSDL_Ext::update(SDL_Surface * what)
 	if(what)
 		SDL_UpdateRect(what, 0, 0, what->w, what->h);	
 	#else
-	Rect rect(0,0,what->w,what->h);
 	if(!what)
 		return;
-	if(0 !=SDL_UpdateTexture(screenTexture, &rect, what->pixels, what->pitch))
+	if(0 !=SDL_UpdateTexture(screenTexture, nullptr, what->pixels, what->pitch))
 		logGlobal->errorStream() << __FUNCTION__ << "SDL_UpdateTexture " << SDL_GetError();		
 	#endif // VCMI_SDL1
 
