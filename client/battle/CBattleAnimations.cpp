@@ -834,6 +834,19 @@ void CShootingAnimation::nextFrame()
 
 void CShootingAnimation::endAnim()
 {
+    // play wall hit/miss sound for catapult attack
+    if(!attackedStack)
+    {
+        if(catapultDamage > 0)
+        {
+            CCS->soundh->playSound("WALLHIT");
+        }
+        else
+        {
+            CCS->soundh->playSound("WALLMISS");
+        }
+    }
+
 	CAttackAnimation::endAnim();
 	delete this;
 }
