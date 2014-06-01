@@ -318,6 +318,18 @@ std::set<int3> CRmgTemplateZone::getTileInfo () const
 
 void CRmgTemplateZone::createConnections(CMapGenerator* gen)
 {
+	//rearrange tiles in random order
+	std::vector<int3> tiles(tileinfo.begin(), tileinfo.end());
+	//TODO: hwo to use std::shuffle with our generator?
+	//std::random_shuffle (tiles.begin(), tiles.end(), &gen->rand.nextInt);
+
+	int i, n;
+	n = (tiles.end() - tiles.begin());
+	for (i=n-1; i>0; --i)
+	{
+		std::swap (tiles.begin()[i],tiles.begin()[gen->rand.nextInt(i+1)]);
+	}
+
 	for (auto connection : connections)
 	{
 		if (getId() > connection) //only one connection between each pair
@@ -328,7 +340,7 @@ void CRmgTemplateZone::createConnections(CMapGenerator* gen)
 		auto otherZoneTiles = gen->getZones()[connection]->getTileInfo();
 		auto otherZoneCenter = gen->getZones()[connection]->getPos();
 
-		for (auto tile : tileinfo)
+		for (auto tile : tiles)
 		{
 			gen->foreach_neighbour (tile, [&guardPos, tile, &otherZoneTiles](int3 &pos)
 			{
