@@ -16,6 +16,7 @@
 
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
+#include "../CCreatureHandler.h"
 
 class CMap;
 class CMapEditManager;
@@ -349,7 +350,7 @@ void CRmgTemplateZone::createConnections(CMapGenerator* gen)
 			});
 			if (guardPos.valid())
 			{
-				gen->setOccupied (guardPos, ETileType::FREE); //TODO: place monster here
+				addMonster (gen, guardPos, 10000); //TODO: set value according to template
 				//zones can make paths only in their own area
 				this->crunchPath (gen, guardPos, this->getPos(), this->getId()); //make connection towards our zone center
 				gen->getZones()[connection]->crunchPath (gen, guardPos, otherZoneCenter, connection); //make connection towards other zone center
@@ -452,6 +453,29 @@ do not leave zone border
 void CRmgTemplateZone::addRequiredObject(CGObjectInstance * obj)
 {
 	requiredObjects.push_back(obj);
+}
+
+void CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
+{
+	CreatureID creId = CreatureID::NONE;
+	int amount = 0;
+	while (true)
+	{
+		creId = VLC->creh->pickRandomMonster(gen->rand);
+		auto cre = VLC->creh->creatures[creId];
+		amount = strength / cre->AIValue;
+		if (amount >= cre->ammMin && amount <= 100)
+			break;
+	}
+
+	auto guard = new CGCreature();
+	guard->ID = Obj::MONSTER;
+	guard->subID = creId;
+	auto  hlp = new CStackInstance(creId, amount);
+	//will be set during initialization
+	guard->putStack(SlotID(0), hlp);
+
+	placeObject(gen, guard, pos);
 }
 
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
@@ -567,7 +591,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 
 	for(const auto &obj : guarded_objects)
 	{
-		if ( ! guardObject(gen, obj, 500))
+		if ( ! guardObject(gen, obj, 1000))
 		{
 			//TODO, DEL obj from map
 		}
@@ -687,11 +711,11 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 	if (object->isVisitable())
 		points.insert(pos + object->getVisitableOffset());
 	points.insert(pos);
-	for(auto const &p : points)
+	for(auto p : points)
 	{		
-		if (vstd::contains(tileinfo, pos + p))
+		if (gen->map->isInTheMap(p))
 		{
-			gen->setOccupied(pos + p, ETileType::USED);
+			gen->setOccupied(p, ETileType::USED);
 		}
 	}
 	for(auto tile : tileinfo)
@@ -723,14 +747,8 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	}
 	auto guard_tile = *RandomGeneratorUtil::nextItem(tiles, gen->rand);
 	gen->setOccupied (guard_tile, ETileType::USED);
-	auto guard = new CGCreature();
-	guard->ID = Obj::RANDOM_MONSTER;
-	guard->subID = 0;
-	auto  hlp = new CStackInstance();
-	hlp->count = 10;
-	//type will be set during initialization
-	guard->putStack(SlotID(0), hlp);
 
-	checkAndPlaceObject(gen, guard, guard_tile);
+	addMonster (gen, guard_tile, str);
+
 	return true;
 }

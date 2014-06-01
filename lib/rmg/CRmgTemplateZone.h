@@ -113,6 +113,7 @@ public:
 	std::set<int3> getTileInfo () const;
 
 	void addRequiredObject(CGObjectInstance * obj);
+	void addMonster(CMapGenerator* gen, int3 &pos, si32 strength);
 	bool fill(CMapGenerator* gen);
 	void createConnections(CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
