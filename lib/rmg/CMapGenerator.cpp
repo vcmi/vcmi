@@ -218,10 +218,7 @@ void CMapGenerator::fillZones()
 {	
 	logGlobal->infoStream() << "Started filling zones";
 
-	for (auto it : zones)
-	{
-		it.second->createConnections(this);
-	}
+	createConnections();
 	for (auto it : zones)
 	{
 		//make sure all connections are passable before creating borders
@@ -229,6 +226,61 @@ void CMapGenerator::fillZones()
 		it.second->fill(this);
 	}	
 	logGlobal->infoStream() << "Zones filled successfully";
+}
+
+void CMapGenerator::createConnections()
+{
+	for (auto connection : mapGenOptions->getMapTemplate()->getConnections())
+	{
+		auto zoneA = connection.getZoneA();
+		auto zoneB = connection.getZoneB();
+
+		//rearrange tiles in random order
+		auto tilesCopy = zoneA->getTileInfo();
+		std::vector<int3> tiles(tilesCopy.begin(), tilesCopy.end());
+		//TODO: hwo to use std::shuffle with our generator?
+		//std::random_shuffle (tiles.begin(), tiles.end(), &gen->rand.nextInt);
+
+		int i, n;
+		n = (tiles.end() - tiles.begin());
+		for (i=n-1; i>0; --i)
+		{
+			std::swap (tiles.begin()[i],tiles.begin()[rand.nextInt(i+1)]);
+		}
+
+		int3 guardPos(-1,-1,-1);
+
+		auto otherZoneTiles = zoneB->getTileInfo();
+		auto otherZoneCenter = zoneB->getPos();
+
+		for (auto tile : tiles)
+		{
+			foreach_neighbour (tile, [&guardPos, tile, &otherZoneTiles](int3 &pos)
+			{
+				if (vstd::contains(otherZoneTiles, pos))
+					guardPos = tile;
+			});
+			if (guardPos.valid())
+			{
+				zoneA->addMonster (this, guardPos, connection.getGuardStrength()); //TODO: set value according to template
+				//zones can make paths only in their own area
+				zoneA->crunchPath (this, guardPos, zoneA->getPos(), zoneA->getId()); //make connection towards our zone center
+				zoneB->crunchPath (this, guardPos, zoneB->getPos(), zoneB->getId()); //make connection towards other zone center
+				break; //we're done with this connection
+			}
+		}
+		if (!guardPos.valid())
+		{
+			auto teleport1 = new CGTeleport;
+			teleport1->ID = Obj::MONOLITH_TWO_WAY;
+			teleport1->subID = getNextMonlithIndex();
+
+			auto teleport2 = new CGTeleport(*teleport1);
+
+			zoneA->addRequiredObject (teleport1, connection.getGuardStrength());
+			zoneB->addRequiredObject (teleport2, connection.getGuardStrength());
+		}		
+	}
 }
 
 void CMapGenerator::addHeaderInfo()
