@@ -77,6 +77,8 @@ SDL_Texture * screenTexture = nullptr;
 
 #endif // VCMI_SDL1
 
+extern boost::thread_specific_ptr<bool> inGuiThread;
+
 SDL_Surface *screen = nullptr, //main screen surface
 	*screen2 = nullptr,//and hlp surface (used to store not-active interfaces layer)
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
@@ -1160,6 +1162,7 @@ static void mainLoop()
 	SettingsListener resChanged = settings.listen["video"]["fullscreen"];
 	resChanged([](const JsonNode &newState){  CGuiHandler::pushSDLEvent(SDL_USEREVENT, FULLSCREEN_TOGGLED); });
 
+	inGuiThread.reset(new bool(true));
 	GH.mainFPSmng->init();
 
 	while(1) //main SDL events loop
