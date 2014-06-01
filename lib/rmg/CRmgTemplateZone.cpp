@@ -512,7 +512,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 		placeObject(gen, obj.first, pos);
 		if (obj.second)
 		{
-			guardObject (gen, obj.first, obj.second); //FIXME: set apriopriate guard strength
+			guardObject (gen, obj.first, obj.second);
 		}
 	}
 	std::vector<CGObjectInstance*> guarded_objects;

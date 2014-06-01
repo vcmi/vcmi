@@ -220,5 +220,17 @@ void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
 			}
 		}
 	}
+	//set position to center of mass
+	for (auto zone : zones)
+	{
+		int3 total(0,0,0);
+		auto tiles = zone.second->getTileInfo();
+		for (auto tile : tiles)
+		{
+			total += tile;
+		}
+		int size = tiles.size();
+		zone.second->setPos (int3(total.x/size, total.y/size, total.z/size));
+	}
 	logGlobal->infoStream() << "Finished zone colouring";
 }
