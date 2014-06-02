@@ -409,7 +409,7 @@ void CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 	{
 		creId = VLC->creh->pickRandomMonster(gen->rand);
 		auto cre = VLC->creh->creatures[creId];
-		amount = strength / cre->AIValue;
+		amount = std::ceil((float)strength / cre->fightValue);
 		if (amount >= cre->ammMin && amount <= 100)
 			break;
 	}
