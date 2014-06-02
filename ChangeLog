@@ -5,8 +5,10 @@ GENERAL:
 ADVENTURE AI:
 
 ADVENTURE MAP:
+* Heroes auto-level primary and secondary skill levels according to experience
 
 BATTLES:
+* Wall hit/miss sound will be played when using catapult during siege
 
 SPELLS:
 * New configuration format: http://wiki.vcmi.eu/index.php?title=Spell_Format
