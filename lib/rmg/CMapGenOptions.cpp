@@ -222,6 +222,10 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	{
 		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(EMonsterStrength::LAST_ITEM));
 	}
+
+	//rectangular maps are the future of gaming
+	//setHeight(20);
+	//setWidth(50);
 }
 
 void CMapGenOptions::updatePlayers()

@@ -410,7 +410,7 @@ void CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 		creId = VLC->creh->pickRandomMonster(gen->rand);
 		auto cre = VLC->creh->creatures[creId];
 		amount = std::ceil((float)strength / cre->fightValue);
-		if (amount >= cre->ammMin && amount <= 100)
+		if (strength >= cre->fightValue && amount >= cre->ammMin && amount <= 100) //at leats one full monster. size between minimum size of given stack and 100
 			break;
 	}
 
@@ -448,7 +448,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			town->builtBuildings.insert(BuildingID::FORT);
 			town->builtBuildings.insert(BuildingID::DEFAULT);
 			
-			placeObject(gen, town, getPos());
+			placeObject(gen, town, getPos() + town->getVisitableOffset()); //towns are big objects and should be centered around visitable position
 			logGlobal->traceStream() << "Placed object";
 
 			logGlobal->traceStream() << "Fill player info " << player_id;
