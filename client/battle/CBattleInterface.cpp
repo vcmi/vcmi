@@ -26,6 +26,7 @@
 #include "../CVideoHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/CRandomGenerator.h"
 
 #include "CBattleAnimations.h"
 #include "CBattleInterfaceClasses.h"
@@ -59,7 +60,7 @@ static void onAnimationFinished(const CStack *stack, CCreatureAnimation * anim)
 
 		if (anim->framesInGroup(CCreatureAnim::MOUSEON) > 0)
 		{
-			if (float(rand() % 100) < creature->animation.timeBetweenFidgets * 10)
+			if (CRandomGenerator::getDefault().nextDouble(99.0) < creature->animation.timeBetweenFidgets * 10)
 				anim->playOnce(CCreatureAnim::MOUSEON);
 			else
 				anim->setType(CCreatureAnim::HOLDING);
@@ -194,7 +195,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 			logGlobal->errorStream() << bfieldType << " battlefield type does not have any backgrounds!";
 		else
 		{
-			const std::string bgName = vstd::pickRandomElementOf(graphics->battleBacks[bfieldType], rand);
+			const std::string bgName = *RandomGeneratorUtil::nextItem(graphics->battleBacks[bfieldType], CRandomGenerator::getDefault());
 			background = BitmapHandler::loadBitmap(bgName, false);
 		}
 	}

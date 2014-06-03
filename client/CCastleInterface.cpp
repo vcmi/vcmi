@@ -358,7 +358,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 			bool allow = true;
 			if(upg) //moving hero out of town - check if it is allowed
 			{
-				if(!hero && LOCPLINT->cb->howManyHeroes(false) >= 8)
+				if(!hero && LOCPLINT->cb->howManyHeroes(false) >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
 				{
 					std::string tmp = CGI->generaltexth->allTexts[18]; //You already have %d adventuring heroes under your command.
 					boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes(false)));
@@ -847,7 +847,9 @@ void CCastleBuildings::enterTownHall()
 
 void CCastleBuildings::openMagesGuild()
 {
-	GH.pushInt(new CMageGuildScreen(LOCPLINT->castleInt));
+	std::string mageGuildBackground;
+	mageGuildBackground = LOCPLINT->castleInt->town->town->clientInfo.guildBackground;
+	GH.pushInt(new CMageGuildScreen(LOCPLINT->castleInt,mageGuildBackground));
 }
 
 void CCastleBuildings::openTownHall()
@@ -964,7 +966,8 @@ void CCastleInterface::recreateIcons()
 	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
 
 	icon->setFrame(iconIndex);
-	income->setText(boost::lexical_cast<std::string>(town->dailyIncome()));
+	TResources townIncome = town->dailyIncome();
+	income->setText(boost::lexical_cast<std::string>(townIncome[Res::GOLD]));
 
 	hall = new CTownInfo( 80, 413, town, true);
 	fort = new CTownInfo(122, 413, town, false);
@@ -1636,9 +1639,12 @@ void CFortScreen::RecruitArea::clickRight(tribool down, bool previousState)
 	clickLeft(down, false); //r-click does same as l-click - opens recr. window
 }
 
-CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner):
-    CWindowObject(BORDERED, "TPMAGE")
+
+
+
+CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem) :CWindowObject(BORDERED,imagem)
 {
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	window = new CPicture(owner->town->town->clientInfo.guildWindow , 332, 76);

@@ -7,6 +7,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 
+
 /*
  * CCreatureHandler.h, part of VCMI engine
  *
@@ -1143,7 +1144,8 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	//Possible - allow "locking" on specific building (build prerequisites and then building itself)
 
 	TResources currentRes = cb->getResourceAmount();
-	int townIncome = t->dailyIncome();
+	TResources currentIncome = t->dailyIncome();
+	int townIncome = currentIncome[Res::GOLD];
 
 	if (tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
 		return;
@@ -1212,7 +1214,6 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 	std::vector<const CGObjectInstance *> possibleDestinations;
 	for(const CGObjectInstance *obj : visitableObjs)
 	{
-		const int3 pos = obj->visitablePos();
 		if (isGoodForVisit(obj, h))
 		{
 			possibleDestinations.push_back(obj);
@@ -1304,7 +1305,7 @@ void VCAI::wander(HeroPtr h)
 			if(townsReachable.size())
 			{
 				boost::sort(townsReachable, compareReinforcements);
-				dests.emplace_back(townsReachable.back());
+				dests.push_back(townsReachable.back());
 			}
 			else if(townsNotReachable.size())
 			{
@@ -1680,12 +1681,13 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		}
 		ret = !i;
 	}
-	if (auto visitedObject = frontOrNull(cb->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
+	if (h)
 	{
-		if (visitedObject != *h)
-			performObjectInteraction (visitedObject, h);
-		//BNLOG("Hero %s moved from %s to %s at %s", h->name % startHpos % visitedObject->hoverName % h->visitablePos());
-		//throw goalFulfilledException (CGoal(GET_OBJ).setobjid(visitedObject->id));
+		if (auto visitedObject = frontOrNull(cb->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
+		{
+			if (visitedObject != *h)
+				performObjectInteraction (visitedObject, h);
+		}
 	}
 	if(h) //we could have lost hero after last move
 	{
@@ -1703,8 +1705,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			erase_if_present (lockedHeroes, h); //hero seemingly is confused
 			throw cannotFulfillGoalException("Invalid path found!"); //FIXME: should never happen
 		}
+		logAi->debugStream() << boost::format("Hero %s moved from %s to %s. Returning %d.") % h->name % startHpos % h->visitablePos() % ret;
 	}
-    logAi->debugStream() << boost::format("Hero %s moved from %s to %s. Returning %d.") % h->name % startHpos % h->visitablePos() % ret;
 	return ret;
 }
 void VCAI::tryRealize(Goals::Explore & g)
@@ -2344,22 +2346,10 @@ TResources VCAI::estimateIncome() const
 	TResources ret;
 	for(const CGTownInstance *t : cb->getTownsInfo())
 	{
-		ret[Res::GOLD] += t->dailyIncome();
-
-		//TODO duplikuje newturn
-		if(t->hasBuilt(BuildingID::RESOURCE_SILO)) //there is resource silo
-		{
-			if(t->town->primaryRes == Res::WOOD_AND_ORE) //we'll give wood and ore
-			{
-				ret[Res::WOOD] ++;
-				ret[Res::ORE] ++;
-			}
-			else
-			{
-				ret[t->town->primaryRes] ++;
-			}
-		}
+		ret += t->dailyIncome();
 	}
+
+
 
 	for(const CGObjectInstance *obj : getFlaggedObjects())
 	{
@@ -2736,7 +2726,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 							//parent[neighPos] = curPos;
 						}
 						const TerrainTile *nt = cbp->getTile(neighPos, false);
-						if(nt && nt->isWater() != s.water && canBeEmbarkmentPoint(nt))
+						if(nt && nt->isWater() != s.water && canBeEmbarkmentPoint(nt, s.water))
 						{
 							s.embarkmentPoints.push_back(neighPos);
 						}
@@ -2856,9 +2846,9 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			}
 			return false;
 		}
-		case Obj::MONOLITH1:
-		case Obj::MONOLITH2:
-		case Obj::MONOLITH3:
+		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+		case Obj::MONOLITH_ONE_WAY_EXIT:
+		case Obj::MONOLITH_TWO_WAY:
 		case Obj::WHIRLPOOL:
 			//TODO: mechanism for handling monoliths
 			return false;
@@ -2884,7 +2874,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::MAGIC_WELL:
 			return h->mana < h->manaLimit();
 		case Obj::PRISON:
-			return ai->myCb->getHeroesInfo().size() < GameConstants::MAX_HEROES_PER_PLAYER;
+			return ai->myCb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER;// GameConstants::MAX_HEROES_PER_PLAYER;
 
 		case Obj::BOAT:
 			return false;

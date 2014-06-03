@@ -93,6 +93,8 @@
 		<Unit filename="CCreatureSet.h" />
 		<Unit filename="CDefObjInfoHandler.cpp" />
 		<Unit filename="CDefObjInfoHandler.h" />
+		<Unit filename="CGameInfoCallback.cpp" />
+		<Unit filename="CGameInfoCallback.h" />
 		<Unit filename="CGameInterface.cpp" />
 		<Unit filename="CGameInterface.h" />
 		<Unit filename="CGameState.cpp" />
@@ -107,6 +109,7 @@
 		<Unit filename="CObjectHandler.h" />
 		<Unit filename="CObstacleInstance.cpp" />
 		<Unit filename="CObstacleInstance.h" />
+		<Unit filename="CRandomGenerator.cpp" />
 		<Unit filename="CRandomGenerator.h" />
 		<Unit filename="CScriptingModule.h" />
 		<Unit filename="CSpellHandler.cpp" />

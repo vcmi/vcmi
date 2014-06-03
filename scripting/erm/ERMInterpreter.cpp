@@ -6,6 +6,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/VCMIDirs.h"
+#include "../../lib/IGameCallback.h"
 
 /*
  * ERMInterpreter.cpp, part of VCMI engine
@@ -547,6 +548,7 @@ bool ERMInterpreter::isATrigger( const ERM::TLine & line )
 		break;
 	}
 	assert(0);
+	return false;
 }
 
 ERM::EVOtions ERMInterpreter::getExpType( const ERM::TVOption & opt )

@@ -1,3 +1,13 @@
+/*
+ * CMessage.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 #include "StdInc.h"
 #include "CMessage.h"
 
@@ -13,17 +23,6 @@
 #include "CBitmapHandler.h"
 #include "gui/CIntObjectClasses.h"
 
-/*
- * CMessage.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
-
-const int COMPONENT_TO_SUBTITLE = 17;
 const int BETWEEN_COMPS_ROWS = 10;
 const int BEFORE_COMPONENTS = 30;
 const int BETWEEN_COMPS = 30;

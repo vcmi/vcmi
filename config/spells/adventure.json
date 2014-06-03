@@ -1,0 +1,152 @@
+{
+	"summonBoat" : {
+		"index" : 0,
+		"anim" : -1,
+		"sounds": {
+			"cast": "SUMMBOAT"
+		},
+		"levels" :{
+			"base":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"scuttleBoat" : {
+		"index" : 1,
+		"anim" : -1,
+		"sounds": {
+			"cast": "SCUTBOAT"
+		},
+		"levels" : {
+			"base":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"visions" : {
+		"index" : 2,
+		"anim" : -1,
+		"sounds": {
+			"cast": "VISIONS"
+		},
+		"levels" : {
+			"base":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"viewEarth" : {
+		"index" : 3,
+		"anim" : -1,
+		"sounds": {
+			"cast": "VIEW"
+		},
+		"levels" : {
+			"base":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"disguise" : {
+		"index" : 4,
+		"anim" : -1,
+		"sounds": {
+			"cast": "DISGUISE"
+		},
+		"levels" : {
+			"base":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"viewAir" : {
+		"index" : 5,
+		"anim" : -1,
+		"sounds": {
+			"cast": "VIEW"
+		},
+		"levels" : {
+			"base":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"fly" : {
+		"index" : 6,
+		"anim" : -1,
+		"sounds": {
+			"cast": "FLYSPELL"
+		},
+		"levels" : {
+			"base":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"waterWalk" : {
+		"index" : 7,
+		"anim" : -1,
+		"sounds": {
+			"cast": "WATRWALK"
+		},
+		"levels" : {
+			"base":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"dimensionDoor" : {
+		"index" : 8,
+		"anim" : -1,
+		"sounds": {
+			"cast": "TELPTOUT"
+		},
+		"levels" : {
+			"base":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"townPortal" : {
+		"index" : 9,
+		"anim" : -1,
+		"sounds": {
+			"cast": "TELPTOUT"
+		},
+		"levels" : {
+			"base":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	}
+}

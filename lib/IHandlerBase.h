@@ -32,6 +32,9 @@ public:
 	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) = 0;
 	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) = 0;
 
+	/// allows handlers to alter object configuration before validation and actual load
+	virtual void beforeValidate(JsonNode & object){};
+
 	/// allows handler to do post-loading step for validation or integration of loaded data
 	virtual void afterLoadFinalization(){};
 

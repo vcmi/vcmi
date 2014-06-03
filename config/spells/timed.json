@@ -1,0 +1,1204 @@
+{
+	"shield" : {
+		"index" : 27,
+		"anim" : 27,
+		"sounds": {
+			"cast": "SHIELD"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"generalDamageReduction" : {
+						"type" : "GENERAL_DAMAGE_REDUCTION",
+						"subtype" : 0,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"airShield" : {
+		"index" : 28,
+		"anim" : 2,
+		"sounds": {
+			"cast": "AIRSHELD"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"generalDamageReduction" : {
+						"type" : "GENERAL_DAMAGE_REDUCTION",
+						"subtype" : 1,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"fireShield" : {
+		"index" : 29,
+		"anim" : 11,
+		"sounds": {
+			"cast": "FIRESHIE"
+		},
+		// It looks that fireshield has two separate sounds
+		//			"soundfile":"FIRESHLD.wav"
+		//		
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"fireShield" : {
+						"type" : "FIRE_SHIELD",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"protectAir" : {
+		"index" : 30,
+		"anim" : 22,
+		"sounds": {
+			"cast": "PROTECTA"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 0,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"protectFire" : {
+		"index" : 31,
+		"anim" : 24,
+		"sounds": {
+			"cast": "PROTECTF"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 1,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"protectWater" : {
+		"index" : 32,
+		"anim" : 23,
+		"sounds": {
+			"cast": "PROTECTW"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 2,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"protectEarth" : {
+		"index" : 33,
+		"anim" : 26,
+		"sounds": {
+			"cast": "PROTECTE"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"spellDamageReduction" : {
+						"type" : "SPELL_DAMAGE_REDUCTION",
+						"subtype" : 3,
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"antiMagic" : {
+		"index" : 34,
+		"anim" : 5,
+		"sounds": {
+			"cast": "ANTIMAGK"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"levelSpellImmunity" : {
+						"val" : 3,					
+						"type" : "LEVEL_SPELL_IMMUNITY",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"levelSpellImmunity" : {
+						"val" : 4
+					}
+				}
+			},
+			"expert":{
+				"effects" : {
+					"levelSpellImmunity" : {
+						"val" : 5
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+
+	"magicMirror" : {
+		"index" : 36,
+		"anim" : 3,
+		"sounds": {
+			"cast": "BACKLASH"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"magicMirror" : {
+						"type" : "MAGIC_MIRROR",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+
+	"bless" : {
+		"index" : 41,
+		"anim" : 36,
+		"sounds": {
+			"cast": "BLESS"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"alwaysMaximumDamage" : {
+						"val" : 0,
+						"type" : "ALWAYS_MAXIMUM_DAMAGE",
+						"subtype" : -1,
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"counters" : {
+			"spell.curse": true
+		},
+		"absoluteImmunity" : {
+			"UNDEAD": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"curse" : {
+		"index" : 42,
+		"anim" : 40,
+		"sounds": {
+			"cast": "CURSE"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"alwaysMinimumDamage" : {
+						"addInfo" : 0,
+						"val" : 0,
+						"type" : "ALWAYS_MINIMUM_DAMAGE",
+						"subtype" : -1,
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"expert":{
+				"range" : "X"
+			}
+		},
+		"counters" : {
+			"spell.bless": true
+		},
+		"absoluteImmunity" : {
+			"UNDEAD": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"bloodlust" : {
+		"index" : 43,
+		"anim" : 4,
+		"sounds": {
+			"cast": "BLOODLUS"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"primarySkill" : {
+						"val" : 3,					
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"effectRange" : "ONLY_MELEE_FIGHT",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"primarySkill" : {
+						"val" : 6
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 6
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.weakness": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"precision" : {
+		"index" : 44,
+		"anim" : 25,
+		"sounds": {
+			"cast": "PRECISON"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"primarySkill" : {
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"val" : 3,
+						"effectRange" : "ONLY_DISTANCE_FIGHT",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"primarySkill" : {
+						"val" : 6
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 6
+					}
+				}
+			}
+		},
+		"absoluteLimit" : {
+			"SHOOTER": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"weakness" : {
+		"index" : 45,
+		"anim" : 56,
+		"sounds": {
+			"cast": "WEAKNESS"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"primarySkill" : {
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"val" : -3,						
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+
+			"advanced":{
+				"effects" : {
+					"primarySkill" : {
+						"val" : -6
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"primarySkill" : {
+						"val" : -6
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.bloodlust": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"stoneSkin" : {
+		"index" : 46,
+		"anim" : 54,
+		"sounds": {
+			"cast": "TUFFSKIN"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"primarySkill" : {
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"val" : 3,						
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"primarySkill" : {
+						"val" : 6
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"primarySkill" : {
+						"val" : 6
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"disruptingRay" : {
+		"index" : 47,
+		"targetType" : "CREATURE", //fix, dont remove
+		"anim" : 14,
+		"sounds": {
+			"cast": "DISRUPTR"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"primarySkill" : {
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"val" : -3,						
+						"valueType" : "ADDITIVE_VALUE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"primarySkill" : {
+						"val" : -4
+					}
+				}
+			},
+			"expert":{
+				"effects" : {
+					"primarySkill" : {
+						"val" : -5
+					}
+				}
+			}
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"prayer" : {
+		"index" : 48,
+		"anim" : 0,
+		"sounds": {
+			"cast": "PRAYER"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"attack" : {
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"val" : 2,						
+						"duration" : "N_TURNS"
+					},
+					"defence" : {
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"val" : 2,						
+						"duration" : "N_TURNS"
+					},
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"type" : "STACKS_SPEED",
+						"val" : 2,						
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"attack" : {
+						"val" : 4
+					},
+					"defence" : {
+						"val" : 4
+					},
+					"stacksSpeed" : {
+						"val" : 4
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"attack" : {
+						"val" : 4
+					},
+					"defence" : {
+						"val" : 4
+					},
+					"stacksSpeed" : {
+						"val" : 4
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"mirth" : {
+		"index" : 49,
+		"anim" : 20,
+		"sounds": {
+			"cast": "MIRTH"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"morale" : {
+						"type" : "MORALE",
+						"val" : 1,						
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"morale" : {
+						"val" : 2
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"morale" : {
+						"val" : 2
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.sorrow":true
+		},
+		"absoluteImmunity":{
+			"UNDEAD": true,		
+		},
+		"immunity" : {
+			"MIND_IMMUNITY": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"sorrow" : {
+		"index" : 50,
+		"anim" : 30,
+		"sounds": {
+			"cast": "SORROW"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"morale" : {
+						"type" : "MORALE",
+						"val" : -1,						
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"morale" : {
+						"val" : -2
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"morale" : {
+						"val" : -2
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.mirth":true
+		},
+		"absoluteImmunity":{
+			"UNDEAD": true,		
+		},
+		"immunity" : {
+			"MIND_IMMUNITY": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"fortune" : {
+		"index" : 51,
+		"anim" : 18,
+		"sounds": {
+			"cast": "FORTUNE"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"luck" : {
+						"type" : "LUCK",
+						"val" : 1,						
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"luck" : {
+						"val" : 2
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"luck" : {
+						"val" : 2
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.misfortune": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"misfortune" : {
+		"index" : 52,
+		"anim" : 48,
+		"sounds": {
+			"cast": "MISFORT"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"luck" : {
+						"type" : "LUCK",
+						"val" : -1,						
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"luck" : {
+						"val" : -2
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"luck" : {
+						"val" : -2
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.fortune":true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"haste" : {
+		"index" : 53,
+		"anim" : 31,
+		"sounds": {
+			"cast": "HASTE"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"type" : "STACKS_SPEED",
+						"val" : 3,						
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"stacksSpeed" : {
+						"val" : 5
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"stacksSpeed" : {
+						"val" : 5
+					}
+				}
+			}
+		},
+		"counters" : {
+			"spell.slow": true
+		},
+		"immunity" : {
+			"SIEGE_WEAPON": true
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"slow" : {
+		"index" : 54,
+		"anim" : 19,
+		"sounds": {
+			"cast": "MUCKMIRE"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"stacksSpeed" : {
+						"addInfo" : 0,
+						"type" : "STACKS_SPEED",
+						"val" : -25,						
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"stacksSpeed" : {
+						"val" : -50
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"stacksSpeed" : {
+						"val" : -50
+					}
+				}
+			}
+		},
+
+		"counters" : {
+			"spell.haste":true
+		},
+		"immunity" : {
+			"SIEGE_WEAPON": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"slayer" : {
+		"index" : 55,
+		"anim" : 28,
+		"sounds": {
+			"cast": "SLAYER"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"slayer" : {
+						"type" : "SLAYER",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"none":{
+				"effects" : {
+					"slayer" : {
+						"val" : 0
+					}
+				}
+			},
+			"basic":{
+				"effects" : {
+					"slayer" : {
+						"val" : 1
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"slayer" : {
+						"val" : 2
+					}
+				}
+			},
+			"expert":{
+				"effects" : {
+					"slayer" : {
+						"val" : 3
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"frenzy" : {
+		"index" : 56,
+		"anim" : 17,
+		"sounds": {
+			"cast": "FRENZY"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"inFrenzy" : {
+						"type" : "IN_FRENZY",
+						"val" : 100,						
+						"duration" : "STACK_GETS_TURN"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"inFrenzy" : {
+						"val" : 150
+					}
+				}
+			},
+			"expert":{
+				"effects" : {
+					"inFrenzy" : {
+						"val" : 200
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+
+	"counterstrike" : {
+		"index" : 58,
+		"anim" : 7,
+		"sounds": {
+			"cast": "CNTRSTRK"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"additionalRetaliation" : {
+						"type" : "ADDITIONAL_RETALIATION",
+						"val" : 1,						
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"additionalRetaliation" : {
+						"val" : 2
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"additionalRetaliation" : {
+						"val" : 2
+					}
+				}
+			}
+		},
+		"flags" : {
+			"positive": true
+		}
+	},
+	"berserk" : {
+		"index" : 59,
+		"anim" : 35,
+		"sounds": {
+			"cast": "BERSERK"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"attacksNearestCreature" : {
+						"type" : "ATTACKS_NEAREST_CREATURE",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"none":{
+				"effects" : {
+					"attacksNearestCreature" : {
+						"val" : 0
+					}
+				}
+			},
+			"basic":{
+				"effects" : {
+					"attacksNearestCreature" : {
+						"val" : 1
+					}
+				}
+			},
+			"advanced":{
+				"range" : "0-1",
+				"effects" : {
+					"attacksNearestCreature" : {
+						"val" : 2
+					}
+				}
+			},
+			"expert":{
+				"range" : "0-2",
+				"effects" : {
+					"attacksNearestCreature" : {
+						"val" : 3
+					}
+				}
+			}
+		},
+
+		"immunity" : {
+			"MIND_IMMUNITY": true,
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"hypnotize" : {
+		"index" : 60,
+		"anim" : 21,
+		"sounds": {
+			"cast": "HYPNOTIZ"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"hypnotized" : {
+						"type" : "HYPNOTIZED",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"none":{
+				"effects" : {
+					"hypnotized" : {
+						"val" : 0
+					}
+				}
+			},
+			"basic":{
+				"effects" : {
+					"hypnotized" : {
+						"val" : 1
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"hypnotized" : {
+						"val" : 2
+					}
+				}
+			},
+			"expert":{
+				"effects" : {
+					"hypnotized" : {
+						"val" : 3
+					}
+				}
+			}
+		},
+
+		"immunity" : {
+			"MIND_IMMUNITY": true,
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"forgetfulness" : {
+		"index" : 61,
+		"targetType" : "CREATURE", 
+		"anim" : 42,
+		"sounds": {
+			"cast": "FORGET"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",			
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"forgetful" : {
+						"type" : "FORGETFULL",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"none":{
+				"effects" : {
+					"forgetful" : {
+						"val" : 0
+					}
+				}
+			},
+			"basic":{
+				"effects" : {
+					"forgetful" : {
+						"val" : 1
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"forgetful" : {
+						"val" : 2
+					}
+				}
+			},
+			"expert":{
+				"range" : "X",
+				"effects" : {
+					"forgetful" : {
+						"val" : 3
+					}
+				}
+			}
+		},
+		"absoluteLimit" : {
+			"SHOOTER": true
+		},
+		"immunity" : {
+			"MIND_IMMUNITY": true,
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"blind" : {
+		"index" : 62,
+		"anim" : 6,
+		"sounds": {
+			"cast": "BLIND"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 62,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"generalAttackReduction" : {
+						"type" : "GENERAL_ATTACK_REDUCTION",
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			}
+		},
+
+		"immunity" : {
+			"MIND_IMMUNITY": true,
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	}
+}

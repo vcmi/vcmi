@@ -1,0 +1,281 @@
+{
+	"magicArrow" : {
+		"index" : 15,
+		"anim" : 64,
+		"sounds": {
+			"cast": "MAGICBLT"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"iceBolt" : {
+		"index" : 16,
+		"anim" : 46,
+		"sounds": {
+			"cast": "ICERAY"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"lightningBolt" : {
+		"index" : 17,
+		"anim" : 38,
+		"sounds": {
+			"cast": "LIGHTBLT"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"implosion" : {
+		"index" : 18,
+		"anim" : 10,
+		"sounds": {
+			"cast": "DECAY"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			}
+		},
+
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"chainLightning" : {
+		"index" : 19,
+		"anim" : 38,
+		"sounds": {
+			"cast": "CHAINLTE"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		}
+	},
+	"frostRing" : {
+		"index" : 20,
+		"anim" : 45,
+		"sounds": {
+			"cast": "FROSTING"
+		},
+		"levels" : {
+			"base":{
+				"range" : "1",
+				"targetModifier":{"smart":false}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"fireball" : {
+		"index" : 21,
+		"anim" : 53,
+		"sounds": {
+			"cast": "FIREBALL"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0,1",
+				"targetModifier":{"smart":false}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"inferno" : {
+		"index" : 22,
+		"anim" : 9,
+		"sounds": {
+			"cast": "FIREBLST"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0-2",
+				"targetModifier":{"smart":false}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"meteorShower" : {
+		"index" : 23,
+		"anim" : 16,
+		"sounds": {
+			"cast": "METEOR"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0,1",
+				"targetModifier":{"smart":false}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"deathRipple" : {
+		"index" : 24,
+		"targetType" : "CREATURE",
+		"anim" : 8,
+		"sounds": {
+			"cast": "DEATHRIP"
+		},
+		"levels" : {
+			"base":{
+				"range" : "X",
+				"targetModifier":{"smart":false}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"absoluteImmunity":{
+			"UNDEAD": true,
+		},		
+		"immunity" : {
+			"SIEGE_WEAPON": true,			
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"destroyUndead" : {
+		"index" : 25,
+		"targetType" : "CREATURE",
+		"anim" : 29,
+		"sounds": {
+			"cast": "COLDRING"
+		},
+		"levels" : {
+			"base":{
+				"range" : "X",
+				"targetModifier":{"smart":false}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"absoluteLimit" : {
+			"UNDEAD": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"armageddon" : {
+		"index" : 26,
+		"targetType" : "CREATURE",
+		"anim" : 12,
+		"sounds": {
+			"cast": "ARMGEDN"
+		},
+		"levels" : {
+			"base":{
+				"range" : "X",
+				"targetModifier":{"smart":false}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	},
+	"titanBolt" : {
+		"index" : 57,
+		"anim" : 38,
+		"sounds": {
+			"cast": "LIGHTBLT"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true,
+			"special": true
+		}
+	},
+}

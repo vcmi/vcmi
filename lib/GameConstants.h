@@ -14,7 +14,7 @@
 
 namespace GameConstants
 {
-	const std::string VCMI_VERSION = "VCMI 0.95";
+	const std::string VCMI_VERSION = "VCMI 0.95b";
 
 	const int BFIELD_WIDTH = 17;
 	const int BFIELD_HEIGHT = 11;
@@ -450,6 +450,17 @@ namespace EWallState
 	};
 }
 
+namespace ETileType
+{
+	enum ETileType
+	{
+		FREE,
+		POSSIBLE,
+		BLOCKED,
+		USED
+	};
+}
+
 class Obj
 {
 public:
@@ -496,9 +507,9 @@ public:
 		LEAN_TO = 39,
 		LIBRARY_OF_ENLIGHTENMENT = 41,
 		LIGHTHOUSE = 42,
-		MONOLITH1 = 43,
-		MONOLITH2 = 44,
-		MONOLITH3 = 45,
+		MONOLITH_ONE_WAY_ENTRANCE = 43,
+		MONOLITH_ONE_WAY_EXIT = 44,
+		MONOLITH_TWO_WAY = 45,
 		MAGIC_PLAINS1 = 46,
 		SCHOOL_OF_MAGIC = 47,
 		MAGIC_SPRING = 48,

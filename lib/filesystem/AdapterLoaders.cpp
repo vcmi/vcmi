@@ -56,7 +56,7 @@ CFilesystemList::~CFilesystemList()
 
 std::unique_ptr<CInputStream> CFilesystemList::load(const ResourceID & resourceName) const
 {
-	// load resource from last loader that have it (last overriden version)
+	// load resource from last loader that have it (last overridden version)
 	for (auto & loader : boost::adaptors::reverse(loaders))
 	{
 		if (loader->existsResource(resourceName))

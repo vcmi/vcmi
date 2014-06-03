@@ -350,6 +350,21 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 	return ret;
 }
 
+std::set<int3> CGObjectInstance::getBlockedOffsets() const
+{
+	std::set<int3> ret;
+	for(int w=0; w<getWidth(); ++w)
+	{
+		for(int h=0; h<getHeight(); ++h)
+		{
+			if (appearance.isBlockedAt(w, h))
+				ret.insert(int3(-w, -h, 0));
+		}
+	}
+	return ret;
+}
+
+
 bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen printing priority comparing
 {
 	if (appearance.printPriority != cmp.appearance.printPriority)
@@ -789,17 +804,14 @@ void CGHeroInstance::initHero()
 	}
 	assert(validTypes());
 
-	if (exp == 0xffffffff)
+	level = 1;
+	if(exp == 0xffffffff)
 	{
 		initExp();
 	}
-	else if (ID != Obj::PRISON)
+	else
 	{
-		level = VLC->heroh->level(exp);
-	}
-	else //warp hero at the beginning of next turn
-	{
-		level = 1;
+		levelUpAutomatically();
 	}
 
 	if (VLC->modh->modules.COMMANDERS && !commander)
@@ -901,7 +913,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	{
 		int txt_id;
 
-		if(cb->getHeroCount(h->tempOwner,false) < GameConstants::MAX_HEROES_PER_PLAYER) //free hero slot
+		if (cb->getHeroCount(h->tempOwner, false) < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)//GameConstants::MAX_HEROES_PER_PLAYER) //free hero slot
 		{
 			cb->changeObjPos(id,pos+int3(1,0,0),0);
 			//update hero parameters
@@ -975,7 +987,7 @@ void CGHeroInstance::initObj()
 	if(!type)
 		initHero(); //TODO: set up everything for prison before specialties are configured
 
-	skillsInfo.distribution.seed(rand());
+	skillsInfo.rand.setSeed(cb->gameState()->getRandomGenerator().nextInt());
 	skillsInfo.resetMagicSchoolCounter();
 	skillsInfo.resetWisdomCounter();
 
@@ -1574,7 +1586,6 @@ EAlignment::EAlignment CGHeroInstance::getAlignment() const
 void CGHeroInstance::initExp()
 {
 	exp = cb->gameState()->getRandomGenerator().nextInt(40, 89);
-	level = 1;
 }
 
 std::string CGHeroInstance::nodeName() const
@@ -1652,7 +1663,7 @@ ArtBearer::ArtBearer CGHeroInstance::bearerType() const
 	return ArtBearer::HERO;
 }
 
-std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
+std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() const
 {
 	std::vector<SecondarySkill> obligatorySkills; //hero is offered magic school or wisdom if possible
 	if (!skillsInfo.wisdomCounter)
@@ -1665,11 +1676,7 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 		std::vector<SecondarySkill> ss;
 		ss += SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC;
 
-		auto rng = [=](ui32 val) mutable -> ui32
-		{
-			return skillsInfo.distribution() % val; //must be determined
-		};
-		std::random_shuffle(ss.begin(), ss.end(), rng);
+		std::shuffle(ss.begin(), ss.end(), skillsInfo.rand.getStdGenerator());
 
 		for (auto skill : ss)
 		{
@@ -1713,12 +1720,12 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 	}
 	else if(none.size() && canLearnSkill()) //hero have free skill slot
 	{
-		skills.push_back(type->heroClass->chooseSecSkill(none, skillsInfo.distribution)); //new skill
+		skills.push_back(type->heroClass->chooseSecSkill(none, skillsInfo.rand)); //new skill
 		none.erase(skills.back());
 	}
 	else if(!basicAndAdv.empty())
 	{
-		skills.push_back(type->heroClass->chooseSecSkill(basicAndAdv, skillsInfo.distribution)); //upgrade existing
+		skills.push_back(type->heroClass->chooseSecSkill(basicAndAdv, skillsInfo.rand)); //upgrade existing
 		basicAndAdv.erase(skills.back());
 	}
 
@@ -1728,7 +1735,7 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 	//3) give any other new skill
 	if(!basicAndAdv.empty())
 	{
-		SecondarySkill s = type->heroClass->chooseSecSkill(basicAndAdv, skillsInfo.distribution);//upgrade existing
+		SecondarySkill s = type->heroClass->chooseSecSkill(basicAndAdv, skillsInfo.rand);//upgrade existing
 		skills.push_back(s);
 		basicAndAdv.erase(s);
 	}
@@ -1738,16 +1745,145 @@ std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
 	}
 	else if(none.size() && canLearnSkill())
 	{
-		skills.push_back(type->heroClass->chooseSecSkill(none, skillsInfo.distribution)); //give new skill
+		skills.push_back(type->heroClass->chooseSecSkill(none, skillsInfo.rand)); //give new skill
 		none.erase(skills.back());
 	}
 
 	return skills;
 }
 
+PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill() const
+{
+	assert(gainsLevel());
+	int randomValue = cb->gameState()->getRandomGenerator().nextInt(99), pom = 0, primarySkill = 0;
+	const auto & skillChances = (level > 9) ? type->heroClass->primarySkillLowLevel : type->heroClass->primarySkillHighLevel;
+
+	for(; primarySkill < GameConstants::PRIMARY_SKILLS; ++primarySkill)
+	{
+		pom += skillChances[primarySkill];
+		if(randomValue < pom)
+		{
+			break;
+		}
+	}
+
+	logGlobal->traceStream() << "The hero gets the primary skill " << primarySkill << " with a probability of " << randomValue << "%.";
+	return static_cast<PrimarySkill::PrimarySkill>(primarySkill);
+}
+
+boost::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill() const
+{
+	assert(gainsLevel());
+
+	boost::optional<SecondarySkill> chosenSecondarySkill;
+	const auto proposedSecondarySkills = getLevelUpProposedSecondarySkills();
+	if(!proposedSecondarySkills.empty())
+	{
+		std::vector<SecondarySkill> learnedSecondarySkills;
+		for(auto secondarySkill : proposedSecondarySkills)
+		{
+			if(getSecSkillLevel(secondarySkill) > 0)
+			{
+				learnedSecondarySkills.push_back(secondarySkill);
+			}
+		}
+
+		auto & rand = cb->gameState()->getRandomGenerator();
+		if(learnedSecondarySkills.empty())
+		{
+			// there are only new skills to learn, so choose anyone of them
+			chosenSecondarySkill = *RandomGeneratorUtil::nextItem(proposedSecondarySkills, rand);
+		}
+		else
+		{
+			// preferably upgrade a already learned secondary skill
+			chosenSecondarySkill = *RandomGeneratorUtil::nextItem(learnedSecondarySkills, rand);
+		}
+	}
+	return chosenSecondarySkill;
+}
+
+void CGHeroInstance::setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si64 value, ui8 abs)
+{
+	if(primarySkill < PrimarySkill::EXPERIENCE)
+	{
+		Bonus * skill = getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL)
+											.And(Selector::subtype(primarySkill))
+											.And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
+		assert(skill);
+
+		if(abs)
+		{
+			skill->val = value;
+		}
+		else
+		{
+			skill->val += value;
+		}
+	}
+	else if(primarySkill == PrimarySkill::EXPERIENCE)
+	{
+		if(abs)
+		{
+			exp = value;
+		}
+		else
+		{
+			exp += value;
+		}
+	}
+}
+
 bool CGHeroInstance::gainsLevel() const
 {
 	return exp >= VLC->heroh->reqExp(level+1);
+}
+
+void CGHeroInstance::levelUp(std::vector<SecondarySkill> skills)
+{
+	++level;
+
+	//deterministic secondary skills
+	skillsInfo.magicSchoolCounter = (skillsInfo.magicSchoolCounter + 1) % maxlevelsToMagicSchool();
+	skillsInfo.wisdomCounter = (skillsInfo.wisdomCounter + 1) % maxlevelsToWisdom();
+	if(vstd::contains(skills, SecondarySkill::WISDOM))
+	{
+		skillsInfo.resetWisdomCounter();
+	}
+
+	SecondarySkill spellSchools[] = {
+		SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC};
+	for(auto skill : spellSchools)
+	{
+		if(vstd::contains(skills, skill))
+		{
+			skillsInfo.resetMagicSchoolCounter();
+			break;
+		}
+	}
+
+	//specialty
+	Updatespecialty();
+}
+
+void CGHeroInstance::levelUpAutomatically()
+{
+	while(gainsLevel())
+	{
+		const auto primarySkill = nextPrimarySkill();
+		setPrimarySkill(primarySkill, 1, false);
+
+		auto proposedSecondarySkills = getLevelUpProposedSecondarySkills();
+
+		const auto secondarySkill = nextSecondarySkill();
+		if(secondarySkill)
+		{
+			setSecSkillLevel(*secondarySkill, 1, false);
+		}
+
+		//TODO why has the secondary skills to be passed to the method?
+		levelUp(proposedSecondarySkills);
+	}
 }
 
 void CGDwelling::initObj()
@@ -2080,6 +2216,7 @@ CGTownInstance::EFortLevel CGTownInstance::fortLevel() const //0 - none, 1 - for
 
 int CGTownInstance::hallLevel() const // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 {
+	
 	if (hasBuilt(BuildingID::CAPITOL))
 		return 3;
 	if (hasBuilt(BuildingID::CITY_HALL))
@@ -2170,20 +2307,29 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	return ret;
 }
 
-int CGTownInstance::dailyIncome() const
+TResources CGTownInstance::dailyIncome() const
 {
-	int ret = 0;
-	if (hasBuilt(BuildingID::GRAIL))
-		ret+=5000;
+	TResources ret;
 
-	if (hasBuilt(BuildingID::CAPITOL))
-		ret+=4000;
-	else if (hasBuilt(BuildingID::CITY_HALL))
-		ret+=2000;
-	else if (hasBuilt(BuildingID::TOWN_HALL))
-		ret+=1000;
-	else if (hasBuilt(BuildingID::VILLAGE_HALL))
-		ret+=500;
+	for (auto & p : town->buildings) 
+	{ 
+		BuildingID buildingUpgrade;
+
+		for (auto & p2 : town->buildings) 
+		{ 
+			if (p2.second->upgrade == p.first)
+			{
+				buildingUpgrade = p2.first;
+			}
+		}
+
+		if (!hasBuilt(buildingUpgrade)&&(hasBuilt(p.first)))
+		{
+			ret += p.second->produce;
+		}
+	
+	}
+
 	return ret;
 }
 bool CGTownInstance::hasFort() const
@@ -2325,13 +2471,15 @@ void CGTownInstance::newTurn() const
 {
 	if (cb->getDate(Date::DAY_OF_WEEK) == 1) //reset on new week
 	{
+		auto & rand = cb->gameState()->getRandomGenerator();
+
 		//give resources for Rampart, Mystic Pond
 		if (hasBuilt(BuildingID::MYSTIC_POND, ETownType::RAMPART)
 			&& cb->getDate(Date::DAY) != 1 && (tempOwner < PlayerColor::PLAYER_LIMIT))
 		{
-			int resID = rand()%4+2;//bonus to random rare resource
+			int resID = rand.nextInt(2, 5); //bonus to random rare resource
 			resID = (resID==2)?1:resID;
-			int resVal = rand()%4+1;//with size 1..4
+			int resVal = rand.nextInt(1, 4);//with size 1..4
 			cb->giveResource(tempOwner, static_cast<Res::ERes>(resID), resVal);
 			cb->setObjProperty (id, ObjProperty::BONUS_VALUE_FIRST, resID);
 			cb->setObjProperty (id, ObjProperty::BONUS_VALUE_SECOND, resVal);
@@ -2356,11 +2504,11 @@ void CGTownInstance::newTurn() const
 				}
 				if (nativeCrits.size())
 				{
-					SlotID pos = nativeCrits[rand() % nativeCrits.size()];
+					SlotID pos = *RandomGeneratorUtil::nextItem(nativeCrits, rand);
 					StackLocation sl(this, pos);
 
 					const CCreature *c = getCreature(pos);
-					if (rand()%100 < 90 || c->upgrades.empty()) //increase number if no upgrade available
+					if (rand.nextInt(99) < 90 || c->upgrades.empty()) //increase number if no upgrade available
 					{
 						cb->changeStackCount(sl, c->growth);
 					}
@@ -2369,9 +2517,9 @@ void CGTownInstance::newTurn() const
 						cb->changeStackType(sl, VLC->creh->creatures[*c->upgrades.begin()]);
 					}
 				}
-				if ((stacksCount() < GameConstants::ARMY_SIZE && rand()%100 < 25) || Slots().empty()) //add new stack
+				if ((stacksCount() < GameConstants::ARMY_SIZE && rand.nextInt(99) < 25) || Slots().empty()) //add new stack
 				{
-					int i = rand() % std::min (GameConstants::CREATURES_PER_TOWN, cb->getDate(Date::MONTH)<<1);
+					int i = rand.nextInt(std::min(GameConstants::CREATURES_PER_TOWN, cb->getDate(Date::MONTH) << 1) - 1);
 					if (!town->creatures[i].empty())
 					{
 						CreatureID c = town->creatures[i][0];
@@ -3010,7 +3158,7 @@ void CGCreature::initObj()
 			amount = 1;
 		}
 	}
-	formation.randomFormation = rand();
+	formation.randomFormation = cb->gameState()->getRandomGenerator().nextInt();
 
 	temppower = stacks[SlotID(0)]->count * 1000;
 	refusedJoining = false;
@@ -3226,10 +3374,10 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 		if (formation.randomFormation % 100 < 50) //upgrade
 		{
 			SlotID slotId = SlotID(stacks.size() / 2);
-			if(ui32 upgradesSize = getStack(slotId).type->upgrades.size())
+			const auto & upgrades = getStack(slotId).type->upgrades;
+			if(!upgrades.empty())
 			{
-				auto it = getStack(slotId).type->upgrades.cbegin(); //pick random in case there are more
-				std::advance (it, rand() % upgradesSize);
+				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->gameState()->getRandomGenerator());
 				cb->changeStackType(StackLocation(this, slotId), VLC->creh->creatures[*it]);
 			}
 		}
@@ -3520,17 +3668,28 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 	ObjectInstanceID destinationid;
 	switch(ID)
 	{
-	case Obj::MONOLITH1: //one way - find corresponding exit monolith
-		if(vstd::contains(objs,Obj::MONOLITH2) && vstd::contains(objs[Obj::MONOLITH2],subID) && objs[Obj::MONOLITH2][subID].size())
-			destinationid = objs[Obj::MONOLITH2][subID][rand()%objs[Obj::MONOLITH2][subID].size()];
+	case Obj::MONOLITH_ONE_WAY_ENTRANCE: //one way - find corresponding exit monolith
+	{
+		if(vstd::contains(objs,Obj::MONOLITH_ONE_WAY_EXIT) && vstd::contains(objs[Obj::MONOLITH_ONE_WAY_EXIT],subID) && objs[Obj::MONOLITH_ONE_WAY_EXIT][subID].size())
+		{
+			destinationid = *RandomGeneratorUtil::nextItem(objs[Obj::MONOLITH_ONE_WAY_EXIT][subID], cb->gameState()->getRandomGenerator());
+		}
 		else
+		{
 			logGlobal->warnStream() << "Cannot find corresponding exit monolith for "<< id;
+		}
 		break;
-	case Obj::MONOLITH3://two way monolith - pick any other one
+	}
+	case Obj::MONOLITH_TWO_WAY://two way monolith - pick any other one
 	case Obj::WHIRLPOOL: //Whirlpool
 		if(vstd::contains(objs,ID) && vstd::contains(objs[ID],subID) && objs[ID][subID].size()>1)
 		{
-			while ((destinationid = objs[ID][subID][rand()%objs[ID][subID].size()]) == id); //choose another exit
+			//choose another exit
+			do
+			{
+				destinationid = *RandomGeneratorUtil::nextItem(objs[ID][subID], cb->gameState()->getRandomGenerator());
+			} while(destinationid == id);
+
 			if (ID == Obj::WHIRLPOOL)
 			{
 				if (!h->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION))
@@ -3581,9 +3740,8 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 	if (ID == Obj::WHIRLPOOL)
 	{
 		std::set<int3> tiles = cb->getObj(destinationid)->getBlockedPos();
-		auto it = tiles.begin();
-		std::advance (it, rand() % tiles.size()); //picking random element of set is tiring
-		cb->moveHero (h->id, *it + int3(1,0,0), true);
+		auto & tile = *RandomGeneratorUtil::nextItem(tiles, cb->gameState()->getRandomGenerator());
+		cb->moveHero(h->id, tile + int3(1,0,0), true);
 	}
 	else
 		cb->moveHero (h->id,CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true) - getVisitableOffset(), true);
@@ -3627,13 +3785,13 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 		const CGObjectInstance *cur = gatesSplit[0][i];
 
 		//find nearest underground exit
-		std::pair<int,double> best(-1,150000); //pair<pos_in_vector, distance>
+		std::pair<int, si32> best(-1, std::numeric_limits<si32>::max()); //pair<pos_in_vector, distance^2>
 		for(int j = 0; j < gatesSplit[1].size(); j++)
 		{
 			const CGObjectInstance *checked = gatesSplit[1][j];
 			if(!checked)
 				continue;
-			double hlp = checked->pos.dist2d(cur->pos);
+			si32 hlp = checked->pos.dist2dSQ(cur->pos);
 			if(hlp < best.second)
 			{
 				best.first = j;
@@ -3647,9 +3805,7 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 			gatesSplit[1][best.first] = nullptr;
 		}
 		else
-		{
 			gates.push_back(std::make_pair(cur->id, ObjectInstanceID()));
-		}
 	}
 	objs.erase(Obj::SUBTERRANEAN_GATE);
 }

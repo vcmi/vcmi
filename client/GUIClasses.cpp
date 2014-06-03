@@ -3726,10 +3726,16 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[0]; //Cannot afford a Hero
 		recruit->block(true);
 	}
-	else if(LOCPLINT->cb->howManyHeroes(false) >= 8)
+	else if(LOCPLINT->castleInt && LOCPLINT->cb->howManyHeroes(true) >= VLC->modh->settings.MAX_HEROES_AVAILABLE_PER_PLAYER)
 	{
 		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[1]; //Cannot recruit. You already have %d Heroes.
-		boost::algorithm::replace_first(recruit->hoverTexts[0],"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes()));
+		boost::algorithm::replace_first(recruit->hoverTexts[0],"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes(true)));
+		recruit->block(true);
+	}
+	else if((!LOCPLINT->castleInt) && LOCPLINT->cb->howManyHeroes(false) >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
+	{
+		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[1]; //Cannot recruit. You already have %d Heroes.
+		boost::algorithm::replace_first(recruit->hoverTexts[0], "%d", boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes(false)));
 		recruit->block(true);
 	}
 	else if(LOCPLINT->castleInt && LOCPLINT->castleInt->town->visitingHero)
@@ -3742,8 +3748,10 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 		if(selected == -1)
 			recruit->block(true);
 	}
-
-	CCS->videoh->open("TAVERN.BIK");
+	if (LOCPLINT->castleInt)
+		CCS->videoh->open(LOCPLINT->castleInt->town->town->clientInfo.tavernVideo);
+	else
+		CCS->videoh->open("TAVERN.BIK");
 }
 
 void CTavernWindow::recruitb()
@@ -3931,6 +3939,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 			{
 				captureAllKeys = false;
 				endEnteringText(true);
+                CCS->soundh->playSound("CHAT");
 			}
 			break;
 		}
@@ -5753,7 +5762,7 @@ void CHillFortWindow::showAll (SDL_Surface *to)
 
 std::string CHillFortWindow::getTextForSlot(SlotID slot)
 {
-	if ( !hero->getCreature(slot) )//we dont have creature here
+	if ( !hero->getCreature(slot) )//we don`t have creature here
 		return "";
 
 	std::string str = CGI->generaltexth->allTexts[318];

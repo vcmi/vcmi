@@ -49,28 +49,9 @@ DLL_LINKAGE void SetResources::applyGs( CGameState *gs )
 
 DLL_LINKAGE void SetPrimSkill::applyGs( CGameState *gs )
 {
-	CGHeroInstance *hero = gs->getHero(id);
+	CGHeroInstance * hero = gs->getHero(id);
 	assert(hero);
-
-	if(which < PrimarySkill::EXPERIENCE)
-	{
-		Bonus *skill = hero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL)
-											.And(Selector::subtype(which))
-											.And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
-		assert(skill);
-
-		if(abs)
-			skill->val = val;
-		else
-			skill->val += val;
-	}
-	else if(which == PrimarySkill::EXPERIENCE)
-	{
-		if(abs)
-			hero->exp = val;
-		else
-			hero->exp += val;
-	}
+	hero->setPrimarySkill(which, val, abs);
 }
 
 DLL_LINKAGE void SetSecSkill::applyGs( CGameState *gs )
@@ -447,20 +428,20 @@ void TryMoveHero::applyGs( CGameState *gs )
 		auto dir = getDir(start,end);
 		if(dir > 0  &&  dir <= 8)
 			h->moveDir = dir;
-		//else dont change movedir - hero might have traversed the subterranean gate, dorectopm shpuld be kept
+		//else don`t change move direction - hero might have traversed the subterranean gate, direction should be kept
 	}
 
-	if(result == EMBARK) //hero enters boat at dest tile
+	if(result == EMBARK) //hero enters boat at destination tile
 	{
 		const TerrainTile &tt = gs->map->getTile(CGHeroInstance::convertPosition(end, false));
-		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only vis obj at dest is Boat
+		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only visitable object at destination is Boat
 		CGBoat *boat = static_cast<CGBoat*>(tt.visitableObjects.back());
 
 		gs->map->removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
 		h->boat = boat;
 		boat->hero = h;
 	}
-	else if(result == DISEMBARK) //hero leaves boat to dest tile
+	else if(result == DISEMBARK) //hero leaves boat to destination tile
 	{
 		CGBoat *b = const_cast<CGBoat *>(h->boat);
 		b->direction = h->moveDir;
@@ -1036,25 +1017,8 @@ DLL_LINKAGE void SetHoverName::applyGs( CGameState *gs )
 
 DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )
 {
-	CGHeroInstance* h = gs->getHero(hero->id);
-	h->level = level;
-	//deterministic secondary skills
-	h->skillsInfo.magicSchoolCounter = (h->skillsInfo.magicSchoolCounter + 1) % h->maxlevelsToMagicSchool();
-	h->skillsInfo.wisdomCounter = (h->skillsInfo.wisdomCounter + 1) % h->maxlevelsToWisdom();
-	if (vstd::contains(skills, SecondarySkill::WISDOM))
-		h->skillsInfo.resetWisdomCounter();
-	SecondarySkill spellSchools[] = {
-		SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC};
-	for (auto skill : spellSchools)
-	{
-		if (vstd::contains(skills, skill))
-		{
-			h->skillsInfo.resetMagicSchoolCounter();
-			break;
-		}
-	}
-	//specialty
-	h->Updatespecialty();
+	CGHeroInstance * h = gs->getHero(hero->id);
+	h->levelUp(skills);
 }
 
 DLL_LINKAGE void CommanderLevelUp::applyGs (CGameState *gs)

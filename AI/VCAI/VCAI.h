@@ -21,9 +21,6 @@
 #include "../../lib/NetPacks.h"
 #include "../../lib/CondSh.h"
 
-static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
-	int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
-
 struct QuestInfo;
 
 /*

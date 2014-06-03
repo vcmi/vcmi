@@ -158,11 +158,16 @@ std::string VCMIDirs::serverPath() const
 // $XDG_DATA_HOME, default: $HOME/.local/share
 std::string VCMIDirs::userDataPath() const
 {
+#ifdef __ANDROID__
+	// on Android HOME will be set to something like /sdcard/data/Android/is.xyz.vcmi/files/
+	return std::string(getenv("HOME"));
+#else
 	if (getenv("XDG_DATA_HOME") != nullptr )
 		return std::string(getenv("XDG_DATA_HOME")) + "/vcmi";
 	if (getenv("HOME") != nullptr )
 		return std::string(getenv("HOME")) + "/.local/share" + "/vcmi";
 	return ".";
+#endif
 }
 
 std::string VCMIDirs::userSavePath() const
@@ -173,21 +178,29 @@ std::string VCMIDirs::userSavePath() const
 // $XDG_CACHE_HOME, default: $HOME/.cache
 std::string VCMIDirs::userCachePath() const
 {
+#ifdef __ANDROID__
+	return userDataPath() + "/cache";
+#else
 	if (getenv("XDG_CACHE_HOME") != nullptr )
 		return std::string(getenv("XDG_CACHE_HOME")) + "/vcmi";
 	if (getenv("HOME") != nullptr )
 		return std::string(getenv("HOME")) + "/.cache" + "/vcmi";
 	return ".";
+#endif
 }
 
 // $XDG_CONFIG_HOME, default: $HOME/.config
 std::string VCMIDirs::userConfigPath() const
 {
+#ifdef __ANDROID__
+	return userDataPath() + "/config";
+#else
 	if (getenv("XDG_CONFIG_HOME") != nullptr )
 		return std::string(getenv("XDG_CONFIG_HOME")) + "/vcmi";
 	if (getenv("HOME") != nullptr )
 		return std::string(getenv("HOME")) + "/.config" + "/vcmi";
 	return ".";
+#endif
 }
 
 // $XDG_DATA_DIRS, default: /usr/local/share/:/usr/share/
@@ -198,7 +211,9 @@ std::vector<std::string> VCMIDirs::dataPaths() const
 	// in vcmi fs last directory has highest priority
 
 	std::vector<std::string> ret;
-
+#ifdef __ANDROID__
+	ret.push_back(userDataPath());
+#else
 	if (getenv("HOME") != nullptr ) // compatibility, should be removed after 0.96
 		ret.push_back(std::string(getenv("HOME")) + "/.vcmi");
 	ret.push_back(M_DATA_DIR);
@@ -216,6 +231,7 @@ std::vector<std::string> VCMIDirs::dataPaths() const
 		ret.push_back("/usr/share/");
 		ret.push_back("/usr/local/share/");
 	}
+#endif
 	return ret;
 }
 

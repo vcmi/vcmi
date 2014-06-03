@@ -1085,9 +1085,9 @@ void CMapLoaderH3M::readObjects()
 				nobj = new CGVisitableOPW();
 				break;
 			}
-		case Obj::MONOLITH1:
-		case Obj::MONOLITH2:
-		case Obj::MONOLITH3:
+		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+		case Obj::MONOLITH_ONE_WAY_EXIT:
+		case Obj::MONOLITH_TWO_WAY:
 		case Obj::SUBTERRANEAN_GATE:
 		case Obj::WHIRLPOOL:
 			{
@@ -2135,7 +2135,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 			{
 				if(i * 8 + yy < GameConstants::SPELLS_QUANTITY)
 				{
-					if(c == (c | static_cast<ui8>(std::pow(2., yy))))
+					if(c == (c | static_cast<ui8>(std::pow(2., yy)))) //add obligatory spell even if it's banned on a map (?)
 					{
 						nt->obligatorySpells.push_back(SpellID(i * 8 + yy));
 					}
@@ -2149,16 +2149,18 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 		ui8 c = reader.readUInt8();
 		for(int yy = 0; yy < 8; ++yy)
 		{
-			if(i * 8 + yy < GameConstants::SPELLS_QUANTITY)
+			int spellid = i * 8 + yy; 
+			if(spellid < GameConstants::SPELLS_QUANTITY)
 			{
-				if(c != (c | static_cast<ui8>(std::pow(2., yy))))
+				if(c != (c | static_cast<ui8>(std::pow(2., yy))) && map->allowedSpell[spellid]) //add random spell only if it's allowed on entire map
 				{
-					nt->possibleSpells.push_back(SpellID(i * 8 + yy));
+					nt->possibleSpells.push_back(SpellID(spellid));
 				}
 			}
 		}
 	}
 	//add all spells from mods
+	//TODO: allow customize new spells in towns
 	for (int i = SpellID::AFTER_LAST; i < VLC->spellh->objects.size(); ++i)
 	{
 		nt->possibleSpells.push_back(SpellID(i));

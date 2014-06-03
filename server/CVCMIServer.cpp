@@ -19,7 +19,9 @@
 #include "CVCMIServer.h"
 #include "../lib/StartInfo.h"
 #include "../lib/mapping/CMap.h"
+#ifndef __ANDROID__
 #include "../lib/Interprocess.h"
+#endif
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
@@ -32,7 +34,7 @@
 
 #include "../lib/UnlockGuard.h"
 
-#if defined(__GNUC__) && !defined (__MINGW32__)
+#if defined(__GNUC__) && !defined (__MINGW32__) && !defined(__ANDROID__)
 #include <execinfo.h>
 #endif
 
@@ -41,7 +43,9 @@ std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX 
 using namespace boost;
 using namespace boost::asio;
 using namespace boost::asio::ip;
+#ifndef __ANDROID__
 namespace intpr = boost::interprocess;
+#endif
 bool end2 = false;
 int port = 3030;
 
@@ -391,6 +395,7 @@ void CVCMIServer::newPregame()
 
 void CVCMIServer::start()
 {
+#ifndef __ANDROID__
 	ServerReady *sr = nullptr;
 	intpr::mapped_region *mr;
 	try
@@ -407,13 +412,16 @@ void CVCMIServer::start()
 		mr = new intpr::mapped_region(smo,intpr::read_write);
 		sr = new(mr->get_address())ServerReady();
 	}
+#endif
 
 	boost::system::error_code error;
     logNetwork->infoStream()<<"Listening for connections at port " << acceptor->local_endpoint().port();
 	auto  s = new tcp::socket(acceptor->get_io_service());
 	boost::thread acc(boost::bind(vaccept,acceptor,s,&error));
+#ifndef __ANDROID__
 	sr->setToTrueAndNotify();
 	delete mr;
+#endif
 
 	acc.join();
 	if (error)
@@ -554,7 +562,7 @@ static void handleCommandOptions(int argc, char *argv[])
 	}
 }
 
-#if defined(__GNUC__) && !defined (__MINGW32__)
+#if defined(__GNUC__) && !defined (__MINGW32__) && !defined(__ANDROID__)
 void handleLinuxSignal(int sig)
 {
 	const int STACKTRACE_SIZE = 100;
@@ -585,7 +593,7 @@ int main(int argc, char** argv)
 {
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
-	#if defined(__GNUC__) && !defined (__MINGW32__)
+	#if defined(__GNUC__) && !defined (__MINGW32__) && !defined(__ANDROID__)
 	signal(SIGSEGV, handleLinuxSignal);
 	#endif
 

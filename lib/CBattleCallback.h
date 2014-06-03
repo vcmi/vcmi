@@ -31,6 +31,7 @@ namespace BattleSide
 }
 
 typedef std::vector<const CStack*> TStacks;
+typedef std::function<bool(const CStack *)> TStackFilter;
 
 class CBattleInfoEssentials;
 
@@ -168,7 +169,15 @@ public:
 	ETerrainType battleTerrainType() const;
 	BFieldType battleGetBattlefieldType() const;
 	std::vector<shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
-	TStacks battleGetAllStacks(bool includeTurrets = false) const; //returns all stacks, alive or dead or undead or mechanical :)
+    
+    /** @brief Main method for getting battle stacks
+     *
+     * @param predicate Functor that shall return true for desired stack
+     * @return filtered stacks
+     *
+     */                             	
+	TStacks battleGetStacksIf(TStackFilter predicate, bool includeTurrets = false) const;
+	
 	bool battleHasNativeStack(ui8 side) const;
 	int battleGetMoatDmg() const; //what dmg unit will suffer if ending turn in the moat
 	const CGTownInstance * battleGetDefendedTown() const; //returns defended town if current battle is a siege, nullptr instead
@@ -190,7 +199,12 @@ public:
 	si8 battleGetWallState(int partOfWall) const;
 
 	//helpers
+	///returns all stacks, alive or dead or undead or mechanical :)
+	TStacks battleGetAllStacks(bool includeTurrets = false) const;
+	
+	///returns all alive stacks excluding turrets
 	TStacks battleAliveStacks() const;
+	///returns all alive stacks from particular side excluding turrets
 	TStacks battleAliveStacks(ui8 side) const;
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true) const; //returns stack info by given ID
 	bool battleIsObstacleVisibleForSide(const CObstacleInstance & coi, BattlePerspective::BattlePerspective side) const;
@@ -279,7 +293,7 @@ public:
 	SpellID getRandomCastedSpell(const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
 	//checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
-	ESpellCastProblem::ESpellCastProblem battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; 
+	ESpellCastProblem::ESpellCastProblem battleStackIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, const CStack * subject) const; 
 
 
 	const CStack * getStackIf(std::function<bool(const CStack*)> pred) const;
@@ -307,6 +321,11 @@ public:
 	AccessibilityInfo getAccesibility(const std::vector<BattleHex> &accessibleHexes) const; //given hexes will be marked as accessible
 	std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const;
 protected:
+	
+	//checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
+	ESpellCastProblem::ESpellCastProblem battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const;
+	
+	
 	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters &params) const;
 	ReachabilityInfo makeBFS(const AccessibilityInfo &accessibility, const ReachabilityInfo::Parameters &params) const;
 	ReachabilityInfo makeBFS(const CStack *stack) const; //uses default parameters -> stack position and owner's perspective

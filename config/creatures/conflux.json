@@ -81,6 +81,11 @@
 			{
 				"type" : "SPELL_IMMUNITY",
 				"subtype" : "spell.chainLightning"
+			},
+			"armageddonImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.armageddon"
 			}
 		},
 		"upgrades": ["magmaElemental"],
@@ -395,6 +400,21 @@
 				"type" : "SPELLCASTER",
 				"subtype" : "spell.protectEarth",
 				"val" : 2
+			},
+			"lightingImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.lightningBolt"
+			},
+			"chainLightingImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.chainLightning"
+			},			
+			"armageddonImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.armageddon"
 			}
 		},
 		"graphics" :
@@ -440,6 +460,23 @@
 				"type" : "SPELLCASTER",
 				"subtype" : "spell.protectAir",
 				"val" : 2
+			},
+			"meteorShowerImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.meteorShower"
+			},
+			"lightingVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.lightningBolt",
+				"val" : 100
+			},
+			"chainLightingVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.chainLightning",
+				"val" : 100
 			}
 		},
 		"graphics" :

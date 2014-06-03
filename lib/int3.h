@@ -14,96 +14,135 @@
 class int3
 {
 public:
-	si32 x,y,z;
-	inline int3():x(0),y(0),z(0){}; //c-tor, x/y/z initialized to 0
-	inline int3(const si32 X, const si32 Y, const si32 Z):x(X),y(Y),z(Z){}; //c-tor
-	inline int3(const int3 & val) : x(val.x), y(val.y), z(val.z){} //copy c-tor
-	inline int3 & operator=(const int3 & val) {x = val.x; y = val.y; z = val.z; return *this;} //assignemt operator
-	~int3() {} // d-tor - does nothing
-	inline int3 operator+(const int3 & i) const //returns int3 with coordinates increased by corresponding coordinate of given int3
-		{return int3(x+i.x,y+i.y,z+i.z);}
-	inline int3 operator+(const si32 i) const //returns int3 with coordinates increased by given numer
-		{return int3(x+i,y+i,z+i);}
-	inline int3 operator-(const int3 & i) const //returns int3 with coordinates decreased by corresponding coordinate of given int3
-		{return int3(x-i.x,y-i.y,z-i.z);}
-	inline int3 operator-(const si32 i) const //returns int3 with coordinates decreased by given numer
-		{return int3(x-i,y-i,z-i);}
-	inline int3 operator-() const //returns opposite position
-		{return int3(-x,-y,-z);}
-	inline double dist2d(const int3 &other) const //distance (z coord is not used)
-		{return std::sqrt((double)(x-other.x)*(x-other.x) + (y-other.y)*(y-other.y));}
-	inline bool areNeighbours(const int3 &other) const
-		{return dist2d(other) < 2. && z == other.z;}
-	inline void operator+=(const int3 & i)
+	si32 x, y, z;
+
+	//c-tor: x, y, z initialized to 0
+	int3() : x(0), y(0), z(0) {} // I think that x, y, z should be left uninitialized.
+	//c-tor: x, y, z initialized to i
+	explicit int3(const si32 i) : x(i), y(i), z(i) {}
+	//c-tor: x, y, z initialized to X, Y, Z
+	int3(const si32 X, const si32 Y, const si32 Z) : x(X), y(Y), z(Z) {}
+	int3(const int3 & c) : x(c.x), y(c.y), z(c.z) {} // Should be set to default (C++11)?
+
+	int3 & operator=(const int3 & c) // Should be set to default (C++11)?
 	{
-		x+=i.x;
-		y+=i.y;
-		z+=i.z;
+		x = c.x;
+		y = c.y;
+		z = c.z;
+
+		return *this;
 	}
-	inline void operator+=(const si32 & i)
+	int3 operator-() const { return int3(-x, -y, -z); }
+
+	int3 operator+(const int3 & i) const { return int3(x + i.x, y + i.y, z + i.z); }
+	int3 operator-(const int3 & i) const { return int3(x - i.x, y - i.y, z - i.z); }
+	//returns int3 with coordinates increased by given number
+	int3 operator+(const si32 i) const { return int3(x + i, y + i, z + i); }
+	//returns int3 with coordinates decreased by given number
+	int3 operator-(const si32 i) const { return int3(x - i, y - i, z - i); }
+
+	int3 & operator+=(const int3 & i)
 	{
-		x+=i;
-		y+=i;
-		z+=i;
+		x += i.x;
+		y += i.y;
+		z += i.z;
+		return *this;
 	}
-	inline void operator-=(const int3 & i)
+	int3 & operator-=(const int3 & i)
 	{
-		x-=i.x;
-		y-=i.y;
-		z-=i.z;
+		x -= i.x;
+		y -= i.y;
+		z -= i.z;
+		return *this;
 	}
-	inline void operator-=(const si32 & i)
+	
+	//increases all coordinates by given number
+	int3 & operator+=(const si32 i)
 	{
-		x+=i;
-		y+=i;
-		z+=i;
+		x += i;
+		y += i;
+		z += i;
+		return *this;
 	}
-	inline bool operator==(const int3 & i) const
-		{return (x==i.x) && (y==i.y) && (z==i.z);}
-	inline bool operator!=(const int3 & i) const
-		{return !(*this==i);}
-	inline bool operator<(const int3 & i) const
+	//decreases all coordinates by given number
+	int3 & operator-=(const si32 i)
 	{
-		if (z<i.z)
+		x -= i;
+		y -= i;
+		z -= i;
+		return *this;
+	}
+
+	bool operator==(const int3 & i) const { return (x == i.x && y == i.y && z == i.z); }
+	bool operator!=(const int3 & i) const { return (x != i.x || y != i.y || z != i.z); }
+
+	bool operator<(const int3 & i) const
+	{
+		if (z < i.z)
 			return true;
-		if (z>i.z)
+		if (z > i.z)
 			return false;
-		if (y<i.y)
+		if (y < i.y)
 			return true;
-		if (y>i.y)
+		if (y > i.y)
 			return false;
-		if (x<i.x)
+		if (x < i.x)
 			return true;
-		if (x>i.x)
+		if (x > i.x)
 			return false;
 		return false;
 	}
-	inline std::string operator ()() const
+
+	//returns squared distance on Oxy plane (z coord is not used)
+	si32 dist2dSQ(const int3 & o) const
 	{
-		return	"(" + boost::lexical_cast<std::string>(x) +
-				" " + boost::lexical_cast<std::string>(y) +
-				" " + boost::lexical_cast<std::string>(z) + ")";
+		const si32 dx = (x - o.x);
+		const si32 dy = (y - o.y);
+		return dx*dx + dy*dy;
 	}
-	inline bool valid() const
+	//returns distance on Oxy plane (z coord is not used)
+	double dist2d(const int3 & o) const
+	{
+		return std::sqrt((double)dist2dSQ(o));
+	}
+
+	bool areNeighbours(const int3 & o) const
+	{
+		return (dist2dSQ(o) < 4) && (z == o.z);
+	}
+
+	//returns "(x y z)" string
+	std::string operator ()() const //Change to int3::toString()?
+	{
+		std::string result("(");
+		result += boost::lexical_cast<std::string>(x); result += ' ';
+		result += boost::lexical_cast<std::string>(y); result += ' ';
+		result += boost::lexical_cast<std::string>(z); result += ')';
+		return result;
+	}
+
+	bool valid() const //Should be named "isValid"?
 	{
 		return z >= 0; //minimal condition that needs to be fulfilled for tiles in the map
 	}
-	template <typename Handler> void serialize(Handler &h, const int version)
+
+	template <typename Handler>
+	void serialize(Handler &h, const int version)
 	{
 		h & x & y & z;
 	}
-	
 };
-inline std::istream & operator>>(std::istream & str, int3 & dest)
-{
-	str>>dest.x>>dest.y>>dest.z;
-	return str;
-}
+
 inline std::ostream & operator<<(std::ostream & str, const int3 & sth)
 {
-	return str<<sth.x<<' '<<sth.y<<' '<<sth.z;
+	return str << sth.x << ' ' << sth.y << ' ' << sth.z;
+}
+inline std::istream & operator>>(std::istream & str, int3 & dest)
+{
+	return str >> dest.x >> dest.y >> dest.z;
 }
 
+//Why not normal function?
 struct ShashInt3
 {
 	size_t operator()(int3 const& pos) const
@@ -114,3 +153,6 @@ struct ShashInt3
 		return ret;
 	}
 };
+
+static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
+	int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };

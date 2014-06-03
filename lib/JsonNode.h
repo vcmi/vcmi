@@ -141,7 +141,7 @@ namespace JsonUtils
 	DLL_LINKAGE void resolveIdentifier (const JsonNode &node, si32 &var);
 
 	/**
-	 * @brief recursivly merges source into dest, replacing identical fields
+	 * @brief recursively merges source into dest, replacing identical fields
 	 * struct : recursively calls this function
 	 * arrays : each entry will be merged recursively
 	 * values : value in source will replace value in dest
@@ -151,7 +151,7 @@ namespace JsonUtils
 	DLL_LINKAGE void merge(JsonNode & dest, JsonNode & source);
 	
 	/**
-	 * @brief recursivly merges source into dest, replacing identical fields
+	 * @brief recursively merges source into dest, replacing identical fields
 	 * struct : recursively calls this function
 	 * arrays : each entry will be merged recursively
 	 * values : value in source will replace value in dest
@@ -159,6 +159,13 @@ namespace JsonUtils
 	 * @note this function will preserve data stored in source by creating copy
 	 */ 
 	DLL_LINKAGE void mergeCopy(JsonNode & dest, JsonNode source);
+	
+    /** @brief recursively merges descendant into copy of base node
+     * Result emulates inheritance semantic
+     * 
+     *
+     */
+	DLL_LINKAGE void inherit(JsonNode & descendant, const JsonNode & base);
 
 	/**
 	 * @brief generate one Json structure from multiple files
@@ -167,7 +174,7 @@ namespace JsonUtils
 	DLL_LINKAGE JsonNode assembleFromFiles(std::vector<std::string> files);
 	DLL_LINKAGE JsonNode assembleFromFiles(std::vector<std::string> files, bool & isValid);
 
-	/// This version loads all files with same name (overriden by mods)
+	/// This version loads all files with same name (overridden by mods)
 	DLL_LINKAGE JsonNode assembleFromFiles(std::string filename);
 
 	/**

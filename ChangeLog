@@ -5,8 +5,10 @@ GENERAL:
 ADVENTURE AI:
 
 ADVENTURE MAP:
+* Heroes auto-level primary and secondary skill levels according to experience
 
 BATTLES:
+* Wall hit/miss sound will be played when using catapult during siege
 
 SPELLS:
 * New configuration format: http://wiki.vcmi.eu/index.php?title=Spell_Format
@@ -14,7 +16,11 @@ SPELLS:
 MODS:
 * Support for submods - mod may have their own "submods" located in <modname>/Mods directory
 * Mods may provide their own changelogs and screenshots that will be visible in Launcher
-* Mods cas now add new (offensive, buffs, debuffs) spells and change existing
+* Mods can now add new (offensive, buffs, debuffs) spells and change existing
+* Mods can use custom mage guild background pictures and videos for taverns, setting of resources daily income for buildings
+
+GENERAL:
+* Added configuring of heroes quantity per player allowed in game
 
 0.94 -> 0.95 (Mar 01 2014)
 GENERAL:

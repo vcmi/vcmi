@@ -87,7 +87,7 @@ std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, Ba
 }
 
 ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero,
-	bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg )
+	bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg, CRandomGenerator & rand )
 {
 	TDmgRange range = calculateDmgRange(attacker, defender, shooting, charge, lucky, unlucky, deathBlow, ballistaDoubleDmg);
 
@@ -97,7 +97,7 @@ ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender, c
 		int howManyToAv = std::min<ui32>(10, attacker->count);
 		for (int g=0; g<howManyToAv; ++g)
 		{
-			valuesToAverage[g] = range.first  +  rand() % (range.second - range.first + 1);
+			valuesToAverage[g] = rand.nextInt(range.first, range.second);
 		}
 
 		return std::accumulate(valuesToAverage, valuesToAverage + howManyToAv, 0) / howManyToAv;
@@ -721,40 +721,6 @@ const CGHeroInstance * BattleInfo::getHero( PlayerColor player ) const
 
 	logGlobal->errorStream() << "Player " << player << " is not in battle!";
 	return nullptr;
-}
-
-std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::vector<const CStack*> & affectedCreatures, PlayerColor casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const
-{
-	std::vector<ui32> ret;
-	for(auto & affectedCreature : affectedCreatures)
-	{
-		if(battleIsImmune(caster, sp, mode, (affectedCreature)->position) != ESpellCastProblem::OK) //FIXME: immune stacks should not display resisted animation
-		{
-			ret.push_back((affectedCreature)->ID);
-			continue;
-		}
-
-		//non-negative spells should always succeed, unless immune
-		if(!sp->isNegative())// && (*it)->owner == casterSideOwner)
-			continue;
-
-		/*
-		const CGHeroInstance * bonusHero; //hero we should take bonuses from
-		if((*it)->owner == casterSideOwner)
-			bonusHero = caster;
-		else
-			bonusHero = hero2;*/
-
-		int prob = (affectedCreature)->magicResistance(); //probability of resistance in %
-
-		if(prob > 100) prob = 100;
-
-		if(rand()%100 < prob) //immunity from resistance
-			ret.push_back((affectedCreature)->ID);
-
-	}
-
-	return ret;
 }
 
 PlayerColor BattleInfo::theOtherPlayer(PlayerColor player) const

@@ -1098,14 +1098,13 @@ struct HeroLevelUp : public Query//2000
 
 	const CGHeroInstance *hero;
 	PrimarySkill::PrimarySkill primskill;
-	ui8 level;
 	std::vector<SecondarySkill> skills;
 
 	HeroLevelUp(){type = 2000;};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & queryID & hero & primskill & level & skills;
+		h & queryID & hero & primskill & skills;
 	}
 };
 

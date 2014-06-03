@@ -1,0 +1,300 @@
+{
+	"stoneGaze" : {
+		"index" : 70,
+		"anim" : 70,
+		"sounds": {
+			"cast": "PARALYZE"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 62,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}				
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"poison" : {
+		"index" : 71,
+		"anim" : 67,
+		"sounds": {
+			"cast": "POISON"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"poison" : {
+						"val" : 30,
+						"type" : "POISON",
+						"valueType" : "INDEPENDENT_MAX",
+						"duration" : "N_TURNS"
+					},
+					"stackHealth" : {
+						"val" : -10,
+						"type" : "STACK_HEALTH",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}			
+			}
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"bind" : {
+		"index" : 72,
+		"anim" : 68,
+		"sounds": {
+			"cast": "BIND"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"effects" : {
+					"bindEffect" : {
+						"val" : 0,
+						"type" : "BIND_EFFECT",
+						"duration" : "PERMANENT",
+						"addInfo" : -1
+					}
+				}			
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"disease" : {
+		"index" : 73,
+		"anim" : 69,
+		"sounds": {
+			"cast": "DISEASE"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"attack" : {
+						"val" : -2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "N_TURNS"
+					},
+					"defence" : {
+						"val" : -2,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"duration" : "N_TURNS"
+					}
+				}		
+			}
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"paralyze" : {
+		"index" : 74,
+		"anim" : 70,
+		"sounds": {
+			"cast": "PARALYZE"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"notActive" : {
+						"val" : 0,
+						"type" : "NOT_ACTIVE",
+						"subtype" : 74,
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
+					},
+					"noRetaliation" : {
+						"val" : 0,
+						"type" : "NO_RETALIATION",
+						"duration" : "UNITL_BEING_ATTACKED"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"age" : {
+		"index" : 75,
+		"anim" : 71,
+		"sounds": {
+			"cast": "AGE"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"stackHealth" : {
+						"val" : -50,
+						"type" : "STACK_HEALTH",
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : "N_TURNS"
+					}
+				}
+			}
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"negative": true
+		}
+	},
+	"deathCloud" : {
+		"index" : 76,
+		"anim" : 72,
+		"sounds": {
+			"cast": "DEATHCLD"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0-1"
+			}
+		},
+		"immunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"thunderbolt" : {
+		"index" : 77,
+		"anim" : 38,
+		"sounds": {
+			"cast": "LIGHTBLT"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"offensive": true,
+			"negative": true
+		}
+	},
+	"dispelHelpful" : {
+		"index" : 78,
+		"anim" : 41,
+		"sounds": {
+			"cast": "DISPELL"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0"
+			}
+		},
+
+		"flags" : {
+			"negative": true
+		}
+	},
+	"deathStare" : {
+		"index" : 79,
+		"anim" : 80,
+		"sounds": {
+			"cast": "DEATHSTR"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0"
+			}
+		},
+		"absoluteImmunity" : {
+			"UNDEAD": true,
+			"NON_LIVING": true
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"acidBreath" : {
+		"index" : 80,
+		"anim" : 81,
+		"sounds": {
+			"cast": "ACID"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0",
+				"targetModifier":{"smart":true},
+				"effects" : {
+					"primarySkill" : {
+						"val" : -3,
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.attack",
+						"duration" : "PERMANENT",
+						"valueType" : "ADDITIVE_VALUE"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"indifferent": true
+		}
+	},
+	"acidBreathDamage" : {
+		"index" : 81,
+		"anim" : 81,
+		"sounds": {
+			"cast": "ACID"
+		},
+		"levels" : {
+			"base":{
+				"range" : "0"
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"indifferent": true
+		},
+		"immunity" : {
+			"DIRECT_DAMAGE_IMMUNITY": true
+		}
+	}
+}

@@ -309,6 +309,12 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 {
 	ModInfo & modInfo = modData[modName];
 	bool result = true;
+	
+	auto performValidate = [&,this](JsonNode & data, const std::string & name){
+		handler->beforeValidate(data);
+		if (validate)
+			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);	
+	};
 
 	// apply patches
 	if (!modInfo.patches.isNull())
@@ -327,8 +333,8 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			if (originalData.size() > index)
 			{
 				JsonUtils::merge(originalData[index], data);
-				if (validate)
-					result &= JsonUtils::validate(originalData[index], "vcmi:" + objectName, name);
+				
+				performValidate(originalData[index],name);
 				handler->loadObject(modName, name, originalData[index], index);
 
 				originalData[index].clear(); // do not use same data twice (same ID)
@@ -337,8 +343,7 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			}
 		}
 		// normal new object or one with index bigger that data size
-		if (validate)
-			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);
+		performValidate(data,name);
 		handler->loadObject(modName, name, data);
 	}
 	return result;
@@ -524,14 +529,14 @@ void CModHandler::loadConfigFromFile (std::string name)
 {
 	settings.data = JsonUtils::assembleFromFiles("config/" + name);
 	const JsonNode & hardcodedFeatures = settings.data["hardcodedFeatures"];
-
+	settings.MAX_HEROES_AVAILABLE_PER_PLAYER = hardcodedFeatures["MAX_HEROES_AVAILABLE_PER_PLAYER"].Float();
+	settings.MAX_HEROES_ON_MAP_PER_PLAYER = hardcodedFeatures["MAX_HEROES_ON_MAP_PER_PLAYER"].Float();
 	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Float();
 	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Float();
 	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Float();
 	settings.MAX_BUILDING_PER_TURN = hardcodedFeatures["MAX_BUILDING_PER_TURN"].Float();
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
 	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
-
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();

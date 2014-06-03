@@ -39,8 +39,10 @@
     <ClCompile Include="CCreatureSet.cpp" />
     <ClCompile Include="CGameState.cpp" />
     <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="CRandomGenerator.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
+    <ClCompile Include="CGameInfoCallback.cpp" />
     <ClCompile Include="NetPacksLib.cpp" />
     <ClCompile Include="VCMI_Lib.cpp" />
     <ClCompile Include="ResourceSet.cpp" />
@@ -141,9 +143,6 @@
     <ClCompile Include="registerTypes\TypesClientPacks2.cpp">
       <Filter>registerTypes</Filter>
     </ClCompile>
-    <ClCompile Include="registerTypes\TypesMapObjects.cpp">
-      <Filter>registerTypes</Filter>
-    </ClCompile>
     <ClCompile Include="registerTypes\TypesPregamePacks.cpp">
       <Filter>registerTypes</Filter>
     </ClCompile>
@@ -156,6 +155,8 @@
     <ClCompile Include="registerTypes\TypesClientPacks1.cpp">
       <Filter>registerTypes</Filter>
     </ClCompile>
+    <ClCompile Include="registerTypes\TypesMapObjects1.cpp" />
+    <ClCompile Include="registerTypes\TypesMapObjects2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -174,6 +175,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IGameCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CGameInfoCallback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Interprocess.h">
@@ -391,6 +395,9 @@
     </ClInclude>
     <ClInclude Include="registerTypes\RegisterTypes.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rmg\float3.h">
+      <Filter>rmg</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

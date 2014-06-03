@@ -338,7 +338,8 @@
 			"resurrects" :
 			{
 				"type" : "SPELLCASTER",
-				"subtype" : "spell.resurrection"
+				"subtype" : "spell.resurrection",
+				"val" : 3
 			},
 			"spellpoints" :
 			{

@@ -102,9 +102,6 @@ public:
 
 	mutable std::map<const CGObjectInstance*, ui8> animationPhase;
 
-	static const bool MARK_BLOCKED_POSITIONS;
-	static const bool MARK_VISITABLE_POSITIONS;
-
 	CMapHandler(); //c-tor
 	~CMapHandler(); //d-tor
 

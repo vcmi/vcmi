@@ -43,6 +43,7 @@
 #include "gui/CIntObjectClasses.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/CRandomGenerator.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine
@@ -607,7 +608,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		bordered = true;
 		//load random background
 		const JsonVector & bgNames = CGPreGameConfig::get().getConfig()["game-select"].Vector();
-		bg = new CPicture(bgNames[rand() % bgNames.size()].String(), 0, 0);
+		bg = new CPicture(RandomGeneratorUtil::nextItem(bgNames, CRandomGenerator::getDefault())->String(), 0, 0);
 		pos = bg->center();
 	}
 
@@ -4136,7 +4137,7 @@ std::string CLoadingScreen::getBackground()
 	}
 	else
 	{
-		return conf[ rand() % conf.size() ].String();
+		return RandomGeneratorUtil::nextItem(conf, CRandomGenerator::getDefault())->String();
 	}
 }
 

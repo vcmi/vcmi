@@ -19,7 +19,9 @@
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/Connection.h"
+#ifndef __ANDROID__
 #include "../lib/Interprocess.h"
+#endif
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
@@ -37,7 +39,9 @@
 #include "CMT.h"
 
 extern std::string NAME;
+#ifndef __ANDROID__
 namespace intpr = boost::interprocess;
+#endif
 
 /*
  * Client.cpp, part of VCMI engine
@@ -809,19 +813,25 @@ void CServerHandler::waitForServer()
 		startServer();
 
 	th.update();
+#ifndef __ANDROID__
 	intpr::scoped_lock<intpr::interprocess_mutex> slock(shared->sr->mutex);
 	while(!shared->sr->ready)
 	{
 		shared->sr->cond.wait(slock);
 	}
+#endif
 	if(verbose)
         logNetwork->infoStream() << "Waiting for server: " << th.getDiff();
 }
 
 CConnection * CServerHandler::connectToServer()
 {
+#ifndef __ANDROID__
 	if(!shared->sr->ready)
 		waitForServer();
+#else
+	waitForServer();
+#endif
 
 	th.update(); //put breakpoint here to attach to server before it does something stupid
 	CConnection *ret = justConnectToServer(settings["server"]["server"].String(), port);
@@ -839,11 +849,13 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 	port = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
 	verbose = true;
 
+#ifndef __ANDROID__
 	boost::interprocess::shared_memory_object::remove("vcmi_memory"); //if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
 	try
 	{
 		shared = new SharedMem();
     } HANDLE_EXCEPTIONC(logNetwork->errorStream() << "Cannot open interprocess memory: ";)
+#endif
 }
 
 CServerHandler::~CServerHandler()

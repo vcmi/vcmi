@@ -24,12 +24,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__)
 #endif
 
-#if !defined(__clang__) && defined(__GNUC__) && (GCC_VERSION < 460)
-#  error VCMI requires at least gcc-4.6 for successful compilation or clang-3.1. Please update your compiler
+#if !defined(__clang__) && defined(__GNUC__) && (GCC_VERSION < 470)
+#  error VCMI requires at least gcc-4.7.2 for successful compilation or clang-3.1. Please update your compiler
 #endif
 
 #if defined(__GNUC__) && (GCC_VERSION == 470 || GCC_VERSION == 471)
-#  error This GCC version has buggy std::array::at version and should not be used. Please update to 4.7.2 or use 4.6.x.
+#  error This GCC version has buggy std::array::at version and should not be used. Please update to 4.7.2 or later
 #endif
 
 /* ---------------------------------------------------------------------------- */
@@ -40,11 +40,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 //initialization lists - gcc or clang
 #if defined(__clang__) || defined(__GNUC__)
 #  define CPP11_USE_INITIALIZERS_LIST
-#endif
-
-//override keyword - not present in gcc-4.6
-#if !defined(_MSC_VER) && !defined(__clang__) && !(defined(__GNUC__) && (GCC_VERSION >= 470))
-#  define override
 #endif
 
 /* ---------------------------------------------------------------------------- */
@@ -114,7 +109,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/range/algorithm.hpp>
 #include <boost/thread.hpp>
 #include <boost/variant.hpp>
-
 #include <boost/math/special_functions/round.hpp>
 
 
@@ -551,19 +545,6 @@ namespace vstd
 		{
 			return vf(lhs) < vf(rhs);
 		});
-	}
-
-	static inline int retreiveRandNum(const std::function<int()> &randGen)
-	{
-		if (randGen)
-			return randGen();
-		else
-			return rand();
-	}
-
-	template <typename T> const T & pickRandomElementOf(const std::vector<T> &v, const std::function<int()> &randGen)
-	{
-		return v.at(retreiveRandNum(randGen) % v.size());
 	}
 
 	template<typename T>

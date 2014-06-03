@@ -735,6 +735,13 @@ void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source)
 	merge(dest, source);
 }
 
+void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
+{
+	JsonNode inheritedNode(base);		
+	merge(inheritedNode,descendant);
+	descendant.swap(inheritedNode);
+}
+
 JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files)
 {
 	bool isValid;

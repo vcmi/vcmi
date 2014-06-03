@@ -183,7 +183,7 @@ int howManyTilesWillBeDiscovered(const int3 &pos, int radious, CCallback * cbp);
 int howManyTilesWillBeDiscovered(int radious, int3 pos, crint3 dir);
 void getVisibleNeighbours(const std::vector<int3> &tiles, std::vector<int3> &out);
 
-bool canBeEmbarkmentPoint(const TerrainTile *t);
+bool canBeEmbarkmentPoint(const TerrainTile *t, bool fromWater);
 bool isBlockedBorderGate(int3 tileToHit);
 bool isReachable(const CGObjectInstance *obj);
 bool isCloser(const CGObjectInstance *lhs, const CGObjectInstance *rhs);

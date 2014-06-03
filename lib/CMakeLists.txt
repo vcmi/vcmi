@@ -7,6 +7,7 @@ include_directories(${Boost_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR}
 set(lib_SRCS
 		StdInc.cpp
 		IGameCallback.cpp
+		CGameInfoCallback.cpp
 		CGameState.cpp
 		CObjectHandler.cpp
 		Connection.cpp
@@ -70,6 +71,7 @@ set(lib_SRCS
 		CObstacleInstance.cpp
 		CObjectConstructor.cpp
 		CObjectWithReward.cpp
+		CRandomGenerator.cpp
 		CSpellHandler.cpp
 		CThreadHelper.cpp
 		CTownHandler.cpp
@@ -93,7 +95,6 @@ set(lib_HEADERS
 		CondSh.h
 		ConstTransitivePtr.h
 		CBonusTypeHandler.h
-		CRandomGenerator.h
 		CScriptingModule.h
 		CStopWatch.h
 		FunctionList.h

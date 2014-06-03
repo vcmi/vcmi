@@ -98,6 +98,12 @@ void CTerrainSelection::deselectRange(const MapRect & rect)
 	});
 }
 
+void CTerrainSelection::setSelection(std::vector<int3> & vec)
+{
+	for (auto pos : vec)
+		this->select(pos);
+}
+
 void CTerrainSelection::selectAll()
 {
 	selectRange(MapRect(int3(0, 0, 0), getMap()->width, getMap()->height));
