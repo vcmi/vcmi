@@ -110,12 +110,10 @@ class AObjectTypeHandler
 
 	std::vector<ObjectTemplate> templates;
 protected:
-	void setType(si32 type, si32 subtype);
 
 	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
 public:
-	/// returns true if type is not configurable and new objects can be created without valid config
-	virtual bool confFree();
+	void setType(si32 type, si32 subtype);
 
 	/// loads templates from Json structure using fields "base" and "templates"
 	virtual void init(const JsonNode & input);
@@ -193,12 +191,18 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 		}
 	};
 
+	typedef std::multimap<std::pair<si32, si32>, ObjectTemplate> TTemplatesContainer;
+
 	/// list of object handlers, each of them handles only one type
-	std::vector<ObjectContainter * > objects;
+	std::map<si32, ObjectContainter * > objects;
 
 	/// map that is filled during contruction with all known handlers. Not serializeable
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
 
+	/// container with H3 templates, used only during loading
+	TTemplatesContainer legacyTemplates;
+
+	void loadObjectEntry(const JsonNode & entry, ObjectContainter * obj);
 	ObjectContainter * loadFromJson(const JsonNode & json);
 public:
 	CObjectClassesHandler();
@@ -208,7 +212,9 @@ public:
 	virtual void loadObject(std::string scope, std::string name, const JsonNode & data);
 	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index);
 
-	virtual void afterLoadFinalization(){};
+	void createObject(std::string name, JsonNode config, si32 ID, boost::optional<si32> subID = boost::optional<si32>());
+
+	virtual void afterLoadFinalization();
 
 	virtual std::vector<bool> getDefaultAllowed() const;
 

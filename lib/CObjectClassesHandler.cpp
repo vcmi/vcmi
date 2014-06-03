@@ -333,10 +333,11 @@ bool ObjectTemplate::canBePlacedAt(ETerrainType terrain) const
 
 CObjectClassesHandler::CObjectClassesHandler()
 {
-	// list of all known handlers, hardcoded for now since the only way to add new objects is via C++ code
-	handlerConstructors["configurable"] = std::make_shared<CObjectWithRewardConstructor>;
-
+#define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>;
 #define SET_HANDLER(STRING, TYPENAME) handlerConstructors[STRING] = std::make_shared<CDefaultObjectTypeHandler<TYPENAME> >
+
+	// list of all known handlers, hardcoded for now since the only way to add new objects is via C++ code
+	SET_HANDLER_CLASS("configurable", CObjectWithRewardConstructor);
 
 	SET_HANDLER("", CGObjectInstance);
 	SET_HANDLER("generic", CGObjectInstance);
@@ -385,39 +386,34 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("oncePerWeek", CGVisitableOPW);
 	SET_HANDLER("witch", CGWitchHut);
 
+#undef SET_HANDLER_CLASS
 #undef SET_HANDLER
 }
 
-static std::vector<JsonNode> readTextFile(std::string path)
+template<typename Container>
+void readTextFile(Container objects, std::string path)
 {
-	//TODO
+	CLegacyConfigParser parser(path);
+	size_t totalNumber = parser.readNumber(); // first line contains number of objects to read and nothing else
+	parser.endLine();
+
+	for (size_t i=0; i<totalNumber; i++)
+	{
+		ObjectTemplate templ;
+		templ.readTxt(parser);
+		parser.endLine();
+		typename Container::key_type key(templ.id.num, templ.subid);
+		objects.insert(std::make_pair(key, templ));
+	}
 }
 
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 {
-	objects.resize(dataSize);
+	readTextFile(legacyTemplates, "Data/Objects.txt");
+	readTextFile(legacyTemplates, "Data/Heroes.txt");
 
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
-
-	auto parseFile = [&](std::string filename)
-	{
-		auto entries = readTextFile(filename);
-		for (JsonNode & entry : entries)
-		{
-			si32 id = entry["basebase"].Float();
-			si32 subid = entry["base"].Float();
-
-			entry.Struct().erase("basebase");
-			entry.Struct().erase("base");
-
-			if (ret[id].Vector().size() <= subid)
-				ret[id].Vector().resize(subid+1);
-			ret[id]["legacyTypes"].Vector()[subid][entry["animation"].String()].swap(entry);
-		}
-	};
-
-	//parseFile("Data/Objects.txt");
-	//parseFile("Data/Heroes.txt");
+	assert(dataSize == 256);
 
 	CLegacyConfigParser parser("Data/ObjNames.txt");
 	for (size_t i=0; i<256; i++)
@@ -428,16 +424,48 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 	return ret;
 }
 
+/// selects preferred ID (or subID) for new object
+template<typename Map>
+si32 selectNextID(const JsonNode & fixedID, const Map & map, si32 defaultID)
+{
+	if (!fixedID.isNull() && fixedID.Float() < defaultID)
+		return fixedID.Float(); // H3M object with fixed ID
+
+	if (map.empty())
+		return defaultID; // no objects loaded, keep gap for H3M objects
+	if (map.rbegin()->first > defaultID)
+		return map.rbegin()->first + 1; // some modded objects loaded, return next available
+
+	return defaultID; // some H3M objects loaded, first modded found
+}
+
+void CObjectClassesHandler::loadObjectEntry(const JsonNode & entry, ObjectContainter * obj)
+{
+	auto handler = handlerConstructors.at(obj->handlerName)();
+	handler->init(entry);
+
+	si32 id = selectNextID(entry["index"], obj->objects, 256);
+	handler->setType(obj->id, id);
+
+	if (handler->getTemplates().empty())
+	{
+		auto range = legacyTemplates.equal_range(std::make_pair(obj->id, si32(entry["index"].Float())));
+		for (auto & templ : boost::make_iterator_range(range.first, range.second))
+			handler->addTemplate(templ.second);
+	}
+	obj->objects[id] = handler;
+}
+
 CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const JsonNode & json)
 {
 	auto obj = new ObjectContainter();
 	obj->name = json["name"].String();
 	obj->handlerName = json["handler"].String();
-	obj->base = json["base"];
+	obj->base = json["base"]; // FIXME: when this data will be actually merged?
+	obj->id = selectNextID(json["index"], objects, 256);
 	for (auto entry : json["types"].Struct())
 	{
-		auto handler = handlerConstructors.at(obj->handlerName)();
-		handler->init(entry.second);
+		loadObjectEntry(entry.second, obj);
 	}
 	return obj;
 }
@@ -445,8 +473,7 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	auto object = loadFromJson(data);
-	object->id = objects.size();
-	objects.push_back(object);
+	objects[object->id] = object;
 
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
@@ -454,12 +481,23 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(data);
-	object->id = index;
 
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before
 	objects[index] = object;
 
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
+}
+
+void CObjectClassesHandler::createObject(std::string name, JsonNode config, si32 ID, boost::optional<si32> subID)
+{
+	assert(objects.count(ID));
+	if (subID)
+	{
+		assert(objects.at(ID)->objects.count(subID.get()) == 0);
+		assert(config["index"].isNull());
+		config["index"].Float() = subID.get();
+	}
+	loadObjectEntry(config, objects[ID]);
 }
 
 std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
@@ -469,13 +507,19 @@ std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype) const
 {
-	if (objects.size() > type)
+	if (objects.count(type))
 	{
 		if (objects.at(type)->objects.count(subtype))
 			return objects.at(type)->objects.at(subtype);
 	}
+	logGlobal->errorStream() << "Failed to find object of type " << type << ":" << subtype;
 	assert(0); // FIXME: throw error?
 	return nullptr;
+}
+
+void CObjectClassesHandler::afterLoadFinalization()
+{
+	legacyTemplates.clear(); // whatever left there is no longer needed
 }
 
 std::string CObjectClassesHandler::getObjectName(si32 type) const

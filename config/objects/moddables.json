@@ -5,7 +5,7 @@
 	
 	// subtype: artifact ID
 	"artifact" : {
-		"id" :5, 
+		"index" :5, 
 		"handler": "artifact",
 		"base" : {
 			"base" : {
@@ -17,7 +17,7 @@
 	
 	// subtype: hero CLASS (not hero).
 	"hero" : {
-		"id" :34,
+		"index" :34,
 		"handler": "hero",
 		"base" : {
 			"base" : {
@@ -29,8 +29,8 @@
 	
 	// subtype: creatures
 	"monster" : {
-		"id" :54,
-		"handler": "monster"
+		"index" :54,
+		"handler": "monster",
 		"base" : {
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
@@ -41,7 +41,7 @@
 
 	// subtype: resource ID
 	"resource" : {
-		"id" :79,
+		"index" :79,
 		"handler": "resource",
 		"base" : {
 			"base" : {
@@ -53,7 +53,7 @@
 	
 	// subtype: faction
 	"town" : {
-		"id" :98,
+		"index" :98,
 		"handler": "town",
 		"base" : {
 			"base" : {
@@ -72,7 +72,7 @@
 
 	// subtype: one of 3 possible boats
 	"boat" : {
-		"id" :8,
+		"index" :8,
 		"handler": "boat",
 		"base" : {
 			"base" : {
@@ -83,41 +83,41 @@
 	},
 
 	// subtype: color of guard
-	"borderGuard"					: { "id" :9,  "handler": "borderGuard" },
-	"borderGate"					: { "id" :212, "handler": "borderGate" },
-	"keymasterTent"					: { "id" :10, "handler": "keymaster" },
+	"borderGuard"					: { "index" :9,  "handler": "borderGuard" },
+	"borderGate"					: { "index" :212, "handler": "borderGate" },
+	"keymasterTent"					: { "index" :10, "handler": "keymaster" },
 
 	// subtype: different content
-	"creatureBank"					: { "id" :16, "handler": "bank" },
+	"creatureBank"					: { "index" :16, "handler": "bank" },
 
 	// subtype: different revealed areas
-	"cartographer"					: { "id" :13, "handler": "cartographer" },
+	"cartographer"					: { "index" :13, "handler": "cartographer" },
 
 	// subtype: 0 = normal, 1 = anti-magic
-	"garrisonHorizontal"			: { "id" :33, "handler": "garrison" },
-	"garrisonVertical"				: { "id" :219, "handler": "garrison" },
+	"garrisonHorizontal"			: { "index" :33, "handler": "garrison" },
+	"garrisonVertical"				: { "index" :219, "handler": "garrison" },
 
 	// Subtype: paired monoliths
-	"monolithOneWayEntrance"		: { "id" :43, "handler": "teleport" },
-	"monolithOneWayExit"			: { "id" :44, "handler": "teleport" },
-	"monolithTwoWay"				: { "id" :45, "handler": "teleport" },
+	"monolithOneWayEntrance"		: { "index" :43, "handler": "teleport" },
+	"monolithOneWayExit"			: { "index" :44, "handler": "teleport" },
+	"monolithTwoWay"				: { "index" :45, "handler": "teleport" },
 	
 	// subtype: resource ID
-	"mine"							: { "id" :53, "handler": "mine" },
-	"abandonedMine"					: { "id" :220, "handler": "mine" },
+	"mine"							: { "index" :53, "handler": "mine" },
+	"abandonedMine"					: { "index" :220, "handler": "mine" },
 
 	// subtype: different appearance. That's all?
-	"seerHut"						: { "id" :83, "handler": "seerHut" },
+	"seerHut"						: { "index" :83, "handler": "seerHut" },
 
 	// subtype: level
-	"randomDwellingLvl"				: { "id" :217, "handler": "dwelling" },
+	"randomDwellingLvl"				: { "index" :217, "handler": "dwelling" },
 	
 	// subtype: faction ID
-	"randomDwellingFaction"			: { "id" :218, "handler": "dwelling" },
+	"randomDwellingFaction"			: { "index" :218, "handler": "dwelling" },
 
 	// subtype: not well defined, describes various dwellings that can be placed as random
 	"creatureGeneratorCommon" : {
-		"id" :17,
+		"index" :17,
 		"handler": "dwelling",
 		"base" : {
 			"base" : {
@@ -128,9 +128,9 @@
 	},
 	
 	// subtype: unique special dwellings - golem factory, elemental conflux
-	"creatureGeneratorSpecial"		: { "id" :20, "handler": "dwelling" },
+	"creatureGeneratorSpecial"		: { "index" :20, "handler": "dwelling" },
 	
 	// don't have subtypes (at least now), but closely connected to this objects
-	"spellScroll"					: { "id" :93, "handler": "artifact" },
-	"heroPlaceholder"				: { "id" :214, "handler": "heroPlaceholder" }
+	"spellScroll"					: { "index" :93, "handler": "artifact" },
+	"heroPlaceholder"				: { "index" :214, "handler": "heroPlaceholder" }
 }

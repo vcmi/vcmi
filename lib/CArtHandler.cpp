@@ -658,6 +658,7 @@ void CArtHandler::afterLoadFinalization()
 
 			// add new template.
 			// Necessary for objects added via mods that don't have any templates in H3
+			VLC->objtypeh->createObject(art->Name(), JsonNode(), Obj::ARTIFACT, art->id.num);
 			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->id)->addTemplate(base);
 		}
 	}
