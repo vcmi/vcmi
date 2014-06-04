@@ -1123,6 +1123,10 @@ void CCreatureHandler::afterLoadFinalization()
 			templ["animation"].String() = crea->advMapDef;
 			VLC->objtypeh->getHandlerFor(Obj::MONSTER, crea->idNumber)->addTemplate(templ);
 		}
+
+		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
+		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, crea->idNumber.num)->getTemplates().empty())
+			VLC->objtypeh->eraseObject(Obj::MONSTER, crea->idNumber.num);
 	}
 }
 

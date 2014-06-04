@@ -214,6 +214,7 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
 	void createObject(std::string name, JsonNode config, si32 ID, boost::optional<si32> subID = boost::optional<si32>());
+	void eraseObject(si32 ID, si32 subID);
 
 	void beforeValidate(JsonNode & object) override;
 	void afterLoadFinalization() override;

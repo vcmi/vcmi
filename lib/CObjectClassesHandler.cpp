@@ -391,7 +391,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 }
 
 template<typename Container>
-void readTextFile(Container objects, std::string path)
+void readTextFile(Container & objects, std::string path)
 {
 	CLegacyConfigParser parser(path);
 	size_t totalNumber = parser.readNumber(); // first line contains number of objects to read and nothing else
@@ -449,10 +449,14 @@ void CObjectClassesHandler::loadObjectEntry(const JsonNode & entry, ObjectContai
 
 	if (handler->getTemplates().empty())
 	{
-		auto range = legacyTemplates.equal_range(std::make_pair(obj->id, si32(entry["index"].Float())));
+		auto range = legacyTemplates.equal_range(std::make_pair(obj->id, id));
 		for (auto & templ : boost::make_iterator_range(range.first, range.second))
+		{
 			handler->addTemplate(templ.second);
+		}
+		legacyTemplates.erase(range.first, range.second);
 	}
+	
 	obj->objects[id] = handler;
 }
 
@@ -500,6 +504,13 @@ void CObjectClassesHandler::createObject(std::string name, JsonNode config, si32
 	loadObjectEntry(config, objects[ID]);
 }
 
+void CObjectClassesHandler::eraseObject(si32 ID, si32 subID)
+{
+	assert(objects.count(ID));
+	assert(objects.at(ID)->objects.count(subID));
+	objects.at(ID)->objects.erase(subID);
+}
+
 std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
 {
 	return std::vector<bool>(); //TODO?
@@ -532,6 +543,14 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 void CObjectClassesHandler::afterLoadFinalization()
 {
 	legacyTemplates.clear(); // whatever left there is no longer needed
+	for (auto entry : objects)
+	{
+		for (auto obj : entry.second->objects)
+		{
+			if (obj.second->getTemplates().empty())
+				logGlobal->warnStream() << "No templates found for " << entry.first << ":" << obj.first;
+		}
+	}
 }
 
 std::string CObjectClassesHandler::getObjectName(si32 type) const
