@@ -403,15 +403,37 @@ void CRmgTemplateZone::addRequiredObject(CGObjectInstance * obj, si32 strength)
 
 void CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 {
+	//precalculate actual (randomized) monster strength based on this post
+	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
+
+	int zoneMonsterStrength = 0; //TODO: range -1..1 based on template settings
+	int mapMonsterStrength = gen->mapGenOptions->getMonsterStrength();
+	int monsterStrength = zoneMonsterStrength + mapMonsterStrength - 1; //array index from 0 to 4
+	static const int value1[] = {2500, 1500, 1000, 500, 0};
+	static const int value2[] = {7500, 7500, 7500, 5000, 5000};
+	static const float multiplier1[] = {0.5, 0.75, 1.0, 1.5, 1.5};
+	static const float multiplier2[] = {0.5, 0.75, 1.0, 1.0, 1.5};
+
+	int strength1 = std::max(0.f, (strength - value1[monsterStrength]) * multiplier1[monsterStrength]); 
+	int strength2 = std::max(0.f, (strength - value2[monsterStrength]) * multiplier2[monsterStrength]); 
+
+	strength = strength1 + strength2;
+	if (strength < 2000)
+		return; //no guard at all
+
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
 	while (true)
 	{
 		creId = VLC->creh->pickRandomMonster(gen->rand);
 		auto cre = VLC->creh->creatures[creId];
-		amount = std::ceil((float)strength / cre->fightValue);
-		if (strength >= cre->fightValue && amount >= cre->ammMin && amount <= 100) //at leats one full monster. size between minimum size of given stack and 100
+		if ((cre->AIValue * (cre->ammMin + cre->ammMax) / 2 < strength) && (strength < cre->AIValue * 100)) //at leats one full monster. size between minimum size of given stack and 100
+		{
+			amount = strength / cre->AIValue;
+			if (amount >= 4)
+				amount *= gen->rand.nextDouble(0.75, 1.25);
 			break;
+		}
 	}
 
 	auto guard = new CGCreature();
@@ -422,6 +444,119 @@ void CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 	guard->putStack(SlotID(0), hlp);
 
 	placeObject(gen, guard, pos);
+}
+
+bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
+{
+	//TODO: read treasure values from template
+	const int maxValue = 5000;
+	const int minValue = 1500;
+
+	static const Res::ERes woodOre[] = {Res::ERes::WOOD, Res::ERes::ORE};
+	static const Res::ERes preciousRes[] = {Res::ERes::CRYSTAL, Res::ERes::GEMS, Res::ERes::MERCURY, Res::ERes::SULFUR};
+	static auto res_gen = gen->rand.getIntRange(Res::ERes::WOOD, Res::ERes::GOLD);
+
+	int currentValue = 0;
+	CGObjectInstance * object = nullptr;
+	while (currentValue < minValue)
+	{
+		int remaining = maxValue - currentValue;
+		int nextValue = gen->rand.nextInt (0.25f * remaining, remaining);
+
+		if (nextValue >= 20000)
+		{
+			auto obj = new CGArtifact();
+			obj->ID = Obj::RANDOM_RELIC_ART;
+			obj->subID = 0;
+			auto a = new CArtifactInstance(); //TODO: probably some refactoring could help here
+			gen->map->addNewArtifactInstance(a);
+			obj->storedArtifact = a;
+			object = obj;
+			currentValue += 20000;
+		}
+		else if (nextValue >= 10000)
+		{
+			auto obj = new CGArtifact();
+			obj->ID = Obj::RANDOM_MAJOR_ART;
+			obj->subID = 0;
+			auto a = new CArtifactInstance();
+			gen->map->addNewArtifactInstance(a);
+			obj->storedArtifact = a;
+			object = obj;
+			currentValue += 10000;
+		}
+		else if (nextValue >= 5000)
+		{
+			auto obj = new CGArtifact();
+			obj->ID = Obj::RANDOM_MINOR_ART;
+			obj->subID = 0;
+			auto a = new CArtifactInstance();
+			gen->map->addNewArtifactInstance(a);
+			obj->storedArtifact = a;
+			object = obj;
+			currentValue += 5000;
+		}
+		else if (nextValue >= 2000)
+		{
+			auto obj = new CGArtifact();
+			obj->ID = Obj::RANDOM_TREASURE_ART;
+			obj->subID = 0;
+			auto a = new CArtifactInstance();
+			gen->map->addNewArtifactInstance(a);
+			obj->storedArtifact = a;
+			object = obj;
+			currentValue += 2000;
+		}
+		else if (nextValue >= 1500)
+		{
+			auto obj = new CGPickable();
+			obj->ID = Obj::TREASURE_CHEST;
+			obj->subID = 0;
+			object = obj;
+			currentValue += 1500;
+		}
+		else if (nextValue >= 1400)
+		{
+			auto obj = new CGResource();
+			auto restype = static_cast<Res::ERes>(preciousRes[gen->rand.nextInt (0,3)]); //TODO: how about dedicated function to pick random element of array?
+			obj->ID = Obj::RESOURCE;
+			obj->subID = static_cast<si32>(restype);
+			obj->amount = 0;
+			object = obj;
+			currentValue += 1400;
+		}
+		else if (nextValue >= 1000)
+		{
+			auto obj = new CGResource();
+			auto restype = static_cast<Res::ERes>(woodOre[gen->rand.nextInt (0,1)]);
+			obj->ID = Obj::RESOURCE;
+			obj->subID = static_cast<si32>(restype);
+			obj->amount = 0;
+			object = obj;
+			currentValue += 1000;
+		}
+		else if (nextValue >= 750)
+		{
+			auto obj = new CGResource();
+			obj->ID = Obj::RESOURCE;
+			obj->subID = static_cast<si32>(Res::ERes::GOLD);
+			obj->amount = 0;
+			object = obj;
+			currentValue += 750;
+		}
+		else //no possible treasure left (should not happen)
+			break;
+
+		//TODO: generate actual zone and not just all objects on a pile
+		placeObject(gen, object, pos);
+	}
+	if (object)
+	{
+		guardObject (gen, object, currentValue);
+		return true;
+	}
+	else //we did not place eveyrthing successfully
+		return false;
 }
 
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
@@ -515,15 +650,14 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			guardObject (gen, obj.first, obj.second);
 		}
 	}
-	std::vector<CGObjectInstance*> guarded_objects;
-	static auto res_gen = gen->rand.getIntRange(Res::ERes::WOOD, Res::ERes::GOLD);
 	const double res_mindist = 5;
+
+	//TODO: just placeholder to chekc for possible locations
+	auto obj = new CGResource();
+	obj->ID = Obj::RESOURCE;
+	obj->subID = static_cast<si32>(Res::ERes::GOLD);
+	obj->amount = 0;
 	do {
-		auto obj = new CGResource();
-		auto restype = static_cast<Res::ERes>(res_gen());
-		obj->ID = Obj::RESOURCE;
-		obj->subID = static_cast<si32>(restype);
-		obj->amount = 0;
 		
 		int3 pos;
 		if ( ! findPlaceForObject(gen, obj, res_mindist, pos))		
@@ -531,21 +665,9 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			delete obj;
 			break;
 		}
-		placeObject(gen, obj, pos);
+		createTreasurePile (gen, pos);
 
-		if ((restype != Res::ERes::WOOD) && (restype != Res::ERes::ORE))
-		{
-			guarded_objects.push_back(obj);
-		}
 	} while(true);
-
-	for(const auto &obj : guarded_objects)
-	{
-		if ( ! guardObject(gen, obj, 1000))
-		{
-			//TODO, DEL obj from map
-		}
-	}
 
 	auto sel = gen->editManager->getTerrainSelection();
 	sel.clearSelection();

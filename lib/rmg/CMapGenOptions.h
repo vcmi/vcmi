@@ -23,8 +23,7 @@ namespace EWaterContent
 		RANDOM = -1,
 		NONE,
 		NORMAL,
-		ISLANDS,
-		LAST_ITEM = ISLANDS
+		ISLANDS
 	};
 }
 
@@ -32,11 +31,13 @@ namespace EMonsterStrength
 {
 	enum EMonsterStrength
 	{
-		RANDOM = -1,
-		WEAK,
-		NORMAL,
-		STRONG,
-		LAST_ITEM = STRONG
+		RANDOM = -2,
+		ZONE_WEAK = -1,
+		ZONE_NORMAL = 0,
+		ZONE_STRONG = 1,
+		GLOBAL_WEAK = 2,
+		GLOBAL_NORMAL = 3,
+		GLOBAL_STRONG = 4
 	};
 }
 

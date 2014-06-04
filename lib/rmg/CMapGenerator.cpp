@@ -258,6 +258,7 @@ void CMapGenerator::createConnections()
 			});
 			if (guardPos.valid())
 			{
+				setOccupied (guardPos, ETileType::FREE); //just in case monster is too weak to spawn
 				zoneA->addMonster (this, guardPos, connection.getGuardStrength()); //TODO: set value according to template
 				//zones can make paths only in their own area
 				zoneA->crunchPath (this, guardPos, zoneA->getPos(), zoneA->getId()); //make connection towards our zone center
