@@ -104,13 +104,13 @@
 			{
 				"type" : "playerStart", "size" : 3, "owner" : 2,
 				"playerTowns" : { "castles" : 1 },
-				"treaureLikeZone" : 1
+				"treasureLikeZone" : 1
 			},
 			"3" :
 			{
 				"type" : "playerStart", "size" : 3, "owner" : 3,
 				"playerTowns" : { "castles" : 1 },
-				"treaureLikeZone" : 1
+				"treasureLikeZone" : 1
 			},
 			"4" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "1", "treasure" : {"min" : 3000, "max": 10000} },
 			"5" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "1", "treasureLikeZone" : 4},

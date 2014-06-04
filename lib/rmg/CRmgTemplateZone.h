@@ -128,7 +128,7 @@ public:
 	std::set<int3> getTileInfo () const;
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
-	void addMonster(CMapGenerator* gen, int3 &pos, si32 strength);
+	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength);
 	bool createTreasurePile (CMapGenerator* gen, int3 &pos);
 	bool fill(CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);

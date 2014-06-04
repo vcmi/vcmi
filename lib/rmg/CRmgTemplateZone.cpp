@@ -412,7 +412,7 @@ void CRmgTemplateZone::addRequiredObject(CGObjectInstance * obj, si32 strength)
 	requiredObjects.push_back(std::make_pair(obj, strength));
 }
 
-void CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
+bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 {
 	//precalculate actual (randomized) monster strength based on this post
 	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
@@ -430,7 +430,7 @@ void CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 
 	strength = strength1 + strength2;
 	if (strength < 2000)
-		return; //no guard at all
+		return false; //no guard at all
 
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
@@ -455,6 +455,7 @@ void CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 	guard->putStack(SlotID(0), hlp);
 
 	placeObject(gen, guard, pos);
+	return true;
 }
 
 bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
@@ -903,7 +904,6 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 		if (gen->isPossible(pos))
 		{
 			tiles.push_back(pos);
-			gen->setOccupied(pos, ETileType::BLOCKED);
 		};
 	});
 	if ( ! tiles.size())
@@ -912,9 +912,16 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 		return false;
 	}
 	auto guard_tile = *RandomGeneratorUtil::nextItem(tiles, gen->rand);
-	gen->setOccupied (guard_tile, ETileType::USED);
 
-	addMonster (gen, guard_tile, str);
+	if (addMonster (gen, guard_tile, str)) //do not lace obstacles aroudn unguarded object
+	{
+		for (auto pos : tiles)
+			gen->setOccupied(pos, ETileType::BLOCKED);
+
+		gen->setOccupied (guard_tile, ETileType::USED);
+	}
+	else
+		gen->setOccupied (guard_tile, ETileType::FREE);
 
 	return true;
 }
