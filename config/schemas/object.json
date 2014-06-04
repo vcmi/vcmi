@@ -19,7 +19,7 @@
 		},
 
 		"base": {
-			"$ref" : "vcmi:objectType"
+			"type" : "object"
 		},
 		"types": {
 			"type":"object",

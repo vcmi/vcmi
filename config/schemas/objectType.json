@@ -15,7 +15,7 @@
 		},
 
 		"base": {
-			"$ref" : "vcmi:objectTemplate"
+			"type" : "object"
 		},
 		"types": {
 			"type":"object",

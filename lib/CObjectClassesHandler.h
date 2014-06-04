@@ -118,7 +118,8 @@ public:
 	/// loads templates from Json structure using fields "base" and "templates"
 	virtual void init(const JsonNode & input);
 
-	void addTemplate(const ObjectTemplate & templ);
+	void addTemplate(ObjectTemplate templ);
+	void addTemplate(JsonNode config);
 
 	/// returns all templates, without any filters
 	std::vector<ObjectTemplate> getTemplates() const;
@@ -207,16 +208,17 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 public:
 	CObjectClassesHandler();
 
-	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize);
+	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data);
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index);
+	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
 	void createObject(std::string name, JsonNode config, si32 ID, boost::optional<si32> subID = boost::optional<si32>());
 
-	virtual void afterLoadFinalization();
+	void beforeValidate(JsonNode & object) override;
+	void afterLoadFinalization() override;
 
-	virtual std::vector<bool> getDefaultAllowed() const;
+	std::vector<bool> getDefaultAllowed() const override;
 
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
 	TObjectTypeHandler getHandlerFor(si32 type, si32 subtype) const;

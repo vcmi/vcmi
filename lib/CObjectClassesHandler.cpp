@@ -444,7 +444,7 @@ void CObjectClassesHandler::loadObjectEntry(const JsonNode & entry, ObjectContai
 	auto handler = handlerConstructors.at(obj->handlerName)();
 	handler->init(entry);
 
-	si32 id = selectNextID(entry["index"], obj->objects, 256);
+	si32 id = selectNextID(entry["index"], obj->objects, 1000);
 	handler->setType(obj->id, id);
 
 	if (handler->getTemplates().empty())
@@ -517,6 +517,18 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 	return nullptr;
 }
 
+void CObjectClassesHandler::beforeValidate(JsonNode & object)
+{
+	for (auto & entry : object["types"].Struct())
+	{
+		JsonUtils::inherit(entry.second, object["base"]);
+		for (auto & templ : entry.second["templates"].Struct())
+		{
+			JsonUtils::inherit(templ.second, entry.second["base"]);
+		}
+	}
+}
+
 void CObjectClassesHandler::afterLoadFinalization()
 {
 	legacyTemplates.clear(); // whatever left there is no longer needed
@@ -555,9 +567,22 @@ bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, const ObjectTemp
 	return true; // by default - accept all.
 }
 
-void AObjectTypeHandler::addTemplate(const ObjectTemplate & templ)
+void AObjectTypeHandler::addTemplate(ObjectTemplate templ)
 {
+	templ.id = Obj(type);
+	templ.subid = subtype;
 	templates.push_back(templ);
+}
+
+void AObjectTypeHandler::addTemplate(JsonNode config)
+{
+	JsonUtils::inherit(config, base);
+	ObjectTemplate tmpl;
+	tmpl.id = Obj(type);
+	tmpl.subid = subtype;
+	tmpl.stringID = ""; // TODO?
+	tmpl.readJson(config);
+	addTemplate(tmpl);
 }
 
 std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates() const

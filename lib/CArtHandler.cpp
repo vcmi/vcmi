@@ -647,19 +647,18 @@ void CArtHandler::afterLoadFinalization()
 		}
 	}
 
-	//Note: "10" is used here because H3 text files don't define any template for art with ID 0
-	ObjectTemplate base = VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, 10)->getTemplates().front();
 	for (CArtifact * art : artifacts)
 	{
+		VLC->objtypeh->createObject(art->Name(), JsonNode(), Obj::ARTIFACT, art->id.num);
+
 		if (!art->advMapDef.empty())
 		{
-			base.animationFile = art->advMapDef;
-			base.subid = art->id;
+			JsonNode templ;
+			templ["animation"].String() = art->advMapDef;
 
 			// add new template.
 			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->objtypeh->createObject(art->Name(), JsonNode(), Obj::ARTIFACT, art->id.num);
-			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->id)->addTemplate(base);
+			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->id)->addTemplate(templ);
 		}
 	}
 }

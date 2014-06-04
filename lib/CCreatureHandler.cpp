@@ -1114,17 +1114,14 @@ void CCreatureHandler::buildBonusTreeForTiers()
 
 void CCreatureHandler::afterLoadFinalization()
 {
-	ObjectTemplate base = VLC->objtypeh->getHandlerFor(Obj::MONSTER, 0)->getTemplates().front();
 	for (CCreature * crea : creatures)
 	{
+		VLC->objtypeh->createObject(crea->nameSing, JsonNode(), Obj::MONSTER, crea->idNumber.num);
 		if (!crea->advMapDef.empty())
 		{
-			base.animationFile = crea->advMapDef;
-			base.subid = crea->idNumber;
-
-			// replace existing (if any) and add new template.
-			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->objtypeh->getHandlerFor(Obj::MONSTER, crea->idNumber)->addTemplate(base);
+			JsonNode templ;
+			templ["animation"].String() = crea->advMapDef;
+			VLC->objtypeh->getHandlerFor(Obj::MONSTER, crea->idNumber)->addTemplate(templ);
 		}
 	}
 }

@@ -759,31 +759,31 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 void CTownHandler::afterLoadFinalization()
 {
 	initializeRequirements();
-	ObjectTemplate base = VLC->objtypeh->getHandlerFor(Obj::TOWN, 0)->getTemplates().front();
 	for (CFaction * fact : factions)
 	{
 		if (fact->town)
 		{
-			base.animationFile = fact->town->clientInfo.advMapCastle;
-			base.subid = fact->index;
-
-			// replace existing (if any) and add new template.
-			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->objtypeh->getHandlerFor(Obj::TOWN, fact->index)->addTemplate(base);
+			VLC->objtypeh->createObject(fact->identifier, JsonNode(), Obj::TOWN, fact->index);
+			if (!fact->town->clientInfo.advMapCastle.empty())
+			{
+				JsonNode templ;
+				templ["animation"].String() = fact->town->clientInfo.advMapCastle;
+				VLC->objtypeh->getHandlerFor(Obj::TOWN, fact->index)->addTemplate(templ);
+			}
 
 			assert(fact->town->dwellings.size() == fact->town->dwellingNames.size());
 			for (size_t i=0; i<fact->town->dwellings.size(); i++)
 			{
-				ObjectTemplate base = VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, 0)->getTemplates().front();
-
 				//both unupgraded and upgraded get same dwelling
-				 for (auto cre : fact->town->creatures[i])
-				 {
-					base.subid = 80 + cre;
-					base.animationFile = fact->town->dwellings[i];
+				for (auto cre : fact->town->creatures[i])
+				{
 					if (VLC->objh->cregens.count(cre) == 0)
 					{
-						VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, 80 + cre)->addTemplate(base);
+						JsonNode templ;
+						templ["animation"].String() = fact->town->dwellings[i];
+
+						VLC->objtypeh->createObject("", JsonNode(), Obj::CREATURE_GENERATOR1, 80 + cre);
+						VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, 80 + cre)->addTemplate(templ);
 						VLC->objh->cregens[80 + cre] = cre; //map of dwelling -> creature id
 					}
 				 }

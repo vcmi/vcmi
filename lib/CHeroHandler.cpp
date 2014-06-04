@@ -231,15 +231,15 @@ void CHeroClassHandler::afterLoadFinalization()
 		}
 	}
 
-	ObjectTemplate base = VLC->objtypeh->getHandlerFor(Obj::HERO, 0)->getTemplates().front();
 	for (CHeroClass * hc : heroClasses)
 	{
-		base.animationFile = hc->imageMapMale;
-		base.subid = hc->id;
-
-		// replace existing (if any) and add new template.
-		// Necessary for objects added via mods that don't have any templates in H3
-		VLC->objtypeh->getHandlerFor(Obj::HERO, base.subid)->addTemplate(base);
+		VLC->objtypeh->createObject(hc->identifier, JsonNode(), Obj::HERO, hc->id);
+		if (!hc->imageMapMale.empty())
+		{
+			JsonNode templ;
+			templ["animation"].String() = hc->imageMapMale;
+			VLC->objtypeh->getHandlerFor(Obj::HERO, hc->id)->addTemplate(templ);
+		}
 	}
 }
 
