@@ -282,6 +282,17 @@ std::vector<TRmgTemplateZoneId> CRmgTemplateZone::getConnections() const
 {
 	return connections;
 }
+
+void CRmgTemplateZone::addTreasureInfo(CTreasureInfo & info)
+{
+	treasureInfo.push_back(info);
+}
+
+std::vector<CTreasureInfo> CRmgTemplateZone::getTreasureInfo()
+{
+	return treasureInfo;
+}
+
 float3 CRmgTemplateZone::getCenter() const
 {
 	return center;
@@ -449,8 +460,17 @@ void CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 {
 	//TODO: read treasure values from template
-	const int maxValue = 5000;
-	const int minValue = 1500;
+
+	//default values
+	int maxValue = 5000;
+	int minValue = 1500;
+
+	//TODO: choose random treasure info based on density
+	if (treasureInfo.size())
+	{
+		maxValue = treasureInfo.front().max;
+		minValue = treasureInfo.front().min;
+	}
 
 	static const Res::ERes woodOre[] = {Res::ERes::WOOD, Res::ERes::ORE};
 	static const Res::ERes preciousRes[] = {Res::ERes::CRYSTAL, Res::ERes::GEMS, Res::ERes::MERCURY, Res::ERes::SULFUR};

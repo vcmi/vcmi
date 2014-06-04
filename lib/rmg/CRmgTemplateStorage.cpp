@@ -63,8 +63,31 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				zone->setMatchTerrainToTown(zoneNode["matchTerrainToTown"].Bool());
 				zone->setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector(), zone->getDefaultTerrainTypes()));
 				zone->setTownsAreSameType((zoneNode["townsAreSameType"].Bool()));
+				//TODO: do these lines even do anything?
 				if(!zoneNode["terrainTypeLikeZone"].isNull()) zone->setTerrainTypeLikeZone(boost::lexical_cast<int>(zoneNode["terrainTypeLikeZone"].String()));
 				if(!zoneNode["townTypeLikeZone"].isNull()) zone->setTownTypeLikeZone(boost::lexical_cast<int>(zoneNode["townTypeLikeZone"].String()));
+
+				//treasures
+				if (!zoneNode["treasure"].isNull())
+				{
+					//TODO: parse vector of different treasure settings
+					auto treasureInfo = zoneNode["treasure"].Struct();
+					{
+						CTreasureInfo ti;
+						ti.min = treasureInfo["min"].Float();
+						ti.max = treasureInfo["max"].Float();
+						ti.density = 1; //TODO: use me
+						zone->addTreasureInfo(ti);
+					}
+				}
+				if (!zoneNode["treasureLikeZone"].isNull())
+				{
+					//TODO: check if the zone with that index exists
+					for (auto treasureInfo : zones[zoneNode["treasureLikeZone"].Float()]->getTreasureInfo())
+					{
+						zone->addTreasureInfo(treasureInfo);
+					}
+				}
 
 				zones[zone->getId()] = zone;
 			}

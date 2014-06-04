@@ -53,6 +53,14 @@ private:
 	ETerrainType terrain;
 };
 
+class DLL_LINKAGE CTreasureInfo
+{
+public:
+	ui32 min;
+	ui32 max;
+	ui16 density;
+};
+
 /// The CRmgTemplateZone describes a zone in a template.
 class DLL_LINKAGE CRmgTemplateZone
 {
@@ -121,6 +129,8 @@ public:
 
 	void addConnection(TRmgTemplateZoneId otherZone);
 	std::vector<TRmgTemplateZoneId> getConnections() const;
+	void addTreasureInfo(CTreasureInfo & info);
+	std::vector<CTreasureInfo> getTreasureInfo();
 
 private:
 	//template info
@@ -134,6 +144,8 @@ private:
 	bool matchTerrainToTown;
 	std::set<ETerrainType> terrainTypes;
 	boost::optional<TRmgTemplateZoneId> terrainTypeLikeZone, townTypeLikeZone;
+
+	std::vector<CTreasureInfo> treasureInfo;
 
 	//content info
 	std::vector<int3> shape; //TODO: remove
