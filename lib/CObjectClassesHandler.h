@@ -113,6 +113,8 @@ protected:
 
 	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
 public:
+	virtual ~AObjectTypeHandler(){}
+
 	void setType(si32 type, si32 subtype);
 
 	/// loads templates from Json structure using fields "base" and "templates"

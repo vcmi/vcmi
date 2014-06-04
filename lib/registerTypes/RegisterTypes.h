@@ -10,6 +10,8 @@
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../CModHandler.h" //needed?
+#include "../CObjectClassesHandler.h"
+#include "../CObjectConstructor.h"
 
 /*
  * RegisterTypes.h, part of VCMI engine
@@ -70,6 +72,61 @@ void registerTypesMapObjects1(Serializer &s)
 		s.template registerType<CBank, CGPyramid>();
 	s.template registerType<CArmedInstance, CGSeerHut>(); s.template registerType<IQuestObject, CGSeerHut>();
 	s.template registerType<CGSeerHut, CGQuestGuard>();
+}
+
+template<typename Serializer>
+void registerTypesMapObjectTypes(Serializer &s)
+{
+	s.template registerType<AObjectTypeHandler, CObjectWithRewardConstructor>();
+
+#define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
+
+	REGISTER_GENERIC_HANDLER(CGObjectInstance);
+	REGISTER_GENERIC_HANDLER(CGMarket);
+	REGISTER_GENERIC_HANDLER(CBank);
+	REGISTER_GENERIC_HANDLER(CCartographer);
+	REGISTER_GENERIC_HANDLER(CGArtifact);
+	REGISTER_GENERIC_HANDLER(CGBlackMarket);
+	REGISTER_GENERIC_HANDLER(CGBoat);
+	REGISTER_GENERIC_HANDLER(CGBonusingObject);
+	REGISTER_GENERIC_HANDLER(CGBorderGate);
+	REGISTER_GENERIC_HANDLER(CGBorderGuard);
+	REGISTER_GENERIC_HANDLER(CGCreature);
+	REGISTER_GENERIC_HANDLER(CGDenOfthieves);
+	REGISTER_GENERIC_HANDLER(CGDwelling);
+	REGISTER_GENERIC_HANDLER(CGEvent);
+	REGISTER_GENERIC_HANDLER(CGGarrison);
+	REGISTER_GENERIC_HANDLER(CGHeroInstance);
+	REGISTER_GENERIC_HANDLER(CGHeroPlaceholder);
+	REGISTER_GENERIC_HANDLER(CGKeymasterTent);
+	REGISTER_GENERIC_HANDLER(CGLighthouse);
+	REGISTER_GENERIC_HANDLER(CGMagi);
+	REGISTER_GENERIC_HANDLER(CGMagicSpring);
+	REGISTER_GENERIC_HANDLER(CGMagicWell);
+	REGISTER_GENERIC_HANDLER(CGMarket);
+	REGISTER_GENERIC_HANDLER(CGMine);
+	REGISTER_GENERIC_HANDLER(CGObelisk);
+	REGISTER_GENERIC_HANDLER(CGObservatory);
+	REGISTER_GENERIC_HANDLER(CGOnceVisitable);
+	REGISTER_GENERIC_HANDLER(CGPandoraBox);
+	REGISTER_GENERIC_HANDLER(CGPickable);
+	REGISTER_GENERIC_HANDLER(CGPyramid);
+	REGISTER_GENERIC_HANDLER(CGQuestGuard);
+	REGISTER_GENERIC_HANDLER(CGResource);
+	REGISTER_GENERIC_HANDLER(CGScholar);
+	REGISTER_GENERIC_HANDLER(CGSeerHut);
+	REGISTER_GENERIC_HANDLER(CGShipyard);
+	REGISTER_GENERIC_HANDLER(CGShrine);
+	REGISTER_GENERIC_HANDLER(CGSignBottle);
+	REGISTER_GENERIC_HANDLER(CGSirens);
+	REGISTER_GENERIC_HANDLER(CGTeleport);
+	REGISTER_GENERIC_HANDLER(CGTownInstance);
+	REGISTER_GENERIC_HANDLER(CGUniversity);
+	REGISTER_GENERIC_HANDLER(CGVisitableOPH);
+	REGISTER_GENERIC_HANDLER(CGVisitableOPW);
+	REGISTER_GENERIC_HANDLER(CGWitchHut);
+
+#undef REGISTER_GENERIC_HANDLER
 }
 
 template<typename Serializer>
@@ -302,6 +359,7 @@ void registerTypes(Serializer &s)
 {
 	registerTypesMapObjects1(s);
 	registerTypesMapObjects2(s);
+	registerTypesMapObjectTypes(s);
 	registerTypesClientPacks1(s);
 	registerTypesClientPacks2(s);
 	registerTypesServerPacks(s);
