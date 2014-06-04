@@ -61,6 +61,13 @@ public:
 	ui16 density;
 };
 
+struct DLL_LINKAGE ObjectInfo
+{
+	ui32 value;
+	ui16 probability;
+	std::function<CGObjectInstance *()> generateObject;
+};
+
 /// The CRmgTemplateZone describes a zone in a template.
 class DLL_LINKAGE CRmgTemplateZone
 {
@@ -132,6 +139,8 @@ public:
 	void addTreasureInfo(CTreasureInfo & info);
 	std::vector<CTreasureInfo> getTreasureInfo();
 
+	ObjectInfo getRandomObject (CMapGenerator* gen, ui32 value);
+
 private:
 	//template info
 	TRmgTemplateZoneId id;
@@ -146,6 +155,7 @@ private:
 	boost::optional<TRmgTemplateZoneId> terrainTypeLikeZone, townTypeLikeZone;
 
 	std::vector<CTreasureInfo> treasureInfo;
+	std::vector<ObjectInfo> possibleObjects;
 
 	//content info
 	std::vector<int3> shape; //TODO: remove
@@ -160,6 +170,7 @@ private:
 	std::map<TRmgTemplateZoneId, bool> alreadyConnected; //TODO: allow multiple connections between two zones?
 
 	bool pointIsIn(int x, int y);
+	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects
 	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);

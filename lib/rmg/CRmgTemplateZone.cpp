@@ -472,102 +472,19 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		minValue = treasureInfo.front().min;
 	}
 
-	static const Res::ERes woodOre[] = {Res::ERes::WOOD, Res::ERes::ORE};
-	static const Res::ERes preciousRes[] = {Res::ERes::CRYSTAL, Res::ERes::GEMS, Res::ERes::MERCURY, Res::ERes::SULFUR};
-	static auto res_gen = gen->rand.getIntRange(Res::ERes::WOOD, Res::ERes::GOLD);
-
 	int currentValue = 0;
 	CGObjectInstance * object = nullptr;
 	while (currentValue < minValue)
 	{
 		int remaining = maxValue - currentValue;
-		int nextValue = gen->rand.nextInt (0.25f * remaining, remaining);
 
-		if (nextValue >= 20000)
-		{
-			auto obj = new CGArtifact();
-			obj->ID = Obj::RANDOM_RELIC_ART;
-			obj->subID = 0;
-			auto a = new CArtifactInstance(); //TODO: probably some refactoring could help here
-			gen->map->addNewArtifactInstance(a);
-			obj->storedArtifact = a;
-			object = obj;
-			currentValue += 20000;
-		}
-		else if (nextValue >= 10000)
-		{
-			auto obj = new CGArtifact();
-			obj->ID = Obj::RANDOM_MAJOR_ART;
-			obj->subID = 0;
-			auto a = new CArtifactInstance();
-			gen->map->addNewArtifactInstance(a);
-			obj->storedArtifact = a;
-			object = obj;
-			currentValue += 10000;
-		}
-		else if (nextValue >= 5000)
-		{
-			auto obj = new CGArtifact();
-			obj->ID = Obj::RANDOM_MINOR_ART;
-			obj->subID = 0;
-			auto a = new CArtifactInstance();
-			gen->map->addNewArtifactInstance(a);
-			obj->storedArtifact = a;
-			object = obj;
-			currentValue += 5000;
-		}
-		else if (nextValue >= 2000)
-		{
-			auto obj = new CGArtifact();
-			obj->ID = Obj::RANDOM_TREASURE_ART;
-			obj->subID = 0;
-			auto a = new CArtifactInstance();
-			gen->map->addNewArtifactInstance(a);
-			obj->storedArtifact = a;
-			object = obj;
-			currentValue += 2000;
-		}
-		else if (nextValue >= 1500)
-		{
-			auto obj = new CGPickable();
-			obj->ID = Obj::TREASURE_CHEST;
-			obj->subID = 0;
-			object = obj;
-			currentValue += 1500;
-		}
-		else if (nextValue >= 1400)
-		{
-			auto obj = new CGResource();
-			auto restype = static_cast<Res::ERes>(preciousRes[gen->rand.nextInt (0,3)]); //TODO: how about dedicated function to pick random element of array?
-			obj->ID = Obj::RESOURCE;
-			obj->subID = static_cast<si32>(restype);
-			obj->amount = 0;
-			object = obj;
-			currentValue += 1400;
-		}
-		else if (nextValue >= 1000)
-		{
-			auto obj = new CGResource();
-			auto restype = static_cast<Res::ERes>(woodOre[gen->rand.nextInt (0,1)]);
-			obj->ID = Obj::RESOURCE;
-			obj->subID = static_cast<si32>(restype);
-			obj->amount = 0;
-			object = obj;
-			currentValue += 1000;
-		}
-		else if (nextValue >= 750)
-		{
-			auto obj = new CGResource();
-			obj->ID = Obj::RESOURCE;
-			obj->subID = static_cast<si32>(Res::ERes::GOLD);
-			obj->amount = 0;
-			object = obj;
-			currentValue += 750;
-		}
-		else //no possible treasure left (should not happen)
+		auto oi = getRandomObject(gen, remaining);
+		object = oi.generateObject();
+		if (!object)
 			break;
 
 		//TODO: generate actual zone and not just all objects on a pile
+		currentValue += oi.value;
 		placeObject(gen, object, pos);
 	}
 	if (object)
@@ -579,8 +496,166 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		return false;
 }
 
+ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, ui32 value)
+{
+	std::vector<std::pair<ui32, ObjectInfo>> tresholds;
+	ui32 total = 0;
+
+	ui32 minValue = 0.25f * value;
+
+	//roulette wheel
+	for (auto oi : possibleObjects)
+	{
+		if (oi.value >= minValue && oi.value <= value)
+		{
+			total += oi.probability;
+			tresholds.push_back (std::make_pair (total, oi));
+		}
+	}
+
+	//TODO: generate pandora box with gold if the value is very high
+	if (tresholds.empty())
+	{
+		ObjectInfo oi;
+		oi.generateObject = [gen]() -> CGObjectInstance *
+		{
+			return nullptr;
+		};
+		oi.value = 0;
+		oi.probability = 0;
+	}
+
+	int r = gen->rand.nextInt (1, total);
+
+	for (auto t : tresholds)
+	{
+		if (r <= t.first)
+			return t.second;
+	}
+}
+
+void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
+{
+	//TODO: move typical objects to config
+
+	ObjectInfo oi;
+
+	static const Res::ERes preciousRes[] = {Res::ERes::CRYSTAL, Res::ERes::GEMS, Res::ERes::MERCURY, Res::ERes::SULFUR};
+	for (int i = 0; i < 4; i++)
+	{
+		oi.generateObject = [i, gen]() -> CGObjectInstance *
+		{
+			auto obj = new CGResource();
+			obj->ID = Obj::RESOURCE;
+			obj->subID = static_cast<si32>(preciousRes[i]);
+			obj->amount = 0;
+			return obj;
+		};
+		oi.value = 1400;
+		oi.probability = 300;
+		possibleObjects.push_back (oi);
+	}
+
+	static const Res::ERes woodOre[] = {Res::ERes::WOOD, Res::ERes::ORE};
+	for (int i = 0; i < 2; i++)
+	{
+		oi.generateObject = [i, gen]() -> CGObjectInstance *
+		{
+			auto obj = new CGResource();
+			obj->ID = Obj::RESOURCE;
+			obj->subID = static_cast<si32>(woodOre[i]);
+			obj->amount = 0;
+			return obj;
+		};
+		oi.value = 1400;
+		oi.probability = 300;
+		possibleObjects.push_back (oi);
+	}
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGResource();
+		obj->ID = Obj::RESOURCE;
+		obj->subID = static_cast<si32>(Res::ERes::GOLD);
+		obj->amount = 0;
+		return obj;
+	};
+	oi.value = 750;
+	oi.probability = 300;
+	possibleObjects.push_back (oi);
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGPickable();
+		obj->ID = Obj::TREASURE_CHEST;
+		obj->subID = 0;
+		return obj;
+	};
+	oi.value = 1500;
+	oi.probability = 1000;
+	possibleObjects.push_back (oi);
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGArtifact();
+		obj->ID = Obj::RANDOM_TREASURE_ART;
+		obj->subID = 0;
+		auto a = new CArtifactInstance();
+		gen->map->addNewArtifactInstance(a);
+		obj->storedArtifact = a;
+		return obj;
+	};
+	oi.value = 2000;
+	oi.probability = 150;
+	possibleObjects.push_back (oi);
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGArtifact();
+		obj->ID = Obj::RANDOM_MINOR_ART;
+		obj->subID = 0;
+		auto a = new CArtifactInstance();
+		gen->map->addNewArtifactInstance(a);
+		obj->storedArtifact = a;
+		return obj;
+	};
+	oi.value = 5000;
+	oi.probability = 150;
+	possibleObjects.push_back (oi);
+
+		oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGArtifact();
+		obj->ID = Obj::RANDOM_MAJOR_ART;
+		obj->subID = 0;
+		auto a = new CArtifactInstance();
+		gen->map->addNewArtifactInstance(a);
+		obj->storedArtifact = a;
+		return obj;
+	};
+	oi.value = 10000;
+	oi.probability = 150;
+	possibleObjects.push_back (oi);
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGArtifact();
+		obj->ID = Obj::RANDOM_RELIC_ART;
+		obj->subID = 0;
+		auto a = new CArtifactInstance();
+		gen->map->addNewArtifactInstance(a);
+		obj->storedArtifact = a;
+		return obj;
+	};
+	oi.value = 20000;
+	oi.probability = 150;
+	possibleObjects.push_back (oi);
+}
+
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
 {
+	addAllPossibleObjects (gen);
+
 	int townId = 0;
 
 	if ((type == ETemplateZoneType::CPU_START) || (type == ETemplateZoneType::PLAYER_START))
