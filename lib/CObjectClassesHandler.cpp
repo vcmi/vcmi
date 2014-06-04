@@ -495,6 +495,7 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 
 void CObjectClassesHandler::createObject(std::string name, JsonNode config, si32 ID, boost::optional<si32> subID)
 {
+	config.setType(JsonNode::DATA_STRUCT); // ensure that input is not NULL
 	assert(objects.count(ID));
 	if (subID)
 	{
@@ -502,6 +503,9 @@ void CObjectClassesHandler::createObject(std::string name, JsonNode config, si32
 		assert(config["index"].isNull());
 		config["index"].Float() = subID.get();
 	}
+
+	JsonUtils::inherit(config, objects.at(ID)->base);
+
 	loadObjectEntry(config, objects[ID]);
 }
 
@@ -568,16 +572,17 @@ void AObjectTypeHandler::setType(si32 type, si32 subtype)
 
 void AObjectTypeHandler::init(const JsonNode & input)
 {
+	base = input["base"];
 	for (auto entry : input["templates"].Struct())
 	{
-		JsonNode data = input["base"];
-		JsonUtils::merge(data, entry.second);
+		entry.second.setType(JsonNode::DATA_STRUCT);
+		JsonUtils::inherit(entry.second, base);
 
 		ObjectTemplate tmpl;
 		tmpl.id = Obj(type);
 		tmpl.subid = subtype;
 		tmpl.stringID = entry.first; // FIXME: create "fullID" - type.object.template?
-		tmpl.readJson(data);
+		tmpl.readJson(entry.second);
 		templates.push_back(tmpl);
 	}
 }
@@ -596,6 +601,7 @@ void AObjectTypeHandler::addTemplate(ObjectTemplate templ)
 
 void AObjectTypeHandler::addTemplate(JsonNode config)
 {
+	config.setType(JsonNode::DATA_STRUCT); // ensure that input is not null
 	JsonUtils::inherit(config, base);
 	ObjectTemplate tmpl;
 	tmpl.id = Obj(type);

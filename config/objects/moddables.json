@@ -59,9 +59,9 @@
 			"base" : {
 				"visitableFrom" : [ "---", "+++", "+++" ],
 				"mask" : [
-					"VVVVV", // a LOT of just visible rows due to towns like Tower
-					"VVVVV",
-					"VVVVV",
+					"VVVVVV", // a LOT of just visible rows due to towns like Tower
+					"VVVVVV",
+					"VVVVVV",
 					"VVBBBV",
 					"VBBBBB",
 					"VBBABB"
