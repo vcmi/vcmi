@@ -206,7 +206,26 @@
     
     // Extract
     [self showProgressText:@"Extracting game data using unshield..."];
-    if ([self runTask:@"/unshield" withArgs:@[@"-d", tempDir, @"x", [cd1 stringByAppendingString:@"/_setup/data1.cab"]] withWorkingDir:tempDir  withPipe:nil] != 0) {
+
+    NSArray* knownLocations = @[
+        @"/_setup/data1.cab",
+        @"/Autorun/Setup/data1.cab"
+    ];
+
+    bool success = false;
+    for (NSString* location in knownLocations) {
+        NSString* cabLocation = [cd1 stringByAppendingString:location];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:cabLocation]) {
+            int result = [self runTask:@"/unshield" withArgs:@[@"-d", tempDir, @"x", cabLocation] withWorkingDir:tempDir  withPipe:nil];
+        
+            if (result == 0) {
+                success = true;
+                break;
+            }
+        }
+    }
+    
+    if (!success) {
         return [self showErrorText:@"Failed to extract game data using unshield"];
     }
     
