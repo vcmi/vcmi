@@ -16,19 +16,19 @@
 			{
 				"type" : "playerStart", "size" : 1, "owner" : 2,
 				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true,
-				"treaureLikeZone" : 1
+				"treasureLikeZone" : 1
 			},
 			"3" :
 			{
 				"type" : "playerStart", "size" : 1, "owner" : 3,
 				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true,
-				"treaureLikeZone" : 1
+				"treasureLikeZone" : 1
 			},
 			"4" :
 			{
 				"type" : "playerStart", "size" : 1, "owner" : 4,
 				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true,
-				"treaureLikeZone" : 1
+				"treasureLikeZone" : 1
 			},
 			"5" :
 			{
@@ -60,7 +60,7 @@
 			{
 				"type" : "playerStart", "size" : 1, "owner" : 2,
 				"playerTowns" : { "castles" : 1 },
-				"treaureLikeZone" : 1
+				"treasureLikeZone" : 1
 			},
 			"3" :
 			{
@@ -70,7 +70,7 @@
 			"4" :
 			{
 				"type" : "treasure", "size" : 2, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : "2",
-				"treaureLikeZone" : 3
+				"treasureLikeZone" : 3
 			},
 			"5" :
 			{
@@ -113,14 +113,14 @@
 				"treaureLikeZone" : 1
 			},
 			"4" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "1", "treasure" : {"min" : 3000, "max": 10000} },
-			"5" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "1", "treaureLikeZone" : 4},
-			"6" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "2", "treaureLikeZone" : 4 },
-			"7" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "2", "treaureLikeZone" : 4 },
-			"8" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "3", "treaureLikeZone" : 4 },
-			"9" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "3", "treaureLikeZone" : 4 },
+			"5" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "1", "treasureLikeZone" : 4},
+			"6" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "2", "treasureLikeZone" : 4 },
+			"7" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "2", "treasureLikeZone" : 4 },
+			"8" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "3", "treasureLikeZone" : 4 },
+			"9" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "3", "treasureLikeZone" : 4 },
 			"10" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treasure" : {"min" : 10000, "max": 25000} },
-			"11" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treaureLikeZone" : 10 },
-			"12" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treaureLikeZone" : 10 }
+			"11" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treasureLikeZone" : 10 },
+			"12" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treasureLikeZone" : 10 }
 		},
 		"connections" :
 		[

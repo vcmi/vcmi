@@ -63,9 +63,6 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				zone->setMatchTerrainToTown(zoneNode["matchTerrainToTown"].Bool());
 				zone->setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector(), zone->getDefaultTerrainTypes()));
 				zone->setTownsAreSameType((zoneNode["townsAreSameType"].Bool()));
-				//TODO: do these lines even do anything?
-				if(!zoneNode["terrainTypeLikeZone"].isNull()) zone->setTerrainTypeLikeZone(boost::lexical_cast<int>(zoneNode["terrainTypeLikeZone"].String()));
-				if(!zoneNode["townTypeLikeZone"].isNull()) zone->setTownTypeLikeZone(boost::lexical_cast<int>(zoneNode["townTypeLikeZone"].String()));
 
 				//treasures
 				if (!zoneNode["treasure"].isNull())
@@ -80,17 +77,31 @@ void CJsonRmgTemplateLoader::loadTemplates()
 						zone->addTreasureInfo(ti);
 					}
 				}
+
+				zones[zone->getId()] = zone;
+			}
+
+			//copy settings from already parsed zones
+			for (const auto & zonePair : templateNode["zones"].Struct())
+			{
+				auto zoneId = boost::lexical_cast<TRmgTemplateZoneId>(zonePair.first);
+				auto zone = zones[zoneId];
+
+				const auto & zoneNode = zonePair.second;
+
+				//TODO: do these lines even do anything?
+				if(!zoneNode["terrainTypeLikeZone"].isNull()) zone->setTerrainTypeLikeZone(boost::lexical_cast<int>(zoneNode["terrainTypeLikeZone"].String()));
+				if(!zoneNode["townTypeLikeZone"].isNull()) zone->setTownTypeLikeZone(boost::lexical_cast<int>(zoneNode["townTypeLikeZone"].String()));
+
 				if (!zoneNode["treasureLikeZone"].isNull())
 				{
-					//TODO: check if the zone with that index exists
 					for (auto treasureInfo : zones[zoneNode["treasureLikeZone"].Float()]->getTreasureInfo())
 					{
 						zone->addTreasureInfo(treasureInfo);
 					}
 				}
-
-				zones[zone->getId()] = zone;
 			}
+
 			tpl->setZones(zones);
 
 			// Parse connections
