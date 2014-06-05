@@ -12,7 +12,7 @@
 #include "CGPandoraBox.h"
 
 #include "../NetPacks.h"
-#include "../client/CSoundBase.h"
+#include "../CSoundBase.h"
 
 #include "../CSpellHandler.h"
 

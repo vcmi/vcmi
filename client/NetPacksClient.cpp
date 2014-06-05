@@ -14,7 +14,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/CSpellHandler.h"
-#include "CSoundBase.h"
+#include "../lib/CSoundBase.h"
 #include "mapHandler.h"
 #include "GUIClasses.h"
 #include "../lib/CConfigHandler.h"

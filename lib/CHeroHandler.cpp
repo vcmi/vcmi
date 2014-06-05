@@ -235,7 +235,7 @@ void CHeroClassHandler::afterLoadFinalization()
 
 	for (CHeroClass * hc : heroClasses)
 	{
-		VLC->objtypeh->createObject(hc->identifier, JsonNode(), Obj::HERO, hc->id);
+		VLC->objtypeh->loadSubObject(hc->identifier, JsonNode(), Obj::HERO, hc->id);
 		if (!hc->imageMapMale.empty())
 		{
 			JsonNode templ;

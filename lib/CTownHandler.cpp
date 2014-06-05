@@ -763,7 +763,7 @@ void CTownHandler::afterLoadFinalization()
 	{
 		if (fact->town)
 		{
-			VLC->objtypeh->createObject(fact->identifier, JsonNode(), Obj::TOWN, fact->index);
+			VLC->objtypeh->loadSubObject(fact->identifier, JsonNode(), Obj::TOWN, fact->index);
 			if (!fact->town->clientInfo.advMapCastle.empty())
 			{
 				JsonNode templ;
@@ -782,7 +782,7 @@ void CTownHandler::afterLoadFinalization()
 						JsonNode templ;
 						templ["animation"].String() = fact->town->dwellings[i];
 
-						VLC->objtypeh->createObject("", JsonNode(), Obj::CREATURE_GENERATOR1, 80 + cre);
+						VLC->objtypeh->loadSubObject("", JsonNode(), Obj::CREATURE_GENERATOR1, 80 + cre);
 						VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, 80 + cre)->addTemplate(templ);
 						VLC->objh->cregens[80 + cre] = cre; //map of dwelling -> creature id
 					}

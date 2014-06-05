@@ -25,7 +25,7 @@
 #include "CPreGame.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/CSpellHandler.h"
-#include "CSoundBase.h"
+#include "../lib/CSoundBase.h"
 #include "../lib/CGameState.h"
 #include "CMusicHandler.h"
 #include "gui/CGuiHandler.h"

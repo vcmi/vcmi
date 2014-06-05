@@ -13,7 +13,7 @@
 
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
-#include "../client/CSoundBase.h"
+#include "../CSoundBase.h"
 
 #include "CObjectClassesHandler.h"
 #include "../CSpellHandler.h"

@@ -19,6 +19,34 @@
 class JsonNode;
 class CRandomGenerator;
 
+/// Structure that describes placement rules for this object in random map
+struct RandomMapInfo
+{
+	/// How valuable this object is, 1k = worthless, 10k = Utopia-level
+	ui32 value;
+
+	/// How many of such objects can be placed on map, 0 = object can not be placed by RMG
+	ui32 mapLimit;
+
+	/// How many of such objects can be placed in one zone, 0 = unplaceable
+	ui32 zoneLimit;
+
+	/// Rarity of object, 5 = extremely rare, 100 = common
+	ui32 rarity;
+
+	RandomMapInfo():
+		value(0),
+		mapLimit(0),
+		zoneLimit(0),
+		rarity(0)
+	{}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & value & mapLimit & zoneLimit & rarity;
+	}
+};
+
 class IObjectInfo
 {
 public:
@@ -42,6 +70,8 @@ class CGObjectInstance;
 
 class AObjectTypeHandler
 {
+	RandomMapInfo rmgInfo;
+
 	si32 type;
 	si32 subtype;
 
@@ -56,21 +86,21 @@ public:
 
 	void setType(si32 type, si32 subtype);
 
-	/// loads templates from Json structure using fields "base" and "templates"
+	/// loads generic data from Json structure
 	virtual void init(const JsonNode & input);
 
 	void addTemplate(ObjectTemplate templ);
 	void addTemplate(JsonNode config);
 
-	/// returns all templates, without any filters
+	/// returns all templates matching parameters
 	std::vector<ObjectTemplate> getTemplates() const;
-
-	/// returns all templates that can be placed on specific terrain type
 	std::vector<ObjectTemplate> getTemplates(si32 terrainType) const;
 
 	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
 	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
 	boost::optional<ObjectTemplate> getOverride(si32 terrainType, const CGObjectInstance * object) const;
+
+	const RandomMapInfo & getRMGInfo();
 
 	/// Creates object and set up core properties (like ID/subID). Object is NOT initialized
 	/// to allow creating objects before game start (e.g. map loading)
@@ -84,7 +114,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & type & subtype & templates;
+		h & type & subtype & templates & rmgInfo;
 	}
 };
 
@@ -129,7 +159,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & base & objects;
+			h & name & handlerName & base & objects;
 		}
 	};
 
@@ -138,10 +168,10 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	/// list of object handlers, each of them handles only one type
 	std::map<si32, ObjectContainter * > objects;
 
-	/// map that is filled during contruction with all known handlers. Not serializeable
+	/// map that is filled during contruction with all known handlers. Not serializeable due to usage of std::function
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
 
-	/// container with H3 templates, used only during loading
+	/// container with H3 templates, used only during loading, no need to serialize it
 	TTemplatesContainer legacyTemplates;
 
 	void loadObjectEntry(const JsonNode & entry, ObjectContainter * obj);
@@ -154,13 +184,17 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
-	void createObject(std::string name, JsonNode config, si32 ID, boost::optional<si32> subID = boost::optional<si32>());
-	void eraseObject(si32 ID, si32 subID);
+	void loadSubObject(std::string name, JsonNode config, si32 ID, boost::optional<si32> subID = boost::optional<si32>());
+	void removeSubObject(si32 ID, si32 subID);
 
 	void beforeValidate(JsonNode & object) override;
 	void afterLoadFinalization() override;
 
 	std::vector<bool> getDefaultAllowed() const override;
+
+	/// Queries to detect loaded objects
+	std::set<si32> knownObjects() const;
+	std::set<si32> knownSubObjects(si32 primaryID) const;
 
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
 	TObjectTypeHandler getHandlerFor(si32 type, si32 subtype) const;

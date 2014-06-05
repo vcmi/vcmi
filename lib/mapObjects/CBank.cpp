@@ -13,7 +13,7 @@
 
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
-#include "../client/CSoundBase.h"
+#include "../CSoundBase.h"
 
 using namespace boost::assign;
 

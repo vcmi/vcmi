@@ -13,7 +13,7 @@
 #include "CRewardableObject.h"
 #include "../CHeroHandler.h"
 #include "../CGeneralTextHandler.h"
-#include "../client/CSoundBase.h"
+#include "../CSoundBase.h"
 #include "../NetPacks.h"
 
 #include "CObjectClassesHandler.h"

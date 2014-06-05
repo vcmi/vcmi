@@ -651,7 +651,7 @@ void CArtHandler::afterLoadFinalization()
 
 	for (CArtifact * art : artifacts)
 	{
-		VLC->objtypeh->createObject(art->Name(), JsonNode(), Obj::ARTIFACT, art->id.num);
+		VLC->objtypeh->loadSubObject(art->Name(), JsonNode(), Obj::ARTIFACT, art->id.num);
 
 		if (!art->advMapDef.empty())
 		{
@@ -664,7 +664,7 @@ void CArtHandler::afterLoadFinalization()
 		}
 		// object does not have any templates - this is not usable object (e.g. pseudo-art like lock)
 		if (VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->id)->getTemplates().empty())
-			VLC->objtypeh->eraseObject(Obj::ARTIFACT, art->id);
+			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, art->id);
 	}
 }
 

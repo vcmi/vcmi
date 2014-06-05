@@ -104,6 +104,7 @@ set(lib_HEADERS
 
 		mapObjects/MapObjects.h
 
+		CSoundBase.h
 		AI_Base.h
 		CondSh.h
 		ConstTransitivePtr.h

@@ -13,7 +13,7 @@
 #include "CQuest.h"
 
 #include "../NetPacks.h"
-#include "../client/CSoundBase.h"
+#include "../CSoundBase.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "CObjectClassesHandler.h"

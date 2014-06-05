@@ -1118,7 +1118,7 @@ void CCreatureHandler::afterLoadFinalization()
 {
 	for (CCreature * crea : creatures)
 	{
-		VLC->objtypeh->createObject(crea->nameSing, JsonNode(), Obj::MONSTER, crea->idNumber.num);
+		VLC->objtypeh->loadSubObject(crea->nameSing, JsonNode(), Obj::MONSTER, crea->idNumber.num);
 		if (!crea->advMapDef.empty())
 		{
 			JsonNode templ;
@@ -1128,7 +1128,7 @@ void CCreatureHandler::afterLoadFinalization()
 
 		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
 		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, crea->idNumber.num)->getTemplates().empty())
-			VLC->objtypeh->eraseObject(Obj::MONSTER, crea->idNumber.num);
+			VLC->objtypeh->removeSubObject(Obj::MONSTER, crea->idNumber.num);
 	}
 }
 

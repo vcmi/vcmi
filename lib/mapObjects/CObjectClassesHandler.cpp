@@ -185,7 +185,7 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
 
-void CObjectClassesHandler::createObject(std::string name, JsonNode config, si32 ID, boost::optional<si32> subID)
+void CObjectClassesHandler::loadSubObject(std::string name, JsonNode config, si32 ID, boost::optional<si32> subID)
 {
 	config.setType(JsonNode::DATA_STRUCT); // ensure that input is not NULL
 	assert(objects.count(ID));
@@ -201,7 +201,7 @@ void CObjectClassesHandler::createObject(std::string name, JsonNode config, si32
 	loadObjectEntry(config, objects[ID]);
 }
 
-void CObjectClassesHandler::eraseObject(si32 ID, si32 subID)
+void CObjectClassesHandler::removeSubObject(si32 ID, si32 subID)
 {
 	assert(objects.count(ID));
 	assert(objects.at(ID)->objects.count(subID));
@@ -225,6 +225,28 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 	return nullptr;
 }
 
+std::set<si32> CObjectClassesHandler::knownObjects() const
+{
+	std::set<si32> ret;
+
+	for (auto entry : objects)
+		ret.insert(entry.first);
+
+	return ret;
+}
+
+std::set<si32> CObjectClassesHandler::knownSubObjects(si32 primaryID) const
+{
+	std::set<si32> ret;
+
+	if (objects.count(primaryID))
+	{
+		for (auto entry : objects.at(primaryID)->objects)
+			ret.insert(entry.first);
+	}
+	return ret;
+}
+
 void CObjectClassesHandler::beforeValidate(JsonNode & object)
 {
 	for (auto & entry : object["types"].Struct())
@@ -239,7 +261,6 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 
 void CObjectClassesHandler::afterLoadFinalization()
 {
-	legacyTemplates.clear(); // whatever left there is no longer needed
 	for (auto entry : objects)
 	{
 		for (auto obj : entry.second->objects)
@@ -262,9 +283,26 @@ void AObjectTypeHandler::setType(si32 type, si32 subtype)
 	this->subtype = subtype;
 }
 
+static ui32 loadJsonOrMax(const JsonNode & input)
+{
+	if (input.isNull())
+		return std::numeric_limits<ui32>::max();
+	else
+		return input.Float();
+}
+
 void AObjectTypeHandler::init(const JsonNode & input)
 {
 	base = input["base"];
+
+	if (!input["rmg"].isNull())
+	{
+		rmgInfo.value =     input["rmg"]["value"].Float();
+		rmgInfo.mapLimit =  loadJsonOrMax(input["rmg"]["mapLimit"]);
+		rmgInfo.zoneLimit = loadJsonOrMax(input["rmg"]["zoneLimit"]);
+		rmgInfo.rarity =    input["rmg"]["rarity"].Float();
+	} // else block is not needed - set in constructor
+
 	for (auto entry : input["templates"].Struct())
 	{
 		entry.second.setType(JsonNode::DATA_STRUCT);
@@ -281,7 +319,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 
 bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, const ObjectTemplate &) const
 {
-	return true; // by default - accept all.
+	return false; // by default there are no overrides
 }
 
 void AObjectTypeHandler::addTemplate(ObjectTemplate templ)
@@ -330,4 +368,9 @@ boost::optional<ObjectTemplate> AObjectTypeHandler::getOverride(si32 terrainType
 			return tmpl;
 	}
 	return boost::optional<ObjectTemplate>();
+}
+
+const RandomMapInfo & AObjectTypeHandler::getRMGInfo()
+{
+	return rmgInfo;
 }

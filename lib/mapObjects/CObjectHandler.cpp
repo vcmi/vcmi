@@ -14,7 +14,7 @@
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
-#include "../client/CSoundBase.h"
+#include "../CSoundBase.h"
 
 #include "CObjectClassesHandler.h"
 
