@@ -7,7 +7,7 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CModHandler.h"
-#include "../lib/mapObjects/CObjectHandler.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
 #include "CAdvmapInterface.h"

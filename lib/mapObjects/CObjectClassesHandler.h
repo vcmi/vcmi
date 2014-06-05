@@ -1,9 +1,10 @@
 #pragma once
 
-#include "GameConstants.h"
-#include "../lib/ConstTransitivePtr.h"
-#include "IHandlerBase.h"
 #include "ObjectTemplate.h"
+
+#include "../GameConstants.h"
+#include "../ConstTransitivePtr.h"
+#include "../IHandlerBase.h"
 
 /*
  * CObjectClassesHandler.h, part of VCMI engine

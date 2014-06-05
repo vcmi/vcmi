@@ -15,6 +15,8 @@
 #include "../client/CSoundBase.h"
 #include "NetPacks.h"
 
+#include "CObjectClassesHandler.h"
+
 bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 {
 	if (dayOfWeek != 0)

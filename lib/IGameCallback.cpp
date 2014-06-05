@@ -17,6 +17,7 @@
 #include "CBonusTypeHandler.h"
 
 #include "Connection.h" // for SAVEGAME_MAGIC
+#include "mapObjects/CObjectClassesHandler.h"
 
 void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 {

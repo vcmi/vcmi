@@ -7,11 +7,11 @@
 #include "GameConstants.h"
 #include "StringConstants.h"
 #include "CGeneralTextHandler.h"
-#include "CObjectHandler.h"
 #include "CModHandler.h"
 #include "JsonNode.h"
 
 #include "CRewardableConstructor.h"
+#include "MapObjects.h"
 
 /*
  * CObjectClassesHandler.cpp, part of VCMI engine

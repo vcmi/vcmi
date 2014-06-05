@@ -9,6 +9,8 @@
 #include "CModHandler.h"
 #include "StringConstants.h"
 
+#include "mapObjects/CObjectClassesHandler.h"
+
 using namespace boost::assign;
 
 /*

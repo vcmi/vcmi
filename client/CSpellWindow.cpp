@@ -3,7 +3,7 @@
 
 #include "Graphics.h"
 #include "CDefHandler.h"
-#include "../lib/mapObjects/CObjectHandler.h"
+//#include "../lib/mapObjects/CObjectHandler.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "CVideoHandler.h"

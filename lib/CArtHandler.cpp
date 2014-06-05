@@ -16,10 +16,12 @@
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
 #include "CSpellHandler.h"
-#include "mapObjects/CObjectHandler.h"
+#include "mapObjects/MapObjects.h"
 #include "NetPacksBase.h"
 #include "GameConstants.h"
 #include "CRandomGenerator.h"
+
+#include "mapObjects/CObjectClassesHandler.h"
 
 using namespace boost::assign;
 

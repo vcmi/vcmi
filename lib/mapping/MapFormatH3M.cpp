@@ -20,9 +20,8 @@
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
-#include "../mapObjects/CObjectHandler.h"
-#include "../mapObjects/CRewardableObject.h"
 #include "../mapObjects/CObjectClassesHandler.h"
+#include "../mapObjects/MapObjects.h"
 #include "../VCMI_Lib.h"
 #include "../NetPacksBase.h"
 

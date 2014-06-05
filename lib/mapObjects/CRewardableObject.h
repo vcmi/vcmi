@@ -1,7 +1,9 @@
 #pragma once
 
 #include "CObjectHandler.h"
-#include "NetPacksBase.h"
+#include "CGArmedInstance.h"
+
+#include "../NetPacksBase.h"
 
 /*
  * CRewardableObject.h, part of VCMI engine

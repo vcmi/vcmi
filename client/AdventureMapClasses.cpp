@@ -6,7 +6,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/CModHandler.h"
-#include "../lib/mapObjects/CObjectHandler.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/CGameState.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CTownHandler.h"

@@ -13,6 +13,8 @@
 #include "mapObjects/CObjectHandler.h" //for hero specialty
 #include <math.h>
 
+#include "mapObjects/CObjectClassesHandler.h"
+
 /*
  * CHeroHandler.cpp, part of VCMI engine
  *

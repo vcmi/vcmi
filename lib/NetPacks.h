@@ -1,11 +1,10 @@
 #pragma once
 
-#include <boost/variant.hpp>
-
 #include "NetPacksBase.h"
 
 #include "BattleAction.h"
 #include "HeroBonus.h"
+#include "mapObjects/CGHeroInstance.h"
 #include "CCreatureSet.h"
 #include "mapping/CMapInfo.h"
 #include "StartInfo.h"

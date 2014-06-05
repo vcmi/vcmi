@@ -14,7 +14,6 @@
 #include <typeinfo> //XXX this is in namespace std if you want w/o use typeinfo.h?
 #include <type_traits>
 
-#include <boost/variant.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/int.hpp>
@@ -24,7 +23,7 @@
 
 #include "ConstTransitivePtr.h"
 #include "CCreatureSet.h" //for CStackInstance
-#include "mapObjects/CObjectHandler.h" //for CArmedInstance
+#include "mapObjects/CGHeroInstance.h"
 #include "mapping/CCampaignHandler.h" //for CCampaignState
 #include "rmg/CMapGenerator.h" // for CMapGenOptions
 

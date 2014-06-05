@@ -4,12 +4,14 @@
 #include "BattleHex.h"
 #include "HeroBonus.h"
 #include "CCreatureSet.h"
-#include "mapObjects/CObjectHandler.h"
+#include "mapObjects/CGTownInstance.h"
+#include "mapObjects/CGHeroInstance.h"
 #include "CCreatureHandler.h"
 #include "CObstacleInstance.h"
 #include "ConstTransitivePtr.h"
 #include "GameConstants.h"
 #include "CBattleCallback.h"
+#include "int3.h"
 
 /*
  * BattleState.h, part of VCMI engine

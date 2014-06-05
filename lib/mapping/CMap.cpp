@@ -7,6 +7,7 @@
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
 #include "../mapObjects/CObjectClassesHandler.h"
+#include "../mapObjects/CGHeroInstance.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSpellHandler.h"
 #include "CMapEditManager.h"

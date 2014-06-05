@@ -18,6 +18,8 @@
 #include "../CTownHandler.h"
 #include "../CCreatureHandler.h"
 
+#include "../mapObjects/CObjectClassesHandler.h"
+
 class CMap;
 class CMapEditManager;
 

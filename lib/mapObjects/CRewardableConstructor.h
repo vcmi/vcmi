@@ -1,8 +1,9 @@
 #pragma once
 
-#include "mapObjects/CRewardableObject.h"
+#include "CRewardableObject.h"
 #include "CObjectClassesHandler.h"
-#include "JsonNode.h"
+
+#include "../JsonNode.h"
 
 /*
  * CObjectConstructor.h, part of VCMI engine

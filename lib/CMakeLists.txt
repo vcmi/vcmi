@@ -6,19 +6,6 @@ include_directories(${Boost_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR}
 
 set(lib_SRCS
 		StdInc.cpp
-		IGameCallback.cpp
-		CGameInfoCallback.cpp
-		CGameState.cpp
-		Connection.cpp
-		NetPacksLib.cpp
-
-		registerTypes/RegisterTypes.cpp
-		registerTypes/TypesClientPacks1.cpp
-		registerTypes/TypesClientPacks2.cpp
-		registerTypes/TypesMapObjects1.cpp
-		registerTypes/TypesMapObjects2.cpp
-		registerTypes/TypesPregamePacks.cpp
-		registerTypes/TypesServerPacks.cpp
 
 		filesystem/AdapterLoaders.cpp
 		filesystem/CCompressedStream.cpp
@@ -32,10 +19,18 @@ set(lib_SRCS
 		filesystem/Filesystem.cpp
 		filesystem/ResourceID.cpp
 
+		mapObjects/CGArmedInstance.cpp
+		mapObjects/CGBank.cpp
+		mapObjects/CGHeroInstance.cpp
+		mapObjects/CGMarket.cpp
+		mapObjects/CGPandoraBox.cpp
+		mapObjects/CGTownInstance.cpp
 		mapObjects/CObjectClassesHandler.cpp
 		mapObjects/CObjectHandler.cpp
+		mapObjects/CQuest.cpp
 		mapObjects/CRewardableConstructor.cpp
 		mapObjects/CRewardableObject.cpp
+		mapObjects/MiscObjects.cpp
 		mapObjects/ObjectTemplate.cpp
 
 		logging/CBasicLogConfigurator.cpp
@@ -85,6 +80,20 @@ set(lib_SRCS
 		ResourceSet.cpp
 		VCMI_Lib.cpp
 		VCMIDirs.cpp
+
+		IGameCallback.cpp
+		CGameInfoCallback.cpp
+		CGameState.cpp
+		Connection.cpp
+		NetPacksLib.cpp
+
+		registerTypes/RegisterTypes.cpp
+		registerTypes/TypesClientPacks1.cpp
+		registerTypes/TypesClientPacks2.cpp
+		registerTypes/TypesMapObjects1.cpp
+		registerTypes/TypesMapObjects2.cpp
+		registerTypes/TypesPregamePacks.cpp
+		registerTypes/TypesServerPacks.cpp
 )
 
 set(lib_HEADERS
@@ -92,6 +101,8 @@ set(lib_HEADERS
 
 		filesystem/CInputStream.h
 		filesystem/ISimpleResourceLoader.h
+
+		mapObjects/MapObjects.h
 
 		AI_Base.h
 		CondSh.h

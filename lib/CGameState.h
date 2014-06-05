@@ -14,7 +14,7 @@
 #include "IGameCallback.h"
 #include "ResourceSet.h"
 #include "int3.h"
-#include "mapObjects/CObjectHandler.h"
+//#include "mapObjects/CObjectHandler.h"
 #include "CRandomGenerator.h"
 
 /*

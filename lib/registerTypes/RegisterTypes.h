@@ -4,14 +4,13 @@
 #include "../NetPacks.h"
 #include "../VCMI_Lib.h"
 #include "../CArtHandler.h"
-#include "../mapObjects/CObjectHandler.h"
-#include "../mapObjects/CRewardableObject.h"
 #include "../CGameState.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../CModHandler.h" //needed?
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CRewardableConstructor.h"
+#include "../mapObjects/MapObjects.h"
 
 /*
  * RegisterTypes.h, part of VCMI engine

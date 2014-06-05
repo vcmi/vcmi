@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../lib/VCMI_Lib.h"
-#include "../../lib/mapObjects/CObjectHandler.h"
+//#include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/CBuildingHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CTownHandler.h"

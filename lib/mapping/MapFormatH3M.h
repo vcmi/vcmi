@@ -14,7 +14,8 @@
 #include "CMapService.h"
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
-#include "../mapObjects/CObjectClassesHandler.h"
+//#include "../mapObjects/CObjectClassesHandler.h"
+#include "../mapObjects/ObjectTemplate.h"
 
 #include "../int3.h"
 
