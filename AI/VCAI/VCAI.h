@@ -4,7 +4,7 @@
 #include "Goals.h"
 #include "../../lib/AI_Base.h"
 #include "../../CCallback.h"
-#include "../../lib/CObjectClassesHandler.h"
+#include "../../lib/mapObjects/CObjectClassesHandler.h"
 
 #include "../../lib/CThreadHelper.h"
 
@@ -14,7 +14,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CSpellHandler.h"
-#include "../../lib/CObjectHandler.h"
+#include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/Connection.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapping/CMap.h"

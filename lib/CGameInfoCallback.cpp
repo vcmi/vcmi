@@ -12,7 +12,7 @@
 #include "CGameInfoCallback.h"
 
 #include "CGameState.h" // PlayerState
-#include "CObjectHandler.h" // for CGObjectInstance
+#include "mapObjects/CObjectHandler.h" // for CGObjectInstance
 #include "StartInfo.h" // for StartInfo
 #include "BattleState.h" // for BattleInfo
 #include "NetPacks.h" // for InfoWindow

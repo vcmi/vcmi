@@ -2,10 +2,10 @@
 #include "NetPacks.h"
 
 #include "CGeneralTextHandler.h"
-#include "CObjectClassesHandler.h"
+#include "mapObjects/CObjectClassesHandler.h"
 #include "CArtHandler.h"
 #include "CHeroHandler.h"
-#include "CObjectHandler.h"
+#include "mapObjects/CObjectHandler.h"
 #include "CModHandler.h"
 #include "VCMI_Lib.h"
 #include "mapping/CMap.h"

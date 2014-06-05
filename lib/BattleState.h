@@ -4,7 +4,7 @@
 #include "BattleHex.h"
 #include "HeroBonus.h"
 #include "CCreatureSet.h"
-#include "CObjectHandler.h"
+#include "mapObjects/CObjectHandler.h"
 #include "CCreatureHandler.h"
 #include "CObstacleInstance.h"
 #include "ConstTransitivePtr.h"

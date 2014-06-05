@@ -11,8 +11,8 @@
 #include "CArtHandler.h"
 #include "CSpellHandler.h"
 #include "filesystem/Filesystem.h"
-#include "CObjectClassesHandler.h"
-#include "CObjectHandler.h"
+#include "mapObjects/CObjectClassesHandler.h"
+#include "mapObjects/CObjectHandler.h"
 
 /*
  * CTownHandler.cpp, part of VCMI engine

@@ -6,7 +6,7 @@
 #include "../CAdvmapInterface.h"
 #include "../CAnimation.h"
 #include "../CBitmapHandler.h"
-#include "../../lib/CObjectHandler.h"
+#include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/CHeroHandler.h"
 # include "../CDefHandler.h"
 #include "../../lib/CSpellHandler.h"

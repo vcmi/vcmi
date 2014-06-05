@@ -15,7 +15,7 @@
 #include "../CRandomGenerator.h"
 #include "CMapGenOptions.h"
 #include "CRmgTemplateZone.h"
-#include "../CObjectHandler.h"
+#include "../mapObjects/CObjectHandler.h"
 #include "../int3.h"
 
 class CMap;

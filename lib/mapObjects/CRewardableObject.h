@@ -4,7 +4,7 @@
 #include "NetPacksBase.h"
 
 /*
- * CObjectWithReward.h, part of VCMI engine
+ * CRewardableObject.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -153,7 +153,7 @@ public:
 
 /// Base class that can handle granting rewards to visiting heroes.
 /// Inherits from CArmedInstance for proper trasfer of armies
-class DLL_LINKAGE CObjectWithReward : public CArmedInstance
+class DLL_LINKAGE CRewardableObject : public CArmedInstance
 {
 	/// function that must be called if hero got level-up during grantReward call
 	void grantRewardAfterLevelup(const CVisitInfo & reward, const CGHeroInstance * hero) const;
@@ -228,7 +228,7 @@ public:
 	/// function that will be called once reward is fully granted to hero
 	virtual void onRewardGiven(const CGHeroInstance * hero) const;
 
-	CObjectWithReward();
+	CRewardableObject();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -242,7 +242,7 @@ public:
 	friend class CRandomRewardObjectInfo;
 };
 
-class DLL_LINKAGE CGPickable : public CObjectWithReward //campfire, treasure chest, Flotsam, Shipwreck Survivor, Sea Chest
+class DLL_LINKAGE CGPickable : public CRewardableObject //campfire, treasure chest, Flotsam, Shipwreck Survivor, Sea Chest
 {
 public:
 	void initObj() override;
@@ -251,11 +251,11 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CObjectWithReward&>(*this);
+		h & static_cast<CRewardableObject&>(*this);
 	}
 };
 
-class DLL_LINKAGE CGBonusingObject : public CObjectWithReward //objects giving bonuses to luck/morale/movement
+class DLL_LINKAGE CGBonusingObject : public CRewardableObject //objects giving bonuses to luck/morale/movement
 {
 public:
 	void initObj() override;
@@ -268,7 +268,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGOnceVisitable : public CObjectWithReward // wagon, corpse, lean to, warriors tomb
+class DLL_LINKAGE CGOnceVisitable : public CRewardableObject // wagon, corpse, lean to, warriors tomb
 {
 public:
 	void initObj() override;
@@ -277,11 +277,11 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CObjectWithReward&>(*this);
+		h & static_cast<CRewardableObject&>(*this);
 	}
 };
 
-class DLL_LINKAGE CGVisitableOPH : public CObjectWithReward //objects visitable only once per hero
+class DLL_LINKAGE CGVisitableOPH : public CRewardableObject //objects visitable only once per hero
 {
 public:
 	void initObj() override;
@@ -290,11 +290,11 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CObjectWithReward&>(*this);
+		h & static_cast<CRewardableObject&>(*this);
 	}
 };
 
-class DLL_LINKAGE CGVisitableOPW : public CObjectWithReward //objects visitable once per week
+class DLL_LINKAGE CGVisitableOPW : public CRewardableObject //objects visitable once per week
 {
 public:
 	void initObj() override;
@@ -303,7 +303,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CObjectWithReward&>(*this);
+		h & static_cast<CRewardableObject&>(*this);
 	}
 };
 

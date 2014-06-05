@@ -4,14 +4,14 @@
 #include "../NetPacks.h"
 #include "../VCMI_Lib.h"
 #include "../CArtHandler.h"
-#include "../CObjectHandler.h"
-#include "../CObjectWithReward.h"
+#include "../mapObjects/CObjectHandler.h"
+#include "../mapObjects/CRewardableObject.h"
 #include "../CGameState.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../CModHandler.h" //needed?
-#include "../CObjectClassesHandler.h"
-#include "../CObjectConstructor.h"
+#include "../mapObjects/CObjectClassesHandler.h"
+#include "../mapObjects/CRewardableConstructor.h"
 
 /*
  * RegisterTypes.h, part of VCMI engine
@@ -77,7 +77,7 @@ void registerTypesMapObjects1(Serializer &s)
 template<typename Serializer>
 void registerTypesMapObjectTypes(Serializer &s)
 {
-	s.template registerType<AObjectTypeHandler, CObjectWithRewardConstructor>();
+	s.template registerType<AObjectTypeHandler, CRewardableConstructor>();
 
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
 
@@ -137,11 +137,11 @@ void registerTypesMapObjects2(Serializer &s)
 		s.template registerType<CGTownBuilding, CTownBonus>();
 			s.template registerType<CGTownBuilding, COPWBonus>();
 
-	s.template registerType<CGObjectInstance, CObjectWithReward>();
-		s.template registerType<CObjectWithReward, CGPickable>();
-		s.template registerType<CObjectWithReward, CGVisitableOPH>();
-		s.template registerType<CObjectWithReward, CGVisitableOPW>();
-		s.template registerType<CObjectWithReward, CGOnceVisitable>();
+	s.template registerType<CGObjectInstance, CRewardableObject>();
+		s.template registerType<CRewardableObject, CGPickable>();
+		s.template registerType<CRewardableObject, CGVisitableOPH>();
+		s.template registerType<CRewardableObject, CGVisitableOPW>();
+		s.template registerType<CRewardableObject, CGOnceVisitable>();
 			s.template registerType<CGVisitableOPW, CGMagicSpring>();
 
 	s.template registerType<CGObjectInstance, CPlayersVisited>();

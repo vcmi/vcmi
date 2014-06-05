@@ -5,7 +5,7 @@
 #include "../lib/CCreatureHandler.h" //creatures name for objects list
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CModHandler.h" //for buildings per turn
-#include "../lib/CObjectHandler.h" //Hero/Town objects
+#include "../lib/mapObjects/CObjectHandler.h" //Hero/Town objects
 #include "../lib/CHeroHandler.h" // only for calculating required xp? worth it?
 #include "../lib/CTownHandler.h"
 #include "CAnimation.h" //CAnimImage

@@ -2,7 +2,7 @@
 #include "../lib/NetPacks.h"
 
 #include "CGameHandler.h"
-#include "../lib/CObjectHandler.h"
+#include "../lib/mapObjects/CObjectHandler.h"
 #include "../lib/IGameCallback.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/CGameState.h"

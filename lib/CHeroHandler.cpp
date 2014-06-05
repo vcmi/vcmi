@@ -10,7 +10,7 @@
 #include "CCreatureHandler.h"
 #include "CModHandler.h"
 #include "CTownHandler.h"
-#include "CObjectHandler.h" //for hero specialty
+#include "mapObjects/CObjectHandler.h" //for hero specialty
 #include <math.h>
 
 /*

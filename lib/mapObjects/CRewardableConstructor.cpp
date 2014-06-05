@@ -1,5 +1,5 @@
 #include "StdInc.h"
-#include "CObjectConstructor.h"
+#include "CRewardableConstructor.h"
 
 #include "CRandomGenerator.h"
 #include "StringConstants.h"
@@ -136,7 +136,7 @@ void CRandomRewardObjectInfo::init(const JsonNode & objectConfig)
 	parameters = objectConfig;
 }
 
-void CRandomRewardObjectInfo::configureObject(CObjectWithReward * object, CRandomGenerator & rng) const
+void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRandomGenerator & rng) const
 {
 	std::map<si32, si32> thrownDice;
 
@@ -262,29 +262,29 @@ bool CRandomRewardObjectInfo::givesBonuses() const
 	return testForKey(parameters, "bonuses");
 }
 
-CObjectWithRewardConstructor::CObjectWithRewardConstructor()
+CRewardableConstructor::CRewardableConstructor()
 {
 }
 
-void CObjectWithRewardConstructor::init(const JsonNode & config)
+void CRewardableConstructor::init(const JsonNode & config)
 {
 	AObjectTypeHandler::init(config);
 	objectInfo.init(config);
 }
 
-CGObjectInstance * CObjectWithRewardConstructor::create(ObjectTemplate tmpl) const
+CGObjectInstance * CRewardableConstructor::create(ObjectTemplate tmpl) const
 {
-	auto ret = new CObjectWithReward();
+	auto ret = new CRewardableObject();
 	ret->appearance = tmpl;
 	return ret;
 }
 
-void CObjectWithRewardConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
+void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
 {
-	objectInfo.configureObject(dynamic_cast<CObjectWithReward*>(object), rng);
+	objectInfo.configureObject(dynamic_cast<CRewardableObject*>(object), rng);
 }
 
-const IObjectInfo * CObjectWithRewardConstructor::getObjectInfo(ObjectTemplate tmpl) const
+const IObjectInfo * CRewardableConstructor::getObjectInfo(ObjectTemplate tmpl) const
 {
 	return &objectInfo;
 }

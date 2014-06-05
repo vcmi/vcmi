@@ -9,7 +9,6 @@ set(lib_SRCS
 		IGameCallback.cpp
 		CGameInfoCallback.cpp
 		CGameState.cpp
-		CObjectHandler.cpp
 		Connection.cpp
 		NetPacksLib.cpp
 
@@ -32,6 +31,12 @@ set(lib_SRCS
 		filesystem/CZipLoader.cpp
 		filesystem/Filesystem.cpp
 		filesystem/ResourceID.cpp
+
+		mapObjects/CObjectClassesHandler.cpp
+		mapObjects/CObjectHandler.cpp
+		mapObjects/CRewardableConstructor.cpp
+		mapObjects/CRewardableObject.cpp
+		mapObjects/ObjectTemplate.cpp
 
 		logging/CBasicLogConfigurator.cpp
 		logging/CLogger.cpp
@@ -63,14 +68,11 @@ set(lib_SRCS
 		CConsoleHandler.cpp
 		CCreatureHandler.cpp
 		CCreatureSet.cpp
-		CObjectClassesHandler.cpp
 		CGameInterface.cpp
 		CGeneralTextHandler.cpp
 		CHeroHandler.cpp
 		CModHandler.cpp
 		CObstacleInstance.cpp
-		CObjectConstructor.cpp
-		CObjectWithReward.cpp
 		CRandomGenerator.cpp
 		CSpellHandler.cpp
 		CThreadHelper.cpp

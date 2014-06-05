@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CObjectWithReward.h"
+#include "mapObjects/CRewardableObject.h"
 #include "CObjectClassesHandler.h"
 #include "JsonNode.h"
 
@@ -33,7 +33,7 @@ public:
 
 	bool givesBonuses() const override;
 
-	void configureObject(CObjectWithReward * object, CRandomGenerator & rng) const;
+	void configureObject(CRewardableObject * object, CRandomGenerator & rng) const;
 
 	CRandomRewardObjectInfo()
 	{}
@@ -41,12 +41,12 @@ public:
 	void init(const JsonNode & objectConfig);
 };
 
-class CObjectWithRewardConstructor : public AObjectTypeHandler
+class CRewardableConstructor : public AObjectTypeHandler
 {
 	CRandomRewardObjectInfo objectInfo;
 
 public:
-	CObjectWithRewardConstructor();
+	CRewardableConstructor();
 	void init(const JsonNode & config) override;
 
 	CGObjectInstance * create(ObjectTemplate tmpl) const override;

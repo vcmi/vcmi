@@ -1,5 +1,5 @@
 /*
- * CObjectWithReward.cpp, part of VCMI engine
+ * CRewardableObject.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,7 @@
  */
 
 #include "StdInc.h"
-#include "CObjectWithReward.h"
+#include "CRewardableObject.h"
 #include "CHeroHandler.h"
 #include "CGeneralTextHandler.h"
 #include "../client/CSoundBase.h"
@@ -63,7 +63,7 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 	return true;
 }
 
-std::vector<ui32> CObjectWithReward::getAvailableRewards(const CGHeroInstance * hero) const
+std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * hero) const
 {
 	std::vector<ui32> ret;
 
@@ -79,7 +79,7 @@ std::vector<ui32> CObjectWithReward::getAvailableRewards(const CGHeroInstance * 
 	return ret;
 }
 
-void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
+void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 {
 	auto grantRewardWithMessage = [&](int index) -> void
 	{
@@ -161,12 +161,12 @@ void CObjectWithReward::onHeroVisit(const CGHeroInstance *h) const
 	}
 }
 
-void CObjectWithReward::heroLevelUpDone(const CGHeroInstance *hero) const
+void CRewardableObject::heroLevelUpDone(const CGHeroInstance *hero) const
 {
 	grantRewardAfterLevelup(info[selectedReward], hero);
 }
 
-void CObjectWithReward::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	if (answer == 0)
 		return; // player refused
@@ -183,12 +183,12 @@ void CObjectWithReward::blockingDialogAnswered(const CGHeroInstance *hero, ui32 
 	}
 }
 
-void CObjectWithReward::onRewardGiven(const CGHeroInstance * hero) const
+void CRewardableObject::onRewardGiven(const CGHeroInstance * hero) const
 {
 	// no implementation, virtual function for overrides
 }
 
-void CObjectWithReward::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
+void CRewardableObject::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
 {
 	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD, id, hero->id);
 	cb->sendAndApply(&cov);
@@ -197,7 +197,7 @@ void CObjectWithReward::grantReward(ui32 rewardID, const CGHeroInstance * hero) 
 	grantRewardBeforeLevelup(info[rewardID], hero);
 }
 
-void CObjectWithReward::grantRewardBeforeLevelup(const CVisitInfo & info, const CGHeroInstance * hero) const
+void CRewardableObject::grantRewardBeforeLevelup(const CVisitInfo & info, const CGHeroInstance * hero) const
 {
 	assert(hero);
 	assert(hero->tempOwner.isValidPlayer());
@@ -234,7 +234,7 @@ void CObjectWithReward::grantRewardBeforeLevelup(const CVisitInfo & info, const 
 	}
 }
 
-void CObjectWithReward::grantRewardAfterLevelup(const CVisitInfo & info, const CGHeroInstance * hero) const
+void CRewardableObject::grantRewardAfterLevelup(const CVisitInfo & info, const CGHeroInstance * hero) const
 {
 	if (info.reward.manaDiff || info.reward.manaPercentage >= 0)
 	{
@@ -290,7 +290,7 @@ void CObjectWithReward::grantRewardAfterLevelup(const CVisitInfo & info, const C
 		cb->removeObject(this);
 }
 
-bool CObjectWithReward::wasVisited (PlayerColor player) const
+bool CRewardableObject::wasVisited (PlayerColor player) const
 {
 	switch (visitMode)
 	{
@@ -311,7 +311,7 @@ bool CObjectWithReward::wasVisited (PlayerColor player) const
 	}
 }
 
-bool CObjectWithReward::wasVisited (const CGHeroInstance * h) const
+bool CRewardableObject::wasVisited (const CGHeroInstance * h) const
 {
 	switch (visitMode)
 	{
@@ -372,7 +372,7 @@ static std::string & visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
-const std::string & CObjectWithReward::getHoverText() const
+const std::string & CRewardableObject::getHoverText() const
 {
 	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
 	hoverName = VLC->objtypeh->getObjectName(ID);
@@ -387,7 +387,7 @@ const std::string & CObjectWithReward::getHoverText() const
 	return hoverName;
 }
 
-void CObjectWithReward::setPropertyDer(ui8 what, ui32 val)
+void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 {
 	switch (what)
 	{
@@ -402,13 +402,13 @@ void CObjectWithReward::setPropertyDer(ui8 what, ui32 val)
 	}
 }
 
-void CObjectWithReward::newTurn() const
+void CRewardableObject::newTurn() const
 {
 	if (resetDuration != 0 && cb->getDate(Date::DAY) % resetDuration == 0)
 		cb->setObjProperty(id, ObjProperty::REWARD_RESET, 0);
 }
 
-CObjectWithReward::CObjectWithReward():
+CRewardableObject::CRewardableObject():
 	soundID(soundBase::invalid),
 	selectMode(0),
 	selectedReward(0),
@@ -417,7 +417,7 @@ CObjectWithReward::CObjectWithReward():
 {}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-///               END OF CODE FOR COBJECTWITHREWARD AND RELATED CLASSES                         ///
+///               END OF CODE FOR CREWARDABLEOBJECT AND RELATED CLASSES                         ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Helper, selects random art class based on weights

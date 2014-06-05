@@ -12,7 +12,7 @@
 #pragma once
 
 #include "../ConstTransitivePtr.h"
-#include "../CObjectHandler.h"
+#include "../mapObjects/CObjectHandler.h"
 #include "../ResourceSet.h"
 #include "../int3.h"
 #include "../GameConstants.h"
