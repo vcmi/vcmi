@@ -124,6 +124,8 @@ DLL_LINKAGE void HeroVisitCastle::applyGs( CGameState *gs )
 	CGHeroInstance *h = gs->getHero(hid);
 	CGTownInstance *t = gs->getTown(tid);
 
+	assert(h);
+	assert(t);
 	if(start())
 		t->setVisitingHero(h);
 	else

@@ -377,7 +377,7 @@ int3 whereToExplore(HeroPtr h)
 			}
 		}
 	}
-	removeDuplicates (nearbyVisitableObjs); //one object may occupy multiple tiles
+	vstd::removeDuplicates (nearbyVisitableObjs); //one object may occupy multiple tiles
 	boost::sort(nearbyVisitableObjs, isCloser);
 	if(nearbyVisitableObjs.size())
 		return nearbyVisitableObjs.back()->visitablePos();

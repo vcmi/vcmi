@@ -460,7 +460,11 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 
 bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 {
-	//TODO: read treasure values from template
+	
+	std::map<int3, CGObjectInstance *> treasures;
+	std::set<int3> boundary;
+	int3 guardPos;
+	int3 nextTreasurePos = pos;
 
 	//default values
 	int maxValue = 5000;
@@ -477,6 +481,28 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 	CGObjectInstance * object = nullptr;
 	while (currentValue < minValue)
 	{
+		//TODO: this works only for 1-tile objects
+		//make sure our shape is consistent
+		treasures[nextTreasurePos] = nullptr;
+		for (auto treasurePos : treasures)
+		{
+			gen->foreach_neighbour (treasurePos.first, [gen, &boundary](int3 pos)
+			{
+				boundary.insert(pos);
+			});
+		}
+		for (auto treasurePos : treasures)
+		{
+			//leaving only boundary around objects
+			vstd::erase_if_present (boundary, treasurePos.first);
+		}
+		for (auto tile : boundary)
+		{
+			//we can't extend boundary anymore
+			if (!(gen->isBlocked(tile) || gen->isPossible(tile)))
+				break;
+		}
+
 		int remaining = maxValue - currentValue;
 
 		auto oi = getRandomObject(gen, remaining);
@@ -484,13 +510,47 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		if (!object)
 			break;
 
-		//TODO: generate actual zone and not just all objects on a pile
 		currentValue += oi.value;
-		placeObject(gen, object, pos);
+		
+		treasures[nextTreasurePos] = object;
+
+		//now find place for next object
+		int3 placeFound(-1,-1,-1);
+		for (auto tile : boundary)
+		{
+			if (gen->isPossible(tile)) //we can place new treasure only on possible tile
+			{
+				bool here = true;
+				gen->foreach_neighbour (tile, [gen, &here](int3 pos)
+				{
+					if (!(gen->isBlocked(pos) || gen->isPossible(pos)))
+						here = false;
+				});
+				if (here)
+				{
+					placeFound = tile;
+					break;
+				}
+			}
+		}
+		if (placeFound.valid())
+			nextTreasurePos = placeFound;
 	}
-	if (object)
+	if (treasures.size())
 	{
-		guardObject (gen, object, currentValue);
+		for (auto treasure : treasures)
+		{
+			placeObject(gen, treasure.second, treasure.first);
+		}
+		guardPos = *RandomGeneratorUtil::nextItem(boundary, gen->rand);
+		if (addMonster(gen, guardPos, currentValue))
+		{//block only if object is guarded
+			for (auto tile : boundary)
+			{
+				if (gen->isPossible(tile))
+					gen->setOccupied (tile, ETileType::BLOCKED);
+			}
+		}
 		return true;
 	}
 	else //we did not place eveyrthing successfully
@@ -680,13 +740,12 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			town->builtBuildings.insert(BuildingID::DEFAULT);
 			
 			placeObject(gen, town, getPos() + town->getVisitableOffset()); //towns are big objects and should be centered around visitable position
-			logGlobal->traceStream() << "Placed object";
 
 			logGlobal->traceStream() << "Fill player info " << player_id;
-			auto & playerInfo = gen->map->players[player_id];
+
 			// Update player info
 			playerInfo.allowedFactions.clear();
-			playerInfo.allowedFactions.insert(town->subID);
+			playerInfo.allowedFactions.insert(townId);
 			playerInfo.hasMainTown = true;
 			playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
 			playerInfo.generateHeroAtMainTown = true;
@@ -913,7 +972,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	}
 	auto guard_tile = *RandomGeneratorUtil::nextItem(tiles, gen->rand);
 
-	if (addMonster (gen, guard_tile, str)) //do not lace obstacles aroudn unguarded object
+	if (addMonster (gen, guard_tile, str)) //do not place obstacles around unguarded object
 	{
 		for (auto pos : tiles)
 			gen->setOccupied(pos, ETileType::BLOCKED);
