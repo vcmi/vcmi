@@ -10,7 +10,7 @@
 			{
 				"type" : "playerStart", "size" : 1, "owner" : 1,
 				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true,
-				"treasure" : {"min" : 1000, "max": 3000}
+				"treasure" : {"min" : 1500, "max": 3000}
 			},
 			"2" :
 			{
@@ -33,7 +33,7 @@
 			"5" :
 			{
 				"type" : "treasure", "size" : 2, "terrainTypes" : [ "sand" ], "neutralTowns" : { "castles" : 1 },
-				"treasure" : {"min" : 5000, "max": 10000}
+				"treasure" : {"min" : 9000, "max": 10000}
 			}
 		},
 		"connections" :
@@ -65,7 +65,7 @@
 			"3" :
 			{
 				"type" : "treasure", "size" : 2, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : "1",
-				"treasure" : {"min" : 1500, "max": 4000}
+				"treasure" : {"min" : 2000, "max": 4000}
 			},
 			"4" :
 			{
@@ -75,7 +75,7 @@
 			"5" :
 			{
 				"type" : "treasure", "size" : 3, "neutralTowns" : { "castles" : 1 }, "terrainTypes" : [ "sand" ],
-				"treasure" : {"min" : 6000, "max": 12000}
+				"treasure" : {"min" : 11000, "max": 12000}
 			}
 		},
 		"connections" :
@@ -98,7 +98,7 @@
 			{
 				"type" : "playerStart", "size" : 3, "owner" : 1,
 				"playerTowns" : { "castles" : 1 },
-				"treasure" : {"min" : 300, "max": 3000}
+				"treasure" : {"min" : 1000, "max": 2000}
 			},
 			"2" :
 			{
@@ -118,7 +118,7 @@
 			"7" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "2", "treasureLikeZone" : 4 },
 			"8" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "3", "treasureLikeZone" : 4 },
 			"9" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "3", "treasureLikeZone" : 4 },
-			"10" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treasure" : {"min" : 10000, "max": 25000} },
+			"10" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treasure" : {"min" : 21000, "max": 25000} },
 			"11" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treasureLikeZone" : 10 },
 			"12" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treasureLikeZone" : 10 }
 		},

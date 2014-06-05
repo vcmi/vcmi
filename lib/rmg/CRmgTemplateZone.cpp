@@ -543,9 +543,24 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		{
 			placeObject(gen, treasure.second, treasure.first);
 		}
-		guardPos = *RandomGeneratorUtil::nextItem(boundary, gen->rand);
+
+		std::vector<int3> accessibleTiles; //we can't place guard in dead-end of zone, make sure that at least one neightbouring tile is possible and not blocked
+		for (auto tile : boundary)
+		{
+			bool possible = false;
+			gen->foreach_neighbour(tile, [gen, &accessibleTiles, &possible, boundary](int3 pos)
+			{
+				if (gen->isPossible(pos) && !vstd::contains(boundary, pos)) //do not check tiles that are going to be blocked
+					possible = true;
+			});
+			if (possible)
+				accessibleTiles.push_back(tile);
+		}
+		guardPos = *RandomGeneratorUtil::nextItem(accessibleTiles, gen->rand);
+
 		if (addMonster(gen, guardPos, currentValue))
 		{//block only if object is guarded
+
 			for (auto tile : boundary)
 			{
 				if (gen->isPossible(tile))
