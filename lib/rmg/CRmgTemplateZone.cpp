@@ -17,6 +17,7 @@
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 #include "../CCreatureHandler.h"
+#include "../CSpellHandler.h" //for choosing random spells
 
 class CMap;
 class CMapEditManager;
@@ -557,162 +558,6 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		return false;
 }
 
-ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, ui32 value)
-{
-	std::vector<std::pair<ui32, ObjectInfo>> tresholds;
-	ui32 total = 0;
-
-	ui32 minValue = 0.25f * value;
-
-	//roulette wheel
-	for (auto oi : possibleObjects)
-	{
-		if (oi.value >= minValue && oi.value <= value)
-		{
-			total += oi.probability;
-			tresholds.push_back (std::make_pair (total, oi));
-		}
-	}
-
-	//TODO: generate pandora box with gold if the value is very high
-	if (tresholds.empty())
-	{
-		ObjectInfo oi;
-		oi.generateObject = [gen]() -> CGObjectInstance *
-		{
-			return nullptr;
-		};
-		oi.value = 0;
-		oi.probability = 0;
-	}
-
-	int r = gen->rand.nextInt (1, total);
-
-	for (auto t : tresholds)
-	{
-		if (r <= t.first)
-			return t.second;
-	}
-}
-
-void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
-{
-	//TODO: move typical objects to config
-
-	ObjectInfo oi;
-
-	static const Res::ERes preciousRes[] = {Res::ERes::CRYSTAL, Res::ERes::GEMS, Res::ERes::MERCURY, Res::ERes::SULFUR};
-	for (int i = 0; i < 4; i++)
-	{
-		oi.generateObject = [i, gen]() -> CGObjectInstance *
-		{
-			auto obj = new CGResource();
-			obj->ID = Obj::RESOURCE;
-			obj->subID = static_cast<si32>(preciousRes[i]);
-			obj->amount = 0;
-			return obj;
-		};
-		oi.value = 1400;
-		oi.probability = 300;
-		possibleObjects.push_back (oi);
-	}
-
-	static const Res::ERes woodOre[] = {Res::ERes::WOOD, Res::ERes::ORE};
-	for (int i = 0; i < 2; i++)
-	{
-		oi.generateObject = [i, gen]() -> CGObjectInstance *
-		{
-			auto obj = new CGResource();
-			obj->ID = Obj::RESOURCE;
-			obj->subID = static_cast<si32>(woodOre[i]);
-			obj->amount = 0;
-			return obj;
-		};
-		oi.value = 1400;
-		oi.probability = 300;
-		possibleObjects.push_back (oi);
-	}
-
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGResource();
-		obj->ID = Obj::RESOURCE;
-		obj->subID = static_cast<si32>(Res::ERes::GOLD);
-		obj->amount = 0;
-		return obj;
-	};
-	oi.value = 750;
-	oi.probability = 300;
-	possibleObjects.push_back (oi);
-
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGPickable();
-		obj->ID = Obj::TREASURE_CHEST;
-		obj->subID = 0;
-		return obj;
-	};
-	oi.value = 1500;
-	oi.probability = 1000;
-	possibleObjects.push_back (oi);
-
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGArtifact();
-		obj->ID = Obj::RANDOM_TREASURE_ART;
-		obj->subID = 0;
-		auto a = new CArtifactInstance();
-		gen->map->addNewArtifactInstance(a);
-		obj->storedArtifact = a;
-		return obj;
-	};
-	oi.value = 2000;
-	oi.probability = 150;
-	possibleObjects.push_back (oi);
-
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGArtifact();
-		obj->ID = Obj::RANDOM_MINOR_ART;
-		obj->subID = 0;
-		auto a = new CArtifactInstance();
-		gen->map->addNewArtifactInstance(a);
-		obj->storedArtifact = a;
-		return obj;
-	};
-	oi.value = 5000;
-	oi.probability = 150;
-	possibleObjects.push_back (oi);
-
-		oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGArtifact();
-		obj->ID = Obj::RANDOM_MAJOR_ART;
-		obj->subID = 0;
-		auto a = new CArtifactInstance();
-		gen->map->addNewArtifactInstance(a);
-		obj->storedArtifact = a;
-		return obj;
-	};
-	oi.value = 10000;
-	oi.probability = 150;
-	possibleObjects.push_back (oi);
-
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGArtifact();
-		obj->ID = Obj::RANDOM_RELIC_ART;
-		obj->subID = 0;
-		auto a = new CArtifactInstance();
-		gen->map->addNewArtifactInstance(a);
-		obj->storedArtifact = a;
-		return obj;
-	};
-	oi.value = 20000;
-	oi.probability = 150;
-	possibleObjects.push_back (oi);
-}
-
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
 {
 	addAllPossibleObjects (gen);
@@ -983,4 +828,190 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 		gen->setOccupied (guard_tile, ETileType::FREE);
 
 	return true;
+}
+
+ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, ui32 value)
+{
+	std::vector<std::pair<ui32, ObjectInfo>> tresholds;
+	ui32 total = 0;
+
+	ui32 minValue = 0.25f * value;
+
+	//roulette wheel
+	for (auto oi : possibleObjects)
+	{
+		if (oi.value >= minValue && oi.value <= value)
+		{
+			total += oi.probability;
+			tresholds.push_back (std::make_pair (total, oi));
+		}
+	}
+
+	//TODO: generate pandora box with gold if the value is very high
+	if (tresholds.empty())
+	{
+		ObjectInfo oi;
+		oi.generateObject = [gen]() -> CGObjectInstance *
+		{
+			return nullptr;
+		};
+		oi.value = 0;
+		oi.probability = 0;
+	}
+
+	int r = gen->rand.nextInt (1, total);
+
+	for (auto t : tresholds)
+	{
+		if (r <= t.first)
+			return t.second;
+	}
+}
+
+void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
+{
+	//TODO: move typical objects to config
+
+	ObjectInfo oi;
+
+	static const Res::ERes preciousRes[] = {Res::ERes::CRYSTAL, Res::ERes::GEMS, Res::ERes::MERCURY, Res::ERes::SULFUR};
+	for (int i = 0; i < 4; i++)
+	{
+		oi.generateObject = [i, gen]() -> CGObjectInstance *
+		{
+			auto obj = new CGResource();
+			obj->ID = Obj::RESOURCE;
+			obj->subID = static_cast<si32>(preciousRes[i]);
+			obj->amount = 0;
+			return obj;
+		};
+		oi.value = 1400;
+		oi.probability = 300;
+		possibleObjects.push_back (oi);
+	}
+
+	static const Res::ERes woodOre[] = {Res::ERes::WOOD, Res::ERes::ORE};
+	for (int i = 0; i < 2; i++)
+	{
+		oi.generateObject = [i, gen]() -> CGObjectInstance *
+		{
+			auto obj = new CGResource();
+			obj->ID = Obj::RESOURCE;
+			obj->subID = static_cast<si32>(woodOre[i]);
+			obj->amount = 0;
+			return obj;
+		};
+		oi.value = 1400;
+		oi.probability = 300;
+		possibleObjects.push_back (oi);
+	}
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGResource();
+		obj->ID = Obj::RESOURCE;
+		obj->subID = static_cast<si32>(Res::ERes::GOLD);
+		obj->amount = 0;
+		return obj;
+	};
+	oi.value = 750;
+	oi.probability = 300;
+	possibleObjects.push_back (oi);
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGPickable();
+		obj->ID = Obj::TREASURE_CHEST;
+		obj->subID = 0;
+		return obj;
+	};
+	oi.value = 1500;
+	oi.probability = 1000;
+	possibleObjects.push_back (oi);
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGArtifact();
+		obj->ID = Obj::RANDOM_TREASURE_ART;
+		obj->subID = 0;
+		auto a = new CArtifactInstance();
+		gen->map->addNewArtifactInstance(a);
+		obj->storedArtifact = a;
+		return obj;
+	};
+	oi.value = 2000;
+	oi.probability = 150;
+	possibleObjects.push_back (oi);
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGArtifact();
+		obj->ID = Obj::RANDOM_MINOR_ART;
+		obj->subID = 0;
+		auto a = new CArtifactInstance();
+		gen->map->addNewArtifactInstance(a);
+		obj->storedArtifact = a;
+		return obj;
+	};
+	oi.value = 5000;
+	oi.probability = 150;
+	possibleObjects.push_back (oi);
+
+		oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGArtifact();
+		obj->ID = Obj::RANDOM_MAJOR_ART;
+		obj->subID = 0;
+		auto a = new CArtifactInstance();
+		gen->map->addNewArtifactInstance(a);
+		obj->storedArtifact = a;
+		return obj;
+	};
+	oi.value = 10000;
+	oi.probability = 150;
+	possibleObjects.push_back (oi);
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGArtifact();
+		obj->ID = Obj::RANDOM_RELIC_ART;
+		obj->subID = 0;
+		auto a = new CArtifactInstance();
+		gen->map->addNewArtifactInstance(a);
+		obj->storedArtifact = a;
+		return obj;
+	};
+	oi.value = 20000;
+	oi.probability = 150;
+	possibleObjects.push_back (oi);
+
+	static const int scrollValues[] = {500, 2000, 3000, 4000, 5000};
+
+	for (int i = 0; i < 5; i++)
+	{
+		oi.generateObject = [i, gen]() -> CGObjectInstance *
+		{
+			auto obj = new CGArtifact();
+			obj->ID = Obj::SPELL_SCROLL;
+			obj->subID = 0;
+			std::vector<SpellID> out;
+
+			//TODO: unify with cb->getAllowedSpells?
+			for (ui32 i = 0; i < gen->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
+			{
+				const CSpell *spell = SpellID(i).toSpell();
+				if (gen->map->allowedSpell[spell->id] && spell->level == i+1)
+				{
+					out.push_back(spell->id);
+				}
+			}
+			auto a = CArtifactInstance::createScroll(RandomGeneratorUtil::nextItem(out, gen->rand)->toSpell());
+			gen->map->addNewArtifactInstance(a);
+			obj->storedArtifact = a;
+			return obj;
+		};
+		oi.value = scrollValues[i];
+		oi.probability = 30;
+		possibleObjects.push_back (oi);
+	}
 }
