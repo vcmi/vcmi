@@ -3,7 +3,7 @@
 #include "CObjectHandler.h"
 
 /*
- * CObjectHandler.h, part of VCMI engine
+ * CGMarket.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

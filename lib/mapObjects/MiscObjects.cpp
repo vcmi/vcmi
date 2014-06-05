@@ -1,5 +1,5 @@
 /*
- * CObjectHandler.cpp, part of VCMI engine
+ * MiscObjects.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,9 +11,8 @@
 #include "StdInc.h"
 #include "MiscObjects.h"
 
-#include "NetPacks.h"
-#include "CGeneralTextHandler.h"
-//#include "CHeroHandler.h"
+#include "../NetPacks.h"
+#include "../CGeneralTextHandler.h"
 #include "../client/CSoundBase.h"
 
 #include "CObjectClassesHandler.h"

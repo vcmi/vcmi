@@ -16,7 +16,6 @@
 #include "../lib/CGameState.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/NetPacksBase.h"
-//#include "../lib/mapObjects/CObjectHandler.h"
 
 #include "gui/CGuiHandler.h"
 #include "gui/CIntObjectClasses.h"

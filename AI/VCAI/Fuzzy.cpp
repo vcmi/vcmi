@@ -6,7 +6,6 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../CCallback.h"
-//#include "Goals.cpp"
 #include "VCAI.h"
 
 /*

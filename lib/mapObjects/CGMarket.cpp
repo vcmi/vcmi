@@ -1,5 +1,6 @@
 /*
- * CObjectHandler.cpp, part of VCMI engine
+ *
+ * CGMarket.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,8 +12,8 @@
 #include "StdInc.h"
 #include "CGMarket.h"
 
-#include "NetPacks.h"
-#include "CGeneralTextHandler.h"
+#include "../NetPacks.h"
+#include "../CGeneralTextHandler.h"
 
 using namespace boost::assign;
 

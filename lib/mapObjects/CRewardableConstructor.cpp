@@ -1,12 +1,12 @@
 #include "StdInc.h"
 #include "CRewardableConstructor.h"
 
-#include "CRandomGenerator.h"
-#include "StringConstants.h"
-#include "CCreatureHandler.h"
+#include "../CRandomGenerator.h"
+#include "../StringConstants.h"
+#include "../CCreatureHandler.h"
 
 /*
- * CObjectConstructor.cpp, part of VCMI engine
+ * CRewardableConstructor.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

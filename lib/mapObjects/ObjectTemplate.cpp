@@ -1,15 +1,15 @@
 #include "StdInc.h"
 #include "CObjectClassesHandler.h"
 
-#include "filesystem/Filesystem.h"
-#include "filesystem/CBinaryReader.h"
+#include "../filesystem/Filesystem.h"
+#include "../filesystem/CBinaryReader.h"
 #include "../lib/VCMI_Lib.h"
-#include "GameConstants.h"
-#include "StringConstants.h"
-#include "CGeneralTextHandler.h"
+#include "../GameConstants.h"
+#include "../StringConstants.h"
+#include "../CGeneralTextHandler.h"
 #include "CObjectHandler.h"
-#include "CModHandler.h"
-#include "JsonNode.h"
+#include "../CModHandler.h"
+#include "../JsonNode.h"
 
 #include "CRewardableConstructor.h"
 

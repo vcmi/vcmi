@@ -4,8 +4,6 @@
 #include "gui/CIntObjectClasses.h"
 #include "GUIClasses.h"
 
-//#include "CPlayerInterface.h"
-
 /*
  * CHeroWindow.h, part of VCMI engine
  *

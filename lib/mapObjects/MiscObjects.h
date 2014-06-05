@@ -1,10 +1,10 @@
 #pragma once
 
 #include "CObjectHandler.h"
-#include "CGArmedInstance.h"
+#include "CArmedInstance.h"
 
 /*
- * CObjectHandler.h, part of VCMI engine
+ * MiscObjects.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

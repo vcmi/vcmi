@@ -4,7 +4,7 @@
 #include "../CCreatureSet.h"
 
 /*
- * CObjectHandler.h, part of VCMI engine
+ * CArmedInstance.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

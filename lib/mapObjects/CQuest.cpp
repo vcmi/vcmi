@@ -1,5 +1,6 @@
 /*
- * CObjectHandler.cpp, part of VCMI engine
+ *
+ * CQuest.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,7 +12,7 @@
 #include "StdInc.h"
 #include "CQuest.h"
 
-#include "NetPacks.h"
+#include "../NetPacks.h"
 #include "../client/CSoundBase.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"

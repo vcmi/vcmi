@@ -1,5 +1,5 @@
 /*
- * CObjectHandler.cpp, part of VCMI engine
+ * CGPandoraBox.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CGPandoraBox.h"
 
-#include "NetPacks.h"
+#include "../NetPacks.h"
 #include "../client/CSoundBase.h"
 
 #include "../CSpellHandler.h"

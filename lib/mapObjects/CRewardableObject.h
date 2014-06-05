@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CObjectHandler.h"
-#include "CGArmedInstance.h"
+#include "CArmedInstance.h"
 
 #include "../NetPacksBase.h"
 

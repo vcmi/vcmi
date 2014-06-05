@@ -1,5 +1,5 @@
 /*
- * CObjectHandler.cpp, part of VCMI engine
+ * CArmedInstance.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,7 @@
  */
 
 #include "StdInc.h"
-#include "CGArmedInstance.h"
+#include "CArmedInstance.h"
 
 #include "../CTownHandler.h"
 #include "../CCreatureHandler.h"

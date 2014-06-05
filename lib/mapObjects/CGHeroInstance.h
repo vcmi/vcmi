@@ -1,13 +1,13 @@
 #pragma once
 
 #include "CObjectHandler.h"
-#include "CGArmedInstance.h"
+#include "CArmedInstance.h"
 
 #include "../CArtHandler.h" // For CArtifactSet
 #include "../CRandomGenerator.h"
 
 /*
- * CObjectHandler.h, part of VCMI engine
+ * CGHeroInstance.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

@@ -19,8 +19,8 @@ set(lib_SRCS
 		filesystem/Filesystem.cpp
 		filesystem/ResourceID.cpp
 
-		mapObjects/CGArmedInstance.cpp
-		mapObjects/CGBank.cpp
+		mapObjects/CArmedInstance.cpp
+		mapObjects/CBank.cpp
 		mapObjects/CGHeroInstance.cpp
 		mapObjects/CGMarket.cpp
 		mapObjects/CGPandoraBox.cpp

@@ -1,5 +1,5 @@
 /*
- * CObjectHandler.cpp, part of VCMI engine
+ * CGHeroInstance.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,11 +11,11 @@
 #include "StdInc.h"
 #include "CGHeroInstance.h"
 
-#include "NetPacks.h"
-#include "CGeneralTextHandler.h"
-#include "CHeroHandler.h"
+#include "../NetPacks.h"
+#include "../CGeneralTextHandler.h"
+#include "../CHeroHandler.h"
 #include "../client/CSoundBase.h"
-#include "CSpellHandler.h"
+#include "../CSpellHandler.h"
 #include "CObjectClassesHandler.h"
 
 

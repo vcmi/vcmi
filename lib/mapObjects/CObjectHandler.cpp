@@ -11,9 +11,9 @@
 #include "StdInc.h"
 #include "CObjectHandler.h"
 
-#include "NetPacks.h"
-#include "CGeneralTextHandler.h"
-#include "CHeroHandler.h"
+#include "../NetPacks.h"
+#include "../CGeneralTextHandler.h"
+#include "../CHeroHandler.h"
 #include "../client/CSoundBase.h"
 
 #include "CObjectClassesHandler.h"

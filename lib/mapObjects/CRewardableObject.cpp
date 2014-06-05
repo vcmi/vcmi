@@ -1,4 +1,5 @@
 /*
+ *
  * CRewardableObject.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -10,10 +11,10 @@
 
 #include "StdInc.h"
 #include "CRewardableObject.h"
-#include "CHeroHandler.h"
-#include "CGeneralTextHandler.h"
+#include "../CHeroHandler.h"
+#include "../CGeneralTextHandler.h"
 #include "../client/CSoundBase.h"
-#include "NetPacks.h"
+#include "../NetPacks.h"
 
 #include "CObjectClassesHandler.h"
 

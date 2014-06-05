@@ -1,13 +1,13 @@
 #pragma once
 
 #include "CObjectHandler.h"
-#include "CGArmedInstance.h"
+#include "CArmedInstance.h"
 
 #include "../CCreatureSet.h"
 #include "../NetPacksBase.h"
 
 /*
- * CObjectHandler.h, part of VCMI engine
+ * CQuest.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

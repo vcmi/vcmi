@@ -3,7 +3,6 @@
 #include "VCAI.h"
 
 #include "../../lib/UnlockGuard.h"
-//#include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 

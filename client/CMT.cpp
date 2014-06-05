@@ -34,7 +34,6 @@
 #include "CMessage.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CTownHandler.h"
-//#include "../lib/mapObjects/CObjectHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CScriptingModule.h"
 #include "../lib/GameConstants.h"
@@ -44,7 +43,6 @@
 #ifdef _WIN32
 #include "SDL_syswm.h"
 #endif
-//#include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/UnlockGuard.h"
 #include "CMT.h"
 

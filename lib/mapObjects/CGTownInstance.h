@@ -2,12 +2,12 @@
 
 #include "CObjectHandler.h"
 #include "CGMarket.h" // For IMarket interface
-#include "CGArmedInstance.h"
+#include "CArmedInstance.h"
 
 #include "../CTownHandler.h" // For CTown
 
 /*
- * CObjectHandler.h, part of VCMI engine
+ * CGTownInstance.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

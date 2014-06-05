@@ -6,7 +6,7 @@
 #include "../JsonNode.h"
 
 /*
- * CObjectConstructor.h, part of VCMI engine
+ * CRewardableConstructor.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

@@ -14,8 +14,8 @@
 // Possible TODO - remove this header after CObjectHandler.cpp will be fully split into smaller files
 #include "CObjectHandler.h"
 
-#include "CGArmedInstance.h"
-#include "CGBank.h"
+#include "CArmedInstance.h"
+#include "CBank.h"
 #include "CGHeroInstance.h"
 #include "CGMarket.h"
 #include "CGTownInstance.h"
