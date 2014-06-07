@@ -756,17 +756,40 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 	si32 h = gen->map->height; 
 
 	//logGlobal->infoStream() << boost::format("Min dist for density %f is %d") % density % min_dist;
-	for(auto tile : tileinfo)
+
+	auto tilesBlockedByObject = obj->getBlockedOffsets();
+
+	for (auto tile : tileinfo)
 	{
+		//object must be accessible from at least one surounding tile
+		bool accessible = false;
+		for (int x = -1; x < 2; x++)
+			for (int y = -1; y <2; y++)
+		{
+			if (x && y) //check only if object is visitable from another tile
+			{
+				int3 offset = obj->getVisitableOffset() + int3(x, y, 0);
+				if (!vstd::contains(tilesBlockedByObject, offset))
+				{
+					int3 nearbyPos = tile + offset;
+					if (gen->map->isInTheMap(nearbyPos))
+					{
+						if (obj->appearance.isVisitableFrom(x, y) && !gen->isBlocked(nearbyPos))
+							accessible = true;
+					}
+				}
+			}
+		};
+		if (!accessible)
+			continue;
+
 		auto ti = gen->getTile(tile);
 		auto dist = ti.getNearestObjectDistance();
 		//avoid borders
-		if ((tile.x < 3) || (w - tile.x < 3) || (tile.y < 3) || (h - tile.y < 3))
-			continue;
 		if (gen->isPossible(tile) && (dist >= min_dist) && (dist > best_distance))
 		{
 			bool allTilesAvailable = true;
-			for (auto blockingTile : obj->getBlockedOffsets())
+			for (auto blockingTile : tilesBlockedByObject)
 			{
 				int3 t = tile + blockingTile;
 				if (!gen->map->isInTheMap(t) || !gen->isPossible(t))
