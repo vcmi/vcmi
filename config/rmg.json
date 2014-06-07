@@ -61,7 +61,7 @@
 				"type" : "playerStart", "size" : 1, "owner" : 1,
 				"playerTowns" : { "castles" : 1 },
 				"treasure" : [
-								{"min" : 400, "max": 1000, "density" : 16},
+								{"min" : 400, "max": 1500, "density" : 16},
 								{"min" : 1500, "max": 2500, "density" : 4}
 								]
 			},

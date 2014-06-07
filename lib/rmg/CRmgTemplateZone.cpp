@@ -435,18 +435,28 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
-	while (true)
+	std::vector<CreatureID> possibleCreatures;
+	for (auto cre : VLC->creh->creatures)
 	{
-		creId = VLC->creh->pickRandomMonster(gen->rand);
-		auto cre = VLC->creh->creatures[creId];
-		if ((cre->AIValue * (cre->ammMin + cre->ammMax) / 2 < strength) && (strength < cre->AIValue * 100)) //at leats one full monster. size between minimum size of given stack and 100
+		if (cre->special)
+			continue;
+		if ((cre->AIValue * (cre->ammMin + cre->ammMax) / 2 < strength) && (strength < cre->AIValue * 100)) //at least one full monster. size between minimum size of given stack and 100
 		{
 			amount = strength / cre->AIValue;
 			if (amount >= 4)
 				amount *= gen->rand.nextDouble(0.75, 1.25);
-			break;
+
+			possibleCreatures.push_back(cre->idNumber);
 		}
 	}
+	if (possibleCreatures.size())
+		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, gen->rand);
+	else //just pick any available creature
+	{
+		creId = CreatureID(132); //Azure Dragon
+		amount = strength / VLC->creh->creatures[creId]->AIValue;
+	}
+
 
 	auto guard = new CGCreature();
 	guard->ID = Obj::MONSTER;
@@ -947,12 +957,29 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, ui32 value)
 	if (tresholds.empty())
 	{
 		ObjectInfo oi;
-		oi.generateObject = [gen]() -> CGObjectInstance *
+		if (minValue > 20000) //we don't have object valuable enough
 		{
-			return nullptr;
-		};
-		oi.value = 0;
-		oi.probability = 0;
+			oi.generateObject = [minValue]() -> CGObjectInstance *
+			{
+				auto obj = new CGPandoraBox();
+				obj->ID = Obj::PANDORAS_BOX;
+				obj->subID = 0;
+				obj->resources[Res::GOLD] = minValue;
+				return obj;
+			};
+			oi.value = minValue;
+			oi.probability = 0;
+		}
+		else
+		{
+			oi.generateObject = [gen]() -> CGObjectInstance *
+			{
+				return nullptr;
+			};
+			oi.value = 0;
+			oi.probability = 0;
+		}
+		return oi;
 	}
 
 	int r = gen->rand.nextInt (1, total);
