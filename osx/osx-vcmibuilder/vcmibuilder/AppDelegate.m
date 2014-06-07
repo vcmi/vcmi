@@ -229,10 +229,23 @@
         return [self showErrorText:@"Failed to extract game data using unshield"];
     }
     
-    dataDir = [tempDir stringByAppendingString:@"/Heroes3"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:dataDir]) {
-        // Some releases have "Program_Files" folder instead of "Heroes3"
-        dataDir = [tempDir stringByAppendingString:@"/Program_Files"];
+    NSArray* knownDataDirs = @[
+        @"/Heroes3",
+        @"/Program_Files",
+        @"/Data",
+    ];
+    
+    success = false;
+    for (NSString* knownDir in knownDataDirs) {
+        dataDir = [tempDir stringByAppendingString:knownDir];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:dataDir]) {
+            success = true;
+            break;
+        }
+    }
+    
+    if (!success) {
+        return [self showErrorText:@"Failed to extract game data using unshield"];
     }
     
     // Unmount CD1. Unmount CD2 if needed
