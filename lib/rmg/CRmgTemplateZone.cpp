@@ -547,6 +547,8 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		std::vector<int3> accessibleTiles; //we can't place guard in dead-end of zone, make sure that at least one neightbouring tile is possible and not blocked
 		for (auto tile : boundary)
 		{
+			if (gen->shouldBeBlocked(tile)) //this tile could be already blocked, don't place a monster here
+				continue;
 			bool possible = false;
 			gen->foreach_neighbour(tile, [gen, &accessibleTiles, &possible, boundary](int3 pos)
 			{
