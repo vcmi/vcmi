@@ -668,16 +668,11 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	const double res_mindist = 5;
 
 	//TODO: just placeholder to chekc for possible locations
-	auto obj = new CGResource();
-	obj->ID = Obj::RESOURCE;
-	obj->subID = static_cast<si32>(Res::ERes::GOLD);
-	obj->amount = 0;
 	do {
 		
 		int3 pos;
-		if ( ! findPlaceForObject(gen, obj, res_mindist, pos))		
+		if ( ! findPlaceForTreasurePile(gen, 5, pos))		
 		{
-			delete obj;
 			break;
 		}
 		createTreasurePile (gen, pos);
@@ -704,6 +699,42 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	//gen->editManager->drawTerrain(ETerrainType::ROCK, &gen->gen);
 	logGlobal->infoStream() << boost::format ("Zone %d filled successfully") %id;
 	return true;
+}
+
+bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, si32 min_dist, int3 &pos)
+{
+	//si32 min_dist = sqrt(tileinfo.size()/density);
+	int best_distance = 0;
+	bool result = false;
+
+	//logGlobal->infoStream() << boost::format("Min dist for density %f is %d") % density % min_dist;
+	for(auto tile : tileinfo)
+	{
+		auto dist = gen->getTile(tile).getNearestObjectDistance();
+
+		if (gen->isPossible(tile) && (dist >= min_dist) && (dist > best_distance))
+		{
+			bool allTilesAvailable = true;
+			gen->foreach_neighbour (tile, [&gen, &allTilesAvailable](int3 neighbour)
+			{
+				if (!(gen->isPossible(neighbour) || gen->isBlocked(neighbour)))
+				{
+					allTilesAvailable = false; //all present tiles must be already blocked or ready for new objects
+				}
+			});
+			if (allTilesAvailable)
+			{
+				best_distance = dist;
+				pos = tile;
+				result = true;
+			}
+		}
+	}
+	if (result)
+	{
+		gen->setOccupied(pos, ETileType::BLOCKED); //block that tile
+	}
+	return result;
 }
 
 bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos)
