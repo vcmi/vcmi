@@ -471,11 +471,29 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 	int maxValue = 5000;
 	int minValue = 1500;
 
-	//TODO: choose random treasure info based on density
 	if (treasureInfo.size())
 	{
-		maxValue = treasureInfo.front().max;
-		minValue = treasureInfo.front().min;
+		//roulette wheel
+		std::vector<std::pair<ui16, CTreasureInfo>> tresholds;
+		ui16 total = 0;
+		//TODO: precalculate density chance for entire zone
+		for (auto ti : treasureInfo)
+		{
+			total += ti.density;
+			tresholds.push_back (std::make_pair (total, ti));
+		}
+
+		int r = gen->rand.nextInt (1, total);
+
+		for (auto t : tresholds)
+		{
+			if (r <= t.first)
+			{
+				maxValue = t.second.max;
+				minValue = t.second.min;
+				break;
+			}
+		}
 	}
 
 	int currentValue = 0;
@@ -1094,37 +1112,37 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 	}
 
 	//non-removable object for test
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGMagicWell();
-		obj->ID = Obj::MAGIC_WELL;
-		obj->subID = 0;
-		return obj;
-	};
-	oi.value = 250;
-	oi.probability = 100;
-	possibleObjects.push_back (oi);
+	//oi.generateObject = [gen]() -> CGObjectInstance *
+	//{
+	//	auto obj = new CGMagicWell();
+	//	obj->ID = Obj::MAGIC_WELL;
+	//	obj->subID = 0;
+	//	return obj;
+	//};
+	//oi.value = 250;
+	//oi.probability = 100;
+	//possibleObjects.push_back (oi);
 
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGObelisk();
-		obj->ID = Obj::OBELISK;
-		obj->subID = 0;
-		return obj;
-	};
-	oi.value = 3500;
-	oi.probability = 200;
-	possibleObjects.push_back (oi);
+	//oi.generateObject = [gen]() -> CGObjectInstance *
+	//{
+	//	auto obj = new CGObelisk();
+	//	obj->ID = Obj::OBELISK;
+	//	obj->subID = 0;
+	//	return obj;
+	//};
+	//oi.value = 3500;
+	//oi.probability = 200;
+	//possibleObjects.push_back (oi);
 
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CBank();
-		obj->ID = Obj::CREATURE_BANK;
-		obj->subID = 5; //naga bank
-		return obj;
-	};
-	oi.value = 3000;
-	oi.probability = 100;
-	possibleObjects.push_back (oi);
+	//oi.generateObject = [gen]() -> CGObjectInstance *
+	//{
+	//	auto obj = new CBank();
+	//	obj->ID = Obj::CREATURE_BANK;
+	//	obj->subID = 5; //naga bank
+	//	return obj;
+	//};
+	//oi.value = 3000;
+	//oi.probability = 100;
+	//possibleObjects.push_back (oi);
 	
 }

@@ -68,13 +68,27 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				if (!zoneNode["treasure"].isNull())
 				{
 					//TODO: parse vector of different treasure settings
-					auto treasureInfo = zoneNode["treasure"].Struct();
+					if (zoneNode["treasure"].getType() == JsonNode::DATA_STRUCT)
 					{
-						CTreasureInfo ti;
-						ti.min = treasureInfo["min"].Float();
-						ti.max = treasureInfo["max"].Float();
-						ti.density = 1; //TODO: use me
-						zone->addTreasureInfo(ti);
+						auto treasureInfo = zoneNode["treasure"].Struct();
+						{
+							CTreasureInfo ti;
+							ti.min = treasureInfo["min"].Float();
+							ti.max = treasureInfo["max"].Float();
+							ti.density = treasureInfo["density"].Float(); //TODO: use me
+							zone->addTreasureInfo(ti);
+						}
+					}
+					else if (zoneNode["treasure"].getType() == JsonNode::DATA_VECTOR)
+					{
+						for (auto treasureInfo : zoneNode["treasure"].Vector())
+						{
+							CTreasureInfo ti;
+							ti.min = treasureInfo["min"].Float();
+							ti.max = treasureInfo["max"].Float();
+							ti.density = treasureInfo["density"].Float();
+							zone->addTreasureInfo(ti);
+						}
 					}
 				}
 
