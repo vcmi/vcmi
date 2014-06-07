@@ -234,15 +234,7 @@ void CMapGenerator::createConnections()
 		//rearrange tiles in random order
 		auto tilesCopy = zoneA->getTileInfo();
 		std::vector<int3> tiles(tilesCopy.begin(), tilesCopy.end());
-		//TODO: hwo to use std::shuffle with our generator?
-		//std::random_shuffle (tiles.begin(), tiles.end(), &gen->rand.nextInt);
-
-		int i, n;
-		n = (tiles.end() - tiles.begin());
-		for (i=n-1; i>0; --i)
-		{
-			std::swap (tiles.begin()[i],tiles.begin()[rand.nextInt(i+1)]);
-		}
+		RandomGeneratorUtil::randomShuffle(tiles, rand);
 
 		int3 guardPos(-1,-1,-1);
 

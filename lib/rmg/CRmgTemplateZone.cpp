@@ -517,6 +517,11 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 
 		//now find place for next object
 		int3 placeFound(-1,-1,-1);
+
+		//FIXME: find out why teh following code causes crashes
+		//std::vector<int3> boundaryVec(boundary.begin(), boundary.end());
+		//RandomGeneratorUtil::randomShuffle(boundaryVec, gen->rand);
+		//for (auto tile : boundaryVec)
 		for (auto tile : boundary)
 		{
 			if (gen->isPossible(tile)) //we can place new treasure only on possible tile
@@ -541,7 +546,7 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 	{
 		for (auto treasure : treasures)
 		{
-			placeObject(gen, treasure.second, treasure.first);
+			placeObject(gen, treasure.second, treasure.first - treasure.second->getVisitableOffset());
 		}
 
 		std::vector<int3> accessibleTiles; //we can't place guard in dead-end of zone, make sure that at least one neightbouring tile is possible and not blocked
@@ -913,6 +918,8 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, ui32 value)
 	{
 		if (oi.value >= minValue && oi.value <= value)
 		{
+			//TODO: check place for non-removable object
+			//problem: we need at least template for the object that does not yet exist
 			total += oi.probability;
 			tresholds.push_back (std::make_pair (total, oi));
 		}
@@ -1085,4 +1092,39 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 		oi.probability = 30;
 		possibleObjects.push_back (oi);
 	}
+
+	//non-removable object for test
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGMagicWell();
+		obj->ID = Obj::MAGIC_WELL;
+		obj->subID = 0;
+		return obj;
+	};
+	oi.value = 250;
+	oi.probability = 100;
+	possibleObjects.push_back (oi);
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGObelisk();
+		obj->ID = Obj::OBELISK;
+		obj->subID = 0;
+		return obj;
+	};
+	oi.value = 3500;
+	oi.probability = 200;
+	possibleObjects.push_back (oi);
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CBank();
+		obj->ID = Obj::CREATURE_BANK;
+		obj->subID = 5; //naga bank
+		return obj;
+	};
+	oi.value = 3000;
+	oi.probability = 100;
+	possibleObjects.push_back (oi);
+	
 }
