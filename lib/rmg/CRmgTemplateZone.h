@@ -59,6 +59,7 @@ public:
 	ui32 min;
 	ui32 max;
 	ui16 density;
+	ui16 threshold; //how much must RNG roll to pick that zone
 };
 
 struct DLL_LINKAGE ObjectInfo
@@ -134,6 +135,8 @@ public:
 	void createBorder(CMapGenerator* gen);
 	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone);
 
+	void setTotalDensity (ui16 val);
+	ui16 getTotalDensity () const;
 	void addConnection(TRmgTemplateZoneId otherZone);
 	std::vector<TRmgTemplateZoneId> getConnections() const;
 	void addTreasureInfo(CTreasureInfo & info);
@@ -154,6 +157,7 @@ private:
 	std::set<ETerrainType> terrainTypes;
 	boost::optional<TRmgTemplateZoneId> terrainTypeLikeZone, townTypeLikeZone;
 
+	ui16 totalDensity;
 	std::vector<CTreasureInfo> treasureInfo;
 	std::vector<ObjectInfo> possibleObjects;
 

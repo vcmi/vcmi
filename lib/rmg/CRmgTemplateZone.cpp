@@ -121,7 +121,7 @@ void CTileInfo::setTerrainType(ETerrainType value)
 }
 
 CRmgTemplateZone::CRmgTemplateZone() : id(0), type(ETemplateZoneType::PLAYER_START), size(1),
-	townsAreSameType(false), matchTerrainToTown(true)
+	townsAreSameType(false), matchTerrainToTown(true), totalDensity(0)
 {
 	townTypes = getDefaultTownTypes();
 	terrainTypes = getDefaultTerrainTypes();
@@ -282,6 +282,16 @@ void CRmgTemplateZone::addConnection(TRmgTemplateZoneId otherZone)
 std::vector<TRmgTemplateZoneId> CRmgTemplateZone::getConnections() const
 {
 	return connections;
+}
+
+void CRmgTemplateZone::setTotalDensity (ui16 val)
+{
+	totalDensity = val;
+}
+
+ui16 CRmgTemplateZone::getTotalDensity () const
+{
+	return totalDensity;
 }
 
 void CRmgTemplateZone::addTreasureInfo(CTreasureInfo & info)
@@ -485,23 +495,14 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 	if (treasureInfo.size())
 	{
 		//roulette wheel
-		std::vector<std::pair<ui16, CTreasureInfo>> tresholds;
-		ui16 total = 0;
-		//TODO: precalculate density chance for entire zone
-		for (auto ti : treasureInfo)
-		{
-			total += ti.density;
-			tresholds.push_back (std::make_pair (total, ti));
-		}
+		int r = gen->rand.nextInt (1, totalDensity);
 
-		int r = gen->rand.nextInt (1, total);
-
-		for (auto t : tresholds)
+		for (auto t : treasureInfo)
 		{
-			if (r <= t.first)
+			if (r <= t.threshold)
 			{
-				maxValue = t.second.max;
-				minValue = t.second.min;
+				maxValue = t.max;
+				minValue = t.min;
 				break;
 			}
 		}

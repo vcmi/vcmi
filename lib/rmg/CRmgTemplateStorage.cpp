@@ -67,6 +67,7 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				//treasures
 				if (!zoneNode["treasure"].isNull())
 				{
+					int totalDensity = 0;
 					//TODO: parse vector of different treasure settings
 					if (zoneNode["treasure"].getType() == JsonNode::DATA_STRUCT)
 					{
@@ -76,6 +77,8 @@ void CJsonRmgTemplateLoader::loadTemplates()
 							ti.min = treasureInfo["min"].Float();
 							ti.max = treasureInfo["max"].Float();
 							ti.density = treasureInfo["density"].Float(); //TODO: use me
+							totalDensity += ti.density;
+							ti.threshold = totalDensity;
 							zone->addTreasureInfo(ti);
 						}
 					}
@@ -87,9 +90,12 @@ void CJsonRmgTemplateLoader::loadTemplates()
 							ti.min = treasureInfo["min"].Float();
 							ti.max = treasureInfo["max"].Float();
 							ti.density = treasureInfo["density"].Float();
+							totalDensity += ti.density;
+							ti.threshold = totalDensity;
 							zone->addTreasureInfo(ti);
 						}
 					}
+					zone->setTotalDensity (totalDensity);
 				}
 
 				zones[zone->getId()] = zone;
@@ -113,6 +119,7 @@ void CJsonRmgTemplateLoader::loadTemplates()
 					{
 						zone->addTreasureInfo(treasureInfo);
 					}
+					zone->setTotalDensity (zones[zoneNode["treasureLikeZone"].Float()]->getTotalDensity());
 				}
 			}
 
