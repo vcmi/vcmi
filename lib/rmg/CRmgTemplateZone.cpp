@@ -442,15 +442,16 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 			continue;
 		if ((cre->AIValue * (cre->ammMin + cre->ammMax) / 2 < strength) && (strength < cre->AIValue * 100)) //at least one full monster. size between minimum size of given stack and 100
 		{
-			amount = strength / cre->AIValue;
-			if (amount >= 4)
-				amount *= gen->rand.nextDouble(0.75, 1.25);
-
 			possibleCreatures.push_back(cre->idNumber);
 		}
 	}
 	if (possibleCreatures.size())
+	{
 		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, gen->rand);
+		amount = strength / VLC->creh->creatures[creId]->AIValue;
+		if (amount >= 4)
+			amount *= gen->rand.nextDouble(0.75, 1.25);
+	}
 	else //just pick any available creature
 	{
 		creId = CreatureID(132); //Azure Dragon
