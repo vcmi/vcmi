@@ -1415,14 +1415,15 @@ void VCAI::completeGoal (Goals::TSubgoal goal)
 	}
 	else //complete goal for all heroes maybe?
 	{
-		for (auto p : lockedHeroes)
+		vstd::erase_if(lockedHeroes, [goal](std::pair<HeroPtr, Goals::TSubgoal> p)
 		{
 			if (*(p.second) == *goal || p.second->fulfillsMe(goal)) //we could have fulfilled goals of other heroes by chance
 			{
 				logAi->debugStream() << boost::format("%s") % p.second->completeMessage();
-				lockedHeroes.erase (lockedHeroes.find(p.first)); //is it safe?
+				return true;
 			}
-		}
+			return false;
+		});
 	}
 
 }
