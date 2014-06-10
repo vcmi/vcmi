@@ -35,7 +35,7 @@ struct PlayerInfo;
 
 namespace boost{ class thread; class recursive_mutex;}
 
-enum ESortBy{_playerAm, _size, _format, _name, _viccon, _loscon, _numOfMaps}; //_numOfMaps is for campaigns
+enum ESortBy{_playerAm, _size, _format, _name, _viccon, _loscon, _numOfMaps, _fileName}; //_numOfMaps is for campaigns
 
 /// Class which handles map sorting by different criteria
 class mapSorter
@@ -160,6 +160,7 @@ public:
 	std::function<void(CMapInfo *)> onSelect;
 
 	ESortBy sortingBy;
+	ESortBy generalSortingBy;
 	bool ascending;
 
 	CTextInput *txt;

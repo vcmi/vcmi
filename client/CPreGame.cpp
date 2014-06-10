@@ -1247,7 +1247,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 		}
 	}
 
-
+	generalSortingBy = (tabType == CMenuScreen::loadGame || tabType == CMenuScreen::saveGame) ? _fileName : _name;
 
 	if (tabType != CMenuScreen::campaignList)
 	{
@@ -1264,7 +1264,14 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 			int xpos[] = {23, 55, 88, 121, 306, 339};
 			const char * names[] = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
 			for(int i = 0; i < 6; i++)
-				new CAdventureMapButton("", CGI->generaltexth->zelp[107+i].second, boost::bind(&SelectionTab::sortBy, this, i), xpos[i], 86, names[i]);
+			{
+				ESortBy criteria = (ESortBy)i;
+
+				if(criteria == _name)
+					criteria = generalSortingBy;
+
+				new CAdventureMapButton("", CGI->generaltexth->zelp[107+i].second, boost::bind(&SelectionTab::sortBy, this, criteria), xpos[i], 86, names[i]);
+			}
 		}
 	}
 	else
@@ -1327,8 +1334,8 @@ void SelectionTab::sortBy( int criteria )
 
 void SelectionTab::sort()
 {
-	if(sortingBy != _name)
-		std::stable_sort(curItems.begin(), curItems.end(), mapSorter(_name));
+	if(sortingBy != generalSortingBy)
+		std::stable_sort(curItems.begin(), curItems.end(), mapSorter(generalSortingBy));
 	std::stable_sort(curItems.begin(), curItems.end(), mapSorter(sortingBy));
 
 	if(!ascending)
@@ -3013,6 +3020,8 @@ bool mapSorter::operator()(const CMapInfo *aaa, const CMapInfo *bbb)
 			break;
 		case _name: //by name
 			return boost::ilexicographical_compare(a->name, b->name);
+		case _fileName: //by filename
+			return boost::ilexicographical_compare(aaa->fileURI, bbb->fileURI);
 		default:
 			return boost::ilexicographical_compare(a->name, b->name);
 		}
