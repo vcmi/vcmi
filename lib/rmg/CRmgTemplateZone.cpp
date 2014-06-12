@@ -357,7 +357,78 @@ void CRmgTemplateZone::createBorder(CMapGenerator* gen)
 	}
 }
 
-bool CRmgTemplateZone::crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone)
+void CRmgTemplateZone::fractalize(CMapGenerator* gen)
+{
+	std::vector<int3> clearedTiles;
+	std::set<int3> possibleTiles;
+	std::set<int3> tilesToClear; //will be set clear
+	std::set<int3> tilesToIgnore; //will be erased in this iteration
+
+	const float minDistance = std::sqrt(totalDensity);
+	for (auto tile : tileinfo)
+	{
+		if (gen->isFree(tile))
+			clearedTiles.push_back(tile);
+		else if (gen->isPossible(tile));
+			possibleTiles.insert(tile);
+	}
+	if (clearedTiles.empty()) //this should come from zone connections
+	{
+		clearedTiles.push_back(pos); //zone center should be always clear
+	}
+
+	while (possibleTiles.size())
+	{
+		for (auto tileToMakePath : possibleTiles)
+		{
+			//find closest free tile
+			float currentDistance = 1e10;
+			int3 closestTile (-1,-1,-1);
+
+			for (auto clearTile : clearedTiles)
+			{
+				float distance = tileToMakePath.dist2d(clearTile);
+				
+				if (distance < currentDistance)
+				{
+					currentDistance = distance;
+					closestTile = clearTile;
+				}
+				if (currentDistance <= minDistance)
+				{
+					//this tile is close enough. Forget about it and check next one
+					tilesToIgnore.insert (tileToMakePath);
+					break;
+				}
+			}
+			//if tiles is not close enough, make path to it
+			if (currentDistance > minDistance)
+			{
+				crunchPath (gen, tileToMakePath, closestTile, id, &tilesToClear);
+				break; //next iteration - use already cleared tiles
+			}
+		}
+
+		for (auto tileToClear : tilesToClear)
+		{
+			//move cleared tiles from one set to another
+			clearedTiles.push_back(tileToClear);
+			vstd::erase_if_present(possibleTiles, tileToClear);
+		}
+		for (auto tileToClear : tilesToIgnore)
+		{
+			//these tiles are already connected, ignore them
+			vstd::erase_if_present(possibleTiles, tileToClear);
+		}
+		if (tilesToClear.empty()) //nothing else can be done (?)
+			break;
+		tilesToClear.clear(); //empty this container
+		tilesToIgnore.clear();
+	}
+	logGlobal->infoStream() << boost::format ("Zone %d subdivided fractally") %id;
+}
+
+bool CRmgTemplateZone::crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles)
 {
 /*
 make shortest path with free tiles, reachning dst or closest already free tile. Avoid blocks.
@@ -375,7 +446,7 @@ do not leave zone border
 			break;
 
 		auto lastDistance = distance;
-		gen->foreach_neighbour (currentPos, [this, gen, &currentPos, dst, &distance, &result, &end](int3 &pos)
+		gen->foreach_neighbour (currentPos, [this, gen, &currentPos, dst, &distance, &result, &end, clearedTiles](int3 &pos)
 		{
 			if (!result) //not sure if lambda is worth it...
 			{
@@ -393,6 +464,8 @@ do not leave zone border
 							if (gen->isPossible(pos))
 							{
 								gen->setOccupied (pos, ETileType::FREE);
+								if (clearedTiles)
+									clearedTiles->insert(pos);
 								currentPos = pos;
 								distance = currentPos.dist2dSQ (dst);
 							}
@@ -708,7 +781,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	do {
 		
 		int3 pos;
-		if ( ! findPlaceForTreasurePile(gen, 5, pos))		
+		if ( ! findPlaceForTreasurePile(gen, 3, pos))		
 		{
 			break;
 		}

@@ -133,7 +133,8 @@ public:
 	bool createTreasurePile (CMapGenerator* gen, int3 &pos);
 	bool fill(CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
-	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone);
+	void fractalize(CMapGenerator* gen);
+	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles = nullptr);
 
 	void setTotalDensity (ui16 val);
 	ui16 getTotalDensity () const;
@@ -162,7 +163,6 @@ private:
 	std::vector<ObjectInfo> possibleObjects;
 
 	//content info
-	std::vector<int3> shape; //TODO: remove
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
 	std::vector<CGObjectInstance*> objects;
 
