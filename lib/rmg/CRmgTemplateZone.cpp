@@ -652,21 +652,15 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 			placeObject(gen, treasure.second, treasure.first - treasure.second->getVisitableOffset());
 		}
 
-		std::vector<int3> accessibleTiles; //we can't place guard in dead-end of zone, make sure that at least one neightbouring tile is possible and not blocked
-		for (auto tile : boundary)
+		crunchPath (gen, pos, getPos(), id); //make sure pile is connected to the middle of zone
+		for (auto tile : boundary) //guard must be standing there
 		{
-			if (gen->shouldBeBlocked(tile)) //this tile could be already blocked, don't place a monster here
-				continue;
-			bool possible = false;
-			gen->foreach_neighbour(tile, [gen, &accessibleTiles, &possible, boundary](int3 pos)
+			if (gen->isFree(tile)) //this tile could be already blocked, don't place a monster here
 			{
-				if (gen->isPossible(pos) && !vstd::contains(boundary, pos)) //do not check tiles that are going to be blocked
-					possible = true;
-			});
-			if (possible)
-				accessibleTiles.push_back(tile);
+				guardPos = tile;
+				break;
+			}
 		}
-		guardPos = *RandomGeneratorUtil::nextItem(accessibleTiles, gen->rand);
 
 		if (addMonster(gen, guardPos, currentValue))
 		{//block only if object is guarded
@@ -770,6 +764,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 		logGlobal->traceStream() << "Place found";
 
 		placeObject(gen, obj.first, pos);
+		crunchPath (gen, pos, getPos(), id); //make sure pile is connected to the middle of zone
 		if (obj.second)
 		{
 			guardObject (gen, obj.first, obj.second);
