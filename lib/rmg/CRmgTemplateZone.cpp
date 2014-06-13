@@ -555,7 +555,6 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 
 bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 {
-	
 	std::map<int3, CGObjectInstance *> treasures;
 	std::set<int3> boundary;
 	int3 guardPos;
@@ -652,7 +651,21 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 			placeObject(gen, treasure.second, treasure.first - treasure.second->getVisitableOffset());
 		}
 
-		crunchPath (gen, pos, getPos(), id); //make sure pile is connected to the middle of zone
+		//find object closest to zone center, then con nect it to the middle of the zone
+		int3 zoneCenter = getPos();
+		int3 closestTile = int3(-1,-1,-1);
+		float minDistance = 1e10;
+		for (auto treasure : treasures)
+		{
+			if (zoneCenter.dist2d(treasure.first) < minDistance)
+			{
+				closestTile = treasure.first;
+				minDistance = zoneCenter.dist2d(treasure.first);
+			}
+		}
+		assert (closestTile.valid());
+		crunchPath (gen, closestTile, getPos(), id); //make sure pile is connected to the middle of zone
+
 		for (auto tile : boundary) //guard must be standing there
 		{
 			if (gen->isFree(tile)) //this tile could be already blocked, don't place a monster here
