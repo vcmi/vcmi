@@ -443,7 +443,10 @@ do not leave zone border
 	while (!end)
 	{
 		if (currentPos == dst)
+		{
+			result = true;
 			break;
+		}
 
 		auto lastDistance = distance;
 		gen->foreach_neighbour (currentPos, [this, gen, &currentPos, dst, &distance, &result, &end, clearedTiles](int3 &pos)
@@ -557,7 +560,7 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 {
 	std::map<int3, CGObjectInstance *> treasures;
 	std::set<int3> boundary;
-	int3 guardPos;
+	int3 guardPos (-1,-1,-1);
 	int3 nextTreasurePos = pos;
 
 	//default values
@@ -646,11 +649,6 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 	}
 	if (treasures.size())
 	{
-		for (auto treasure : treasures)
-		{
-			placeObject(gen, treasure.second, treasure.first - treasure.second->getVisitableOffset());
-		}
-
 		//find object closest to zone center, then con nect it to the middle of the zone
 		int3 zoneCenter = getPos();
 		int3 closestTile = int3(-1,-1,-1);
@@ -664,7 +662,15 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 			}
 		}
 		assert (closestTile.valid());
-		crunchPath (gen, closestTile, getPos(), id); //make sure pile is connected to the middle of zone
+		if (!crunchPath (gen, closestTile, getPos(), id)) //make sure pile is connected to the middle of zone
+		{
+			for (auto treasure : treasures)
+			{
+				if (gen->isPossible(treasure.first))
+					gen->setOccupied (treasure.first, ETileType::BLOCKED);
+			}
+			return true;
+		}
 
 		for (auto tile : boundary) //guard must be standing there
 		{
@@ -675,15 +681,30 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 			}
 		}
 
-		if (addMonster(gen, guardPos, currentValue))
-		{//block only if object is guarded
-
-			for (auto tile : boundary)
+		if (guardPos.valid())
+		{
+			for (auto treasure : treasures)
 			{
-				if (gen->isPossible(tile))
-					gen->setOccupied (tile, ETileType::BLOCKED);
+				placeObject(gen, treasure.second, treasure.first - treasure.second->getVisitableOffset());
+			}
+			if (addMonster(gen, guardPos, currentValue))
+			{//block only if the object is guarded
+				for (auto tile : boundary)
+				{
+					if (gen->isPossible(tile))
+						gen->setOccupied (tile, ETileType::BLOCKED);
+				}
 			}
 		}
+		else //we couldn't make a connection to this location, block it
+		{
+			for (auto treasure : treasures)
+			{
+				if (gen->isPossible(treasure.first))
+					gen->setOccupied (treasure.first, ETileType::BLOCKED);
+			}
+		}
+
 		return true;
 	}
 	else //we did not place eveyrthing successfully
