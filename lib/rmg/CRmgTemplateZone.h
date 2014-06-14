@@ -115,10 +115,6 @@ public:
 	const std::set<ETerrainType> & getTerrainTypes() const; /// Default: all
 	void setTerrainTypes(const std::set<ETerrainType> & value);
 	std::set<ETerrainType> getDefaultTerrainTypes() const;
-	boost::optional<TRmgTemplateZoneId> getTerrainTypeLikeZone() const;
-	void setTerrainTypeLikeZone(boost::optional<TRmgTemplateZoneId> value);
-	boost::optional<TRmgTemplateZoneId> getTownTypeLikeZone() const;
-	void setTownTypeLikeZone(boost::optional<TRmgTemplateZoneId> value);
 
 	float3 getCenter() const;
 	void setCenter(const float3 &f);
@@ -132,6 +128,8 @@ public:
 	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength);
 	bool createTreasurePile (CMapGenerator* gen, int3 &pos);
 	bool fill(CMapGenerator* gen);
+	void initTownType (CMapGenerator* gen);
+	void initTerrainType (CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
 	void fractalize(CMapGenerator* gen);
 	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles = nullptr);
@@ -156,7 +154,9 @@ private:
 	std::set<TFaction> townTypes;
 	bool matchTerrainToTown;
 	std::set<ETerrainType> terrainTypes;
-	boost::optional<TRmgTemplateZoneId> terrainTypeLikeZone, townTypeLikeZone;
+
+	si32 townType;
+	ETerrainType terrainType;
 
 	ui16 totalDensity;
 	std::vector<CTreasureInfo> treasureInfo;

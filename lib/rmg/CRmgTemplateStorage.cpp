@@ -60,7 +60,8 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				zone->setPlayerTowns(parseTemplateZoneTowns(zoneNode["playerTowns"]));
 				zone->setNeutralTowns(parseTemplateZoneTowns(zoneNode["neutralTowns"]));
 				zone->setTownTypes(parseTownTypes(zoneNode["townTypes"].Vector(), zone->getDefaultTownTypes()));
-				zone->setMatchTerrainToTown(zoneNode["matchTerrainToTown"].Bool());
+				if (!zoneNode["matchTerrainToTown"].isNull()) //default : true
+					zone->setMatchTerrainToTown(zoneNode["matchTerrainToTown"].Bool());
 				zone->setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector(), zone->getDefaultTerrainTypes()));
 				zone->setTownsAreSameType((zoneNode["townsAreSameType"].Bool()));
 
@@ -109,9 +110,11 @@ void CJsonRmgTemplateLoader::loadTemplates()
 
 				const auto & zoneNode = zonePair.second;
 
-				//TODO: do these lines even do anything?
-				if(!zoneNode["terrainTypeLikeZone"].isNull()) zone->setTerrainTypeLikeZone(boost::lexical_cast<int>(zoneNode["terrainTypeLikeZone"].String()));
-				if(!zoneNode["townTypeLikeZone"].isNull()) zone->setTownTypeLikeZone(boost::lexical_cast<int>(zoneNode["townTypeLikeZone"].String()));
+				if (!zoneNode["terrainTypeLikeZone"].isNull())
+					zone->setTerrainTypes (zones[zoneNode["terrainTypeLikeZone"].Float()]->getTerrainTypes());
+
+				if (!zoneNode["townTypeLikeZone"].isNull())
+					zone->setTownTypes (zones[zoneNode["townTypeLikeZone"].Float()]->getTownTypes());
 
 				if (!zoneNode["treasureLikeZone"].isNull())
 				{
@@ -231,6 +234,9 @@ std::set<TFaction> CJsonRmgTemplateLoader::parseTownTypes(const JsonVector & tow
 std::set<ETerrainType> CJsonRmgTemplateLoader::parseTerrainTypes(const JsonVector & terTypeStrings, const std::set<ETerrainType> & defaultTerrainTypes) const
 {
 	std::set<ETerrainType> terTypes;
+	if (terTypeStrings.empty()) //nothing was specified
+		return defaultTerrainTypes;
+
 	for(const auto & node : terTypeStrings)
 	{
 		const auto & terTypeStr = node.String();

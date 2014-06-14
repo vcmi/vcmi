@@ -9,7 +9,7 @@
 			"1" :
 			{
 				"type" : "playerStart", "size" : 1, "owner" : 1,
-				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true,
+				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true
 				"treasure" : [
 								{"min" : 2100, "max": 3000, "density" : 5},
 								{"min" : 300, "max": 1500, "density" : 10}
@@ -35,7 +35,8 @@
 			},
 			"5" :
 			{
-				"type" : "treasure", "size" : 2, "terrainTypes" : [ "sand" ], "neutralTowns" : { "castles" : 1 },
+				"type" : "treasure", "size" : 2, "terrainTypes" : [ "sand" ], "matchTerrainToTown" : false,
+				"neutralTowns" : { "castles" : 1 },
 				"treasure" : [
 								{"min" : 9000, "max": 10000, "density" : 3},
 								{"min" : 6000, "max": 10000, "density" : 15}
@@ -73,7 +74,7 @@
 			},
 			"3" :
 			{
-				"type" : "treasure", "size" : 2, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : "1",
+				"type" : "treasure", "size" : 2, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : 1,
 				"treasure" : [
 								{"min" : 2000, "max": 4000, "density" : 15},
 								{"min" : 4000, "max": 5000, "density" : 5}
@@ -81,7 +82,7 @@
 			},
 			"4" :
 			{
-				"type" : "treasure", "size" : 2, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : "2",
+				"type" : "treasure", "size" : 2, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : 2,
 				"treasureLikeZone" : 3
 			},
 			"5" :
@@ -130,15 +131,15 @@
 				"playerTowns" : { "castles" : 1 },
 				"treasureLikeZone" : 1
 			},
-			"4" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "1", "treasure" : [
+			"4" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 1, "treasure" : [
 																									{"min" : 3000, "max": 10000, "density" : 12},
 																									{"min" : 6000, "max": 10000, "density" : 6}
 																								]},
-			"5" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "1", "treasureLikeZone" : 4},
-			"6" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "2", "treasureLikeZone" : 4 },
-			"7" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "2", "treasureLikeZone" : 4 },
-			"8" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "3", "treasureLikeZone" : 4 },
-			"9" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "3", "treasureLikeZone" : 4 },
+			"5" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 1, "treasureLikeZone" : 4},
+			"6" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 2, "treasureLikeZone" : 4 },
+			"7" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 2, "treasureLikeZone" : 4 },
+			"8" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 3, "treasureLikeZone" : 4 },
+			"9" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 3, "treasureLikeZone" : 4 },
 			"10" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treasure" : [
 																										{"min" : 21000, "max": 25000, "density" : 3},
 																										{"min" : 10000, "max": 21000, "density" : 10}
@@ -188,8 +189,8 @@
 				"type" : "cpuStart", "size" : 3, "owner" : 4,
 				"playerTowns" : { "castles" : 1 }
 			},
-			"5" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "3" },
-			"6" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "4" }
+			"5" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 3 },
+			"6" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 4 }
 		},
 		"connections" :
 		[
@@ -243,14 +244,14 @@
 			{
 				"type" : "treasure", "size" : 40,
 				"neutralTowns" : { "towns" : 2 },
-				"terrainTypes" : [ "sand" ],
+				"terrainTypes" : [ "sand" ], "matchTerrainToTown" : false,
 				"treasure" : [
 								{"min" : 35000, "max": 55000, "density" : 3},
 								{"min" : 25000, "max": 35000, "density" : 10},
 								{"min" : 10000, "max": 25000, "density" : 10}
 							]
 			}
-		}
+		},
 		"connections" :
 		[
 			{ "a" : "1", "b" : "5", "guard" : 45000 },

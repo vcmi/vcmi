@@ -121,7 +121,7 @@ void CTileInfo::setTerrainType(ETerrainType value)
 }
 
 CRmgTemplateZone::CRmgTemplateZone() : id(0), type(ETemplateZoneType::PLAYER_START), size(1),
-	townsAreSameType(false), matchTerrainToTown(true), totalDensity(0)
+	terrainType (ETerrainType::GRASS), townType(0), townsAreSameType(false), matchTerrainToTown(true), totalDensity(0)
 {
 	townTypes = getDefaultTownTypes();
 	terrainTypes = getDefaultTerrainTypes();
@@ -248,30 +248,12 @@ void CRmgTemplateZone::setTerrainTypes(const std::set<ETerrainType> & value)
 std::set<ETerrainType> CRmgTemplateZone::getDefaultTerrainTypes() const
 {
 	std::set<ETerrainType> terTypes;
-	static const ETerrainType::EETerrainType allowedTerTypes[] = { ETerrainType::DIRT, ETerrainType::SAND, ETerrainType::GRASS, ETerrainType::SNOW,
-												   ETerrainType::SWAMP, ETerrainType::ROUGH, ETerrainType::SUBTERRANEAN, ETerrainType::LAVA };
-	for(auto & allowedTerType : allowedTerTypes) terTypes.insert(allowedTerType);
+	static const ETerrainType::EETerrainType allowedTerTypes[] = {ETerrainType::DIRT, ETerrainType::SAND, ETerrainType::GRASS, ETerrainType::SNOW,
+												   ETerrainType::SWAMP, ETerrainType::ROUGH, ETerrainType::SUBTERRANEAN, ETerrainType::LAVA};
+	for (auto & allowedTerType : allowedTerTypes)
+		terTypes.insert(allowedTerType);
+
 	return terTypes;
-}
-
-boost::optional<TRmgTemplateZoneId> CRmgTemplateZone::getTerrainTypeLikeZone() const
-{
-	return terrainTypeLikeZone;
-}
-
-void CRmgTemplateZone::setTerrainTypeLikeZone(boost::optional<TRmgTemplateZoneId> value)
-{
-	terrainTypeLikeZone = value;
-}
-
-boost::optional<TRmgTemplateZoneId> CRmgTemplateZone::getTownTypeLikeZone() const
-{
-	return townTypeLikeZone;
-}
-
-void CRmgTemplateZone::setTownTypeLikeZone(boost::optional<TRmgTemplateZoneId> value)
-{
-	townTypeLikeZone = value;
 }
 
 void CRmgTemplateZone::addConnection(TRmgTemplateZoneId otherZone)
@@ -710,13 +692,8 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 	else //we did not place eveyrthing successfully
 		return false;
 }
-
-bool CRmgTemplateZone::fill(CMapGenerator* gen)
+void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 {
-	addAllPossibleObjects (gen);
-
-	int townId = 0;
-
 	if ((type == ETemplateZoneType::CPU_START) || (type == ETemplateZoneType::PLAYER_START))
 	{
 		logGlobal->infoStream() << "Preparing playing zone";
@@ -727,12 +704,12 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			PlayerColor player(player_id);
 			auto  town = new CGTownInstance();
 			town->ID = Obj::TOWN;
-			townId = gen->mapGenOptions->getPlayersSettings().find(player)->second.getStartingTown();
+			townType = gen->mapGenOptions->getPlayersSettings().find(player)->second.getStartingTown();
 
-			if(townId == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
-				townId = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); // all possible towns, skip neutral
+			if(townType == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
+				townType = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); // all possible towns, skip neutral
 
-			town->subID = townId;
+			town->subID = townType;
 			town->tempOwner = player;
 			town->builtBuildings.insert(BuildingID::FORT);
 			town->builtBuildings.insert(BuildingID::DEFAULT);
@@ -743,7 +720,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 
 			// Update player info
 			playerInfo.allowedFactions.clear();
-			playerInfo.allowedFactions.insert(townId);
+			playerInfo.allowedFactions.insert (townType);
 			playerInfo.hasMainTown = true;
 			playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
 			playerInfo.generateHeroAtMainTown = true;
@@ -767,14 +744,24 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 		else
 		{			
 			type = ETemplateZoneType::TREASURE;
-			townId = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand);
+			townType = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand);
 			logGlobal->infoStream() << "Skipping this zone cause no player";
 		}
 	}
 	else //no player
 	{
-		townId = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand);
+		townType = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand);
 	}
+}
+
+void CRmgTemplateZone::initTerrainType (CMapGenerator* gen)
+{
+
+	if (matchTerrainToTown)
+		terrainType = VLC->townh->factions[townType]->nativeTerrain;
+	else
+		terrainType = *RandomGeneratorUtil::nextItem(terrainTypes, gen->rand);
+
 	//paint zone with matching terrain
 	std::vector<int3> tiles;
 	for (auto tile : tileinfo)
@@ -782,7 +769,14 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 		tiles.push_back (tile);
 	}
 	gen->editManager->getTerrainSelection().setSelection(tiles);
-	gen->editManager->drawTerrain(VLC->townh->factions[townId]->nativeTerrain, &gen->rand);
+	gen->editManager->drawTerrain(terrainType, &gen->rand);
+}
+
+bool CRmgTemplateZone::fill(CMapGenerator* gen)
+{
+	addAllPossibleObjects (gen);
+	initTownType(gen);
+	initTerrainType(gen);
 
 	logGlobal->infoStream() << "Creating required objects";
 	for(const auto &obj : requiredObjects)
