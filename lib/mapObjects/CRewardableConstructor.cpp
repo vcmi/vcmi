@@ -266,7 +266,7 @@ CRewardableConstructor::CRewardableConstructor()
 {
 }
 
-void CRewardableConstructor::init(const JsonNode & config)
+void CRewardableConstructor::initTypeData(const JsonNode & config)
 {
 	AObjectTypeHandler::init(config);
 	objectInfo.init(config);

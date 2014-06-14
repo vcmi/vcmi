@@ -46,9 +46,9 @@ class CRewardableConstructor : public AObjectTypeHandler
 {
 	CRandomRewardObjectInfo objectInfo;
 
+	void initTypeData(const JsonNode & config) override;
 public:
 	CRewardableConstructor();
-	void init(const JsonNode & config) override;
 
 	CGObjectInstance * create(ObjectTemplate tmpl) const override;
 

@@ -27,6 +27,7 @@ set(lib_SRCS
 		mapObjects/CGTownInstance.cpp
 		mapObjects/CObjectClassesHandler.cpp
 		mapObjects/CObjectHandler.cpp
+		mapObjects/CommonConstructors.cpp
 		mapObjects/CQuest.cpp
 		mapObjects/CRewardableConstructor.cpp
 		mapObjects/CRewardableObject.cpp

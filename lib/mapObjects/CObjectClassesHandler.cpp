@@ -11,6 +11,7 @@
 #include "../JsonNode.h"
 
 #include "CRewardableConstructor.h"
+#include "CommonConstructors.h"
 #include "MapObjects.h"
 
 /*
@@ -31,10 +32,14 @@ CObjectClassesHandler::CObjectClassesHandler()
 	// list of all known handlers, hardcoded for now since the only way to add new objects is via C++ code
 	//WARNING: should be in sync with registerTypesMapObjectTypes function
 	SET_HANDLER_CLASS("configurable", CRewardableConstructor);
+	SET_HANDLER_CLASS("dwelling", CDwellingInstanceConstructor);
+	SET_HANDLER_CLASS("hero", CHeroInstanceConstructor);
+	SET_HANDLER_CLASS("town", CTownInstanceConstructor);
 
-	SET_HANDLER("", CGObjectInstance);
+	SET_HANDLER_CLASS("static", CObstacleConstructor);
+	SET_HANDLER_CLASS("", CObstacleConstructor);
+
 	SET_HANDLER("generic", CGObjectInstance);
-
 	SET_HANDLER("market", CGMarket);
 	SET_HANDLER("bank", CBank);
 	SET_HANDLER("cartographer", CCartographer);
@@ -46,10 +51,8 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("borderGuard", CGBorderGuard);
 	SET_HANDLER("monster", CGCreature);
 	SET_HANDLER("denOfThieves", CGDenOfthieves);
-	SET_HANDLER("dwelling", CGDwelling);
 	SET_HANDLER("event", CGEvent);
 	SET_HANDLER("garrison", CGGarrison);
-	SET_HANDLER("hero", CGHeroInstance);
 	SET_HANDLER("heroPlaceholder", CGHeroPlaceholder);
 	SET_HANDLER("keymaster", CGKeymasterTent);
 	SET_HANDLER("lighthouse", CGLighthouse);
@@ -73,7 +76,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("sign", CGSignBottle);
 	SET_HANDLER("siren", CGSirens);
 	SET_HANDLER("teleport", CGTeleport);
-	SET_HANDLER("town", CGTownInstance);
 	SET_HANDLER("university", CGUniversity);
 	SET_HANDLER("oncePerHero", CGVisitableOPH);
 	SET_HANDLER("oncePerWeek", CGVisitableOPW);
@@ -197,7 +199,7 @@ void CObjectClassesHandler::loadSubObject(std::string name, JsonNode config, si3
 	}
 
 	JsonUtils::inherit(config, objects.at(ID)->base);
-
+	logGlobal->errorStream() << "JSON: " << config;
 	loadObjectEntry(config, objects[ID]);
 }
 
@@ -265,6 +267,7 @@ void CObjectClassesHandler::afterLoadFinalization()
 	{
 		for (auto obj : entry.second->objects)
 		{
+			obj.second->afterLoadFinalization();
 			if (obj.second->getTemplates().empty())
 				logGlobal->warnStream() << "No templates found for " << entry.first << ":" << obj.first;
 		}
@@ -315,11 +318,16 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		tmpl.readJson(entry.second);
 		templates.push_back(tmpl);
 	}
+	initTypeData(input);
 }
 
 bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, const ObjectTemplate &) const
 {
 	return false; // by default there are no overrides
+}
+
+void AObjectTypeHandler::initTypeData(const JsonNode & input)
+{
 }
 
 void AObjectTypeHandler::addTemplate(ObjectTemplate templ)
@@ -331,6 +339,9 @@ void AObjectTypeHandler::addTemplate(ObjectTemplate templ)
 
 void AObjectTypeHandler::addTemplate(JsonNode config)
 {
+	logGlobal->errorStream() << "INPUT  FOR: " << type << ":" << subtype << " " << config;
+	logGlobal->errorStream() << "BASE   FOR: " << type << ":" << subtype << " " << base;
+
 	config.setType(JsonNode::DATA_STRUCT); // ensure that input is not null
 	JsonUtils::inherit(config, base);
 	ObjectTemplate tmpl;
@@ -338,6 +349,7 @@ void AObjectTypeHandler::addTemplate(JsonNode config)
 	tmpl.subid = subtype;
 	tmpl.stringID = ""; // TODO?
 	tmpl.readJson(config);
+	logGlobal->errorStream() << "DATA  FOR: " << type << ":" << subtype << " " << config;
 	addTemplate(tmpl);
 }
 
@@ -373,4 +385,13 @@ boost::optional<ObjectTemplate> AObjectTypeHandler::getOverride(si32 terrainType
 const RandomMapInfo & AObjectTypeHandler::getRMGInfo()
 {
 	return rmgInfo;
+}
+
+bool AObjectTypeHandler::isStaticObject()
+{
+	return false; // most of classes are not static
+}
+
+void AObjectTypeHandler::afterLoadFinalization()
+{
 }

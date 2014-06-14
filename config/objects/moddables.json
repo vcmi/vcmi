@@ -56,6 +56,16 @@
 		"index" :98,
 		"handler": "town",
 		"base" : {
+			"filter" : {
+				// village image - fort not present
+				"village" : [ "noneOf", [ "fort" ] ],
+				// fort image - fort is here but not capitol
+				"fort" : [ "allOf", [ "fort" ], [ "noneOf", ["capitol" ] ] ],
+				// capitol image only when capitol is built
+				"capitol" : [ "capitol" ]
+			},
+			
+			// "faction" : "stringID", // should be set by engine
 			"base" : {
 				"visitableFrom" : [ "---", "+++", "+++" ],
 				"mask" : [

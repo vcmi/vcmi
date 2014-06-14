@@ -81,13 +81,16 @@ class AObjectTypeHandler
 protected:
 
 	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
+
+	/// initialization for classes that inherit this one
+	virtual void initTypeData(const JsonNode & input);
 public:
 	virtual ~AObjectTypeHandler(){}
 
 	void setType(si32 type, si32 subtype);
 
-	/// loads generic data from Json structure
-	virtual void init(const JsonNode & input);
+	/// loads generic data from Json structure and passes it towards type-specific constructors
+	void init(const JsonNode & input);
 
 	void addTemplate(ObjectTemplate templ);
 	void addTemplate(JsonNode config);
@@ -102,11 +105,16 @@ public:
 
 	const RandomMapInfo & getRMGInfo();
 
+	virtual bool isStaticObject();
+
+	virtual void afterLoadFinalization();
+
 	/// Creates object and set up core properties (like ID/subID). Object is NOT initialized
 	/// to allow creating objects before game start (e.g. map loading)
 	virtual CGObjectInstance * create(ObjectTemplate tmpl) const = 0;
 
 	/// Configures object properties. Should be re-entrable, resetting state of the object if necessarily
+	/// This should set remaining properties, including randomized or depending on map
 	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const = 0;
 
 	/// Returns object configuration, if available. Othervice returns NULL
@@ -115,29 +123,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & type & subtype & templates & rmgInfo;
-	}
-};
-
-/// Class that is used for objects that do not have dedicated handler
-template<class ObjectType>
-class CDefaultObjectTypeHandler : public AObjectTypeHandler
-{
-	CGObjectInstance * create(ObjectTemplate tmpl) const
-	{
-		auto obj = new ObjectType();
-		obj->ID = tmpl.id;
-		obj->subID = tmpl.subid;
-		obj->appearance = tmpl;
-		return obj;
-	}
-
-	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
-	{
-	}
-
-	virtual const IObjectInfo * getObjectInfo(ObjectTemplate tmpl) const
-	{
-		return nullptr;
 	}
 };
 

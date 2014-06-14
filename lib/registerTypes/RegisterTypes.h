@@ -10,6 +10,7 @@
 #include "../CModHandler.h" //needed?
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CRewardableConstructor.h"
+#include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h"
 
 /*
@@ -77,6 +78,10 @@ template<typename Serializer>
 void registerTypesMapObjectTypes(Serializer &s)
 {
 	s.template registerType<AObjectTypeHandler, CRewardableConstructor>();
+	s.template registerType<AObjectTypeHandler, CHeroInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, CTownInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, CDwellingInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, CObstacleConstructor>();
 
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
 
@@ -92,10 +97,8 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGBorderGuard);
 	REGISTER_GENERIC_HANDLER(CGCreature);
 	REGISTER_GENERIC_HANDLER(CGDenOfthieves);
-	REGISTER_GENERIC_HANDLER(CGDwelling);
 	REGISTER_GENERIC_HANDLER(CGEvent);
 	REGISTER_GENERIC_HANDLER(CGGarrison);
-	REGISTER_GENERIC_HANDLER(CGHeroInstance);
 	REGISTER_GENERIC_HANDLER(CGHeroPlaceholder);
 	REGISTER_GENERIC_HANDLER(CGKeymasterTent);
 	REGISTER_GENERIC_HANDLER(CGLighthouse);
@@ -119,7 +122,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGSignBottle);
 	REGISTER_GENERIC_HANDLER(CGSirens);
 	REGISTER_GENERIC_HANDLER(CGTeleport);
-	REGISTER_GENERIC_HANDLER(CGTownInstance);
 	REGISTER_GENERIC_HANDLER(CGUniversity);
 	REGISTER_GENERIC_HANDLER(CGVisitableOPH);
 	REGISTER_GENERIC_HANDLER(CGVisitableOPW);
