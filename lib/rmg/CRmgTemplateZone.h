@@ -15,6 +15,7 @@
 #include "CMapGenerator.h"
 #include "float3.h"
 #include "../int3.h"
+#include "../ResourceSet.h" //for TResource (?)
 
 class CMapGenerator;
 class CTileInfo;
@@ -115,6 +116,8 @@ public:
 	const std::set<ETerrainType> & getTerrainTypes() const; /// Default: all
 	void setTerrainTypes(const std::set<ETerrainType> & value);
 	std::set<ETerrainType> getDefaultTerrainTypes() const;
+	void setMinesAmount (TResource res, ui16 amount);
+	std::map<TResource, ui16> getMinesInfo() const;
 
 	float3 getCenter() const;
 	void setCenter(const float3 &f);
@@ -127,7 +130,8 @@ public:
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength);
 	bool createTreasurePile (CMapGenerator* gen, int3 &pos);
-	bool fill(CMapGenerator* gen);
+	bool fill (CMapGenerator* gen);
+	bool placeMines (CMapGenerator* gen);
 	void initTownType (CMapGenerator* gen);
 	void initTerrainType (CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
@@ -154,6 +158,7 @@ private:
 	std::set<TFaction> townTypes;
 	bool matchTerrainToTown;
 	std::set<ETerrainType> terrainTypes;
+	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone
 
 	si32 townType;
 	ETerrainType terrainType;

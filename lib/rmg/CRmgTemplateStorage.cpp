@@ -65,6 +65,20 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				zone->setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector(), zone->getDefaultTerrainTypes()));
 				zone->setTownsAreSameType((zoneNode["townsAreSameType"].Bool()));
 
+				if (!zoneNode["mines"].isNull())
+				{
+					auto mines = zoneNode["mines"].Struct();
+					//FIXME: maybe there is a smarter way to parse it already?
+					zone->setMinesAmount(Res::WOOD, mines["wood"].Float());
+					zone->setMinesAmount(Res::ORE, mines["ore"].Float());
+					zone->setMinesAmount(Res::GEMS, mines["gems"].Float());
+					zone->setMinesAmount(Res::CRYSTAL, mines["crystal"].Float());
+					zone->setMinesAmount(Res::SULFUR, mines["sulfur"].Float());
+					zone->setMinesAmount(Res::MERCURY, mines["mercury"].Float());
+					zone->setMinesAmount(Res::GOLD, mines["gold"].Float());
+					//TODO: Mithril
+				}
+
 				//treasures
 				if (!zoneNode["treasure"].isNull())
 				{
@@ -123,6 +137,15 @@ void CJsonRmgTemplateLoader::loadTemplates()
 						zone->addTreasureInfo(treasureInfo);
 					}
 					zone->setTotalDensity (zones[zoneNode["treasureLikeZone"].Float()]->getTotalDensity());
+				}
+
+				if (!zoneNode["minesLikeZone"].isNull())
+				{
+					for (auto mineInfo : zones[zoneNode["minesLikeZone"].Float()]->getMinesInfo())
+					{
+						zone->setMinesAmount (mineInfo.first, mineInfo.second);
+					}
+					
 				}
 			}
 

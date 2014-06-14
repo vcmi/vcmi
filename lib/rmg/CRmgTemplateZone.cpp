@@ -256,6 +256,16 @@ std::set<ETerrainType> CRmgTemplateZone::getDefaultTerrainTypes() const
 	return terTypes;
 }
 
+void CRmgTemplateZone::setMinesAmount (TResource res, ui16 amount)
+{
+	mines[res] = amount;
+}
+
+std::map<TResource, ui16> CRmgTemplateZone::getMinesInfo() const
+{
+	return mines;
+}
+
 void CRmgTemplateZone::addConnection(TRmgTemplateZoneId otherZone)
 {
 	connections.push_back (otherZone);
@@ -726,20 +736,6 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			playerInfo.generateHeroAtMainTown = true;
 
 			//requiredObjects.push_back(town);
-
-			std::vector<Res::ERes> required_mines;
-			required_mines.push_back(Res::ERes::WOOD);
-			required_mines.push_back(Res::ERes::ORE);
-
-			for(const auto res : required_mines)
-			{			
-				auto mine = new CGMine();
-				mine->ID = Obj::MINE;
-				mine->subID = static_cast<si32>(res);
-				mine->producedResource = res;
-				mine->producedQuantity = mine->defaultResProduction();
-				addRequiredObject(mine);
-			}
 		}
 		else
 		{			
@@ -772,11 +768,61 @@ void CRmgTemplateZone::initTerrainType (CMapGenerator* gen)
 	gen->editManager->drawTerrain(terrainType, &gen->rand);
 }
 
+bool CRmgTemplateZone::placeMines (CMapGenerator* gen)
+{
+	std::vector<Res::ERes> required_mines;
+	required_mines.push_back(Res::ERes::WOOD);
+	required_mines.push_back(Res::ERes::ORE);
+
+	static const Res::ERes woodOre[] = {Res::ERes::WOOD, Res::ERes::ORE};
+	static const Res::ERes preciousResources[] = {Res::ERes::GEMS, Res::ERes::CRYSTAL, Res::ERes::MERCURY, Res::ERes::SULFUR};
+
+
+	//TODO: factory / copy constructor?
+	for (const auto & res : woodOre)
+	{
+		//TODO: these 2 should be close to town (within 12 tiles radius)
+		for (int i = 0; i < mines[res]; i++)
+		{
+			auto mine = new CGMine();
+			mine->ID = Obj::MINE;
+			mine->subID = static_cast<si32>(res);
+			mine->producedResource = res;
+			mine->producedQuantity = mine->defaultResProduction();
+			addRequiredObject(mine, 1500);
+		}
+	}
+	for (const auto & res : preciousResources)
+	{
+		for (int i = 0; i < mines[res]; i++)
+		{
+			auto mine = new CGMine();
+			mine->ID = Obj::MINE;
+			mine->subID = static_cast<si32>(res);
+			mine->producedResource = res;
+			mine->producedQuantity = mine->defaultResProduction();
+			addRequiredObject(mine, 3500);
+		}
+	}
+	for (int i = 0; i < mines[Res::GOLD]; i++)
+	{
+		auto mine = new CGMine();
+		mine->ID = Obj::MINE;
+		mine->subID = static_cast<si32>(Res::GOLD);
+		mine->producedResource = Res::GOLD;
+		mine->producedQuantity = mine->defaultResProduction();
+		addRequiredObject(mine, 7000);
+	}
+
+	return true;
+}
+
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
 {
 	addAllPossibleObjects (gen);
 	initTownType(gen);
 	initTerrainType(gen);
+	placeMines(gen);
 
 	logGlobal->infoStream() << "Creating required objects";
 	for(const auto &obj : requiredObjects)

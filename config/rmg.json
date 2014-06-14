@@ -9,7 +9,8 @@
 			"1" :
 			{
 				"type" : "playerStart", "size" : 1, "owner" : 1,
-				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true
+				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true,
+				"mines" : {"wood" : 1, "ore" : 1, "gems" : 1, "crystal" : 1, "sulfur" : 1, "mercury" : 1},
 				"treasure" : [
 								{"min" : 2100, "max": 3000, "density" : 5},
 								{"min" : 300, "max": 1500, "density" : 10}
@@ -19,24 +20,28 @@
 			{
 				"type" : "playerStart", "size" : 1, "owner" : 2,
 				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true,
+				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
 			"3" :
 			{
 				"type" : "playerStart", "size" : 1, "owner" : 3,
 				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true,
+				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
 			"4" :
 			{
 				"type" : "playerStart", "size" : 1, "owner" : 4,
 				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true,
+				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
 			"5" :
 			{
 				"type" : "treasure", "size" : 2, "terrainTypes" : [ "sand" ], "matchTerrainToTown" : false,
 				"neutralTowns" : { "castles" : 1 },
+				"mines" : {"gold" : 2},
 				"treasure" : [
 								{"min" : 9000, "max": 10000, "density" : 3},
 								{"min" : 6000, "max": 10000, "density" : 15}
@@ -61,6 +66,7 @@
 			{
 				"type" : "playerStart", "size" : 1, "owner" : 1,
 				"playerTowns" : { "castles" : 1 },
+				"mines" : {"wood" : 1, "ore" : 1},
 				"treasure" : [
 								{"min" : 400, "max": 1500, "density" : 16},
 								{"min" : 1500, "max": 2500, "density" : 4}
@@ -70,11 +76,13 @@
 			{
 				"type" : "playerStart", "size" : 1, "owner" : 2,
 				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
 			"3" :
 			{
 				"type" : "treasure", "size" : 2, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : 1,
+				"mines" : {"gems" : 1, "crystal" : 1, "sulfur" : 1, "mercury" : 1, "gold" : 1},
 				"treasure" : [
 								{"min" : 2000, "max": 4000, "density" : 15},
 								{"min" : 4000, "max": 5000, "density" : 5}
@@ -83,11 +91,13 @@
 			"4" :
 			{
 				"type" : "treasure", "size" : 2, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : 2,
+				"minesLikeZone" : 3,
 				"treasureLikeZone" : 3
 			},
 			"5" :
 			{
 				"type" : "treasure", "size" : 3, "neutralTowns" : { "castles" : 1 }, "terrainTypes" : [ "sand" ],
+				"mines" : {"gold" : 2},
 				"treasure" : [
 								{"min" : 11000, "max": 12000, "density" : 5},
 								{"min" : 6000, "max": 11000, "density" : 10}
@@ -114,6 +124,7 @@
 			{
 				"type" : "playerStart", "size" : 3, "owner" : 1,
 				"playerTowns" : { "castles" : 1 },
+				"mines" : {"wood" : 1, "ore" : 1},
 				"treasure" : [
 								{"min" : 300, "max": 2000, "density": 15},
 								{"min" : 2100, "max": 2500, "density": 5}
@@ -123,29 +134,37 @@
 			{
 				"type" : "playerStart", "size" : 3, "owner" : 2,
 				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
 			"3" :
 			{
 				"type" : "playerStart", "size" : 3, "owner" : 3,
 				"playerTowns" : { "castles" : 1 },
+				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
-			"4" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 1, "treasure" : [
-																									{"min" : 3000, "max": 10000, "density" : 12},
-																									{"min" : 6000, "max": 10000, "density" : 6}
-																								]},
-			"5" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 1, "treasureLikeZone" : 4},
-			"6" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 2, "treasureLikeZone" : 4 },
-			"7" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 2, "treasureLikeZone" : 4 },
-			"8" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 3, "treasureLikeZone" : 4 },
-			"9" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 3, "treasureLikeZone" : 4 },
-			"10" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treasure" : [
-																										{"min" : 21000, "max": 25000, "density" : 3},
-																										{"min" : 10000, "max": 21000, "density" : 10}
-																									]},
-			"11" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treasureLikeZone" : 10 },
-			"12" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "treasureLikeZone" : 10 }
+			"4" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 1,
+					"mines" : {"gems" : 1, "crystal" : 1},
+					"treasure" : [
+									{"min" : 3000, "max": 10000, "density" : 12},
+									{"min" : 6000, "max": 10000, "density" : 6}
+								]},
+			"5" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 1,
+					"mines" : {"sulfur" : 1, "mercury" : 1},
+					"treasureLikeZone" : 4},
+			"6" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 2, "minesLikeZone" : 5, "treasureLikeZone" : 4 },
+			"7" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 2, "minesLikeZone" : 4, "treasureLikeZone" : 4 },
+			"8" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 3, "minesLikeZone" : 4, "treasureLikeZone" : 4 },
+			"9" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : 3, "minesLikeZone" : 5, "treasureLikeZone" : 4 },
+			"10" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 },
+					"mines" : {"gold" : 1},
+					"treasure" : [
+									{"min" : 21000, "max": 25000, "density" : 3},
+									{"min" : 10000, "max": 21000, "density" : 10}
+								]},
+			"11" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "minesLikeZone" : 10, "treasureLikeZone" : 10 },
+			"12" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 }, "minesLikeZone" : 10, "treasureLikeZone" : 10 }
 		},
 		"connections" :
 		[
@@ -213,6 +232,7 @@
 				"type" : "playerStart", "size" : 30, "owner" : 1,
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 2 },
+				"mines" : {"wood" : 4, "ore" : 4, "gems" : 1, "crystal" : 1, "sulfur" : 1, "mercury" : 1, "gold" : 2},
 				"treasure" : [
 								{"min" : 12000, "max": 22000, "density": 1},
 								{"min" : 500, "max": 1600, "density": 6},
@@ -224,6 +244,7 @@
 				"type" : "playerStart", "size" : 30, "owner" : 2,
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 2 },
+				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
 			"3":
@@ -231,6 +252,7 @@
 				"type" : "playerStart", "size" : 30, "owner" : 3,
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 2 },
+				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
 			"4":
@@ -238,6 +260,7 @@
 				"type" : "playerStart", "size" : 30, "owner" : 4,
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 2 },
+				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
 			"5" :
@@ -245,6 +268,7 @@
 				"type" : "treasure", "size" : 40,
 				"neutralTowns" : { "towns" : 2 },
 				"terrainTypes" : [ "sand" ], "matchTerrainToTown" : false,
+				"mines" : {"gold" : 4},
 				"treasure" : [
 								{"min" : 35000, "max": 55000, "density" : 3},
 								{"min" : 25000, "max": 35000, "density" : 10},
