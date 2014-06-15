@@ -290,7 +290,7 @@
 			"5" :
 			{
 				"type" : "treasure", "size" : 40,
-				"neutralTowns" : { "towns" : 2 },
+				"neutralTowns" : { "castles" : 2 },
 				"terrainTypes" : [ "sand" ], "matchTerrainToTown" : false,
 				"monsters" : "strong",
 				"mines" : {"gold" : 4},
