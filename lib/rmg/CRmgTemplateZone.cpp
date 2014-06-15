@@ -1059,19 +1059,28 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 
 bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str)
 {
-	
 	logGlobal->traceStream() << boost::format("Guard object at %d %d") % object->pos.x % object->pos.y;
 	int3 visitable = object->visitablePos();
 	std::vector<int3> tiles;
+
+	auto tilesBlockedByObject = object->getBlockedPos(); //absolue value, as object is already placed
+
 	gen->foreach_neighbour(visitable, [&](int3& pos) 
 	{
-		logGlobal->traceStream() << boost::format("Block at %d %d") % pos.x % pos.y;
 		if (gen->isPossible(pos))
 		{
-			tiles.push_back(pos);
+			if (!vstd::contains(tilesBlockedByObject, pos))
+			{
+				if (object->appearance.isVisitableFrom(pos.x - visitable.x, pos.y - visitable.y) && !gen->isBlocked(pos)) //TODO: refactor - info about visitability from absolute coordinates
+				{
+					logGlobal->traceStream() << boost::format("Block at %d %d") % pos.x % pos.y;
+					tiles.push_back(pos);
+				}
+			}
+
 		};
 	});
-	if ( ! tiles.size())
+	if (!tiles.size())
 	{		
 		logGlobal->infoStream() << "Failed";
 		return false;
