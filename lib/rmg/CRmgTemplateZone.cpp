@@ -839,11 +839,7 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 		logGlobal->traceStream() << "Place found";
 
 		placeObject(gen, obj.first, pos);
-		crunchPath (gen, pos, getPos(), id); //make sure object is connected to the middle of zone
-		if (obj.second)
-		{
-			guardObject (gen, obj.first, obj.second);
-		}
+		guardObject (gen, obj.first, obj.second);
 	}
 	return true;
 }
@@ -1063,9 +1059,9 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 	}
 }
 
-bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str)
+std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object)
 {
-	logGlobal->traceStream() << boost::format("Guard object at %d %d") % object->pos.x % object->pos.y;
+	//get all tiles from which this object can be accessed
 	int3 visitable = object->visitablePos();
 	std::vector<int3> tiles;
 
@@ -1079,29 +1075,51 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 			{
 				if (object->appearance.isVisitableFrom(pos.x - visitable.x, pos.y - visitable.y) && !gen->isBlocked(pos)) //TODO: refactor - info about visitability from absolute coordinates
 				{
-					logGlobal->traceStream() << boost::format("Block at %d %d") % pos.x % pos.y;
 					tiles.push_back(pos);
 				}
 			}
 
 		};
 	});
-	if (!tiles.size())
-	{		
-		logGlobal->infoStream() << "Failed";
+
+	return tiles;
+}
+
+bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str)
+{
+	logGlobal->traceStream() << boost::format("Guard object at %s") % object->pos();
+
+	std::vector<int3> tiles = getAccessibleOffsets (gen, object);
+
+	int3 guardTile(-1,-1,-1);
+
+	for (auto tile : tiles)
+	{
+		//crunching path may fail if center of teh zone is dirrectly over wide object
+		if (crunchPath (gen, tile, getPos(), id)) //make sure object is accessible before surrounding it with blocked tiles
+		{
+			guardTile = tile;
+			break;
+		}
+	}
+	if (!guardTile.valid())
+	{
+		logGlobal->errorStream() << boost::format("Failed to crunch path to object at %s") % object->pos();
 		return false;
 	}
-	auto guard_tile = *RandomGeneratorUtil::nextItem(tiles, gen->rand);
 
-	if (addMonster (gen, guard_tile, str)) //do not place obstacles around unguarded object
+	if (addMonster (gen, guardTile, str)) //do not place obstacles around unguarded object
 	{
 		for (auto pos : tiles)
-			gen->setOccupied(pos, ETileType::BLOCKED);
+		{
+			if (!gen->isFree(pos))
+				gen->setOccupied(pos, ETileType::BLOCKED);
+		}
 
-		gen->setOccupied (guard_tile, ETileType::USED);
+		gen->setOccupied (guardTile, ETileType::USED);
 	}
 	else
-		gen->setOccupied (guard_tile, ETileType::FREE);
+		gen->setOccupied (guardTile, ETileType::FREE);
 
 	return true;
 }

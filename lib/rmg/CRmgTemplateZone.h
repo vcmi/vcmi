@@ -141,6 +141,7 @@ public:
 	void createTreasures(CMapGenerator* gen);
 	void createObstacles(CMapGenerator* gen);
 	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles = nullptr);
+	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object);
 
 	void setTotalDensity (ui16 val);
 	ui16 getTotalDensity () const;
