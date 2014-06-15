@@ -817,13 +817,8 @@ bool CRmgTemplateZone::placeMines (CMapGenerator* gen)
 	return true;
 }
 
-bool CRmgTemplateZone::fill(CMapGenerator* gen)
+bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 {
-	addAllPossibleObjects (gen);
-	initTownType(gen);
-	initTerrainType(gen);
-	placeMines(gen);
-
 	logGlobal->infoStream() << "Creating required objects";
 	for(const auto &obj : requiredObjects)
 	{
@@ -838,26 +833,33 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 		logGlobal->traceStream() << "Place found";
 
 		placeObject(gen, obj.first, pos);
-		crunchPath (gen, pos, getPos(), id); //make sure pile is connected to the middle of zone
+		crunchPath (gen, pos, getPos(), id); //make sure object is connected to the middle of zone
 		if (obj.second)
 		{
 			guardObject (gen, obj.first, obj.second);
 		}
 	}
-	const double res_mindist = 5;
+	return true;
+}
 
-	//TODO: just placeholder to chekc for possible locations
+void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
+{
+	const double minDistance = 3;
+
 	do {
 		
 		int3 pos;
-		if ( ! findPlaceForTreasurePile(gen, 3, pos))		
+		if ( ! findPlaceForTreasurePile(gen,  minDistance, pos))		
 		{
 			break;
 		}
 		createTreasurePile (gen, pos);
 
 	} while(true);
+}
 
+void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
+{
 	auto sel = gen->editManager->getTerrainSelection();
 	sel.clearSelection();
 	for (auto tile : tileinfo)
@@ -874,8 +876,19 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 			placeObject(gen, obj, tile);
 		}
 	}
-	//logGlobal->infoStream() << boost::format("Filling %d with ROCK") % sel.getSelectedItems().size();
-	//gen->editManager->drawTerrain(ETerrainType::ROCK, &gen->gen);
+}
+
+bool CRmgTemplateZone::fill(CMapGenerator* gen)
+{
+	addAllPossibleObjects (gen);
+	initTownType(gen);
+	initTerrainType(gen);
+	placeMines(gen);
+	createRequiredObjects(gen);
+	fractalize(gen); //after required objects are created and linked with their own paths
+	createTreasures(gen);
+	createObstacles(gen);
+
 	logGlobal->infoStream() << boost::format ("Zone %d filled successfully") %id;
 	return true;
 }
@@ -1017,12 +1030,12 @@ void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance*
 
 	gen->map->addBlockVisTiles(object);
 	gen->editManager->insertObject(object, pos);
-	logGlobal->traceStream() << boost::format ("Successfully inserted object (%d,%d) at pos %s") %object->ID %object->subID %pos();
+	//logGlobal->traceStream() << boost::format ("Successfully inserted object (%d,%d) at pos %s") %object->ID %object->subID %pos();
 }
 
 void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos)
 {
-	logGlobal->traceStream() << boost::format("Inserting object at %d %d") % pos.x % pos.y;
+	//logGlobal->traceStream() << boost::format("Inserting object at %d %d") % pos.x % pos.y;
 
 	checkAndPlaceObject (gen, object, pos);
 

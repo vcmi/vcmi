@@ -219,7 +219,6 @@ void CMapGenerator::fillZones()
 	{
 		//make sure all connections are passable before creating borders
 		it.second->createBorder(this);
-		it.second->fractalize(this);
 		it.second->fill(this);
 	}	
 	logGlobal->infoStream() << "Zones filled successfully";

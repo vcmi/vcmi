@@ -136,6 +136,9 @@ public:
 	void initTerrainType (CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
 	void fractalize(CMapGenerator* gen);
+	bool createRequiredObjects(CMapGenerator* gen);
+	void createTreasures(CMapGenerator* gen);
+	void createObstacles(CMapGenerator* gen);
 	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles = nullptr);
 
 	void setTotalDensity (ui16 val);
