@@ -65,6 +65,16 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				zone->setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector(), zone->getDefaultTerrainTypes()));
 				zone->setTownsAreSameType((zoneNode["townsAreSameType"].Bool()));
 
+				const std::string monsterStrength = zoneNode["monsters"].String();
+				if (monsterStrength == "weak")
+					zone->setMonsterStrength(EMonsterStrength::ZONE_WEAK);
+				else if (monsterStrength == "normal")
+					zone->setMonsterStrength(EMonsterStrength::ZONE_NORMAL);
+				else if (monsterStrength == "strong")
+					zone->setMonsterStrength(EMonsterStrength::ZONE_STRONG);
+				else
+					throw (rmgException("incorrect monster power"));
+
 				if (!zoneNode["mines"].isNull())
 				{
 					auto mines = zoneNode["mines"].Struct();

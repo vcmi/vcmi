@@ -118,6 +118,7 @@ public:
 	std::set<ETerrainType> getDefaultTerrainTypes() const;
 	void setMinesAmount (TResource res, ui16 amount);
 	std::map<TResource, ui16> getMinesInfo() const;
+	void setMonsterStrength (EMonsterStrength::EMonsterStrength val);
 
 	float3 getCenter() const;
 	void setCenter(const float3 &f);
@@ -166,6 +167,7 @@ private:
 	si32 townType;
 	ETerrainType terrainType;
 
+	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
 	ui16 totalDensity;
 	std::vector<CTreasureInfo> treasureInfo;
 	std::vector<ObjectInfo> possibleObjects;

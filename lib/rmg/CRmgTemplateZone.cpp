@@ -121,7 +121,8 @@ void CTileInfo::setTerrainType(ETerrainType value)
 }
 
 CRmgTemplateZone::CRmgTemplateZone() : id(0), type(ETemplateZoneType::PLAYER_START), size(1),
-	terrainType (ETerrainType::GRASS), townType(0), townsAreSameType(false), matchTerrainToTown(true), totalDensity(0)
+	terrainType (ETerrainType::GRASS), townType(0), townsAreSameType(false), matchTerrainToTown(true), totalDensity(0),
+	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL)
 {
 	townTypes = getDefaultTownTypes();
 	terrainTypes = getDefaultTerrainTypes();
@@ -274,6 +275,12 @@ void CRmgTemplateZone::addConnection(TRmgTemplateZoneId otherZone)
 std::vector<TRmgTemplateZoneId> CRmgTemplateZone::getConnections() const
 {
 	return connections;
+}
+
+void CRmgTemplateZone::setMonsterStrength (EMonsterStrength::EMonsterStrength val)
+{
+	assert (vstd::iswithin(val, EMonsterStrength::ZONE_WEAK, EMonsterStrength::ZONE_STRONG));
+	zoneMonsterStrength = val;
 }
 
 void CRmgTemplateZone::setTotalDensity (ui16 val)
@@ -496,7 +503,6 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 	//precalculate actual (randomized) monster strength based on this post
 	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
 
-	int zoneMonsterStrength = 0; //TODO: range -1..1 based on template settings
 	int mapMonsterStrength = gen->mapGenOptions->getMonsterStrength();
 	int monsterStrength = zoneMonsterStrength + mapMonsterStrength - 1; //array index from 0 to 4
 	static const int value1[] = {2500, 1500, 1000, 500, 0};
