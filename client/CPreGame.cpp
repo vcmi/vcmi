@@ -1716,7 +1716,10 @@ CRandomMapTab::CRandomMapTab()
 	addButtonsWithRandToGroup(monsterStrengthGroup, monsterStrengthBtns, 0, 2, WIDE_BTN_WIDTH, 248, 251);
 	monsterStrengthGroup->onChange = [&](int btnId)
 	{
-		mapGenOptions.setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(btnId + EMonsterStrength::GLOBAL_WEAK)); //value 2 to 4
+		if (btnId < 0)
+			mapGenOptions.setMonsterStrength(EMonsterStrength::RANDOM);
+		else
+			mapGenOptions.setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(btnId + EMonsterStrength::GLOBAL_WEAK)); //value 2 to 4
 	};
 
 	// Show random maps btn
