@@ -710,27 +710,34 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 }
 void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 {
+
+	//FIXME: handle case that this player is not present -> towns should be set to neutral
+	int totalTowns = 0;
+
 	if ((type == ETemplateZoneType::CPU_START) || (type == ETemplateZoneType::PLAYER_START))
 	{
+		//set zone types to player faction, generate main town
 		logGlobal->infoStream() << "Preparing playing zone";
 		int player_id = *owner - 1;
 		auto & playerInfo = gen->map->players[player_id];
 		if (playerInfo.canAnyonePlay())
 		{
 			PlayerColor player(player_id);
-			auto  town = new CGTownInstance();
-			town->ID = Obj::TOWN;
 			townType = gen->mapGenOptions->getPlayersSettings().find(player)->second.getStartingTown();
 
 			if(townType == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
 				townType = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); // all possible towns, skip neutral
+			
+			auto  town = new CGTownInstance();
+			town->ID = Obj::TOWN;
 
 			town->subID = townType;
 			town->tempOwner = player;
 			town->builtBuildings.insert(BuildingID::FORT);
 			town->builtBuildings.insert(BuildingID::DEFAULT);
-			
 			placeObject(gen, town, getPos() + town->getVisitableOffset()); //towns are big objects and should be centered around visitable position
+
+			totalTowns++;
 
 			logGlobal->traceStream() << "Fill player info " << player_id;
 
@@ -740,6 +747,42 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			playerInfo.hasMainTown = true;
 			playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
 			playerInfo.generateHeroAtMainTown = true;
+
+			//now create actual towns
+			for (int i = 1; i < playerTowns.getCastleCount(); i++)
+			{
+				auto  town = new CGTownInstance();
+				town->ID = Obj::TOWN;
+
+				if (townsAreSameType)
+					town->subID = townType;
+				else
+					town->subID = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); //TODO: check allowed town types for this zone
+
+				town->tempOwner = player;
+				town->builtBuildings.insert(BuildingID::FORT);
+				town->builtBuildings.insert(BuildingID::DEFAULT);
+
+				addRequiredObject (town);
+				totalTowns++;
+			}
+
+			for (int i = 0; i < playerTowns.getTownCount(); i++)
+			{
+				auto  town = new CGTownInstance();
+				town->ID = Obj::TOWN;
+
+				if (townsAreSameType)
+					town->subID = townType;
+				else
+					town->subID = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); //TODO: check allowed town types for this zone
+
+				town->tempOwner = player;
+				town->builtBuildings.insert(BuildingID::DEFAULT);
+
+				addRequiredObject (town);
+				totalTowns++;
+			}
 
 			//requiredObjects.push_back(town);
 		}
@@ -753,6 +796,47 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 	else //no player
 	{
 		townType = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand);
+	}
+
+	for (int i = 0; i < neutralTowns.getCastleCount(); i++)
+	{
+		auto  town = new CGTownInstance();
+		town->ID = Obj::TOWN;
+
+		if (townsAreSameType || totalTowns == 0) //first town must match zone type
+			town->subID = townType;
+		else
+			town->subID = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); //TODO: check allowed town types for this zone
+
+		town->tempOwner = PlayerColor::NEUTRAL;
+		town->builtBuildings.insert(BuildingID::FORT);
+		town->builtBuildings.insert(BuildingID::DEFAULT);
+
+		if (!totalTowns) //first town in zone goes in the middle
+			placeObject(gen, town, getPos() + town->getVisitableOffset());
+		else
+			addRequiredObject (town);
+		totalTowns++;
+	}
+
+	for (int i = 0; i < neutralTowns.getTownCount(); i++)
+	{
+		auto  town = new CGTownInstance();
+		town->ID = Obj::TOWN;
+
+		if (townsAreSameType || totalTowns == 0)
+			town->subID = townType;
+		else
+			town->subID = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); //TODO: check allowed town types for this zone
+
+		town->tempOwner = PlayerColor::NEUTRAL;
+		town->builtBuildings.insert(BuildingID::DEFAULT);
+
+		if (!totalTowns)
+			placeObject(gen, town, getPos() + town->getVisitableOffset());
+		else
+			addRequiredObject (town);
+		totalTowns++;
 	}
 }
 
