@@ -202,6 +202,14 @@ void CHeroClassHandler::loadObject(std::string scope, std::string name, const Js
 
 	heroClasses.push_back(object);
 
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "hero", [=](si32 index)
+	{
+		JsonNode classConf;
+		classConf["heroClass"].String() = name;
+		classConf.setMeta(scope);
+		VLC->objtypeh->loadSubObject(name, classConf, index, object->id);
+	});
+
 	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->id);
 }
 
@@ -212,6 +220,14 @@ void CHeroClassHandler::loadObject(std::string scope, std::string name, const Js
 
 	assert(heroClasses[index] == nullptr); // ensure that this id was not loaded before
 	heroClasses[index] = object;
+
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "hero", [=](si32 index)
+	{
+		JsonNode classConf;
+		classConf["heroClass"].String() = name;
+		classConf.setMeta(scope);
+		VLC->objtypeh->loadSubObject(name, classConf, index, object->id);
+	});
 
 	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->id);
 }
@@ -235,7 +251,6 @@ void CHeroClassHandler::afterLoadFinalization()
 
 	for (CHeroClass * hc : heroClasses)
 	{
-		VLC->objtypeh->loadSubObject(hc->identifier, JsonNode(), Obj::HERO, hc->id);
 		if (!hc->imageMapMale.empty())
 		{
 			JsonNode templ;

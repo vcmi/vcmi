@@ -629,23 +629,22 @@ void CGBonusingObject::initObj()
 	};
 
 	info.resize(1);
-	CVisitInfo & visit = info[0];
 
 	switch(ID)
 	{
 	case Obj::BUOY:
 			blockVisit = true;
-		configureMessage(visit, 21, 22, soundBase::MORALE);
-		configureBonus(visit, Bonus::MORALE, +1, 94);
+		configureMessage(info[0], 21, 22, soundBase::MORALE);
+		configureBonus(info[0], Bonus::MORALE, +1, 94);
 		break;
 	case Obj::SWAN_POND:
-		configureMessage(visit, 29, 30, soundBase::LUCK);
-		configureBonus(visit, Bonus::LUCK, 2, 67);
-		visit.reward.movePercentage = 0;
+		configureMessage(info[0], 29, 30, soundBase::LUCK);
+		configureBonus(info[0], Bonus::LUCK, 2, 67);
+		info[0].reward.movePercentage = 0;
 		break;
 	case Obj::FAERIE_RING:
-		configureMessage(visit, 49, 50, soundBase::LUCK);
-		configureBonus(visit, Bonus::LUCK, 2, 71);
+		configureMessage(info[0], 49, 50, soundBase::LUCK);
+		configureBonus(info[0], Bonus::LUCK, 2, 71);
 		break;
 	case Obj::FOUNTAIN_OF_FORTUNE:
 		selectMode = SELECT_RANDOM;
@@ -673,19 +672,19 @@ void CGBonusingObject::initObj()
 		break;
 	case Obj::MERMAID:
 		blockVisit = true;
-		configureMessage(visit, 83, 82, soundBase::LUCK);
-		configureBonus(visit, Bonus::LUCK, 1, 72);
+		configureMessage(info[0], 83, 82, soundBase::LUCK);
+		configureBonus(info[0], Bonus::LUCK, 1, 72);
 		break;
 	case Obj::RALLY_FLAG:
-		configureMessage(visit, 111, 110, soundBase::MORALE);
-		configureBonus(visit, Bonus::MORALE, 1, 102);
-		configureBonus(visit, Bonus::LUCK,   1, 102);
-		visit.reward.movePoints = 400;
+		configureMessage(info[0], 111, 110, soundBase::MORALE);
+		configureBonus(info[0], Bonus::MORALE, 1, 102);
+		configureBonus(info[0], Bonus::LUCK,   1, 102);
+		info[0].reward.movePoints = 400;
 		break;
 	case Obj::OASIS:
-		configureMessage(visit, 95, 94, soundBase::MORALE);
-		configureBonus(visit, Bonus::MORALE, 1, 95);
-		visit.reward.movePoints = 800;
+		configureMessage(info[0], 95, 94, soundBase::MORALE);
+		configureBonus(info[0], Bonus::MORALE, 1, 95);
+		info[0].reward.movePoints = 800;
 		break;
 	case Obj::TEMPLE:
 		info[0].limiter.dayOfWeek = 7;
@@ -693,24 +692,24 @@ void CGBonusingObject::initObj()
 		configureBonus(info[0], Bonus::MORALE, 2, 96);
 		configureBonus(info[1], Bonus::MORALE, 1, 97);
 
-		configureMessage(visit, 140, 141, soundBase::temple);
+		configureMessage(info[0], 140, 141, soundBase::temple);
 		configureMessage(info[1], 140, 141, soundBase::temple);
 		break;
 	case Obj::WATERING_HOLE:
-		configureMessage(visit, 166, 167, soundBase::MORALE);
-		configureBonus(visit, Bonus::MORALE, 1, 100);
-		visit.reward.movePoints = 400;
+		configureMessage(info[0], 166, 167, soundBase::MORALE);
+		configureBonus(info[0], Bonus::MORALE, 1, 100);
+		info[0].reward.movePoints = 400;
 		break;
 	case Obj::FOUNTAIN_OF_YOUTH:
-		configureMessage(visit, 57, 58, soundBase::MORALE);
-		configureBonus(visit, Bonus::MORALE, 1, 103);
-		visit.reward.movePoints = 400;
+		configureMessage(info[0], 57, 58, soundBase::MORALE);
+		configureBonus(info[0], Bonus::MORALE, 1, 103);
+		info[0].reward.movePoints = 400;
 		break;
 	case Obj::STABLES:
-		configureMessage(visit, 137, 136, soundBase::STORE);
+		configureMessage(info[0], 137, 136, soundBase::STORE);
 
-		configureBonusDuration(visit, Bonus::ONE_WEEK, Bonus::LAND_MOVEMENT, 600, 0);
-		visit.reward.movePoints = 600;
+		configureBonusDuration(info[0], Bonus::ONE_WEEK, Bonus::LAND_MOVEMENT, 600, 0);
+		info[0].reward.movePoints = 600;
 		//TODO: upgrade champions to cavaliers
 /*
 		bool someUpgradeDone = false;

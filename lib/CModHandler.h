@@ -25,6 +25,13 @@ class IHandlerBase;
 /// if possible, objects ID's should be in format <type>.<name>, camelCase e.g. "creature.grandElf"
 class CIdentifierStorage
 {
+	enum ELoadingState
+	{
+		LOADING,
+		FINALIZING,
+		FINISHED
+	};
+
 	struct ObjectCallback // entry created on ID request
 	{
 		std::string localScope;  /// scope from which this ID was requested
@@ -52,6 +59,8 @@ class CIdentifierStorage
 	std::multimap<std::string, ObjectData > registeredObjects;
 	std::vector<ObjectCallback> scheduledRequests;
 
+	ELoadingState state;
+
 	/// Check if identifier can be valid (camelCase, point as separator)
 	void checkIdentifier(std::string & ID);
 
@@ -59,6 +68,7 @@ class CIdentifierStorage
 	bool resolveIdentifier(const ObjectCallback & callback);
 	std::vector<ObjectData> getPossibleIdentifiers(const ObjectCallback & callback);
 public:
+	CIdentifierStorage();
 	/// request identifier for specific object name.
 	/// Function callback will be called during ID resolution phase of loading
 	void requestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback);
@@ -82,7 +92,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & registeredObjects;
+		h & registeredObjects & state;
 	}
 };
 

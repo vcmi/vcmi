@@ -192,7 +192,12 @@ void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CR
 			dwelling->creatures.back().second.push_back(cre->idNumber);
 	}
 
-	for (auto & stack : loadCreatures(guards, rng))
+	if (guards.getType() == JsonNode::DATA_BOOL)
+	{
+		const CCreature * crea = availableCreatures.at(0).at(0);
+		dwelling->putStack(SlotID(0), new CStackInstance(crea->idNumber, crea->growth * 3 ));
+	}
+	else for (auto & stack : loadCreatures(guards, rng))
 	{
 		dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->idNumber, stack.count));
 	}

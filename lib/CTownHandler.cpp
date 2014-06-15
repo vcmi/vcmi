@@ -773,26 +773,6 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 void CTownHandler::afterLoadFinalization()
 {
 	initializeRequirements();
-	for (CFaction * fact : factions)
-	{
-		// MODS COMPATIBILITY FOR 0.96
-		if (fact->town)
-		{
-			assert(fact->town->dwellings.size() == fact->town->dwellingNames.size());
-			for (size_t i=0; i<fact->town->dwellings.size(); i++)
-			{
-				//both unupgraded and upgraded get same dwelling
-				for (auto cre : fact->town->creatures[i])
-				{
-					JsonNode templ;
-					templ["animation"].String() = fact->town->dwellings[i];
-
-					VLC->objtypeh->loadSubObject("", JsonNode(), Obj::CREATURE_GENERATOR1, 100 + cre);
-					VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, 100 + cre)->addTemplate(templ);
-				 }
-			}
-		}
-	}
 }
 
 void CTownHandler::initializeRequirements()

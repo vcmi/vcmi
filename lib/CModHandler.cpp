@@ -26,6 +26,11 @@
  *
  */
 
+CIdentifierStorage::CIdentifierStorage():
+	state(LOADING)
+{
+}
+
 void CIdentifierStorage::checkIdentifier(std::string & ID)
 {
 	if (boost::algorithm::ends_with(ID, "."))
@@ -81,7 +86,10 @@ void CIdentifierStorage::requestIdentifier(ObjectCallback callback)
 
 	assert(!callback.localScope.empty());
 
-	scheduledRequests.push_back(callback);
+	if (state != FINISHED) // enqueue request if loading is still in progress
+		scheduledRequests.push_back(callback);
+	else // execute immediately for "late" requests
+		resolveIdentifier(callback);
 }
 
 void CIdentifierStorage::requestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback)
@@ -244,6 +252,7 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
 
 void CIdentifierStorage::finalize()
 {
+	state = FINALIZING;
 	bool errorsFound = false;
 
 	//Note: we may receive new requests during resolution phase -> end may change -> range for can't be used
@@ -261,6 +270,7 @@ void CIdentifierStorage::finalize()
 		logGlobal->errorStream() << "All known identifiers were dumped into log file";
 	}
 	assert(errorsFound == false);
+	state = FINISHED;
 }
 
 CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, std::string objectName):
