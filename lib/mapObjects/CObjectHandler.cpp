@@ -157,15 +157,6 @@ static void readBankLevel(const JsonNode &level, BankConfig &bc)
 
 CObjectHandler::CObjectHandler()
 {
-    logGlobal->traceStream() << "\t\tReading cregens ";
-
-	const JsonNode config(ResourceID("config/dwellings.json"));
-	for(const JsonNode &dwelling : config["dwellings"].Vector())
-	{
-		cregens[dwelling["dwelling"].Float()] = CreatureID((si32)dwelling["creature"].Float());
-	}
-    logGlobal->traceStream() << "\t\tDone loading cregens!";
-
     logGlobal->traceStream() << "\t\tReading resources prices ";
 	const JsonNode config2(ResourceID("config/resources.json"));
 	for(const JsonNode &price : config2["resources_prices"].Vector())
@@ -342,10 +333,10 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 
 	this->ID = Obj(ID);
 	this->subID = subID;
-	this->appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(tile.terType).front();
 
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
 	cb->gameState()->map->removeBlockVisTiles(this, true);
+	this->appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(tile.terType).at(0);
 	cb->gameState()->map->addBlockVisTiles(this);
 }
 

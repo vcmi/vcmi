@@ -48,6 +48,16 @@
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VA" ]
 			}
+		},
+		"types" : {
+			"wood" :    { "index" : 0 },
+			"mercury" : { "index" : 1 },
+			"ore" :     { "index" : 2 },
+			"sulfur" :  { "index" : 3 },
+			"crystal" : { "index" : 4 },
+			"gems" :    { "index" : 5 },
+			"gold" :    { "index" : 6 },
+			"mithril" : { "index" : 7 } // TODO: move to WoG?
 		}
 	},
 	
@@ -56,7 +66,7 @@
 		"index" :98,
 		"handler": "town",
 		"base" : {
-			"filter" : {
+			"filters" : {
 				// village image - fort not present
 				"village" : [ "noneOf", [ "fort" ] ],
 				// fort image - fort is here but not capitol
@@ -125,21 +135,6 @@
 	// subtype: faction ID
 	"randomDwellingFaction"			: { "index" :218, "handler": "dwelling" },
 
-	// subtype: not well defined, describes various dwellings that can be placed as random
-	"creatureGeneratorCommon" : {
-		"index" :17,
-		"handler": "dwelling",
-		"base" : {
-			"base" : {
-				"visitableFrom" : [ "---", "+++", "+++" ],
-				"mask" : [ "VVV", "VBB", "VAA" ]
-			}
-		}
-	},
-	
-	// subtype: unique special dwellings - golem factory, elemental conflux
-	"creatureGeneratorSpecial"		: { "index" :20, "handler": "dwelling" },
-	
 	// don't have subtypes (at least now), but closely connected to this objects
 	"spellScroll"					: { "index" :93, "handler": "artifact" },
 	"heroPlaceholder"				: { "index" :214, "handler": "heroPlaceholder" }

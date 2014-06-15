@@ -622,23 +622,28 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			std::pair<Obj, int> result(Obj::NO_OBJ, -1);
 			CreatureID cid = VLC->townh->factions[faction]->town->creatures[level][0];
 
-			//golem factory is not in list of cregens but can be placed as random object
-			static const CreatureID factoryCreatures[] = {CreatureID::STONE_GOLEM, CreatureID::IRON_GOLEM,
-				CreatureID::GOLD_GOLEM, CreatureID::DIAMOND_GOLEM};
-			std::vector<CreatureID> factory(factoryCreatures, factoryCreatures + ARRAY_COUNT(factoryCreatures));
-			if (vstd::contains(factory, cid))
-				result = std::make_pair(Obj::CREATURE_GENERATOR4, 1);
-
 			//NOTE: this will pick last dwelling with this creature (Mantis #900)
 			//check for block map equality is better but more complex solution
-			for(auto &iter : VLC->objh->cregens)
-				if (iter.second == cid)
-					result = std::make_pair(Obj::CREATURE_GENERATOR1, iter.first);
+			auto testID = [&](Obj primaryID) -> void
+			{
+				auto dwellingIDs = VLC->objtypeh->knownSubObjects(primaryID);
+				for (si32 entry : dwellingIDs)
+				{
+					auto handler = dynamic_cast<const CDwellingInstanceConstructor*>(VLC->objtypeh->getHandlerFor(primaryID, entry).get());
+
+					if (handler->producesCreature(VLC->creh->creatures[cid]))
+						result = std::make_pair(primaryID, entry);
+				}
+			};
+
+			testID(Obj::CREATURE_GENERATOR1);
+			if (result.first == Obj::NO_OBJ)
+				testID(Obj::CREATURE_GENERATOR4);
 
 			if (result.first == Obj::NO_OBJ)
 			{
-                logGlobal->errorStream() << "Error: failed to find creature for dwelling of "<< int(faction) << " of level " << int(level);
-				result = std::make_pair(Obj::CREATURE_GENERATOR1, RandomGeneratorUtil::nextItem(VLC->objh->cregens, rand)->first);
+				logGlobal->errorStream() << "Error: failed to find dwelling for "<< VLC->townh->factions[faction]->name << " of level " << int(level);
+				result = std::make_pair(Obj::CREATURE_GENERATOR1, *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), rand));
 			}
 
 			return result;

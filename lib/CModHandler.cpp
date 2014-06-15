@@ -128,7 +128,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(std::string scope, std::
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logGlobal->errorStream() << "Failed to resolve identifier " << name << " from mod " << scope;
+		logGlobal->errorStream() << "Failed to resolve identifier " << name << " of type " << type << " from mod " << scope;
 
 	return boost::optional<si32>();
 }
@@ -141,7 +141,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(std::string type, const 
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " from mod " << type;
+		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " of type " << type << " from mod " << name.meta;
 
 	return boost::optional<si32>();
 }
@@ -155,7 +155,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, b
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " from mod " << name.meta;
+		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " of type " << pair2.first << " from mod " << name.meta;
 
 	return boost::optional<si32>();
 }
@@ -223,7 +223,9 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
 	}
 
 	if (request.optional && identifiers.empty()) // failed to resolve optinal ID
+	{
 		return true;
+	}
 
 	// error found. Try to generate some debug info
 	if (identifiers.size() == 0)
@@ -244,16 +246,17 @@ void CIdentifierStorage::finalize()
 {
 	bool errorsFound = false;
 
-	for(const ObjectCallback & request : scheduledRequests)
+	//Note: we may receive new requests during resolution phase -> end may change -> range for can't be used
+	for(auto it = scheduledRequests.begin(); it != scheduledRequests.end(); it++)
 	{
-		errorsFound |= !resolveIdentifier(request);
+		errorsFound |= !resolveIdentifier(*it);
 	}
 
 	if (errorsFound)
 	{
 		for(auto object : registeredObjects)
 		{
-			logGlobal->traceStream() << object.first << " -> " << object.second.id;
+			logGlobal->traceStream() << object.second.scope << " : " << object.first << " -> " << object.second.id;
 		}
 		logGlobal->errorStream() << "All known identifiers were dumped into log file";
 	}

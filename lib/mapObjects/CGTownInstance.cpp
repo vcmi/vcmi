@@ -13,6 +13,7 @@
 
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
+#include "../mapObjects/CObjectClassesHandler.h"
 
 using namespace boost::assign;
 
@@ -24,54 +25,18 @@ void CGDwelling::initObj()
 	switch(ID)
 	{
 	case Obj::CREATURE_GENERATOR1:
+	case Obj::CREATURE_GENERATOR4:
 		{
-			CreatureID crid = VLC->objh->cregens[subID];
-			const CCreature *crs = VLC->creh->creatures[crid];
+			VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, cb->gameState()->getRandomGenerator());
 
-			creatures.resize(1);
-			creatures[0].second.push_back(crid);
-			if (subID >= VLC->generaltexth->creGens.size()) //very messy workaround
-			{
-				auto & dwellingNames = VLC->townh->factions[crs->faction]->town->dwellingNames;
-				assert (dwellingNames.size() > crs->level - 1);
-				hoverName = dwellingNames[crs->level - 1];
-			}
-			else
-				hoverName = VLC->generaltexth->creGens[subID];
-			if(crs->level > 4)
-				putStack(SlotID(0), new CStackInstance(crs, (crs->growth) * 3));
 			if (getOwner() != PlayerColor::NEUTRAL)
 				cb->gameState()->players[getOwner()].dwellings.push_back (this);
 		}
-		break;
+			//putStack(SlotID(0), new CStackInstance(CreatureID::GOLD_GOLEM, 9));
+			//putStack(SlotID(1), new CStackInstance(CreatureID::DIAMOND_GOLEM, 6));
 
-	case Obj::CREATURE_GENERATOR4:
-		creatures.resize(4);
-		if(subID == 1) //Golem Factory
-		{
-			creatures[0].second.push_back(CreatureID::STONE_GOLEM);
-			creatures[1].second.push_back(CreatureID::IRON_GOLEM);
-			creatures[2].second.push_back(CreatureID::GOLD_GOLEM);
-			creatures[3].second.push_back(CreatureID::DIAMOND_GOLEM);
-			//guards
-			putStack(SlotID(0), new CStackInstance(CreatureID::GOLD_GOLEM, 9));
-			putStack(SlotID(1), new CStackInstance(CreatureID::DIAMOND_GOLEM, 6));
-		}
-		else if(subID == 0) // Elemental Conflux
-		{
-			creatures[0].second.push_back(CreatureID::AIR_ELEMENTAL);
-			creatures[1].second.push_back(CreatureID::FIRE_ELEMENTAL);
-			creatures[2].second.push_back(CreatureID::EARTH_ELEMENTAL);
-			creatures[3].second.push_back(CreatureID::WATER_ELEMENTAL);
-			//guards
-			putStack(SlotID(0), new CStackInstance(CreatureID::EARTH_ELEMENTAL, 12));
-		}
-		else
-		{
-			assert(0);
-		}
-		hoverName = VLC->generaltexth->creGens4[subID];
-		break;
+			//putStack(SlotID(0), new CStackInstance(CreatureID::EARTH_ELEMENTAL, 12));
+			break;
 
 	case Obj::REFUGEE_CAMP:
 		//is handled within newturn func
@@ -811,12 +776,10 @@ void CGTownInstance::setType(si32 ID, si32 subID)
 
 void CGTownInstance::updateAppearance()
 {
-	if (!hasFort())
-		appearance.animationFile = town->clientInfo.advMapVillage;
-	else if(hasCapitol())
-		appearance.animationFile = town->clientInfo.advMapCapitol;
-	else
-		appearance.animationFile = town->clientInfo.advMapCastle;
+	//FIXME: not the best way to do this
+	auto app = VLC->objtypeh->getHandlerFor(ID, subID)->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
+	if (app)
+		appearance = app.get();
 }
 
 std::string CGTownInstance::nodeName() const

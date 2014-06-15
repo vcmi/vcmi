@@ -187,7 +187,6 @@ struct BankConfig
 class DLL_LINKAGE CObjectHandler
 {
 public:
-	std::map<si32, CreatureID> cregens; //type 17. dwelling subid -> creature ID
 	std::map <ui32, std::vector < ConstTransitivePtr<BankConfig> > > banksInfo; //[index][preset]
 	std::map <ui32, std::string> creBanksNames; //[crebank index] -> name of this creature bank
 	std::vector<ui32> resVals; //default values of resources in gold
@@ -199,6 +198,6 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & cregens & banksInfo & creBanksNames & resVals;
+		h & banksInfo & creBanksNames & resVals;
 	}
 };

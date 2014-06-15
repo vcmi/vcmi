@@ -68,7 +68,7 @@ public:
 
 class CGObjectInstance;
 
-class AObjectTypeHandler
+class AObjectTypeHandler : public boost::noncopyable
 {
 	RandomMapInfo rmgInfo;
 

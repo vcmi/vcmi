@@ -91,14 +91,19 @@ public:
 
 class CDwellingInstanceConstructor : public CDefaultObjectTypeHandler<CGDwelling>
 {
+	std::vector<std::vector<const CCreature *>> availableCreatures;
+
+	JsonNode guards;
+
 protected:
 	bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
 
 public:
-	std::vector<std::vector<CCreature *>> availableCreatures;
 
 	CDwellingInstanceConstructor();
 	CGObjectInstance * create(ObjectTemplate tmpl) const;
 	void initTypeData(const JsonNode & input);
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const;
+
+	bool producesCreature(const CCreature * crea) const;
 };

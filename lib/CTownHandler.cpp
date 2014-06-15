@@ -554,10 +554,6 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 		info.tavernVideo = "TAVERN.BIK";
 	//end of legacy assignment 
 
-	info.advMapVillage = source["adventureMap"]["village"].String();
-	info.advMapCastle  = source["adventureMap"]["castle"].String();
-	info.advMapCapitol = source["adventureMap"]["capitol"].String();
-
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);
 	loadSiegeScreen(town, source["siege"]);
@@ -723,6 +719,8 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 	auto object = loadFromJson(data, name);
 
 	object->index = factions.size();
+	factions.push_back(object);
+
 	if (object->town)
 	{
 		auto & info = object->town->clientInfo;
@@ -730,9 +728,16 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		info.icons[0][1] = 8 + object->index * 4 + 1;
 		info.icons[1][0] = 8 + object->index * 4 + 2;
 		info.icons[1][1] = 8 + object->index * 4 + 3;
-	}
 
-	factions.push_back(object);
+		VLC->modh->identifiers.requestIdentifier(scope, "object", "town", [=](si32 index)
+		{
+			// register town once objects are loaded
+			JsonNode config = data["town"]["mapObject"];
+			config["faction"].String() = object->identifier;
+			config["faction"].meta = scope;
+			VLC->objtypeh->loadSubObject(object->identifier, config, index, object->index);
+		});
+	}
 
 	VLC->modh->identifiers.registerObject(scope, "faction", name, object->index);
 }
@@ -741,6 +746,9 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 {
 	auto object = loadFromJson(data, name);
 	object->index = index;
+	assert(factions[index] == nullptr); // ensure that this id was not loaded before
+	factions[index] = object;
+
 	if (object->town)
 	{
 		auto & info = object->town->clientInfo;
@@ -748,10 +756,16 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		info.icons[0][1] = (GameConstants::F_NUMBER + object->index) * 2 + 1;
 		info.icons[1][0] = object->index * 2 + 0;
 		info.icons[1][1] = object->index * 2 + 1;
-	}
 
-	assert(factions[index] == nullptr); // ensure that this id was not loaded before
-	factions[index] = object;
+		VLC->modh->identifiers.requestIdentifier(scope, "object", "town", [=](si32 index)
+		{
+			// register town once objects are loaded
+			JsonNode config = data["town"]["mapObject"];
+			config["faction"].String() = object->identifier;
+			config["faction"].meta = scope;
+			VLC->objtypeh->loadSubObject(object->identifier, config, index, object->index);
+		});
+	}
 
 	VLC->modh->identifiers.registerObject(scope, "faction", name, object->index);
 }
@@ -761,31 +775,20 @@ void CTownHandler::afterLoadFinalization()
 	initializeRequirements();
 	for (CFaction * fact : factions)
 	{
+		// MODS COMPATIBILITY FOR 0.96
 		if (fact->town)
 		{
-			VLC->objtypeh->loadSubObject(fact->identifier, JsonNode(), Obj::TOWN, fact->index);
-			if (!fact->town->clientInfo.advMapCastle.empty())
-			{
-				JsonNode templ;
-				templ["animation"].String() = fact->town->clientInfo.advMapCastle;
-				VLC->objtypeh->getHandlerFor(Obj::TOWN, fact->index)->addTemplate(templ);
-			}
-
 			assert(fact->town->dwellings.size() == fact->town->dwellingNames.size());
 			for (size_t i=0; i<fact->town->dwellings.size(); i++)
 			{
 				//both unupgraded and upgraded get same dwelling
 				for (auto cre : fact->town->creatures[i])
 				{
-					if (VLC->objh->cregens.count(cre) == 0)
-					{
-						JsonNode templ;
-						templ["animation"].String() = fact->town->dwellings[i];
+					JsonNode templ;
+					templ["animation"].String() = fact->town->dwellings[i];
 
-						VLC->objtypeh->loadSubObject("", JsonNode(), Obj::CREATURE_GENERATOR1, 80 + cre);
-						VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, 80 + cre)->addTemplate(templ);
-						VLC->objh->cregens[80 + cre] = cre; //map of dwelling -> creature id
-					}
+					VLC->objtypeh->loadSubObject("", JsonNode(), Obj::CREATURE_GENERATOR1, 100 + cre);
+					VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, 100 + cre)->addTemplate(templ);
 				 }
 			}
 		}

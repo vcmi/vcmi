@@ -26,23 +26,27 @@ bool CObstacleConstructor::isStaticObject()
 	return true;
 }
 
-CTownInstanceConstructor::CTownInstanceConstructor()
+CTownInstanceConstructor::CTownInstanceConstructor():
+	faction(nullptr)
 {
 }
 
 void CTownInstanceConstructor::initTypeData(const JsonNode & input)
 {
-	VLC->modh->identifiers.requestIdentifier("faction", input["faction"],
-			[&](si32 index) { faction = VLC->townh->factions[index]; });
+	VLC->modh->identifiers.requestIdentifier("faction", input["faction"], [&](si32 index)
+	{
+		faction = VLC->townh->factions[index];
+	});
 
 	filtersJson = input["filters"];
 }
 
 void CTownInstanceConstructor::afterLoadFinalization()
 {
+	assert(faction);
 	for (auto entry : filtersJson.Struct())
 	{
-		filters[entry.first] = LogicalExpression<BuildingID>(entry.second, [&](const JsonNode & node)
+		filters[entry.first] = LogicalExpression<BuildingID>(entry.second, [this](const JsonNode & node)
 		{
 			return BuildingID(VLC->modh->identifiers.getIdentifier("building." + faction->identifier, node.Vector()[0]).get());
 		});
@@ -121,12 +125,13 @@ void CDwellingInstanceConstructor::initTypeData(const JsonNode & input)
 		availableCreatures[i].resize(creatures.size());
 		for (size_t j=0; j<creatures.size(); j++)
 		{
-			VLC->modh->identifiers.requestIdentifier("creature", creatures[j], [&] (si32 index)
+			VLC->modh->identifiers.requestIdentifier("creature", creatures[j], [=] (si32 index)
 			{
 				availableCreatures[i][j] = VLC->creh->creatures[index];
 			});
 		}
 	}
+	guards = input["guards"];
 }
 
 bool CDwellingInstanceConstructor::objectFilter(const CGObjectInstance *, const ObjectTemplate &) const
@@ -137,17 +142,69 @@ bool CDwellingInstanceConstructor::objectFilter(const CGObjectInstance *, const 
 CGObjectInstance * CDwellingInstanceConstructor::create(ObjectTemplate tmpl) const
 {
 	CGDwelling * obj = createTyped(tmpl);
-	for (auto entry : availableCreatures)
-	{
-		obj->creatures.resize(obj->creatures.size()+1);
 
+	obj->creatures.resize(availableCreatures.size());
+	for (auto & entry : availableCreatures)
+	{
 		for (const CCreature * cre : entry)
 			obj->creatures.back().second.push_back(cre->idNumber);
 	}
 	return obj;
 }
 
-void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
+namespace
 {
+	si32 loadValue(const JsonNode & value, CRandomGenerator & rng, si32 defaultValue = 0)
+	{
+		if (value.isNull())
+			return defaultValue;
+		if (value.getType() == JsonNode::DATA_FLOAT)
+			return value.Float();
+		si32 min = value["min"].Float();
+		si32 max = value["max"].Float();
+		return rng.getIntRange(min, max)();
+	}
 
+	std::vector<CStackBasicDescriptor> loadCreatures(const JsonNode & value, CRandomGenerator & rng)
+	{
+		std::vector<CStackBasicDescriptor> ret;
+		for (auto & pair : value.Struct())
+		{
+			CStackBasicDescriptor stack;
+			stack.type = VLC->creh->creatures[VLC->modh->identifiers.getIdentifier(pair.second.meta, "creature", pair.first).get()];
+			stack.count = loadValue(pair.second, rng);
+			ret.push_back(stack);
+		}
+		return ret;
+	}
+}
+
+void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator &rng) const
+{
+	CGDwelling * dwelling = dynamic_cast<CGDwelling*>(object);
+
+	dwelling->creatures.clear();
+	dwelling->creatures.resize(availableCreatures.size());
+
+	for (auto & entry : availableCreatures)
+	{
+		for (const CCreature * cre : entry)
+			dwelling->creatures.back().second.push_back(cre->idNumber);
+	}
+
+	for (auto & stack : loadCreatures(guards, rng))
+	{
+		dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->idNumber, stack.count));
+	}
+}
+
+bool CDwellingInstanceConstructor::producesCreature(const CCreature * crea) const
+{
+	for (auto & entry : availableCreatures)
+	{
+		for (const CCreature * cre : entry)
+			if (crea == cre)
+				return true;
+	}
+	return false;
 }

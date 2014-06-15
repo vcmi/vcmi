@@ -153,6 +153,7 @@ void CObjectClassesHandler::loadObjectEntry(const JsonNode & entry, ObjectContai
 	}
 	
 	obj->objects[id] = handler;
+	logGlobal->debugStream() << "Loaded object " << obj->id << ":" << id;
 }
 
 CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const JsonNode & json)
@@ -198,8 +199,9 @@ void CObjectClassesHandler::loadSubObject(std::string name, JsonNode config, si3
 		config["index"].Float() = subID.get();
 	}
 
+	std::string oldMeta = config.meta; // FIXME: move into inheritNode?
 	JsonUtils::inherit(config, objects.at(ID)->base);
-	logGlobal->errorStream() << "JSON: " << config;
+	config.setMeta(oldMeta);
 	loadObjectEntry(config, objects[ID]);
 }
 
@@ -339,9 +341,6 @@ void AObjectTypeHandler::addTemplate(ObjectTemplate templ)
 
 void AObjectTypeHandler::addTemplate(JsonNode config)
 {
-	logGlobal->errorStream() << "INPUT  FOR: " << type << ":" << subtype << " " << config;
-	logGlobal->errorStream() << "BASE   FOR: " << type << ":" << subtype << " " << base;
-
 	config.setType(JsonNode::DATA_STRUCT); // ensure that input is not null
 	JsonUtils::inherit(config, base);
 	ObjectTemplate tmpl;
@@ -349,7 +348,6 @@ void AObjectTypeHandler::addTemplate(JsonNode config)
 	tmpl.subid = subtype;
 	tmpl.stringID = ""; // TODO?
 	tmpl.readJson(config);
-	logGlobal->errorStream() << "DATA  FOR: " << type << ":" << subtype << " " << config;
 	addTemplate(tmpl);
 }
 
