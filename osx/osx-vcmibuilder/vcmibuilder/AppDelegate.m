@@ -206,14 +206,46 @@
     
     // Extract
     [self showProgressText:@"Extracting game data using unshield..."];
-    if ([self runTask:@"/unshield" withArgs:@[@"-d", tempDir, @"x", [cd1 stringByAppendingString:@"/_setup/data1.cab"]] withWorkingDir:tempDir  withPipe:nil] != 0) {
+
+    NSArray* knownLocations = @[
+        @"/_setup/data1.cab",
+        @"/Autorun/Setup/data1.cab"
+    ];
+
+    bool success = false;
+    for (NSString* location in knownLocations) {
+        NSString* cabLocation = [cd1 stringByAppendingString:location];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:cabLocation]) {
+            int result = [self runTask:@"/unshield" withArgs:@[@"-d", tempDir, @"x", cabLocation] withWorkingDir:tempDir  withPipe:nil];
+        
+            if (result == 0) {
+                success = true;
+                break;
+            }
+        }
+    }
+    
+    if (!success) {
         return [self showErrorText:@"Failed to extract game data using unshield"];
     }
     
-    dataDir = [tempDir stringByAppendingString:@"/Heroes3"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:dataDir]) {
-        // Some releases have "Program_Files" folder instead of "Heroes3"
-        dataDir = [tempDir stringByAppendingString:@"/Program_Files"];
+    NSArray* knownDataDirs = @[
+        @"/Heroes3",
+        @"/Program_Files",
+        @"/Data",
+    ];
+    
+    success = false;
+    for (NSString* knownDir in knownDataDirs) {
+        dataDir = [tempDir stringByAppendingString:knownDir];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:dataDir]) {
+            success = true;
+            break;
+        }
+    }
+    
+    if (!success) {
+        return [self showErrorText:@"Failed to extract game data using unshield"];
     }
     
     // Unmount CD1. Unmount CD2 if needed
