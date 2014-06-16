@@ -1601,7 +1601,7 @@ bool CPlayerInterface::ctrlPressed() const
 void CPlayerInterface::update()
 {
 	// Updating GUI requires locking pim mutex (that protects screen and GUI state).
-	// When ending the game, the pim mutex might be hold bo other thread,
+	// When ending the game, the pim mutex might be hold by other thread,
 	// that will notify us about the ending game by setting terminate_cond flag.
 
 	bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded

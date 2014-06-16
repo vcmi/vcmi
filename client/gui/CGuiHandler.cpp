@@ -182,7 +182,7 @@ void CGuiHandler::handleEvents()
 			ev = events.front();
 			events.pop();
 		}
-		handleEvent(&ev);
+		this->handleEvent(&ev);
 	}
 }
 
