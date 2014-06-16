@@ -6,11 +6,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "might",
 		"commander" : "zealot",
-		"animation":
-		{
-			"battle" : { "male" : "CH00.DEF",  "female" : "CH01.DEF" },
-			"map":     { "male" : "AH00_.def", "female" : "AH00_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH00_.def" } } },
+		"animation":  { "battle" : { "male" : "CH00.DEF",  "female" : "CH01.DEF" } }
 	},
 	"cleric" :
 	{
@@ -19,11 +16,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "magic",
 		"commander" : "zealot",
-		"animation":
-		{
-			"battle" : { "male" : "CH00.DEF",  "female" : "CH01.DEF" },
-			"map":     { "male" : "AH01_.def", "female" : "AH01_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH01_.def" } } },
+		"animation":  { "battle" : { "male" : "CH00.DEF",  "female" : "CH01.DEF" } }
 	},
 	"ranger" :
 	{
@@ -32,11 +26,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "might",
 		"commander" : "grandElf",
-		"animation":
-		{
-			"battle" : { "male" : "CH02.DEF",  "female" : "CH03.DEF" },
-			"map":     { "male" : "AH02_.def", "female" : "AH02_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH02_.def" } } },
+		"animation":  { "battle" : { "male" : "CH02.DEF",  "female" : "CH03.DEF" } }
 	},
 	"druid" :
 	{
@@ -45,11 +36,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "magic",
 		"commander" : "grandElf",
-		"animation":
-		{
-			"battle" : { "male" : "CH02.DEF",  "female" : "CH03.DEF" },
-			"map":     { "male" : "AH03_.def", "female" : "AH03_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH03_.def" } } },
+		"animation":  { "battle" : { "male" : "CH02.DEF",  "female" : "CH03.DEF" } }
 	},
 	"alchemist" :
 	{
@@ -58,11 +46,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "might",
 		"commander" : "archMage",
-		"animation":
-		{
-			"battle" : { "male" : "CH05.DEF",  "female" : "CH04.DEF" },
-			"map":     { "male" : "AH04_.def", "female" : "AH04_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH04_.def" } } },
+		"animation":  { "battle" : { "male" : "CH05.DEF",  "female" : "CH04.DEF" } }
 	},
 	"wizard" :
 	{
@@ -71,11 +56,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "magic",
 		"commander" : "archMage",
-		"animation":
-		{
-			"battle" : { "male" : "CH05.DEF",  "female" : "CH04.DEF" },
-			"map":     { "male" : "AH05_.def", "female" : "AH05_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH05_.def" } } },
+		"animation":  { "battle" : { "male" : "CH05.DEF",  "female" : "CH04.DEF" } }
 	},
 	"demoniac" :
 	{
@@ -84,11 +66,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "might",
 		"commander" : "magog",
-		"animation":
-		{
-			"battle" : { "male" : "CH06.DEF",  "female" : "CH07.DEF" },
-			"map":     { "male" : "AH06_.def", "female" : "AH06_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH06_.def" } } },
+		"animation":  { "battle" : { "male" : "CH06.DEF",  "female" : "CH07.DEF" } }
 	},
 	"heretic" :
 	{
@@ -97,11 +76,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "magic",
 		"commander" : "magog",
-		"animation":
-		{
-			"battle" : { "male" : "CH06.DEF",  "female" : "CH07.DEF" },
-			"map":     { "male" : "AH07_.def", "female" : "AH07_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH07_.def" } } },
+		"animation":  { "battle" : { "male" : "CH06.DEF",  "female" : "CH07.DEF" } }
 	},
 	"deathknight" :
 	{
@@ -110,11 +86,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "might",
 		"commander" : "powerLich",
-		"animation":
-		{
-			"battle" : { "male" : "CH08.DEF",  "female" : "CH09.DEF" },
-			"map":     { "male" : "AH08_.def", "female" : "AH08_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH08_.def" } } },
+		"animation":  { "battle" : { "male" : "CH08.DEF",  "female" : "CH09.DEF" } }
 	},
 	"necromancer" :
 	{
@@ -123,11 +96,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "magic",
 		"commander" : "powerLich",
-		"animation":
-		{
-			"battle" : { "male" : "CH08.DEF",  "female" : "CH09.DEF" },
-			"map":     { "male" : "AH09_.def", "female" : "AH09_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH09_.def" } } },
+		"animation":  { "battle" : { "male" : "CH08.DEF",  "female" : "CH09.DEF" } }
 	},
 	"warlock" :
 	{
@@ -136,11 +106,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "might",
 		"commander" : "medusaQueen",
-		"animation":
-		{
-			"battle" : { "male" : "CH010.DEF", "female" : "CH11.DEF" },
-			"map":     { "male" : "AH10_.def", "female" : "AH10_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH10_.def" } } },
+		"animation":  { "battle" : { "male" : "CH010.DEF",  "female" : "CH11.DEF" } }
 	},
 	"overlord" :
 	{
@@ -149,11 +116,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "magic",
 		"commander" : "medusaQueen",
-		"animation":
-		{
-			"battle" : { "male" : "CH010.DEF", "female" : "CH11.DEF" },
-			"map":     { "male" : "AH11_.def", "female" : "AH11_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH11_.def" } } },
+		"animation":  { "battle" : { "male" : "CH010.DEF",  "female" : "CH11.DEF" } }
 	},
 	"barbarian" :
 	{
@@ -162,11 +126,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "might",
 		"commander" : "orcChieftain",
-		"animation":
-		{
-			"battle" : { "male" : "CH013.DEF", "female" : "CH012.DEF" },
-			"map":     { "male" : "AH12_.def", "female" : "AH12_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH12_.def" } } },
+		"animation":  { "battle" : { "male" : "CH013.DEF",  "female" : "CH012.DEF" } }
 	},
 	"battlemage" :
 	{
@@ -175,11 +136,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "magic",
 		"commander" : "orcChieftain",
-		"animation":
-		{
-			"battle" : { "male" : "CH013.DEF", "female" : "CH012.DEF" },
-			"map":     { "male" : "AH13_.def", "female" : "AH13_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH13_.def" } } },
+		"animation":  { "battle" : { "male" : "CH013.DEF",  "female" : "CH012.DEF" } }
 	},
 	"beastmaster" :
 	{
@@ -188,11 +146,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "might",
 		"commander" : "lizardWarrior",
-		"animation":
-		{
-			"battle" : { "male" : "CH014.DEF", "female" : "CH015.DEF" },
-			"map":     { "male" : "AH14_.def", "female" : "AH14_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH14_.def" } } },
+		"animation":  { "battle" : { "male" : "CH014.DEF",  "female" : "CH015.DEF" } }
 	},
 	"witch" :
 	{
@@ -201,11 +156,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "magic",
 		"commander" : "lizardWarrior",
-		"animation":
-		{
-			"battle" : { "male" : "CH014.DEF", "female" : "CH015.DEF" },
-			"map":     { "male" : "AH15_.def", "female" : "AH15_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH15_.def" } } },
+		"animation":  { "battle" : { "male" : "CH014.DEF",  "female" : "CH015.DEF" } }
 	},
 	"planeswalker" :
 	{
@@ -214,11 +166,8 @@
 		"defaultTavern" : 5,
 		"affinity" : "might",
 		"commander" : "iceElemental",
-		"animation":
-		{
-			"battle" : { "male" : "CH16.DEF",  "female" : "CH16.DEF" },
-			"map":     { "male" : "AH16_.def", "female" : "AH16_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH16_.def" } } },
+		"animation":  { "battle" : { "male" : "CH16.DEF",  "female" : "CH16.DEF" } }
 	},
 	"elementalist" :
 	{
@@ -227,10 +176,7 @@
 		"defaultTavern" : 5,
 		"affinity" : "magic",
 		"commander" : "iceElemental",
-		"animation":
-		{
-			"battle" : { "male" : "CH17.DEF",  "female" : "CH17.DEF" },
-			"map":     { "male" : "AH17_.def", "female" : "AH17_.def" }
-		}
+		"mapObject" : { "templates" : { "default" : { "animation" : "AH17_.def" } } },
+		"animation":  { "battle" : { "male" : "CH17.DEF",  "female" : "CH17.DEF" } }
 	}
 }

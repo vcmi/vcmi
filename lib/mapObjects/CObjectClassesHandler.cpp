@@ -105,7 +105,7 @@ void readTextFile(Container & objects, std::string path)
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 {
 	readTextFile(legacyTemplates, "Data/Objects.txt");
-	readTextFile(legacyTemplates, "Data/Heroes.txt");
+	//readTextFile(legacyTemplates, "Data/Heroes.txt");
 
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
 	assert(dataSize == 256);
@@ -161,7 +161,7 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 	auto obj = new ObjectContainter();
 	obj->name = json["name"].String();
 	obj->handlerName = json["handler"].String();
-	obj->base = json["base"]; // FIXME: when this data will be actually merged?
+	obj->base = json["base"];
 	obj->id = selectNextID(json["index"], objects, 256);
 	for (auto entry : json["types"].Struct())
 	{

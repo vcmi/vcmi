@@ -91,10 +91,34 @@ void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 {
 	VLC->modh->identifiers.requestIdentifier("heroClass", input["heroClass"],
 			[&](si32 index) { heroClass = VLC->heroh->classes.heroClasses[index]; });
+
+	filtersJson = input["filters"];
+}
+
+void CHeroInstanceConstructor::afterLoadFinalization()
+{
+	for (auto entry : filtersJson.Struct())
+	{
+		filters[entry.first] = LogicalExpression<HeroTypeID>(entry.second, [this](const JsonNode & node)
+		{
+			return HeroTypeID(VLC->modh->identifiers.getIdentifier("hero", node.Vector()[0]).get());
+		});
+	}
 }
 
 bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, const ObjectTemplate & templ) const
 {
+	auto hero = dynamic_cast<const CGHeroInstance *>(object);
+
+	auto heroTest = [&](const HeroTypeID & id)
+	{
+		return hero->type->ID == id;
+	};
+
+	if (filters.count(templ.stringID))
+	{
+		return filters.at(templ.stringID).test(heroTest);
+	}
 	return false;
 }
 

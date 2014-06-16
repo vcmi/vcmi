@@ -764,6 +764,15 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 			config["faction"].String() = object->identifier;
 			config["faction"].meta = scope;
 			VLC->objtypeh->loadSubObject(object->identifier, config, index, object->index);
+
+			// MODS COMPATIBILITY FOR 0.96
+			auto & advMap = data["town"]["adventureMap"];
+			if (!advMap["fort"].isNull())
+			{
+				JsonNode config;
+				config["appearance"] = advMap["fort"];
+				VLC->objtypeh->getHandlerFor(index, object->index)->addTemplate(config);
+			}
 		});
 	}
 

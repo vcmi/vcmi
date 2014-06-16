@@ -130,7 +130,7 @@ public:
 	//CGObjectInstance& operator=(const CGObjectInstance & right);
 	virtual const std::string & getHoverText() const;
 
-	void setType(si32 ID, si32 subID);
+	virtual void setType(si32 ID, si32 subID);
 
 	///IObjectInterface
 	void initObj() override;

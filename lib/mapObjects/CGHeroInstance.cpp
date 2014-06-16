@@ -232,9 +232,9 @@ void CGHeroInstance::initHero(HeroTypeID SUBID)
 void CGHeroInstance::setType(si32 ID, si32 subID)
 {
 	assert(ID == Obj::HERO); // just in case
-	CGObjectInstance::setType(ID, subID);
 	type = VLC->heroh->heroes[subID];
 	portrait = type->imageIndex;
+	CGObjectInstance::setType(ID, type->heroClass->id);
 	randomizeArmy(type->heroClass->faction);
 }
 
@@ -471,6 +471,10 @@ void CGHeroInstance::initObj()
 	skillsInfo.rand.setSeed(cb->gameState()->getRandomGenerator().nextInt());
 	skillsInfo.resetMagicSchoolCounter();
 	skillsInfo.resetWisdomCounter();
+
+	auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->id)->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
+	if (customApp)
+		appearance = customApp.get();
 
 	for(const auto &spec : type->spec) //TODO: unfity with bonus system
 	{

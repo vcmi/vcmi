@@ -17,7 +17,7 @@
 		"base": {
 			"type" : "object"
 		},
-		"types": {
+		"templates": {
 			"type":"object",
 			"additionalProperties": {
 				"$ref" : "vcmi:objectTemplate"

@@ -73,20 +73,35 @@ public:
 	void initTypeData(const JsonNode & input);
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const;
 	void afterLoadFinalization();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & filtersJson & faction & filters;
+		h & static_cast<CDefaultObjectTypeHandler<CGTownInstance>&>(*this);
+	}
 };
 
 class CHeroInstanceConstructor : public CDefaultObjectTypeHandler<CGHeroInstance>
 {
+	JsonNode filtersJson;
 protected:
 	bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
 
 public:
 	CHeroClass * heroClass;
+	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
 
 	CHeroInstanceConstructor();
 	CGObjectInstance * create(ObjectTemplate tmpl) const;
 	void initTypeData(const JsonNode & input);
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const;
+	void afterLoadFinalization();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & filtersJson & heroClass & filters;
+		h & static_cast<CDefaultObjectTypeHandler<CGHeroInstance>&>(*this);
+	}
 };
 
 class CDwellingInstanceConstructor : public CDefaultObjectTypeHandler<CGDwelling>
@@ -106,4 +121,10 @@ public:
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const;
 
 	bool producesCreature(const CCreature * crea) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & availableCreatures & guards;
+		h & static_cast<CDefaultObjectTypeHandler<CGDwelling>&>(*this);
+	}
 };

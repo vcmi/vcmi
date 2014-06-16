@@ -563,6 +563,7 @@ void CGTownInstance::initObj()
 	//add special bonuses from buildings
 
 	recreateBuildingsBonuses();
+	updateAppearance();
 }
 
 void CGTownInstance::newTurn() const

@@ -185,8 +185,6 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 void ObjectTemplate::readJson(const JsonNode &node)
 {
-	//id = Obj(node["basebase"].Float()); // temporary, should be removed and determined indirectly via object type parent (e.g. base->base)
-	//subid = node["base"].Float();
 	animationFile = node["animation"].String();
 
 	const JsonVector & visitDirs = node["visitableFrom"].Vector();

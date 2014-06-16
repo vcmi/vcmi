@@ -104,6 +104,7 @@ CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 
 	heroClass->imageBattleFemale = node["animation"]["battle"]["female"].String();
 	heroClass->imageBattleMale   = node["animation"]["battle"]["male"].String();
+	//MODS COMPATIBILITY FOR 0.96
 	heroClass->imageMapFemale    = node["animation"]["map"]["female"].String();
 	heroClass->imageMapMale      = node["animation"]["map"]["male"].String();
 
@@ -223,7 +224,7 @@ void CHeroClassHandler::loadObject(std::string scope, std::string name, const Js
 
 	VLC->modh->identifiers.requestIdentifier(scope, "object", "hero", [=](si32 index)
 	{
-		JsonNode classConf;
+		JsonNode classConf = data["mapObject"];
 		classConf["heroClass"].String() = name;
 		classConf.setMeta(scope);
 		VLC->objtypeh->loadSubObject(name, classConf, index, object->id);
