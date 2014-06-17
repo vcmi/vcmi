@@ -30,7 +30,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 #define SET_HANDLER(STRING, TYPENAME) handlerConstructors[STRING] = std::make_shared<CDefaultObjectTypeHandler<TYPENAME> >
 
 	// list of all known handlers, hardcoded for now since the only way to add new objects is via C++ code
-	//WARNING: should be in sync with registerTypesMapObjectTypes function
+	//Note: should be in sync with registerTypesMapObjectTypes function
 	SET_HANDLER_CLASS("configurable", CRewardableConstructor);
 	SET_HANDLER_CLASS("dwelling", CDwellingInstanceConstructor);
 	SET_HANDLER_CLASS("hero", CHeroInstanceConstructor);
@@ -66,6 +66,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("onceVisitable", CGOnceVisitable);
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("pickable", CGPickable);
+	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER("pyramid", CGPyramid);
 	SET_HANDLER("questGuard", CGQuestGuard);
 	SET_HANDLER("resource", CGResource);
@@ -85,10 +86,9 @@ CObjectClassesHandler::CObjectClassesHandler()
 #undef SET_HANDLER
 }
 
-template<typename Container>
-void readTextFile(Container & objects, std::string path)
+std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 {
-	CLegacyConfigParser parser(path);
+	CLegacyConfigParser parser("Data/Objects.txt");
 	size_t totalNumber = parser.readNumber(); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
@@ -97,24 +97,18 @@ void readTextFile(Container & objects, std::string path)
 		ObjectTemplate templ;
 		templ.readTxt(parser);
 		parser.endLine();
-		typename Container::key_type key(templ.id.num, templ.subid);
-		objects.insert(std::make_pair(key, templ));
+		std::pair<si32, si32> key(templ.id.num, templ.subid);
+		legacyTemplates.insert(std::make_pair(key, templ));
 	}
-}
-
-std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
-{
-	readTextFile(legacyTemplates, "Data/Objects.txt");
-	//readTextFile(legacyTemplates, "Data/Heroes.txt");
 
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
 	assert(dataSize == 256);
 
-	CLegacyConfigParser parser("Data/ObjNames.txt");
+	CLegacyConfigParser namesParser("Data/ObjNames.txt");
 	for (size_t i=0; i<256; i++)
 	{
-		ret[i]["name"].String() = parser.readString();
-		parser.endLine();
+		ret[i]["name"].String() = namesParser.readString();
+		namesParser.endLine();
 	}
 	return ret;
 }
@@ -358,15 +352,19 @@ std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates() const
 
 std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(si32 terrainType) const// FIXME: replace with ETerrainType
 {
-	std::vector<ObjectTemplate> ret = getTemplates();
+	std::vector<ObjectTemplate> templates = getTemplates();
 	std::vector<ObjectTemplate> filtered;
 
-	std::copy_if(ret.begin(), ret.end(), std::back_inserter(filtered), [&](const ObjectTemplate & obj)
+	std::copy_if(templates.begin(), templates.end(), std::back_inserter(filtered), [&](const ObjectTemplate & obj)
 	{
 		return obj.canBePlacedAt(ETerrainType(terrainType));
 	});
-	// it is possible that there are no templates usable on specific terrain. In this case - return list before filtering
-	return filtered.empty() ? ret : filtered;
+	// H3 defines allowed terrains in a weird way - artifacts, monsters and resources have faulty masks here
+	// Perhaps we should re-define faulty templates and remove this workaround (already done for resources)
+	if (type == Obj::ARTIFACT || type == Obj::MONSTER)
+		return templates;
+	else
+		return filtered;
 }
 
 boost::optional<ObjectTemplate> AObjectTypeHandler::getOverride(si32 terrainType, const CGObjectInstance * object) const

@@ -1,6 +1,13 @@
 {
 	/// These are objects that can not be configured, either due to
 	/// their hardcoded status or because they don't have any configurable functionality
+	"prison" : {
+		"index" :62,
+		"handler": "prison",
+		"types" : {
+			"prison" : { "index" : 0 }
+		}
+	},
 	
 	"altarOfSacrifice"				: { "index" :2,  "handler": "market" },
 	"tradingPost"					: { "index" :221, "handler": "market" },
@@ -38,7 +45,6 @@
 	"magicWell"						: { "index" :49, "handler": "magicWell" },
 	"obelisk"						: { "index" :57, "handler": "obelisk" },
 	"oceanBottle"					: { "index" :59, "handler": "sign" },
-	"prison"						: { "index" :62, "handler": "hero" },
 	"pyramid"						: { "index" :63, "handler": "pyramid" },
 	"scholar"						: { "index" :81, "handler": "scholar" },
 	"shipyard"						: { "index" :87, "handler": "shipyard" },

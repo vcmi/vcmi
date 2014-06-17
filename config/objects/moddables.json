@@ -1,7 +1,7 @@
 {
 	/// These are objects that have subtypes that change various aspects of their mechanics
 	/// Should be made configurable (either directly or via other parts of modding system ASAP)
-	/// Editing these objects either directly or via mod may have negative effect on game
+	/// Editing these objects either directly or via mod may have negative effect on game since they are handled by engine
 	
 	// subtype: artifact ID
 	"artifact" : {
@@ -50,13 +50,13 @@
 			}
 		},
 		"types" : {
-			"wood" :    { "index" : 0 },
-			"mercury" : { "index" : 1 },
-			"ore" :     { "index" : 2 },
-			"sulfur" :  { "index" : 3 },
-			"crystal" : { "index" : 4 },
-			"gems" :    { "index" : 5 },
-			"gold" :    { "index" : 6 },
+			"wood" :    { "index" : 0, "templates" : { "res" : { "animation" : "AVTwood0.def" } } },
+			"mercury" : { "index" : 1, "templates" : { "res" : { "animation" : "AVTmerc0.def" } } },
+			"ore" :     { "index" : 2, "templates" : { "res" : { "animation" : "AVTore0.def"  } } },
+			"sulfur" :  { "index" : 3, "templates" : { "res" : { "animation" : "AVTsulf0.def" } } },
+			"crystal" : { "index" : 4, "templates" : { "res" : { "animation" : "AVTcrys0.def" } } },
+			"gems" :    { "index" : 5, "templates" : { "res" : { "animation" : "AVTgems0.def" } } },
+			"gold" :    { "index" : 6, "templates" : { "res" : { "animation" : "AVTgold0.def" } } },
 			"mithril" : { "index" : 7 } // TODO: move to WoG?
 		}
 	},
@@ -99,19 +99,93 @@
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VVV", "VAV" ]
 			}
+		},
+		"types" : {
+			"evil" : { "index" : 0 },
+			"good" : { "index" : 1 },
+			"neutral" : { "index" : 2 },
 		}
 	},
 
 	// subtype: color of guard
-	"borderGuard"					: { "index" :9,  "handler": "borderGuard" },
-	"borderGate"					: { "index" :212, "handler": "borderGate" },
-	"keymasterTent"					: { "index" :10, "handler": "keymaster" },
-
-	// subtype: different content
-	"creatureBank"					: { "index" :16, "handler": "bank" },
+	"borderGuard" : {
+		"index" :9,
+		"handler": "borderGuard",
+		"types" : {
+			"lblue" :  { "index" : 0 },
+			"green" :  { "index" : 1 },
+			"red" :    { "index" : 2 },
+			"dblue" :  { "index" : 3 },
+			"brown" :  { "index" : 4 },
+			"purple" : { "index" : 5 },
+			"white" :  { "index" : 6 },
+			"black" :  { "index" : 7 }
+		}
+	},
+	"borderGate" : {
+		"index" :212,
+		"handler": "borderGate",
+		"types" : {
+			"lblue" :  { "index" : 0 },
+			"green" :  { "index" : 1 },
+			"red" :    { "index" : 2 },
+			"dblue" :  { "index" : 3 },
+			"brown" :  { "index" : 4 },
+			"purple" : { "index" : 5 },
+			"white" :  { "index" : 6 },
+			"black" :  { "index" : 7 }
+		}
+	},
+	"keymasterTent" : {
+		"index" :10,
+		"handler": "keymaster",
+		"types" : {
+			"lblue" :  { "index" : 0 },
+			"green" :  { "index" : 1 },
+			"red" :    { "index" : 2 },
+			"dblue" :  { "index" : 3 },
+			"brown" :  { "index" : 4 },
+			"purple" : { "index" : 5 },
+			"white" :  { "index" : 6 },
+			"black" :  { "index" : 7 }
+		}
+	},
 
 	// subtype: different revealed areas
-	"cartographer"					: { "index" :13, "handler": "cartographer" },
+	"cartographer" : {
+		"index" :13,
+		"handler": "cartographer",
+		"types" : {
+			"water" : { "index" : 0 },
+			"land" : { "index" : 1 },
+			"subterra" : { "index" : 2 }
+		}
+	},
+
+	// subtype: resource ID
+	"mine" : {
+		"index" :53,
+		"handler": "mine",
+		"types" : {
+			"sawmill" :       { "index" : 0 },
+			"alchemistLab" :  { "index" : 1 },
+			"orePit" :        { "index" : 2 },
+			"sulfurDune" :    { "index" : 3 },
+			"crystalCavern" : { "index" : 4 },
+			"gemPond" :       { "index" : 5 },
+			"goldMine" :      { "index" : 6 },
+		}
+	},
+	"abandonedMine" : {
+		"index" :220, 
+		"handler": "mine",
+		"types" : {
+			"mine" : { "index" : 7 }
+		}
+	},
+
+	// subtype: different content
+	"creatureBank" : { "index" :16, "handler": "bank" },
 
 	// subtype: 0 = normal, 1 = anti-magic
 	"garrisonHorizontal"			: { "index" :33, "handler": "garrison" },
@@ -121,13 +195,9 @@
 	"monolithOneWayEntrance"		: { "index" :43, "handler": "teleport" },
 	"monolithOneWayExit"			: { "index" :44, "handler": "teleport" },
 	"monolithTwoWay"				: { "index" :45, "handler": "teleport" },
-	
-	// subtype: resource ID
-	"mine"							: { "index" :53, "handler": "mine" },
-	"abandonedMine"					: { "index" :220, "handler": "mine" },
 
 	// subtype: different appearance. That's all?
-	"seerHut"						: { "index" :83, "handler": "seerHut" },
+	"seerHut" : { "index" :83, "handler": "seerHut" },
 
 	// subtype: level
 	"randomDwellingLvl"				: { "index" :217, "handler": "dwelling" },

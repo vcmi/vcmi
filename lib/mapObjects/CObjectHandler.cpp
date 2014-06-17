@@ -336,7 +336,8 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
 	cb->gameState()->map->removeBlockVisTiles(this, true);
-	this->appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(tile.terType).at(0);
+	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
+	appearance = handler->getTemplates(tile.terType).at(0);
 	cb->gameState()->map->addBlockVisTiles(this);
 }
 

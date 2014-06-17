@@ -107,7 +107,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 				while(state == RUNNING) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 			}
 		}
-	} 
+	}
 	catch (const std::exception& e)
 	{
 		boost::unique_lock<boost::recursive_mutex> queueLock(mx);

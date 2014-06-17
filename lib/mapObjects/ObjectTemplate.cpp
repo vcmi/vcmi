@@ -213,6 +213,9 @@ void ObjectTemplate::readJson(const JsonNode &node)
 			allowedTerrains.insert(ETerrainType(i));
 	}
 
+	if (allowedTerrains.empty())
+		logGlobal->warnStream() << "Loaded template without allowed terrains!";
+
 	auto charToTile = [&](const char & ch) -> ui8
 	{
 		switch (ch)
