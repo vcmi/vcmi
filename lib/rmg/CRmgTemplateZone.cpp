@@ -313,7 +313,6 @@ void CRmgTemplateZone::setCenter(const float3 &f)
 	center = float3 (std::min(std::max(f.x, 0.f), 1.f), std::min(std::max(f.y, 0.f), 1.f), f.z);
 }
 
-
 bool CRmgTemplateZone::pointIsIn(int x, int y)
 {
 	return true;
@@ -336,6 +335,11 @@ void CRmgTemplateZone::addTile (const int3 &pos)
 std::set<int3> CRmgTemplateZone::getTileInfo () const
 {
 	return tileinfo;
+}
+
+std::set<int3>* CRmgTemplateZone::getFreePaths()
+{
+	return &freePaths;
 }
 
 void CRmgTemplateZone::createBorder(CMapGenerator* gen)
@@ -651,6 +655,7 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		int3 zoneCenter = getPos();
 		int3 closestTile = int3(-1,-1,-1);
 		float minDistance = 1e10;
+
 		for (auto treasure : treasures)
 		{
 			if (zoneCenter.dist2d(treasure.first) < minDistance)
@@ -1180,8 +1185,9 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	for (auto tile : tiles)
 	{
 		//crunching path may fail if center of teh zone is dirrectly over wide object
-		if (crunchPath (gen, tile, getPos(), id)) //make sure object is accessible before surrounding it with blocked tiles
+		if (crunchPath (gen, tile, findClosestTile(freePaths, tile), id, &freePaths)) //required objects will contitute our core free paths
 		{
+			//make sure object is accessible before surrounding it with blocked tiles
 			guardTile = tile;
 			break;
 		}

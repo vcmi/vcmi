@@ -149,6 +149,7 @@ public:
 	std::vector<TRmgTemplateZoneId> getConnections() const;
 	void addTreasureInfo(CTreasureInfo & info);
 	std::vector<CTreasureInfo> getTreasureInfo();
+	std::set<int3>* getFreePaths();
 
 	ObjectInfo getRandomObject (CMapGenerator* gen, ui32 value);
 
@@ -182,7 +183,7 @@ private:
 	float3 center;
 	std::set<int3> tileinfo; //irregular area assined to zone
 	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
-	std::map<TRmgTemplateZoneId, bool> alreadyConnected; //TODO: allow multiple connections between two zones?
+	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
 
 	bool pointIsIn(int x, int y);
 	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects
