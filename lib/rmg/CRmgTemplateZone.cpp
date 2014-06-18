@@ -1208,8 +1208,14 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 
 		gen->setOccupied (guardTile, ETileType::USED);
 	}
-	else
-		gen->setOccupied (guardTile, ETileType::FREE);
+	else //make sure no other stuff spawns next to unguarded object
+	{
+		for (auto tile : tiles)
+		{
+			if (!gen->isBlocked(tile))
+				gen->setOccupied (tile, ETileType::FREE);
+		}
+	}
 
 	return true;
 }
