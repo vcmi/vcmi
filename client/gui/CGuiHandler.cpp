@@ -169,19 +169,11 @@ void CGuiHandler::updateTime()
 
 void CGuiHandler::handleEvents()
 {
-	while(true)
+	boost::unique_lock<boost::mutex> lock(eventsM);
+	while(!events.empty())
 	{
-		SDL_Event ev;
-		boost::unique_lock<boost::mutex> lock(eventsM);
-		if(events.empty())
-		{
-			return;
-		}
-		else
-		{
-			ev = events.front();
-			events.pop();
-		}
+		SDL_Event ev = events.front();
+		events.pop();		
 		this->handleEvent(&ev);
 	}
 }
