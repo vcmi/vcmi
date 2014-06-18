@@ -239,7 +239,7 @@ public:
 	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps = false, const std::vector<CComponent*> & components = std::vector<CComponent*>()); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
 
 	void stopMovement();
-	bool moveHero(const CGHeroInstance *h, CGPath path);
+	void moveHero(const CGHeroInstance *h, CGPath path);
 	void initMovement(const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp );//initializing objects and performing first step of move
 	void movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho );//performing step of movement
 	void finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho ); //finish movement
@@ -254,14 +254,23 @@ public:
 	void sendCustomEvent(int code);
 	void proposeLoadingGame();
 
+	///returns true if all events are processed internally
+	bool capturedAllEvents();
+
 	CPlayerInterface(PlayerColor Player);//c-tor
 	~CPlayerInterface();//d-tor
 
 	static CondSh<bool> terminate_cond; // confirm termination
+	
 
-	//////////////////////////////////////////////////////////////////////////
+
+private:
 
 	template <typename Handler> void serializeTempl(Handler &h, const int version);
+
+private:	
+	boost::thread moveHeroTask;
+	void doMoveHero(const CGHeroInstance *h, CGPath path);
 };
 
 extern CPlayerInterface * LOCPLINT;

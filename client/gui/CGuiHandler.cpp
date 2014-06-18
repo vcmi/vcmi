@@ -169,7 +169,12 @@ void CGuiHandler::updateTime()
 
 void CGuiHandler::handleEvents()
 {
-	boost::unique_lock<boost::mutex> lock(eventsM);
+	//player interface may want special event handling 
+	
+	if(nullptr != LOCPLINT && LOCPLINT->capturedAllEvents())
+		return;
+	
+	boost::unique_lock<boost::mutex> lock(eventsM);	
 	while(!events.empty())
 	{
 		SDL_Event ev = events.front();
