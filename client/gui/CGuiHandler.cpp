@@ -169,8 +169,7 @@ void CGuiHandler::updateTime()
 
 void CGuiHandler::handleEvents()
 {
-	//player interface may want special event handling 
-	
+	//player interface may want special event handling 	
 	if(nullptr != LOCPLINT && LOCPLINT->capturedAllEvents())
 		return;
 	

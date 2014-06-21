@@ -324,8 +324,16 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		movementPxStep(details, i, hp, hero);
 		adventureInt->updateScreen = true;
 		adventureInt->show(screen);
-		CSDL_Ext::update(screen);
-		GH.mainFPSmng->framerateDelay(); //for animation purposes
+		{
+			//evil returns here ...
+			//todo: get rid of it 
+			logGlobal->traceStream() << "before [un]locks in " << __FUNCTION__;
+			auto unlockPim = vstd::makeUnlockGuard(*pim); //let frame to be rendered
+			GH.mainFPSmng->framerateDelay(); //for animation purposes
+			logGlobal->traceStream() << "after [un]locks in " << __FUNCTION__;		
+		}
+		//CSDL_Ext::update(screen);
+		
 	} //for(int i=1; i<32; i+=4)
 	//main moving done
 
