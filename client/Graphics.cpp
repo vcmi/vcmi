@@ -267,6 +267,9 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 			SDL_SetColorKey(curImg.bitmap, SDL_SRCCOLORKEY,
 				SDL_MapRGB(curImg.bitmap->format, 0, 255, 255)
 				);
+			#ifndef VCMI_SDL1
+			SDL_SetSurfaceBlendMode(curImg.bitmap,SDL_BLENDMODE_NONE);
+			#endif
 		}
 	}
 }

@@ -503,7 +503,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				if(obj->ID != Obj::HERO && !obj->coveringAt(top_tile.x + bx, top_tile.y + by))
 					continue;
 
-				static const int notBlittedInPuzzleMode[] = {124};
+				static const int notBlittedInPuzzleMode[] = {Obj::HOLE};
 
 				//don't print flaggable objects in puzzle mode
 				if(puzzleMode && (obj->isVisitable() || std::find(notBlittedInPuzzleMode, notBlittedInPuzzleMode+1, obj->ID) != notBlittedInPuzzleMode+1)) //?
