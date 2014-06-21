@@ -268,8 +268,9 @@ private:
 
 	template <typename Handler> void serializeTempl(Handler &h, const int version);
 
-private:	
-	boost::thread moveHeroTask;
+private:
+	bool duringMovement;
+	
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 };
 

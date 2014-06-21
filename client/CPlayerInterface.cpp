@@ -125,6 +125,8 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 	isAutoFightOn = false;
+	
+	duringMovement = false;
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -1278,7 +1280,8 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	if(showingDialog->get() || !dialogs.empty())
 		return;
 
-
+	duringMovement = true;
+	
 	if (adventureInt && adventureInt->isHeroSleeping(h))
 	{
 		adventureInt->sleepWake.clickLeft(true, false);
@@ -1287,8 +1290,10 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 		//adventureInt->fsleepWake();
 		//but no authentic button click/sound ;-)
 	}
+	
+	boost::thread moveHeroTask(boost::bind(&doMoveHero,this,h,path));
 
-	doMoveHero(h,path);
+	
 }
 
 bool CPlayerInterface::shiftPressed() const
@@ -1515,6 +1520,8 @@ bool CPlayerInterface::ctrlPressed() const
 
 void CPlayerInterface::update()
 {
+	if(duringMovement)
+		return;
 	// Updating GUI requires locking pim mutex (that protects screen and GUI state).
 	// When ending the game, the pim mutex might be hold by other thread,
 	// that will notify us about the ending game by setting terminate_cond flag.
@@ -2535,89 +2542,103 @@ CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()
 
 bool CPlayerInterface::capturedAllEvents()
 {
+	if(duringMovement)
+	{
 	//todo: CPlayerInterface::capturedAllEvents
+	
+//		//check if user cancelled movement
+//		{
+//			boost::unique_lock<boost::mutex> un(eventsM);
+//			while(!events.empty())
+//			{
+//				SDL_Event ev = events.front();
+//				events.pop();
+//				switch(ev.type)
+//				{
+//				case SDL_MOUSEBUTTONDOWN:
+//					stillMoveHero.setn(STOP_MOVE);
+//					break;
+//				case SDL_KEYDOWN:
+//					if(ev.key.keysym.sym < SDLK_F1  ||  ev.key.keysym.sym > SDLK_F15)
+//						stillMoveHero.setn(STOP_MOVE);
+//					break;
+//				}
+//			}
+//		}	
+		return true;
+	}
+	
 	return false;
 }
 
 void CPlayerInterface::doMoveHero(const CGHeroInstance* h, CGPath path)
 {
 	int i = 1;
+
 	{
-		//evil...
+		path.convert(0);
+		boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
+		stillMoveHero.data = CONTINUE_MOVE;
 
-        logGlobal->traceStream() << "before [un]locks in " << __FUNCTION__;
-		auto unlockEvents = vstd::makeUnlockGuard(eventsM);
-		auto unlockGs = vstd::makeUnlockSharedGuard(cb->getGsMutex()); //GS mutex is above PIM because CClient::run thread first locks PIM and then GS -> so this way we avoid deadlocks
-		auto unlockPim = vstd::makeUnlockGuard(*pim);
-        logGlobal->traceStream() << "after [un]locks in " << __FUNCTION__;
-		//TODO the above combination works... but it should all be atomic (unlock all three or none)
+		ETerrainType currentTerrain = ETerrainType::BORDER; // not init yet
+		ETerrainType newTerrain;
+		int sh = -1;
 
+		const TerrainTile * curTile = cb->getTile(CGHeroInstance::convertPosition(h->pos, false));
+
+		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || curTile->blocked); i--)
 		{
-			path.convert(0);
-			boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
-			stillMoveHero.data = CONTINUE_MOVE;
+			//changing z coordinate means we're moving through subterranean gate -> it's done automatically upon the visit, so we don't have to request that move here
+			if(path.nodes[i-1].coord.z != path.nodes[i].coord.z)
+				continue;
 
-			ETerrainType currentTerrain = ETerrainType::BORDER; // not init yet
-            ETerrainType newTerrain;
-			int sh = -1;
-
-			const TerrainTile * curTile = cb->getTile(CGHeroInstance::convertPosition(h->pos, false));
-
-			for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || curTile->blocked); i--)
+			//stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
+			if(path.nodes[i-1].turns)
 			{
-				//changing z coordinate means we're moving through subterranean gate -> it's done automatically upon the visit, so we don't have to request that move here
-				if(path.nodes[i-1].coord.z != path.nodes[i].coord.z)
-					continue;
-
-				//stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
-				if(path.nodes[i-1].turns)
-				{
-					stillMoveHero.data = STOP_MOVE;
-					break;
-				}
-
-				// Start a new sound for the hero movement or let the existing one carry on.
-#if 0
-				// TODO
-				if (hero is flying && sh == -1)
-					sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
-#endif
-				{
-					newTerrain = cb->getTile(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->terType;
-
-					if (newTerrain != currentTerrain)
-					{
-						CCS->soundh->stopSound(sh);
-						sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
-						currentTerrain = newTerrain;
-					}
-				}
-
-				stillMoveHero.data = WAITING_MOVE;
-
-				int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
-				bool guarded = CGI->mh->map->isInTheMap(cb->getGuardingCreaturePosition(endpos - int3(1, 0, 0)));
-
-                logGlobal->traceStream() << "Requesting hero movement to " << endpos;
-				cb->moveHero(h,endpos);
-
-				while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
-					stillMoveHero.cond.wait(un);
-
-                logGlobal->traceStream() << "Resuming " << __FUNCTION__;
-				if (guarded || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
-					break;
+				stillMoveHero.data = STOP_MOVE;
+				break;
 			}
 
-			CCS->soundh->stopSound(sh);
+			// Start a new sound for the hero movement or let the existing one carry on.
+#if 0
+			// TODO
+			if (hero is flying && sh == -1)
+				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
+#endif
+			{
+				newTerrain = cb->getTile(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->terType;
+
+				if (newTerrain != currentTerrain)
+				{
+					CCS->soundh->stopSound(sh);
+					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
+					currentTerrain = newTerrain;
+				}
+			}
+
+			stillMoveHero.data = WAITING_MOVE;
+
+			int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
+			bool guarded = CGI->mh->map->isInTheMap(cb->getGuardingCreaturePosition(endpos - int3(1, 0, 0)));
+
+			logGlobal->traceStream() << "Requesting hero movement to " << endpos;
+			cb->moveHero(h,endpos);
+
+			while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
+				stillMoveHero.cond.wait(un);
+
+			logGlobal->traceStream() << "Resuming " << __FUNCTION__;
+			if (guarded || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
+				break;
 		}
 
-        //Update cursor so icon can change if needed when it reappears; doesn;'t apply if a dialog box pops up at the end of the movement
-        if(!showingDialog->get())
-            GH.fakeMouseMove();
-
-		//RAII unlocks
+		CCS->soundh->stopSound(sh);
 	}
+
+	//Update cursor so icon can change if needed when it reappears; doesn;'t apply if a dialog box pops up at the end of the movement
+	if(!showingDialog->get())
+		GH.fakeMouseMove();
+
 
 	//todo: this should be in main thread
 	if (adventureInt)
@@ -2626,4 +2647,6 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance* h, CGPath path)
 		adventureInt->updateMoveHero(h, (i != 0));
 		adventureInt->updateNextHero(h);
 	}	
+	
+	duringMovement = false;
 }
