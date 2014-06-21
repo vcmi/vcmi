@@ -302,16 +302,17 @@ struct SetMovePoints : public CPackForClient //111
 
 struct FoWChange : public CPackForClient //112
 {
-	FoWChange(){type = 112;};
+	FoWChange(){type = 112;waitForDialogs = false;};
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	std::unordered_set<int3, struct ShashInt3 > tiles;
 	PlayerColor player;
 	ui8 mode; //mode==0 - hide, mode==1 - reveal
+	bool waitForDialogs;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tiles & player & mode;
+		h & tiles & player & mode & waitForDialogs;
 	}
 };
 

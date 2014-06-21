@@ -164,6 +164,11 @@ void SetMovePoints::applyCl( CClient *cl )
 void FoWChange::applyCl( CClient *cl )
 {
 	for(auto &i : cl->playerint)
+	{
+		if(cl->getPlayerRelations(i.first, player) == PlayerRelations::SAME_PLAYER && waitForDialogs && LOCPLINT == i.second.get())
+		{
+			LOCPLINT->waitWhileDialog();
+		}
 		if(cl->getPlayerRelations(i.first, player) != PlayerRelations::ENEMIES)
 		{
 			if(mode)
@@ -171,7 +176,7 @@ void FoWChange::applyCl( CClient *cl )
 			else
 				i.second->tileHidden(tiles);
 		}
-
+	}
 	cl->invalidatePaths();
 }
 

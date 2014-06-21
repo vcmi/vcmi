@@ -268,8 +268,26 @@ private:
 
 	template <typename Handler> void serializeTempl(Handler &h, const int version);
 
-private:
+private:	
+	
+	struct IgnoreEvents
+	{
+		CPlayerInterface & owner;
+		IgnoreEvents(CPlayerInterface & Owner):owner(Owner)
+		{
+			owner.ignoreEvents = true;
+		};
+		~IgnoreEvents()
+		{
+			owner.ignoreEvents = false;
+		};
+		
+	};
+	
+	
+	
 	bool duringMovement;
+	bool ignoreEvents;
 	
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 };

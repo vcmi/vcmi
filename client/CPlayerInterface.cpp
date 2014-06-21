@@ -101,7 +101,6 @@ struct OCM_HLP_CGIN
 } ocmptwo_cgin ;
 
 
-
 CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
     logGlobal->traceStream() << "\tHuman player interface for player " << Player << " being constructed";
@@ -1503,8 +1502,16 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 	if(focusTime)
 	{
 		GH.totalRedraw();
+		#ifdef VCMI_SDL1
 		CSDL_Ext::update(screen);
 		SDL_Delay(focusTime);
+		#else
+		{
+			auto unlockPim = vstd::makeUnlockGuard(*pim);
+			IgnoreEvents ignore(*this);
+			SDL_Delay(focusTime);
+		}
+		#endif
 	}
 }
 
@@ -2550,6 +2557,16 @@ bool CPlayerInterface::capturedAllEvents()
 	if(duringMovement)
 	{
 		//just inform that we are capturing events. they will be processed by heroMoved() in client thread.
+		return true;
+	}
+	
+	if(ignoreEvents)
+	{
+		boost::unique_lock<boost::mutex> un(eventsM);
+		while(!events.empty())
+		{
+			events.pop();
+		}
 		return true;
 	}
 	

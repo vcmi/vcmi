@@ -1294,6 +1294,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 			FoWChange fw;
 			fw.player = h->tempOwner;
 			fw.mode = 1;
+			fw.waitForDialogs = true;
 
 			for(auto it : eyelist[subID])
 			{
