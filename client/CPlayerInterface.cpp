@@ -1291,7 +1291,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 		//but no authentic button click/sound ;-)
 	}
 	
-	boost::thread moveHeroTask(boost::bind(&doMoveHero,this,h,path));
+	boost::thread moveHeroTask(boost::bind(&CPlayerInterface::doMoveHero,this,h,path));
 
 	
 }
@@ -1520,8 +1520,8 @@ bool CPlayerInterface::ctrlPressed() const
 
 void CPlayerInterface::update()
 {
-	if(duringMovement)
-		return;
+//	if(duringMovement)
+//		return;
 	// Updating GUI requires locking pim mutex (that protects screen and GUI state).
 	// When ending the game, the pim mutex might be hold by other thread,
 	// that will notify us about the ending game by setting terminate_cond flag.
@@ -2544,27 +2544,7 @@ bool CPlayerInterface::capturedAllEvents()
 {
 	if(duringMovement)
 	{
-	//todo: CPlayerInterface::capturedAllEvents
-	
-//		//check if user cancelled movement
-//		{
-//			boost::unique_lock<boost::mutex> un(eventsM);
-//			while(!events.empty())
-//			{
-//				SDL_Event ev = events.front();
-//				events.pop();
-//				switch(ev.type)
-//				{
-//				case SDL_MOUSEBUTTONDOWN:
-//					stillMoveHero.setn(STOP_MOVE);
-//					break;
-//				case SDL_KEYDOWN:
-//					if(ev.key.keysym.sym < SDLK_F1  ||  ev.key.keysym.sym > SDLK_F15)
-//						stillMoveHero.setn(STOP_MOVE);
-//					break;
-//				}
-//			}
-//		}	
+		//just inform that we are capturing events. they will be processed by heroMoved() in client thread.
 		return true;
 	}
 	
