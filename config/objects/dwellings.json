@@ -104,9 +104,9 @@
 					[ "fireElemental" ],
 					[ "earthElemental" ]
 				],
-				"guards" : {
-					"earthElemental" : 12
-				}
+				"guards" : [
+					{ "amount" : 12, "type" : "earthElemental" }
+				]
 			},
 			"golemFactory" : {
 				"index" : 1,
@@ -116,10 +116,10 @@
 					[ "goldGolem" ],
 					[ "diamondGolem" ]
 				],
-				"guards" : {
-					"goldGolem" : 9,
-					"diamondGolem" : 6
-				}
+				"guards" : [
+					{ "amount" : 9, "type" : "goldGolem" },
+					{ "amount" : 6, "type" : "diamondGolem" }
+				]
 			}
 		}
 	},

@@ -3,6 +3,7 @@
 #include <limits>
 
 #include "../../lib/mapObjects/MapObjects.h"
+#include "../../lib/mapObjects/CommonConstructors.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../CCallback.h"
@@ -40,16 +41,6 @@ struct armyStructure
 	float walkers, shooters, flyers;
 	ui32 maxSpeed;
 };
-
-ui64 evaluateBankConfig (BankConfig * bc)
-{
-	ui64 danger = 0;
-	for (auto opt : bc->guards)
-	{
-		danger += VLC->creh->creatures[opt.first]->fightValue * opt.second;
-	}
-	return danger;
-}
 
 armyStructure evaluateArmyStructure (const CArmedInstance * army)
 {
@@ -208,42 +199,26 @@ void FuzzyHelper::initTacticalAdvantage()
 	}
 }
 
-ui64 FuzzyHelper::estimateBankDanger (int ID)
+ui64 FuzzyHelper::estimateBankDanger (const CBank * bank)
 {
-	std::vector <ConstTransitivePtr<BankConfig>> & configs = VLC->objh->banksInfo[ID];
+	auto info = VLC->objtypeh->getHandlerFor(bank->ID, bank->subID)->getObjectInfo(bank->appearance);
+
 	ui64 val = std::numeric_limits<ui64>::max();
 	try
 	{
-		switch (configs.size())
-		{
-			case 4:
-				try
-				{
-					for (int i = 0; i < 4; ++i)
-					{
-						int bankVal = evaluateBankConfig (VLC->objh->banksInfo[ID][i]);
-						bankDanger->term("Bank" + boost::lexical_cast<std::string>(i))->setMinimum(bankVal * 0.5f);
-						bankDanger->term("Bank" + boost::lexical_cast<std::string>(i))->setMaximum(bankVal * 1.5f);
-					}
-					//comparison purposes
-					//int averageValue = (evaluateBankConfig (VLC->objh->banksInfo[ID][0]) + evaluateBankConfig (VLC->objh->banksInfo[ID][3])) * 0.5;
-					//dynamic_cast<fl::SingletonTerm*>(bankInput->term("SET"))->setValue(0.5);
-					bankInput->setInput (0.5);
-					engine.process (BANK_DANGER);
-					//engine.process();
-					val = bankDanger->output().defuzzify(); //some expected value of this bank
-				}
-				catch (fl::FuzzyException & fe)
-				{
-                    logAi->errorStream() << fe.name() << ": " << fe.message();
-				}
-				break;
-			case 1: //rare case - Pyramid
-				val = evaluateBankConfig (VLC->objh->banksInfo[ID][0]);
-				break;
-			default:
-                logAi->warnStream() << ("Uhnandled bank config!");
-		}
+		bankDanger->term("Bank0")->setMinimum(info->minGuards().totalStrength * 0.5f);
+		bankDanger->term("Bank0")->setMaximum(info->minGuards().totalStrength * 1.5f);
+
+		bankDanger->term("Bank1")->setMinimum(info->maxGuards().totalStrength * 0.5f);
+		bankDanger->term("Bank1")->setMaximum(info->maxGuards().totalStrength * 1.5f);
+
+		//comparison purposes
+		//int averageValue = (evaluateBankConfig (VLC->objh->banksInfo[ID][0]) + evaluateBankConfig (VLC->objh->banksInfo[ID][3])) * 0.5;
+		//dynamic_cast<fl::SingletonTerm*>(bankInput->term("SET"))->setValue(0.5);
+		bankInput->setInput (0.5);
+		engine.process (BANK_DANGER);
+		//engine.process();
+		val = bankDanger->output().defuzzify(); //some expected value of this bank
 	}
 	catch (fl::FuzzyException & fe)
 	{

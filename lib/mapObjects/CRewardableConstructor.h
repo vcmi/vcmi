@@ -54,5 +54,5 @@ public:
 
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 
-	const IObjectInfo * getObjectInfo(ObjectTemplate tmpl) const override;
+	std::unique_ptr<IObjectInfo> getObjectInfo(ObjectTemplate tmpl) const override;
 };

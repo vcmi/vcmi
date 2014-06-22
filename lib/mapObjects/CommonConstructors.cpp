@@ -3,9 +3,11 @@
 
 #include "CGTownInstance.h"
 #include "CGHeroInstance.h"
+#include "CBank.h"
 #include "../mapping/CMap.h"
 #include "../CHeroHandler.h"
 #include "../CCreatureHandler.h"
+#include "JsonRandom.h"
 
 /*
  * CommonConstructors.cpp, part of VCMI engine
@@ -176,33 +178,6 @@ CGObjectInstance * CDwellingInstanceConstructor::create(ObjectTemplate tmpl) con
 	return obj;
 }
 
-namespace
-{
-	si32 loadValue(const JsonNode & value, CRandomGenerator & rng, si32 defaultValue = 0)
-	{
-		if (value.isNull())
-			return defaultValue;
-		if (value.getType() == JsonNode::DATA_FLOAT)
-			return value.Float();
-		si32 min = value["min"].Float();
-		si32 max = value["max"].Float();
-		return rng.getIntRange(min, max)();
-	}
-
-	std::vector<CStackBasicDescriptor> loadCreatures(const JsonNode & value, CRandomGenerator & rng)
-	{
-		std::vector<CStackBasicDescriptor> ret;
-		for (auto & pair : value.Struct())
-		{
-			CStackBasicDescriptor stack;
-			stack.type = VLC->creh->creatures[VLC->modh->identifiers.getIdentifier(pair.second.meta, "creature", pair.first).get()];
-			stack.count = loadValue(pair.second, rng);
-			ret.push_back(stack);
-		}
-		return ret;
-	}
-}
-
 void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator &rng) const
 {
 	CGDwelling * dwelling = dynamic_cast<CGDwelling*>(object);
@@ -221,7 +196,7 @@ void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CR
 		const CCreature * crea = availableCreatures.at(0).at(0);
 		dwelling->putStack(SlotID(0), new CStackInstance(crea->idNumber, crea->growth * 3 ));
 	}
-	else for (auto & stack : loadCreatures(guards, rng))
+	else for (auto & stack : JsonRandom::loadCreatures(guards, rng))
 	{
 		dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->idNumber, stack.count));
 	}
@@ -236,4 +211,176 @@ bool CDwellingInstanceConstructor::producesCreature(const CCreature * crea) cons
 				return true;
 	}
 	return false;
+}
+
+CBankInstanceConstructor::CBankInstanceConstructor()
+{
+}
+
+void CBankInstanceConstructor::initTypeData(const JsonNode & input)
+{
+	//TODO: name = input["name"].String();
+	levels = input["levels"].Vector();
+	bankResetDuration = input["resetDuration"].Float();
+}
+
+CGObjectInstance *CBankInstanceConstructor::create(ObjectTemplate tmpl) const
+{
+	return createTyped(tmpl);
+}
+
+BankConfig CBankInstanceConstructor::generateConfig(const JsonNode & level, CRandomGenerator & rng) const
+{
+	BankConfig bc;
+
+	bc.chance = level["chance"].Float();
+
+	bc.guards = JsonRandom::loadCreatures(level["guards"], rng);
+	bc.upgradeChance = level["upgrade_chance"].Float();
+	bc.combatValue = level["combat_value"].Float();
+
+	std::vector<SpellID> spells;
+	for (size_t i=0; i<6; i++)
+		IObjectInterface::cb->getAllowedSpells(spells, i);
+
+	bc.resources = Res::ResourceSet(level["reward"]["resources"]);
+	bc.creatures = JsonRandom::loadCreatures(level["reward"]["creatures"], rng);
+	bc.artifacts = JsonRandom::loadArtifacts(level["reward"]["artifacts"], rng);
+	bc.spells    = JsonRandom::loadSpells(level["reward"]["spells"], rng, spells);
+
+	bc.value = level["value"].Float();
+
+	return bc;
+}
+
+void CBankInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
+{
+	auto bank = dynamic_cast<CBank*>(object);
+
+	bank->resetDuration = bankResetDuration;
+
+	si32 totalChance = 0;
+	for (auto & node : levels)
+		totalChance += node["chance"].Float();
+
+	assert(totalChance != 0);
+
+	si32 selectedChance = rng.nextInt(totalChance - 1);
+
+	for (auto & node : levels)
+	{
+		if (selectedChance < node["chance"].Float())
+		{
+			 bank->setConfig(generateConfig(node, rng));
+		}
+		else
+		{
+			selectedChance -= node["chance"].Float();
+		}
+
+	}
+}
+
+CBankInfo::CBankInfo(JsonVector config):
+	config(config)
+{
+}
+
+static void addStackToArmy(IObjectInfo::CArmyStructure & army, const CCreature * crea, si32 amount)
+{
+	army.totalStrength += crea->fightValue * amount;
+
+	bool walker = true;
+	if (crea->hasBonusOfType(Bonus::SHOOTER))
+	{
+		army.shootersStrength += crea->fightValue * amount;
+		walker = false;
+	}
+	if (crea->hasBonusOfType(Bonus::FLYING))
+	{
+		army.flyersStrength += crea->fightValue * amount;
+		walker = false;
+	}
+	if (walker)
+		army.walkersStrength += crea->fightValue * amount;
+}
+
+IObjectInfo::CArmyStructure CBankInfo::minGuards() const
+{
+	std::vector<IObjectInfo::CArmyStructure> armies;
+	for (auto configEntry : config)
+	{
+		auto stacks = JsonRandom::evaluateCreatures(configEntry["guards"]);
+		IObjectInfo::CArmyStructure army;
+		for (auto & stack : stacks)
+		{
+			assert(!stack.allowedCreatures.empty());
+			auto weakest = boost::range::min_element(stack.allowedCreatures, [](const CCreature * a, const CCreature * b)
+			{
+				return a->fightValue < b->fightValue;
+			});
+			addStackToArmy(army, *weakest, stack.minAmount);
+		}
+		armies.push_back(army);
+	}
+	return *boost::range::min_element(armies);
+}
+
+IObjectInfo::CArmyStructure CBankInfo::maxGuards() const
+{
+	std::vector<IObjectInfo::CArmyStructure> armies;
+	for (auto configEntry : config)
+	{
+		auto stacks = JsonRandom::evaluateCreatures(configEntry["guards"]);
+		IObjectInfo::CArmyStructure army;
+		for (auto & stack : stacks)
+		{
+			assert(!stack.allowedCreatures.empty());
+			auto strongest = boost::range::max_element(stack.allowedCreatures, [](const CCreature * a, const CCreature * b)
+			{
+				return a->fightValue < b->fightValue;
+			});
+			addStackToArmy(army, *strongest, stack.maxAmount);
+		}
+		armies.push_back(army);
+	}
+	return *boost::range::max_element(armies);
+}
+
+bool CBankInfo::givesResources() const
+{
+	for (const JsonNode & node : config)
+		if (!node["reward"]["resources"].isNull())
+			return true;
+	return false;
+}
+
+bool CBankInfo::givesArtifacts() const
+{
+	for (const JsonNode & node : config)
+		if (!node["reward"]["artifacts"].isNull())
+			return true;
+	return false;
+}
+
+bool CBankInfo::givesCreatures() const
+{
+	for (const JsonNode & node : config)
+		if (!node["reward"]["creatures"].isNull())
+			return true;
+	return false;
+}
+
+bool CBankInfo::givesSpells() const
+{
+	for (const JsonNode & node : config)
+		if (!node["reward"]["spells"].isNull())
+			return true;
+	return false;
+}
+
+
+std::unique_ptr<IObjectInfo> CBankInstanceConstructor::getObjectInfo(ObjectTemplate tmpl) const
+{
+	return std::unique_ptr<IObjectInfo>(new CBankInfo(levels));
 }

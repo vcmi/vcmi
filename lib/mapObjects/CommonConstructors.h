@@ -19,6 +19,8 @@ class CGDwelling;
 //class CGArtifact;
 //class CGCreature;
 class CHeroClass;
+class CBank;
+class CStackBasicDescriptor;
 
 /// Class that is used for objects that do not have dedicated handler
 template<class ObjectType>
@@ -45,7 +47,7 @@ public:
 	{
 	}
 
-	virtual const IObjectInfo * getObjectInfo(ObjectTemplate tmpl) const
+	virtual std::unique_ptr<IObjectInfo> getObjectInfo(ObjectTemplate tmpl) const
 	{
 		return nullptr;
 	}
@@ -63,6 +65,7 @@ class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance
 	JsonNode filtersJson;
 protected:
 	bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
+	void initTypeData(const JsonNode & input);
 
 public:
 	CFaction * faction;
@@ -70,7 +73,6 @@ public:
 
 	CTownInstanceConstructor();
 	CGObjectInstance * create(ObjectTemplate tmpl) const;
-	void initTypeData(const JsonNode & input);
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const;
 	void afterLoadFinalization();
 
@@ -86,6 +88,7 @@ class CHeroInstanceConstructor : public CDefaultObjectTypeHandler<CGHeroInstance
 	JsonNode filtersJson;
 protected:
 	bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
+	void initTypeData(const JsonNode & input);
 
 public:
 	CHeroClass * heroClass;
@@ -93,7 +96,6 @@ public:
 
 	CHeroInstanceConstructor();
 	CGObjectInstance * create(ObjectTemplate tmpl) const;
-	void initTypeData(const JsonNode & input);
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const;
 	void afterLoadFinalization();
 
@@ -112,12 +114,12 @@ class CDwellingInstanceConstructor : public CDefaultObjectTypeHandler<CGDwelling
 
 protected:
 	bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
+	void initTypeData(const JsonNode & input);
 
 public:
 
 	CDwellingInstanceConstructor();
 	CGObjectInstance * create(ObjectTemplate tmpl) const;
-	void initTypeData(const JsonNode & input);
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const;
 
 	bool producesCreature(const CCreature * crea) const;
@@ -127,4 +129,57 @@ public:
 		h & availableCreatures & guards;
 		h & static_cast<CDefaultObjectTypeHandler<CGDwelling>&>(*this);
 	}
+};
+
+struct BankConfig
+{
+	BankConfig() { chance = upgradeChance = combatValue = value = 0; };
+	ui32 value; //overall value of given things
+	ui32 chance; //chance for this level being chosen
+	ui32 upgradeChance; //chance for creatures to be in upgraded versions
+	ui32 combatValue; //how hard are guards of this level
+	std::vector<CStackBasicDescriptor> guards; //creature ID, amount
+	Res::ResourceSet resources; //resources given in case of victory
+	std::vector<CStackBasicDescriptor> creatures; //creatures granted in case of victory (creature ID, amount)
+	std::vector<ArtifactID> artifacts; //artifacts given in case of victory
+	std::vector<SpellID> spells; // granted spell(s), for Pyramid
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & chance & upgradeChance & guards & combatValue & resources & creatures & artifacts & value & spells;
+	}
+};
+
+class CBankInfo : public IObjectInfo
+{
+	JsonVector config;
+public:
+	CBankInfo(JsonVector config);
+
+	CArmyStructure minGuards() const;
+	CArmyStructure maxGuards() const;
+	bool givesResources() const;
+	bool givesArtifacts() const;
+	bool givesCreatures() const;
+	bool givesSpells() const;
+};
+
+class CBankInstanceConstructor : public CDefaultObjectTypeHandler<CBank>
+{
+	BankConfig generateConfig(const JsonNode & conf, CRandomGenerator & rng) const;
+
+	JsonVector levels;
+protected:
+	void initTypeData(const JsonNode & input);
+
+public:
+	// all banks of this type will be reset N days after clearing,
+	si32 bankResetDuration;
+
+	CBankInstanceConstructor();
+
+	CGObjectInstance *create(ObjectTemplate tmpl) const;
+	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const;
+
+	std::unique_ptr<IObjectInfo> getObjectInfo(ObjectTemplate tmpl) const;
 };

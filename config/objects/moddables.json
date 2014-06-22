@@ -184,9 +184,6 @@
 		}
 	},
 
-	// subtype: different content
-	"creatureBank" : { "index" :16, "handler": "bank" },
-
 	// subtype: 0 = normal, 1 = anti-magic
 	"garrisonHorizontal"			: { "index" :33, "handler": "garrison" },
 	"garrisonVertical"				: { "index" :219, "handler": "garrison" },

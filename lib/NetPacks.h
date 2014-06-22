@@ -1021,8 +1021,7 @@ namespace ObjProperty
 		BONUS_VALUE_FIRST, BONUS_VALUE_SECOND, //used in Rampart for special building that generates resources (storing resource type and quantity)
 
 		//creature-bank specific
-		BANK_DAYCOUNTER, BANK_CLEAR_ARTIFACTS, BANK_ADD_ARTIFACT, BANK_MULTIPLIER, BANK_CONFIG_PRESET, 
-		BANK_CLEAR_CONFIG, BANK_INIT_ARMY, BANK_RESET,
+		BANK_DAYCOUNTER, BANK_RESET, BANK_CLEAR,
 
 		//object with reward
 		REWARD_RESET, REWARD_SELECT

@@ -16,11 +16,6 @@
 
 	"blackMarket"					: { "index" :7,  "handler": "blackMarket" },
 
-	"crypt"							: { "index" :84, "handler": "bank" },
-	"shipwreck"						: { "index" :85, "handler": "bank" },
-	"derelictShip"					: { "index" :24, "handler": "bank" },
-	"dragonUtopia"					: { "index" :25, "handler": "bank" },
-
 	"pandoraBox"					: { "index" :6,  "handler": "pandora" },
 	"event"							: { "index" :26, "handler": "event" },
 
@@ -45,7 +40,6 @@
 	"magicWell"						: { "index" :49, "handler": "magicWell" },
 	"obelisk"						: { "index" :57, "handler": "obelisk" },
 	"oceanBottle"					: { "index" :59, "handler": "sign" },
-	"pyramid"						: { "index" :63, "handler": "pyramid" },
 	"scholar"						: { "index" :81, "handler": "scholar" },
 	"shipyard"						: { "index" :87, "handler": "shipyard" },
 	"sign"							: { "index" :91, "handler": "sign" },

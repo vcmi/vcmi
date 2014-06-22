@@ -1569,7 +1569,7 @@ void CMapLoaderH3M::readObjects()
 			{
 				if(objTempl.subid == 0)
 				{
-					nobj = new CGPyramid();
+					nobj = new CBank();
 				}
 				else
 				{

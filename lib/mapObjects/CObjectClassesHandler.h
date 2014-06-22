@@ -50,20 +50,45 @@ struct RandomMapInfo
 class IObjectInfo
 {
 public:
-	virtual bool givesResources() const = 0;
+	struct CArmyStructure
+	{
+		ui32 totalStrength;
+		ui32 shootersStrength;
+		ui32 flyersStrength;
+		ui32 walkersStrength;
 
-	virtual bool givesExperience() const = 0;
-	virtual bool givesMana() const = 0;
-	virtual bool givesMovement() const = 0;
+		CArmyStructure() :
+			totalStrength(0),
+			shootersStrength(0),
+			flyersStrength(0),
+			walkersStrength(0)
+		{}
 
-	virtual bool givesPrimarySkills() const = 0;
-	virtual bool givesSecondarySkills() const = 0;
+		bool operator <(const CArmyStructure & other)
+		{
+			return this->totalStrength < other.totalStrength;
+		}
+	};
 
-	virtual bool givesArtifacts() const = 0;
-	virtual bool givesCreatures() const = 0;
-	virtual bool givesSpells() const = 0;
+	/// Returns possible composition of guards. Actual guards would be
+	/// somewhere between these two values
+	virtual CArmyStructure minGuards() const { return CArmyStructure(); }
+	virtual CArmyStructure maxGuards() const { return CArmyStructure(); }
 
-	virtual bool givesBonuses() const = 0;
+	virtual bool givesResources() const { return false; }
+
+	virtual bool givesExperience() const { return false; }
+	virtual bool givesMana() const { return false; }
+	virtual bool givesMovement() const { return false; }
+
+	virtual bool givesPrimarySkills() const { return false; }
+	virtual bool givesSecondarySkills() const { return false; }
+
+	virtual bool givesArtifacts() const { return false; }
+	virtual bool givesCreatures() const { return false; }
+	virtual bool givesSpells() const { return false; }
+
+	virtual bool givesBonuses() const { return false; }
 };
 
 class CGObjectInstance;
@@ -118,7 +143,7 @@ public:
 	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const = 0;
 
 	/// Returns object configuration, if available. Othervice returns NULL
-	virtual const IObjectInfo * getObjectInfo(ObjectTemplate tmpl) const = 0;
+	virtual std::unique_ptr<IObjectInfo> getObjectInfo(ObjectTemplate tmpl) const = 0;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

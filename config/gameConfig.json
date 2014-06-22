@@ -49,6 +49,7 @@
 	[
 		"config/objects/generic.json",
 		"config/objects/moddables.json",
+		"config/objects/creatureBanks.json",
 		"config/objects/dwellings.json",
 		"config/objects/rewardable.json"
 	],

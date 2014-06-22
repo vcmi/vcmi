@@ -163,41 +163,15 @@ private:
 	CGObjectInstance * obj;
 };
 
-struct BankConfig
-{
-	BankConfig() {level = chance = upgradeChance = combatValue = value = rewardDifficulty = easiest = 0; };
-	ui8 level; //1 - 4, how hard the battle will be
-	ui8 chance; //chance for this level being chosen
-	ui8 upgradeChance; //chance for creatures to be in upgraded versions
-	std::vector< std::pair <CreatureID, ui32> > guards; //creature ID, amount
-	ui32 combatValue; //how hard are guards of this level
-	Res::ResourceSet resources; //resources given in case of victory
-	std::vector< std::pair <CreatureID, ui32> > creatures; //creatures granted in case of victory (creature ID, amount)
-	std::vector<ui16> artifacts; //number of artifacts given in case of victory [0] -> treasure, [1] -> minor [2] -> major [3] -> relic
-	ui32 value; //overall value of given things
-	ui32 rewardDifficulty; //proportion of reward value to difficulty of guards; how profitable is this creature Bank config
-	ui16 easiest; //?!?
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & level & chance & upgradeChance & guards & combatValue & resources & creatures & artifacts & value & rewardDifficulty & easiest;
-	}
-};
-
 class DLL_LINKAGE CObjectHandler
 {
 public:
-	std::map <ui32, std::vector < ConstTransitivePtr<BankConfig> > > banksInfo; //[index][preset]
-	std::map <ui32, std::string> creBanksNames; //[crebank index] -> name of this creature bank
 	std::vector<ui32> resVals; //default values of resources in gold
 
 	CObjectHandler();
-	~CObjectHandler();
-
-	int bankObjToIndex (const CGObjectInstance * obj);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & banksInfo & creBanksNames & resVals;
+		h & resVals;
 	}
 };

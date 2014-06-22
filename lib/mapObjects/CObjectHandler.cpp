@@ -108,53 +108,6 @@ void IObjectInterface::garrisonDialogClosed(const CGHeroInstance *hero) const
 void IObjectInterface::heroLevelUpDone(const CGHeroInstance *hero) const
 {}
 
-// Bank helper. Find the creature ID and their number, and store the
-// result in storage (either guards or reward creatures).
-static void readCreatures(const JsonNode &creature, std::vector< std::pair <CreatureID, ui32> > &storage)
-{
-	std::pair<CreatureID, si32> creInfo = std::make_pair(CreatureID::NONE, 0);
-
-	//TODO: replace numeric id's with mod-friendly string id's
-	creInfo.second = creature["number"].Float();
-	creInfo.first = CreatureID((si32)creature["id"].Float());
-	storage.push_back(creInfo);
-}
-
-// Bank helper. Process a bank level.
-static void readBankLevel(const JsonNode &level, BankConfig &bc)
-{
-	int idx;
-
-	bc.chance = level["chance"].Float();
-
-	for(const JsonNode &creature : level["guards"].Vector())
-	{
-		readCreatures(creature, bc.guards);
-	}
-
-	bc.upgradeChance = level["upgrade_chance"].Float();
-	bc.combatValue = level["combat_value"].Float();
-
-	bc.resources = Res::ResourceSet(level["reward_resources"]);
-
-	for(const JsonNode &creature : level["reward_creatures"].Vector())
-	{
-		readCreatures(creature, bc.creatures);
-	}
-
-	bc.artifacts.resize(4);
-	idx = 0;
-	for(const JsonNode &artifact : level["reward_artifacts"].Vector())
-	{
-		bc.artifacts[idx] = artifact.Float();
-		idx ++;
-	}
-
-	bc.value = level["value"].Float();
-	bc.rewardDifficulty = level["profitability"].Float();
-	bc.easiest = level["easiest"].Float();
-}
-
 CObjectHandler::CObjectHandler()
 {
     logGlobal->traceStream() << "\t\tReading resources prices ";
@@ -164,62 +117,8 @@ CObjectHandler::CObjectHandler()
 		resVals.push_back(price.Float());
 	}
     logGlobal->traceStream() << "\t\tDone loading resource prices!";
-
-    logGlobal->traceStream() << "\t\tReading banks configs";
-	const JsonNode config3(ResourceID("config/bankconfig.json"));
-	int bank_num = 0;
-	for(const JsonNode &bank : config3["banks"].Vector())
-	{
-		creBanksNames[bank_num] = bank["name"].String();
-
-		int level_num = 0;
-		for(const JsonNode &level : bank["levels"].Vector())
-		{
-			banksInfo[bank_num].push_back(new BankConfig);
-			BankConfig &bc = *banksInfo[bank_num].back();
-			bc.level = level_num;
-
-			readBankLevel(level, bc);
-			level_num ++;
-		}
-
-		bank_num ++;
-	}
-    logGlobal->traceStream() << "\t\tDone loading banks configs";
 }
 
-CObjectHandler::~CObjectHandler()
-{
-	for(auto & mapEntry : banksInfo)
-	{
-		for(auto & vecEntry : mapEntry.second)
-		{
-			vecEntry.dellNull();
-		}
-	}
-}
-
-int CObjectHandler::bankObjToIndex (const CGObjectInstance * obj)
-{
-	switch (obj->ID) //find appriopriate key
-	{
-	case Obj::CREATURE_BANK:
-		return obj->subID;
-	case Obj::DERELICT_SHIP:
-		return 8;
-	case Obj::DRAGON_UTOPIA:
-		return 10;
-	case Obj::CRYPT:
-		return 9;
-	case Obj::SHIPWRECK:
-		return 7;
-	case Obj::PYRAMID:
-		return 21;
-	default:
-        logGlobal->warnStream() << "Unrecognized Bank indetifier!";
-		return 0;
-	}
-}
 PlayerColor CGObjectInstance::getOwner() const
 {
 	//if (state)

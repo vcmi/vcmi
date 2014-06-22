@@ -69,7 +69,6 @@ void registerTypesMapObjects1(Serializer &s)
 	s.template registerType<CArmedInstance, CGResource>();
 	s.template registerType<CArmedInstance, CGMine>();
 	s.template registerType<CArmedInstance, CBank>();
-		s.template registerType<CBank, CGPyramid>();
 	s.template registerType<CArmedInstance, CGSeerHut>(); s.template registerType<IQuestObject, CGSeerHut>();
 	s.template registerType<CGSeerHut, CGQuestGuard>();
 }
@@ -81,13 +80,13 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, CHeroInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CTownInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CDwellingInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, CBankInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CObstacleConstructor>();
 
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
 
 	REGISTER_GENERIC_HANDLER(CGObjectInstance);
 	REGISTER_GENERIC_HANDLER(CGMarket);
-	REGISTER_GENERIC_HANDLER(CBank);
 	REGISTER_GENERIC_HANDLER(CCartographer);
 	REGISTER_GENERIC_HANDLER(CGArtifact);
 	REGISTER_GENERIC_HANDLER(CGBlackMarket);
@@ -113,7 +112,6 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGOnceVisitable);
 	REGISTER_GENERIC_HANDLER(CGPandoraBox);
 	REGISTER_GENERIC_HANDLER(CGPickable);
-	REGISTER_GENERIC_HANDLER(CGPyramid);
 	REGISTER_GENERIC_HANDLER(CGQuestGuard);
 	REGISTER_GENERIC_HANDLER(CGResource);
 	REGISTER_GENERIC_HANDLER(CGScholar);

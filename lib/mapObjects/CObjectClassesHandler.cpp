@@ -35,13 +35,13 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("dwelling", CDwellingInstanceConstructor);
 	SET_HANDLER_CLASS("hero", CHeroInstanceConstructor);
 	SET_HANDLER_CLASS("town", CTownInstanceConstructor);
+	SET_HANDLER_CLASS("bank", CBankInstanceConstructor);
 
 	SET_HANDLER_CLASS("static", CObstacleConstructor);
 	SET_HANDLER_CLASS("", CObstacleConstructor);
 
 	SET_HANDLER("generic", CGObjectInstance);
 	SET_HANDLER("market", CGMarket);
-	SET_HANDLER("bank", CBank);
 	SET_HANDLER("cartographer", CCartographer);
 	SET_HANDLER("artifact", CGArtifact);
 	SET_HANDLER("blackMarket", CGBlackMarket);
@@ -67,7 +67,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("pickable", CGPickable);
 	SET_HANDLER("prison", CGHeroInstance);
-	SET_HANDLER("pyramid", CGPyramid);
 	SET_HANDLER("questGuard", CGQuestGuard);
 	SET_HANDLER("resource", CGResource);
 	SET_HANDLER("scholar", CGScholar);
@@ -130,6 +129,11 @@ si32 selectNextID(const JsonNode & fixedID, const Map & map, si32 defaultID)
 
 void CObjectClassesHandler::loadObjectEntry(const JsonNode & entry, ObjectContainter * obj)
 {
+	if (!handlerConstructors.count(obj->handlerName))
+	{
+		logGlobal->errorStream() << "Handler with name " << obj->handlerName << " was not found!";
+		return;
+	}
 	auto handler = handlerConstructors.at(obj->handlerName)();
 	handler->init(entry);
 

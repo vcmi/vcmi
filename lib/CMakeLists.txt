@@ -31,6 +31,7 @@ set(lib_SRCS
 		mapObjects/CQuest.cpp
 		mapObjects/CRewardableConstructor.cpp
 		mapObjects/CRewardableObject.cpp
+		mapObjects/JsonRandom.cpp
 		mapObjects/MiscObjects.cpp
 		mapObjects/ObjectTemplate.cpp
 
