@@ -68,7 +68,7 @@
 						],
 						"combat_value": 1013,
 						"reward" : {
-							"value": 20000
+							"value": 20000,
 							"resources":
 							{
 								"wood" : 8,
@@ -664,7 +664,7 @@
 				]
 			}
 		}
-	}
+	},
 	"derelictShip" : {
 		"index" :24,
 		"handler": "bank",
@@ -863,9 +863,9 @@
 								"gold" : 20000
 							},
 							"artifacts": [
-								{ "class" : "TREASURE" }
-								{ "class" : "MINOR" }
-								{ "class" : "MAJOR" }
+								{ "class" : "TREASURE" },
+								{ "class" : "MINOR" },
+								{ "class" : "MAJOR" },
 								{ "class" : "RELIC" }
 							]
 						}
@@ -886,9 +886,9 @@
 								"gold" : 30000
 							},
 							"artifacts": [
-								{ "class" : "MINOR" }
-								{ "class" : "MAJOR" }
-								{ "class" : "RELIC" }
+								{ "class" : "MINOR" },
+								{ "class" : "MAJOR" },
+								{ "class" : "RELIC" },
 								{ "class" : "RELIC" }
 							]
 						}
@@ -908,11 +908,10 @@
 							{
 								"gold" : 40000
 							},
-							"artifacts": [ 0, 0, 1, 3 ]
 							"artifacts": [
-								{ "class" : "MAJOR" }
-								{ "class" : "RELIC" }
-								{ "class" : "RELIC" }
+								{ "class" : "MAJOR" },
+								{ "class" : "RELIC" },
+								{ "class" : "RELIC" },
 								{ "class" : "RELIC" }
 							]
 						}
@@ -932,11 +931,10 @@
 							{
 								"gold" : 50000
 							},
-							"artifacts": [ 0, 0, 0, 4 ]
 							"artifacts": [
-								{ "class" : "RELIC" }
-								{ "class" : "RELIC" }
-								{ "class" : "RELIC" }
+								{ "class" : "RELIC" },
+								{ "class" : "RELIC" },
+								{ "class" : "RELIC" },
 								{ "class" : "RELIC" }
 							]
 						}
