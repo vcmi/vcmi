@@ -12,19 +12,17 @@
 #include "../CCallback.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
-#include "../lib/CObjectHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "CBitmapHandler.h"
-#include "../lib/CObjectHandler.h"
 #include "../lib/CSpellHandler.h"
-#include "../lib/CDefObjInfoHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
 #include "../lib/GameConstants.h"
 #include "../lib/CStopWatch.h"
 #include "CAnimation.h"
+#include "../lib/mapObjects/CObjectClassesHandler.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;
@@ -148,13 +146,11 @@ void Graphics::loadHeroAnims()
 
 	for(auto & elem : CGI->heroh->classes.heroClasses)
 	{
-		const CHeroClass * hc = elem;
-
-		if (!vstd::contains(heroAnims, hc->imageMapFemale))
-			heroAnims[hc->imageMapFemale] = loadHeroAnim(hc->imageMapFemale, rotations);
-
-		if (!vstd::contains(heroAnims, hc->imageMapMale))
-			heroAnims[hc->imageMapMale] = loadHeroAnim(hc->imageMapMale, rotations);
+		for (auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->id)->getTemplates())
+		{
+			if (!heroAnims.count(templ.animationFile))
+			heroAnims[templ.animationFile] = loadHeroAnim(templ.animationFile, rotations);
+		}
 	}
 
 	boatAnims.push_back(loadHeroAnim("AB01_.DEF", rotations));

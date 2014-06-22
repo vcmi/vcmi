@@ -6,20 +6,6 @@ include_directories(${Boost_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR}
 
 set(lib_SRCS
 		StdInc.cpp
-		IGameCallback.cpp
-		CGameInfoCallback.cpp
-		CGameState.cpp
-		CObjectHandler.cpp
-		Connection.cpp
-		NetPacksLib.cpp
-
-		registerTypes/RegisterTypes.cpp
-		registerTypes/TypesClientPacks1.cpp
-		registerTypes/TypesClientPacks2.cpp
-		registerTypes/TypesMapObjects1.cpp
-                registerTypes/TypesMapObjects2.cpp
-		registerTypes/TypesPregamePacks.cpp
-		registerTypes/TypesServerPacks.cpp
 
 		filesystem/AdapterLoaders.cpp
 		filesystem/CCompressedStream.cpp
@@ -32,6 +18,22 @@ set(lib_SRCS
 		filesystem/CZipLoader.cpp
 		filesystem/Filesystem.cpp
 		filesystem/ResourceID.cpp
+
+		mapObjects/CArmedInstance.cpp
+		mapObjects/CBank.cpp
+		mapObjects/CGHeroInstance.cpp
+		mapObjects/CGMarket.cpp
+		mapObjects/CGPandoraBox.cpp
+		mapObjects/CGTownInstance.cpp
+		mapObjects/CObjectClassesHandler.cpp
+		mapObjects/CObjectHandler.cpp
+		mapObjects/CommonConstructors.cpp
+		mapObjects/CQuest.cpp
+		mapObjects/CRewardableConstructor.cpp
+		mapObjects/CRewardableObject.cpp
+		mapObjects/JsonRandom.cpp
+		mapObjects/MiscObjects.cpp
+		mapObjects/ObjectTemplate.cpp
 
 		logging/CBasicLogConfigurator.cpp
 		logging/CLogger.cpp
@@ -63,7 +65,6 @@ set(lib_SRCS
 		CConsoleHandler.cpp
 		CCreatureHandler.cpp
 		CCreatureSet.cpp
-		CDefObjInfoHandler.cpp
 		CGameInterface.cpp
 		CGeneralTextHandler.cpp
 		CHeroHandler.cpp
@@ -81,6 +82,20 @@ set(lib_SRCS
 		ResourceSet.cpp
 		VCMI_Lib.cpp
 		VCMIDirs.cpp
+
+		IGameCallback.cpp
+		CGameInfoCallback.cpp
+		CGameState.cpp
+		Connection.cpp
+		NetPacksLib.cpp
+
+		registerTypes/RegisterTypes.cpp
+		registerTypes/TypesClientPacks1.cpp
+		registerTypes/TypesClientPacks2.cpp
+		registerTypes/TypesMapObjects1.cpp
+		registerTypes/TypesMapObjects2.cpp
+		registerTypes/TypesPregamePacks.cpp
+		registerTypes/TypesServerPacks.cpp
 )
 
 set(lib_HEADERS
@@ -89,6 +104,9 @@ set(lib_HEADERS
 		filesystem/CInputStream.h
 		filesystem/ISimpleResourceLoader.h
 
+		mapObjects/MapObjects.h
+
+		CSoundBase.h
 		AI_Base.h
 		CondSh.h
 		ConstTransitivePtr.h
@@ -118,5 +136,5 @@ set_target_properties(vcmi PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmi)
 
 if (NOT APPLE) # Already inside vcmiclient bundle
-    install(TARGETS vcmi DESTINATION ${LIB_DIR})
+	install(TARGETS vcmi DESTINATION ${LIB_DIR})
 endif()

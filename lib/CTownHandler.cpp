@@ -11,8 +11,8 @@
 #include "CArtHandler.h"
 #include "CSpellHandler.h"
 #include "filesystem/Filesystem.h"
-#include "CDefObjInfoHandler.h"
-#include "CObjectHandler.h"
+#include "mapObjects/CObjectClassesHandler.h"
+#include "mapObjects/CObjectHandler.h"
 
 /*
  * CTownHandler.cpp, part of VCMI engine
@@ -554,10 +554,6 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 		info.tavernVideo = "TAVERN.BIK";
 	//end of legacy assignment 
 
-	info.advMapVillage = source["adventureMap"]["village"].String();
-	info.advMapCastle  = source["adventureMap"]["castle"].String();
-	info.advMapCapitol = source["adventureMap"]["capitol"].String();
-
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);
 	loadSiegeScreen(town, source["siege"]);
@@ -723,6 +719,8 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 	auto object = loadFromJson(data, name);
 
 	object->index = factions.size();
+	factions.push_back(object);
+
 	if (object->town)
 	{
 		auto & info = object->town->clientInfo;
@@ -730,9 +728,16 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		info.icons[0][1] = 8 + object->index * 4 + 1;
 		info.icons[1][0] = 8 + object->index * 4 + 2;
 		info.icons[1][1] = 8 + object->index * 4 + 3;
-	}
 
-	factions.push_back(object);
+		VLC->modh->identifiers.requestIdentifier(scope, "object", "town", [=](si32 index)
+		{
+			// register town once objects are loaded
+			JsonNode config = data["town"]["mapObject"];
+			config["faction"].String() = object->identifier;
+			config["faction"].meta = scope;
+			VLC->objtypeh->loadSubObject(object->identifier, config, index, object->index);
+		});
+	}
 
 	VLC->modh->identifiers.registerObject(scope, "faction", name, object->index);
 }
@@ -741,6 +746,9 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 {
 	auto object = loadFromJson(data, name);
 	object->index = index;
+	assert(factions[index] == nullptr); // ensure that this id was not loaded before
+	factions[index] = object;
+
 	if (object->town)
 	{
 		auto & info = object->town->clientInfo;
@@ -748,10 +756,25 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		info.icons[0][1] = (GameConstants::F_NUMBER + object->index) * 2 + 1;
 		info.icons[1][0] = object->index * 2 + 0;
 		info.icons[1][1] = object->index * 2 + 1;
-	}
 
-	assert(factions[index] == nullptr); // ensure that this id was not loaded before
-	factions[index] = object;
+		VLC->modh->identifiers.requestIdentifier(scope, "object", "town", [=](si32 index)
+		{
+			// register town once objects are loaded
+			JsonNode config = data["town"]["mapObject"];
+			config["faction"].String() = object->identifier;
+			config["faction"].meta = scope;
+			VLC->objtypeh->loadSubObject(object->identifier, config, index, object->index);
+
+			// MODS COMPATIBILITY FOR 0.96
+			auto & advMap = data["town"]["adventureMap"];
+			if (!advMap["fort"].isNull())
+			{
+				JsonNode config;
+				config["appearance"] = advMap["fort"];
+				VLC->objtypeh->getHandlerFor(index, object->index)->addTemplate(config);
+			}
+		});
+	}
 
 	VLC->modh->identifiers.registerObject(scope, "faction", name, object->index);
 }
@@ -759,38 +782,6 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 void CTownHandler::afterLoadFinalization()
 {
 	initializeRequirements();
-	ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::TOWN, 0).front();
-	for (CFaction * fact : factions)
-	{
-		if (fact->town)
-		{
-			base.animationFile = fact->town->clientInfo.advMapCastle;
-			base.subid = fact->index;
-
-			// replace existing (if any) and add new template.
-			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->dobjinfo->eraseAll(Obj::TOWN, fact->index);
-			VLC->dobjinfo->registerTemplate(base);
-
-			assert(fact->town->dwellings.size() == fact->town->dwellingNames.size());
-			for (size_t i=0; i<fact->town->dwellings.size(); i++)
-			{
-				ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::CREATURE_GENERATOR1, 0).front();
-
-				//both unupgraded and upgraded get same dwelling
-				 for (auto cre : fact->town->creatures[i])
-				 {
-					base.subid = 80 + cre;
-					base.animationFile = fact->town->dwellings[i];
-					if (VLC->objh->cregens.count(cre) == 0)
-					{
-						VLC->dobjinfo->registerTemplate(base);
-						VLC->objh->cregens[80 + cre] = cre; //map of dwelling -> creature id
-					}
-				 }
-			}
-		}
-	}
 }
 
 void CTownHandler::initializeRequirements()

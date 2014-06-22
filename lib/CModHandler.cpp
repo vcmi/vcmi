@@ -1,6 +1,6 @@
 #include "StdInc.h"
 #include "CModHandler.h"
-#include "CDefObjInfoHandler.h"
+#include "mapObjects/CObjectClassesHandler.h"
 #include "JsonNode.h"
 #include "filesystem/Filesystem.h"
 #include "filesystem/AdapterLoaders.h"
@@ -10,7 +10,7 @@
 #include "CArtHandler.h"
 #include "CTownHandler.h"
 #include "CHeroHandler.h"
-#include "CObjectHandler.h"
+#include "mapObjects/CObjectHandler.h"
 #include "StringConstants.h"
 #include "CStopWatch.h"
 #include "IHandlerBase.h"
@@ -25,6 +25,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+CIdentifierStorage::CIdentifierStorage():
+	state(LOADING)
+{
+}
 
 void CIdentifierStorage::checkIdentifier(std::string & ID)
 {
@@ -81,7 +86,10 @@ void CIdentifierStorage::requestIdentifier(ObjectCallback callback)
 
 	assert(!callback.localScope.empty());
 
-	scheduledRequests.push_back(callback);
+	if (state != FINISHED) // enqueue request if loading is still in progress
+		scheduledRequests.push_back(callback);
+	else // execute immediately for "late" requests
+		resolveIdentifier(callback);
 }
 
 void CIdentifierStorage::requestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback)
@@ -120,6 +128,19 @@ void CIdentifierStorage::tryRequestIdentifier(std::string type, const JsonNode &
 	requestIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, callback, true));
 }
 
+boost::optional<si32> CIdentifierStorage::getIdentifier(std::string scope, std::string type, std::string name, bool silent)
+{
+	auto pair = splitString(name, ':'); // remoteScope:name
+	auto idList = getPossibleIdentifiers(ObjectCallback(scope, pair.first, type, pair.second, std::function<void(si32)>(), silent));
+
+	if (idList.size() == 1)
+		return idList.front().id;
+	if (!silent)
+		logGlobal->errorStream() << "Failed to resolve identifier " << name << " of type " << type << " from mod " << scope;
+
+	return boost::optional<si32>();
+}
+
 boost::optional<si32> CIdentifierStorage::getIdentifier(std::string type, const JsonNode & name, bool silent)
 {
 	auto pair = splitString(name.String(), ':'); // remoteScope:name
@@ -128,7 +149,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(std::string type, const 
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " from mod " << type;
+		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " of type " << type << " from mod " << name.meta;
 
 	return boost::optional<si32>();
 }
@@ -142,7 +163,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, b
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " from mod " << name.meta;
+		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " of type " << pair2.first << " from mod " << name.meta;
 
 	return boost::optional<si32>();
 }
@@ -210,7 +231,9 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
 	}
 
 	if (request.optional && identifiers.empty()) // failed to resolve optinal ID
+	{
 		return true;
+	}
 
 	// error found. Try to generate some debug info
 	if (identifiers.size() == 0)
@@ -229,22 +252,25 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
 
 void CIdentifierStorage::finalize()
 {
+	state = FINALIZING;
 	bool errorsFound = false;
 
-	for(const ObjectCallback & request : scheduledRequests)
+	//Note: we may receive new requests during resolution phase -> end may change -> range for can't be used
+	for(auto it = scheduledRequests.begin(); it != scheduledRequests.end(); it++)
 	{
-		errorsFound |= !resolveIdentifier(request);
+		errorsFound |= !resolveIdentifier(*it);
 	}
 
 	if (errorsFound)
 	{
 		for(auto object : registeredObjects)
 		{
-			logGlobal->traceStream() << object.first << " -> " << object.second.id;
+			logGlobal->traceStream() << object.second.scope << " : " << object.first << " -> " << object.second.id;
 		}
 		logGlobal->errorStream() << "All known identifiers were dumped into log file";
 	}
 	assert(errorsFound == false);
+	state = FINISHED;
 }
 
 CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, std::string objectName):
@@ -347,10 +373,11 @@ CContentHandler::CContentHandler()
 	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, "artifact")));
 	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh, "creature")));
 	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh, "faction")));
+	handlers.insert(std::make_pair("objects", ContentTypeHandler(VLC->objtypeh, "object")));
 	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh, "hero")));
-    handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
+	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
 
-	//TODO: bonuses, something else?
+	//TODO: any other types of moddables?
 }
 
 bool CContentHandler::preloadModData(std::string modName, JsonNode modConfig, bool validate)

@@ -2,14 +2,14 @@
 #include "CGameState.h"
 
 #include "mapping/CCampaignHandler.h"
-#include "CDefObjInfoHandler.h"
+#include "mapObjects/CObjectClassesHandler.h"
 #include "CArtHandler.h"
 #include "CBuildingHandler.h"
 #include "CGeneralTextHandler.h"
 #include "CTownHandler.h"
 #include "CSpellHandler.h"
 #include "CHeroHandler.h"
-#include "CObjectHandler.h"
+#include "mapObjects/CObjectHandler.h"
 #include "CCreatureHandler.h"
 #include "CModHandler.h"
 #include "VCMI_Lib.h"
@@ -166,6 +166,10 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		dst = VLC->arth->artifacts[ser]->EventText();
 	}
+	else if (type == OBJ_NAMES)
+	{
+		dst = VLC->objtypeh->getObjectName(ser);
+	}
 	else
 	{
 		std::vector<std::string> *vec;
@@ -176,9 +180,6 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 			break;
 		case XTRAINFO_TXT:
 			vec = &VLC->generaltexth->xtrainfo;
-			break;
-		case OBJ_NAMES:
-			vec = &VLC->generaltexth->names;
 			break;
 		case RES_NAMES:
 			vec = &VLC->generaltexth->restypes;
@@ -342,9 +343,11 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 	switch(id)
 	{
 	case Obj::HERO:
-		nobj = new CGHeroInstance();
-		nobj->appearance = VLC->dobjinfo->pickCandidates(id, VLC->heroh->heroes[subid]->heroClass->id).front();
-		break;
+		{
+			auto handler = VLC->objtypeh->getHandlerFor(id, VLC->heroh->heroes[subid]->heroClass->id);
+			nobj = handler->create(handler->getTemplates().front());
+			break;
+		}
 	case Obj::TOWN:
 		nobj = new CGTownInstance;
 		break;
@@ -357,7 +360,7 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 	nobj->pos = pos;
 	nobj->tempOwner = owner;
 	if (id != Obj::HERO)
-		nobj->appearance = VLC->dobjinfo->pickCandidates(id, subid).front();
+		nobj->appearance = VLC->objtypeh->getHandlerFor(id, subid)->getTemplates().front();
 
 	return nobj;
 }
@@ -619,23 +622,28 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			std::pair<Obj, int> result(Obj::NO_OBJ, -1);
 			CreatureID cid = VLC->townh->factions[faction]->town->creatures[level][0];
 
-			//golem factory is not in list of cregens but can be placed as random object
-			static const CreatureID factoryCreatures[] = {CreatureID::STONE_GOLEM, CreatureID::IRON_GOLEM,
-				CreatureID::GOLD_GOLEM, CreatureID::DIAMOND_GOLEM};
-			std::vector<CreatureID> factory(factoryCreatures, factoryCreatures + ARRAY_COUNT(factoryCreatures));
-			if (vstd::contains(factory, cid))
-				result = std::make_pair(Obj::CREATURE_GENERATOR4, 1);
-
 			//NOTE: this will pick last dwelling with this creature (Mantis #900)
 			//check for block map equality is better but more complex solution
-			for(auto &iter : VLC->objh->cregens)
-				if (iter.second == cid)
-					result = std::make_pair(Obj::CREATURE_GENERATOR1, iter.first);
+			auto testID = [&](Obj primaryID) -> void
+			{
+				auto dwellingIDs = VLC->objtypeh->knownSubObjects(primaryID);
+				for (si32 entry : dwellingIDs)
+				{
+					auto handler = dynamic_cast<const CDwellingInstanceConstructor*>(VLC->objtypeh->getHandlerFor(primaryID, entry).get());
+
+					if (handler->producesCreature(VLC->creh->creatures[cid]))
+						result = std::make_pair(primaryID, entry);
+				}
+			};
+
+			testID(Obj::CREATURE_GENERATOR1);
+			if (result.first == Obj::NO_OBJ)
+				testID(Obj::CREATURE_GENERATOR4);
 
 			if (result.first == Obj::NO_OBJ)
 			{
-                logGlobal->errorStream() << "Error: failed to find creature for dwelling of "<< int(faction) << " of level " << int(level);
-				result = std::make_pair(Obj::CREATURE_GENERATOR1, RandomGeneratorUtil::nextItem(VLC->objh->cregens, rand)->first);
+				logGlobal->errorStream() << "Error: failed to find dwelling for "<< VLC->townh->factions[faction]->name << " of level " << int(level);
+				result = std::make_pair(Obj::CREATURE_GENERATOR1, *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), rand));
 			}
 
 			return result;
@@ -649,58 +657,25 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	std::pair<Obj,int> ran = pickObject(cur);
 	if(ran.first == Obj::NO_OBJ || ran.second<0) //this is not a random object, or we couldn't find anything
 	{
-		if(cur->ID==Obj::TOWN) //town - set def
-		{
-			const TerrainTile &tile = map->getTile(cur->visitablePos());
-			CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
-			t->town = VLC->townh->factions[t->subID]->town;
-			t->appearance = VLC->dobjinfo->pickCandidates(Obj::TOWN, t->subID, tile.terType).front();
-			t->updateAppearance();
-		}
+		if(cur->ID==Obj::TOWN)
+			cur->setType(cur->ID, cur->subID); // update def, if necessary
 		return;
 	}
 	else if(ran.first==Obj::HERO)//special code for hero
 	{
 		CGHeroInstance *h = dynamic_cast<CGHeroInstance *>(cur);
-        if(!h) {logGlobal->warnStream()<<"Wrong random hero at "<<cur->pos; return;}
-		cur->ID = ran.first;
-		cur->subID = ran.second;
-		h->type = VLC->heroh->heroes[ran.second];
-		h->portrait = h->type->imageIndex;
-		h->randomizeArmy(h->type->heroClass->faction);
+		cur->setType(ran.first, ran.second);
 		map->heroesOnMap.push_back(h);
-		return; //TODO: maybe we should do something with definfo?
+		return;
 	}
 	else if(ran.first==Obj::TOWN)//special code for town
 	{
-		const TerrainTile &tile = map->getTile(cur->visitablePos());
 		CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
-        if(!t) {logGlobal->warnStream()<<"Wrong random town at "<<cur->pos; return;}
-		cur->ID = ran.first;
-		cur->subID = ran.second;
-		//FIXME: copy-pasted from above
-		t->town = VLC->townh->factions[t->subID]->town;
-		t->appearance = VLC->dobjinfo->pickCandidates(Obj::TOWN,t->subID, tile.terType).front();
-		t->updateAppearance();
-
-		t->randomizeArmy(t->subID);
+		cur->setType(ran.first, ran.second);
 		map->towns.push_back(t);
 		return;
 	}
-	else
-	{
-		if (ran.first  != cur->appearance.id ||
-			ran.second != cur->appearance.subid)
-		{
-			const TerrainTile &tile = map->getTile(cur->visitablePos());
-			cur->appearance = VLC->dobjinfo->pickCandidates(Obj(ran.first),ran.second, tile.terType).front();
-		}
-	}
-	//we have to replace normal random object
-	cur->ID = ran.first;
-	cur->subID = ran.second;
-	map->removeBlockVisTiles(cur, true); //recalculate blockvis tiles - picked object might have different than random placeholder
-	map->addBlockVisTiles(cur);
+	cur->setType(ran.first, ran.second);
 }
 
 int CGameState::getDate(Date::EDateType mode) const
@@ -1078,7 +1053,7 @@ void CGameState::randomizeMapObjects()
 		if(!obj) continue;
 
 		randomizeObject(obj);
-		obj->hoverName = VLC->generaltexth->names[obj->ID];
+		obj->hoverName = VLC->objtypeh->getObjectName(obj->ID);
 
 		//handle Favouring Winds - mark tiles under it
 		if(obj->ID == Obj::FAVORABLE_WINDS)

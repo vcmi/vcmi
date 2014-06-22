@@ -9,6 +9,8 @@
 #include "CModHandler.h"
 #include "StringConstants.h"
 
+#include "mapObjects/CObjectClassesHandler.h"
+
 using namespace boost::assign;
 
 /*
@@ -1114,19 +1116,19 @@ void CCreatureHandler::buildBonusTreeForTiers()
 
 void CCreatureHandler::afterLoadFinalization()
 {
-	ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::MONSTER, 0).front();
 	for (CCreature * crea : creatures)
 	{
+		VLC->objtypeh->loadSubObject(crea->nameSing, JsonNode(), Obj::MONSTER, crea->idNumber.num);
 		if (!crea->advMapDef.empty())
 		{
-			base.animationFile = crea->advMapDef;
-			base.subid = crea->idNumber;
-
-			// replace existing (if any) and add new template.
-			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->dobjinfo->eraseAll(Obj::MONSTER, crea->idNumber);
-			VLC->dobjinfo->registerTemplate(base);
+			JsonNode templ;
+			templ["animation"].String() = crea->advMapDef;
+			VLC->objtypeh->getHandlerFor(Obj::MONSTER, crea->idNumber)->addTemplate(templ);
 		}
+
+		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
+		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, crea->idNumber.num)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::MONSTER, crea->idNumber.num);
 	}
 }
 

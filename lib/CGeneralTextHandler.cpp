@@ -287,7 +287,6 @@ CGeneralTextHandler::CGeneralTextHandler()
 	readToVector("DATA/HEROSCRN.TXT", heroscrn);
 	readToVector("DATA/TENTCOLR.TXT", tentColors);
 	readToVector("DATA/SKILLLEV.TXT", levels);
-	readToVector("DATA/OBJNAMES.TXT", names);
 
 	localizedTexts = JsonNode(ResourceID("config/translate.json", EResType::TEXT));
 

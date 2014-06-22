@@ -1,0 +1,133 @@
+{
+	/// These are objects that can not be configured, either due to
+	/// their hardcoded status or because they don't have any configurable functionality
+	"prison" : {
+		"index" :62,
+		"handler": "prison",
+		"types" : {
+			"prison" : { "index" : 0 }
+		}
+	},
+	
+	"altarOfSacrifice"				: { "index" :2,  "handler": "market" },
+	"tradingPost"					: { "index" :221, "handler": "market" },
+	"tradingPostDUPLICATE"			: { "index" :99, "handler": "market" },
+	"freelancersGuild"				: { "index" :213, "handler": "market" },
+
+	"blackMarket"					: { "index" :7,  "handler": "blackMarket" },
+
+	"pandoraBox"					: { "index" :6,  "handler": "pandora" },
+	"event"							: { "index" :26, "handler": "event" },
+
+	"redwoodObservatory"			: { "index" :58, "handler": "observatory" },
+	"pillarOfFire"					: { "index" :60, "handler": "observatory" },
+	"coverOfDarkness"				: { "index" :15, "handler": "observatory" },
+	
+	"subterraneanGate"				: { "index" :103, "handler": "teleport" },
+	"whirlpool"						: { "index" :111, "handler": "teleport" },
+
+	"refugeeCamp"					: { "index" :78, "handler": "dwelling" },
+	"warMachineFactory"				: { "index" :106, "handler": "dwelling" },
+
+	"shrineOfMagicLevel1"			: { "index" :88, "handler": "shrine" },
+	"shrineOfMagicLevel2"			: { "index" :89, "handler": "shrine" },
+	"shrineOfMagicLevel3"			: { "index" :90, "handler": "shrine" },
+
+	"eyeOfTheMagi"					: { "index" :27, "handler": "magi" },
+	"hutOfTheMagi"					: { "index" :37, "handler": "magi" },
+
+	"lighthouse"					: { "index" :42, "handler": "lighthouse" },
+	"magicWell"						: { "index" :49, "handler": "magicWell" },
+	"obelisk"						: { "index" :57, "handler": "obelisk" },
+	"oceanBottle"					: { "index" :59, "handler": "sign" },
+	"scholar"						: { "index" :81, "handler": "scholar" },
+	"shipyard"						: { "index" :87, "handler": "shipyard" },
+	"sign"							: { "index" :91, "handler": "sign" },
+	"sirens"						: { "index" :92, "handler": "siren" },
+	"denOfThieves"					: { "index" :97, "handler": "denOfThieves" },
+	"university"					: { "index" :104, "handler": "university" },
+	"witchHut"						: { "index" :113, "handler": "witch" },
+	"questGuard"					: { "index" :215, "handler": "questGuard" },
+
+	/// Random objects
+	"randomResource"				: { "index" :76, "handler": "resource" },
+	"randomTown"					: { "index" :77, "handler": "town" },
+	"randomHero"					: { "index" :70, "handler": "hero" },
+	
+	"randomDwelling"				: { "index" :216, "handler": "dwelling" },
+
+	"randomArtifact"				: { "index" :65, "handler": "artifact" },
+	"randomArtifactTreasure"		: { "index" :66, "handler": "artifact" },
+	"randomArtifactMinor"			: { "index" :67, "handler": "artifact" },
+	"randomArtifactMajor"			: { "index" :68, "handler": "artifact" },
+	"randomArtifactRelic"			: { "index" :69, "handler": "artifact" },
+
+	"randomMonster"					: { "index" :71, "handler": "monster" },
+	"randomMonsterLevel1"			: { "index" :72, "handler": "monster" },
+	"randomMonsterLevel2"			: { "index" :73, "handler": "monster" },
+	"randomMonsterLevel3"			: { "index" :74, "handler": "monster" },
+	"randomMonsterLevel4"			: { "index" :75, "handler": "monster" },
+	"randomMonsterLevel5"			: { "index" :162, "handler": "monster" },
+	"randomMonsterLevel6"			: { "index" :163, "handler": "monster" },
+	"randomMonsterLevel7"			: { "index" :164, "handler": "monster" },
+
+	/// Classes without dedicated object
+	"hillFort"						: { "index" :35, "handler": "generic" },
+	"grail"							: { "index" :36, "handler": "generic" },
+	"tavern"						: { "index" :95, "handler": "generic" },
+	"sanctuary"						: { "index" :80, "handler": "generic" },
+
+	/// Passive objects, terrain overlays
+	"cursedGround"					: { "index" :21, "handler": "generic" },
+	"magicPlains"					: { "index" :46, "handler": "generic" },
+	"swampFoliage"					: { "index" :211, "handler": "generic" },
+	"cloverField"					: { "index" :222, "handler": "generic" },
+	"cursedGroundDUPLICATE"			: { "index" :223, "handler": "generic" },
+	"evilFog"						: { "index" :224, "handler": "generic" },
+	"favorableWinds"				: { "index" :225, "handler": "generic" },
+	"fieryFields"					: { "index" :226, "handler": "generic" },
+	"holyGround"					: { "index" :227, "handler": "generic" },
+	"lucidPools"					: { "index" :228, "handler": "generic" },
+	"magicClouds"					: { "index" :229, "handler": "generic" },
+	"magicPlainsDUPLICATE"			: { "index" :230, "handler": "generic" },
+	"rocklands"						: { "index" :231, "handler": "generic" },
+
+	/// Decorations
+	"cactus"						: { "index" :116, "handler": "static" },
+	"canyon"						: { "index" :117, "handler": "static" },
+	"crater"						: { "index" :118, "handler": "static" },
+	"deadVegetation"				: { "index" :119, "handler": "static" },
+	"flowers"						: { "index" :120, "handler": "static" },
+	"frozenLake"					: { "index" :121, "handler": "static" },
+	"hole"							: { "index" :124, "handler": "static" },
+	"kelp"							: { "index" :125, "handler": "static" },
+	"lake"							: { "index" :126, "handler": "static" },
+	"lavaFlow"						: { "index" :127, "handler": "static" },
+	"lavaLake"						: { "index" :128, "handler": "static" },
+	"mushrooms"						: { "index" :129, "handler": "static" },
+	"log"							: { "index" :130, "handler": "static" },
+	"mandrake"						: { "index" :131, "handler": "static" },
+	"moss"							: { "index" :132, "handler": "static" },
+	"mound"							: { "index" :133, "handler": "static" },
+	"mountain"						: { "index" :134, "handler": "static" },
+	"oakTrees"						: { "index" :135, "handler": "static" },
+	"outcropping"					: { "index" :136, "handler": "static" },
+	"pineTrees"						: { "index" :137, "handler": "static" },
+	"riverDelta"					: { "index" :143, "handler": "static" },
+	"rock"							: { "index" :147, "handler": "static" },
+	"sandDune"						: { "index" :148, "handler": "static" },
+	"sandPit"						: { "index" :149, "handler": "static" },
+	"shrub"							: { "index" :150, "handler": "static" },
+	"skull"							: { "index" :151, "handler": "static" },
+	"stump"							: { "index" :153, "handler": "static" },
+	"trees"							: { "index" :155, "handler": "static" },
+	"volcano"						: { "index" :158, "handler": "static" },
+	"reef"							: { "index" :161, "handler": "static" },
+	"lakeDUPLICATE"					: { "index" :177, "handler": "static" },
+	"treesDUPLICATE"				: { "index" :199, "handler": "static" },
+	"desertHills"					: { "index" :206, "handler": "static" },
+	"dirtHills"						: { "index" :207, "handler": "static" },
+	"grassHills"					: { "index" :208, "handler": "static" },
+	"roughHills"					: { "index" :209, "handler": "static" },
+	"subterraneanRocks"				: { "index" :210, "handler": "static" }
+}

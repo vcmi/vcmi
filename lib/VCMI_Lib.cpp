@@ -14,9 +14,9 @@
 #include "CArtHandler.h"
 #include "CBonusTypeHandler.h"
 #include "CCreatureHandler.h"
-#include "CDefObjInfoHandler.h"
+#include "mapObjects/CObjectClassesHandler.h"
 #include "CHeroHandler.h"
-#include "CObjectHandler.h"
+#include "mapObjects/CObjectHandler.h"
 #include "CTownHandler.h"
 #include "CBuildingHandler.h"
 #include "CSpellHandler.h"
@@ -45,11 +45,11 @@ DLL_LINKAGE void preinitDLL(CConsoleHandler *Console)
 
 DLL_LINKAGE void loadDLLClasses()
 {
-	try
+	//try
 	{
 		VLC->init();
 	}
-	HANDLE_EXCEPTION;
+	//HANDLE_EXCEPTION;
 }
 
 const IBonusTypeHandler * LibClasses::getBth() const
@@ -109,7 +109,7 @@ void LibClasses::init()
 
 	createHandler(objh, "Object", pomtime);
 
-	createHandler(dobjinfo, "Def information", pomtime);
+	createHandler(objtypeh, "Object types information", pomtime);
 
 	createHandler(spellh, "Spell", pomtime);
 
@@ -135,7 +135,7 @@ void LibClasses::clear()
 	delete creh;
 	delete townh;
 	delete objh;
-	delete dobjinfo;
+	delete objtypeh;
 	delete spellh;
 	delete modh;
 	delete bth;
@@ -152,7 +152,7 @@ void LibClasses::makeNull()
 	creh = nullptr;
 	townh = nullptr;
 	objh = nullptr;
-	dobjinfo = nullptr;
+	objtypeh = nullptr;
 	spellh = nullptr;
 	modh = nullptr;
 	bth = nullptr;

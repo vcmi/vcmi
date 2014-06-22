@@ -19,6 +19,8 @@
 #include "../CCreatureHandler.h"
 #include "../CSpellHandler.h" //for choosing random spells
 
+#include "../mapObjects/CObjectClassesHandler.h"
+
 class CMap;
 class CMapEditManager;
 
@@ -1025,7 +1027,7 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 	//we need object apperance to deduce free tiles
 	if (obj->appearance.id == Obj::NO_OBJ)
 	{
-		auto templates = VLC->dobjinfo->pickCandidates(obj->ID, obj->subID, gen->map->getTile(getPos()).terType);
+		auto templates = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID)->getTemplates(gen->map->getTile(getPos()).terType);
 		if (templates.empty())
 			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") %obj->ID %obj->subID %pos));
 	
@@ -1112,7 +1114,7 @@ void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance*
 
 	if (object->appearance.id == Obj::NO_OBJ)
 	{
-		auto templates = VLC->dobjinfo->pickCandidates(object->ID, object->subID, gen->map->getTile(pos).terType);
+		auto templates = VLC->objtypeh->getHandlerFor(object->ID, object->subID)->getTemplates(gen->map->getTile(pos).terType);
 		if (templates.empty())
 			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") %object->ID %object->subID %pos));
 	

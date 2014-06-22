@@ -112,7 +112,6 @@ public:
 	std::vector<std::string> victoryConditions;
 
 	//objects
-	std::vector<std::string> names; //vector of objects; i-th object in vector has subnumber i
 	std::vector<std::string> creGens; //names of creatures' generators
 	std::vector<std::string> creGens4; //names of multiple creatures' generators
 	std::vector<std::string> advobtxt;

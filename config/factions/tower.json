@@ -66,11 +66,13 @@
 		},
 		"town" :
 		{
-			"adventureMap" :
+			"mapObject" :
 			{
-				"castle" : "AVCtowx0.def",
-				"village" : "AVCTOWR0.DEF",
-				"capitol" : "AVCTOWZ0.DEF"
+				"templates" : {
+					"castle" :  { "animation" : "AVCtowx0.def" },
+					"village" : { "animation" : "AVCTOWR0.DEF" },
+					"capitol" : { "animation" : "AVCTOWZ0.DEF" }
+				}
 			},
 			"structures" :
 			{

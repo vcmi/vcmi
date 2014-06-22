@@ -3,18 +3,10 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI map object template format",
 	"description" : "Description of map object tempate that describes appearence of object instance",
-	"required": ["basebase", "base", "animation", "mask" ],
+	"required": [ "animation", "mask" ],
 
 	"additionalProperties" : false,
 	"properties":{
-		"basebase": {
-			"type" : "number",
-			"description": "Base object type, e.g. town or hero"
-		},
-		"base": {
-			"type" : "number",
-			"description": "Object subtype, e.g. Castle, Rampart, Cleric, Demon"
-		},
 		"animation": {
 			"type" : "string",
 			"description": "Path to def file with animation of this object",

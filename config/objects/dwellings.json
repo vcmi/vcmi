@@ -1,0 +1,126 @@
+{
+	"creatureGeneratorCommon" : {
+		"index" :17,
+		"handler": "dwelling",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "---", "+++", "+++" ],
+				"mask" : [ "VVV", "VBB", "VAA" ]
+			}
+		},
+		"types" : {
+			"basiliskPit" :      { "index" : 0,  "creatures" :  [ [ "basilisk" ] ] },
+			"behemothCrag" :     { "index" : 1,  "creatures" :  [ [ "behemoth" ] ], "guards" : true },
+			"pillarOfEyes" :     { "index" : 2,  "creatures" :  [ [ "beholder" ] ] },
+			"hallOfDarkness" :   { "index" : 3,  "creatures" :  [ [ "blackKnight" ] ], "guards" : true },
+			"dragonVault" :      { "index" : 4,  "creatures" :  [ [ "boneDragon" ] ], "guards" : true },
+			"trainingGrounds" :  { "index" : 5,  "creatures" :  [ [ "cavalier" ] ], "guards" : true },
+			"centaurStables" :   { "index" : 6,  "creatures" :  [ [ "centaur" ] ] },
+			"airConflux" :       { "index" : 7,  "creatures" :  [ [ "airElemental" ] ] },
+			"portalOfGlory" :    { "index" : 8,  "creatures" :  [ [ "angel" ] ], "guards" : true },
+			"cyclopsCave" :      { "index" : 9,  "creatures" :  [ [ "cyclop" ] ], "guards" : true },
+			"forsakenPalace" :   { "index" : 10, "creatures" : [ [ "devil" ] ], "guards" : true },
+			"serpentFlyHive" :   { "index" : 11, "creatures" : [ [ "serpentFly" ] ] },
+			"dwarfCottage" :     { "index" : 12, "creatures" : [ [ "dwarf" ] ] },
+			"earthConflux" :     { "index" : 13, "creatures" : [ [ "earthElemental" ] ], "guards" : true },
+			"fireLake" :         { "index" : 14, "creatures" : [ [ "efreet" ] ], "guards" : true },
+			"homestead" :        { "index" : 15, "creatures" : [ [ "woodElf" ] ] },
+			"fireConflux" :      { "index" : 16, "creatures" : [ [ "fireElemental" ] ] },
+			"parapet" :          { "index" : 17, "creatures" : [ [ "stoneGargoyle" ] ] },
+			"altarOfWishes" :    { "index" : 18, "creatures" : [ [ "genie" ] ], "guards" : true },
+			"wolfPen" :          { "index" : 19, "creatures" : [ [ "goblinWolfRider" ] ] },
+			"gnollHut" :         { "index" : 20, "creatures" : [ [ "gnoll" ] ] },
+			"goblinBarracks" :   { "index" : 21, "creatures" : [ [ "goblin" ] ] },
+			"hallOfSins" :       { "index" : 22, "creatures" : [ [ "gog" ] ] },
+			"gorgonLair" :       { "index" : 23, "creatures" : [ [ "gorgon" ] ], "guards" : true },
+			"dragonCliffs" :     { "index" : 24, "creatures" : [ [ "greenDragon" ] ], "guards" : true },
+			"griffinTower" :     { "index" : 25, "creatures" : [ [ "griffin" ] ] },
+			"harpyLoft" :        { "index" : 26, "creatures" : [ [ "harpy" ] ] },
+			"kennels" :          { "index" : 27, "creatures" : [ [ "hellHound" ] ] },
+			"hydraPond" :        { "index" : 28, "creatures" : [ [ "hydra" ] ], "guards" : true },
+			"impCrucible" :      { "index" : 29, "creatures" : [ [ "imp" ] ] },
+			"lizardDen" :        { "index" : 30, "creatures" : [ [ "lizardman" ] ] },
+			"mageTower" :        { "index" : 31, "creatures" : [ [ "mage" ] ] },
+			"manticoreLair" :    { "index" : 32, "creatures" : [ [ "manticore" ] ], "guards" : true },
+			"medusaChapel" :     { "index" : 33, "creatures" : [ [ "medusa" ] ] },
+			"labyrinth" :        { "index" : 34, "creatures" : [ [ "minotaur" ] ], "guards" : true },
+			"monastery" :        { "index" : 35, "creatures" : [ [ "monk" ] ], "guards" : true },
+			"goldenPavilion" :   { "index" : 36, "creatures" : [ [ "naga" ] ], "guards" : true },
+			"demonGate" :        { "index" : 37, "creatures" : [ [ "demon" ] ] },
+			"ogreFort" :         { "index" : 38, "creatures" : [ [ "ogre" ] ] },
+			"orcTower" :         { "index" : 39, "creatures" : [ [ "orc" ] ] },
+			"hellHole" :         { "index" : 40, "creatures" : [ [ "pitFiend" ] ], "guards" : true },
+			"dragonCave" :       { "index" : 41, "creatures" : [ [ "redDragon" ] ], "guards" : true },
+			"cliffNest" :        { "index" : 42, "creatures" : [ [ "roc" ] ], "guards" : true },
+			"workshop" :         { "index" : 43, "creatures" : [ [ "gremlin" ] ] },
+			"cloudTemple" :      { "index" : 44, "creatures" : [ [ "giant" ] ], "guards" : true },
+			"dendroidArches" :   { "index" : 45, "creatures" : [ [ "dendroidGuard" ] ], "guards" : true },
+			"warren" :           { "index" : 46, "creatures" : [ [ "troglodyte" ] ] },
+			"waterConflux" :     { "index" : 47, "creatures" : [ [ "waterElemental" ] ] },
+			"tombOfSouls" :      { "index" : 48, "creatures" : [ [ "wight" ] ] },
+			"wyvernNest" :       { "index" : 49, "creatures" : [ [ "wyvern" ] ], "guards" : true },
+			"enchantedSpring" :  { "index" : 50, "creatures" : [ [ "pegasus" ] ] },
+			"unicornGladeBig" :  { "index" : 51, "creatures" : [ [ "unicorn" ] ], "guards" : true },
+			"mausoleum" :        { "index" : 52, "creatures" : [ [ "lich" ] ], "guards" : true },
+			"estate" :           { "index" : 53, "creatures" : [ [ "vampire" ] ] },
+			"cursedTemple" :     { "index" : 54, "creatures" : [ [ "skeleton" ] ] },
+			"graveyard" :        { "index" : 55, "creatures" : [ [ "walkingDead" ] ] },
+			"guardhouse" :       { "index" : 56, "creatures" : [ [ "pikeman" ] ] },
+			"archersTower" :     { "index" : 57, "creatures" : [ [ "archer" ] ] },
+			"barracks" :         { "index" : 58, "creatures" : [ [ "swordsman" ] ] },
+			"magicLantern" :     { "index" : 59, "creatures" : [ [ "pixie" ] ] },
+			"altarOfThought" :   { "index" : 60, "creatures" : [ [ "psychicElemental" ] ], "guards" : true },
+			"pyre" :             { "index" : 61, "creatures" : [ [ "firebird" ] ], "guards" : true },
+			"frozenCliffs" :     { "index" : 62, "creatures" : [ [ "azureDragon" ] ], "guards" : true },
+			"crystalCavern" :    { "index" : 63, "creatures" : [ [ "crystalDragon" ] ], "guards" : true },
+			"magicForest" :      { "index" : 64, "creatures" : [ [ "fairieDragon" ] ], "guards" : true },
+			"sulfurousLair" :    { "index" : 65, "creatures" : [ [ "rustDragon" ] ], "guards" : true },
+			"enchantersHollow" : { "index" : 66, "creatures" : [ [ "enchanter" ] ], "guards" : true },
+			"treetopTower" :     { "index" : 67, "creatures" : [ [ "sharpshooter" ] ], "guards" : true },
+			"unicornGlade" :     { "index" : 68, "creatures" : [ [ "unicorn" ] ], "guards" : true },
+			"altarOfAir" :       { "index" : 69, "creatures" : [ [ "airElemental" ] ] },
+			"altarOfEarth" :     { "index" : 70, "creatures" : [ [ "earthElemental" ] ], "guards" : true },
+			"altarOfFire" :      { "index" : 71, "creatures" : [ [ "fireElemental" ] ] },
+			"altarOfWater" :     { "index" : 72, "creatures" : [ [ "waterElemental" ] ] },
+			"thatchedHut" :      { "index" : 73, "creatures" : [ [ "halfling" ] ] },
+			"hovel" :            { "index" : 74, "creatures" : [ [ "peasant" ] ] },
+			"boarGlen" :         { "index" : 75, "creatures" : [ [ "boar" ] ] },
+			"tombOfCurses" :     { "index" : 76, "creatures" : [ [ "mummy" ] ] },
+			"nomadTent" :        { "index" : 77, "creatures" : [ [ "nomad" ] ] },
+			"rogueCavern" :      { "index" : 78, "creatures" : [ [ "rogue" ] ] },
+			"trollBridge" :      { "index" : 79, "creatures" : [ [ "troll" ] ], "guards" : true }
+		}
+	},
+	// subtype: unique special dwellings - golem factory and elemental conflux
+	"creatureGeneratorSpecial" : {
+		"index" :20,
+		"handler": "dwelling",
+		"types" : {
+			"elementalConflux" : {
+				"index" : 0,
+				"creatures" : [ // 4 separate "levels" to give them separate growth
+					[ "airElemental" ],
+					[ "waterElemental" ],
+					[ "fireElemental" ],
+					[ "earthElemental" ]
+				],
+				"guards" : [
+					{ "amount" : 12, "type" : "earthElemental" }
+				]
+			},
+			"golemFactory" : {
+				"index" : 1,
+				"creatures" : [ // 4 separate "levels" to give them separate growth
+					[ "ironGolem" ],
+					[ "stoneGolem" ],
+					[ "goldGolem" ],
+					[ "diamondGolem" ]
+				],
+				"guards" : [
+					{ "amount" : 9, "type" : "goldGolem" },
+					{ "amount" : 6, "type" : "diamondGolem" }
+				]
+			}
+		}
+	},
+}

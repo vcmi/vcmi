@@ -108,19 +108,14 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & meta;
-		// simple saving - save json in its string interpretation
-		if (h.saving)
-		{
-			std::ostringstream stream;
-			stream << *this;
-			std::string str = stream.str();
-			h & str;
-		}
-		else
-		{
-			std::string str;
-			h & str;
-			JsonNode(str.c_str(), str.size()).swap(*this);
+		h & type;
+		switch (type) {
+			break; case DATA_NULL:
+			break; case DATA_BOOL:   h & data.Bool;
+			break; case DATA_FLOAT:  h & data.Float;
+			break; case DATA_STRING: h & data.String;
+			break; case DATA_VECTOR: h & data.Vector;
+			break; case DATA_STRUCT: h & data.Struct;
 		}
 	}
 };

@@ -1,0 +1,208 @@
+{
+	/// These are objects that have subtypes that change various aspects of their mechanics
+	/// Should be made configurable (either directly or via other parts of modding system ASAP)
+	/// Editing these objects either directly or via mod may have negative effect on game since they are handled by engine
+	
+	// subtype: artifact ID
+	"artifact" : {
+		"index" :5, 
+		"handler": "artifact",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VV", "VA"]
+			}
+		}
+	},
+	
+	// subtype: hero CLASS (not hero).
+	"hero" : {
+		"index" :34,
+		"handler": "hero",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VV", "AV"]
+			}
+		}
+	},
+	
+	// subtype: creatures
+	"monster" : {
+		"index" :54,
+		"handler": "monster",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VV", "VA"]
+			}
+		}
+	},
+
+	// subtype: resource ID
+	"resource" : {
+		"index" :79,
+		"handler": "resource",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VA" ]
+			}
+		},
+		"types" : {
+			"wood" :    { "index" : 0, "templates" : { "res" : { "animation" : "AVTwood0.def" } } },
+			"mercury" : { "index" : 1, "templates" : { "res" : { "animation" : "AVTmerc0.def" } } },
+			"ore" :     { "index" : 2, "templates" : { "res" : { "animation" : "AVTore0.def"  } } },
+			"sulfur" :  { "index" : 3, "templates" : { "res" : { "animation" : "AVTsulf0.def" } } },
+			"crystal" : { "index" : 4, "templates" : { "res" : { "animation" : "AVTcrys0.def" } } },
+			"gems" :    { "index" : 5, "templates" : { "res" : { "animation" : "AVTgems0.def" } } },
+			"gold" :    { "index" : 6, "templates" : { "res" : { "animation" : "AVTgold0.def" } } },
+			"mithril" : { "index" : 7 } // TODO: move to WoG?
+		}
+	},
+	
+	// subtype: faction
+	"town" : {
+		"index" :98,
+		"handler": "town",
+		"base" : {
+			"filters" : {
+				// village image - fort not present
+				"village" : [ "noneOf", [ "fort" ] ],
+				// fort image - fort is here but not capitol
+				"fort" : [ "allOf", [ "fort" ], [ "noneOf", ["capitol" ] ] ],
+				// capitol image only when capitol is built
+				"capitol" : [ "capitol" ]
+			},
+			
+			// "faction" : "stringID", // should be set by engine
+			"base" : {
+				"visitableFrom" : [ "---", "+++", "+++" ],
+				"mask" : [
+					"VVVVVV", // a LOT of just visible rows due to towns like Tower
+					"VVVVVV",
+					"VVVVVV",
+					"VVBBBV",
+					"VBBBBB",
+					"VBBABB"
+				]
+			}
+		}
+	},
+
+	// subtype: one of 3 possible boats
+	"boat" : {
+		"index" :8,
+		"handler": "boat",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VVV", "VAV" ]
+			}
+		},
+		"types" : {
+			"evil" : { "index" : 0 },
+			"good" : { "index" : 1 },
+			"neutral" : { "index" : 2 },
+		}
+	},
+
+	// subtype: color of guard
+	"borderGuard" : {
+		"index" :9,
+		"handler": "borderGuard",
+		"types" : {
+			"lblue" :  { "index" : 0 },
+			"green" :  { "index" : 1 },
+			"red" :    { "index" : 2 },
+			"dblue" :  { "index" : 3 },
+			"brown" :  { "index" : 4 },
+			"purple" : { "index" : 5 },
+			"white" :  { "index" : 6 },
+			"black" :  { "index" : 7 }
+		}
+	},
+	"borderGate" : {
+		"index" :212,
+		"handler": "borderGate",
+		"types" : {
+			"lblue" :  { "index" : 0 },
+			"green" :  { "index" : 1 },
+			"red" :    { "index" : 2 },
+			"dblue" :  { "index" : 3 },
+			"brown" :  { "index" : 4 },
+			"purple" : { "index" : 5 },
+			"white" :  { "index" : 6 },
+			"black" :  { "index" : 7 }
+		}
+	},
+	"keymasterTent" : {
+		"index" :10,
+		"handler": "keymaster",
+		"types" : {
+			"lblue" :  { "index" : 0 },
+			"green" :  { "index" : 1 },
+			"red" :    { "index" : 2 },
+			"dblue" :  { "index" : 3 },
+			"brown" :  { "index" : 4 },
+			"purple" : { "index" : 5 },
+			"white" :  { "index" : 6 },
+			"black" :  { "index" : 7 }
+		}
+	},
+
+	// subtype: different revealed areas
+	"cartographer" : {
+		"index" :13,
+		"handler": "cartographer",
+		"types" : {
+			"water" : { "index" : 0 },
+			"land" : { "index" : 1 },
+			"subterra" : { "index" : 2 }
+		}
+	},
+
+	// subtype: resource ID
+	"mine" : {
+		"index" :53,
+		"handler": "mine",
+		"types" : {
+			"sawmill" :       { "index" : 0 },
+			"alchemistLab" :  { "index" : 1 },
+			"orePit" :        { "index" : 2 },
+			"sulfurDune" :    { "index" : 3 },
+			"crystalCavern" : { "index" : 4 },
+			"gemPond" :       { "index" : 5 },
+			"goldMine" :      { "index" : 6 },
+		}
+	},
+	"abandonedMine" : {
+		"index" :220, 
+		"handler": "mine",
+		"types" : {
+			"mine" : { "index" : 7 }
+		}
+	},
+
+	// subtype: 0 = normal, 1 = anti-magic
+	"garrisonHorizontal"			: { "index" :33, "handler": "garrison" },
+	"garrisonVertical"				: { "index" :219, "handler": "garrison" },
+
+	// Subtype: paired monoliths
+	"monolithOneWayEntrance"		: { "index" :43, "handler": "teleport" },
+	"monolithOneWayExit"			: { "index" :44, "handler": "teleport" },
+	"monolithTwoWay"				: { "index" :45, "handler": "teleport" },
+
+	// subtype: different appearance. That's all?
+	"seerHut" : { "index" :83, "handler": "seerHut" },
+
+	// subtype: level
+	"randomDwellingLvl"				: { "index" :217, "handler": "dwelling" },
+	
+	// subtype: faction ID
+	"randomDwellingFaction"			: { "index" :218, "handler": "dwelling" },
+
+	// don't have subtypes (at least now), but closely connected to this objects
+	"spellScroll"					: { "index" :93, "handler": "artifact" },
+	"heroPlaceholder"				: { "index" :214, "handler": "heroPlaceholder" }
+}

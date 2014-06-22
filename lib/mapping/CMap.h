@@ -12,7 +12,9 @@
 #pragma once
 
 #include "../ConstTransitivePtr.h"
-#include "../CObjectHandler.h"
+#include "../mapObjects/MiscObjects.h" // To serialize static props
+#include "../mapObjects/CQuest.h" // To serialize static props
+#include "../mapObjects/CGTownInstance.h" // To serialize static props
 #include "../ResourceSet.h"
 #include "../int3.h"
 #include "../GameConstants.h"

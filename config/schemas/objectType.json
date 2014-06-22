@@ -1,0 +1,27 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI map object type format",
+	"description" : "Description of map object type, used only as sub-schema of object",
+	"required": [ ],
+	"additionalProperties" : true, // may have type-dependant properties
+
+	"properties":{
+		"index": {
+			"type":"number",
+		},
+		"name": {
+			"type":"string",
+		},
+
+		"base": {
+			"type" : "object"
+		},
+		"templates": {
+			"type":"object",
+			"additionalProperties": {
+				"$ref" : "vcmi:objectTemplate"
+			}
+		}
+	}
+}

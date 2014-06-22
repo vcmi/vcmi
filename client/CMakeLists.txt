@@ -48,8 +48,6 @@ set(client_SRCS
 )
 
 set(client_HEADERS
-		CSoundBase.h
-
 		gui/SDL_Pixels.h
 )
 
