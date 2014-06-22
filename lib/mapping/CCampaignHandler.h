@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../Global.h"
 #include "../../lib/GameConstants.h"
 
 /*

@@ -16,10 +16,12 @@
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
 #include "CSpellHandler.h"
-#include "CObjectHandler.h"
+#include "mapObjects/MapObjects.h"
 #include "NetPacksBase.h"
 #include "GameConstants.h"
 #include "CRandomGenerator.h"
+
+#include "mapObjects/CObjectClassesHandler.h"
 
 using namespace boost::assign;
 
@@ -260,12 +262,21 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node)
 	return art;
 }
 
-void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
+ArtifactPosition CArtHandler::stringToSlot(std::string slotName)
 {
 #define ART_POS(x) ( #x, ArtifactPosition::x )
 	static const std::map<std::string, ArtifactPosition> artifactPositionMap = boost::assign::map_list_of ART_POS_LIST;
 #undef ART_POS
+	auto it = artifactPositionMap.find (slotName);
+	if (it != artifactPositionMap.end())
+		return it->second;
 
+	logGlobal->warnStream() << "Warning! Artifact slot " << slotName << " not recognized!";
+	return ArtifactPosition::PRE_FIRST;
+}
+
+void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
+{
 	if (slotID == "MISC")
 	{
 		art->possibleSlots[ArtBearer::HERO] += ArtifactPosition::MISC1, ArtifactPosition::MISC2, ArtifactPosition::MISC3, ArtifactPosition::MISC4, ArtifactPosition::MISC5;
@@ -276,14 +287,9 @@ void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
 	}
 	else
 	{
-		auto it = artifactPositionMap.find (slotID);
-		if (it != artifactPositionMap.end())
-		{
-			auto slot = it->second;
+		auto slot = stringToSlot(slotID);
+		if (slot != ArtifactPosition::PRE_FIRST)
 			art->possibleSlots[ArtBearer::HERO].push_back (slot);
-		}
-		else
-            logGlobal->warnStream() << "Warning! Artifact slot " << slotID << " not recognized!";
 	}
 }
 
@@ -301,7 +307,7 @@ void CArtHandler::loadSlots(CArtifact * art, const JsonNode & node)
 	}
 }
 
-void CArtHandler::loadClass(CArtifact * art, const JsonNode & node)
+CArtifact::EartClass CArtHandler::stringToClass(std::string className)
 {
 	static const std::map<std::string, CArtifact::EartClass> artifactClassMap = boost::assign::map_list_of
 		("TREASURE", CArtifact::ART_TREASURE)
@@ -310,16 +316,17 @@ void CArtHandler::loadClass(CArtifact * art, const JsonNode & node)
 		("RELIC", CArtifact::ART_RELIC)
 		("SPECIAL", CArtifact::ART_SPECIAL);
 
-	auto it = artifactClassMap.find (node["class"].String());
+	auto it = artifactClassMap.find (className);
 	if (it != artifactClassMap.end())
-	{
-		art->aClass = it->second;
-	}
-	else
-	{
-        logGlobal->warnStream() << "Warning! Artifact rarity " << node["class"].String() << " not recognized!";
-		art->aClass = CArtifact::ART_SPECIAL;
-	}
+		return it->second;
+
+	logGlobal->warnStream() << "Warning! Artifact rarity " << className << " not recognized!";
+	return CArtifact::ART_SPECIAL;
+}
+
+void CArtHandler::loadClass(CArtifact * art, const JsonNode & node)
+{
+	art->aClass = stringToClass(node["class"].String());
 }
 
 void CArtHandler::loadType(CArtifact * art, const JsonNode & node)
@@ -422,7 +429,7 @@ CreatureID CArtHandler::machineIDToCreature(ArtifactID id)
 	return CreatureID::NONE; //this artifact is not a creature
 }
 
-ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags)
+ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts)
 {
 	auto getAllowedArts = [&](std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, CArtifact::EartClass flag)
 	{
@@ -431,8 +438,11 @@ ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags)
 
 		for (auto & arts_i : *arts)
 		{
-			CArtifact *art = arts_i;
-			out.push_back(art);
+			if (accepts(arts_i->id))
+			{
+				CArtifact *art = arts_i;
+				out.push_back(art);
+			}
 		}
 	};
 
@@ -465,6 +475,16 @@ ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags)
 	ArtifactID artID = (*RandomGeneratorUtil::nextItem(out, rand))->id;
 	erasePickedArt(artID);
 	return artID;
+}
+
+ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts)
+{
+	return pickRandomArtifact(rand, 0xff, accepts);
+}
+
+ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags)
+{
+	return pickRandomArtifact(rand, flags, [](ArtifactID){ return true;});
 }
 
 Bonus *createBonus(Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalInfo = 0)
@@ -647,20 +667,22 @@ void CArtHandler::afterLoadFinalization()
 		}
 	}
 
-	//Note: "10" is used here because H3 text files don't define any template for art with ID 0
-	ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::ARTIFACT, 10).front();
 	for (CArtifact * art : artifacts)
 	{
+		VLC->objtypeh->loadSubObject(art->Name(), JsonNode(), Obj::ARTIFACT, art->id.num);
+
 		if (!art->advMapDef.empty())
 		{
-			base.animationFile = art->advMapDef;
-			base.subid = art->id;
+			JsonNode templ;
+			templ["animation"].String() = art->advMapDef;
 
-			// replace existing (if any) and add new template.
+			// add new template.
 			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->dobjinfo->eraseAll(Obj::ARTIFACT, art->id);
-			VLC->dobjinfo->registerTemplate(base);
+			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->id)->addTemplate(templ);
 		}
+		// object does not have any templates - this is not usable object (e.g. pseudo-art like lock)
+		if (VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->id)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, art->id);
 	}
 }
 

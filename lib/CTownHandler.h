@@ -190,10 +190,6 @@ public:
 		/// NOTE: index in vector is meaningless. Vector used instead of list for a bit faster access
 		std::vector<ConstTransitivePtr<CStructure> > structures;
 
-		std::string advMapVillage;
-		std::string advMapCastle;
-		std::string advMapCapitol;
-
 		std::string siegePrefix;
 		std::vector<Point> siegePositions;
 		CreatureID siegeShooter; // shooter creature ID
@@ -201,7 +197,7 @@ public:
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & icons & iconSmall & iconLarge & tavernVideo & musicTheme & townBackground & guildBackground & guildWindow & buildingsIcons & hallBackground;
-			h & advMapVillage & advMapCastle & advMapCapitol & hallSlots & structures;
+			h & hallSlots & structures;
 			h & siegePrefix & siegePositions & siegeShooter;
 		}
 	} clientInfo;

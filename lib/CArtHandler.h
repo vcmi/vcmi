@@ -203,11 +203,17 @@ public:
 
 	boost::optional<std::vector<CArtifact*>&> listFromClass(CArtifact::EartClass artifactClass);
 
+	ArtifactPosition stringToSlot(std::string slotName);
+	CArtifact::EartClass stringToClass(std::string className);
+
 	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
 	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags);
+	ArtifactID pickRandomArtifact(CRandomGenerator & rand, std::function<bool(ArtifactID)> accepts);
+	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts);
+
 	bool legalArtifact(ArtifactID id);
-	void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
-	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
+	//void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
+	//void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
 	bool isBigArtifact (ArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
 	void initAllowedArtifactsList(const std::vector<bool> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static ArtifactID creatureToMachineID(CreatureID id);

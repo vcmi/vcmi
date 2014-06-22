@@ -66,11 +66,13 @@
 		},
 		"town" :
 		{
-			"adventureMap" :
+			"mapObject" :
 			{
-				"castle" : "avchforx.def",
-				"village" : "AVCHFOR0.DEF",
-				"capitol" : "AVCHFORZ.DEF"
+				"templates" : {
+					"castle" :  { "animation" : "avchforx.def" },
+					"village" : { "animation" : "AVCHFOR0.DEF" },
+					"capitol" : { "animation" : "AVCHFORZ.DEF" }
+				}
 			},
 			"structures" :
 			{

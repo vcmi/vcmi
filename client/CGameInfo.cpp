@@ -31,5 +31,5 @@ void CGameInfo::setFromLib()
 	heroh = VLC->heroh;
 	objh = VLC->objh;
 	spellh = VLC->spellh;
-	dobjinfo = VLC->dobjinfo;
+	objtypeh = VLC->objtypeh;
 }

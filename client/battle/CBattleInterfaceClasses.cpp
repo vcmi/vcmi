@@ -16,7 +16,6 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CObjectHandler.h"
 #include "../../lib/BattleState.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"

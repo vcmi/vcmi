@@ -23,7 +23,7 @@ class CBuildingHandler;
 class CObjectHandler;
 class CSoundHandler;
 class CMusicHandler;
-class CDefObjInfoHandler;
+class CObjectClassesHandler;
 class CTownHandler;
 class CGeneralTextHandler;
 class CConsoleHandler;
@@ -57,11 +57,10 @@ public:
 	ConstTransitivePtr<CCreatureHandler> creh;
 	ConstTransitivePtr<CSpellHandler> spellh;
 	ConstTransitivePtr<CObjectHandler> objh;
-	ConstTransitivePtr<CDefObjInfoHandler> dobjinfo;
+	ConstTransitivePtr<CObjectClassesHandler> objtypeh;
 	CGeneralTextHandler * generaltexth;
 	CMapHandler * mh;
 	CTownHandler * townh;
-	//CTownHandler * townh;
 
 	void setFromLib();
 

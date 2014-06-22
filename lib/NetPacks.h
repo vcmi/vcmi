@@ -1,11 +1,10 @@
 #pragma once
 
-#include <boost/variant.hpp>
-
 #include "NetPacksBase.h"
 
 #include "BattleAction.h"
 #include "HeroBonus.h"
+#include "mapObjects/CGHeroInstance.h"
 #include "CCreatureSet.h"
 #include "mapping/CMapInfo.h"
 #include "StartInfo.h"
@@ -1022,11 +1021,10 @@ namespace ObjProperty
 		BONUS_VALUE_FIRST, BONUS_VALUE_SECOND, //used in Rampart for special building that generates resources (storing resource type and quantity)
 
 		//creature-bank specific
-		BANK_DAYCOUNTER, BANK_CLEAR_ARTIFACTS, BANK_ADD_ARTIFACT, BANK_MULTIPLIER, BANK_CONFIG_PRESET, 
-		BANK_CLEAR_CONFIG, BANK_INIT_ARMY, BANK_RESET,
+		BANK_DAYCOUNTER, BANK_RESET, BANK_CLEAR,
 
-		//magic spring
-		LEFT_VISITED, RIGHT_VISITED, LEFTRIGHT_CLEAR
+		//object with reward
+		REWARD_RESET, REWARD_SELECT
 	};
 }
 
@@ -1036,7 +1034,7 @@ struct SetObjectProperty : public CPackForClient//1001
 	void applyCl(CClient *cl);
 
 	ObjectInstanceID id;
-	ui8 what; //1 - owner; 2 - blockvis; 3 - first stack count; 4 - visitors; 5 - visited; 6 - ID (if 34 then also def is replaced)
+	ui8 what; // see ObjProperty enum
 	ui32 val;
 	SetObjectProperty(){type = 1001;};
 	SetObjectProperty(ObjectInstanceID ID, ui8 What, ui32 Val):id(ID),what(What),val(Val){type = 1001;};
@@ -1053,14 +1051,44 @@ struct SetHoverName : public CPackForClient//1002
 
 	ObjectInstanceID id;
 	MetaString name;
-	SetHoverName(){type = 1002;};
-	SetHoverName(ObjectInstanceID ID, MetaString& Name):id(ID),name(Name){type = 1002;};
+	SetHoverName(){type = 1002;}
+	SetHoverName(ObjectInstanceID ID, MetaString& Name):id(ID),name(Name){type = 1002;}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & id & name;
 	}
 };
+
+struct ChangeObjectVisitors : public CPackForClient // 1003
+{
+	enum VisitMode
+	{
+		VISITOR_ADD,    // mark hero as one that have visited this object
+		VISITOR_REMOVE, // unmark visitor, reversed to ADD
+		VISITOR_CLEAR   // clear all visitors from this object (object reset)
+	};
+	ui32 mode; // uses VisitMode enum
+	ObjectInstanceID object;
+	ObjectInstanceID hero; // note: hero owner will be also marked as "visited" this object
+
+	DLL_LINKAGE void applyGs(CGameState *gs);
+
+	ChangeObjectVisitors()
+	{ type = 1003; }
+
+	ChangeObjectVisitors(ui32 mode, ObjectInstanceID object, ObjectInstanceID heroID = ObjectInstanceID(-1)):
+		mode(mode),
+		object(object),
+		hero(heroID)
+	{ type = 1003; }
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & object & hero & mode;
+	}
+};
+
 struct HeroLevelUp : public Query//2000
 {
 	void applyCl(CClient *cl);

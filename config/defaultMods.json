@@ -8,7 +8,8 @@
 		"creature"   : 150,
 		"faction"    : 9,
 		"hero"       : 156,
-                "spell"      : 81,
+		"spell"      : 81,
+		"object"     : 256,
 		"mapVersion" : 28 // max supported version, SoD
 	},
 

@@ -8,7 +8,6 @@
 #include "../lib/Connection.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"
-#include "../lib/CDefObjInfoHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
@@ -26,7 +25,6 @@
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
 #include "../lib/mapping/CMapInfo.h"
-#include "../lib/CObjectHandler.h"
 #include "../lib/GameConstants.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
@@ -109,7 +107,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 				while(state == RUNNING) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 			}
 		}
-	} 
+	}
 	catch (const std::exception& e)
 	{
 		boost::unique_lock<boost::recursive_mutex> queueLock(mx);

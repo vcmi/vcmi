@@ -20,7 +20,7 @@
 #include "CDefHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CObjectHandler.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/NetPacksBase.h"
 
 #include "gui/CGuiHandler.h"
