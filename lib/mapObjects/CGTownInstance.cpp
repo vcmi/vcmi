@@ -10,10 +10,10 @@
 
 #include "StdInc.h"
 #include "CGTownInstance.h"
+#include "CObjectClassesHandler.h"
 
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
-#include "../mapObjects/CObjectClassesHandler.h"
 
 using namespace boost::assign;
 

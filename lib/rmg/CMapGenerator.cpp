@@ -237,7 +237,7 @@ void CMapGenerator::createConnections()
 		int3 guardPos(-1,-1,-1);
 
 		auto otherZoneTiles = zoneB->getTileInfo();
-		auto otherZoneCenter = zoneB->getPos();
+		//auto otherZoneCenter = zoneB->getPos();
 
 		for (auto tile : tiles)
 		{

@@ -20,6 +20,8 @@
 #include "../CSpellHandler.h" //for choosing random spells
 
 #include "../mapObjects/CObjectClassesHandler.h"
+#include "../mapObjects/CGPandoraBox.h"
+#include "../mapObjects/CRewardableObject.h"
 
 class CMap;
 class CMapEditManager;
@@ -122,9 +124,16 @@ void CTileInfo::setTerrainType(ETerrainType value)
 	terrain = value;
 }
 
-CRmgTemplateZone::CRmgTemplateZone() : id(0), type(ETemplateZoneType::PLAYER_START), size(1),
-	terrainType (ETerrainType::GRASS), townType(0), townsAreSameType(false), matchTerrainToTown(true), totalDensity(0),
-	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL)
+CRmgTemplateZone::CRmgTemplateZone() :
+	id(0),
+	type(ETemplateZoneType::PLAYER_START),
+	size(1),
+	townsAreSameType(false),
+	matchTerrainToTown(true),
+	townType(0),
+	terrainType (ETerrainType::GRASS),
+	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
+	totalDensity(0)
 {
 	townTypes = getDefaultTownTypes();
 	terrainTypes = getDefaultTerrainTypes();
@@ -370,7 +379,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	{
 		if (gen->isFree(tile))
 			clearedTiles.push_back(tile);
-		else if (gen->isPossible(tile));
+		else if (gen->isPossible(tile))
 			possibleTiles.insert(tile);
 	}
 	if (clearedTiles.empty()) //this should come from zone connections
@@ -1032,8 +1041,8 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 	//si32 min_dist = sqrt(tileinfo.size()/density);
 	int best_distance = 0;
 	bool result = false;
-	si32 w = gen->map->width;
-	si32 h = gen->map->height; 
+	//si32 w = gen->map->width;
+	//si32 h = gen->map->height;
 
 	//logGlobal->infoStream() << boost::format("Min dist for density %f is %d") % density % min_dist;
 
@@ -1265,6 +1274,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, ui32 value)
 		if (r <= t.first)
 			return t.second;
 	}
+	//FIXME: control reaches end of non-void function. Missing return?
 }
 
 void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
