@@ -308,32 +308,31 @@ void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const
 	ret->resources = TResources(source["cost"]);
 	ret->produce =   TResources(source["produce"]);
 
-	//for compatibility with older town mods
+	//MODS COMPATIBILITY FOR 0.96
 	if(!ret->produce.nonZero())
 	{
-	if (ret->bid == BuildingID::VILLAGE_HALL) ret->produce[Res::GOLD] = 500;
-
-	if (ret->bid == BuildingID::TOWN_HALL) ret->produce[Res::GOLD] = 1000;
-
-	if (ret->bid == BuildingID::CITY_HALL) ret->produce[Res::GOLD] = 2000;
-
-	if (ret->bid == BuildingID::CAPITOL) ret->produce[Res::GOLD] = 4000;
-
-	if (ret->bid == BuildingID::GRAIL) ret->produce[Res::GOLD] = 5000;
-	//
-	if (ret->bid == BuildingID::RESOURCE_SILO)
-		{
-		if ((ret->town->primaryRes != Res::WOOD) && (ret->town->primaryRes != Res::ORE) && (ret->town->primaryRes != Res::GOLD))
-			ret->produce[ret->town->primaryRes] = 1;
-		else
-		{
-			if (ret->town->primaryRes == Res::GOLD) ret->produce[ret->town->primaryRes] = 500;
-			else
+		switch (ret->bid) {
+			break; case BuildingID::VILLAGE_HALL: ret->produce[Res::GOLD] = 500;
+			break; case BuildingID::TOWN_HALL :   ret->produce[Res::GOLD] = 1000;
+			break; case BuildingID::CITY_HALL :   ret->produce[Res::GOLD] = 2000;
+			break; case BuildingID::CAPITOL :     ret->produce[Res::GOLD] = 4000;
+			break; case BuildingID::GRAIL :       ret->produce[Res::GOLD] = 5000;
+			break; case BuildingID::RESOURCE_SILO :
 			{
-				ret->produce[Res::WOOD] = 1;
-				ret->produce[Res::ORE] = 1;
+				switch (ret->town->primaryRes)
+				{
+					case Res::GOLD:
+						ret->produce[ret->town->primaryRes] = 500;
+						break;
+					case Res::WOOD_AND_ORE:
+						ret->produce[Res::WOOD] = 1;
+						ret->produce[Res::ORE] = 1;
+						break;
+					default:
+						ret->produce[ret->town->primaryRes] = 1;
+						break;
+				}
 			}
-		}
 		}
 	}
 
