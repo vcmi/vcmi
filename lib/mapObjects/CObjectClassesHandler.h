@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "ObjectTemplate.h"
 
@@ -93,7 +93,7 @@ public:
 
 class CGObjectInstance;
 
-class AObjectTypeHandler : public boost::noncopyable
+class DLL_EXPORT AObjectTypeHandler : public boost::noncopyable
 {
 	RandomMapInfo rmgInfo;
 

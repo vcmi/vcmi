@@ -1,4 +1,4 @@
-/*
+﻿/*
  *
  * CGMarket.cpp, part of VCMI engine
  *

@@ -20,6 +20,9 @@
 #include "../CSpellHandler.h" //for choosing random spells
 
 #include "../mapObjects/CObjectClassesHandler.h"
+//#include "../mapObjects/CGPandoraBox.h"
+//#include "../mapObjects/CRewardableObject.h"
+#include "../mapObjects/MapObjects.h"
 
 class CMap;
 class CMapEditManager;

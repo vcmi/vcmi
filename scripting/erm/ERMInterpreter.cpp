@@ -2,7 +2,8 @@
 #include "ERMInterpreter.h"
 
 #include <cctype>
-#include "../../lib/CObjectHandler.h"
+#include "../../lib/mapObjects/CObjectHandler.h"
+#include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/VCMIDirs.h"

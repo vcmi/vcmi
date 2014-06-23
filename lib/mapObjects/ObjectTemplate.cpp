@@ -3,7 +3,7 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
-#include "../lib/VCMI_Lib.h"
+#include "../VCMI_Lib.h"
 #include "../GameConstants.h"
 #include "../StringConstants.h"
 #include "../CGeneralTextHandler.h"

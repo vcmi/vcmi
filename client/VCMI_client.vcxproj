@@ -229,7 +229,6 @@
     <ClInclude Include="CPlayerInterface.h" />
     <ClInclude Include="CPreGame.h" />
     <ClInclude Include="CQuestLog.h" />
-    <ClInclude Include="CSoundBase.h" />
     <ClInclude Include="CSpellWindow.h" />
     <ClInclude Include="CVideoHandler.h" />
     <ClInclude Include="FontBase.h" />

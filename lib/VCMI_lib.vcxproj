@@ -135,8 +135,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
     <ClCompile>
-      <AdditionalOptions>/Oy- %(AdditionalOptions) /bigobj
- /Zm150</AdditionalOptions>
+      <AdditionalOptions>/Oy- /bigobj /Zm150 </AdditionalOptions>
       <PreprocessorDefinitions>VCMI_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -177,13 +176,11 @@
     <ClCompile Include="CConsoleHandler.cpp" />
     <ClCompile Include="CCreatureHandler.cpp" />
     <ClCompile Include="CCreatureSet.cpp" />
-    <ClCompile Include="CDefObjInfoHandler.cpp" />
     <ClCompile Include="CGameInterface.cpp" />
     <ClCompile Include="CGameState.cpp" />
     <ClCompile Include="CGeneralTextHandler.cpp" />
     <ClCompile Include="CHeroHandler.cpp" />
     <ClCompile Include="CModHandler.cpp" />
-    <ClCompile Include="CObjectHandler.cpp" />
     <ClCompile Include="CObstacleInstance.cpp" />
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="CSpellHandler.cpp" />
@@ -204,6 +201,21 @@
     <ClCompile Include="GameConstants.cpp" />
     <ClCompile Include="JsonDetail.cpp" />
     <ClCompile Include="LogicalExpression.cpp" />
+    <ClCompile Include="mapObjects\CArmedInstance.cpp" />
+    <ClCompile Include="mapObjects\CBank.cpp" />
+    <ClCompile Include="mapObjects\CGHeroInstance.cpp" />
+    <ClCompile Include="mapObjects\CGMarket.cpp" />
+    <ClCompile Include="mapObjects\CGPandoraBox.cpp" />
+    <ClCompile Include="mapObjects\CGTownInstance.cpp" />
+    <ClCompile Include="mapObjects\CObjectClassesHandler.cpp" />
+    <ClCompile Include="mapObjects\CObjectHandler.cpp" />
+    <ClCompile Include="mapObjects\CommonConstructors.cpp" />
+    <ClCompile Include="mapObjects\CQuest.cpp" />
+    <ClCompile Include="mapObjects\CRewardableConstructor.cpp" />
+    <ClCompile Include="mapObjects\CRewardableObject.cpp" />
+    <ClCompile Include="mapObjects\JsonRandom.cpp" />
+    <ClCompile Include="mapObjects\MiscObjects.cpp" />
+    <ClCompile Include="mapObjects\ObjectTemplate.cpp" />
     <ClCompile Include="mapping\CCampaignHandler.cpp" />
     <ClCompile Include="mapping\CMap.cpp" />
     <ClCompile Include="mapping\CMapInfo.cpp" />
@@ -259,13 +271,11 @@
     <ClInclude Include="CConsoleHandler.h" />
     <ClInclude Include="CCreatureHandler.h" />
     <ClInclude Include="CCreatureSet.h" />
-    <ClInclude Include="CDefObjInfoHandler.h" />
     <ClInclude Include="CGameInterface.h" />
     <ClInclude Include="CGameState.h" />
     <ClInclude Include="CGeneralTextHandler.h" />
     <ClInclude Include="CHeroHandler.h" />
     <ClInclude Include="CModHandler.h" />
-    <ClInclude Include="CObjectHandler.h" />
     <ClInclude Include="CObstacleInstance.h" />
     <ClInclude Include="CondSh.h" />
     <ClInclude Include="Connection.h" />
@@ -293,6 +303,22 @@
     <ClInclude Include="IBonusTypeHandler.h" />
     <ClInclude Include="JsonDetail.h" />
     <ClInclude Include="LogicalExpression.h" />
+    <ClInclude Include="mapObjects\CArmedInstance.h" />
+    <ClInclude Include="mapObjects\CBank.h" />
+    <ClInclude Include="mapObjects\CGHeroInstance.h" />
+    <ClInclude Include="mapObjects\CGMarket.h" />
+    <ClInclude Include="mapObjects\CGPandoraBox.h" />
+    <ClInclude Include="mapObjects\CGTownInstance.h" />
+    <ClInclude Include="mapObjects\CObjectClassesHandler.h" />
+    <ClInclude Include="mapObjects\CObjectHandler.h" />
+    <ClInclude Include="mapObjects\CommonConstructors.h" />
+    <ClInclude Include="mapObjects\CQuest.h" />
+    <ClInclude Include="mapObjects\CRewardableConstructor.h" />
+    <ClInclude Include="mapObjects\CRewardableObject.h" />
+    <ClInclude Include="mapObjects\JsonRandom.h" />
+    <ClInclude Include="mapObjects\MapObjects.h" />
+    <ClInclude Include="mapObjects\MiscObjects.h" />
+    <ClInclude Include="mapObjects\ObjectTemplate.h" />
     <ClInclude Include="mapping\CCampaignHandler.h" />
     <ClInclude Include="mapping\CMap.h" />
     <ClInclude Include="mapping\CMapInfo.h" />
