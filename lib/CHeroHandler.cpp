@@ -110,8 +110,6 @@ CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 
 	heroClass->name = node["name"].String();
 	heroClass->affinity = vstd::find_pos(affinityStr, node["affinity"].String());
-	if (heroClass->affinity >= 2) //FIXME: MODS COMPATIBILITY
-		heroClass->affinity = 0;
 
 	for(const std::string & pSkill : PrimarySkill::names)
 	{
@@ -125,15 +123,11 @@ CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 		heroClass->secSkillProbability.push_back(node["secondarySkills"][secSkill].Float());
 	}
 
-	//FIXME: MODS COMPATIBILITY
-	if (!node["commander"].isNull())
+	VLC->modh->identifiers.requestIdentifier ("creature", node["commander"],
+	[=](si32 commanderID)
 	{
-		VLC->modh->identifiers.requestIdentifier ("creature", node["commander"],
-		[=](si32 commanderID)
-		{
-			heroClass->commander = VLC->creh->creatures[commanderID];
-		});
-	}
+		heroClass->commander = VLC->creh->creatures[commanderID];
+	});
 
 	heroClass->defaultTavernChance = node["defaultTavern"].Float();
 	for(auto & tavern : node["tavern"].Struct())
