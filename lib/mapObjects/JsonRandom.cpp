@@ -90,8 +90,8 @@ namespace JsonRandom
 			for (auto & entry : value["slot"].Vector())
 				allowedPositions.insert(VLC->arth->stringToSlot(entry.String()));
 
-		if (value["minValue"].isNull()) minValue = value["minValue"].Float();
-		if (value["maxValue"].isNull()) maxValue = value["maxValue"].Float();
+		if (!value["minValue"].isNull()) minValue = value["minValue"].Float();
+		if (!value["maxValue"].isNull()) maxValue = value["maxValue"].Float();
 
 		return VLC->arth->pickRandomArtifact(rng, [=](ArtifactID artID) -> bool
 		{
