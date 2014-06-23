@@ -1250,19 +1250,18 @@ void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 	cb->showGarrisonDialog(id, h->id, removableUnits);
 }
 
-ui8 CGGarrison::getPassableness() const
+bool CGGarrison::passableFor(PlayerColor player) const
 {
+	//FIXME: identical to same method in CGTownInstance
+
 	if ( !stacksCount() )//empty - anyone can visit
-		return GameConstants::ALL_PLAYERS;
+		return true;
 	if ( tempOwner == PlayerColor::NEUTRAL )//neutral guarded - no one can visit
-		return 0;
+		return false;
 
-	ui8 mask = 0;
-	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
-	for(PlayerColor it : ts->players)
-		mask |= 1<<it.getNum(); //allies - add to possible visitors
-
-	return mask;
+	if (cb->getPlayerRelations(tempOwner, player) != PlayerRelations::ENEMIES)
+		return true;
+	return false;
 }
 
 void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const

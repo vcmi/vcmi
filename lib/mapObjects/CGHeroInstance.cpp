@@ -999,11 +999,11 @@ void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedSta
 
 	cb->showInfoDialog(&iw);
 }
-
+/*
 int3 CGHeroInstance::getSightCenter() const
 {
 	return getPosition(false);
-}
+}*/
 
 int CGHeroInstance::getSightRadious() const
 {

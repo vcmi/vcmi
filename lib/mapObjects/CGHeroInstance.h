@@ -113,7 +113,7 @@ public:
 		}
 	} skillsInfo;
 
-	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
+	//int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const; //sight distance (should be used if player-owned structure)
 	//////////////////////////////////////////////////////////////////////////
 

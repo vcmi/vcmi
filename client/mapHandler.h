@@ -127,4 +127,6 @@ public:
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper
 	static ui8 getDir(const int3 & a, const int3 & b);  //returns direction number in range 0 - 7 (0 is left top, clockwise) [direction: form a to b]
 
+	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
+
 };

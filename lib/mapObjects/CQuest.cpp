@@ -853,10 +853,7 @@ void CGBorderGate::onHeroVisit( const CGHeroInstance * h ) const //TODO: passabi
 	}
 }
 
-ui8 CGBorderGate::getPassableness() const
+bool CGBorderGate::passableFor(PlayerColor color) const
 {
-	ui8 ret = 0;
-	for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
-		ret |= wasMyColorVisited(PlayerColor(i))<<i;
-	return ret;
+	return wasMyColorVisited(color);
 }

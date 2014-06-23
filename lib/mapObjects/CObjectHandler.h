@@ -96,49 +96,72 @@ class DLL_LINKAGE CGObjectInstance : public IObjectInterface
 {
 public:
 	mutable std::string hoverName;
-	int3 pos; //h3m pos
+
+	/// Position of bottom-right corner of object on map
+	int3 pos;
+	/// Type of object, e.g. town, hero, creature.
 	Obj ID;
-	si32 subID; //normal subID (this one from OH3 maps ;])
-	ObjectInstanceID id;//number of object in map's vector
+	/// Subtype of object, depends on type
+	si32 subID;
+	/// Index of object in map's list of objects
+	ObjectInstanceID id;
+	/// Defines appearance of object on map (animation, blocked tiles, blit order, etc)
 	ObjectTemplate appearance;
-
+	/// Current owner of an object (when below PLAYER_LIMIT)
 	PlayerColor tempOwner;
-	bool blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
+	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
+	bool blockVisit;
 
-	virtual ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
-	virtual int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
-	virtual int getSightRadious() const; //sight distance (should be used if player-owned structure)
-	bool passableFor(PlayerColor color) const;
-	void getSightTiles(std::unordered_set<int3, ShashInt3> &tiles) const; //returns reference to the set
+	CGObjectInstance();
+	~CGObjectInstance();
+
+	/// "center" tile from which the sight distance is calculated
+	int3 getSightCenter() const;
+
 	PlayerColor getOwner() const;
 	void setOwner(PlayerColor ow);
+
+	/// APPEARANCE ACCESSORS ///
+
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
-	virtual bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) (h3m pos)
-	virtual int3 getVisitableOffset() const; //returns (x,y,0) offset to first visitable tile from bottom right obj tile (0,0,0) (h3m pos)
+	bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) (h3m pos)
 	int3 visitablePos() const;
 	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) (h3m pos)
 	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) (h3m pos)
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
 	std::set<int3> getBlockedOffsets() const; //returns set of relative positions blocked by this object
 	bool isVisitable() const; //returns true if object is visitable
-	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
-	void hideTiles(PlayerColor ourplayer, int radius) const;
-	CGObjectInstance();
-	virtual ~CGObjectInstance();
-	//CGObjectInstance(const CGObjectInstance & right);
-	//CGObjectInstance& operator=(const CGObjectInstance & right);
-	virtual const std::string & getHoverText() const;
 
+	/// HELPERS THAT SHOULD BE REMOVED ///
+
+	/// fills set with tiles which are visible from this object. TODO: remove?
+	void getSightTiles(std::unordered_set<int3, ShashInt3> &tiles) const;
+	/// Hides tiles visible for any player but ours. TODO: move to callback/game state?
+	void hideTiles(PlayerColor ourplayer, int radius) const;
+
+	/// VIRTUAL METHODS ///
+
+	/// Returns true if player can pass through visitable tiles of this object
+	virtual bool passableFor(PlayerColor color) const;
+	/// Range of revealed map around this object, counting from getSightCenter()
+	virtual int getSightRadious() const;
+	/// returns (x,y,0) offset to a visitable tile of object
+	virtual int3 getVisitableOffset() const;
+	/// returns text visible in status bar
+	/// TODO: should accept selected hero as parameter and possibly - moved into object handler
+	virtual const std::string & getHoverText() const;
+	/// Called mostly during map randomization to turn random object into a regular one (e.g. "Random Monster" into "Pikeman")
 	virtual void setType(si32 ID, si32 subID);
 
-	///IObjectInterface
+	///IObjectInterface OVERRIDES
+
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void setProperty(ui8 what, ui32 val) override;//synchr
+	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
+	void setProperty(ui8 what, ui32 val) override;
 
-	friend class CGameHandler;
-
+	//friend class CGameHandler;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -146,9 +169,13 @@ public:
 		//definfo is handled by map serializer
 	}
 protected:
-	virtual void setPropertyDer(ui8 what, ui32 val);//synchr
+	/// virtual method that allows synchronously update object state on server and all clients
+	virtual void setPropertyDer(ui8 what, ui32 val);
 
+	/// Adds (visited) text if selected hero has visited object
+	/// TODO: remove?
 	void getNameVis(std::string &hname) const;
+	/// Gives dummy bonus from this object to hero. Can be used to track visited state
 	void giveDummyBonus(ObjectInstanceID heroID, ui8 duration = Bonus::ONE_DAY) const;
 };
 

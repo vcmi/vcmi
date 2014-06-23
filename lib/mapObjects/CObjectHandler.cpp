@@ -137,9 +137,6 @@ CGObjectInstance::CGObjectInstance():
 }
 CGObjectInstance::~CGObjectInstance()
 {
-	//if (state)
-	//	delete state;
-	//state=nullptr;
 }
 
 const std::string & CGObjectInstance::getHoverText() const
@@ -148,10 +145,7 @@ const std::string & CGObjectInstance::getHoverText() const
 }
 void CGObjectInstance::setOwner(PlayerColor ow)
 {
-	//if (state)
-	//	state->owner = ow;
-	//else
-		tempOwner = ow;
+	tempOwner = ow;
 }
 int CGObjectInstance::getWidth() const//returns width of object graphic in tiles
 {
@@ -201,29 +195,6 @@ std::set<int3> CGObjectInstance::getBlockedOffsets() const
 		}
 	}
 	return ret;
-}
-
-
-bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen printing priority comparing
-{
-	if (appearance.printPriority != cmp.appearance.printPriority)
-		return appearance.printPriority > cmp.appearance.printPriority;
-
-	if(pos.y != cmp.pos.y)
-		return pos.y < cmp.pos.y;
-
-	if(cmp.ID==Obj::HERO && ID!=Obj::HERO)
-		return true;
-	if(cmp.ID!=Obj::HERO && ID==Obj::HERO)
-		return false;
-
-	if(!isVisitable() && cmp.isVisitable())
-		return true;
-	if(!cmp.isVisitable() && isVisitable())
-		return false;
-	if(this->pos.x<cmp.pos.x)
-		return true;
-	return false;
 }
 
 void CGObjectInstance::setType(si32 ID, si32 subID)
@@ -291,6 +262,7 @@ void CGObjectInstance::getSightTiles(std::unordered_set<int3, ShashInt3> &tiles)
 {
 	cb->getTilesInRange(tiles, getSightCenter(), getSightRadious(), tempOwner, 1);
 }
+
 void CGObjectInstance::hideTiles(PlayerColor ourplayer, int radius) const
 {
 	for (auto i = cb->gameState()->teams.begin(); i != cb->gameState()->teams.end(); i++)
@@ -366,11 +338,6 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 	}
 }
 
-ui8 CGObjectInstance::getPassableness() const
-{
-	return 0;
-}
-
 int3 CGObjectInstance::visitablePos() const
 {
 	return pos - getVisitableOffset();
@@ -383,7 +350,7 @@ bool CGObjectInstance::isVisitable() const
 
 bool CGObjectInstance::passableFor(PlayerColor color) const
 {
-	return getPassableness() & 1<<color.getNum();
+	return false;
 }
 
 CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)

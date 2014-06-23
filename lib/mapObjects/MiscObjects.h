@@ -138,7 +138,7 @@ class DLL_LINKAGE CGGarrison : public CArmedInstance
 public:
 	bool removableUnits;
 
-	ui8 getPassableness() const;
+	bool passableFor(PlayerColor color) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 

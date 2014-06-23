@@ -644,25 +644,22 @@ void CGTownInstance::newTurn() const
 			}
 	}
 }
-
+/*
 int3 CGTownInstance::getSightCenter() const
 {
 	return pos - int3(2,0,0);
 }
-
-ui8 CGTownInstance::getPassableness() const
+*/
+bool CGTownInstance::passableFor(PlayerColor color) const
 {
 	if (!armedGarrison())//empty castle - anyone can visit
-		return GameConstants::ALL_PLAYERS;
+		return true;
 	if ( tempOwner == PlayerColor::NEUTRAL )//neutral guarded - no one can visit
-		return 0;
+		return false;
 
-	ui8 mask = 0;
-	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
-	for(PlayerColor it : ts->players)
-		mask |= 1<<it.getNum();//allies - add to possible visitors
-
-	return mask;
+	if (cb->getPlayerRelations(tempOwner, color) != PlayerRelations::ENEMIES)
+		return true;
+	return false;
 }
 
 void CGTownInstance::getOutOffsets( std::vector<int3> &offsets ) const

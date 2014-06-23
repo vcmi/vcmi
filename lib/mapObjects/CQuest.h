@@ -189,7 +189,7 @@ public:
 	CGBorderGate() : CGBorderGuard(){};
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
-	ui8 getPassableness() const override;
+	bool passableFor(PlayerColor color) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
