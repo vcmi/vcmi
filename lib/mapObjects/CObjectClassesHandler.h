@@ -93,7 +93,7 @@ public:
 
 class CGObjectInstance;
 
-class AObjectTypeHandler : public boost::noncopyable
+class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 {
 	RandomMapInfo rmgInfo;
 
