@@ -1512,7 +1512,13 @@ struct ObstaclesRemoved : public CPackForClient //3014
 	}
 };
 
+//FIXME: figure out why gcc fails to find type_info for this class with -fvisibility=hidden flag set
+#ifdef __linux__
+struct DLL_LINKAGE CatapultAttack : public CPackForClient //3015
+#else
 struct CatapultAttack : public CPackForClient //3015
+#endif
+
 {
 	struct AttackInfo
 	{
