@@ -121,7 +121,7 @@ public:
 	PlayerColor getOwner() const;
 	void setOwner(PlayerColor ow);
 
-	/// APPEARANCE ACCESSORS ///
+	/** APPEARANCE ACCESSORS **/
 
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
@@ -133,14 +133,7 @@ public:
 	std::set<int3> getBlockedOffsets() const; //returns set of relative positions blocked by this object
 	bool isVisitable() const; //returns true if object is visitable
 
-	/// HELPERS THAT SHOULD BE REMOVED ///
-
-	/// fills set with tiles which are visible from this object. TODO: remove?
-	void getSightTiles(std::unordered_set<int3, ShashInt3> &tiles) const;
-	/// Hides tiles visible for any player but ours. TODO: move to callback/game state?
-	void hideTiles(PlayerColor ourplayer, int radius) const;
-
-	/// VIRTUAL METHODS ///
+	/** VIRTUAL METHODS **/
 
 	/// Returns true if player can pass through visitable tiles of this object
 	virtual bool passableFor(PlayerColor color) const;
@@ -154,7 +147,7 @@ public:
 	/// Called mostly during map randomization to turn random object into a regular one (e.g. "Random Monster" into "Pikeman")
 	virtual void setType(si32 ID, si32 subID);
 
-	///IObjectInterface OVERRIDES
+	/** OVERRIDES OF IObjectInterface **/
 
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;

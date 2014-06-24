@@ -1007,7 +1007,7 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 		FoWChange fw;
 		fw.player = hero->tempOwner;
 		fw.mode = 1;
-		getSightTiles (fw.tiles); //update visibility for castle structures
+		cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadious(), tempOwner, 1);
 		cb->sendAndApply (&fw);
 	}
 }

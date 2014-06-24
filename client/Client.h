@@ -218,6 +218,9 @@ public:
 	void sendAndApply(CPackForClient * info) override {};
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {};
 
+	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override {}
+	void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) override {}
+
 	//////////////////////////////////////////////////////////////////////////
 	friend class CCallback; //handling players actions
 	friend class CBattleCallback; //handling players actions

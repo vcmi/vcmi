@@ -174,6 +174,8 @@ public:
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags) override;
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override;
 
+	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override;
+	void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) override;
 
 	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
 

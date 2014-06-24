@@ -246,42 +246,14 @@ void CGObjectInstance::setPropertyDer( ui8 what, ui32 val )
 
 int3 CGObjectInstance::getSightCenter() const
 {
-	//return vistiable tile if possible
-	for(int i=0; i < 8; i++)
-		for(int j=0; j < 6; j++)
-			if(visitableAt(i,j))
-				return(pos + int3(i-7, j-5, 0));
-	return pos;
+	return visitablePos();
 }
 
 int CGObjectInstance::getSightRadious() const
 {
 	return 3;
 }
-void CGObjectInstance::getSightTiles(std::unordered_set<int3, ShashInt3> &tiles) const //returns reference to the set
-{
-	cb->getTilesInRange(tiles, getSightCenter(), getSightRadious(), tempOwner, 1);
-}
 
-void CGObjectInstance::hideTiles(PlayerColor ourplayer, int radius) const
-{
-	for (auto i = cb->gameState()->teams.begin(); i != cb->gameState()->teams.end(); i++)
-	{
-		if ( !vstd::contains(i->second.players, ourplayer ))//another team
-		{
-			for (auto & elem : i->second.players)
-				if ( cb->getPlayer(elem)->status == EPlayerStatus::INGAME )//seek for living player (if any)
-				{
-					FoWChange fw;
-					fw.mode = 0;
-					fw.player = elem;
-					cb->getTilesInRange (fw.tiles, pos, radius, (elem), -1);
-					cb->sendAndApply (&fw);
-					break;
-				}
-		}
-	}
-}
 int3 CGObjectInstance::getVisitableOffset() const
 {
 	for(int y = 0; y < appearance.getHeight(); y++)

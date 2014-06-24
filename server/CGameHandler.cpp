@@ -1351,9 +1351,13 @@ void CGameHandler::newTurn()
 		}
 		if (t->hasBonusOfType (Bonus::DARKNESS))
 		{
-			t->hideTiles(t->getOwner(), t->getBonusLocalFirst(Selector::type(Bonus::DARKNESS))->val);
+			for (auto player : gameState()->players)
+			{
+				if (getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
+					getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
+					changeFogOfWar(t->visitablePos(), t->getBonusLocalFirst(Selector::type(Bonus::DARKNESS))->val, player.first, true);
+			}
 		}
-		//unhiding what shouldn't be hidden? //that's handled in netpacks client
 	}
 
 	if(newMonth)
@@ -2523,7 +2527,7 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 	FoWChange fw;
 	fw.player = t->tempOwner;
 	fw.mode = 1;
-	t->getSightTiles(fw.tiles);
+	getTilesInRange(fw.tiles, t->getSightCenter(), t->getSightRadious(), t->tempOwner, 1);
 	sendAndApply(&fw);
 
 	if(t->visitingHero)
@@ -6250,6 +6254,22 @@ void CGameHandler::removeAfterVisit(const CGObjectInstance *object)
 
 	//If we haven't returned so far, there is no query and no visit, call was wrong
 	assert("This function needs to be called during the object visit!");
+}
+
+void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide)
+{
+	std::unordered_set<int3, ShashInt3> tiles;
+	getTilesInRange(tiles, center, radius, player, hide? -1 : 1);
+	changeFogOfWar(tiles, player, hide);
+}
+
+void CGameHandler::changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide)
+{
+	FoWChange fow;
+	fow.tiles = tiles;
+	fow.player = player;
+	fow.mode = hide? 0 : 1;
+	sendAndApply(&fow);
 }
 
 bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)

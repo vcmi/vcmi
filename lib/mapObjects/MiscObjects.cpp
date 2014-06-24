@@ -1048,7 +1048,12 @@ void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 	case Obj::COVER_OF_DARKNESS:
 	{
 		iw.text.addTxt (MetaString::ADVOB_TXT, 31);
-		hideTiles(h->tempOwner, 20);
+		for (auto player : cb->gameState()->players)
+		{
+			if (cb->getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
+				cb->getPlayerRelations(player.first, h->tempOwner) == PlayerRelations::ENEMIES)
+				cb->changeFogOfWar(visitablePos(), 20, player.first, true);
+		}
 		break;
 	}
 	}

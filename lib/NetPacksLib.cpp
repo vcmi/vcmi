@@ -177,7 +177,7 @@ DLL_LINKAGE void FoWChange::applyGs( CGameState *gs )
 				case Obj::TOWN:
 				case Obj::ABANDONED_MINE:
 					if(vstd::contains(team->players, o->tempOwner)) //check owned observators
-						o->getSightTiles(tilesRevealed);
+						gs->getTilesInRange(tiles, o->getSightCenter(), o->getSightRadious(), o->tempOwner, 1);
 					break;
 				}
 			}
