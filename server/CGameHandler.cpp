@@ -4986,7 +4986,7 @@ bool CGameHandler::isAllowedExchange( ObjectInstanceID id1, ObjectInstanceID id2
 
 void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h )
 {
-	logGlobal->traceStream()  << h->nodeName() << " visits " << obj->getObjectName();
+	logGlobal->debugStream()  << h->nodeName() << " visits " << obj->getObjectName() << "(" << obj->ID << ":" << obj->subID << ")";
 	auto visitQuery = make_shared<CObjectVisitQuery>(obj, h, obj->visitablePos());
 	queries.addQuery(visitQuery); //TODO real visit pos
 
