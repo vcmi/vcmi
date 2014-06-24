@@ -53,12 +53,6 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 	showInfoDialog(playerID,txtID,soundID);
 }
 
-static std::string & visitedTxt(const bool visited)
-{
-	int id = visited ? 352 : 353;
-	return VLC->generaltexth->allTexts[id];
-}
-
 ///IObjectInterface
 void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const
 {}
@@ -139,10 +133,6 @@ CGObjectInstance::~CGObjectInstance()
 {
 }
 
-const std::string & CGObjectInstance::getHoverText() const
-{
-	return hoverName;
-}
 void CGObjectInstance::setOwner(PlayerColor ow)
 {
 	tempOwner = ow;
@@ -223,6 +213,8 @@ void CGObjectInstance::initObj()
 
 void CGObjectInstance::setProperty( ui8 what, ui32 val )
 {
+	setPropertyDer(what, val); // call this before any actual changes (needed at least for dwellings)
+
 	switch(what)
 	{
 	case ObjProperty::OWNER:
@@ -238,7 +230,6 @@ void CGObjectInstance::setProperty( ui8 what, ui32 val )
 		subID = val;
 		break;
 	}
-	setPropertyDer(what, val);
 }
 
 void CGObjectInstance::setPropertyDer( ui8 what, ui32 val )
@@ -265,17 +256,6 @@ int3 CGObjectInstance::getVisitableOffset() const
 	return int3(0,0,0);
 }
 
-void CGObjectInstance::getNameVis( std::string &hname ) const
-{
-	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
-	hname = VLC->objtypeh->getObjectName(ID);
-	if(h)
-	{
-		const bool visited = h->hasBonusFrom(Bonus::OBJECT,ID);
-		hname + " " + visitedTxt(visited);
-	}
-}
-
 void CGObjectInstance::giveDummyBonus(ObjectInstanceID heroID, ui8 duration) const
 {
 	GiveBonus gbonus;
@@ -285,6 +265,21 @@ void CGObjectInstance::giveDummyBonus(ObjectInstanceID heroID, ui8 duration) con
 	gbonus.bonus.source = Bonus::OBJECT;
 	gbonus.bonus.sid = ID;
 	cb->giveHeroBonus(&gbonus);
+}
+
+std::string CGObjectInstance::getObjectName() const
+{
+	return VLC->objtypeh->getObjectName(ID);
+}
+
+std::string CGObjectInstance::getHoverText(PlayerColor player) const
+{
+	return getObjectName();
+}
+
+std::string CGObjectInstance::getHoverText(const CGHeroInstance * hero) const
+{
+	return getHoverText(hero->tempOwner);
 }
 
 void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const

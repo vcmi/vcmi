@@ -108,7 +108,6 @@ public:
 	std::pair<SDL_Surface *, bool> getVisBitmap(const int3 & pos, const std::vector< std::vector< std::vector<ui8> > > & visibilityMap) const; //returns appropriate bitmap and info if alpha blitting is necessary
 	ui8 getPhaseShift(const CGObjectInstance *object) const;
 
-	std::vector< std::string > getObjDescriptions(int3 pos); //returns desriptions of objects blocking given position
 	void getTerrainDescr(const int3 &pos, std::string & out, bool terName); //if tername == false => empty string when tile is clear
 	CGObjectInstance * createObject(int id, int subid, int3 pos, int owner=254); //creates a new object with a certain id and subid
 	bool printObject(const CGObjectInstance * obj); //puts appropriate things to ttiles, so obj will be visible on map

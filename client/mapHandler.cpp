@@ -1054,7 +1054,7 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	{
 		if(elem.first->ID == Obj::HOLE) //Hole
 		{
-			out = elem.first->hoverName;
+			out = elem.first->getObjectName();
 			return;
 		}
 	}

@@ -375,19 +375,18 @@ static std::string & visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
-const std::string & CRewardableObject::getHoverText() const
+std::string CRewardableObject::getHoverText(PlayerColor player) const
 {
-	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
-	hoverName = VLC->objtypeh->getObjectName(ID);
 	if(visitMode != VISIT_UNLIMITED)
-	{
-		bool visited = wasVisited(cb->getCurrentPlayer());
-		if (h)
-			visited |= wasVisited(h);
+		return getObjectName() + " " + visitedTxt(wasVisited(player));
+	return getObjectName();
+}
 
-		hoverName += " " + visitedTxt(visited);
-	}
-	return hoverName;
+std::string CRewardableObject::getHoverText(const CGHeroInstance * hero) const
+{
+	if(visitMode != VISIT_UNLIMITED)
+		return getObjectName() + " " + visitedTxt(wasVisited(hero));
+	return getObjectName();
 }
 
 void CRewardableObject::setPropertyDer(ui8 what, ui32 val)

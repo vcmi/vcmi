@@ -170,7 +170,6 @@ public:
 	bool removeObject(const CGObjectInstance * obj) override {return false;};
 	void setBlockVis(ObjectInstanceID objid, bool bv) override {};
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override {};
-	void setHoverName(const CGObjectInstance * obj, MetaString * name) override {};
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) override {};
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {}; 
 

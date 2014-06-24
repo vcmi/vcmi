@@ -41,11 +41,12 @@ void CBank::initObj()
 	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, cb->gameState()->getRandomGenerator());
 }
 
-const std::string & CBank::getHoverText() const
+std::string CBank::getHoverText(PlayerColor player) const
 {
+	// TODO: USE BANK_SPECIFIC NAMES
+	// TODO: record visited players
 	bool visited = (bc == nullptr);
-	hoverName = visitedTxt(visited); // FIXME: USE BANK_SPECIFIC NAMES
-	return hoverName;
+	return visitedTxt(visited);
 }
 
 void CBank::setConfig(const BankConfig & config)

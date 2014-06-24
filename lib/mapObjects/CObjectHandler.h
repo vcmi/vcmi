@@ -95,8 +95,6 @@ public:
 class DLL_LINKAGE CGObjectInstance : public IObjectInterface
 {
 public:
-	mutable std::string hoverName;
-
 	/// Position of bottom-right corner of object on map
 	int3 pos;
 	/// Type of object, e.g. town, hero, creature.
@@ -141,33 +139,37 @@ public:
 	virtual int getSightRadious() const;
 	/// returns (x,y,0) offset to a visitable tile of object
 	virtual int3 getVisitableOffset() const;
-	/// returns text visible in status bar
-	/// TODO: should accept selected hero as parameter and possibly - moved into object handler
-	virtual const std::string & getHoverText() const;
 	/// Called mostly during map randomization to turn random object into a regular one (e.g. "Random Monster" into "Pikeman")
 	virtual void setType(si32 ID, si32 subID);
+
+	/// returns text visible in status bar with specific hero/player active.
+
+	/// Returns generic name of object, without any player-specific info
+	virtual std::string getObjectName() const;
+
+	/// Returns hover name for situation when there are no selected heroes. Default = object name
+	virtual std::string getHoverText(PlayerColor player) const;
+	/// Returns hero-specific hover name, including visited/not visited info. Default = player-specific name
+	virtual std::string getHoverText(const CGHeroInstance * hero) const;
 
 	/** OVERRIDES OF IObjectInterface **/
 
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
-	void setProperty(ui8 what, ui32 val) override;
+	void setProperty(ui8 what, ui32 val) override final;
 
 	//friend class CGameHandler;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hoverName & pos & ID & subID & id & tempOwner & blockVisit & appearance;
+		h & pos & ID & subID & id & tempOwner & blockVisit & appearance;
 		//definfo is handled by map serializer
 	}
 protected:
 	/// virtual method that allows synchronously update object state on server and all clients
 	virtual void setPropertyDer(ui8 what, ui32 val);
 
-	/// Adds (visited) text if selected hero has visited object
-	/// TODO: remove?
-	void getNameVis(std::string &hname) const;
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
 	void giveDummyBonus(ObjectInstanceID heroID, ui8 duration = Bonus::ONE_DAY) const;
 };

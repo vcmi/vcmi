@@ -209,7 +209,8 @@ protected:
 
 public:
 	void setPropertyDer(ui8 what, ui32 val) override;
-	const std::string & getHoverText() const override;
+	std::string getHoverText(PlayerColor player) const override;
+	std::string getHoverText(const CGHeroInstance * hero) const override;
 
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
 	bool wasVisited (PlayerColor player) const override;

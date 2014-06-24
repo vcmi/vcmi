@@ -55,7 +55,7 @@ void CGDwelling::initObj()
 	}
 }
 
-void CGDwelling::setProperty(ui8 what, ui32 val)
+void CGDwelling::setPropertyDer(ui8 what, ui32 val)
 {
 	switch (what)
 	{
@@ -77,8 +77,8 @@ void CGDwelling::setProperty(ui8 what, ui32 val)
 			creatures[0].second[0] = CreatureID(val);
 			break;
 	}
-	CGObjectInstance::setProperty(what,val);
 }
+
 void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(ID == Obj::REFUGEE_CAMP && !creatures[0].first) //Refugee Camp, no available cres
@@ -523,11 +523,15 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 	cb->stopHeroVisitCastle(this, h);
 }
 
+std::string CGTownInstance::getObjectName() const
+{
+	return name + ", " + town->faction->name;
+}
+
 void CGTownInstance::initObj()
 ///initialize town structures
 {
 	blockVisit = true;
-	hoverName = name + ", " + town->faction->name;
 
 	if (subID == ETownType::DUNGEON)
 		creatures.resize(GameConstants::CREATURES_PER_TOWN+1);//extra dwelling for Dungeon

@@ -1053,7 +1053,6 @@ void CGameState::randomizeMapObjects()
 		if(!obj) continue;
 
 		randomizeObject(obj);
-		obj->hoverName = VLC->objtypeh->getObjectName(obj->ID);
 
 		//handle Favouring Winds - mark tiles under it
 		if(obj->ID == Obj::FAVORABLE_WINDS)
@@ -2980,7 +2979,7 @@ void InfoAboutArmy::initFromArmy(const CArmedInstance *Army, bool detailed)
 {
 	army = ArmyDescriptor(Army, detailed);
 	owner = Army->tempOwner;
-	name = Army->getHoverText();
+	name = Army->getObjectName();
 }
 
 void InfoAboutHero::assign(const InfoAboutHero & iah)

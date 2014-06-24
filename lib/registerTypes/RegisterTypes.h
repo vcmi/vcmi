@@ -234,7 +234,6 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, NewTurn>();
 	s.template registerType<CPackForClient, InfoWindow>();
 	s.template registerType<CPackForClient, SetObjectProperty>();
-	s.template registerType<CPackForClient, SetHoverName>();
 	s.template registerType<CPackForClient, ShowInInfobox>();
 	s.template registerType<CPackForClient, AdvmapSpellCast>();
 	s.template registerType<CPackForClient, OpenWindow>();

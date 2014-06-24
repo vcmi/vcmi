@@ -1045,21 +1045,6 @@ struct SetObjectProperty : public CPackForClient//1001
 	}
 };
 
-struct SetHoverName : public CPackForClient//1002
-{
-	DLL_LINKAGE void applyGs(CGameState *gs);
-
-	ObjectInstanceID id;
-	MetaString name;
-	SetHoverName(){type = 1002;}
-	SetHoverName(ObjectInstanceID ID, MetaString& Name):id(ID),name(Name){type = 1002;}
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & id & name;
-	}
-};
-
 struct ChangeObjectVisitors : public CPackForClient // 1003
 {
 	enum VisitMode

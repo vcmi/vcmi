@@ -48,7 +48,6 @@ public:
 	virtual bool removeObject(const CGObjectInstance * obj)=0;
 	virtual void setBlockVis(ObjectInstanceID objid, bool bv)=0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
-	virtual void setHoverName(const CGObjectInstance * obj, MetaString * name)=0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0; 
 	virtual void showBlockingDialog(BlockingDialog *iw) =0;

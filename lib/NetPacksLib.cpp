@@ -302,7 +302,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 {
 
 	CGObjectInstance *obj = gs->getObjInstance(id);
-	logGlobal->debugStream() << "removing object id=" << id << "; address=" << (intptr_t)obj << "; name=" << obj->getHoverText();
+	logGlobal->debugStream() << "removing object id=" << id << "; address=" << (intptr_t)obj << "; name=" << obj->getObjectName();
 	//unblock tiles
 	gs->map->removeBlockVisTiles(obj);
 
@@ -608,14 +608,13 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 	const TerrainTile &t = gs->map->getTile(pos);
 	o->appearance = VLC->objtypeh->getHandlerFor(o->ID, o->subID)->getTemplates(t.terType).front();
 	id = o->id = ObjectInstanceID(gs->map->objects.size());
-	o->hoverName = VLC->objtypeh->getObjectName(ID);
 
 	gs->map->objects.push_back(o);
 	gs->map->addBlockVisTiles(o);
 	o->initObj();
 	gs->map->calculateGuardingGreaturePositions();
 
-	logGlobal->debugStream() << "added object id=" << id << "; address=" << (intptr_t)o << "; name=" << o->getHoverText();
+	logGlobal->debugStream() << "added object id=" << id << "; address=" << (intptr_t)o << "; name=" << o->getObjectName();
 }
 
 DLL_LINKAGE void NewArtifact::applyGs( CGameState *gs )
@@ -1010,11 +1009,6 @@ DLL_LINKAGE void SetObjectProperty::applyGs( CGameState *gs )
 	{
 		obj->setProperty(what,val);
 	}
-}
-
-DLL_LINKAGE void SetHoverName::applyGs( CGameState *gs )
-{
-	name.toString(gs->getObj(id)->hoverName);
 }
 
 DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )

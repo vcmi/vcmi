@@ -434,25 +434,15 @@ void CGSeerHut::getRolloverText (MetaString &text, bool onHover) const
 		text.addReplacement(seerName);
 }
 
-const std::string & CGSeerHut::getHoverText() const
+std::string CGSeerHut::getHoverText(PlayerColor player) const
 {
-	switch (ID)
+	std::string hoverName = getObjectName();
+	if (ID == Obj::SEER_HUT && quest->progress != CQuest::NOT_ACTIVE)
 	{
-	case Obj::SEER_HUT:
-		if (quest->progress != CQuest::NOT_ACTIVE)
-		{
-			hoverName = VLC->generaltexth->allTexts[347];
-			boost::algorithm::replace_first(hoverName,"%s", seerName);
-		}
-		else //just seer hut
-			hoverName = VLC->objtypeh->getObjectName(ID);
-		break;
-	case Obj::QUEST_GUARD:
-		hoverName = VLC->objtypeh->getObjectName(ID);
-		break;
-	default:
-		logGlobal->debugStream() << "unrecognized quest object";
+		hoverName = VLC->generaltexth->allTexts[347];
+		boost::algorithm::replace_first(hoverName,"%s", seerName);
 	}
+
 	if (quest->progress & quest->missionType) //rollover when the quest is active
 	{
 		MetaString ms;
@@ -757,19 +747,14 @@ bool CGKeys::wasMyColorVisited (PlayerColor player) const
 		return false;
 }
 
-const std::string& CGKeys::getHoverText() const
+std::string CGKeys::getHoverText(PlayerColor player) const
 {
-	bool visited = wasMyColorVisited (cb->getLocalPlayer());
-	hoverName = getName() + "\n" + visitedTxt(visited);
-	return hoverName;
+	return getObjectName() + "\n" + visitedTxt(wasMyColorVisited(player));
 }
 
-
-const std::string CGKeys::getName() const
+std::string CGKeys::getObjectName() const
 {
-	std::string name;
-	name = VLC->generaltexth->tentColors[subID] + " " + VLC->objtypeh->getObjectName(ID);
-	return name;
+	return VLC->generaltexth->tentColors[subID] + " " + CGObjectInstance::getObjectName();
 }
 
 bool CGKeymasterTent::wasVisited (PlayerColor player) const

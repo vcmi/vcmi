@@ -59,7 +59,7 @@ public:
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void newTurn() const override;
-	void setProperty(ui8 what, ui32 val) override;
+	void setPropertyDer(ui8 what, ui32 val) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
@@ -243,6 +243,7 @@ public:
 	void onHeroLeave(const CGHeroInstance * h) const override;
 	void initObj() override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
+	std::string getObjectName() const override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
 };

@@ -48,7 +48,8 @@ public:
 	bool refusedJoining;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	const std::string & getHoverText() const override;
+	std::string getHoverText(PlayerColor player) const override;
+	std::string getHoverText(const CGHeroInstance * hero) const override;
 	void initObj() override;
 	void newTurn() const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
@@ -106,7 +107,8 @@ public:
 	std::vector<si32> allowedAbilities;
 	ui32 ability;
 
-	const std::string & getHoverText() const override;
+	std::string getHoverText(PlayerColor player) const override;
+	std::string getHoverText(const CGHeroInstance * hero) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -159,6 +161,8 @@ public:
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
+	std::string getObjectName() const override;
+
 	void pick( const CGHeroInstance * h ) const;
 	void initObj() override;
 
@@ -179,6 +183,7 @@ public:
 	void initObj() override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	std::string getHoverText(PlayerColor player) const override;
 
 	void collectRes(PlayerColor player) const;
 
@@ -195,7 +200,8 @@ public:
 	SpellID spell; //id of spell or NONE if random
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
-	const std::string & getHoverText() const override;
+	std::string getHoverText(PlayerColor player) const override;
+	std::string getHoverText(const CGHeroInstance * hero) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -217,6 +223,10 @@ public:
 	void flagMine(PlayerColor player) const;
 	void newTurn() const override;
 	void initObj() override;
+
+	std::string getObjectName() const override;
+	std::string getHoverText(PlayerColor player) const override;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
@@ -245,7 +255,7 @@ class DLL_LINKAGE CGMagicWell : public CGObjectInstance //objects giving bonuses
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	const std::string & getHoverText() const override;
+	std::string getHoverText(const CGHeroInstance * hero) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -257,7 +267,7 @@ class DLL_LINKAGE CGSirens : public CGObjectInstance
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	const std::string & getHoverText() const override;
+	std::string getHoverText(const CGHeroInstance * hero) const override;
 	void initObj() override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -352,7 +362,7 @@ public:
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
-	const std::string & getHoverText() const override;
+	std::string getHoverText(PlayerColor player) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -367,7 +377,7 @@ class DLL_LINKAGE CGLighthouse : public CGObjectInstance
 public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
-	const std::string & getHoverText() const override;
+	std::string getHoverText(PlayerColor player) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -1234,10 +1234,9 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	}
 	const CGObjectInstance *objAtTile = getBlockingObject(mapPos);
 
-	//std::vector<std::string> temp = LOCPLINT->cb->getObjDescriptions(mapPos);
 	if (objAtTile)
 	{
-		std::string text = objAtTile->getHoverText();
+		std::string text = curHero() ? objAtTile->getHoverText(curHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
 		boost::replace_all(text,"\n"," ");
 		statusbar.setText(text);
 	}

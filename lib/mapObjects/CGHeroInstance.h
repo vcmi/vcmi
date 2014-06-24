@@ -205,7 +205,7 @@ public:
 
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	const std::string & getHoverText() const override;
+	std::string getObjectName() const override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;//synchr
 
