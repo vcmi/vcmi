@@ -1527,7 +1527,7 @@ struct ObstaclesRemoved : public CPackForClient //3014
 	}
 };
 
-struct DLL_LINKAGE CatapultAttack : public CPackForClient //3015
+struct CatapultAttack : public CPackForClient //3015
 {
 	struct AttackInfo
 	{
@@ -1542,8 +1542,9 @@ struct DLL_LINKAGE CatapultAttack : public CPackForClient //3015
 			h & destinationTile & attackedPart & damageDealt;
 		}
 	};
+	DLL_LINKAGE CatapultAttack();
+	DLL_LINKAGE ~CatapultAttack();
 
-	CatapultAttack() {type = 3015;}
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
