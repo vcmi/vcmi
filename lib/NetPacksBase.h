@@ -25,7 +25,7 @@ struct ArtSlotInfo;
 #include "GameConstants.h"
 
 
-struct CPack
+struct DLL_LINKAGE CPack
 {
 	ui16 type;
 
@@ -37,7 +37,7 @@ struct CPack
         logNetwork->errorStream() << "CPack serialized... this should not happen!";
 	}
 	void applyGs(CGameState *gs) { }
-	virtual std::string toString() const { return boost::str(boost::format("{CPack: type '%d'}") % type); }
+	DLL_LINKAGE virtual std::string toString() const { return boost::str(boost::format("{CPack: type '%d'}") % type); }
 };
 
 std::ostream & operator<<(std::ostream & out, const CPack * pack);

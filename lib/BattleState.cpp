@@ -13,7 +13,7 @@
 
 #include <numeric>
 #include "VCMI_Lib.h"
-#include "CObjectHandler.h"
+#include "mapObjects/CObjectHandler.h"
 #include "CHeroHandler.h"
 #include "CCreatureHandler.h"
 #include "CSpellHandler.h"

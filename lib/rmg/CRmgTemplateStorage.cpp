@@ -60,14 +60,105 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				zone->setPlayerTowns(parseTemplateZoneTowns(zoneNode["playerTowns"]));
 				zone->setNeutralTowns(parseTemplateZoneTowns(zoneNode["neutralTowns"]));
 				zone->setTownTypes(parseTownTypes(zoneNode["townTypes"].Vector(), zone->getDefaultTownTypes()));
-				zone->setMatchTerrainToTown(zoneNode["matchTerrainToTown"].Bool());
+				if (!zoneNode["matchTerrainToTown"].isNull()) //default : true
+					zone->setMatchTerrainToTown(zoneNode["matchTerrainToTown"].Bool());
 				zone->setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector(), zone->getDefaultTerrainTypes()));
 				zone->setTownsAreSameType((zoneNode["townsAreSameType"].Bool()));
-				if(!zoneNode["terrainTypeLikeZone"].isNull()) zone->setTerrainTypeLikeZone(boost::lexical_cast<int>(zoneNode["terrainTypeLikeZone"].String()));
-				if(!zoneNode["townTypeLikeZone"].isNull()) zone->setTownTypeLikeZone(boost::lexical_cast<int>(zoneNode["townTypeLikeZone"].String()));
+
+				const std::string monsterStrength = zoneNode["monsters"].String();
+				if (monsterStrength == "weak")
+					zone->setMonsterStrength(EMonsterStrength::ZONE_WEAK);
+				else if (monsterStrength == "normal")
+					zone->setMonsterStrength(EMonsterStrength::ZONE_NORMAL);
+				else if (monsterStrength == "strong")
+					zone->setMonsterStrength(EMonsterStrength::ZONE_STRONG);
+				else
+					throw (rmgException("incorrect monster power"));
+
+				if (!zoneNode["mines"].isNull())
+				{
+					auto mines = zoneNode["mines"].Struct();
+					//FIXME: maybe there is a smarter way to parse it already?
+					zone->setMinesAmount(Res::WOOD, mines["wood"].Float());
+					zone->setMinesAmount(Res::ORE, mines["ore"].Float());
+					zone->setMinesAmount(Res::GEMS, mines["gems"].Float());
+					zone->setMinesAmount(Res::CRYSTAL, mines["crystal"].Float());
+					zone->setMinesAmount(Res::SULFUR, mines["sulfur"].Float());
+					zone->setMinesAmount(Res::MERCURY, mines["mercury"].Float());
+					zone->setMinesAmount(Res::GOLD, mines["gold"].Float());
+					//TODO: Mithril
+				}
+
+				//treasures
+				if (!zoneNode["treasure"].isNull())
+				{
+					int totalDensity = 0;
+					//TODO: parse vector of different treasure settings
+					if (zoneNode["treasure"].getType() == JsonNode::DATA_STRUCT)
+					{
+						auto treasureInfo = zoneNode["treasure"].Struct();
+						{
+							CTreasureInfo ti;
+							ti.min = treasureInfo["min"].Float();
+							ti.max = treasureInfo["max"].Float();
+							ti.density = treasureInfo["density"].Float(); //TODO: use me
+							totalDensity += ti.density;
+							ti.threshold = totalDensity;
+							zone->addTreasureInfo(ti);
+						}
+					}
+					else if (zoneNode["treasure"].getType() == JsonNode::DATA_VECTOR)
+					{
+						for (auto treasureInfo : zoneNode["treasure"].Vector())
+						{
+							CTreasureInfo ti;
+							ti.min = treasureInfo["min"].Float();
+							ti.max = treasureInfo["max"].Float();
+							ti.density = treasureInfo["density"].Float();
+							totalDensity += ti.density;
+							ti.threshold = totalDensity;
+							zone->addTreasureInfo(ti);
+						}
+					}
+					zone->setTotalDensity (totalDensity);
+				}
 
 				zones[zone->getId()] = zone;
 			}
+
+			//copy settings from already parsed zones
+			for (const auto & zonePair : templateNode["zones"].Struct())
+			{
+				auto zoneId = boost::lexical_cast<TRmgTemplateZoneId>(zonePair.first);
+				auto zone = zones[zoneId];
+
+				const auto & zoneNode = zonePair.second;
+
+				if (!zoneNode["terrainTypeLikeZone"].isNull())
+					zone->setTerrainTypes (zones[zoneNode["terrainTypeLikeZone"].Float()]->getTerrainTypes());
+
+				if (!zoneNode["townTypeLikeZone"].isNull())
+					zone->setTownTypes (zones[zoneNode["townTypeLikeZone"].Float()]->getTownTypes());
+
+				if (!zoneNode["treasureLikeZone"].isNull())
+				{
+					for (auto treasureInfo : zones[zoneNode["treasureLikeZone"].Float()]->getTreasureInfo())
+					{
+						zone->addTreasureInfo(treasureInfo);
+					}
+					zone->setTotalDensity (zones[zoneNode["treasureLikeZone"].Float()]->getTotalDensity());
+				}
+
+				if (!zoneNode["minesLikeZone"].isNull())
+				{
+					for (auto mineInfo : zones[zoneNode["minesLikeZone"].Float()]->getMinesInfo())
+					{
+						zone->setMinesAmount (mineInfo.first, mineInfo.second);
+					}
+					
+				}
+			}
+
 			tpl->setZones(zones);
 
 			// Parse connections
@@ -176,6 +267,9 @@ std::set<TFaction> CJsonRmgTemplateLoader::parseTownTypes(const JsonVector & tow
 std::set<ETerrainType> CJsonRmgTemplateLoader::parseTerrainTypes(const JsonVector & terTypeStrings, const std::set<ETerrainType> & defaultTerrainTypes) const
 {
 	std::set<ETerrainType> terTypes;
+	if (terTypeStrings.empty()) //nothing was specified
+		return defaultTerrainTypes;
+
 	for(const auto & node : terTypeStrings)
 	{
 		const auto & terTypeStr = node.String();

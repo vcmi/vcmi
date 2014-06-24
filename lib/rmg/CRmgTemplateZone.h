@@ -15,6 +15,7 @@
 #include "CMapGenerator.h"
 #include "float3.h"
 #include "../int3.h"
+#include "../ResourceSet.h" //for TResource (?)
 
 class CMapGenerator;
 class CTileInfo;
@@ -51,6 +52,22 @@ private:
 	int nearestObjectDistance;
 	ETileType::ETileType occupied;
 	ETerrainType terrain;
+};
+
+class DLL_LINKAGE CTreasureInfo
+{
+public:
+	ui32 min;
+	ui32 max;
+	ui16 density;
+	ui16 threshold; //how much must RNG roll to pick that zone
+};
+
+struct DLL_LINKAGE ObjectInfo
+{
+	ui32 value;
+	ui16 probability;
+	std::function<CGObjectInstance *()> generateObject;
 };
 
 /// The CRmgTemplateZone describes a zone in a template.
@@ -99,10 +116,9 @@ public:
 	const std::set<ETerrainType> & getTerrainTypes() const; /// Default: all
 	void setTerrainTypes(const std::set<ETerrainType> & value);
 	std::set<ETerrainType> getDefaultTerrainTypes() const;
-	boost::optional<TRmgTemplateZoneId> getTerrainTypeLikeZone() const;
-	void setTerrainTypeLikeZone(boost::optional<TRmgTemplateZoneId> value);
-	boost::optional<TRmgTemplateZoneId> getTownTypeLikeZone() const;
-	void setTownTypeLikeZone(boost::optional<TRmgTemplateZoneId> value);
+	void setMinesAmount (TResource res, ui16 amount);
+	std::map<TResource, ui16> getMinesInfo() const;
+	void setMonsterStrength (EMonsterStrength::EMonsterStrength val);
 
 	float3 getCenter() const;
 	void setCenter(const float3 &f);
@@ -113,13 +129,28 @@ public:
 	std::set<int3> getTileInfo () const;
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
-	void addMonster(CMapGenerator* gen, int3 &pos, si32 strength);
-	bool fill(CMapGenerator* gen);
+	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength);
+	bool createTreasurePile (CMapGenerator* gen, int3 &pos);
+	bool fill (CMapGenerator* gen);
+	bool placeMines (CMapGenerator* gen);
+	void initTownType (CMapGenerator* gen);
+	void initTerrainType (CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
-	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone);
+	void fractalize(CMapGenerator* gen);
+	bool createRequiredObjects(CMapGenerator* gen);
+	void createTreasures(CMapGenerator* gen);
+	void createObstacles(CMapGenerator* gen);
+	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles = nullptr);
+	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object);
 
+	void setTotalDensity (ui16 val);
+	ui16 getTotalDensity () const;
 	void addConnection(TRmgTemplateZoneId otherZone);
 	std::vector<TRmgTemplateZoneId> getConnections() const;
+	void addTreasureInfo(CTreasureInfo & info);
+	std::vector<CTreasureInfo> getTreasureInfo();
+
+	ObjectInfo getRandomObject (CMapGenerator* gen, ui32 value);
 
 private:
 	//template info
@@ -132,10 +163,17 @@ private:
 	std::set<TFaction> townTypes;
 	bool matchTerrainToTown;
 	std::set<ETerrainType> terrainTypes;
-	boost::optional<TRmgTemplateZoneId> terrainTypeLikeZone, townTypeLikeZone;
+	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone
+
+	si32 townType;
+	ETerrainType terrainType;
+
+	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
+	ui16 totalDensity;
+	std::vector<CTreasureInfo> treasureInfo;
+	std::vector<ObjectInfo> possibleObjects;
 
 	//content info
-	std::vector<int3> shape; //TODO: remove
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
 	std::vector<CGObjectInstance*> objects;
 
@@ -147,7 +185,9 @@ private:
 	std::map<TRmgTemplateZoneId, bool> alreadyConnected; //TODO: allow multiple connections between two zones?
 
 	bool pointIsIn(int x, int y);
+	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects
 	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
+	bool findPlaceForTreasurePile(CMapGenerator* gen, si32 min_dist, int3 &pos);
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str);

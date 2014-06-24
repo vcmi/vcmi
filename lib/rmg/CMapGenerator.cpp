@@ -5,8 +5,6 @@
 #include "../VCMI_Lib.h"
 #include "../CGeneralTextHandler.h"
 #include "../mapping/CMapEditManager.h"
-#include "../CObjectHandler.h"
-#include "../CDefObjInfoHandler.h"
 #include "../CTownHandler.h"
 #include "../StringConstants.h"
 #include "../filesystem/Filesystem.h"
@@ -234,20 +232,12 @@ void CMapGenerator::createConnections()
 		//rearrange tiles in random order
 		auto tilesCopy = zoneA->getTileInfo();
 		std::vector<int3> tiles(tilesCopy.begin(), tilesCopy.end());
-		//TODO: hwo to use std::shuffle with our generator?
-		//std::random_shuffle (tiles.begin(), tiles.end(), &gen->rand.nextInt);
-
-		int i, n;
-		n = (tiles.end() - tiles.begin());
-		for (i=n-1; i>0; --i)
-		{
-			std::swap (tiles.begin()[i],tiles.begin()[rand.nextInt(i+1)]);
-		}
+		RandomGeneratorUtil::randomShuffle(tiles, rand);
 
 		int3 guardPos(-1,-1,-1);
 
 		auto otherZoneTiles = zoneB->getTileInfo();
-		auto otherZoneCenter = zoneB->getPos();
+		//auto otherZoneCenter = zoneB->getPos();
 
 		for (auto tile : tiles)
 		{
@@ -258,6 +248,7 @@ void CMapGenerator::createConnections()
 			});
 			if (guardPos.valid())
 			{
+				setOccupied (guardPos, ETileType::FREE); //just in case monster is too weak to spawn
 				zoneA->addMonster (this, guardPos, connection.getGuardStrength()); //TODO: set value according to template
 				//zones can make paths only in their own area
 				zoneA->crunchPath (this, guardPos, zoneA->getPos(), zoneA->getId()); //make connection towards our zone center

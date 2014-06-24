@@ -2,7 +2,7 @@
 #include "VCAI.h"
 #include "Goals.h"
 #include "../../lib/UnlockGuard.h"
-#include "../../lib/CObjectHandler.h"
+#include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 

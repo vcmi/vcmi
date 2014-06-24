@@ -2,10 +2,10 @@
 #include "NetPacks.h"
 
 #include "CGeneralTextHandler.h"
-#include "CDefObjInfoHandler.h"
+#include "mapObjects/CObjectClassesHandler.h"
 #include "CArtHandler.h"
 #include "CHeroHandler.h"
-#include "CObjectHandler.h"
+#include "mapObjects/CObjectHandler.h"
 #include "CModHandler.h"
 #include "VCMI_Lib.h"
 #include "mapping/CMap.h"
@@ -124,6 +124,8 @@ DLL_LINKAGE void HeroVisitCastle::applyGs( CGameState *gs )
 	CGHeroInstance *h = gs->getHero(hid);
 	CGTownInstance *t = gs->getTown(tid);
 
+	assert(h);
+	assert(t);
 	if(start())
 		t->setVisitingHero(h);
 	else
@@ -227,15 +229,14 @@ DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 		&& gs->map->objects[bonus.sid]->ID == Obj::EVENT) //it's morale/luck bonus from an event without description
 	{
 		descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
-
-		// Some of(?) versions of H3 use %s here instead of %d. Try to replace both of them
-		boost::replace_first(descr,"%d",boost::lexical_cast<std::string>(std::abs(bonus.val)));
-		boost::replace_first(descr,"%s",boost::lexical_cast<std::string>(std::abs(bonus.val)));
 	}
 	else
 	{
 		bdescr.toString(descr);
 	}
+	// Some of(?) versions of H3 use %s here instead of %d. Try to replace both of them
+	boost::replace_first(descr,"%d",boost::lexical_cast<std::string>(std::abs(bonus.val)));
+	boost::replace_first(descr,"%s",boost::lexical_cast<std::string>(std::abs(bonus.val)));
 }
 
 DLL_LINKAGE void ChangeObjPos::applyGs( CGameState *gs )
@@ -249,6 +250,23 @@ DLL_LINKAGE void ChangeObjPos::applyGs( CGameState *gs )
 	gs->map->removeBlockVisTiles(obj);
 	obj->pos = nPos;
 	gs->map->addBlockVisTiles(obj);
+}
+
+DLL_LINKAGE void ChangeObjectVisitors::applyGs( CGameState *gs )
+{
+	switch (mode) {
+		case VISITOR_ADD:
+			gs->getHero(hero)->visitedObjects.insert(object);
+			gs->getPlayer(gs->getHero(hero)->tempOwner)->visitedObjects.insert(object);
+			break;
+		case VISITOR_CLEAR:
+			for (CGHeroInstance * hero : gs->map->allHeroes)
+				hero->visitedObjects.erase(object); // remove visit info from all heroes, including those that are not present on map
+			break;
+		case VISITOR_REMOVE:
+			gs->getHero(hero)->visitedObjects.erase(object);
+			break;
+	}
 }
 
 DLL_LINKAGE void PlayerEndsGame::applyGs( CGameState *gs )
@@ -547,7 +565,7 @@ DLL_LINKAGE void GiveHero::applyGs( CGameState *gs )
 	//bonus system
 	h->detachFrom(&gs->globalEffects);
 	h->attachTo(gs->getPlayer(player));
-	h->appearance = VLC->dobjinfo->pickCandidates(Obj::HERO, h->type->heroClass->id).front();
+	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->id)->getTemplates().front();
 
 	gs->map->removeBlockVisTiles(h,true);
 	h->setOwner(player);
@@ -588,9 +606,9 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 	o->subID = subID;
 	o->pos = pos;
 	const TerrainTile &t = gs->map->getTile(pos);
-	o->appearance = VLC->dobjinfo->pickCandidates(o->ID, o->subID, t.terType).front();
+	o->appearance = VLC->objtypeh->getHandlerFor(o->ID, o->subID)->getTemplates(t.terType).front();
 	id = o->id = ObjectInstanceID(gs->map->objects.size());
-	o->hoverName = VLC->generaltexth->names[ID];
+	o->hoverName = VLC->objtypeh->getObjectName(ID);
 
 	gs->map->objects.push_back(o);
 	gs->map->addBlockVisTiles(o);
@@ -1475,16 +1493,6 @@ DLL_LINKAGE void ObstaclesRemoved::applyGs( CGameState *gs )
 			}
 		}
 	}
-}
-
-DLL_LINKAGE CatapultAttack::CatapultAttack()
-{
-	type = 3015;
-}
-
-DLL_LINKAGE CatapultAttack::~CatapultAttack()
-{
-
 }
 
 DLL_LINKAGE void CatapultAttack::applyGs( CGameState *gs )

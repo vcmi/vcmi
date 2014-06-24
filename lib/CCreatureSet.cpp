@@ -4,7 +4,7 @@
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
-#include "CObjectHandler.h"
+#include "mapObjects/CGHeroInstance.h"
 #include "IGameCallback.h"
 #include "CGameState.h"
 #include "CGeneralTextHandler.h"

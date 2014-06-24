@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../lib/CConfigHandler.h"
-#include "CSoundBase.h"
+#include "../lib/CSoundBase.h"
 #include "../lib/CCreatureHandler.h"
 
 /*

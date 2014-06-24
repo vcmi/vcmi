@@ -608,6 +608,44 @@ namespace vstd
 		return defaultValue;
 	}
 
+	template <typename Container, typename Item>
+	bool erase_if_present(Container &c, const Item &item)
+	{
+		auto i = std::find(c.begin(), c.end(), item);
+		if (i != c.end())
+		{
+			c.erase(i);
+			return true;
+		}
+
+		return false;
+	}
+
+	template <typename V, typename Item, typename Item2>
+	bool erase_if_present(std::map<Item,V> & c, const Item2 &item)
+	{
+		auto i = c.find(item);
+		if (i != c.end())
+		{
+			c.erase(i);
+			return true;
+		}
+		return false;
+	}
+
+	template <typename Container, typename Pred>
+	void erase(Container &c, Pred pred)
+	{
+		c.erase(boost::remove_if(c, pred), c.end());
+	}
+
+	template<typename T>
+	void removeDuplicates(std::vector<T> &vec)
+	{
+		boost::sort(vec);
+		vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+	}
+
 	using boost::math::round;
 }
 using vstd::operator-=;

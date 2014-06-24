@@ -6,7 +6,7 @@
 	"required" : [
 		"animation", "faction", "highLevelChance", "lowLevelChance",
 		"name", "primarySkills", "secondarySkills", "tavern", "defaultTavern",
-		"affinity", "commander"
+		"affinity", "commander", "mapObject"
 	],
 
 	"additionalProperties" : false,
@@ -15,7 +15,7 @@
 			"type":"object",
 			"additionalProperties" : false,
 			"description": "Files related to hero animation",
-			"required": [ "battle", "map" ],
+			"required": [ "battle" ],
 			"properties":{
 				"battle": {
 					"type":"object",
@@ -34,24 +34,14 @@
 							"format" : "defFile"
 						}
 					}
-				},
-				"map": {
-					"type":"object",
-					"additionalProperties" : false,
-					"description": "Hero animations for adventure map",
-					"required": [ "female", "male" ],
-					"properties":{
-						"female": {
-							"type":"string",
-							"description": "Female version. Warning: not implemented!",
-							"format" : "defFile"
-						},
-						"male": {
-							"type":"string",
-							"description": "Male version",
-							"format" : "defFile"
-						}
-					}
+				}
+			}
+		},
+		"mapObject" : {
+			"properties" : {
+				"filters" : {
+					"type" : "object",
+					"additionalProperties" : { "type" : "array" }
 				}
 			}
 		},

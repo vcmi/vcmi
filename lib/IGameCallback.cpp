@@ -14,9 +14,10 @@
 #include "CHeroHandler.h" // for CHeroHandler
 #include "CSpellHandler.h" // for CSpell
 #include "NetPacks.h"
-#include "CBonusTypeHandler.h" // for CBonusTypeHandler
+#include "CBonusTypeHandler.h"
 
 #include "Connection.h" // for SAVEGAME_MAGIC
+#include "mapObjects/CObjectClassesHandler.h"
 
 void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 {

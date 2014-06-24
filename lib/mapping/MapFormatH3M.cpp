@@ -20,8 +20,8 @@
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
-#include "../CObjectHandler.h"
-#include "../CDefObjInfoHandler.h"
+#include "../mapObjects/CObjectClassesHandler.h"
+#include "../mapObjects/MapObjects.h"
 #include "../VCMI_Lib.h"
 #include "../NetPacksBase.h"
 
@@ -1569,7 +1569,7 @@ void CMapLoaderH3M::readObjects()
 			{
 				if(objTempl.subid == 0)
 				{
-					nobj = new CGPyramid();
+					nobj = new CBank();
 				}
 				else
 				{

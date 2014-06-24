@@ -737,7 +737,7 @@ void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source)
 
 void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 {
-	JsonNode inheritedNode(base);		
+	JsonNode inheritedNode(base);
 	merge(inheritedNode,descendant);
 	descendant.swap(inheritedNode);
 }

@@ -10,8 +10,10 @@
 #include "CCreatureHandler.h"
 #include "CModHandler.h"
 #include "CTownHandler.h"
-#include "CObjectHandler.h" //for hero specialty
+#include "mapObjects/CObjectHandler.h" //for hero specialty
 #include <math.h>
+
+#include "mapObjects/CObjectClassesHandler.h"
 
 /*
  * CHeroHandler.cpp, part of VCMI engine
@@ -102,13 +104,12 @@ CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 
 	heroClass->imageBattleFemale = node["animation"]["battle"]["female"].String();
 	heroClass->imageBattleMale   = node["animation"]["battle"]["male"].String();
+	//MODS COMPATIBILITY FOR 0.96
 	heroClass->imageMapFemale    = node["animation"]["map"]["female"].String();
 	heroClass->imageMapMale      = node["animation"]["map"]["male"].String();
 
 	heroClass->name = node["name"].String();
 	heroClass->affinity = vstd::find_pos(affinityStr, node["affinity"].String());
-	if (heroClass->affinity >= 2) //FIXME: MODS COMPATIBILITY
-		heroClass->affinity = 0;
 
 	for(const std::string & pSkill : PrimarySkill::names)
 	{
@@ -122,15 +123,11 @@ CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 		heroClass->secSkillProbability.push_back(node["secondarySkills"][secSkill].Float());
 	}
 
-	//FIXME: MODS COMPATIBILITY
-	if (!node["commander"].isNull())
+	VLC->modh->identifiers.requestIdentifier ("creature", node["commander"],
+	[=](si32 commanderID)
 	{
-		VLC->modh->identifiers.requestIdentifier ("creature", node["commander"],
-		[=](si32 commanderID)
-		{
-			heroClass->commander = VLC->creh->creatures[commanderID];
-		});
-	}
+		heroClass->commander = VLC->creh->creatures[commanderID];
+	});
 
 	heroClass->defaultTavernChance = node["defaultTavern"].Float();
 	for(auto & tavern : node["tavern"].Struct())
@@ -200,6 +197,14 @@ void CHeroClassHandler::loadObject(std::string scope, std::string name, const Js
 
 	heroClasses.push_back(object);
 
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "hero", [=](si32 index)
+	{
+		JsonNode classConf;
+		classConf["heroClass"].String() = name;
+		classConf.setMeta(scope);
+		VLC->objtypeh->loadSubObject(name, classConf, index, object->id);
+	});
+
 	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->id);
 }
 
@@ -210,6 +215,14 @@ void CHeroClassHandler::loadObject(std::string scope, std::string name, const Js
 
 	assert(heroClasses[index] == nullptr); // ensure that this id was not loaded before
 	heroClasses[index] = object;
+
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "hero", [=](si32 index)
+	{
+		JsonNode classConf = data["mapObject"];
+		classConf["heroClass"].String() = name;
+		classConf.setMeta(scope);
+		VLC->objtypeh->loadSubObject(name, classConf, index, object->id);
+	});
 
 	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->id);
 }
@@ -231,16 +244,14 @@ void CHeroClassHandler::afterLoadFinalization()
 		}
 	}
 
-	ObjectTemplate base = VLC->dobjinfo->pickCandidates(Obj::HERO, 0).front();
 	for (CHeroClass * hc : heroClasses)
 	{
-		base.animationFile = hc->imageMapMale;
-		base.subid = hc->id;
-
-		// replace existing (if any) and add new template.
-		// Necessary for objects added via mods that don't have any templates in H3
-		VLC->dobjinfo->eraseAll(Obj::HERO, hc->id);
-		VLC->dobjinfo->registerTemplate(base);
+		if (!hc->imageMapMale.empty())
+		{
+			JsonNode templ;
+			templ["animation"].String() = hc->imageMapMale;
+			VLC->objtypeh->getHandlerFor(Obj::HERO, hc->id)->addTemplate(templ);
+		}
 	}
 }
 

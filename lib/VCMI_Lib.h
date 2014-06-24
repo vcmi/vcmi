@@ -16,7 +16,7 @@ class CCreatureHandler;
 class CSpellHandler;
 class CBuildingHandler;
 class CObjectHandler;
-class CDefObjInfoHandler;
+class CObjectClassesHandler;
 class CTownHandler;
 class CGeneralTextHandler;
 class CModHandler;
@@ -42,7 +42,7 @@ public:
 	CCreatureHandler * creh;
 	CSpellHandler * spellh;
 	CObjectHandler * objh;
-	CDefObjInfoHandler * dobjinfo;
+	CObjectClassesHandler * objtypeh;
 	CTownHandler * townh;
 	CGeneralTextHandler * generaltexth;
 	CModHandler * modh;
@@ -60,7 +60,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroh & arth & creh & townh & objh & dobjinfo & spellh & modh & IS_AI_ENABLED;
+		h & heroh & arth & creh & townh & objh & objtypeh & spellh & modh & IS_AI_ENABLED;
 		h & bth;
 		if(!h.saving)
 		{

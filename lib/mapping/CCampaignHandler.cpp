@@ -10,7 +10,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../StartInfo.h"
 #include "../CArtHandler.h" //for hero crossover
-#include "../CObjectHandler.h" //for hero crossover
+#include "../mapObjects/CGHeroInstance.h"//for hero crossover
 #include "../CHeroHandler.h"
 #include "CMapService.h"
 #include "CMap.h"

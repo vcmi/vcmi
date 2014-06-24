@@ -3,9 +3,9 @@
 #include "VCAI.h"
 
 #include "../../lib/UnlockGuard.h"
-#include "../../lib/CObjectHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/mapObjects/CBank.h"
 
 /*
  * AIUtility.cpp, part of VCMI engine
@@ -303,11 +303,11 @@ ui64 evaluateDanger(const CGObjectInstance *obj)
 	case Obj::SHIPWRECK: //shipwreck
 	case Obj::DERELICT_SHIP: //derelict ship
 //	case Obj::PYRAMID:
-		return fh->estimateBankDanger (VLC->objh->bankObjToIndex(obj));
+		return fh->estimateBankDanger (dynamic_cast<const CBank *>(obj));
 	case Obj::PYRAMID:
 		{
 		    if(obj->subID == 0)
-				return fh->estimateBankDanger (VLC->objh->bankObjToIndex(obj));
+				return fh->estimateBankDanger (dynamic_cast<const CBank *>(obj));
 			else
 				return 0;
 		}
@@ -377,7 +377,7 @@ int3 whereToExplore(HeroPtr h)
 			}
 		}
 	}
-	removeDuplicates (nearbyVisitableObjs); //one object may occupy multiple tiles
+	vstd::removeDuplicates (nearbyVisitableObjs); //one object may occupy multiple tiles
 	boost::sort(nearbyVisitableObjs, isCloser);
 	if(nearbyVisitableObjs.size())
 		return nearbyVisitableObjs.back()->visitablePos();

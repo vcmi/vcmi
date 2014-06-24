@@ -104,46 +104,16 @@
 			"type":"object",
 			"additionalProperties" : false,
 			"required" : [
-				"adventureMap", "buildingsIcons", "buildings", "creatures", "guildWindow", "names",
+				"mapObject", "buildingsIcons", "buildings", "creatures", "guildWindow", "names",
 				"hallBackground", "hallSlots", "horde", "mageGuild", "moatDamage", "defaultTavern", "tavernVideo", "guildBackground", "musicTheme", "siege", "structures", "townBackground", "warMachine"
 			],
 			"description": "town",
 			"properties":{
-				"adventureMap": {
-					"type":"object",
-					"additionalProperties" : false,
-					"description": "Paths to images of object on adventure map",
-					"required" : [ "capitol", "castle", "village" ],
-					"properties":{
-						"capitol": {
-							"type":"string",
-							"description": "Town with capitol",
-							"format" : "defFile"
-						},
-						"castle": {
-							"type":"string",
-							"description": "Town with built fort",
-							"format" : "defFile"
-						},
-						"village": {
-							"type":"string",
-							"description": "Village without built fort",
-							"format" : "defFile"
-						},
-						"dwellings" : {
-							"type" : "array",
-							"minItems" : 7,
-							"maxItems" : 7,
-							"description" : "Dwellings on adventure map",
-							"items" : {
-								"type" : "object",
-								"additionalProperties" : false,
-								"required" : [ "name", "graphics" ],
-								"properties" : {
-									"name":     { "type":"string" },
-									"graphics": { "type":"string", "format" : "defFile" }
-								}
-							}
+				"mapObject" : {
+					"properties" : {
+						"filters" : {
+							"type" : "object",
+							"additionalProperties" : { "type" : "array" }
 						}
 					}
 				},

@@ -7,7 +7,7 @@
 #include "../CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CModHandler.h"
-#include "../CObjectHandler.h"
+#include "../mapObjects/CObjectHandler.h"
 #include "../CCreatureHandler.h"
 #include "../VCMI_Lib.h"
 #include "../CArtHandler.h"
@@ -16,7 +16,7 @@
 #include "../CTownHandler.h"
 #include "../mapping/CCampaignHandler.h"
 #include "../NetPacks.h"
-#include "../CDefObjInfoHandler.h"
+#include "../mapObjects/CObjectClassesHandler.h"
 
 
 template void registerTypesClientPacks2<CISer<CConnection>>(CISer<CConnection>& s);

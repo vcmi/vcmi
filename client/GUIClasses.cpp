@@ -24,7 +24,6 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CModHandler.h"
-#include "../lib/CObjectHandler.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/CondSh.h"

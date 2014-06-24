@@ -110,4 +110,14 @@ namespace RandomGeneratorUtil
 		assert(!container.empty());
 		return std::next(container.begin(), rand.nextInt(container.size() - 1));
 	}
+
+	template<typename T>
+	void randomShuffle(std::vector<T>& container, CRandomGenerator & rand)
+	{
+		int n = (container.end() - container.begin());
+		for (int i = n-1; i>0; --i)
+		{
+			std::swap (container.begin()[i],container.begin()[rand.nextInt(i+1)]);
+		}
+	}
 }

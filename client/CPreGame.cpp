@@ -11,11 +11,9 @@
 #include "gui/CCursorHandler.h"
 #include "CAnimation.h"
 #include "CDefHandler.h"
-#include "../lib/CDefObjInfoHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CObjectHandler.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/JsonNode.h"
@@ -1716,7 +1714,10 @@ CRandomMapTab::CRandomMapTab()
 	addButtonsWithRandToGroup(monsterStrengthGroup, monsterStrengthBtns, 0, 2, WIDE_BTN_WIDTH, 248, 251);
 	monsterStrengthGroup->onChange = [&](int btnId)
 	{
-		mapGenOptions.setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(btnId));
+		if (btnId < 0)
+			mapGenOptions.setMonsterStrength(EMonsterStrength::RANDOM);
+		else
+			mapGenOptions.setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(btnId + EMonsterStrength::GLOBAL_WEAK)); //value 2 to 4
 	};
 
 	// Show random maps btn

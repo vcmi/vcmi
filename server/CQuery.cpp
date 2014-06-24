@@ -293,6 +293,11 @@ bool CGarrisonDialogQuery::blocksPack(const CPack *pack) const
 		return !vstd::contains(ourIds, dismiss->id);
 	}
 
+	if (auto dismiss = dynamic_cast<const AssembleArtifacts*>(pack))
+	{
+		return !vstd::contains(ourIds, dismiss->heroID);
+	}
+
 	return CDialogQuery::blocksPack(pack);
 }
 

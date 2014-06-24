@@ -5,7 +5,7 @@
 #include "../lib/CCreatureHandler.h" //creatures name for objects list
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CModHandler.h" //for buildings per turn
-#include "../lib/CObjectHandler.h" //Hero/Town objects
+#include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/CHeroHandler.h" // only for calculating required xp? worth it?
 #include "../lib/CTownHandler.h"
 #include "CAnimation.h" //CAnimImage
@@ -500,7 +500,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 			OwnedObjectInfo &info = visibleObjects[object->subID];
 			if (info.count++ == 0)
 			{
-				info.hoverText = CGI->creh->creatures[CGI->objh->cregens.find(object->subID)->second]->namePl;
+				info.hoverText = object->getHoverText();
 				info.imageID = object->subID;
 			}
 		}

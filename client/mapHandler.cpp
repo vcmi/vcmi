@@ -14,12 +14,12 @@
 #include "CBitmapHandler.h"
 #include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
-#include "../lib/CDefObjInfoHandler.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
 #include "Graphics.h"
-#include "../lib/CObjectHandler.h"
 #include "../lib/mapping/CMap.h"
 #include "CDefHandler.h"
 #include "../lib/CConfigHandler.h"
@@ -207,7 +207,7 @@ void CMapHandler::borderAndTerrainBitmapInit()
 						terBitmapNum = 17;
 					else if(i==(sizes.x) && j==(sizes.y))
 						terBitmapNum = 18;
-					else if(j == -1 && i > -1 && i < sizes.y)
+					else if(j == -1 && i > -1 && i < sizes.x)
 						terBitmapNum = rand.nextInt(22, 23);
 					else if(i == -1 && j > -1 && j < sizes.y)
 						terBitmapNum = rand.nextInt(33, 34);
@@ -541,10 +541,8 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 						//pick graphics of hero (or boat if hero is sailing)
 						if (themp->boat)
 							iv = &graphics->boatAnims[themp->boat->subID]->ourImages;
-						else if (themp->sex)
-							iv = &graphics->heroAnims[themp->type->heroClass->imageMapFemale]->ourImages;
 						else
-							iv = &graphics->heroAnims[themp->type->heroClass->imageMapMale]->ourImages;
+							iv = &graphics->heroAnims[themp->appearance.animationFile]->ourImages;
 
 						//pick appropriate flag set
 						if(themp->boat)
@@ -1073,7 +1071,7 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	}
 
 	if(t.hasFavourableWinds())
-		out = CGI->generaltexth->names[Obj::FAVORABLE_WINDS];
+		out = CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS);
 	else if(terName)
         out = CGI->generaltexth->terrainNames[t.terType];
 }
