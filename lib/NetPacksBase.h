@@ -37,7 +37,7 @@ struct DLL_LINKAGE CPack
         logNetwork->errorStream() << "CPack serialized... this should not happen!";
 	}
 	void applyGs(CGameState *gs) { }
-	DLL_LINKAGE virtual std::string toString() const { return boost::str(boost::format("{CPack: type '%d'}") % type); }
+	virtual std::string toString() const { return boost::str(boost::format("{CPack: type '%d'}") % type); }
 };
 
 std::ostream & operator<<(std::ostream & out, const CPack * pack);
