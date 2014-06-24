@@ -1542,9 +1542,9 @@ struct CatapultAttack : public CPackForClient //3015
 			h & destinationTile & attackedPart & damageDealt;
 		}
 	};
+
 	DLL_LINKAGE CatapultAttack();
 	DLL_LINKAGE ~CatapultAttack();
-
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);

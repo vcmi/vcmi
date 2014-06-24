@@ -1495,17 +1495,15 @@ DLL_LINKAGE void ObstaclesRemoved::applyGs( CGameState *gs )
 	}
 }
 
+
 DLL_LINKAGE CatapultAttack::CatapultAttack()
 {
 	type = 3015;
 }
 
-
-
 DLL_LINKAGE CatapultAttack::~CatapultAttack()
 {
 }
-
 
 DLL_LINKAGE void CatapultAttack::applyGs( CGameState *gs )
 {
