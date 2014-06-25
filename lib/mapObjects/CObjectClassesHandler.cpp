@@ -276,8 +276,10 @@ void CObjectClassesHandler::afterLoadFinalization()
 
 std::string CObjectClassesHandler::getObjectName(si32 type) const
 {
-	assert(objects.count(type));
-	return objects.at(type)->name;
+	if (objects.count(type))
+		return objects.at(type)->name;
+	logGlobal->errorStream() << "Access to non existing object of type "  << type;
+	return "";
 }
 
 void AObjectTypeHandler::setType(si32 type, si32 subtype)
