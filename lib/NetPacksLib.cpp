@@ -14,6 +14,8 @@
 #include "CGameState.h"
 #include "BattleState.h"
 #include "CTownHandler.h"
+#include "mapping/CMapInfo.h"
+#include "StartInfo.h"
 
 /*
  * NetPacksLib.cpp, part of VCMI engine
@@ -58,6 +60,18 @@ DLL_LINKAGE void SetSecSkill::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(id);
 	hero->setSecSkillLevel(which, val, abs);
+}
+
+DLL_LINKAGE SelectMap::~SelectMap()
+{
+	if(free)
+		delete mapInfo;
+}
+
+DLL_LINKAGE UpdateStartOptions::~UpdateStartOptions()
+{
+	if(free)
+		delete options;
 }
 
 DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
@@ -1501,7 +1515,7 @@ DLL_LINKAGE CatapultAttack::~CatapultAttack()
 
 DLL_LINKAGE void CatapultAttack::applyGs( CGameState *gs )
 {
-	if(gs->curB && gs->curB->siege != CGTownInstance::NONE) //if there is a battle and it's a siege
+	if(gs->curB && gs->curB->town && gs->curB->town->fortLevel() != CGTownInstance::NONE) //if there is a battle and it's a siege
 	{
 		for(const auto &it :attackedParts)
 		{

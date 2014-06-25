@@ -290,7 +290,7 @@ public:
 private:
 	std::list<PlayerColor> generatePlayerTurnOrder() const;
 	void makeStackDoNothing(const CStack * next);
-	void getVictoryLossMessage(PlayerColor player, EVictoryLossCheckResult victoryLossCheckResult, InfoWindow & out) const;
+	void getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const;
 
 	// Check for victory and loss conditions
 	void checkVictoryLossConditionsForPlayer(PlayerColor player);

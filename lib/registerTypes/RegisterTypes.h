@@ -12,6 +12,7 @@
 #include "../mapObjects/CRewardableConstructor.h"
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h"
+#include "../CObstacleInstance.h"
 
 /*
  * RegisterTypes.h, part of VCMI engine

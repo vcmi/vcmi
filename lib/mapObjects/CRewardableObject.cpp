@@ -15,6 +15,8 @@
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "../NetPacks.h"
+#include "../IGameCallback.h"
+#include "../CGameState.h"
 
 #include "CObjectClassesHandler.h"
 

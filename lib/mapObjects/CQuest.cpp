@@ -17,6 +17,8 @@
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "CObjectClassesHandler.h"
+#include "../IGameCallback.h"
+#include "../CGameState.h"
 
 using namespace boost::assign;
 

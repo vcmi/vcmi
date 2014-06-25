@@ -18,6 +18,8 @@
 
 class CHero;
 class CGBoat;
+class CGTownInstance;
+class TerrainTile;
 
 class CGHeroPlaceholder : public CGObjectInstance
 {

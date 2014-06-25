@@ -14,10 +14,13 @@
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
+#include "../CModHandler.h"
 #include "../CSoundBase.h"
 #include "../CSpellHandler.h"
 #include "CObjectClassesHandler.h"
-
+#include "../IGameCallback.h"
+#include "../CGameState.h"
+#include "../CCreatureHandler.h"
 
 using namespace boost::assign;
 

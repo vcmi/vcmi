@@ -16,6 +16,7 @@
 #include "StartInfo.h" // for StartInfo
 #include "BattleState.h" // for BattleInfo
 #include "NetPacks.h" // for InfoWindow
+#include "CModHandler.h"
 
 //TODO make clean
 #define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)

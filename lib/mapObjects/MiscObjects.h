@@ -2,6 +2,7 @@
 
 #include "CObjectHandler.h"
 #include "CArmedInstance.h"
+#include "../ResourceSet.h"
 
 /*
  * MiscObjects.h, part of VCMI engine

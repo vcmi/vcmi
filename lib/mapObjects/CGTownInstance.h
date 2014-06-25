@@ -17,6 +17,7 @@
  */
 
 class CCastleEvent;
+class CGTownInstance;
 
 class DLL_LINKAGE CSpecObjInfo
 {

@@ -3509,59 +3509,6 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 	allowEmbarkAndDisembark = true;
 }
 
-EVictoryLossCheckResult::EVictoryLossCheckResult() :
-	intValue(0)
-{
-}
-
-EVictoryLossCheckResult::EVictoryLossCheckResult(si32 intValue, std::string toSelf, std::string toOthers) :
-	messageToSelf(toSelf),
-	messageToOthers(toOthers),
-	intValue(intValue)
-{
-}
-
-bool EVictoryLossCheckResult::operator==(EVictoryLossCheckResult const & other) const
-{
-	return intValue == other.intValue;
-}
-
-bool EVictoryLossCheckResult::operator!=(EVictoryLossCheckResult const & other) const
-{
-	return intValue != other.intValue;
-}
-
-bool EVictoryLossCheckResult::victory() const
-{
-	return intValue == VICTORY;
-}
-
-bool EVictoryLossCheckResult::loss() const
-{
-	return intValue == DEFEAT;
-}
-
-EVictoryLossCheckResult EVictoryLossCheckResult::invert()
-{
-	return EVictoryLossCheckResult(-intValue, messageToOthers, messageToSelf);
-}
-
-EVictoryLossCheckResult EVictoryLossCheckResult::victory(std::string toSelf, std::string toOthers)
-{
-	return EVictoryLossCheckResult(VICTORY, toSelf, toOthers);
-}
-
-EVictoryLossCheckResult EVictoryLossCheckResult::defeat(std::string toSelf, std::string toOthers)
-{
-	return EVictoryLossCheckResult(DEFEAT, toSelf, toOthers);
-}
-
-std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult)
-{
-	os << victoryLossCheckResult.messageToSelf;
-	return os;
-}
-
 CRandomGenerator & CGameState::getRandomGenerator()
 {
 	return rand;

@@ -4,6 +4,7 @@
 #include "CArmedInstance.h"
 
 #include "../NetPacksBase.h"
+#include "../ResourceSet.h"
 
 /*
  * CRewardableObject.h, part of VCMI engine

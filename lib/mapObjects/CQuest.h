@@ -16,6 +16,8 @@
  *
  */
 
+class CGCreature;
+
 class DLL_LINKAGE CQuest
 {
 public:

@@ -5225,7 +5225,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 	}
 }
 
-void CGameHandler::getVictoryLossMessage(PlayerColor player, EVictoryLossCheckResult victoryLossCheckResult, InfoWindow & out) const
+void CGameHandler::getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const
 {
 	out.player = player;
 	out.text.clear();

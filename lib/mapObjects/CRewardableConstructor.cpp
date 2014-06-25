@@ -5,6 +5,7 @@
 #include "../StringConstants.h"
 #include "../CCreatureHandler.h"
 #include "JsonRandom.h"
+#include "../IGameCallback.h"
 
 /*
  * CRewardableConstructor.cpp, part of VCMI engine

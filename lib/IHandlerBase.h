@@ -11,7 +11,7 @@
  */
  #include "../lib/ConstTransitivePtr.h"
  #include "VCMI_Lib.h"
- #include "CModHandler.h"
+ //#include "CModHandler.h"
 
 class JsonNode;
 
@@ -22,6 +22,9 @@ class DLL_LINKAGE IHandlerBase
 	// Object * loadFromJson(const JsonNode & json);
 	// where Object is type of data loaded by handler
 	// primary used in loadObject methods
+protected:
+	/// Calls modhandler. Mostly needed to avoid large number of includes in headers
+	void registerObject(std::string scope, std::string type_name, std::string name, si32 index);
 
 public:
 	/// loads all original game data in vector of json nodes
@@ -48,7 +51,6 @@ public:
 	virtual ~IHandlerBase(){}
 };
 
-
 template <class _ObjectID, class _Object> class CHandlerBase: public IHandlerBase
 {
 public:
@@ -68,7 +70,7 @@ public:
 
 		objects.push_back(object);
 
-		VLC->modh->identifiers.registerObject(scope, type_name, name, object->id);
+		registerObject(scope, type_name, name, object->id);
 	}
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override
 	{
@@ -80,7 +82,7 @@ public:
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
 		objects[index] = object;
 
-		VLC->modh->identifiers.registerObject(scope,type_name, name, object->id);
+		registerObject(scope,type_name, name, object->id);
 
 	}
 

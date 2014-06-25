@@ -14,9 +14,12 @@
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
+#include "../CModHandler.h"
 
 #include "CObjectClassesHandler.h"
 #include "../CSpellHandler.h"
+#include "../IGameCallback.h"
+#include "../CGameState.h"
 
 using namespace boost::assign;
 

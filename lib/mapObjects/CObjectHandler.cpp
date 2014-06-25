@@ -15,6 +15,9 @@
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../CSoundBase.h"
+#include "../filesystem/ResourceID.h"
+#include "../IGameCallback.h"
+#include "../CGameState.h"
 
 #include "CObjectClassesHandler.h"
 

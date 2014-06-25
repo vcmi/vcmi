@@ -2,7 +2,7 @@
 
 #include "ObjectTemplate.h"
 
-#include "../IGameCallback.h"
+//#include "../IGameCallback.h"
 #include "../int3.h"
 #include "../HeroBonus.h"
 
@@ -17,6 +17,9 @@
  */
 
 class CGHeroInstance;
+class IGameCallback;
+class CGObjectInstance;
+class MetaString;
 struct BattleResult;
 
 class DLL_LINKAGE IObjectInterface

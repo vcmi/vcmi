@@ -3,16 +3,18 @@
 #include "NetPacksBase.h"
 
 #include "BattleAction.h"
-#include "HeroBonus.h"
+//#include "HeroBonus.h"
 #include "mapObjects/CGHeroInstance.h"
-#include "CCreatureSet.h"
-#include "mapping/CMapInfo.h"
-#include "StartInfo.h"
+//#include "CCreatureSet.h"
+//#include "mapping/CMapInfo.h"
+//#include "StartInfo.h"
 #include "ConstTransitivePtr.h"
 #include "int3.h"
 #include "ResourceSet.h"
+//#include "CObstacleInstance.h"
+#include "CGameStateFwd.h"
+#include "mapping/CMap.h"
 #include "CObstacleInstance.h"
-#include "CGameState.h"
 
 /*
  * NetPacks.h, part of VCMI engine
@@ -37,7 +39,8 @@ class CArtifactInstance;
 struct StackLocation;
 struct ArtSlotInfo;
 struct QuestInfo;
-
+class CMapInfo;
+class StartInfo;
 
 
 struct CPackForClient : public CPack
@@ -2127,7 +2130,7 @@ struct PlayerJoined : public CPregamePackToHost
 	}
 };
 
-struct SelectMap : public CPregamePackToPropagate
+struct DLL_LINKAGE SelectMap : public CPregamePackToPropagate
 {
 	const CMapInfo *mapInfo;
 	bool free;
@@ -2142,11 +2145,7 @@ struct SelectMap : public CPregamePackToPropagate
 		mapInfo = nullptr;
 		free = true;
 	}
-	~SelectMap()
-	{
-		if(free)
-			delete mapInfo;
-	}
+	DLL_LINKAGE ~SelectMap();
 
 	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
 
@@ -2157,7 +2156,7 @@ struct SelectMap : public CPregamePackToPropagate
 
 };
 
-struct UpdateStartOptions : public CPregamePackToPropagate
+struct DLL_LINKAGE UpdateStartOptions : public CPregamePackToPropagate
 {
 	StartInfo *options;
 	bool free;
@@ -2174,11 +2173,7 @@ struct UpdateStartOptions : public CPregamePackToPropagate
 		options = nullptr;
 		free = true;
 	}
-	~UpdateStartOptions()
-	{
-		if(free)
-			delete options;
-	}
+	DLL_LINKAGE ~UpdateStartOptions();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

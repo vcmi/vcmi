@@ -5,6 +5,7 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/CModHandler.h"
 
 
 /*
