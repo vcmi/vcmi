@@ -65,7 +65,7 @@ public:
 			walkersStrength(0)
 		{}
 
-		bool operator <(const CArmyStructure & other)
+		bool operator <(const CArmyStructure & other) const
 		{
 			return this->totalStrength < other.totalStrength;
 		}
