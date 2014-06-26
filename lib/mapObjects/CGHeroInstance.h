@@ -18,6 +18,8 @@
 
 class CHero;
 class CGBoat;
+class CGTownInstance;
+class TerrainTile;
 
 class CGHeroPlaceholder : public CGObjectInstance
 {
@@ -113,7 +115,7 @@ public:
 		}
 	} skillsInfo;
 
-	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
+	//int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const; //sight distance (should be used if player-owned structure)
 	//////////////////////////////////////////////////////////////////////////
 
@@ -205,7 +207,7 @@ public:
 
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	const std::string & getHoverText() const override;
+	std::string getObjectName() const override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;//synchr
 

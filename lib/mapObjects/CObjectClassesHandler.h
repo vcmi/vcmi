@@ -5,6 +5,7 @@
 #include "../GameConstants.h"
 #include "../ConstTransitivePtr.h"
 #include "../IHandlerBase.h"
+#include "../JsonNode.h"
 
 /*
  * CObjectClassesHandler.h, part of VCMI engine

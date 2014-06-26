@@ -16,6 +16,8 @@
  *
  */
 
+class CGCreature;
+
 class DLL_LINKAGE CQuest
 {
 public:
@@ -95,7 +97,7 @@ public:
 
 	CGSeerHut() : IQuestObject(){};
 	void initObj() override;
-	const std::string & getHoverText() const override;
+	std::string getHoverText(PlayerColor player) const override;
 	void newTurn() const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
@@ -138,10 +140,10 @@ public:
 	static std::map <PlayerColor, std::set <ui8> > playerKeyMap; //[players][keysowned]
 	//SubID 0 - lightblue, 1 - green, 2 - red, 3 - darkblue, 4 - brown, 5 - purple, 6 - white, 7 - black
 
-	const std::string getName() const; //depending on color
 	bool wasMyColorVisited (PlayerColor player) const;
 
-	const std::string & getHoverText() const override;
+	std::string getObjectName() const override; //depending on color
+	std::string getHoverText(PlayerColor player) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -189,7 +191,7 @@ public:
 	CGBorderGate() : CGBorderGuard(){};
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
-	ui8 getPassableness() const override;
+	bool passableFor(PlayerColor color) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

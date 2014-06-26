@@ -5,6 +5,7 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/CModHandler.h"
 
 
 /*
@@ -81,7 +82,7 @@ struct ObjInfo
 	ObjInfo(){}
 	ObjInfo(const CGObjectInstance *obj):
 		pos(obj->pos),
-		name(obj->getHoverText())
+		name(obj->getObjectName())
 	{
 	}
 };
@@ -241,7 +242,7 @@ void VCAI::artifactDisassembled(const ArtifactLocation &al)
 
 void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start)
 {
-	LOG_TRACE_PARAMS(logAi, "start '%i'; obj '%s'", start % (visitedObj ? visitedObj->hoverName : std::string("n/a")));
+	LOG_TRACE_PARAMS(logAi, "start '%i'; obj '%s'", start % (visitedObj ? visitedObj->getObjectName() : std::string("n/a")));
 	NET_EVENT_HANDLER;
 	if(start)
 	{
@@ -780,13 +781,13 @@ void VCAI::makeTurnInternal()
 bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 {
 	int3 dst = obj->visitablePos();
-    logAi->debugStream() << boost::format("%s will try to visit %s at (%s)") % h->name % obj->getHoverText() % strFromInt3(dst);
+	logAi->debugStream() << boost::format("%s will try to visit %s at (%s)") % h->name % obj->getObjectName() % strFromInt3(dst);
 	return moveHeroToTile(dst, h);
 }
 
 void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
-	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->name % obj->getHoverText() % obj->pos);
+	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->name % obj->getObjectName() % obj->pos);
 	switch (obj->ID)
 	{
 		case Obj::CREATURE_GENERATOR1:
@@ -1434,7 +1435,7 @@ void VCAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int
 	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance *presumedEnemy = backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
-	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->name : "a army") % (presumedEnemy ? presumedEnemy->hoverName : "unknown enemy") % tile);
+	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->name : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile);
 	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
@@ -1468,7 +1469,7 @@ void VCAI::reserveObject(HeroPtr h, const CGObjectInstance *obj)
 {
 	reservedObjs.insert(obj);
 	reservedHeroesMap[h].insert(obj);
-	logAi->debugStream() << "reserved object id=" << obj->id << "; address=" << (intptr_t)obj << "; name=" << obj->getHoverText();
+	logAi->debugStream() << "reserved object id=" << obj->id << "; address=" << (intptr_t)obj << "; name=" << obj->getObjectName();
 }
 
 void VCAI::unreserveObject(HeroPtr h, const CGObjectInstance *obj)

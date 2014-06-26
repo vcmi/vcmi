@@ -14,6 +14,9 @@
 
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
+#include "../IGameCallback.h"
+#include "../CCreatureHandler.h"
+#include "../CGameState.h"
 
 using namespace boost::assign;
 

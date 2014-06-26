@@ -15,6 +15,7 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CSoundBase.h"
+#include "../lib/StartInfo.h"
 #include "mapHandler.h"
 #include "GUIClasses.h"
 #include "../lib/CConfigHandler.h"

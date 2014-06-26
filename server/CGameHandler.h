@@ -127,7 +127,6 @@ public:
 	bool removeObject(const CGObjectInstance * obj) override;
 	void setBlockVis(ObjectInstanceID objid, bool bv) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
-	void setHoverName(const CGObjectInstance * objid, MetaString * name) override;
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) override;
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override; 
 	//void showInfoDialog(InfoWindow *iw) override;
@@ -174,6 +173,8 @@ public:
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags) override;
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override;
 
+	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override;
+	void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) override;
 
 	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
 
@@ -289,7 +290,7 @@ public:
 private:
 	std::list<PlayerColor> generatePlayerTurnOrder() const;
 	void makeStackDoNothing(const CStack * next);
-	void getVictoryLossMessage(PlayerColor player, EVictoryLossCheckResult victoryLossCheckResult, InfoWindow & out) const;
+	void getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const;
 
 	// Check for victory and loss conditions
 	void checkVictoryLossConditionsForPlayer(PlayerColor player);

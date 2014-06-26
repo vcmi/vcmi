@@ -224,6 +224,7 @@ ui64 CCreatureSet::getPower (SlotID slot) const
 {
 	return getStack(slot).getPower();
 }
+
 std::string CCreatureSet::getRoughAmount (SlotID slot) const
 {
 	int quantity = CCreature::getQuantityID(getStackCount(slot));

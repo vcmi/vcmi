@@ -1063,56 +1063,6 @@ void CMapLoaderH3M::readObjects()
 				nobj = readHero(idToBeGiven);
 				break;
 			}
-		case Obj::ARENA:
-		case Obj::MERCENARY_CAMP:
-		case Obj::MARLETTO_TOWER:
-		case Obj::STAR_AXIS:
-		case Obj::GARDEN_OF_REVELATION:
-		case Obj::LEARNING_STONE:
-		case Obj::TREE_OF_KNOWLEDGE:
-		case Obj::LIBRARY_OF_ENLIGHTENMENT:
-		case Obj::SCHOOL_OF_MAGIC:
-		case Obj::SCHOOL_OF_WAR:
-			{
-				nobj = new CGVisitableOPH();
-				break;
-			}
-		case Obj::MYSTICAL_GARDEN:
-		case Obj::WINDMILL:
-		case Obj::WATER_WHEEL:
-			{
-				nobj = new CGVisitableOPW();
-				break;
-			}
-		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
-		case Obj::MONOLITH_ONE_WAY_EXIT:
-		case Obj::MONOLITH_TWO_WAY:
-		case Obj::SUBTERRANEAN_GATE:
-		case Obj::WHIRLPOOL:
-			{
-				nobj = new CGTeleport();
-				break;
-			}
-		case Obj::CAMPFIRE:
-		case Obj::FLOTSAM:
-		case Obj::SEA_CHEST:
-		case Obj::SHIPWRECK_SURVIVOR:
-			{
-				nobj = new CGPickable();
-				break;
-			}
-		case Obj::TREASURE_CHEST:
-				if(objTempl.subid == 0)
-				{
-					nobj = new CGPickable();
-				}
-				else
-				{
-					//WoG pickable object
-					//TODO: possible special handling
-					nobj = new CGObjectInstance();
-				}
-				break;
 		case Obj::MONSTER:  //Monster
 		case Obj::RANDOM_MONSTER:
 		case Obj::RANDOM_MONSTER_L1:
@@ -1330,12 +1280,6 @@ void CMapLoaderH3M::readObjects()
 				reader.skip(3);
 				break;
 			}
-		case Obj::REFUGEE_CAMP:
-		case Obj::WAR_MACHINE_FACTORY:
-			{
-				nobj = new CGDwelling();
-				break;
-			}
 		case Obj::SHRINE_OF_MAGIC_INCANTATION:
 		case Obj::SHRINE_OF_MAGIC_GESTURE:
 		case Obj::SHRINE_OF_MAGIC_THOUGHT:
@@ -1458,52 +1402,6 @@ void CMapLoaderH3M::readObjects()
 				nobj = guard;
 				break;
 			}
-		case Obj::FAERIE_RING:
-		case Obj::SWAN_POND:
-		case Obj::IDOL_OF_FORTUNE:
-		case Obj::FOUNTAIN_OF_FORTUNE:
-		case Obj::RALLY_FLAG:
-		case Obj::OASIS:
-		case Obj::TEMPLE:
-		case Obj::WATERING_HOLE:
-		case Obj::FOUNTAIN_OF_YOUTH:
-		case Obj::BUOY:
-		case Obj::MERMAID:
-		case Obj::STABLES:
-			{
-				nobj = new CGBonusingObject();
-				break;
-			}
-		case Obj::MAGIC_WELL:
-			{
-				nobj = new CGMagicWell();
-				break;
-			}
-		case Obj::COVER_OF_DARKNESS:
-		case Obj::REDWOOD_OBSERVATORY:
-		case Obj::PILLAR_OF_FIRE:
-			{
-				nobj = new CGObservatory();
-				break;
-			}
-		case Obj::CORPSE:
-		case Obj::LEAN_TO:
-		case Obj::WAGON:
-		case Obj::WARRIORS_TOMB:
-			{
-				nobj = new CGOnceVisitable();
-				break;
-			}
-		case Obj::BOAT:
-			{
-				nobj = new CGBoat();
-				break;
-			}
-		case Obj::SIRENS:
-			{
-				nobj = new CGSirens();
-				break;
-			}
 		case Obj::SHIPYARD:
 			{
 				nobj = new CGShipyard();
@@ -1533,11 +1431,6 @@ void CMapLoaderH3M::readObjects()
 
 				break;
 			}
-		case Obj::KEYMASTER:
-			{
-				nobj = new CGKeymasterTent();
-				break;
-			}
 		case Obj::BORDERGUARD:
 			{
 				nobj = new CGBorderGuard();
@@ -1548,21 +1441,6 @@ void CMapLoaderH3M::readObjects()
 			{
 				nobj = new CGBorderGate();
 				map->addQuest (nobj);
-				break;
-			}
-		case Obj::EYE_OF_MAGI:
-		case Obj::HUT_OF_MAGI:
-			{
-				nobj = new CGMagi();
-				break;
-			}
-		case Obj::CREATURE_BANK:
-		case Obj::DERELICT_SHIP:
-		case Obj::DRAGON_UTOPIA:
-		case Obj::CRYPT:
-		case Obj::SHIPWRECK:
-			{
-				nobj = new CBank();
 				break;
 			}
 		case Obj::PYRAMID: //Pyramid of WoG object
@@ -1579,53 +1457,24 @@ void CMapLoaderH3M::readObjects()
 				}
 				break;
 			}
-		case Obj::CARTOGRAPHER:
-			{
-				nobj = new CCartographer();
-				break;
-			}
-		case Obj::MAGIC_SPRING:
-			{
-				nobj = new CGMagicSpring();
-				break;
-			}
-		case Obj::DEN_OF_THIEVES:
-			{
-				nobj = new CGDenOfthieves();
-				break;
-			}
-		case Obj::OBELISK:
-			{
-				nobj = new CGObelisk();
-				break;
-			}
 		case Obj::LIGHTHOUSE: //Lighthouse
 			{
 				nobj = new CGLighthouse();
 				nobj->tempOwner = PlayerColor(reader.readUInt32());
 				break;
 			}
-		case Obj::ALTAR_OF_SACRIFICE:
-		case Obj::TRADING_POST:
-		case Obj::FREELANCERS_GUILD:
-		case Obj::TRADING_POST_SNOW:
-			{
-				nobj = new CGMarket();
-				break;
-			}
-		case Obj::UNIVERSITY:
-			{
-				nobj = new CGUniversity();
-				break;
-			}
-		case Obj::BLACK_MARKET:
-			{
-				nobj = new CGBlackMarket();
-				break;
-			}
 		default: //any other object
 			{
-				nobj = new CGObjectInstance();
+				if (VLC->objtypeh->knownSubObjects(objTempl.id).count(objTempl.subid))
+				{
+					nobj = VLC->objtypeh->getHandlerFor(objTempl.id, objTempl.subid)->create(objTempl);
+				}
+				else
+				{
+					logGlobal->warnStream() << "Unrecognized object: " << objTempl.id << ":" << objTempl.subid << " at " << objPos
+											<< " on map " << map->name;
+					nobj = new CGObjectInstance();
+				}
 				break;
 			}
 		}

@@ -2,6 +2,7 @@
 
 #include "CObjectHandler.h"
 #include "CArmedInstance.h"
+#include "../ResourceSet.h"
 
 /*
  * CGPandoraBox.h, part of VCMI engine
@@ -12,6 +13,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+class InfoWindow;
 
 class DLL_LINKAGE CGPandoraBox : public CArmedInstance
 {
