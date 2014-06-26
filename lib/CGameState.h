@@ -15,6 +15,7 @@
 #include "ResourceSet.h"
 #include "int3.h"
 #include "CRandomGenerator.h"
+#include "CGameStateFwd.h"
 
 /*
  * CGameState.h, part of VCMI engine
@@ -355,39 +356,6 @@ public:
 
 struct BattleInfo;
 
-class DLL_LINKAGE EVictoryLossCheckResult
-{
-public:
-	static EVictoryLossCheckResult victory(std::string toSelf, std::string toOthers);
-	static EVictoryLossCheckResult defeat(std::string toSelf, std::string toOthers);
-
-	EVictoryLossCheckResult();
-	bool operator==(EVictoryLossCheckResult const & other) const;
-	bool operator!=(EVictoryLossCheckResult const & other) const;
-	bool victory() const;
-	bool loss() const;
-
-	EVictoryLossCheckResult invert();
-
-	std::string messageToSelf;
-	std::string messageToOthers;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & intValue & messageToSelf & messageToOthers;
-	}
-private:
-	enum EResult
-	{
-		DEFEAT = -1,
-		INGAME =  0,
-		VICTORY= +1
-	};
-
-	EVictoryLossCheckResult(si32 intValue, std::string toSelf, std::string toOthers);
-	si32 intValue; // uses EResult
-};
-
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
 
 class DLL_LINKAGE CGameState : public CNonConstInfoCallback
@@ -532,36 +500,4 @@ private:
 	friend class IGameCallback;
 	friend class CMapHandler;
 	friend class CGameHandler;
-};
-
-struct DLL_LINKAGE QuestInfo //universal interface for human and AI
-{
-	const CQuest * quest;
-	const CGObjectInstance * obj; //related object, most likely Seer Hut
-	int3 tile;
-
-	QuestInfo(){};
-	QuestInfo (const CQuest * Quest, const CGObjectInstance * Obj, int3 Tile) :
-		quest (Quest), obj (Obj), tile (Tile){};
-
-	//FIXME: assignment operator should return QuestInfo &
-	bool operator= (const QuestInfo &qi)
-	{
-		quest = qi.quest;
-		obj = qi.obj;
-		tile = qi.tile;
-		return true;
-	}
-
-	bool operator== (const QuestInfo & qi) const
-	{
-		return (quest == qi.quest && obj == qi.obj);
-	}
-
-	//std::vector<std::string> > texts //allow additional info for quest log?
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & quest & obj & tile;
-	}
 };

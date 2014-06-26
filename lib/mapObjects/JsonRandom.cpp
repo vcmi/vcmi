@@ -206,10 +206,12 @@ namespace JsonRandom
 		return ret;
 	}
 
-	std::vector<Component> loadComponents(const JsonNode & value)
-	{
-		//TODO
-	}
+	//std::vector<Component> loadComponents(const JsonNode & value)
+	//{
+	//	std::vector<Component> ret;
+	//	return ret;
+	//	//TODO
+	//}
 
 	std::vector<Bonus> DLL_LINKAGE loadBonuses(const JsonNode & value)
 	{

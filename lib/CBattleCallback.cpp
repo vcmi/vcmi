@@ -409,7 +409,7 @@ ui8 CBattleInfoEssentials::playerToSide(PlayerColor player) const
 ui8 CBattleInfoEssentials::battleGetSiegeLevel() const
 {
 	RETURN_IF_NOT_BATTLE(0);
-	return getBattle()->siege;
+	return getBattle()->town ? getBattle()->town->fortLevel() : CGTownInstance::NONE;
 }
 
 bool CBattleInfoEssentials::battleCanSurrender(PlayerColor player) const
@@ -429,7 +429,7 @@ bool CBattleInfoEssentials::battleHasHero(ui8 side) const
 si8 CBattleInfoEssentials::battleGetWallState(int partOfWall) const
 {
 	RETURN_IF_NOT_BATTLE(0);
-	if(getBattle()->siege == CGTownInstance::NONE)
+	if(getBattle()->town == nullptr || getBattle()->town->fortLevel() == CGTownInstance::NONE)
 		return EWallState::NONE;
 
 	assert(partOfWall >= 0 && partOfWall < EWallPart::PARTS_COUNT);

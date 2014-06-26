@@ -82,6 +82,7 @@ set(lib_SRCS
 		ResourceSet.cpp
 		VCMI_Lib.cpp
 		VCMIDirs.cpp
+		IHandlerBase.cpp
 
 		IGameCallback.cpp
 		CGameInfoCallback.cpp
@@ -118,8 +119,8 @@ set(lib_HEADERS
 		GameConstants.h
 		StringConstants.h
 		IGameEventsReceiver.h
-		IHandlerBase.h
 		int3.h
+		CGameStateFwd.h
 		Interprocess.h
 		NetPacks.h
 		NetPacksBase.h

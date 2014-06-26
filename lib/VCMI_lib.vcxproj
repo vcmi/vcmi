@@ -199,6 +199,7 @@
     <ClCompile Include="filesystem\Filesystem.cpp" />
     <ClCompile Include="filesystem\ResourceID.cpp" />
     <ClCompile Include="GameConstants.cpp" />
+    <ClCompile Include="IHandlerBase.cpp" />
     <ClCompile Include="JsonDetail.cpp" />
     <ClCompile Include="LogicalExpression.cpp" />
     <ClCompile Include="mapObjects\CArmedInstance.cpp" />
@@ -274,6 +275,7 @@
     <ClInclude Include="CCreatureSet.h" />
     <ClInclude Include="CGameInterface.h" />
     <ClInclude Include="CGameState.h" />
+    <ClInclude Include="CGameStateFwd.h" />
     <ClInclude Include="CGeneralTextHandler.h" />
     <ClInclude Include="CHeroHandler.h" />
     <ClInclude Include="CModHandler.h" />

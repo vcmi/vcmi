@@ -189,9 +189,48 @@
 	"garrisonVertical"				: { "index" :219, "handler": "garrison" },
 
 	// Subtype: paired monoliths
-	"monolithOneWayEntrance"		: { "index" :43, "handler": "teleport" },
-	"monolithOneWayExit"			: { "index" :44, "handler": "teleport" },
-	"monolithTwoWay"				: { "index" :45, "handler": "teleport" },
+	"monolithOneWayEntrance" : {
+		"index" :43,
+		"handler": "teleport",
+		"types" : {
+			"monolith1" : { "index" : 0 },
+			"monolith2" : { "index" : 1 },
+			"monolith3" : { "index" : 2 },
+			"monolith4" : { "index" : 3 },
+			"monolith5" : { "index" : 4 },
+			"monolith6" : { "index" : 5 },
+			"monolith7" : { "index" : 6 },
+			"monolith8" : { "index" : 7 }
+		}
+	},
+	"monolithOneWayExit" : {
+		"index" :44,
+		"handler": "teleport",
+		"types" : {
+			"monolith1" : { "index" : 0 },
+			"monolith2" : { "index" : 1 },
+			"monolith3" : { "index" : 2 },
+			"monolith4" : { "index" : 3 },
+			"monolith5" : { "index" : 4 },
+			"monolith6" : { "index" : 5 },
+			"monolith7" : { "index" : 6 },
+			"monolith8" : { "index" : 7 }
+		}
+	},
+	"monolithTwoWay" : {
+		"index" :45,
+		"handler": "teleport",
+		"types" : {
+			"monolith1" : { "index" : 0 },
+			"monolith2" : { "index" : 1 },
+			"monolith3" : { "index" : 2 },
+			"monolith4" : { "index" : 3 },
+			"monolith5" : { "index" : 4 },
+			"monolith6" : { "index" : 5 },
+			"monolith7" : { "index" : 6 },
+			"monolith8" : { "index" : 7 }
+		}
+	},
 
 	// subtype: different appearance. That's all?
 	"seerHut" : { "index" :83, "handler": "seerHut" },

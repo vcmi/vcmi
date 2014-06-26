@@ -500,7 +500,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 			OwnedObjectInfo &info = visibleObjects[object->subID];
 			if (info.count++ == 0)
 			{
-				info.hoverText = object->getHoverText();
+				info.hoverText = object->getObjectName();
 				info.imageID = object->subID;
 			}
 		}
@@ -511,7 +511,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 			OwnedObjectInfo &info = visibleObjects[iter->second];
 			if (info.count++ == 0)
 			{
-				info.hoverText = object->hoverName;
+				info.hoverText = object->getObjectName();
 				info.imageID = iter->second;
 			}
 		}

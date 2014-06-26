@@ -14,6 +14,9 @@
 
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
+#include "../CModHandler.h"
+#include "../IGameCallback.h"
+#include "../CGameState.h"
 
 using namespace boost::assign;
 
@@ -55,7 +58,7 @@ void CGDwelling::initObj()
 	}
 }
 
-void CGDwelling::setProperty(ui8 what, ui32 val)
+void CGDwelling::setPropertyDer(ui8 what, ui32 val)
 {
 	switch (what)
 	{
@@ -77,8 +80,8 @@ void CGDwelling::setProperty(ui8 what, ui32 val)
 			creatures[0].second[0] = CreatureID(val);
 			break;
 	}
-	CGObjectInstance::setProperty(what,val);
 }
+
 void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(ID == Obj::REFUGEE_CAMP && !creatures[0].first) //Refugee Camp, no available cres
@@ -523,11 +526,15 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 	cb->stopHeroVisitCastle(this, h);
 }
 
+std::string CGTownInstance::getObjectName() const
+{
+	return name + ", " + town->faction->name;
+}
+
 void CGTownInstance::initObj()
 ///initialize town structures
 {
 	blockVisit = true;
-	hoverName = name + ", " + town->faction->name;
 
 	if (subID == ETownType::DUNGEON)
 		creatures.resize(GameConstants::CREATURES_PER_TOWN+1);//extra dwelling for Dungeon
@@ -644,25 +651,22 @@ void CGTownInstance::newTurn() const
 			}
 	}
 }
-
+/*
 int3 CGTownInstance::getSightCenter() const
 {
 	return pos - int3(2,0,0);
 }
-
-ui8 CGTownInstance::getPassableness() const
+*/
+bool CGTownInstance::passableFor(PlayerColor color) const
 {
 	if (!armedGarrison())//empty castle - anyone can visit
-		return GameConstants::ALL_PLAYERS;
+		return true;
 	if ( tempOwner == PlayerColor::NEUTRAL )//neutral guarded - no one can visit
-		return 0;
+		return false;
 
-	ui8 mask = 0;
-	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
-	for(PlayerColor it : ts->players)
-		mask |= 1<<it.getNum();//allies - add to possible visitors
-
-	return mask;
+	if (cb->getPlayerRelations(tempOwner, color) != PlayerRelations::ENEMIES)
+		return true;
+	return false;
 }
 
 void CGTownInstance::getOutOffsets( std::vector<int3> &offsets ) const
@@ -1010,7 +1014,7 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 		FoWChange fw;
 		fw.player = hero->tempOwner;
 		fw.mode = 1;
-		getSightTiles (fw.tiles); //update visibility for castle structures
+		cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadious(), tempOwner, 1);
 		cb->sendAndApply (&fw);
 	}
 }

@@ -365,13 +365,11 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	if(town)
 	{
 		curB->town = town;
-		curB->siege = town->fortLevel();
 		curB->terrainType = VLC->townh->factions[town->subID]->nativeTerrain;
 	}
 	else
 	{
 		curB->town = nullptr;
-		curB->siege = CGTownInstance::NONE;
 		curB->terrainType = terrain;
 	}
 
@@ -574,13 +572,13 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 
 	}
 
-	if (curB->siege == CGTownInstance::CITADEL || curB->siege == CGTownInstance::CASTLE)
+	if (curB->town && curB->town->fortLevel() >= CGTownInstance::CITADEL)
 	{
 		// keep tower
 		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -2);
 		stacks.push_back(stack);
 
-		if (curB->siege == CGTownInstance::CASTLE)
+		if (curB->town->fortLevel() >= CGTownInstance::CASTLE)
 		{
 			// lower tower + upper tower
 			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -4);

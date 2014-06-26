@@ -5,6 +5,7 @@
 #include "../StringConstants.h"
 #include "../CCreatureHandler.h"
 #include "JsonRandom.h"
+#include "../IGameCallback.h"
 
 /*
  * CRewardableConstructor.cpp, part of VCMI engine
@@ -95,7 +96,8 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 		info.reward.movePoints = JsonRandom::loadValue(reward["movePoints"], rng);
 		info.reward.movePercentage = JsonRandom::loadValue(reward["movePercentage"], rng, -1);
 
-		info.reward.bonuses = JsonRandom::loadBonuses(reward["bonuses"]);
+		//FIXME: compile this line on Visual
+		//info.reward.bonuses = JsonRandom::loadBonuses(reward["bonuses"]);
 
 		info.reward.primary = JsonRandom::loadPrimary(reward["primary"], rng);
 		info.reward.secondary = JsonRandom::loadSecondary(reward["secondary"], rng);

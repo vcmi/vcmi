@@ -15,6 +15,8 @@
 #include "../CSoundBase.h"
 
 #include "../CSpellHandler.h"
+#include "../StartInfo.h"
+#include "../IGameCallback.h"
 
 using namespace boost::assign;
 

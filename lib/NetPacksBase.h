@@ -25,7 +25,7 @@ struct ArtSlotInfo;
 #include "GameConstants.h"
 
 
-struct CPack
+struct DLL_LINKAGE CPack
 {
 	ui16 type;
 

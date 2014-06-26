@@ -32,7 +32,7 @@ public:
 	void setConfig(const BankConfig & bc);
 
 	void initObj() override;
-	const std::string & getHoverText() const override;
+	std::string getHoverText(PlayerColor player) const override;
 	void newTurn() const override;
 	bool wasVisited (PlayerColor player) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;

@@ -204,6 +204,7 @@
       <Filter>mapObjects</Filter>
     </ClCompile>
     <ClCompile Include="registerTypes\TypesMapObjects3.cpp" />
+    <ClCompile Include="IHandlerBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -487,6 +488,9 @@
     </ClInclude>
     <ClInclude Include="mapObjects\ObjectTemplate.h">
       <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="CGameStateFwd.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

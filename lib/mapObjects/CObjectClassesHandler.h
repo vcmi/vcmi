@@ -5,6 +5,7 @@
 #include "../GameConstants.h"
 #include "../ConstTransitivePtr.h"
 #include "../IHandlerBase.h"
+#include "../JsonNode.h"
 
 /*
  * CObjectClassesHandler.h, part of VCMI engine
@@ -64,7 +65,7 @@ public:
 			walkersStrength(0)
 		{}
 
-		bool operator <(const CArmyStructure & other)
+		bool operator <(const CArmyStructure & other) const
 		{
 			return this->totalStrength < other.totalStrength;
 		}

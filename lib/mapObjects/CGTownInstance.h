@@ -17,6 +17,7 @@
  */
 
 class CCastleEvent;
+class CGTownInstance;
 
 class DLL_LINKAGE CSpecObjInfo
 {
@@ -59,7 +60,7 @@ public:
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void newTurn() const override;
-	void setProperty(ui8 what, ui32 val) override;
+	void setPropertyDer(ui8 what, ui32 val) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
@@ -200,8 +201,8 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
-	int3 getSightCenter() const override; //"center" tile from which the sight distance is calculated
+	bool passableFor(PlayerColor color) const;
+	//int3 getSightCenter() const override; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const override; //returns sight distance
 	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
@@ -243,6 +244,7 @@ public:
 	void onHeroLeave(const CGHeroInstance * h) const override;
 	void initObj() override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
+	std::string getObjectName() const override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
 };

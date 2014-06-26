@@ -66,7 +66,7 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 		{
 			auto obj = cb->getObjInstance(ObjectInstanceID(objid));
 			if (obj)
-				desc = "GET OBJ " + obj->getHoverText();
+				desc = "GET OBJ " + obj->getObjectName();
 		}
 		case FIND_OBJ:
 			desc = "FIND OBJ " + boost::lexical_cast<std::string>(objid);
@@ -75,7 +75,7 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 		{
 			auto obj = cb->getObjInstance(ObjectInstanceID(objid));
 			if (obj)
-				desc = "VISIT HERO " + obj->getHoverText();
+				desc = "VISIT HERO " + obj->getObjectName();
 		}
 			break;
 		case GET_ART_TYPE:
@@ -493,7 +493,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 
 			if (topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
 				if (topObj != hero.get(true)) //the hero we want to free
-					logAi->errorStream() << boost::format("%s stands in the way of %s") % topObj->getHoverText()  % h->getHoverText();
+					logAi->errorStream() << boost::format("%s stands in the way of %s") % topObj->getObjectName()  % h->getObjectName();
 			if (topObj->ID == Obj::QUEST_GUARD || topObj->ID == Obj::BORDERGUARD)
 			{
 				if (shouldVisit(h, topObj))

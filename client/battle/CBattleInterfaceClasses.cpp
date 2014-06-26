@@ -17,6 +17,7 @@
 #include "../../lib/NetPacks.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/BattleState.h"
+#include "../../lib/StartInfo.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
 #include "../../lib/CTownHandler.h"

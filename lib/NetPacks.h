@@ -3,16 +3,18 @@
 #include "NetPacksBase.h"
 
 #include "BattleAction.h"
-#include "HeroBonus.h"
+//#include "HeroBonus.h"
 #include "mapObjects/CGHeroInstance.h"
-#include "CCreatureSet.h"
-#include "mapping/CMapInfo.h"
-#include "StartInfo.h"
+//#include "CCreatureSet.h"
+//#include "mapping/CMapInfo.h"
+//#include "StartInfo.h"
 #include "ConstTransitivePtr.h"
 #include "int3.h"
 #include "ResourceSet.h"
+//#include "CObstacleInstance.h"
+#include "CGameStateFwd.h"
+#include "mapping/CMap.h"
 #include "CObstacleInstance.h"
-#include "CGameState.h"
 
 /*
  * NetPacks.h, part of VCMI engine
@@ -37,7 +39,8 @@ class CArtifactInstance;
 struct StackLocation;
 struct ArtSlotInfo;
 struct QuestInfo;
-
+class CMapInfo;
+class StartInfo;
 
 
 struct CPackForClient : public CPack
@@ -1045,21 +1048,6 @@ struct SetObjectProperty : public CPackForClient//1001
 	}
 };
 
-struct SetHoverName : public CPackForClient//1002
-{
-	DLL_LINKAGE void applyGs(CGameState *gs);
-
-	ObjectInstanceID id;
-	MetaString name;
-	SetHoverName(){type = 1002;}
-	SetHoverName(ObjectInstanceID ID, MetaString& Name):id(ID),name(Name){type = 1002;}
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & id & name;
-	}
-};
-
 struct ChangeObjectVisitors : public CPackForClient // 1003
 {
 	enum VisitMode
@@ -1527,7 +1515,8 @@ struct ObstaclesRemoved : public CPackForClient //3014
 	}
 };
 
-struct CatapultAttack : public CPackForClient //3015
+struct ELF_VISIBILITY CatapultAttack : public CPackForClient //3015
+
 {
 	struct AttackInfo
 	{
@@ -2136,26 +2125,14 @@ struct PlayerJoined : public CPregamePackToHost
 	}
 };
 
-struct SelectMap : public CPregamePackToPropagate
+struct ELF_VISIBILITY SelectMap : public CPregamePackToPropagate
 {
 	const CMapInfo *mapInfo;
-	bool free;
+	bool free;//local flag, do not serialize
 
-	SelectMap(const CMapInfo &src)
-	{
-		mapInfo = &src;
-		free = false;
-	}
-	SelectMap()
-	{
-		mapInfo = nullptr;
-		free = true;
-	}
-	~SelectMap()
-	{
-		if(free)
-			delete mapInfo;
-	}
+	DLL_LINKAGE SelectMap(const CMapInfo &src);
+	DLL_LINKAGE SelectMap();
+	DLL_LINKAGE ~SelectMap();
 
 	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
 
@@ -2166,28 +2143,16 @@ struct SelectMap : public CPregamePackToPropagate
 
 };
 
-struct UpdateStartOptions : public CPregamePackToPropagate
+struct ELF_VISIBILITY UpdateStartOptions : public CPregamePackToPropagate
 {
 	StartInfo *options;
-	bool free;
+	bool free;//local flag, do not serialize
 
 	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
 
-	UpdateStartOptions(StartInfo &src)
-	{
-		options = &src;
-		free = false;
-	}
-	UpdateStartOptions()
-	{
-		options = nullptr;
-		free = true;
-	}
-	~UpdateStartOptions()
-	{
-		if(free)
-			delete options;
-	}
+	DLL_LINKAGE UpdateStartOptions(StartInfo &src);
+	DLL_LINKAGE UpdateStartOptions();
+	DLL_LINKAGE ~UpdateStartOptions();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

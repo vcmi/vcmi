@@ -8,6 +8,8 @@
 #include "../CHeroHandler.h"
 #include "../CCreatureHandler.h"
 #include "JsonRandom.h"
+#include "../CModHandler.h"
+#include "../IGameCallback.h"
 
 /*
  * CommonConstructors.cpp, part of VCMI engine

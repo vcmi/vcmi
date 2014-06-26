@@ -15,9 +15,12 @@
 #include "CSpellHandler.h" // for CSpell
 #include "NetPacks.h"
 #include "CBonusTypeHandler.h"
+#include "CModHandler.h"
 
 #include "Connection.h" // for SAVEGAME_MAGIC
 #include "mapObjects/CObjectClassesHandler.h"
+#include "StartInfo.h"
+#include "CGameState.h"
 
 void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 {
