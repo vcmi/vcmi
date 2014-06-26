@@ -669,7 +669,9 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 				if(multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST)
 				{
 					SDL_Color orange = {232, 184, 32, 0};
-					select->text->color = opts->text->color = randomBtn->text->color = orange;
+					dynamic_cast<CLabel*>(select->overlay)->color    = orange;
+					dynamic_cast<CLabel*>(opts->overlay)->color      = orange;
+					dynamic_cast<CLabel*>(randomBtn->overlay)->color = orange;
 					select->block(true);
 					opts->block(true);
 					randomBtn->block(true);
