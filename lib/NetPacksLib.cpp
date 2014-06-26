@@ -62,10 +62,33 @@ DLL_LINKAGE void SetSecSkill::applyGs( CGameState *gs )
 	hero->setSecSkillLevel(which, val, abs);
 }
 
+
+DLL_LINKAGE SelectMap::SelectMap(const CMapInfo &src)
+{
+	mapInfo = &src;
+	free = false;
+}
+DLL_LINKAGE SelectMap::SelectMap()
+{
+	mapInfo = nullptr;
+	free = true;
+}
+
 DLL_LINKAGE SelectMap::~SelectMap()
 {
 	if(free)
 		delete mapInfo;
+}
+
+DLL_LINKAGE  UpdateStartOptions::UpdateStartOptions(StartInfo &src)
+{
+	options = &src;
+	free = false;
+}
+DLL_LINKAGE  UpdateStartOptions::UpdateStartOptions()
+{
+	options = nullptr;
+	free = true;
 }
 
 DLL_LINKAGE UpdateStartOptions::~UpdateStartOptions()

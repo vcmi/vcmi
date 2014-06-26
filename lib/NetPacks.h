@@ -2130,16 +2130,8 @@ struct ELF_VISIBILITY SelectMap : public CPregamePackToPropagate
 	const CMapInfo *mapInfo;
 	bool free;
 
-	SelectMap(const CMapInfo &src)
-	{
-		mapInfo = &src;
-		free = false;
-	}
-	SelectMap()
-	{
-		mapInfo = nullptr;
-		free = true;
-	}
+	DLL_LINKAGE SelectMap(const CMapInfo &src);
+	DLL_LINKAGE SelectMap();
 	DLL_LINKAGE ~SelectMap();
 
 	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
@@ -2158,16 +2150,8 @@ struct ELF_VISIBILITY UpdateStartOptions : public CPregamePackToPropagate
 
 	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
 
-	UpdateStartOptions(StartInfo &src)
-	{
-		options = &src;
-		free = false;
-	}
-	UpdateStartOptions()
-	{
-		options = nullptr;
-		free = true;
-	}
+	DLL_LINKAGE UpdateStartOptions(StartInfo &src);
+	DLL_LINKAGE UpdateStartOptions();
 	DLL_LINKAGE ~UpdateStartOptions();
 
 	template <typename Handler> void serialize(Handler &h, const int version)

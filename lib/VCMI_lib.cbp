@@ -128,6 +128,7 @@
 		<Unit filename="IGameCallback.cpp" />
 		<Unit filename="IGameCallback.h" />
 		<Unit filename="IGameEventsReceiver.h" />
+		<Unit filename="IHandlerBase.cpp" />
 		<Unit filename="IHandlerBase.h" />
 		<Unit filename="Interprocess.h" />
 		<Unit filename="JsonDetail.cpp" />
