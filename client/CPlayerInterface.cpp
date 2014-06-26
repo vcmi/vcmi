@@ -482,10 +482,12 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 	waitWhileDialog();
 	CCS->soundh->playSound(soundBase::heroNewLevel);
 
-	CCreatureWindow * cw = new CCreatureWindow(skills, commander,
-												[=](ui32 selection){ cb->selectionMade(selection, queryID); });
-	GH.pushInt(cw);
+	GH.pushInt(new CStackWindow(commander, skills, [=](ui32 selection)
+	{
+		cb->selectionMade(selection, queryID);
+	}));
 }
+
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;

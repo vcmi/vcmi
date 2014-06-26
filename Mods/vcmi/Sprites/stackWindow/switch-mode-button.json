@@ -1,0 +1,8 @@
+{
+	"basepath" : "stackWindow/",
+	"images" :
+	[
+		{ "frame" : 0, "file" : "switch-mode-normal.png"},
+		{ "frame" : 0, "file" : "switch-mode-pressed.png"}
+	]
+}

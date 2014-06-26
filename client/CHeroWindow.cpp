@@ -328,7 +328,7 @@ void CHeroWindow::commanderWindow()
 		}
 	}
 	else
-		GH.pushInt(new CCreatureWindow (curHero->commander));
+		GH.pushInt(new CStackWindow(curHero->commander, true));
 
 }
 
