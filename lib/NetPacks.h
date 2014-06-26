@@ -2128,7 +2128,7 @@ struct PlayerJoined : public CPregamePackToHost
 struct ELF_VISIBILITY SelectMap : public CPregamePackToPropagate
 {
 	const CMapInfo *mapInfo;
-	bool free;
+	bool free;//local flag, do not serialize
 
 	DLL_LINKAGE SelectMap(const CMapInfo &src);
 	DLL_LINKAGE SelectMap();
@@ -2146,7 +2146,7 @@ struct ELF_VISIBILITY SelectMap : public CPregamePackToPropagate
 struct ELF_VISIBILITY UpdateStartOptions : public CPregamePackToPropagate
 {
 	StartInfo *options;
-	bool free;
+	bool free;//local flag, do not serialize
 
 	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
 
