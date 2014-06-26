@@ -1515,12 +1515,7 @@ struct ObstaclesRemoved : public CPackForClient //3014
 	}
 };
 
-//FIXME: figure out why gcc fails to find type_info for this class with -fvisibility=hidden flag set
-#if defined(__linux__) || defined(__APPLE__)
-struct DLL_LINKAGE CatapultAttack : public CPackForClient //3015
-#else
-struct CatapultAttack : public CPackForClient //3015
-#endif
+struct ELF_VISIBILITY CatapultAttack : public CPackForClient //3015
 
 {
 	struct AttackInfo
@@ -2130,7 +2125,7 @@ struct PlayerJoined : public CPregamePackToHost
 	}
 };
 
-struct DLL_LINKAGE SelectMap : public CPregamePackToPropagate
+struct ELF_VISIBILITY SelectMap : public CPregamePackToPropagate
 {
 	const CMapInfo *mapInfo;
 	bool free;
@@ -2156,7 +2151,7 @@ struct DLL_LINKAGE SelectMap : public CPregamePackToPropagate
 
 };
 
-struct DLL_LINKAGE UpdateStartOptions : public CPregamePackToPropagate
+struct ELF_VISIBILITY UpdateStartOptions : public CPregamePackToPropagate
 {
 	StartInfo *options;
 	bool free;
