@@ -272,24 +272,12 @@ void CTownHandler::loadBuildingRequirements(CTown &town, CBuilding & building, c
 {
 	if (source.isNull())
 		return;
-	if (source.Vector()[0].getType() == JsonNode::DATA_FLOAT)
-	{
-		// MODS COMPATIBILITY
-		CBuilding::TRequired::OperatorAll required;
 
-		for(const JsonNode &building : source.Vector())
-			required.expressions.push_back(BuildingID(building.Float()));
-
-		building.requirements = CBuilding::TRequired(required);
-	}
-	else
-	{
-		BuildingRequirementsHelper hlp;
-		hlp.building = &building;
-		hlp.faction  = town.faction;
-		hlp.json = source;
-		requirementsToLoad.push_back(hlp);
-	}
+	BuildingRequirementsHelper hlp;
+	hlp.building = &building;
+	hlp.faction  = town.faction;
+	hlp.json = source;
+	requirementsToLoad.push_back(hlp);
 }
 
 void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const JsonNode & source)
@@ -308,32 +296,31 @@ void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const
 	ret->resources = TResources(source["cost"]);
 	ret->produce =   TResources(source["produce"]);
 
-	//for compatibility with older town mods
+	//MODS COMPATIBILITY FOR 0.96
 	if(!ret->produce.nonZero())
 	{
-	if (ret->bid == BuildingID::VILLAGE_HALL) ret->produce[Res::GOLD] = 500;
-
-	if (ret->bid == BuildingID::TOWN_HALL) ret->produce[Res::GOLD] = 1000;
-
-	if (ret->bid == BuildingID::CITY_HALL) ret->produce[Res::GOLD] = 2000;
-
-	if (ret->bid == BuildingID::CAPITOL) ret->produce[Res::GOLD] = 4000;
-
-	if (ret->bid == BuildingID::GRAIL) ret->produce[Res::GOLD] = 5000;
-	//
-	if (ret->bid == BuildingID::RESOURCE_SILO)
-		{
-		if ((ret->town->primaryRes != Res::WOOD) && (ret->town->primaryRes != Res::ORE) && (ret->town->primaryRes != Res::GOLD))
-			ret->produce[ret->town->primaryRes] = 1;
-		else
-		{
-			if (ret->town->primaryRes == Res::GOLD) ret->produce[ret->town->primaryRes] = 500;
-			else
+		switch (ret->bid) {
+			break; case BuildingID::VILLAGE_HALL: ret->produce[Res::GOLD] = 500;
+			break; case BuildingID::TOWN_HALL :   ret->produce[Res::GOLD] = 1000;
+			break; case BuildingID::CITY_HALL :   ret->produce[Res::GOLD] = 2000;
+			break; case BuildingID::CAPITOL :     ret->produce[Res::GOLD] = 4000;
+			break; case BuildingID::GRAIL :       ret->produce[Res::GOLD] = 5000;
+			break; case BuildingID::RESOURCE_SILO :
 			{
-				ret->produce[Res::WOOD] = 1;
-				ret->produce[Res::ORE] = 1;
+				switch (ret->town->primaryRes)
+				{
+					case Res::GOLD:
+						ret->produce[ret->town->primaryRes] = 500;
+						break;
+					case Res::WOOD_AND_ORE:
+						ret->produce[Res::WOOD] = 1;
+						ret->produce[Res::ORE] = 1;
+						break;
+					default:
+						ret->produce[ret->town->primaryRes] = 1;
+						break;
+				}
 			}
-		}
 		}
 	}
 
@@ -341,23 +328,17 @@ void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const
 
 	if (!source["upgrades"].isNull())
 	{
-		//MODS COMPATIBILITY
-		if (source["upgrades"].getType() == JsonNode::DATA_FLOAT)
-			ret->upgrade = BuildingID(source["upgrades"].Float());
-		else
+		// building id and upgrades can't be the same
+		if(stringID == source["upgrades"].String())
 		{
-			// building id and upgrades can't be the same
-			if(stringID == source["upgrades"].String())
-			{
-				throw std::runtime_error(boost::str(boost::format("Building with ID '%s' of town '%s' can't be an upgrade of the same building.") %
-													stringID % town.faction->name));
-			}
-
-			VLC->modh->identifiers.requestIdentifier("building." + town.faction->identifier, source["upgrades"], [=](si32 identifier)
-			{
-				ret->upgrade = BuildingID(identifier);
-			});
+			throw std::runtime_error(boost::str(boost::format("Building with ID '%s' of town '%s' can't be an upgrade of the same building.") %
+												stringID % town.faction->name));
 		}
+
+		VLC->modh->identifiers.requestIdentifier("building." + town.faction->identifier, source["upgrades"], [=](si32 identifier)
+		{
+			ret->upgrade = BuildingID(identifier);
+		});
 	}
 	else
 		ret->upgrade = BuildingID::NONE;
@@ -381,7 +362,6 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 {
 	auto ret = new CStructure;
 
-	//Note: MODS COMPATIBILITY CODE
 	ret->building = nullptr;
 	ret->buildable = nullptr;
 
@@ -399,17 +379,10 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 	}
 	else
 	{
-		if (source["builds"].getType() == JsonNode::DATA_FLOAT)
+		VLC->modh->identifiers.requestIdentifier("building." + town.faction->identifier, source["builds"], [=, &town](si32 identifier) mutable
 		{
-			ret->buildable = town.buildings[BuildingID(source["builds"].Float())];
-		}
-		else
-		{
-			VLC->modh->identifiers.requestIdentifier("building." + town.faction->identifier, source["builds"], [=, &town](si32 identifier) mutable
-			{
-				ret->buildable = town.buildings[BuildingID(identifier)];
-			});
-		}
+			ret->buildable = town.buildings[BuildingID(identifier)];
+		});
 	}
 
 	ret->identifier = stringID;
@@ -457,16 +430,10 @@ void CTownHandler::loadTownHall(CTown &town, const JsonNode & source)
 				auto & dst = dstBox[k];
 				auto & src = srcBox[k];
 
-				//MODS COMPATIBILITY
-				if (src.getType() == JsonNode::DATA_FLOAT)
-					dst = BuildingID(src.Float());
-				else
+				VLC->modh->identifiers.requestIdentifier("building." + town.faction->identifier, src, [&](si32 identifier)
 				{
-					VLC->modh->identifiers.requestIdentifier("building." + town.faction->identifier, src, [&](si32 identifier)
-					{
-						dst = BuildingID(identifier);
-					});
-				}
+					dst = BuildingID(identifier);
+				});
 			}
 		}
 	}
@@ -672,20 +639,6 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source, std::string identi
 
 	faction->name = source["name"].String();
 	faction->identifier = identifier;
-
-	//FIXME: MODS COMPATIBILITY
-	if (!source["commander"].isNull())
-	{
-		VLC->modh->identifiers.requestIdentifier ("creature", source["commander"],
-		[=](si32 commanderID)
-		{
-			for (auto ptr : VLC->heroh->classes.heroClasses)
-			{
-				if (ptr->commander == nullptr && ptr->faction == faction->index)
-					ptr->commander = VLC->creh->creatures[commanderID];
-			}
-		});
-	}
 
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();

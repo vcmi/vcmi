@@ -128,7 +128,7 @@ public:
 	}
 };
 
-class CVisitInfo
+class DLL_LINKAGE CVisitInfo
 {
 public:
 	CRewardLimiter limiter;

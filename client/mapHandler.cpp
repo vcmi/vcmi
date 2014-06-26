@@ -207,7 +207,7 @@ void CMapHandler::borderAndTerrainBitmapInit()
 						terBitmapNum = 17;
 					else if(i==(sizes.x) && j==(sizes.y))
 						terBitmapNum = 18;
-					else if(j == -1 && i > -1 && i < sizes.y)
+					else if(j == -1 && i > -1 && i < sizes.x)
 						terBitmapNum = rand.nextInt(22, 23);
 					else if(i == -1 && j > -1 && j < sizes.y)
 						terBitmapNum = rand.nextInt(33, 34);

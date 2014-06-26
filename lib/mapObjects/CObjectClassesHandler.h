@@ -20,7 +20,7 @@ class JsonNode;
 class CRandomGenerator;
 
 /// Structure that describes placement rules for this object in random map
-struct RandomMapInfo
+struct DLL_LINKAGE RandomMapInfo
 {
 	/// How valuable this object is, 1k = worthless, 10k = Utopia-level
 	ui32 value;
@@ -47,7 +47,7 @@ struct RandomMapInfo
 	}
 };
 
-class IObjectInfo
+class DLL_LINKAGE IObjectInfo
 {
 public:
 	struct CArmyStructure
@@ -93,7 +93,7 @@ public:
 
 class CGObjectInstance;
 
-class DLL_EXPORT AObjectTypeHandler : public boost::noncopyable
+class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 {
 	RandomMapInfo rmgInfo;
 

@@ -20,9 +20,8 @@
 #include "../CSpellHandler.h" //for choosing random spells
 
 #include "../mapObjects/CObjectClassesHandler.h"
-//#include "../mapObjects/CGPandoraBox.h"
-//#include "../mapObjects/CRewardableObject.h"
-#include "../mapObjects/MapObjects.h"
+#include "../mapObjects/CGPandoraBox.h"
+#include "../mapObjects/CRewardableObject.h"
 
 class CMap;
 class CMapEditManager;
@@ -125,9 +124,16 @@ void CTileInfo::setTerrainType(ETerrainType value)
 	terrain = value;
 }
 
-CRmgTemplateZone::CRmgTemplateZone() : id(0), type(ETemplateZoneType::PLAYER_START), size(1),
-	terrainType (ETerrainType::GRASS), townType(0), townsAreSameType(false), matchTerrainToTown(true), totalDensity(0),
-	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL)
+CRmgTemplateZone::CRmgTemplateZone() :
+	id(0),
+	type(ETemplateZoneType::PLAYER_START),
+	size(1),
+	townsAreSameType(false),
+	matchTerrainToTown(true),
+	townType(0),
+	terrainType (ETerrainType::GRASS),
+	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
+	totalDensity(0)
 {
 	townTypes = getDefaultTownTypes();
 	terrainTypes = getDefaultTerrainTypes();
@@ -308,6 +314,11 @@ std::vector<CTreasureInfo> CRmgTemplateZone::getTreasureInfo()
 	return treasureInfo;
 }
 
+std::set<int3>* CRmgTemplateZone::getFreePaths()
+{
+	return &freePaths;
+}
+
 float3 CRmgTemplateZone::getCenter() const
 {
 	return center;
@@ -317,6 +328,7 @@ void CRmgTemplateZone::setCenter(const float3 &f)
 	//limit boundaries to (0,1) square
 	center = float3 (std::min(std::max(f.x, 0.f), 1.f), std::min(std::max(f.y, 0.f), 1.f), f.z);
 }
+
 
 bool CRmgTemplateZone::pointIsIn(int x, int y)
 {
@@ -340,11 +352,6 @@ void CRmgTemplateZone::addTile (const int3 &pos)
 std::set<int3> CRmgTemplateZone::getTileInfo () const
 {
 	return tileinfo;
-}
-
-std::set<int3>* CRmgTemplateZone::getFreePaths()
-{
-	return &freePaths;
 }
 
 void CRmgTemplateZone::createBorder(CMapGenerator* gen)
@@ -377,7 +384,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	{
 		if (gen->isFree(tile))
 			clearedTiles.push_back(tile);
-		else if (gen->isPossible(tile));
+		else if (gen->isPossible(tile))
 			possibleTiles.insert(tile);
 	}
 	if (clearedTiles.empty()) //this should come from zone connections
@@ -660,7 +667,6 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		int3 zoneCenter = getPos();
 		int3 closestTile = int3(-1,-1,-1);
 		float minDistance = 1e10;
-
 		for (auto treasure : treasures)
 		{
 			if (zoneCenter.dist2d(treasure.first) < minDistance)
@@ -1040,8 +1046,8 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 	//si32 min_dist = sqrt(tileinfo.size()/density);
 	int best_distance = 0;
 	bool result = false;
-	si32 w = gen->map->width;
-	si32 h = gen->map->height; 
+	//si32 w = gen->map->width;
+	//si32 h = gen->map->height;
 
 	//logGlobal->infoStream() << boost::format("Min dist for density %f is %d") % density % min_dist;
 
@@ -1190,9 +1196,8 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	for (auto tile : tiles)
 	{
 		//crunching path may fail if center of teh zone is dirrectly over wide object
-		if (crunchPath (gen, tile, findClosestTile(freePaths, tile), id, &freePaths)) //required objects will contitute our core free paths
+		if (crunchPath (gen, tile, getPos(), id)) //make sure object is accessible before surrounding it with blocked tiles
 		{
-			//make sure object is accessible before surrounding it with blocked tiles
 			guardTile = tile;
 			break;
 		}
@@ -1213,14 +1218,8 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 
 		gen->setOccupied (guardTile, ETileType::USED);
 	}
-	else //make sure no other stuff spawns next to unguarded object
-	{
-		for (auto tile : tiles)
-		{
-			if (!gen->isBlocked(tile))
-				gen->setOccupied (tile, ETileType::FREE);
-		}
-	}
+	else
+		gen->setOccupied (guardTile, ETileType::FREE);
 
 	return true;
 }
@@ -1280,6 +1279,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, ui32 value)
 		if (r <= t.first)
 			return t.second;
 	}
+	//FIXME: control reaches end of non-void function. Missing return?
 }
 
 void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)

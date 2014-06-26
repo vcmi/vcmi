@@ -203,6 +203,7 @@
     <ClCompile Include="mapObjects\ObjectTemplate.cpp">
       <Filter>mapObjects</Filter>
     </ClCompile>
+    <ClCompile Include="registerTypes\TypesMapObjects3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">

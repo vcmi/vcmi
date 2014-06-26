@@ -90,8 +90,8 @@ namespace JsonRandom
 			for (auto & entry : value["slot"].Vector())
 				allowedPositions.insert(VLC->arth->stringToSlot(entry.String()));
 
-		if (value["minValue"].isNull()) minValue = value["minValue"].Float();
-		if (value["maxValue"].isNull()) maxValue = value["maxValue"].Float();
+		if (!value["minValue"].isNull()) minValue = value["minValue"].Float();
+		if (!value["maxValue"].isNull()) maxValue = value["maxValue"].Float();
 
 		return VLC->arth->pickRandomArtifact(rng, [=](ArtifactID artID) -> bool
 		{
@@ -206,7 +206,12 @@ namespace JsonRandom
 		return ret;
 	}
 
-	std::vector<Bonus> loadBonuses(const JsonNode & value)
+	std::vector<Component> loadComponents(const JsonNode & value)
+	{
+		//TODO
+	}
+
+	std::vector<Bonus> DLL_LINKAGE loadBonuses(const JsonNode & value)
 	{
 		std::vector<Bonus> ret;
 		for (const JsonNode & entry : value.Vector())
@@ -218,8 +223,4 @@ namespace JsonRandom
 		return ret;
 	}
 
-	std::vector<Component> loadComponents(const JsonNode & value)
-	{
-		//TODO
-	}
 }

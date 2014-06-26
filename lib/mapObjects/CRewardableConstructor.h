@@ -15,7 +15,7 @@
  *
  */
 
-class CRandomRewardObjectInfo : public IObjectInfo
+class DLL_LINKAGE CRandomRewardObjectInfo : public IObjectInfo
 {
 	JsonNode parameters;
 public:
@@ -42,7 +42,7 @@ public:
 	void init(const JsonNode & objectConfig);
 };
 
-class CRewardableConstructor : public AObjectTypeHandler
+class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 {
 	CRandomRewardObjectInfo objectInfo;
 
