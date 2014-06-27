@@ -40,6 +40,13 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("static", CObstacleConstructor);
 	SET_HANDLER_CLASS("", CObstacleConstructor);
 
+	SET_HANDLER("randomArtifact", CGArtifact);
+	SET_HANDLER("randomHero", CGHeroInstance);
+	SET_HANDLER("randomResource", CGResource);
+	SET_HANDLER("randomTown", CGTownInstance);
+	SET_HANDLER("randomMonster", CGCreature);
+	SET_HANDLER("randomDwelling", CGDwelling);
+
 	SET_HANDLER("generic", CGObjectInstance);
 	SET_HANDLER("market", CGMarket);
 	SET_HANDLER("cartographer", CCartographer);
@@ -66,6 +73,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("onceVisitable", CGOnceVisitable);
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("pickable", CGPickable);
+	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER("questGuard", CGQuestGuard);
 	SET_HANDLER("resource", CGResource);
