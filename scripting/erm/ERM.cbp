@@ -48,7 +48,7 @@
 			<Add option="-lboost_thread$(#boost.libsuffix)" />
 			<Add option="-lboost_chrono$(#boost.libsuffix)" />
 			<Add option="-lVCMI_lib" />
-			<Add directory="$(#boost.lib)" />
+			<Add directory="$(#boost.lib32)" />
 			<Add directory="../.." />
 		</Linker>
 		<Unit filename="ERMInterpreter.cpp" />
@@ -58,7 +58,6 @@
 		<Unit filename="ERMScriptModule.cpp" />
 		<Unit filename="ERMScriptModule.h" />
 		<Unit filename="StdInc.h">
-			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
 		<Extensions>

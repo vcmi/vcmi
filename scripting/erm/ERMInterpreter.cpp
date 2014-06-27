@@ -8,6 +8,8 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/IGameCallback.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 
 /*
  * ERMInterpreter.cpp, part of VCMI engine

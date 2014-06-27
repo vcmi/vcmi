@@ -236,12 +236,37 @@
 	"seerHut" : { "index" :83, "handler": "seerHut" },
 
 	// subtype: level
-	"randomDwellingLvl"				: { "index" :217, "handler": "dwelling" },
+	"randomDwellingLvl" : {
+		"index" :217, "handler": "randomDwelling",
+			"types" : {
+				"objectLvl1" : { "index" : 0},
+				"objectLvl2" : { "index" : 1},
+				"objectLvl3" : { "index" : 2},
+				"objectLvl4" : { "index" : 3},
+				"objectLvl5" : { "index" : 4},
+				"objectLvl6" : { "index" : 5},
+				"objectLvl7" : { "index" : 6}
+			} 
+	},
 	
 	// subtype: faction ID
-	"randomDwellingFaction"			: { "index" :218, "handler": "dwelling" },
+	"randomDwellingFaction" : {
+		"index" :218,
+		"handler": "randomDwelling",
+			"types" : {
+				"objectCastle"     : { "index" : 0},
+				"objectRampart"    : { "index" : 1},
+				"objectTower"      : { "index" : 2},
+				"objectInferno"    : { "index" : 3},
+				"objectNecropolis" : { "index" : 4},
+				"objectDungeon"    : { "index" : 5},
+				"objectStronghold" : { "index" : 6},
+				"objectFortress"   : { "index" : 7},
+				"objectConflux"     : { "index" : 8},
+			}
+	},
 
 	// don't have subtypes (at least now), but closely connected to this objects
-	"spellScroll"					: { "index" :93, "handler": "artifact" },
-	"heroPlaceholder"				: { "index" :214, "handler": "heroPlaceholder" }
+	"spellScroll"					: { "index" :93, "handler": "artifact", "types" : { "object" : { "index" : 0 } } },
+	"heroPlaceholder"				: { "index" :214, "handler": "heroPlaceholder", "types" : { "object" : { "index" : 0 } } }
 }
