@@ -262,11 +262,11 @@
 				"objectDungeon"    : { "index" : 5},
 				"objectStronghold" : { "index" : 6},
 				"objectFortress"   : { "index" : 7},
-				"objectCastle"     : { "index" : 8},
+				"objectConflux"     : { "index" : 8},
 			}
 	},
 
 	// don't have subtypes (at least now), but closely connected to this objects
-	"spellScroll"					: { "index" :93, "handler": "artifact" },
-	"heroPlaceholder"				: { "index" :214, "handler": "heroPlaceholder" }
+	"spellScroll"					: { "index" :93, "handler": "artifact", "types" : { "object" : { "index" : 0 } } },
+	"heroPlaceholder"				: { "index" :214, "handler": "heroPlaceholder", "types" : { "object" : { "index" : 0 } } }
 }
