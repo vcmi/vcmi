@@ -328,7 +328,7 @@ void CHeroWindow::commanderWindow()
 		}
 	}
 	else
-		GH.pushInt(new CStackWindow(curHero->commander, true));
+		GH.pushInt(new CStackWindow(curHero->commander, false));
 
 }
 

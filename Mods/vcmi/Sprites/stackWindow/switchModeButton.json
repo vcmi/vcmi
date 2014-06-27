@@ -3,6 +3,6 @@
 	"images" :
 	[
 		{ "frame" : 0, "file" : "switch-mode-normal.png"},
-		{ "frame" : 0, "file" : "switch-mode-pressed.png"}
+		{ "frame" : 1, "file" : "switch-mode-pressed.png"}
 	]
 }

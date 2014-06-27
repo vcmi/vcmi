@@ -2,7 +2,6 @@
 
 #include "gui/CIntObjectClasses.h"
 #include "../lib/HeroBonus.h"
-#include "../lib/CGameState.h"
 
 /*
  * CCreatureWindow.h, part of VCMI engine
@@ -14,40 +13,24 @@
  *
  */
 
-struct StackWindowInfo
+class StackWindowInfo;
+class CCommanderInstance;
+class CStackInstance;
+class CStack;
+struct UpgradeInfo;
+
+class CClickableObject : public LRClickableAreaWText
 {
-	// helper structs
-	struct CommanderLevelInfo
-	{
-		std::vector<ui32> skills;
-		std::function<void(ui32)> callback;
-	};
-	struct StackDismissInfo
-	{
-		std::function<void()> callback;
-	};
-	struct StackUpgradeInfo
-	{
-		UpgradeInfo info;
-		std::function<void(CreatureID)> callback;
-	};
+	CIntObject * object; // passive object that will be used to determine clickable area
+public:
+	CClickableObject(CIntObject * object, std::function<void()> callback);
 
-	// pointers to permament objects in game state
-	const CCreature * creature;
-	const CCommanderInstance * commander;
-	const CStackInstance * stackNode;
-	const CGHeroInstance * owner;
+	std::function<void()> callback; //TODO: create more generic clickable class than AdvMapButton?
 
-	// temporary objects which should be kept as copy if needed
-	boost::optional<CommanderLevelInfo> levelupInfo;
-	boost::optional<StackDismissInfo> dismissInfo;
-	boost::optional<StackUpgradeInfo> upgradeInfo;
+	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState){};
 
-	// misc fields
-	unsigned int creatureCount;
-	bool popupWindow;
-
-	StackWindowInfo();
+	void setObject(CIntObject * object);
 };
 
 class CStackWindow : public CWindowObject
@@ -57,15 +40,6 @@ class CStackWindow : public CWindowObject
 		std::string name;
 		std::string description;
 		std::string imagePath;
-	};
-
-	class CSelectableSkill : public LRClickableAreaWText
-	{
-	public:
-		std::function<void()> callback; //TODO: create more generic clickable class than AdvMapButton?
-
-		void clickLeft(tribool down, bool previousState);
-		void clickRight(tribool down, bool previousState){};
 	};
 
 	class CWindowSection : public CIntObject
@@ -94,12 +68,14 @@ class CStackWindow : public CWindowObject
 		CWindowSection(CStackWindow * parent);
 	};
 
-	StackWindowInfo info;
+	std::unique_ptr<StackWindowInfo> info;
 	std::vector<BonusInfo> activeBonuses;
 	size_t activeTab;
 	CTabbedInt * commanderTab;
 
-	CSelectableSkill * selectedIcon;
+	std::map<int, CAdventureMapButton *> switchButtons;
+
+	CClickableObject * selectedIcon;
 	si32 selectedSkill;
 
 	CIntObject * createBonusEntry(size_t index);
@@ -124,4 +100,6 @@ public:
 	// for commanders & commander level-up dialog
 	CStackWindow(const CCommanderInstance * commander, bool popup);
 	CStackWindow(const CCommanderInstance * commander, std::vector<ui32> &skills, std::function<void(ui32)> callback);
+
+	~CStackWindow();
 };
