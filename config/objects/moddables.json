@@ -267,6 +267,21 @@
 	},
 
 	// don't have subtypes (at least now), but closely connected to this objects
-	"spellScroll"					: { "index" :93, "handler": "artifact", "types" : { "object" : { "index" : 0 } } },
+	"spellScroll" : {
+		"index" :93,
+		"handler": "artifact",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : {
+						"visitableFrom" : [ "+++", "+-+", "+++" ],
+						"mask" : [ "VA" ],
+						"animation" : "AVA0001.def"
+					}
+				}
+			}
+		}
+	},
 	"heroPlaceholder"				: { "index" :214, "handler": "heroPlaceholder", "types" : { "object" : { "index" : 0 } } }
 }
