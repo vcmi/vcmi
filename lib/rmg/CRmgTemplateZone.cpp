@@ -973,7 +973,7 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 		if (gen->shouldBeBlocked(tile)) //fill tiles that should be blocked with obstacles
 		{
 			auto obj = new CGObjectInstance();
-			obj->ID = static_cast<Obj>(130);
+			obj->ID = static_cast<Obj>(57);
 			obj->subID = 0;
 			placeObject(gen, obj, tile);
 		}
