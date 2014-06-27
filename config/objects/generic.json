@@ -64,26 +64,180 @@
 	},
 
 	/// Random objects
-	"randomResource"				: { "index" :76,  "handler": "randomResource", "types" : { "object" : { "index" : 0} }  },
 	"randomTown"					: { "index" :77,  "handler": "randomTown", "types" : { "object" : { "index" : 0} }  },
 	"randomHero"					: { "index" :70,  "handler": "randomHero", "types" : { "object" : { "index" : 0} }  },
-	
 	"randomDwelling"				: { "index" :216, "handler": "randomDwelling", "types" : { "object" : { "index" : 0} }  },
 
-	"randomArtifact"				: { "index" :65,  "handler": "randomArtifact", "types" : { "object" : { "index" : 0} }  },
-	"randomArtifactTreasure"		: { "index" :66,  "handler": "randomArtifact", "types" : { "object" : { "index" : 0} }  },
-	"randomArtifactMinor"			: { "index" :67,  "handler": "randomArtifact", "types" : { "object" : { "index" : 0} }  },
-	"randomArtifactMajor"			: { "index" :68,  "handler": "randomArtifact", "types" : { "object" : { "index" : 0} }  },
-	"randomArtifactRelic"			: { "index" :69,  "handler": "randomArtifact", "types" : { "object" : { "index" : 0} }  },
+	"randomResource" : {
+		"index" :76,
+		"handler": "randomResource",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVTrndm0", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
 
-	"randomMonster"					: { "index" :71,  "handler": "randomMonster", "types" : { "object" : { "index" : 0} }  },
-	"randomMonsterLevel1"			: { "index" :72,  "handler": "randomMonster", "types" : { "object" : { "index" : 0} }  },
-	"randomMonsterLevel2"			: { "index" :73,  "handler": "randomMonster", "types" : { "object" : { "index" : 0} }  },
-	"randomMonsterLevel3"			: { "index" :74,  "handler": "randomMonster", "types" : { "object" : { "index" : 0} }  },
-	"randomMonsterLevel4"			: { "index" :75,  "handler": "randomMonster", "types" : { "object" : { "index" : 0} }  },
-	"randomMonsterLevel5"			: { "index" :162, "handler": "randomMonster", "types" : { "object" : { "index" : 0} }  },
-	"randomMonsterLevel6"			: { "index" :163, "handler": "randomMonster", "types" : { "object" : { "index" : 0} }  },
-	"randomMonsterLevel7"			: { "index" :164, "handler": "randomMonster", "types" : { "object" : { "index" : 0} }  },
+	"randomArtifact" : { 
+		"index" :65,
+		"handler": "randomArtifact",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVArand", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
+	"randomArtifactTreasure" : { 
+		"index" :66,
+		"handler": "randomArtifact",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVArnd1", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
+	"randomArtifactMinor" : { 
+		"index" :67,
+		"handler": "randomArtifact",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVArnd2", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
+	"randomArtifactMajor" : { 
+		"index" :68,
+		"handler": "randomArtifact",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVArnd3", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
+	"randomArtifactRelic" : { 
+		"index" :69,
+		"handler": "randomArtifact",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVArnd4", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
+
+	"randomMonster" : { 
+		"index" :71,
+		"handler": "randomMonster",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVWmrnd0", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
+	"randomMonsterLevel1" : { 
+		"index" :72,
+		"handler": "randomMonster",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVWmon1", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
+	"randomMonsterLevel2" : { 
+		"index" :73,
+		"handler": "randomMonster",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVWmon2", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
+	"randomMonsterLevel3" : { 
+		"index" :74,
+		"handler": "randomMonster",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVWmon3", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
+	"randomMonsterLevel4" : { 
+		"index" :75,
+		"handler": "randomMonster",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVWmon4", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
+	"randomMonsterLevel5" : { 
+		"index" :162,
+		"handler": "randomMonster",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVWmon5", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
+	"randomMonsterLevel6" : { 
+		"index" :163,
+		"handler": "randomMonster",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVWmon6", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
+	"randomMonsterLevel7" : { 
+		"index" :164,
+		"handler": "randomMonster",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "AVWmon7", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
+			}
+		}
+	},
 
 	/// Classes without dedicated object
 	"hillFort"						: { "index" :35,  "handler": "generic", "types" : { "object" : { "index" : 0} } },
