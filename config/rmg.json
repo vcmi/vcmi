@@ -2,7 +2,7 @@
 {
 	"Analogy" : 
 	{
-		"minSize" : "m", "maxSize" : "m",
+		"minSize" : "s", "maxSize" : "m",
 		"players" : "4",
 		"zones" :
 		{
@@ -126,7 +126,7 @@
 	},
 	"Golden Ring" :
 	{
-		"minSize" : "m", "maxSize" : "m",
+		"minSize" : "m", "maxSize" : "l",
 		"players" : "3",
 		"zones" :
 		{
