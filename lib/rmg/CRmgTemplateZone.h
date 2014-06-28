@@ -21,6 +21,7 @@ class CMapGenerator;
 class CTileInfo;
 class int3;
 class CGObjectInstance;
+class ObjectTemplate;
 
 namespace ETemplateZoneType
 {
@@ -173,6 +174,7 @@ private:
 	ui16 totalDensity;
 	std::vector<CTreasureInfo> treasureInfo;
 	std::vector<ObjectInfo> possibleObjects;
+	std::vector<ObjectTemplate> possibleObstacles;
 
 	//content info
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
@@ -189,6 +191,7 @@ private:
 	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects
 	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
 	bool findPlaceForTreasurePile(CMapGenerator* gen, si32 min_dist, int3 &pos);
+	bool canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos);
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str);

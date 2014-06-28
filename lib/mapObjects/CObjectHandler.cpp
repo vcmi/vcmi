@@ -178,16 +178,7 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 
 std::set<int3> CGObjectInstance::getBlockedOffsets() const
 {
-	std::set<int3> ret;
-	for(int w=0; w<getWidth(); ++w)
-	{
-		for(int h=0; h<getHeight(); ++h)
-		{
-			if (appearance.isBlockedAt(w, h))
-				ret.insert(int3(-w, -h, 0));
-		}
-	}
-	return ret;
+	return appearance.getBlockedOffsets();
 }
 
 void CGObjectInstance::setType(si32 ID, si32 subID)
