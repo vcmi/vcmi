@@ -473,9 +473,12 @@ void CGHeroInstance::initObj()
 	skillsInfo.resetMagicSchoolCounter();
 	skillsInfo.resetWisdomCounter();
 
-	auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->id)->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
-	if (customApp)
-		appearance = customApp.get();
+	if (ID != Obj::PRISON)
+	{
+		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->id)->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
+		if (customApp)
+			appearance = customApp.get();
+	}
 
 	for(const auto &spec : type->spec) //TODO: unfity with bonus system
 	{

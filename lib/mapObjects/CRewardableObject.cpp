@@ -78,6 +78,7 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 
 		if (visit.numOfGrants < visit.limiter.numOfGrants && visit.limiter.heroAllowed(hero))
 		{
+			logGlobal->debugStream() << "Reward " << i << " is allowed";
 			ret.push_back(i);
 		}
 	}
@@ -88,7 +89,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 {
 	auto grantRewardWithMessage = [&](int index) -> void
 	{
-		grantReward(index, h);
+		logGlobal->debugStream() << "Granting reward " << index << ". Message says: " << info[index].message.toString();
 		// show message only if it is not empty
 		if (!info[index].message.toString().empty())
 		{
@@ -99,6 +100,8 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			info[index].reward.loadComponents(iw.components);
 			cb->showInfoDialog(&iw);
 		}
+		// grant reward afterwards. Note that it may remove object
+		grantReward(index, h);
 	};
 	auto selectRewardsMessage = [&](std::vector<ui32> rewards) -> void
 	{
@@ -114,6 +117,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 	if (!wasVisited(h))
 	{
 		auto rewards = getAvailableRewards(h);
+		logGlobal->debugStream() << "Visiting object with " << rewards.size() << " possible rewards";
 		switch (rewards.size())
 		{
 			case 0: // no available rewards, e.g. empty flotsam
@@ -155,6 +159,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 	}
 	else
 	{
+		logGlobal->debugStream() << "Revisiting already visited object";
 		InfoWindow iw;
 		iw.player = h->tempOwner;
 		iw.soundID = soundID;

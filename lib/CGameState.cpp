@@ -256,7 +256,7 @@ DLL_LINKAGE void MetaString::toString(std::string &dst) const
 			boost::replace_first(dst, "%+d", '+' + boost::lexical_cast<std::string>(numbers[nums++]));
 			break;
 		default:
-            logGlobal->errorStream() << "MetaString processing error!";
+			logGlobal->errorStream() << "MetaString processing error! Received message of type " << int(elem);
 			break;
 		}
 	}
@@ -313,7 +313,7 @@ DLL_LINKAGE std::string MetaString::buildList () const
 				lista.replace (lista.find("%d"), 2, boost::lexical_cast<std::string>(numbers[nums++]));
 				break;
 			default:
-                logGlobal->errorStream() << "MetaString processing error!";
+				logGlobal->errorStream() << "MetaString processing error! Received message of type " << int(message[i]);
 		}
 
 	}
