@@ -48,7 +48,7 @@ public:
 	std::vector<CStackBasicDescriptor> creatures;
 
 	CRewardLimiter():
-		numOfGrants(1),
+		numOfGrants(0),
 		dayOfWeek(0),
 		minLevel(0),
 		primary(4, 0)
