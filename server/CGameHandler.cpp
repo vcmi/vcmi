@@ -1351,7 +1351,7 @@ void CGameHandler::newTurn()
 		}
 		if (t->hasBonusOfType (Bonus::DARKNESS))
 		{
-			for (auto player : gameState()->players)
+			for (auto & player : gameState()->players)
 			{
 				if (getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
 					getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
