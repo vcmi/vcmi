@@ -184,7 +184,6 @@ void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 
 
 	if (answer > 0 && answer-1 < info.size())
 	{
-		//NOTE: this relies on assumption that there won't be any changes in player/hero during blocking dialog
 		auto list = getAvailableRewards(hero);
 		grantReward(list[answer - 1], hero);
 	}
@@ -470,7 +469,7 @@ void CGPickable::initObj()
 	blockVisit = true;
 	switch(ID)
 	{
-	case Obj::CAMPFIRE: //FIXME: campfire is not functioning correctly in game (no visible message)
+	case Obj::CAMPFIRE:
 		{
 			soundID = soundBase::experience;
 			int givenRes = cb->gameState()->getRandomGenerator().nextInt(5);

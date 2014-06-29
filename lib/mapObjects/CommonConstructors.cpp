@@ -195,8 +195,11 @@ void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CR
 
 	if (guards.getType() == JsonNode::DATA_BOOL)
 	{
-		const CCreature * crea = availableCreatures.at(0).at(0);
-		dwelling->putStack(SlotID(0), new CStackInstance(crea->idNumber, crea->growth * 3 ));
+		if (guards.Bool())
+		{
+			const CCreature * crea = availableCreatures.at(0).at(0);
+			dwelling->putStack(SlotID(0), new CStackInstance(crea->idNumber, crea->growth * 3 ));
+		}
 	}
 	else for (auto & stack : JsonRandom::loadCreatures(guards, rng))
 	{

@@ -272,7 +272,7 @@ void CGObjectInstance::giveDummyBonus(ObjectInstanceID heroID, ui8 duration) con
 
 std::string CGObjectInstance::getObjectName() const
 {
-	return VLC->objtypeh->getObjectName(ID);
+	return VLC->objtypeh->getObjectName(ID, subID);
 }
 
 std::string CGObjectInstance::getHoverText(PlayerColor player) const
