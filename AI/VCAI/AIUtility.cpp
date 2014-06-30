@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "AIUtility.h"
 #include "VCAI.h"
+#include "Fuzzy.h"
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"

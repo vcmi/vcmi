@@ -1,6 +1,8 @@
 #include "StdInc.h"
 #include "VCAI.h"
 #include "Goals.h"
+#include "Fuzzy.h"
+
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/CConfigHandler.h"

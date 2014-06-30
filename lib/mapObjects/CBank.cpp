@@ -45,10 +45,8 @@ void CBank::initObj()
 
 std::string CBank::getHoverText(PlayerColor player) const
 {
-	// TODO: USE BANK_SPECIFIC NAMES
 	// TODO: record visited players
-	bool visited = (bc == nullptr);
-	return visitedTxt(visited);
+	return getObjectName() + " " + visitedTxt(bc == nullptr);
 }
 
 void CBank::setConfig(const BankConfig & config)
@@ -128,8 +126,8 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		bd.player = h->getOwner();
 		bd.soundID = soundID;
 		bd.text.addTxt(MetaString::ADVOB_TXT, banktext);
-		//if (ID == Obj::CREATURE_BANK)
-		//	bd.text.addReplacement(VLC->objh->creBanksNames[index]); // FIXME: USE BANK SPECIFIC NAMES
+		if (ID == Obj::CREATURE_BANK)
+			bd.text.addReplacement(getObjectName());
 		cb->showBlockingDialog (&bd);
 	}
 	else
@@ -149,7 +147,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		else
 		{
 			iw.text << VLC->generaltexth->advobtxt[33];// This was X, now is completely empty
-			//iw.text.addReplacement(VLC->objh->creBanksNames[index]); // FIXME: USE BANK SPECIFIC NAMES
+			iw.text.addReplacement(getObjectName());
 		}
 		cb->showInfoDialog(&iw);
 	}

@@ -76,7 +76,8 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 	{
 		const CVisitInfo & visit = info[i];
 
-		if (visit.numOfGrants < visit.limiter.numOfGrants && visit.limiter.heroAllowed(hero))
+		if ((visit.limiter.numOfGrants == 0 || visit.numOfGrants < visit.limiter.numOfGrants) // reward has unlimited uses or some are still available
+			&& visit.limiter.heroAllowed(hero))
 		{
 			logGlobal->debugStream() << "Reward " << i << " is allowed";
 			ret.push_back(i);
@@ -183,7 +184,6 @@ void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 
 
 	if (answer > 0 && answer-1 < info.size())
 	{
-		//NOTE: this relies on assumption that there won't be any changes in player/hero during blocking dialog
 		auto list = getAvailableRewards(hero);
 		grantReward(list[answer - 1], hero);
 	}
@@ -270,7 +270,10 @@ void CRewardableObject::grantRewardAfterLevelup(const CVisitInfo & info, const C
 
 	for (const Bonus & bonus : info.reward.bonuses)
 	{
+		assert(bonus.source == Bonus::OBJECT);
+		assert(bonus.sid == ID);
 		GiveBonus gb;
+		gb.who = GiveBonus::HERO;
 		gb.bonus = bonus;
 		gb.id = hero->id.getNum();
 		cb->giveHeroBonus(&gb);
@@ -306,7 +309,7 @@ bool CRewardableObject::wasVisited (PlayerColor player) const
 	{
 		case VISIT_UNLIMITED:
 			return false;
-		case VISIT_ONCE:
+		case VISIT_ONCE: // FIXME: hide this info deeper and return same as player?
 			for (auto & visit : info)
 			{
 				if (visit.numOfGrants != 0)
@@ -315,7 +318,7 @@ bool CRewardableObject::wasVisited (PlayerColor player) const
 		case VISIT_HERO:
 			return false;
 		case VISIT_PLAYER:
-			return vstd::contains(cb->getPlayer(player)->visitedObjects, ObjectInstanceID(ID));
+			return vstd::contains(cb->getPlayer(player)->visitedObjects, ObjectInstanceID(id));
 		default:
 			return false;
 	}
@@ -325,8 +328,10 @@ bool CRewardableObject::wasVisited (const CGHeroInstance * h) const
 {
 	switch (visitMode)
 	{
+		case VISIT_UNLIMITED:
+			return h->hasBonusFrom(Bonus::OBJECT, ID);
 		case VISIT_HERO:
-			return vstd::contains(h->visitedObjects, ObjectInstanceID(ID)) || h->hasBonusFrom(Bonus::OBJECT, ID);
+			return h->visitedObjects.count(ObjectInstanceID(id));
 		default:
 			return wasVisited(h->tempOwner);
 	}
@@ -336,12 +341,6 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps) const
 {
 	for (auto comp : extraComponents)
 		comps.push_back(comp);
-
-	for (size_t i=0; i<resources.size(); i++)
-	{
-		if (resources[i] !=0)
-			comps.push_back(Component(Component::RESOURCE, i, resources[i], 0));
-	}
 
 	if (gainedExp)    comps.push_back(Component(Component::EXPERIENCE, 0, gainedExp, 0));
 	if (gainedLevels) comps.push_back(Component(Component::EXPERIENCE, 0, gainedLevels, 0));
@@ -365,6 +364,12 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps) const
 
 	for (auto & entry : creatures)
 		comps.push_back(Component(Component::CREATURE, entry.type->idNumber, entry.count, 0));
+
+	for (size_t i=0; i<resources.size(); i++)
+	{
+		if (resources[i] !=0)
+			comps.push_back(Component(Component::RESOURCE, i, resources[i], 0));
+	}
 }
 
 Component CRewardInfo::getDisplayedComponent() const
@@ -464,7 +469,7 @@ void CGPickable::initObj()
 	blockVisit = true;
 	switch(ID)
 	{
-	case Obj::CAMPFIRE: //FIXME: campfire is not functioning correctly in game (no visible message)
+	case Obj::CAMPFIRE:
 		{
 			soundID = soundBase::experience;
 			int givenRes = cb->gameState()->getRandomGenerator().nextInt(5);
@@ -658,8 +663,10 @@ void CGBonusingObject::initObj()
 		for (int i=0; i<5; i++)
 		{
 			configureBonus(info[i], Bonus::LUCK, i-1, 69); //NOTE: description have %d that should be replaced with value
-			configureMessage(info[i], 55, 56, soundBase::LUCK);
+			info[i].message.addTxt(MetaString::ADVOB_TXT, 55);
+			soundID = soundBase::LUCK;
 		}
+		onVisited.addTxt(MetaString::ADVOB_TXT, 56);
 		break;
 	case Obj::IDOL_OF_FORTUNE:
 
@@ -668,8 +675,10 @@ void CGBonusingObject::initObj()
 		{
 			info[i].limiter.dayOfWeek = i+1;
 			configureBonus(info[i], i%2 ? Bonus::MORALE : Bonus::LUCK, 1, 68);
-			configureMessage(info[i], 62, 63, soundBase::experience);
+			info[i].message.addTxt(MetaString::ADVOB_TXT, 62);
+			soundID = soundBase::experience;
 		}
+		onVisited.addTxt(MetaString::ADVOB_TXT, 63);
 		info.back().limiter.dayOfWeek = 7;
 		configureBonus(info.back(), Bonus::MORALE, 1, 68); // on last day of week
 		configureBonus(info.back(), Bonus::LUCK,   1, 68);
@@ -698,8 +707,10 @@ void CGBonusingObject::initObj()
 		configureBonus(info[0], Bonus::MORALE, 2, 96);
 		configureBonus(info[1], Bonus::MORALE, 1, 97);
 
-		configureMessage(info[0], 140, 141, soundBase::temple);
-		configureMessage(info[1], 140, 141, soundBase::temple);
+		info[0].message.addTxt(MetaString::ADVOB_TXT, 140);
+		info[1].message.addTxt(MetaString::ADVOB_TXT, 140);
+		onVisited.addTxt(MetaString::ADVOB_TXT, 141);
+		soundID = soundBase::temple;
 		break;
 	case Obj::WATERING_HOLE:
 		configureMessage(info[0], 166, 167, soundBase::MORALE);
@@ -924,6 +935,8 @@ void CGVisitableOPH::initObj()
 			info.resize(2);
 			info[0].reward.primary[PrimarySkill::SPELL_POWER] = 1;
 			info[1].reward.primary[PrimarySkill::KNOWLEDGE] = 1;
+			info[0].reward.resources[Res::GOLD] = -1000;
+			info[1].reward.resources[Res::GOLD] = -1000;
 			onSelect.addTxt(MetaString::ADVOB_TXT, 71);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 72);
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 73);
@@ -934,6 +947,8 @@ void CGVisitableOPH::initObj()
 			info.resize(2);
 			info[0].reward.primary[PrimarySkill::ATTACK] = 1;
 			info[1].reward.primary[PrimarySkill::DEFENSE] = 1;
+			info[0].reward.resources[Res::GOLD] = -1000;
+			info[1].reward.resources[Res::GOLD] = -1000;
 			onSelect.addTxt(MetaString::ADVOB_TXT, 158);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 159);
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 160);
