@@ -140,7 +140,7 @@ si32 selectNextID(const JsonNode & fixedID, const Map & map, si32 defaultID)
 
 	if (map.empty())
 		return defaultID; // no objects loaded, keep gap for H3M objects
-	if (map.rbegin()->first > defaultID)
+	if (map.rbegin()->first >= defaultID)
 		return map.rbegin()->first + 1; // some modded objects loaded, return next available
 
 	return defaultID; // some H3M objects loaded, first modded found
@@ -172,9 +172,10 @@ void CObjectClassesHandler::loadObjectEntry(const JsonNode & entry, ObjectContai
 		}
 		legacyTemplates.erase(range.first, range.second);
 	}
-	
-	obj->objects[id] = handler;
+
 	logGlobal->debugStream() << "Loaded object " << obj->id << ":" << id;
+	assert(!obj->objects.count(id)); // DO NOT override
+	obj->objects[id] = handler;
 }
 
 CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const JsonNode & json)
