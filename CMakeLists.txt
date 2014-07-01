@@ -14,7 +14,7 @@ endif()
 
 # VCMI version
 set(VCMI_VERSION_MAJOR 0)
-set(VCMI_VERSION_MINOR 95)
+set(VCMI_VERSION_MINOR 96)
 set(VCMI_VERSION_PATCH 0)
 
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
