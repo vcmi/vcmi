@@ -658,7 +658,7 @@ void CGBonusingObject::initObj()
 		break;
 	case Obj::FAERIE_RING:
 		configureMessage(info[0], 49, 50, soundBase::LUCK);
-		configureBonus(info[0], Bonus::LUCK, 2, 71);
+		configureBonus(info[0], Bonus::LUCK, 1, 71);
 		break;
 	case Obj::FOUNTAIN_OF_FORTUNE:
 		selectMode = SELECT_RANDOM;
@@ -960,59 +960,6 @@ void CGVisitableOPH::initObj()
 			break;
 	}
 }
-
-//TODO: re-enable. Probably in some different form but still necessary
-/*
-const std::string & CGVisitableOPH::getHoverText() const
-{
-	int pom = -1;
-	switch(ID)
-	{
-	case Obj::ARENA:
-		pom = -1;
-		break;
-	case Obj::MERCENARY_CAMP:
-		pom = 8;
-		break;
-	case Obj::MARLETTO_TOWER:
-		pom = 7;
-		break;
-	case Obj::STAR_AXIS:
-		pom = 11;
-		break;
-	case Obj::GARDEN_OF_REVELATION:
-		pom = 4;
-		break;
-	case Obj::LEARNING_STONE:
-		pom = 5;
-		break;
-	case Obj::TREE_OF_KNOWLEDGE:
-		pom = 18;
-		break;
-	case Obj::LIBRARY_OF_ENLIGHTENMENT:
-		break;
-	case Obj::SCHOOL_OF_MAGIC:
-		pom = 9;
-		break;
-	case Obj::SCHOOL_OF_WAR:
-		pom = 10;
-		break;
-	default:
-		throw std::runtime_error("Wrong CGVisitableOPH object ID!\n");
-	}
-	hoverName = VLC->objtypeh->getObjectName(ID);
-	if(pom >= 0)
-		hoverName += ("\n" + VLC->generaltexth->xtrainfo[pom]);
-	const CGHeroInstance *h = cb->getSelectedHero (cb->getCurrentPlayer());
-	if(h)
-	{
-		hoverName += "\n\n";
-		bool visited = vstd::contains (visitors, h->id);
-		hoverName += visitedTxt (visited);
-	}
-	return hoverName;
-}
-*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
