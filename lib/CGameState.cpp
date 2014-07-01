@@ -1899,6 +1899,13 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 			}
 		}
 	}
+	for (auto hero : map->heroesOnMap)
+	{
+		if (hero->visitedTown)
+		{
+			assert (hero->visitedTown->visitingHero == hero);
+		}
+	}
 }
 
 BFieldType CGameState::battleGetBattlefieldType(int3 tile)

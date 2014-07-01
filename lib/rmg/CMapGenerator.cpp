@@ -23,8 +23,8 @@ void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& 
 }
 
 
-CMapGenerator::CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int randomSeed /*= std::time(nullptr)*/) :
-	mapGenOptions(mapGenOptions), randomSeed(randomSeed), monolithIndex(0)
+CMapGenerator::CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int RandomSeed /*= std::time(nullptr)*/) :
+	mapGenOptions(mapGenOptions), randomSeed(RandomSeed), monolithIndex(0)
 {
 	rand.setSeed(randomSeed);
 }
@@ -50,12 +50,13 @@ void CMapGenerator::initTiles()
 
 CMapGenerator::~CMapGenerator()
 {
-	//FIXME: what if map is not present anymore?
-	if (tiles && map)
+	if (tiles)
 	{
-		for (int i=0; i < map->width; i++)
+		int width = mapGenOptions->getWidth();
+		int height = mapGenOptions->getHeight();
+		for (int i=0; i < width; i++)
 		{
-			for(int j=0; j < map->height; j++)
+			for(int j=0; j < height; j++)
 			{
 				delete [] tiles[i][j];
 			}
@@ -80,6 +81,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		genZones();
 		map->calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
 		fillZones();
+		//updated fuarded tiles will be calculated in CGameState::initMapObjects()
 	}
 	catch (rmgException &e)
 	{

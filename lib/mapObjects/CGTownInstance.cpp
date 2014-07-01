@@ -523,7 +523,14 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 
 void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 {
-	cb->stopHeroVisitCastle(this, h);
+	//FIXME: find out why this issue appears on random maps
+	if (visitingHero == h)
+	{
+		cb->stopHeroVisitCastle(this, h);
+		logGlobal->warnStream() << h->name << " correctly left town " << name;
+	}
+	else
+		logGlobal->warnStream() << "Warning, " << h->name << " tries to leave the town " << name << " but hero is not inside.";
 }
 
 std::string CGTownInstance::getObjectName() const
