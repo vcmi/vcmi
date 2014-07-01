@@ -108,6 +108,7 @@
 		<Unit filename="CRandomGenerator.cpp" />
 		<Unit filename="CRandomGenerator.h" />
 		<Unit filename="CScriptingModule.h" />
+		<Unit filename="CSoundBase.h" />
 		<Unit filename="CSpellHandler.cpp" />
 		<Unit filename="CSpellHandler.h" />
 		<Unit filename="CStopWatch.h" />

@@ -310,6 +310,7 @@ bool CContentHandler::ContentTypeHandler::preloadModData(std::string modName, st
 			if (remoteName == modName)
 				logGlobal->warnStream() << "Redundant namespace definition for " << objectName;
 
+			logGlobal->traceStream() << "Patching object " << objectName << " (" << remoteName << ") from " << modName;
 			JsonNode & remoteConf = modData[remoteName].patches[objectName];
 
 			JsonUtils::merge(remoteConf, entry.second);
