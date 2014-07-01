@@ -177,6 +177,7 @@ protected:
 		VISIT_UNLIMITED, // any number of times. Side effect - object hover text won't contain visited/not visited text
 		VISIT_ONCE,      // only once, first to visit get all the rewards
 		VISIT_HERO,      // every hero can visit object once
+		VISIT_BONUS,     // can be visited by any hero that don't have bonus from this object
 		VISIT_PLAYER     // every player can visit object once
 	};
 

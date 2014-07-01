@@ -308,6 +308,7 @@ bool CRewardableObject::wasVisited (PlayerColor player) const
 	switch (visitMode)
 	{
 		case VISIT_UNLIMITED:
+		case VISIT_BONUS:
 			return false;
 		case VISIT_ONCE: // FIXME: hide this info deeper and return same as player?
 			for (auto & visit : info)
@@ -329,6 +330,8 @@ bool CRewardableObject::wasVisited (const CGHeroInstance * h) const
 	switch (visitMode)
 	{
 		case VISIT_UNLIMITED:
+			return false;
+		case VISIT_BONUS:
 			return h->hasBonusFrom(Bonus::OBJECT, ID);
 		case VISIT_HERO:
 			return h->visitedObjects.count(ObjectInstanceID(id));
@@ -389,7 +392,7 @@ static std::string & visitedTxt(const bool visited)
 
 std::string CRewardableObject::getHoverText(PlayerColor player) const
 {
-	if(visitMode != VISIT_UNLIMITED)
+	if(visitMode == VISIT_PLAYER || visitMode == VISIT_ONCE)
 		return getObjectName() + " " + visitedTxt(wasVisited(player));
 	return getObjectName();
 }
@@ -611,7 +614,7 @@ void CGPickable::initObj()
 
 CGBonusingObject::CGBonusingObject()
 {
-	visitMode = VISIT_UNLIMITED;
+	visitMode = VISIT_BONUS;
 	selectMode = SELECT_FIRST;
 }
 

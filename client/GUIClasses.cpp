@@ -6181,7 +6181,12 @@ void CRClickPopup::createAndPush(const CGObjectInstance *obj, const Point &p, EA
 	if(iWin)
 		GH.pushInt(iWin);
 	else
-		CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->playerID));
+	{
+		if (adventureInt->curHero())
+			CRClickPopup::createAndPush(obj->getHoverText(adventureInt->curHero()));
+		else
+			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->playerID));
+	}
 }
 
 CRClickPopup::CRClickPopup()

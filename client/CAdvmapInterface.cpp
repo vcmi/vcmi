@@ -1127,17 +1127,19 @@ void CAdvMapInt::endingTurn()
 	LOCPLINT->cb->endTurn();
 }
 
-const CGObjectInstance* CAdvMapInt::getBlockingObject(const int3 &mapPos)
+const CGObjectInstance* CAdvMapInt::getActiveObject(const int3 &mapPos)
 {
 	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mapPos);  //blocking objects at tile
 
 	if (bobjs.empty())
 		return nullptr;
 
+	return *boost::range::max_element(bobjs, &CMapHandler::compareObjectBlitOrder);
+/*
 	if (bobjs.back()->ID == Obj::HERO)
 		return bobjs.back();
 	else
-		return bobjs.front();
+		return bobjs.front();*/
 }
 
 void CAdvMapInt::tileLClicked(const int3 &mapPos)
@@ -1147,7 +1149,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 
 	const TerrainTile *tile = LOCPLINT->cb->getTile(mapPos);
 
-	const CGObjectInstance *topBlocking = getBlockingObject(mapPos);
+	const CGObjectInstance *topBlocking = getActiveObject(mapPos);
 
 	int3 selPos = selection->getSightCenter();
 	if(spellBeingCasted && isInScreenRange(selPos, mapPos))
@@ -1232,7 +1234,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		statusbar.clear();
 		return;
 	}
-	const CGObjectInstance *objAtTile = getBlockingObject(mapPos);
+	const CGObjectInstance *objAtTile = getActiveObject(mapPos);
 
 	if (objAtTile)
 	{
@@ -1432,7 +1434,7 @@ void CAdvMapInt::tileRClicked(const int3 &mapPos)
 		return;
 	}
 
-	const CGObjectInstance * obj = getBlockingObject(mapPos);
+	const CGObjectInstance * obj = getActiveObject(mapPos);
 	if(!obj)
 	{
 		// Bare or undiscovered terrain
