@@ -2,7 +2,7 @@
 {
 	"Analogy" : 
 	{
-		"minSize" : "s", "maxSize" : "m",
+		"minSize" : "m", "maxSize" : "m",
 		"players" : "4",
 		"zones" :
 		{
@@ -63,7 +63,7 @@
 	},
 	"Upgrade" :
 	{
-		"minSize" : "m", "maxSize" : "m",
+		"minSize" : "s", "maxSize" : "m",
 		"players" : "2",
 		"zones" :
 		{

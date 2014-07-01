@@ -761,7 +761,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			playerInfo.allowedFactions.clear();
 			playerInfo.allowedFactions.insert (townType);
 			playerInfo.hasMainTown = true;
-			playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
+			playerInfo.posOfMainTown = town->pos - town->getVisitableOffset();
 			playerInfo.generateHeroAtMainTown = true;
 
 			//now create actual towns
@@ -1264,8 +1264,11 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 
 		gen->setOccupied (guardTile, ETileType::USED);
 	}
-	else
-		gen->setOccupied (guardTile, ETileType::FREE);
+	else //allow no guard or other object in front of this object
+	{
+		for (auto tile : tiles)
+			gen->setOccupied (tile, ETileType::FREE);
+	}
 
 	return true;
 }

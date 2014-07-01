@@ -163,6 +163,7 @@ DLL_LINKAGE void HeroVisitCastle::applyGs( CGameState *gs )
 
 	assert(h);
 	assert(t);
+
 	if(start())
 		t->setVisitingHero(h);
 	else

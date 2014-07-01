@@ -907,7 +907,13 @@ bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type,
 
 void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 {
-	assert(!!visitingHero == !h);
+	if (!(!!visitingHero == !h))
+	{
+		logGlobal->warnStream() << boost::format("Hero visiting town %s is %s ") % name % (visitingHero.get() ? visitingHero->name : "NULL");
+		logGlobal->warnStream() << boost::format("New hero will be %s ") % (h ? h->name : "NULL");
+		assert(!!visitingHero == !h);
+	}
+
 	if(h)
 	{
 		PlayerState *p = cb->gameState()->getPlayer(h->tempOwner);

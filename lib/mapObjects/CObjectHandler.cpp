@@ -246,7 +246,7 @@ int3 CGObjectInstance::getVisitableOffset() const
 			if (appearance.isVisitableAt(x, y))
 				return int3(x,y,0);
 
-    logGlobal->warnStream() << "Warning: getVisitableOffset called on non-visitable obj!";
+    //logGlobal->warnStream() << "Warning: getVisitableOffset called on non-visitable obj!";
 	return int3(0,0,0);
 }
 
