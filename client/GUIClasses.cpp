@@ -4028,13 +4028,7 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 
 void CInGameConsole::startEnteringText()
 {
-	#ifndef VCMI_SDL1
-	if (SDL_IsTextInputActive() == SDL_FALSE)		
-	{		
-		SDL_StartTextInput();		
-	}		
-	SDL_SetTextInputRect(&pos);
-	#endif
+	CSDL_Ext::startTextInput(&pos);
 
 	enteredText = "_";
 	if(GH.topInt() == adventureInt)
@@ -4053,12 +4047,7 @@ void CInGameConsole::startEnteringText()
 
 void CInGameConsole::endEnteringText(bool printEnteredText)
 {
-	#ifndef VCMI_SDL1
-	if (SDL_IsTextInputActive() == SDL_TRUE)
-	{		
-		SDL_StopTextInput();			
-	}		
-	#endif
+	CSDL_Ext::stopTextInput();
 	
 	prevEntDisp = -1;
 	if(printEnteredText)

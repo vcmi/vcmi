@@ -1583,23 +1583,12 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 
 void CTextInput::focusGot()
 {
-	#ifndef VCMI_SDL1
-	if (SDL_IsTextInputActive() == SDL_FALSE)		
-	{		
-		SDL_StartTextInput();		
-	}		
-	SDL_SetTextInputRect(&pos);
-	#endif	
+	CSDL_Ext::startTextInput(&pos);	
 }
 
 void CTextInput::focusLost()
 {
-	#ifndef VCMI_SDL1
-	if (SDL_IsTextInputActive() == SDL_TRUE)
-	{		
-		SDL_StopTextInput();			
-	}		
-	#endif	
+	CSDL_Ext::stopTextInput();
 }
 
 

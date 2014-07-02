@@ -983,6 +983,29 @@ SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
 	return ret;
 }
 
+void CSDL_Ext::startTextInput(SDL_Rect * where)
+{
+	#ifndef VCMI_SDL1
+	if (SDL_IsTextInputActive() == SDL_FALSE)		
+	{		
+		SDL_StartTextInput();		
+	}		
+	SDL_SetTextInputRect(where);
+	#endif
+}
+
+void CSDL_Ext::stopTextInput()
+{
+	#ifndef VCMI_SDL1
+	if (SDL_IsTextInputActive() == SDL_TRUE)
+	{		
+		SDL_StopTextInput();			
+	}		
+	#endif	
+}
+
+
+
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<2>(int, int);
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<3>(int, int);
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<4>(int, int);

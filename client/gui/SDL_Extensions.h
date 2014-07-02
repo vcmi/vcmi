@@ -263,4 +263,7 @@ namespace CSDL_Ext
 	template<int bpp>
 	void applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mode );
 	void applyEffect(SDL_Surface * surf, const SDL_Rect * rect, int mode); //mode: 0 - sepia, 1 - grayscale
+	
+	void startTextInput(SDL_Rect * where);
+	void stopTextInput();
 }
