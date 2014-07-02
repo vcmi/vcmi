@@ -1,10 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include "ObjectTemplate.h"
 
 #include "../GameConstants.h"
 #include "../ConstTransitivePtr.h"
 #include "../IHandlerBase.h"
+#include "../JsonNode.h"
 
 /*
  * CObjectClassesHandler.h, part of VCMI engine
@@ -20,7 +21,7 @@ class JsonNode;
 class CRandomGenerator;
 
 /// Structure that describes placement rules for this object in random map
-struct RandomMapInfo
+struct DLL_LINKAGE RandomMapInfo
 {
 	/// How valuable this object is, 1k = worthless, 10k = Utopia-level
 	ui32 value;
@@ -47,7 +48,7 @@ struct RandomMapInfo
 	}
 };
 
-class IObjectInfo
+class DLL_LINKAGE IObjectInfo
 {
 public:
 	struct CArmyStructure
@@ -64,7 +65,7 @@ public:
 			walkersStrength(0)
 		{}
 
-		bool operator <(const CArmyStructure & other)
+		bool operator <(const CArmyStructure & other) const
 		{
 			return this->totalStrength < other.totalStrength;
 		}
@@ -97,6 +98,9 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 {
 	RandomMapInfo rmgInfo;
 
+	/// Human-readable name of this object, used for objects like banks and dwellings, if set
+	boost::optional<std::string> objectName;
+
 	si32 type;
 	si32 subtype;
 
@@ -115,7 +119,10 @@ public:
 	void setType(si32 type, si32 subtype);
 
 	/// loads generic data from Json structure and passes it towards type-specific constructors
-	void init(const JsonNode & input);
+	void init(const JsonNode & input, boost::optional<std::string> name = boost::optional<std::string>());
+
+	/// Returns object-specific name, if set
+	boost::optional<std::string> getCustomName() const;
 
 	void addTemplate(ObjectTemplate templ);
 	void addTemplate(JsonNode config);
@@ -147,7 +154,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & type & subtype & templates & rmgInfo;
+		h & type & subtype & templates & rmgInfo & objectName;
 	}
 };
 
@@ -173,8 +180,6 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 		}
 	};
 
-	typedef std::multimap<std::pair<si32, si32>, ObjectTemplate> TTemplatesContainer;
-
 	/// list of object handlers, each of them handles only one type
 	std::map<si32, ObjectContainter * > objects;
 
@@ -182,7 +187,12 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
 
 	/// container with H3 templates, used only during loading, no need to serialize it
+	typedef std::multimap<std::pair<si32, si32>, ObjectTemplate> TTemplatesContainer;
 	TTemplatesContainer legacyTemplates;
+
+	/// contains list of custom names for H3 objects (e.g. Dwellings), used to load H3 data
+	/// format: customNames[primaryID][secondaryID] -> name
+	std::map<si32, std::vector<std::string>> customNames;
 
 	void loadObjectEntry(const JsonNode & entry, ObjectContainter * obj);
 	ObjectContainter * loadFromJson(const JsonNode & json);
@@ -210,6 +220,7 @@ public:
 	TObjectTypeHandler getHandlerFor(si32 type, si32 subtype) const;
 
 	std::string getObjectName(si32 type) const;
+	std::string getObjectName(si32 type, si32 subtype) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

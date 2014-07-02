@@ -314,6 +314,11 @@ std::vector<CTreasureInfo> CRmgTemplateZone::getTreasureInfo()
 	return treasureInfo;
 }
 
+std::set<int3>* CRmgTemplateZone::getFreePaths()
+{
+	return &freePaths;
+}
+
 float3 CRmgTemplateZone::getCenter() const
 {
 	return center;
@@ -756,7 +761,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			playerInfo.allowedFactions.clear();
 			playerInfo.allowedFactions.insert (townType);
 			playerInfo.hasMainTown = true;
-			playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
+			playerInfo.posOfMainTown = town->pos - town->getVisitableOffset();
 			playerInfo.generateHeroAtMainTown = true;
 
 			//now create actual towns
@@ -957,20 +962,49 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 
 void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 {
+	//get all possible obstacles for this terrain
+	for (auto primaryID : VLC->objtypeh->knownObjects()) 
+	{ 
+		for (auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID)) 
+		{ 
+			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID); 
+			if (handler->isStaticObject())
+			{
+				for (auto temp : handler->getTemplates())
+				{
+					if (temp.canBePlacedAt(terrainType) && temp.getBlockMapOffset().valid())
+						possibleObstacles.push_back(temp);
+				}
+			}
+		} 
+	}
+
 	auto sel = gen->editManager->getTerrainSelection();
 	sel.clearSelection();
+
+	auto tryToPlaceObstacleHere = [this, gen](int3& tile)-> bool
+	{
+		auto temp = *RandomGeneratorUtil::nextItem(possibleObstacles, gen->rand);
+		int3 obstaclePos = tile + temp.getBlockMapOffset();
+		if (canObstacleBePlacedHere(gen, temp, obstaclePos)) //can be placed here
+		{
+			auto obj = VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
+			placeObject(gen, obj, obstaclePos);
+			return true;
+		}
+		return false;
+	};
+
 	for (auto tile : tileinfo)
 	{
-		//test code - block all the map to show paths clearly
-		//if (gen->isPossible(tile))
-		//	gen->setOccupied(tile, ETileType::BLOCKED);
-
 		if (gen->shouldBeBlocked(tile)) //fill tiles that should be blocked with obstacles
 		{
-			auto obj = new CGObjectInstance();
-			obj->ID = static_cast<Obj>(130);
-			obj->subID = 0;
-			placeObject(gen, obj, tile);
+			while (!tryToPlaceObstacleHere(tile));
+		}
+		else if (gen->isPossible(tile))
+		{
+			//try to place random obstacle once - if not possible, leave it clear
+			tryToPlaceObstacleHere(tile);
 		}
 	}
 }
@@ -1024,6 +1058,23 @@ bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, si32 min_dis
 		gen->setOccupied(pos, ETileType::BLOCKED); //block that tile
 	}
 	return result;
+}
+
+bool CRmgTemplateZone::canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos)
+{
+	auto tilesBlockedByObject = temp.getBlockedOffsets();
+
+	bool allTilesAvailable = true;
+	for (auto blockingTile : tilesBlockedByObject)
+	{
+		int3 t = pos + blockingTile;
+		if (!gen->map->isInTheMap(t) || !(gen->isPossible(t) || gen->shouldBeBlocked(t)))
+		{
+			allTilesAvailable = false; //if at least one tile is not possible, object can't be placed here
+			break;
+		}
+	}
+	return allTilesAvailable;
 }
 
 bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos)
@@ -1213,8 +1264,11 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 
 		gen->setOccupied (guardTile, ETileType::USED);
 	}
-	else
-		gen->setOccupied (guardTile, ETileType::FREE);
+	else //allow no guard or other object in front of this object
+	{
+		for (auto tile : tiles)
+			gen->setOccupied (tile, ETileType::FREE);
+	}
 
 	return true;
 }

@@ -1351,9 +1351,13 @@ void CGameHandler::newTurn()
 		}
 		if (t->hasBonusOfType (Bonus::DARKNESS))
 		{
-			t->hideTiles(t->getOwner(), t->getBonusLocalFirst(Selector::type(Bonus::DARKNESS))->val);
+			for (auto & player : gameState()->players)
+			{
+				if (getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
+					getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
+					changeFogOfWar(t->visitablePos(), t->getBonusLocalFirst(Selector::type(Bonus::DARKNESS))->val, player.first, true);
+			}
 		}
-		//unhiding what shouldn't be hidden? //that's handled in netpacks client
 	}
 
 	if(newMonth)
@@ -1843,12 +1847,6 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 				setPortalDwelling(t);//set initial creatures for all portals of summoning
 		}
 	}
-}
-
-void CGameHandler::setHoverName(const CGObjectInstance * obj, MetaString* name)
-{
-	SetHoverName shn(obj->id, *name);
-	sendAndApply(&shn);
 }
 
 void CGameHandler::showBlockingDialog( BlockingDialog *iw )
@@ -2523,7 +2521,7 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 	FoWChange fw;
 	fw.player = t->tempOwner;
 	fw.mode = 1;
-	t->getSightTiles(fw.tiles);
+	getTilesInRange(fw.tiles, t->getSightCenter(), t->getSightRadious(), t->tempOwner, 1);
 	sendAndApply(&fw);
 
 	if(t->visitingHero)
@@ -4988,7 +4986,7 @@ bool CGameHandler::isAllowedExchange( ObjectInstanceID id1, ObjectInstanceID id2
 
 void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h )
 {
-	logGlobal->traceStream()  << h->nodeName() << " visits " << obj->getHoverText();
+	logGlobal->debugStream()  << h->nodeName() << " visits " << obj->getObjectName() << "(" << obj->ID << ":" << obj->subID << ")";
 	auto visitQuery = make_shared<CObjectVisitQuery>(obj, h, obj->visitablePos());
 	queries.addQuery(visitQuery); //TODO real visit pos
 
@@ -5227,7 +5225,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 	}
 }
 
-void CGameHandler::getVictoryLossMessage(PlayerColor player, EVictoryLossCheckResult victoryLossCheckResult, InfoWindow & out) const
+void CGameHandler::getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const
 {
 	out.player = player;
 	out.text.clear();
@@ -6250,6 +6248,37 @@ void CGameHandler::removeAfterVisit(const CGObjectInstance *object)
 
 	//If we haven't returned so far, there is no query and no visit, call was wrong
 	assert("This function needs to be called during the object visit!");
+}
+
+void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide)
+{
+	std::unordered_set<int3, ShashInt3> tiles;
+	getTilesInRange(tiles, center, radius, player, hide? -1 : 1);
+	if (hide)
+	{
+		std::unordered_set<int3, ShashInt3> observedTiles; //do not hide tiles observed by heroes. May lead to disastrous AI problems
+		auto p = gs->getPlayer(player);
+		for (auto h : p->heroes)
+		{
+			getTilesInRange(observedTiles, h->getSightCenter(), h->getSightRadious(), h->tempOwner, -1);
+		}
+		for (auto t : p->towns)
+		{
+			getTilesInRange(observedTiles, t->getSightCenter(), t->getSightRadious(), t->tempOwner, -1);
+		}
+		for (auto tile : observedTiles)
+			vstd::erase_if_present (tiles, tile);
+	}
+	changeFogOfWar(tiles, player, hide);
+}
+
+void CGameHandler::changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide)
+{
+	FoWChange fow;
+	fow.tiles = tiles;
+	fow.player = player;
+	fow.mode = hide? 0 : 1;
+	sendAndApply(&fow);
 }
 
 bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)

@@ -1,9 +1,9 @@
-#include "StdInc.h"
+﻿#include "StdInc.h"
 #include "CObjectClassesHandler.h"
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
-#include "../lib/VCMI_Lib.h"
+#include "../VCMI_Lib.h"
 #include "../GameConstants.h"
 #include "../StringConstants.h"
 #include "../CGeneralTextHandler.h"
@@ -40,6 +40,13 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("static", CObstacleConstructor);
 	SET_HANDLER_CLASS("", CObstacleConstructor);
 
+	SET_HANDLER("randomArtifact", CGArtifact);
+	SET_HANDLER("randomHero", CGHeroInstance);
+	SET_HANDLER("randomResource", CGResource);
+	SET_HANDLER("randomTown", CGTownInstance);
+	SET_HANDLER("randomMonster", CGCreature);
+	SET_HANDLER("randomDwelling", CGDwelling);
+
 	SET_HANDLER("generic", CGObjectInstance);
 	SET_HANDLER("market", CGMarket);
 	SET_HANDLER("cartographer", CCartographer);
@@ -66,6 +73,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("onceVisitable", CGOnceVisitable);
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("pickable", CGPickable);
+	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER("questGuard", CGQuestGuard);
 	SET_HANDLER("resource", CGResource);
@@ -109,6 +117,17 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 		ret[i]["name"].String() = namesParser.readString();
 		namesParser.endLine();
 	}
+
+	CLegacyConfigParser cregen1Parser("data/crgen1");
+	do
+		customNames[Obj::CREATURE_GENERATOR1].push_back(cregen1Parser.readString());
+	while(cregen1Parser.endLine());
+
+	CLegacyConfigParser cregen4Parser("data/crgen4");
+	do
+		customNames[Obj::CREATURE_GENERATOR4].push_back(cregen4Parser.readString());
+	while(cregen4Parser.endLine());
+
 	return ret;
 }
 
@@ -121,7 +140,7 @@ si32 selectNextID(const JsonNode & fixedID, const Map & map, si32 defaultID)
 
 	if (map.empty())
 		return defaultID; // no objects loaded, keep gap for H3M objects
-	if (map.rbegin()->first > defaultID)
+	if (map.rbegin()->first >= defaultID)
 		return map.rbegin()->first + 1; // some modded objects loaded, return next available
 
 	return defaultID; // some H3M objects loaded, first modded found
@@ -134,11 +153,15 @@ void CObjectClassesHandler::loadObjectEntry(const JsonNode & entry, ObjectContai
 		logGlobal->errorStream() << "Handler with name " << obj->handlerName << " was not found!";
 		return;
 	}
-	auto handler = handlerConstructors.at(obj->handlerName)();
-	handler->init(entry);
-
 	si32 id = selectNextID(entry["index"], obj->objects, 1000);
+
+	auto handler = handlerConstructors.at(obj->handlerName)();
 	handler->setType(obj->id, id);
+
+	if (customNames.count(obj->id) && customNames.at(obj->id).size() > id)
+		handler->init(entry, customNames.at(obj->id).at(id));
+	else
+		handler->init(entry);
 
 	if (handler->getTemplates().empty())
 	{
@@ -149,9 +172,10 @@ void CObjectClassesHandler::loadObjectEntry(const JsonNode & entry, ObjectContai
 		}
 		legacyTemplates.erase(range.first, range.second);
 	}
-	
-	obj->objects[id] = handler;
+
 	logGlobal->debugStream() << "Loaded object " << obj->id << ":" << id;
+	assert(!obj->objects.count(id)); // DO NOT override
+	obj->objects[id] = handler;
 }
 
 CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const JsonNode & json)
@@ -200,6 +224,7 @@ void CObjectClassesHandler::loadSubObject(std::string name, JsonNode config, si3
 	std::string oldMeta = config.meta; // FIXME: move into inheritNode?
 	JsonUtils::inherit(config, objects.at(ID)->base);
 	config.setMeta(oldMeta);
+
 	loadObjectEntry(config, objects[ID]);
 }
 
@@ -276,8 +301,21 @@ void CObjectClassesHandler::afterLoadFinalization()
 
 std::string CObjectClassesHandler::getObjectName(si32 type) const
 {
-	assert(objects.count(type));
-	return objects.at(type)->name;
+	if (objects.count(type))
+		return objects.at(type)->name;
+	logGlobal->errorStream() << "Access to non existing object of type "  << type;
+	return "";
+}
+
+std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
+{
+	if (knownSubObjects(type).count(subtype))
+	{
+		auto name = getHandlerFor(type, subtype)->getCustomName();
+		if (name)
+			return name.get();
+	}
+	return getObjectName(type);
 }
 
 void AObjectTypeHandler::setType(si32 type, si32 subtype)
@@ -294,7 +332,7 @@ static ui32 loadJsonOrMax(const JsonNode & input)
 		return input.Float();
 }
 
-void AObjectTypeHandler::init(const JsonNode & input)
+void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::string> name)
 {
 	base = input["base"];
 
@@ -318,6 +356,12 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		tmpl.readJson(entry.second);
 		templates.push_back(tmpl);
 	}
+
+	if (input["name"].isNull())
+		objectName = name;
+	else
+		objectName.reset(input["name"].String());
+
 	initTypeData(input);
 }
 
@@ -328,6 +372,12 @@ bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, const ObjectTemp
 
 void AObjectTypeHandler::initTypeData(const JsonNode & input)
 {
+	// empty implementation for overrides
+}
+
+boost::optional<std::string> AObjectTypeHandler::getCustomName() const
+{
+	return objectName;
 }
 
 void AObjectTypeHandler::addTemplate(ObjectTemplate templ)

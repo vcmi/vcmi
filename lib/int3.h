@@ -156,3 +156,21 @@ struct ShashInt3
 
 static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 	int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
+
+//FIXME: make sure it's <int3> container and not just any
+template<typename Container>
+int3 findClosestTile (Container & container, int3 dest)
+{
+	int3 result(-1,-1,-1);
+	ui32 distance = std::numeric_limits<ui32>::max();
+	for (int3 tile : container)
+	{
+		ui32 currentDistance = dest.dist2dSQ(tile);
+		if (currentDistance < distance)
+		{
+			result = tile;
+			distance = currentDistance;
+		}
+	}
+	return result;
+}

@@ -21,6 +21,7 @@ class CMapGenerator;
 class CTileInfo;
 class int3;
 class CGObjectInstance;
+class ObjectTemplate;
 
 namespace ETemplateZoneType
 {
@@ -149,6 +150,7 @@ public:
 	std::vector<TRmgTemplateZoneId> getConnections() const;
 	void addTreasureInfo(CTreasureInfo & info);
 	std::vector<CTreasureInfo> getTreasureInfo();
+	std::set<int3>* getFreePaths();
 
 	ObjectInfo getRandomObject (CMapGenerator* gen, ui32 value);
 
@@ -172,6 +174,7 @@ private:
 	ui16 totalDensity;
 	std::vector<CTreasureInfo> treasureInfo;
 	std::vector<ObjectInfo> possibleObjects;
+	std::vector<ObjectTemplate> possibleObstacles;
 
 	//content info
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
@@ -182,12 +185,13 @@ private:
 	float3 center;
 	std::set<int3> tileinfo; //irregular area assined to zone
 	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
-	std::map<TRmgTemplateZoneId, bool> alreadyConnected; //TODO: allow multiple connections between two zones?
+	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
 
 	bool pointIsIn(int x, int y);
 	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects
 	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
 	bool findPlaceForTreasurePile(CMapGenerator* gen, si32 min_dist, int3 &pos);
+	bool canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos);
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str);

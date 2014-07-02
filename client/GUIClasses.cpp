@@ -1848,7 +1848,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CIntObject 
 	items.reserve(_items.size());
 	for(int id : _items)
 	{
-		items.push_back(std::make_pair(id, CGI->mh->map->objects[id]->hoverName));
+		items.push_back(std::make_pair(id, CGI->mh->map->objects[id]->getObjectName()));
 	}
 
 	init(titlePic, _title, _descr);
@@ -2614,7 +2614,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 		break; case Obj::BLACK_MARKET:   title = CGI->generaltexth->allTexts[349];
 		break; case Obj::TRADING_POST:  title = CGI->generaltexth->allTexts[159];
 		break; case Obj::TRADING_POST_SNOW: title = CGI->generaltexth->allTexts[159];
-		break; default:  title = market->o->getHoverText();
+		break; default:  title = market->o->getObjectName();
 		}
 	}
 
@@ -4573,7 +4573,7 @@ void CHeroArea::clickRight(tribool down, bool previousState)
 void CHeroArea::hover(bool on)
 {
 	if (on && hero)
-		GH.statusbar->setText(hero->hoverName);
+		GH.statusbar->setText(hero->getObjectName());
 	else
 		GH.statusbar->clear();
 }
@@ -5636,7 +5636,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	slotsCount=7;
 	resources =  CDefHandler::giveDefEss("SMALRES.DEF");
 
-	new CLabel(325, 32, FONT_BIG, CENTER, Colors::YELLOW, fort->hoverName);//Hill Fort
+	new CLabel(325, 32, FONT_BIG, CENTER, Colors::YELLOW, fort->getObjectName());//Hill Fort
 
 	heroPic = new CHeroArea(30, 60, hero);
 
@@ -6183,7 +6183,12 @@ void CRClickPopup::createAndPush(const CGObjectInstance *obj, const Point &p, EA
 	if(iWin)
 		GH.pushInt(iWin);
 	else
-		CRClickPopup::createAndPush(obj->getHoverText());
+	{
+		if (adventureInt->curHero())
+			CRClickPopup::createAndPush(obj->getHoverText(adventureInt->curHero()));
+		else
+			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->playerID));
+	}
 }
 
 CRClickPopup::CRClickPopup()

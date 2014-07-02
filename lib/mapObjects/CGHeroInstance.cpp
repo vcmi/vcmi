@@ -1,4 +1,4 @@
-/*
+﻿/*
  * CGHeroInstance.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -14,10 +14,13 @@
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
+#include "../CModHandler.h"
 #include "../CSoundBase.h"
 #include "../CSpellHandler.h"
 #include "CObjectClassesHandler.h"
-
+#include "../IGameCallback.h"
+#include "../CGameState.h"
+#include "../CCreatureHandler.h"
 
 using namespace boost::assign;
 
@@ -418,19 +421,17 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	}
 }
 
-const std::string & CGHeroInstance::getHoverText() const
+std::string CGHeroInstance::getObjectName() const
 {
 	if(ID != Obj::PRISON)
 	{
-		hoverName = VLC->generaltexth->allTexts[15];
+		std::string hoverName = VLC->generaltexth->allTexts[15];
 		boost::algorithm::replace_first(hoverName,"%s",name);
 		boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
 		return hoverName;
 	}
 	else
-		hoverName = VLC->objtypeh->getObjectName(ID);
-
-	return hoverName;
+		return CGObjectInstance::getObjectName();
 }
 
 const std::string & CGHeroInstance::getBiography() const
@@ -472,9 +473,12 @@ void CGHeroInstance::initObj()
 	skillsInfo.resetMagicSchoolCounter();
 	skillsInfo.resetWisdomCounter();
 
-	auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->id)->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
-	if (customApp)
-		appearance = customApp.get();
+	if (ID != Obj::PRISON)
+	{
+		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->id)->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
+		if (customApp)
+			appearance = customApp.get();
+	}
 
 	for(const auto &spec : type->spec) //TODO: unfity with bonus system
 	{
@@ -999,11 +1003,11 @@ void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedSta
 
 	cb->showInfoDialog(&iw);
 }
-
+/*
 int3 CGHeroInstance::getSightCenter() const
 {
 	return getPosition(false);
-}
+}*/
 
 int CGHeroInstance::getSightRadious() const
 {

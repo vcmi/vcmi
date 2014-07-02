@@ -627,7 +627,7 @@ void processCommand(const std::string &message)
 	}
 	else if(cn == "bonuses")
 	{
-        std::cout << "Bonuses of " << adventureInt->selection->getHoverText() << std::endl
+		std::cout << "Bonuses of " << adventureInt->selection->getObjectName() << std::endl
 			<< adventureInt->selection->getBonusList() << std::endl;
 
         std::cout << "\nInherited bonuses:\n";

@@ -15,6 +15,7 @@
 class CBinaryReader;
 class CLegacyConfigParser;
 class JsonNode;
+class int3;
 
 class DLL_LINKAGE ObjectTemplate
 {
@@ -56,6 +57,8 @@ public:
 	bool isVisitableAt(si32 X, si32 Y) const;
 	bool isVisibleAt(si32 X, si32 Y) const;
 	bool isBlockedAt(si32 X, si32 Y) const;
+	std::set<int3> getBlockedOffsets() const;
+	int3 getBlockMapOffset() const; //bottom-right corner when firts blocked tile is
 
 	// Checks if object is visitable from certain direction. X and Y must be between -1..+1
 	bool isVisitableFrom(si8 X, si8 Y) const;

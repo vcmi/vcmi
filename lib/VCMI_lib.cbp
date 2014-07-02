@@ -149,6 +149,7 @@
 		<Unit filename="CRandomGenerator.cpp" />
 		<Unit filename="CRandomGenerator.h" />
 		<Unit filename="CScriptingModule.h" />
+		<Unit filename="CSoundBase.h" />
 		<Unit filename="CSpellHandler.cpp" />
 		<Unit filename="CSpellHandler.h" />
 		<Unit filename="CStopWatch.h" />
@@ -169,6 +170,7 @@
 		<Unit filename="IGameCallback.cpp" />
 		<Unit filename="IGameCallback.h" />
 		<Unit filename="IGameEventsReceiver.h" />
+		<Unit filename="IHandlerBase.cpp" />
 		<Unit filename="IHandlerBase.h" />
 		<Unit filename="Interprocess.h" />
 		<Unit filename="JsonDetail.cpp" />

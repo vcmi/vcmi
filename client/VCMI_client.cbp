@@ -152,7 +152,6 @@
 		<Unit filename="CPreGame.h" />
 		<Unit filename="CQuestLog.cpp" />
 		<Unit filename="CQuestLog.h" />
-		<Unit filename="CSoundBase.h" />
 		<Unit filename="CSpellWindow.cpp" />
 		<Unit filename="CSpellWindow.h" />
 		<Unit filename="CVideoHandler.cpp" />

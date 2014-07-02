@@ -3,7 +3,7 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
-#include "../lib/VCMI_Lib.h"
+#include "../VCMI_Lib.h"
 #include "../GameConstants.h"
 #include "../StringConstants.h"
 #include "../CGeneralTextHandler.h"
@@ -306,6 +306,33 @@ bool ObjectTemplate::isBlockedAt(si32 X, si32 Y) const
 	if (isWithin(X, Y))
 		return usedTiles[Y][X] & BLOCKED;
 	return false;
+}
+
+std::set<int3> ObjectTemplate::getBlockedOffsets() const
+{
+	std::set<int3> ret;
+	for(int w = 0; w < getWidth(); ++w)
+	{
+		for(int h = 0; h < getHeight(); ++h)
+		{
+			if (isBlockedAt(w, h))
+				ret.insert(int3(-w, -h, 0));
+		}
+	}
+	return ret;
+}
+
+int3 ObjectTemplate::getBlockMapOffset() const
+{
+	for(int w = 0; w < getWidth(); ++w)
+	{
+		for(int h = 0; h < getHeight(); ++h)
+		{
+			if (isBlockedAt(w, h))
+				return int3(-w, -h, 0);
+		}
+	}
+	return int3(-1,-1,-1);
 }
 
 bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const

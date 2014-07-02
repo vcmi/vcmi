@@ -14,6 +14,8 @@
 #include "CGameState.h"
 #include "BattleState.h"
 #include "CTownHandler.h"
+#include "mapping/CMapInfo.h"
+#include "StartInfo.h"
 
 /*
  * NetPacksLib.cpp, part of VCMI engine
@@ -58,6 +60,41 @@ DLL_LINKAGE void SetSecSkill::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(id);
 	hero->setSecSkillLevel(which, val, abs);
+}
+
+
+DLL_LINKAGE SelectMap::SelectMap(const CMapInfo &src)
+{
+	mapInfo = &src;
+	free = false;
+}
+DLL_LINKAGE SelectMap::SelectMap()
+{
+	mapInfo = nullptr;
+	free = true;
+}
+
+DLL_LINKAGE SelectMap::~SelectMap()
+{
+	if(free)
+		delete mapInfo;
+}
+
+DLL_LINKAGE  UpdateStartOptions::UpdateStartOptions(StartInfo &src)
+{
+	options = &src;
+	free = false;
+}
+DLL_LINKAGE  UpdateStartOptions::UpdateStartOptions()
+{
+	options = nullptr;
+	free = true;
+}
+
+DLL_LINKAGE UpdateStartOptions::~UpdateStartOptions()
+{
+	if(free)
+		delete options;
 }
 
 DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
@@ -126,6 +163,7 @@ DLL_LINKAGE void HeroVisitCastle::applyGs( CGameState *gs )
 
 	assert(h);
 	assert(t);
+
 	if(start())
 		t->setVisitingHero(h);
 	else
@@ -177,7 +215,7 @@ DLL_LINKAGE void FoWChange::applyGs( CGameState *gs )
 				case Obj::TOWN:
 				case Obj::ABANDONED_MINE:
 					if(vstd::contains(team->players, o->tempOwner)) //check owned observators
-						o->getSightTiles(tilesRevealed);
+						gs->getTilesInRange(tiles, o->getSightCenter(), o->getSightRadious(), o->tempOwner, 1);
 					break;
 				}
 			}
@@ -302,7 +340,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 {
 
 	CGObjectInstance *obj = gs->getObjInstance(id);
-	logGlobal->debugStream() << "removing object id=" << id << "; address=" << (intptr_t)obj << "; name=" << obj->getHoverText();
+	logGlobal->debugStream() << "removing object id=" << id << "; address=" << (intptr_t)obj << "; name=" << obj->getObjectName();
 	//unblock tiles
 	gs->map->removeBlockVisTiles(obj);
 
@@ -608,14 +646,13 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 	const TerrainTile &t = gs->map->getTile(pos);
 	o->appearance = VLC->objtypeh->getHandlerFor(o->ID, o->subID)->getTemplates(t.terType).front();
 	id = o->id = ObjectInstanceID(gs->map->objects.size());
-	o->hoverName = VLC->objtypeh->getObjectName(ID);
 
 	gs->map->objects.push_back(o);
 	gs->map->addBlockVisTiles(o);
 	o->initObj();
 	gs->map->calculateGuardingGreaturePositions();
 
-	logGlobal->debugStream() << "added object id=" << id << "; address=" << (intptr_t)o << "; name=" << o->getHoverText();
+	logGlobal->debugStream() << "added object id=" << id << "; address=" << (intptr_t)o << "; name=" << o->getObjectName();
 }
 
 DLL_LINKAGE void NewArtifact::applyGs( CGameState *gs )
@@ -1010,11 +1047,6 @@ DLL_LINKAGE void SetObjectProperty::applyGs( CGameState *gs )
 	{
 		obj->setProperty(what,val);
 	}
-}
-
-DLL_LINKAGE void SetHoverName::applyGs( CGameState *gs )
-{
-	name.toString(gs->getObj(id)->hoverName);
 }
 
 DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )
@@ -1507,7 +1539,7 @@ DLL_LINKAGE CatapultAttack::~CatapultAttack()
 
 DLL_LINKAGE void CatapultAttack::applyGs( CGameState *gs )
 {
-	if(gs->curB && gs->curB->siege != CGTownInstance::NONE) //if there is a battle and it's a siege
+	if(gs->curB && gs->curB->town && gs->curB->town->fortLevel() != CGTownInstance::NONE) //if there is a battle and it's a siege
 	{
 		for(const auto &it :attackedParts)
 		{

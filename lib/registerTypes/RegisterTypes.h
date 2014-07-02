@@ -12,6 +12,7 @@
 #include "../mapObjects/CRewardableConstructor.h"
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h"
+#include "../CObstacleInstance.h"
 
 /*
  * RegisterTypes.h, part of VCMI engine
@@ -96,6 +97,7 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGBorderGuard);
 	REGISTER_GENERIC_HANDLER(CGCreature);
 	REGISTER_GENERIC_HANDLER(CGDenOfthieves);
+	REGISTER_GENERIC_HANDLER(CGDwelling);
 	REGISTER_GENERIC_HANDLER(CGEvent);
 	REGISTER_GENERIC_HANDLER(CGGarrison);
 	REGISTER_GENERIC_HANDLER(CGHeroPlaceholder);
@@ -121,6 +123,7 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGSignBottle);
 	REGISTER_GENERIC_HANDLER(CGSirens);
 	REGISTER_GENERIC_HANDLER(CGTeleport);
+	REGISTER_GENERIC_HANDLER(CGTownInstance);
 	REGISTER_GENERIC_HANDLER(CGUniversity);
 	REGISTER_GENERIC_HANDLER(CGVisitableOPH);
 	REGISTER_GENERIC_HANDLER(CGVisitableOPW);
@@ -234,7 +237,6 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, NewTurn>();
 	s.template registerType<CPackForClient, InfoWindow>();
 	s.template registerType<CPackForClient, SetObjectProperty>();
-	s.template registerType<CPackForClient, SetHoverName>();
 	s.template registerType<CPackForClient, ShowInInfobox>();
 	s.template registerType<CPackForClient, AdvmapSpellCast>();
 	s.template registerType<CPackForClient, OpenWindow>();

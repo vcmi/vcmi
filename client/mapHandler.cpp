@@ -75,21 +75,10 @@ std::string nameFromType (int typ)
 	return std::string();
 }
 
-struct OCM_HLP
+static bool objectBlitOrderSorter(const std::pair<const CGObjectInstance*,SDL_Rect>  & a, const std::pair<const CGObjectInstance*,SDL_Rect> & b)
 {
-	bool operator ()(const std::pair<const CGObjectInstance*, SDL_Rect> & a, const std::pair<const CGObjectInstance*, SDL_Rect> & b)
-	{
-		return (*a.first)<(*b.first);
-	}
-} ocmptwo ;
-
-// void alphaTransformDef(CGDefInfo * defInfo)
-// {	
-// 	for(int yy=0; yy<defInfo->handler->ourImages.size(); ++yy)
-// 	{
-// 		CSDL_Ext::alphaTransform(defInfo->handler->ourImages[yy].bitmap);
-// 	}
-// }
+	return CMapHandler::compareObjectBlitOrder(a.first, b.first);
+}
 
 void CMapHandler::prepareFOWDefs()
 {
@@ -308,7 +297,7 @@ void CMapHandler::initObjectRects()
 		{
 			for(int iz=0; iz<ttiles[0][0].size(); ++iz)
 			{
-				stable_sort(ttiles[ix][iy][iz].objects.begin(), ttiles[ix][iy][iz].objects.end(), ocmptwo);
+				stable_sort(ttiles[ix][iy][iz].objects.begin(), ttiles[ix][iy][iz].objects.end(), objectBlitOrderSorter);
 			}
 		}
 	}
@@ -860,7 +849,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 				auto i = curt.objects.begin();
 				for(; i != curt.objects.end(); i++)
 				{
-					if(ocmptwo(toAdd, *i))
+					if(objectBlitOrderSorter(toAdd, *i))
 					{
 						curt.objects.insert(i, toAdd);
 						i = curt.objects.begin(); //to validate and avoid adding it second time
@@ -1065,7 +1054,7 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	{
 		if(elem.first->ID == Obj::HOLE) //Hole
 		{
-			out = elem.first->hoverName;
+			out = elem.first->getObjectName();
 			return;
 		}
 	}
@@ -1092,3 +1081,25 @@ ui8 CMapHandler::getPhaseShift(const CGObjectInstance *object) const
 TerrainTile2::TerrainTile2()
  :terbitmap(nullptr)
 {}
+
+bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b)
+{
+	if (a->appearance.printPriority != b->appearance.printPriority)
+		return a->appearance.printPriority > b->appearance.printPriority;
+
+	if(a->pos.y != b->pos.y)
+		return a->pos.y < b->pos.y;
+
+	if(b->ID==Obj::HERO && a->ID!=Obj::HERO)
+		return true;
+	if(b->ID!=Obj::HERO && a->ID==Obj::HERO)
+		return false;
+
+	if(!a->isVisitable() && b->isVisitable())
+		return true;
+	if(!b->isVisitable() && a->isVisitable())
+		return false;
+	if(a->pos.x < b->pos.x)
+		return true;
+	return false;
+}

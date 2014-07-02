@@ -4,6 +4,7 @@
 #include "CArmedInstance.h"
 
 #include "../NetPacksBase.h"
+#include "../ResourceSet.h"
 
 /*
  * CRewardableObject.h, part of VCMI engine
@@ -47,7 +48,7 @@ public:
 	std::vector<CStackBasicDescriptor> creatures;
 
 	CRewardLimiter():
-		numOfGrants(1),
+		numOfGrants(0),
 		dayOfWeek(0),
 		minLevel(0),
 		primary(4, 0)
@@ -128,7 +129,7 @@ public:
 	}
 };
 
-class CVisitInfo
+class DLL_LINKAGE CVisitInfo
 {
 public:
 	CRewardLimiter limiter;
@@ -176,6 +177,7 @@ protected:
 		VISIT_UNLIMITED, // any number of times. Side effect - object hover text won't contain visited/not visited text
 		VISIT_ONCE,      // only once, first to visit get all the rewards
 		VISIT_HERO,      // every hero can visit object once
+		VISIT_BONUS,     // can be visited by any hero that don't have bonus from this object
 		VISIT_PLAYER     // every player can visit object once
 	};
 
@@ -209,7 +211,8 @@ protected:
 
 public:
 	void setPropertyDer(ui8 what, ui32 val) override;
-	const std::string & getHoverText() const override;
+	std::string getHoverText(PlayerColor player) const override;
+	std::string getHoverText(const CGHeroInstance * hero) const override;
 
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
 	bool wasVisited (PlayerColor player) const override;

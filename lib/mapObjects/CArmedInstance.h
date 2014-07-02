@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CObjectHandler.h"
 #include "../CCreatureSet.h"
@@ -12,6 +12,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+class BattleInfo;
+class CGameState;
 
 class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet
 {

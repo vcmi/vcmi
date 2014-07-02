@@ -23,6 +23,9 @@
     <Filter Include="registerTypes">
       <UniqueIdentifier>{927d9b6e-3dc5-4370-b603-1b9887095509}</UniqueIdentifier>
     </Filter>
+    <Filter Include="mapObjects">
+      <UniqueIdentifier>{ee24c7f7-f4e2-4d35-b994-94a6e29ea92f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BattleAction.cpp" />
@@ -30,10 +33,8 @@
     <ClCompile Include="CArtHandler.cpp" />
     <ClCompile Include="CBuildingHandler.cpp" />
     <ClCompile Include="CCreatureHandler.cpp" />
-    <ClCompile Include="CDefObjInfoHandler.cpp" />
     <ClCompile Include="CGeneralTextHandler.cpp" />
     <ClCompile Include="CHeroHandler.cpp" />
-    <ClCompile Include="CObjectHandler.cpp" />
     <ClCompile Include="CSpellHandler.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
     <ClCompile Include="CCreatureSet.cpp" />
@@ -157,6 +158,53 @@
     </ClCompile>
     <ClCompile Include="registerTypes\TypesMapObjects1.cpp" />
     <ClCompile Include="registerTypes\TypesMapObjects2.cpp" />
+    <ClCompile Include="mapObjects\CArmedInstance.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\CBank.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\CGHeroInstance.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\CGMarket.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\CGPandoraBox.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\CGTownInstance.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\CObjectClassesHandler.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\CObjectHandler.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\CommonConstructors.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\CQuest.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\CRewardableConstructor.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\CRewardableObject.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\JsonRandom.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\MiscObjects.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="mapObjects\ObjectTemplate.cpp">
+      <Filter>mapObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="registerTypes\TypesMapObjects3.cpp" />
+    <ClCompile Include="IHandlerBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -201,16 +249,10 @@
     <ClInclude Include="CCreatureHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CDefObjInfoHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CGeneralTextHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CHeroHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CObjectHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ConstTransitivePtr.h">
@@ -398,6 +440,57 @@
     </ClInclude>
     <ClInclude Include="rmg\float3.h">
       <Filter>rmg</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\CArmedInstance.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\CBank.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\CGHeroInstance.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\CGMarket.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\CGPandoraBox.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\CGTownInstance.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\CObjectClassesHandler.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\CObjectHandler.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\CommonConstructors.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\CQuest.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\CRewardableConstructor.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\CRewardableObject.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\JsonRandom.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\MapObjects.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\MiscObjects.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="mapObjects\ObjectTemplate.h">
+      <Filter>mapObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="CGameStateFwd.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

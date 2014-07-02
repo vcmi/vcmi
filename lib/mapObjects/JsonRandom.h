@@ -46,5 +46,5 @@ namespace JsonRandom
 	DLL_LINKAGE std::vector<RandomStackInfo> evaluateCreatures(const JsonNode & value);
 
 	DLL_LINKAGE std::vector<Bonus> loadBonuses(const JsonNode & value);
-	DLL_LINKAGE std::vector<Component> loadComponents(const JsonNode & value);
+	//DLL_LINKAGE std::vector<Component> loadComponents(const JsonNode & value);
 }

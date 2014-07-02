@@ -15,6 +15,8 @@
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "../NetPacks.h"
+#include "../IGameCallback.h"
+#include "../CGameState.h"
 
 #include "CObjectClassesHandler.h"
 
@@ -74,8 +76,10 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 	{
 		const CVisitInfo & visit = info[i];
 
-		if (visit.numOfGrants < visit.limiter.numOfGrants && visit.limiter.heroAllowed(hero))
+		if ((visit.limiter.numOfGrants == 0 || visit.numOfGrants < visit.limiter.numOfGrants) // reward has unlimited uses or some are still available
+			&& visit.limiter.heroAllowed(hero))
 		{
+			logGlobal->debugStream() << "Reward " << i << " is allowed";
 			ret.push_back(i);
 		}
 	}
@@ -86,7 +90,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 {
 	auto grantRewardWithMessage = [&](int index) -> void
 	{
-		grantReward(index, h);
+		logGlobal->debugStream() << "Granting reward " << index << ". Message says: " << info[index].message.toString();
 		// show message only if it is not empty
 		if (!info[index].message.toString().empty())
 		{
@@ -97,6 +101,8 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			info[index].reward.loadComponents(iw.components);
 			cb->showInfoDialog(&iw);
 		}
+		// grant reward afterwards. Note that it may remove object
+		grantReward(index, h);
 	};
 	auto selectRewardsMessage = [&](std::vector<ui32> rewards) -> void
 	{
@@ -112,6 +118,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 	if (!wasVisited(h))
 	{
 		auto rewards = getAvailableRewards(h);
+		logGlobal->debugStream() << "Visiting object with " << rewards.size() << " possible rewards";
 		switch (rewards.size())
 		{
 			case 0: // no available rewards, e.g. empty flotsam
@@ -153,6 +160,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 	}
 	else
 	{
+		logGlobal->debugStream() << "Revisiting already visited object";
 		InfoWindow iw;
 		iw.player = h->tempOwner;
 		iw.soundID = soundID;
@@ -176,7 +184,6 @@ void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 
 
 	if (answer > 0 && answer-1 < info.size())
 	{
-		//NOTE: this relies on assumption that there won't be any changes in player/hero during blocking dialog
 		auto list = getAvailableRewards(hero);
 		grantReward(list[answer - 1], hero);
 	}
@@ -263,7 +270,10 @@ void CRewardableObject::grantRewardAfterLevelup(const CVisitInfo & info, const C
 
 	for (const Bonus & bonus : info.reward.bonuses)
 	{
+		assert(bonus.source == Bonus::OBJECT);
+		assert(bonus.sid == ID);
 		GiveBonus gb;
+		gb.who = GiveBonus::HERO;
 		gb.bonus = bonus;
 		gb.id = hero->id.getNum();
 		cb->giveHeroBonus(&gb);
@@ -298,8 +308,9 @@ bool CRewardableObject::wasVisited (PlayerColor player) const
 	switch (visitMode)
 	{
 		case VISIT_UNLIMITED:
+		case VISIT_BONUS:
 			return false;
-		case VISIT_ONCE:
+		case VISIT_ONCE: // FIXME: hide this info deeper and return same as player?
 			for (auto & visit : info)
 			{
 				if (visit.numOfGrants != 0)
@@ -308,7 +319,7 @@ bool CRewardableObject::wasVisited (PlayerColor player) const
 		case VISIT_HERO:
 			return false;
 		case VISIT_PLAYER:
-			return vstd::contains(cb->getPlayer(player)->visitedObjects, ObjectInstanceID(ID));
+			return vstd::contains(cb->getPlayer(player)->visitedObjects, ObjectInstanceID(id));
 		default:
 			return false;
 	}
@@ -318,8 +329,12 @@ bool CRewardableObject::wasVisited (const CGHeroInstance * h) const
 {
 	switch (visitMode)
 	{
+		case VISIT_UNLIMITED:
+			return false;
+		case VISIT_BONUS:
+			return h->hasBonusFrom(Bonus::OBJECT, ID);
 		case VISIT_HERO:
-			return vstd::contains(h->visitedObjects, ObjectInstanceID(ID)) || h->hasBonusFrom(Bonus::OBJECT, ID);
+			return h->visitedObjects.count(ObjectInstanceID(id));
 		default:
 			return wasVisited(h->tempOwner);
 	}
@@ -329,12 +344,6 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps) const
 {
 	for (auto comp : extraComponents)
 		comps.push_back(comp);
-
-	for (size_t i=0; i<resources.size(); i++)
-	{
-		if (resources[i] !=0)
-			comps.push_back(Component(Component::RESOURCE, i, resources[i], 0));
-	}
 
 	if (gainedExp)    comps.push_back(Component(Component::EXPERIENCE, 0, gainedExp, 0));
 	if (gainedLevels) comps.push_back(Component(Component::EXPERIENCE, 0, gainedLevels, 0));
@@ -358,6 +367,12 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps) const
 
 	for (auto & entry : creatures)
 		comps.push_back(Component(Component::CREATURE, entry.type->idNumber, entry.count, 0));
+
+	for (size_t i=0; i<resources.size(); i++)
+	{
+		if (resources[i] !=0)
+			comps.push_back(Component(Component::RESOURCE, i, resources[i], 0));
+	}
 }
 
 Component CRewardInfo::getDisplayedComponent() const
@@ -375,19 +390,18 @@ static std::string & visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
-const std::string & CRewardableObject::getHoverText() const
+std::string CRewardableObject::getHoverText(PlayerColor player) const
 {
-	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
-	hoverName = VLC->objtypeh->getObjectName(ID);
-	if(visitMode != VISIT_UNLIMITED)
-	{
-		bool visited = wasVisited(cb->getCurrentPlayer());
-		if (h)
-			visited |= wasVisited(h);
+	if(visitMode == VISIT_PLAYER || visitMode == VISIT_ONCE)
+		return getObjectName() + " " + visitedTxt(wasVisited(player));
+	return getObjectName();
+}
 
-		hoverName += " " + visitedTxt(visited);
-	}
-	return hoverName;
+std::string CRewardableObject::getHoverText(const CGHeroInstance * hero) const
+{
+	if(visitMode != VISIT_UNLIMITED)
+		return getObjectName() + " " + visitedTxt(wasVisited(hero));
+	return getObjectName();
 }
 
 void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
@@ -458,7 +472,7 @@ void CGPickable::initObj()
 	blockVisit = true;
 	switch(ID)
 	{
-	case Obj::CAMPFIRE: //FIXME: campfire is not functioning correctly in game (no visible message)
+	case Obj::CAMPFIRE:
 		{
 			soundID = soundBase::experience;
 			int givenRes = cb->gameState()->getRandomGenerator().nextInt(5);
@@ -600,7 +614,7 @@ void CGPickable::initObj()
 
 CGBonusingObject::CGBonusingObject()
 {
-	visitMode = VISIT_UNLIMITED;
+	visitMode = VISIT_BONUS;
 	selectMode = SELECT_FIRST;
 }
 
@@ -644,7 +658,7 @@ void CGBonusingObject::initObj()
 		break;
 	case Obj::FAERIE_RING:
 		configureMessage(info[0], 49, 50, soundBase::LUCK);
-		configureBonus(info[0], Bonus::LUCK, 2, 71);
+		configureBonus(info[0], Bonus::LUCK, 1, 71);
 		break;
 	case Obj::FOUNTAIN_OF_FORTUNE:
 		selectMode = SELECT_RANDOM;
@@ -652,8 +666,10 @@ void CGBonusingObject::initObj()
 		for (int i=0; i<5; i++)
 		{
 			configureBonus(info[i], Bonus::LUCK, i-1, 69); //NOTE: description have %d that should be replaced with value
-			configureMessage(info[i], 55, 56, soundBase::LUCK);
+			info[i].message.addTxt(MetaString::ADVOB_TXT, 55);
+			soundID = soundBase::LUCK;
 		}
+		onVisited.addTxt(MetaString::ADVOB_TXT, 56);
 		break;
 	case Obj::IDOL_OF_FORTUNE:
 
@@ -662,8 +678,10 @@ void CGBonusingObject::initObj()
 		{
 			info[i].limiter.dayOfWeek = i+1;
 			configureBonus(info[i], i%2 ? Bonus::MORALE : Bonus::LUCK, 1, 68);
-			configureMessage(info[i], 62, 63, soundBase::experience);
+			info[i].message.addTxt(MetaString::ADVOB_TXT, 62);
+			soundID = soundBase::experience;
 		}
+		onVisited.addTxt(MetaString::ADVOB_TXT, 63);
 		info.back().limiter.dayOfWeek = 7;
 		configureBonus(info.back(), Bonus::MORALE, 1, 68); // on last day of week
 		configureBonus(info.back(), Bonus::LUCK,   1, 68);
@@ -692,8 +710,10 @@ void CGBonusingObject::initObj()
 		configureBonus(info[0], Bonus::MORALE, 2, 96);
 		configureBonus(info[1], Bonus::MORALE, 1, 97);
 
-		configureMessage(info[0], 140, 141, soundBase::temple);
-		configureMessage(info[1], 140, 141, soundBase::temple);
+		info[0].message.addTxt(MetaString::ADVOB_TXT, 140);
+		info[1].message.addTxt(MetaString::ADVOB_TXT, 140);
+		onVisited.addTxt(MetaString::ADVOB_TXT, 141);
+		soundID = soundBase::temple;
 		break;
 	case Obj::WATERING_HOLE:
 		configureMessage(info[0], 166, 167, soundBase::MORALE);
@@ -918,6 +938,8 @@ void CGVisitableOPH::initObj()
 			info.resize(2);
 			info[0].reward.primary[PrimarySkill::SPELL_POWER] = 1;
 			info[1].reward.primary[PrimarySkill::KNOWLEDGE] = 1;
+			info[0].reward.resources[Res::GOLD] = -1000;
+			info[1].reward.resources[Res::GOLD] = -1000;
 			onSelect.addTxt(MetaString::ADVOB_TXT, 71);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 72);
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 73);
@@ -928,6 +950,8 @@ void CGVisitableOPH::initObj()
 			info.resize(2);
 			info[0].reward.primary[PrimarySkill::ATTACK] = 1;
 			info[1].reward.primary[PrimarySkill::DEFENSE] = 1;
+			info[0].reward.resources[Res::GOLD] = -1000;
+			info[1].reward.resources[Res::GOLD] = -1000;
 			onSelect.addTxt(MetaString::ADVOB_TXT, 158);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 159);
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 160);
@@ -936,59 +960,6 @@ void CGVisitableOPH::initObj()
 			break;
 	}
 }
-
-//TODO: re-enable. Probably in some different form but still necessary
-/*
-const std::string & CGVisitableOPH::getHoverText() const
-{
-	int pom = -1;
-	switch(ID)
-	{
-	case Obj::ARENA:
-		pom = -1;
-		break;
-	case Obj::MERCENARY_CAMP:
-		pom = 8;
-		break;
-	case Obj::MARLETTO_TOWER:
-		pom = 7;
-		break;
-	case Obj::STAR_AXIS:
-		pom = 11;
-		break;
-	case Obj::GARDEN_OF_REVELATION:
-		pom = 4;
-		break;
-	case Obj::LEARNING_STONE:
-		pom = 5;
-		break;
-	case Obj::TREE_OF_KNOWLEDGE:
-		pom = 18;
-		break;
-	case Obj::LIBRARY_OF_ENLIGHTENMENT:
-		break;
-	case Obj::SCHOOL_OF_MAGIC:
-		pom = 9;
-		break;
-	case Obj::SCHOOL_OF_WAR:
-		pom = 10;
-		break;
-	default:
-		throw std::runtime_error("Wrong CGVisitableOPH object ID!\n");
-	}
-	hoverName = VLC->objtypeh->getObjectName(ID);
-	if(pom >= 0)
-		hoverName += ("\n" + VLC->generaltexth->xtrainfo[pom]);
-	const CGHeroInstance *h = cb->getSelectedHero (cb->getCurrentPlayer());
-	if(h)
-	{
-		hoverName += "\n\n";
-		bool visited = vstd::contains (visitors, h->id);
-		hoverName += visitedTxt (visited);
-	}
-	return hoverName;
-}
-*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

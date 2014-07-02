@@ -526,7 +526,7 @@
 						"combat_value": 154,
 						"reward" : {
 							"value": 3200,
-							"creatures": [ { "amount": 4, "type": "vyvern" } ]
+							"creatures": [ { "amount": 4, "type": "wyvern" } ]
 						}
 					},
 					{
@@ -541,7 +541,7 @@
 						"combat_value": 230,
 						"reward" : {
 							"value": 4800,
-							"creatures": [ { "amount": 6, "type": "vyvern" } ]
+							"creatures": [ { "amount": 6, "type": "wyvern" } ]
 						}
 					},
 					{
@@ -556,7 +556,7 @@
 						"combat_value": 307,
 						"reward" : {
 							"value": 6400,
-							"creatures": [ { "amount": 8, "type": "vyvern" } ]
+							"creatures": [ { "amount": 8, "type": "wyvern" } ]
 						}
 					},
 					{
@@ -571,7 +571,7 @@
 						"combat_value": 461,
 						"reward" : {
 							"value": 9600,
-							"creatures": [ { "amount": 12, "type": "vyvern" } ]
+							"creatures": [ { "amount": 12, "type": "wyvern" } ]
 						}
 					}
 				]

@@ -152,9 +152,11 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 #  else
 #    define DLL_EXPORT __declspec(dllexport)
 #  endif
+#  define ELF_VISIBILITY
 #else
 #  ifdef __GNUC__
-#    define DLL_EXPORT	__attribute__ ((visibility("default")))
+#    define DLL_EXPORT __attribute__ ((visibility("default")))
+#    define ELF_VISIBILITY __attribute__ ((visibility("default")))
 #  endif
 #endif
 
@@ -164,9 +166,11 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 #  else
 #    define DLL_IMPORT __declspec(dllimport)
 #  endif
+#  define ELF_VISIBILITY
 #else
 #  ifdef __GNUC__
 #    define DLL_IMPORT	__attribute__ ((visibility("default")))
+#    define ELF_VISIBILITY __attribute__ ((visibility("default")))
 #  endif
 #endif
 

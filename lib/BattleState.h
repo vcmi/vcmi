@@ -4,8 +4,8 @@
 #include "BattleHex.h"
 #include "HeroBonus.h"
 #include "CCreatureSet.h"
-#include "mapObjects/CGTownInstance.h"
-#include "mapObjects/CGHeroInstance.h"
+#include "mapObjects/CArmedInstance.h" // for army serialization
+#include "mapObjects/CGHeroInstance.h" // for commander serialization
 #include "CCreatureHandler.h"
 #include "CObstacleInstance.h"
 #include "ConstTransitivePtr.h"
@@ -83,8 +83,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 {
 	std::array<SideInBattle, 2> sides; //sides[0] - attacker, sides[1] - defender
 	si32 round, activeStack, selectedStack;
-	CGTownInstance::EFortLevel siege;
-	const CGTownInstance * town; //used during town siege - id of attacked town; -1 if not town defence
+	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
 	std::vector<CStack*> stacks;
 	std::vector<shared_ptr<CObstacleInstance> > obstacles;
@@ -99,7 +98,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & sides;
-		h & round & activeStack & selectedStack & siege & town & tile & stacks & obstacles
+		h & round & activeStack & selectedStack & town & tile & stacks & obstacles
 			& si & battlefieldType & terrainType;
 		h & tacticsSide & tacticDistance;
 		h & static_cast<CBonusSystemNode&>(*this);

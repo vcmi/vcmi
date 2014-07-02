@@ -14,9 +14,12 @@
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
+#include "../CModHandler.h"
 
 #include "CObjectClassesHandler.h"
 #include "../CSpellHandler.h"
+#include "../IGameCallback.h"
+#include "../CGameState.h"
 
 using namespace boost::assign;
 
@@ -78,17 +81,16 @@ bool CPlayersVisited::wasVisited( TeamID team ) const
 	return false;
 }
 
-const std::string & CGCreature::getHoverText() const
+std::string CGCreature::getHoverText(PlayerColor player) const
 {
 	if(stacks.empty())
 	{
-		static const std::string errorValue("!!!INVALID_STACK!!!");
-
 		//should not happen...
 		logGlobal->errorStream() << "Invalid stack at tile " << pos << ": subID=" << subID << "; id=" << id;
-		return errorValue; // references to temporary are illegal - use pre-constructed string
+		return "!!!INVALID_STACK!!!";
 	}
 
+	std::string hoverName;
 	MetaString ms;
 	int pom = stacks.begin()->second->getQuantityID();
 	pom = 172 + 3*pom;
@@ -96,30 +98,34 @@ const std::string & CGCreature::getHoverText() const
 	ms << " " ;
 	ms.addTxt(MetaString::CRE_PL_NAMES,subID);
 	ms.toString(hoverName);
-
-	if(const CGHeroInstance *selHero = cb->getSelectedHero(cb->getCurrentPlayer()))
-	{
-		const JsonNode & texts = VLC->generaltexth->localizedTexts["adventureMap"]["monsterThreat"];
-
-		hoverName += texts["title"].String();
-		int choice;
-		double ratio = ((double)getArmyStrength() / selHero->getTotalStrength());
-		     if (ratio < 0.1)  choice = 0;
-		else if (ratio < 0.25) choice = 1;
-		else if (ratio < 0.6)  choice = 2;
-		else if (ratio < 0.9)  choice = 3;
-		else if (ratio < 1.1)  choice = 4;
-		else if (ratio < 1.3)  choice = 5;
-		else if (ratio < 1.8)  choice = 6;
-		else if (ratio < 2.5)  choice = 7;
-		else if (ratio < 4)    choice = 8;
-		else if (ratio < 8)    choice = 9;
-		else if (ratio < 20)   choice = 10;
-		else                   choice = 11;
-		hoverName += texts["levels"].Vector()[choice].String();
-	}
 	return hoverName;
 }
+
+std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
+{
+	std::string hoverName = getHoverText(hero->tempOwner);
+
+	const JsonNode & texts = VLC->generaltexth->localizedTexts["adventureMap"]["monsterThreat"];
+
+	hoverName += texts["title"].String();
+	int choice;
+	double ratio = ((double)getArmyStrength() / hero->getTotalStrength());
+		 if (ratio < 0.1)  choice = 0;
+	else if (ratio < 0.25) choice = 1;
+	else if (ratio < 0.6)  choice = 2;
+	else if (ratio < 0.9)  choice = 3;
+	else if (ratio < 1.1)  choice = 4;
+	else if (ratio < 1.3)  choice = 5;
+	else if (ratio < 1.8)  choice = 6;
+	else if (ratio < 2.5)  choice = 7;
+	else if (ratio < 4)    choice = 8;
+	else if (ratio < 8)    choice = 9;
+	else if (ratio < 20)   choice = 10;
+	else                   choice = 11;
+	hoverName += texts["levels"].Vector()[choice].String();
+	return hoverName;
+}
+
 void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int action = takenAction(h);
@@ -443,21 +449,6 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 	}
 	else
 	{
-		//int killedAmount=0;
-		//for(std::set<std::pair<ui32,si32> >::iterator i=result->casualties[1].begin(); i!=result->casualties[1].end(); i++)
-		//	if(i->first == subID)
-		//		killedAmount += i->second;
-		//cb->setAmount(id, slots.find(0)->second.second - killedAmount);
-
-		/*
-		MetaString ms;
-		int pom = slots.find(0)->second.getQuantityID();
-		pom = 174 + 3*pom + 1;
-		ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
-		cb->setHoverName(id,&ms);
-		cb->setObjProperty(id, 11, slots.begin()->second.count * 1000);
-		*/
-
 		//merge stacks into one
 		TSlots::const_iterator i;
 		CCreature * cre = VLC->creh->creatures[formation.basicType];
@@ -554,37 +545,47 @@ void CGMine::initObj()
 		assert(!possibleResources.empty());
 		producedResource = *RandomGeneratorUtil::nextItem(possibleResources, cb->gameState()->getRandomGenerator());
 		tempOwner = PlayerColor::NEUTRAL;
-		hoverName = VLC->generaltexth->mines[7].first + "\n" + VLC->generaltexth->allTexts[202] + " " + troglodytes->getQuantityTXT(false) + " " + troglodytes->type->namePl;
 	}
 	else
 	{
 		producedResource = static_cast<Res::ERes>(subID);
-
-		MetaString ms;
-		ms << std::pair<ui8,ui32>(9,producedResource);
 		if(tempOwner >= PlayerColor::PLAYER_LIMIT)
 			tempOwner = PlayerColor::NEUTRAL;
-		else
-			ms << " (" << std::pair<ui8,ui32>(6,23+tempOwner.getNum()) << ")";
-		ms.toString(hoverName);
 	}
 
 	producedQuantity = defaultResProduction();
+}
+
+std::string CGMine::getObjectName() const
+{
+	return VLC->generaltexth->mines.at(subID).first;
+}
+
+std::string CGMine::getHoverText(PlayerColor player) const
+{
+
+	std::string hoverName = getObjectName(); // Sawmill
+
+	if (tempOwner != PlayerColor::NEUTRAL)
+	{
+		hoverName += "\n";
+		hoverName += VLC->generaltexth->arraytxt[23 + tempOwner.getNum()]; // owned by Red Player
+		hoverName += "\n(" + VLC->generaltexth->restypes[producedResource] + ")";
+	}
+
+	for (auto & slot : Slots()) // guarded by a few Pikeman
+	{
+		hoverName += "\n";
+		hoverName += getRoughAmount(slot.first);
+		hoverName += getCreature(slot.first)->namePl;
+	}
+	return hoverName;
 }
 
 void CGMine::flagMine(PlayerColor player) const
 {
 	assert(tempOwner != player);
 	cb->setOwner(this, player); //not ours? flag it!
-
-	MetaString ms;
-	ms << std::pair<ui8,ui32>(9,subID) << "\n(" << std::pair<ui8,ui32>(6,23+player.getNum()) << ")";
-	if(subID == 7)
-	{
-		ms << "(%s)";
-		ms.addReplacement(MetaString::RES_NAMES, producedResource);
-	}
-	cb->setHoverName(this,&ms);
 
 	InfoWindow iw;
 	iw.soundID = soundBase::FLAGMINE;
@@ -626,10 +627,14 @@ void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) con
 		cb->startBattleI(hero, this);
 }
 
+std::string CGResource::getHoverText(PlayerColor player) const
+{
+	return VLC->generaltexth->restypes[subID];
+}
+
 void CGResource::initObj()
 {
 	blockVisit = true;
-	hoverName = VLC->generaltexth->restypes[subID];
 
 	if(!amount)
 	{
@@ -866,7 +871,6 @@ void CGArtifact::initObj()
 	blockVisit = true;
 	if(ID == Obj::ARTIFACT)
 	{
-		hoverName = VLC->arth->artifacts[subID]->Name();
 		if(!storedArtifact->artType)
 			storedArtifact->setType(VLC->arth->artifacts[subID]);
 	}
@@ -877,6 +881,11 @@ void CGArtifact::initObj()
 	assert(storedArtifact->getParentNodes().size());
 
 	//assert(storedArtifact->artType->id == subID); //this does not stop desync
+}
+
+std::string CGArtifact::getObjectName() const
+{
+	return VLC->arth->artifacts[subID]->Name();
 }
 
 void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
@@ -985,17 +994,22 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	cb->showInfoDialog(&iw);
 }
 
-const std::string & CGWitchHut::getHoverText() const
+std::string CGWitchHut::getHoverText(PlayerColor player) const
 {
-	hoverName = VLC->objtypeh->getObjectName(ID);
-	if(wasVisited(cb->getLocalPlayer()))
+	std::string hoverName = getObjectName();
+	if(wasVisited(player))
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
 		boost::algorithm::replace_first(hoverName,"%s",VLC->generaltexth->skillName[ability]);
-		const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
-		if(h && h->getSecSkillLevel(SecondarySkill(ability))) //hero knows that ability
-			hoverName += "\n\n" + VLC->generaltexth->allTexts[357]; // (Already learned)
 	}
+	return hoverName;
+}
+
+std::string CGWitchHut::getHoverText(const CGHeroInstance * hero) const
+{
+	std::string hoverName = getHoverText(hero->tempOwner);
+	if(hero->getSecSkillLevel(SecondarySkill(ability))) //hero knows that ability
+		hoverName += "\n\n" + VLC->generaltexth->allTexts[357]; // (Already learned)
 	return hoverName;
 }
 
@@ -1020,10 +1034,9 @@ void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 	showInfoDialog(h,message,soundBase::faerie);
 }
 
-const std::string & CGMagicWell::getHoverText() const
+std::string CGMagicWell::getHoverText(const CGHeroInstance * hero) const
 {
-	getNameVis(hoverName);
-	return hoverName;
+	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(Bonus::OBJECT,ID));
 }
 
 void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
@@ -1048,7 +1061,12 @@ void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 	case Obj::COVER_OF_DARKNESS:
 	{
 		iw.text.addTxt (MetaString::ADVOB_TXT, 31);
-		hideTiles(h->tempOwner, 20);
+		for (auto & player : cb->gameState()->players)
+		{
+			if (cb->getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
+				cb->getPlayerRelations(player.first, h->tempOwner) == PlayerRelations::ENEMIES)
+				cb->changeFogOfWar(visitablePos(), 20, player.first, true);
+		}
 		break;
 	}
 	}
@@ -1115,17 +1133,22 @@ void CGShrine::initObj()
 	}
 }
 
-const std::string & CGShrine::getHoverText() const
+std::string CGShrine::getHoverText(PlayerColor player) const
 {
-	hoverName = VLC->objtypeh->getObjectName(ID);
-	if(wasVisited(cb->getCurrentPlayer())) //TODO: use local player, not current
+	std::string hoverName = getObjectName();
+	if(wasVisited(player))
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[355]; // + (learn %s)
 		boost::algorithm::replace_first(hoverName,"%s", spell.toSpell()->name);
-		const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
-		if(h && vstd::contains(h->spells,spell)) //hero knows that ability
-			hoverName += "\n\n" + VLC->generaltexth->allTexts[354]; // (Already learned)
 	}
+	return hoverName;
+}
+
+std::string CGShrine::getHoverText(const CGHeroInstance * hero) const
+{
+	std::string hoverName = getHoverText(hero->tempOwner);
+	if(vstd::contains(hero->spells, spell)) //hero knows that spell
+		hoverName += "\n\n" + VLC->generaltexth->allTexts[354]; // (Already learned)
 	return hoverName;
 }
 
@@ -1250,19 +1273,18 @@ void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 	cb->showGarrisonDialog(id, h->id, removableUnits);
 }
 
-ui8 CGGarrison::getPassableness() const
+bool CGGarrison::passableFor(PlayerColor player) const
 {
+	//FIXME: identical to same method in CGTownInstance
+
 	if ( !stacksCount() )//empty - anyone can visit
-		return GameConstants::ALL_PLAYERS;
+		return true;
 	if ( tempOwner == PlayerColor::NEUTRAL )//neutral guarded - no one can visit
-		return 0;
+		return false;
 
-	ui8 mask = 0;
-	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
-	for(PlayerColor it : ts->players)
-		mask |= 1<<it.getNum(); //allies - add to possible visitors
-
-	return mask;
+	if (cb->getPlayerRelations(tempOwner, player) != PlayerRelations::ENEMIES)
+		return true;
+	return false;
 }
 
 void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
@@ -1326,10 +1348,9 @@ void CGSirens::initObj()
 	blockVisit = true;
 }
 
-const std::string & CGSirens::getHoverText() const
+std::string CGSirens::getHoverText(const CGHeroInstance * hero) const
 {
-	getNameVis(hoverName);
-	return hoverName;
+	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(Bonus::OBJECT,ID));
 }
 
 void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
@@ -1500,11 +1521,9 @@ void CGObelisk::initObj()
 	obeliskCount++;
 }
 
-const std::string & CGObelisk::getHoverText() const
+std::string CGObelisk::getHoverText(PlayerColor player) const
 {
-	bool visited = wasVisited(cb->getLocalPlayer());
-	hoverName = VLC->objtypeh->getObjectName(ID) + " " + visitedTxt(visited);
-	return hoverName;
+	return getObjectName() + " " + visitedTxt(wasVisited(player));
 }
 
 void CGObelisk::setPropertyDer( ui8 what, ui32 val )
@@ -1554,11 +1573,10 @@ void CGLighthouse::initObj()
 	}
 }
 
-const std::string & CGLighthouse::getHoverText() const
+std::string CGLighthouse::getHoverText(PlayerColor player) const
 {
-	hoverName = VLC->objtypeh->getObjectName(ID);
 	//TODO: owned by %s player
-	return hoverName;
+	return getObjectName();
 }
 
 void CGLighthouse::giveBonusTo( PlayerColor player ) const

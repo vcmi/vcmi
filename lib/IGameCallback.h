@@ -48,7 +48,6 @@ public:
 	virtual bool removeObject(const CGObjectInstance * obj)=0;
 	virtual void setBlockVis(ObjectInstanceID objid, bool bv)=0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
-	virtual void setHoverName(const CGObjectInstance * obj, MetaString * name)=0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0; 
 	virtual void showBlockingDialog(BlockingDialog *iw) =0;
@@ -93,6 +92,8 @@ public:
 	virtual void sendAndApply(CPackForClient * info)=0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void addQuest(int player, QuestInfo & quest){};
+	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) = 0;
+	virtual void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) = 0;
 };
 
 class DLL_LINKAGE CNonConstInfoCallback : public CPrivilagedInfoCallback

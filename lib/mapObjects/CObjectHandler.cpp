@@ -1,4 +1,4 @@
-/*
+﻿/*
  * CObjectHandler.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -15,6 +15,9 @@
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../CSoundBase.h"
+#include "../filesystem/ResourceID.h"
+#include "../IGameCallback.h"
+#include "../CGameState.h"
 
 #include "CObjectClassesHandler.h"
 
@@ -51,12 +54,6 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 {
 	const PlayerColor playerID = h->getOwner();
 	showInfoDialog(playerID,txtID,soundID);
-}
-
-static std::string & visitedTxt(const bool visited)
-{
-	int id = visited ? 352 : 353;
-	return VLC->generaltexth->allTexts[id];
 }
 
 ///IObjectInterface
@@ -137,21 +134,11 @@ CGObjectInstance::CGObjectInstance():
 }
 CGObjectInstance::~CGObjectInstance()
 {
-	//if (state)
-	//	delete state;
-	//state=nullptr;
 }
 
-const std::string & CGObjectInstance::getHoverText() const
-{
-	return hoverName;
-}
 void CGObjectInstance::setOwner(PlayerColor ow)
 {
-	//if (state)
-	//	state->owner = ow;
-	//else
-		tempOwner = ow;
+	tempOwner = ow;
 }
 int CGObjectInstance::getWidth() const//returns width of object graphic in tiles
 {
@@ -191,39 +178,7 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 
 std::set<int3> CGObjectInstance::getBlockedOffsets() const
 {
-	std::set<int3> ret;
-	for(int w=0; w<getWidth(); ++w)
-	{
-		for(int h=0; h<getHeight(); ++h)
-		{
-			if (appearance.isBlockedAt(w, h))
-				ret.insert(int3(-w, -h, 0));
-		}
-	}
-	return ret;
-}
-
-
-bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen printing priority comparing
-{
-	if (appearance.printPriority != cmp.appearance.printPriority)
-		return appearance.printPriority > cmp.appearance.printPriority;
-
-	if(pos.y != cmp.pos.y)
-		return pos.y < cmp.pos.y;
-
-	if(cmp.ID==Obj::HERO && ID!=Obj::HERO)
-		return true;
-	if(cmp.ID!=Obj::HERO && ID==Obj::HERO)
-		return false;
-
-	if(!isVisitable() && cmp.isVisitable())
-		return true;
-	if(!cmp.isVisitable() && isVisitable())
-		return false;
-	if(this->pos.x<cmp.pos.x)
-		return true;
-	return false;
+	return appearance.getBlockedOffsets();
 }
 
 void CGObjectInstance::setType(si32 ID, si32 subID)
@@ -252,6 +207,8 @@ void CGObjectInstance::initObj()
 
 void CGObjectInstance::setProperty( ui8 what, ui32 val )
 {
+	setPropertyDer(what, val); // call this before any actual changes (needed at least for dwellings)
+
 	switch(what)
 	{
 	case ObjProperty::OWNER:
@@ -267,7 +224,6 @@ void CGObjectInstance::setProperty( ui8 what, ui32 val )
 		subID = val;
 		break;
 	}
-	setPropertyDer(what, val);
 }
 
 void CGObjectInstance::setPropertyDer( ui8 what, ui32 val )
@@ -275,41 +231,14 @@ void CGObjectInstance::setPropertyDer( ui8 what, ui32 val )
 
 int3 CGObjectInstance::getSightCenter() const
 {
-	//return vistiable tile if possible
-	for(int i=0; i < 8; i++)
-		for(int j=0; j < 6; j++)
-			if(visitableAt(i,j))
-				return(pos + int3(i-7, j-5, 0));
-	return pos;
+	return visitablePos();
 }
 
 int CGObjectInstance::getSightRadious() const
 {
 	return 3;
 }
-void CGObjectInstance::getSightTiles(std::unordered_set<int3, ShashInt3> &tiles) const //returns reference to the set
-{
-	cb->getTilesInRange(tiles, getSightCenter(), getSightRadious(), tempOwner, 1);
-}
-void CGObjectInstance::hideTiles(PlayerColor ourplayer, int radius) const
-{
-	for (auto i = cb->gameState()->teams.begin(); i != cb->gameState()->teams.end(); i++)
-	{
-		if ( !vstd::contains(i->second.players, ourplayer ))//another team
-		{
-			for (auto & elem : i->second.players)
-				if ( cb->getPlayer(elem)->status == EPlayerStatus::INGAME )//seek for living player (if any)
-				{
-					FoWChange fw;
-					fw.mode = 0;
-					fw.player = elem;
-					cb->getTilesInRange (fw.tiles, pos, radius, (elem), -1);
-					cb->sendAndApply (&fw);
-					break;
-				}
-		}
-	}
-}
+
 int3 CGObjectInstance::getVisitableOffset() const
 {
 	for(int y = 0; y < appearance.getHeight(); y++)
@@ -317,19 +246,8 @@ int3 CGObjectInstance::getVisitableOffset() const
 			if (appearance.isVisitableAt(x, y))
 				return int3(x,y,0);
 
-    logGlobal->warnStream() << "Warning: getVisitableOffset called on non-visitable obj!";
+    //logGlobal->warnStream() << "Warning: getVisitableOffset called on non-visitable obj!";
 	return int3(0,0,0);
-}
-
-void CGObjectInstance::getNameVis( std::string &hname ) const
-{
-	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
-	hname = VLC->objtypeh->getObjectName(ID);
-	if(h)
-	{
-		const bool visited = h->hasBonusFrom(Bonus::OBJECT,ID);
-		hname + " " + visitedTxt(visited);
-	}
 }
 
 void CGObjectInstance::giveDummyBonus(ObjectInstanceID heroID, ui8 duration) const
@@ -341,6 +259,21 @@ void CGObjectInstance::giveDummyBonus(ObjectInstanceID heroID, ui8 duration) con
 	gbonus.bonus.source = Bonus::OBJECT;
 	gbonus.bonus.sid = ID;
 	cb->giveHeroBonus(&gbonus);
+}
+
+std::string CGObjectInstance::getObjectName() const
+{
+	return VLC->objtypeh->getObjectName(ID, subID);
+}
+
+std::string CGObjectInstance::getHoverText(PlayerColor player) const
+{
+	return getObjectName();
+}
+
+std::string CGObjectInstance::getHoverText(const CGHeroInstance * hero) const
+{
+	return getHoverText(hero->tempOwner);
 }
 
 void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
@@ -366,11 +299,6 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 	}
 }
 
-ui8 CGObjectInstance::getPassableness() const
-{
-	return 0;
-}
-
 int3 CGObjectInstance::visitablePos() const
 {
 	return pos - getVisitableOffset();
@@ -383,7 +311,7 @@ bool CGObjectInstance::isVisitable() const
 
 bool CGObjectInstance::passableFor(PlayerColor color) const
 {
-	return getPassableness() & 1<<color.getNum();
+	return false;
 }
 
 CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)

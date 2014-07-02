@@ -3,6 +3,7 @@ GENERAL:
 * (linux) now VCMI follows XDG specifications. See http://forum.vcmi.eu/viewtopic.php?t=858
 
 ADVENTURE AI:
+* Optimized speed and removed various bottlenecks.
 
 ADVENTURE MAP:
 * Heroes auto-level primary and secondary skill levels according to experience
@@ -12,6 +13,14 @@ BATTLES:
 
 SPELLS:
 * New configuration format: http://wiki.vcmi.eu/index.php?title=Spell_Format
+
+RANDOM MAP GENERATOR
+* Towns form mods cna be used
+* Reading connections, terrains, towns and mines from template
+* Zone placement
+* Zone borders and connections, fractalized paths inside zones
+* Guard generation
+* Treasue piles generation (so far only few removable objects)
 
 MODS:
 * Support for submods - mod may have their own "submods" located in <modname>/Mods directory

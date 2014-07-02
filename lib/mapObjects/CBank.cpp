@@ -1,4 +1,4 @@
-/*
+﻿/*
  * CBank.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -16,6 +16,8 @@
 #include "../CSoundBase.h"
 #include "CommonConstructors.h"
 #include "../CSpellHandler.h"
+#include "../IGameCallback.h"
+#include "../CGameState.h"
 
 using namespace boost::assign;
 
@@ -41,11 +43,10 @@ void CBank::initObj()
 	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, cb->gameState()->getRandomGenerator());
 }
 
-const std::string & CBank::getHoverText() const
+std::string CBank::getHoverText(PlayerColor player) const
 {
-	bool visited = (bc == nullptr);
-	hoverName = visitedTxt(visited); // FIXME: USE BANK_SPECIFIC NAMES
-	return hoverName;
+	// TODO: record visited players
+	return getObjectName() + " " + visitedTxt(bc == nullptr);
 }
 
 void CBank::setConfig(const BankConfig & config)
@@ -125,8 +126,8 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		bd.player = h->getOwner();
 		bd.soundID = soundID;
 		bd.text.addTxt(MetaString::ADVOB_TXT, banktext);
-		//if (ID == Obj::CREATURE_BANK)
-		//	bd.text.addReplacement(VLC->objh->creBanksNames[index]); // FIXME: USE BANK SPECIFIC NAMES
+		if (ID == Obj::CREATURE_BANK)
+			bd.text.addReplacement(getObjectName());
 		cb->showBlockingDialog (&bd);
 	}
 	else
@@ -146,7 +147,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		else
 		{
 			iw.text << VLC->generaltexth->advobtxt[33];// This was X, now is completely empty
-			//iw.text.addReplacement(VLC->objh->creBanksNames[index]); // FIXME: USE BANK SPECIFIC NAMES
+			iw.text.addReplacement(getObjectName());
 		}
 		cb->showInfoDialog(&iw);
 	}

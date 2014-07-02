@@ -16,6 +16,7 @@
 #include "StartInfo.h" // for StartInfo
 #include "BattleState.h" // for BattleInfo
 #include "NetPacks.h" // for InfoWindow
+#include "CModHandler.h"
 
 //TODO make clean
 #define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
@@ -259,18 +260,6 @@ int CGameInfoCallback::getDate(Date::EDateType mode) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getDate(mode);
-}
-std::vector < std::string > CGameInfoCallback::getObjDescriptions(int3 pos) const
-{
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	std::vector<std::string> ret;
-	const TerrainTile *t = getTile(pos);
-	ERROR_RET_VAL_IF(!t, "Not a valid tile given!", ret);
-
-
-	for(const CGObjectInstance * obj : t->blockingObjects)
-		ret.push_back(obj->getHoverText());
-	return ret;
 }
 
 bool CGameInfoCallback::isVisible(int3 pos, boost::optional<PlayerColor> Player) const

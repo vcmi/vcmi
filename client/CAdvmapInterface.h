@@ -85,8 +85,8 @@ public:
 /// can get to the towns and heroes. 
 class CAdvMapInt : public CIntObject
 {
-	//get top selectable object at tile
-	const CGObjectInstance *getBlockingObject(const int3 &tile);
+	//Return object that must be active at this tile (=clickable)
+	const CGObjectInstance *getActiveObject(const int3 &tile);
 
 public:
 	CAdvMapInt();

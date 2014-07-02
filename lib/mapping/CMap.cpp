@@ -432,7 +432,7 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, Obj::EObj type)
 	}
 	assert(bestMatch != nullptr); // if this happens - victory conditions or map itself is very, very broken
 
-	logGlobal->errorStream() << "Will use " << bestMatch->getHoverText() << " from " << bestMatch->pos;
+	logGlobal->errorStream() << "Will use " << bestMatch->getObjectName() << " from " << bestMatch->pos;
 	return bestMatch;
 }
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * CGPandoraBox.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -15,6 +15,8 @@
 #include "../CSoundBase.h"
 
 #include "../CSpellHandler.h"
+#include "../StartInfo.h"
+#include "../IGameCallback.h"
 
 using namespace boost::assign;
 

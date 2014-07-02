@@ -317,7 +317,7 @@ void CTownList::CTownItem::showTooltip()
 
 std::string CTownList::CTownItem::getHoverText()
 {
-	return town->hoverName;
+	return town->getObjectName();
 }
 
 CTownList::CTownList(int size, Point position, std::string btnUp, std::string btnDown):

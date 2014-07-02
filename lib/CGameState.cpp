@@ -256,7 +256,7 @@ DLL_LINKAGE void MetaString::toString(std::string &dst) const
 			boost::replace_first(dst, "%+d", '+' + boost::lexical_cast<std::string>(numbers[nums++]));
 			break;
 		default:
-            logGlobal->errorStream() << "MetaString processing error!";
+			logGlobal->errorStream() << "MetaString processing error! Received message of type " << int(elem);
 			break;
 		}
 	}
@@ -313,7 +313,7 @@ DLL_LINKAGE std::string MetaString::buildList () const
 				lista.replace (lista.find("%d"), 2, boost::lexical_cast<std::string>(numbers[nums++]));
 				break;
 			default:
-                logGlobal->errorStream() << "MetaString processing error!";
+				logGlobal->errorStream() << "MetaString processing error! Received message of type " << int(message[i]);
 		}
 
 	}
@@ -1053,7 +1053,6 @@ void CGameState::randomizeMapObjects()
 		if(!obj) continue;
 
 		randomizeObject(obj);
-		obj->hoverName = VLC->objtypeh->getObjectName(obj->ID);
 
 		//handle Favouring Winds - mark tiles under it
 		if(obj->ID == Obj::FAVORABLE_WINDS)
@@ -1637,7 +1636,7 @@ void CGameState::initFogOfWar()
 			if(!obj || !vstd::contains(elem.second.players, obj->tempOwner)) continue; //not a flagged object
 
 			std::unordered_set<int3, ShashInt3> tiles;
-			obj->getSightTiles(tiles);
+			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadious(), obj->tempOwner, 1);
 			for(int3 tile : tiles)
 			{
 				elem.second.fogOfWarMap[tile.x][tile.y][tile.z] = 1;
@@ -1898,6 +1897,13 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 					break;
 				}
 			}
+		}
+	}
+	for (auto hero : map->heroesOnMap)
+	{
+		if (hero->visitedTown)
+		{
+			assert (hero->visitedTown->visitingHero == hero);
 		}
 	}
 }
@@ -2980,7 +2986,7 @@ void InfoAboutArmy::initFromArmy(const CArmedInstance *Army, bool detailed)
 {
 	army = ArmyDescriptor(Army, detailed);
 	owner = Army->tempOwner;
-	name = Army->getHoverText();
+	name = Army->getObjectName();
 }
 
 void InfoAboutHero::assign(const InfoAboutHero & iah)
@@ -3508,59 +3514,6 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 {
 	useSubterraneanGates = true;
 	allowEmbarkAndDisembark = true;
-}
-
-EVictoryLossCheckResult::EVictoryLossCheckResult() :
-	intValue(0)
-{
-}
-
-EVictoryLossCheckResult::EVictoryLossCheckResult(si32 intValue, std::string toSelf, std::string toOthers) :
-	messageToSelf(toSelf),
-	messageToOthers(toOthers),
-	intValue(intValue)
-{
-}
-
-bool EVictoryLossCheckResult::operator==(EVictoryLossCheckResult const & other) const
-{
-	return intValue == other.intValue;
-}
-
-bool EVictoryLossCheckResult::operator!=(EVictoryLossCheckResult const & other) const
-{
-	return intValue != other.intValue;
-}
-
-bool EVictoryLossCheckResult::victory() const
-{
-	return intValue == VICTORY;
-}
-
-bool EVictoryLossCheckResult::loss() const
-{
-	return intValue == DEFEAT;
-}
-
-EVictoryLossCheckResult EVictoryLossCheckResult::invert()
-{
-	return EVictoryLossCheckResult(-intValue, messageToOthers, messageToSelf);
-}
-
-EVictoryLossCheckResult EVictoryLossCheckResult::victory(std::string toSelf, std::string toOthers)
-{
-	return EVictoryLossCheckResult(VICTORY, toSelf, toOthers);
-}
-
-EVictoryLossCheckResult EVictoryLossCheckResult::defeat(std::string toSelf, std::string toOthers)
-{
-	return EVictoryLossCheckResult(DEFEAT, toSelf, toOthers);
-}
-
-std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult)
-{
-	os << victoryLossCheckResult.messageToSelf;
-	return os;
 }
 
 CRandomGenerator & CGameState::getRandomGenerator()
