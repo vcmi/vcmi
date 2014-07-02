@@ -91,7 +91,7 @@ void CMessage::init()
 			delete bluePieces;
 		}
 		background = BitmapHandler::loadBitmap("DIBOXBCK.BMP");
-		SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
+		CSDL_Ext::setDefaultColorKey(background);
 	}
 	ok = CDefHandler::giveDef("IOKAY.DEF");
 	cancel = CDefHandler::giveDef("ICANCEL.DEF");

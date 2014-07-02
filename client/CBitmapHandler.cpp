@@ -157,15 +157,9 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 	// 1) Vampire mansion in Necropolis (not 1st color is transparent)
 	// 2) Battle background when fighting on grass/dirt, topmost sky part (NO transparent color)
 	// 3) New objects that may use 24-bit images for icons (e.g. witchking arts)
-	auto colorID = SDL_MapRGB(ret->format, 0, 255, 255);
-
 	if (ret->format->palette)
 	{
-		auto & color = ret->format->palette->colors[colorID];
-
-		// set color key only if exactly such color was found
-		if (color.r == 0 && color.g == 255 && color.b == 255)
-			SDL_SetColorKey(ret, SDL_SRCCOLORKEY, colorID);		
+		CSDL_Ext::setDefaultColorKeyPresize(ret);
 	}
 	else // always set
 	{

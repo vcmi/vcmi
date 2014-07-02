@@ -1799,7 +1799,7 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 CMinorResDataBar::CMinorResDataBar()
 {
 	bg = BitmapHandler::loadBitmap("KRESBAR.bmp");
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	CSDL_Ext::setDefaultColorKey(bg);	
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos.x = 7;
 	pos.y = 575;

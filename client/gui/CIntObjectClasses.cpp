@@ -129,7 +129,7 @@ void CPicture::convertToScreenBPP()
 {
 	SDL_Surface *hlp = bg;
 	bg = SDL_ConvertSurface(hlp,screen->format,0);
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	CSDL_Ext::setDefaultColorKey(bg);	
 	SDL_FreeSurface(hlp);
 }
 

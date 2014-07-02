@@ -265,13 +265,7 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 		}
 		for(auto & curImg : curImgs)
 		{
-			#ifdef VCMI_SDL1
-			uint32_t key = SDL_MapRGB(curImg.bitmap->format, 0, 255, 255); 
-			#else
-			uint32_t key = SDL_MapRGBA(curImg.bitmap->format, 0, 255, 255, 0); 
-			#endif
-						
-			SDL_SetColorKey(curImg.bitmap, SDL_SRCCOLORKEY, key);
+			CSDL_Ext::setDefaultColorKey(curImg.bitmap);
 			#ifndef VCMI_SDL1
 			SDL_SetSurfaceBlendMode(curImg.bitmap,SDL_BLENDMODE_NONE);
 			#endif
