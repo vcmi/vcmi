@@ -84,15 +84,20 @@ void Graphics::loadPaletteAndColors()
 		#endif // 0
 	}
 	//colors initialization
-	int3 kolory[] = {int3(0xff,0,0),int3(0x31,0x52,0xff),int3(0x9c,0x73,0x52),int3(0x42,0x94,0x29),
-		int3(0xff,0x84,0x0),int3(0x8c,0x29,0xa5),int3(0x09,0x9c,0xa5),int3(0xc6,0x7b,0x8c)};
+	SDL_Color colors[]  = { 
+		{0xff,0,  0,    SDL_ALPHA_OPAQUE}, 
+		{0x31,0x52,0xff,SDL_ALPHA_OPAQUE},
+		{0x9c,0x73,0x52,SDL_ALPHA_OPAQUE},
+		{0x42,0x94,0x29,SDL_ALPHA_OPAQUE},
+		
+		{0xff,0x84,0,   SDL_ALPHA_OPAQUE},
+		{0x8c,0x29,0xa5,SDL_ALPHA_OPAQUE},
+		{0x09,0x9c,0xa5,SDL_ALPHA_OPAQUE},
+		{0xc6,0x7b,0x8c,SDL_ALPHA_OPAQUE}};		
 		
 	for(int i=0;i<8;i++)
 	{
-		playerColors[i].r = kolory[i].x;
-		playerColors[i].g = kolory[i].y;
-		playerColors[i].b = kolory[i].z;
-		CSDL_Ext::colorSetAlpha(playerColors[i],SDL_ALPHA_OPAQUE);
+		playerColors[i] = colors[i];
 	}
 	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; //gray
 	CSDL_Ext::colorSetAlpha(*neutralColor,SDL_ALPHA_OPAQUE);
