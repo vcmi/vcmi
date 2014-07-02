@@ -400,15 +400,18 @@ int main(int argc, char** argv)
 
     logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
 
+#if defined(__ANDROID__) || !defined(VCMI_SDL1)
+	//on Android threaded init is broken
+	#define VCMI_NO_THREADED_LOAD
+#endif // defined
 
-//
-//#ifndef __ANDROID__
-//	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
-//	boost::thread loading(init);
-//#else
-	// on Android threaded init is broken
+
+#ifndef VCMI_NO_THREADED_LOAD
+	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
+	boost::thread loading(init);
+#else	 
 	init();
-//#endif
+#endif
 
 	if(!gNoGUI )
 	{
@@ -418,9 +421,9 @@ int main(int argc, char** argv)
 	}
 
 	CSDL_Ext::update(screen);
-//#ifndef __ANDROID__
-//	loading.join();
-//#endif
+#ifndef VCMI_NO_THREADED_LOAD
+	loading.join();
+#endif
     logGlobal->infoStream()<<"Initialization of VCMI (together): "<<total.getDiff();
 
 	if(!vm.count("battle"))
