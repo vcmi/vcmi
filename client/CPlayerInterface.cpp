@@ -118,6 +118,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	isAutoFightOn = false;
 	
 	duringMovement = false;
+	ignoreEvents = false;
 }
 
 CPlayerInterface::~CPlayerInterface()
