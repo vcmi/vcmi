@@ -38,6 +38,9 @@ namespace Unicode
 	/// NOTE: usage of these functions should be avoided if possible
 	std::string DLL_LINKAGE fromUnicode(const std::string & text);
 	std::string DLL_LINKAGE fromUnicode(const std::string & text, const std::string & encoding);
+	
+	///delete (amount) UTF characters from right
+	DLL_LINKAGE void trimRight(std::string & text, const size_t amount = 1);
 };
 
 class CInputStream;

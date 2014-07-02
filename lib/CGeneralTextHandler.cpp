@@ -126,6 +126,35 @@ std::string Unicode::fromUnicode(const std::string &text, const std::string &enc
 	return boost::locale::conv::from_utf<char>(text, encoding);
 }
 
+void Unicode::trimRight(std::string & text, const size_t amount/* =1 */)
+{
+	if(text.empty())
+		return;
+	//todo: more efficient algorithm
+	for(int i = 0; i< amount; i++){
+		auto b = text.begin(); 
+		auto e = text.end();
+		size_t lastLen = 0;
+		size_t len = 0;
+		while (b != e) {
+			lastLen = len;
+			size_t n = getCharacterSize(*b);
+
+			if(!isValidCharacter(&(*b),e-b))
+			{				
+				logGlobal->errorStream() << "Invalid UTF8 sequence";
+				break;//invalid sequence will be trimmed
+			}
+
+			len += n;
+			b += n;
+		}		
+
+		text.resize(lastLen);
+	}
+}
+
+
 //Helper for string -> float conversion
 class LocaleWithComma: public std::numpunct<char>
 {

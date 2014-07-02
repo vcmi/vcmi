@@ -3946,7 +3946,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		{
 			if(enteredText.size() > 1)
 			{
-				enteredText.resize(enteredText.size()-1);
+				Unicode::trimRight(enteredText,1);				
 				enteredText[enteredText.size()-1] = '_';
 				refreshEnteredText();
 			}
@@ -3999,14 +3999,43 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 					refreshEnteredText();
 				}
 			}
-			#endif // 0
+			#endif // VCMI_SDL1
 			break;
 		}
 	}
 }
 
+#ifndef VCMI_SDL1
+
+void CInGameConsole::textInputed(const SDL_TextInputEvent & event)
+{
+	if(!captureAllKeys || enteredText.size() == 0)
+		return;
+	enteredText.resize(enteredText.size()-1);
+	
+	enteredText += event.text;
+	enteredText += "_";	
+	
+	refreshEnteredText();			
+}
+
+void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
+{
+ //do nothing here
+}
+
+#endif // VCMI_SDL1
+
 void CInGameConsole::startEnteringText()
 {
+	#ifndef VCMI_SDL1
+	if (SDL_IsTextInputActive() == SDL_FALSE)		
+	{		
+		SDL_StartTextInput();		
+	}		
+	SDL_SetTextInputRect(&pos);
+	#endif
+
 	enteredText = "_";
 	if(GH.topInt() == adventureInt)
 	{
@@ -4024,6 +4053,13 @@ void CInGameConsole::startEnteringText()
 
 void CInGameConsole::endEnteringText(bool printEnteredText)
 {
+	#ifndef VCMI_SDL1
+	if (SDL_IsTextInputActive() == SDL_TRUE)
+	{		
+		SDL_StopTextInput();			
+	}		
+	#endif
+	
 	prevEntDisp = -1;
 	if(printEnteredText)
 	{
@@ -4062,7 +4098,11 @@ void CInGameConsole::refreshEnteredText()
 
 CInGameConsole::CInGameConsole() : prevEntDisp(-1), defaultTimeout(10000), maxDisplayedTexts(10)
 {
+	#ifdef VCMI_SDL1
 	addUsedEvents(KEYBOARD);
+	#else
+	addUsedEvents(KEYBOARD | TEXTINPUT);
+	#endif
 }
 
 CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits ):

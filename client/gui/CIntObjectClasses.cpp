@@ -1616,30 +1616,7 @@ void CTextInput::clickLeft( tribool down, bool previousState )
 
 void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 {
-	auto trim = [](std::string & s){
-		if(s.empty())
-			return;
-		auto b = s.begin(); 
-		auto e = s.end();
-		size_t lastLen = 0;
-		size_t len = 0;
-		while (b != e) {
-			lastLen = len;
-			size_t n = Unicode::getCharacterSize(*b);
-			
-			if(!Unicode::isValidCharacter(&(*b),e-b))
-			{				
-				logGlobal->errorStream() << "Invalid UTF8 sequence";
-				break;//invalid sequence will be trimmed
-			}
-		
-			len += n;
-			b += n;
-		}		
-		
-		s.resize(lastLen);
-	};
-	
+
 	if(!focus || key.state != SDL_PRESSED)
 		return;
 
@@ -1661,12 +1638,12 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 	case SDLK_BACKSPACE:
 		if(!newText.empty())
 		{
-			trim(newText);
+			Unicode::trimRight(newText);
 			redrawNeeded = true;
 		}
 		else if(!text.empty())
 		{
-			trim(text);
+			Unicode::trimRight(text);
 			redrawNeeded = true;
 		}			
 		break;

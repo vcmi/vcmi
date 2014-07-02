@@ -834,6 +834,11 @@ public:
 	void print(const std::string &txt);
 	void keyPressed (const SDL_KeyboardEvent & key); //call-in
 
+#ifndef VCMI_SDL1
+	void textInputed(const SDL_TextInputEvent & event) override;
+	void textEdited(const SDL_TextEditingEvent & event) override;
+#endif // VCMI_SDL1
+
 	void startEnteringText();
 	void endEnteringText(bool printEnteredText);
 	void refreshEnteredText();
