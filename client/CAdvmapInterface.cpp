@@ -294,7 +294,7 @@ void CResDataBar::clickRight(tribool down, bool previousState)
 CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist)
 {
 	bg = BitmapHandler::loadBitmap(defname);
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	CSDL_Ext::setDefaultColorKey(bg);	
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h, bg->w, pos.x+x, pos.y+y);
 
@@ -313,7 +313,7 @@ CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int
 CResDataBar::CResDataBar()
 {
 	bg = BitmapHandler::loadBitmap(ADVOPT.resdatabarG);
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	CSDL_Ext::setDefaultColorKey(bg);	
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h,bg->w,ADVOPT.resdatabarX,ADVOPT.resdatabarY);
 

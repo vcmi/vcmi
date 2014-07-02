@@ -13,6 +13,7 @@ const SDL_Color Colors::YELLOW = { 229, 215, 123, 0 };
 const SDL_Color Colors::WHITE = { 255, 243, 222, 0 };
 const SDL_Color Colors::METALLIC_GOLD = { 173, 142, 66, 0 };
 const SDL_Color Colors::GREEN = { 0, 255, 0, 0 };
+const SDL_Color Colors::DEFAULT_KEY_COLOR = {0, 255, 255, 0};
 
 #if (SDL_MAJOR_VERSION == 2)
 void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
@@ -1002,6 +1003,36 @@ void CSDL_Ext::stopTextInput()
 		SDL_StopTextInput();			
 	}		
 	#endif	
+}
+
+STRONG_INLINE static uint32_t mapColor(SDL_Surface * surface, SDL_Color color)
+{
+	#ifdef VCMI_SDL1
+	return SDL_MapRGB(surface->format, color.r, color.g, color.b); 
+	#else
+	return SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a); 
+	#endif		
+}
+
+void CSDL_Ext::setColorKey(SDL_Surface * surface, SDL_Color color)
+{
+	uint32_t key = mapColor(surface,color);
+	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, key);	
+}
+
+void CSDL_Ext::setDefaultColorKey(SDL_Surface * surface)
+{	
+	setColorKey(surface, Colors::DEFAULT_KEY_COLOR);
+}
+
+void CSDL_Ext::setDefaultColorKeyPresize(SDL_Surface * surface)
+{
+	uint32_t key = mapColor(surface,Colors::DEFAULT_KEY_COLOR);
+	auto & color = surface->format->palette->colors[key];
+
+	// set color key only if exactly such color was found
+	if (color.r == Colors::DEFAULT_KEY_COLOR.r && color.g == Colors::DEFAULT_KEY_COLOR.g && color.b == Colors::DEFAULT_KEY_COLOR.b)
+		SDL_SetColorKey(surface, SDL_SRCCOLORKEY, key);	
 }
 
 

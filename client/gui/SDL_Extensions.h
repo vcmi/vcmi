@@ -128,6 +128,9 @@ public:
 
 	/** green color used for in-game console */
 	static const SDL_Color GREEN;
+	
+	/** default key color for all 8 & 24 bit graphics */
+	static const SDL_Color DEFAULT_KEY_COLOR;
 };
 
 //MSVC gives an error when calling abs with ui64 -> we add template that will match calls with unsigned arg and return it
@@ -266,4 +269,10 @@ namespace CSDL_Ext
 	
 	void startTextInput(SDL_Rect * where);
 	void stopTextInput();
+	
+	void setColorKey(SDL_Surface * surface, SDL_Color color);
+	///set key-color to 0,255,255
+	void setDefaultColorKey(SDL_Surface * surface);
+	///set key-color to 0,255,255 only if it exactly mapped
+	void setDefaultColorKeyPresize(SDL_Surface * surface);
 }
