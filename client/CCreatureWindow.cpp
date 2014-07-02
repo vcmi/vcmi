@@ -623,7 +623,12 @@ void CStackWindow::init()
 	selectedIcon = nullptr;
 	selectedSkill = 0;
 	if (info->levelupInfo)
+	{
 		selectedSkill = info->levelupInfo->skills.front();
+		logGlobal->debugStream() << "Received commander level-up. Possible options are: ";
+		for (auto skill : info->levelupInfo->skills)
+			logGlobal->debugStream() << "Skill #" << skill;
+	}
 
 	commanderTab = nullptr;
 	activeTab = 0;
@@ -709,6 +714,7 @@ CStackWindow::~CStackWindow()
 {
 	if (info->levelupInfo)
 	{
-		info->levelupInfo->callback(selectedSkill);
+		logGlobal->debugStream() << "Selected skill was " << selectedSkill;
+		info->levelupInfo->callback(vstd::find_pos(info->levelupInfo->skills, selectedSkill));
 	}
 }
