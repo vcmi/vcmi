@@ -22,6 +22,12 @@
 		"config/wog/heroClasses.json"
 	],
 
+	"objects" :
+	[
+		"config/wog/dwellings.json",
+		"config/wog/creatureBanks.json"
+	],
+
 	"filesystem":
 	{
 		"" :

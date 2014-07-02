@@ -28,8 +28,7 @@
 								"ore" : 4,
 								"sulfur" : 4,
 								"crystal" : 4,
-								"gems" : 4,
-								"gold" : 0
+								"gems" : 4
 							}
 						}
 					},
@@ -274,12 +273,6 @@
 							"value": 2000,
 							"resources":
 							{
-								"wood" : 0,
-								"mercury" : 2,
-								"ore" : 0,
-								"sulfur" : 0,
-								"crystal" : 0,
-								"gems" : 0,
 								"gold" : 1000
 							}
 						}
