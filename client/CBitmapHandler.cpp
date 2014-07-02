@@ -122,7 +122,13 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 			if(ret->format->BytesPerPixel == 1  &&  setKey)
 			{
 				const SDL_Color &c = ret->format->palette->colors[0];
-				SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format, c.r, c.g, c.b));		
+				#ifdef VCMI_SDL1
+				uint32_t key = SDL_MapRGB(ret->format, c.r, c.g, c.b); 
+				#else
+				uint32_t key = SDL_MapRGBA(ret->format, c.r, c.g, c.b, c.a); 
+				#endif
+				
+				SDL_SetColorKey(ret,SDL_SRCCOLORKEY,key);		
 			}
 		}
 		else

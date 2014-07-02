@@ -364,7 +364,12 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 			idToObstacle[ID] = CDefHandler::giveDef(elem->getInfo().defName);
 			for(auto & _n : idToObstacle[ID]->ourImages)
 			{
-				SDL_SetColorKey(_n.bitmap, SDL_SRCCOLORKEY, SDL_MapRGB(_n.bitmap->format,0,255,255));
+				#ifdef VCMI_SDL1
+				uint32_t key = SDL_MapRGB(_n.bitmap->format, 0, 255, 255); 
+				#else
+				uint32_t key = SDL_MapRGBA(_n.bitmap->format, 0, 255, 255, 0); 
+				#endif				
+				SDL_SetColorKey(_n.bitmap, SDL_SRCCOLORKEY, key);
 			}
 		}
 		else if(elem->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
