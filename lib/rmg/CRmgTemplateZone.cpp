@@ -354,6 +354,14 @@ std::set<int3> CRmgTemplateZone::getTileInfo () const
 	return tileinfo;
 }
 
+void CRmgTemplateZone::discardDistantTiles (int distance)
+{
+	vstd::erase_if (tileinfo, [distance, this](const int3 &tile) -> bool
+	{
+		return tile.dist2d(this->pos) > distance;
+	});
+}
+
 void CRmgTemplateZone::createBorder(CMapGenerator* gen)
 {
 	for (auto tile : tileinfo)

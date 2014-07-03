@@ -2,7 +2,7 @@
 {
 	"Analogy" : 
 	{
-		"minSize" : "m", "maxSize" : "m",
+		"minSize" : "m", "maxSize" : "m+u",
 		"players" : "4",
 		"zones" :
 		{
@@ -63,13 +63,13 @@
 	},
 	"Upgrade" :
 	{
-		"minSize" : "s", "maxSize" : "m",
+		"minSize" : "s+u", "maxSize" : "m",
 		"players" : "2",
 		"zones" :
 		{
 			"1" :
 			{
-				"type" : "playerStart", "size" : 1, "owner" : 1,
+				"type" : "playerStart", "size" : 3, "owner" : 1,
 				"playerTowns" : { "castles" : 1 },
 				"monsters" : "normal",
 				"mines" : {"wood" : 1, "ore" : 1},
@@ -80,7 +80,7 @@
 			},
 			"2" :
 			{
-				"type" : "playerStart", "size" : 1, "owner" : 2,
+				"type" : "playerStart", "size" : 3, "owner" : 2,
 				"playerTowns" : { "castles" : 1 },
 				"monsters" : "normal",
 				"minesLikeZone" : 1,
@@ -88,7 +88,7 @@
 			},
 			"3" :
 			{
-				"type" : "treasure", "size" : 2, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : 1,
+				"type" : "treasure", "size" : 4, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : 1,
 				"monsters" : "weak",
 				"mines" : {"gems" : 1, "crystal" : 1, "sulfur" : 1, "mercury" : 1, "gold" : 1},
 				"treasure" : [
@@ -98,14 +98,14 @@
 			},
 			"4" :
 			{
-				"type" : "treasure", "size" : 2, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : 2,
+				"type" : "treasure", "size" : 4, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : 2,
 				"monsters" : "weak",
 				"minesLikeZone" : 3,
 				"treasureLikeZone" : 3
 			},
 			"5" :
 			{
-				"type" : "treasure", "size" : 3, "neutralTowns" : { "castles" : 1 }, "terrainTypes" : [ "sand" ],
+				"type" : "treasure", "size" : 5, "neutralTowns" : { "castles" : 1 }, "terrainTypes" : [ "sand" ],
 				"monsters" : "strong",
 				"mines" : {"gold" : 2},
 				"treasure" : [
@@ -126,7 +126,7 @@
 	},
 	"Golden Ring" :
 	{
-		"minSize" : "m", "maxSize" : "l",
+		"minSize" : "m+u", "maxSize" : "l",
 		"players" : "3",
 		"zones" :
 		{
@@ -243,7 +243,7 @@
 	},
 	"Jebus Cross":
 	{
-		"minSize" : "l", "maxSize" : "xl",
+		"minSize" : "l+u", "maxSize" : "xl+u",
 		"players" : "4",
 		"zones":
 		{

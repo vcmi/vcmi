@@ -52,6 +52,7 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 	int height = mapGenOptions->getHeight();
 
 	auto zones = gen->getZones();
+	bool underground = mapGenOptions->getHasTwoLevels();
 
 	//TODO: consider underground zones
 
@@ -65,10 +66,16 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 	float totalSize = 0;
 	for (auto zone : zones)
 	{
+		int level = 0;
+		if (underground)
+			level = rand->nextInt(0, 1);
+
 		totalSize += (zone.second->getSize() * zone.second->getSize());
-		zone.second->setCenter (float3(rand->nextDouble(0.2,0.8), rand->nextDouble(0.2,0.8), 0)); //start away from borders
+		zone.second->setCenter (float3(rand->nextDouble(0.2, 0.8), rand->nextDouble(0.2, 0.8), level)); //start away from borders
 	}
 	//prescale zones
+	if (underground) //map is twice as big, so zones occupy only half of normal space
+		totalSize /= 2;
 	float prescaler = sqrt ((width * height) / (totalSize * 3.14f)); 
 	float mapSize = sqrt (width * height);
 	for (auto zone : zones)
@@ -105,7 +112,8 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 			//separate overlaping zones
 			for (auto otherZone : zones)
 			{
-				if (zone == otherZone)
+				//zones on different levels don't push away
+				if (zone == otherZone || pos.z != otherZone.second->getCenter().z)
 					continue;
 
 				float distance = pos.dist2d (otherZone.second->getCenter());
@@ -144,6 +152,7 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 				forceVector -= (boundary - pos) / getDistance(distance); //negative value
 			}
 
+			forceVector.z = 0; //operator - doesn't preserve z coordinate :/
 			forces[zone.second] = forceVector;
 		}
 		//update positions
@@ -213,7 +222,10 @@ void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
 				int3 pos(i, j, k);
 				for (auto zone : zones)
 				{
-					distances.push_back (std::make_pair(zone.second, metric(pos, zone.second->getPos())));
+					if (zone.second->getPos().z == k)
+						distances.push_back (std::make_pair(zone.second, metric(pos, zone.second->getPos())));
+					else
+						distances.push_back (std::make_pair(zone.second, std::numeric_limits<float>::max()));
 				}
 				boost::sort (distances, compareByDistance);
 				distances.front().first->addTile(pos); //closest tile belongs to zone
@@ -230,7 +242,12 @@ void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
 			total += tile;
 		}
 		int size = tiles.size();
+		assert (size);
 		zone.second->setPos (int3(total.x/size, total.y/size, total.z/size));
+
+		//TODO: similiar for islands
+		if (zone.second->getPos().z)
+			zone.second->discardDistantTiles(zone.second->getSize());
 	}
 	logGlobal->infoStream() << "Finished zone colouring";
 }

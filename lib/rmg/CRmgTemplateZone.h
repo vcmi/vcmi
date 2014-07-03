@@ -128,6 +128,7 @@ public:
 
 	void addTile (const int3 &pos);
 	std::set<int3> getTileInfo () const;
+	void discardDistantTiles (int distance);
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength);
