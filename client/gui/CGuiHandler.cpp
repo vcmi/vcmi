@@ -409,23 +409,21 @@ void CGuiHandler::fakeMouseMove()
 
 void CGuiHandler::renderFrame()
 {
-	if(!terminate)
-	{
-		if(curInt)
-			curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
+	if(curInt)
+		curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
 
-		// draw the mouse cursor and update the screen
-		CCS->curh->render();
+	// draw the mouse cursor and update the screen
+	CCS->curh->render();
 
-#ifndef	 VCMI_SDL1
-		if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
-			logGlobal->errorStream() << __FUNCTION__ << " SDL_RenderCopy " << SDL_GetError();
+	#ifndef	VCMI_SDL1
+	if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
+		logGlobal->errorStream() << __FUNCTION__ << " SDL_RenderCopy " << SDL_GetError();
 
-		SDL_RenderPresent(mainRenderer);				
-#endif			
-		
-		mainFPSmng->framerateDelay(); // holds a constant FPS
-	}	
+	SDL_RenderPresent(mainRenderer);				
+	#endif			
+	
+	mainFPSmng->framerateDelay(); // holds a constant FPS
+	
 }
 
 
@@ -434,7 +432,6 @@ CGuiHandler::CGuiHandler()
 {
 	curInt = nullptr;
 	current = nullptr;
-	terminate = false;
 	statusbar = nullptr;
 
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate

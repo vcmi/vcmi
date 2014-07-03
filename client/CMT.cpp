@@ -1227,13 +1227,6 @@ void handleQuit()
 		if(client)
 			endGame();
 
-//		if(mainGUIThread)
-//		{
-//			GH.terminate = true;
-//			if(mainGUIThread->get_id() != boost::this_thread::get_id()) mainGUIThread->join();
-//			delete mainGUIThread;
-//			mainGUIThread = nullptr;
-//		}
 		delete console;
 		console = nullptr;
 		boost::this_thread::sleep(boost::posix_time::milliseconds(750));

@@ -76,7 +76,6 @@ public:
 
 	Point lastClick;
 	unsigned lastClickTime;
-	bool terminate;
 
 	CGuiHandler();
 	~CGuiHandler();
