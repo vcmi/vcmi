@@ -8,6 +8,7 @@ class CFramerateManager;
 class CGStatusBar;
 class CIntObject;
 class IUpdateable;
+class ILockedUpdatable;
 class IShowActivatable;
 class IShowable;
 
@@ -72,7 +73,7 @@ public:
 	std::vector<IShowable*> objsToBlit;
 
 	SDL_Event * current; //current event - can be set to nullptr to stop handling event
-	IUpdateable *curInt;
+	ILockedUpdatable *curInt;
 
 	Point lastClick;
 	unsigned lastClickTime;

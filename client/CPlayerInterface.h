@@ -83,7 +83,7 @@ enum
 };
 
 /// Central class for managing user interface logic
-class CPlayerInterface : public CGameInterface, public IUpdateable
+class CPlayerInterface : public CGameInterface, public ILockedUpdatable
 {
 public:
 	bool observerInDuelMode;

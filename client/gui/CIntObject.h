@@ -31,12 +31,17 @@ public:
 
 class IUpdateable
 {
-	boost::recursive_mutex updateGuard;
 public:
-	virtual void runLocked(std::function<void(IUpdateable * )> cb);
-	
 	virtual void update()=0;
 	virtual ~IUpdateable(){}; //d-tor
+};
+
+class ILockedUpdatable: protected IUpdateable
+{
+	boost::recursive_mutex updateGuard;
+public:
+	virtual void runLocked(std::function<void(IUpdateable * )> cb);	
+	virtual ~ILockedUpdatable(){}; //d-tor	
 };
 
 // Defines a show method
