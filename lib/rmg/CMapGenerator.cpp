@@ -265,29 +265,50 @@ void CMapGenerator::createConnections()
 		}
 		else //create subterranean gates between two zones
 		{	
-			//find point just in the middle
+			//find point on the path between zones
 			int3 posA = zoneA->getPos();
 			int3 posB = zoneB->getPos();
 			float3 offset (posB.x - posA.x, posB.y - posA.y, 0);
 
-			offset /= posB.dist2d(posA); //get unit vector
+			float distance = posB.dist2d(posA);
+			offset /= distance; //get unit vector
+			float3 vec (0, 0, 0);
 			//use reduced size of underground zone - make sure gate does not stand on rock
-			offset *= ((posA.z ? zoneA->getSize() : zoneB->getSize()) - 2);
-			int3 tile = posA + int3(offset.x, offset.y, 0);
+			int3 tile = posA;
 			int3 otherTile = tile;
-			otherTile.z = posB.z;
 
-			if (vstd::contains(tiles, tile) && vstd::contains(otherZoneTiles, otherTile))
+			bool stop = false;
+			while (!stop)
 			{
-				auto gate1 = new CGTeleport;
-				gate1->ID = Obj::SUBTERRANEAN_GATE;
-				gate1->subID = 0;
-				zoneA->placeAndGuardObject(this, gate1, tile, connection.getGuardStrength());
-				auto gate2 = new CGTeleport(*gate1);
-				zoneB->placeAndGuardObject(this, gate2, otherTile, connection.getGuardStrength());
+				vec += offset;
+				tile = posA + int3(vec.x, vec.y, 0);
+				float distanceFromA = posA.dist2d(tile);
+				float distanceFromB = posB.dist2d(tile);
+				if (distanceFromA >= distance)
+					break;
 
-				continue; //we are done, go to next connection
+				//if zone is underground, gate must lay withing its (reduced) radius
+				if (distanceFromA > 3 && (!posA.z || distanceFromA < zoneA->getSize() - 2)
+					&& distanceFromB > 3 && (!posB.z ||distanceFromB < zoneB->getSize() - 2))
+				{
+					otherTile = tile;
+					otherTile.z = posB.z;
+
+					if (vstd::contains(tiles, tile) && vstd::contains(otherZoneTiles, otherTile))
+					{
+						auto gate1 = new CGTeleport;
+						gate1->ID = Obj::SUBTERRANEAN_GATE;
+						gate1->subID = 0;
+						zoneA->placeAndGuardObject(this, gate1, tile, connection.getGuardStrength());
+						auto gate2 = new CGTeleport(*gate1);
+						zoneB->placeAndGuardObject(this, gate2, otherTile, connection.getGuardStrength());
+
+						stop = true; //we are done, go to next connection
+					}
+				}
 			}
+			if (stop)
+				continue;
 		}
 		if (!guardPos.valid())
 		{
@@ -347,6 +368,13 @@ bool CMapGenerator::isFree(const int3 &tile) const
 		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].isFree();
+}
+bool CMapGenerator::isUsed(const int3 &tile) const
+{
+	if (!map->isInTheMap(tile))
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+
+	return tiles[tile.x][tile.y][tile.z].isUsed();
 }
 void CMapGenerator::setOccupied(const int3 &tile, ETileType::ETileType state)
 {

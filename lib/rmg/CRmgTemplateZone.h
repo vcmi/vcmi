@@ -45,6 +45,7 @@ public:
 	bool shouldBeBlocked() const;
 	bool isPossible() const;
 	bool isFree() const;
+	bool isUsed() const;
 	void setOccupied(ETileType::ETileType value);
 	ETerrainType getTerrainType() const;
 	void setTerrainType(ETerrainType value);

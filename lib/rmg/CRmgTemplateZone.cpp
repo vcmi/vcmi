@@ -109,6 +109,10 @@ bool CTileInfo::isFree() const
 {
 	return occupied == ETileType::FREE;
 }
+bool CTileInfo::isUsed() const
+{
+	return occupied == ETileType::USED;
+}
 void CTileInfo::setOccupied(ETileType::ETileType value)
 {
 	occupied = value;
@@ -359,7 +363,10 @@ void CRmgTemplateZone::discardDistantTiles (CMapGenerator* gen, int distance)
 	for (auto tile : tileinfo)
 	{
 		if (tile.dist2d(this->pos) > distance)
+		{
 			gen->setOccupied(tile, ETileType::USED);
+			//gen->setOccupied(tile, ETileType::BLOCKED); //fixme: crash at rendering?
+		}
 	}
 	vstd::erase_if (tileinfo, [distance, this](const int3 &tile) -> bool
 	{
@@ -935,7 +942,40 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 }
 
 void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
-{
+{ 
+	if (pos.z) //underground
+	{
+		std::vector<int3> rockTiles;
+
+		for (auto tile : tileinfo)
+		{
+			bool placeRock = true;
+			if (gen->shouldBeBlocked(tile))
+			{
+				gen->foreach_neighbour (tile, [gen, &placeRock](int3 &pos)
+				{
+					if (!(gen->shouldBeBlocked(pos) || gen->isPossible(pos)))
+						placeRock = false;
+				});
+				if (placeRock)
+				{
+					rockTiles.push_back(tile);
+				}
+			}
+		}
+		gen->editManager->getTerrainSelection().setSelection(rockTiles);
+		gen->editManager->drawTerrain(ETerrainType::ROCK, &gen->rand);
+		//for (auto tile : rockTiles)
+		//{
+		//	gen->setOccupied (tile, ETileType::USED);
+		//	gen->foreach_neighbour (tile, [gen](int3 &pos)
+		//	{
+		//		if (!gen->isUsed(pos))
+		//			gen->setOccupied (pos, ETileType::BLOCKED);
+		//	});
+		//}
+	}
+
 	//get all possible obstacles for this terrain
 	for (auto primaryID : VLC->objtypeh->knownObjects()) 
 	{ 
