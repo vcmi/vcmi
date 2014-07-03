@@ -1,13 +1,3 @@
-#pragma once
-
-#include <SDL_events.h>
-#include "Geometries.h"
-#include "../Graphics.h"
-
-struct SDL_Surface;
-class CPicture;
-class CGuiHandler;
-
 /*
  * CIntObject.h, part of VCMI engine
  *
@@ -17,6 +7,16 @@ class CGuiHandler;
  * Full text of license available in license.txt file, in main folder
  *
  */
+ 
+#pragma once
+
+#include <SDL_events.h>
+#include "Geometries.h"
+#include "../Graphics.h"
+
+struct SDL_Surface;
+class CPicture;
+class CGuiHandler;
 
 using boost::logic::tribool;
 
@@ -34,6 +34,14 @@ class IUpdateable
 public:
 	virtual void update()=0;
 	virtual ~IUpdateable(){}; //d-tor
+};
+
+class ILockedUpdatable: protected IUpdateable
+{
+	boost::recursive_mutex updateGuard;
+public:
+	virtual void runLocked(std::function<void(IUpdateable * )> cb);	
+	virtual ~ILockedUpdatable(){}; //d-tor	
 };
 
 // Defines a show method
@@ -123,6 +131,11 @@ public:
 	bool captureAllKeys; //if true, only this object should get info about pressed keys
 	virtual void keyPressed(const SDL_KeyboardEvent & key){}
 	virtual bool captureThisEvent(const SDL_KeyboardEvent & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
+	
+#ifndef VCMI_SDL1
+	virtual void textInputed(const SDL_TextInputEvent & event){};
+	virtual void textEdited(const SDL_TextEditingEvent & event){};
+#endif // VCMI_SDL1
 
 	//mouse movement handling
 	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
@@ -138,7 +151,7 @@ public:
 	//double click
 	virtual void onDoubleClick(){}
 
-	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, ALL=0xffff};
+	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, ALL=0xffff};
 	const ui16 & active;
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);

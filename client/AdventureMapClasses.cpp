@@ -177,7 +177,7 @@ CHeroList::CEmptyHeroItem::CEmptyHeroItem()
 	auto mana = new CAnimImage("IMANA", 0, 0, move->pos.w + img->pos.w + 2, 1 );
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
-	pos.h = std::max(std::max<ui16>(move->pos.h + 1, mana->pos.h + 1), img->pos.h);
+	pos.h = std::max(std::max<SDLX_Size>(move->pos.h + 1, mana->pos.h + 1), img->pos.h);
 }
 
 CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero):
@@ -190,7 +190,7 @@ CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero):
 	mana     = new CAnimImage("IMANA", 0, 0, movement->pos.w + portrait->pos.w + 2, 1 );
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
-	pos.h = std::max(std::max<ui16>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
+	pos.h = std::max(std::max<SDLX_Size>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
 
 	update();
 }

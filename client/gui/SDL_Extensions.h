@@ -1,11 +1,3 @@
-#pragma once
-
-#include <SDL_video.h>
-#include <SDL_ttf.h>
-#include "../../lib/int3.h"
-#include "../Graphics.h"
-#include "Geometries.h"
-
 /*
  * SDL_Extensions.h, part of VCMI engine
  *
@@ -15,6 +7,20 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+ 
+#pragma once
+#include <SDL_version.h>
+
+#ifndef VCMI_SDL1
+#include <SDL_render.h>
+#endif
+
+#include <SDL_video.h>
+#include <SDL_ttf.h>
+#include "../../lib/int3.h"
+#include "../Graphics.h"
+#include "Geometries.h"
+
 
 //A macro to force inlining some of our functions. Compiler (at least MSVC) is not so smart here-> without that displaying is MUCH slower
 #ifdef _MSC_VER
@@ -29,6 +35,75 @@
 #define SDL_GetKeyState SDL_GetKeyboardState
 #endif
 
+//SDL2 support
+#if (SDL_MAJOR_VERSION == 2)
+
+extern SDL_Window * mainWindow;
+extern SDL_Renderer * mainRenderer;
+extern SDL_Texture * screenTexture;
+
+inline void SDL_SetColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
+{
+	SDL_SetPaletteColors(surface->format->palette,colors,firstcolor,ncolors);
+}
+
+inline void SDL_WarpMouse(int x, int y)
+{
+	SDL_WarpMouseInWindow(mainWindow,x,y);
+}
+
+void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h);
+#endif
+
+inline bool isCtrlKeyDown()
+{
+	#ifdef VCMI_SDL1
+	return SDL_GetKeyState(nullptr)[SDLK_LCTRL] || SDL_GetKeyState(nullptr)[SDLK_RCTRL];
+	#else
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
+	#endif
+}
+
+inline bool isAltKeyDown()
+{
+	#ifdef VCMI_SDL1
+	return SDL_GetKeyState(nullptr)[SDLK_LALT] || SDL_GetKeyState(nullptr)[SDLK_RALT];
+	#else
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LALT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RALT];
+	#endif
+}
+
+inline bool isShiftKeyDown()
+{
+	#ifdef VCMI_SDL1
+	return SDL_GetKeyState(nullptr)[SDLK_LSHIFT] || SDL_GetKeyState(nullptr)[SDLK_RSHIFT];
+	#else
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RSHIFT];
+	#endif
+}
+namespace CSDL_Ext
+{
+	STRONG_INLINE void colorSetAlpha(SDL_Color & color, Uint8 alpha)
+	{
+		#ifdef VCMI_SDL1
+		color.unused = alpha;
+		#else
+		color.a = alpha;
+		#endif	
+	}
+	//todo: should this better be assignment operator?
+	STRONG_INLINE void colorAssign(SDL_Color & dest, const SDL_Color & source)
+	{
+		dest.r = source.r;		
+		dest.g = source.g;
+		dest.b = source.b;		
+		#ifdef VCMI_SDL1
+		dest.unused = source.unused;
+		#else
+		dest.a = source.a;
+		#endif			
+	}
+}
 struct Rect;
 
 extern SDL_Surface * screen, *screen2, *screenBuf;
@@ -53,6 +128,9 @@ public:
 
 	/** green color used for in-game console */
 	static const SDL_Color GREEN;
+	
+	/** default key color for all 8 & 24 bit graphics */
+	static const SDL_Color DEFAULT_KEY_COLOR;
 };
 
 //MSVC gives an error when calling abs with ui64 -> we add template that will match calls with unsigned arg and return it
@@ -188,4 +266,13 @@ namespace CSDL_Ext
 	template<int bpp>
 	void applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mode );
 	void applyEffect(SDL_Surface * surf, const SDL_Rect * rect, int mode); //mode: 0 - sepia, 1 - grayscale
+	
+	void startTextInput(SDL_Rect * where);
+	void stopTextInput();
+	
+	void setColorKey(SDL_Surface * surface, SDL_Color color);
+	///set key-color to 0,255,255
+	void setDefaultColorKey(SDL_Surface * surface);
+	///set key-color to 0,255,255 only if it exactly mapped
+	void setDefaultColorKeyPresize(SDL_Surface * surface);
 }

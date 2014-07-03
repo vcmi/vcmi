@@ -217,7 +217,8 @@ public:
 	void wheelScrolled(bool down, bool in);
 	void clickLeft(tribool down, bool previousState);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to);	
+	void show(SDL_Surface * to) override;
 
 	CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, 
 		int Value=0, bool Horizontal=true, int style = 0); //style 0 - brown, 1 - blue
@@ -436,6 +437,9 @@ public:
 /// UIElement which can get input focus
 class CFocusable : public virtual CIntObject
 {
+protected:
+	virtual void focusGot(){};
+	virtual void focusLost(){};
 public:
 	bool focus; //only one focusable control can have focus at one moment
 
@@ -451,9 +455,12 @@ public:
 /// Text input box where players can enter text
 class CTextInput : public CLabel, public CFocusable
 {
+	std::string newText;
 protected:
 	std::string visibleText() override;
 
+	void focusGot() override;
+	void focusLost() override;
 public:
 	CFunctionList<void(const std::string &)> cb;
 	CFunctionList<void(std::string &, const std::string &)> filters;
@@ -466,6 +473,13 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void keyPressed(const SDL_KeyboardEvent & key) override;
 	bool captureThisEvent(const SDL_KeyboardEvent & key) override;
+	
+#ifndef VCMI_SDL1
+	void textInputed(const SDL_TextInputEvent & event) override;
+	void textEdited(const SDL_TextEditingEvent & event) override;
+	
+	
+#endif // VCMI_SDL1	
 
 	//Filter that will block all characters not allowed in filenames
 	static void filenameFilter(std::string &text, const std::string & oldText);

@@ -536,11 +536,12 @@ void CGPreGame::update()
 
 	if (settings["general"]["showfps"].Bool())
 		GH.drawFPSCounter();
+}
 
-	// draw the mouse cursor and update the screen
-	CCS->curh->drawWithScreenRestore();
-	CSDL_Ext::update(screen);
-	CCS->curh->drawRestored();
+void CGPreGame::runLocked(std::function<void(IUpdateable * )> cb)
+{
+	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
+	cb(this);	
 }
 
 void CGPreGame::openCampaignScreen(std::string name)
@@ -1897,7 +1898,7 @@ CChatBox::CChatBox(const Rect &rect)
 {
 	OBJ_CONSTRUCTION;
 	pos += rect;
-	addUsedEvents(KEYBOARD);
+	addUsedEvents(KEYBOARD | TEXTINPUT);
 	captureAllKeys = true;
 
 	const int height = graphics->fonts[FONT_SMALL]->getLineHeight();

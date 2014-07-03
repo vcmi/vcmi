@@ -80,6 +80,69 @@ static bool objectBlitOrderSorter(const std::pair<const CGObjectInstance*,SDL_Re
 	return CMapHandler::compareObjectBlitOrder(a.first, b.first);
 }
 
+struct NeighborTilesInfo
+{
+	bool d7, //789
+		 d8, //456
+		 d9, //123
+		 d4,
+		 d5,
+		 d6,
+		 d1,
+		 d2,
+		 d3;
+	NeighborTilesInfo(const int3 & pos, const int3 & sizes, const std::vector< std::vector< std::vector<ui8> > > & visibilityMap)
+	{
+		auto getTile = [&](int dx, int dy)->bool
+		{
+			if ( dx + pos.x < 0 || dx + pos.x >= sizes.x
+			  || dy + pos.y < 0 || dy + pos.y >= sizes.y)
+				return false;
+			return visibilityMap[dx+pos.x][dy+pos.y][pos.z];
+		};
+		d7 = getTile(-1, -1); //789
+		d8 = getTile( 0, -1); //456
+		d9 = getTile(+1, -1); //123
+		d4 = getTile(-1, 0);
+		d5 = visibilityMap[pos.x][pos.y][pos.z];
+		d6 = getTile(+1, 0);
+		d1 = getTile(-1, +1);
+		d2 = getTile( 0, +1);
+		d3 = getTile(+1, +1);
+	}
+	
+	bool areAllHidden() const 
+	{
+		return !(d1 || d2 || d3 || d4 || d5 || d6 || d7 || d8 || d8 );
+	}
+	
+	int getBitmapID() const
+	{
+		//NOTE: some images have unused in VCMI pair (same blockmap but a bit different look)
+		// 0-1, 2-3, 4-5, 11-13, 12-14
+		static const int visBitmaps[256] = {
+			-1,  34,   4,   4,  22,  23,   4,   4,  36,  36,  38,  38,  47,  47,  38,  38, //16
+			 3,  25,  12,  12,   3,  25,  12,  12,   9,   9,   6,   6,   9,   9,   6,   6, //32
+			35,  39,  48,  48,  41,  43,  48,  48,  36,  36,  38,  38,  47,  47,  38,  38, //48
+			26,  49,  28,  28,  26,  49,  28,  28,   9,   9,   6,   6,   9,   9,   6,   6, //64
+			 0,  45,  29,  29,  24,  33,  29,  29,  37,  37,   7,   7,  50,  50,   7,   7, //80
+			13,  27,  44,  44,  13,  27,  44,  44,   8,   8,  10,  10,   8,   8,  10,  10, //96
+			 0,  45,  29,  29,  24,  33,  29,  29,  37,  37,   7,   7,  50,  50,   7,   7, //112
+			13,  27,  44,  44,  13,  27,  44,  44,   8,   8,  10,  10,   8,   8,  10,  10, //128
+			15,  17,  30,  30,  16,  19,  30,  30,  46,  46,  40,  40,  32,  32,  40,  40, //144
+			 2,  25,  12,  12,   2,  25,  12,  12,   9,   9,   6,   6,   9,   9,   6,   6, //160
+			18,  42,  31,  31,  20,  21,  31,  31,  46,  46,  40,  40,  32,  32,  40,  40, //176
+			26,  49,  28,  28,  26,  49,  28,  28,   9,   9,   6,   6,   9,   9,   6,   6, //192
+			 0,  45,  29,  29,  24,  33,  29,  29,  37,  37,   7,   7,  50,  50,   7,   7, //208
+			13,  27,  44,  44,  13,  27,  44,  44,   8,   8,  10,  10,   8,   8,  10,  10, //224
+			 0,  45,  29,  29,  24,  33,  29,  29,  37,  37,   7,   7,  50,  50,   7,   7, //240
+			13,  27,  44,  44,  13,  27,  44,  44,   8,   8,  10,  10,   8,   8,  10,  10  //256
+		};	
+		
+		return visBitmaps[d1 + d2 * 2 + d3 * 4 + d4 * 8 + d6 * 16 + d7 * 32 + d8 * 64 + d9 * 128]; // >=0 -> partial hide, <0 - full hide	
+	}
+};
+
 void CMapHandler::prepareFOWDefs()
 {
 	graphics->FoWfullHide = CDefHandler::giveDef("TSHRC.DEF");
@@ -434,6 +497,15 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			// Skip tile if not in map
 			if (pos.y < 0 || pos.y >= sizes.y)
 				continue;
+			
+			//we should not render fully hidden tiles
+			if(!puzzleMode)
+			{
+				const NeighborTilesInfo info(pos,sizes,*visibilityMap);
+				
+				if(info.areAllHidden())
+					continue;
+			}			
 
 			const TerrainTile2 & tile = ttiles[pos.x][pos.y][pos.z];
 			const TerrainTile &tinfo = map->getTile(int3(pos.x, pos.y, pos.z));
@@ -492,7 +564,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				if(obj->ID != Obj::HERO && !obj->coveringAt(top_tile.x + bx, top_tile.y + by))
 					continue;
 
-				static const int notBlittedInPuzzleMode[] = {124};
+				static const int notBlittedInPuzzleMode[] = {Obj::HOLE};
 
 				//don't print flaggable objects in puzzle mode
 				if(puzzleMode && (obj->isVisitable() || std::find(notBlittedInPuzzleMode, notBlittedInPuzzleMode+1, obj->ID) != notBlittedInPuzzleMode+1)) //?
@@ -766,52 +838,13 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 
 std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, const std::vector< std::vector< std::vector<ui8> > > & visibilityMap ) const
 {
-	//NOTE: some images have unused in VCMI pair (same blockmap but a bit different look)
-	// 0-1, 2-3, 4-5, 11-13, 12-14
-	static const int visBitmaps[256] = {
-		-1,  34,   4,   4,  22,  23,   4,   4,  36,  36,  38,  38,  47,  47,  38,  38, //16
-		 3,  25,  12,  12,   3,  25,  12,  12,   9,   9,   6,   6,   9,   9,   6,   6, //32
-		35,  39,  48,  48,  41,  43,  48,  48,  36,  36,  38,  38,  47,  47,  38,  38, //48
-		26,  49,  28,  28,  26,  49,  28,  28,   9,   9,   6,   6,   9,   9,   6,   6, //64
-		 0,  45,  29,  29,  24,  33,  29,  29,  37,  37,   7,   7,  50,  50,   7,   7, //80
-		13,  27,  44,  44,  13,  27,  44,  44,   8,   8,  10,  10,   8,   8,  10,  10, //96
-		 0,  45,  29,  29,  24,  33,  29,  29,  37,  37,   7,   7,  50,  50,   7,   7, //112
-		13,  27,  44,  44,  13,  27,  44,  44,   8,   8,  10,  10,   8,   8,  10,  10, //128
-		15,  17,  30,  30,  16,  19,  30,  30,  46,  46,  40,  40,  32,  32,  40,  40, //144
-		 2,  25,  12,  12,   2,  25,  12,  12,   9,   9,   6,   6,   9,   9,   6,   6, //160
-		18,  42,  31,  31,  20,  21,  31,  31,  46,  46,  40,  40,  32,  32,  40,  40, //176
-		26,  49,  28,  28,  26,  49,  28,  28,   9,   9,   6,   6,   9,   9,   6,   6, //192
-		 0,  45,  29,  29,  24,  33,  29,  29,  37,  37,   7,   7,  50,  50,   7,   7, //208
-		13,  27,  44,  44,  13,  27,  44,  44,   8,   8,  10,  10,   8,   8,  10,  10, //224
-		 0,  45,  29,  29,  24,  33,  29,  29,  37,  37,   7,   7,  50,  50,   7,   7, //240
-		13,  27,  44,  44,  13,  27,  44,  44,   8,   8,  10,  10,   8,   8,  10,  10  //256
-	};
+	const NeighborTilesInfo info(pos,sizes,visibilityMap);
 
-	auto getTile = [&](int dx, int dy)->bool
-	{
-		if ( dx + pos.x < 0 || dx + pos.x >= sizes.x
-		  || dy + pos.y < 0 || dy + pos.y >= sizes.y)
-			return false;
-		return visibilityMap[dx+pos.x][dy+pos.y][pos.z];
-	};
-
-	//is tile visible. arrangement: (like num keyboard)
-	bool d7 = getTile(-1, -1), //789
-		 d8 = getTile( 0, -1), //456
-		 d9 = getTile(+1, -1), //123
-		 d4 = getTile(-1, 0),
-
-		 d6 = getTile(+1, 0),
-		 d1 = getTile(-1, +1),
-		 d2 = getTile( 0, +1),
-		 d3 = getTile(+1, +1);
-
-	int retBitmapID = visBitmaps[d1 + d2 * 2 + d3 * 4 + d4 * 8 + d6 * 16 + d7 * 32 + d8 * 64 + d9 * 128]; // >=0 -> partial hide, <0 - full hide
+	int retBitmapID = info.getBitmapID();// >=0 -> partial hide, <0 - full hide
 	if (retBitmapID < 0)
 	{
 		retBitmapID = - hideBitmap[pos.x][pos.y][pos.z] - 1; //fully hidden
 	}
-
 	
 	if (retBitmapID >= 0)
 	{
