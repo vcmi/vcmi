@@ -3946,8 +3946,8 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		{
 			if(enteredText.size() > 1)
 			{
-				Unicode::trimRight(enteredText,1);				
-				enteredText[enteredText.size()-1] = '_';
+				Unicode::trimRight(enteredText,2);				
+				enteredText += '_';
 				refreshEnteredText();
 			}
 			break;
