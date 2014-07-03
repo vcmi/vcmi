@@ -515,9 +515,6 @@ void CSDL_Ext::update(SDL_Surface * what)
 	if(0 !=SDL_UpdateTexture(screenTexture, nullptr, what->pixels, what->pitch))
 		logGlobal->errorStream() << __FUNCTION__ << "SDL_UpdateTexture " << SDL_GetError();		
 	#endif // VCMI_SDL1
-
-		
-	
 }
 void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color)
 {

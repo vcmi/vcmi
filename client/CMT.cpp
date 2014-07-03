@@ -137,28 +137,16 @@ void startGameFromFile(const std::string &fname)
 void init()
 {
 	CStopWatch tmh, pomtime;
-    logGlobal->infoStream() << "\tInitializing minors: " << pomtime.getDiff();
-
-	//initializing audio
-	// Note: because of interface button range, volume can only be a
-	// multiple of 11, from 0 to 99.
-	CCS->soundh = new CSoundHandler;
-	CCS->soundh->init();
-	CCS->soundh->setVolume(settings["general"]["sound"].Float());
-	CCS->musich = new CMusicHandler;
-	CCS->musich->init();
-	CCS->musich->setVolume(settings["general"]["music"].Float());
-    logGlobal->infoStream()<<"\tInitializing sound: "<<pomtime.getDiff();
-    logGlobal->infoStream()<<"Initializing screen and sound handling: "<<tmh.getDiff();
 
 	loadDLLClasses();
 	const_cast<CGameInfo*>(CGI)->setFromLib();
 
     logGlobal->infoStream()<<"Initializing VCMI_Lib: "<<tmh.getDiff();
 
-	pomtime.getDiff();
+
 	if(!gNoGUI)
 	{
+		pomtime.getDiff();
 		CCS->curh = new CCursorHandler;
 		graphics = new Graphics(); // should be before curh->init()
 
@@ -168,7 +156,7 @@ void init()
 		pomtime.getDiff();
 
 		graphics->loadHeroAnims();
-		logGlobal->infoStream()<<"\tMain graphics: "<<tmh.getDiff();
+		logGlobal->infoStream()<<"\tMain graphics: "<<pomtime.getDiff();
 		logGlobal->infoStream()<<"Initializing game graphics: "<<tmh.getDiff();
 
 		CMessage::init();
@@ -400,11 +388,21 @@ int main(int argc, char** argv)
 
     logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
 
-#if defined(__ANDROID__) || !defined(VCMI_SDL1)
+#if defined(__ANDROID__)
 	//on Android threaded init is broken
 	#define VCMI_NO_THREADED_LOAD
 #endif // defined
 
+	//initializing audio
+	// Note: because of interface button range, volume can only be a
+	// multiple of 11, from 0 to 99.
+	CCS->soundh = new CSoundHandler;
+	CCS->soundh->init();
+	CCS->soundh->setVolume(settings["general"]["sound"].Float());
+	CCS->musich = new CMusicHandler;
+	CCS->musich->init();
+	CCS->musich->setVolume(settings["general"]["music"].Float());
+    logGlobal->infoStream()<<"Initializing screen and sound handling: "<<pomtime.getDiff();
 
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
@@ -1043,10 +1041,8 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 	
 	if(!recreateWindow(w,h,bpp,fullscreen))
 	{
-		return;
-	}
-
-	
+		throw std::runtime_error("Requested screen resolution is not available\n");
+	}	
 #endif // VCMI_SDL1
 }
 
@@ -1144,7 +1140,7 @@ static void handleEvent(SDL_Event & ev)
 			fullScreenChanged();
 			break;
 		default:
-			logGlobal->errorStream() << "Error: unknown user event. Code " << ev.user.code;		
+			logGlobal->errorStream() << "Unknown user event. Code " << ev.user.code;		
 			break;	
 		}
 

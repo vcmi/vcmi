@@ -304,6 +304,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 			it->textEdited(sEvent->edit);
 		}
 	}	
+	//todo: muiltitouch
 	#endif // VCMI_SDL1
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
@@ -472,7 +473,7 @@ SDLKey CGuiHandler::arrowToNum( SDLKey key )
 	case SDLK_RIGHT:
 		return SDLK_KP6;
 	default:
-		assert(0);
+		throw std::runtime_error("Wrong key!");assert(0);
 	}	
 	#else
 	switch(key)
@@ -486,10 +487,9 @@ SDLKey CGuiHandler::arrowToNum( SDLKey key )
 	case SDLK_RIGHT:
 		return SDLK_KP_6;
 	default:
-		assert(0);
+		throw std::runtime_error("Wrong key!");
 	}	
 	#endif // 0
-	throw std::runtime_error("Wrong key!");
 }
 
 SDLKey CGuiHandler::numToDigit( SDLKey key )
@@ -548,11 +548,7 @@ bool CGuiHandler::isNumKey( SDLKey key, bool number )
 
 bool CGuiHandler::isArrowKey( SDLKey key )
 {
-	#ifdef VCMI_SDL1
-	return key >= SDLK_UP && key <= SDLK_LEFT;
-	#else
 	return key == SDLK_UP || key == SDLK_DOWN || key == SDLK_LEFT || key == SDLK_RIGHT;
-	#endif
 }
 
 bool CGuiHandler::amIGuiThread()

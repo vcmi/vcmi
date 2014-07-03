@@ -75,13 +75,7 @@ void Graphics::loadPaletteAndColors()
 		neutralColorPalette[i].r = reader.readUInt8();
 		neutralColorPalette[i].g = reader.readUInt8();
 		neutralColorPalette[i].b = reader.readUInt8();
-		#ifdef VCMI_SDL1
-		neutralColorPalette[i].unused = reader.readUInt8();
-		neutralColorPalette[i].unused = !neutralColorPalette[i].unused;
-		#else
-		neutralColorPalette[i].a = reader.readUInt8();
-		neutralColorPalette[i].a = !neutralColorPalette[i].a;
-		#endif // 0
+		CSDL_Ext::colorSetAlpha(neutralColorPalette[i], !reader.readUInt8());
 	}
 	//colors initialization
 	SDL_Color colors[]  = { 
