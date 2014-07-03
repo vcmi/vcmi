@@ -856,6 +856,7 @@ void CSlider::showAll(SDL_Surface * to)
 
 void CSlider::show(SDL_Surface * to)
 {
+	//todo: find better solution for background glitches.
 	#ifdef VCMI_SDL1	
 	CIntObject::show(to);	
 	#else
