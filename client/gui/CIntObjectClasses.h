@@ -217,7 +217,8 @@ public:
 	void wheelScrolled(bool down, bool in);
 	void clickLeft(tribool down, bool previousState);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to);	
+	void show(SDL_Surface * to) override;
 
 	CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, 
 		int Value=0, bool Horizontal=true, int style = 0); //style 0 - brown, 1 - blue

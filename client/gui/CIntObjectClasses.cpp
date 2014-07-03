@@ -854,6 +854,17 @@ void CSlider::showAll(SDL_Surface * to)
 	CIntObject::showAll(to);
 }
 
+void CSlider::show(SDL_Surface * to)
+{
+	#ifdef VCMI_SDL1	
+	CIntObject::show(to);	
+	#else
+	CSDL_Ext::fillRect(to, &pos, 0);
+	CIntObject::showAll(to);	
+	#endif // VCMI_SDL1
+}
+
+
 void CSlider::wheelScrolled(bool down, bool in)
 {
 	moveTo(value + 3 * (down ? +scrollStep : -scrollStep));
