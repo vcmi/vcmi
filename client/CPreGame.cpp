@@ -532,7 +532,12 @@ void CGPreGame::update()
 	// check for null othervice crash on finishing a campaign
 	// /FIXME: find out why GH.listInt is empty to begin with
 	if (GH.topInt() != nullptr)
+#ifdef VCMI_SDL1
 		GH.topInt()->show(screen);
+#else
+//FIXME: find better solution for TTF fonts under cursor glitches
+		GH.topInt()->showAll(screen);
+#endif
 
 	if (settings["general"]["showfps"].Bool())
 		GH.drawFPSCounter();
