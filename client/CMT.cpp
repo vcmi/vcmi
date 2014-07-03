@@ -930,6 +930,8 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 		logGlobal->errorStream() << SDL_GetError();
 		throw std::runtime_error("Unable to create surface");
 	}	
+	//No blending for screen itself. Required for proper cursor rendering.
+	SDL_SetSurfaceBlendMode(screen, SDL_BLENDMODE_NONE);
 	
 	screenTexture = SDL_CreateTexture(mainRenderer,
                                             SDL_PIXELFORMAT_ARGB8888,

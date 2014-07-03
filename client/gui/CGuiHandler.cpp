@@ -414,6 +414,9 @@ void CGuiHandler::renderFrame()
 		if(curInt)
 			curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
 
+		// draw the mouse cursor and update the screen
+		CCS->curh->render();
+
 #ifndef	 VCMI_SDL1
 		if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
 			logGlobal->errorStream() << __FUNCTION__ << " SDL_RenderCopy " << SDL_GetError();

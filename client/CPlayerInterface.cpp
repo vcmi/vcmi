@@ -1580,9 +1580,6 @@ void CPlayerInterface::update()
 
 	if (settings["general"]["showfps"].Bool())
 		GH.drawFPSCounter();
-
-	// draw the mouse cursor and update the screen
-	CCS->curh->render();
 }
 
 int CPlayerInterface::getLastIndex( std::string namePrefix)
