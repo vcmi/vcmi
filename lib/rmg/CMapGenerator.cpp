@@ -241,21 +241,52 @@ void CMapGenerator::createConnections()
 		auto otherZoneTiles = zoneB->getTileInfo();
 		//auto otherZoneCenter = zoneB->getPos();
 
-		for (auto tile : tiles)
+		if (zoneA->getPos().z == zoneB->getPos().z)
 		{
-			foreach_neighbour (tile, [&guardPos, tile, &otherZoneTiles](int3 &pos)
+			for (auto tile : tiles)
 			{
-				if (vstd::contains(otherZoneTiles, pos))
-					guardPos = tile;
-			});
-			if (guardPos.valid())
+				if (isBlocked(tile)) //tiles may be occupied by subterranean gates already placed
+					continue;
+				foreach_neighbour (tile, [&guardPos, tile, &otherZoneTiles, this](int3 &pos)
+				{
+					if (vstd::contains(otherZoneTiles, pos) && !this->isBlocked(pos))
+						guardPos = tile;
+				});
+				if (guardPos.valid())
+				{
+					setOccupied (guardPos, ETileType::FREE); //just in case monster is too weak to spawn
+					zoneA->addMonster (this, guardPos, connection.getGuardStrength()); //TODO: set value according to template
+					//zones can make paths only in their own area
+					zoneA->crunchPath (this, guardPos, zoneA->getPos(), zoneA->getId(), zoneA->getFreePaths()); //make connection towards our zone center
+					zoneB->crunchPath (this, guardPos, zoneB->getPos(), zoneB->getId(), zoneB->getFreePaths()); //make connection towards other zone center
+					break; //we're done with this connection
+				}
+			}
+		}
+		else //create subterranean gates between two zones
+		{	
+			//find point just in the middle
+			int3 posA = zoneA->getPos();
+			int3 posB = zoneB->getPos();
+			float3 offset (posB.x - posA.x, posB.y - posA.y, 0);
+
+			offset /= posB.dist2d(posA); //get unit vector
+			//use reduced size of underground zone - make sure gate does not stand on rock
+			offset *= ((posA.z ? zoneA->getSize() : zoneB->getSize()) - 2);
+			int3 tile = posA + int3(offset.x, offset.y, 0);
+			int3 otherTile = tile;
+			otherTile.z = posB.z;
+
+			if (vstd::contains(tiles, tile) && vstd::contains(otherZoneTiles, otherTile))
 			{
-				setOccupied (guardPos, ETileType::FREE); //just in case monster is too weak to spawn
-				zoneA->addMonster (this, guardPos, connection.getGuardStrength()); //TODO: set value according to template
-				//zones can make paths only in their own area
-				zoneA->crunchPath (this, guardPos, zoneA->getPos(), zoneA->getId(), zoneA->getFreePaths()); //make connection towards our zone center
-				zoneB->crunchPath (this, guardPos, zoneB->getPos(), zoneB->getId(), zoneB->getFreePaths()); //make connection towards other zone center
-				break; //we're done with this connection
+				auto gate1 = new CGTeleport;
+				gate1->ID = Obj::SUBTERRANEAN_GATE;
+				gate1->subID = 0;
+				zoneA->placeAndGuardObject(this, gate1, tile, connection.getGuardStrength());
+				auto gate2 = new CGTeleport(*gate1);
+				zoneB->placeAndGuardObject(this, gate2, otherTile, connection.getGuardStrength());
+
+				continue; //we are done, go to next connection
 			}
 		}
 		if (!guardPos.valid())

@@ -247,7 +247,13 @@ void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
 
 		//TODO: similiar for islands
 		if (zone.second->getPos().z)
-			zone.second->discardDistantTiles(zone.second->getSize());
+		{
+			zone.second->discardDistantTiles(gen, zone.second->getSize());
+
+			//make sure that terrain inside zone is not a rock
+			//FIXME: reorder actions?
+			zone.second->paintZoneTerrain (gen, ETerrainType::SUBTERRANEAN);
+		}
 	}
 	logGlobal->infoStream() << "Finished zone colouring";
 }

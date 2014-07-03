@@ -354,8 +354,13 @@ std::set<int3> CRmgTemplateZone::getTileInfo () const
 	return tileinfo;
 }
 
-void CRmgTemplateZone::discardDistantTiles (int distance)
+void CRmgTemplateZone::discardDistantTiles (CMapGenerator* gen, int distance)
 {
+	for (auto tile : tileinfo)
+	{
+		if (tile.dist2d(this->pos) > distance)
+			gen->setOccupied(tile, ETileType::USED);
+	}
 	vstd::erase_if (tileinfo, [distance, this](const int3 &tile) -> bool
 	{
 		return tile.dist2d(this->pos) > distance;
@@ -828,6 +833,12 @@ void CRmgTemplateZone::initTerrainType (CMapGenerator* gen)
 		terrainType = *RandomGeneratorUtil::nextItem(terrainTypes, gen->rand);
 
 	//paint zone with matching terrain
+
+	paintZoneTerrain (gen, terrainType);
+}
+
+void CRmgTemplateZone::paintZoneTerrain (CMapGenerator* gen, ETerrainType terrainType)
+{
 	std::vector<int3> tiles;
 	for (auto tile : tileinfo)
 	{
@@ -1132,9 +1143,10 @@ void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance*
 
 	if (object->appearance.id == Obj::NO_OBJ)
 	{
-		auto templates = VLC->objtypeh->getHandlerFor(object->ID, object->subID)->getTemplates(gen->map->getTile(pos).terType);
+		auto terrainType = gen->map->getTile(pos).terType;
+		auto templates = VLC->objtypeh->getHandlerFor(object->ID, object->subID)->getTemplates(terrainType);
 		if (templates.empty())
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") %object->ID %object->subID %pos));
+			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") %object->ID %object->subID %pos %terrainType));
 	
 		object->appearance = templates.front();
 	}
@@ -1166,6 +1178,12 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 		si32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
 		gen->setNearestObjectDistance(tile, std::min(d, gen->getNearestObjectDistance(tile)));
 	}
+}
+
+void CRmgTemplateZone::placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str)
+{
+	placeObject(gen, object, pos);
+	guardObject(gen, object, str);
 }
 
 std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object)

@@ -128,7 +128,7 @@ public:
 
 	void addTile (const int3 &pos);
 	std::set<int3> getTileInfo () const;
-	void discardDistantTiles (int distance);
+	void discardDistantTiles (CMapGenerator* gen, int distance);
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength);
@@ -136,6 +136,7 @@ public:
 	bool fill (CMapGenerator* gen);
 	bool placeMines (CMapGenerator* gen);
 	void initTownType (CMapGenerator* gen);
+	void paintZoneTerrain (CMapGenerator* gen, ETerrainType terrainType);
 	void initTerrainType (CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
 	void fractalize(CMapGenerator* gen);
@@ -154,6 +155,8 @@ public:
 	std::set<int3>* getFreePaths();
 
 	ObjectInfo getRandomObject (CMapGenerator* gen, ui32 value);
+
+	void placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str);
 
 private:
 	//template info
