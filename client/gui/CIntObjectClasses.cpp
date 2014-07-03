@@ -1147,14 +1147,15 @@ CHoverableArea::~CHoverableArea()
 
 void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
 {
-	if(!down && previousState)
+	if(!down && previousState && !text.empty())
 	{
 		LOCPLINT->showInfoDialog(text);
 	}
 }
 void LRClickableAreaWText::clickRight(tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(text, down);
+	if (!text.empty())
+		adventureInt->handleRightClick(text, down);
 }
 
 LRClickableAreaWText::LRClickableAreaWText()

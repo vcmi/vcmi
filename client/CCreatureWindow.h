@@ -27,8 +27,8 @@ public:
 
 	std::function<void()> callback; //TODO: create more generic clickable class than AdvMapButton?
 
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState){};
+	void clickLeft(tribool down, bool previousState) override;
+	//void clickRight(tribool down, bool previousState){};
 
 	void setObject(CIntObject * object);
 };

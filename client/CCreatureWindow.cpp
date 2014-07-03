@@ -181,6 +181,10 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 	morale->set(parent->info->stackNode);
 	auto luck = new MoraleLuckBox(false, genRect(42, 42, 375, 110));
 	luck->set(parent->info->stackNode);
+
+	//TODO: artifacts
+
+	//TODO: stack artifacts
 }
 
 void CStackWindow::CWindowSection::createActiveSpells()
@@ -334,6 +338,8 @@ void CStackWindow::CWindowSection::createCommanderAbilities()
 				{
 					parent->setSelection(skillID, icon);
 				};
+				icon->text = stack->bonusToString(bonus, true);
+				icon->hoverText = stack->bonusToString(bonus, false);
 				return icon;
 			}
 			if (skillID >= 100)
@@ -355,11 +361,6 @@ void CStackWindow::CWindowSection::createCommanderAbilities()
 		leftBtn->block(true);
 		rightBtn->block(true);
 	}
-
-	pos.h += bg2->pos.h;
-	/*
-	bonusItems.push_back (new CBonusItem (genRect(0, 0, 251, 57), stack->bonusToString(b, false), stack->bonusToString(b, true), stack->bonusToGraphics(b)));
-*/
 }
 
 void CStackWindow::setSelection(si32 newSkill, CClickableObject * newIcon)
@@ -463,6 +464,7 @@ void CStackWindow::CWindowSection::createButtonPanel()
 	{
 		for (size_t i=0; i<2; i++)
 		{
+			std::string btnIDs[2] = { "showSkills", "showBonuses" };
 			auto onSwitch = [&, i]()
 			{
 				parent->switchButtons[parent->activeTab]->enable();
@@ -471,7 +473,8 @@ void CStackWindow::CWindowSection::createButtonPanel()
 				parent->redraw(); // FIXME: enable/disable don't redraw screen themselves
 			};
 
-			parent->switchButtons[i] = new CAdventureMapButton(std::make_pair("",""), onSwitch, 302 + i*40, 5, "stackWindow/upgradeButton");
+			const JsonNode & text = VLC->generaltexth->localizedTexts["creatureWindow"][btnIDs[i]];
+			parent->switchButtons[i] = new CAdventureMapButton(text["label"].String(), text["help"].String(), onSwitch, 302 + i*40, 5, "stackWindow/upgradeButton");
 			parent->switchButtons[i]->addOverlay(new CAnimImage("stackWindow/switchModeIcons", i));
 		}
 		parent->switchButtons[parent->activeTab]->disable();
@@ -544,7 +547,8 @@ CIntObject * CStackWindow::switchTab(size_t index)
 			activeTab = 0;
 			auto ret = new CWindowSection(this);
 			ret->createCommander();
-			ret->createCommanderAbilities();
+			if (info->levelupInfo)
+				ret->createCommanderAbilities();
 			return ret;
 		}
 		case 1:
