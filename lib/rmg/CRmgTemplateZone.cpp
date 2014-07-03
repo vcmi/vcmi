@@ -726,9 +726,34 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 }
 void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 {
-
 	//FIXME: handle case that this player is not present -> towns should be set to neutral
 	int totalTowns = 0;
+
+	auto addNewTowns = [&totalTowns, gen, this](int count, bool hasFort, PlayerColor player)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			auto  town = new CGTownInstance();
+			town->ID = Obj::TOWN;
+
+			if (this->townsAreSameType)
+				town->subID = townType;
+			else
+				town->subID = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); //TODO: check allowed town types for this zone
+
+			town->tempOwner = player;
+			if (hasFort)
+				town->builtBuildings.insert(BuildingID::FORT);
+			town->builtBuildings.insert(BuildingID::DEFAULT);
+
+			if (!totalTowns) //first town in zone goes in the middle
+				placeObject(gen, town, getPos() + town->getVisitableOffset());
+			else
+				addRequiredObject (town);
+			totalTowns++;
+		}
+	};
+
 
 	if ((type == ETemplateZoneType::CPU_START) || (type == ETemplateZoneType::PLAYER_START))
 	{
@@ -765,40 +790,8 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			playerInfo.generateHeroAtMainTown = true;
 
 			//now create actual towns
-			for (int i = 1; i < playerTowns.getCastleCount(); i++)
-			{
-				auto  town = new CGTownInstance();
-				town->ID = Obj::TOWN;
-
-				if (townsAreSameType)
-					town->subID = townType;
-				else
-					town->subID = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); //TODO: check allowed town types for this zone
-
-				town->tempOwner = player;
-				town->builtBuildings.insert(BuildingID::FORT);
-				town->builtBuildings.insert(BuildingID::DEFAULT);
-
-				addRequiredObject (town);
-				totalTowns++;
-			}
-
-			for (int i = 0; i < playerTowns.getTownCount(); i++)
-			{
-				auto  town = new CGTownInstance();
-				town->ID = Obj::TOWN;
-
-				if (townsAreSameType)
-					town->subID = townType;
-				else
-					town->subID = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); //TODO: check allowed town types for this zone
-
-				town->tempOwner = player;
-				town->builtBuildings.insert(BuildingID::DEFAULT);
-
-				addRequiredObject (town);
-				totalTowns++;
-			}
+			addNewTowns (playerTowns.getCastleCount() - 1, true, player);
+			addNewTowns (playerTowns.getTownCount(), false, player);
 
 			//requiredObjects.push_back(town);
 		}
@@ -814,46 +807,8 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 		townType = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand);
 	}
 
-	for (int i = 0; i < neutralTowns.getCastleCount(); i++)
-	{
-		auto  town = new CGTownInstance();
-		town->ID = Obj::TOWN;
-
-		if (townsAreSameType || totalTowns == 0) //first town must match zone type
-			town->subID = townType;
-		else
-			town->subID = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); //TODO: check allowed town types for this zone
-
-		town->tempOwner = PlayerColor::NEUTRAL;
-		town->builtBuildings.insert(BuildingID::FORT);
-		town->builtBuildings.insert(BuildingID::DEFAULT);
-
-		if (!totalTowns) //first town in zone goes in the middle
-			placeObject(gen, town, getPos() + town->getVisitableOffset());
-		else
-			addRequiredObject (town);
-		totalTowns++;
-	}
-
-	for (int i = 0; i < neutralTowns.getTownCount(); i++)
-	{
-		auto  town = new CGTownInstance();
-		town->ID = Obj::TOWN;
-
-		if (townsAreSameType || totalTowns == 0)
-			town->subID = townType;
-		else
-			town->subID = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); //TODO: check allowed town types for this zone
-
-		town->tempOwner = PlayerColor::NEUTRAL;
-		town->builtBuildings.insert(BuildingID::DEFAULT);
-
-		if (!totalTowns)
-			placeObject(gen, town, getPos() + town->getVisitableOffset());
-		else
-			addRequiredObject (town);
-		totalTowns++;
-	}
+	addNewTowns (neutralTowns.getCastleCount(), true, PlayerColor::NEUTRAL);
+	addNewTowns (neutralTowns.getTownCount(), false, PlayerColor::NEUTRAL);
 }
 
 void CRmgTemplateZone::initTerrainType (CMapGenerator* gen)
@@ -1200,7 +1155,7 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 	}
 	for(auto tile : tileinfo)
 	{		
-		si32 d = pos.dist2d(tile);
+		si32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
 		gen->setNearestObjectDistance(tile, std::min(d, gen->getNearestObjectDistance(tile)));
 	}
 }

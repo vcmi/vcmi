@@ -1,4 +1,6 @@
-0.95 -> 0.next
+0.96 0> 0.next
+
+0.95 -> 0.96 (Jul 01 2014)
 GENERAL:
 * (linux) now VCMI follows XDG specifications. See http://forum.vcmi.eu/viewtopic.php?t=858
 
@@ -15,7 +17,7 @@ SPELLS:
 * New configuration format: http://wiki.vcmi.eu/index.php?title=Spell_Format
 
 RANDOM MAP GENERATOR
-* Towns form mods cna be used
+* Towns from mods can be used
 * Reading connections, terrains, towns and mines from template
 * Zone placement
 * Zone borders and connections, fractalized paths inside zones
