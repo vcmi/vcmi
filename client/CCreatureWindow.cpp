@@ -229,7 +229,9 @@ void CStackWindow::CWindowSection::createCommanderSection()
 	};
 	parent->commanderTab = new CTabbedInt(onCreate, onDestroy, Point(0,0), 0);
 	pos.w = parent->pos.w;
-	pos.h = 177; //fixed height
+	pos.h = 177; // height of commander info
+	if (parent->info->levelupInfo)
+		pos.h += 59; // height of abilities selection
 }
 
 static std::string skillToFile (int skill, int level, bool selected)
@@ -302,34 +304,82 @@ void CStackWindow::CWindowSection::createCommander()
 		{
 			icon->callback = [=]
 			{
-				OBJ_CONSTRUCTION_CAPTURING_ALL;
-				int oldSelection = parent->selectedSkill; // update selection
-				parent->selectedSkill = index;
-
-				if (parent->selectedIcon) // recreate image on old selection
-					parent->selectedIcon->setObject(new CPicture(getSkillImage(oldSelection)));
-
-				parent->selectedIcon = icon; // update new selection
-				icon->setObject(new CPicture(getSkillImage(index)));
+				parent->setSelection(index, icon);
 			};
 		}
 	}
 }
 
 void CStackWindow::CWindowSection::createCommanderAbilities()
-{/*
-	for (auto option : parent->info->levelupInfo->skills)
-	{
-		if (option >= 100) // this is an ability
-		{
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
+	auto bg2 = new CPicture("stackWindow/commander-abilities.png");
+	bg2->moveBy(Point(0, pos.h));
+	size_t abilitiesCount = boost::range::count_if(parent->info->levelupInfo->skills, [](ui32 skillID)
+	{
+		return skillID >= 100;
+	});
+
+	auto list = new CListBox([=] (si32 index) -> CIntObject*
+	{
+		for (auto skillID : parent->info->levelupInfo->skills)
+		{
+			if (index == 0 && skillID >= 100)
+			{
+				const Bonus *bonus = CGI->creh->skillRequirements[skillID-100].first;
+				const CStackInstance *stack = parent->info->commander;
+				CClickableObject * icon = new CClickableObject(new CPicture(stack->bonusToGraphics(bonus)), []{});
+				icon->callback = [=]
+				{
+					parent->setSelection(skillID, icon);
+				};
+				return icon;
+			}
+			if (skillID >= 100)
+				index--;
 		}
+		return nullptr;
+	},
+	[=] (CIntObject * elem)
+	{
+		delete elem;
+	},
+	Point(38, 3+pos.h), Point(63, 0), 6, abilitiesCount);
+
+	auto leftBtn   = new CAdventureMapButton("", "", [=]{ list->moveToPrev(); }, 10,  pos.h + 6, "hsbtns3.def", SDLK_LEFT);
+	auto rightBtn = new CAdventureMapButton("", "", [=]{ list->moveToNext(); }, 411, pos.h + 6, "hsbtns5.def", SDLK_RIGHT);
+
+	if (abilitiesCount <= 6)
+	{
+		leftBtn->block(true);
+		rightBtn->block(true);
 	}
-	selectableSkill->pos = Rect (95, 256, 55, 55); //TODO: scroll
-	const Bonus *b = CGI->creh->skillRequirements[option-100].first;
+
+	pos.h += bg2->pos.h;
+	/*
 	bonusItems.push_back (new CBonusItem (genRect(0, 0, 251, 57), stack->bonusToString(b, false), stack->bonusToString(b, true), stack->bonusToGraphics(b)));
-	selectableBonuses.push_back (selectableSkill); //insert these before other bonuses
 */
+}
+
+void CStackWindow::setSelection(si32 newSkill, CClickableObject * newIcon)
+{
+	auto getSkillImage = [this](int skillIndex) -> std::string
+	{
+		bool selected = ((selectedSkill == skillIndex) && info->levelupInfo );
+		return skillToFile(skillIndex, info->commander->secondarySkills[skillIndex], selected);
+	};
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	int oldSelection = selectedSkill; // update selection
+	selectedSkill = newSkill;
+
+	if (selectedIcon && oldSelection < 100) // recreate image on old selection, only for skills
+		selectedIcon->setObject(new CPicture(getSkillImage(oldSelection)));
+
+	selectedIcon = newIcon; // update new selection
+	if (newSkill < 100)
+		newIcon->setObject(new CPicture(getSkillImage(newSkill)));
 }
 
 void CStackWindow::CWindowSection::createBonuses(boost::optional<size_t> preferredSize)
@@ -411,17 +461,7 @@ void CStackWindow::CWindowSection::createButtonPanel()
 
 	if (parent->info->commander)
 	{
-		bool createAbilitiesTab = false;
-		if (parent->info->levelupInfo)
-		{
-			for (auto option : parent->info->levelupInfo->skills)
-			{
-				if (option >= 100)
-					createAbilitiesTab = true;
-			}
-		}
-
-		for (size_t i=0; i<3; i++)
+		for (size_t i=0; i<2; i++)
 		{
 			auto onSwitch = [&, i]()
 			{
@@ -431,13 +471,10 @@ void CStackWindow::CWindowSection::createButtonPanel()
 				parent->redraw(); // FIXME: enable/disable don't redraw screen themselves
 			};
 
-			parent->switchButtons[i] = new CAdventureMapButton(std::make_pair("",""), onSwitch, 262 + i*40, 5, "stackWindow/upgradeButton", SDLK_1 + i);
+			parent->switchButtons[i] = new CAdventureMapButton(std::make_pair("",""), onSwitch, 302 + i*40, 5, "stackWindow/upgradeButton");
 			parent->switchButtons[i]->addOverlay(new CAnimImage("stackWindow/switchModeIcons", i));
 		}
-
 		parent->switchButtons[parent->activeTab]->disable();
-		if (!createAbilitiesTab)
-			parent->switchButtons[2]->disable();
 	}
 
 	auto exitBtn = new CAdventureMapButton(CGI->generaltexth->zelp[445], [=]{ parent->close(); }, 382, 5, "hsbtns.def", SDLK_RETURN);
@@ -507,20 +544,17 @@ CIntObject * CStackWindow::switchTab(size_t index)
 			activeTab = 0;
 			auto ret = new CWindowSection(this);
 			ret->createCommander();
+			ret->createCommanderAbilities();
 			return ret;
 		}
 		case 1:
 		{
 			activeTab = 1;
 			auto ret = new CWindowSection(this);
-			ret->createBonuses(3);
-			return ret;
-		}
-		case 2:
-		{
-			activeTab = 2;
-			auto ret = new CWindowSection(this);
-			ret->createCommanderAbilities();
+			if (info->levelupInfo)
+				ret->createBonuses(4);
+			else
+				ret->createBonuses(3);
 			return ret;
 		}
 		default:

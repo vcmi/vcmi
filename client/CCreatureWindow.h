@@ -75,6 +75,7 @@ class CStackWindow : public CWindowObject
 
 	std::map<int, CAdventureMapButton *> switchButtons;
 
+	void setSelection(si32 newSkill, CClickableObject * newIcon);
 	CClickableObject * selectedIcon;
 	si32 selectedSkill;
 
