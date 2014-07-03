@@ -538,6 +538,12 @@ void CGPreGame::update()
 		GH.drawFPSCounter();
 }
 
+void CGPreGame::runLocked(std::function<void(IUpdateable * )> cb)
+{
+	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
+	cb(this);	
+}
+
 void CGPreGame::openCampaignScreen(std::string name)
 {
 	if (vstd::contains(CGPreGameConfig::get().getCampaigns().Struct(), name))

@@ -409,21 +409,28 @@ void CGuiHandler::fakeMouseMove()
 
 void CGuiHandler::renderFrame()
 {
+	auto doUpdate = [](IUpdateable * target)
+	{
+		if(nullptr != target)
+			target -> update();
+		// draw the mouse cursor and update the screen
+		CCS->curh->render();
+
+		#ifndef	VCMI_SDL1
+		if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
+			logGlobal->errorStream() << __FUNCTION__ << " SDL_RenderCopy " << SDL_GetError();
+
+		SDL_RenderPresent(mainRenderer);				
+		#endif		
+		
+	};
+	
 	if(curInt)
-		curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
-
-	// draw the mouse cursor and update the screen
-	CCS->curh->render();
-
-	#ifndef	VCMI_SDL1
-	if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
-		logGlobal->errorStream() << __FUNCTION__ << " SDL_RenderCopy " << SDL_GetError();
-
-	SDL_RenderPresent(mainRenderer);				
-	#endif			
+		curInt->runLocked(doUpdate);
+	else
+		doUpdate(nullptr);
 	
-	mainFPSmng->framerateDelay(); // holds a constant FPS
-	
+	mainFPSmng->framerateDelay(); // holds a constant FPS	
 }
 
 

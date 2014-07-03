@@ -129,7 +129,8 @@ public:
 		}
 	} spellbookSettings;
 
-	void update();
+	void update() override;
+	void runLocked(std::function<void(IUpdateable * )> functor) override;
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 
@@ -288,6 +289,8 @@ private:
 	
 	bool duringMovement;
 	bool ignoreEvents;
+	
+	bool locked;
 	
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 };
