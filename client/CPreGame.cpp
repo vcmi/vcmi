@@ -543,9 +543,7 @@ void CGPreGame::update()
 		GH.drawFPSCounter();
 
 	// draw the mouse cursor and update the screen
-	CCS->curh->drawWithScreenRestore();
-	CSDL_Ext::update(screen);
-	CCS->curh->drawRestored();
+	CCS->curh->render();
 }
 
 void CGPreGame::openCampaignScreen(std::string name)

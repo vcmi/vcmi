@@ -223,6 +223,14 @@ void CCursorHandler::centerCursor()
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 }
 
+void CCursorHandler::render()
+{
+	drawWithScreenRestore();
+	CSDL_Ext::update(screen);
+	drawRestored();
+}
+
+
 CCursorHandler::~CCursorHandler()
 {
 	if(help)
