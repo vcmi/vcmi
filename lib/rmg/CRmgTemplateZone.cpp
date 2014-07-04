@@ -839,7 +839,17 @@ void CRmgTemplateZone::initTerrainType (CMapGenerator* gen)
 	else
 		terrainType = *RandomGeneratorUtil::nextItem(terrainTypes, gen->rand);
 
-	//paint zone with matching terrain
+	//TODO: allow new types of terrain?
+	if (pos.z)
+	{
+		if (terrainType != ETerrainType::LAVA)
+			terrainType = ETerrainType::SUBTERRANEAN;
+	}
+	else
+	{
+		if (terrainType == ETerrainType::SUBTERRANEAN)
+			terrainType = ETerrainType::DIRT;
+	}
 
 	paintZoneTerrain (gen, terrainType);
 }

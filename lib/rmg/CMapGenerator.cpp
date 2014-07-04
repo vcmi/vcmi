@@ -251,7 +251,8 @@ void CMapGenerator::createConnections()
 					continue;
 				foreach_neighbour (tile, [&guardPos, tile, &otherZoneTiles, this](int3 &pos)
 				{
-					if (vstd::contains(otherZoneTiles, pos) && !this->isBlocked(pos))
+					//if (vstd::contains(otherZoneTiles, pos) && !this->isBlocked(pos))
+					if (vstd::contains(otherZoneTiles, pos))
 						guardPos = tile;
 				});
 				if (guardPos.valid())
@@ -285,26 +286,42 @@ void CMapGenerator::createConnections()
 				float distanceFromA = posA.dist2d(tile);
 				float distanceFromB = posB.dist2d(tile);
 
-				if (distanceFromA + distanceFromB > std::max(zoneA->getSize() + zoneB->getSize(), distance))
+				if (distanceFromA + distanceFromB > std::max<int>(zoneA->getSize() + zoneB->getSize(), distance))
 					break; //we are too far away to ever connect
 
-				//if zone is underground, gate must lay withing its (reduced) radius
-				if (distanceFromA > 3 && (!posA.z || distanceFromA < zoneA->getSize() - 3) &&
-					distanceFromB > 3 && (!posB.z || distanceFromB < zoneB->getSize() - 3))
+				//if zone is underground, gate must fit within its (reduced) radius
+				if (distanceFromA > 5 && (!posA.z || distanceFromA < zoneA->getSize() - 3) &&
+					distanceFromB > 5 && (!posB.z || distanceFromB < zoneB->getSize() - 3))
 				{
 					otherTile = tile;
 					otherTile.z = posB.z;
 
 					if (vstd::contains(tiles, tile) && vstd::contains(otherZoneTiles, otherTile))
 					{
-						auto gate1 = new CGTeleport;
-						gate1->ID = Obj::SUBTERRANEAN_GATE;
-						gate1->subID = 0;
-						zoneA->placeAndGuardObject(this, gate1, tile, connection.getGuardStrength());
-						auto gate2 = new CGTeleport(*gate1);
-						zoneB->placeAndGuardObject(this, gate2, otherTile, connection.getGuardStrength());
+						bool withinZone = true;
 
-						stop = true; //we are done, go to next connection
+						foreach_neighbour (tile, [&withinZone, &tiles](int3 &pos)
+						{
+							if (!vstd::contains(tiles, pos))
+								withinZone = false;
+						});
+						foreach_neighbour (otherTile, [&withinZone, &otherZoneTiles](int3 &pos)
+						{
+							if (!vstd::contains(otherZoneTiles, pos))
+								withinZone = false;
+						});
+
+						if (withinZone)
+						{
+							auto gate1 = new CGTeleport;
+							gate1->ID = Obj::SUBTERRANEAN_GATE;
+							gate1->subID = 0;
+							zoneA->placeAndGuardObject(this, gate1, tile, connection.getGuardStrength());
+							auto gate2 = new CGTeleport(*gate1);
+							zoneB->placeAndGuardObject(this, gate2, otherTile, connection.getGuardStrength());
+
+							stop = true; //we are done, go to next connection
+						}
 					}
 				}
 			}
