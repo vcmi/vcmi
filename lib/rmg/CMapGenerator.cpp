@@ -272,6 +272,7 @@ void CMapGenerator::createConnections()
 			float3 offset (posB.x - posA.x, posB.y - posA.y, 0);
 
 			float distance = posB.dist2d(posA);
+			vstd::amax (distance, 0.5f);
 			offset /= distance; //get unit vector
 			float3 vec (0, 0, 0);
 			//use reduced size of underground zone - make sure gate does not stand on rock
