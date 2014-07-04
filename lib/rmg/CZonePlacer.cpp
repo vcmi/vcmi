@@ -106,7 +106,8 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 				float minDistance = (zone.second->getSize() + otherZone->getSize())/mapSize; //scale down to (0,1) coordinates
 				if (distance > minDistance)
 				{
-					forceVector += (otherZoneCenter - pos) / getDistance(distance) * currentTemperature; //positive value
+					//WARNING: compiler used to 'optimize' that line so it never actually worked
+					forceVector += (((otherZoneCenter - pos) / getDistance(distance)) * currentTemperature); //positive value
 				}
 			}
 			//separate overlaping zones
@@ -126,40 +127,38 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 			}
 
 			//move zones away from boundaries
-			float3 boundary(0,0,pos.z);
 			float size = zone.second->getSize() / mapSize;
-			if (pos.x < size)
+
+			auto pushAwayFromBoundary = [&forceVector, pos, currentTemperature, &getDistance](float x, float y)
 			{
-				boundary = float3 (0, pos.y, pos.z);
+				float3 boundary = float3 (x, y, pos.z);
 				float distance = pos.dist2d(boundary);
 				forceVector -= (boundary - pos) / getDistance(distance) / currentTemperature; //negative value
+			};
+			if (pos.x < size)
+			{
+				pushAwayFromBoundary(0, pos.y);
 			}
 			if (pos.x > 1-size)
 			{
-				boundary = float3 (1, pos.y, pos.z);
-				float distance = pos.dist2d(boundary);
-				forceVector -= (boundary - pos) / getDistance(distance) / currentTemperature; //negative value
+				pushAwayFromBoundary(1, pos.y);
 			}
 			if (pos.y < size)
 			{
-				boundary = float3 (pos.x, 0, pos.z);
-				float distance = pos.dist2d(boundary);
-				forceVector -= (boundary - pos) / getDistance(distance) / currentTemperature; //negative value
+				pushAwayFromBoundary(pos.x, 0);
 			}
 			if (pos.y > 1-size)
 			{
-				boundary = float3 (pos.x, 1, pos.z);
-				float distance = pos.dist2d(boundary);
-				forceVector -= (boundary - pos) / getDistance(distance) / currentTemperature; //negative value
+				pushAwayFromBoundary(pos.x, 1);
 			}
 
 			forceVector.z = 0; //operator - doesn't preserve z coordinate :/
-			forces[zone.second] = forceVector;
+			forces[zone.second] = forceVector * temperatureConstant;
 		}
 		//update positions
 		for (auto zone : forces)
 		{
-			zone.first->setCenter (zone.first->getCenter() + zone.second * temperatureConstant);
+			zone.first->setCenter (zone.first->getCenter() + zone.second);
 		}
 		currentTemperature *= temperatureModifier; //decrease temperature (needed?)
 	}
