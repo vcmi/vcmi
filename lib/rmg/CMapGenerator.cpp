@@ -11,6 +11,7 @@
 #include "CRmgTemplate.h"
 #include "CRmgTemplateZone.h"
 #include "CZonePlacer.h"
+#include "../mapObjects/CObjectClassesHandler.h"
 
 void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo)
 {
@@ -370,21 +371,21 @@ bool CMapGenerator::isBlocked(const int3 &tile) const
 bool CMapGenerator::shouldBeBlocked(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].shouldBeBlocked();
 }
 bool CMapGenerator::isPossible(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].isPossible();
 }
 bool CMapGenerator::isFree(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].isFree();
 }
@@ -398,7 +399,7 @@ bool CMapGenerator::isUsed(const int3 &tile) const
 void CMapGenerator::setOccupied(const int3 &tile, ETileType::ETileType state)
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	tiles[tile.x][tile.y][tile.z].setOccupied(state);
 }
@@ -406,7 +407,7 @@ void CMapGenerator::setOccupied(const int3 &tile, ETileType::ETileType state)
 CTileInfo CMapGenerator::getTile(const int3&  tile) const
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z];
 }
@@ -414,7 +415,7 @@ CTileInfo CMapGenerator::getTile(const int3&  tile) const
 void CMapGenerator::setNearestObjectDistance(int3 &tile, int value)
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	tiles[tile.x][tile.y][tile.z].setNearestObjectDistance(value);
 }
@@ -422,12 +423,15 @@ void CMapGenerator::setNearestObjectDistance(int3 &tile, int value)
 int CMapGenerator::getNearestObjectDistance(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].getNearestObjectDistance();
 }
 
 int CMapGenerator::getNextMonlithIndex()
 {
-	return monolithIndex++;
+	if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
+		throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
+	else
+		return monolithIndex++;
 }
