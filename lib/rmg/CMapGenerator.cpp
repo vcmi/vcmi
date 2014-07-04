@@ -239,9 +239,11 @@ void CMapGenerator::createConnections()
 		int3 guardPos(-1,-1,-1);
 
 		auto otherZoneTiles = zoneB->getTileInfo();
-		//auto otherZoneCenter = zoneB->getPos();
 
-		if (zoneA->getPos().z == zoneB->getPos().z)
+		int3 posA = zoneA->getPos();
+		int3 posB = zoneB->getPos();
+
+		if (posA.z == posB.z)
 		{
 			for (auto tile : tiles)
 			{
@@ -255,10 +257,10 @@ void CMapGenerator::createConnections()
 				if (guardPos.valid())
 				{
 					setOccupied (guardPos, ETileType::FREE); //just in case monster is too weak to spawn
-					zoneA->addMonster (this, guardPos, connection.getGuardStrength()); //TODO: set value according to template
+					zoneA->addMonster (this, guardPos, connection.getGuardStrength());
 					//zones can make paths only in their own area
-					zoneA->crunchPath (this, guardPos, zoneA->getPos(), zoneA->getId(), zoneA->getFreePaths()); //make connection towards our zone center
-					zoneB->crunchPath (this, guardPos, zoneB->getPos(), zoneB->getId(), zoneB->getFreePaths()); //make connection towards other zone center
+					zoneA->crunchPath (this, guardPos, posA, zoneA->getId(), zoneA->getFreePaths()); //make connection towards our zone center
+					zoneB->crunchPath (this, guardPos, posB, zoneB->getId(), zoneB->getFreePaths()); //make connection towards other zone center
 					break; //we're done with this connection
 				}
 			}
@@ -266,8 +268,6 @@ void CMapGenerator::createConnections()
 		else //create subterranean gates between two zones
 		{	
 			//find point on the path between zones
-			int3 posA = zoneA->getPos();
-			int3 posB = zoneB->getPos();
 			float3 offset (posB.x - posA.x, posB.y - posA.y, 0);
 
 			float distance = posB.dist2d(posA);
@@ -280,16 +280,17 @@ void CMapGenerator::createConnections()
 			bool stop = false;
 			while (!stop)
 			{
-				vec += offset;
+				vec += offset; //this vector may extend beyond line between zone centers, in case they are directly over each other
 				tile = posA + int3(vec.x, vec.y, 0);
 				float distanceFromA = posA.dist2d(tile);
 				float distanceFromB = posB.dist2d(tile);
-				if (distanceFromA >= distance)
-					break;
+
+				if (distanceFromA + distanceFromB > std::max(zoneA->getSize() + zoneB->getSize(), distance))
+					break; //we are too far away to ever connect
 
 				//if zone is underground, gate must lay withing its (reduced) radius
-				if (distanceFromA > 3 && (!posA.z || distanceFromA < zoneA->getSize() - 2)
-					&& distanceFromB > 3 && (!posB.z ||distanceFromB < zoneB->getSize() - 2))
+				if (distanceFromA > 3 && (!posA.z || distanceFromA < zoneA->getSize() - 3) &&
+					distanceFromB > 3 && (!posB.z || distanceFromB < zoneB->getSize() - 3))
 				{
 					otherTile = tile;
 					otherTile.z = posB.z;

@@ -102,25 +102,27 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 			for (auto con : zone.second->getConnections())
 			{
 				auto otherZone = zones[con];
-				float distance = pos.dist2d (otherZone->getCenter());
+				float3 otherZoneCenter = otherZone->getCenter();
+				float distance = pos.dist2d (otherZoneCenter);
 				float minDistance = (zone.second->getSize() + otherZone->getSize())/mapSize; //scale down to (0,1) coordinates
 				if (distance > minDistance)
 				{
-					forceVector += (otherZone->getCenter() - pos) / getDistance(distance); //positive value
+					forceVector += (otherZoneCenter - pos) / getDistance(distance); //positive value
 				}
 			}
 			//separate overlaping zones
 			for (auto otherZone : zones)
 			{
+				float3 otherZoneCenter = otherZone.second->getCenter();
 				//zones on different levels don't push away
-				if (zone == otherZone || pos.z != otherZone.second->getCenter().z)
+				if (zone == otherZone || pos.z != otherZoneCenter.z)
 					continue;
 
-				float distance = pos.dist2d (otherZone.second->getCenter());
+				float distance = pos.dist2d (otherZoneCenter);
 				float minDistance = (zone.second->getSize() + otherZone.second->getSize())/mapSize;
 				if (distance < minDistance)
 				{
-					forceVector -= (otherZone.second->getCenter() - pos) / getDistance(distance); //negative value
+					forceVector -= (otherZoneCenter - pos) / getDistance(distance); //negative value
 				}
 			}
 

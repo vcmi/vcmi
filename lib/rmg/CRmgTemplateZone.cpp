@@ -948,10 +948,10 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 		std::vector<int3> rockTiles;
 
 		for (auto tile : tileinfo)
-		{
-			bool placeRock = true;
+		{	
 			if (gen->shouldBeBlocked(tile))
 			{
+				bool placeRock = true;
 				gen->foreach_neighbour (tile, [gen, &placeRock](int3 &pos)
 				{
 					if (!(gen->shouldBeBlocked(pos) || gen->isPossible(pos)))
