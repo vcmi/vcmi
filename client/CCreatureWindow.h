@@ -18,6 +18,7 @@ class CCommanderInstance;
 class CStackInstance;
 class CStack;
 struct UpgradeInfo;
+class LRClickableAreaWTextComp;
 
 class CClickableObject : public LRClickableAreaWText
 {
@@ -67,6 +68,9 @@ class CStackWindow : public CWindowObject
 
 		CWindowSection(CStackWindow * parent);
 	};
+
+	CAnimImage * stackArtifactIcon;
+	LRClickableAreaWTextComp * stackArtifactHelp;
 
 	std::unique_ptr<StackWindowInfo> info;
 	std::vector<BonusInfo> activeBonuses;

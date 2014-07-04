@@ -66,6 +66,11 @@
 		{
 			"label" : "Switch to skills view",
 			"help" : "Displays all learned skills of the commander"
+		},
+		"returnArtifact" :
+		{
+			"label" : "Give back artifact",
+			"help" : "Use this button to return stack artifact back into hero backpack"
 		}
 	}
 }

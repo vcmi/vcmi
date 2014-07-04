@@ -226,7 +226,32 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 	auto luck = new MoraleLuckBox(false, genRect(42, 42, 375, 110));
 	luck->set(parent->info->stackNode);
 
-	//TODO: stack artifact
+	//TODO: TEST
+	//TODO: delete "pass artifact" button on removal
+	//TODO: refactor into give art / take art methods
+	if (showArt)
+	{
+		const CStackInstance * stack = parent->info->stackNode;
+		if (stack->getArt(ArtifactPosition::CREATURE_SLOT))
+		{
+			auto art = stack->getArt(ArtifactPosition::CREATURE_SLOT);
+
+			Point pos = showExp ? Point(375, 32) : Point(347, 32);
+			parent->stackArtifactIcon = new CAnimImage("ARTIFACT", art->artType->iconIndex, 0, pos.x, pos.y);
+			parent->stackArtifactHelp = new LRClickableAreaWTextComp(Rect(pos, Point(44, 44)), CComponent::artifact);
+			parent->stackArtifactHelp->type = art->artType->id;
+
+			const JsonNode & text = VLC->generaltexth->localizedTexts["creatureWindow"]["returnArtifact"];
+
+			if (parent->info->owner)
+			{
+				new CAdventureMapButton(text["label"].String(), text["help"].String(),[=]{
+					LOCPLINT->cb->swapArtifacts(ArtifactLocation(stack, ArtifactPosition::CREATURE_SLOT),
+												ArtifactLocation(parent->info->owner, art->firstBackpackSlot(parent->info->owner)));
+				}, pos.x - 2 , pos.y + 46, "stackWindow/cancelButton");
+			}
+		}
+	}
 
 	if (showExp)
 	{
@@ -481,7 +506,6 @@ void CStackWindow::CWindowSection::createBonuses(boost::optional<size_t> preferr
 
 void CStackWindow::CWindowSection::createButtonPanel()
 {
-	//TODO: localization, place creature icon on button, proper path to animation-button
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	createBackground("button-panel");
 
@@ -647,8 +671,8 @@ void CStackWindow::initSections()
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	CWindowSection * currentSection;
 
-	bool showArt = CGI->modh->modules.STACK_ARTIFACT && info->commander == nullptr;
-	bool showExp = CGI->modh->modules.STACK_EXP || info->commander != nullptr;
+	bool showArt = CGI->modh->modules.STACK_ARTIFACT && info->commander == nullptr && info->stackNode;
+	bool showExp = (CGI->modh->modules.STACK_EXP || info->commander != nullptr) && info->stackNode;
 	currentSection = new CWindowSection(this);
 	currentSection->createStackInfo(showExp, showArt);
 	pos.w = currentSection->pos.w;
@@ -732,6 +756,9 @@ void CStackWindow::initBonusesList()
 
 void CStackWindow::init()
 {
+	stackArtifactHelp = nullptr;
+	stackArtifactIcon = nullptr;
+
 	selectedIcon = nullptr;
 	selectedSkill = 0;
 	if (info->levelupInfo)
