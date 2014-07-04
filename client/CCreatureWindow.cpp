@@ -228,7 +228,6 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 
 	//TODO: stack artifact
 
-	//TODO: stack experience
 	if (showExp)
 	{
 		const CStackInstance * stack = parent->info->stackNode;
@@ -384,6 +383,29 @@ void CStackWindow::CWindowSection::createCommander()
 	//TODO: commander artifacts
 }
 
+CIntObject * CStackWindow::createSkillEntry(int index)
+{
+	for (auto skillID : info->levelupInfo->skills)
+	{
+		if (index == 0 && skillID >= 100)
+		{
+			const Bonus *bonus = CGI->creh->skillRequirements[skillID-100].first;
+			const CStackInstance *stack = info->commander;
+			CClickableObject * icon = new CClickableObject(new CPicture(stack->bonusToGraphics(bonus)), []{});
+			icon->callback = [=]
+			{
+				setSelection(skillID, icon);
+			};
+			icon->text = stack->bonusToString(bonus, true);
+			icon->hoverText = stack->bonusToString(bonus, false);
+			return icon;
+		}
+		if (skillID >= 100)
+			index--;
+	}
+	return nullptr;
+}
+
 void CStackWindow::CWindowSection::createCommanderAbilities()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -395,27 +417,9 @@ void CStackWindow::CWindowSection::createCommanderAbilities()
 		return skillID >= 100;
 	});
 
-	auto list = new CListBox([=] (si32 index) -> CIntObject*
+	auto list = new CListBox([=] (int index)
 	{
-		for (auto skillID : parent->info->levelupInfo->skills)
-		{
-			if (index == 0 && skillID >= 100)
-			{
-				const Bonus *bonus = CGI->creh->skillRequirements[skillID-100].first;
-				const CStackInstance *stack = parent->info->commander;
-				CClickableObject * icon = new CClickableObject(new CPicture(stack->bonusToGraphics(bonus)), []{});
-				icon->callback = [=]
-				{
-					parent->setSelection(skillID, icon);
-				};
-				icon->text = stack->bonusToString(bonus, true);
-				icon->hoverText = stack->bonusToString(bonus, false);
-				return icon;
-			}
-			if (skillID >= 100)
-				index--;
-		}
-		return nullptr;
+		return parent->createSkillEntry(index);
 	},
 	[=] (CIntObject * elem)
 	{
