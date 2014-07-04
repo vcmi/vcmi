@@ -427,7 +427,18 @@ CGeneralTextHandler::CGeneralTextHandler()
 	{
 		CLegacyConfigParser parser("DATA/ZCREXP.TXT");
 		parser.endLine();//header
-		do
+		for (size_t iter=0; iter<325; iter++)
+		{
+			parser.readString(); //ignore 1st column with description
+			zcrexp.push_back(parser.readString());
+			parser.endLine();
+		}
+		// line 325 - some weird formatting here
+		zcrexp.push_back(parser.readString());
+		parser.readString();
+		parser.endLine();
+
+		do // rest of file can be read normally
 		{
 			parser.readString(); //ignore 1st column with description
 			zcrexp.push_back(parser.readString());

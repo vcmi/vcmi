@@ -87,6 +87,8 @@ class CStackWindow : public CWindowObject
 
 	void init();
 
+	std::string generateStackExpDescription();
+
 public:
 	// for battles
 	CStackWindow(const CStack * stack, bool popup);

@@ -10,6 +10,7 @@
 #include "../lib/CBonusTypeHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CModHandler.h"
+#include "../lib/CHeroHandler.h"
 #include "../lib/CSpellHandler.h"
 
 #include "gui/CGuiHandler.h"
@@ -127,6 +128,49 @@ void CStackWindow::CWindowSection::printStat(int index, std::string name, int va
 	printStatBase(index, name, value, value);
 }
 
+std::string CStackWindow::generateStackExpDescription()
+{
+	const CStackInstance * stack = info->stackNode;
+	const CCreature * creature = info->creature;
+
+	int tier = stack->type->level;
+	int rank = stack->getExpRank();
+	if (!vstd::iswithin(tier, 1, 7))
+		tier = 0;
+	int number;
+	std::string expText = CGI->generaltexth->zcrexp[325];
+	boost::replace_first (expText, "%s", creature->namePl);
+	boost::replace_first (expText, "%s", CGI->generaltexth->zcrexp[rank]);
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(rank));
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(stack->experience));
+	number = CGI->creh->expRanks[tier][rank] - stack->experience;
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number));
+
+	number = CGI->creh->maxExpPerBattle[tier]; //percent
+	boost::replace_first (expText, "%i%", boost::lexical_cast<std::string>(number));
+	number *= CGI->creh->expRanks[tier].back() / 100; //actual amount
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number));
+
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(stack->count)); //Number of Creatures in stack
+
+	int expmin = std::max(CGI->creh->expRanks[tier][std::max(rank-1, 0)], (ui32)1);
+	number = (stack->count * (stack->experience - expmin)) / expmin; //Maximum New Recruits without losing current Rank
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //TODO
+
+	boost::replace_first (expText, "%.2f", boost::lexical_cast<std::string>(1)); //TODO Experience Multiplier
+	number = CGI->creh->expAfterUpgrade;
+	boost::replace_first (expText, "%.2f", boost::lexical_cast<std::string>(number) + "%"); //Upgrade Multiplier
+
+	expmin = CGI->creh->expRanks[tier][9];
+	int expmax = CGI->creh->expRanks[tier][10];
+	number = expmax - expmin;
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Experience after Rank 10
+	number = (stack->count * (expmax - expmin)) / expmin;
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience
+
+	return expText;
+}
+
 void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -182,9 +226,33 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 	auto luck = new MoraleLuckBox(false, genRect(42, 42, 375, 110));
 	luck->set(parent->info->stackNode);
 
-	//TODO: artifacts
+	//TODO: stack artifact
 
-	//TODO: stack artifacts
+	//TODO: stack experience
+	if (showExp)
+	{
+		const CStackInstance * stack = parent->info->stackNode;
+		Point pos = showArt ? Point(321, 32) : Point(347, 32);
+		if (parent->info->commander)
+		{
+			const CCommanderInstance * commander = parent->info->commander;
+			new CAnimImage("PSKIL42", 4, 0, pos.x, pos.y); // experience icon
+
+			auto expArea = new LRClickableAreaWTextComp(Rect(pos.x, pos.y, 44, 44), CComponent::experience);
+			expArea->text = CGI->generaltexth->allTexts[2];
+			expArea->bonusValue = commander->getExpRank();
+			boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(commander->getExpRank()));
+			boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(commander->getExpRank()+1)));
+			boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(commander->experience));
+		}
+		else
+		{
+			new CAnimImage("stackWindow/levels", stack->getExpRank(), 0, pos.x, pos.y);
+			auto expArea = new LRClickableAreaWText(Rect(pos.x, pos.y, 44, 44));
+			expArea->text = parent->generateStackExpDescription();
+		}
+		new CLabel(pos.x + 21, pos.y + 52, FONT_SMALL, CENTER, Colors::WHITE, makeNumberShort<TExpType>(stack->experience, 6));
+	}
 }
 
 void CStackWindow::CWindowSection::createActiveSpells()
@@ -312,6 +380,8 @@ void CStackWindow::CWindowSection::createCommander()
 			};
 		}
 	}
+
+	//TODO: commander artifacts
 }
 
 void CStackWindow::CWindowSection::createCommanderAbilities()
