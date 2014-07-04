@@ -955,6 +955,12 @@ void CSDL_Ext::fillRect( SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color )
 	SDL_FillRect(dst, &newRect, color);
 }
 
+void CSDL_Ext::fillRectBlack( SDL_Surface *dst, SDL_Rect *dstrect)
+{
+	const Uint32 black = SDL_MapRGB(dst->format,0,0,0);
+	fillRect(dst,dstrect,black);
+}
+
 void CSDL_Ext::fillTexture(SDL_Surface *dst, SDL_Surface * src)
 {
 	SDL_Rect srcRect;

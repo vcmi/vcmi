@@ -850,21 +850,9 @@ void CSlider::setAmount( int to )
 
 void CSlider::showAll(SDL_Surface * to)
 {
-	CSDL_Ext::fillRect(to, &pos, 0);
+	CSDL_Ext::fillRectBlack(to, &pos);
 	CIntObject::showAll(to);
 }
-
-void CSlider::show(SDL_Surface * to)
-{
-	//todo: find better solution for background glitches.
-	#ifdef VCMI_SDL1	
-	CIntObject::show(to);	
-	#else
-	CSDL_Ext::fillRect(to, &pos, 0);
-	CIntObject::showAll(to);	
-	#endif // VCMI_SDL1
-}
-
 
 void CSlider::wheelScrolled(bool down, bool in)
 {

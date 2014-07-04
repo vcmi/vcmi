@@ -208,6 +208,7 @@ namespace CSDL_Ext
 
 	void blitSurface(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect);
 	void fillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color);
+	void fillRectBlack(SDL_Surface * dst, SDL_Rect * dstrect);
 	//fill dest image with source texture.
 	void fillTexture(SDL_Surface *dst, SDL_Surface * sourceTexture);
 
