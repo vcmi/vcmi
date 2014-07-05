@@ -8,6 +8,8 @@
 #include "gui/CIntObject.h"
 #include "gui/CIntObjectClasses.h"
 #include "../lib/GameConstants.h"
+#include "gui/CArtifactHolder.h"
+#include "gui/CComponent.h"
 
 #ifdef max
 #undef max
@@ -114,17 +116,6 @@ public:
 	static std::string genText(std::string title, std::string description);
 };
 
-/// component selection window
-class CSelWindow : public CInfoWindow
-{ //warning - this window deletes its components by closing!
-public:
-	void selectionChange(unsigned to);
-	void madeChoice(); //looks for selected component and calls callback
-	CSelWindow(const std::string& text, PlayerColor player, int charperline ,const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, QueryID askID); //c-tor
-	CSelWindow(){}; //c-tor
-	//notification - this class inherits important destructor from CInfoWindow
-};
-
 /// popup displayed on R-click
 class CRClickPopup : public CIntObject
 {
@@ -179,101 +170,17 @@ public:
 	CInfoBoxPopup(Point position, const CGGarrison * garr);
 };
 
-/// common popup window component
-class CComponent : public virtual CIntObject
-{
+/// component selection window
+class CSelWindow : public CInfoWindow
+{ //warning - this window deletes its components by closing!
 public:
-	enum Etype
-	{
-		primskill, secskill, resource, creature, artifact, experience, spell, morale, luck, building, hero, flag, typeInvalid
-	};
-
-	//NOTE: not all types have exact these sizes or have less than 4 of them. In such cases closest one will be used
-	enum ESize
-	{
-		tiny,  // ~22-24px
-		small, // ~30px
-		medium,// ~42px
-		large,  // ~82px
-		sizeInvalid
-	};
-
-private:
-	size_t getIndex();
-	const std::vector<std::string> getFileName();
-	void setSurface(std::string defName, int imgPos);
-	std::string getSubtitleInternal();
-
-	void init(Etype Type, int Subtype, int Val, ESize imageSize);
-
-public:
-	CAnimImage *image; //our image
-
-	Etype compType; //component type
-	ESize size; //component size.
-	int subtype; //type-dependant subtype. See getSomething methods for details
-	int val; // value \ strength \ amount of component. See getSomething methods for details
-	bool perDay; // add "per day" text to subtitle
-
-	std::string getDescription();
-	std::string getSubtitle();
-
-	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large);//c-tor
-	CComponent(const Component &c); //c-tor
-
-	void clickRight(tribool down, bool previousState); //call-in
+	void selectionChange(unsigned to);
+	void madeChoice(); //looks for selected component and calls callback
+	CSelWindow(const std::string& text, PlayerColor player, int charperline ,const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, QueryID askID); //c-tor
+	CSelWindow(){}; //c-tor
+	//notification - this class inherits important destructor from CInfoWindow
 };
 
-/// component that can be selected or deselected
-class CSelectableComponent : public CComponent, public CKeyShortcut
-{
-	void init();
-public:
-	bool selected; //if true, this component is selected
-	std::function<void()> onSelect; //function called on selection change
-
-	void showAll(SDL_Surface * to);
-	void select(bool on);
-
-	void clickLeft(tribool down, bool previousState); //call-in
-	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr); //c-tor
-	CSelectableComponent(const Component &c, std::function<void()> OnSelect = nullptr); //c-tor
-};
-
-/// box with multiple components (up to 8?)
-/// will take ownership on components and delete them afterwards
-class CComponentBox : public CIntObject
-{
-	std::vector<CComponent *> components;
-
-	CSelectableComponent * selected;
-	std::function<void(int newID)> onSelect;
-
-	void selectionChanged(CSelectableComponent * newSelection);
-
-	//get position of "or" text between these comps
-	//it will place "or" equidistant to both images
-	Point getOrTextPos(CComponent *left, CComponent * right);
-
-	//get distance between these copmonents
-	int getDistance(CComponent *left, CComponent * right);
-	void placeComponents(bool selectable);
-
-public:
-	/// return index of selected item
-	int selectedIndex();
-
-	/// constructor for quite common 1-components popups
-	/// if position width or height are 0 then it will be determined automatically
-	CComponentBox(CComponent * components, Rect position);
-	/// constructor for non-selectable components
-	CComponentBox(std::vector<CComponent *> components, Rect position);
-
-	/// constructor for selectable components
-	/// will also create "or" labels between components
-	/// onSelect - optional function that will be called every time on selection change
-	CComponentBox(std::vector<CSelectableComponent *> components, Rect position, std::function<void(int newID)> onSelect = nullptr);
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -560,28 +467,6 @@ public:
 	void keyPressed (const SDL_KeyboardEvent & key);
 };
 
-class CArtifactHolder
-{
-public:
-	CArtifactHolder();
-
-	virtual void artifactRemoved(const ArtifactLocation &artLoc)=0;
-	virtual void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)=0;
-	virtual void artifactDisassembled(const ArtifactLocation &artLoc)=0;
-	virtual void artifactAssembled(const ArtifactLocation &artLoc)=0;
-};
-
-class CWindowWithArtifacts : public CArtifactHolder
-{
-public:
-	std::vector<CArtifactsOfHero *> artSets;
-
-	void artifactRemoved(const ArtifactLocation &artLoc);
-	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc);
-	void artifactDisassembled(const ArtifactLocation &artLoc);
-	void artifactAssembled(const ArtifactLocation &artLoc);
-};
-
 class CTradeWindow : public CWindowObject, public CWindowWithArtifacts //base for markets and altar of sacrifice
 {
 public:
@@ -846,19 +731,6 @@ public:
 	CInGameConsole(); //c-tor
 };
 
-/// Can interact on left and right mouse clicks
-class LRClickableAreaWTextComp: public LRClickableAreaWText
-{
-public:
-	int baseType;
-	int bonusValue, type;
-	virtual void clickLeft(tribool down, bool previousState);
-	virtual void clickRight(tribool down, bool previousState);
-
-	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
-	CComponent * createComponent() const;
-};
-
 class MoraleLuckBox : public LRClickableAreaWTextComp
 {
 	CAnimImage *image;
@@ -892,109 +764,6 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	LRClickableAreaOpenTown();
-};
-
-/// Artifacts can be placed there. Gets shown at the hero window
-class CArtPlace: public LRClickableAreaWTextComp
-{
-	CAnimImage *image;
-	CAnimImage *selection;
-
-	void createImage();
-
-public:
-	// consider these members as const - change them only with appropriate methods e.g. lockSlot()
-	bool locked;
-	bool picked;
-	bool marked;
-
-	ArtifactPosition slotID; //Arts::EPOS enum + backpack starting from Arts::BACKPACK_START
-
-	void lockSlot(bool on);
-	void pickSlot(bool on);
-	void selectSlot(bool on);
-
-	CArtifactsOfHero * ourOwner;
-	const CArtifactInstance * ourArt; // should be changed only with setArtifact()
-
-	CArtPlace(Point position, const CArtifactInstance * Art = nullptr); //c-tor
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState);
-	void select ();
-	void deselect ();
-	void showAll(SDL_Surface * to);
-	bool fitsHere (const CArtifactInstance * art) const; //returns true if given artifact can be placed here
-
-	void setMeAsDest(bool backpackAsVoid = true);
-	void setArtifact(const CArtifactInstance *art);
-};
-
-/// Contains artifacts of hero. Distincts which artifacts are worn or backpacked
-class CArtifactsOfHero : public CIntObject
-{
-	const CGHeroInstance * curHero;
-
-	std::vector<CArtPlace *> artWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
-	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
-	int backpackPos; //number of first art visible in backpack (in hero's vector)
-
-public:
-	struct SCommonPart
-	{
-		struct Artpos
-		{
-			ArtifactPosition slotID;
-			const CArtifactsOfHero *AOH;
-			const CArtifactInstance *art;
-
-			Artpos();
-			void clear();
-			void setTo(const CArtPlace *place, bool dontTakeBackpack);
-			bool valid();
-			bool operator==(const ArtifactLocation &al) const;
-		} src, dst;
-
-		std::set<CArtifactsOfHero *> participants; // Needed to mark slots.
-
-		void reset();
-	} * commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
-
-	bool updateState; // Whether the commonInfo should be updated on setHero or not.
-
-	CAdventureMapButton * leftArtRoll, * rightArtRoll;
-	bool allowedAssembling;
-	std::multiset<const CArtifactInstance*> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be omitted in backpack slots
-	std::function<void(CArtPlace*)> highlightModeCallback; //if set, clicking on art place doesn't pick artifact but highlights the slot and calls this function
-
-	void realizeCurrentTransaction(); //calls callback with parameters stored in commonInfo
-	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
-	void artifactRemoved(const ArtifactLocation &al);
-	void artifactAssembled(const ArtifactLocation &al);
-	void artifactDisassembled(const ArtifactLocation &al);
-	CArtPlace *getArtPlace(int slot);
-
-	void setHero(const CGHeroInstance * hero);
-	const CGHeroInstance *getHero() const;
-	void dispose(); //free resources not needed after closing windows and reset state
-	void scrollBackpack(int dir); //dir==-1 => to left; dir==1 => to right
-
-	void safeRedraw();
-	void markPossibleSlots(const CArtifactInstance* art);
-	void unmarkSlots(bool withRedraw = true); //unmarks slots in all visible AOHs
-	void unmarkLocalSlots(bool withRedraw = true); //unmarks slots in that particular AOH
-	void setSlotData (CArtPlace* artPlace, ArtifactPosition slotID);
-	void updateWornSlots (bool redrawParent = true);
-
-	void updateSlot(ArtifactPosition i);
-	void eraseSlotData (CArtPlace* artPlace, ArtifactPosition slotID);
-
-	CArtifactsOfHero(const Point& position, bool createCommonPart = false);
-	//Alternative constructor, used if custom artifacts positioning required (Kingdom interface)
-	CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector<CArtPlace *> Backpack,
-		CAdventureMapButton *leftScroll, CAdventureMapButton *rightScroll, bool createCommonPart = false);
-	~CArtifactsOfHero(); //d-tor
-	void updateParentWindow();
-	friend class CArtPlace;
 };
 
 class CGarrisonHolder

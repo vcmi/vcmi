@@ -14,6 +14,8 @@ set(client_SRCS
 		battle/CBattleInterfaceClasses.cpp
 		battle/CCreatureAnimation.cpp
 
+		gui/CArtifactHolder.cpp
+		gui/CComponent.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
 		gui/CIntObjectClasses.cpp
