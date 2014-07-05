@@ -871,6 +871,12 @@ void CGArtifact::initObj()
 	blockVisit = true;
 	if(ID == Obj::ARTIFACT)
 	{
+		if (!storedArtifact)
+		{
+			auto a = new CArtifactInstance();
+			cb->gameState()->map->addNewArtifactInstance(a);
+			storedArtifact = a;
+		}
 		if(!storedArtifact->artType)
 			storedArtifact->setType(VLC->arth->artifacts[subID]);
 	}
@@ -963,6 +969,11 @@ void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGWitchHut::initObj()
 {
+	if (allowedAbilities.empty()) //this can happen for RMG. regular maps load abilities from map file
+	{
+		for (int i = 0; i < GameConstants::SKILL_QUANTITY; i++)
+			allowedAbilities.push_back(i);
+	}
 	ability = *RandomGeneratorUtil::nextItem(allowedAbilities, cb->gameState()->getRandomGenerator());
 }
 

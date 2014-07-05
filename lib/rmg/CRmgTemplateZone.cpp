@@ -719,7 +719,21 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		{
 			for (auto treasure : treasures)
 			{
-				placeObject(gen, treasure.second, treasure.first - treasure.second->getVisitableOffset());
+				bool objectFitsHere = true; //temporary workaround
+				int3 visitableOffset = treasure.second->getVisitableOffset();
+				std::set<int3> blockedOffsets = treasure.second->getBlockedOffsets();
+				blockedOffsets.insert (visitableOffset);
+				for (auto blockingTile : blockedOffsets)
+				{
+					int3 t = treasure.first + visitableOffset + blockingTile;
+					if (!gen->map->isInTheMap(t))
+					{
+						objectFitsHere = false; //if at least one tile is not possible, object can't be placed here
+						break;
+					}
+				}
+				if (objectFitsHere)
+					placeObject(gen, treasure.second, treasure.first + visitableOffset);
 			}
 			if (addMonster(gen, guardPos, currentValue))
 			{//block only if the object is guarded
@@ -1368,116 +1382,29 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 
 	ObjectInfo oi;
 
-	static const Res::ERes preciousRes[] = {Res::ERes::CRYSTAL, Res::ERes::GEMS, Res::ERes::MERCURY, Res::ERes::SULFUR};
-	for (int i = 0; i < 4; i++)
-	{
-		oi.generateObject = [i, gen]() -> CGObjectInstance *
-		{
-			auto obj = new CGResource();
-			obj->ID = Obj::RESOURCE;
-			obj->subID = static_cast<si32>(preciousRes[i]);
-			obj->amount = 0;
-			return obj;
-		};
-		oi.value = 1400;
-		oi.probability = 300;
-		possibleObjects.push_back (oi);
-	}
-
-	static const Res::ERes woodOre[] = {Res::ERes::WOOD, Res::ERes::ORE};
-	for (int i = 0; i < 2; i++)
-	{
-		oi.generateObject = [i, gen]() -> CGObjectInstance *
-		{
-			auto obj = new CGResource();
-			obj->ID = Obj::RESOURCE;
-			obj->subID = static_cast<si32>(woodOre[i]);
-			obj->amount = 0;
-			return obj;
-		};
-		oi.value = 1400;
-		oi.probability = 300;
-		possibleObjects.push_back (oi);
-	}
-
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGResource();
-		obj->ID = Obj::RESOURCE;
-		obj->subID = static_cast<si32>(Res::ERes::GOLD);
-		obj->amount = 0;
-		return obj;
-	};
-	oi.value = 750;
-	oi.probability = 300;
-	possibleObjects.push_back (oi);
-
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGPickable();
-		obj->ID = Obj::TREASURE_CHEST;
-		obj->subID = 0;
-		return obj;
-	};
-	oi.value = 1500;
-	oi.probability = 1000;
-	possibleObjects.push_back (oi);
-
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGArtifact();
-		obj->ID = Obj::RANDOM_TREASURE_ART;
-		obj->subID = 0;
-		auto a = new CArtifactInstance();
-		gen->map->addNewArtifactInstance(a);
-		obj->storedArtifact = a;
-		return obj;
-	};
-	oi.value = 2000;
-	oi.probability = 150;
-	possibleObjects.push_back (oi);
-
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGArtifact();
-		obj->ID = Obj::RANDOM_MINOR_ART;
-		obj->subID = 0;
-		auto a = new CArtifactInstance();
-		gen->map->addNewArtifactInstance(a);
-		obj->storedArtifact = a;
-		return obj;
-	};
-	oi.value = 5000;
-	oi.probability = 150;
-	possibleObjects.push_back (oi);
-
-		oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGArtifact();
-		obj->ID = Obj::RANDOM_MAJOR_ART;
-		obj->subID = 0;
-		auto a = new CArtifactInstance();
-		gen->map->addNewArtifactInstance(a);
-		obj->storedArtifact = a;
-		return obj;
-	};
-	oi.value = 10000;
-	oi.probability = 150;
-	possibleObjects.push_back (oi);
-
-	oi.generateObject = [gen]() -> CGObjectInstance *
-	{
-		auto obj = new CGArtifact();
-		obj->ID = Obj::RANDOM_RELIC_ART;
-		obj->subID = 0;
-		auto a = new CArtifactInstance();
-		gen->map->addNewArtifactInstance(a);
-		obj->storedArtifact = a;
-		return obj;
-	};
-	oi.value = 20000;
-	oi.probability = 150;
-	possibleObjects.push_back (oi);
+	for (auto primaryID : VLC->objtypeh->knownObjects()) 
+	{ 
+		for (auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID)) 
+		{ 
+			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID); 
+			if (!handler->isStaticObject() && handler->getRMGInfo().value)
+			{
+				for (auto temp : handler->getTemplates())
+				{
+					if (temp.canBePlacedAt(terrainType))
+					{
+						oi.generateObject = [gen, temp]() -> CGObjectInstance *
+						{
+							return VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
+						};
+						oi.value = handler->getRMGInfo().value;
+						oi.probability = handler->getRMGInfo().rarity;
+						possibleObjects.push_back (oi);
+					}
+				}
+			}
+		} 
+	}	
 
 	static const int scrollValues[] = {500, 2000, 3000, 4000, 5000};
 
@@ -1508,39 +1435,4 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 		oi.probability = 30;
 		possibleObjects.push_back (oi);
 	}
-
-	//non-removable object for test
-	//oi.generateObject = [gen]() -> CGObjectInstance *
-	//{
-	//	auto obj = new CGMagicWell();
-	//	obj->ID = Obj::MAGIC_WELL;
-	//	obj->subID = 0;
-	//	return obj;
-	//};
-	//oi.value = 250;
-	//oi.probability = 100;
-	//possibleObjects.push_back (oi);
-
-	//oi.generateObject = [gen]() -> CGObjectInstance *
-	//{
-	//	auto obj = new CGObelisk();
-	//	obj->ID = Obj::OBELISK;
-	//	obj->subID = 0;
-	//	return obj;
-	//};
-	//oi.value = 3500;
-	//oi.probability = 200;
-	//possibleObjects.push_back (oi);
-
-	//oi.generateObject = [gen]() -> CGObjectInstance *
-	//{
-	//	auto obj = new CBank();
-	//	obj->ID = Obj::CREATURE_BANK;
-	//	obj->subID = 5; //naga bank
-	//	return obj;
-	//};
-	//oi.value = 3000;
-	//oi.probability = 100;
-	//possibleObjects.push_back (oi);
-	
 }
