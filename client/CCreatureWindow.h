@@ -71,6 +71,7 @@ class CStackWindow : public CWindowObject
 
 	CAnimImage * stackArtifactIcon;
 	LRClickableAreaWTextComp * stackArtifactHelp;
+	CAdventureMapButton * stackArtifactButton;
 
 	std::unique_ptr<StackWindowInfo> info;
 	std::vector<BonusInfo> activeBonuses;
@@ -85,6 +86,9 @@ class CStackWindow : public CWindowObject
 
 	CIntObject * createBonusEntry(size_t index);
 	CIntObject * switchTab(size_t index);
+
+	void removeStackArtifact(ArtifactPosition pos);
+	void setStackArtifact(const CArtifactInstance * art, Point artPos);
 
 	void initSections();
 	void initBonusesList();

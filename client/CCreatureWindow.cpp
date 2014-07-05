@@ -171,6 +171,36 @@ std::string CStackWindow::generateStackExpDescription()
 	return expText;
 }
 
+void CStackWindow::removeStackArtifact(ArtifactPosition pos)
+{
+	auto art = info->stackNode->getArt(ArtifactPosition::CREATURE_SLOT);
+	LOCPLINT->cb->swapArtifacts(ArtifactLocation(info->stackNode, pos),
+								ArtifactLocation(info->owner, art->firstBackpackSlot(info->owner)));
+	delete stackArtifactButton;
+	delete stackArtifactHelp;
+	delete stackArtifactIcon;
+}
+
+void CStackWindow::setStackArtifact(const CArtifactInstance * art, Point artPos)
+{
+	if (art)
+	{
+		stackArtifactIcon = new CAnimImage("ARTIFACT", art->artType->iconIndex, 0, pos.x, pos.y);
+		stackArtifactHelp = new LRClickableAreaWTextComp(Rect(artPos, Point(44, 44)), CComponent::artifact);
+		stackArtifactHelp->type = art->artType->id;
+
+		const JsonNode & text = VLC->generaltexth->localizedTexts["creatureWindow"]["returnArtifact"];
+
+		if (info->owner)
+		{
+			stackArtifactButton = new CAdventureMapButton(text["label"].String(), text["help"].String(),[=]{
+				removeStackArtifact(ArtifactPosition::CREATURE_SLOT);
+			}, artPos.x - 2 , artPos.y + 46, "stackWindow/cancelButton");
+		}
+	}
+
+}
+
 void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -226,31 +256,10 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 	auto luck = new MoraleLuckBox(false, genRect(42, 42, 375, 110));
 	luck->set(parent->info->stackNode);
 
-	//TODO: TEST
-	//TODO: delete "pass artifact" button on removal
-	//TODO: refactor into give art / take art methods
 	if (showArt)
 	{
-		const CStackInstance * stack = parent->info->stackNode;
-		if (stack->getArt(ArtifactPosition::CREATURE_SLOT))
-		{
-			auto art = stack->getArt(ArtifactPosition::CREATURE_SLOT);
-
-			Point pos = showExp ? Point(375, 32) : Point(347, 32);
-			parent->stackArtifactIcon = new CAnimImage("ARTIFACT", art->artType->iconIndex, 0, pos.x, pos.y);
-			parent->stackArtifactHelp = new LRClickableAreaWTextComp(Rect(pos, Point(44, 44)), CComponent::artifact);
-			parent->stackArtifactHelp->type = art->artType->id;
-
-			const JsonNode & text = VLC->generaltexth->localizedTexts["creatureWindow"]["returnArtifact"];
-
-			if (parent->info->owner)
-			{
-				new CAdventureMapButton(text["label"].String(), text["help"].String(),[=]{
-					LOCPLINT->cb->swapArtifacts(ArtifactLocation(stack, ArtifactPosition::CREATURE_SLOT),
-												ArtifactLocation(parent->info->owner, art->firstBackpackSlot(parent->info->owner)));
-				}, pos.x - 2 , pos.y + 46, "stackWindow/cancelButton");
-			}
-		}
+		Point pos = showExp ? Point(375, 32) : Point(347, 32);
+		parent->setStackArtifact(parent->info->stackNode->getArt(ArtifactPosition::CREATURE_SLOT), pos);
 	}
 
 	if (showExp)
@@ -404,7 +413,6 @@ void CStackWindow::CWindowSection::createCommander()
 			};
 		}
 	}
-
 	//TODO: commander artifacts
 }
 
@@ -758,6 +766,7 @@ void CStackWindow::init()
 {
 	stackArtifactHelp = nullptr;
 	stackArtifactIcon = nullptr;
+	stackArtifactButton = nullptr;
 
 	selectedIcon = nullptr;
 	selectedSkill = 0;
