@@ -7,6 +7,10 @@
 			{
 				"index" : 0,
 				"name" : "Cyclops Stockpile",
+				"rmg" : {
+					"value"		: 3000,
+					"rarity"	: 100
+				},
 				"levels": [
 					{
 						"chance": 30,
@@ -17,7 +21,7 @@
 							{ "amount": 4, "type": "cyclop" },
 							{ "amount": 4, "type": "cyclop" }
 						],
-						
+
 						"combat_value": 506,
 						"reward" : {
 							"value": 10000,
@@ -108,6 +112,10 @@
 				"index" : 1,
 				"resetDuraition" : 28,
 				"name" : "Dwarven Treasury",
+				"rmg" : {
+					"value"		: 2000,
+					"rarity"	: 100
+				},
 				"levels": [
 					{
 						"chance": 30,
@@ -191,6 +199,10 @@
 				"index" : 2,
 				"resetDuraition" : 28,
 				"name" : "Griffin Conservatory",
+				"rmg" : {
+					"value"		: 2000,
+					"rarity"	: 100
+				},
 				"levels": [
 					{
 						"chance": 30,
@@ -258,6 +270,10 @@
 				"index" : 3,
 				"resetDuraition" : 28,
 				"name" : "Imp Cache",
+				"rmg" : {
+					"value"		: 5000,
+					"rarity"	: 100
+				},
 				"levels": [
 					{
 						"chance": 30,
@@ -340,6 +356,10 @@
 				"index" : 4,
 				"resetDuraition" : 28,
 				"name" : "Medusa Stores",
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 100
+				},
 				"levels": [
 					{
 						"chance": 30,
@@ -423,6 +443,10 @@
 				"index" : 5,
 				"resetDuraition" : 28,
 				"name" : "Naga Bank",
+				"rmg" : {
+					"value"		: 3000,
+					"rarity"	: 100
+				},
 				"levels": [
 					{
 						"chance": 30,
@@ -506,6 +530,10 @@
 				"index" : 6,
 				"resetDuraition" : 28,
 				"name" : "Dragon Fly Hive",
+				"rmg" : {
+					"value"		: 9000,
+					"rarity"	: 100
+				},
 				"levels": [
 					{
 						"chance": 30,
@@ -579,6 +607,10 @@
 				"index" : 0,
 				"resetDuraition" : 28,
 				"name" : "Shipwreck",
+				"rmg" : {
+					"value"		: 2000,
+					"rarity"	: 100
+				},
 				"levels": [
 					{
 						"chance": 30,
@@ -666,6 +698,10 @@
 				"index" : 0,
 				"resetDuraition" : 28,
 				"name" : "Derelict Ship",
+				"rmg" : {
+					"value"		: 4000,
+					"rarity"	: 20
+				},
 				"levels": [
 					{
 						"chance": 30,
@@ -754,6 +790,10 @@
 				"index" : 0,
 				"resetDuraition" : 28,
 				"name" : "Crypt",
+				"rmg" : {
+					"value"		: 1000,
+					"rarity"	: 100
+				},
 				"levels": [
 					{
 						"chance": 30,
@@ -839,6 +879,10 @@
 				"index" : 0,
 				"resetDuraition" : 28,
 				"name" : "Dragon Utopia",
+				"rmg" : {
+					"value"		: 10000,
+					"rarity"	: 100
+				},
 				"levels": [
 					{
 						"chance": 30,
@@ -944,6 +988,10 @@
 				"index" : 0,
 				"resetDuraition" : 28,
 				"name" : "Pyramid",
+				"rmg" : {
+					"value"		: 5000,
+					"rarity"	: 20
+				},
 				"levels": [
 					{
 						"chance": 100,

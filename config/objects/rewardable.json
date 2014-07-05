@@ -1,51 +1,495 @@
 {
 	/// These are objects that covered by concept of "configurable object"
 	/// Most or even all of their configuration located in this file
-	"magicSpring"					: { "index" :48, "handler": "magicSpring", "types" : { "object" : { "index" : 0} } },
-
-	"mysticalGarden"				: { "index" :55, "handler": "oncePerWeek", "types" : { "object" : { "index" : 0} } },
-	"windmill"						: { "index" :112, "handler": "oncePerWeek", "types" : { "object" : { "index" : 0} } },
-	"waterWheel"					: { "index" :109, "handler": "oncePerWeek", "types" : { "object" : { "index" : 0} } },
-	
-	"leanTo"						: { "index" :39, "handler": "onceVisitable", "types" : { "object" : { "index" : 0} } },
-	"corpse"						: { "index" :22, "handler": "onceVisitable", "types" : { "object" : { "index" : 0} } },
-	"wagon"							: { "index" :105, "handler": "onceVisitable", "types" : { "object" : { "index" : 0} } },
-	"warriorTomb"					: { "index" :108, "handler": "onceVisitable", "types" : { "object" : { "index" : 0} } },
-
-	"campfire"						: { "index" :12, "handler": "pickable", "types" : { "object" : { "index" : 0} } },
-	"flotsam"						: { "index" :29, "handler": "pickable", "types" : { "object" : { "index" : 0} } },
-	"seaChest"						: { "index" :82, "handler": "pickable", "types" : { "object" : { "index" : 0} } },
-	"shipwreckSurvivor"				: { "index" :86, "handler": "pickable", "types" : { "object" : { "index" : 0} } },
-	"treasureChest"					: { "index" :101, "handler": "pickable", "types" : { "object" : { "index" : 0} } },
-
-	"arena"							: { "index" :4,  "handler": "oncePerHero", "types" : { "object" : { "index" : 0} } },
-	"marlettoTower"					: { "index" :23, "handler": "oncePerHero", "types" : { "object" : { "index" : 0} } },
-	"gardenOfRevelation"			: { "index" :32, "handler": "oncePerHero", "types" : { "object" : { "index" : 0} } },
-	"libraryOfEnlightenment"		: { "index" :41, "handler": "oncePerHero", "types" : { "object" : { "index" : 0} } },
-	"mercenaryCamp"					: { "index" :51, "handler": "oncePerHero", "types" : { "object" : { "index" : 0} } },
-	"starAxis"						: { "index" :61, "handler": "oncePerHero", "types" : { "object" : { "index" : 0} } },
-	"treeOfKnowledge"				: { "index" :102, "handler": "oncePerHero", "types" : { "object" : { "index" : 0} } },
-	"schoolOfMagic"					: { "index" :47, "handler": "oncePerHero", "types" : { "object" : { "index" : 0} } },
-	"schoolOfWar"					: { "index" :107, "handler": "oncePerHero", "types" : { "object" : { "index" : 0} } },
-	"learningStone" : {
-		"index" :100,
-		"handler": "oncePerHero",
+	"magicSpring" : {//magic source
+		"index" : 48,
+		"handler": "magicSpring",
 		"types" : {
-			"object" : { "index" : 0},
-			"objectWoG" : { "index" : 1} // WoG object? Present on VCMI_Tests 2011
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"mapLimit"	: 32,
+					"value"		: 500,
+					"rarity"	: 50
+				}
+			}
 		}
 	},
 
-	"buoy"							: { "index" :11, "handler": "bonusingObject", "types" : { "object" : { "index" : 0} } },
-	"swanPond"						: { "index" :14, "handler": "bonusingObject", "types" : { "object" : { "index" : 0} } },
-	"faerieRing"					: { "index" :28, "handler": "bonusingObject", "types" : { "object" : { "index" : 0} } },
-	"fountainOfFortune"				: { "index" :30, "handler": "bonusingObject", "types" : { "object" : { "index" : 0} } },
-	"fountainOfYouth"				: { "index" :31, "handler": "bonusingObject", "types" : { "object" : { "index" : 0} } },
-	"idolOfFortune"					: { "index" :38, "handler": "bonusingObject", "types" : { "object" : { "index" : 0} } },
-	"mermaids"						: { "index" :52, "handler": "bonusingObject", "types" : { "object" : { "index" : 0} } },
-	"oasis"							: { "index" :56, "handler": "bonusingObject", "types" : { "object" : { "index" : 0} } },
-	"stables"						: { "index" :94, "handler": "bonusingObject", "types" : { "object" : { "index" : 0} } },
-	"temple"						: { "index" :96, "handler": "bonusingObject", "types" : { "object" : { "index" : 0} } },
-	"rallyFlag"						: { "index" :64, "handler": "bonusingObject", "types" : { "object" : { "index" : 0} } },
-	"wateringHole"					: { "index" :110, "handler": "bonusingObject", "types" : { "object" : { "index" : 0} } }
+	"mysticalGarden" : {
+		"index" : 55,
+		"handler": "oncePerWeek",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 500,
+					"rarity"	: 50
+				}
+			}
+		}
+	},
+	"windmill" :{
+		"index" : 112,
+		"handler": "oncePerWeek",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 1500,
+					"rarity"	: 80
+				}
+			}
+		}
+	},
+	"waterWheel" : {
+		"index" : 109,
+		"handler": "oncePerWeek",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 750,
+					"rarity"	: 50
+				}
+			}
+		}
+	},
+	
+	"leanTo" :{
+		"index" : 39,
+		"handler": "onceVisitable",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 500,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"corpse" :{
+		"index" : 22,
+		"handler": "onceVisitable",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 500,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"wagon" :{
+		"index" : 105,
+		"handler": "onceVisitable",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 500,
+					"rarity"	: 50
+				}
+			}
+		}
+	},
+	"warriorTomb" : {
+		"index" : 108,
+		"handler": "onceVisitable",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 6000,
+					"rarity"	: 20
+				}
+			}
+		}
+	},
+
+	"campfire" :{
+		"index" : 12,
+		"handler": "pickable",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 2000,
+					"rarity"	: 500
+				}
+			}
+		}
+	},
+	"flotsam" :{
+		"index" : 29,
+		"handler": "pickable",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 2000,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"seaChest" :{
+		"index" : 82,
+		"handler": "pickable",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 500
+				}
+			}
+		}
+	},
+	"shipwreckSurvivor" : {
+		"index" : 86,
+		"handler": "pickable",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 50
+				}
+			}
+		}
+	},
+	"treasureChest" : {
+		"index" : 101,
+		"handler": "pickable",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 1000
+				}
+			}
+		}
+	},
+
+	"arena" : {
+		"index" : 4,
+		"handler": "oncePerHero",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 3000,
+					"rarity"	: 50
+				}
+			}
+		}
+	},
+	"marlettoTower" : {
+		"index" : 23,
+		"handler": "oncePerHero",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 1500,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"gardenOfRevelation" : {
+		"index" : 32,
+		"handler": "oncePerHero",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 1500,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"libraryOfEnlightenment" : {
+		"index" : 41,
+		"handler": "oncePerHero",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 12000,
+					"rarity"	: 20
+				}
+			}
+		}
+	},
+	"mercenaryCamp" : {
+		"index" : 51,
+		"handler": "oncePerHero",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 1500,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"starAxis" :{
+		"index" : 61,
+		"handler": "oncePerHero",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 1500,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"treeOfKnowledge" : {
+		"index" : 102,
+		"handler": "oncePerHero",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 2500,
+					"rarity"	: 50
+				}
+			}
+		}
+	},
+	"schoolOfMagic" : {
+		"index" : 47,
+		"handler": "oncePerHero",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 1000,
+					"rarity"	: 50
+				}
+			}
+		}
+	},
+	"schoolOfWar" : {
+		"index" : 107,
+		"handler": "oncePerHero",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 1000,
+					"rarity"	: 50
+				}
+			}
+		}
+	},
+	"learningStone" : {
+		"index" : 100,
+		"handler": "oncePerHero",
+		"types" : {
+			"object" : { 
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 1500,
+					"rarity"	: 200
+				} 
+			},
+			"objectWoG" : { "index" : 1 } // WoG object? Present on VCMI_Tests 2011
+		}
+	},
+
+	"buoy" : {
+		"index" : 11,
+		"handler": "bonusingObject",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 100,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"swanPond" : {
+		"index" : 14,
+		"handler": "bonusingObject",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"faerieRing" : {
+		"index" : 28,
+		"handler": "bonusingObject",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"fountainOfFortune" : {
+		"index" : 30,
+		"handler": "bonusingObject",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"fountainOfYouth" : {
+		"index" : 31,
+		"handler": "bonusingObject",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 50
+				}
+			}
+		}
+	},
+	"idolOfFortune" : {
+		"index" : 38,
+		"handler": "bonusingObject",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"mermaids" : {
+		"index" : 52,
+		"handler": "bonusingObject",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 100,
+					"rarity"	: 20
+				}
+			}
+		}
+	},
+	"oasis" : {
+		"index" : 56,
+		"handler": "bonusingObject",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 50
+				}
+			}
+		}
+	},
+	"stables" : {
+		"index" : 94,
+		"handler": "bonusingObject",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 200,
+					"rarity"	: 40
+				}
+			}
+		}
+	},
+	"temple" : {
+		"index" : 96,
+		"handler": "bonusingObject",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"rallyFlag" : {
+		"index" : 64,
+		"handler": "bonusingObject",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"wateringHole" : {//waters
+		"index" : 110,
+		"handler": "bonusingObject",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 500,
+					"rarity"	: 50
+				}
+			} 
+		}
+	}
 }
