@@ -19,12 +19,14 @@
 #include "../CCreatureHandler.h"
 #include "../CSpellHandler.h" //for choosing random spells
 
-#include "../mapObjects/CObjectClassesHandler.h"
+#include "../mapObjects/CommonConstructors.h"
+#include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CRewardableObject.h"
 
 class CMap;
 class CMapEditManager;
+//class CGObjectInstance;
 
 CRmgTemplateZone::CTownInfo::CTownInfo() : townCount(0), castleCount(0), townDensity(0), castleDensity(0)
 {
@@ -1049,9 +1051,9 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
 {
-	addAllPossibleObjects (gen);
 	initTownType(gen);
 	initTerrainType(gen);
+	addAllPossibleObjects (gen);
 	placeMines(gen);
 	createRequiredObjects(gen);
 	fractalize(gen); //after required objects are created and linked with their own paths
@@ -1404,7 +1406,40 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 				}
 			}
 		} 
-	}	
+	}
+
+	//dwellings
+
+	for (auto secondaryID : VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1))
+	{
+		auto dwellingHandler = dynamic_cast<const CDwellingInstanceConstructor*>(VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, secondaryID).get());
+		auto creatures = dwellingHandler->getProducedCreatures();
+		if (creatures.empty())
+			continue;
+
+		auto cre = creatures.front();
+		if (cre->faction == townType)
+		{
+			oi.value = cre->AIValue * cre->growth * (1 + 0.5f); //TODO: include town count in formula
+			oi.probability = 40;
+
+			for (auto temp : dwellingHandler->getTemplates())
+			{
+				if (temp.canBePlacedAt(terrainType))
+				{
+					oi.generateObject = [gen, temp, secondaryID, dwellingHandler]() -> CGObjectInstance *
+					{
+						auto obj = VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, secondaryID)->create(temp);
+						//dwellingHandler->configureObject(obj, gen->rand);
+						obj->tempOwner = PlayerColor::NEUTRAL;
+						return obj;
+					};
+
+					possibleObjects.push_back (oi);
+				}
+			}
+		}
+	}
 
 	static const int scrollValues[] = {500, 2000, 3000, 4000, 5000};
 
