@@ -1799,7 +1799,7 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 CMinorResDataBar::CMinorResDataBar()
 {
 	bg = BitmapHandler::loadBitmap("KRESBAR.bmp");
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	CSDL_Ext::setDefaultColorKey(bg);	
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos.x = 7;
 	pos.y = 575;
@@ -3946,8 +3946,8 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		{
 			if(enteredText.size() > 1)
 			{
-				enteredText.resize(enteredText.size()-1);
-				enteredText[enteredText.size()-1] = '_';
+				Unicode::trimRight(enteredText,2);				
+				enteredText += '_';
 				refreshEnteredText();
 			}
 			break;
@@ -3989,6 +3989,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		}
 	default:
 		{
+			#ifdef VCMI_SDL1
 			if(enteredText.size() > 0 && enteredText.size() < conf.go()->ac.inputLineLength)
 			{
 				if( key.keysym.unicode < 0x80 && key.keysym.unicode > 0 )
@@ -3998,13 +3999,37 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 					refreshEnteredText();
 				}
 			}
+			#endif // VCMI_SDL1
 			break;
 		}
 	}
 }
 
+#ifndef VCMI_SDL1
+
+void CInGameConsole::textInputed(const SDL_TextInputEvent & event)
+{
+	if(!captureAllKeys || enteredText.size() == 0)
+		return;
+	enteredText.resize(enteredText.size()-1);
+	
+	enteredText += event.text;
+	enteredText += "_";	
+	
+	refreshEnteredText();			
+}
+
+void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
+{
+ //do nothing here
+}
+
+#endif // VCMI_SDL1
+
 void CInGameConsole::startEnteringText()
 {
+	CSDL_Ext::startTextInput(&pos);
+
 	enteredText = "_";
 	if(GH.topInt() == adventureInt)
 	{
@@ -4022,6 +4047,8 @@ void CInGameConsole::startEnteringText()
 
 void CInGameConsole::endEnteringText(bool printEnteredText)
 {
+	CSDL_Ext::stopTextInput();
+	
 	prevEntDisp = -1;
 	if(printEnteredText)
 	{
@@ -4060,7 +4087,11 @@ void CInGameConsole::refreshEnteredText()
 
 CInGameConsole::CInGameConsole() : prevEntDisp(-1), defaultTimeout(10000), maxDisplayedTexts(10)
 {
+	#ifdef VCMI_SDL1
 	addUsedEvents(KEYBOARD);
+	#else
+	addUsedEvents(KEYBOARD | TEXTINPUT);
+	#endif
 }
 
 CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits ):
@@ -5341,6 +5372,9 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 			piecesToRemove.push_back(piece);
 			piece->needRefresh = true;
 			piece->recActions = piece->recActions & ~SHOWALL;
+			#ifndef VCMI_SDL1
+			SDL_SetSurfaceBlendMode(piece->bg,SDL_BLENDMODE_BLEND);
+			#endif // VCMI_SDL1
 		}
 	}
 }

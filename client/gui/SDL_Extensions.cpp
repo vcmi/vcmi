@@ -7,11 +7,28 @@
 #include "../CMessage.h"
 #include "../CDefHandler.h"
 #include "../Graphics.h"
+#include "../CMT.h"
 
 const SDL_Color Colors::YELLOW = { 229, 215, 123, 0 };
 const SDL_Color Colors::WHITE = { 255, 243, 222, 0 };
 const SDL_Color Colors::METALLIC_GOLD = { 173, 142, 66, 0 };
 const SDL_Color Colors::GREEN = { 0, 255, 0, 0 };
+const SDL_Color Colors::DEFAULT_KEY_COLOR = {0, 255, 255, 0};
+
+#if (SDL_MAJOR_VERSION == 2)
+void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
+{
+	Rect rect(x,y,w,h);
+	if(0 !=SDL_UpdateTexture(screenTexture, &rect, surface->pixels, surface->pitch))
+		logGlobal->errorStream() << __FUNCTION__ << "SDL_UpdateTexture " << SDL_GetError();
+
+	SDL_RenderClear(mainRenderer);
+	if(0 != SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL))
+		logGlobal->errorStream() << __FUNCTION__ << "SDL_RenderCopy " <<  SDL_GetError();
+	SDL_RenderPresent(mainRenderer);	
+	
+}
+#endif // VCMI_SDL1
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
@@ -444,7 +461,11 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * sr
 				for(int x = w; x; x--)
 				{
 					const SDL_Color &tbc = colors[*color++]; //color to blit
+					#ifdef VCMI_SDL1
 					ColorPutter<bpp, +1>::PutColorAlphaSwitch(p, tbc.r, tbc.g, tbc.b, tbc.unused);
+					#else
+					ColorPutter<bpp, +1>::PutColorAlphaSwitch(p, tbc.r, tbc.g, tbc.b, tbc.a);
+					#endif // 0					
 				}
 			}
 			SDL_UnlockSurface(dst);
@@ -469,7 +490,11 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * src
 Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
 {
 	Uint32 ret = 0;
+	#ifdef VCMI_SDL1
 	ret+=color->unused;
+	#else
+	ret+=color->a;
+	#endif // 0	
 	ret<<=8; //*=256
 	ret+=color->b;
 	ret<<=8; //*=256
@@ -481,8 +506,15 @@ Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
 
 void CSDL_Ext::update(SDL_Surface * what)
 {
+	#ifdef VCMI_SDL1
 	if(what)
-		SDL_UpdateRect(what, 0, 0, what->w, what->h);
+		SDL_UpdateRect(what, 0, 0, what->w, what->h);	
+	#else
+	if(!what)
+		return;
+	if(0 !=SDL_UpdateTexture(screenTexture, nullptr, what->pixels, what->pitch))
+		logGlobal->errorStream() << __FUNCTION__ << "SDL_UpdateTexture " << SDL_GetError();		
+	#endif // VCMI_SDL1
 }
 void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color)
 {
@@ -601,14 +633,22 @@ bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
 		return true;
 
 	SDL_Color color;
-
+	
+	#ifdef VCMI_SDL1
 	SDL_GetRGBA(SDL_GetPixel(srf, x, y), srf->format, &color.r, &color.g, &color.b, &color.unused);
+	#else
+	SDL_GetRGBA(SDL_GetPixel(srf, x, y), srf->format, &color.r, &color.g, &color.b, &color.a);
+	#endif // 0	
 
 	// color is considered transparent here if
 	// a) image has aplha: less than 50% transparency
 	// b) no alpha: color is cyan
 	if (srf->format->Amask)
+	#ifdef VCMI_SDL1
 		return color.unused < 128; // almost transparent
+	#else
+		return color.a < 128; // almost transparent
+	#endif // 0				
 	else
 		return (color.r == 0 && color.g == 255 && color.b == 255);
 }
@@ -915,6 +955,12 @@ void CSDL_Ext::fillRect( SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color )
 	SDL_FillRect(dst, &newRect, color);
 }
 
+void CSDL_Ext::fillRectBlack( SDL_Surface *dst, SDL_Rect *dstrect)
+{
+	const Uint32 black = SDL_MapRGB(dst->format,0,0,0);
+	fillRect(dst,dstrect,black);
+}
+
 void CSDL_Ext::fillTexture(SDL_Surface *dst, SDL_Surface * src)
 {
 	SDL_Rect srcRect;
@@ -940,6 +986,59 @@ SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
 	SDL_Color ret = {r, g, b, a};
 	return ret;
 }
+
+void CSDL_Ext::startTextInput(SDL_Rect * where)
+{
+	#ifndef VCMI_SDL1
+	if (SDL_IsTextInputActive() == SDL_FALSE)		
+	{		
+		SDL_StartTextInput();		
+	}		
+	SDL_SetTextInputRect(where);
+	#endif
+}
+
+void CSDL_Ext::stopTextInput()
+{
+	#ifndef VCMI_SDL1
+	if (SDL_IsTextInputActive() == SDL_TRUE)
+	{		
+		SDL_StopTextInput();			
+	}		
+	#endif	
+}
+
+STRONG_INLINE static uint32_t mapColor(SDL_Surface * surface, SDL_Color color)
+{
+	#ifdef VCMI_SDL1
+	return SDL_MapRGB(surface->format, color.r, color.g, color.b); 
+	#else
+	return SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a); 
+	#endif		
+}
+
+void CSDL_Ext::setColorKey(SDL_Surface * surface, SDL_Color color)
+{
+	uint32_t key = mapColor(surface,color);
+	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, key);	
+}
+
+void CSDL_Ext::setDefaultColorKey(SDL_Surface * surface)
+{	
+	setColorKey(surface, Colors::DEFAULT_KEY_COLOR);
+}
+
+void CSDL_Ext::setDefaultColorKeyPresize(SDL_Surface * surface)
+{
+	uint32_t key = mapColor(surface,Colors::DEFAULT_KEY_COLOR);
+	auto & color = surface->format->palette->colors[key];
+
+	// set color key only if exactly such color was found
+	if (color.r == Colors::DEFAULT_KEY_COLOR.r && color.g == Colors::DEFAULT_KEY_COLOR.g && color.b == Colors::DEFAULT_KEY_COLOR.b)
+		SDL_SetColorKey(surface, SDL_SRCCOLORKEY, key);	
+}
+
+
 
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<2>(int, int);
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<3>(int, int);

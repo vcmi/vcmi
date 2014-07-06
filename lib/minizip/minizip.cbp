@@ -6,7 +6,7 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="Debug">
+			<Target title="Debug-win32-SDL2">
 				<Option platforms="Windows;" />
 				<Option output="../../minizip" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
@@ -19,7 +19,37 @@
 					<Add option="-DBUILD_DLL" />
 				</Compiler>
 			</Target>
-			<Target title="Release">
+			<Target title="Release-win32-SDL2">
+				<Option platforms="Windows;" />
+				<Option output="../../minizip" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="-DBUILD_DLL" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="Debug-win32-SDL1">
+				<Option platforms="Windows;" />
+				<Option output="../../minizip" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-DBUILD_DLL" />
+				</Compiler>
+			</Target>
+			<Target title="Release-win32-SDL1">
+				<Option platforms="Windows;" />
 				<Option output="../../minizip" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="3" />
@@ -36,11 +66,11 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add directory="$(#sdl.include)" />
+			<Add directory="$(#zlib.include)" />
 		</Compiler>
 		<Linker>
-			<Add option="-lzlib" />
-			<Add directory="$(#sdl.lib)" />
+			<Add option="-lz" />
+			<Add directory="$(#zlib.lib)" />
 		</Linker>
 		<Unit filename="ioapi.c">
 			<Option compilerVar="CC" />
