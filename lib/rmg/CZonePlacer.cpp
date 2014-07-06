@@ -62,12 +62,30 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 
 		prescaler = sqrt((WH)/(sum(n^2)*pi))
 	*/
+	std::vector<std::pair<TRmgTemplateZoneId, CRmgTemplateZone*>> zonesVector (zones.begin(), zones.end());
+	assert (zonesVector.size());
+	
+	RandomGeneratorUtil::randomShuffle(zonesVector, *rand);
+	TRmgTemplateZoneId firstZone = zones.begin()->first; //we want lowest ID here
+	bool undergroundFlag = false;
+
 	float totalSize = 0;
-	for (auto zone : zones)
+	for (auto zone : zonesVector)
 	{
+		//even distribution for surface / underground zones. Surface zones always have priority.
 		int level = 0;
-		if (underground)
-			level = rand->nextInt(0, 1);
+		if (underground) //only then consider underground zones
+		{
+			if (zone.first == firstZone)
+			{
+				level = 0;
+			}
+			else
+			{
+				level = undergroundFlag;
+				undergroundFlag = !undergroundFlag; //toggle underground on/off
+			}
+		}
 
 		totalSize += (zone.second->getSize() * zone.second->getSize());
 		zone.second->setCenter (float3(rand->nextDouble(0.2, 0.8), rand->nextDouble(0.2, 0.8), level)); //start away from borders
