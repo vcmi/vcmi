@@ -86,6 +86,9 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "ava0128.def", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				}
 				"rmg" : {
 				}
 			}

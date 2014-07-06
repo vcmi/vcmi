@@ -1435,4 +1435,176 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 		oi.probability = 30;
 		possibleObjects.push_back (oi);
 	}
+
+	//pandora box with gold
+	for (int i = 1; i < 5; i++)
+	{
+		oi.generateObject = [i]() -> CGObjectInstance *
+		{
+			auto obj = new CGPandoraBox();
+			obj->ID = Obj::PANDORAS_BOX;
+			obj->subID = 0;
+			obj->resources[Res::GOLD] = i * 5000;
+			return obj;
+		};
+		oi.value = i * 5000;;
+		oi.probability = 5;
+		possibleObjects.push_back (oi);
+	}
+
+	//pandora box with experience
+	for (int i = 1; i < 5; i++)
+	{
+		oi.generateObject = [i]() -> CGObjectInstance *
+		{
+			auto obj = new CGPandoraBox();
+			obj->ID = Obj::PANDORAS_BOX;
+			obj->subID = 0;
+			obj->gainedExp = i * 5000;
+			return obj;
+		};
+		oi.value = i * 6000;;
+		oi.probability = 20;
+		possibleObjects.push_back (oi);
+	}
+
+	//pandora box with creatures
+	static const int tierValues[] = {5000, 7000, 9000, 12000, 16000, 21000, 27000};
+
+	for (auto creature : VLC->creh->creatures)
+	{
+		if (!creature->special && VLC->townh->factions[creature->faction]->nativeTerrain == terrainType)
+		{
+			int actualTier = creature->level > 7 ? 6 : creature->level-1;
+			int creaturesAmount = tierValues[actualTier] / creature->AIValue;
+			if (creaturesAmount <= 5)
+			{
+			}
+			else if (creaturesAmount <= 12)
+			{
+				(creaturesAmount /= 2) *= 2;
+			}
+			else if (creaturesAmount <= 50)
+			{
+				creaturesAmount = boost::math::round((float)creaturesAmount / 5) * 5;
+			}
+			else if (creaturesAmount <= 12)
+			{
+				creaturesAmount = boost::math::round((float)creaturesAmount / 10) * 10;
+			}
+
+			oi.generateObject = [creature, creaturesAmount]() -> CGObjectInstance *
+			{
+				auto obj = new CGPandoraBox();
+				obj->ID = Obj::PANDORAS_BOX;
+				obj->subID = 0;
+				auto stack = new CStackInstance(creature, creaturesAmount);
+				obj->creatures.putStack(SlotID(0), stack);
+				return obj;
+			};
+			oi.value = (2 * (creature->AIValue) * creaturesAmount * (1 + 1) - 4000)/3; //TODO: count number of towns on the map
+			oi.probability = 3;
+			possibleObjects.push_back (oi);
+		}
+	}
+
+	//Pandora with 12 spells of certain level
+	for (int i = 1; i <= GameConstants::SPELL_LEVELS; i++)
+	{
+		oi.generateObject = [i, gen]() -> CGObjectInstance *
+		{
+			auto obj = new CGPandoraBox();
+			obj->ID = Obj::PANDORAS_BOX;
+			obj->subID = 0;
+
+			std::vector <CSpell *> spells;
+			for (auto spell : VLC->spellh->objects)
+			{
+				if (!spell->isSpecialSpell() && spell->level == i)
+					spells.push_back(spell);
+			}
+
+			RandomGeneratorUtil::randomShuffle(spells, gen->rand);
+			for (int j = 0; j < std::min<int>(12, spells.size()); j++)
+			{
+				obj->spells.push_back (spells[j]->id);
+			}
+
+			return obj;
+		};
+		oi.value = (i + 1) * 2500; //5000 - 15000
+		oi.probability = 2;
+		possibleObjects.push_back (oi);
+	}
+
+	//Pandora with 15 spells of certain school
+	for (int i = 1; i <= 4; i++)
+	{
+		oi.generateObject = [i, gen]() -> CGObjectInstance *
+		{
+			auto obj = new CGPandoraBox();
+			obj->ID = Obj::PANDORAS_BOX;
+			obj->subID = 0;
+
+			std::vector <CSpell *> spells;
+			for (auto spell : VLC->spellh->objects)
+			{
+				if (!spell->isSpecialSpell())
+				{
+					bool school = false; //TODO: we could have better interface for iterating schools
+					switch (i)
+					{
+						case 1:
+							school = spell->air;
+						case 2:
+							school = spell->earth;
+						case 3:
+							school = spell->fire;
+						case 4:
+							school = spell->water;
+					}
+					if (school)
+						spells.push_back(spell);
+				}
+			}
+
+			RandomGeneratorUtil::randomShuffle(spells, gen->rand);
+			for (int j = 0; j < std::min<int>(15, spells.size()); j++)
+			{
+				obj->spells.push_back (spells[j]->id);
+			}
+
+			return obj;
+		};
+		oi.value = 15000;
+		oi.probability = 2;
+		possibleObjects.push_back (oi);
+	}
+
+	// Pandora box with 60 random spells
+
+	oi.generateObject = [gen]() -> CGObjectInstance *
+	{
+		auto obj = new CGPandoraBox();
+		obj->ID = Obj::PANDORAS_BOX;
+		obj->subID = 0;
+
+		std::vector <CSpell *> spells;
+		for (auto spell : VLC->spellh->objects)
+		{
+			if (!spell->isSpecialSpell())
+				spells.push_back(spell);
+		}
+
+		RandomGeneratorUtil::randomShuffle(spells, gen->rand);
+		for (int j = 0; j < std::min<int>(60, spells.size()); j++)
+		{
+			obj->spells.push_back (spells[j]->id);
+		}
+
+		return obj;
+	};
+	oi.value = 3000;
+	oi.probability = 2;
+	possibleObjects.push_back (oi);
 }
