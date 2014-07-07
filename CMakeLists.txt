@@ -58,7 +58,6 @@ find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread lo
 find_package(ZLIB REQUIRED)
 
 if (ENABLE_SDL2)
-	include (FindPkgConfig)
 	find_package(SDL2 REQUIRED)
 	find_package(SDL2_image REQUIRED)
 	find_package(SDL2_mixer REQUIRED)
