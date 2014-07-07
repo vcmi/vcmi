@@ -266,7 +266,7 @@ void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
 		//TODO: similiar for islands
 		if (zone.second->getPos().z)
 		{
-			zone.second->discardDistantTiles(gen, zone.second->getSize());
+			zone.second->discardDistantTiles(gen, zone.second->getSize() + 1);
 
 			//make sure that terrain inside zone is not a rock
 			//FIXME: reorder actions?
