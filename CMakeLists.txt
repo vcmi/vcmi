@@ -127,9 +127,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support suc
 endif()
 
 if(WIN32) # on Win everything goes into H3 root directory
-	set(BIN_DIR "" CACHE STRING "Where to install binaries")
-	set(LIB_DIR "" CACHE STRING "Where to install main library")
-	set(DATA_DIR "" CACHE STRING "Where to install data files")
+	set(BIN_DIR "." CACHE STRING "Where to install binaries")
+	set(LIB_DIR "." CACHE STRING "Where to install main library")
+	set(DATA_DIR "." CACHE STRING "Where to install data files")
 elseif(APPLE)
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
