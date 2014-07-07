@@ -78,9 +78,14 @@ public:
 	void setNearestObjectDistance(int3 &tile, int value);
 
 	int getNextMonlithIndex();
+	void registerZone (TFaction faction);
+	ui32 getZoneCount(TFaction faction);
+	ui32 getTotalZoneCount() const;
 
 private:
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> zones;
+	std::map<TFaction, ui32> zonesPerFaction;
+	ui32 zonesTotal; //zones that have their main town only
 
 	CTileInfo*** tiles;
 

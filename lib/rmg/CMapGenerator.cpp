@@ -25,7 +25,7 @@ void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& 
 
 
 CMapGenerator::CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int RandomSeed /*= std::time(nullptr)*/) :
-	mapGenOptions(mapGenOptions), randomSeed(RandomSeed), monolithIndex(0)
+	mapGenOptions(mapGenOptions), randomSeed(RandomSeed), monolithIndex(0), zonesTotal(0)
 {
 	rand.setSeed(randomSeed);
 }
@@ -434,4 +434,18 @@ int CMapGenerator::getNextMonlithIndex()
 		throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
 	else
 		return monolithIndex++;
+}
+
+void CMapGenerator::registerZone (TFaction faction)
+{
+	zonesPerFaction[faction]++;
+	zonesTotal++;
+}
+ui32 CMapGenerator::getZoneCount(TFaction faction)
+{
+	return zonesPerFaction[faction];
+}
+ui32 CMapGenerator::getTotalZoneCount() const
+{
+	return zonesTotal;
 }

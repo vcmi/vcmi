@@ -786,6 +786,8 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			{
 				//first town in zone sets the facton of entire zone
 				town->subID = townType;
+				//register MAIN town of zone
+				gen->registerZone(town->subID);
 				//first town in zone goes in the middle
 				placeObject(gen, town, getPos() + town->getVisitableOffset());
 			}
@@ -820,6 +822,8 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			placeObject(gen, town, getPos() + town->getVisitableOffset()); //towns are big objects and should be centered around visitable position
 
 			totalTowns++;
+			//register MAIN town of zone only
+			gen->registerZone (town->subID);
 
 			logGlobal->traceStream() << "Fill player info " << player_id;
 
@@ -1425,7 +1429,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 		auto cre = creatures.front();
 		if (cre->faction == townType)
 		{
-			oi.value = cre->AIValue * cre->growth * (1 + 0.5f); //TODO: include town count in formula
+			oi.value = cre->AIValue * cre->growth * (1 + (float)(gen->getZoneCount(cre->faction)) / gen->getTotalZoneCount() + (float)(gen->getZoneCount(cre->faction) / 2)); //TODO: include town count in formula
 			oi.probability = 40;
 
 			for (auto temp : dwellingHandler->getTemplates())
@@ -1542,7 +1546,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 				obj->creatures.putStack(SlotID(0), stack);
 				return obj;
 			};
-			oi.value = (2 * (creature->AIValue) * creaturesAmount * (1 + 1) - 4000)/3; //TODO: count number of towns on the map
+			oi.value = (2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount()))/3; //TODO: count number of towns on the map
 			oi.probability = 3;
 			possibleObjects.push_back (oi);
 		}
