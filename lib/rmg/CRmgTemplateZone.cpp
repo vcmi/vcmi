@@ -782,8 +782,13 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				town->builtBuildings.insert(BuildingID::FORT);
 			town->builtBuildings.insert(BuildingID::DEFAULT);
 
-			if (!totalTowns) //first town in zone goes in the middle
+			if (!totalTowns) 
+			{
+				//first town in zone sets the facton of entire zone
+				town->subID = townType;
+				//first town in zone goes in the middle
 				placeObject(gen, town, getPos() + town->getVisitableOffset());
+			}
 			else
 				addRequiredObject (town);
 			totalTowns++;
