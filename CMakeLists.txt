@@ -54,6 +54,13 @@ if (APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
 endif()
 
+if (WIN32)
+	add_definitions(-DBOOST_THREAD_USE_LIB)
+	add_definitions(-D_WIN32_WINNT=0x0501)
+	set(SOCKS_LIB "ws2_32")
+	set(ICONV_LIB "iconv")
+endif()
+
 find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale REQUIRED)
 find_package(ZLIB REQUIRED)
 
