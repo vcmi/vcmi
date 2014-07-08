@@ -779,10 +779,12 @@ void processCommand(const std::string &message)
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
+	CCS->videoh->setScaling(true);
 	if(CCS->videoh->openAndPlayVideo("3DOLOGO.SMK", 60, 40, screen, true))
 	{
 		CCS->videoh->openAndPlayVideo("AZVS.SMK", 60, 80, screen, true);
 	}
+	CCS->videoh->setScaling(false);
 }
 
 void dispose()
