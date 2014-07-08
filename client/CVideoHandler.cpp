@@ -164,24 +164,37 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 
 	// Allocate video frame
 	frame = avcodec_alloc_frame();
+	
+	//setup scaling
+	
+	if(doScale)
+	{
+		pos.w = screen->w;		
+		pos.h = screen->h;
+	}
+	else
+	{
+		pos.w  = codecContext->width;		
+		pos.h = codecContext->height;		
+	}
 
 	// Allocate a place to put our YUV image on that screen
 	if (useOverlay)
 	{
 #ifdef VCMI_SDL1
-		overlay = SDL_CreateYUVOverlay(codecContext->width, codecContext->height,
+		overlay = SDL_CreateYUVOverlay(pos.w, pos.h,
 									   SDL_YV12_OVERLAY, screen);
 #else
-		texture = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STATIC, codecContext->width, codecContext->height);
+		texture = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STATIC, pos.w, pos.h);
 #endif
 
 	}
 	else
 	{
-		dest = CSDL_Ext::newSurface(codecContext->width, codecContext->height);
+		dest = CSDL_Ext::newSurface(pos.w, pos.h);
 		destRect.x = destRect.y = 0;
-		destRect.w = codecContext->width;
-		destRect.h = codecContext->height;
+		destRect.w = pos.w;
+		destRect.h = pos.h;
 	}
 #ifdef VCMI_SDL1
 	if (overlay == nullptr && dest == nullptr)
@@ -195,9 +208,9 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	if (texture)
 #endif
 	{ // Convert the image into YUV format that SDL uses
-		sws = sws_getContext(codecContext->width, codecContext->height,
-							 codecContext->pix_fmt, codecContext->width, codecContext->height,
-							 PIX_FMT_YUV420P, SWS_BICUBIC, nullptr, nullptr, nullptr);
+		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt, 
+							 pos.w, pos.h, PIX_FMT_YUV420P, 
+							 SWS_BICUBIC, nullptr, nullptr, nullptr);
 	}
 	else
 	{
@@ -226,16 +239,13 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 			}
 		}
 
-		sws = sws_getContext(codecContext->width, codecContext->height,
-							 codecContext->pix_fmt, codecContext->width, codecContext->height,
-							 screenFormat, SWS_BICUBIC, nullptr, nullptr, nullptr);
+		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt, 
+							 pos.w, pos.h, screenFormat, 
+							 SWS_BICUBIC, nullptr, nullptr, nullptr);
 	}
 
 	if (sws == nullptr)
 		return false;
-
-	pos.w = codecContext->width;
-	pos.h = codecContext->height;
 
 	return true;
 }
@@ -300,7 +310,7 @@ bool CVideoPlayer::nextFrame()
 						SDL_UnlockYUVOverlay(overlay);
 #else
 					if (texture) {
-						avpicture_alloc(&pict, AV_PIX_FMT_YUV420P, codecContext->width, codecContext->height);
+						avpicture_alloc(&pict, AV_PIX_FMT_YUV420P, pos.w, pos.h);
 
 						sws_scale(sws, frame->data, frame->linesize,
 								  0, codecContext->height, pict.data, pict.linesize);
@@ -456,7 +466,7 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 #ifdef VCMI_SDL1
 		SDL_DisplayYUVOverlay(overlay, &pos);
 #else
-		SDL_RenderCopy(mainRenderer, texture, NULL, NULL);
+		SDL_RenderCopy(mainRenderer, texture, NULL, &pos);
 		SDL_RenderPresent(mainRenderer);
 #endif
 
