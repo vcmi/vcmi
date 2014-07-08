@@ -71,6 +71,8 @@ CVideoPlayer::CVideoPlayer()
 	// combination of av_register_input_format() /
 	// av_register_output_format() / av_register_protocol() instead.
 	av_register_all();
+	
+	doScale = true;
 }
 
 bool CVideoPlayer::open(std::string fname)

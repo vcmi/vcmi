@@ -14,6 +14,8 @@ public:
 	virtual bool wait()=0;
 	virtual int curFrame() const =0;
 	virtual int frameCount() const =0;
+	
+	virtual void setScaling(bool enabled) =0;
 
 };
 
@@ -40,6 +42,7 @@ public:
 	virtual void close() {};
 	virtual bool wait() {return false;};
 	virtual bool open( std::string name ) {return false;};
+	void setScaling(bool enabled) override {};
 };
 
 
@@ -83,6 +86,8 @@ class CVideoPlayer : public IMainVideoPlayer
 	int refreshWait; // Wait several refresh before updating the image
 	int refreshCount;
 	bool doLoop;				// loop through video
+	
+	bool doScale;
 
 	bool playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey);
 	bool open(std::string fname, bool loop, bool useOverlay = false);
@@ -107,6 +112,8 @@ public:
 	bool wait(){return false;};
 	int curFrame() const {return -1;};
 	int frameCount() const {return -1;};
+
+	void setScaling(bool enabled) override {doScale = enabled;};
 
 	// public to allow access from ffmpeg IO functions
 	std::unique_ptr<CInputStream> data;

@@ -516,13 +516,20 @@ void CSpellWindow::deactivate()
 void CSpellWindow::turnPageLeft()
 {
 	if (settings["video"]["spellbookAnimation"].Bool())
+	{
+		CCS->videoh->setScaling(false);
 		CCS->videoh->openAndPlayVideo("PGTRNLFT.SMK", pos.x+13, pos.y+15, screen);
+	}
+		
 }
 
 void CSpellWindow::turnPageRight()
 {
 	if (settings["video"]["spellbookAnimation"].Bool())
+	{
+		CCS->videoh->setScaling(false);
 		CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15, screen);
+	}		
 }
 
 void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
