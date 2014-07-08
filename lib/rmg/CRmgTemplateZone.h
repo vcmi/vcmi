@@ -16,6 +16,7 @@
 #include "float3.h"
 #include "../int3.h"
 #include "../ResourceSet.h" //for TResource (?)
+#include "../mapObjects/ObjectTemplate.h"
 
 class CMapGenerator;
 class CTileInfo;
@@ -67,9 +68,20 @@ public:
 
 struct DLL_LINKAGE ObjectInfo
 {
+	ObjectTemplate templ;
 	ui32 value;
 	ui16 probability;
 	std::function<CGObjectInstance *()> generateObject;
+
+	void setTemplate (si32 type, si32 subtype, ETerrainType terrain);
+};
+
+struct DLL_LINKAGE CTreasurePileInfo
+{
+	std::set<int3> visitablePositions; //can be visited only from bottom or side
+	std::set<int3> visitableFromTopPositions; //they can be visited from any direction
+	std::set<int3> occupiedPositions;
+	int3 nextTreasurePos;
 };
 
 /// The CRmgTemplateZone describes a zone in a template.
@@ -155,7 +167,7 @@ public:
 	std::vector<CTreasureInfo> getTreasureInfo();
 	std::set<int3>* getFreePaths();
 
-	ObjectInfo getRandomObject (CMapGenerator* gen, ui32 value);
+	ObjectInfo getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 value);
 
 	void placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str);
 

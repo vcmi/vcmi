@@ -625,10 +625,12 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 
 bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 {
+	CTreasurePileInfo info;
+
 	std::map<int3, CGObjectInstance *> treasures;
 	std::set<int3> boundary;
 	int3 guardPos (-1,-1,-1);
-	int3 nextTreasurePos = pos;
+	info.nextTreasurePos = pos;
 
 	//default values
 	int maxValue = 5000;
@@ -654,9 +656,8 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 	CGObjectInstance * object = nullptr;
 	while (currentValue < minValue)
 	{
-		//TODO: this works only for 1-tile objects
 		//make sure our shape is consistent
-		treasures[nextTreasurePos] = nullptr;
+		treasures[info.nextTreasurePos] = nullptr;
 		for (auto treasurePos : treasures)
 		{
 			gen->foreach_neighbour (treasurePos.first, [gen, &boundary](int3 pos)
@@ -678,14 +679,30 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 
 		int remaining = maxValue - currentValue;
 
-		auto oi = getRandomObject(gen, remaining);
+		ObjectInfo oi = getRandomObject(gen, info, remaining);
 		object = oi.generateObject();
 		if (!object)
+		{
+			vstd::erase_if_present(treasures, info.nextTreasurePos);
 			break;
+		}
+		else
+		{
+			//update treasure pile area
+			int3 visitablePos = oi.templ.getVisitableOffset() + info.nextTreasurePos;
+
+			info.visitablePositions.insert(visitablePos); //can be accessed only from bottom or side
+			if (oi.templ.isVisitableFromTop())
+				info.visitableFromTopPositions.insert(visitablePos); //can be accessed from any direction
+
+			for (auto blockedOffset : oi.templ.getBlockedOffsets())
+				info.occupiedPositions.insert(info.nextTreasurePos + blockedOffset);
+			info.occupiedPositions.insert(visitablePos);
+		}
 
 		currentValue += oi.value;
 		
-		treasures[nextTreasurePos] = object;
+		treasures[info.nextTreasurePos] = object;
 
 		//now find place for next object
 		int3 placeFound(-1,-1,-1);
@@ -712,8 +729,9 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 			}
 		}
 		if (placeFound.valid())
-			nextTreasurePos = placeFound;
+			info.nextTreasurePos = placeFound;
 	}
+
 	if (treasures.size())
 	{
 		//find object closest to zone center, then con nect it to the middle of the zone
@@ -752,21 +770,8 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		{
 			for (auto treasure : treasures)
 			{
-				bool objectFitsHere = true; //temporary workaround
 				int3 visitableOffset = treasure.second->getVisitableOffset();
-				std::set<int3> blockedOffsets = treasure.second->getBlockedOffsets();
-				blockedOffsets.insert (visitableOffset);
-				for (auto blockingTile : blockedOffsets)
-				{
-					int3 t = treasure.first + visitableOffset + blockingTile;
-					if (!gen->map->isInTheMap(t))
-					{
-						objectFitsHere = false; //if at least one tile is not possible, object can't be placed here
-						break;
-					}
-				}
-				if (objectFitsHere)
-					placeObject(gen, treasure.second, treasure.first + visitableOffset);
+				placeObject(gen, treasure.second, treasure.first + visitableOffset);
 			}
 			if (addMonster(gen, guardPos, currentValue))
 			{//block only if the object is guarded
@@ -1362,7 +1367,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	return true;
 }
 
-ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, ui32 value)
+ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 value)
 {
 	std::vector<std::pair<ui32, ObjectInfo>> tresholds;
 	ui32 total = 0;
@@ -1374,17 +1379,73 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, ui32 value)
 	{
 		if (oi.value >= minValue && oi.value <= value)
 		{
-			//TODO: check place for non-removable object
-			//problem: we need at least template for the object that does not yet exist
+			int3 visitableOffset = oi.templ.getVisitableOffset(); //visitablePos assumes object will be shifter by visitableOffset
+			if (info.visitablePositions.size()) //do not try to match first object in zone
+			{
+				bool fitsHere = false;
+				int3 visitablePos = info.nextTreasurePos;
+				if (oi.templ.isVisitableFromTop())
+				{
+					for (auto tile : info.visitablePositions)
+					{
+						int3 actualTile = tile + visitableOffset;
+						if (visitablePos.areNeighbours(actualTile)) //we access object from any position
+						{
+							fitsHere = true;
+							break;
+						}
+					}
+				}
+				else
+				{
+					//if object is not visitable from top, it must be accessible from below or side
+					for (auto tile : info.visitableFromTopPositions)
+					{
+						int3 actualTile = tile + visitableOffset;
+						if (visitablePos.areNeighbours(actualTile) && visitablePos.y >= actualTile.y) //we access object from below or side
+						{
+							fitsHere = true;
+							break;
+						}
+					}
+				}
+
+				if (!fitsHere)
+					continue;
+			}
+
+				//now check blockmap, including our already reserved pile area
+
+			bool fitsBlockmap = true;
+
+			std::set<int3> blockedOffsets = oi.templ.getBlockedOffsets();
+			blockedOffsets.insert (visitableOffset);
+			for (auto blockingTile : blockedOffsets)
+			{
+				int3 t = info.nextTreasurePos + visitableOffset + blockingTile;
+				if (!gen->map->isInTheMap(t) || vstd::contains(info.occupiedPositions, t))
+				{
+					fitsBlockmap = false; //if at least one tile is not possible, object can't be placed here
+					break;
+				}
+				if (!(gen->isPossible(t) || gen->isBlocked(t))) //blocked tiles of object may cover blocked tiles, but not used or free tiles
+				{
+					fitsBlockmap = false;
+					break;
+				}
+			}
+			if (!fitsBlockmap)
+				continue;
+
 			total += oi.probability;
 			tresholds.push_back (std::make_pair (total, oi));
 		}
 	}
 
-	//TODO: generate pandora box with gold if the value is very high
+	//Generate pandora Box with gold if the value is extremely high
+	ObjectInfo oi;
 	if (tresholds.empty())
 	{
-		ObjectInfo oi;
 		if (minValue > 20000) //we don't have object valuable enough
 		{
 			oi.generateObject = [minValue]() -> CGObjectInstance *
@@ -1395,6 +1456,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, ui32 value)
 				obj->resources[Res::GOLD] = minValue;
 				return obj;
 			};
+			oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
 			oi.value = minValue;
 			oi.probability = 0;
 		}
@@ -1404,6 +1466,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, ui32 value)
 			{
 				return nullptr;
 			};
+			oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType); //TODO: null template or something? should be never used, but hell knows
 			oi.value = 0;
 			oi.probability = 0;
 		}
@@ -1422,8 +1485,6 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, ui32 value)
 
 void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 {
-	//TODO: move typical objects to config
-
 	ObjectInfo oi;
 
 	for (auto primaryID : VLC->objtypeh->knownObjects()) 
@@ -1443,6 +1504,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 						};
 						oi.value = handler->getRMGInfo().value;
 						oi.probability = handler->getRMGInfo().rarity;
+						oi.templ = temp;
 						possibleObjects.push_back (oi);
 					}
 				}
@@ -1484,6 +1546,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 						return obj;
 					};
 
+					oi.templ = temp;
 					possibleObjects.push_back (oi);
 				}
 			}
@@ -1515,6 +1578,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			obj->storedArtifact = a;
 			return obj;
 		};
+		oi.setTemplate (Obj::SPELL_SCROLL, 0, terrainType);
 		oi.value = scrollValues[i];
 		oi.probability = 30;
 		possibleObjects.push_back (oi);
@@ -1531,6 +1595,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			obj->resources[Res::GOLD] = i * 5000;
 			return obj;
 		};
+		oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
 		oi.value = i * 5000;;
 		oi.probability = 5;
 		possibleObjects.push_back (oi);
@@ -1547,6 +1612,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			obj->gainedExp = i * 5000;
 			return obj;
 		};
+		oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
 		oi.value = i * 6000;;
 		oi.probability = 20;
 		possibleObjects.push_back (oi);
@@ -1586,6 +1652,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 				obj->creatures.putStack(SlotID(0), stack);
 				return obj;
 			};
+			oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
 			oi.value = (2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount()))/3; //TODO: count number of towns on the map
 			oi.probability = 3;
 			possibleObjects.push_back (oi);
@@ -1616,6 +1683,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 
 			return obj;
 		};
+		oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
 		oi.value = (i + 1) * 2500; //5000 - 15000
 		oi.probability = 2;
 		possibleObjects.push_back (oi);
@@ -1660,6 +1728,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 
 			return obj;
 		};
+		oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
 		oi.value = 15000;
 		oi.probability = 2;
 		possibleObjects.push_back (oi);
@@ -1688,7 +1757,13 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 
 		return obj;
 	};
+	oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
 	oi.value = 3000;
 	oi.probability = 2;
 	possibleObjects.push_back (oi);
+}
+
+void ObjectInfo::setTemplate (si32 type, si32 subtype, ETerrainType terrainType)
+{
+	templ = VLC->objtypeh->getHandlerFor(type, subtype)->getTemplates(terrainType).front();
 }

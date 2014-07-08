@@ -216,9 +216,9 @@ void CMapGenerator::fillZones()
 	logGlobal->infoStream() << "Started filling zones";
 
 	createConnections();
+	//make sure all connections are passable before creating borders
 	for (auto it : zones)
 	{
-		//make sure all connections are passable before creating borders
 		it.second->createBorder(this);
 		it.second->fill(this);
 	}	

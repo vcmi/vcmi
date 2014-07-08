@@ -23,31 +23,34 @@
  *
  */
 
-static bool isVisitableFromTop(int identifier, int type)
+namespace vstd
 {
-	if(type == 2 || type == 3 || type == 4 || type == 5) //creature, hero, artifact, resource
-		return true;
+	static bool isVisitableFromTop(int identifier, int type)
+	{
+		if(type == 2 || type == 3 || type == 4 || type == 5) //creature, hero, artifact, resource
+			return true;
 
-	static const Obj visitableFromTop[] =
-		{Obj::FLOTSAM,
-		Obj::SEA_CHEST,
-		Obj::SHIPWRECK_SURVIVOR,
-		Obj::BUOY,
-		Obj::OCEAN_BOTTLE,
-		Obj::BOAT,
-		Obj::WHIRLPOOL,
-		Obj::GARRISON,
-		Obj::GARRISON2,
-		Obj::SCHOLAR,
-		Obj::CAMPFIRE,
-		Obj::BORDERGUARD,
-		Obj::BORDER_GATE,
-		Obj::QUEST_GUARD,
-		Obj::CORPSE
-	};
-	if (vstd::find_pos(visitableFromTop, identifier) != -1)
-		return true;
-	return false;
+		static const Obj visitableFromTop[] =
+			{Obj::FLOTSAM,
+			Obj::SEA_CHEST,
+			Obj::SHIPWRECK_SURVIVOR,
+			Obj::BUOY,
+			Obj::OCEAN_BOTTLE,
+			Obj::BOAT,
+			Obj::WHIRLPOOL,
+			Obj::GARRISON,
+			Obj::GARRISON2,
+			Obj::SCHOLAR,
+			Obj::CAMPFIRE,
+			Obj::BORDERGUARD,
+			Obj::BORDER_GATE,
+			Obj::QUEST_GUARD,
+			Obj::CORPSE
+		};
+		if (vstd::find_pos(visitableFromTop, identifier) != -1)
+			return true;
+		return false;
+	}
 }
 
 ObjectTemplate::ObjectTemplate():
@@ -106,7 +109,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	int type  = boost::lexical_cast<int>(strings[7]);
 	printPriority = boost::lexical_cast<int>(strings[8]) * 100; // to have some space in future
 
-	if (isVisitableFromTop(id, type))
+	if (vstd::isVisitableFromTop(id, type))
 		visitDir = 0xff;
 	else
 		visitDir = (8|16|32|64|128);
@@ -168,7 +171,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	int type = reader.readUInt8();
 	printPriority = reader.readUInt8() * 100; // to have some space in future
 
-	if (isVisitableFromTop(id, type))
+	if (vstd::isVisitableFromTop(id, type))
 		visitDir = 0xff;
 	else
 		visitDir = (8|16|32|64|128);
@@ -352,6 +355,22 @@ bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const
 	int dy = Y < 0 ? 0 : Y == 0 ? 1 : 2;
 
 	return dirMap[dy][dx] != 0;
+}
+
+int3 ObjectTemplate::getVisitableOffset() const
+{
+	for(int y = 0; y < getHeight(); y++)
+		for (int x = 0; x < getWidth(); x++)
+			if (isVisitableAt(x, y))
+				return int3(x,y,0);
+
+    //logGlobal->warnStream() << "Warning: getVisitableOffset called on non-visitable obj!";
+	return int3(0,0,0);
+}
+
+bool ObjectTemplate::isVisitableFromTop() const
+{
+	return isVisitableFrom (0, 1);
 }
 
 bool ObjectTemplate::canBePlacedAt(ETerrainType terrain) const
