@@ -820,7 +820,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				//register MAIN town of zone
 				gen->registerZone(town->subID);
 				//first town in zone goes in the middle
-				placeObject(gen, town, getPos() + town->getVisitableOffset());
+				placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0);
 			}
 			else
 				addRequiredObject (town);
@@ -850,8 +850,8 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			town->tempOwner = player;
 			town->builtBuildings.insert(BuildingID::FORT);
 			town->builtBuildings.insert(BuildingID::DEFAULT);
-			placeObject(gen, town, getPos() + town->getVisitableOffset()); //towns are big objects and should be centered around visitable position
-			guardObject(gen, town, 0); //generate no guards, but free path to entrance
+			//towns are big objects and should be centered around visitable position
+			placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0); //generate no guards, but free path to entrance
 
 			totalTowns++;
 			//register MAIN town of zone only
