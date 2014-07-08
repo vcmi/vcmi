@@ -1451,7 +1451,14 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 
 	//dwellings
 
-	for (auto secondaryID : VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1))
+	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1);
+
+	//don't spawn original "neutral" dwellings that got replaced by Conflux dwellings in AB
+	static int elementalConfluxROE[] = {7, 13, 16, 47};
+	for (int i = 0; i < 4; i++)
+		vstd::erase_if_present(subObjects, elementalConfluxROE[i]);
+
+	for (auto secondaryID : subObjects)
 	{
 		auto dwellingHandler = dynamic_cast<const CDwellingInstanceConstructor*>(VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, secondaryID).get());
 		auto creatures = dwellingHandler->getProducedCreatures();
