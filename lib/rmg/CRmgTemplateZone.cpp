@@ -398,12 +398,13 @@ void CRmgTemplateZone::createBorder(CMapGenerator* gen)
 
 void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 {
-	std::vector<int3> clearedTiles;
+	std::vector<int3> clearedTiles (freePaths.begin(), freePaths.end());
 	std::set<int3> possibleTiles;
 	std::set<int3> tilesToClear; //will be set clear
 	std::set<int3> tilesToIgnore; //will be erased in this iteration
 
-	const float minDistance = std::sqrt(totalDensity);
+	//the more treasure density, the greater distance between paths. Scaling is experimental.
+	const float minDistance = std::sqrt(totalDensity * 3);
 	for (auto tile : tileinfo)
 	{
 		if (gen->isFree(tile))
@@ -464,6 +465,34 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 		tilesToClear.clear(); //empty this container
 		tilesToIgnore.clear();
 	}
+
+	for (auto tile : clearedTiles)
+	{
+		freePaths.insert(tile);
+	}
+
+	
+
+	if (0) //enable to debug
+	{
+		std::ofstream out(boost::to_string(boost::format("zone %d") % id));
+		int levels = gen->map->twoLevel ? 2 : 1;
+		int width =  gen->map->width;
+		int height = gen->map->height;
+		for (int k = 0; k < levels; k++)
+		{
+			for(int j=0; j<height; j++)
+			{
+				for (int i=0; i<width; i++)
+				{
+					out << (int)vstd::contains(freePaths, int3(i,j,k));
+				}
+				out << std::endl;
+			}
+			out << std::endl;
+		}
+	}
+
 	logGlobal->infoStream() << boost::format ("Zone %d subdivided fractally") %id;
 }
 
@@ -700,7 +729,7 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 			}
 		}
 		assert (closestTile.valid());
-		if (!crunchPath (gen, closestTile, getPos(), id)) //make sure pile is connected to the middle of zone
+		if (!crunchPath (gen, closestTile, findClosestTile(freePaths, closestTile), id)) //make sure pile is connected to the middle of zone
 		{
 			for (auto treasure : treasures)
 			{
@@ -1301,7 +1330,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	for (auto tile : tiles)
 	{
 		//crunching path may fail if center of teh zone is dirrectly over wide object
-		if (crunchPath (gen, tile, getPos(), id)) //make sure object is accessible before surrounding it with blocked tiles
+		if (crunchPath (gen, tile, findClosestTile(freePaths, tile), id)) //make sure object is accessible before surrounding it with blocked tiles
 		{
 			guardTile = tile;
 			break;
