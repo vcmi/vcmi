@@ -851,6 +851,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			town->builtBuildings.insert(BuildingID::FORT);
 			town->builtBuildings.insert(BuildingID::DEFAULT);
 			placeObject(gen, town, getPos() + town->getVisitableOffset()); //towns are big objects and should be centered around visitable position
+			guardObject(gen, town, 0); //generate no guards, but free path to entrance
 
 			totalTowns++;
 			//register MAIN town of zone only
