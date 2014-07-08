@@ -1036,7 +1036,7 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 	auto tryToPlaceObstacleHere = [this, gen](int3& tile)-> bool
 	{
 		auto temp = *RandomGeneratorUtil::nextItem(possibleObstacles, gen->rand);
-		int3 obstaclePos = tile + temp.getBlockMapOffset();
+		int3 obstaclePos = tile - temp.getBlockMapOffset();
 		if (canObstacleBePlacedHere(gen, temp, obstaclePos)) //can be placed here
 		{
 			auto obj = VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
@@ -1113,19 +1113,20 @@ bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, si32 min_dis
 
 bool CRmgTemplateZone::canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos)
 {
+	if (!gen->map->isInTheMap(pos)) //blockmap may fit in the map, but botom-right corner does not
+		return false;
+
 	auto tilesBlockedByObject = temp.getBlockedOffsets();
 
-	bool allTilesAvailable = true;
 	for (auto blockingTile : tilesBlockedByObject)
 	{
 		int3 t = pos + blockingTile;
 		if (!gen->map->isInTheMap(t) || !(gen->isPossible(t) || gen->shouldBeBlocked(t)))
 		{
-			allTilesAvailable = false; //if at least one tile is not possible, object can't be placed here
-			break;
+			return false; //if at least one tile is not possible, object can't be placed here
 		}
 	}
-	return allTilesAvailable;
+	return true;
 }
 
 bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos)
@@ -1207,7 +1208,7 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos)
 {
 	if (!gen->map->isInTheMap(pos))
-		throw rmgException(boost::to_string(boost::format("Position of object %d at %s is outside the map") % object->id % object->pos()));
+		throw rmgException(boost::to_string(boost::format("Position of object %d at %s is outside the map") % object->id % pos));
 	object->pos = pos;
 
 	if (object->isVisitable() && !gen->map->isInTheMap(object->visitablePos()))
