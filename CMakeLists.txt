@@ -57,8 +57,27 @@ endif()
 if (WIN32)
 	add_definitions(-DBOOST_THREAD_USE_LIB)
 	add_definitions(-D_WIN32_WINNT=0x0501)
-	set(SOCKS_LIB wsock32 ws2_32)
-	set(ICONV_LIB iconv)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
+endif()
+
+if(APPLE)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} libiconv.dylib)
+endif()
+
+if(NOT WIN32)
+	INCLUDE(CheckLibraryExists)
+
+    #check if some platform-specific libraries are needed for linking
+	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
+	if(HAVE_RT_LIB)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} rt)
+	endif()
+
+	CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIB)
+	if(HAVE_DL_LIB)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} dl)
+	endif()
 endif()
 
 find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale REQUIRED)
@@ -93,31 +112,13 @@ if (ENABLE_LAUNCHER)
 endif()
 
 if(ENABLE_TEST)
-	# find_package overwrites BOOST_* variables which are already set, so all components have to be
-	# included again
-        find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
-endif()
-
-if(APPLE)
-	set(Boost_LIBRARIES ${Boost_LIBRARIES} libiconv.dylib) # Our prebuilt boost_locale for OS X depends on iconv
+	# find_package overwrites BOOST_* variables which are already set, so all components have to be included again
+    find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
 endif()
 
 if(NOT WIN32)
 	set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
 	find_package(FFmpeg REQUIRED)
-
-	INCLUDE(CheckLibraryExists)
-
-        #check if some platform-specific libraries are needed for linking
-	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
-	if(HAVE_RT_LIB)
-		set(RT_LIB -lrt)
-	endif()
-
-	CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIB)
-	if(HAVE_DL_LIB)
-		set(DL_LIB -ldl)
-	endif()
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
