@@ -143,7 +143,7 @@ bool CBIKHandler::open(std::string name)
 	}
 	//GCC wants scope of waveout to don`t cross labels/swith/goto
 	{
-		void *waveout = GetProcAddress(dll,"_BinkOpenWaveOut@4");
+		void *waveout = (void *)GetProcAddress(dll,"_BinkOpenWaveOut@4");
 		if(waveout)
 			binkSetSoundSystem(waveout,nullptr);
 
