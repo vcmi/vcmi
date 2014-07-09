@@ -145,7 +145,7 @@ public:
 	void discardDistantTiles (CMapGenerator* gen, float distance);
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
-	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength);
+	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength, bool clearSurroundingTiles = true);
 	bool createTreasurePile (CMapGenerator* gen, int3 &pos);
 	bool fill (CMapGenerator* gen);
 	bool placeMines (CMapGenerator* gen);

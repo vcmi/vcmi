@@ -567,7 +567,7 @@ void CRmgTemplateZone::addRequiredObject(CGObjectInstance * obj, si32 strength)
 	requiredObjects.push_back(std::make_pair(obj, strength));
 }
 
-bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
+bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, bool clearSurroundingTiles)
 {
 	//precalculate actual (randomized) monster strength based on this post
 	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
@@ -620,6 +620,17 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength)
 	guard->putStack(SlotID(0), hlp);
 
 	placeObject(gen, guard, pos);
+
+	if (clearSurroundingTiles)
+	{
+		//do not spawn anything near monster
+		gen->foreach_neighbour (pos, [gen](int3 pos)
+		{
+			if (gen->isPossible(pos))
+				gen->setOccupied(pos, ETileType::FREE);
+		});
+	}
+
 	return true;
 }
 
@@ -819,13 +830,19 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 				int3 visitableOffset = treasure.second->getVisitableOffset();
 				placeObject(gen, treasure.second, treasure.first + visitableOffset);
 			}
-			if (addMonster(gen, guardPos, currentValue))
+			if (addMonster(gen, guardPos, currentValue, false))
 			{//block only if the object is guarded
 				for (auto tile : boundary)
 				{
 					if (gen->isPossible(tile))
 						gen->setOccupied (tile, ETileType::BLOCKED);
 				}
+				//do not spawn anything near monster
+				gen->foreach_neighbour (guardPos, [gen](int3 pos)
+				{
+					if (gen->isPossible(pos))
+						gen->setOccupied(pos, ETileType::FREE);
+				});
 			}
 		}
 		else //we couldn't make a connection to this location, block it
@@ -1401,7 +1418,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 		return false;
 	}
 
-	if (addMonster (gen, guardTile, str)) //do not place obstacles around unguarded object
+	if (addMonster (gen, guardTile, str, false)) //do not place obstacles around unguarded object
 	{
 		for (auto pos : tiles)
 		{
