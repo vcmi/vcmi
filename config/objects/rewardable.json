@@ -6,13 +6,14 @@
 		"handler": "magicSpring",
 		"types" : {
 			"object" : {
-				"index" : 0,
-				"rmg" : {
-					"zoneLimit"	: 1,
-					"mapLimit"	: 32,
-					"value"		: 500,
-					"rarity"	: 50
-				}
+				"index" : 0//,
+				//"rmg" : {
+				//	"zoneLimit"	: 1,
+				//	"mapLimit"	: 32,
+				//	"value"		: 500,
+				//	"rarity"	: 50
+				//}
+				//banned due to problems with 2 viistable offsets
 			}
 		}
 	},

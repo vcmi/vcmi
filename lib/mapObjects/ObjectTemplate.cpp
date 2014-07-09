@@ -23,34 +23,31 @@
  *
  */
 
-namespace vstd
+static bool isOnVisitableFromTopList(int identifier, int type)
 {
-	static bool isVisitableFromTop(int identifier, int type)
-	{
-		if(type == 2 || type == 3 || type == 4 || type == 5) //creature, hero, artifact, resource
-			return true;
+	if(type == 2 || type == 3 || type == 4 || type == 5) //creature, hero, artifact, resource
+		return true;
 
-		static const Obj visitableFromTop[] =
-			{Obj::FLOTSAM,
-			Obj::SEA_CHEST,
-			Obj::SHIPWRECK_SURVIVOR,
-			Obj::BUOY,
-			Obj::OCEAN_BOTTLE,
-			Obj::BOAT,
-			Obj::WHIRLPOOL,
-			Obj::GARRISON,
-			Obj::GARRISON2,
-			Obj::SCHOLAR,
-			Obj::CAMPFIRE,
-			Obj::BORDERGUARD,
-			Obj::BORDER_GATE,
-			Obj::QUEST_GUARD,
-			Obj::CORPSE
-		};
-		if (vstd::find_pos(visitableFromTop, identifier) != -1)
-			return true;
-		return false;
-	}
+	static const Obj visitableFromTop[] =
+		{Obj::FLOTSAM,
+		Obj::SEA_CHEST,
+		Obj::SHIPWRECK_SURVIVOR,
+		Obj::BUOY,
+		Obj::OCEAN_BOTTLE,
+		Obj::BOAT,
+		Obj::WHIRLPOOL,
+		Obj::GARRISON,
+		Obj::GARRISON2,
+		Obj::SCHOLAR,
+		Obj::CAMPFIRE,
+		Obj::BORDERGUARD,
+		Obj::BORDER_GATE,
+		Obj::QUEST_GUARD,
+		Obj::CORPSE
+	};
+	if (vstd::find_pos(visitableFromTop, identifier) != -1)
+		return true;
+	return false;
 }
 
 ObjectTemplate::ObjectTemplate():
@@ -109,7 +106,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	int type  = boost::lexical_cast<int>(strings[7]);
 	printPriority = boost::lexical_cast<int>(strings[8]) * 100; // to have some space in future
 
-	if (vstd::isVisitableFromTop(id, type))
+	if (isOnVisitableFromTopList(id, type))
 		visitDir = 0xff;
 	else
 		visitDir = (8|16|32|64|128);
@@ -171,7 +168,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	int type = reader.readUInt8();
 	printPriority = reader.readUInt8() * 100; // to have some space in future
 
-	if (vstd::isVisitableFromTop(id, type))
+	if (isOnVisitableFromTopList(id, type))
 		visitDir = 0xff;
 	else
 		visitDir = (8|16|32|64|128);

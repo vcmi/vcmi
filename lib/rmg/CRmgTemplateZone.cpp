@@ -784,6 +784,25 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 			return true;
 		}
 
+		//update boundary around our objects, including knowledge about objects visitable from bottom
+
+		boundary.clear();
+		for (auto tile : info.visitableFromBottomPositions)
+		{
+			gen->foreach_neighbour (tile, [tile, &boundary](int3 pos)
+			{
+				if (tile.y >= pos.y) //don't block these objects from above
+					boundary.insert(pos);
+			});
+		}
+		for (auto tile : info.visitableFromTopPositions)
+		{
+			gen->foreach_neighbour (tile, [&boundary](int3 pos)
+			{
+				boundary.insert(pos);
+			});
+		}
+
 		for (auto tile : boundary) //guard must be standing there
 		{
 			if (gen->isFree(tile)) //this tile could be already blocked, don't place a monster here
@@ -1403,6 +1422,8 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 
 ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 value)
 {
+	//int objectsVisitableFromBottom = 0; //for debug
+
 	std::vector<std::pair<ui32, ObjectInfo>> tresholds;
 	ui32 total = 0;
 
@@ -1418,6 +1439,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 
 			if (!oi.templ.isVisitableFromTop())
 			{
+				//objectsVisitableFromBottom++;
 				//there must be free tiles under object
 				if (!isAccessibleFromAnywhere(gen, oi.templ, newVisitablePos, oi.templ.getBlockedOffsets()))
 					continue;
@@ -1501,6 +1523,8 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 			tresholds.push_back (std::make_pair (total, oi));
 		}
 	}
+
+	//logGlobal->infoStream() << boost::format ("Number of objects visitable  from bottom: %d") % objectsVisitableFromBottom;
 
 	//Generate pandora Box with gold if the value is extremely high
 	ObjectInfo oi;
