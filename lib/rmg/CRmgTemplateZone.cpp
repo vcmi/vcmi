@@ -750,7 +750,7 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		{
 			if (closestFreeTile.dist2d(visitablePos) < minDistance)
 			{
-				closestTile = visitablePos - int3 (0,-1, 0); //start below object, possibly even outside the map (?)
+				closestTile = visitablePos + int3 (0, 1, 0); //start below object (y+1), possibly even outside the map (?)
 				minDistance = closestFreeTile.dist2d(visitablePos);
 			}
 		}
@@ -791,7 +791,7 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		{
 			gen->foreach_neighbour (tile, [tile, &boundary](int3 pos)
 			{
-				if (tile.y >= pos.y) //don't block these objects from above
+				if (pos.y >= tile.y) //don't block these objects from above
 					boundary.insert(pos);
 			});
 		}
@@ -1445,6 +1445,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 					continue;
 			}
 
+			//NOTE: y coordinate grows downwards
 			if (info.visitableFromBottomPositions.size() + info.visitableFromTopPositions.size()) //do not try to match first object in zone
 			{
 				bool fitsHere = false;
@@ -1463,7 +1464,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 					for (auto tile : info.visitableFromBottomPositions)
 					{
 						int3 actualTile = tile + newVisitableOffset;
-						if (newVisitablePos.areNeighbours(actualTile) && newVisitablePos.y <= actualTile.y) //we access existing static object from side or bottom only
+						if (newVisitablePos.areNeighbours(actualTile) && newVisitablePos.y >= actualTile.y) //we access existing static object from side or bottom only
 						{
 							fitsHere = true;
 							break;
@@ -1475,7 +1476,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 					for (auto tile : info.visitableFromTopPositions)
 					{
 						int3 actualTile = tile + newVisitableOffset;
-						if (newVisitablePos.areNeighbours(actualTile) && newVisitablePos.y >= actualTile.y) //we access existing removable object from top or side only
+						if (newVisitablePos.areNeighbours(actualTile) && newVisitablePos.y <= actualTile.y) //we access existing removable object from top or side only
 						{
 							fitsHere = true;
 							break;

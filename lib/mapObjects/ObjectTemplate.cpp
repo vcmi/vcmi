@@ -367,7 +367,9 @@ int3 ObjectTemplate::getVisitableOffset() const
 
 bool ObjectTemplate::isVisitableFromTop() const
 {
-	return isVisitableFrom (0, 1);
+	return visitDir & 2;
+	//for some reason the line below is never called :?
+	//return isVisitableFrom (0, 1);
 }
 
 bool ObjectTemplate::canBePlacedAt(ETerrainType terrain) const
