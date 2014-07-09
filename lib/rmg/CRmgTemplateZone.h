@@ -78,9 +78,10 @@ struct DLL_LINKAGE ObjectInfo
 
 struct DLL_LINKAGE CTreasurePileInfo
 {
-	std::set<int3> visitablePositions; //can be visited only from bottom or side
+	std::set<int3> visitableFromBottomPositions; //can be visited only from bottom or side
 	std::set<int3> visitableFromTopPositions; //they can be visited from any direction
-	std::set<int3> occupiedPositions;
+	std::set<int3> blockedPositions;
+	std::set<int3> occupiedPositions; //blocked + visitable
 	int3 nextTreasurePos;
 };
 
