@@ -107,7 +107,7 @@ else()
 	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 endif()
 
-target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${RT_LIB} ${DL_LIB})
+target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${SOCKS_LIB} ${RT_LIB} ${DL_LIB})
 
 set_target_properties(vcmiclient PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmiclient)
