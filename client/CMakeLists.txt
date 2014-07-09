@@ -101,6 +101,10 @@ else()
 	add_executable(vcmiclient ${client_SRCS})
 endif()
 
+if(WIN32)
+	set_target_properties(vcmiclient PROPERTIES OUTPUT_NAME VCMI_client)
+endif()
+
 target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${SYSTEM_LIBS})
 
 set_target_properties(vcmiclient PROPERTIES ${PCH_PROPERTIES})
