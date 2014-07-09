@@ -657,7 +657,6 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 	while (currentValue < minValue)
 	{
 		treasures[info.nextTreasurePos] = nullptr;
-		//not sure if this code makes sense anymore when we can have multiple-tile objects
 
 		for (auto treasurePos : treasures)
 		{
@@ -671,27 +670,6 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 			//leaving only boundary around objects
 			vstd::erase_if_present (boundary, treasurePos.first);
 		}
-
-		//for (auto tile : info.visitableFromTopPositions)
-		//{
-		//	gen->foreach_neighbour (tile, [gen, &boundary](int3 pos)
-		//	{
-		//		boundary.insert(pos);
-		//	});
-		//}
-		//for (auto tile : info.visitableFromBottomPositions)
-		//{
-		//	gen->foreach_neighbour (tile, [gen, tile, &boundary](int3 pos)
-		//	{
-		//		if (pos.y <= tile.y) //objects are accessible and need to be blocked only from the bottom
-		//			boundary.insert(pos);
-		//	});
-		//}
-		//for (auto tile : info.occupiedPositions)
-		//{
-		//	//leaving only boundary around objects
-		//	vstd::erase_if_present (boundary, tile);
-		//}
 
 		for (auto tile : boundary)
 		{
@@ -759,38 +737,44 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 	if (treasures.size())
 	{
 		//find object closest to zone center, then connect it to the middle of the zone
-		int3 zoneCenter = getPos();
+		int3 closestFreeTile (-1,-1,-1);
+		if (info.visitableFromBottomPositions.size()) //get random treasure tile, starting from objects accessible only from bottom
+			closestFreeTile = findClosestTile (freePaths, *RandomGeneratorUtil::nextItem(info.visitableFromBottomPositions, gen->rand));
+		else
+			closestFreeTile = findClosestTile (freePaths, *RandomGeneratorUtil::nextItem(info.visitableFromTopPositions, gen->rand));
+
 		int3 closestTile = int3(-1,-1,-1);
 		float minDistance = 1e10;
 		for (auto visitablePos : info.visitableFromBottomPositions) //objects that are not visitable from top must be accessible from bottom or side
 		{
-			if (zoneCenter.dist2d(visitablePos) < minDistance)
+			if (closestFreeTile.dist2d(visitablePos) < minDistance)
 			{
 				closestTile = visitablePos - int3 (0,-1, 0); //start below object, possibly even outside the map (?)
-				minDistance = zoneCenter.dist2d(visitablePos);
+				minDistance = closestFreeTile.dist2d(visitablePos);
 			}
 		}
 		if (!closestTile.valid())
 		{
 			for (auto visitablePos : info.visitableFromTopPositions) //all objects are accessible from any direction
 			{
-				if (zoneCenter.dist2d(visitablePos) < minDistance)
+				if (closestFreeTile.dist2d(visitablePos) < minDistance)
 				{
 					closestTile = visitablePos;
-					minDistance = zoneCenter.dist2d(visitablePos);
+					minDistance = closestFreeTile.dist2d(visitablePos);
 				}
 			}
 		}
 		assert (closestTile.valid());
 
-		for (auto tile : info.blockedPositions)
+		for (auto tile : info.occupiedPositions)
 		{
 			if (gen->map->isInTheMap(tile)) //pile boundary may reach map border
-				gen->setOccupied(tile, ETileType::USED); //so that crunch path doesn't cut through objects
+				gen->setOccupied(tile, ETileType::BLOCKED); //so that crunch path doesn't cut through objects
 		}
 
-		if (!crunchPath (gen, closestTile, findClosestTile(freePaths, closestTile), id)) //make sure pile is connected to the middle of zone
+		if (!crunchPath (gen, closestTile, closestFreeTile, id))
 		{
+			//we can't connect this pile, just block it off and start over
 			for (auto treasure : treasures)
 			{
 				if (gen->isPossible(treasure.first))
@@ -1206,6 +1190,31 @@ bool CRmgTemplateZone::canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplat
 	return true;
 }
 
+bool CRmgTemplateZone::isAccessibleFromAnywhere (CMapGenerator* gen, ObjectTemplate &appearance,  int3 &tile, std::set<int3> &tilesBlockedByObject) const
+{
+	bool accessible = false;
+	for (int x = -1; x < 2; x++)
+	{
+		for (int y = -1; y <2; y++)
+		{
+			if (x && y) //check only if object is visitable from another tile
+			{
+				int3 offset = appearance.getVisitableOffset() + int3(x, y, 0);
+				if (!vstd::contains(tilesBlockedByObject, offset))
+				{
+					int3 nearbyPos = tile + offset;
+					if (gen->map->isInTheMap(nearbyPos))
+					{
+						if (appearance.isVisitableFrom(x, y) && !gen->isBlocked(nearbyPos))
+							accessible = true;
+					}
+				}
+			}
+		};
+	}
+	return accessible;
+}
+
 bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos)
 {
 	//we need object apperance to deduce free tiles
@@ -1231,25 +1240,7 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 	for (auto tile : tileinfo)
 	{
 		//object must be accessible from at least one surounding tile
-		bool accessible = false;
-		for (int x = -1; x < 2; x++)
-			for (int y = -1; y <2; y++)
-		{
-			if (x && y) //check only if object is visitable from another tile
-			{
-				int3 offset = obj->getVisitableOffset() + int3(x, y, 0);
-				if (!vstd::contains(tilesBlockedByObject, offset))
-				{
-					int3 nearbyPos = tile + offset;
-					if (gen->map->isInTheMap(nearbyPos))
-					{
-						if (obj->appearance.isVisitableFrom(x, y) && !gen->isBlocked(nearbyPos))
-							accessible = true;
-					}
-				}
-			}
-		};
-		if (!accessible)
+		if (!isAccessibleFromAnywhere(gen, obj->appearance, tile, tilesBlockedByObject))
 			continue;
 
 		auto ti = gen->getTile(tile);
@@ -1421,19 +1412,26 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 	{
 		if (oi.value >= minValue && oi.value <= value)
 		{
-			int3 visitableOffset = oi.templ.getVisitableOffset(); //visitablePos assumes object will be shifter by visitableOffset
-			int3 visitablePos = info.nextTreasurePos;
+			int3 newVisitableOffset = oi.templ.getVisitableOffset(); //visitablePos assumes object will be shifter by visitableOffset
+			int3 newVisitablePos = info.nextTreasurePos;
+
+			if (!oi.templ.isVisitableFromTop())
+			{
+				//there must be free tiles under object
+				if (!isAccessibleFromAnywhere(gen, oi.templ, newVisitablePos, oi.templ.getBlockedOffsets()))
+					continue;
+			}
 
 			if (info.visitableFromBottomPositions.size() + info.visitableFromTopPositions.size()) //do not try to match first object in zone
 			{
 				bool fitsHere = false;
 
-				if (oi.templ.isVisitableFromTop()) //can be accessed from any direction
+				if (oi.templ.isVisitableFromTop()) //new can be accessed from any direction
 				{
 					for (auto tile : info.visitableFromTopPositions)
 					{
-						int3 actualTile = tile + visitableOffset;
-						if (visitablePos.areNeighbours(actualTile)) //we access other removable object from any position
+						int3 actualTile = tile + newVisitableOffset;
+						if (newVisitablePos.areNeighbours(actualTile)) //we access other removable object from any position
 						{
 							fitsHere = true;
 							break;
@@ -1441,21 +1439,20 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 					}
 					for (auto tile : info.visitableFromBottomPositions)
 					{
-						int3 actualTile = tile + visitableOffset;
-						if (visitablePos.areNeighbours(actualTile) && visitablePos.y <= actualTile.y) //we access existing static object from side or bottom only
+						int3 actualTile = tile + newVisitableOffset;
+						if (newVisitablePos.areNeighbours(actualTile) && newVisitablePos.y <= actualTile.y) //we access existing static object from side or bottom only
 						{
 							fitsHere = true;
 							break;
 						}
 					}
 				}
-				else
+				else //if new object is not visitable from top, it must be accessible from below or side
 				{
-				//if object is not visitable from top, it must be accessible from below or side
 					for (auto tile : info.visitableFromTopPositions)
 					{
-						int3 actualTile = tile + visitableOffset;
-						if (visitablePos.areNeighbours(actualTile) && visitablePos.y >= actualTile.y) //we access existing removable object from top or side only
+						int3 actualTile = tile + newVisitableOffset;
+						if (newVisitablePos.areNeighbours(actualTile) && newVisitablePos.y >= actualTile.y) //we access existing removable object from top or side only
 						{
 							fitsHere = true;
 							break;
@@ -1463,14 +1460,16 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 					}
 					for (auto tile : info.visitableFromBottomPositions)
 					{
-						int3 actualTile = tile + visitableOffset;
-						if (visitablePos.areNeighbours(actualTile) && visitablePos.y == actualTile.y) //we access other static object from side only
+						int3 actualTile = tile + newVisitableOffset;
+						if (newVisitablePos.areNeighbours(actualTile) && newVisitablePos.y == actualTile.y) //we access other static object from side only
 						{
 							fitsHere = true;
 							break;
 						}
 					}
 				}
+				if (!fitsHere)
+					continue;
 			}
 
 			//now check blockmap, including our already reserved pile area
@@ -1479,10 +1478,10 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 
 
 			std::set<int3> blockedOffsets = oi.templ.getBlockedOffsets();
-			blockedOffsets.insert (visitableOffset);
+			blockedOffsets.insert (newVisitableOffset);
 			for (auto blockingTile : blockedOffsets)
 			{
-				int3 t = info.nextTreasurePos + visitableOffset + blockingTile;
+				int3 t = info.nextTreasurePos + newVisitableOffset + blockingTile;
 				if (!gen->map->isInTheMap(t) || vstd::contains(info.occupiedPositions, t))
 				{
 					fitsBlockmap = false; //if at least one tile is not possible, object can't be placed here
