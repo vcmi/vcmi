@@ -47,13 +47,7 @@ set(client_SRCS
         NetPacksClient.cpp
 )
 
-set(client_HEADERS
-		gui/SDL_Pixels.h
-)
-
-if(WIN32)
-	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS})
-elseif(APPLE)
+if(APPLE)
     # OS X specific includes
     include_directories(${SPARKLE_INCLUDE_DIR})
 
@@ -104,10 +98,10 @@ elseif(APPLE)
         
     add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
 else()
-	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
+	add_executable(vcmiclient ${client_SRCS})
 endif()
 
-target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${SOCKS_LIB} ${RT_LIB} ${DL_LIB})
+target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${SYSTEM_LIBS})
 
 set_target_properties(vcmiclient PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmiclient)
