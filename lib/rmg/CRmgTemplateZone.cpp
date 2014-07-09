@@ -690,7 +690,7 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		else
 		{
 			//update treasure pile area
-			int3 visitablePos = oi.templ.getVisitableOffset() + info.nextTreasurePos;
+			int3 visitablePos = info.nextTreasurePos;
 
 			//TODO: actually we need to check is object is either !blockVisit or removable after visit - this means object below can be accessed
 			if (oi.templ.isVisitableFromTop())
@@ -700,8 +700,9 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 
 			for (auto blockedOffset : oi.templ.getBlockedOffsets())
 			{
-				info.occupiedPositions.insert(info.nextTreasurePos + blockedOffset);
-				info.blockedPositions.insert(info.nextTreasurePos + blockedOffset);
+				int3 blockPos = info.nextTreasurePos + blockedOffset + oi.templ.getVisitableOffset(); //object will be moved to align vistable pos to treasure pos
+				info.occupiedPositions.insert(blockPos);
+				info.blockedPositions.insert(blockPos);
 			}
 			info.occupiedPositions.insert(visitablePos);
 		}
