@@ -53,6 +53,7 @@ qt5_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
 
 if(WIN32)
 	add_executable(vcmilauncher WIN32 ${launcher_SRCS} ${launcher_UI_HEADERS})
+	set_target_properties(vcmilauncher PROPERTIES OUTPUT_NAME VCMI_launcher)
 else()
 	add_executable(vcmilauncher ${launcher_SRCS} ${launcher_UI_HEADERS})
 endif()
