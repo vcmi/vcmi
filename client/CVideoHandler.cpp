@@ -71,18 +71,16 @@ CVideoPlayer::CVideoPlayer()
 	// combination of av_register_input_format() /
 	// av_register_output_format() / av_register_protocol() instead.
 	av_register_all();
-	
-	doScale = false;
 }
 
-bool CVideoPlayer::open(std::string fname)
+bool CVideoPlayer::open(std::string fname, bool scale/* = false*/)
 {
 	return open(fname, true, false);
 }
 
 // loop = to loop through the video
 // useOverlay = directly write to the screen.
-bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
+bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scale /*= false*/)
 {
 	close();
 
@@ -167,7 +165,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	
 	//setup scaling
 	
-	if(doScale)
+	if(scale)
 	{
 		pos.w = screen->w;		
 		pos.h = screen->h;
@@ -480,9 +478,9 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 	return true;
 }
 
-bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey)
+bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey, bool scale/* = false*/)
 {
-	open(name, false, true);
+	open(name, false, true, scale);
 	bool ret = playVideo(x, y, dst, stopOnKey);
 	close();
 	return ret;

@@ -6,7 +6,7 @@ struct SDL_Surface;
 class IVideoPlayer
 {
 public:
-	virtual bool open(std::string name)=0; //true - succes
+	virtual bool open(std::string name, bool scale = false)=0; //true - succes
 	virtual void close()=0;
 	virtual bool nextFrame()=0;
 	virtual void show(int x, int y, SDL_Surface *dst, bool update = true)=0;
@@ -14,9 +14,6 @@ public:
 	virtual bool wait()=0;
 	virtual int curFrame() const =0;
 	virtual int frameCount() const =0;
-	
-	virtual void setScaling(bool enabled) =0;
-
 };
 
 class IMainVideoPlayer : public IVideoPlayer
@@ -25,7 +22,7 @@ public:
 	std::string fname;  //name of current video file (empty if idle)
 
 	virtual void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true){}
-	virtual bool openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey = false) 
+	virtual bool openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey = false, bool scale = false)
 	{
 		return false;
 	}
@@ -34,15 +31,14 @@ public:
 class CEmptyVideoPlayer : public IMainVideoPlayer
 {
 public:
-	virtual int curFrame() const {return -1;};
-	virtual int frameCount() const {return -1;};
-	virtual void redraw( int x, int y, SDL_Surface *dst, bool update = true ) {};
-	virtual void show( int x, int y, SDL_Surface *dst, bool update = true ) {};
-	virtual bool nextFrame() {return false;};
-	virtual void close() {};
-	virtual bool wait() {return false;};
-	virtual bool open( std::string name ) {return false;};
-	void setScaling(bool enabled) override {};
+	int curFrame() const override {return -1;};
+	int frameCount() const override {return -1;};
+	void redraw(int x, int y, SDL_Surface *dst, bool update = true) override {};
+	void show(int x, int y, SDL_Surface *dst, bool update = true) override{};
+	bool nextFrame() override {return false;};
+	void close() override {};
+	bool wait() override {return false;};
+	bool open(std::string name, bool scale = false) override {return false;};
 };
 
 
@@ -86,34 +82,30 @@ class CVideoPlayer : public IMainVideoPlayer
 	int refreshWait; // Wait several refresh before updating the image
 	int refreshCount;
 	bool doLoop;				// loop through video
-	
-	bool doScale;
 
 	bool playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey);
-	bool open(std::string fname, bool loop, bool useOverlay = false);
+	bool open(std::string fname, bool loop, bool useOverlay = false, bool scale = false);
 
 public:
 	CVideoPlayer();
 	~CVideoPlayer();
 
 	bool init();
-	bool open(std::string fname);
-	void close();
-	bool nextFrame();			// display next frame
+	bool open(std::string fname, bool scale = false) override;
+	void close() override;
+	bool nextFrame() override;			// display next frame
 
-	void show(int x, int y, SDL_Surface *dst, bool update = true); //blit current frame
-	void redraw(int x, int y, SDL_Surface *dst, bool update = true); //reblits buffer
-	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true); //moves to next frame if appropriate, and blits it or blits only if redraw parameter is set true
+	void show(int x, int y, SDL_Surface *dst, bool update = true) override; //blit current frame
+	void redraw(int x, int y, SDL_Surface *dst, bool update = true) override; //reblits buffer
+	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true) override; //moves to next frame if appropriate, and blits it or blits only if redraw parameter is set true
 	
 	// Opens video, calls playVideo, closes video; returns playVideo result (if whole video has been played)
-	bool openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey = false);
+	bool openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey = false, bool scale = false) override;
 
 	//TODO:
-	bool wait(){return false;};
-	int curFrame() const {return -1;};
-	int frameCount() const {return -1;};
-
-	void setScaling(bool enabled) override {doScale = enabled;};
+	bool wait() override {return false;};
+	int curFrame() const override {return -1;};
+	int frameCount() const override {return -1;};
 
 	// public to allow access from ffmpeg IO functions
 	std::unique_ptr<CInputStream> data;
