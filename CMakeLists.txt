@@ -88,8 +88,10 @@ if(NOT WIN32)
 	endif()
 endif()
 
+set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
 find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(FFmpeg REQUIRED)
 
 if (ENABLE_SDL2)
 	find_package(SDL2 REQUIRED)
@@ -122,11 +124,6 @@ endif()
 if(ENABLE_TEST)
 	# find_package overwrites BOOST_* variables which are already set, so all components have to be included again
 	find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
-endif()
-
-if(NOT WIN32)
-	set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
-	find_package(FFmpeg REQUIRED)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
