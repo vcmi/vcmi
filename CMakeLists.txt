@@ -221,9 +221,24 @@ if (NOT APPLE)
 endif()
 
 if(WIN32)
-	#TODO: install any additional dll's. This version (may be broken) will copy all dll's including H3 ones
-	#FILE(GLOB dll_files "${CMAKE_BINARY_DIR}/*.dll")
-	#INSTALL(FILES ${dll_files} DESTINATION ${BIN_DIR})
+	file(GLOB dep_files "${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+	if (ENABLE_EDITOR OR ENABLE_LAUNCHER)
+		get_target_property(QtCore_location Qt5::Core LOCATION)
+		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
+		file(GLOB qt_files 
+			${Qtbin_folder}/Qt5Core.dll
+			${Qtbin_folder}/Qt5Gui.dll
+			${Qtbin_folder}/Qt5Widgets.dll
+			${Qtbin_folder}/icu*.dll)
+	endif()
+	if (ENABLE_LAUNCHER)
+		file(GLOB qt_files 
+			${qt_files}
+			${Qtbin_folder}/Qt5Network.dll)
+	endif()
+
+	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
+	install(FILES ${qt_files} DESTINATION ${BIN_DIR})
 elseif(APPLE)
 else()
 	#install icons and desktop file on Linux
