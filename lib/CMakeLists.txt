@@ -95,7 +95,7 @@ set(lib_SRCS
 		registerTypes/TypesClientPacks2.cpp
 		registerTypes/TypesMapObjects1.cpp
 		registerTypes/TypesMapObjects2.cpp
-                registerTypes/TypesMapObjects3.cpp
+				registerTypes/TypesMapObjects3.cpp
 		registerTypes/TypesPregamePacks.cpp
 		registerTypes/TypesServerPacks.cpp
 )

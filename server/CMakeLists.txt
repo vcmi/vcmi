@@ -6,10 +6,10 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 set(server_SRCS
 		StdInc.cpp
-        CGameHandler.cpp
-        CVCMIServer.cpp
-        CQuery.cpp
-        NetPacksServer.cpp
+		CGameHandler.cpp
+		CVCMIServer.cpp
+		CQuery.cpp
+		NetPacksServer.cpp
 )
 
 add_executable(vcmiserver ${server_SRCS})
@@ -25,6 +25,6 @@ set_target_properties(vcmiserver PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PA
 cotire(vcmiserver)
 
 if (NOT APPLE) # Already inside vcmiclient bundle
-    install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
+	install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
 endif()
 

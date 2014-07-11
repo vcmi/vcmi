@@ -9,7 +9,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
 
 # enable Release mode but only if it was not set
 if (NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE RelWithDebInfo)
+		set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
 # VCMI version
@@ -61,7 +61,7 @@ if (WIN32)
 
 	include(CheckLibraryExists)
 	check_library_exists(iconv libiconv_open "" ICONV_LIB_FOUND)
-    check_library_exists(iconv iconv_open "" ICONV_FOUND)
+	check_library_exists(iconv iconv_open "" ICONV_FOUND)
 	if(ICONV_LIB_FOUND OR ICONV_FOUND)
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
 	endif()
@@ -76,7 +76,7 @@ endif()
 if(NOT WIN32)
 	INCLUDE(CheckLibraryExists)
 
-    #check if some platform-specific libraries are needed for linking
+	#check if some platform-specific libraries are needed for linking
 	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
 	if(HAVE_RT_LIB)
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} rt)
@@ -121,7 +121,7 @@ endif()
 
 if(ENABLE_TEST)
 	# find_package overwrites BOOST_* variables which are already set, so all components have to be included again
-    find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
+	find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
 endif()
 
 if(NOT WIN32)
@@ -157,7 +157,7 @@ else()
 	include(GNUInstallDirs)
 
 	if (NOT BIN_DIR)
-        set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
+		set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
 	endif()
 	if (NOT LIB_DIR)
 		set(LIB_DIR "${CMAKE_INSTALL_LIBDIR}/vcmi" CACHE STRING "Where to install main library")
@@ -186,7 +186,7 @@ SET(PCH_PROPERTIES
 )
 
 if (ENABLE_ERM)
-        add_subdirectory(scripting/erm)
+		add_subdirectory(scripting/erm)
 endif()
 add_subdirectory(lib)
 add_subdirectory(client)
