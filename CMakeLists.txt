@@ -9,7 +9,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
 
 # enable Release mode but only if it was not set
 if (NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE RelWithDebInfo)
+		set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
 # VCMI version
@@ -54,11 +54,46 @@ if (APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
 endif()
 
+if (WIN32)
+	add_definitions(-DBOOST_THREAD_USE_LIB)
+	add_definitions(-D_WIN32_WINNT=0x0501)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock)
+
+	#check for iconv (may be needed for boost.locale)
+	include(CheckLibraryExists)
+	check_library_exists(iconv libiconv_open "" ICONV_FOUND)
+	if(ICONV_FOUND)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
+	endif()
+
+	set(CMAKE_SHARED_LIBRARY_PREFIX "") #delete lib prefix for dlls
+endif()
+
+if(APPLE)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} libiconv.dylib)
+endif()
+
+if(NOT WIN32)
+	INCLUDE(CheckLibraryExists)
+
+	#check if some platform-specific libraries are needed for linking
+	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
+	if(HAVE_RT_LIB)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} rt)
+	endif()
+
+	CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIB)
+	if(HAVE_DL_LIB)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} dl)
+	endif()
+endif()
+
+set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
 find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(FFmpeg REQUIRED)
 
 if (ENABLE_SDL2)
-	include (FindPkgConfig)
 	find_package(SDL2 REQUIRED)
 	find_package(SDL2_image REQUIRED)
 	find_package(SDL2_mixer REQUIRED)
@@ -87,31 +122,8 @@ if (ENABLE_LAUNCHER)
 endif()
 
 if(ENABLE_TEST)
-	# find_package overwrites BOOST_* variables which are already set, so all components have to be
-	# included again
-        find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
-endif()
-
-if(APPLE)
-	set(Boost_LIBRARIES ${Boost_LIBRARIES} libiconv.dylib) # Our prebuilt boost_locale for OS X depends on iconv
-endif()
-
-if(NOT WIN32)
-	set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
-	find_package(FFmpeg REQUIRED)
-
-	INCLUDE(CheckLibraryExists)
-
-        #check if some platform-specific libraries are needed for linking
-	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
-	if(HAVE_RT_LIB)
-		set(RT_LIB -lrt)
-	endif()
-
-	CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIB)
-	if(HAVE_DL_LIB)
-		set(DL_LIB -ldl)
-	endif()
+	# find_package overwrites BOOST_* variables which are already set, so all components have to be included again
+	find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
@@ -127,9 +139,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support suc
 endif()
 
 if(WIN32) # on Win everything goes into H3 root directory
-	set(BIN_DIR "" CACHE STRING "Where to install binaries")
-	set(LIB_DIR "" CACHE STRING "Where to install main library")
-	set(DATA_DIR "" CACHE STRING "Where to install data files")
+	set(BIN_DIR "." CACHE STRING "Where to install binaries")
+	set(LIB_DIR "." CACHE STRING "Where to install main library")
+	set(DATA_DIR "." CACHE STRING "Where to install data files")
 elseif(APPLE)
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
@@ -142,7 +154,7 @@ else()
 	include(GNUInstallDirs)
 
 	if (NOT BIN_DIR)
-        set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
+		set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
 	endif()
 	if (NOT LIB_DIR)
 		set(LIB_DIR "${CMAKE_INSTALL_LIBDIR}/vcmi" CACHE STRING "Where to install main library")
@@ -171,7 +183,7 @@ SET(PCH_PROPERTIES
 )
 
 if (ENABLE_ERM)
-        add_subdirectory(scripting/erm)
+		add_subdirectory(scripting/erm)
 endif()
 add_subdirectory(lib)
 add_subdirectory(client)

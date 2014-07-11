@@ -95,7 +95,7 @@ set(lib_SRCS
 		registerTypes/TypesClientPacks2.cpp
 		registerTypes/TypesMapObjects1.cpp
 		registerTypes/TypesMapObjects2.cpp
-                registerTypes/TypesMapObjects3.cpp
+				registerTypes/TypesMapObjects3.cpp
 		registerTypes/TypesPregamePacks.cpp
 		registerTypes/TypesServerPacks.cpp
 )
@@ -132,7 +132,12 @@ set(lib_HEADERS
 
 add_library(vcmi SHARED ${lib_SRCS} ${lib_HEADERS})
 set_target_properties(vcmi PROPERTIES XCODE_ATTRIBUTE_LD_DYLIB_INSTALL_NAME "@rpath/libvcmi.dylib")
-target_link_libraries(vcmi minizip ${Boost_LIBRARIES} ${SDL_LIBRARY} ${ZLIB_LIBRARIES} ${RT_LIB} ${DL_LIB})
+set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
+target_link_libraries(vcmi minizip ${Boost_LIBRARIES} ${SDL_LIBRARY} ${ZLIB_LIBRARIES} ${SYSTEM_LIBS})
+
+if(WIN32)
+	set_target_properties(vcmi PROPERTIES OUTPUT_NAME VCMI_lib)
+endif()
 
 set_target_properties(vcmi PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmi)
