@@ -59,10 +59,10 @@ if (WIN32)
 	add_definitions(-D_WIN32_WINNT=0x0501)
 	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock)
 
+	#check for iconv (may be needed for boost.locale)
 	include(CheckLibraryExists)
-	check_library_exists(iconv libiconv_open "" ICONV_LIB_FOUND)
-	check_library_exists(iconv iconv_open "" ICONV_FOUND)
-	if(ICONV_LIB_FOUND OR ICONV_FOUND)
+	check_library_exists(iconv libiconv_open "" ICONV_FOUND)
+	if(ICONV_FOUND)
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
 	endif()
 
