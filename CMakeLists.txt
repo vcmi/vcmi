@@ -66,7 +66,23 @@ if (WIN32)
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
 	endif()
 
-	set(CMAKE_SHARED_LIBRARY_PREFIX "") #delete lib prefix for dlls
+	#delete lib prefix for dlls
+	set(CMAKE_SHARED_LIBRARY_PREFIX "") 
+
+	if(MINGW)
+		get_filename_component(MINGW_PATH ${CMAKE_CXX_COMPILER} PATH )
+		
+		#link to libgcc_s_*.dll statically
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
+		set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
+		
+		#copy libwinpthread-*.dll to VCMI location
+		set(dep_files ${dep_files} "${MINGW_PATH}/libwinpthread-*.dll") 
+		
+		#copy libgcc_s_*.dll and libstdc++-*.dll to VCMI location, because vanilla Qt5 build with dynamic linking
+		set(dep_files ${dep_files} "${MINGW_PATH}/libgcc_s_*.dll") 
+		set(dep_files ${dep_files} "${MINGW_PATH}/libstdc++-*.dll") 
+	endif()
 endif()
 
 if(APPLE)
@@ -227,24 +243,28 @@ if (NOT APPLE)
 endif()
 
 if(WIN32)
-	file(GLOB dep_files "${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+	file(GLOB dep_files 
+		${dep_files} 
+		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+
 	if (ENABLE_EDITOR OR ENABLE_LAUNCHER)
 		get_target_property(QtCore_location Qt5::Core LOCATION)
 		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
-		file(GLOB qt_files 
+		file(GLOB dep_files 
+			${dep_files}
 			${Qtbin_folder}/Qt5Core.dll
 			${Qtbin_folder}/Qt5Gui.dll
 			${Qtbin_folder}/Qt5Widgets.dll
 			${Qtbin_folder}/icu*.dll)
 	endif()
+
 	if (ENABLE_LAUNCHER)
-		file(GLOB qt_files 
-			${qt_files}
+		file(GLOB dep_files 
+			${dep_files} 
 			${Qtbin_folder}/Qt5Network.dll)
 	endif()
 
 	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
-	install(FILES ${qt_files} DESTINATION ${BIN_DIR})
 elseif(APPLE)
 else()
 	#install icons and desktop file on Linux
