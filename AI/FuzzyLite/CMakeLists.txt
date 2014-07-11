@@ -50,4 +50,6 @@ add_library(FuzzyLite_lib STATIC ${FuzzyLite_lib_SRCS})
 # all symobls from FuzzyLite exposed to public. This triggers errors
 # when library is checked by analizers for issues
 # Correct solution is either make FuzzyLite symbols hidden or turn lib into dynamic
-SET_TARGET_PROPERTIES(FuzzyLite_lib PROPERTIES COMPILE_FLAGS "-fPIC")
+if(NOT WIN32)
+	SET_TARGET_PROPERTIES(FuzzyLite_lib PROPERTIES COMPILE_FLAGS "-fPIC")
+endif()
