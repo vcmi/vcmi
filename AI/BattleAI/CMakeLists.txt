@@ -16,6 +16,6 @@ set_target_properties(BattleAI PROPERTIES ${PCH_PROPERTIES})
 cotire(BattleAI)
 
 if (NOT APPLE) # Already inside vcmiclient bundle
-    install(TARGETS BattleAI DESTINATION ${AI_LIB_DIR})
+    install(TARGETS BattleAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
 endif()
 

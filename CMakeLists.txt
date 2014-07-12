@@ -66,7 +66,17 @@ if (WIN32)
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
 	endif()
 
-	set(CMAKE_SHARED_LIBRARY_PREFIX "") #delete lib prefix for dlls
+	#delete lib prefix for dlls
+	set(CMAKE_SHARED_LIBRARY_PREFIX "") 
+
+	if(MINGW)
+		get_filename_component(MINGW_BIN_PATH ${CMAKE_CXX_COMPILER} PATH )
+
+		#copy libwinpthread-*.dll, libgcc_s_*.dll and libstdc++-*.dll to VCMI location
+		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libwinpthread-*.dll") 
+		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libgcc_s_*.dll") 
+		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libstdc++-*.dll") 
+	endif()
 endif()
 
 if(APPLE)
@@ -128,9 +138,10 @@ endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		set(CLANG_SPECIFIC_FLAGS "-Wno-mismatched-tags")
+		set(CLANG_SPECIFIC_FLAGS "-Wno-mismatched-tags -Wno-unknown-warning-option")
 	endif()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wno-switch -Wno-sign-compare -Wno-unused-parameter -Wuninitialized -Wno-overloaded-virtual ${CLANG_SPECIFIC_FLAGS}")
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wno-strict-aliasing -Wno-switch -Wno-sign-compare -Wno-unused-local-typedefs  -Wno-unused-parameter -Wuninitialized -Wno-overloaded-virtual -Wno-type-limits ${CLANG_SPECIFIC_FLAGS}")
 
 	if(UNIX)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
@@ -221,9 +232,28 @@ if (NOT APPLE)
 endif()
 
 if(WIN32)
-	#TODO: install any additional dll's. This version (may be broken) will copy all dll's including H3 ones
-	#FILE(GLOB dll_files "${CMAKE_BINARY_DIR}/*.dll")
-	#INSTALL(FILES ${dll_files} DESTINATION ${BIN_DIR})
+	file(GLOB dep_files 
+		${dep_files} 
+		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+
+	if (ENABLE_EDITOR OR ENABLE_LAUNCHER)
+		get_target_property(QtCore_location Qt5::Core LOCATION)
+		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
+		file(GLOB dep_files 
+			${dep_files}
+			${Qtbin_folder}/Qt5Core.dll
+			${Qtbin_folder}/Qt5Gui.dll
+			${Qtbin_folder}/Qt5Widgets.dll
+			${Qtbin_folder}/icu*.dll)
+	endif()
+
+	if (ENABLE_LAUNCHER)
+		file(GLOB dep_files 
+			${dep_files} 
+			${Qtbin_folder}/Qt5Network.dll)
+	endif()
+
+	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
 elseif(APPLE)
 else()
 	#install icons and desktop file on Linux
