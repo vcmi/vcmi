@@ -4,7 +4,6 @@ compiler:
  - clang
  
 before_install:
-  export CC=${REAL_CC} CXX=${REAL_CXX}
   #new boost
   - sudo add-apt-repository --yes ppa:boost-latest/ppa
   #new GCC
