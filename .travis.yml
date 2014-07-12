@@ -1,0 +1,49 @@
+language: cpp
+compiler: 
+ - gcc
+ 
+before_install:
+  #new boost
+  - sudo add-apt-repository --yes ppa:boost-latest/ppa
+  #new GCC
+  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+  #new SDL2
+  - sudo add-apt-repository --yes ppa:zoogie/sdl2-snapshots
+  #new Qt
+  - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa 
+
+  - sudo apt-get update -qq
+  
+  - sudo apt-get install -qq cmake g++-4.8 yasm libboost1.55-all-dev zlib1g-dev
+  - sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+  - sudo apt-get install -qq qtdeclarative5-dev
+  
+  #use newer GCC
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+
+before_script:
+  #install new ffmpeg
+  - mkdir ffmpeg
+  - cd ffmpeg
+  - wget https://www.ffmpeg.org/releases/ffmpeg-2.2.4.tar.gz
+  - tar -xzf ffmpeg-2.2.4.tar.gz
+  - cd ffmpeg-2.2.4
+  - ./configure --disable-doc --enable-shared --prefix=/usr
+  - make
+  - sudo make install
+  - cd ..
+  - cd ..
+  
+  - mkdir build
+  - cd build
+  - cmake ..
+
+script:
+  - make
+
+notifications:
+  email:
+    recipients:
+      - vcmi.fail@mixaill.tk
+    on_success: change
+    on_failure: always
