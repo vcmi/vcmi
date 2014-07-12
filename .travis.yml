@@ -1,8 +1,5 @@
 language: cpp
-compiler: 
- - gcc
- - clang
- 
+
 before_install:
   #new boost
   - sudo add-apt-repository --yes ppa:boost-latest/ppa
@@ -43,9 +40,15 @@ before_script:
   - cmake ..
 
 script:
-  - make  
-
+  - make
+  
+  
+env:
+  - ignore=this
+  
 matrix:
+  exclude:
+    - env: ignore=this
   include:
     - compiler: clang
       env: REAL_CC=clang-3.1 REAL_CXX=clang++-3.1 PACKAGE=clang-3.1
