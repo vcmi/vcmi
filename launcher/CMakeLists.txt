@@ -52,7 +52,7 @@ set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${CMAKE_CXX_FLAGS}")
 qt5_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
 
 if(WIN32)
-	add_executable(vcmilauncher WIN32 ${launcher_SRCS} ${launcher_UI_HEADERS})
+	add_executable(vcmilauncher WIN32 ${launcher_SRCS} ${launcher_UI_HEADERS} VCMI_launcher.mingw.rc)
 	set_target_properties(vcmilauncher PROPERTIES OUTPUT_NAME VCMI_launcher)
 else()
 	add_executable(vcmilauncher ${launcher_SRCS} ${launcher_UI_HEADERS})

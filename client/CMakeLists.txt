@@ -97,6 +97,8 @@ if(APPLE)
 		cp -r ${CMAKE_HOME_DIRECTORY}/launcher/icons/ ${BUNDLE_PATH}/Data/launcher/icons/)
 		
 	add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
+elseif(WIN32)
+	add_executable(vcmiclient ${client_SRCS} VCMI_client.mingw.rc)
 else()
 	add_executable(vcmiclient ${client_SRCS})
 endif()
