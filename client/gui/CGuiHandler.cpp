@@ -1,10 +1,10 @@
 #include "StdInc.h"
 #include "CGuiHandler.h"
 
-
 #include "CIntObject.h"
-#include "../CGameInfo.h"
 #include "CCursorHandler.h"
+
+#include "../CGameInfo.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/CConfigHandler.h"
 #include "../CMT.h"

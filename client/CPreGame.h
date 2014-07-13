@@ -5,7 +5,7 @@
 #include "../lib/FunctionList.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/rmg/CMapGenerator.h"
-#include "gui/CIntObjectClasses.h"
+#include "widgets/CIntObjectClasses.h"
 
 /*
  * CPreGame.h, part of VCMI engine

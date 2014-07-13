@@ -14,39 +14,41 @@ set(client_SRCS
 		battle/CBattleInterfaceClasses.cpp
 		battle/CCreatureAnimation.cpp
 
-		gui/CArtifactHolder.cpp
-		gui/CComponent.cpp
-		gui/CGarrisonInt.cpp
+		gui/CCursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
-		gui/CIntObjectClasses.cpp
-		gui/CTradeWindow.cpp
 		gui/Fonts.cpp
 		gui/Geometries.cpp
-		gui/MiscWidgets.cpp
-		gui/CCursorHandler.cpp
 		gui/SDL_Extensions.cpp
 
-		CPreGame.cpp
-		Client.cpp
-		CPlayerInterface.cpp
-		CMT.cpp
-		GUIClasses.cpp
-		AdventureMapClasses.cpp
-		CAdvmapInterface.cpp
-		CAnimation.cpp
+		widgets/AdventureMapClasses.cpp
+		widgets/CAnimation.cpp
+		widgets/CArtifactHolder.cpp
+		widgets/CComponent.cpp
+		widgets/CGarrisonInt.cpp
+		widgets/CIntObjectClasses.cpp
+		widgets/MiscWidgets.cpp
+
+		windows/CAdvmapInterface.cpp
+		windows/CCastleInterface.cpp
+		windows/CCreatureWindow.cpp
+		windows/CHeroWindow.cpp
+		windows/CKingdomInterface.cpp
+		windows/CQuestLog.cpp
+		windows/CSpellWindow.cpp
+		windows/CTradeWindow.cpp
+		windows/GUIClasses.cpp
+
 		CBitmapHandler.cpp
-		CCastleInterface.cpp
-		CCreatureWindow.cpp
 		CDefHandler.cpp
 		CGameInfo.cpp
-		CHeroWindow.cpp
-		CKingdomInterface.cpp
+		Client.cpp
 		CMessage.cpp
+		CMT.cpp
 		CMusicHandler.cpp
-		CSpellWindow.cpp
+		CPlayerInterface.cpp
+		CPreGame.cpp
 		CVideoHandler.cpp
-		CQuestLog.cpp
 		Graphics.cpp
 		mapHandler.cpp
 		NetPacksClient.cpp

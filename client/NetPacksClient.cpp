@@ -17,7 +17,7 @@
 #include "../lib/CSoundBase.h"
 #include "../lib/StartInfo.h"
 #include "mapHandler.h"
-#include "GUIClasses.h"
+#include "windows/GUIClasses.h"
 #include "../lib/CConfigHandler.h"
 #include "gui/SDL_Extensions.h"
 #include "battle/CBattleInterface.h"
@@ -26,8 +26,8 @@
 #include "../lib/BattleState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
-#include "gui/MiscWidgets.h"
-#include "AdventureMapClasses.h"
+#include "widgets/MiscWidgets.h"
+#include "widgets/AdventureMapClasses.h"
 #include "CMT.h"
 
 //macros to avoid code duplication - calls given method with given arguments if interface for specific player is present

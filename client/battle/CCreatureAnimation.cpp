@@ -1,15 +1,15 @@
 #include "StdInc.h"
 #include "CCreatureAnimation.h"
 
+#include "../../lib/vcmi_endian.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/vcmi_endian.h"
-#include "../gui/SDL_Extensions.h"
-#include "../gui/SDL_Pixels.h"
-
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CBinaryReader.h"
 #include "../../lib/filesystem/CMemoryStream.h"
+
+#include "../gui/SDL_Extensions.h"
+#include "../gui/SDL_Pixels.h"
 
 /*
  * CCreatureAnimation.cpp, part of VCMI engine

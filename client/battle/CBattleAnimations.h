@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../CAnimation.h"
+#include "../widgets/CAnimation.h"
 #include "../../lib/BattleHex.h"
 
 class CBattleInterface;

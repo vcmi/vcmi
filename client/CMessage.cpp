@@ -13,16 +13,16 @@
 
 #include "SDL_ttf.h"
 #include "CDefHandler.h"
-#include "CAnimation.h"
+#include "widgets/CAnimation.h"
 #include "CGameInfo.h"
 #include "gui/SDL_Extensions.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
-#include "GUIClasses.h"
+#include "windows/GUIClasses.h"
 #include "../lib/CConfigHandler.h"
 #include "CBitmapHandler.h"
-#include "gui/CIntObjectClasses.h"
-#include "gui/MiscWidgets.h"
+#include "widgets/CIntObjectClasses.h"
+#include "widgets/MiscWidgets.h"
 
 const int BETWEEN_COMPS_ROWS = 10;
 const int BEFORE_COMPONENTS = 30;

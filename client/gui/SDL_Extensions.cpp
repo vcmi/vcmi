@@ -2,7 +2,6 @@
 #include "SDL_Extensions.h"
 #include "SDL_Pixels.h"
 
-#include <SDL_ttf.h>
 #include "../CGameInfo.h"
 #include "../CMessage.h"
 #include "../CDefHandler.h"

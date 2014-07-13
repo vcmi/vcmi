@@ -2,10 +2,12 @@
 #include "CCursorHandler.h"
 
 #include <SDL.h>
+
 #include "SDL_Extensions.h"
-#include "../CAnimation.h"
 #include "CGuiHandler.h"
+
 #include "../CMT.h"
+#include "../widgets/CAnimation.h"
 
 /*
  * CCursorHandler.cpp, part of VCMI engine
