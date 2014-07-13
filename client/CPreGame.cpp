@@ -39,6 +39,7 @@
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
 #include "gui/CIntObjectClasses.h"
+#include "gui/MiscWidgets.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/CRandomGenerator.h"

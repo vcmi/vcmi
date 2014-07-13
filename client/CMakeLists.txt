@@ -23,6 +23,7 @@ set(client_SRCS
 		gui/CTradeWindow.cpp
 		gui/Fonts.cpp
 		gui/Geometries.cpp
+		gui/MiscWidgets.cpp
 		gui/CCursorHandler.cpp
 		gui/SDL_Extensions.cpp
 

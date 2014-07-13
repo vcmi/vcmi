@@ -1,9 +1,12 @@
-#include "gui/CIntObject.h"
-#include "AdventureMapClasses.h"
-#include "CAdvmapInterface.h"
-#include "GUIClasses.h"
+#pragma once
 
-#include "../lib/CGameState.h"
+#include "gui/CIntObjectClasses.h"
+#include "CAnimation.h"
+#include "AdventureMapClasses.h"
+//#include "CAdvmapInterface.h"
+//
+
+//#include "../lib/CGameState.h"
 
 /*
  * CQuestLog.h, part of VCMI engine
@@ -28,8 +31,6 @@ class LRClickableAreaWTextComp;
 class CSlider;
 class CLabel;
 struct QuestInfo;
-
-extern CAdvMapInt *adventureInt;
 
 const int QUEST_COUNT = 9;
 

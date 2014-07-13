@@ -1,10 +1,6 @@
 #pragma once
 
-#include <typeinfo>
-
-#include "SDL.h"
-#include "gui/CIntObjectClasses.h"
-#include "GUIClasses.h"
+#include "gui/CIntObject.h"
 #include "AdventureMapClasses.h"
 
 class CDefHandler;
@@ -28,16 +24,6 @@ class IShipyard;
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-/// Adventure options dialogue where you can view the world, dig, play the replay of the last turn,...
-class CAdventureOptions : public CWindowObject
-{
-public:
-	CAdventureMapButton *exit, *viewWorld, *puzzle, *dig, *scenInfo, *replay;
-
-	CAdventureOptions();
-	static void showScenarioInfo();
-};
 
 /// Holds information about which tiles of the terrain are shown/not shown at the screen
 class CTerrainRect

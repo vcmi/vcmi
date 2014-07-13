@@ -17,6 +17,7 @@
 #include "../lib/CConfigHandler.h"
 #include "battle/CCreatureAnimation.h"
 #include "Graphics.h"
+#include "GUIClasses.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -36,6 +37,7 @@
 #include "../lib/CGameState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
+#include "gui/MiscWidgets.h"
 #include "../lib/UnlockGuard.h"
 
 #ifdef min

@@ -25,6 +25,8 @@
 
 #include "gui/CGuiHandler.h"
 #include "gui/CIntObjectClasses.h"
+#include "gui/MiscWidgets.h"
+#include "GUIClasses.h"
 #include "CMT.h"
 
 #undef min

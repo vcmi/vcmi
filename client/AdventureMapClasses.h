@@ -1,6 +1,5 @@
 #pragma once
 
-#include "gui/CIntObject.h"
 #include "gui/CIntObjectClasses.h"
 
 class CArmedInstance;
@@ -312,4 +311,41 @@ public:
 
 	/// for 3 seconds shows amount of town halls and players status
 	void showGameStatus();
+};
+
+class CInGameConsole : public CIntObject
+{
+private:
+	std::list< std::pair< std::string, int > > texts; //list<text to show, time of add>
+	boost::mutex texts_mx;		// protects texts
+	std::vector< std::string > previouslyEntered; //previously entered texts, for up/down arrows to work
+	int prevEntDisp; //displayed entry from previouslyEntered - if none it's -1
+	int defaultTimeout; //timeout for new texts (in ms)
+	int maxDisplayedTexts; //hiw many texts can be displayed simultaneously
+public:
+	std::string enteredText;
+	void show(SDL_Surface * to);
+	void print(const std::string &txt);
+	void keyPressed (const SDL_KeyboardEvent & key); //call-in
+
+#ifndef VCMI_SDL1
+	void textInputed(const SDL_TextInputEvent & event) override;
+	void textEdited(const SDL_TextEditingEvent & event) override;
+#endif // VCMI_SDL1
+
+	void startEnteringText();
+	void endEnteringText(bool printEnteredText);
+	void refreshEnteredText();
+
+	CInGameConsole(); //c-tor
+};
+
+/// Adventure options dialogue where you can view the world, dig, play the replay of the last turn,...
+class CAdventureOptions : public CWindowObject
+{
+public:
+	CAdventureMapButton *exit, *viewWorld, *puzzle, *dig, *scenInfo, *replay;
+
+	CAdventureOptions();
+	static void showScenarioInfo();
 };

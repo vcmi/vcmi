@@ -26,6 +26,7 @@
 
 #include "gui/CGuiHandler.h"
 #include "gui/CIntObjectClasses.h"
+#include "gui/MiscWidgets.h"
 
 using namespace CSDL_Ext;
 

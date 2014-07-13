@@ -20,8 +20,14 @@
 #include "CMusicHandler.h"
 #include "Graphics.h"
 #include "GUIClasses.h"
+#include "StartInfo.h"
+#include "CPreGame.h"
 #include "gui/CGuiHandler.h"
 #include "gui/SDL_Pixels.h"
+#include "gui/MiscWidgets.h"
+#include "battle/CBattleInterface.h"
+#include "battle/CBattleInterfaceClasses.h"
+#include "gui/MiscWidgets.h"
 
 /*
  * CAdventureMapClasses.h, part of VCMI engine
@@ -949,4 +955,284 @@ void CInfoBar::showGameStatus()
 	visibleInfo->loadGameStatus();
 	setTimer(3000);
 	redraw();
+}
+
+void CInGameConsole::show(SDL_Surface * to)
+{
+	int number = 0;
+
+	std::vector<std::list< std::pair< std::string, int > >::iterator> toDel;
+
+	boost::unique_lock<boost::mutex> lock(texts_mx);
+	for(auto it = texts.begin(); it != texts.end(); ++it, ++number)
+	{
+		Point leftBottomCorner(0, screen->h);
+		if(LOCPLINT->battleInt)
+		{
+			leftBottomCorner = LOCPLINT->battleInt->pos.bottomLeft();
+		}
+		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, it->first, Colors::GREEN,
+			Point(leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number*20));
+
+		if(SDL_GetTicks() - it->second > defaultTimeout)
+		{
+			toDel.push_back(it);
+		}
+	}
+
+	for(auto & elem : toDel)
+	{
+		texts.erase(elem);
+	}
+}
+
+void CInGameConsole::print(const std::string &txt)
+{
+	boost::unique_lock<boost::mutex> lock(texts_mx);
+	int lineLen = conf.go()->ac.outputLineLength;
+
+	if(txt.size() < lineLen)
+	{
+		texts.push_back(std::make_pair(txt, SDL_GetTicks()));
+		if(texts.size() > maxDisplayedTexts)
+		{
+			texts.pop_front();
+		}
+	}
+	else
+	{
+		assert(lineLen);
+		for(int g=0; g<txt.size() / lineLen + 1; ++g)
+		{
+			std::string part = txt.substr(g * lineLen, lineLen);
+			if(part.size() == 0)
+				break;
+
+			texts.push_back(std::make_pair(part, SDL_GetTicks()));
+			if(texts.size() > maxDisplayedTexts)
+			{
+				texts.pop_front();
+			}
+		}
+	}
+}
+
+void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
+{
+	if(key.type != SDL_KEYDOWN) return;
+
+	if(!captureAllKeys && key.keysym.sym != SDLK_TAB) return; //because user is not entering any text
+
+	switch(key.keysym.sym)
+	{
+	case SDLK_TAB:
+	case SDLK_ESCAPE:
+		{
+			if(captureAllKeys)
+			{
+				captureAllKeys = false;
+				endEnteringText(false);
+			}
+			else if(SDLK_TAB)
+			{
+				captureAllKeys = true;
+				startEnteringText();
+			}
+			break;
+		}
+	case SDLK_RETURN: //enter key
+		{
+			if(enteredText.size() > 0  &&  captureAllKeys)
+			{
+				captureAllKeys = false;
+				endEnteringText(true);
+				CCS->soundh->playSound("CHAT");
+			}
+			break;
+		}
+	case SDLK_BACKSPACE:
+		{
+			if(enteredText.size() > 1)
+			{
+				Unicode::trimRight(enteredText,2);
+				enteredText += '_';
+				refreshEnteredText();
+			}
+			break;
+		}
+	case SDLK_UP: //up arrow
+		{
+			if(previouslyEntered.size() == 0)
+				break;
+
+			if(prevEntDisp == -1)
+			{
+				prevEntDisp = previouslyEntered.size() - 1;
+				enteredText = previouslyEntered[prevEntDisp] + "_";
+				refreshEnteredText();
+			}
+			else if( prevEntDisp > 0)
+			{
+				--prevEntDisp;
+				enteredText = previouslyEntered[prevEntDisp] + "_";
+				refreshEnteredText();
+			}
+			break;
+		}
+	case SDLK_DOWN: //down arrow
+		{
+			if(prevEntDisp != -1 && prevEntDisp+1 < previouslyEntered.size())
+			{
+				++prevEntDisp;
+				enteredText = previouslyEntered[prevEntDisp] + "_";
+				refreshEnteredText();
+			}
+			else if(prevEntDisp+1 == previouslyEntered.size()) //useful feature
+			{
+				prevEntDisp = -1;
+				enteredText = "_";
+				refreshEnteredText();
+			}
+			break;
+		}
+	default:
+		{
+			#ifdef VCMI_SDL1
+			if(enteredText.size() > 0 && enteredText.size() < conf.go()->ac.inputLineLength)
+			{
+				if( key.keysym.unicode < 0x80 && key.keysym.unicode > 0 )
+				{
+					enteredText[enteredText.size()-1] = (char)key.keysym.unicode;
+					enteredText += "_";
+					refreshEnteredText();
+				}
+			}
+			#endif // VCMI_SDL1
+			break;
+		}
+	}
+}
+
+#ifndef VCMI_SDL1
+
+void CInGameConsole::textInputed(const SDL_TextInputEvent & event)
+{
+	if(!captureAllKeys || enteredText.size() == 0)
+		return;
+	enteredText.resize(enteredText.size()-1);
+
+	enteredText += event.text;
+	enteredText += "_";
+
+	refreshEnteredText();
+}
+
+void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
+{
+ //do nothing here
+}
+
+#endif // VCMI_SDL1
+
+void CInGameConsole::startEnteringText()
+{
+	CSDL_Ext::startTextInput(&pos);
+
+	enteredText = "_";
+	if(GH.topInt() == adventureInt)
+	{
+		GH.statusbar->alignment = TOPLEFT;
+		GH.statusbar->setText(enteredText);
+
+		//Prevent changes to the text from mouse interaction with the adventure map
+		GH.statusbar->lock(true);
+	}
+	else if(LOCPLINT->battleInt)
+	{
+		LOCPLINT->battleInt->console->ingcAlter = enteredText;
+	}
+}
+
+void CInGameConsole::endEnteringText(bool printEnteredText)
+{
+	CSDL_Ext::stopTextInput();
+
+	prevEntDisp = -1;
+	if(printEnteredText)
+	{
+		std::string txt = enteredText.substr(0, enteredText.size()-1);
+		LOCPLINT->cb->sendMessage(txt);
+		previouslyEntered.push_back(txt);
+		//print(txt);
+	}
+	enteredText = "";
+	if(GH.topInt() == adventureInt)
+	{
+		GH.statusbar->alignment = CENTER;
+		GH.statusbar->lock(false);
+		GH.statusbar->clear();
+	}
+	else if(LOCPLINT->battleInt)
+	{
+		LOCPLINT->battleInt->console->ingcAlter = "";
+	}
+}
+
+void CInGameConsole::refreshEnteredText()
+{
+	if(GH.topInt() == adventureInt)
+	{
+		GH.statusbar->lock(false);
+		GH.statusbar->clear();
+		GH.statusbar->setText(enteredText);
+		GH.statusbar->lock(true);
+	}
+	else if(LOCPLINT->battleInt)
+	{
+		LOCPLINT->battleInt->console->ingcAlter = enteredText;
+	}
+}
+
+CInGameConsole::CInGameConsole() : prevEntDisp(-1), defaultTimeout(10000), maxDisplayedTexts(10)
+{
+	#ifdef VCMI_SDL1
+	addUsedEvents(KEYBOARD);
+	#else
+	addUsedEvents(KEYBOARD | TEXTINPUT);
+	#endif
+}
+
+CAdventureOptions::CAdventureOptions():
+	CWindowObject(PLAYER_COLORED, "ADVOPTS")
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	exit = new CAdventureMapButton("","",boost::bind(&CAdventureOptions::close, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+	exit->assignedKeys.insert(SDLK_ESCAPE);
+
+	scenInfo = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 198, "ADVINFO.DEF",SDLK_i);
+	scenInfo->callback += CAdventureOptions::showScenarioInfo;
+	//viewWorld = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+
+	puzzle = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 81, "ADVPUZ.DEF");
+	puzzle->callback += boost::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT);
+
+	dig = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 139, "ADVDIG.DEF");
+	if(const CGHeroInstance *h = adventureInt->curHero())
+		dig->callback += boost::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h);
+	else
+		dig->block(true);
+}
+
+void CAdventureOptions::showScenarioInfo()
+{
+	auto campState = LOCPLINT->cb->getStartInfo()->campState;
+	if(campState)
+	{
+		GH.pushInt(new CBonusSelection(campState));
+	}
+	else
+	{
+		GH.pushInt(new CScenarioInfo(LOCPLINT->cb->getMapHeader(), LOCPLINT->cb->getStartInfo()));
+	}
 }

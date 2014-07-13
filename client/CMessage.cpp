@@ -22,6 +22,7 @@
 #include "../lib/CConfigHandler.h"
 #include "CBitmapHandler.h"
 #include "gui/CIntObjectClasses.h"
+#include "gui/MiscWidgets.h"
 
 const int BETWEEN_COMPS_ROWS = 10;
 const int BEFORE_COMPONENTS = 30;

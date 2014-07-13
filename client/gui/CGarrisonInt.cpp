@@ -7,6 +7,7 @@
 #include "../CCreatureWindow.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../GUIClasses.h"
 
 #include "../../CCallback.h"
 

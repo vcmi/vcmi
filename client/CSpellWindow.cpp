@@ -3,6 +3,7 @@
 
 #include "Graphics.h"
 #include "CDefHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "CVideoHandler.h"
@@ -18,7 +19,9 @@
 #include "../lib/BattleState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
+#include "gui/MiscWidgets.h"
 #include "CMT.h"
+#include "GUIClasses.h"
 
 /*
  * CSpellWindow.cpp, part of VCMI engine

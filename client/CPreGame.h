@@ -1,12 +1,11 @@
 #pragma once
 
 #include "../lib/filesystem/Filesystem.h"
-#include <SDL.h>
 #include "../lib/StartInfo.h"
-#include "GUIClasses.h"
 #include "../lib/FunctionList.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/rmg/CMapGenerator.h"
+#include "gui/CIntObjectClasses.h"
 
 /*
  * CPreGame.h, part of VCMI engine

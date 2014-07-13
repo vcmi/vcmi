@@ -2,7 +2,8 @@
 
 #include "../lib/HeroBonus.h"
 #include "gui/CIntObjectClasses.h"
-#include "GUIClasses.h"
+#include "gui/CArtifactHolder.h"
+#include "gui/CGarrisonInt.h"
 
 /*
  * CHeroWindow.h, part of VCMI engine
@@ -24,6 +25,7 @@ class LClickableAreaHero;
 class LRClickableAreaWText;
 class LRClickableAreaWTextComp;
 class CArtifactsOfHero;
+class MoraleLuckBox;
 
 /// Button which switches hero selection
 class CHeroSwitcher : public CIntObject

@@ -14,6 +14,7 @@
 #include "../lib/CConfigHandler.h"
 #include "CSpellWindow.h"
 #include "Graphics.h"
+#include "GUIClasses.h"
 #include "CDefHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -31,6 +32,7 @@
 #include "gui/CGuiHandler.h"
 #include "gui/CIntObjectClasses.h"
 #include "gui/CTradeWindow.h"
+#include "gui/MiscWidgets.h"
 #include "../lib/UnlockGuard.h"
 
 #ifdef _MSC_VER
@@ -1523,39 +1525,4 @@ void CAdvMapInt::adjustActiveness(bool aiTurnStart)
 	adventureInt->duringAITurn = aiTurnStart;
 	if(wasActive) 
 		activate();
-}
-
-CAdventureOptions::CAdventureOptions():
-    CWindowObject(PLAYER_COLORED, "ADVOPTS")
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-
-	exit = new CAdventureMapButton("","",boost::bind(&CAdventureOptions::close, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
-	exit->assignedKeys.insert(SDLK_ESCAPE);
-
-	scenInfo = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 198, "ADVINFO.DEF",SDLK_i);
-	scenInfo->callback += CAdventureOptions::showScenarioInfo;
-	//viewWorld = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
-
-	puzzle = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 81, "ADVPUZ.DEF");
-	puzzle->callback += boost::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT);
-
-	dig = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 139, "ADVDIG.DEF");
-	if(const CGHeroInstance *h = adventureInt->curHero())
-		dig->callback += boost::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h);
-	else
-		dig->block(true);
-}
-
-void CAdventureOptions::showScenarioInfo()
-{
-	auto campState = LOCPLINT->cb->getStartInfo()->campState;
-	if(campState)
-	{
-		GH.pushInt(new CBonusSelection(campState));
-	}
-	else
-	{
-		GH.pushInt(new CScenarioInfo(LOCPLINT->cb->getMapHeader(), LOCPLINT->cb->getStartInfo()));
-	}
 }

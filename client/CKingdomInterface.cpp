@@ -16,6 +16,7 @@
 #include "CPlayerInterface.h" //LOCPLINT
 #include "gui/CGuiHandler.h"
 #include "gui/CIntObjectClasses.h"
+#include "gui/MiscWidgets.h"
 #include "CMT.h"
 
 /*

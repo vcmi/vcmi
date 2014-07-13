@@ -2,7 +2,7 @@
 
 #include "gui/CIntObject.h"
 #include "../lib/HeroBonus.h"
-#include "GUIClasses.h"
+#include "gui/CArtifactHolder.h"
 
 /*
  * CCreatureWindow.h, part of VCMI engine

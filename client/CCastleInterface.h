@@ -1,8 +1,7 @@
 #pragma once
 
-
 #include "CAnimation.h"
-#include "GUIClasses.h"
+#include "gui/CGarrisonInt.h"
 
 class CAdventureMapButton;
 class CBuilding;

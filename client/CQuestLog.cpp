@@ -5,20 +5,20 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../CCallback.h"
 
-#include <SDL.h>
-#include "gui/SDL_Extensions.h"
 #include "CBitmapHandler.h"
 #include "CDefHandler.h"
 #include "Graphics.h"
 #include "CPlayerInterface.h"
-#include "../lib/CConfigHandler.h"
+#include "CAdvmapInterface.h"
 
 #include "../lib/CGameState.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/NetPacksBase.h"
+#include "../lib/CConfigHandler.h"
 
 #include "gui/CGuiHandler.h"
 #include "gui/CIntObjectClasses.h"
+#include "gui/SDL_Extensions.h"
 
 /*
  * CQuestLog.cpp, part of VCMI engine

@@ -1,23 +1,27 @@
 #include "StdInc.h"
 #include "CIntObjectClasses.h"
 
-#include "../CBitmapHandler.h"
 #include "SDL_Pixels.h"
 #include "SDL_Extensions.h"
-#include "../Graphics.h"
-#include "../CAnimation.h"
+#include "CGuiHandler.h"
 #include "CCursorHandler.h"
-#include "../CGameInfo.h"
-#include "../../CCallback.h"
-#include "../../lib/CConfigHandler.h"
+#include "MiscWidgets.h"
+
 #include "../battle/CBattleInterface.h"
 #include "../battle/CBattleInterfaceClasses.h"
+
+#include "../CBitmapHandler.h"
+#include "../Graphics.h"
+#include "../CAnimation.h"
+#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../CMessage.h"
 #include "../CMusicHandler.h"
-#include "../GUIClasses.h"
-#include "CGuiHandler.h"
 #include "../CAdvmapInterface.h"
+
+#include "../../CCallback.h"
+
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )

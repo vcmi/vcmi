@@ -1,7 +1,7 @@
 #pragma once
 
-
-#include "GUIClasses.h"
+#include "gui/CArtifactHolder.h"
+#include "gui/CGarrisonInt.h"
 
 class CAdventureMapButton;
 class CAnimImage;
@@ -11,6 +11,10 @@ class CSlider;
 class CTownInfo;
 class CCreaInfo;
 class HeroSlots;
+class LRClickableAreaOpenTown;
+class CComponent;
+class CHeroArea;
+class MoraleLuckBox;
 
 /*
  * CKingdomInterface.h, part of VCMI engine
