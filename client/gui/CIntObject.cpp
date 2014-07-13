@@ -4,6 +4,11 @@
 #include "SDL_Extensions.h"
 #include "../CMessage.h"
 
+IShowActivatable::IShowActivatable()
+{
+	type = 0;
+}
+
 void ILockedUpdatable::runLocked(std::function<void(IUpdateable*)> cb)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(updateGuard);	

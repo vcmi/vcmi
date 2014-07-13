@@ -16,6 +16,7 @@ set(client_SRCS
 
 		gui/CArtifactHolder.cpp
 		gui/CComponent.cpp
+		gui/CGarrisonInt.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
 		gui/CIntObjectClasses.cpp
