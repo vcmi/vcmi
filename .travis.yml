@@ -43,8 +43,6 @@ matrix:
     - env: ignore=this
   include:
     - compiler: clang
-      env: REAL_CC=clang-3.1 REAL_CXX=clang++-3.1 PACKAGE=clang-3.1 SUPPORT=g++-4.8 
-    - compiler: clang
       env: REAL_CC=clang-3.2 REAL_CXX=clang++-3.2 PACKAGE=clang-3.2 SUPPORT=g++-4.8 
     - compiler: clang
       env: REAL_CC=clang-3.3 REAL_CXX=clang++-3.3 PACKAGE=clang-3.3 SUPPORT=g++-4.8 
