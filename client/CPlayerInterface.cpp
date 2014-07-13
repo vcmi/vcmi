@@ -13,6 +13,7 @@
 #include "CMessage.h"
 #include "CPlayerInterface.h"
 #include "gui/SDL_Extensions.h"
+#include "gui/CTradeWindow.h"
 #include "../lib/CConfigHandler.h"
 #include "battle/CCreatureAnimation.h"
 #include "Graphics.h"

@@ -20,6 +20,7 @@ set(client_SRCS
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
 		gui/CIntObjectClasses.cpp
+		gui/CTradeWindow.cpp
 		gui/Fonts.cpp
 		gui/Geometries.cpp
 		gui/CCursorHandler.cpp

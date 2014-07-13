@@ -30,6 +30,7 @@
 #include "CMusicHandler.h"
 #include "gui/CGuiHandler.h"
 #include "gui/CIntObjectClasses.h"
+#include "gui/CTradeWindow.h"
 #include "../lib/UnlockGuard.h"
 
 #ifdef _MSC_VER

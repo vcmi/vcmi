@@ -24,6 +24,7 @@
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
 #include "gui/CIntObjectClasses.h"
+#include "gui/CTradeWindow.h"
 
 using namespace boost::assign;
 
