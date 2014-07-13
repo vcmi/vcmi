@@ -14,6 +14,7 @@ before_install:
 
   - sudo apt-get update -qq
   
+  - sudo apt-get install -qq $SUPPORT
   - sudo apt-get install -qq $PACKAGE
   - sudo apt-get install -qq cmake yasm libboost1.55-all-dev zlib1g-dev
   - sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
@@ -51,17 +52,17 @@ matrix:
     - env: ignore=this
   include:
     - compiler: clang
-      env: REAL_CC=clang-3.1 REAL_CXX=clang++-3.1 PACKAGE=clang-3.1
+      env: REAL_CC=clang-3.1 REAL_CXX=clang++-3.1 PACKAGE=clang-3.1 SUPPORT=g++-4.8 
     - compiler: clang
-      env: REAL_CC=clang-3.2 REAL_CXX=clang++-3.2 PACKAGE=clang-3.2
+      env: REAL_CC=clang-3.2 REAL_CXX=clang++-3.2 PACKAGE=clang-3.2 SUPPORT=g++-4.8 
     - compiler: clang
-      env: REAL_CC=clang-3.3 REAL_CXX=clang++-3.3 PACKAGE=clang-3.3
+      env: REAL_CC=clang-3.3 REAL_CXX=clang++-3.3 PACKAGE=clang-3.3 SUPPORT=g++-4.8 
     - compiler: clang
-      env: REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4
+      env: REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4 SUPPORT=g++-4.8 
     - compiler: gcc
-      env: REAL_CC=gcc-4.7   REAL_CXX=g++-4.7     PACKAGE=g++-4.7
+      env: REAL_CC=gcc-4.7   REAL_CXX=g++-4.7     PACKAGE=g++-4.7   SUPPORT=
     - compiler: gcc
-      env: REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8  
+      env: REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT=
   
 notifications:
   email:
