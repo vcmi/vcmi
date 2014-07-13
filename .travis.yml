@@ -11,42 +11,32 @@ before_install:
   - sudo add-apt-repository --yes ppa:zoogie/sdl2-snapshots
   #new Qt
   - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa 
+  #new FFmpeg
+  - sudo add-apt-repository --yes ppa:djcj/vlc-stable
 
   - sudo apt-get update -qq
-  
+
   - sudo apt-get install -qq $SUPPORT
   - sudo apt-get install -qq $PACKAGE
   - sudo apt-get install -qq cmake yasm libboost1.55-all-dev zlib1g-dev
   - sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+  - sudo apt-get install -qq libavformat-dev libswscale-dev
   - sudo apt-get install -qq qtdeclarative5-dev
   
   #setup compiler
   - export CC=${REAL_CC} CXX=${REAL_CXX}
 
 before_script:
-  #install new ffmpeg
-  - mkdir ffmpeg
-  - cd ffmpeg
-  - wget https://www.ffmpeg.org/releases/ffmpeg-2.2.4.tar.gz
-  - tar -xzf ffmpeg-2.2.4.tar.gz
-  - cd ffmpeg-2.2.4
-  - ./configure --disable-doc --enable-shared --prefix=/usr
-  - make
-  - sudo make install
-  - cd ..
-  - cd ..
-  
   - mkdir build
   - cd build
   - cmake ..
 
 script:
   - make
-  
-  
+
 env:
   - ignore=this
-  
+
 matrix:
   exclude:
     - env: ignore=this
@@ -63,7 +53,7 @@ matrix:
       env: REAL_CC=gcc-4.7   REAL_CXX=g++-4.7     PACKAGE=g++-4.7   SUPPORT=
     - compiler: gcc
       env: REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT=
-  
+
 notifications:
   email:
     recipients:
