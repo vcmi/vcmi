@@ -1,0 +1,26 @@
+# This file is configured at cmake time, and loaded at cpack time.
+# To pass variables to cpack from cmake, they must be configured
+# in this file.
+
+if(CPACK_GENERATOR MATCHES "NSIS")
+	set(CPACK_NSIS_INSTALL_ROOT "@CPACK_NSIS_INSTALL_ROOT@")
+
+	# set the install/unistall icon used for the installer itself
+	# There is a bug in NSI that does not handle full unix paths properly.
+	set(CPACK_NSIS_MUI_ICON "@CMAKE_SOURCE_DIR@/client\\vcmi.ico")
+	set(CPACK_NSIS_MUI_UNIICON "@CMAKE_SOURCE_DIR@/client\\vcmi.ico")
+	# set the package header icon for MUI
+	set(CPACK_PACKAGE_ICON "@CMAKE_SOURCE_DIR@/client\\vcmi.ico")
+
+	set(CPACK_NSIS_MENU_LINKS 
+		"http://vcmi.eu/" "VCMI Web Site")
+
+	set(CPACK_NSIS_INSTALLED_ICON_NAME "VCMI_client.exe")
+	set(CPACK_NSIS_COMPRESSOR "/SOLID lzma")
+	set(CPACK_NSIS_PACKAGE_NAME "@CPACK_NSIS_PACKAGE_NAME@")
+	set(CPACK_NSIS_DISPLAY_NAME "@CPACK_NSIS_PACKAGE_NAME@, open-source engine for Heroes of Might and Magic III ")
+	set(CPACK_NSIS_HELP_LINK "http://vcmi.eu/")
+	set(CPACK_NSIS_URL_INFO_ABOUT "http://vcmi.eu/")
+	set(CPACK_NSIS_CONTACT @CPACK_PACKAGE_CONTACT@)
+	set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
+endif()
