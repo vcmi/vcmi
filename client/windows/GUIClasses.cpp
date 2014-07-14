@@ -98,7 +98,7 @@ void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousSta
 void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
 {
 	if (down)
-		GH.pushInt(createCreWindow(creature->idNumber, CCreatureWindow::OTHER, 0));
+		GH.pushInt(new CStackWindow(creature, true));
 }
 
 void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../lib/HeroBonus.h"
-#include "../gui/CIntObject.h"
+#include "../widgets/MiscWidgets.h"
 
 /*
  * CCreatureWindow.h, part of VCMI engine
