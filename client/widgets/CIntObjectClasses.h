@@ -100,7 +100,9 @@ public:
 	bool swappedImages,//fix for some buttons: normal and pressed image are swapped
 		keepFrame; // don't change visual representation
 
+	void addOverlay(CIntObject * newOverlay);
 	void addTextOverlay(const std::string &Text, EFonts font, SDL_Color color = Colors::WHITE);
+
 	void update();//to refresh button after image or text change
 
 	void setOffset(int newOffset);
@@ -113,7 +115,7 @@ public:
 	bool isHighlighted();
 
 	CAnimImage * image; //image for this button
-	CLabel * text;//text overlay
+	CIntObject * overlay;//object-overlay
 
 	CButtonBase(); //c-tor
 	virtual ~CButtonBase(); //d-tor

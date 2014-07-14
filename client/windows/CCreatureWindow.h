@@ -2,7 +2,6 @@
 
 #include "../../lib/HeroBonus.h"
 #include "../gui/CIntObject.h"
-#include "../widgets/CArtifactHolder.h"
 
 /*
  * CCreatureWindow.h, part of VCMI engine
@@ -14,150 +13,106 @@
  *
  */
 
-struct Bonus;
-class CCreature;
-class CStackInstance;
+class StackWindowInfo;
 class CCommanderInstance;
+class CStackInstance;
 class CStack;
-struct ArtifactLocation;
-class CCreatureArtifactInstance;
-class CAdventureMapButton;
-class CBonusItem;
-class CGHeroInstance;
-class CComponent;
-class LRClickableAreaWText;
-class MoraleLuckBox;
-class CAdventureMapButton;
 struct UpgradeInfo;
-class CPicture;
-class CCreaturePic;
 class LRClickableAreaWTextComp;
-class CSlider;
-class CLabel;
-class CAnimImage;
-class CSelectableSkill;
 
-// New creature window
-class CCreatureWindow : public CWindowObject, public CArtifactHolder
+class CClickableObject : public LRClickableAreaWText
 {
+	CIntObject * object; // passive object that will be used to determine clickable area
 public:
-	enum CreWinType {OTHER = 0, BATTLE = 1, ARMY = 2, HERO = 3, COMMANDER = 4, COMMANDER_LEVEL_UP = 5, COMMANDER_BATTLE = 6}; // > 3 are opened permanently
-	//bool active; //TODO: comment me
-	CreWinType type;
-	int bonusRows; //height of skill window
-	ArtifactPosition displayedArtifact;
+	CClickableObject(CIntObject * object, std::function<void()> callback);
 
-	std::string count; //creature count in text format
-	const CCreature *c; //related creature
-	const CStackInstance *stack;
-	const CBonusSystemNode *stackNode;
-	const CCommanderInstance * commander;
-	const CGHeroInstance *heroOwner;
-	const CArtifactInstance *creatureArtifact; //currently worn artifact
-	std::vector<CComponent*> upgResCost; //cost of upgrade (if not possible then empty)
-	std::vector<CBonusItem*> bonusItems;
-	std::vector<LRClickableAreaWText*> spellEffects;
-
-	CCreaturePic *anim; //related creature's animation
-	MoraleLuckBox *luck, *morale;
-	LRClickableAreaWTextComp * expArea; //displays exp details
-	CSlider * slider; //Abilities
-	CAdventureMapButton *dismiss, *upgrade, *ok;
-	CAdventureMapButton * leftArtRoll, * rightArtRoll; //artifact selection
-	CAdventureMapButton * passArtToHero;
-	CAnimImage * artifactImage;
-	CAnimation * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
-
-	//commander level-up
-	int selectedOption; //index for upgradeOptions
-	std::vector<ui32> upgradeOptions; //value 0-5 - secondary skills, 100+ - special skills
-	std::vector<CSelectableSkill *> selectableSkills, selectableBonuses;
-	std::vector<CPicture *> skillPictures; //secondary skills
-
-	std::string skillToFile(int skill); //return bitmap for secondary skill depending on selection / avaliability
-	void selectSkill (ui32 which);
-	void setArt(const CArtifactInstance *creatureArtifact);
-
-	void artifactRemoved (const ArtifactLocation &artLoc);
-	void artifactMoved (const ArtifactLocation &artLoc, const ArtifactLocation &destLoc);
-	void artifactDisassembled (const ArtifactLocation &artLoc) {return;};
-	void artifactAssembled (const ArtifactLocation &artLoc) {return;};
-
-	std::function<void()> dsm; //dismiss button callback
-	std::function<void()> Upg; //upgrade button callback
-	std::function<void(ui32)> levelUp; //choose commander skill to level up
-
-	CCreatureWindow(const CStack & stack, CreWinType type); //battle c-tor
-	CCreatureWindow (const CStackInstance &stack, CreWinType Type); //pop-up c-tor
-	CCreatureWindow(const CStackInstance &st, CreWinType Type, std::function<void()> Upg, std::function<void()> Dsm, UpgradeInfo *ui); //full garrison window
-	CCreatureWindow(const CCommanderInstance * commander, const CStack * stack = nullptr); //commander window
-	CCreatureWindow(std::vector<ui32> &skills, const CCommanderInstance * commander, std::function<void(ui32)> callback); 
-	CCreatureWindow(CreatureID Cid, CreWinType Type, int creatureCount); //c-tor
-
-	void init(const CStackInstance *stack, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner);
-	void showAll(SDL_Surface * to);
-	void show(SDL_Surface * to);
-	void printLine(int nr, const std::string &text, int baseVal, int val=-1, bool range=false);
-	void sliderMoved(int newpos);
-	void close();
-	~CCreatureWindow(); //d-tor
-
-	void recreateSkillList(int pos);
-	void scrollArt(int dir);
-	void passArtifactToHero();
-};
-
-class CBonusItem : public LRClickableAreaWTextComp //responsible for displaying creature skill, active or not
-{
-public:
-	std::string name, description;
-	CPicture * bonusGraphics;
-	bool visible;
-
-	CBonusItem();
-	CBonusItem(const Rect &Pos, const std::string &Name, const std::string &Description, const std::string &graphicsName);
-	~CBonusItem();
-
-	void showAll (SDL_Surface * to);
-};
-
-class CSelectableSkill : public LRClickableAreaWText
-{
-public:
 	std::function<void()> callback; //TODO: create more generic clickable class than AdvMapButton?
 
-	virtual void clickLeft(tribool down, bool previousState);
-	virtual void clickRight(tribool down, bool previousState){};
+	void clickLeft(tribool down, bool previousState) override;
+	//void clickRight(tribool down, bool previousState){};
+
+	void setObject(CIntObject * object);
 };
 
-/// original creature info window
-class CCreInfoWindow : public CWindowObject
+class CStackWindow : public CWindowObject
 {
+	struct BonusInfo
+	{
+		std::string name;
+		std::string description;
+		std::string imagePath;
+	};
+
+	class CWindowSection : public CIntObject
+	{
+		CStackWindow * parent;
+
+		CPicture * background;
+
+		void createBackground(std::string path);
+		void createBonusItem(size_t index, Point position);
+
+		void printStatString(int index, std::string name, std::string value);
+		void printStatRange(int index, std::string name, int min, int max);
+		void printStatBase(int index, std::string name, int base, int current);
+		void printStat(int index, std::string name, int value);
+	public:
+		void createStackInfo(bool showExp, bool showArt);
+		void createActiveSpells();
+		void createCommanderSection();
+		void createCommander();
+		void createCommanderAbilities();
+		void createBonuses(boost::optional<size_t> size = boost::optional<size_t>());
+		void createBonusEntry(size_t index);
+		void createButtonPanel();
+
+		CWindowSection(CStackWindow * parent);
+	};
+
+	CAnimImage * stackArtifactIcon;
+	LRClickableAreaWTextComp * stackArtifactHelp;
+	CAdventureMapButton * stackArtifactButton;
+
+	std::unique_ptr<StackWindowInfo> info;
+	std::vector<BonusInfo> activeBonuses;
+	size_t activeTab;
+	CTabbedInt * commanderTab;
+
+	std::map<int, CAdventureMapButton *> switchButtons;
+
+	void setSelection(si32 newSkill, CClickableObject * newIcon);
+	CClickableObject * selectedIcon;
+	si32 selectedSkill;
+
+	CIntObject * createBonusEntry(size_t index);
+	CIntObject * switchTab(size_t index);
+
+	void removeStackArtifact(ArtifactPosition pos);
+	void setStackArtifact(const CArtifactInstance * art, Point artPos);
+
+	void initSections();
+	void initBonusesList();
+
+	void init();
+
+	std::string generateStackExpDescription();
+
+	CIntObject * createSkillEntry(int index);
+
 public:
-	CLabel * creatureCount;
-	CLabel * creatureName;
-	CLabel * abilityText;
+	// for battles
+	CStackWindow(const CStack * stack, bool popup);
 
-	CCreaturePic * animation;
-	std::vector<CComponent *> upgResCost; //cost of upgrade (if not possible then empty)
-	std::vector<CAnimImage *> effects;
-	std::map<size_t, std::pair<CLabel *, CLabel * > > infoTexts;
+	// for non-existing stacks, e.g. recruit screen
+	CStackWindow(const CCreature * creature, bool popup);
 
-	MoraleLuckBox * luck, * morale;
+	// for normal stacks in armies
+	CStackWindow(const CStackInstance * stack, bool popup);
+	CStackWindow(const CStackInstance * stack, std::function<void()> dismiss, const UpgradeInfo & info, std::function<void(CreatureID)> callback);
 
-	CAdventureMapButton * dismiss, * upgrade, * ok;
+	// for commanders & commander level-up dialog
+	CStackWindow(const CCommanderInstance * commander, bool popup);
+	CStackWindow(const CCommanderInstance * commander, std::vector<ui32> &skills, std::function<void(ui32)> callback);
 
-	CCreInfoWindow(const CStackInstance & st, bool LClicked, std::function<void()> Upg = nullptr, std::function<void()> Dsm = nullptr, UpgradeInfo * ui = nullptr);
-	CCreInfoWindow(const CStack & st, bool LClicked = 0);
-	CCreInfoWindow(int Cid, bool LClicked, int creatureCount);
-	~CCreInfoWindow();
-
-	void init(const CCreature * cre, const CBonusSystemNode * stackNode, const CGHeroInstance * heroOwner, int creatureCount, bool LClicked);
-	void printLine(int nr, const std::string & text, int baseVal, int val = -1, bool range = false);
-
-	void show(SDL_Surface * to);
+	~CStackWindow();
 };
-
-CIntObject *createCreWindow(const CStack *s, bool lclick = false);
-CIntObject *createCreWindow(CreatureID Cid, CCreatureWindow::CreWinType Type, int creatureCount);
-CIntObject *createCreWindow(const CStackInstance *s, CCreatureWindow::CreWinType type, std::function<void()> Upg = nullptr, std::function<void()> Dsm = nullptr, UpgradeInfo *ui = nullptr);

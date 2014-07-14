@@ -608,7 +608,7 @@ void CClickableHex::clickRight(tribool down, bool previousState)
 		if(!myst->alive()) return;
 		if(down)
 		{
-			GH.pushInt(createCreWindow(myst));
+			GH.pushInt(new CStackWindow(myst, true));
 		}
 	}
 }

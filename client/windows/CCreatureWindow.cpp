@@ -1,30 +1,19 @@
 #include "StdInc.h"
 #include "CCreatureWindow.h"
 
-#include "../CBitmapHandler.h"
-#include "../CDefHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../Graphics.h"
-
-#include "../gui/SDL_Extensions.h"
-#include "../gui/CGuiHandler.h"
-
-#include "../widgets/CAnimation.h"
-#include "../widgets/CIntObjectClasses.h"
-#include "../widgets/MiscWidgets.h"
 
 #include "../../CCallback.h"
 #include "../../lib/BattleState.h"
-#include "../../lib/CArtHandler.h"
-#include "../../lib/CConfigHandler.h"
-#include "../../lib/CCreatureSet.h"
-#include "../../lib/CGameState.h"
+#include "../../lib/CBonusTypeHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
+#include "../../lib/CHeroHandler.h"
 #include "../../lib/CSpellHandler.h"
-#include "../../lib/IBonusTypeHandler.h"
-#include "../../lib/NetPacksBase.h"
+
+#include "../gui/CGuiHandler.h"
+#include "../gui/CIntObjectClasses.h"
 
 using namespace CSDL_Ext;
 
@@ -41,894 +30,838 @@ class CSelectableSkill;
  *
  */
 
-CCreatureWindow::CCreatureWindow (const CStack &stack, CreWinType Type):
-    CWindowObject(PLAYER_COLORED | (Type == OTHER ? RCLICK_POPUP : 0 ) ),
-    type(Type)
+struct StackWindowInfo
+{
+	// helper structs
+	struct CommanderLevelInfo
+	{
+		std::vector<ui32> skills;
+		std::function<void(ui32)> callback;
+	};
+	struct StackDismissInfo
+	{
+		std::function<void()> callback;
+	};
+	struct StackUpgradeInfo
+	{
+		UpgradeInfo info;
+		std::function<void(CreatureID)> callback;
+	};
+
+	// pointers to permament objects in game state
+	const CCreature * creature;
+	const CCommanderInstance * commander;
+	const CStackInstance * stackNode;
+	const CGHeroInstance * owner;
+
+	// temporary objects which should be kept as copy if needed
+	boost::optional<CommanderLevelInfo> levelupInfo;
+	boost::optional<StackDismissInfo> dismissInfo;
+	boost::optional<StackUpgradeInfo> upgradeInfo;
+
+	// misc fields
+	unsigned int creatureCount;
+	bool popupWindow;
+
+	StackWindowInfo();
+};
+
+namespace
+{
+	namespace EStat
+	{
+		enum EStat
+		{
+			ATTACK,
+			DEFENCE,
+			SHOTS,
+			DAMAGE,
+			HEALTH,
+			HEALTH_LEFT,
+			SPEED,
+			MANA
+		};
+	}
+}
+
+StackWindowInfo::StackWindowInfo():
+	creature(nullptr),
+	commander(nullptr),
+	stackNode(nullptr),
+	owner(nullptr),
+	creatureCount(0),
+	popupWindow(false)
+{
+}
+
+void CStackWindow::CWindowSection::createBackground(std::string path)
+{
+	background = new CPicture("stackWindow/" + path);
+	pos = background->pos;
+}
+
+void CStackWindow::CWindowSection::printStatString(int index, std::string name, std::string value)
+{
+	new CLabel(145, 32 + index*19, FONT_SMALL, TOPLEFT, Colors::WHITE, name);
+	new CLabel(307, 48 + index*19, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, value);
+}
+
+void CStackWindow::CWindowSection::printStatRange(int index, std::string name, int min, int max)
+{
+	if(min != max)
+		printStatString(index, name, boost::str(boost::format("%d - %d") % min % max));
+	else
+		printStatString(index, name, boost::str(boost::format("%d") % min));
+}
+
+void CStackWindow::CWindowSection::printStatBase(int index, std::string name, int base, int current)
+{
+	if(base != current)
+		printStatString(index, name, boost::str(boost::format("%d (%d)") % base % current));
+	else
+		printStatString(index, name, boost::str(boost::format("%d") % base));
+}
+
+void CStackWindow::CWindowSection::printStat(int index, std::string name, int value)
+{
+	printStatBase(index, name, value, value);
+}
+
+std::string CStackWindow::generateStackExpDescription()
+{
+	const CStackInstance * stack = info->stackNode;
+	const CCreature * creature = info->creature;
+
+	int tier = stack->type->level;
+	int rank = stack->getExpRank();
+	if (!vstd::iswithin(tier, 1, 7))
+		tier = 0;
+	int number;
+	std::string expText = CGI->generaltexth->zcrexp[325];
+	boost::replace_first (expText, "%s", creature->namePl);
+	boost::replace_first (expText, "%s", CGI->generaltexth->zcrexp[rank]);
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(rank));
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(stack->experience));
+	number = CGI->creh->expRanks[tier][rank] - stack->experience;
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number));
+
+	number = CGI->creh->maxExpPerBattle[tier]; //percent
+	boost::replace_first (expText, "%i%", boost::lexical_cast<std::string>(number));
+	number *= CGI->creh->expRanks[tier].back() / 100; //actual amount
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number));
+
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(stack->count)); //Number of Creatures in stack
+
+	int expmin = std::max(CGI->creh->expRanks[tier][std::max(rank-1, 0)], (ui32)1);
+	number = (stack->count * (stack->experience - expmin)) / expmin; //Maximum New Recruits without losing current Rank
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //TODO
+
+	boost::replace_first (expText, "%.2f", boost::lexical_cast<std::string>(1)); //TODO Experience Multiplier
+	number = CGI->creh->expAfterUpgrade;
+	boost::replace_first (expText, "%.2f", boost::lexical_cast<std::string>(number) + "%"); //Upgrade Multiplier
+
+	expmin = CGI->creh->expRanks[tier][9];
+	int expmax = CGI->creh->expRanks[tier][10];
+	number = expmax - expmin;
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Experience after Rank 10
+	number = (stack->count * (expmax - expmin)) / expmin;
+	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience
+
+	return expText;
+}
+
+void CStackWindow::removeStackArtifact(ArtifactPosition pos)
+{
+	auto art = info->stackNode->getArt(ArtifactPosition::CREATURE_SLOT);
+	LOCPLINT->cb->swapArtifacts(ArtifactLocation(info->stackNode, pos),
+								ArtifactLocation(info->owner, art->firstBackpackSlot(info->owner)));
+	delete stackArtifactButton;
+	delete stackArtifactHelp;
+	delete stackArtifactIcon;
+}
+
+void CStackWindow::setStackArtifact(const CArtifactInstance * art, Point artPos)
+{
+	if (art)
+	{
+		stackArtifactIcon = new CAnimImage("ARTIFACT", art->artType->iconIndex, 0, pos.x, pos.y);
+		stackArtifactHelp = new LRClickableAreaWTextComp(Rect(artPos, Point(44, 44)), CComponent::artifact);
+		stackArtifactHelp->type = art->artType->id;
+
+		const JsonNode & text = VLC->generaltexth->localizedTexts["creatureWindow"]["returnArtifact"];
+
+		if (info->owner)
+		{
+			stackArtifactButton = new CAdventureMapButton(text["label"].String(), text["help"].String(),[=]{
+				removeStackArtifact(ArtifactPosition::CREATURE_SLOT);
+			}, artPos.x - 2 , artPos.y + 46, "stackWindow/cancelButton");
+		}
+	}
+
+}
+
+void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	if (stack.base)
-		init(stack.base, &stack, dynamic_cast<const CGHeroInstance*>(stack.base->armyObj));
+	if (showExp && showArt)
+		createBackground("info-panel-2");
+	else if (showExp || showArt)
+		createBackground("info-panel-1");
 	else
-	{
-		auto   s = new CStackInstance(stack.type, 1); //TODO: war machines and summons should be regular stacks
-		init(s, &stack, nullptr);
-		delete s;
-	}
-}
+		createBackground("info-panel-0");
 
-CCreatureWindow::CCreatureWindow (const CStackInstance &stack, CreWinType Type):
-    CWindowObject(PLAYER_COLORED | (Type == OTHER ? RCLICK_POPUP : 0 ) ),
-    type(Type)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	new CCreaturePic(5, 41, parent->info->creature);
 
-	init(&stack, &stack, dynamic_cast<const CGHeroInstance*>(stack.armyObj));
-}
-
-CCreatureWindow::CCreatureWindow(CreatureID Cid, CreWinType Type, int creatureCount):
-   CWindowObject(PLAYER_COLORED | (Type == OTHER ? RCLICK_POPUP : 0 ) ),
-    type(Type)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-
-	auto   stack = new CStackInstance(Cid, creatureCount); //TODO: simplify?
-	init(stack, CGI->creh->creatures[Cid], nullptr);
-	delete stack;
-}
-
-CCreatureWindow::CCreatureWindow(const CStackInstance &st, CreWinType Type, std::function<void()> Upg, std::function<void()> Dsm, UpgradeInfo *ui):
-    CWindowObject(PLAYER_COLORED | (Type == OTHER ? RCLICK_POPUP : 0 ) ),
-    type(Type),
-    dismiss(nullptr),
-    upgrade(nullptr),
-    ok(nullptr),
-    dsm(Dsm)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	init(&st, &st,dynamic_cast<const CGHeroInstance*>(st.armyObj));
-
-	//print abilities text - if r-click popup
-	if(type)
-	{
-		if(Upg && ui)
-		{
-			TResources upgradeCost = ui->cost[0] * st.count;
-			for(TResources::nziterator i(upgradeCost); i.valid(); i++)
-			{
-				BLOCK_CAPTURING;
-				upgResCost.push_back(new CComponent(CComponent::resource, i->resType, i->resVal));
-			}
-
-			if(LOCPLINT->cb->getResourceAmount().canAfford(upgradeCost))
-			{
-				CFunctionList<void()> fs;
-				fs += Upg;
-				fs += boost::bind(&CCreatureWindow::close,this);
-				CFunctionList<void()> cfl;
-				cfl += boost::bind(&CPlayerInterface::showYesNoDialog,
-				                   LOCPLINT, CGI->generaltexth->allTexts[207], fs, nullptr, false, upgResCost);
-				upgrade = new CAdventureMapButton("",CGI->generaltexth->zelp[446].second,cfl,385, 148,"IVIEWCR.DEF",SDLK_u);
-			}
-			else
-			{
-				upgrade = new CAdventureMapButton("",CGI->generaltexth->zelp[446].second,std::function<void()>(),385, 148,"IVIEWCR.DEF");
-				upgrade->callback.funcs.clear();
-				upgrade->setOffset(2);
-			}
-
-		}
-		if(Dsm)
-		{
-			CFunctionList<void()> fs[2];
-			//on dismiss confirmed
-			fs[0] += Dsm; //dismiss
-			fs[0] += boost::bind(&CCreatureWindow::close,this);//close this window
-			CFunctionList<void()> cfl;
-			cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
-			dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second,cfl,333, 148,"IVIEWCR2.DEF",SDLK_d);
-		}
-	}
-}
-
-CCreatureWindow::CCreatureWindow (const CCommanderInstance * Commander, const CStack * stack):
-    CWindowObject(PLAYER_COLORED),
-	commander (Commander)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	if (stack)
-	{
-		type = COMMANDER_BATTLE;
-		init(commander, stack, dynamic_cast<const CGHeroInstance*>(commander->armyObj));
-	}
+	std::string visibleName;
+	if (parent->info->commander != nullptr)
+		visibleName = parent->info->commander->type->nameSing;
 	else
-	{
-		type = COMMANDER;
-		init(commander, commander, dynamic_cast<const CGHeroInstance*>(commander->armyObj));
-	}
+		visibleName = parent->info->creature->namePl;
+	new CLabel(215, 12, FONT_SMALL, CENTER, Colors::YELLOW, visibleName);
 
-	std::function<void()> Dsm;
-	CFunctionList<void()> fs[2];
-	//on dismiss confirmed
-	fs[0] += Dsm; //dismiss
-	fs[0] += boost::bind(&CCreatureWindow::close,this);//close this window
-	CFunctionList<void()> cfl;
-	cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
-	if (type < COMMANDER_LEVEL_UP) //can dismiss only in regular window
-		dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, cfl, 333, 148,"IVIEWCR2.DEF", SDLK_d);
-}
-
-CCreatureWindow::CCreatureWindow (std::vector<ui32> &skills, const CCommanderInstance * Commander, std::function<void(ui32)> callback):
-    CWindowObject(PLAYER_COLORED),
-    type(COMMANDER_LEVEL_UP),
-	commander (Commander),
-	selectedOption (0), //choose something before drawing
-	upgradeOptions(skills), //copy skills to choose from
-	levelUp (callback)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-
-	init(commander, commander, dynamic_cast<const CGHeroInstance*>(commander->armyObj));
-
-	std::function<void()> Dsm;
-	CFunctionList<void()> fs[2];
-	//on dismiss confirmed
-	fs[0] += Dsm; //dismiss
-	fs[0] += boost::bind(&CCreatureWindow::close,this);//close this window
-	CFunctionList<void()> cfl;
-	cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
-	if (type < COMMANDER_LEVEL_UP) //can dismiss only in regular window
-		dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, cfl, 333, 148,"IVIEWCR2.DEF", SDLK_d);
-}
-
-void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *StackNode, const CGHeroInstance *HeroOwner)
-{
-	creatureArtifact = nullptr; //may be set later
-	artifactImage = nullptr;
-	spellEffectsPics = nullptr;
-	stack = Stack;
-	c = stack->type;
-	if(!StackNode)
-		stackNode = c;
-	else
-		stackNode = StackNode;
-	const CStack *battleStack = dynamic_cast<const CStack*>(stackNode); //only during battle
-	heroOwner = HeroOwner;
-
-	if (battleStack)
-		count = boost::lexical_cast<std::string>(battleStack->count);
-	else if (Stack->count)
-		count = boost::lexical_cast<std::string>(Stack->count);
-
-	if (type < COMMANDER)
-		commander = nullptr;
-
-	bool creArt = false;
-	displayedArtifact = ArtifactPosition::CREATURE_SLOT; // 0
-
-	//Basic graphics - need to calculate size
-
-	int commanderOffset = 0;
-	if (type >= COMMANDER)
-		commanderOffset = 74;
-
-	if (commander) //secondary skills
-	{
-		creArt = true;
-		for (int i = ECommander::ATTACK; i <= ECommander::SPELL_POWER; ++i)
-		{
-			if (commander->secondarySkills[i] || vstd::contains(upgradeOptions, i))
-			{
-				std::string file = skillToFile(i);
-
-				skillPictures.push_back(new CPicture(file, 0,0));
-			}
-		}
-
-		if (type == COMMANDER_LEVEL_UP)
-		{
-			for (auto option : upgradeOptions)
-			{
-				ui32 index = selectableSkills.size();
-				auto   selectableSkill = new CSelectableSkill();
-				selectableSkill->callback = boost::bind(&CCreatureWindow::selectSkill, this, index);
-
-				if (option < 100)
-				{
-					selectableSkill->pos = skillPictures[index]->pos; //resize
-					selectableSkills.push_back (selectableSkill);
-				}
-				else
-				{
-					selectableSkill->pos = Rect (95, 256, 55, 55); //TODO: scroll
-					const Bonus *b = CGI->creh->skillRequirements[option-100].first;
-					bonusItems.push_back (new CBonusItem (genRect(0, 0, 251, 57), stack->bonusToString(b, false), stack->bonusToString(b, true), stack->bonusToGraphics(b)));
-					selectableBonuses.push_back (selectableSkill); //insert these before other bonuses
-				}
-			}
-		}
-	}
-
-	BonusList bl, blTemp;
-	blTemp = (*(stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT).And(Selector::anyRange()))));
-
-	while (blTemp.size())
-	{
-		Bonus * b = blTemp.front();
-
-		bl.push_back (new Bonus(*b));
-		bl.back()->val = blTemp.valOfBonuses(Selector::typeSubtype(b->type, b->subtype)); //merge multiple bonuses into one
-		blTemp.remove_if (Selector::typeSubtype(b->type, b->subtype)); //remove used bonuses
-	}
-
-	std::string text, img;
-	for(Bonus* b : bl)
-	{
-		text = stack->bonusToString(b, false);
-		img = stack->bonusToGraphics(b);
-		if (text.size() || img.size()) //if it's possible to give any description or image for this kind of bonus
-		{
-			bonusItems.push_back (new CBonusItem(genRect(0, 0, 251, 57), text, stack->bonusToString(b, true), img));
-		}
-	}
-
-
-	//handle Magic resistance separately :/
-	const IBonusBearer *temp = stack;
-
-	if (battleStack)
-	{
-		temp = battleStack;
-	}
-
-	int magicResistance = temp->magicResistance();
-
-	if (magicResistance)
-	{
-		Bonus b;
-		b.type = Bonus::MAGIC_RESISTANCE;
-
-		text = VLC->getBth()->bonusToString(&b,temp,false);
-		const std::string description = VLC->getBth()->bonusToString(&b,temp,true);
-		bonusItems.push_back (new CBonusItem(genRect(0, 0, 251, 57), text, description, stack->bonusToGraphics(&b)));
-	}
-
-	bonusRows = std::min ((int)((bonusItems.size() + 1) / 2), (screen->h - 230) / 60);
-	if (type >= COMMANDER)
-		vstd::amin(bonusRows, 3);
-	else
-		vstd::amin(bonusRows, 4);
-	vstd::amax(bonusRows, 1);
-
-	if (type >= COMMANDER)
-	{
-		setBackground("CommWin" + boost::lexical_cast<std::string>(bonusRows) + ".pcx");
-		for (int i = 0; i < skillPictures.size(); ++i)
-		{
-			skillPictures[i]->moveTo (Point (pos.x + 37 + i * 84, pos.y + 224));
-		}
-		for (int i = 0; i < selectableSkills.size(); ++i)
-		{
-			if (upgradeOptions[i] < skillPictures.size()) // it's secondary skill
-			{
-				selectableSkills[i]->pos = skillPictures[upgradeOptions[i]]->pos; //dirty workaround
-			}
-			else
-				break;
-		}
-		//print commander level
-		new CLabel(488, 62, FONT_MEDIUM, CENTER, Colors::YELLOW,
-		           boost::lexical_cast<std::string>((ui16)(commander->level)));
-
-		new CLabel(488, 82, FONT_SMALL, CENTER, Colors::WHITE,
-		           boost::lexical_cast<std::string>(stack->experience));
-	}
-	else
-		setBackground("CreWin" + boost::lexical_cast<std::string>(bonusRows) + ".pcx"); //1 to 4 rows for now
-
-	//Buttons
-	ok = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, boost::bind(&CCreatureWindow::close,this), 489, 148, "hsbtns.def", SDLK_RETURN);
-	ok->assignedKeys.insert(SDLK_ESCAPE);
-
-	if (type <= BATTLE) //in battle or info window
-	{
-		upgrade = nullptr;
-		dismiss = nullptr;
-	}
-	anim = new CCreaturePic(22, 48, c);
-
-	//Stats
-	morale = new MoraleLuckBox(true, genRect(42, 42, 335, 100));
-	morale->set(stackNode);
-	luck = new MoraleLuckBox(false, genRect(42, 42, 387, 100));
-	luck->set(stackNode);
-
-	new CAnimImage("PSKIL42", 4, 0, 387, 51); //exp icon - Print it always?
-	if (type) //not in fort window
-	{
-		if (CGI->modh->modules.STACK_EXP && type < COMMANDER)
-		{
-			int rank = std::min(stack->getExpRank(), 10); //hopefully nobody adds more
-			new CLabel(488, 82, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(stack->experience));
-			new CLabel(488, 62, FONT_MEDIUM, CENTER, Colors::YELLOW,
-			           CGI->generaltexth->zcrexp[rank] + " [" + boost::lexical_cast<std::string>(rank) + "]");
-
-			if (type > BATTLE) //we need it only on adv. map
-			{
-				int tier = stack->type->level;
-				if (!vstd::iswithin(tier, 1, 7))
-					tier = 0;
-				int number;
-				std::string expText = CGI->generaltexth->zcrexp[324];
-				boost::replace_first (expText, "%s", c->namePl);
-				boost::replace_first (expText, "%s", CGI->generaltexth->zcrexp[rank]);
-				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(rank));
-				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(stack->experience));
-				number = CGI->creh->expRanks[tier][rank] - stack->experience;
-				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number));
-
-				number = CGI->creh->maxExpPerBattle[tier]; //percent
-				boost::replace_first (expText, "%i%", boost::lexical_cast<std::string>(number));
-				number *= CGI->creh->expRanks[tier].back() / 100; //actual amount
-				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number));
-
-				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(stack->count)); //Number of Creatures in stack
-
-				int expmin = std::max(CGI->creh->expRanks[tier][std::max(rank-1, 0)], (ui32)1);
-				number = (stack->count * (stack->experience - expmin)) / expmin; //Maximum New Recruits without losing current Rank
-				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //TODO
-
-				boost::replace_first (expText, "%.2f", boost::lexical_cast<std::string>(1)); //TODO Experience Multiplier
-				number = CGI->creh->expAfterUpgrade;
-				boost::replace_first (expText, "%.2f", boost::lexical_cast<std::string>(number) + "%"); //Upgrade Multiplier
-
-				expmin = CGI->creh->expRanks[tier][9];
-				int expmax = CGI->creh->expRanks[tier][10];
-				number = expmax - expmin;
-				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Experience after Rank 10
-				number = (stack->count * (expmax - expmin)) / expmin;
-				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience
-
-				expArea = new LRClickableAreaWTextComp(Rect(334, 49, 160, 44),CComponent::experience);
-				expArea->text = expText;
-				expArea->bonusValue = 0; //TDO: some specific value or no number at all
-			}
-		}
-
-		if (CGI->modh->modules.STACK_ARTIFACT)
-		{
-			creArt = true;
-		}
-	}
-	if (creArt) //stack or commander artifacts
-	{
-		setArt (stack->getArt(ArtifactPosition::CREATURE_SLOT));
-		if (type > BATTLE && type < COMMANDER_BATTLE) //artifact buttons inactive in battle
-		{
-			//TODO: disable buttons if no artifact is equipped
-			leftArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, -1), 437, 98, "hsbtns3.def", SDLK_LEFT);
-			rightArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, +1), 516, 98, "hsbtns5.def", SDLK_RIGHT);
-			if (heroOwner)
-				passArtToHero = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::passArtifactToHero, this), 437, 148, "OVBUTN1.DEF", SDLK_HOME);
-		}
-	}
-	
-	if (battleStack) //only during battle
-	{
-		spellEffectsPics = new CAnimation("SpellInt.def");
-
-		//spell effects
-		int printed=0; //how many effect pics have been printed
-		std::vector<si32> spells = battleStack->activeSpells();
-		for(si32 effect : spells)
-		{
-			const si32 imageIndex = effect+1; //there is "null" frame with index 0 in SpellInt.def
-			std::string spellText;
-			spellEffectsPics->load(imageIndex);
-			IImage * effectIcon = spellEffectsPics->getImage(imageIndex,0,false); //todo: better way to determine presence of icon
-			spellEffectsPics->unload(imageIndex);
-			if (effectIcon != nullptr) //not all effects have graphics (for eg. Acid Breath)
-			{
-				spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
-				boost::replace_first (spellText, "%s", CGI->spellh->objects[effect]->name);
-				int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
-				boost::replace_first (spellText, "%d", boost::lexical_cast<std::string>(duration));
-
-				new CAnimImage("SpellInt.def", imageIndex, 0, 20 + 52 * printed, 184);
-				spellEffects.push_back(new LRClickableAreaWText(Rect(20 + 52 * printed, 184, 50, 38), spellText, spellText));
-				if (++printed >= 10) //we can fit only 10 effects
-					break;
-			}
-		}
-		
-		//print current health
-		printLine (5, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
-	}
-
-	if (bonusItems.size() > (bonusRows << 1)) //only after graphics are created
-	{
-		slider = new CSlider(528, 231 + commanderOffset, bonusRows*60, boost::bind (&CCreatureWindow::sliderMoved, this, _1),
-		bonusRows, (bonusItems.size() + 1) >> 1, 0, false, 0);
-	}
-	else //slider automatically places bonus Items
-		recreateSkillList (0);
-
-	showAll(screen2);
-
-	//AUIDAT.DEF
-}
-
-void CCreatureWindow::printLine(int nr, const std::string &text, int baseVal, int val/*=-1*/, bool range/*=false*/)
-{
-	new CLabel(162, 48 + nr*19, FONT_SMALL, TOPLEFT, Colors::WHITE, text);
-
-	std::string hlp;
-	if(range && baseVal != val)
-		hlp = boost::str(boost::format("%d - %d") % baseVal % val);
-	else if(baseVal != val && val>=0)
-		hlp = boost::str(boost::format("%d (%d)") % baseVal % val);
-	else
-		hlp = boost::lexical_cast<std::string>(baseVal);
-
-	new CLabel(325, 64 + nr*19, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, hlp);
-}
-
-void CCreatureWindow::recreateSkillList(int Pos)
-{
-	int commanderOffset = 0;
-	if (type >= COMMANDER)
-		commanderOffset = 74;
-
-	int n = 0, i = 0, j = 0;
-	int numSkills = std::min ((bonusRows + Pos) << 1, (int)bonusItems.size());
-	for (n = 0; n < Pos << 1; ++n)
-	{
-		bonusItems[n]->visible = false;
-		if (n < selectableBonuses.size())
-			selectableBonuses[n]->deactivate(); //we assume that bonuses are at front of the list
-	}
-	for (n = Pos << 1; n < numSkills; ++n)
-	{
-		int offsetx = 257*j - (bonusRows == 4 ? 1 : 0);
-		int offsety = 60*i + (bonusRows > 1 ? 1 : 0) + commanderOffset; //lack of precision :/
-
-		bonusItems[n]->moveTo (Point(pos.x + offsetx + 10, pos.y + offsety + 230), true);
-		bonusItems[n]->visible = true;
-		if (n < selectableBonuses.size())
-		{
-			selectableBonuses[n]->moveTo (Point(bonusItems[n]->pos.x + 12, bonusItems[n]->pos.y + 2)); //for some reason bonusItems have dimensions 0?
-			//selectableBonuses[n]->pos = bonusItems[n]->bonusGraphics->pos;
-			selectableBonuses[n]->activate();
-		}
-
-		if (++j > 1) //next line
-		{
-			++i;
-			j = 0;
-		}
-	}
-	for (n = numSkills; n < bonusItems.size(); ++n)
-	{
-		bonusItems[n]->visible = false;
-		if (n < selectableBonuses.size())
-			selectableBonuses[n]->deactivate();
-	}
-}
-
-void CCreatureWindow::showAll(SDL_Surface * to)
-{
-	CIntObject::showAll(to);
-
-	printAtMiddleLoc((type >= COMMANDER ? c->nameSing : c->namePl), 180, 30, FONT_SMALL, Colors::YELLOW, to); //creature name
-
-	printLine(0, CGI->generaltexth->primarySkillNames[0], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->Attack());
-	printLine(1, CGI->generaltexth->primarySkillNames[1], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->Defense());
-
-	if (stackNode->valOfBonuses(Bonus::SHOTS) && stackNode->hasBonusOfType(Bonus::SHOOTER))
-	{//only for shooting units - important with wog exp shooters
-		if (type == BATTLE)
-			printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS), dynamic_cast<const CStack*>(stackNode)->shots);
-		else
-			printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS));
-	}
-	if (stackNode->valOfBonuses(Bonus::CASTS))
-	{
-		printAtMiddleLoc(CGI->generaltexth->allTexts[399], 356, 62, FONT_SMALL, Colors::WHITE, to);
-		std::string casts;
-		if (type == BATTLE)
-			casts = boost::lexical_cast<std::string>((ui16)dynamic_cast<const CStack*>(stackNode)->casts); //ui8 is converted to char :(
-		else
-			casts = boost::lexical_cast<std::string>(stackNode->valOfBonuses(Bonus::CASTS));
-		printAtMiddleLoc(casts, 356, 82, FONT_SMALL, Colors::WHITE, to);
-	}
-
-	//TODO
 	int dmgMultiply = 1;
-	if(heroOwner && stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
-		dmgMultiply += heroOwner->Attack();
+	if(parent->info->owner && parent->info->stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
+		dmgMultiply += parent->info->owner->Attack();
 
-	printLine(3, CGI->generaltexth->allTexts[199], stackNode->getMinDamage() * dmgMultiply, stackNode->getMaxDamage() * dmgMultiply, true);
-	printLine(4, CGI->generaltexth->allTexts[388], c->valOfBonuses(Bonus::STACK_HEALTH), stackNode->valOfBonuses(Bonus::STACK_HEALTH));
-	printLine(6, CGI->generaltexth->zelp[441].first, c->Speed(), stackNode->Speed());
+	new CPicture("stackWindow/icons", 117, 32);
+	printStatBase(EStat::ATTACK, CGI->generaltexth->primarySkillNames[0], parent->info->creature->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), parent->info->stackNode->Attack());
+	printStatBase(EStat::DEFENCE, CGI->generaltexth->primarySkillNames[1], parent->info->creature->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), parent->info->stackNode->Defense());
+	printStatRange(EStat::DAMAGE, CGI->generaltexth->allTexts[199], parent->info->stackNode->getMinDamage() * dmgMultiply, parent->info->stackNode->getMaxDamage() * dmgMultiply);
+	printStatBase(EStat::HEALTH, CGI->generaltexth->allTexts[388], parent->info->creature->valOfBonuses(Bonus::STACK_HEALTH), parent->info->stackNode->valOfBonuses(Bonus::STACK_HEALTH));
+	printStatBase(EStat::SPEED, CGI->generaltexth->zelp[441].first, parent->info->creature->Speed(), parent->info->stackNode->Speed());
 
-	for(CBonusItem* b : bonusItems)
-		b->showAll (to);
+	const CStack * battleStack = dynamic_cast<const CStack*>(parent->info->stackNode);
+	bool shooter = parent->info->stackNode->hasBonusOfType(Bonus::SHOOTER) && parent->info->stackNode->valOfBonuses(Bonus::SHOTS);
+	bool caster  = parent->info->stackNode->valOfBonuses(Bonus::CASTS);
 
-	for(auto s : selectableSkills)
-		s->showAll (to);
-
-	for (int i = 0; i < skillPictures.size(); i++)
+	if (battleStack != nullptr) // in battle
 	{
-		skillPictures[i]->bg = BitmapHandler::loadBitmap (skillToFile(i));
-		skillPictures[i]->showAll (to);
+		if (shooter)
+			printStatBase(EStat::SHOTS, CGI->generaltexth->allTexts[198], battleStack->valOfBonuses(Bonus::SHOTS), battleStack->shots);
+		if (caster)
+			printStatBase(EStat::MANA, CGI->generaltexth->allTexts[399], battleStack->valOfBonuses(Bonus::CASTS), battleStack->casts);
+		printStat(EStat::HEALTH_LEFT, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
+	}
+	else
+	{
+		if (shooter)
+			printStat(EStat::SHOTS, CGI->generaltexth->allTexts[198], parent->info->stackNode->valOfBonuses(Bonus::SHOTS));
+		if (caster)
+			printStat(EStat::MANA, CGI->generaltexth->allTexts[399], parent->info->stackNode->valOfBonuses(Bonus::CASTS));
 	}
 
-	if (upgradeOptions.size() && (type == COMMANDER_LEVEL_UP && upgradeOptions[selectedOption] >= 100)) //add frame to selected skill
+	auto morale = new MoraleLuckBox(true, genRect(42, 42, 321, 110));
+	morale->set(parent->info->stackNode);
+	auto luck = new MoraleLuckBox(false, genRect(42, 42, 375, 110));
+	luck->set(parent->info->stackNode);
+
+	if (showArt)
 	{
-		int index = selectedOption - selectableSkills.size(); //this is screwed
-		CSDL_Ext::drawBorder(to, Rect::around(selectableBonuses[index]->pos), int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b));
+		Point pos = showExp ? Point(375, 32) : Point(347, 32);
+		parent->setStackArtifact(parent->info->stackNode->getArt(ArtifactPosition::CREATURE_SLOT), pos);
 	}
-}
 
-void CCreatureWindow::show(SDL_Surface * to)
-{
-	CIntObject::show(to);
-	if (!count.empty()) //army stack
-		graphics->fonts[FONT_TIMES]->renderTextRight(to, count, Colors::WHITE, Point(pos.x + 114, pos.y + 174));
-}
-
-
-void CCreatureWindow::close()
-{
-	if (upgradeOptions.size()) //a skill for commander was chosen
-		levelUp (selectedOption); //callback value is vector index
-
-	GH.popIntTotally(this);
-}
-
-void CCreatureWindow::sliderMoved(int newpos)
-{
-	recreateSkillList(newpos); //move components
-	redraw();
-}
-
-std::string CCreatureWindow::skillToFile (int skill)
-{
-		std::string file = "zvs/Lib1.res/_";
-		switch (skill)
-		{
-			case ECommander::ATTACK:
-				file += "AT";
-				break;
-			case ECommander::DEFENSE:
-				file += "DF";
-				break;
-			case ECommander::HEALTH:
-				file += "HP";
-				break;
-			case ECommander::DAMAGE:
-				file += "DM";
-				break;
-			case ECommander::SPEED:
-				file += "SP";
-				break;
-			case ECommander::SPELL_POWER:
-				file += "MP";
-				break;
-		}
-		std::string sufix = boost::lexical_cast<std::string>((int)(commander->secondarySkills[skill])); //casting ui8 causes ascii char conversion
-		if (type == COMMANDER_LEVEL_UP)
-		{
-			if (upgradeOptions.size() && upgradeOptions[selectedOption] == skill)//that one specific skill is selected
-				sufix += "="; //level-up highlight
-			else if (!vstd::contains(upgradeOptions, skill))
-				sufix = "no"; //not available - no number
-		}
-		file += sufix += ".bmp";
-
-		return file;
-}
-
-void CCreatureWindow::setArt(const CArtifactInstance *art)
-{
-	creatureArtifact = art;
-	if (creatureArtifact)
+	if (showExp)
 	{
-		if (artifactImage == nullptr)
-			artifactImage = new CAnimImage("ARTIFACT", creatureArtifact->artType->iconIndex, 0, 466, 100);
+		const CStackInstance * stack = parent->info->stackNode;
+		Point pos = showArt ? Point(321, 32) : Point(347, 32);
+		if (parent->info->commander)
+		{
+			const CCommanderInstance * commander = parent->info->commander;
+			new CAnimImage("PSKIL42", 4, 0, pos.x, pos.y); // experience icon
+
+			auto expArea = new LRClickableAreaWTextComp(Rect(pos.x, pos.y, 44, 44), CComponent::experience);
+			expArea->text = CGI->generaltexth->allTexts[2];
+			expArea->bonusValue = commander->getExpRank();
+			boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(commander->getExpRank()));
+			boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(commander->getExpRank()+1)));
+			boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(commander->experience));
+		}
 		else
-			artifactImage->setFrame(creatureArtifact->artType->iconIndex);
+		{
+			new CAnimImage("stackWindow/levels", stack->getExpRank(), 0, pos.x, pos.y);
+			auto expArea = new LRClickableAreaWText(Rect(pos.x, pos.y, 44, 44));
+			expArea->text = parent->generateStackExpDescription();
+		}
+		new CLabel(pos.x + 21, pos.y + 52, FONT_SMALL, CENTER, Colors::WHITE, makeNumberShort<TExpType>(stack->experience, 6));
 	}
-	else
-		artifactImage = nullptr;
+}
 
+void CStackWindow::CWindowSection::createActiveSpells()
+{
+	static const Point firstPos(7 ,4); // position of 1st spell box
+	static const Point offset(54, 0);  // offset of each spell box from previous
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	createBackground("spell-effects");
+
+	const CStack * battleStack = dynamic_cast<const CStack*>(parent->info->stackNode);
+
+	assert(battleStack); // Section should be created only for battles
+
+	//spell effects
+	int printed=0; //how many effect pics have been printed
+	std::vector<si32> spells = battleStack->activeSpells();
+	for(si32 effect : spells)
+	{
+		std::string spellText;
+		if (effect < 77) //not all effects have graphics (for eg. Acid Breath)
+		{
+			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
+			boost::replace_first (spellText, "%s", CGI->spellh->objects[effect]->name);
+			int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
+			boost::replace_first (spellText, "%d", boost::lexical_cast<std::string>(duration));
+
+			new CAnimImage("SpellInt", effect + 1, 0, firstPos.x + offset.x * printed, firstPos.x + offset.y * printed);
+			new LRClickableAreaWText(Rect(firstPos + offset * printed, Point(50, 38)), spellText, spellText);
+			if (++printed >= 8) // interface limit reached
+				break;
+		}
+	}
+}
+
+void CStackWindow::CWindowSection::createCommanderSection()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	auto onCreate = [=](size_t index) -> CIntObject *
+	{
+		return parent->switchTab(index);
+	};
+	auto onDestroy = [=](CIntObject * obj)
+	{
+		delete obj;
+	};
+	parent->commanderTab = new CTabbedInt(onCreate, onDestroy, Point(0,0), 0);
+	pos.w = parent->pos.w;
+	pos.h = 177; // height of commander info
+	if (parent->info->levelupInfo)
+		pos.h += 59; // height of abilities selection
+}
+
+static std::string skillToFile (int skill, int level, bool selected)
+{
+	// FIXME: is this a correct hadling?
+	// level 0 = skill not present, use image with "no" suffix
+	// level 1-5 = skill available, mapped to images indexed as 0-4
+	// selecting skill means that it will appear one level higher (as if alredy upgraded)
+	std::string file = "zvs/Lib1.res/_";
+	switch (skill)
+	{
+		case ECommander::ATTACK:
+			file += "AT";
+			break;
+		case ECommander::DEFENSE:
+			file += "DF";
+			break;
+		case ECommander::HEALTH:
+			file += "HP";
+			break;
+		case ECommander::DAMAGE:
+			file += "DM";
+			break;
+		case ECommander::SPEED:
+			file += "SP";
+			break;
+		case ECommander::SPELL_POWER:
+			file += "MP";
+			break;
+	}
+	std::string sufix;
+	if (selected)
+		level++; // UI will display resulting level
+	if (level == 0)
+		sufix = "no"; //not avaliable - no number
+	else
+		sufix = boost::lexical_cast<std::string>(level-1);
+	if (selected)
+		sufix += "="; //level-up highlight
+
+	return file + sufix + ".bmp";
+}
+
+void CStackWindow::CWindowSection::createCommander()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	createBackground("commander-bg");
+
+	auto getSkillPos = [&](int index)
+	{
+		return Point(10 + 80 * (index%3), 20 + 80 * (index/3));
+	};
+
+	auto getSkillImage = [this](int skillIndex) -> std::string
+	{
+		bool selected = ((parent->selectedSkill == skillIndex) && parent->info->levelupInfo );
+		return skillToFile(skillIndex, parent->info->commander->secondarySkills[skillIndex], selected);
+	};
+
+	for (int index = ECommander::ATTACK; index <= ECommander::SPELL_POWER; ++index)
+	{
+		Point skillPos = getSkillPos(index);
+
+		auto icon = new CClickableObject(new CPicture(getSkillImage(index), skillPos.x, skillPos.y), [=]{});
+
+		if (parent->selectedSkill == index)
+			parent->selectedIcon = icon;
+
+		if (parent->info->levelupInfo && vstd::contains(parent->info->levelupInfo->skills, index)) // can be upgraded - enable selection switch
+		{
+			icon->callback = [=]
+			{
+				parent->setSelection(index, icon);
+			};
+		}
+	}
+	//TODO: commander artifacts
+}
+
+CIntObject * CStackWindow::createSkillEntry(int index)
+{
+	for (auto skillID : info->levelupInfo->skills)
+	{
+		if (index == 0 && skillID >= 100)
+		{
+			const Bonus *bonus = CGI->creh->skillRequirements[skillID-100].first;
+			const CStackInstance *stack = info->commander;
+			CClickableObject * icon = new CClickableObject(new CPicture(stack->bonusToGraphics(bonus)), []{});
+			icon->callback = [=]
+			{
+				setSelection(skillID, icon);
+			};
+			icon->text = stack->bonusToString(bonus, true);
+			icon->hoverText = stack->bonusToString(bonus, false);
+			return icon;
+		}
+		if (skillID >= 100)
+			index--;
+	}
+	return nullptr;
+}
+
+void CStackWindow::CWindowSection::createCommanderAbilities()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	auto bg2 = new CPicture("stackWindow/commander-abilities.png");
+	bg2->moveBy(Point(0, pos.h));
+	size_t abilitiesCount = boost::range::count_if(parent->info->levelupInfo->skills, [](ui32 skillID)
+	{
+		return skillID >= 100;
+	});
+
+	auto list = new CListBox([=] (int index)
+	{
+		return parent->createSkillEntry(index);
+	},
+	[=] (CIntObject * elem)
+	{
+		delete elem;
+	},
+	Point(38, 3+pos.h), Point(63, 0), 6, abilitiesCount);
+
+	auto leftBtn   = new CAdventureMapButton("", "", [=]{ list->moveToPrev(); }, 10,  pos.h + 6, "hsbtns3.def", SDLK_LEFT);
+	auto rightBtn = new CAdventureMapButton("", "", [=]{ list->moveToNext(); }, 411, pos.h + 6, "hsbtns5.def", SDLK_RIGHT);
+
+	if (abilitiesCount <= 6)
+	{
+		leftBtn->block(true);
+		rightBtn->block(true);
+	}
+}
+
+void CStackWindow::setSelection(si32 newSkill, CClickableObject * newIcon)
+{
+	auto getSkillImage = [this](int skillIndex) -> std::string
+	{
+		bool selected = ((selectedSkill == skillIndex) && info->levelupInfo );
+		return skillToFile(skillIndex, info->commander->secondarySkills[skillIndex], selected);
+	};
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	int oldSelection = selectedSkill; // update selection
+	selectedSkill = newSkill;
+
+	if (selectedIcon && oldSelection < 100) // recreate image on old selection, only for skills
+		selectedIcon->setObject(new CPicture(getSkillImage(oldSelection)));
+
+	selectedIcon = newIcon; // update new selection
+	if (newSkill < 100)
+		newIcon->setObject(new CPicture(getSkillImage(newSkill)));
+}
+
+void CStackWindow::CWindowSection::createBonuses(boost::optional<size_t> preferredSize)
+{
+	// size of single image for an item
+	static const int itemHeight = 59;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	size_t totalSize = (parent->activeBonuses.size() + 1) / 2;
+	size_t visibleSize = preferredSize ? preferredSize.get() : std::min<size_t>(3, totalSize);
+
+	pos.w = parent->pos.w;
+	pos.h = itemHeight * visibleSize;
+
+	auto onCreate = [=](size_t index) -> CIntObject *
+	{
+		return parent->createBonusEntry(index);
+	};
+	auto onDestroy = [=](CIntObject * obj)
+	{
+		delete obj;
+	};
+	new CListBox(onCreate, onDestroy, Point(0, 0), Point(0, itemHeight), visibleSize, totalSize, 0, 1, Rect(pos.w - 15, 0, pos.h, pos.h));
+}
+
+void CStackWindow::CWindowSection::createButtonPanel()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	createBackground("button-panel");
+
+	if (parent->info->dismissInfo)
+	{
+		auto onDismiss = [=]()
+		{
+			parent->info->dismissInfo->callback();
+			parent->close();
+		};
+		auto onClick = [=] ()
+		{
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[12], onDismiss, 0, false, std::vector<CComponent*>());
+		};
+		new CAdventureMapButton(CGI->generaltexth->zelp[445], onClick, 5, 5,"IVIEWCR2.DEF",SDLK_d);
+	}
+	if (parent->info->upgradeInfo)
+	{
+		// used space overlaps with commander switch button
+		// besides - should commander really be upgradeable?
+		assert(!parent->info->commander);
+
+		StackWindowInfo::StackUpgradeInfo & upgradeInfo = parent->info->upgradeInfo.get();
+		size_t buttonsToCreate = std::min<size_t>(upgradeInfo.info.newID.size(), 3); // no more than 3 windows on UI - space limit
+
+		for (size_t i=0; i<buttonsToCreate; i++)
+		{
+			TResources totalCost = upgradeInfo.info.cost[i] * parent->info->creatureCount;
+
+			auto onUpgrade = [=]()
+			{
+				upgradeInfo.callback(upgradeInfo.info.newID[i]);
+				parent->close();
+			};
+			auto onClick = [=]()
+			{
+				std::vector<CComponent*> resComps;
+				for(TResources::nziterator i(totalCost); i.valid(); i++)
+				{
+					resComps.push_back(new CComponent(CComponent::resource, i->resType, i->resVal));
+				}
+				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[207], onUpgrade, nullptr, true, resComps);
+			};
+			auto upgradeBtn = new CAdventureMapButton(CGI->generaltexth->zelp[446], onClick, 221 + i * 40, 5, "stackWindow/upgradeButton", SDLK_1);
+
+			upgradeBtn->addOverlay(new CAnimImage("CPRSMALL", VLC->creh->creatures[upgradeInfo.info.newID[i]]->iconIndex));
+
+			if (!LOCPLINT->cb->getResourceAmount().canAfford(totalCost))
+				upgradeBtn->block(true);
+		}
+	}
+
+	if (parent->info->commander)
+	{
+		for (size_t i=0; i<2; i++)
+		{
+			std::string btnIDs[2] = { "showSkills", "showBonuses" };
+			auto onSwitch = [&, i]()
+			{
+				parent->switchButtons[parent->activeTab]->enable();
+				parent->commanderTab->setActive(i);
+				parent->switchButtons[i]->disable();
+				parent->redraw(); // FIXME: enable/disable don't redraw screen themselves
+			};
+
+			const JsonNode & text = VLC->generaltexth->localizedTexts["creatureWindow"][btnIDs[i]];
+			parent->switchButtons[i] = new CAdventureMapButton(text["label"].String(), text["help"].String(), onSwitch, 302 + i*40, 5, "stackWindow/upgradeButton");
+			parent->switchButtons[i]->addOverlay(new CAnimImage("stackWindow/switchModeIcons", i));
+		}
+		parent->switchButtons[parent->activeTab]->disable();
+	}
+
+	auto exitBtn = new CAdventureMapButton(CGI->generaltexth->zelp[445], [=]{ parent->close(); }, 382, 5, "hsbtns.def", SDLK_RETURN);
+	exitBtn->assignedKeys.insert(SDLK_ESCAPE);
+}
+
+CStackWindow::CWindowSection::CWindowSection(CStackWindow * parent):
+	parent(parent)
+{
+}
+
+CClickableObject::CClickableObject(CIntObject *object, std::function<void()> callback):
+	object(nullptr),
+	callback(callback)
+{
+	pos = object->pos;
+	setObject(object);
+}
+
+void CClickableObject::setObject(CIntObject *newObject)
+{
+	delete object;
+	object = newObject;
+	addChild(object);
+	object->moveTo(pos.topLeft());
 	redraw();
 }
 
-void CCreatureWindow::scrollArt(int dir)
-{
-	//TODO: get next artifact
-	int size = stack->artifactsWorn.size();
-	displayedArtifact  =  size ? static_cast<ArtifactPosition>((displayedArtifact + dir) % size)
-	                           : static_cast<ArtifactPosition>(ArtifactPosition::CREATURE_SLOT);
-	setArt (stack->getArt(displayedArtifact));
-}
-
-void CCreatureWindow::passArtifactToHero()
-{
-	const CGHeroInstance * h = dynamic_cast<const CGHeroInstance *>(stack->armyObj);
-	if (h && creatureArtifact)
-	{
-		LOCPLINT->cb->swapArtifacts (ArtifactLocation (stack, displayedArtifact), ArtifactLocation(h, creatureArtifact->firstBackpackSlot(h)));
-	}
-	else
-        logGlobal->warnStream() << "Pass artifact to hero should be disabled, no hero or no artifact!";
-
-	//redraw is handled via CArtifactHolder interface
-}
-
-void CCreatureWindow::artifactRemoved (const ArtifactLocation &artLoc)
-{
-	//align artifacts to remove holes
-	for (auto al : stack->artifactsWorn)
-	{
-		ArtifactPosition freeSlot = al.second.artifact->firstAvailableSlot(stack);
-		if (freeSlot < al.first)
-			LOCPLINT->cb->swapArtifacts (ArtifactLocation(stack, al.first), ArtifactLocation(stack, freeSlot));
-	}
-	int size = stack->artifactsWorn.size();
-	displayedArtifact  =  size ? static_cast<ArtifactPosition>(displayedArtifact % size)
-	                           : static_cast<ArtifactPosition>(ArtifactPosition::CREATURE_SLOT); //0
-	setArt (stack->getArt(displayedArtifact));
-}
-void CCreatureWindow::artifactMoved (const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)
-{
-	artifactRemoved (artLoc); //same code
-}
-
-void CCreatureWindow::selectSkill (ui32 which)
-{
-	selectedOption = which;
-	redraw();
-}
-
-CCreatureWindow::~CCreatureWindow()
-{
- 	for (auto & elem : upgResCost)
- 		delete elem;
-	bonusItems.clear();
-	
-	if(spellEffectsPics!=nullptr)
-		delete spellEffectsPics;
-}
-
-CBonusItem::CBonusItem()
-{
-
-}
-
-CBonusItem::CBonusItem(const Rect &Pos, const std::string &Name, const std::string &Description, const std::string &graphicsName)
-{
-	OBJ_CONSTRUCTION;
-	visible = false;
-
-	name = Name;
-	description = Description;
-	if (graphicsName.size())
-		bonusGraphics = new CPicture(graphicsName, 26, 232);
-	else
-		bonusGraphics = nullptr;
-
-	removeUsedEvents(ALL); //no actions atm
-}
-
-void CBonusItem::showAll (SDL_Surface * to)
-{
-	if (visible)
-	{
-		graphics->fonts[FONT_SMALL]->renderTextLeft(to, name, Colors::YELLOW, Point(pos.x + 72, pos.y + 6));
-		graphics->fonts[FONT_SMALL]->renderTextLeft(to, description, Colors::WHITE,  Point(pos.x + 72, pos.y + 30));
-		if (bonusGraphics && bonusGraphics->bg)
-			blitAtLoc(bonusGraphics->bg, 12, 2, to);
-	}
-}
-
-CBonusItem::~CBonusItem()
-{
-	//delete bonusGraphics; //automatic destruction
-}
-
-void CSelectableSkill::clickLeft(tribool down, bool previousState)
+void CClickableObject::clickLeft(tribool down, bool previousState)
 {
 	if (down)
 		callback();
 }
 
-void CCreInfoWindow::show(SDL_Surface * to)
+CIntObject * CStackWindow::createBonusEntry(size_t index)
 {
-	CIntObject::show(to);
-	creatureCount->showAll(to);
+	auto section = new CWindowSection(this);
+	section->createBonusEntry(index);
+	return section;
 }
 
-CCreInfoWindow::CCreInfoWindow(const CStackInstance &stack, bool LClicked, std::function<void()> upgradeFunc, std::function<void()> dismissFunc, UpgradeInfo *upgradeInfo):
-    CWindowObject(PLAYER_COLORED | (LClicked ? 0 : RCLICK_POPUP), "CRSTKPU")
+void CStackWindow::CWindowSection::createBonusEntry(size_t index)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	init(stack.type, &stack, dynamic_cast<const CGHeroInstance*>(stack.armyObj), stack.count, LClicked);
+	createBackground("bonus-effects");
+	createBonusItem(index * 2, Point(6, 4));
+	createBonusItem(index * 2 + 1, Point(214, 4));
+}
 
-	//additional buttons if opened with left click
-	if(LClicked)
+void CStackWindow::CWindowSection::createBonusItem(size_t index, Point position)
+{
+	if (parent->activeBonuses.size() > index)
 	{
-		std::function<void()> closeFunc = boost::bind(&CCreInfoWindow::close,this);
+		BonusInfo & bi = parent->activeBonuses[index];
+		new CPicture(bi.imagePath, position.x, position.y);
+		new CLabel(position.x + 60, position.y + 2,  FONT_SMALL, TOPLEFT, Colors::WHITE, bi.name);
+		new CLabel(position.x + 60, position.y + 25, FONT_SMALL, TOPLEFT, Colors::WHITE, bi.description);
+	}
+}
 
-		if(upgradeFunc && upgradeInfo)
+CIntObject * CStackWindow::switchTab(size_t index)
+{
+	switch (index)
+	{
+		case 0:
 		{
-			TResources upgradeCost = upgradeInfo->cost[0] * stack.count;
-			for(TResources::nziterator i(upgradeCost); i.valid(); i++)
-			{
-				BLOCK_CAPTURING;
-				upgResCost.push_back(new CComponent(CComponent::resource, i->resType, i->resVal));
-			}
-
-			CFunctionList<void()> onUpgrade;
-			onUpgrade += upgradeFunc;
-			onUpgrade += closeFunc;
-
-			std::function<void()> dialog = boost::bind(&CPlayerInterface::showYesNoDialog,
-				LOCPLINT,
-				CGI->generaltexth->allTexts[207],
-				onUpgrade, 0, false,
-				boost::ref(upgResCost));
-
-			upgrade = new CAdventureMapButton("", CGI->generaltexth->zelp[446].second, dialog, 76, 237, "IVIEWCR", SDLK_u);
-			upgrade->block(!LOCPLINT->cb->getResourceAmount().canAfford(upgradeCost));
+			activeTab = 0;
+			auto ret = new CWindowSection(this);
+			ret->createCommander();
+			if (info->levelupInfo)
+				ret->createCommanderAbilities();
+			return ret;
 		}
-
-		if(dismissFunc)
+		case 1:
 		{
-			CFunctionList<void()> onDismiss;
-			onDismiss += dismissFunc;
-			onDismiss += closeFunc;
-
-			std::function<void()> dialog = boost::bind(&CPlayerInterface::showYesNoDialog,
-				LOCPLINT,
-				CGI->generaltexth->allTexts[12],
-				onDismiss, 0, true, std::vector<CComponent*>());
-
-			dismiss = new CAdventureMapButton("", CGI->generaltexth->zelp[445].second, dialog, 21, 237, "IVIEWCR2",SDLK_d);
+			activeTab = 1;
+			auto ret = new CWindowSection(this);
+			if (info->levelupInfo)
+				ret->createBonuses(4);
+			else
+				ret->createBonuses(3);
+			return ret;
+		}
+		default:
+		{
+			return nullptr;
 		}
 	}
 }
 
-CCreInfoWindow::CCreInfoWindow(int creatureID, bool LClicked, int creatureCount):
-    CWindowObject(PLAYER_COLORED | (LClicked ? 0 : RCLICK_POPUP), "CRSTKPU")
+void CStackWindow::initSections()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	const CCreature *creature = CGI->creh->creatures[creatureID];
-	init(creature, nullptr, nullptr, creatureCount, LClicked);
-}
+	CWindowSection * currentSection;
 
-CCreInfoWindow::CCreInfoWindow(const CStack &stack, bool LClicked):
-    CWindowObject(PLAYER_COLORED | (LClicked ? 0 : RCLICK_POPUP), "CRSTKPU")
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	init(stack.getCreature(), &stack, stack.getMyHero(), stack.count, LClicked);
-}
+	bool showArt = CGI->modh->modules.STACK_ARTIFACT && info->commander == nullptr && info->stackNode;
+	bool showExp = (CGI->modh->modules.STACK_EXP || info->commander != nullptr) && info->stackNode;
+	currentSection = new CWindowSection(this);
+	currentSection->createStackInfo(showExp, showArt);
+	pos.w = currentSection->pos.w;
+	pos.h += currentSection->pos.h;
 
-CCreInfoWindow::~CCreInfoWindow()
-{
-	for(CComponent* object : upgResCost)
-		delete object;
-}
-
-void CCreInfoWindow::printLine(int position, const std::string &text, int baseVal, int val/*=-1*/, bool range/*=false*/)
-{
-	infoTexts[position].first = new CLabel(155, 48 + position*19, FONT_SMALL, TOPLEFT, Colors::WHITE, text);
-	std::string valueStr;
-
-	if(range && baseVal != val)
-		valueStr = boost::str(boost::format("%d - %d") % baseVal % val);
-
-	else if(baseVal != val && val>=0)
-		valueStr = boost::str(boost::format("%d (%d)") % baseVal % val);
-
-	else
-		valueStr = boost::lexical_cast<std::string>(baseVal);
-
-	infoTexts[position].second = new CLabel(276, 63 + position*19, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, valueStr);
-}
-
-void CCreInfoWindow::init(const CCreature *creature, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int count, bool LClicked)
-{
-	removeUsedEvents(ALL);
-	if (!LClicked)
-		addUsedEvents(RCLICK);
-
-	if(!stackNode)
-		stackNode = creature;
-
-	animation = new CCreaturePic(21, 48, creature);
-
-	std::string countStr = boost::lexical_cast<std::string>(count);
-	creatureCount = new CLabel(114, 174, FONT_TIMES, BOTTOMRIGHT, Colors::WHITE, countStr);
-
-	creatureName = new CLabel(149, 30, FONT_SMALL, CENTER, Colors::YELLOW, creature->namePl);
-
-	printLine(0, CGI->generaltexth->primarySkillNames[0], creature->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
-	printLine(1, CGI->generaltexth->primarySkillNames[1], creature->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
-
-	if(stackNode->valOfBonuses(Bonus::SHOTS))
-		printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS));
-
-	//TODO
-	int dmgMultiply = 1;
-	if(heroOwner && stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
-		dmgMultiply += heroOwner->Attack();
-
-	printLine(3, CGI->generaltexth->allTexts[199],   stackNode->getMinDamage() * dmgMultiply, stackNode->getMaxDamage() * dmgMultiply, true);
-	printLine(4, CGI->generaltexth->allTexts[388],   creature->valOfBonuses(Bonus::STACK_HEALTH), stackNode->valOfBonuses(Bonus::STACK_HEALTH));
-	printLine(6, CGI->generaltexth->zelp[441].first, creature->valOfBonuses(Bonus::STACKS_SPEED), stackNode->valOfBonuses(Bonus::STACKS_SPEED));
-
-	//setting morale
-	morale = new MoraleLuckBox(true, genRect(42, 42, 22, 186));
-	morale->set(stackNode);
-	//setting luck
-	luck = new MoraleLuckBox(false, genRect(42, 42, 75, 186));
-	luck->set(stackNode);
-
-	if(!LClicked)
+	if (dynamic_cast<const CStack*>(info->stackNode)) // in battle
 	{
-		abilityText = new CLabel(17, 231, FONT_SMALL, TOPLEFT, Colors::WHITE, creature->abilityText);
+		currentSection = new CWindowSection(this);
+		currentSection->pos.y += pos.h;
+		currentSection->createActiveSpells();
+		pos.h += currentSection->pos.h;
 	}
-	else
+	if (info->commander)
 	{
-		abilityText = nullptr;
-		ok = new CAdventureMapButton("", CGI->generaltexth->zelp[445].second,
-			boost::bind(&CCreInfoWindow::close,this), 216, 237, "IOKAY.DEF", SDLK_RETURN);
-		ok->assignedKeys.insert(SDLK_ESCAPE);
+		currentSection = new CWindowSection(this);
+		currentSection->pos.y += pos.h;
+		currentSection->createCommanderSection();
+		pos.h += currentSection->pos.h;
+	}
+	if (!info->commander && !activeBonuses.empty())
+	{
+		currentSection = new CWindowSection(this);
+		currentSection->pos.y += pos.h;
+		currentSection->createBonuses();
+		pos.h += currentSection->pos.h;
 	}
 
-	//if we are displying window fo r stack in battle, there are several more things that we need to display
-	if(const CStack *battleStack = dynamic_cast<const CStack*>(stackNode))
+	if (!info->popupWindow)
 	{
-		//print at most 3 spell effects
-		std::vector<si32> spells = battleStack->activeSpells();
-		for (size_t i=0; i< std::min(spells.size(), size_t(3)); i++)
-			effects.push_back(new CAnimImage("SpellInt", spells[i]+1, 0, 127 + 52*i, 186));
+		currentSection = new CWindowSection(this);
+		currentSection->pos.y += pos.h;
+		currentSection->createButtonPanel();
+		pos.h += currentSection->pos.h;
+		//FIXME: add status bar to image?
+	}
+	updateShadow();
+	pos = center(pos);
+}
 
-		//print current health
-		printLine(5, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
+void CStackWindow::initBonusesList()
+{
+	BonusList output, input;
+	input = *(info->stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT).And(Selector::anyRange())));
+
+	while (!input.empty())
+	{
+		Bonus * b = input.front();
+
+		output.push_back(new Bonus(*b));
+		output.back()->val = input.valOfBonuses(Selector::typeSubtype(b->type, b->subtype)); //merge multiple bonuses into one
+		input.remove_if (Selector::typeSubtype(b->type, b->subtype)); //remove used bonuses
+	}
+
+	BonusInfo bonusInfo;
+	for(Bonus* b : output)
+	{
+		bonusInfo.name = info->stackNode->bonusToString(b, false);
+		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
+
+		//if it's possible to give any description or image for this kind of bonus
+		//TODO: figure out why half of bonuses don't have proper description
+		if (!bonusInfo.name.empty() || !bonusInfo.imagePath.empty())
+			activeBonuses.push_back(bonusInfo);
+	}
+
+	//handle Magic resistance separately :/
+	int magicResistance = info->stackNode->magicResistance();
+
+	if (magicResistance)
+	{
+		BonusInfo bonusInfo;
+		Bonus b;
+		b.type = Bonus::MAGIC_RESISTANCE;
+
+		bonusInfo.name = VLC->getBth()->bonusToString(&b, info->stackNode, false);
+		bonusInfo.description = VLC->getBth()->bonusToString(&b, info->stackNode, true);
+		bonusInfo.imagePath = info->stackNode->bonusToGraphics(&b);
+		activeBonuses.push_back(bonusInfo);
 	}
 }
 
-CIntObject * createCreWindow(
-	const CStack *s, bool lclick/* = false*/)
+void CStackWindow::init()
 {
-	auto c = dynamic_cast<const CCommanderInstance *>(s->base);
-	if (c)
+	stackArtifactHelp = nullptr;
+	stackArtifactIcon = nullptr;
+	stackArtifactButton = nullptr;
+
+	selectedIcon = nullptr;
+	selectedSkill = 0;
+	if (info->levelupInfo)
 	{
-		return new CCreatureWindow (c, s);
+		selectedSkill = info->levelupInfo->skills.front();
+		logGlobal->debugStream() << "Received commander level-up. Possible options are: ";
+		for (auto skill : info->levelupInfo->skills)
+			logGlobal->debugStream() << "Skill #" << skill;
 	}
-	else
-	{
-		if(settings["general"]["classicCreatureWindow"].Bool())
-			return new CCreInfoWindow(*s, lclick);
-		else
-			return new CCreatureWindow(*s, LOCPLINT->battleInt ? CCreatureWindow::BATTLE : CCreatureWindow::OTHER);
-	}
+
+	commanderTab = nullptr;
+	activeTab = 0;
+
+	initBonusesList();
+	initSections();
 }
 
-CIntObject * createCreWindow(CreatureID Cid, CCreatureWindow::CreWinType Type, int creatureCount)
+CStackWindow::CStackWindow(const CStack * stack, bool popup):
+	CWindowObject(BORDERED | (popup ? RCLICK_POPUP : 0))
 {
-	if(settings["general"]["classicCreatureWindow"].Bool())
-		return new CCreInfoWindow(Cid, Type, creatureCount);
-	else
-		return new CCreatureWindow(Cid, Type, creatureCount);
+	info->stackNode = stack->base;
+	info->creature = stack->type;
+	info->creatureCount = stack->count;
+	info->popupWindow = popup;
+	init();
 }
 
-CIntObject * createCreWindow(const CStackInstance *s, CCreatureWindow::CreWinType type, std::function<void()> Upg, std::function<void()> Dsm, UpgradeInfo *ui)
+CStackWindow::CStackWindow(const CCreature * creature, bool popup):
+	CWindowObject(BORDERED | (popup ? RCLICK_POPUP : 0)),
+	info(new StackWindowInfo())
 {
-	if(settings["general"]["classicCreatureWindow"].Bool())
-		return new CCreInfoWindow(*s, type==CCreatureWindow::HERO, Upg, Dsm, ui);
-	else
-		return  new CCreatureWindow(*s, type, Upg, Dsm, ui);
+	info->stackNode = new CStackInstance(creature, 1); // FIXME: free data
+	info->creature = creature;
+	info->popupWindow = popup;
+	init();
+}
+
+CStackWindow::CStackWindow(const CStackInstance * stack, bool popup):
+	CWindowObject(BORDERED | (popup ? RCLICK_POPUP : 0)),
+	info(new StackWindowInfo())
+{
+	info->stackNode = stack;
+	info->creature = stack->type;
+	info->creatureCount = stack->count;
+	info->popupWindow = popup;
+	init();
+}
+
+CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> dismiss, const UpgradeInfo & upgradeInfo, std::function<void(CreatureID)> callback):
+	CWindowObject(BORDERED),
+	info(new StackWindowInfo())
+{
+	info->stackNode = stack;
+	info->creature = stack->type;
+	info->creatureCount = stack->count;
+
+	info->upgradeInfo = StackWindowInfo::StackUpgradeInfo();
+	info->dismissInfo = StackWindowInfo::StackDismissInfo();
+	info->upgradeInfo->info = upgradeInfo;
+	info->upgradeInfo->callback = callback;
+	info->dismissInfo->callback = dismiss;
+	init();
+}
+
+CStackWindow::CStackWindow(const CCommanderInstance * commander, bool popup):
+	CWindowObject(BORDERED | (popup ? RCLICK_POPUP : 0)),
+	info(new StackWindowInfo())
+{
+	info->stackNode = commander;
+	info->creature = commander->type;
+	info->commander = commander;
+	info->creatureCount = 1;
+	info->popupWindow = popup;
+	init();
+}
+
+CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui32> &skills, std::function<void(ui32)> callback):
+	CWindowObject(BORDERED),
+	info(new StackWindowInfo())
+{
+	info->stackNode = commander;
+	info->creature = commander->type;
+	info->commander = commander;
+	info->creatureCount = 1;
+	info->levelupInfo = StackWindowInfo::CommanderLevelInfo();
+	info->levelupInfo->skills = skills;
+	info->levelupInfo->callback = callback;
+	init();
+}
+
+CStackWindow::~CStackWindow()
+{
+	if (info->levelupInfo)
+	{
+		logGlobal->debugStream() << "Selected skill was " << selectedSkill;
+		info->levelupInfo->callback(vstd::find_pos(info->levelupInfo->skills, selectedSkill));
+	}
 }
