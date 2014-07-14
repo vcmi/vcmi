@@ -624,7 +624,7 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 
 	gameResButton = new CAdventureMapButton("", texts["resolutionButton"]["help"].String(),
 	                                        boost::bind(&CSystemOptionsWindow::selectGameRes, this),
-	                                        28, 275,"SYSOB12", SDLK_g);
+											28, 275,"buttons/resolution", SDLK_g);
 
 	std::string resText;
 	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["width"].Float());
