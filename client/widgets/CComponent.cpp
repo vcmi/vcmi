@@ -14,6 +14,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSpellHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/NetPacksBase.h"
 
 /*
  * CComponent.cpp, part of VCMI engine

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../lib/HeroBonus.h"
-#include "../widgets/CIntObjectClasses.h"
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CGarrisonInt.h"
 

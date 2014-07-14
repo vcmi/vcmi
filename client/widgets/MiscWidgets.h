@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CIntObjectClasses.h"
 #include "CComponent.h"
 
 /*

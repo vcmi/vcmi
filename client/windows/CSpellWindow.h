@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../gui/CIntObject.h"
 #include "../widgets/CIntObjectClasses.h"
 
 /*

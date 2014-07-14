@@ -2,6 +2,7 @@
 
 #include "../gui/CIntObject.h"
 #include "../gui/SDL_Extensions.h"
+
 #include "../../lib/FunctionList.h"
 
 struct SDL_Surface;
@@ -99,7 +100,7 @@ public:
 	bool swappedImages,//fix for some buttons: normal and pressed image are swapped
 		keepFrame; // don't change visual representation
 
-    void addTextOverlay(const std::string &Text, EFonts font, SDL_Color color = Colors::WHITE);
+	void addTextOverlay(const std::string &Text, EFonts font, SDL_Color color = Colors::WHITE);
 	void update();//to refresh button after image or text change
 
 	void setOffset(int newOffset);

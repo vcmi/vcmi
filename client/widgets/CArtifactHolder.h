@@ -1,8 +1,6 @@
 #pragma once
 
 #include "CComponent.h"
-#include "../gui/CIntObject.h"
-#include "../../lib/NetPacksBase.h"
 
 /*
  * CArtifactHolder.h, part of VCMI engine
@@ -17,6 +15,8 @@
 class CArtifactsOfHero;
 class CAnimImage;
 class CAdventureMapButton;
+
+struct ArtifactLocation;
 
 class CArtifactHolder
 {

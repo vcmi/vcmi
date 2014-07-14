@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../lib/NetPacksBase.h"
 #include "CIntObjectClasses.h"
 
 /*
@@ -12,6 +11,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+struct Component;
 
 /// common popup window component
 class CComponent : public virtual CIntObject

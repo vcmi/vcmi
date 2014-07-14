@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../widgets/CIntObjectClasses.h"
 #include "../widgets/CArtifactHolder.h"
 
 /*
