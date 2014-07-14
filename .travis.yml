@@ -57,5 +57,6 @@ notifications:
   email:
     recipients:
       - vcmi.fail@mixaill.tk
+      - saven.ivan@gmail.com
     on_success: change
     on_failure: always
