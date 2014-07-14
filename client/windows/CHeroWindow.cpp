@@ -117,7 +117,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 
 	if (hero->commander)
 	{
-		commanderButton = new CAdventureMapButton ("Commander", "Commander info", boost::bind(&CHeroWindow::commanderWindow, this), 317, 18, "chftke.def", SDLK_c, nullptr, false);
+		commanderButton = new CAdventureMapButton ("Commander", "Commander info", boost::bind(&CHeroWindow::commanderWindow, this), 317, 18, "buttons/commander", SDLK_c, nullptr, false);
 	}
 
 
