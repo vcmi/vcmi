@@ -567,13 +567,13 @@ void CRmgTemplateZone::addRequiredObject(CGObjectInstance * obj, si32 strength)
 	requiredObjects.push_back(std::make_pair(obj, strength));
 }
 
-bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, bool clearSurroundingTiles)
+bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, bool clearSurroundingTiles, bool zoneGuard)
 {
 	//precalculate actual (randomized) monster strength based on this post
 	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
 
 	int mapMonsterStrength = gen->mapGenOptions->getMonsterStrength();
-	int monsterStrength = zoneMonsterStrength + mapMonsterStrength - 1; //array index from 0 to 4
+	int monsterStrength = (zoneGuard ? 0 : zoneMonsterStrength) + mapMonsterStrength - 1; //array index from 0 to 4
 	static const int value1[] = {2500, 1500, 1000, 500, 0};
 	static const int value2[] = {7500, 7500, 7500, 5000, 5000};
 	static const float multiplier1[] = {0.5, 0.75, 1.0, 1.5, 1.5};
@@ -618,6 +618,9 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, 
 	auto  hlp = new CStackInstance(creId, amount);
 	//will be set during initialization
 	guard->putStack(SlotID(0), hlp);
+
+	logGlobal->traceStream() << boost::format ("Adding stack of %d %s. Map monster strenght %d, zone monster strength %d, base monster value %d")
+		% amount % VLC->creh->creatures[creId]->namePl % mapMonsterStrength % zoneMonsterStrength % strength;
 
 	placeObject(gen, guard, pos);
 
@@ -1054,8 +1057,8 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 		}
 		logGlobal->traceStream() << "Place found";
 
-		placeObject(gen, obj.first, pos);
-		guardObject (gen, obj.first, obj.second);
+		placeObject (gen, obj.first, pos);
+		guardObject (gen, obj.first, obj.second, (obj.first->ID == Obj::MONOLITH_TWO_WAY));
 	}
 	return true;
 }
@@ -1363,10 +1366,10 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 	}
 }
 
-void CRmgTemplateZone::placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str)
+void CRmgTemplateZone::placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str, bool zoneGuard)
 {
 	placeObject(gen, object, pos);
-	guardObject(gen, object, str);
+	guardObject(gen, object, str, zoneGuard);
 }
 
 std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object)
@@ -1395,7 +1398,7 @@ std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (CMapGenerator* gen, CG
 	return tiles;
 }
 
-bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str)
+bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard)
 {
 	logGlobal->traceStream() << boost::format("Guard object at %s") % object->pos();
 
@@ -1418,7 +1421,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 		return false;
 	}
 
-	if (addMonster (gen, guardTile, str, false)) //do not place obstacles around unguarded object
+	if (addMonster (gen, guardTile, str, false, zoneGuard)) //do not place obstacles around unguarded object
 	{
 		for (auto pos : tiles)
 		{

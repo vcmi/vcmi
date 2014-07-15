@@ -145,7 +145,7 @@ public:
 	void discardDistantTiles (CMapGenerator* gen, float distance);
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
-	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength, bool clearSurroundingTiles = true);
+	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength, bool clearSurroundingTiles = true, bool zoneGuard = false);
 	bool createTreasurePile (CMapGenerator* gen, int3 &pos);
 	bool fill (CMapGenerator* gen);
 	bool placeMines (CMapGenerator* gen);
@@ -170,7 +170,7 @@ public:
 
 	ObjectInfo getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 value);
 
-	void placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str);
+	void placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str, bool zoneGuard = false);
 
 private:
 	//template info
@@ -213,5 +213,5 @@ private:
 	bool canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos);
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
-	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str);
+	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard = false);
 };
