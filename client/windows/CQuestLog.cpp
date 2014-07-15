@@ -11,7 +11,6 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
-#include "../widgets/CIntObjectClasses.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CArtHandler.h"

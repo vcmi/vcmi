@@ -1,6 +1,7 @@
 #pragma once
 
-#include "CIntObjectClasses.h"
+#include "ObjectLists.h"
+#include "../../lib/FunctionList.h"
 
 class CArmedInstance;
 class CShowableAnim;
@@ -8,6 +9,7 @@ class CGGarrison;
 class CGObjectInstance;
 class CGHeroInstance;
 class CGTownInstance;
+class CAdventureMapButton;
 struct Component;
 struct InfoAboutArmy;
 struct InfoAboutHero;
@@ -338,14 +340,4 @@ public:
 	void refreshEnteredText();
 
 	CInGameConsole(); //c-tor
-};
-
-/// Adventure options dialogue where you can view the world, dig, play the replay of the last turn,...
-class CAdventureOptions : public CWindowObject
-{
-public:
-	CAdventureMapButton *exit, *viewWorld, *puzzle, *dig, *scenInfo, *replay;
-
-	CAdventureOptions();
-	static void showScenarioInfo();
 };

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../widgets/CAnimation.h"
 #include "../widgets/CGarrisonInt.h"
+#include "../widgets/Images.h"
 
 class CAdventureMapButton;
 class CBuilding;

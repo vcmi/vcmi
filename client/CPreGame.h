@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../lib/filesystem/Filesystem.h"
+//#include "../lib/filesystem/Filesystem.h"
 #include "../lib/StartInfo.h"
 #include "../lib/FunctionList.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/rmg/CMapGenerator.h"
-#include "widgets/CIntObjectClasses.h"
+#include "windows/CWindowObject.h"
 
 /*
  * CPreGame.h, part of VCMI engine
@@ -17,6 +17,7 @@
  *
  */
 
+class CMapInfo;
 class CMusicHandler;
 class CMapHeader;
 class CCampaignHeader;
@@ -31,6 +32,12 @@ class CMapGenOptions;
 class CRandomMapTab;
 struct CPackForSelectionScreen;
 struct PlayerInfo;
+class CMultiLineLabel;
+class CHighlightableButton;
+class CHighlightableButtonsGroup;
+class CTabbedInt;
+class CAdventureMapButton;
+class CSlider;
 
 namespace boost{ class thread; class recursive_mutex;}
 

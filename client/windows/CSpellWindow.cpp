@@ -3,6 +3,7 @@
 
 #include "CAdvmapInterface.h"
 #include "GUIClasses.h"
+#include "InfoWindows.h"
 
 #include "../CBitmapHandler.h"
 #include "../CDefHandler.h"
@@ -14,9 +15,11 @@
 #include "../Graphics.h"
 
 #include "../battle/CBattleInterface.h"
+#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
+#include "../widgets/CComponent.h"
 
 #include "../../CCallback.h"
 
@@ -26,6 +29,8 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CSpellHandler.h"
 #include "../../lib/GameConstants.h"
+#include "../../lib/CGameState.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 
 /*
  * CSpellWindow.cpp, part of VCMI engine

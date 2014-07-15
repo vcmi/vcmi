@@ -16,9 +16,9 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
-#include "../widgets/CAnimation.h"
-#include "../widgets/CIntObjectClasses.h"
+#include "../windows/InfoWindows.h"
 #include "../widgets/MiscWidgets.h"
+#include "../widgets/CComponent.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CArtHandler.h"
@@ -30,6 +30,7 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 
 using namespace boost::assign;
 

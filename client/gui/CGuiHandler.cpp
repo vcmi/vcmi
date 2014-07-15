@@ -1,6 +1,8 @@
 #include "StdInc.h"
 #include "CGuiHandler.h"
 
+#include <SDL.h>
+
 #include "CIntObject.h"
 #include "CCursorHandler.h"
 

@@ -16,10 +16,11 @@
 #endif
 
 #include <SDL_video.h>
-#include <SDL_ttf.h>
+#include <SDL_events.h>
 #include "../../lib/int3.h"
-#include "../Graphics.h"
+//#include "../Graphics.h"
 #include "Geometries.h"
+#include "../../lib/GameConstants.h"
 
 
 //A macro to force inlining some of our functions. Compiler (at least MSVC) is not so smart here-> without that displaying is MUCH slower

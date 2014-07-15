@@ -4,7 +4,9 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCursorHandler.h"
 
-#include "CAnimation.h"
+#include "Buttons.h"
+#include "CComponent.h"
+
 #include "../windows/CHeroWindow.h"
 #include "../windows/CSpellWindow.h"
 #include "../windows/GUIClasses.h"

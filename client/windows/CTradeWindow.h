@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../widgets/CArtifactHolder.h"
+#include "CWindowObject.h"
+#include "../../lib/FunctionList.h"
 
 /*
  * CTradeWindow.h, part of VCMI engine
@@ -13,6 +15,8 @@
  */
 
 class IMarket;
+class CSlider;
+class CTextBox;
 
 class CTradeWindow : public CWindowObject, public CWindowWithArtifacts //base for markets and altar of sacrifice
 {

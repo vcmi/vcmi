@@ -14,7 +14,8 @@
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
-#include "../widgets/CIntObjectClasses.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/CSpellWindow.h"
 
@@ -22,10 +23,12 @@
 #include "../../lib/BattleState.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/CGameState.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/CondSh.h"
 
 /*
  * CBattleInterfaceClasses.cpp, part of VCMI engine

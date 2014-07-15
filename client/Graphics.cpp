@@ -21,7 +21,6 @@
 #include "../lib/vcmi_endian.h"
 #include "../lib/GameConstants.h"
 #include "../lib/CStopWatch.h"
-#include "widgets/CAnimation.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 
 using namespace boost::assign;

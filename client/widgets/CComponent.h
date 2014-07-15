@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CIntObjectClasses.h"
+#include "../gui/CIntObject.h"
 
 /*
  * CComponent.h, part of VCMI engine
@@ -13,6 +13,7 @@
  */
 
 struct Component;
+class CAnimImage;
 
 /// common popup window component
 class CComponent : public virtual CIntObject
@@ -108,17 +109,4 @@ public:
 	/// will also create "or" labels between components
 	/// onSelect - optional function that will be called every time on selection change
 	CComponentBox(std::vector<CSelectableComponent *> components, Rect position, std::function<void(int newID)> onSelect = nullptr);
-};
-
-/// Can interact on left and right mouse clicks
-class LRClickableAreaWTextComp: public LRClickableAreaWText
-{
-public:
-	int baseType;
-	int bonusValue, type;
-	virtual void clickLeft(tribool down, bool previousState);
-	virtual void clickRight(tribool down, bool previousState);
-
-	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
-	CComponent * createComponent() const;
 };

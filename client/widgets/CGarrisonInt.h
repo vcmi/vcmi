@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CIntObjectClasses.h"
+#include "../windows/CWindowObject.h"
 
 /*
  * CGarrisonInt.h, part of VCMI engine

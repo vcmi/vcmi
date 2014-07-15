@@ -3,9 +3,10 @@
 
 #include "../gui/CGuiHandler.h"
 
-#include "CAnimation.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/GUIClasses.h"
 
@@ -16,6 +17,16 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 #include "../../lib/CGameState.h"
+
+/*
+ * CGarrisonInt.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 void CGarrisonSlot::setHighlight(bool on)
 {

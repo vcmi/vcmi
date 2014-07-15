@@ -3,9 +3,12 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/CComponent.h"
+#include "../widgets/Images.h"
+#include "../widgets/TextControls.h"
+#include "../widgets/ObjectLists.h"
 #include "../gui/CGuiHandler.h"
-#include "../widgets/CIntObjectClasses.h"
-#include "../widgets/CAnimation.h"
 
 #include "../../CCallback.h"
 #include "../../lib/BattleState.h"
@@ -14,6 +17,7 @@
 #include "../../lib/CModHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CSpellHandler.h"
+#include "../../lib/CGameState.h"
 
 using namespace CSDL_Ext;
 

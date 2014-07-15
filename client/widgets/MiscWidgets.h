@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CComponent.h"
+#include "../gui/CIntObject.h"
 
 /*
  * MiscWidgets.h, part of VCMI engine
@@ -19,105 +19,33 @@ class CSelectableComponent;
 class InfoAboutArmy;
 class CArmedInstance;
 class IBonusBearer;
+class CAnimImage;
 
-/// text + comp. + ok button
-class CInfoWindow : public CSimpleWindow
-{ //window able to delete its components when closed
-	bool delComps; //whether comps will be deleted
-
-public:
-	typedef std::vector<std::pair<std::string,CFunctionList<void()> > > TButtonsInfo;
-	typedef std::vector<CComponent*> TCompsInfo;
-	QueryID ID; //for identification
-	CTextBox *text;
-	std::vector<CAdventureMapButton *> buttons;
-	std::vector<CComponent*> components;
-	CSlider *slider;
-
-	void setDelComps(bool DelComps);
-	virtual void close();
-
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
-	void sliderMoved(int to);
-
-	CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo &comps = TCompsInfo(), const TButtonsInfo &Buttons = TButtonsInfo(), bool delComps = true); //c-tor
-	CInfoWindow(); //c-tor
-	~CInfoWindow(); //d-tor
-
-	//use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
-	static void showInfoDialog( const std::string & text, const std::vector<CComponent*> *components, bool DelComps = true, PlayerColor player = PlayerColor(1));
-	static void showOkDialog(const std::string & text, const std::vector<CComponent*> *components, const boost::function<void()> & onOk, bool delComps = true, PlayerColor player = PlayerColor(1));
-	static void showYesNoDialog( const std::string & text, const std::vector<CComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps = true, PlayerColor player = PlayerColor(1));
-	static CInfoWindow *create(const std::string &text, PlayerColor playerID = PlayerColor(1), const std::vector<CComponent*> *components = nullptr, bool DelComps = false);
-
-	/// create text from title and description: {title}\n\n description
-	static std::string genText(std::string title, std::string description);
-};
-
-/// popup displayed on R-click
-class CRClickPopup : public CIntObject
+/// Shows a text by moving the mouse cursor over the object
+class CHoverableArea: public virtual CIntObject
 {
 public:
-	virtual void close();
-	void clickRight(tribool down, bool previousState);
+	std::string hoverText;
 
-	CRClickPopup();
-	virtual ~CRClickPopup(); //d-tor
+	virtual void hover (bool on);
 
-	static CIntObject* createInfoWin(Point position, const CGObjectInstance * specific);
-	static void createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
-	static void createAndPush(const std::string &txt, CComponent * component);
-	static void createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment = BOTTOMRIGHT);
+	CHoverableArea();
+	virtual ~CHoverableArea();
 };
 
-/// popup displayed on R-click
-class CRClickPopupInt : public CRClickPopup
+/// Can interact on left and right mouse clicks, plus it shows a text when by hovering over it
+class LRClickableAreaWText: public CHoverableArea
 {
 public:
-	IShowActivatable *inner;
-	bool delInner;
+	std::string text;
 
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
-	CRClickPopupInt(IShowActivatable *our, bool deleteInt); //c-tor
-	virtual ~CRClickPopupInt(); //d-tor
-};
+	LRClickableAreaWText();
+	LRClickableAreaWText(const Rect &Pos, const std::string &HoverText = "", const std::string &ClickText = "");
+	virtual ~LRClickableAreaWText();
+	void init();
 
-class CInfoPopup : public CRClickPopup
-{
-public:
-	bool free; //TODO: comment me
-	SDL_Surface * bitmap; //popup background
-	void close();
-	void show(SDL_Surface * to);
-	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false); //c-tor
-	CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free=false); //c-tor
-	CInfoPopup(SDL_Surface * Bitmap = nullptr, bool Free = false); //default c-tor
-
-	void init(int x, int y);
-	~CInfoPopup(); //d-tor
-};
-
-/// popup on adventure map for town\hero objects
-class CInfoBoxPopup : public CWindowObject
-{
-	Point toScreen(Point pos);
-public:
-	CInfoBoxPopup(Point position, const CGTownInstance * town);
-	CInfoBoxPopup(Point position, const CGHeroInstance * hero);
-	CInfoBoxPopup(Point position, const CGGarrison * garr);
-};
-
-/// component selection window
-class CSelWindow : public CInfoWindow
-{ //warning - this window deletes its components by closing!
-public:
-	void selectionChange(unsigned to);
-	void madeChoice(); //looks for selected component and calls callback
-	CSelWindow(const std::string& text, PlayerColor player, int charperline ,const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, QueryID askID); //c-tor
-	CSelWindow(){}; //c-tor
-	//notification - this class inherits important destructor from CInfoWindow
+	virtual void clickLeft(tribool down, bool previousState);
+	virtual void clickRight(tribool down, bool previousState);
 };
 
 /// base class for hero/town/garrison tooltips
@@ -173,18 +101,6 @@ public:
 	~CMinorResDataBar(); //d-tor
 };
 
-class MoraleLuckBox : public LRClickableAreaWTextComp
-{
-	CAnimImage *image;
-public:
-	bool morale; //true if morale, false if luck
-	bool small;
-
-	void set(const IBonusBearer *node);
-
-	MoraleLuckBox(bool Morale, const Rect &r, bool Small=false);
-};
-
 /// Opens hero window by left-clicking on it
 class CHeroArea: public CIntObject
 {
@@ -198,6 +114,19 @@ public:
 	void hover(bool on);
 };
 
+/// Can interact on left and right mouse clicks
+class LRClickableAreaWTextComp: public LRClickableAreaWText
+{
+public:
+	int baseType;
+	int bonusValue, type;
+	virtual void clickLeft(tribool down, bool previousState);
+	virtual void clickRight(tribool down, bool previousState);
+
+	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
+	CComponent * createComponent() const;
+};
+
 /// Opens town screen by left-clicking on it
 class LRClickableAreaOpenTown: public LRClickableAreaWTextComp
 {
@@ -206,4 +135,16 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	LRClickableAreaOpenTown();
+};
+
+class MoraleLuckBox : public LRClickableAreaWTextComp
+{
+	CAnimImage *image;
+public:
+	bool morale; //true if morale, false if luck
+	bool small;
+
+	void set(const IBonusBearer *node);
+
+	MoraleLuckBox(bool Morale, const Rect &r, bool Small=false);
 };

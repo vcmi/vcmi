@@ -39,6 +39,7 @@
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
+#include "../lib/CondSh.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"

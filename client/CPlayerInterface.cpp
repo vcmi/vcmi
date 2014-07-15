@@ -13,6 +13,7 @@
 #include "CMessage.h"
 #include "CPlayerInterface.h"
 #include "gui/SDL_Extensions.h"
+#include "widgets/CComponent.h"
 #include "windows/CTradeWindow.h"
 #include "../lib/CConfigHandler.h"
 #include "battle/CCreatureAnimation.h"
@@ -37,8 +38,9 @@
 #include "../lib/CGameState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
-#include "widgets/MiscWidgets.h"
+#include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
+#include <SDL.h>
 
 #ifdef min
 #undef min

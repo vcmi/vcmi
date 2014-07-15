@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../widgets/CAnimation.h"
 #include "../../lib/BattleHex.h"
+#include "../widgets/Images.h"
 
 class CBattleInterface;
 class CStack;

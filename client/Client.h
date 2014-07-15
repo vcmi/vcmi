@@ -2,8 +2,9 @@
 
 
 #include "../lib/IGameCallback.h"
-#include "../lib/CondSh.h"
+#include "../lib/BattleAction.h"
 #include "../lib/CStopWatch.h"
+#include "../lib/int3.h"
 
 /*
  * Client.h, part of VCMI engine
@@ -15,6 +16,9 @@
  *
  */
 
+class CPack;
+class CCampaignState;
+class CBattleCallback;
 class IGameEventsReceiver;
 class IBattleEventsReceiver;
 class CBattleGameInterface;

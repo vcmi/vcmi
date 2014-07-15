@@ -8,9 +8,9 @@
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
-#include "../widgets/CAnimation.h"
-#include "../widgets/CIntObjectClasses.h"
+#include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
+#include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
 
@@ -21,6 +21,8 @@
 #include "../../lib/CModHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 
 /*
  * CKingdomInterface.cpp, part of VCMI engine

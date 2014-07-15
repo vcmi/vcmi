@@ -1,6 +1,7 @@
 #pragma once
 
-#include "CComponent.h"
+//#include "CComponent.h"
+#include "MiscWidgets.h"
 
 /*
  * CArtifactHolder.h, part of VCMI engine

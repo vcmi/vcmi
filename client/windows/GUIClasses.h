@@ -5,7 +5,8 @@
 #include "../lib/CConfigHandler.h"
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CGarrisonInt.h"
-#include "../widgets/CAnimation.h"
+#include "../widgets/Images.h"
+#include "../windows/CWindowObject.h"
 
 /*
  * GUIClasses.h, part of VCMI engine
@@ -23,8 +24,14 @@ class CCreaturePic;
 class MoraleLuckBox;
 class CHeroArea;
 class CMinorResDataBar;
-
+class CSlider;
 class CComponentBox;
+class CTextInput;
+class CListBox;
+class CLabelGroup;
+class CHighlightableButton;
+class CHighlightableButtonsGroup;
+class CGStatusBar;
 
 /// Recruitment window where you can recruit creatures
 class CRecruitmentWindow : public CWindowObject

@@ -17,9 +17,8 @@
 
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
-#include "../widgets/CAnimation.h"
-#include "../widgets/CIntObjectClasses.h"
 #include "../widgets/MiscWidgets.h"
+#include "../widgets/CComponent.h"
 
 #include "../../CCallback.h"
 

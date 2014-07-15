@@ -5,9 +5,9 @@
 
 #include "SDL_Extensions.h"
 #include "CGuiHandler.h"
+#include "widgets/Images.h"
 
 #include "../CMT.h"
-#include "../widgets/CAnimation.h"
 
 /*
  * CCursorHandler.cpp, part of VCMI engine

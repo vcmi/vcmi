@@ -1,11 +1,9 @@
 #pragma once
 
 
-#include "../../lib/CCreatureSet.h"
+//#include "../../lib/CCreatureSet.h"
 #include "../../lib/ConstTransitivePtr.h" //may be reundant
 #include "../../lib/GameConstants.h"
-
-#include "../widgets/CAnimation.h"
 
 #include "CBattleAnimations.h"
 

@@ -2,6 +2,7 @@
 
 #include "../../lib/HeroBonus.h"
 #include "../widgets/MiscWidgets.h"
+#include "CWindowObject.h"
 
 /*
  * CCreatureWindow.h, part of VCMI engine
@@ -18,7 +19,8 @@ class CCommanderInstance;
 class CStackInstance;
 class CStack;
 struct UpgradeInfo;
-class LRClickableAreaWTextComp;
+class CTabbedInt;
+class CAdventureMapButton;
 
 class CClickableObject : public LRClickableAreaWText
 {

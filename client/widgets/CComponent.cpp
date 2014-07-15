@@ -4,9 +4,9 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCursorHandler.h"
 
-#include "CAnimation.h"
 #include "../CMessage.h"
 #include "../CGameInfo.h"
+#include "../widgets/Images.h"
 #include "../windows/CAdvmapInterface.h"
 
 #include "../../lib/CArtHandler.h"

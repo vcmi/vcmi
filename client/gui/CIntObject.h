@@ -10,13 +10,15 @@
  
 #pragma once
 
-#include <SDL_events.h>
+//#include <SDL_events.h>
 #include "Geometries.h"
 #include "../Graphics.h"
 
 struct SDL_Surface;
 class CPicture;
 class CGuiHandler;
+
+struct SDL_KeyboardEvent;
 
 using boost::logic::tribool;
 

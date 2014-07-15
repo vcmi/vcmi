@@ -1,6 +1,11 @@
 #include "StdInc.h"
 #include "Geometries.h"
 #include "../CMT.h"
+#include <SDL_events.h>
+
+Point::Point(const SDL_MouseMotionEvent &a)
+	:x(a.x),y(a.y)
+{}
 
 Rect Rect::createCentered( int w, int h )
 {

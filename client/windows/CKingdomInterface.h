@@ -15,6 +15,9 @@ class LRClickableAreaOpenTown;
 class CComponent;
 class CHeroArea;
 class MoraleLuckBox;
+class CListBox;
+class CTabbedInt;
+class CGStatusBar;
 
 /*
  * CKingdomInterface.h, part of VCMI engine

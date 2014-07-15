@@ -1,8 +1,10 @@
 #pragma once
 
-#include "../widgets/CIntObjectClasses.h"
-#include "../widgets/CAnimation.h"
 #include "../widgets/AdventureMapClasses.h"
+#include "../widgets/TextControls.h"
+#include "../widgets/MiscWidgets.h"
+#include "../widgets/Images.h"
+#include "CWindowObject.h"
 
 /*
  * CQuestLog.h, part of VCMI engine

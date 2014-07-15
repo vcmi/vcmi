@@ -14,6 +14,7 @@ set(client_SRCS
 		battle/CBattleInterfaceClasses.cpp
 		battle/CCreatureAnimation.cpp
 
+		gui/CAnimation.cpp
 		gui/CCursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
@@ -22,12 +23,14 @@ set(client_SRCS
 		gui/SDL_Extensions.cpp
 
 		widgets/AdventureMapClasses.cpp
-		widgets/CAnimation.cpp
+		widgets/Buttons.cpp
 		widgets/CArtifactHolder.cpp
 		widgets/CComponent.cpp
 		widgets/CGarrisonInt.cpp
-		widgets/CIntObjectClasses.cpp
+		widgets/Images.cpp
 		widgets/MiscWidgets.cpp
+		widgets/ObjectLists.cpp
+		widgets/TextControls.cpp
 
 		windows/CAdvmapInterface.cpp
 		windows/CCastleInterface.cpp
@@ -37,6 +40,8 @@ set(client_SRCS
 		windows/CQuestLog.cpp
 		windows/CSpellWindow.cpp
 		windows/CTradeWindow.cpp
+		windows/CWindowObject
+		windows/InfoWindows.cpp
 		windows/GUIClasses.cpp
 
 		CBitmapHandler.cpp
@@ -52,6 +57,11 @@ set(client_SRCS
 		Graphics.cpp
 		mapHandler.cpp
 		NetPacksClient.cpp
+)
+
+set(client_HEADERS
+		gui/SDL_Pixels.h
+		gui/SDL_Compat.h
 )
 
 if(APPLE)

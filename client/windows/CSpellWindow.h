@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../widgets/CIntObjectClasses.h"
+#include "CWindowObject.h"
 
 /*
  * CSpellWindow.h, part of VCMI engine

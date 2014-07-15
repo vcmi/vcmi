@@ -25,6 +25,9 @@ class LRClickableAreaWText;
 class LRClickableAreaWTextComp;
 class CArtifactsOfHero;
 class MoraleLuckBox;
+class CHighlightableButton;
+class CHighlightableButtonsGroup;
+class CGStatusBar;
 
 /// Button which switches hero selection
 class CHeroSwitcher : public CIntObject
