@@ -363,8 +363,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 		{
 			idToObstacle[ID] = CDefHandler::giveDef(elem->getInfo().defName);
 			for(auto & _n : idToObstacle[ID]->ourImages)
-			{
-				SDL_SetColorKey(_n.bitmap, SDL_SRCCOLORKEY, SDL_MapRGB(_n.bitmap->format,0,255,255));
+			{		
+				CSDL_Ext::setDefaultColorKey(_n.bitmap);
 			}
 		}
 		else if(elem->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)

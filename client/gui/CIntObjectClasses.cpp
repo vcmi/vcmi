@@ -18,6 +18,7 @@
 #include "../GUIClasses.h"
 #include "CGuiHandler.h"
 #include "../CAdvmapInterface.h"
+#include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 {
@@ -128,13 +129,17 @@ void CPicture::convertToScreenBPP()
 {
 	SDL_Surface *hlp = bg;
 	bg = SDL_ConvertSurface(hlp,screen->format,0);
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	CSDL_Ext::setDefaultColorKey(bg);	
 	SDL_FreeSurface(hlp);
 }
 
 void CPicture::setAlpha(int value)
-{
-	SDL_SetAlpha(bg, SDL_SRCALPHA, value);
+{	
+	#ifdef VCMI_SDL1
+	SDL_SetAlpha(bg, SDL_SRCALPHA, value);	
+	#else
+	SDL_SetSurfaceAlphaMod(bg,value);
+	#endif // 0
 }
 
 void CPicture::scaleTo(Point size)
@@ -285,7 +290,7 @@ void CButtonBase::block(bool on)
 CAdventureMapButton::CAdventureMapButton ()
 {
 	hoverable = actOnDown = borderEnabled = soundDisabled = false;
-	borderColor.unused = 1; // represents a transparent color, used for HighlightableButton
+	CSDL_Ext::colorSetAlpha(borderColor,1);// represents a transparent color, used for HighlightableButton
 	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
 }
 
@@ -404,7 +409,7 @@ void CAdventureMapButton::init(const CFunctionList<void()> &Callback, const std:
 	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
 	callback = Callback;
 	hoverable = actOnDown = borderEnabled = soundDisabled = false;
-	borderColor.unused = 1; // represents a transparent color, used for HighlightableButton
+	CSDL_Ext::colorSetAlpha(borderColor,1);// represents a transparent color, used for HighlightableButton
 	hoverTexts = Name;
 	helpBox=HelpBox;
 
@@ -452,9 +457,14 @@ void CAdventureMapButton::setPlayerColor(PlayerColor player)
 void CAdventureMapButton::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-
+	
+	#ifdef VCMI_SDL1
 	if (borderEnabled && borderColor.unused == 0)
-		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor.r, borderColor.g, borderColor.b));
+		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor.r, borderColor.g, borderColor.b));	
+	#else
+	if (borderEnabled && borderColor.a == 0)
+		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor.r, borderColor.g, borderColor.b));	
+	#endif // 0
 }
 
 void CHighlightableButton::select(bool on)
@@ -840,7 +850,7 @@ void CSlider::setAmount( int to )
 
 void CSlider::showAll(SDL_Surface * to)
 {
-	CSDL_Ext::fillRect(to, &pos, 0);
+	CSDL_Ext::fillRectBlack(to, &pos);
 	CIntObject::showAll(to);
 }
 
@@ -1536,7 +1546,7 @@ CTextInput::CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(co
 	pos.w = Pos.w;
 	captureAllKeys = true;
 	bg = nullptr;
-	addUsedEvents(LCLICK | KEYBOARD);
+	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 	giveFocus();
 }
 
@@ -1548,7 +1558,7 @@ CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::strin
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(bgName, bgOffset.x, bgOffset.y);
-	addUsedEvents(LCLICK | KEYBOARD);
+	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 	giveFocus();
 }
 
@@ -1567,13 +1577,24 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
 	bg->pos = pos;
-	addUsedEvents(LCLICK | KEYBOARD);
+	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 	giveFocus();
 }
 
+void CTextInput::focusGot()
+{
+	CSDL_Ext::startTextInput(&pos);	
+}
+
+void CTextInput::focusLost()
+{
+	CSDL_Ext::stopTextInput();
+}
+
+
 std::string CTextInput::visibleText()
 {
-	return focus ? text + "_" : text;
+	return focus ? text + newText + "_" : text;
 }
 
 void CTextInput::clickLeft( tribool down, bool previousState )
@@ -1584,6 +1605,7 @@ void CTextInput::clickLeft( tribool down, bool previousState )
 
 void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 {
+
 	if(!focus || key.state != SDL_PRESSED)
 		return;
 
@@ -1594,29 +1616,46 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 		return;
 	}
 
+	bool redrawNeeded = false;
+	#ifdef VCMI_SDL1
 	std::string oldText = text;
+	#endif // 0	
 	switch(key.keysym.sym)
 	{
 	case SDLK_DELETE: // have index > ' ' so it won't be filtered out by default section
 		return;
 	case SDLK_BACKSPACE:
-		if(!text.empty())
-			text.resize(text.size()-1);
+		if(!newText.empty())
+		{
+			Unicode::trimRight(newText);
+			redrawNeeded = true;
+		}
+		else if(!text.empty())
+		{
+			Unicode::trimRight(text);
+			redrawNeeded = true;
+		}			
 		break;
 	default:
+		#ifdef VCMI_SDL1
 		if (key.keysym.unicode < ' ')
 			return;
 		else
+		{
 			text += key.keysym.unicode; //TODO 16-/>8
+			redrawNeeded = true;
+		}			
+		#endif // 0
 		break;
 	}
-
+	#ifdef VCMI_SDL1
 	filters(text, oldText);
-	if (text != oldText)
+	#endif // 0
+	if (redrawNeeded)
 	{
 		redraw();
 		cb(text);
-	}
+	}	
 }
 
 void CTextInput::setText( const std::string &nText, bool callCb )
@@ -1630,13 +1669,48 @@ bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
 {
 	if(key.keysym.sym == SDLK_RETURN || key.keysym.sym == SDLK_KP_ENTER)
 		return false;
-
+	
+	#ifdef VCMI_SDL1
 	//this should allow all non-printable keys to go through (for example arrows)
 	if (key.keysym.unicode < ' ')
 		return false;
 
 	return true;
+	#else
+	return false;
+	#endif
 }
+
+#ifndef VCMI_SDL1
+void CTextInput::textInputed(const SDL_TextInputEvent & event)
+{
+	if(!focus)
+		return;
+	std::string oldText = text;
+	
+	text += event.text;	
+	
+	filters(text,oldText);
+	if (text != oldText)
+	{
+		redraw();
+		cb(text);
+	}	
+	newText = "";
+}
+
+void CTextInput::textEdited(const SDL_TextEditingEvent & event)
+{
+	if(!focus)
+		return;
+		
+	newText = event.text;
+	redraw();
+	cb(text+newText);	
+}
+
+#endif
+
 
 void CTextInput::filenameFilter(std::string & text, const std::string &)
 {
@@ -1690,7 +1764,10 @@ CFocusable::CFocusable()
 CFocusable::~CFocusable()
 {
 	if(inputWithFocus == this)
+	{
+		focusLost();
 		inputWithFocus = nullptr;
+	}	
 
 	focusables -= this;
 }
@@ -1699,12 +1776,14 @@ void CFocusable::giveFocus()
 	if(inputWithFocus)
 	{
 		inputWithFocus->focus = false;
+		inputWithFocus->focusLost();
 		inputWithFocus->redraw();
 	}
 
 	focus = true;
 	inputWithFocus = this;
-	redraw();
+	focusGot();
+	redraw();	
 }
 
 void CFocusable::moveFocus()

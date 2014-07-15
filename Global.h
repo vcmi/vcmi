@@ -100,6 +100,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/date_time/posix_time/posix_time_io.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
+#include <boost/functional/hash.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/optional.hpp>
@@ -114,6 +115,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
 #ifdef ANDROID
 #include <android/log.h>
+#endif
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
 #endif
 
 /* ---------------------------------------------------------------------------- */

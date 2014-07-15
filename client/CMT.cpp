@@ -66,11 +66,21 @@ std::string NAME_AFFIX = "client";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 CGuiHandler GH;
 static CClient *client=nullptr;
+
+#ifndef VCMI_SDL1
+int preferredDriverIndex = -1;
+SDL_Window * mainWindow = nullptr;
+SDL_Renderer * mainRenderer = nullptr;
+SDL_Texture * screenTexture = nullptr;
+
+#endif // VCMI_SDL1
+
+extern boost::thread_specific_ptr<bool> inGuiThread;
+
 SDL_Surface *screen = nullptr, //main screen surface
 	*screen2 = nullptr,//and hlp surface (used to store not-active interfaces layer)
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
-static boost::thread *mainGUIThread;
-
+	
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
 
@@ -84,7 +94,7 @@ void processCommand(const std::string &message);
 static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo=true);
 void dispose();
 void playIntro();
-static void listenForEvents();
+static void mainLoop();
 //void requestChangingResolution();
 void startGame(StartInfo * options, CConnection *serv = nullptr);
 void endGame();
@@ -127,28 +137,16 @@ void startGameFromFile(const std::string &fname)
 void init()
 {
 	CStopWatch tmh, pomtime;
-    logGlobal->infoStream() << "\tInitializing minors: " << pomtime.getDiff();
-
-	//initializing audio
-	// Note: because of interface button range, volume can only be a
-	// multiple of 11, from 0 to 99.
-	CCS->soundh = new CSoundHandler;
-	CCS->soundh->init();
-	CCS->soundh->setVolume(settings["general"]["sound"].Float());
-	CCS->musich = new CMusicHandler;
-	CCS->musich->init();
-	CCS->musich->setVolume(settings["general"]["music"].Float());
-    logGlobal->infoStream()<<"\tInitializing sound: "<<pomtime.getDiff();
-    logGlobal->infoStream()<<"Initializing screen and sound handling: "<<tmh.getDiff();
 
 	loadDLLClasses();
 	const_cast<CGameInfo*>(CGI)->setFromLib();
 
     logGlobal->infoStream()<<"Initializing VCMI_Lib: "<<tmh.getDiff();
 
-	pomtime.getDiff();
+
 	if(!gNoGUI)
 	{
+		pomtime.getDiff();
 		CCS->curh = new CCursorHandler;
 		graphics = new Graphics(); // should be before curh->init()
 
@@ -158,7 +156,7 @@ void init()
 		pomtime.getDiff();
 
 		graphics->loadHeroAnims();
-		logGlobal->infoStream()<<"\tMain graphics: "<<tmh.getDiff();
+		logGlobal->infoStream()<<"\tMain graphics: "<<pomtime.getDiff();
 		logGlobal->infoStream()<<"Initializing game graphics: "<<tmh.getDiff();
 
 		CMessage::init();
@@ -257,10 +255,11 @@ int main(int argc, char** argv)
 		gNoGUI = true;
 		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
 	}
-
+#ifdef VCMI_SDL1
 	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
 	putenv((char*)"SDL_VIDEO_WINDOW_POS");
 	putenv((char*)"SDL_VIDEO_CENTERED=1");
+#endif
 
 	// Have effect on X11 system only (Linux).
 	// For whatever reason in fullscreen mode SDL takes "raw" mouse input from DGA X11 extension
@@ -335,22 +334,50 @@ int main(int argc, char** argv)
 
 	if(!gNoGUI)
 	{
+		#ifdef VCMI_SDL1
 		if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO))
+		#else
+		if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE))
+		#endif
 		{
 			logGlobal->errorStream()<<"Something was wrong: "<< SDL_GetError();
 			exit(-1);
 		}
 		GH.mainFPSmng->init(); //(!)init here AFTER SDL_Init() while using SDL for FPS management
 		atexit(SDL_Quit);
+		
+		#ifndef VCMI_SDL1
+		int driversCount = SDL_GetNumRenderDrivers();
+		std::string preferredDriverName = video["driver"].String();
+		
+		logGlobal->infoStream() << "Found " << driversCount << " render drivers";
+		
+		for(int it = 0; it < driversCount; it++)
+		{
+			SDL_RendererInfo info;
+			SDL_GetRenderDriverInfo(it,&info);
+			
+			std::string driverName(info.name);
+			
+						
+			logGlobal->infoStream() << "\t" << driverName;
+			
+			if(!preferredDriverName.empty() && driverName == preferredDriverName)
+			{
+				preferredDriverIndex = it;
+				logGlobal->infoStream() << "\t\twill select this";
+			}					
+		}			
+		#endif // VCMI_SDL1	
+		
 		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
 		logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
 	}
 
-
 	CCS = new CClientState;
 	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler etc.)
 	// Initialize video
-#if DISABLE_VIDEO
+#ifdef DISABLE_VIDEO
 	CCS->videoh = new CEmptyVideoPlayer;
 #else
 	if (!gNoGUI && !vm.count("disable-video"))
@@ -361,13 +388,26 @@ int main(int argc, char** argv)
 
     logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
 
+#if defined(__ANDROID__)
+	//on Android threaded init is broken
+	#define VCMI_NO_THREADED_LOAD
+#endif // defined
 
+	//initializing audio
+	// Note: because of interface button range, volume can only be a
+	// multiple of 11, from 0 to 99.
+	CCS->soundh = new CSoundHandler;
+	CCS->soundh->init();
+	CCS->soundh->setVolume(settings["general"]["sound"].Float());
+	CCS->musich = new CMusicHandler;
+	CCS->musich->init();
+	CCS->musich->setVolume(settings["general"]["music"].Float());
+    logGlobal->infoStream()<<"Initializing screen and sound handling: "<<pomtime.getDiff();
 
-#ifndef __ANDROID__
+#ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
 	boost::thread loading(init);
-#else
-	// on Android threaded init is broken
+#else	 
 	init();
 #endif
 
@@ -379,7 +419,7 @@ int main(int argc, char** argv)
 	}
 
 	CSDL_Ext::update(screen);
-#ifndef __ANDROID__
+#ifndef VCMI_NO_THREADED_LOAD
 	loading.join();
 #endif
     logGlobal->infoStream()<<"Initialization of VCMI (together): "<<total.getDiff();
@@ -418,8 +458,7 @@ int main(int argc, char** argv)
 
 	if(!gNoGUI)
 	{
-		mainGUIThread = new boost::thread(&CGuiHandler::run, &GH);
-		listenForEvents();
+		mainLoop();
 	}
 	else
 	{
@@ -761,9 +800,176 @@ void dispose()
 	CMessage::dispose();
 }
 
+static bool checkVideoMode(int monitorIndex, int w, int h, int& bpp, bool fullscreen)
+{
+	#ifndef VCMI_SDL1
+	SDL_DisplayMode mode;
+	const int modeCount = SDL_GetNumDisplayModes(monitorIndex);
+	for (int i = 0; i < modeCount; i++) {
+		SDL_GetDisplayMode(0, i, &mode);
+		if (!mode.w || !mode.h || (w >= mode.w && h >= mode.h)) {
+			return true;
+		}
+	}
+	return false;	
+	#else
+	bpp = SDL_VideoModeOK(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
+	return !(bpp==0);
+	#endif // VCMI_SDL1
+}
+
+#ifndef VCMI_SDL1
+static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
+{
+	// VCMI will only work with 2 or 4 bytes per pixel	
+	vstd::amax(bpp, 16);
+	vstd::amin(bpp, 32);
+	if(bpp>16)
+		bpp = 32;
+	
+	int suggestedBpp = bpp;
+
+	if(!checkVideoMode(0,w,h,suggestedBpp,fullscreen))
+	{
+		logGlobal->errorStream() << "Error: SDL says that " << w << "x" << h << " resolution is not available!";
+		return false;
+	}	
+	
+	bool bufOnScreen = (screenBuf == screen);
+
+	screenBuf = nullptr; //it`s a link - just nullify
+
+	if(nullptr != screen2)
+	{
+		SDL_FreeSurface(screen2);
+		screen2 = nullptr;
+	}
+		
+		
+	if(nullptr != screen)
+	{
+		SDL_FreeSurface(screen);
+		screen = nullptr;
+	}	
+		
+	
+	if(nullptr != screenTexture)
+	{
+		SDL_DestroyTexture(screenTexture);
+		screenTexture = nullptr;
+	}
+	
+	if(nullptr != mainRenderer)	
+	{
+		SDL_DestroyRenderer(mainRenderer);
+		mainRenderer = nullptr;
+	}
+		
+	if(nullptr != mainWindow)
+	{
+		SDL_DestroyWindow(mainWindow);
+		mainWindow = nullptr;
+	}	
+	
+	
+	if(fullscreen)
+	{
+		//in full-screen mode always use desktop resolution
+		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+	}
+	else
+	{
+		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, w, h, 0);
+	}
+	
+	
+	
+	if(nullptr == mainWindow)
+	{
+		throw std::runtime_error("Unable to create window\n");
+	}
+	
+	
+	//create first available renderer if preferred not set. Use no flags, so HW accelerated will be preferred but SW renderer also will possible
+	mainRenderer = SDL_CreateRenderer(mainWindow,preferredDriverIndex,0);
+
+	if(nullptr == mainRenderer)
+	{
+		throw std::runtime_error("Unable to create renderer\n");
+	}	
+	
+	SDL_RendererInfo info;
+	SDL_GetRendererInfo(mainRenderer,&info);
+	logGlobal->infoStream() << "Created renderer " << info.name;	
+	
+	SDL_RenderSetLogicalSize(mainRenderer, w, h);
+	
+	SDL_RenderSetViewport(mainRenderer, nullptr);
+
+
+	
+	#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+		int bmask = 0xff000000;
+		int gmask = 0x00ff0000;
+		int rmask = 0x0000ff00;
+		int amask = 0x000000ff;
+	#else
+		int bmask = 0x000000ff;
+		int gmask = 0x0000ff00;
+		int rmask = 0x00ff0000;
+		int amask = 0xFF000000;
+	#endif
+
+	screen = SDL_CreateRGBSurface(0,w,h,bpp,rmask,gmask,bmask,amask);
+	if(nullptr == screen)
+	{
+		logGlobal->errorStream() << "Unable to create surface";
+		logGlobal->errorStream() << w << " "<<  h << " "<< bpp;
+		
+		logGlobal->errorStream() << SDL_GetError();
+		throw std::runtime_error("Unable to create surface");
+	}	
+	//No blending for screen itself. Required for proper cursor rendering.
+	SDL_SetSurfaceBlendMode(screen, SDL_BLENDMODE_NONE);
+	
+	screenTexture = SDL_CreateTexture(mainRenderer,
+                                            SDL_PIXELFORMAT_ARGB8888,
+                                            SDL_TEXTUREACCESS_STREAMING,
+                                            w, h);
+
+	if(nullptr == screenTexture)
+	{
+		logGlobal->errorStream() << "Unable to create screen texture";
+		logGlobal->errorStream() << SDL_GetError();
+		throw std::runtime_error("Unable to create screen texture");
+	}	
+		
+	screen2 = CSDL_Ext::copySurface(screen);
+
+
+	if(nullptr == screen2)
+	{
+		throw std::runtime_error("Unable to copy surface\n");
+	}			
+	
+	screenBuf = bufOnScreen ? screen : screen2;
+
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
+	SDL_RenderClear(mainRenderer);
+	SDL_RenderPresent(mainRenderer);
+		
+	return true;	
+}
+#endif
+
+
+
 //used only once during initialization
 static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo)
 {
+#ifdef VCMI_SDL1
+	
 	// VCMI will only work with 2, 3 or 4 bytes per pixel
 	vstd::amax(bpp, 16);
 	vstd::amin(bpp, 32);
@@ -831,7 +1037,15 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 	//TODO: centering game window on other platforms (or does the environment do their job correctly there?)
 
 	screenBuf = bufOnScreen ? screen : screen2;
-	//setResolution = true;
+	//setResolution = true;	
+	
+#else
+	
+	if(!recreateWindow(w,h,bpp,fullscreen))
+	{
+		throw std::runtime_error("Requested screen resolution is not available\n");
+	}	
+#endif // VCMI_SDL1
 }
 
 static void fullScreenChanged()
@@ -841,8 +1055,9 @@ static void fullScreenChanged()
 	Settings full = settings.write["video"]["fullscreen"];
 	const bool toFullscreen = full->Bool();
 
-	int bitsPerPixel = screen->format->BitsPerPixel;
-
+	auto bitsPerPixel = screen->format->BitsPerPixel;
+	
+	#ifdef VCMI_SDL1
 	bitsPerPixel = SDL_VideoModeOK(screen->w, screen->h, bitsPerPixel, SDL_SWSURFACE|(toFullscreen?SDL_FULLSCREEN:0));
 	if(bitsPerPixel == 0)
 	{
@@ -853,82 +1068,113 @@ static void fullScreenChanged()
 	bool bufOnScreen = (screenBuf == screen);
 	screen = SDL_SetVideoMode(screen->w, screen->h, bitsPerPixel, SDL_SWSURFACE|(toFullscreen?SDL_FULLSCREEN:0));
 	screenBuf = bufOnScreen ? screen : screen2;
-
+	
+	#else
+	auto w = screen->w;
+	auto h = screen->h;
+	
+	if(!recreateWindow(w,h,bitsPerPixel,toFullscreen))
+	{
+		//will return false and report error if video mode is not supported
+		return;	
+	}	
+	#endif
+	
 	GH.totalRedraw();
 }
 
-static void listenForEvents()
+static void handleEvent(SDL_Event & ev)
+{
+	if((ev.type==SDL_QUIT) ||(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
+	{
+		handleQuit();	
+		return;
+	}
+
+	#ifdef VCMI_SDL1
+	//FIXME: this should work even in pregame
+	else if(LOCPLINT && ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
+	#else
+	else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
+	#endif // VCMI_SDL1		
+	{
+		Settings full = settings.write["video"]["fullscreen"];
+		full->Bool() = !full->Bool();
+		return;
+	}
+	else if(ev.type == SDL_USEREVENT)
+	{
+		switch(ev.user.code)
+		{
+		case RETURN_TO_MAIN_MENU:
+			{
+				endGame();
+				GH.curInt = CGPreGame::create();;
+				GH.defActionsDef = 63;
+			}
+			break;
+		case STOP_CLIENT:
+			client->endGame(false);
+			break;
+		case RESTART_GAME:
+			{
+				StartInfo si = *client->getStartInfo(true);
+				endGame();
+				startGame(&si);
+			}
+			break;
+		case PREPARE_RESTART_CAMPAIGN:
+			{
+				auto si = reinterpret_cast<StartInfo *>(ev.user.data1);
+				endGame();
+				startGame(si);
+			}
+			break;
+		case RETURN_TO_MENU_LOAD:
+			endGame();
+			CGPreGame::create();
+			GH.defActionsDef = 63;
+			CGP->update();
+			CGP->menu->switchToTab(vstd::find_pos(CGP->menu->menuNameToEntry, "load"));
+			GH.curInt = CGP;
+			break;
+		case FULLSCREEN_TOGGLED:
+			fullScreenChanged();
+			break;
+		default:
+			logGlobal->errorStream() << "Unknown user event. Code " << ev.user.code;		
+			break;	
+		}
+
+		return;
+	}
+	{
+		boost::unique_lock<boost::mutex> lock(eventsM);
+		events.push(ev);
+	}	
+	
+}
+
+
+static void mainLoop()
 {
 	SettingsListener resChanged = settings.listen["video"]["fullscreen"];
 	resChanged([](const JsonNode &newState){  CGuiHandler::pushSDLEvent(SDL_USEREVENT, FULLSCREEN_TOGGLED); });
 
+	inGuiThread.reset(new bool(true));
+	GH.mainFPSmng->init();
+
 	while(1) //main SDL events loop
 	{
 		SDL_Event ev;
+		
+		while(1 == SDL_PollEvent(&ev))
+		{
+			handleEvent(ev);
+		}
+		
+		GH.renderFrame();
 
-		int ret = SDL_WaitEvent(&ev);
-		if (ret == 0 || (ev.type==SDL_QUIT) ||
-			(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
-		{
-			handleQuit();
-			continue;
-		}
-		else if(LOCPLINT && ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
-		{
-			Settings full = settings.write["video"]["fullscreen"];
-			full->Bool() = !full->Bool();
-			continue;
-		}
-		else if(ev.type == SDL_USEREVENT)
-		{
-			switch(ev.user.code)
-			{
-			case RETURN_TO_MAIN_MENU:
-				{
-                    endGame();
-                    GH.curInt = CGPreGame::create();;
-                    GH.defActionsDef = 63;
-				}
-				break;
-			case STOP_CLIENT:
-				client->endGame(false);
-				break;
-			case RESTART_GAME:
-				{
-					StartInfo si = *client->getStartInfo(true);
-					endGame();
-					startGame(&si);
-				}
-				break;
-			case PREPARE_RESTART_CAMPAIGN:
-				{
-					auto si = reinterpret_cast<StartInfo *>(ev.user.data1);
-					endGame();
-					startGame(si);
-				}
-				break;
-			case RETURN_TO_MENU_LOAD:
-				endGame();
-				CGPreGame::create();
-				GH.defActionsDef = 63;
-				CGP->update();
-				CGP->menu->switchToTab(vstd::find_pos(CGP->menu->menuNameToEntry, "load"));
-				GH.curInt = CGP;
-				break;
-			case FULLSCREEN_TOGGLED:
-				fullScreenChanged();
-				break;
-			default:
-                logGlobal->errorStream() << "Error: unknown user event. Code " << ev.user.code;
-				assert(0);
-			}
-
-			continue;
-		}
-		{
-			boost::unique_lock<boost::mutex> lock(eventsM);
-			events.push(ev);
-		}
 	}
 }
 
@@ -978,15 +1224,9 @@ void handleQuit()
 {
 	auto quitApplication = []()
 	{
-		if(client) client->endGame();
+		if(client)
+			endGame();
 
-		if(mainGUIThread)
-		{
-			GH.terminate = true;
-			if(mainGUIThread->get_id() != boost::this_thread::get_id()) mainGUIThread->join();
-			delete mainGUIThread;
-			mainGUIThread = nullptr;
-		}
 		delete console;
 		console = nullptr;
 		boost::this_thread::sleep(boost::posix_time::milliseconds(750));

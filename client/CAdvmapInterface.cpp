@@ -294,7 +294,7 @@ void CResDataBar::clickRight(tribool down, bool previousState)
 CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist)
 {
 	bg = BitmapHandler::loadBitmap(defname);
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	CSDL_Ext::setDefaultColorKey(bg);	
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h, bg->w, pos.x+x, pos.y+y);
 
@@ -313,7 +313,7 @@ CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int
 CResDataBar::CResDataBar()
 {
 	bg = BitmapHandler::loadBitmap(ADVOPT.resdatabarG);
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	CSDL_Ext::setDefaultColorKey(bg);	
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h,bg->w,ADVOPT.resdatabarX,ADVOPT.resdatabarY);
 
@@ -723,9 +723,8 @@ void CAdvMapInt::show(SDL_Surface * to)
 	if((animValHitCount % (4/scrollSpeed)) == 0
 		&&  (
 			(GH.topInt() == this)
-			|| SDL_GetKeyState(nullptr)[SDLK_LCTRL]
-			|| SDL_GetKeyState(nullptr)[SDLK_RCTRL]
-)
+			|| isCtrlKeyDown()
+		)
 	)
 	{
 		if( (scrollingDir & LEFT)   &&  (position.x>-CGI->mh->frameW) )
@@ -921,8 +920,12 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			//numpad arrow
 			if(CGuiHandler::isArrowKey(SDLKey(k)))
 				k = CGuiHandler::arrowToNum(SDLKey(k));
-
+			
+			#ifdef VCMI_SDL1
 			k -= SDLK_KP0 + 1;
+			#else
+			k -= SDLK_KP_1;
+			#endif // VCMI_SDL1			
 			if(k < 0 || k > 8)
 				return;
 
@@ -1041,7 +1044,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 {
 	//adventure map scrolling with mouse
-	if(!SDL_GetKeyState(nullptr)[SDLK_LCTRL]  &&  isActive())
+	if(!isCtrlKeyDown() &&  isActive())
 	{
 		if(sEvent.x<15)
 		{

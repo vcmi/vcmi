@@ -221,7 +221,7 @@ public:
 
 #include <SDL.h>
 #include <SDL_video.h>
-#if SDL_VERSION_ATLEAST(1,3,0)
+#if SDL_VERSION_ATLEAST(1,3,0) && !SDL_VERSION_ATLEAST(2,0,0)
 #include <SDL_compat.h>
 #endif
 
@@ -242,7 +242,12 @@ class CVideoPlayer : public IMainVideoPlayer
 	AVIOContext * context;
 
 	// Destination. Either overlay or dest.
-	SDL_Overlay *overlay;
+#ifdef VCMI_SDL1
+	SDL_Overlay * overlay;
+#else
+	SDL_Texture *texture;
+#endif
+
 	SDL_Surface *dest;
 	SDL_Rect destRect;			// valid when dest is used
 	SDL_Rect pos;				// destination on screen

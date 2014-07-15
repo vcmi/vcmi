@@ -60,7 +60,7 @@ void Graphics::loadPaletteAndColors()
 		col.r = pals[startPoint++];
 		col.g = pals[startPoint++];
 		col.b = pals[startPoint++];
-		col.unused = 255;
+		CSDL_Ext::colorSetAlpha(col,SDL_ALPHA_OPAQUE);	
 		startPoint++;
 		playerColorPalette[i] = col;
 	}
@@ -75,20 +75,26 @@ void Graphics::loadPaletteAndColors()
 		neutralColorPalette[i].r = reader.readUInt8();
 		neutralColorPalette[i].g = reader.readUInt8();
 		neutralColorPalette[i].b = reader.readUInt8();
-		neutralColorPalette[i].unused = reader.readUInt8();
-		neutralColorPalette[i].unused = !neutralColorPalette[i].unused;
+		CSDL_Ext::colorSetAlpha(neutralColorPalette[i], !reader.readUInt8());
 	}
 	//colors initialization
-	int3 kolory[] = {int3(0xff,0,0),int3(0x31,0x52,0xff),int3(0x9c,0x73,0x52),int3(0x42,0x94,0x29),
-		int3(0xff,0x84,0x0),int3(0x8c,0x29,0xa5),int3(0x09,0x9c,0xa5),int3(0xc6,0x7b,0x8c)};
+	SDL_Color colors[]  = { 
+		{0xff,0,  0,    SDL_ALPHA_OPAQUE}, 
+		{0x31,0x52,0xff,SDL_ALPHA_OPAQUE},
+		{0x9c,0x73,0x52,SDL_ALPHA_OPAQUE},
+		{0x42,0x94,0x29,SDL_ALPHA_OPAQUE},
+		
+		{0xff,0x84,0,   SDL_ALPHA_OPAQUE},
+		{0x8c,0x29,0xa5,SDL_ALPHA_OPAQUE},
+		{0x09,0x9c,0xa5,SDL_ALPHA_OPAQUE},
+		{0xc6,0x7b,0x8c,SDL_ALPHA_OPAQUE}};		
+		
 	for(int i=0;i<8;i++)
 	{
-		playerColors[i].r = kolory[i].x;
-		playerColors[i].g = kolory[i].y;
-		playerColors[i].b = kolory[i].z;
-		playerColors[i].unused = 255;
+		playerColors[i] = colors[i];
 	}
-	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->unused = 255;//gray
+	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; //gray
+	CSDL_Ext::colorSetAlpha(*neutralColor,SDL_ALPHA_OPAQUE);
 }
 
 void Graphics::initializeBattleGraphics()
@@ -119,6 +125,7 @@ void Graphics::initializeBattleGraphics()
 }
 Graphics::Graphics()
 {
+	#if 0
 	std::vector<Task> tasks; //preparing list of graphics to load
 	tasks += boost::bind(&Graphics::loadFonts,this);
 	tasks += boost::bind(&Graphics::loadPaletteAndColors,this);
@@ -131,6 +138,16 @@ Graphics::Graphics()
 
 	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
 	th.run();
+	#else
+	loadFonts();
+	loadPaletteAndColors();
+	loadHeroFlags();
+	initializeBattleGraphics();
+	loadErmuToPicture();
+	initializeImageLists();
+	resources32 = CDefHandler::giveDefEss("RESOURCE.DEF");
+	heroMoveArrows = CDefHandler::giveDefEss("ADAG.DEF");
+	#endif
 
 	for(auto & elem : heroMoveArrows->ourImages)
 	{
@@ -242,9 +259,10 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 		}
 		for(auto & curImg : curImgs)
 		{
-			SDL_SetColorKey(curImg.bitmap, SDL_SRCCOLORKEY,
-				SDL_MapRGB(curImg.bitmap->format, 0, 255, 255)
-				);
+			CSDL_Ext::setDefaultColorKey(curImg.bitmap);
+			#ifndef VCMI_SDL1
+			SDL_SetSurfaceBlendMode(curImg.bitmap,SDL_BLENDMODE_NONE);
+			#endif
 		}
 	}
 }
@@ -266,12 +284,19 @@ void Graphics::loadHeroFlags()
 	pr[3].first = &Graphics::flags4;
 	pr[3].second+=("AF00.DEF"),("AF01.DEF"),("AF02.DEF"),("AF03.DEF"),("AF04.DEF"),
 		("AF05.DEF"),("AF06.DEF"),("AF07.DEF");
+	#if 0
 	boost::thread_group grupa;
 	for(int g=3; g>=0; --g)
 	{
 		grupa.create_thread(boost::bind(&Graphics::loadHeroFlagsDetail, this, boost::ref(pr[g]), true));
 	}
 	grupa.join_all();
+	#else
+	for(auto p: pr)
+	{
+		loadHeroFlagsDetail(p,true);
+	}
+	#endif
     logGlobal->infoStream() << "Loading and transforming heroes' flags: "<<th.getDiff();
 }
 

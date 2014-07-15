@@ -536,11 +536,12 @@ void CGPreGame::update()
 
 	if (settings["general"]["showfps"].Bool())
 		GH.drawFPSCounter();
+}
 
-	// draw the mouse cursor and update the screen
-	CCS->curh->drawWithScreenRestore();
-	CSDL_Ext::update(screen);
-	CCS->curh->drawRestored();
+void CGPreGame::runLocked(std::function<void(IUpdateable * )> cb)
+{
+	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
+	cb(this);	
 }
 
 void CGPreGame::openCampaignScreen(std::string name)
@@ -1897,7 +1898,7 @@ CChatBox::CChatBox(const Rect &rect)
 {
 	OBJ_CONSTRUCTION;
 	pos += rect;
-	addUsedEvents(KEYBOARD);
+	addUsedEvents(KEYBOARD | TEXTINPUT);
 	captureAllKeys = true;
 
 	const int height = graphics->fonts[FONT_SMALL]->getLineHeight();
@@ -4193,7 +4194,7 @@ CPrologEpilogVideo::CPrologEpilogVideo( CCampaignScenario::SScenarioPrologEpilog
 
 void CPrologEpilogVideo::show( SDL_Surface * to )
 {
-	CSDL_Ext::fillRect(to, &pos, 0); // fill screen with black
+	CSDL_Ext::fillRectBlack(to, &pos);
 	//BUG: some videos are 800x600 in size while some are 800x400
 	//VCMI should center them in the middle of the screen. Possible but needs modification
 	//of video player API which I'd like to avoid until we'll get rid of Windows-specific player
