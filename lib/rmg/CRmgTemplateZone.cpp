@@ -619,8 +619,8 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, 
 	//will be set during initialization
 	guard->putStack(SlotID(0), hlp);
 
-	logGlobal->traceStream() << boost::format ("Adding stack of %d %s. Map monster strenght %d, zone monster strength %d, base monster value %d")
-		% amount % VLC->creh->creatures[creId]->namePl % mapMonsterStrength % zoneMonsterStrength % strength;
+	//logGlobal->traceStream() << boost::format ("Adding stack of %d %s. Map monster strenght %d, zone monster strength %d, base monster value %d")
+	//	% amount % VLC->creh->creatures[creId]->namePl % mapMonsterStrength % zoneMonsterStrength % strength;
 
 	placeObject(gen, guard, pos);
 
@@ -1434,7 +1434,8 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	else //allow no guard or other object in front of this object
 	{
 		for (auto tile : tiles)
-			gen->setOccupied (tile, ETileType::FREE);
+			if (gen->isPossible(pos))
+				gen->setOccupied (tile, ETileType::FREE);
 	}
 
 	return true;
