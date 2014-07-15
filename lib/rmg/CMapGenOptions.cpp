@@ -175,12 +175,6 @@ const std::map<std::string, CRmgTemplate *> & CMapGenOptions::getAvailableTempla
 	return VLC->tplh->getTemplates();
 }
 
-void CMapGenOptions::finalize()
-{
-	CRandomGenerator rand;
-	finalize(rand);
-}
-
 void CMapGenOptions::finalize(CRandomGenerator & rand)
 {
 	if(!mapTemplate)
