@@ -32,6 +32,13 @@ class CCursorHandler
 	CAnimImage * dndObject; //if set, overrides currentCursor
 	bool showing;
 
+	/// Draw cursor preserving original image below cursor
+	void drawWithScreenRestore();
+	/// Restore original image below cursor
+	void drawRestored();
+	/// Simple draw cursor
+	void draw(SDL_Surface *to);
+	
 public:
 	/// position of cursor
 	int xpos, ypos;
@@ -53,13 +60,8 @@ public:
 	 * cursor. CursorHandler takes ownership of object
 	 */
 	void dragAndDropCursor (CAnimImage * image);
-
-	/// Draw cursor preserving original image below cursor
-	void drawWithScreenRestore();
-	/// Restore original image below cursor
-	void drawRestored();
-	/// Simple draw cursor
-	void draw(SDL_Surface *to);
+	
+	void render();
 
 	void shiftPos( int &x, int &y );
 	void hide() { showing=0; };

@@ -1,0 +1,62 @@
+language: cpp
+
+before_install:
+  #new boost
+  - sudo add-apt-repository --yes ppa:boost-latest/ppa
+  #new GCC
+  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+  #new Clang
+  - sudo add-apt-repository --yes ppa:h-rayflood/llvm
+  #new SDL2
+  - sudo add-apt-repository --yes ppa:zoogie/sdl2-snapshots
+  #new Qt
+  - sudo add-apt-repository --yes ppa:beineri/opt-qt531 
+  #new FFmpeg
+  - sudo add-apt-repository --yes ppa:djcj/vlc-stable
+
+  - sudo apt-get update -qq
+
+  - sudo apt-get install -qq $SUPPORT
+  - sudo apt-get install -qq $PACKAGE
+  - sudo apt-get install -qq cmake yasm libboost1.55-all-dev zlib1g-dev
+  - sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+  - sudo apt-get install -qq libavformat-dev libswscale-dev
+  - sudo apt-get install -qq qt53declarative
+  
+  #setup compiler
+  - source /opt/qt53/bin/qt53-env.sh
+  - export CC=${REAL_CC} CXX=${REAL_CXX}
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+
+script:
+  - make
+
+env:
+  - ignore=this
+
+matrix:
+  exclude:
+    - env: ignore=this
+  include:
+    - compiler: clang
+      env: REAL_CC=clang-3.2 REAL_CXX=clang++-3.2 PACKAGE=clang-3.2 SUPPORT=g++-4.8 
+    - compiler: clang
+      env: REAL_CC=clang-3.3 REAL_CXX=clang++-3.3 PACKAGE=clang-3.3 SUPPORT=g++-4.8 
+    - compiler: clang
+      env: REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4 SUPPORT=g++-4.8 
+    - compiler: gcc
+      env: REAL_CC=gcc-4.7   REAL_CXX=g++-4.7     PACKAGE=g++-4.7   SUPPORT=
+    - compiler: gcc
+      env: REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT=
+
+notifications:
+  email:
+    recipients:
+      - vcmi.fail@mixaill.tk
+      - saven.ivan@gmail.com
+    on_success: change
+    on_failure: always

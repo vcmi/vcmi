@@ -70,7 +70,7 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 			tp.r = pcx[it++];
 			tp.g = pcx[it++];
 			tp.b = pcx[it++];
-			tp.unused = SDL_ALPHA_OPAQUE;
+			CSDL_Ext::colorSetAlpha(tp,SDL_ALPHA_OPAQUE);
 			ret->format->palette->colors[i] = tp;
 		}
 	}
@@ -121,8 +121,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 		{
 			if(ret->format->BytesPerPixel == 1  &&  setKey)
 			{
-				const SDL_Color &c = ret->format->palette->colors[0];
-				SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format, c.r, c.g, c.b));
+				CSDL_Ext::setColorKey(ret,ret->format->palette->colors[0]);
 			}
 		}
 		else
@@ -142,8 +141,8 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 			if (ret->format->palette)
 			{
 				//set correct value for alpha\unused channel
-				for (int i=0; i< ret->format->palette->ncolors; i++)
-					ret->format->palette->colors[i].unused = 255;
+				for (int i=0; i < ret->format->palette->ncolors; i++)
+					CSDL_Ext::colorSetAlpha(ret->format->palette->colors[i],SDL_ALPHA_OPAQUE);				
 			}
 		}
 		else
@@ -154,23 +153,17 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 		}
 	}
 
-	// When modifyin anything here please check two use cases:
+	// When modifying anything here please check two use cases:
 	// 1) Vampire mansion in Necropolis (not 1st color is transparent)
 	// 2) Battle background when fighting on grass/dirt, topmost sky part (NO transparent color)
 	// 3) New objects that may use 24-bit images for icons (e.g. witchking arts)
-	auto colorID = SDL_MapRGB(ret->format, 0, 255, 255);
-
 	if (ret->format->palette)
 	{
-		auto & color = ret->format->palette->colors[colorID];
-
-		// set color key only if exactly such color was found
-		if (color.r == 0 && color.g == 255 && color.b == 255)
-			SDL_SetColorKey(ret, SDL_SRCCOLORKEY, colorID);
+		CSDL_Ext::setDefaultColorKeyPresize(ret);
 	}
 	else // always set
 	{
-		SDL_SetColorKey(ret, SDL_SRCCOLORKEY, colorID);
+		CSDL_Ext::setDefaultColorKey(ret);
 	}
 	return ret;
 }

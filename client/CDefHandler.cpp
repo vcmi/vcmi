@@ -5,7 +5,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/VCMI_Lib.h"
 #include "CBitmapHandler.h"
-
+#include "gui/SDL_Extensions.h"
 /*
  * CDefHandler.cpp, part of VCMI engine
  *
@@ -67,7 +67,7 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 		palette[it].r = de.palette[it].R;
 		palette[it].g = de.palette[it].G;
 		palette[it].b = de.palette[it].B;
-		palette[it].unused = 255;
+		CSDL_Ext::colorSetAlpha(palette[it],SDL_ALPHA_OPAQUE);	
 	}
 
 	// The SDefEntryBlock starts just after the SDefEntry
@@ -169,19 +169,35 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 		add=0;
 
 	ret = SDL_CreateRGBSurface(SDL_SWSURFACE, FullWidth, FullHeight, 8, 0, 0, 0, 0);
+	
+	if(nullptr == ret)
+	{
+		logGlobal->errorStream() << __FUNCTION__ <<": Unable to create surface";
+		logGlobal->errorStream() << FullWidth << "X" << FullHeight;
+		logGlobal->errorStream() << SDL_GetError();
+		throw std::runtime_error("Unable to create surface");		
+	}
 
 	BaseOffset += sizeof(SSpriteDef);
 	int BaseOffsetor = BaseOffset;
 
+	#ifdef VCMI_SDL1
 	for(int i=0; i<256; ++i)
-	{
+	{		
 		SDL_Color pr;
 		pr.r = palette[i].r;
 		pr.g = palette[i].g;
 		pr.b = palette[i].b;
 		pr.unused = palette[i].unused;
-		(*(ret->format->palette->colors+i))=pr;
+		(*(ret->format->palette->colors+i))=pr;		
 	}
+	#else
+	if(SDL_SetPaletteColors(ret->format->palette,palette,0,256) != 0)
+	{
+		throw std::runtime_error("Unable to set palette");	
+	}
+	
+	#endif
 
 	int ftcp=0;
 
@@ -347,8 +363,14 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 	}
 
 	SDL_Color ttcol = ret->format->palette->colors[0];
-	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.unused);
-	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, keycol);
+	#ifdef VCMI_SDL1
+	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.unused);	
+	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, keycol);	
+	#else
+	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.a);	
+	SDL_SetColorKey(ret, SDL_TRUE, keycol);	
+	#endif // 0
+
 	return ret;
 }
 

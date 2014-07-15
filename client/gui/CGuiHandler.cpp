@@ -1,13 +1,14 @@
 #include "StdInc.h"
 #include "CGuiHandler.h"
 
-#include "SDL_Extensions.h"
+
 #include "CIntObject.h"
 #include "../CGameInfo.h"
 #include "CCursorHandler.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/CConfigHandler.h"
 #include "../CMT.h"
+#include "../CPlayerInterface.h"
 
 extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
@@ -60,6 +61,10 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 	processList(CIntObject::TIME,activityFlag,&timeinterested,cb);
 	processList(CIntObject::WHEEL,activityFlag,&wheelInterested,cb);
 	processList(CIntObject::DOUBLECLICK,activityFlag,&doubleClickInterested,cb);
+	
+	#ifndef VCMI_SDL1
+	processList(CIntObject::TEXTINPUT,activityFlag,&textInterested,cb);
+	#endif // VCMI_SDL1
 }
 
 void CGuiHandler::handleElementActivate(CIntObject * elem, ui16 activityFlag)
@@ -164,20 +169,16 @@ void CGuiHandler::updateTime()
 
 void CGuiHandler::handleEvents()
 {
-	while(true)
+	//player interface may want special event handling 	
+	if(nullptr != LOCPLINT && LOCPLINT->capturedAllEvents())
+		return;
+	
+	boost::unique_lock<boost::mutex> lock(eventsM);	
+	while(!events.empty())
 	{
-		SDL_Event ev;
-		boost::unique_lock<boost::mutex> lock(eventsM);
-		if(events.empty())
-		{
-			return;
-		}
-		else
-		{
-			ev = events.front();
-			events.pop();
-		}
-		handleEvent(&ev);
+		SDL_Event ev = events.front();
+		events.pop();		
+		this->handleEvent(&ev);
 	}
 }
 
@@ -194,6 +195,9 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		if(key.keysym.sym == SDLK_KP_ENTER)
 		{
 			key.keysym.sym = (SDLKey)SDLK_RETURN;
+			#ifndef VCMI_SDL1
+			key.keysym.scancode = SDL_SCANCODE_RETURN;
+			#endif // VCMI_SDL1
 		}
 
 		bool keysCaptured = false;
@@ -264,6 +268,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 				}
 			}
 		}
+		#ifdef VCMI_SDL1 //SDL1x only events
 		else if(sEvent->button.button == SDL_BUTTON_WHEELDOWN || sEvent->button.button == SDL_BUTTON_WHEELUP)
 		{
 			std::list<CIntObject*> hlp = wheelInterested;
@@ -273,7 +278,34 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 				(*i)->wheelScrolled(sEvent->button.button == SDL_BUTTON_WHEELDOWN, isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y));
 			}
 		}
+		#endif
 	}
+	#ifndef VCMI_SDL1 //SDL2x only events	
+	else if (sEvent->type == SDL_MOUSEWHEEL)
+	{
+		std::list<CIntObject*> hlp = wheelInterested;
+		for(auto i=hlp.begin(); i != hlp.end() && current; i++)
+		{
+			if(!vstd::contains(wheelInterested,*i)) continue;
+			(*i)->wheelScrolled(sEvent->wheel.y < 0, isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y));
+		}		
+	}
+	else if(sEvent->type == SDL_TEXTINPUT)
+	{
+		for(auto it : textInterested)
+		{
+			it->textInputed(sEvent->text);
+		}
+	}	
+	else if(sEvent->type == SDL_TEXTEDITING)
+	{
+		for(auto it : textInterested)
+		{
+			it->textEdited(sEvent->edit);
+		}
+	}	
+	//todo: muiltitouch
+	#endif // VCMI_SDL1
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
 		std::list<CIntObject*> hlp = lclickable;
@@ -360,8 +392,11 @@ void CGuiHandler::handleMoveInterested( const SDL_MouseMotionEvent & motion )
 void CGuiHandler::fakeMouseMove()
 {
 	SDL_Event evnt;
-
+#ifdef VCMI_SDL1
 	SDL_MouseMotionEvent sme = {SDL_MOUSEMOTION, 0, 0, 0, 0, 0, 0};
+#else
+	SDL_MouseMotionEvent sme = {SDL_MOUSEMOTION, 0, 0, 0, 0, 0, 0, 0, 0};
+#endif	
 	int x, y;
 	sme.state = SDL_GetMouseState(&x, &y);
 	sme.x = x;
@@ -372,37 +407,38 @@ void CGuiHandler::fakeMouseMove()
 	handleMouseMotion(&evnt);
 }
 
-void CGuiHandler::run()
+void CGuiHandler::renderFrame()
 {
-	setThreadName("CGuiHandler::run");
-	inGuiThread.reset(new bool(true));
-	try
+	auto doUpdate = [](IUpdateable * target)
 	{
-		if(settings["video"]["fullscreen"].Bool())
-			CCS->curh->centerCursor();
+		if(nullptr != target)
+			target -> update();
+		// draw the mouse cursor and update the screen
+		CCS->curh->render();
 
-		mainFPSmng->init(); // resets internal clock, needed for FPS manager
-		while(!terminate)
-		{
-			if(curInt)
-				curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
+		#ifndef	VCMI_SDL1
+		if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
+			logGlobal->errorStream() << __FUNCTION__ << " SDL_RenderCopy " << SDL_GetError();
 
-			mainFPSmng->framerateDelay(); // holds a constant FPS
-		}
-	}
-	catch(const std::exception & e)
-	{
-        logGlobal->errorStream() << "Error: " << e.what();
-		exit(EXIT_FAILURE);
-	}
+		SDL_RenderPresent(mainRenderer);				
+		#endif		
+		
+	};
+	
+	if(curInt)
+		curInt->runLocked(doUpdate);
+	else
+		doUpdate(nullptr);
+	
+	mainFPSmng->framerateDelay(); // holds a constant FPS	
 }
+
 
 CGuiHandler::CGuiHandler()
 :lastClick(-500, -500)
 {
 	curInt = nullptr;
 	current = nullptr;
-	terminate = false;
 	statusbar = nullptr;
 
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
@@ -432,6 +468,7 @@ void CGuiHandler::drawFPSCounter()
 
 SDLKey CGuiHandler::arrowToNum( SDLKey key )
 {
+	#ifdef VCMI_SDL1
 	switch(key)
 	{
 	case SDLK_DOWN:
@@ -443,23 +480,51 @@ SDLKey CGuiHandler::arrowToNum( SDLKey key )
 	case SDLK_RIGHT:
 		return SDLK_KP6;
 	default:
-		assert(0);
-	}
-	throw std::runtime_error("Wrong key!");
+		throw std::runtime_error("Wrong key!");assert(0);
+	}	
+	#else
+	switch(key)
+	{
+	case SDLK_DOWN:
+		return SDLK_KP_2;
+	case SDLK_UP:
+		return SDLK_KP_8;
+	case SDLK_LEFT:
+		return SDLK_KP_4;
+	case SDLK_RIGHT:
+		return SDLK_KP_6;
+	default:
+		throw std::runtime_error("Wrong key!");
+	}	
+	#endif // 0
 }
 
 SDLKey CGuiHandler::numToDigit( SDLKey key )
 {
+#ifdef VCMI_SDL1
 	if(key >= SDLK_KP0 && key <= SDLK_KP9)
 		return SDLKey(key - SDLK_KP0 + SDLK_0);
+#endif // 0
 
 #define REMOVE_KP(keyName) case SDLK_KP_ ## keyName : return SDLK_ ## keyName;
 	switch(key)
 	{
+#ifndef VCMI_SDL1
+		REMOVE_KP(0)
+		REMOVE_KP(1)
+		REMOVE_KP(2)
+		REMOVE_KP(3)
+		REMOVE_KP(4)
+		REMOVE_KP(5)
+		REMOVE_KP(6)
+		REMOVE_KP(7)
+		REMOVE_KP(8)
+		REMOVE_KP(9)		
+#endif // VCMI_SDL1		
 		REMOVE_KP(PERIOD)
-			REMOVE_KP(MINUS)
-			REMOVE_KP(PLUS)
-			REMOVE_KP(EQUALS)
+		REMOVE_KP(MINUS)
+		REMOVE_KP(PLUS)
+		REMOVE_KP(EQUALS)
 
 	case SDLK_KP_MULTIPLY:
 		return SDLK_ASTERISK;
@@ -475,15 +540,22 @@ SDLKey CGuiHandler::numToDigit( SDLKey key )
 
 bool CGuiHandler::isNumKey( SDLKey key, bool number )
 {
+	#ifdef VCMI_SDL1
 	if(number)
 		return key >= SDLK_KP0 && key <= SDLK_KP9;
 	else
 		return key >= SDLK_KP0 && key <= SDLK_KP_EQUALS;
+	#else
+	if(number)
+		return key >= SDLK_KP_1 && key <= SDLK_KP_0;
+	else
+		return (key >= SDLK_KP_1 && key <= SDLK_KP_0) || key == SDLK_KP_MINUS || key == SDLK_KP_PLUS || key == SDLK_KP_EQUALS;
+	#endif // 0
 }
 
 bool CGuiHandler::isArrowKey( SDLKey key )
 {
-	return key >= SDLK_UP && key <= SDLK_LEFT;
+	return key == SDLK_UP || key == SDLK_DOWN || key == SDLK_LEFT || key == SDLK_RIGHT;
 }
 
 bool CGuiHandler::amIGuiThread()

@@ -16,11 +16,11 @@
 namespace Unicode
 {
 	/// evaluates size of UTF-8 character
-	size_t DLL_LINKAGE getCharacterSize(ui8 firstByte);
+	size_t DLL_LINKAGE getCharacterSize(char firstByte);
 
 	/// test if character is a valid UTF-8 symbol
 	/// maxSize - maximum number of bytes this symbol may consist from ( = remainer of string)
-	bool DLL_LINKAGE isValidCharacter(const ui8 *character, size_t maxSize);
+	bool DLL_LINKAGE isValidCharacter(const char * character, size_t maxSize);
 
 	/// test if text contains ASCII-string (no need for unicode conversion)
 	bool DLL_LINKAGE isValidASCII(const std::string & text);
@@ -38,6 +38,9 @@ namespace Unicode
 	/// NOTE: usage of these functions should be avoided if possible
 	std::string DLL_LINKAGE fromUnicode(const std::string & text);
 	std::string DLL_LINKAGE fromUnicode(const std::string & text, const std::string & encoding);
+	
+	///delete (amount) UTF characters from right
+	DLL_LINKAGE void trimRight(std::string & text, const size_t amount = 1);
 };
 
 class CInputStream;

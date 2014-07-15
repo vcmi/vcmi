@@ -9,7 +9,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
 
 # enable Release mode but only if it was not set
 if (NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE RelWithDebInfo)
+		set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
 # VCMI version
@@ -22,6 +22,7 @@ option(ENABLE_EDITOR "Enable compilation of map editor" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_TEST "Enable compilation of unit tests" OFF)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
+option(ENABLE_SDL2 "Use SDL2 for compilation instead of SDL 1.2" ON)
 
 ############################################
 #        Building section                  #
@@ -53,12 +54,72 @@ if (APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
 endif()
 
+if (WIN32)
+	add_definitions(-DBOOST_THREAD_USE_LIB)
+	add_definitions(-D_WIN32_WINNT=0x0501)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock)
+
+	#check for iconv (may be needed for boost.locale)
+	include(CheckLibraryExists)
+	check_library_exists(iconv libiconv_open "" ICONV_FOUND)
+	if(ICONV_FOUND)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
+	endif()
+
+	#delete lib prefix for dlls
+	set(CMAKE_SHARED_LIBRARY_PREFIX "") 
+
+	if(MINGW)
+		get_filename_component(MINGW_BIN_PATH ${CMAKE_CXX_COMPILER} PATH )
+
+		#copy libwinpthread-*.dll, libgcc_s_*.dll and libstdc++-*.dll to VCMI location
+		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libwinpthread-*.dll") 
+		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libgcc_s_*.dll") 
+		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libstdc++-*.dll") 
+	endif()
+endif()
+
+if(APPLE)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} libiconv.dylib)
+endif()
+
+if(NOT WIN32)
+	INCLUDE(CheckLibraryExists)
+
+	#check if some platform-specific libraries are needed for linking
+	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
+	if(HAVE_RT_LIB)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} rt)
+	endif()
+
+	CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIB)
+	if(HAVE_DL_LIB)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} dl)
+	endif()
+endif()
+
+set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
 find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale REQUIRED)
-find_package(SDL REQUIRED)
-find_package(SDL_image REQUIRED)
-find_package(SDL_mixer REQUIRED)
-find_package(SDL_ttf REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(FFmpeg REQUIRED)
+
+if (ENABLE_SDL2)
+	find_package(SDL2 REQUIRED)
+	find_package(SDL2_image REQUIRED)
+	find_package(SDL2_mixer REQUIRED)
+	find_package(SDL2_ttf REQUIRED)
+
+	set(SDL_INCLUDE_DIR "${SDL2_INCLUDE_DIR}")
+	set(SDL_LIBRARY "${SDL2_LIBRARY}")
+	set(SDLTTF_LIBRARY "${SDL2_TTF_LIBRARY}")
+	set(SDLIMAGE_LIBRARY "${SDL2_IMAGE_LIBRARY}")
+	set(SDLMIXER_LIBRARY "${SDL2_MIXER_LIBRARY}")
+else()
+	find_package(SDL REQUIRED)
+	find_package(SDL_image REQUIRED)
+	find_package(SDL_mixer REQUIRED)
+	find_package(SDL_ttf REQUIRED)
+endif()
 include(cotire)
 
 if (ENABLE_EDITOR OR ENABLE_LAUNCHER)
@@ -71,38 +132,16 @@ if (ENABLE_LAUNCHER)
 endif()
 
 if(ENABLE_TEST)
-	# find_package overwrites BOOST_* variables which are already set, so all components have to be
-	# included again
-        find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
-endif()
-
-if(APPLE)
-	set(Boost_LIBRARIES ${Boost_LIBRARIES} libiconv.dylib) # Our prebuilt boost_locale for OS X depends on iconv
-endif()
-
-if(NOT WIN32)
-	set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
-	find_package(FFmpeg REQUIRED)
-
-	INCLUDE(CheckLibraryExists)
-
-        #check if some platform-specific libraries are needed for linking
-	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
-	if(HAVE_RT_LIB)
-		set(RT_LIB -lrt)
-	endif()
-
-	CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIB)
-	if(HAVE_DL_LIB)
-		set(DL_LIB -ldl)
-	endif()
+	# find_package overwrites BOOST_* variables which are already set, so all components have to be included again
+	find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		set(CLANG_SPECIFIC_FLAGS "-Wno-mismatched-tags")
+		set(CLANG_SPECIFIC_FLAGS "-Wno-mismatched-tags -Wno-unknown-warning-option")
 	endif()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wno-switch -Wno-sign-compare -Wno-unused-parameter -Wuninitialized -Wno-overloaded-virtual ${CLANG_SPECIFIC_FLAGS}")
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wno-strict-aliasing -Wno-switch -Wno-sign-compare -Wno-unused-local-typedefs  -Wno-unused-parameter -Wuninitialized -Wno-overloaded-virtual -Wno-type-limits ${CLANG_SPECIFIC_FLAGS}")
 
 	if(UNIX)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
@@ -111,9 +150,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support suc
 endif()
 
 if(WIN32) # on Win everything goes into H3 root directory
-	set(BIN_DIR "" CACHE STRING "Where to install binaries")
-	set(LIB_DIR "" CACHE STRING "Where to install main library")
-	set(DATA_DIR "" CACHE STRING "Where to install data files")
+	set(BIN_DIR "." CACHE STRING "Where to install binaries")
+	set(LIB_DIR "." CACHE STRING "Where to install main library")
+	set(DATA_DIR "." CACHE STRING "Where to install data files")
 elseif(APPLE)
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
@@ -126,7 +165,7 @@ else()
 	include(GNUInstallDirs)
 
 	if (NOT BIN_DIR)
-                set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
+		set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
 	endif()
 	if (NOT LIB_DIR)
 		set(LIB_DIR "${CMAKE_INSTALL_LIBDIR}/vcmi" CACHE STRING "Where to install main library")
@@ -155,7 +194,7 @@ SET(PCH_PROPERTIES
 )
 
 if (ENABLE_ERM)
-        add_subdirectory(scripting/erm)
+		add_subdirectory(scripting/erm)
 endif()
 add_subdirectory(lib)
 add_subdirectory(client)
@@ -193,9 +232,28 @@ if (NOT APPLE)
 endif()
 
 if(WIN32)
-	#TODO: install any additional dll's. This version (may be broken) will copy all dll's including H3 ones
-	#FILE(GLOB dll_files "${CMAKE_BINARY_DIR}/*.dll")
-	#INSTALL(FILES ${dll_files} DESTINATION ${BIN_DIR})
+	file(GLOB dep_files 
+		${dep_files} 
+		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+
+	if (ENABLE_EDITOR OR ENABLE_LAUNCHER)
+		get_target_property(QtCore_location Qt5::Core LOCATION)
+		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
+		file(GLOB dep_files 
+			${dep_files}
+			${Qtbin_folder}/Qt5Core.dll
+			${Qtbin_folder}/Qt5Gui.dll
+			${Qtbin_folder}/Qt5Widgets.dll
+			${Qtbin_folder}/icu*.dll)
+	endif()
+
+	if (ENABLE_LAUNCHER)
+		file(GLOB dep_files 
+			${dep_files} 
+			${Qtbin_folder}/Qt5Network.dll)
+	endif()
+
+	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
 elseif(APPLE)
 else()
 	#install icons and desktop file on Linux

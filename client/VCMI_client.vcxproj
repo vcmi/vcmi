@@ -234,6 +234,7 @@
     <ClInclude Include="FontBase.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GUIClasses.h" />
+    <ClInclude Include="gui\SDL_Compat.h" />
     <ClInclude Include="mapHandler.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="StdInc.h" />

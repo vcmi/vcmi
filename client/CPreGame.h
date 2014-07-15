@@ -589,7 +589,7 @@ private:
 };
 
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
-class CGPreGame : public CIntObject, public IUpdateable
+class CGPreGame : public CIntObject, public ILockedUpdatable
 {
 	void loadGraphics();
 	void disposeGraphics();
@@ -602,7 +602,8 @@ public:
 	CDefHandler *victory, *loss;
 
 	~CGPreGame();
-	void update();
+	void update() override;
+	void runLocked(std::function<void(IUpdateable * )> cb) override;
 	void openSel(CMenuScreen::EState type, CMenuScreen::EMultiMode multi = CMenuScreen::SINGLE_PLAYER);
 
 	void openCampaignScreen(std::string name);

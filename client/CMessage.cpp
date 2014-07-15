@@ -91,7 +91,7 @@ void CMessage::init()
 			delete bluePieces;
 		}
 		background = BitmapHandler::loadBitmap("DIBOXBCK.BMP");
-		SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
+		CSDL_Ext::setDefaultColorKey(background);
 	}
 	ok = CDefHandler::giveDef("IOKAY.DEF");
 	cancel = CDefHandler::giveDef("ICANCEL.DEF");
@@ -134,7 +134,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 
 	boost::algorithm::trim_right_if(text,boost::algorithm::is_any_of(std::string(" ")));
 
-	// each interation generates one output line
+	// each iteration generates one output line
 	while (text.length())
 	{
 		ui32 lineWidth = 0;    //in characters or given char metric

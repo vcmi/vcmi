@@ -263,8 +263,7 @@ DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 
 	if(!bdescr.message.size()
 		&& bonus.source == Bonus::OBJECT
-		&& (bonus.type == Bonus::LUCK || bonus.type == Bonus::MORALE)
-		&& gs->map->objects[bonus.sid]->ID == Obj::EVENT) //it's morale/luck bonus from an event without description
+		&& (bonus.type == Bonus::LUCK || bonus.type == Bonus::MORALE))
 	{
 		descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
 	}
