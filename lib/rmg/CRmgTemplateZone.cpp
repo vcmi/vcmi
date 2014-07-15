@@ -700,6 +700,12 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		}
 		else
 		{
+			//remove from possible objects
+			auto oiptr = std::find(possibleObjects.begin(), possibleObjects.end(), oi);
+			assert (oiptr != possibleObjects.end());
+			oiptr->maxPerZone--;
+			//TODO
+
 			//update treasure pile area
 			int3 visitablePos = info.nextTreasurePos;
 
@@ -1230,7 +1236,7 @@ bool CRmgTemplateZone::canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplat
 	return true;
 }
 
-bool CRmgTemplateZone::isAccessibleFromAnywhere (CMapGenerator* gen, ObjectTemplate &appearance,  int3 &tile, std::set<int3> &tilesBlockedByObject) const
+bool CRmgTemplateZone::isAccessibleFromAnywhere (CMapGenerator* gen, ObjectTemplate &appearance,  int3 &tile, const std::set<int3> &tilesBlockedByObject) const
 {
 	bool accessible = false;
 	for (int x = -1; x < 2; x++)
@@ -1453,7 +1459,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 	//roulette wheel
 	for (auto oi : possibleObjects)
 	{
-		if (oi.value >= minValue && oi.value <= value)
+		if (oi.value >= minValue && oi.value <= value && oi.maxPerZone > 0)
 		{
 			int3 newVisitableOffset = oi.templ.getVisitableOffset(); //visitablePos assumes object will be shifter by visitableOffset
 			int3 newVisitablePos = info.nextTreasurePos;
@@ -1592,6 +1598,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 {
 	ObjectInfo oi;
+	oi.maxPerMap = std::numeric_limits<ui32>().max();
 
 	for (auto primaryID : VLC->objtypeh->knownObjects()) 
 	{ 
@@ -1611,12 +1618,16 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 						oi.value = handler->getRMGInfo().value;
 						oi.probability = handler->getRMGInfo().rarity;
 						oi.templ = temp;
+						oi.maxPerZone = handler->getRMGInfo().zoneLimit;
 						possibleObjects.push_back (oi);
 					}
 				}
 			}
 		} 
 	}
+
+	//all following objects are unlimited
+	oi.maxPerZone = std::numeric_limits<ui32>().max();
 
 	//dwellings
 

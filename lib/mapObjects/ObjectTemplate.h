@@ -75,6 +75,8 @@ public:
 	void readMap(CBinaryReader & reader);
 	void readJson(const JsonNode & node);
 
+	bool operator==(const ObjectTemplate& ot) const { return (id == ot.id && subid == ot.subid); }
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & usedTiles & allowedTerrains & animationFile & stringID;
