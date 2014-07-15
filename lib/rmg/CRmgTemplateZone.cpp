@@ -412,10 +412,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 		else if (gen->isPossible(tile))
 			possibleTiles.insert(tile);
 	}
-	if (clearedTiles.empty()) //this should come from zone connections
-	{
-		clearedTiles.push_back(pos); //zone center should be always clear
-	}
+	assert (clearedTiles.size()); //this should come from zone connections
 
 	while (possibleTiles.size())
 	{
@@ -1165,6 +1162,9 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 {
 	initTownType(gen);
 	initTerrainType(gen);
+
+	freePaths.insert(pos); //zone center should be always clear to allow other tiles to connect
+
 	addAllPossibleObjects (gen);
 	placeMines(gen);
 	createRequiredObjects(gen);
