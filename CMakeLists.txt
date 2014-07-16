@@ -75,7 +75,9 @@ if (WIN32)
 		#copy libwinpthread-*.dll, libgcc_s_*.dll and libstdc++-*.dll to VCMI location
 		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libwinpthread-*.dll") 
 		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libgcc_s_*.dll") 
-		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libstdc++-*.dll") 
+		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libstdc++-*.dll")
+
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
 	endif()
 endif()
 
