@@ -1468,7 +1468,8 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 			{
 				//objectsVisitableFromBottom++;
 				//there must be free tiles under object
-				if (!isAccessibleFromAnywhere(gen, oi.templ, newVisitablePos, oi.templ.getBlockedOffsets()))
+				auto blockedOffsets = oi.templ.getBlockedOffsets();
+				if (!isAccessibleFromAnywhere(gen, oi.templ, newVisitablePos, blockedOffsets))
 					continue;
 			}
 
