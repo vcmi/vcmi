@@ -213,6 +213,10 @@ void CMapGenerator::genZones()
 
 void CMapGenerator::fillZones()
 {	
+	//init native town count with 0
+	for (auto faction : VLC->townh->getAllowedFactions())
+		zonesPerFaction[faction] = 0;
+
 	logGlobal->infoStream() << "Started filling zones";
 
 	createConnections();
@@ -220,6 +224,11 @@ void CMapGenerator::fillZones()
 	for (auto it : zones)
 	{
 		it.second->createBorder(this);
+		 //we need info about all town types to evaluate dwellings and pandoras with creatures properly
+		it.second->initTownType(this);
+	}
+	for (auto it : zones)
+	{
 		it.second->fill(this);
 	}	
 	logGlobal->infoStream() << "Zones filled successfully";

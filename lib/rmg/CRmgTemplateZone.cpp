@@ -1166,7 +1166,6 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
 {
-	initTownType(gen);
 	initTerrainType(gen);
 
 	freePaths.insert(pos); //zone center should be always clear to allow other tiles to connect
