@@ -1606,6 +1606,8 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 	ObjectInfo oi;
 	oi.maxPerMap = std::numeric_limits<ui32>().max();
 
+	int numZones = gen->getZones().size();
+
 	for (auto primaryID : VLC->objtypeh->knownObjects()) 
 	{ 
 		for (auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID)) 
@@ -1621,10 +1623,12 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 						{
 							return VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
 						};
-						oi.value = handler->getRMGInfo().value;
-						oi.probability = handler->getRMGInfo().rarity;
+						auto rmgInfo = handler->getRMGInfo();
+						oi.value = rmgInfo.value;
+						oi.probability = rmgInfo.rarity;
 						oi.templ = temp;
-						oi.maxPerZone = handler->getRMGInfo().zoneLimit;
+						oi.maxPerZone = rmgInfo.zoneLimit;
+						vstd::amin (oi.maxPerZone, rmgInfo.mapLimit / numZones); //simple, but should distribute objects evenly on large maps
 						possibleObjects.push_back (oi);
 					}
 				}

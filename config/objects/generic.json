@@ -401,6 +401,7 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
+					"zoneLimit" : 1,
 					"value"		: 250,
 					"rarity"	: 100
 				}
