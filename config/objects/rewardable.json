@@ -9,7 +9,6 @@
 				"index" : 0//,
 				//"rmg" : {
 				//	"zoneLimit"	: 1,
-				//	"mapLimit"	: 32,
 				//	"value"		: 500,
 				//	"rarity"	: 50
 				//}
@@ -25,7 +24,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 500,
 					"rarity"	: 50
 				}
@@ -39,7 +37,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 1500,
 					"rarity"	: 80
 				}
@@ -53,7 +50,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 750,
 					"rarity"	: 50
 				}
@@ -68,7 +64,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 500,
 					"rarity"	: 100
 				}
@@ -82,7 +77,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 500,
 					"rarity"	: 100
 				}
@@ -96,7 +90,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 500,
 					"rarity"	: 50
 				}
@@ -110,7 +103,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 6000,
 					"rarity"	: 20
 				}
@@ -191,7 +183,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 3000,
 					"rarity"	: 50
 				}
@@ -205,7 +196,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 1500,
 					"rarity"	: 100
 				}
@@ -219,7 +209,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 1500,
 					"rarity"	: 100
 				}
@@ -233,7 +222,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 12000,
 					"rarity"	: 20
 				}
@@ -247,7 +235,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 1500,
 					"rarity"	: 100
 				}
@@ -261,7 +248,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 1500,
 					"rarity"	: 100
 				}
@@ -275,7 +261,7 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
+					"mapLimit"	: 100,
 					"value"		: 2500,
 					"rarity"	: 50
 				}
@@ -289,7 +275,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 1000,
 					"rarity"	: 50
 				}
@@ -303,7 +288,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 1000,
 					"rarity"	: 50
 				}
@@ -317,7 +301,6 @@
 			"object" : { 
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 1500,
 					"rarity"	: 200
 				} 
@@ -416,7 +399,6 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
-					"mapLimit"	: 32,
 					"value"		: 100,
 					"rarity"	: 20
 				}
