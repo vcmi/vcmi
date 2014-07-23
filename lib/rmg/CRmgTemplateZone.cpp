@@ -1434,13 +1434,18 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 			if (!gen->isFree(pos))
 				gen->setOccupied(pos, ETileType::BLOCKED);
 		}
+		gen->foreach_neighbour (guardTile, [&](int3& pos) 
+		{
+			if (gen->isPossible(pos))
+				gen->setOccupied (pos, ETileType::FREE);
+		});
 
 		gen->setOccupied (guardTile, ETileType::USED);
 	}
 	else //allow no guard or other object in front of this object
 	{
 		for (auto tile : tiles)
-			if (gen->isPossible(pos))
+			if (gen->isPossible(tile))
 				gen->setOccupied (tile, ETileType::FREE);
 	}
 
