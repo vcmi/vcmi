@@ -241,13 +241,7 @@ int CGObjectInstance::getSightRadious() const
 
 int3 CGObjectInstance::getVisitableOffset() const
 {
-	for(int y = 0; y < appearance.getHeight(); y++)
-		for (int x = 0; x < appearance.getWidth(); x++)
-			if (appearance.isVisitableAt(x, y))
-				return int3(x,y,0);
-
-    //logGlobal->warnStream() << "Warning: getVisitableOffset called on non-visitable obj!";
-	return int3(0,0,0);
+	return appearance.getVisitableOffset();
 }
 
 void CGObjectInstance::giveDummyBonus(ObjectInstanceID heroID, ui8 duration) const

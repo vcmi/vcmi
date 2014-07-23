@@ -13,6 +13,7 @@
  *
  */
 
+class CGObjectInstance;
 class CGTownInstance;
 class CGHeroInstance;
 class CGDwelling;
@@ -123,6 +124,7 @@ public:
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const;
 
 	bool producesCreature(const CCreature * crea) const;
+	std::vector<const CCreature *> getProducedCreatures() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -9,56 +9,402 @@
 		}
 	},
 
-	"altarOfSacrifice"				: { "index" :2,   "handler": "market", "types" : { "object" : { "index" : 0} } },
-	"tradingPost"					: { "index" :221, "handler": "market", "types" : { "object" : { "index" : 0} } },
-	"tradingPostDUPLICATE"			: { "index" :99,  "handler": "market", "types" : { "object" : { "index" : 0} } },
-	"freelancersGuild"				: { "index" :213, "handler": "market", "types" : { "object" : { "index" : 0} } },
+	"altarOfSacrifice" : {
+		"index" :2,
+		"handler" : "market",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 20
+				}
+			}
+		}
+	},
+	"tradingPost" : {
+		"index" :221,
+		"handler" : "market",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"tradingPostDUPLICATE"		: {
+		"index" :99, 
+		"handler" : "market",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"freelancersGuild" : {
+		"index" :213,
+		"handler" : "market",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 100,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
 
-	"blackMarket"					: { "index" :7,   "handler": "blackMarket", "types" : { "object" : { "index" : 0} } },
+	"blackMarket" : {
+		"index" :7,
+		"handler" : "blackMarket",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 8000,
+					"rarity"	: 20
+				}
+			}
+		}
+	},
 
-	"pandoraBox"					: { "index" :6,   "handler": "pandora", "types" : { "object" : { "index" : 0} } },
-	"event"							: { "index" :26,  "handler": "event", "types" : { "object" : { "index" : 0} } },
+	"pandoraBox" : {
+		"index" :6,
+		"handler" : "pandora",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : { "animation" : "ava0128.def", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
+				},
+				"rmg" : {
+				}
+			}
+		}
+	},
+	"event" : {
+		"index" :26, 
+		"handler" : "event",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+				}
+			}
+		}
+	},
 
-	"redwoodObservatory"			: { "index" :58,  "handler": "observatory", "types" : { "object" : { "index" : 0} } },
-	"pillarOfFire"					: { "index" :60,  "handler": "observatory", "types" : { "object" : { "index" : 0} } },
-	"coverOfDarkness"				: { "index" :15,  "handler": "observatory", "types" : { "object" : { "index" : 0} } },
+	"redwoodObservatory" : {
+		"index" :58, 
+		"handler" : "observatory",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 750,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"pillarOfFire" : {
+		"index" :60, 
+		"handler" : "observatory",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 750,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"coverOfDarkness" : {
+		"index" :15, 
+		"handler" : "observatory",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+				}
+			}
+		}
+	},
 	
-	"whirlpool"						: { "index" :111, "handler": "teleport", "types" : { "object" : { "index" : 0} } },
+	"whirlpool" : {
+		"index" :111,
+		"handler" : "teleport",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+				}
+			}
+		}
+	},
 	"subterraneanGate" : {
 		"index" :103,
-		"handler": "teleport",
+		"handler" : "teleport",
 		"types" : {
-			"object" : { "index" : 0 },
+			"object" : {
+				"index" : 0 },
 			"objectWoG" : { "index" : 1 } // WoG object? Present on VCMI Test 2011b
 		}
 	},
 
-	"refugeeCamp"					: { "index" :78,  "handler": "dwelling", "types" : { "object" : { "index" : 0} } },
-	"warMachineFactory"				: { "index" :106, "handler": "dwelling", "types" : { "object" : { "index" : 0} } },
-
-	"shrineOfMagicLevel1"			: { "index" :88,  "handler": "shrine", "types" : { "object" : { "index" : 0} } },
-	"shrineOfMagicLevel2"			: { "index" :89,  "handler": "shrine", "types" : { "object" : { "index" : 0} } },
-	"shrineOfMagicLevel3"			: { "index" :90,  "handler": "shrine", "types" : { "object" : { "index" : 0} } },
-
-	"eyeOfTheMagi"					: { "index" :27,  "handler": "magi", "types" : { "object" : { "index" : 0} } },
-	"hutOfTheMagi"					: { "index" :37,  "handler": "magi", "types" : { "object" : { "index" : 0} } },
-
-	"lighthouse"					: { "index" :42,  "handler": "lighthouse", "types" : { "object" : { "index" : 0} } },
-	"obelisk"						: { "index" :57,  "handler": "obelisk", "types" : { "object" : { "index" : 0} } },
-	"oceanBottle"					: { "index" :59,  "handler": "sign", "types" : { "object" : { "index" : 0} } },
-	"scholar"						: { "index" :81,  "handler": "scholar", "types" : { "object" : { "index" : 0} } },
-	"shipyard"						: { "index" :87,  "handler": "shipyard", "types" : { "object" : { "index" : 0} } },
-	"sign"							: { "index" :91,  "handler": "sign", "types" : { "object" : { "index" : 0} } },
-	"sirens"						: { "index" :92,  "handler": "siren", "types" : { "object" : { "index" : 0} } },
-	"denOfThieves"					: { "index" :97,  "handler": "denOfThieves", "types" : { "object" : { "index" : 0} } },
-	"university"					: { "index" :104, "handler": "university", "types" : { "object" : { "index" : 0} } },
-	"witchHut"						: { "index" :113, "handler": "witch", "types" : { "object" : { "index" : 0} } },
-	"questGuard"					: { "index" :215, "handler": "questGuard", "types" : { "object" : { "index" : 0} } },
+	"refugeeCamp" : {
+		"index" :78, 
+		"handler" : "dwelling",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 5000,
+					"rarity"	: 20
+				}
+			}
+		}
+	},
+	"warMachineFactory" : {
+		"index" :106,
+		"handler" : "dwelling",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 1500,
+					"rarity"	: 50
+				}
+			}
+		}
+	},
+	"shrineOfMagicLevel1" : {//incantation
+		"index" :88, 
+		"handler" : "shrine",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 500,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"shrineOfMagicLevel2" : {//gesture
+		"index" :89, 
+		"handler" : "shrine",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 2000,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"shrineOfMagicLevel3" : {//thinking
+		"index" :90, 
+		"handler" : "shrine",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 3000,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"eyeOfTheMagi" : {
+		"index" :27, 
+		"handler" : "magi",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+				}
+			}
+		}
+	},
+	"hutOfTheMagi" : {
+		"index" :37, 
+		"handler" : "magi",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+				}
+			}
+		}
+	},
+	"lighthouse" : {
+		"index" :42, 
+		"handler" : "lighthouse",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+				}
+			}
+		}
+	},
+	"obelisk" : {
+		"index" :57, 
+		"handler" : "obelisk",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 48,
+					"value"		: 3500,
+					"rarity"	: 200
+				}
+			}
+		}
+	},
+	"oceanBottle" : {
+		"index" :59, 
+		"handler" : "sign",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+				}
+			}
+		}
+	},
+	"scholar" : {
+		"index" :81, 
+		"handler" : "scholar",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 100
+				}
+			}
+		}
+	},
+	"shipyard" : {
+		"index" :87, 
+		"handler" : "shipyard",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+				}
+			}
+		}
+	},
+	"sign" : {
+		"index" :91, 
+		"handler" : "sign",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+				}
+			}
+		}
+	},
+	"sirens" : {
+		"index" :92, 
+		"handler" : "siren",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 100,
+					"rarity"	: 20
+				}
+			}
+		}
+	},
+	"denOfThieves" : {
+		"index" :97, 
+		"handler" : "denOfThieves",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+				}
+			}
+		}
+	},
+	"university" : {
+		"index" :104,
+		"handler" : "university",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"mapLimit"	: 32,
+					"value"		: 2500,
+					"rarity"	: 20
+				}
+			}
+		}
+	},
+	"witchHut" : {
+		"index" :113,
+		"handler" : "witch",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 3,
+					"mapLimit"	: 32,
+					"value"		: 1500,
+					"rarity"	: 80
+				}
+			}
+		}
+	},
+	"questGuard" : {
+		"index" :215,
+		"handler" : "questGuard",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+				}
+			}
+		}
+	},
 	"magicWell" : {
 		"index" :49,
-		"handler": "magicWell",
+		"handler" : "magicWell",
 		"types" : {
-			"object" : { "index" : 0},
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 250,
+					"rarity"	: 100
+				}
+			},
 			"objectWoG" : { "index" : 1} // WoG object? Present on VCMI_Test 2011b
 		}
 	},
@@ -99,6 +445,10 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"rmg" : {
+					"value"		: 2000,
+					"rarity"	: 150
+				},
 				"templates" : {
 					"normal" : { "animation" : "AVArnd1", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -111,6 +461,10 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"rmg" : {
+					"value"		: 5000,
+					"rarity"	: 150
+				},
 				"templates" : {
 					"normal" : { "animation" : "AVArnd2", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -123,6 +477,10 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"rmg" : {
+					"value"		: 10000,
+					"rarity"	: 150
+				},
 				"templates" : {
 					"normal" : { "animation" : "AVArnd3", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -135,6 +493,10 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"rmg" : {
+					"value"		: 20000,
+					"rarity"	: 150
+				},
 				"templates" : {
 					"normal" : { "animation" : "AVArnd4", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				}
@@ -240,10 +602,58 @@
 	},
 
 	/// Classes without dedicated object
-	"hillFort"						: { "index" :35,  "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"grail"							: { "index" :36,  "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"tavern"						: { "index" :95,  "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"sanctuary"						: { "index" :80,  "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"hillFort" : {
+		"index" :35, 
+		"handler": "generic",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 7000,
+					"rarity"	: 20
+				}
+			}
+		}
+	},
+	"grail" : {
+		"index" :36, 
+		"handler": "generic",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+				}
+			}
+		}
+	},
+	"tavern" : {
+		"index" :95, 
+		"handler": "generic",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 100,
+					"rarity"	: 20
+				}
+			}
+		}
+	},
+	"sanctuary" : {
+		"index" :80, 
+		"handler": "generic",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 100,
+					"rarity"	: 50
+				}
+			}
+		}
+	},
 
 	/// Passive objects, terrain overlays
 	"cursedGround"					: { "index" :21,  "handler": "generic", "types" : { "object" : { "index" : 0} } },

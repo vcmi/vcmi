@@ -218,6 +218,17 @@ bool CDwellingInstanceConstructor::producesCreature(const CCreature * crea) cons
 	return false;
 }
 
+std::vector<const CCreature *> CDwellingInstanceConstructor::getProducedCreatures() const
+{
+	std::vector<const CCreature *> creatures; //no idea why it's 2D, to be honest
+	for (auto & entry : availableCreatures)
+	{
+		for (const CCreature * cre : entry)
+			creatures.push_back(cre);
+	}
+	return creatures;
+}
+
 CBankInstanceConstructor::CBankInstanceConstructor()
 {
 }

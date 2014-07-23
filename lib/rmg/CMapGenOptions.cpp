@@ -175,14 +175,11 @@ const std::map<std::string, CRmgTemplate *> & CMapGenOptions::getAvailableTempla
 	return VLC->tplh->getTemplates();
 }
 
-void CMapGenOptions::finalize()
-{
-	CRandomGenerator rand;
-	finalize(rand);
-}
-
 void CMapGenOptions::finalize(CRandomGenerator & rand)
 {
+	logGlobal->infoStream() << boost::format ("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d")
+											% playerCount % teamCount % compOnlyPlayerCount % compOnlyTeamCount % waterContent % monsterStrength;
+
 	if(!mapTemplate)
 	{
 		mapTemplate = getPossibleTemplate(rand);

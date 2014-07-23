@@ -16,6 +16,7 @@
 #include "float3.h"
 #include "../int3.h"
 #include "../ResourceSet.h" //for TResource (?)
+#include "../mapObjects/ObjectTemplate.h"
 
 class CMapGenerator;
 class CTileInfo;
@@ -45,6 +46,7 @@ public:
 	bool shouldBeBlocked() const;
 	bool isPossible() const;
 	bool isFree() const;
+	bool isUsed() const;
 	void setOccupied(ETileType::ETileType value);
 	ETerrainType getTerrainType() const;
 	void setTerrainType(ETerrainType value);
@@ -66,9 +68,25 @@ public:
 
 struct DLL_LINKAGE ObjectInfo
 {
+	ObjectTemplate templ;
 	ui32 value;
 	ui16 probability;
+	ui32 maxPerZone;
+	ui32 maxPerMap;
 	std::function<CGObjectInstance *()> generateObject;
+
+	void setTemplate (si32 type, si32 subtype, ETerrainType terrain);
+
+	bool operator==(const ObjectInfo& oi) const { return (templ == oi.templ); }
+};
+
+struct DLL_LINKAGE CTreasurePileInfo
+{
+	std::set<int3> visitableFromBottomPositions; //can be visited only from bottom or side
+	std::set<int3> visitableFromTopPositions; //they can be visited from any direction
+	std::set<int3> blockedPositions;
+	std::set<int3> occupiedPositions; //blocked + visitable
+	int3 nextTreasurePos;
 };
 
 /// The CRmgTemplateZone describes a zone in a template.
@@ -128,13 +146,15 @@ public:
 
 	void addTile (const int3 &pos);
 	std::set<int3> getTileInfo () const;
+	void discardDistantTiles (CMapGenerator* gen, float distance);
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
-	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength);
+	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength, bool clearSurroundingTiles = true, bool zoneGuard = false);
 	bool createTreasurePile (CMapGenerator* gen, int3 &pos);
 	bool fill (CMapGenerator* gen);
 	bool placeMines (CMapGenerator* gen);
 	void initTownType (CMapGenerator* gen);
+	void paintZoneTerrain (CMapGenerator* gen, ETerrainType terrainType);
 	void initTerrainType (CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
 	void fractalize(CMapGenerator* gen);
@@ -152,7 +172,9 @@ public:
 	std::vector<CTreasureInfo> getTreasureInfo();
 	std::set<int3>* getFreePaths();
 
-	ObjectInfo getRandomObject (CMapGenerator* gen, ui32 value);
+	ObjectInfo getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 value);
+
+	void placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str, bool zoneGuard = false);
 
 private:
 	//template info
@@ -189,10 +211,11 @@ private:
 
 	bool pointIsIn(int x, int y);
 	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects
+	bool isAccessibleFromAnywhere (CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile, const std::set<int3> &tilesBlockedByObject) const;
 	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
 	bool findPlaceForTreasurePile(CMapGenerator* gen, si32 min_dist, int3 &pos);
 	bool canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos);
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
-	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str);
+	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard = false);
 };

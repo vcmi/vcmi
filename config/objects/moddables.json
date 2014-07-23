@@ -50,13 +50,13 @@
 			}
 		},
 		"types" : {
-			"wood" :    { "index" : 0, "templates" : { "res" : { "animation" : "AVTwood0.def" } } },
-			"mercury" : { "index" : 1, "templates" : { "res" : { "animation" : "AVTmerc0.def" } } },
-			"ore" :     { "index" : 2, "templates" : { "res" : { "animation" : "AVTore0.def"  } } },
-			"sulfur" :  { "index" : 3, "templates" : { "res" : { "animation" : "AVTsulf0.def" } } },
-			"crystal" : { "index" : 4, "templates" : { "res" : { "animation" : "AVTcrys0.def" } } },
-			"gems" :    { "index" : 5, "templates" : { "res" : { "animation" : "AVTgems0.def" } } },
-			"gold" :    { "index" : 6, "templates" : { "res" : { "animation" : "AVTgold0.def" } } },
+			"wood" :    { "index" : 0, "rmg" : { "value" : 1400, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTwood0.def" } } },
+			"mercury" : { "index" : 1, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTmerc0.def" } } },
+			"ore" :     { "index" : 2, "rmg" : { "value" : 1400, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTore0.def"  } } },
+			"sulfur" :  { "index" : 3, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTsulf0.def" } } },
+			"crystal" : { "index" : 4, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTcrys0.def" } } },
+			"gems" :    { "index" : 5, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgems0.def" } } },
+			"gold" :    { "index" : 6, "rmg" : { "value" : 750,  "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgold0.def" } } },
 			"mithril" : { "index" : 7 } // TODO: move to WoG?
 		}
 	},
@@ -101,9 +101,9 @@
 			}
 		},
 		"types" : {
-			"evil" : { "index" : 0 },
-			"good" : { "index" : 1 },
-			"neutral" : { "index" : 2 },
+			"evil" : { "index" : 0,	"rmg" : { "mapLimit" : 64 } },
+			"good" : { "index" : 1, "rmg" : { "mapLimit" : 64 } },
+			"neutral" : { "index" : 2, "rmg" : { "mapLimit" : 64 } },
 		}
 	},
 
@@ -156,9 +156,9 @@
 		"index" :13,
 		"handler": "cartographer",
 		"types" : {
-			"water" : { "index" : 0 },
-			"land" : { "index" : 1 },
-			"subterra" : { "index" : 2 }
+			"water" : { "index" : 0, "rmg" : { "zoneLimit" : 1,  "value" : 5000, "rarity" : 20 } },
+			"land" : { "index" : 1, "rmg" : { "zoneLimit" : 1,  "value" : 10000, "rarity" : 20 } },
+			"subterra" : { "index" : 2, "rmg" : { "zoneLimit" : 1,  "value" : 7500, "rarity" : 20 } }
 		}
 	},
 
@@ -167,13 +167,13 @@
 		"index" :53,
 		"handler": "mine",
 		"types" : {
-			"sawmill" :       { "index" : 0 },
-			"alchemistLab" :  { "index" : 1 },
-			"orePit" :        { "index" : 2 },
-			"sulfurDune" :    { "index" : 3 },
-			"crystalCavern" : { "index" : 4 },
-			"gemPond" :       { "index" : 5 },
-			"goldMine" :      { "index" : 6 },
+			"sawmill" :       { "index" : 0, "rmg" : { "value" : 1500 } },
+			"alchemistLab" :  { "index" : 1, "rmg" : { "value" : 3500 } },
+			"orePit" :        { "index" : 2, "rmg" : { "value" : 1500 } },
+			"sulfurDune" :    { "index" : 3, "rmg" : { "value" : 3500 } },
+			"crystalCavern" : { "index" : 4, "rmg" : { "value" : 3500 } },
+			"gemPond" :       { "index" : 5, "rmg" : { "value" : 3500 } },
+			"goldMine" :      { "index" : 6, "rmg" : { "value" : 7000 } },
 		}
 	},
 	"abandonedMine" : {

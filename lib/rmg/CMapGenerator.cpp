@@ -11,6 +11,7 @@
 #include "CRmgTemplate.h"
 #include "CRmgTemplateZone.h"
 #include "CZonePlacer.h"
+#include "../mapObjects/CObjectClassesHandler.h"
 
 void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo)
 {
@@ -24,7 +25,7 @@ void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& 
 
 
 CMapGenerator::CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int RandomSeed /*= std::time(nullptr)*/) :
-	mapGenOptions(mapGenOptions), randomSeed(RandomSeed), monolithIndex(0)
+	mapGenOptions(mapGenOptions), randomSeed(RandomSeed), monolithIndex(0), zonesTotal(0)
 {
 	rand.setSeed(randomSeed);
 }
@@ -215,9 +216,9 @@ void CMapGenerator::fillZones()
 	logGlobal->infoStream() << "Started filling zones";
 
 	createConnections();
+	//make sure all connections are passable before creating borders
 	for (auto it : zones)
 	{
-		//make sure all connections are passable before creating borders
 		it.second->createBorder(this);
 		it.second->fill(this);
 	}	
@@ -239,24 +240,95 @@ void CMapGenerator::createConnections()
 		int3 guardPos(-1,-1,-1);
 
 		auto otherZoneTiles = zoneB->getTileInfo();
-		//auto otherZoneCenter = zoneB->getPos();
 
-		for (auto tile : tiles)
+		int3 posA = zoneA->getPos();
+		int3 posB = zoneB->getPos();
+
+		if (posA.z == posB.z)
 		{
-			foreach_neighbour (tile, [&guardPos, tile, &otherZoneTiles](int3 &pos)
+			for (auto tile : tiles)
 			{
-				if (vstd::contains(otherZoneTiles, pos))
-					guardPos = tile;
-			});
-			if (guardPos.valid())
-			{
-				setOccupied (guardPos, ETileType::FREE); //just in case monster is too weak to spawn
-				zoneA->addMonster (this, guardPos, connection.getGuardStrength()); //TODO: set value according to template
-				//zones can make paths only in their own area
-				zoneA->crunchPath (this, guardPos, zoneA->getPos(), zoneA->getId(), zoneA->getFreePaths()); //make connection towards our zone center
-				zoneB->crunchPath (this, guardPos, zoneB->getPos(), zoneB->getId(), zoneB->getFreePaths()); //make connection towards other zone center
-				break; //we're done with this connection
+				if (isBlocked(tile)) //tiles may be occupied by subterranean gates already placed
+					continue;
+				foreach_neighbour (tile, [&guardPos, tile, &otherZoneTiles, this](int3 &pos)
+				{
+					//if (vstd::contains(otherZoneTiles, pos) && !this->isBlocked(pos))
+					if (vstd::contains(otherZoneTiles, pos))
+						guardPos = tile;
+				});
+				if (guardPos.valid())
+				{
+					setOccupied (guardPos, ETileType::FREE); //just in case monster is too weak to spawn
+					zoneA->addMonster (this, guardPos, connection.getGuardStrength(), false, true);
+					//zones can make paths only in their own area
+					zoneA->crunchPath (this, guardPos, posA, zoneA->getId(), zoneA->getFreePaths()); //make connection towards our zone center
+					zoneB->crunchPath (this, guardPos, posB, zoneB->getId(), zoneB->getFreePaths()); //make connection towards other zone center
+					break; //we're done with this connection
+				}
 			}
+		}
+		else //create subterranean gates between two zones
+		{	
+			//find point on the path between zones
+			float3 offset (posB.x - posA.x, posB.y - posA.y, 0);
+
+			float distance = posB.dist2d(posA);
+			vstd::amax (distance, 0.5f);
+			offset /= distance; //get unit vector
+			float3 vec (0, 0, 0);
+			//use reduced size of underground zone - make sure gate does not stand on rock
+			int3 tile = posA;
+			int3 otherTile = tile;
+
+			bool stop = false;
+			while (!stop)
+			{
+				vec += offset; //this vector may extend beyond line between zone centers, in case they are directly over each other
+				tile = posA + int3(vec.x, vec.y, 0);
+				float distanceFromA = posA.dist2d(tile);
+				float distanceFromB = posB.dist2d(tile);
+
+				if (distanceFromA + distanceFromB > std::max<int>(zoneA->getSize() + zoneB->getSize(), distance))
+					break; //we are too far away to ever connect
+
+				//if zone is underground, gate must fit within its (reduced) radius
+				if (distanceFromA > 5 && (!posA.z || distanceFromA < zoneA->getSize() - 3) &&
+					distanceFromB > 5 && (!posB.z || distanceFromB < zoneB->getSize() - 3))
+				{
+					otherTile = tile;
+					otherTile.z = posB.z;
+
+					if (vstd::contains(tiles, tile) && vstd::contains(otherZoneTiles, otherTile))
+					{
+						bool withinZone = true;
+
+						foreach_neighbour (tile, [&withinZone, &tiles](int3 &pos)
+						{
+							if (!vstd::contains(tiles, pos))
+								withinZone = false;
+						});
+						foreach_neighbour (otherTile, [&withinZone, &otherZoneTiles](int3 &pos)
+						{
+							if (!vstd::contains(otherZoneTiles, pos))
+								withinZone = false;
+						});
+
+						if (withinZone)
+						{
+							auto gate1 = new CGTeleport;
+							gate1->ID = Obj::SUBTERRANEAN_GATE;
+							gate1->subID = 0;
+							zoneA->placeAndGuardObject(this, gate1, tile, connection.getGuardStrength());
+							auto gate2 = new CGTeleport(*gate1);
+							zoneB->placeAndGuardObject(this, gate2, otherTile, connection.getGuardStrength());
+
+							stop = true; //we are done, go to next connection
+						}
+					}
+				}
+			}
+			if (stop)
+				continue;
 		}
 		if (!guardPos.valid())
 		{
@@ -299,28 +371,35 @@ bool CMapGenerator::isBlocked(const int3 &tile) const
 bool CMapGenerator::shouldBeBlocked(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].shouldBeBlocked();
 }
 bool CMapGenerator::isPossible(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].isPossible();
 }
 bool CMapGenerator::isFree(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].isFree();
+}
+bool CMapGenerator::isUsed(const int3 &tile) const
+{
+	if (!map->isInTheMap(tile))
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+
+	return tiles[tile.x][tile.y][tile.z].isUsed();
 }
 void CMapGenerator::setOccupied(const int3 &tile, ETileType::ETileType state)
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	tiles[tile.x][tile.y][tile.z].setOccupied(state);
 }
@@ -328,7 +407,7 @@ void CMapGenerator::setOccupied(const int3 &tile, ETileType::ETileType state)
 CTileInfo CMapGenerator::getTile(const int3&  tile) const
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z];
 }
@@ -336,7 +415,7 @@ CTileInfo CMapGenerator::getTile(const int3&  tile) const
 void CMapGenerator::setNearestObjectDistance(int3 &tile, int value)
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	tiles[tile.x][tile.y][tile.z].setNearestObjectDistance(value);
 }
@@ -344,12 +423,29 @@ void CMapGenerator::setNearestObjectDistance(int3 &tile, int value)
 int CMapGenerator::getNearestObjectDistance(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 
 	return tiles[tile.x][tile.y][tile.z].getNearestObjectDistance();
 }
 
 int CMapGenerator::getNextMonlithIndex()
 {
-	return monolithIndex++;
+	if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
+		throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
+	else
+		return monolithIndex++;
+}
+
+void CMapGenerator::registerZone (TFaction faction)
+{
+	zonesPerFaction[faction]++;
+	zonesTotal++;
+}
+ui32 CMapGenerator::getZoneCount(TFaction faction)
+{
+	return zonesPerFaction[faction];
+}
+ui32 CMapGenerator::getTotalZoneCount() const
+{
+	return zonesTotal;
 }

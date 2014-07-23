@@ -62,6 +62,8 @@ public:
 
 	// Checks if object is visitable from certain direction. X and Y must be between -1..+1
 	bool isVisitableFrom(si8 X, si8 Y) const;
+	int3 getVisitableOffset() const;
+	bool isVisitableFromTop() const;
 
 	// Checks if object can be placed on specific terrain
 	bool canBePlacedAt(ETerrainType terrain) const;
@@ -72,6 +74,8 @@ public:
 	void readMsk();
 	void readMap(CBinaryReader & reader);
 	void readJson(const JsonNode & node);
+
+	bool operator==(const ObjectTemplate& ot) const { return (id == ot.id && subid == ot.subid); }
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
