@@ -145,6 +145,7 @@ public:
 	void setPos(const int3 &pos);
 
 	void addTile (const int3 &pos);
+	void initFreeTiles (CMapGenerator* gen);
 	std::set<int3> getTileInfo () const;
 	void discardDistantTiles (CMapGenerator* gen, float distance);
 
@@ -206,6 +207,7 @@ private:
 	int3 pos;
 	float3 center;
 	std::set<int3> tileinfo; //irregular area assined to zone
+	std::set<int3> possibleTiles; //optimization purposes for treasure generation
 	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
 	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
 
@@ -216,6 +218,6 @@ private:
 	bool findPlaceForTreasurePile(CMapGenerator* gen, si32 min_dist, int3 &pos);
 	bool canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos);
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
-	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
+	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, bool updateDistance = true);
 	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard = false);
 };

@@ -378,6 +378,14 @@ void CRmgTemplateZone::discardDistantTiles (CMapGenerator* gen, float distance)
 	});
 }
 
+void CRmgTemplateZone::initFreeTiles (CMapGenerator* gen)
+{
+	vstd::copy_if (tileinfo, vstd::set_inserter(possibleTiles), [gen](const int3 &tile) -> bool
+	{
+		return gen->isPossible(tile);
+	});
+}
+
 void CRmgTemplateZone::createBorder(CMapGenerator* gen)
 {
 	for (auto tile : tileinfo)
@@ -1072,6 +1080,12 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 
 	do {
 		
+		//optimization - don't check tiles which are not allowed
+		vstd::erase_if (possibleTiles, [gen](const int3 &tile) -> bool
+		{
+			return !gen->isPossible(tile);
+		});
+
 		int3 pos;
 		if ( ! findPlaceForTreasurePile(gen,  minDistance, pos))		
 		{
@@ -1144,7 +1158,7 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 		if (canObstacleBePlacedHere(gen, temp, obstaclePos)) //can be placed here
 		{
 			auto obj = VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
-			placeObject(gen, obj, obstaclePos);
+			placeObject(gen, obj, obstaclePos, false);
 			return true;
 		}
 		return false;
@@ -1171,6 +1185,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	freePaths.insert(pos); //zone center should be always clear to allow other tiles to connect
 
 	addAllPossibleObjects (gen);
+
 	placeMines(gen);
 	createRequiredObjects(gen);
 	fractalize(gen); //after required objects are created and linked with their own paths
@@ -1188,11 +1203,11 @@ bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, si32 min_dis
 	bool result = false;
 
 	//logGlobal->infoStream() << boost::format("Min dist for density %f is %d") % density % min_dist;
-	for(auto tile : tileinfo)
+	for(auto tile : possibleTiles)
 	{
 		auto dist = gen->getTile(tile).getNearestObjectDistance();
 
-		if (gen->isPossible(tile) && (dist >= min_dist) && (dist > best_distance))
+		if ((dist >= min_dist) && (dist > best_distance))
 		{
 			bool allTilesAvailable = true;
 			gen->foreach_neighbour (tile, [&gen, &allTilesAvailable](int3 neighbour)
@@ -1347,7 +1362,7 @@ void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance*
 	//logGlobal->traceStream() << boost::format ("Successfully inserted object (%d,%d) at pos %s") %object->ID %object->subID %pos();
 }
 
-void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos)
+void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, bool updateDistance)
 {
 	//logGlobal->traceStream() << boost::format("Inserting object at %d %d") % pos.x % pos.y;
 
@@ -1364,10 +1379,13 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 			gen->setOccupied(p, ETileType::USED);
 		}
 	}
-	for(auto tile : tileinfo)
-	{		
-		si32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
-		gen->setNearestObjectDistance(tile, std::min(d, gen->getNearestObjectDistance(tile)));
+	if (updateDistance)
+	{
+		for(auto tile : possibleTiles) //don't need to mark distance for not possible tiles
+		{		
+			si32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
+			gen->setNearestObjectDistance(tile, std::min(d, gen->getNearestObjectDistance(tile)));
+		}
 	}
 }
 
@@ -1461,7 +1479,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 	ui32 minValue = 0.25f * value;
 
 	//roulette wheel
-	for (auto oi : possibleObjects)
+	for (ObjectInfo &oi : possibleObjects) //copy constructor turned out to be costly
 	{
 		if (oi.value >= minValue && oi.value <= value && oi.maxPerZone > 0)
 		{

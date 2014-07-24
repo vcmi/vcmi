@@ -334,7 +334,7 @@ private:
 	ValidationResult validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
 	/// Tests whether the given terrain type is a sand type. Sand types are: Water, Sand and Rock
 	bool isSandType(ETerrainType terType) const;
-	TerrainViewPattern getFlippedPattern(const TerrainViewPattern & pattern, int flip) const;
+	TerrainViewPattern flipPattern(TerrainViewPattern & pattern, int flip) const;
 
 	static const int FLIP_PATTERN_HORIZONTAL = 1;
 	static const int FLIP_PATTERN_VERTICAL = 2;

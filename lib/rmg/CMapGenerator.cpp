@@ -219,6 +219,12 @@ void CMapGenerator::fillZones()
 
 	logGlobal->infoStream() << "Started filling zones";
 
+	//initialize possible tiles before any object is actually placed
+	for (auto it : zones)
+	{
+		it.second->initFreeTiles(this);
+	}
+
 	createConnections();
 	//make sure all connections are passable before creating borders
 	for (auto it : zones)

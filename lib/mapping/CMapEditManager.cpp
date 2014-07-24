@@ -638,9 +638,10 @@ ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(ETerrainType
 
 CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainView(const int3 & pos, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
 {
+	auto flippedPattern = pattern;
 	for(int flip = 0; flip < 4; ++flip)
 	{
-		auto valRslt = validateTerrainViewInner(pos, flip > 0 ? getFlippedPattern(pattern, flip) : pattern, recDepth);
+		auto valRslt = validateTerrainViewInner(pos, flip > 0 ? flipPattern(flippedPattern, flip) : pattern, recDepth);
 		if(valRslt.result)
 		{
 			valRslt.flip = flip;
@@ -795,31 +796,29 @@ bool CDrawTerrainOperation::isSandType(ETerrainType terType) const
 	}
 }
 
-TerrainViewPattern CDrawTerrainOperation::getFlippedPattern(const TerrainViewPattern & pattern, int flip) const
+TerrainViewPattern CDrawTerrainOperation::flipPattern(TerrainViewPattern & pattern, int flip) const
 {
 	if(flip == 0)
 	{
 		return pattern;
 	}
 
-	TerrainViewPattern ret = pattern;
-	if(flip == FLIP_PATTERN_HORIZONTAL || flip == FLIP_PATTERN_BOTH)
+	//always flip horizontal
+	for(int i = 0; i < 3; ++i)
 	{
-		for(int i = 0; i < 3; ++i)
-		{
-			int y = i * 3;
-			std::swap(ret.data[y], ret.data[y + 2]);
-		}
+		int y = i * 3;
+		std::swap(pattern.data[y], pattern.data[y + 2]);
 	}
-	if(flip == FLIP_PATTERN_VERTICAL || flip == FLIP_PATTERN_BOTH)
+	//flip vertical only at 2nd step
+	if(flip == FLIP_PATTERN_VERTICAL)
 	{
 		for(int i = 0; i < 3; ++i)
 		{
-			std::swap(ret.data[i], ret.data[6 + i]);
+			std::swap(pattern.data[i], pattern.data[6 + i]);
 		}
 	}
 
-	return ret;
+	return pattern;
 }
 
 void CDrawTerrainOperation::invalidateTerrainViews(const int3 & centerPos)
