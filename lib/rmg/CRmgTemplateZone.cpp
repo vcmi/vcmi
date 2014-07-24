@@ -1657,7 +1657,8 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 		auto cre = creatures.front();
 		if (cre->faction == townType)
 		{
-			oi.value = cre->AIValue * cre->growth * (1 + (float)(gen->getZoneCount(cre->faction)) / gen->getTotalZoneCount() + (float)(gen->getZoneCount(cre->faction) / 2)); //TODO: include town count in formula
+			float nativeZonesCount = gen->getZoneCount(cre->faction);
+			oi.value = cre->AIValue * cre->growth * (1 + (nativeZonesCount / gen->getTotalZoneCount()) + (nativeZonesCount / 2));
 			oi.probability = 40;
 
 			for (auto temp : dwellingHandler->getTemplates())
