@@ -638,10 +638,14 @@ ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(ETerrainType
 
 CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainView(const int3 & pos, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
 {
+	//constructor for pattern object is very expensive, but we can't manipulate const object :(
+
 	auto flippedPattern = pattern;
 	for(int flip = 0; flip < 4; ++flip)
 	{
-		auto valRslt = validateTerrainViewInner(pos, flip > 0 ? flipPattern(flippedPattern, flip) : pattern, recDepth);
+		if (flip > 0)
+			flipPattern (flippedPattern, flip);
+		auto valRslt = validateTerrainViewInner(pos, flippedPattern, recDepth);
 		if(valRslt.result)
 		{
 			valRslt.flip = flip;
@@ -796,11 +800,13 @@ bool CDrawTerrainOperation::isSandType(ETerrainType terType) const
 	}
 }
 
-TerrainViewPattern CDrawTerrainOperation::flipPattern(TerrainViewPattern & pattern, int flip) const
+void CDrawTerrainOperation::flipPattern(TerrainViewPattern & pattern, int flip) const
 {
+	//flip in place to avoid expensive constructor. Seriously.
+
 	if(flip == 0)
 	{
-		return pattern;
+		return;
 	}
 
 	//always flip horizontal
@@ -817,8 +823,6 @@ TerrainViewPattern CDrawTerrainOperation::flipPattern(TerrainViewPattern & patte
 			std::swap(pattern.data[i], pattern.data[6 + i]);
 		}
 	}
-
-	return pattern;
 }
 
 void CDrawTerrainOperation::invalidateTerrainViews(const int3 & centerPos)
