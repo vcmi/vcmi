@@ -86,14 +86,14 @@ CTileInfo::CTileInfo():nearestObjectDistance(INT_MAX), terrain(ETerrainType::WRO
 	occupied = ETileType::POSSIBLE; //all tiles are initially possible to place objects or passages
 }
 
-int CTileInfo::getNearestObjectDistance() const
+float CTileInfo::getNearestObjectDistance() const
 {
 	return nearestObjectDistance;
 }
 
-void CTileInfo::setNearestObjectDistance(int value)
+void CTileInfo::setNearestObjectDistance(float value)
 {
-	nearestObjectDistance = std::max(0, value); //never negative (or unitialized)
+	nearestObjectDistance = std::max<float>(0, value); //never negative (or unitialized)
 }
 bool CTileInfo::shouldBeBlocked() const
 {
@@ -1077,7 +1077,8 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 
 void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 {
-	const double minDistance = 3;
+	const double minDistance = std::max<float>(15.0f / sqrt(totalDensity), 2);
+	//distance lower than 2 causes objects to overlap and crash
 
 	do {
 		
@@ -1088,7 +1089,7 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 		});
 
 		int3 pos;
-		if ( ! findPlaceForTreasurePile(gen,  minDistance, pos))		
+		if ( ! findPlaceForTreasurePile(gen, minDistance, pos))		
 		{
 			break;
 		}
@@ -1197,10 +1198,10 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	return true;
 }
 
-bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, si32 min_dist, int3 &pos)
+bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, float min_dist, int3 &pos)
 {
 	//si32 min_dist = sqrt(tileinfo.size()/density);
-	int best_distance = 0;
+	float best_distance = 0;
 	bool result = false;
 
 	//logGlobal->infoStream() << boost::format("Min dist for density %f is %d") % density % min_dist;
@@ -1385,7 +1386,7 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 		for(auto tile : possibleTiles) //don't need to mark distance for not possible tiles
 		{		
 			si32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
-			gen->setNearestObjectDistance(tile, std::min(d, gen->getNearestObjectDistance(tile)));
+			gen->setNearestObjectDistance(tile, std::min<float>(d, gen->getNearestObjectDistance(tile)));
 		}
 	}
 }

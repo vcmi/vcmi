@@ -40,8 +40,8 @@ public:
 
 	CTileInfo();
 
-	int getNearestObjectDistance() const;
-	void setNearestObjectDistance(int value);
+	float getNearestObjectDistance() const;
+	void setNearestObjectDistance(float value);
 	bool isBlocked() const;
 	bool shouldBeBlocked() const;
 	bool isPossible() const;
@@ -52,7 +52,7 @@ public:
 	void setTerrainType(ETerrainType value);
 
 private:
-	int nearestObjectDistance;
+	float nearestObjectDistance;
 	ETileType::ETileType occupied;
 	ETerrainType terrain;
 };
@@ -215,7 +215,7 @@ private:
 	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects
 	bool isAccessibleFromAnywhere (CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile, const std::set<int3> &tilesBlockedByObject) const;
 	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
-	bool findPlaceForTreasurePile(CMapGenerator* gen, si32 min_dist, int3 &pos);
+	bool findPlaceForTreasurePile(CMapGenerator* gen, float min_dist, int3 &pos);
 	bool canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos);
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, bool updateDistance = true);

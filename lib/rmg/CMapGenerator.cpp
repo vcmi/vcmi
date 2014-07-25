@@ -440,7 +440,7 @@ CTileInfo CMapGenerator::getTile(const int3&  tile) const
 	return tiles[tile.x][tile.y][tile.z];
 }
 
-void CMapGenerator::setNearestObjectDistance(int3 &tile, int value)
+void CMapGenerator::setNearestObjectDistance(int3 &tile, float value)
 {
 	if (!map->isInTheMap(tile))
 		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
@@ -448,7 +448,7 @@ void CMapGenerator::setNearestObjectDistance(int3 &tile, int value)
 	tiles[tile.x][tile.y][tile.z].setNearestObjectDistance(value);
 }
 
-int CMapGenerator::getNearestObjectDistance(const int3 &tile) const
+float CMapGenerator::getNearestObjectDistance(const int3 &tile) const
 {
 	if (!map->isInTheMap(tile))
 		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));

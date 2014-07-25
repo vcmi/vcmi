@@ -74,8 +74,8 @@ public:
 	void setOccupied(const int3 &tile, ETileType::ETileType state);
 	CTileInfo getTile(const int3 & tile) const;
 
-	int getNearestObjectDistance(const int3 &tile) const; 
-	void setNearestObjectDistance(int3 &tile, int value);
+	float getNearestObjectDistance(const int3 &tile) const; 
+	void setNearestObjectDistance(int3 &tile, float value);
 
 	int getNextMonlithIndex();
 	int getPrisonsRemaning() const;
