@@ -197,7 +197,6 @@ private:
 	ui16 totalDensity;
 	std::vector<CTreasureInfo> treasureInfo;
 	std::vector<ObjectInfo> possibleObjects;
-	std::vector<ObjectTemplate> possibleObstacles;
 
 	//content info
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;

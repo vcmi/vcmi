@@ -1132,6 +1132,12 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 		//	});
 		//}
 	}
+	typedef std::vector<ObjectTemplate> obstacleVector;
+	//obstacleVector possibleObstacles;
+
+	std::map <ui8, obstacleVector> obstaclesBySize;
+	typedef std::pair <ui8, obstacleVector> obstaclePair;
+	std::vector<obstaclePair> possibleObstacles;
 
 	//get all possible obstacles for this terrain
 	for (auto primaryID : VLC->objtypeh->knownObjects()) 
@@ -1144,18 +1150,26 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 				for (auto temp : handler->getTemplates())
 				{
 					if (temp.canBePlacedAt(terrainType) && temp.getBlockMapOffset().valid())
-						possibleObstacles.push_back(temp);
+						obstaclesBySize[temp.getBlockedOffsets().size()].push_back(temp);
 				}
 			}
 		} 
 	}
+	for (auto o : obstaclesBySize)
+	{
+		possibleObstacles.push_back (std::make_pair(o.first, o.second));
+	}
+	boost::sort (possibleObstacles, [](obstaclePair &p1, obstaclePair &p2) -> bool
+	{
+		return p1.first > p2.first; //bigger obstacles first
+	});
 
 	auto sel = gen->editManager->getTerrainSelection();
 	sel.clearSelection();
 
-	auto tryToPlaceObstacleHere = [this, gen](int3& tile)-> bool
+	auto tryToPlaceObstacleHere = [this, gen, &possibleObstacles](int3& tile, int index)-> bool
 	{
-		auto temp = *RandomGeneratorUtil::nextItem(possibleObstacles, gen->rand);
+		auto temp = *RandomGeneratorUtil::nextItem(possibleObstacles[index].second, gen->rand);
 		int3 obstaclePos = tile - temp.getBlockMapOffset();
 		if (canObstacleBePlacedHere(gen, temp, obstaclePos)) //can be placed here
 		{
@@ -1170,12 +1184,20 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 	{
 		if (gen->shouldBeBlocked(tile)) //fill tiles that should be blocked with obstacles
 		{
-			while (!tryToPlaceObstacleHere(tile));
+			//start from biggets obstacles
+			for (int i = 0; i < possibleObstacles.size(); i++)
+			{
+				if (tryToPlaceObstacleHere(tile, i))
+					break;
+			}
 		}
 		else if (gen->isPossible(tile))
 		{
 			//try to place random obstacle once - if not possible, leave it clear
-			tryToPlaceObstacleHere(tile);
+			tryToPlaceObstacleHere(tile, gen->rand.nextInt(0, possibleObstacles.size()-1));
+
+			//for (int i = 0; i < possibleObstacles.size(); i++)
+			//	tryToPlaceObstacleHere(tile, i);
 		}
 	}
 }
