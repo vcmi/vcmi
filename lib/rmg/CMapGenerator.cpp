@@ -67,18 +67,31 @@ CMapGenerator::~CMapGenerator()
 	}
 }
 
+void CMapGenerator::initPrisonsRemaining()
+{
+	prisonsRemaining = 0;
+	for (auto isAllowed : map->allowedHeroes)
+	{
+		if (isAllowed)
+			prisonsRemaining++;
+	}
+	prisonsRemaining = std::max<int> (0, prisonsRemaining - 16 * map->players.size()); //so at least 16 heroes will be available for every player
+}
+
 std::unique_ptr<CMap> CMapGenerator::generate()
 {
 	mapGenOptions->finalize(rand);
 
 	map = make_unique<CMap>();
 	editManager = map->getEditManager();
+
 	try
 	{
 		editManager->getUndoManager().setUndoRedoLimit(0);
 		addHeaderInfo();
 		initTiles();
 
+		initPrisonsRemaining();
 		genZones();
 		map->calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
 		fillZones();
@@ -449,6 +462,15 @@ int CMapGenerator::getNextMonlithIndex()
 		throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
 	else
 		return monolithIndex++;
+}
+
+int CMapGenerator::getPrisonsRemaning() const
+{
+	return prisonsRemaining;
+}
+void CMapGenerator::decreasePrisonsRemaining()
+{
+	prisonsRemaining = std::max (0, prisonsRemaining--);
 }
 
 void CMapGenerator::registerZone (TFaction faction)

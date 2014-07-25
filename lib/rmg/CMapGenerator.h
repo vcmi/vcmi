@@ -78,6 +78,9 @@ public:
 	void setNearestObjectDistance(int3 &tile, int value);
 
 	int getNextMonlithIndex();
+	int getPrisonsRemaning() const;
+	void decreasePrisonsRemaining();
+
 	void registerZone (TFaction faction);
 	ui32 getZoneCount(TFaction faction);
 	ui32 getTotalZoneCount() const;
@@ -89,10 +92,13 @@ private:
 
 	CTileInfo*** tiles;
 
+	int prisonsRemaining;
 	int monolithIndex;
 
 	/// Generation methods
 	std::string getMapDescription() const;
+
+	void initPrisonsRemaining();
 	void addPlayerInfo();
 	void addHeaderInfo();
 	void initTiles();

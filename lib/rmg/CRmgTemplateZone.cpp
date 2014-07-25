@@ -1653,6 +1653,43 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 		} 
 	}
 
+	//prisons
+	//levels 1, 5, 10, 20, 30
+	static int prisonExp[] = {0, 5000, 15000, 90000, 500000};
+	static int prisonValues[] = {2500, 5000, 10000, 20000, 30000};
+
+	for (int i = 0; i < 5; i++)
+	{
+		oi.generateObject = [i, gen]() -> CGObjectInstance *
+		{
+			auto obj = new CGHeroInstance;
+			obj->ID = Obj::PRISON;
+
+			std::vector<ui32> possibleHeroes;
+			for (int j = 0; j < gen->map->allowedHeroes.size(); j++)
+			{
+				if (gen->map->allowedHeroes[j])
+					possibleHeroes.push_back(j);
+			}
+
+			auto hid = *RandomGeneratorUtil::nextItem(possibleHeroes, gen->rand);
+			obj->initHero (HeroTypeID(hid));
+			obj->subID = 0; //initHero overrides it :?
+			//obj->exp = prisonExp[i]; //game crashes at hero level up
+			obj->exp = 0;
+			obj->setOwner(PlayerColor::NEUTRAL);
+			gen->map->allowedHeroes[hid] = false; //ban this hero
+			gen->decreasePrisonsRemaining();
+
+			return obj;
+		};
+		oi.setTemplate (Obj::PRISON, 0, terrainType);
+		oi.value = prisonValues[i];
+		oi.probability = 30;
+		oi.maxPerZone = gen->getPrisonsRemaning() / 5; //probably not perfect, but we can't generate more prisons than hereos.
+		possibleObjects.push_back (oi);
+	}
+
 	//all following objects are unlimited
 	oi.maxPerZone = std::numeric_limits<ui32>().max();
 
