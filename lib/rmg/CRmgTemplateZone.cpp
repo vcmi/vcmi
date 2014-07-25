@@ -1069,7 +1069,8 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 		logGlobal->traceStream() << "Place found";
 
 		placeObject (gen, obj.first, pos);
-		guardObject (gen, obj.first, obj.second, (obj.first->ID == Obj::MONOLITH_TWO_WAY));
+		guardObject (gen, obj.first, obj.second, (obj.first->ID == Obj::MONOLITH_TWO_WAY), true);
+		//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones
 	}
 	return true;
 }
@@ -1421,7 +1422,7 @@ std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (CMapGenerator* gen, CG
 	return tiles;
 }
 
-bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard)
+bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard, bool addToFreePaths)
 {
 	logGlobal->traceStream() << boost::format("Guard object at %s") % object->pos();
 
@@ -1432,7 +1433,8 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	for (auto tile : tiles)
 	{
 		//crunching path may fail if center of teh zone is dirrectly over wide object
-		if (crunchPath (gen, tile, findClosestTile(freePaths, tile), id)) //make sure object is accessible before surrounding it with blocked tiles
+		//make sure object is accessible before surrounding it with blocked tiles
+		if (crunchPath (gen, tile, findClosestTile(freePaths, tile), id, addToFreePaths ? &freePaths : nullptr))
 		{
 			guardTile = tile;
 			break;
