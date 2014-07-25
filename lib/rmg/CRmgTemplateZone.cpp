@@ -1180,9 +1180,11 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 		return false;
 	};
 
-	for (auto tile : tileinfo)
+	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
+	for (auto tile : boost::adaptors::reverse(tileinfo))
 	{
-		if (gen->shouldBeBlocked(tile)) //fill tiles that should be blocked with obstacles
+		//fill tiles that should be blocked with obstacles or are just possible (with some probability)
+		if (gen->shouldBeBlocked(tile) || gen->isPossible(tile) && gen->rand.nextInt(1,100) < 60)
 		{
 			//start from biggets obstacles
 			for (int i = 0; i < possibleObstacles.size(); i++)
@@ -1190,14 +1192,6 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 				if (tryToPlaceObstacleHere(tile, i))
 					break;
 			}
-		}
-		else if (gen->isPossible(tile))
-		{
-			//try to place random obstacle once - if not possible, leave it clear
-			tryToPlaceObstacleHere(tile, gen->rand.nextInt(0, possibleObstacles.size()-1));
-
-			//for (int i = 0; i < possibleObstacles.size(); i++)
-			//	tryToPlaceObstacleHere(tile, i);
 		}
 	}
 }
