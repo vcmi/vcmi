@@ -64,7 +64,6 @@
 	},
 	"azureDragon" :
 	{
-		"special" : true,
 		"index": 132,
 		"level": 10,
 		"faction": "neutral",
@@ -107,7 +106,6 @@
 	},
 	"crystalDragon" :
 	{
-		"special" : true,
 		"index": 133,
 		"level": 10,
 		"faction": "neutral",
@@ -141,7 +139,6 @@
 	},
 	"fairieDragon" :
 	{
-		"special" : true,
 		"index": 134,
 		"level": 8,
 		"faction": "neutral",
@@ -239,7 +236,6 @@
 	},
 	"rustDragon" :
 	{
-		"special" : true,
 		"index": 135,
 		"level": 10,
 		"faction": "neutral",
@@ -277,7 +273,6 @@
 	},
 	"enchanter" :
 	{
-		"special" : true,
 		"index": 136,
 		"level": 6,
 		"extraNames": [ "enchanters" ],
@@ -357,7 +352,6 @@
 	},
 	"sharpshooter" :
 	{
-		"special" : true,
 		"index": 137,
 		"level": 4,
 		"extraNames": [ "sharpshooters" ],

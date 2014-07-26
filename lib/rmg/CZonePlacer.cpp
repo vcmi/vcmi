@@ -40,12 +40,11 @@ int3 CZonePlacer::cords (const float3 f) const
 
 void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGenerator * rand)
 {
-	//some relaxation-simmulated annealing algorithm
+	//gravity-based algorithm
 
-	const int iterations = 100;
-	float temperatureConstant = 1e-2;
-	float currentTemperature = 2; //geater temperature - stronger gravity, weaker pushing away
-	const float temperatureModifier = 0.99;
+	float gravityConstant = 1e-2;
+	float zoneScale = 0.5f; //zones starts small and then inflate
+	const float inflateModifier = 1.02;
 
 	logGlobal->infoStream() << "Starting zone placement";
 
@@ -108,7 +107,7 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 	};
 
 	std::map <CRmgTemplateZone *, float3> forces;
-	for (int i = 0; i < iterations; ++i)
+	while (zoneScale < 1) //until zones reach their desired size and fill the map tightly
 	{
 		for (auto zone : zones)
 		{
@@ -121,11 +120,11 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 				auto otherZone = zones[con];
 				float3 otherZoneCenter = otherZone->getCenter();
 				float distance = pos.dist2d (otherZoneCenter);
-				float minDistance = (zone.second->getSize() + otherZone->getSize())/mapSize; //scale down to (0,1) coordinates
+				float minDistance = (zone.second->getSize() + otherZone->getSize())/mapSize * zoneScale; //scale down to (0,1) coordinates
 				if (distance > minDistance)
 				{
 					//WARNING: compiler used to 'optimize' that line so it never actually worked
-					forceVector += (((otherZoneCenter - pos) / getDistance(distance)) * currentTemperature); //positive value
+					forceVector += (((otherZoneCenter - pos) / getDistance(distance))); //positive value
 				}
 			}
 			//separate overlaping zones
@@ -137,21 +136,22 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 					continue;
 
 				float distance = pos.dist2d (otherZoneCenter);
-				float minDistance = (zone.second->getSize() + otherZone.second->getSize())/mapSize;
+				float minDistance = (zone.second->getSize() + otherZone.second->getSize())/mapSize * zoneScale;
 				if (distance < minDistance)
 				{
-					forceVector -= (otherZoneCenter - pos) / getDistance(distance) / currentTemperature; //negative value
+					forceVector -= (otherZoneCenter - pos) / getDistance(distance); //negative value
 				}
 			}
 
 			//move zones away from boundaries
+			//do not scale boundary distance - zones tend to get squashed
 			float size = zone.second->getSize() / mapSize;
 
-			auto pushAwayFromBoundary = [&forceVector, pos, currentTemperature, &getDistance](float x, float y)
+			auto pushAwayFromBoundary = [&forceVector, pos, &getDistance](float x, float y)
 			{
 				float3 boundary = float3 (x, y, pos.z);
 				float distance = pos.dist2d(boundary);
-				forceVector -= (boundary - pos) / getDistance(distance) / currentTemperature; //negative value
+				forceVector -= (boundary - pos) / getDistance(distance); //negative value
 			};
 			if (pos.x < size)
 			{
@@ -171,14 +171,14 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 			}
 
 			forceVector.z = 0; //operator - doesn't preserve z coordinate :/
-			forces[zone.second] = forceVector * temperatureConstant;
+			forces[zone.second] = forceVector * gravityConstant;
 		}
 		//update positions
 		for (auto zone : forces)
 		{
 			zone.first->setCenter (zone.first->getCenter() + zone.second);
 		}
-		currentTemperature *= temperatureModifier; //decrease temperature (needed?)
+		zoneScale *= inflateModifier; //increase size
 	}
 	for (auto zone : zones) //finalize zone positions
 	{
