@@ -7,107 +7,107 @@ include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR} ${FFMPEG_INCLUDE_D
 
 set(client_SRCS
 		StdInc.cpp
-        ../CCallback.cpp
+		../CCallback.cpp
 
 		battle/CBattleInterface.cpp
-        battle/CBattleAnimations.cpp
-        battle/CBattleInterfaceClasses.cpp
-        battle/CCreatureAnimation.cpp
+		battle/CBattleAnimations.cpp
+		battle/CBattleInterfaceClasses.cpp
+		battle/CCreatureAnimation.cpp
 
-        gui/CGuiHandler.cpp
-        gui/CIntObject.cpp
-        gui/CIntObjectClasses.cpp
-        gui/Fonts.cpp
-        gui/Geometries.cpp
-        gui/CCursorHandler.cpp
-        gui/SDL_Extensions.cpp
+		gui/CGuiHandler.cpp
+		gui/CIntObject.cpp
+		gui/CIntObjectClasses.cpp
+		gui/Fonts.cpp
+		gui/Geometries.cpp
+		gui/CCursorHandler.cpp
+		gui/SDL_Extensions.cpp
 
 		CPreGame.cpp
 		Client.cpp
 		CPlayerInterface.cpp
 		CMT.cpp
 		GUIClasses.cpp
-        AdventureMapClasses.cpp
-        CAdvmapInterface.cpp
-        CAnimation.cpp
-        CBitmapHandler.cpp
-        CCastleInterface.cpp
-        CCreatureWindow.cpp
-        CDefHandler.cpp
-        CGameInfo.cpp
-        CHeroWindow.cpp
-        CKingdomInterface.cpp
-        CMessage.cpp
-        CMusicHandler.cpp
-        CSpellWindow.cpp
-        CVideoHandler.cpp
-        CQuestLog.cpp
-        Graphics.cpp
-        mapHandler.cpp
-        NetPacksClient.cpp
+		AdventureMapClasses.cpp
+		CAdvmapInterface.cpp
+		CAnimation.cpp
+		CBitmapHandler.cpp
+		CCastleInterface.cpp
+		CCreatureWindow.cpp
+		CDefHandler.cpp
+		CGameInfo.cpp
+		CHeroWindow.cpp
+		CKingdomInterface.cpp
+		CMessage.cpp
+		CMusicHandler.cpp
+		CSpellWindow.cpp
+		CVideoHandler.cpp
+		CQuestLog.cpp
+		Graphics.cpp
+		mapHandler.cpp
+		NetPacksClient.cpp
 )
 
-set(client_HEADERS
-		gui/SDL_Pixels.h
-)
+if(APPLE)
+	# OS X specific includes
+	include_directories(${SPARKLE_INCLUDE_DIR})
 
-if(WIN32)
-	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS})
-elseif(APPLE)
-    # OS X specific includes
-    include_directories(${SPARKLE_INCLUDE_DIR})
-
-    # OS X specific source files
-    set(client_SRCS ${client_SRCS} SDLMain.m OSX.mm Info.plist vcmi.icns ../osx/vcmi_dsa_public.pem)
+	# OS X specific source files
+	set(client_SRCS ${client_SRCS} SDLMain.m OSX.mm Info.plist vcmi.icns ../osx/vcmi_dsa_public.pem)
 	add_executable(vcmiclient MACOSX_BUNDLE ${client_SRCS} ${client_HEADERS})
 
-    # OS X specific libraries
-    target_link_libraries(vcmiclient ${SPARKLE_FRAMEWORK})
+	# OS X specific libraries
+	target_link_libraries(vcmiclient ${SPARKLE_FRAMEWORK})
 
-    # Because server and AI libs would be copies to bundle they need to be built before client
-    add_dependencies(vcmiclient vcmiserver VCAI EmptyAI StupidAI BattleAI minizip)
+	# Because server and AI libs would be copies to bundle they need to be built before client
+	add_dependencies(vcmiclient vcmiserver VCAI EmptyAI StupidAI BattleAI minizip)
 
-    # Custom Info.plist
-    set_target_properties(vcmiclient PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
+	# Custom Info.plist
+	set_target_properties(vcmiclient PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
 
-    # Copy icon file and public key for Sparkle
-    set_source_files_properties(vcmi.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-    set_source_files_properties(../osx/vcmi_dsa_public.pem PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+	# Copy icon file and public key for Sparkle
+	set_source_files_properties(vcmi.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+	set_source_files_properties(../osx/vcmi_dsa_public.pem PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
-    set_target_properties(vcmiclient PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks @executable_path/")
+	set_target_properties(vcmiclient PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks @executable_path/")
 
-    # Copy server executable, libs and game data to bundle
-    set(BUNDLE_PATH ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiclient.app/Contents)
-    set(MakeVCMIBundle
-        # Copy all needed binaries
-        mkdir -p ${BUNDLE_PATH}/MacOS/AI &&
-        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiserver ${BUNDLE_PATH}/MacOS/vcmiserver &&
-        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libvcmi.dylib ${BUNDLE_PATH}/MacOS/libvcmi.dylib &&
-        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libminizip.dylib ${BUNDLE_PATH}/MacOS/libminizip.dylib &&
-        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libVCAI.dylib ${BUNDLE_PATH}/MacOS/AI/libVCAI.dylib &&
-        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libStupidAI.dylib ${BUNDLE_PATH}/MacOS/AI/libStupidAI.dylib &&
-        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libEmptyAI.dylib ${BUNDLE_PATH}/MacOS/AI/libEmptyAI.dylib &&
-        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libBattleAI.dylib ${BUNDLE_PATH}/MacOS/AI/libBattleAI.dylib &&
-        cp -r ${CMAKE_HOME_DIRECTORY}/osx/vcmibuilder.app ${BUNDLE_PATH}/MacOS/vcmibuilder.app &&
+	# Copy server executable, libs and game data to bundle
+	set(BUNDLE_PATH ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiclient.app/Contents)
+	set(MakeVCMIBundle
+		# Copy all needed binaries
+		mkdir -p ${BUNDLE_PATH}/MacOS/AI &&
+		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiserver ${BUNDLE_PATH}/MacOS/vcmiserver &&
+		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libvcmi.dylib ${BUNDLE_PATH}/MacOS/libvcmi.dylib &&
+		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libminizip.dylib ${BUNDLE_PATH}/MacOS/libminizip.dylib &&
+		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libVCAI.dylib ${BUNDLE_PATH}/MacOS/AI/libVCAI.dylib &&
+		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libStupidAI.dylib ${BUNDLE_PATH}/MacOS/AI/libStupidAI.dylib &&
+		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libEmptyAI.dylib ${BUNDLE_PATH}/MacOS/AI/libEmptyAI.dylib &&
+		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libBattleAI.dylib ${BUNDLE_PATH}/MacOS/AI/libBattleAI.dylib &&
+		cp -r ${CMAKE_HOME_DIRECTORY}/osx/vcmibuilder.app ${BUNDLE_PATH}/MacOS/vcmibuilder.app &&
 
-        # Copy frameworks
-        cp -r ${CMAKE_HOME_DIRECTORY}/${CMAKE_FRAMEWORK_PATH} ${BUNDLE_PATH}/Frameworks/ &&
+		# Copy frameworks
+		cp -r ${CMAKE_HOME_DIRECTORY}/${CMAKE_FRAMEWORK_PATH} ${BUNDLE_PATH}/Frameworks/ &&
 
-        # Copy vcmi data
-        mkdir -p ${BUNDLE_PATH}/Data &&
-        mkdir -p ${BUNDLE_PATH}/Data/Mods &&
-        mkdir -p ${BUNDLE_PATH}/Data/launcher &&
-        cp -r ${CMAKE_HOME_DIRECTORY}/config/ ${BUNDLE_PATH}/Data/config/ &&
-        cp -r ${CMAKE_HOME_DIRECTORY}/Mods/vcmi/ ${BUNDLE_PATH}/Data/Mods/vcmi/ &&
-        cp -r ${CMAKE_HOME_DIRECTORY}/Mods/WoG/ ${BUNDLE_PATH}/Data/Mods/WoG/ &&
-        cp -r ${CMAKE_HOME_DIRECTORY}/launcher/icons/ ${BUNDLE_PATH}/Data/launcher/icons/)
-        
-    add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
+		# Copy vcmi data
+		mkdir -p ${BUNDLE_PATH}/Data &&
+		mkdir -p ${BUNDLE_PATH}/Data/Mods &&
+		mkdir -p ${BUNDLE_PATH}/Data/launcher &&
+		cp -r ${CMAKE_HOME_DIRECTORY}/config/ ${BUNDLE_PATH}/Data/config/ &&
+		cp -r ${CMAKE_HOME_DIRECTORY}/Mods/vcmi/ ${BUNDLE_PATH}/Data/Mods/vcmi/ &&
+		cp -r ${CMAKE_HOME_DIRECTORY}/Mods/WoG/ ${BUNDLE_PATH}/Data/Mods/WoG/ &&
+		cp -r ${CMAKE_HOME_DIRECTORY}/launcher/icons/ ${BUNDLE_PATH}/Data/launcher/icons/)
+		
+	add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
+elseif(WIN32)
+	add_executable(vcmiclient ${client_SRCS} VCMI_client.mingw.rc)
 else()
-	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
+	add_executable(vcmiclient ${client_SRCS})
 endif()
 
-target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${RT_LIB} ${DL_LIB})
+if(WIN32)
+	set_target_properties(vcmiclient PROPERTIES OUTPUT_NAME VCMI_client)
+endif()
+
+target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${SYSTEM_LIBS})
 
 set_target_properties(vcmiclient PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmiclient)

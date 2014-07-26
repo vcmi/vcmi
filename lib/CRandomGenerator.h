@@ -117,7 +117,7 @@ namespace RandomGeneratorUtil
 		int n = (container.end() - container.begin());
 		for (int i = n-1; i>0; --i)
 		{
-			std::swap (container.begin()[i],container.begin()[rand.nextInt(i+1)]);
+			std::swap (container.begin()[i],container.begin()[rand.nextInt(i)]);
 		}
 	}
 }

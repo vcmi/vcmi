@@ -638,9 +638,14 @@ ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(ETerrainType
 
 CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainView(const int3 & pos, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
 {
+	//constructor for pattern object is very expensive, but we can't manipulate const object :(
+
+	auto flippedPattern = pattern;
 	for(int flip = 0; flip < 4; ++flip)
 	{
-		auto valRslt = validateTerrainViewInner(pos, flip > 0 ? getFlippedPattern(pattern, flip) : pattern, recDepth);
+		if (flip > 0)
+			flipPattern (flippedPattern, flip);
+		auto valRslt = validateTerrainViewInner(pos, flippedPattern, recDepth);
 		if(valRslt.result)
 		{
 			valRslt.flip = flip;
@@ -795,31 +800,29 @@ bool CDrawTerrainOperation::isSandType(ETerrainType terType) const
 	}
 }
 
-TerrainViewPattern CDrawTerrainOperation::getFlippedPattern(const TerrainViewPattern & pattern, int flip) const
+void CDrawTerrainOperation::flipPattern(TerrainViewPattern & pattern, int flip) const
 {
+	//flip in place to avoid expensive constructor. Seriously.
+
 	if(flip == 0)
 	{
-		return pattern;
+		return;
 	}
 
-	TerrainViewPattern ret = pattern;
-	if(flip == FLIP_PATTERN_HORIZONTAL || flip == FLIP_PATTERN_BOTH)
+	//always flip horizontal
+	for(int i = 0; i < 3; ++i)
+	{
+		int y = i * 3;
+		std::swap(pattern.data[y], pattern.data[y + 2]);
+	}
+	//flip vertical only at 2nd step
+	if(flip == FLIP_PATTERN_VERTICAL)
 	{
 		for(int i = 0; i < 3; ++i)
 		{
-			int y = i * 3;
-			std::swap(ret.data[y], ret.data[y + 2]);
+			std::swap(pattern.data[i], pattern.data[6 + i]);
 		}
 	}
-	if(flip == FLIP_PATTERN_VERTICAL || flip == FLIP_PATTERN_BOTH)
-	{
-		for(int i = 0; i < 3; ++i)
-		{
-			std::swap(ret.data[i], ret.data[6 + i]);
-		}
-	}
-
-	return ret;
 }
 
 void CDrawTerrainOperation::invalidateTerrainViews(const int3 & centerPos)

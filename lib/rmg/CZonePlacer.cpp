@@ -43,7 +43,8 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 	//some relaxation-simmulated annealing algorithm
 
 	const int iterations = 100;
-	float temperature = 1e-2;;
+	float temperatureConstant = 1e-2;
+	float currentTemperature = 2; //geater temperature - stronger gravity, weaker pushing away
 	const float temperatureModifier = 0.99;
 
 	logGlobal->infoStream() << "Starting zone placement";
@@ -52,8 +53,7 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 	int height = mapGenOptions->getHeight();
 
 	auto zones = gen->getZones();
-
-	//TODO: consider underground zones
+	bool underground = mapGenOptions->getHasTwoLevels();
 
 	/*
 		let's assume we try to fit N circular zones with radius = size on a map
@@ -62,13 +62,37 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 
 		prescaler = sqrt((WH)/(sum(n^2)*pi))
 	*/
+	std::vector<std::pair<TRmgTemplateZoneId, CRmgTemplateZone*>> zonesVector (zones.begin(), zones.end());
+	assert (zonesVector.size());
+	
+	RandomGeneratorUtil::randomShuffle(zonesVector, *rand);
+	TRmgTemplateZoneId firstZone = zones.begin()->first; //we want lowest ID here
+	bool undergroundFlag = false;
+
 	float totalSize = 0;
-	for (auto zone : zones)
+	for (auto zone : zonesVector)
 	{
+		//even distribution for surface / underground zones. Surface zones always have priority.
+		int level = 0;
+		if (underground) //only then consider underground zones
+		{
+			if (zone.first == firstZone)
+			{
+				level = 0;
+			}
+			else
+			{
+				level = undergroundFlag;
+				undergroundFlag = !undergroundFlag; //toggle underground on/off
+			}
+		}
+
 		totalSize += (zone.second->getSize() * zone.second->getSize());
-		zone.second->setCenter (float3(rand->nextDouble(0.2,0.8), rand->nextDouble(0.2,0.8), 0)); //start away from borders
+		zone.second->setCenter (float3(rand->nextDouble(0.2, 0.8), rand->nextDouble(0.2, 0.8), level)); //start away from borders
 	}
 	//prescale zones
+	if (underground) //map is twice as big, so zones occupy only half of normal space
+		totalSize /= 2;
 	float prescaler = sqrt ((width * height) / (totalSize * 3.14f)); 
 	float mapSize = sqrt (width * height);
 	for (auto zone : zones)
@@ -95,63 +119,66 @@ void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGe
 			for (auto con : zone.second->getConnections())
 			{
 				auto otherZone = zones[con];
-				float distance = pos.dist2d (otherZone->getCenter());
+				float3 otherZoneCenter = otherZone->getCenter();
+				float distance = pos.dist2d (otherZoneCenter);
 				float minDistance = (zone.second->getSize() + otherZone->getSize())/mapSize; //scale down to (0,1) coordinates
 				if (distance > minDistance)
 				{
-					forceVector += (otherZone->getCenter() - pos) / getDistance(distance); //positive value
+					//WARNING: compiler used to 'optimize' that line so it never actually worked
+					forceVector += (((otherZoneCenter - pos) / getDistance(distance)) * currentTemperature); //positive value
 				}
 			}
 			//separate overlaping zones
 			for (auto otherZone : zones)
 			{
-				if (zone == otherZone)
+				float3 otherZoneCenter = otherZone.second->getCenter();
+				//zones on different levels don't push away
+				if (zone == otherZone || pos.z != otherZoneCenter.z)
 					continue;
 
-				float distance = pos.dist2d (otherZone.second->getCenter());
+				float distance = pos.dist2d (otherZoneCenter);
 				float minDistance = (zone.second->getSize() + otherZone.second->getSize())/mapSize;
 				if (distance < minDistance)
 				{
-					forceVector -= (otherZone.second->getCenter() - pos) / getDistance(distance); //negative value
+					forceVector -= (otherZoneCenter - pos) / getDistance(distance) / currentTemperature; //negative value
 				}
 			}
 
 			//move zones away from boundaries
-			float3 boundary(0,0,pos.z);
 			float size = zone.second->getSize() / mapSize;
+
+			auto pushAwayFromBoundary = [&forceVector, pos, currentTemperature, &getDistance](float x, float y)
+			{
+				float3 boundary = float3 (x, y, pos.z);
+				float distance = pos.dist2d(boundary);
+				forceVector -= (boundary - pos) / getDistance(distance) / currentTemperature; //negative value
+			};
 			if (pos.x < size)
 			{
-				boundary = float3 (0, pos.y, pos.z);
-				float distance = pos.dist2d(boundary);
-				forceVector -= (boundary - pos) / getDistance(distance); //negative value
+				pushAwayFromBoundary(0, pos.y);
 			}
 			if (pos.x > 1-size)
 			{
-				boundary = float3 (1, pos.y, pos.z);
-				float distance = pos.dist2d(boundary);
-				forceVector -= (boundary - pos) / getDistance(distance); //negative value
+				pushAwayFromBoundary(1, pos.y);
 			}
 			if (pos.y < size)
 			{
-				boundary = float3 (pos.x, 0, pos.z);
-				float distance = pos.dist2d(boundary);
-				forceVector -= (boundary - pos) / getDistance(distance); //negative value
+				pushAwayFromBoundary(pos.x, 0);
 			}
 			if (pos.y > 1-size)
 			{
-				boundary = float3 (pos.x, 1, pos.z);
-				float distance = pos.dist2d(boundary);
-				forceVector -= (boundary - pos) / getDistance(distance); //negative value
+				pushAwayFromBoundary(pos.x, 1);
 			}
 
-			forces[zone.second] = forceVector;
+			forceVector.z = 0; //operator - doesn't preserve z coordinate :/
+			forces[zone.second] = forceVector * temperatureConstant;
 		}
 		//update positions
 		for (auto zone : forces)
 		{
-			zone.first->setCenter (zone.first->getCenter() + zone.second * temperature);
+			zone.first->setCenter (zone.first->getCenter() + zone.second);
 		}
-		temperature *= temperatureModifier; //decrease temperature (needed?)
+		currentTemperature *= temperatureModifier; //decrease temperature (needed?)
 	}
 	for (auto zone : zones) //finalize zone positions
 	{
@@ -213,7 +240,10 @@ void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
 				int3 pos(i, j, k);
 				for (auto zone : zones)
 				{
-					distances.push_back (std::make_pair(zone.second, metric(pos, zone.second->getPos())));
+					if (zone.second->getPos().z == k)
+						distances.push_back (std::make_pair(zone.second, metric(pos, zone.second->getPos())));
+					else
+						distances.push_back (std::make_pair(zone.second, std::numeric_limits<float>::max()));
 				}
 				boost::sort (distances, compareByDistance);
 				distances.front().first->addTile(pos); //closest tile belongs to zone
@@ -230,7 +260,18 @@ void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
 			total += tile;
 		}
 		int size = tiles.size();
+		assert (size);
 		zone.second->setPos (int3(total.x/size, total.y/size, total.z/size));
+
+		//TODO: similiar for islands
+		if (zone.second->getPos().z)
+		{
+			zone.second->discardDistantTiles(gen, zone.second->getSize() + 1);
+
+			//make sure that terrain inside zone is not a rock
+			//FIXME: reorder actions?
+			zone.second->paintZoneTerrain (gen, ETerrainType::SUBTERRANEAN);
+		}
 	}
 	logGlobal->infoStream() << "Finished zone colouring";
 }

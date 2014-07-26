@@ -881,6 +881,9 @@ void CSelectionScreen::startScenario()
 
 		if(sInfo.mapGenOptions)
 		{
+			//copy settings from interface to actual options. TODO: refactor, it used to have no effect at all -.-
+			sInfo.mapGenOptions = std::shared_ptr<CMapGenOptions>(new CMapGenOptions(randMapTab->getMapGenOptions()));
+
 			// Update player settings for RMG
 			for(const auto & psetPair : sInfo.playerInfos)
 			{

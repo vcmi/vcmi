@@ -16,6 +16,6 @@ set_target_properties(StupidAI PROPERTIES ${PCH_PROPERTIES})
 cotire(StupidAI)
 
 if (NOT APPLE) # Already inside vcmiclient bundle
-    install(TARGETS StupidAI DESTINATION ${AI_LIB_DIR})
+    install(TARGETS StupidAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
 endif()
 

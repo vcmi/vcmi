@@ -16,5 +16,5 @@ set_target_properties(minizip PROPERTIES XCODE_ATTRIBUTE_LD_DYLIB_INSTALL_NAME "
 target_link_libraries(minizip ${ZLIB_LIBRARIES})
 
 if (NOT APPLE) # Already inside vcmiclient bundle
-    install(TARGETS minizip DESTINATION ${LIB_DIR})
+    install(TARGETS minizip RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
 endif()

@@ -145,7 +145,6 @@ public:
 	/// Finalizes the options. All random sizes for various properties will be overwritten by numbers from
 	/// a random number generator by keeping the options in a valid state. Check options should return true, otherwise
 	/// this function fails.
-	void finalize();
 	void finalize(CRandomGenerator & rand);
 
 	/// Returns false if there is no template available which fits to the currently selected options.

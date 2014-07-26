@@ -9,7 +9,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
 
 # enable Release mode but only if it was not set
 if (NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE RelWithDebInfo)
+		set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
 # VCMI version
@@ -54,11 +54,58 @@ if (APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
 endif()
 
+if (WIN32)
+	add_definitions(-DBOOST_THREAD_USE_LIB)
+	add_definitions(-D_WIN32_WINNT=0x0501)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock)
+
+	#check for iconv (may be needed for boost.locale)
+	include(CheckLibraryExists)
+	check_library_exists(iconv libiconv_open "" ICONV_FOUND)
+	if(ICONV_FOUND)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
+	endif()
+
+	#delete lib prefix for dlls
+	set(CMAKE_SHARED_LIBRARY_PREFIX "") 
+
+	if(MINGW)
+		get_filename_component(MINGW_BIN_PATH ${CMAKE_CXX_COMPILER} PATH )
+
+		#copy libwinpthread-*.dll, libgcc_s_*.dll and libstdc++-*.dll to VCMI location
+		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libwinpthread-*.dll") 
+		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libgcc_s_*.dll") 
+		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libstdc++-*.dll")
+
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
+	endif()
+endif()
+
+if(APPLE)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} libiconv.dylib)
+endif()
+
+if(NOT WIN32)
+	INCLUDE(CheckLibraryExists)
+
+	#check if some platform-specific libraries are needed for linking
+	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
+	if(HAVE_RT_LIB)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} rt)
+	endif()
+
+	CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIB)
+	if(HAVE_DL_LIB)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} dl)
+	endif()
+endif()
+
+set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
 find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(FFmpeg REQUIRED)
 
 if (ENABLE_SDL2)
-	include (FindPkgConfig)
 	find_package(SDL2 REQUIRED)
 	find_package(SDL2_image REQUIRED)
 	find_package(SDL2_mixer REQUIRED)
@@ -87,38 +134,16 @@ if (ENABLE_LAUNCHER)
 endif()
 
 if(ENABLE_TEST)
-	# find_package overwrites BOOST_* variables which are already set, so all components have to be
-	# included again
-        find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
-endif()
-
-if(APPLE)
-	set(Boost_LIBRARIES ${Boost_LIBRARIES} libiconv.dylib) # Our prebuilt boost_locale for OS X depends on iconv
-endif()
-
-if(NOT WIN32)
-	set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
-	find_package(FFmpeg REQUIRED)
-
-	INCLUDE(CheckLibraryExists)
-
-        #check if some platform-specific libraries are needed for linking
-	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
-	if(HAVE_RT_LIB)
-		set(RT_LIB -lrt)
-	endif()
-
-	CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIB)
-	if(HAVE_DL_LIB)
-		set(DL_LIB -ldl)
-	endif()
+	# find_package overwrites BOOST_* variables which are already set, so all components have to be included again
+	find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		set(CLANG_SPECIFIC_FLAGS "-Wno-mismatched-tags")
+		set(CLANG_SPECIFIC_FLAGS "-Wno-mismatched-tags -Wno-unknown-warning-option")
 	endif()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wno-switch -Wno-sign-compare -Wno-unused-parameter -Wuninitialized -Wno-overloaded-virtual ${CLANG_SPECIFIC_FLAGS}")
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wno-strict-aliasing -Wno-switch -Wno-sign-compare -Wno-unused-local-typedefs  -Wno-unused-parameter -Wuninitialized -Wno-overloaded-virtual -Wno-type-limits ${CLANG_SPECIFIC_FLAGS}")
 
 	if(UNIX)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
@@ -127,9 +152,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support suc
 endif()
 
 if(WIN32) # on Win everything goes into H3 root directory
-	set(BIN_DIR "" CACHE STRING "Where to install binaries")
-	set(LIB_DIR "" CACHE STRING "Where to install main library")
-	set(DATA_DIR "" CACHE STRING "Where to install data files")
+	set(BIN_DIR "." CACHE STRING "Where to install binaries")
+	set(LIB_DIR "." CACHE STRING "Where to install main library")
+	set(DATA_DIR "." CACHE STRING "Where to install data files")
 elseif(APPLE)
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
@@ -142,7 +167,7 @@ else()
 	include(GNUInstallDirs)
 
 	if (NOT BIN_DIR)
-        set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
+		set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
 	endif()
 	if (NOT LIB_DIR)
 		set(LIB_DIR "${CMAKE_INSTALL_LIBDIR}/vcmi" CACHE STRING "Where to install main library")
@@ -171,7 +196,7 @@ SET(PCH_PROPERTIES
 )
 
 if (ENABLE_ERM)
-        add_subdirectory(scripting/erm)
+		add_subdirectory(scripting/erm)
 endif()
 add_subdirectory(lib)
 add_subdirectory(client)
@@ -209,9 +234,28 @@ if (NOT APPLE)
 endif()
 
 if(WIN32)
-	#TODO: install any additional dll's. This version (may be broken) will copy all dll's including H3 ones
-	#FILE(GLOB dll_files "${CMAKE_BINARY_DIR}/*.dll")
-	#INSTALL(FILES ${dll_files} DESTINATION ${BIN_DIR})
+	file(GLOB dep_files 
+		${dep_files} 
+		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+
+	if (ENABLE_EDITOR OR ENABLE_LAUNCHER)
+		get_target_property(QtCore_location Qt5::Core LOCATION)
+		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
+		file(GLOB dep_files 
+			${dep_files}
+			${Qtbin_folder}/Qt5Core.dll
+			${Qtbin_folder}/Qt5Gui.dll
+			${Qtbin_folder}/Qt5Widgets.dll
+			${Qtbin_folder}/icu*.dll)
+	endif()
+
+	if (ENABLE_LAUNCHER)
+		file(GLOB dep_files 
+			${dep_files} 
+			${Qtbin_folder}/Qt5Network.dll)
+	endif()
+
+	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
 elseif(APPLE)
 else()
 	#install icons and desktop file on Linux
@@ -241,7 +285,20 @@ set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSIO
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
 
 if(WIN32)
-	set(CPACK_GENERATOR ZIP) # just use zip? CPack has some GUI install as well
+	set(CPACK_MONOLITHIC_INSTALL 1)
+	set(CPACK_PACKAGE_NAME "VCMI")
+	set(CPACK_PACKAGE_VENDOR "VCMI team")
+	set(CPACK_PACKAGE_FILE_NAME "vcmi-${CPACK_PACKAGE_VERSION}-win32")
+	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/license.txt")
+	set(CPACK_PACKAGE_EXECUTABLES "VCMI_launcher;VCMI")
+	set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")
+	set(CPACK_NSIS_PACKAGE_NAME "VCMI ${CPACK_PACKAGE_VERSION}")
+	set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
+	set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"")
+    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " Delete \\\"$DESKTOP\\\\VCMI.lnk\\\" ")
+	
+	configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/CMakeCPackOptions.cmake.in" "${CMAKE_BINARY_DIR}/CMakeCPackOptions.cmake" @ONLY)
+	set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/CMakeCPackOptions.cmake")
 elseif(APPLE)
 	set(CPACK_GENERATOR DragNDrop)
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")

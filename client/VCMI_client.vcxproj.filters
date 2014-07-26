@@ -126,6 +126,7 @@
     <ClInclude Include="gui\SDL_Pixels.h">
       <Filter>gui</Filter>
     </ClInclude>
+    <ClInclude Include="gui\SDL_Compat.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VCMI_client.rc" />

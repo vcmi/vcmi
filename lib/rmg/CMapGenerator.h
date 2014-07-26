@@ -70,23 +70,35 @@ public:
 	bool shouldBeBlocked(const int3 &tile) const;
 	bool isPossible(const int3 &tile) const;
 	bool isFree(const int3 &tile) const;
+	bool isUsed(const int3 &tile) const;
 	void setOccupied(const int3 &tile, ETileType::ETileType state);
 	CTileInfo getTile(const int3 & tile) const;
 
-	int getNearestObjectDistance(const int3 &tile) const; 
-	void setNearestObjectDistance(int3 &tile, int value);
+	float getNearestObjectDistance(const int3 &tile) const; 
+	void setNearestObjectDistance(int3 &tile, float value);
 
 	int getNextMonlithIndex();
+	int getPrisonsRemaning() const;
+	void decreasePrisonsRemaining();
+
+	void registerZone (TFaction faction);
+	ui32 getZoneCount(TFaction faction);
+	ui32 getTotalZoneCount() const;
 
 private:
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> zones;
+	std::map<TFaction, ui32> zonesPerFaction;
+	ui32 zonesTotal; //zones that have their main town only
 
 	CTileInfo*** tiles;
 
+	int prisonsRemaining;
 	int monolithIndex;
 
 	/// Generation methods
 	std::string getMapDescription() const;
+
+	void initPrisonsRemaining();
 	void addPlayerInfo();
 	void addHeaderInfo();
 	void initTiles();
