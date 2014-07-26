@@ -65,7 +65,7 @@ si8 CMapGenOptions::getPlayerCount() const
 
 void CMapGenOptions::setPlayerCount(si8 value)
 {
-	assert((value >= 2 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE);
+	assert((value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE);
 	playerCount = value;
 	resetPlayersMap();
 }
