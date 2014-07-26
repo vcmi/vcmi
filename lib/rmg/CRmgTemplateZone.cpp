@@ -1159,7 +1159,7 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 	{
 		possibleObstacles.push_back (std::make_pair(o.first, o.second));
 	}
-	boost::sort (possibleObstacles, [](obstaclePair &p1, obstaclePair &p2) -> bool
+	boost::sort (possibleObstacles, [](const obstaclePair &p1, const obstaclePair &p2) -> bool
 	{
 		return p1.first > p2.first; //bigger obstacles first
 	});
@@ -1184,7 +1184,7 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 	for (auto tile : boost::adaptors::reverse(tileinfo))
 	{
 		//fill tiles that should be blocked with obstacles or are just possible (with some probability)
-		if (gen->shouldBeBlocked(tile) || gen->isPossible(tile) && gen->rand.nextInt(1,100) < 60)
+		if (gen->shouldBeBlocked(tile) || (gen->isPossible(tile) && gen->rand.nextInt(1,100) < 60))
 		{
 			//start from biggets obstacles
 			for (int i = 0; i < possibleObstacles.size(); i++)

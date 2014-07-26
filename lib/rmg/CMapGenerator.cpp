@@ -470,7 +470,7 @@ int CMapGenerator::getPrisonsRemaning() const
 }
 void CMapGenerator::decreasePrisonsRemaining()
 {
-	prisonsRemaining = std::max (0, prisonsRemaining--);
+	prisonsRemaining = std::max (0, prisonsRemaining - 1);
 }
 
 void CMapGenerator::registerZone (TFaction faction)
