@@ -106,11 +106,16 @@
 	},
 
 	"redwoodObservatory" : {
-		"index" :58, 
+		"index" :58,	
 		"handler" : "observatory",
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"templates" :
+				{
+					"base" : { "animation" : "avxredw.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "VV", "VA"], "allowedTerrains":["grass", "swamp", "dirt", "sand", "lava", "rough"] },
+					"snow" : { "animation" : "avxreds0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "VV", "VA"], "allowedTerrains":["snow"] }
+				},	
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 750,

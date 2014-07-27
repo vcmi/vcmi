@@ -712,6 +712,8 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 			auto oiptr = std::find(possibleObjects.begin(), possibleObjects.end(), oi);
 			assert (oiptr != possibleObjects.end());
 			oiptr->maxPerZone--;
+			if (!oiptr->maxPerZone)
+				possibleObjects.erase(oiptr);
 			//TODO
 
 			//update treasure pile area
