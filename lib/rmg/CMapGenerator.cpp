@@ -24,10 +24,9 @@ void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& 
 }
 
 
-CMapGenerator::CMapGenerator(shared_ptr<CMapGenOptions> mapGenOptions, int RandomSeed /*= std::time(nullptr)*/) :
-	mapGenOptions(mapGenOptions), randomSeed(RandomSeed), monolithIndex(0), zonesTotal(0)
+CMapGenerator::CMapGenerator() :
+	monolithIndex(0), zonesTotal(0)
 {
-	rand.setSeed(randomSeed);
 }
 
 void CMapGenerator::initTiles()
@@ -78,8 +77,11 @@ void CMapGenerator::initPrisonsRemaining()
 	prisonsRemaining = std::max<int> (0, prisonsRemaining - 16 * map->players.size()); //so at least 16 heroes will be available for every player
 }
 
-std::unique_ptr<CMap> CMapGenerator::generate()
+std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, int randomSeed /*= std::time(nullptr)*/)
 {
+	this->mapGenOptions = mapGenOptions;
+	this->randomSeed = randomSeed;
+	rand.setSeed(this->randomSeed);
 	mapGenOptions->finalize(rand);
 
 	map = make_unique<CMap>();
@@ -95,7 +97,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		genZones();
 		map->calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
 		fillZones();
-		//updated fuarded tiles will be calculated in CGameState::initMapObjects()
+		//updated guarded tiles will be calculated in CGameState::initMapObjects()
 	}
 	catch (rmgException &e)
 	{

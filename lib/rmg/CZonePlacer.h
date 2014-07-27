@@ -43,8 +43,8 @@ public:
 	float metric (const int3 &a, const int3 &b) const;
 	~CZonePlacer();
 
-	void placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGenerator * rand);
-	void assignZones(shared_ptr<CMapGenOptions> mapGenOptions);
+	void placeZones(const CMapGenOptions * mapGenOptions, CRandomGenerator * rand);
+	void assignZones(const CMapGenOptions * mapGenOptions);
 
 private:
 	//metric coefiicients

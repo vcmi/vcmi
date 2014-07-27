@@ -815,8 +815,8 @@ void CGameState::initNewGame()
 		CStopWatch sw;
 
 		// Gen map
-		CMapGenerator mapGenerator(scenarioOps->mapGenOptions, scenarioOps->seedToBeUsed);
-		map = mapGenerator.generate().release();
+		CMapGenerator mapGenerator;
+		map = mapGenerator.generate(scenarioOps->mapGenOptions.get(), scenarioOps->seedToBeUsed).release();
 
 		// Update starting options
 		for(int i = 0; i < map->players.size(); ++i)
