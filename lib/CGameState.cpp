@@ -1849,7 +1849,10 @@ void CGameState::initMapObjects()
 	for(CGObjectInstance *obj : map->objects)
 	{
 		if(obj)
+		{
+			logGlobal->traceStream() << boost::format ("Calling Init for object %d, %d") % obj->ID % obj->subID;
 			obj->initObj();
+		}
 	}
 	for(CGObjectInstance *obj : map->objects)
 	{
@@ -3518,5 +3521,6 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 
 CRandomGenerator & CGameState::getRandomGenerator()
 {
+	logGlobal->traceStream() << "Fetching CGameState::rand with seed " << rand.nextInt();
 	return rand;
 }

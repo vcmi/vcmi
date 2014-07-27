@@ -271,6 +271,8 @@ BankConfig CBankInstanceConstructor::generateConfig(const JsonNode & level, CRan
 
 void CBankInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
 {
+	//logGlobal->debugStream() << "Seed used to configure bank is " << rng.nextInt();
+
 	auto bank = dynamic_cast<CBank*>(object);
 
 	bank->resetDuration = bankResetDuration;
@@ -282,6 +284,7 @@ void CBankInstanceConstructor::configureObject(CGObjectInstance * object, CRando
 	assert(totalChance != 0);
 
 	si32 selectedChance = rng.nextInt(totalChance - 1);
+	//logGlobal->debugStream() << "Selected chance for bank config is " << selectedChance;
 
 	for (auto & node : levels)
 	{

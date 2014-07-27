@@ -182,6 +182,7 @@ public:
 	ui32 amount; //0 if random
 	std::string message;
 
+	CGResource();
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
