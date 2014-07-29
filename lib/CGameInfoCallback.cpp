@@ -408,11 +408,11 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 		return t->hasBuilt(id);
 	};
 
-	if(t->builded >= VLC->modh->settings.MAX_BUILDING_PER_TURN)
-		return EBuildingState::CANT_BUILD_TODAY; //building limit
-
 	if (!building->requirements.test(buildTest))
 		return EBuildingState::PREREQUIRES;
+
+	if(t->builded >= VLC->modh->settings.MAX_BUILDING_PER_TURN)
+		return EBuildingState::CANT_BUILD_TODAY; //building limit
 
 	if (building->upgrade != BuildingID::NONE && !t->hasBuilt(building->upgrade))
 		return EBuildingState::MISSING_BASE;
