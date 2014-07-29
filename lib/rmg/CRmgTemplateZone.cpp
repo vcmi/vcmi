@@ -1082,7 +1082,8 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 
 void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 {
-	const double minDistance = std::max<float>(20.f / sqrt(totalDensity), 2);
+	//this is squared distance for optimization purposes
+	const double minDistance = std::max<float>(200.f / totalDensity, 4);
 	//distance lower than 2 causes objects to overlap and crash
 
 	do {
