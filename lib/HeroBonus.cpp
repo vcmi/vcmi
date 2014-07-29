@@ -853,14 +853,14 @@ void CBonusSystemNode::newChildAttached(CBonusSystemNode *child)
 {
 	assert(!vstd::contains(children, child));
 	children.push_back(child);
-	BONUS_LOG_LINE(child->nodeName() << " #attached to# " << nodeName());
+	//BONUS_LOG_LINE(child->nodeName() << " #attached to# " << nodeName());
 }
 
 void CBonusSystemNode::childDetached(CBonusSystemNode *child)
 {
 	assert(vstd::contains(children, child));
 	children -= child;
-	BONUS_LOG_LINE(child->nodeName() << " #detached from# " << nodeName());
+	//BONUS_LOG_LINE(child->nodeName() << " #detached from# " << nodeName());
 }
 
 void CBonusSystemNode::detachFromAll()

@@ -671,10 +671,11 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 			}
 		}
 	}
+	ui32 desiredValue = gen->rand.nextInt(minValue, maxValue);
 
 	int currentValue = 0;
 	CGObjectInstance * object = nullptr;
-	while (currentValue < minValue)
+	while (currentValue < desiredValue)
 	{
 		treasures[info.nextTreasurePos] = nullptr;
 
@@ -698,17 +699,16 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 				break;
 		}
 
-		int remaining = maxValue - currentValue;
-
-		ObjectInfo oi = getRandomObject(gen, info, remaining);
-		object = oi.generateObject();
-		if (!object)
+		ObjectInfo oi = getRandomObject(gen, info, desiredValue - currentValue);
+		if (!oi.value) //0 value indicates no object
 		{
 			vstd::erase_if_present(treasures, info.nextTreasurePos);
 			break;
 		}
 		else
 		{
+			object = oi.generateObject();
+
 			//remove from possible objects
 			auto oiptr = std::find(possibleObjects.begin(), possibleObjects.end(), oi);
 			assert (oiptr != possibleObjects.end());
@@ -733,34 +733,34 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 				info.blockedPositions.insert(blockPos);
 			}
 			info.occupiedPositions.insert(visitablePos);
-		}
 
-		currentValue += oi.value;
+			currentValue += oi.value;
 		
-		treasures[info.nextTreasurePos] = object;
+			treasures[info.nextTreasurePos] = object;
 
-		//now find place for next object
-		int3 placeFound(-1,-1,-1);
+			//now find place for next object
+			int3 placeFound(-1,-1,-1);
 
-		for (auto tile : boundary)
-		{
-			if (gen->isPossible(tile)) //we can place new treasure only on possible tile
+			for (auto tile : boundary)
 			{
-				bool here = true;
-				gen->foreach_neighbour (tile, [gen, &here](int3 pos)
+				if (gen->isPossible(tile)) //we can place new treasure only on possible tile
 				{
-					if (!(gen->isBlocked(pos) || gen->isPossible(pos)))
-						here = false;
-				});
-				if (here)
-				{
-					placeFound = tile;
-					break;
+					bool here = true;
+					gen->foreach_neighbour (tile, [gen, &here](int3 pos)
+					{
+						if (!(gen->isBlocked(pos) || gen->isPossible(pos)))
+							here = false;
+					});
+					if (here)
+					{
+						placeFound = tile;
+						break;
+					}
 				}
 			}
-		}
-		if (placeFound.valid())
-			info.nextTreasurePos = placeFound;
+			if (placeFound.valid())
+				info.nextTreasurePos = placeFound;
+			}
 	}
 
 	if (treasures.size())
@@ -868,6 +868,8 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 			{
 				if (gen->isPossible(treasure.first))
 					gen->setOccupied (treasure.first, ETileType::BLOCKED);
+
+				delete treasure.second;
 			}
 		}
 
@@ -1491,19 +1493,20 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	return true;
 }
 
-ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 value)
+ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 remaining)
 {
 	//int objectsVisitableFromBottom = 0; //for debug
 
 	std::vector<std::pair<ui32, ObjectInfo>> tresholds;
 	ui32 total = 0;
 
-	ui32 minValue = 0.25f * value;
+	//calculate actual treasure value range based on remaining value
+	ui32 minValue = 0.25f * remaining;
 
 	//roulette wheel
 	for (ObjectInfo &oi : possibleObjects) //copy constructor turned out to be costly
 	{
-		if (oi.value >= minValue && oi.value <= value && oi.maxPerZone > 0)
+		if (oi.value >= minValue && oi.value <= remaining && oi.maxPerZone > 0)
 		{
 			int3 newVisitableOffset = oi.templ.getVisitableOffset(); //visitablePos assumes object will be shifter by visitableOffset
 			int3 newVisitablePos = info.nextTreasurePos;
@@ -1593,16 +1596,17 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 				continue;
 
 			total += oi.probability;
+			//assert (oi.value > 0);
 			tresholds.push_back (std::make_pair (total, oi));
 		}
 	}
 
 	//logGlobal->infoStream() << boost::format ("Number of objects visitable  from bottom: %d") % objectsVisitableFromBottom;
 
-	//Generate pandora Box with gold if the value is extremely high
-	ObjectInfo oi;
 	if (tresholds.empty())
 	{
+		ObjectInfo oi;
+		//Generate pandora Box with gold if the value is extremely high
 		if (minValue > 20000) //we don't have object valuable enough
 		{
 			oi.generateObject = [minValue]() -> CGObjectInstance *
@@ -1617,25 +1621,28 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 			oi.value = minValue;
 			oi.probability = 0;
 		}
-		else
+		else //generate empty object with 0 value if the value if we can't spawn anything
 		{
 			oi.generateObject = [gen]() -> CGObjectInstance *
 			{
 				return nullptr;
 			};
 			oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType); //TODO: null template or something? should be never used, but hell knows
-			oi.value = 0;
+			oi.value = 0; // this field is checked to determine no object
 			oi.probability = 0;
 		}
 		return oi;
 	}
-
-	int r = gen->rand.nextInt (1, total);
-
-	for (auto t : tresholds)
+	else
 	{
-		if (r <= t.first)
-			return t.second;
+		int r = gen->rand.nextInt (1, total);
+
+		for (auto t : tresholds)
+		{
+			if (r <= t.first)
+				return t.second;
+		}
+		assert (0); //we should never be here
 	}
 	//FIXME: control reaches end of non-void function. Missing return?
 }
