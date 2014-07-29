@@ -1235,7 +1235,7 @@ bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, float min_di
 			bool allTilesAvailable = true;
 			gen->foreach_neighbour (tile, [&gen, &allTilesAvailable](int3 neighbour)
 			{
-				if (!(gen->isPossible(neighbour) || gen->isBlocked(neighbour)))
+				if (!(gen->isPossible(neighbour) || gen->shouldBeBlocked(neighbour)))
 				{
 					allTilesAvailable = false; //all present tiles must be already blocked or ready for new objects
 				}

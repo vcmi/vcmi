@@ -58,6 +58,7 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
+					"zoneLimit"	: 1,
 					"value"		: 100,
 					"rarity"	: 100
 				}
@@ -634,6 +635,7 @@
 			"object" : {
 				"index" : 0,
 				"rmg" : {
+					"zoneLimit"	: 1,
 					"value"		: 100,
 					"rarity"	: 20
 				}
