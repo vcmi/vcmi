@@ -741,7 +741,11 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 			//now find place for next object
 			int3 placeFound(-1,-1,-1);
 
-			for (auto tile : boundary)
+			//randomize next position from among possible ones
+			std::vector<int3> boundaryCopy (boundary.begin(), boundary.end());
+			RandomGeneratorUtil::randomShuffle(boundaryCopy, gen->rand);
+
+			for (auto tile : boundaryCopy)
 			{
 				if (gen->isPossible(tile)) //we can place new treasure only on possible tile
 				{
