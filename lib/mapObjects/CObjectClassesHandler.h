@@ -221,6 +221,9 @@ public:
 
 	std::string getObjectName(si32 type) const;
 	std::string getObjectName(si32 type, si32 subtype) const;
+	
+	/// Returns handler string describing the handler (for use in client)
+	std::string getObjectHandlerName(si32 type) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

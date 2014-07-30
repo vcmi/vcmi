@@ -22,6 +22,7 @@
 #include "../lib/Connection.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
+#include "../lib/mapObjects/CObjectClassesHandler.h" // For displaying correct UI when interacting with objects
 #include "../lib/BattleState.h"
 #include "../lib/JsonNode.h"
 #include "CMusicHandler.h"
@@ -1519,6 +1520,9 @@ void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 	{
 		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(obj);
 		heroKilled(h);
+	} else if (VLC->objtypeh->getObjectHandlerName(obj->ID) == "pickable") {
+		waitWhileDialog();
+		CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
 	}
 }
 
