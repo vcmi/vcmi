@@ -675,7 +675,7 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 
 	int currentValue = 0;
 	CGObjectInstance * object = nullptr;
-	while (currentValue < desiredValue)
+	while (currentValue < minValue) //we don't want to spawn worthless items for greater piles when their value gets low, so abort earlier 
 	{
 		treasures[info.nextTreasurePos] = nullptr;
 
