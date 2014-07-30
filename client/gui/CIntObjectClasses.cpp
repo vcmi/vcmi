@@ -205,7 +205,7 @@ CButtonBase::CButtonBase()
 	bitmapOffset = 0;
 	state=NORMAL;
 	image = nullptr;
-	text = nullptr;
+	overlay = nullptr;
 }
 
 CButtonBase::~CButtonBase()
@@ -215,12 +215,12 @@ CButtonBase::~CButtonBase()
 
 void CButtonBase::update()
 {
-	if (text)
+	if (overlay)
 	{
 		if (state == PRESSED)
-			text->moveTo(Point(pos.x+pos.w/2+1, pos.y+pos.h/2+1));
+			overlay->moveTo(overlay->pos.centerIn(pos).topLeft() + Point(1,1));
 		else
-			text->moveTo(Point(pos.x+pos.w/2, pos.y+pos.h/2));
+			overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
 	}
 
 	int newPos = (int)state + bitmapOffset;
@@ -246,8 +246,16 @@ void CButtonBase::update()
 void CButtonBase::addTextOverlay( const std::string &Text, EFonts font, SDL_Color color)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	delete text;
-	text = new CLabel(pos.w/2, pos.h/2, font, CENTER, color, Text);
+	addOverlay(new CLabel(pos.w/2, pos.h/2, font, CENTER, color, Text));
+	update();
+}
+
+void CButtonBase::addOverlay(CIntObject *newOverlay)
+{
+	delete overlay;
+	overlay = newOverlay;
+	addChild(newOverlay);
+	overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
 	update();
 }
 
@@ -1149,14 +1157,15 @@ CHoverableArea::~CHoverableArea()
 
 void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
 {
-	if(!down && previousState)
+	if(!down && previousState && !text.empty())
 	{
 		LOCPLINT->showInfoDialog(text);
 	}
 }
 void LRClickableAreaWText::clickRight(tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(text, down);
+	if (!text.empty())
+		adventureInt->handleRightClick(text, down);
 }
 
 LRClickableAreaWText::LRClickableAreaWText()

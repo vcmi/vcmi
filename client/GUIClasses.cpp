@@ -303,7 +303,7 @@ void CGarrisonSlot::clickRight(tribool down, bool previousState)
 {
 	if(down && creature)
 	{
-		GH.pushInt(createCreWindow(myStack, CCreatureWindow::ARMY));
+		GH.pushInt(new CStackWindow(creature, true));
 	}
 }
 void CGarrisonSlot::clickLeft(tribool down, bool previousState)
@@ -320,9 +320,9 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 
 				bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID>=0; //upgrade is possible
 				bool canDismiss = getObj()->tempOwner == LOCPLINT->playerID && (getObj()->stacksCount()>1  || !getObj()->needsLastStack());
-				std::function<void()> upgr = nullptr;
+				std::function<void(CreatureID)> upgr = nullptr;
 				std::function<void()> dism = nullptr;
-				if(canUpgrade) upgr = [=] { LOCPLINT->cb->upgradeCreature(getObj(), ID, pom.newID[0]); };
+				if(canUpgrade) upgr = [=] (CreatureID newID) { LOCPLINT->cb->upgradeCreature(getObj(), ID, newID); };
 				if(canDismiss) dism = [=] { LOCPLINT->cb->dismissCreature(getObj(), ID); };
 
 				owner->selectSlot(nullptr);
@@ -333,8 +333,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 
 				redraw();
 				refr = true;
-				CIntObject *creWindow = createCreWindow(myStack, CCreatureWindow::HERO, upgr, dism, &pom);
-				GH.pushInt(creWindow);
+				GH.pushInt(new CStackWindow(myStack, dism, pom, upgr));
 			}
 			else
 			{
@@ -1386,7 +1385,7 @@ void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousSta
 void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
 {
 	if (down)
-		GH.pushInt(createCreWindow(creature->idNumber, CCreatureWindow::OTHER, 0));
+		GH.pushInt(new CStackWindow(creature, true));
 }
 
 void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)

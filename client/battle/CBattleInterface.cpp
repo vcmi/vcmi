@@ -2432,7 +2432,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			{
 				cursorFrame = ECursor::COMBAT_QUERY;
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[297]) % shere->getName()).str();
-				realizeAction = [=]{ GH.pushInt(createCreWindow(shere, true)); };
+				realizeAction = [=]{ GH.pushInt(new CStackWindow(shere, false)); };
 				break;
 			}
 		}
