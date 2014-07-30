@@ -672,6 +672,9 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 		}
 	}
 	ui32 desiredValue = gen->rand.nextInt(minValue, maxValue);
+	//quantize value to let objects with value equal to max spawn too
+	float quant = (maxValue - minValue)/4.f;
+	desiredValue = (boost::math::round(desiredValue / quant)) * quant;
 
 	int currentValue = 0;
 	CGObjectInstance * object = nullptr;
