@@ -1516,13 +1516,20 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	std::string handlerName = VLC->objtypeh->getObjectHandlerName(obj->ID);
+	if (handlerName == "pickable") {
+		waitWhileDialog();
+		CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
+	} else if ((handlerName == "monster") || (handlerName == "hero")) {
+		waitWhileDialog();
+		CCS->soundh->playSound(soundBase::KillFade);
+	}
+	
 	if(obj->ID == Obj::HERO  &&  obj->tempOwner == playerID)
 	{
 		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(obj);
 		heroKilled(h);
-	} else if (VLC->objtypeh->getObjectHandlerName(obj->ID) == "pickable") {
-		waitWhileDialog();
-		CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
 	}
 }
 
