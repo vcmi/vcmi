@@ -632,6 +632,11 @@ std::string CGResource::getHoverText(PlayerColor player) const
 	return VLC->generaltexth->restypes[subID];
 }
 
+CGResource::CGResource()
+{
+	amount = 0;
+}
+
 void CGResource::initObj()
 {
 	blockVisit = true;

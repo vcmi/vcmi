@@ -173,7 +173,7 @@ public:
 	std::vector<CTreasureInfo> getTreasureInfo();
 	std::set<int3>* getFreePaths();
 
-	ObjectInfo getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 value);
+	ObjectInfo getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 remaining);
 
 	void placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str, bool zoneGuard = false);
 

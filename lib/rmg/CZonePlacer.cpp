@@ -38,7 +38,7 @@ int3 CZonePlacer::cords (const float3 f) const
 	return int3(std::max(0.f, (f.x * gen->map->width)-1), std::max(0.f, (f.y * gen->map->height-1)), f.z);
 }
 
-void CZonePlacer::placeZones(shared_ptr<CMapGenOptions> mapGenOptions, CRandomGenerator * rand)
+void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenerator * rand)
 {
 	//gravity-based algorithm
 
@@ -207,7 +207,7 @@ d = 0.01 * dx^3 - 0.1618 * dx^2 + 1 * dx + ...
 	return dx * (1 + dx * (0.1 + dx * 0.01)) + dy * (1.618 + dy * (-0.1618 + dy * 0.01618));
 }
 
-void CZonePlacer::assignZones(shared_ptr<CMapGenOptions> mapGenOptions)
+void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 {
 	logGlobal->infoStream()  << "Starting zone colouring";
 

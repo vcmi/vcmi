@@ -222,7 +222,7 @@ public:
 		h & exp & level & name & biography & portrait & mana & secSkills & movement
 			& sex & inTownGarrison & spells & patrol & moveDir & skillsInfo;
 		h & visitedTown & boat;
-		h & type & specialty & commander;
+		h & type & specialty & commander & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX
 		//visitied town pointer will be restored by map serialization method
 	}
