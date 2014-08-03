@@ -196,7 +196,7 @@ void CButton::clickRight(tribool down, bool previousState)
 
 void CButton::hover (bool on)
 {
-	if(hoverable)
+	if(hoverable && !isBlocked())
 	{
 		if(on)
 			setState(HIGHLIGHTED);
@@ -204,8 +204,8 @@ void CButton::hover (bool on)
 			setState(NORMAL);
 	}
 
-	if(pressedL && on)
-		setState(PRESSED);
+	/*if(pressedL && on) // WTF is this? When this is used?
+		setState(PRESSED);*/
 
 	std::string name = hoverTexts[getState()].empty()
 		? hoverTexts[getState()]

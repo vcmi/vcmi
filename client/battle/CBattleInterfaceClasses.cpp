@@ -703,7 +703,7 @@ CStackQueue::StackBox::StackBox(bool small):
     small(small)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture(small ? "StackQueueBgSmall" : "StackQueueBgBig" );
+	bg = new CPicture(small ? "StackQueueSmall" : "StackQueueLarge" );
 
 	if (small)
 	{

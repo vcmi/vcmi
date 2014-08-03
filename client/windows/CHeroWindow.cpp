@@ -118,7 +118,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 	if (hero->commander)
 	{
 		auto texts = CGI->generaltexth->localizedTexts["heroWindow"]["openCommander"];
-		commanderButton = new CButton (Point(317, 18), "chftke.def", CButton::tooltip(texts), [&]{ commanderWindow(); }, SDLK_c);
+		commanderButton = new CButton (Point(317, 18), "buttons/commander", CButton::tooltip(texts), [&]{ commanderWindow(); }, SDLK_c);
 	}
 
 	//right list of heroes

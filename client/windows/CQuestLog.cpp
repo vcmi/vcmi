@@ -115,7 +115,7 @@ void CQuestMinimap::showAll(SDL_Surface * to)
 }
 
 CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
-	CWindowObject(PLAYER_COLORED, "QuestLog.pcx"),
+	CWindowObject(PLAYER_COLORED | BORDERED, "questDialog.pcx"),
 	questIndex(0),
 	currentQuest(nullptr),
 	quests (Quests),
@@ -127,12 +127,12 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
 
 void CQuestLog::init()
 {
-	minimap = new CQuestMinimap (Rect (47, 33, 144, 144));
-	description = new CTextBox ("", Rect(245, 33, 350, 355), 1, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
-	ok = new CButton(Point(547, 401), "IOKAY.DEF", CGI->generaltexth->zelp[445], boost::bind(&CQuestLog::close,this), SDLK_RETURN);
+	minimap = new CQuestMinimap (Rect (33, 18, 144, 144));
+	description = new CTextBox ("", Rect(221, 18, 350, 355), 1, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
+	ok = new CButton(Point(533, 386), "IOKAY.DEF", CGI->generaltexth->zelp[445], boost::bind(&CQuestLog::close,this), SDLK_RETURN);
 
 	if (quests.size() > QUEST_COUNT)
-		slider = new CSlider(Point(203, 199), 230, boost::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, quests.size(), false);
+		slider = new CSlider(Point(189, 184), 230, boost::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, quests.size(), false, CSlider::BROWN);
 
 	for (int i = 0; i < quests.size(); ++i)
 	{
@@ -140,7 +140,7 @@ void CQuestLog::init()
 		quests[i].quest->getRolloverText (text, false);
 		if (quests[i].obj)
 			text.addReplacement (quests[i].obj->getObjectName()); //get name of the object
-		CQuestLabel * label = new CQuestLabel (Rect(28, 199 + i * 24, 172,30), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
+		CQuestLabel * label = new CQuestLabel (Rect(14, 184 + i * 24, 172,30), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
 		label->callback = boost::bind(&CQuestLog::selectQuest, this, i);
 		labels.push_back(label);
 	}
@@ -150,7 +150,7 @@ void CQuestLog::init()
 
 void CQuestLog::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll (to);
+	CWindowObject::showAll (to);
 	for (auto label : labels)
 	{
 		label->show(to); //shows only if active
@@ -168,7 +168,7 @@ void CQuestLog::recreateQuestList (int newpos)
 {
 	for (int i = 0; i < labels.size(); ++i)
 	{
-		labels[i]->pos = Rect (pos.x + 28, pos.y + 207 + (i-newpos) * 25, 173, 23);
+		labels[i]->pos = Rect (pos.x + 14, pos.y + 192 + (i-newpos) * 25, 173, 23);
 		if (i >= newpos && i < newpos + QUEST_COUNT)
 		{
 			labels[i]->activate();

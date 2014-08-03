@@ -606,9 +606,8 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 
 	onFullscreenChanged([&](const JsonNode &newState){ fullscreen->setSelected(newState.Bool());});
 
-	gameResButton = new CButton(Point(28, 275),"SYSOB12", CButton::tooltip(texts["resolutionButton"]),
-	                                        boost::bind(&CSystemOptionsWindow::selectGameRes, this),
-	                                        SDLK_g);
+	gameResButton = new CButton(Point(28, 275),"buttons/resolution", CButton::tooltip(texts["resolutionButton"]),
+	                                        boost::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
 
 	std::string resText;
 	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["width"].Float());

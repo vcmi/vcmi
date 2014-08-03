@@ -1759,6 +1759,7 @@ void CRandomMapTab::addButtonsToGroup(CToggleGroup * group, const std::vector<st
 
 void CRandomMapTab::deactivateButtonsFrom(CToggleGroup * group, int startId)
 {
+	logGlobal->infoStream() << "Blocking buttons from " << startId;
 	for(auto toggle : group->buttons)
 	{
 		if (auto button = dynamic_cast<CToggleButton*>(toggle.second))
