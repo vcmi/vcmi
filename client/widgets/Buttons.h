@@ -136,7 +136,6 @@ public:
 	CToggleBase(CFunctionList<void(bool)> callback);
 	virtual ~CToggleBase();
 
-	void activate();
 	void setSelected(bool on);
 
 	void addCallback(std::function<void(bool)> callback);

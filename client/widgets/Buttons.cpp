@@ -319,7 +319,9 @@ std::pair<std::string, std::string> CButton::tooltip(const std::string & hover, 
 }
 
 CToggleBase::CToggleBase(CFunctionList<void (bool)> callback):
-    callback(callback)
+    callback(callback),
+    selected(false),
+    allowDeselection(true)
 {
 }
 
@@ -334,14 +336,11 @@ void CToggleBase::doSelect(bool on)
 
 void CToggleBase::setSelected(bool on)
 {
+	bool changed = (on != selected);
 	selected = on;
 	doSelect(on);
-}
-
-void CToggleBase::activate()
-{
-	if (canActivate())
-		setSelected(!selected);
+	if (changed)
+		callback(on);
 }
 
 bool CToggleBase::canActivate()
@@ -361,6 +360,7 @@ CToggleButton::CToggleButton(Point position, const std::string &defName, const s
   CButton(position, defName, help, 0, key, playerColoredButton),
   CToggleBase(callback)
 {
+	allowDeselection = true;
 }
 
 void CToggleButton::doSelect(bool on)
@@ -392,10 +392,10 @@ void CToggleButton::clickLeft(tribool down, bool previousState)
 
 	if(previousState)//mouse up
 	{
-		if(down == false && getState() == PRESSED)
+		if(down == false && getState() == PRESSED && canActivate())
 			setSelected(!selected);
 		else
-			setSelected(selected);
+			doSelect(selected); // restore
 	}
 }
 
@@ -413,10 +413,10 @@ void CToggleGroup::addToggle(int identifier, CToggleBase* bt)
 		addChild(intObj);
 	}
 
-	bt->addCallback(boost::bind(&CToggleGroup::selectionChanged, this, identifier));
+	bt->addCallback([=] (bool on) { if (on) selectionChanged(identifier);});
 	bt->allowDeselection = false;
 
-	assert(!buttons.count(identifier));
+	assert(buttons[identifier] == nullptr);
 	buttons[identifier] = bt;
 }
 
@@ -426,25 +426,23 @@ CToggleGroup::CToggleGroup(const CFunctionList<void(int)> &OnChange, bool musicL
 
 void CToggleGroup::setSelected(int id)
 {
-	assert(!buttons.empty());
-
-	auto bt = buttons[id];
-	if (bt)
-	{
-		bt->setSelected(true);
-		selectionChanged(id);
-	}
+	selectionChanged(id);
 }
 
 void CToggleGroup::selectionChanged(int to)
 {
-	if (buttons.count(selectedID))
-		buttons[selectedID]->setSelected(false);
+	if (to == selectedID)
+		return;
+
+	int oldSelection = selectedID;
+	selectedID = to;
+
+	if (buttons.count(oldSelection))
+		buttons[oldSelection]->setSelected(false);
 
 	if (buttons.count(to))
 		buttons[to]->setSelected(true);
 
-	selectedID = to;
 	onChange(to);
 	if (parent)
 		parent->redraw();
