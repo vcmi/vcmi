@@ -9,7 +9,7 @@ class CGGarrison;
 class CGObjectInstance;
 class CGHeroInstance;
 class CGTownInstance;
-class CAdventureMapButton;
+class CButton;
 struct Component;
 struct InfoAboutArmy;
 struct InfoAboutHero;
@@ -83,8 +83,8 @@ protected:
 
 public:
 
-	CAdventureMapButton * scrollUp;
-	CAdventureMapButton * scrollDown;
+	CButton * scrollUp;
+	CButton * scrollDown;
 
 	/// functions that will be called when selection changes
 	CFunctionList<void()> onSelect;

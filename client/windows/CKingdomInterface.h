@@ -3,9 +3,9 @@
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CGarrisonInt.h"
 
-class CAdventureMapButton;
+class CButton;
 class CAnimImage;
-class CHighlightableButtonsGroup;
+class CToggleGroup;
 class CResDataBar;
 class CSlider;
 class CTownInfo;
@@ -220,13 +220,13 @@ private:
 	CTabbedInt * tabArea;
 
 	//Main buttons
-	CAdventureMapButton *btnTowns;
-	CAdventureMapButton *btnHeroes;
-	CAdventureMapButton *btnExit;
+	CButton *btnTowns;
+	CButton *btnHeroes;
+	CButton *btnExit;
 
 	//Buttons for scrolling dwellings list
-	CAdventureMapButton *dwellUp, *dwellDown;
-	CAdventureMapButton *dwellTop, *dwellBottom;
+	CButton *dwellUp, *dwellDown;
+	CButton *dwellTop, *dwellBottom;
 
 	InfoBox * minesBox[7];
 
@@ -295,7 +295,7 @@ class CHeroItem : public CIntObject, public CWindowWithGarrison
 	CLabel *artsText;
 	CTabbedInt *artsTabs;
 
-	CHighlightableButtonsGroup *artButtons;
+	CToggleGroup *artButtons;
 	std::vector<InfoBox*> heroInfo;
 	MoraleLuckBox * morale, * luck;
 

@@ -608,33 +608,29 @@ void CKingdomInterface::generateButtons()
 	ui32 footerPos = conf.go()->ac.overviewSize * 116;
 
 	//Main control buttons
-	btnHeroes = new CAdventureMapButton (CGI->generaltexth->overview[11], CGI->generaltexth->overview[6],
-	                                    boost::bind(&CKingdomInterface::activateTab, this, 0),748,28+footerPos,"OVBUTN1.DEF", SDLK_h);
+	btnHeroes = new CButton (Point(748, 28+footerPos), "OVBUTN1.DEF", CButton::tooltip(CGI->generaltexth->overview[11], CGI->generaltexth->overview[6]),
+	                         boost::bind(&CKingdomInterface::activateTab, this, 0), SDLK_h);
 	btnHeroes->block(true);
 
-	btnTowns = new CAdventureMapButton (CGI->generaltexth->overview[12], CGI->generaltexth->overview[7],
-	                                   boost::bind(&CKingdomInterface::activateTab, this, 1),748,64+footerPos,"OVBUTN6.DEF", SDLK_t);
+	btnTowns = new CButton (Point(748, 64+footerPos), "OVBUTN6.DEF", CButton::tooltip(CGI->generaltexth->overview[12], CGI->generaltexth->overview[7]),
+	                        boost::bind(&CKingdomInterface::activateTab, this, 1), SDLK_t);
 
-	btnExit = new CAdventureMapButton (CGI->generaltexth->allTexts[600],"",
-	                                  boost::bind(&CKingdomInterface::close, this),748,99+footerPos,"OVBUTN1.DEF", SDLK_RETURN);
+	btnExit = new CButton (Point(748,99+footerPos), "OVBUTN1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[600]),
+	                       boost::bind(&CKingdomInterface::close, this), SDLK_RETURN);
 	btnExit->assignedKeys.insert(SDLK_ESCAPE);
-	btnExit->setOffset(3);
+	btnExit->setImageOrder(3, 4, 5, 6);
 
 	//Object list control buttons
-	dwellTop = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToPos, dwellingsList, 0),
-	                                   733, 4, "OVBUTN4.DEF");
+	dwellTop = new CButton (Point(733, 4), "OVBUTN4.DEF", CButton::tooltip(), [&]{ dwellingsList->moveToPos(0);});
 
-	dwellBottom = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToPos, dwellingsList, -1),
-	                                      733, footerPos+2, "OVBUTN4.DEF");
-	dwellBottom->setOffset(2);
+	dwellBottom = new CButton (Point(733, footerPos+2), "OVBUTN4.DEF", CButton::tooltip(), [&]{ dwellingsList->moveToPos(-1); });
+	dwellBottom->setImageOrder(2, 3, 4, 5);
 
-	dwellUp = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToPrev, dwellingsList),
-	                                  733, 24, "OVBUTN4.DEF");
-	dwellUp->setOffset(4);
+	dwellUp = new CButton (Point(733, 24), "OVBUTN4.DEF", CButton::tooltip(), [&]{ dwellingsList->moveToPrev(); });
+	dwellUp->setImageOrder(4, 5, 6, 7);
 
-	dwellDown = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToNext, dwellingsList),
-	                                    733, footerPos-18, "OVBUTN4.DEF");
-	dwellDown->setOffset(6);
+	dwellDown = new CButton (Point(733, footerPos-18), "OVBUTN4.DEF", CButton::tooltip(), [&]{ dwellingsList->moveToNext(); });
+	dwellDown->setImageOrder(6, 7, 8, 9);
 }
 
 void CKingdomInterface::activateTab(size_t which)
@@ -851,16 +847,16 @@ class BackpackTab : public CIntObject
 public:
 	CAnimImage * background;
 	std::vector<CArtPlace*> arts;
-	CAdventureMapButton *btnLeft;
-	CAdventureMapButton *btnRight;
+	CButton *btnLeft;
+	CButton *btnRight;
 
 	BackpackTab()
 	{
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
 		background = new CAnimImage("OVSLOT", 5);
 		pos = background->pos;
-		btnLeft = new CAdventureMapButton(std::string(), std::string(), CFunctionList<void()>(), 269, 66, "HSBTNS3");
-		btnRight = new CAdventureMapButton(std::string(), std::string(), CFunctionList<void()>(), 675, 66, "HSBTNS5");
+		btnLeft = new CButton(Point(269, 66), "HSBTNS3", CButton::tooltip(), 0);
+		btnRight = new CButton(Point(675, 66), "HSBTNS5", CButton::tooltip(), 0);
 		for (size_t i=0; i<8; i++)
 			arts.push_back(new CArtPlace(Point(295+i*48, 65)));
 	}
@@ -894,21 +890,21 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 
 	artsTabs = new CTabbedInt(boost::bind(&CHeroItem::onTabSelected, this, _1), boost::bind(&CHeroItem::onTabDeselected, this, _1));
 
-	artButtons = new CHighlightableButtonsGroup(0);
+	artButtons = new CToggleGroup(0);
 	for (size_t it = 0; it<3; it++)
 	{
 		int stringID[3] = {259, 261, 262};
 
-		std::map<int,std::string> tooltip;
-		tooltip[0] = CGI->generaltexth->overview[13+it];
+		std::string hover = CGI->generaltexth->overview[13+it];
 		std::string overlay = CGI->generaltexth->overview[8+it];
 
-		artButtons->addButton(tooltip, overlay, "OVBUTN3",364+it*112, 46, it);
-		artButtons->buttons[it]->addTextOverlay(CGI->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
+		auto button = new CToggleButton(Point(364+it*112, 46), "OVBUTN3", CButton::tooltip(hover, overlay), 0);
+		button->addTextOverlay(CGI->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
+		artButtons->addToggle(it, button);
 	}
-	artButtons->onChange += boost::bind(&CTabbedInt::setActive, artsTabs, _1);
-	artButtons->onChange += boost::bind(&CHeroItem::onArtChange, this, _1);
-	artButtons->select(0,0);
+	artButtons->addCallback(boost::bind(&CTabbedInt::setActive, artsTabs, _1));
+	artButtons->addCallback(boost::bind(&CHeroItem::onArtChange, this, _1));
+	artButtons->setSelected(0);
 
 	garr = new CGarrisonInt(6, 78, 4, Point(), nullptr, Point(), hero, nullptr, true, true);
 

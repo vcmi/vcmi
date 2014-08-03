@@ -3,7 +3,7 @@
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
 
-class CAdventureMapButton;
+class CButton;
 class CBuilding;
 class CCastleBuildings;
 class CCreaturePic;
@@ -203,8 +203,8 @@ class CCastleInterface : public CWindowObject, public CWindowWithGarrison
 
 	CTownInfo *hall, *fort;
 
-	CAdventureMapButton *exit;
-	CAdventureMapButton *split;
+	CButton *exit;
+	CButton *split;
 
 	std::vector<CCreaInfo*> creainfo;//small icons of creatures (bottom-left corner);
 
@@ -260,7 +260,7 @@ class CHallInterface : public CWindowObject
 	CLabel *title;
 	CGStatusBar *statusBar;
 	CMinorResDataBar * resdatabar;
-	CAdventureMapButton *exit;
+	CButton *exit;
 
 public:
 	CHallInterface(const CGTownInstance * Town); //c-tor
@@ -272,8 +272,8 @@ class CBuildWindow: public CWindowObject
 	const CGTownInstance *town;
 	const CBuilding *building;
 
-	CAdventureMapButton *buy;
-	CAdventureMapButton *cancel;
+	CButton *buy;
+	CButton *cancel;
 
 	std::string getTextForState(int state);
 	void buyFunc();
@@ -328,7 +328,7 @@ class CFortScreen : public CWindowObject
 	std::vector<RecruitArea*> recAreas;
 	CMinorResDataBar * resdatabar;
 	CGStatusBar *statusBar;
-	CAdventureMapButton *exit;
+	CButton *exit;
 
 	std::string getBgName(const CGTownInstance *town);
 
@@ -353,7 +353,7 @@ class CMageGuildScreen : public CWindowObject
 		void hover(bool on);
 	};
 	CPicture *window;
-	CAdventureMapButton *exit;
+	CButton *exit;
 	std::vector<Scroll *> spells;
 	CMinorResDataBar * resdatabar;
 	CGStatusBar *statusBar;
@@ -365,7 +365,7 @@ public:
 /// The blacksmith window where you can buy available in town war machine
 class CBlacksmithDialog : public CWindowObject
 {
-	CAdventureMapButton *buy, *cancel;
+	CButton *buy, *cancel;
 	CPicture *animBG;
 	CCreatureAnim * anim;
 	CLabel * title;

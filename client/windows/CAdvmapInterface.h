@@ -32,7 +32,7 @@ class IShipyard;
 class CAdventureOptions : public CWindowObject
 {
 public:
-	CAdventureMapButton *exit, *viewWorld, *puzzle, *dig, *scenInfo, *replay;
+	CButton *exit, *viewWorld, *puzzle, *dig, *scenInfo, *replay;
 
 	CAdventureOptions();
 	static void showScenarioInfo();
@@ -110,16 +110,16 @@ public:
 	CMinimap minimap;
 	CGStatusBar statusbar;
 
-	CAdventureMapButton kingOverview,//- kingdom overview
-		underground,//- underground switch
-		questlog,//- questlog
-		sleepWake, //- sleep/wake hero
-		moveHero, //- move hero
-		spellbook,//- spellbook
-		advOptions, //- adventure options
-		sysOptions,//- system options
-		nextHero, //- next hero
-		endTurn;//- end turn
+	CButton * kingOverview;
+	CButton * underground;
+	CButton * questlog;
+	CButton * sleepWake;
+	CButton * moveHero;
+	CButton * spellbook;
+	CButton * advOptions;
+	CButton * sysOptions;
+	CButton * nextHero;
+	CButton * endTurn;
 
 	CTerrainRect terrain; //visible terrain
 	CResDataBar resdatabar;

@@ -20,7 +20,7 @@ class CStackInstance;
 class CStack;
 struct UpgradeInfo;
 class CTabbedInt;
-class CAdventureMapButton;
+class CButton;
 
 class CClickableObject : public LRClickableAreaWText
 {
@@ -73,14 +73,14 @@ class CStackWindow : public CWindowObject
 
 	CAnimImage * stackArtifactIcon;
 	LRClickableAreaWTextComp * stackArtifactHelp;
-	CAdventureMapButton * stackArtifactButton;
+	CButton * stackArtifactButton;
 
 	std::unique_ptr<StackWindowInfo> info;
 	std::vector<BonusInfo> activeBonuses;
 	size_t activeTab;
 	CTabbedInt * commanderTab;
 
-	std::map<int, CAdventureMapButton *> switchButtons;
+	std::map<int, CButton *> switchButtons;
 
 	void setSelection(si32 newSkill, CClickableObject * newIcon);
 	CClickableObject * selectedIcon;

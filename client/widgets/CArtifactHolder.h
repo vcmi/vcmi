@@ -15,7 +15,7 @@
 
 class CArtifactsOfHero;
 class CAnimImage;
-class CAdventureMapButton;
+class CButton;
 
 struct ArtifactLocation;
 
@@ -108,7 +108,7 @@ public:
 
 	bool updateState; // Whether the commonInfo should be updated on setHero or not.
 
-	CAdventureMapButton * leftArtRoll, * rightArtRoll;
+	CButton * leftArtRoll, * rightArtRoll;
 	bool allowedAssembling;
 	std::multiset<const CArtifactInstance*> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be omitted in backpack slots
 	std::function<void(CArtPlace*)> highlightModeCallback; //if set, clicking on art place doesn't pick artifact but highlights the slot and calls this function
@@ -138,7 +138,7 @@ public:
 	CArtifactsOfHero(const Point& position, bool createCommonPart = false);
 	//Alternative constructor, used if custom artifacts positioning required (Kingdom interface)
 	CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector<CArtPlace *> Backpack,
-		CAdventureMapButton *leftScroll, CAdventureMapButton *rightScroll, bool createCommonPart = false);
+		CButton *leftScroll, CButton *rightScroll, bool createCommonPart = false);
 	~CArtifactsOfHero(); //d-tor
 	void updateParentWindow();
 	friend class CArtPlace;

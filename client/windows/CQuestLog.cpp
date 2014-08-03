@@ -129,7 +129,7 @@ void CQuestLog::init()
 {
 	minimap = new CQuestMinimap (Rect (47, 33, 144, 144));
 	description = new CTextBox ("", Rect(245, 33, 350, 355), 1, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
-	ok = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, boost::bind(&CQuestLog::close,this), 547, 401, "IOKAY.DEF", SDLK_RETURN);
+	ok = new CButton(Point(547, 401), "IOKAY.DEF", CGI->generaltexth->zelp[445], boost::bind(&CQuestLog::close,this), SDLK_RETURN);
 
 	if (quests.size() > QUEST_COUNT)
 		slider = new CSlider(203, 199, 230, boost::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, quests.size(), false, 0);

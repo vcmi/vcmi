@@ -55,6 +55,13 @@
 		"allOf"  :  "All of the following:",
 		"noneOf" : "None of the following:"
 	},
+	"heroWindow" : {
+		"openCommander" :
+		{
+			"label" : "Open commander window",
+			"help" : "Displays information about commander of this hero"
+		}
+	},
 	"creatureWindow" :
 	{
 		"showBonuses" :

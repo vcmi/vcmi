@@ -68,7 +68,7 @@ public:
 	EType itemsType[2];
 
 	EMarketMode::EMarketMode mode;//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
-	CAdventureMapButton *ok, *max, *deal;
+	CButton *ok, *max, *deal;
 	CSlider *slider; //for choosing amount to be exchanged
 	bool readyToTrade;
 
@@ -137,7 +137,7 @@ public:
 	std::vector<int> sacrificedUnits, //[slot_nr] -> how many creatures from that slot will be sacrificed
 		expPerUnit;
 
-	CAdventureMapButton *sacrificeAll, *sacrificeBackpack;
+	CButton *sacrificeAll, *sacrificeBackpack;
 	CLabel *expToLevel, *expOnAltar;
 
 

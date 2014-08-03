@@ -14,7 +14,7 @@ class CComponent;
 class CSelectableComponent;
 class CGGarrison;
 class CTextBox;
-class CAdventureMapButton;
+class CButton;
 class CSlider;
 
 /*
@@ -46,7 +46,7 @@ public:
 	typedef std::vector<CComponent*> TCompsInfo;
 	QueryID ID; //for identification
 	CTextBox *text;
-	std::vector<CAdventureMapButton *> buttons;
+	std::vector<CButton *> buttons;
 	std::vector<CComponent*> components;
 	CSlider *slider;
 

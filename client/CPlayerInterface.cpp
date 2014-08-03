@@ -1292,8 +1292,8 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	
 	if (adventureInt && adventureInt->isHeroSleeping(h))
 	{
-		adventureInt->sleepWake.clickLeft(true, false);
-		adventureInt->sleepWake.clickLeft(false, true);
+		adventureInt->sleepWake->clickLeft(true, false);
+		adventureInt->sleepWake->clickLeft(false, true);
 		//could've just called
 		//adventureInt->fsleepWake();
 		//but no authentic button click/sound ;-)
@@ -1328,7 +1328,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 	waitForAllDialogs();
 
 	auto  cgw = new CGarrisonWindow(up,down,removableUnits);
-	cgw->quit->callback += onEnd;
+	cgw->quit->addCallback(onEnd);
 	GH.pushInt(cgw);
 }
 
@@ -2246,7 +2246,7 @@ void CPlayerInterface::acceptTurn()
 		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt()))
 			iw->close();
 
-		adventureInt->endTurn.callback();
+		adventureInt->fendTurn();
 	}
 
 	// warn player if he has no town

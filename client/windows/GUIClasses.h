@@ -29,8 +29,8 @@ class CComponentBox;
 class CTextInput;
 class CListBox;
 class CLabelGroup;
-class CHighlightableButton;
-class CHighlightableButtonsGroup;
+class CToggleButton;
+class CToggleGroup;
 class CGStatusBar;
 
 /// Recruitment window where you can recruit creatures
@@ -75,7 +75,7 @@ class CRecruitmentWindow : public CWindowObject
 	std::vector<CCreatureCard *> cards;
 
 	CSlider *slider; //for selecting amount
-	CAdventureMapButton *maxButton, *buyButton, *cancelButton;
+	CButton *maxButton, *buyButton, *cancelButton;
 	//labels for visible values
 	CLabel * title;
 	CLabel * availableValue;
@@ -106,7 +106,7 @@ class CSplitWindow : public CWindowObject
 
 	CSlider *slider;
 	CCreaturePic *animLeft, *animRight; //creature's animation
-	CAdventureMapButton *ok, *cancel;
+	CButton *ok, *cancel;
 
 	CTextInput *leftInput, *rightInput;
 	void setAmountText(std::string text, bool left);
@@ -161,7 +161,7 @@ class CObjectListWindow : public CWindowObject
 
 	CListBox * list;
 	CIntObject * titleImage;//title image (castle gate\town portal picture)
-	CAdventureMapButton *ok, *exit;
+	CButton *ok, *exit;
 
 	std::vector< std::pair<int, std::string> > items;//all items present in list
 
@@ -188,19 +188,19 @@ private:
 	CLabel *title;
 	CLabelGroup *leftGroup;
 	CLabelGroup *rightGroup;
-	CAdventureMapButton *load, *save, *restart, *mainMenu, *quitGame, *backToMap; //load and restart are not used yet
-	CHighlightableButtonsGroup * heroMoveSpeed;
-	CHighlightableButtonsGroup * mapScrollSpeed;
-	CHighlightableButtonsGroup * musicVolume, * effectsVolume;
+	CButton *load, *save, *restart, *mainMenu, *quitGame, *backToMap; //load and restart are not used yet
+	CToggleGroup * heroMoveSpeed;
+	CToggleGroup * mapScrollSpeed;
+	CToggleGroup * musicVolume, * effectsVolume;
 
 	//CHighlightableButton * showPath;
-	CHighlightableButton * showReminder;
-	CHighlightableButton * quickCombat;
-	CHighlightableButton * spellbookAnim;
-	CHighlightableButton * newCreatureWin;
-	CHighlightableButton * fullscreen;
+	CToggleButton * showReminder;
+	CToggleButton * quickCombat;
+	CToggleButton * spellbookAnim;
+	CToggleButton * newCreatureWin;
+	CToggleButton * fullscreen;
 
-	CAdventureMapButton *gameResButton;
+	CButton *gameResButton;
 	CLabel *gameResLabel;
 
 	SettingsListener onFullscreenChanged;
@@ -258,7 +258,7 @@ public:
 	int selected;//0 (left) or 1 (right)
 	int oldSelected;//0 (left) or 1 (right)
 
-	CAdventureMapButton *thiefGuild, *cancel, *recruit;
+	CButton *thiefGuild, *cancel, *recruit;
 	const CGObjectInstance *tavernObj;
 
 	CTavernWindow(const CGObjectInstance *TavernObj); //c-tor
@@ -273,7 +273,7 @@ class CExchangeWindow : public CWindowObject, public CWindowWithGarrison, public
 {
 	CGStatusBar * ourBar; //internal statusbar
 
-	CAdventureMapButton * quit, * questlogButton[2];
+	CButton * quit, * questlogButton[2];
 
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas[2], primSkillAreas;
 
@@ -311,7 +311,7 @@ public:
 	CLabel *woodCost, *goldCost;
 
 	CAnimImage *bgShip;
-	CAdventureMapButton *build, *quit;
+	CButton *build, *quit;
 
 	CGStatusBar * statusBar;
 
@@ -324,7 +324,7 @@ class CPuzzleWindow : public CWindowObject
 private:
 	int3 grailPos;
 
-	CAdventureMapButton * quitb;
+	CButton * quitb;
 
 	std::vector<CPicture * > piecesToRemove;
 	ui8 currentAlpha;
@@ -360,7 +360,7 @@ public:
 	const CGTownInstance *town;//market, town garrison is used if hero == nullptr
 	std::vector<CItem*> items;
 
-	CAdventureMapButton *all, *convert, *cancel;
+	CButton *all, *convert, *cancel;
 	CGStatusBar *bar;
 	void makeDeal();
 	void addAll();
@@ -391,7 +391,7 @@ public:
 	CPicture * green, * yellow, * red;//colored bars near skills
 	std::vector<CItem*> items;
 
-	CAdventureMapButton *cancel;
+	CButton *cancel;
 	CGStatusBar *bar;
 
 	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market); //c-tor
@@ -403,7 +403,7 @@ class CUnivConfirmWindow : public CWindowObject
 public:
 	CUniversityWindow * parent;
 	CGStatusBar *bar;
-	CAdventureMapButton *confirm, *cancel;
+	CButton *confirm, *cancel;
 
 	CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available); //c-tor
 	void makeDeal(int skill);
@@ -418,7 +418,7 @@ public:
 	CGStatusBar * bar;
 	CDefEssential *resources;
 	CHeroArea *heroPic;//clickable hero image
-	CAdventureMapButton *quit,//closes window
+	CButton *quit,//closes window
 	                   *upgradeAll,//upgrade all creatures
 	                   *upgrade[7];//upgrade single creature
 
@@ -443,7 +443,7 @@ class CThievesGuildWindow : public CWindowObject
 	const CGObjectInstance * owner;
 
 	CGStatusBar * statusBar;
-	CAdventureMapButton * exitb;
+	CButton * exitb;
 	CMinorResDataBar * resdatabar;
 
 public:

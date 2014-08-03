@@ -24,21 +24,40 @@
  *
  */
 
-CButtonBase::CButtonBase()
+ClickableArea::ClickableArea(CIntObject * object, CFunctionList<void()> callback):
+	callback(callback),
+	area(nullptr)
 {
-	swappedImages = keepFrame = false;
-	bitmapOffset = 0;
-	state=NORMAL;
-	image = nullptr;
-	overlay = nullptr;
+	if (object)
+		pos = object->pos;
+	setArea(object);
 }
 
-CButtonBase::~CButtonBase()
+void ClickableArea::addCallback(std::function<void()> callback)
 {
-
+	this->callback += callback;
 }
 
-void CButtonBase::update()
+void ClickableArea::setArea(CIntObject * object)
+{
+	delete area;
+	addChild(area);
+	pos.w = object->pos.w;
+	pos.h = object->pos.h;
+}
+
+void ClickableArea::onClick()
+{
+	callback();
+}
+
+void ClickableArea::clickLeft(tribool down, bool previousState)
+{
+	if (down)
+		onClick();
+}
+
+void CButton::update()
 {
 	if (overlay)
 	{
@@ -48,34 +67,31 @@ void CButtonBase::update()
 			overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
 	}
 
-	int newPos = (int)state + bitmapOffset;
+	int newPos = stateToIndex[int(state)];
 	if (newPos < 0)
 		newPos = 0;
 
 	if (state == HIGHLIGHTED && image->size() < 4)
 		newPos = image->size()-1;
-
-	if (swappedImages)
-	{
-		if (newPos == 0) newPos = 1;
-		else if (newPos == 1) newPos = 0;
-	}
-
-	if (!keepFrame)
-		image->setFrame(newPos);
+	image->setFrame(newPos);
 
 	if (active)
 		redraw();
 }
 
-void CButtonBase::addTextOverlay( const std::string &Text, EFonts font, SDL_Color color)
+void CButton::addCallback(std::function<void()> callback)
+{
+	this->callback += callback;
+}
+
+void CButton::addTextOverlay( const std::string &Text, EFonts font, SDL_Color color)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	addOverlay(new CLabel(pos.w/2, pos.h/2, font, CENTER, color, Text));
 	update();
 }
 
-void CButtonBase::addOverlay(CIntObject *newOverlay)
+void CButton::addOverlay(CIntObject *newOverlay)
 {
 	delete overlay;
 	overlay = newOverlay;
@@ -84,15 +100,26 @@ void CButtonBase::addOverlay(CIntObject *newOverlay)
 	update();
 }
 
-void CButtonBase::setOffset(int newOffset)
+void CButton::addImage(std::string filename)
 {
-	if (bitmapOffset == newOffset)
-		return;
-	bitmapOffset = newOffset;
+	imageNames.push_back(filename);
+}
+
+void CButton::addHoverText(ButtonState state, std::string text)
+{
+	hoverTexts[state] = text;
+}
+
+void CButton::setImageOrder(int state1, int state2, int state3, int state4)
+{
+	stateToIndex[0] = state1;
+	stateToIndex[1] = state2;
+	stateToIndex[2] = state3;
+	stateToIndex[3] = state4;
 	update();
 }
 
-void CButtonBase::setState(ButtonState newState)
+void CButton::setState(ButtonState newState)
 {
 	if (state == newState)
 		return;
@@ -100,58 +127,30 @@ void CButtonBase::setState(ButtonState newState)
 	update();
 }
 
-CButtonBase::ButtonState CButtonBase::getState()
+CButton::ButtonState CButton::getState()
 {
 	return state;
 }
 
-bool CButtonBase::isBlocked()
+bool CButton::isBlocked()
 {
 	return state == BLOCKED;
 }
 
-bool CButtonBase::isHighlighted()
+bool CButton::isHighlighted()
 {
 	return state == HIGHLIGHTED;
 }
 
-void CButtonBase::block(bool on)
+void CButton::block(bool on)
 {
 	setState(on?BLOCKED:NORMAL);
 }
 
-CAdventureMapButton::CAdventureMapButton ()
-{
-	hoverable = actOnDown = borderEnabled = soundDisabled = false;
-	CSDL_Ext::colorSetAlpha(borderColor,1);// represents a transparent color, used for HighlightableButton
-	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
-}
-
-CAdventureMapButton::CAdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y,  const std::string &defName,int key, std::vector<std::string> * add, bool playerColoredButton )
-{
-	std::map<int,std::string> pom;
-	pom[0] = Name;
-	init(Callback, pom, HelpBox, playerColoredButton, defName, add, x, y, key);
-}
-
-CAdventureMapButton::CAdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, config::ButtonInfo *info, int key/*=0*/ )
-{
-	std::map<int,std::string> pom;
-	pom[0] = Name;
-	init(Callback, pom, HelpBox, info->playerColoured, info->defName, &info->additionalDefs, info->x, info->y, key);
-}
-
-CAdventureMapButton::CAdventureMapButton( const std::pair<std::string, std::string> &help, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key/*=0*/, std::vector<std::string> * add /*= nullptr*/, bool playerColoredButton /*= false */ )
-{
-	std::map<int,std::string> pom;
-	pom[0] = help.first;
-	init(Callback, pom, help.second, playerColoredButton, defName, add, x, y, key);
-}
-
-void CAdventureMapButton::onButtonClicked()
+void CButton::onButtonClicked()
 {
 	// debug logging to figure out pressed button (and as result - player actions) in case of crash
-	logAnim->traceStream() << "Button clicked at " << pos.x << "x" << pos.y;
+	logAnim->traceStream() << "Button clicked at " << pos.x << "x" << pos.y << ", " << callback.funcs.size() << " functions";
 	CIntObject * parent = this->parent;
 	std::string prefix = "Parent is";
 	while (parent)
@@ -163,7 +162,7 @@ void CAdventureMapButton::onButtonClicked()
 	callback();
 }
 
-void CAdventureMapButton::clickLeft(tribool down, bool previousState)
+void CButton::clickLeft(tribool down, bool previousState)
 {
 	if(isBlocked())
 		return;
@@ -189,13 +188,13 @@ void CAdventureMapButton::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CAdventureMapButton::clickRight(tribool down, bool previousState)
+void CButton::clickRight(tribool down, bool previousState)
 {
 	if(down && helpBox.size()) //there is no point to show window with nothing inside...
 		CRClickPopup::createAndPush(helpBox);
 }
 
-void CAdventureMapButton::hover (bool on)
+void CButton::hover (bool on)
 {
 	if(hoverable)
 	{
@@ -208,19 +207,20 @@ void CAdventureMapButton::hover (bool on)
 	if(pressedL && on)
 		setState(PRESSED);
 
-	std::string *name = (vstd::contains(hoverTexts,getState()))
-		? (&hoverTexts[getState()])
-		: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : nullptr);
-	if(name && name->size() && !isBlocked()) //if there is no name, there is nohing to display also
+	std::string name = hoverTexts[getState()].empty()
+		? hoverTexts[getState()]
+		: hoverTexts[0];
+
+	if(!name.empty() && !isBlocked()) //if there is no name, there is nohing to display also
 	{
 		if (LOCPLINT && LOCPLINT->battleInt) //for battle buttons
 		{
 			if(on && LOCPLINT->battleInt->console->alterTxt == "")
 			{
-				LOCPLINT->battleInt->console->alterTxt = *name;
+				LOCPLINT->battleInt->console->alterTxt = name;
 				LOCPLINT->battleInt->console->whoSetAlter = 1;
 			}
-			else if (LOCPLINT->battleInt->console->alterTxt == *name)
+			else if (LOCPLINT->battleInt->console->alterTxt == name)
 			{
 				LOCPLINT->battleInt->console->alterTxt = "";
 				LOCPLINT->battleInt->console->whoSetAlter = 0;
@@ -229,38 +229,44 @@ void CAdventureMapButton::hover (bool on)
 		else if(GH.statusbar) //for other buttons
 		{
 			if (on)
-				GH.statusbar->setText(*name);
-			else if ( GH.statusbar->getText()==(*name) )
+				GH.statusbar->setText(name);
+			else if ( GH.statusbar->getText()==(name) )
 				GH.statusbar->clear();
 		}
 	}
 }
 
-void CAdventureMapButton::init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key)
+CButton::CButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, int key, bool playerColoredButton):
+    CKeyShortcut(key),
+    callback(Callback)
 {
-	currentImage = -1;
 	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
-	callback = Callback;
-	hoverable = actOnDown = borderEnabled = soundDisabled = false;
-	CSDL_Ext::colorSetAlpha(borderColor,1);// represents a transparent color, used for HighlightableButton
-	hoverTexts = Name;
-	helpBox=HelpBox;
 
-	if (key != SDLK_UNKNOWN)
-		assignedKeys.insert(key);
+	stateToIndex[0] = 0;
+	stateToIndex[1] = 1;
+	stateToIndex[2] = 2;
+	stateToIndex[3] = 3;
 
-	pos.x += x;
-	pos.y += y;
+	state=NORMAL;
+	image = nullptr;
+	overlay = nullptr;
+
+	currentImage = -1;
+	hoverable = actOnDown = soundDisabled = false;
+	hoverTexts[0] = help.first;
+	helpBox=help.second;
+
+	pos.x += position.x;
+	pos.y += position.y;
 
 	if (!defName.empty())
+	{
 		imageNames.push_back(defName);
-	if (add)
-		for (auto & elem : *add)
-			imageNames.push_back(elem);
-	setIndex(0, playerColoredButton);
+		setIndex(0, playerColoredButton);
+	}
 }
 
-void CAdventureMapButton::setIndex(size_t index, bool playerColoredButton)
+void CButton::setIndex(size_t index, bool playerColoredButton)
 {
 	if (index == currentImage || index>=imageNames.size())
 		return;
@@ -268,67 +274,117 @@ void CAdventureMapButton::setIndex(size_t index, bool playerColoredButton)
 	setImage(new CAnimation(imageNames[index]), playerColoredButton);
 }
 
-void CAdventureMapButton::setImage(CAnimation* anim, bool playerColoredButton, int animFlags)
+void CButton::setImage(CAnimation* anim, bool playerColoredButton, int animFlags)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	delete image;
 	image = new CAnimImage(anim, getState(), 0, 0, 0, animFlags);
 	if (playerColoredButton)
 		image->playerColored(LOCPLINT->playerID);
-
-	pos.w = image->pos.w;
-	pos.h = image->pos.h;
+	pos = image->pos;
 }
 
-void CAdventureMapButton::setPlayerColor(PlayerColor player)
+void CButton::setPlayerColor(PlayerColor player)
 {
 	if (image)
 		image->playerColored(player);
 }
 
-void CAdventureMapButton::showAll(SDL_Surface * to)
+void CButton::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	
 	#ifdef VCMI_SDL1
-	if (borderEnabled && borderColor.unused == 0)
-		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor.r, borderColor.g, borderColor.b));	
+	if (borderColor && borderColor->unused == 0)
+		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor->r, borderColor->g, borderColor->b));
 	#else
-	if (borderEnabled && borderColor.a == 0)
-		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor.r, borderColor.g, borderColor.b));	
+	if (borderColor && borderColor->a == 0)
+		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor->r, borderColor->g, borderColor->b));
 	#endif // 0
 }
 
-void CHighlightableButton::select(bool on)
+std::pair<std::string, std::string> CButton::tooltip()
+{
+	return std::pair<std::string, std::string>();
+}
+
+std::pair<std::string, std::string> CButton::tooltip(const JsonNode & localizedTexts)
+{
+	return std::make_pair(localizedTexts["label"].String(), localizedTexts["help"].String());
+}
+
+std::pair<std::string, std::string> CButton::tooltip(const std::string & hover, const std::string & help)
+{
+	return std::make_pair(hover, help);
+}
+
+CToggleBase::CToggleBase(CFunctionList<void (bool)> callback):
+    callback(callback)
+{
+}
+
+CToggleBase::~CToggleBase()
+{
+}
+
+void CToggleBase::doSelect(bool on)
+{
+	// for overrides
+}
+
+void CToggleBase::setSelected(bool on)
 {
 	selected = on;
+	doSelect(on);
+}
+
+void CToggleBase::activate()
+{
+	if (canActivate())
+		setSelected(!selected);
+}
+
+bool CToggleBase::canActivate()
+{
+	if (selected && !allowDeselection)
+		return false;
+	return true;
+}
+
+void CToggleBase::addCallback(std::function<void(bool)> function)
+{
+	callback.add(function);
+}
+
+CToggleButton::CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
+                             CFunctionList<void(bool)> callback, int key, bool playerColoredButton):
+  CButton(position, defName, help, 0, key, playerColoredButton),
+  CToggleBase(callback)
+{
+}
+
+void CToggleButton::doSelect(bool on)
+{
 	if (on)
 	{
-		borderEnabled = true;
 		setState(HIGHLIGHTED);
-		callback();
 	}
 	else
 	{
-		borderEnabled = false;
 		setState(NORMAL);
-		callback2();
-	}
-
-	if(hoverTexts.size()>1)
-	{
-		hover(false);
-		hover(true);
 	}
 }
 
-void CHighlightableButton::clickLeft(tribool down, bool previousState)
+void CToggleButton::clickLeft(tribool down, bool previousState)
 {
+	// force refresh
+	hover(false);
+	hover(true);
+
 	if(isBlocked())
 		return;
 
-	if (down && !(onlyOn && isHighlighted()))
+	if (down && canActivate())
 	{
 		CCS->soundh->playSound(soundBase::button);
 		setState(PRESSED);
@@ -337,130 +393,83 @@ void CHighlightableButton::clickLeft(tribool down, bool previousState)
 	if(previousState)//mouse up
 	{
 		if(down == false && getState() == PRESSED)
-			select(!selected);
+			setSelected(!selected);
 		else
-			setState(selected?HIGHLIGHTED:NORMAL);
+			setSelected(selected);
 	}
 }
 
-CHighlightableButton::CHighlightableButton( const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key)
-: onlyOn(false), selected(false), callback2(onDeselect)
+void CToggleGroup::addCallback(std::function<void(int)> callback)
 {
-	init(onSelect,Name,HelpBox,playerColoredButton,defName,add,x,y,key);
+	onChange += callback;
 }
 
-CHighlightableButton::CHighlightableButton( const std::pair<std::string, std::string> &help, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key/*=0*/, std::vector<std::string> * add /*= nullptr*/, bool playerColoredButton /*= false */ )
-: onlyOn(false), selected(false) // TODO: callback2(???)
+void CToggleGroup::addToggle(int identifier, CToggleBase* bt)
 {
-	ID = myid;
-	std::map<int,std::string> pom;
-	pom[0] = help.first;
-	init(onSelect, pom, help.second, playerColoredButton, defName, add, x, y, key);
-}
-
-CHighlightableButton::CHighlightableButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key/*=0*/, std::vector<std::string> * add /*= nullptr*/, bool playerColoredButton /*= false */ )
-: onlyOn(false), selected(false) // TODO: callback2(???)
-{
-	ID = myid;
-	std::map<int,std::string> pom;
-	pom[0] = Name;
-	init(onSelect, pom,HelpBox, playerColoredButton, defName, add, x, y, key);
-}
-
-void CHighlightableButtonsGroup::addButton(CHighlightableButton* bt)
-{
-	if (bt->parent)
-		bt->parent->removeChild(bt);
-	addChild(bt);
-	bt->recActions = defActions;//FIXME: not needed?
-
-	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
-	bt->onlyOn = true;
-	buttons.push_back(bt);
-}
-
-void CHighlightableButtonsGroup::addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid, const CFunctionList<void()> &OnSelect, int key)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	CHighlightableButton *bt = new CHighlightableButton(OnSelect, 0, tooltip, HelpBox, false, defName, nullptr, x, y, key);
-	if(musicLike)
+	if (auto intObj = dynamic_cast<CIntObject*>(bt)) // hack-ish workagound to avoid diamond problem with inheritance
 	{
-		bt->setOffset(buttons.size()-3);
+		if (intObj->parent)
+			intObj->parent->removeChild(intObj);
+		addChild(intObj);
 	}
-	bt->ID = uid;
-	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
-	bt->onlyOn = true;
-	buttons.push_back(bt);
+
+	bt->addCallback(boost::bind(&CToggleGroup::selectionChanged, this, identifier));
+	bt->allowDeselection = false;
+
+	assert(!buttons.count(identifier));
+	buttons[identifier] = bt;
 }
 
-CHighlightableButtonsGroup::CHighlightableButtonsGroup(const CFunctionList<void(int)> &OnChange, bool musicLikeButtons)
+CToggleGroup::CToggleGroup(const CFunctionList<void(int)> &OnChange, bool musicLikeButtons)
 : onChange(OnChange), musicLike(musicLikeButtons)
 {}
 
-CHighlightableButtonsGroup::~CHighlightableButtonsGroup()
-{
-
-}
-
-void CHighlightableButtonsGroup::select(int id, bool mode)
+void CToggleGroup::setSelected(int id)
 {
 	assert(!buttons.empty());
 
-	CHighlightableButton *bt = buttons.front();
-	if(mode)
+	auto bt = buttons[id];
+	if (bt)
 	{
-		for(auto btn : buttons)
-			if (btn->ID == id)
-				bt = btn;
+		bt->setSelected(true);
+		selectionChanged(id);
 	}
-	else
-	{
-		bt = buttons[id];
-	}
-	bt->select(true);
-	selectionChanged(bt->ID);
 }
 
-void CHighlightableButtonsGroup::selectionChanged(int to)
+void CToggleGroup::selectionChanged(int to)
 {
-	for(auto & elem : buttons)
-		if(elem->ID!=to && elem->isHighlighted())
-			elem->select(false);
+	if (buttons.count(selectedID))
+		buttons[selectedID]->setSelected(false);
+
+	if (buttons.count(to))
+		buttons[to]->setSelected(true);
+
+	selectedID = to;
 	onChange(to);
 	if (parent)
 		parent->redraw();
 }
 
-void CHighlightableButtonsGroup::show(SDL_Surface * to)
+void CToggleGroup::show(SDL_Surface * to)
 {
 	if (musicLike)
 	{
-		for(auto & elem : buttons)
-			if(elem->isHighlighted())
-				elem->show(to);
+		if (auto intObj = dynamic_cast<CIntObject*>(buttons[selectedID])) // hack-ish workagound to avoid diamond problem with inheritance
+			intObj->show(to);
 	}
 	else
 		CIntObject::show(to);
 }
 
-void CHighlightableButtonsGroup::showAll(SDL_Surface * to)
+void CToggleGroup::showAll(SDL_Surface * to)
 {
 	if (musicLike)
 	{
-		for(auto & elem : buttons)
-			if(elem->isHighlighted())
-				elem->showAll(to);
+		if (auto intObj = dynamic_cast<CIntObject*>(buttons[selectedID])) // hack-ish workagound to avoid diamond problem with inheritance
+			intObj->showAll(to);
 	}
 	else
 		CIntObject::showAll(to);
-}
-
-void CHighlightableButtonsGroup::block( ui8 on )
-{
-	for(auto & elem : buttons)
-	{
-		elem->block(on);
-	}
 }
 
 void CSlider::sliderClicked()
@@ -596,72 +605,52 @@ CSlider::CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int C
 	addUsedEvents(LCLICK | KEYBOARD | WHEEL);
 	strongInterest = true;
 
-
-	left = new CAdventureMapButton();
-	right = new CAdventureMapButton();
-	slider = new CAdventureMapButton();
-
 	pos.x += x;
 	pos.y += y;
-
-	if(horizontal)
-	{
-		left->pos.y = slider->pos.y = right->pos.y = pos.y;
-		left->pos.x = pos.x;
-		right->pos.x = pos.x + totalw - 16;
-	}
-	else
-	{
-		left->pos.x = slider->pos.x = right->pos.x = pos.x;
-		left->pos.y = pos.y;
-		right->pos.y = pos.y + totalw - 16;
-	}
-
-	left->callback = boost::bind(&CSlider::moveLeft,this);
-	right->callback = boost::bind(&CSlider::moveRight,this);
-	slider->callback = boost::bind(&CSlider::sliderClicked,this);
-	left->pos.w = left->pos.h = right->pos.w = right->pos.h = slider->pos.w = slider->pos.h = 16;
-	if(horizontal)
-	{
-		pos.h = 16;
-		pos.w = totalw;
-	}
-	else
-	{
-		pos.w = 16;
-		pos.h = totalw;
-	}
 
 	if(style == 0)
 	{
 		std::string name = horizontal?"IGPCRDIV.DEF":"OVBUTN2.DEF";
 		//NOTE: this images do not have "blocked" frames. They should be implemented somehow (e.g. palette transform or something...)
 
-		//use source def to create custom animations. Format "name.def:123" will load this frame from def file
-		auto animLeft = new CAnimation();
-		animLeft->setCustom(name + ":0", 0);
-		animLeft->setCustom(name + ":1", 1);
-		left->setImage(animLeft);
+		left =   new CButton(Point(), name, CButton::tooltip());
+		right =  new CButton(Point(), name, CButton::tooltip());
+		slider = new CButton(Point(), name, CButton::tooltip());
 
-		auto animRight = new CAnimation();
-		animRight->setCustom(name + ":2", 0);
-		animRight->setCustom(name + ":3", 1);
-		right->setImage(animRight);
-
-		auto animSlider = new CAnimation();
-		animSlider->setCustom(name + ":4", 0);
-		slider->setImage(animSlider);
+		left->setImageOrder(0, 1, 1, 1);
+		right->setImageOrder(2, 3, 3, 3);
+		slider->setImageOrder(4, 4, 4, 4);
 	}
 	else
 	{
-		left->setImage(new CAnimation(horizontal ? "SCNRBLF.DEF" : "SCNRBUP.DEF"));
-		right->setImage(new CAnimation(horizontal ? "SCNRBRT.DEF" : "SCNRBDN.DEF"));
-		slider->setImage(new CAnimation("SCNRBSL.DEF"));
+		left = new CButton(Point(), horizontal ? "SCNRBLF.DEF" : "SCNRBUP.DEF", CButton::tooltip());
+		right = new CButton(Point(), horizontal ? "SCNRBRT.DEF" : "SCNRBDN.DEF", CButton::tooltip());
+		slider = new CButton(Point(), "SCNRBSL.DEF", CButton::tooltip());
 	}
 	slider->actOnDown = true;
 	slider->soundDisabled = true;
 	left->soundDisabled = true;
 	right->soundDisabled = true;
+
+	if (horizontal)
+		right->moveBy(Point(totalw - right->pos.w, 0));
+	else
+		right->moveBy(Point(0, totalw - right->pos.h));
+
+	left->addCallback(boost::bind(&CSlider::moveLeft,this));
+	right->addCallback(boost::bind(&CSlider::moveRight,this));
+	slider->addCallback(boost::bind(&CSlider::sliderClicked,this));
+
+	if(horizontal)
+	{
+		pos.h = slider->pos.h;
+		pos.w = totalw;
+	}
+	else
+	{
+		pos.w = slider->pos.w;
+		pos.h = totalw;
+	}
 
 	value = -1;
 	moveTo(Value);

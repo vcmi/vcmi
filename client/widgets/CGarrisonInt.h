@@ -13,7 +13,7 @@
  */
 
 class CGarrisonInt;
-class CAdventureMapButton;
+class CButton;
 class CArmedInstance;
 class CAnimImage;
 class CCreatureSet;
@@ -62,7 +62,7 @@ public:
 
 	int interx; //space between slots
 	Point garOffset; //offset between garrisons (not used if only one hero)
-	std::vector<CAdventureMapButton *> splitButtons; //may be empty if no buttons
+	std::vector<CButton *> splitButtons; //may be empty if no buttons
 
 	SlotID p2; //TODO: comment me
 	int	shiftPos;//1st slot of the second row, set shiftPoint for effect
@@ -80,7 +80,7 @@ public:
 	//const CArmedInstance *oup, *odown; //upper and lower garrisons (heroes or towns)
 
 	void setArmy(const CArmedInstance *army, bool bottomGarrison);
-	void addSplitBtn(CAdventureMapButton * button);
+	void addSplitBtn(CButton * button);
 	void createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int distance, int posY, int Upg );
 
 	void createSlots();
@@ -116,7 +116,7 @@ public:
 class CGarrisonWindow : public CWindowObject, public CWindowWithGarrison
 {
 public:
-	CAdventureMapButton * quit;
+	CButton * quit;
 
 	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits); //c-tor
 };

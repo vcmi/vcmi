@@ -27,9 +27,30 @@ namespace config
  *
  */
 
-/// Base class for buttons.
-class CButtonBase : public CKeyShortcut
+class ClickableArea : public CIntObject //TODO: derive from LRCLickableArea? Or somehow use its right-click/hover data?
 {
+	CFunctionList<void()> callback;
+
+	CIntObject * area;
+
+protected:
+	void onClick();
+
+public:
+	ClickableArea(CIntObject * object, CFunctionList<void()> callback);
+
+	void addCallback(std::function<void()> callback);
+	void setArea(CIntObject * object);
+
+	void clickLeft(tribool down, bool previousState) override;
+};
+
+/// Typical Heroes 3 button which can be inactive or active and can
+/// hold further information if you right-click it
+class CButton : public CKeyShortcut
+{
+	CFunctionList<void()> callback;
+
 public:
 	enum ButtonState
 	{
@@ -39,110 +60,134 @@ public:
 		HIGHLIGHTED=3
 	};
 private:
-	int bitmapOffset; // base offset of visible bitmap from animation
+	std::vector<std::string> imageNames;//store list of images that can be used by this button
+	size_t currentImage;
 	ButtonState state;//current state of button from enum
 
-public:
-	bool swappedImages,//fix for some buttons: normal and pressed image are swapped
-		keepFrame; // don't change visual representation
-
-	void addOverlay(CIntObject * newOverlay);
-	void addTextOverlay(const std::string &Text, EFonts font, SDL_Color color = Colors::WHITE);
-
-	void update();//to refresh button after image or text change
-
-	void setOffset(int newOffset);
-	void setState(ButtonState newState);
-	ButtonState getState();
-
-	//just to make code clearer
-	void block(bool on);
-	bool isBlocked();
-	bool isHighlighted();
+	std::array<int, 4> stateToIndex; // mapping of button state to index of frame in animation
+	std::array<std::string, 4> hoverTexts; //text for statusbar
+	std::string helpBox; //for right-click help
 
 	CAnimImage * image; //image for this button
 	CIntObject * overlay;//object-overlay
-
-	CButtonBase(); //c-tor
-	virtual ~CButtonBase(); //d-tor
-};
-
-/// Typical Heroes 3 button which can be inactive or active and can 
-/// hold further information if you right-click it
-class CAdventureMapButton : public CButtonBase
-{
-	std::vector<std::string> imageNames;//store list of images that can be used by this button
-	size_t currentImage;
-
+protected:
 	void onButtonClicked(); // calls callback
+	void update();//to refresh button after image or text change
+
+	void setState(ButtonState newState);
+	ButtonState getState();
+
 public:
-	std::map<int, std::string> hoverTexts; //text for statusbar
-	std::string helpBox; //for right-click help
-	CFunctionList<void()> callback;
 	bool actOnDown,//runs when mouse is pressed down over it, not when up
 		hoverable,//if true, button will be highlighted when hovered
-		borderEnabled,
 		soundDisabled;
-	SDL_Color borderColor;
 
-	void clickRight(tribool down, bool previousState);
-	virtual void clickLeft(tribool down, bool previousState);
-	void hover (bool on);
+	boost::optional<SDL_Color> borderColor;
 
-	CAdventureMapButton(); //c-tor
-	CAdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key=0, std::vector<std::string> * add = nullptr, bool playerColoredButton = false );//c-tor
-	CAdventureMapButton( const std::pair<std::string, std::string> &help, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key=0, std::vector<std::string> * add = nullptr, bool playerColoredButton = false );//c-tor
-	CAdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, config::ButtonInfo *info, int key=0);//c-tor
+	void addCallback(std::function<void()> callback);
+	void addOverlay(CIntObject * newOverlay);
+	void addTextOverlay(const std::string &Text, EFonts font, SDL_Color color = Colors::WHITE);
 
-	void init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key );
+	void addImage(std::string filename);
+	void addHoverText(ButtonState state, std::string text);
 
+	void setImageOrder(int state1, int state2, int state3, int state4);
+	void block(bool on);
+
+	/// State modifiers
+	bool isBlocked();
+	bool isHighlighted();
+
+	/// Constructor
+	CButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
+	        CFunctionList<void()> Callback = 0, int key=0, bool playerColoredButton = false );
+
+	/// Appearance modifiers
 	void setIndex(size_t index, bool playerColoredButton=false);
 	void setImage(CAnimation* anim, bool playerColoredButton=false, int animFlags=0);
 	void setPlayerColor(PlayerColor player);
-	void showAll(SDL_Surface * to);
+
+	/// CIntObject overrides
+	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(tribool down, bool previousState) override;
+	void hover (bool on) override;
+	void showAll(SDL_Surface * to) override;
+
+	static std::pair<std::string, std::string> tooltip();
+	static std::pair<std::string, std::string> tooltip(const JsonNode & localizedTexts);
+	static std::pair<std::string, std::string> tooltip(const std::string & hover, const std::string & help = "");
 };
 
-/// A button which can be selected/deselected
-class CHighlightableButton 
-	: public CAdventureMapButton
+class CToggleBase
 {
+	CFunctionList<void(bool)> callback;
+protected:
+
+	bool selected;
+
+	virtual void doSelect(bool on);
+
+	// returns true if toggle can change its state
+	bool canActivate();
+
 public:
-	CHighlightableButton(const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key=0);
-	CHighlightableButton(const std::pair<std::string, std::string> &help, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key=0, std::vector<std::string> * add = nullptr, bool playerColoredButton = false );//c-tor
-	CHighlightableButton(const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key=0, std::vector<std::string> * add = nullptr, bool playerColoredButton = false );//c-tor
-	bool onlyOn;//button can not be de-selected
-	bool selected;//state of highlightable button
-	int ID; //for identification
-	CFunctionList<void()> callback2; //when de-selecting
-	void select(bool on);
-	void clickLeft(tribool down, bool previousState);
+	bool allowDeselection;
+
+	CToggleBase(CFunctionList<void(bool)> callback);
+	virtual ~CToggleBase();
+
+	void activate();
+	void setSelected(bool on);
+
+	void addCallback(std::function<void(bool)> callback);
 };
 
-/// A group of buttons where one button can be selected
-class CHighlightableButtonsGroup : public CIntObject
+class ClickableToggle : public ClickableArea, public CToggleBase
 {
 public:
+	ClickableToggle(CIntObject * object, CFunctionList<void()> selectFun, CFunctionList<void()> deselectFun);
+	void clickLeft(tribool down, bool previousState) override;
+};
+
+/// A button which can be selected/deselected, checkbox
+class CToggleButton : public CButton, public CToggleBase
+{
+	void doSelect(bool on) override;
+public:
+	CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
+	              CFunctionList<void(bool)> Callback = 0, int key=0, bool playerColoredButton = false );
+	void clickLeft(tribool down, bool previousState) override;
+
+	// bring overrides into scope
+	using CButton::addCallback;
+	using CToggleBase::addCallback;
+};
+
+class CToggleGroup : public CIntObject
+{
 	CFunctionList<void(int)> onChange; //called when changing selected button with new button's id
-	std::vector<CHighlightableButton*> buttons;
-	bool musicLike; //determines the behaviour of this group
 
-	//void addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid);
-	void addButton(CHighlightableButton* bt);//add existing button, it'll be deleted by CHighlightableButtonsGroup destructor
-	void addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid, const CFunctionList<void()> &OnSelect=0, int key=0); //creates new button
-	CHighlightableButtonsGroup(const CFunctionList<void(int)> & OnChange, bool musicLikeButtons = false);
-	~CHighlightableButtonsGroup();
-	void select(int id, bool mode); //mode==0: id is serial; mode==1: id is unique button id
+	int selectedID;
+	bool musicLike; //determines the behaviour of this group
 	void selectionChanged(int to);
+public:
+	std::map<int, CToggleBase*> buttons;
+
+	CToggleGroup(const CFunctionList<void(int)> & OnChange, bool musicLikeButtons = false);
+
+	void addCallback(std::function<void(int)> callback);
+	void addToggle(int index, CToggleBase * button);
+	void setSelected(int id);
+
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
-	void block(ui8 on);
 };
 
 /// A typical slider which can be orientated horizontally/vertically.
 class CSlider : public CIntObject
 {
 public:
-	CAdventureMapButton *left, *right, *slider; //if vertical then left=up
+	CButton *left, *right, *slider; //if vertical then left=up
 	int capacity;//how many elements can be active at same time (e.g. hero list = 5)
 	int amount; //total amount of elements (e.g. hero list = 0-8)
 	int positions; //number of highest position (0 if there is only one)

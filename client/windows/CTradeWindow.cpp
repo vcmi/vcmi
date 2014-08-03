@@ -695,16 +695,16 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	initItems(false);
 	initItems(true);
 
-	ok = new CAdventureMapButton(CGI->generaltexth->zelp[600],boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
+	ok = new CButton(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[600], [&]{ close(); }, SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
-	deal = new CAdventureMapButton(CGI->generaltexth->zelp[595],boost::bind(&CMarketplaceWindow::makeDeal,this),307,520,"TPMRKB.DEF");
+	deal = new CButton(Point(307, 520), "TPMRKB.DEF", CGI->generaltexth->zelp[595], [&] { makeDeal(); } );
 	deal->block(true);
 
 	if(sliderNeeded)
 	{
 		slider = new CSlider(231,490,137,nullptr,0,0);
 		slider->moved = boost::bind(&CMarketplaceWindow::sliderMoved,this,_1);
-		max = new CAdventureMapButton(CGI->generaltexth->zelp[596],boost::bind(&CMarketplaceWindow::setMax,this),229,520,"IRCBTNS.DEF");
+		max = new CButton(Point(229, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[596], [&] { setMax(); });
 		max->block(true);
 	}
 	else
@@ -757,15 +757,15 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	int specialOffset = mode == EMarketMode::ARTIFACT_RESOURCE ? 35 : 0; //in selling artifacts mode we need to move res-res and art-res buttons down
 
 	if(printButtonFor(EMarketMode::RESOURCE_PLAYER))
-		new CAdventureMapButton(CGI->generaltexth->zelp[612],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::RESOURCE_PLAYER), 18, 520,"TPMRKBU1.DEF");
+		new CButton(Point(18, 520),"TPMRKBU1.DEF", CGI->generaltexth->zelp[612], [&] { setMode(EMarketMode::RESOURCE_PLAYER);});
 	if(printButtonFor(EMarketMode::RESOURCE_RESOURCE))
-		new CAdventureMapButton(CGI->generaltexth->zelp[605],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::RESOURCE_RESOURCE), 516, 450 + specialOffset,"TPMRKBU5.DEF");
+		new CButton(Point(516, 450 + specialOffset),"TPMRKBU5.DEF", CGI->generaltexth->zelp[605], [&] { setMode(EMarketMode::RESOURCE_RESOURCE);});
 	if(printButtonFor(EMarketMode::CREATURE_RESOURCE))
-		new CAdventureMapButton(CGI->generaltexth->zelp[599],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::CREATURE_RESOURCE), 516, 485,"TPMRKBU4.DEF"); //was y=450, changed to not overlap res-res in some conditions
+		new CButton(Point(516, 485),"TPMRKBU4.DEF", CGI->generaltexth->zelp[599], [&] { setMode(EMarketMode::CREATURE_RESOURCE);});
 	if(printButtonFor(EMarketMode::RESOURCE_ARTIFACT))
-		new CAdventureMapButton(CGI->generaltexth->zelp[598],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::RESOURCE_ARTIFACT), 18, 450 + specialOffset,"TPMRKBU2.DEF");
+		new CButton(Point(18, 450 + specialOffset),"TPMRKBU2.DEF", CGI->generaltexth->zelp[598], [&] { setMode(EMarketMode::RESOURCE_ARTIFACT);});
 	if(printButtonFor(EMarketMode::ARTIFACT_RESOURCE))
-		new CAdventureMapButton(CGI->generaltexth->zelp[613],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::ARTIFACT_RESOURCE), 18, 485,"TPMRKBU3.DEF"); //was y=450, changed to not overlap res-art in some conditions
+		new CButton(Point(18, 485),"TPMRKBU3.DEF", CGI->generaltexth->zelp[613], [&] { setMode(EMarketMode::ARTIFACT_RESOURCE);});
 
 	updateTraderText();
 }
@@ -1111,10 +1111,10 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 
 		slider = new CSlider(231,481,137,nullptr,0,0);
 		slider->moved = boost::bind(&CAltarWindow::sliderMoved,this,_1);
-		max = new CAdventureMapButton(CGI->generaltexth->zelp[578],boost::bind(&CSlider::moveToMax, slider),147,520,"IRCBTNS.DEF");
+		max = new CButton(Point(147, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[578], boost::bind(&CSlider::moveToMax, slider));
 
 		sacrificedUnits.resize(GameConstants::ARMY_SIZE, 0);
-		sacrificeAll = new CAdventureMapButton(CGI->generaltexth->zelp[579],boost::bind(&CAltarWindow::SacrificeAll,this),393,520,"ALTARMY.DEF");
+		sacrificeAll = new CButton(Point(393, 520), "ALTARMY.DEF", CGI->generaltexth->zelp[579], boost::bind(&CAltarWindow::SacrificeAll,this));
 		sacrificeBackpack = nullptr;
 
 		initItems(true);
@@ -1128,9 +1128,9 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 		//%s's Creatures
 		new CLabel(302, 423, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[478]);
 
-		sacrificeAll = new CAdventureMapButton(CGI->generaltexth->zelp[571], boost::bind(&CAltarWindow::SacrificeAll,this),393,520,"ALTFILL.DEF");
+		sacrificeAll = new CButton(Point(393, 520), "ALTFILL.DEF", CGI->generaltexth->zelp[571], boost::bind(&CAltarWindow::SacrificeAll,this));
 		sacrificeAll->block(hero->artifactsInBackpack.empty() && hero->artifactsWorn.empty());
-		sacrificeBackpack = new CAdventureMapButton(CGI->generaltexth->zelp[570],boost::bind(&CAltarWindow::SacrificeBackpack,this),147,520,"ALTEMBK.DEF");
+		sacrificeBackpack = new CButton(Point(147, 520), "ALTEMBK.DEF", CGI->generaltexth->zelp[570], boost::bind(&CAltarWindow::SacrificeBackpack,this));
 		sacrificeBackpack->block(hero->artifactsInBackpack.empty());
 
 		slider = nullptr;
@@ -1149,15 +1149,15 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 
 	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	ok = new CAdventureMapButton(CGI->generaltexth->zelp[568],boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
+	ok = new CButton(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[568], [&]{ close();}, SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
 
-	deal = new CAdventureMapButton(CGI->generaltexth->zelp[585],boost::bind(&CAltarWindow::makeDeal,this),269,520,"ALTSACR.DEF");
+	deal = new CButton(Point(269, 520), "ALTSACR.DEF", CGI->generaltexth->zelp[585], boost::bind(&CAltarWindow::makeDeal,this));
 
 	if(Hero->getAlignment() != ::EAlignment::EVIL && Mode == EMarketMode::CREATURE_EXP)
-		new CAdventureMapButton(CGI->generaltexth->zelp[580], boost::bind(&CTradeWindow::setMode,this, EMarketMode::ARTIFACT_EXP), 516, 421, "ALTART.DEF");
+		new CButton(Point(516, 421), "ALTART.DEF", CGI->generaltexth->zelp[580], boost::bind(&CTradeWindow::setMode,this, EMarketMode::ARTIFACT_EXP));
 	if(Hero->getAlignment() != ::EAlignment::GOOD && Mode == EMarketMode::ARTIFACT_EXP)
-		new CAdventureMapButton(CGI->generaltexth->zelp[572], boost::bind(&CTradeWindow::setMode,this, EMarketMode::CREATURE_EXP), 516, 421, "ALTSACC.DEF");
+		new CButton(Point(516, 421), "ALTSACC.DEF", CGI->generaltexth->zelp[572], boost::bind(&CTradeWindow::setMode,this, EMarketMode::CREATURE_EXP));
 
 	expPerUnit.resize(GameConstants::ARMY_SIZE, 0);
 	getExpValues();

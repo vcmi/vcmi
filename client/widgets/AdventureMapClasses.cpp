@@ -106,15 +106,15 @@ CList::CList(int Size, Point position, std::string btnUp, std::string btnDown, s
     selected(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	scrollUp = new CAdventureMapButton(CGI->generaltexth->zelp[helpUp], 0, 0, 0, btnUp);
+	scrollUp = new CButton(Point(0, 0), btnUp, CGI->generaltexth->zelp[helpUp]);
 	list = new CListBox(create, destroy, Point(1,scrollUp->pos.h), Point(0, 32), size, listAmount);
 
 	//assign callback only after list was created
-	scrollUp->callback = boost::bind(&CListBox::moveToPrev, list);
-	scrollDown = new CAdventureMapButton(CGI->generaltexth->zelp[helpDown], boost::bind(&CListBox::moveToNext, list), 0, scrollUp->pos.h + 32*size, btnDown);
+	scrollUp->addCallback(boost::bind(&CListBox::moveToPrev, list));
+	scrollDown = new CButton(Point(0, scrollUp->pos.h + 32*size), btnDown, CGI->generaltexth->zelp[helpDown], boost::bind(&CListBox::moveToNext, list));
 
-	scrollDown->callback += boost::bind(&CList::update, this);
-	scrollUp->callback += boost::bind(&CList::update, this);
+	scrollDown->addCallback(boost::bind(&CList::update, this));
+	scrollUp->addCallback(boost::bind(&CList::update, this));
 
 	update();
 }

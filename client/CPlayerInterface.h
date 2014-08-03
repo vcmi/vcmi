@@ -30,8 +30,8 @@
  */
 
 class CDefEssential;
-class CAdventureMapButton;
-class CHighlightableButtonsGroup;
+class CButton;
+class CToggleGroup;
 class CDefHandler;
 struct TryMoveHero;
 class CDefEssential;

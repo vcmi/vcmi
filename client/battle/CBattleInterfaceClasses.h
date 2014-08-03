@@ -8,9 +8,9 @@ class CDefHandler;
 class CGHeroInstance;
 class CBattleInterface;
 class CPicture;
-class CAdventureMapButton;
-class CHighlightableButton;
-class CHighlightableButtonsGroup;
+class CButton;
+class CToggleButton;
+class CToggleGroup;
 class CLabel;
 struct BattleResult;
 class CStack;
@@ -72,9 +72,9 @@ class CBattleOptionsWindow : public CIntObject
 {
 private:
 	CPicture * background;
-	CAdventureMapButton * setToDefault, * exit;
-	CHighlightableButton * viewGrid, * movementShadow, * mouseShadow;
-	CHighlightableButtonsGroup * animSpeeds;
+	CButton * setToDefault, * exit;
+	CToggleButton * viewGrid, * movementShadow, * mouseShadow;
+	CToggleGroup * animSpeeds;
 
 	std::vector<CLabel*> labels;
 public:
@@ -88,7 +88,7 @@ public:
 class CBattleResultWindow : public CIntObject
 {
 private:
-	CAdventureMapButton *exit;
+	CButton *exit;
 	CPlayerInterface &owner;
 public:
 	CBattleResultWindow(const BattleResult & br, const SDL_Rect & pos, CPlayerInterface &_owner); //c-tor

@@ -657,7 +657,7 @@ void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, ArtifactPosition slot
 }
 
 CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector<CArtPlace *> Backpack,
-	CAdventureMapButton *leftScroll, CAdventureMapButton *rightScroll, bool createCommonPart):
+	CButton *leftScroll, CButton *rightScroll, bool createCommonPart):
 
 	curHero(nullptr),
 	artWorn(ArtWorn), backpack(Backpack),
@@ -685,8 +685,8 @@ CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector
 		eraseSlotData(backpack[s], ArtifactPosition(GameConstants::BACKPACK_START + s));
 	}
 
-	leftArtRoll->callback  += boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1);
-	rightArtRoll->callback += boost::bind(&CArtifactsOfHero::scrollBackpack,this,+1);
+	leftArtRoll->addCallback(boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1));
+	rightArtRoll->addCallback(boost::bind(&CArtifactsOfHero::scrollBackpack,this,+1));
 }
 
 CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart /*= false*/)
@@ -732,8 +732,8 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 		backpack.push_back(add);
 	}
 
-	leftArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1), 379, 364, "hsbtns3.def", SDLK_LEFT);
-	rightArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CArtifactsOfHero::scrollBackpack,this,+1), 632, 364, "hsbtns5.def", SDLK_RIGHT);
+	leftArtRoll =  new CButton(Point(379, 364), "hsbtns3.def", CButton::tooltip(), [&]{ scrollBackpack(-1);}, SDLK_LEFT);
+	rightArtRoll = new CButton(Point(632, 364), "hsbtns5.def", CButton::tooltip(), [&]{ scrollBackpack(+1);}, SDLK_RIGHT);
 }
 
 CArtifactsOfHero::~CArtifactsOfHero()

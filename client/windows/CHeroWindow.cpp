@@ -93,8 +93,11 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
     CWindowObject(PLAYER_COLORED, "HeroScr4"),
 	heroWArt(this, hero)
 {
+	auto & heroscrn = CGI->generaltexth->heroscrn;
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	garr = nullptr;
+	tacticsButton = nullptr;
 	curHero = hero;
 	listSelection = nullptr;
 
@@ -103,22 +106,20 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 	//artifs = new CArtifactsOfHero(pos.topLeft(), true);
 	ourBar = new CGStatusBar(7, 559, "ADROLLVR.bmp", 660); // new CStatusBar(pos.x+72, pos.y+567, "ADROLLVR.bmp", 660);
 
-	quitButton = new CAdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(),boost::bind(&CHeroWindow::close,this), 609, 516, "hsbtns.def", SDLK_RETURN);
+	quitButton = new CButton(Point(609, 516), "hsbtns.def", CButton::tooltip(heroscrn[17]), [&]{ close(); }, SDLK_RETURN);
 	quitButton->assignedKeys.insert(SDLK_ESCAPE);
-	dismissButton = new CAdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], boost::bind(&CHeroWindow::dismissCurrent,this), 454, 429, "hsbtns2.def", SDLK_d);
-	questlogButton = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 314, 429, "hsbtns4.def", SDLK_q);
+	dismissButton = new CButton(Point(454, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [&]{ dismissCurrent(); }, SDLK_d);
+	questlogButton = new CButton(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [&]{ questlog(); }, SDLK_q);
 
-	formations = new CHighlightableButtonsGroup(0);
-	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[23]),CGI->generaltexth->heroscrn[29], "hsbtns6.def", 481, 483, 0, 0, SDLK_t);
-	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[24]),CGI->generaltexth->heroscrn[30], "hsbtns7.def", 481, 519, 1, 0, SDLK_l);
-
-	tacticsButton = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", nullptr, 539, 483, SDLK_b);
+	formations = new CToggleGroup(0);
+	formations->addToggle(0, new CToggleButton(Point(481, 483), "hsbtns6.def", std::make_pair(heroscrn[23], heroscrn[29]), 0, SDLK_t));
+	formations->addToggle(1, new CToggleButton(Point(481, 519), "hsbtns7.def", std::make_pair(heroscrn[24], heroscrn[30]), 0, SDLK_l));
 
 	if (hero->commander)
 	{
-		commanderButton = new CAdventureMapButton ("Commander", "Commander info", boost::bind(&CHeroWindow::commanderWindow, this), 317, 18, "chftke.def", SDLK_c, nullptr, false);
+		auto texts = CGI->generaltexth->localizedTexts["heroWindow"]["openCommander"];
+		commanderButton = new CButton (Point(317, 18), "chftke.def", CButton::tooltip(texts), [&]{ commanderWindow(); }, SDLK_c);
 	}
-
 
 	//right list of heroes
 	for(int i=0; i < std::min(LOCPLINT->cb->howManyHeroes(false), 8); i++)
@@ -180,7 +181,9 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 }
 
 void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= false*/)
-{	
+{
+	auto & heroscrn = CGI->generaltexth->heroscrn;
+
 	if(!hero) //something strange... no hero? it shouldn't happen
 	{
         logGlobal->errorStream() << "Set nullptr hero? no way...";
@@ -192,10 +195,11 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	specArea->text = curHero->type->specDescr;
 	specImage->setFrame(curHero->type->imageIndex);
 
-	tacticsButton->callback.clear();
-	tacticsButton->callback2.clear();
+	delete tacticsButton;
+	tacticsButton = new CToggleButton(Point(539, 483), "hsbtns8.def", std::make_pair(heroscrn[26], heroscrn[31]), 0, SDLK_b);
+	tacticsButton->addHoverText(CButton::HIGHLIGHTED, CGI->generaltexth->heroscrn[25]);
 
-	dismissButton->hoverTexts[0] = boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->name % curHero->type->heroClass->name);
+	dismissButton->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->name % curHero->type->heroClass->name));
 	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->name % curHero->type->heroClass->name);
 	portraitArea->text = curHero->getBiography();
 	portraitImage->setFrame(curHero->portrait);
@@ -204,10 +208,11 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
 		if(!garr)
 		{
+			std::string helpBox = heroscrn[32];
+			boost::algorithm::replace_first(helpBox, "%s", CGI->generaltexth->allTexts[43]);
+
 			garr = new CGarrisonInt(15, 485, 8, Point(), background->bg, Point(15,485), curHero);
-			auto split = new CAdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32],
-					boost::bind(&CGarrisonInt::splitClick,garr), 539, 519, "hsbtns9.def", false, nullptr, false); //deleted by garrison destructor
-			boost::algorithm::replace_first(split->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
+			auto split = new CButton(Point(539, 519), "hsbtns9.def", CButton::tooltip(CGI->generaltexth->allTexts[256], helpBox), [&]{ garr->splitClick(); });
 
 			garr->addSplitBtn(split);
 		}
@@ -239,7 +244,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		secSkillAreas[g]->type = skill;
 		secSkillAreas[g]->bonusValue = level;
 		secSkillAreas[g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
-		secSkillAreas[g]->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[21]) % CGI->generaltexth->levels[level-1] % CGI->generaltexth->skillName[skill]);
+		secSkillAreas[g]->hoverText = boost::str(boost::format(heroscrn[21]) % CGI->generaltexth->levels[level-1] % CGI->generaltexth->skillName[skill]);
 		secSkillImages[g]->setFrame(skill*3 + level + 2);
 	}
 
@@ -274,14 +279,13 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	else
 	{
 		tacticsButton->block(false);
-		tacticsButton->callback = vstd::assigno(curHero->tacticFormationEnabled,true);
-		tacticsButton->callback2 = vstd::assigno(curHero->tacticFormationEnabled,false);
+		tacticsButton->addCallback( [&](bool on) {curHero->tacticFormationEnabled = on;});
+
 	}
 
 	//setting formations
-	formations->onChange = 0;
-	formations->select(curHero->formation,true);
-	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb.get(), curHero, _1);
+	formations->setSelected(curHero->formation);
+	formations->addCallback([&] (int value) { LOCPLINT->cb->setFormation(curHero, value); });
 
 	morale->set(&heroWArt);
 	luck->set(&heroWArt);

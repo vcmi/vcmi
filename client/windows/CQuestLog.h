@@ -18,11 +18,11 @@
 
 class CCreature;
 class CStackInstance;
-class CAdventureMapButton;
+class CButton;
 class CGHeroInstance;
 class CComponent;
 class LRClickableAreaWText;
-class CAdventureMapButton;
+class CButton;
 class CPicture;
 class CCreaturePic;
 class LRClickableAreaWTextComp;
@@ -85,7 +85,7 @@ class CQuestLog : public CWindowObject
 	CTextBox * description;
 	CQuestMinimap * minimap;
 	CSlider * slider; //scrolls quests
-	CAdventureMapButton *ok;
+	CButton *ok;
 
 	void init ();
 public:

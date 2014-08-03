@@ -196,9 +196,9 @@ void CStackWindow::setStackArtifact(const CArtifactInstance * art, Point artPos)
 
 		if (info->owner)
 		{
-			stackArtifactButton = new CAdventureMapButton(text["label"].String(), text["help"].String(),[=]{
-				removeStackArtifact(ArtifactPosition::CREATURE_SLOT);
-			}, artPos.x - 2 , artPos.y + 46, "stackWindow/cancelButton");
+			stackArtifactButton = new CButton(Point(artPos.x - 2 , artPos.y + 46), "stackWindow/cancelButton",
+			                                  CButton::tooltip(text),
+			                                  [=]{ removeStackArtifact(ArtifactPosition::CREATURE_SLOT); });
 		}
 	}
 
@@ -463,8 +463,8 @@ void CStackWindow::CWindowSection::createCommanderAbilities()
 	},
 	Point(38, 3+pos.h), Point(63, 0), 6, abilitiesCount);
 
-	auto leftBtn   = new CAdventureMapButton("", "", [=]{ list->moveToPrev(); }, 10,  pos.h + 6, "hsbtns3.def", SDLK_LEFT);
-	auto rightBtn = new CAdventureMapButton("", "", [=]{ list->moveToNext(); }, 411, pos.h + 6, "hsbtns5.def", SDLK_RIGHT);
+	auto leftBtn   = new CButton(Point(10,  pos.h + 6), "hsbtns3.def", CButton::tooltip(), [=]{ list->moveToPrev(); }, SDLK_LEFT);
+	auto rightBtn =  new CButton(Point(411, pos.h + 6), "hsbtns5.def", CButton::tooltip(), [=]{ list->moveToNext(); }, SDLK_RIGHT);
 
 	if (abilitiesCount <= 6)
 	{
@@ -531,7 +531,7 @@ void CStackWindow::CWindowSection::createButtonPanel()
 		{
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[12], onDismiss, 0, false, std::vector<CComponent*>());
 		};
-		new CAdventureMapButton(CGI->generaltexth->zelp[445], onClick, 5, 5,"IVIEWCR2.DEF",SDLK_d);
+		new CButton(Point(5, 5),"IVIEWCR2.DEF", CGI->generaltexth->zelp[445], onClick, SDLK_d);
 	}
 	if (parent->info->upgradeInfo)
 	{
@@ -560,7 +560,7 @@ void CStackWindow::CWindowSection::createButtonPanel()
 				}
 				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[207], onUpgrade, nullptr, true, resComps);
 			};
-			auto upgradeBtn = new CAdventureMapButton(CGI->generaltexth->zelp[446], onClick, 221 + i * 40, 5, "stackWindow/upgradeButton", SDLK_1);
+			auto upgradeBtn = new CButton(Point(221 + i * 40, 5), "stackWindow/upgradeButton", CGI->generaltexth->zelp[446], onClick, SDLK_1);
 
 			upgradeBtn->addOverlay(new CAnimImage("CPRSMALL", VLC->creh->creatures[upgradeInfo.info.newID[i]]->iconIndex));
 
@@ -583,13 +583,13 @@ void CStackWindow::CWindowSection::createButtonPanel()
 			};
 
 			const JsonNode & text = VLC->generaltexth->localizedTexts["creatureWindow"][btnIDs[i]];
-			parent->switchButtons[i] = new CAdventureMapButton(text["label"].String(), text["help"].String(), onSwitch, 302 + i*40, 5, "stackWindow/upgradeButton");
+			parent->switchButtons[i] = new CButton(Point(302 + i*40, 5), "stackWindow/upgradeButton", CButton::tooltip(text), onSwitch);
 			parent->switchButtons[i]->addOverlay(new CAnimImage("stackWindow/switchModeIcons", i));
 		}
 		parent->switchButtons[parent->activeTab]->disable();
 	}
 
-	auto exitBtn = new CAdventureMapButton(CGI->generaltexth->zelp[445], [=]{ parent->close(); }, 382, 5, "hsbtns.def", SDLK_RETURN);
+	auto exitBtn = new CButton(Point(382, 5), "hsbtns.def", CGI->generaltexth->zelp[445], [=]{ parent->close(); }, SDLK_RETURN);
 	exitBtn->assignedKeys.insert(SDLK_ESCAPE);
 }
 

@@ -14,7 +14,7 @@
  *
  */
 
-class CAdventureMapButton;
+class CButton;
 struct SDL_Surface;
 class CGHeroInstance;
 class CDefHandler;
@@ -25,8 +25,8 @@ class LRClickableAreaWText;
 class LRClickableAreaWTextComp;
 class CArtifactsOfHero;
 class MoraleLuckBox;
-class CHighlightableButton;
-class CHighlightableButtonsGroup;
+class CToggleButton;
+class CToggleGroup;
 class CGStatusBar;
 
 /// Button which switches hero selection
@@ -56,7 +56,7 @@ class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWin
 	CGStatusBar * ourBar; //heroWindow's statusBar
 
 	//buttons
-	//CAdventureMapButton * gar4button; //splitting
+	//CButton * gar4button; //splitting
 	std::vector<CHeroSwitcher *> heroList; //list of heroes
 	CPicture * listSelection; //selection border
 
@@ -74,10 +74,10 @@ class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWin
 	std::vector<CAnimImage *> secSkillImages;
 	CHeroWithMaybePickedArtifact heroWArt;
 
-	CAdventureMapButton * quitButton, * dismissButton, * questlogButton, * commanderButton; //general
+	CButton * quitButton, * dismissButton, * questlogButton, * commanderButton; //general
 		
-	CHighlightableButton *tacticsButton; //garrison / formation handling;
-	CHighlightableButtonsGroup *formations;
+	CToggleButton *tacticsButton; //garrison / formation handling;
+	CToggleGroup *formations;
 
 public:
 	const CGHeroInstance * curHero;

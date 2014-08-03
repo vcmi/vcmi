@@ -218,8 +218,8 @@ class CKeyShortcut : public virtual CIntObject
 {
 public:
 	std::set<int> assignedKeys;
-	CKeyShortcut(){}; //c-tor
-	CKeyShortcut(int key){assignedKeys.insert(key);}; //c-tor
-	CKeyShortcut(std::set<int> Keys):assignedKeys(Keys){}; //c-tor
+	CKeyShortcut();
+	CKeyShortcut(int key);
+	CKeyShortcut(std::set<int> Keys);
 	virtual void keyPressed(const SDL_KeyboardEvent & key); //call-in
 };

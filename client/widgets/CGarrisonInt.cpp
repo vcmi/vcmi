@@ -339,7 +339,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, int 
 		stackCount->setText(boost::lexical_cast<std::string>(myStack->count));
 }
 
-void CGarrisonInt::addSplitBtn(CAdventureMapButton * button)
+void CGarrisonInt::addSplitBtn(CButton * button)
 {
 	addChild(button);
 	button->recActions = defActions;
@@ -482,11 +482,11 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 
 	garr = new CGarrisonInt(92, 127, 4, Point(0,96), background->bg, Point(93,127), up, down, removableUnits);
 	{
-		CAdventureMapButton *split = new CAdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),88,314,"IDV6432.DEF");
+		CButton *split = new CButton(Point(88, 314), "IDV6432.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3], ""), [&]{ garr->splitClick(); } );
 		removeChild(split);
 		garr->addSplitBtn(split);
 	}
-	quit = new CAdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),399,314,"IOK6432.DEF",SDLK_RETURN);
+	quit = new CButton(Point(399, 314), "IOK6432.DEF", CButton::tooltip(CGI->generaltexth->tcommands[8], ""), [&]{ close(); }, SDLK_RETURN);
 
 	std::string titleText;
 	if (garr->armedObjs[1]->tempOwner == garr->armedObjs[0]->tempOwner)
