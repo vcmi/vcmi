@@ -62,29 +62,36 @@ public:
 private:
 	std::vector<std::string> imageNames;//store list of images that can be used by this button
 	size_t currentImage;
+
 	ButtonState state;//current state of button from enum
 
 	std::array<int, 4> stateToIndex; // mapping of button state to index of frame in animation
-	std::array<std::string, 4> hoverTexts; //text for statusbar
+	std::array<std::string, 4> hoverTexts; //texts for statusbar, if empty - first entry will be used
 	std::string helpBox; //for right-click help
 
 	CAnimImage * image; //image for this button
-	CIntObject * overlay;//object-overlay
+	CIntObject * overlay;//object-overlay, can be null
+
 protected:
 	void onButtonClicked(); // calls callback
 	void update();//to refresh button after image or text change
 
+	// internal method to change state. Public change can be done only via block()
 	void setState(ButtonState newState);
 	ButtonState getState();
 
 public:
 	bool actOnDown,//runs when mouse is pressed down over it, not when up
-		hoverable,//if true, button will be highlighted when hovered
+		hoverable,//if true, button will be highlighted when hovered (e.g. main menu)
 		soundDisabled;
 
+	// if set, button will have 1-px border around it with this color
 	boost::optional<SDL_Color> borderColor;
 
+	/// adds one more callback to on-click actions
 	void addCallback(std::function<void()> callback);
+
+	/// adds overlay on top of button image. Only one overlay can be active at once
 	void addOverlay(CIntObject * newOverlay);
 	void addTextOverlay(const std::string &Text, EFonts font, SDL_Color color = Colors::WHITE);
 
@@ -113,6 +120,7 @@ public:
 	void hover (bool on) override;
 	void showAll(SDL_Surface * to) override;
 
+	/// generates tooltip that can be passed into constructor
 	static std::pair<std::string, std::string> tooltip();
 	static std::pair<std::string, std::string> tooltip(const JsonNode & localizedTexts);
 	static std::pair<std::string, std::string> tooltip(const std::string & hover, const std::string & help = "");
@@ -125,17 +133,20 @@ protected:
 
 	bool selected;
 
+	// internal method for overrides
 	virtual void doSelect(bool on);
 
 	// returns true if toggle can change its state
 	bool canActivate();
 
 public:
+	/// if set to false - button can not be deselected normally
 	bool allowDeselection;
 
 	CToggleBase(CFunctionList<void(bool)> callback);
 	virtual ~CToggleBase();
 
+	/// Changes selection to "on", and calls callback
 	void setSelected(bool on);
 
 	void addCallback(std::function<void(bool)> callback);
@@ -175,7 +186,10 @@ public:
 	CToggleGroup(const CFunctionList<void(int)> & OnChange, bool musicLikeButtons = false);
 
 	void addCallback(std::function<void(int)> callback);
+
+	/// add one toggle/button into group
 	void addToggle(int index, CToggleBase * button);
+	/// Changes selection to specific value. Will select toggle with this ID, if present
 	void setSelected(int id);
 
 	void show(SDL_Surface * to);
@@ -185,26 +199,47 @@ public:
 /// A typical slider which can be orientated horizontally/vertically.
 class CSlider : public CIntObject
 {
-public:
 	CButton *left, *right, *slider; //if vertical then left=up
 	int capacity;//how many elements can be active at same time (e.g. hero list = 5)
-	int amount; //total amount of elements (e.g. hero list = 0-8)
 	int positions; //number of highest position (0 if there is only one)
-	int value; //first active element
-	int scrollStep; // how many elements will be scrolled via one click, default = 1
 	bool horizontal;
 	bool wheelScrolling;
 	bool keyScrolling;
 
-	std::function<void(int)> moved;
+	int amount; //total amount of elements (e.g. hero list = 0-8)
+	int value; //first active element
+	int scrollStep; // how many elements will be scrolled via one click, default = 1
+	CFunctionList<void(int)> moved;
 
-	void redrawSlider(); 
+	void updateSliderPos();
 	void sliderClicked();
+
+public:
+	enum EStyle {
+		BROWN,
+		BLUE
+	};
+
+	void block(bool on);
+
+	/// Controls how many items wil be scrolled via one click
+	void setScrollStep(int to);
+
+	/// Value modifiers
 	void moveLeft();
 	void moveRight();
-	void moveTo(int to);
-	void block(bool on);
+	void moveTo(int value);
+	void moveBy(int amount);
+	void moveToMax();
+
+	/// Amount modifier
 	void setAmount(int to);
+
+	/// Accessors
+	int getAmount();
+	int getValue();
+
+	void addCallback(std::function<void(int)> callback);
 
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void wheelScrolled(bool down, bool in);
@@ -212,8 +247,15 @@ public:
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void showAll(SDL_Surface * to);	
 
-	CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, 
-		int Value=0, bool Horizontal=true, int style = 0); //style 0 - brown, 1 - blue
+	/**
+	 * @param position, coordinates of slider
+	 * @param length, length of slider ribbon, including left/right buttons
+	 * @param Moved, function that will be called whenever slider moves
+	 * @param Capacity, maximal number of visible at once elements
+	 * @param Amount, total amount of elements, including not visible
+	 * @param Value, starting position
+	 */
+	CSlider(Point position, int length, std::function<void(int)> Moved, int Capacity, int Amount,
+		int Value=0, bool Horizontal=true, EStyle style = BROWN);
 	~CSlider();
-	void moveToMax();
 };

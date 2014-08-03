@@ -132,7 +132,7 @@ void CQuestLog::init()
 	ok = new CButton(Point(547, 401), "IOKAY.DEF", CGI->generaltexth->zelp[445], boost::bind(&CQuestLog::close,this), SDLK_RETURN);
 
 	if (quests.size() > QUEST_COUNT)
-		slider = new CSlider(203, 199, 230, boost::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, quests.size(), false, 0);
+		slider = new CSlider(Point(203, 199), 230, boost::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, quests.size(), false);
 
 	for (int i = 0; i < quests.size(); ++i)
 	{

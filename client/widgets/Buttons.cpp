@@ -393,7 +393,10 @@ void CToggleButton::clickLeft(tribool down, bool previousState)
 	if(previousState)//mouse up
 	{
 		if(down == false && getState() == PRESSED && canActivate())
+		{
+			onButtonClicked();
 			setSelected(!selected);
+		}
 		else
 			doSelect(selected); // restore
 	}
@@ -499,13 +502,22 @@ void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	if(v!=value)
 	{
 		moveTo(v);
-		redrawSlider();
 	}
 }
 
-void CSlider::redrawSlider()
+void CSlider::setScrollStep(int to)
 {
-	//slider->show(screenBuf);
+	scrollStep = to;
+}
+
+int CSlider::getAmount()
+{
+	return amount;
+}
+
+int CSlider::getValue()
+{
+	return value;
 }
 
 void CSlider::moveLeft()
@@ -518,21 +530,18 @@ void CSlider::moveRight()
 	moveTo(value+1);
 }
 
-void CSlider::moveTo(int to)
+void CSlider::moveBy(int amount)
 {
-	vstd::amax(to, 0);
-	vstd::amin(to, positions);
+	moveTo(value + amount);
+}
 
-	//same, old position?
-	if(value == to)
-		return;
-
-	value = to;
+void CSlider::updateSliderPos()
+{
 	if(horizontal)
 	{
 		if(positions)
 		{
-			double part = static_cast<double>(to) / positions;
+			double part = static_cast<double>(value) / positions;
 			part*=(pos.w-48);
 			int newPos = part + pos.x + 16 - slider->pos.x;
 			slider->moveBy(Point(newPos, 0));
@@ -544,7 +553,7 @@ void CSlider::moveTo(int to)
 	{
 		if(positions)
 		{
-			double part = static_cast<double>(to) / positions;
+			double part = static_cast<double>(value) / positions;
 			part*=(pos.h-48);
 			int newPos = part + pos.y + 16 - slider->pos.y;
 			slider->moveBy(Point(0, newPos));
@@ -552,9 +561,21 @@ void CSlider::moveTo(int to)
 		else
 			slider->moveTo(Point(pos.x, pos.y+16));
 	}
+}
 
-	if(moved)
-		moved(to);
+void CSlider::moveTo(int to)
+{
+	vstd::amax(to, 0);
+	vstd::amin(to, positions);
+
+	//same, old position?
+	if(value == to)
+		return;
+	value = to;
+
+	updateSliderPos();
+
+	moved(to);
 }
 
 void CSlider::clickLeft(tribool down, bool previousState)
@@ -590,11 +611,12 @@ CSlider::~CSlider()
 
 }
 
-CSlider::CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, int style):
+CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, CSlider::EStyle style):
     capacity(Capacity),
-    amount(Amount),
-    scrollStep(1),
     horizontal(Horizontal),
+    amount(Amount),
+    value(Value),
+    scrollStep(1),
     moved(Moved)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -603,10 +625,10 @@ CSlider::CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int C
 	addUsedEvents(LCLICK | KEYBOARD | WHEEL);
 	strongInterest = true;
 
-	pos.x += x;
-	pos.y += y;
+	pos.x += position.x;
+	pos.y += position.y;
 
-	if(style == 0)
+	if(style == BROWN)
 	{
 		std::string name = horizontal?"IGPCRDIV.DEF":"OVBUTN2.DEF";
 		//NOTE: this images do not have "blocked" frames. They should be implemented somehow (e.g. palette transform or something...)
@@ -650,8 +672,7 @@ CSlider::CSlider(int x, int y, int totalw, std::function<void(int)> Moved, int C
 		pos.h = totalw;
 	}
 
-	value = -1;
-	moveTo(Value);
+	updateSliderPos();
 }
 
 void CSlider::block( bool on )

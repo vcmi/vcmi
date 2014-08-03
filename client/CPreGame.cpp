@@ -1286,7 +1286,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 		new CButton(Point(55, 86), "CamCusL.DEF", CButton::tooltip(), boost::bind(&SelectionTab::sortBy, this, _name)); //by name
 	}
 
-	slider = new CSlider(372, 86, tabType != CMenuScreen::saveGame ? 480 : 430, boost::bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, 1);
+	slider = new CSlider(Point(372, 86), tabType != CMenuScreen::saveGame ? 480 : 430, boost::bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, CSlider::BLUE);
 	slider->addUsedEvents(WHEEL);
 	format =  CDefHandler::giveDef("SCSELC.DEF");
 
@@ -1353,16 +1353,16 @@ void SelectionTab::select( int position )
 	if(!curItems.size()) return;
 
 	// New selection. py is the index in curItems.
-	int py = position + slider->value;
+	int py = position + slider->getValue();
 	vstd::amax(py, 0);
 	vstd::amin(py, curItems.size()-1);
 
 	selectionPos = py;
 
 	if(position < 0)
-		slider->moveTo(slider->value + position);
+		slider->moveBy(position);
 	else if(position >= positions)
-		slider->moveTo(slider->value + position - positions + 1);
+		slider->moveBy(position - positions + 1);
 
 	if(txt)
 	{
@@ -1376,7 +1376,7 @@ void SelectionTab::select( int position )
 
 void SelectionTab::selectAbs( int position )
 {
-	select(position - slider->value);
+	select(position - slider->getValue());
 }
 
 int SelectionTab::getPosition( int x, int y )
@@ -1399,7 +1399,7 @@ void SelectionTab::sliderMove( int slidPos )
 void SelectionTab::printMaps(SDL_Surface *to)
 {
 
-	int elemIdx = slider->value;
+	int elemIdx = slider->getValue();
 
 	// Display all elements if there's enough space
 	//if(slider->amount < slider->capacity)
@@ -1557,15 +1557,15 @@ void SelectionTab::keyPressed( const SDL_KeyboardEvent & key )
 		moveBy = +positions-1;
 		break;
 	case SDLK_HOME:
-		select(-slider->value);
+		select(-slider->getValue());
 		return;
 	case SDLK_END:
-		select(curItems.size() - slider->value);
+		select(curItems.size() - slider->getValue());
 		return;
 	default:
 		return;
 	}
-	select(selectionPos - slider->value + moveBy);
+	select(selectionPos - slider->getValue() + moveBy);
 }
 
 void SelectionTab::onDoubleClick()
@@ -2243,7 +2243,7 @@ OptionsTab::OptionsTab():
 	pos = bg->pos;
 
 	if(SEL->screenType == CMenuScreen::newGame)
-		turnDuration = new CSlider(55, 551, 194, boost::bind(&OptionsTab::setTurnLength, this, _1), 1, 11, 11, true, 1);
+		turnDuration = new CSlider(Point(55, 551), 194, boost::bind(&OptionsTab::setTurnLength, this, _1), 1, 11, 11, true, CSlider::BLUE);
 }
 
 OptionsTab::~OptionsTab()
@@ -2262,7 +2262,7 @@ void OptionsTab::showAll(SDL_Surface * to)
 	printAtMiddleWBLoc(CGI->generaltexth->allTexts[520], 349, 110, FONT_SMALL, 70, Colors::YELLOW, to); //Starting Bonus
 	printAtMiddleLoc(CGI->generaltexth->allTexts[521], 222, 538, FONT_SMALL, Colors::YELLOW, to); // Player Turn Duration
 	if (turnDuration)
-		printAtMiddleLoc(CGI->generaltexth->turnDurations[turnDuration->value], 319,559, FONT_SMALL, Colors::WHITE, to);//Turn duration value
+		printAtMiddleLoc(CGI->generaltexth->turnDurations[turnDuration->getValue()], 319,559, FONT_SMALL, Colors::WHITE, to);//Turn duration value
 }
 
 void OptionsTab::nextCastle( PlayerColor player, int dir )

@@ -295,9 +295,9 @@ void CTextBox::setText(const std::string &text)
 		label->setText(text);
 
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(pos.w - 32, 0, pos.h, boost::bind(&CTextBox::sliderMoved, this, _1),
-		                     label->pos.h, label->textSize.y, 0, false, sliderStyle);
-		slider->scrollStep = graphics->fonts[label->font]->getLineHeight();
+		slider = new CSlider(Point(pos.w - 32, 0), pos.h, boost::bind(&CTextBox::sliderMoved, this, _1),
+		                     label->pos.h, label->textSize.y, 0, false, CSlider::EStyle(sliderStyle));
+		slider->setScrollStep(graphics->fonts[label->font]->getLineHeight());
 	}
 }
 

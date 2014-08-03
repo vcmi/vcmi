@@ -702,8 +702,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 
 	if(sliderNeeded)
 	{
-		slider = new CSlider(231,490,137,nullptr,0,0);
-		slider->moved = boost::bind(&CMarketplaceWindow::sliderMoved,this,_1);
+		slider = new CSlider(Point(231, 490),137, boost::bind(&CMarketplaceWindow::sliderMoved,this,_1),0,0);
 		max = new CButton(Point(229, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[596], [&] { setMax(); });
 		max->block(true);
 	}
@@ -793,7 +792,7 @@ void CMarketplaceWindow::makeDeal()
 {
 	int sliderValue = 0;
 	if(slider)
-		sliderValue = slider->value;
+		sliderValue = slider->getValue();
 	else
 		sliderValue = !deal->isBlocked(); //should always be 1
 
@@ -816,7 +815,7 @@ void CMarketplaceWindow::makeDeal()
 
 	if(slider)
 	{
-		LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, slider->value*r1, hero);
+		LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, slider->getValue()*r1, hero);
 		slider->moveTo(0);
 	}
 	else
@@ -933,7 +932,7 @@ std::string CMarketplaceWindow::selectionSubtitle(bool Left) const
 		case CREATURE:
 			{
 				int val = slider
-					? slider->value * r1
+					? slider->getValue() * r1
 					: (((deal->isBlocked())) ? 0 : r1);
 
 				return boost::lexical_cast<std::string>(val);
@@ -948,7 +947,7 @@ std::string CMarketplaceWindow::selectionSubtitle(bool Left) const
 		{
 		case RESOURCE:
 			if(slider)
-				return boost::lexical_cast<std::string>( slider->value * r2 );
+				return boost::lexical_cast<std::string>( slider->getValue() * r2 );
 			else
 				return boost::lexical_cast<std::string>(r2);
 		case ARTIFACT_TYPE:
@@ -1109,8 +1108,7 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 		 //To sacrifice creatures, move them from your army on to the Altar and click Sacrifice
 		new CTextBox(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, CENTER, Colors::YELLOW);
 
-		slider = new CSlider(231,481,137,nullptr,0,0);
-		slider->moved = boost::bind(&CAltarWindow::sliderMoved,this,_1);
+		slider = new CSlider(Point(231,481),137,boost::bind(&CAltarWindow::sliderMoved,this,_1),0,0);
 		max = new CButton(Point(147, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[578], boost::bind(&CSlider::moveToMax, slider));
 
 		sacrificedUnits.resize(GameConstants::ARMY_SIZE, 0);
@@ -1200,7 +1198,7 @@ void CAltarWindow::makeDeal()
 	if(mode == EMarketMode::CREATURE_EXP)
 	{
 		blockTrade();
-		slider->value = 0;
+		slider->moveTo(0);
 
 		std::vector<int> toSacrifice = sacrificedUnits;
 		for (int i = 0; i < toSacrifice.size(); i++)
@@ -1292,9 +1290,9 @@ void CAltarWindow::selectionChanged(bool side)
 			stackCount++;
 
 	slider->setAmount(hero->getStackCount(SlotID(hLeft->serial)) - (stackCount == 1));
-	slider->block(!slider->amount);
-	slider->value = sacrificedUnits[hLeft->serial];
-	max->block(!slider->amount);
+	slider->block(!slider->getAmount());
+	slider->moveTo(sacrificedUnits[hLeft->serial]);
+	max->block(!slider->getAmount());
 	readyToTrade = true;
 	redraw();
 }
@@ -1323,7 +1321,7 @@ Point CAltarWindow::selectionOffset(bool Left) const
 std::string CAltarWindow::selectionSubtitle(bool Left) const
 {
 	if(Left && slider && hLeft)
-		return boost::lexical_cast<std::string>(slider->value);
+		return boost::lexical_cast<std::string>(slider->getValue());
 	else if(!Left && hRight)
 		return hRight->subtitle;
 	else

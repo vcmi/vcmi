@@ -184,7 +184,7 @@ void CRecruitmentWindow::select(CCreatureCard *card)
 
 		slider->setAmount(maxAmount);
 
-		if(slider->value != maxAmount)
+		if(slider->getValue() != maxAmount)
 			slider->moveTo(maxAmount);
 		else // if slider already at 0 - emulate call to sliderMoved()
 			sliderMoved(maxAmount);
@@ -214,7 +214,7 @@ void CRecruitmentWindow::buy()
 		if(dst->ID == Obj::HERO)
 		{
 			txt = CGI->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
-			boost::algorithm::replace_first(txt, "%s", slider->value > 1 ? CGI->creh->creatures[crid]->namePl : CGI->creh->creatures[crid]->nameSing);
+			boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? CGI->creh->creatures[crid]->namePl : CGI->creh->creatures[crid]->nameSing);
 		}
 		else
 		{
@@ -225,7 +225,7 @@ void CRecruitmentWindow::buy()
 		return;
 	}
 
-	onRecruit(crid, slider->value);
+	onRecruit(crid, slider->getValue());
 	if(level >= 0)
 		close();
 }
@@ -261,8 +261,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	slider = new CSlider(176,279,135,nullptr,0,0,0,true);
-	slider->moved = boost::bind(&CRecruitmentWindow::sliderMoved,this, _1);
+	slider = new CSlider(Point(176,279),135,boost::bind(&CRecruitmentWindow::sliderMoved,this, _1),0,0,0,true);
 
 	maxButton = new CButton(Point(134, 313), "IRCBTNS.DEF", CGI->generaltexth->zelp[553], boost::bind(&CSlider::moveToMax,slider), SDLK_m);
 	buyButton = new CButton(Point(212, 313), "IBY6432.DEF", CGI->generaltexth->zelp[554], boost::bind(&CRecruitmentWindow::buy,this), SDLK_RETURN);
@@ -341,10 +340,10 @@ void CRecruitmentWindow::availableCreaturesChanged()
 	//restore selection
 	select(cards[selectedIndex]);
 
-	if(slider->value == slider->amount)
-		slider->moveTo(slider->amount);
+	if(slider->getValue() == slider->getAmount())
+		slider->moveToMax();
 	else // if slider already at 0 - emulate call to sliderMoved()
-		sliderMoved(slider->amount);
+		sliderMoved(slider->getAmount());
 }
 
 void CRecruitmentWindow::sliderMoved(int to)
@@ -393,7 +392,7 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	animLeft = new CCreaturePic(20, 54, creature, true, false);
 	animRight = new CCreaturePic(177, 54,creature, true, false);
 
-	slider = new CSlider(21, 194, 257, boost::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPositions, rightAmount - rightMin, true);
+	slider = new CSlider(Point(21, 194), 257, boost::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPositions, rightAmount - rightMin, true);
 
 	std::string title = CGI->generaltexth->allTexts[256];
 	boost::algorithm::replace_first(title,"%s", creature->namePl);
