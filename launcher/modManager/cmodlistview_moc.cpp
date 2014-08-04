@@ -69,8 +69,8 @@ CModListView::CModListView(QWidget *parent) :
 
 	ui->progressWidget->setVisible(false);
 	dlManager = nullptr;
+	disableModInfo();
 	loadRepositories();
-	hideModInfo();
 }
 
 void CModListView::loadRepositories()
@@ -105,8 +105,10 @@ void CModListView::showEvent(QShowEvent * event)
 
 void CModListView::showModInfo()
 {
+	enableModInfo();
 	ui->modInfoWidget->show();
 	ui->hideModInfoButton->setArrowType(Qt::RightArrow);
+	ui->showInfoButton->setVisible(false);
 	loadScreenshots();
 }
 
@@ -114,6 +116,8 @@ void CModListView::hideModInfo()
 {
 	ui->modInfoWidget->hide();
 	ui->hideModInfoButton->setArrowType(Qt::LeftArrow);
+	ui->hideModInfoButton->setEnabled(true);
+	ui->showInfoButton->setVisible(true);
 }
 
 static QString replaceIfNotEmpty(QVariant value, QString pattern)
@@ -223,14 +227,21 @@ QString CModListView::genModInfoText(CModEntry &mod)
 
 void CModListView::enableModInfo()
 {
-	showModInfo();
 	ui->hideModInfoButton->setEnabled(true);
+	ui->showInfoButton->setVisible(true);
 }
 
 void CModListView::disableModInfo()
 {
 	hideModInfo();
 	ui->hideModInfoButton->setEnabled(false);
+	ui->showInfoButton->setVisible(false);
+
+	ui->disableButton->setVisible(false);
+	ui->enableButton->setVisible(false);
+	ui->installButton->setVisible(false);
+	ui->uninstallButton->setVisible(false);
+	ui->updateButton->setVisible(false);
 }
 
 void CModListView::dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight)
@@ -255,6 +266,8 @@ void CModListView::selectMod(const QModelIndex & index)
 		bool hasBlockingMods = !findBlockingMods(index.data(ModRoles::ModNameRole).toString()).empty();
 		bool hasDependentMods = !findDependentMods(index.data(ModRoles::ModNameRole).toString(), true).empty();
 
+		ui->hideModInfoButton->setEnabled(true);
+		ui->showInfoButton->setVisible(!ui->modInfoWidget->isVisible());
 		ui->disableButton->setVisible(mod.isEnabled());
 		ui->enableButton->setVisible(mod.isDisabled());
 		ui->installButton->setVisible(mod.isAvailable() && !mod.getName().contains('.'));
@@ -676,4 +689,9 @@ void CModListView::on_screenshotsList_clicked(const QModelIndex &index)
 		auto pixmap = icon.pixmap(icon.availableSizes()[0]);
 		ImageViewer::showPixmap(pixmap, this);
 	}
+}
+
+void CModListView::on_showInfoButton_clicked()
+{
+	showModInfo();
 }

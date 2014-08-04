@@ -23,13 +23,21 @@ private slots:
 
 	void on_comboBoxNeutralAI_currentIndexChanged(const QString &arg1);
 
-	void on_comboBoxEnableMods_currentIndexChanged(int index);
-
 	void on_spinBoxNetworkPort_valueChanged(int arg1);
 
 	void on_plainTextEditRepos_textChanged();
 
 	void on_comboBoxEncoding_currentIndexChanged(int index);
+
+	void on_openTempDir_clicked();
+
+	void on_openUserDataDir_clicked();
+
+	void on_openGameDataDir_clicked();
+
+	void on_comboBoxShowIntro_currentIndexChanged(int index);
+
+	void on_changeGameDataDir_clicked();
 
 private:
 	Ui::CSettingsView *ui;

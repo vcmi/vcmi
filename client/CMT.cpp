@@ -413,7 +413,7 @@ int main(int argc, char** argv)
 
 	if(!gNoGUI )
 	{
-		if(!vm.count("battle") && !vm.count("nointro"))
+		if(!vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool())
 			playIntro();
 		SDL_FillRect(screen,nullptr,0);
 	}
