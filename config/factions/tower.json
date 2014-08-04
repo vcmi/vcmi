@@ -180,7 +180,7 @@
 				"dwellingLvl4":   { "id" : 33, "requires" : [ "allOf", [ "mageGuild1" ], [ "dwellingLvl2" ], [ "dwellingLvl3" ] ] },
 				"dwellingLvl5":   { "id" : 34, "requires" : [ "dwellingLvl4" ] },
 				"dwellingLvl6":   { "id" : 35, "requires" : [ "dwellingLvl4" ] },
-				"dwellingLvl7":   { "id" : 36, "requires" : [ "dwellingLvl5", "dwellingLvl6" ] },
+				"dwellingLvl7":   { "id" : 36, "requires" : [ "allOf", [ "dwellingLvl5" ], [ "dwellingLvl6" ] ] },
 
 				"dwellingUpLvl1": { "id" : 37, "upgrades" : "dwellingLvl1" },
 				"dwellingUpLvl2": { "id" : 38, "upgrades" : "dwellingLvl2" },
