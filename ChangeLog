@@ -1,4 +1,14 @@
 0.96 0> 0.next
+GENERAL:
+* VCMI can now be compiled with SDL2
+* Better upscaling when running in fullscreen mode.
+* Non-latin characters can now be entered in chat window or used for save names.
+
+RANDOM MAP GENERATOR:
+
+LAUNCHER:
+* Implemented switch to disable intro movies in game
+
 
 0.95 -> 0.96 (Jul 01 2014)
 GENERAL:
@@ -32,6 +42,7 @@ MODS:
 
 GENERAL:
 * Added configuring of heroes quantity per player allowed in game
+
 
 0.94 -> 0.95 (Mar 01 2014)
 GENERAL:
