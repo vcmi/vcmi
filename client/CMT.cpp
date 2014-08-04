@@ -271,7 +271,7 @@ int main(int argc, char** argv)
 	CStopWatch total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
 	console = new CConsoleHandler;
-	*console->cb = boost::bind(&processCommand, _1);
+	*console->cb = std::bind(&processCommand, _1);
 	console->start();
 	atexit(dispose);
 

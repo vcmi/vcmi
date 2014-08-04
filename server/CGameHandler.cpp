@@ -1474,7 +1474,7 @@ void CGameHandler::run(bool resume)
 			if(j->second == elem)
 				pom.insert(j->first);
 
-		boost::thread(boost::bind(&CGameHandler::handleConnection,this,pom,boost::ref(*elem)));
+		boost::thread(std::bind(&CGameHandler::handleConnection,this,pom,std::ref(*elem)));
 	}
 
 	if(gs->scenarioOps->mode == StartInfo::DUEL)

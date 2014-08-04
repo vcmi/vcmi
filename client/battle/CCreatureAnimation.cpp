@@ -42,7 +42,7 @@ SDL_Color AnimationControls::getNoBorder()
 
 CCreatureAnimation * AnimationControls::getAnimation(const CCreature * creature)
 {
-	auto func = boost::bind(&AnimationControls::getCreatureAnimationSpeed, creature, _1, _2);
+	auto func = std::bind(&AnimationControls::getCreatureAnimationSpeed, creature, _1, _2);
 	return new CCreatureAnimation(creature->animDefName, func);
 }
 

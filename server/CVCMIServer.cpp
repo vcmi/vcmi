@@ -230,7 +230,7 @@ void CPregameServer::start_async_accept()
 	assert(acceptor);
 
 	upcomingConnection = new TSocket(acceptor->get_io_service());
-	acceptor->async_accept(*upcomingConnection, boost::bind(&CPregameServer::connectionAccepted, this, _1));
+	acceptor->async_accept(*upcomingConnection, std::bind(&CPregameServer::connectionAccepted, this, _1));
 }
 
 void CPregameServer::announceTxt(const std::string &txt, const std::string &playerName /*= "system"*/)
@@ -415,7 +415,7 @@ void CVCMIServer::start()
 	boost::system::error_code error;
     logNetwork->infoStream()<<"Listening for connections at port " << acceptor->local_endpoint().port();
 	auto  s = new tcp::socket(acceptor->get_io_service());
-	boost::thread acc(boost::bind(vaccept,acceptor,s,&error));
+	boost::thread acc(std::bind(vaccept,acceptor,s,&error));
 #ifndef __ANDROID__
 	sr->setToTrueAndNotify();
 	delete mr;
