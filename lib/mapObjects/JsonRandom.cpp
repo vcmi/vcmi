@@ -197,7 +197,7 @@ namespace JsonRandom
 			}
 			const CCreature * crea = VLC->creh->creatures[VLC->modh->identifiers.getIdentifier("creature", node["type"]).get()];
 			info.allowedCreatures.push_back(crea);
-			if (!node["upgradeChance"].Float() > 0)
+            if (node["upgradeChance"].Float() > 0)
 			{
 				for (auto creaID : crea->upgrades)
 					info.allowedCreatures.push_back(VLC->creh->creatures[creaID]);

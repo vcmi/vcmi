@@ -18,7 +18,7 @@
 
 class CRandomGenerator;
 
-CPlacedZone::CPlacedZone(const CRmgTemplateZone * zone) : zone(zone)
+CPlacedZone::CPlacedZone(const CRmgTemplateZone * zone)
 {
 
 }

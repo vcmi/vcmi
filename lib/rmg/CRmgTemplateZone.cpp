@@ -1689,7 +1689,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 
 	//prisons
 	//levels 1, 5, 10, 20, 30
-	static int prisonExp[] = {0, 5000, 15000, 90000, 500000};
+    //static int prisonExp[] = {0, 5000, 15000, 90000, 500000};
 	static int prisonValues[] = {2500, 5000, 10000, 20000, 30000};
 
 	for (int i = 0; i < 5; i++)

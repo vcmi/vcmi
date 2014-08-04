@@ -29,7 +29,7 @@ public:
 	explicit CPlacedZone(const CRmgTemplateZone * Zone);
 
 private:
-	const CRmgTemplateZone * zone;
+    //const CRmgTemplateZone * zone;
 
 	//TODO exact outline data of zone
 	//TODO perhaps further zone data, guards, obstacles, etc...
@@ -50,7 +50,7 @@ private:
 	//metric coefiicients
 	float scaleX;
 	float scaleY;
-	float a1, b1, c1, a2, b2, c2;
+    //float a1, b1, c1, a2, b2, c2;
 	//CMap * map;
 	//unique_ptr<CZoneGraph> graph;
 	CMapGenerator * gen;
