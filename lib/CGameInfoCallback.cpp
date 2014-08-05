@@ -403,19 +403,37 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 			return EBuildingState::NO_WATER; //lack of water
 	}
 
-	auto buildTest = [&](const BuildingID & id)
+	/// returns true if building prerequisites are fulfilled
+	std::function<bool(BuildingID)> buildTest;
+
+	auto dependTest = [&](BuildingID id) -> bool
 	{
-		return t->hasBuilt(id);
+		const CBuilding * build = t->town->buildings.at(id);
+
+		if (build->upgrade != BuildingID::NONE)
+		{
+			if (!t->hasBuilt(build->upgrade))
+				return false;
+
+			if (!t->town->buildings.at(build->upgrade)->requirements.test(buildTest))
+				return false;
+		}
+
+		if (!build->requirements.test(buildTest))
+			return false;
+		return true;
 	};
 
-	if (!building->requirements.test(buildTest))
+	buildTest = [&](BuildingID bid)
+	{
+		return t->hasBuilt(bid) && dependTest(bid);
+	};
+
+	if (!dependTest(ID))
 		return EBuildingState::PREREQUIRES;
 
 	if(t->builded >= VLC->modh->settings.MAX_BUILDING_PER_TURN)
 		return EBuildingState::CANT_BUILD_TODAY; //building limit
-
-	if (building->upgrade != BuildingID::NONE && !t->hasBuilt(building->upgrade))
-		return EBuildingState::MISSING_BASE;
 
 	//checking resources
 	if(!building->resources.canBeAfforded(getPlayer(t->tempOwner)->resources))
