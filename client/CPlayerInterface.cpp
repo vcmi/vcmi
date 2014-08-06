@@ -1518,7 +1518,7 @@ void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (LOCPLINT->cb->getCurrentPlayer() == playerID) {
 		std::string handlerName = VLC->objtypeh->getObjectHandlerName(obj->ID);
-		if ((handlerName == "pickable") || (handlerName == "scholar") || (handlerName== "artifact") || (handlerName == "pandora") {
+        if ((handlerName == "pickable") || (handlerName == "scholar") || (handlerName== "artifact") || (handlerName == "pandora")) {
 			waitWhileDialog();
 			CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
 		} else if ((handlerName == "monster") || (handlerName == "hero")) {
