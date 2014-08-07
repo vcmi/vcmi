@@ -60,7 +60,7 @@ void Graphics::loadPaletteAndColors()
 		col.r = pals[startPoint++];
 		col.g = pals[startPoint++];
 		col.b = pals[startPoint++];
-		CSDL_Ext::colorSetAlpha(col,SDL_ALPHA_OPAQUE);	
+		CSDL_Ext::colorSetAlpha(col,SDL_ALPHA_OPAQUE);
 		startPoint++;
 		playerColorPalette[i] = col;
 	}
@@ -75,7 +75,8 @@ void Graphics::loadPaletteAndColors()
 		neutralColorPalette[i].r = reader.readUInt8();
 		neutralColorPalette[i].g = reader.readUInt8();
 		neutralColorPalette[i].b = reader.readUInt8();
-		CSDL_Ext::colorSetAlpha(neutralColorPalette[i], !reader.readUInt8());
+		reader.readUInt8(); // this is "flags" entry, not alpha
+		CSDL_Ext::colorSetAlpha(neutralColorPalette[i], SDL_ALPHA_OPAQUE);
 	}
 	//colors initialization
 	SDL_Color colors[]  = { 
