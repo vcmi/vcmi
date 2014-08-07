@@ -1004,6 +1004,40 @@ bool CGTownInstance::hasBuilt(BuildingID buildingID) const
 	return vstd::contains(builtBuildings, buildingID);
 }
 
+CBuilding::TRequired CGTownInstance::genBuildingRequirements(BuildingID buildID) const
+{
+	const CBuilding * building = town->buildings.at(buildID);
+
+	std::function<CBuilding::TRequired::Variant(const BuildingID &)> dependTest =
+	[&](const BuildingID & id) -> CBuilding::TRequired::Variant
+	{
+		const CBuilding * build = town->buildings.at(id);
+
+		if (!hasBuilt(id))
+			return id;
+
+		if (build->upgrade != BuildingID::NONE && !hasBuilt(build->upgrade))
+			return build->upgrade;
+
+		return build->requirements.morph(dependTest);
+	};
+
+	CBuilding::TRequired::OperatorAll requirements;
+	if (building->upgrade != BuildingID::NONE)
+	{
+		const CBuilding * upgr = town->buildings.at(building->upgrade);
+
+		requirements.expressions.push_back(upgr->bid);
+		requirements.expressions.push_back(upgr->requirements.morph(dependTest));
+	}
+	requirements.expressions.push_back(building->requirements.morph(dependTest));
+
+	CBuilding::TRequired::Variant variant(requirements);
+	CBuilding::TRequired ret(variant);
+	ret.minimize();
+	return ret;
+}
+
 void CGTownInstance::addHeroToStructureVisitors( const CGHeroInstance *h, si32 structureInstanceID ) const
 {
 	if(visitingHero == h)

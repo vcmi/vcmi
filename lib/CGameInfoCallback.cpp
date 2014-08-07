@@ -403,33 +403,12 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 			return EBuildingState::NO_WATER; //lack of water
 	}
 
-	/// returns true if building prerequisites are fulfilled
-	std::function<bool(BuildingID)> buildTest;
-
-	auto dependTest = [&](BuildingID id) -> bool
+	auto buildTest = [&](BuildingID id) -> bool
 	{
-		const CBuilding * build = t->town->buildings.at(id);
-
-		if (build->upgrade != BuildingID::NONE)
-		{
-			if (!t->hasBuilt(build->upgrade))
-				return false;
-
-			if (!t->town->buildings.at(build->upgrade)->requirements.test(buildTest))
-				return false;
-		}
-
-		if (!build->requirements.test(buildTest))
-			return false;
-		return true;
+		return t->hasBuilt(id);
 	};
 
-	buildTest = [&](BuildingID bid)
-	{
-		return t->hasBuilt(bid) && dependTest(bid);
-	};
-
-	if (!dependTest(ID))
+	if (!t->genBuildingRequirements(ID).test(buildTest))
 		return EBuildingState::PREREQUIRES;
 
 	if(t->builded >= VLC->modh->settings.MAX_BUILDING_PER_TURN)
