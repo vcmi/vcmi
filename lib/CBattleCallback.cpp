@@ -1675,8 +1675,11 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleStackIsImmune(co
 		break;
 	}
 
-	if (spell->isRisingSpell())
+    if (spell->isRisingSpell() && spell->id != SpellID::SACRIFICE)
 	{
+        // following does apply to resurrect and animate dead(?) only
+        // for sacrifice health calculation and health limit check don't matter
+
 		if(subject->count >= subject->baseAmount)
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 		
@@ -1783,12 +1786,27 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 			const CGHeroInstance * caster = battleGetFightingHero(side);
 			const CSpell::TargetInfo ti = spell->getTargetInfo(caster->getSpellSchoolLevel(spell));
 			bool targetExists = false;
-			for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
+            bool targetToSacrificeExists = false; // for sacrifice we have to check for 2 targets (one dead to resurrect and one living to destroy)
+
+            for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
 			{
 				bool immune =  ESpellCastProblem::OK != battleStackIsImmune(caster, spell, mode, stack);
 				bool casterStack = stack->owner == caster->getOwner();
 				
-				if(!immune)
+                if(spell->id == SpellID::SACRIFICE)
+                {
+                    if(!immune && casterStack)
+                    {
+                        if(stack->alive())
+                            targetToSacrificeExists = true;
+                        else
+                            targetExists = true;
+                        if(targetExists && targetToSacrificeExists)
+                            break;
+                    }
+                }
+                else if(!immune)
+                {
 					switch (spell->positiveness)
 					{
 					case CSpell::POSITIVE:
@@ -1810,8 +1828,9 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 						}
 						break;
 					}
+                }
 			}
-			if(!targetExists)
+            if(!targetExists || (spell->id == SpellID::SACRIFICE && !targetExists && !targetToSacrificeExists))
 			{
 				return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 			}

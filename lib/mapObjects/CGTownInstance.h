@@ -232,6 +232,8 @@ public:
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
 	int getTownLevel() const;
 
+	CBuilding::TRequired genBuildingRequirements(BuildingID build) const;
+
 	void removeCapitols (PlayerColor owner) const;
 	void addHeroToStructureVisitors(const CGHeroInstance *h, si32 structureInstanceID) const; //hero must be visiting or garrisoned in town
 
