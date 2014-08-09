@@ -8,13 +8,13 @@
 
 #include "../lib/filesystem/Filesystem.h"
 #include "CPreGame.h"
-#include "CCastleInterface.h"
+#include "windows/CCastleInterface.h"
 #include "../lib/CConsoleHandler.h"
 #include "gui/CCursorHandler.h"
 #include "../lib/CGameState.h"
 #include "../CCallback.h"
 #include "CPlayerInterface.h"
-#include "CAdvmapInterface.h"
+#include "windows/CAdvmapInterface.h"
 #include "../lib/CBuildingHandler.h"
 #include "CVideoHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -39,6 +39,7 @@
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
+#include "../lib/CondSh.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"

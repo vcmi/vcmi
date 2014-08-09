@@ -9,7 +9,6 @@
 #include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "gui/CCursorHandler.h"
-#include "CAnimation.h"
 #include "CDefHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CTownHandler.h"
@@ -23,7 +22,7 @@
 #include "../lib/Connection.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/mapping/CMap.h"
-#include "GUIClasses.h"
+#include "windows/GUIClasses.h"
 #include "CPlayerInterface.h"
 #include "../CCallback.h"
 #include "CMessage.h"
@@ -38,7 +37,13 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
-#include "gui/CIntObjectClasses.h"
+#include "gui/CAnimation.h"
+#include "widgets/CComponent.h"
+#include "widgets/Buttons.h"
+#include "widgets/MiscWidgets.h"
+#include "widgets/ObjectLists.h"
+#include "widgets/TextControls.h"
+#include "windows/InfoWindows.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/CRandomGenerator.h"
@@ -367,7 +372,7 @@ static std::function<void()> genCommand(CMenuScreen* menu, std::vector<std::stri
 	return std::function<void()>();
 }
 
-CAdventureMapButton* CMenuEntry::createButton(CMenuScreen* parent, const JsonNode& button)
+CButton* CMenuEntry::createButton(CMenuScreen* parent, const JsonNode& button)
 {
 	std::function<void()> command = genCommand(parent, parent->menuNameToEntry, button["command"].String());
 
@@ -383,7 +388,7 @@ CAdventureMapButton* CMenuEntry::createButton(CMenuScreen* parent, const JsonNod
 	if (posy < 0)
 		posy = pos.h + posy;
 
-	return new CAdventureMapButton(help, command, posx, posy, button["name"].String(), button["hotkey"].Float());
+	return new CButton(Point(posx, posy), button["name"].String(), help, command, button["hotkey"].Float());
 }
 
 CMenuEntry::CMenuEntry(CMenuScreen* parent, const JsonNode &config)
@@ -639,38 +644,39 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 	{
 	case CMenuScreen::newGame:
 		{
-            card->difficulty->onChange = std::bind(&CSelectionScreen::difficultyChange, this, _1);
-			card->difficulty->select(1, 0);
-			CAdventureMapButton * select = new CAdventureMapButton(CGI->generaltexth->zelp[45], 0, 411, 80, "GSPBUTT.DEF", SDLK_s);
-			select->callback = [&]()
+			SDL_Color orange = {232, 184, 32, 0};
+			SDL_Color overlayColor = multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST ? orange : Colors::WHITE;
+
+			card->difficulty->addCallback(std::bind(&CSelectionScreen::difficultyChange, this, _1));
+			card->difficulty->setSelected(1);
+			CButton * select = new CButton(Point(411, 80), "GSPBUTT.DEF", CGI->generaltexth->zelp[45], 0, SDLK_s);
+			select->addCallback([&]()
 			{
 				toggleTab(sel);
 				changeSelection(sel->getSelectedMapInfo());
-			};
-			select->addTextOverlay(CGI->generaltexth->allTexts[500], FONT_SMALL);
+			});
+			select->addTextOverlay(CGI->generaltexth->allTexts[500], FONT_SMALL, overlayColor);
 
-            CAdventureMapButton *opts = new CAdventureMapButton(CGI->generaltexth->zelp[46], std::bind(&CSelectionScreen::toggleTab, this, opt), 411, 510, "GSPBUTT.DEF", SDLK_a);
-			opts->addTextOverlay(CGI->generaltexth->allTexts[501], FONT_SMALL);
+			CButton *opts = new CButton(Point(411, 510), "GSPBUTT.DEF", CGI->generaltexth->zelp[46], boost::bind(&CSelectionScreen::toggleTab, this, opt), SDLK_a);
+			opts->addTextOverlay(CGI->generaltexth->allTexts[501], FONT_SMALL, overlayColor);
 
-			CAdventureMapButton * randomBtn = new CAdventureMapButton(CGI->generaltexth->zelp[47], 0, 411, 105, "GSPBUTT.DEF", SDLK_r);
-			randomBtn->addTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL);
-			randomBtn->callback = [&]()
+			CButton * randomBtn = new CButton(Point(411, 105), "GSPBUTT.DEF", CGI->generaltexth->zelp[47], 0, SDLK_r);
+			randomBtn->addTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL, overlayColor);
+			randomBtn->addCallback([&]()
 			{
 				toggleTab(randMapTab);
 				changeSelection(randMapTab->getMapInfo());
-			};
+			});
 
-            start  = new CAdventureMapButton(CGI->generaltexth->zelp[103], std::bind(&CSelectionScreen::startScenario, this), 411, 535, "SCNRBEG.DEF", SDLK_b);
+			start  = new CButton(Point(411, 535), "SCNRBEG.DEF", CGI->generaltexth->zelp[103], boost::bind(&CSelectionScreen::startScenario, this), SDLK_b);
 
 			if(network)
 			{
-                CAdventureMapButton *hideChat = new CAdventureMapButton(CGI->generaltexth->zelp[48], std::bind(&InfoCard::toggleChat, card), 619, 83, "GSPBUT2.DEF", SDLK_h);
+				CButton *hideChat = new CButton(Point(619, 83), "GSPBUT2.DEF", CGI->generaltexth->zelp[48], boost::bind(&InfoCard::toggleChat, card), SDLK_h);
 				hideChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL);
 
 				if(multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST)
 				{
-					SDL_Color orange = {232, 184, 32, 0};
-					select->text->color = opts->text->color = randomBtn->text->color = orange;
 					select->block(true);
 					opts->block(true);
 					randomBtn->block(true);
@@ -681,21 +687,21 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		break;
 	case CMenuScreen::loadGame:
 		sel->recActions = 255;
-        start  = new CAdventureMapButton(CGI->generaltexth->zelp[103], std::bind(&CSelectionScreen::startScenario, this), 411, 535, "SCNRLOD.DEF", SDLK_l);
+		start  = new CButton(Point(411, 535), "SCNRLOD.DEF", CGI->generaltexth->zelp[103], boost::bind(&CSelectionScreen::startScenario, this), SDLK_l);
 		break;
 	case CMenuScreen::saveGame:
 		sel->recActions = 255;
-        start  = new CAdventureMapButton("", CGI->generaltexth->zelp[103].second, std::bind(&CSelectionScreen::startScenario, this), 411, 535, "SCNRSAV.DEF");
+		start  = new CButton(Point(411, 535), "SCNRSAV.DEF", CGI->generaltexth->zelp[103], boost::bind(&CSelectionScreen::startScenario, this), SDLK_s);
 		break;
 	case CMenuScreen::campaignList:
 		sel->recActions = 255;
-        start  = new CAdventureMapButton(std::pair<std::string, std::string>(), std::bind(&CSelectionScreen::startCampaign, this), 411, 535, "SCNRLOD.DEF", SDLK_b);
+		start  = new CButton(Point(411, 535), "SCNRLOD.DEF", CButton::tooltip(), boost::bind(&CSelectionScreen::startCampaign, this), SDLK_b);
 		break;
 	}
 
 	start->assignedKeys.insert(SDLK_RETURN);
 
-    back = new CAdventureMapButton("", CGI->generaltexth->zelp[105].second, std::bind(&CGuiHandler::popIntTotally, &GH, this), 581, 535, "SCNRBACK.DEF", SDLK_ESCAPE);
+	back = new CButton(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], boost::bind(&CGuiHandler::popIntTotally, &GH, this), SDLK_ESCAPE);
 
 	if(network)
 	{
@@ -995,7 +1001,7 @@ void CSelectionScreen::setSInfo(const StartInfo &si)
 	if(current)
 		opt->recreate(); //will force to recreate using current sInfo
 
-	card->difficulty->select(si.difficulty, 0);
+	card->difficulty->setSelected(si.difficulty);
 
 	GH.totalRedraw();
 }
@@ -1258,7 +1264,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 			int sizes[] = {36, 72, 108, 144, 0};
 			const char * names[] = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
 			for(int i = 0; i < 5; i++)
-                new CAdventureMapButton("", CGI->generaltexth->zelp[54+i].second, std::bind(&SelectionTab::filter, this, sizes[i], true), 158 + 47*i, 46, names[i]);
+				new CButton(Point(158 + 47*i, 46), names[i], CGI->generaltexth->zelp[54+i], boost::bind(&SelectionTab::filter, this, sizes[i], true));
 		}
 
 		//sort buttons buttons
@@ -1272,20 +1278,19 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 				if(criteria == _name)
 					criteria = generalSortingBy;
 
-                new CAdventureMapButton("", CGI->generaltexth->zelp[107+i].second, std::bind(&SelectionTab::sortBy, this, criteria), xpos[i], 86, names[i]);
+				new CButton(Point(xpos[i], 86), names[i], CGI->generaltexth->zelp[107+i], boost::bind(&SelectionTab::sortBy, this, criteria));
 			}
 		}
 	}
 	else
 	{
 		//sort by buttons
-        new CAdventureMapButton("", "", std::bind(&SelectionTab::sortBy, this, _numOfMaps), 23, 86, "CamCusM.DEF"); //by num of maps
-        new CAdventureMapButton("", "", std::bind(&SelectionTab::sortBy, this, _name), 55, 86, "CamCusL.DEF"); //by name
+		new CButton(Point(23, 86), "CamCusM.DEF", CButton::tooltip(), boost::bind(&SelectionTab::sortBy, this, _numOfMaps)); //by num of maps
+		new CButton(Point(55, 86), "CamCusL.DEF", CButton::tooltip(), boost::bind(&SelectionTab::sortBy, this, _name)); //by name
 	}
 
-    slider = new CSlider(372, 86, tabType != CMenuScreen::saveGame ? 480 : 430, std::bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, 1);
+	slider = new CSlider(Point(372, 86), tabType != CMenuScreen::saveGame ? 480 : 430, boost::bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, CSlider::BLUE);
 	slider->addUsedEvents(WHEEL);
-	slider->slider->keepFrame = true;
 	format =  CDefHandler::giveDef("SCSELC.DEF");
 
 	sortingBy = _format;
@@ -1351,16 +1356,16 @@ void SelectionTab::select( int position )
 	if(!curItems.size()) return;
 
 	// New selection. py is the index in curItems.
-	int py = position + slider->value;
+	int py = position + slider->getValue();
 	vstd::amax(py, 0);
 	vstd::amin(py, curItems.size()-1);
 
 	selectionPos = py;
 
 	if(position < 0)
-		slider->moveTo(slider->value + position);
+		slider->moveBy(position);
 	else if(position >= positions)
-		slider->moveTo(slider->value + position - positions + 1);
+		slider->moveBy(position - positions + 1);
 
 	if(txt)
 	{
@@ -1374,7 +1379,7 @@ void SelectionTab::select( int position )
 
 void SelectionTab::selectAbs( int position )
 {
-	select(position - slider->value);
+	select(position - slider->getValue());
 }
 
 int SelectionTab::getPosition( int x, int y )
@@ -1397,7 +1402,7 @@ void SelectionTab::sliderMove( int slidPos )
 void SelectionTab::printMaps(SDL_Surface *to)
 {
 
-	int elemIdx = slider->value;
+	int elemIdx = slider->getValue();
 
 	// Display all elements if there's enough space
 	//if(slider->amount < slider->capacity)
@@ -1555,15 +1560,15 @@ void SelectionTab::keyPressed( const SDL_KeyboardEvent & key )
 		moveBy = +positions-1;
 		break;
 	case SDLK_HOME:
-		select(-slider->value);
+		select(-slider->getValue());
 		return;
 	case SDLK_END:
-		select(curItems.size() - slider->value);
+		select(curItems.size() - slider->getValue());
 		return;
 	default:
 		return;
 	}
-	select(selectionPos - slider->value + moveBy);
+	select(selectionPos - slider->getValue() + moveBy);
 }
 
 void SelectionTab::onDoubleClick()
@@ -1571,7 +1576,7 @@ void SelectionTab::onDoubleClick()
 	if(getLine() != -1) //double clicked scenarios list
 	{
 		//act as if start button was pressed
-		(static_cast<CSelectionScreen*>(parent))->start->callback();
+		(static_cast<CSelectionScreen*>(parent))->start->clickLeft(false, true);
 	}
 }
 
@@ -1616,27 +1621,25 @@ CRandomMapTab::CRandomMapTab()
 	bg = new CPicture("RANMAPBK", 0, 6);
 
 	// Map Size
-	mapSizeBtnGroup = new CHighlightableButtonsGroup(0);
+	mapSizeBtnGroup = new CToggleGroup(0);
 	mapSizeBtnGroup->pos.y += 81;
 	mapSizeBtnGroup->pos.x += 158;
 	const std::vector<std::string> mapSizeBtns = boost::assign::list_of("RANSIZS")("RANSIZM")("RANSIZL")("RANSIZX");
 	addButtonsToGroup(mapSizeBtnGroup, mapSizeBtns, 0, 3, 47, 198);
-	mapSizeBtnGroup->select(1, false);
-	mapSizeBtnGroup->onChange = [&](int btnId)
+	mapSizeBtnGroup->setSelected(1);
+	mapSizeBtnGroup->addCallback([&](int btnId)
 	{
 		const std::vector<int> mapSizeVal = boost::assign::list_of(CMapHeader::MAP_SIZE_SMALL)(CMapHeader::MAP_SIZE_MIDDLE)
 				(CMapHeader::MAP_SIZE_LARGE)(CMapHeader::MAP_SIZE_XLARGE);
 		mapGenOptions.setWidth(mapSizeVal[btnId]);
 		mapGenOptions.setHeight(mapSizeVal[btnId]);
 		updateMapInfo();
-	};
+	});
 
 	// Two levels
-	twoLevelsBtn = new CHighlightableButton(0, 0, std::map<int,std::string>(),
-		CGI->generaltexth->zelp[202].second, false, "RANUNDR", nullptr, 346, 81);
+	twoLevelsBtn = new CToggleButton(Point(346, 81), "RANUNDR", CGI->generaltexth->zelp[202]);
 	//twoLevelsBtn->select(true); for now, deactivated
-	twoLevelsBtn->callback = [&]() { mapGenOptions.setHasTwoLevels(true); updateMapInfo(); };
-	twoLevelsBtn->callback2 = [&]() { mapGenOptions.setHasTwoLevels(false); updateMapInfo(); };
+	twoLevelsBtn->addCallback([&](bool on) { mapGenOptions.setHasTwoLevels(on); updateMapInfo(); });
 
 	// Create number defs list
 	std::vector<std::string> numberDefs;
@@ -1648,128 +1651,130 @@ CRandomMapTab::CRandomMapTab()
 	const int NUMBERS_WIDTH = 32;
 	const int BTNS_GROUP_LEFT_MARGIN = 67;
 	// Amount of players
-	playersCntGroup = new CHighlightableButtonsGroup(0);
+	playersCntGroup = new CToggleGroup(0);
 	playersCntGroup->pos.y += 153;
 	playersCntGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	addButtonsWithRandToGroup(playersCntGroup, numberDefs, 1, 8, NUMBERS_WIDTH, 204, 212);
-	playersCntGroup->onChange = [&](int btnId)
+	playersCntGroup->addCallback([&](int btnId)
 	{
 		mapGenOptions.setPlayerCount(btnId);
 		deactivateButtonsFrom(teamsCntGroup, btnId);
 		deactivateButtonsFrom(compOnlyPlayersCntGroup, 8 - btnId + 1);
 		validatePlayersCnt(btnId);
 		updateMapInfo();
-	};
+	});
 
 	// Amount of teams
-	teamsCntGroup = new CHighlightableButtonsGroup(0);
+	teamsCntGroup = new CToggleGroup(0);
 	teamsCntGroup->pos.y += 219;
 	teamsCntGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	addButtonsWithRandToGroup(teamsCntGroup, numberDefs, 0, 7, NUMBERS_WIDTH, 214, 222);
-	teamsCntGroup->onChange = [&](int btnId)
+	teamsCntGroup->addCallback([&](int btnId)
 	{
 		mapGenOptions.setTeamCount(btnId);
 		updateMapInfo();
-	};
+	});
 
 	// Computer only players
-	compOnlyPlayersCntGroup = new CHighlightableButtonsGroup(0);
+	compOnlyPlayersCntGroup = new CToggleGroup(0);
 	compOnlyPlayersCntGroup->pos.y += 285;
 	compOnlyPlayersCntGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	addButtonsWithRandToGroup(compOnlyPlayersCntGroup, numberDefs, 0, 7, NUMBERS_WIDTH, 224, 232);
-	compOnlyPlayersCntGroup->select(0, true);
-	compOnlyPlayersCntGroup->onChange = [&](int btnId)
+	compOnlyPlayersCntGroup->setSelected(0);
+	compOnlyPlayersCntGroup->addCallback([&](int btnId)
 	{
 		mapGenOptions.setCompOnlyPlayerCount(btnId);
 		deactivateButtonsFrom(compOnlyTeamsCntGroup, btnId);
 		validateCompOnlyPlayersCnt(btnId);
 		updateMapInfo();
-	};
+	});
 
 	// Computer only teams
-	compOnlyTeamsCntGroup = new CHighlightableButtonsGroup(0);
+	compOnlyTeamsCntGroup = new CToggleGroup(0);
 	compOnlyTeamsCntGroup->pos.y += 351;
 	compOnlyTeamsCntGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	addButtonsWithRandToGroup(compOnlyTeamsCntGroup, numberDefs, 0, 6, NUMBERS_WIDTH, 234, 241);
 	deactivateButtonsFrom(compOnlyTeamsCntGroup, 0);
-	compOnlyTeamsCntGroup->onChange = [&](int btnId)
+	compOnlyTeamsCntGroup->addCallback([&](int btnId)
 	{
 		mapGenOptions.setCompOnlyTeamCount(btnId);
 		updateMapInfo();
-	};
+	});
 
 	const int WIDE_BTN_WIDTH = 85;
 	// Water content
-	waterContentGroup = new CHighlightableButtonsGroup(0);
+	waterContentGroup = new CToggleGroup(0);
 	waterContentGroup->pos.y += 419;
 	waterContentGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	const std::vector<std::string> waterContentBtns = boost::assign::list_of("RANNONE")("RANNORM")("RANISLD");
 	addButtonsWithRandToGroup(waterContentGroup, waterContentBtns, 0, 2, WIDE_BTN_WIDTH, 243, 246);
-	waterContentGroup->onChange = [&](int btnId)
+	waterContentGroup->addCallback([&](int btnId)
 	{
 		mapGenOptions.setWaterContent(static_cast<EWaterContent::EWaterContent>(btnId));
-	};
+	});
 
 	// Monster strength
-	monsterStrengthGroup = new CHighlightableButtonsGroup(0);
+	monsterStrengthGroup = new CToggleGroup(0);
 	monsterStrengthGroup->pos.y += 485;
 	monsterStrengthGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	const std::vector<std::string> monsterStrengthBtns = boost::assign::list_of("RANWEAK")("RANNORM")("RANSTRG");
 	addButtonsWithRandToGroup(monsterStrengthGroup, monsterStrengthBtns, 0, 2, WIDE_BTN_WIDTH, 248, 251);
-	monsterStrengthGroup->onChange = [&](int btnId)
+	monsterStrengthGroup->addCallback([&](int btnId)
 	{
 		if (btnId < 0)
 			mapGenOptions.setMonsterStrength(EMonsterStrength::RANDOM);
 		else
 			mapGenOptions.setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(btnId + EMonsterStrength::GLOBAL_WEAK)); //value 2 to 4
-	};
+	});
 
 	// Show random maps btn
-	showRandMaps = new CAdventureMapButton("", CGI->generaltexth->zelp[252].second, 0, 54, 535, "RANSHOW");
+	showRandMaps = new CButton(Point(54, 535), "RANSHOW", CGI->generaltexth->zelp[252]);
 
 	// Initialize map info object
 	updateMapInfo();
 }
 
-void CRandomMapTab::addButtonsWithRandToGroup(CHighlightableButtonsGroup * group, const std::vector<std::string> & defs, int nStart, int nEnd, int btnWidth, int helpStartIndex, int helpRandIndex) const
+void CRandomMapTab::addButtonsWithRandToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int nStart, int nEnd, int btnWidth, int helpStartIndex, int helpRandIndex) const
 {
 	addButtonsToGroup(group, defs, nStart, nEnd, btnWidth, helpStartIndex);
 
 	// Buttons are relative to button group, TODO better solution?
 	SObjectConstruction obj__i(group);
 	const std::string RANDOM_DEF = "RANRAND";
-	group->addButton(new CHighlightableButton("", CGI->generaltexth->zelp[helpRandIndex].second, 0, 256, 0, RANDOM_DEF, CMapGenOptions::RANDOM_SIZE));
-	group->select(CMapGenOptions::RANDOM_SIZE, true);
+	group->addToggle(CMapGenOptions::RANDOM_SIZE, new CToggleButton(Point(256, 0), RANDOM_DEF, CGI->generaltexth->zelp[helpRandIndex]));
+	group->setSelected(CMapGenOptions::RANDOM_SIZE);
 }
 
-void CRandomMapTab::addButtonsToGroup(CHighlightableButtonsGroup * group, const std::vector<std::string> & defs, int nStart, int nEnd, int btnWidth, int helpStartIndex) const
+void CRandomMapTab::addButtonsToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int nStart, int nEnd, int btnWidth, int helpStartIndex) const
 {
 	// Buttons are relative to button group, TODO better solution?
 	SObjectConstruction obj__i(group);
 	int cnt = nEnd - nStart + 1;
 	for(int i = 0; i < cnt; ++i)
 	{
-		group->addButton(new CHighlightableButton("", CGI->generaltexth->zelp[helpStartIndex + i].second, 0, i * btnWidth, 0, defs[i + nStart], i + nStart));
+		auto button = new CToggleButton(Point(i * btnWidth, 0), defs[i + nStart], CGI->generaltexth->zelp[helpStartIndex + i]);
+		// For blocked state we should use pressed image actually
+		button->setImageOrder(0, 1, 1, 3);
+
+		group->addToggle(i + nStart, button);
 	}
 }
 
-void CRandomMapTab::deactivateButtonsFrom(CHighlightableButtonsGroup * group, int startId)
+void CRandomMapTab::deactivateButtonsFrom(CToggleGroup * group, int startId)
 {
-	for(CHighlightableButton * btn : group->buttons)
+	logGlobal->infoStream() << "Blocking buttons from " << startId;
+	for(auto toggle : group->buttons)
 	{
-		if(startId == CMapGenOptions::RANDOM_SIZE || btn->ID < startId)
+		if (auto button = dynamic_cast<CToggleButton*>(toggle.second))
 		{
-			if(btn->isBlocked())
+			if(startId == CMapGenOptions::RANDOM_SIZE || toggle.first < startId)
 			{
-				btn->setOffset(0);
-				btn->setState(CButtonBase::NORMAL);
+				button->block(false);
 			}
-		}
-		else
-		{
-			// Blocked state looks like frame 'selected'=1
-			btn->setOffset(-1);
-			btn->setState(CButtonBase::BLOCKED);
+			else
+			{
+				button->block(true);
+			}
 		}
 	}
 }
@@ -1784,12 +1789,12 @@ void CRandomMapTab::validatePlayersCnt(int playersCnt)
 	if(mapGenOptions.getTeamCount() >= playersCnt)
 	{
 		mapGenOptions.setTeamCount(playersCnt - 1);
-		teamsCntGroup->select(mapGenOptions.getTeamCount(), true);
+		teamsCntGroup->setSelected(mapGenOptions.getTeamCount());
 	}
 	if(mapGenOptions.getCompOnlyPlayerCount() > 8 - playersCnt)
 	{
 		mapGenOptions.setCompOnlyPlayerCount(8 - playersCnt);
-		compOnlyPlayersCntGroup->select(mapGenOptions.getCompOnlyPlayerCount(), true);
+		compOnlyPlayersCntGroup->setSelected(mapGenOptions.getCompOnlyPlayerCount());
 	}
 
 	validateCompOnlyPlayersCnt(mapGenOptions.getCompOnlyPlayerCount());
@@ -1805,7 +1810,7 @@ void CRandomMapTab::validateCompOnlyPlayersCnt(int compOnlyPlayersCnt)
 	if(mapGenOptions.getCompOnlyTeamCount() >= compOnlyPlayersCnt)
 	{
 		mapGenOptions.setCompOnlyTeamCount(compOnlyPlayersCnt - 1);
-		compOnlyTeamsCntGroup->select(mapGenOptions.getCompOnlyTeamCount(), true);
+		compOnlyTeamsCntGroup->setSelected(mapGenOptions.getCompOnlyTeamCount());
 	}
 }
 
@@ -1960,19 +1965,19 @@ InfoCard::InfoCard( bool Network )
 		pos.h = bg->pos.h;
 		sizes = CDefHandler::giveDef("SCNRMPSZ.DEF");
 		sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
-		difficulty = new CHighlightableButtonsGroup(0);
+		difficulty = new CToggleGroup(0);
 		{
 			static const char *difButns[] = {"GSPBUT3.DEF", "GSPBUT4.DEF", "GSPBUT5.DEF", "GSPBUT6.DEF", "GSPBUT7.DEF"};
 
 			for(int i = 0; i < 5; i++)
 			{
-				difficulty->addButton(new CHighlightableButton("", CGI->generaltexth->zelp[24+i].second, 0, 110 + i*32, 450, difButns[i], i));
+				auto button = new CToggleButton(Point(110 + i*32, 450), difButns[i], CGI->generaltexth->zelp[24+i]);
+
+				difficulty->addToggle(i, button);
+				if(SEL->screenType != CMenuScreen::newGame)
+					button->block(true);
 			}
 		}
-
-		if(SEL->screenType != CMenuScreen::newGame)
-			difficulty->block(true);
-
 
 		if(network)
 		{
@@ -2161,8 +2166,8 @@ void InfoCard::changeSelection( const CMapInfo *to )
 			mapDescription->setText(to->mapHeader->description);
 
 		if(SEL->screenType != CMenuScreen::newGame && SEL->screenType != CMenuScreen::campaignList) {
-			difficulty->block(true);
-			difficulty->select(SEL->sInfo.difficulty, 0);
+			//difficulty->block(true);
+			difficulty->setSelected(SEL->sInfo.difficulty);
 		}
 	}
 	redraw();
@@ -2242,7 +2247,7 @@ OptionsTab::OptionsTab():
 	pos = bg->pos;
 
 	if(SEL->screenType == CMenuScreen::newGame)
-        turnDuration = new CSlider(55, 551, 194, std::bind(&OptionsTab::setTurnLength, this, _1), 1, 11, 11, true, 1);
+		turnDuration = new CSlider(Point(55, 551), 194, boost::bind(&OptionsTab::setTurnLength, this, _1), 1, 11, 11, true, CSlider::BLUE);
 }
 
 OptionsTab::~OptionsTab()
@@ -2261,7 +2266,7 @@ void OptionsTab::showAll(SDL_Surface * to)
 	printAtMiddleWBLoc(CGI->generaltexth->allTexts[520], 349, 110, FONT_SMALL, 70, Colors::YELLOW, to); //Starting Bonus
 	printAtMiddleLoc(CGI->generaltexth->allTexts[521], 222, 538, FONT_SMALL, Colors::YELLOW, to); // Player Turn Duration
 	if (turnDuration)
-		printAtMiddleLoc(CGI->generaltexth->turnDurations[turnDuration->value], 319,559, FONT_SMALL, Colors::WHITE, to);//Turn duration value
+		printAtMiddleLoc(CGI->generaltexth->turnDurations[turnDuration->getValue()], 319,559, FONT_SMALL, Colors::WHITE, to);//Turn duration value
 }
 
 void OptionsTab::nextCastle( PlayerColor player, int dir )
@@ -2546,12 +2551,12 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 	bg = new CPicture(BitmapHandler::loadBitmap(bgs[s.color.getNum()]), 0, 0, true);
 	if(SEL->screenType == CMenuScreen::newGame)
 	{
-        btns[0] = new CAdventureMapButton(CGI->generaltexth->zelp[132], std::bind(&OptionsTab::nextCastle, owner, s.color, -1), 107, 5, "ADOPLFA.DEF");
-        btns[1] = new CAdventureMapButton(CGI->generaltexth->zelp[133], std::bind(&OptionsTab::nextCastle, owner, s.color, +1), 168, 5, "ADOPRTA.DEF");
-        btns[2] = new CAdventureMapButton(CGI->generaltexth->zelp[148], std::bind(&OptionsTab::nextHero, owner, s.color, -1), 183, 5, "ADOPLFA.DEF");
-        btns[3] = new CAdventureMapButton(CGI->generaltexth->zelp[149], std::bind(&OptionsTab::nextHero, owner, s.color, +1), 244, 5, "ADOPRTA.DEF");
-        btns[4] = new CAdventureMapButton(CGI->generaltexth->zelp[164], std::bind(&OptionsTab::nextBonus, owner, s.color, -1), 259, 5, "ADOPLFA.DEF");
-        btns[5] = new CAdventureMapButton(CGI->generaltexth->zelp[165], std::bind(&OptionsTab::nextBonus, owner, s.color, +1), 320, 5, "ADOPRTA.DEF");
+		btns[0] = new CButton(Point(107, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[132], boost::bind(&OptionsTab::nextCastle, owner, s.color, -1));
+		btns[1] = new CButton(Point(168, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[133], boost::bind(&OptionsTab::nextCastle, owner, s.color, +1));
+		btns[2] = new CButton(Point(183, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[148], boost::bind(&OptionsTab::nextHero, owner, s.color, -1));
+		btns[3] = new CButton(Point(244, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[149], boost::bind(&OptionsTab::nextHero, owner, s.color, +1));
+		btns[4] = new CButton(Point(259, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[164], boost::bind(&OptionsTab::nextBonus, owner, s.color, -1));
+		btns[5] = new CButton(Point(320, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[165], boost::bind(&OptionsTab::nextBonus, owner, s.color, +1));
 	}
 	else
 		for(auto & elem : btns)
@@ -2573,7 +2578,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 		&&  SEL->current->mapHeader->players[s.color.getNum()].canHumanPlay
 		&&  SEL->multiPlayer != CMenuScreen::MULTI_NETWORK_GUEST)
 	{
-        flag = new CAdventureMapButton(CGI->generaltexth->zelp[180], std::bind(&OptionsTab::flagPressed, owner, s.color), -43, 2, flags[s.color.getNum()]);
+		flag = new CButton(Point(-43, 2), flags[s.color.getNum()], CGI->generaltexth->zelp[180], boost::bind(&OptionsTab::flagPressed, owner, s.color));
 		flag->hoverable = true;
 	}
 	else
@@ -2979,8 +2984,8 @@ CScenarioInfo::CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *start
 	opt->recreate();
 	card->changeSelection(current);
 
-	card->difficulty->select(startInfo->difficulty, 0);
-    back = new CAdventureMapButton("", CGI->generaltexth->zelp[105].second, std::bind(&CGuiHandler::popIntTotally, &GH, this), 584, 535, "SCNRBACK.DEF", SDLK_ESCAPE);
+	card->difficulty->setSelected(startInfo->difficulty);
+	back = new CButton(Point(584, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], boost::bind(&CGuiHandler::popIntTotally, &GH, this), SDLK_ESCAPE);
 }
 
 CScenarioInfo::~CScenarioInfo()
@@ -3059,10 +3064,10 @@ CMultiMode::CMultiMode()
 	txt = new CTextInput(Rect(19, 436, 334, 16), *bg);
 	txt->setText(settings["general"]["playerName"].String()); //Player
 
-    btns[0] = new CAdventureMapButton(CGI->generaltexth->zelp[266], std::bind(&CMultiMode::openHotseat, this), 373, 78, "MUBHOT.DEF");
-    btns[1] = new CAdventureMapButton("Host TCP/IP game", "", std::bind(&CMultiMode::hostTCP, this), 373, 78 + 57*1, "MUBHOST.DEF");
-    btns[2] = new CAdventureMapButton("Join TCP/IP game", "", std::bind(&CMultiMode::joinTCP, this), 373, 78 + 57*2, "MUBJOIN.DEF");
-    btns[6] = new CAdventureMapButton(CGI->generaltexth->zelp[288], std::bind(&CGuiHandler::popIntTotally, std::ref(GH), this), 373, 424, "MUBCANC.DEF", SDLK_ESCAPE);
+	btns[0] = new CButton(Point(373, 78),        "MUBHOT.DEF",  CGI->generaltexth->zelp[266], boost::bind(&CMultiMode::openHotseat, this));
+	btns[1] = new CButton(Point(373, 78 + 57*1), "MUBHOST.DEF", CButton::tooltip("Host TCP/IP game", ""), boost::bind(&CMultiMode::hostTCP, this));
+	btns[2] = new CButton(Point(373, 78 + 57*2), "MUBJOIN.DEF", CButton::tooltip("Join TCP/IP game", ""), boost::bind(&CMultiMode::joinTCP, this));
+	btns[6] = new CButton(Point(373, 424),       "MUBCANC.DEF", CGI->generaltexth->zelp[288], [&] { GH.popIntTotally(this);}, SDLK_ESCAPE);
 }
 
 void CMultiMode::openHotseat()
@@ -3102,8 +3107,8 @@ CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
         txt[i]->cb += std::bind(&CHotSeatPlayers::onChange, this, _1);
 	}
 
-    ok = new CAdventureMapButton(CGI->generaltexth->zelp[560], std::bind(&CHotSeatPlayers::enterSelectionScreen, this), 95, 338, "MUBCHCK.DEF", SDLK_RETURN);
-    cancel = new CAdventureMapButton(CGI->generaltexth->zelp[561], std::bind(&CGuiHandler::popIntTotally, std::ref(GH), this), 205, 338, "MUBCANC.DEF", SDLK_ESCAPE);
+	ok = new CButton(Point(95, 338), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], boost::bind(&CHotSeatPlayers::enterSelectionScreen, this), SDLK_RETURN);
+	cancel = new CButton(Point(205, 338), "MUBCANC.DEF", CGI->generaltexth->zelp[561], boost::bind(&CGuiHandler::popIntTotally, boost::ref(GH), this), SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(Rect(7, 381, 348, 18), 0));//226, 472
 
 	txt[0]->setText(firstPlayer, true);
@@ -3166,9 +3171,9 @@ void CBonusSelection::init()
 
 	blitAt(panel, 456, 6, background);
 
-    startB = new CAdventureMapButton("", "", std::bind(&CBonusSelection::startMap, this), 475, 536, "CBBEGIB.DEF", SDLK_RETURN);
-    restartB = new CAdventureMapButton("", "", std::bind(&CBonusSelection::restartMap, this), 475, 536, "CBRESTB.DEF", SDLK_RETURN);
-    backB = new CAdventureMapButton("", "", std::bind(&CBonusSelection::goBack, this), 624, 536, "CBCANCB.DEF", SDLK_ESCAPE);
+	startB   = new CButton(Point(475, 536), "CBBEGIB.DEF", CButton::tooltip(), boost::bind(&CBonusSelection::startMap, this), SDLK_RETURN);
+	restartB = new CButton(Point(475, 536), "CBRESTB.DEF", CButton::tooltip(), boost::bind(&CBonusSelection::restartMap, this), SDLK_RETURN);
+	backB    = new CButton(Point(624, 536), "CBCANCB.DEF", CButton::tooltip(), boost::bind(&CBonusSelection::goBack, this), SDLK_ESCAPE);
 
 	//campaign name
 	if (ourCampaign->camp->header.name.length())
@@ -3190,7 +3195,7 @@ void CBonusSelection::init()
 
 	//bonus choosing
 	graphics->fonts[FONT_MEDIUM]->renderTextLeft(background, CGI->generaltexth->allTexts[71], Colors::WHITE, Point(511, 432));
-	bonuses = new CHighlightableButtonsGroup(bind(&CBonusSelection::selectBonus, this, _1));
+	bonuses = new CToggleGroup(bind(&CBonusSelection::selectBonus, this, _1));
 
 	//set left part of window
 	bool isCurrentMapConquerable = ourCampaign->currentMap && ourCampaign->camp->conquerable(*ourCampaign->currentMap);
@@ -3241,8 +3246,8 @@ void CBonusSelection::init()
 	//difficulty selection buttons
 	if (ourCampaign->camp->header.difficultyChoosenByPlayer)
 	{
-        diffLb = new CAdventureMapButton("", "", std::bind(&CBonusSelection::decreaseDifficulty, this), 694, 508, "SCNRBLF.DEF");
-        diffRb = new CAdventureMapButton("", "", std::bind(&CBonusSelection::increaseDifficulty, this), 738, 508, "SCNRBRT.DEF");
+		diffLb = new CButton(Point(694, 508), "SCNRBLF.DEF", CButton::tooltip(), boost::bind(&CBonusSelection::decreaseDifficulty, this));
+		diffRb = new CButton(Point(738, 508), "SCNRBRT.DEF", CButton::tooltip(), boost::bind(&CBonusSelection::increaseDifficulty, this));
 	}
 
 	//load miniflags
@@ -3442,13 +3447,8 @@ void CBonusSelection::updateBonusSelection()
 
 	updateStartButtonState(-1);
 
-	for (auto & elem : bonuses->buttons)
-	{
-		if (elem->active)
-			elem->deactivate();
-		delete elem;
-	}
-	bonuses->buttons.clear();
+	delete bonuses;
+	bonuses = new CToggleGroup(bind(&CBonusSelection::selectBonus, this, _1));
 
 	static const char *bonusPics[] = {"SPELLBON.DEF", "TWCRPORT.DEF", "", "ARTIFBON.DEF", "SPELLBON.DEF",
 		"PSKILBON.DEF", "SSKILBON.DEF", "BORES.DEF", "PORTRAITSLARGE", "PORTRAITSLARGE"};
@@ -3602,7 +3602,7 @@ void CBonusSelection::updateBonusSelection()
 			break;
 		}
 
-		CHighlightableButton *bonusButton = new CHighlightableButton(desc, desc, 0, 475 + i*68, 455, "", i);
+		CToggleButton *bonusButton = new CToggleButton(Point(475 + i*68, 455), "", CButton::tooltip(desc, desc));
 
 		if (picNumber != -1)
 			picName += ":" + boost::lexical_cast<std::string>(picNumber);
@@ -3612,13 +3612,13 @@ void CBonusSelection::updateBonusSelection()
 		bonusButton->setImage(anim);
 		const SDL_Color brightYellow = { 242, 226, 110, 0 };
 		bonusButton->borderColor = brightYellow;
-		bonuses->addButton(bonusButton);
+		bonuses->addToggle(i, bonusButton);
 	}
 
 	// set bonus if already chosen
 	if(vstd::contains(ourCampaign->chosenCampaignBonuses, selectedMap))
 	{
-		bonuses->select(ourCampaign->chosenCampaignBonuses[selectedMap], false);
+		bonuses->setSelected(ourCampaign->chosenCampaignBonuses[selectedMap]);
 	}
 }
 
@@ -3727,11 +3727,11 @@ void CBonusSelection::updateStartButtonState(int selected /*= -1*/)
 {
 	if(selected == -1)
 	{
-		startB->setState(ourCampaign->camp->scenarios[selectedMap].travelOptions.bonusesToChoose.size() ? CButtonBase::BLOCKED : CButtonBase::NORMAL);
+		startB->block(ourCampaign->camp->scenarios[selectedMap].travelOptions.bonusesToChoose.size());
 	}
-	else if(startB->getState() == CButtonBase::BLOCKED)
+	else if(startB->isBlocked())
 	{
-		startB->setState(CButtonBase::NORMAL);
+		startB->block(false);
 	}
 }
 
@@ -4091,14 +4091,14 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
 	}
 }
 
-CAdventureMapButton* CCampaignScreen::createExitButton(const JsonNode& button)
+CButton* CCampaignScreen::createExitButton(const JsonNode& button)
 {
 	std::pair<std::string, std::string> help;
 	if (!button["help"].isNull() && button["help"].Float() > 0)
 		help = CGI->generaltexth->zelp[button["help"].Float()];
 
-    std::function<void()> close = std::bind(&CGuiHandler::popIntTotally, &GH, this);
-	return new CAdventureMapButton(help, close, button["x"].Float(), button["y"].Float(), button["name"].String(), button["hotkey"].Float());
+	std::function<void()> close = boost::bind(&CGuiHandler::popIntTotally, &GH, this);
+	return new CButton(Point(button["x"].Float(), button["y"].Float()), button["name"].String(), help, close, button["hotkey"].Float());
 }
 
 
@@ -4239,8 +4239,8 @@ CSimpleJoinScreen::CSimpleJoinScreen()
     port->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
     port->filters.add(std::bind(&CTextInput::numberFilter, _1, _2, 0, 65535));
 
-    ok = new CAdventureMapButton(CGI->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::enterSelectionScreen, this), 26, 142, "MUBCHCK.DEF", SDLK_RETURN);
-    cancel = new CAdventureMapButton(CGI->generaltexth->zelp[561], std::bind(&CGuiHandler::popIntTotally, std::ref(GH), this), 142, 142, "MUBCANC.DEF", SDLK_ESCAPE);
+	ok     = new CButton(Point( 26, 142), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], boost::bind(&CSimpleJoinScreen::enterSelectionScreen, this), SDLK_RETURN);
+	cancel = new CButton(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], boost::bind(&CGuiHandler::popIntTotally, boost::ref(GH), this), SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(Rect(7, 186, 218, 18), 0));
 
 	port->setText(boost::lexical_cast<std::string>(settings["server"]["port"].Float()), true);

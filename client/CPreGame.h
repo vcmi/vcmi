@@ -1,12 +1,11 @@
 #pragma once
 
-#include "../lib/filesystem/Filesystem.h"
-#include <SDL.h>
+//#include "../lib/filesystem/Filesystem.h"
 #include "../lib/StartInfo.h"
-#include "GUIClasses.h"
 #include "../lib/FunctionList.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/rmg/CMapGenerator.h"
+#include "windows/CWindowObject.h"
 
 /*
  * CPreGame.h, part of VCMI engine
@@ -18,6 +17,7 @@
  *
  */
 
+class CMapInfo;
 class CMusicHandler;
 class CMapHeader;
 class CCampaignHeader;
@@ -32,6 +32,12 @@ class CMapGenOptions;
 class CRandomMapTab;
 struct CPackForSelectionScreen;
 struct PlayerInfo;
+class CMultiLineLabel;
+class CToggleButton;
+class CToggleGroup;
+class CTabbedInt;
+class CButton;
+class CSlider;
 
 namespace boost{ class thread; class recursive_mutex;}
 
@@ -80,9 +86,9 @@ public:
 class CMenuEntry : public CIntObject
 {
 	std::vector<CPicture*> images;
-	std::vector<CAdventureMapButton*> buttons;
+	std::vector<CButton*> buttons;
 
-	CAdventureMapButton* createButton(CMenuScreen* parent, const JsonNode& button);
+	CButton* createButton(CMenuScreen* parent, const JsonNode& button);
 public:
 	CMenuEntry(CMenuScreen* parent, const JsonNode &config);
 };
@@ -126,7 +132,7 @@ public:
 	CChatBox *chat;
 	CPicture *playerListBg;
 
-	CHighlightableButtonsGroup *difficulty;
+	CToggleGroup *difficulty;
 	CDefHandler *sizes, *sFlags;
 
 	void changeSelection(const CMapInfo *to);
@@ -239,8 +245,8 @@ public:
 		PlayerInfo &pi;
 		PlayerSettings &s;
 		CPicture *bg;
-		CAdventureMapButton *btns[6]; //left and right for town, hero, bonus
-		CAdventureMapButton *flag;
+		CButton *btns[6]; //left and right for town, hero, bonus
+		CButton *flag;
 		SelectedBox *town;
 		SelectedBox *hero;
 		SelectedBox *bonus;
@@ -296,17 +302,17 @@ public:
 	const CMapGenOptions & getMapGenOptions() const;
 
 private:
-    void addButtonsToGroup(CHighlightableButtonsGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex) const;
-    void addButtonsWithRandToGroup(CHighlightableButtonsGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex, int helpRandIndex) const;
-    void deactivateButtonsFrom(CHighlightableButtonsGroup * group, int startId);
+    void addButtonsToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex) const;
+    void addButtonsWithRandToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex, int helpRandIndex) const;
+    void deactivateButtonsFrom(CToggleGroup * group, int startId);
     void validatePlayersCnt(int playersCnt);
     void validateCompOnlyPlayersCnt(int compOnlyPlayersCnt);
 
     CPicture * bg;
-	CHighlightableButton * twoLevelsBtn;
-	CHighlightableButtonsGroup * mapSizeBtnGroup, * playersCntGroup, * teamsCntGroup, * compOnlyPlayersCntGroup,
+	CToggleButton * twoLevelsBtn;
+	CToggleGroup * mapSizeBtnGroup, * playersCntGroup, * teamsCntGroup, * compOnlyPlayersCntGroup,
 		* compOnlyTeamsCntGroup, * waterContentGroup, * monsterStrengthGroup;
-    CAdventureMapButton * showRandMaps;
+    CButton * showRandMaps;
 	CMapGenOptions mapGenOptions;
 	unique_ptr<CMapInfo> mapInfo;
 	CFunctionList<void(const CMapInfo *)> mapInfoChanged;
@@ -347,7 +353,7 @@ public:
 	InfoCard *card;
 	OptionsTab *opt;
 	CRandomMapTab * randMapTab;
-	CAdventureMapButton *start, *back;
+	CButton *start, *back;
 
 	SelectionTab *sel;
 	CIntObject *curTab;
@@ -395,7 +401,7 @@ public:
 class CScenarioInfo : public CIntObject, public ISelectionScreenInfo
 {
 public:
-	CAdventureMapButton *back;
+	CButton *back;
 	InfoCard *card;
 	OptionsTab *opt;
 
@@ -409,7 +415,7 @@ class CMultiMode : public CIntObject
 public:
 	CPicture *bg;
 	CTextInput *txt;
-	CAdventureMapButton *btns[7]; //0 - hotseat, 6 - cancel
+	CButton *btns[7]; //0 - hotseat, 6 - cancel
 	CGStatusBar *bar;
 
 	CMultiMode();
@@ -424,7 +430,7 @@ class CHotSeatPlayers : public CIntObject
 	CPicture *bg;
 	CTextBox *title;
 	CTextInput* txt[8];
-	CAdventureMapButton *ok, *cancel;
+	CButton *ok, *cancel;
 	CGStatusBar *bar;
 
 	void onChange(std::string newText);
@@ -512,14 +518,14 @@ private:
 
 	// GUI components
 	SDL_Surface * background;
-	CAdventureMapButton * startB, * restartB, * backB;
+	CButton * startB, * restartB, * backB;
 	CTextBox * campaignDescription, * mapDescription;
 	std::vector<SCampPositions> campDescriptions;
 	std::vector<CRegion *> regions;
 	CRegion * highlightedRegion;
-	CHighlightableButtonsGroup * bonuses;
+	CToggleGroup * bonuses;
 	SDL_Surface * diffPics[5]; //pictures of difficulties, user-selectable (or not if campaign locks this)
-	CAdventureMapButton * diffLb, * diffRb; //buttons for changing difficulty
+	CButton * diffLb, * diffRb; //buttons for changing difficulty
 	CDefHandler * sizes; //icons of map sizes
 	CDefHandler * sFlags;
 
@@ -560,11 +566,11 @@ private:
 		void show(SDL_Surface * to);
 	};
 
-	CAdventureMapButton *back;
+	CButton *back;
 	std::vector<CCampaignButton*> campButtons;
 	std::vector<CPicture*> images;
 
-	CAdventureMapButton* createExitButton(const JsonNode& button);
+	CButton* createExitButton(const JsonNode& button);
 
 public:
 	enum CampaignSet {ROE, AB, SOD, WOG};
@@ -630,7 +636,7 @@ class CSimpleJoinScreen : public CIntObject
 {
 	CPicture * bg;
 	CTextBox * title;
-	CAdventureMapButton * ok, * cancel;
+	CButton * ok, * cancel;
 	CGStatusBar * bar;
 	CTextInput * address;
 	CTextInput * port;

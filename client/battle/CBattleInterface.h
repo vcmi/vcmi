@@ -1,10 +1,10 @@
 #pragma once
 
 
-#include "../../lib/CCreatureSet.h"
+//#include "../../lib/CCreatureSet.h"
 #include "../../lib/ConstTransitivePtr.h" //may be reundant
-#include "../CAnimation.h"
 #include "../../lib/GameConstants.h"
+
 #include "CBattleAnimations.h"
 
 /*
@@ -23,9 +23,9 @@ class CGHeroInstance;
 class CDefHandler;
 class CStack;
 class CCallback;
-class CAdventureMapButton;
-class CHighlightableButton;
-class CHighlightableButtonsGroup;
+class CButton;
+class CToggleButton;
+class CToggleGroup;
 struct BattleResult;
 struct BattleSpellCast;
 struct CObstacleInstance;
@@ -120,7 +120,7 @@ class CBattleInterface : public CIntObject
 	};
 private:
 	SDL_Surface * background, * menu, * amountNormal, * amountNegative, * amountPositive, * amountEffNeutral, * cellBorders, * backgroundWithHexes;
-	CAdventureMapButton * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
+	CButton * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
 		* bWait, * bDefence, * bConsoleUp, * bConsoleDown, *btactNext, *btactEnd;
 	CBattleConsole * console;
 	CBattleHero * attackingHero, * defendingHero; //fighting heroes
@@ -338,7 +338,7 @@ public:
 	InfoAboutHero enemyHero() const;
 
 	friend class CPlayerInterface;
-	friend class CAdventureMapButton;
+	friend class CButton;
 	friend class CInGameConsole;
 	
 	friend class CBattleResultWindow;

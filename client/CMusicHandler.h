@@ -2,7 +2,6 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CSoundBase.h"
-#include "../lib/CCreatureHandler.h"
 
 /*
  * CMusicHandler.h, part of VCMI engine

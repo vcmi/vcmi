@@ -54,5 +54,30 @@
 		"anyOf"  :  "Any of the following:",
 		"allOf"  :  "All of the following:",
 		"noneOf" : "None of the following:"
+	},
+	"heroWindow" : {
+		"openCommander" :
+		{
+			"label" : "Open commander window",
+			"help" : "Displays information about commander of this hero"
+		}
+	},
+	"creatureWindow" :
+	{
+		"showBonuses" :
+		{
+			"label" : "Switch to bonuses view",
+			"help" : "Displays all active bonuses of the commander"
+		},
+		"showSkills" :
+		{
+			"label" : "Switch to skills view",
+			"help" : "Displays all learned skills of the commander"
+		},
+		"returnArtifact" :
+		{
+			"label" : "Give back artifact",
+			"help" : "Use this button to return stack artifact back into hero backpack"
+		}
 	}
 }

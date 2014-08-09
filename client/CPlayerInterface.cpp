@@ -1,21 +1,24 @@
 #include "StdInc.h"
-#include "CAdvmapInterface.h"
+#include "windows/CAdvmapInterface.h"
 #include "battle/CBattleInterface.h"
 #include "battle/CBattleInterfaceClasses.h"
 #include "../CCallback.h"
-#include "CCastleInterface.h"
+#include "windows/CCastleInterface.h"
 #include "gui/CCursorHandler.h"
-#include "CKingdomInterface.h"
+#include "windows/CKingdomInterface.h"
 #include "CGameInfo.h"
-#include "CHeroWindow.h"
-#include "CCreatureWindow.h"
-#include "CQuestLog.h"
+#include "windows/CHeroWindow.h"
+#include "windows/CCreatureWindow.h"
+#include "windows/CQuestLog.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
 #include "gui/SDL_Extensions.h"
+#include "widgets/CComponent.h"
+#include "windows/CTradeWindow.h"
 #include "../lib/CConfigHandler.h"
 #include "battle/CCreatureAnimation.h"
 #include "Graphics.h"
+#include "windows/GUIClasses.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -35,7 +38,9 @@
 #include "../lib/CGameState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
+#include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
+#include <SDL.h>
 
 #ifdef min
 #undef min
@@ -494,10 +499,12 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 	waitWhileDialog();
 	CCS->soundh->playSound(soundBase::heroNewLevel);
 
-	CCreatureWindow * cw = new CCreatureWindow(skills, commander,
-												[=](ui32 selection){ cb->selectionMade(selection, queryID); });
-	GH.pushInt(cw);
+	GH.pushInt(new CStackWindow(commander, skills, [=](ui32 selection)
+	{
+		cb->selectionMade(selection, queryID);
+	}));
 }
+
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -1285,8 +1292,8 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	
 	if (adventureInt && adventureInt->isHeroSleeping(h))
 	{
-		adventureInt->sleepWake.clickLeft(true, false);
-		adventureInt->sleepWake.clickLeft(false, true);
+		adventureInt->sleepWake->clickLeft(true, false);
+		adventureInt->sleepWake->clickLeft(false, true);
 		//could've just called
 		//adventureInt->fsleepWake();
 		//but no authentic button click/sound ;-)
@@ -1321,7 +1328,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 	waitForAllDialogs();
 
 	auto  cgw = new CGarrisonWindow(up,down,removableUnits);
-	cgw->quit->callback += onEnd;
+	cgw->quit->addCallback(onEnd);
 	GH.pushInt(cgw);
 }
 
@@ -2239,7 +2246,7 @@ void CPlayerInterface::acceptTurn()
 		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt()))
 			iw->close();
 
-		adventureInt->endTurn.callback();
+		adventureInt->fendTurn();
 	}
 
 	// warn player if he has no town

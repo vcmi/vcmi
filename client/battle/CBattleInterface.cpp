@@ -1,40 +1,38 @@
 #include "StdInc.h"
 #include "CBattleInterface.h"
 
-#include "../CGameInfo.h"
-#include "../gui/SDL_Extensions.h"
-#include "../CAdvmapInterface.h"
-#include "../CAnimation.h"
-#include "../CBitmapHandler.h"
-#include "../../lib/CHeroHandler.h"
-# include "../CDefHandler.h"
-#include "../../lib/CSpellHandler.h"
-#include "../CMusicHandler.h"
-#include "../CMessage.h"
-#include "../../CCallback.h"
-#include "../../lib/BattleState.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "CCreatureAnimation.h"
-#include "../Graphics.h"
-#include "../CSpellWindow.h"
-#include "../../lib/CConfigHandler.h"
-#include "../../lib/CondSh.h"
-#include "../../lib/NetPacks.h"
-#include "../CPlayerInterface.h"
-#include "../CCreatureWindow.h"
-#include "../CVideoHandler.h"
-#include "../../lib/CTownHandler.h"
-#include "../../lib/mapping/CMap.h"
-#include "../../lib/CRandomGenerator.h"
-
 #include "CBattleAnimations.h"
 #include "CBattleInterfaceClasses.h"
+#include "CCreatureAnimation.h"
 
+#include "../CBitmapHandler.h"
+#include "../CDefHandler.h"
+#include "../CGameInfo.h"
+#include "../CMessage.h"
+#include "../CMT.h"
+#include "../CMusicHandler.h"
+#include "../CPlayerInterface.h"
+#include "../CVideoHandler.h"
+#include "../Graphics.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../CMT.h"
+#include "../gui/SDL_Extensions.h"
+#include "../windows/CAdvmapInterface.h"
+#include "../windows/CCreatureWindow.h"
+#include "../windows/CSpellWindow.h"
 
-
+#include "../../CCallback.h"
+#include "../../lib/BattleState.h"
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/CHeroHandler.h"
+#include "../../lib/CondSh.h"
+#include "../../lib/CRandomGenerator.h"
+#include "../../lib/CSpellHandler.h"
+#include "../../lib/CTownHandler.h"
+#include "../../lib/CGameState.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/NetPacks.h"
 #include "../../lib/UnlockGuard.h"
 
 using namespace boost::assign;
@@ -224,17 +222,17 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 // 	blitAt(menu, pos.x, 556 + pos.y);
 
 	//preparing buttons and console
-	bOptions = new CAdventureMapButton (CGI->generaltexth->zelp[381].first, CGI->generaltexth->zelp[381].second, std::bind(&CBattleInterface::bOptionsf,this), 3, 561, "icm003.def", SDLK_o);
-	bSurrender = new CAdventureMapButton (CGI->generaltexth->zelp[379].first, CGI->generaltexth->zelp[379].second, std::bind(&CBattleInterface::bSurrenderf,this), 54, 561, "icm001.def", SDLK_s);
-	bFlee = new CAdventureMapButton (CGI->generaltexth->zelp[380].first, CGI->generaltexth->zelp[380].second, std::bind(&CBattleInterface::bFleef,this), 105, 561, "icm002.def", SDLK_r);
-	bAutofight  = new CAdventureMapButton (CGI->generaltexth->zelp[382].first, CGI->generaltexth->zelp[382].second, std::bind(&CBattleInterface::bAutofightf,this), 157, 561, "icm004.def", SDLK_a);
-	bSpell = new CAdventureMapButton (CGI->generaltexth->zelp[385].first, CGI->generaltexth->zelp[385].second, std::bind(&CBattleInterface::bSpellf,this), 645, 561, "icm005.def", SDLK_c);
-	bWait = new CAdventureMapButton (CGI->generaltexth->zelp[386].first, CGI->generaltexth->zelp[386].second, std::bind(&CBattleInterface::bWaitf,this), 696, 561, "icm006.def", SDLK_w);
-	bDefence = new CAdventureMapButton (CGI->generaltexth->zelp[387].first, CGI->generaltexth->zelp[387].second, std::bind(&CBattleInterface::bDefencef,this), 747, 561, "icm007.def", SDLK_d);
+	bOptions =     new CButton (Point(  3, 561), "icm003.def", CGI->generaltexth->zelp[381], boost::bind(&CBattleInterface::bOptionsf,this), SDLK_o);
+	bSurrender =   new CButton (Point( 54, 561), "icm001.def", CGI->generaltexth->zelp[379], boost::bind(&CBattleInterface::bSurrenderf,this), SDLK_s);
+	bFlee =        new CButton (Point(105, 561), "icm002.def", CGI->generaltexth->zelp[380], boost::bind(&CBattleInterface::bFleef,this), SDLK_r);
+	bAutofight  =  new CButton (Point(157, 561), "icm004.def", CGI->generaltexth->zelp[382], boost::bind(&CBattleInterface::bAutofightf,this), SDLK_a);
+	bSpell =       new CButton (Point(645, 561), "icm005.def", CGI->generaltexth->zelp[385], boost::bind(&CBattleInterface::bSpellf,this), SDLK_c);
+	bWait =        new CButton (Point(696, 561), "icm006.def", CGI->generaltexth->zelp[386], boost::bind(&CBattleInterface::bWaitf,this), SDLK_w);
+	bDefence =     new CButton (Point(747, 561), "icm007.def", CGI->generaltexth->zelp[387], boost::bind(&CBattleInterface::bDefencef,this), SDLK_d);
 	bDefence->assignedKeys.insert(SDLK_SPACE);
-	bConsoleUp = new CAdventureMapButton (std::string(), std::string(), std::bind(&CBattleInterface::bConsoleUpf,this), 624, 561, "ComSlide.def", SDLK_UP);
-	bConsoleDown = new CAdventureMapButton (std::string(), std::string(), std::bind(&CBattleInterface::bConsoleDownf,this), 624, 580, "ComSlide.def", SDLK_DOWN);
-	bConsoleDown->setOffset(2);
+	bConsoleUp =   new CButton (Point(624, 561), "ComSlide.def", std::make_pair("", ""), boost::bind(&CBattleInterface::bConsoleUpf,this), SDLK_UP);
+	bConsoleDown = new CButton (Point(624, 580), "ComSlide.def", std::make_pair("", ""), boost::bind(&CBattleInterface::bConsoleDownf,this), SDLK_DOWN);
+	bConsoleDown->setImageOrder(2, 3, 4, 5);
 	console = new CBattleConsole();
 	console->pos.x += 211;
 	console->pos.y += 560;
@@ -242,8 +240,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	console->pos.h = 38;
 	if(tacticsMode)
 	{
-		btactNext = new CAdventureMapButton(std::string(), std::string(), std::bind(&CBattleInterface::bTacticNextStack,this, (CStack*)nullptr), 213, 560, "icm011.def", SDLK_SPACE);
-		btactEnd = new CAdventureMapButton(std::string(), std::string(), std::bind(&CBattleInterface::bEndTacticPhase,this), 419, 560, "icm012.def", SDLK_RETURN);
+		btactNext = new CButton(Point(213, 560), "icm011.def", std::make_pair("", ""), [&]{ bTacticNextStack(nullptr);}, SDLK_SPACE);
+		btactEnd =  new CButton(Point(419, 560), "icm012.def", std::make_pair("", ""), [&]{ bEndTacticPhase();}, SDLK_RETURN);
 		menu = BitmapHandler::loadBitmap("COPLACBR.BMP");
 	}
 	else
@@ -2432,7 +2430,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			{
 				cursorFrame = ECursor::COMBAT_QUERY;
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[297]) % shere->getName()).str();
-				realizeAction = [=]{ GH.pushInt(createCreWindow(shere, true)); };
+				realizeAction = [=]{ GH.pushInt(new CStackWindow(shere, false)); };
 				break;
 			}
 		}

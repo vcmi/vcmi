@@ -14,37 +14,54 @@ set(client_SRCS
 		battle/CBattleInterfaceClasses.cpp
 		battle/CCreatureAnimation.cpp
 
+		gui/CAnimation.cpp
+		gui/CCursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
-		gui/CIntObjectClasses.cpp
 		gui/Fonts.cpp
 		gui/Geometries.cpp
-		gui/CCursorHandler.cpp
 		gui/SDL_Extensions.cpp
 
-		CPreGame.cpp
-		Client.cpp
-		CPlayerInterface.cpp
-		CMT.cpp
-		GUIClasses.cpp
-		AdventureMapClasses.cpp
-		CAdvmapInterface.cpp
-		CAnimation.cpp
+		widgets/AdventureMapClasses.cpp
+		widgets/Buttons.cpp
+		widgets/CArtifactHolder.cpp
+		widgets/CComponent.cpp
+		widgets/CGarrisonInt.cpp
+		widgets/Images.cpp
+		widgets/MiscWidgets.cpp
+		widgets/ObjectLists.cpp
+		widgets/TextControls.cpp
+
+		windows/CAdvmapInterface.cpp
+		windows/CCastleInterface.cpp
+		windows/CCreatureWindow.cpp
+		windows/CHeroWindow.cpp
+		windows/CKingdomInterface.cpp
+		windows/CQuestLog.cpp
+		windows/CSpellWindow.cpp
+		windows/CTradeWindow.cpp
+		windows/CWindowObject
+		windows/InfoWindows.cpp
+		windows/GUIClasses.cpp
+
 		CBitmapHandler.cpp
-		CCastleInterface.cpp
-		CCreatureWindow.cpp
 		CDefHandler.cpp
 		CGameInfo.cpp
-		CHeroWindow.cpp
-		CKingdomInterface.cpp
+		Client.cpp
 		CMessage.cpp
+		CMT.cpp
 		CMusicHandler.cpp
-		CSpellWindow.cpp
+		CPlayerInterface.cpp
+		CPreGame.cpp
 		CVideoHandler.cpp
-		CQuestLog.cpp
 		Graphics.cpp
 		mapHandler.cpp
 		NetPacksClient.cpp
+)
+
+set(client_HEADERS
+		gui/SDL_Pixels.h
+		gui/SDL_Compat.h
 )
 
 if(APPLE)
