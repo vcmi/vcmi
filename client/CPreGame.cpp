@@ -657,7 +657,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 			});
 			select->addTextOverlay(CGI->generaltexth->allTexts[500], FONT_SMALL, overlayColor);
 
-			CButton *opts = new CButton(Point(411, 510), "GSPBUTT.DEF", CGI->generaltexth->zelp[46], boost::bind(&CSelectionScreen::toggleTab, this, opt), SDLK_a);
+			CButton *opts = new CButton(Point(411, 510), "GSPBUTT.DEF", CGI->generaltexth->zelp[46], std::bind(&CSelectionScreen::toggleTab, this, opt), SDLK_a);
 			opts->addTextOverlay(CGI->generaltexth->allTexts[501], FONT_SMALL, overlayColor);
 
 			CButton * randomBtn = new CButton(Point(411, 105), "GSPBUTT.DEF", CGI->generaltexth->zelp[47], 0, SDLK_r);
@@ -668,11 +668,11 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 				changeSelection(randMapTab->getMapInfo());
 			});
 
-			start  = new CButton(Point(411, 535), "SCNRBEG.DEF", CGI->generaltexth->zelp[103], boost::bind(&CSelectionScreen::startScenario, this), SDLK_b);
+			start  = new CButton(Point(411, 535), "SCNRBEG.DEF", CGI->generaltexth->zelp[103], std::bind(&CSelectionScreen::startScenario, this), SDLK_b);
 
 			if(network)
 			{
-				CButton *hideChat = new CButton(Point(619, 83), "GSPBUT2.DEF", CGI->generaltexth->zelp[48], boost::bind(&InfoCard::toggleChat, card), SDLK_h);
+				CButton *hideChat = new CButton(Point(619, 83), "GSPBUT2.DEF", CGI->generaltexth->zelp[48], std::bind(&InfoCard::toggleChat, card), SDLK_h);
 				hideChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL);
 
 				if(multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST)
@@ -687,21 +687,21 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		break;
 	case CMenuScreen::loadGame:
 		sel->recActions = 255;
-		start  = new CButton(Point(411, 535), "SCNRLOD.DEF", CGI->generaltexth->zelp[103], boost::bind(&CSelectionScreen::startScenario, this), SDLK_l);
+		start  = new CButton(Point(411, 535), "SCNRLOD.DEF", CGI->generaltexth->zelp[103], std::bind(&CSelectionScreen::startScenario, this), SDLK_l);
 		break;
 	case CMenuScreen::saveGame:
 		sel->recActions = 255;
-		start  = new CButton(Point(411, 535), "SCNRSAV.DEF", CGI->generaltexth->zelp[103], boost::bind(&CSelectionScreen::startScenario, this), SDLK_s);
+		start  = new CButton(Point(411, 535), "SCNRSAV.DEF", CGI->generaltexth->zelp[103], std::bind(&CSelectionScreen::startScenario, this), SDLK_s);
 		break;
 	case CMenuScreen::campaignList:
 		sel->recActions = 255;
-		start  = new CButton(Point(411, 535), "SCNRLOD.DEF", CButton::tooltip(), boost::bind(&CSelectionScreen::startCampaign, this), SDLK_b);
+		start  = new CButton(Point(411, 535), "SCNRLOD.DEF", CButton::tooltip(), std::bind(&CSelectionScreen::startCampaign, this), SDLK_b);
 		break;
 	}
 
 	start->assignedKeys.insert(SDLK_RETURN);
 
-	back = new CButton(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], boost::bind(&CGuiHandler::popIntTotally, &GH, this), SDLK_ESCAPE);
+	back = new CButton(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], std::bind(&CGuiHandler::popIntTotally, &GH, this), SDLK_ESCAPE);
 
 	if(network)
 	{
@@ -1264,7 +1264,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 			int sizes[] = {36, 72, 108, 144, 0};
 			const char * names[] = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
 			for(int i = 0; i < 5; i++)
-				new CButton(Point(158 + 47*i, 46), names[i], CGI->generaltexth->zelp[54+i], boost::bind(&SelectionTab::filter, this, sizes[i], true));
+				new CButton(Point(158 + 47*i, 46), names[i], CGI->generaltexth->zelp[54+i], std::bind(&SelectionTab::filter, this, sizes[i], true));
 		}
 
 		//sort buttons buttons
@@ -1278,18 +1278,18 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 				if(criteria == _name)
 					criteria = generalSortingBy;
 
-				new CButton(Point(xpos[i], 86), names[i], CGI->generaltexth->zelp[107+i], boost::bind(&SelectionTab::sortBy, this, criteria));
+				new CButton(Point(xpos[i], 86), names[i], CGI->generaltexth->zelp[107+i], std::bind(&SelectionTab::sortBy, this, criteria));
 			}
 		}
 	}
 	else
 	{
 		//sort by buttons
-		new CButton(Point(23, 86), "CamCusM.DEF", CButton::tooltip(), boost::bind(&SelectionTab::sortBy, this, _numOfMaps)); //by num of maps
-		new CButton(Point(55, 86), "CamCusL.DEF", CButton::tooltip(), boost::bind(&SelectionTab::sortBy, this, _name)); //by name
+		new CButton(Point(23, 86), "CamCusM.DEF", CButton::tooltip(), std::bind(&SelectionTab::sortBy, this, _numOfMaps)); //by num of maps
+		new CButton(Point(55, 86), "CamCusL.DEF", CButton::tooltip(), std::bind(&SelectionTab::sortBy, this, _name)); //by name
 	}
 
-	slider = new CSlider(Point(372, 86), tabType != CMenuScreen::saveGame ? 480 : 430, boost::bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, CSlider::BLUE);
+	slider = new CSlider(Point(372, 86), tabType != CMenuScreen::saveGame ? 480 : 430, std::bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, CSlider::BLUE);
 	slider->addUsedEvents(WHEEL);
 	format =  CDefHandler::giveDef("SCSELC.DEF");
 
@@ -2247,7 +2247,7 @@ OptionsTab::OptionsTab():
 	pos = bg->pos;
 
 	if(SEL->screenType == CMenuScreen::newGame)
-		turnDuration = new CSlider(Point(55, 551), 194, boost::bind(&OptionsTab::setTurnLength, this, _1), 1, 11, 11, true, CSlider::BLUE);
+		turnDuration = new CSlider(Point(55, 551), 194, std::bind(&OptionsTab::setTurnLength, this, _1), 1, 11, 11, true, CSlider::BLUE);
 }
 
 OptionsTab::~OptionsTab()
@@ -2551,12 +2551,12 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 	bg = new CPicture(BitmapHandler::loadBitmap(bgs[s.color.getNum()]), 0, 0, true);
 	if(SEL->screenType == CMenuScreen::newGame)
 	{
-		btns[0] = new CButton(Point(107, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[132], boost::bind(&OptionsTab::nextCastle, owner, s.color, -1));
-		btns[1] = new CButton(Point(168, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[133], boost::bind(&OptionsTab::nextCastle, owner, s.color, +1));
-		btns[2] = new CButton(Point(183, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[148], boost::bind(&OptionsTab::nextHero, owner, s.color, -1));
-		btns[3] = new CButton(Point(244, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[149], boost::bind(&OptionsTab::nextHero, owner, s.color, +1));
-		btns[4] = new CButton(Point(259, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[164], boost::bind(&OptionsTab::nextBonus, owner, s.color, -1));
-		btns[5] = new CButton(Point(320, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[165], boost::bind(&OptionsTab::nextBonus, owner, s.color, +1));
+		btns[0] = new CButton(Point(107, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[132], std::bind(&OptionsTab::nextCastle, owner, s.color, -1));
+		btns[1] = new CButton(Point(168, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[133], std::bind(&OptionsTab::nextCastle, owner, s.color, +1));
+		btns[2] = new CButton(Point(183, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[148], std::bind(&OptionsTab::nextHero, owner, s.color, -1));
+		btns[3] = new CButton(Point(244, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[149], std::bind(&OptionsTab::nextHero, owner, s.color, +1));
+		btns[4] = new CButton(Point(259, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[164], std::bind(&OptionsTab::nextBonus, owner, s.color, -1));
+		btns[5] = new CButton(Point(320, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[165], std::bind(&OptionsTab::nextBonus, owner, s.color, +1));
 	}
 	else
 		for(auto & elem : btns)
@@ -2578,7 +2578,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 		&&  SEL->current->mapHeader->players[s.color.getNum()].canHumanPlay
 		&&  SEL->multiPlayer != CMenuScreen::MULTI_NETWORK_GUEST)
 	{
-		flag = new CButton(Point(-43, 2), flags[s.color.getNum()], CGI->generaltexth->zelp[180], boost::bind(&OptionsTab::flagPressed, owner, s.color));
+		flag = new CButton(Point(-43, 2), flags[s.color.getNum()], CGI->generaltexth->zelp[180], std::bind(&OptionsTab::flagPressed, owner, s.color));
 		flag->hoverable = true;
 	}
 	else
@@ -2985,7 +2985,7 @@ CScenarioInfo::CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *start
 	card->changeSelection(current);
 
 	card->difficulty->setSelected(startInfo->difficulty);
-	back = new CButton(Point(584, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], boost::bind(&CGuiHandler::popIntTotally, &GH, this), SDLK_ESCAPE);
+	back = new CButton(Point(584, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], std::bind(&CGuiHandler::popIntTotally, &GH, this), SDLK_ESCAPE);
 }
 
 CScenarioInfo::~CScenarioInfo()
@@ -3064,9 +3064,9 @@ CMultiMode::CMultiMode()
 	txt = new CTextInput(Rect(19, 436, 334, 16), *bg);
 	txt->setText(settings["general"]["playerName"].String()); //Player
 
-	btns[0] = new CButton(Point(373, 78),        "MUBHOT.DEF",  CGI->generaltexth->zelp[266], boost::bind(&CMultiMode::openHotseat, this));
-	btns[1] = new CButton(Point(373, 78 + 57*1), "MUBHOST.DEF", CButton::tooltip("Host TCP/IP game", ""), boost::bind(&CMultiMode::hostTCP, this));
-	btns[2] = new CButton(Point(373, 78 + 57*2), "MUBJOIN.DEF", CButton::tooltip("Join TCP/IP game", ""), boost::bind(&CMultiMode::joinTCP, this));
+	btns[0] = new CButton(Point(373, 78),        "MUBHOT.DEF",  CGI->generaltexth->zelp[266], std::bind(&CMultiMode::openHotseat, this));
+	btns[1] = new CButton(Point(373, 78 + 57*1), "MUBHOST.DEF", CButton::tooltip("Host TCP/IP game", ""), std::bind(&CMultiMode::hostTCP, this));
+	btns[2] = new CButton(Point(373, 78 + 57*2), "MUBJOIN.DEF", CButton::tooltip("Join TCP/IP game", ""), std::bind(&CMultiMode::joinTCP, this));
 	btns[6] = new CButton(Point(373, 424),       "MUBCANC.DEF", CGI->generaltexth->zelp[288], [&] { GH.popIntTotally(this);}, SDLK_ESCAPE);
 }
 
@@ -3107,8 +3107,8 @@ CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
         txt[i]->cb += std::bind(&CHotSeatPlayers::onChange, this, _1);
 	}
 
-	ok = new CButton(Point(95, 338), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], boost::bind(&CHotSeatPlayers::enterSelectionScreen, this), SDLK_RETURN);
-	cancel = new CButton(Point(205, 338), "MUBCANC.DEF", CGI->generaltexth->zelp[561], boost::bind(&CGuiHandler::popIntTotally, boost::ref(GH), this), SDLK_ESCAPE);
+	ok = new CButton(Point(95, 338), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CHotSeatPlayers::enterSelectionScreen, this), SDLK_RETURN);
+	cancel = new CButton(Point(205, 338), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CGuiHandler::popIntTotally, std::ref(GH), this), SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(Rect(7, 381, 348, 18), 0));//226, 472
 
 	txt[0]->setText(firstPlayer, true);
@@ -3171,9 +3171,9 @@ void CBonusSelection::init()
 
 	blitAt(panel, 456, 6, background);
 
-	startB   = new CButton(Point(475, 536), "CBBEGIB.DEF", CButton::tooltip(), boost::bind(&CBonusSelection::startMap, this), SDLK_RETURN);
-	restartB = new CButton(Point(475, 536), "CBRESTB.DEF", CButton::tooltip(), boost::bind(&CBonusSelection::restartMap, this), SDLK_RETURN);
-	backB    = new CButton(Point(624, 536), "CBCANCB.DEF", CButton::tooltip(), boost::bind(&CBonusSelection::goBack, this), SDLK_ESCAPE);
+	startB   = new CButton(Point(475, 536), "CBBEGIB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::startMap, this), SDLK_RETURN);
+	restartB = new CButton(Point(475, 536), "CBRESTB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::restartMap, this), SDLK_RETURN);
+	backB    = new CButton(Point(624, 536), "CBCANCB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), SDLK_ESCAPE);
 
 	//campaign name
 	if (ourCampaign->camp->header.name.length())
@@ -3246,8 +3246,8 @@ void CBonusSelection::init()
 	//difficulty selection buttons
 	if (ourCampaign->camp->header.difficultyChoosenByPlayer)
 	{
-		diffLb = new CButton(Point(694, 508), "SCNRBLF.DEF", CButton::tooltip(), boost::bind(&CBonusSelection::decreaseDifficulty, this));
-		diffRb = new CButton(Point(738, 508), "SCNRBRT.DEF", CButton::tooltip(), boost::bind(&CBonusSelection::increaseDifficulty, this));
+		diffLb = new CButton(Point(694, 508), "SCNRBLF.DEF", CButton::tooltip(), std::bind(&CBonusSelection::decreaseDifficulty, this));
+		diffRb = new CButton(Point(738, 508), "SCNRBRT.DEF", CButton::tooltip(), std::bind(&CBonusSelection::increaseDifficulty, this));
 	}
 
 	//load miniflags
@@ -4097,7 +4097,7 @@ CButton* CCampaignScreen::createExitButton(const JsonNode& button)
 	if (!button["help"].isNull() && button["help"].Float() > 0)
 		help = CGI->generaltexth->zelp[button["help"].Float()];
 
-	std::function<void()> close = boost::bind(&CGuiHandler::popIntTotally, &GH, this);
+	std::function<void()> close = std::bind(&CGuiHandler::popIntTotally, &GH, this);
 	return new CButton(Point(button["x"].Float(), button["y"].Float()), button["name"].String(), help, close, button["hotkey"].Float());
 }
 
@@ -4239,8 +4239,8 @@ CSimpleJoinScreen::CSimpleJoinScreen()
     port->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
     port->filters.add(std::bind(&CTextInput::numberFilter, _1, _2, 0, 65535));
 
-	ok     = new CButton(Point( 26, 142), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], boost::bind(&CSimpleJoinScreen::enterSelectionScreen, this), SDLK_RETURN);
-	cancel = new CButton(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], boost::bind(&CGuiHandler::popIntTotally, boost::ref(GH), this), SDLK_ESCAPE);
+	ok     = new CButton(Point( 26, 142), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::enterSelectionScreen, this), SDLK_RETURN);
+	cancel = new CButton(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CGuiHandler::popIntTotally, std::ref(GH), this), SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(Rect(7, 186, 218, 18), 0));
 
 	port->setText(boost::lexical_cast<std::string>(settings["server"]["port"].Float()), true);

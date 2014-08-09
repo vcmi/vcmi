@@ -394,7 +394,7 @@ void CTradeWindow::initItems(bool Left)
 		artSets.push_back(arts);
 
 		if(mode == EMarketMode::ARTIFACT_RESOURCE)
-			arts->highlightModeCallback = boost::bind(&CTradeWindow::artifactSelected, this, _1);
+			arts->highlightModeCallback = std::bind(&CTradeWindow::artifactSelected, this, _1);
 		return;
 	}
 
@@ -702,7 +702,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 
 	if(sliderNeeded)
 	{
-		slider = new CSlider(Point(231, 490),137, boost::bind(&CMarketplaceWindow::sliderMoved,this,_1),0,0);
+		slider = new CSlider(Point(231, 490),137, std::bind(&CMarketplaceWindow::sliderMoved,this,_1),0,0);
 		max = new CButton(Point(229, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[596], [&] { setMax(); });
 		max->block(true);
 	}
@@ -1108,11 +1108,11 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 		 //To sacrifice creatures, move them from your army on to the Altar and click Sacrifice
 		new CTextBox(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, CENTER, Colors::YELLOW);
 
-		slider = new CSlider(Point(231,481),137,boost::bind(&CAltarWindow::sliderMoved,this,_1),0,0);
-		max = new CButton(Point(147, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[578], boost::bind(&CSlider::moveToMax, slider));
+		slider = new CSlider(Point(231,481),137,std::bind(&CAltarWindow::sliderMoved,this,_1),0,0);
+		max = new CButton(Point(147, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[578], std::bind(&CSlider::moveToMax, slider));
 
 		sacrificedUnits.resize(GameConstants::ARMY_SIZE, 0);
-		sacrificeAll = new CButton(Point(393, 520), "ALTARMY.DEF", CGI->generaltexth->zelp[579], boost::bind(&CAltarWindow::SacrificeAll,this));
+		sacrificeAll = new CButton(Point(393, 520), "ALTARMY.DEF", CGI->generaltexth->zelp[579], std::bind(&CAltarWindow::SacrificeAll,this));
 		sacrificeBackpack = nullptr;
 
 		initItems(true);
@@ -1126,9 +1126,9 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 		//%s's Creatures
 		new CLabel(302, 423, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[478]);
 
-		sacrificeAll = new CButton(Point(393, 520), "ALTFILL.DEF", CGI->generaltexth->zelp[571], boost::bind(&CAltarWindow::SacrificeAll,this));
+		sacrificeAll = new CButton(Point(393, 520), "ALTFILL.DEF", CGI->generaltexth->zelp[571], std::bind(&CAltarWindow::SacrificeAll,this));
 		sacrificeAll->block(hero->artifactsInBackpack.empty() && hero->artifactsWorn.empty());
-		sacrificeBackpack = new CButton(Point(147, 520), "ALTEMBK.DEF", CGI->generaltexth->zelp[570], boost::bind(&CAltarWindow::SacrificeBackpack,this));
+		sacrificeBackpack = new CButton(Point(147, 520), "ALTEMBK.DEF", CGI->generaltexth->zelp[570], std::bind(&CAltarWindow::SacrificeBackpack,this));
 		sacrificeBackpack->block(hero->artifactsInBackpack.empty());
 
 		slider = nullptr;
@@ -1150,12 +1150,12 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 	ok = new CButton(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[568], [&]{ close();}, SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
 
-	deal = new CButton(Point(269, 520), "ALTSACR.DEF", CGI->generaltexth->zelp[585], boost::bind(&CAltarWindow::makeDeal,this));
+	deal = new CButton(Point(269, 520), "ALTSACR.DEF", CGI->generaltexth->zelp[585], std::bind(&CAltarWindow::makeDeal,this));
 
 	if(Hero->getAlignment() != ::EAlignment::EVIL && Mode == EMarketMode::CREATURE_EXP)
-		new CButton(Point(516, 421), "ALTART.DEF", CGI->generaltexth->zelp[580], boost::bind(&CTradeWindow::setMode,this, EMarketMode::ARTIFACT_EXP));
+		new CButton(Point(516, 421), "ALTART.DEF", CGI->generaltexth->zelp[580], std::bind(&CTradeWindow::setMode,this, EMarketMode::ARTIFACT_EXP));
 	if(Hero->getAlignment() != ::EAlignment::GOOD && Mode == EMarketMode::ARTIFACT_EXP)
-		new CButton(Point(516, 421), "ALTSACC.DEF", CGI->generaltexth->zelp[572], boost::bind(&CTradeWindow::setMode,this, EMarketMode::CREATURE_EXP));
+		new CButton(Point(516, 421), "ALTSACC.DEF", CGI->generaltexth->zelp[572], std::bind(&CTradeWindow::setMode,this, EMarketMode::CREATURE_EXP));
 
 	expPerUnit.resize(GameConstants::ARMY_SIZE, 0);
 	getExpValues();

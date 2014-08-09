@@ -96,7 +96,7 @@ CListBox::CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point Item
 	if (Slider & 1)
 	{
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(SliderPos.topLeft(), SliderPos.w, boost::bind(&CListBox::moveToPos, this, _1),
+		slider = new CSlider(SliderPos.topLeft(), SliderPos.w, std::bind(&CListBox::moveToPos, this, _1),
 			VisibleSize, TotalSize, InitialPos, Slider & 2, Slider & 4 ? CSlider::BLUE : CSlider::BROWN);
 	}
 	reset();

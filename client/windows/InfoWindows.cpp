@@ -74,8 +74,8 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 	{
 		buttons.push_back(new CButton(Point(0,0), Buttons[i].first, CButton::tooltip(), Buttons[i].second));
 		if(!i  &&  askID.getNum() >= 0)
-			buttons.back()->addCallback(boost::bind(&CSelWindow::madeChoice,this));
-		buttons[i]->addCallback(boost::bind(&CInfoWindow::close,this)); //each button will close the window apart from call-defined actions
+			buttons.back()->addCallback(std::bind(&CSelWindow::madeChoice,this));
+		buttons[i]->addCallback(std::bind(&CInfoWindow::close,this)); //each button will close the window apart from call-defined actions
 	}
 
 	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::WHITE);
@@ -84,14 +84,14 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
 
 	if(buttons.size() > 1  &&  askID.getNum() >= 0) //cancel button functionality
-		buttons.back()->addCallback(boost::bind(&CCallback::selectionMade,LOCPLINT->cb.get(),0,askID));
+		buttons.back()->addCallback(std::bind(&CCallback::selectionMade,LOCPLINT->cb.get(),0,askID));
 
 	for(int i=0;i<comps.size();i++)
 	{
 		comps[i]->recActions = 255;
 		addChild(comps[i]);
 		components.push_back(comps[i]);
-		comps[i]->onSelect = boost::bind(&CSelWindow::selectionChange,this,i);
+		comps[i]->onSelect = std::bind(&CSelWindow::selectionChange,this,i);
 		if(i<9)
 			comps[i]->assignedKeys.insert(SDLK_1+i);
 	}
@@ -121,7 +121,7 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 	ID = QueryID(-1);
 	for(auto & Button : Buttons)
 	{
-		CButton *button = new CButton(Point(0,0), Button.first, CButton::tooltip(), boost::bind(&CInfoWindow::close,this));
+		CButton *button = new CButton(Point(0,0), Button.first, CButton::tooltip(), std::bind(&CInfoWindow::close,this));
 		button->borderColor = Colors::METALLIC_GOLD;
 		button->addCallback(Button.second); //each button will close the window apart from call-defined actions
 		buttons.push_back(button);
@@ -205,7 +205,7 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<CC
 	GH.pushInt(temp);
 }
 
-void CInfoWindow::showOkDialog(const std::string & text, const std::vector<CComponent*> *components, const boost::function<void()> & onOk, bool delComps, PlayerColor player)
+void CInfoWindow::showOkDialog(const std::string & text, const std::vector<CComponent*> *components, const std::function<void()> & onOk, bool delComps, PlayerColor player)
 {
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));

@@ -843,11 +843,7 @@ void CCastleBuildings::enterTownHall()
 		else
 		{
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[673]);
-<<<<<<< HEAD:client/CCastleInterface.cpp
-			(dynamic_cast<CInfoWindow*>(GH.topInt()))->buttons[0]->callback += std::bind(&CCastleBuildings::openTownHall, this);
-=======
-			dynamic_cast<CInfoWindow*>(GH.topInt())->buttons[0]->addCallback(boost::bind(&CCastleBuildings::openTownHall, this));
->>>>>>> refactoring/guiClasses:client/windows/CCastleInterface.cpp
+			dynamic_cast<CInfoWindow*>(GH.topInt())->buttons[0]->addCallback(std::bind(&CCastleBuildings::openTownHall, this));
 		}
 	}
 	else
@@ -892,21 +888,12 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	income = new CLabel(195, 443, FONT_SMALL, CENTER);
 	icon = new CAnimImage("ITPT", 0, 0, 15, 387);
 
-<<<<<<< HEAD:client/CCastleInterface.cpp
-	exit = new CAdventureMapButton(CGI->generaltexth->tcommands[8], "", std::bind(&CCastleInterface::close,this), 744, 544, "TSBTNS", SDLK_RETURN);
-=======
 	exit = new CButton(Point(744, 544), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[8]), [&]{close();}, SDLK_RETURN);
->>>>>>> refactoring/guiClasses:client/windows/CCastleInterface.cpp
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 	exit->setImageOrder(4, 5, 6, 7);
 
-<<<<<<< HEAD:client/CCastleInterface.cpp
-	split = new CAdventureMapButton(CGI->generaltexth->tcommands[3], "", std::bind(&CGarrisonInt::splitClick,garr), 744, 382, "TSBTNS.DEF");
-	split->callback += std::bind(&HeroSlots::splitClicked, heroes);
-=======
 	split = new CButton(Point(744, 382), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), [&]{garr->splitClick();});
-	split->addCallback(boost::bind(&HeroSlots::splitClicked, heroes));
->>>>>>> refactoring/guiClasses:client/windows/CCastleInterface.cpp
+	split->addCallback(std::bind(&HeroSlots::splitClicked, heroes));
 	garr->addSplitBtn(split);
 
 	Rect barRect(9, 182, 732, 18);
@@ -1324,12 +1311,7 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 5, 556, false));
 
 	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, Colors::WHITE, town->town->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->Name());
-<<<<<<< HEAD:client/CCastleInterface.cpp
-	exit = new CAdventureMapButton(CGI->generaltexth->hcommands[8], "",
-	           std::bind(&CHallInterface::close,this), 748, 556, "TPMAGE1.DEF", SDLK_RETURN);
-=======
 	exit = new CButton(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->hcommands[8]), [&]{close();}, SDLK_RETURN);
->>>>>>> refactoring/guiClasses:client/windows/CCastleInterface.cpp
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
 	auto & boxList = town->town->clientInfo.hallSlots;
@@ -1427,23 +1409,13 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 	if(!rightClick)
 	{	//normal window
-<<<<<<< HEAD:client/CCastleInterface.cpp
-		buy = new CAdventureMapButton(boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->Name()),
-		          "", std::bind(&CBuildWindow::buyFunc,this), 45, 446,"IBUY30", SDLK_RETURN);
-=======
 		std::string tooltipYes = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->Name());
 		std::string tooltipNo  = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->Name());
 
 		buy = new CButton(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&]{ buyFunc(); }, SDLK_RETURN);
->>>>>>> refactoring/guiClasses:client/windows/CCastleInterface.cpp
 		buy->borderColor = Colors::METALLIC_GOLD;
 
-<<<<<<< HEAD:client/CCastleInterface.cpp
-		cancel = new CAdventureMapButton(boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->Name()),
-		             "", std::bind(&CBuildWindow::close,this), 290, 445, "ICANCEL", SDLK_ESCAPE);
-=======
 		cancel = new CButton(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo), [&] { close();}, SDLK_ESCAPE);
->>>>>>> refactoring/guiClasses:client/windows/CCastleInterface.cpp
 		cancel->borderColor = Colors::METALLIC_GOLD;
 		buy->block(state!=7 || LOCPLINT->playerID != town->tempOwner);
 	}
@@ -1474,11 +1446,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	title = new CLabel(400, 12, FONT_BIG, CENTER, Colors::WHITE, fortBuilding->Name());
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->Name());
-<<<<<<< HEAD:client/CCastleInterface.cpp
-	exit = new CAdventureMapButton(text, "", std::bind(&CFortScreen::close,this) ,748, 556, "TPMAGE1", SDLK_RETURN);
-=======
 	exit = new CButton(Point(748, 556), "TPMAGE1", CButton::tooltip(text), [&]{ close(); }, SDLK_RETURN);
->>>>>>> refactoring/guiClasses:client/windows/CCastleInterface.cpp
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
 	std::vector<Point> positions;
@@ -1687,11 +1655,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem) 
 	Rect barRect(7, 556, 737, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 7, 556, false));
 
-<<<<<<< HEAD:client/CCastleInterface.cpp
-	exit = new CAdventureMapButton(CGI->generaltexth->allTexts[593],"",std::bind(&CMageGuildScreen::close,this), 748, 556,"TPMAGE1.DEF",SDLK_RETURN);
-=======
 	exit = new CButton(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[593]), [&]{ close(); }, SDLK_RETURN);
->>>>>>> refactoring/guiClasses:client/windows/CCastleInterface.cpp
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
 	std::vector<std::vector<Point> > positions;
@@ -1768,17 +1732,10 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	                boost::lexical_cast<std::string>(CGI->arth->artifacts[aid]->price));
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->nameSing);
-<<<<<<< HEAD:client/CCastleInterface.cpp
-	buy = new CAdventureMapButton(text,"",std::bind(&CBlacksmithDialog::close, this), 42, 312,"IBUY30.DEF",SDLK_RETURN);
-
-	text = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % creature->nameSing);
-	cancel = new CAdventureMapButton(text,"",std::bind(&CBlacksmithDialog::close, this), 224, 312,"ICANCEL.DEF",SDLK_ESCAPE);
-=======
 	buy = new CButton(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&]{ close(); }, SDLK_RETURN);
 
 	text = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % creature->nameSing);
 	cancel = new CButton(Point(224, 312), "ICANCEL.DEF", CButton::tooltip(text), [&]{ close(); }, SDLK_ESCAPE);
->>>>>>> refactoring/guiClasses:client/windows/CCastleInterface.cpp
 
 	if(possible)
 		buy->addCallback([=]{ LOCPLINT->cb->buyArtifact(LOCPLINT->cb->getHero(hid),aid); });

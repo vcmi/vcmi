@@ -201,7 +201,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 						int countLeft = owner->getSelection()->myStack ? owner->getSelection()->myStack->count : 0;
 						int countRight = myStack ? myStack->count : 0;
 
-						GH.pushInt(new CSplitWindow(owner->getSelection()->creature, boost::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
+						GH.pushInt(new CSplitWindow(owner->getSelection()->creature, std::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
 						                            minLeft, minRight, countLeft, countRight));
 						refr = true;
 					}

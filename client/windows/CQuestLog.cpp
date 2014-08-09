@@ -127,21 +127,12 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
 
 void CQuestLog::init()
 {
-<<<<<<< HEAD:client/CQuestLog.cpp
-	minimap = new CQuestMinimap (Rect (47, 33, 144, 144));
-	description = new CTextBox ("", Rect(245, 33, 350, 355), 1, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
-	ok = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, std::bind(&CQuestLog::close,this), 547, 401, "IOKAY.DEF", SDLK_RETURN);
-
-	if (quests.size() > QUEST_COUNT)
-		slider = new CSlider(203, 199, 230, std::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, quests.size(), false, 0);
-=======
 	minimap = new CQuestMinimap (Rect (33, 18, 144, 144));
 	description = new CTextBox ("", Rect(221, 18, 350, 355), 1, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
 	ok = new CButton(Point(533, 386), "IOKAY.DEF", CGI->generaltexth->zelp[445], boost::bind(&CQuestLog::close,this), SDLK_RETURN);
 
 	if (quests.size() > QUEST_COUNT)
-		slider = new CSlider(Point(189, 184), 230, boost::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, quests.size(), false, CSlider::BROWN);
->>>>>>> refactoring/guiClasses:client/windows/CQuestLog.cpp
+		slider = new CSlider(Point(189, 184), 230, std::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, quests.size(), false, CSlider::BROWN);
 
 	for (int i = 0; i < quests.size(); ++i)
 	{
@@ -149,13 +140,8 @@ void CQuestLog::init()
 		quests[i].quest->getRolloverText (text, false);
 		if (quests[i].obj)
 			text.addReplacement (quests[i].obj->getObjectName()); //get name of the object
-<<<<<<< HEAD:client/CQuestLog.cpp
-		CQuestLabel * label = new CQuestLabel (Rect(28, 199 + i * 24, 172,30), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
-		label->callback = std::bind(&CQuestLog::selectQuest, this, i);
-=======
 		CQuestLabel * label = new CQuestLabel (Rect(14, 184 + i * 24, 172,30), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
 		label->callback = boost::bind(&CQuestLog::selectQuest, this, i);
->>>>>>> refactoring/guiClasses:client/windows/CQuestLog.cpp
 		labels.push_back(label);
 	}
 

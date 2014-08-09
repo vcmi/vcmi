@@ -657,9 +657,9 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 	else
 		right->moveBy(Point(0, totalw - right->pos.h));
 
-	left->addCallback(boost::bind(&CSlider::moveLeft,this));
-	right->addCallback(boost::bind(&CSlider::moveRight,this));
-	slider->addCallback(boost::bind(&CSlider::sliderClicked,this));
+	left->addCallback(std::bind(&CSlider::moveLeft,this));
+	right->addCallback(std::bind(&CSlider::moveRight,this));
+	slider->addCallback(std::bind(&CSlider::sliderClicked,this));
 
 	if(horizontal)
 	{

@@ -446,7 +446,7 @@ CComponentBox::CComponentBox(std::vector<CSelectableComponent *> _components, Re
 	int key = SDLK_1;
 	for(auto & comp : _components)
 	{
-		comp->onSelect = boost::bind(&CComponentBox::selectionChanged, this, comp);
+		comp->onSelect = std::bind(&CComponentBox::selectionChanged, this, comp);
 		comp->assignedKeys.insert(key++);
 	}
 	selectionChanged(_components.front());

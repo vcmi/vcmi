@@ -608,47 +608,19 @@ void CKingdomInterface::generateButtons()
 	ui32 footerPos = conf.go()->ac.overviewSize * 116;
 
 	//Main control buttons
-<<<<<<< HEAD:client/CKingdomInterface.cpp
-	btnHeroes = new CAdventureMapButton (CGI->generaltexth->overview[11], CGI->generaltexth->overview[6],
-	                                    std::bind(&CKingdomInterface::activateTab, this, 0),748,28+footerPos,"OVBUTN1.DEF", SDLK_h);
-	btnHeroes->block(true);
-
-	btnTowns = new CAdventureMapButton (CGI->generaltexth->overview[12], CGI->generaltexth->overview[7],
-	                                   std::bind(&CKingdomInterface::activateTab, this, 1),748,64+footerPos,"OVBUTN6.DEF", SDLK_t);
-
-	btnExit = new CAdventureMapButton (CGI->generaltexth->allTexts[600],"",
-	                                  std::bind(&CKingdomInterface::close, this),748,99+footerPos,"OVBUTN1.DEF", SDLK_RETURN);
-=======
 	btnHeroes = new CButton (Point(748, 28+footerPos), "OVBUTN1.DEF", CButton::tooltip(CGI->generaltexth->overview[11], CGI->generaltexth->overview[6]),
-	                         boost::bind(&CKingdomInterface::activateTab, this, 0), SDLK_h);
+	                         std::bind(&CKingdomInterface::activateTab, this, 0), SDLK_h);
 	btnHeroes->block(true);
 
 	btnTowns = new CButton (Point(748, 64+footerPos), "OVBUTN6.DEF", CButton::tooltip(CGI->generaltexth->overview[12], CGI->generaltexth->overview[7]),
-	                        boost::bind(&CKingdomInterface::activateTab, this, 1), SDLK_t);
+	                        std::bind(&CKingdomInterface::activateTab, this, 1), SDLK_t);
 
 	btnExit = new CButton (Point(748,99+footerPos), "OVBUTN1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[600]),
-	                       boost::bind(&CKingdomInterface::close, this), SDLK_RETURN);
->>>>>>> refactoring/guiClasses:client/windows/CKingdomInterface.cpp
+	                       std::bind(&CKingdomInterface::close, this), SDLK_RETURN);
 	btnExit->assignedKeys.insert(SDLK_ESCAPE);
 	btnExit->setImageOrder(3, 4, 5, 6);
 
 	//Object list control buttons
-<<<<<<< HEAD:client/CKingdomInterface.cpp
-	dwellTop = new CAdventureMapButton ("", "", std::bind(&CListBox::moveToPos, dwellingsList, 0),
-	                                   733, 4, "OVBUTN4.DEF");
-
-	dwellBottom = new CAdventureMapButton ("", "", std::bind(&CListBox::moveToPos, dwellingsList, -1),
-	                                      733, footerPos+2, "OVBUTN4.DEF");
-	dwellBottom->setOffset(2);
-
-	dwellUp = new CAdventureMapButton ("", "", std::bind(&CListBox::moveToPrev, dwellingsList),
-	                                  733, 24, "OVBUTN4.DEF");
-	dwellUp->setOffset(4);
-
-	dwellDown = new CAdventureMapButton ("", "", std::bind(&CListBox::moveToNext, dwellingsList),
-	                                    733, footerPos-18, "OVBUTN4.DEF");
-	dwellDown->setOffset(6);
-=======
 	dwellTop = new CButton (Point(733, 4), "OVBUTN4.DEF", CButton::tooltip(), [&]{ dwellingsList->moveToPos(0);});
 
 	dwellBottom = new CButton (Point(733, footerPos+2), "OVBUTN4.DEF", CButton::tooltip(), [&]{ dwellingsList->moveToPos(-1); });
@@ -659,7 +631,6 @@ void CKingdomInterface::generateButtons()
 
 	dwellDown = new CButton (Point(733, footerPos-18), "OVBUTN4.DEF", CButton::tooltip(), [&]{ dwellingsList->moveToNext(); });
 	dwellDown->setImageOrder(6, 7, 8, 9);
->>>>>>> refactoring/guiClasses:client/windows/CKingdomInterface.cpp
 }
 
 void CKingdomInterface::activateTab(size_t which)
@@ -931,15 +902,9 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 		button->addTextOverlay(CGI->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
 		artButtons->addToggle(it, button);
 	}
-<<<<<<< HEAD:client/CKingdomInterface.cpp
-	artButtons->onChange += std::bind(&CTabbedInt::setActive, artsTabs, _1);
-	artButtons->onChange += std::bind(&CHeroItem::onArtChange, this, _1);
-	artButtons->select(0,0);
-=======
-	artButtons->addCallback(boost::bind(&CTabbedInt::setActive, artsTabs, _1));
-	artButtons->addCallback(boost::bind(&CHeroItem::onArtChange, this, _1));
+	artButtons->addCallback(std::bind(&CTabbedInt::setActive, artsTabs, _1));
+	artButtons->addCallback(std::bind(&CHeroItem::onArtChange, this, _1));
 	artButtons->setSelected(0);
->>>>>>> refactoring/guiClasses:client/windows/CKingdomInterface.cpp
 
 	garr = new CGarrisonInt(6, 78, 4, Point(), nullptr, Point(), hero, nullptr, true, true);
 

@@ -110,19 +110,11 @@ CList::CList(int Size, Point position, std::string btnUp, std::string btnDown, s
 	list = new CListBox(create, destroy, Point(1,scrollUp->pos.h), Point(0, 32), size, listAmount);
 
 	//assign callback only after list was created
-<<<<<<< HEAD:client/AdventureMapClasses.cpp
-    scrollUp->callback = std::bind(&CListBox::moveToPrev, list);
-    scrollDown = new CAdventureMapButton(CGI->generaltexth->zelp[helpDown], std::bind(&CListBox::moveToNext, list), 0, scrollUp->pos.h + 32*size, btnDown);
+	scrollUp->addCallback(std::bind(&CListBox::moveToPrev, list));
+	scrollDown = new CButton(Point(0, scrollUp->pos.h + 32*size), btnDown, CGI->generaltexth->zelp[helpDown], std::bind(&CListBox::moveToNext, list));
 
-    scrollDown->callback += std::bind(&CList::update, this);
-    scrollUp->callback += std::bind(&CList::update, this);
-=======
-	scrollUp->addCallback(boost::bind(&CListBox::moveToPrev, list));
-	scrollDown = new CButton(Point(0, scrollUp->pos.h + 32*size), btnDown, CGI->generaltexth->zelp[helpDown], boost::bind(&CListBox::moveToNext, list));
-
-	scrollDown->addCallback(boost::bind(&CList::update, this));
-	scrollUp->addCallback(boost::bind(&CList::update, this));
->>>>>>> refactoring/guiClasses:client/widgets/AdventureMapClasses.cpp
+	scrollDown->addCallback(std::bind(&CList::update, this));
+	scrollUp->addCallback(std::bind(&CList::update, this));
 
 	update();
 }

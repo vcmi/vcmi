@@ -231,7 +231,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 						ourArt->artType->id,
 						combination->id,
 						true,
-						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, true, combination->id),
+						std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, true, combination->id),
 						0);
 
 					if(assemblyPossibilities.size() > 2)
@@ -249,7 +249,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 						ourArt->artType->id,
 						0,
 						false,
-						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, false, ArtifactID()),
+						std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, false, ArtifactID()),
 						0);
 					return;
 				}
@@ -685,8 +685,8 @@ CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector
 		eraseSlotData(backpack[s], ArtifactPosition(GameConstants::BACKPACK_START + s));
 	}
 
-	leftArtRoll->addCallback(boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1));
-	rightArtRoll->addCallback(boost::bind(&CArtifactsOfHero::scrollBackpack,this,+1));
+	leftArtRoll->addCallback(std::bind(&CArtifactsOfHero::scrollBackpack,this,-1));
+	rightArtRoll->addCallback(std::bind(&CArtifactsOfHero::scrollBackpack,this,+1));
 }
 
 CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart /*= false*/)

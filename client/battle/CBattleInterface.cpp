@@ -222,16 +222,16 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 // 	blitAt(menu, pos.x, 556 + pos.y);
 
 	//preparing buttons and console
-	bOptions =     new CButton (Point(  3, 561), "icm003.def", CGI->generaltexth->zelp[381], boost::bind(&CBattleInterface::bOptionsf,this), SDLK_o);
-	bSurrender =   new CButton (Point( 54, 561), "icm001.def", CGI->generaltexth->zelp[379], boost::bind(&CBattleInterface::bSurrenderf,this), SDLK_s);
-	bFlee =        new CButton (Point(105, 561), "icm002.def", CGI->generaltexth->zelp[380], boost::bind(&CBattleInterface::bFleef,this), SDLK_r);
-	bAutofight  =  new CButton (Point(157, 561), "icm004.def", CGI->generaltexth->zelp[382], boost::bind(&CBattleInterface::bAutofightf,this), SDLK_a);
-	bSpell =       new CButton (Point(645, 561), "icm005.def", CGI->generaltexth->zelp[385], boost::bind(&CBattleInterface::bSpellf,this), SDLK_c);
-	bWait =        new CButton (Point(696, 561), "icm006.def", CGI->generaltexth->zelp[386], boost::bind(&CBattleInterface::bWaitf,this), SDLK_w);
-	bDefence =     new CButton (Point(747, 561), "icm007.def", CGI->generaltexth->zelp[387], boost::bind(&CBattleInterface::bDefencef,this), SDLK_d);
+	bOptions =     new CButton (Point(  3, 561), "icm003.def", CGI->generaltexth->zelp[381], std::bind(&CBattleInterface::bOptionsf,this), SDLK_o);
+	bSurrender =   new CButton (Point( 54, 561), "icm001.def", CGI->generaltexth->zelp[379], std::bind(&CBattleInterface::bSurrenderf,this), SDLK_s);
+	bFlee =        new CButton (Point(105, 561), "icm002.def", CGI->generaltexth->zelp[380], std::bind(&CBattleInterface::bFleef,this), SDLK_r);
+	bAutofight  =  new CButton (Point(157, 561), "icm004.def", CGI->generaltexth->zelp[382], std::bind(&CBattleInterface::bAutofightf,this), SDLK_a);
+	bSpell =       new CButton (Point(645, 561), "icm005.def", CGI->generaltexth->zelp[385], std::bind(&CBattleInterface::bSpellf,this), SDLK_c);
+	bWait =        new CButton (Point(696, 561), "icm006.def", CGI->generaltexth->zelp[386], std::bind(&CBattleInterface::bWaitf,this), SDLK_w);
+	bDefence =     new CButton (Point(747, 561), "icm007.def", CGI->generaltexth->zelp[387], std::bind(&CBattleInterface::bDefencef,this), SDLK_d);
 	bDefence->assignedKeys.insert(SDLK_SPACE);
-	bConsoleUp =   new CButton (Point(624, 561), "ComSlide.def", std::make_pair("", ""), boost::bind(&CBattleInterface::bConsoleUpf,this), SDLK_UP);
-	bConsoleDown = new CButton (Point(624, 580), "ComSlide.def", std::make_pair("", ""), boost::bind(&CBattleInterface::bConsoleDownf,this), SDLK_DOWN);
+	bConsoleUp =   new CButton (Point(624, 561), "ComSlide.def", std::make_pair("", ""), std::bind(&CBattleInterface::bConsoleUpf,this), SDLK_UP);
+	bConsoleDown = new CButton (Point(624, 580), "ComSlide.def", std::make_pair("", ""), std::bind(&CBattleInterface::bConsoleDownf,this), SDLK_DOWN);
 	bConsoleDown->setImageOrder(2, 3, 4, 5);
 	console = new CBattleConsole();
 	console->pos.x += 211;

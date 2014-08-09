@@ -261,11 +261,11 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	slider = new CSlider(Point(176,279),135,boost::bind(&CRecruitmentWindow::sliderMoved,this, _1),0,0,0,true);
+	slider = new CSlider(Point(176,279),135,std::bind(&CRecruitmentWindow::sliderMoved,this, _1),0,0,0,true);
 
-	maxButton = new CButton(Point(134, 313), "IRCBTNS.DEF", CGI->generaltexth->zelp[553], boost::bind(&CSlider::moveToMax,slider), SDLK_m);
-	buyButton = new CButton(Point(212, 313), "IBY6432.DEF", CGI->generaltexth->zelp[554], boost::bind(&CRecruitmentWindow::buy,this), SDLK_RETURN);
-	cancelButton = new CButton(Point(290, 313), "ICN6432.DEF", CGI->generaltexth->zelp[555], boost::bind(&CRecruitmentWindow::close,this), SDLK_ESCAPE);
+	maxButton = new CButton(Point(134, 313), "IRCBTNS.DEF", CGI->generaltexth->zelp[553], std::bind(&CSlider::moveToMax,slider), SDLK_m);
+	buyButton = new CButton(Point(212, 313), "IBY6432.DEF", CGI->generaltexth->zelp[554], std::bind(&CRecruitmentWindow::buy,this), SDLK_RETURN);
+	cancelButton = new CButton(Point(290, 313), "ICN6432.DEF", CGI->generaltexth->zelp[555], std::bind(&CRecruitmentWindow::close,this), SDLK_ESCAPE);
 
 	title = new CLabel(243, 32, FONT_BIG, CENTER, Colors::YELLOW);
 	availableValue = new CLabel(205, 253, FONT_SMALL, CENTER, Colors::WHITE);
@@ -374,17 +374,17 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	int leftMax = total - rightMin;
 	int rightMax = total - leftMin;
 
-	ok = new CButton(Point(20, 263), "IOK6432", CButton::tooltip(), boost::bind(&CSplitWindow::apply, this), SDLK_RETURN);
-	cancel = new CButton(Point(214, 263), "ICN6432", CButton::tooltip(), boost::bind(&CSplitWindow::close, this), SDLK_ESCAPE);
+	ok = new CButton(Point(20, 263), "IOK6432", CButton::tooltip(), std::bind(&CSplitWindow::apply, this), SDLK_RETURN);
+	cancel = new CButton(Point(214, 263), "ICN6432", CButton::tooltip(), std::bind(&CSplitWindow::close, this), SDLK_ESCAPE);
 
 	int sliderPositions = total - leftMin - rightMin;
 
-	leftInput = new CTextInput(Rect(20, 218, 100, 36), FONT_BIG, boost::bind(&CSplitWindow::setAmountText, this, _1, true));
-	rightInput = new CTextInput(Rect(176, 218, 100, 36), FONT_BIG, boost::bind(&CSplitWindow::setAmountText, this, _1, false));
+	leftInput = new CTextInput(Rect(20, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, true));
+	rightInput = new CTextInput(Rect(176, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, false));
 
 	//add filters to allow only number input
-	leftInput->filters.add(boost::bind(&CTextInput::numberFilter, _1, _2, leftMin, leftMax));
-	rightInput->filters.add(boost::bind(&CTextInput::numberFilter, _1, _2, rightMin, rightMax));
+	leftInput->filters.add(std::bind(&CTextInput::numberFilter, _1, _2, leftMin, leftMax));
+	rightInput->filters.add(std::bind(&CTextInput::numberFilter, _1, _2, rightMin, rightMax));
 
 	leftInput->setText(boost::lexical_cast<std::string>(leftAmount), false);
 	rightInput->setText(boost::lexical_cast<std::string>(rightAmount), false);
@@ -392,7 +392,7 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	animLeft = new CCreaturePic(20, 54, creature, true, false);
 	animRight = new CCreaturePic(177, 54,creature, true, false);
 
-	slider = new CSlider(Point(21, 194), 257, boost::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPositions, rightAmount - rightMin, true);
+	slider = new CSlider(Point(21, 194), 257, std::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPositions, rightAmount - rightMin, true);
 
 	std::string title = CGI->generaltexth->allTexts[256];
 	boost::algorithm::replace_first(title,"%s", creature->namePl);
@@ -441,7 +441,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkil
 	LOCPLINT->showingDialog->setn(true);
 
 	new CAnimImage("PortraitsLarge", hero->portrait, 0, 170, 66);
-	new CButton(Point(297, 413), "IOKAY",  CButton::tooltip(), boost::bind(&CLevelWindow::close, this), SDLK_RETURN);
+	new CButton(Point(297, 413), "IOKAY",  CButton::tooltip(), std::bind(&CLevelWindow::close, this), SDLK_RETURN);
 
 	//%s has gained a level.
 	new CLabel(192, 33, FONT_MEDIUM, CENTER, Colors::WHITE,
@@ -560,28 +560,28 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	heroMoveSpeed->addToggle(4, new CToggleButton(Point(124, 77), "sysopb3.def", CGI->generaltexth->zelp[351]));
 	heroMoveSpeed->addToggle(8, new CToggleButton(Point(172, 77), "sysopb4.def", CGI->generaltexth->zelp[352]));
 	heroMoveSpeed->setSelected(settings["adventure"]["heroSpeed"].Float());
-	heroMoveSpeed->addCallback(boost::bind(&CSystemOptionsWindow::setHeroMoveSpeed, this, _1));
+	heroMoveSpeed->addCallback(std::bind(&CSystemOptionsWindow::setHeroMoveSpeed, this, _1));
 
 	mapScrollSpeed = new CToggleGroup(0);
 	mapScrollSpeed->addToggle(1, new CToggleButton(Point( 28, 210), "sysopb9.def", CGI->generaltexth->zelp[357]));
 	mapScrollSpeed->addToggle(2, new CToggleButton(Point( 92, 210), "sysob10.def", CGI->generaltexth->zelp[358]));
 	mapScrollSpeed->addToggle(4, new CToggleButton(Point(156, 210), "sysob11.def", CGI->generaltexth->zelp[359]));
 	mapScrollSpeed->setSelected(settings["adventure"]["scrollSpeed"].Float());
-	mapScrollSpeed->addCallback(boost::bind(&CSystemOptionsWindow::setMapScrollingSpeed, this, _1));
+	mapScrollSpeed->addCallback(std::bind(&CSystemOptionsWindow::setMapScrollingSpeed, this, _1));
 
 	musicVolume = new CToggleGroup(0, true);
 	for(int i=0; i<10; ++i)
 		musicVolume->addToggle(i*11, new CToggleButton(Point(29 + 19*i, 359), "syslb.def", CGI->generaltexth->zelp[326+i]));
 
 	musicVolume->setSelected(CCS->musich->getVolume());
-	musicVolume->addCallback(boost::bind(&CSystemOptionsWindow::setMusicVolume, this, _1));
+	musicVolume->addCallback(std::bind(&CSystemOptionsWindow::setMusicVolume, this, _1));
 
 	effectsVolume = new CToggleGroup(0, true);
 	for(int i=0; i<10; ++i)
 		effectsVolume->addToggle(i*11, new CToggleButton(Point(29 + 19*i, 425), "syslb.def", CGI->generaltexth->zelp[336+i]));
 
 	effectsVolume->setSelected(CCS->soundh->getVolume());
-	effectsVolume->addCallback(boost::bind(&CSystemOptionsWindow::setSoundVolume, this, _1));
+	effectsVolume->addCallback(std::bind(&CSystemOptionsWindow::setSoundVolume, this, _1));
 
 	showReminder = new CToggleButton(Point(246, 87), "sysopchk.def", CGI->generaltexth->zelp[361],
 	        [&] (bool value) { toggleReminder(value);});
@@ -607,7 +607,7 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	onFullscreenChanged([&](const JsonNode &newState){ fullscreen->setSelected(newState.Bool());});
 
 	gameResButton = new CButton(Point(28, 275),"buttons/resolution", CButton::tooltip(texts["resolutionButton"]),
-	                                        boost::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
+	                                        std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
 
 	std::string resText;
 	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["width"].Float());
@@ -630,7 +630,7 @@ void CSystemOptionsWindow::selectGameRes()
 	}
 
 	GH.pushInt(new CObjectListWindow(items, nullptr, texts["label"].String(), texts["help"].String(),
-			   boost::bind(&CSystemOptionsWindow::setGameRes, this, _1)));
+			   std::bind(&CSystemOptionsWindow::setGameRes, this, _1)));
 }
 
 void CSystemOptionsWindow::setGameRes(int index)
@@ -744,9 +744,9 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 	new CTextBox(LOCPLINT->cb->getTavernGossip(tavernObj), Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
 
 	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
-	cancel = new CButton(Point(310, 428), "ICANCEL.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[7]), boost::bind(&CTavernWindow::close, this), SDLK_ESCAPE);
-	recruit = new CButton(Point(272, 355), "TPTAV01.DEF", CButton::tooltip(), boost::bind(&CTavernWindow::recruitb, this), SDLK_RETURN);
-	thiefGuild = new CButton(Point(22, 428), "TPTAV02.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[5]), boost::bind(&CTavernWindow::thievesguildb, this), SDLK_t);
+	cancel = new CButton(Point(310, 428), "ICANCEL.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), SDLK_ESCAPE);
+	recruit = new CButton(Point(272, 355), "TPTAV01.DEF", CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), SDLK_RETURN);
+	thiefGuild = new CButton(Point(22, 428), "TPTAV02.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), SDLK_t);
 
 	if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < 2500) //not enough gold
 	{
@@ -1019,20 +1019,20 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	}
 
 	//buttons
-	quit = new CButton(Point(732, 567), "IOKAY.DEF", CGI->generaltexth->zelp[600], boost::bind(&CExchangeWindow::close, this), SDLK_RETURN);
+	quit = new CButton(Point(732, 567), "IOKAY.DEF", CGI->generaltexth->zelp[600], std::bind(&CExchangeWindow::close, this), SDLK_RETURN);
 	if(queryID.getNum() > 0)
 		quit->addCallback([=]{ LOCPLINT->cb->selectionMade(0, queryID); });
 
-	questlogButton[0] = new CButton(Point( 10, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), boost::bind(&CExchangeWindow::questlog,this, 0));
-	questlogButton[1] = new CButton(Point(740, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), boost::bind(&CExchangeWindow::questlog,this, 1));
+	questlogButton[0] = new CButton(Point( 10, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog,this, 0));
+	questlogButton[1] = new CButton(Point(740, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog,this, 1));
 
 	Rect barRect(5, 578, 725, 18);
 	ourBar = new CGStatusBar(new CPicture(*background, barRect, 5, 578, false));
 
 	//garrison interface
 	garr = new CGarrisonInt(69, 131, 4, Point(418,0), *background, Point(69,131), heroInst[0],heroInst[1], true, true);
-	garr->addSplitBtn(new CButton( Point( 10, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), boost::bind(&CGarrisonInt::splitClick, garr)));
-	garr->addSplitBtn(new CButton( Point(740, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), boost::bind(&CGarrisonInt::splitClick, garr)));
+	garr->addSplitBtn(new CButton( Point( 10, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), std::bind(&CGarrisonInt::splitClick, garr)));
+	garr->addSplitBtn(new CButton( Point(740, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), std::bind(&CGarrisonInt::splitClick, garr)));
 }
 
 CExchangeWindow::~CExchangeWindow() //d-tor
@@ -1065,8 +1065,8 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 	goldPic = new CAnimImage("RESOURCE", Res::GOLD, 0, 100, 244);
 	woodPic = new CAnimImage("RESOURCE", Res::WOOD, 0, 196, 244);
 
-	quit  = new CButton( Point(224, 312), "ICANCEL", CButton::tooltip(CGI->generaltexth->allTexts[599]), boost::bind(&CShipyardWindow::close, this), SDLK_RETURN);
-	build = new CButton( Point( 42, 312), "IBUY30",  CButton::tooltip(CGI->generaltexth->allTexts[598]), boost::bind(&CShipyardWindow::close, this),SDLK_RETURN);
+	quit  = new CButton( Point(224, 312), "ICANCEL", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), SDLK_RETURN);
+	build = new CButton( Point( 42, 312), "IBUY30",  CButton::tooltip(CGI->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this),SDLK_RETURN);
 	build->addCallback(onBuy);
 
 	for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
@@ -1092,7 +1092,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	CCS->soundh->playSound(soundBase::OBELISK);
 
-	quitb = new CButton(Point(670, 538), "IOK6432.DEF", CButton::tooltip(CGI->generaltexth->allTexts[599]), boost::bind(&CPuzzleWindow::close, this), SDLK_RETURN);
+	quitb = new CButton(Point(670, 538), "IOK6432.DEF", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CPuzzleWindow::close, this), SDLK_RETURN);
 	quitb->assignedKeys.insert(SDLK_ESCAPE);
 	quitb->borderColor = Colors::METALLIC_GOLD;
 
@@ -1430,7 +1430,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	for (auto image : { "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF" })
 		upgradeAll->addImage(image);
 
-	quit = new CButton(Point(294, 275), "IOKAY.DEF", CButton::tooltip(), boost::bind(&CHillFortWindow::close, this), SDLK_RETURN);
+	quit = new CButton(Point(294, 275), "IOKAY.DEF", CButton::tooltip(), std::bind(&CHillFortWindow::close, this), SDLK_RETURN);
 	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	garr = new CGarrisonInt(108, 60, 18, Point(),background->bg,Point(108,60),hero,nullptr);
@@ -1777,9 +1777,9 @@ void CObjectListWindow::init(CIntObject * titlePic, std::string _title, std::str
 	title = new CLabel(152, 27, FONT_BIG, CENTER, Colors::YELLOW, _title);
 	descr = new CLabel(145, 133, FONT_SMALL, CENTER, Colors::WHITE, _descr);
 
-	ok = new CButton(Point(15, 402), "IOKAY.DEF", CButton::tooltip(), boost::bind(&CObjectListWindow::elementSelected, this), SDLK_RETURN);
+	ok = new CButton(Point(15, 402), "IOKAY.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), SDLK_RETURN);
 	ok->block(true);
-	exit = new CButton( Point(228, 402), "ICANCEL.DEF", CButton::tooltip(), boost::bind(&CGuiHandler::popIntTotally,&GH, this), SDLK_ESCAPE);
+	exit = new CButton( Point(228, 402), "ICANCEL.DEF", CButton::tooltip(), std::bind(&CGuiHandler::popIntTotally,&GH, this), SDLK_ESCAPE);
 
 	if (titlePic)
 	{
@@ -1789,7 +1789,7 @@ void CObjectListWindow::init(CIntObject * titlePic, std::string _title, std::str
 		titleImage->pos.x = pos.w/2 + pos.x - titleImage->pos.w/2;
 		titleImage->pos.y =75 + pos.y - titleImage->pos.h/2;
 	}
-	list = new CListBox(boost::bind(&CObjectListWindow::genItem, this, _1), CListBox::DestroyFunc(),
+	list = new CListBox(std::bind(&CObjectListWindow::genItem, this, _1), CListBox::DestroyFunc(),
 		Point(14, 151), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256) );
 	list->type |= REDRAW_PARENT;
 }
