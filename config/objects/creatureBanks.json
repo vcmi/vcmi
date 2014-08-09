@@ -110,7 +110,7 @@
 			},
 			"dwarvenTreasury" : {
 				"index" : 1,
-				"resetDuraition" : 28,
+				"resetDuration" : 28,
 				"name" : "Dwarven Treasury",
 				"rmg" : {
 					"value"		: 2000,
@@ -197,7 +197,7 @@
 			},
 			"griffinConservatory" : {
 				"index" : 2,
-				"resetDuraition" : 28,
+				"resetDuration" : 28,
 				"name" : "Griffin Conservatory",
 				"rmg" : {
 					"value"		: 2000,
@@ -268,7 +268,7 @@
 			},
 			"inpCache" :  {
 				"index" : 3,
-				"resetDuraition" : 28,
+				"resetDuration" : 28,
 				"name" : "Imp Cache",
 				"rmg" : {
 					"value"		: 5000,
@@ -354,7 +354,7 @@
 			},
 			"medusaStore" : {
 				"index" : 4,
-				"resetDuraition" : 28,
+				"resetDuration" : 28,
 				"name" : "Medusa Stores",
 				"rmg" : {
 					"value"		: 1500,
@@ -441,7 +441,7 @@
 			},
 			"nagaBank" : {
 				"index" : 5,
-				"resetDuraition" : 28,
+				"resetDuration" : 28,
 				"name" : "Naga Bank",
 				"rmg" : {
 					"value"		: 3000,
@@ -528,7 +528,7 @@
 			},
 			"dragonflyHive" : {
 				"index" : 6,
-				"resetDuraition" : 28,
+				"resetDuration" : 28,
 				"name" : "Dragon Fly Hive",
 				"rmg" : {
 					"value"		: 9000,
@@ -605,7 +605,7 @@
 		"types" : {
 			"shipwreck" : {
 				"index" : 0,
-				"resetDuraition" : 28,
+				"resetDuration" : 28,
 				"name" : "Shipwreck",
 				"rmg" : {
 					"value"		: 2000,
@@ -696,7 +696,7 @@
 		"types" : {
 			"derelictShip" : {
 				"index" : 0,
-				"resetDuraition" : 28,
+				"resetDuration" : 28,
 				"name" : "Derelict Ship",
 				"rmg" : {
 					"value"		: 4000,
@@ -788,7 +788,7 @@
 		"types" : {
 			"crypt" : {
 				"index" : 0,
-				"resetDuraition" : 28,
+				"resetDuration" : 28,
 				"name" : "Crypt",
 				"rmg" : {
 					"value"		: 1000,
@@ -877,7 +877,7 @@
 		"types" : {
 			"dragonUtopia" : {
 				"index" : 0,
-				"resetDuraition" : 28,
+				"resetDuration" : 28,
 				"name" : "Dragon Utopia",
 				"rmg" : {
 					"value"		: 10000,
@@ -986,7 +986,7 @@
 		"types" : {
 			"pyramid" : {
 				"index" : 0,
-				"resetDuraition" : 28,
+				"resetDuration" : 28,
 				"name" : "Pyramid",
 				"rmg" : {
 					"value"		: 5000,

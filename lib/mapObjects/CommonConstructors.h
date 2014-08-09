@@ -184,4 +184,10 @@ public:
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const;
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(ObjectTemplate tmpl) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & levels & bankResetDuration;
+		h & static_cast<CDefaultObjectTypeHandler<CBank>&>(*this);
+	}
 };

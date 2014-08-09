@@ -303,6 +303,7 @@ void CBankInstanceConstructor::configureObject(CGObjectInstance * object, CRando
 CBankInfo::CBankInfo(JsonVector config):
 	config(config)
 {
+	assert(!config.empty());
 }
 
 static void addStackToArmy(IObjectInfo::CArmyStructure & army, const CCreature * crea, si32 amount)

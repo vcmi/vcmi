@@ -202,6 +202,7 @@ namespace JsonRandom
 				for (auto creaID : crea->upgrades)
 					info.allowedCreatures.push_back(VLC->creh->creatures[creaID]);
 			}
+			ret.push_back(info);
 		}
 		return ret;
 	}
