@@ -48,10 +48,10 @@ class VCMIDirs_win32 : public IVCMIDirs
 
 namespace VCMIDirs
 {
-	const IVCMIDirs* get()
+	const IVCMIDirs& get()
 	{
 		static VCMIDirs_win32 singleton;
-		return &singleton;
+		return singleton;
 	}
 }
 
@@ -142,13 +142,13 @@ std::string VCMIDirs_win32::genHelpString() const
 		"  user saves:  " + utf8_convert(userSavePath()) + "\n"; // Should end without new-line?
 }
 
-std::string libraryName(const std::string& basename) { return basename + ".dll"; }
+std::string VCMIDirs_win32::libraryName(const std::string& basename) const { return basename + ".dll"; }
 // End of file: VCMIDirs_win32.cpp
 #else // UNIX
-// File: IVCMIDirs_unix.h
+// File: IVCMIDirs_UNIX.h
 //#include "IVCMIDirs.h"
 
-class IVCMIDirs_unix : public IVCMIDirs
+class IVCMIDirs_UNIX : public IVCMIDirs
 {
 	public:
 		boost::filesystem::path clientPath() const override;
@@ -156,16 +156,16 @@ class IVCMIDirs_unix : public IVCMIDirs
 
 		std::string genHelpString() const override;
 };
-// End of file: IVCMIDirs_unix.h
+// End of file: IVCMIDirs_UNIX.h
 
-// File: IVCMIDirs_unix.cpp
+// File: IVCMIDirs_UNIX.cpp
 //#include "StdInc.h"
-//#include "IVCMIDirs_unix.h"
+//#include "IVCMIDirs_UNIX.h"
 
-bfs::path IVCMIDirs_unix::clientPath() const { return binaryPath() / "vcmiclient"; }
-bfs::path IVCMIDirs_unix::clientPath() const { return binaryPath() / "vcmiserver"; }
+bfs::path IVCMIDirs_UNIX::clientPath() const { return binaryPath() / "vcmiclient"; }
+bfs::path IVCMIDirs_UNIX::clientPath() const { return binaryPath() / "vcmiserver"; }
 
-std::string IVCMIDirs_unix::genHelpString() const
+std::string IVCMIDirs_UNIX::genHelpString() const
 {
 	std::vector<std::string> temp_vec;
 	for (const bfs::path& path : dataPaths())
@@ -183,13 +183,13 @@ std::string IVCMIDirs_unix::genHelpString() const
 		"  user config: " + userConfigPath().string() + "\n" +
 		"  user saves:  " + userSavePath().string() + "\n"; // Should end without new-line?
 }
-// End of file: IVCMIDirs_unix.cpp
+// End of file: IVCMIDirs_UNIX.cpp
 
 #ifdef __APPLE__
 // File: VCMIDirs_OSX.h
-//#include "IVCMIDirs_unix.h"
+//#include "IVCMIDirs_UNIX.h"
 
-class VCMIDirs_OSX : public IVCMIDirs_unix
+class VCMIDirs_OSX : public IVCMIDirs_UNIX
 {
 	public:
 		boost::filesystem::path userDataPath() const override;
@@ -212,10 +212,10 @@ class VCMIDirs_OSX : public IVCMIDirs_unix
 
 namespace VCMIDirs
 {
-	const IVCMIDirs* get()
+	const IVCMIDirs& get()
 	{
 		static VCMIDirs_OSX singleton;
-		return &singleton;
+		return singleton;
 	}
 }
 
@@ -248,9 +248,9 @@ std::string libraryName(const std::string& basename) { return "lib" + basename +
 // End of file: VCMIDirs_OSX.cpp
 #else
 // File: VCMIDirs_Linux.h
-//#include "IVCMIDirs_unix.h"
+//#include "IVCMIDirs_UNIX.h"
 
-class VCMIDirs_Linux : public IVCMIDirs_unix
+class VCMIDirs_Linux : public IVCMIDirs_UNIX
 {
 public:
 	boost::filesystem::path userDataPath() const override;
@@ -273,10 +273,10 @@ public:
 
 namespace VCMIDirs
 {
-	const IVCMIDirs* get()
+	const IVCMIDirs& get()
 	{
 		static VCMIDirs_Linux singleton;
-		return &singleton;
+		return singleton;
 	}
 }
 
@@ -375,10 +375,10 @@ public:
 
 namespace VCMIDirs
 {
-	const IVCMIDirs* get()
+	const IVCMIDirs& get()
 	{
 		static VCMIDirs_Android singleton;
-		return &singleton;
+		return singleton;
 	}
 }
 
