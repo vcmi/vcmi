@@ -51,6 +51,7 @@
 #endif
 
 namespace po = boost::program_options;
+namespace bfs = boost::filesystem;
 
 /*
  * CMT.cpp, part of VCMI engine
@@ -72,13 +73,12 @@ int preferredDriverIndex = -1;
 SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
 SDL_Texture * screenTexture = nullptr;
-
 #endif // VCMI_SDL1
 
 extern boost::thread_specific_ptr<bool> inGuiThread;
 
 SDL_Surface *screen = nullptr, //main screen surface
-	*screen2 = nullptr,//and hlp surface (used to store not-active interfaces layer)
+	*screen2 = nullptr, //and hlp surface (used to store not-active interfaces layer)
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 	
 std::queue<SDL_Event> events;
@@ -106,24 +106,23 @@ void endGame();
 #include <getopt.h>
 #endif
 
-void startGameFromFile(const std::string &fname)
+void startGameFromFile(const bfs::path &fname)
 {
 	StartInfo si;
 	try //attempt retrieving start info from given file
 	{
-		if(!fname.size() || !boost::filesystem::exists(fname))
-			throw std::runtime_error("Startfile \"" + fname + "\" does not exist!");
+		if(fname.empty() || !bfs::exists(fname))
+			throw std::runtime_error("Startfile \"" + fname.string() + "\" does not exist!");
 
-		CLoadFile out(fname);
-		if(!out.sfile || !*out.sfile)
-		{
-			throw std::runtime_error("Cannot read from startfile \"" + fname + "\"!");
-		}
+		// TODO: CLoadFile should take boost::path as an argument
+		CLoadFile out(fname.string());
+		if (!out.sfile || !*out.sfile)
+			throw std::runtime_error("Cannot read from startfile \"" + fname.string() +"\"!");
 		out >> si;
 	}
 	catch(std::exception &e)
 	{
-		logGlobal->errorStream() << "Failed to start from the file: " + fname << ". Error: " << e.what()
+		logGlobal->errorStream() << "Failed to start from the file: " << fname << ". Error: " << e.what()
 			<< " Falling back to main menu.";
 		GH.curInt = CGPreGame::create();
 		return;
@@ -218,7 +217,7 @@ int main(int argc, char** argv)
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
 		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only")
-		("start", po::value<std::string>(), "starts game from saved StartInfo file")
+		("start", po::value<bfs::path>(), "starts game from saved StartInfo file")
 		("onlyAI", "runs without human player, all players will be default AI")
 		("noGUI", "runs without GUI, implies --onlyAI")
 		("ai", po::value<std::vector<std::string>>(), "AI to be used for the player, can be specified several times for the consecutive players")
@@ -271,15 +270,15 @@ int main(int argc, char** argv)
 	CStopWatch total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
 	console = new CConsoleHandler;
-	*console->cb = std::bind(&processCommand, _1);
+	*console->cb = processCommand;
 	console->start();
 	atexit(dispose);
 
-	const auto logPath = VCMIDirs::get().userCachePath() + "/VCMI_Client_log.txt";
-	CBasicLogConfigurator logConfig(logPath, console);
+	const bfs::path log_path = VCMIDirs::get().userCachePath() / "VCMI_Client_log.txt";
+	CBasicLogConfigurator logConfig(log_path, console);
     logConfig.configureDefault();
 	logGlobal->infoStream() << "Creating console and configuring logger: " << pomtime.getDiff();
-	logGlobal->infoStream() << "The log file will be saved to " << logPath;
+	logGlobal->infoStream() << "The log file will be saved to " << log_path;
 
 #ifdef __ANDROID__
 	// boost will crash without this
@@ -430,15 +429,15 @@ int main(int argc, char** argv)
 		session["autoSkip"].Bool()  = vm.count("autoSkip");
 		session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
 
-		std::string fileToStartFrom; //none by default
+		bfs::path fileToStartFrom; //none by default
 		if(vm.count("start"))
-			fileToStartFrom = vm["start"].as<std::string>();
+			fileToStartFrom = vm["start"].as<bfs::path>();
 
-		if(fileToStartFrom.size() && boost::filesystem::exists(fileToStartFrom))
+		if(!fileToStartFrom.empty() && bfs::exists(fileToStartFrom))
 			startGameFromFile(fileToStartFrom); //ommit pregame and start the game using settings from file
 		else
 		{
-			if(fileToStartFrom.size())
+			if(!fileToStartFrom.empty())
 			{
                 logGlobal->warnStream() << "Warning: cannot find given file to start from (" << fileToStartFrom
                     << "). Falling back to main menu.";
@@ -584,7 +583,8 @@ void processCommand(const std::string &message)
 	{
         std::cout<<"Command accepted.\t";
 
-		std::string outPath = VCMIDirs::get().userCachePath() + "/extracted/";
+		const bfs::path out_path =
+			VCMIDirs::get().userCachePath() / "extracted";
 
 		auto list = CResourceHandler::get()->getFilteredFiles([](const ResourceID & ident)
 		{
@@ -593,18 +593,19 @@ void processCommand(const std::string &message)
 
 		for (auto & filename : list)
 		{
-			std::string outName = outPath + filename.getName();
+			const bfs::path file_path = out_path / (filename.getName() + ".TXT");
+			std::string outName = file_path.string();
+			
+			bfs::create_directories(file_path.parent_path());
 
-			boost::filesystem::create_directories(outName.substr(0, outName.find_last_of("/")));
-
-			std::ofstream file(outName + ".TXT");
+			bfs::ofstream file(file_path);
 			auto text = CResourceHandler::get()->load(filename)->readAll();
 
 			file.write((char*)text.first.get(), text.second);
 		}
 
         std::cout << "\rExtracting done :)\n";
-        std::cout << " Extracted files can be found in " << outPath << " directory\n";
+		std::cout << " Extracted files can be found in " << out_path << " directory\n";
 	}
 	else if(cn=="crash")
 	{
@@ -710,15 +711,13 @@ void processCommand(const std::string &message)
 		{
 			CDefEssential * cde = CDefHandler::giveDefEss(URI);
 
-			std::string outName = URI;
-			std::string outPath = VCMIDirs::get().userCachePath() + "/extracted/";
+			const bfs::path out_path = VCMIDirs::get().userCachePath() / "extraced" / URI;
+			bfs::create_directories(out_path);
 
-			boost::filesystem::create_directories(outPath + outName);
-
-			for (size_t i=0; i<cde->ourImages.size(); i++)
+			for (size_t i = 0; i < cde->ourImages.size(); ++i)
 			{
-				std::string filename = outPath + outName + '/' + boost::lexical_cast<std::string>(i) + ".bmp";
-				SDL_SaveBMP(cde->ourImages[i].bitmap, filename.c_str());
+				const bfs::path file_path = out_path / (boost::lexical_cast<std::string>(i) + ".bmp");
+				SDL_SaveBMP(cde->ourImages[i].bitmap, file_path.string().c_str());
 			}
 		}
 		else
@@ -731,14 +730,12 @@ void processCommand(const std::string &message)
 
 		if (CResourceHandler::get()->existsResource(ResourceID(URI)))
 		{
-			std::string outName = URI;
-			std::string outPath = VCMIDirs::get().userCachePath() + "/extracted/";
-			std::string fullPath = outPath + outName;
+			const bfs::path out_path = VCMIDirs::get().userCachePath() / "extracted" / URI;
 
 			auto data = CResourceHandler::get()->load(ResourceID(URI))->readAll();
 
-			boost::filesystem::create_directories(fullPath.substr(0, fullPath.find_last_of("/")));
-			std::ofstream outFile(outPath + outName, std::ofstream::binary);
+			bfs::create_directories(out_path.parent_path());
+			bfs::ofstream outFile(out_path, bfs::ofstream::binary);
 			outFile.write((char*)data.first.get(), data.second);
 		}
 		else

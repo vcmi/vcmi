@@ -16,9 +16,9 @@
 // Boost
 #include <boost/filesystem/path.hpp>
 
-// TODO: File should be rename to IVCMIDirs.h
+// TODO: File should be renamed to IVCMIDirs.h
 
-class IVCMIDirs
+class DLL_LINKAGE IVCMIDirs
 {
 	public:
 		// Path to user-specific data directory
@@ -31,7 +31,7 @@ class IVCMIDirs
 		virtual boost::filesystem::path userConfigPath() const = 0;
 
 		// Path to saved games
-		virtual boost::filesystem::path userSavePath() const = 0;
+		virtual boost::filesystem::path userSavePath() const;
 
 		// Paths to global system-wide data directories. First items have higher priority
 		virtual std::vector<boost::filesystem::path> dataPaths() const = 0;
@@ -54,6 +54,11 @@ class IVCMIDirs
 		// virtual std::string libraryName(std::string&& basename) const = 0;?
 
 		virtual std::string genHelpString() const = 0;
+		
+		// Creates not existed, but required directories.
+		// Updates directories what change name/path between versions.
+		// Function called automatically.
+		virtual void init();
 };
 
 namespace VCMIDirs

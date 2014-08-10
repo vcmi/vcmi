@@ -111,9 +111,10 @@ template<typename rett>
 shared_ptr<rett> createAnyAI(std::string dllname, std::string methodName)
 {
     logGlobal->infoStream() << "Opening " << dllname;
-	std::string filename = VCMIDirs::get().libraryName(dllname);
-
-	auto ret = createAny<rett>(VCMIDirs::get().libraryPath() + "/AI/" + filename, methodName);
+	const boost::filesystem::path file_path =
+		VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(dllname);
+	// TODO: createAny Should take boost::filesystem::path in argument.
+	auto ret = createAny<rett>(file_path.string(), methodName);
 	ret->dllName = dllname;
 	return ret;
 }

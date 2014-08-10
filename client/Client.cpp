@@ -777,8 +777,8 @@ std::string CClient::aiNameForPlayer(const PlayerSettings &ps, bool battleAI)
 {
 	if(ps.name.size())
 	{
-		std::string filename = VCMIDirs::get().libraryPath() + "/AI/" + VCMIDirs::get().libraryName(ps.name);
-		if(boost::filesystem::exists(filename))
+		boost::filesystem::path ai_path = VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(ps.name);
+		if (boost::filesystem::exists(ai_path))
 			return ps.name;
 	}
 
@@ -865,8 +865,9 @@ CServerHandler::~CServerHandler()
 void CServerHandler::callServer()
 {
 	setThreadName("CServerHandler::callServer");
-	std::string logName = VCMIDirs::get().userCachePath() + "/server_log.txt";
-	std::string comm = VCMIDirs::get().serverPath() + " --port=" + port + " > " + logName;
+	// TODO: Make more boost::filesystem::path based
+	const std::string logName = (VCMIDirs::get().userCachePath() / "server_log.txt").string();
+	const std::string comm = VCMIDirs::get().serverPath().string() + " --port=" + port + " > " + logName;
 	int result = std::system(comm.c_str());
 	if (result == 0)
         logNetwork->infoStream() << "Server closed correctly";

@@ -596,7 +596,7 @@ int main(int argc, char** argv)
 	#endif
 
 	console = new CConsoleHandler;
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() + "/VCMI_Server_log.txt", console);
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
 
 	preinitDLL(console);
