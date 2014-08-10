@@ -304,8 +304,7 @@ int main(int argc, char** argv)
 	};
 
 	if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
-	    !testFile("MODS/VCMI/MOD.JSON", "VCMI mod") ||
-	    !testFile("DATA/StackQueueBgBig.PCX", "VCMI data"))
+	    !testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
 		exit(1); // These are unrecoverable errors
 
 	// these two are optional + some installs have them on CD and not in data directory
