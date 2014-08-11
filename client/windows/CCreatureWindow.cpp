@@ -767,6 +767,9 @@ void CStackWindow::initBonusesList()
 
 void CStackWindow::init()
 {
+	if (!info->stackNode)
+		info->stackNode = new CStackInstance(info->creature, 1);// FIXME: free data
+
 	stackArtifactHelp = nullptr;
 	stackArtifactIcon = nullptr;
 	stackArtifactButton = nullptr;
@@ -803,7 +806,6 @@ CStackWindow::CStackWindow(const CCreature * creature, bool popup):
 	CWindowObject(BORDERED | (popup ? RCLICK_POPUP : 0)),
 	info(new StackWindowInfo())
 {
-	info->stackNode = new CStackInstance(creature, 1); // FIXME: free data
 	info->creature = creature;
 	info->popupWindow = popup;
 	init();
