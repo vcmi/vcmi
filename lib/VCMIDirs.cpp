@@ -30,7 +30,7 @@ void IVCMIDirs::init()
 #include <Shlobj.h>
 #include <Shellapi.h>
 
-class VCMIDirs_win32 : public IVCMIDirs
+class VCMIDirsWIN32 : public IVCMIDirs
 {
 	public:
 		boost::filesystem::path userDataPath() const override;
@@ -52,7 +52,7 @@ class VCMIDirs_win32 : public IVCMIDirs
 		void init() override;
 };
 
-void VCMIDirs_win32::init()
+void VCMIDirsWIN32::init()
 {
 	// Call base (init dirs)
 	IVCMIDirs::init();
@@ -76,13 +76,13 @@ void VCMIDirs_win32::init()
 		}
 
 		// Why the hell path strings should be end with double null :/
-		auto make_double_nulled = [](const bfs::path& path) -> std::unique_ptr<wchar_t[]>
+		auto makeDoubleNulled = [](const bfs::path& path) -> std::unique_ptr<wchar_t[]>
 		{
-			const std::wstring& path_str = path.native();
-			std::unique_ptr<wchar_t[]> result(new wchar_t[path_str.length() + 2]);
+			const std::wstring& pathStr = path.native();
+			std::unique_ptr<wchar_t[]> result(new wchar_t[pathStr.length() + 2]);
 			
 			size_t i = 0;
-			for (const wchar_t ch : path_str)
+			for (const wchar_t ch : pathStr)
 				result[i++] = ch;
 			result[i++] = L'\0';
 			result[i++] = L'\0';
@@ -90,21 +90,21 @@ void VCMIDirs_win32::init()
 			return result;
 		};
 
-		auto from_dnulled = make_double_nulled(from / L"*.*");
-		auto to_dnulled = make_double_nulled(to);
+		auto fromDNulled = makeDoubleNulled(from / L"*.*");
+		auto toDNulled = makeDoubleNulled(to);
 
-		SHFILEOPSTRUCTW file_op;
-		file_op.hwnd = GetConsoleWindow();
-		file_op.wFunc = FO_MOVE;
-		file_op.pFrom = from_dnulled.get();
-		file_op.pTo = to_dnulled.get();
-		file_op.fFlags = 0;
-		file_op.hNameMappings = nullptr;
-		file_op.lpszProgressTitle = nullptr;
+		SHFILEOPSTRUCTW fileOp;
+		fileOp.hwnd = GetConsoleWindow();
+		fileOp.wFunc = FO_MOVE;
+		fileOp.pFrom = fromDNulled.get();
+		fileOp.pTo = toDNulled.get();
+		fileOp.fFlags = 0;
+		fileOp.hNameMappings = nullptr;
+		fileOp.lpszProgressTitle = nullptr;
 
-		const int error_code = SHFileOperationW(&file_op);
-		if (error_code != 0); // TODO: Log error. User should try to move files.
-		else if (file_op.fAnyOperationsAborted); // TODO: Log warn. User aborted operation. User should move files.
+		const int errorCode = SHFileOperationW(&fileOp);
+		if (errorCode != 0); // TODO: Log error. User should try to move files.
+		else if (fileOp.fAnyOperationsAborted); // TODO: Log warn. User aborted operation. User should move files.
 		else if (!bfs::is_empty(from)); // TODO: Log warn. Some files not moved. User should try to move files.
 		else // TODO: Log fact that we moved files succefully.
 			bfs::remove(from);
@@ -113,57 +113,63 @@ void VCMIDirs_win32::init()
 	moveDirIfExists(userDataPath() / "Games", userSavePath());
 }
 
-bfs::path VCMIDirs_win32::userDataPath() const
+bfs::path VCMIDirsWIN32::userDataPath() const
 {
-	const char* profile_dir_a;
-	wchar_t profile_dir_w[MAX_PATH];
+	wchar_t profileDir[MAX_PATH];
 
 	// The user's profile folder. A typical path is C:\Users\username.
 	// FIXME: Applications should not create files or folders at this level;
 	// they should put their data under the locations referred to by CSIDL_APPDATA or CSIDL_LOCAL_APPDATA.
-	if (SHGetSpecialFolderPathW(nullptr, profile_dir_w, CSIDL_PROFILE, FALSE) == FALSE) // WinAPI way failed
+	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_PROFILE, FALSE) == FALSE) // WinAPI way failed
 	{
-		// FIXME: Use _wdupenv_s on MS Visual Studio.
-		//    or: define _CRT_SECURE_NO_WARNINGS in preprocessor global settings.
-		// warning C4996: 'getenv': This function or variable may be unsafe.
-		// Consider using _dupenv_s instead.
-		// To disable deprecation, use _CRT_SECURE_NO_WARNINGS.
-		// See online help for details.
-		if (profile_dir_a = std::getenv("userprofile")) // STL way succeed
-			return bfs::path(profile_dir_a) / "vcmi";
+#if defined(_MSC_VER) && _MSC_VER >= 1700
+		wchar_t* buffer;
+		size_t bufferSize;
+		errno_t result = _wdupenv_s(&buffer, &bufferSize, L"userprofile");
+		if (result == 0)
+		{
+			bfs::path result(std::wstring(buffer, bufferSize));
+			free(buffer);
+			return result;
+		}
+#else
+		const char* profileDirA;
+		if (profileDirA = std::getenv("userprofile")) // STL way succeed
+			return bfs::path(profileDirA) / "vcmi";
+#endif
 		else
 			return "."; // Every thing failed, return current directory.
 	}
 	else
-		return bfs::path(profile_dir_w) / "vcmi";
+		return bfs::path(profileDir) / "vcmi";
 
 	//return dataPaths()[0] ???;
 }
-bfs::path VCMIDirs_win32::userCachePath() const { return userDataPath(); }
-bfs::path VCMIDirs_win32::userConfigPath() const { return userDataPath() / "config"; }
+bfs::path VCMIDirsWIN32::userCachePath() const { return userDataPath(); }
+bfs::path VCMIDirsWIN32::userConfigPath() const { return userDataPath() / "config"; }
 
-std::vector<bfs::path> VCMIDirs_win32::dataPaths() const
+std::vector<bfs::path> VCMIDirsWIN32::dataPaths() const
 {
 	return std::vector<bfs::path>(1, bfs::path("."));
 }
 
-bfs::path VCMIDirs_win32::clientPath() const { return binaryPath() / "VCMI_client.exe"; }
-bfs::path VCMIDirs_win32::serverPath() const { return binaryPath() / "VCMI_server.exe"; }
+bfs::path VCMIDirsWIN32::clientPath() const { return binaryPath() / "VCMI_client.exe"; }
+bfs::path VCMIDirsWIN32::serverPath() const { return binaryPath() / "VCMI_server.exe"; }
 
-bfs::path VCMIDirs_win32::libraryPath() const { return "."; }
-bfs::path VCMIDirs_win32::binaryPath() const { return ".";  }
+bfs::path VCMIDirsWIN32::libraryPath() const { return "."; }
+bfs::path VCMIDirsWIN32::binaryPath() const { return ".";  }
 
-std::string VCMIDirs_win32::genHelpString() const
+std::string VCMIDirsWIN32::genHelpString() const
 {
 
-	std::vector<std::string> temp_vec;
+	std::vector<std::string> tempVec;
 	for (const bfs::path& path : dataPaths())
-		temp_vec.push_back(path.string());
-	std::string gd_string_a = boost::algorithm::join(temp_vec, ";");
+		tempVec.push_back(path.string());
+	std::string gdStringA = boost::algorithm::join(tempVec, ";");
 
 
 	return
-		"  game data:   " + gd_string_a + "\n"
+		"  game data:   " + gdStringA + "\n"
 		"  libraries:   " + libraryPath().string() + "\n"
 		"  server:      " + serverPath().string() + "\n"
 		"\n"
@@ -173,9 +179,9 @@ std::string VCMIDirs_win32::genHelpString() const
 		"  user saves:  " + userSavePath().string() + "\n"; // Should end without new-line?
 }
 
-std::string VCMIDirs_win32::libraryName(const std::string& basename) const { return basename + ".dll"; }
+std::string VCMIDirsWIN32::libraryName(const std::string& basename) const { return basename + ".dll"; }
 #elif defined(VCMI_UNIX)
-class IVCMIDirs_UNIX : public IVCMIDirs
+class IVCMIDirsUNIX : public IVCMIDirs
 {
 	public:
 		boost::filesystem::path clientPath() const override;
@@ -184,19 +190,19 @@ class IVCMIDirs_UNIX : public IVCMIDirs
 		std::string genHelpString() const override;
 };
 
-bfs::path IVCMIDirs_UNIX::clientPath() const { return binaryPath() / "vcmiclient"; }
-bfs::path IVCMIDirs_UNIX::clientPath() const { return binaryPath() / "vcmiserver"; }
+bfs::path IVCMIDirsUNIX::clientPath() const { return binaryPath() / "vcmiclient"; }
+bfs::path IVCMIDirsUNIX::clientPath() const { return binaryPath() / "vcmiserver"; }
 
-std::string IVCMIDirs_UNIX::genHelpString() const
+std::string IVCMIDirsUNIX::genHelpString() const
 {
-	std::vector<std::string> temp_vec;
+	std::vector<std::string> tempVec;
 	for (const bfs::path& path : dataPaths())
-		temp_vec.push_back(path.string());
-	std::string gd_string_a = boost::algorithm::join(temp_vec, ":");
+		tempVec.push_back(path.string());
+	std::string gdStringA = boost::algorithm::join(tempVec, ":");
 
 
 	return
-		"  game data:   " + gd_string_a + "\n"
+		"  game data:   " + gdStringA + "\n"
 		"  libraries:   " + libraryPath().string() + "\n"
 		"  server:      " + serverPath().string() + "\n"
 		"\n"
@@ -207,7 +213,7 @@ std::string IVCMIDirs_UNIX::genHelpString() const
 }
 
 #ifdef VCMI_APPLE
-class VCMIDirs_OSX : public IVCMIDirs_UNIX
+class VCMIDirsOSX : public IVCMIDirsUNIX
 {
 	public:
 		boost::filesystem::path userDataPath() const override;
@@ -224,10 +230,10 @@ class VCMIDirs_OSX : public IVCMIDirs_UNIX
 		void init() override;
 };
 
-void VCMIDirs_OSX::init()
+void VCMIDirsOSX::init()
 {
 	// Call base (init dirs)
-	IVCMIDirs_UNIX::init();
+	IVCMIDirsUNIX::init();
 
 	auto moveDirIfExists = [](const bfs::path& from, const bfs::path& to)
 	{
@@ -249,13 +255,13 @@ void VCMIDirs_OSX::init()
 
 		for (bfs::directory_iterator file(from); file != bfs::directory_iterator(); ++file)
 		{
-			const boost::filesystem::path& src_file_path = file->path();
-			const boost::filesystem::path  dst_file_path = to / src_file_path.filename();
+			const boost::filesystem::path& srcFilePath = file->path();
+			const boost::filesystem::path  dstFilePath = to / srcFilePath.filename();
 
 			// TODO: Aplication should ask user what to do when file exists:
 			// replace/ignore/stop process/replace all/ignore all
-			if (!boost::filesystem::exists(dst_file_path))
-				bfs::rename(src_file_path, dst_file_path);
+			if (!boost::filesystem::exists(dstFilePath))
+				bfs::rename(srcFilePath, dstFilePath);
 		}
 
 		if (!bfs::is_empty(from)); // TODO: Log warn. Some files not moved. User should try to move files.
@@ -266,7 +272,7 @@ void VCMIDirs_OSX::init()
 	moveDirIfExists(userDataPath() / "Games", userSavePath());
 }
 
-bfs::path VCMIDirs_OSX::userDataPath() const
+bfs::path VCMIDirsOSX::userDataPath() const
 {
 	// This is Cocoa code that should be normally used to get path to Application Support folder but can't use it here for now...
 	// NSArray* urls = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask];
@@ -274,25 +280,25 @@ bfs::path VCMIDirs_OSX::userDataPath() const
 
 	// ...so here goes a bit of hardcode instead
 
-	const char* home_dir = getenv("HOME"); // Should be std::getenv?
-	if (home_dir == nullptr)
-		home_dir = ".";
-	return bfs::path(home_dir) / "Library" / "Application Support" / "vcmi";
+	const char* homeDir = getenv("HOME"); // Should be std::getenv?
+	if (homeDir == nullptr)
+		homeDir = ".";
+	return bfs::path(homeDir) / "Library" / "Application Support" / "vcmi";
 }
-bfs::path VCMIDirs_OSX::userCachePath() const { return userDataPath(); }
-bfs::path VCMIDirs_OSX::userConfigPath() const { return userDataPath() / "config"; }
+bfs::path VCMIDirsOSX::userCachePath() const { return userDataPath(); }
+bfs::path VCMIDirsOSX::userConfigPath() const { return userDataPath() / "config"; }
 
-std::vector<bfs::path> VCMIDirs_OSX::dataPaths() const
+std::vector<bfs::path> VCMIDirsOSX::dataPaths() const
 {
 	return std::vector<bfs::path>(1, "../Data");
 }
 
-bfs::path VCMIDirs_OSX::libraryPath() const { return "."; }
-bfs::path VCMIDirs_OSX::binaryPath() const { return "."; }
+bfs::path VCMIDirsOSX::libraryPath() const { return "."; }
+bfs::path VCMIDirsOSX::binaryPath() const { return "."; }
 
 std::string libraryName(const std::string& basename) { return "lib" + basename + ".dylib"; }
 #elif defined(VCMI_LINUX)
-class VCMIDirs_Linux : public IVCMIDirs_UNIX
+class VCMIDirsLinux : public IVCMIDirsUNIX
 {
 public:
 	boost::filesystem::path userDataPath() const override;
@@ -307,41 +313,41 @@ public:
 	std::string libraryName(const std::string& basename) const override;
 };
 
-bfs::path VCMIDirs_Linux::userDataPath() const
+bfs::path VCMIDirsLinux::userDataPath() const
 {
 	// $XDG_DATA_HOME, default: $HOME/.local/share
-	const char* home_dir;
-	if (home_dir = getenv("XDG_DATA_HOME"))
-		return home_dir;
-	else if (home_dir = getenv("HOME"))
-		return bfs::path(home_dir) / ".local" / "share" / "vcmi";
+	const char* homeDir;
+	if (homeDir = getenv("XDG_DATA_HOME"))
+		return homeDir;
+	else if (homeDir = getenv("HOME"))
+		return bfs::path(homeDir) / ".local" / "share" / "vcmi";
 	else
 		return ".";
 }
-bfs::path VCMIDirs_Linux::userCachePath() const
+bfs::path VCMIDirsLinux::userCachePath() const
 {
 	// $XDG_CACHE_HOME, default: $HOME/.cache
-	const char* home_dir;
-	if (home_dir = getenv("XDG_CACHE_HOME"))
-		return bfs::path(home_dir) / "vcmi";
-	else if (home_dir = getenv("HOME"))
-		return bfs::path(home_dir) / ".cache" / "vcmi";
+	const char* tempResult;
+	if (tempResult = getenv("XDG_CACHE_HOME"))
+		return bfs::path(tempResult) / "vcmi";
+	else if (tempResult = getenv("HOME"))
+		return bfs::path(tempResult) / ".cache" / "vcmi";
 	else
 		return ".";
 }
-bfs::path VCMIDirs_Linux::userConfigPath() const
+bfs::path VCMIDirsLinux::userConfigPath() const
 {
 	// $XDG_CONFIG_HOME, default: $HOME/.config
-	const char* home_dir;
-	if (home_dir = getenv("XDG_CONFIG_HOME"))
-		return bfs::path(home_dir) / "vcmi";
-	else if (home_dir = getenv("HOME"))
-		return bfs::path(home_dir) / ".config" / "vcmi";
+	const char* tempResult;
+	if (tempResult = getenv("XDG_CONFIG_HOME"))
+		return bfs::path(tempResult) / "vcmi";
+	else if (tempResult = getenv("HOME"))
+		return bfs::path(tempResult) / ".config" / "vcmi";
 	else
 		return ".";
 }
 
-std::vector<bfs::path> VCMIDirs_Linux::dataPaths() const
+std::vector<bfs::path> VCMIDirsLinux::dataPaths() const
 {
 	// $XDG_DATA_DIRS, default: /usr/local/share/:/usr/share/
 
@@ -350,12 +356,12 @@ std::vector<bfs::path> VCMIDirs_Linux::dataPaths() const
 	// in vcmi fs last directory has highest priority
 	std::vector<bfs::path> ret;
 
-	const char* home_dir;
+	const char* tempResult;
 	ret.push_back(M_DATA_DIR);
 
-	if ((home_dir = getenv("XDG_DATA_DIRS")) != nullptr)
+	if ((tempResult = getenv("XDG_DATA_DIRS")) != nullptr)
 	{
-		std::string dataDirsEnv = home_dir;
+		std::string dataDirsEnv = tempResult;
 		std::vector<std::string> dataDirs;
 		boost::split(dataDirs, dataDirsEnv, boost::is_any_of(":"));
 		for (auto & entry : boost::adaptors::reverse(dataDirs))
@@ -370,12 +376,12 @@ std::vector<bfs::path> VCMIDirs_Linux::dataPaths() const
 	return ret;
 }
 
-bfs::path VCMIDirs_Linux::libraryPath() const { return M_LIB_PATH; }
-bfs::path VCMIDirs_Linux::binaryPath() const { return M_BIN_DIR; }
+bfs::path VCMIDirsLinux::libraryPath() const { return M_LIB_PATH; }
+bfs::path VCMIDirsLinux::binaryPath() const { return M_BIN_DIR; }
 
-std::string VCMIDirs_Linux::libraryName(const std::string& basename) const { return "lib" + basename + ".so"; }
+std::string VCMIDirsLinux::libraryName(const std::string& basename) const { return "lib" + basename + ".so"; }
 #ifdef VCMI_ANDROID
-class VCMIDirs_Android : public VCMIDirs_Linux
+class VCMIDirsAndroid : public VCMIDirsLinux
 {
 public:
 	boost::filesystem::path userDataPath() const override;
@@ -386,11 +392,11 @@ public:
 };
 
 // on Android HOME will be set to something like /sdcard/data/Android/is.xyz.vcmi/files/
-bfs::path VCMIDirs_Android::userDataPath() const { return getenv("HOME"); }
-bfs::path VCMIDirs_Android::userCachePath() const { return userDataPath() / "cache"; }
-bfs::path VCMIDirs_Android::userConfigPath() const { return userDataPath() / "config"; }
+bfs::path VCMIDirsAndroid::userDataPath() const { return getenv("HOME"); }
+bfs::path VCMIDirsAndroid::userCachePath() const { return userDataPath() / "cache"; }
+bfs::path VCMIDirsAndroid::userConfigPath() const { return userDataPath() / "config"; }
 
-std::vector<bfs::path> VCMIDirs_Android::dataPaths() const
+std::vector<bfs::path> VCMIDirsAndroid::dataPaths() const
 {
 	return std::vector<bfs::path>(1, userDataPath());
 }
@@ -404,13 +410,13 @@ namespace VCMIDirs
 	const IVCMIDirs& get()
 	{
 		#ifdef VCMI_WINDOWS
-			static VCMIDirs_win32 singleton;
+			static VCMIDirsWIN32 singleton;
 		#elif defined(VCMI_ANDROID)
-			static VCMIDirs_Android singleton;
+			static VCMIDirsAndroid singleton;
 		#elif defined(VCMI_LINUX)
-			static VCMIDirs_Linux singleton;
+			static VCMIDirsLinux singleton;
 		#elif defined(VCMI_APPLE)
-			static VCMIDirs_OSX singleton;
+			static VCMIDirsOSX singleton;
 		#endif
 		static bool initialized = false;
 		if (!initialized)

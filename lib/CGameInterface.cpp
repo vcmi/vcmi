@@ -4,7 +4,7 @@
 #include "BattleState.h"
 #include "VCMIDirs.h"
 
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
 	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
 	#include <windows.h> //for .dll libs
 #else
@@ -22,7 +22,7 @@
  *
  */
 
-#ifdef __ANDROID__
+#ifdef VCMI_ANDROID
 // we can't use shared libraries on Android so here's a hack
 extern "C" DLL_EXPORT void VCAI_GetAiName(char* name);
 extern "C" DLL_EXPORT void VCAI_GetNewAI(shared_ptr<CGlobalAI> &out);
@@ -111,10 +111,10 @@ template<typename rett>
 shared_ptr<rett> createAnyAI(std::string dllname, std::string methodName)
 {
     logGlobal->infoStream() << "Opening " << dllname;
-	const boost::filesystem::path file_path =
+	const boost::filesystem::path filePath =
 		VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(dllname);
 	// TODO: createAny Should take boost::filesystem::path in argument.
-	auto ret = createAny<rett>(file_path.string(), methodName);
+	auto ret = createAny<rett>(filePath.string(), methodName);
 	ret->dllName = dllname;
 	return ret;
 }

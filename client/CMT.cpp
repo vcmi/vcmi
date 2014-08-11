@@ -274,13 +274,13 @@ int main(int argc, char** argv)
 	console->start();
 	atexit(dispose);
 
-	const bfs::path log_path = VCMIDirs::get().userCachePath() / "VCMI_Client_log.txt";
-	CBasicLogConfigurator logConfig(log_path, console);
+	const bfs::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Client_log.txt";
+	CBasicLogConfigurator logConfig(logPath, console);
     logConfig.configureDefault();
 	logGlobal->infoStream() << "Creating console and configuring logger: " << pomtime.getDiff();
-	logGlobal->infoStream() << "The log file will be saved to " << log_path;
+	logGlobal->infoStream() << "The log file will be saved to " << logPath;
 
-#ifdef __ANDROID__
+#ifdef VCMI_ANDROID
 	// boost will crash without this
 	setenv("LANG", "C", 1);
 #endif
@@ -583,7 +583,7 @@ void processCommand(const std::string &message)
 	{
         std::cout<<"Command accepted.\t";
 
-		const bfs::path out_path =
+		const bfs::path outPath =
 			VCMIDirs::get().userCachePath() / "extracted";
 
 		auto list = CResourceHandler::get()->getFilteredFiles([](const ResourceID & ident)
@@ -593,19 +593,19 @@ void processCommand(const std::string &message)
 
 		for (auto & filename : list)
 		{
-			const bfs::path file_path = out_path / (filename.getName() + ".TXT");
-			std::string outName = file_path.string();
+			const bfs::path filePath = outPath / (filename.getName() + ".TXT");
+			std::string outName = filePath.string();
 			
-			bfs::create_directories(file_path.parent_path());
+			bfs::create_directories(filePath.parent_path());
 
-			bfs::ofstream file(file_path);
+			bfs::ofstream file(filePath);
 			auto text = CResourceHandler::get()->load(filename)->readAll();
 
 			file.write((char*)text.first.get(), text.second);
 		}
 
         std::cout << "\rExtracting done :)\n";
-		std::cout << " Extracted files can be found in " << out_path << " directory\n";
+		std::cout << " Extracted files can be found in " << outPath << " directory\n";
 	}
 	else if(cn=="crash")
 	{
@@ -711,13 +711,13 @@ void processCommand(const std::string &message)
 		{
 			CDefEssential * cde = CDefHandler::giveDefEss(URI);
 
-			const bfs::path out_path = VCMIDirs::get().userCachePath() / "extraced" / URI;
-			bfs::create_directories(out_path);
+			const bfs::path outPath = VCMIDirs::get().userCachePath() / "extraced" / URI;
+			bfs::create_directories(outPath);
 
 			for (size_t i = 0; i < cde->ourImages.size(); ++i)
 			{
-				const bfs::path file_path = out_path / (boost::lexical_cast<std::string>(i) + ".bmp");
-				SDL_SaveBMP(cde->ourImages[i].bitmap, file_path.string().c_str());
+				const bfs::path filePath = outPath / (boost::lexical_cast<std::string>(i)+".bmp");
+				SDL_SaveBMP(cde->ourImages[i].bitmap, filePath.string().c_str());
 			}
 		}
 		else
@@ -730,12 +730,12 @@ void processCommand(const std::string &message)
 
 		if (CResourceHandler::get()->existsResource(ResourceID(URI)))
 		{
-			const bfs::path out_path = VCMIDirs::get().userCachePath() / "extracted" / URI;
+			const bfs::path outPath = VCMIDirs::get().userCachePath() / "extracted" / URI;
 
 			auto data = CResourceHandler::get()->load(ResourceID(URI))->readAll();
 
-			bfs::create_directories(out_path.parent_path());
-			bfs::ofstream outFile(out_path, bfs::ofstream::binary);
+			bfs::create_directories(outPath.parent_path());
+			bfs::ofstream outFile(outPath, bfs::ofstream::binary);
 			outFile.write((char*)data.first.get(), data.second);
 		}
 		else

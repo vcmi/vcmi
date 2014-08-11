@@ -3,16 +3,16 @@
 
 #include "../CConfigHandler.h"
 
-CBasicLogConfigurator::CBasicLogConfigurator(const boost::filesystem::path & file_path, CConsoleHandler * const console) :
-	file_path(file_path), console(console), appendToLogFile(false) {}
+CBasicLogConfigurator::CBasicLogConfigurator(const boost::filesystem::path & filePath, CConsoleHandler * const console) :
+	filePath(filePath), console(console), appendToLogFile(false) {}
 
-CBasicLogConfigurator::CBasicLogConfigurator(boost::filesystem::path && file_path, CConsoleHandler * const console) :
-	file_path(std::move(file_path)), console(console), appendToLogFile(false) {}
+CBasicLogConfigurator::CBasicLogConfigurator(boost::filesystem::path && filePath, CConsoleHandler * const console) :
+	filePath(std::move(filePath)), console(console), appendToLogFile(false) {}
 
 void CBasicLogConfigurator::configureDefault()
 {
 	CLogger::getGlobalLogger()->addTarget(make_unique<CLogConsoleTarget>(console));
-	CLogger::getGlobalLogger()->addTarget(make_unique<CLogFileTarget>(file_path, appendToLogFile));
+	CLogger::getGlobalLogger()->addTarget(make_unique<CLogFileTarget>(filePath, appendToLogFile));
 	appendToLogFile = true;
 }
 
@@ -69,7 +69,7 @@ void CBasicLogConfigurator::configure()
 		CLogger::getGlobalLogger()->addTarget(std::move(consoleTarget));
 
 		// Add file target
-		auto fileTarget = make_unique<CLogFileTarget>(file_path, appendToLogFile);
+		auto fileTarget = make_unique<CLogFileTarget>(filePath, appendToLogFile);
 		const JsonNode & fileNode = loggingNode["file"];
 		if(!fileNode.isNull())
 		{
