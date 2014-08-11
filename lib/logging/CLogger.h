@@ -37,8 +37,9 @@ public:
 	/// Constructs a CLoggerDomain with the domain designated by name.
 	/// Sub-domains can be specified by separating domains by a dot, e.g. "ai.battle". The global domain is named "global".
 	explicit CLoggerDomain(const std::string & name);
+	explicit CLoggerDomain(std::string && name);
 
-	std::string getName() const;
+	const std::string& getName() const;
 	CLoggerDomain getParent() const;
 	bool isGlobalDomain() const;
 
@@ -58,8 +59,11 @@ public:
 	template<typename T>
 	CLoggerStream & operator<<(const T & data)
 	{
-		if(!sbuffer) sbuffer = new std::stringstream();
+		if(!sbuffer)
+			sbuffer = new std::stringstream(std::ios_base::out);
+
 		(*sbuffer) << data;
+
 		return *this;
 	}
 
@@ -84,18 +88,16 @@ public:
 
 	/// Log methods for various log levels
 	void trace(const std::string & message) const;
-	CLoggerStream traceStream() const;
-
 	void debug(const std::string & message) const;
-	CLoggerStream debugStream() const;
-
 	void info(const std::string & message) const;
-	CLoggerStream infoStream() const;
-
 	void warn(const std::string & message) const;
-	CLoggerStream warnStream() const;
-
 	void error(const std::string & message) const;
+
+	/// Log streams for various log levels
+	CLoggerStream traceStream() const;
+	CLoggerStream debugStream() const;
+	CLoggerStream infoStream() const;
+	CLoggerStream warnStream() const;
 	CLoggerStream errorStream() const;
 
 	inline void log(ELogLevel::ELogLevel level, const std::string & message) const;
@@ -184,10 +186,7 @@ struct DLL_LINKAGE LogRecord
 {
 	LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, const std::string & message)
 		: domain(domain), level(level), message(message), timeStamp(boost::posix_time::second_clock::local_time()),
-		  threadId(boost::this_thread::get_id())
-	{
-
-	}
+		  threadId(boost::this_thread::get_id()) { }
 
 	CLoggerDomain domain;
 	ELogLevel::ELogLevel level;
@@ -208,12 +207,17 @@ class DLL_LINKAGE CLogFormatter
 {
 public:
 	CLogFormatter();
-	CLogFormatter(const std::string & pattern);
+	CLogFormatter(const CLogFormatter & copy);
+	CLogFormatter(CLogFormatter && move);
 
-	CLogFormatter(const CLogFormatter & other);
-	CLogFormatter & operator=(const CLogFormatter & other);
+	CLogFormatter(const std::string & pattern);
+	
+	CLogFormatter & operator=(const CLogFormatter & copy);
+	CLogFormatter & operator=(CLogFormatter && move);
 
 	void setPattern(const std::string & pattern);
+	void setPattern(std::string && pattern);
+
 	const std::string & getPattern() const;
 
 	std::string format(const LogRecord & record) const;
@@ -282,9 +286,10 @@ private:
 class DLL_LINKAGE CLogFileTarget : public ILogTarget
 {
 public:
-	/// Constructs a CLogFileTarget and opens the file designated by filePath. If the append parameter is true, the file
+	/// Constructs a CLogFileTarget and opens the file designated by file_path. If the append parameter is true, the file
 	/// will be appended to. Otherwise the file designated by filePath will be truncated before being opened.
-	explicit CLogFileTarget(const std::string & filePath, bool append = true);
+	explicit CLogFileTarget(const boost::filesystem::path & file_path, bool append = true);
+	explicit CLogFileTarget(boost::filesystem::path && file_path, bool append = true);
 	~CLogFileTarget();
 
 	const CLogFormatter & getFormatter() const;
@@ -293,7 +298,7 @@ public:
 	void write(const LogRecord & record) override;
 
 private:
-	std::ofstream file;
+	boost::filesystem::ofstream file;
 	CLogFormatter formatter;
 	mutable boost::mutex mx;
 };

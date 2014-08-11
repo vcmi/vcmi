@@ -19,7 +19,7 @@
 class CHero;
 class CGBoat;
 class CGTownInstance;
-class TerrainTile;
+struct TerrainTile;
 
 class CGHeroPlaceholder : public CGObjectInstance
 {

@@ -12,8 +12,7 @@ CBasicLogConfigurator::CBasicLogConfigurator(boost::filesystem::path && file_pat
 void CBasicLogConfigurator::configureDefault()
 {
 	CLogger::getGlobalLogger()->addTarget(make_unique<CLogConsoleTarget>(console));
-	// TODO: CLogFileTarget should take boost::filesystem::path as an argument
-	CLogger::getGlobalLogger()->addTarget(make_unique<CLogFileTarget>(file_path.string(), appendToLogFile));
+	CLogger::getGlobalLogger()->addTarget(make_unique<CLogFileTarget>(file_path, appendToLogFile));
 	appendToLogFile = true;
 }
 
@@ -69,9 +68,8 @@ void CBasicLogConfigurator::configure()
 		}
 		CLogger::getGlobalLogger()->addTarget(std::move(consoleTarget));
 
-		// TODO: CLogFileTarget should take boost::filesystem::path as an argument
 		// Add file target
-		auto fileTarget = make_unique<CLogFileTarget>(file_path.string(), appendToLogFile);
+		auto fileTarget = make_unique<CLogFileTarget>(file_path, appendToLogFile);
 		const JsonNode & fileNode = loggingNode["file"];
 		if(!fileNode.isNull())
 		{
