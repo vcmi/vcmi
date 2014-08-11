@@ -190,6 +190,7 @@ private:
 	CLabelGroup *rightGroup;
 	CButton *load, *save, *restart, *mainMenu, *quitGame, *backToMap; //load and restart are not used yet
 	CToggleGroup * heroMoveSpeed;
+	CToggleGroup * enemyMoveSpeed;
 	CToggleGroup * mapScrollSpeed;
 	CToggleGroup * musicVolume, * effectsVolume;
 
@@ -197,18 +198,12 @@ private:
 	CToggleButton * showReminder;
 	CToggleButton * quickCombat;
 	CToggleButton * spellbookAnim;
-	CToggleButton * newCreatureWin;
 	CToggleButton * fullscreen;
 
 	CButton *gameResButton;
 	CLabel *gameResLabel;
 
 	SettingsListener onFullscreenChanged;
-
-	void setMusicVolume( int newVolume );
-	void setSoundVolume( int newVolume );
-	void setHeroMoveSpeed( int newSpeed );
-	void setMapScrollingSpeed( int newSpeed );
 
 	//functions bound to buttons
 	void bloadf(); //load game
@@ -217,13 +212,6 @@ private:
 	void breturnf(); //return to game
 	void brestartf(); //restart game
 	void bmainmenuf(); //return to main menu
-
-	//functions for checkboxes
-	void toggleReminder(bool on);
-	void toggleQuickCombat(bool on);
-	void toggleSpellbookAnim(bool on);
-	void toggleCreatureWin(bool on);
-	void toggleFullscreen(bool on);
 
 	void selectGameRes();
 	void setGameRes(int index);

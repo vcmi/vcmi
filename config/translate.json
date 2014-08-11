@@ -29,11 +29,6 @@
 			"label" : "Fullscreen",
 			"help"  : "{Fullscreen}\n\n If selected, VCMI will run in fullscreen mode, othervice VCMI will run in window",
 		},
-		"creatureWindowButton" :
-		{
-			"label" : "Classic creature window",
-			"help"  : "{Classic creature window}\n\n Enable original Heroes 3 creature window instead of new window from VCMI"
-		},
 		"resolutionButton" :
 		{
 			"label" : "Resolution",

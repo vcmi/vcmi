@@ -250,10 +250,6 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 			return;
 	}
 
-	adventureInt->centerOn(hero); //actualizing screen pos
-	adventureInt->minimap.redraw();
-	adventureInt->heroList.redraw();
-
 	bool directlyAttackingCreature =
 		details.attackedFrom
 		&& adventureInt->terrain.currentPath					//in case if movement has been canceled in the meantime and path was already erased
@@ -310,12 +306,30 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		return;
 	}
 
+	ui32 speed;
+	if (makingTurn) // our turn, our hero moves
+		speed = settings["adventure"]["heroSpeed"].Float();
+	else
+		speed = settings["adventure"]["enemySpeed"].Float();
+
+	if (speed == 0)
+	{
+		//FIXME: is this a proper solution?
+		CGI->mh->hideObject(hero);
+		CGI->mh->printObject(hero);
+		return; // no animation
+	}
+
+
+	adventureInt->centerOn(hero); //actualizing screen pos
+	adventureInt->minimap.redraw();
+	adventureInt->heroList.redraw();
+
 	initMovement(details, hero, hp);
 
 	//first initializing done
 	GH.mainFPSmng->framerateDelay(); // after first move
 
-	ui32 speed = settings["adventure"]["heroSpeed"].Float();
 	//main moving
 	for(int i=1; i<32; i+=2*speed)
 	{
@@ -324,14 +338,14 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		adventureInt->show(screen);
 		{
 			//evil returns here ...
-			//todo: get rid of it 
+			//todo: get rid of it
 			logGlobal->traceStream() << "before [un]locks in " << __FUNCTION__;
 			auto unlockPim = vstd::makeUnlockGuard(*pim); //let frame to be rendered
 			GH.mainFPSmng->framerateDelay(); //for animation purposes
-			logGlobal->traceStream() << "after [un]locks in " << __FUNCTION__;		
+			logGlobal->traceStream() << "after [un]locks in " << __FUNCTION__;
 		}
 		//CSDL_Ext::update(screen);
-		
+
 	} //for(int i=1; i<32; i+=4)
 	//main moving done
 

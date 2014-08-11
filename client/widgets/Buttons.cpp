@@ -621,6 +621,8 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	setAmount(amount);
+	vstd::amax(value, 0);
+	vstd::amin(value, positions);
 
 	addUsedEvents(LCLICK | KEYBOARD | WHEEL);
 	strongInterest = true;

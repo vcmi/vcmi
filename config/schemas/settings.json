@@ -19,10 +19,6 @@
 			"additionalProperties" : false,
 			"required" : [ "classicCreatureWindow", "playerName", "showfps", "music", "sound", "encoding" ],
 			"properties" : {
-				"classicCreatureWindow" : {
-					"type" : "boolean",
-					"default" : false
-				},
 				"playerName" : {
 					"type":"string",
 					"default" : "Player"

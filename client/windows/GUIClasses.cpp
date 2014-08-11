@@ -483,28 +483,16 @@ CLevelWindow::~CLevelWindow()
 	LOCPLINT->showingDialog->setn(false);
 }
 
-void CSystemOptionsWindow::setMusicVolume( int newVolume )
+static void setIntSetting(std::string group, std::string field, int value)
 {
-	Settings volume = settings.write["general"]["music"];
-	volume->Float() = newVolume;
+	Settings entry = settings.write[group][field];
+	entry->Float() = value;
 }
 
-void CSystemOptionsWindow::setSoundVolume( int newVolume )
+static void setBoolSetting(std::string group, std::string field, bool value)
 {
-	Settings volume = settings.write["general"]["sound"];
-	volume->Float() = newVolume;
-}
-
-void CSystemOptionsWindow::setHeroMoveSpeed( int newSpeed )
-{
-	Settings speed = settings.write["adventure"]["heroSpeed"];
-	speed->Float() = newSpeed;
-}
-
-void CSystemOptionsWindow::setMapScrollingSpeed( int newSpeed )
-{
-	Settings speed = settings.write["adventure"]["scrollSpeed"];
-	speed->Float() = newSpeed;
+	Settings fullscreen = settings.write[group][field];
+	fullscreen->Bool() = value;
 }
 
 CSystemOptionsWindow::CSystemOptionsWindow():
@@ -560,48 +548,52 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	heroMoveSpeed->addToggle(4, new CToggleButton(Point(124, 77), "sysopb3.def", CGI->generaltexth->zelp[351]));
 	heroMoveSpeed->addToggle(8, new CToggleButton(Point(172, 77), "sysopb4.def", CGI->generaltexth->zelp[352]));
 	heroMoveSpeed->setSelected(settings["adventure"]["heroSpeed"].Float());
-	heroMoveSpeed->addCallback(std::bind(&CSystemOptionsWindow::setHeroMoveSpeed, this, _1));
+	heroMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
+
+	enemyMoveSpeed = new CToggleGroup(0);
+	enemyMoveSpeed->addToggle(2, new CToggleButton(Point( 28, 144), "sysopb5.def", CGI->generaltexth->zelp[353]));
+	enemyMoveSpeed->addToggle(4, new CToggleButton(Point( 76, 144), "sysopb6.def", CGI->generaltexth->zelp[354]));
+	enemyMoveSpeed->addToggle(8, new CToggleButton(Point(124, 144), "sysopb7.def", CGI->generaltexth->zelp[355]));
+	enemyMoveSpeed->addToggle(0, new CToggleButton(Point(172, 144), "sysopb8.def", CGI->generaltexth->zelp[356]));
+	enemyMoveSpeed->setSelected(settings["adventure"]["enemySpeed"].Float());
+	enemyMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
 
 	mapScrollSpeed = new CToggleGroup(0);
 	mapScrollSpeed->addToggle(1, new CToggleButton(Point( 28, 210), "sysopb9.def", CGI->generaltexth->zelp[357]));
 	mapScrollSpeed->addToggle(2, new CToggleButton(Point( 92, 210), "sysob10.def", CGI->generaltexth->zelp[358]));
 	mapScrollSpeed->addToggle(4, new CToggleButton(Point(156, 210), "sysob11.def", CGI->generaltexth->zelp[359]));
 	mapScrollSpeed->setSelected(settings["adventure"]["scrollSpeed"].Float());
-	mapScrollSpeed->addCallback(std::bind(&CSystemOptionsWindow::setMapScrollingSpeed, this, _1));
+	mapScrollSpeed->addCallback(std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
 
 	musicVolume = new CToggleGroup(0, true);
 	for(int i=0; i<10; ++i)
 		musicVolume->addToggle(i*11, new CToggleButton(Point(29 + 19*i, 359), "syslb.def", CGI->generaltexth->zelp[326+i]));
 
 	musicVolume->setSelected(CCS->musich->getVolume());
-	musicVolume->addCallback(std::bind(&CSystemOptionsWindow::setMusicVolume, this, _1));
+	musicVolume->addCallback(std::bind(&setIntSetting, "general", "music", _1));
 
 	effectsVolume = new CToggleGroup(0, true);
 	for(int i=0; i<10; ++i)
 		effectsVolume->addToggle(i*11, new CToggleButton(Point(29 + 19*i, 425), "syslb.def", CGI->generaltexth->zelp[336+i]));
 
 	effectsVolume->setSelected(CCS->soundh->getVolume());
-	effectsVolume->addCallback(std::bind(&CSystemOptionsWindow::setSoundVolume, this, _1));
+	effectsVolume->addCallback(std::bind(&setIntSetting, "general", "sound", _1));
 
 	showReminder = new CToggleButton(Point(246, 87), "sysopchk.def", CGI->generaltexth->zelp[361],
-	        [&] (bool value) { toggleReminder(value);});
+	        [&] (bool value) { setBoolSetting("adventure", "heroReminder", value); });
 
 	quickCombat = new CToggleButton(Point(246, 87+32), "sysopchk.def", CGI->generaltexth->zelp[362],
-	        [&] (bool value) { toggleQuickCombat(value);});
+	        [&] (bool value) { setBoolSetting("adventure", "quickCombat", value); });
 
 	spellbookAnim = new CToggleButton(Point(246, 87+64), "sysopchk.def", CGI->generaltexth->zelp[364],
-	        [&] (bool value) { toggleSpellbookAnim(value);});
-
-	newCreatureWin = new CToggleButton(Point(246, 183), "sysopchk.def", CButton::tooltip(texts["creatureWindowButton"]),
-	        [&] (bool value) { toggleCreatureWin(value);});
+	        [&] (bool value) { setBoolSetting("video", "spellbookAnimation", value); });
 
 	fullscreen = new CToggleButton(Point(246, 215), "sysopchk.def", CButton::tooltip(texts["fullscreenButton"]),
-	        [&] (bool value) { toggleFullscreen(value);});
+	        [&] (bool value) { setBoolSetting("video", "fullscreen", value); });
 
 	showReminder->setSelected(settings["adventure"]["heroReminder"].Bool());
 	quickCombat->setSelected(settings["adventure"]["quickCombat"].Bool());
 	spellbookAnim->setSelected(settings["video"]["spellbookAnimation"].Bool());
-	newCreatureWin->setSelected(settings["general"]["classicCreatureWindow"].Bool());
 	fullscreen->setSelected(settings["video"]["fullscreen"].Bool());
 
 	onFullscreenChanged([&](const JsonNode &newState){ fullscreen->setSelected(newState.Bool());});
@@ -650,36 +642,6 @@ void CSystemOptionsWindow::setGameRes(int index)
 	resText += "x";
 	resText += boost::lexical_cast<std::string>(iter->first.second);
 	gameResLabel->setText(resText);
-}
-
-void CSystemOptionsWindow::toggleReminder(bool on)
-{
-	Settings heroReminder = settings.write["adventure"]["heroReminder"];
-	heroReminder->Bool() = on;
-}
-
-void CSystemOptionsWindow::toggleQuickCombat(bool on)
-{
-	Settings quickCombat = settings.write["adventure"]["quickCombat"];
-	quickCombat->Bool() = on;
-}
-
-void CSystemOptionsWindow::toggleSpellbookAnim(bool on)
-{
-	Settings quickCombat = settings.write["video"]["spellbookAnimation"];
-	quickCombat->Bool() = on;
-}
-
-void CSystemOptionsWindow::toggleCreatureWin(bool on)
-{
-	Settings classicCreatureWindow = settings.write["general"]["classicCreatureWindow"];
-	classicCreatureWindow->Bool() = on;
-}
-
-void CSystemOptionsWindow::toggleFullscreen(bool on)
-{
-	Settings fullscreen = settings.write["video"]["fullscreen"];
-	fullscreen->Bool() = on;
 }
 
 void CSystemOptionsWindow::bquitf()
