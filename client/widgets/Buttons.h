@@ -169,7 +169,7 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 
 	// bring overrides into scope
-	using CButton::addCallback;
+	//using CButton::addCallback;
 	using CToggleBase::addCallback;
 };
 
