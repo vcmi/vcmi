@@ -789,7 +789,8 @@ void CStackWindow::init()
 }
 
 CStackWindow::CStackWindow(const CStack * stack, bool popup):
-	CWindowObject(BORDERED | (popup ? RCLICK_POPUP : 0))
+	CWindowObject(BORDERED | (popup ? RCLICK_POPUP : 0)),
+    info(new StackWindowInfo())
 {
 	info->stackNode = stack->base;
 	info->creature = stack->type;
