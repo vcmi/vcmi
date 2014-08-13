@@ -45,6 +45,11 @@ namespace LogicalExpressionDetail
 
 			std::vector<Variant> expressions;
 
+			bool operator == (const Element & other) const
+			{
+				return expressions == other.expressions;
+			}
+
 			template <typename Handler>
 			void serialize(Handler & h, const int version)
 			{
@@ -147,39 +152,73 @@ namespace LogicalExpressionDetail
 
 	/// Simple foreach visitor
 	template <typename ContainedClass>
-	class ForEachVisitor : public boost::static_visitor<void>
+	class ForEachVisitor : public boost::static_visitor<typename ExpressionBase<ContainedClass>::Variant>
 	{
 		typedef ExpressionBase<ContainedClass> Base;
 
-		std::function<void(typename Base::Value &)> visitor;
+		std::function<typename Base::Variant(const typename Base::Value &)> visitor;
 
 	public:
-		ForEachVisitor(std::function<void(typename Base::Value &)> visitor):
+		ForEachVisitor(std::function<typename Base::Variant(const typename Base::Value &)> visitor):
 			visitor(visitor)
 		{}
 
-		//FIXME: duplicated code
-		void operator()(typename Base::OperatorAny & element) const
+		typename Base::Variant operator()(const typename Base::Value & element) const
 		{
-			for (auto & entry : element.expressions)
-				boost::apply_visitor(*this, entry);
+			return visitor(element);
 		}
 
-		void operator()(typename Base::OperatorAll & element) const
+		template <typename Type>
+		typename Base::Variant operator()(Type element) const
 		{
 			for (auto & entry : element.expressions)
-				boost::apply_visitor(*this, entry);
+				entry = boost::apply_visitor(*this, entry);
+			return element;
+		}
+	};
+
+	/// Minimizing visitor that removes all redundant elements from variant (e.g. AllOf inside another AllOf can be merged safely)
+	template <typename ContainedClass>
+	class MinimizingVisitor : public boost::static_visitor<typename ExpressionBase<ContainedClass>::Variant>
+	{
+		typedef ExpressionBase<ContainedClass> Base;
+
+	public:
+		typename Base::Variant operator()(const typename Base::Value & element) const
+		{
+			return element;
 		}
 
-		void operator()(typename Base::OperatorNone & element) const
+		template <typename Type>
+		typename Base::Variant operator()(const Type & element) const
 		{
-			for (auto & entry : element.expressions)
-				boost::apply_visitor(*this, entry);
-		}
+			Type ret;
 
-		void operator()(typename Base::Value & element) const
-		{
-			visitor(element);
+			for (auto & entryRO : element.expressions)
+			{
+				auto entry = boost::apply_visitor(*this, entryRO);
+
+				try
+				{
+					// copy entries from child of this type
+					auto sublist = boost::get<Type>(entry).expressions;
+					std::move(sublist.begin(), sublist.end(), std::back_inserter(ret.expressions));
+				}
+				catch (boost::bad_get &)
+				{
+					// different type (e.g. allOf vs oneOf) just copy
+					ret.expressions.push_back(entry);
+				}
+			}
+
+			for ( auto it = ret.expressions.begin(); it != ret.expressions.end();)
+			{
+				if (std::find(ret.expressions.begin(), it, *it) != it)
+					it = ret.expressions.erase(it); // erase duplicate
+				else
+					it++; // goto next
+			}
+			return ret;
 		}
 	};
 
@@ -370,16 +409,23 @@ public:
 		std::swap(data, expr.data);
 	}
 
-	Variant get()
+	Variant get() const
 	{
 		return data;
 	}
 
 	/// Simple visitor that visits all entries in expression
-	void forEach(std::function<void(Value &)> visitor)
+	Variant morph(std::function<Variant(const Value &)> morpher) const
 	{
-		LogicalExpressionDetail::ForEachVisitor<Value> testVisitor(visitor);
-		boost::apply_visitor(testVisitor, data);
+		LogicalExpressionDetail::ForEachVisitor<Value> visitor(morpher);
+		return boost::apply_visitor(visitor, data);
+	}
+
+	/// Minimizes expression, removing any redundant elements
+	void minimize()
+	{
+		LogicalExpressionDetail::MinimizingVisitor<Value> visitor;
+		data = boost::apply_visitor(visitor, data);
 	}
 
 	/// calculates if expression evaluates to "true".

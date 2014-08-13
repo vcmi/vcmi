@@ -16,23 +16,23 @@ template<typename Signature>
 class CFunctionList
 {
 public:
-	std::vector<boost::function<Signature> > funcs;
+	std::vector<std::function<Signature> > funcs;
 
 	CFunctionList(int){};
 	CFunctionList(){};
 	template <typename Functor> 
 	CFunctionList(const Functor &f)
 	{
-		funcs.push_back(boost::function<Signature>(f));
+		funcs.push_back(std::function<Signature>(f));
 	}
-	CFunctionList(const boost::function<Signature> &first)
+	CFunctionList(const std::function<Signature> &first)
 	{
 		if (first)
 			funcs.push_back(first);
 	}
 	CFunctionList(std::nullptr_t)
 	{}
-	CFunctionList & operator+=(const boost::function<Signature> &first)
+	CFunctionList & operator+=(const std::function<Signature> &first)
 	{
 		funcs.push_back(first);
 		return *this;
@@ -54,7 +54,7 @@ public:
 	}
 	void operator()() const
 	{
-		std::vector<boost::function<Signature> > funcs2 = funcs; //backup
+		std::vector<std::function<Signature> > funcs2 = funcs; //backup
 		for(size_t i=0;i<funcs2.size(); ++i) 
 		{
 			if (funcs2[i])
@@ -64,7 +64,7 @@ public:
 	template <typename Arg> 
 	void operator()(const Arg & a) const
 	{
-		std::vector<boost::function<Signature> > funcs2 = funcs; //backup
+		std::vector<std::function<Signature> > funcs2 = funcs; //backup
 		for(int i=0;i<funcs2.size(); i++) 
 		{
 			if (funcs2[i])
@@ -75,7 +75,7 @@ public:
 	template <typename Arg1, typename Arg2>
 	void operator()(Arg1 & a, Arg2 & b) const
 	{
-		std::vector<boost::function<Signature> > funcs2 = funcs; //backup
+		std::vector<std::function<Signature> > funcs2 = funcs; //backup
 		for(int i=0;i<funcs2.size(); i++)
 		{
 			if (funcs2[i])

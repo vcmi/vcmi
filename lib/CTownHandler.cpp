@@ -745,8 +745,13 @@ void CTownHandler::initializeRequirements()
 	// must be done separately after all ID's are known
 	for (auto & requirement : requirementsToLoad)
 	{
-		requirement.building->requirements = CBuilding::TRequired(requirement.json, [&](const JsonNode & node)
+		requirement.building->requirements = CBuilding::TRequired(requirement.json, [&](const JsonNode & node) -> BuildingID
 		{
+			if (node.Vector().size() > 1)
+			{
+				logGlobal->warnStream() << "Unexpected length of town buildings requirements: " << node.Vector().size();
+				logGlobal->warnStream() << "Entry contains " << node;
+			}
 			return BuildingID(VLC->modh->identifiers.getIdentifier("building." + requirement.faction->identifier, node.Vector()[0]).get());
 		});
 	}

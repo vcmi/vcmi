@@ -236,7 +236,7 @@ public:
 	void showInfoDialog(const std::string &text, CComponent * component);
 	void showInfoDialog(const std::string &text, const std::vector<CComponent*> & components = std::vector<CComponent*>(), int soundID = 0, bool delComps = false);
 	void showInfoDialogAndWait(std::vector<Component> & components, const MetaString & text);
-	void showOkDialog(std::vector<Component> & components, const MetaString & text, const boost::function<void()> & onOk);
+	void showOkDialog(std::vector<Component> & components, const MetaString & text, const std::function<void()> & onOk);
 	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps = false, const std::vector<CComponent*> & components = std::vector<CComponent*>()); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
 
 	void stopMovement();

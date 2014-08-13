@@ -25,12 +25,12 @@ CFilesystemGenerator::CFilesystemGenerator(std::string prefix):
 CFilesystemGenerator::TLoadFunctorMap CFilesystemGenerator::genFunctorMap()
 {
 	TLoadFunctorMap map;
-	map["map"] = boost::bind(&CFilesystemGenerator::loadJsonMap, this, _1, _2);
-	map["dir"] = boost::bind(&CFilesystemGenerator::loadDirectory, this, _1, _2);
-	map["lod"] = boost::bind(&CFilesystemGenerator::loadArchive<EResType::ARCHIVE_LOD>, this, _1, _2);
-	map["snd"] = boost::bind(&CFilesystemGenerator::loadArchive<EResType::ARCHIVE_SND>, this, _1, _2);
-	map["vid"] = boost::bind(&CFilesystemGenerator::loadArchive<EResType::ARCHIVE_VID>, this, _1, _2);
-	map["zip"] = boost::bind(&CFilesystemGenerator::loadZipArchive, this, _1, _2);
+	map["map"] = std::bind(&CFilesystemGenerator::loadJsonMap, this, _1, _2);
+	map["dir"] = std::bind(&CFilesystemGenerator::loadDirectory, this, _1, _2);
+	map["lod"] = std::bind(&CFilesystemGenerator::loadArchive<EResType::ARCHIVE_LOD>, this, _1, _2);
+	map["snd"] = std::bind(&CFilesystemGenerator::loadArchive<EResType::ARCHIVE_SND>, this, _1, _2);
+	map["vid"] = std::bind(&CFilesystemGenerator::loadArchive<EResType::ARCHIVE_VID>, this, _1, _2);
+	map["zip"] = std::bind(&CFilesystemGenerator::loadZipArchive, this, _1, _2);
 	return map;
 }
 

@@ -441,7 +441,7 @@ void CMap::checkForObjectives()
 	// NOTE: probably should be moved to MapFormatH3M.cpp
 	for (TriggeredEvent & event : triggeredEvents)
 	{
-		auto patcher = [&](EventCondition & cond)
+		auto patcher = [&](EventCondition cond) -> EventExpression::Variant
 		{
 			switch (cond.condition)
 			{
@@ -491,8 +491,9 @@ void CMap::checkForObjectives()
 				//break; case EventCondition::DAYS_WITHOUT_TOWN:
 				//break; case EventCondition::STANDARD_WIN:
 			}
+			return cond;
 		};
-		event.trigger.forEach(patcher);
+		event.trigger = event.trigger.morph(patcher);
 	}
 }
 

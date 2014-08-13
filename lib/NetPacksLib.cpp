@@ -396,7 +396,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 
 	for (TriggeredEvent & event : gs->map->triggeredEvents)
 	{
-		auto patcher = [&](EventCondition & cond)
+		auto patcher = [&](EventCondition cond) -> EventExpression::Variant
 		{
 			if (cond.object == obj)
 			{
@@ -411,8 +411,9 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 					cond.value = 0; // destroyed object, from now on can not be fulfilled
 				}
 			}
+			return cond;
 		};
-		event.trigger.forEach(patcher);
+		event.trigger = event.trigger.morph(patcher);
 	}
 
 	gs->map->objects[id.getNum()].dellNull();

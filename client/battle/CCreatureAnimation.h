@@ -49,7 +49,7 @@ namespace AnimationControls
 class CCreatureAnimation : public CIntObject
 {
 public:
-	typedef boost::function<float(CCreatureAnimation *, size_t)> TSpeedController;
+	typedef std::function<float(CCreatureAnimation *, size_t)> TSpeedController;
 
 private:
 	std::string defName;

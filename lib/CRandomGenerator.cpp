@@ -33,7 +33,7 @@ void CRandomGenerator::resetSeed()
 
 TRandI CRandomGenerator::getIntRange(int lower, int upper)
 {
-	return boost::bind(TIntDist(lower, upper), boost::ref(rand));
+    return std::bind(TIntDist(lower, upper), std::ref(rand));
 }
 
 int CRandomGenerator::nextInt(int upper)
@@ -53,7 +53,7 @@ int CRandomGenerator::nextInt()
 
 TRand CRandomGenerator::getDoubleRange(double lower, double upper)
 {
-	return boost::bind(TRealDist(lower, upper), boost::ref(rand));
+    return std::bind(TRealDist(lower, upper), std::ref(rand));
 }
 
 double CRandomGenerator::nextDouble(double upper)

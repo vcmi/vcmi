@@ -463,7 +463,7 @@ CKingdomInterface::CKingdomInterface():
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ui32 footerPos = conf.go()->ac.overviewSize * 116;
 
-	tabArea = new CTabbedInt(boost::bind(&CKingdomInterface::createMainTab, this, _1), CTabbedInt::DestroyFunc(), Point(4,4));
+	tabArea = new CTabbedInt(std::bind(&CKingdomInterface::createMainTab, this, _1), CTabbedInt::DestroyFunc(), Point(4,4));
 
 	std::vector<const CGObjectInstance * > ownedObjects = LOCPLINT->cb->getMyObjects();
 	generateObjectsList(ownedObjects);
@@ -522,7 +522,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 	{
 		objects.push_back(element.second);
 	}
-	dwellingsList = new CListBox(boost::bind(&CKingdomInterface::createOwnedObject, this, _1), CListBox::DestroyFunc(),
+	dwellingsList = new CListBox(std::bind(&CKingdomInterface::createOwnedObject, this, _1), CListBox::DestroyFunc(),
 	                             Point(740,44), Point(0,57), dwellSize, visibleObjects.size());
 }
 
@@ -603,30 +603,30 @@ void CKingdomInterface::generateButtons()
 
 	//Main control buttons
 	btnHeroes = new CAdventureMapButton (CGI->generaltexth->overview[11], CGI->generaltexth->overview[6],
-	                                    boost::bind(&CKingdomInterface::activateTab, this, 0),748,28+footerPos,"OVBUTN1.DEF", SDLK_h);
+	                                    std::bind(&CKingdomInterface::activateTab, this, 0),748,28+footerPos,"OVBUTN1.DEF", SDLK_h);
 	btnHeroes->block(true);
 
 	btnTowns = new CAdventureMapButton (CGI->generaltexth->overview[12], CGI->generaltexth->overview[7],
-	                                   boost::bind(&CKingdomInterface::activateTab, this, 1),748,64+footerPos,"OVBUTN6.DEF", SDLK_t);
+	                                   std::bind(&CKingdomInterface::activateTab, this, 1),748,64+footerPos,"OVBUTN6.DEF", SDLK_t);
 
 	btnExit = new CAdventureMapButton (CGI->generaltexth->allTexts[600],"",
-	                                  boost::bind(&CKingdomInterface::close, this),748,99+footerPos,"OVBUTN1.DEF", SDLK_RETURN);
+	                                  std::bind(&CKingdomInterface::close, this),748,99+footerPos,"OVBUTN1.DEF", SDLK_RETURN);
 	btnExit->assignedKeys.insert(SDLK_ESCAPE);
 	btnExit->setOffset(3);
 
 	//Object list control buttons
-	dwellTop = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToPos, dwellingsList, 0),
+	dwellTop = new CAdventureMapButton ("", "", std::bind(&CListBox::moveToPos, dwellingsList, 0),
 	                                   733, 4, "OVBUTN4.DEF");
 
-	dwellBottom = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToPos, dwellingsList, -1),
+	dwellBottom = new CAdventureMapButton ("", "", std::bind(&CListBox::moveToPos, dwellingsList, -1),
 	                                      733, footerPos+2, "OVBUTN4.DEF");
 	dwellBottom->setOffset(2);
 
-	dwellUp = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToPrev, dwellingsList),
+	dwellUp = new CAdventureMapButton ("", "", std::bind(&CListBox::moveToPrev, dwellingsList),
 	                                  733, 24, "OVBUTN4.DEF");
 	dwellUp->setOffset(4);
 
-	dwellDown = new CAdventureMapButton ("", "", boost::bind(&CListBox::moveToNext, dwellingsList),
+	dwellDown = new CAdventureMapButton ("", "", std::bind(&CListBox::moveToNext, dwellingsList),
 	                                    733, footerPos-18, "OVBUTN4.DEF");
 	dwellDown->setOffset(6);
 }
@@ -684,7 +684,7 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 
 	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
-	heroes = new CListBox(boost::bind(&CKingdHeroList::createHeroItem, this, _1), boost::bind(&CKingdHeroList::destroyHeroItem, this, _1),
+	heroes = new CListBox(std::bind(&CKingdHeroList::createHeroItem, this, _1), std::bind(&CKingdHeroList::destroyHeroItem, this, _1),
 	                      Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
 }
 
@@ -737,7 +737,7 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 
 	ui32 townCount = LOCPLINT->cb->howManyTowns();
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
-	towns = new CListBox(boost::bind(&CKingdTownList::createTownItem, this, _1), CListBox::DestroyFunc(),
+	towns = new CListBox(std::bind(&CKingdTownList::createTownItem, this, _1), CListBox::DestroyFunc(),
 	                     Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size) );
 }
 
@@ -886,7 +886,7 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	heroArts->commonInfo = artsCommonPart;
 	heroArts->setHero(hero);
 
-	artsTabs = new CTabbedInt(boost::bind(&CHeroItem::onTabSelected, this, _1), boost::bind(&CHeroItem::onTabDeselected, this, _1));
+	artsTabs = new CTabbedInt(std::bind(&CHeroItem::onTabSelected, this, _1), std::bind(&CHeroItem::onTabDeselected, this, _1));
 
 	artButtons = new CHighlightableButtonsGroup(0);
 	for (size_t it = 0; it<3; it++)
@@ -900,8 +900,8 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 		artButtons->addButton(tooltip, overlay, "OVBUTN3",364+it*112, 46, it);
 		artButtons->buttons[it]->addTextOverlay(CGI->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
 	}
-	artButtons->onChange += boost::bind(&CTabbedInt::setActive, artsTabs, _1);
-	artButtons->onChange += boost::bind(&CHeroItem::onArtChange, this, _1);
+	artButtons->onChange += std::bind(&CTabbedInt::setActive, artsTabs, _1);
+	artButtons->onChange += std::bind(&CHeroItem::onArtChange, this, _1);
 	artButtons->select(0,0);
 
 	garr = new CGarrisonInt(6, 78, 4, Point(), nullptr, Point(), hero, nullptr, true, true);

@@ -1054,7 +1054,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<vo
 	CInfoWindow::showYesNoDialog(text, &components, onYes, onNo, DelComps, playerID);
 }
 
-void CPlayerInterface::showOkDialog(std::vector<Component> & components, const MetaString & text, const boost::function<void()> & onOk)
+void CPlayerInterface::showOkDialog(std::vector<Component> & components, const MetaString & text, const std::function<void()> & onOk)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
@@ -1292,7 +1292,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 		//but no authentic button click/sound ;-)
 	}
 	
-	boost::thread moveHeroTask(boost::bind(&CPlayerInterface::doMoveHero,this,h,path));
+	boost::thread moveHeroTask(std::bind(&CPlayerInterface::doMoveHero,this,h,path));
 
 	
 }

@@ -676,16 +676,17 @@ void CMapLoaderH3M::readAllowedArtifacts()
 	// Messy, but needed
 	for (TriggeredEvent & event : map->triggeredEvents)
 	{
-		auto patcher = [&](EventCondition & cond)
+		auto patcher = [&](EventCondition cond) -> EventExpression::Variant
 		{
 			if (cond.condition == EventCondition::HAVE_ARTIFACT ||
 				cond.condition == EventCondition::TRANSPORT)
 			{
 				map->allowedArtifact[cond.objectType] = false;
 			}
+			return cond;
 		};
 
-		event.trigger.forEach(patcher);
+		event.trigger = event.trigger.morph(patcher);
 	}
 }
 

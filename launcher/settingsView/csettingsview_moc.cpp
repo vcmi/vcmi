@@ -2,6 +2,8 @@
 #include "csettingsview_moc.h"
 #include "ui_csettingsview_moc.h"
 
+#include <QFileInfo>
+
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/VCMIDirs.h"
 
@@ -27,6 +29,7 @@ void CSettingsView::loadSettings()
 
 	ui->comboBoxResolution->setCurrentIndex(resIndex);
 	ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
+	ui->comboBoxShowIntro->setCurrentIndex(settings["video"]["showIntro"].Bool());
 
 	int neutralAIIndex = ui->comboBoxNeutralAI->findText(QString::fromUtf8(settings["server"]["neutralAI"].String().c_str()));
 	int playerAIIndex = ui->comboBoxPlayerAI->findText(QString::fromUtf8(settings["server"]["playerAI"].String().c_str()));
@@ -36,8 +39,6 @@ void CSettingsView::loadSettings()
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Float());
 
-	ui->comboBoxEnableMods->setCurrentIndex(settings["launcher"]["enableInstalledMods"].Bool());
-
 	// all calls to plainText will trigger textChanged() signal overwriting config. Create backup before editing widget
 	JsonNode urls = settings["launcher"]["repositoryURL"];
 
@@ -46,10 +47,8 @@ void CSettingsView::loadSettings()
 		ui->plainTextEditRepos->appendPlainText(QString::fromUtf8(entry.String().c_str()));
 
 	ui->lineEditUserDataDir->setText(QString::fromUtf8(VCMIDirs::get().userDataPath().c_str()));
-	QStringList dataDirs;
-	for (auto string : VCMIDirs::get().dataPaths())
-		dataDirs += QString::fromUtf8(string.c_str());
-	ui->lineEditGameDir->setText(dataDirs.join(':'));
+	ui->lineEditGameDir->setText(QString::fromUtf8(M_DATA_DIR));
+	ui->lineEditTempDir->setText(QString::fromUtf8(VCMIDirs::get().userCachePath().c_str()));
 
 	std::string encoding = settings["general"]["encoding"].String();
 	size_t encodingIndex = boost::range::find(knownEncodingsList, encoding) - knownEncodingsList;
@@ -98,12 +97,6 @@ void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(const QString &arg1
 	node->String() = arg1.toUtf8().data();
 }
 
-void CSettingsView::on_comboBoxEnableMods_currentIndexChanged(int index)
-{
-	Settings node = settings.write["launcher"]["enableInstalledMods"];
-	node->Bool() = index;
-}
-
 void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)
 {
 	Settings node = settings.write["server"]["port"];
@@ -132,4 +125,30 @@ void CSettingsView::on_comboBoxEncoding_currentIndexChanged(int index)
 {
 	Settings node = settings.write["general"]["encoding"];
 	node->String() = knownEncodingsList[index];
+}
+
+void CSettingsView::on_openTempDir_clicked()
+{
+	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditTempDir->text()).absoluteFilePath()));
+}
+
+void CSettingsView::on_openUserDataDir_clicked()
+{
+	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditUserDataDir->text()).absoluteFilePath()));
+}
+
+void CSettingsView::on_openGameDataDir_clicked()
+{
+	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditGameDir->text()).absoluteFilePath()));
+}
+
+void CSettingsView::on_comboBoxShowIntro_currentIndexChanged(int index)
+{
+	Settings node = settings.write["video"]["showIntro"];
+	node->Bool() = index;
+}
+
+void CSettingsView::on_changeGameDataDir_clicked()
+{
+
 }

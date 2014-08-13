@@ -20,7 +20,7 @@ class JsonNode;
 /// Helper class that allows generation of a ISimpleResourceLoader entry out of Json config(s)
 class DLL_LINKAGE CFilesystemGenerator
 {
-	typedef boost::function<void(const std::string &, const JsonNode &)> TLoadFunctor;
+	typedef std::function<void(const std::string &, const JsonNode &)> TLoadFunctor;
 	typedef std::map<std::string, TLoadFunctor> TLoadFunctorMap;
 
 	CFilesystemList * filesystem;

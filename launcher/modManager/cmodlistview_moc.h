@@ -97,6 +97,8 @@ private slots:
 
 	void on_screenshotsList_clicked(const QModelIndex &index);
 
+	void on_showInfoButton_clicked();
+
 private:
 	Ui::CModListView *ui;
 };

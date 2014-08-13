@@ -421,7 +421,7 @@ void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 
 void CRewardableObject::newTurn() const
 {
-	if (resetDuration != 0 && cb->getDate(Date::DAY) % resetDuration == 0)
+	if (resetDuration != 0 && cb->getDate(Date::DAY) % (resetDuration+1) == 0)
 		cb->setObjProperty(id, ObjProperty::REWARD_RESET, 0);
 }
 

@@ -164,7 +164,7 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 			switch(srcLine[dx])
 			{
 			case 1: //black "shadow"
-				std::fill(dstPixel, dstPixel + bpp, 0);
+				colorPutter(dstPixel, 0, 0, 0);
 				break;
 			case 255: //text colour
 				colorPutter(dstPixel, color.r, color.g, color.b);

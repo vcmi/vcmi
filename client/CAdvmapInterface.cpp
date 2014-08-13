@@ -364,34 +364,34 @@ CAdvMapInt::CAdvMapInt():
     minimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH)),
 statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
 kingOverview(CGI->generaltexth->zelp[293].first,CGI->generaltexth->zelp[293].second,
-			 boost::bind(&CAdvMapInt::fshowOverview,this),&ADVOPT.kingOverview, SDLK_k),
+			 std::bind(&CAdvMapInt::fshowOverview,this),&ADVOPT.kingOverview, SDLK_k),
 
 underground(CGI->generaltexth->zelp[294].first,CGI->generaltexth->zelp[294].second,
-			boost::bind(&CAdvMapInt::fswitchLevel,this),&ADVOPT.underground, SDLK_u),
+			std::bind(&CAdvMapInt::fswitchLevel,this),&ADVOPT.underground, SDLK_u),
 
 questlog(CGI->generaltexth->zelp[295].first,CGI->generaltexth->zelp[295].second,
-		 boost::bind(&CAdvMapInt::fshowQuestlog,this),&ADVOPT.questlog, SDLK_q),
+		 std::bind(&CAdvMapInt::fshowQuestlog,this),&ADVOPT.questlog, SDLK_q),
 
 sleepWake(CGI->generaltexth->zelp[296].first,CGI->generaltexth->zelp[296].second,
-		  boost::bind(&CAdvMapInt::fsleepWake,this), &ADVOPT.sleepWake, SDLK_w),
+		  std::bind(&CAdvMapInt::fsleepWake,this), &ADVOPT.sleepWake, SDLK_w),
 
 moveHero(CGI->generaltexth->zelp[297].first,CGI->generaltexth->zelp[297].second,
-		  boost::bind(&CAdvMapInt::fmoveHero,this), &ADVOPT.moveHero, SDLK_m),
+		  std::bind(&CAdvMapInt::fmoveHero,this), &ADVOPT.moveHero, SDLK_m),
 
 spellbook(CGI->generaltexth->zelp[298].first,CGI->generaltexth->zelp[298].second,
-		  boost::bind(&CAdvMapInt::fshowSpellbok,this), &ADVOPT.spellbook, SDLK_c),
+		  std::bind(&CAdvMapInt::fshowSpellbok,this), &ADVOPT.spellbook, SDLK_c),
 
 advOptions(CGI->generaltexth->zelp[299].first,CGI->generaltexth->zelp[299].second,
-		  boost::bind(&CAdvMapInt::fadventureOPtions,this), &ADVOPT.advOptions, SDLK_a),
+		  std::bind(&CAdvMapInt::fadventureOPtions,this), &ADVOPT.advOptions, SDLK_a),
 
 sysOptions(CGI->generaltexth->zelp[300].first,CGI->generaltexth->zelp[300].second,
-		  boost::bind(&CAdvMapInt::fsystemOptions,this), &ADVOPT.sysOptions, SDLK_o),
+		  std::bind(&CAdvMapInt::fsystemOptions,this), &ADVOPT.sysOptions, SDLK_o),
 
 nextHero(CGI->generaltexth->zelp[301].first,CGI->generaltexth->zelp[301].second,
-		  boost::bind(&CAdvMapInt::fnextHero,this), &ADVOPT.nextHero, SDLK_h),
+		  std::bind(&CAdvMapInt::fnextHero,this), &ADVOPT.nextHero, SDLK_h),
 
 endTurn(CGI->generaltexth->zelp[302].first,CGI->generaltexth->zelp[302].second,
-		  boost::bind(&CAdvMapInt::fendTurn,this), &ADVOPT.endTurn, SDLK_e),
+		  std::bind(&CAdvMapInt::fendTurn,this), &ADVOPT.endTurn, SDLK_e),
 
 heroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD),
 townList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD),
@@ -405,7 +405,7 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	pos.h = screen->h;
 	position = int3(0,0,0);
 	selection = nullptr;
-	townList.onSelect = boost::bind(&CAdvMapInt::selectionChanged,this);
+	townList.onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
 	adventureInt=this;
 	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
 	scrollingDir = 0;
@@ -528,7 +528,7 @@ void CAdvMapInt::fendTurn()
 		for (int i = 0; i < LOCPLINT->wanderingHeroes.size(); i++)
 			if (!isHeroSleeping(LOCPLINT->wanderingHeroes[i]) && (LOCPLINT->wanderingHeroes[i]->movement > 0))
 			{
-				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], boost::bind(&CAdvMapInt::endingTurn, this), 0, false);
+				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::bind(&CAdvMapInt::endingTurn, this), 0, false);
 				return;
 			}
 	}
@@ -1529,19 +1529,19 @@ CAdventureOptions::CAdventureOptions():
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	exit = new CAdventureMapButton("","",boost::bind(&CAdventureOptions::close, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+	exit = new CAdventureMapButton("","",std::bind(&CAdventureOptions::close, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
-	scenInfo = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 198, "ADVINFO.DEF",SDLK_i);
+	scenInfo = new CAdventureMapButton("","", std::bind(&CAdventureOptions::close, this), 24, 198, "ADVINFO.DEF",SDLK_i);
 	scenInfo->callback += CAdventureOptions::showScenarioInfo;
-	//viewWorld = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+	//viewWorld = new CAdventureMapButton("","",std::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
 
-	puzzle = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 81, "ADVPUZ.DEF");
-	puzzle->callback += boost::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT);
+	puzzle = new CAdventureMapButton("","", std::bind(&CAdventureOptions::close, this), 24, 81, "ADVPUZ.DEF");
+	puzzle->callback += std::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT);
 
-	dig = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 139, "ADVDIG.DEF");
+	dig = new CAdventureMapButton("","", std::bind(&CAdventureOptions::close, this), 24, 139, "ADVDIG.DEF");
 	if(const CGHeroInstance *h = adventureInt->curHero())
-		dig->callback += boost::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h);
+		dig->callback += std::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h);
 	else
 		dig->block(true);
 }

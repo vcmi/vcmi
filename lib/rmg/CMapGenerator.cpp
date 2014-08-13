@@ -25,7 +25,7 @@ void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& 
 
 
 CMapGenerator::CMapGenerator() :
-	monolithIndex(0), zonesTotal(0)
+    zonesTotal(0), monolithIndex(0)
 {
 }
 
