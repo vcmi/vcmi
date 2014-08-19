@@ -158,7 +158,9 @@ void CDwellingInstanceConstructor::initTypeData(const JsonNode & input)
 				availableCreatures[i][j] = VLC->creh->creatures[index];
 			});
 		}
+		assert(!availableCreatures[i].empty());
 	}
+
 	guards = input["guards"];
 }
 
@@ -185,10 +187,11 @@ void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CR
 	CGDwelling * dwelling = dynamic_cast<CGDwelling*>(object);
 
 	dwelling->creatures.clear();
-	dwelling->creatures.resize(availableCreatures.size());
+	dwelling->creatures.reserve(availableCreatures.size());
 
 	for (auto & entry : availableCreatures)
 	{
+		dwelling->creatures.resize(dwelling->creatures.size() + 1);
 		for (const CCreature * cre : entry)
 			dwelling->creatures.back().second.push_back(cre->idNumber);
 	}
