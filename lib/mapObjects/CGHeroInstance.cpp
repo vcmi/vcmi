@@ -1238,6 +1238,8 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 		none.erase(skills.back());
 	}
 
+	if (skills.size() == 2) // Fix for #1868 to avoid changing logic (possibly causing bugs in process)
+		std::swap(skills[0], skills[1]);
 	return skills;
 }
 
