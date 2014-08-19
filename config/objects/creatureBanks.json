@@ -538,11 +538,11 @@
 					{
 						"chance": 30,
 						"guards": [
-							{ "amount": 6, "type": "dragonFly" },
-							{ "amount": 6, "type": "dragonFly" },
-							{ "amount": 6, "type": "dragonFly" },
-							{ "amount": 6, "type": "dragonFly" },
-							{ "amount": 6, "type": "dragonFly" }
+							{ "amount": 6, "type": "serpentFly" },
+							{ "amount": 6, "type": "serpentFly" },
+							{ "amount": 6, "type": "serpentFly" },
+							{ "amount": 6, "type": "serpentFly" },
+							{ "amount": 6, "type": "serpentFly" }
 						],
 						"combat_value": 154,
 						"reward" : {
@@ -553,11 +553,11 @@
 					{
 						"chance": 30,
 						"guards": [
-							{ "amount": 9, "type": "dragonFly" },
-							{ "amount": 9, "type": "dragonFly" },
-							{ "amount": 9, "type": "dragonFly" },
-							{ "amount": 9, "type": "dragonFly" },
-							{ "amount": 9, "type": "dragonFly" }
+							{ "amount": 9, "type": "serpentFly" },
+							{ "amount": 9, "type": "serpentFly" },
+							{ "amount": 9, "type": "serpentFly" },
+							{ "amount": 9, "type": "serpentFly" },
+							{ "amount": 9, "type": "serpentFly" }
 						],
 						"combat_value": 230,
 						"reward" : {
@@ -568,11 +568,11 @@
 					{
 						"chance": 30,
 						"guards": [
-							{ "amount": 12, "type": "dragonFly" },
-							{ "amount": 12, "type": "dragonFly" },
-							{ "amount": 12, "type": "dragonFly" },
-							{ "amount": 12, "type": "dragonFly" },
-							{ "amount": 12, "type": "dragonFly" }
+							{ "amount": 12, "type": "serpentFly" },
+							{ "amount": 12, "type": "serpentFly" },
+							{ "amount": 12, "type": "serpentFly" },
+							{ "amount": 12, "type": "serpentFly" },
+							{ "amount": 12, "type": "serpentFly" }
 						],
 						"combat_value": 307,
 						"reward" : {
@@ -583,11 +583,11 @@
 					{
 						"chance": 10,
 						"guards": [
-							{ "amount": 18, "type": "dragonFly" },
-							{ "amount": 18, "type": "dragonFly" },
-							{ "amount": 18, "type": "dragonFly" },
-							{ "amount": 18, "type": "dragonFly" },
-							{ "amount": 18, "type": "dragonFly" }
+							{ "amount": 18, "type": "serpentFly" },
+							{ "amount": 18, "type": "serpentFly" },
+							{ "amount": 18, "type": "serpentFly" },
+							{ "amount": 18, "type": "serpentFly" },
+							{ "amount": 18, "type": "serpentFly" }
 						],
 						"combat_value": 461,
 						"reward" : {
