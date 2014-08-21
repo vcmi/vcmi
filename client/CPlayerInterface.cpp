@@ -1601,22 +1601,20 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	path gamesDir = VCMIDirs::get().userSavePath();
 	std::map<std::time_t, int> dates; //save number => datestamp
 
-	directory_iterator enddir;
+	const directory_iterator enddir;
 	if(!exists(gamesDir))
 		create_directory(gamesDir);
-
-	for (directory_iterator dir(gamesDir); dir!=enddir; dir++)
+	else
+	for (directory_iterator dir(gamesDir); dir != enddir; ++dir)
 	{
 		if(is_regular(dir->status()))
 		{
-			std::string name = dir->path().leaf().string();
+			std::string name = dir->path().filename().string();
 			if(starts_with(name, namePrefix) && ends_with(name, ".vcgm1"))
 			{
 				char nr = name[namePrefix.size()];
 				if(std::isdigit(nr))
-				{
 					dates[last_write_time(dir->path())] = boost::lexical_cast<int>(nr);
-				}
 			}
 		}
 	}

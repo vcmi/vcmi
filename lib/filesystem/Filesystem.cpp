@@ -130,19 +130,18 @@ ISimpleResourceLoader * CResourceHandler::createInitial()
 			auto filename = loader->getResourceName(ID);
 			if (filename)
 			{
-				auto dir = new CFilesystemLoader(URI + "/", *filename, depth, true);
+				auto dir = new CFilesystemLoader(URI + '/', *filename, depth, true);
 				initialLoader->addLoader(dir, false);
 			}
 		}
 	};
 
-	// TODO: CFilesystemLoader: Should take boost::filesystem::path in argument
 	for (auto & path : VCMIDirs::get().dataPaths())
 	{
 		if (boost::filesystem::is_directory(path)) // some of system-provided paths may not exist
-			initialLoader->addLoader(new CFilesystemLoader("", path.string(), 0, true), false);
+			initialLoader->addLoader(new CFilesystemLoader("", path, 0, true), false);
 	}
-	initialLoader->addLoader(new CFilesystemLoader("", VCMIDirs::get().userDataPath().string(), 0, true), false);
+	initialLoader->addLoader(new CFilesystemLoader("", VCMIDirs::get().userDataPath(), 0, true), false);
 
 	recurseInDir("CONFIG", 0);// look for configs
 	recurseInDir("DATA", 0); // look for archives
@@ -167,10 +166,9 @@ void CResourceHandler::initialize()
 	//    |-saves
 	//    |-config
 
-	// TODO: CFilesystemLoader should take boost::filesystem::path
 	knownLoaders["root"] = new CFilesystemList();
-	knownLoaders["saves"] = new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath().string());
-	knownLoaders["config"] = new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath().string());
+	knownLoaders["saves"] = new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath());
+	knownLoaders["config"] = new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath());
 
 	auto localFS = new CFilesystemList();
 	localFS->addLoader(knownLoaders["saves"], true);

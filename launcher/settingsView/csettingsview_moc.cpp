@@ -46,9 +46,9 @@ void CSettingsView::loadSettings()
 	for (auto entry : urls.Vector())
 		ui->plainTextEditRepos->appendPlainText(QString::fromUtf8(entry.String().c_str()));
 
-	ui->lineEditUserDataDir->setText(QString::fromUtf8(VCMIDirs::get().userDataPath().c_str()));
-	ui->lineEditGameDir->setText(QString::fromUtf8(M_DATA_DIR));
-	ui->lineEditTempDir->setText(QString::fromUtf8(VCMIDirs::get().userCachePath().c_str()));
+	ui->lineEditUserDataDir->setText(pathToQString(VCMIDirs::get().userDataPath()));
+	ui->lineEditGameDir->setText(pathToQString(VCMIDirs::get().binaryPath()));
+	ui->lineEditTempDir->setText(pathToQString(VCMIDirs::get().userCachePath()));
 
 	std::string encoding = settings["general"]["encoding"].String();
 	size_t encodingIndex = boost::range::find(knownEncodingsList, encoding) - knownEncodingsList;

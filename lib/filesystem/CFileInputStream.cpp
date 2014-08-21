@@ -3,7 +3,7 @@
 
 #include "CFileInfo.h"
 
-CFileInputStream::CFileInputStream(const std::string & file, si64 start, si64 size)
+CFileInputStream::CFileInputStream(const boost::filesystem::path & file, si64 start, si64 size)
 {
 	open(file, start, size);
 }
@@ -18,14 +18,12 @@ CFileInputStream::~CFileInputStream()
 	fileStream.close();
 }
 
-void CFileInputStream::open(const std::string & file, si64 start, si64 size)
+void CFileInputStream::open(const boost::filesystem::path & file, si64 start, si64 size)
 {
-	fileStream.open(file.c_str(), std::ios::in | std::ios::binary);
+	fileStream.open(file, std::ios::in | std::ios::binary);
 
 	if (fileStream.fail())
-	{
-		throw std::runtime_error("File " + file + " isn't available.");
-	}
+		throw std::runtime_error("File " + file.string() + " isn't available.");
 
 	dataStart = start;
 	dataSize = size;

@@ -25,7 +25,7 @@ public:
 	 *
 	 * @see CFileInputStream::open
 	 */
-	CFileInputStream(const std::string & file, si64 start=0, si64 size=0);
+	CFileInputStream(const boost::filesystem::path & file, si64 start = 0, si64 size = 0);
 
 	/**
 	 * C-tor. Opens the specified file.
@@ -88,11 +88,11 @@ private:
 	 *
 	 * @throws std::runtime_error if file wasn't found
 	 */
-	void open(const std::string & file, si64 start, si64 size);
+	void open(const boost::filesystem::path & file, si64 start, si64 size);
 
 	si64 dataStart;
 	si64 dataSize;
 
 	/** Native c++ input file stream object. */
-	std::ifstream fileStream;
+	boost::filesystem::ifstream fileStream;
 };

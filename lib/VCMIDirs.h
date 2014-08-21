@@ -9,15 +9,6 @@
 */
 #pragma once
 
-// STL C++
-#include <string>
-#include <vector>
-
-// Boost
-#include <boost/filesystem/path.hpp>
-
-// TODO: File should be renamed to IVCMIDirs.h
-
 class DLL_LINKAGE IVCMIDirs
 {
 	public:

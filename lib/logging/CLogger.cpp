@@ -1,14 +1,30 @@
 #include "StdInc.h"
 #include "CLogger.h"
 
+#ifdef VCMI_ANDROID
+#include <android/log.h>
+
+namespace ELogLevel
+{
+	int toAndroid(ELogLevel logLevel)
+	{
+		switch (logLevel)
+		{
+			case TRACE: return ANDROID_LOG_VERBOSE;
+			case DEBUG: return ANDROID_LOG_DEBUG;
+			case INFO:  return ANDROID_LOG_INFO;
+			case WARN:  return ANDROID_LOG_WARN;
+			case ERROR: return ANDROID_LOG_ERROR;
+			default:;
+		}
+		return ANDROID_LOG_UNKNOWN;
+	}
+}
+#endif
+
 const std::string CLoggerDomain::DOMAIN_GLOBAL = "global";
 
-CLoggerDomain::CLoggerDomain(const std::string & name) : name(name)
-{
-	if(name.empty())
-		throw std::runtime_error("Logger domain cannot be empty.");
-}
-CLoggerDomain::CLoggerDomain(std::string && name) : name(std::move(name))
+CLoggerDomain::CLoggerDomain(std::string name) : name(std::move(name))
 {
 	if (this->name.empty())
 		throw std::runtime_error("Logger domain cannot be empty.");
@@ -302,15 +318,16 @@ CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) : console(consol
 
 void CLogConsoleTarget::write(const LogRecord & record)
 {
-	if(threshold > record.level) return;
+	if(threshold > record.level)
+		return;
 
 	std::string message = formatter.format(record);
 
 #ifdef VCMI_ANDROID
-	__android_log_print(ANDROID_LOG_INFO, "VCMI", "%s", message.c_str());
+	__android_log_write(ELogLevel::toAndroid(record.level), "VCMI", message.c_str());
 #endif
 
-	bool printToStdErr = record.level >= ELogLevel::WARN;
+	const bool printToStdErr = record.level >= ELogLevel::WARN;
 	if(console)
 	{
 		const EConsoleTextColor::EConsoleTextColor textColor =
@@ -340,20 +357,10 @@ void CLogConsoleTarget::setFormatter(const CLogFormatter & formatter) { this->fo
 const CColorMapping & CLogConsoleTarget::getColorMapping() const { return colorMapping; }
 void CLogConsoleTarget::setColorMapping(const CColorMapping & colorMapping) { this->colorMapping = colorMapping; }
 
-CLogFileTarget::CLogFileTarget(const boost::filesystem::path & filePath, bool append /*= true*/)
-	: file(filePath, append ? std::ios_base::app : std::ios_base::out)
-{
-	formatter.setPattern("%d %l %n [%t] - %m");
-}
-CLogFileTarget::CLogFileTarget(boost::filesystem::path && filePath, bool append /*= true*/)
+CLogFileTarget::CLogFileTarget(boost::filesystem::path filePath, bool append /*= true*/)
 	: file(std::move(filePath), append ? std::ios_base::app : std::ios_base::out)
 {
 	formatter.setPattern("%d %l %n [%t] - %m");
-}
-
-CLogFileTarget::~CLogFileTarget()
-{
-	file.close();
 }
 
 void CLogFileTarget::write(const LogRecord & record)

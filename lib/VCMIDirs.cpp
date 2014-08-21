@@ -30,6 +30,75 @@ void IVCMIDirs::init()
 #include <Shlobj.h>
 #include <Shellapi.h>
 
+// Generates script file named _temp.bat in 'to' directory and runs it
+// Script will:
+// - Wait util 'exeName' ends.
+// - Copy all files from 'from' to 'to'
+// - Ask user to replace files existed in 'to'.
+// - Run 'exeName'
+// - Delete itself.
+bool StartBatchCopyDataProgram(
+	const bfs::path& from, const bfs::path& to, const bfs::path& exeName,
+	const bfs::path& currentPath = bfs::current_path())
+{
+	static const char base[] =
+		"@echo off"												"\n"
+		"echo Preparing to move VCMI data system."				"\n"
+
+		":CLIENT_RUNNING_LOOP"									"\n"
+		"TASKLIST | FIND /I %1% > nul"							"\n"
+		"IF ERRORLEVEL 1 ("										"\n"
+			"GOTO CLIENT_NOT_RUNNING"							"\n"
+		") ELSE ("												"\n"
+			"echo %1% is still running..."						"\n"
+			"echo Waiting until process ends..."				"\n"
+			"ping 1.1.1.1 -n 1 -w 3000 > nul"					"\n" // Sleep ~3 seconds. I love Windows :)
+			"goto :CLIENT_RUNNING_LOOP"							"\n"
+		")"														"\n"
+
+		":CLIENT_NOT_RUNNING"									"\n"
+		"echo %1% turned off..."								"\n"
+		"echo Attempt to move datas."							"\n"
+		"echo From: %2%"										"\n"
+		"echo To: %4%"											"\n"
+		"echo Please resolve any conflicts..."					"\n"
+		"move /-Y %3% %4%"										"\n" // Move all files from %3% to %4%.
+																	 // /-Y ask what to do when file exists in %4%
+		":REMOVE_OLD_DIR"										"\n"
+		"rd %2% || rem"											"\n" // Remove empty directory. Sets error flag if fail.
+		"IF ERRORLEVEL 145 ("									"\n" // Directory not empty
+			"echo Directory %2% is not empty."					"\n"
+			"echo Please move rest of files manually now."		"\n"
+			"pause"												"\n" // Press any key to continue...
+			"goto REMOVE_OLD_DIR"								"\n"
+		")"														"\n"
+		"echo Game data updated succefully."					"\n"
+		"echo Please update your shortcuts."					"\n"
+		"echo Press any key to start a game . . ."				"\n"
+		"pause > nul"											"\n"
+		"%5%"													"\n"
+		"del \"%%~f0\"&exit"									"\n" // Script deletes itself
+		;
+	
+	const auto startGameString =
+		bfs::equivalent(currentPath, from) ?
+		(boost::format("start \"\" %1%") % (to / exeName)) :						// Start game in new path.
+		(boost::format("start \"\" /D %1% %2%") % currentPath % (to / exeName));	// Start game in 'currentPath"
+
+	const bfs::path bathFilename = to / "_temp.bat";
+	bfs::ofstream bathFile(bathFilename, bfs::ofstream::trunc | bfs::ofstream::out);
+	if (!bathFile.is_open())
+		return false;
+	bathFile << (boost::format(base) % exeName % from % (from / "*.*") % to % startGameString.str()).str();
+	bathFile.close();
+
+	std::system(("start \"Updating VCMI datas\" /D \"" + to.string() + "\" \"" + bathFilename.string() + '\"').c_str());
+	// start won't block std::system
+	// /D start bat in other directory insteand of current directory.
+
+	return true;
+}
+
 class VCMIDirsWIN32 : public IVCMIDirs
 {
 	public:
@@ -50,6 +119,9 @@ class VCMIDirsWIN32 : public IVCMIDirs
 		std::string genHelpString() const override;
 
 		void init() override;
+	protected:
+		boost::filesystem::path oldUserDataPath() const;
+		boost::filesystem::path oldUserSavePath() const;
 };
 
 void VCMIDirsWIN32::init()
@@ -57,15 +129,21 @@ void VCMIDirsWIN32::init()
 	// Call base (init dirs)
 	IVCMIDirs::init();
 
-	auto moveDirIfExists = [](const bfs::path& from, const bfs::path& to)
+	// Moves one directory (from) contents to another directory (to)
+	// Shows user the "moving file dialog" and ask to resolve conflits.
+	// If necessary updates current directory.
+	auto moveDirIfExists = [](const bfs::path& from, const bfs::path& to) -> bool
 	{
 		if (!bfs::is_directory(from))
-			return; // Nothing to do here. Flies away.
+			return true; // Nothing to do here. Flies away.
 
 		if (bfs::is_empty(from))
 		{
+			if (bfs::current_path() == from)
+				bfs::current_path(to);
+
 			bfs::remove(from);
-			return; // Nothing to do here. Flies away.
+			return true; // Nothing to do here. Flies away.
 		}
 
 		if (!bfs::is_directory(to))
@@ -103,23 +181,87 @@ void VCMIDirsWIN32::init()
 		fileOp.lpszProgressTitle = nullptr;
 
 		const int errorCode = SHFileOperationW(&fileOp);
-		if (errorCode != 0); // TODO: Log error. User should try to move files.
-		else if (fileOp.fAnyOperationsAborted); // TODO: Log warn. User aborted operation. User should move files.
-		else if (!bfs::is_empty(from)); // TODO: Log warn. Some files not moved. User should try to move files.
-		else // TODO: Log fact that we moved files succefully.
-			bfs::remove(from);
+		if (errorCode != 0) // TODO: Log error. User should try to move files.
+			return false;
+		else if (fileOp.fAnyOperationsAborted) // TODO: Log warn. User aborted operation. User should move files.
+			return false;
+		else if (!bfs::is_empty(from)) // TODO: Log warn. Some files not moved. User should try to move files.
+			return false;
+		
+		if (bfs::current_path() == from)
+			bfs::current_path(to);
+
+		// TODO: Log fact that we moved files succefully.
+		bfs::remove(from);
+		return true;
+	};
+	
+	// Retrieves the fully qualified path for the file that contains the specified module.
+	// The module must have been loaded by the current process.
+	// If this parameter is nullptr, retrieves the path of the executable file of the current process.
+	auto getModulePath = [](HMODULE hModule) -> bfs::path
+	{
+		wchar_t exePathW[MAX_PATH];
+		DWORD nSize = GetModuleFileNameW(hModule, exePathW, MAX_PATH);
+		DWORD error = GetLastError();
+		// WARN: Windows XP don't set ERROR_INSUFFICIENT_BUFFER error.
+		if (nSize != 0 && error != ERROR_INSUFFICIENT_BUFFER)
+			return bfs::path(std::wstring(exePathW, nSize));
+		// TODO: Error handling
+		return bfs::path();
 	};
 
-	moveDirIfExists(userDataPath() / "Games", userSavePath());
+	// Moves one directory contents to another directory
+	// Shows user the "moving file dialog" and ask to resolve conflicts.
+	// It takes into account that 'from' path can contain current executable.
+	// If necessary closes program and starts update script.
+	auto advancedMoveDirIfExists = [getModulePath, moveDirIfExists](const bfs::path& from, const bfs::path& to) -> bool
+	{
+		const bfs::path executablePath = getModulePath(nullptr);
+
+		// VCMI cann't determine executable path.
+		// Use standard way to move directory and exit function.
+		if (executablePath.empty())
+			return moveDirIfExists(from, to);
+
+		const bfs::path executableName = executablePath.filename();
+
+		// Current executabl isn't in 'from' path.
+		// Use standard way to move directory and exit function.
+		if (!bfs::equivalent(executablePath, from / executableName))
+			return moveDirIfExists(from, to);
+
+		// Try standard way to move directory.
+		// I don't know how other systems, but Windows 8.1 allow to move running executable.
+		if (moveDirIfExists(from, to))
+			return true;
+
+		// Start copying script and exit program.
+		if (StartBatchCopyDataProgram(from, to, executableName))
+			exit(ERROR_SUCCESS);
+		
+		// Everything failed :C
+		return false;
+	};
+
+	moveDirIfExists(oldUserSavePath(), userSavePath());
+	advancedMoveDirIfExists(oldUserDataPath(), userDataPath());
 }
 
 bfs::path VCMIDirsWIN32::userDataPath() const
 {
 	wchar_t profileDir[MAX_PATH];
 
-	// The user's profile folder. A typical path is C:\Users\username.
-	// FIXME: Applications should not create files or folders at this level;
-	// they should put their data under the locations referred to by CSIDL_APPDATA or CSIDL_LOCAL_APPDATA.
+	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
+		return bfs::path(profileDir) / "My Games\\vcmi";
+	
+	return ".";
+}
+
+bfs::path VCMIDirsWIN32::oldUserDataPath() const
+{
+	wchar_t profileDir[MAX_PATH];
+	
 	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_PROFILE, FALSE) == FALSE) // WinAPI way failed
 	{
 #if defined(_MSC_VER) && _MSC_VER >= 1700
@@ -145,6 +287,8 @@ bfs::path VCMIDirsWIN32::userDataPath() const
 
 	//return dataPaths()[0] ???;
 }
+bfs::path VCMIDirsWIN32::oldUserSavePath() const { return userDataPath() / "Games"; }
+
 bfs::path VCMIDirsWIN32::userCachePath() const { return userDataPath(); }
 bfs::path VCMIDirsWIN32::userConfigPath() const { return userDataPath() / "config"; }
 
@@ -421,6 +565,9 @@ namespace VCMIDirs
 		static bool initialized = false;
 		if (!initialized)
 		{
+			std::locale::global(boost::locale::generator().generate("en_US.UTF-8"));
+			boost::filesystem::path::imbue(std::locale());
+
 			singleton.init();
 			initialized = true;
 		}

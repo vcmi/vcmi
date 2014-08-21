@@ -19,15 +19,19 @@ class ILogTarget;
 
 namespace ELogLevel
 {
-enum ELogLevel
-{
-	NOT_SET = 0,
-	TRACE,
-	DEBUG,
-	INFO,
-	WARN,
-	ERROR
-};
+	enum ELogLevel
+	{
+		NOT_SET = 0,
+		TRACE,
+		DEBUG,
+		INFO,
+		WARN,
+		ERROR
+	};
+
+	#ifdef VCMI_ANDROID
+		int toAndroid(ELogLevel logLevel);
+	#endif
 }
 
 /// The class CLoggerDomain provides convenient access to super domains from a sub domain.
@@ -36,8 +40,7 @@ class DLL_LINKAGE CLoggerDomain
 public:
 	/// Constructs a CLoggerDomain with the domain designated by name.
 	/// Sub-domains can be specified by separating domains by a dot, e.g. "ai.battle". The global domain is named "global".
-	explicit CLoggerDomain(const std::string & name);
-	explicit CLoggerDomain(std::string && name);
+	explicit CLoggerDomain(std::string name);
 
 	const std::string& getName() const;
 	CLoggerDomain getParent() const;
@@ -288,9 +291,7 @@ class DLL_LINKAGE CLogFileTarget : public ILogTarget
 public:
 	/// Constructs a CLogFileTarget and opens the file designated by file_path. If the append parameter is true, the file
 	/// will be appended to. Otherwise the file designated by filePath will be truncated before being opened.
-	explicit CLogFileTarget(const boost::filesystem::path & file_path, bool append = true);
-	explicit CLogFileTarget(boost::filesystem::path && file_path, bool append = true);
-	~CLogFileTarget();
+	explicit CLogFileTarget(boost::filesystem::path file_path, bool append = true);
 
 	const CLogFormatter & getFormatter() const;
 	void setFormatter(const CLogFormatter & formatter);

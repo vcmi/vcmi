@@ -3,10 +3,7 @@
 
 #include "../CConfigHandler.h"
 
-CBasicLogConfigurator::CBasicLogConfigurator(const boost::filesystem::path & filePath, CConsoleHandler * const console) :
-	filePath(filePath), console(console), appendToLogFile(false) {}
-
-CBasicLogConfigurator::CBasicLogConfigurator(boost::filesystem::path && filePath, CConsoleHandler * const console) :
+CBasicLogConfigurator::CBasicLogConfigurator(boost::filesystem::path filePath, CConsoleHandler * const console) :
 	filePath(std::move(filePath)), console(console), appendToLogFile(false) {}
 
 void CBasicLogConfigurator::configureDefault()

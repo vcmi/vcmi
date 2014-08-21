@@ -96,7 +96,11 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 /* ---------------------------------------------------------------------------- */
 /* Commonly used C++, Boost headers */
 /* ---------------------------------------------------------------------------- */
+#ifndef VCMI_WINDOWS
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#define NOMINMAX				// Exclude min/max macros from <Windows.h>
+#endif
+
 #define _USE_MATH_DEFINES
 
 #include <cstdio>
@@ -148,6 +152,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/format.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/locale/generator.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/optional.hpp>
 #include <boost/program_options.hpp>
@@ -157,10 +162,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/thread.hpp>
 #include <boost/variant.hpp>
 #include <boost/math/special_functions/round.hpp>
-
-#ifdef VCMI_ANDROID
-	#include <android/log.h>
-#endif
 
 #ifndef M_PI
 	#define M_PI 3.14159265358979323846
@@ -196,7 +197,7 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 /* Macros */
 /* ---------------------------------------------------------------------------- */
 // Import + Export macro declarations
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
 #  ifdef __GNUC__
 #    define DLL_EXPORT __attribute__((dllexport))
 #  else
@@ -210,7 +211,7 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 #  endif
 #endif
 
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
 #  ifdef __GNUC__
 #    define DLL_IMPORT __attribute__((dllimport))
 #  else

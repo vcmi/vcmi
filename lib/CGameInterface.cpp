@@ -35,7 +35,7 @@ extern "C" DLL_EXPORT void BattleAI_GetNewBattleAI(shared_ptr<CBattleGameInterfa
 #endif
 
 template<typename rett>
-shared_ptr<rett> createAny(std::string dllname, std::string methodName)
+shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::string& methodName)
 {
 	typedef void(*TGetAIFun)(shared_ptr<rett>&); 
 	typedef void(*TGetNameFun)(char*); 
@@ -45,7 +45,13 @@ shared_ptr<rett> createAny(std::string dllname, std::string methodName)
 	TGetAIFun getAI = nullptr;
 	TGetNameFun getName = nullptr;
 
-#ifdef __ANDROID__
+#ifndef VCMI_WINDOWS
+	std::string dllname = libpath.string();
+		// I don't know other platforms.
+		// Somebody should remove it soon.
+#endif
+
+#ifdef VCMI_ANDROID
 	// this is awful but it seems using shared libraries on some devices is even worse
 	if (dllname.find("libVCAI.so") != std::string::npos) {
 		getName = (TGetNameFun)VCAI_GetAiName;
@@ -61,12 +67,12 @@ shared_ptr<rett> createAny(std::string dllname, std::string methodName)
 	}
 #else
 
-#ifdef _WIN32
-	HINSTANCE dll = LoadLibraryA(dllname.c_str());
+#ifdef VCMI_WINDOWS
+	HMODULE dll = LoadLibraryW(libpath.c_str());
 	if (dll)
 	{
-		getName = (TGetNameFun)GetProcAddress(dll,"GetAiName");
-		getAI = (TGetAIFun)GetProcAddress(dll,methodName.c_str());
+		getName = (TGetNameFun)GetProcAddress(dll, "GetAiName");
+		getAI = (TGetAIFun)GetProcAddress(dll, methodName.c_str());
 	}
 #else
 	void *dll = dlopen(dllname.c_str(), RTLD_LOCAL | RTLD_LAZY);
@@ -80,21 +86,20 @@ shared_ptr<rett> createAny(std::string dllname, std::string methodName)
 #endif
 	if (!dll)
 	{
-        logGlobal->errorStream() << "Cannot open dynamic library ("<<dllname<<"). Throwing...";
+        logGlobal->errorStream() << "Cannot open dynamic library ("<<libpath<<"). Throwing...";
 		throw std::runtime_error("Cannot open dynamic library");
 	}
 	else if(!getName || !getAI)
 	{
-        logGlobal->errorStream() << dllname << " does not export method " << methodName;
-#ifdef _WIN32
+		logGlobal->errorStream() << libpath << " does not export method " << methodName;
+#ifdef VCMI_WINDOWS
 		FreeLibrary(dll);
 #else
 		dlclose(dll);
 #endif
 		throw std::runtime_error("Cannot find method " + methodName);
 	}
-
-#endif // __ANDROID__
+#endif // VCMI_ANDROID
 
 	getName(temp);
     logGlobal->infoStream() << "Loaded " << temp;
@@ -113,9 +118,8 @@ shared_ptr<rett> createAnyAI(std::string dllname, std::string methodName)
     logGlobal->infoStream() << "Opening " << dllname;
 	const boost::filesystem::path filePath =
 		VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(dllname);
-	// TODO: createAny Should take boost::filesystem::path in argument.
-	auto ret = createAny<rett>(filePath.string(), methodName);
-	ret->dllName = dllname;
+	auto ret = createAny<rett>(filePath, methodName);
+	ret->dllName = std::move(dllname);
 	return ret;
 }
 

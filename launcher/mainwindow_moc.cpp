@@ -13,15 +13,15 @@
 void MainWindow::load()
 {
 	console = new CConsoleHandler;
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() + "/VCMI_Launcher_log.txt", console);
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Launcher_log.txt", console);
 	logConfig.configureDefault();
 
 	CResourceHandler::initialize();
 	CResourceHandler::load("config/filesystem.json");
 
 	for (auto & string : VCMIDirs::get().dataPaths())
-		QDir::addSearchPath("icons", QString::fromUtf8(string.c_str()) + "/launcher/icons");
-	QDir::addSearchPath("icons", QString::fromUtf8(VCMIDirs::get().userDataPath().c_str()) + "/launcher/icons");
+		QDir::addSearchPath("icons", pathToQString(string / "launcher" / "icons"));
+	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "icons"));
 
 	settings.init();
 }
@@ -46,7 +46,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_startGameButon_clicked()
 {
-	startExecutable(QString::fromUtf8(VCMIDirs::get().clientPath().c_str()));
+	startExecutable(pathToQString(VCMIDirs::get().clientPath()));
 }
 
 void MainWindow::startExecutable(QString name)
