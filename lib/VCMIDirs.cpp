@@ -335,7 +335,7 @@ class IVCMIDirsUNIX : public IVCMIDirs
 };
 
 bfs::path IVCMIDirsUNIX::clientPath() const { return binaryPath() / "vcmiclient"; }
-bfs::path IVCMIDirsUNIX::clientPath() const { return binaryPath() / "vcmiserver"; }
+bfs::path IVCMIDirsUNIX::serverPath() const { return binaryPath() / "vcmiserver"; }
 
 std::string IVCMIDirsUNIX::genHelpString() const
 {
@@ -461,7 +461,7 @@ bfs::path VCMIDirsLinux::userDataPath() const
 {
 	// $XDG_DATA_HOME, default: $HOME/.local/share
 	const char* homeDir;
-	if (homeDir = getenv("XDG_DATA_HOME"))
+	if ((homeDir = getenv("XDG_DATA_HOME")))
 		return homeDir;
 	else if (homeDir = getenv("HOME"))
 		return bfs::path(homeDir) / ".local" / "share" / "vcmi";
@@ -472,9 +472,9 @@ bfs::path VCMIDirsLinux::userCachePath() const
 {
 	// $XDG_CACHE_HOME, default: $HOME/.cache
 	const char* tempResult;
-	if (tempResult = getenv("XDG_CACHE_HOME"))
+	if ((tempResult = getenv("XDG_CACHE_HOME")))
 		return bfs::path(tempResult) / "vcmi";
-	else if (tempResult = getenv("HOME"))
+	else if ((tempResult = getenv("HOME")))
 		return bfs::path(tempResult) / ".cache" / "vcmi";
 	else
 		return ".";
@@ -483,9 +483,9 @@ bfs::path VCMIDirsLinux::userConfigPath() const
 {
 	// $XDG_CONFIG_HOME, default: $HOME/.config
 	const char* tempResult;
-	if (tempResult = getenv("XDG_CONFIG_HOME"))
+	if ((tempResult = getenv("XDG_CONFIG_HOME")))
 		return bfs::path(tempResult) / "vcmi";
-	else if (tempResult = getenv("HOME"))
+	else if ((tempResult = getenv("HOME")))
 		return bfs::path(tempResult) / ".config" / "vcmi";
 	else
 		return ".";
@@ -520,7 +520,7 @@ std::vector<bfs::path> VCMIDirsLinux::dataPaths() const
 	return ret;
 }
 
-bfs::path VCMIDirsLinux::libraryPath() const { return M_LIB_PATH; }
+bfs::path VCMIDirsLinux::libraryPath() const { return M_LIB_DIR; }
 bfs::path VCMIDirsLinux::binaryPath() const { return M_BIN_DIR; }
 
 std::string VCMIDirsLinux::libraryName(const std::string& basename) const { return "lib" + basename + ".so"; }
