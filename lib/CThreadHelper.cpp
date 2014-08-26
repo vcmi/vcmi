@@ -1,9 +1,9 @@
 #include "StdInc.h"
 #include "CThreadHelper.h"
 
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
 	#include <windows.h>
-#elif !defined(__APPLE__)
+#elif !defined(VCMI_APPLE)
 	#include <sys/prctl.h>
 #endif
 /*
@@ -49,7 +49,7 @@ void CThreadHelper::processTasks()
 // NOTE: on *nix string will be trimmed to 16 symbols
 void setThreadName(const std::string &name)
 {
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
 #ifndef __GNUC__
 	//follows http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
 	const DWORD MS_VC_EXCEPTION=0x406D1388;

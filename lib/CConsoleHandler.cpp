@@ -50,7 +50,7 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 
 static TColor defColor;
 
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
 
 void printWinError()
 {
@@ -200,7 +200,7 @@ int CConsoleHandler::run()
 
 	while ( std::cin.good() )
 	{
-#ifndef _WIN32
+#ifndef VCMI_WINDOWS
 		//check if we have some unreaded symbols
 		if (std::cin.rdbuf()->in_avail())
 		{
@@ -222,7 +222,7 @@ int CConsoleHandler::run()
 }
 CConsoleHandler::CConsoleHandler() : thread(nullptr)
 {
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
 	handleIn = GetStdHandle(STD_INPUT_HANDLE);
 	handleOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	handleErr = GetStdHandle(STD_ERROR_HANDLE);
@@ -252,7 +252,7 @@ void CConsoleHandler::end()
 {
 	if (thread)
 	{
-#ifndef _WIN32
+#ifndef VCMI_WINDOWS
 		thread->interrupt();
 #else
 		TerminateThread(thread->native_handle(),0);

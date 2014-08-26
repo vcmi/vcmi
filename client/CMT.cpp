@@ -40,7 +40,7 @@
 #include "gui/CGuiHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
 #include "SDL_syswm.h"
 #endif
 #include "../lib/UnlockGuard.h"
@@ -99,7 +99,7 @@ static void mainLoop();
 void startGame(StartInfo * options, CConnection *serv = nullptr);
 void endGame();
 
-#ifndef _WIN32
+#ifndef VCMI_WINDOWS
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -182,19 +182,19 @@ static void prog_help(const po::options_description &opts)
 // 	printf("  -v, --version     display version information and exit\n");
 }
 
-#ifdef __APPLE__
+#ifdef VCMI_APPLE
 void OSX_checkForUpdates();
 #endif
 
-#if defined(_WIN32) && !defined (__GNUC__)
+#if defined(VCMI_WINDOWS) && !defined (__GNUC__)
 int wmain(int argc, wchar_t* argv[])
-#elif defined(__APPLE__)
+#elif defined(VCMI_APPLE)
 int SDL_main(int argc, char *argv[])
 #else
 int main(int argc, char** argv)
 #endif
 {
-#ifdef __APPLE__
+#ifdef VCMI_APPLE
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
     std::string executablePath = argv[0];
     std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
@@ -387,7 +387,7 @@ int main(int argc, char** argv)
 
     logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
 
-#if defined(__ANDROID__)
+#if defined(VCMI_ANDROID)
 	//on Android threaded init is broken
 	#define VCMI_NO_THREADED_LOAD
 #endif // defined
@@ -711,7 +711,7 @@ void processCommand(const std::string &message)
 		{
 			CDefEssential * cde = CDefHandler::giveDefEss(URI);
 
-			const bfs::path outPath = VCMIDirs::get().userCachePath() / "extraced" / URI;
+			const bfs::path outPath = VCMIDirs::get().userCachePath() / "extracted" / URI;
 			bfs::create_directories(outPath);
 
 			for (size_t i = 0; i < cde->ourImages.size(); ++i)
@@ -1010,7 +1010,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 	SDL_ShowCursor(SDL_DISABLE);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
 	SDL_SysWMinfo wm;
 	SDL_VERSION(&wm.version);
 	int getwm = SDL_GetWMInfo(&wm);
