@@ -114,8 +114,7 @@ void startGameFromFile(const bfs::path &fname)
 		if(fname.empty() || !bfs::exists(fname))
 			throw std::runtime_error("Startfile \"" + fname.string() + "\" does not exist!");
 
-		// TODO: CLoadFile should take boost::path as an argument
-		CLoadFile out(fname.string());
+		CLoadFile out(fname);
 		if (!out.sfile || !*out.sfile)
 			throw std::runtime_error("Cannot read from startfile \"" + fname.string() +"\"!");
 		out >> si;
@@ -594,7 +593,6 @@ void processCommand(const std::string &message)
 		for (auto & filename : list)
 		{
 			const bfs::path filePath = outPath / (filename.getName() + ".TXT");
-			std::string outName = filePath.string();
 			
 			bfs::create_directories(filePath.parent_path());
 

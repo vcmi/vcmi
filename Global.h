@@ -96,7 +96,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 /* ---------------------------------------------------------------------------- */
 /* Commonly used C++, Boost headers */
 /* ---------------------------------------------------------------------------- */
-#ifndef VCMI_WINDOWS
+#ifdef VCMI_WINDOWS
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 #define NOMINMAX				// Exclude min/max macros from <Windows.h>
 #endif
@@ -164,7 +164,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/math/special_functions/round.hpp>
 
 #ifndef M_PI
-	#define M_PI 3.14159265358979323846
+#  define M_PI 3.14159265358979323846
 #endif
 
 /* ---------------------------------------------------------------------------- */

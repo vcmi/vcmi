@@ -86,7 +86,7 @@ shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::st
 #endif
 	if (!dll)
 	{
-        logGlobal->errorStream() << "Cannot open dynamic library ("<<libpath<<"). Throwing...";
+		logGlobal->errorStream() << "Cannot open dynamic library ("<<libpath<<"). Throwing...";
 		throw std::runtime_error("Cannot open dynamic library");
 	}
 	else if(!getName || !getAI)
@@ -113,9 +113,9 @@ shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::st
 }
 
 template<typename rett>
-shared_ptr<rett> createAnyAI(std::string dllname, std::string methodName)
+shared_ptr<rett> createAnyAI(std::string dllname, const std::string& methodName)
 {
-    logGlobal->infoStream() << "Opening " << dllname;
+	logGlobal->infoStream() << "Opening " << dllname;
 	const boost::filesystem::path filePath =
 		VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(dllname);
 	auto ret = createAny<rett>(filePath, methodName);

@@ -37,13 +37,6 @@
 #include "gui/CGuiHandler.h"
 #include "../lib/UnlockGuard.h"
 
-#ifdef min
-#undef min
-#endif
-#ifdef max
-#undef max
-#endif
-
 /*
  * CPlayerInterface.cpp, part of VCMI engine
  *
