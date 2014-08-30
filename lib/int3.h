@@ -160,7 +160,7 @@ static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 template<typename Container>
 int3 findClosestTile (Container & container, int3 dest)
 {
-	static_assert(std::is_same<Container::value_type, int3>::value,
+	static_assert(std::is_same<typename Container::value_type, int3>::value,
 		"findClosestTile requires <int3> container.");
 
 	int3 result(-1, -1, -1);
