@@ -203,7 +203,7 @@ int main(int argc, char** argv)
     OSX_checkForUpdates();
 
     // Check that game data is prepared. Otherwise run vcmibuilder helper application
-    FILE* check = fopen((VCMIDirs::get().userDataPath() + "/game_data_prepared").c_str(), "r");
+    FILE* check = fopen((VCMIDirs::get().userDataPath() / "game_data_prepared").string().c_str(), "r");
     if (check == nullptr) {
         system("open ./vcmibuilder.app");
         return 0;

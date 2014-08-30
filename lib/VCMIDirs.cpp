@@ -463,7 +463,7 @@ bfs::path VCMIDirsLinux::userDataPath() const
 	const char* homeDir;
 	if ((homeDir = getenv("XDG_DATA_HOME")))
 		return homeDir;
-	else if (homeDir = getenv("HOME"))
+	else if ((homeDir = getenv("HOME")))
 		return bfs::path(homeDir) / ".local" / "share" / "vcmi";
 	else
 		return ".";

@@ -27,7 +27,6 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 	#define CONSOLE_GRAY "\x1b[1;30m"
 	#define CONSOLE_TEAL "\x1b[1;36m"
 #else
-	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
 	#include <Windows.h>
 #ifndef __MINGW32__
 	#include <dbghelp.h>
