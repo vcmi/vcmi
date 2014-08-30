@@ -44,18 +44,6 @@ BattleHex& BattleHex::moveInDir(EDir dir, bool hasToBeValid)
 	return *this;
 }
 
-void BattleHex::operator+=(EDir dir)
-{
-	moveInDir(dir);
-}
-
-BattleHex BattleHex::operator+(EDir dir) const
-{
-	BattleHex ret(*this);
-	ret += dir;
-	return ret;
-}
-
 std::vector<BattleHex> BattleHex::neighbouringTiles() const
 {
 	std::vector<BattleHex> ret;
@@ -93,17 +81,18 @@ char BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
 {	
 	int y1 = hex1.getY(), 
 		y2 = hex2.getY();
-
-	int x1 = hex1.getX() + y1 / 2.0, 
-		x2 = hex2.getX() + y2 / 2.0;
+	
+	// FIXME: Omit floating point arithmetics
+	int x1 = (int)(hex1.getX() + y1 * 0.5),
+		x2 = (int)(hex2.getX() + y2 * 0.5);
 
 	int xDst = x2 - x1,
 		yDst = y2 - y1;
 
 	if ((xDst >= 0 && yDst >= 0) || (xDst < 0 && yDst < 0)) 
 		return std::max(std::abs(xDst), std::abs(yDst));
-	else 
-		return std::abs(xDst) + std::abs(yDst);
+	
+	return std::abs(xDst) + std::abs(yDst);
 }
 
 void BattleHex::checkAndPush(BattleHex tile, std::vector<BattleHex> & ret)

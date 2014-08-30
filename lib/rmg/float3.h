@@ -10,75 +10,103 @@
  *
  */
 
+// FIXME: Class doesn't contain three float values. Update name and description.
 /// Class which consists of three float values. Represents position virtual RMG (0;1) area.
 class float3
 {
 public:
 	float x, y;
 	si32 z;
-	inline float3():x(0),y(0),z(0){}; //c-tor, x/y/z initialized to 0
-	inline float3(const float X, const float Y, const si32 Z):x(X),y(Y),z(Z){}; //c-tor
-	inline float3(const float3 & val) : x(val.x), y(val.y), z(val.z){} //copy c-tor
-	inline float3 & operator=(const float3 & val) {x = val.x; y = val.y; z = val.z; return *this;} //assignemt operator
-	~float3() {} // d-tor - does nothing
-	inline float3 operator+(const float3 & i) const //returns float3 with coordinates increased by corresponding coordinate of given float3
-		{return float3(x+i.x,y+i.y,z+i.z);}
-	inline float3 operator+(const float i) const //returns float3 with coordinates increased by given numer
-		{return float3(x+i,y+i,z+i);}
-	inline float3 operator-(const float3 & i) const //returns float3 with coordinates decreased by corresponding coordinate of given float3
-		{return float3(x-i.x,y-i.y,z-i.z);}
-	inline float3 operator-(const float i) const //returns float3 with coordinates decreased by given numer
-		{return float3(x-i,y-i,z-i);}
-	inline float3 operator*(const float i) const //returns float3 with plane coordinates decreased by given numer
-		{return float3(x*i, y*i, z);}
-	inline float3 operator/(const float i) const //returns float3 with plane coordinates decreased by given numer
-		{return float3(x/i, y/i, z);}
-	inline float3 operator-() const //returns opposite position
-		{return float3(-x,-y,-z);}
-	inline double dist2d(const float3 &other) const //distance (z coord is not used)
-		{return std::sqrt((double)(x-other.x)*(x-other.x) + (y-other.y)*(y-other.y));}
-	inline bool areNeighbours(const float3 &other) const
-		{return dist2d(other) < 2. && z == other.z;}
-	inline void operator+=(const float3 & i)
+
+	float3() : x(0), y(0), z(0) {}
+	float3(const float X, const float Y, const si32 Z): x(X), y(Y), z(Z) {}
+	float3(const float3 & copy) : x(copy.x), y(copy.y), z(copy.z) {}
+	float3 & operator=(const float3 & copy) { x = copy.x; y = copy.y; z = copy.z; return *this; }
+
+	// returns float3 with coordinates increased by corresponding coordinate of given float3
+	float3 operator+(const float3 & i) const { return float3(x + i.x, y + i.y, z + i.z); }
+	// returns float3 with coordinates increased by given numer
+	float3 operator+(const float i) const { return float3(x + i, y + i, z + (si32)i); }
+	// returns float3 with coordinates decreased by corresponding coordinate of given float3
+	float3 operator-(const float3 & i) const { return float3(x - i.x, y - i.y, z - i.z); }
+	// returns float3 with coordinates decreased by given numer
+	float3 operator-(const float i) const { return float3(x - i, y - i, z - (si32)i); }
+	
+	// returns float3 with plane coordinates decreased by given numer
+	float3 operator*(const float i) const {return float3(x * i, y * i, z);}
+	// returns float3 with plane coordinates decreased by given numer
+	float3 operator/(const float i) const {return float3(x / i, y / i, z);}
+	
+	// returns opposite position
+	float3 operator-() const { return float3(-x, -y, -z); }
+	
+	// returns squared distance on Oxy plane (z coord is not used)
+	double dist2dSQ(const float3 & o) const
 	{
-		x+=i.x;
-		y+=i.y;
-		z+=i.z;
+		const double dx = (x - o.x);
+		const double dy = (y - o.y);
+		return dx*dx + dy*dy;
 	}
-	inline void operator+=(const float & i)
+	// returns distance on Oxy plane (z coord is not used)
+	double dist2d(const float3 &other) const { return std::sqrt(dist2dSQ(other)); }
+
+	bool areNeighbours(const float3 &other) const { return (dist2dSQ(other) < 4.0) && z == other.z; }
+	
+	float3& operator+=(const float3 & i)
 	{
-		x+=i;
-		y+=i;
-		z+=i;
+		x += i.x;
+		y += i.y;
+		z += i.z;
+
+		return *this;
 	}
-	inline void operator-=(const float3 & i)
+	float3& operator+=(const float & i)
 	{
-		x-=i.x;
-		y-=i.y;
-		z-=i.z;
+		x += i;
+		y += i;
+		z += (si32)i;
+
+		return *this;
 	}
-	inline void operator-=(const float & i)
+	
+	float3& operator-=(const float3 & i)
 	{
-		x+=i;
-		y+=i;
-		z+=i;
+		x -= i.x;
+		y -= i.y;
+		z -= i.z;
+
+		return *this;
 	}
-	inline void operator*=(const float & i) //scale on plane
+	float3& operator-=(const float & i)
 	{
-		x*=i;
-		y*=i;
-	}
-	inline void operator/=(const float & i) //scale on plane
-	{
-		x/=i;
-		y/=i;
+		x += i;
+		y += i;
+		z += (si32)i;
+
+		return *this;
 	}
 
-	inline bool operator==(const float3 & i) const
-		{return (x==i.x) && (y==i.y) && (z==i.z);}
-	inline bool operator!=(const float3 & i) const
-		{return !(*this==i);}
-	inline bool operator<(const float3 & i) const
+	// scale on plane
+	float3& operator*=(const float & i)
+	{
+		x *= i;
+		y *= i;
+
+		return *this;
+	}
+	// scale on plane
+	float3& operator/=(const float & i)
+	{
+		x /= i;
+		y /= i;
+
+		return *this;
+	}
+
+	bool operator==(const float3 & i) const { return (x == i.x) && (y == i.y) && (z == i.z); }
+	bool operator!=(const float3 & i) const { return (x != i.x) || (y != i.y) || (z != i.z); }
+	
+	bool operator<(const float3 & i) const
 	{
 		if (z<i.z)
 			return true;
@@ -92,32 +120,35 @@ public:
 			return true;
 		if (x>i.x)
 			return false;
+
 		return false;
 	}
-	inline std::string operator ()() const
+
+	std::string operator ()() const
 	{
 		return	"(" + boost::lexical_cast<std::string>(x) +
 				" " + boost::lexical_cast<std::string>(y) +
 				" " + boost::lexical_cast<std::string>(z) + ")";
 	}
-	inline bool valid() const
+
+	bool valid() const
 	{
 		return z >= 0; //minimal condition that needs to be fulfilled for tiles in the map
 	}
+
 	template <typename Handler> void serialize(Handler &h, const float version)
 	{
 		h & x & y & z;
 	}
-	
 };
+
 inline std::istream & operator>>(std::istream & str, float3 & dest)
 {
-	str>>dest.x>>dest.y>>dest.z;
-	return str;
+	return str >> dest.x >> dest.y >> dest.z;
 }
 inline std::ostream & operator<<(std::ostream & str, const float3 & sth)
 {
-	return str<<sth.x<<' '<<sth.y<<' '<<sth.z;
+	return str << sth.x << ' ' << sth.y << ' ' << sth.z;
 }
 
 struct Shashfloat3
