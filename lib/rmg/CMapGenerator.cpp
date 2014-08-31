@@ -81,6 +81,9 @@ std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, in
 {
 	this->mapGenOptions = mapGenOptions;
 	this->randomSeed = randomSeed;
+
+	assert(mapGenOptions);
+
 	rand.setSeed(this->randomSeed);
 	mapGenOptions->finalize(rand);
 
@@ -90,6 +93,7 @@ std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, in
 	try
 	{
 		editManager->getUndoManager().setUndoRedoLimit(0);
+		//FIXME:  somehow mapGenOption is nullptr at this point :?
 		addHeaderInfo();
 		initTiles();
 
