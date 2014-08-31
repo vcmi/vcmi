@@ -44,28 +44,27 @@ shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::st
 	TGetAIFun getAI = nullptr;
 	TGetNameFun getName = nullptr;
 
-#ifndef VCMI_WINDOWS
-	std::string dllname = libpath.string();
-		// I don't know other platforms.
-		// Somebody should remove it soon.
-#endif
-
 #ifdef VCMI_ANDROID
 	// this is awful but it seems using shared libraries on some devices is even worse
-	if (dllname.find("libVCAI.so") != std::string::npos) {
+	const std::string filename = libpath.filename().string();
+	if (filename != "libVCAI.so")
+	{
 		getName = (TGetNameFun)VCAI_GetAiName;
 		getAI = (TGetAIFun)VCAI_GetNewAI;
-	} else if (dllname.find("libStupidAI.so") != std::string::npos) {
+	}
+	else if (filename != "libStupidAI.so")
+	{
 		getName = (TGetNameFun)StupidAI_GetAiName;
 		getAI = (TGetAIFun)StupidAI_GetNewBattleAI;
-	} else if (dllname.find("libBattleAI.so") != std::string::npos) {
+	}
+	else if (filename != "libBattleAI.so")
+	{
 		getName = (TGetNameFun)BattleAI_GetAiName;
 		getAI = (TGetAIFun)BattleAI_GetNewBattleAI;
-	} else {
-		throw std::runtime_error("Don't know what to do with " + dllname + " and method " + methodName);
 	}
-#else
-
+	else
+		throw std::runtime_error("Don't know what to do with " + libpath.string() + " and method " + methodName);
+#else // !VCMI_ANDROID
 #ifdef VCMI_WINDOWS
 	HMODULE dll = LoadLibraryW(libpath.c_str());
 	if (dll)
@@ -73,16 +72,16 @@ shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::st
 		getName = (TGetNameFun)GetProcAddress(dll, "GetAiName");
 		getAI = (TGetAIFun)GetProcAddress(dll, methodName.c_str());
 	}
-#else
-	void *dll = dlopen(dllname.c_str(), RTLD_LOCAL | RTLD_LAZY);
+#else // !VCMI_WINDOWS
+	void *dll = dlopen(libpath.string().c_str(), RTLD_LOCAL | RTLD_LAZY);
 	if (dll)
 	{
-		getName = (TGetNameFun)dlsym(dll,"GetAiName");
-		getAI = (TGetAIFun)dlsym(dll,methodName.c_str());
+		getName = (TGetNameFun)dlsym(dll, "GetAiName");
+		getAI = (TGetAIFun)dlsym(dll, methodName.c_str());
 	}
 	else
         logGlobal->errorStream() << "Error: " << dlerror();
-#endif
+#endif // VCMI_WINDOWS
 	if (!dll)
 	{
 		logGlobal->errorStream() << "Cannot open dynamic library ("<<libpath<<"). Throwing...";
