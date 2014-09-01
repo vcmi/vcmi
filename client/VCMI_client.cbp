@@ -104,6 +104,7 @@
 			<Add directory="$(#boost.include)" />
 			<Add directory="../include" />
 			<Add directory="../client" />
+			<Add directory="$(#ffmpeg.include)" />
 		</Compiler>
 		<Linker>
 			<Add option="-lole32" />
@@ -115,8 +116,13 @@
 			<Add option="-lboost_thread$(#boost.libsuffix)" />
 			<Add option="-lboost_chrono$(#boost.libsuffix)" />
 			<Add option="-lVCMI_lib" />
+			<Add option="-lavcodec.dll" />
+			<Add option="-lavformat.dll" />
+			<Add option="-lswscale.dll" />
+			<Add option="-lavutil.dll" />
 			<Add directory="$(#boost.lib32)" />
 			<Add directory="../" />
+			<Add directory="$(#ffmpeg.lib)" />
 		</Linker>
 		<Unit filename="../CCallback.cpp" />
 		<Unit filename="../CCallback.h" />
