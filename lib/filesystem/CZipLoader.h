@@ -16,7 +16,11 @@
 #include "CCompressedStream.h"
 
 // Necessary here in order to get all types
+#ifdef USE_SYSTEM_MINIZIP
+#include <minizip/unzip.h>
+#else
 #include "../minizip/unzip.h"
+#endif
 
 class DLL_LINKAGE CZipStream : public CBufferedStream
 {
