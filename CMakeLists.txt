@@ -198,12 +198,27 @@ SET(PCH_PROPERTIES
 	COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
 )
 
+find_path(MINIZIP_INCLUDE_PATH NAMES minizip/unzip.h)
+find_library(MINIZIP_LIB NAMES minizip PATH_SUFFIXES dynamic)
+mark_as_advanced(MINIZIP_INCLUDE_PATH MINIZIP_LIB)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(MINIZIP MINIZIP_INCLUDE_PATH MINIZIP_LIB)
+if (MINIZIP_FOUND)
+    set(MINIZIP_INCLUDE_DIR ${MINIZIP_INCLUDE_PATH})
+    set(MINIZIP_LIBRARIES ${MINIZIP_LIB})
+    add_definitions(-DUSE_SYSTEM_MINIZIP)
+endif()
+
 if (ENABLE_ERM)
 		add_subdirectory(scripting/erm)
 endif()
+if (NOT MINIZIP_FOUND)
+	add_subdirectory(lib/minizip)
+	set(MINIZIP_LIBRARIES minizip)
+endif()
 add_subdirectory(lib)
 add_subdirectory(client)
-add_subdirectory(lib/minizip)
 add_subdirectory(server)
 add_subdirectory(AI)
 if (ENABLE_EDITOR)
