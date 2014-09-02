@@ -1,7 +1,20 @@
 project(AI)
 cmake_minimum_required(VERSION 2.6)
 
-add_subdirectory(FuzzyLite)
+find_path(FUZZYLITE_INCLUDE_PATH NAMES fl/fuzzylite.h)
+find_library(FUZZYLITE_LIB NAMES fuzzylite PATH_SUFFIXES dynamic)
+mark_as_advanced(FUZZYLITE_INCLUDE_PATH FUZZYLITE_LIB)
+
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(FUZZYLITE FUZZYLITE_INCLUDE_PATH FUZZYLITE_LIB)
+if (FUZZYLITE_FOUND)
+    set (FUZZYLITE_LIBRARIES ${FUZZYLITE_LIB})
+    set (FUZZYLITE_INCLUDE_DIR ${FUZZYLITE_INCLUDE_PATH})
+endif()
+
+if (NOT FUZZYLITE_FOUND)
+    add_subdirectory(FuzzyLite/fuzzylite)
+endif()
 add_subdirectory(BattleAI)
 add_subdirectory(StupidAI)
 add_subdirectory(EmptyAI)

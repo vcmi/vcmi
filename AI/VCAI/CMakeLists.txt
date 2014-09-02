@@ -1,7 +1,11 @@
 project(VCAI)
 cmake_minimum_required(VERSION 2.6)
 
-include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib ${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite)
+if (FUZZYLITE_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib ${FUZZYLITE_INCLUDE_DIR})
+else()
+    include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib ${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite/fuzzylite)
+endif()
 
 set(VCAI_SRCS
 		StdInc.cpp
@@ -13,7 +17,11 @@ set(VCAI_SRCS
 )
 
 add_library(VCAI SHARED ${VCAI_SRCS})
-target_link_libraries(VCAI FuzzyLite_lib vcmi)
+if (FUZZYLITE_FOUND)
+    target_link_libraries(VCAI ${FUZZYLITE_LIBRARIES} vcmi)
+else()
+    target_link_libraries(VCAI fl-static vcmi)
+endif()
 
 set_target_properties(VCAI PROPERTIES ${PCH_PROPERTIES})
 cotire(VCAI)

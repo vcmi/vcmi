@@ -1,5 +1,5 @@
 #pragma once
-#include "../FuzzyLite/FuzzyLite.h"
+#include "fl/Headers.h"
 #include "Goals.h"
 
 /*
