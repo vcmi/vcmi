@@ -599,13 +599,13 @@ int main(int argc, char** argv)
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() + "/VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
 
-	preinitDLL(console);
-    settings.init();
-	logConfig.configure();
-
 	handleCommandOptions(argc, argv);
 	port = cmdLineOptions["port"].as<int>();
 	logNetwork->infoStream() << "Port " << port << " will be used.";
+
+	preinitDLL(console);
+	settings.init();
+	logConfig.configure();
 
 	loadDLLClasses();
 	srand ( (ui32)time(nullptr) );
