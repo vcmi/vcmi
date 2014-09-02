@@ -47,17 +47,17 @@ shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::st
 #ifdef VCMI_ANDROID
 	// this is awful but it seems using shared libraries on some devices is even worse
 	const std::string filename = libpath.filename().string();
-	if (filename != "libVCAI.so")
+	if (filename == "libVCAI.so")
 	{
 		getName = (TGetNameFun)VCAI_GetAiName;
 		getAI = (TGetAIFun)VCAI_GetNewAI;
 	}
-	else if (filename != "libStupidAI.so")
+	else if (filename == "libStupidAI.so")
 	{
 		getName = (TGetNameFun)StupidAI_GetAiName;
 		getAI = (TGetAIFun)StupidAI_GetNewBattleAI;
 	}
-	else if (filename != "libBattleAI.so")
+	else if (filename == "libBattleAI.so")
 	{
 		getName = (TGetNameFun)BattleAI_GetAiName;
 		getAI = (TGetAIFun)BattleAI_GetNewBattleAI;
