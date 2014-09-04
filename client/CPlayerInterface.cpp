@@ -25,6 +25,7 @@
 #include "../lib/Connection.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
+#include "../lib/mapObjects/CObjectClassesHandler.h" // For displaying correct UI when interacting with objects
 #include "../lib/BattleState.h"
 #include "../lib/JsonNode.h"
 #include "CMusicHandler.h"
@@ -1529,6 +1530,16 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if (LOCPLINT->cb->getCurrentPlayer() == playerID) {
+		std::string handlerName = VLC->objtypeh->getObjectHandlerName(obj->ID);
+        if ((handlerName == "pickable") || (handlerName == "scholar") || (handlerName== "artifact") || (handlerName == "pandora")) {
+			waitWhileDialog();
+			CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
+		} else if ((handlerName == "monster") || (handlerName == "hero")) {
+			waitWhileDialog();
+			CCS->soundh->playSound(soundBase::KillFade);
+		}
+	}
 	if(obj->ID == Obj::HERO  &&  obj->tempOwner == playerID)
 	{
 		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(obj);
