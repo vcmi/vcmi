@@ -20,7 +20,7 @@
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/Connection.h"
-#ifndef __ANDROID__
+#ifndef VCMI_ANDROID
 #include "../lib/Interprocess.h"
 #endif
 #include "../lib/NetPacks.h"
@@ -40,7 +40,7 @@
 #include "CMT.h"
 
 extern std::string NAME;
-#ifndef __ANDROID__
+#ifndef VCMI_ANDROID
 namespace intpr = boost::interprocess;
 #endif
 
@@ -780,8 +780,9 @@ std::string CClient::aiNameForPlayer(const PlayerSettings &ps, bool battleAI)
 {
 	if(ps.name.size())
 	{
-		std::string filename = VCMIDirs::get().libraryPath() + "/AI/" + VCMIDirs::get().libraryName(ps.name);
-		if(boost::filesystem::exists(filename))
+		const boost::filesystem::path aiPath =
+			VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(ps.name);
+		if (boost::filesystem::exists(aiPath))
 			return ps.name;
 	}
 
@@ -814,7 +815,7 @@ void CServerHandler::waitForServer()
 		startServer();
 
 	th.update();
-#ifndef __ANDROID__
+#ifndef VCMI_ANDROID
 	intpr::scoped_lock<intpr::interprocess_mutex> slock(shared->sr->mutex);
 	while(!shared->sr->ready)
 	{
@@ -827,7 +828,7 @@ void CServerHandler::waitForServer()
 
 CConnection * CServerHandler::connectToServer()
 {
-#ifndef __ANDROID__
+#ifndef VCMI_ANDROID
 	if(!shared->sr->ready)
 		waitForServer();
 #else
@@ -850,7 +851,7 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 	port = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
 	verbose = true;
 
-#ifndef __ANDROID__
+#ifndef VCMI_ANDROID
 	boost::interprocess::shared_memory_object::remove("vcmi_memory"); //if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
 	try
 	{
@@ -868,8 +869,8 @@ CServerHandler::~CServerHandler()
 void CServerHandler::callServer()
 {
 	setThreadName("CServerHandler::callServer");
-	std::string logName = VCMIDirs::get().userCachePath() + "/server_log.txt";
-	std::string comm = VCMIDirs::get().serverPath() + " --port=" + port + " > " + logName;
+	const std::string logName = (VCMIDirs::get().userCachePath() / "server_log.txt").string();
+	const std::string comm = VCMIDirs::get().serverPath().string() + " --port=" + port + " > \"" + logName + '\"';
 	int result = std::system(comm.c_str());
 	if (result == 0)
         logNetwork->infoStream() << "Server closed correctly";

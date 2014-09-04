@@ -1530,17 +1530,17 @@ class DLL_LINKAGE CLoadFile
 
 public:
 	std::string fName;
-	unique_ptr<std::ifstream> sfile;
+	unique_ptr<boost::filesystem::ifstream> sfile;
 
-	CLoadFile(const std::string &fname, int minimalVersion = version); //throws!
+	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = version); //throws!
 	~CLoadFile();
 	int read(void * data, unsigned size); //throws!
 
-	void openNextFile(const std::string &fname, int minimalVersion); //throws!
+	void openNextFile(const boost::filesystem::path & fname, int minimalVersion); //throws!
 	void clear();
     void reportState(CLogger * out);
 
-	void checkMagicBytes(const std::string &text);
+	void checkMagicBytes(const std::string & text);
 };
 
 class DLL_LINKAGE CLoadIntegrityValidator : public CISer<CLoadIntegrityValidator>

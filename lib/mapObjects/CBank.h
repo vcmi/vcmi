@@ -13,7 +13,7 @@
  *
  */
 
-class BankConfig;
+struct BankConfig;
 class CBankInstanceConstructor;
 
 class DLL_LINKAGE CBank : public CArmedInstance

@@ -41,17 +41,17 @@ std::string CFileInfo::getPath() const
 std::string CFileInfo::getExtension() const
 {
 	// Get position of file extension dot
-	size_t dotPos = name.find_last_of("/.");
+	size_t dotPos = name.find_last_of('.');
 
-	if(dotPos != std::string::npos && name[dotPos] == '.')
+	if(dotPos != std::string::npos)
 		return name.substr(dotPos);
-	else
-		return "";
+
+	return "";
 }
 
 std::string CFileInfo::getFilename() const
 {
-	size_t found = name.find_last_of("/\\");
+	const size_t found = name.find_last_of("/\\");
 	return name.substr(found + 1);
 }
 
@@ -60,9 +60,9 @@ std::string CFileInfo::getStem() const
 	std::string rslt = name;
 
 	// Remove file extension
-	size_t dotPos = name.find_last_of("/.");
+	const size_t dotPos = name.find_last_of('.');
 
-	if(dotPos != std::string::npos && name[dotPos] == '.')
+	if(dotPos != std::string::npos)
 		rslt.erase(dotPos);
 
 	return rslt;
@@ -70,18 +70,19 @@ std::string CFileInfo::getStem() const
 
 std::string CFileInfo::getBaseName() const
 {
-	size_t begin = name.find_last_of("/");
-	size_t end = name.find_last_of("/.");
-
-	if(end != std::string::npos && name[end] == '/')
-		end = std::string::npos;
+	size_t begin = name.find_last_of("/\\");
+	size_t end = name.find_last_of(".");
 
 	if(begin == std::string::npos)
 		begin = 0;
 	else
-		begin++;
+		++begin;
+	
+	if (end < begin)
+		end = std::string::npos;
 
-	return name.substr(begin, end - begin);
+	size_t len = (end == std::string::npos ? std::string::npos : end - begin);
+	return name.substr(begin, len);
 }
 
 EResType::Type CFileInfo::getType() const

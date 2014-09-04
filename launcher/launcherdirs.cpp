@@ -18,10 +18,10 @@ CLauncherDirs & CLauncherDirs::get()
 
 QString CLauncherDirs::downloadsPath()
 {
-	return QString::fromUtf8(VCMIDirs::get().userCachePath().c_str()) + "/downloads";
+	return pathToQString(VCMIDirs::get().userCachePath() / "downloads");
 }
 
 QString CLauncherDirs::modsPath()
 {
-	return QString::fromUtf8(VCMIDirs::get().userDataPath().c_str()) + "/Mods";
+	return pathToQString(VCMIDirs::get().userDataPath() / "Mods");
 }

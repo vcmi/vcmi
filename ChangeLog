@@ -3,6 +3,8 @@ GENERAL:
 * VCMI can now be compiled with SDL2
 * Better upscaling when running in fullscreen mode.
 * Non-latin characters can now be entered in chat window or used for save names.
+* (windows) Moved VCMI data directory from '%userprofile%\vcmi' to '%userprofile%\Documents\My Games\vcmi'
+* (windows, OSX) Moved VCMI save directory from 'VCMI_DATA\Games' to 'VCMI_DATA\Saves'
 
 RANDOM MAP GENERATOR:
 

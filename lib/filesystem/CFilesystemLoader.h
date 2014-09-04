@@ -30,7 +30,7 @@ public:
 	 *
 	 * @throws std::runtime_error if the base directory is not a directory or if it is not available
 	 */
-	explicit CFilesystemLoader(const std::string & mountPoint, const std::string & baseDirectory, size_t depth = 16, bool initial = false);
+	explicit CFilesystemLoader(std::string mountPoint, boost::filesystem::path baseDirectory, size_t depth = 16, bool initial = false);
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
@@ -39,11 +39,11 @@ public:
 	std::string getMountPoint() const override;
 	bool createResource(std::string filename, bool update = false) override;
 	boost::optional<std::string> getResourceName(const ResourceID & resourceName) const override;
-	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const;
+	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
 
 private:
 	/** The base directory which is scanned and indexed. */
-	std::string baseDirectory;
+	boost::filesystem::path baseDirectory;
 
 	std::string mountPoint;
 
@@ -51,7 +51,7 @@ private:
 	 * key = ResourceID for resource loader
 	 * value = name that can be used to access file
 	*/
-	std::unordered_map<ResourceID, std::string> fileList;
+	std::unordered_map<ResourceID, boost::filesystem::path> fileList;
 
 	/**
 	 * Returns a list of pathnames denoting the files in the directory denoted by this pathname.
@@ -62,5 +62,5 @@ private:
 	 * @return a list of pathnames denoting the files and directories in the directory denoted by this pathname
 	 * The array will be empty if the directory is empty. Ptr is null if the directory doesn't exist or if it isn't a directory.
 	 */
-	std::unordered_map<ResourceID, std::string> listFiles(const std::string &mountPoint, size_t depth, bool initial) const;
+	std::unordered_map<ResourceID, boost::filesystem::path> listFiles(const std::string &mountPoint, size_t depth, bool initial) const;
 };

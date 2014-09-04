@@ -94,11 +94,11 @@ public:
 	}
 
 	//returns squared distance on Oxy plane (z coord is not used)
-	si32 dist2dSQ(const int3 & o) const
+	ui32 dist2dSQ(const int3 & o) const
 	{
 		const si32 dx = (x - o.x);
 		const si32 dy = (y - o.y);
-		return dx*dx + dy*dy;
+		return (ui32)(dx*dx) + (ui32)(dy*dy);
 	}
 	//returns distance on Oxy plane (z coord is not used)
 	double dist2d(const int3 & o) const
@@ -157,15 +157,17 @@ struct ShashInt3
 static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 	int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
 
-//FIXME: make sure it's <int3> container and not just any
 template<typename Container>
 int3 findClosestTile (Container & container, int3 dest)
 {
-	int3 result(-1,-1,-1);
+	static_assert(std::is_same<typename Container::value_type, int3>::value,
+		"findClosestTile requires <int3> container.");
+
+	int3 result(-1, -1, -1);
 	ui32 distance = std::numeric_limits<ui32>::max();
-	for (int3 tile : container)
+	for (const int3& tile : container)
 	{
-		ui32 currentDistance = dest.dist2dSQ(tile);
+		const ui32 currentDistance = dest.dist2dSQ(tile);
 		if (currentDistance < distance)
 		{
 			result = tile;

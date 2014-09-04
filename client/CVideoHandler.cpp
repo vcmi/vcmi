@@ -23,7 +23,7 @@ static bool keyDown()
 }
 #endif
 
-#if defined(_WIN32)  &&  (_MSC_VER < 1800 ||  !defined(USE_FFMPEG))
+#if defined(VCMI_WINDOWS)  &&  (_MSC_VER < 1800 ||  !defined(USE_FFMPEG))
 
 void checkForError(bool throwing = true)
 {
