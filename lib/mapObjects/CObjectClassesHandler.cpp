@@ -318,6 +318,11 @@ std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
 	return getObjectName(type);
 }
 
+std::string CObjectClassesHandler::getObjectHandlerName(si32 type) const
+{
+	return objects.at(type)->handlerName;
+}
+
 void AObjectTypeHandler::setType(si32 type, si32 subtype)
 {
 	this->type = type;
