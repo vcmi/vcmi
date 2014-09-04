@@ -13,7 +13,7 @@ Editor::Editor(QWidget *parent)
 {
 	// Setup default logging(enough for now)
 	console = new CConsoleHandler;
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() + "/VCMI_Editor_log.txt", console);
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Editor_log.txt", console);
 	logConfig.configureDefault();
 
 	preinitDLL(console);

@@ -13,7 +13,7 @@
  *
  */
 
-class BattleInfo;
+struct BattleInfo;
 class CGameState;
 
 class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet

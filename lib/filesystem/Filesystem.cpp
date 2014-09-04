@@ -69,7 +69,7 @@ void CFilesystemGenerator::loadDirectory(const std::string &mountPoint, const Js
 	std::string URI = prefix + config["path"].String();
 	int depth = 16;
 	if (!config["depth"].isNull())
-		depth = config["depth"].Float();
+		depth = (int)config["depth"].Float();
 
 	ResourceID resID(URI, EResType::DIRECTORY);
 
@@ -130,7 +130,7 @@ ISimpleResourceLoader * CResourceHandler::createInitial()
 			auto filename = loader->getResourceName(ID);
 			if (filename)
 			{
-				auto dir = new CFilesystemLoader(URI + "/", *filename, depth, true);
+				auto dir = new CFilesystemLoader(URI + '/', *filename, depth, true);
 				initialLoader->addLoader(dir, false);
 			}
 		}

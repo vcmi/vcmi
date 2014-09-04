@@ -5,7 +5,7 @@
 #define strcpy_s(a, b, c) strncpy(a, c, b)
 #endif
 
-#ifdef __ANDROID__
+#ifdef VCMI_ANDROID
 #define GetGlobalAiVersion VCAI_GetGlobalAiVersion
 #define GetAiName VCAI_GetAiName
 #define GetNewAI VCAI_GetNewAI

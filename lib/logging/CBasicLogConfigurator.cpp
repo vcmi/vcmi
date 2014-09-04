@@ -3,11 +3,8 @@
 
 #include "../CConfigHandler.h"
 
-CBasicLogConfigurator::CBasicLogConfigurator(const std::string & filePath, CConsoleHandler * console) : filePath(filePath),
-	console(console), appendToLogFile(false)
-{
-
-}
+CBasicLogConfigurator::CBasicLogConfigurator(boost::filesystem::path filePath, CConsoleHandler * const console) :
+	filePath(std::move(filePath)), console(console), appendToLogFile(false) {}
 
 void CBasicLogConfigurator::configureDefault()
 {
@@ -21,7 +18,8 @@ void CBasicLogConfigurator::configure()
 	try
 	{
 		const JsonNode & loggingNode = settings["logging"];
-		if(loggingNode.isNull()) throw std::runtime_error("Settings haven't been loaded.");
+		if(loggingNode.isNull())
+			throw std::runtime_error("Settings haven't been loaded.");
 
 		// Configure loggers
 		const JsonNode & loggers = loggingNode["loggers"];
@@ -87,7 +85,7 @@ void CBasicLogConfigurator::configure()
 	logGlobal->infoStream() << "Initialized logging system based on settings successfully.";
 }
 
-ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & level) const
+ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & level)
 {
 	static const std::map<std::string, ELogLevel::ELogLevel> levelMap = boost::assign::map_list_of
 			("trace", ELogLevel::TRACE)
@@ -95,18 +93,15 @@ ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & leve
 			("info", ELogLevel::INFO)
 			("warn", ELogLevel::WARN)
 			("error", ELogLevel::ERROR);
+	
 	const auto & levelPair = levelMap.find(level);
 	if(levelPair != levelMap.end())
-	{
 		return levelPair->second;
-	}
 	else
-	{
 		throw std::runtime_error("Log level " + level + " unknown.");
-	}
 }
 
-EConsoleTextColor::EConsoleTextColor CBasicLogConfigurator::getConsoleColor(const std::string & colorName) const
+EConsoleTextColor::EConsoleTextColor CBasicLogConfigurator::getConsoleColor(const std::string & colorName)
 {
 	static const std::map<std::string, EConsoleTextColor::EConsoleTextColor> colorMap = boost::assign::map_list_of
 			("default", EConsoleTextColor::DEFAULT)
@@ -117,13 +112,10 @@ EConsoleTextColor::EConsoleTextColor CBasicLogConfigurator::getConsoleColor(cons
 			("white", EConsoleTextColor::WHITE)
 			("gray", EConsoleTextColor::GRAY)
 			("teal", EConsoleTextColor::TEAL);
+
 	const auto & colorPair = colorMap.find(colorName);
 	if(colorPair != colorMap.end())
-	{
 		return colorPair->second;
-	}
 	else
-	{
 		throw std::runtime_error("Color " + colorName + " unknown.");
-	}
 }

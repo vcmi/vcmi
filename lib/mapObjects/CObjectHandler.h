@@ -19,7 +19,7 @@
 class CGHeroInstance;
 class IGameCallback;
 class CGObjectInstance;
-class MetaString;
+struct MetaString;
 struct BattleResult;
 
 class DLL_LINKAGE IObjectInterface

@@ -39,7 +39,7 @@ CModManager::CModManager(CModList * modList):
 
 QString CModManager::settingsPath()
 {
-	return QString::fromUtf8(VCMIDirs::get().userConfigPath().c_str()) + "/modSettings.json";
+	return pathToQString(VCMIDirs::get().userConfigPath() / "modSettings.json");
 }
 
 void CModManager::loadModSettings()

@@ -17,7 +17,7 @@ boost::mutex CConsoleHandler::smx;
 
 DLL_LINKAGE CConsoleHandler * console = nullptr;
 
-#ifndef _WIN32
+#ifndef VCMI_WINDOWS
 	typedef std::string TColor;
 	#define CONSOLE_GREEN "\x1b[1;32m"
 	#define CONSOLE_RED "\x1b[1;31m"
@@ -27,7 +27,6 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 	#define CONSOLE_GRAY "\x1b[1;30m"
 	#define CONSOLE_TEAL "\x1b[1;36m"
 #else
-	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
 	#include <Windows.h>
 #ifndef __MINGW32__
 	#include <dbghelp.h>
@@ -36,6 +35,7 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 	typedef WORD TColor;
 	HANDLE handleIn;
 	HANDLE handleOut;
+	HANDLE handleErr;
 	#define CONSOLE_GREEN FOREGROUND_GREEN | FOREGROUND_INTENSITY
 	#define CONSOLE_RED FOREGROUND_RED | FOREGROUND_INTENSITY
 	#define CONSOLE_MAGENTA FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY
@@ -43,11 +43,13 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 	#define CONSOLE_WHITE FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
 	#define CONSOLE_GRAY FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
 	#define CONSOLE_TEAL FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
+
+	static TColor defErrColor;
 #endif
 
 static TColor defColor;
 
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
 
 void printWinError()
 {
@@ -178,8 +180,11 @@ void CConsoleHandler::setColor(EConsoleTextColor::EConsoleTextColor color)
         colorCode = defColor;
 		break;
 	}
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
     SetConsoleTextAttribute(handleOut, colorCode);
+	if (color == EConsoleTextColor::DEFAULT)
+		colorCode = defErrColor;
+	SetConsoleTextAttribute(handleErr, colorCode);
 #else
     std::cout << colorCode;
 #endif
@@ -194,7 +199,7 @@ int CConsoleHandler::run()
 
 	while ( std::cin.good() )
 	{
-#ifndef _WIN32
+#ifndef VCMI_WINDOWS
 		//check if we have some unreaded symbols
 		if (std::cin.rdbuf()->in_avail())
 		{
@@ -216,12 +221,17 @@ int CConsoleHandler::run()
 }
 CConsoleHandler::CConsoleHandler() : thread(nullptr)
 {
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
 	handleIn = GetStdHandle(STD_INPUT_HANDLE);
 	handleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	handleErr = GetStdHandle(STD_ERROR_HANDLE);
+
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(handleOut,&csbi);
 	defColor = csbi.wAttributes;
+
+	GetConsoleScreenBufferInfo(handleErr, &csbi);
+	defErrColor = csbi.wAttributes;
 #ifndef _DEBUG
 	SetUnhandledExceptionFilter(onUnhandledException);
 #endif
@@ -241,7 +251,7 @@ void CConsoleHandler::end()
 {
 	if (thread)
 	{
-#ifndef _WIN32
+#ifndef VCMI_WINDOWS
 		thread->interrupt();
 #else
 		TerminateThread(thread->native_handle(),0);

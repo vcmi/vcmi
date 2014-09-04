@@ -14,7 +14,7 @@
  *
  */
 
-class InfoWindow;
+struct InfoWindow;
 
 class DLL_LINKAGE CGPandoraBox : public CArmedInstance
 {
