@@ -1,11 +1,12 @@
 #pragma once
 
 
-#include "../lib/CondSh.h"
+//#include "../lib/CondSh.h"
 #include "../lib/FunctionList.h"
 #include "../lib/CGameInterface.h"
+#include "../lib/NetPacksBase.h"
 #include "gui/CIntObject.h"
-#include "../lib/CGameState.h"
+//#include "../lib/CGameState.h"
 
 #ifdef __GNUC__
 #define sprintf_s snprintf
@@ -29,8 +30,8 @@
  */
 
 class CDefEssential;
-class CAdventureMapButton;
-class CHighlightableButtonsGroup;
+class CButton;
+class CToggleGroup;
 class CDefHandler;
 struct TryMoveHero;
 class CDefEssential;

@@ -21,9 +21,6 @@ static bool keyDown()
 	}
 	return false;
 }
-#endif
-
-
 
 #ifdef _MSC_VER
 #pragma comment(lib, "avcodec.lib")
@@ -31,9 +28,6 @@ static bool keyDown()
 #pragma comment(lib, "avformat.lib")
 #pragma comment(lib, "swscale.lib")
 #endif // _MSC_VER
-
-
-#ifndef DISABLE_VIDEO
 
 // Define a set of functions to read data
 static int lodRead(void* opaque, uint8_t* buf, int size)

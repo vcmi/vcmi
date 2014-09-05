@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../../lib/FunctionList.h"
-#include "../CAnimation.h"
+#include "../gui/SDL_Extensions.h"
+#include "../widgets/Images.h"
 
 /*
  * CCreatureAnimation.h, part of VCMI engine

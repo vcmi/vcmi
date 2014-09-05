@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SDL_endian.h>
+
 #include "SDL_Extensions.h"
 
 /*

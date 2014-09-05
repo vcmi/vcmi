@@ -29,11 +29,6 @@
 			"label" : "Fullscreen",
 			"help"  : "{Fullscreen}\n\n If selected, VCMI will run in fullscreen mode, othervice VCMI will run in window",
 		},
-		"creatureWindowButton" :
-		{
-			"label" : "Classic creature window",
-			"help"  : "{Classic creature window}\n\n Enable original Heroes 3 creature window instead of new window from VCMI"
-		},
 		"resolutionButton" :
 		{
 			"label" : "Resolution",
@@ -54,5 +49,30 @@
 		"anyOf"  :  "Any of the following:",
 		"allOf"  :  "All of the following:",
 		"noneOf" : "None of the following:"
+	},
+	"heroWindow" : {
+		"openCommander" :
+		{
+			"label" : "Open commander window",
+			"help" : "Displays information about commander of this hero"
+		}
+	},
+	"creatureWindow" :
+	{
+		"showBonuses" :
+		{
+			"label" : "Switch to bonuses view",
+			"help" : "Displays all active bonuses of the commander"
+		},
+		"showSkills" :
+		{
+			"label" : "Switch to skills view",
+			"help" : "Displays all learned skills of the commander"
+		},
+		"returnArtifact" :
+		{
+			"label" : "Give back artifact",
+			"help" : "Use this button to return stack artifact back into hero backpack"
+		}
 	}
 }

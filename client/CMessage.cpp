@@ -11,17 +11,19 @@
 #include "StdInc.h"
 #include "CMessage.h"
 
-#include "SDL_ttf.h"
 #include "CDefHandler.h"
-#include "CAnimation.h"
 #include "CGameInfo.h"
 #include "gui/SDL_Extensions.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
-#include "GUIClasses.h"
+#include "windows/GUIClasses.h"
 #include "../lib/CConfigHandler.h"
 #include "CBitmapHandler.h"
-#include "gui/CIntObjectClasses.h"
+
+#include "widgets/CComponent.h"
+#include "windows/InfoWindows.h"
+#include "widgets/Buttons.h"
+#include "widgets/TextControls.h"
 
 const int BETWEEN_COMPS_ROWS = 10;
 const int BEFORE_COMPONENTS = 30;

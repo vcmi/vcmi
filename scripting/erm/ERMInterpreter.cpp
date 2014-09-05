@@ -368,19 +368,19 @@ void ERMInterpreter::scanForScripts()
 {
 	using namespace boost::filesystem;
 	//parser checking
-	if(!exists(VCMIDirs::get().dataPaths().back() + "/Data/s/"))
+	const path dataPath = VCMIDirs::get().dataPaths().back() / "Data" / "s";
+	if(!exists(dataPath))
 	{
-		logGlobal->warnStream() << "Warning: Folder " << VCMIDirs::get().dataPaths().back() << "/Data/s/ doesn't exist!";
+		logGlobal->warnStream() << "Warning: Folder " << dataPath << " doesn't exist!";
 		return;
 	}
 	directory_iterator enddir;
-	for (directory_iterator dir(VCMIDirs::get().dataPaths().back() + "/Data/s"); dir!=enddir; dir++)
+	for (directory_iterator dir(dataPath); dir!=enddir; dir++)
 	{
 		if(is_regular(dir->status()))
 		{
-			std::string name = dir->path().leaf().string();
-			if( boost::algorithm::ends_with(name, ".erm") ||
-				boost::algorithm::ends_with(name, ".verm") )
+			const std::string ext = boost::to_upper_copy(dir->path().extension().string());
+			if (ext == ".ERM" || ext == ".VERM")
 			{
 				ERMParser ep(dir->path().string());
 				FileInfo * finfo = new FileInfo;

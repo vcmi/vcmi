@@ -1,27 +1,31 @@
 #include "StdInc.h"
-#include "CAdvmapInterface.h"
+#include "windows/CAdvmapInterface.h"
 #include "battle/CBattleInterface.h"
 #include "battle/CBattleInterfaceClasses.h"
 #include "../CCallback.h"
-#include "CCastleInterface.h"
+#include "windows/CCastleInterface.h"
 #include "gui/CCursorHandler.h"
-#include "CKingdomInterface.h"
+#include "windows/CKingdomInterface.h"
 #include "CGameInfo.h"
-#include "CHeroWindow.h"
-#include "CCreatureWindow.h"
-#include "CQuestLog.h"
+#include "windows/CHeroWindow.h"
+#include "windows/CCreatureWindow.h"
+#include "windows/CQuestLog.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
 #include "gui/SDL_Extensions.h"
+#include "widgets/CComponent.h"
+#include "windows/CTradeWindow.h"
 #include "../lib/CConfigHandler.h"
 #include "battle/CCreatureAnimation.h"
 #include "Graphics.h"
+#include "windows/GUIClasses.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/Connection.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
+#include "../lib/mapObjects/CObjectClassesHandler.h" // For displaying correct UI when interacting with objects
 #include "../lib/BattleState.h"
 #include "../lib/JsonNode.h"
 #include "CMusicHandler.h"
@@ -35,14 +39,9 @@
 #include "../lib/CGameState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
+#include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
-
-#ifdef min
-#undef min
-#endif
-#ifdef max
-#undef max
-#endif
+#include <SDL.h>
 
 /*
  * CPlayerInterface.cpp, part of VCMI engine
@@ -245,10 +244,6 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 			return;
 	}
 
-	adventureInt->centerOn(hero); //actualizing screen pos
-	adventureInt->minimap.redraw();
-	adventureInt->heroList.redraw();
-
 	bool directlyAttackingCreature =
 		details.attackedFrom
 		&& adventureInt->terrain.currentPath					//in case if movement has been canceled in the meantime and path was already erased
@@ -305,12 +300,30 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		return;
 	}
 
+	ui32 speed;
+	if (makingTurn) // our turn, our hero moves
+		speed = settings["adventure"]["heroSpeed"].Float();
+	else
+		speed = settings["adventure"]["enemySpeed"].Float();
+
+	if (speed == 0)
+	{
+		//FIXME: is this a proper solution?
+		CGI->mh->hideObject(hero);
+		CGI->mh->printObject(hero);
+		return; // no animation
+	}
+
+
+	adventureInt->centerOn(hero); //actualizing screen pos
+	adventureInt->minimap.redraw();
+	adventureInt->heroList.redraw();
+
 	initMovement(details, hero, hp);
 
 	//first initializing done
 	GH.mainFPSmng->framerateDelay(); // after first move
 
-	ui32 speed = settings["adventure"]["heroSpeed"].Float();
 	//main moving
 	for(int i=1; i<32; i+=2*speed)
 	{
@@ -319,14 +332,14 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		adventureInt->show(screen);
 		{
 			//evil returns here ...
-			//todo: get rid of it 
+			//todo: get rid of it
 			logGlobal->traceStream() << "before [un]locks in " << __FUNCTION__;
 			auto unlockPim = vstd::makeUnlockGuard(*pim); //let frame to be rendered
 			GH.mainFPSmng->framerateDelay(); //for animation purposes
-			logGlobal->traceStream() << "after [un]locks in " << __FUNCTION__;		
+			logGlobal->traceStream() << "after [un]locks in " << __FUNCTION__;
 		}
 		//CSDL_Ext::update(screen);
-		
+
 	} //for(int i=1; i<32; i+=4)
 	//main moving done
 
@@ -494,10 +507,12 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 	waitWhileDialog();
 	CCS->soundh->playSound(soundBase::heroNewLevel);
 
-	CCreatureWindow * cw = new CCreatureWindow(skills, commander,
-												[=](ui32 selection){ cb->selectionMade(selection, queryID); });
-	GH.pushInt(cw);
+	GH.pushInt(new CStackWindow(commander, skills, [=](ui32 selection)
+	{
+		cb->selectionMade(selection, queryID);
+	}));
 }
+
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -1285,8 +1300,8 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	
 	if (adventureInt && adventureInt->isHeroSleeping(h))
 	{
-		adventureInt->sleepWake.clickLeft(true, false);
-		adventureInt->sleepWake.clickLeft(false, true);
+		adventureInt->sleepWake->clickLeft(true, false);
+		adventureInt->sleepWake->clickLeft(false, true);
 		//could've just called
 		//adventureInt->fsleepWake();
 		//but no authentic button click/sound ;-)
@@ -1321,7 +1336,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 	waitForAllDialogs();
 
 	auto  cgw = new CGarrisonWindow(up,down,removableUnits);
-	cgw->quit->callback += onEnd;
+	cgw->quit->addCallback(onEnd);
 	GH.pushInt(cgw);
 }
 
@@ -1515,6 +1530,16 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if (LOCPLINT->cb->getCurrentPlayer() == playerID) {
+		std::string handlerName = VLC->objtypeh->getObjectHandlerName(obj->ID);
+        if ((handlerName == "pickable") || (handlerName == "scholar") || (handlerName== "artifact") || (handlerName == "pandora")) {
+			waitWhileDialog();
+			CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
+		} else if ((handlerName == "monster") || (handlerName == "hero")) {
+			waitWhileDialog();
+			CCS->soundh->playSound(soundBase::KillFade);
+		}
+	}
 	if(obj->ID == Obj::HERO  &&  obj->tempOwner == playerID)
 	{
 		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(obj);
@@ -1601,22 +1626,20 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	path gamesDir = VCMIDirs::get().userSavePath();
 	std::map<std::time_t, int> dates; //save number => datestamp
 
-	directory_iterator enddir;
+	const directory_iterator enddir;
 	if(!exists(gamesDir))
 		create_directory(gamesDir);
-
-	for (directory_iterator dir(gamesDir); dir!=enddir; dir++)
+	else
+	for (directory_iterator dir(gamesDir); dir != enddir; ++dir)
 	{
 		if(is_regular(dir->status()))
 		{
-			std::string name = dir->path().leaf().string();
+			std::string name = dir->path().filename().string();
 			if(starts_with(name, namePrefix) && ends_with(name, ".vcgm1"))
 			{
 				char nr = name[namePrefix.size()];
 				if(std::isdigit(nr))
-				{
 					dates[last_write_time(dir->path())] = boost::lexical_cast<int>(nr);
-				}
 			}
 		}
 	}
@@ -2239,7 +2262,7 @@ void CPlayerInterface::acceptTurn()
 		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt()))
 			iw->close();
 
-		adventureInt->endTurn.callback();
+		adventureInt->fendTurn();
 	}
 
 	// warn player if he has no town

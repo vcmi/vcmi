@@ -13,9 +13,9 @@ ArchiveEntry::ArchiveEntry()
 
 }
 
-CArchiveLoader::CArchiveLoader(const std::string &mountPoint, const std::string & archive):
-    archive(archive),
-    mountPoint(mountPoint)
+CArchiveLoader::CArchiveLoader(std::string _mountPoint, boost::filesystem::path _archive) :
+    archive(std::move(_archive)),
+    mountPoint(std::move(_mountPoint))
 {
 	// Open archive file(.snd, .vid, .lod)
 	CFileInputStream fileStream(archive);
@@ -25,28 +25,19 @@ CArchiveLoader::CArchiveLoader(const std::string &mountPoint, const std::string 
 		return;
 
 	// Retrieve file extension of archive in uppercase
-	CFileInfo fileInfo(archive);
-	std::string ext = fileInfo.getExtension();
-	boost::to_upper(ext);
+	const std::string ext = boost::to_upper_copy(archive.extension().string());
 
 	// Init the specific lod container format
 	if(ext == ".LOD" || ext == ".PAC")
-	{
 		initLODArchive(mountPoint, fileStream);
-	}
 	else if(ext == ".VID")
-	{
 		initVIDArchive(mountPoint, fileStream);
-	}
 	else if(ext == ".SND")
-	{
 		initSNDArchive(mountPoint, fileStream);
-	}
 	else
-	{
-		throw std::runtime_error("LOD archive format unknown. Cannot deal with " + archive);
-	}
-	logGlobal->traceStream() << ext << "Archive loaded, " << entries.size() << " files found";
+		throw std::runtime_error("LOD archive format unknown. Cannot deal with " + archive.string());
+
+	logGlobal->traceStream() << ext << "Archive \""<<archive.filename()<<"\" loaded (" << entries.size() << " files found).";
 }
 
 void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStream & fileStream)
@@ -61,7 +52,7 @@ void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStr
 	fileStream.seek(0x5c);
 
 	// Insert entries to list
-	for(ui32 i = 0; i < totalFiles; i++)
+	for(ui32 i = 0; i < totalFiles; ++i)
 	{
 		char filename[16];
 		reader.read(reinterpret_cast<ui8*>(filename), 16);
@@ -90,7 +81,7 @@ void CArchiveLoader::initVIDArchive(const std::string &mountPoint, CFileInputStr
 	std::set<int> offsets;
 
 	// Insert entries to list
-	for(ui32 i = 0; i < totalFiles; i++)
+	for(ui32 i = 0; i < totalFiles; ++i)
 	{
 		char filename[40];
 		reader.read(reinterpret_cast<ui8*>(filename), 40);
@@ -122,7 +113,7 @@ void CArchiveLoader::initSNDArchive(const std::string &mountPoint, CFileInputStr
 	ui32 totalFiles = reader.readUInt32();
 
 	// Insert entries to list
-	for(ui32 i = 0; i < totalFiles; i++)
+	for(ui32 i = 0; i < totalFiles; ++i)
 	{
 		char filename[40];
 		reader.read(reinterpret_cast<ui8*>(filename), 40);

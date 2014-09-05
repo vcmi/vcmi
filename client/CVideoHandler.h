@@ -33,14 +33,13 @@ class CEmptyVideoPlayer : public IMainVideoPlayer
 public:
 	int curFrame() const override {return -1;};
 	int frameCount() const override {return -1;};
-	void redraw(int x, int y, SDL_Surface *dst, bool update = true) override {};
-	void show(int x, int y, SDL_Surface *dst, bool update = true) override{};
+	void redraw( int x, int y, SDL_Surface *dst, bool update = true ) override {};
+	void show( int x, int y, SDL_Surface *dst, bool update = true ) override {};
 	bool nextFrame() override {return false;};
 	void close() override {};
 	bool wait() override {return false;};
 	bool open(std::string name, bool scale = false) override {return false;};
 };
-
 
 #ifndef DISABLE_VIDEO
 

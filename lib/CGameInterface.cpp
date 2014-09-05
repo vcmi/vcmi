@@ -4,8 +4,7 @@
 #include "BattleState.h"
 #include "VCMIDirs.h"
 
-#ifdef _WIN32
-	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
+#ifdef VCMI_WINDOWS
 	#include <windows.h> //for .dll libs
 #else
 	#include <dlfcn.h>
@@ -22,7 +21,7 @@
  *
  */
 
-#ifdef __ANDROID__
+#ifdef VCMI_ANDROID
 // we can't use shared libraries on Android so here's a hack
 extern "C" DLL_EXPORT void VCAI_GetAiName(char* name);
 extern "C" DLL_EXPORT void VCAI_GetNewAI(shared_ptr<CGlobalAI> &out);
@@ -35,7 +34,7 @@ extern "C" DLL_EXPORT void BattleAI_GetNewBattleAI(shared_ptr<CBattleGameInterfa
 #endif
 
 template<typename rett>
-shared_ptr<rett> createAny(std::string dllname, std::string methodName)
+shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::string& methodName)
 {
 	typedef void(*TGetAIFun)(shared_ptr<rett>&); 
 	typedef void(*TGetNameFun)(char*); 
@@ -45,56 +44,60 @@ shared_ptr<rett> createAny(std::string dllname, std::string methodName)
 	TGetAIFun getAI = nullptr;
 	TGetNameFun getName = nullptr;
 
-#ifdef __ANDROID__
+#ifdef VCMI_ANDROID
 	// this is awful but it seems using shared libraries on some devices is even worse
-	if (dllname.find("libVCAI.so") != std::string::npos) {
+	const std::string filename = libpath.filename().string();
+	if (filename == "libVCAI.so")
+	{
 		getName = (TGetNameFun)VCAI_GetAiName;
 		getAI = (TGetAIFun)VCAI_GetNewAI;
-	} else if (dllname.find("libStupidAI.so") != std::string::npos) {
+	}
+	else if (filename == "libStupidAI.so")
+	{
 		getName = (TGetNameFun)StupidAI_GetAiName;
 		getAI = (TGetAIFun)StupidAI_GetNewBattleAI;
-	} else if (dllname.find("libBattleAI.so") != std::string::npos) {
+	}
+	else if (filename == "libBattleAI.so")
+	{
 		getName = (TGetNameFun)BattleAI_GetAiName;
 		getAI = (TGetAIFun)BattleAI_GetNewBattleAI;
-	} else {
-		throw std::runtime_error("Don't know what to do with " + dllname + " and method " + methodName);
 	}
-#else
-
-#ifdef _WIN32
-	HINSTANCE dll = LoadLibraryA(dllname.c_str());
+	else
+		throw std::runtime_error("Don't know what to do with " + libpath.string() + " and method " + methodName);
+#else // !VCMI_ANDROID
+#ifdef VCMI_WINDOWS
+	HMODULE dll = LoadLibraryW(libpath.c_str());
 	if (dll)
 	{
-		getName = (TGetNameFun)GetProcAddress(dll,"GetAiName");
-		getAI = (TGetAIFun)GetProcAddress(dll,methodName.c_str());
+		getName = (TGetNameFun)GetProcAddress(dll, "GetAiName");
+		getAI = (TGetAIFun)GetProcAddress(dll, methodName.c_str());
 	}
-#else
-	void *dll = dlopen(dllname.c_str(), RTLD_LOCAL | RTLD_LAZY);
+#else // !VCMI_WINDOWS
+	void *dll = dlopen(libpath.string().c_str(), RTLD_LOCAL | RTLD_LAZY);
 	if (dll)
 	{
-		getName = (TGetNameFun)dlsym(dll,"GetAiName");
-		getAI = (TGetAIFun)dlsym(dll,methodName.c_str());
+		getName = (TGetNameFun)dlsym(dll, "GetAiName");
+		getAI = (TGetAIFun)dlsym(dll, methodName.c_str());
 	}
 	else
         logGlobal->errorStream() << "Error: " << dlerror();
-#endif
+#endif // VCMI_WINDOWS
 	if (!dll)
 	{
-        logGlobal->errorStream() << "Cannot open dynamic library ("<<dllname<<"). Throwing...";
+		logGlobal->errorStream() << "Cannot open dynamic library ("<<libpath<<"). Throwing...";
 		throw std::runtime_error("Cannot open dynamic library");
 	}
 	else if(!getName || !getAI)
 	{
-        logGlobal->errorStream() << dllname << " does not export method " << methodName;
-#ifdef _WIN32
+		logGlobal->errorStream() << libpath << " does not export method " << methodName;
+#ifdef VCMI_WINDOWS
 		FreeLibrary(dll);
 #else
 		dlclose(dll);
 #endif
 		throw std::runtime_error("Cannot find method " + methodName);
 	}
-
-#endif // __ANDROID__
+#endif // VCMI_ANDROID
 
 	getName(temp);
     logGlobal->infoStream() << "Loaded " << temp;
@@ -108,13 +111,13 @@ shared_ptr<rett> createAny(std::string dllname, std::string methodName)
 }
 
 template<typename rett>
-shared_ptr<rett> createAnyAI(std::string dllname, std::string methodName)
+shared_ptr<rett> createAnyAI(std::string dllname, const std::string& methodName)
 {
-    logGlobal->infoStream() << "Opening " << dllname;
-	std::string filename = VCMIDirs::get().libraryName(dllname);
-
-	auto ret = createAny<rett>(VCMIDirs::get().libraryPath() + "/AI/" + filename, methodName);
-	ret->dllName = dllname;
+	logGlobal->infoStream() << "Opening " << dllname;
+	const boost::filesystem::path filePath =
+		VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(dllname);
+	auto ret = createAny<rett>(filePath, methodName);
+	ret->dllName = std::move(dllname);
 	return ret;
 }
 

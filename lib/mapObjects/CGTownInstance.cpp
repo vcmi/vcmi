@@ -34,13 +34,11 @@ void CGDwelling::initObj()
 
 			if (getOwner() != PlayerColor::NEUTRAL)
 				cb->gameState()->players[getOwner()].dwellings.push_back (this);
-		}
-			//putStack(SlotID(0), new CStackInstance(CreatureID::GOLD_GOLEM, 9));
-			//putStack(SlotID(1), new CStackInstance(CreatureID::DIAMOND_GOLEM, 6));
 
-			//putStack(SlotID(0), new CStackInstance(CreatureID::EARTH_ELEMENTAL, 12));
+			assert(!creatures.empty());
+			assert(!creatures[0].second.empty());
 			break;
-
+		}
 	case Obj::REFUGEE_CAMP:
 		//is handled within newturn func
 		break;

@@ -16,10 +16,11 @@
 #endif
 
 #include <SDL_video.h>
-#include <SDL_ttf.h>
+#include <SDL_events.h>
 #include "../../lib/int3.h"
-#include "../Graphics.h"
+//#include "../Graphics.h"
 #include "Geometries.h"
+#include "../../lib/GameConstants.h"
 
 
 //A macro to force inlining some of our functions. Compiler (at least MSVC) is not so smart here-> without that displaying is MUCH slower
@@ -141,15 +142,16 @@ typename boost::enable_if_c<boost::is_unsigned<T>::type, T>::type abs(T arg)
 }
 
 template<typename IntType>
-std::string makeNumberShort(IntType number) //the output is a string containing at most 5 characters [4 if positive] (eg. intead 10000 it gives 10k)
+std::string makeNumberShort(IntType number, IntType maxLength = 3) //the output is a string containing at most 5 characters [4 if positive] (eg. intead 10000 it gives 10k)
 {
-	if (abs(number) < 1000)
+	IntType max = pow(10, maxLength);
+	if (abs(number) < max)
 		return boost::lexical_cast<std::string>(number);
 
-	std::string symbols = "kMGTPE";
+	std::string symbols = " kMGTPE";
 	auto iter = symbols.begin();
 
-	while (number >= 1000)
+	while (number >= max)
 	{
 		number /= 1000;
 		iter++;

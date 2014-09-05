@@ -347,7 +347,7 @@ void CSaveFile::putMagicBytes( const std::string &text )
 	write(text.c_str(), text.length());
 }
 
-CLoadFile::CLoadFile(const std::string &fname, int minimalVersion /*= version*/)
+CLoadFile::CLoadFile(const boost::filesystem::path & fname, int minimalVersion /*= version*/)
 {
 	registerTypes(*this);
 	openNextFile(fname, minimalVersion);
@@ -363,33 +363,33 @@ int CLoadFile::read(void * data, unsigned size)
 	return size;
 }
 
-void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
+void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalVersion)
 {
 	assert(!reverseEndianess);
 	assert(minimalVersion <= version);
 
 	try
 	{
-		fName = fname;
-		sfile = make_unique<std::ifstream>(fname, std::ios::binary);
+		fName = fname.string();
+		sfile = make_unique<boost::filesystem::ifstream>(fname, std::ios::binary);
 		sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
 
 		if(!(*sfile))
-			THROW_FORMAT("Error: cannot open to read %s!", fname);
+			THROW_FORMAT("Error: cannot open to read %s!", fName);
 
 		//we can read
 		char buffer[4];
 		sfile->read(buffer, 4);
 		if(std::memcmp(buffer,"VCMI",4))
-			THROW_FORMAT("Error: not a VCMI file(%s)!", fname);
+			THROW_FORMAT("Error: not a VCMI file(%s)!", fName);
 
 		*this >> fileVersion;	
 		if(fileVersion < minimalVersion)
-			THROW_FORMAT("Error: too old file format (%s)!", fname);
+			THROW_FORMAT("Error: too old file format (%s)!", fName);
 
 		if(fileVersion > version)
 		{
-			logGlobal->warnStream() << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % fileVersion % version % fname;
+			logGlobal->warnStream() << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % fileVersion % version % fName;
 
 			auto versionptr = (char*)&fileVersion;
 			std::reverse(versionptr, versionptr + 4);
@@ -401,7 +401,7 @@ void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 				reverseEndianess = true;
 			}
 			else
-				THROW_FORMAT("Error: too new file format (%s)!", fname);
+				THROW_FORMAT("Error: too new file format (%s)!", fName);
 		}
 	}
 	catch(...)

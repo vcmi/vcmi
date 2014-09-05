@@ -17,22 +17,16 @@
 struct DLL_LINKAGE BattleHex
 {
 	static const si16 INVALID = -1;
-	enum EDir{RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, LEFT, TOP_LEFT, TOP_RIGHT};
+	enum EDir { RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, LEFT, TOP_LEFT, TOP_RIGHT };
 
 	si16 hex;
 
 	BattleHex() : hex(INVALID) {}
 	BattleHex(si16 _hex) : hex(_hex) {}
 	
-	operator si16() const
-	{
-		return hex;
-	}
+	operator si16() const { return hex; }
 
-	bool isValid() const
-	{
-		return hex >= 0 && hex < GameConstants::BFIELD_SIZE;
-	}
+	bool isValid() const { return hex >= 0 && hex < GameConstants::BFIELD_SIZE; }
 
 	template<typename inttype>
 	BattleHex(inttype x, inttype y)
@@ -61,9 +55,7 @@ struct DLL_LINKAGE BattleHex
 	void setXY(si16 x, si16 y, bool hasToBeValid = true)
 	{
 		if(hasToBeValid)
-		{
-			assert(x >= 0 && x < GameConstants::BFIELD_WIDTH && y >= 0  && y < GameConstants::BFIELD_HEIGHT);
-		}
+			assert(x >= 0 && x < GameConstants::BFIELD_WIDTH && y >= 0 && y < GameConstants::BFIELD_HEIGHT);
 		hex = x + y * GameConstants::BFIELD_WIDTH;
 	}
 
@@ -73,28 +65,23 @@ struct DLL_LINKAGE BattleHex
 		setXY(xy.first, xy.second);
 	}
 
-	si16 getY() const
-	{
-		return hex / GameConstants::BFIELD_WIDTH;
-	}
+	si16 getY() const { return hex / GameConstants::BFIELD_WIDTH; }
+	si16 getX() const { return hex % GameConstants::BFIELD_WIDTH; }
 
-	si16 getX() const
-	{
-		int pos = hex - getY() * GameConstants::BFIELD_WIDTH;
-		return pos;
-	}
-
-	std::pair<si16, si16> getXY() const
-	{
-		return std::make_pair(getX(), getY());
-	}
+	std::pair<si16, si16> getXY() const { return std::make_pair(getX(), getY()); }
 
 	//moving to direction
 	BattleHex& moveInDir(EDir dir, bool hasToBeValid = true); 
-	void operator+=(EDir dir); //sugar for above
+	BattleHex& operator+=(EDir dir) { return moveInDir(dir); } //sugar for above
 
 	//generates new BattleHex moved by given dir
-	BattleHex operator+(EDir dir) const;
+	BattleHex movedInDir(EDir dir, bool hasToBeValid = true) const
+	{
+		BattleHex result(*this);
+		result.moveInDir(dir, hasToBeValid);
+		return result;
+	}
+	BattleHex operator+(EDir dir) const { return movedInDir(dir); }
 
 	std::vector<BattleHex> neighbouringTiles() const;
 

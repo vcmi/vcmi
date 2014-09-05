@@ -17,50 +17,48 @@ template <typename T> struct CondSh
 	boost::condition_variable cond;
 	boost::mutex mx;
 
-	CondSh()
-	{}
+	CondSh() {}
+	CondSh(T t) : data(t) {}
 
-	CondSh(T t)
-	{
-		data = t;
-	}
-
+	// set data
 	void set(T t)
 	{
 		boost::unique_lock<boost::mutex> lock(mx); 
-		data=t;
+		data = t;
 	} 
 
-	void setn(T t) //set data and notify
+	// set data and notify
+	void setn(T t)
 	{
-		{
-			boost::unique_lock<boost::mutex> lock(mx); 
-			data=t;
-		}
+		set(t);
 		cond.notify_all();
 	};
 
-	T get() //get stored value
+	// get stored value
+	T get()
 	{
 		boost::unique_lock<boost::mutex> lock(mx); 
 		return data;
 	}
 
-	void waitWhileTrue() //waits until data is set to false
+	// waits until data is set to false
+	void waitWhileTrue()
 	{
 		boost::unique_lock<boost::mutex> un(mx);
 		while(data)
 			cond.wait(un);
 	}
 
-	void waitWhile(const T &t) //waits while data is set to arg
+	// waits while data is set to arg
+	void waitWhile(const T & t)
 	{
 		boost::unique_lock<boost::mutex> un(mx);
 		while(data == t)
 			cond.wait(un);
 	}
 
-	void waitUntil(const T &t) //waits until data is set to arg
+	// waits until data is set to arg
+	void waitUntil(const T & t)
 	{
 		boost::unique_lock<boost::mutex> un(mx);
 		while(data != t)

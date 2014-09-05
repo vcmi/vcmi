@@ -2,9 +2,11 @@
 #include "CCursorHandler.h"
 
 #include <SDL.h>
+
 #include "SDL_Extensions.h"
-#include "../CAnimation.h"
 #include "CGuiHandler.h"
+#include "widgets/Images.h"
+
 #include "../CMT.h"
 
 /*

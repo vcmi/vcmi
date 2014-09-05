@@ -1,29 +1,34 @@
 #include "StdInc.h"
 #include "CBattleInterfaceClasses.h"
 
-#include "../gui/SDL_Extensions.h"
 #include "CBattleInterface.h"
-#include "../CGameInfo.h"
-#include "../CDefHandler.h"
-#include "../gui/CCursorHandler.h"
-#include "../CPlayerInterface.h"
-#include "../../CCallback.h"
-#include "../CSpellWindow.h"
-#include "../Graphics.h"
-#include "../../lib/CConfigHandler.h"
-#include "../gui/CGuiHandler.h"
-#include "../gui/CIntObjectClasses.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/NetPacks.h"
-#include "../../lib/CCreatureHandler.h"
-#include "../../lib/BattleState.h"
-#include "../../lib/StartInfo.h"
-#include "../CMusicHandler.h"
-#include "../CVideoHandler.h"
-#include "../../lib/CTownHandler.h"
+
 #include "../CBitmapHandler.h"
-#include "../CCreatureWindow.h"
+#include "../CDefHandler.h"
+#include "../CGameInfo.h"
 #include "../CMessage.h"
+#include "../CMusicHandler.h"
+#include "../CPlayerInterface.h"
+#include "../CVideoHandler.h"
+#include "../Graphics.h"
+#include "../gui/CCursorHandler.h"
+#include "../gui/CGuiHandler.h"
+#include "../gui/SDL_Extensions.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/TextControls.h"
+#include "../windows/CCreatureWindow.h"
+#include "../windows/CSpellWindow.h"
+
+#include "../../CCallback.h"
+#include "../../lib/BattleState.h"
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/CCreatureHandler.h"
+#include "../../lib/CGameState.h"
+#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/CTownHandler.h"
+#include "../../lib/NetPacks.h"
+#include "../../lib/StartInfo.h"
+#include "../../lib/CondSh.h"
 
 /*
  * CBattleInterfaceClasses.cpp, part of VCMI engine
@@ -258,26 +263,23 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	background = new CPicture("comopbck.bmp");
 	background->colorize(owner->getCurrentPlayerInterface()->playerID);
 
-	viewGrid = new CHighlightableButton(std::bind(&CBattleInterface::setPrintCellBorders, owner, true), std::bind(&CBattleInterface::setPrintCellBorders, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[427].first)(3,CGI->generaltexth->zelp[427].first), CGI->generaltexth->zelp[427].second, false, "sysopchk.def", nullptr, 25, 56, false);
-	viewGrid->select(settings["battle"]["cellBorders"].Bool());
-	movementShadow = new CHighlightableButton(std::bind(&CBattleInterface::setPrintStackRange, owner, true), std::bind(&CBattleInterface::setPrintStackRange, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[428].first)(3,CGI->generaltexth->zelp[428].first), CGI->generaltexth->zelp[428].second, false, "sysopchk.def", nullptr, 25, 89, false);
-	movementShadow->select(settings["battle"]["stackRange"].Bool());
-	mouseShadow = new CHighlightableButton(std::bind(&CBattleInterface::setPrintMouseShadow, owner, true), std::bind(&CBattleInterface::setPrintMouseShadow, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[429].first)(3,CGI->generaltexth->zelp[429].first), CGI->generaltexth->zelp[429].second, false, "sysopchk.def", nullptr, 25, 122, false);
-	mouseShadow->select(settings["battle"]["mouseShadow"].Bool());
+	viewGrid = new CToggleButton(Point(25, 56), "sysopchk.def", CGI->generaltexth->zelp[427], [&](bool on){owner->setPrintCellBorders(on);} );
+	viewGrid->setSelected(settings["battle"]["cellBorders"].Bool());
+	movementShadow = new CToggleButton(Point(25, 89), "sysopchk.def", CGI->generaltexth->zelp[428], [&](bool on){owner->setPrintStackRange(on);});
+	movementShadow->setSelected(settings["battle"]["stackRange"].Bool());
+	mouseShadow = new CToggleButton(Point(25, 122), "sysopchk.def", CGI->generaltexth->zelp[429], [&](bool on){owner->setPrintMouseShadow(on);});
+	mouseShadow->setSelected(settings["battle"]["mouseShadow"].Bool());
 
-	animSpeeds = new CHighlightableButtonsGroup(0);
-	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[422].first),CGI->generaltexth->zelp[422].second, "sysopb9.def", 28, 225, 40);
-	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[423].first),CGI->generaltexth->zelp[423].second, "sysob10.def", 92, 225, 63);
-	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[424].first),CGI->generaltexth->zelp[424].second, "sysob11.def",156, 225, 100);
-	animSpeeds->select(owner->getAnimSpeed(), 1);
-	animSpeeds->onChange = std::bind(&CBattleInterface::setAnimSpeed, owner, _1);
+	animSpeeds = new CToggleGroup([&](int value){ owner->setAnimSpeed(value);});
+	animSpeeds->addToggle(40,  new CToggleButton(Point( 28, 225), "sysopb9.def", CGI->generaltexth->zelp[422]));
+	animSpeeds->addToggle(63,  new CToggleButton(Point( 92, 225), "sysob10.def", CGI->generaltexth->zelp[423]));
+	animSpeeds->addToggle(100, new CToggleButton(Point(156, 225), "sysob11.def", CGI->generaltexth->zelp[424]));
+	animSpeeds->setSelected(owner->getAnimSpeed());
 
-	setToDefault = new CAdventureMapButton (CGI->generaltexth->zelp[393], std::bind(&CBattleOptionsWindow::bDefaultf,this), 246, 359, "codefaul.def");
-	setToDefault->swappedImages = true;
-	setToDefault->update();
-	exit = new CAdventureMapButton (CGI->generaltexth->zelp[392], std::bind(&CBattleOptionsWindow::bExitf,this), 357, 359, "soretrn.def",SDLK_RETURN);
-	exit->swappedImages = true;
-	exit->update();
+	setToDefault = new CButton (Point(246, 359), "codefaul.def", CGI->generaltexth->zelp[393], [&]{ bDefaultf(); });
+	setToDefault->setImageOrder(1, 0, 2, 3);
+	exit = new CButton (Point(357, 359), "soretrn.def", CGI->generaltexth->zelp[392], [&]{ bExitf();}, SDLK_RETURN);
+	exit->setImageOrder(1, 0, 2, 3);
 
 	//creating labels
 	labels.push_back(new CLabel(242,  32, FONT_BIG,    CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[392]));//window title
@@ -307,6 +309,7 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 
 void CBattleOptionsWindow::bDefaultf()
 {
+	//TODO: implement
 }
 
 void CBattleOptionsWindow::bExitf()
@@ -322,9 +325,8 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	CPicture * bg = new CPicture("CPRESULT");
 	bg->colorize(owner.playerID);
 
-	exit = new CAdventureMapButton ("", "", std::bind(&CBattleResultWindow::bExitf,this), 384, 505, "iok6432.def", SDLK_RETURN);
+	exit = new CButton (Point(384, 505), "iok6432.def", std::make_pair("", ""), [&]{ bExitf();}, SDLK_RETURN);
 	exit->borderColor = Colors::METALLIC_GOLD;
-	exit->borderEnabled = true;
 
 	if(br.winner==0) //attacker won
 	{
@@ -606,7 +608,7 @@ void CClickableHex::clickRight(tribool down, bool previousState)
 		if(!myst->alive()) return;
 		if(down)
 		{
-			GH.pushInt(createCreWindow(myst));
+			GH.pushInt(new CStackWindow(myst, true));
 		}
 	}
 }
@@ -701,7 +703,7 @@ CStackQueue::StackBox::StackBox(bool small):
     small(small)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture(small ? "StackQueueBgSmall" : "StackQueueBgBig" );
+	bg = new CPicture(small ? "StackQueueSmall" : "StackQueueLarge" );
 
 	if (small)
 	{

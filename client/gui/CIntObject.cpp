@@ -1,8 +1,14 @@
 #include "StdInc.h"
 #include "CIntObject.h"
+
 #include "CGuiHandler.h"
 #include "SDL_Extensions.h"
 #include "../CMessage.h"
+
+IShowActivatable::IShowActivatable()
+{
+	type = 0;
+}
 
 void ILockedUpdatable::runLocked(std::function<void(IUpdateable*)> cb)
 {
@@ -316,6 +322,19 @@ bool CIntObject::captureThisEvent(const SDL_KeyboardEvent & key)
 {
 	return captureAllKeys;
 }
+
+CKeyShortcut::CKeyShortcut()
+{}
+
+CKeyShortcut::CKeyShortcut(int key)
+{
+	if (key != SDLK_UNKNOWN)
+		assignedKeys.insert(key);
+}
+
+CKeyShortcut::CKeyShortcut(std::set<int> Keys)
+    :assignedKeys(Keys)
+{}
 
 void CKeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 {

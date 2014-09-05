@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SDL_video.h>
-#include <SDL_events.h>
 #include "../../lib/int3.h"
 
 /*
@@ -21,6 +20,7 @@
 #undef min
 #endif
 
+struct SDL_MouseMotionEvent;
 
 // A point with x/y coordinate, used mostly for graphic rendering
 struct Point
@@ -38,9 +38,7 @@ struct Point
 	Point(const int3 &a)
 		:x(a.x),y(a.y)
 	{}
-	Point(const SDL_MouseMotionEvent &a)
-		:x(a.x),y(a.y)
-	{}
+	Point(const SDL_MouseMotionEvent &a);
 
 	template<typename T>
 	Point operator+(const T &b) const

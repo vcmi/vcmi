@@ -22,7 +22,7 @@ class JsonNode;
 class DLL_LINKAGE CBasicLogConfigurator
 {
 public:
-	CBasicLogConfigurator(const std::string & filePath, CConsoleHandler * console);
+	CBasicLogConfigurator(boost::filesystem::path filePath, CConsoleHandler * const console);
 
 	/// Configures the logging system by parsing the logging settings. It adds the console target and the file target to the global logger.
 	/// Doesn't throw, but logs on success or fault.
@@ -30,12 +30,15 @@ public:
 
 	/// Configures a default logging system by adding the console target and the file target to the global logger.
 	void configureDefault();
-
 private:
-	ELogLevel::ELogLevel getLogLevel(const std::string & level) const;
-	EConsoleTextColor::EConsoleTextColor getConsoleColor(const std::string & colorName) const;
+	// Gets ELogLevel enum from string. (Should be moved to CLogger as a separate function?)
+	// Throws: std::runtime_error
+	static ELogLevel::ELogLevel getLogLevel(const std::string & level);
+	// Gets EConsoleTextColor enum from strings. (Should be moved to CLogger as a separate function?)
+	// Throws: std::runtime_error
+	static EConsoleTextColor::EConsoleTextColor getConsoleColor(const std::string & colorName);
 
-	std::string filePath;
+	boost::filesystem::path filePath;
 	CConsoleHandler * console;
 	bool appendToLogFile;
 };
