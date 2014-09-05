@@ -1,31 +1,80 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="AdventureMapClasses.cpp" />
-    <ClCompile Include="CAdvmapInterface.cpp" />
-    <ClCompile Include="CAnimation.cpp" />
-    <ClCompile Include="..\CCallback.cpp" />
     <ClCompile Include="CBitmapHandler.cpp" />
-    <ClCompile Include="CCastleInterface.cpp" />
-    <ClCompile Include="CCreatureWindow.cpp" />
     <ClCompile Include="CDefHandler.cpp" />
     <ClCompile Include="CGameInfo.cpp" />
-    <ClCompile Include="CHeroWindow.cpp" />
-    <ClCompile Include="CKingdomInterface.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="CMessage.cpp" />
     <ClCompile Include="CMT.cpp" />
     <ClCompile Include="CMusicHandler.cpp" />
     <ClCompile Include="CPlayerInterface.cpp" />
     <ClCompile Include="CPreGame.cpp" />
-    <ClCompile Include="CSpellWindow.cpp" />
     <ClCompile Include="CVideoHandler.cpp" />
     <ClCompile Include="Graphics.cpp" />
-    <ClCompile Include="GUIClasses.cpp" />
     <ClCompile Include="mapHandler.cpp" />
     <ClCompile Include="NetPacksClient.cpp" />
     <ClCompile Include="StdInc.cpp" />
-    <ClCompile Include="CQuestLog.cpp" />
+    <ClCompile Include="windows\CAdvmapInterface.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\CCastleInterface.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\CCreatureWindow.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\CHeroWindow.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\CKingdomInterface.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\CQuestLog.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\CSpellWindow.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\CTradeWindow.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\CWindowObject.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\GUIClasses.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\InfoWindows.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\AdventureMapClasses.cpp">
+      <Filter>widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\Buttons.cpp">
+      <Filter>widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\CArtifactHolder.cpp">
+      <Filter>widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\CComponent.cpp">
+      <Filter>widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\CGarrisonInt.cpp">
+      <Filter>widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\Images.cpp">
+      <Filter>widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\MiscWidgets.cpp">
+      <Filter>widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\ObjectLists.cpp">
+      <Filter>widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\TextControls.cpp">
+      <Filter>widgets</Filter>
+    </ClCompile>
     <ClCompile Include="battle\CBattleAnimations.cpp">
       <Filter>battle</Filter>
     </ClCompile>
@@ -38,6 +87,9 @@
     <ClCompile Include="battle\CCreatureAnimation.cpp">
       <Filter>battle</Filter>
     </ClCompile>
+    <ClCompile Include="gui\CAnimation.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
     <ClCompile Include="gui\CCursorHandler.cpp">
       <Filter>gui</Filter>
     </ClCompile>
@@ -45,9 +97,6 @@
       <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="gui\CIntObject.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\CIntObjectClasses.cpp">
       <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="gui\Fonts.cpp">
@@ -61,35 +110,109 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Global.h" />
-    <ClInclude Include="AdventureMapClasses.h" />
-    <ClInclude Include="CAdvmapInterface.h" />
-    <ClInclude Include="CAnimation.h" />
-    <ClInclude Include="CBitmapHandler.h" />
-    <ClInclude Include="..\CCallback.h" />
-    <ClInclude Include="CCastleInterface.h" />
-    <ClInclude Include="CCreatureWindow.h" />
-    <ClInclude Include="CDefHandler.h" />
-    <ClInclude Include="CGameInfo.h" />
-    <ClInclude Include="CHeroWindow.h" />
-    <ClInclude Include="CKingdomInterface.h" />
-    <ClInclude Include="Client.h" />
-    <ClInclude Include="CMessage.h" />
-    <ClInclude Include="CMusicHandler.h" />
-    <ClInclude Include="CPlayerInterface.h" />
-    <ClInclude Include="CPreGame.h" />
-    <ClInclude Include="CSpellWindow.h" />
-    <ClInclude Include="CVideoHandler.h" />
-    <ClInclude Include="FontBase.h" />
-    <ClInclude Include="Graphics.h" />
-    <ClInclude Include="GUIClasses.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="StdInc.h" />
-    <ClInclude Include="CQuestLog.h" />
     <ClCompile Include="CQuestLog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VCMI_client.rc" />
+    <ClInclude Include="CQuestLog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vcmi.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="battle">
+      <UniqueIdentifier>{c25dc848-6e1b-4a9b-b6f2-517626e9a23d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui">
+      <UniqueIdentifier>{cec5376d-0f32-475e-bf51-3dbae35c6b98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="widgets">
+      <UniqueIdentifier>{2b5b57d6-28ba-4bcf-9691-0977171866d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{c9fcce39-f3af-4621-996c-0df7695134bd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CBitmapHandler.h" />
+    <ClInclude Include="CDefHandler.h" />
+    <ClInclude Include="CGameInfo.h" />
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="CMessage.h" />
+    <ClInclude Include="CMT.h" />
+    <ClInclude Include="CMusicHandler.h" />
+    <ClInclude Include="CPlayerInterface.h" />
+    <ClInclude Include="CPreGame.h" />
+    <ClInclude Include="CVideoHandler.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="mapHandler.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="SDLMain.h" />
+    <ClInclude Include="StdInc.h" />
+    <ClInclude Include="windows\CAdvmapInterface.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\CCastleInterface.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\CCreatureWindow.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\CHeroWindow.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\CKingdomInterface.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\CQuestLog.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\CSpellWindow.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\CTradeWindow.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\CWindowObject.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\GUIClasses.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\InfoWindows.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="widgets\AdventureMapClasses.h">
+      <Filter>widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="widgets\Buttons.h">
+      <Filter>widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="widgets\CArtifactHolder.h">
+      <Filter>widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="widgets\CComponent.h">
+      <Filter>widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="widgets\CGarrisonInt.h">
+      <Filter>widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="widgets\Images.h">
+      <Filter>widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="widgets\MiscWidgets.h">
+      <Filter>widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="widgets\ObjectLists.h">
+      <Filter>widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="widgets\TextControls.h">
+      <Filter>widgets</Filter>
+    </ClInclude>
     <ClInclude Include="battle\CBattleAnimations.h">
       <Filter>battle</Filter>
     </ClInclude>
@@ -102,6 +225,9 @@
     <ClInclude Include="battle\CCreatureAnimation.h">
       <Filter>battle</Filter>
     </ClInclude>
+    <ClInclude Include="gui\CAnimation.h">
+      <Filter>gui</Filter>
+    </ClInclude>
     <ClInclude Include="gui\CCursorHandler.h">
       <Filter>gui</Filter>
     </ClInclude>
@@ -111,13 +237,13 @@
     <ClInclude Include="gui\CIntObject.h">
       <Filter>gui</Filter>
     </ClInclude>
-    <ClInclude Include="gui\CIntObjectClasses.h">
-      <Filter>gui</Filter>
-    </ClInclude>
     <ClInclude Include="gui\Fonts.h">
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="gui\Geometries.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\SDL_Compat.h">
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="gui\SDL_Extensions.h">
@@ -126,24 +252,5 @@
     <ClInclude Include="gui\SDL_Pixels.h">
       <Filter>gui</Filter>
     </ClInclude>
-    <ClInclude Include="gui\SDL_Compat.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="VCMI_client.rc" />
-    <ClInclude Include="CQuestLog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\ChangeLog" />
-    <None Include="vcmi.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="battle">
-      <UniqueIdentifier>{c25dc848-6e1b-4a9b-b6f2-517626e9a23d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="gui">
-      <UniqueIdentifier>{cec5376d-0f32-475e-bf51-3dbae35c6b98}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
 </Project>
