@@ -66,16 +66,16 @@ void CSelWindow::selectionChange(unsigned to)
 	redraw();
 }
 
-CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperline, const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, QueryID askID)
+CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperline, const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string, CFunctionList<void()> > > &Buttons, QueryID askID)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ID = askID;
-	for(int i=0;i<Buttons.size();i++)
+	for (int i = 0; i < Buttons.size(); i++)
 	{
-		buttons.push_back(new CButton(Point(0,0), Buttons[i].first, CButton::tooltip(), Buttons[i].second));
-		if(!i  &&  askID.getNum() >= 0)
-			buttons.back()->addCallback(std::bind(&CSelWindow::madeChoice,this));
-		buttons[i]->addCallback(std::bind(&CInfoWindow::close,this)); //each button will close the window apart from call-defined actions
+		buttons.push_back(new CButton(Point(0, 0), Buttons[i].first, CButton::tooltip(), Buttons[i].second));
+		if (!i  &&  askID.getNum() >= 0)
+			buttons.back()->addCallback(std::bind(&CSelWindow::madeChoice, this));
+		buttons[i]->addCallback(std::bind(&CInfoWindow::close, this)); //each button will close the window apart from call-defined actions
 	}
 
 	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::WHITE);
@@ -83,8 +83,13 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
 	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
 
-	if(buttons.size() > 1  &&  askID.getNum() >= 0) //cancel button functionality
-		buttons.back()->addCallback(std::bind(&CCallback::selectionMade,LOCPLINT->cb.get(),0,askID));
+	if (buttons.size() > 1 && askID.getNum() >= 0) //cancel button functionality
+	{
+		buttons.back()->addCallback([askID]() {
+			LOCPLINT->cb.get()->selectionMade(0, askID);
+		});
+		//buttons.back()->addCallback(std::bind(&CCallback::selectionMade, LOCPLINT->cb.get(), 0, askID));
+	}
 
 	for(int i=0;i<comps.size();i++)
 	{

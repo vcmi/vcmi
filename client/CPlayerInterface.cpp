@@ -1349,7 +1349,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
  * is false.
  * @param assemble True if the artifact is to be assembled, false if it is to be disassembled.
  */
-void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo)
+void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<bool()> onYes, CFunctionList<bool()> onNo)
 {
 	const CArtifact &artifact = *CGI->arth->artifacts[artifactID];
 	std::string text = artifact.Description();

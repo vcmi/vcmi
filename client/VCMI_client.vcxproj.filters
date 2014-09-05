@@ -108,6 +108,7 @@
     <ClCompile Include="gui\SDL_Extensions.cpp">
       <Filter>gui</Filter>
     </ClCompile>
+    <ClCompile Include="..\CCallback.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CQuestLog.cpp">
@@ -252,5 +253,6 @@
     <ClInclude Include="gui\SDL_Pixels.h">
       <Filter>gui</Filter>
     </ClInclude>
+    <ClInclude Include="..\CCallback.h" />
   </ItemGroup>
 </Project>

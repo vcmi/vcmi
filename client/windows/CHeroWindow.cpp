@@ -297,7 +297,12 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 void CHeroWindow::dismissCurrent()
 {
 	CFunctionList<void()> ony = std::bind(&CHeroWindow::close,this);
-	ony += std::bind(&CCallback::dismissHero, LOCPLINT->cb.get(), curHero);
+	//ony += std::bind(&CCallback::dismissHero, LOCPLINT->cb.get(), curHero); //can't assign bool function to void function list :(
+	auto dismiss = [=]() -> void
+	{
+		LOCPLINT->cb.get()->dismissHero(curHero);
+	};
+	ony += dismiss;
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, 0, false);
 }
 

@@ -174,6 +174,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\CCallback.cpp" />
     <ClCompile Include="battle\CBattleAnimations.cpp" />
     <ClCompile Include="battle\CBattleInterface.cpp" />
     <ClCompile Include="battle\CBattleInterfaceClasses.cpp" />
@@ -198,7 +199,9 @@
     <ClCompile Include="gui\SDL_Extensions.cpp" />
     <ClCompile Include="mapHandler.cpp" />
     <ClCompile Include="NetPacksClient.cpp" />
-    <ClCompile Include="StdInc.cpp" />
+    <ClCompile Include="StdInc.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="widgets\AdventureMapClasses.cpp" />
     <ClCompile Include="widgets\Buttons.cpp" />
     <ClCompile Include="widgets\CArtifactHolder.cpp" />
@@ -221,6 +224,7 @@
     <ClCompile Include="windows\InfoWindows.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\CCallback.h" />
     <ClInclude Include="battle\CBattleAnimations.h" />
     <ClInclude Include="battle\CBattleInterface.h" />
     <ClInclude Include="battle\CBattleInterfaceClasses.h" />

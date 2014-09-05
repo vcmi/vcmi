@@ -217,7 +217,7 @@ public:
 	void yourTacticPhase(int distance) override;
 
 	//-------------//
-	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo);
+	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<bool()> onYes, CFunctionList<bool()> onNo);
 	void garrisonsChanged(std::vector<const CGObjectInstance *> objs);
 	void garrisonChanged(const CGObjectInstance * obj);
 	void heroKilled(const CGHeroInstance* hero);
