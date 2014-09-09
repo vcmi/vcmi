@@ -1,0 +1,32 @@
+INSTALL
+=======
+
+(1) Make sure you uninstall previous versions of fuzzylite from your computer.
+
+(2) The following building script is available in folder `fuzzylite/fuzzylite/`:
+```
+#In Windows,
+> build.bat help
+Usage:  build.bat [options]
+where   [options] can be any of the following:
+    all          builds fuzzylite in debug and release mode (default)
+    debug        builds fuzzylite in debug mode
+    release      builds fuzzylite in release mode
+    clean        erases previous builds
+    help         shows this information
+
+#In Unix, from fuzzylite/fuzzylite
+$ ./build.sh help
+Usage:  [bash] ./build.sh [options]
+where   [options] can be any of the following:
+    all          builds fuzzylite in debug and release mode (default)
+    debug        builds fuzzylite in debug mode
+    release      builds fuzzylite in release mode
+    clean        erases previous builds
+    help         shows this information
+```
+
+(3) After executing the script, the binaries will be built and stored in sub-folders `release/bin` and `debug/bin`
+
+
+For more advanced building options, please check the contents of `fuzzylite/fuzzylite/build.[bat|sh]` and the contents of `fuzzylite/fuzzylite/CMakeLists.txt`.
