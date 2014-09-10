@@ -4757,9 +4757,11 @@ void CGameHandler::handleTimeEvents()
 	while(gs->map->events.size() && gs->map->events.front().firstOccurence+1 == gs->day)
 	{
 		CMapEvent ev = gs->map->events.front();
-		for(int player = 0; player < PlayerColor::PLAYER_LIMIT_I; player++)
+		
+		for (auto p : gs->players)
 		{
-			PlayerState *pinfo = gs->getPlayer(PlayerColor(player));
+			auto player = p.first.getNum();
+			auto pinfo = &p.second;
 
 			if( pinfo  //player exists
 				&& (ev.players & 1<<player) //event is enabled to this player

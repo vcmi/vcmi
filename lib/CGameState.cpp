@@ -3521,6 +3521,6 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 
 CRandomGenerator & CGameState::getRandomGenerator()
 {
-	logGlobal->traceStream() << "Fetching CGameState::rand with seed " << rand.nextInt();
+	//logGlobal->traceStream() << "Fetching CGameState::rand with seed " << rand.nextInt();
 	return rand;
 }
