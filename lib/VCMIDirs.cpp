@@ -26,6 +26,14 @@ void IVCMIDirs::init()
 
 #ifdef VCMI_WINDOWS
 
+#ifdef __MINGW32__
+    #define _WIN32_IE 0x0500
+
+	#ifndef CSIDL_MYDOCUMENTS
+	#define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
+	#endif    
+#endif // __MINGW32__
+
 #include <Windows.h>
 #include <Shlobj.h>
 #include <Shellapi.h>
