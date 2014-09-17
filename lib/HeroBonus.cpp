@@ -858,9 +858,14 @@ void CBonusSystemNode::newChildAttached(CBonusSystemNode *child)
 
 void CBonusSystemNode::childDetached(CBonusSystemNode *child)
 {
-	assert(vstd::contains(children, child));
-	children -= child;
-	//BONUS_LOG_LINE(child->nodeName() << " #detached from# " << nodeName());
+	if (vstd::contains(children, child))
+		children -= child;
+	else
+	{
+		logBonus->errorStream() << std::string("Error!" + child->nodeName() + " #cannot be detached from# " + nodeName());
+		assert(0);
+	}
+	
 }
 
 void CBonusSystemNode::detachFromAll()

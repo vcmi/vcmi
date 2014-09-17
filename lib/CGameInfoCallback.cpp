@@ -391,7 +391,7 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 
 	if(ID == BuildingID::CAPITOL)
 	{
-		const PlayerState *ps = getPlayer(t->tempOwner);
+		const PlayerState *ps = getPlayer(t->tempOwner, false);
 		if(ps)
 		{
 			for(const CGTownInstance *t : ps->towns)
