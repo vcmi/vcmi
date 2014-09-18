@@ -357,17 +357,37 @@ int main(int argc, char** argv)
 			
 			std::string driverName(info.name);
 			
-						
-			logGlobal->infoStream() << "\t" << driverName;
-			
 			if(!preferredDriverName.empty() && driverName == preferredDriverName)
 			{
 				preferredDriverIndex = it;
-				logGlobal->infoStream() << "\t\twill select this";
-			}					
+				logGlobal->infoStream() << "\t" << driverName << " (active)";
+			}
+			else
+				logGlobal->infoStream() << "\t" << driverName;
 		}			
 		#endif // VCMI_SDL1	
 		
+		config::CConfigHandler::GuiOptionsMap::key_type resPair(res["width"].Float(), res["height"].Float());
+		if (conf.guiOptions.count(resPair) == 0)
+		{
+			// selected resolution was not found - complain & fallback to something that we do have.
+			logGlobal->errorStream() << "Selected resolution " << resPair.first << "x" << resPair.second << " was not found!";
+			if (conf.guiOptions.empty())
+			{
+				logGlobal->errorStream() << "Unable to continue - no valid resolutions found! Please reinstall VCMI to fix this";
+				exit(1);
+			}
+			else
+			{
+				Settings newRes = settings.write["video"]["screenRes"];
+				newRes["width"].Float()  = conf.guiOptions.begin()->first.first;
+				newRes["height"].Float() = conf.guiOptions.begin()->first.second;
+				conf.SetResolution(newRes["width"].Float(), newRes["height"].Float());
+
+				logGlobal->errorStream() << "Falling back to " << newRes["width"].Float() << "x" << newRes["height"].Float();
+			}
+		}
+
 		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
 		logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
 	}
