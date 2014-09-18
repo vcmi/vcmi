@@ -54,7 +54,7 @@ public:
 	//town
 	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)=0;
 	virtual bool buildBuilding(const CGTownInstance *town, BuildingID buildingID)=0;
-	virtual void recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui32 amount, si32 level=-1)=0;
+	virtual void recruitCreatures(const CGDwelling *obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 
@@ -117,7 +117,7 @@ public:
 	virtual int3 getGuardingCreaturePosition(int3 tile); //uses main, client pathfinder info
 
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1);
-	virtual void recalculatePaths(); //updates main, client pathfinder info (should be called when moving hero is over)
+	virtual void recalculatePaths(const CGHeroInstance * hero); //updates main, client pathfinder info (should be called when moving hero is over)
 
 	//Set of metrhods that allows adding more interfaces for this player that'll receive game event call-ins.
 	void registerGameInterface(shared_ptr<IGameEventsReceiver> gameEvents);
@@ -142,7 +142,7 @@ public:
 	//bool moveArtifact(const CStackInstance * stack, ui16 src , const CGHeroInstance * hero, ui16 dest); // TODO: unify classes
 	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo);
 	bool buildBuilding(const CGTownInstance *town, BuildingID buildingID) override;
-	void recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui32 amount, si32 level=-1);
+	void recruitCreatures(const CGDwelling * obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1);
 	bool dismissCreature(const CArmedInstance *obj, SlotID stackPos);
 	bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE) override;
 	void endTurn();

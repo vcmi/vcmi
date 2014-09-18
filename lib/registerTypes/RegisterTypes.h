@@ -298,7 +298,6 @@ void registerTypesClientPacks2(Serializer &s)
 	s.template registerType<CArtifactOperationPack, DisassembledArtifact>();
 
 	s.template registerType<CPackForClient, SaveGame>();
-	s.template registerType<CPackForClient, SetSelection>();
 	s.template registerType<CPackForClient, PlayerMessage>();
 }
 
@@ -332,7 +331,6 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, CommitPackage>();
 
 	s.template registerType<CPackForServer, SaveGame>();
-	s.template registerType<CPackForServer, SetSelection>();
 	s.template registerType<CPackForServer, PlayerMessage>();
 }
 

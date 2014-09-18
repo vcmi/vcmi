@@ -1464,7 +1464,7 @@ void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const C
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
-	auto recruitCb = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(dwelling, id, count, -1); };
+	auto recruitCb = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(dwelling, dst, id, count, -1); };
 	CRecruitmentWindow *cr = new CRecruitmentWindow(dwelling, level, dst, recruitCb);
 	GH.pushInt(cr);
 }
@@ -2183,6 +2183,13 @@ void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho, bool check
 	paths.erase(ho);
 	adventureInt->terrain.currentPath = nullptr;
 	adventureInt->updateMoveHero(ho, false);
+}
+
+void CPlayerInterface::updateCurrentHeroPath()
+{
+	//TODO? lazy evaluation? paths now can get recalculated multiple times upon various game events
+	if (currentSelection)//if we have selected hero...
+		calculatePaths(currentSelection);
 }
 
 void CPlayerInterface::removeLastNodeFromPath(const CGHeroInstance *ho)

@@ -2562,7 +2562,7 @@ void CGameHandler::sendMessageToAll( const std::string &message )
 	sendToAllClients(&sm);
 }
 
-bool CGameHandler::recruitCreatures( ObjectInstanceID objid, CreatureID crid, ui32 cram, si32 fromLvl )
+bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dstid, CreatureID crid, ui32 cram, si32 fromLvl )
 {
 	const CGDwelling *dw = static_cast<const CGDwelling*>(gs->getObj(objid));
 	const CArmedInstance *dst = nullptr;
@@ -2570,14 +2570,8 @@ bool CGameHandler::recruitCreatures( ObjectInstanceID objid, CreatureID crid, ui
 	bool warMachine = c->hasBonusOfType(Bonus::SIEGE_WEAPON);
 
 	//TODO: test for owning
-
-	if(dw->ID == Obj::TOWN)
-		dst = (static_cast<const CGTownInstance *>(dw))->getUpperArmy();
-	else if(dw->ID == Obj::CREATURE_GENERATOR1  ||  dw->ID == Obj::CREATURE_GENERATOR4
-		||  dw->ID == Obj::REFUGEE_CAMP) //advmap dwelling
-		dst = getHero(gs->getPlayer(dw->tempOwner)->currentSelection); //TODO: check if current hero is really visiting dwelling
-	else if(dw->ID == Obj::WAR_MACHINE_FACTORY)
-		dst = dynamic_cast<const CGHeroInstance *>(getTile(dw->visitablePos())->visitableObjects.back());
+	//TODO: check if dst can recruit objects (e.g. hero is actually visiting object, town and source are same, etc)
+	dst = dynamic_cast<const CArmedInstance*>(getObj(dstid));
 
 	assert(dw && dst);
 
@@ -3785,7 +3779,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 }
 
 void CGameHandler::playerMessage( PlayerColor player, const std::string &message )
-{
+{/*
 	bool cheated=true;
 	PlayerMessage temp_message(player, message);
 
@@ -3934,7 +3928,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		SystemMessage temp_message(VLC->generaltexth->allTexts.at(260));
 		sendAndApply(&temp_message);
 		checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
-	}
+	}*/
 }
 
 void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex destination, ui8 casterSide, PlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,

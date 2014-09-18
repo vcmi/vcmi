@@ -664,8 +664,8 @@ void VCAI::makeTurn()
 		}
 			break;
 	}
-	if(cb->getSelectedHero())
-		cb->recalculatePaths();
+	//FIXME: necessary? How to re-enable?
+	//cb->recalculatePaths(cb->getSelectedHero());
 
 	markHeroAbleToExplore (primaryHero());
 
@@ -793,7 +793,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 	switch (obj->ID)
 	{
 		case Obj::CREATURE_GENERATOR1:
-			recruitCreatures (dynamic_cast<const CGDwelling *>(obj));
+			recruitCreatures (dynamic_cast<const CGDwelling *>(obj), h.get());
 			checkHeroArmy (h);
 			break;
 		case Obj::TOWN:
@@ -926,7 +926,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 	}
 }
 
-void VCAI::recruitCreatures(const CGDwelling * d)
+void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter)
 {
 	for(int i = 0; i < d->creatures.size(); i++)
 	{
@@ -941,7 +941,7 @@ void VCAI::recruitCreatures(const CGDwelling * d)
 
 		amin(count, freeResources() / VLC->creh->creatures[creID]->cost);
 		if(count > 0)
-			cb->recruitCreatures(d, creID, count, i);
+			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
 }
 
@@ -1653,7 +1653,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		if(path.nodes.empty())
 		{
             logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
-			cb->recalculatePaths();
+			cb->recalculatePaths(h.get());
 			throw goalFulfilledException (sptr(Goals::VisitTile(dst).sethero(h)));
 		}
 
@@ -1702,7 +1702,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				reserveObject(h, obj);
 		}
 
-		cb->recalculatePaths();
+		cb->recalculatePaths(h.get());
 		if (startHpos == h->visitablePos() && !ret) //we didn't move and didn't reach the target
 		{
 			erase_if_present (lockedHeroes, h); //hero seemingly is confused
@@ -2212,7 +2212,7 @@ void VCAI::buildArmyIn(const CGTownInstance * t)
 {
 	makePossibleUpgrades(t->visitingHero);
 	makePossibleUpgrades(t);
-	recruitCreatures(t);
+	recruitCreatures(t, t);
 	moveCreaturesToHero(t);
 }
 

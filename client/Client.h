@@ -160,7 +160,6 @@ public:
 	void proposeNextMission(shared_ptr<CCampaignState> camp);
 	void invalidatePaths(const CGHeroInstance *h = nullptr); //invalidates paths for hero h or for any hero if h is nullptr => they'll got recalculated when the next query comes
 	void calculatePaths(const CGHeroInstance *h);
-	void updatePaths(); //calls calculatePaths for same hero for which we previously calculated paths
 
 	bool terminate;	// tell to terminate
 	boost::thread *connectionHandler; //thread running run() method

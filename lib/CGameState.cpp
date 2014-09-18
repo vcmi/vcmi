@@ -2965,7 +2965,7 @@ void CGPath::convert( ui8 mode )
 }
 
 PlayerState::PlayerState()
- : color(-1), currentSelection(0xffffffff), enteredWinningCheatCode(0),
+ : color(-1), enteredWinningCheatCode(0),
    enteredLosingCheatCode(0), status(EPlayerStatus::INGAME)
 {
 	setNodeType(PLAYER);

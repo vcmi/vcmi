@@ -114,7 +114,7 @@ bool BuildStructure::applyGh( CGameHandler *gh )
 
 bool RecruitCreatures::applyGh( CGameHandler *gh )
 {
-	return gh->recruitCreatures(tid,crid,amount,level);
+	return gh->recruitCreatures(tid,dst,crid,amount,level);
 }
 
 bool UpgradeCreature::applyGh( CGameHandler *gh )
@@ -286,17 +286,5 @@ bool PlayerMessage::applyGh( CGameHandler *gh )
 	ERROR_IF_NOT(player);
 	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
 	gh->playerMessage(player,text);
-	return true;
-}
-
-bool SetSelection::applyGh( CGameHandler *gh )
-{
-	ERROR_IF_NOT(player);
-	if(!gh->getObj(id))
-	{
-        logNetwork->errorStream() << "No such object...";
-		ERROR_AND_RETURN;
-	}
-	gh->sendAndApply(this);
 	return true;
 }

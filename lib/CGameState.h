@@ -164,7 +164,6 @@ struct DLL_LINKAGE PlayerState : public CBonusSystemNode
 public:
 	PlayerColor color;
 	bool human; //true if human controlled player, false for AI
-	ObjectInstanceID currentSelection; //id of hero/town, 0xffffffff if none
 	TeamID team;
 	TResources resources;
 	std::set<ObjectInstanceID> visitedObjects; // as a std::set, since most accesses here will be from visited status checks
@@ -183,7 +182,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & color & human & currentSelection & team & resources & status;
+		h & color & human & team & resources & status;
 		h & heroes & towns & availableHeroes & dwellings & visitedObjects;
 		h & getBonusList(); //FIXME FIXME FIXME
 		h & status & daysWithoutCastle;

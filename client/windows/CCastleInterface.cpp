@@ -777,7 +777,7 @@ void CCastleBuildings::enterCastleGate()
 void CCastleBuildings::enterDwelling(int level)
 {
 	assert(level >= 0 && level < town->creatures.size());
-	auto recruitCb = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, id, count, level); };
+	auto recruitCb = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town, id, count, level); };
 	GH.pushInt(new CRecruitmentWindow(town, level, town, recruitCb, -87));
 }
 
@@ -1066,7 +1066,7 @@ void CCreaInfo::clickLeft(tribool down, bool previousState)
 	if(previousState && (!down))
 	{
 		int offset = LOCPLINT->castleInt? (-87) : 0;
-		auto recruitCb = [=](CreatureID id, int count) { LOCPLINT->cb->recruitCreatures(town, id, count, level); };
+		auto recruitCb = [=](CreatureID id, int count) { LOCPLINT->cb->recruitCreatures(town, town, id, count, level); };
 		GH.pushInt(new CRecruitmentWindow(town, level, town, recruitCb, offset));
 	}
 }

@@ -542,14 +542,6 @@ void CClient::handlePack( CPack * pack )
 	delete pack;
 }
 
-void CClient::updatePaths()
-{
-	//TODO? lazy evaluation? paths now can get recalculated multiple times upon various game events
-	const CGHeroInstance *h = getSelectedHero();
-	if (h)//if we have selected hero...
-		calculatePaths(h);
-}
-
 void CClient::finishCampaign( shared_ptr<CCampaignState> camp )
 {
 }
