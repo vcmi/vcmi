@@ -170,8 +170,13 @@ namespace config
 		~CConfigHandler(void); //d-tor
 
 		GUIOptions *go() { return current; };
-		void SetResolution(int x, int y) {
-			current = &guiOptions[std::pair<int,int>(x, y)];
+		void SetResolution(int x, int y)
+		{
+			std::pair<int,int> index(x, y);
+			if (guiOptions.count(index) == 0)
+				current = nullptr;
+			else
+				current = &guiOptions.at(index);
 		}
 	};
 }
