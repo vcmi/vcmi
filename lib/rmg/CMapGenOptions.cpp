@@ -183,8 +183,8 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	if(!mapTemplate)
 	{
 		mapTemplate = getPossibleTemplate(rand);
-		assert(mapTemplate);
 	}
+	assert(mapTemplate);
 
 	if(playerCount == RANDOM_SIZE)
 	{
@@ -219,6 +219,9 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	{
 		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(EMonsterStrength::GLOBAL_WEAK, EMonsterStrength::GLOBAL_STRONG));
 	}
+
+	assert (vstd::iswithin(waterContent, EWaterContent::NONE, EWaterContent::ISLANDS));
+	assert (vstd::iswithin(monsterStrength, EMonsterStrength::GLOBAL_WEAK, EMonsterStrength::GLOBAL_STRONG));
 
 	//rectangular maps are the future of gaming
 	//setHeight(20);

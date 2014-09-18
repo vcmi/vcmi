@@ -112,15 +112,20 @@ std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, in
 
 std::string CMapGenerator::getMapDescription() const
 {
+	assert(mapGenOptions);
+	assert(map);
+
 	const std::string waterContentStr[3] = { "none", "normal", "islands" };
 	const std::string monsterStrengthStr[3] = { "weak", "normal", "strong" };
+
+	int monsterStrengthIndex = mapGenOptions->getMonsterStrength() - EMonsterStrength::GLOBAL_WEAK; //does not start from 0
 
     std::stringstream ss;
     ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
         ", levels %s, humans %d, computers %d, water %s, monster %s, second expansion map") % mapGenOptions->getMapTemplate()->getName() %
 		randomSeed % map->width % map->height % (map->twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions->getPlayerCount()) %
 		static_cast<int>(mapGenOptions->getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions->getWaterContent()] %
-        monsterStrengthStr[mapGenOptions->getMonsterStrength()]);
+		monsterStrengthStr[monsterStrengthIndex]);
 
 	for(const auto & pair : mapGenOptions->getPlayersSettings())
 	{

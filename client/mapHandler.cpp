@@ -212,6 +212,7 @@ void CMapHandler::roadsRiverTerrainInit()
 	}
 
 	// Create enough room for the whole map and its frame
+
 	ttiles.resize(sizes.x, frameW, frameW);
 	for (int i=0-frameW;i<ttiles.size()-frameW;i++)
 	{
