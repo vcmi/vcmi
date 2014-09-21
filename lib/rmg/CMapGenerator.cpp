@@ -257,10 +257,24 @@ void CMapGenerator::fillZones()
 		 //we need info about all town types to evaluate dwellings and pandoras with creatures properly
 		it.second->initTownType(this);
 	}
+	std::vector<CRmgTemplateZone*> treasureZones;
 	for (auto it : zones)
 	{
 		it.second->fill(this);
-	}	
+		if (it.second->getType() == ETemplateZoneType::TREASURE)
+			treasureZones.push_back(it.second);
+	}
+
+	//find place for Grail
+	if (treasureZones.empty())
+	{
+		for (auto it : zones)
+			treasureZones.push_back(it.second);
+	}
+	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
+
+	map->grailPos = *RandomGeneratorUtil::nextItem(*grailZone->getFreePaths(), rand);
+
 	logGlobal->infoStream() << "Zones filled successfully";
 }
 
