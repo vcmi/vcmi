@@ -175,9 +175,11 @@ std::string strFromInt3(int3 pos)
 	return oss.str();
 }
 
-bool isCloser(const CGObjectInstance *lhs, const CGObjectInstance *rhs)
+bool CDistanceSorter::operator ()(const CGObjectInstance *lhs, const CGObjectInstance *rhs)
 {
-	const CGPathNode *ln = cb->getPathInfo(lhs->visitablePos()), *rn = cb->getPathInfo(rhs->visitablePos());
+	const CGPathNode *ln = ai->myCb->getPathsInfo(hero)->getPathInfo(lhs->visitablePos()),
+	                 *rn = ai->myCb->getPathsInfo(hero)->getPathInfo(rhs->visitablePos());
+
 	if(ln->turns != rn->turns)
 		return ln->turns < rn->turns;
 
@@ -340,11 +342,6 @@ bool isSafeToVisit(HeroPtr h, crint3 tile)
 	return true; //there's no danger
 }
 
-bool isReachable(const CGObjectInstance *obj)
-{
-	return cb->getPathInfo(obj->visitablePos())->turns < 255;
-}
-
 bool canBeEmbarkmentPoint(const TerrainTile *t, bool fromWater)
 {
 	//tile must be free of with unoccupied boat
@@ -356,7 +353,7 @@ bool canBeEmbarkmentPoint(const TerrainTile *t, bool fromWater)
 int3 whereToExplore(HeroPtr h)
 {
 	TimeCheck tc ("where to explore");
-	cb->setSelection(*h);
+	ai->setSelection(*h);
 	int radius = h->getSightRadious();
 	int3 hpos = h->visitablePos();
 
@@ -371,7 +368,7 @@ int3 whereToExplore(HeroPtr h)
 			{
 				int3 op = obj->visitablePos();
 				CGPath p;
-				cb->getPath2(op, p);
+				ai->myCb->getPathsInfo(h.get())->getPath(op, p);
 				if (p.nodes.size() && p.endPos() == op && p.nodes.size() <= DIST_LIMIT)
 					if (ai->isGoodForVisit(obj, h))
 						nearbyVisitableObjs.push_back(obj);
@@ -379,7 +376,7 @@ int3 whereToExplore(HeroPtr h)
 		}
 	}
 	vstd::removeDuplicates (nearbyVisitableObjs); //one object may occupy multiple tiles
-	boost::sort(nearbyVisitableObjs, isCloser);
+	boost::sort(nearbyVisitableObjs, CDistanceSorter(h.get()));
 	if(nearbyVisitableObjs.size())
 		return nearbyVisitableObjs.back()->visitablePos();
 
@@ -396,8 +393,8 @@ int3 whereToExplore(HeroPtr h)
 
 bool isBlockedBorderGate(int3 tileToHit)
 {
-    return cb->getTile(tileToHit)->topVisitableId() == Obj::BORDER_GATE
-		&& cb->getPathInfo(tileToHit)->accessible != CGPathNode::ACCESSIBLE;
+    return cb->getTile(tileToHit)->topVisitableId() == Obj::BORDER_GATE &&
+	       (dynamic_cast <const CGKeys *>(cb->getTile(tileToHit)->visitableObjects.back()))->wasMyColorVisited (ai->playerID);
 }
 
 int howManyTilesWillBeDiscovered(const int3 &pos, int radious, CCallback * cbp)

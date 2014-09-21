@@ -405,7 +405,7 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 		return 0;
 
 	//assert(cb->isInTheMap(g.tile));
-	cb->setSelection (g.hero.h);
+	ai->setSelection (g.hero.h);
 	float turns = 0;
 	float distance = cb->getMovementCost(g.hero.h, g.tile);
 	if (!distance) //we stand on that tile

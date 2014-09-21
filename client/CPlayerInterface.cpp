@@ -105,6 +105,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	curAction = nullptr;
 	playerID=Player;
 	human=true;
+	currentSelection = nullptr;
 	castleInt = nullptr;
 	battleInt = nullptr;
 	//pim = new boost::recursive_mutex;
@@ -1256,12 +1257,10 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	{
 		h & pathsMap;
 
-		CPathsInfo pathsInfo(cb->getMapSize());
 		for(auto &p : pathsMap)
 		{
-			cb->calculatePaths(p.first, pathsInfo);
 			CGPath path;
-			pathsInfo.getPath(p.second, path);
+			cb->getPathsInfo(p.first)->getPath(p.second, path);
 			paths[p.first] = path;
 			logGlobal->traceStream() << boost::format("Restored path for hero %s leading to %s with %d nodes")
 				% p.first->nodeName() % p.second % path.nodes.size();
@@ -1550,6 +1549,16 @@ void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 bool CPlayerInterface::ctrlPressed() const
 {
 	return isCtrlKeyDown();
+}
+
+const CArmedInstance * CPlayerInterface::getSelection()
+{
+	return currentSelection;
+}
+
+void CPlayerInterface::setSelection(const CArmedInstance * obj)
+{
+	currentSelection = obj;
 }
 
 void CPlayerInterface::update()
@@ -2185,13 +2194,6 @@ void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho, bool check
 	adventureInt->updateMoveHero(ho, false);
 }
 
-void CPlayerInterface::updateCurrentHeroPath()
-{
-	//TODO? lazy evaluation? paths now can get recalculated multiple times upon various game events
-	if (currentSelection)//if we have selected hero...
-		calculatePaths(currentSelection);
-}
-
 void CPlayerInterface::removeLastNodeFromPath(const CGHeroInstance *ho)
 {
 	adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
@@ -2213,7 +2215,7 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 		{
 			assert(h->getPosition(false) == path.startPos());
 			//update the hero path in case of something has changed on map
-			if(LOCPLINT->cb->getPath2(path.endPos(), path))
+			if(LOCPLINT->cb->getPathsInfo(h)->getPath(path.endPos(), path))
 				return &path;
 			else
 				paths.erase(h);

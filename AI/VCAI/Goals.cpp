@@ -256,7 +256,7 @@ TSubgoal Win::whatToDoToAchieve()
 													return vstd::contains(t->forbiddenBuildings, BuildingID::GRAIL);
 												}),
 										towns.end());
-							boost::sort(towns, isCloser);
+							boost::sort(towns, CDistanceSorter(h.get()));
 							if(towns.size())
 							{
 								return sptr (Goals::VisitTile(towns.front()->visitablePos()).sethero(h));
@@ -353,7 +353,7 @@ TSubgoal FindObj::whatToDoToAchieve()
 			}
 		}
 	}
-	if (o && isReachable(o)) //we don't use isAccessibleForHero as we don't know which hero it is
+	if (o)// FIXME: re-enable with *some* hero && isReachable(o)) //we don't use isAccessibleForHero as we don't know which hero it is
 		return sptr (Goals::GetObj(o->id.getNum()));
 	else
 		return sptr (Goals::Explore());
@@ -377,7 +377,7 @@ TSubgoal GetObj::whatToDoToAchieve()
 	}
 	else
 	{
-		if (isReachable(obj))
+		//if (isReachable(obj)) //FIXME: re-enable with some hero
 			return sptr (Goals::VisitTile(pos).sethero(hero)); //we must visit object with same hero, if any
 	}
 	return sptr (Goals::ClearWayTo(pos).sethero(hero));
@@ -853,7 +853,8 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 	}
 	if (dwellings.size())
 	{
-		boost::sort(dwellings, isCloser);
+		//FIXME: we need hero to sort dwellings by distance
+		//boost::sort(dwellings, CDistanceSorter(h.get()));
 		return sptr (Goals::GetObj(dwellings.front()->id.getNum()));
 	}
 	else

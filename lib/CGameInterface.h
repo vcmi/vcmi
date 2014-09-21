@@ -3,6 +3,7 @@
 
 #include "BattleAction.h"
 #include "IGameEventsReceiver.h"
+#include "CGameStateFwd.h"
 
 /*
  * CGameInterface.h, part of VCMI engine
@@ -45,6 +46,7 @@ struct StackLocation;
 class CStackInstance;
 class CCommanderInstance;
 class CStack;
+class CPathsInfo;
 class CCreature;
 class CLoadFile;
 class CSaveFile;
@@ -73,7 +75,7 @@ public:
 };
 
 /// Central class for managing human player / AI interface logic
-class CGameInterface : public CBattleGameInterface, public IGameEventsReceiver
+class DLL_LINKAGE CGameInterface : public CBattleGameInterface, public IGameEventsReceiver
 {
 public:
 	virtual void init(shared_ptr<CCallback> CB){};

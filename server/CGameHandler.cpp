@@ -3779,13 +3779,13 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 }
 
 void CGameHandler::playerMessage( PlayerColor player, const std::string &message )
-{/*
+{
 	bool cheated=true;
 	PlayerMessage temp_message(player, message);
 
 	sendAndApply(&temp_message);
 	if(message == "vcmiistari") //give all spells and 999 mana
-	{
+	{/*
 		SetMana sm;
 		ChangeSpells cs;
 
@@ -3866,6 +3866,18 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		if(!hero->getArt(ArtifactPosition::MACH3))
 			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(6), ArtifactPosition::MACH3);
 	}
+	else if (message == "vcmiforgeofnoldorking") //hero gets all artifacts except war machines, spell scrolls and spell book
+	{
+		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
+		if(!hero) return;
+		for (int g = 7; g < VLC->arth->artifacts.size(); ++g) //including artifacts from mods
+			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(g), ArtifactPosition::PRE_FIRST);
+	}
+	else if(message == "vcmiglorfindel") //selected hero gains a new level
+	{
+		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
+		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level+1) - VLC->heroh->reqExp(hero->level));
+	}
 	else if(message == "vcminahar") //1000000 movement points
 	{
 		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
@@ -3873,7 +3885,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		SetMovePoints smp;
 		smp.hid = hero->id;
 		smp.val = 1000000;
-		sendAndApply(&smp);
+		sendAndApply(&smp);*/
 	}
 	else if(message == "vcmiformenos") //give resources
 	{
@@ -3901,11 +3913,6 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		delete [] hlp_tab;
 		sendAndApply(&fc);
 	}
-	else if(message == "vcmiglorfindel") //selected hero gains a new level
-	{
-		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
-		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level+1) - VLC->heroh->reqExp(hero->level));
-	}
 	else if(message == "vcmisilmaril") //player wins
 	{
 		gs->getPlayer(player)->enteredWinningCheatCode = 1;
@@ -3914,13 +3921,6 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	{
 		gs->getPlayer(player)->enteredLosingCheatCode = 1;
 	}
-	else if (message == "vcmiforgeofnoldorking") //hero gets all artifacts except war machines, spell scrolls and spell book
-	{
-		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
-		if(!hero) return;
-		for (int g = 7; g < VLC->arth->artifacts.size(); ++g) //including artifacts from mods
-			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(g), ArtifactPosition::PRE_FIRST);
-	}
 	else
 		cheated = false;
 	if(cheated)
@@ -3928,7 +3928,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		SystemMessage temp_message(VLC->generaltexth->allTexts.at(260));
 		sendAndApply(&temp_message);
 		checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
-	}*/
+	}
 }
 
 void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex destination, ui8 casterSide, PlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,

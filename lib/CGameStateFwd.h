@@ -118,3 +118,49 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 	}
 };
 
+struct DLL_LINKAGE CGPathNode
+{
+	enum EAccessibility
+	{
+		NOT_SET = 0,
+		ACCESSIBLE = 1, //tile can be entered and passed
+		VISITABLE, //tile can be entered as the last tile in path
+		BLOCKVIS,  //visitable from neighbouring tile but not passable
+		BLOCKED //tile can't be entered nor visited
+	};
+
+	EAccessibility accessible;
+	ui8 land;
+	ui8 turns; //how many turns we have to wait before reachng the tile - 0 means current turn
+	ui32 moveRemains; //remaining tiles after hero reaches the tile
+	CGPathNode * theNodeBefore;
+	int3 coord; //coordinates
+
+	CGPathNode();
+	bool reachable() const;
+};
+
+struct DLL_LINKAGE CGPath
+{
+	std::vector<CGPathNode> nodes; //just get node by node
+
+	int3 startPos() const; // start point
+	int3 endPos() const; //destination point
+	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
+};
+
+struct DLL_LINKAGE CPathsInfo
+{
+	mutable boost::mutex pathMx;
+
+	const CGHeroInstance *hero;
+	int3 hpos;
+	int3 sizes;
+	CGPathNode ***nodes; //[w][h][level]
+
+	const CGPathNode * getPathInfo( int3 tile ) const;
+	bool getPath(const int3 &dst, CGPath &out) const;
+	int getDistance( int3 tile ) const;
+	CPathsInfo(const int3 &Sizes);
+	~CPathsInfo();
+};

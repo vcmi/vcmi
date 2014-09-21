@@ -235,31 +235,6 @@ void CCallback::setFormation(const CGHeroInstance * hero, bool tight)
 	sendRequest(&pack);
 }
 
-void CCallback::setSelection(const CArmedInstance * obj)
-{/*
-	if(!player || obj->getOwner() != *player)
-	{
-		logGlobal->errorStream() << boost::format("Cannot set selection to the object that is not owned. Object owner is %s, callback player %s") % obj->getOwner() % player;
-		return;
-	}
-
-	if(obj->getOwner() != *player)
-	{
-		// Cf. bug #1679 http://bugs.vcmi.eu/view.php?id=1679
-		logGlobal->warnStream() << "The selection request became invalid because of event that occurred after it was made. Object owner is now " << obj->getOwner();
-		throw std::runtime_error("setSelection not allowed");
-	}
-
-	if(obj->ID == Obj::HERO)
-	{
-		if(cl->pathInfo->hero != obj) //calculate new paths only if we selected a different hero
-			cl->calculatePaths(static_cast<const CGHeroInstance *>(obj));
-
-		//nasty workaround. TODO: nice workaround
-		cl->gs->getPlayer(*player)->currentSelection = obj->id;
-	}*/
-}
-
 void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)
 {
 	assert(townOrTavern);
@@ -309,45 +284,20 @@ CCallback::~CCallback()
 //trivial, but required. Don`t remove.
 }
 
-
-const CGPathNode * CCallback::getPathInfo( int3 tile )
-{
-	if (!gs->map->isInTheMap(tile))
-		return nullptr;
-
-	validatePaths();
-	return &cl->pathInfo->nodes[tile.x][tile.y][tile.z];
-}
-
-int CCallback::getDistance( int3 tile )
-{
-	CGPath ret;
-	if (getPath2 (tile, ret))
-		return ret.nodes.size();
-	else
-		return 255;
-}
-
 bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 {
 	//TODO: merge with Pathfinder::canMoveBetween
 	return gs->checkForVisitableDir(a, b) && gs->checkForVisitableDir(b, a);
 }
 
-bool CCallback::getPath2( int3 dest, CGPath &ret )
-{
-	if (!gs->map->isInTheMap(dest))
-		return false;
-
-	validatePaths();
-
-	boost::unique_lock<boost::mutex> pathLock(cl->pathMx);
-	return cl->pathInfo->getPath(dest, ret);
-}
-
 int CCallback::getMovementCost(const CGHeroInstance * hero, int3 dest)
 {
 	return gs->getMovementCost(hero, hero->visitablePos(), dest, hero->hasBonusOfType (Bonus::FLYING_MOVEMENT), hero->movement);
+}
+
+const CPathsInfo * CCallback::getPathsInfo(const CGHeroInstance *h)
+{
+	return cl->getPathsInfo(h);
 }
 
 int3 CCallback::getGuardingCreaturePosition(int3 tile)
@@ -358,15 +308,9 @@ int3 CCallback::getGuardingCreaturePosition(int3 tile)
 	return gs->map->guardingCreaturePositions[tile.x][tile.y][tile.z];
 }
 
-void CCallback::recalculatePaths(const CGHeroInstance * hero)
+void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out)
 {
-	if (hero)
-		cl->calculatePaths(hero);
-}
-
-void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out, int3 src /*= int3(-1,-1,-1)*/, int movement /*= -1*/ )
-{
-	gs->calculatePaths(hero, out, src, movement);
+	gs->calculatePaths(hero, out);
 }
 
 void CCallback::dig( const CGObjectInstance *hero )

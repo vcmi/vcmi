@@ -2165,10 +2165,10 @@ void CGameState::apply(CPack *pack)
 	applierGs->apps[typ]->applyOnGS(this,pack);
 }
 
-void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src, int movement)
+void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
 {
 	CPathfinder pathfinder(out, this, hero);
-	pathfinder.calculatePaths(src, movement);
+	pathfinder.calculatePaths();
 }
 
 /**
@@ -2896,9 +2896,29 @@ bool CGPathNode::reachable() const
 	return turns < 255;
 }
 
-bool CPathsInfo::getPath( const int3 &dst, CGPath &out )
+const CGPathNode * CPathsInfo::getPathInfo( int3 tile ) const
 {
-	assert(isValid);
+	boost::unique_lock<boost::mutex> pathLock(pathMx);
+
+	if (tile.x >= sizes.x || tile.y >= sizes.y || tile.z >= sizes.z)
+		return nullptr;
+	return &nodes[tile.x][tile.y][tile.z];
+}
+
+int CPathsInfo::getDistance( int3 tile ) const
+{
+	boost::unique_lock<boost::mutex> pathLock(pathMx);
+
+	CGPath ret;
+	if (getPath(tile, ret))
+		return ret.nodes.size();
+	else
+		return 255;
+}
+
+bool CPathsInfo::getPath( const int3 &dst, CGPath &out ) const
+{
+	boost::unique_lock<boost::mutex> pathLock(pathMx);
 
 	out.nodes.clear();
 	const CGPathNode *curnode = &nodes[dst.x][dst.y][dst.z];
@@ -3277,14 +3297,12 @@ void CPathfinder::initializeGraph()
 	}
 }
 
-void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*= -1*/)
+void CPathfinder::calculatePaths()
 {
+	int3 src = hero->getPosition(false);
 	assert(hero);
 	assert(hero == getHero(hero->id));
-	if(src.x < 0)
-		src = hero->getPosition(false);
-	if(movement < 0)
-		movement = hero->movement;
+
 	bool flying = hero->hasBonusOfType(Bonus::FLYING_MOVEMENT);
 	int maxMovePointsLand = hero->maxMovePoints(true);
 	int maxMovePointsWater = hero->maxMovePoints(false);
@@ -3295,9 +3313,9 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 	};
 
 	out.hero = hero;
-	out.hpos = src;
+	out.hpos = hero->getPosition(false);
 
-	if(!gs->map->isInTheMap(src)/* || !gs->map->isInTheMap(dest)*/) //check input
+	if(!gs->map->isInTheMap(out.hpos)/* || !gs->map->isInTheMap(dest)*/) //check input
 	{
         logGlobal->errorStream() << "CGameState::calculatePaths: Hero outside the gs->map? How dare you...";
 		return;
@@ -3307,9 +3325,9 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 
 
 	//initial tile - set cost on 0 and add to the queue
-	CGPathNode &initialNode = *getNode(src);
+	CGPathNode &initialNode = *getNode(out.hpos);
 	initialNode.turns = 0;
-	initialNode.moveRemains = movement;
+	initialNode.moveRemains = hero->movement;
 	mq.push_back(&initialNode);
 
 	std::vector<int3> neighbours;
@@ -3425,8 +3443,6 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 			}
 		} //neighbours loop
 	} //queue loop
-
-	out.isValid = true;
 }
 
 CGPathNode *CPathfinder::getNode(const int3 &coord)
