@@ -3299,13 +3299,13 @@ void CPathfinder::initializeGraph()
 
 void CPathfinder::calculatePaths()
 {
-	int3 src = hero->getPosition(false);
 	assert(hero);
 	assert(hero == getHero(hero->id));
 
 	bool flying = hero->hasBonusOfType(Bonus::FLYING_MOVEMENT);
 	int maxMovePointsLand = hero->maxMovePoints(true);
 	int maxMovePointsWater = hero->maxMovePoints(false);
+	int3 src = hero->getPosition(false);
 
 	auto maxMovePoints = [&](CGPathNode *cp) -> int
 	{
@@ -3322,7 +3322,6 @@ void CPathfinder::calculatePaths()
 	}
 
 	initializeGraph();
-
 
 	//initial tile - set cost on 0 and add to the queue
 	CGPathNode &initialNode = *getNode(out.hpos);
