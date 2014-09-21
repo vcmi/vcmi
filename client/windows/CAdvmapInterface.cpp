@@ -948,7 +948,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 			CGPath &path = LOCPLINT->paths[h];
 			terrain.currentPath = &path;
-			if(!LOCPLINT->cb->getPath2(h->getPosition(false) + dir, path))
+			if(!LOCPLINT->cb->getPathsInfo(h)->getPath(h->getPosition(false) + dir, path))
 			{
 				terrain.currentPath = nullptr;
 				return;
@@ -997,7 +997,7 @@ int3 CAdvMapInt::verifyPos(int3 ver)
 void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 {
 	assert(sel);
-	LOCPLINT->cb->setSelection(sel);
+	LOCPLINT->setSelection(sel);
 	selection = sel;
 	if (LOCPLINT->battleInt == nullptr && LOCPLINT->makingTurn)
 	{
@@ -1184,7 +1184,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 	}
 	else if(const CGHeroInstance * currentHero = curHero()) //hero is selected
 	{
-		const CGPathNode *pn = LOCPLINT->cb->getPathInfo(mapPos);
+		const CGPathNode *pn = LOCPLINT->cb->getPathsInfo(currentHero)->getPathInfo(mapPos);
 		if(currentHero == topBlocking) //clicked selected hero
 		{
 			LOCPLINT->openHeroWindow(currentHero);
@@ -1206,7 +1206,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 			{
 				CGPath &path = LOCPLINT->paths[currentHero];
 				terrain.currentPath = &path;
-				bool gotPath = LOCPLINT->cb->getPath2(mapPos, path); //try getting path, erase if failed
+				bool gotPath = LOCPLINT->cb->getPathsInfo(currentHero)->getPath(mapPos, path); //try getting path, erase if failed
 				updateMoveHero(currentHero);
 				if (!gotPath)
 					LOCPLINT->eraseCurrentPathOf(currentHero);
@@ -1248,11 +1248,6 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		CGI->mh->getTerrainDescr(mapPos, hlp, false);
 		statusbar.setText(hlp);
 	}
-
-	const CGPathNode *pnode = LOCPLINT->cb->getPathInfo(mapPos);
-
-	int turns = pnode->turns;
-	vstd::amin(turns, 3);
 
 	if(!selection) //may occur just at the start of game (fake move before full intiialization)
 		return;
@@ -1298,6 +1293,10 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	}
 	else if(const CGHeroInstance *h = curHero())
 	{
+		const CGPathNode *pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPos);
+
+		int turns = pnode->turns;
+		vstd::amin(turns, 3);
 		bool accessible  =  pnode->turns < 255;
 
 		if(objAtTile)

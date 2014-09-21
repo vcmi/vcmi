@@ -38,18 +38,6 @@ int CGameInfoCallback::getResource(PlayerColor Player, Res::ERes which) const
 	return p->resources[which];
 }
 
-const CGHeroInstance* CGameInfoCallback::getSelectedHero( PlayerColor Player ) const
-{
-	const PlayerState *p = getPlayer(Player);
-	ERROR_RET_VAL_IF(!p, "No player info!", nullptr);
-	return getHero(p->currentSelection);
-}
-
-const CGHeroInstance* CGameInfoCallback::getSelectedHero() const
-{
-	return getSelectedHero(gs->currentPlayer);
-}
-
 const PlayerSettings * CGameInfoCallback::getPlayerSettings(PlayerColor color) const
 {
 	return &gs->scenarioOps->getIthPlayersSettings(color);

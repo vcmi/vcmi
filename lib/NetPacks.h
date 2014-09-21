@@ -1803,15 +1803,17 @@ struct RazeStructure : public BuildStructure
 struct RecruitCreatures : public CPackForServer
 {
 	RecruitCreatures(){};
-	RecruitCreatures(ObjectInstanceID TID, CreatureID CRID, si32 Amount, si32 Level):tid(TID),crid(CRID),amount(Amount),level(Level){};
-	ObjectInstanceID tid; //town id
+	RecruitCreatures(ObjectInstanceID TID, ObjectInstanceID DST, CreatureID CRID, si32 Amount, si32 Level):
+	    tid(TID), dst(DST), crid(CRID), amount(Amount), level(Level){};
+	ObjectInstanceID tid; //dwelling id, or town
+	ObjectInstanceID dst; //destination ID, e.g. hero
 	CreatureID crid;
 	ui32 amount;//creature amount
 	si32 level;//dwelling level to buy from, -1 if any
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tid & crid & amount & level;
+		h & tid & dst & crid & amount & level;
 	}
 };
 
@@ -2033,8 +2035,8 @@ struct SaveGame : public CPackForClient, public CPackForServer
 struct PlayerMessage : public CPackForClient, public CPackForServer //513
 {
 	PlayerMessage(){CPackForClient::type = 513;};
-	PlayerMessage(PlayerColor Player, const std::string &Text)
-		:player(Player),text(Text)
+	PlayerMessage(PlayerColor Player, const std::string &Text, ObjectInstanceID obj)
+		:player(Player),text(Text), currObj(obj)
 	{CPackForClient::type = 513;};
 	void applyCl(CClient *cl);
 	void applyGs(CGameState *gs){};
@@ -2042,27 +2044,11 @@ struct PlayerMessage : public CPackForClient, public CPackForServer //513
 
 	PlayerColor player;
 	std::string text;
+	ObjectInstanceID currObj; // optional parameter that specifies current object. For cheats :)
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & text & player;
-	}
-};
-
-
-struct SetSelection : public CPackForClient, public CPackForServer //514
-{
-	SetSelection(){CPackForClient::type = 514;};
-	DLL_LINKAGE void applyGs(CGameState *gs);
-	bool applyGh(CGameHandler *gh);
-	void applyCl(CClient *cl);
-
-	PlayerColor player;
-	ObjectInstanceID id;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & id & player;
+		h & text & player & currObj;
 	}
 };
 

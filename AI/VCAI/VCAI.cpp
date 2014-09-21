@@ -664,9 +664,6 @@ void VCAI::makeTurn()
 		}
 			break;
 	}
-	if(cb->getSelectedHero())
-		cb->recalculatePaths();
-
 	markHeroAbleToExplore (primaryHero());
 
 	makeTurnInternal();
@@ -697,9 +694,8 @@ void VCAI::makeTurnInternal()
 				continue;
 			}
 
-			cb->setSelection(hero.first.get());
 			std::vector<const CGObjectInstance *> vec(hero.second.begin(), hero.second.end());
-			boost::sort (vec, isCloser);
+			boost::sort (vec, CDistanceSorter(hero.first.get()));
 			for (auto obj : vec)
 			{
 				if(!obj || !cb->getObj(obj->id))
@@ -793,7 +789,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 	switch (obj->ID)
 	{
 		case Obj::CREATURE_GENERATOR1:
-			recruitCreatures (dynamic_cast<const CGDwelling *>(obj));
+			recruitCreatures (dynamic_cast<const CGDwelling *>(obj), h.get());
 			checkHeroArmy (h);
 			break;
 		case Obj::TOWN:
@@ -926,7 +922,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 	}
 }
 
-void VCAI::recruitCreatures(const CGDwelling * d)
+void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter)
 {
 	for(int i = 0; i < d->creatures.size(); i++)
 	{
@@ -941,7 +937,7 @@ void VCAI::recruitCreatures(const CGDwelling * d)
 
 		amin(count, freeResources() / VLC->creh->creatures[creID]->cost);
 		if(count > 0)
-			cb->recruitCreatures(d, creID, count, i);
+			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
 }
 
@@ -1222,7 +1218,7 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 		}
 	}
 
-	boost::sort(possibleDestinations, isCloser);
+	boost::sort(possibleDestinations, CDistanceSorter(h.get()));
 
 	return possibleDestinations;
 }
@@ -1256,7 +1252,6 @@ bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
 
 void VCAI::wander(HeroPtr h)
 {
-	cb->setSelection(*h);
 	//unclaim objects that are now dangerous for us
 	auto reservedObjsSetCopy = reservedHeroesMap[h];
 	for (auto obj : reservedObjsSetCopy)
@@ -1381,7 +1376,7 @@ void VCAI::wander(HeroPtr h)
 			erase_if(dests, shouldBeErased);
 
 			erase_if_present(dests, dest); //why that fails sometimes when removing monsters?
-			boost::sort(dests, isCloser); //find next closest one
+			boost::sort(dests, CDistanceSorter(h.get())); //find next closest one
 		}
 
 		if (h->visitedTown)
@@ -1618,7 +1613,6 @@ const CGObjectInstance * VCAI::getUnvisitedObj(const std::function<bool(const CG
 
 bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /*= false*/) const
 {
-	cb->setSelection(*h);
 	if (!includeAllies)
 	{ //don't visit tile occupied by allied hero
 		for (auto obj : cb->getVisitableObjs(pos))
@@ -1629,12 +1623,11 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /
 				return false;
 		}
 	}
-	return cb->getPathInfo(pos)->reachable();
+	return cb->getPathsInfo(h.get())->getPathInfo(pos)->reachable();
 }
 
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
-	cb->setSelection(h.h); //make sure we are using the RIGHT pathfinder
 	logAi->debugStream() << boost::format("Moving hero %s to tile %s") % h->name % dst;
 	int3 startHpos = h->visitablePos();
 	bool ret = false;
@@ -1649,11 +1642,10 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	else
 	{
 		CGPath path;
-		cb->getPath2(dst, path);
+		cb->getPathsInfo(h.get())->getPath(dst, path);
 		if(path.nodes.empty())
 		{
             logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
-			cb->recalculatePaths();
 			throw goalFulfilledException (sptr(Goals::VisitTile(dst).sethero(h)));
 		}
 
@@ -1702,7 +1694,6 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				reserveObject(h, obj);
 		}
 
-		cb->recalculatePaths();
 		if (startHpos == h->visitablePos() && !ret) //we didn't move and didn't reach the target
 		{
 			erase_if_present (lockedHeroes, h); //hero seemingly is confused
@@ -2212,7 +2203,7 @@ void VCAI::buildArmyIn(const CGTownInstance * t)
 {
 	makePossibleUpgrades(t->visitingHero);
 	makePossibleUpgrades(t);
-	recruitCreatures(t);
+	recruitCreatures(t, t);
 	moveCreaturesToHero(t);
 }
 
@@ -2230,7 +2221,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 	auto best = dstToRevealedTiles.begin();
 	for (auto i = dstToRevealedTiles.begin(); i != dstToRevealedTiles.end(); i++)
 	{
-		const CGPathNode *pn = cb->getPathInfo(i->first);
+		const CGPathNode *pn = cb->getPathsInfo(h.get())->getPathInfo(i->first);
 		//const TerrainTile *t = cb->getTile(i->first);
 		if(best->second < i->second && pn->reachable() && pn->accessible == CGPathNode::ACCESSIBLE)
 			best = i;
@@ -2245,7 +2236,6 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 int3 VCAI::explorationNewPoint(HeroPtr h)
 {
     //logAi->debugStream() << "Looking for an another place for exploration...";
-	cb->setSelection(h.h);
 	int radius = h->getSightRadious();
 
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
@@ -2269,13 +2259,11 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 		for(const int3 &tile : tiles[i])
 		{
-			if (cbp->getTile(tile)->blocked) //does it shorten the time?
-				continue;
-			if (!cbp->getPathInfo(tile)->reachable()) //this will remove tiles that are guarded by monsters (or removable objects)
+			if (!cb->getPathsInfo(h.get())->getPathInfo(tile)->reachable()) //this will remove tiles that are guarded by monsters (or removable objects)
 				continue;
 
 			CGPath path;
-			cbp->getPath2(tile, path);
+			cb->getPathsInfo(h.get())->getPath(tile, path);
 			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius, cbp) / (path.nodes.size() + 1); //+1 prevents erratic jumps
 
 			if (ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
@@ -2655,7 +2643,6 @@ SectorMap::SectorMap()
 
 SectorMap::SectorMap(HeroPtr h)
 {
-	cb->setSelection(h.h);
 	update();
 	makeParentBFS(h->visitablePos());
 }
@@ -3104,7 +3091,7 @@ int3 SectorMap::findFirstVisitableTile (HeroPtr h, crint3 dst)
 			logAi->warnStream() << ("Another allied hero stands in our way");
 			return ret;
 		}
-		if(cb->getPathInfo(curtile)->reachable())
+		if(ai->myCb->getPathsInfo(h.get())->getPathInfo(curtile)->reachable())
 		{
 			return curtile;
 		}

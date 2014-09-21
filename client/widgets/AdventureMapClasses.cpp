@@ -1168,7 +1168,7 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 	if(printEnteredText)
 	{
 		std::string txt = enteredText.substr(0, enteredText.size()-1);
-		LOCPLINT->cb->sendMessage(txt);
+		LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
 		previouslyEntered.push_back(txt);
 		//print(txt);
 	}

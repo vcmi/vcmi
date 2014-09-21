@@ -113,6 +113,7 @@ public:
 /// Class which handles client - server logic
 class CClient : public IGameCallback
 {
+	unique_ptr<CPathsInfo> pathInfo;
 public:
 	std::map<PlayerColor,shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
 	std::map<PlayerColor,shared_ptr<CBattleCallback> > battleCallbacks; //callbacks given to player interfaces
@@ -128,9 +129,6 @@ public:
 	CConnection *serv;
 
 	boost::optional<BattleAction> curbaction;
-
-	unique_ptr<CPathsInfo> pathInfo;
-	boost::mutex pathMx; //protects the variable above
 
 	CScriptingModule *erm;
 
@@ -158,9 +156,9 @@ public:
 	void campaignMapFinished( shared_ptr<CCampaignState> camp );
 	void finishCampaign( shared_ptr<CCampaignState> camp );
 	void proposeNextMission(shared_ptr<CCampaignState> camp);
-	void invalidatePaths(const CGHeroInstance *h = nullptr); //invalidates paths for hero h or for any hero if h is nullptr => they'll got recalculated when the next query comes
-	void calculatePaths(const CGHeroInstance *h);
-	void updatePaths(); //calls calculatePaths for same hero for which we previously calculated paths
+
+	void invalidatePaths();
+	const CPathsInfo * getPathsInfo(const CGHeroInstance *h);
 
 	bool terminate;	// tell to terminate
 	boost::thread *connectionHandler; //thread running run() method

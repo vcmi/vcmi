@@ -45,6 +45,9 @@ CTypeList typeList;
 
 void CConnection::init()
 {
+	boost::asio::ip::tcp::no_delay option(true);
+	socket->set_option(option);
+
 	enableSmartPointerSerializatoin();
 	disableStackSendingByID();
 	registerTypes(static_cast<CISer<CConnection>&>(*this));

@@ -164,7 +164,6 @@ struct DLL_LINKAGE PlayerState : public CBonusSystemNode
 public:
 	PlayerColor color;
 	bool human; //true if human controlled player, false for AI
-	ObjectInstanceID currentSelection; //id of hero/town, 0xffffffff if none
 	TeamID team;
 	TResources resources;
 	std::set<ObjectInstanceID> visitedObjects; // as a std::set, since most accesses here will be from visited status checks
@@ -183,7 +182,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & color & human & currentSelection & team & resources & status;
+		h & color & human & team & resources & status;
 		h & heroes & towns & availableHeroes & dwellings & visitedObjects;
 		h & getBonusList(); //FIXME FIXME FIXME
 		h & status & daysWithoutCastle;
@@ -215,50 +214,6 @@ struct UpgradeInfo
 	std::vector<CreatureID> newID; //possible upgrades
 	std::vector<TResources> cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
 	UpgradeInfo(){oldID = CreatureID::NONE;};
-};
-
-struct DLL_LINKAGE CGPathNode
-{
-	enum EAccessibility
-	{
-		NOT_SET = 0,
-		ACCESSIBLE = 1, //tile can be entered and passed
-		VISITABLE, //tile can be entered as the last tile in path
-		BLOCKVIS,  //visitable from neighbouring tile but not passable
-		BLOCKED //tile can't be entered nor visited
-	};
-
-	EAccessibility accessible;
-	ui8 land;
-	ui8 turns; //how many turns we have to wait before reachng the tile - 0 means current turn
-	ui32 moveRemains; //remaining tiles after hero reaches the tile
-	CGPathNode * theNodeBefore;
-	int3 coord; //coordinates
-
-	CGPathNode();
-	bool reachable() const;
-};
-
-struct DLL_LINKAGE CGPath
-{
-	std::vector<CGPathNode> nodes; //just get node by node
-
-	int3 startPos() const; // start point
-	int3 endPos() const; //destination point
-	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
-};
-
-struct DLL_LINKAGE CPathsInfo
-{
-	bool isValid;
-	const CGHeroInstance *hero;
-	int3 hpos;
-	int3 sizes;
-	CGPathNode ***nodes; //[w][h][level]
-
-	bool getPath(const int3 &dst, CGPath &out);
-	CPathsInfo(const int3 &Sizes);
-	~CPathsInfo();
 };
 
 struct DLL_EXPORT DuelParameters
@@ -350,7 +305,7 @@ private:
 
 public:
 	CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero);
-	void calculatePaths(int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
+	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 };
 
 
@@ -398,7 +353,7 @@ public:
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
 	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
-	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
+	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 	int3 guardingCreaturePosition (int3 pos) const;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
 
