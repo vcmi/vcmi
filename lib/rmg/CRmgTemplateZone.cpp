@@ -1393,7 +1393,6 @@ void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance*
 		object->appearance = templates.front();
 	}
 
-	gen->map->addBlockVisTiles(object);
 	gen->editManager->insertObject(object, pos);
 	//logGlobal->traceStream() << boost::format ("Successfully inserted object (%d,%d) at pos %s") %object->ID %object->subID %pos();
 }

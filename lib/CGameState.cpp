@@ -3281,6 +3281,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 {
 	assert(hero);
 	assert(hero == getHero(hero->id));
+
 	if(src.x < 0)
 		src = hero->getPosition(false);
 	if(movement < 0)
@@ -3303,8 +3304,8 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 		return;
 	}
 
+	//logGlobal->infoStream() << boost::format("Calculating paths for hero %s (adress  %d) of player %d") % hero->name % hero % hero->tempOwner;
 	initializeGraph();
-
 
 	//initial tile - set cost on 0 and add to the queue
 	CGPathNode &initialNode = *getNode(src);
@@ -3457,7 +3458,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 		{
 			for(const CGObjectInstance *obj : tinfo->visitableObjects)
 			{
-				if(obj->passableFor(hero->tempOwner)) //special object instance specific passableness flag - overwrites other accessibility flags
+				if (obj->passableFor(hero->tempOwner))
 				{
 					ret = CGPathNode::ACCESSIBLE;
 				}
