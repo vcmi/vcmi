@@ -285,6 +285,6 @@ bool PlayerMessage::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT(player);
 	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
-	gh->playerMessage(player,text);
+	gh->playerMessage(player,text, currObj);
 	return true;
 }

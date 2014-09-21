@@ -74,7 +74,7 @@ public:
 	virtual void setFormation(const CGHeroInstance * hero, bool tight)=0;
 
 	virtual void save(const std::string &fname) = 0;
-	virtual void sendMessage(const std::string &mess) = 0;
+	virtual void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) = 0;
 	virtual void buildBoat(const IShipyard *obj) = 0;
 };
 
@@ -143,7 +143,7 @@ public:
 	void setFormation(const CGHeroInstance * hero, bool tight);
 	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero);
 	void save(const std::string &fname);
-	void sendMessage(const std::string &mess);
+	void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr);
 	void buildBoat(const IShipyard *obj);
 	void dig(const CGObjectInstance *hero);
 	void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1));

@@ -2035,8 +2035,8 @@ struct SaveGame : public CPackForClient, public CPackForServer
 struct PlayerMessage : public CPackForClient, public CPackForServer //513
 {
 	PlayerMessage(){CPackForClient::type = 513;};
-	PlayerMessage(PlayerColor Player, const std::string &Text)
-		:player(Player),text(Text)
+	PlayerMessage(PlayerColor Player, const std::string &Text, ObjectInstanceID obj)
+		:player(Player),text(Text), currObj(obj)
 	{CPackForClient::type = 513;};
 	void applyCl(CClient *cl);
 	void applyGs(CGameState *gs){};
@@ -2044,10 +2044,11 @@ struct PlayerMessage : public CPackForClient, public CPackForServer //513
 
 	PlayerColor player;
 	std::string text;
+	ObjectInstanceID currObj; // optional parameter that specifies current object. For cheats :)
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & text & player;
+		h & text & player & currObj;
 	}
 };
 

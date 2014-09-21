@@ -258,10 +258,10 @@ void CCallback::save( const std::string &fname )
 }
 
 
-void CCallback::sendMessage(const std::string &mess)
+void CCallback::sendMessage(const std::string &mess, const CGObjectInstance * currentObject)
 {
 	ASSERT_IF_CALLED_WITH_PLAYER
-	PlayerMessage pm(*player, mess);
+	PlayerMessage pm(*player, mess, currentObject? currentObject->id : ObjectInstanceID(-1));
 	sendRequest(&(CPackForClient&)pm);
 }
 

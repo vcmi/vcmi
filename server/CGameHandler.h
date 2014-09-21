@@ -198,7 +198,7 @@ public:
 	void handleConnection(std::set<PlayerColor> players, CConnection &c);
 	PlayerColor getPlayerAt(CConnection *c) const;
 
-	void playerMessage( PlayerColor player, const std::string &message);
+	void playerMessage( PlayerColor player, const std::string &message, ObjectInstanceID currObj);
 	bool makeBattleAction(BattleAction &ba);
 	bool makeAutomaticAction(const CStack *stack, BattleAction &ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
 	void handleSpellCasting(SpellID spellID, int spellLvl, BattleHex destination, ui8 casterSide, PlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
