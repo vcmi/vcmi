@@ -1697,12 +1697,12 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 
 	//prisons
 	//levels 1, 5, 10, 20, 30
-    //static int prisonExp[] = {0, 5000, 15000, 90000, 500000};
+    static int prisonExp[] = {0, 5000, 15000, 90000, 500000};
 	static int prisonValues[] = {2500, 5000, 10000, 20000, 30000};
 
 	for (int i = 0; i < 5; i++)
 	{
-		oi.generateObject = [i, gen]() -> CGObjectInstance *
+		oi.generateObject = [i, gen, this]() -> CGObjectInstance *
 		{
 			auto obj = new CGHeroInstance;
 			obj->ID = Obj::PRISON;
@@ -1715,13 +1715,13 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			}
 
 			auto hid = *RandomGeneratorUtil::nextItem(possibleHeroes, gen->rand);
-			obj->initHero (HeroTypeID(hid));
-			obj->subID = 0; //initHero overrides it :?
-			//obj->exp = prisonExp[i]; //game crashes at hero level up
-			obj->exp = 0;
+			obj->subID = hid; //will be initialized later
+			obj->exp = prisonExp[i]; //game crashes at hero level up
+			//obj->exp = 0;
 			obj->setOwner(PlayerColor::NEUTRAL);
 			gen->map->allowedHeroes[hid] = false; //ban this hero
 			gen->decreasePrisonsRemaining();
+			obj->appearance = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0)->getTemplates(terrainType).front(); //can't init template with hero subID
 
 			return obj;
 		};
