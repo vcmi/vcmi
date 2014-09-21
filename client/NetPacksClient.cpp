@@ -160,7 +160,7 @@ void SetMana::applyCl( CClient *cl )
 void SetMovePoints::applyCl( CClient *cl )
 {
 	const CGHeroInstance *h = cl->getHero(hid);
-	cl->invalidatePaths(h);
+	cl->invalidatePaths();
 	INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroMovePointsChanged, h);
 }
 
@@ -822,15 +822,6 @@ void PlayerMessage::applyCl(CClient *cl)
 		LOCPLINT->cingconsole->print(str.str());
 }
 
-void SetSelection::applyCl(CClient *cl)
-{
-	const CGHeroInstance *h = cl->getHero(id);
-	if(!h)
-		return;
-
-	//CPackForClient::GS(cl)->calculatePaths(h, *cl->pathInfo);
-}
-
 void ShowInInfobox::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(player,showComp, c, text.toString());
@@ -914,7 +905,7 @@ void CenterView::applyCl(CClient *cl)
 
 void NewObject::applyCl(CClient *cl)
 {
-	cl->updatePaths();
+	cl->invalidatePaths();
 
 	const CGObjectInstance *obj = cl->getObj(id);
 	CGI->mh->printObject(obj);

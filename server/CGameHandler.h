@@ -198,7 +198,7 @@ public:
 	void handleConnection(std::set<PlayerColor> players, CConnection &c);
 	PlayerColor getPlayerAt(CConnection *c) const;
 
-	void playerMessage( PlayerColor player, const std::string &message);
+	void playerMessage( PlayerColor player, const std::string &message, ObjectInstanceID currObj);
 	bool makeBattleAction(BattleAction &ba);
 	bool makeAutomaticAction(const CStack *stack, BattleAction &ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
 	void handleSpellCasting(SpellID spellID, int spellLvl, BattleHex destination, ui8 casterSide, PlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
@@ -224,7 +224,7 @@ public:
 	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill skill);
 	bool garrisonSwap(ObjectInstanceID tid);
 	bool upgradeCreature( ObjectInstanceID objid, SlotID pos, CreatureID upgID );
-	bool recruitCreatures(ObjectInstanceID objid, CreatureID crid, ui32 cram, si32 level);
+	bool recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst, CreatureID crid, ui32 cram, si32 level);
 	bool buildStructure(ObjectInstanceID tid, BuildingID bid, bool force=false);//force - for events: no cost, no checkings
 	bool razeStructure(ObjectInstanceID tid, BuildingID bid);
 	bool disbandCreature( ObjectInstanceID id, SlotID pos );

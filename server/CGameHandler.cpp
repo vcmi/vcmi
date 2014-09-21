@@ -2562,7 +2562,7 @@ void CGameHandler::sendMessageToAll( const std::string &message )
 	sendToAllClients(&sm);
 }
 
-bool CGameHandler::recruitCreatures( ObjectInstanceID objid, CreatureID crid, ui32 cram, si32 fromLvl )
+bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dstid, CreatureID crid, ui32 cram, si32 fromLvl )
 {
 	const CGDwelling *dw = static_cast<const CGDwelling*>(gs->getObj(objid));
 	const CArmedInstance *dst = nullptr;
@@ -2570,14 +2570,8 @@ bool CGameHandler::recruitCreatures( ObjectInstanceID objid, CreatureID crid, ui
 	bool warMachine = c->hasBonusOfType(Bonus::SIEGE_WEAPON);
 
 	//TODO: test for owning
-
-	if(dw->ID == Obj::TOWN)
-		dst = (static_cast<const CGTownInstance *>(dw))->getUpperArmy();
-	else if(dw->ID == Obj::CREATURE_GENERATOR1  ||  dw->ID == Obj::CREATURE_GENERATOR4
-		||  dw->ID == Obj::REFUGEE_CAMP) //advmap dwelling
-		dst = getHero(gs->getPlayer(dw->tempOwner)->currentSelection); //TODO: check if current hero is really visiting dwelling
-	else if(dw->ID == Obj::WAR_MACHINE_FACTORY)
-		dst = dynamic_cast<const CGHeroInstance *>(getTile(dw->visitablePos())->visitableObjects.back());
+	//TODO: check if dst can recruit objects (e.g. hero is actually visiting object, town and source are same, etc)
+	dst = dynamic_cast<const CArmedInstance*>(getObj(dstid));
 
 	assert(dw && dst);
 
@@ -3784,10 +3778,10 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	return ok;
 }
 
-void CGameHandler::playerMessage( PlayerColor player, const std::string &message )
+void CGameHandler::playerMessage( PlayerColor player, const std::string &message, ObjectInstanceID currObj )
 {
 	bool cheated=true;
-	PlayerMessage temp_message(player, message);
+	PlayerMessage temp_message(player, message, ObjectInstanceID(-1)); // don't inform other client on selected object
 
 	sendAndApply(&temp_message);
 	if(message == "vcmiistari") //give all spells and 999 mana
@@ -3795,7 +3789,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		SetMana sm;
 		ChangeSpells cs;
 
-		CGHeroInstance *h = gs->getHero(gs->getPlayer(player)->currentSelection);
+		CGHeroInstance *h = gs->getHero(currObj);
 		if(!h && complain("Cannot realize cheat, no hero selected!")) return;
 
 		sm.hid = cs.hid = h->id;
@@ -3819,13 +3813,13 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	}
 	else if (message == "vcmiarmenelos") //build all buildings in selected town
 	{
-		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
+		CGHeroInstance *hero = gs->getHero(currObj);
 		CGTownInstance *town;
 
 		if (hero)
 			town = hero->visitedTown;
 		else
-			town = gs->getTown(gs->getPlayer(player)->currentSelection);
+			town = gs->getTown(currObj);
 
 		if (town)
 		{
@@ -3842,7 +3836,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	}
 	else if(message == "vcmiainur") //gives 5 archangels into each slot
 	{
-		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
+		CGHeroInstance *hero = gs->getHero(currObj);
 		const CCreature *archangel = VLC->creh->creatures.at(13);
 		if(!hero) return;
 
@@ -3852,7 +3846,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	}
 	else if(message == "vcmiangband") //gives 10 black knight into each slot
 	{
-		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
+		CGHeroInstance *hero = gs->getHero(currObj);
 		const CCreature *blackKnight = VLC->creh->creatures.at(66);
 		if(!hero) return;
 
@@ -3862,7 +3856,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	}
 	else if(message == "vcminoldor") //all war machines
 	{
-		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
+		CGHeroInstance *hero = gs->getHero(currObj);
 		if(!hero) return;
 
 		if(!hero->getArt(ArtifactPosition::MACH1))
@@ -3872,9 +3866,21 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		if(!hero->getArt(ArtifactPosition::MACH3))
 			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(6), ArtifactPosition::MACH3);
 	}
+	else if (message == "vcmiforgeofnoldorking") //hero gets all artifacts except war machines, spell scrolls and spell book
+	{
+		CGHeroInstance *hero = gs->getHero(currObj);
+		if(!hero) return;
+		for (int g = 7; g < VLC->arth->artifacts.size(); ++g) //including artifacts from mods
+			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(g), ArtifactPosition::PRE_FIRST);
+	}
+	else if(message == "vcmiglorfindel") //selected hero gains a new level
+	{
+		CGHeroInstance *hero = gs->getHero(currObj);
+		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level+1) - VLC->heroh->reqExp(hero->level));
+	}
 	else if(message == "vcminahar") //1000000 movement points
 	{
-		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
+		CGHeroInstance *hero = gs->getHero(currObj);
 		if(!hero) return;
 		SetMovePoints smp;
 		smp.hid = hero->id;
@@ -3907,11 +3913,6 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		delete [] hlp_tab;
 		sendAndApply(&fc);
 	}
-	else if(message == "vcmiglorfindel") //selected hero gains a new level
-	{
-		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
-		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level+1) - VLC->heroh->reqExp(hero->level));
-	}
 	else if(message == "vcmisilmaril") //player wins
 	{
 		gs->getPlayer(player)->enteredWinningCheatCode = 1;
@@ -3919,13 +3920,6 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	else if(message == "vcmimelkor") //player looses
 	{
 		gs->getPlayer(player)->enteredLosingCheatCode = 1;
-	}
-	else if (message == "vcmiforgeofnoldorking") //hero gets all artifacts except war machines, spell scrolls and spell book
-	{
-		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
-		if(!hero) return;
-		for (int g = 7; g < VLC->arth->artifacts.size(); ++g) //including artifacts from mods
-			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(g), ArtifactPosition::PRE_FIRST);
 	}
 	else
 		cheated = false;

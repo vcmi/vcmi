@@ -54,7 +54,7 @@ public:
 	//town
 	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)=0;
 	virtual bool buildBuilding(const CGTownInstance *town, BuildingID buildingID)=0;
-	virtual void recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui32 amount, si32 level=-1)=0;
+	virtual void recruitCreatures(const CGDwelling *obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 
@@ -72,11 +72,9 @@ public:
 	virtual void endTurn()=0;
 	virtual void buyArtifact(const CGHeroInstance *hero, ArtifactID aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
 	virtual void setFormation(const CGHeroInstance * hero, bool tight)=0;
-	virtual void setSelection(const CArmedInstance * obj)=0;
-
 
 	virtual void save(const std::string &fname) = 0;
-	virtual void sendMessage(const std::string &mess) = 0;
+	virtual void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) = 0;
 	virtual void buildBoat(const IShipyard *obj) = 0;
 };
 
@@ -100,24 +98,17 @@ public:
 
 class CCallback : public CPlayerSpecificInfoCallback, public IGameActionCallback, public CBattleCallback
 {
-private:
-
-	void validatePaths(); //recalcualte paths if necessary
-
 public:
 	CCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient *C);
 	virtual ~CCallback();
 
 	//client-specific functionalities (pathfinding)
-	virtual const CGPathNode *getPathInfo(int3 tile); //uses main, client pathfinder info
-	virtual int getDistance(int3 tile);
-	virtual bool getPath2(int3 dest, CGPath &ret); //uses main, client pathfinder info
 	virtual bool canMoveBetween(const int3 &a, const int3 &b);
 	virtual int getMovementCost(const CGHeroInstance * hero, int3 dest);
-	virtual int3 getGuardingCreaturePosition(int3 tile); //uses main, client pathfinder info
+	virtual int3 getGuardingCreaturePosition(int3 tile);
+	virtual const CPathsInfo * getPathsInfo(const CGHeroInstance *h);
 
-	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1);
-	virtual void recalculatePaths(); //updates main, client pathfinder info (should be called when moving hero is over)
+	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out);
 
 	//Set of metrhods that allows adding more interfaces for this player that'll receive game event call-ins.
 	void registerGameInterface(shared_ptr<IGameEventsReceiver> gameEvents);
@@ -142,7 +133,7 @@ public:
 	//bool moveArtifact(const CStackInstance * stack, ui16 src , const CGHeroInstance * hero, ui16 dest); // TODO: unify classes
 	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo);
 	bool buildBuilding(const CGTownInstance *town, BuildingID buildingID) override;
-	void recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui32 amount, si32 level=-1);
+	void recruitCreatures(const CGDwelling * obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1);
 	bool dismissCreature(const CArmedInstance *obj, SlotID stackPos);
 	bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE) override;
 	void endTurn();
@@ -150,10 +141,9 @@ public:
 	void buyArtifact(const CGHeroInstance *hero, ArtifactID aid) override;
 	void trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero = nullptr);
 	void setFormation(const CGHeroInstance * hero, bool tight);
-	void setSelection(const CArmedInstance * obj);
 	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero);
 	void save(const std::string &fname);
-	void sendMessage(const std::string &mess);
+	void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr);
 	void buildBoat(const IShipyard *obj);
 	void dig(const CGObjectInstance *hero);
 	void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1));

@@ -542,14 +542,6 @@ void CClient::handlePack( CPack * pack )
 	delete pack;
 }
 
-void CClient::updatePaths()
-{
-	//TODO? lazy evaluation? paths now can get recalculated multiple times upon various game events
-	const CGHeroInstance *h = getSelectedHero();
-	if (h)//if we have selected hero...
-		calculatePaths(h);
-}
-
 void CClient::finishCampaign( shared_ptr<CCampaignState> camp )
 {
 }
@@ -672,13 +664,6 @@ PlayerColor CClient::getLocalPlayer() const
 	return getCurrentPlayer();
 }
 
-void CClient::calculatePaths(const CGHeroInstance *h)
-{
-	assert(h);
-	boost::unique_lock<boost::mutex> pathLock(pathMx);
-	gs->calculatePaths(h, *pathInfo);
-}
-
 void CClient::commenceTacticPhaseForInt(shared_ptr<CBattleGameInterface> battleInt)
 {
 	setThreadName("CClient::commenceTacticPhaseForInt");
@@ -693,10 +678,22 @@ void CClient::commenceTacticPhaseForInt(shared_ptr<CBattleGameInterface> battleI
 	} HANDLE_EXCEPTION
 }
 
-void CClient::invalidatePaths(const CGHeroInstance *h /*= nullptr*/)
+void CClient::invalidatePaths()
 {
-	if(!h || pathInfo->hero == h)
-		pathInfo->isValid = false;
+	// turn pathfinding info into invalid. It will be regenerated later
+	boost::unique_lock<boost::mutex> pathLock(pathInfo->pathMx);
+	pathInfo->hero = nullptr;
+}
+
+const CPathsInfo * CClient::getPathsInfo(const CGHeroInstance *h)
+{
+	assert(h);
+	boost::unique_lock<boost::mutex> pathLock(pathInfo->pathMx);
+	if (pathInfo->hero != h)
+	{
+		gs->calculatePaths(h, *pathInfo.get());
+	}
+	return pathInfo.get();
 }
 
 int CClient::sendRequest(const CPack *request, PlayerColor player)

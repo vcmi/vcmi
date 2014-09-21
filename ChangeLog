@@ -1,12 +1,24 @@
 0.96 0> 0.next
 GENERAL:
 * VCMI can now be compiled with SDL2
-* Better upscaling when running in fullscreen mode.
-* Non-latin characters can now be entered in chat window or used for save names.
 * (windows) Moved VCMI data directory from '%userprofile%\vcmi' to '%userprofile%\Documents\My Games\vcmi'
-* (windows, OSX) Moved VCMI save directory from 'VCMI_DATA\Games' to 'VCMI_DATA\Saves'
+* (windows) (OSX) Moved VCMI save directory from 'VCMI_DATA\Games' to 'VCMI_DATA\Saves'
+* (linux) 
+
+ADVENTURE AI:
+* Significantly optimized execution time, AI should be much faster now.
+
+ADVENTURE MAP:
+* Non-latin characters can now be entered in chat window or used for save names.
+* Implemented separate speed for owned heroes and heroes owned by other players
+
+GRAPHICS:
+* Better upscaling when running in fullscreen mode.
+* New creature/commader window
+* New resolutions and bonus icons are now part of a separate mod
 
 RANDOM MAP GENERATOR:
+* Fixed major crash on removing objects
 
 LAUNCHER:
 * Implemented switch to disable intro movies in game

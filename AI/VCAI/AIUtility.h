@@ -146,8 +146,6 @@ void getVisibleNeighbours(const std::vector<int3> &tiles, std::vector<int3> &out
 
 bool canBeEmbarkmentPoint(const TerrainTile *t, bool fromWater);
 bool isBlockedBorderGate(int3 tileToHit);
-bool isReachable(const CGObjectInstance *obj);
-bool isCloser(const CGObjectInstance *lhs, const CGObjectInstance *rhs);
 
 bool isWeeklyRevisitable (const CGObjectInstance * obj);
 bool shouldVisit (HeroPtr h, const CGObjectInstance * obj);
@@ -162,3 +160,12 @@ bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
 bool compareArmyStrength(const CArmedInstance *a1, const CArmedInstance *a2);
 ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance *t);
 int3 whereToExplore(HeroPtr h);
+
+class CDistanceSorter
+{
+	const CGHeroInstance * hero;
+public:
+	CDistanceSorter(const CGHeroInstance * hero): hero(hero) {}
+
+	bool operator ()(const CGObjectInstance *lhs, const CGObjectInstance *rhs);
+};

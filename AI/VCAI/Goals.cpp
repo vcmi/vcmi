@@ -256,7 +256,7 @@ TSubgoal Win::whatToDoToAchieve()
 													return vstd::contains(t->forbiddenBuildings, BuildingID::GRAIL);
 												}),
 										towns.end());
-							boost::sort(towns, isCloser);
+							boost::sort(towns, CDistanceSorter(h.get()));
 							if(towns.size())
 							{
 								return sptr (Goals::VisitTile(towns.front()->visitablePos()).sethero(h));
@@ -353,7 +353,7 @@ TSubgoal FindObj::whatToDoToAchieve()
 			}
 		}
 	}
-	if (o && isReachable(o)) //we don't use isAccessibleForHero as we don't know which hero it is
+	if (o && ai->isAccessible(o->pos)) //we don't use isAccessibleForHero as we don't know which hero it is
 		return sptr (Goals::GetObj(o->id.getNum()));
 	else
 		return sptr (Goals::Explore());
@@ -377,7 +377,7 @@ TSubgoal GetObj::whatToDoToAchieve()
 	}
 	else
 	{
-		if (isReachable(obj))
+		if (ai->isAccessible(obj->pos))
 			return sptr (Goals::VisitTile(pos).sethero(hero)); //we must visit object with same hero, if any
 	}
 	return sptr (Goals::ClearWayTo(pos).sethero(hero));
@@ -853,8 +853,31 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 	}
 	if (dwellings.size())
 	{
-		boost::sort(dwellings, isCloser);
-		return sptr (Goals::GetObj(dwellings.front()->id.getNum()));
+		typedef std::map<const CGHeroInstance *, const CGDwelling *> TDwellMap;
+
+		// sorted helper
+		auto comparator = [](const TDwellMap::value_type & a, const TDwellMap::value_type & b) -> bool
+		{
+			const CGPathNode *ln = ai->myCb->getPathsInfo(a.first)->getPathInfo(a.second->visitablePos()),
+			                 *rn = ai->myCb->getPathsInfo(b.first)->getPathInfo(b.second->visitablePos());
+
+			if(ln->turns != rn->turns)
+				return ln->turns < rn->turns;
+
+			return (ln->moveRemains > rn->moveRemains);
+		};
+
+		// for all owned heroes generate map <hero -> nearest dwelling>
+		TDwellMap nearestDwellings;
+		for (const CGHeroInstance * hero : cb->getHeroesInfo(true))
+		{
+			nearestDwellings[hero] = *boost::range::min_element(dwellings, CDistanceSorter(hero));
+		}
+
+		// find hero who is nearest to a dwelling
+		const CGDwelling * nearest = boost::range::min_element(nearestDwellings, comparator)->second;
+
+		return sptr (Goals::GetObj(nearest->id.getNum()));
 	}
 	else
 		return sptr (Goals::Explore());
