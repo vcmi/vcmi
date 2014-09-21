@@ -95,7 +95,6 @@ VCAI::VCAI(void)
 {
 	LOG_TRACE(logAi);
 	makingTurn = nullptr;
-	currentSelection = nullptr;
 }
 
 VCAI::~VCAI(void)
@@ -695,7 +694,6 @@ void VCAI::makeTurnInternal()
 				continue;
 			}
 
-			setSelection(hero.first.get());
 			std::vector<const CGObjectInstance *> vec(hero.second.begin(), hero.second.end());
 			boost::sort (vec, CDistanceSorter(hero.first.get()));
 			for (auto obj : vec)
@@ -1254,7 +1252,6 @@ bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
 
 void VCAI::wander(HeroPtr h)
 {
-	setSelection(*h);
 	//unclaim objects that are now dangerous for us
 	auto reservedObjsSetCopy = reservedHeroesMap[h];
 	for (auto obj : reservedObjsSetCopy)
@@ -1631,7 +1628,6 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /
 
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
-	setSelection(h.h); //make sure we are using the RIGHT pathfinder
 	logAi->debugStream() << boost::format("Moving hero %s to tile %s") % h->name % dst;
 	int3 startHpos = h->visitablePos();
 	bool ret = false;
@@ -2185,16 +2181,6 @@ void VCAI::striveToQuest (const QuestInfo &q)
 	}
 }
 
-const CArmedInstance * VCAI::getSelection()
-{
-	return currentSelection;
-}
-
-void VCAI::setSelection(const CArmedInstance * obj)
-{
-	currentSelection = obj;
-}
-
 void VCAI::performTypicalActions()
 {
 	for(auto h : getUnblockedHeroes())
@@ -2250,7 +2236,6 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 int3 VCAI::explorationNewPoint(HeroPtr h)
 {
     //logAi->debugStream() << "Looking for an another place for exploration...";
-	setSelection(h.h);
 	int radius = h->getSightRadious();
 
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
@@ -2658,7 +2643,6 @@ SectorMap::SectorMap()
 
 SectorMap::SectorMap(HeroPtr h)
 {
-	ai->setSelection(h.h);
 	update();
 	makeParentBFS(h->visitablePos());
 }

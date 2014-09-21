@@ -124,7 +124,6 @@ const BuildingID extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, Bu
 
 class VCAI : public CAdventureAI
 {
-	const CArmedInstance * currentSelection;
 public:
 	//internal methods for town development
 
@@ -258,9 +257,6 @@ public:
 	void setGoal(HeroPtr h, Goals::TSubgoal goal);
 	void completeGoal (Goals::TSubgoal goal); //safely removes goal from reserved hero
 	void striveToQuest (const QuestInfo &q);
-
-	const CArmedInstance * getSelection();
-	void setSelection(const CArmedInstance * obj);
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	bool isGoodForVisit(const CGObjectInstance *obj, HeroPtr h);

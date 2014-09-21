@@ -353,7 +353,7 @@ TSubgoal FindObj::whatToDoToAchieve()
 			}
 		}
 	}
-	if (o)// FIXME: re-enable with *some* hero && isReachable(o)) //we don't use isAccessibleForHero as we don't know which hero it is
+	if (o && ai->isAccessible(o->pos)) //we don't use isAccessibleForHero as we don't know which hero it is
 		return sptr (Goals::GetObj(o->id.getNum()));
 	else
 		return sptr (Goals::Explore());
@@ -377,7 +377,7 @@ TSubgoal GetObj::whatToDoToAchieve()
 	}
 	else
 	{
-		//if (isReachable(obj)) //FIXME: re-enable with some hero
+		if (ai->isAccessible(obj->pos))
 			return sptr (Goals::VisitTile(pos).sethero(hero)); //we must visit object with same hero, if any
 	}
 	return sptr (Goals::ClearWayTo(pos).sethero(hero));
