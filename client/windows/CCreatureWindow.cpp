@@ -56,6 +56,7 @@ struct StackWindowInfo
 	const CCreature * creature;
 	const CCommanderInstance * commander;
 	const CStackInstance * stackNode;
+	const CStack * stack;
 	const CGHeroInstance * owner;
 
 	// temporary objects which should be kept as copy if needed
@@ -92,6 +93,7 @@ StackWindowInfo::StackWindowInfo():
 	creature(nullptr),
 	commander(nullptr),
 	stackNode(nullptr),
+	stack(nullptr),
 	owner(nullptr),
 	creatureCount(0),
 	popupWindow(false)
@@ -214,7 +216,13 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 	else
 		createBackground("info-panel-0");
 
-	new CCreaturePic(5, 41, parent->info->creature);
+	auto pic = new CCreaturePic(5, 41, parent->info->creature);
+
+	if (parent->info->stackNode != nullptr && parent->info->commander == nullptr)
+	{
+		//normal stack, not a commander and not non-existing stack (e.g. recruitment dialog)
+		pic->setAmount(parent->info->stackNode->count);
+	}
 
 	std::string visibleName;
 	if (parent->info->commander != nullptr)
@@ -234,7 +242,7 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 	printStatBase(EStat::HEALTH, CGI->generaltexth->allTexts[388], parent->info->creature->valOfBonuses(Bonus::STACK_HEALTH), parent->info->stackNode->valOfBonuses(Bonus::STACK_HEALTH));
 	printStatBase(EStat::SPEED, CGI->generaltexth->zelp[441].first, parent->info->creature->Speed(), parent->info->stackNode->Speed());
 
-	const CStack * battleStack = dynamic_cast<const CStack*>(parent->info->stackNode);
+	const CStack * battleStack = parent->info->stack;
 	bool shooter = parent->info->stackNode->hasBonusOfType(Bonus::SHOOTER) && parent->info->stackNode->valOfBonuses(Bonus::SHOTS);
 	bool caster  = parent->info->stackNode->valOfBonuses(Bonus::CASTS);
 
@@ -293,13 +301,13 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 
 void CStackWindow::CWindowSection::createActiveSpells()
 {
-	static const Point firstPos(7 ,4); // position of 1st spell box
+	static const Point firstPos(6, 2); // position of 1st spell box
 	static const Point offset(54, 0);  // offset of each spell box from previous
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	createBackground("spell-effects");
 
-	const CStack * battleStack = dynamic_cast<const CStack*>(parent->info->stackNode);
+	const CStack * battleStack = parent->info->stack;
 
 	assert(battleStack); // Section should be created only for battles
 
@@ -316,7 +324,7 @@ void CStackWindow::CWindowSection::createActiveSpells()
 			int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
 			boost::replace_first (spellText, "%d", boost::lexical_cast<std::string>(duration));
 
-			new CAnimImage("SpellInt", effect + 1, 0, firstPos.x + offset.x * printed, firstPos.x + offset.y * printed);
+			new CAnimImage("SpellInt", effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed);
 			new LRClickableAreaWText(Rect(firstPos + offset * printed, Point(50, 38)), spellText, spellText);
 			if (++printed >= 8) // interface limit reached
 				break;
@@ -689,7 +697,7 @@ void CStackWindow::initSections()
 	pos.w = currentSection->pos.w;
 	pos.h += currentSection->pos.h;
 
-	if (dynamic_cast<const CStack*>(info->stackNode)) // in battle
+	if (info->stack) // in battle
 	{
 		currentSection = new CWindowSection(this);
 		currentSection->pos.y += pos.h;
@@ -790,6 +798,7 @@ CStackWindow::CStackWindow(const CStack * stack, bool popup):
 	CWindowObject(BORDERED | (popup ? RCLICK_POPUP : 0)),
     info(new StackWindowInfo())
 {
+	info->stack = stack;
 	info->stackNode = stack->base;
 	info->creature = stack->type;
 	info->creatureCount = stack->count;

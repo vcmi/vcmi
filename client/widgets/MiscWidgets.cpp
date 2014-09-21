@@ -432,11 +432,28 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool An
 		bg = new CPicture(CGI->townh->factions[faction]->creatureBg130);
 	else
 		bg = new CPicture(CGI->townh->factions[faction]->creatureBg120);
-	bg->needRefresh = true;
 	anim = new CCreatureAnim(0, 0, cre->animDefName, Rect());
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
 	anim->startPreview(cre->hasBonusOfType(Bonus::SIEGE_WEAPON));
 
+	amount = new CLabel(bg->pos.w, bg->pos.h, FONT_MEDIUM, BOTTOMRIGHT, Colors::WHITE);
+
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
+}
+
+void CCreaturePic::show(SDL_Surface *to)
+{
+	// redraw everything in a proper order
+	bg->showAll(to);
+	anim->show(to);
+	amount->showAll(to);
+}
+
+void CCreaturePic::setAmount(int newAmount)
+{
+	if (newAmount != 0)
+		amount->setText(boost::lexical_cast<std::string>(newAmount));
+	else
+		amount->setText("");
 }

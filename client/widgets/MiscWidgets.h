@@ -12,6 +12,7 @@
  *
  */
 
+class CLabel;
 class CCreatureAnim;
 class CComponent;
 class CGGarrison;
@@ -85,9 +86,13 @@ class CCreaturePic : public CIntObject
 private:
 	CPicture *bg;
 	CCreatureAnim *anim; //displayed animation
+	CLabel * amount;
 
+	void show(SDL_Surface *to);
 public:
 	CCreaturePic(int x, int y, const CCreature *cre, bool Big=true, bool Animated=true); //c-tor
+
+	void setAmount(int newAmount);
 };
 
 /// Resource bar like that at the bottom of the adventure map screen

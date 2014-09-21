@@ -706,16 +706,24 @@ void CSlider::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(key.state != SDL_PRESSED) return;
 
-	int moveDest = 0;
+	int moveDest = value;
 	switch(key.keysym.sym)
 	{
 	case SDLK_UP:
+		if (!horizontal)
+			moveDest = value - scrollStep;
+		break;
 	case SDLK_LEFT:
-		moveDest = value - scrollStep;
+		if (horizontal)
+			moveDest = value - scrollStep;
 		break;
 	case SDLK_DOWN:
+		if (!horizontal)
+			moveDest = value + scrollStep;
+		break;
 	case SDLK_RIGHT:
-		moveDest = value + scrollStep;
+		if (horizontal)
+			moveDest = value + scrollStep;
 		break;
 	case SDLK_PAGEUP:
 		moveDest = value - capacity + scrollStep;

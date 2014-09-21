@@ -71,6 +71,8 @@ CMinimap (position),
 void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	for (auto icon : icons)
+		delete icon;
 	icons.clear();
 
 	int3 tile;
@@ -104,7 +106,7 @@ void CQuestMinimap::iconClicked()
 {
 	if (currentQuest->obj)
 		adventureInt->centerOn (currentQuest->obj->pos);
-	moveAdvMapSelection();
+	//moveAdvMapSelection();
 }
 
 void CQuestMinimap::showAll(SDL_Surface * to)
@@ -160,7 +162,6 @@ void CQuestLog::showAll(SDL_Surface * to)
 		CSDL_Ext::drawBorder(to, Rect::around(labels[questIndex]->pos), int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b));
 	}
 	description->show(to);
-	minimap->update();
 	minimap->show(to);
 }
 
@@ -178,6 +179,7 @@ void CQuestLog::recreateQuestList (int newpos)
 			labels[i]->deactivate();
 		}
 	}
+	minimap->update();
 }
 
 void CQuestLog::selectQuest (int which)
@@ -190,6 +192,7 @@ void CQuestLog::selectQuest (int which)
 	std::vector<Component> components; //TODO: display them
 	currentQuest->quest->getVisitText (text, components , currentQuest->quest->isCustomFirst, true);
 	description->setText (text.toString()); //TODO: use special log entry text
+	minimap->update();
 	redraw();
 }
 
