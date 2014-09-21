@@ -28,10 +28,8 @@ do
 		--gog) gog_file=$2          ; shift 2 ;;
 		--data) data_dir=$2         ; shift 2 ;;
 		--dest) dest_dir=$2         ; shift 2 ;;
-		--wog) wog_archive=$2       ; shift 2 ;;
-		--vcmi) vcmi_archive=$2     ; shift 2 ;;
 		--convertMP3) useffmpeg=true; shift 1 ;;
-		--download) download=true   ; shift 1 ;;
+#		--download) download=true   ; shift 1 ;;
 		--validate) validate=true   ; shift 1 ;;
 		*) print_help=true          ; shift 1 ;;
 	esac
@@ -52,18 +50,12 @@ then
 	echo
 	echo " --data DIRECTORY " "Path to installed Heroes 3 data"
 	echo
-	echo " --wog ARCHIVE    " "Path to manually downloaded WoG archive"
-	echo "                  " "Requires unzip"
-	echo
-	echo " --vcmi ARCHIVE   " "Path to manually downloaded VCMI data package"
-	echo "                  " "Requires unzip"
-	echo
 	echo " --convertMP3     " "Convert all mp3 files into ogg/vorbis"
 	echo "                  " "Requires ffmpeg or avconv"
 	echo
-	echo " --download       " "Automatically download requied packages using wget"
-	echo "                  " "Requires wget and Internet connection"
-	echo
+#	echo " --download       " "Automatically download optional package using wget"
+#	echo "                  " "Requires wget and Internet connection"
+#	echo
 	echo " --dest DIRECTORY " "Path where resulting data will be placed. Default is ~/.vcmi"
 	echo
 	echo " --validate       " "Run basic validness checks"
@@ -129,18 +121,7 @@ then
 	test_utility "unshield" "-V"
 fi
 
-if [[ -n "$download" ]] 
-then
-	if [[ -n "$wog_archive" ]] && [[ -n "$vcmi_archive" ]]
-	then
-		warning "Warning: Both wog and vcmi archives were specified. Download option will not be used"
-		unset download
-	else
-		test_utility "wget" "-V"
-	fi
-fi
-
-if [[ -n "$download" ]] || [[ -n "$wog_archive" ]] || [[ -n "$vcmi_archive" ]]
+if [[ -n "$download" ]]
 then
 	test_utility "unzip"
 fi
@@ -148,11 +129,6 @@ fi
 if [[ -z "$gog_file" ]] && [[ -z "$data_dir" ]] && ( [[ -z "$cd1_dir" ]] || [[ -z "$cd2_dir" ]] )
 then
 	warning "Warning: Selected options will not create complete Heroes 3 data!"
-fi
-
-if [[ -z "$download" ]] && ( [[ -z "$wog_archive" ]] || [[ -z "$vcmi_archive" ]])
-then
-	warning "Warning: Selected options will not create complete VCMI data!"
 fi
 
 # if at least one warning has been printed - ask for confirmation
@@ -245,23 +221,8 @@ fi
 
 if [[ -n "$download" ]]
 then
-	if [[ -z "$wog_archive" ]]
-	then
-		wget "http://download.vcmi.eu/WoG/wog.zip" -O "$temp_dir"/wog.zip || fail "Error: failed to download WoG archive!" "rm -f wog.zip"
-		wog_archive="$temp_dir"/wog.zip
-	fi
-
-	if [[ -z "$vcmi_archive" ]]
-	then
-		wget "http://download.vcmi.eu/core.zip" -O "$temp_dir"/core.zip || fail "Error: failed to download VCMI archive!" "rm -f core.zip"
-		vcmi_archive="$temp_dir"/core.zip
-	fi
-fi
-
-if [[ -n "$wog_archive" ]]
-then
-	echo "decompressing $wog_archive"
-	unzip -qo "$wog_archive" -d "$dest_dir" || fail "Error: failed to extract WoG archive!"
+	wget "http://download.vcmi.eu/core.zip" -O "$temp_dir"/core.zip || fail "Error: failed to download VCMI archive!" "rm -f core.zip"
+	vcmi_archive="$temp_dir"/core.zip
 fi
 
 if [[ -n "$vcmi_archive" ]]
@@ -272,7 +233,7 @@ fi
 
 if [[ -n "$useffmpeg" ]]
 then
-	# now when all music files (including WoG theme) were installed convert them to ogg
+	# now when all music files were installed convert them to ogg
 	echo "Converting mp3 files..."
 
 	OIFS="$IFS"
@@ -294,7 +255,6 @@ then
 	test -f "$dest_dir"/Data/H3bitmap.lod || fail "Error: Heroes 3 data files are missing!"
 	test -f "$dest_dir"/Data/H3sprite.lod || fail "Error: Heroes 3 data files are missing!"
 	test -f "$dest_dir"/Data/VIDEO.VID    || fail "Error: Heroes 3 data files (CD2) are missing!"
-	test -d "$dest_dir"/Mods/WoG/Data     || fail "Error: WoG data files are missing!"
 	test -d "$dest_dir"/Mods/vcmi/Data    || fail "Error: VCMI data files are missing!"
 fi
 
