@@ -853,9 +853,31 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 	}
 	if (dwellings.size())
 	{
-		//FIXME: we need hero to sort dwellings by distance
-		//boost::sort(dwellings, CDistanceSorter(h.get()));
-		return sptr (Goals::GetObj(dwellings.front()->id.getNum()));
+		typedef std::map<const CGHeroInstance *, const CGDwelling *> TDwellMap;
+
+		// sorted helper
+		auto comparator = [](const TDwellMap::value_type & a, const TDwellMap::value_type & b) -> bool
+		{
+			const CGPathNode *ln = ai->myCb->getPathsInfo(a.first)->getPathInfo(a.second->visitablePos()),
+			                 *rn = ai->myCb->getPathsInfo(b.first)->getPathInfo(b.second->visitablePos());
+
+			if(ln->turns != rn->turns)
+				return ln->turns < rn->turns;
+
+			return (ln->moveRemains > rn->moveRemains);
+		};
+
+		// for all owned heroes generate map <hero -> nearest dwelling>
+		TDwellMap nearestDwellings;
+		for (const CGHeroInstance * hero : cb->getHeroesInfo(true))
+		{
+			nearestDwellings[hero] = *boost::range::min_element(dwellings, CDistanceSorter(hero));
+		}
+
+		// find hero who is nearest to a dwelling
+		const CGDwelling * nearest = boost::range::min_element(nearestDwellings, comparator)->second;
+
+		return sptr (Goals::GetObj(nearest->id.getNum()));
 	}
 	else
 		return sptr (Goals::Explore());
