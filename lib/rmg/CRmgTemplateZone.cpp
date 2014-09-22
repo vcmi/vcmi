@@ -1195,6 +1195,27 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 		return false;
 	};
 
+	//tighten obstacles to improve visuals
+	for (auto tile : tileinfo)
+	{
+		if (!gen->isPossible(tile)) //only possible tiles can change
+			continue;
+
+		int blockedNeighbours = 0;
+		int freeNeighbours = 0;
+		gen->foreach_neighbour(tile, [gen, &blockedNeighbours, &freeNeighbours](int3 &pos)
+		{
+			if (gen->isBlocked(pos))
+				blockedNeighbours++;
+			if (gen->isFree(pos))
+				freeNeighbours++;
+		});
+		if (blockedNeighbours > 4)
+			gen->setOccupied(tile, ETileType::BLOCKED);
+		else if (freeNeighbours > 4)
+			gen->setOccupied(tile, ETileType::FREE);
+	}
+
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
 	for (auto tile : boost::adaptors::reverse(tileinfo))
 	{
