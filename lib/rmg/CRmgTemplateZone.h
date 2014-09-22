@@ -151,7 +151,7 @@ public:
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength, bool clearSurroundingTiles = true, bool zoneGuard = false);
-	bool createTreasurePile (CMapGenerator* gen, int3 &pos);
+	bool createTreasurePile(CMapGenerator* gen, int3 &pos, float minDistance);
 	bool fill (CMapGenerator* gen);
 	bool placeMines (CMapGenerator* gen);
 	void initTownType (CMapGenerator* gen);

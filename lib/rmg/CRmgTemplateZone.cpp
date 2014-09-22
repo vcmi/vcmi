@@ -643,7 +643,7 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, 
 	return true;
 }
 
-bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
+bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos, float minDistance)
 {
 	CTreasurePileInfo info;
 
@@ -751,9 +751,9 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 				if (gen->isPossible(tile)) //we can place new treasure only on possible tile
 				{
 					bool here = true;
-					gen->foreach_neighbour (tile, [gen, &here](int3 pos)
+					gen->foreach_neighbour (tile, [gen, &here, minDistance](int3 pos)
 					{
-						if (!(gen->isBlocked(pos) || gen->isPossible(pos)))
+						if (!(gen->isBlocked(pos) || gen->isPossible(pos)) || gen->getNearestObjectDistance(pos) < minDistance)
 							here = false;
 					});
 					if (here)
@@ -1108,7 +1108,7 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 		{
 			break;
 		}
-		createTreasurePile (gen, pos);
+		createTreasurePile (gen, pos, minDistance);
 
 	} while(true);
 }
@@ -1238,7 +1238,7 @@ bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, float min_di
 	//logGlobal->infoStream() << boost::format("Min dist for density %f is %d") % density % min_dist;
 	for(auto tile : possibleTiles)
 	{
-		auto dist = gen->getTile(tile).getNearestObjectDistance();
+		auto dist = gen->getNearestObjectDistance(tile);
 
 		if ((dist >= min_dist) && (dist > best_distance))
 		{
