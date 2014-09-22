@@ -1115,6 +1115,27 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 
 void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 { 
+	//tighten obstacles to improve visuals
+	for (auto tile : tileinfo)
+	{
+		if (!gen->isPossible(tile)) //only possible tiles can change
+			continue;
+
+		int blockedNeighbours = 0;
+		int freeNeighbours = 0;
+		gen->foreach_neighbour(tile, [gen, &blockedNeighbours, &freeNeighbours](int3 &pos)
+		{
+			if (gen->isBlocked(pos))
+				blockedNeighbours++;
+			if (gen->isFree(pos))
+				freeNeighbours++;
+		});
+		if (blockedNeighbours > 4)
+			gen->setOccupied(tile, ETileType::BLOCKED);
+		else if (freeNeighbours > 4)
+			gen->setOccupied(tile, ETileType::FREE);
+	}
+
 	if (pos.z) //underground
 	{
 		std::vector<int3> rockTiles;
@@ -1137,15 +1158,15 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 		}
 		gen->editManager->getTerrainSelection().setSelection(rockTiles);
 		gen->editManager->drawTerrain(ETerrainType::ROCK, &gen->rand);
-		//for (auto tile : rockTiles)
-		//{
-		//	gen->setOccupied (tile, ETileType::USED);
-		//	gen->foreach_neighbour (tile, [gen](int3 &pos)
-		//	{
-		//		if (!gen->isUsed(pos))
-		//			gen->setOccupied (pos, ETileType::BLOCKED);
-		//	});
-		//}
+		for (auto tile : rockTiles)
+		{
+			gen->setOccupied (tile, ETileType::USED); //don't place obstacles in a rock
+			//gen->foreach_neighbour (tile, [gen](int3 &pos)
+			//{
+			//	if (!gen->isUsed(pos))
+			//		gen->setOccupied (pos, ETileType::BLOCKED);
+			//});
+		}
 	}
 	typedef std::vector<ObjectTemplate> obstacleVector;
 	//obstacleVector possibleObstacles;
@@ -1194,27 +1215,6 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 		}
 		return false;
 	};
-
-	//tighten obstacles to improve visuals
-	for (auto tile : tileinfo)
-	{
-		if (!gen->isPossible(tile)) //only possible tiles can change
-			continue;
-
-		int blockedNeighbours = 0;
-		int freeNeighbours = 0;
-		gen->foreach_neighbour(tile, [gen, &blockedNeighbours, &freeNeighbours](int3 &pos)
-		{
-			if (gen->isBlocked(pos))
-				blockedNeighbours++;
-			if (gen->isFree(pos))
-				freeNeighbours++;
-		});
-		if (blockedNeighbours > 4)
-			gen->setOccupied(tile, ETileType::BLOCKED);
-		else if (freeNeighbours > 4)
-			gen->setOccupied(tile, ETileType::FREE);
-	}
 
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
 	for (auto tile : boost::adaptors::reverse(tileinfo))
