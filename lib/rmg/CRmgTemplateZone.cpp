@@ -673,13 +673,10 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 	}
 	ui32 desiredValue = gen->rand.nextInt(minValue, maxValue);
 	//quantize value to let objects with value equal to max spawn too
-	ui32 diff = maxValue - minValue;
-	float quant = (float)diff / 4.f;
-	desiredValue = (boost::math::round((float)(desiredValue - minValue) / quant)) * quant + minValue;
 
 	int currentValue = 0;
 	CGObjectInstance * object = nullptr;
-	while (currentValue < minValue) //we don't want to spawn worthless items for greater piles when their value gets low, so abort earlier 
+	while (currentValue < desiredValue)
 	{
 		treasures[info.nextTreasurePos] = nullptr;
 
@@ -703,7 +700,7 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos)
 				break;
 		}
 
-		ObjectInfo oi = getRandomObject(gen, info, desiredValue - currentValue);
+		ObjectInfo oi = getRandomObject(gen, info, desiredValue, maxValue, currentValue);
 		if (!oi.value) //0 value indicates no object
 		{
 			vstd::erase_if_present(treasures, info.nextTreasurePos);
@@ -1505,7 +1502,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	return true;
 }
 
-ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 remaining)
+ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue)
 {
 	//int objectsVisitableFromBottom = 0; //for debug
 
@@ -1513,12 +1510,13 @@ ObjectInfo CRmgTemplateZone::getRandomObject (CMapGenerator* gen, CTreasurePileI
 	ui32 total = 0;
 
 	//calculate actual treasure value range based on remaining value
-	ui32 minValue = 0.25f * remaining;
+	ui32 maxVal = maxValue - currentValue;
+	ui32 minValue = 0.25f * (desiredValue - currentValue);
 
 	//roulette wheel
 	for (ObjectInfo &oi : possibleObjects) //copy constructor turned out to be costly
 	{
-		if (oi.value >= minValue && oi.value <= remaining && oi.maxPerZone > 0)
+		if (oi.value >= minValue && oi.value <= maxVal && oi.maxPerZone > 0)
 		{
 			int3 newVisitableOffset = oi.templ.getVisitableOffset(); //visitablePos assumes object will be shifter by visitableOffset
 			int3 newVisitablePos = info.nextTreasurePos;
