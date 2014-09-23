@@ -2203,7 +2203,7 @@ void VCAI::buildArmyIn(const CGTownInstance * t)
 {
 	makePossibleUpgrades(t->visitingHero);
 	makePossibleUpgrades(t);
-	recruitCreatures(t, t);
+	recruitCreatures(t, t->getUpperArmy());
 	moveCreaturesToHero(t);
 }
 
