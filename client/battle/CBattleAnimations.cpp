@@ -867,11 +867,15 @@ void CShootingAnimation::endAnim()
 
 CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, BattleHex _destTile, int _dx, int _dy, bool _Vflip, bool _areaEffect)
 :CBattleAnimation(_owner), effect(_effect), destTile(_destTile), customAnim(""), x(0), y(0), dx(_dx), dy(_dy), Vflip(_Vflip) , areaEffect(_areaEffect)
-{}
+{
+	logAnim->debugStream() << "Created spell anim for effect #" << effect;
+}
 
 CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy, bool _Vflip, bool _areaEffect)
 :CBattleAnimation(_owner), effect(-1), destTile(0), customAnim(_customAnim), x(_x), y(_y), dx(_dx), dy(_dy), Vflip(_Vflip), areaEffect(_areaEffect)
-{}
+{
+	logAnim->debugStream() << "Created spell anim for " << customAnim;
+}
 
 bool CSpellEffectAnimation::init()
 {

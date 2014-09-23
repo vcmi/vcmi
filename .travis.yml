@@ -42,16 +42,16 @@ matrix:
   exclude:
     - env: ignore=this
   include:
-    - compiler: clang
-      env: REAL_CC=clang-3.2 REAL_CXX=clang++-3.2 PACKAGE=clang-3.2 SUPPORT=g++-4.8 
+    #- compiler: clang # fails all the time - missing packages?
+    #  env: REAL_CC=clang-3.2 REAL_CXX=clang++-3.2 PACKAGE=clang-3.2 SUPPORT=g++-4.8 
     - compiler: clang
       env: REAL_CC=clang-3.3 REAL_CXX=clang++-3.3 PACKAGE=clang-3.3 SUPPORT=g++-4.8 
     - compiler: clang
       env: REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4 SUPPORT=g++-4.8 
-    - compiler: gcc
-      env: REAL_CC=gcc-4.7   REAL_CXX=g++-4.7     PACKAGE=g++-4.7   SUPPORT=
-    - compiler: gcc
-      env: REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT=
+    #- compiler: gcc # fails due to running out of memory - vcmi need too much of it for successfull compilation
+    #  env: REAL_CC=gcc-4.7   REAL_CXX=g++-4.7     PACKAGE=g++-4.7   SUPPORT=
+    #- compiler: gcc # same as 4.7
+    #  env: REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT=
 
 notifications:
   email:

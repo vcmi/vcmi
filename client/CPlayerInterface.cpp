@@ -945,6 +945,7 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 		CCS->soundh->playSound(soundBase::deathBlow);
 
 	}
+	battleInt->waitForAnims();
 
 	const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
 
