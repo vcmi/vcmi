@@ -406,6 +406,11 @@ void CRmgTemplateZone::createBorder(CMapGenerator* gen)
 
 void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 {
+	for (auto tile : tileinfo)
+	{
+		if (gen->isFree(tile))
+			freePaths.insert(tile);
+	}
 	std::vector<int3> clearedTiles (freePaths.begin(), freePaths.end());
 	std::set<int3> possibleTiles;
 	std::set<int3> tilesToClear; //will be set clear
@@ -917,11 +922,26 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 	//FIXME: handle case that this player is not present -> towns should be set to neutral
 	int totalTowns = 0;
 
-	auto addNewTowns = [&totalTowns, gen, this](int count, bool hasFort, PlayerColor player)
+	auto cutPathAroundTown = [gen, this](const CGTownInstance * town)
+	{
+		//cut contour around town in case it was placed in a middle of path. TODO: find better solution
+		for (auto tile : town->getBlockedPos())
+		{
+			gen->foreach_neighbour(tile, [gen, &tile](int3& pos)
+			{
+				if (gen->isPossible(pos))
+				{
+					gen->setOccupied(pos, ETileType::FREE);
+				}
+			});
+		}
+	};
+
+	auto addNewTowns = [&totalTowns, gen, this, &cutPathAroundTown](int count, bool hasFort, PlayerColor player)
 	{
 		for (int i = 0; i < count; i++)
 		{
-			auto  town = new CGTownInstance();
+			auto town = new CGTownInstance();
 			town->ID = Obj::TOWN;
 
 			if (this->townsAreSameType)
@@ -942,6 +962,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				gen->registerZone(town->subID);
 				//first town in zone goes in the middle
 				placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0);
+				cutPathAroundTown(town);
 			}
 			else
 				addRequiredObject (town);
@@ -973,6 +994,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			town->builtBuildings.insert(BuildingID::DEFAULT);
 			//towns are big objects and should be centered around visitable position
 			placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0); //generate no guards, but free path to entrance
+			cutPathAroundTown(town);
 
 			totalTowns++;
 			//register MAIN town of zone only
