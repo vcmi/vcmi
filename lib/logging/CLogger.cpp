@@ -208,7 +208,7 @@ CLogFormatter::CLogFormatter() : CLogFormatter("%m") { }
 
 CLogFormatter::CLogFormatter(const std::string & pattern) : pattern(pattern)
 {
-	boost::posix_time::time_facet * facet = new boost::posix_time::time_facet("%H:%M:%S");
+	boost::posix_time::time_facet * facet = new boost::posix_time::time_facet("%H:%M:%S.%f");
 	dateStream.imbue(std::locale(dateStream.getloc(), facet));
 }
 
