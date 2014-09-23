@@ -550,16 +550,45 @@ do not leave zone border
 								end = true;
 								result = true;
 							}
-							else
-								throw rmgException(boost::to_string(boost::format("Tile %s of uknown type found on path") % pos()));
 						}
 					}
 				}
 			}
 		});
-		if (!(result || distance < lastDistance)) //we do not advance, use more avdnaced pathfinding algorithm?
+
+		int3 anotherPos(-1, -1, -1);
+
+		if (!(result || distance < lastDistance)) //we do not advance, use more advaced pathfinding algorithm?
 		{
-			logGlobal->warnStream() << boost::format ("No tile closer than %s found on path from %s to %s") %currentPos %src %dst;
+			//try any nearby tiles, even if its not closer than current
+			float lastDistance = 2 * distance; //start with significantly larger value
+			gen->foreach_neighbour(currentPos, [this, gen, &currentPos, dst, &lastDistance, &anotherPos, &end, clearedTiles](int3 &pos)
+			{
+				if (currentPos.dist2dSQ(dst) < lastDistance) //try closest tiles from all surrounding unused tiles
+				{
+					if (vstd::contains(tileinfo, pos))
+					{
+						if (gen->isPossible(pos))
+						{
+							if (clearedTiles)
+								clearedTiles->insert(pos);
+							anotherPos = pos;
+							lastDistance = currentPos.dist2dSQ(dst);
+						}
+					}
+				}
+			});
+			if (anotherPos.valid())
+			{
+				if (clearedTiles)
+					clearedTiles->insert(anotherPos);
+				gen->setOccupied(anotherPos, ETileType::FREE);
+				currentPos = anotherPos;
+			}
+		}
+		if (!(result || distance < lastDistance || anotherPos.valid()))
+		{
+			logGlobal->warnStream() << boost::format("No tile closer than %s found on path from %s to %s") % currentPos %src %dst;
 			break;
 		}
 	}
