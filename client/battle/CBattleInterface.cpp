@@ -1036,8 +1036,9 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 {
 	for (auto & attackedInfo : attackedInfos)
 	{
-		if (!attackedInfo.cloneKilled) //FIXME: play dead animation for cloned creature before it vanishes
+		//if (!attackedInfo.cloneKilled) //FIXME: play dead animation for cloned creature before it vanishes
 			addNewAnim(new CDefenceAnimation(attackedInfo, this));
+
 		if (attackedInfo.rebirth)
 		{
 			displayEffect(50, attackedInfo.defender->position); //TODO: play reverse death animation
@@ -1052,12 +1053,6 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 		killed += attackedInfo.amountKilled;
 		damage += attackedInfo.dmg;
 	}
-	if (attackedInfos.front().cloneKilled) //FIXME: cloned stack is already removed
-		return;
-	if (targets > 1)
-		printConsoleAttacked(attackedInfos.front().defender, damage, killed, attackedInfos.front().attacker, true); //creatures perish
-	else
-		printConsoleAttacked(attackedInfos.front().defender, damage, killed, attackedInfos.front().attacker, false);
 
 	for(auto & attackedInfo : attackedInfos)
 	{
@@ -1066,6 +1061,15 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 		if (attackedInfo.cloneKilled)
 			stackRemoved(attackedInfo.defender->ID);
 	}
+
+/*	if (attackedInfos.front().cloneKilled) //FIXME: cloned stack is already removed
+		return;*/
+
+	if (targets > 1)
+		printConsoleAttacked(attackedInfos.front().defender, damage, killed, attackedInfos.front().attacker, true); //creatures perish
+	else
+		printConsoleAttacked(attackedInfos.front().defender, damage, killed, attackedInfos.front().attacker, false);
+
 }
 
 void CBattleInterface::stackAttacking( const CStack * attacker, BattleHex dest, const CStack * attacked, bool shooting )
