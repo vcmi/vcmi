@@ -1114,26 +1114,40 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 }
 
 void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
-{ 
+{
 	//tighten obstacles to improve visuals
-	for (auto tile : tileinfo)
-	{
-		if (!gen->isPossible(tile)) //only possible tiles can change
-			continue;
 
-		int blockedNeighbours = 0;
-		int freeNeighbours = 0;
-		gen->foreach_neighbour(tile, [gen, &blockedNeighbours, &freeNeighbours](int3 &pos)
+	for (int i = 0; i < 3; ++i)
+	{
+		int blockedTiles = 0;
+		int freeTiles = 0;
+
+		for (auto tile : tileinfo)
 		{
-			if (gen->isBlocked(pos))
-				blockedNeighbours++;
-			if (gen->isFree(pos))
-				freeNeighbours++;
-		});
-		if (blockedNeighbours > 4)
-			gen->setOccupied(tile, ETileType::BLOCKED);
-		else if (freeNeighbours > 4)
-			gen->setOccupied(tile, ETileType::FREE);
+			if (!gen->isPossible(tile)) //only possible tiles can change
+				continue;
+
+			int blockedNeighbours = 0;
+			int freeNeighbours = 0;
+			gen->foreach_neighbour(tile, [gen, &blockedNeighbours, &freeNeighbours](int3 &pos)
+			{
+				if (gen->isBlocked(pos))
+					blockedNeighbours++;
+				if (gen->isFree(pos))
+					freeNeighbours++;
+			});
+			if (blockedNeighbours > 4)
+			{
+				gen->setOccupied(tile, ETileType::BLOCKED);
+				blockedTiles++;
+			}
+			else if (freeNeighbours > 4)
+			{
+				gen->setOccupied(tile, ETileType::FREE);
+				freeTiles++;
+			}
+		}
+		logGlobal->infoStream() << boost::format("Set %d tiles to BLOCKED and %d tiles to FREE") % blockedTiles % freeTiles;
 	}
 
 	if (pos.z) //underground
