@@ -127,6 +127,7 @@ public:
 	ui16 bonusID; //ID of skill/spell
 
 //	void giveAnyBonus(const CGHeroInstance * h) const; //TODO: remove
+	CGScholar() : bonusType(EBonusType::RANDOM){};
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
 	template <typename Handler> void serialize(Handler &h, const int version)
