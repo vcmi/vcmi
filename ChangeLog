@@ -1,9 +1,10 @@
-0.96 0> 0.next
+0.96 -> 0.next
 GENERAL:
 * VCMI can now be compiled with SDL2
 * (windows) Moved VCMI data directory from '%userprofile%\vcmi' to '%userprofile%\Documents\My Games\vcmi'
 * (windows) (OSX) Moved VCMI save directory from 'VCMI_DATA\Games' to 'VCMI_DATA\Saves'
-* (linux) 
+* (linux)
+* Movies will use ffmpeg library
 
 ADVENTURE AI:
 * Significantly optimized execution time, AI should be much faster now.
@@ -18,11 +19,11 @@ GRAPHICS:
 * New resolutions and bonus icons are now part of a separate mod
 
 RANDOM MAP GENERATOR:
+* Random map generator now creates complete and playable maps, should match original RMG
 * Fixed major crash on removing objects
 
 LAUNCHER:
 * Implemented switch to disable intro movies in game
-
 
 0.95 -> 0.96 (Jul 01 2014)
 GENERAL:
