@@ -1512,6 +1512,11 @@ void VCAI::validateVisitableObjs()
 	errorMsg = " shouldn't be on the visitable objects list!";
 	erase_if(visitableObjs, shouldBeErased);
 
+	//FIXME: how comes our own heroes become inaccessible?
+	erase_if(reservedHeroesMap, [](std::pair<HeroPtr, std::set<const CGObjectInstance *>> hp) -> bool
+	{
+		return !hp.first.get(true);
+	});
 	for(auto &p : reservedHeroesMap)
 	{
 		errorMsg = " shouldn't be on list for hero " + p.first->name + "!";
