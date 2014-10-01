@@ -429,7 +429,11 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 
 	while (possibleTiles.size())
 	{
-		for (auto tileToMakePath : possibleTiles)
+		//link tiles in random order
+		std::vector<int3> tilesToMakePath(possibleTiles.begin(), possibleTiles.end());
+		RandomGeneratorUtil::randomShuffle(tilesToMakePath, gen->rand);
+
+		for (auto tileToMakePath : tilesToMakePath)
 		{
 			//find closest free tile
 			float currentDistance = 1e10;
