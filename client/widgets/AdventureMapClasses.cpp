@@ -368,11 +368,15 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 		return fogOfWar;
 
 	// if object at tile is owned - it will be colored as its owner
-	for(const CGObjectInstance *obj : tile->blockingObjects)
+	for (const CGObjectInstance *obj : tile->blockingObjects)
 	{
 		//heroes will be blitted later
-		if (obj->ID == Obj::HERO)
-			continue;
+		switch (obj->ID)
+		{
+			case Obj::HERO:
+			case Obj::PRISON:
+				continue;
+		}
 
 		PlayerColor player = obj->getOwner();
 		if(player == PlayerColor::NEUTRAL)
