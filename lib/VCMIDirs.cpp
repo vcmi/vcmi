@@ -448,7 +448,7 @@ std::vector<bfs::path> VCMIDirsOSX::dataPaths() const
 bfs::path VCMIDirsOSX::libraryPath() const { return "."; }
 bfs::path VCMIDirsOSX::binaryPath() const { return "."; }
 
-std::string libraryName(const std::string& basename) { return "lib" + basename + ".dylib"; }
+std::string VCMIDirsOSX::libraryName(const std::string& basename) const { return "lib" + basename + ".dylib"; }
 #elif defined(VCMI_LINUX)
 class VCMIDirsLinux : public IVCMIDirsUNIX
 {
