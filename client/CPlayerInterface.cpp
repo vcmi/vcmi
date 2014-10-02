@@ -71,7 +71,6 @@
 		return;						\
 	RETURN_IF_QUICK_COMBAT
 
-using namespace boost::assign;
 using namespace CSDL_Ext;
 
 void processCommand(const std::string &message, CClient *&client);
@@ -1438,7 +1437,7 @@ void CPlayerInterface::initializeHeroTownList()
 
 	for (auto & allHeroe : allHeroes)
 		if (!allHeroe->inTownGarrison)
-			wanderingHeroes += allHeroe;
+			wanderingHeroes.push_back(allHeroe);
 
 	std::vector<const CGTownInstance*> allTowns = cb->getTownsInfo();
 	/*

@@ -27,7 +27,6 @@ class FuzzyEngine;
 class InputLVar;
 class CGTownInstance;
 
-using namespace boost::assign;
 using namespace vstd;
 //using namespace Goals;
 
@@ -118,9 +117,6 @@ void FuzzyHelper::initTacticalAdvantage()
 {
 	try
 	{
-		//Tactical advantage calculation
-		std::vector<fl::InputLVar*> helper;
-
 		ta.ourShooters = new fl::InputLVar("OurShooters");
 		ta.ourWalkers = new fl::InputLVar("OurWalkers");
 		ta.ourFlyers = new fl::InputLVar("OurFlyers");
@@ -128,7 +124,11 @@ void FuzzyHelper::initTacticalAdvantage()
 		ta.enemyWalkers = new fl::InputLVar("EnemyWalkers");
 		ta.enemyFlyers = new fl::InputLVar("EnemyFlyers");
 
-		helper += ta.ourShooters, ta.ourWalkers, ta.ourFlyers, ta.enemyShooters, ta.enemyWalkers, ta.enemyFlyers;
+		//Tactical advantage calculation
+		std::vector<fl::InputLVar*> helper =
+		{
+			ta.ourShooters, ta.ourWalkers, ta.ourFlyers, ta.enemyShooters, ta.enemyWalkers, ta.enemyFlyers
+		};
 
 		for (auto val : helper)
 		{
@@ -136,12 +136,11 @@ void FuzzyHelper::initTacticalAdvantage()
 			val->addTerm (new fl::ShoulderTerm("FEW", 0, 0.6, true));
 			val->addTerm (new fl::ShoulderTerm("MANY", 0.4, 1, false));
 		}
-		helper.clear();
 
 		ta.ourSpeed =  new fl::InputLVar("OurSpeed");
 		ta.enemySpeed = new fl::InputLVar("EnemySpeed");
 
-		helper += ta.ourSpeed, ta.enemySpeed;
+		helper = {ta.ourSpeed, ta.enemySpeed};
 
 		for (auto val : helper)
 		{
@@ -334,15 +333,13 @@ void FuzzyHelper::initVisitTile()
 {
 	try
 	{
-		std::vector<fl::InputLVar*> helper;
-
 		vt.strengthRatio = new fl::InputLVar("strengthRatio"); //hero must be strong enough to defeat guards
 		vt.heroStrength = new fl::InputLVar("heroStrength"); //we want to use weakest possible hero
 		vt.turnDistance = new fl::InputLVar("turnDistance"); //we want to use hero who is near
 		vt.missionImportance = new fl::InputLVar("lockedMissionImportance"); //we may want to preempt hero with low-priority mission
 		vt.value = new fl::OutputLVar("Value");
 
-		helper += vt.strengthRatio, vt.heroStrength, vt.turnDistance, vt.missionImportance;
+		std::vector<fl::InputLVar*> helper = {vt.strengthRatio, vt.heroStrength, vt.turnDistance, vt.missionImportance};
 		for (auto val : helper)
 		{
 			engine.addInputLVar(val);

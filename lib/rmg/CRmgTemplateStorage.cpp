@@ -199,8 +199,13 @@ CRmgTemplate::CSize CJsonRmgTemplateLoader::parseMapTemplateSize(const std::stri
 
 	std::vector<std::string> parts;
 	boost::split(parts, text, boost::is_any_of("+"));
-	static const std::map<std::string, int> mapSizeMapping = boost::assign::map_list_of("s", CMapHeader::MAP_SIZE_SMALL)
-			("m", CMapHeader::MAP_SIZE_MIDDLE)("l", CMapHeader::MAP_SIZE_LARGE)("xl", CMapHeader::MAP_SIZE_XLARGE);
+	static const std::map<std::string, int> mapSizeMapping = 
+	{ 
+		{"s", CMapHeader::MAP_SIZE_SMALL},
+		{"m", CMapHeader::MAP_SIZE_MIDDLE},
+		{"l", CMapHeader::MAP_SIZE_LARGE},
+		{"xl", CMapHeader::MAP_SIZE_XLARGE},
+	};
 	auto it = mapSizeMapping.find(parts[0]);
 	if(it == mapSizeMapping.end())
 	{
@@ -224,9 +229,13 @@ CRmgTemplate::CSize CJsonRmgTemplateLoader::parseMapTemplateSize(const std::stri
 
 ETemplateZoneType::ETemplateZoneType CJsonRmgTemplateLoader::parseZoneType(const std::string & type) const
 {
-	static const std::map<std::string, ETemplateZoneType::ETemplateZoneType> zoneTypeMapping = boost::assign::map_list_of
-			("playerStart", ETemplateZoneType::PLAYER_START)("cpuStart", ETemplateZoneType::CPU_START)
-			("treasure", ETemplateZoneType::TREASURE)("junction", ETemplateZoneType::JUNCTION);
+	static const std::map<std::string, ETemplateZoneType::ETemplateZoneType> zoneTypeMapping = 
+	{
+		{"playerStart", ETemplateZoneType::PLAYER_START},
+		{"cpuStart", ETemplateZoneType::CPU_START},
+		{"treasure", ETemplateZoneType::TREASURE},
+		{"junction", ETemplateZoneType::JUNCTION},		
+	};
 	auto it = zoneTypeMapping.find(type);
 	if(it == zoneTypeMapping.end()) throw std::runtime_error("Zone type unknown.");
 	return it->second;

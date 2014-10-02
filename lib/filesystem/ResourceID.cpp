@@ -86,42 +86,43 @@ EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 #endif
 
 	static const std::map<std::string, EResType::Type> stringToRes =
-			boost::assign::map_list_of
-			(".TXT",   EResType::TEXT)
-			(".JSON",  EResType::TEXT)
-			(".DEF",   EResType::ANIMATION)
-			(".MSK",   EResType::MASK)
-			(".MSG",   EResType::MASK)
-			(".H3C",   EResType::CAMPAIGN)
-			(".H3M",   EResType::MAP)
-			(".FNT",   EResType::BMP_FONT)
-			(".TTF",   EResType::TTF_FONT)
-			(".BMP",   EResType::IMAGE)
-			(".JPG",   EResType::IMAGE)
-			(".PCX",   EResType::IMAGE)
-			(".PNG",   EResType::IMAGE)
-			(".TGA",   EResType::IMAGE)
-			(".WAV",   EResType::SOUND)
-			(".82M",   EResType::SOUND)
-			(".SMK",   EResType::VIDEO)
-			(".BIK",   EResType::VIDEO)
-			(".MJPG",  EResType::VIDEO)
-			(".MPG",   EResType::VIDEO)
-			(".AVI",   EResType::VIDEO)
-			(".MP3",   EResType::MUSIC)
-			(".OGG",   EResType::MUSIC)
-			(".FLAC",  EResType::MUSIC)
-			(".ZIP",   EResType::ARCHIVE_ZIP)
-			(".LOD",   EResType::ARCHIVE_LOD)
-			(".PAC",   EResType::ARCHIVE_LOD)
-			(".VID",   EResType::ARCHIVE_VID)
-			(".SND",   EResType::ARCHIVE_SND)
-			(".PAL",   EResType::PALETTE)
-			(".VCGM1", EResType::CLIENT_SAVEGAME)
-			(".VSGM1", EResType::SERVER_SAVEGAME)
-			(".ERM",   EResType::ERM)
-			(".ERT",   EResType::ERT)
-			(".ERS",   EResType::ERS);
+	{
+		{".TXT",   EResType::TEXT},
+		{".JSON",  EResType::TEXT},
+		{".DEF",   EResType::ANIMATION},
+		{".MSK",   EResType::MASK},
+		{".MSG",   EResType::MASK},
+		{".H3C",   EResType::CAMPAIGN},
+		{".H3M",   EResType::MAP},
+		{".FNT",   EResType::BMP_FONT},
+		{".TTF",   EResType::TTF_FONT},
+		{".BMP",   EResType::IMAGE},
+		{".JPG",   EResType::IMAGE},
+		{".PCX",   EResType::IMAGE},
+		{".PNG",   EResType::IMAGE},
+		{".TGA",   EResType::IMAGE},
+		{".WAV",   EResType::SOUND},
+		{".82M",   EResType::SOUND},
+		{".SMK",   EResType::VIDEO},
+		{".BIK",   EResType::VIDEO},
+		{".MJPG",  EResType::VIDEO},
+		{".MPG",   EResType::VIDEO},
+		{".AVI",   EResType::VIDEO},
+		{".MP3",   EResType::MUSIC},
+		{".OGG",   EResType::MUSIC},
+		{".FLAC",  EResType::MUSIC},
+		{".ZIP",   EResType::ARCHIVE_ZIP},
+		{".LOD",   EResType::ARCHIVE_LOD},
+		{".PAC",   EResType::ARCHIVE_LOD},
+		{".VID",   EResType::ARCHIVE_VID},
+		{".SND",   EResType::ARCHIVE_SND},
+		{".PAL",   EResType::PALETTE},
+		{".VCGM1", EResType::CLIENT_SAVEGAME},
+		{".VSGM1", EResType::SERVER_SAVEGAME},
+		{".ERM",   EResType::ERM},
+		{".ERT",   EResType::ERT},
+		{".ERS",   EResType::ERS}
+	};
 
 	auto iter = stringToRes.find(extension);
 	if (iter == stringToRes.end())
@@ -131,9 +132,10 @@ EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 
 std::string EResTypeHelper::getEResTypeAsString(EResType::Type type)
 {
-#define MAP_ENUM(value) (EResType::value, #value)
+#define MAP_ENUM(value) {EResType::value, #value},
 
-	static const std::map<EResType::Type, std::string> stringToRes = boost::assign::map_list_of
+	static const std::map<EResType::Type, std::string> stringToRes =
+	{
 		MAP_ENUM(TEXT)
 		MAP_ENUM(ANIMATION)
 		MAP_ENUM(MASK)
@@ -156,7 +158,8 @@ std::string EResTypeHelper::getEResTypeAsString(EResType::Type type)
 		MAP_ENUM(ERM)
 		MAP_ENUM(ERT)
 		MAP_ENUM(ERS)
-		MAP_ENUM(OTHER);
+		MAP_ENUM(OTHER)
+	};
 
 #undef MAP_ENUM
 

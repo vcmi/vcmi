@@ -306,11 +306,11 @@ void CMenuScreen::switchToTab(size_t index)
 //funciton for std::string -> std::function conversion for main menu
 static std::function<void()> genCommand(CMenuScreen* menu, std::vector<std::string> menuType, const std::string &string)
 {
-	static const std::vector<std::string> commandType  = boost::assign::list_of
-		("to")("campaigns")("start")("load")("exit")("highscores");
+	static const std::vector<std::string> commandType  = 
+		{"to", "campaigns", "start", "load", "exit", "highscores"};
 
-	static const std::vector<std::string> gameType = boost::assign::list_of
-		("single")("multi")("campaign")("tutorial");
+	static const std::vector<std::string> gameType = 
+		{"single", "multi", "campaign", "tutorial"};
 
 	std::list<std::string> commands;
 	boost::split(commands, string, boost::is_any_of("\t "));
@@ -1624,13 +1624,12 @@ CRandomMapTab::CRandomMapTab()
 	mapSizeBtnGroup = new CToggleGroup(0);
 	mapSizeBtnGroup->pos.y += 81;
 	mapSizeBtnGroup->pos.x += 158;
-	const std::vector<std::string> mapSizeBtns = boost::assign::list_of("RANSIZS")("RANSIZM")("RANSIZL")("RANSIZX");
+	const std::vector<std::string> mapSizeBtns = {"RANSIZS", "RANSIZM","RANSIZL","RANSIZX"};
 	addButtonsToGroup(mapSizeBtnGroup, mapSizeBtns, 0, 3, 47, 198);
 	mapSizeBtnGroup->setSelected(1);
 	mapSizeBtnGroup->addCallback([&](int btnId)
 	{
-		const std::vector<int> mapSizeVal = boost::assign::list_of(CMapHeader::MAP_SIZE_SMALL)(CMapHeader::MAP_SIZE_MIDDLE)
-				(CMapHeader::MAP_SIZE_LARGE)(CMapHeader::MAP_SIZE_XLARGE);
+		const std::vector<int> mapSizeVal = {CMapHeader::MAP_SIZE_SMALL,CMapHeader::MAP_SIZE_MIDDLE,CMapHeader::MAP_SIZE_LARGE,CMapHeader::MAP_SIZE_XLARGE};
 		mapGenOptions.setWidth(mapSizeVal[btnId]);
 		mapGenOptions.setHeight(mapSizeVal[btnId]);
 		updateMapInfo();
@@ -1706,7 +1705,7 @@ CRandomMapTab::CRandomMapTab()
 	waterContentGroup = new CToggleGroup(0);
 	waterContentGroup->pos.y += 419;
 	waterContentGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
-	const std::vector<std::string> waterContentBtns = boost::assign::list_of("RANNONE")("RANNORM")("RANISLD");
+	const std::vector<std::string> waterContentBtns = {"RANNONE","RANNORM","RANISLD"};
 	addButtonsWithRandToGroup(waterContentGroup, waterContentBtns, 0, 2, WIDE_BTN_WIDTH, 243, 246);
 	waterContentGroup->addCallback([&](int btnId)
 	{
@@ -1717,7 +1716,7 @@ CRandomMapTab::CRandomMapTab()
 	monsterStrengthGroup = new CToggleGroup(0);
 	monsterStrengthGroup->pos.y += 485;
 	monsterStrengthGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
-	const std::vector<std::string> monsterStrengthBtns = boost::assign::list_of("RANWEAK")("RANNORM")("RANSTRG");
+	const std::vector<std::string> monsterStrengthBtns = {"RANWEAK","RANNORM","RANSTRG"};
 	addButtonsWithRandToGroup(monsterStrengthGroup, monsterStrengthBtns, 0, 2, WIDE_BTN_WIDTH, 248, 251);
 	monsterStrengthGroup->addCallback([&](int btnId)
 	{

@@ -402,9 +402,14 @@ CTerrainViewPatternConfig::~CTerrainViewPatternConfig()
 
 ETerrainGroup::ETerrainGroup CTerrainViewPatternConfig::getTerrainGroup(const std::string & terGroup) const
 {
-	static const std::map<std::string, ETerrainGroup::ETerrainGroup> terGroups
-			= boost::assign::map_list_of("normal", ETerrainGroup::NORMAL)("dirt", ETerrainGroup::DIRT)
-			("sand", ETerrainGroup::SAND)("water", ETerrainGroup::WATER)("rock", ETerrainGroup::ROCK);
+	static const std::map<std::string, ETerrainGroup::ETerrainGroup> terGroups =
+	{
+		{"normal", ETerrainGroup::NORMAL},
+		{"dirt", ETerrainGroup::DIRT},
+		{"sand", ETerrainGroup::SAND},
+		{"water", ETerrainGroup::WATER},
+		{"rock", ETerrainGroup::ROCK},
+	};
 	auto it = terGroups.find(terGroup);
 	if(it == terGroups.end()) throw std::runtime_error(boost::str(boost::format("Terrain group '%s' does not exist.") % terGroup));
 	return it->second;

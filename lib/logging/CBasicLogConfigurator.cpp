@@ -87,12 +87,14 @@ void CBasicLogConfigurator::configure()
 
 ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & level)
 {
-	static const std::map<std::string, ELogLevel::ELogLevel> levelMap = boost::assign::map_list_of
-			("trace", ELogLevel::TRACE)
-			("debug", ELogLevel::DEBUG)
-			("info", ELogLevel::INFO)
-			("warn", ELogLevel::WARN)
-			("error", ELogLevel::ERROR);
+	static const std::map<std::string, ELogLevel::ELogLevel> levelMap =
+	{
+		{"trace", ELogLevel::TRACE},
+		{"debug", ELogLevel::DEBUG},
+		{"info", ELogLevel::INFO},
+		{"warn", ELogLevel::WARN},
+		{"error", ELogLevel::ERROR},
+	};
 	
 	const auto & levelPair = levelMap.find(level);
 	if(levelPair != levelMap.end())
@@ -103,15 +105,17 @@ ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & leve
 
 EConsoleTextColor::EConsoleTextColor CBasicLogConfigurator::getConsoleColor(const std::string & colorName)
 {
-	static const std::map<std::string, EConsoleTextColor::EConsoleTextColor> colorMap = boost::assign::map_list_of
-			("default", EConsoleTextColor::DEFAULT)
-			("green", EConsoleTextColor::GREEN)
-			("red", EConsoleTextColor::RED)
-			("magenta", EConsoleTextColor::MAGENTA)
-			("yellow", EConsoleTextColor::YELLOW)
-			("white", EConsoleTextColor::WHITE)
-			("gray", EConsoleTextColor::GRAY)
-			("teal", EConsoleTextColor::TEAL);
+	static const std::map<std::string, EConsoleTextColor::EConsoleTextColor> colorMap =
+	{
+		{"default", EConsoleTextColor::DEFAULT},
+		{"green", EConsoleTextColor::GREEN},
+		{"red", EConsoleTextColor::RED},
+		{"magenta", EConsoleTextColor::MAGENTA},
+		{"yellow", EConsoleTextColor::YELLOW},
+		{"white", EConsoleTextColor::WHITE},
+		{"gray", EConsoleTextColor::GRAY},
+		{"teal", EConsoleTextColor::TEAL},
+	};
 
 	const auto & colorPair = colorMap.find(colorName);
 	if(colorPair != colorMap.end())

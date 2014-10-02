@@ -23,7 +23,6 @@
 #include "../lib/CStopWatch.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 
-using namespace boost::assign;
 using namespace CSDL_Ext;
 #ifdef min
 #undef min
@@ -157,9 +156,12 @@ Graphics::Graphics()
 
 void Graphics::loadHeroAnims()
 {
-	std::vector<std::pair<int,int> > rotations; //first - group number to be rotated1, second - group number after rotation1
-	rotations += std::make_pair(6,10), std::make_pair(7,11), std::make_pair(8,12), std::make_pair(1,13),
-		std::make_pair(2,14), std::make_pair(3,15);
+	//first - group number to be rotated1, second - group number after rotation1
+	std::vector<std::pair<int,int> > rotations = 
+	{
+		{6,10}, {7,11}, {8,12}, {1,13},
+		{2,14}, {3,15}
+	};
 
 	for(auto & elem : CGI->heroh->classes.heroClasses)
 	{
@@ -216,8 +218,12 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 {
 	for(int i=0;i<8;i++)
 		(this->*pr.first).push_back(CDefHandler::giveDefEss(pr.second[i]));
-	std::vector<std::pair<int,int> > rotations; //first - group number to be rotated1, second - group number after rotation1
-	rotations += std::make_pair(6,10), std::make_pair(7,11), std::make_pair(8,12);
+	//first - group number to be rotated1, second - group number after rotation1
+	std::vector<std::pair<int,int> > rotations = 
+	{
+		{6,10}, {7,11}, {8,12}
+	};
+	
 	for(int q=0; q<8; ++q)
 	{
 		std::vector<Cimage> &curImgs = (this->*pr.first)[q]->ourImages;
@@ -269,21 +275,32 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 
 void Graphics::loadHeroFlags()
 {
-	using namespace boost::assign;
 	CStopWatch th;
-	std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > pr[4];
-	pr[0].first = &Graphics::flags1;
-	pr[0].second+=("ABF01L.DEF"),("ABF01G.DEF"),("ABF01R.DEF"),("ABF01D.DEF"),("ABF01B.DEF"),
-		("ABF01P.DEF"),("ABF01W.DEF"),("ABF01K.DEF");
-	pr[1].first = &Graphics::flags2;
-	pr[1].second+=("ABF02L.DEF"),("ABF02G.DEF"),("ABF02R.DEF"),("ABF02D.DEF"),("ABF02B.DEF"),
-		("ABF02P.DEF"),("ABF02W.DEF"),("ABF02K.DEF");
-	pr[2].first = &Graphics::flags3;
-	pr[2].second+=("ABF03L.DEF"),("ABF03G.DEF"),("ABF03R.DEF"),("ABF03D.DEF"),("ABF03B.DEF"),
-		("ABF03P.DEF"),("ABF03W.DEF"),("ABF03K.DEF");
-	pr[3].first = &Graphics::flags4;
-	pr[3].second+=("AF00.DEF"),("AF01.DEF"),("AF02.DEF"),("AF03.DEF"),("AF04.DEF"),
-		("AF05.DEF"),("AF06.DEF"),("AF07.DEF");
+	std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > pr[4] =
+	{
+		{
+			&Graphics::flags1, 
+			{"ABF01L.DEF","ABF01G.DEF","ABF01R.DEF","ABF01D.DEF","ABF01B.DEF",
+			"ABF01P.DEF","ABF01W.DEF","ABF01K.DEF"} 
+		},
+		{
+			&Graphics::flags2,
+			{"ABF02L.DEF","ABF02G.DEF","ABF02R.DEF","ABF02D.DEF","ABF02B.DEF",
+			"ABF02P.DEF","ABF02W.DEF","ABF02K.DEF"}
+			
+		},
+		{
+			&Graphics::flags3,
+			{"ABF03L.DEF","ABF03G.DEF","ABF03R.DEF","ABF03D.DEF","ABF03B.DEF",
+			"ABF03P.DEF","ABF03W.DEF","ABF03K.DEF"}
+		},
+		{
+			&Graphics::flags4,
+			{"AF00.DEF","AF01.DEF","AF02.DEF","AF03.DEF","AF04.DEF",
+			"AF05.DEF","AF06.DEF","AF07.DEF"}
+		}		
+	};
+
 	#if 0
 	boost::thread_group grupa;
 	for(int g=3; g>=0; --g)

@@ -507,10 +507,14 @@ bool JsonParser::error(const std::string &message, bool warning)
 ///////////////////////////////////////////////////////////////////////////////
 
 static const std::unordered_map<std::string, JsonNode::JsonType> stringToType =
-	boost::assign::map_list_of
-		("null",   JsonNode::DATA_NULL)   ("boolean", JsonNode::DATA_BOOL)
-		("number", JsonNode::DATA_FLOAT)  ("string",  JsonNode::DATA_STRING)
-		("array",  JsonNode::DATA_VECTOR) ("object",  JsonNode::DATA_STRUCT);
+{
+	{"null",   JsonNode::DATA_NULL},   
+	{"boolean", JsonNode::DATA_BOOL},
+	{"number", JsonNode::DATA_FLOAT},  
+	{"string",  JsonNode::DATA_STRING},
+	{"array",  JsonNode::DATA_VECTOR}, 
+	{"object",  JsonNode::DATA_STRUCT}
+};
 
 namespace
 {
