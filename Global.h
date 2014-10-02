@@ -16,10 +16,6 @@
 // Fixed width bool data type is important for serialization
 static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
-#if defined _M_X64 && defined _WIN32 //Win64 -> cannot load 32-bit DLLs for video handling
-#  define DISABLE_VIDEO
-#endif
-
 #ifdef __GNUC__
 #  define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__)
 #endif
@@ -30,16 +26,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
 #if defined(__GNUC__) && (GCC_VERSION == 470 || GCC_VERSION == 471)
 #  error This GCC version has buggy std::array::at version and should not be used. Please update to 4.7.2 or later
-#endif
-
-/* ---------------------------------------------------------------------------- */
-/* Guarantee compiler features */
-/* ---------------------------------------------------------------------------- */
-//defining available c++11 features
-
-//initialization lists - gcc or clang
-#if defined(__clang__) || defined(__GNUC__)
-#  define CPP11_USE_INITIALIZERS_LIST
 #endif
 
 /* ---------------------------------------------------------------------------- */
