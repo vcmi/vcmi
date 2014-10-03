@@ -55,7 +55,6 @@
 
 #define ADVOPT (conf.go()->ac)
 using namespace boost::logic;
-using namespace boost::assign;
 using namespace CSDL_Ext;
 
 CAdvMapInt *adventureInt;
@@ -692,7 +691,7 @@ bool CAdvMapInt::isHeroSleeping(const CGHeroInstance *hero)
 void CAdvMapInt::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
 {
 	if (sleep)
-		LOCPLINT->sleepingHeroes += hero;
+		LOCPLINT->sleepingHeroes.push_back(hero); //FIXME: should we check for existence?
 	else
 		LOCPLINT->sleepingHeroes -= hero;
 	updateNextHero(nullptr);

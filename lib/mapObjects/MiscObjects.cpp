@@ -21,8 +21,6 @@
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 
-using namespace boost::assign;
-
 std::map<Obj, std::map<int, std::vector<ObjectInstanceID> > > CGTeleport::objs;
 std::vector<std::pair<ObjectInstanceID, ObjectInstanceID> > CGTeleport::gates;
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
@@ -1419,9 +1417,11 @@ void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
 	// H J L K I
 	// A x S x B
 	// C E G F D
-	offsets += int3(-3,0,0), int3(1,0,0), //AB
+	offsets = {
+		int3(-3,0,0), int3(1,0,0), //AB
 		int3(-3,1,0), int3(1,1,0), int3(-2,1,0), int3(0,1,0), int3(-1,1,0), //CDEFG
-		int3(-3,-1,0), int3(1,-1,0), int3(-2,-1,0), int3(0,-1,0), int3(-1,-1,0); //HIJKL
+		int3(-3,-1,0), int3(1,-1,0), int3(-2,-1,0), int3(0,-1,0), int3(-1,-1,0) //HIJKL
+	}; 
 }
 
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const

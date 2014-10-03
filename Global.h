@@ -126,7 +126,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define BOOST_BIND_NO_PLACEHOLDERS
 
 #include <boost/algorithm/string.hpp>
-#include <boost/assign.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/current_function.hpp>
 #include <boost/crc.hpp>
@@ -675,6 +674,13 @@ namespace vstd
 	{
 		boost::sort(vec);
 		vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+	}
+	
+	template <typename T>
+	void concatenate(std::vector<T> &dest, const std::vector<T> &src)
+	{
+		dest.reserve(dest.size() + src.size());
+		dest.insert(dest.end(), src.begin(), src.end());	
 	}
 
 	using boost::math::round;

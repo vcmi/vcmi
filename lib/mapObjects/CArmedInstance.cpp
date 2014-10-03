@@ -16,8 +16,6 @@
 #include "../CGeneralTextHandler.h"
 #include "../CGameState.h"
 
-using namespace boost::assign;
-
 void CArmedInstance::randomizeArmy(int type)
 {
 	for (auto & elem : stacks)

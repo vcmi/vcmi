@@ -22,8 +22,6 @@
 #include "../CGameState.h"
 #include "../CCreatureHandler.h"
 
-using namespace boost::assign;
-
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
 {
@@ -1050,9 +1048,10 @@ int CGHeroInstance::getBoatType() const
 
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
 {
-	static int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0), int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
-	for (auto & dir : dirs)
-		offsets += dir;
+	offsets = 
+	{ 
+		int3(0,1,0), int3(0,-1,0), int3(-1,0,0), int3(+1,0,0), int3(1,1,0), int3(-1,1,0), int3(1,-1,0), int3(-1,-1,0) 
+	};
 }
 
 int CGHeroInstance::getSpellCost(const CSpell *sp) const
@@ -1162,8 +1161,10 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 	}
 	if (!skillsInfo.magicSchoolCounter)
 	{
-		std::vector<SecondarySkill> ss;
-		ss += SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC;
+		std::vector<SecondarySkill> ss =
+		{
+			SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC
+		};
 
 		std::shuffle(ss.begin(), ss.end(), skillsInfo.rand.getStdGenerator());
 

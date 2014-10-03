@@ -61,7 +61,6 @@
  *
  */
 
-using namespace boost::assign;
 using namespace CSDL_Ext;
 
 std::list<CFocusable*> CFocusable::focusables;

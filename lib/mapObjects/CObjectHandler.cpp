@@ -21,8 +21,6 @@
 
 #include "CObjectClassesHandler.h"
 
-using namespace boost::assign;
-
 IGameCallback * IObjectInterface::cb = nullptr;
 
 ///helpers

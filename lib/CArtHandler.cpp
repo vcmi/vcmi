@@ -23,8 +23,6 @@
 
 #include "mapObjects/CObjectClassesHandler.h"
 
-using namespace boost::assign;
-
 // Note: list must match entries in ArtTraits.txt
 #define ART_POS_LIST    \
 	ART_POS(SPELLBOOK)  \
@@ -277,13 +275,23 @@ ArtifactPosition CArtHandler::stringToSlot(std::string slotName)
 
 void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
 {
+	static const std::vector<ArtifactPosition> miscSlots = 
+	{
+		ArtifactPosition::MISC1, ArtifactPosition::MISC2, ArtifactPosition::MISC3, ArtifactPosition::MISC4, ArtifactPosition::MISC5
+	};
+	
+	static const std::vector<ArtifactPosition> ringSlots =
+	{
+		ArtifactPosition::LEFT_RING, ArtifactPosition::RIGHT_RING
+	};
+	
 	if (slotID == "MISC")
 	{
-		art->possibleSlots[ArtBearer::HERO] += ArtifactPosition::MISC1, ArtifactPosition::MISC2, ArtifactPosition::MISC3, ArtifactPosition::MISC4, ArtifactPosition::MISC5;
+		vstd::concatenate(art->possibleSlots[ArtBearer::HERO], miscSlots);
 	}
 	else if (slotID == "RING")
 	{
-		art->possibleSlots[ArtBearer::HERO] += ArtifactPosition::LEFT_RING, ArtifactPosition::RIGHT_RING;
+		vstd::concatenate(art->possibleSlots[ArtBearer::HERO], ringSlots);
 	}
 	else
 	{

@@ -18,8 +18,6 @@
 #include "../StartInfo.h"
 #include "../IGameCallback.h"
 
-using namespace boost::assign;
-
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
 {

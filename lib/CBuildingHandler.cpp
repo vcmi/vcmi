@@ -14,7 +14,6 @@
 
 BuildingID CBuildingHandler::campToERMU( int camp, int townType, std::set<BuildingID> builtBuildings )
 {
-	using namespace boost::assign;
 	static const std::vector<BuildingID> campToERMU = 
 	{
 		BuildingID::TOWN_HALL, BuildingID::CITY_HALL,

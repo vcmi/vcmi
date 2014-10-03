@@ -11,8 +11,6 @@
 
 #include "mapObjects/CObjectClassesHandler.h"
 
-using namespace boost::assign;
-
 /*
  * CCreatureHandler.cpp, part of VCMI engine
  *
