@@ -704,7 +704,7 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 	visitObjectAfterVictory = false;
 
 	//handle victory/loss of engaged players
-	std::set<PlayerColor> playerColors = boost::assign::list_of(finishingBattle->loser)(finishingBattle->victor);
+	std::set<PlayerColor> playerColors = {finishingBattle->loser, finishingBattle->victor};
 	checkVictoryLossConditions(playerColors);
 
 	if(result.result == BattleResult::SURRENDER || result.result == BattleResult::ESCAPE) //loser has escaped or surrendered
@@ -1819,7 +1819,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 	SetObjectProperty sop(obj->id, 1, owner.getNum());
 	sendAndApply(&sop);
 
-	std::set<PlayerColor> playerColors = boost::assign::list_of(owner)(oldOwner);
+	std::set<PlayerColor> playerColors = {owner, oldOwner};
 	checkVictoryLossConditions(playerColors);
 
 	if(owner < PlayerColor::PLAYER_LIMIT && dynamic_cast<const CGTownInstance *>(obj)) //town captured

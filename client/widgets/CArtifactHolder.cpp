@@ -692,8 +692,6 @@ CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector
 CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart /*= false*/)
  : curHero(nullptr), backpackPos(0), commonInfo(nullptr), updateState(false), allowedAssembling(true), highlightModeCallback(nullptr)
 {
-	using namespace boost::assign;
-
 	if(createCommonPart)
 	{
 		commonInfo = new CArtifactsOfHero::SCommonPart;
@@ -704,14 +702,16 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	pos += position;
 	artWorn.resize(19);
 
-	std::vector<Point> slotPos;
-	slotPos += Point(509,30),  Point(567,240), Point(509,80),
-	           Point(383,68),  Point(564,183), Point(509,130),
-	           Point(431,68),  Point(610,183), Point(515,295),
-	           Point(383,143), Point(399,194), Point(415,245),
-	           Point(431,296), Point(564,30),  Point(610,30),
-	           Point(610,76),  Point(610,122), Point(610,310),
-	           Point(381,296);
+	std::vector<Point> slotPos =
+	{
+		Point(509,30),  Point(567,240), Point(509,80),
+		Point(383,68),  Point(564,183), Point(509,130),
+		Point(431,68),  Point(610,183), Point(515,295),
+		Point(383,143), Point(399,194), Point(415,245),
+		Point(431,296), Point(564,30),  Point(610,30),
+		Point(610,76),  Point(610,122), Point(610,310),
+		Point(381,296)
+	};
 
 	// Create slots for worn artifacts.
 	for (size_t g = 0; g < GameConstants::BACKPACK_START ; g++)

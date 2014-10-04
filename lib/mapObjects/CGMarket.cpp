@@ -18,8 +18,6 @@
 #include "../CCreatureHandler.h"
 #include "../CGameState.h"
 
-using namespace boost::assign;
-
 ///helpers
 static void openWindow(const OpenWindow::EWindow type, const int id1, const int id2 = -1)
 {

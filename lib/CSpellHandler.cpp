@@ -26,8 +26,6 @@ namespace SpellConfig
 
 }
 
-using namespace boost::assign;
-
 namespace SRSLPraserHelpers
 {
 	static int XYToHex(int x, int y)

@@ -23,8 +23,6 @@
 
 #include "mapObjects/CObjectClassesHandler.h"
 
-using namespace boost::assign;
-
 // Note: list must match entries in ArtTraits.txt
 #define ART_POS_LIST    \
 	ART_POS(SPELLBOOK)  \
@@ -45,7 +43,7 @@ using namespace boost::assign;
 	ART_POS(RIGHT_HAND) \
 	ART_POS(NECK)       \
 	ART_POS(SHOULDERS)  \
-	ART_POS(HEAD);
+	ART_POS(HEAD)
 
 const std::string & CArtifact::Name() const
 {
@@ -157,12 +155,12 @@ std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
-	#define ART_POS(x) (  #x)
-	const std::vector<std::string> artSlots = boost::assign::list_of ART_POS_LIST;
+	#define ART_POS(x) #x ,
+	const std::vector<std::string> artSlots = { ART_POS_LIST };
 	#undef ART_POS
 
 	static std::map<char, std::string> classes =
-	  map_list_of('S',"SPECIAL")('T',"TREASURE")('N',"MINOR")('J',"MAJOR")('R',"RELIC");
+		{{'S',"SPECIAL"}, {'T',"TREASURE"},{'N',"MINOR"},{'J',"MAJOR"},{'R',"RELIC"},};
 
 	CLegacyConfigParser parser("DATA/ARTRAITS.TXT");
 	CLegacyConfigParser events("DATA/ARTEVENT.TXT");
@@ -264,8 +262,8 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node)
 
 ArtifactPosition CArtHandler::stringToSlot(std::string slotName)
 {
-#define ART_POS(x) ( #x, ArtifactPosition::x )
-	static const std::map<std::string, ArtifactPosition> artifactPositionMap = boost::assign::map_list_of ART_POS_LIST;
+#define ART_POS(x) { #x, ArtifactPosition::x },
+	static const std::map<std::string, ArtifactPosition> artifactPositionMap = { ART_POS_LIST };
 #undef ART_POS
 	auto it = artifactPositionMap.find (slotName);
 	if (it != artifactPositionMap.end())
@@ -277,13 +275,23 @@ ArtifactPosition CArtHandler::stringToSlot(std::string slotName)
 
 void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
 {
+	static const std::vector<ArtifactPosition> miscSlots = 
+	{
+		ArtifactPosition::MISC1, ArtifactPosition::MISC2, ArtifactPosition::MISC3, ArtifactPosition::MISC4, ArtifactPosition::MISC5
+	};
+	
+	static const std::vector<ArtifactPosition> ringSlots =
+	{
+		ArtifactPosition::LEFT_RING, ArtifactPosition::RIGHT_RING
+	};
+	
 	if (slotID == "MISC")
 	{
-		art->possibleSlots[ArtBearer::HERO] += ArtifactPosition::MISC1, ArtifactPosition::MISC2, ArtifactPosition::MISC3, ArtifactPosition::MISC4, ArtifactPosition::MISC5;
+		vstd::concatenate(art->possibleSlots[ArtBearer::HERO], miscSlots);
 	}
 	else if (slotID == "RING")
 	{
-		art->possibleSlots[ArtBearer::HERO] += ArtifactPosition::LEFT_RING, ArtifactPosition::RIGHT_RING;
+		vstd::concatenate(art->possibleSlots[ArtBearer::HERO], ringSlots);
 	}
 	else
 	{
@@ -309,12 +317,14 @@ void CArtHandler::loadSlots(CArtifact * art, const JsonNode & node)
 
 CArtifact::EartClass CArtHandler::stringToClass(std::string className)
 {
-	static const std::map<std::string, CArtifact::EartClass> artifactClassMap = boost::assign::map_list_of
-		("TREASURE", CArtifact::ART_TREASURE)
-		("MINOR", CArtifact::ART_MINOR)
-		("MAJOR", CArtifact::ART_MAJOR)
-		("RELIC", CArtifact::ART_RELIC)
-		("SPECIAL", CArtifact::ART_SPECIAL);
+	static const std::map<std::string, CArtifact::EartClass> artifactClassMap =
+	{	
+		{"TREASURE", CArtifact::ART_TREASURE},
+		{"MINOR", CArtifact::ART_MINOR},
+		{"MAJOR", CArtifact::ART_MAJOR},
+		{"RELIC", CArtifact::ART_RELIC},
+		{"SPECIAL", CArtifact::ART_SPECIAL}
+	};
 
 	auto it = artifactClassMap.find (className);
 	if (it != artifactClassMap.end())
@@ -331,8 +341,8 @@ void CArtHandler::loadClass(CArtifact * art, const JsonNode & node)
 
 void CArtHandler::loadType(CArtifact * art, const JsonNode & node)
 {
-#define ART_BEARER(x) ( #x, ArtBearer::x )
-	static const std::map<std::string, int> artifactBearerMap = boost::assign::map_list_of ART_BEARER_LIST;
+#define ART_BEARER(x) { #x, ArtBearer::x },
+	static const std::map<std::string, int> artifactBearerMap = { ART_BEARER_LIST };
 #undef ART_BEARER
 
 	for (const JsonNode & b : node["type"].Vector())

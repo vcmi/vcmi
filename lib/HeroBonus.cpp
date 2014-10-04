@@ -26,21 +26,22 @@
 #define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); for(CBonusSystemNode *pname : lchildren)
 #define FOREACH_RED_PARENT(pname) 	TNodes lparents; getRedParents(lparents); for(CBonusSystemNode *pname : lparents)
 
-#define BONUS_NAME(x) ( #x, Bonus::x )
-	const std::map<std::string, Bonus::BonusType> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
+#define BONUS_NAME(x) { #x, Bonus::x },
+	const std::map<std::string, Bonus::BonusType> bonusNameMap = { BONUS_LIST };
 #undef BONUS_NAME
 
-#define BONUS_VALUE(x) ( #x, Bonus::x )
-	const std::map<std::string, Bonus::ValueType> bonusValueMap = boost::assign::map_list_of BONUS_VALUE_LIST;
+#define BONUS_VALUE(x) { #x, Bonus::x },
+	const std::map<std::string, Bonus::ValueType> bonusValueMap = { BONUS_VALUE_LIST };
 #undef BONUS_VALUE
 
-#define BONUS_SOURCE(x) ( #x, Bonus::x )
-	const std::map<std::string, Bonus::BonusSource> bonusSourceMap = boost::assign::map_list_of BONUS_SOURCE_LIST;
+#define BONUS_SOURCE(x) { #x, Bonus::x },
+	const std::map<std::string, Bonus::BonusSource> bonusSourceMap = { BONUS_SOURCE_LIST };
 #undef BONUS_SOURCE
 
-#define BONUS_ITEM(x) ( #x, Bonus::x )
+#define BONUS_ITEM(x) { #x, Bonus::x },
 
-const std::map<std::string, ui16> bonusDurationMap = boost::assign::map_list_of
+const std::map<std::string, ui16> bonusDurationMap = 
+{
 	BONUS_ITEM(PERMANENT)
 	BONUS_ITEM(ONE_BATTLE)
 	BONUS_ITEM(ONE_DAY)
@@ -50,26 +51,33 @@ const std::map<std::string, ui16> bonusDurationMap = boost::assign::map_list_of
 	BONUS_ITEM(UNITL_BEING_ATTACKED)
 	BONUS_ITEM(UNTIL_ATTACK)
 	BONUS_ITEM(STACK_GETS_TURN)
-	BONUS_ITEM(COMMANDER_KILLED);
+	BONUS_ITEM(COMMANDER_KILLED)
+};
 
-const std::map<std::string, Bonus::LimitEffect> bonusLimitEffect = boost::assign::map_list_of
+const std::map<std::string, Bonus::LimitEffect> bonusLimitEffect = 
+{
 	BONUS_ITEM(NO_LIMIT)
 	BONUS_ITEM(ONLY_DISTANCE_FIGHT)
 	BONUS_ITEM(ONLY_MELEE_FIGHT)
-	BONUS_ITEM(ONLY_ENEMY_ARMY);
+	BONUS_ITEM(ONLY_ENEMY_ARMY)
+};
 
-const std::map<std::string, TLimiterPtr> bonusLimiterMap = boost::assign::map_list_of
-	("SHOOTER_ONLY", make_shared<HasAnotherBonusLimiter>(Bonus::SHOOTER))
-	("DRAGON_NATURE", make_shared<HasAnotherBonusLimiter>(Bonus::DRAGON_NATURE))
-	("IS_UNDEAD", make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD));
+const std::map<std::string, TLimiterPtr> bonusLimiterMap =
+{
+	{"SHOOTER_ONLY", make_shared<HasAnotherBonusLimiter>(Bonus::SHOOTER)},
+	{"DRAGON_NATURE", make_shared<HasAnotherBonusLimiter>(Bonus::DRAGON_NATURE)},
+	{"IS_UNDEAD", make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD)}
+};
 
-const std::map<std::string, TPropagatorPtr> bonusPropagatorMap = boost::assign::map_list_of
-	("BATTLE_WIDE", make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE))
-	("VISITED_TOWN_AND_VISITOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::TOWN_AND_VISITOR))
-	("PLAYER_PROPAGATOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::PLAYER))
-	("HERO", make_shared<CPropagatorNodeType>(CBonusSystemNode::HERO))
-	("TEAM_PROPAGATOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::TEAM)) //untested
-	("GLOBAL_EFFECT", make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)); //untested
+const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
+{
+	{"BATTLE_WIDE", make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE)},
+	{"VISITED_TOWN_AND_VISITOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::TOWN_AND_VISITOR)},
+	{"PLAYER_PROPAGATOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::PLAYER)},
+	{"HERO", make_shared<CPropagatorNodeType>(CBonusSystemNode::HERO)},
+	{"TEAM_PROPAGATOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::TEAM)}, //untested
+	{"GLOBAL_EFFECT", make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)}
+}; //untested
 
 
 #define BONUS_LOG_LINE(x) logBonus->traceStream() << x

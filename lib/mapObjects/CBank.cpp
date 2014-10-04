@@ -19,8 +19,6 @@
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 
-using namespace boost::assign;
-
 ///helpers
 static std::string & visitedTxt(const bool visited)
 {

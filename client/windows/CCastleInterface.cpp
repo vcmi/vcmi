@@ -32,8 +32,6 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-using namespace boost::assign;
-
 /*
  * CCastleInterface.cpp, part of VCMI engine
  *
@@ -1449,15 +1447,20 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	exit = new CButton(Point(748, 556), "TPMAGE1", CButton::tooltip(text), [&]{ close(); }, SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
-	std::vector<Point> positions;
-	positions += Point(10,  22), Point(404, 22),
-	             Point(10, 155), Point(404,155),
-	             Point(10, 288), Point(404,288);
+	std::vector<Point> positions =
+	{
+		Point(10,  22), Point(404, 22),
+		Point(10, 155), Point(404,155),
+		Point(10, 288), Point(404,288)
+	};
 
 	if (fortSize == GameConstants::CREATURES_PER_TOWN)
-		positions += Point(206,421);
+		positions.push_back(Point(206,421));
 	else
-		positions += Point(10, 421), Point(404,421);
+	{
+		positions.push_back(Point(10, 421));
+		positions.push_back(Point(404,421));
+	}		
 
 	for (ui32 i=0; i<fortSize; i++)
 	{
@@ -1658,14 +1661,14 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem) 
 	exit = new CButton(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[593]), [&]{ close(); }, SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
-	std::vector<std::vector<Point> > positions;
-
-	positions.resize(5);
-	positions[0] += Point(222,445), Point(312,445), Point(402,445), Point(520,445), Point(610,445), Point(700,445);
-	positions[1] += Point(48,53),   Point(48,147),  Point(48,241),  Point(48,335),  Point(48,429);
-	positions[2] += Point(570,82),  Point(672,82),  Point(570,157), Point(672,157);
-	positions[3] += Point(183,42),  Point(183,148), Point(183,253);
-	positions[4] += Point(491,325), Point(591,325);
+	static const std::vector<std::vector<Point> > positions = 
+	{
+		{Point(222,445), Point(312,445), Point(402,445), Point(520,445), Point(610,445), Point(700,445)},
+		{Point(48,53),   Point(48,147),  Point(48,241),  Point(48,335),  Point(48,429)},
+		{Point(570,82),  Point(672,82),  Point(570,157), Point(672,157)},
+		{Point(183,42),  Point(183,148), Point(183,253)},
+		{Point(491,325), Point(591,325)}
+	};
 
 	for(size_t i=0; i<owner->town->town->mageLevel; i++)
 	{

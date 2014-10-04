@@ -11,8 +11,6 @@
 
 #include "mapObjects/CObjectClassesHandler.h"
 
-using namespace boost::assign;
-
 /*
  * CCreatureHandler.cpp, part of VCMI engine
  *
@@ -232,22 +230,23 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 	};
 
 	static const std::map<std::string, JsonNode> abilityMap =
-	  boost::assign::map_list_of
-	    ("FLYING_ARMY",            makeBonusNode("FLYING"))
-	    ("SHOOTING_ARMY",          makeBonusNode("SHOOTER"))
-	    ("SIEGE_WEAPON",           makeBonusNode("SIEGE_WEAPON"))
-	    ("const_free_attack",      makeBonusNode("BLOCKS_RETALIATION"))
-	    ("IS_UNDEAD",              makeBonusNode("UNDEAD"))
-	    ("const_no_melee_penalty", makeBonusNode("NO_MELEE_PENALTY"))
-	    ("const_jousting",         makeBonusNode("JOUSTING"))
-	    ("KING_1",                 makeBonusNode("KING1"))
-	    ("KING_2",                 makeBonusNode("KING2"))
-		("KING_3",                 makeBonusNode("KING3"))
-		("const_no_wall_penalty",  makeBonusNode("NO_WALL_PENALTY"))
-		("CATAPULT",               makeBonusNode("CATAPULT"))
-		("MULTI_HEADED",           makeBonusNode("ATTACKS_ALL_ADJACENT"))
-		("IMMUNE_TO_MIND_SPELLS",  makeBonusNode("MIND_IMMUNITY"))
-		("HAS_EXTENDED_ATTACK",    makeBonusNode("TWO_HEX_ATTACK_BREATH"));
+	{
+	    {"FLYING_ARMY",            makeBonusNode("FLYING")},
+	    {"SHOOTING_ARMY",          makeBonusNode("SHOOTER")},
+	    {"SIEGE_WEAPON",           makeBonusNode("SIEGE_WEAPON")},
+	    {"const_free_attack",      makeBonusNode("BLOCKS_RETALIATION")},
+	    {"IS_UNDEAD",              makeBonusNode("UNDEAD")},
+	    {"const_no_melee_penalty", makeBonusNode("NO_MELEE_PENALTY")},
+	    {"const_jousting",         makeBonusNode("JOUSTING")},
+	    {"KING_1",                 makeBonusNode("KING1")},
+	    {"KING_2",                 makeBonusNode("KING2")},
+		{"KING_3",                 makeBonusNode("KING3")},
+		{"const_no_wall_penalty",  makeBonusNode("NO_WALL_PENALTY")},
+		{"CATAPULT",               makeBonusNode("CATAPULT")},
+		{"MULTI_HEADED",           makeBonusNode("ATTACKS_ALL_ADJACENT")},
+		{"IMMUNE_TO_MIND_SPELLS",  makeBonusNode("MIND_IMMUNITY")},
+		{"HAS_EXTENDED_ATTACK",    makeBonusNode("TWO_HEX_ATTACK_BREATH")}
+	};
 
 	auto hasAbility = [&](const std::string name) -> bool
 	{

@@ -20,8 +20,6 @@
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 
-using namespace boost::assign;
-
 std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
 
 ///helpers

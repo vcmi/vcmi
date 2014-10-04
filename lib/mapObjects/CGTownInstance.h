@@ -205,7 +205,7 @@ public:
 	//int3 getSightCenter() const override; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const override; //returns sight distance
 	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
-	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
+	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed. Parameter will be cleared
 	int getMarketEfficiency() const override; //=market count
 	bool allowsTrade(EMarketMode::EMarketMode mode) const;
 	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;

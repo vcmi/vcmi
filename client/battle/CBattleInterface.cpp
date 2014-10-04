@@ -35,7 +35,6 @@
 #include "../../lib/NetPacks.h"
 #include "../../lib/UnlockGuard.h"
 
-using namespace boost::assign;
 
 /*
  * CBattleInterface.cpp, part of VCMI engine
@@ -1737,7 +1736,8 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 	possibleActions.clear();
 	if (tacticsMode)
 	{
-		possibleActions += MOVE_TACTICS, CHOOSE_TACTICS_STACK;
+		possibleActions.push_back(MOVE_TACTICS);
+		possibleActions.push_back(CHOOSE_TACTICS_STACK);
 	}
 	else
 	{

@@ -761,18 +761,20 @@ shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) cons
 
 BattlefieldBI::BattlefieldBI BattleInfo::battlefieldTypeToBI(BFieldType bfieldType)
 {
-	static const std::map<BFieldType, BattlefieldBI::BattlefieldBI> theMap = boost::assign::map_list_of
-		(BFieldType::CLOVER_FIELD, BattlefieldBI::CLOVER_FIELD)
-		(BFieldType::CURSED_GROUND, BattlefieldBI::CURSED_GROUND)
-		(BFieldType::EVIL_FOG, BattlefieldBI::EVIL_FOG)
-		(BFieldType::FAVOURABLE_WINDS, BattlefieldBI::NONE)
-		(BFieldType::FIERY_FIELDS, BattlefieldBI::FIERY_FIELDS)
-		(BFieldType::HOLY_GROUND, BattlefieldBI::HOLY_GROUND)
-		(BFieldType::LUCID_POOLS, BattlefieldBI::LUCID_POOLS)
-		(BFieldType::MAGIC_CLOUDS, BattlefieldBI::MAGIC_CLOUDS)
-		(BFieldType::MAGIC_PLAINS, BattlefieldBI::MAGIC_PLAINS)
-		(BFieldType::ROCKLANDS, BattlefieldBI::ROCKLANDS)
-		(BFieldType::SAND_SHORE, BattlefieldBI::COASTAL);
+	static const std::map<BFieldType, BattlefieldBI::BattlefieldBI> theMap = 
+	{
+		{BFieldType::CLOVER_FIELD, BattlefieldBI::CLOVER_FIELD},
+		{BFieldType::CURSED_GROUND, BattlefieldBI::CURSED_GROUND},
+		{BFieldType::EVIL_FOG, BattlefieldBI::EVIL_FOG},
+		{BFieldType::FAVOURABLE_WINDS, BattlefieldBI::NONE},
+		{BFieldType::FIERY_FIELDS, BattlefieldBI::FIERY_FIELDS},
+		{BFieldType::HOLY_GROUND, BattlefieldBI::HOLY_GROUND},
+		{BFieldType::LUCID_POOLS, BattlefieldBI::LUCID_POOLS},
+		{BFieldType::MAGIC_CLOUDS, BattlefieldBI::MAGIC_CLOUDS},
+		{BFieldType::MAGIC_PLAINS, BattlefieldBI::MAGIC_PLAINS},
+		{BFieldType::ROCKLANDS, BattlefieldBI::ROCKLANDS},
+		{BFieldType::SAND_SHORE, BattlefieldBI::COASTAL}
+	};
 
 	auto itr = theMap.find(bfieldType);
 	if(itr != theMap.end())

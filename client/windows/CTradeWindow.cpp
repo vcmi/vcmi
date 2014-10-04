@@ -471,8 +471,6 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 
 void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType type) const
 {
-	using namespace boost::assign;
-
 	if(mode == EMarketMode::ARTIFACT_EXP && !Left)
 	{
 		//22 boxes, 5 in row, last row: two boxes centered
@@ -484,10 +482,10 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 		dy = 70;
 		for (int i = 0; i < 4 ; i++)
 			for (int j = 0; j < 5 ; j++)
-				poss += Rect(x + dx*j, y + dy*i, w, h);
+				poss.push_back(Rect(x + dx*j, y + dy*i, w, h));
 
-		poss += Rect(x + dx*1.5, y + dy*4, w, h);
-		poss += Rect(x + dx*2.5, y + dy*4, w, h);
+		poss.push_back(Rect(x + dx*1.5, y + dy*4, w, h));
+		poss.push_back(Rect(x + dx*2.5, y + dy*4, w, h));
 	}
 	else
 	{
@@ -498,10 +496,15 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 		int h, w, x, y, dx, dy;
 		int leftToRightOffset;
 		getBaseForPositions(type, dx, dy, x, y, h, w, !Left, leftToRightOffset);
-
-		poss += genRect(h, w, x, y), genRect(h, w, x + dx, y), genRect(h, w, x + 2*dx, y),
+		
+		const std::vector<Rect> tmp = 
+		{
+			genRect(h, w, x, y), genRect(h, w, x + dx, y), genRect(h, w, x + 2*dx, y),
 			genRect(h, w, x, y + dy), genRect(h, w, x + dx, y + dy), genRect(h, w, x + 2*dx, y + dy),
-			genRect(h, w, x + dx, y + 2*dy);
+			genRect(h, w, x + dx, y + 2*dy)			
+		};
+		
+		vstd::concatenate(poss, tmp);
 
 		if(!Left)
 		{

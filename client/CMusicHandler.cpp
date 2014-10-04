@@ -21,8 +21,6 @@
  *
  */
 
-using namespace boost::assign;
-
 #define VCMI_SOUND_NAME(x)
 #define VCMI_SOUND_FILE(y) #y,
 
@@ -88,18 +86,26 @@ CSoundHandler::CSoundHandler():
 	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
 
 	// Vectors for helper(s)
-	pickupSounds += soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
-		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07;
+	pickupSounds = 
+	{
+		soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
+		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07
+	};
 
-    horseSounds +=  // must be the same order as terrains (see ETerrainType);
+    horseSounds =  // must be the same order as terrains (see ETerrainType);
+    {
 		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
 		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
 		soundBase::horseSubterranean, soundBase::horseLava,
-		soundBase::horseWater, soundBase::horseRock;
+		soundBase::horseWater, soundBase::horseRock
+    };
 
-	battleIntroSounds +=     soundBase::battle00, soundBase::battle01,
+	battleIntroSounds =
+	{
+		soundBase::battle00, soundBase::battle01,
 	    soundBase::battle02, soundBase::battle03, soundBase::battle04,
-	    soundBase::battle05, soundBase::battle06, soundBase::battle07;
+	    soundBase::battle05, soundBase::battle06, soundBase::battle07
+	};
 };
 
 void CSoundHandler::init()

@@ -2394,15 +2394,9 @@ void ERMInterpreter::heroVisit(const CGHeroInstance *visitor, const CGObjectInst
 		return;
 	setCurrentlyVisitedObj(visitedObj->pos);
 	TIDPattern tip;
-#ifdef CPP11_USE_INITIALIZERS_LIST
 	tip[1] = {visitedObj->ID};
 	tip[2] = {visitedObj->ID, visitedObj->subID};
 	tip[3] = {visitedObj->pos.x, visitedObj->pos.y, visitedObj->pos.z};
-#else
-	tip[1] = list_of(visitedObj->ID);
-	tip[2] = list_of((int)visitedObj->ID)(visitedObj->subID);
-	tip[3] = list_of(visitedObj->pos.x)(visitedObj->pos.y)(visitedObj->pos.z);
-#endif
 	executeTriggerType(VERMInterpreter::TriggerType("OB"), start, tip);
 }
 
