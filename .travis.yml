@@ -10,7 +10,7 @@ before_install:
   #new SDL2
   - sudo add-apt-repository --yes ppa:zoogie/sdl2-snapshots
   #new Qt
-  - sudo add-apt-repository --yes ppa:beineri/opt-qt531 
+  - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
   #new FFmpeg
   - sudo add-apt-repository --yes ppa:djcj/vlc-stable
 
@@ -21,10 +21,10 @@ before_install:
   - sudo apt-get install -qq cmake yasm libboost1.55-all-dev zlib1g-dev
   - sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
   - sudo apt-get install -qq libavformat-dev libswscale-dev
-  - sudo apt-get install -qq qt53declarative
+  - sudo apt-get install -qq qtdeclarative5-dev
   
   #setup compiler
-  - source /opt/qt53/bin/qt53-env.sh
+  #- source /opt/qt53/bin/qt53-env.sh
   - export CC=${REAL_CC} CXX=${REAL_CXX}
 
 before_script:
