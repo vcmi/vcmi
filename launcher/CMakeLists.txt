@@ -58,8 +58,13 @@ else()
 	add_executable(vcmilauncher ${launcher_SRCS} ${launcher_UI_HEADERS})
 endif()
 
-# The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
-target_link_libraries(vcmilauncher vcmi ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES})
+if(MSVC)
+	# Fix _WinMain@16 linking error
+	target_link_libraries(vcmilauncher vcmi ${Qt5Core_QTMAIN_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES})
+else()
+	# The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
+	target_link_libraries(vcmilauncher vcmi ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES})
+endif()
 
 # temporary(?) disabled - generation of PCH takes too much time since cotire is trying to collect all Qt headers
 #set_target_properties(vcmilauncher PROPERTIES ${PCH_PROPERTIES})
