@@ -1,8 +1,7 @@
 project(vcmi)
 cmake_minimum_required(VERSION 2.8.12)
 # TODO:
-# 1) Detection of system version of minizip and use it instead of local
-# 2) Detection of Qt5 and compilation of launcher, unless explicitly disabled
+# 1) Detection of Qt5 and compilation of launcher, unless explicitly disabled
 
 # where to look for cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
@@ -117,6 +116,10 @@ set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
 find_package(Boost 1.48.0 COMPONENTS filesystem locale program_options system thread REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(FFmpeg REQUIRED)
+find_package(Minizip)
+if (MINIZIP_FOUND)
+    add_definitions(-DUSE_SYSTEM_MINIZIP)
+endif()
 
 if (ENABLE_SDL2)
 	find_package(SDL2 REQUIRED)
@@ -210,18 +213,6 @@ SET(PCH_PROPERTIES
 	COTIRE_ADD_UNITY_BUILD FALSE 
 	COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
 )
-
-find_path(MINIZIP_INCLUDE_PATH NAMES minizip/unzip.h)
-find_library(MINIZIP_LIB NAMES minizip PATH_SUFFIXES dynamic)
-mark_as_advanced(MINIZIP_INCLUDE_PATH MINIZIP_LIB)
-
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(MINIZIP MINIZIP_INCLUDE_PATH MINIZIP_LIB)
-if (MINIZIP_FOUND)
-    set(MINIZIP_INCLUDE_DIR ${MINIZIP_INCLUDE_PATH})
-    set(MINIZIP_LIBRARIES ${MINIZIP_LIB})
-    add_definitions(-DUSE_SYSTEM_MINIZIP)
-endif()
 
 if (ENABLE_ERM)
 		add_subdirectory(scripting/erm)
