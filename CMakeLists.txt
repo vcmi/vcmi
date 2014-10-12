@@ -271,11 +271,14 @@ if(WIN32)
 			${Qtbin_folder}/Qt5Gui${debug_postfix}.dll
 			${Qtbin_folder}/Qt5Widgets${debug_postfix}.dll
 			${Qtbin_folder}/icu*.dll)
-		file(GLOB dep_qt_msvc 
-			${Qtbin_folder}/libEGL.dll
-			${Qtbin_folder}/libGLESv2.dll)
 		file(GLOB dep_qwindows
 			${Qtbin_folder}/../plugins/platforms/qwindows${debug_postfix}.dll)
+		if(MSVC)
+			file(GLOB dep_files 
+				${dep_files}
+				${Qtbin_folder}/libEGL.dll
+				${Qtbin_folder}/libGLESv2.dll)
+		endif()
 	endif()
 
 	if (ENABLE_LAUNCHER)
@@ -284,8 +287,12 @@ if(WIN32)
 			${Qtbin_folder}/Qt5Network${debug_postfix}.dll)
 	endif()
 
+	if(MSVC)
+		#install MSVC runtime
+		include(InstallRequiredSystemLibraries)
+		install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ${BIN_DIR})
+	endif()
 	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
-	install(FILES ${dep_qt_msvc} DESTINATION ${BIN_DIR})
 	install(FILES ${dep_qwindows} DESTINATION ${BIN_DIR}/platforms)
 elseif(NOT APPLE)
 	#install icons and desktop file on Linux
