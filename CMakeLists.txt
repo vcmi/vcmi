@@ -1,5 +1,5 @@
 project(vcmi)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8.12)
 # TODO:
 # 1) Detection of system version of minizip and use it instead of local
 # 2) Detection of Qt5 and compilation of launcher, unless explicitly disabled
