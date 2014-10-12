@@ -13,6 +13,8 @@ before_install:
   - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
   #new FFmpeg
   - sudo add-apt-repository --yes ppa:djcj/vlc-stable
+  #new CMake
+  - sudo add-apt-repository --yes ppa:yjwong/cmake 
 
   - sudo apt-get update -qq
 
