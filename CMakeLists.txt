@@ -52,6 +52,9 @@ if (APPLE)
 
 	# Xcode 5.0 fix
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
+
+	# Link with iconv
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} libiconv.dylib)
 endif()
 
 if (WIN32)
@@ -59,30 +62,40 @@ if (WIN32)
 	add_definitions(-D_WIN32_WINNT=0x0501)
 	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock)
 
-	#check for iconv (may be needed for boost.locale)
-	include(CheckLibraryExists)
-	check_library_exists(iconv libiconv_open "" ICONV_FOUND)
-	if(ICONV_FOUND)
-		set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
-	endif()
-
-	#delete lib prefix for dlls
+	#delete lib prefix for dlls (libvcmi -> vcmi)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "") 
 
 	if(MINGW)
-		get_filename_component(MINGW_BIN_PATH ${CMAKE_CXX_COMPILER} PATH )
+		#MinGW: check for iconv (may be needed for boost.locale)
+		include(CheckLibraryExists)
+		check_library_exists(iconv libiconv_open "" ICONV_FOUND)
+		if(ICONV_FOUND)
+			set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
+		endif()
 
-		#copy libwinpthread-*.dll, libgcc_s_*.dll and libstdc++-*.dll to VCMI location
+		#MinGW: copy runtime to VCMI location
+		get_filename_component(MINGW_BIN_PATH ${CMAKE_CXX_COMPILER} PATH )
 		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libwinpthread-*.dll") 
 		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libgcc_s_*.dll") 
 		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libstdc++-*.dll")
 
+		#MinGW: use O1 to prevent compiler crash in some cases
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
 	endif()
-endif()
 
-if(APPLE)
-	set(SYSTEM_LIBS ${SYSTEM_LIBS} libiconv.dylib)
+	if(MSVC)
+		#MSVC: Fix problems with linking
+		add_definitions(-DBOOST_ALL_NO_LIB)
+		set(Boost_USE_STATIC_LIBS ON)
+
+		#MSVC: Don't link with SDLMain
+		set(SDL2_BUILDING_LIBRARY ON)
+
+		#MSVC: Suppress warnings
+		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4251")
+	endif()
 endif()
 
 if(NOT WIN32)
