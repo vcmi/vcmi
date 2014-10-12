@@ -114,7 +114,7 @@ if(NOT WIN32)
 endif()
 
 set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
-find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale REQUIRED)
+find_package(Boost 1.48.0 COMPONENTS filesystem locale program_options system thread REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(FFmpeg REQUIRED)
 
@@ -266,26 +266,37 @@ if(WIN32)
 		${dep_files} 
 		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
 
+	#Copy debug versions of libraries if build type is debug. Doesn't work in MSVC!
+	if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+		set(debug_postfix d)
+	endif(CMAKE_BUILD_TYPE MATCHES DEBUG)
+	
 	if (ENABLE_EDITOR OR ENABLE_LAUNCHER)
 		get_target_property(QtCore_location Qt5::Core LOCATION)
 		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
 		file(GLOB dep_files 
 			${dep_files}
-			${Qtbin_folder}/Qt5Core.dll
-			${Qtbin_folder}/Qt5Gui.dll
-			${Qtbin_folder}/Qt5Widgets.dll
+			${Qtbin_folder}/Qt5Core${debug_postfix}.dll
+			${Qtbin_folder}/Qt5Gui${debug_postfix}.dll
+			${Qtbin_folder}/Qt5Widgets${debug_postfix}.dll
 			${Qtbin_folder}/icu*.dll)
+		file(GLOB dep_qt_msvc 
+			${Qtbin_folder}/libEGL.dll
+			${Qtbin_folder}/libGLESv2.dll)
+		file(GLOB dep_qwindows
+			${Qtbin_folder}/../plugins/platforms/qwindows${debug_postfix}.dll)
 	endif()
 
 	if (ENABLE_LAUNCHER)
 		file(GLOB dep_files 
 			${dep_files} 
-			${Qtbin_folder}/Qt5Network.dll)
+			${Qtbin_folder}/Qt5Network${debug_postfix}.dll)
 	endif()
 
 	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
-elseif(APPLE)
-else()
+	install(FILES ${dep_qt_msvc} DESTINATION ${BIN_DIR})
+	install(FILES ${dep_qwindows} DESTINATION ${BIN_DIR}/platforms)
+elseif(NOT APPLE)
 	#install icons and desktop file on Linux
 	#FIXME: move to client makefile?
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"   DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
