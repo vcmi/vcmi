@@ -14,7 +14,7 @@ before_install:
   #new FFmpeg
   - sudo add-apt-repository --yes ppa:djcj/vlc-stable
   #new CMake
-  - sudo add-apt-repository --yes ppa:yjwong/cmake 
+  - sudo add-apt-repository --yes ppa:andykimpe/cmake 
 
   - sudo apt-get update -qq
 
