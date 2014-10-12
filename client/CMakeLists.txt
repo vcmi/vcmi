@@ -115,7 +115,7 @@ if(APPLE)
 		
 	add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
 elseif(WIN32)
-	add_executable(vcmiclient ${client_SRCS} VCMI_client.mingw.rc)
+	add_executable(vcmiclient ${client_SRCS} VCMI_client.rc)
 else()
 	add_executable(vcmiclient ${client_SRCS})
 endif()

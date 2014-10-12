@@ -35,6 +35,14 @@ if (NOT FFmpeg_FIND_COMPONENTS)
   set(FFmpeg_FIND_COMPONENTS AVCODEC AVFORMAT AVUTIL SWSCALE)
 endif ()
 
+if(MSVC)
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(VC_LIB_PATH_SUFFIX lib/x64)
+  else()
+    set(VC_LIB_PATH_SUFFIX lib/x86)
+  endif()
+endif()
+
 #
 ### Macro: set_component_found
 #
@@ -76,8 +84,10 @@ macro(find_component _component _pkgconfig _library _header)
 
   find_library(${_component}_LIBRARIES NAMES ${_library}
       HINTS
-      ${PC_LIB${_component}_LIBDIR}
-      ${PC_LIB${_component}_LIBRARY_DIRS}
+        ${PC_LIB${_component}_LIBDIR}
+        ${PC_LIB${_component}_LIBRARY_DIRS}
+	  PATH_SUFFIXES
+	    ${VC_LIB_PATH_SUFFIX}
   )
 
   set(${_component}_DEFINITIONS  ${PC_${_component}_CFLAGS_OTHER} CACHE STRING "The ${_component} CFLAGS.")

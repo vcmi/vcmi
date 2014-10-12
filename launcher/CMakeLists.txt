@@ -2,7 +2,7 @@ project(vcmilauncher)
 cmake_minimum_required(VERSION 2.8.7)
 
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${Boost_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS})
+include_directories(${ZLIB_INCLUDE_DIR} ${Boost_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS})
 
 set(launcher_modmanager_SRCS
 	modManager/cdownloadmanager_moc.cpp
@@ -52,14 +52,19 @@ set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${CMAKE_CXX_FLAGS}")
 qt5_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
 
 if(WIN32)
-	add_executable(vcmilauncher WIN32 ${launcher_SRCS} ${launcher_UI_HEADERS} VCMI_launcher.mingw.rc)
+	add_executable(vcmilauncher WIN32 ${launcher_SRCS} ${launcher_UI_HEADERS} VCMI_launcher.rc)
 	set_target_properties(vcmilauncher PROPERTIES OUTPUT_NAME VCMI_launcher)
 else()
 	add_executable(vcmilauncher ${launcher_SRCS} ${launcher_UI_HEADERS})
 endif()
 
-# The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
-target_link_libraries(vcmilauncher vcmi ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES})
+if(MSVC)
+	# Fix _WinMain@16 linking error
+	target_link_libraries(vcmilauncher vcmi ${Qt5Core_QTMAIN_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES})
+else()
+	# The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
+	target_link_libraries(vcmilauncher vcmi ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES})
+endif()
 
 # temporary(?) disabled - generation of PCH takes too much time since cotire is trying to collect all Qt headers
 #set_target_properties(vcmilauncher PROPERTIES ${PCH_PROPERTIES})

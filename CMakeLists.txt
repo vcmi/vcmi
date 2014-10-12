@@ -1,8 +1,7 @@
 project(vcmi)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8.12)
 # TODO:
-# 1) Detection of system version of minizip and use it instead of local
-# 2) Detection of Qt5 and compilation of launcher, unless explicitly disabled
+# 1) Detection of Qt5 and compilation of launcher, unless explicitly disabled
 
 # where to look for cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
@@ -52,6 +51,9 @@ if (APPLE)
 
 	# Xcode 5.0 fix
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
+
+	# Link with iconv
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} libiconv.dylib)
 endif()
 
 if (WIN32)
@@ -59,30 +61,40 @@ if (WIN32)
 	add_definitions(-D_WIN32_WINNT=0x0501)
 	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock)
 
-	#check for iconv (may be needed for boost.locale)
-	include(CheckLibraryExists)
-	check_library_exists(iconv libiconv_open "" ICONV_FOUND)
-	if(ICONV_FOUND)
-		set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
-	endif()
-
-	#delete lib prefix for dlls
+	#delete lib prefix for dlls (libvcmi -> vcmi)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "") 
 
 	if(MINGW)
-		get_filename_component(MINGW_BIN_PATH ${CMAKE_CXX_COMPILER} PATH )
+		#MinGW: check for iconv (may be needed for boost.locale)
+		include(CheckLibraryExists)
+		check_library_exists(iconv libiconv_open "" ICONV_FOUND)
+		if(ICONV_FOUND)
+			set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
+		endif()
 
-		#copy libwinpthread-*.dll, libgcc_s_*.dll and libstdc++-*.dll to VCMI location
+		#MinGW: copy runtime to VCMI location
+		get_filename_component(MINGW_BIN_PATH ${CMAKE_CXX_COMPILER} PATH )
 		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libwinpthread-*.dll") 
 		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libgcc_s_*.dll") 
 		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libstdc++-*.dll")
 
+		#MinGW: use O1 to prevent compiler crash in some cases
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
 	endif()
-endif()
 
-if(APPLE)
-	set(SYSTEM_LIBS ${SYSTEM_LIBS} libiconv.dylib)
+	if(MSVC)
+		#MSVC: Fix problems with linking
+		add_definitions(-DBOOST_ALL_NO_LIB)
+		set(Boost_USE_STATIC_LIBS ON)
+
+		#MSVC: Don't link with SDLMain
+		set(SDL2_BUILDING_LIBRARY ON)
+
+		#MSVC: Suppress warnings
+		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4251")
+	endif()
 endif()
 
 if(NOT WIN32)
@@ -101,9 +113,13 @@ if(NOT WIN32)
 endif()
 
 set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
-find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale REQUIRED)
+find_package(Boost 1.48.0 COMPONENTS filesystem locale program_options system thread REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(FFmpeg REQUIRED)
+find_package(Minizip)
+if (MINIZIP_FOUND)
+    add_definitions(-DUSE_SYSTEM_MINIZIP)
+endif()
 
 if (ENABLE_SDL2)
 	find_package(SDL2 REQUIRED)
@@ -198,18 +214,6 @@ SET(PCH_PROPERTIES
 	COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
 )
 
-find_path(MINIZIP_INCLUDE_PATH NAMES minizip/unzip.h)
-find_library(MINIZIP_LIB NAMES minizip PATH_SUFFIXES dynamic)
-mark_as_advanced(MINIZIP_INCLUDE_PATH MINIZIP_LIB)
-
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(MINIZIP MINIZIP_INCLUDE_PATH MINIZIP_LIB)
-if (MINIZIP_FOUND)
-    set(MINIZIP_INCLUDE_DIR ${MINIZIP_INCLUDE_PATH})
-    set(MINIZIP_LIBRARIES ${MINIZIP_LIB})
-    add_definitions(-DUSE_SYSTEM_MINIZIP)
-endif()
-
 if (ENABLE_ERM)
 		add_subdirectory(scripting/erm)
 endif()
@@ -253,26 +257,44 @@ if(WIN32)
 		${dep_files} 
 		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
 
+	#Copy debug versions of libraries if build type is debug. Doesn't work in MSVC!
+	if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+		set(debug_postfix d)
+	endif(CMAKE_BUILD_TYPE MATCHES DEBUG)
+	
 	if (ENABLE_EDITOR OR ENABLE_LAUNCHER)
 		get_target_property(QtCore_location Qt5::Core LOCATION)
 		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
 		file(GLOB dep_files 
 			${dep_files}
-			${Qtbin_folder}/Qt5Core.dll
-			${Qtbin_folder}/Qt5Gui.dll
-			${Qtbin_folder}/Qt5Widgets.dll
+			${Qtbin_folder}/Qt5Core${debug_postfix}.dll
+			${Qtbin_folder}/Qt5Gui${debug_postfix}.dll
+			${Qtbin_folder}/Qt5Widgets${debug_postfix}.dll
 			${Qtbin_folder}/icu*.dll)
+		file(GLOB dep_qwindows
+			${Qtbin_folder}/../plugins/platforms/qwindows${debug_postfix}.dll)
+		if(MSVC)
+			file(GLOB dep_files 
+				${dep_files}
+				${Qtbin_folder}/libEGL.dll
+				${Qtbin_folder}/libGLESv2.dll)
+		endif()
 	endif()
 
 	if (ENABLE_LAUNCHER)
 		file(GLOB dep_files 
 			${dep_files} 
-			${Qtbin_folder}/Qt5Network.dll)
+			${Qtbin_folder}/Qt5Network${debug_postfix}.dll)
 	endif()
 
+	if(MSVC)
+		#install MSVC runtime
+		include(InstallRequiredSystemLibraries)
+		install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ${BIN_DIR})
+	endif()
 	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
-elseif(APPLE)
-else()
+	install(FILES ${dep_qwindows} DESTINATION ${BIN_DIR}/platforms)
+elseif(NOT APPLE)
 	#install icons and desktop file on Linux
 	#FIXME: move to client makefile?
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"   DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
