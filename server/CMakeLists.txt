@@ -2,7 +2,7 @@ project(vcmiserver)
 cmake_minimum_required(VERSION 2.6)
 
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR})
 
 set(server_SRCS
 		StdInc.cpp
