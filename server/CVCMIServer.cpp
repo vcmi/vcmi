@@ -32,6 +32,12 @@
 
 #include "../lib/UnlockGuard.h"
 
+#include "../client/Client.h"
+
+extern template void CClient::serialize<COSer<CSaveFile>>( COSer<CSaveFile> &h, const int version );
+extern template void CClient::serialize<CISer<CConnection>>( CISer<CConnection> &h, const int version );
+extern template void CClient::serialize<COSer<CConnection>>( COSer<CConnection> &h, const int version );
+
 #if defined(__GNUC__) && !defined (__MINGW32__) && !defined(VCMI_ANDROID)
 #include <execinfo.h>
 #endif
@@ -491,11 +497,13 @@ void CVCMIServer::loadGame()
 	c << ui8(0);
 
 	CConnection* cc; //tcp::socket * ss;
+    CClient client_in;
 	for(int i=0; i<clients; i++)
 	{
 		if(!i) 
 		{
 			cc = &c;
+            (*cc) >> client_in;
 		}
 		else
 		{
@@ -508,8 +516,8 @@ void CVCMIServer::loadGame()
 				continue;
 			}
 			cc = new CConnection(s,NAME);
-			cc->addStdVecItems(gh.gs);
-		}	
+            (*cc) << client_in;
+		}
 		gh.conns.insert(cc);
 	}
 

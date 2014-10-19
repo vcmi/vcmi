@@ -246,51 +246,68 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
     else
          serv = sh.justConnectToServer(ipaddr,port=="" ? "3030" : port);
 
-	CStopWatch tmh;
-	try
-	{
-		std::string clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
-		std::string controlServerSaveName;
+    CStopWatch tmh;
+    if(server)
+    {
+        try
+        {
+            std::string clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
+            std::string controlServerSaveName;
 
-		if (CResourceHandler::get("local")->existsResource(ResourceID(fname, EResType::SERVER_SAVEGAME)))
-		{
-			controlServerSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME));
-		}
-		else// create entry for server savegame. Triggered if save was made after launch and not yet present in res handler
-		{
-			controlServerSaveName = clientSaveName.substr(0, clientSaveName.find_last_of(".")) + ".vsgm1";
-			CResourceHandler::get("local")->createResource(controlServerSaveName, true);
-		}
+            if (CResourceHandler::get("local")->existsResource(ResourceID(fname, EResType::SERVER_SAVEGAME)))
+            {
+                controlServerSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME));
+            }
+            else// create entry for server savegame. Triggered if save was made after launch and not yet present in res handler
+            {
+                controlServerSaveName = clientSaveName.substr(0, clientSaveName.find_last_of(".")) + ".vsgm1";
+                CResourceHandler::get("local")->createResource(controlServerSaveName, true);
+            }
 
-		if(clientSaveName.empty())
-			throw std::runtime_error("Cannot open client part of " + fname);
-		if(controlServerSaveName.empty())
-			throw std::runtime_error("Cannot open server part of " + fname);
+            if(clientSaveName.empty())
+                throw std::runtime_error("Cannot open client part of " + fname);
+            if(controlServerSaveName.empty())
+                throw std::runtime_error("Cannot open server part of " + fname);
 
-		unique_ptr<CLoadFile> loader;
-		{
-			CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, minSupportedVersion);
-			loadCommonState(checkingLoader);
-			loader = checkingLoader.decay();
-		}
-        logNetwork->infoStream() << "Loaded common part of save " << tmh.getDiff();
-		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
-		const_cast<CGameInfo*>(CGI)->mh->map = gs->map;
-		pathInfo = make_unique<CPathsInfo>(getMapSize());
-		CGI->mh->init();
-        logNetwork->infoStream() <<"Initing maphandler: "<<tmh.getDiff();
+            unique_ptr<CLoadFile> loader;
+            {
+                CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, minSupportedVersion);
+                loadCommonState(checkingLoader);
+                loader = checkingLoader.decay();
+            }
+            logNetwork->infoStream() << "Loaded common part of save " << tmh.getDiff();
+            const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
+            const_cast<CGameInfo*>(CGI)->mh->map = gs->map;
+            pathInfo = make_unique<CPathsInfo>(getMapSize());
+            CGI->mh->init();
+            logNetwork->infoStream() <<"Initing maphandler: "<<tmh.getDiff();
 
-		*loader >> *this;
-        logNetwork->infoStream() << "Loaded client part of save " << tmh.getDiff();
-	}
-	catch(std::exception &e)
-	{
-		logGlobal->errorStream() << "Cannot load game " << fname << ". Error: " << e.what();
-		throw; //obviously we cannot continue here
-	}
+            *loader >> *this;
+            logNetwork->infoStream() << "Loaded client part of save " << tmh.getDiff();
+        }
+        catch(std::exception &e)
+        {
+            logGlobal->errorStream() << "Cannot load game " << fname << ". Error: " << e.what();
+            throw; //obviously we cannot continue here
+        }
+    }
 
     if(server)
+    {
          serv = sh.connectToServer();
+         (*serv) << *this;
+    }
+    else
+    {
+        (*serv) >> *this;
+
+		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
+		CGI->mh->map = gs->map;
+        logNetwork->infoStream() <<"Creating mapHandler: "<<tmh.getDiff();
+		CGI->mh->init();
+		pathInfo = make_unique<CPathsInfo>(getMapSize());
+        logNetwork->infoStream() <<"Initializing mapHandler (together): "<<tmh.getDiff();
+    }
 
     if(player_==-1)
         player_ = player->getNum();
@@ -313,38 +330,39 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
               logNetwork->infoStream() << "Server opened savegame properly.";
     }
 
+    std::set<PlayerColor> clientPlayers;
     if(server)
     {
-         *serv << ui32(gs->scenarioOps->playerInfos.size()+2-loadNumPlayers); //number of players + neutral
-         for(auto & elem : gs->scenarioOps->playerInfos)
-              if(!std::count(humanplayerindices.begin(),humanplayerindices.end(),elem.first.getNum()) || elem.first==player)
-              {
-                  *serv << ui8(elem.first.getNum()); //players
-                  if(elem.first!=player)
-                  {
-                      auto AiToGive = aiNameForPlayer(elem.second, false);
-                      logNetwork->infoStream() << boost::format("Player %s will be lead by %s") % elem.first % AiToGive;
-                      installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), elem.first);
-                  }
-                  else
-                  {
-                      installNewPlayerInterface(make_shared<CPlayerInterface>(*player),*player);
-                  }
-              }
-         *serv << ui8(PlayerColor::NEUTRAL.getNum());
+        for(auto & elem : gs->scenarioOps->playerInfos)
+            if(!std::count(humanplayerindices.begin(),humanplayerindices.end(),elem.first.getNum()) || elem.first==player)
+            {
+                clientPlayers.insert(elem.first);
+                if(elem.first!=player)
+                {
+                    auto AiToGive = aiNameForPlayer(elem.second, false);
+                    logNetwork->infoStream() << boost::format("Player %s will be lead by %s") % elem.first % AiToGive;
+                    installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), elem.first);
+                }
+                else
+                {
+                    installNewPlayerInterface(make_shared<CPlayerInterface>(*player),*player);
+                }
+            }
+        clientPlayers.insert(PlayerColor::NEUTRAL);
     }
     else
     {
-         *serv << ui32(1);
-         *serv << ui8(player->getNum());
-         installNewPlayerInterface(make_shared<CPlayerInterface>(*player),*player);
+        clientPlayers.insert(*player);
+        installNewPlayerInterface(make_shared<CPlayerInterface>(*player),*player);
     }
+
+	serv->enableStackSendingByID();
+	serv->disableSmartPointerSerialization();
+    (*serv) << clientPlayers;
 
     logNetwork->infoStream() <<"Sent info to server: "<<tmh.getDiff();
 
     serv->addStdVecItems(gs);
-	serv->enableStackSendingByID();
-	serv->disableSmartPointerSerialization();
 
     loadNeutralBattleAI();
 
