@@ -236,12 +236,15 @@ void CClient::endGame( bool closeConnection /*= true*/ )
     logNetwork->infoStream() << "Client stopped.";
 }
 
-void CClient::loadGame( const std::string & fname )
+void CClient::loadGame(const std::string & fname, const bool server, const std::vector<int>& humanplayerindices, const int loadNumPlayers, int player_, const std::string & ipaddr, const std::string & port)
 {
     logNetwork->infoStream() <<"Loading procedure started!";
 
 	CServerHandler sh;
-	sh.startServer();
+    if(server)
+         sh.startServer();
+    else
+         serv = sh.justConnectToServer(ipaddr,port=="" ? "3030" : port);
 
 	CStopWatch tmh;
 	try
@@ -286,29 +289,64 @@ void CClient::loadGame( const std::string & fname )
 		throw; //obviously we cannot continue here
 	}
 
-	serv = sh.connectToServer();
-	serv->addStdVecItems(gs);
+    if(server)
+         serv = sh.connectToServer();
 
-	tmh.update();
-	ui8 pom8;
-	*serv << ui8(3) << ui8(1); //load game; one client
-	*serv << fname;
-	*serv >> pom8;
-	if(pom8) 
-		throw std::runtime_error("Server cannot open the savegame!");
-	else
-        logNetwork->infoStream() << "Server opened savegame properly.";
+    if(player_==-1)
+        player_ = player->getNum();
+    else
+        player = PlayerColor(player_);
 
-	*serv << ui32(gs->scenarioOps->playerInfos.size()+1); //number of players + neutral
-	for(auto & elem : gs->scenarioOps->playerInfos)
-	{
-		*serv << ui8(elem.first.getNum()); //players
-	}
-	*serv << ui8(PlayerColor::NEUTRAL.getNum());
+    serv->addStdVecItems(gs); /*why is this here?*/
+
+    std::cout << player << std::endl;
+    if(server)
+    {
+         tmh.update();
+         ui8 pom8;
+         *serv << ui8(3) << ui8(loadNumPlayers); //load game; one client if single-player
+         *serv << fname;
+         *serv >> pom8;
+         if(pom8) 
+              throw std::runtime_error("Server cannot open the savegame!");
+         else
+              logNetwork->infoStream() << "Server opened savegame properly.";
+    }
+
+    if(server)
+    {
+         *serv << ui32(gs->scenarioOps->playerInfos.size()+2-loadNumPlayers); //number of players + neutral
+         for(auto & elem : gs->scenarioOps->playerInfos)
+              if(!std::count(humanplayerindices.begin(),humanplayerindices.end(),elem.first.getNum()) || elem.first==player)
+              {
+                  *serv << ui8(elem.first.getNum()); //players
+                  if(elem.first!=player)
+                  {
+                      auto AiToGive = aiNameForPlayer(elem.second, false);
+                      logNetwork->infoStream() << boost::format("Player %s will be lead by %s") % elem.first % AiToGive;
+                      installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), elem.first);
+                  }
+                  else
+                  {
+                      installNewPlayerInterface(make_shared<CPlayerInterface>(*player),*player);
+                  }
+              }
+         *serv << ui8(PlayerColor::NEUTRAL.getNum());
+    }
+    else
+    {
+         *serv << ui32(1);
+         *serv << ui8(player->getNum());
+         installNewPlayerInterface(make_shared<CPlayerInterface>(*player),*player);
+    }
+
     logNetwork->infoStream() <<"Sent info to server: "<<tmh.getDiff();
 
+    serv->addStdVecItems(gs);
 	serv->enableStackSendingByID();
 	serv->disableSmartPointerSerialization();
+
+    loadNeutralBattleAI();
 
 // 	logGlobal->traceStream() << "Objects:";
 // 	for(int i = 0; i < gs->map->objects.size(); i++)
@@ -833,6 +871,7 @@ CConnection * CServerHandler::connectToServer()
 #endif
 
 	th.update(); //put breakpoint here to attach to server before it does something stupid
+    
 	CConnection *ret = justConnectToServer(settings["server"]["server"].String(), port);
 
 	if(verbose)

@@ -463,7 +463,7 @@ void CVCMIServer::loadGame()
 	boost::system::error_code error;
 	ui8 clients;
 
-	c >> clients >> fname; //how many clients should be connected - TODO: support more than one
+	c >> clients >> fname; //how many clients should be connected
 
 // 	{
 // 		char sig[8];

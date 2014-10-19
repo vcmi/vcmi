@@ -151,7 +151,7 @@ public:
 	void endGame(bool closeConnection = true);
 	void stopConnection();
 	void save(const std::string & fname);
-	void loadGame(const std::string & fname);
+	void loadGame(const std::string & fname, const bool server = true, const std::vector<int>& humanplayerindices = std::vector<int>(), const int loadnumplayers = 1, int player_ = -1, const std::string & ipaddr = "", const std::string & port = "");
 	void run();
 	void campaignMapFinished( shared_ptr<CCampaignState> camp );
 	void finishCampaign( shared_ptr<CCampaignState> camp );

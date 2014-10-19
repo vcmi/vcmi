@@ -224,7 +224,13 @@ int main(int argc, char** argv)
 		("oneGoodAI", "puts one default AI and the rest will be EmptyAI")
 		("autoSkip", "automatically skip turns in GUI")
 		("disable-video", "disable video player")
-		("nointro,i", "skips intro movies");
+		("nointro,i", "skips intro movies")
+        ("loadserver","specifies we are the multiplayer server for loaded games")
+        ("loadnumplayers",po::value<int>(),"specifies the number of players connecting to a multiplayer game")
+        ("loadhumanplayerindices",po::value<std::vector<int>>(),"Indexes of human players (0=Red, etc.)")
+        ("loadplayer", po::value<int>(),"specifies which player we are in multiplayer loaded games (0=Red, etc.)")
+        ("loadserverip",po::value<std::string>(),"IP for loaded game server")
+        ("loadserverport",po::value<std::string>(),"port for loaded game server");
 
 	if(argc > 1)
 	{
@@ -1222,7 +1228,10 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 	case StartInfo::LOAD_GAME:
 		std::string fname = options->mapname;
 		boost::algorithm::erase_last(fname,".vlgm1");
-		client->loadGame(fname);
+        if(!vm.count("loadplayer"))
+            client->loadGame(fname);
+        else
+            client->loadGame(fname,vm.count("loadserver"),vm.count("loadhumanplayerindices") ? vm["loadhumanplayerindices"].as<std::vector<int>>() : std::vector<int>(),vm.count("loadnumplayers") ? vm["loadnumplayers"].as<int>() : 1,vm["loadplayer"].as<int>(),vm.count("loadserverip") ? vm["loadserverip"].as<std::string>() : "", vm.count("loadserverport") ? vm["loadserverport"].as<std::string>() : "3030");
 		break;
 	}
 
