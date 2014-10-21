@@ -508,7 +508,6 @@ void CVCMIServer::loadGame()
 				continue;
 			}
 			cc = new CConnection(s,NAME);
-			cc->addStdVecItems(gh.gs);
 		}	
 		gh.conns.insert(cc);
 	}
