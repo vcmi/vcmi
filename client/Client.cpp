@@ -374,11 +374,6 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 		throw; //obviously we cannot continue here
 	}
 
-    if(player_==-1)
-        player_ = player->getNum();
-    else
-        player = PlayerColor(player_);
-
     std::cout << player << std::endl;
 
     std::set<PlayerColor> clientPlayers;
@@ -413,10 +408,10 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
         clientPlayers.insert(player.get());
     }
 
+    serialize(*loader,0,clientPlayers);
     *serv << ui32(clientPlayers.size());
     for(auto & elem : clientPlayers)
         *serv << ui8(elem.getNum());
-    serialize(*loader,0,clientPlayers);
     serv->addStdVecItems(gs); /*why is this here?*/
 
     //*loader >> *this;
@@ -428,7 +423,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 	serv->enableStackSendingByID();
 	serv->disableSmartPointerSerialization();
 
-    //loadNeutralBattleAI(); //wtf did this come from
+    loadNeutralBattleAI(); //wtf did this come from
 
 // 	logGlobal->traceStream() << "Objects:";
 // 	for(int i = 0; i < gs->map->objects.size(); i++)
@@ -680,11 +675,12 @@ void CClient::serialize( Handler &h, const int version, const std::set<PlayerCol
 			{
 				if(pid == PlayerColor::NEUTRAL)
 				{
-					installNewBattleInterface(CDynLibHandler::getNewBattleAI(dllname), pid);
+                    if(playerIDs.count(pid))
+                       installNewBattleInterface(CDynLibHandler::getNewBattleAI(dllname), pid);
 					//TODO? consider serialization 
 					continue;
 				}
-				else if(playerIDs.count(pid))
+				else
 				{
 					assert(!isHuman);
 					nInt = CDynLibHandler::getNewAI(dllname);
@@ -696,20 +692,17 @@ void CClient::serialize( Handler &h, const int version, const std::set<PlayerCol
 				nInt = make_shared<CPlayerInterface>(pid);
 			}
 
-            if(!nInt)
-                nInt = make_shared<CPlayerInterface>(pid);
-
 			nInt->dllName = dllname;
 			nInt->human = isHuman;
 			nInt->playerID = pid;
 
             if(playerIDs.count(pid))
-               installNewPlayerInterface(nInt, pid);
+            installNewPlayerInterface(nInt, pid);
 			nInt->loadGame(dynamic_cast<CISer<CLoadFile>&>(h), version); //another evil cast, check above
 		}
 
 		if(!vstd::contains(battleints, PlayerColor::NEUTRAL))
-			loadNeutralBattleAI();
+            loadNeutralBattleAI();
 	}
 }
 
@@ -931,7 +924,7 @@ void CClient::installNewPlayerInterface(shared_ptr<CGameInterface> gameInterface
 	boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
 
-	if(!color) 
+	if(!color)
 		privilagedGameEventReceivers.push_back(gameInterface);
 
 	playerint[colorUsed] = gameInterface;
