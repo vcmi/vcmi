@@ -326,6 +326,8 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 #if 1
 void CClient::loadGame(const std::string & fname, const bool server, const std::vector<int>& humanplayerindices, const int loadNumPlayers, int player_, const std::string & ipaddr, const std::string & port)
 {
+    PlayerColor player(player_); //intentional shadowing
+
     logNetwork->infoStream() <<"Loading procedure started!";
 
 	CServerHandler sh;
@@ -374,7 +376,10 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 		throw; //obviously we cannot continue here
 	}
 
-    std::cout << player << std::endl;
+/*
+    if(!server)
+         player = PlayerColor(player_);
+*/
 
     std::set<PlayerColor> clientPlayers;
     if(server)
@@ -394,6 +399,8 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
               logNetwork->infoStream() << "Server opened savegame properly.";
     }
 
+    player = PlayerColor(player_);
+
     if(server)
     {
          for(auto & elem : gs->scenarioOps->playerInfos)
@@ -405,8 +412,13 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
     }
     else
     {
-        clientPlayers.insert(player.get());
+        clientPlayers.insert(player);
     }
+
+    std::cout << "CLIENTPLAYERS:\n";
+    for(auto x : clientPlayers)
+         std::cout << x << std::endl;
+    std::cout << "ENDCLIENTPLAYERS\n";
 
     serialize(*loader,0,clientPlayers);
     *serv << ui32(clientPlayers.size());
