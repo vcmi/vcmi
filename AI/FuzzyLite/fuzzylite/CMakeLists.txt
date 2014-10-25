@@ -14,7 +14,7 @@ add_definitions(-DFL_BUILD_PATH="${CMAKE_SOURCE_DIR}") #used to determine FL__FI
 
 option(FL_USE_FLOAT "Use fl::scalar as float" OFF)
 option(FL_BACKTRACE "Provide backtrace information in case of errors" OFF)
-option(FL_CPP11 "Builds utilizing C++11, i.e., passing -std=c++11" OFF)
+option(FL_CPP11 "Builds utilizing C++11, i.e., passing -std=c++11" ON)
 
 if(FL_USE_FLOAT)
     add_definitions(-DFL_USE_FLOAT)
@@ -104,11 +104,17 @@ add_library(fl-shared SHARED ${fl-headers} ${fl-sources})
 set_target_properties(fl-shared PROPERTIES OUTPUT_NAME fuzzylite)
 set_target_properties(fl-shared PROPERTIES DEBUG_POSTFIX d)
 set_target_properties(fl-shared PROPERTIES COMPILE_DEFINITIONS "FL_EXPORT_LIBRARY")
+if (UNIX)
+set_target_properties(fl-shared PROPERTIES COMPILE_FLAGS "-fPIC")
+endif()
 target_link_libraries(fl-shared ${FL_LIBS})
 
 add_library(fl-static STATIC ${fl-headers} ${fl-sources})
 set_target_properties(fl-static PROPERTIES OUTPUT_NAME fuzzylite-static)
 set_target_properties(fl-static PROPERTIES DEBUG_POSTFIX d)
+if (UNIX)
+set_target_properties(fl-static PROPERTIES COMPILE_FLAGS "-fPIC")
+endif()
 target_link_libraries(fl-static ${FL_LIBS})
 
 add_executable(fl-bin src/main.cpp)

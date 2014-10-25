@@ -1,6 +1,8 @@
 project(VCAI)
 cmake_minimum_required(VERSION 2.6)
 
+add_definitions(-DFL_CPP11) #TODO: Find a better way to set this macro for fuzzylite
+
 if (FUZZYLITE_FOUND)
     include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib ${FUZZYLITE_INCLUDE_DIR})
 else()
@@ -8,7 +10,7 @@ else()
 endif()
 
 set(VCAI_SRCS
-		StdInc.cpp
+        StdInc.cpp
         VCAI.cpp
         Goals.cpp
         AIUtility.cpp

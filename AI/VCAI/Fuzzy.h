@@ -20,20 +20,20 @@ class FuzzyHelper
 {
 	friend class VCAI;
 
-	fl::FuzzyEngine engine;
+	fl::Engine engine;
 
-	fl::InputLVar* bankInput;
-	fl::OutputLVar* bankDanger;
+	fl::InputVariable* bankInput;
+	fl::OutputVariable* bankDanger;
 	fl::RuleBlock bankBlock;
 
 	class TacticalAdvantage
 	{
 	public:
-		fl::InputLVar * ourWalkers, * ourShooters, * ourFlyers, * enemyWalkers, * enemyShooters, * enemyFlyers;
-		fl::InputLVar * ourSpeed, * enemySpeed;
-		fl::InputLVar * bankPresent;
-		fl::InputLVar * castleWalls;
-		fl::OutputLVar * threat;
+		fl::InputVariable * ourWalkers, * ourShooters, * ourFlyers, * enemyWalkers, * enemyShooters, * enemyFlyers;
+		fl::InputVariable * ourSpeed, * enemySpeed;
+		fl::InputVariable * bankPresent;
+		fl::InputVariable * castleWalls;
+		fl::OutputVariable * threat;
 		fl::RuleBlock tacticalAdvantage;
 		~TacticalAdvantage();
 	} ta;
@@ -41,11 +41,11 @@ class FuzzyHelper
 	class EvalVisitTile
 	{
 	public:
-		fl::InputLVar * strengthRatio;
-		fl::InputLVar * heroStrength;
-		fl::InputLVar * turnDistance;
-		fl::InputLVar * missionImportance;
-		fl::OutputLVar * value;
+		fl::InputVariable * strengthRatio;
+		fl::InputVariable * heroStrength;
+		fl::InputVariable * turnDistance;
+		fl::InputVariable * missionImportance;
+		fl::OutputVariable * value;
 		fl::RuleBlock rules;
 		~EvalVisitTile();
 	} vt;
