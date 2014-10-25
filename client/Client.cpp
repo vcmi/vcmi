@@ -399,8 +399,6 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
               logNetwork->infoStream() << "Server opened savegame properly.";
     }
 
-    player = PlayerColor(player_);
-
     if(server)
     {
          for(auto & elem : gs->scenarioOps->playerInfos)
@@ -709,17 +707,18 @@ void CClient::serialize( Handler &h, const int version, const std::set<PlayerCol
 			nInt->playerID = pid;
 
             if(playerIDs.count(pid))
-            installNewPlayerInterface(nInt, pid);
-			nInt->loadGame(dynamic_cast<CISer<CLoadFile>&>(h), version); //another evil cast, check above
+                 installNewPlayerInterface(nInt, pid);
+
+            nInt->loadGame(dynamic_cast<CISer<CLoadFile>&>(h), version); //another evil cast, check above            
 		}
 
-		if(!vstd::contains(battleints, PlayerColor::NEUTRAL))
-            loadNeutralBattleAI();
+/*		if(!vstd::contains(battleints, PlayerColor::NEUTRAL))
+            loadNeutralBattleAI();*/
 	}
 }
 
 void CClient::handlePack( CPack * pack )
-{			
+{
 	CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)]; //find the applier
 	if(apply)
 	{
