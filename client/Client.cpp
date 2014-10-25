@@ -236,93 +236,6 @@ void CClient::endGame( bool closeConnection /*= true*/ )
     logNetwork->infoStream() << "Client stopped.";
 }
 
-#if 0
-void CClient::loadGame(const std::string & fname, const bool server, const std::vector<int>& humanplayerindices, const int loadNumPlayers, int player_, const std::string & ipaddr, const std::string & port)
-{
-    logNetwork->infoStream() <<"Loading procedure started!";
-
-	CServerHandler sh;
-	sh.startServer();
-
-	CStopWatch tmh;
-	try
-	{
-		std::string clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
-		std::string controlServerSaveName;
-
-		if (CResourceHandler::get("local")->existsResource(ResourceID(fname, EResType::SERVER_SAVEGAME)))
-		{
-			controlServerSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME));
-		}
-		else// create entry for server savegame. Triggered if save was made after launch and not yet present in res handler
-		{
-			controlServerSaveName = clientSaveName.substr(0, clientSaveName.find_last_of(".")) + ".vsgm1";
-			CResourceHandler::get("local")->createResource(controlServerSaveName, true);
-		}
-
-		if(clientSaveName.empty())
-			throw std::runtime_error("Cannot open client part of " + fname);
-		if(controlServerSaveName.empty())
-			throw std::runtime_error("Cannot open server part of " + fname);
-
-		unique_ptr<CLoadFile> loader;
-		{
-			CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, minSupportedVersion);
-			loadCommonState(checkingLoader);
-			loader = checkingLoader.decay();
-		}
-        logNetwork->infoStream() << "Loaded common part of save " << tmh.getDiff();
-		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
-		const_cast<CGameInfo*>(CGI)->mh->map = gs->map;
-		pathInfo = make_unique<CPathsInfo>(getMapSize());
-		CGI->mh->init();
-        logNetwork->infoStream() <<"Initing maphandler: "<<tmh.getDiff();
-
-		*loader >> *this;
-        logNetwork->infoStream() << "Loaded client part of save " << tmh.getDiff();
-	}
-	catch(std::exception &e)
-	{
-		logGlobal->errorStream() << "Cannot load game " << fname << ". Error: " << e.what();
-		throw; //obviously we cannot continue here
-	}
-
-	serv = sh.connectToServer();
-	serv->addStdVecItems(gs);
-
-	tmh.update();
-	ui8 pom8;
-	*serv << ui8(3) << ui8(1); //load game; one client
-	*serv << fname;
-	*serv >> pom8;
-	if(pom8) 
-		throw std::runtime_error("Server cannot open the savegame!");
-	else
-        logNetwork->infoStream() << "Server opened savegame properly.";
-
-	*serv << ui32(gs->scenarioOps->playerInfos.size()+1); //number of players + neutral
-	for(auto & elem : gs->scenarioOps->playerInfos)
-	{
-		*serv << ui8(elem.first.getNum()); //players
-	}
-	*serv << ui8(PlayerColor::NEUTRAL.getNum());
-    logNetwork->infoStream() <<"Sent info to server: "<<tmh.getDiff();
-
-	serv->enableStackSendingByID();
-	serv->disableSmartPointerSerialization();
-
-// 	logGlobal->traceStream() << "Objects:";
-// 	for(int i = 0; i < gs->map->objects.size(); i++)
-// 	{
-// 		auto o = gs->map->objects[i];
-// 		if(o)
-// 			logGlobal->traceStream() << boost::format("\tindex=%5d, id=%5d; address=%5d, pos=%s, name=%s") % i % o->id % (int)o.get() % o->pos % o->getHoverText();
-// 		else
-// 			logGlobal->traceStream() << boost::format("\tindex=%5d --- nullptr") % i;
-// 	}
-}
-#endif
-
 #if 1
 void CClient::loadGame(const std::string & fname, const bool server, const std::vector<int>& humanplayerindices, const int loadNumPlayers, int player_, const std::string & ipaddr, const std::string & port)
 {
@@ -432,8 +345,6 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
     //*serv << clientPlayers;
 	serv->enableStackSendingByID();
 	serv->disableSmartPointerSerialization();
-
-    loadNeutralBattleAI(); //wtf did this come from
 
 // 	logGlobal->traceStream() << "Objects:";
 // 	for(int i = 0; i < gs->map->objects.size(); i++)
@@ -712,8 +623,8 @@ void CClient::serialize( Handler &h, const int version, const std::set<PlayerCol
             nInt->loadGame(dynamic_cast<CISer<CLoadFile>&>(h), version); //another evil cast, check above            
 		}
 
-/*		if(!vstd::contains(battleints, PlayerColor::NEUTRAL))
-            loadNeutralBattleAI();*/
+		if(playerIDs.count(PlayerColor::NEUTRAL))
+            loadNeutralBattleAI();
 	}
 }
 
