@@ -531,7 +531,7 @@ namespace fl {
         if (token.size() != 2) {
             std::ostringstream ex;
             ex << "[syntax error] expected property of type 'start .. end', "
-                    << "but found <" << range << "> in line: " << line;
+                    << "but found <" << range.str() << "> in line: " << line;
             throw fl::Exception(ex.str(), FL_AT);
         }
         scalar minimum, maximum;

@@ -30,6 +30,8 @@
 #include <sstream>
 #include <limits>
 #include <memory>
+#include "../../Global.h"
+#include <iso646.h>
 
 #ifndef FL_VERSION
 #define FL_VERSION "?"
