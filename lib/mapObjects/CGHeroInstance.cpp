@@ -101,7 +101,11 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 			}
 		}
 		if (!nativeArmy)
+        {
             ret = VLC->heroh->terrCosts[from.terType];
+            ret-=getSecSkillLevel(SecondarySkill::PATHFINDING)*25;
+            ret = ret < 100 ? 100 : ret;
+        }
  	}
 	return ret;
 }
