@@ -1257,14 +1257,15 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	{
 		h & pathsMap;
 
-		for(auto &p : pathsMap)
-		{
-			CGPath path;
-			cb->getPathsInfo(p.first)->getPath(p.second, path);
-			paths[p.first] = path;
-			logGlobal->traceStream() << boost::format("Restored path for hero %s leading to %s with %d nodes")
-				% p.first->nodeName() % p.second % path.nodes.size();
-		}
+        if(cb)
+            for(auto &p : pathsMap)
+            {
+                CGPath path;
+                cb->getPathsInfo(p.first)->getPath(p.second, path);
+                paths[p.first] = path;
+                logGlobal->traceStream() << boost::format("Restored path for hero %s leading to %s with %d nodes")
+                    % p.first->nodeName() % p.second % path.nodes.size();
+            }
 	}
 
 	h & spellbookSettings;

@@ -1656,7 +1656,7 @@
 		"bonuses" : [
 			{
 				"type" : "CREATURE_GROWTH",
-				"subtype" : 2,
+				"subtype" : 1,
 				"val" : 5,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
@@ -1669,7 +1669,7 @@
 		"bonuses" : [
 			{
 				"type" : "CREATURE_GROWTH",
-				"subtype" : 3,
+				"subtype" : 2,
 				"val" : 4,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
@@ -1682,7 +1682,7 @@
 		"bonuses" : [
 			{
 				"type" : "CREATURE_GROWTH",
-				"subtype" : 4,
+				"subtype" : 3,
 				"val" : 3,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
@@ -1695,7 +1695,7 @@
 		"bonuses" : [
 			{
 				"type" : "CREATURE_GROWTH",
-				"subtype" : 5,
+				"subtype" : 4,
 				"val" : 2,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
@@ -1708,7 +1708,7 @@
 		"bonuses" : [
 			{
 				"type" : "CREATURE_GROWTH",
-				"subtype" : 6,
+				"subtype" : 5,
 				"val" : 1,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}

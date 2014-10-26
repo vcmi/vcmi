@@ -236,14 +236,21 @@ void CClient::endGame( bool closeConnection /*= true*/ )
     logNetwork->infoStream() << "Client stopped.";
 }
 
-void CClient::loadGame( const std::string & fname )
+#if 1
+void CClient::loadGame(const std::string & fname, const bool server, const std::vector<int>& humanplayerindices, const int loadNumPlayers, int player_, const std::string & ipaddr, const std::string & port)
 {
+    PlayerColor player(player_); //intentional shadowing
+
     logNetwork->infoStream() <<"Loading procedure started!";
 
 	CServerHandler sh;
-	sh.startServer();
+    if(server)
+         sh.startServer();
+    else
+         serv = sh.justConnectToServer(ipaddr,port=="" ? "3030" : port);
 
 	CStopWatch tmh;
+    unique_ptr<CLoadFile> loader;
 	try
 	{
 		std::string clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
@@ -264,7 +271,6 @@ void CClient::loadGame( const std::string & fname )
 		if(controlServerSaveName.empty())
 			throw std::runtime_error("Cannot open server part of " + fname);
 
-		unique_ptr<CLoadFile> loader;
 		{
 			CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, minSupportedVersion);
 			loadCommonState(checkingLoader);
@@ -276,9 +282,6 @@ void CClient::loadGame( const std::string & fname )
 		pathInfo = make_unique<CPathsInfo>(getMapSize());
 		CGI->mh->init();
         logNetwork->infoStream() <<"Initing maphandler: "<<tmh.getDiff();
-
-		*loader >> *this;
-        logNetwork->infoStream() << "Loaded client part of save " << tmh.getDiff();
 	}
 	catch(std::exception &e)
 	{
@@ -286,27 +289,60 @@ void CClient::loadGame( const std::string & fname )
 		throw; //obviously we cannot continue here
 	}
 
-	serv = sh.connectToServer();
-	serv->addStdVecItems(gs);
+/*
+    if(!server)
+         player = PlayerColor(player_);
+*/
 
-	tmh.update();
-	ui8 pom8;
-	*serv << ui8(3) << ui8(1); //load game; one client
-	*serv << fname;
-	*serv >> pom8;
-	if(pom8) 
-		throw std::runtime_error("Server cannot open the savegame!");
-	else
-        logNetwork->infoStream() << "Server opened savegame properly.";
+    std::set<PlayerColor> clientPlayers;
+    if(server)
+         serv = sh.connectToServer();
+    //*loader >> *this;
 
-	*serv << ui32(gs->scenarioOps->playerInfos.size()+1); //number of players + neutral
-	for(auto & elem : gs->scenarioOps->playerInfos)
-	{
-		*serv << ui8(elem.first.getNum()); //players
-	}
-	*serv << ui8(PlayerColor::NEUTRAL.getNum());
+    if(server)
+    {
+         tmh.update();
+         ui8 pom8;
+         *serv << ui8(3) << ui8(loadNumPlayers); //load game; one client if single-player
+         *serv << fname;
+         *serv >> pom8;
+         if(pom8) 
+              throw std::runtime_error("Server cannot open the savegame!");
+         else
+              logNetwork->infoStream() << "Server opened savegame properly.";
+    }
+
+    if(server)
+    {
+         for(auto & elem : gs->scenarioOps->playerInfos)
+              if(!std::count(humanplayerindices.begin(),humanplayerindices.end(),elem.first.getNum()) || elem.first==player)
+              {
+                  clientPlayers.insert(elem.first);
+              }
+         clientPlayers.insert(PlayerColor::NEUTRAL);
+    }
+    else
+    {
+        clientPlayers.insert(player);
+    }
+
+    std::cout << "CLIENTPLAYERS:\n";
+    for(auto x : clientPlayers)
+         std::cout << x << std::endl;
+    std::cout << "ENDCLIENTPLAYERS\n";
+
+    serialize(*loader,0,clientPlayers);
+    *serv << ui32(clientPlayers.size());
+    for(auto & elem : clientPlayers)
+        *serv << ui8(elem.getNum());
+    serv->addStdVecItems(gs); /*why is this here?*/
+
+    //*loader >> *this;
+    logNetwork->infoStream() << "Loaded client part of save " << tmh.getDiff();
+
     logNetwork->infoStream() <<"Sent info to server: "<<tmh.getDiff();
 
+    //*serv << clientPlayers;
 	serv->enableStackSendingByID();
 	serv->disableSmartPointerSerialization();
 
@@ -320,6 +356,7 @@ void CClient::loadGame( const std::string & fname )
 // 			logGlobal->traceStream() << boost::format("\tindex=%5d --- nullptr") % i;
 // 	}
 }
+#endif
 
 void CClient::newGame( CConnection *con, StartInfo *si )
 {
@@ -522,8 +559,77 @@ void CClient::serialize( Handler &h, const int version )
 	}
 }
 
+template <typename Handler>
+void CClient::serialize( Handler &h, const int version, const std::set<PlayerColor>& playerIDs)
+{
+	h & hotSeat;
+	if(h.saving)
+	{
+		ui8 players = playerint.size();
+		h & players;
+
+		for(auto i = playerint.begin(); i != playerint.end(); i++)
+		{
+			LOG_TRACE_PARAMS(logGlobal, "Saving player %s interface", i->first);
+			assert(i->first == i->second->playerID);
+			h & i->first & i->second->dllName & i->second->human;
+			i->second->saveGame(dynamic_cast<COSer<CSaveFile>&>(h), version); 
+			//evil cast that i still like better than sfinae-magic. If I had a "static if"...
+		}
+	}
+	else
+	{
+		ui8 players = 0; //fix for uninitialized warning
+		h & players;
+
+		for(int i=0; i < players; i++)
+		{
+			std::string dllname;
+			PlayerColor pid; 
+			bool isHuman = false;
+
+			h & pid & dllname & isHuman;
+			LOG_TRACE_PARAMS(logGlobal, "Loading player %s interface", pid);
+
+			shared_ptr<CGameInterface> nInt;
+			if(dllname.length())
+			{
+				if(pid == PlayerColor::NEUTRAL)
+				{
+                    if(playerIDs.count(pid))
+                       installNewBattleInterface(CDynLibHandler::getNewBattleAI(dllname), pid);
+					//TODO? consider serialization 
+					continue;
+				}
+				else
+				{
+					assert(!isHuman);
+					nInt = CDynLibHandler::getNewAI(dllname);
+				}
+			}
+			else
+			{
+				assert(isHuman);
+				nInt = make_shared<CPlayerInterface>(pid);
+			}
+
+			nInt->dllName = dllname;
+			nInt->human = isHuman;
+			nInt->playerID = pid;
+
+            if(playerIDs.count(pid))
+                 installNewPlayerInterface(nInt, pid);
+
+            nInt->loadGame(dynamic_cast<CISer<CLoadFile>&>(h), version); //another evil cast, check above            
+		}
+
+		if(playerIDs.count(PlayerColor::NEUTRAL))
+            loadNeutralBattleAI();
+	}
+}
+
 void CClient::handlePack( CPack * pack )
-{			
+{
 	CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)]; //find the applier
 	if(apply)
 	{
@@ -740,7 +846,7 @@ void CClient::installNewPlayerInterface(shared_ptr<CGameInterface> gameInterface
 	boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
 
-	if(!color) 
+	if(!color)
 		privilagedGameEventReceivers.push_back(gameInterface);
 
 	playerint[colorUsed] = gameInterface;
@@ -833,6 +939,7 @@ CConnection * CServerHandler::connectToServer()
 #endif
 
 	th.update(); //put breakpoint here to attach to server before it does something stupid
+    
 	CConnection *ret = justConnectToServer(settings["server"]["server"].String(), port);
 
 	if(verbose)
