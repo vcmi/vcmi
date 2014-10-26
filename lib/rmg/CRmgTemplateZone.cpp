@@ -958,6 +958,12 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				town->builtBuildings.insert(BuildingID::FORT);
 			town->builtBuildings.insert(BuildingID::DEFAULT);
 
+			for (auto spell : VLC->spellh->objects) //add all regular spells to town
+			{
+				if (!spell->isSpecialSpell() && !spell->isCreatureAbility())
+					town->possibleSpells.push_back(spell->id);
+			}
+
 			if (!totalTowns) 
 			{
 				//first town in zone sets the facton of entire zone
@@ -996,6 +1002,12 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			town->tempOwner = player;
 			town->builtBuildings.insert(BuildingID::FORT);
 			town->builtBuildings.insert(BuildingID::DEFAULT);
+
+			for (auto spell : VLC->spellh->objects) //add all regular spells to town
+			{
+				if (!spell->isSpecialSpell() && !spell->isCreatureAbility())
+					town->possibleSpells.push_back(spell->id);
+			}
 			//towns are big objects and should be centered around visitable position
 			placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0); //generate no guards, but free path to entrance
 			cutPathAroundTown(town);
