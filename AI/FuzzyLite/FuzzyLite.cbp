@@ -72,6 +72,7 @@
 			<Add option="-Wno-sign-compare" />
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
+			<Add option="-DFL_CPP11" />
 			<Add directory="$(#boost.include)" />
 			<Add directory="fuzzylite" />
 		</Compiler>
