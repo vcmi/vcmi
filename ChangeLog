@@ -1,4 +1,4 @@
-0.96 -> 0.next
+0.96 -> 0.97
 GENERAL:
 * VCMI can now be compiled with SDL2
 * (windows) Moved VCMI data directory from '%userprofile%\vcmi' to '%userprofile%\Documents\My Games\vcmi'
@@ -17,6 +17,7 @@ GRAPHICS:
 * Better upscaling when running in fullscreen mode.
 * New creature/commader window
 * New resolutions and bonus icons are now part of a separate mod
+* Added graphics for GENERAL_DAMAGE_REDUCTION bonus (Kuririn)
 
 RANDOM MAP GENERATOR:
 * Random map generator now creates complete and playable maps, should match original RMG

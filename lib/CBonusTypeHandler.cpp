@@ -232,6 +232,17 @@ std::string CBonusTypeHandler::bonusToGraphics(const Bonus* bonus) const
 			}
 			break;
 		}
+		case Bonus::GENERAL_DAMAGE_REDUCTION:
+		{
+			switch (bonus->subtype)
+			{
+				case 0:
+					fileName = "DamageReductionMelee.bmp"; break;
+				case 1:
+					fileName = "DamageReductionRanged.bmp"; break;
+			}
+			break;
+		}
 		
 		default: 
 		{

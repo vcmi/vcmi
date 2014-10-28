@@ -126,6 +126,12 @@
 		"description": "Reduces Defense for one attack"
 	},
 	
+	"GENERAL_DAMAGE_REDUCTION":
+	{
+		"name": "Reduce Damage (${val}%)",
+		"description": "Reduces physical damage"
+	},
+	
 	"FIRE_IMMUNITY":
 	{
 		"name": "Immune to Fire",
