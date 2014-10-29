@@ -526,7 +526,7 @@
 					}
 				]
 			},
-			"dragonflyHive" : {
+			"dragonFlyHive" : {
 				"index" : 6,
 				"resetDuration" : 0,
 				"name" : "Dragon Fly Hive",
@@ -538,11 +538,11 @@
 					{
 						"chance": 30,
 						"guards": [
-							{ "amount": 6, "type": "serpentFly" },
-							{ "amount": 6, "type": "serpentFly" },
-							{ "amount": 6, "type": "serpentFly" },
-							{ "amount": 6, "type": "serpentFly" },
-							{ "amount": 6, "type": "serpentFly" }
+							{ "amount": 6, "type": "fireDragonFly" },
+							{ "amount": 6, "type": "fireDragonFly" },
+							{ "amount": 6, "type": "fireDragonFly" },
+							{ "amount": 6, "type": "fireDragonFly" },
+							{ "amount": 6, "type": "fireDragonFly" }
 						],
 						"combat_value": 154,
 						"reward" : {
@@ -553,11 +553,11 @@
 					{
 						"chance": 30,
 						"guards": [
-							{ "amount": 9, "type": "serpentFly" },
-							{ "amount": 9, "type": "serpentFly" },
-							{ "amount": 9, "type": "serpentFly" },
-							{ "amount": 9, "type": "serpentFly" },
-							{ "amount": 9, "type": "serpentFly" }
+							{ "amount": 9, "type": "fireDragonFly" },
+							{ "amount": 9, "type": "fireDragonFly" },
+							{ "amount": 9, "type": "fireDragonFly" },
+							{ "amount": 9, "type": "fireDragonFly" },
+							{ "amount": 9, "type": "fireDragonFly" }
 						],
 						"combat_value": 230,
 						"reward" : {
@@ -568,11 +568,11 @@
 					{
 						"chance": 30,
 						"guards": [
-							{ "amount": 12, "type": "serpentFly" },
-							{ "amount": 12, "type": "serpentFly" },
-							{ "amount": 12, "type": "serpentFly" },
-							{ "amount": 12, "type": "serpentFly" },
-							{ "amount": 12, "type": "serpentFly" }
+							{ "amount": 12, "type": "fireDragonFly" },
+							{ "amount": 12, "type": "fireDragonFly" },
+							{ "amount": 12, "type": "fireDragonFly" },
+							{ "amount": 12, "type": "fireDragonFly" },
+							{ "amount": 12, "type": "fireDragonFly" }
 						],
 						"combat_value": 307,
 						"reward" : {
@@ -583,11 +583,11 @@
 					{
 						"chance": 10,
 						"guards": [
-							{ "amount": 18, "type": "serpentFly" },
-							{ "amount": 18, "type": "serpentFly" },
-							{ "amount": 18, "type": "serpentFly" },
-							{ "amount": 18, "type": "serpentFly" },
-							{ "amount": 18, "type": "serpentFly" }
+							{ "amount": 18, "type": "fireDragonFly" },
+							{ "amount": 18, "type": "fireDragonFly" },
+							{ "amount": 18, "type": "fireDragonFly" },
+							{ "amount": 18, "type": "fireDragonFly" },
+							{ "amount": 18, "type": "fireDragonFly" }
 						],
 						"combat_value": 461,
 						"reward" : {
