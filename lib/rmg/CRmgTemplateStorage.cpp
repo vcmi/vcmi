@@ -47,7 +47,7 @@ void CJsonRmgTemplateLoader::loadTemplates()
 
 			// Parse zones
 			std::map<TRmgTemplateZoneId, CRmgTemplateZone *> zones;
-			for(const auto & zonePair : templateNode["zones"].Struct())
+			for (const auto & zonePair : templateNode["zones"].Struct())
 			{
 				auto zone = new CRmgTemplateZone();
 				auto zoneId = boost::lexical_cast<TRmgTemplateZoneId>(zonePair.first);
@@ -56,7 +56,7 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				const auto & zoneNode = zonePair.second;
 				zone->setType(parseZoneType(zoneNode["type"].String()));
 				zone->setSize(zoneNode["size"].Float());
-				if(!zoneNode["owner"].isNull()) zone->setOwner(zoneNode["owner"].Float());
+				if (!zoneNode["owner"].isNull()) zone->setOwner(zoneNode["owner"].Float());
 
 				zone->setPlayerTowns(parseTemplateZoneTowns(zoneNode["playerTowns"]));
 				zone->setNeutralTowns(parseTemplateZoneTowns(zoneNode["neutralTowns"]));
@@ -65,32 +65,42 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				zone->setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector(), zone->getDefaultTerrainTypes()));
 				zone->setTownsAreSameType((zoneNode["townsAreSameType"].Bool()));
 
-				std::set<TFaction> allowedTownTypes;
-				if (zoneNode["allowedTowns"].isNull())
-					allowedTownTypes = zone->getDefaultTownTypes();
-				else
+				for (int i = 0; i < 2; ++i)
 				{
-					for (const JsonNode & allowedTown : zoneNode["allowedTowns"].Vector())
+					std::set<TFaction> allowedTownTypes;
+					if (zoneNode[i ? "allowedTowns" : "allowedMonsters"].isNull())
 					{
-						//complain if the town type is not present in our game
-						boost::optional<si32> id = VLC->modh->identifiers.getIdentifier("faction", allowedTown, false);
-						if (id.is_initialized())
-							allowedTownTypes.insert (id.get());
+						if (i)
+							allowedTownTypes = zone->getDefaultTownTypes();
+						else
+							allowedTownTypes = VLC->townh->getAllowedFactions(false);
 					}
-				}
+					else
+					{
+						for (const JsonNode & allowedTown : zoneNode[i ? "allowedTowns" : "allowedMonsters"].Vector())
+						{
+							//complain if the town type is not present in our game
+							boost::optional<si32> id = VLC->modh->identifiers.getIdentifier("faction", allowedTown, false);
+							if (id.is_initialized())
+								allowedTownTypes.insert(id.get());
+						}
+					}
 
-				if (!zoneNode["bannedTowns"].isNull())
-				{
-					for (const JsonNode & bannedTown : zoneNode["bannedTowns"].Vector())
+					if (!zoneNode[i ? "bannedTowns" : "bannedMonsters"].isNull())
 					{
-						//erase unindentified towns silently
-						boost::optional<si32> id = VLC->modh->identifiers.getIdentifier("faction", bannedTown, true);
-						if (id.is_initialized())
-							vstd::erase_if_present(allowedTownTypes, id.get());
+						for (const JsonNode & bannedTown : zoneNode[i ? "bannedTowns" : "bannedMonsters"].Vector())
+						{
+							//erase unindentified towns silently
+							boost::optional<si32> id = VLC->modh->identifiers.getIdentifier("faction", bannedTown, true);
+							if (id.is_initialized())
+								vstd::erase_if_present(allowedTownTypes, id.get());
+						}
 					}
+					if (i)
+						zone->setTownTypes(allowedTownTypes);
+					else
+						zone->setMonsterTypes(allowedTownTypes);
 				}
-				assert(allowedTownTypes.size());
-				zone->setTownTypes (allowedTownTypes);
 
 				const std::string monsterStrength = zoneNode["monsters"].String();
 				if (monsterStrength == "weak")

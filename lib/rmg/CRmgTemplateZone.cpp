@@ -136,7 +136,7 @@ CRmgTemplateZone::CRmgTemplateZone() :
 	size(1),
 	townsAreSameType(false),
 	matchTerrainToTown(true),
-	townType(0),
+	townType(ETownType::NEUTRAL),
 	terrainType (ETerrainType::GRASS),
 	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
 	totalDensity(0)
@@ -227,6 +227,10 @@ const std::set<TFaction> & CRmgTemplateZone::getTownTypes() const
 void CRmgTemplateZone::setTownTypes(const std::set<TFaction> & value)
 {
 	townTypes = value;
+}
+void CRmgTemplateZone::setMonsterTypes(const std::set<TFaction> & value)
+{
+	monsterTypes = value;
 }
 
 std::set<TFaction> CRmgTemplateZone::getDefaultTownTypes() const
@@ -635,6 +639,8 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, 
 	{
 		if (cre->special)
 			continue;
+		if (!vstd::contains(monsterTypes, cre->faction))
+			continue;
 		if ((cre->AIValue * (cre->ammMin + cre->ammMax) / 2 < strength) && (strength < cre->AIValue * 100)) //at least one full monster. size between minimum size of given stack and 100
 		{
 			possibleCreatures.push_back(cre->idNumber);
@@ -950,7 +956,12 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			if (this->townsAreSameType)
 				town->subID = townType;
 			else
-				town->subID = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
+			{
+				if (townTypes.size())
+					town->subID = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
+				else
+					town->subID = *RandomGeneratorUtil::nextItem(getDefaultTownTypes(), gen->rand); //it is possible to have zone with no towns allowed
+			}
 
 			town->tempOwner = player;
 			if (hasFort)
@@ -992,7 +1003,12 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			townType = gen->mapGenOptions->getPlayersSettings().find(player)->second.getStartingTown();
 
 			if (townType == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
-				townType = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
+			{
+				if (townTypes.size())
+					townType = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
+				else
+					townType = *RandomGeneratorUtil::nextItem(getDefaultTownTypes(), gen->rand); //it is possible to have zone with no towns allowed
+			}
 			
 			auto  town = new CGTownInstance();
 			town->ID = Obj::TOWN;
@@ -1044,12 +1060,29 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 
 	addNewTowns (neutralTowns.getCastleCount(), true, PlayerColor::NEUTRAL);
 	addNewTowns (neutralTowns.getTownCount(), false, PlayerColor::NEUTRAL);
+
+	if (!totalTowns) //if there's no town present, get random faction for dwellings and pandoras
+	{
+		//25% chance for neutral
+		if (gen->rand.nextInt(1, 100) <= 25)
+		{
+			townType = ETownType::NEUTRAL;
+		}
+		else
+		{
+			if (townTypes.size())
+				townType = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
+			else if (monsterTypes.size())
+				townType = *RandomGeneratorUtil::nextItem(monsterTypes, gen->rand); //this happens in Clash of Dragons in treasure zones, where all towns are banned
+		}
+
+	}
 }
 
 void CRmgTemplateZone::initTerrainType (CMapGenerator* gen)
 {
 
-	if (matchTerrainToTown)
+	if (matchTerrainToTown && townType != ETownType::NEUTRAL)
 		terrainType = VLC->townh->factions[townType]->nativeTerrain;
 	else
 		terrainType = *RandomGeneratorUtil::nextItem(terrainTypes, gen->rand);
@@ -1945,12 +1978,15 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 
 	for (auto creature : VLC->creh->creatures)
 	{
-		if (!creature->special && VLC->townh->factions[creature->faction]->nativeTerrain == terrainType)
+		if (!creature->special && creature->faction == townType)
 		{
 			int actualTier = creature->level > 7 ? 6 : creature->level-1;
-			int creaturesAmount = tierValues[actualTier] / creature->AIValue;
+			float creaturesAmount = tierValues[actualTier] / creature->AIValue;
 			if (creaturesAmount <= 5)
 			{
+				creaturesAmount = boost::math::round(creaturesAmount); //allow single monsters
+				if (creaturesAmount < 1)
+					continue;
 			}
 			else if (creaturesAmount <= 12)
 			{
@@ -1958,11 +1994,11 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			}
 			else if (creaturesAmount <= 50)
 			{
-				creaturesAmount = boost::math::round((float)creaturesAmount / 5) * 5;
+				creaturesAmount = boost::math::round(creaturesAmount / 5) * 5;
 			}
 			else if (creaturesAmount <= 12)
 			{
-				creaturesAmount = boost::math::round((float)creaturesAmount / 10) * 10;
+				creaturesAmount = boost::math::round(creaturesAmount / 10) * 10;
 			}
 
 			oi.generateObject = [creature, creaturesAmount]() -> CGObjectInstance *

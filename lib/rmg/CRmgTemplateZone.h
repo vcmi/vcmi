@@ -129,6 +129,7 @@ public:
 	void setTownsAreSameType(bool value);
 	const std::set<TFaction> & getTownTypes() const; /// Default: all
 	void setTownTypes(const std::set<TFaction> & value);
+	void setMonsterTypes(const std::set<TFaction> & value);
 	std::set<TFaction> getDefaultTownTypes() const;
 	bool getMatchTerrainToTown() const; /// Default: true
 	void setMatchTerrainToTown(bool value);
@@ -186,6 +187,7 @@ private:
 	CTownInfo playerTowns, neutralTowns;
 	bool townsAreSameType;
 	std::set<TFaction> townTypes;
+	std::set<TFaction> monsterTypes;
 	bool matchTerrainToTown;
 	std::set<ETerrainType> terrainTypes;
 	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone

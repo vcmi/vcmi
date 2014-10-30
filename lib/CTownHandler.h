@@ -266,7 +266,7 @@ public:
 	void afterLoadFinalization() override;
 
 	std::vector<bool> getDefaultAllowed() const override;
-	std::set<TFaction> getAllowedFactions() const;
+	std::set<TFaction> getAllowedFactions(bool withTown = true) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
