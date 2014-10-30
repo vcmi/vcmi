@@ -141,7 +141,6 @@ CRmgTemplateZone::CRmgTemplateZone() :
 	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
 	totalDensity(0)
 {
-	townTypes = getDefaultTownTypes();
 	terrainTypes = getDefaultTerrainTypes();
 }
 
@@ -951,7 +950,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			if (this->townsAreSameType)
 				town->subID = townType;
 			else
-				town->subID = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); //TODO: check allowed town types for this zone
+				town->subID = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
 
 			town->tempOwner = player;
 			if (hasFort)
@@ -992,8 +991,8 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			PlayerColor player(player_id);
 			townType = gen->mapGenOptions->getPlayersSettings().find(player)->second.getStartingTown();
 
-			if(townType == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
-				townType = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand); // all possible towns, skip neutral
+			if (townType == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
+				townType = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
 			
 			auto  town = new CGTownInstance();
 			town->ID = Obj::TOWN;

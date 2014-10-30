@@ -1378,14 +1378,15 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	costs.resize(slotsCount);
 	totalSumm.resize(GameConstants::RESOURCE_QUANTITY);
 
-	for (int i=0; i<slotsCount; i++)
+	for (int i = 0; i < slotsCount; i++)
 	{
 		currState[i] = getState(SlotID(i));
-		upgrade[i] = new CButton(Point(107+i*76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [&]{ makeDeal(SlotID(i));}, SDLK_1+i);
-		upgrade[i]->block(currState[i] == -1);
+		upgrade[i] = new CButton(Point(107 + i * 76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [&]{ makeDeal(SlotID(i)); }, SDLK_1 + i);
 		for (auto image : { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" })
 			upgrade[i]->addImage(image);
+		upgrade[i]->block(currState[i] == -1);
 	}
+
 	currState[slotsCount] = getState(SlotID(slotsCount));
 	upgradeAll = new CButton(Point(30, 231), "", CButton::tooltip(CGI->generaltexth->allTexts[432]), [&]{ makeDeal(SlotID(slotsCount));}, SDLK_0);
 	for (auto image : { "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF" })

@@ -18,6 +18,7 @@
 #include "../JsonNode.h"
 #include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
+#include "../CModHandler.h"
 #include "../CTownHandler.h"
 #include "../GameConstants.h"
 #include "../StringConstants.h"
@@ -59,11 +60,37 @@ void CJsonRmgTemplateLoader::loadTemplates()
 
 				zone->setPlayerTowns(parseTemplateZoneTowns(zoneNode["playerTowns"]));
 				zone->setNeutralTowns(parseTemplateZoneTowns(zoneNode["neutralTowns"]));
-				zone->setTownTypes(parseTownTypes(zoneNode["townTypes"].Vector(), zone->getDefaultTownTypes()));
 				if (!zoneNode["matchTerrainToTown"].isNull()) //default : true
 					zone->setMatchTerrainToTown(zoneNode["matchTerrainToTown"].Bool());
 				zone->setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector(), zone->getDefaultTerrainTypes()));
 				zone->setTownsAreSameType((zoneNode["townsAreSameType"].Bool()));
+
+				std::set<TFaction> allowedTownTypes;
+				if (zoneNode["allowedTowns"].isNull())
+					allowedTownTypes = zone->getDefaultTownTypes();
+				else
+				{
+					for (const JsonNode & allowedTown : zoneNode["allowedTowns"].Vector())
+					{
+						//complain if the town type is not present in our game
+						boost::optional<si32> id = VLC->modh->identifiers.getIdentifier("faction", allowedTown, false);
+						if (id.is_initialized())
+							allowedTownTypes.insert (id.get());
+					}
+				}
+
+				if (!zoneNode["bannedTowns"].isNull())
+				{
+					for (const JsonNode & bannedTown : zoneNode["bannedTowns"].Vector())
+					{
+						//erase unindentified towns silently
+						boost::optional<si32> id = VLC->modh->identifiers.getIdentifier("faction", bannedTown, true);
+						if (id.is_initialized())
+							vstd::erase_if_present(allowedTownTypes, id.get());
+					}
+				}
+				assert(allowedTownTypes.size());
+				zone->setTownTypes (allowedTownTypes);
 
 				const std::string monsterStrength = zoneNode["monsters"].String();
 				if (monsterStrength == "weak")

@@ -115,12 +115,14 @@ void LibClasses::init()
 
 	createHandler(terviewh, "Terrain view pattern", pomtime);
 
-	createHandler(tplh, "Template", pomtime);
-
 	logGlobal->infoStream()<<"\tInitializing handlers: "<< totalTime.getDiff();
 
 	modh->load();
+
+	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
+
 	modh->afterLoad();
+
 	//FIXME: make sure that everything is ok after game restart
 	//TODO: This should be done every time mod config changes
 
