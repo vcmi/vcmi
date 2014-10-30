@@ -63,7 +63,9 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				if (!zoneNode["matchTerrainToTown"].isNull()) //default : true
 					zone->setMatchTerrainToTown(zoneNode["matchTerrainToTown"].Bool());
 				zone->setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector(), zone->getDefaultTerrainTypes()));
-				zone->setTownsAreSameType((zoneNode["townsAreSameType"].Bool()));
+
+				if (!zoneNode["townsAreSameType"].isNull()) //default : false
+					zone->setTownsAreSameType((zoneNode["townsAreSameType"].Bool()));
 
 				for (int i = 0; i < 2; ++i)
 				{
@@ -80,8 +82,7 @@ void CJsonRmgTemplateLoader::loadTemplates()
 						for (const JsonNode & allowedTown : zoneNode[i ? "allowedTowns" : "allowedMonsters"].Vector())
 						{
 							//complain if the town type is not present in our game
-							boost::optional<si32> id = VLC->modh->identifiers.getIdentifier("faction", allowedTown, false);
-							if (id.is_initialized())
+							if (auto id = VLC->modh->identifiers.getIdentifier("faction", allowedTown, false))
 								allowedTownTypes.insert(id.get());
 						}
 					}
@@ -91,8 +92,7 @@ void CJsonRmgTemplateLoader::loadTemplates()
 						for (const JsonNode & bannedTown : zoneNode[i ? "bannedTowns" : "bannedMonsters"].Vector())
 						{
 							//erase unindentified towns silently
-							boost::optional<si32> id = VLC->modh->identifiers.getIdentifier("faction", bannedTown, true);
-							if (id.is_initialized())
+							if (auto id = VLC->modh->identifiers.getIdentifier("faction", bannedTown, true))
 								vstd::erase_if_present(allowedTownTypes, id.get());
 						}
 					}
@@ -172,7 +172,11 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				const auto & zoneNode = zonePair.second;
 
 				if (!zoneNode["terrainTypeLikeZone"].isNull())
-					zone->setTerrainTypes (zones[zoneNode["terrainTypeLikeZone"].Float()]->getTerrainTypes());
+				{
+					int id = zoneNode["terrainTypeLikeZone"].Float();
+					zone->setTerrainTypes(zones[id]->getTerrainTypes());
+					zone->setMatchTerrainToTown(zones[id]->getMatchTerrainToTown());
+				}
 
 				if (!zoneNode["townTypeLikeZone"].isNull())
 					zone->setTownTypes (zones[zoneNode["townTypeLikeZone"].Float()]->getTownTypes());

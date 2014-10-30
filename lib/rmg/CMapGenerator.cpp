@@ -211,13 +211,8 @@ void CMapGenerator::genZones()
 	auto w = mapGenOptions->getWidth();
 	auto h = mapGenOptions->getHeight();
 
-
 	auto tmpl = mapGenOptions->getMapTemplate();
 	zones = tmpl->getZones(); //copy from template (refactor?)
-
-	int player_per_side = zones.size() > 4 ? 3 : 2;
-		
-	logGlobal->infoStream() << boost::format("Map size %d %d, players per side %d") % w % h % player_per_side;
 
 	CZonePlacer placer(this);
 	placer.placeZones(mapGenOptions, &rand);
@@ -225,13 +220,6 @@ void CMapGenerator::genZones()
 
 	int i = 0;
 
-	for(auto const it : zones)
-	{
-		CRmgTemplateZone * zone = it.second;
-		zone->setType(i < pcnt ? ETemplateZoneType::PLAYER_START : ETemplateZoneType::TREASURE);
-		this->zones[it.first] = zone;
-		++i;
-	}
 	logGlobal->infoStream() << "Zones generated successfully";
 }
 
@@ -484,7 +472,13 @@ float CMapGenerator::getNearestObjectDistance(const int3 &tile) const
 int CMapGenerator::getNextMonlithIndex()
 {
 	if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
-		throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
+	{
+		logGlobal->errorStream() << boost::to_string(boost::format("RMG Error! There is no Monolith Two Way with index %d available!") % monolithIndex);
+		monolithIndex++;
+		return VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size() - 1;
+		//TODO: interrupt map generation and report error
+		//throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
+	}
 	else
 		return monolithIndex++;
 }
