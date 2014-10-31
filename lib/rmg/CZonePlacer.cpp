@@ -68,7 +68,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	TRmgTemplateZoneId firstZone = zones.begin()->first; //we want lowest ID here
 	bool undergroundFlag = false;
 
-	float totalSize = 0;
+	std::vector<float> totalSize = { 0, 0 }; //make sure that sum of zone sizes on surface and uderground match size of the map
 	for (auto zone : zonesVector)
 	{
 		//even distribution for surface / underground zones. Surface zones always have priority.
@@ -86,17 +86,17 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 			}
 		}
 
-		totalSize += (zone.second->getSize() * zone.second->getSize());
+		totalSize[level] += (zone.second->getSize() * zone.second->getSize());
 		zone.second->setCenter (float3(rand->nextDouble(0.2, 0.8), rand->nextDouble(0.2, 0.8), level)); //start away from borders
 	}
 	//prescale zones
-	if (underground) //map is twice as big, so zones occupy only half of normal space
-		totalSize /= 2;
-	float prescaler = sqrt ((width * height) / (totalSize * 3.14f)); 
+	std::vector<float> prescaler = { 0, 0 };
+	for (int i = 0; i < 2; i++)
+		prescaler[i] = sqrt((width * height) / (totalSize[i] * 3.14f));
 	float mapSize = sqrt (width * height);
 	for (auto zone : zones)
 	{
-		zone.second->setSize (zone.second->getSize() * prescaler);
+		zone.second->setSize (zone.second->getSize() * prescaler[zone.second->getCenter().z]);
 	}
 
 	//gravity-based algorithm. connected zones attract, intersceting zones and map boundaries push back
