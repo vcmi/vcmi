@@ -313,9 +313,11 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 		zone.second->setPos (int3(total.x/size, total.y/size, total.z/size));
 
 		//TODO: similiar for islands
+		#define	CREATE_FULL_UNDERGROUND true //consider linking this with water amount
 		if (zone.second->getPos().z)
 		{
-			zone.second->discardDistantTiles(gen, zone.second->getSize() + 1);
+			if (!CREATE_FULL_UNDERGROUND)
+				zone.second->discardDistantTiles(gen, zone.second->getSize() + 1);
 
 			//make sure that terrain inside zone is not a rock
 			//FIXME: reorder actions?
