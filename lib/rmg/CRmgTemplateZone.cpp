@@ -1049,13 +1049,19 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 		else
 		{			
 			type = ETemplateZoneType::TREASURE;
-			townType = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand);
+			if (townTypes.size())
+				townType = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
+			else
+				townType = *RandomGeneratorUtil::nextItem(getDefaultTownTypes(), gen->rand); //it is possible to have zone with no towns allowed
 			logGlobal->infoStream() << "Skipping this zone cause no player";
 		}
 	}
 	else //no player
 	{
-		townType = *RandomGeneratorUtil::nextItem(VLC->townh->getAllowedFactions(), gen->rand);
+		if (townTypes.size())
+			townType = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
+		else
+			townType = *RandomGeneratorUtil::nextItem(getDefaultTownTypes(), gen->rand); //it is possible to have zone with no towns allowed
 	}
 
 	addNewTowns (neutralTowns.getCastleCount(), true, PlayerColor::NEUTRAL);

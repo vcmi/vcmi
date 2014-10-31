@@ -1,7 +1,5 @@
 #include "StdInc.h"
 #include "Fuzzy.h"
-#include "src/Engine.cpp"
-#include "src/Operation.cpp"
 #include <limits>
 
 #include "../../lib/mapObjects/MapObjects.h"

@@ -70,14 +70,18 @@ void CJsonRmgTemplateLoader::loadTemplates()
 				for (int i = 0; i < 2; ++i)
 				{
 					std::set<TFaction> allowedTownTypes;
-					if (zoneNode[i ? "allowedTowns" : "allowedMonsters"].isNull())
+					if (i)
 					{
-						if (i)
+						if (zoneNode["allowedTowns"].isNull())
 							allowedTownTypes = zone->getDefaultTownTypes();
-						else
-							allowedTownTypes = VLC->townh->getAllowedFactions(false);
 					}
 					else
+					{
+						if (zoneNode["allowedMonsters"].isNull())
+							allowedTownTypes = VLC->townh->getAllowedFactions(false);
+					}
+
+					if (allowedTownTypes.empty())
 					{
 						for (const JsonNode & allowedTown : zoneNode[i ? "allowedTowns" : "allowedMonsters"].Vector())
 						{
