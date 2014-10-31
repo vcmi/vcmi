@@ -107,12 +107,14 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	};
 
 	std::map <CRmgTemplateZone *, float3> forces;
+	std::map <CRmgTemplateZone *, float> distances;
 	while (zoneScale < 1) //until zones reach their desired size and fill the map tightly
 	{
 		for (auto zone : zones)
 		{
 			float3 forceVector(0,0,0);
 			float3 pos = zone.second->getCenter();
+			float totalDistance = 0;
 
 			//attract connected zones
 			for (auto con : zone.second->getConnections())
@@ -124,9 +126,11 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				if (distance > minDistance)
 				{
 					//WARNING: compiler used to 'optimize' that line so it never actually worked
-					forceVector += (((otherZoneCenter - pos) / getDistance(distance))); //positive value
+					forceVector += (((otherZoneCenter - pos)*(pos.z != otherZoneCenter.z ? (distance - minDistance) : 1)/ getDistance(distance))); //positive value
+					totalDistance += distance;
 				}
 			}
+			distances[zone.second] = totalDistance;
 			//separate overlaping zones
 			for (auto otherZone : zones)
 			{
@@ -139,7 +143,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				float minDistance = (zone.second->getSize() + otherZone.second->getSize())/mapSize * zoneScale;
 				if (distance < minDistance)
 				{
-					forceVector -= (otherZoneCenter - pos) / getDistance(distance); //negative value
+					forceVector -= (((otherZoneCenter - pos)*(minDistance - distance)) / getDistance(distance)); //negative value
 				}
 			}
 
@@ -178,7 +182,52 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 		{
 			zone.first->setCenter (zone.first->getCenter() + zone.second);
 		}
-		zoneScale *= inflateModifier; //increase size
+
+		//now perform drastic movement of zone that is completely not linked
+		float maxRatio = 0;
+		CRmgTemplateZone * distantZone = nullptr;
+
+		float totalDistance = 0;
+		for (auto zone : distances) //find most misplaced zone
+		{
+			totalDistance += zone.second;
+			float ratio = zone.second / forces[zone.first].mag(); //if distance to actual movement is long, the zone is misplaced
+			if (ratio > maxRatio)
+			{
+				maxRatio = ratio;
+				distantZone = zone.first;
+			}
+		}
+		logGlobal->traceStream() << boost::format("Total distance between zones in this iteration: %2.2f, Worst distance/movement ratio: %3.2f") % totalDistance % maxRatio;
+		
+		if (maxRatio > 100) //TODO: scale?
+		{
+			//find most distant zone that should be attracted and move inside it
+			
+			CRmgTemplateZone * targetZone = nullptr;
+			float maxDistance = 0;
+			float3 ourCenter = distantZone->getCenter();
+			for (auto con : distantZone->getConnections())
+			{
+				auto otherZone = zones[con];
+				float distance = otherZone->getCenter().dist2dSQ(ourCenter);
+				if (distance > maxDistance)
+				{
+					maxDistance = distance;
+					targetZone = otherZone;
+				}
+			}
+			float3 vec = targetZone->getCenter() - ourCenter;
+			float newDistanceBetweenZones = (std::max (distantZone->getSize(),targetZone->getSize())) * zoneScale / mapSize;
+			logGlobal->traceStream() << boost::format("Trying to move zone %d %s towards %d %s. Old distance %f") %
+				distantZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxDistance;
+			logGlobal->traceStream() << boost::format("direction is %s") % vec();
+
+			distantZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
+			logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(distantZone->getCenter());
+		}
+
+		zoneScale *= inflateModifier; //increase size of zones so they
 	}
 	for (auto zone : zones) //finalize zone positions
 	{

@@ -47,6 +47,14 @@ public:
 		const double dy = (y - o.y);
 		return dx*dx + dy*dy;
 	}
+	double mag() const
+	{
+		return sqrt(x*x + y*y);
+	}
+	float3 unitVector() const
+	{
+		return float3(x, y, z) / mag();
+	}
 	// returns distance on Oxy plane (z coord is not used)
 	double dist2d(const float3 &other) const { return std::sqrt(dist2dSQ(other)); }
 

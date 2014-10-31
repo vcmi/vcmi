@@ -473,11 +473,11 @@ int CMapGenerator::getNextMonlithIndex()
 {
 	if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
 	{
-		logGlobal->errorStream() << boost::to_string(boost::format("RMG Error! There is no Monolith Two Way with index %d available!") % monolithIndex);
-		monolithIndex++;
-		return VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size() - 1;
+		//logGlobal->errorStream() << boost::to_string(boost::format("RMG Error! There is no Monolith Two Way with index %d available!") % monolithIndex);
+		//monolithIndex++;
+		//return VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size() - 1;
 		//TODO: interrupt map generation and report error
-		//throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
+		throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
 	}
 	else
 		return monolithIndex++;
