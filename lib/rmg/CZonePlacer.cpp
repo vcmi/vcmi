@@ -151,11 +151,11 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 			//do not scale boundary distance - zones tend to get squashed
 			float size = zone.second->getSize() / mapSize;
 
-			auto pushAwayFromBoundary = [&forceVector, pos, &getDistance](float x, float y)
+			auto pushAwayFromBoundary = [&forceVector, pos, &getDistance, size](float x, float y)
 			{
 				float3 boundary = float3 (x, y, pos.z);
 				float distance = pos.dist2d(boundary);
-				forceVector -= (boundary - pos) / getDistance(distance); //negative value
+				forceVector -= (boundary - pos) * (size - distance) / getDistance(distance); //negative value
 			};
 			if (pos.x < size)
 			{
