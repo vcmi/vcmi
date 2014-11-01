@@ -510,7 +510,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 		}
 	}
 
-	logGlobal->infoStream() << boost::format ("Zone %d subdivided fractally") %id;
+	//logGlobal->infoStream() << boost::format ("Zone %d subdivided fractally") %id;
 }
 
 bool CRmgTemplateZone::crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles)
@@ -1053,7 +1053,6 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				townType = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
 			else
 				townType = *RandomGeneratorUtil::nextItem(getDefaultTownTypes(), gen->rand); //it is possible to have zone with no towns allowed
-			logGlobal->infoStream() << "Skipping this zone cause no player";
 		}
 	}
 	else //no player
@@ -1170,18 +1169,16 @@ bool CRmgTemplateZone::placeMines (CMapGenerator* gen)
 
 bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 {
-	logGlobal->infoStream() << "Creating required objects";
+	logGlobal->traceStream() << "Creating required objects";
 	for(const auto &obj : requiredObjects)
 	{
 		int3 pos;
-		logGlobal->traceStream() << "Looking for place";
 		if ( ! findPlaceForObject(gen, obj.first, 3, pos))		
 		{
 			logGlobal->errorStream() << boost::format("Failed to fill zone %d due to lack of space") %id;
 			//TODO CLEANUP!
 			return false;
 		}
-		logGlobal->traceStream() << "Place found";
 
 		placeObject (gen, obj.first, pos);
 		guardObject (gen, obj.first, obj.second, (obj.first->ID == Obj::MONOLITH_TWO_WAY), true);
@@ -1252,7 +1249,7 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 				freeTiles++;
 			}
 		}
-		logGlobal->infoStream() << boost::format("Set %d tiles to BLOCKED and %d tiles to FREE") % blockedTiles % freeTiles;
+		logGlobal->traceStream() << boost::format("Set %d tiles to BLOCKED and %d tiles to FREE") % blockedTiles % freeTiles;
 	}
 
 	#define MAKE_COOL_UNDERGROUND_TUNNELS false

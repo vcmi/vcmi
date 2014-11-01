@@ -1796,7 +1796,6 @@ void CGameState::initTowns()
 				}
 		}
 		//init spells
-		logGlobal->debugStream() << "\t\tTown init spells";
 		vti->spells.resize(GameConstants::SPELL_LEVELS);
 
 		for(ui32 z=0; z<vti->obligatorySpells.size();z++)
@@ -1805,7 +1804,6 @@ void CGameState::initTowns()
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
-		logGlobal->debugStream() << "\t\tTown init spells2";
 		while(vti->possibleSpells.size())
 		{
 			ui32 total=0;
@@ -1837,7 +1835,6 @@ void CGameState::initTowns()
 		vti->possibleSpells.clear();
 		if(vti->getOwner() != PlayerColor::NEUTRAL)
 			getPlayer(vti->getOwner())->towns.push_back(vti);
-        logGlobal->debugStream() << "\t\tTown init spells3";
 
 	}
 }
