@@ -96,11 +96,7 @@ file(STRINGS FL_SOURCES fl-sources)
 string(REGEX REPLACE "\n" " " ${fl-headers} ${fl-headers})
 string(REGEX REPLACE "\n" " " ${fl-sources} ${fl-sources})
 
-message("${exepath}")
-
-
 set(CMAKE_DEBUG_POSTFIX d)
-
 INCLUDE(CheckLibraryExists)
 
 #check if some platform-specific libraries are needed for linking
@@ -116,7 +112,7 @@ set_target_properties(fl-shared PROPERTIES OUTPUT_NAME fuzzylite)
 set_target_properties(fl-shared PROPERTIES DEBUG_POSTFIX d)
 set_target_properties(fl-shared PROPERTIES COMPILE_DEFINITIONS "FL_EXPORT_LIBRARY")
 if (UNIX)
-set_target_properties(fl-shared PROPERTIES COMPILE_FLAGS "-fPIC")
+    set_target_properties(fl-shared PROPERTIES COMPILE_FLAGS "-fPIC")
 endif()
 target_link_libraries(fl-shared ${FL_LIBS} ${SYSTEM_LIBS})
 
@@ -124,43 +120,14 @@ add_library(fl-static STATIC ${fl-headers} ${fl-sources})
 set_target_properties(fl-static PROPERTIES OUTPUT_NAME fuzzylite-static)
 set_target_properties(fl-static PROPERTIES DEBUG_POSTFIX d)
 if (UNIX)
-set_target_properties(fl-static PROPERTIES COMPILE_FLAGS "-fPIC")
+    set_target_properties(fl-static PROPERTIES COMPILE_FLAGS "-fPIC")
 endif()
 target_link_libraries(fl-static ${FL_LIBS} ${SYSTEM_LIBS})
 
-add_executable(fl-bin src/main.cpp)
-set_target_properties(fl-bin PROPERTIES OUTPUT_NAME fuzzylite)
-set_target_properties(fl-bin PROPERTIES OUTPUT_NAME fuzzylite IMPORT_PREFIX tmp-) #To prevent LNK1149 in Windows
-set_target_properties(fl-bin PROPERTIES DEBUG_POSTFIX d)
-#set_target_properties(fl-bin PROPERTIES COMPILE_DEFINITIONS "FL_IMPORT_LIBRARY")
-#target_link_libraries(fl-bin fl-shared ${FL_LIBS})
-target_link_libraries(fl-bin fl-static ${FL_LIBS} ${SYSTEM_LIBS})
-
-
-install(TARGETS fl-bin fl-shared fl-static
+install(TARGETS fl-shared fl-static
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         )
 
 install(DIRECTORY fl/ DESTINATION include/fl)
-
-message("=====================================")
-message("fuzzylite v.${FL_VERSION}b${FL_DATE}\n")
-message("FL_USE_FLOAT=${FL_USE_FLOAT}")
-message("FL_BACKTRACE=${FL_BACKTRACE}")
-message("FL_CPP11=${FL_CPP11}")
-message("Build=${CMAKE_BUILD_TYPE}")
-message("=====================================\n")
-
-# uninstall target
-#configure_file(
-    #"${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    #"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    #IMMEDIATE @ONLY)
-
-#add_custom_target(uninstall
-    #COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/uninstall.cmake)
-
-#unix uninstall
-#xargs rm < install_manifest.txt
