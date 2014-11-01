@@ -14,7 +14,7 @@ add_definitions(-DFL_BUILD_PATH="${CMAKE_SOURCE_DIR}") #used to determine FL__FI
 
 option(FL_USE_FLOAT "Use fl::scalar as float" OFF)
 option(FL_BACKTRACE "Provide backtrace information in case of errors" OFF)
-option(FL_CPP11 "Builds utilizing C++11, i.e., passing -std=c++11" OFF)
+option(FL_CPP11 "Builds utilizing C++11, i.e., passing -std=c++11" ON)
 
 if(FL_USE_FLOAT)
     add_definitions(-DFL_USE_FLOAT)
@@ -100,16 +100,32 @@ message("${exepath}")
 
 set(CMAKE_DEBUG_POSTFIX d)
 
+INCLUDE(CheckLibraryExists)
+
+#check if some platform-specific libraries are needed for linking
+if(NOT WIN32)
+	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
+	if(HAVE_RT_LIB)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} rt)
+	endif()
+endif()
+
 add_library(fl-shared SHARED ${fl-headers} ${fl-sources})
 set_target_properties(fl-shared PROPERTIES OUTPUT_NAME fuzzylite)
 set_target_properties(fl-shared PROPERTIES DEBUG_POSTFIX d)
 set_target_properties(fl-shared PROPERTIES COMPILE_DEFINITIONS "FL_EXPORT_LIBRARY")
-target_link_libraries(fl-shared ${FL_LIBS})
+if (UNIX)
+set_target_properties(fl-shared PROPERTIES COMPILE_FLAGS "-fPIC")
+endif()
+target_link_libraries(fl-shared ${FL_LIBS} ${SYSTEM_LIBS})
 
 add_library(fl-static STATIC ${fl-headers} ${fl-sources})
 set_target_properties(fl-static PROPERTIES OUTPUT_NAME fuzzylite-static)
 set_target_properties(fl-static PROPERTIES DEBUG_POSTFIX d)
-target_link_libraries(fl-static ${FL_LIBS})
+if (UNIX)
+set_target_properties(fl-static PROPERTIES COMPILE_FLAGS "-fPIC")
+endif()
+target_link_libraries(fl-static ${FL_LIBS} ${SYSTEM_LIBS})
 
 add_executable(fl-bin src/main.cpp)
 set_target_properties(fl-bin PROPERTIES OUTPUT_NAME fuzzylite)
@@ -117,7 +133,7 @@ set_target_properties(fl-bin PROPERTIES OUTPUT_NAME fuzzylite IMPORT_PREFIX tmp-
 set_target_properties(fl-bin PROPERTIES DEBUG_POSTFIX d)
 #set_target_properties(fl-bin PROPERTIES COMPILE_DEFINITIONS "FL_IMPORT_LIBRARY")
 #target_link_libraries(fl-bin fl-shared ${FL_LIBS})
-target_link_libraries(fl-bin fl-static ${FL_LIBS})
+target_link_libraries(fl-bin fl-static ${FL_LIBS} ${SYSTEM_LIBS})
 
 
 install(TARGETS fl-bin fl-shared fl-static
