@@ -1,10 +1,15 @@
-0.96 -> 0.97
+0.96 -> 0.97 (Nov 01 2014)
 GENERAL:
-* VCMI can now be compiled with SDL2
 * (windows) Moved VCMI data directory from '%userprofile%\vcmi' to '%userprofile%\Documents\My Games\vcmi'
 * (windows) (OSX) Moved VCMI save directory from 'VCMI_DATA\Games' to 'VCMI_DATA\Saves'
 * (linux)
-* Movies will use ffmpeg library
+* Changes in used librries:
+- VCMI can now be compiled with SDL2
+- Movies will use ffmpeg library
+- change boost::bind to std::bind 
+- removed boost::asign 
+- Updated FuzzyLite to 5.0 
+* Multiplayer load support was implemented through command-line options
 
 ADVENTURE AI:
 * Significantly optimized execution time, AI should be much faster now.
@@ -21,7 +26,9 @@ GRAPHICS:
 
 RANDOM MAP GENERATOR:
 * Random map generator now creates complete and playable maps, should match original RMG
+* All important features from original map templates are implemented
 * Fixed major crash on removing objects
+* Undeground zones will look just like surface zones
 
 LAUNCHER:
 * Implemented switch to disable intro movies in game
