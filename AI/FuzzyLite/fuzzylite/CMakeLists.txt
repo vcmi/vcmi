@@ -86,6 +86,7 @@ if(WIN32)
 endif()
 
 include_directories(.)
+include_directories(..)
 cmake_policy(SET CMP0015 OLD)
 link_directories(.)
 
