@@ -272,6 +272,9 @@
       <AdditionalIncludeDirectories>./fuzzylite;.</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>FL_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Lib>
+      <AdditionalDependencies>Dbghelp.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile />
@@ -301,6 +304,9 @@
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <PreprocessorDefinitions>FL_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Lib>
+      <AdditionalDependencies>Dbghelp.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">
     <ClCompile />
