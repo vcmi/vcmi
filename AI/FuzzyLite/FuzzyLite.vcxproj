@@ -95,7 +95,6 @@
     <ClInclude Include="fuzzylite\fl\variable\InputVariable.h" />
     <ClInclude Include="fuzzylite\fl\variable\OutputVariable.h" />
     <ClInclude Include="fuzzylite\fl\variable\Variable.h" />
-    <ClInclude Include="StdInc.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fuzzylite\src\Console.cpp" />
