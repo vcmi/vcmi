@@ -1,10 +1,8 @@
 project(VCAI)
 cmake_minimum_required(VERSION 2.6)
 
-add_definitions(-DFL_CPP11) #TODO: Find a better way to set this macro for fuzzylite
-
 if (FUZZYLITE_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib ${FUZZYLITE_INCLUDE_DIR})
+    include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib ${FL_INCLUDE_DIRS})
 else()
     include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib ${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite/fuzzylite)
 endif()
@@ -19,8 +17,8 @@ set(VCAI_SRCS
 )
 
 add_library(VCAI SHARED ${VCAI_SRCS})
-if (FUZZYLITE_FOUND)
-    target_link_libraries(VCAI ${FUZZYLITE_LIBRARIES} vcmi)
+if (FL_FOUND)
+    target_link_libraries(VCAI ${FL_LIBRARIES} vcmi)
 else()
     target_link_libraries(VCAI fl-static vcmi)
 endif()
