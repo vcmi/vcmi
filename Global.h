@@ -137,7 +137,9 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/format.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/lexical_cast.hpp>
+#ifndef VCMI_ANDROID
 #include <boost/locale/generator.hpp>
+#endif
 #include <boost/logic/tribool.hpp>
 #include <boost/optional.hpp>
 #include <boost/program_options.hpp>

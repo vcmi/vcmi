@@ -573,7 +573,9 @@ namespace VCMIDirs
 		static bool initialized = false;
 		if (!initialized)
 		{
+			#ifndef VCMI_ANDROID
 			std::locale::global(boost::locale::generator().generate("en_US.UTF-8"));
+			#endif
 			boost::filesystem::path::imbue(std::locale());
 
 			singleton.init();
