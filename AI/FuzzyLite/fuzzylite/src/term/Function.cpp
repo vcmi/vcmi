@@ -575,8 +575,8 @@ namespace fl {
         //y x * sin 2 ^ x /
 
 
-        text = "(Temperature is High and Oxigen is Low) or "
-                "(Temperature is Low and (Oxigen is Low or Oxigen is High))";
+        text = "(Temperature is High and Oxygen is Low) or "
+                "(Temperature is Low and (Oxygen is Low or Oxygen is High))";
         FL_LOG(f.toPostfix(text));
 
         f.variables["pi"] = 3.14;

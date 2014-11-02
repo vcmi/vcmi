@@ -69,6 +69,10 @@ namespace fl {
         return this->_expression != fl::null;
     }
 
+    scalar Antecedent::activationDegree(const TNorm* conjunction, const SNorm* disjunction) const {
+        return this->activationDegree(conjunction, disjunction, this->_expression);
+    }
+
     scalar Antecedent::activationDegree(const TNorm* conjunction, const SNorm* disjunction,
             const Expression* node) const {
         if (not isLoaded()) {
@@ -129,10 +133,6 @@ namespace fl {
         ex << "[syntax error] operator <" << fuzzyOperator->name << "> not recognized";
         throw fl::Exception(ex.str(), FL_AT);
 
-    }
-
-    scalar Antecedent::activationDegree(const TNorm* conjunction, const SNorm* disjunction) const {
-        return this->activationDegree(conjunction, disjunction, this->_expression);
     }
 
     void Antecedent::unload() {
