@@ -194,6 +194,10 @@ int SDL_main(int argc, char *argv[])
 int main(int argc, char** argv)
 #endif
 {
+#ifdef VCMI_ANDROID
+	// boost will crash without this
+	setenv("LANG", "C", 1);
+#endif
 #ifdef VCMI_APPLE
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
     std::string executablePath = argv[0];
@@ -286,10 +290,6 @@ int main(int argc, char** argv)
 	logGlobal->infoStream() << "Creating console and configuring logger: " << pomtime.getDiff();
 	logGlobal->infoStream() << "The log file will be saved to " << logPath;
 
-#ifdef VCMI_ANDROID
-	// boost will crash without this
-	setenv("LANG", "C", 1);
-#endif
     // Init filesystem and settings
 	preinitDLL(::console);
     settings.init();
