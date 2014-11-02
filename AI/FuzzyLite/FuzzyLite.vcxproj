@@ -271,6 +271,7 @@
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>./fuzzylite;.</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FL_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -281,6 +282,9 @@
       <AdditionalLibraryDirectories>$(OutDir)..;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)FuzzyLite.dll</OutputFile>
     </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>FL_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
     <ClCompile />
@@ -296,6 +300,7 @@
       <AdditionalIncludeDirectories>./fuzzylite;.</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
+      <PreprocessorDefinitions>FL_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">
@@ -308,6 +313,9 @@
       <AdditionalLibraryDirectories>$(OutDir)..;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)FuzzyLite.dll</OutputFile>
     </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>FL_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
