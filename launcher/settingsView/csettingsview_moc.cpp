@@ -39,6 +39,7 @@ void CSettingsView::loadSettings()
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Float());
 
+	ui->comboBoxAutoCheck->setCurrentIndex(settings["launcher"]["autoCheckRepositories"].Bool());
 	// all calls to plainText will trigger textChanged() signal overwriting config. Create backup before editing widget
 	JsonNode urls = settings["launcher"]["repositoryURL"];
 
@@ -82,6 +83,12 @@ void CSettingsView::on_comboBoxResolution_currentIndexChanged(const QString &arg
 void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
 {
 	Settings node = settings.write["video"]["fullscreen"];
+	node->Bool() = index;
+}
+
+void CSettingsView::on_comboBoxAutoCheck_currentIndexChanged(int index)
+{
+	Settings node = settings.write["launcher"]["autoCheckRepositories"];
 	node->Bool() = index;
 }
 

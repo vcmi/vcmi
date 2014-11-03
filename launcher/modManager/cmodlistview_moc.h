@@ -91,6 +91,8 @@ private slots:
 
 	void on_pushButton_clicked();
 
+	void on_refreshButton_clicked();
+
 	void on_allModsView_activated(const QModelIndex &index);
 
 	void on_tabWidget_currentChanged(int index);

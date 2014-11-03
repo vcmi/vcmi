@@ -70,7 +70,10 @@ CModListView::CModListView(QWidget *parent) :
 	ui->progressWidget->setVisible(false);
 	dlManager = nullptr;
 	disableModInfo();
-	loadRepositories();
+	if (settings["launcher"]["autoCheckRepositories"].Bool())
+	{
+		loadRepositories();
+	}
 }
 
 void CModListView::loadRepositories()
@@ -99,7 +102,10 @@ void CModListView::showEvent(QShowEvent * event)
 	if (repositoriesChanged)
 	{
 		repositoriesChanged = false;
-		loadRepositories();
+		if (settings["launcher"]["autoCheckRepositories"].Bool())
+		{
+			loadRepositories();
+		}
 	}
 }
 
@@ -618,6 +624,11 @@ void CModListView::installMods(QStringList archives)
 		QFile::remove(archive);
 
 	checkManagerErrors();
+}
+
+void CModListView::on_refreshButton_clicked()
+{
+	loadRepositories();
 }
 
 void CModListView::on_pushButton_clicked()
