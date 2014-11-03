@@ -44,8 +44,8 @@ namespace fl {
         FL_unique_ptr<SNorm> _accumulation;
     public:
         Accumulated(const std::string& name = "",
-                scalar minimum = -fl::inf,
-                scalar maximum = fl::inf,
+                scalar minimum = fl::nan,
+                scalar maximum = fl::nan,
                 SNorm* accumulation = fl::null);
         Accumulated(const Accumulated& other);
         Accumulated& operator=(const Accumulated& other);

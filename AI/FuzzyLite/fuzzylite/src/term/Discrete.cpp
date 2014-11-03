@@ -157,7 +157,7 @@ namespace fl {
             throw fl::Exception(os.str(), FL_AT);
         }
 
-        std::vector<std::pair<scalar, scalar> > result((xy.size() + 1) / 2);
+        std::vector<Pair> result((xy.size() + 1) / 2);
         for (std::size_t i = 0; i + 1 < xy.size(); i += 2) {
             result.at(i / 2).first = xy.at(i);
             result.at(i / 2).second = xy.at(i + 1);
@@ -167,7 +167,7 @@ namespace fl {
 
     std::vector<Discrete::Pair> Discrete::toPairs(const std::vector<scalar>& xy,
             scalar missingValue) FL_INOEXCEPT {
-        std::vector<std::pair<scalar, scalar> > result((xy.size() + 1) / 2);
+        std::vector<Pair> result((xy.size() + 1) / 2);
         for (std::size_t i = 0; i + 1 < xy.size(); i += 2) {
             result.at(i / 2).first = xy.at(i);
             result.at(i / 2).second = xy.at(i + 1);
