@@ -34,7 +34,9 @@
 #elif defined FL_WINDOWS
 #include <windows.h>
 #include <winbase.h>
+#ifndef __MINGW32__
 #include <dbghelp.h>
+#endif
 #endif
 
 
@@ -108,7 +110,7 @@ namespace fl {
         return btStream.str();
 
 
-#elif defined FL_WINDOWS
+#elif defined FL_WINDOWS && ! defined __MINGW32__
         std::ostringstream btStream;
         const int bufferSize = 30;
         void* buffer[bufferSize];
