@@ -1601,7 +1601,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 
 	for (auto tile : tiles)
 	{
-		//crunching path may fail if center of teh zone is dirrectly over wide object
+		//crunching path may fail if center of the zone is directly over wide object
 		//make sure object is accessible before surrounding it with blocked tiles
 		if (crunchPath (gen, tile, findClosestTile(freePaths, tile), id, addToFreePaths ? &freePaths : nullptr))
 		{
