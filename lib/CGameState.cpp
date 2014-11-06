@@ -659,23 +659,23 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	{
 		if(cur->ID==Obj::TOWN)
 			cur->setType(cur->ID, cur->subID); // update def, if necessary
-		return;
 	}
 	else if(ran.first==Obj::HERO)//special code for hero
 	{
 		CGHeroInstance *h = dynamic_cast<CGHeroInstance *>(cur);
 		cur->setType(ran.first, ran.second);
 		map->heroesOnMap.push_back(h);
-		return;
 	}
 	else if(ran.first==Obj::TOWN)//special code for town
 	{
 		CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
 		cur->setType(ran.first, ran.second);
 		map->towns.push_back(t);
-		return;
 	}
-	cur->setType(ran.first, ran.second);
+	else
+	{
+		cur->setType(ran.first, ran.second);	
+	}	
 }
 
 int CGameState::getDate(Date::EDateType mode) const
