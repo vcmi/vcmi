@@ -39,6 +39,8 @@ private slots:
 
 	void on_changeGameDataDir_clicked();
 
+	void on_comboBoxAutoCheck_currentIndexChanged(int index);
+
 private:
 	Ui::CSettingsView *ui;
 };
