@@ -38,7 +38,7 @@ public:
 	virtual ~IUpdateable(){}; //d-tor
 };
 
-class ILockedUpdatable: protected IUpdateable
+class ILockedUpdatable: public IUpdateable
 {
 	boost::recursive_mutex updateGuard;
 public:
