@@ -1,3 +1,9 @@
+vcmi (0.97) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Ivan Savenko <saven.ivan@gmail.com>  Tue, 11 Nov 2014 22:57:48 +0200
+
 vcmi (0.96) trusty; urgency=low
 
   * New upstream release
