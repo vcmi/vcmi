@@ -23,6 +23,44 @@ class CSpell;
 class CGHeroInstance;
 class CStack;
 
+struct SpellSchoolInfo
+{
+	ESpellSchool id; //backlink
+	Bonus::BonusType damagePremyBonus;
+	Bonus::BonusType immunityBonus;	
+	std::string jsonName;	
+};
+
+static SpellSchoolInfo spellSchoolConfig[4] = 
+{
+	{
+		ESpellSchool::AIR,
+		Bonus::AIR_SPELL_DMG_PREMY,
+		Bonus::AIR_IMMUNITY,
+		"air"
+	},
+	{
+		ESpellSchool::FIRE,
+		Bonus::FIRE_SPELL_DMG_PREMY,
+		Bonus::FIRE_IMMUNITY,
+		"fire"
+	},
+	{
+		ESpellSchool::WATER,
+		Bonus::WATER_SPELL_DMG_PREMY,
+		Bonus::WATER_IMMUNITY,
+		"water"
+	},
+	{
+		ESpellSchool::EARTH,
+		Bonus::EARTH_SPELL_DMG_PREMY,
+		Bonus::EARTH_IMMUNITY,
+		"earth"
+	}
+};
+
+class CPackForClient;
+
 class DLL_LINKAGE CSpellMechanics
 {
 public:
@@ -82,10 +120,13 @@ public:
 	std::string name;
 
 	si32 level;
-	bool earth;
-	bool water;
-	bool fire;
-	bool air;
+	bool earth; //deprecated
+	bool water; //deprecated
+	bool fire;  //deprecated
+	bool air;   //deprecated
+	
+	std::map<ESpellSchool, bool> school; //todo: use this instead of separate boolean fields
+	
 	si32 power; //spell's power
 
 	std::map<TFaction, si32> probabilities; //% chance to gain for castles
@@ -178,7 +219,7 @@ public:
 		h & levels;
 		
 		if(!h.saving)
-			setupMechanics();
+			setup();
 	}
 	friend class CSpellHandler;
 	friend class Graphics;
@@ -188,6 +229,7 @@ private:
 	void setIsRising(const bool val);
 	
 	//call this after load or deserialization. cant be done in constructor.
+	void setup();
 	void setupMechanics();
 private:
 	si32 defaultProbability;

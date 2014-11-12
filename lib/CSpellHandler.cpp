@@ -337,15 +337,15 @@ ui32 CSpell::calculateBonus(ui32 baseDamage, const CGHeroInstance* caster, const
 	{
 		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
 		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, id.toEnum())) / 100.0;
-
-		if(air)
-			ret *= (100.0 + caster->valOfBonuses(Bonus::AIR_SPELL_DMG_PREMY)) / 100.0;
-		else if(fire) //only one type of bonus for Magic Arrow
-			ret *= (100.0 + caster->valOfBonuses(Bonus::FIRE_SPELL_DMG_PREMY)) / 100.0;
-		else if(water)
-			ret *= (100.0 + caster->valOfBonuses(Bonus::WATER_SPELL_DMG_PREMY)) / 100.0;
-		else if(earth)
-			ret *= (100.0 + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0;
+		
+		for(const SpellSchoolInfo & cnf : spellSchoolConfig)
+		{
+			if(school.at(cnf.id))
+			{
+				ret *= (100.0 + caster->valOfBonuses(cnf.damagePremyBonus)) / 100.0;
+				break; //only bonus from one school is used
+			}				
+		}		
 
 		if (affectedCreature && affectedCreature->getCreature()->level) //Hero specials like Solmyr, Deemer
 			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, id.toEnum()) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
@@ -368,26 +368,17 @@ ui32 CSpell::calculateDamage(const CGHeroInstance * caster, const CStack * affec
 	if(nullptr != affectedCreature)
 	{
 		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
-		if(air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 0)) //air spell & protection from air
+		
+		for(const SpellSchoolInfo & cnf : spellSchoolConfig)
 		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 0);
-			ret /= 100;
-		}
-		else if(fire && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 1)) //fire spell & protection from fire
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 1);
-			ret /= 100;
-		}
-		else if(water && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 2)) //water spell & protection from water
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 2);
-			ret /= 100;
-		}
-		else if (earth && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 3)) //earth spell & protection from earth
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 3);
-			ret /= 100;
-		}
+			if(school.at(cnf.id) && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
+			{
+				ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
+				ret /= 100;
+				break; //only bonus from one school is used
+			}				
+		}		
+		
 		//general spell dmg reduction
 		//FIXME?
 		if(air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
@@ -727,27 +718,14 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj)
 	};
 
 	//6. Check elemental immunities
-	if(fire)
+	
+	for(const SpellSchoolInfo & cnf : spellSchoolConfig)
 	{
-		if(battleTestElementalImmunity(Bonus::FIRE_IMMUNITY))
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}
-	if(water)
-	{
-		if(battleTestElementalImmunity(Bonus::WATER_IMMUNITY))
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		if(school.at(cnf.id))
+			if(battleTestElementalImmunity(cnf.immunityBonus))
+				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
-	if(earth)
-	{
-		if(battleTestElementalImmunity(Bonus::EARTH_IMMUNITY))
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}
-	if(air)
-	{
-		if(battleTestElementalImmunity(Bonus::AIR_IMMUNITY))
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}
 
 	TBonusListPtr levelImmunities = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
 
@@ -790,6 +768,17 @@ void CSpell::setIsRising(const bool val)
 		positiveness = CSpell::POSITIVE;
 	}
 }
+
+void CSpell::setup()
+{
+	setupMechanics();
+	
+	school[ESpellSchool::AIR] = air;
+	school[ESpellSchool::FIRE] = fire;
+	school[ESpellSchool::WATER] = water;
+	school[ESpellSchool::EARTH] = earth;	
+}
+
 
 void CSpell::setupMechanics()
 {
@@ -1164,7 +1153,7 @@ void CSpellHandler::afterLoadFinalization()
 		for(auto & level: spell->levels)
 			for(auto & bonus: level.effects)
 				bonus.sid = spell->id;
-		spell->setupMechanics();
+		spell->setup();
 	}
 }
 

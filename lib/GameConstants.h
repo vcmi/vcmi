@@ -890,6 +890,14 @@ public:
 	ESpellID num;
 };
 
+enum class ESpellSchool: ui8
+{
+	AIR 	= 0,
+	FIRE 	= 1,
+	WATER 	= 2,
+	EARTH 	= 3
+};
+
 ID_LIKE_OPERATORS_DECLS(SpellID, SpellID::ESpellID)
 
 // Typedef declarations
