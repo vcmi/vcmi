@@ -297,6 +297,30 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 	return levels.at(level);
 }
 
+ui32 CSpell::calculateBonus(ui32 baseDamage, const CGHeroInstance* caster, const CStack* affectedCreature) const
+{
+	ui32 ret = baseDamage;
+	//applying sorcery secondary skill
+	if(caster)
+	{
+		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
+		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, id.toEnum())) / 100.0;
+
+		if(air)
+			ret *= (100.0 + caster->valOfBonuses(Bonus::AIR_SPELL_DMG_PREMY)) / 100.0;
+		else if(fire) //only one type of bonus for Magic Arrow
+			ret *= (100.0 + caster->valOfBonuses(Bonus::FIRE_SPELL_DMG_PREMY)) / 100.0;
+		else if(water)
+			ret *= (100.0 + caster->valOfBonuses(Bonus::WATER_SPELL_DMG_PREMY)) / 100.0;
+		else if(earth)
+			ret *= (100.0 + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0;
+
+		if (affectedCreature && affectedCreature->getCreature()->level) //Hero specials like Solmyr, Deemer
+			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, id.toEnum()) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
+	}
+	return ret;	
+}
+
 
 std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
 {

@@ -127,6 +127,9 @@ public:
 	
 	//checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) const;
+	
+	//applying secondary skills
+	ui32 calculateBonus(ui32 baseDamage, const CGHeroInstance * caster, const CStack * affectedCreature) const;
 
 	si32 getCost(const int skillLevel) const;
 

@@ -168,7 +168,7 @@ ui32 CBattleInfoCallback::calculateHealedHP(const CGHeroInstance * caster, const
 		healedHealth = (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + sacrificedStack->MaxHealth() + spell->getPower(caster->getSpellSchoolLevel(spell))) * sacrificedStack->count;
 	else
 		healedHealth = caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) * spell->power + spell->getPower(caster->getSpellSchoolLevel(spell)); //???
-	healedHealth = calculateSpellBonus(healedHealth, spell, caster, stack);
+	healedHealth = spell->calculateBonus(healedHealth, caster, stack);
 	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
 }
 //Archangel

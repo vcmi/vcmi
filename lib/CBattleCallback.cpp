@@ -1647,8 +1647,8 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleStackIsImmune(co
 		//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
 		ui64 subjectHealth = (subject->count - 1) * subject->MaxHealth() + subject->firstHPleft;
 		//apply 'damage' bonus for hypnotize, including hero specialty
-		ui64 maxHealth = calculateSpellBonus (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
-			* spell->power + spell->getPower(caster->getSpellSchoolLevel(spell)), spell, caster, subject);
+		ui64 maxHealth = spell->calculateBonus (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
+			* spell->power + spell->getPower(caster->getSpellSchoolLevel(spell)), caster, subject);
 		if (subjectHealth > maxHealth)
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}	
@@ -1945,30 +1945,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		return battleIsImmune(nullptr, spell, mode, dest);
 }
 
-ui32 CBattleInfoCallback::calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const
-{
-	ui32 ret = baseDamage;
-	//applying sorcery secondary skill
-	if(caster)
-	{
-		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
-		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, sp->id.toEnum())) / 100.0;
-
-		if(sp->air)
-			ret *= (100.0 + caster->valOfBonuses(Bonus::AIR_SPELL_DMG_PREMY)) / 100.0;
-		else if(sp->fire) //only one type of bonus for Magic Arrow
-			ret *= (100.0 + caster->valOfBonuses(Bonus::FIRE_SPELL_DMG_PREMY)) / 100.0;
-		else if(sp->water)
-			ret *= (100.0 + caster->valOfBonuses(Bonus::WATER_SPELL_DMG_PREMY)) / 100.0;
-		else if(sp->earth)
-			ret *= (100.0 + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0;
-
-		if (affectedCreature && affectedCreature->getCreature()->level) //Hero specials like Solmyr, Deemer
-			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id.toEnum()) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
-	}
-	return ret;
-}
-
 ui32 CBattleInfoCallback::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower ) const
 {
 	ui32 ret = 0; //value to return
@@ -2018,7 +1994,7 @@ ui32 CBattleInfoCallback::calculateSpellDmg( const CSpell * sp, const CGHeroInst
 			ret /= 100;
 		}
 	}
-	ret = calculateSpellBonus(ret, sp, caster, affectedCreature);
+	ret = sp->calculateBonus(ret, caster, affectedCreature);
 	return ret;
 }
 
