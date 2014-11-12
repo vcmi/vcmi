@@ -469,7 +469,7 @@ void CBattleAI::attemptCastingSpell()
 
 				for(auto stack : stacksSuffering)
 				{
-					const int dmg = cb->calculateSpellDmg(ps.spell, hero, stack, skillLevel, spellPower);
+					const int dmg = ps.spell->calculateDamage(hero, stack, skillLevel, spellPower);
 					if(stack->owner == playerID)
 						damageReceived += dmg;
 					else

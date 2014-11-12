@@ -129,11 +129,15 @@ public:
 	//checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) const;
 	
-	//applying secondary skills
+	//internal, for use only by Mechanics classes. applying secondary skills
 	ui32 calculateBonus(ui32 baseDamage, const CGHeroInstance * caster, const CStack * affectedCreature) const;
+	
+	ui32 calculateDamage(const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
 	
 	///calculate healed HP for all spells casted by hero
 	ui32 calculateHealedHP(const CGHeroInstance * caster, const CStack * stack, const CStack * sacrificedStack = nullptr) const;
+	
+	
 
 	si32 getCost(const int skillLevel) const;
 

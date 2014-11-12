@@ -1908,59 +1908,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		return battleIsImmune(nullptr, spell, mode, dest);
 }
 
-ui32 CBattleInfoCallback::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower ) const
-{
-	ui32 ret = 0; //value to return
-
-	//check if spell really does damage - if not, return 0
-	if(!sp->isDamageSpell())
-		return 0;
-
-	ret = usedSpellPower * sp->power;
-	ret += sp->getPower(spellSchoolLevel);
-
-	//affected creature-specific part
-	if(affectedCreature)
-	{
-		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
-		if(sp->air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 0)) //air spell & protection from air
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 0);
-			ret /= 100;
-		}
-		else if(sp->fire && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 1)) //fire spell & protection from fire
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 1);
-			ret /= 100;
-		}
-		else if(sp->water && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 2)) //water spell & protection from water
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 2);
-			ret /= 100;
-		}
-		else if (sp->earth && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 3)) //earth spell & protection from earth
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 3);
-			ret /= 100;
-		}
-		//general spell dmg reduction
-		//FIXME?
-		if(sp->air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
-			ret /= 100;
-		}
-		//dmg increasing
-		if( affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id) )
-		{
-			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id.toEnum());
-			ret /= 100;
-		}
-	}
-	ret = sp->calculateBonus(ret, caster, affectedCreature);
-	return ret;
-}
-
 std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell * spell, int skillLevel, PlayerColor attackerOwner, BattleHex destinationTile)
 {
 	std::set<const CStack*> attackedCres; //std::set to exclude multiple occurrences of two hex creatures
