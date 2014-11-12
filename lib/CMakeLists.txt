@@ -83,6 +83,7 @@ set(lib_SRCS
 		VCMI_Lib.cpp
 		VCMIDirs.cpp
 		IHandlerBase.cpp
+                SpellMechanics.cpp
 
 		IGameCallback.cpp
 		CGameInfoCallback.cpp

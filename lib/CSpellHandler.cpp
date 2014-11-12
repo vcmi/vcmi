@@ -13,6 +13,10 @@
 #include "mapObjects/CGHeroInstance.h"
 #include "BattleState.h"
 
+#include "SpellMechanics.h"
+
+
+
 /*
  * CSpellHandler.cpp, part of VCMI engine
  *
@@ -132,159 +136,12 @@ namespace SRSLPraserHelpers
 }
 
 
-///CSpellMechanics
-CSpellMechanics::CSpellMechanics(CSpell * s):
+///ISpellMechanics
+ISpellMechanics::ISpellMechanics(CSpell * s):
 	owner(s)
 {
 	
 }
-
-CSpellMechanics::~CSpellMechanics()
-{
-	
-}
-
-ESpellCastProblem::ESpellCastProblem CSpellMechanics::isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj)
-{
-	//by default use general algorithm
-	return owner->isImmuneBy(obj);
-}
-
-namespace
-{
-	class CloneMechnics: public CSpellMechanics
-	{
-	public:
-		CloneMechnics(CSpell * s): CSpellMechanics(s){};
-		ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) override;
-	};
-	
-	class DispellHelpfulMechanics: public CSpellMechanics
-	{
-	public:
-		DispellHelpfulMechanics(CSpell * s): CSpellMechanics(s){};
-		ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) override;	
-	};
-	
-	class HypnotizeMechanics: public CSpellMechanics
-	{
-	public:
-		HypnotizeMechanics(CSpell * s): CSpellMechanics(s){};	
-		ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) override;	
-	};
-	
-	///all rising spells
-	class RisingSpellMechanics: public CSpellMechanics
-	{
-	public:
-		RisingSpellMechanics(CSpell * s): CSpellMechanics(s){};		
-		
-	};
-	
-	///all rising spells but SACRIFICE
-	class SpecialRisingSpellMechanics: public RisingSpellMechanics
-	{
-	public:
-		SpecialRisingSpellMechanics(CSpell * s): RisingSpellMechanics(s){};
-		ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) override;						
-	};
-	
-	class SacrificeMechanics: public RisingSpellMechanics
-	{
-	public:
-		SacrificeMechanics(CSpell * s): RisingSpellMechanics(s){};		
-	};
-	
-	///CloneMechanics
-	ESpellCastProblem::ESpellCastProblem CloneMechnics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack * obj)
-	{
-		//can't clone already cloned creature
-		if (vstd::contains(obj->state, EBattleStackState::CLONED))
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		//TODO: how about stacks casting Clone?
-		//currently Clone casted by stack is assumed Expert level
-		ui8 schoolLevel;
-		if (caster)
-		{
-			schoolLevel = caster->getSpellSchoolLevel(owner);
-		}
-		else
-		{
-			schoolLevel = 3;
-		}
-
-		if (schoolLevel < 3)
-		{
-			int maxLevel = (std::max(schoolLevel, (ui8)1) + 4);
-			int creLevel = obj->getCreature()->level;
-			if (maxLevel < creLevel) //tier 1-5 for basic, 1-6 for advanced, any level for expert
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}
-		//use default algorithm only if there is no mechanics-related problem		
-		return CSpellMechanics::isImmuneByStack(caster,mode,obj);	
-	}
-	
-	///DispellHelpfulMechanics
-	ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj)
-	{
-		TBonusListPtr spellBon = obj->getSpellBonuses();
-		bool hasPositiveSpell = false;
-		for(const Bonus * b : *spellBon)
-		{
-			if(SpellID(b->sid).toSpell()->isPositive())
-			{
-				hasPositiveSpell = true;
-				break;
-			}
-		}
-		if(!hasPositiveSpell)
-		{
-			return ESpellCastProblem::NO_SPELLS_TO_DISPEL;
-		}
-		
-		//use default algorithm only if there is no mechanics-related problem		
-		return CSpellMechanics::isImmuneByStack(caster,mode,obj);	
-	}
-	
-	///HypnotizeMechanics
-	ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj)
-	{
-		if(nullptr != caster) //do not resist hypnotize casted after attack, for example
-		{
-			//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
-			ui64 subjectHealth = (obj->count - 1) * obj->MaxHealth() + obj->firstHPleft;
-			//apply 'damage' bonus for hypnotize, including hero specialty
-			ui64 maxHealth = owner->calculateBonus(caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
-				* owner->power + owner->getPower(caster->getSpellSchoolLevel(owner)), caster, obj);
-			if (subjectHealth > maxHealth)
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}			
-		return CSpellMechanics::isImmuneByStack(caster,mode,obj);
-	}
-	
-	
-	///SpecialRisingSpellMechanics
-	ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj)
-	{
-        // following does apply to resurrect and animate dead(?) only
-        // for sacrifice health calculation and health limit check don't matter
-
-		if(obj->count >= obj->baseAmount)
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		
-		if (caster) //FIXME: Archangels can cast immune stack
-		{
-			auto maxHealth = owner->calculateHealedHP (caster, obj);
-			if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}	
-		
-		return CSpellMechanics::isImmuneByStack(caster,mode,obj);	
-	}
-	
-	
-}
-
 
 ///CSpell::LevelInfo
 CSpell::LevelInfo::LevelInfo()
@@ -804,7 +661,7 @@ void CSpell::setupMechanics()
 		if(isRisingSpell())
 			mechanics = new SpecialRisingSpellMechanics(this);
 		else	
-			mechanics = new CSpellMechanics(this);
+			mechanics = new DefaultSpellMechanics(this);
 		break;
 	}
 	

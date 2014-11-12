@@ -23,6 +23,8 @@ class CSpell;
 class CGHeroInstance;
 class CStack;
 
+struct CPackForClient;
+
 struct SpellSchoolInfo
 {
 	ESpellSchool id; //backlink
@@ -59,15 +61,37 @@ static SpellSchoolInfo spellSchoolConfig[4] =
 	}
 };
 
-class CPackForClient;
-
-class DLL_LINKAGE CSpellMechanics
+///callback to be provided by server
+class DLL_LINKAGE SpellCastEnvironment
 {
 public:
-	CSpellMechanics(CSpell * s);
-	virtual ~CSpellMechanics();	
+	virtual void sendAndApply(CPackForClient * info) = 0;
+};
+
+///helper struct
+struct DLL_LINKAGE SpellCastContext
+{
+public:
+	SpellCastEnvironment * env;
+};
+
+class DLL_LINKAGE ISpellMechanics
+{
+public:
+	ISpellMechanics(CSpell * s);
+	virtual ~ISpellMechanics(){};	
 	
-	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj);
+	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) = 0;
+	
+    /** \brief 
+     *
+     * \param 
+     * \return true if no error
+     *
+     */                           
+	virtual bool adventureCast(SpellCastContext & context) = 0; 
+	virtual bool battleCast(SpellCastContext & context) = 0; 	
+	
 protected:
 	CSpell * owner;	
 };
@@ -262,7 +286,7 @@ private:
 
 	std::vector<LevelInfo> levels;
 	
-	CSpellMechanics * mechanics;//(!) do not serialize
+	ISpellMechanics * mechanics;//(!) do not serialize
 };
 
 
