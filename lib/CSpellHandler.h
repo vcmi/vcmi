@@ -194,15 +194,11 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spe
 
 class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, CSpell>
 {
-
-	//CSpell * loadSpell(CLegacyConfigParser & parser, const SpellID id);
-
 public:
 	CSpellHandler();
 	virtual ~CSpellHandler();
 
 	///IHandler base
-
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 	void afterLoadFinalization() override;
 	void beforeValidate(JsonNode & object) override;
