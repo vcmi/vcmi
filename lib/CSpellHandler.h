@@ -113,8 +113,9 @@ public:
 	bool isNegative() const;
 	bool isNeutral() const;
 
-	bool isRisingSpell() const;
 	bool isDamageSpell() const;
+	bool isHealingSpell() const;
+	bool isRisingSpell() const;	
 	bool isOffensiveSpell() const;
 
 	bool isSpecialSpell() const;
@@ -130,6 +131,9 @@ public:
 	
 	//applying secondary skills
 	ui32 calculateBonus(ui32 baseDamage, const CGHeroInstance * caster, const CStack * affectedCreature) const;
+	
+	///calculate healed HP for all spells casted by hero
+	ui32 calculateHealedHP(const CGHeroInstance * caster, const CStack * stack, const CStack * sacrificedStack = nullptr) const;
 
 	si32 getCost(const int skillLevel) const;
 

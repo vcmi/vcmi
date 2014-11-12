@@ -282,7 +282,6 @@ public:
 	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination) const; //determines if creature can cast a spell here
 	std::vector<BattleHex> battleGetPossibleTargets(PlayerColor player, const CSpell *spell) const;
 	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
-	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack = nullptr) const; //Sacrifice
 	ui32 calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const; //for Archangel
 	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //healing spells casted by stacks
 	std::set<const CStack*> getAffectedCreatures(const CSpell * s, int skillLevel, PlayerColor attackerOwner, BattleHex destinationTile); //calculates stack affected by given spell

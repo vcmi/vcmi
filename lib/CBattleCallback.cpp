@@ -1627,22 +1627,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleStackIsImmune(co
 		return immuneResult;
 
 	//TODO: move to spellhandler
-    if (spell->isRisingSpell() && spell->id != SpellID::SACRIFICE)
-	{
-        // following does apply to resurrect and animate dead(?) only
-        // for sacrifice health calculation and health limit check don't matter
-
-		if(subject->count >= subject->baseAmount)
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		
-		if (caster) //FIXME: Archangels can cast immune stack
-		{
-			auto maxHealth = calculateHealedHP (caster, spell, subject);
-			if (maxHealth < subject->MaxHealth()) //must be able to rise at least one full creature
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}
-	}
-	else if(spell->id == SpellID::HYPNOTIZE && caster) //do not resist hypnotize casted after attack, for example
+	if(spell->id == SpellID::HYPNOTIZE && caster) //do not resist hypnotize casted after attack, for example
 	{
 		//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
 		ui64 subjectHealth = (subject->count - 1) * subject->MaxHealth() + subject->firstHPleft;

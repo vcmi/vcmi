@@ -4205,7 +4205,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 
 	}
 	
-	if (spell->isRisingSpell() || spell->id == SpellID::CURE)
+	if(spell->isHealingSpell())
 	{
 			int hpGained = 0;
 			if (stack)
@@ -4233,7 +4233,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 						hi.healedHP = gs->curB->calculateHealedHP(spell, usedSpellPower, spellLvl, attackedCre); //any typical spell (commander's cure or animate dead)
 				}
 				else
-					hi.healedHP = gs->curB->calculateHealedHP(caster, spell, attackedCre, gs->curB->battleGetStackByID(selectedStack)); //Casted by hero
+					hi.healedHP = spell->calculateHealedHP(caster, attackedCre, gs->curB->battleGetStackByID(selectedStack)); //Casted by hero
 				hi.lowLevelResurrection = spellLvl <= 1;
 				shr.healedStacks.push_back(hi);
 			}

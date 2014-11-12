@@ -182,6 +182,12 @@ namespace
 		ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) override;						
 	};
 	
+	class SacrificeMechanics: public RisingSpellMechanics
+	{
+	public:
+		
+	};
+	
 	///CloneMechanics
 	ESpellCastProblem::ESpellCastProblem CloneMechnics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack * obj)
 	{
@@ -236,18 +242,20 @@ namespace
 	///SpecialRisingSpellMechanics
 	ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj)
 	{
-//        // following does apply to resurrect and animate dead(?) only
-//        // for sacrifice health calculation and health limit check don't matter
-//
-//		if(obj->count >= obj->baseAmount)
-//			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-//		
-//		if (caster) //FIXME: Archangels can cast immune stack
-//		{
-//			auto maxHealth = calculateHealedHP (caster, spell, obj);
-//			if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
-//				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-//		}		
+        // following does apply to resurrect and animate dead(?) only
+        // for sacrifice health calculation and health limit check don't matter
+
+		if(obj->count >= obj->baseAmount)
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		
+		if (caster) //FIXME: Archangels can cast immune stack
+		{
+			auto maxHealth = calculateHealedHP (caster, obj);
+			if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
+				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		}	
+		
+		return CSpellMechanics::isImmuneByStack(caster,mode,obj);	
 	}
 	
 	
@@ -319,6 +327,28 @@ ui32 CSpell::calculateBonus(ui32 baseDamage, const CGHeroInstance* caster, const
 			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, id.toEnum()) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
 	}
 	return ret;	
+}
+
+ui32 CSpell::calculateHealedHP(const CGHeroInstance* caster, const CStack* stack, const CStack* sacrificedStack) const
+{
+//todo: use Mechanics class
+	int healedHealth;
+	
+	if(!isHealingSpell())
+	{
+		logGlobal->errorStream() << "calculateHealedHP called for nonhealing spell "<< name;
+		return 0;
+	}		
+	
+	const int spellPowerSkill = caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+	const int levelPower = getPower(caster->getSpellSchoolLevel(this));
+	
+	if (id == SpellID::SACRIFICE && sacrificedStack)
+		healedHealth = (spellPowerSkill + sacrificedStack->MaxHealth() + levelPower) * sacrificedStack->count;
+	else
+		healedHealth = spellPowerSkill * power + levelPower); //???
+	healedHealth = calculateBonus(healedHealth, caster, stack);
+	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (isRisingSpell() ? stack->baseAmount * stack->MaxHealth() : 0));	
 }
 
 
@@ -474,6 +504,10 @@ bool CSpell::isNeutral() const
 	return positiveness == NEUTRAL;
 }
 
+bool CSpell::isHealingSpell() const
+{
+	return isRisingSpell() || (id == SpellID::CURE);
+}
 
 bool CSpell::isRisingSpell() const
 {
@@ -691,9 +725,15 @@ void CSpell::setupMechanics()
 		break;
 	case SpellID::DISPEL_HELPFUL_SPELLS:
 		mechanics = new DispellHelpfulMechanics(this);
-		break;	
-	default:
-		mechanics = new CSpellMechanics(this);
+		break;
+	case SpellID::SACRIFICE:
+		mechanics = new SacrificeMechanics(this);
+		break
+	default:		
+		if(isRisingSpell())
+			mechanics = new SpecialRisingSpellMechanics(this);
+		else	
+			mechanics = new CSpellMechanics(this);
 		break;
 	}
 	
