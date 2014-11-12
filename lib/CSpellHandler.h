@@ -19,6 +19,20 @@
 
 class CLegacyConfigParser;
 struct BattleHex;
+class CSpell;
+class CGHeroInstance;
+class CStack;
+
+class DLL_LINKAGE CSpellMechanics
+{
+public:
+	CSpellMechanics(CSpell * s);
+	virtual ~CSpellMechanics();	
+	
+	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj);
+protected:
+	CSpell * owner;	
+};
 
 class DLL_LINKAGE CSpell
 {
@@ -109,6 +123,9 @@ public:
 	void getEffects(std::vector<Bonus> &lst, const int level) const;
 
 	ESpellCastProblem::ESpellCastProblem isImmuneBy(const IBonusBearer *obj) const;
+	
+	//checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) const;
 
 	si32 getCost(const int skillLevel) const;
 
@@ -147,7 +164,9 @@ public:
 		h & castSound & iconBook & iconEffect & iconScenarioBonus & iconScroll;
 
 		h & levels;
-
+		
+		if(!h.saving)
+			setupMechanics();
 	}
 	friend class CSpellHandler;
 	friend class Graphics;
@@ -155,7 +174,9 @@ public:
 private:
 	void setIsOffensive(const bool val);
 	void setIsRising(const bool val);
-
+	
+	//call this after load or deserialization. cant be done in constructor.
+	void setupMechanics();
 private:
 	si32 defaultProbability;
 
@@ -186,6 +207,8 @@ private:
 	std::string castSound;
 
 	std::vector<LevelInfo> levels;
+	
+	CSpellMechanics * mechanics;//(!) do not serialize
 };
 
 

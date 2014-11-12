@@ -10,6 +10,9 @@
 #include "CModHandler.h"
 #include "StringConstants.h"
 
+#include "mapObjects/CGHeroInstance.h"
+#include "BattleState.h"
+
 /*
  * CSpellHandler.cpp, part of VCMI engine
  *
@@ -128,6 +131,96 @@ namespace SRSLPraserHelpers
 	}
 }
 
+
+///CSpellMechanics
+CSpellMechanics::CSpellMechanics(CSpell * s):
+	owner(s)
+{
+	
+}
+
+CSpellMechanics::~CSpellMechanics()
+{
+	
+}
+
+ESpellCastProblem::ESpellCastProblem CSpellMechanics::isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj)
+{
+	//by default no immunity
+	return ESpellCastProblem::OK;
+}
+
+namespace
+{
+	class CloneMechnics: public CSpellMechanics
+	{
+	public:
+		CloneMechnics(CSpell * s): CSpellMechanics(s){};
+		ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) override;
+	};
+	
+	class DispellHelpfulMechanics: public CSpellMechanics
+	{
+	public:
+		DispellHelpfulMechanics(CSpell * s): CSpellMechanics(s){};
+		ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) override;	
+	};
+	
+	
+	///CloneMechanics
+	ESpellCastProblem::ESpellCastProblem CloneMechnics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack * obj)
+	{
+		//can't clone already cloned creature
+		if (vstd::contains(obj->state, EBattleStackState::CLONED))
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		//TODO: how about stacks casting Clone?
+		//currently Clone casted by stack is assumed Expert level
+		ui8 schoolLevel;
+		if (caster)
+		{
+			schoolLevel = caster->getSpellSchoolLevel(owner);
+		}
+		else
+		{
+			schoolLevel = 3;
+		}
+
+		if (schoolLevel < 3)
+		{
+			int maxLevel = (std::max(schoolLevel, (ui8)1) + 4);
+			int creLevel = obj->getCreature()->level;
+			if (maxLevel < creLevel) //tier 1-5 for basic, 1-6 for advanced, any level for expert
+				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		}
+		
+		return CSpellMechanics::isImmuneByStack(caster,mode,obj);	
+	}
+	
+	///DispellHelpfulMechanics
+	ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj)
+	{
+		TBonusListPtr spellBon = obj->getSpellBonuses();
+		bool hasPositiveSpell = false;
+		for(const Bonus * b : *spellBon)
+		{
+			if(SpellID(b->sid).toSpell()->isPositive())
+			{
+				hasPositiveSpell = true;
+				break;
+			}
+		}
+		if(!hasPositiveSpell)
+		{
+			return ESpellCastProblem::NO_SPELLS_TO_DISPEL;
+		}		
+		return CSpellMechanics::isImmuneByStack(caster,mode,obj);	
+	}
+	
+	
+}
+
+
+///CSpell::LevelInfo
 CSpell::LevelInfo::LevelInfo()
 	:description(""),cost(0),power(0),AIValue(0),smartTarget(true),range("0")
 {
@@ -139,7 +232,7 @@ CSpell::LevelInfo::~LevelInfo()
 
 }
 
-
+///CSpell
 CSpell::CSpell():
 	id(SpellID::NONE), level(0),
 	earth(false), water(false), fire(false), air(false),
@@ -148,13 +241,15 @@ CSpell::CSpell():
 	mainEffectAnim(-1),
 	defaultProbability(0),
 	isRising(false), isDamage(false), isOffensive(false),
-	targetType(ETargetType::NO_TARGET)
+	targetType(ETargetType::NO_TARGET),
+	mechanics(nullptr)
 {
 	levels.resize(GameConstants::SPELL_SCHOOL_LEVELS);
 }
 
 CSpell::~CSpell()
 {
+	delete mechanics;
 }
 
 const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
@@ -495,6 +590,18 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj)
 	return ESpellCastProblem::NOT_DECIDED;
 }
 
+ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj) const
+{
+	const auto immuneResult = isImmuneBy(obj);
+	
+	if (ESpellCastProblem::NOT_DECIDED != immuneResult) 
+		return immuneResult;
+		
+	return mechanics->isImmuneByStack(caster,mode,obj);
+
+}
+
+
 void CSpell::setIsOffensive(const bool val)
 {
 	isOffensive = val;
@@ -516,6 +623,30 @@ void CSpell::setIsRising(const bool val)
 	}
 }
 
+void CSpell::setupMechanics()
+{
+	if(nullptr != mechanics)
+	{
+		logGlobal->errorStream() << "Spell " << this->name << " mechanics already set";
+		delete mechanics;
+		mechanics = nullptr;	
+	}
+	
+	switch (id)
+	{
+	case SpellID::CLONE:
+		mechanics = new CloneMechnics(this);
+		break;
+	case SpellID::DISPEL_HELPFUL_SPELLS:
+		mechanics = new DispellHelpfulMechanics(this);
+		break;	
+	default:
+		mechanics = new CSpellMechanics(this);
+		break;
+	}
+	
+}
+
 
 
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
@@ -527,6 +658,7 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
 		return false;
 }
 
+///CSpellHandler
 CSpellHandler::CSpellHandler()
 {
 
@@ -854,9 +986,12 @@ void CSpellHandler::afterLoadFinalization()
 {
 	//FIXME: it is a bad place for this code, should refactor loadFromJson to know object id during loading
 	for(auto spell: objects)
+	{
 		for(auto & level: spell->levels)
 			for(auto & bonus: level.effects)
 				bonus.sid = spell->id;
+		spell->setupMechanics();
+	}
 }
 
 void CSpellHandler::beforeValidate(JsonNode & object)
