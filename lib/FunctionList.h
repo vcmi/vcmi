@@ -15,71 +15,51 @@
 template<typename Signature>
 class CFunctionList
 {
-public:
 	std::vector<std::function<Signature> > funcs;
+public:
+	CFunctionList( std::nullptr_t ) { }
+	CFunctionList( int ) { }
+	CFunctionList( ){ }
 
-	CFunctionList(int){};
-	CFunctionList(){};
 	template <typename Functor> 
 	CFunctionList(const Functor &f)
 	{
 		funcs.push_back(std::function<Signature>(f));
 	}
+
 	CFunctionList(const std::function<Signature> &first)
 	{
 		if (first)
 			funcs.push_back(first);
 	}
-	CFunctionList(std::nullptr_t)
-	{}
-	CFunctionList & operator+=(const std::function<Signature> &first)
+
+	CFunctionList & operator+=(const CFunctionList<Signature> &first)
 	{
-		funcs.push_back(first);
+		for( auto & fun : first.funcs)
+		{
+			funcs.push_back(fun);
+		}
 		return *this;
 	}
-	void add(const CFunctionList<Signature> &first)
-	{
-		for (size_t i = 0; i < first.funcs.size(); i++)
-		{
-			funcs.push_back(first.funcs[i]);
-		}
-	}
+
 	void clear()
 	{
 		funcs.clear();
 	}
+
 	operator bool() const
 	{
-		return funcs.size();
+		return !funcs.empty();
 	}
-	void operator()() const
+
+	template <typename... Args>
+	void operator()(Args ... args) const
 	{
-		std::vector<std::function<Signature> > funcs2 = funcs; //backup
-		for(size_t i=0;i<funcs2.size(); ++i) 
+		std::vector<std::function<Signature> > funcs_copy = funcs;
+		for( auto & fun : funcs_copy)
 		{
-			if (funcs2[i])
-				funcs2[i]();
-		}
-	}
-	template <typename Arg> 
-	void operator()(const Arg & a) const
-	{
-		std::vector<std::function<Signature> > funcs2 = funcs; //backup
-		for(int i=0;i<funcs2.size(); i++) 
-		{
-			if (funcs2[i])
-				funcs2[i](a);
-		}
-	}
-	// Me wants variadic templates :(
-	template <typename Arg1, typename Arg2>
-	void operator()(Arg1 & a, Arg2 & b) const
-	{
-		std::vector<std::function<Signature> > funcs2 = funcs; //backup
-		for(int i=0;i<funcs2.size(); i++)
-		{
-			if (funcs2[i])
-				funcs2[i](a, b);
+			if (fun)
+				fun(args...);
 		}
 	}
 };
