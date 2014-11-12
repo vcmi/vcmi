@@ -408,33 +408,37 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 	}
 }
 
-bool CSpell::isImmuneBy(const IBonusBearer* obj) const
+ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj) const
 {
+	//0. check receptivity
+	if (isPositive() && obj->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
+		return ESpellCastProblem::OK;	
+	
 	//todo: use new bonus API
 	//1. Check absolute limiters
 	for(auto b : absoluteLimiters)
 	{
 		if (!obj->hasBonusOfType(b))
-			return true;
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
 	//2. Check absolute immunities
 	for(auto b : absoluteImmunities)
 	{
 		if (obj->hasBonusOfType(b))
-			return true;
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
 	//3. Check negation
 	//FIXME: Orb of vulnerability mechanics is not such trivial
 	if(obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES)) //Orb of vulnerability
-		return false;
+		return ESpellCastProblem::NOT_DECIDED;
 		
 	//4. Check negatable limit
 	for(auto b : limiters)
 	{
 		if (!obj->hasBonusOfType(b))
-			return true;
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
 
@@ -442,42 +446,42 @@ bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 	for(auto b : immunities)
 	{
 		if (obj->hasBonusOfType(b))
-			return true;
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
 	auto battleTestElementalImmunity = [&,this](Bonus::BonusType element) -> bool
 	{
 		if(obj->hasBonusOfType(element, 0)) //always resist if immune to all spells altogether
-				return true;
+				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 		else if(!isPositive()) //negative or indifferent
 		{
 			if((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
-				return true;
+				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 		}
-		return false;
+		return ESpellCastProblem::NOT_DECIDED;
 	};
 
 	//6. Check elemental immunities
 	if(fire)
 	{
 		if(battleTestElementalImmunity(Bonus::FIRE_IMMUNITY))
-			return true;
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 	if(water)
 	{
 		if(battleTestElementalImmunity(Bonus::WATER_IMMUNITY))
-			return true;
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
 	if(earth)
 	{
 		if(battleTestElementalImmunity(Bonus::EARTH_IMMUNITY))
-			return true;
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 	if(air)
 	{
 		if(battleTestElementalImmunity(Bonus::AIR_IMMUNITY))
-			return true;
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
 	TBonusListPtr levelImmunities = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
@@ -485,10 +489,10 @@ bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 	if(obj->hasBonusOfType(Bonus::SPELL_IMMUNITY, id)
 		|| ( levelImmunities->size() > 0  &&  levelImmunities->totalValue() >= level  &&  level))
 	{
-		return true;
+		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
-	return false;
+	return ESpellCastProblem::NOT_DECIDED;
 }
 
 void CSpell::setIsOffensive(const bool val)
@@ -719,7 +723,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 	for(const auto & counteredSpell: json["counters"].Struct())
 		if (counteredSpell.second.Bool())
 		{
-			VLC->modh->identifiers.requestIdentifier(json.meta, "spell", counteredSpell.first, [=](si32 id)
+			VLC->modh->identifiers.requestIdentifier(json.meta, counteredSpell.first, [=](si32 id)
 			{
 				spell->counteredSpells.push_back(SpellID(id));
 			});

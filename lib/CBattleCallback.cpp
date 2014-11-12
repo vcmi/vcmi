@@ -1621,12 +1621,12 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 
 ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleStackIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, const CStack * subject) const
 {
-	if (spell->isPositive() && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
-		return ESpellCastProblem::OK;
+	const auto immuneResult = spell->isImmuneBy(subject);
+	
+	if (ESpellCastProblem::NOT_DECIDED != immuneResult) 
+		return immuneResult;
 
-	if (spell->isImmuneBy(subject)) //TODO: move all logic to spellhandler
-		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-
+	//TODO: move all logic to spellhandler
 	switch (spell->id) //TODO: more general logic for new spells?
 	{
 	case SpellID::CLONE:

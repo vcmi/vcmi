@@ -108,7 +108,7 @@ public:
 	bool hasEffects() const;
 	void getEffects(std::vector<Bonus> &lst, const int level) const;
 
-	bool isImmuneBy(const IBonusBearer *obj) const;
+	ESpellCastProblem::ESpellCastProblem isImmuneBy(const IBonusBearer *obj) const;
 
 	si32 getCost(const int skillLevel) const;
 

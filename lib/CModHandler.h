@@ -72,6 +72,8 @@ public:
 	/// request identifier for specific object name.
 	/// Function callback will be called during ID resolution phase of loading
 	void requestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback);
+	///fullName = [remoteScope:]type.name
+	void requestIdentifier(std::string scope, std::string fullName, const std::function<void(si32)> & callback);	
 	void requestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback);
 	void requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback);
 
