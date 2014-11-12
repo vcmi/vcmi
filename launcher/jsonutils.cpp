@@ -84,9 +84,9 @@ JsonNode toJson(QVariant object)
 		ret.Struct() = VariantToMap(object.toMap());
 	else if (object.canConvert<QVariantList>())
 		ret.Vector() = VariantToList(object.toList());
-	else if (object.type() == QMetaType::QString)
+	else if (static_cast<QMetaType::Type>(object.type()) == QMetaType::QString)
 		ret.String() = object.toString().toUtf8().data();
-	else if (object.type() == QMetaType::Bool)
+	else if (static_cast<QMetaType::Type>(object.type()) == QMetaType::Bool)
 		ret.Bool() = object.toBool();
 	else if (object.canConvert<double>())
 		ret.Float() = object.toFloat();
