@@ -121,7 +121,8 @@ public:
 
 	bool hasEffects() const;
 	void getEffects(std::vector<Bonus> &lst, const int level) const;
-
+	
+	//internal, for use only by Mechanics classes
 	ESpellCastProblem::ESpellCastProblem isImmuneBy(const IBonusBearer *obj) const;
 	
 	//checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.

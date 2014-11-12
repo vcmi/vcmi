@@ -1621,60 +1621,12 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 
 ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleStackIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, const CStack * subject) const
 {
-	const auto immuneResult = spell->isImmuneBy(subject);
+	const auto immuneResult = spell->isImmuneByStack(caster, mode, subject);
 	
 	if (ESpellCastProblem::NOT_DECIDED != immuneResult) 
 		return immuneResult;
 
-	//TODO: move all logic to spellhandler
-	switch (spell->id) //TODO: more general logic for new spells?
-	{
-	case SpellID::CLONE:
-		{
-			//can't clone already cloned creature
-			if (vstd::contains(subject->state, EBattleStackState::CLONED))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-			//TODO: how about stacks casting Clone?
-			//currently Clone casted by stack is assumed Expert level
-			ui8 schoolLevel;
-			if (caster)
-			{
-				schoolLevel = caster->getSpellSchoolLevel(spell);
-			}
-			else
-			{
-				schoolLevel = 3;
-			}
-
-			if (schoolLevel < 3)
-			{
-				int maxLevel = (std::max(schoolLevel, (ui8)1) + 4);
-				int creLevel = subject->getCreature()->level;
-				if (maxLevel < creLevel) //tier 1-5 for basic, 1-6 for advanced, any level for expert
-					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-			}
-		}
-		break;
-	case SpellID::DISPEL_HELPFUL_SPELLS:
-		{
-			TBonusListPtr spellBon = subject->getSpellBonuses();
-			bool hasPositiveSpell = false;
-			for(const Bonus * b : *spellBon)
-			{
-				if(SpellID(b->sid).toSpell()->isPositive())
-				{
-					hasPositiveSpell = true;
-					break;
-				}
-			}
-			if(!hasPositiveSpell)
-			{
-				return ESpellCastProblem::NO_SPELLS_TO_DISPEL;
-			}
-		}
-		break;
-	}
-
+	//TODO: move to spellhandler
     if (spell->isRisingSpell() && spell->id != SpellID::SACRIFICE)
 	{
         // following does apply to resurrect and animate dead(?) only
