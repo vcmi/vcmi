@@ -4040,7 +4040,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 	}
 
 	vstd::erase_if(attackedCres,[=](const CStack * s){
-		return ESpellCastProblem::OK != gs->curB->battleStackIsImmune(caster,spell,mode,s);		
+		return ESpellCastProblem::OK != spell->isImmuneByStack(caster,mode,s);		
 	});
 
 	for (auto cre : attackedCres)
@@ -4453,7 +4453,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				{
 					if(battleStack->owner == gs->curB->sides.at(casterSide).color) //get enemy stacks which can be affected by this spell
 					{
-						if (ESpellCastProblem::OK == gs->curB->battleStackIsImmune(nullptr, spell, ECastingMode::MAGIC_MIRROR, battleStack))
+						if (ESpellCastProblem::OK == spell->isImmuneByStack(nullptr, ECastingMode::MAGIC_MIRROR, battleStack))
 							mirrorTargets.push_back(battleStack);
 					}
 				}

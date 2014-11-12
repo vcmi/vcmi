@@ -290,10 +290,6 @@ public:
 	SpellID getRandomBeneficialSpell(const CStack * subject) const;
 	SpellID getRandomCastedSpell(const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
-	//checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
-	ESpellCastProblem::ESpellCastProblem battleStackIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, const CStack * subject) const; 
-
-
 	const CStack * getStackIf(std::function<bool(const CStack*)> pred) const;
 
 	si8 battleHasShootingPenalty(const CStack * stack, BattleHex destHex)

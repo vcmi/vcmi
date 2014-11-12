@@ -461,7 +461,7 @@ void CBattleAI::attemptCastingSpell()
 				auto stacksSuffering = cb->getAffectedCreatures(ps.spell, skillLevel, playerID, ps.dest);
 				vstd::erase_if(stacksSuffering, [&](const CStack * s) -> bool
 				{
-					return  ESpellCastProblem::OK != cb->battleStackIsImmune(hero, ps.spell, ECastingMode::HERO_CASTING, s);
+					return  ESpellCastProblem::OK !=  ps.spell->isImmuneByStack(hero, ECastingMode::HERO_CASTING, s);
 				});
 
 				if(stacksSuffering.empty())

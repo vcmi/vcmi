@@ -1582,7 +1582,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 		
 		for(auto s : stacks)
 		{
-			ESpellCastProblem::ESpellCastProblem res = battleStackIsImmune(caster,spell,mode,s);
+			ESpellCastProblem::ESpellCastProblem res = spell->isImmuneByStack(caster,mode,s);
 			
 			if(res == ESpellCastProblem::OK)
 			{
@@ -1616,28 +1616,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 		}
 	}
 
-	return ESpellCastProblem::OK;
-}
-
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleStackIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, const CStack * subject) const
-{
-	const auto immuneResult = spell->isImmuneByStack(caster, mode, subject);
-	
-	if (ESpellCastProblem::NOT_DECIDED != immuneResult) 
-		return immuneResult;
-
-	//TODO: move to spellhandler
-	if(spell->id == SpellID::HYPNOTIZE && caster) //do not resist hypnotize casted after attack, for example
-	{
-		//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
-		ui64 subjectHealth = (subject->count - 1) * subject->MaxHealth() + subject->firstHPleft;
-		//apply 'damage' bonus for hypnotize, including hero specialty
-		ui64 maxHealth = spell->calculateBonus (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
-			* spell->power + spell->getPower(caster->getSpellSchoolLevel(spell)), caster, subject);
-		if (subjectHealth > maxHealth)
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}	
-		
 	return ESpellCastProblem::OK;
 }
 
@@ -1683,7 +1661,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		auto stacks = spell->isNegative() ? battleAliveStacks(!side) : battleAliveStacks();
 		for(auto stack : stacks)
 		{
-			if( ESpellCastProblem::OK == battleStackIsImmune(castingHero, spell, mode, stack))
+			if(ESpellCastProblem::OK == spell->isImmuneByStack(castingHero, mode, stack))
 			{
 				allStacksImmune = false;
 				break;
@@ -1727,7 +1705,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 
             for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
 			{
-				bool immune =  ESpellCastProblem::OK != battleStackIsImmune(caster, spell, mode, stack);
+				bool immune =  ESpellCastProblem::OK != spell->isImmuneByStack(caster, mode, stack);
 				bool casterStack = stack->owner == caster->getOwner();
 				
                 if(spell->id == SpellID::SACRIFICE)
@@ -1796,7 +1774,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor
 			
 			for(const CStack * stack : battleAliveStacks())
 			{
-				bool immune = ESpellCastProblem::OK != battleStackIsImmune(caster, spell, mode, stack);
+				bool immune = ESpellCastProblem::OK != spell->isImmuneByStack(caster, mode, stack);
 				bool casterStack = stack->owner == caster->getOwner();
 				
 				if(!immune)

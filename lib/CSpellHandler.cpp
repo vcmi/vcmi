@@ -166,6 +166,13 @@ namespace
 		ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) override;	
 	};
 	
+	class HypnotizeMechanics: public CSpellMechanics
+	{
+	public:
+		HypnotizeMechanics(CSpell * s): CSpellMechanics(s){};	
+		ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) override;	
+	};
+	
 	///all rising spells
 	class RisingSpellMechanics: public CSpellMechanics
 	{
@@ -185,7 +192,7 @@ namespace
 	class SacrificeMechanics: public RisingSpellMechanics
 	{
 	public:
-		
+		SacrificeMechanics(CSpell * s): RisingSpellMechanics(s){};		
 	};
 	
 	///CloneMechanics
@@ -239,6 +246,23 @@ namespace
 		return CSpellMechanics::isImmuneByStack(caster,mode,obj);	
 	}
 	
+	///HypnotizeMechanics
+	ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj)
+	{
+		if(nullptr != caster) //do not resist hypnotize casted after attack, for example
+		{
+			//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
+			ui64 subjectHealth = (obj->count - 1) * obj->MaxHealth() + obj->firstHPleft;
+			//apply 'damage' bonus for hypnotize, including hero specialty
+			ui64 maxHealth = owner->calculateBonus(caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
+				* owner->power + owner->getPower(caster->getSpellSchoolLevel(owner)), caster, obj);
+			if (subjectHealth > maxHealth)
+				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		}			
+		return CSpellMechanics::isImmuneByStack(caster,mode,obj);
+	}
+	
+	
 	///SpecialRisingSpellMechanics
 	ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj)
 	{
@@ -250,7 +274,7 @@ namespace
 		
 		if (caster) //FIXME: Archangels can cast immune stack
 		{
-			auto maxHealth = calculateHealedHP (caster, obj);
+			auto maxHealth = owner->calculateHealedHP (caster, obj);
 			if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
 				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 		}	
@@ -346,7 +370,7 @@ ui32 CSpell::calculateHealedHP(const CGHeroInstance* caster, const CStack* stack
 	if (id == SpellID::SACRIFICE && sacrificedStack)
 		healedHealth = (spellPowerSkill + sacrificedStack->MaxHealth() + levelPower) * sacrificedStack->count;
 	else
-		healedHealth = spellPowerSkill * power + levelPower); //???
+		healedHealth = spellPowerSkill * power + levelPower; //???
 	healedHealth = calculateBonus(healedHealth, caster, stack);
 	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (isRisingSpell() ? stack->baseAmount * stack->MaxHealth() : 0));	
 }
@@ -684,7 +708,11 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj)
 
 ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj) const
 {
-	return mechanics->isImmuneByStack(caster,mode,obj);
+	const auto immuneResult = mechanics->isImmuneByStack(caster,mode,obj);
+	
+	if (ESpellCastProblem::NOT_DECIDED != immuneResult) 
+		return immuneResult;
+	return ESpellCastProblem::OK;	
 }
 
 
@@ -728,7 +756,7 @@ void CSpell::setupMechanics()
 		break;
 	case SpellID::SACRIFICE:
 		mechanics = new SacrificeMechanics(this);
-		break
+		break;
 	default:		
 		if(isRisingSpell())
 			mechanics = new SpecialRisingSpellMechanics(this);
