@@ -139,6 +139,9 @@ public:
 		///no immunity on primary target (mostly spell-like attack)
 		bool alwaysHitDirectly;
 		
+		bool clearTarget;
+		bool clearAffected;
+		
 		TargetInfo(const CSpell * spell, const int level);
 		TargetInfo(const CSpell * spell, const int level, ECastingMode::ECastingMode mode);
 		

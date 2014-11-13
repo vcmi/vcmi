@@ -503,7 +503,9 @@ void CSpell::TargetInfo::init(const CSpell * spell, const int level)
 	smart = levelInfo.smartTarget;
 	massive = levelInfo.range == "X";
 	onlyAlive = !spell->isRisingSpell();
-	alwaysHitDirectly = false;	
+	alwaysHitDirectly = false;
+	clearAffected = levelInfo.clearAffected;
+	clearTarget = levelInfo.clearTarget;
 }
 
 

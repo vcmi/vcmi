@@ -1553,8 +1553,12 @@ void CBattleInterface::castThisSpell(int spellID)
 	
 	const CSpell::TargetInfo ti = sp->getTargetInfo(castingHero->getSpellSchoolLevel(sp));
 	
-	if(ti.massive)
+	if(ti.massive || ti.type == CSpell::NO_TARGET)
 		spellSelMode = NO_LOCATION;	
+	else if(ti.type == CSpell::LOCATION && ti.clearAffected)
+	{
+		spellSelMode = FREE_LOCATION;		
+	}
 	else if(ti.type == CSpell::CREATURE)
 	{
 		if(ti.smart)
@@ -1566,11 +1570,6 @@ void CBattleInterface::castThisSpell(int spellID)
 	{
 		spellSelMode = OBSTACLE;
 	} 
-	//todo: move to JSON config
-	if(spellID == SpellID::FIRE_WALL  ||  spellID == SpellID::FORCE_FIELD)
-	{
-		spellSelMode = FREE_LOCATION;
-	}
 
 	if (spellSelMode == NO_LOCATION) //user does not have to select location
 	{
