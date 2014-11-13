@@ -27,7 +27,7 @@ public:
 		int schoolLvl;
 		
 		SpellTargetingContext(const CSpell * s, const CBattleInfoCallback * c, ECastingMode::ECastingMode m, PlayerColor cc, int lvl, BattleHex dest)
-			: cb(c), ti(s,lvl, m), mode(m), destination(dest)
+			: cb(c), ti(s,lvl, m), mode(m), destination(dest), casterColor(cc), schoolLvl(lvl)
 		{};
 		
 	};
