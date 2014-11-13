@@ -16,6 +16,117 @@
 
 #include "NetPacks.h"
 
+namespace SRSLPraserHelpers
+{
+	static int XYToHex(int x, int y)
+	{
+		return x + 17 * y;
+	}
+
+	static int XYToHex(std::pair<int, int> xy)
+	{
+		return XYToHex(xy.first, xy.second);
+	}
+
+	static int hexToY(int battleFieldPosition)
+	{
+		return battleFieldPosition/17;
+	}
+
+	static int hexToX(int battleFieldPosition)
+	{
+		int pos = battleFieldPosition - hexToY(battleFieldPosition) * 17;
+		return pos;
+	}
+
+	static std::pair<int, int> hexToPair(int battleFieldPosition)
+	{
+		return std::make_pair(hexToX(battleFieldPosition), hexToY(battleFieldPosition));
+	}
+
+	//moves hex by one hex in given direction
+	//0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left
+	static std::pair<int, int> gotoDir(int x, int y, int direction)
+	{
+		switch(direction)
+		{
+		case 0: //top left
+			return std::make_pair((y%2) ? x-1 : x, y-1);
+		case 1: //top right
+			return std::make_pair((y%2) ? x : x+1, y-1);
+		case 2:  //right
+			return std::make_pair(x+1, y);
+		case 3: //right bottom
+			return std::make_pair((y%2) ? x : x+1, y+1);
+		case 4: //left bottom
+			return std::make_pair((y%2) ? x-1 : x, y+1);
+		case 5: //left
+			return std::make_pair(x-1, y);
+		default:
+			throw std::runtime_error("Disaster: wrong direction in SRSLPraserHelpers::gotoDir!\n");
+		}
+	}
+
+	static std::pair<int, int> gotoDir(std::pair<int, int> xy, int direction)
+	{
+		return gotoDir(xy.first, xy.second, direction);
+	}
+
+	static bool isGoodHex(std::pair<int, int> xy)
+	{
+		return xy.first >=0 && xy.first < 17 && xy.second >= 0 && xy.second < 11;
+	}
+
+	//helper function for std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) const
+	static std::set<ui16> getInRange(unsigned int center, int low, int high)
+	{
+		std::set<ui16> ret;
+		if(low == 0)
+		{
+			ret.insert(center);
+		}
+
+		std::pair<int, int> mainPointForLayer[6]; //A, B, C, D, E, F points
+		for(auto & elem : mainPointForLayer)
+			elem = hexToPair(center);
+
+		for(int it=1; it<=high; ++it) //it - distance to the center
+		{
+			for(int b=0; b<6; ++b)
+				mainPointForLayer[b] = gotoDir(mainPointForLayer[b], b);
+
+			if(it>=low)
+			{
+				std::pair<int, int> curHex;
+
+				//adding lines (A-b, B-c, C-d, etc)
+				for(int v=0; v<6; ++v)
+				{
+					curHex = mainPointForLayer[v];
+					for(int h=0; h<it; ++h)
+					{
+						if(isGoodHex(curHex))
+							ret.insert(XYToHex(curHex));
+						curHex = gotoDir(curHex, (v+2)%6);
+					}
+				}
+
+			} //if(it>=low)
+		}
+
+		return ret;
+	}
+}
+
+
+///ISpellMechanics
+ISpellMechanics::ISpellMechanics(CSpell * s):
+	owner(s)
+{
+	
+}
+
+
 ///DefaultSpellMechanics
 
 bool DefaultSpellMechanics::adventureCast(SpellCastContext& context) const
@@ -28,6 +139,73 @@ bool DefaultSpellMechanics::battleCast(SpellCastContext& context) const
 	return false; //todo; DefaultSpellMechanics::battleCast
 }
 
+std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
+{
+	using namespace SRSLPraserHelpers;
+	
+	std::vector<BattleHex> ret;
+	std::string rng = owner->getLevelInfo(schoolLvl).range + ','; //copy + artificial comma for easier handling
+
+	if(rng.size() >= 1 && rng[0] != 'X') //there is at lest one hex in range
+	{
+		std::string number1, number2;
+		int beg, end;
+		bool readingFirst = true;
+		for(auto & elem : rng)
+		{
+			if(std::isdigit(elem) ) //reading number
+			{
+				if(readingFirst)
+					number1 += elem;
+				else
+					number2 += elem;
+			}
+			else if(elem == ',') //comma
+			{
+				//calculating variables
+				if(readingFirst)
+				{
+					beg = atoi(number1.c_str());
+					number1 = "";
+				}
+				else
+				{
+					end = atoi(number2.c_str());
+					number2 = "";
+				}
+				//obtaining new hexes
+				std::set<ui16> curLayer;
+				if(readingFirst)
+				{
+					curLayer = getInRange(centralHex, beg, beg);
+				}
+				else
+				{
+					curLayer = getInRange(centralHex, beg, end);
+					readingFirst = true;
+				}
+				//adding abtained hexes
+				for(auto & curLayer_it : curLayer)
+				{
+					ret.push_back(curLayer_it);
+				}
+
+			}
+			else if(elem == '-') //dash
+			{
+				beg = atoi(number1.c_str());
+				number1 = "";
+				readingFirst = false;
+			}
+		}
+	}
+
+	//remove duplicates (TODO check if actually needed)
+	range::unique(ret);
+	return ret;		
+}
+
+
 std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
 {
 	
@@ -38,6 +216,44 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(cons
 {
 	//by default use general algorithm
 	return owner->isImmuneBy(obj);
+}
+
+std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool* outDroppedHexes) const
+{
+	using namespace SRSLPraserHelpers;
+
+	std::vector<BattleHex> ret;	
+	
+	//Special case - shape of obstacle depends on caster's side
+	//TODO make it possible through spell_info config
+
+	BattleHex::EDir firstStep, secondStep;
+	if(side)
+	{
+		firstStep = BattleHex::TOP_LEFT;
+		secondStep = BattleHex::TOP_RIGHT;
+	}
+	else
+	{
+		firstStep = BattleHex::TOP_RIGHT;
+		secondStep = BattleHex::TOP_LEFT;
+	}
+
+	//Adds hex to the ret if it's valid. Otherwise sets output arg flag if given.
+	auto addIfValid = [&](BattleHex hex)
+	{
+		if(hex.isValid())
+			ret.push_back(hex);
+		else if(outDroppedHexes)
+			*outDroppedHexes = true;
+	};
+
+	ret.push_back(centralHex);
+	addIfValid(centralHex.moveInDir(firstStep, false));
+	if(schoolLvl >= 2) //advanced versions of fire wall / force field cotnains of 3 hexes
+		addIfValid(centralHex.moveInDir(secondStep, false)); //moveInDir function modifies subject hex
+
+	return ret;	
 }
 
 

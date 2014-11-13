@@ -12,11 +12,48 @@
 
 #include "CSpellHandler.h"
 
+class DLL_LINKAGE ISpellMechanics
+{
+public:
+	
+	struct SpellTargetingContext
+	{
+		CBattleInfoCallback * cb;
+		
+		CSpell::TargetInfo ti;
+		
+		int schoolLvl;
+	};
+	
+public:
+	ISpellMechanics(CSpell * s);
+	virtual ~ISpellMechanics(){};	
+	
+	virtual std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr) const = 0;
+	virtual std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const = 0;
+	
+	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const = 0;
+	
+	
+    /** \brief 
+     *
+     * \param 
+     * \return true if no error
+     *
+     */                           
+	virtual bool adventureCast(SpellCastContext & context) const = 0; 
+	virtual bool battleCast(SpellCastContext & context) const = 0; 	
+	
+protected:
+	CSpell * owner;	
+};
+
 class DefaultSpellMechanics: public ISpellMechanics
 {
 public:
 	DefaultSpellMechanics(CSpell * s): ISpellMechanics(s){};
 	
+	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr) const override;
 	std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const override;
 	
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
@@ -25,6 +62,15 @@ public:
 	bool battleCast(SpellCastContext & context) const override; 
 };
 
+
+
+class WallMechanics: public DefaultSpellMechanics
+{
+public:
+	WallMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr) const override;	
+	
+};
 
 
 class ChainLightningMechanics: public DefaultSpellMechanics

@@ -295,40 +295,6 @@ private:
 	ISpellMechanics * mechanics;//(!) do not serialize
 };
 
-class DLL_LINKAGE ISpellMechanics
-{
-public:
-	
-	struct SpellTargetingContext
-	{
-		CBattleInfoCallback * cb;
-		
-		CSpell::TargetInfo ti;
-	};
-	
-public:
-	ISpellMechanics(CSpell * s);
-	virtual ~ISpellMechanics(){};	
-	
-	virtual std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const = 0;
-	
-	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const = 0;
-	
-	
-    /** \brief 
-     *
-     * \param 
-     * \return true if no error
-     *
-     */                           
-	virtual bool adventureCast(SpellCastContext & context) const = 0; 
-	virtual bool battleCast(SpellCastContext & context) const = 0; 	
-	
-protected:
-	CSpell * owner;	
-};
-
-
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spells like Dimension Door
 
 class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, CSpell>
