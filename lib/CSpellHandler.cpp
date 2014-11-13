@@ -366,25 +366,22 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj)
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
-	auto battleTestElementalImmunity = [&,this](Bonus::BonusType element) -> bool
-	{
-		if(obj->hasBonusOfType(element, 0)) //always resist if immune to all spells altogether
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		else if(!isPositive()) //negative or indifferent
-		{
-			if((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}
-		return ESpellCastProblem::NOT_DECIDED;
-	};
-
 	//6. Check elemental immunities
 	
 	for(const SpellSchoolInfo & cnf : spellSchoolConfig)
 	{
 		if(school.at(cnf.id))
-			if(battleTestElementalImmunity(cnf.immunityBonus))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		{
+			auto element = cnf.immunityBonus;
+			
+			if(obj->hasBonusOfType(element, 0)) //always resist if immune to all spells altogether
+					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+			else if(!isPositive()) //negative or indifferent
+			{
+				if((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
+					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+			}
+		}
 	}
 
 
