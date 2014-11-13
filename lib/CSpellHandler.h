@@ -241,7 +241,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & identifier & id & name & level & earth & water & fire & air & power
+		h & identifier & id & name & level & power
 		  & probabilities  & attributes & combatSpell & creatureAbility & positiveness & counteredSpells & mainEffectAnim;
 		h & isRising & isDamage & isOffensive;
 		h & targetType;
@@ -254,6 +254,8 @@ public:
 		h & castSound & iconBook & iconEffect & iconScenarioBonus & iconScroll;
 
 		h & levels;
+		
+		h & school;
 		
 		if(!h.saving)
 			setup();

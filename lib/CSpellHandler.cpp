@@ -430,10 +430,10 @@ void CSpell::setup()
 {
 	setupMechanics();
 	
-	school[ESpellSchool::AIR] = air;
-	school[ESpellSchool::FIRE] = fire;
-	school[ESpellSchool::WATER] = water;
-	school[ESpellSchool::EARTH] = earth;	
+	air = school[ESpellSchool::AIR];
+	fire = school[ESpellSchool::FIRE];
+	water = school[ESpellSchool::WATER];
+	earth = school[ESpellSchool::EARTH];	
 }
 
 
@@ -657,11 +657,11 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 	logGlobal->traceStream() << __FUNCTION__ << ": loading spell " << spell->name;
 
 	const auto schoolNames = json["school"];
-
-	spell->air   = schoolNames["air"].Bool();
-	spell->earth = schoolNames["earth"].Bool();
-	spell->fire  = schoolNames["fire"].Bool();
-	spell->water = schoolNames["water"].Bool();
+	
+	for(SpellSchoolInfo & info : spellSchoolConfig)
+	{
+		spell->school[info.id] = schoolNames[info.jsonName].Bool();
+	}
 
 	spell->level = json["level"].Float();
 	spell->power = json["power"].Float();
