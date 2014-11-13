@@ -18,6 +18,16 @@
 
 ///DefaultSpellMechanics
 
+bool DefaultSpellMechanics::adventureCast(SpellCastContext& context) const
+{
+	return false; //there is no general algorithm for castind adventure spells
+}
+
+bool DefaultSpellMechanics::battleCast(SpellCastContext& context) const
+{
+	return false; //todo; DefaultSpellMechanics::battleCast
+}
+
 std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
 {
 	
@@ -30,23 +40,6 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(cons
 	return owner->isImmuneBy(obj);
 }
 
-bool DefaultSpellMechanics::adventureCast(SpellCastContext& context) const
-{
-	return false; //there is no general algorithm for castind adventure spells
-}
-
-bool DefaultSpellMechanics::battleCast(SpellCastContext& context) const
-{
-	return false; //todo; DefaultSpellMechanics::battleCast
-}
-
-///OffenciveSpellMechnics
-bool OffenciveSpellMechnics::battleCast(SpellCastContext& context) const
-{
-	assert(owner->isOffensiveSpell());
-	
-	//todo:OffenciveSpellMechnics::battleCast
-}
 
 
 ///CloneMechanics

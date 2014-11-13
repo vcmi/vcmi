@@ -25,11 +25,13 @@ public:
 	bool battleCast(SpellCastContext & context) const override; 
 };
 
-class OffenciveSpellMechnics: public DefaultSpellMechanics
+
+
+class ChainLightningMechanics: public DefaultSpellMechanics
 {
 public:
-	OffenciveSpellMechnics(CSpell * s): DefaultSpellMechanics(s){};	
-	bool battleCast(SpellCastContext & context) const override;
+	ChainLightningMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+	
 };
 
 class CloneMechanics: public DefaultSpellMechanics

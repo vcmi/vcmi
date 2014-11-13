@@ -659,11 +659,7 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 }
 
 ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj) const
-{
-	//0. check receptivity
-	if (isPositive() && obj->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
-		return ESpellCastProblem::OK;	
-	
+{	
 	//todo: use new bonus API
 	//1. Check absolute limiters
 	for(auto b : absoluteLimiters)
@@ -678,6 +674,10 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj)
 		if (obj->hasBonusOfType(b))
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
+	
+	//check receptivity
+	if (isPositive() && obj->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
+		return ESpellCastProblem::OK;	
 
 	//3. Check negation
 	//FIXME: Orb of vulnerability mechanics is not such trivial
@@ -794,11 +794,12 @@ void CSpell::setupMechanics()
 	case SpellID::SACRIFICE:
 		mechanics = new SacrificeMechanics(this);
 		break;
+	case SpellID::CHAIN_LIGHTNING:
+		mechanics = new ChainLightningMechanics(this);
+		break;		
 	default:		
 		if(isRisingSpell())
 			mechanics = new SpecialRisingSpellMechanics(this);
-		else if(isOffensiveSpell())
-			mechanics = new OffenciveSpellMechnics(this);
 		else	
 			mechanics = new DefaultSpellMechanics(this);
 		break;
