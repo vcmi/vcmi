@@ -146,7 +146,7 @@ std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex,
 	std::vector<BattleHex> ret;
 	std::string rng = owner->getLevelInfo(schoolLvl).range + ','; //copy + artificial comma for easier handling
 
-	if(rng.size() >= 1 && rng[0] != 'X') //there is at lest one hex in range
+	if(rng.size() >= 2 && rng[0] != 'X') //there is at lest one hex in range (+artificial comma)
 	{
 		std::string number1, number2;
 		int beg, end;
