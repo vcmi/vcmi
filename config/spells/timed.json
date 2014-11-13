@@ -1,6 +1,7 @@
 {
 	"shield" : {
 		"index" : 27,
+		"targetType" : "CREATURE",			
 		"anim" : 27,
 		"sounds": {
 			"cast": "SHIELD"
@@ -27,6 +28,7 @@
 	},
 	"airShield" : {
 		"index" : 28,
+		"targetType" : "CREATURE",
 		"anim" : 2,
 		"sounds": {
 			"cast": "AIRSHELD"
@@ -53,6 +55,7 @@
 	},
 	"fireShield" : {
 		"index" : 29,
+		"targetType" : "CREATURE",
 		"anim" : 11,
 		"sounds": {
 			"cast": "FIRESHIE"
@@ -81,6 +84,7 @@
 	},
 	"protectAir" : {
 		"index" : 30,
+		"targetType" : "CREATURE",
 		"anim" : 22,
 		"sounds": {
 			"cast": "PROTECTA"
@@ -107,6 +111,7 @@
 	},
 	"protectFire" : {
 		"index" : 31,
+		"targetType" : "CREATURE",
 		"anim" : 24,
 		"sounds": {
 			"cast": "PROTECTF"
@@ -133,6 +138,7 @@
 	},
 	"protectWater" : {
 		"index" : 32,
+		"targetType" : "CREATURE",
 		"anim" : 23,
 		"sounds": {
 			"cast": "PROTECTW"
@@ -159,6 +165,7 @@
 	},
 	"protectEarth" : {
 		"index" : 33,
+		"targetType" : "CREATURE",
 		"anim" : 26,
 		"sounds": {
 			"cast": "PROTECTE"
@@ -185,6 +192,7 @@
 	},
 	"antiMagic" : {
 		"index" : 34,
+		"targetType" : "CREATURE",
 		"anim" : 5,
 		"sounds": {
 			"cast": "ANTIMAGK"
@@ -224,6 +232,7 @@
 
 	"magicMirror" : {
 		"index" : 36,
+		"targetType" : "CREATURE",
 		"anim" : 3,
 		"sounds": {
 			"cast": "BACKLASH"
@@ -248,6 +257,7 @@
 
 	"bless" : {
 		"index" : 41,
+		"targetType" : "CREATURE",
 		"anim" : 36,
 		"sounds": {
 			"cast": "BLESS"
@@ -282,6 +292,7 @@
 	},
 	"curse" : {
 		"index" : 42,
+		"targetType" : "CREATURE",
 		"anim" : 40,
 		"sounds": {
 			"cast": "CURSE"
@@ -317,6 +328,7 @@
 	},
 	"bloodlust" : {
 		"index" : 43,
+		"targetType" : "CREATURE",
 		"anim" : 4,
 		"sounds": {
 			"cast": "BLOODLUS"
@@ -360,6 +372,7 @@
 	},
 	"precision" : {
 		"index" : 44,
+		"targetType" : "CREATURE",
 		"anim" : 25,
 		"sounds": {
 			"cast": "PRECISON"
@@ -403,6 +416,7 @@
 	},
 	"weakness" : {
 		"index" : 45,
+		"targetType" : "CREATURE",
 		"anim" : 56,
 		"sounds": {
 			"cast": "WEAKNESS"
@@ -446,6 +460,7 @@
 	},
 	"stoneSkin" : {
 		"index" : 46,
+		"targetType" : "CREATURE",
 		"anim" : 54,
 		"sounds": {
 			"cast": "TUFFSKIN"
@@ -485,7 +500,7 @@
 	},
 	"disruptingRay" : {
 		"index" : 47,
-		"targetType" : "CREATURE", //fix, dont remove
+		"targetType" : "CREATURE",
 		"anim" : 14,
 		"sounds": {
 			"cast": "DISRUPTR"
@@ -525,6 +540,7 @@
 	},
 	"prayer" : {
 		"index" : 48,
+		"targetType" : "CREATURE",
 		"anim" : 0,
 		"sounds": {
 			"cast": "PRAYER"
@@ -588,6 +604,7 @@
 	},
 	"mirth" : {
 		"index" : 49,
+		"targetType" : "CREATURE",
 		"anim" : 20,
 		"sounds": {
 			"cast": "MIRTH"
@@ -636,6 +653,7 @@
 	},
 	"sorrow" : {
 		"index" : 50,
+		"targetType" : "CREATURE",
 		"anim" : 30,
 		"sounds": {
 			"cast": "SORROW"
@@ -684,6 +702,7 @@
 	},
 	"fortune" : {
 		"index" : 51,
+		"targetType" : "CREATURE",
 		"anim" : 18,
 		"sounds": {
 			"cast": "FORTUNE"
@@ -725,6 +744,7 @@
 	},
 	"misfortune" : {
 		"index" : 52,
+		"targetType" : "CREATURE",
 		"anim" : 48,
 		"sounds": {
 			"cast": "MISFORT"
@@ -766,6 +786,7 @@
 	},
 	"haste" : {
 		"index" : 53,
+		"targetType" : "CREATURE",
 		"anim" : 31,
 		"sounds": {
 			"cast": "HASTE"
@@ -811,6 +832,7 @@
 	},
 	"slow" : {
 		"index" : 54,
+		"targetType" : "CREATURE",
 		"anim" : 19,
 		"sounds": {
 			"cast": "MUCKMIRE"
@@ -858,6 +880,7 @@
 	},
 	"slayer" : {
 		"index" : 55,
+		"targetType" : "CREATURE",
 		"anim" : 28,
 		"sounds": {
 			"cast": "SLAYER"
@@ -908,6 +931,7 @@
 	},
 	"frenzy" : {
 		"index" : 56,
+		"targetType" : "CREATURE",
 		"anim" : 17,
 		"sounds": {
 			"cast": "FRENZY"
@@ -946,6 +970,7 @@
 
 	"counterstrike" : {
 		"index" : 58,
+		"targetType" : "CREATURE",
 		"anim" : 7,
 		"sounds": {
 			"cast": "CNTRSTRK"
@@ -984,6 +1009,7 @@
 	},
 	"berserk" : {
 		"index" : 59,
+		"targetType" : "CREATURE",
 		"anim" : 35,
 		"sounds": {
 			"cast": "BERSERK"
@@ -1042,6 +1068,7 @@
 	},
 	"hypnotize" : {
 		"index" : 60,
+		"targetType" : "CREATURE",
 		"anim" : 21,
 		"sounds": {
 			"cast": "HYPNOTIZ"
@@ -1158,6 +1185,7 @@
 	},
 	"blind" : {
 		"index" : 62,
+		"targetType" : "CREATURE",
 		"anim" : 6,
 		"sounds": {
 			"cast": "BLIND"

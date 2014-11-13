@@ -35,7 +35,7 @@ namespace SpellConfig
 
 ///CSpell::LevelInfo
 CSpell::LevelInfo::LevelInfo()
-	:description(""),cost(0),power(0),AIValue(0),smartTarget(true),range("0")
+	:description(""),cost(0),power(0),AIValue(0),smartTarget(true), clearTarget(false), clearAffected(false), range("0")
 {
 
 }
@@ -587,17 +587,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 			for(size_t i = 0; i < GameConstants::SPELL_SCHOOL_LEVELS ; i++)
 				descriptions.push_back(parser.readString());
 
-			std::string attributes = parser.readString();
-
-			std::string targetType = "NO_TARGET";
-
-			if(attributes.find("CREATURE_TARGET_1") != std::string::npos
-				|| attributes.find("CREATURE_TARGET_2") != std::string::npos)
-				targetType = "CREATURE_EXPERT_MASSIVE";
-			else if(attributes.find("CREATURE_TARGET") != std::string::npos)
-				targetType = "CREATURE";
-			else if(attributes.find("OBSTACLE_TARGET") != std::string::npos)
-				targetType = "OBSTACLE";
+			parser.readString(); //ignore attributes. All data present in JSON
 
 			//save parsed level specific data
 			for(size_t i = 0; i < GameConstants::SPELL_SCHOOL_LEVELS; i++)
@@ -607,16 +597,6 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 				level["cost"].Float() = costs[i];
 				level["power"].Float() = powers[i];
 				level["aiValue"].Float() = AIVals[i];
-			}
-
-			if(targetType == "CREATURE_EXPERT_MASSIVE")
-			{
-				lineNode["targetType"].String() = "CREATURE";
-				getLevel(3)["range"].String() = "X";
-			}
-			else
-			{
-				lineNode["targetType"].String() = targetType;
 			}
 
 			legacyData.push_back(lineNode);
@@ -708,6 +688,8 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 		spell->targetType = CSpell::CREATURE;
 	else if(targetType == "OBSTACLE")
 		spell->targetType = CSpell::OBSTACLE;
+	else if(targetType == "LOCATION")
+		spell->targetType = CSpell::LOCATION;
 	else 
 		logGlobal->warnStream() << "Spell " << spell->name << ". Target type " << (targetType.empty() ? "empty" : "unknown ("+targetType+")") << ". Assumed NO_TARGET.";
 
@@ -812,14 +794,15 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 		
 		CSpell::LevelInfo & levelObject = spell->levels[levelIndex];
 
-		const si32 levelPower   = levelNode["power"].Float();		
-		
-		levelObject.description = levelNode["description"].String();
-		levelObject.cost        = levelNode["cost"].Float();
-		levelObject.power       = levelPower;
-		levelObject.AIValue     = levelNode["aiValue"].Float();
-		levelObject.smartTarget = levelNode["targetModifier"]["smart"].Bool();
-		levelObject.range       = levelNode["range"].String();
+		const si32 levelPower     = levelObject.power = levelNode["power"].Float();		
+
+		levelObject.description   = levelNode["description"].String();
+		levelObject.cost          = levelNode["cost"].Float();
+		levelObject.AIValue       = levelNode["aiValue"].Float();
+		levelObject.smartTarget   = levelNode["targetModifier"]["smart"].Bool();
+		levelObject.clearTarget   = levelNode["targetModifier"]["clearTarget"].Bool();
+		levelObject.clearAffected = levelNode["targetModifier"]["clearAffected"].Bool();			
+		levelObject.range         = levelNode["range"].String();
 		
 		for(const auto & elem : levelNode["effects"].Struct())
 		{

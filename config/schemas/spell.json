@@ -53,7 +53,17 @@
 						"smart":{
 							"type": "boolean",
 							"description": "true: friendly/hostile based on positiveness; false: all targets"
-						}
+						},
+						"clearTarget":
+						{
+							"type": "boolean",
+							"description": "LOCATION target only. Target hex/tile must be clear"
+						},
+						"clearAffected":
+						{
+							"type": "boolean",
+							"description": "LOCATION target only. All affected hexes/tile must be clear"
+						}						
 					}
 				}
 			}
@@ -120,7 +130,8 @@
 		},
 		"targetType":{
 				  "type": "string",
-				  "enum": ["NO_TARGET","CREATURE","OBSTACLE"]
+				  "description": "NO_TARGET - instant cast no aiming, default; CREATURE - target is unit; OBSTACLE - target is OBSTACLE; LOCATION - target is location",
+				  "enum": ["NO_TARGET","CREATURE","OBSTACLE","LOCATION"]
 		},
 		"anim":{
 				"type": "number",

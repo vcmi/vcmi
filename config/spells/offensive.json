@@ -1,6 +1,7 @@
 {
 	"magicArrow" : {
 		"index" : 15,
+		"targetType": "CREATURE",
 		"anim" : 64,
 		"sounds": {
 			"cast": "MAGICBLT"
@@ -22,6 +23,7 @@
 	},
 	"iceBolt" : {
 		"index" : 16,
+		"targetType": "CREATURE",
 		"anim" : 46,
 		"sounds": {
 			"cast": "ICERAY"
@@ -43,6 +45,7 @@
 	},
 	"lightningBolt" : {
 		"index" : 17,
+		"targetType": "CREATURE",
 		"anim" : 38,
 		"sounds": {
 			"cast": "LIGHTBLT"
@@ -64,6 +67,7 @@
 	},
 	"implosion" : {
 		"index" : 18,
+		"targetType": "CREATURE",
 		"anim" : 10,
 		"sounds": {
 			"cast": "DECAY"
@@ -86,6 +90,7 @@
 	},
 	"chainLightning" : {
 		"index" : 19,
+		"targetType": "CREATURE",
 		"anim" : 38,
 		"sounds": {
 			"cast": "CHAINLTE"
@@ -104,6 +109,7 @@
 	},
 	"frostRing" : {
 		"index" : 20,
+		"targetType": "LOCATION",
 		"anim" : 45,
 		"sounds": {
 			"cast": "FROSTING"
@@ -125,6 +131,7 @@
 	},
 	"fireball" : {
 		"index" : 21,
+		"targetType": "LOCATION",
 		"anim" : 53,
 		"sounds": {
 			"cast": "FIREBALL"
@@ -146,6 +153,7 @@
 	},
 	"inferno" : {
 		"index" : 22,
+		"targetType": "LOCATION",
 		"anim" : 9,
 		"sounds": {
 			"cast": "FIREBLST"
@@ -167,6 +175,7 @@
 	},
 	"meteorShower" : {
 		"index" : 23,
+		"targetType": "LOCATION",
 		"anim" : 16,
 		"sounds": {
 			"cast": "METEOR"
@@ -261,6 +270,7 @@
 	},
 	"titanBolt" : {
 		"index" : 57,
+		"targetType" : "CREATURE",
 		"anim" : 38,
 		"sounds": {
 			"cast": "LIGHTBLT"
@@ -277,5 +287,5 @@
 			"negative": true,
 			"special": true
 		}
-	},
+	}
 }

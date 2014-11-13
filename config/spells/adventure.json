@@ -2,6 +2,7 @@
 	"summonBoat" : {
 		"index" : 0,
 		"anim" : -1,
+		"targetType": "NO_TARGET",
 		"sounds": {
 			"cast": "SUMMBOAT"
 		},
@@ -16,6 +17,7 @@
 	},
 	"scuttleBoat" : {
 		"index" : 1,
+		"targetType": "NO_TARGET",
 		"anim" : -1,
 		"sounds": {
 			"cast": "SCUTBOAT"
@@ -31,6 +33,7 @@
 	},
 	"visions" : {
 		"index" : 2,
+		"targetType": "NO_TARGET",
 		"anim" : -1,
 		"sounds": {
 			"cast": "VISIONS"
@@ -46,6 +49,7 @@
 	},
 	"viewEarth" : {
 		"index" : 3,
+		"targetType": "NO_TARGET",
 		"anim" : -1,
 		"sounds": {
 			"cast": "VIEW"
@@ -61,6 +65,7 @@
 	},
 	"disguise" : {
 		"index" : 4,
+		"targetType": "NO_TARGET",
 		"anim" : -1,
 		"sounds": {
 			"cast": "DISGUISE"
@@ -76,6 +81,7 @@
 	},
 	"viewAir" : {
 		"index" : 5,
+		"targetType": "NO_TARGET",
 		"anim" : -1,
 		"sounds": {
 			"cast": "VIEW"
@@ -91,6 +97,7 @@
 	},
 	"fly" : {
 		"index" : 6,
+		"targetType": "NO_TARGET",
 		"anim" : -1,
 		"sounds": {
 			"cast": "FLYSPELL"
@@ -106,6 +113,7 @@
 	},
 	"waterWalk" : {
 		"index" : 7,
+		"targetType": "NO_TARGET",
 		"anim" : -1,
 		"sounds": {
 			"cast": "WATRWALK"
@@ -121,6 +129,7 @@
 	},
 	"dimensionDoor" : {
 		"index" : 8,
+		"targetType": "LOCATION",
 		"anim" : -1,
 		"sounds": {
 			"cast": "TELPTOUT"
@@ -136,6 +145,7 @@
 	},
 	"townPortal" : {
 		"index" : 9,
+		"targetType": "NO_TARGET",
 		"anim" : -1,
 		"sounds": {
 			"cast": "TELPTOUT"

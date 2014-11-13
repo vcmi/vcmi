@@ -1,6 +1,7 @@
 {
 	"stoneGaze" : {
 		"index" : 70,
+		"targetType": "NO_TARGET",
 		"anim" : 70,
 		"sounds": {
 			"cast": "PARALYZE"
@@ -33,6 +34,7 @@
 	},
 	"poison" : {
 		"index" : 71,
+		"targetType": "NO_TARGET",
 		"anim" : 67,
 		"sounds": {
 			"cast": "POISON"
@@ -67,6 +69,7 @@
 	},
 	"bind" : {
 		"index" : 72,
+		"targetType": "NO_TARGET",
 		"anim" : 68,
 		"sounds": {
 			"cast": "BIND"
@@ -90,6 +93,7 @@
 	},
 	"disease" : {
 		"index" : 73,
+		"targetType": "NO_TARGET",
 		"anim" : 69,
 		"sounds": {
 			"cast": "DISEASE"
@@ -124,6 +128,7 @@
 	},
 	"paralyze" : {
 		"index" : 74,
+		"targetType": "NO_TARGET",
 		"anim" : 70,
 		"sounds": {
 			"cast": "PARALYZE"
@@ -156,6 +161,7 @@
 	},
 	"age" : {
 		"index" : 75,
+		"targetType": "NO_TARGET",
 		"anim" : 71,
 		"sounds": {
 			"cast": "AGE"
@@ -184,6 +190,7 @@
 	},
 	"deathCloud" : {
 		"index" : 76,
+		"targetType": "NO_TARGET",
 		"anim" : 72,
 		"sounds": {
 			"cast": "DEATHCLD"
@@ -203,6 +210,7 @@
 	},
 	"thunderbolt" : {
 		"index" : 77,
+		"targetType": "NO_TARGET",
 		"anim" : 38,
 		"sounds": {
 			"cast": "LIGHTBLT"
@@ -220,6 +228,7 @@
 	},
 	"dispelHelpful" : {
 		"index" : 78,
+		"targetType": "NO_TARGET",
 		"anim" : 41,
 		"sounds": {
 			"cast": "DISPELL"
@@ -236,6 +245,7 @@
 	},
 	"deathStare" : {
 		"index" : 79,
+		"targetType": "NO_TARGET",
 		"anim" : 80,
 		"sounds": {
 			"cast": "DEATHSTR"
@@ -255,6 +265,7 @@
 	},
 	"acidBreath" : {
 		"index" : 80,
+		"targetType": "NO_TARGET",
 		"anim" : 81,
 		"sounds": {
 			"cast": "ACID"
@@ -280,6 +291,7 @@
 	},
 	"acidBreathDamage" : {
 		"index" : 81,
+		"targetType": "NO_TARGET",
 		"anim" : 81,
 		"sounds": {
 			"cast": "ACID"

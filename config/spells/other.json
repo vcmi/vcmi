@@ -1,6 +1,7 @@
 {
 	"quicksand" : {
 		"index" : 10,
+		"targetType" : "NO_TARGET",
 		"anim" : -1,
 		"sounds": {
 			"cast": "QUIKSAND"
@@ -16,6 +17,7 @@
 	},
 	"landMine" : {
 		"index" : 11,
+		"targetType" : "NO_TARGET",
 		"anim" : -1,
 		"sounds": {
 			"cast": ""
@@ -35,13 +37,17 @@
 	},
 	"forceField" : {
 		"index" : 12,
+		"targetType" : "LOCATION",
 		"anim" : -1,
 		"sounds": {
 			"cast": "FORCEFLD"
 		},
 		"levels" : {
 			"base":{
-				"range" : "0"
+				"range" : "0",
+				"targetModifier":{
+					"clearAffected": true
+				}
 			}
 		},
 		"flags" : {
@@ -50,13 +56,17 @@
 	},
 	"fireWall" : {
 		"index" : 13,
+		"targetType" : "LOCATION",		
 		"anim" : -1,
 		"sounds": {
 			"cast": "FIREWALL"
 		},
 		"levels" : {
 			"base":{
-				"range" : "0"
+				"range" : "0",
+				"targetModifier":{
+					"clearAffected": true
+				}				
 			}
 		},
 		"flags" : {
@@ -69,6 +79,7 @@
 	},
 	"earthquake" : {
 		"index" : 14,
+		"targetType" : "NO_TARGET",		
 		"anim" : -1,
 		"sounds": {
 			"cast": "ERTHQUAK"
@@ -85,6 +96,7 @@
 	
 	"dispel" : {
 		"index" : 35,
+		"targetType" : "CREATURE",			
 		"anim" : 41,
 		"sounds": {
 			"cast": "DISPELL"
@@ -103,6 +115,7 @@
 	},
 	"cure" : {
 		"index" : 37,
+		"targetType" : "CREATURE",		
 		"anim" : 39,
 		"sounds": {
 			"cast": "CURE"
@@ -122,6 +135,7 @@
 	},
 	"resurrection" : {
 		"index" : 38,
+		"targetType" : "CREATURE",			
 		"anim" : 79,
 		"sounds": {
 			"cast": "RESURECT"
@@ -143,6 +157,7 @@
 	},
 	"animateDead" : {
 		"index" : 39,
+		"targetType" : "CREATURE",			
 		"anim" : 79,
 		"sounds": {
 			"cast": "ANIMDEAD"
@@ -163,6 +178,7 @@
 	},
 	"sacrifice" : {
 		"index" : 40,
+		"targetType" : "CREATURE",			
 		"anim" : 79,
 		"sounds": {
 			"cast": "SACRIF1"
@@ -184,6 +200,7 @@
 	},
 	"teleport" : {
 		"index" : 63,
+		"targetType" : "CREATURE",			
 		"anim" : -1,
 		"sounds": {
 			"cast": "TELPTOUT"
@@ -203,6 +220,7 @@
 	},
 	"removeObstacle" : {
 		"index" : 64,
+		"targetType" : "OBSTACLE",		
 		"anim" : -1,
 		"sounds": {
 			"cast": "REMOVEOB"
@@ -218,6 +236,7 @@
 	},
 	"clone" : {
 		"index" : 65,
+		"targetType" : "CREATURE",		
 		"anim" : -1,
 		"sounds": {
 			"cast": "CLONE"
@@ -237,6 +256,7 @@
 	},
 	"fireElemental" : {
 		"index" : 66,
+		"targetType" : "NO_TARGET",		
 		"anim" : -1,
 		"sounds": {
 			"cast": "SUMNELM"
@@ -252,6 +272,7 @@
 	},
 	"earthElemental" : {
 		"index" : 67,
+		"targetType" : "NO_TARGET",	
 		"anim" : -1,
 		"sounds": {
 			"cast": "SUMNELM"
@@ -267,6 +288,7 @@
 	},
 	"waterElemental" : {
 		"index" : 68,
+		"targetType" : "NO_TARGET",	
 		"anim" : -1,
 		"sounds": {
 			"cast": "SUMNELM"
@@ -282,6 +304,7 @@
 	},
 	"airElemental" : {
 		"index" : 69,
+		"targetType" : "NO_TARGET",	
 		"anim" : -1,
 		"sounds": {
 			"cast": "SUMNELM"

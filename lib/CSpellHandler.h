@@ -103,6 +103,8 @@ public:
 		si32 AIValue; //AI values: per skill level: 0 - none, 1 - basic, etc
 
 		bool smartTarget;
+		bool clearTarget;
+		bool clearAffected;
 		std::string range;
 
 		std::vector<Bonus> effects;
@@ -113,6 +115,7 @@ public:
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & description & cost & power & AIValue & smartTarget & range & effects;
+			h & clearTarget & clearAffected;
 		}
 	};
 
@@ -124,7 +127,7 @@ public:
 	 */
 	const CSpell::LevelInfo& getLevelInfo(const int level) const;
 public:
-	enum ETargetType {NO_TARGET, CREATURE, OBSTACLE};
+	enum ETargetType {NO_TARGET, CREATURE, OBSTACLE, LOCATION};
 	enum ESpellPositiveness {NEGATIVE = -1, NEUTRAL = 0, POSITIVE = 1};
 
 	struct TargetInfo
