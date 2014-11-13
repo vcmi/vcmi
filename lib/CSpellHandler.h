@@ -36,7 +36,8 @@ struct SpellSchoolInfo
 	Bonus::BonusType damagePremyBonus;
 	Bonus::BonusType immunityBonus;	
 	std::string jsonName;
-	SecondarySkill::ESecondarySkill skill;	
+	SecondarySkill::ESecondarySkill skill;
+	Bonus::BonusType knoledgeBonus;			
 };
 
 static const SpellSchoolInfo SPELL_SCHOOL_CONFIG[4] = 
@@ -46,28 +47,32 @@ static const SpellSchoolInfo SPELL_SCHOOL_CONFIG[4] =
 		Bonus::AIR_SPELL_DMG_PREMY,
 		Bonus::AIR_IMMUNITY,
 		"air",
-		SecondarySkill::AIR_MAGIC
+		SecondarySkill::AIR_MAGIC,
+		Bonus::AIR_SPELLS
 	},
 	{
 		ESpellSchool::FIRE,
 		Bonus::FIRE_SPELL_DMG_PREMY,
 		Bonus::FIRE_IMMUNITY,
 		"fire",
-		SecondarySkill::FIRE_MAGIC
+		SecondarySkill::FIRE_MAGIC,
+		Bonus::FIRE_SPELLS
 	},
 	{
 		ESpellSchool::WATER,
 		Bonus::WATER_SPELL_DMG_PREMY,
 		Bonus::WATER_IMMUNITY,
 		"water",
-		SecondarySkill::WATER_MAGIC
+		SecondarySkill::WATER_MAGIC,
+		Bonus::WATER_SPELLS
 	},
 	{
 		ESpellSchool::EARTH,
 		Bonus::EARTH_SPELL_DMG_PREMY,
 		Bonus::EARTH_IMMUNITY,
 		"earth",
-		SecondarySkill::EARTH_MAGIC
+		SecondarySkill::EARTH_MAGIC,
+		Bonus::EARTH_SPELLS
 	}
 };
 
@@ -178,6 +183,8 @@ public:
 
 	CSpell();
 	~CSpell();
+	
+	bool isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const;
 
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr ) const; //convert range to specific hexes; last optional out parameter is set to true, if spell would cover unavailable hexes (that are not included in ret)
 	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)

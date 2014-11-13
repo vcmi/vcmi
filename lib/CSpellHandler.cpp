@@ -65,6 +65,39 @@ CSpell::~CSpell()
 	delete mechanics;
 }
 
+bool CSpell::isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const
+{
+	if(!hasSpellBook)
+		return false;
+	
+	const bool inSpellBook = vstd::contains(spellBook, id);
+	const bool isBonus = caster->hasBonusOfType(Bonus::SPELL, id);
+	
+	bool inTome = false;
+	
+	for(const SpellSchoolInfo & cnf : SPELL_SCHOOL_CONFIG)
+	{
+		if(school.at(cnf.id) && caster->hasBonusOfType(cnf.knoledgeBonus))
+		{
+			inTome = true;
+			break;
+		}				
+	}		
+
+    if (isSpecialSpell())
+    {
+        if (inSpellBook)
+        {//hero has this spell in spellbook
+            logGlobal->errorStream() << "Special spell in spellbook "<<name;
+        }
+        return isBonus;
+    }
+    else
+    {
+       return inSpellBook || inTome || isBonus || caster->hasBonusOfType(Bonus::SPELLS_OF_LEVEL, level);
+    }	
+}
+
 const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 {
 	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
