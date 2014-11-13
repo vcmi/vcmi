@@ -135,6 +135,12 @@ public:
 		bool onlyAlive;
 		///no immunity on primary target (mostly spell-like attack)
 		bool alwaysHitDirectly;
+		
+		TargetInfo(const CSpell * spell, const int level);
+		TargetInfo(const CSpell * spell, const int level, ECastingMode::ECastingMode mode);
+		
+	private:
+		void init(const CSpell * spell, const int level);
 	};
 
 	SpellID id;
@@ -167,7 +173,7 @@ public:
 	ETargetType getTargetType() const; //deprecated
 
 	CSpell::TargetInfo getTargetInfo(const int level) const;
-	CSpell::TargetInfo getTargetInfoEx(const int level, ECastingMode::ECastingMode mode) const;
+
 
 	bool isCombatSpell() const;
 	bool isAdventureSpell() const;

@@ -388,7 +388,7 @@ std::set<const CStack* > CSpell::getAffectedStacks(const CBattleInfoCallback * c
 	const ui8 attackerSide = cb->playerToSide(casterColor) == 1;
 	const auto attackedHexes = rangeInHexes(destination, spellLvl, attackerSide);
 	
-	const CSpell::TargetInfo ti = getTargetInfoEx(spellLvl, mode);
+	const CSpell::TargetInfo ti(this, spellLvl, mode);
 	
 	
 	//TODO: more generic solution for mass spells
@@ -506,36 +506,9 @@ CSpell::ETargetType CSpell::getTargetType() const
 
 CSpell::TargetInfo CSpell::getTargetInfo(const int level) const
 {
-	TargetInfo info;
-
-	auto & levelInfo = getLevelInfo(level);
-
-	info.type = getTargetType();
-	info.smart = levelInfo.smartTarget;
-	info.massive = levelInfo.range == "X";
-	info.onlyAlive = !isRisingSpell();
-	info.alwaysHitDirectly = false;
-
+	TargetInfo info(this, level);
 	return info;
 }
-
-CSpell::TargetInfo CSpell::getTargetInfoEx(const int level, ECastingMode::ECastingMode mode) const
-{
-	TargetInfo info = getTargetInfo(level);
-
-	if(mode == ECastingMode::ENCHANTER_CASTING)
-	{
-		info.smart = true; //FIXME: not sure about that, this makes all spells smart in this mode
-		info.massive = true;
-	}
-	else if(mode == ECastingMode::SPELL_LIKE_ATTACK)
-	{
-		info.alwaysHitDirectly = true;
-	}
-	
-	return info;
-}
-
 
 bool CSpell::isCombatSpell() const
 {
@@ -807,6 +780,36 @@ void CSpell::setupMechanics()
 	
 }
 
+///CSpell::TargetInfo
+CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level)
+{
+	init(spell, level);
+}
+
+CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, ECastingMode::ECastingMode mode)
+{
+	init(spell, level);
+	if(mode == ECastingMode::ENCHANTER_CASTING)
+	{
+		smart = true; //FIXME: not sure about that, this makes all spells smart in this mode
+		massive = true;
+	}
+	else if(mode == ECastingMode::SPELL_LIKE_ATTACK)
+	{
+		alwaysHitDirectly = true;
+	}	
+}
+
+void CSpell::TargetInfo::init(const CSpell * spell, const int level)
+{
+	auto & levelInfo = spell->getLevelInfo(level);
+
+	type = spell->getTargetType();
+	smart = levelInfo.smartTarget;
+	massive = levelInfo.range == "X";
+	onlyAlive = !spell->isRisingSpell();
+	alwaysHitDirectly = false;	
+}
 
 
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
