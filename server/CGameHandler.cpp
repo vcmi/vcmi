@@ -787,7 +787,8 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		bat.bsa.front().flags |= BattleStackAttacked::EFFECT;
 		bat.bsa.front().effect = VLC->spellh->objects.at(bonus->subtype)->mainEffectAnim; //hopefully it does not interfere with any other effect?
 
-		std::set<const CStack*> attackedCreatures = gs->curB->getAffectedCreatures(SpellID(bonus->subtype).toSpell(), bonus->val, att->owner, targetHex);
+		std::set<const CStack*> attackedCreatures = SpellID(bonus->subtype).toSpell()->getAffectedStacks(gs->curB, ECastingMode::SPELL_LIKE_ATTACK, att->owner, bonus->val, targetHex);
+	
 		//TODO: get exact attacked hex for defender
 
 		for(const CStack * stack : attackedCreatures)
@@ -4018,31 +4019,9 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 	//must be vector, as in Chain Lightning order matters
 	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
 
-	if (mode != ECastingMode::ENCHANTER_CASTING)
-	{
-		auto creatures = gs->curB->getAffectedCreatures(spell, spellLvl, casterColor, destination);
-		std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
-	}
-	else //enchanter - hit all possible stacks
-	{
-		for (const CStack * stack : gs->curB->stacks)
-		{
-			/*if it's non negative spell and our unit or non positive spell and hostile unit */
-			if((!spell->isNegative() && stack->owner == casterColor)
-				|| (!spell->isPositive() && stack->owner != casterColor))
-			{
-				if(stack->isValidTarget()) //TODO: allow dead targets somewhere in the future
-				{
-					attackedCres.push_back(stack);
-				}
-			}
-		}
-	}
-
-	vstd::erase_if(attackedCres,[=](const CStack * s){
-		return ESpellCastProblem::OK != spell->isImmuneByStack(caster,mode,s);		
-	});
-
+	auto creatures = spell->getAffectedStacks(gs->curB, mode, casterColor, spellLvl, destination, caster);
+	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
+	
 	for (auto cre : attackedCres)
 	{
 		sc.affectedCres.insert (cre->ID);
@@ -4453,7 +4432,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				{
 					if(battleStack->owner == gs->curB->sides.at(casterSide).color) //get enemy stacks which can be affected by this spell
 					{
-						if (ESpellCastProblem::OK == spell->isImmuneByStack(nullptr, ECastingMode::MAGIC_MIRROR, battleStack))
+						if (ESpellCastProblem::OK == spell->isImmuneByStack(nullptr, battleStack))
 							mirrorTargets.push_back(battleStack);
 					}
 				}

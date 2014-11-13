@@ -1582,7 +1582,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 		
 		for(auto s : stacks)
 		{
-			ESpellCastProblem::ESpellCastProblem res = spell->isImmuneByStack(caster,mode,s);
+			ESpellCastProblem::ESpellCastProblem res = spell->isImmuneByStack(caster,s);
 			
 			if(res == ESpellCastProblem::OK)
 			{
@@ -1661,7 +1661,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		auto stacks = spell->isNegative() ? battleAliveStacks(!side) : battleAliveStacks();
 		for(auto stack : stacks)
 		{
-			if(ESpellCastProblem::OK == spell->isImmuneByStack(castingHero, mode, stack))
+			if(ESpellCastProblem::OK == spell->isImmuneByStack(castingHero, stack))
 			{
 				allStacksImmune = false;
 				break;
@@ -1705,7 +1705,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 
             for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
 			{
-				bool immune =  ESpellCastProblem::OK != spell->isImmuneByStack(caster, mode, stack);
+				bool immune =  ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
 				bool casterStack = stack->owner == caster->getOwner();
 				
                 if(spell->id == SpellID::SACRIFICE)
@@ -1763,8 +1763,6 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor
 	std::vector<BattleHex> ret;
 	RETURN_IF_NOT_BATTLE(ret);
 
-	auto mode = ECastingMode::HERO_CASTING; //TODO get rid of this!
-
 	switch(spell->getTargetType())
 	{
 	case CSpell::CREATURE:
@@ -1774,7 +1772,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor
 			
 			for(const CStack * stack : battleAliveStacks())
 			{
-				bool immune = ESpellCastProblem::OK != spell->isImmuneByStack(caster, mode, stack);
+				bool immune = ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
 				bool casterStack = stack->owner == caster->getOwner();
 				
 				if(!immune)
@@ -1906,117 +1904,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		return battleIsImmune(battleGetFightingHero(playerToSide(player)), spell, mode, dest);
 	else
 		return battleIsImmune(nullptr, spell, mode, dest);
-}
-
-std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell * spell, int skillLevel, PlayerColor attackerOwner, BattleHex destinationTile)
-{
-	std::set<const CStack*> attackedCres; //std::set to exclude multiple occurrences of two hex creatures
-
-	const ui8 attackerSide = playerToSide(attackerOwner) == 1;
-	const auto attackedHexes = spell->rangeInHexes(destinationTile, skillLevel, attackerSide);
-	
-	const CSpell::TargetInfo ti = spell->getTargetInfo(skillLevel);
-	//TODO: more generic solution for mass spells
-	if (spell->id == SpellID::CHAIN_LIGHTNING)
-	{
-		std::set<BattleHex> possibleHexes;
-		for (auto stack : battleGetAllStacks())
-		{
-			if (stack->isValidTarget())
-			{
-				for (auto hex : stack->getHexes())
-				{
-					possibleHexes.insert (hex);
-				}
-			}
-		}
-		int targetsOnLevel[4] = {4, 4, 5, 5};
-
-		BattleHex lightningHex =  destinationTile;
-		for (int i = 0; i < targetsOnLevel[skillLevel]; ++i)
-		{
-			auto stack = battleGetStackByPos (lightningHex, true);
-			if (!stack)
-				break;
-			attackedCres.insert (stack);
-			for (auto hex : stack->getHexes())
-			{
-				possibleHexes.erase (hex); //can't hit same place twice
-			}
-			if (possibleHexes.empty()) //not enough targets
-				break;
-			lightningHex = BattleHex::getClosestTile (stack->attackerOwned, destinationTile, possibleHexes);
-		}
-	}
-	else if (spell->getLevelInfo(skillLevel).range.size() > 1) //custom many-hex range
-	{
-		for(BattleHex hex : attackedHexes)
-		{
-			if(const CStack * st = battleGetStackByPos(hex, ti.onlyAlive))
-			{
-				if (spell->id == SpellID::DEATH_CLOUD) //Death Cloud //TODO: fireball and fire immunity
-				{
-					if (st->isLiving() || st->coversPos(destinationTile)) //directly hit or alive
-					{
-						attackedCres.insert(st);
-					}
-				}
-				else
-					attackedCres.insert(st);
-			}
-		}
-	}
-	else if(spell->getTargetType() == CSpell::CREATURE)
-	{
-		auto predicate = [=](const CStack * s){
-			const bool positiveToAlly = spell->isPositive() && s->owner == attackerOwner;
-			const bool negativeToEnemy = spell->isNegative() && s->owner != attackerOwner;
-			const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
-	
-			//for single target spells select stacks covering destination tile
-			const bool rangeCovers = ti.massive || s->coversPos(destinationTile);
-			//handle smart targeting
-			const bool positivenessFlag = !ti.smart || spell->isNeutral() || positiveToAlly || negativeToEnemy;
-			
-			return rangeCovers  && positivenessFlag && validTarget;		
-		};
-		
-		TStacks stacks = battleGetStacksIf(predicate);
-		
-		if (ti.massive)
-		{
-			//for massive spells add all targets
-			for (auto stack : stacks)
-				attackedCres.insert(stack);
-
-		}
-		else
-		{
-			//for single target spells we must select one target. Alive stack is preferred (issue #1763)
-			for(auto stack : stacks)
-			{
-				if(stack->alive())
-				{
-					attackedCres.insert(stack);
-					break;
-				}				
-			}	
-			
-			if(attackedCres.empty() && !stacks.empty())
-			{
-				attackedCres.insert(stacks.front());
-			}						
-		}
-	}
-	else //custom range from attackedHexes
-	{
-		for(BattleHex hex : attackedHexes)
-		{
-			if(const CStack * st = battleGetStackByPos(hex, ti.onlyAlive))
-				attackedCres.insert(st);
-		}
-	}
-	return attackedCres;
 }
 
 const CStack * CBattleInfoCallback::getStackIf(std::function<bool(const CStack*)> pred) const

@@ -4,6 +4,7 @@
 #include "../lib/ConstTransitivePtr.h"
 #include "int3.h"
 #include "GameConstants.h"
+#include "BattleHex.h"
 #include "HeroBonus.h"
 
 
@@ -17,11 +18,15 @@
  *
  */
 
-class CLegacyConfigParser;
-struct BattleHex;
 class CSpell;
+class ISpellMechanics;
+
+class CLegacyConfigParser;
+
 class CGHeroInstance;
 class CStack;
+
+class CBattleInfoCallback;
 
 struct CPackForClient;
 
@@ -73,28 +78,19 @@ struct DLL_LINKAGE SpellCastContext
 {
 public:
 	SpellCastEnvironment * env;
+	
+	int spellLvl;
+//	BattleHex destination;
+	ui8 casterSide;
+	PlayerColor casterColor;
+	CGHeroInstance * caster;
+	CGHeroInstance * secHero;
+	int usedSpellPower;
+	ECastingMode::ECastingMode mode;
+	CStack * targetStack;
+	CStack * selectedStack;	
 };
 
-class DLL_LINKAGE ISpellMechanics
-{
-public:
-	ISpellMechanics(CSpell * s);
-	virtual ~ISpellMechanics(){};	
-	
-	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) = 0;
-	
-    /** \brief 
-     *
-     * \param 
-     * \return true if no error
-     *
-     */                           
-	virtual bool adventureCast(SpellCastContext & context) = 0; 
-	virtual bool battleCast(SpellCastContext & context) = 0; 	
-	
-protected:
-	CSpell * owner;	
-};
 
 class DLL_LINKAGE CSpell
 {
@@ -137,6 +133,8 @@ public:
 		bool smart;
 		bool massive;
 		bool onlyAlive;
+		///no immunity on primary target (mostly spell-like attack)
+		bool alwaysHitDirectly;
 	};
 
 	SpellID id;
@@ -168,7 +166,8 @@ public:
 	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)
 	ETargetType getTargetType() const; //deprecated
 
-	const CSpell::TargetInfo getTargetInfo(const int level) const;
+	CSpell::TargetInfo getTargetInfo(const int level) const;
+	CSpell::TargetInfo getTargetInfoEx(const int level, ECastingMode::ECastingMode mode) const;
 
 	bool isCombatSpell() const;
 	bool isAdventureSpell() const;
@@ -192,7 +191,7 @@ public:
 	ESpellCastProblem::ESpellCastProblem isImmuneBy(const IBonusBearer *obj) const;
 	
 	//checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
-	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj) const;
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const;
 	
 	//internal, for use only by Mechanics classes. applying secondary skills
 	ui32 calculateBonus(ui32 baseDamage, const CGHeroInstance * caster, const CStack * affectedCreature) const;
@@ -202,7 +201,8 @@ public:
 	///calculate healed HP for all spells casted by hero
 	ui32 calculateHealedHP(const CGHeroInstance * caster, const CStack * stack, const CStack * sacrificedStack = nullptr) const;
 	
-	
+	///selects from allStacks actually affected stacks
+	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const CGHeroInstance * caster = nullptr) const;
 
 	si32 getCost(const int skillLevel) const;
 
@@ -289,6 +289,38 @@ private:
 	ISpellMechanics * mechanics;//(!) do not serialize
 };
 
+class DLL_LINKAGE ISpellMechanics
+{
+public:
+	
+	struct SpellTargetingContext
+	{
+		CBattleInfoCallback * cb;
+		
+		CSpell::TargetInfo ti;
+	};
+	
+public:
+	ISpellMechanics(CSpell * s);
+	virtual ~ISpellMechanics(){};	
+	
+	virtual std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const = 0;
+	
+	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const = 0;
+	
+	
+    /** \brief 
+     *
+     * \param 
+     * \return true if no error
+     *
+     */                           
+	virtual bool adventureCast(SpellCastContext & context) const = 0; 
+	virtual bool battleCast(SpellCastContext & context) const = 0; 	
+	
+protected:
+	CSpell * owner;	
+};
 
 
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spells like Dimension Door

@@ -457,12 +457,8 @@ void CBattleAI::attemptCastingSpell()
 		case OFFENSIVE_SPELL:
 			{
 				int damageDealt = 0, damageReceived = 0;
-
-				auto stacksSuffering = cb->getAffectedCreatures(ps.spell, skillLevel, playerID, ps.dest);
-				vstd::erase_if(stacksSuffering, [&](const CStack * s) -> bool
-				{
-					return  ESpellCastProblem::OK !=  ps.spell->isImmuneByStack(hero, ECastingMode::HERO_CASTING, s);
-				});
+				
+				auto stacksSuffering = ps.spell->getAffectedStacks(cb.get(), ECastingMode::HERO_CASTING, playerID, skillLevel, ps.dest, hero);
 
 				if(stacksSuffering.empty())
 					return -1;

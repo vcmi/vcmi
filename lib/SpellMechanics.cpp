@@ -14,15 +14,43 @@
 #include "mapObjects/CGHeroInstance.h"
 #include "BattleState.h"
 
+#include "NetPacks.h"
+
 ///DefaultSpellMechanics
-ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(const CGHeroInstance * caster, ECastingMode::ECastingMode mode, const CStack * obj)
+
+std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
+{
+	
+}
+
+
+ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
 {
 	//by default use general algorithm
 	return owner->isImmuneBy(obj);
 }
 
+bool DefaultSpellMechanics::adventureCast(SpellCastContext& context) const
+{
+	return false; //there is no general algorithm for castind adventure spells
+}
+
+bool DefaultSpellMechanics::battleCast(SpellCastContext& context) const
+{
+	return false; //todo; DefaultSpellMechanics::battleCast
+}
+
+///OffenciveSpellMechnics
+bool OffenciveSpellMechnics::battleCast(SpellCastContext& context) const
+{
+	assert(owner->isOffensiveSpell());
+	
+	//todo:OffenciveSpellMechnics::battleCast
+}
+
+
 ///CloneMechanics
-ESpellCastProblem::ESpellCastProblem CloneMechnics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack * obj)
+ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHeroInstance* caster, const CStack * obj) const
 {
 	//can't clone already cloned creature
 	if (vstd::contains(obj->state, EBattleStackState::CLONED))
@@ -47,11 +75,11 @@ ESpellCastProblem::ESpellCastProblem CloneMechnics::isImmuneByStack(const CGHero
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 	//use default algorithm only if there is no mechanics-related problem		
-	return DefaultSpellMechanics::isImmuneByStack(caster,mode,obj);	
+	return DefaultSpellMechanics::isImmuneByStack(caster,obj);	
 }
 
 ///DispellHelpfulMechanics
-ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj)
+ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const CGHeroInstance* caster,  const CStack* obj) const
 {
 	TBonusListPtr spellBon = obj->getSpellBonuses();
 	bool hasPositiveSpell = false;
@@ -69,11 +97,11 @@ ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(co
 	}
 	
 	//use default algorithm only if there is no mechanics-related problem		
-	return DefaultSpellMechanics::isImmuneByStack(caster,mode,obj);	
+	return DefaultSpellMechanics::isImmuneByStack(caster,obj);	
 }
 
 ///HypnotizeMechanics
-ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj)
+ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const CGHeroInstance* caster, const CStack* obj) const
 {
 	if(nullptr != caster) //do not resist hypnotize casted after attack, for example
 	{
@@ -85,12 +113,12 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const C
 		if (subjectHealth > maxHealth)
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}			
-	return DefaultSpellMechanics::isImmuneByStack(caster,mode,obj);
+	return DefaultSpellMechanics::isImmuneByStack(caster,obj);
 }
 
 
 ///SpecialRisingSpellMechanics
-ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj)
+ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStack(const CGHeroInstance* caster, const CStack* obj) const
 {
 	// following does apply to resurrect and animate dead(?) only
 	// for sacrifice health calculation and health limit check don't matter
@@ -105,7 +133,7 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}	
 	
-	return DefaultSpellMechanics::isImmuneByStack(caster,mode,obj);	
+	return DefaultSpellMechanics::isImmuneByStack(caster,obj);	
 }
 
 	

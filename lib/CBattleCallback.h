@@ -283,7 +283,6 @@ public:
 	std::vector<BattleHex> battleGetPossibleTargets(PlayerColor player, const CSpell *spell) const;
 	ui32 calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const; //for Archangel
 	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //healing spells casted by stacks
-	std::set<const CStack*> getAffectedCreatures(const CSpell * s, int skillLevel, PlayerColor attackerOwner, BattleHex destinationTile); //calculates stack affected by given spell
 
 	SpellID battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const;
 	SpellID getRandomBeneficialSpell(const CStack * subject) const;

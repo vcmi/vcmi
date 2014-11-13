@@ -12,6 +12,7 @@
 
 #include "mapObjects/CGHeroInstance.h"
 #include "BattleState.h"
+#include "CBattleCallback.h"
 
 #include "SpellMechanics.h"
 
@@ -380,12 +381,130 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 	return ret;
 }
 
+std::set<const CStack* > CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const CGHeroInstance * caster) const
+{
+	std::set<const CStack* > attackedCres;//std::set to exclude multiple occurrences of two hex creatures
+	
+	const ui8 attackerSide = cb->playerToSide(casterColor) == 1;
+	const auto attackedHexes = rangeInHexes(destination, spellLvl, attackerSide);
+	
+	const CSpell::TargetInfo ti = getTargetInfoEx(spellLvl, mode);
+	
+	
+	//TODO: more generic solution for mass spells
+	if (id == SpellID::CHAIN_LIGHTNING)
+	{
+		std::set<BattleHex> possibleHexes;
+		for (auto stack : cb->battleGetAllStacks())
+		{
+			if (stack->isValidTarget())
+			{
+				for (auto hex : stack->getHexes())
+				{
+					possibleHexes.insert (hex);
+				}
+			}
+		}
+		int targetsOnLevel[4] = {4, 4, 5, 5};
+
+		BattleHex lightningHex =  destination;
+		for (int i = 0; i < targetsOnLevel[spellLvl]; ++i)
+		{
+			auto stack = cb->battleGetStackByPos (lightningHex, true);
+			if (!stack)
+				break;
+			attackedCres.insert (stack);
+			for (auto hex : stack->getHexes())
+			{
+				possibleHexes.erase (hex); //can't hit same place twice
+			}
+			if (possibleHexes.empty()) //not enough targets
+				break;
+			lightningHex = BattleHex::getClosestTile (stack->attackerOwned, destination, possibleHexes);
+		}
+	}
+	else if (getLevelInfo(spellLvl).range.size() > 1) //custom many-hex range
+	{
+		for(BattleHex hex : attackedHexes)
+		{
+			if(const CStack * st = cb->battleGetStackByPos(hex, ti.onlyAlive))
+			{
+				attackedCres.insert(st);
+			}
+		}
+	}
+	else if(getTargetType() == CSpell::CREATURE)
+	{
+		auto predicate = [=](const CStack * s){
+			const bool positiveToAlly = isPositive() && s->owner == casterColor;
+			const bool negativeToEnemy = isNegative() && s->owner != casterColor;
+			const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
+	
+			//for single target spells select stacks covering destination tile
+			const bool rangeCovers = ti.massive || s->coversPos(destination);
+			//handle smart targeting
+			const bool positivenessFlag = !ti.smart || isNeutral() || positiveToAlly || negativeToEnemy;
+			
+			return rangeCovers  && positivenessFlag && validTarget;		
+		};
+		
+		TStacks stacks = cb->battleGetStacksIf(predicate);
+		
+		if (ti.massive)
+		{
+			//for massive spells add all targets
+			for (auto stack : stacks)
+				attackedCres.insert(stack);
+
+		}
+		else
+		{
+			//for single target spells we must select one target. Alive stack is preferred (issue #1763)
+			for(auto stack : stacks)
+			{
+				if(stack->alive())
+				{
+					attackedCres.insert(stack);
+					break;
+				}				
+			}	
+			
+			if(attackedCres.empty() && !stacks.empty())
+			{
+				attackedCres.insert(stacks.front());
+			}						
+		}
+	}
+	else //custom range from attackedHexes
+	{
+		for(BattleHex hex : attackedHexes)
+		{
+			if(const CStack * st = cb->battleGetStackByPos(hex, ti.onlyAlive))
+				attackedCres.insert(st);
+		}
+	}	
+	
+	//now handle immunities		
+	auto predicate = [&, this](const CStack * s)->bool
+	{
+		bool hitDirectly = ti.alwaysHitDirectly && s->coversPos(destination);
+		bool notImmune = (ESpellCastProblem::OK == isImmuneByStack(caster, s));
+		
+		return !(hitDirectly || notImmune);  
+	};
+	
+	vstd::erase_if(attackedCres, predicate);
+	
+	return attackedCres;
+}
+
+
 CSpell::ETargetType CSpell::getTargetType() const
 {
 	return targetType;
 }
 
-const CSpell::TargetInfo CSpell::getTargetInfo(const int level) const
+CSpell::TargetInfo CSpell::getTargetInfo(const int level) const
 {
 	TargetInfo info;
 
@@ -395,7 +514,25 @@ const CSpell::TargetInfo CSpell::getTargetInfo(const int level) const
 	info.smart = levelInfo.smartTarget;
 	info.massive = levelInfo.range == "X";
 	info.onlyAlive = !isRisingSpell();
+	info.alwaysHitDirectly = false;
 
+	return info;
+}
+
+CSpell::TargetInfo CSpell::getTargetInfoEx(const int level, ECastingMode::ECastingMode mode) const
+{
+	TargetInfo info = getTargetInfo(level);
+
+	if(mode == ECastingMode::ENCHANTER_CASTING)
+	{
+		info.smart = true; //FIXME: not sure about that, this makes all spells smart in this mode
+		info.massive = true;
+	}
+	else if(mode == ECastingMode::SPELL_LIKE_ATTACK)
+	{
+		info.alwaysHitDirectly = true;
+	}
+	
 	return info;
 }
 
@@ -595,9 +732,9 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj)
 	return ESpellCastProblem::NOT_DECIDED;
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const CGHeroInstance* caster, ECastingMode::ECastingMode mode, const CStack* obj) const
+ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const CGHeroInstance* caster, const CStack* obj) const
 {
-	const auto immuneResult = mechanics->isImmuneByStack(caster,mode,obj);
+	const auto immuneResult = mechanics->isImmuneByStack(caster,obj);
 	
 	if (ESpellCastProblem::NOT_DECIDED != immuneResult) 
 		return immuneResult;
@@ -649,7 +786,7 @@ void CSpell::setupMechanics()
 	switch (id)
 	{
 	case SpellID::CLONE:
-		mechanics = new CloneMechnics(this);
+		mechanics = new CloneMechanics(this);
 		break;
 	case SpellID::DISPEL_HELPFUL_SPELLS:
 		mechanics = new DispellHelpfulMechanics(this);
@@ -660,6 +797,8 @@ void CSpell::setupMechanics()
 	default:		
 		if(isRisingSpell())
 			mechanics = new SpecialRisingSpellMechanics(this);
+		else if(isOffensiveSpell())
+			mechanics = new OffenciveSpellMechnics(this);
 		else	
 			mechanics = new DefaultSpellMechanics(this);
 		break;
