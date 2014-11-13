@@ -127,8 +127,7 @@ ui32 CSpell::calculateDamage(const CGHeroInstance * caster, const CStack * affec
 		}		
 		
 		//general spell dmg reduction
-		//FIXME?
-		if(air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
+		if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
 		{
 			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
 			ret /= 100;
