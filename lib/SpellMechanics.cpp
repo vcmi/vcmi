@@ -208,7 +208,76 @@ std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex,
 
 std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
 {
+	std::set<const CStack* > attackedCres;//std::set to exclude multiple occurrences of two hex creatures
 	
+	const ui8 attackerSide = ctx.cb->playerToSide(ctx.casterColor) == 1;
+	const auto attackedHexes = rangeInHexes(ctx.destination, ctx.schoolLvl, attackerSide);
+
+	const CSpell::TargetInfo ti(owner, ctx.schoolLvl, ctx.mode);
+	
+	//TODO: more generic solution for mass spells
+	if (owner->getLevelInfo(ctx.schoolLvl).range.size() > 1) //custom many-hex range
+	{
+		for(BattleHex hex : attackedHexes)
+		{
+			if(const CStack * st = ctx.cb->battleGetStackByPos(hex, ti.onlyAlive))
+			{
+				attackedCres.insert(st);
+			}
+		}
+	}
+	else if(ti.type == CSpell::CREATURE)
+	{
+		auto predicate = [=](const CStack * s){
+			const bool positiveToAlly = owner->isPositive() && s->owner == ctx.casterColor;
+			const bool negativeToEnemy = owner->isNegative() && s->owner != ctx.casterColor;
+			const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
+	
+			//for single target spells select stacks covering destination tile
+			const bool rangeCovers = ti.massive || s->coversPos(ctx.destination);
+			//handle smart targeting
+			const bool positivenessFlag = !ti.smart || owner->isNeutral() || positiveToAlly || negativeToEnemy;
+			
+			return rangeCovers && positivenessFlag && validTarget;		
+		};
+		
+		TStacks stacks = ctx.cb->battleGetStacksIf(predicate);
+		
+		if (ti.massive)
+		{
+			//for massive spells add all targets
+			for (auto stack : stacks)
+				attackedCres.insert(stack);
+
+		}
+		else
+		{
+			//for single target spells we must select one target. Alive stack is preferred (issue #1763)
+			for(auto stack : stacks)
+			{
+				if(stack->alive())
+				{
+					attackedCres.insert(stack);
+					break;
+				}				
+			}	
+			
+			if(attackedCres.empty() && !stacks.empty())
+			{
+				attackedCres.insert(stacks.front());
+			}						
+		}
+	}
+	else //custom range from attackedHexes
+	{
+		for(BattleHex hex : attackedHexes)
+		{
+			if(const CStack * st = ctx.cb->battleGetStackByPos(hex, ti.onlyAlive))
+				attackedCres.insert(st);
+		}
+	}	
+	
+	return attackedCres;
 }
 
 
@@ -218,6 +287,7 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(cons
 	return owner->isImmuneBy(obj);
 }
 
+///WallMechanics
 std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool* outDroppedHexes) const
 {
 	using namespace SRSLPraserHelpers;
@@ -256,7 +326,42 @@ std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 sch
 	return ret;	
 }
 
+///ChainLightningMechanics
+std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
+{
+	std::set<const CStack* > attackedCres;
+	
+	std::set<BattleHex> possibleHexes;
+	for(auto stack : ctx.cb->battleGetAllStacks())
+	{
+		if(stack->isValidTarget())
+		{
+			for(auto hex : stack->getHexes())
+			{
+				possibleHexes.insert (hex);
+			}
+		}
+	}
+	int targetsOnLevel[4] = {4, 4, 5, 5};
 
+	BattleHex lightningHex = ctx.destination;
+	for(int i = 0; i < targetsOnLevel[ctx.schoolLvl]; ++i)
+	{
+		auto stack = ctx.cb->battleGetStackByPos(lightningHex, true);
+		if(!stack)
+			break;
+		attackedCres.insert (stack);
+		for(auto hex : stack->getHexes())
+		{
+			possibleHexes.erase(hex); //can't hit same place twice
+		}
+		if(possibleHexes.empty()) //not enough targets
+			break;
+		lightningHex = BattleHex::getClosestTile(stack->attackerOwned, ctx.destination, possibleHexes);
+	}	
+		
+	return attackedCres;
+}
 
 ///CloneMechanics
 ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHeroInstance* caster, const CStack * obj) const

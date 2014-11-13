@@ -11,18 +11,25 @@
 #pragma once
 
 #include "CSpellHandler.h"
+#include "BattleHex.h"
 
 class DLL_LINKAGE ISpellMechanics
 {
 public:
 	
-	struct SpellTargetingContext
+	struct DLL_LINKAGE SpellTargetingContext
 	{
-		CBattleInfoCallback * cb;
-		
+		const CBattleInfoCallback * cb;		
 		CSpell::TargetInfo ti;
-		
+		ECastingMode::ECastingMode mode;
+		BattleHex destination;
+		PlayerColor casterColor;
 		int schoolLvl;
+		
+		SpellTargetingContext(const CSpell * s, const CBattleInfoCallback * c, ECastingMode::ECastingMode m, PlayerColor cc, int lvl, BattleHex dest)
+			: cb(c), ti(s,lvl, m), mode(m), destination(dest)
+		{};
+		
 	};
 	
 public:
@@ -77,7 +84,7 @@ class ChainLightningMechanics: public DefaultSpellMechanics
 {
 public:
 	ChainLightningMechanics(CSpell * s): DefaultSpellMechanics(s){};	
-	
+	std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const override;
 };
 
 class CloneMechanics: public DefaultSpellMechanics
