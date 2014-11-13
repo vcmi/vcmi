@@ -85,7 +85,7 @@ ui32 CSpell::calculateBonus(ui32 baseDamage, const CGHeroInstance* caster, const
 		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
 		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, id.toEnum())) / 100.0;
 		
-		for(const SpellSchoolInfo & cnf : spellSchoolConfig)
+		for(const SpellSchoolInfo & cnf : SPELL_SCHOOL_CONFIG)
 		{
 			if(school.at(cnf.id))
 			{
@@ -116,7 +116,7 @@ ui32 CSpell::calculateDamage(const CGHeroInstance * caster, const CStack * affec
 	{
 		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
 		
-		for(const SpellSchoolInfo & cnf : spellSchoolConfig)
+		for(const SpellSchoolInfo & cnf : SPELL_SCHOOL_CONFIG)
 		{
 			if(school.at(cnf.id) && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
 			{
@@ -367,7 +367,7 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj)
 
 	//6. Check elemental immunities
 	
-	for(const SpellSchoolInfo & cnf : spellSchoolConfig)
+	for(const SpellSchoolInfo & cnf : SPELL_SCHOOL_CONFIG)
 	{
 		if(school.at(cnf.id))
 		{
@@ -658,7 +658,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 
 	const auto schoolNames = json["school"];
 	
-	for(SpellSchoolInfo & info : spellSchoolConfig)
+	for(const SpellSchoolInfo & info : SPELL_SCHOOL_CONFIG)
 	{
 		spell->school[info.id] = schoolNames[info.jsonName].Bool();
 	}

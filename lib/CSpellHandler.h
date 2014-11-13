@@ -35,34 +35,39 @@ struct SpellSchoolInfo
 	ESpellSchool id; //backlink
 	Bonus::BonusType damagePremyBonus;
 	Bonus::BonusType immunityBonus;	
-	std::string jsonName;	
+	std::string jsonName;
+	SecondarySkill::ESecondarySkill skill;	
 };
 
-static SpellSchoolInfo spellSchoolConfig[4] = 
+static const SpellSchoolInfo SPELL_SCHOOL_CONFIG[4] = 
 {
 	{
 		ESpellSchool::AIR,
 		Bonus::AIR_SPELL_DMG_PREMY,
 		Bonus::AIR_IMMUNITY,
-		"air"
+		"air",
+		SecondarySkill::AIR_MAGIC
 	},
 	{
 		ESpellSchool::FIRE,
 		Bonus::FIRE_SPELL_DMG_PREMY,
 		Bonus::FIRE_IMMUNITY,
-		"fire"
+		"fire",
+		SecondarySkill::FIRE_MAGIC
 	},
 	{
 		ESpellSchool::WATER,
 		Bonus::WATER_SPELL_DMG_PREMY,
 		Bonus::WATER_IMMUNITY,
-		"water"
+		"water",
+		SecondarySkill::WATER_MAGIC
 	},
 	{
 		ESpellSchool::EARTH,
 		Bonus::EARTH_SPELL_DMG_PREMY,
 		Bonus::EARTH_IMMUNITY,
-		"earth"
+		"earth",
+		SecondarySkill::EARTH_MAGIC
 	}
 };
 
