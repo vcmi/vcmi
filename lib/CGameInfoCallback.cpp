@@ -171,17 +171,11 @@ int CGameInfoCallback::estimateSpellDamage(const CSpell * sp, const CGHeroInstan
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 
 	ERROR_RET_VAL_IF(hero && !canGetFullInfo(hero), "Cannot get info about caster!", -1);
-	if(!gs->curB) //no battle
-	{
-		if (hero) //but we see hero's spellbook
-			return sp->calculateDamage(hero, nullptr, hero->getSpellSchoolLevel(sp), hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER));
-		else
-			return 0; //mage guild
-	}
-	//gs->getHero(gs->currentPlayer)
-	//const CGHeroInstance * ourHero = gs->curB->heroes[0]->tempOwner == player ? gs->curB->heroes[0] : gs->curB->heroes[1];
-	const CGHeroInstance * ourHero = hero;
-	return sp->calculateDamage(ourHero, nullptr, ourHero->getSpellSchoolLevel(sp), ourHero->getPrimSkillLevel(PrimarySkill::SPELL_POWER));
+
+	if (hero) //we see hero's spellbook
+		return sp->calculateDamage(hero, nullptr, hero->getSpellSchoolLevel(sp), hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER));
+	else
+		return 0; //mage guild
 }
 
 void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj)
