@@ -202,6 +202,7 @@ public:
 	//internal, for use only by Mechanics classes. applying secondary skills
 	ui32 calculateBonus(ui32 baseDamage, const CGHeroInstance * caster, const CStack * affectedCreature) const;
 	
+	///calculate spell damage on stack taking caster`s secondary skills and affectedCreature`s bonuses into account
 	ui32 calculateDamage(const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
 	
 	///calculate healed HP for all spells casted by hero

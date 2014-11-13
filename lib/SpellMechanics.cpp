@@ -20,7 +20,7 @@ namespace SRSLPraserHelpers
 {
 	static int XYToHex(int x, int y)
 	{
-		return x + 17 * y;
+		return x + GameConstants::BFIELD_WIDTH * y;
 	}
 
 	static int XYToHex(std::pair<int, int> xy)
@@ -30,12 +30,12 @@ namespace SRSLPraserHelpers
 
 	static int hexToY(int battleFieldPosition)
 	{
-		return battleFieldPosition/17;
+		return battleFieldPosition/GameConstants::BFIELD_WIDTH;
 	}
 
 	static int hexToX(int battleFieldPosition)
 	{
-		int pos = battleFieldPosition - hexToY(battleFieldPosition) * 17;
+		int pos = battleFieldPosition - hexToY(battleFieldPosition) * GameConstants::BFIELD_WIDTH;
 		return pos;
 	}
 
@@ -74,10 +74,10 @@ namespace SRSLPraserHelpers
 
 	static bool isGoodHex(std::pair<int, int> xy)
 	{
-		return xy.first >=0 && xy.first < 17 && xy.second >= 0 && xy.second < 11;
+		return xy.first >=0 && xy.first < GameConstants::BFIELD_WIDTH && xy.second >= 0 && xy.second < GameConstants::BFIELD_HEIGHT;
 	}
 
-	//helper function for std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) const
+	//helper function for rangeInHexes
 	static std::set<ui16> getInRange(unsigned int center, int low, int high)
 	{
 		std::set<ui16> ret;
