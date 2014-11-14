@@ -23,9 +23,9 @@
 
 namespace spirit = boost::spirit;
 using namespace VERMInterpreter;
-using namespace boost::assign;
+
 typedef int TUnusedType;
-using namespace boost::assign;
+
 
 ERMInterpreter *erm;
 Environment *topDyn;
@@ -1339,10 +1339,10 @@ struct ERMExpDispatch : boost::static_visitor<>
 					std::vector<int> params(FunctionLocalVars::NUM_PARAMETERS, 0);
 					params.back() = it;
 					//owner->getFuncVars(funNum)->getParam(16) = it;
-					ERMInterpreter::TIDPattern tip;
+					
 					std::vector<int> v1;
-					v1 += funNum;
-					insert(tip) (v1.size(), v1);
+					v1.push_back(funNum);
+					ERMInterpreter::TIDPattern tip = {{v1.size(), v1}};
 					erm->executeTriggerType(TriggerType("FU"), true, tip, params);
 					it = erm->getFuncVars(funNum)->getParam(16);
 				}
@@ -1394,7 +1394,7 @@ struct ERMExpDispatch : boost::static_visitor<>
 					{
 						int heroNum = erm->getIexp(tid[0]).getInt();
 						if(heroNum == -1)
-							hero = icb->getSelectedHero();
+							assert(false); //FIXME: use new hero selection mechanics
 						else
 							hero = icb->getHeroWithSubid(heroNum);
 
@@ -2509,9 +2509,11 @@ struct VNodeEvaluator : boost::static_visitor<VOption>
 	}
 	VOption operator()(VSymbol const& opt) const
 	{
-		std::map<std::string, VFunc::Eopt> symToFunc = boost::assign::map_list_of
-			("<", VFunc::LT)("<=", VFunc::LE)(">", VFunc::GT)(">=", VFunc::GE)("=", VFunc::EQ)("+", VFunc::ADD)("-", VFunc::SUB)
-			("*", VFunc::MULT)("/", VFunc::DIV)("%", VFunc::MOD);
+		std::map<std::string, VFunc::Eopt> symToFunc =
+		{
+			{"<", VFunc::LT},{"<=", VFunc::LE},{">", VFunc::GT},{">=", VFunc::GE},{"=", VFunc::EQ},{"+", VFunc::ADD},{"-", VFunc::SUB},
+			{"*", VFunc::MULT},{"/", VFunc::DIV},{"%", VFunc::MOD}
+		};
 
 		//check keywords
 		if(opt.text == "quote")
