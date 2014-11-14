@@ -1544,6 +1544,7 @@ void CBattleInterface::castThisSpell(int spellID)
 	ba->side = defendingHeroInstance ? (curInt->playerID == defendingHeroInstance->tempOwner) : false;
 	spellToCast = ba;
 	spellDestSelectMode = true;
+	creatureCasting = false;
 
 	//choosing possible tragets
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
