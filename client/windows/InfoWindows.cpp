@@ -202,10 +202,9 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<CC
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
 	CInfoWindow * temp = new CInfoWindow(text, player, components ? *components : std::vector<CComponent*>(), pom, DelComps);
-	for(auto & elem : onYes.funcs)
-		temp->buttons[0]->addCallback(elem);
-	for(auto & elem : onNo.funcs)
-		temp->buttons[1]->addCallback(elem);
+
+	temp->buttons[0]->addCallback( onYes );
+	temp->buttons[1]->addCallback( onNo );
 
 	GH.pushInt(temp);
 }

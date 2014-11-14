@@ -208,7 +208,7 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
-				"targetModifier":{"smart":false}
+				"targetModifier":{"smart":true}
 			}
 		},
 		"immunity" : {

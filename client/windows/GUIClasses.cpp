@@ -382,8 +382,8 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	rightInput = new CTextInput(Rect(176, 218, 100, 36), FONT_BIG, std::bind(&CSplitWindow::setAmountText, this, _1, false));
 
 	//add filters to allow only number input
-	leftInput->filters.add(std::bind(&CTextInput::numberFilter, _1, _2, leftMin, leftMax));
-	rightInput->filters.add(std::bind(&CTextInput::numberFilter, _1, _2, rightMin, rightMax));
+	leftInput->filters += std::bind(&CTextInput::numberFilter, _1, _2, leftMin, leftMax);
+	rightInput->filters += std::bind(&CTextInput::numberFilter, _1, _2, rightMin, rightMax);
 
 	leftInput->setText(boost::lexical_cast<std::string>(leftAmount), false);
 	rightInput->setText(boost::lexical_cast<std::string>(rightAmount), false);

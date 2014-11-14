@@ -711,7 +711,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 		});
 	}
 
-	const std::string targetType = json["targetType"].String();
+	auto targetType = json["targetType"].String();
 
 	if(targetType == "NO_TARGET")
 		spell->targetType = CSpell::NO_TARGET;
@@ -723,6 +723,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 		spell->targetType = CSpell::LOCATION;
 	else 
 		logGlobal->warnStream() << "Spell " << spell->name << ". Target type " << (targetType.empty() ? "empty" : "unknown ("+targetType+")") << ". Assumed NO_TARGET.";
+
 
 	spell->mainEffectAnim = json["anim"].Float();
 
@@ -769,12 +770,12 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 	else if(!implicitPositiveness)
 	{
 		spell->positiveness = CSpell::NEUTRAL; //duplicates constructor but, just in case
-		logGlobal->warnStream() << "Spell " << spell->name << ": no positiveness specified, assumed NEUTRAL";
+		logGlobal->errorStream() << "No positiveness specified, assumed NEUTRAL";
 	}
 
 	spell->isSpecial = flags["special"].Bool();
 
-	auto findBonus = [&](const std::string & name, std::vector<Bonus::BonusType> &vec)
+	auto findBonus = [&](std::string name, std::vector<Bonus::BonusType> &vec)
 	{
 		auto it = bonusNameMap.find(name);
 		if(it == bonusNameMap.end())
@@ -787,7 +788,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 		}
 	};
 
-	auto readBonusStruct = [&](const std::string & name, std::vector<Bonus::BonusType> &vec)
+	auto readBonusStruct = [&](std::string name, std::vector<Bonus::BonusType> &vec)
 	{
 		for(auto bonusData: json[name].Struct())
 		{
@@ -804,19 +805,24 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 	readBonusStruct("limit", spell->limiters);	
 	readBonusStruct("absoluteLimit", spell->absoluteLimiters);
 
+
 	const JsonNode & graphicsNode = json["graphics"];
 
-	spell->iconImmune =        graphicsNode["iconImmune"].String();
-	spell->iconBook =          graphicsNode["iconBook"].String();
-	spell->iconEffect =        graphicsNode["iconEffect"].String();
+	spell->iconImmune = graphicsNode["iconImmune"].String();
+	spell->iconBook = graphicsNode["iconBook"].String();
+	spell->iconEffect = graphicsNode["iconEffect"].String();
 	spell->iconScenarioBonus = graphicsNode["iconScenarioBonus"].String();
-	spell->iconScroll =        graphicsNode["iconScroll"].String();
+	spell->iconScroll = graphicsNode["iconScroll"].String();
+
+
 
 	const JsonNode & soundsNode = json["sounds"];
 
 	spell->castSound = soundsNode["cast"].String();
 
+
 	//load level attributes
+
 	const int levelsCount = GameConstants::SPELL_SCHOOL_LEVELS;
 
 	for(int levelIndex = 0; levelIndex < levelsCount; levelIndex++)
@@ -884,6 +890,7 @@ void CSpellHandler::beforeValidate(JsonNode & object)
 	inheritNode("basic");
 	inheritNode("advanced");
 	inheritNode("expert");
+
 }
 
 

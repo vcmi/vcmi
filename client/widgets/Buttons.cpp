@@ -150,7 +150,7 @@ void CButton::block(bool on)
 void CButton::onButtonClicked()
 {
 	// debug logging to figure out pressed button (and as result - player actions) in case of crash
-	logAnim->traceStream() << "Button clicked at " << pos.x << "x" << pos.y << ", " << callback.funcs.size() << " functions";
+	logAnim->traceStream() << "Button clicked at " << pos.x << "x" << pos.y;
 	CIntObject * parent = this->parent;
 	std::string prefix = "Parent is";
 	while (parent)
@@ -352,7 +352,7 @@ bool CToggleBase::canActivate()
 
 void CToggleBase::addCallback(std::function<void(bool)> function)
 {
-	callback.add(function);
+	callback += function;
 }
 
 CToggleButton::CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
