@@ -749,6 +749,7 @@ void CStackWindow::initBonusesList()
 	for(Bonus* b : output)
 	{
 		bonusInfo.name = info->stackNode->bonusToString(b, false);
+		bonusInfo.description = info->stackNode->bonusToString(b, true);
 		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
 
 		//if it's possible to give any description or image for this kind of bonus
