@@ -754,7 +754,7 @@ void CStackWindow::initBonusesList()
 
 		//if it's possible to give any description or image for this kind of bonus
 		//TODO: figure out why half of bonuses don't have proper description
-		if (!bonusInfo.name.empty() || !bonusInfo.imagePath.empty())
+		if ((!bonusInfo.name.empty() || !bonusInfo.imagePath.empty())&& b->type != Bonus::MAGIC_RESISTANCE)
 			activeBonuses.push_back(bonusInfo);
 	}
 
