@@ -651,7 +651,7 @@ void CStackWindow::CWindowSection::createBonusItem(size_t index, Point position)
 		BonusInfo & bi = parent->activeBonuses[index];
 		new CPicture(bi.imagePath, position.x, position.y);
 		new CLabel(position.x + 60, position.y + 2,  FONT_SMALL, TOPLEFT, Colors::WHITE, bi.name);
-		new CLabel(position.x + 60, position.y + 25, FONT_SMALL, TOPLEFT, Colors::WHITE, bi.description);
+		new CMultiLineLabel(Rect(position.x + 60, position.y + 17, 137,30), FONT_SMALL, TOPLEFT, Colors::WHITE, bi.description);
 	}
 }
 
