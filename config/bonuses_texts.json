@@ -75,7 +75,7 @@
 	"DEATH_STARE":
 	{
 		"name": "Death Stare (${val}%)",
-		"description": "Chance to kill single creature"
+		"description": "${val}% chance to kill single creature"
 	},	
 		
 	"DEFENSIVE_STANCE":
@@ -110,14 +110,14 @@
 					
 	"ENCHANTER":
 	{
-		"name": "Enchanter (${subtype.spell})",
-		"description": "Casts mass spell every turn"
+		"name": "Enchanter",
+		"description": "Can cast mass ${subtype.spell} every turn"
 	},
 	
 	"ENCHANTED":
 	{
-		"name": "Enchanted (${subtype.spell})",
-		"description": "Affected by permanent spell"
+		"name": "Enchanted",
+		"description": "Affected by permanent ${subtype.spell}"
 	},		
 
 	"ENEMY_DEFENCE_REDUCTION":
@@ -198,14 +198,17 @@
 	
 	"KING1":
 	{
+                "name": "King1"
 	},
 	
 	"KING2":
 	{
+                "name": "King2"
 	},
 	
 	"KING3":
 	{
+                "name": "King3"
 	},
 	
 	"LEVEL_SPELL_IMMUNITY":
@@ -263,6 +266,7 @@
 	
 	"NO_MORALE":
 	{
+
 	
 	},	
 		
@@ -320,8 +324,8 @@
 	},	
 	"SPELLCASTER":
 	{
-		"name": "Spellcaster (${subtype.spell})",
-		"description": "Can cast spells"
+		"name": "Spellcaster",
+		"description": "Can cast ${subtype.spell}"
 	},
 					
 	"SPELL_AFTER_ATTACK":
