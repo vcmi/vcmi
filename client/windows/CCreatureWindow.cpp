@@ -824,6 +824,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, bool popup):
 	info->creature = stack->type;
 	info->creatureCount = stack->count;
 	info->popupWindow = popup;
+	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);	
 	init();
 }
 
@@ -840,6 +841,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 	info->upgradeInfo->info = upgradeInfo;
 	info->upgradeInfo->callback = callback;
 	info->dismissInfo->callback = dismiss;
+	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);
 	init();
 }
 
@@ -852,6 +854,7 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, bool popup):
 	info->commander = commander;
 	info->creatureCount = 1;
 	info->popupWindow = popup;
+	info->owner = dynamic_cast<const CGHeroInstance *> (commander->armyObj);	
 	init();
 }
 
@@ -866,6 +869,7 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 	info->levelupInfo = StackWindowInfo::CommanderLevelInfo();
 	info->levelupInfo->skills = skills;
 	info->levelupInfo->callback = callback;
+	info->owner = dynamic_cast<const CGHeroInstance *> (commander->armyObj);		
 	init();
 }
 
