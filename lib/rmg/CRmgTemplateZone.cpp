@@ -430,7 +430,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	}
 	assert (clearedTiles.size()); //this should come from zone connections
 
-	while (possibleTiles.size())
+	while (!possibleTiles.empty())
 	{
 		//link tiles in random order
 		std::vector<int3> tilesToMakePath(possibleTiles.begin(), possibleTiles.end());
@@ -811,7 +811,7 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos, float 
 			}
 	}
 
-	if (treasures.size())
+	if (!treasures.empty())
 	{
 		//find object closest to zone center, then connect it to the middle of the zone
 		int3 closestFreeTile (-1,-1,-1);
@@ -2000,7 +2000,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			{
 				creaturesAmount = boost::math::round(creaturesAmount / 5) * 5;
 			}
-			else if (creaturesAmount <= 12)
+			else if (creaturesAmount <= 120)
 			{
 				creaturesAmount = boost::math::round(creaturesAmount / 10) * 10;
 			}
@@ -2070,12 +2070,16 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 					{
 						case 1:
 							school = spell->air;
+							break;
 						case 2:
 							school = spell->earth;
+							break;
 						case 3:
 							school = spell->fire;
+							break;
 						case 4:
 							school = spell->water;
+							break;
 					}
 					if (school)
 						spells.push_back(spell);

@@ -677,7 +677,7 @@ void CGBonusingObject::initObj()
 		for (int i=0; i<6; i++)
 		{
 			info[i].limiter.dayOfWeek = i+1;
-			configureBonus(info[i], i%2 ? Bonus::MORALE : Bonus::LUCK, 1, 68);
+			configureBonus(info[i], (i%2) ? Bonus::MORALE : Bonus::LUCK, 1, 68);
 			info[i].message.addTxt(MetaString::ADVOB_TXT, 62);
 			soundID = soundBase::experience;
 		}

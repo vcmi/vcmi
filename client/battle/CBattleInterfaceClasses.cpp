@@ -579,7 +579,7 @@ void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		{
 			char tabh[160];
 			const std::string & attackedName = attackedStack->count == 1 ? attackedStack->getCreature()->nameSing : attackedStack->getCreature()->namePl;
-			sprintf(tabh, CGI->generaltexth->allTexts[220].c_str(), attackedName.c_str());
+			snprintf(tabh, 160, CGI->generaltexth->allTexts[220].c_str(), attackedName.c_str());
 			myInterface->console->alterTxt = std::string(tabh);
 			setAlterText = true;
 		}
