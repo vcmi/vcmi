@@ -449,8 +449,8 @@ bfs::path VCMIDirsOSX::libraryPath() const { return "."; }
 bfs::path VCMIDirsOSX::binaryPath() const { return "."; }
 
 std::string VCMIDirsOSX::libraryName(const std::string& basename) const { return "lib" + basename + ".dylib"; }
-#elif defined(VCMI_LINUX)
-class VCMIDirsLinux : public IVCMIDirsUNIX
+#elif defined(VCMI_XDG)
+class VCMIDirsXDG : public IVCMIDirsUNIX
 {
 public:
 	boost::filesystem::path userDataPath() const override;
@@ -465,7 +465,7 @@ public:
 	std::string libraryName(const std::string& basename) const override;
 };
 
-bfs::path VCMIDirsLinux::userDataPath() const
+bfs::path VCMIDirsXDG::userDataPath() const
 {
 	// $XDG_DATA_HOME, default: $HOME/.local/share
 	const char* homeDir;
@@ -476,7 +476,7 @@ bfs::path VCMIDirsLinux::userDataPath() const
 	else
 		return ".";
 }
-bfs::path VCMIDirsLinux::userCachePath() const
+bfs::path VCMIDirsXDG::userCachePath() const
 {
 	// $XDG_CACHE_HOME, default: $HOME/.cache
 	const char* tempResult;
@@ -487,7 +487,7 @@ bfs::path VCMIDirsLinux::userCachePath() const
 	else
 		return ".";
 }
-bfs::path VCMIDirsLinux::userConfigPath() const
+bfs::path VCMIDirsXDG::userConfigPath() const
 {
 	// $XDG_CONFIG_HOME, default: $HOME/.config
 	const char* tempResult;
@@ -499,7 +499,7 @@ bfs::path VCMIDirsLinux::userConfigPath() const
 		return ".";
 }
 
-std::vector<bfs::path> VCMIDirsLinux::dataPaths() const
+std::vector<bfs::path> VCMIDirsXDG::dataPaths() const
 {
 	// $XDG_DATA_DIRS, default: /usr/local/share/:/usr/share/
 
@@ -528,12 +528,12 @@ std::vector<bfs::path> VCMIDirsLinux::dataPaths() const
 	return ret;
 }
 
-bfs::path VCMIDirsLinux::libraryPath() const { return M_LIB_DIR; }
-bfs::path VCMIDirsLinux::binaryPath() const { return M_BIN_DIR; }
+bfs::path VCMIDirsXDG::libraryPath() const { return M_LIB_DIR; }
+bfs::path VCMIDirsXDG::binaryPath() const { return M_BIN_DIR; }
 
-std::string VCMIDirsLinux::libraryName(const std::string& basename) const { return "lib" + basename + ".so"; }
+std::string VCMIDirsXDG::libraryName(const std::string& basename) const { return "lib" + basename + ".so"; }
 #ifdef VCMI_ANDROID
-class VCMIDirsAndroid : public VCMIDirsLinux
+class VCMIDirsAndroid : public VCMIDirsXDG
 {
 public:
 	boost::filesystem::path userDataPath() const override;
@@ -553,7 +553,7 @@ std::vector<bfs::path> VCMIDirsAndroid::dataPaths() const
 	return std::vector<bfs::path>(1, userDataPath());
 }
 #endif // VCMI_ANDROID
-#endif // VCMI_APPLE, VCMI_LINUX
+#endif // VCMI_APPLE, VCMI_XDG
 #endif // VCMI_WINDOWS, VCMI_UNIX
 
 // Getters for interfaces are separated for clarity.
@@ -565,8 +565,8 @@ namespace VCMIDirs
 			static VCMIDirsWIN32 singleton;
 		#elif defined(VCMI_ANDROID)
 			static VCMIDirsAndroid singleton;
-		#elif defined(VCMI_LINUX)
-			static VCMIDirsLinux singleton;
+		#elif defined(VCMI_XDG)
+			static VCMIDirsXDG singleton;
 		#elif defined(VCMI_APPLE)
 			static VCMIDirsOSX singleton;
 		#endif

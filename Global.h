@@ -53,7 +53,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  error "Windows CE isn't supported"
 #elif defined(__linux__) || defined(__gnu_linux__) || defined(linux) || defined(__linux)
 #  define VCMI_UNIX
-#  define VCMI_LINUX
+#  define VCMI_XDG
 #  ifdef __ANDROID__
 #    define VCMI_ANDROID 
 #  endif
