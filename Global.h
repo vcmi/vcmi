@@ -57,6 +57,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  ifdef __ANDROID__
 #    define VCMI_ANDROID 
 #  endif
+#elif defined(__FreeBSD_kernel__) || defined(__FreeBSD__)
+#  define VCMI_UNIX
+#  define VCMI_XDG
+#  define VCMI_FREEBSD
 #elif defined(__APPLE__) && defined(__MACH__)
 #  define VCMI_UNIX
 #  define VCMI_APPLE
