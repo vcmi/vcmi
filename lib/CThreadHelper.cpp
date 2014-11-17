@@ -3,7 +3,7 @@
 
 #ifdef VCMI_WINDOWS
 	#include <windows.h>
-#elif !defined(VCMI_APPLE) && !defined(VCMI_FREEBSD)
+#elif !defined(VCMI_APPLE) && !defined(VCMI_FREEBSD) && !defined(VCMI_HURD)
 	#include <sys/prctl.h>
 #endif
 /*
