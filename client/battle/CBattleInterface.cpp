@@ -1523,7 +1523,7 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 			BonusList defenseBonuses = *(stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE)));
 			defenseBonuses.remove_if(Selector::durationType(Bonus::STACK_GETS_TURN)); //remove bonuses gained from defensive stance
 			int val = stack->Defense() - defenseBonuses.totalValue();
-			sprintf(txt, 4000, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str(), val);
+			snprintf(txt, 4000, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str(), val);
 			console->addText(txt);
 		}
 	}
