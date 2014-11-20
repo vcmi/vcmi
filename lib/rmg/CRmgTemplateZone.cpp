@@ -430,7 +430,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	}
 	assert (clearedTiles.size()); //this should come from zone connections
 
-	while (!possibleTiles.empty())
+	while (possibleTiles.size())
 	{
 		//link tiles in random order
 		std::vector<int3> tilesToMakePath(possibleTiles.begin(), possibleTiles.end());
@@ -811,7 +811,7 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos, float 
 			}
 	}
 
-	if (!treasures.empty())
+	if (!treasures.size())
 	{
 		//find object closest to zone center, then connect it to the middle of the zone
 		int3 closestFreeTile (-1,-1,-1);
