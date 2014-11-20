@@ -2000,7 +2000,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			{
 				creaturesAmount = boost::math::round(creaturesAmount / 5) * 5;
 			}
-			else if (creaturesAmount <= 120)
+			else
 			{
 				creaturesAmount = boost::math::round(creaturesAmount / 10) * 10;
 			}
