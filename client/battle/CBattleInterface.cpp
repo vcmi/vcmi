@@ -832,7 +832,7 @@ void CBattleInterface::bFleef()
 				heroName = defendingHeroInstance->name;
 		//calculating text
 		char buffer[1000];
-		sprintf(buffer, CGI->generaltexth->allTexts[340].c_str(), heroName.c_str()); //The Shackles of War are present.  %s can not retreat!
+		snprintf(buffer, 1000, CGI->generaltexth->allTexts[340].c_str(), heroName.c_str()); //The Shackles of War are present.  %s can not retreat!
 
 		//printing message
 		curInt->showInfoDialog(std::string(buffer), comps);
@@ -1523,7 +1523,7 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 			BonusList defenseBonuses = *(stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE)));
 			defenseBonuses.remove_if(Selector::durationType(Bonus::STACK_GETS_TURN)); //remove bonuses gained from defensive stance
 			int val = stack->Defense() - defenseBonuses.totalValue();
-			sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str(), val);
+			snprintf(txt, 4000, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str(), val);
 			console->addText(txt);
 		}
 	}
@@ -1797,19 +1797,19 @@ void CBattleInterface::printConsoleAttacked( const CStack * defender, int dmg, i
 	int end = 0;
 	if (attacker) //ignore if stacks were killed by spell
 	{
-		end = sprintf(tabh, CGI->generaltexth->allTexts[attacker->count > 1 ? 377 : 376].c_str(),
+		end = snprintf(tabh, 200, CGI->generaltexth->allTexts[attacker->count > 1 ? 377 : 376].c_str(),
 		(attacker->count > 1 ? attacker->getCreature()->namePl.c_str() : attacker->getCreature()->nameSing.c_str()), dmg);
 	}
 	if(killed > 0)
 	{
 		if(killed > 1)
 		{
-			sprintf(tabh + end, CGI->generaltexth->allTexts[379].c_str(), killed,
+			snprintf(tabh + end, 400, CGI->generaltexth->allTexts[379].c_str(), killed,
 				multiple ? CGI->generaltexth->allTexts[43].c_str() : defender->getCreature()->namePl.c_str()); // creatures perish
 		}
 		else //killed == 1
 		{
-			sprintf(tabh + end, CGI->generaltexth->allTexts[378].c_str(),
+			snprintf(tabh + end, 400, CGI->generaltexth->allTexts[378].c_str(),
 				multiple ? CGI->generaltexth->allTexts[42].c_str() : defender->getCreature()->nameSing.c_str()); // creature perishes
 		}
 	}

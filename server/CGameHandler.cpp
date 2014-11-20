@@ -3389,7 +3389,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				break;
 			}
 
-			if(destinationStack && stack->ID == destinationStack->ID) //we should just move, it will be handled by following check
+			if(destinationStack && stack && stack->ID == destinationStack->ID) //we should just move, it will be handled by following check
 			{
 				destinationStack = nullptr;
 			}
