@@ -811,7 +811,7 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos, float 
 			}
 	}
 
-	if (!treasures.size())
+	if (treasures.size())
 	{
 		//find object closest to zone center, then connect it to the middle of the zone
 		int3 closestFreeTile (-1,-1,-1);
