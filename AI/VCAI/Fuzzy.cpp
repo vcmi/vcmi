@@ -20,7 +20,7 @@
 */
 
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
-#define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 10 times weaker than us
+#define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 
 struct BankConfig;
 class Engine;
@@ -94,6 +94,7 @@ void FuzzyHelper::initBank()
 		//Trivial bank estimation
 		bankInput = new fl::InputVariable("BankInput");
 		bankDanger = new fl::OutputVariable("BankDanger");
+		bankDanger->setMinimum(0);
 		bankInput->addTerm(new fl::Rectangle("SET", 0.5 - 5 * fl::fuzzylite::macheps(),
 				0.5 + 5 * fl::fuzzylite::macheps()));
 
@@ -171,6 +172,8 @@ void FuzzyHelper::initTacticalAdvantage()
 				0.0 + 5.0 * fl::fuzzylite::macheps()));
 
 		ta.threat = new fl::OutputVariable("Threat");
+		ta.threat->setMinimum(0);
+		ta.threat->setMaximum(3);
 		engine.addOutputVariable(ta.threat);
 		ta.threat->addTerm(new fl::Ramp("LOW", 1, MIN_AI_STRENGHT));
 		ta.threat->addTerm(new fl::Triangle("MEDIUM", 0.8, 1.2));
@@ -232,6 +235,7 @@ ui64 FuzzyHelper::estimateBankDanger (const CBank * bank)
 	{
 		logAi->errorStream() << "estimateBankDanger " << ": " << fe.getWhat();
 	}
+	assert(val >= 0);
 	return val;
 
 }
@@ -276,6 +280,7 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 	{
 		logAi->errorStream() << "getTacticalAdvantage " << ": " << fe.getWhat();
 	}
+	assert (output >= 0);
 	return output;
 }
 
@@ -349,6 +354,8 @@ void FuzzyHelper::initVisitTile()
 		vt.turnDistance = new fl::InputVariable("turnDistance"); //we want to use hero who is near
 		vt.missionImportance = new fl::InputVariable("lockedMissionImportance"); //we may want to preempt hero with low-priority mission
 		vt.value = new fl::OutputVariable("Value");
+		vt.value->setMinimum(0);
+		vt.value->setMaximum(5);
 
 		std::vector<fl::InputVariable*> helper = {vt.strengthRatio, vt.heroStrength, vt.turnDistance, vt.missionImportance};
 		for (auto val : helper)
@@ -450,6 +457,7 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 	{
 		logAi->errorStream() << "evaluate VisitTile " << ": " << fe.getWhat();
 	}
+	assert (g.priority >= 0);
 	return g.priority;
 
 }
@@ -493,6 +501,7 @@ float FuzzyHelper::evaluate (Goals::ClearWayTo & g)
 	}
 	else
 		return -1;
+
 }
 
 float FuzzyHelper::evaluate (Goals::BuildThis & g)
