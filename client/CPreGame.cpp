@@ -1586,7 +1586,14 @@ int SelectionTab::getLine()
 	Point clickPos(GH.current->button.x, GH.current->button.y);
 	clickPos = clickPos - pos.topLeft();
 
-	if (clickPos.y > 115  &&  clickPos.y < 564  &&  clickPos.x > 22  &&  clickPos.x < 371)
+	// Ignore clicks on save name area
+	int maxPosY;
+	if(tabType == CMenuScreen::saveGame)
+		maxPosY = 516;
+	else
+		maxPosY = 564;
+
+    	if(clickPos.y > 115  &&  clickPos.y < maxPosY  &&  clickPos.x > 22  &&  clickPos.x < 371)
 	{
 		line = (clickPos.y-115) / 25; //which line
 	}
