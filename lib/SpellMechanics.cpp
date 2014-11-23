@@ -129,12 +129,12 @@ ISpellMechanics::ISpellMechanics(CSpell * s):
 
 ///DefaultSpellMechanics
 
-bool DefaultSpellMechanics::adventureCast(SpellCastContext& context) const
+bool DefaultSpellMechanics::adventureCast(const SpellCastContext& context) const
 {
-	return false; //there is no general algorithm for castind adventure spells
+	return false; //there is no general algorithm for casting adventure spells
 }
 
-bool DefaultSpellMechanics::battleCast(SpellCastContext& context) const
+bool DefaultSpellMechanics::battleCast(const SpellCastContext& context) const
 {
 	return false; //todo; DefaultSpellMechanics::battleCast
 }

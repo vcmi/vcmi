@@ -87,18 +87,18 @@ public:
 struct DLL_LINKAGE SpellCastContext
 {
 public:
-	SpellCastEnvironment * env;
+	const SpellCastEnvironment * env;
 	
 	int spellLvl;
 //	BattleHex destination;
 	ui8 casterSide;
 	PlayerColor casterColor;
-	CGHeroInstance * caster;
-	CGHeroInstance * secHero;
+	const CGHeroInstance * caster;
+	const CGHeroInstance * secHero;
 	int usedSpellPower;
 	ECastingMode::ECastingMode mode;
-	CStack * targetStack;
-	CStack * selectedStack;	
+	const CStack * targetStack;
+	const CStack * selectedStack;	
 };
 
 

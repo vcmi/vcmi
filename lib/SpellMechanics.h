@@ -48,8 +48,8 @@ public:
      * \return true if no error
      *
      */                           
-	virtual bool adventureCast(SpellCastContext & context) const = 0; 
-	virtual bool battleCast(SpellCastContext & context) const = 0; 	
+	virtual bool adventureCast(const SpellCastContext & context) const = 0; 
+	virtual bool battleCast(const SpellCastContext & context) const = 0; 	
 	
 protected:
 	CSpell * owner;	
@@ -65,8 +65,8 @@ public:
 	
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
 	
-	bool adventureCast(SpellCastContext & context) const override; 
-	bool battleCast(SpellCastContext & context) const override; 
+	bool adventureCast(const SpellCastContext & context) const override; 
+	bool battleCast(const SpellCastContext & context) const override; 
 };
 
 
