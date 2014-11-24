@@ -40,42 +40,6 @@ struct SpellSchoolInfo
 	Bonus::BonusType knoledgeBonus;			
 };
 
-static const SpellSchoolInfo SPELL_SCHOOL_CONFIG[4] = 
-{
-	{
-		ESpellSchool::AIR,
-		Bonus::AIR_SPELL_DMG_PREMY,
-		Bonus::AIR_IMMUNITY,
-		"air",
-		SecondarySkill::AIR_MAGIC,
-		Bonus::AIR_SPELLS
-	},
-	{
-		ESpellSchool::FIRE,
-		Bonus::FIRE_SPELL_DMG_PREMY,
-		Bonus::FIRE_IMMUNITY,
-		"fire",
-		SecondarySkill::FIRE_MAGIC,
-		Bonus::FIRE_SPELLS
-	},
-	{
-		ESpellSchool::WATER,
-		Bonus::WATER_SPELL_DMG_PREMY,
-		Bonus::WATER_IMMUNITY,
-		"water",
-		SecondarySkill::WATER_MAGIC,
-		Bonus::WATER_SPELLS
-	},
-	{
-		ESpellSchool::EARTH,
-		Bonus::EARTH_SPELL_DMG_PREMY,
-		Bonus::EARTH_IMMUNITY,
-		"earth",
-		SecondarySkill::EARTH_MAGIC,
-		Bonus::EARTH_SPELLS
-	}
-};
-
 ///callback to be provided by server
 class DLL_LINKAGE SpellCastEnvironment
 {
@@ -243,6 +207,13 @@ public:
 
 
 	si32 getProbability(const TFaction factionId) const;
+
+	/**
+	 * Calls cb for each school this spell belongs to
+	 *
+	 * Set stop to true to abort looping
+	 */	
+	void forEachSchool(const std::function<void (const SpellSchoolInfo &, bool &)> & cb) const;
 
 	/**
 	 * Returns resource name of icon for SPELL_IMMUNITY bonus

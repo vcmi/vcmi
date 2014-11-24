@@ -864,20 +864,17 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 {
 	si16 skill = -1; //skill level
 	
-	for(const SpellSchoolInfo & cnf : SPELL_SCHOOL_CONFIG)
+	spell->forEachSchool([&, this](const SpellSchoolInfo & cnf, bool & stop)
 	{
-		if(spell->school.at(cnf.id))
-		{
-			int thisSchool = std::max<int>(getSecSkillLevel(cnf.skill),	valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); 
-			if(thisSchool > skill)									
-			{														
-				skill = thisSchool;									
-				if(outSelectedSchool)								
-					*outSelectedSchool = (ui8)cnf.id;				
-			}																
-		}
-	}
-
+		int thisSchool = std::max<int>(getSecSkillLevel(cnf.skill),	valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); 
+		if(thisSchool > skill)									
+		{														
+			skill = thisSchool;									
+			if(outSelectedSchool)								
+				*outSelectedSchool = (ui8)cnf.id;				
+		}																
+	});
+	
 	vstd::amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
 	vstd::amax(skill, valOfBonuses(Bonus::SPELL, spell->id.toEnum())); //given by artifact or other effect
 	if (hasBonusOfType(Bonus::MAXED_SPELL, spell->id))//hero specialty (Daremyth, Melodia)

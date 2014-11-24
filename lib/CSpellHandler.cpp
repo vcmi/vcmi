@@ -31,6 +31,42 @@
 namespace SpellConfig
 {
 	static const std::string LEVEL_NAMES[] = {"none", "basic", "advanced", "expert"};
+	
+	static const SpellSchoolInfo SCHOOL[4] = 
+	{
+		{
+			ESpellSchool::AIR,
+			Bonus::AIR_SPELL_DMG_PREMY,
+			Bonus::AIR_IMMUNITY,
+			"air",
+			SecondarySkill::AIR_MAGIC,
+			Bonus::AIR_SPELLS
+		},
+		{
+			ESpellSchool::FIRE,
+			Bonus::FIRE_SPELL_DMG_PREMY,
+			Bonus::FIRE_IMMUNITY,
+			"fire",
+			SecondarySkill::FIRE_MAGIC,
+			Bonus::FIRE_SPELLS
+		},
+		{
+			ESpellSchool::WATER,
+			Bonus::WATER_SPELL_DMG_PREMY,
+			Bonus::WATER_IMMUNITY,
+			"water",
+			SecondarySkill::WATER_MAGIC,
+			Bonus::WATER_SPELLS
+		},
+		{
+			ESpellSchool::EARTH,
+			Bonus::EARTH_SPELL_DMG_PREMY,
+			Bonus::EARTH_IMMUNITY,
+			"earth",
+			SecondarySkill::EARTH_MAGIC,
+			Bonus::EARTH_SPELLS
+		}
+	};	
 }
 
 ///CSpell::LevelInfo
@@ -75,14 +111,13 @@ bool CSpell::isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const 
 	
 	bool inTome = false;
 	
-	for(const SpellSchoolInfo & cnf : SPELL_SCHOOL_CONFIG)
+	forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
 	{
 		if(school.at(cnf.id) && caster->hasBonusOfType(cnf.knoledgeBonus))
 		{
-			inTome = true;
-			break;
+			inTome = stop = true;
 		}				
-	}		
+	});	
 
     if (isSpecialSpell())
     {
@@ -118,14 +153,11 @@ ui32 CSpell::calculateBonus(ui32 baseDamage, const CGHeroInstance* caster, const
 		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
 		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, id.toEnum())) / 100.0;
 		
-		for(const SpellSchoolInfo & cnf : SPELL_SCHOOL_CONFIG)
+		forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
 		{
-			if(school.at(cnf.id))
-			{
-				ret *= (100.0 + caster->valOfBonuses(cnf.damagePremyBonus)) / 100.0;
-				break; //only bonus from one school is used
-			}				
-		}		
+			ret *= (100.0 + caster->valOfBonuses(cnf.damagePremyBonus)) / 100.0;
+			stop = true; //only bonus from one school is used
+		});		
 
 		if (affectedCreature && affectedCreature->getCreature()->level) //Hero specials like Solmyr, Deemer
 			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, id.toEnum()) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
@@ -149,16 +181,16 @@ ui32 CSpell::calculateDamage(const CGHeroInstance * caster, const CStack * affec
 	{
 		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
 		
-		for(const SpellSchoolInfo & cnf : SPELL_SCHOOL_CONFIG)
+		forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
 		{
-			if(school.at(cnf.id) && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
+			if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
 			{
 				ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
 				ret /= 100;
-				break; //only bonus from one school is used
+				stop = true;//only bonus from one school is used	
 			}				
-		}		
-		
+		});
+
 		//general spell dmg reduction
 		if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
 		{
@@ -235,6 +267,22 @@ CSpell::TargetInfo CSpell::getTargetInfo(const int level) const
 	TargetInfo info(this, level);
 	return info;
 }
+
+void CSpell::forEachSchool(const std::function<void(const SpellSchoolInfo &, bool &)>& cb) const
+{
+	bool stop = false;
+	for(const SpellSchoolInfo & cnf : SpellConfig::SCHOOL)
+	{
+		if(school.at(cnf.id))
+		{
+			cb(cnf, stop);
+			
+			if(stop)
+				break;
+		}				
+	}	
+}
+
 
 bool CSpell::isCombatSpell() const
 {
@@ -400,23 +448,30 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj)
 
 	//6. Check elemental immunities
 	
-	for(const SpellSchoolInfo & cnf : SPELL_SCHOOL_CONFIG)
+	ESpellCastProblem::ESpellCastProblem tmp = ESpellCastProblem::NOT_DECIDED;
+	
+	forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
 	{
-		if(school.at(cnf.id))
+		auto element = cnf.immunityBonus;
+		
+		if(obj->hasBonusOfType(element, 0)) //always resist if immune to all spells altogether
 		{
-			auto element = cnf.immunityBonus;
-			
-			if(obj->hasBonusOfType(element, 0)) //always resist if immune to all spells altogether
-					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-			else if(!isPositive()) //negative or indifferent
+			tmp = ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+			stop = true;
+		}				
+		else if(!isPositive()) //negative or indifferent
+		{
+			if((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
 			{
-				if((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
-					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-			}
-		}
-	}
-
-
+				tmp = ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+				stop = true;
+			}			
+		}	
+	});
+	
+	if(tmp != ESpellCastProblem::NOT_DECIDED)
+		return tmp;
+	
 	TBonusListPtr levelImmunities = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
 
 	if(obj->hasBonusOfType(Bonus::SPELL_IMMUNITY, id)
@@ -691,7 +746,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 
 	const auto schoolNames = json["school"];
 	
-	for(const SpellSchoolInfo & info : SPELL_SCHOOL_CONFIG)
+	for(const SpellSchoolInfo & info : SpellConfig::SCHOOL)
 	{
 		spell->school[info.id] = schoolNames[info.jsonName].Bool();
 	}
