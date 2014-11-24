@@ -280,15 +280,20 @@ void CTextBox::resize(Point newSize)
 
 void CTextBox::setText(const std::string &text)
 {
+	label->pos.w = pos.w; // reset to default before textSize.y check
 	label->setText(text);
-	if (label->textSize.y <= label->pos.h && slider)
+	if(label->textSize.y <= label->pos.h && slider)
 	{
 		// slider is no longer needed
 		vstd::clear_pointer(slider);
-		label->pos.w = pos.w;
+	}
+	else if(slider)
+	{
+		// decrease width again if slider still used
+		label->pos.w = pos.w - 32;
 		label->setText(text);
 	}
-	else if (label->textSize.y > label->pos.h && !slider)
+	else if(label->textSize.y > label->pos.h)
 	{
 		// create slider and update widget
 		label->pos.w = pos.w - 32;
