@@ -677,10 +677,8 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 			CCS->soundh->playSound(soundBase::DRAINLIF);
 
 			//print info about life drain
-			char textBuf[1000];
-			sprintf(textBuf, CGI->generaltexth->allTexts[361 + textOff].c_str(), attacker->getCreature()->nameSing.c_str(),
-				healedStacks[0].second, defender->getCreature()->namePl.c_str());
-			battleInt->console->addText(textBuf);
+			auto txt =  boost::format (CGI->generaltexth->allTexts[361 + textOff]) %  attacker->getCreature()->nameSing % healedStacks[0].second % defender->getCreature()->namePl;
+			battleInt->console->addText(boost::to_string(txt));
 		}
 	}
 	if (tentHeal)

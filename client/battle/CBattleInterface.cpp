@@ -831,11 +831,10 @@ void CBattleInterface::bFleef()
 			if(defendingHeroInstance->tempOwner == curInt->cb->getMyColor())
 				heroName = defendingHeroInstance->name;
 		//calculating text
-		char buffer[1000];
-		sprintf(buffer, CGI->generaltexth->allTexts[340].c_str(), heroName.c_str()); //The Shackles of War are present.  %s can not retreat!
+		auto txt = boost::format(CGI->generaltexth->allTexts[340]) % heroName; //The Shackles of War are present.  %s can not retreat!
 
 		//printing message
-		curInt->showInfoDialog(std::string(buffer), comps);
+		curInt->showInfoDialog(boost::to_string(txt), comps);
 	}
 }
 
@@ -1519,12 +1518,11 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 			if(stack->count != 1)
 				txtid++; //move to plural text
 
-			char txt[4000];
 			BonusList defenseBonuses = *(stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE)));
 			defenseBonuses.remove_if(Selector::durationType(Bonus::STACK_GETS_TURN)); //remove bonuses gained from defensive stance
 			int val = stack->Defense() - defenseBonuses.totalValue();
-			sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str(), val);
-			console->addText(txt);
+			auto txt = boost::format (CGI->generaltexth->allTexts[txtid]) % ((stack->count != 1) ? stack->getCreature()->namePl : stack->getCreature()->nameSing) % val;
+			console->addText(boost::to_string(txt));
 		}
 	}
 
@@ -1792,28 +1790,26 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 
 void CBattleInterface::printConsoleAttacked( const CStack * defender, int dmg, int killed, const CStack * attacker, bool multiple )
 {
-	char tabh[200] = {0};
+	boost::format txt;
 	int end = 0;
 	if (attacker) //ignore if stacks were killed by spell
 	{
-		end = sprintf(tabh, CGI->generaltexth->allTexts[attacker->count > 1 ? 377 : 376].c_str(),
-		(attacker->count > 1 ? attacker->getCreature()->namePl.c_str() : attacker->getCreature()->nameSing.c_str()), dmg);
+		txt = boost::format (CGI->generaltexth->allTexts[attacker->count > 1 ? 377 : 376]) %
+			(attacker->count > 1 ? attacker->getCreature()->namePl : attacker->getCreature()->nameSing) % dmg;
 	}
 	if(killed > 0)
 	{
 		if(killed > 1)
 		{
-			sprintf(tabh + end, CGI->generaltexth->allTexts[379].c_str(), killed,
-				multiple ? CGI->generaltexth->allTexts[43].c_str() : defender->getCreature()->namePl.c_str()); // creatures perish
+			txt = boost::format (CGI->generaltexth->allTexts[379]) % killed % (multiple ? CGI->generaltexth->allTexts[43] : defender->getCreature()->namePl); // creatures perish
 		}
 		else //killed == 1
 		{
-			sprintf(tabh + end, CGI->generaltexth->allTexts[378].c_str(),
-				multiple ? CGI->generaltexth->allTexts[42].c_str() : defender->getCreature()->nameSing.c_str()); // creature perishes
+			txt = boost::format (CGI->generaltexth->allTexts[378]) % (multiple ? CGI->generaltexth->allTexts[42] : defender->getCreature()->nameSing); // creature perishes
 		}
 	}
 
-	console->addText(std::string(tabh));
+	console->addText(boost::to_string (txt));
 }
 
 

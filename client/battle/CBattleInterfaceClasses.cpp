@@ -577,10 +577,9 @@ void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			attackedStack->owner != myInterface->getCurrentPlayerInterface()->playerID &&
 			attackedStack->alive())
 		{
-			char tabh[160];
 			const std::string & attackedName = attackedStack->count == 1 ? attackedStack->getCreature()->nameSing : attackedStack->getCreature()->namePl;
-			sprintf(tabh, CGI->generaltexth->allTexts[220].c_str(), attackedName.c_str());
-			myInterface->console->alterTxt = std::string(tabh);
+			auto txt = boost::format (CGI->generaltexth->allTexts[220]) % attackedName;
+			myInterface->console->alterTxt = boost::to_string(txt);
 			setAlterText = true;
 		}
 	}

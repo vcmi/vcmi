@@ -749,11 +749,12 @@ void CStackWindow::initBonusesList()
 	for(Bonus* b : output)
 	{
 		bonusInfo.name = info->stackNode->bonusToString(b, false);
+		bonusInfo.description = info->stackNode->bonusToString(b, true);
 		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
 
 		//if it's possible to give any description or image for this kind of bonus
 		//TODO: figure out why half of bonuses don't have proper description
-		if (!bonusInfo.name.empty() || !bonusInfo.imagePath.empty())
+		if ((!bonusInfo.name.empty() || !bonusInfo.imagePath.empty())&& b->type != Bonus::MAGIC_RESISTANCE)
 			activeBonuses.push_back(bonusInfo);
 	}
 
@@ -823,6 +824,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, bool popup):
 	info->creature = stack->type;
 	info->creatureCount = stack->count;
 	info->popupWindow = popup;
+	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);	
 	init();
 }
 
@@ -839,6 +841,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 	info->upgradeInfo->info = upgradeInfo;
 	info->upgradeInfo->callback = callback;
 	info->dismissInfo->callback = dismiss;
+	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);
 	init();
 }
 
@@ -851,6 +854,7 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, bool popup):
 	info->commander = commander;
 	info->creatureCount = 1;
 	info->popupWindow = popup;
+	info->owner = dynamic_cast<const CGHeroInstance *> (commander->armyObj);	
 	init();
 }
 
@@ -865,6 +869,7 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 	info->levelupInfo = StackWindowInfo::CommanderLevelInfo();
 	info->levelupInfo->skills = skills;
 	info->levelupInfo->callback = callback;
+	info->owner = dynamic_cast<const CGHeroInstance *> (commander->armyObj);		
 	init();
 }
 

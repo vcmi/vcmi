@@ -787,7 +787,12 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos, float 
 
 			//randomize next position from among possible ones
 			std::vector<int3> boundaryCopy (boundary.begin(), boundary.end());
-			RandomGeneratorUtil::randomShuffle(boundaryCopy, gen->rand);
+			//RandomGeneratorUtil::randomShuffle(boundaryCopy, gen->rand);
+			auto chooseTopTile = [](const int3 & lhs, const int3 & rhs) -> bool
+			{
+				return lhs.y < rhs.y;
+			};
+			boost::sort(boundaryCopy, chooseTopTile); //start from top tiles to allow objects accessible from bottom
 
 			for (auto tile : boundaryCopy)
 			{
@@ -2000,7 +2005,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			{
 				creaturesAmount = boost::math::round(creaturesAmount / 5) * 5;
 			}
-			else if (creaturesAmount <= 12)
+			else
 			{
 				creaturesAmount = boost::math::round(creaturesAmount / 10) * 10;
 			}
@@ -2070,12 +2075,16 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 					{
 						case 1:
 							school = spell->air;
+							break;
 						case 2:
 							school = spell->earth;
+							break;
 						case 3:
 							school = spell->fire;
+							break;
 						case 4:
 							school = spell->water;
+							break;
 					}
 					if (school)
 						spells.push_back(spell);

@@ -56,7 +56,7 @@ then
 #	echo " --download       " "Automatically download optional package using wget"
 #	echo "                  " "Requires wget and Internet connection"
 #	echo
-	echo " --dest DIRECTORY " "Path where resulting data will be placed. Default is ~/.vcmi"
+	echo " --dest DIRECTORY " "Path where resulting data will be placed. Default is ~/.local/share/vcmi"
 	echo
 	echo " --validate       " "Run basic validness checks"
 	exit 0
@@ -181,6 +181,9 @@ then
 	elif [ -d "$data_dir""/Program_Files" ] 
 	then
 		mv "$data_dir"/Program_Files/* "$data_dir" 
+	elif [ -d "$data_dir""/LangInde_Program_Files" ]
+	then
+		mv "$data_dir"/LangInde_Program_Files/* "$data_dir"
 	else
 		echo "Error: failed to find extracted game files!"
 		echo "Extracted directories are: "
