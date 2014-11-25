@@ -36,6 +36,8 @@ struct NewStructures;
 class CGHeroInstance;
 class IMarket;
 
+class ServerSpellCastEnvironment;
+
 extern std::map<ui32, CFunctionList<void(ui32)> > callbacks; //question id => callback functions - for selection dialogs
 extern boost::mutex gsm;
 
@@ -201,8 +203,6 @@ public:
 	void playerMessage( PlayerColor player, const std::string &message, ObjectInstanceID currObj);
 	bool makeBattleAction(BattleAction &ba);
 	bool makeAutomaticAction(const CStack *stack, BattleAction &ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
-	void handleSpellCasting(SpellID spellID, int spellLvl, BattleHex destination, ui8 casterSide, PlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
-		int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack, si32 selectedStack = -1);
 	bool makeCustomAction(BattleAction &ba);
 	void stackTurnTrigger(const CStack * stack);
 	void handleDamageFromObstacle(const CObstacleInstance &obstacle, const CStack * curStack); //checks if obstacle is land mine and handles possible consequences
@@ -288,6 +288,7 @@ public:
 	friend class CVCMIServer;
 
 private:
+	ServerSpellCastEnvironment * spellEnv;
 
 	std::list<PlayerColor> generatePlayerTurnOrder() const;
 	void makeStackDoNothing(const CStack * next);

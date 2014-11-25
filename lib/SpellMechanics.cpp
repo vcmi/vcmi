@@ -230,7 +230,9 @@ public:
 class SacrificeMechanics: public RisingSpellMechanics
 {
 public:
-	SacrificeMechanics(CSpell * s): RisingSpellMechanics(s){};		
+	SacrificeMechanics(CSpell * s): RisingSpellMechanics(s){};	
+protected:
+	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;		
 };
 
 ///all rising spells but SACRIFICE
@@ -452,7 +454,6 @@ int DefaultSpellMechanics::calculateDuration(const CGHeroInstance * caster, int 
 	}	
 }
 
-
 void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//applying effects
@@ -627,33 +628,6 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		}
 		if(!shr.healedStacks.empty())
 			env->sendAndApply(&shr);
-		if(owner->id == SpellID::SACRIFICE) //remove victim
-		{
-			if(parameters.selectedStack == parameters.cb->battleActiveStack())
-			//set another active stack than the one removed, or bad things will happen
-			//TODO: make that part of BattleStacksRemoved? what about client update?
-			{
-				//makeStackDoNothing(gs->curB->getStack (selectedStack));
-
-				BattleSetActiveStack sas;
-
-				//std::vector<const CStack *> hlp;
-				//battleGetStackQueue(hlp, 1, selectedStack); //next after this one
-
-				//if(hlp.size())
-				//{
-				//	sas.stack = hlp[0]->ID;
-				//}
-				//else
-				//	complain ("No new stack to activate!");
-				sas.stack = parameters.cb->getNextStack()->ID; //why the hell next stack has same ID as current?
-				env->sendAndApply(&sas);
-
-			}
-			BattleStacksRemoved bsr;
-			bsr.stackIDs.insert(parameters.selectedStack->ID); //somehow it works for teleport?
-			env->sendAndApply(&bsr);
-		}
 	}		
 }
 
@@ -1117,6 +1091,38 @@ void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * en
 	}
 	else
 		env->complain("There's no obstacle to remove!");	
+}
+
+///SpecialRisingSpellMechanics
+void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+{
+	RisingSpellMechanics::applyBattleEffects(env, parameters, ctx);
+
+	if(parameters.selectedStack == parameters.cb->battleActiveStack())
+	//set another active stack than the one removed, or bad things will happen
+	//TODO: make that part of BattleStacksRemoved? what about client update?
+	{
+		//makeStackDoNothing(gs->curB->getStack (selectedStack));
+
+		BattleSetActiveStack sas;
+
+		//std::vector<const CStack *> hlp;
+		//battleGetStackQueue(hlp, 1, selectedStack); //next after this one
+
+		//if(hlp.size())
+		//{
+		//	sas.stack = hlp[0]->ID;
+		//}
+		//else
+		//	complain ("No new stack to activate!");
+		sas.stack = parameters.cb->getNextStack()->ID; //why the hell next stack has same ID as current?
+		env->sendAndApply(&sas);
+
+	}
+	BattleStacksRemoved bsr;
+	bsr.stackIDs.insert(parameters.selectedStack->ID); //somehow it works for teleport?
+	env->sendAndApply(&bsr);
+		
 }
 
 

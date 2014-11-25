@@ -47,6 +47,7 @@ struct SpellSchoolInfo
 class DLL_LINKAGE SpellCastEnvironment
 {
 public:
+	virtual ~SpellCastEnvironment(){};
 	virtual void sendAndApply(CPackForClient * info) const = 0;
 	
 	virtual CRandomGenerator & getRandomGenerator() const = 0;
