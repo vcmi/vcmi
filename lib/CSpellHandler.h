@@ -27,6 +27,7 @@ class CGHeroInstance;
 class CStack;
 
 class CBattleInfoCallback;
+class BattleInfo;
 
 struct CPackForClient;
 class CRandomGenerator;
@@ -65,7 +66,7 @@ public:
 	const CStack * casterStack;
 	const CStack * selectedStack;
 	
-	const CBattleInfoCallback * cb;
+	const BattleInfo * cb;
 		
 };
 
@@ -153,7 +154,7 @@ public:
 	~CSpell();
 	
 	//void adventureCast() const; 
-	void battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const; 	
+	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const; 	
 	
 	bool isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const;
 

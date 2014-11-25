@@ -101,10 +101,11 @@ CSpell::~CSpell()
 	delete mechanics;
 }
 
-void CSpell::battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const
+void CSpell::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
 {
-	if(!mechanics->battleCast(env, parameters))
-		logGlobal->errorStream() << "Internal error during spell cast";	
+	assert(env);
+	
+	mechanics->battleCast(env, parameters);
 }
 
 bool CSpell::isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const

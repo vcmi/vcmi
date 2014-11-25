@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "SpellMechanics.h"
 
+#include "CObstacleInstance.h"
 #include "mapObjects/CGHeroInstance.h"
 #include "BattleState.h"
 #include "CRandomGenerator.h"
@@ -119,6 +120,14 @@ namespace SRSLPraserHelpers
 	}
 }
 
+struct SpellCastContext
+{
+	SpellCastContext(std::vector<const CStack*> & attackedCres, BattleSpellCast & sc, StacksInjured & si):
+		attackedCres(attackedCres), sc(sc), si(si){}; 
+	std::vector<const CStack*> & attackedCres;
+	BattleSpellCast & sc;
+	StacksInjured & si;
+};
 
 class DefaultSpellMechanics: public ISpellMechanics
 {
@@ -131,14 +140,21 @@ public:
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
 	
 	//bool adventureCast(const SpellCastContext & context) const override; 
-	bool battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const override; 
+	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const override;
+protected:
+	
+	virtual void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
+	
+	virtual int calculateDuration(const CGHeroInstance * caster, int usedSpellPower) const;
 };
 
 class ObstacleMechanics: public DefaultSpellMechanics
 {
 public:
 	ObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};		
-	
+
+protected:
+	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;	
 };
 
 class WallMechanics: public ObstacleMechanics
@@ -148,7 +164,6 @@ public:
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr) const override;	
 	
 };
-
 
 class ChainLightningMechanics: public DefaultSpellMechanics
 {
@@ -241,7 +256,7 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell* s)
 //	return false; //there is no general algorithm for casting adventure spells
 //}
 
-bool DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const
+void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
 {
 	BattleSpellCast sc;
 	sc.side = parameters.casterSide;
@@ -309,11 +324,12 @@ bool DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const B
 		if (owner->id == SpellID::DEATH_STARE)
 			vstd::amin(sc.dmgToDisplay, (*attackedCres.begin())->count); //stack is already reduced after attack
 	}	
-	
+		
 	StacksInjured si;
 	
-	//TODO:applying effects
+	SpellCastContext ctx(attackedCres, sc, si);
 	
+	applyBattleEffects(env, parameters, ctx);
 	
 	env->sendAndApply(&sc);
 	if(!si.stacks.empty()) //after spellcast info shows
@@ -371,9 +387,227 @@ bool DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const B
 			}
 		}
 	}	
-	
-	return true;
 }
+
+int DefaultSpellMechanics::calculateDuration(const CGHeroInstance* caster, int usedSpellPower) const
+{
+	if(!caster)
+	{
+		if (!usedSpellPower)
+			return 3; //default duration of all creature spells
+		else
+			return usedSpellPower; //use creature spell power
+	}
+	switch(owner->id)
+	{
+	case SpellID::FRENZY:
+		return 1;
+	default: //other spells
+		return caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + caster->valOfBonuses(Bonus::SPELL_DURATION);
+	}	
+}
+
+
+void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, BattleSpellCastParameters& parameters, SpellCastContext & ctx) const
+{
+	//TODO:applying effects
+	
+	//applying effects
+	if (owner->isOffensiveSpell())
+	{
+		int spellDamage = 0;
+		if (parameters.casterStack && parameters.mode != ECastingMode::MAGIC_MIRROR)
+		{
+			int unitSpellPower = parameters.casterStack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, owner->id.toEnum());
+			if (unitSpellPower)
+				ctx.sc.dmgToDisplay = spellDamage = parameters.casterStack->count * unitSpellPower; //TODO: handle immunities
+			else //Faerie Dragon
+			{
+				parameters.usedSpellPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * parameters.casterStack->count / 100;
+				ctx.sc.dmgToDisplay = 0;
+			}
+		}
+		int chainLightningModifier = 0;
+		for(auto & attackedCre : ctx.attackedCres)
+		{
+			if(vstd::contains(ctx.sc.resisted, (attackedCre)->ID)) //this creature resisted the spell
+				continue;
+
+			BattleStackAttacked bsa;
+			if ((parameters.destination > -1 && (attackedCre)->coversPos(parameters.destination)) || (owner->getLevelInfo(parameters.spellLvl).range == "X" || parameters.mode == ECastingMode::ENCHANTER_CASTING))
+				//display effect only upon primary target of area spell
+				//FIXME: if no stack is attacked, there is no animation and interface freezes
+			{
+				bsa.flags |= BattleStackAttacked::EFFECT;
+				bsa.effect = owner->mainEffectAnim;
+			}
+			if (spellDamage)
+				bsa.damageAmount = spellDamage >> chainLightningModifier;
+			else
+				bsa.damageAmount =  owner->calculateDamage(parameters.caster, attackedCre, parameters.spellLvl, parameters.usedSpellPower) >> chainLightningModifier;
+
+			ctx.sc.dmgToDisplay += bsa.damageAmount;
+
+			bsa.stackAttacked = (attackedCre)->ID;
+			if (parameters.mode == ECastingMode::ENCHANTER_CASTING) //multiple damage spells cast
+				bsa.attackerID = parameters.casterStack->ID;
+			else
+				bsa.attackerID = -1;
+			(attackedCre)->prepareAttacked(bsa, env->getRandomGenerator());
+			ctx.si.stacks.push_back(bsa);
+
+			if (owner->id == SpellID::CHAIN_LIGHTNING)
+				++chainLightningModifier;
+		}
+	}
+	
+	if (owner->hasEffects())
+	{
+		int stackSpellPower = 0;
+		if (parameters.casterStack && parameters.mode != ECastingMode::MAGIC_MIRROR)
+		{
+			stackSpellPower =  parameters.casterStack->valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
+		}
+		SetStackEffect sse;
+		Bonus pseudoBonus;
+		pseudoBonus.sid = owner->id;
+		pseudoBonus.val = parameters.spellLvl;
+		pseudoBonus.turnsRemain = calculateDuration(parameters.caster, stackSpellPower ? stackSpellPower : parameters.usedSpellPower);
+		CStack::stackEffectToFeature(sse.effect, pseudoBonus);
+		if (owner->id == SpellID::SHIELD || owner->id == SpellID::AIR_SHIELD)
+		{
+			sse.effect.back().val = (100 - sse.effect.back().val); //fix to original config: shield should display damage reduction
+		}
+		if (owner->id == SpellID::BIND &&  parameters.casterStack)//bind
+		{
+			sse.effect.back().additionalInfo =  parameters.casterStack->ID; //we need to know who casted Bind
+		}
+		const Bonus * bonus = nullptr;
+		if (parameters.caster)
+			bonus = parameters.caster->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, owner->id));
+		//TODO does hero specialty should affects his stack casting spells?
+
+		si32 power = 0;
+		for(const CStack * affected : ctx.attackedCres)
+		{
+			if(vstd::contains(ctx.sc.resisted, affected->ID)) //this creature resisted the spell
+				continue;
+			sse.stacks.push_back(affected->ID);
+
+			//Apply hero specials - peculiar enchants
+			const ui8 tier = std::max((ui8)1, affected->getCreature()->level); //don't divide by 0 for certain creatures (commanders, war machines)
+			if (bonus)
+			{
+				switch(bonus->additionalInfo)
+				{
+					case 0: //normal
+					{
+						switch(tier)
+						{
+							case 1: case 2:
+								power = 3;
+							break;
+							case 3: case 4:
+								power = 2;
+							break;
+							case 5: case 6:
+								power = 1;
+							break;
+						}
+						Bonus specialBonus(sse.effect.back());
+						specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
+						sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> (affected->ID, specialBonus)); //additional premy to given effect
+					}
+					break;
+					case 1: //only Coronius as yet
+					{
+						power = std::max(5 - tier, 0);
+						Bonus specialBonus = CStack::featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, pseudoBonus.turnsRemain);
+						specialBonus.sid = owner->id;
+						sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> (affected->ID, specialBonus)); //additional attack to Slayer effect
+					}
+					break;
+				}
+			}
+			if (parameters.caster && parameters.caster->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, owner->id)) //TODO: better handling of bonus percentages
+			{
+				int damagePercent = parameters.caster->level * parameters.caster->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, owner->id.toEnum()) / tier;
+				Bonus specialBonus = CStack::featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, pseudoBonus.turnsRemain);
+				specialBonus.valType = Bonus::PERCENT_TO_ALL;
+				specialBonus.sid = owner->id;
+				sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> (affected->ID, specialBonus));
+			}
+		}
+
+		if(!sse.stacks.empty())
+			env->sendAndApply(&sse);
+
+	}
+	
+	if(owner->isHealingSpell())
+	{
+		int hpGained = 0;
+		if (parameters.casterStack)
+		{
+			int unitSpellPower = parameters.casterStack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, owner->id.toEnum());
+			if (unitSpellPower)
+				hpGained = parameters.casterStack->count * unitSpellPower; //Archangel
+			else //Faerie Dragon-like effect - unused so far
+				parameters.usedSpellPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * parameters.casterStack->count / 100;
+		}
+		StacksHealedOrResurrected shr;
+		shr.lifeDrain = false;
+		shr.tentHealing = false;
+		for(auto & attackedCre : ctx.attackedCres)
+		{
+			StacksHealedOrResurrected::HealInfo hi;
+			hi.stackID = (attackedCre)->ID;
+			if (parameters.casterStack) //casted by creature
+			{
+				if (hpGained)
+				{
+					hi.healedHP = parameters.cb->calculateHealedHP(hpGained, owner, attackedCre); //archangel
+				}
+				else
+					hi.healedHP = parameters.cb->calculateHealedHP(owner, parameters.usedSpellPower, parameters.spellLvl, attackedCre); //any typical spell (commander's cure or animate dead)
+			}
+			else
+				hi.healedHP = owner->calculateHealedHP(parameters.caster, attackedCre, parameters.selectedStack); //Casted by hero
+			hi.lowLevelResurrection = parameters.spellLvl <= 1;
+			shr.healedStacks.push_back(hi);
+		}
+		if(!shr.healedStacks.empty())
+			env->sendAndApply(&shr);
+		if(owner->id == SpellID::SACRIFICE) //remove victim
+		{
+			if(parameters.selectedStack == parameters.cb->battleActiveStack())
+			//set another active stack than the one removed, or bad things will happen
+			//TODO: make that part of BattleStacksRemoved? what about client update?
+			{
+				//makeStackDoNothing(gs->curB->getStack (selectedStack));
+
+				BattleSetActiveStack sas;
+
+				//std::vector<const CStack *> hlp;
+				//battleGetStackQueue(hlp, 1, selectedStack); //next after this one
+
+				//if(hlp.size())
+				//{
+				//	sas.stack = hlp[0]->ID;
+				//}
+				//else
+				//	complain ("No new stack to activate!");
+				sas.stack = parameters.cb->getNextStack()->ID; //why the hell next stack has same ID as current?
+				env->sendAndApply(&sas);
+
+			}
+			BattleStacksRemoved bsr;
+			bsr.stackIDs.insert(parameters.selectedStack->ID); //somehow it works for teleport?
+			env->sendAndApply(&bsr);
+		}
+	}		
+}
+
 
 std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
 {
@@ -522,6 +756,95 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(cons
 	//by default use general algorithm
 	return owner->isImmuneBy(obj);
 }
+
+///ObstacleMechanics
+void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment* env, BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
+{
+	auto placeObstacle = [&, this](BattleHex pos)
+	{
+		static int obstacleIdToGive =  parameters.cb->obstacles.size()
+									? (parameters.cb->obstacles.back()->uniqueID+1)
+									: 0;
+
+		auto obstacle = make_shared<SpellCreatedObstacle>();
+		switch(owner->id) // :/
+		{
+		case SpellID::QUICKSAND:
+			obstacle->obstacleType = CObstacleInstance::QUICKSAND;
+			obstacle->turnsRemaining = -1;
+			obstacle->visibleForAnotherSide = false;
+			break;
+		case SpellID::LAND_MINE:
+			obstacle->obstacleType = CObstacleInstance::LAND_MINE;
+			obstacle->turnsRemaining = -1;
+			obstacle->visibleForAnotherSide = false;
+			break;
+		case SpellID::FIRE_WALL:
+			obstacle->obstacleType = CObstacleInstance::FIRE_WALL;
+			obstacle->turnsRemaining = 2;
+			obstacle->visibleForAnotherSide = true;
+			break;
+		case SpellID::FORCE_FIELD:
+			obstacle->obstacleType = CObstacleInstance::FORCE_FIELD;
+			obstacle->turnsRemaining = 2;
+			obstacle->visibleForAnotherSide = true;
+			break;
+		default:
+			//this function cannot be used with spells that do not create obstacles
+			assert(0);
+		}
+
+		obstacle->pos = pos;
+		obstacle->casterSide = parameters.casterSide;
+		obstacle->ID = owner->id;
+		obstacle->spellLevel = parameters.spellLvl;
+		obstacle->casterSpellPower = parameters.usedSpellPower;
+		obstacle->uniqueID = obstacleIdToGive++;
+
+		BattleObstaclePlaced bop;
+		bop.obstacle = obstacle;
+		env->sendAndApply(&bop);
+	};	
+	
+	switch (owner->id)
+	{
+	case SpellID::QUICKSAND:
+	case SpellID::LAND_MINE:
+		{
+			std::vector<BattleHex> availableTiles;
+			for(int i = 0; i < GameConstants::BFIELD_SIZE; i += 1)
+			{
+				BattleHex hex = i;
+				if(hex.getX() > 2 && hex.getX() < 14 && !(parameters.cb->battleGetStackByPos(hex, false)) && !(parameters.cb->battleGetObstacleOnPos(hex, false)))
+					availableTiles.push_back(hex);
+			}
+			boost::range::random_shuffle(availableTiles);
+
+			const int patchesForSkill[] = {4, 4, 6, 8};
+			const int patchesToPut = std::min<int>(patchesForSkill[parameters.spellLvl], availableTiles.size());
+
+			//land mines or quicksand patches are handled as spell created obstacles
+			for (int i = 0; i < patchesToPut; i++)
+				placeObstacle(availableTiles.at(i));
+		}
+
+		break;
+	case SpellID::FORCE_FIELD:
+		placeObstacle(parameters.destination);
+		break;
+	case SpellID::FIRE_WALL:
+		{
+			//fire wall is build from multiple obstacles - one fire piece for each affected hex
+			auto affectedHexes = owner->rangeInHexes(parameters.destination, parameters.spellLvl, parameters.casterSide);
+			for(BattleHex hex : affectedHexes)
+				placeObstacle(hex);
+		}
+		break;
+	default:		
+		assert(0);
+	}			
+}
+
 
 ///WallMechanics
 std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool* outDroppedHexes) const
