@@ -46,6 +46,8 @@ public:
 	
 	static ISpellMechanics * createMechanics(CSpell * s);
 	
+	virtual void afterCast(BattleInfo * battle, const BattleSpellCast * packet) const = 0;
+	
 protected:
 	CSpell * owner;	
 };

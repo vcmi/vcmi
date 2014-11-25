@@ -1343,29 +1343,9 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 		}
 	}
 
-	//Handle spells removing effects from stacks
-	const CSpell *spell = SpellID(id).toSpell();
-	const bool removeAllSpells = id == SpellID::DISPEL;
-	const bool removeHelpful = id == SpellID::DISPEL_HELPFUL_SPELLS;
-
-	for(auto stackID : affectedCres)
-	{
-		if(vstd::contains(resisted, stackID))
-			continue;
-
-		CStack *s = gs->curB->getStack(stackID);
-		s->popBonuses([&](const Bonus *b) -> bool
-		{
-			//check for each bonus if it should be removed
-			const bool isSpellEffect = Selector::sourceType(Bonus::SPELL_EFFECT)(b);
-			const bool isPositiveSpell = Selector::positiveSpellEffects(b);
-			const int spellID = isSpellEffect ? b->sid : -1;
-
-			return (removeHelpful && isPositiveSpell)
-				|| (removeAllSpells && isSpellEffect)
-				|| vstd::contains(spell->counteredSpells, spellID);
-		});
-	}
+	const CSpell * spell = SpellID(id).toSpell();
+	
+	spell->afterCast(gs->curB, this);
 }
 
 void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)

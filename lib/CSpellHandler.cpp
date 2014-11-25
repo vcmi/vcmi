@@ -101,6 +101,12 @@ CSpell::~CSpell()
 	delete mechanics;
 }
 
+void CSpell::afterCast(BattleInfo * battle, const BattleSpellCast * packet) const
+{
+	mechanics->afterCast(battle, packet);
+}
+
+
 void CSpell::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
 {
 	assert(env);
