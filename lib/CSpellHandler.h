@@ -30,6 +30,7 @@ class CBattleInfoCallback;
 class BattleInfo;
 
 struct CPackForClient;
+struct BattleSpellCast;
 class CRandomGenerator;
 
 struct SpellSchoolInfo
@@ -254,7 +255,6 @@ public:
 	}
 	friend class CSpellHandler;
 	friend class Graphics;
-
 private:
 	void setIsOffensive(const bool val);
 	void setIsRising(const bool val);
@@ -322,6 +322,10 @@ public:
 	{
 		h & objects ;
 	}
+public:	
+	///Client-Server events. Shall be called only when applying packets	
+	//void afterSpellCast(BattleInfo * battle, BattleSpellCast * packet) const;
+	
 protected:
 	CSpell * loadFromJson(const JsonNode & json) override;
 };

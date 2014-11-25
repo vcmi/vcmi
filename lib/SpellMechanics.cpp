@@ -453,7 +453,7 @@ int DefaultSpellMechanics::calculateDuration(const CGHeroInstance * caster, int 
 }
 
 
-void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//applying effects
 	if(owner->isOffensiveSpell())
@@ -607,12 +607,18 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, 
 			hi.stackID = (attackedCre)->ID;
 			if (parameters.casterStack) //casted by creature
 			{
+				const bool resurrect = owner->isRisingSpell();
 				if (hpGained)
 				{
-					hi.healedHP = parameters.cb->calculateHealedHP(hpGained, owner, attackedCre); //archangel
+					//archangel
+					hi.healedHP = std::min<ui32>(hpGained, attackedCre->MaxHealth() - attackedCre->firstHPleft + (resurrect ? attackedCre->baseAmount * attackedCre->MaxHealth() : 0));
 				}
 				else
-					hi.healedHP = parameters.cb->calculateHealedHP(owner, parameters.usedSpellPower, parameters.spellLvl, attackedCre); //any typical spell (commander's cure or animate dead)
+				{
+					//any typical spell (commander's cure or animate dead)
+					int healedHealth = parameters.usedSpellPower * owner->power + owner->getPower(parameters.spellLvl);
+					hi.healedHP = std::min<ui32>(healedHealth, attackedCre->MaxHealth() - attackedCre->firstHPleft + (resurrect ? attackedCre->baseAmount * attackedCre->MaxHealth() : 0));
+				}					
 			}
 			else
 				hi.healedHP = owner->calculateHealedHP(parameters.caster, attackedCre, parameters.selectedStack); //Casted by hero

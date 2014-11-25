@@ -159,19 +159,6 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 	return ret;
 }
 
-//Archangel
-ui32 CBattleInfoCallback::calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const
-{
-	bool resurrect = spell->isRisingSpell();
-	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
-}
-//Casted by stack, no hero bonus applied
-ui32 CBattleInfoCallback::calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const
-{
-	bool resurrect = spell->isRisingSpell();
-	int healedHealth = usedSpellPower * spell->power + spell->getPower(spellSchoolLevel);
-	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
-}
 bool BattleInfo::resurrects(SpellID spellid) const
 {
 	return spellid.toSpell()->isRisingSpell();
