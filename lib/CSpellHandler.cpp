@@ -119,7 +119,7 @@ bool CSpell::isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const 
 	
 	forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
 	{
-		if(school.at(cnf.id) && caster->hasBonusOfType(cnf.knoledgeBonus))
+		if(caster->hasBonusOfType(cnf.knoledgeBonus))
 		{
 			inTome = stop = true;
 		}				
