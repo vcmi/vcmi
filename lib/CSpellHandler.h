@@ -72,9 +72,9 @@ public:
 	struct LevelInfo
 	{
 		std::string description; //descriptions of spell for skill level
-		si32 cost; //per skill level: 0 - none, 1 - basic, etc
-		si32 power; //per skill level: 0 - none, 1 - basic, etc
-		si32 AIValue; //AI values: per skill level: 0 - none, 1 - basic, etc
+		si32 cost;
+		si32 power;
+		si32 AIValue;
 
 		bool smartTarget;
 		bool clearTarget;

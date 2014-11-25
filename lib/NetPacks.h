@@ -1578,6 +1578,9 @@ struct BattleStackAdded : public CPackForClient //3017
 	int amount;
 	int pos;
 	int summoned; //if true, remove it afterwards
+	
+	///Actual stack ID, set on apply, do not serialize
+	int newStackID; 
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

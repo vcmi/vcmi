@@ -1590,6 +1590,7 @@ DLL_LINKAGE void BattleStacksRemoved::applyGs( CGameState *gs )
 
 DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 {
+	newStackID = 0;
 	if (!BattleHex(pos).isValid())
 	{
         logNetwork->warnStream() << "No place found for new stack!";
@@ -1603,6 +1604,8 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 
 	gs->curB->localInitStack(addedStack);
 	gs->curB->stacks.push_back(addedStack); //the stack is not "SUMMONED", it is permanent
+	
+	newStackID = addedStack->ID;
 }
 
 DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState *gs)

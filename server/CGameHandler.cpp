@@ -4353,7 +4353,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 			sendAndApply (&bsa);
 
 			BattleSetStackProperty ssp;
-			ssp.stackID = gs->curB->stacks.back()->ID; //how to get recent stack?
+			ssp.stackID = bsa.newStackID;
 			ssp.which = BattleSetStackProperty::CLONED; //using enum values
 			ssp.val = 0;
 			ssp.absolute = 1;

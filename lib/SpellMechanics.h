@@ -69,8 +69,6 @@ public:
 	bool battleCast(const SpellCastContext & context) const override; 
 };
 
-
-
 class WallMechanics: public DefaultSpellMechanics
 {
 public:
