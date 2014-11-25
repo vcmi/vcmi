@@ -118,24 +118,6 @@ void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
 	}
 }
 
-int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower)
-{
-	if(!caster)
-	{
-		if (!usedSpellPower)
-			return 3; //default duration of all creature spells
-		else
-			return usedSpellPower; //use creature spell power
-	}
-	switch(spell->id)
-	{
-	case SpellID::FRENZY:
-		return 1;
-	default: //other spells
-		return caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + caster->valOfBonuses(Bonus::SPELL_DURATION);
-	}
-}
-
 CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerOwned, SlotID slot, BattleHex position) const
 {
 	int stackID = getIdForNewStack();
@@ -157,11 +139,6 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 	ret->position = position;
 	ret->state.insert(EBattleStackState::ALIVE);  //alive state indication
 	return ret;
-}
-
-bool BattleInfo::resurrects(SpellID spellid) const
-{
-	return spellid.toSpell()->isRisingSpell();
 }
 
 const CStack * BattleInfo::battleGetStack(BattleHex pos, bool onlyAlive)
