@@ -46,9 +46,10 @@ struct SpellSchoolInfo
 class DLL_LINKAGE SpellCastEnvironment
 {
 public:
-	virtual void sendAndApply(CPackForClient * info) const  = 0;
+	virtual void sendAndApply(CPackForClient * info) const = 0;
 	
-	virtual CRandomGenerator & getRandomGenerator() const  = 0;
+	virtual CRandomGenerator & getRandomGenerator() const = 0;
+	virtual void complain(const std::string & problem) const = 0;
 };
 
 ///helper struct
