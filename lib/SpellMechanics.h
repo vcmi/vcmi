@@ -51,6 +51,8 @@ public:
 	//virtual bool adventureCast(const SpellCastContext & context) const = 0; 
 	virtual bool battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const = 0; 	
 	
+	static ISpellMechanics * createMechanics(CSpell * s);
+	
 protected:
 	CSpell * owner;	
 };

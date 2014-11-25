@@ -537,38 +537,9 @@ void CSpell::setupMechanics()
 	{
 		logGlobal->errorStream() << "Spell " << this->name << " mechanics already set";
 		delete mechanics;
-		mechanics = nullptr;	
 	}
 	
-	switch (id)
-	{
-	case SpellID::CLONE:
-		mechanics = new CloneMechanics(this);
-		break;
-	case SpellID::DISPEL_HELPFUL_SPELLS:
-		mechanics = new DispellHelpfulMechanics(this);
-		break;
-	case SpellID::SACRIFICE:
-		mechanics = new SacrificeMechanics(this);
-		break;
-	case SpellID::CHAIN_LIGHTNING:
-		mechanics = new ChainLightningMechanics(this);
-		break;
-	case SpellID::FIRE_WALL:
-	case SpellID::FORCE_FIELD:
-		mechanics = new WallMechanics(this);
-		break;
-	case SpellID::LAND_MINE:
-	case SpellID::QUICKSAND:
-		mechanics = new ObstacleMechanics(this);
-	default:		
-		if(isRisingSpell())
-			mechanics = new SpecialRisingSpellMechanics(this);
-		else	
-			mechanics = new DefaultSpellMechanics(this);
-		break;
-	}
-	
+	mechanics = ISpellMechanics::createMechanics(this);	
 }
 
 ///CSpell::TargetInfo
