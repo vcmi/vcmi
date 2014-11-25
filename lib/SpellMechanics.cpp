@@ -13,6 +13,7 @@
 
 #include "mapObjects/CGHeroInstance.h"
 #include "BattleState.h"
+#include "CRandomGenerator.h"
 
 #include "NetPacks.h"
 
@@ -129,14 +130,143 @@ ISpellMechanics::ISpellMechanics(CSpell * s):
 
 ///DefaultSpellMechanics
 
-bool DefaultSpellMechanics::adventureCast(const SpellCastContext& context) const
-{
-	return false; //there is no general algorithm for casting adventure spells
-}
+//bool DefaultSpellMechanics::adventureCast(const SpellCastContext& context) const
+//{
+//	return false; //there is no general algorithm for casting adventure spells
+//}
 
-bool DefaultSpellMechanics::battleCast(const SpellCastContext& context) const
+bool DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const
 {
-	return false; //todo; DefaultSpellMechanics::battleCast
+	BattleSpellCast sc;
+	sc.side = parameters.casterSide;
+	sc.id = owner->id;
+	sc.skill = parameters.spellLvl;
+	sc.tile = parameters.destination;
+	sc.dmgToDisplay = 0;
+	sc.castedByHero = nullptr != parameters.caster;
+	sc.attackerType = (parameters.casterStack ? parameters.casterStack->type->idNumber : CreatureID(CreatureID::NONE));
+	sc.manaGained = 0;
+	sc.spellCost = 0;	
+	
+	//calculate spell cost
+	if (parameters.caster) 
+	{
+		sc.spellCost = parameters.cb->battleGetSpellCost(owner, parameters.caster);
+
+		if (parameters.secHero && parameters.mode == ECastingMode::HERO_CASTING) //handle mana channel
+		{
+			int manaChannel = 0;
+			for(const CStack * stack : parameters.cb->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
+			{
+				if (stack->owner == parameters.secHero->tempOwner)
+				{
+					vstd::amax(manaChannel, stack->valOfBonuses(Bonus::MANA_CHANNELING));
+				}
+			}
+			sc.manaGained = (manaChannel * sc.spellCost) / 100;
+		}
+	}	
+	
+	
+	//calculating affected creatures for all spells
+	//must be vector, as in Chain Lightning order matters
+	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
+
+	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.caster);
+	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
+	
+	for (auto cre : attackedCres)
+	{
+		sc.affectedCres.insert (cre->ID);
+	}
+	
+	//checking if creatures resist
+	//resistance is applied only to negative spells
+	if(owner->isNegative())
+	{
+		for(auto s : attackedCres)
+		{
+			const int prob = std::min((s)->magicResistance(), 100); //probability of resistance in %
+			
+			if(env->getRandomGenerator().nextInt(99) < prob)
+			{
+				sc.resisted.push_back(s->ID);
+			}
+		}
+	}
+	
+	//TODO: extract dmg to display calculation	
+	//calculating dmg to display
+	if (owner->id == SpellID::DEATH_STARE || owner->id == SpellID::ACID_BREATH_DAMAGE)
+	{
+		sc.dmgToDisplay = parameters.usedSpellPower;
+		if (owner->id == SpellID::DEATH_STARE)
+			vstd::amin(sc.dmgToDisplay, (*attackedCres.begin())->count); //stack is already reduced after attack
+	}	
+	
+	StacksInjured si;
+	
+	//TODO:applying effects
+	
+	
+	env->sendAndApply(&sc);
+	if(!si.stacks.empty()) //after spellcast info shows
+		env->sendAndApply(&si);
+	
+	//reduce number of casts remaining
+	//TODO: this should be part of BattleSpellCast apply
+	if (parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING || parameters.mode == ECastingMode::ENCHANTER_CASTING) 
+	{
+		assert(parameters.casterStack);
+		
+		BattleSetStackProperty ssp;
+		ssp.stackID = parameters.casterStack->ID;
+		ssp.which = BattleSetStackProperty::CASTS;
+		ssp.val = -1;
+		ssp.absolute = false;
+		env->sendAndApply(&ssp);
+	}
+
+	//Magic Mirror effect
+	if (owner->isNegative() && parameters.mode != ECastingMode::MAGIC_MIRROR && owner->level && owner->getLevelInfo(0).range == "0") //it is actual spell and can be reflected to single target, no recurrence
+	{
+		for(auto & attackedCre : attackedCres)
+		{
+			int mirrorChance = (attackedCre)->valOfBonuses(Bonus::MAGIC_MIRROR);
+			if(mirrorChance > env->getRandomGenerator().nextInt(99))
+			{
+				std::vector<const CStack *> mirrorTargets;
+				auto battleStacks = parameters.cb->battleGetAllStacks(true);
+				for (auto & battleStack : battleStacks)
+				{
+					if(battleStack->owner == parameters.casterColor) //get enemy stacks which can be affected by this spell
+					{
+						if (ESpellCastProblem::OK == owner->isImmuneByStack(nullptr, battleStack))
+							mirrorTargets.push_back(battleStack);
+					}
+				}
+				if (!mirrorTargets.empty())
+				{
+					int targetHex = (*RandomGeneratorUtil::nextItem(mirrorTargets, env->getRandomGenerator()))->position;
+					
+					BattleSpellCastParameters mirrorParameters = parameters;
+					mirrorParameters.spellLvl = 0;
+					mirrorParameters.casterSide = 1-parameters.casterSide;
+					mirrorParameters.casterColor = (attackedCre)->owner;
+					mirrorParameters.caster = nullptr;
+					mirrorParameters.destination = targetHex;
+					mirrorParameters.secHero = parameters.caster;
+					mirrorParameters.mode = ECastingMode::MAGIC_MIRROR;
+					mirrorParameters.casterStack = (attackedCre);
+					mirrorParameters.selectedStack = nullptr;
+					
+					battleCast(env, mirrorParameters);					
+				}
+			}
+		}
+	}	
+	
+	return true;
 }
 
 std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const

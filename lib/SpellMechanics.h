@@ -48,8 +48,8 @@ public:
      * \return true if no error
      *
      */                           
-	virtual bool adventureCast(const SpellCastContext & context) const = 0; 
-	virtual bool battleCast(const SpellCastContext & context) const = 0; 	
+	//virtual bool adventureCast(const SpellCastContext & context) const = 0; 
+	virtual bool battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const = 0; 	
 	
 protected:
 	CSpell * owner;	
@@ -65,14 +65,21 @@ public:
 	
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
 	
-	bool adventureCast(const SpellCastContext & context) const override; 
-	bool battleCast(const SpellCastContext & context) const override; 
+	//bool adventureCast(const SpellCastContext & context) const override; 
+	bool battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const override; 
 };
 
-class WallMechanics: public DefaultSpellMechanics
+class ObstacleMechanics: public DefaultSpellMechanics
 {
 public:
-	WallMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+	ObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};		
+	
+};
+
+class WallMechanics: public ObstacleMechanics
+{
+public:
+	WallMechanics(CSpell * s): ObstacleMechanics(s){};	
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr) const override;	
 	
 };

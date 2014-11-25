@@ -29,6 +29,7 @@ class CStack;
 class CBattleInfoCallback;
 
 struct CPackForClient;
+class CRandomGenerator;
 
 struct SpellSchoolInfo
 {
@@ -44,25 +45,28 @@ struct SpellSchoolInfo
 class DLL_LINKAGE SpellCastEnvironment
 {
 public:
-	virtual void sendAndApply(CPackForClient * info) = 0;
+	virtual void sendAndApply(CPackForClient * info) const  = 0;
+	
+	virtual CRandomGenerator & getRandomGenerator() const  = 0;
 };
 
 ///helper struct
-struct DLL_LINKAGE SpellCastContext
+struct DLL_LINKAGE BattleSpellCastParameters
 {
 public:
-	const SpellCastEnvironment * env;
-	
 	int spellLvl;
-//	BattleHex destination;
+	BattleHex destination;
 	ui8 casterSide;
 	PlayerColor casterColor;
 	const CGHeroInstance * caster;
 	const CGHeroInstance * secHero;
 	int usedSpellPower;
 	ECastingMode::ECastingMode mode;
-	const CStack * targetStack;
-	const CStack * selectedStack;	
+	const CStack * casterStack;
+	const CStack * selectedStack;
+	
+	const CBattleInfoCallback * cb;
+		
 };
 
 
@@ -147,6 +151,9 @@ public:
 
 	CSpell();
 	~CSpell();
+	
+	//void adventureCast() const; 
+	void battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const; 	
 	
 	bool isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const;
 

@@ -101,6 +101,12 @@ CSpell::~CSpell()
 	delete mechanics;
 }
 
+void CSpell::battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const
+{
+	if(!mechanics->battleCast(env, parameters))
+		logGlobal->errorStream() << "Internal error during spell cast";	
+}
+
 bool CSpell::isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const
 {
 	if(!hasSpellBook)
@@ -552,6 +558,9 @@ void CSpell::setupMechanics()
 	case SpellID::FORCE_FIELD:
 		mechanics = new WallMechanics(this);
 		break;
+	case SpellID::LAND_MINE:
+	case SpellID::QUICKSAND:
+		mechanics = new ObstacleMechanics(this);
 	default:		
 		if(isRisingSpell())
 			mechanics = new SpecialRisingSpellMechanics(this);
