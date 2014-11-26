@@ -549,6 +549,35 @@ void CSpell::setupMechanics()
 	mechanics = ISpellMechanics::createMechanics(this);	
 }
 
+///CSpell::AnimationInfo
+CSpell::AnimationInfo::AnimationInfo()
+{
+	
+}
+
+CSpell::AnimationInfo::~AnimationInfo()
+{
+	
+}
+
+std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
+{	
+	std::string res;	
+	double maximum = 0.0;
+	
+	for(const auto & info : projectile)
+	{
+		if(info.minimumAngle < angle && info.minimumAngle > maximum)
+		{
+			maximum = info.minimumAngle;
+			res = info.defName;
+		}
+	}
+	
+	return std::move(res);	
+}
+
+
 ///CSpell::TargetInfo
 CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level)
 {

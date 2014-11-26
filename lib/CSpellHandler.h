@@ -68,15 +68,58 @@ public:
 	int usedSpellPower;
 	ECastingMode::ECastingMode mode;
 	const CStack * casterStack;
-	const CStack * selectedStack;
-	
-	const BattleInfo * cb;
-		
+	const CStack * selectedStack;	
+	const BattleInfo * cb;		
 };
 
 
 class DLL_LINKAGE CSpell
 {
+public:
+	
+	struct ProjectileInfo
+	{
+		///in radians. Only positive value. Negative angle is handled by vertical flip
+		double minimumAngle; 
+		
+		///resource name
+		std::string defName;
+		 
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & minimumAngle & defName; 
+		}		
+	};
+	
+	typedef std::string TAnimation;
+	typedef std::vector<TAnimation> TAnimationQueue; 
+	
+	struct AnimationInfo
+	{
+		AnimationInfo();
+		~AnimationInfo();
+
+		///displayed on all affected targets. 
+		TAnimationQueue affect;
+
+		///displayed on caster.
+		TAnimationQueue cast;
+
+		///displayed on target hex. If spell was casted with no target selection displayed on entire battlefield (f.e. ARMAGEDDON)
+		TAnimationQueue hit;
+
+		///displayed "between" caster and (first) target. Ignored if spell was casted with no target selection.
+		///use selectProjectile to access
+		std::vector<ProjectileInfo> projectile;
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & projectile & hit & cast;
+		}
+
+		std::string selectProjectile(const double angle) const;
+	} animationInfo;
+	
 public:
 	struct LevelInfo
 	{
@@ -157,13 +200,10 @@ public:
 	CSpell();
 	~CSpell();
 	
-	//void adventureCast() const; 
-	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const; 	
-	
 	bool isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const;
 
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr ) const; //convert range to specific hexes; last optional out parameter is set to true, if spell would cover unavailable hexes (that are not included in ret)
-	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)
+	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none) DEPRECATED
 	ETargetType getTargetType() const; //deprecated
 
 	CSpell::TargetInfo getTargetInfo(const int level) const;
@@ -243,22 +283,29 @@ public:
 		h & immunities & limiters & absoluteImmunities & absoluteLimiters;
 		h & iconImmune;
 		h & defaultProbability;
-
 		h & isSpecial;
-
 		h & castSound & iconBook & iconEffect & iconScenarioBonus & iconScroll;
+		h & levels;		
+		h & school;		
+		h & animationInfo;
 
-		h & levels;
-		
-		h & school;
-		
 		if(!h.saving)
 			setup();
 	}
 	friend class CSpellHandler;
 	friend class Graphics;
+public:
+	///Server logic. Has write access to GameState via packets.
+	///May be executed on client side by (future) non-cheat-proof scripts.
+	
+	//void adventureCast() const; 
+	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const; 	
+		
 public:	
-	///Client-Server events. Shall be called only when applying packets	
+	///Client-server logic. Has direct write access to GameState.
+	///Shall be called (only) when applying packets on BOTH SIDES
+	
+	///implementation of BattleSpellCast applying
 	void afterCast(BattleInfo * battle, const BattleSpellCast * packet) const;
 		
 private:

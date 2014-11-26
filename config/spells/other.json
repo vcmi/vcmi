@@ -98,6 +98,9 @@
 		"index" : 35,
 		"targetType" : "CREATURE",			
 		"anim" : 41,
+		"animation":{
+			"affect":["C05SPW"] //C05SPW0
+		},			
 		"sounds": {
 			"cast": "DISPELL"
 		},
@@ -116,6 +119,9 @@
 	"cure" : {
 		"index" : 37,
 		"targetType" : "CREATURE",		
+		"animation":{
+			"affect":["C03SPW"]//C03SPW0
+		},
 		"anim" : 39,
 		"sounds": {
 			"cast": "CURE"
@@ -137,6 +143,9 @@
 		"index" : 38,
 		"targetType" : "CREATURE",			
 		"anim" : 79,
+		"animation":{
+			"affect":["C01SPE0"]
+		},
 		"sounds": {
 			"cast": "RESURECT"
 		},
@@ -159,6 +168,9 @@
 		"index" : 39,
 		"targetType" : "CREATURE",			
 		"anim" : 79,
+		"animation":{
+			"affect":["C01SPE0"]
+		},		
 		"sounds": {
 			"cast": "ANIMDEAD"
 		},
@@ -180,6 +192,9 @@
 		"index" : 40,
 		"targetType" : "CREATURE",			
 		"anim" : 79,
+		"animation":{
+			"affect":["C01SPE0"]
+		},		
 		"sounds": {
 			"cast": "SACRIF1"
 		},

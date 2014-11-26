@@ -8,6 +8,33 @@
 
 
 	"definitions" : {
+		"animationQueue":{
+			"type": "array",
+			"items":{
+				"type": "string",
+				"format": "defFile"						
+			}			
+		},
+		"animation":{
+			"type": "object",
+			"additionalProperties" : false,
+			"properties":{
+				"affect":{"$ref" : "#/definitions/animationQueue"},				
+				"hit":{"$ref" : "#/definitions/animationQueue"},				
+				"cast":{"$ref" : "#/definitions/animationQueue"},
+				"projectile":{
+					"type":"array",
+					"items":{
+						"type": "object",
+						"properties":{
+							"minimumAngle": {"type":"number", "minimum" : 0},
+							"defName": {"type":"string", "format": "defFile"}
+						},					
+						"additionalProperties" : false						
+					}
+				}				
+			}		
+		},
 		"flags" :{
 			"type" : "object",
 			"additionalProperties" : {
@@ -124,9 +151,9 @@
 				"type": "object",
 				"description": "Chance in % to gain for faction. NOTE: this field is merged with faction config",
 				"additionalProperties" : {
-		 "type": "number",
-		 "minimum" : 0
-		}
+					"type": "number",
+					"minimum" : 0
+				}
 		},
 		"targetType":{
 				  "type": "string",
@@ -193,6 +220,9 @@
 				 "$ref" : "#/definitions/flags",
 				 "description": "flags structure of bonus names, presence of all bonuses required to be affected by, can't be negated."
 		},
+		
+		"animation":{"$ref": "#/definitions/animation"},
+		
 		"graphics":{
 				 "type": "object",
 				 "additionalProperties" : false,

@@ -3,6 +3,9 @@
 		"index" : 27,
 		"targetType" : "CREATURE",			
 		"anim" : 27,
+		"animation":{
+			"affect":["C13SPE0"]
+		},		
 		"sounds": {
 			"cast": "SHIELD"
 		},
@@ -30,6 +33,9 @@
 		"index" : 28,
 		"targetType" : "CREATURE",
 		"anim" : 2,
+		"animation":{
+			"affect":["C01SPA0"]
+		},		
 		"sounds": {
 			"cast": "AIRSHELD"
 		},
@@ -57,6 +63,9 @@
 		"index" : 29,
 		"targetType" : "CREATURE",
 		"anim" : 11,
+		"animation":{
+			"affect":["C05SPF0"]
+		},		
 		"sounds": {
 			"cast": "FIRESHIE"
 		},
@@ -86,6 +95,9 @@
 		"index" : 30,
 		"targetType" : "CREATURE",
 		"anim" : 22,
+		"animation":{
+			"affect":["C11SPE0"]
+		},		
 		"sounds": {
 			"cast": "PROTECTA"
 		},
@@ -113,6 +125,9 @@
 		"index" : 31,
 		"targetType" : "CREATURE",
 		"anim" : 24,
+		"animation":{
+			"affect":["C11SPW0"]
+		},		
 		"sounds": {
 			"cast": "PROTECTF"
 		},
@@ -140,6 +155,9 @@
 		"index" : 32,
 		"targetType" : "CREATURE",
 		"anim" : 23,
+		"animation":{
+			"affect":["C11SPF0"]
+		},		
 		"sounds": {
 			"cast": "PROTECTW"
 		},
@@ -167,6 +185,9 @@
 		"index" : 33,
 		"targetType" : "CREATURE",
 		"anim" : 26,
+		"animation":{
+			"affect":["C13SPA0"]
+		},		
 		"sounds": {
 			"cast": "PROTECTE"
 		},
@@ -194,6 +215,9 @@
 		"index" : 34,
 		"targetType" : "CREATURE",
 		"anim" : 5,
+		"animation":{
+			"affect":["C02SPE0"]
+		},		
 		"sounds": {
 			"cast": "ANTIMAGK"
 		},
@@ -234,6 +258,9 @@
 		"index" : 36,
 		"targetType" : "CREATURE",
 		"anim" : 3,
+		"animation":{
+			"affect":["C02SPA0"]
+		},		
 		"sounds": {
 			"cast": "BACKLASH"
 		},
@@ -254,11 +281,13 @@
 			"positive": true
 		}
 	},
-
 	"bless" : {
 		"index" : 41,
 		"targetType" : "CREATURE",
 		"anim" : 36,
+		"animation":{
+			"affect":["C01SPW"] //C01SPW0
+		},		
 		"sounds": {
 			"cast": "BLESS"
 		},
@@ -294,6 +323,9 @@
 		"index" : 42,
 		"targetType" : "CREATURE",
 		"anim" : 40,
+		"animation":{
+			"affect":["C04SPW"]//C04SPW0
+		},		
 		"sounds": {
 			"cast": "CURSE"
 		},
@@ -330,6 +362,9 @@
 		"index" : 43,
 		"targetType" : "CREATURE",
 		"anim" : 4,
+		"animation":{
+			"affect":["SP12_"] //???
+		},		
 		"sounds": {
 			"cast": "BLOODLUS"
 		},
@@ -374,6 +409,9 @@
 		"index" : 44,
 		"targetType" : "CREATURE",
 		"anim" : 25,
+		"animation":{
+			"affect":["C12SPA0"]
+		},		
 		"sounds": {
 			"cast": "PRECISON"
 		},
@@ -418,6 +456,9 @@
 		"index" : 45,
 		"targetType" : "CREATURE",
 		"anim" : 56,
+		"animation":{
+			"affect":["C0ACID"]
+		},		
 		"sounds": {
 			"cast": "WEAKNESS"
 		},
@@ -462,6 +503,9 @@
 		"index" : 46,
 		"targetType" : "CREATURE",
 		"anim" : 54,
+		"animation":{
+			"affect":["C16SPE"] //C16SPE0
+		},		
 		"sounds": {
 			"cast": "TUFFSKIN"
 		},
@@ -502,6 +546,10 @@
 		"index" : 47,
 		"targetType" : "CREATURE",
 		"anim" : 14,
+		"animation":{
+			"affect":["C07SPA1"],
+			"projectile":[{"defName":"C07SPA0"}]//???
+		},		
 		"sounds": {
 			"cast": "DISRUPTR"
 		},
@@ -542,6 +590,9 @@
 		"index" : 48,
 		"targetType" : "CREATURE",
 		"anim" : 0,
+		"animation":{
+			"affect":["C10SPW"]
+		},		
 		"sounds": {
 			"cast": "PRAYER"
 		},
@@ -606,6 +657,9 @@
 		"index" : 49,
 		"targetType" : "CREATURE",
 		"anim" : 20,
+		"animation":{
+			"affect":["C09SPW0"]
+		},		
 		"sounds": {
 			"cast": "MIRTH"
 		},
@@ -655,6 +709,9 @@
 		"index" : 50,
 		"targetType" : "CREATURE",
 		"anim" : 30,
+		"animation":{
+			"affect":["C14SPE0"]
+		},		
 		"sounds": {
 			"cast": "SORROW"
 		},
@@ -704,6 +761,9 @@
 		"index" : 51,
 		"targetType" : "CREATURE",
 		"anim" : 18,
+		"animation":{
+			"affect":["C09SPA0"]
+		},		
 		"sounds": {
 			"cast": "FORTUNE"
 		},
@@ -746,6 +806,9 @@
 		"index" : 52,
 		"targetType" : "CREATURE",
 		"anim" : 48,
+		"animation":{
+			"affect":["C10SPF0"]
+		},		
 		"sounds": {
 			"cast": "MISFORT"
 		},
@@ -788,6 +851,9 @@
 		"index" : 53,
 		"targetType" : "CREATURE",
 		"anim" : 31,
+		"animation":{
+			"affect":["C15SPA0"]
+		},		
 		"sounds": {
 			"cast": "HASTE"
 		},
@@ -834,6 +900,9 @@
 		"index" : 54,
 		"targetType" : "CREATURE",
 		"anim" : 19,
+		"animation":{
+			"affect":["C09SPE0"]
+		},		
 		"sounds": {
 			"cast": "MUCKMIRE"
 		},
@@ -882,6 +951,9 @@
 		"index" : 55,
 		"targetType" : "CREATURE",
 		"anim" : 28,
+		"animation":{
+			"affect":["C13SPW0"]
+		},		
 		"sounds": {
 			"cast": "SLAYER"
 		},
@@ -933,6 +1005,9 @@
 		"index" : 56,
 		"targetType" : "CREATURE",
 		"anim" : 17,
+		"animation":{
+			"affect":["C08SPF0"]
+		},		
 		"sounds": {
 			"cast": "FRENZY"
 		},
@@ -972,6 +1047,9 @@
 		"index" : 58,
 		"targetType" : "CREATURE",
 		"anim" : 7,
+		"animation":{
+			"affect":["C04SPA0"]
+		},		
 		"sounds": {
 			"cast": "CNTRSTRK"
 		},
@@ -1011,6 +1089,9 @@
 		"index" : 59,
 		"targetType" : "CREATURE",
 		"anim" : 35,
+		"animation":{
+			"affect":["C01SPF"] //C01SPF0
+		},		
 		"sounds": {
 			"cast": "BERSERK"
 		},
@@ -1070,6 +1151,9 @@
 		"index" : 60,
 		"targetType" : "CREATURE",
 		"anim" : 21,
+		"animation":{
+			"affect":["C10SPA0"]
+		},		
 		"sounds": {
 			"cast": "HYPNOTIZ"
 		},
@@ -1127,6 +1211,9 @@
 		"index" : 61,
 		"targetType" : "CREATURE", 
 		"anim" : 42,
+		"animation":{
+			"affect":["C06SPW"]//C06SPW0
+		},		
 		"sounds": {
 			"cast": "FORGET"
 		},
@@ -1187,6 +1274,9 @@
 		"index" : 62,
 		"targetType" : "CREATURE",
 		"anim" : 6,
+		"animation":{
+			"affect":["C02SPF0"]
+		},		
 		"sounds": {
 			"cast": "BLIND"
 		},
