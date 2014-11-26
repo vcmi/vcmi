@@ -94,7 +94,7 @@ public:
 	typedef std::string TAnimation;
 	typedef std::vector<TAnimation> TAnimationQueue; 
 	
-	struct AnimationInfo
+	struct DLL_LINKAGE AnimationInfo
 	{
 		AnimationInfo();
 		~AnimationInfo();

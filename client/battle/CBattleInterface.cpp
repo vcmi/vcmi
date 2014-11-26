@@ -1234,49 +1234,30 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	
 	if(!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
-
-	switch(sc->id)
+		
+	//TODO: play custom cast animation
 	{
-	case SpellID::MAGIC_ARROW:
+				
+	}
+	
+	//playing projectile animation
+	if(sc->tile.isValid())
+	{	
+		//todo: srccoord of creature caster	
+		Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;
+		Point destcoord = CClickableHex::getXYUnitAnim(sc->tile, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by projectile
+		destcoord.x += 250; destcoord.y += 240;
+
+		//animation angle
+		double angle = atan2(static_cast<double>(destcoord.x - srccoord.x), static_cast<double>(destcoord.y - srccoord.y));
+		bool Vflip = (angle < 0);
+		if(Vflip)
+			angle = -angle;
+		
+		std::string animToDisplay = spell.animationInfo.selectProjectile(angle);
+		
+		if(!animToDisplay.empty())
 		{
-			//initialization of anims
-			anims.push_back("C20SPX0.DEF"); anims.push_back("C20SPX1.DEF"); anims.push_back("C20SPX2.DEF"); anims.push_back("C20SPX3.DEF"); anims.push_back("C20SPX4.DEF");
-		}
-	case SpellID::ICE_BOLT:
-		{
-			if(anims.size() == 0) //initialization of anims
-			{
-				anims.push_back("C08SPW0.DEF"); anims.push_back("C08SPW1.DEF"); anims.push_back("C08SPW2.DEF"); anims.push_back("C08SPW3.DEF"); anims.push_back("C08SPW4.DEF");
-			}
-		} //end of ice bolt only part
-		{ //common ice bolt and magic arrow part
-			//initial variables
-			std::string animToDisplay;
-			Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;
-			Point destcoord = CClickableHex::getXYUnitAnim(sc->tile, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by arrow
-			destcoord.x += 250; destcoord.y += 240;
-
-			//animation angle
-			double angle = atan2(static_cast<double>(destcoord.x - srccoord.x), static_cast<double>(destcoord.y - srccoord.y));
-			bool Vflip = false;
-			if (angle < 0)
-			{
-				Vflip = true;
-				angle = -angle;
-			}
-
-			//choosing animation by angle
-			if(angle > 1.50)
-				animToDisplay = anims[0];
-			else if(angle > 1.20)
-				animToDisplay = anims[1];
-			else if(angle > 0.90)
-				animToDisplay = anims[2];
-			else if(angle > 0.60)
-				animToDisplay = anims[3];
-			else
-				animToDisplay = anims[4];
-
 			//displaying animation
 			CDefEssential * animDef = CDefHandler::giveDefEss(animToDisplay);
 			double diffX = (destcoord.x - srccoord.x)*(destcoord.x - srccoord.x);
@@ -1288,10 +1269,43 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			int dy = (destcoord.y - srccoord.y - animDef->ourImages[0].bitmap->h)/steps;
 
 			delete animDef;
-			addNewAnim(new CSpellEffectAnimation(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));
-
-			break; //for 15 and 16 cases
+			addNewAnim(new CSpellEffectAnimation(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));			
 		}
+	}	
+	waitForAnims();
+	
+	//queuing hit animation
+	if(sc->tile.isValid())
+	{
+		for(const CSpell::TAnimation & animation : spell.animationInfo.hit)
+		{
+			//Point destcoord = CClickableHex::getXYUnitAnim(sc->tile, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by projectile
+			
+			//addNewAnim(new CSpellEffectAnimation(this, animation, destTile, 0, 0, false, areaEffect));
+		}
+	}
+	else
+	{
+		//whole battlefield
+	}
+	
+	//queuing affect animation	
+	for (auto & elem : sc->affectedCres) 
+	{
+		for(const CSpell::TAnimation & animation : spell.animationInfo.affect)
+		{
+			//Point destcoord = CClickableHex::getXYUnitAnim(sc->tile, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by projectile
+			
+			//addNewAnim(new CSpellEffectAnimation(this, animation, destTile, 0, 0, false, areaEffect));
+		}
+		//displayEffect(spell.mainEffectAnim, curInt->cb->battleGetStackByID(elem, false)->position);
+	}
+
+	
+
+	switch(sc->id)
+	{
+
 	case SpellID::LIGHTNING_BOLT:
 	case SpellID::TITANS_LIGHTNING_BOLT:
 	case SpellID::THUNDERBOLT:
