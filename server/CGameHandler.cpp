@@ -3774,7 +3774,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				complain("That stack can't cast spells!");
 			else
 			{
-				BattleSpellCastParameters p;
+				BattleSpellCastParameters p(gs->curB);				
 				
 				p.spellLvl = 0;
 				if (spellcaster)
@@ -3983,7 +3983,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			const CSpell * s = SpellID(ba.additionalInfo).toSpell();
 			
-			BattleSpellCastParameters parameters;
+			BattleSpellCastParameters parameters(gs->curB);
 			parameters.spellLvl =  h->getSpellSchoolLevel(s);
 			parameters.destination = ba.destinationTile;
 			parameters.casterSide = ba.side;
@@ -4137,7 +4137,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 			const CSpell * spell = SpellID(spellID).toSpell();
 			if (gs->curB->battleCanCastThisSpell(st->owner, spell, ECastingMode::ENCHANTER_CASTING) == ESpellCastProblem::OK) //TODO: select another available?
 			{
-				BattleSpellCastParameters parameters;
+				BattleSpellCastParameters parameters(gs->curB);
 				parameters.spellLvl = bonus->val;
 				parameters.destination = BattleHex::INVALID;
 				parameters.casterSide = side;
@@ -4836,7 +4836,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			{
 				const CSpell * spell = SpellID(spellID).toSpell();
 
-				BattleSpellCastParameters parameters;
+				BattleSpellCastParameters parameters(gs->curB);
 				parameters.spellLvl = spellLevel;
 				parameters.destination = destination;
 				parameters.casterSide = !attacker->attackerOwned;
@@ -4871,7 +4871,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	{
 		const CSpell * spell = SpellID(spellID).toSpell();
 
-		BattleSpellCastParameters parameters;
+		BattleSpellCastParameters parameters(gs->curB);
 		parameters.spellLvl = 0;
 		parameters.destination = gs->curB->battleGetStackByID(bat.bsa.at(0).stackAttacked)->position;
 		parameters.casterSide = !attacker->attackerOwned;
@@ -5391,7 +5391,7 @@ void CGameHandler::runBattle()
 		{
 			TBonusListPtr bl = h->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));		
 			
-			BattleSpellCastParameters parameters;
+			BattleSpellCastParameters parameters(gs->curB);
 			parameters.spellLvl = 3;
 			parameters.destination = BattleHex::INVALID;
 			parameters.casterSide = 0;
