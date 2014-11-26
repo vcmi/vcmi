@@ -885,10 +885,23 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 	spell->iconScenarioBonus = graphicsNode["iconScenarioBonus"].String();
 	spell->iconScroll = graphicsNode["iconScroll"].String();
 
-
+	const JsonNode & animationNode = json["animation"];
+	spell->animationInfo.affect = animationNode["affect"].convertTo<CSpell::TAnimationQueue>();
+	spell->animationInfo.cast = animationNode["cast"].convertTo<CSpell::TAnimationQueue>();
+	spell->animationInfo.hit = animationNode["hit"].convertTo<CSpell::TAnimationQueue>();
+	
+	const JsonVector & projectile = animationNode["projectile"].Vector();
+	
+	for(const JsonNode & item : projectile)
+	{
+		CSpell::ProjectileInfo info;
+		info.defName = item["defName"].String();
+		info.minimumAngle = item["minimumAngle"].Float();
+		
+		spell->animationInfo.projectile.push_back(info);
+	}
 
 	const JsonNode & soundsNode = json["sounds"];
-
 	spell->castSound = soundsNode["cast"].String();
 
 
