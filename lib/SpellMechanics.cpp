@@ -368,12 +368,13 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	sc.castedByHero = nullptr != parameters.caster;
 	sc.attackerType = (parameters.casterStack ? parameters.casterStack->type->idNumber : CreatureID(CreatureID::NONE));
 	sc.manaGained = 0;
-	sc.spellCost = 0;	
+	
+	int spellCost = 0;	
 	
 	//calculate spell cost
 	if(parameters.caster) 
 	{
-		sc.spellCost = parameters.cb->battleGetSpellCost(owner, parameters.caster);
+		spellCost = parameters.cb->battleGetSpellCost(owner, parameters.caster);
 
 		if(parameters.secHero && parameters.mode == ECastingMode::HERO_CASTING) //handle mana channel
 		{
@@ -385,7 +386,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 					vstd::amax(manaChannel, stack->valOfBonuses(Bonus::MANA_CHANNELING));
 				}
 			}
-			sc.manaGained = (manaChannel * sc.spellCost) / 100;
+			sc.manaGained = (manaChannel * spellCost) / 100;
 		}
 	}	
 	
@@ -423,6 +424,29 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	applyBattleEffects(env, parameters, ctx);
 	
 	env->sendAndApply(&sc);
+	
+
+	//spend mana
+	if(parameters.caster) 
+	{
+		SetMana sm;
+		sm.absolute = false;
+		
+		sm.hid = parameters.caster->id;
+		sm.val = -spellCost;
+		
+		env->sendAndApply(&sm);
+		
+		if(sc.manaGained > 0)
+		{
+			assert(parameters.secHero);
+			
+			sm.hid = parameters.secHero->id;
+			sm.val = sc.manaGained;
+			env->sendAndApply(&sm);
+		}		
+	}
+	
 	if(!si.stacks.empty()) //after spellcast info shows
 		env->sendAndApply(&si);
 	

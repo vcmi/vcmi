@@ -2045,6 +2045,7 @@ void CGameHandler::setManaPoints( ObjectInstanceID hid, int val )
 	SetMana sm;
 	sm.hid = hid;
 	sm.val = val;
+	sm.absolute = true;
 	sendAndApply(&sm);
 }
 
@@ -3830,6 +3831,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 
 		//give mana
 		sm.val = 999;
+		sm.absolute = true;
 
 		if(!h->hasSpellbook()) //hero doesn't have spellbook
 			giveHeroNewArtifact(h, VLC->arth->artifacts.at(0), ArtifactPosition::SPELLBOOK); //give spellbook
@@ -5146,7 +5148,8 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int
 
 	SetMana sm;
 	sm.hid = h->id;
-	sm.val = h->mana - cost;
+	sm.absolute = false;
+	sm.val = -cost;
 	sendAndApply(&sm);
 
 	return true;

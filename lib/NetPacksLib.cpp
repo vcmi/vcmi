@@ -184,9 +184,16 @@ DLL_LINKAGE void ChangeSpells::applyGs( CGameState *gs )
 
 DLL_LINKAGE void SetMana::applyGs( CGameState *gs )
 {
-	CGHeroInstance *hero = gs->getHero(hid);
-	vstd::amax(val, 0); //not less than 0
-	hero->mana = val;
+	CGHeroInstance * hero = gs->getHero(hid);
+	
+	assert(hero);
+	
+	if(absolute)
+		hero->mana = val;		
+	else
+		hero->mana += val;
+
+	vstd::amax(hero->mana, 0); //not less than 0
 }
 
 DLL_LINKAGE void SetMovePoints::applyGs( CGameState *gs )
@@ -1330,13 +1337,6 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 	assert(gs->curB);
 	if (castedByHero)
 	{
-		CGHeroInstance * h = gs->curB->battleGetFightingHero(side);
-		CGHeroInstance * enemy = gs->curB->battleGetFightingHero(!side);
-
-		h->mana -= spellCost;
-			vstd::amax(h->mana, 0);
-		if (enemy && manaGained)
-			enemy->mana += manaGained;
 		if (side < 2)
 		{
 			gs->curB->sides[side].castSpellsCount++;

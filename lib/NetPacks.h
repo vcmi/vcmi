@@ -274,17 +274,18 @@ struct ChangeSpells : public CPackForClient //109
 
 struct SetMana : public CPackForClient //110
 {
-	SetMana(){type = 110;};
+	SetMana(){type = 110;absolute=true;};
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 
 	ObjectInstanceID hid;
 	si32 val;
+	bool absolute;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & val & hid;
+		h & val & hid & absolute;
 	}
 };
 
@@ -1447,7 +1448,6 @@ struct BattleSpellCast : public CPackForClient//3009
 	ui8 side; //which hero did cast spell: 0 - attacker, 1 - defender
 	ui32 id; //id of spell
 	ui8 skill; //caster's skill level
-	ui8 spellCost;
 	ui8 manaGained; //mana channeling ability
 	BattleHex tile; //destination tile (may not be set in some global/mass spells
 	std::vector<ui32> resisted; //ids of creatures that resisted this spell
@@ -1456,7 +1456,7 @@ struct BattleSpellCast : public CPackForClient//3009
 	bool castedByHero; //if true - spell has been casted by hero, otherwise by a creature
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & dmgToDisplay & side & id & skill & spellCost & manaGained & tile & resisted & affectedCres & attackerType & castedByHero;
+		h & dmgToDisplay & side & id & skill & tile & resisted & affectedCres & attackerType & castedByHero;
 	}
 };
 
