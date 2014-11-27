@@ -876,7 +876,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
-
+	
 	std::vector<StackAttackedInfo> arg;
 	for(auto & elem : bsa)
 	{
@@ -886,6 +886,11 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 		{
 			if (defender && !elem.isSecondary())
 				battleInt->displayEffect(elem.effect, defender->position);
+		}
+		if(elem.isSpell())
+		{
+			if (defender)
+				battleInt->displaySpellEffect(elem.spellID, defender->position);			
 		}
 		//FIXME: why action is deleted during enchanter cast?
 		bool remoteAttack = false;
@@ -967,6 +972,15 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 		}
 		const CStack * attacked = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
 		battleInt->stackAttacking( attacker, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, attacked, false);
+	}
+	
+	battleInt->waitForAnims();
+	
+	if(ba->spellLike())
+	{
+		//display hit animation		
+		SpellID spellID = ba->spellID;			
+		battleInt->displaySpellHit(spellID,curAction->destinationTile);	
 	}
 }
 void CPlayerInterface::battleObstaclePlaced(const CObstacleInstance &obstacle)

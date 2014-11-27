@@ -1320,16 +1320,18 @@ struct StacksHealedOrResurrected : public CPackForClient //3013
 
 struct BattleStackAttacked : public CPackForClient//3005
 {
-	BattleStackAttacked(){flags = 0; type = 3005;};
+	BattleStackAttacked():
+		flags(0), spellID(SpellID::NONE){type=3005;};
 	void applyFirstCl(CClient * cl);
 	//void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ui32 stackAttacked, attackerID;
 	ui32 newAmount, newHP, killedAmount, damageAmount;
-	enum EFlags {KILLED = 1, EFFECT = 2, SECONDARY = 4, REBIRTH = 8, CLONE_KILLED = 16};
-	ui8 flags; //uses EFlags (above)
+	enum EFlags {KILLED = 1, EFFECT = 2/*deprecated */, SECONDARY = 4, REBIRTH = 8, CLONE_KILLED = 16, SPELL_EFFECT = 32 /*, BONUS_EFFECT = 64 */};
+	ui32 flags; //uses EFlags (above)
 	ui32 effect; //set only if flag EFFECT is set
+	SpellID spellID; //only if flag SPELL_EFFECT is set
 	std::vector<StacksHealedOrResurrected> healedStacks; //used when life drain
 
 
@@ -1349,6 +1351,11 @@ struct BattleStackAttacked : public CPackForClient//3005
 	{
 		return flags & SECONDARY;
 	}
+	///Attacked with spell (SPELL_LIKE_ATTACK)
+	bool isSpell() const
+	{
+		return flags & SPELL_EFFECT;
+	}
 	bool willRebirth() const//resurrection, e.g. Phoenix
 	{
 		return flags & REBIRTH;
@@ -1361,6 +1368,7 @@ struct BattleStackAttacked : public CPackForClient//3005
 	{
 		h & stackAttacked & attackerID & newAmount & newHP & flags & killedAmount & damageAmount & effect
 			& healedStacks;
+		h & spellID;
 	}
 	bool operator<(const BattleStackAttacked &b) const
 	{
@@ -1370,15 +1378,17 @@ struct BattleStackAttacked : public CPackForClient//3005
 
 struct BattleAttack : public CPackForClient//3006
 {
-	BattleAttack(){flags = 0; type = 3006;};
+	BattleAttack(): flags(0), spellID(SpellID::NONE){type = 3006;};
 	void applyFirstCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
 	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking;
-	ui8 flags; //uses Eflags (below)
-	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32};
+	ui32 flags; //uses Eflags (below)
+	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64};
+	
+	SpellID spellID; //for SPELL_LIKE 
 
 	bool shot() const//distance attack - decrease number of shots
 	{
@@ -1404,13 +1414,17 @@ struct BattleAttack : public CPackForClient//3006
 	{
 		return flags & DEATH_BLOW;
 	}
+	bool spellLike() const
+	{
+		return flags & SPELL_LIKE;
+	}
 	//bool killed() //if target stack was killed
 	//{
 	//	return bsa.killed();
 	//}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & bsa & stackAttacking & flags;
+		h & bsa & stackAttacking & flags & spellID;
 	}
 };
 

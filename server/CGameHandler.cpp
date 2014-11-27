@@ -794,11 +794,14 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	}
 
 	const Bonus * bonus = att->getBonusLocalFirst(Selector::type(Bonus::SPELL_LIKE_ATTACK));
-	if (bonus && (bat.shot())) //TODO: make it work in meele?
-	{
-		bat.bsa.front().flags |= BattleStackAttacked::EFFECT;
-		bat.bsa.front().effect = VLC->spellh->objects.at(bonus->subtype)->mainEffectAnim; //hopefully it does not interfere with any other effect?
-
+	if (bonus && (bat.shot())) //TODO: make it work in melee?
+	{	
+		//this is need for displaying hit animation
+		bat.flags |= BattleAttack::SPELL_LIKE;
+		bat.spellID = SpellID(bonus->subtype);
+		
+		//TODO: should spell override creature`s projectile?
+		
 		std::set<const CStack*> attackedCreatures = SpellID(bonus->subtype).toSpell()->getAffectedStacks(gs->curB, ECastingMode::SPELL_LIKE_ATTACK, att->owner, bonus->val, targetHex);
 	
 		//TODO: get exact attacked hex for defender
@@ -810,6 +813,18 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 				applyBattleEffects(bat, att, stack, distance, true);
 			}
 		}
+		
+		//now add effect info for all attacked stacks
+		for(BattleStackAttacked & bsa : bat.bsa)
+		{
+			if(bsa.attackerID == att->ID) //this is our attack and not f.e. fire shield
+			{
+				//this is need for displaying affect animation
+				bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
+				bsa.spellID = SpellID(bonus->subtype);
+			}
+		}
+		
 	}
 }
 void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, const CStack *def, int distance, bool secondary) //helper function for prepareAttack

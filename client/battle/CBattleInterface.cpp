@@ -1226,7 +1226,8 @@ void CBattleInterface::displayBattleFinished()
 
 void CBattleInterface::spellCast( const BattleSpellCast * sc )
 {
-	const CSpell &spell = *CGI->spellh->objects[sc->id];
+	const SpellID spellID(sc->id);
+	const CSpell &spell = * spellID.toSpell();
 
 	const std::string& castSoundPath = spell.getCastSound();
 	
@@ -1289,11 +1290,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	}	
 	waitForAnims();
 	
-	//queuing hit animation
-	for(const CSpell::TAnimation & animation : spell.animationInfo.hit)
-	{			
-		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, sc->tile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
-	}
+	displaySpellHit(spellID, sc->tile);
 	
 	//queuing affect /resist animation	
 	for (auto & elem : sc->affectedCres) 
@@ -1301,16 +1298,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		BattleHex position = curInt->cb->battleGetStackByID(elem, false)->position;
 		
 		if(vstd::contains(sc->resisted,elem))
-		{
 			displayEffect(78, position);
-		}
 		else
-		{		
-			for(const CSpell::TAnimation & animation : spell.animationInfo.affect)
-			{				
-				addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, position, false, animation.verticalPosition == VerticalPosition::BOTTOM));
-			}			
-		}
+			displaySpellEffect(spellID, position);	
 	}
 
 	switch(sc->id)
@@ -1569,6 +1559,33 @@ void CBattleInterface::displayEffect(ui32 effect, int destTile, bool areaEffect)
 	//todo: recheck areaEffect usage
 	addNewAnim(new CSpellEffectAnimation(this, effect, destTile, 0, 0, false));
 }
+
+void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destinationTile, bool areaEffect)
+{
+	const CSpell * spell = spellID.toSpell();
+	
+	if(spell == nullptr)
+		return;
+
+	for(const CSpell::TAnimation & animation : spell->animationInfo.affect)
+	{				
+		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
+	}
+}
+
+void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTile, bool areaEffect)
+{
+	const CSpell * spell = spellID.toSpell();
+	
+	if(spell == nullptr)
+		return;	
+	
+	for(const CSpell::TAnimation & animation : spell->animationInfo.hit)
+	{			
+		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
+	}
+}
+
 
 void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
 {

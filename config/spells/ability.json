@@ -3,6 +3,9 @@
 		"index" : 70,
 		"targetType": "NO_TARGET",
 		"anim" : 70,
+		"animation":{
+			//need special animation
+		},		
 		"sounds": {
 			"cast": "PARALYZE"
 		},
@@ -36,6 +39,9 @@
 		"index" : 71,
 		"targetType": "NO_TARGET",
 		"anim" : 67,
+		"animation":{
+			"affect":["SP11_"]
+		},		
 		"sounds": {
 			"cast": "POISON"
 		},
@@ -71,6 +77,9 @@
 		"index" : 72,
 		"targetType": "NO_TARGET",
 		"anim" : 68,
+		"animation":{
+			"affect":["SP02_"]
+		},		
 		"sounds": {
 			"cast": "BIND"
 		},
@@ -95,6 +104,9 @@
 		"index" : 73,
 		"targetType": "NO_TARGET",
 		"anim" : 69,
+		"animation":{
+			"affect":["SP05_"]
+		},		
 		"sounds": {
 			"cast": "DISEASE"
 		},
@@ -130,6 +142,9 @@
 		"index" : 74,
 		"targetType": "NO_TARGET",
 		"anim" : 70,
+		"animation":{
+			//missing
+		},		
 		"sounds": {
 			"cast": "PARALYZE"
 		},
@@ -163,6 +178,9 @@
 		"index" : 75,
 		"targetType": "NO_TARGET",
 		"anim" : 71,
+		"animation":{
+			"affect":["SP01_"]
+		},		
 		"sounds": {
 			"cast": "AGE"
 		},
@@ -192,6 +210,9 @@
 		"index" : 76,
 		"targetType": "NO_TARGET",
 		"anim" : 72,
+		"animation":{
+			"hit":["SP04_"]
+		},		
 		"sounds": {
 			"cast": "DEATHCLD"
 		},
@@ -212,6 +233,9 @@
 		"index" : 77,
 		"targetType": "NO_TARGET",
 		"anim" : 38,
+		"animation":{
+			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
+		},		
 		"sounds": {
 			"cast": "LIGHTBLT"
 		},
@@ -230,6 +254,9 @@
 		"index" : 78,
 		"targetType": "NO_TARGET",
 		"anim" : 41,
+		"animation":{
+			"affect":["C05SPW"]
+		},		
 		"sounds": {
 			"cast": "DISPELL"
 		},
@@ -247,6 +274,9 @@
 		"index" : 79,
 		"targetType": "NO_TARGET",
 		"anim" : 80,
+		"animation":{
+			"affect":["C07SPE0"]
+		},		
 		"sounds": {
 			"cast": "DEATHSTR"
 		},
@@ -267,6 +297,9 @@
 		"index" : 80,
 		"targetType": "NO_TARGET",
 		"anim" : 81,
+		"animation":{
+			"affect":["C17SPW0"]
+		},		
 		"sounds": {
 			"cast": "ACID"
 		},
@@ -293,6 +326,9 @@
 		"index" : 81,
 		"targetType": "NO_TARGET",
 		"anim" : 81,
+		"animation":{
+			//???
+		},		
 		"sounds": {
 			"cast": "ACID"
 		},

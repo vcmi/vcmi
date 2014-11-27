@@ -90,11 +90,11 @@
 		{ "id": 59, "defnames": [ "C09SPF0.DEF" ] },
 		{ "id": 62, "defnames": [ "C07SPF60.DEF", "C07SPF61.DEF", "C07SPF62.DEF" ] },
 		{ "id": 64, "defnames": [ "C20SPX.DEF" ] }, //merged
-		{ "id": 67, "defnames": [ "SP11_.DEF" ] },
-		{ "id": 68, "defnames": [ "SP02_.DEF" ] },
-		{ "id": 69, "defnames": [ "SP05_.DEF" ] },
-		{ "id": 71, "defnames": [ "SP01_.DEF" ] },
-		{ "id": 72, "defnames": [ "SP04_.DEF" ] },
+		{ "id": 67, "defnames": [ "SP11_.DEF" ] }, //merged
+		{ "id": 68, "defnames": [ "SP02_.DEF" ] }, //merged
+		{ "id": 69, "defnames": [ "SP05_.DEF" ] }, //merged
+		{ "id": 71, "defnames": [ "SP01_.DEF" ] }, //merged
+		{ "id": 72, "defnames": [ "SP04_.DEF" ] }, //merged
 		{ "id": 73, "defnames": [ "SP03_.DEF" ] },
 		{ "id": 74, "defnames": [ "SP12_.DEF" ] },
 		{ "id": 75, "defnames": [ "SP07_A.DEF" ] },
@@ -102,8 +102,8 @@
 		{ "id": 77, "defnames": [ "SP08_.DEF" ] },
 		{ "id": 78, "defnames": [ "SP09_.DEF" ] },
 		{ "id": 79, "defnames": [ "C01SPE0.DEF" ] },//merged
-		{ "id": 80, "defnames": [ "C07SPE0.DEF" ] },
-		{ "id": 81, "defnames": [ "C17SPW0.DEF" ] },
+		{ "id": 80, "defnames": [ "C07SPE0.DEF" ] },//merged
+		{ "id": 81, "defnames": [ "C17SPW0.DEF" ] },//merged
 		{ "id": 82, "defnames": [ "C09SPF3.DEF" ] },
 		{ "id": 84, "defnames": [ "ZMGC02.DEF" ] }
 	]

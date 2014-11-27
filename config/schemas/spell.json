@@ -107,6 +107,13 @@
 					}
 				}
 			}
+		},
+		
+		"texts":{
+			"type": "object",
+			
+			
+			"additionalProperties" : false
 		}
 	},
 

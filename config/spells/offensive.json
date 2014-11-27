@@ -68,7 +68,7 @@
 		"targetType": "CREATURE",
 		"anim" : 38,
 		"animation":{
-			"hit":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
+			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
 		},		
 		"sounds": {
 			"cast": "LIGHTBLT"
