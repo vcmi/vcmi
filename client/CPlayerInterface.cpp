@@ -974,7 +974,7 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 		battleInt->stackAttacking( attacker, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, attacked, false);
 	}
 	
-	battleInt->waitForAnims();
+	//battleInt->waitForAnims(); //FIXME: freeze
 	
 	if(ba->spellLike())
 	{
