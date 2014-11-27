@@ -20,6 +20,7 @@
 #include "../../lib/BattleState.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/CSpellHandler.h"
 
 /*
  * CBattleAnimations.cpp, part of VCMI engine
@@ -865,83 +866,81 @@ void CShootingAnimation::endAnim()
 	delete this;
 }
 
-CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, BattleHex _destTile, int _dx, int _dy, bool _Vflip, bool _areaEffect)
-:CBattleAnimation(_owner), effect(_effect), destTile(_destTile), customAnim(""), x(0), y(0), dx(_dx), dy(_dy), Vflip(_Vflip) , areaEffect(_areaEffect)
+CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, BattleHex _destTile, int _dx, int _dy, bool _Vflip, bool _alignToBottom)
+	:CBattleAnimation(_owner), effect(_effect), destTile(_destTile), customAnim(""), x(-1), y(-1), dx(_dx), dy(_dy), Vflip(_Vflip), alignToBottom(_alignToBottom)
 {
 	logAnim->debugStream() << "Created spell anim for effect #" << effect;
 }
 
-CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy, bool _Vflip, bool _areaEffect)
-:CBattleAnimation(_owner), effect(-1), destTile(0), customAnim(_customAnim), x(_x), y(_y), dx(_dx), dy(_dy), Vflip(_Vflip), areaEffect(_areaEffect)
+CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy, bool _Vflip, bool _alignToBottom)
+	:CBattleAnimation(_owner), effect(-1), destTile(BattleHex::INVALID), customAnim(_customAnim), x(_x), y(_y), dx(_dx), dy(_dy), Vflip(_Vflip), alignToBottom(_alignToBottom)
 {
 	logAnim->debugStream() << "Created spell anim for " << customAnim;
 }
+
+CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, BattleHex _destTile, bool _Vflip, bool _alignToBottom)
+	:CBattleAnimation(_owner), effect(-1), destTile(_destTile), customAnim(_customAnim), x(-1), y(-1), dx(0), dy(0), Vflip(_Vflip), alignToBottom(_alignToBottom)
+{
+	logAnim->debugStream() << "Created spell anim for " << customAnim;	
+}
+
 
 bool CSpellEffectAnimation::init()
 {
 	if(!isEarliest(true))
 		return false;
-
-	if(effect == 12) //armageddon
+		
+	if(customAnim.empty() && effect != ui32(-1) && !graphics->battleACToDef[effect].empty())
+	{		
+		customAnim = graphics->battleACToDef[effect][0];
+	}
+	
+	if(customAnim.empty())
 	{
-		if(effect == -1 || graphics->battleACToDef[effect].size() != 0)
+		endAnim();
+		return false;		
+	}
+	
+	const bool areaEffect = (!destTile.isValid() && x == -1 && y == -1);
+
+	if(areaEffect) //f.e. armageddon 
+	{
+		CDefHandler * anim = CDefHandler::giveDef(customAnim);
+
+		for(int i=0; i * anim->width < owner->pos.w ; ++i)
 		{
-			CDefHandler * anim;
-			if(customAnim.size())
-				anim = CDefHandler::giveDef(customAnim);
-			else
-				anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
-
-			if (Vflip)
+			for(int j=0; j * anim->height < owner->pos.h ; ++j)
 			{
-				for (auto & elem : anim->ourImages)
+				BattleEffect be;
+				be.effectID = ID;
+				be.anim = CDefHandler::giveDef(customAnim);
+				if (Vflip)
 				{
-					CSDL_Ext::VflipSurf(elem.bitmap);
-				}
-			}
-
-			for(int i=0; i * anim->width < owner->pos.w ; ++i)
-			{
-				for(int j=0; j * anim->height < owner->pos.h ; ++j)
-				{
-					BattleEffect be;
-					be.effectID = ID;
-					be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
-					if (Vflip)
+					for (auto & elem : be.anim->ourImages)
 					{
-						for (auto & elem : be.anim->ourImages)
-						{
-							CSDL_Ext::VflipSurf(elem.bitmap);
-						}
+						CSDL_Ext::VflipSurf(elem.bitmap);
 					}
-					be.currentFrame = 0;
-					be.maxFrame = be.anim->ourImages.size();
-					be.x = i * anim->width + owner->pos.x;
-					be.y = j * anim->height + owner->pos.y;
-					be.position = BattleHex::INVALID;
-
-					owner->battleEffects.push_back(be);
 				}
+				be.currentFrame = 0;
+				be.maxFrame = be.anim->ourImages.size();
+				be.x = i * anim->width + owner->pos.x;
+				be.y = j * anim->height + owner->pos.y;
+				be.position = BattleHex::INVALID;
+
+				owner->battleEffects.push_back(be);
 			}
 		}
-		else //there is nothing to play
-		{
-			endAnim();
-			return false;
-		}
+		
+		delete anim;
 	}
 	else // Effects targeted at a specific creature/hex.
 	{
-		if(effect == -1 || graphics->battleACToDef[effect].size() != 0)
-		{
+
 			const CStack* destStack = owner->getCurrentPlayerInterface()->cb->battleGetStackByPos(destTile, false);
 			Rect &tilePos = owner->bfield[destTile]->pos;
 			BattleEffect be;
 			be.effectID = ID;
-			if(customAnim.size())
-				be.anim = CDefHandler::giveDef(customAnim);
-			else
-				be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
+			be.anim = CDefHandler::giveDef(customAnim);
 
 			if (Vflip)
 			{
@@ -953,28 +952,31 @@ bool CSpellEffectAnimation::init()
 
 			be.currentFrame = 0;
 			be.maxFrame = be.anim->ourImages.size();
-			if(effect == 1)
-				be.maxFrame = 3;
+			
+			//todo: lightning anim frame count override
+			
+//			if(effect == 1)
+//				be.maxFrame = 3;
 
-			switch (effect)
+			if(x == -1)
 			{
-			case ui32(-1):
+				be.x = tilePos.x + tilePos.w/2 - be.anim->width/2;
+			}
+			else
+			{
 				be.x = x;
+			}
+			
+			if(y == -1)
+			{
+				if(alignToBottom)
+					be.y = tilePos.y + tilePos.h - be.anim->height;
+				else
+					be.y = tilePos.y - be.anim->height/2;
+			}
+			else
+			{
 				be.y = y;
-				break;
-			case 0: // Prayer and Lightning Bolt.
-			case 1:
-			case 19: // Slow
-				// Position effect with it's bottom center touching the bottom center of affected tile(s).
-				be.x = tilePos.x + tilePos.w/2 - be.anim->width/2;
-				be.y = tilePos.y + tilePos.h - be.anim->height;
-				break;
-
-			default:
-				// Position effect with it's center touching the top center of affected tile(s).
-				be.x = tilePos.x + tilePos.w/2 - be.anim->width/2;
-				be.y = tilePos.y - be.anim->height/2;
-				break;
 			}
 
 			// Correction for 2-hex creatures.
@@ -988,12 +990,7 @@ bool CSpellEffectAnimation::init()
 				be.position = destTile;
 
 			owner->battleEffects.push_back(be);
-		}
-		else //there is nothing to play
-		{
-			endAnim();
-			return false;
-		}
+
 	}
 	//battleEffects 
 	return true;

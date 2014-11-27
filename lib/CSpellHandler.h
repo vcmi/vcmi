@@ -73,6 +73,7 @@ public:
 	const BattleInfo * cb;		
 };
 
+enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
 
 class DLL_LINKAGE CSpell
 {
@@ -84,15 +85,26 @@ public:
 		double minimumAngle; 
 		
 		///resource name
-		std::string defName;
+		std::string resourceName;
 		 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & minimumAngle & defName; 
+			h & minimumAngle & resourceName; 
 		}		
 	};
 	
-	typedef std::string TAnimation;
+	struct AnimationItem
+	{
+		std::string resourceName;
+		VerticalPosition verticalPosition;
+		
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & resourceName & verticalPosition; 
+		}		
+	};
+	
+	typedef AnimationItem TAnimation;
 	typedef std::vector<TAnimation> TAnimationQueue; 
 	
 	struct DLL_LINKAGE AnimationInfo

@@ -11,8 +11,21 @@
 		"animationQueue":{
 			"type": "array",
 			"items":{
-				"type": "string",
-				"format": "defFile"						
+				"anyOf":[
+					{
+						//assumed verticalPosition: top
+						"type": "string",
+						"format": "defFile"				
+					},
+					{
+						"type": "object",
+						"properties":{
+							"verticalPosition": {"type":"string", "enum":["top","bottom"]},
+							"defName": {"type":"string", "format": "defFile"}
+						},					
+						"additionalProperties" : false				
+					}
+				]					
 			}			
 		},
 		"animation":{

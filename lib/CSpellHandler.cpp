@@ -570,7 +570,7 @@ std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
 		if(info.minimumAngle < angle && info.minimumAngle > maximum)
 		{
 			maximum = info.minimumAngle;
-			res = info.defName;
+			res = info.resourceName;
 		}
 	}
 	
@@ -886,16 +886,39 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 	spell->iconScroll = graphicsNode["iconScroll"].String();
 
 	const JsonNode & animationNode = json["animation"];
-	spell->animationInfo.affect = animationNode["affect"].convertTo<CSpell::TAnimationQueue>();
-	spell->animationInfo.cast = animationNode["cast"].convertTo<CSpell::TAnimationQueue>();
-	spell->animationInfo.hit = animationNode["hit"].convertTo<CSpell::TAnimationQueue>();
+	
+	auto loadAnimationQueue = [&](const std::string & jsonName, CSpell::TAnimationQueue & q)	
+	{
+		auto queueNode = animationNode[jsonName].Vector();		
+		for(const JsonNode & item : queueNode)
+		{	
+			CSpell::TAnimation newItem;
+			newItem.verticalPosition = VerticalPosition::TOP;
+			
+			if(item.getType() == JsonNode::DATA_STRING)
+				newItem.resourceName = item.String();
+			else if(item.getType() == JsonNode::DATA_STRUCT)
+			{
+				newItem.resourceName = item["defName"].String();
+				
+				auto vPosStr = item["verticalPosition"].String();
+				if("bottom" == vPosStr)
+					newItem.verticalPosition = VerticalPosition::BOTTOM;
+			}	
+			q.push_back(newItem);		
+		}
+	};
+	
+	loadAnimationQueue("affect", spell->animationInfo.affect);
+	loadAnimationQueue("cast", spell->animationInfo.cast);
+	loadAnimationQueue("hit", spell->animationInfo.hit);	
 	
 	const JsonVector & projectile = animationNode["projectile"].Vector();
 	
 	for(const JsonNode & item : projectile)
 	{
 		CSpell::ProjectileInfo info;
-		info.defName = item["defName"].String();
+		info.resourceName = item["defName"].String();
 		info.minimumAngle = item["minimumAngle"].Float();
 		
 		spell->animationInfo.projectile.push_back(info);

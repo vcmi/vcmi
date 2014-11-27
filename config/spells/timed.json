@@ -591,7 +591,7 @@
 		"targetType" : "CREATURE",
 		"anim" : 0,
 		"animation":{
-			"affect":["C10SPW"]
+			"affect":[{"defName":"C10SPW", "verticalPosition":"bottom"}]
 		},		
 		"sounds": {
 			"cast": "PRAYER"
@@ -901,7 +901,7 @@
 		"targetType" : "CREATURE",
 		"anim" : 19,
 		"animation":{
-			"affect":["C09SPE0"]
+			"affect":[{"defName":"C09SPE0", "verticalPosition":"bottom"}]
 		},		
 		"sounds": {
 			"cast": "MUCKMIRE"

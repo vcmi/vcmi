@@ -223,13 +223,14 @@ private:
 	std::string	customAnim;
 	int	x, y, dx, dy;
 	bool Vflip;
-	bool areaEffect;
+	bool alignToBottom;
 public:
 	bool init();
 	void nextFrame();
 	void endAnim();
 
-	CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, BattleHex _destTile, int _dx = 0, int _dy = 0, bool _Vflip = false, bool _areaEffect = true);
-	CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0, bool _Vflip = false, bool _areaEffect = true);
+	CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, BattleHex _destTile, int _dx = 0, int _dy = 0, bool _Vflip = false, bool _alignToBottom = false);
+	CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0, bool _Vflip = false, bool _alignToBottom = false);
+	CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, BattleHex _destTile, bool _Vflip = false, bool _alignToBottom = false);
 	virtual ~CSpellEffectAnimation(){};
 };

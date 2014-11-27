@@ -1228,8 +1228,6 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 {
 	const CSpell &spell = *CGI->spellh->objects[sc->id];
 
-	std::vector< std::string > anims; //for magic arrow and ice bolt
-
 	const std::string& castSoundPath = spell.getCastSound();
 	
 	if(!castSoundPath.empty())
@@ -1243,6 +1241,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	//playing projectile animation
 	if(sc->tile.isValid())
 	{	
+		
 		//todo: srccoord of creature caster	
 		Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;
 		Point destcoord = CClickableHex::getXYUnitAnim(sc->tile, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by projectile
@@ -1275,58 +1274,31 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	waitForAnims();
 	
 	//queuing hit animation
-	if(sc->tile.isValid())
-	{
-		for(const CSpell::TAnimation & animation : spell.animationInfo.hit)
-		{
-			//Point destcoord = CClickableHex::getXYUnitAnim(sc->tile, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by projectile
-			
-			//addNewAnim(new CSpellEffectAnimation(this, animation, destTile, 0, 0, false, areaEffect));
-		}
-	}
-	else
-	{
-		//whole battlefield
+	for(const CSpell::TAnimation & animation : spell.animationInfo.hit)
+	{			
+		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, sc->tile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
 	}
 	
-	//queuing affect animation	
+	//queuing affect /resist animation	
 	for (auto & elem : sc->affectedCres) 
 	{
-		for(const CSpell::TAnimation & animation : spell.animationInfo.affect)
+		BattleHex position = curInt->cb->battleGetStackByID(elem, false)->position;
+		
+		if(vstd::contains(sc->resisted,elem))
 		{
-			//Point destcoord = CClickableHex::getXYUnitAnim(sc->tile, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by projectile
-			
-			//addNewAnim(new CSpellEffectAnimation(this, animation, destTile, 0, 0, false, areaEffect));
+			displayEffect(78, position);
 		}
-		//displayEffect(spell.mainEffectAnim, curInt->cb->battleGetStackByID(elem, false)->position);
+		else
+		{		
+			for(const CSpell::TAnimation & animation : spell.animationInfo.affect)
+			{				
+				addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, position, false, animation.verticalPosition == VerticalPosition::BOTTOM));
+			}			
+		}
 	}
-
-	
 
 	switch(sc->id)
 	{
-
-	case SpellID::LIGHTNING_BOLT:
-	case SpellID::TITANS_LIGHTNING_BOLT:
-	case SpellID::THUNDERBOLT:
-	case SpellID::CHAIN_LIGHTNING: //TODO: zigzag effect
-		for (auto & elem : sc->affectedCres) //in case we have multiple targets
-		{
-			displayEffect(1, curInt->cb->battleGetStackByID(elem, false)->position);
-			displayEffect(spell.mainEffectAnim, curInt->cb->battleGetStackByID(elem, false)->position);
-		}
-		break;
-	case SpellID::DISPEL:
-	case SpellID::CURE:
-	case SpellID::RESURRECTION:
-	case SpellID::ANIMATE_DEAD:
-	case SpellID::DISPEL_HELPFUL_SPELLS:
-	case SpellID::SACRIFICE: //TODO: animation upon killed stack
-		for(auto & elem : sc->affectedCres)
-		{
-			displayEffect(spell.mainEffectAnim, curInt->cb->battleGetStackByID(elem, false)->position);
-		}
-		break;
 	case SpellID::SUMMON_FIRE_ELEMENTAL:
 	case SpellID::SUMMON_EARTH_ELEMENTAL:
 	case SpellID::SUMMON_WATER_ELEMENTAL:
@@ -1337,18 +1309,12 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		break;
 	} //switch(sc->id)
 
-	if (spell.isDamageSpell() && sc->affectedCres.empty()) //for example Inferno that causes no BattleStackAttacked
-	{
-		if(sc->tile.isValid() && graphics->battleACToDef.count(spell.mainEffectAnim)) //eg. when casting Lind Mine or Fire Wall
-			displayEffect (spell.mainEffectAnim, sc->tile);
-	}
+//	if (spell.isDamageSpell() && sc->affectedCres.empty()) //for example Inferno that causes no BattleStackAttacked
+//	{
+//		if(sc->tile.isValid() && graphics->battleACToDef.count(spell.mainEffectAnim)) //eg. when casting Lind Mine or Fire Wall
+//			displayEffect (spell.mainEffectAnim, sc->tile);
+//	}
 
-	//support for resistance
-	for(auto & elem : sc->resisted)
-	{
-		int tile = curInt->cb->battleGetStackByID(elem)->position;
-		displayEffect(78, tile);
-	}
 
 	//displaying message in console
 	bool customSpell = false;
@@ -1511,16 +1477,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 {
-	int effID = sse.effect.back().sid;
-	if(effID != -1) //can be -1 for defensive stance effect
-	{
-		for(auto & elem : sse.stacks)
-		{
-			bool areaEffect(CGI->spellh->objects[effID]->getTargetType() == CSpell::ETargetType::NO_TARGET);
-			displayEffect(CGI->spellh->objects[effID]->mainEffectAnim, curInt->cb->battleGetStackByID(elem)->position, areaEffect);
-		}
-	}
-	else if (sse.stacks.size() == 1 && sse.effect.size() == 2)
+	if (sse.effect.back().sid == -1 && sse.stacks.size() == 1 && sse.effect.size() == 2)
 	{
 		const Bonus & bns = sse.effect.front();
 		if (bns.source == Bonus::OTHER && bns.type == Bonus::PRIMARY_SKILL)

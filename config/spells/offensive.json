@@ -68,7 +68,7 @@
 		"targetType": "CREATURE",
 		"anim" : 38,
 		"animation":{
-			"hit":["C03SPA0", "C11SPA1"]
+			"hit":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
 		},		
 		"sounds": {
 			"cast": "LIGHTBLT"
@@ -119,7 +119,7 @@
 		"targetType": "CREATURE",
 		"anim" : 38,
 		"animation":{
-			"affect":["C03SPA0", "C11SPA1"]
+			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
 		},		
 		"sounds": {
 			"cast": "CHAINLTE"
@@ -323,7 +323,7 @@
 		"targetType" : "CREATURE",
 		"anim" : 38,
 		"animation":{
-			"hit":["C03SPA0", "C11SPA1"]
+			"hit":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
 		},		
 		"sounds": {
 			"cast": "LIGHTBLT"
