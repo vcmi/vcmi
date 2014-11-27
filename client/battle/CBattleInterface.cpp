@@ -1325,12 +1325,6 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		break;
 	} //switch(sc->id)
 
-//	if (spell.isDamageSpell() && sc->affectedCres.empty()) //for example Inferno that causes no BattleStackAttacked
-//	{
-//		if(sc->tile.isValid() && graphics->battleACToDef.count(spell.mainEffectAnim)) //eg. when casting Lind Mine or Fire Wall
-//			displayEffect (spell.mainEffectAnim, sc->tile);
-//	}
-
 	//displaying message in console
 	bool customSpell = false;
 	if(sc->affectedCres.size() == 1)
