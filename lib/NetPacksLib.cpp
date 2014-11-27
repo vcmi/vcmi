@@ -1335,13 +1335,6 @@ DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
 DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 {
 	assert(gs->curB);
-	if (castedByHero)
-	{
-		if (side < 2)
-		{
-			gs->curB->sides[side].castSpellsCount++;
-		}
-	}
 
 	const CSpell * spell = SpellID(id).toSpell();
 	

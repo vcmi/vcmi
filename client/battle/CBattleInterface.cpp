@@ -1315,7 +1315,19 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 //			displayEffect (spell.mainEffectAnim, sc->tile);
 //	}
 
-
+	std::string casterCreatureName = "";
+	{
+		const auto casterStackID = sc->casterStack;
+		
+		if(casterStackID > 0)
+		{
+			const CStack * casterStack = curInt->cb->battleGetStackByID(casterStackID);
+			if(casterStack != nullptr)
+			{
+				casterCreatureName = casterStack->type->namePl;
+			}
+		}
+	}
 	//displaying message in console
 	bool customSpell = false;
 	if(sc->affectedCres.size() == 1)
@@ -1373,7 +1385,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					}
 					//The %s shrivel with age, and lose %d hit points."
 					TBonusListPtr bl = curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getBonuses(Selector::type(Bonus::STACK_HEALTH));
-					bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, 75));
+					bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bl->totalValue()/2));
 				}
 					break;
@@ -1407,15 +1419,15 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 							text = CGI->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
 							boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
 						}
-						boost::algorithm::replace_first(text, "%s", CGI->creh->creatures[sc->attackerType]->namePl); //casting stack
+						boost::algorithm::replace_first(text, "%s", casterCreatureName); //casting stack
 					}
 					else
 						text = "";
 					break;
 				default:
 					text = CGI->generaltexth->allTexts[565]; //The %s casts %s
-					if(auto castingCreature = vstd::atOrDefault(CGI->creh->creatures, sc->attackerType, nullptr))
-						boost::algorithm::replace_first(text, "%s", castingCreature->namePl); //casting stack
+					if(casterCreatureName != "")
+						boost::algorithm::replace_first(text, "%s", casterCreatureName); //casting stack
 					else
 						boost::algorithm::replace_first(text, "%s", "@Unknown caster@"); //should not happen
 			}
@@ -1445,9 +1457,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		{
 			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetHeroInfo(sc->side).name);
 		}
-		if(auto castingCreature = vstd::atOrDefault(CGI->creh->creatures, sc->attackerType, nullptr))
+		if(casterCreatureName != "")
 		{
-			boost::algorithm::replace_first(text, "%s", castingCreature->namePl); //creature caster
+			boost::algorithm::replace_first(text, "%s", casterCreatureName); //creature caster
 		}
 		else
 		{

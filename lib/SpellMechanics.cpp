@@ -336,7 +336,13 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 ///DefaultSpellMechanics
 void DefaultSpellMechanics::afterCast(BattleInfo * battle, const BattleSpellCast * packet) const
 {
-	//TODO: may be move all from BattleSpellCast::applyGs here 
+	if (packet->castedByHero)
+	{
+		if (packet->side < 2)
+		{
+			battle->sides[packet->side].castSpellsCount++;
+		}
+	}
 	
 	//handle countering spells
 	for(auto stackID : packet->affectedCres)
@@ -366,7 +372,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	sc.tile = parameters.destination;
 	sc.dmgToDisplay = 0;
 	sc.castedByHero = nullptr != parameters.caster;
-	sc.attackerType = (parameters.casterStack ? parameters.casterStack->type->idNumber : CreatureID(CreatureID::NONE));
+	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
 	sc.manaGained = 0;
 	
 	int spellCost = 0;	

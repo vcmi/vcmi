@@ -1440,7 +1440,7 @@ struct EndAction : public CPackForClient//3008
 
 struct BattleSpellCast : public CPackForClient//3009
 {
-	BattleSpellCast(){type = 3009;};
+	BattleSpellCast(){type = 3009; casterStack = -1;};
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
@@ -1452,11 +1452,11 @@ struct BattleSpellCast : public CPackForClient//3009
 	BattleHex tile; //destination tile (may not be set in some global/mass spells
 	std::vector<ui32> resisted; //ids of creatures that resisted this spell
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
-	CreatureID attackerType;//id of caster to generate console message; -1 if not set (eg. spell casted by artifact)
+	si32 casterStack;// -1 if not cated by creature, >=0 caster stack ID
 	bool castedByHero; //if true - spell has been casted by hero, otherwise by a creature
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & dmgToDisplay & side & id & skill & manaGained & tile & resisted & affectedCres & attackerType & castedByHero;
+		h & dmgToDisplay & side & id & skill & manaGained & tile & resisted & affectedCres & casterStack & castedByHero;
 	}
 };
 
