@@ -180,11 +180,6 @@
 				  "description": "NO_TARGET - instant cast no aiming, default; CREATURE - target is unit; OBSTACLE - target is OBSTACLE; LOCATION - target is location",
 				  "enum": ["NO_TARGET","CREATURE","OBSTACLE","LOCATION"]
 		},
-		"anim":{
-				"type": "number",
-				"description": "Main effect animation (AC format), -1 - none, deprecated",
-				"minimum": -1
-		},
 		"counters":{
 				 "$ref" : "#/definitions/flags",
 				 "description": "Flags structure ids of countering spells"

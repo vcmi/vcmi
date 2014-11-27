@@ -216,7 +216,6 @@ public:
 	bool isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const;
 
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr ) const; //convert range to specific hexes; last optional out parameter is set to true, if spell would cover unavailable hexes (that are not included in ret)
-	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none) DEPRECATED
 	ETargetType getTargetType() const; //deprecated
 
 	CSpell::TargetInfo getTargetInfo(const int level) const;
@@ -290,7 +289,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & identifier & id & name & level & power
-		  & probabilities  & attributes & combatSpell & creatureAbility & positiveness & counteredSpells & mainEffectAnim;
+		  & probabilities  & attributes & combatSpell & creatureAbility & positiveness & counteredSpells;
 		h & isRising & isDamage & isOffensive;
 		h & targetType;
 		h & immunities & limiters & absoluteImmunities & absoluteLimiters;

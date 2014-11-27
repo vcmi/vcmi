@@ -2,7 +2,7 @@
 	"magicArrow" : {
 		"index" : 15,
 		"targetType": "CREATURE",
-		"anim" : 64,
+		
 		"animation":{
 			"projectile": [
 				{"minimumAngle": 0 ,"defName":"C20SPX4"},
@@ -34,7 +34,7 @@
 	"iceBolt" : {
 		"index" : 16,
 		"targetType": "CREATURE",
-		"anim" : 46,
+		
 		"animation":{
 			"projectile": [
 				{"minimumAngle": 0 ,"defName":"C08SPW4"},
@@ -66,7 +66,7 @@
 	"lightningBolt" : {
 		"index" : 17,
 		"targetType": "CREATURE",
-		"anim" : 38,
+		
 		"animation":{
 			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
 		},		
@@ -91,7 +91,7 @@
 	"implosion" : {
 		"index" : 18,
 		"targetType": "CREATURE",
-		"anim" : 10,
+		
 		"animation":{
 			"affect":["C05SPE0"]
 		},
@@ -117,7 +117,7 @@
 	"chainLightning" : {
 		"index" : 19,
 		"targetType": "CREATURE",
-		"anim" : 38,
+		
 		"animation":{
 			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
 		},		
@@ -139,7 +139,7 @@
 	"frostRing" : {
 		"index" : 20,
 		"targetType": "LOCATION",
-		"anim" : 45,
+		
 		"animation":{
 			"hit":["C07SPW"] //C07SPW0 ???
 		},			
@@ -164,7 +164,7 @@
 	"fireball" : {
 		"index" : 21,
 		"targetType": "LOCATION",
-		"anim" : 53,
+		
 		"animation":{
 			"hit":["C13SPF"] //C13SPF0 ???
 		},		
@@ -189,7 +189,7 @@
 	"inferno" : {
 		"index" : 22,
 		"targetType": "LOCATION",
-		"anim" : 9,
+		
 		"animation":{
 			"hit":["C04SPF0"]
 		},		
@@ -214,7 +214,7 @@
 	"meteorShower" : {
 		"index" : 23,
 		"targetType": "LOCATION",
-		"anim" : 16,
+		
 		"animation":{
 			"hit":["C08SPE0"]
 		},		
@@ -239,7 +239,7 @@
 	"deathRipple" : {
 		"index" : 24,
 		"targetType" : "CREATURE",
-		"anim" : 8,
+		
 		"animation":{
 			"affect":["C04SPE0"]
 		},		
@@ -268,7 +268,7 @@
 	"destroyUndead" : {
 		"index" : 25,
 		"targetType" : "CREATURE",
-		"anim" : 29,
+		
 		"animation":{
 			"affect":["C14SPA0"]
 		},		
@@ -296,7 +296,7 @@
 	"armageddon" : {
 		"index" : 26,
 		"targetType" : "CREATURE",
-		"anim" : 12,
+		
 		"animation":{
 			"hit":["C06SPF0"]
 		},		
@@ -321,7 +321,7 @@
 	"titanBolt" : {
 		"index" : 57,
 		"targetType" : "CREATURE",
-		"anim" : 38,
+		
 		"animation":{
 			"hit":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
 		},		

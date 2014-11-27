@@ -856,8 +856,8 @@ void AcidBreathDamageMechnics::applyBattleEffects(const SpellCastEnvironment * e
 	for(auto & attackedCre : ctx.attackedCres) //no immunities
 	{
 		BattleStackAttacked bsa;
-		bsa.flags |= BattleStackAttacked::EFFECT;
-		bsa.effect = owner->mainEffectAnim;
+		bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
+		bsa.spellID = owner->id;
 		bsa.damageAmount = parameters.usedSpellPower; //damage times the number of attackers
 		bsa.stackAttacked = (attackedCre)->ID;
 		bsa.attackerID = -1;
@@ -997,8 +997,8 @@ void DeathStareMechnics::applyBattleEffects(const SpellCastEnvironment * env, Ba
 	for(auto & attackedCre : ctx.attackedCres)
 	{
 		BattleStackAttacked bsa;
-		bsa.flags |= BattleStackAttacked::EFFECT;
-		bsa.effect = owner->mainEffectAnim; //from config\spell-Info.txt
+		bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
+		bsa.spellID = owner->id;
 		bsa.damageAmount = parameters.usedSpellPower * (attackedCre)->valOfBonuses(Bonus::STACK_HEALTH);
 		bsa.stackAttacked = (attackedCre)->ID;
 		bsa.attackerID = -1;

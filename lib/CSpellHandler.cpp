@@ -95,7 +95,6 @@ CSpell::CSpell():
 	earth(false), water(false), fire(false), air(false),
 	combatSpell(false), creatureAbility(false),
 	positiveness(ESpellPositiveness::NEUTRAL),
-	mainEffectAnim(-1),
 	defaultProbability(0),
 	isRising(false), isDamage(false), isOffensive(false),
 	targetType(ETargetType::NO_TARGET),
@@ -802,9 +801,6 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 		spell->targetType = CSpell::LOCATION;
 	else 
 		logGlobal->warnStream() << "Spell " << spell->name << ". Target type " << (targetType.empty() ? "empty" : "unknown ("+targetType+")") << ". Assumed NO_TARGET.";
-
-
-	spell->mainEffectAnim = json["anim"].Float();
 
 	for(const auto & counteredSpell: json["counters"].Struct())
 		if (counteredSpell.second.Bool())

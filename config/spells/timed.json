@@ -2,7 +2,7 @@
 	"shield" : {
 		"index" : 27,
 		"targetType" : "CREATURE",			
-		"anim" : 27,
+		
 		"animation":{
 			"affect":["C13SPE0"]
 		},		
@@ -32,7 +32,7 @@
 	"airShield" : {
 		"index" : 28,
 		"targetType" : "CREATURE",
-		"anim" : 2,
+		
 		"animation":{
 			"affect":["C01SPA0"]
 		},		
@@ -62,7 +62,7 @@
 	"fireShield" : {
 		"index" : 29,
 		"targetType" : "CREATURE",
-		"anim" : 11,
+		
 		"animation":{
 			"affect":["C05SPF0"]
 		},		
@@ -94,7 +94,7 @@
 	"protectAir" : {
 		"index" : 30,
 		"targetType" : "CREATURE",
-		"anim" : 22,
+		
 		"animation":{
 			"affect":["C11SPE0"]
 		},		
@@ -124,7 +124,7 @@
 	"protectFire" : {
 		"index" : 31,
 		"targetType" : "CREATURE",
-		"anim" : 24,
+		
 		"animation":{
 			"affect":["C11SPW0"]
 		},		
@@ -154,7 +154,7 @@
 	"protectWater" : {
 		"index" : 32,
 		"targetType" : "CREATURE",
-		"anim" : 23,
+		
 		"animation":{
 			"affect":["C11SPF0"]
 		},		
@@ -184,7 +184,7 @@
 	"protectEarth" : {
 		"index" : 33,
 		"targetType" : "CREATURE",
-		"anim" : 26,
+		
 		"animation":{
 			"affect":["C13SPA0"]
 		},		
@@ -214,7 +214,7 @@
 	"antiMagic" : {
 		"index" : 34,
 		"targetType" : "CREATURE",
-		"anim" : 5,
+		
 		"animation":{
 			"affect":["C02SPE0"]
 		},		
@@ -257,7 +257,7 @@
 	"magicMirror" : {
 		"index" : 36,
 		"targetType" : "CREATURE",
-		"anim" : 3,
+		
 		"animation":{
 			"affect":["C02SPA0"]
 		},		
@@ -284,7 +284,7 @@
 	"bless" : {
 		"index" : 41,
 		"targetType" : "CREATURE",
-		"anim" : 36,
+		
 		"animation":{
 			"affect":["C01SPW"] //C01SPW0
 		},		
@@ -322,7 +322,7 @@
 	"curse" : {
 		"index" : 42,
 		"targetType" : "CREATURE",
-		"anim" : 40,
+		
 		"animation":{
 			"affect":["C04SPW"]//C04SPW0
 		},		
@@ -361,7 +361,7 @@
 	"bloodlust" : {
 		"index" : 43,
 		"targetType" : "CREATURE",
-		"anim" : 4,
+		
 		"animation":{
 			"affect":["SP12_"] //???
 		},		
@@ -408,7 +408,7 @@
 	"precision" : {
 		"index" : 44,
 		"targetType" : "CREATURE",
-		"anim" : 25,
+		
 		"animation":{
 			"affect":["C12SPA0"]
 		},		
@@ -455,7 +455,7 @@
 	"weakness" : {
 		"index" : 45,
 		"targetType" : "CREATURE",
-		"anim" : 56,
+		
 		"animation":{
 			"affect":["C0ACID"]
 		},		
@@ -502,7 +502,7 @@
 	"stoneSkin" : {
 		"index" : 46,
 		"targetType" : "CREATURE",
-		"anim" : 54,
+		
 		"animation":{
 			"affect":["C16SPE"] //C16SPE0
 		},		
@@ -545,7 +545,7 @@
 	"disruptingRay" : {
 		"index" : 47,
 		"targetType" : "CREATURE",
-		"anim" : 14,
+		
 		"animation":{
 			"affect":["C07SPA1"],
 			"projectile":[{"defName":"C07SPA0"}]//???
@@ -589,7 +589,7 @@
 	"prayer" : {
 		"index" : 48,
 		"targetType" : "CREATURE",
-		"anim" : 0,
+		
 		"animation":{
 			"affect":[{"defName":"C10SPW", "verticalPosition":"bottom"}]
 		},		
@@ -656,7 +656,7 @@
 	"mirth" : {
 		"index" : 49,
 		"targetType" : "CREATURE",
-		"anim" : 20,
+		
 		"animation":{
 			"affect":["C09SPW0"]
 		},		
@@ -708,7 +708,7 @@
 	"sorrow" : {
 		"index" : 50,
 		"targetType" : "CREATURE",
-		"anim" : 30,
+		
 		"animation":{
 			"affect":["C14SPE0"]
 		},		
@@ -760,7 +760,7 @@
 	"fortune" : {
 		"index" : 51,
 		"targetType" : "CREATURE",
-		"anim" : 18,
+		
 		"animation":{
 			"affect":["C09SPA0"]
 		},		
@@ -805,7 +805,7 @@
 	"misfortune" : {
 		"index" : 52,
 		"targetType" : "CREATURE",
-		"anim" : 48,
+		
 		"animation":{
 			"affect":["C10SPF0"]
 		},		
@@ -850,7 +850,7 @@
 	"haste" : {
 		"index" : 53,
 		"targetType" : "CREATURE",
-		"anim" : 31,
+		
 		"animation":{
 			"affect":["C15SPA0"]
 		},		
@@ -899,7 +899,7 @@
 	"slow" : {
 		"index" : 54,
 		"targetType" : "CREATURE",
-		"anim" : 19,
+		
 		"animation":{
 			"affect":[{"defName":"C09SPE0", "verticalPosition":"bottom"}]
 		},		
@@ -950,7 +950,7 @@
 	"slayer" : {
 		"index" : 55,
 		"targetType" : "CREATURE",
-		"anim" : 28,
+		
 		"animation":{
 			"affect":["C13SPW0"]
 		},		
@@ -1004,7 +1004,7 @@
 	"frenzy" : {
 		"index" : 56,
 		"targetType" : "CREATURE",
-		"anim" : 17,
+		
 		"animation":{
 			"affect":["C08SPF0"]
 		},		
@@ -1046,7 +1046,7 @@
 	"counterstrike" : {
 		"index" : 58,
 		"targetType" : "CREATURE",
-		"anim" : 7,
+		
 		"animation":{
 			"affect":["C04SPA0"]
 		},		
@@ -1088,7 +1088,7 @@
 	"berserk" : {
 		"index" : 59,
 		"targetType" : "CREATURE",
-		"anim" : 35,
+		
 		"animation":{
 			"affect":["C01SPF"] //C01SPF0
 		},		
@@ -1150,7 +1150,7 @@
 	"hypnotize" : {
 		"index" : 60,
 		"targetType" : "CREATURE",
-		"anim" : 21,
+		
 		"animation":{
 			"affect":["C10SPA0"]
 		},		
@@ -1210,7 +1210,7 @@
 	"forgetfulness" : {
 		"index" : 61,
 		"targetType" : "CREATURE", 
-		"anim" : 42,
+		
 		"animation":{
 			"affect":["C06SPW"]//C06SPW0
 		},		
@@ -1273,7 +1273,7 @@
 	"blind" : {
 		"index" : 62,
 		"targetType" : "CREATURE",
-		"anim" : 6,
+		
 		"animation":{
 			"affect":["C02SPF0"]
 		},		
