@@ -1232,6 +1232,24 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	
 	if(!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
+
+	std::string casterCreatureName = "";
+	Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;	//hero position by default
+	{
+		const auto casterStackID = sc->casterStack;
+		
+		if(casterStackID > 0)
+		{
+			const CStack * casterStack = curInt->cb->battleGetStackByID(casterStackID);
+			if(casterStack != nullptr)
+			{
+				casterCreatureName = casterStack->type->namePl;
+				
+				srccoord = CClickableHex::getXYUnitAnim(casterStack->position, casterStack, this); 
+			}
+		}
+		
+	}		
 		
 	//TODO: play custom cast animation
 	{
@@ -1240,10 +1258,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	
 	//playing projectile animation
 	if(sc->tile.isValid())
-	{	
-		
-		//todo: srccoord of creature caster	
-		Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;
+	{
 		Point destcoord = CClickableHex::getXYUnitAnim(sc->tile, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by projectile
 		destcoord.x += 250; destcoord.y += 240;
 
@@ -1315,19 +1330,6 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 //			displayEffect (spell.mainEffectAnim, sc->tile);
 //	}
 
-	std::string casterCreatureName = "";
-	{
-		const auto casterStackID = sc->casterStack;
-		
-		if(casterStackID > 0)
-		{
-			const CStack * casterStack = curInt->cb->battleGetStackByID(casterStackID);
-			if(casterStack != nullptr)
-			{
-				casterCreatureName = casterStack->type->namePl;
-			}
-		}
-	}
 	//displaying message in console
 	bool customSpell = false;
 	if(sc->affectedCres.size() == 1)
