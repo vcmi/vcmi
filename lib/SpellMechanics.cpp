@@ -546,13 +546,6 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 				continue;
 
 			BattleStackAttacked bsa;
-			if((parameters.destination > -1 && (attackedCre)->coversPos(parameters.destination)) || (owner->getLevelInfo(parameters.spellLvl).range == "X" || parameters.mode == ECastingMode::ENCHANTER_CASTING))
-				//display effect only upon primary target of area spell
-				//FIXME: if no stack is attacked, there is no animation and interface freezes
-			{
-				bsa.flags |= BattleStackAttacked::EFFECT;
-				bsa.effect = owner->mainEffectAnim;
-			}
 			if(spellDamage)
 				bsa.damageAmount = spellDamage >> chainLightningModifier;
 			else

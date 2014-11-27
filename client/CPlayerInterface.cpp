@@ -882,7 +882,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 	{
 		const CStack *defender = cb->battleGetStackByID(elem.stackAttacked, false);
 		const CStack *attacker = cb->battleGetStackByID(elem.attackerID, false);
-		if(elem.isEffect() && elem.effect != 12) //and not armageddon
+		if(elem.isEffect())
 		{
 			if (defender && !elem.isSecondary())
 				battleInt->displayEffect(elem.effect, defender->position);
@@ -895,11 +895,6 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 
 		StackAttackedInfo to_put = {defender, elem.damageAmount, elem.killedAmount, attacker, remoteAttack, elem.killed(), elem.willRebirth(), elem.cloneKilled()};
 		arg.push_back(to_put);
-	}
-
-	if(bsa.begin()->isEffect() && bsa.begin()->effect == 12) //for armageddon - I hope this condition is enough
-	{
-		battleInt->displayEffect(bsa.begin()->effect, -1);
 	}
 
 	battleInt->stacksAreAttacked(arg);
