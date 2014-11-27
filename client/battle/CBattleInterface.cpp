@@ -1557,7 +1557,8 @@ void CBattleInterface::castThisSpell(int spellID)
 
 void CBattleInterface::displayEffect(ui32 effect, int destTile, bool areaEffect)
 {
-	addNewAnim(new CSpellEffectAnimation(this, effect, destTile, 0, 0, false, areaEffect));
+	//todo: recheck areaEffect usage
+	addNewAnim(new CSpellEffectAnimation(this, effect, destTile, 0, 0, false));
 }
 
 void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
@@ -1762,7 +1763,6 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 void CBattleInterface::printConsoleAttacked( const CStack * defender, int dmg, int killed, const CStack * attacker, bool multiple )
 {
 	boost::format txt;
-	int end = 0;
 	if (attacker) //ignore if stacks were killed by spell
 	{
 		txt = boost::format (CGI->generaltexth->allTexts[attacker->count > 1 ? 377 : 376]) %

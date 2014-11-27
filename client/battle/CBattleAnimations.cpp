@@ -984,10 +984,7 @@ bool CSpellEffectAnimation::init()
 				be.x += (destStack->attackerOwned ? -1 : 1)*tilePos.w/2;
 
 			//Indicate if effect should be drawn on top of everything or just on top of the hex
-			if(areaEffect)
-				be.position = BattleHex::INVALID;
-			else
-				be.position = destTile;
+			be.position = destTile;
 
 			owner->battleEffects.push_back(be);
 
