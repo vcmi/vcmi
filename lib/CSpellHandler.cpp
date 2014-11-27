@@ -69,6 +69,14 @@ namespace SpellConfig
 	};	
 }
 
+BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo* cb)
+	: spellLvl(0), destination(BattleHex::INVALID), casterSide(0),casterColor(PlayerColor::CANNOT_DETERMINE),caster(nullptr), secHero(nullptr),
+	usedSpellPower(0),mode(ECastingMode::HERO_CASTING), casterStack(nullptr), selectedStack(nullptr), cb(cb)
+{
+	
+}
+
+
 ///CSpell::LevelInfo
 CSpell::LevelInfo::LevelInfo()
 	:description(""),cost(0),power(0),AIValue(0),smartTarget(true), clearTarget(false), clearAffected(false), range("0")

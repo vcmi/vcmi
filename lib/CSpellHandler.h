@@ -59,7 +59,7 @@ public:
 struct DLL_LINKAGE BattleSpellCastParameters
 {
 public:
-	BattleSpellCastParameters(const BattleInfo * cb): cb(cb){};
+	BattleSpellCastParameters(const BattleInfo * cb);
 	int spellLvl;
 	BattleHex destination;
 	ui8 casterSide;

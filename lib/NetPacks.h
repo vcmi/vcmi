@@ -1456,7 +1456,7 @@ struct BattleSpellCast : public CPackForClient//3009
 	bool castedByHero; //if true - spell has been casted by hero, otherwise by a creature
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & dmgToDisplay & side & id & skill & tile & resisted & affectedCres & attackerType & castedByHero;
+		h & dmgToDisplay & side & id & skill & manaGained & tile & resisted & affectedCres & attackerType & castedByHero;
 	}
 };
 

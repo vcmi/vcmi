@@ -1466,7 +1466,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	}
 	waitForAnims();
 	//mana absorption
-	if (sc->manaGained)
+	if(sc->manaGained > 0)
 	{
 		Point leftHero = Point(15, 30) + pos;
 		Point rightHero = Point(755, 30) + pos;
