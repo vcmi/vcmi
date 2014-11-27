@@ -1237,7 +1237,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;	//hero position by default
 	{
 		const auto casterStackID = sc->casterStack;
-		
+
 		if(casterStackID > 0)
 		{
 			const CStack * casterStack = curInt->cb->battleGetStackByID(casterStackID);
@@ -1246,11 +1246,12 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 				casterCreatureName = casterStack->type->namePl;
 				
 				srccoord = CClickableHex::getXYUnitAnim(casterStack->position, casterStack, this); 
+				srccoord.x += 250;
+				srccoord.y += 240;
 			}
 		}
-		
-	}		
-		
+	}
+
 	//TODO: play custom cast animation
 	{
 				
