@@ -2295,6 +2295,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 						continue;
 				}
 				break;
+			case SpellID::TELEPORT: //issue 1928
 			case SpellID::CLONE: //not allowed
 				continue;
 				break;
