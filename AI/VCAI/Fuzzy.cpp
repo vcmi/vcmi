@@ -143,7 +143,7 @@ void FuzzyHelper::initTacticalAdvantage()
 			engine.addInputVariable(val);
 			val->addTerm(new fl::Ramp("FEW", 0.6, 0.0));
 			val->addTerm(new fl::Ramp("MANY", 0.4, 1));
-                        val->setRange(0.0, 1.0);
+			val->setRange(0.0, 1.0);
 		}
 
 		ta.ourSpeed = new fl::InputVariable("OurSpeed");
@@ -157,59 +157,43 @@ void FuzzyHelper::initTacticalAdvantage()
 			val->addTerm(new fl::Ramp("LOW", 6.5, 3));
 			val->addTerm(new fl::Triangle("MEDIUM", 5.5, 10.5));
 			val->addTerm(new fl::Ramp("HIGH", 8.5, 16));
-                        val->setRange(3.0, 16.0);
+			val->setRange(0, 25);
 		}
 
 		ta.castleWalls = new fl::InputVariable("CastleWalls");
 		engine.addInputVariable(ta.castleWalls);
 		{
-                        fl::Rectangle* none = new fl::Rectangle("NONE", 
-                                CGTownInstance::NONE - 5.0 * fl::fuzzylite::macheps(),
-				CGTownInstance::NONE + 5.0 * fl::fuzzylite::macheps());
-                        ta.castleWalls->addTerm(none);
+			fl::Rectangle* none = new fl::Rectangle("NONE", CGTownInstance::NONE, CGTownInstance::NONE + (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f);
+			ta.castleWalls->addTerm(none);
                     
-			fl::scalar a = CGTownInstance::FORT, d = 2.5;
-			fl::scalar b = a + (d - a) * 1.0 / 5.0;
-			fl::scalar c = a + (d - a) * 4.0 / 5.0;
-                        fl::Trapezoid* medium = new fl::Trapezoid("MEDIUM", a, b, c, d);
-                        ta.castleWalls->addTerm(medium);
+			fl::Trapezoid* medium = new fl::Trapezoid("MEDIUM", (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f, CGTownInstance::FORT,
+				CGTownInstance::CITADEL, CGTownInstance::CITADEL + (CGTownInstance::CASTLE - CGTownInstance::CITADEL) * 0.5f);
+			ta.castleWalls->addTerm(medium);
 
-                        fl::Ramp* high = new fl::Ramp("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE);
-                        ta.castleWalls->addTerm(high);
-                        
-                        ta.castleWalls->setRange(
-                            std::min({none->getStart(),none->getEnd(), 
-                                medium->getVertexA(), medium->getVertexD(),
-                                high->getStart(), high->getEnd()}), 
-                            std::max({none->getStart(),none->getEnd(), 
-                                medium->getVertexA(), medium->getVertexD(),
-                                high->getStart(), high->getEnd()}));
+			fl::Ramp* high = new fl::Ramp("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE);
+			ta.castleWalls->addTerm(high);
+
+			ta.castleWalls->setRange(CGTownInstance::NONE, CGTownInstance::CASTLE);
 		}
 
 		
 
 		ta.bankPresent = new fl::InputVariable("Bank");
 		engine.addInputVariable(ta.bankPresent);
-                {
-                    fl::Rectangle* termFalse = new fl::Rectangle("FALSE", 0.0 - 5.0 * fl::fuzzylite::macheps(),
-				0.0 + 5.0 * fl::fuzzylite::macheps());
-                    ta.bankPresent->addTerm(termFalse);
-                    fl::Rectangle* termTrue = new fl::Rectangle("TRUE", 1.0 - 5.0 * fl::fuzzylite::macheps(),
-				0.0 + 5.0 * fl::fuzzylite::macheps());
-                    ta.bankPresent->addTerm(termTrue);
-                    ta.bankPresent->setRange(
-                            std::min({termFalse->getStart(),termFalse->getEnd(),
-                                      termTrue->getStart(), termTrue->getEnd()}),
-                            std::max({termFalse->getStart(),termFalse->getEnd(),
-                                      termTrue->getStart(), termTrue->getEnd()}));
-                }
+		{
+			fl::Rectangle* termFalse = new fl::Rectangle("FALSE", 0.0, 0.5f);
+			ta.bankPresent->addTerm(termFalse);
+			fl::Rectangle* termTrue = new fl::Rectangle("TRUE", 0.5f, 1);
+			ta.bankPresent->addTerm(termTrue);
+			ta.bankPresent->setRange(0, 1);
+		}
 
 		ta.threat = new fl::OutputVariable("Threat");
 		engine.addOutputVariable(ta.threat);
 		ta.threat->addTerm(new fl::Ramp("LOW", 1, MIN_AI_STRENGHT));
 		ta.threat->addTerm(new fl::Triangle("MEDIUM", 0.8, 1.2));
 		ta.threat->addTerm(new fl::Ramp("HIGH", 1, 1.5));
-                ta.threat->setRange(MIN_AI_STRENGHT, 1.5);
+		ta.threat->setRange(MIN_AI_STRENGHT, 1.5);
 
 		engine.addRuleBlock(&ta.tacticalAdvantage);
 
@@ -254,19 +238,16 @@ ui64 FuzzyHelper::estimateBankDanger (const CBank * bank)
 			bank1->setVertexA(info->maxGuards().totalStrength * 0.5f);
 			bank1->setVertexC(info->maxGuards().totalStrength * 1.5f);
                         
-                        fl::scalar min = std::min(
-                            {bank0->getVertexA(), bank0->getVertexC(),
-                            bank1->getVertexA(), bank1->getVertexC()});
-                        fl::scalar max = std::max(
-                            {bank0->getVertexA(), bank0->getVertexC(),
-                            bank1->getVertexA(), bank1->getVertexC()});
-                            
-                        if (fl::Op::isLt(min, bankDanger->getMinimum())){
-                            bankDanger->setMinimum(min);
-                        }
-                        if (fl::Op::isGt(max, bankDanger->getMaximum())){
-                            bankDanger->setMaximum(max);
-                        }
+			fl::scalar min = std::min({bank0->getVertexA(), bank0->getVertexC(), bank1->getVertexA(), bank1->getVertexC()});
+			fl::scalar max = std::max({bank0->getVertexA(), bank0->getVertexC(), bank1->getVertexA(), bank1->getVertexC()});
+			if (fl::Op::isLt(min, bankDanger->getMinimum()))
+			{
+				bankDanger->setMinimum(min);
+			}
+			if (fl::Op::isGt(max, bankDanger->getMaximum()))
+			{
+				bankDanger->setMaximum(max);
+			}
 		}
 
 		//comparison purposes
@@ -394,7 +375,6 @@ void FuzzyHelper::initVisitTile()
 {
 	try
 	{
-
 		vt.strengthRatio = new fl::InputVariable("strengthRatio"); //hero must be strong enough to defeat guards
 		vt.heroStrength = new fl::InputVariable("heroStrength"); //we want to use weakest possible hero
 		vt.turnDistance = new fl::InputVariable("turnDistance"); //we want to use hero who is near
@@ -412,30 +392,30 @@ void FuzzyHelper::initVisitTile()
 
 		vt.strengthRatio->addTerm(new fl::Ramp("LOW", SAFE_ATTACK_CONSTANT, 0));
 		vt.strengthRatio->addTerm(new fl::Ramp("HIGH", SAFE_ATTACK_CONSTANT, SAFE_ATTACK_CONSTANT * 3));
-                vt.strengthRatio->setRange(0,SAFE_ATTACK_CONSTANT * 3 );
+		vt.strengthRatio->setRange(0, SAFE_ATTACK_CONSTANT * 3 );
 
 		//strength compared to our main hero
 		vt.heroStrength->addTerm(new fl::Ramp("LOW", 0.2, 0));
 		vt.heroStrength->addTerm(new fl::Triangle("MEDIUM", 0.2, 0.8));
 		vt.heroStrength->addTerm(new fl::Ramp("HIGH", 0.5, 1));
-                vt.heroStrength->setRange(0.0,1.0);
+		vt.heroStrength->setRange(0.0, 1.0);
 
 		vt.turnDistance->addTerm(new fl::Ramp("SMALL", 0.5, 0));
 		vt.turnDistance->addTerm(new fl::Triangle("MEDIUM", 0.1, 0.8));
 		vt.turnDistance->addTerm(new fl::Ramp("LONG", 0.5, 3));
-                vt.turnDistance->setRange(0.0, 3.0);
+		vt.turnDistance->setRange(0.0, 3.0);
 
 		vt.missionImportance->addTerm(new fl::Ramp("LOW", 2.5, 0));
 		vt.missionImportance->addTerm(new fl::Triangle("MEDIUM", 2, 3));
 		vt.missionImportance->addTerm(new fl::Ramp("HIGH", 2.5, 5));
-                vt.missionImportance->setRange(0.0, 5.0);
+		vt.missionImportance->setRange(0.0, 5.0);
 
 		//an issue: in 99% cases this outputs center of mass (2.5) regardless of actual input :/
 		 //should be same as "mission Importance" to keep consistency
 		vt.value->addTerm(new fl::Ramp("LOW", 2.5, 0));
 		vt.value->addTerm(new fl::Triangle("MEDIUM", 2, 3)); //can't be center of mass :/
 		vt.value->addTerm(new fl::Ramp("HIGH", 2.5, 5));
-                vt.value->setRange(0.0,5.0);
+		vt.value->setRange(0.0,5.0);
 
 		engine.addRuleBlock (&vt.rules);
 
