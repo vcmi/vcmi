@@ -1949,7 +1949,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 
 	for(const CSpell *spell : VLC->spellh->objects)
 	{
-		if (spell->isPositive()) //only positive
+		if (spell->isPositive() && !spell->isRisingSpell()) //only positive and not rising
 		{
 			if (subject->hasBonusFrom(Bonus::SPELL_EFFECT, spell->id)
 				|| battleCanCastThisSpellHere(subject->owner, spell, ECastingMode::CREATURE_ACTIVE_CASTING, subject->position) != ESpellCastProblem::OK)
@@ -2020,6 +2020,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 						continue;
 				}
 				break;
+			case SpellID::TELEPORT: //issue 1928
 			case SpellID::CLONE: //not allowed
 				continue;
 				break;

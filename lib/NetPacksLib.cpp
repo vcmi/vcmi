@@ -1204,6 +1204,7 @@ void BattleResult::applyGs( CGameState *gs )
 void BattleStackMoved::applyGs( CGameState *gs )
 {
 	CStack *s = gs->curB->getStack(stack);
+	assert(s);
 	BattleHex dest = tilesToMove.back();
 
 	//if unit ended movement on quicksands that were created by enemy, that quicksand patch becomes visible for owner
