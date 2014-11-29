@@ -425,6 +425,58 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 	}
 }
 
+ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallback * cb, const CGHeroInstance * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
+{
+	// Get all stacks at destination hex. only alive if not rising spell
+	TStacks stacks = cb->battleGetStacksIf([=](const CStack * s){
+		return s->coversPos(destination) && (isRisingSpell() || s->alive());
+	});
+	
+	if(!stacks.empty())
+	{
+		bool allImmune = true;
+		
+		ESpellCastProblem::ESpellCastProblem problem;		
+		
+		for(auto s : stacks)
+		{
+			ESpellCastProblem::ESpellCastProblem res = isImmuneByStack(caster,s);
+			
+			if(res == ESpellCastProblem::OK)
+			{
+				allImmune = false;
+			}
+			else
+			{
+				problem = res;
+			}
+		}
+		
+		if(allImmune)
+			return problem;
+	}
+	else //no target stack on this tile
+	{
+		if(getTargetType() == CSpell::CREATURE)
+		{
+			if(caster && mode == ECastingMode::HERO_CASTING) //TODO why???
+			{
+				const CSpell::TargetInfo ti(this, caster->getSpellSchoolLevel(this), mode);
+				
+				if(!ti.massive)
+					return ESpellCastProblem::WRONG_SPELL_TARGET;					
+			}
+			else
+			{
+ 				return ESpellCastProblem::WRONG_SPELL_TARGET;
+			}			
+		}
+	}
+
+	return ESpellCastProblem::OK;	
+}
+
+
 ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj) const
 {	
 	//todo: use new bonus API

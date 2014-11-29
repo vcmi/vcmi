@@ -1565,60 +1565,6 @@ std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 	return attackableBattleHexes;
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const
-{
-	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
-
-	// Get all stacks at destination hex -> subject of our spell. only alive if not rising spell
-	TStacks stacks = battleGetStacksIf([=](const CStack * s){
-		return s->coversPos(dest) && (spell->isRisingSpell() || s->alive());
-	});
-	
-	if(!stacks.empty())
-	{
-		bool allImmune = true;
-		
-		ESpellCastProblem::ESpellCastProblem problem;		
-		
-		for(auto s : stacks)
-		{
-			ESpellCastProblem::ESpellCastProblem res = spell->isImmuneByStack(caster,s);
-			
-			if(res == ESpellCastProblem::OK)
-			{
-				allImmune = false;
-			}
-			else
-			{
-				problem = res;
-			}
-		}
-		
-		if(allImmune)
-			return problem;
-	}
-	else //no target stack on this tile
-	{
-		if(spell->getTargetType() == CSpell::CREATURE)
-		{
-			if(caster && mode == ECastingMode::HERO_CASTING) //TODO why???
-			{
-				const CSpell::TargetInfo ti = spell->getTargetInfo(caster->getSpellSchoolLevel(spell));
-				
-				if(!ti.massive)
-					return ESpellCastProblem::WRONG_SPELL_TARGET;					
-			}
-			else
-			{
- 				return ESpellCastProblem::WRONG_SPELL_TARGET;
-			}
-			
-		}
-	}
-
-	return ESpellCastProblem::OK;
-}
-
 ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell( PlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode ) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
@@ -1898,11 +1844,11 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 
-
+	const CGHeroInstance * caster = nullptr;
 	if (mode == ECastingMode::HERO_CASTING)
-		return battleIsImmune(battleGetFightingHero(playerToSide(player)), spell, mode, dest);
-	else
-		return battleIsImmune(nullptr, spell, mode, dest);
+		caster = battleGetFightingHero(playerToSide(player));
+	
+	return spell->isImmuneAt(this, caster, mode, dest);
 }
 
 const CStack * CBattleInfoCallback::getStackIf(std::function<bool(const CStack*)> pred) const
