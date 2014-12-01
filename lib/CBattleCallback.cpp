@@ -1891,93 +1891,126 @@ std::set<const CStack*> CBattleInfoCallback:: batteAdjacentCreatures(const CStac
 SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) const
 {
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
-	std::vector<SpellID> possibleSpells;
-
-	for(const CSpell *spell : VLC->spellh->objects)
+	//This is complete list. No spells from mods.
+	//todo: this should be Spellbook of caster Stack
+	static const std::set<SpellID> allPossibleSpells = 
 	{
-		if (spell->isPositive() && !spell->isRisingSpell()) //only positive and not rising
+		SpellID::AIR_SHIELD,
+		SpellID::ANTI_MAGIC,
+		SpellID::BLESS,		
+		SpellID::BLOODLUST,
+		SpellID::COUNTERSTRIKE,
+		SpellID::CURE,
+		SpellID::FIRE_SHIELD,		
+		SpellID::FORTUNE,
+		SpellID::HASTE,
+		SpellID::MAGIC_MIRROR,
+		SpellID::MIRTH,				
+		SpellID::PRAYER,
+		SpellID::PRECISION,
+		SpellID::PROTECTION_FROM_AIR,
+		SpellID::PROTECTION_FROM_EARTH,
+		SpellID::PROTECTION_FROM_FIRE,
+		SpellID::PROTECTION_FROM_WATER,
+		SpellID::SHIELD,
+		SpellID::SLAYER,
+		SpellID::STONE_SKIN
+	};
+	std::vector<SpellID> beneficialSpells;
+	
+	auto getAliveEnemy = [=](const std::function<bool(const CStack * )> & pred)
+	{
+		return getStackIf([=](const CStack * stack)
 		{
-			if (subject->hasBonusFrom(Bonus::SPELL_EFFECT, spell->id)
-				|| battleCanCastThisSpellHere(subject->owner, spell, ECastingMode::CREATURE_ACTIVE_CASTING, subject->position) != ESpellCastProblem::OK)
-				continue;
+			return pred(stack) && stack->owner != subject->owner && stack->alive();
+		});
+	};
 
-			switch (spell->id)
-			{
-			case SpellID::SHIELD:
-			case SpellID::FIRE_SHIELD: // not if all enemy units are shooters
-				{
-					auto walker = getStackIf([&](const CStack *stack) //look for enemy, non-shooting stack
-					{
-						return stack->owner != subject->owner && !stack->shots;
-					});
+	for(const SpellID spellID : allPossibleSpells)
+	{
+		if (subject->hasBonusFrom(Bonus::SPELL_EFFECT, spellID)
+			//TODO: this ability has special limitations
+			|| battleCanCastThisSpellHere(subject->owner, spellID.toSpell(), ECastingMode::CREATURE_ACTIVE_CASTING, subject->position) != ESpellCastProblem::OK)
+			continue;
 
-					if (!walker)
-						continue;
-				}
-				break;
-			case SpellID::AIR_SHIELD: //only against active shooters
+		switch (spellID)
+		{
+		case SpellID::SHIELD:
+		case SpellID::FIRE_SHIELD: // not if all enemy units are shooters
+			{				
+				auto walker = getAliveEnemy([&](const CStack * stack) //look for enemy, non-shooting stack
 				{
+					return !stack->shots;
+				});
 
-					auto shooter = getStackIf([&](const CStack *stack) //look for enemy, non-shooting stack
-					{
-						return stack->owner != subject->owner && stack->hasBonusOfType(Bonus::SHOOTER) && stack->shots;
-					});
-					if (!shooter)
-						continue;
-				}
-				break;
-			case SpellID::ANTI_MAGIC:
-			case SpellID::MAGIC_MIRROR:
-				{
-					if (!battleHasHero(subject->attackerOwned)) //only if there is enemy hero
-						continue;
-				}
-				break;
-			case SpellID::CURE: //only damaged units - what about affected by curse?
-				{
-					if (subject->firstHPleft >= subject->MaxHealth())
-						continue;
-				}
-				break;
-			case SpellID::BLOODLUST:
-				{
-					if (subject->shots) //if can shoot - only if enemy uits are adjacent
-						continue;
-				}
-				break;
-			case SpellID::PRECISION:
-				{
-					if (!(subject->hasBonusOfType(Bonus::SHOOTER) && subject->shots))
-						continue;
-				}
-				break;
-			case SpellID::SLAYER://only if monsters are present
-				{
-					auto kingMonster = getStackIf([&](const CStack *stack) -> bool //look for enemy, non-shooting stack
-					{
-						const auto isKing = Selector::type(Bonus::KING1)
-							.Or(Selector::type(Bonus::KING2))
-							.Or(Selector::type(Bonus::KING3));
-
-						return stack->owner != subject->owner  &&  stack->hasBonus(isKing);
-					});
-
-					if (!kingMonster)
-						continue;
-				}
-				break;
-			case SpellID::TELEPORT: //issue 1928
-			case SpellID::CLONE: //not allowed
-				continue;
-				break;
+				if (!walker)
+					continue;
 			}
-			possibleSpells.push_back(spell->id);
+			break;
+		case SpellID::AIR_SHIELD: //only against active shooters
+			{
+				auto shooter = getAliveEnemy([&](const CStack * stack) //look for enemy, non-shooting stack
+				{
+					return stack->hasBonusOfType(Bonus::SHOOTER) && stack->shots;
+				});
+				if (!shooter)
+					continue;
+			}
+			break;
+		case SpellID::ANTI_MAGIC:
+		case SpellID::MAGIC_MIRROR:
+		case SpellID::PROTECTION_FROM_AIR:
+		case SpellID::PROTECTION_FROM_EARTH:
+		case SpellID::PROTECTION_FROM_FIRE:
+		case SpellID::PROTECTION_FROM_WATER:				
+			{
+				const ui8 enemySide = (ui8)subject->attackerOwned;
+				//todo: only if enemy has spellbook
+				if (!battleHasHero(enemySide)) //only if there is enemy hero
+					continue;
+			}
+			break;
+		case SpellID::CURE: //only damaged units
+			{
+				//do not cast on affected by debuffs
+				if (subject->firstHPleft >= subject->MaxHealth())
+					continue;
+			}
+			break;
+		case SpellID::BLOODLUST:
+			{
+				if (subject->shots) //if can shoot - only if enemy uits are adjacent
+					continue;
+			}
+			break;
+		case SpellID::PRECISION:
+			{
+				if (!(subject->hasBonusOfType(Bonus::SHOOTER) && subject->shots))
+					continue;
+			}
+			break;
+		case SpellID::SLAYER://only if monsters are present
+			{
+				auto kingMonster = getAliveEnemy([&](const CStack *stack) -> bool //look for enemy, non-shooting stack
+				{
+					const auto isKing = Selector::type(Bonus::KING1)
+						.Or(Selector::type(Bonus::KING2))
+						.Or(Selector::type(Bonus::KING3));
+
+					return stack->hasBonus(isKing);
+				});
+
+				if (!kingMonster)
+					continue;
+			}
+			break;
 		}
+		beneficialSpells.push_back(spellID);		
 	}
 
-	if(!possibleSpells.empty())
+	if(!beneficialSpells.empty())
 	{
-		return *RandomGeneratorUtil::nextItem(possibleSpells, gs->getRandomGenerator());
+		return *RandomGeneratorUtil::nextItem(beneficialSpells, gs->getRandomGenerator());
 	}
 	else
 	{
