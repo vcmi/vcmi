@@ -744,6 +744,11 @@ void CSlider::keyPressed(const SDL_KeyboardEvent & key)
 	moveTo(moveDest);
 }
 
+void CSlider::moveToMin()
+{
+	moveTo(0);
+}
+
 void CSlider::moveToMax()
 {
 	moveTo(amount);
