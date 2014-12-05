@@ -81,8 +81,7 @@ FuzzyHelper::FuzzyHelper()
 	initTacticalAdvantage();
 	initVisitTile();
 	
-	engine.configure("AlgebraicProduct", "AlgebraicSum",
-			"AlgebraicProduct", "AlgebraicSum", "Centroid");
+	engine.configure("Minimum", "Maximum", "Minimum", "AlgebraicSum", "Centroid");
 
 	logAi->infoStream() << engine.toString();
 }
