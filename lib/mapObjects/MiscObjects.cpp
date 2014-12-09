@@ -1445,7 +1445,8 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 
 void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if (!wasVisited (h->getOwner()) ) //if hero has not visited yet this cartographer
+	//if player has not bought map of this subtype yet and underground exist for stalagmite cartographer
+	if (!wasVisited(h->getOwner()) && (subID != 2 || cb->gameState()->map->twoLevel))
 	{
 		if (cb->getResource(h->tempOwner, Res::GOLD) >= 1000) //if he can afford a map
 		{
