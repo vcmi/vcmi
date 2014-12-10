@@ -22,10 +22,6 @@ class FuzzyHelper
 
 	fl::Engine engine;
 
-	fl::InputVariable* bankInput;
-	fl::OutputVariable* bankDanger;
-	fl::RuleBlock bankBlock;
-
 	class TacticalAdvantage
 	{
 	public:
@@ -55,7 +51,6 @@ public:
 	//blocks should be initialized in this order, which may be confusing :/
 
 	FuzzyHelper();
-	void initBank();
 	void initTacticalAdvantage();
 	void initVisitTile();
 

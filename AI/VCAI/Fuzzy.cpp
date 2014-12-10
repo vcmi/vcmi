@@ -23,6 +23,8 @@
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 
 struct BankConfig;
+class IObjectInfo;
+class CBankInfo;
 class Engine;
 class InputVariable;
 class CGTownInstance;
@@ -77,7 +79,6 @@ armyStructure evaluateArmyStructure (const CArmedInstance * army)
 
 FuzzyHelper::FuzzyHelper()
 {
-	initBank();
 	initTacticalAdvantage();
 	initVisitTile();
 	
@@ -86,38 +87,6 @@ FuzzyHelper::FuzzyHelper()
 	logAi->infoStream() << engine.toString();
 }
 
-
-
-void FuzzyHelper::initBank()
-{
-	try
-	{
-                
-		//Trivial bank estimation
-		bankInput = new fl::InputVariable("BankInput");
-                //SingletonTerm (4.0) is a Rectangle (5.0) within 5*Macheps
-                bankInput->addTerm(new fl::Rectangle("SET", 0.5 - 5 * fl::fuzzylite::macheps(),
-				0.5 + 5 * fl::fuzzylite::macheps()));
-                
-                bankInput->setRange(0.5 - 5 * fl::fuzzylite::macheps(), 0.5 + 5 * fl::fuzzylite::macheps());
-                
-		bankDanger = new fl::OutputVariable("BankDanger");
-		
-		engine.addInputVariable(bankInput);
-		engine.addOutputVariable(bankDanger);
-		engine.addRuleBlock(&bankBlock);
-		for (int i = 0; i < 4; ++i)
-		{
-			bankDanger->addTerm(new fl::Triangle("Bank" + boost::lexical_cast<std::string>(i), 0, 1));
-			bankBlock.addRule(fl::Rule::parse("if BankInput is SET then BankDanger is Bank" + boost::lexical_cast<std::string>(i), &engine));
-		}
-                bankDanger->setRange(0.0, 1.0);
-	}
-	catch (fl::Exception & fe)
-	{
-		logAi->errorStream() << "initBank : " << fe.getWhat();
-	}
-}
 
 void FuzzyHelper::initTacticalAdvantage()
 {
@@ -223,46 +192,20 @@ void FuzzyHelper::initTacticalAdvantage()
 
 ui64 FuzzyHelper::estimateBankDanger (const CBank * bank)
 {
-	auto info = VLC->objtypeh->getHandlerFor(bank->ID, bank->subID)->getObjectInfo(bank->appearance);
+	//this one is not fuzzy anymore, just calculate weighted average
 
-	ui64 val = std::numeric_limits<ui64>::max();
-	try
-	{
-		fl::Triangle* bank0 = dynamic_cast<fl::Triangle*> (bankDanger->getTerm("Bank0"));
-		fl::Triangle* bank1 = dynamic_cast<fl::Triangle*> (bankDanger->getTerm("Bank1"));
-		if (bank0 && bank1)
-		{
-			bank0->setVertexA(info->minGuards().totalStrength * 0.5f);
-			bank0->setVertexC(info->minGuards().totalStrength * 1.5f);
-			bank1->setVertexA(info->maxGuards().totalStrength * 0.5f);
-			bank1->setVertexC(info->maxGuards().totalStrength * 1.5f);
-                        
-			fl::scalar min = std::min({bank0->getVertexA(), bank0->getVertexC(), bank1->getVertexA(), bank1->getVertexC()});
-			fl::scalar max = std::max({bank0->getVertexA(), bank0->getVertexC(), bank1->getVertexA(), bank1->getVertexC()});
-			if (fl::Op::isLt(min, bankDanger->getMinimum()))
-			{
-				bankDanger->setMinimum(min);
-			}
-			if (fl::Op::isGt(max, bankDanger->getMaximum()))
-			{
-				bankDanger->setMaximum(max);
-			}
-		}
+	auto objectInfo = VLC->objtypeh->getHandlerFor(bank->ID, bank->subID)->getObjectInfo(bank->appearance);
 
-		//comparison purposes
-		//int averageValue = (evaluateBankConfig (VLC->objh->banksInfo[ID][0]) + evaluateBankConfig (VLC->objh->banksInfo[ID][3])) * 0.5;
-		//dynamic_cast<fl::SingletonTerm*>(bankInput->term("SET"))->setValue(0.5);
-		bankInput->setInputValue(0.5);
-		//engine.process(BANK_DANGER);//TODO: Process Bank_Dange only
-		engine.process(); //TODO: Process Bank_Dange only
-		val = bankDanger->getOutputValue(); //some expected value of this bank
-	}
-	catch (fl::Exception & fe)
+	CBankInfo * bankInfo = dynamic_cast<CBankInfo *> (objectInfo.get());
+
+	ui64 totalStrength = 0;
+	ui8 totalChance = 0;
+	for (auto config : bankInfo->getPossibleGuards())
 	{
-		logAi->errorStream() << "estimateBankDanger " << ": " << fe.getWhat();
+		totalStrength += config.second.totalStrength * config.first;
+		totalChance += config.first;
 	}
-	assert(val >= 0);
-	return val;
+	return totalStrength / totalChance;
 
 }
 
