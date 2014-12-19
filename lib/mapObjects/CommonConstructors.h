@@ -152,14 +152,20 @@ struct BankConfig
 	}
 };
 
-class CBankInfo : public IObjectInfo
+typedef std::vector<std::pair<ui8, IObjectInfo::CArmyStructure>> TPossibleGuards;
+
+class DLL_LINKAGE CBankInfo : public IObjectInfo
 {
 	JsonVector config;
 public:
 	CBankInfo(JsonVector config);
 
+	TPossibleGuards getPossibleGuards() const;
+
+	//I have no idea what do these functions do or were supposed to do - War
 	CArmyStructure minGuards() const;
 	CArmyStructure maxGuards() const;
+
 	bool givesResources() const;
 	bool givesArtifacts() const;
 	bool givesCreatures() const;

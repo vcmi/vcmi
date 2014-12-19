@@ -370,6 +370,29 @@ IObjectInfo::CArmyStructure CBankInfo::maxGuards() const
 	return *boost::range::max_element(armies);
 }
 
+TPossibleGuards CBankInfo::getPossibleGuards() const
+{
+	TPossibleGuards out;
+
+	for (const JsonNode & configEntry : config)
+	{
+		const JsonNode & guardsInfo = configEntry["guards"];
+		auto stacks = JsonRandom::evaluateCreatures(configEntry["guards"]);
+		IObjectInfo::CArmyStructure army;
+
+
+		for (auto stack : stacks)
+		{
+			army.totalStrength += stack.allowedCreatures.front()->AIValue * (stack.minAmount + stack.maxAmount) / 2;
+			//TODO: add fields for flyers, walkers etc...
+		}
+
+		ui8 chance = configEntry["chance"].Float();
+		out.push_back(std::make_pair(chance, army));
+	}
+	return out;
+}
+
 bool CBankInfo::givesResources() const
 {
 	for (const JsonNode & node : config)
