@@ -186,6 +186,7 @@ void FuzzyHelper::initTacticalAdvantage()
 		ta.addRule("if OurWalkers is FEW and EnemyShooters is MANY then Threat is somewhat LOW");
 		ta.addRule("if OurShooters is MANY and EnemySpeed is HIGH then Threat is somewhat HIGH");
 		//just to cover all cases
+		ta.addRule("if OurShooters is FEW and EnemySpeed is HIGH then Threat is MEDIUM");
 		ta.addRule("if EnemySpeed is MEDIUM then Threat is MEDIUM");
 		ta.addRule("if EnemySpeed is LOW and OurShooters is FEW then Threat is MEDIUM");
 
@@ -266,10 +267,11 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 	if (output < 0 || (output != output))
 	{
 		fl::InputVariable* tab[] = {ta.bankPresent, ta.castleWalls, ta.ourWalkers, ta.ourShooters, ta.ourFlyers, ta.ourSpeed, ta.enemyWalkers, ta.enemyShooters, ta.enemyFlyers, ta.enemySpeed};
-		std::stringstream log;
+		std::string names[] = {"bankPresent", "castleWalls", "ourWalkers", "ourShooters", "ourFlyers", "ourSpeed", "enemyWalkers", "enemyShooters", "enemyFlyers", "enemySpeed" };
+		std::stringstream log("Warning! Fuzzy engine doesn't cover this set of parameters: ");
 
-		for (auto param : tab)
-			log << param->getInputValue() << " ";
+		for (int i = 0; i < boost::size(tab); i++)
+			log << names[i] << ": " << tab[i]->getInputValue() << " ";
 		logAi->errorStream() << log.str();
 		assert(false);
 	}
