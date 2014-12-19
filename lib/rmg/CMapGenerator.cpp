@@ -74,7 +74,7 @@ void CMapGenerator::initPrisonsRemaining()
 		if (isAllowed)
 			prisonsRemaining++;
 	}
-	prisonsRemaining = std::max<int> (0, prisonsRemaining - 16 * map->players.size()); //so at least 16 heroes will be available for every player
+	prisonsRemaining = std::max<int> (0, prisonsRemaining - 16 * mapGenOptions->getPlayerCount()); //so at least 16 heroes will be available for every player
 }
 
 std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, int randomSeed /*= std::time(nullptr)*/)
