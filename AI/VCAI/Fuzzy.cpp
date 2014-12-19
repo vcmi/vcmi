@@ -37,6 +37,22 @@ FuzzyHelper *fh;
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 
+engineBase::engineBase()
+{
+	engine.addRuleBlock(&rules);
+}
+
+void engineBase::configure()
+{
+	engine.configure("Minimum", "Maximum", "Minimum", "AlgebraicSum", "Centroid");
+	logAi->infoStream() << engine.toString();
+}
+
+void engineBase::addRule(const std::string &txt)
+{
+	rules.addRule(fl::Rule::parse(txt, &engine));
+}
+
 struct armyStructure
 {
 	float walkers, shooters, flyers;
@@ -74,17 +90,16 @@ armyStructure evaluateArmyStructure (const CArmedInstance * army)
 	as.shooters = shootersStrenght / totalStrenght;
 	as.flyers = flyersStrenght / totalStrenght;
 	as.maxSpeed = maxSpeed;
+	assert(as.walkers || as.flyers || as.shooters);
 	return as;
 }
 
 FuzzyHelper::FuzzyHelper()
 {
 	initTacticalAdvantage();
+	ta.configure();
 	initVisitTile();
-	
-	engine.configure("Minimum", "Maximum", "Minimum", "AlgebraicSum", "Centroid");
-
-	logAi->infoStream() << engine.toString();
+	vt.configure();
 }
 
 
@@ -108,7 +123,7 @@ void FuzzyHelper::initTacticalAdvantage()
 
 		for (auto val : helper)
 		{
-			engine.addInputVariable(val);
+			ta.engine.addInputVariable(val);
 			val->addTerm(new fl::Ramp("FEW", 0.6, 0.0));
 			val->addTerm(new fl::Ramp("MANY", 0.4, 1));
 			val->setRange(0.0, 1.0);
@@ -121,7 +136,7 @@ void FuzzyHelper::initTacticalAdvantage()
 
 		for (auto val : helper)
 		{
-			engine.addInputVariable(val);
+			ta.engine.addInputVariable(val);
 			val->addTerm(new fl::Ramp("LOW", 6.5, 3));
 			val->addTerm(new fl::Triangle("MEDIUM", 5.5, 10.5));
 			val->addTerm(new fl::Ramp("HIGH", 8.5, 16));
@@ -129,7 +144,7 @@ void FuzzyHelper::initTacticalAdvantage()
 		}
 
 		ta.castleWalls = new fl::InputVariable("CastleWalls");
-		engine.addInputVariable(ta.castleWalls);
+		ta.engine.addInputVariable(ta.castleWalls);
 		{
 			fl::Rectangle* none = new fl::Rectangle("NONE", CGTownInstance::NONE, CGTownInstance::NONE + (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f);
 			ta.castleWalls->addTerm(none);
@@ -147,7 +162,7 @@ void FuzzyHelper::initTacticalAdvantage()
 		
 
 		ta.bankPresent = new fl::InputVariable("Bank");
-		engine.addInputVariable(ta.bankPresent);
+		ta.engine.addInputVariable(ta.bankPresent);
 		{
 			fl::Rectangle* termFalse = new fl::Rectangle("FALSE", 0.0, 0.5f);
 			ta.bankPresent->addTerm(termFalse);
@@ -157,31 +172,29 @@ void FuzzyHelper::initTacticalAdvantage()
 		}
 
 		ta.threat = new fl::OutputVariable("Threat");
-		engine.addOutputVariable(ta.threat);
+		ta.engine.addOutputVariable(ta.threat);
 		ta.threat->addTerm(new fl::Ramp("LOW", 1, MIN_AI_STRENGHT));
 		ta.threat->addTerm(new fl::Triangle("MEDIUM", 0.8, 1.2));
 		ta.threat->addTerm(new fl::Ramp("HIGH", 1, 1.5));
 		ta.threat->setRange(MIN_AI_STRENGHT, 1.5);
 
-		engine.addRuleBlock(&ta.tacticalAdvantage);
+		ta.addRule("if OurShooters is MANY and EnemySpeed is LOW then Threat is LOW");
+		ta.addRule("if OurShooters is MANY and EnemyShooters is FEW then Threat is LOW");
+		ta.addRule("if OurSpeed is LOW and EnemyShooters is MANY then Threat is HIGH");
+		ta.addRule("if OurSpeed is HIGH and EnemyShooters is MANY then Threat is LOW");
 
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if OurShooters is MANY and EnemySpeed is LOW then Threat is LOW", &engine));
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if OurShooters is MANY and EnemyShooters is FEW then Threat is LOW", &engine));
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if OurSpeed is LOW and EnemyShooters is MANY then Threat is HIGH", &engine));
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if OurSpeed is HIGH and EnemyShooters is MANY then Threat is LOW", &engine));
-
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if OurWalkers is FEW and EnemyShooters is MANY then Threat is somewhat LOW", &engine));
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if OurShooters is MANY and EnemySpeed is HIGH then Threat is somewhat HIGH", &engine));
+		ta.addRule("if OurWalkers is FEW and EnemyShooters is MANY then Threat is somewhat LOW");
+		ta.addRule("if OurShooters is MANY and EnemySpeed is HIGH then Threat is somewhat HIGH");
 		//just to cover all cases
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if EnemySpeed is MEDIUM then Threat is MEDIUM", &engine));
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if EnemySpeed is LOW and OurShooters is FEW then Threat is MEDIUM", &engine));
+		ta.addRule("if EnemySpeed is MEDIUM then Threat is MEDIUM");
+		ta.addRule("if EnemySpeed is LOW and OurShooters is FEW then Threat is MEDIUM");
 
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if Bank is TRUE and OurShooters is MANY then Threat is somewhat HIGH", &engine));
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if Bank is TRUE and EnemyShooters is MANY then Threat is LOW", &engine));
+		ta.addRule("if Bank is TRUE and OurShooters is MANY then Threat is somewhat HIGH");
+		ta.addRule("if Bank is TRUE and EnemyShooters is MANY then Threat is LOW");
 
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if CastleWalls is HIGH and OurWalkers is MANY then Threat is very HIGH", &engine));
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if CastleWalls is HIGH and OurFlyers is MANY and OurShooters is MANY then Threat is MEDIUM", &engine));
-		ta.tacticalAdvantage.addRule(fl::Rule::parse("if CastleWalls is MEDIUM and OurShooters is MANY and EnemyWalkers is MANY then Threat is LOW", &engine));
+		ta.addRule("if CastleWalls is HIGH and OurWalkers is MANY then Threat is very HIGH");
+		ta.addRule("if CastleWalls is HIGH and OurFlyers is MANY and OurShooters is MANY then Threat is MEDIUM");
+		ta.addRule("if CastleWalls is MEDIUM and OurShooters is MANY and EnemyWalkers is MANY then Threat is LOW");
 
 	}
 	catch (fl::Exception & pe)
@@ -242,14 +255,25 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 			ta.castleWalls->setInputValue(0);
 
 		//engine.process(TACTICAL_ADVANTAGE);//TODO: Process only Tactical_Advantage
-		engine.process();
+		ta.engine.process();
 		output = ta.threat->getOutputValue();
 	}
 	catch (fl::Exception & fe)
 	{
 		logAi->errorStream() << "getTacticalAdvantage " << ": " << fe.getWhat();
 	}
-	assert (output >= 0);
+	logAi->traceStream() << "getTacticalAdvantage output: " << output;
+	if (output < 0 || (output != output))
+	{
+		fl::InputVariable* tab[] = {ta.bankPresent, ta.castleWalls, ta.ourWalkers, ta.ourShooters, ta.ourFlyers, ta.ourSpeed, ta.enemyWalkers, ta.enemyShooters, ta.enemyFlyers, ta.enemySpeed};
+		std::stringstream log;
+
+		for (auto param : tab)
+			log << param->getInputValue() << " ";
+		logAi->errorStream() << log.str();
+		assert(false);
+	}
+
 	return output;
 }
 
@@ -328,9 +352,9 @@ void FuzzyHelper::initVisitTile()
 		std::vector<fl::InputVariable*> helper = {vt.strengthRatio, vt.heroStrength, vt.turnDistance, vt.missionImportance};
 		for (auto val : helper)
 		{
-			engine.addInputVariable(val);
+			vt.engine.addInputVariable(val);
 		}
-		engine.addOutputVariable(vt.value);
+		vt.engine.addOutputVariable(vt.value);
 
 		vt.strengthRatio->addTerm(new fl::Ramp("LOW", SAFE_ATTACK_CONSTANT, 0));
 		vt.strengthRatio->addTerm(new fl::Ramp("HIGH", SAFE_ATTACK_CONSTANT, SAFE_ATTACK_CONSTANT * 3));
@@ -359,27 +383,25 @@ void FuzzyHelper::initVisitTile()
 		vt.value->addTerm(new fl::Ramp("HIGH", 2.5, 5));
 		vt.value->setRange(0.0,5.0);
 
-		engine.addRuleBlock (&vt.rules);
-
 		//use unarmed scouts if possible
-		vt.rules.addRule(fl::Rule::parse("if strengthRatio is HIGH and heroStrength is LOW then Value is very HIGH", &engine));
+		vt.addRule("if strengthRatio is HIGH and heroStrength is LOW then Value is very HIGH");
 		//we may want to use secondary hero(es) rather than main hero
-		vt.rules.addRule(fl::Rule::parse("if strengthRatio is HIGH and heroStrength is MEDIUM then Value is somewhat HIGH", &engine));
-		vt.rules.addRule(fl::Rule::parse("if strengthRatio is HIGH and heroStrength is HIGH then Value is somewhat LOW", &engine));
+		vt.addRule("if strengthRatio is HIGH and heroStrength is MEDIUM then Value is somewhat HIGH");
+		vt.addRule("if strengthRatio is HIGH and heroStrength is HIGH then Value is somewhat LOW");
 		//don't assign targets to heroes who are too weak, but prefer targets of our main hero (in case we need to gather army)
-		vt.rules.addRule(fl::Rule::parse("if strengthRatio is LOW and heroStrength is LOW then Value is very LOW", &engine));
+		vt.addRule("if strengthRatio is LOW and heroStrength is LOW then Value is very LOW");
 		//attempt to arm secondary heroes is not stupid
-		vt.rules.addRule(fl::Rule::parse("if strengthRatio is LOW and heroStrength is MEDIUM then Value is somewhat HIGH", &engine));
-		vt.rules.addRule(fl::Rule::parse("if strengthRatio is LOW and heroStrength is HIGH then Value is LOW", &engine));
+		vt.addRule("if strengthRatio is LOW and heroStrength is MEDIUM then Value is somewhat HIGH");
+		vt.addRule("if strengthRatio is LOW and heroStrength is HIGH then Value is LOW");
 
 		//do not cancel important goals
-		vt.rules.addRule(fl::Rule::parse("if lockedMissionImportance is HIGH then Value is very LOW", &engine));
-		vt.rules.addRule(fl::Rule::parse("if lockedMissionImportance is MEDIUM then Value is somewhat LOW", &engine));
-		vt.rules.addRule(fl::Rule::parse("if lockedMissionImportance is LOW then Value is HIGH", &engine));
+		vt.addRule("if lockedMissionImportance is HIGH then Value is very LOW");
+		vt.addRule("if lockedMissionImportance is MEDIUM then Value is somewhat LOW");
+		vt.addRule("if lockedMissionImportance is LOW then Value is HIGH");
 		//pick nearby objects if it's easy, avoid long walks
-		vt.rules.addRule(fl::Rule::parse("if turnDistance is SMALL then Value is HIGH", &engine));
-		vt.rules.addRule(fl::Rule::parse("if turnDistance is MEDIUM then Value is MEDIUM", &engine));
-		vt.rules.addRule(fl::Rule::parse("if turnDistance is LONG then Value is LOW", &engine));
+		vt.addRule("if turnDistance is SMALL then Value is HIGH");
+		vt.addRule("if turnDistance is MEDIUM then Value is MEDIUM");
+		vt.addRule("if turnDistance is LONG then Value is LOW");
 	}
 	catch (fl::Exception & fe)
 	{
@@ -422,7 +444,7 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 		vt.turnDistance->setInputValue(turns);
 		vt.missionImportance->setInputValue(missionImportance);
 
-		engine.process();
+		vt.engine.process();
 		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
 		g.priority = vt.value->getOutputValue();
 	}

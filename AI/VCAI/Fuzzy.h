@@ -16,13 +16,22 @@ class VCAI;
 class CArmedInstance;
 class CBank;
 
+class engineBase
+{
+public:
+	fl::Engine engine;
+	fl::RuleBlock rules;
+
+	engineBase();
+	void configure();
+	void addRule(const std::string &txt);
+};
+
 class FuzzyHelper
 {
 	friend class VCAI;
 
-	fl::Engine engine;
-
-	class TacticalAdvantage
+	class TacticalAdvantage : public engineBase
 	{
 	public:
 		fl::InputVariable * ourWalkers, * ourShooters, * ourFlyers, * enemyWalkers, * enemyShooters, * enemyFlyers;
@@ -30,11 +39,10 @@ class FuzzyHelper
 		fl::InputVariable * bankPresent;
 		fl::InputVariable * castleWalls;
 		fl::OutputVariable * threat;
-		fl::RuleBlock tacticalAdvantage;
 		~TacticalAdvantage();
 	} ta;
 
-	class EvalVisitTile
+	class EvalVisitTile : public engineBase
 	{
 	public:
 		fl::InputVariable * strengthRatio;
