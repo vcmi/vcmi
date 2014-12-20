@@ -150,6 +150,7 @@ public:
 	void discardDistantTiles (CMapGenerator* gen, float distance);
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
+	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);
 	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength, bool clearSurroundingTiles = true, bool zoneGuard = false);
 	bool createTreasurePile(CMapGenerator* gen, int3 &pos, float minDistance, const CTreasureInfo& treasureInfo);
 	bool fill (CMapGenerator* gen);
@@ -198,6 +199,7 @@ private:
 
 	//content info
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
+	std::vector<std::pair<CGObjectInstance*, ui32>> closeObjects;
 	std::vector<CGObjectInstance*> objects;
 
 	//placement info
@@ -214,6 +216,8 @@ private:
 	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
 	bool findPlaceForTreasurePile(CMapGenerator* gen, float min_dist, int3 &pos);
 	bool canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos);
+	void setTemplateForObject(CMapGenerator* gen, CGObjectInstance* obj);
+	bool areAllTilesAvailable(CMapGenerator* gen, CGObjectInstance* obj, int3& tile, std::set<int3>& tilesBlockedByObject) const;
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, bool updateDistance = true);
 	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard = false, bool addToFreePaths = false);
