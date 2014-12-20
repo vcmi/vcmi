@@ -138,8 +138,7 @@ CRmgTemplateZone::CRmgTemplateZone() :
 	matchTerrainToTown(true),
 	townType(ETownType::NEUTRAL),
 	terrainType (ETerrainType::GRASS),
-	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
-	totalDensity(0)
+	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL)
 {
 	terrainTypes = getDefaultTerrainTypes();
 }
@@ -303,16 +302,6 @@ void CRmgTemplateZone::setMonsterStrength (EMonsterStrength::EMonsterStrength va
 	zoneMonsterStrength = val;
 }
 
-void CRmgTemplateZone::setTotalDensity (ui16 val)
-{
-	totalDensity = val;
-}
-
-ui16 CRmgTemplateZone::getTotalDensity () const
-{
-	return totalDensity;
-}
-
 void CRmgTemplateZone::addTreasureInfo(CTreasureInfo & info)
 {
 	treasureInfo.push_back(info);
@@ -420,7 +409,11 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	std::set<int3> tilesToIgnore; //will be erased in this iteration
 
 	//the more treasure density, the greater distance between paths. Scaling is experimental.
+	int totalDensity = 0;
+	for (auto ti : treasureInfo)
+		totalDensity =+ ti.density;
 	const float minDistance = std::sqrt(totalDensity * 3);
+
 	for (auto tile : tileinfo)
 	{
 		if (gen->isFree(tile))
@@ -686,7 +679,7 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, 
 	return true;
 }
 
-bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos, float minDistance)
+bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float minDistance, const CTreasureInfo& treasureInfo)
 {
 	CTreasurePileInfo info;
 
@@ -695,25 +688,9 @@ bool CRmgTemplateZone::createTreasurePile (CMapGenerator* gen, int3 &pos, float 
 	int3 guardPos (-1,-1,-1);
 	info.nextTreasurePos = pos;
 
-	//default values
-	int maxValue = 5000;
-	int minValue = 1500;
+	int maxValue = treasureInfo.max;
+	int minValue = treasureInfo.min;
 
-	if (treasureInfo.size())
-	{
-		//roulette wheel
-		int r = gen->rand.nextInt (1, totalDensity);
-
-		for (auto t : treasureInfo)
-		{
-			if (r <= t.threshold)
-			{
-				maxValue = t.max;
-				minValue = t.min;
-				break;
-			}
-		}
-	}
 	ui32 desiredValue = gen->rand.nextInt(minValue, maxValue);
 	//quantize value to let objects with value equal to max spawn too
 
@@ -1194,30 +1171,43 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 
 void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 {
-	//treasure density is proportional to map siz,e but must be scaled bakc to map size
-	//also, normalize it to zone count - higher count means relative smaller zones
+	auto valueComparator = [](const CTreasureInfo & lhs, const CTreasureInfo & rhs) -> bool
+	{
+		return lhs.max > rhs.max;
+	};
 
-	//this is squared distance for optimization purposes
-	const double minDistance = std::max<float>((600.f * size * size * gen->getZones().size()) /
-		(gen->mapGenOptions->getWidth() * gen->mapGenOptions->getHeight() * totalDensity * (gen->map->twoLevel ? 2 : 1)), 2);
-	//distance lower than 2 causes objects to overlap and crash
+	//place biggest treasures first at large distance, place smaller ones inbetween
+	boost::sort(treasureInfo, valueComparator);
 
-	do {
-		
-		//optimization - don't check tiles which are not allowed
-		vstd::erase_if (possibleTiles, [gen](const int3 &tile) -> bool
-		{
-			return !gen->isPossible(tile);
-		});
+	int totalDensity = 0;
+	for (auto t : treasureInfo)
+	{
+		totalDensity += t.density;
 
-		int3 pos;
-		if ( ! findPlaceForTreasurePile(gen, minDistance, pos))		
-		{
-			break;
-		}
-		createTreasurePile (gen, pos, minDistance);
+		//treasure density is inversely proportional to zone size but must be scaled back to map size
+		//also, normalize it to zone count - higher count means relatively smaller zones
 
-	} while(true);
+		//this is squared distance for optimization purposes
+		const double minDistance = std::max<float>((600.f * size * size * gen->getZones().size()) /
+			(gen->mapGenOptions->getWidth() * gen->mapGenOptions->getHeight() * totalDensity * (gen->map->twoLevel ? 2 : 1)), 2);
+		//distance lower than 2 causes objects to overlap and crash
+
+		do {
+			//optimization - don't check tiles which are not allowed
+			vstd::erase_if(possibleTiles, [gen](const int3 &tile) -> bool
+			{
+				return !gen->isPossible(tile);
+			});
+
+			int3 pos;
+			if (!findPlaceForTreasurePile(gen, minDistance, pos))
+			{
+				break;
+			}
+			createTreasurePile(gen, pos, minDistance, t);
+
+		} while (true);
+	}
 }
 
 void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
