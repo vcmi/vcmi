@@ -715,7 +715,12 @@ TGoalVec VisitTile::getAllPossibleSubgoals()
 	{
 		auto obj = frontOrNull(cb->getVisitableObjs(tile));
 		if (obj && obj->ID == Obj::HERO && obj->tempOwner == ai->playerID) //our own hero stands on that tile
-			ret.push_back (sptr(Goals::VisitTile(tile).sethero(dynamic_cast<const CGHeroInstance *>(obj)).setisElementar(true)));
+		{
+			if (hero.get(true) && hero->id == obj->id) //if it's assigned hero, visit tile. If it's different hero, we can't visit tile now
+				ret.push_back(sptr(Goals::VisitTile(tile).sethero(dynamic_cast<const CGHeroInstance *>(obj)).setisElementar(true)));
+			else
+				throw cannotFulfillGoalException("Tile is already occupied by another hero "); //FIXME: we should give up this tile earlier
+		}
 		else
 			ret.push_back (sptr(Goals::ClearWayTo(tile)));
 	}
