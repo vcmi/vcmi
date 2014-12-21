@@ -438,15 +438,15 @@ public:
 	void addStdVecItems(CGameState *gs, LibClasses *lib = VLC);
 };
 
-class IBinaryWriter
+class IBinaryWriter : public virtual CSerializer
 {
 public:
 	virtual int write(const void * data, unsigned size) = 0;
 };
 
-class DLL_LINKAGE CSaverBase : public virtual CSerializer
+class DLL_LINKAGE CSaverBase 
 {
-private:
+protected:
 	IBinaryWriter * writer;
 public:
 	CSaverBase(IBinaryWriter * w): writer(w){};
@@ -528,6 +528,7 @@ struct SaveIfStackInstance
 		return false;
 	}
 };
+
 template<typename Ser>
 struct SaveIfStackInstance<Ser, CStackInstance *>
 {
@@ -546,6 +547,7 @@ struct SaveIfStackInstance<Ser, CStackInstance *>
 		return true;
 	}
 };
+
 template<typename Ser,typename T>
 struct LoadIfStackInstance
 {
@@ -655,7 +657,8 @@ public:
 		}
 	};	
 	
-	template <typename T> class CPointerSaver : public CBasicPointerSaver
+	template <typename T> 
+	class CPointerSaver : public CBasicPointerSaver
 	{
 	public:
 		void savePtr(CSaverBase &ar, const void *data) const override
@@ -702,11 +705,6 @@ public:
 		addSaver(d);
 	}
 
-//    Serializer * This()
-//	{
-//		return static_cast<Serializer*>(this);
-//	}
-
 	template<class T>
 	COSer & operator<<(const T &t)
 	{
@@ -737,21 +735,21 @@ public:
 		if(!hlp)
 			return;
 
- 		if(smartVectorMembersSerialization)
+ 		if(writer->smartVectorMembersSerialization)
 		{
 			typedef typename boost::remove_const<typename boost::remove_pointer<T>::type>::type TObjectType;
 			typedef typename VectorisedTypeFor<TObjectType>::type VType;
 			typedef typename VectorizedIDType<TObjectType>::type IDType;
- 			if(const auto *info = getVectorisedTypeInfo<VType, IDType>())
+ 			if(const auto *info = writer->getVectorisedTypeInfo<VType, IDType>())
  			{
-				IDType id = getIdFromVectorItem<VType>(*info, data);
+				IDType id = writer->getIdFromVectorItem<VType>(*info, data);
 				*this << id;
 				if(id != IDType(-1)) //vector id is enough
  					return;
  			}
  		}
 
-		if(sendStackInstanceByIds)
+		if(writer->sendStackInstanceByIds)
 		{
 			const bool gotSaved = SaveIfStackInstance<COSer,T>::invoke(*this, data);
 			if(gotSaved)
@@ -960,15 +958,15 @@ public:
 	}
 };
 
-class IBinaryReader
+class IBinaryReader : public virtual CSerializer
 {
 public:
 	virtual int read(void * data, unsigned size) = 0;
 };
 
-class DLL_LINKAGE CLoaderBase : public virtual CSerializer
+class DLL_LINKAGE CLoaderBase 
 {
-private:
+protected:
 	IBinaryReader * reader;
 public:
 	CLoaderBase(IBinaryReader * r): reader(r){};
@@ -1240,24 +1238,24 @@ public:
 			return;
 		}
 
-		if(smartVectorMembersSerialization)
+		if(reader->smartVectorMembersSerialization)
 		{
 			typedef typename boost::remove_const<typename boost::remove_pointer<T>::type>::type TObjectType; //eg: const CGHeroInstance * => CGHeroInstance
 			typedef typename VectorisedTypeFor<TObjectType>::type VType;									 //eg: CGHeroInstance -> CGobjectInstance
 			typedef typename VectorizedIDType<TObjectType>::type IDType;
-			if(const auto *info = getVectorisedTypeInfo<VType, IDType>())
+			if(const auto *info = reader->getVectorisedTypeInfo<VType, IDType>())
 			{
 				IDType id;
 				*this >> id;
 				if(id != IDType(-1))
 				{
-					data = static_cast<T>(getVectorItemFromId<VType, IDType>(*info, id));
+					data = static_cast<T>(reader->getVectorItemFromId<VType, IDType>(*info, id));
 					return;
 				}
 			}
 		}
 
-		if(sendStackInstanceByIds)
+		if(reader->sendStackInstanceByIds)
 		{
 			bool gotLoaded = LoadIfStackInstance<CISer,T>::invoke(* this, data);
 			if(gotLoaded)
@@ -1321,7 +1319,7 @@ public:
 	if(length > 500000)				\
 	{								\
         logGlobal->warnStream() << "Warning: very big length: " << length;\
-        reportState(logGlobal);			\
+        reader->reportState(logGlobal);			\
 	};
 
 
@@ -1672,12 +1670,6 @@ public:
 	{
 		oser << t;
 		return * this;
-	}
-	
-	void addStdVecItems(CGameState *gs, LibClasses *lib = VLC)
-	{
-		iser.addStdVecItems(gs, lib);
-		oser.addStdVecItems(gs, lib);
 	}
 };
 

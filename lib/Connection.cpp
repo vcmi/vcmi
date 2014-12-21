@@ -238,26 +238,22 @@ void CConnection::sendPackToServer(const CPack &pack, PlayerColor player, ui32 r
 
 void CConnection::disableStackSendingByID()
 {
-	iser.sendStackInstanceByIds = false;
-	oser.sendStackInstanceByIds = false;
+	CSerializer::sendStackInstanceByIds = false;	
 }
 
 void CConnection::enableStackSendingByID()
 {
-	iser.sendStackInstanceByIds = true;
-	oser.sendStackInstanceByIds = true;
+	CSerializer::sendStackInstanceByIds = true;	
 }
 
 void CConnection::disableSmartPointerSerialization()
 {
-	iser.smartPointerSerialization = false;
-	oser.smartPointerSerialization = false;
+	iser.smartPointerSerialization = oser.smartPointerSerialization = false;
 }
 
 void CConnection::enableSmartPointerSerializatoin()
 {
-	iser.smartPointerSerialization = true;
-	oser.smartPointerSerialization = true;
+	iser.smartPointerSerialization = oser.smartPointerSerialization = true;
 }
 
 void CConnection::prepareForSendingHeroes()
@@ -279,12 +275,12 @@ void CConnection::enterPregameConnectionMode()
 
 void CConnection::disableSmartVectorMemberSerialization()
 {
-	iser.smartVectorMembersSerialization = oser.smartVectorMembersSerialization = false;
+	CSerializer::smartVectorMembersSerialization = false;
 }
 
 void CConnection::enableSmartVectorMemberSerializatoin()
 {
-	iser.smartVectorMembersSerialization = oser.smartVectorMembersSerialization = true;
+	CSerializer::smartVectorMembersSerialization = true;
 }
 
 CSaveFile::CSaveFile( const std::string &fname ): serializer(this) 
