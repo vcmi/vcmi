@@ -2240,6 +2240,10 @@ bool CGameState::isVisible( const CGObjectInstance *obj, boost::optional<PlayerC
 	if(!player)
 		return true;
 
+	//we should always see our own heroes - but sometimes not visible heroes cause crash :?
+	if (player == obj->tempOwner)
+		return true;
+
 	if(*player == PlayerColor::NEUTRAL) //-> TODO ??? needed?
 		return false;
 	//object is visible when at least one blocked tile is visible
