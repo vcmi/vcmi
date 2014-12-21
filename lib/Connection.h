@@ -30,6 +30,8 @@
 const ui32 version = 750;
 const ui32 minSupportedVersion = version;
 
+class CISer;
+class COSer;
 class CConnection;
 class CGObjectInstance;
 class CStackInstance;
@@ -265,140 +267,6 @@ public:
 };
 
 extern DLL_LINKAGE CTypeList typeList;
-
-
-template<typename Ser>
-struct SaveBoolean
-{
-	static void invoke(Ser &s, const bool &data)
-	{
-		s.saveBoolean(data);
-	}
-};
-template<typename Ser>
-struct LoadBoolean
-{
-	static void invoke(Ser &s, bool &data)
-	{
-		s.loadBoolean(data);
-	}
-};
-
-template<typename Ser>
-struct SaveBooleanVector
-{
-	static void invoke(Ser &s, const std::vector<bool> &data)
-	{
-		s.saveBooleanVector(data);
-	}
-};
-template<typename Ser>
-struct LoadBooleanVector
-{
-	static void invoke(Ser &s, std::vector<bool> &data)
-	{
-		s.loadBooleanVector(data);
-	}
-};
-
-template<typename Ser,typename T>
-struct SavePrimitive
-{
-	static void invoke(Ser &s, const T &data)
-	{
-		s.savePrimitive(data);
-	}
-};
-template<typename Ser,typename T>
-struct SaveSerializable
-{
-	static void invoke(Ser &s, const T &data)
-	{
-		s.saveSerializable(data);
-	}
-};
-
-template<typename Ser,typename T>
-struct SaveEnum
-{
-	static void invoke(Ser &s, const T &data)
-	{
-		s.saveEnum(data);
-	}
-};
-template<typename Ser,typename T>
-struct LoadEnum
-{
-	static void invoke(Ser &s, T &data)
-	{
-		s.loadEnum(data);
-	}
-};
-template<typename Ser,typename T>
-struct LoadPrimitive
-{
-	static void invoke(Ser &s, T &data)
-	{
-		s.loadPrimitive(data);
-	}
-};
-template<typename Ser,typename T>
-struct SavePointer
-{
-	static void invoke(Ser &s, const T &data)
-	{
-		s.savePointer(data);
-	}
-};
-template<typename Ser,typename T>
-struct LoadPointer
-{
-	static void invoke(Ser &s, T &data)
-	{
-		s.loadPointer(data);
-	}
-};
-template<typename Ser,typename T>
-struct SaveArray
-{
-	static void invoke(Ser &s, const T &data)
-	{
-		s.saveArray(data);
-	}
-};
-template<typename Ser,typename T>
-struct LoadArray
-{
-	static void invoke(Ser &s, T &data)
-	{
-		s.loadArray(data);
-	}
-};
-template<typename Ser,typename T>
-struct LoadSerializable
-{
-	static void invoke(Ser &s, T &data)
-	{
-		s.loadSerializable(data);
-	}
-};
-
-template<typename Ser,typename T>
-struct SaveWrong
-{
-	static void invoke(Ser &s, const T &data)
-	{
-		throw std::runtime_error("Wrong save serialization call!");
-	}
-};
-template<typename Ser,typename T>
-struct LoadWrong
-{
-	static void invoke(Ser &s, const T &data)
-	{
-		throw std::runtime_error("Wrong load serialization call!");
-	}
-};
 
 template<typename Variant, typename Source>
 struct VariantLoaderHelper
@@ -729,6 +597,77 @@ struct LoadIfStackInstance<Ser, CStackInstance *>
 class DLL_LINKAGE COSer : public CSaverBase
 {
 public:
+	
+	struct SaveBoolean
+	{
+		static void invoke(COSer &s, const bool &data)
+		{
+			s.saveBoolean(data);
+		}
+	};	
+	
+	struct SaveBooleanVector
+	{
+		static void invoke(COSer &s, const std::vector<bool> &data)
+		{
+			s.saveBooleanVector(data);
+		}
+	};
+
+	template<typename T>
+	struct SavePrimitive
+	{
+		static void invoke(COSer &s, const T &data)
+		{
+			s.savePrimitive(data);
+		}
+	};
+
+	template<typename T>
+	struct SaveSerializable
+	{
+		static void invoke(COSer &s, const T &data)
+		{
+			s.saveSerializable(data);
+		}
+	};
+
+	template<typename T>
+	struct SaveEnum
+	{
+		static void invoke(COSer &s, const T &data)
+		{
+			s.saveEnum(data);
+		}
+	};
+		
+	template<typename T>
+	struct SavePointer
+	{
+		static void invoke(COSer &s, const T &data)
+		{
+			s.savePointer(data);
+		}
+	};
+	
+	template<typename T>
+	struct SaveArray
+	{
+		static void invoke(COSer &s, const T &data)
+		{
+			s.saveArray(data);
+		}
+	};
+
+	template<typename T>
+	struct SaveWrong
+	{
+		static void invoke(COSer &s, const T &data)
+		{
+			throw std::runtime_error("Wrong save serialization call!");
+		}
+	};	
+			
 	bool saving;
 	std::map<ui16,CBasicPointerSaver*> savers; // typeID => CPointerSaver<serializer,type>
 
@@ -868,27 +807,27 @@ public:
 		typedef
 			//if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Boolean> >,
-			mpl::identity<SaveBoolean<COSer> >,
+			mpl::identity<SaveBoolean>,
 			//else if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<BooleanVector> >,
-			mpl::identity<SaveBooleanVector<COSer> >,
+			mpl::identity<SaveBooleanVector>,
 			//else if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
-			mpl::identity<SavePrimitive<COSer,T> >,
+			mpl::identity<SavePrimitive<T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Enum> >,
-			mpl::identity<SaveEnum<COSer,T> >,
+			mpl::identity<SaveEnum<T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
-			mpl::identity<SavePointer<COSer,T> >,
+			mpl::identity<SavePointer<T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Array> >,
-			mpl::identity<SaveArray<COSer,T> >,
+			mpl::identity<SaveArray<T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Serializable> >,
-			mpl::identity<SaveSerializable<COSer,T> >,
+			mpl::identity<SaveSerializable<T> >,
 			//else
-			mpl::identity<SaveWrong<COSer,T> >
+			mpl::identity<SaveWrong<T> >
 			>
 			>
 			>
@@ -1088,6 +1027,76 @@ public:
 class DLL_LINKAGE CISer : public CLoaderBase
 {
 public:
+	struct LoadBoolean
+	{
+		static void invoke(CISer &s, bool &data)
+		{
+			s.loadBoolean(data);
+		}
+	};
+	
+	struct LoadBooleanVector
+	{
+		static void invoke(CISer &s, std::vector<bool> &data)
+		{
+			s.loadBooleanVector(data);
+		}
+	};	
+	
+	template<typename T>
+	struct LoadEnum
+	{
+		static void invoke(CISer &s, T &data)
+		{
+			s.loadEnum(data);
+		}
+	};
+
+	template<typename T>
+	struct LoadPrimitive
+	{
+		static void invoke(CISer &s, T &data)
+		{
+			s.loadPrimitive(data);
+		}
+	};	
+
+	template<typename T>
+	struct LoadPointer
+	{
+		static void invoke(CISer &s, T &data)
+		{
+			s.loadPointer(data);
+		}
+	};	
+	
+	template<typename T>
+	struct LoadArray
+	{
+		static void invoke(CISer &s, T &data)
+		{
+			s.loadArray(data);
+		}
+	};
+
+	template<typename T>
+	struct LoadSerializable
+	{
+		static void invoke(CISer &s, T &data)
+		{
+			s.loadSerializable(data);
+		}
+	};
+
+	template<typename T>
+	struct LoadWrong
+	{
+		static void invoke(CISer &s, const T &data)
+		{
+			throw std::runtime_error("Wrong load serialization call!");
+		}
+	};		
+	
 	bool saving;
 	std::map<ui16,CBasicPointerLoader*> loaders; // typeID => CPointerSaver<serializer,type>
 	si32 fileVersion;
@@ -1129,11 +1138,6 @@ public:
 		addLoader(b);
 		addLoader(d);
 	}
-//
-//    Serializer * This()
-//	{
-//		return static_cast<Serializer*>(this);
-//	}
 
 	template<class T>
 	CISer & operator>>(T &t)
@@ -1155,27 +1159,27 @@ public:
 		typedef
 			//if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Boolean> >,
-			mpl::identity<LoadBoolean<CISer> >,
+			mpl::identity<LoadBoolean>,
 			//else if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<BooleanVector> >,
-			mpl::identity<LoadBooleanVector<CISer> >,
+			mpl::identity<LoadBooleanVector>,
 			//else if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
-			mpl::identity<LoadPrimitive<CISer,T> >,
+			mpl::identity<LoadPrimitive<T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Enum> >,
-			mpl::identity<LoadEnum<CISer,T> >,
+			mpl::identity<LoadEnum<T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
-			mpl::identity<LoadPointer<CISer,T> >,
+			mpl::identity<LoadPointer<T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Array> >,
-			mpl::identity<LoadArray<CISer,T> >,
+			mpl::identity<LoadArray<T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Serializable> >,
-			mpl::identity<LoadSerializable<CISer,T> >,
+			mpl::identity<LoadSerializable<T> >,
 			//else
-			mpl::identity<LoadWrong<CISer,T> >
+			mpl::identity<LoadWrong<T> >
 			>
 			>
 			>
