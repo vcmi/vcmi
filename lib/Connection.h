@@ -464,19 +464,6 @@ public:
 	virtual ~CBasicPointerSaver(){}
 };
 
-template <typename Serializer, typename T> class CPointerSaver : public CBasicPointerSaver
-{
-public:
-	void savePtr(CSaverBase &ar, const void *data) const
-	{
-		Serializer &s = static_cast<Serializer&>(ar);
-		const T *ptr = static_cast<const T*>(data);
-
-		//T is most derived known type, it's time to call actual serialize
-		const_cast<T&>(*ptr).serialize(s,version);
-	}
-};
-
 template <typename T> //metafunction returning CGObjectInstance if T is its derivate or T elsewise
 struct VectorisedTypeFor
 {
@@ -667,6 +654,19 @@ public:
 			throw std::runtime_error("Wrong save serialization call!");
 		}
 	};	
+	
+	template <typename T> class CPointerSaver : public CBasicPointerSaver
+	{
+	public:
+		void savePtr(CSaverBase &ar, const void *data) const override
+		{
+			COSer &s = static_cast<COSer&>(ar);
+			const T *ptr = static_cast<const T*>(data);
+
+			//T is most derived known type, it's time to call actual serialize
+			const_cast<T&>(*ptr).serialize(s,version);
+		}
+	};	
 			
 	bool saving;
 	std::map<ui16,CBasicPointerSaver*> savers; // typeID => CPointerSaver<serializer,type>
@@ -692,7 +692,7 @@ public:
 	{
 		auto ID = typeList.getTypeID(t);
 		if(!savers.count(ID))
-			savers[ID] = new CPointerSaver<COSer, T>;
+			savers[ID] = new CPointerSaver<T>;
 	}
 
 	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
@@ -1005,23 +1005,6 @@ struct ClassObjectCreator<T, typename std::enable_if<std::is_abstract<T>::value>
 	}
 };
 
-template <typename Serializer, typename T> class CPointerLoader : public CBasicPointerLoader
-{
-public:
-	const std::type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const //data is pointer to the ACTUAL POINTER
-	{
-		Serializer &s = static_cast<Serializer&>(ar);
-		T *&ptr = *static_cast<T**>(data);
-
-		//create new object under pointer
-		typedef typename boost::remove_pointer<T>::type npT;
-		ptr = ClassObjectCreator<npT>::invoke(); //does new npT or throws for abstract classes
-		s.ptrAllocated(ptr, pid);
-		//T is most derived known type, it's time to call actual serialize
-		ptr->serialize(s,version);
-		return &typeid(T);
-	}
-};
 
 /// The class which manages loading of objects.
 class DLL_LINKAGE CISer : public CLoaderBase
@@ -1095,6 +1078,24 @@ public:
 		{
 			throw std::runtime_error("Wrong load serialization call!");
 		}
+	};	
+	
+	template <typename T> class CPointerLoader : public CBasicPointerLoader
+	{
+	public:
+		const std::type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const override //data is pointer to the ACTUAL POINTER
+		{
+			CISer &s = static_cast<CISer&>(ar);
+			T *&ptr = *static_cast<T**>(data);
+
+			//create new object under pointer
+			typedef typename boost::remove_pointer<T>::type npT;
+			ptr = ClassObjectCreator<npT>::invoke(); //does new npT or throws for abstract classes
+			s.ptrAllocated(ptr, pid);
+			//T is most derived known type, it's time to call actual serialize
+			ptr->serialize(s,version);
+			return &typeid(T);
+		}
 	};		
 	
 	bool saving;
@@ -1129,7 +1130,7 @@ public:
 	{
 		auto ID = typeList.getTypeID(t);
 		if(!loaders.count(ID))
-			loaders[ID] = new CPointerLoader<CISer, T>;
+			loaders[ID] = new CPointerLoader<T>;
 	}
 
 	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
