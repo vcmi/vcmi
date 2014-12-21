@@ -193,8 +193,8 @@ public:
 	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active itnerface
 	void showComp(const Component &comp, std::string message) override; //display component in the advmapint infobox
-	void saveGame(COSer<CSaveFile> &h, const int version) override; //saving
-	void loadGame(CISer<CLoadFile> &h, const int version) override; //loading
+	void saveGame(COSer & h, const int version) override; //saving
+	void loadGame(CISer & h, const int version) override; //loading
 
 	//for battles
 	void actionFinished(const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero

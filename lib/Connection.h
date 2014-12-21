@@ -570,8 +570,23 @@ public:
 	void addStdVecItems(CGameState *gs, LibClasses *lib = VLC);
 };
 
+class IBinaryWriter
+{
+public:
+	virtual int write(const void * data, unsigned size) = 0;
+};
+
 class DLL_LINKAGE CSaverBase : public virtual CSerializer
 {
+private:
+	IBinaryWriter * writer;
+public:
+	CSaverBase(IBinaryWriter * w): writer(w){};
+	
+	inline int write(const void * data, unsigned size)
+	{
+		return writer->write(data, size);
+	};
 };
 
 class CBasicPointerSaver
@@ -711,7 +726,7 @@ struct LoadIfStackInstance<Ser, CStackInstance *>
 
 
 /// The class which manages saving objects.
-template <typename Serializer> class DLL_LINKAGE COSer : public CSaverBase
+class DLL_LINKAGE COSer : public CSaverBase
 {
 public:
 	bool saving;
@@ -720,7 +735,7 @@ public:
 	std::map<const void*, ui32> savedPointers;
 	bool smartPointerSerialization;
 
-	COSer()
+	COSer(IBinaryWriter * w): CSaverBase(w)
 	{
 		saving=true;
 		smartPointerSerialization = true;
@@ -738,7 +753,7 @@ public:
 	{
 		auto ID = typeList.getTypeID(t);
 		if(!savers.count(ID))
-			savers[ID] = new CPointerSaver<COSer<Serializer>, T>;
+			savers[ID] = new CPointerSaver<COSer, T>;
 	}
 
 	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
@@ -748,31 +763,28 @@ public:
 		addSaver(d);
 	}
 
-    Serializer * This()
-	{
-		return static_cast<Serializer*>(this);
-	}
+//    Serializer * This()
+//	{
+//		return static_cast<Serializer*>(this);
+//	}
 
 	template<class T>
-	Serializer & operator<<(const T &t)
+	COSer & operator<<(const T &t)
 	{
-		this->This()->save(t);
-		return * this->This();
+		this->save(t);
+		return * this;
 	}
 
 	template<class T>
 	COSer & operator&(const T & t)
 	{
-		return * this->This() << t;
+		return * this << t;
 	}
 
-
-
-	int write(const void * data, unsigned size);
 	template <typename T>
 	void savePrimitive(const T &data)
 	{
-		this->This()->write(&data,sizeof(data));
+		this->write(&data,sizeof(data));
 	}
 
 	template <typename T>
@@ -802,7 +814,7 @@ public:
 
 		if(sendStackInstanceByIds)
 		{
-			const bool gotSaved = SaveIfStackInstance<Serializer,T>::invoke(*This(), data);
+			const bool gotSaved = SaveIfStackInstance<COSer,T>::invoke(*this, data);
 			if(gotSaved)
 				return;
 		}
@@ -830,7 +842,7 @@ public:
 		ui16 tid = typeList.getTypeID(data);
 		*this << tid;
 
-		This()->savePointerHlp(tid, data);
+		this->savePointerHlp(tid, data);
 	}
 
 	//that part of ptr serialization was extracted to allow customization of its behavior in derived classes
@@ -856,27 +868,27 @@ public:
 		typedef
 			//if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Boolean> >,
-			mpl::identity<SaveBoolean<Serializer> >,
+			mpl::identity<SaveBoolean<COSer> >,
 			//else if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<BooleanVector> >,
-			mpl::identity<SaveBooleanVector<Serializer> >,
+			mpl::identity<SaveBooleanVector<COSer> >,
 			//else if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
-			mpl::identity<SavePrimitive<Serializer,T> >,
+			mpl::identity<SavePrimitive<COSer,T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Enum> >,
-			mpl::identity<SaveEnum<Serializer,T> >,
+			mpl::identity<SaveEnum<COSer,T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
-			mpl::identity<SavePointer<Serializer,T> >,
+			mpl::identity<SavePointer<COSer,T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Array> >,
-			mpl::identity<SaveArray<Serializer,T> >,
+			mpl::identity<SaveArray<COSer,T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Serializable> >,
-			mpl::identity<SaveSerializable<Serializer,T> >,
+			mpl::identity<SaveSerializable<COSer,T> >,
 			//else
-			mpl::identity<SaveWrong<Serializer,T> >
+			mpl::identity<SaveWrong<COSer,T> >
 			>
 			>
 			>
@@ -884,7 +896,7 @@ public:
 			>
 			>
 			>::type typex;
-		typex::invoke(* this->This(), data);
+		typex::invoke(* this, data);
 	}
 	template <typename T>
 	void saveSerializable(const T &data)
@@ -947,7 +959,7 @@ public:
 	void saveSerializable(const std::string &data)
 	{
 		*this << ui32(data.length());
-		this->This()->write(data.c_str(),data.size());
+		this->write(data.c_str(),data.size());
 	}
 	template <typename T1, typename T2>
 	void saveSerializable(const std::pair<T1,T2> &data)
@@ -974,7 +986,7 @@ public:
 		si32 which = data.which();
 		*this << which;
 
-		VariantVisitorSaver<Serializer> visitor(*this->This());
+		VariantVisitorSaver<COSer> visitor(*this);
 		boost::apply_visitor(visitor, data);
 	}
 	template <typename T>
@@ -1009,10 +1021,24 @@ public:
 	}
 };
 
-
+class IBinaryReader
+{
+public:
+	virtual int read(void * data, unsigned size) = 0;
+};
 
 class DLL_LINKAGE CLoaderBase : public virtual CSerializer
-{};
+{
+private:
+	IBinaryReader * reader;
+public:
+	CLoaderBase(IBinaryReader * r): reader(r){};
+	
+	inline int read(void * data, unsigned size)
+	{
+		return reader->read(data, size);
+	};
+};
 
 class CBasicPointerLoader
 {
@@ -1059,7 +1085,7 @@ public:
 };
 
 /// The class which manages loading of objects.
-template <typename Serializer> class DLL_LINKAGE CISer : public CLoaderBase
+class DLL_LINKAGE CISer : public CLoaderBase
 {
 public:
 	bool saving;
@@ -1073,7 +1099,7 @@ public:
 
 	bool smartPointerSerialization;
 
-	CISer()
+	CISer(IBinaryReader * r): CLoaderBase(r)
 	{
 		saving = false;
 		fileVersion = 0;
@@ -1094,7 +1120,7 @@ public:
 	{
 		auto ID = typeList.getTypeID(t);
 		if(!loaders.count(ID))
-			loaders[ID] = new CPointerLoader<CISer<Serializer>, T>;
+			loaders[ID] = new CPointerLoader<CISer, T>;
 	}
 
 	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
@@ -1103,23 +1129,23 @@ public:
 		addLoader(b);
 		addLoader(d);
 	}
-
-    Serializer * This()
-	{
-		return static_cast<Serializer*>(this);
-	}
+//
+//    Serializer * This()
+//	{
+//		return static_cast<Serializer*>(this);
+//	}
 
 	template<class T>
-	Serializer & operator>>(T &t)
+	CISer & operator>>(T &t)
 	{
-		this->This()->load(t);
-		return * this->This();
+		this->load(t);
+		return * this;
 	}
 
 	template<class T>
 	CISer & operator&(T & t)
 	{
-		return * this->This() >> t;
+		return * this >> t;
 	}
 
 	int write(const void * data, unsigned size);
@@ -1129,27 +1155,27 @@ public:
 		typedef
 			//if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Boolean> >,
-			mpl::identity<LoadBoolean<Serializer> >,
+			mpl::identity<LoadBoolean<CISer> >,
 			//else if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<BooleanVector> >,
-			mpl::identity<LoadBooleanVector<Serializer> >,
+			mpl::identity<LoadBooleanVector<CISer> >,
 			//else if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
-			mpl::identity<LoadPrimitive<Serializer,T> >,
+			mpl::identity<LoadPrimitive<CISer,T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Enum> >,
-			mpl::identity<LoadEnum<Serializer,T> >,
+			mpl::identity<LoadEnum<CISer,T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
-			mpl::identity<LoadPointer<Serializer,T> >,
+			mpl::identity<LoadPointer<CISer,T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Array> >,
-			mpl::identity<LoadArray<Serializer,T> >,
+			mpl::identity<LoadArray<CISer,T> >,
 			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Serializable> >,
-			mpl::identity<LoadSerializable<Serializer,T> >,
+			mpl::identity<LoadSerializable<CISer,T> >,
 			//else
-			mpl::identity<LoadWrong<Serializer,T> >
+			mpl::identity<LoadWrong<CISer,T> >
 			>
 			>
 			>
@@ -1157,20 +1183,20 @@ public:
 			>
 			>
 			>::type typex;
-		typex::invoke(* this->This(), data);
+		typex::invoke(* this, data);
 	}
 	template <typename T>
 	void loadPrimitive(T &data)
 	{
 		if(0) //for testing #989
 		{
- 			this->This()->read(&data,sizeof(data));
+ 			this->read(&data,sizeof(data));
 		}
 		else
 		{
 			unsigned length = sizeof(data);
 			char* dataPtr = (char*)&data;
-			this->This()->read(dataPtr,length);
+			this->read(dataPtr,length);
 			if(reverseEndianess)
 				std::reverse(dataPtr, dataPtr + length);
 		}
@@ -1228,7 +1254,7 @@ public:
 
 		if(sendStackInstanceByIds)
 		{
-			bool gotLoaded = LoadIfStackInstance<Serializer,T>::invoke(*This(), data);
+			bool gotLoaded = LoadIfStackInstance<CISer,T>::invoke(* this, data);
 			if(gotLoaded)
 				return;
 		}
@@ -1252,7 +1278,7 @@ public:
 		//get type id
 		ui16 tid;
 		*this >> tid;
-		This()->loadPointerHlp(tid, data, pid);
+		this->loadPointerHlp(tid, data, pid);
 	}
 
 	//that part of ptr deserialization was extracted to allow customization of its behavior in derived classes
@@ -1437,7 +1463,7 @@ public:
 	{
 		READ_CHECK_U32(length);
 		data.resize(length);
-		this->This()->read((void*)data.c_str(),length);
+		this->read((void*)data.c_str(),length);
 	}
 
 	template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
@@ -1506,52 +1532,71 @@ public:
 };
 
 class DLL_LINKAGE CSaveFile
-	: public COSer<CSaveFile>
+	:public IBinaryWriter
 {
-
 public:
+	
+	COSer serializer;
+	
 	std::string fName;
 	unique_ptr<std::ofstream> sfile;
 
 	CSaveFile(const std::string &fname); //throws!
 	~CSaveFile();
-	int write(const void * data, unsigned size);
+	int write(const void * data, unsigned size) override;
 
 	void openNextFile(const std::string &fname); //throws!
 	void clear();
     void reportState(CLogger * out);
 
 	void putMagicBytes(const std::string &text);
+	
+	template<class T>
+	CSaveFile & operator<<(const T &t)
+	{
+		serializer << t;
+		return * this;
+	}		
 };
 
 class DLL_LINKAGE CLoadFile
-	: public CISer<CLoadFile>
+	: public IBinaryReader
 {
-
 public:
+	CISer serializer;
+		
 	std::string fName;
 	unique_ptr<boost::filesystem::ifstream> sfile;
 
 	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = version); //throws!
 	~CLoadFile();
-	int read(void * data, unsigned size); //throws!
+	int read(void * data, unsigned size) override; //throws!
 
 	void openNextFile(const boost::filesystem::path & fname, int minimalVersion); //throws!
 	void clear();
     void reportState(CLogger * out);
 
 	void checkMagicBytes(const std::string & text);
+	
+	template<class T>
+	CLoadFile & operator>>(T &t)
+	{
+		serializer >> t;
+		return * this;
+	}		
 };
 
-class DLL_LINKAGE CLoadIntegrityValidator : public CISer<CLoadIntegrityValidator>
+class DLL_LINKAGE CLoadIntegrityValidator 
+	: public IBinaryReader
 {
 public:
+	CISer serializer;	
 	unique_ptr<CLoadFile> primaryFile, controlFile;
 	bool foundDesync;
 
 	CLoadIntegrityValidator(const std::string &primaryFileName, const std::string &controlFileName, int minimalVersion = version); //throws!
 
-	int read( void * data, unsigned size); //throws!
+	int read( void * data, unsigned size) override; //throws!
 	void checkMagicBytes(const std::string &text);
 
 	unique_ptr<CLoadFile> decay(); //returns primary file. CLoadIntegrityValidator stops being usable anymore
@@ -1561,7 +1606,7 @@ typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::s
 typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > TAcceptor;
 
 class DLL_LINKAGE CConnection
-	: public CISer<CConnection>, public COSer<CConnection>
+	: public IBinaryReader, public IBinaryWriter
 {
 	//CGameState *gs;
 	CConnection(void);
@@ -1569,6 +1614,9 @@ class DLL_LINKAGE CConnection
 	void init();
     void reportState(CLogger * out);
 public:
+	CISer iser;
+	COSer oser;
+	
 	boost::mutex *rmx, *wmx; // read/write mutexes
 	TSocket * socket;
 	bool logging;
@@ -1586,8 +1634,8 @@ public:
 	CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_service, std::string Name);
 	CConnection(TSocket * Socket, std::string Name); //use immediately after accepting connection into socket
 
-	int write(const void * data, unsigned size);
-	int read(void * data, unsigned size);
+	int write(const void * data, unsigned size) override;
+	int read(void * data, unsigned size) override;
 	void close();
 	bool isOpen() const;
     template<class T>
@@ -1606,6 +1654,26 @@ public:
 
 	void prepareForSendingHeroes(); //disables sending vectorised, enables smart pointer serialization, clears saved/loaded ptr cache
 	void enterPregameConnectionMode();
+	
+	template<class T>
+	CConnection & operator>>(T &t)
+	{
+		iser >> t;
+		return * this;
+	}	
+	
+	template<class T>
+	CConnection & operator<<(const T &t)
+	{
+		oser << t;
+		return * this;
+	}
+	
+	void addStdVecItems(CGameState *gs, LibClasses *lib = VLC)
+	{
+		iser.addStdVecItems(gs, lib);
+		oser.addStdVecItems(gs, lib);
+	}
 };
 
 DLL_LINKAGE std::ostream &operator<<(std::ostream &str, const CConnection &cpc);
@@ -1613,14 +1681,17 @@ DLL_LINKAGE std::ostream &operator<<(std::ostream &str, const CConnection &cpc);
 
 // Serializer that stores objects in the dynamic buffer. Allows performing deep object copies.
 class DLL_LINKAGE CMemorySerializer
-	: public CISer<CMemorySerializer>, public COSer<CMemorySerializer>
+	: public IBinaryReader, public IBinaryWriter
 {
 	std::vector<ui8> buffer;
 
 	size_t readPos; //index of the next byte to be read
 public:
-	int read(void * data, unsigned size); //throws!
-	int write(const void * data, unsigned size);
+	CISer iser;
+	COSer oser;
+		
+	int read(void * data, unsigned size) override; //throws!
+	int write(const void * data, unsigned size) override;
 
 	CMemorySerializer();
 
@@ -1628,10 +1699,10 @@ public:
 	static unique_ptr<T> deepCopy(const T &data)
 	{
 		CMemorySerializer mem;
-		mem << &data;
+		mem.oser << &data;
 
 		unique_ptr<T> ret;
-		mem >> ret;
+		mem.iser >> ret;
 		return ret;
 	}
 };

@@ -50,8 +50,8 @@ class CPathsInfo;
 class CCreature;
 class CLoadFile;
 class CSaveFile;
-template <typename Serializer> class CISer;
-template <typename Serializer> class COSer;
+class CISer;
+class COSer;
 struct ArtifactLocation;
 class CScriptingModule;
 
@@ -69,8 +69,8 @@ public:
 	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
 	virtual void yourTacticPhase(int distance){}; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
 
-	virtual void saveGame(COSer<CSaveFile> &h, const int version);
-	virtual void loadGame(CISer<CLoadFile> &h, const int version);
+	virtual void saveGame(COSer &h, const int version);
+	virtual void loadGame(CISer &h, const int version);
 
 };
 
@@ -142,6 +142,6 @@ public:
 	virtual void battleEnd(const BattleResult *br);
 	virtual void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom);
 
-	virtual void saveGame(COSer<CSaveFile> &h, const int version); //saving
-	virtual void loadGame(CISer<CLoadFile> &h, const int version); //loading
+	virtual void saveGame(COSer & h, const int version); //saving
+	virtual void loadGame(CISer & h, const int version); //loading
 };

@@ -19,12 +19,7 @@
 #include "../mapObjects/CObjectClassesHandler.h"
 
 
-template void registerTypesMapObjects2<CISer<CConnection>>(CISer<CConnection>& s);
-template void registerTypesMapObjects2<COSer<CConnection>>(COSer<CConnection>& s);
-template void registerTypesMapObjects2<CISer<CMemorySerializer>>(CISer<CMemorySerializer>& s);
-template void registerTypesMapObjects2<COSer<CMemorySerializer>>(COSer<CMemorySerializer>& s);
-template void registerTypesMapObjects2<CSaveFile>(CSaveFile & s);
-template void registerTypesMapObjects2<CLoadFile>(CLoadFile & s);
+template void registerTypesMapObjects2<CISer>(CISer & s);
+template void registerTypesMapObjects2<COSer>(COSer & s);
 template void registerTypesMapObjects2<CTypeList>(CTypeList & s);
-template void registerTypesMapObjects2<CLoadIntegrityValidator>(CLoadIntegrityValidator & s);
 

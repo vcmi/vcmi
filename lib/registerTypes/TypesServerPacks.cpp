@@ -18,11 +18,6 @@
 #include "../NetPacks.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 
-template void registerTypesServerPacks<CISer<CConnection>>(CISer<CConnection>& s);
-template void registerTypesServerPacks<COSer<CConnection>>(COSer<CConnection>& s);
-template void registerTypesServerPacks<CISer<CMemorySerializer>>(CISer<CMemorySerializer>& s);
-template void registerTypesServerPacks<COSer<CMemorySerializer>>(COSer<CMemorySerializer>& s);
-template void registerTypesServerPacks<CSaveFile>(CSaveFile & s);
-template void registerTypesServerPacks<CLoadFile>(CLoadFile & s);
+template void registerTypesServerPacks<CISer>(CISer & s);
+template void registerTypesServerPacks<COSer>(COSer & s);
 template void registerTypesServerPacks<CTypeList>(CTypeList & s);
-template void registerTypesServerPacks<CLoadIntegrityValidator>(CLoadIntegrityValidator & s);

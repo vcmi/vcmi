@@ -190,8 +190,8 @@ public:
 	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override; //TODO
 	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
-	virtual void saveGame(COSer<CSaveFile> &h, const int version) override; //saving
-	virtual void loadGame(CISer<CLoadFile> &h, const int version) override; //loading
+	virtual void saveGame(COSer & h, const int version) override; //saving
+	virtual void loadGame(CISer & h, const int version) override; //loading
 	virtual void finish() override;
 
 	virtual void availableCreaturesChanged(const CGDwelling *town) override;

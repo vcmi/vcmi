@@ -331,7 +331,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
          std::cout << x << std::endl;
     std::cout << "ENDCLIENTPLAYERS\n";
 
-    serialize(*loader,0,clientPlayers);
+    serialize(loader->serializer,0,clientPlayers);
     *serv << ui32(clientPlayers.size());
     for(auto & elem : clientPlayers)
         *serv << ui8(elem.getNum());
@@ -507,7 +507,7 @@ void CClient::serialize( Handler &h, const int version )
 			LOG_TRACE_PARAMS(logGlobal, "Saving player %s interface", i->first);
 			assert(i->first == i->second->playerID);
 			h & i->first & i->second->dllName & i->second->human;
-			i->second->saveGame(dynamic_cast<COSer<CSaveFile>&>(h), version); 
+			i->second->saveGame(dynamic_cast<COSer & >(h), version); 
 			//evil cast that i still like better than sfinae-magic. If I had a "static if"...
 		}
 	}
@@ -551,7 +551,7 @@ void CClient::serialize( Handler &h, const int version )
 			nInt->playerID = pid;
 
 			installNewPlayerInterface(nInt, pid);
-			nInt->loadGame(dynamic_cast<CISer<CLoadFile>&>(h), version); //another evil cast, check above
+			nInt->loadGame(dynamic_cast<CISer & >(h), version); //another evil cast, check above
 		}
 
 		if(!vstd::contains(battleints, PlayerColor::NEUTRAL))
@@ -573,7 +573,7 @@ void CClient::serialize( Handler &h, const int version, const std::set<PlayerCol
 			LOG_TRACE_PARAMS(logGlobal, "Saving player %s interface", i->first);
 			assert(i->first == i->second->playerID);
 			h & i->first & i->second->dllName & i->second->human;
-			i->second->saveGame(dynamic_cast<COSer<CSaveFile>&>(h), version); 
+			i->second->saveGame(dynamic_cast<COSer & >(h), version); 
 			//evil cast that i still like better than sfinae-magic. If I had a "static if"...
 		}
 	}
@@ -620,7 +620,7 @@ void CClient::serialize( Handler &h, const int version, const std::set<PlayerCol
             if(playerIDs.count(pid))
                  installNewPlayerInterface(nInt, pid);
 
-            nInt->loadGame(dynamic_cast<CISer<CLoadFile>&>(h), version); //another evil cast, check above            
+            nInt->loadGame(dynamic_cast<CISer & >(h), version); //another evil cast, check above            
 		}
 
 		if(playerIDs.count(PlayerColor::NEUTRAL))
@@ -901,8 +901,8 @@ std::string CClient::aiNameForPlayer(const PlayerSettings &ps, bool battleAI)
 	return goodAI;
 }
 
-template void CClient::serialize( CISer<CLoadFile> &h, const int version );
-template void CClient::serialize( COSer<CSaveFile> &h, const int version );
+template void CClient::serialize(CISer & h, const int version);
+template void CClient::serialize(COSer & h, const int version);
 
 void CServerHandler::startServer()
 {
