@@ -108,7 +108,7 @@ const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool v
 		return nullptr;
 	}
 
-	if(!isVisible(ret, player))
+	if(!isVisible(ret, player) && ret->tempOwner != player)
 	{
 		if(verbose)
             logGlobal->errorStream() << "Cannot get object with id " << oid << ". Object is not visible.";
@@ -525,7 +525,8 @@ std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo
 	std::vector < const CGHeroInstance *> ret;
 	for(auto hero : gs->map->heroesOnMap)
 	{
-		if( !player || (hero->tempOwner == *player) ||
+		// !player || // - why would we even get access to hero not owned by any player?
+		if((hero->tempOwner == *player) ||
 			(isVisible(hero->getPosition(false), player) && !onlyOur)	)
 		{
 			ret.push_back(hero);

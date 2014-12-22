@@ -2887,7 +2887,7 @@ bool CGameHandler::buyArtifact( ObjectInstanceID hid, ArtifactID aid )
 			return false;
 
 		giveResource(hero->getOwner(),Res::GOLD,-GameConstants::SPELLBOOK_GOLD_COST);
-		giveHeroNewArtifact(hero, VLC->arth->artifacts[0], ArtifactPosition::SPELLBOOK);
+		giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		assert(hero->getArt(ArtifactPosition::SPELLBOOK));
 		giveSpells(town,hero);
 		return true;

@@ -369,6 +369,9 @@ TSubgoal GetObj::whatToDoToAchieve()
 	const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(objid));
 	if(!obj)
 		return sptr (Goals::Explore());
+	if (obj->tempOwner == ai->playerID) //we can't capture our own object -> move to Win codition
+		throw cannotFulfillGoalException("Cannot capture my own object " + obj->getObjectName());
+
 	int3 pos = obj->visitablePos();
 	if (hero)
 	{
@@ -377,8 +380,11 @@ TSubgoal GetObj::whatToDoToAchieve()
 	}
 	else
 	{
-		if (ai->isAccessible(obj->pos))
-			return sptr (Goals::VisitTile(pos).sethero(hero)); //we must visit object with same hero, if any
+		for (auto h : cb->getHeroesInfo())
+		{
+			if (ai->isAccessibleForHero(pos, h))
+				return sptr(Goals::VisitTile(pos).sethero(h)); //we must visit object with same hero, if any
+		}
 	}
 	return sptr (Goals::ClearWayTo(pos).sethero(hero));
 }
@@ -709,7 +715,12 @@ TGoalVec VisitTile::getAllPossibleSubgoals()
 	{
 		auto obj = frontOrNull(cb->getVisitableObjs(tile));
 		if (obj && obj->ID == Obj::HERO && obj->tempOwner == ai->playerID) //our own hero stands on that tile
-			ret.push_back (sptr(Goals::VisitTile(tile).sethero(dynamic_cast<const CGHeroInstance *>(obj)).setisElementar(true)));
+		{
+			if (hero.get(true) && hero->id == obj->id) //if it's assigned hero, visit tile. If it's different hero, we can't visit tile now
+				ret.push_back(sptr(Goals::VisitTile(tile).sethero(dynamic_cast<const CGHeroInstance *>(obj)).setisElementar(true)));
+			else
+				throw cannotFulfillGoalException("Tile is already occupied by another hero "); //FIXME: we should give up this tile earlier
+		}
 		else
 			ret.push_back (sptr(Goals::ClearWayTo(tile)));
 	}
