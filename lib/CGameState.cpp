@@ -878,7 +878,7 @@ void CGameState::initDuel()
 		else
 		{
 			CLoadFile lf(scenarioOps->mapname);
-			lf >> dp;
+			lf.serializer >> dp;
 		}
 	}
 	catch(...)

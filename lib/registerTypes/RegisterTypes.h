@@ -367,13 +367,10 @@ void registerTypes(Serializer &s)
 }
 
 #ifndef INSTANTIATE_REGISTER_TYPES_HERE
-extern template DLL_LINKAGE void registerTypes<CISer<CConnection>>(CISer<CConnection>& s);
-extern template DLL_LINKAGE void registerTypes<COSer<CConnection>>(COSer<CConnection>& s);
-extern template DLL_LINKAGE void registerTypes<CSaveFile>(CSaveFile & s);
-extern template DLL_LINKAGE void registerTypes<CLoadFile>(CLoadFile & s);
+
+extern template DLL_LINKAGE void registerTypes<CISer>(CISer & s);
+extern template DLL_LINKAGE void registerTypes<COSer>(COSer & s);
 extern template DLL_LINKAGE void registerTypes<CTypeList>(CTypeList & s);
-extern template DLL_LINKAGE void registerTypes<CLoadIntegrityValidator>(CLoadIntegrityValidator & s);
-extern template DLL_LINKAGE void registerTypes<CISer<CMemorySerializer>>(CISer<CMemorySerializer> & s);
-extern template DLL_LINKAGE void registerTypes<COSer<CMemorySerializer>>(COSer<CMemorySerializer> & s);
+
 #endif
 

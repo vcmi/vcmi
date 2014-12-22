@@ -149,16 +149,16 @@ void CPrivilagedInfoCallback::loadCommonState(Loader &in)
 	StartInfo *si;
 
     logGlobal->infoStream() <<"\tReading header";
-	in >> dum;
+	in.serializer >> dum;
 
     logGlobal->infoStream() << "\tReading options";
-	in >> si;
+	in.serializer >> si;
 
     logGlobal->infoStream() <<"\tReading handlers";
-	in >> *VLC;
+	in.serializer >> *VLC;
 
     logGlobal->infoStream() <<"\tReading gamestate";
-	in >> gs;
+	in.serializer >> gs;
 }
 
 template<typename Saver>
@@ -167,13 +167,13 @@ void CPrivilagedInfoCallback::saveCommonState(Saver &out) const
     logGlobal->infoStream() << "Saving lib part of game...";
 	out.putMagicBytes(SAVEGAME_MAGIC);
     logGlobal->infoStream() <<"\tSaving header";
-	out << static_cast<CMapHeader&>(*gs->map);
+	out.serializer << static_cast<CMapHeader&>(*gs->map);
     logGlobal->infoStream() << "\tSaving options";
-	out << gs->scenarioOps;
+	out.serializer << gs->scenarioOps;
     logGlobal->infoStream() << "\tSaving handlers";
-	out << *VLC;
+	out.serializer << *VLC;
     logGlobal->infoStream() << "\tSaving gamestate";
-	out << gs;
+	out.serializer << gs;
 }
 
 // hardly memory usage for `-gdwarf-4` flag

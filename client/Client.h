@@ -32,6 +32,8 @@ struct SharedMem;
 class CClient;
 class CScriptingModule;
 struct CPathsInfo;
+class CISer;
+class COSer;
 namespace boost { class thread; }
 
 /// structure to handle running server and connecting to it
@@ -236,7 +238,10 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	template <typename Handler> void serialize(Handler &h, const int version);
-	template <typename Handler> void serialize(Handler &h, const int version, const std::set<PlayerColor>& playerIDs);
+	void serialize(COSer &h, const int version);
+	void serialize(CISer &h, const int version);
+	
+	void serialize(COSer &h, const int version, const std::set<PlayerColor>& playerIDs);
+	void serialize(CISer &h, const int version, const std::set<PlayerColor>& playerIDs);
 	void battleFinished();
 };

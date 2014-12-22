@@ -18,14 +18,9 @@
 using namespace boost;
 using namespace boost::asio::ip;
 
-extern template void registerTypes<CISer<CConnection> >(CISer<CConnection>& s);
-extern template void registerTypes<COSer<CConnection> >(COSer<CConnection>& s);
-extern template void registerTypes<CISer<CMemorySerializer> >(CISer<CMemorySerializer>& s);
-extern template void registerTypes<COSer<CMemorySerializer> >(COSer<CMemorySerializer>& s);
-extern template void registerTypes<CSaveFile>(CSaveFile & s);
-extern template void registerTypes<CLoadFile>(CLoadFile & s);
+extern template void registerTypes<CISer>(CISer & s);
+extern template void registerTypes<COSer>(COSer & s);
 extern template void registerTypes<CTypeList>(CTypeList & s);
-extern template void registerTypes<CLoadIntegrityValidator>(CLoadIntegrityValidator & s);
 
 CTypeList typeList;
 
@@ -50,8 +45,8 @@ void CConnection::init()
 
 	enableSmartPointerSerializatoin();
 	disableStackSendingByID();
-	registerTypes(static_cast<CISer<CConnection>&>(*this));
-	registerTypes(static_cast<COSer<CConnection>&>(*this));
+	registerTypes(iser);
+	registerTypes(oser);
 #ifdef LIL_ENDIAN
 	myEndianess = true;
 #else
@@ -60,8 +55,8 @@ void CConnection::init()
 	connected = true;
 	std::string pom;
 	//we got connection
-	(*this) << std::string("Aiya!\n") << name << myEndianess; //identify ourselves
-	(*this) >> pom >> pom >> contactEndianess;
+	oser << std::string("Aiya!\n") << name << myEndianess; //identify ourselves
+	iser >> pom >> pom >> contactEndianess;
     logNetwork->infoStream() << "Established connection with "<<pom;
 	wmx = new boost::mutex;
 	rmx = new boost::mutex;
@@ -73,7 +68,7 @@ void CConnection::init()
 }
 
 CConnection::CConnection(std::string host, std::string port, std::string Name)
-:io_service(new asio::io_service), name(Name)
+:iser(this), oser(this), io_service(new asio::io_service), name(Name) 
 {
 	int i;
 	boost::system::error_code error = asio::error::host_not_found;
@@ -128,12 +123,12 @@ connerror1:
 	throw std::runtime_error("Can't establish connection :(");
 }
 CConnection::CConnection(TSocket * Socket, std::string Name )
-	:socket(Socket),io_service(&Socket->get_io_service()), name(Name)//, send(this), rec(this)
+	:iser(this), oser(this), socket(Socket),io_service(&Socket->get_io_service()), name(Name)//, send(this), rec(this)
 {
 	init();
 }
 CConnection::CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_service, std::string Name)
-: name(Name)//, send(this), rec(this)
+: iser(this), oser(this), name(Name)//, send(this), rec(this)
 {
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = new tcp::socket(*io_service);
@@ -229,7 +224,7 @@ CPack * CConnection::retreivePack()
 	CPack *ret = nullptr;
 	boost::unique_lock<boost::mutex> lock(*rmx);
     logNetwork->traceStream() << "Listening... ";
-	*this >> ret;
+	iser >> ret;
 	logNetwork->traceStream() << "\treceived server message of type " << typeid(*ret).name() << ", data: " << ret;
 	return ret;
 }
@@ -238,37 +233,33 @@ void CConnection::sendPackToServer(const CPack &pack, PlayerColor player, ui32 r
 {
 	boost::unique_lock<boost::mutex> lock(*wmx);
     logNetwork->traceStream() << "Sending to server a pack of type " << typeid(pack).name();
-	*this << player << requestID << &pack; //packs has to be sent as polymorphic pointers!
+	oser << player << requestID << &pack; //packs has to be sent as polymorphic pointers!
 }
 
 void CConnection::disableStackSendingByID()
 {
-	CISer<CConnection>::sendStackInstanceByIds = false;
-	COSer<CConnection>::sendStackInstanceByIds = false;
+	CSerializer::sendStackInstanceByIds = false;	
 }
 
 void CConnection::enableStackSendingByID()
 {
-	CISer<CConnection>::sendStackInstanceByIds = true;
-	COSer<CConnection>::sendStackInstanceByIds = true;
+	CSerializer::sendStackInstanceByIds = true;	
 }
 
 void CConnection::disableSmartPointerSerialization()
 {
-	CISer<CConnection>::smartPointerSerialization = false;
-	COSer<CConnection>::smartPointerSerialization = false;
+	iser.smartPointerSerialization = oser.smartPointerSerialization = false;
 }
 
 void CConnection::enableSmartPointerSerializatoin()
 {
-	CISer<CConnection>::smartPointerSerialization = true;
-	COSer<CConnection>::smartPointerSerialization = true;
+	iser.smartPointerSerialization = oser.smartPointerSerialization = true;
 }
 
 void CConnection::prepareForSendingHeroes()
 {
-	loadedPointers.clear();
-	savedPointers.clear();
+	iser.loadedPointers.clear();
+	oser.savedPointers.clear();
 	disableSmartVectorMemberSerialization();
 	enableSmartPointerSerializatoin();
 	disableStackSendingByID();
@@ -276,25 +267,25 @@ void CConnection::prepareForSendingHeroes()
 
 void CConnection::enterPregameConnectionMode()
 {
-	loadedPointers.clear();
-	savedPointers.clear();
+	iser.loadedPointers.clear();
+	oser.savedPointers.clear();
 	disableSmartVectorMemberSerialization();
 	disableSmartPointerSerialization();
 }
 
 void CConnection::disableSmartVectorMemberSerialization()
 {
-	smartVectorMembersSerialization = false;
+	CSerializer::smartVectorMembersSerialization = false;
 }
 
 void CConnection::enableSmartVectorMemberSerializatoin()
 {
-	smartVectorMembersSerialization = true;
+	CSerializer::smartVectorMembersSerialization = true;
 }
 
-CSaveFile::CSaveFile( const std::string &fname )
+CSaveFile::CSaveFile( const std::string &fname ): serializer(this) 
 {
-	registerTypes(*this);
+	registerTypes(serializer);
 	openNextFile(fname);
 }
 
@@ -320,7 +311,7 @@ void CSaveFile::openNextFile(const std::string &fname)
 			THROW_FORMAT("Error: cannot open to write %s!", fname);
 
 		sfile->write("VCMI",4); //write magic identifier
-		*this << version; //write format version
+		serializer << version; //write format version
 	}
 	catch(...)
 	{
@@ -350,9 +341,9 @@ void CSaveFile::putMagicBytes( const std::string &text )
 	write(text.c_str(), text.length());
 }
 
-CLoadFile::CLoadFile(const boost::filesystem::path & fname, int minimalVersion /*= version*/)
+CLoadFile::CLoadFile(const boost::filesystem::path & fname, int minimalVersion /*= version*/): serializer(this)
 {
-	registerTypes(*this);
+	registerTypes(serializer);
 	openNextFile(fname, minimalVersion);
 }
 
@@ -368,7 +359,7 @@ int CLoadFile::read(void * data, unsigned size)
 
 void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalVersion)
 {
-	assert(!reverseEndianess);
+	assert(!serializer.reverseEndianess);
 	assert(minimalVersion <= version);
 
 	try
@@ -386,22 +377,22 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 		if(std::memcmp(buffer,"VCMI",4))
 			THROW_FORMAT("Error: not a VCMI file(%s)!", fName);
 
-		*this >> fileVersion;	
-		if(fileVersion < minimalVersion)
+		serializer >> serializer.fileVersion;	
+		if(serializer.fileVersion < minimalVersion)
 			THROW_FORMAT("Error: too old file format (%s)!", fName);
 
-		if(fileVersion > version)
+		if(serializer.fileVersion > version)
 		{
-			logGlobal->warnStream() << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % fileVersion % version % fName;
+			logGlobal->warnStream() << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % serializer.fileVersion % version % fName;
 
-			auto versionptr = (char*)&fileVersion;
+			auto versionptr = (char*)&serializer.fileVersion;
 			std::reverse(versionptr, versionptr + 4);
-			logGlobal->warnStream() << "Version number reversed is " << fileVersion << ", checking...";
+			logGlobal->warnStream() << "Version number reversed is " << serializer.fileVersion << ", checking...";
 
-			if(fileVersion == version)
+			if(serializer.fileVersion == version)
 			{
 				logGlobal->warnStream() << fname << " seems to have different endianness! Entering reversing mode.";
-				reverseEndianess = true;
+				serializer.reverseEndianess = true;
 			}
 			else
 				THROW_FORMAT("Error: too new file format (%s)!", fName);
@@ -427,7 +418,7 @@ void CLoadFile::clear()
 {
 	sfile = nullptr;
 	fName.clear();
-	fileVersion = 0;
+	serializer.fileVersion = 0;
 }
 
 void CLoadFile::checkMagicBytes( const std::string &text )
@@ -579,14 +570,14 @@ void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
 }
 
 CLoadIntegrityValidator::CLoadIntegrityValidator( const std::string &primaryFileName, const std::string &controlFileName, int minimalVersion /*= version*/ )
-	: foundDesync(false)
+	: serializer(this), foundDesync(false)
 {
-	registerTypes(*this);
+	registerTypes(serializer);
 	primaryFile = make_unique<CLoadFile>(primaryFileName, minimalVersion);
 	controlFile = make_unique<CLoadFile>(controlFileName, minimalVersion);
 
-	assert(primaryFile->fileVersion == controlFile->fileVersion);
-	fileVersion = primaryFile->fileVersion;
+	assert(primaryFile->serializer.fileVersion == controlFile->serializer.fileVersion);
+	serializer.fileVersion = primaryFile->serializer.fileVersion;
 }
 
 int CLoadIntegrityValidator::read( void * data, unsigned size )
@@ -615,8 +606,8 @@ int CLoadIntegrityValidator::read( void * data, unsigned size )
 
 unique_ptr<CLoadFile> CLoadIntegrityValidator::decay()
 {
-	primaryFile->loadedPointers = this->loadedPointers;
-	primaryFile->loadedPointersTypes = this->loadedPointersTypes;
+	primaryFile->serializer.loadedPointers = this->serializer.loadedPointers;
+	primaryFile->serializer.loadedPointersTypes = this->serializer.loadedPointersTypes;
 	return std::move(primaryFile);
 }
 
@@ -647,10 +638,10 @@ int CMemorySerializer::write(const void * data, unsigned size)
 	return size;
 }
 
-CMemorySerializer::CMemorySerializer()
+CMemorySerializer::CMemorySerializer(): iser(this), oser(this)
 {
 	readPos = 0;
-	registerTypes(static_cast<CISer<CMemorySerializer>&>(*this));
-	registerTypes(static_cast<COSer<CMemorySerializer>&>(*this));
+	registerTypes(iser);
+	registerTypes(oser);
 }
 

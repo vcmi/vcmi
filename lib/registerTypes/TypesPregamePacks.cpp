@@ -18,11 +18,7 @@
 #include "../NetPacks.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 
-template void registerTypesPregamePacks<CISer<CConnection>>(CISer<CConnection>& s);
-template void registerTypesPregamePacks<COSer<CConnection>>(COSer<CConnection>& s);
-template void registerTypesPregamePacks<CISer<CMemorySerializer>>(CISer<CMemorySerializer>& s);
-template void registerTypesPregamePacks<COSer<CMemorySerializer>>(COSer<CMemorySerializer>& s);
-template void registerTypesPregamePacks<CSaveFile>(CSaveFile & s);
-template void registerTypesPregamePacks<CLoadFile>(CLoadFile & s);
+template void registerTypesPregamePacks<CISer>(CISer & s);
+template void registerTypesPregamePacks<COSer>(COSer & s);
 template void registerTypesPregamePacks<CTypeList>(CTypeList & s);
-template void registerTypesPregamePacks<CLoadIntegrityValidator>(CLoadIntegrityValidator & s);
+
