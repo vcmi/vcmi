@@ -101,6 +101,10 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 
 	//gravity-based algorithm. connected zones attract, intersceting zones and map boundaries push back
 
+	//remember best solution
+	float bestTotalDistance = 1e10;
+	std::map<CRmgTemplateZone *, float3> bestSolution;
+
 	auto getDistance = [](float distance) -> float
 	{
 		return (distance ? distance * distance : 1e-6);
@@ -200,7 +204,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 		}
 		logGlobal->traceStream() << boost::format("Total distance between zones in this iteration: %2.2f, Worst distance/movement ratio: %3.2f") % totalDistance % maxRatio;
 		
-		if (maxRatio > 100) //TODO: scale?
+		if (maxRatio > 100)
 		{
 			//find most distant zone that should be attracted and move inside it
 			
@@ -227,11 +231,19 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 			logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(distantZone->getCenter());
 		}
 
+		//save best solution
+		if (totalDistance < bestTotalDistance)
+		{
+			bestTotalDistance = totalDistance;
+			for (auto zone : zones)
+				bestSolution[zone.second] = zone.second->getCenter();
+		}
+
 		zoneScale *= inflateModifier; //increase size of zones so they
 	}
 	for (auto zone : zones) //finalize zone positions
 	{
-		zone.second->setPos(cords(zone.second->getCenter()));
+		zone.second->setPos (cords (bestSolution[zone.second]));
 		logGlobal->traceStream() << boost::format ("Placed zone %d at relative position %s and coordinates %s") % zone.first % zone.second->getCenter() % zone.second->getPos();
 	}
 }
