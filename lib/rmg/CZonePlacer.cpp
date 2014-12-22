@@ -203,6 +203,14 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 			}
 		}
 		logGlobal->traceStream() << boost::format("Total distance between zones in this iteration: %2.2f, Worst distance/movement ratio: %3.2f") % totalDistance % maxRatio;
+
+		//save best solution before drastic jump
+		if (totalDistance < bestTotalDistance)
+		{
+			bestTotalDistance = totalDistance;
+			for (auto zone : zones)
+				bestSolution[zone.second] = zone.second->getCenter();
+		}
 		
 		if (maxRatio > 100)
 		{
@@ -229,14 +237,6 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 
 			distantZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
 			logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(distantZone->getCenter());
-		}
-
-		//save best solution
-		if (totalDistance < bestTotalDistance)
-		{
-			bestTotalDistance = totalDistance;
-			for (auto zone : zones)
-				bestSolution[zone.second] = zone.second->getCenter();
 		}
 
 		zoneScale *= inflateModifier; //increase size of zones so they
