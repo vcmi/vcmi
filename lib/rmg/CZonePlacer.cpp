@@ -198,7 +198,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 
 		//now perform drastic movement of zone that is completely not linked
 		float maxRatio = 0;
-		CRmgTemplateZone * distantZone = nullptr;
+		CRmgTemplateZone * misplacedZone = nullptr;
 
 		float totalDistance = 0;
 		float totalOverlap = 0;
@@ -211,13 +211,13 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 			if (ratio > maxRatio)
 			{
 				maxRatio = ratio;
-				distantZone = zone.first;
+				misplacedZone = zone.first;
 			}
 		}
 		logGlobal->traceStream() << boost::format("Total distance between zones in this iteration: %2.4f, Total overlap: %2.4f, Worst misplacement/movement ratio: %3.2f") % totalDistance % totalOverlap % maxRatio;
 
 		//save best solution before drastic jump
-		if (totalDistance <= bestTotalDistance && totalOverlap <= bestTotalOverlap)
+		if (totalDistance + totalOverlap < bestTotalDistance + bestTotalOverlap)
 		{
 			bestTotalDistance = totalDistance;
 			bestTotalOverlap = totalOverlap;
@@ -230,35 +230,58 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 		
 		if (maxRatio > maxDistanceMovementRatio)
 		{
-			//simply move the zone further in same direction
-			//distantZone->setCenter(distantZone->getCenter() + forces[distantZone] * maxRatio / maxDistanceMovementRatio);
-			//logGlobal->traceStream() << boost::format("Trying to move zone %d %s further") % distantZone->getId() % distantZone->getCenter()();
-
-			//find most distant zone that should be attracted and move inside it
-			
 			CRmgTemplateZone * targetZone = nullptr;
-			float maxDistance = 0;
-			float3 ourCenter = distantZone->getCenter();
-			for (auto con : distantZone->getConnections())
+			float3 ourCenter = misplacedZone->getCenter();
+
+			if (totalDistance > totalOverlap)
 			{
-				auto otherZone = zones[con];
-				float distance = otherZone->getCenter().dist2dSQ(ourCenter);
-				if (distance > maxDistance)
+				//find most distant zone that should be attracted and move inside it
+				float maxDistance = 0;
+				for (auto con : misplacedZone->getConnections())
 				{
-					maxDistance = distance;
-					targetZone = otherZone;
+					auto otherZone = zones[con];
+					float distance = otherZone->getCenter().dist2dSQ(ourCenter);
+					if (distance > maxDistance)
+					{
+						maxDistance = distance;
+						targetZone = otherZone;
+					}
 				}
+				float3 vec = targetZone->getCenter() - ourCenter;
+				float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) * zoneScale / mapSize;
+				logGlobal->traceStream() << boost::format("Trying to move zone %d %s towards %d %s. Old distance %f") %
+					misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxDistance;
+				logGlobal->traceStream() << boost::format("direction is %s") % vec();
+
+				misplacedZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
+				logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
 			}
-			float3 vec = targetZone->getCenter() - ourCenter;
-			float newDistanceBetweenZones = (std::max (distantZone->getSize(),targetZone->getSize())) * zoneScale / mapSize;
-			logGlobal->traceStream() << boost::format("Trying to move zone %d %s towards %d %s. Old distance %f") %
-				distantZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxDistance;
-			logGlobal->traceStream() << boost::format("direction is %s") % vec();
+			else
+			{
+				float maxOverlap = 0;
+				for (auto otherZone : zones)
+				{
+					float3 otherZoneCenter = otherZone.second->getCenter();
 
-			distantZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
-			logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(distantZone->getCenter());
+					if (otherZone.second == misplacedZone || otherZoneCenter.z != ourCenter.z)
+						continue;
 
-			//TODO: do the same with overlapping zones?
+					float distance = otherZoneCenter.dist2dSQ(ourCenter);
+					if (distance > maxOverlap)
+					{
+						maxOverlap = distance;
+						targetZone = otherZone.second;
+					}
+				}
+				float3 vec = ourCenter - targetZone->getCenter();
+				float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) * zoneScale / mapSize;
+				logGlobal->traceStream() << boost::format("Trying to move zone %d %s away from %d %s. Old distance %f") %
+					misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxOverlap;
+				logGlobal->traceStream() << boost::format("direction is %s") % vec();
+
+				misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
+				logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
+			}
 		}
 
 		zoneScale *= inflateModifier; //increase size of zones so they
