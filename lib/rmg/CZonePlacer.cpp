@@ -42,7 +42,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 {
 	//gravity-based algorithm
 
-	float gravityConstant = 1e-2;
+	float gravityConstant = 5e-3;
 	float zoneScale = 0.5f; //zones starts small and then inflate
 	const float inflateModifier = 1.02;
 
@@ -135,7 +135,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				if (distance > minDistance)
 				{
 					//WARNING: compiler used to 'optimize' that line so it never actually worked
-					forceVector += (((otherZoneCenter - pos)*(pos.z != otherZoneCenter.z ? (distance - minDistance) : 1)/ getDistance(distance))); //positive value
+					forceVector += (((otherZoneCenter - pos)*(pos.z == otherZoneCenter.z ? (minDistance/distance) : 1)/ getDistance(distance))); //positive value
 					totalDistance += (distance - minDistance);
 				}
 			}
@@ -154,7 +154,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				float minDistance = (zone.second->getSize() + otherZone.second->getSize())/mapSize * zoneScale;
 				if (distance < minDistance)
 				{
-					forceVector -= (((otherZoneCenter - pos)*(minDistance - distance)) / getDistance(distance)); //negative value
+					forceVector -= (((otherZoneCenter - pos)*(minDistance/(distance ? distance : 1e-3))) / getDistance(distance)); //negative value
 					totalOverlap += (minDistance - distance);
 				}
 			}
