@@ -40,13 +40,6 @@ int3 CZonePlacer::cords (const float3 f) const
 
 void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenerator * rand)
 {
-	//gravity-based algorithm
-
-	const float gravityConstant = 1e-2;
-	const float stiffnessConstant = 4e-3;
-	float zoneScale = 0.5f; //zones starts small and then inflate
-	const float inflateModifier = 1.01;
-
 	logGlobal->infoStream() << "Starting zone placement";
 
 	int width = mapGenOptions->getWidth();
@@ -54,6 +47,13 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 
 	auto zones = gen->getZones();
 	bool underground = mapGenOptions->getHasTwoLevels();
+
+	//gravity-based algorithm
+
+	const float gravityConstant = 4e-3;
+	const float stiffnessConstant = 4e-3;
+	float zoneScale = 1.0f / std::sqrt(zones.size()); //zones starts small and then inflate. placing more zones is more difficult
+	const float inflateModifier = 1.02;
 
 	/*
 		let's assume we try to fit N circular zones with radius = size on a map
@@ -161,19 +161,19 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				if (distance < minDistance)
 				{
 					forceVector -= (((otherZoneCenter - pos)*(minDistance/(distance ? distance : 1e-3))) / getDistance(distance)) * stiffnessConstant; //negative value
-					totalOverlap += (minDistance - distance);
+					totalOverlap += (minDistance - distance) / (zoneScale * zoneScale); //overlapping of small zones hurts us more
 				}
 			}
-			overlaps[zone.second] = totalOverlap;
 
 			//move zones away from boundaries
 			//do not scale boundary distance - zones tend to get squashed
 			float size = zone.second->getSize() / mapSize;
 
-			auto pushAwayFromBoundary = [&forceVector, pos, &getDistance, size, stiffnessConstant](float x, float y)
+			auto pushAwayFromBoundary = [&forceVector, pos, &getDistance, size, stiffnessConstant, &totalOverlap](float x, float y)
 			{
 				float3 boundary = float3 (x, y, pos.z);
 				float distance = pos.dist2d(boundary);
+				totalOverlap += distance; //overlapping map boundaries is wrong as well
 				forceVector -= (boundary - pos) * (size - distance) / getDistance(distance) * stiffnessConstant; //negative value
 			};
 			if (pos.x < size)
@@ -192,6 +192,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 			{
 				pushAwayFromBoundary(pos.x, 1);
 			}
+			overlaps[zone.second] = totalOverlap;
 			forceVector.z = 0; //operator - doesn't preserve z coordinate :/
 			forces[zone.second] = forceVector;
 		}
