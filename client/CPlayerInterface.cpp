@@ -1278,13 +1278,13 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	h & spellbookSettings;
 }
 
-void CPlayerInterface::saveGame( COSer<CSaveFile> &h, const int version )
+void CPlayerInterface::saveGame( COSer & h, const int version )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	serializeTempl(h,version);
 }
 
-void CPlayerInterface::loadGame( CISer<CLoadFile> &h, const int version )
+void CPlayerInterface::loadGame( CISer & h, const int version )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	serializeTempl(h,version);

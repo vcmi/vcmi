@@ -27,15 +27,11 @@
 // registerTypesServerPacks:  1.3 Gb
 // registerTypes4:  1.3 Gb
 
+
 #define DEFINE_EXTERNAL_METHOD(METHODNAME) \
-extern template DLL_LINKAGE void METHODNAME<CISer<CConnection>>(CISer<CConnection>& s); \
-extern template DLL_LINKAGE void METHODNAME<COSer<CConnection>>(COSer<CConnection>& s); \
-extern template DLL_LINKAGE void METHODNAME<CISer<CMemorySerializer>>(CISer<CMemorySerializer>& s); \
-extern template DLL_LINKAGE void METHODNAME<COSer<CMemorySerializer>>(COSer<CMemorySerializer>& s); \
-extern template DLL_LINKAGE void METHODNAME<CSaveFile>(CSaveFile & s); \
-extern template DLL_LINKAGE void METHODNAME<CLoadFile>(CLoadFile & s); \
+extern template DLL_LINKAGE void METHODNAME<CISer>(CISer & s); \
+extern template DLL_LINKAGE void METHODNAME<COSer>(COSer & s); \
 extern template DLL_LINKAGE void METHODNAME<CTypeList>(CTypeList & s); \
-extern template DLL_LINKAGE void METHODNAME<CLoadIntegrityValidator>(CLoadIntegrityValidator & s);
 
 //DEFINE_EXTERNAL_METHOD(registerTypesMapObjects)
 DEFINE_EXTERNAL_METHOD(registerTypesMapObjects1)
@@ -45,11 +41,6 @@ DEFINE_EXTERNAL_METHOD(registerTypesClientPacks2)
 DEFINE_EXTERNAL_METHOD(registerTypesServerPacks)
 DEFINE_EXTERNAL_METHOD(registerTypesPregamePacks)
 
-template void registerTypes<CISer<CConnection>>(CISer<CConnection>& s);
-template void registerTypes<COSer<CConnection>>(COSer<CConnection>& s);
-template void registerTypes<CISer<CMemorySerializer>>(CISer<CMemorySerializer>& s);
-template void registerTypes<COSer<CMemorySerializer>>(COSer<CMemorySerializer>& s);
-template void registerTypes<CSaveFile>(CSaveFile & s);
-template void registerTypes<CLoadFile>(CLoadFile & s);
+template void registerTypes<CISer>(CISer & s);
+template void registerTypes<COSer>(COSer & s);
 template void registerTypes<CTypeList>(CTypeList & s);
-template void registerTypes<CLoadIntegrityValidator>(CLoadIntegrityValidator & s);

@@ -234,8 +234,11 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 		{
 			//TODO: don't downcast objects AI shouldn't know about!
 			auto armedObj = dynamic_cast<const CArmedInstance*>(dangerousObject);
-			if(armedObj)
-				objectDanger *= fh->getTacticalAdvantage(visitor, armedObj); //this line tends to go infinite for allied towns (?)
+			if (armedObj)
+			{
+				float tacticalAdvantage = fh->getTacticalAdvantage(visitor, armedObj);
+				objectDanger *= tacticalAdvantage; //this line tends to go infinite for allied towns (?)
+			}
 		}
 		if (dangerousObject->ID == Obj::SUBTERRANEAN_GATE)
 		{ //check guard on the other side of the gate

@@ -230,6 +230,7 @@ public:
 	void moveRight();
 	void moveTo(int value);
 	void moveBy(int amount);
+	void moveToMin();
 	void moveToMax();
 
 	/// Amount modifier

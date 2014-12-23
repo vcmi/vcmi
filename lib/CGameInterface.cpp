@@ -243,7 +243,7 @@ void CAdventureAI::yourTacticPhase(int distance)
 	battleAI->yourTacticPhase(distance);
 }
 
-void CAdventureAI::saveGame(COSer<CSaveFile> &h, const int version) /*saving */
+void CAdventureAI::saveGame(COSer & h, const int version) /*saving */
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	CGlobalAI::saveGame(h, version);
@@ -256,7 +256,7 @@ void CAdventureAI::saveGame(COSer<CSaveFile> &h, const int version) /*saving */
 	}
 }
 
-void CAdventureAI::loadGame(CISer<CLoadFile> &h, const int version) /*loading */
+void CAdventureAI::loadGame(CISer & h, const int version) /*loading */
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	CGlobalAI::loadGame(h, version);
@@ -273,10 +273,10 @@ void CAdventureAI::loadGame(CISer<CLoadFile> &h, const int version) /*loading */
 	}
 }
 
-void CBattleGameInterface::saveGame(COSer<CSaveFile> &h, const int version)
+void CBattleGameInterface::saveGame(COSer & h, const int version)
 {
 }
 
-void CBattleGameInterface::loadGame(CISer<CLoadFile> &h, const int version)
+void CBattleGameInterface::loadGame(CISer  & h, const int version)
 {
 }

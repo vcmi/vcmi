@@ -147,6 +147,7 @@
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
       <AdditionalLibraryDirectories>..\..\libs</AdditionalLibraryDirectories>
+      <AdditionalOptions>/LTCG %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">

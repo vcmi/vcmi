@@ -36,8 +36,8 @@ public:
 
 	BattleAction goTowards(const CStack * stack, BattleHex hex );
 
-	virtual void saveGame(COSer<CSaveFile> &h, const int version) override;
-	virtual void loadGame(CISer<CLoadFile> &h, const int version) override;
+	virtual void saveGame(COSer & h, const int version) override;
+	virtual void loadGame(CISer & h, const int version) override;
 
 };
 

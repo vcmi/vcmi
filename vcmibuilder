@@ -209,17 +209,13 @@ fi
 
 if [[ -n "$data_dir" ]]
 then
-	cp -r "$data_dir"/Data "$dest_dir" 
-	cp -r "$data_dir"/Maps "$dest_dir"
-
 	# this folder is named differently from time to time
-	# vcmi can handle any case but script can't
-	if [ -d "$data_dir"/MP3 ] 
-	then
-		cp -r "$data_dir"/MP3 "$dest_dir"
-	else
-		cp -r "$data_dir"/Mp3 "$dest_dir"
-	fi
+	# bash also has `shopt -s nocaseglob` but we don't want this to
+	# accidentally influence other parts of this script
+	# since the directory names are short, we use this pattern matching
+	cp -r "$data_dir"/[Dd][Aa][Tt][Aa] "$dest_dir" 
+	cp -r "$data_dir"/[Mm][Aa][Pp][Ss] "$dest_dir"
+	cp -r "$data_dir"/[Mm][Pp]3 "$dest_dir"
 fi
 
 if [[ -n "$download" ]]

@@ -598,7 +598,7 @@ void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *do
 	});
 }
 
-void VCAI::saveGame(COSer<CSaveFile> &h, const int version)
+void VCAI::saveGame(COSer & h, const int version)
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
@@ -609,7 +609,7 @@ void VCAI::saveGame(COSer<CSaveFile> &h, const int version)
 	serializeInternal(h, version);
 }
 
-void VCAI::loadGame(CISer<CLoadFile> &h, const int version)
+void VCAI::loadGame(CISer & h, const int version)
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
