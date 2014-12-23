@@ -597,7 +597,7 @@ void CStackWindow::CWindowSection::createButtonPanel()
 		parent->switchButtons[parent->activeTab]->disable();
 	}
 
-	auto exitBtn = new CButton(Point(382, 5), "hsbtns.def", CGI->generaltexth->zelp[445], [=]{ parent->close(); }, SDLK_RETURN);
+	auto exitBtn = new CButton(Point(382, 5), "hsbtns.def", CGI->generaltexth->zelp[447], [=]{ parent->close(); }, SDLK_RETURN);
 	exitBtn->assignedKeys.insert(SDLK_ESCAPE);
 }
 
