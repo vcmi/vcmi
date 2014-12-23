@@ -42,10 +42,10 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 {
 	//gravity-based algorithm
 
-	const float gravityConstant = 5e-3;
-	const float stiffnessConstant = 1e-3;
+	const float gravityConstant = 1e-2;
+	const float stiffnessConstant = 4e-3;
 	float zoneScale = 0.5f; //zones starts small and then inflate
-	const float inflateModifier = 1.02;
+	const float inflateModifier = 1.01;
 
 	logGlobal->infoStream() << "Starting zone placement";
 
