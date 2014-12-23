@@ -42,7 +42,8 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 {
 	//gravity-based algorithm
 
-	float gravityConstant = 5e-3;
+	const float gravityConstant = 5e-3;
+	const float stiffnessConstant = 1e-3;
 	float zoneScale = 0.5f; //zones starts small and then inflate
 	const float inflateModifier = 1.02;
 
@@ -69,6 +70,10 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	bool undergroundFlag = false;
 
 	std::vector<float> totalSize = { 0, 0 }; //make sure that sum of zone sizes on surface and uderground match size of the map
+
+	const float radius = 0.4f;
+	const float pi2 = 6.28f;
+
 	for (auto zone : zonesVector)
 	{
 		//even distribution for surface / underground zones. Surface zones always have priority.
@@ -87,7 +92,8 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 		}
 
 		totalSize[level] += (zone.second->getSize() * zone.second->getSize());
-		zone.second->setCenter (float3(rand->nextDouble(0.2, 0.8), rand->nextDouble(0.2, 0.8), level)); //start away from borders
+		float randomAngle = rand->nextDouble(0, pi2);
+		zone.second->setCenter(float3(0.5f + std::sin(randomAngle) * radius, 0.5f + std::cos(randomAngle) * radius, level)); //place zones around circle
 	}
 	//prescale zones
 	std::vector<float> prescaler = { 0, 0 };
@@ -135,7 +141,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				if (distance > minDistance)
 				{
 					//WARNING: compiler used to 'optimize' that line so it never actually worked
-					forceVector += (((otherZoneCenter - pos)*(pos.z == otherZoneCenter.z ? (minDistance/distance) : 1)/ getDistance(distance))); //positive value
+					forceVector += (((otherZoneCenter - pos)*(pos.z == otherZoneCenter.z ? (minDistance/distance) : 1)/ getDistance(distance))) * gravityConstant; //positive value
 					totalDistance += (distance - minDistance);
 				}
 			}
@@ -154,7 +160,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				float minDistance = (zone.second->getSize() + otherZone.second->getSize())/mapSize * zoneScale;
 				if (distance < minDistance)
 				{
-					forceVector -= (((otherZoneCenter - pos)*(minDistance/(distance ? distance : 1e-3))) / getDistance(distance)); //negative value
+					forceVector -= (((otherZoneCenter - pos)*(minDistance/(distance ? distance : 1e-3))) / getDistance(distance)) * stiffnessConstant; //negative value
 					totalOverlap += (minDistance - distance);
 				}
 			}
@@ -164,11 +170,11 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 			//do not scale boundary distance - zones tend to get squashed
 			float size = zone.second->getSize() / mapSize;
 
-			auto pushAwayFromBoundary = [&forceVector, pos, &getDistance, size](float x, float y)
+			auto pushAwayFromBoundary = [&forceVector, pos, &getDistance, size, stiffnessConstant](float x, float y)
 			{
 				float3 boundary = float3 (x, y, pos.z);
 				float distance = pos.dist2d(boundary);
-				forceVector -= (boundary - pos) * (size - distance) / getDistance(distance); //negative value
+				forceVector -= (boundary - pos) * (size - distance) / getDistance(distance) * stiffnessConstant; //negative value
 			};
 			if (pos.x < size)
 			{
@@ -186,9 +192,8 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 			{
 				pushAwayFromBoundary(pos.x, 1);
 			}
-
 			forceVector.z = 0; //operator - doesn't preserve z coordinate :/
-			forces[zone.second] = forceVector * gravityConstant;
+			forces[zone.second] = forceVector;
 		}
 		//update positions
 		for (auto zone : forces)
