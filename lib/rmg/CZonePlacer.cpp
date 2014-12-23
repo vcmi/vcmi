@@ -205,7 +205,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 		for (auto zone : distances) //find most misplaced zone
 		{
 			totalDistance += zone.second;
-			int overlap = overlaps[zone.first];
+			float overlap = overlaps[zone.first];
 			totalOverlap += overlap;
 			float ratio = (zone.second + overlap) / forces[zone.first].mag(); //if distance to actual movement is long, the zone is misplaced
 			if (ratio > maxRatio)
