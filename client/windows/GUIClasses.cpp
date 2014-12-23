@@ -400,14 +400,25 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 
 void CSplitWindow::setAmountText(std::string text, bool left)
 {
-	try
+	int amount = 0;
+	if (text.length())
 	{
-		setAmount(boost::lexical_cast<int>(text), left);
-		slider->moveTo(rightAmount - rightMin);
+		try
+		{
+			amount = boost::lexical_cast<int>(text);
+		}
+		catch(boost::bad_lexical_cast &)
+		{
+			amount = left ? leftAmount : rightAmount;
+		}
+
+		int total = leftAmount + rightAmount;
+		if (amount > total)
+			amount = total;
 	}
-	catch(boost::bad_lexical_cast &)
-	{
-	}
+
+	setAmount(amount, left);
+	slider->moveTo(rightAmount - rightMin);
 }
 
 void CSplitWindow::setAmount(int value, bool left)
