@@ -1459,8 +1459,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 
 bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance *art)
 {
-	int artID = art->artType->id;
-	if(artID != ArtifactID::SPELL_SCROLL && artID < 7) //special art
+	if(!art->artType->isTradable()) //special art
 	{
         logGlobal->warnStream() << "Cannot put special artifact on altar!";
 		return false;
@@ -1478,7 +1477,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 	}
 
 	int dmp, val;
-	market->getOffer(artID, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
+	market->getOffer(art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 
 	arts->artifactsOnAltar.insert(art);
 	altarSlot->setArtInstance(art);

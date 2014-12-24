@@ -2971,7 +2971,7 @@ bool CGameHandler::sellArtifact( const IMarket *m, const CGHeroInstance *h, Arti
 	const CArtifactInstance *art = h->getArtByInstanceId(aid);
 	if(!art)
 		COMPLAIN_RET("There is no artifact to sell!");
-	if(art->artType->id < 7)
+	if(!art->artType->isTradable())
 		COMPLAIN_RET("Cannot sell a war machine or spellbook!");
 
 	int resVal = 0, dump = 1;

@@ -105,7 +105,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 	{
 		if(down)
 		{
-			if(ourArt->artType->id < 7) //War Machine or Spellbook
+			if(!ourArt->artType->isTradable()) //War Machine or Spellbook
 			{
 				LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21]); //This item can't be traded.
 			}
