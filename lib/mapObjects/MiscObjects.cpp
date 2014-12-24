@@ -200,7 +200,6 @@ void CGCreature::initObj()
 			amount = 1;
 		}
 	}
-	formation.randomFormation = cb->gameState()->getRandomGenerator().nextInt();
 
 	temppower = stacks[SlotID(0)]->count * 1000;
 	refusedJoining = false;
@@ -367,33 +366,8 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	int basicType = stacks.begin()->second->type->idNumber;
 	cb->setObjProperty(id, ObjProperty::MONSTER_RESTORE_TYPE, basicType); //store info about creature stack
 
-	double relativePower = static_cast<double>(h->getTotalStrength()) / getArmyStrength();
-	int stacksCount;
-	//TODO: number depends on tile type
-	if (relativePower < 0.5)
-	{
-		stacksCount = 7;
-	}
-	else if (relativePower < 0.67)
-	{
-		stacksCount = 7;
-	}
-	else if (relativePower < 1)
-	{
-		stacksCount = 6;
-	}
-	else if (relativePower < 1.5)
-	{
-		stacksCount = 5;
-	}
-	else if (relativePower < 2)
-	{
-		stacksCount = 4;
-	}
-	else
-	{
-		stacksCount = 3;
-	}
+	int stacksCount = getNumberOfStacks(h);
+
 	SlotID sourceSlot = stacks.begin()->first;
 	SlotID destSlot;
 	for (int stacksLeft = stacksCount; stacksLeft > 1; --stacksLeft)
@@ -413,7 +387,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	}
 	if (stacksCount > 1)
 	{
-		if (formation.randomFormation % 100 < 50) //upgrade
+		if (containsUpgradedStack()) //upgrade
 		{
 			SlotID slotId = SlotID(stacks.size() / 2);
 			const auto & upgrades = getStack(slotId).type->upgrades;
@@ -487,6 +461,62 @@ void CGCreature::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 		fleeDecision(hero, answer);
 	else
 		assert(0);
+}
+
+bool CGCreature::containsUpgradedStack() const
+{
+	//source http://heroescommunity.com/viewthread.php3?TID=27539&PID=830557#focus
+
+	float a = 2992.911117;
+	float b = 14174.264968;
+	float c = 5325.181015;
+	float d = 32788.727920;
+
+	int val = std::floor (a*pos.x + b*pos.y + c*pos.z + d);
+	return ((val % 32768) % 100) < 50;
+}
+
+int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
+{
+	//source http://heroescommunity.com/viewthread.php3?TID=27539&PID=1266094#focus
+
+	float strengthRatio = hero->getArmyStrength() / getArmyStrength();
+	int split = 1;
+
+	if (strengthRatio < 0.5f)
+		split = 7;
+	else if (strengthRatio < 0.67f)
+		split = 6;
+	else if (strengthRatio < 1)
+		split = 5;
+	else if (strengthRatio < 1.5f)
+		split = 4;
+	else if (strengthRatio < 2)
+		split = 3;
+	else
+		split = 2;
+
+	int a = 1550811371;
+	int b = -935900487;
+	int c = 1943276003;
+	int d = -1120346418;
+
+	int R1 = a * pos.x + b * pos.y + c * pos.z + d;
+	int R2 = R1 / 65536;
+	int R3 = R2 % 32768;
+	if (R3 < 0)
+		R3 += 32767; //is it ever needed if we do modulo calculus?
+	int R4 = R3 % 100 + 1;
+
+	if (R4 <= 20)
+		split -= 1;
+	else if (R4 >= 80)
+		split += 1;
+
+	vstd::amin(split, getStack(SlotID(0)).count); //can't divide into more stacks than creatures total
+	vstd::amin(split, 7); //can't have more than 7 stacks
+
+	return split;
 }
 
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const
