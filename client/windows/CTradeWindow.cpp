@@ -1011,8 +1011,8 @@ void CMarketplaceWindow::getBaseForPositions(EType type, int &dx, int &dy, int &
 		dy = 79;
 		x = 39;
 		y = 180;
-		h = 66;
-		w = 74;
+		h = 68;
+		w = 70;
 		break;
 	case PLAYER:
 		dx = 83;
