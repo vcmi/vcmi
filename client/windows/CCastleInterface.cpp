@@ -815,7 +815,7 @@ void CCastleBuildings::enterMagesGuild()
 			CFunctionList<void()> onYes = [this]{ openMagesGuild(); };
 			CFunctionList<void()> onNo = onYes;
 			onYes += [hero]{ LOCPLINT->cb->buyArtifact(hero, ArtifactID::SPELLBOOK); };
-			std::vector<CComponent*> components(1, new CComponent(CComponent::artifact,0,0));
+			std::vector<CComponent*> components(1, new CComponent(CComponent::artifact,ArtifactID::SPELLBOOK,0));
 
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], onYes, onNo, true, components);
 		}

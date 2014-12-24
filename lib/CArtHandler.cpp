@@ -78,7 +78,7 @@ CArtifact::~CArtifact()
 
 int CArtifact::getArtClassSerial() const
 {
-	if(id == 1)
+	if(id == ArtifactID::SPELL_SCROLL)
 		return 4;
 	switch(aClass)
 	{

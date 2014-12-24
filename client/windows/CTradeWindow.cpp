@@ -1460,7 +1460,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance *art)
 {
 	int artID = art->artType->id;
-	if(artID != 1 && artID < 7) //special art
+	if(artID != ArtifactID::SPELL_SCROLL && artID < 7) //special art
 	{
         logGlobal->warnStream() << "Cannot put special artifact on altar!";
 		return false;
