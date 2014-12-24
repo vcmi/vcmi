@@ -412,7 +412,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	int totalDensity = 0;
 	for (auto ti : treasureInfo)
 		totalDensity =+ ti.density;
-	const float minDistance = std::sqrt(totalDensity * 3);
+	const float minDistance = totalDensity * 3; //squared
 
 	for (auto tile : tileinfo)
 	{
@@ -437,7 +437,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 
 			for (auto clearTile : clearedTiles)
 			{
-				float distance = tileToMakePath.dist2d(clearTile);
+				float distance = tileToMakePath.dist2dSQ(clearTile);
 				
 				if (distance < currentDistance)
 				{
@@ -1232,7 +1232,7 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 		//also, normalize it to zone count - higher count means relatively smaller zones
 
 		//this is squared distance for optimization purposes
-		const double minDistance = std::max<float>((450.f * size * size * gen->getZones().size()) /
+		const double minDistance = std::max<float>((300.f * size * size * gen->getZones().size()) /
 			(gen->mapGenOptions->getWidth() * gen->mapGenOptions->getHeight() * totalDensity * (gen->map->twoLevel ? 2 : 1)), 2);
 		//distance lower than 2 causes objects to overlap and crash
 
