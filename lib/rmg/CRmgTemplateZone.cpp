@@ -412,7 +412,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	int totalDensity = 0;
 	for (auto ti : treasureInfo)
 		totalDensity =+ ti.density;
-	const float minDistance = totalDensity * 3; //squared
+	const float minDistance = totalDensity * 4; //squared
 
 	for (auto tile : tileinfo)
 	{
@@ -481,7 +481,27 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 		freePaths.insert(tile);
 	}
 
-	
+	//now block most distant tiles away from passages
+
+	float blockDistance = minDistance * 0.6f;
+
+	for (auto tile : possibleTiles)
+	{
+		bool closeTileFound = false;
+
+		for (auto clearTile : freePaths)
+		{
+			float distance = tile.dist2dSQ(clearTile);
+
+			if (distance < blockDistance)
+			{
+				closeTileFound = true;
+				break;
+			}
+		}
+		if (!closeTileFound) //this tile is far enough from passages
+			gen->setOccupied(tile, ETileType::BLOCKED);
+	}
 
 	if (0) //enable to debug
 	{
