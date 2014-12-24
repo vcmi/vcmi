@@ -528,7 +528,7 @@ void CStackWindow::CWindowSection::createButtonPanel()
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	createBackground("button-panel");
 
-	if (parent->info->dismissInfo)
+	if (parent->info->dismissInfo->callback)
 	{
 		auto onDismiss = [=]()
 		{
@@ -597,7 +597,7 @@ void CStackWindow::CWindowSection::createButtonPanel()
 		parent->switchButtons[parent->activeTab]->disable();
 	}
 
-	auto exitBtn = new CButton(Point(382, 5), "hsbtns.def", CGI->generaltexth->zelp[445], [=]{ parent->close(); }, SDLK_RETURN);
+	auto exitBtn = new CButton(Point(382, 5), "hsbtns.def", CGI->generaltexth->zelp[447], [=]{ parent->close(); }, SDLK_RETURN);
 	exitBtn->assignedKeys.insert(SDLK_ESCAPE);
 }
 

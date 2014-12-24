@@ -734,8 +734,8 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
 		//%s's Artifacts
-		new CLabel(152, 102, FONT_SMALL, CENTER, Colors::WHITE,
-		           boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name));
+		new CLabel(152, 56, FONT_SMALL, CENTER, Colors::WHITE,
+		           boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->name));
 		break;
 	}
 
@@ -1011,8 +1011,8 @@ void CMarketplaceWindow::getBaseForPositions(EType type, int &dx, int &dy, int &
 		dy = 79;
 		x = 39;
 		y = 180;
-		h = 66;
-		w = 74;
+		h = 68;
+		w = 70;
 		break;
 	case PLAYER:
 		dx = 83;

@@ -782,7 +782,7 @@ CTownItem::CTownItem(const CGTownInstance* Town):
 	background =  new CAnimImage("OVSLOT", 6);
 	name = new CLabel(74, 8, FONT_SMALL, TOPLEFT, Colors::WHITE, town->name);
 
-	income = new CLabel( 190, 60, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(town->dailyIncome()));
+	income = new CLabel( 190, 60, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(town->dailyIncome()[Res::GOLD]));
 	hall = new CTownInfo( 69, 31, town, true);
 	fort = new CTownInfo(111, 31, town, false);
 
@@ -813,7 +813,7 @@ void CTownItem::updateGarrisons()
 
 void CTownItem::update()
 {
-	std::string incomeVal = boost::lexical_cast<std::string>(town->dailyIncome());
+	std::string incomeVal = boost::lexical_cast<std::string>(town->dailyIncome()[Res::GOLD]);
 	if (incomeVal != income->text)
 		income->setText(incomeVal);
 
