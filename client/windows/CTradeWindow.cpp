@@ -1475,7 +1475,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 		return false;
 	}
 
-	if(!altarSlot)
+	if(!altarSlot || altarSlot->id != -1)
 	{
 		int slotIndex = firstFreeSlot();
 		if(slotIndex < 0)
