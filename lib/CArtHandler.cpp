@@ -585,10 +585,18 @@ bool CArtHandler::legalArtifact(ArtifactID id)
 
 bool CArtHandler::isTradableArtifact(ArtifactID id) const
 {
-	if (id < 7 && id != ArtifactID::SPELL_SCROLL)
+	switch (id)
+	{
+	case ArtifactID::SPELLBOOK:
+	case ArtifactID::GRAIL:
+	case ArtifactID::CATAPULT:
+	case ArtifactID::BALLISTA:
+	case ArtifactID::AMMO_CART:
+	case ArtifactID::FIRST_AID_TENT:
 		return false;
-
-	return true;
+	default:
+		return true;
+	}
 }
 
 void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
