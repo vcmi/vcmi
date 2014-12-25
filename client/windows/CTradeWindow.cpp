@@ -624,7 +624,7 @@ void CTradeWindow::artifactSelected(CArtPlace *slot)
 {
 	assert(mode == EMarketMode::ARTIFACT_RESOURCE);
 	items[1][0]->setArtInstance(slot->ourArt);
-	if(slot->ourArt)
+	if(slot->ourArt && !slot->locked)
 		hLeft = items[1][0];
 	else
 		hLeft = nullptr;
