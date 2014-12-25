@@ -125,6 +125,9 @@ int CTradeWindow::CTradeableItem::getIndex()
 
 void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 {
+	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
+	assert(mw);
+
 	Point posToBitmap;
 	Point posToSubCenter;
 
@@ -137,7 +140,8 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 	case CREATURE_PLACEHOLDER:
 	case CREATURE:
 		posToSubCenter = Point(29, 76);
-		if(downSelection)
+		// Positing of unit count is different in Altar of Sacrifice and Freelancer's Guild
+		if(mw->mode == EMarketMode::CREATURE_EXP && downSelection)
 			posToSubCenter.y += 5;
 		break;
 	case PLAYER:
