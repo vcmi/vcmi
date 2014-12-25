@@ -1201,8 +1201,11 @@ void CAltarWindow::getBaseForPositions(EType type, int &dx, int &dy, int &x, int
 
 void CAltarWindow::sliderMoved(int to)
 {
-	sacrificedUnits[hLeft->serial] = to;
-	updateRight(hRight);
+	if(hLeft)
+		sacrificedUnits[hLeft->serial] = to;
+	if(hRight)
+		updateRight(hRight);
+
 	deal->block(!to);
 	calcTotalExp();
 	redraw();
@@ -1356,13 +1359,7 @@ void CAltarWindow::garrisonChanged()
 	std::set<CTradeableItem *> empty;
 	getEmptySlots(empty);
 
-	for(CTradeableItem *t : empty)
-	{
-		removeItem(*std::find_if(items[0].begin(), items[0].end(), [&](const CTradeableItem * item)
-		{
-			return item->serial == t->serial;
-		}));
-	}
+	removeItems(empty);
 
 	initSubs(true);
 	getExpValues();
