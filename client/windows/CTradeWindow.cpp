@@ -1273,7 +1273,7 @@ void CAltarWindow::SacrificeAll()
 	{
 		for(auto i = hero->artifactsWorn.cbegin(); i != hero->artifactsWorn.cend(); i++)
 		{
-			if(i->second.artifact->artType->id != ArtifactID::ART_LOCK) //ignore locks from assembled artifacts
+			if(!i->second.locked) //ignore locks from assembled artifacts
 				moveFromSlotToAltar(i->first, nullptr, i->second.artifact);
 		}
 
