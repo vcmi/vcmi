@@ -367,34 +367,35 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	cb->setObjProperty(id, ObjProperty::MONSTER_RESTORE_TYPE, basicType); //store info about creature stack
 
 	int stacksCount = getNumberOfStacks(h);
+	//source: http://heroescommunity.com/viewthread.php3?TID=27539&PID=1266335#focus
+
+	int amount = getStackCount(SlotID(0));
+	int m = amount / stacksCount;
+	int b = stacksCount * (m + 1) - amount;
+	int a = stacksCount - b;
 
 	SlotID sourceSlot = stacks.begin()->first;
-	SlotID destSlot;
-	for (int stacksLeft = stacksCount; stacksLeft > 1; --stacksLeft)
+	for (int slotID = 1; slotID < a; ++slotID)
 	{
-		int stackSize = stacks.begin()->second->count / stacksLeft;
-		if (stackSize)
-		{
-			if ((destSlot = getFreeSlot()).validSlot())
-				cb->moveStack(StackLocation(this, sourceSlot), StackLocation(this, destSlot), stackSize);
-			else
-			{
-                logGlobal->warnStream() <<"Warning! Not enough empty slots to split stack!";
-				break;
-			}
-		}
-		else break;
+		int stackSize = m + 1;
+		cb->moveStack(StackLocation(this, sourceSlot), StackLocation(this, SlotID(slotID)), stackSize);
+	}
+	for (int slotID = a; slotID < stacksCount; ++slotID)
+	{
+		int stackSize = m;
+		if (slotID) //don't do this when a = 0 -> stack is single
+			cb->moveStack(StackLocation(this, sourceSlot), StackLocation(this, SlotID(slotID)), stackSize);
 	}
 	if (stacksCount > 1)
 	{
 		if (containsUpgradedStack()) //upgrade
 		{
-			SlotID slotId = SlotID(stacks.size() / 2);
-			const auto & upgrades = getStack(slotId).type->upgrades;
+			SlotID slotID = SlotID(std::floor((float)stacks.size() / 2));
+			const auto & upgrades = getStack(slotID).type->upgrades;
 			if(!upgrades.empty())
 			{
 				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->gameState()->getRandomGenerator());
-				cb->changeStackType(StackLocation(this, slotId), VLC->creh->creatures[*it]);
+				cb->changeStackType(StackLocation(this, slotID), VLC->creh->creatures[*it]);
 			}
 		}
 	}
@@ -480,7 +481,7 @@ int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
 {
 	//source http://heroescommunity.com/viewthread.php3?TID=27539&PID=1266094#focus
 
-	float strengthRatio = hero->getArmyStrength() / getArmyStrength();
+	double strengthRatio = (double)hero->getArmyStrength() / getArmyStrength();
 	int split = 1;
 
 	if (strengthRatio < 0.5f)
