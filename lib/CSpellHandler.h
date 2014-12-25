@@ -18,6 +18,8 @@
  *
  */
 
+class CGObjectInstance;
+
 class CSpell;
 class ISpellMechanics;
 
@@ -32,7 +34,9 @@ class BattleInfo;
 struct CPackForClient;
 struct BattleSpellCast;
 
+class CGameInfoCallback;
 class CRandomGenerator;
+class CMap;
 
 struct SpellSchoolInfo
 {
@@ -53,6 +57,11 @@ public:
 	
 	virtual CRandomGenerator & getRandomGenerator() const = 0;
 	virtual void complain(const std::string & problem) const = 0;
+	
+	virtual const CMap * getMap() const = 0;
+	virtual const CGameInfoCallback * getCb() const = 0;	
+	
+	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker = PlayerColor::NEUTRAL) const =0;	//TODO: remove
 };
 
 ///helper struct
@@ -71,6 +80,12 @@ public:
 	const CStack * casterStack;
 	const CStack * selectedStack;	
 	const BattleInfo * cb;		
+};
+
+struct DLL_LINKAGE AdventureSpellCastParameters
+{
+	const CGHeroInstance * caster;
+	int3 pos;	
 };
 
 enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
@@ -314,7 +329,7 @@ public:
 	///Server logic. Has write access to GameState via packets.
 	///May be executed on client side by (future) non-cheat-proof scripts.
 	
-	//void adventureCast() const; 
+	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const; 
 	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const; 	
 		
 public:	

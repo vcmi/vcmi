@@ -113,6 +113,12 @@ void CSpell::afterCast(BattleInfo * battle, const BattleSpellCast * packet) cons
 	mechanics->afterCast(battle, packet);
 }
 
+bool CSpell::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+{
+	assert(env);
+		
+	return mechanics->adventureCast(env, parameters);
+}
 
 void CSpell::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
 {

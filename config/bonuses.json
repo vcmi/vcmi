@@ -328,6 +328,11 @@
 			"icon":  "zvs/Lib1.res/E_MIND"
 		}
 	},
+	
+	"NONE":
+	{
+		"hidden": true
+	},
 
 	"NO_DISTANCE_PENALTY":
 	{

@@ -41,7 +41,7 @@ public:
 	
 	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const = 0;
                    
-	//virtual bool adventureCast(const SpellCastContext & context) const = 0; 
+	virtual bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const = 0; 
 	virtual void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const = 0; 	
 	
 	static ISpellMechanics * createMechanics(CSpell * s);

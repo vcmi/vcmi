@@ -127,7 +127,7 @@ CBonusTypeHandler::~CBonusTypeHandler()
 }
 
 std::string CBonusTypeHandler::bonusToString(const Bonus *bonus, const IBonusBearer *bearer, bool description) const
-{
+{	
 	auto getValue = [=](const std::string &name) -> std::string
 	{
 		if (name == "val")
@@ -156,6 +156,8 @@ std::string CBonusTypeHandler::bonusToString(const Bonus *bonus, const IBonusBea
 	};
 	
 	const CBonusType& bt = bonusTypes[bonus->type];	
+	if(bt.hidden)
+		return "";
 	const MacroString& macro = description ? bt.description : bt.name;
 	
 	return macro.build(getValue);	

@@ -18,6 +18,10 @@
 
 #include "NetPacks.h"
 
+#include "mapping/CMap.h"
+#include "CGameInfoCallback.h"
+#include "CGameState.h"
+
 namespace SRSLPraserHelpers
 {
 	static int XYToHex(int x, int y)
@@ -139,7 +143,7 @@ public:
 	
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
 	
-	//bool adventureCast(const SpellCastContext & context) const override; 
+	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override final; 
 	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const override;
 	
 	void afterCast(BattleInfo * battle, const BattleSpellCast * packet) const override;
@@ -149,7 +153,57 @@ protected:
 	
 	virtual int calculateDuration(const CGHeroInstance * caster, int usedSpellPower) const;
 	
+	///actual adventure cast implementation
+	virtual bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
 };
+
+///ADVENTURE SPELLS
+
+//todo: make configyrable
+class AdventureBonusingMechanics: public DefaultSpellMechanics 
+{
+public:	
+	AdventureBonusingMechanics(CSpell * s, Bonus::BonusType _bonusTypeID): DefaultSpellMechanics(s), bonusTypeID(_bonusTypeID){};	
+protected:
+	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;	
+private:
+	Bonus::BonusType bonusTypeID;
+};
+
+class SummonBoatMechanics: public DefaultSpellMechanics 
+{
+public:
+	SummonBoatMechanics(CSpell * s): DefaultSpellMechanics(s){};
+protected:
+	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;	
+};
+
+class ScuttleBoatMechanics: public DefaultSpellMechanics 
+{
+public:
+	ScuttleBoatMechanics(CSpell * s): DefaultSpellMechanics(s){};
+protected:
+	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;	
+};
+
+class DimensionDoorMechanics: public DefaultSpellMechanics 
+{
+public:	
+	DimensionDoorMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+protected:
+	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;	
+};
+
+class TownPortalMechanics: public DefaultSpellMechanics 
+{
+public:	
+	TownPortalMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+protected:
+	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;	
+};
+
+
+///BATTLE SPELLS
 
 class AcidBreathDamageMechnics: public DefaultSpellMechanics
 {
@@ -323,7 +377,23 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 	case SpellID::SUMMON_AIR_ELEMENTAL:
 		return new SummonMechanics(s);
 	case SpellID::TELEPORT:
-		return new TeleportMechanics(s);
+		return new TeleportMechanics(s);	
+	case SpellID::SUMMON_BOAT:
+		return new SummonBoatMechanics(s);
+	case SpellID::SCUTTLE_BOAT:		
+		return new ScuttleBoatMechanics(s);		
+	case SpellID::DIMENSION_DOOR:
+		return new DimensionDoorMechanics(s);
+	case SpellID::FLY:
+		return new AdventureBonusingMechanics(s, Bonus::FLYING_MOVEMENT);
+	case SpellID::WATER_WALK:
+		return new AdventureBonusingMechanics(s, Bonus::WATER_WALKING);
+	case SpellID::TOWN_PORTAL:
+	
+	case SpellID::VISIONS:
+	case SpellID::VIEW_EARTH:
+	case SpellID::DISGUISE:
+	case SpellID::VIEW_AIR:	
 	default:		
 		if(s->isRisingSpell())
 			return new SpecialRisingSpellMechanics(s);
@@ -360,6 +430,55 @@ void DefaultSpellMechanics::afterCast(BattleInfo * battle, const BattleSpellCast
 			return isSpellEffect && vstd::contains(owner->counteredSpells, spellID);
 		});
 	}	
+}
+
+bool DefaultSpellMechanics::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+{
+	if(!owner->isAdventureSpell())
+	{
+		env->complain("Attempt to cast non adventure spell in adventure mode");
+		return false;
+	}
+	
+	const CGHeroInstance * caster = parameters.caster;
+	const int cost = caster->getSpellCost(owner);
+	
+	if(!caster->canCastThisSpell(owner))
+	{
+		env->complain("Hero cannot cast this spell!");
+		return false;		
+	}
+
+	if(caster->mana < cost)
+	{
+		env->complain("Hero doesn't have enough spell points to cast this spell!");
+		return false;		
+	}
+
+	{
+		AdvmapSpellCast asc;
+		asc.caster = caster;
+		asc.spellID = owner->id;
+		env->sendAndApply(&asc);		
+	}
+	
+	if(applyAdventureEffects(env, parameters))
+	{
+		SetMana sm;
+		sm.hid = caster->id;
+		sm.absolute = false;
+		sm.val = -cost;
+		env->sendAndApply(&sm);
+		return true;
+	}
+	return false;
+}
+
+bool DefaultSpellMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+{
+	//There is no generic algorithm of adventure cast
+	env->complain("Unimplemented adventure spell");
+	return false;		
 }
 
 
@@ -846,6 +965,245 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(cons
 	//by default use general algorithm
 	return owner->isImmuneBy(obj);
 }
+
+///ADVENTURE SPELLS
+
+///AdventureBonusingMechanics
+bool AdventureBonusingMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+{
+	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);	
+	const int subtype = schoolLevel >= 2 ? 1 : 2; //adv or expert
+
+	GiveBonus gb;
+	gb.id = parameters.caster->id.getNum();
+	gb.bonus = Bonus(Bonus::ONE_DAY, bonusTypeID, Bonus::SPELL_EFFECT, 0, owner->id, subtype);
+	env->sendAndApply(&gb);	
+	return true;
+}
+
+///SummonBoatMechanics
+bool SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+{
+	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);	
+	//check if spell works at all
+	if(env->getRandomGenerator().nextInt(99) >= owner->getPower(schoolLevel)) //power is % chance of success
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->tempOwner;
+		iw.text.addTxt(MetaString::GENERAL_TXT, 336); //%s tried to summon a boat, but failed.
+		iw.text.addReplacement(parameters.caster->name);
+		env->sendAndApply(&iw);
+		return true;
+	}
+
+	//try to find unoccupied boat to summon
+	const CGBoat * nearest = nullptr;
+	double dist = 0;
+	int3 summonPos = parameters.caster->bestLocation();
+	if(summonPos.x < 0)
+	{
+		env->complain("There is no water tile available!");
+		return false;
+	}	
+	
+	for(const CGObjectInstance * obj : env->getMap()->objects)
+	{
+		if(obj && obj->ID == Obj::BOAT)
+		{
+			const CGBoat *b = static_cast<const CGBoat*>(obj);
+			if(b->hero) 
+				continue; //we're looking for unoccupied boat
+
+			double nDist = b->pos.dist2d(parameters.caster->getPosition());
+			if(!nearest || nDist < dist) //it's first boat or closer than previous
+			{
+				nearest = b;
+				dist = nDist;
+			}
+		}						
+	}
+
+	if(nullptr != nearest) //we found boat to summon
+	{
+		ChangeObjPos cop;
+		cop.objid = nearest->id;
+		cop.nPos = summonPos + int3(1,0,0);;
+		cop.flags = 1;
+		env->sendAndApply(&cop);
+	}
+	else if(schoolLevel < 2) //none or basic level -> cannot create boat :(
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->tempOwner;
+		iw.text.addTxt(MetaString::GENERAL_TXT, 335); //There are no boats to summon.
+		env->sendAndApply(&iw);
+	}
+	else //create boat
+	{
+		NewObject no;
+		no.ID = Obj::BOAT;
+		no.subID = parameters.caster->getBoatType();
+		no.pos = summonPos + int3(1,0,0);;
+		env->sendAndApply(&no);
+	}	
+	return true;	
+}
+
+///ScuttleBoatMechanics
+bool ScuttleBoatMechanics::applyAdventureEffects(const SpellCastEnvironment* env, AdventureSpellCastParameters& parameters) const
+{
+	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
+	//check if spell works at all
+	if(env->getRandomGenerator().nextInt(99) >= owner->getPower(schoolLevel)) //power is % chance of success
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->tempOwner;
+		iw.text.addTxt(MetaString::GENERAL_TXT, 337); //%s tried to scuttle the boat, but failed
+		iw.text.addReplacement(parameters.caster->name);
+		env->sendAndApply(&iw);
+		return true;
+	}
+		
+	if(!env->getMap()->isInTheMap(parameters.pos))
+	{
+		env->complain("Invalid dst tile for scuttle!");
+		return false;
+	}
+
+	//TODO: test range, visibility
+	const TerrainTile *t = &env->getMap()->getTile(parameters.pos);
+	if(!t->visitableObjects.size() || t->visitableObjects.back()->ID != Obj::BOAT)
+	{
+		env->complain("There is no boat to scuttle!");
+		return false;
+	}
+		
+
+	RemoveObject ro;
+	ro.id = t->visitableObjects.back()->id;
+	env->sendAndApply(&ro);
+	return true;	
+}
+
+///DimensionDoorMechanics
+bool DimensionDoorMechanics::applyAdventureEffects(const SpellCastEnvironment* env, AdventureSpellCastParameters& parameters) const
+{
+	if(!env->getMap()->isInTheMap(parameters.pos))
+	{
+		env->complain("Destination is out of map!");
+		return false;
+	}	
+	
+	const TerrainTile * dest = env->getCb()->getTile(parameters.pos);
+	const TerrainTile * curr = env->getCb()->getTile(parameters.caster->getSightCenter());
+
+	if(nullptr == dest)
+	{
+		env->complain("Destination tile doesn't exist!");
+		return false;
+	}
+	
+	if(nullptr == curr)
+	{
+		env->complain("Source tile doesn't exist!");
+		return false;
+	}	
+		
+	if(parameters.caster->movement <= 0)
+	{
+		env->complain("Hero needs movement points to cast Dimension Door!");
+		return false;
+	}
+	
+	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
+			
+	if(parameters.caster->getBonusesCount(Bonus::SPELL_EFFECT, SpellID::DIMENSION_DOOR) >= owner->getPower(schoolLevel)) //limit casts per turn
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->tempOwner;
+		iw.text.addTxt(MetaString::GENERAL_TXT, 338); //%s is not skilled enough to cast this spell again today.
+		iw.text.addReplacement(parameters.caster->name);
+		env->sendAndApply(&iw);
+		return true;
+	}
+
+	GiveBonus gb;
+	gb.id = parameters.caster->id.getNum();
+	gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::NONE, Bonus::SPELL_EFFECT, 0, owner->id);
+	env->sendAndApply(&gb);
+
+	if(!dest->isClear(curr)) //wrong dest tile
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->tempOwner;
+		iw.text.addTxt(MetaString::GENERAL_TXT, 70); //Dimension Door failed!
+		env->sendAndApply(&iw);		
+	}
+	else if(env->moveHero(parameters.caster->id, parameters.pos + parameters.caster->getVisitableOffset(), true))
+	{
+		SetMovePoints smp;
+		smp.hid = parameters.caster->id;
+		smp.val = std::max<ui32>(0, parameters.caster->movement - 300);
+		env->sendAndApply(&smp);
+	}
+	return true; 	
+}
+
+///TownPortalMechanics
+bool TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters& parameters) const
+{
+	if (!env->getMap()->isInTheMap(parameters.pos))
+	{
+		env->complain("Destination tile not present!");
+		return false;
+	}	
+
+	TerrainTile tile = env->getMap()->getTile(parameters.pos);
+	if (tile.visitableObjects.empty() || tile.visitableObjects.back()->ID != Obj::TOWN)
+	{
+		env->complain("Town not found for Town Portal!");	
+		return false;
+	}		
+
+	CGTownInstance * town = static_cast<CGTownInstance*>(tile.visitableObjects.back());
+	if (town->tempOwner != parameters.caster->tempOwner)
+	{
+		env->complain("Can't teleport to another player!");
+		return false;
+	}			
+	
+	if (town->visitingHero)
+	{
+		env->complain("Can't teleport to occupied town!");
+		return false;
+	}
+	
+	if (parameters.caster->getSpellSchoolLevel(owner) < 2)
+	{
+		si32 dist = town->pos.dist2dSQ(parameters.caster->pos);
+		ObjectInstanceID nearest = town->id; //nearest town's ID
+		for(const CGTownInstance * currTown : env->getCb()->getPlayer(parameters.caster->tempOwner)->towns)
+		{
+			si32 currDist = currTown->pos.dist2dSQ(parameters.caster->pos);
+			if (currDist < dist)
+			{
+				nearest = currTown->id;
+				dist = currDist;
+			}
+		}
+		if (town->id != nearest)
+		{
+			env->complain("This hero can only teleport to nearest town!");
+			return false;
+		}
+			
+	}
+	env->moveHero(parameters.caster->id, town->visitablePos() + parameters.caster->getVisitableOffset() ,1);	
+	return true;
+}
+
+
+///BATTLE SPELLS
 
 ///AcidBreathDamageMechnics
 void AcidBreathDamageMechnics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
