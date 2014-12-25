@@ -38,7 +38,6 @@ void registerTypesMapObjects1(Serializer &s)
 	s.template registerType<CGObjectInstance, CGTeleport>();
 	s.template registerType<CGObjectInstance, CGSignBottle>();
 	s.template registerType<CGObjectInstance, CGScholar>();
-	s.template registerType<CGObjectInstance, CGBonusingObject>();
 	s.template registerType<CGObjectInstance, CGMagicWell>();
 	s.template registerType<CGObjectInstance, CGObservatory>();
 	s.template registerType<CGObjectInstance, CGKeys>();
@@ -142,6 +141,7 @@ void registerTypesMapObjects2(Serializer &s)
 
 	s.template registerType<CGObjectInstance, CRewardableObject>();
 		s.template registerType<CRewardableObject, CGPickable>();
+		s.template registerType<CRewardableObject, CGBonusingObject>();
 		s.template registerType<CRewardableObject, CGVisitableOPH>();
 		s.template registerType<CRewardableObject, CGVisitableOPW>();
 		s.template registerType<CRewardableObject, CGOnceVisitable>();
