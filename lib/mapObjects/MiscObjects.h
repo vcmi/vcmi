@@ -56,14 +56,17 @@ public:
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
+	//stack formation depends on position,
+	bool containsUpgradedStack() const;
+	int getNumberOfStacks(const CGHeroInstance *hero) const;
 
 	struct DLL_LINKAGE formationInfo // info about merging stacks after battle back into one
 	{
 		si32 basicType;
-		ui32 randomFormation; //random seed used to determine number of stacks and is there's upgraded stack
+		ui8 upgrade; //random seed used to determine number of stacks and is there's upgraded stack
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & basicType & randomFormation;
+			h & basicType & upgrade;
 		}
 	} formation;
 

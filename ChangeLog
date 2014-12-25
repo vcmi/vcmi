@@ -1,3 +1,8 @@
+0.97 -> 0.98
+
+BATTLES:
+* Implemented OH3 stack split / upgrade formulas according to AlexSpl
+
 0.96 -> 0.97 (Nov 01 2014)
 GENERAL:
 * (windows) Moved VCMI data directory from '%userprofile%\vcmi' to '%userprofile%\Documents\My Games\vcmi'
