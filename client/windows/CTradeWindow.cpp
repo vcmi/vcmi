@@ -1155,10 +1155,18 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 
 	deal = new CButton(Point(269, 520), "ALTSACR.DEF", CGI->generaltexth->zelp[585], std::bind(&CAltarWindow::makeDeal,this));
 
-	if(Hero->getAlignment() != ::EAlignment::EVIL && Mode == EMarketMode::CREATURE_EXP)
-		new CButton(Point(516, 421), "ALTART.DEF", CGI->generaltexth->zelp[580], std::bind(&CTradeWindow::setMode,this, EMarketMode::ARTIFACT_EXP));
-	if(Hero->getAlignment() != ::EAlignment::GOOD && Mode == EMarketMode::ARTIFACT_EXP)
-		new CButton(Point(516, 421), "ALTSACC.DEF", CGI->generaltexth->zelp[572], std::bind(&CTradeWindow::setMode,this, EMarketMode::CREATURE_EXP));
+	if(Mode == EMarketMode::CREATURE_EXP)
+	{
+		CButton *changeMode = new CButton(Point(516, 421), "ALTART.DEF", CGI->generaltexth->zelp[580], std::bind(&CTradeWindow::setMode,this, EMarketMode::ARTIFACT_EXP));
+		if (Hero->getAlignment() == ::EAlignment::EVIL)
+			changeMode->block(true);
+	}
+	if(Mode == EMarketMode::ARTIFACT_EXP)
+	{
+		CButton *changeMode = new CButton(Point(516, 421), "ALTSACC.DEF", CGI->generaltexth->zelp[572], std::bind(&CTradeWindow::setMode,this, EMarketMode::CREATURE_EXP));
+		if (Hero->getAlignment() == ::EAlignment::GOOD)
+			changeMode->block(true);
+	}
 
 	expPerUnit.resize(GameConstants::ARMY_SIZE, 0);
 	getExpValues();
