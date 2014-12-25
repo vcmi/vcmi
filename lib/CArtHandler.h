@@ -59,6 +59,7 @@ public:
 	const std::string &EventText() const;
 
 	bool isBig () const;
+	bool isTradable () const;
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const override;
@@ -215,6 +216,7 @@ public:
 	//void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
 	//void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
 	bool isBigArtifact (ArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
+	bool isTradableArtifact (ArtifactID id) const;
 	void initAllowedArtifactsList(const std::vector<bool> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static ArtifactID creatureToMachineID(CreatureID id);
 	static CreatureID machineIDToCreature(ArtifactID id);

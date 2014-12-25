@@ -1229,7 +1229,7 @@ void CMapLoaderH3M::readObjects()
 				if(objTempl.id == Obj::SPELL_SCROLL)
 				{
 					spellID = reader.readUInt32();
-					artID = 1;
+					artID = ArtifactID::SPELL_SCROLL;
 				}
 				else if(objTempl.id == Obj::ARTIFACT)
 				{

@@ -64,6 +64,11 @@ bool CArtifact::isBig () const
 	return VLC->arth->isBigArtifact(id);
 }
 
+bool CArtifact::isTradable () const
+{
+	return VLC->arth->isTradableArtifact(id);
+}
+
 CArtifact::CArtifact()
 {
 	setNodeType(ARTIFACT);
@@ -78,7 +83,7 @@ CArtifact::~CArtifact()
 
 int CArtifact::getArtClassSerial() const
 {
-	if(id == 1)
+	if(id == ArtifactID::SPELL_SCROLL)
 		return 4;
 	switch(aClass)
 	{
@@ -576,6 +581,22 @@ bool CArtHandler::legalArtifact(ArtifactID id)
 			(art->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS) ||
 			(art->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT)) &&
 			!(art->constituents); //no combo artifacts spawning
+}
+
+bool CArtHandler::isTradableArtifact(ArtifactID id) const
+{
+	switch (id)
+	{
+	case ArtifactID::SPELLBOOK:
+	case ArtifactID::GRAIL:
+	case ArtifactID::CATAPULT:
+	case ArtifactID::BALLISTA:
+	case ArtifactID::AMMO_CART:
+	case ArtifactID::FIRST_AID_TENT:
+		return false;
+	default:
+		return true;
+	}
 }
 
 void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)

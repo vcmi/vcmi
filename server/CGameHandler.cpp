@@ -522,7 +522,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 				MoveArtifact ma;
 				ma.src = ArtifactLocation (finishingBattle->loserHero, artSlot.first);
 				const CArtifactInstance * art =  ma.src.getArt();
-				if (art && !art->artType->isBig() && art->artType->id != 0) // don't move war machines or locked arts (spellbook)
+				if (art && !art->artType->isBig() && art->artType->id != ArtifactID::SPELLBOOK) // don't move war machines or locked arts (spellbook)
 				{
 					arts.push_back (art->artType->id);
 					ma.dst = ArtifactLocation (finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
@@ -2971,7 +2971,7 @@ bool CGameHandler::sellArtifact( const IMarket *m, const CGHeroInstance *h, Arti
 	const CArtifactInstance *art = h->getArtByInstanceId(aid);
 	if(!art)
 		COMPLAIN_RET("There is no artifact to sell!");
-	if(art->artType->id < 7)
+	if(!art->artType->isTradable())
 		COMPLAIN_RET("Cannot sell a war machine or spellbook!");
 
 	int resVal = 0, dump = 1;

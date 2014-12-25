@@ -105,7 +105,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 	{
 		if(down)
 		{
-			if(ourArt->artType->id < 7) //War Machine or Spellbook
+			if(!ourArt->artType->isTradable()) //War Machine or Spellbook
 			{
 				LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21]); //This item can't be traded.
 			}
@@ -122,7 +122,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 	// If clicked on spellbook, open it only if no artifact is held at the moment.
 	if(ourArt && !down && previousState && !ourOwner->commonInfo->src.AOH)
 	{
-		if(ourArt->artType->id == 0)
+		if(ourArt->artType->id == ArtifactID::SPELLBOOK)
 		{
 			auto   spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt);
 			GH.pushInt(spellWindow);
@@ -131,7 +131,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 
 	if (!down && previousState)
 	{
-		if(ourArt && ourArt->artType->id == 0) //spellbook
+		if(ourArt && ourArt->artType->id == ArtifactID::SPELLBOOK)
 			return; //this is handled separately
 
 		if(!ourOwner->commonInfo->src.AOH) //nothing has been clicked
@@ -139,7 +139,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 			if(ourArt  //to prevent selecting empty slots (bugfix to what GrayFace reported)
 				&&  ourOwner->curHero->tempOwner == LOCPLINT->playerID)//can't take art from another player
 			{
-				if(ourArt->artType->id == 3) //catapult cannot be highlighted
+				if(ourArt->artType->id == ArtifactID::CATAPULT) //catapult cannot be highlighted
 				{
 					std::vector<CComponent *> catapult(1, new CComponent(CComponent::artifact, 3, 0));
 					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[312], catapult); //The Catapult must be equipped.
@@ -380,7 +380,7 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 		else
 			text = '{' + ourArt->artType->Name() + "}\n\n" + artDesc; //workaround for new artifacts with single name, turns it to H3-style
 
-		if(art->artType->id == 1) //spell scroll
+		if(art->artType->id == ArtifactID::SPELL_SCROLL)
 		{
 			// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
 			// so we want to replace text in [...] with a spell name
