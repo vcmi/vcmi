@@ -1415,7 +1415,7 @@ int CAltarWindow::firstFreeSlot()
 {
 	int ret = -1;
 	while(items[0][++ret]->id >= 0  &&  ret + 1 < items[0].size());
-	return ret < items[0].size() ? ret : -1;
+	return items[0][ret]->id == -1 ? ret : -1;
 }
 
 void CAltarWindow::SacrificeBackpack()
