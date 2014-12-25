@@ -2203,7 +2203,7 @@ void CGameHandler::sendAndApply( NewStructures * info )
 
 void CGameHandler::save(const std::string & filename )
 {
-    logGlobal->errorStream() << "Saving to " << filename;
+    logGlobal->infoStream() << "Saving to " << filename;
 	CFileInfo info(filename);
 	//CResourceHandler::get("local")->createResource(info.getStem() + ".vlgm1");
 	CResourceHandler::get("local")->createResource(info.getStem() + ".vsgm1");

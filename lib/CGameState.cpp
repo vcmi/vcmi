@@ -1847,7 +1847,7 @@ void CGameState::initMapObjects()
 	{
 		if(obj)
 		{
-			logGlobal->traceStream() << boost::format ("Calling Init for object %d, %d") % obj->ID % obj->subID;
+			//logGlobal->traceStream() << boost::format ("Calling Init for object %d, %d") % obj->ID % obj->subID;
 			obj->initObj();
 		}
 	}

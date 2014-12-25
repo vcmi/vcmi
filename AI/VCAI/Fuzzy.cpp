@@ -263,7 +263,7 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 	{
 		logAi->errorStream() << "getTacticalAdvantage " << ": " << fe.getWhat();
 	}
-	logAi->traceStream() << "getTacticalAdvantage output: " << output;
+
 	if (output < 0 || (output != output))
 	{
 		fl::InputVariable* tab[] = {ta.bankPresent, ta.castleWalls, ta.ourWalkers, ta.ourShooters, ta.ourFlyers, ta.ourSpeed, ta.enemyWalkers, ta.enemyShooters, ta.enemyFlyers, ta.enemySpeed};
