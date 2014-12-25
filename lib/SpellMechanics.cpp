@@ -389,7 +389,7 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 	case SpellID::WATER_WALK:
 		return new AdventureBonusingMechanics(s, Bonus::WATER_WALKING);
 	case SpellID::TOWN_PORTAL:
-	
+		return new TownPortalMechanics(s);
 	case SpellID::VISIONS:
 	case SpellID::VIEW_EARTH:
 	case SpellID::DISGUISE:
