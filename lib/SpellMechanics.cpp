@@ -153,6 +153,9 @@ protected:
 	
 	virtual int calculateDuration(const CGHeroInstance * caster, int usedSpellPower) const;
 	
+	///calculate healed HP for all spells casted by hero
+	ui32 calculateHealedHP(const CGHeroInstance* caster, const CStack* stack, const CStack* sacrificedStack) const;
+	
 	///actual adventure cast implementation
 	virtual bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
 };
@@ -647,6 +650,28 @@ int DefaultSpellMechanics::calculateDuration(const CGHeroInstance * caster, int 
 	}	
 }
 
+ui32 DefaultSpellMechanics::calculateHealedHP(const CGHeroInstance* caster, const CStack* stack, const CStack* sacrificedStack) const
+{
+	int healedHealth;
+	
+	if(!owner->isHealingSpell())
+	{
+		logGlobal->errorStream() << "calculateHealedHP called for nonhealing spell "<< owner->name;
+		return 0;
+	}		
+	
+	const int spellPowerSkill = caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+	const int levelPower = owner->getPower(caster->getSpellSchoolLevel(owner));
+	
+	if (owner->id == SpellID::SACRIFICE && sacrificedStack)
+		healedHealth = (spellPowerSkill + sacrificedStack->MaxHealth() + levelPower) * sacrificedStack->count;
+	else
+		healedHealth = spellPowerSkill * owner->power + levelPower; //???
+	healedHealth = owner->calculateBonus(healedHealth, caster, stack);
+	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (owner->isRisingSpell() ? stack->baseAmount * stack->MaxHealth() : 0));		
+}
+
+
 void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//applying effects
@@ -808,7 +833,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 				}					
 			}
 			else
-				hi.healedHP = owner->calculateHealedHP(parameters.caster, attackedCre, parameters.selectedStack); //Casted by hero
+				hi.healedHP = calculateHealedHP(parameters.caster, attackedCre, parameters.selectedStack); //Casted by hero
 			hi.lowLevelResurrection = parameters.spellLvl <= 1;
 			shr.healedStacks.push_back(hi);
 		}
@@ -1628,7 +1653,7 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 	
 	if(caster) //FIXME: Archangels can cast immune stack
 	{
-		auto maxHealth = owner->calculateHealedHP(caster, obj);
+		auto maxHealth = calculateHealedHP(caster, obj, nullptr);
 		if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}	

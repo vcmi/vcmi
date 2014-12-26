@@ -270,9 +270,6 @@ public:
 	///calculate spell damage on stack taking caster`s secondary skills and affectedCreature`s bonuses into account
 	ui32 calculateDamage(const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
 	
-	///calculate healed HP for all spells casted by hero
-	ui32 calculateHealedHP(const CGHeroInstance * caster, const CStack * stack, const CStack * sacrificedStack = nullptr) const;
-	
 	///selects from allStacks actually affected stacks
 	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const CGHeroInstance * caster = nullptr) const;
 
@@ -282,12 +279,6 @@ public:
 	 * Returns spell level power, base power ignored
 	 */
 	si32 getPower(const int skillLevel) const;
-
-//	/**
-//	* Returns spell power, taking base power into account
-//	*/
-//	si32 calculatePower(const int skillLevel) const;
-
 
 	si32 getProbability(const TFaction factionId) const;
 

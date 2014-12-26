@@ -234,30 +234,6 @@ ui32 CSpell::calculateDamage(const CGHeroInstance * caster, const CStack * affec
 	return ret;	
 }
 
-
-ui32 CSpell::calculateHealedHP(const CGHeroInstance* caster, const CStack* stack, const CStack* sacrificedStack) const
-{
-//todo: use Mechanics class
-	int healedHealth;
-	
-	if(!isHealingSpell())
-	{
-		logGlobal->errorStream() << "calculateHealedHP called for nonhealing spell "<< name;
-		return 0;
-	}		
-	
-	const int spellPowerSkill = caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
-	const int levelPower = getPower(caster->getSpellSchoolLevel(this));
-	
-	if (id == SpellID::SACRIFICE && sacrificedStack)
-		healedHealth = (spellPowerSkill + sacrificedStack->MaxHealth() + levelPower) * sacrificedStack->count;
-	else
-		healedHealth = spellPowerSkill * power + levelPower; //???
-	healedHealth = calculateBonus(healedHealth, caster, stack);
-	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (isRisingSpell() ? stack->baseAmount * stack->MaxHealth() : 0));	
-}
-
-
 std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
 {
 	return mechanics->rangeInHexes(centralHex,schoolLvl,side,outDroppedHexes);
