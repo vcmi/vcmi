@@ -886,6 +886,8 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 			});
 		}
 
+		bool isPileGuarded = currentValue >= minGuardedValue;
+
 		for (auto tile : boundary) //guard must be standing there
 		{
 			if (gen->isFree(tile)) //this tile could be already blocked, don't place a monster here
@@ -916,8 +918,14 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 						gen->setOccupied(pos, ETileType::FREE);
 				});
 			}
+			else //mo monster in this pile, make some free space (needed?)
+			{
+				for (auto tile : boundary)
+					if (gen->isPossible(tile))
+						gen->setOccupied(tile, ETileType::FREE);
+			}
 		}
-		else //we couldn't make a connection to this location, block it
+		else if (isPileGuarded)//we couldn't make a connection to this location, block it
 		{
 			for (auto treasure : treasures)
 			{
