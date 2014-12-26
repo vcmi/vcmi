@@ -1,7 +1,16 @@
 0.97 -> 0.98
 
+SPELLS:
+* implemented CURE spell negative dispell effect
+* added LOCATION target for spells castable on any hex with new target modifiers
+
 BATTLES:
 * Implemented OH3 stack split / upgrade formulas according to AlexSpl
+
+RANDOM MAP GENERATOR:
+* Improved zone placing algorithm
+* More balanced distribution of treasure piles
+* More obstacles within zones
 
 0.96 -> 0.97 (Nov 01 2014)
 GENERAL:
