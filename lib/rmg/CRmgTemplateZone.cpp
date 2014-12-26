@@ -1267,8 +1267,7 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 		//also, normalize it to zone count - higher count means relatively smaller zones
 
 		//this is squared distance for optimization purposes
-		const double minDistance = std::max<float>((300.f * size * size * gen->getZones().size()) /
-			(gen->mapGenOptions->getWidth() * gen->mapGenOptions->getHeight() * totalDensity * (gen->map->twoLevel ? 2 : 1)), 2);
+		const double minDistance = std::max<float>((200.f / totalDensity), 2);
 		//distance lower than 2 causes objects to overlap and crash
 
 		do {
