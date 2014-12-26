@@ -138,7 +138,8 @@ CRmgTemplateZone::CRmgTemplateZone() :
 	matchTerrainToTown(true),
 	townType(ETownType::NEUTRAL),
 	terrainType (ETerrainType::GRASS),
-	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL)
+	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
+	minGuardedValue(0)
 {
 	terrainTypes = getDefaultTerrainTypes();
 }
@@ -714,6 +715,7 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 
 	int maxValue = treasureInfo.max;
 	int minValue = treasureInfo.min;
+	bool needsGuard = treasureInfo.max >= minGuardedValue;
 
 	ui32 desiredValue = gen->rand.nextInt(minValue, maxValue);
 	//quantize value to let objects with value equal to max spawn too
@@ -724,24 +726,27 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 	{
 		treasures[info.nextTreasurePos] = nullptr;
 
-		for (auto treasurePos : treasures)
+		if (needsGuard) //we will need to create perimeter around treasure objects
 		{
-			gen->foreach_neighbour (treasurePos.first, [gen, &boundary](int3 pos)
+			for (auto treasurePos : treasures)
 			{
-				boundary.insert(pos);
-			});
-		}
-		for (auto treasurePos : treasures)
-		{
-			//leaving only boundary around objects
-			vstd::erase_if_present (boundary, treasurePos.first);
-		}
+				gen->foreach_neighbour(treasurePos.first, [gen, &boundary](int3 pos)
+				{
+					boundary.insert(pos);
+				});
+			}
+			for (auto treasurePos : treasures)
+			{
+				//leaving only boundary around objects
+				vstd::erase_if_present(boundary, treasurePos.first);
+			}
 
-		for (auto tile : boundary)
-		{
-			//we can't extend boundary anymore
-			if (!(gen->isBlocked(tile) || gen->isPossible(tile)))
-				break;
+			for (auto tile : boundary)
+			{
+				//we can't extend boundary anymore
+				if (!(gen->isBlocked(tile) || gen->isPossible(tile)))
+					break;
+			}
 		}
 
 		ObjectInfo oi = getRandomObject(gen, info, desiredValue, maxValue, currentValue);
@@ -869,61 +874,65 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 		//update boundary around our objects, including knowledge about objects visitable from bottom
 
 		boundary.clear();
-		for (auto tile : info.visitableFromBottomPositions)
-		{
-			gen->foreach_neighbour (tile, [tile, &boundary](int3 pos)
-			{
-				if (pos.y >= tile.y) //don't block these objects from above
-					boundary.insert(pos);
-			});
-		}
-		for (auto tile : info.visitableFromTopPositions)
-		{
-			gen->foreach_neighbour (tile, [&boundary](int3 pos)
-			{
-				boundary.insert(pos);
-			});
-		}
 
-		for (auto tile : boundary) //guard must be standing there
+		if (needsGuard)
 		{
-			if (gen->isFree(tile)) //this tile could be already blocked, don't place a monster here
+			for (auto tile : info.visitableFromBottomPositions)
 			{
-				guardPos = tile;
-				break;
-			}
-		}
-
-		if (guardPos.valid())
-		{
-			for (auto treasure : treasures)
-			{
-				int3 visitableOffset = treasure.second->getVisitableOffset();
-				placeObject(gen, treasure.second, treasure.first + visitableOffset);
-			}
-			if (addMonster(gen, guardPos, currentValue, false))
-			{//block only if the object is guarded
-				for (auto tile : boundary)
+				gen->foreach_neighbour(tile, [tile, &boundary](int3 pos)
 				{
-					if (gen->isPossible(tile))
-						gen->setOccupied (tile, ETileType::BLOCKED);
-				}
-				//do not spawn anything near monster
-				gen->foreach_neighbour (guardPos, [gen](int3 pos)
-				{
-					if (gen->isPossible(pos))
-						gen->setOccupied(pos, ETileType::FREE);
+					if (pos.y >= tile.y) //don't block these objects from above
+						boundary.insert(pos);
 				});
 			}
-		}
-		else //we couldn't make a connection to this location, block it
-		{
-			for (auto treasure : treasures)
+			for (auto tile : info.visitableFromTopPositions)
 			{
-				if (gen->isPossible(treasure.first))
-					gen->setOccupied (treasure.first, ETileType::BLOCKED);
+				gen->foreach_neighbour(tile, [&boundary](int3 pos)
+				{
+					boundary.insert(pos);
+				});
+			}
 
-				delete treasure.second;
+			for (auto tile : boundary) //guard must be standing there
+			{
+				if (gen->isFree(tile)) //this tile could be already blocked, don't place a monster here
+				{
+					guardPos = tile;
+					break;
+				}
+			}
+
+			if (guardPos.valid())
+			{
+				for (auto treasure : treasures)
+				{
+					int3 visitableOffset = treasure.second->getVisitableOffset();
+					placeObject(gen, treasure.second, treasure.first + visitableOffset);
+				}
+				if (addMonster(gen, guardPos, currentValue, false))
+				{//block only if the object is guarded
+					for (auto tile : boundary)
+					{
+						if (gen->isPossible(tile))
+							gen->setOccupied(tile, ETileType::BLOCKED);
+					}
+					//do not spawn anything near monster
+					gen->foreach_neighbour(guardPos, [gen](int3 pos)
+					{
+						if (gen->isPossible(pos))
+							gen->setOccupied(pos, ETileType::FREE);
+					});
+				}
+			}
+			else //we couldn't make a connection to this location, block it
+			{
+				for (auto treasure : treasures)
+				{
+					if (gen->isPossible(treasure.first))
+						gen->setOccupied(treasure.first, ETileType::BLOCKED);
+
+					delete treasure.second;
+				}
 			}
 		}
 
@@ -1235,6 +1244,12 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 
 void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 {
+	int mapMonsterStrength = gen->mapGenOptions->getMonsterStrength();
+	int monsterStrength = zoneMonsterStrength + mapMonsterStrength - 1; //array index from 0 to 4
+
+	static int minGuardedValues[] = { 6500, 4167, 3000, 1833, 1333 };
+	minGuardedValue = minGuardedValues[monsterStrength];
+
 	auto valueComparator = [](const CTreasureInfo & lhs, const CTreasureInfo & rhs) -> bool
 	{
 		return lhs.max > rhs.max;
@@ -1264,7 +1279,7 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 			});
 
 			int3 pos;
-			if (!findPlaceForTreasurePile(gen, minDistance, pos))
+			if (!findPlaceForTreasurePile(gen, minDistance, pos, t.max))
 			{
 				break;
 			}
@@ -1426,10 +1441,12 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	return true;
 }
 
-bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, float min_dist, int3 &pos)
+bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, float min_dist, int3 &pos, int value)
 {
 	float best_distance = 0;
 	bool result = false;
+
+	bool needsGuard = value > minGuardedValue;
 
 	//logGlobal->infoStream() << boost::format("Min dist for density %f is %d") % density % min_dist;
 	for(auto tile : possibleTiles)
@@ -1439,9 +1456,9 @@ bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, float min_di
 		if ((dist >= min_dist) && (dist > best_distance))
 		{
 			bool allTilesAvailable = true;
-			gen->foreach_neighbour (tile, [&gen, &allTilesAvailable](int3 neighbour)
+			gen->foreach_neighbour (tile, [&gen, &allTilesAvailable, needsGuard](int3 neighbour)
 			{
-				if (!(gen->isPossible(neighbour) || gen->shouldBeBlocked(neighbour)))
+				if (!(gen->isPossible(neighbour) || gen->shouldBeBlocked(neighbour) || (!needsGuard && gen->isFree(neighbour))))
 				{
 					allTilesAvailable = false; //all present tiles must be already blocked or ready for new objects
 				}
@@ -1456,7 +1473,7 @@ bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, float min_di
 	}
 	if (result)
 	{
-		gen->setOccupied(pos, ETileType::BLOCKED); //block that tile
+		gen->setOccupied(pos, ETileType::BLOCKED); //block that tile //FIXME: why?
 	}
 	return result;
 }

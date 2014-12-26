@@ -196,6 +196,7 @@ private:
 	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
 	std::vector<CTreasureInfo> treasureInfo;
 	std::vector<ObjectInfo> possibleObjects;
+	int minGuardedValue;
 
 	//content info
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
@@ -214,7 +215,7 @@ private:
 	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects
 	bool isAccessibleFromAnywhere (CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile, const std::set<int3> &tilesBlockedByObject) const;
 	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
-	bool findPlaceForTreasurePile(CMapGenerator* gen, float min_dist, int3 &pos);
+	bool findPlaceForTreasurePile(CMapGenerator* gen, float min_dist, int3 &pos, int value);
 	bool canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos);
 	void setTemplateForObject(CMapGenerator* gen, CGObjectInstance* obj);
 	bool areAllTilesAvailable(CMapGenerator* gen, CGObjectInstance* obj, int3& tile, std::set<int3>& tilesBlockedByObject) const;
