@@ -318,7 +318,10 @@ public:
 	void spellCast(const BattleSpellCast * sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(int spellID); //called when player has chosen a spell from spellbook
-	void displayEffect(ui32 effect, int destTile, bool areaEffect = true); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender
+	void displayEffect(ui32 effect, int destTile, bool areaEffect = true); //displays custom effect on the battlefield
+	void displaySpellEffect(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s affected animation
+	void displaySpellHit(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s affected animation
+	
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 	void setBattleCursor(const int myNumber); //really complex and messy, sets attackingHex
 	void endAction(const BattleAction* action);

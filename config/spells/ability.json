@@ -1,7 +1,10 @@
 {
 	"stoneGaze" : {
 		"index" : 70,
-		"anim" : 70,
+		"targetType": "NO_TARGET",		
+		"animation":{
+			//need special animation
+		},		
 		"sounds": {
 			"cast": "PARALYZE"
 		},
@@ -33,7 +36,11 @@
 	},
 	"poison" : {
 		"index" : 71,
-		"anim" : 67,
+		"targetType": "NO_TARGET",
+		
+		"animation":{
+			"affect":["SP11_"]
+		},		
 		"sounds": {
 			"cast": "POISON"
 		},
@@ -67,7 +74,11 @@
 	},
 	"bind" : {
 		"index" : 72,
-		"anim" : 68,
+		"targetType": "NO_TARGET",
+		
+		"animation":{
+			"affect":["SP02_"]
+		},		
 		"sounds": {
 			"cast": "BIND"
 		},
@@ -90,7 +101,11 @@
 	},
 	"disease" : {
 		"index" : 73,
-		"anim" : 69,
+		"targetType": "NO_TARGET",
+		
+		"animation":{
+			"affect":["SP05_"]
+		},		
 		"sounds": {
 			"cast": "DISEASE"
 		},
@@ -124,7 +139,11 @@
 	},
 	"paralyze" : {
 		"index" : 74,
-		"anim" : 70,
+		"targetType": "NO_TARGET",
+		
+		"animation":{
+			//missing
+		},		
 		"sounds": {
 			"cast": "PARALYZE"
 		},
@@ -156,7 +175,11 @@
 	},
 	"age" : {
 		"index" : 75,
-		"anim" : 71,
+		"targetType": "NO_TARGET",
+		
+		"animation":{
+			"affect":["SP01_"]
+		},		
 		"sounds": {
 			"cast": "AGE"
 		},
@@ -184,7 +207,11 @@
 	},
 	"deathCloud" : {
 		"index" : 76,
-		"anim" : 72,
+		"targetType": "NO_TARGET",
+		
+		"animation":{
+			"hit":["SP04_"]
+		},		
 		"sounds": {
 			"cast": "DEATHCLD"
 		},
@@ -203,7 +230,11 @@
 	},
 	"thunderbolt" : {
 		"index" : 77,
-		"anim" : 38,
+		"targetType": "NO_TARGET",
+		
+		"animation":{
+			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
+		},		
 		"sounds": {
 			"cast": "LIGHTBLT"
 		},
@@ -220,7 +251,11 @@
 	},
 	"dispelHelpful" : {
 		"index" : 78,
-		"anim" : 41,
+		"targetType": "NO_TARGET",
+		
+		"animation":{
+			"affect":["C05SPW"]
+		},		
 		"sounds": {
 			"cast": "DISPELL"
 		},
@@ -236,7 +271,11 @@
 	},
 	"deathStare" : {
 		"index" : 79,
-		"anim" : 80,
+		"targetType": "NO_TARGET",
+		
+		"animation":{
+			"affect":["C07SPE0"]
+		},		
 		"sounds": {
 			"cast": "DEATHSTR"
 		},
@@ -255,7 +294,11 @@
 	},
 	"acidBreath" : {
 		"index" : 80,
-		"anim" : 81,
+		"targetType": "NO_TARGET",
+		
+		"animation":{
+			//???
+		},		
 		"sounds": {
 			"cast": "ACID"
 		},
@@ -280,7 +323,11 @@
 	},
 	"acidBreathDamage" : {
 		"index" : 81,
-		"anim" : 81,
+		"targetType": "NO_TARGET",
+		
+		"animation":{
+			"affect":["C17SPW0"]
+		},		
 		"sounds": {
 			"cast": "ACID"
 		},

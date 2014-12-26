@@ -1,7 +1,18 @@
 {
 	"magicArrow" : {
 		"index" : 15,
-		"anim" : 64,
+		"targetType": "CREATURE",
+		
+		"animation":{
+			"projectile": [
+				{"minimumAngle": 0 ,"defName":"C20SPX4"},
+				{"minimumAngle": 0.60 ,"defName":"C20SPX3"},
+				{"minimumAngle": 0.90 ,"defName":"C20SPX2"},
+				{"minimumAngle": 1.20 ,"defName":"C20SPX1"},
+				{"minimumAngle": 1.50 ,"defName":"C20SPX0"}
+			],
+			"hit":["C20SPX"]
+		},
 		"sounds": {
 			"cast": "MAGICBLT"
 		},
@@ -22,7 +33,18 @@
 	},
 	"iceBolt" : {
 		"index" : 16,
-		"anim" : 46,
+		"targetType": "CREATURE",
+		
+		"animation":{
+			"projectile": [
+				{"minimumAngle": 0 ,"defName":"C08SPW4"},
+				{"minimumAngle": 0.60 ,"defName":"C08SPW3"},
+				{"minimumAngle": 0.90 ,"defName":"C08SPW2"},
+				{"minimumAngle": 1.20 ,"defName":"C08SPW1"},
+				{"minimumAngle": 1.50 ,"defName":"C08SPW0"}
+			],
+			"hit":["C08SPW5"]
+		},		
 		"sounds": {
 			"cast": "ICERAY"
 		},
@@ -43,7 +65,11 @@
 	},
 	"lightningBolt" : {
 		"index" : 17,
-		"anim" : 38,
+		"targetType": "CREATURE",
+		
+		"animation":{
+			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
+		},		
 		"sounds": {
 			"cast": "LIGHTBLT"
 		},
@@ -64,7 +90,11 @@
 	},
 	"implosion" : {
 		"index" : 18,
-		"anim" : 10,
+		"targetType": "CREATURE",
+		
+		"animation":{
+			"affect":["C05SPE0"]
+		},
 		"sounds": {
 			"cast": "DECAY"
 		},
@@ -86,7 +116,11 @@
 	},
 	"chainLightning" : {
 		"index" : 19,
-		"anim" : 38,
+		"targetType": "CREATURE",
+		
+		"animation":{
+			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
+		},		
 		"sounds": {
 			"cast": "CHAINLTE"
 		},
@@ -104,7 +138,11 @@
 	},
 	"frostRing" : {
 		"index" : 20,
-		"anim" : 45,
+		"targetType": "LOCATION",
+		
+		"animation":{
+			"hit":["C07SPW"] //C07SPW0 ???
+		},			
 		"sounds": {
 			"cast": "FROSTING"
 		},
@@ -125,7 +163,11 @@
 	},
 	"fireball" : {
 		"index" : 21,
-		"anim" : 53,
+		"targetType": "LOCATION",
+		
+		"animation":{
+			"hit":["C13SPF"] //C13SPF0 ???
+		},		
 		"sounds": {
 			"cast": "FIREBALL"
 		},
@@ -146,7 +188,11 @@
 	},
 	"inferno" : {
 		"index" : 22,
-		"anim" : 9,
+		"targetType": "LOCATION",
+		
+		"animation":{
+			"hit":["C04SPF0"]
+		},		
 		"sounds": {
 			"cast": "FIREBLST"
 		},
@@ -167,7 +213,11 @@
 	},
 	"meteorShower" : {
 		"index" : 23,
-		"anim" : 16,
+		"targetType": "LOCATION",
+		
+		"animation":{
+			"hit":["C08SPE0"]
+		},		
 		"sounds": {
 			"cast": "METEOR"
 		},
@@ -189,7 +239,10 @@
 	"deathRipple" : {
 		"index" : 24,
 		"targetType" : "CREATURE",
-		"anim" : 8,
+		
+		"animation":{
+			"affect":["C04SPE0"]
+		},		
 		"sounds": {
 			"cast": "DEATHRIP"
 		},
@@ -215,7 +268,10 @@
 	"destroyUndead" : {
 		"index" : 25,
 		"targetType" : "CREATURE",
-		"anim" : 29,
+		
+		"animation":{
+			"affect":["C14SPA0"]
+		},		
 		"sounds": {
 			"cast": "COLDRING"
 		},
@@ -240,7 +296,10 @@
 	"armageddon" : {
 		"index" : 26,
 		"targetType" : "CREATURE",
-		"anim" : 12,
+		
+		"animation":{
+			"hit":["C06SPF0"]
+		},		
 		"sounds": {
 			"cast": "ARMGEDN"
 		},
@@ -261,7 +320,11 @@
 	},
 	"titanBolt" : {
 		"index" : 57,
-		"anim" : 38,
+		"targetType" : "CREATURE",
+		
+		"animation":{
+			"hit":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
+		},		
 		"sounds": {
 			"cast": "LIGHTBLT"
 		},
@@ -277,5 +340,5 @@
 			"negative": true,
 			"special": true
 		}
-	},
+	}
 }

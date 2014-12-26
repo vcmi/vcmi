@@ -537,7 +537,7 @@ Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBatt
 		}
 	}
 	//returning
-	return ret +CPlayerInterface::battleInt->pos;
+	return ret + CPlayerInterface::battleInt->pos;
 }
 
 void CClickableHex::hover(bool on)

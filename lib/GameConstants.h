@@ -395,14 +395,19 @@ namespace ESpellCastProblem
 		SECOND_HEROS_SPELL_IMMUNITY, SPELL_LEVEL_LIMIT_EXCEEDED, NO_SPELLS_TO_DISPEL,
 		NO_APPROPRIATE_TARGET, STACK_IMMUNE_TO_SPELL, WRONG_SPELL_TARGET, ONGOING_TACTIC_PHASE,
 		MAGIC_IS_BLOCKED, //For Orb of Inhibition and similar - no casting at all
+		NOT_DECIDED,
 		INVALID
 	};
 }
 
 namespace ECastingMode
 {
-	enum ECastingMode {HERO_CASTING, AFTER_ATTACK_CASTING, //also includes cast before attack
-		MAGIC_MIRROR, CREATURE_ACTIVE_CASTING, ENCHANTER_CASTING};
+	enum ECastingMode 
+	{
+		HERO_CASTING, AFTER_ATTACK_CASTING, //also includes cast before attack
+		MAGIC_MIRROR, CREATURE_ACTIVE_CASTING, ENCHANTER_CASTING,
+		SPELL_LIKE_ATTACK	
+	};
 }
 
 namespace EMarketMode
@@ -888,6 +893,14 @@ public:
 	ID_LIKE_CLASS_COMMON(SpellID, ESpellID)
 
 	ESpellID num;
+};
+
+enum class ESpellSchool: ui8
+{
+	AIR 	= 0,
+	FIRE 	= 1,
+	WATER 	= 2,
+	EARTH 	= 3
 };
 
 ID_LIKE_OPERATORS_DECLS(SpellID, SpellID::ESpellID)

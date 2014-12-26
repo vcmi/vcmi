@@ -281,20 +281,10 @@ public:
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(PlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
 	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination) const; //determines if creature can cast a spell here
 	std::vector<BattleHex> battleGetPossibleTargets(PlayerColor player, const CSpell *spell) const;
-	ui32 calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const;
-	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
-	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack = nullptr) const; //Sacrifice
-	ui32 calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const; //for Archangel
-	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //healing spells casted by stacks
-	std::set<const CStack*> getAffectedCreatures(const CSpell * s, int skillLevel, PlayerColor attackerOwner, BattleHex destinationTile); //calculates stack affected by given spell
 
 	SpellID battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const;
 	SpellID getRandomBeneficialSpell(const CStack * subject) const;
 	SpellID getRandomCastedSpell(const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
-
-	//checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
-	ESpellCastProblem::ESpellCastProblem battleStackIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, const CStack * subject) const; 
-
 
 	const CStack * getStackIf(std::function<bool(const CStack*)> pred) const;
 
@@ -321,17 +311,10 @@ public:
 	AccessibilityInfo getAccesibility(const std::vector<BattleHex> &accessibleHexes) const; //given hexes will be marked as accessible
 	std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const;
 protected:
-	
-	//checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
-	ESpellCastProblem::ESpellCastProblem battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const;
-	
-	
 	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters &params) const;
 	ReachabilityInfo makeBFS(const AccessibilityInfo &accessibility, const ReachabilityInfo::Parameters &params) const;
 	ReachabilityInfo makeBFS(const CStack *stack) const; //uses default parameters -> stack position and owner's perspective
 	std::set<BattleHex> getStoppers(BattlePerspective::BattlePerspective whichSidePerspective) const; //get hexes with stopping obstacles (quicksands)
-
-
 };
 
 class DLL_LINKAGE CPlayerBattleCallback : public CBattleInfoCallback

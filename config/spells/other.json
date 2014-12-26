@@ -1,7 +1,8 @@
 {
 	"quicksand" : {
 		"index" : 10,
-		"anim" : -1,
+		"targetType" : "NO_TARGET",
+		
 		"sounds": {
 			"cast": "QUIKSAND"
 		},
@@ -16,7 +17,8 @@
 	},
 	"landMine" : {
 		"index" : 11,
-		"anim" : -1,
+		"targetType" : "NO_TARGET",
+		
 		"sounds": {
 			"cast": ""
 		},
@@ -35,13 +37,17 @@
 	},
 	"forceField" : {
 		"index" : 12,
-		"anim" : -1,
+		"targetType" : "LOCATION",
+		
 		"sounds": {
 			"cast": "FORCEFLD"
 		},
 		"levels" : {
 			"base":{
-				"range" : "0"
+				"range" : "0",
+				"targetModifier":{
+					"clearAffected": true
+				}
 			}
 		},
 		"flags" : {
@@ -50,13 +56,17 @@
 	},
 	"fireWall" : {
 		"index" : 13,
-		"anim" : -1,
+		"targetType" : "LOCATION",		
+		
 		"sounds": {
 			"cast": "FIREWALL"
 		},
 		"levels" : {
 			"base":{
-				"range" : "0"
+				"range" : "0",
+				"targetModifier":{
+					"clearAffected": true
+				}				
 			}
 		},
 		"flags" : {
@@ -69,7 +79,8 @@
 	},
 	"earthquake" : {
 		"index" : 14,
-		"anim" : -1,
+		"targetType" : "NO_TARGET",		
+		
 		"sounds": {
 			"cast": "ERTHQUAK"
 		},
@@ -85,7 +96,11 @@
 	
 	"dispel" : {
 		"index" : 35,
-		"anim" : 41,
+		"targetType" : "CREATURE",			
+		
+		"animation":{
+			"affect":["C05SPW"] //C05SPW0
+		},			
 		"sounds": {
 			"cast": "DISPELL"
 		},
@@ -103,7 +118,11 @@
 	},
 	"cure" : {
 		"index" : 37,
-		"anim" : 39,
+		"targetType" : "CREATURE",		
+		"animation":{
+			"affect":["C03SPW"]//C03SPW0
+		},
+		
 		"sounds": {
 			"cast": "CURE"
 		},
@@ -122,7 +141,11 @@
 	},
 	"resurrection" : {
 		"index" : 38,
-		"anim" : 79,
+		"targetType" : "CREATURE",			
+		
+		"animation":{
+			"affect":["C01SPE0"]
+		},
 		"sounds": {
 			"cast": "RESURECT"
 		},
@@ -143,7 +166,11 @@
 	},
 	"animateDead" : {
 		"index" : 39,
-		"anim" : 79,
+		"targetType" : "CREATURE",			
+		
+		"animation":{
+			"affect":["C01SPE0"]
+		},		
 		"sounds": {
 			"cast": "ANIMDEAD"
 		},
@@ -163,7 +190,11 @@
 	},
 	"sacrifice" : {
 		"index" : 40,
-		"anim" : 79,
+		"targetType" : "CREATURE",			
+		
+		"animation":{
+			"affect":["C01SPE0"]
+		},		
 		"sounds": {
 			"cast": "SACRIF1"
 		},
@@ -184,7 +215,8 @@
 	},
 	"teleport" : {
 		"index" : 63,
-		"anim" : -1,
+		"targetType" : "CREATURE",			
+		
 		"sounds": {
 			"cast": "TELPTOUT"
 		},
@@ -203,7 +235,8 @@
 	},
 	"removeObstacle" : {
 		"index" : 64,
-		"anim" : -1,
+		"targetType" : "OBSTACLE",		
+		
 		"sounds": {
 			"cast": "REMOVEOB"
 		},
@@ -218,7 +251,8 @@
 	},
 	"clone" : {
 		"index" : 65,
-		"anim" : -1,
+		"targetType" : "CREATURE",		
+		
 		"sounds": {
 			"cast": "CLONE"
 		},
@@ -237,7 +271,8 @@
 	},
 	"fireElemental" : {
 		"index" : 66,
-		"anim" : -1,
+		"targetType" : "NO_TARGET",		
+		
 		"sounds": {
 			"cast": "SUMNELM"
 		},
@@ -252,7 +287,8 @@
 	},
 	"earthElemental" : {
 		"index" : 67,
-		"anim" : -1,
+		"targetType" : "NO_TARGET",	
+		
 		"sounds": {
 			"cast": "SUMNELM"
 		},
@@ -267,7 +303,8 @@
 	},
 	"waterElemental" : {
 		"index" : 68,
-		"anim" : -1,
+		"targetType" : "NO_TARGET",	
+		
 		"sounds": {
 			"cast": "SUMNELM"
 		},
@@ -282,7 +319,8 @@
 	},
 	"airElemental" : {
 		"index" : 69,
-		"anim" : -1,
+		"targetType" : "NO_TARGET",	
+		
 		"sounds": {
 			"cast": "SUMNELM"
 		},

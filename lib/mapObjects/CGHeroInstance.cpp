@@ -863,28 +863,18 @@ TExpType CGHeroInstance::calculateXp(TExpType exp) const
 ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool) const
 {
 	si16 skill = -1; //skill level
-
-#define TRY_SCHOOL(schoolName, schoolMechanicsId, schoolOutId)	\
-	if(spell-> schoolName)									\
-	{															\
-		int thisSchool = std::max<int>(getSecSkillLevel( \
-			SecondarySkill(14 + (schoolMechanicsId))), \
-			valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << (schoolMechanicsId))); \
-		if(thisSchool > skill)									\
-		{														\
-			skill = thisSchool;									\
-			if(outSelectedSchool)								\
-				*outSelectedSchool = schoolOutId;				\
-		}														\
-	}
-	TRY_SCHOOL(fire, 0, 1)
-	TRY_SCHOOL(air, 1, 0)
-	TRY_SCHOOL(water, 2, 2)
-	TRY_SCHOOL(earth, 3, 3)
-#undef TRY_SCHOOL
-
-
-
+	
+	spell->forEachSchool([&, this](const SpellSchoolInfo & cnf, bool & stop)
+	{
+		int thisSchool = std::max<int>(getSecSkillLevel(cnf.skill),	valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); 
+		if(thisSchool > skill)									
+		{														
+			skill = thisSchool;									
+			if(outSelectedSchool)								
+				*outSelectedSchool = (ui8)cnf.id;				
+		}																
+	});
+	
 	vstd::amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
 	vstd::amax(skill, valOfBonuses(Bonus::SPELL, spell->id.toEnum())); //given by artifact or other effect
 	if (hasBonusOfType(Bonus::MAXED_SPELL, spell->id))//hero specialty (Daremyth, Melodia)
@@ -895,35 +885,7 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 
 bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {
-	if(!getArt(ArtifactPosition::SPELLBOOK)) //if hero has no spellbook
-		return false;
-
-    if (spell->isSpecialSpell())
-    {
-        if (vstd::contains(spells, spell->id))
-        {//hero has this spell in spellbook
-            logGlobal->errorStream() << "Special spell in spellbook "<<spell->name;
-        }
-
-        if (hasBonusOfType(Bonus::SPELL, spell->id))
-            return true;
-
-        return false;
-    }
-    else
-    {
-        if(vstd::contains(spells, spell->id) //hero has this spell in spellbook
-            || (spell->air && hasBonusOfType(Bonus::AIR_SPELLS)) // this is air spell and hero can cast all air spells
-            || (spell->fire && hasBonusOfType(Bonus::FIRE_SPELLS)) // this is fire spell and hero can cast all fire spells
-            || (spell->water && hasBonusOfType(Bonus::WATER_SPELLS)) // this is water spell and hero can cast all water spells
-            || (spell->earth && hasBonusOfType(Bonus::EARTH_SPELLS)) // this is earth spell and hero can cast all earth spells
-            || hasBonusOfType(Bonus::SPELL, spell->id)
-            || hasBonusOfType(Bonus::SPELLS_OF_LEVEL, spell->level)
-            )
-            return true;
-
-        return false;
-    }
+	return spell->isCastableBy(this, nullptr !=getArt(ArtifactPosition::SPELLBOOK), spells);
 }
 
 /**

@@ -99,6 +99,14 @@ void CIdentifierStorage::requestIdentifier(std::string scope, std::string type, 
 	requestIdentifier(ObjectCallback(scope, pair.first, type, pair.second, callback, false));
 }
 
+void CIdentifierStorage::requestIdentifier(std::string scope, std::string fullName, const std::function<void(si32)>& callback)
+{
+	auto scopeAndFullName = splitString(fullName, ':');	
+	auto typeAndName = splitString(scopeAndFullName.second, '.');	
+	
+	requestIdentifier(ObjectCallback(scope, scopeAndFullName.first, typeAndName.first, typeAndName.second, callback, false));
+}
+
 void CIdentifierStorage::requestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback)
 {
 	auto pair = splitString(name.String(), ':'); // remoteScope:name

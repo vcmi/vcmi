@@ -185,6 +185,8 @@
 		<Unit filename="ResourceSet.cpp" />
 		<Unit filename="ResourceSet.h" />
 		<Unit filename="ScopeGuard.h" />
+		<Unit filename="SpellMechanics.cpp" />
+		<Unit filename="SpellMechanics.h" />
 		<Unit filename="StartInfo.h" />
 		<Unit filename="StdInc.h">
 			<Option weight="0" />

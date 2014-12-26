@@ -10,6 +10,14 @@
 #include "CModHandler.h"
 #include "StringConstants.h"
 
+#include "mapObjects/CGHeroInstance.h"
+#include "BattleState.h"
+#include "CBattleCallback.h"
+
+#include "SpellMechanics.h"
+
+
+
 /*
  * CSpellHandler.cpp, part of VCMI engine
  *
@@ -23,113 +31,55 @@
 namespace SpellConfig
 {
 	static const std::string LEVEL_NAMES[] = {"none", "basic", "advanced", "expert"};
-
+	
+	static const SpellSchoolInfo SCHOOL[4] = 
+	{
+		{
+			ESpellSchool::AIR,
+			Bonus::AIR_SPELL_DMG_PREMY,
+			Bonus::AIR_IMMUNITY,
+			"air",
+			SecondarySkill::AIR_MAGIC,
+			Bonus::AIR_SPELLS
+		},
+		{
+			ESpellSchool::FIRE,
+			Bonus::FIRE_SPELL_DMG_PREMY,
+			Bonus::FIRE_IMMUNITY,
+			"fire",
+			SecondarySkill::FIRE_MAGIC,
+			Bonus::FIRE_SPELLS
+		},
+		{
+			ESpellSchool::WATER,
+			Bonus::WATER_SPELL_DMG_PREMY,
+			Bonus::WATER_IMMUNITY,
+			"water",
+			SecondarySkill::WATER_MAGIC,
+			Bonus::WATER_SPELLS
+		},
+		{
+			ESpellSchool::EARTH,
+			Bonus::EARTH_SPELL_DMG_PREMY,
+			Bonus::EARTH_IMMUNITY,
+			"earth",
+			SecondarySkill::EARTH_MAGIC,
+			Bonus::EARTH_SPELLS
+		}
+	};	
 }
 
-namespace SRSLPraserHelpers
+BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo* cb)
+	: spellLvl(0), destination(BattleHex::INVALID), casterSide(0),casterColor(PlayerColor::CANNOT_DETERMINE),caster(nullptr), secHero(nullptr),
+	usedSpellPower(0),mode(ECastingMode::HERO_CASTING), casterStack(nullptr), selectedStack(nullptr), cb(cb)
 {
-	static int XYToHex(int x, int y)
-	{
-		return x + 17 * y;
-	}
-
-	static int XYToHex(std::pair<int, int> xy)
-	{
-		return XYToHex(xy.first, xy.second);
-	}
-
-	static int hexToY(int battleFieldPosition)
-	{
-		return battleFieldPosition/17;
-	}
-
-	static int hexToX(int battleFieldPosition)
-	{
-		int pos = battleFieldPosition - hexToY(battleFieldPosition) * 17;
-		return pos;
-	}
-
-	static std::pair<int, int> hexToPair(int battleFieldPosition)
-	{
-		return std::make_pair(hexToX(battleFieldPosition), hexToY(battleFieldPosition));
-	}
-
-	//moves hex by one hex in given direction
-	//0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left
-	static std::pair<int, int> gotoDir(int x, int y, int direction)
-	{
-		switch(direction)
-		{
-		case 0: //top left
-			return std::make_pair((y%2) ? x-1 : x, y-1);
-		case 1: //top right
-			return std::make_pair((y%2) ? x : x+1, y-1);
-		case 2:  //right
-			return std::make_pair(x+1, y);
-		case 3: //right bottom
-			return std::make_pair((y%2) ? x : x+1, y+1);
-		case 4: //left bottom
-			return std::make_pair((y%2) ? x-1 : x, y+1);
-		case 5: //left
-			return std::make_pair(x-1, y);
-		default:
-			throw std::runtime_error("Disaster: wrong direction in SRSLPraserHelpers::gotoDir!\n");
-		}
-	}
-
-	static std::pair<int, int> gotoDir(std::pair<int, int> xy, int direction)
-	{
-		return gotoDir(xy.first, xy.second, direction);
-	}
-
-	static bool isGoodHex(std::pair<int, int> xy)
-	{
-		return xy.first >=0 && xy.first < 17 && xy.second >= 0 && xy.second < 11;
-	}
-
-	//helper function for std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) const
-	static std::set<ui16> getInRange(unsigned int center, int low, int high)
-	{
-		std::set<ui16> ret;
-		if(low == 0)
-		{
-			ret.insert(center);
-		}
-
-		std::pair<int, int> mainPointForLayer[6]; //A, B, C, D, E, F points
-		for(auto & elem : mainPointForLayer)
-			elem = hexToPair(center);
-
-		for(int it=1; it<=high; ++it) //it - distance to the center
-		{
-			for(int b=0; b<6; ++b)
-				mainPointForLayer[b] = gotoDir(mainPointForLayer[b], b);
-
-			if(it>=low)
-			{
-				std::pair<int, int> curHex;
-
-				//adding lines (A-b, B-c, C-d, etc)
-				for(int v=0; v<6; ++v)
-				{
-					curHex = mainPointForLayer[v];
-					for(int h=0; h<it; ++h)
-					{
-						if(isGoodHex(curHex))
-							ret.insert(XYToHex(curHex));
-						curHex = gotoDir(curHex, (v+2)%6);
-					}
-				}
-
-			} //if(it>=low)
-		}
-
-		return ret;
-	}
+	
 }
 
+
+///CSpell::LevelInfo
 CSpell::LevelInfo::LevelInfo()
-	:description(""),cost(0),power(0),AIValue(0),smartTarget(true),range("0")
+	:description(""),cost(0),power(0),AIValue(0),smartTarget(true), clearTarget(false), clearAffected(false), range("0")
 {
 
 }
@@ -139,22 +89,68 @@ CSpell::LevelInfo::~LevelInfo()
 
 }
 
-
+///CSpell
 CSpell::CSpell():
 	id(SpellID::NONE), level(0),
 	earth(false), water(false), fire(false), air(false),
 	combatSpell(false), creatureAbility(false),
 	positiveness(ESpellPositiveness::NEUTRAL),
-	mainEffectAnim(-1),
 	defaultProbability(0),
 	isRising(false), isDamage(false), isOffensive(false),
-	targetType(ETargetType::NO_TARGET)
+	targetType(ETargetType::NO_TARGET),
+	mechanics(nullptr)
 {
 	levels.resize(GameConstants::SPELL_SCHOOL_LEVELS);
 }
 
 CSpell::~CSpell()
 {
+	delete mechanics;
+}
+
+void CSpell::afterCast(BattleInfo * battle, const BattleSpellCast * packet) const
+{
+	mechanics->afterCast(battle, packet);
+}
+
+
+void CSpell::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
+{
+	assert(env);
+	
+	mechanics->battleCast(env, parameters);
+}
+
+bool CSpell::isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const
+{
+	if(!hasSpellBook)
+		return false;
+	
+	const bool inSpellBook = vstd::contains(spellBook, id);
+	const bool isBonus = caster->hasBonusOfType(Bonus::SPELL, id);
+	
+	bool inTome = false;
+	
+	forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
+	{
+		if(caster->hasBonusOfType(cnf.knoledgeBonus))
+		{
+			inTome = stop = true;
+		}				
+	});	
+
+    if (isSpecialSpell())
+    {
+        if (inSpellBook)
+        {//hero has this spell in spellbook
+            logGlobal->errorStream() << "Special spell in spellbook "<<name;
+        }
+        return isBonus;
+    }
+    else
+    {
+       return inSpellBook || inTome || isBonus || caster->hasBonusOfType(Bonus::SPELLS_OF_LEVEL, level);
+    }	
 }
 
 const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
@@ -168,126 +164,143 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 	return levels.at(level);
 }
 
+ui32 CSpell::calculateBonus(ui32 baseDamage, const CGHeroInstance* caster, const CStack* affectedCreature) const
+{
+	ui32 ret = baseDamage;
+	//applying sorcery secondary skill
+	if(caster)
+	{
+		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
+		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, id.toEnum())) / 100.0;
+		
+		forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
+		{
+			ret *= (100.0 + caster->valOfBonuses(cnf.damagePremyBonus)) / 100.0;
+			stop = true; //only bonus from one school is used
+		});		
+
+		if (affectedCreature && affectedCreature->getCreature()->level) //Hero specials like Solmyr, Deemer
+			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, id.toEnum()) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
+	}
+	return ret;	
+}
+
+ui32 CSpell::calculateDamage(const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const
+{
+	ui32 ret = 0; //value to return
+
+	//check if spell really does damage - if not, return 0
+	if(!isDamageSpell())
+		return 0;
+
+	ret = usedSpellPower * power;
+	ret += getPower(spellSchoolLevel);
+
+	//affected creature-specific part
+	if(nullptr != affectedCreature)
+	{
+		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
+		
+		forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
+		{
+			if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
+			{
+				ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
+				ret /= 100;
+				stop = true;//only bonus from one school is used	
+			}				
+		});
+
+		//general spell dmg reduction
+		if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
+		{
+			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
+			ret /= 100;
+		}
+		//dmg increasing
+		if(affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, id))
+		{
+			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, id.toEnum());
+			ret /= 100;
+		}
+	}
+	ret = calculateBonus(ret, caster, affectedCreature);
+	return ret;	
+}
+
+
+ui32 CSpell::calculateHealedHP(const CGHeroInstance* caster, const CStack* stack, const CStack* sacrificedStack) const
+{
+//todo: use Mechanics class
+	int healedHealth;
+	
+	if(!isHealingSpell())
+	{
+		logGlobal->errorStream() << "calculateHealedHP called for nonhealing spell "<< name;
+		return 0;
+	}		
+	
+	const int spellPowerSkill = caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+	const int levelPower = getPower(caster->getSpellSchoolLevel(this));
+	
+	if (id == SpellID::SACRIFICE && sacrificedStack)
+		healedHealth = (spellPowerSkill + sacrificedStack->MaxHealth() + levelPower) * sacrificedStack->count;
+	else
+		healedHealth = spellPowerSkill * power + levelPower; //???
+	healedHealth = calculateBonus(healedHealth, caster, stack);
+	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (isRisingSpell() ? stack->baseAmount * stack->MaxHealth() : 0));	
+}
+
 
 std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
 {
-	using namespace SRSLPraserHelpers;
-
-	std::vector<BattleHex> ret;
-
-	if(id == SpellID::FIRE_WALL  ||  id == SpellID::FORCE_FIELD)
-	{
-		//Special case - shape of obstacle depends on caster's side
-		//TODO make it possible through spell_info config
-
-		BattleHex::EDir firstStep, secondStep;
-		if(side)
-		{
-			firstStep = BattleHex::TOP_LEFT;
-			secondStep = BattleHex::TOP_RIGHT;
-		}
-		else
-		{
-			firstStep = BattleHex::TOP_RIGHT;
-			secondStep = BattleHex::TOP_LEFT;
-		}
-
-		//Adds hex to the ret if it's valid. Otherwise sets output arg flag if given.
-		auto addIfValid = [&](BattleHex hex)
-		{
-			if(hex.isValid())
-				ret.push_back(hex);
-			else if(outDroppedHexes)
-				*outDroppedHexes = true;
-		};
-
-		ret.push_back(centralHex);
-		addIfValid(centralHex.moveInDir(firstStep, false));
-		if(schoolLvl >= 2) //advanced versions of fire wall / force field cotnains of 3 hexes
-			addIfValid(centralHex.moveInDir(secondStep, false)); //moveInDir function modifies subject hex
-
-		return ret;
-	}
-
-
-	std::string rng = getLevelInfo(schoolLvl).range + ','; //copy + artificial comma for easier handling
-
-	if(rng.size() >= 1 && rng[0] != 'X') //there is at lest one hex in range
-	{
-		std::string number1, number2;
-		int beg, end;
-		bool readingFirst = true;
-		for(auto & elem : rng)
-		{
-			if(std::isdigit(elem) ) //reading number
-			{
-				if(readingFirst)
-					number1 += elem;
-				else
-					number2 += elem;
-			}
-			else if(elem == ',') //comma
-			{
-				//calculating variables
-				if(readingFirst)
-				{
-					beg = atoi(number1.c_str());
-					number1 = "";
-				}
-				else
-				{
-					end = atoi(number2.c_str());
-					number2 = "";
-				}
-				//obtaining new hexes
-				std::set<ui16> curLayer;
-				if(readingFirst)
-				{
-					curLayer = getInRange(centralHex, beg, beg);
-				}
-				else
-				{
-					curLayer = getInRange(centralHex, beg, end);
-					readingFirst = true;
-				}
-				//adding abtained hexes
-				for(auto & curLayer_it : curLayer)
-				{
-					ret.push_back(curLayer_it);
-				}
-
-			}
-			else if(elem == '-') //dash
-			{
-				beg = atoi(number1.c_str());
-				number1 = "";
-				readingFirst = false;
-			}
-		}
-	}
-
-	//remove duplicates (TODO check if actually needed)
-	range::unique(ret);
-	return ret;
+	return mechanics->rangeInHexes(centralHex,schoolLvl,side,outDroppedHexes);
 }
+
+std::set<const CStack* > CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const CGHeroInstance * caster) const
+{
+	ISpellMechanics::SpellTargetingContext ctx(this, cb,mode,casterColor,spellLvl,destination);
+
+	std::set<const CStack* > attackedCres = mechanics->getAffectedStacks(ctx);
+	
+	//now handle immunities		
+	auto predicate = [&, this](const CStack * s)->bool
+	{
+		bool hitDirectly = ctx.ti.alwaysHitDirectly && s->coversPos(destination);
+		bool notImmune = (ESpellCastProblem::OK == isImmuneByStack(caster, s));
+		
+		return !(hitDirectly || notImmune);  
+	};	
+	vstd::erase_if(attackedCres, predicate);
+	
+	return attackedCres;
+}
+
 
 CSpell::ETargetType CSpell::getTargetType() const
 {
 	return targetType;
 }
 
-const CSpell::TargetInfo CSpell::getTargetInfo(const int level) const
+CSpell::TargetInfo CSpell::getTargetInfo(const int level) const
 {
-	TargetInfo info;
-
-	auto & levelInfo = getLevelInfo(level);
-
-	info.type = getTargetType();
-	info.smart = levelInfo.smartTarget;
-	info.massive = levelInfo.range == "X";
-	info.onlyAlive = !isRisingSpell();
-
+	TargetInfo info(this, level);
 	return info;
+}
+
+void CSpell::forEachSchool(const std::function<void(const SpellSchoolInfo &, bool &)>& cb) const
+{
+	bool stop = false;
+	for(const SpellSchoolInfo & cnf : SpellConfig::SCHOOL)
+	{
+		if(school.at(cnf.id))
+		{
+			cb(cnf, stop);
+			
+			if(stop)
+				break;
+		}				
+	}	
 }
 
 
@@ -321,6 +334,10 @@ bool CSpell::isNeutral() const
 	return positiveness == NEUTRAL;
 }
 
+bool CSpell::isHealingSpell() const
+{
+	return isRisingSpell() || (id == SpellID::CURE);
+}
 
 bool CSpell::isRisingSpell() const
 {
@@ -408,33 +425,89 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 	}
 }
 
-bool CSpell::isImmuneBy(const IBonusBearer* obj) const
+ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallback * cb, const CGHeroInstance * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
 {
+	// Get all stacks at destination hex. only alive if not rising spell
+	TStacks stacks = cb->battleGetStacksIf([=](const CStack * s){
+		return s->coversPos(destination) && (isRisingSpell() || s->alive());
+	});
+	
+	if(!stacks.empty())
+	{
+		bool allImmune = true;
+		
+		ESpellCastProblem::ESpellCastProblem problem;		
+		
+		for(auto s : stacks)
+		{
+			ESpellCastProblem::ESpellCastProblem res = isImmuneByStack(caster,s);
+			
+			if(res == ESpellCastProblem::OK)
+			{
+				allImmune = false;
+			}
+			else
+			{
+				problem = res;
+			}
+		}
+		
+		if(allImmune)
+			return problem;
+	}
+	else //no target stack on this tile
+	{
+		if(getTargetType() == CSpell::CREATURE)
+		{
+			if(caster && mode == ECastingMode::HERO_CASTING) //TODO why???
+			{
+				const CSpell::TargetInfo ti(this, caster->getSpellSchoolLevel(this), mode);
+				
+				if(!ti.massive)
+					return ESpellCastProblem::WRONG_SPELL_TARGET;					
+			}
+			else
+			{
+ 				return ESpellCastProblem::WRONG_SPELL_TARGET;
+			}			
+		}
+	}
+
+	return ESpellCastProblem::OK;	
+}
+
+
+ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj) const
+{	
 	//todo: use new bonus API
 	//1. Check absolute limiters
 	for(auto b : absoluteLimiters)
 	{
 		if (!obj->hasBonusOfType(b))
-			return true;
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
 	//2. Check absolute immunities
 	for(auto b : absoluteImmunities)
 	{
 		if (obj->hasBonusOfType(b))
-			return true;
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
+	
+	//check receptivity
+	if (isPositive() && obj->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
+		return ESpellCastProblem::OK;	
 
 	//3. Check negation
 	//FIXME: Orb of vulnerability mechanics is not such trivial
 	if(obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES)) //Orb of vulnerability
-		return false;
+		return ESpellCastProblem::NOT_DECIDED;
 		
 	//4. Check negatable limit
 	for(auto b : limiters)
 	{
 		if (!obj->hasBonusOfType(b))
-			return true;
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
 
@@ -442,54 +515,55 @@ bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 	for(auto b : immunities)
 	{
 		if (obj->hasBonusOfType(b))
-			return true;
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
-	auto battleTestElementalImmunity = [&,this](Bonus::BonusType element) -> bool
+	//6. Check elemental immunities
+	
+	ESpellCastProblem::ESpellCastProblem tmp = ESpellCastProblem::NOT_DECIDED;
+	
+	forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
 	{
+		auto element = cnf.immunityBonus;
+		
 		if(obj->hasBonusOfType(element, 0)) //always resist if immune to all spells altogether
-				return true;
+		{
+			tmp = ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+			stop = true;
+		}				
 		else if(!isPositive()) //negative or indifferent
 		{
 			if((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
-				return true;
-		}
-		return false;
-	};
-
-	//6. Check elemental immunities
-	if(fire)
-	{
-		if(battleTestElementalImmunity(Bonus::FIRE_IMMUNITY))
-			return true;
-	}
-	if(water)
-	{
-		if(battleTestElementalImmunity(Bonus::WATER_IMMUNITY))
-			return true;
-	}
-
-	if(earth)
-	{
-		if(battleTestElementalImmunity(Bonus::EARTH_IMMUNITY))
-			return true;
-	}
-	if(air)
-	{
-		if(battleTestElementalImmunity(Bonus::AIR_IMMUNITY))
-			return true;
-	}
-
+			{
+				tmp = ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+				stop = true;
+			}			
+		}	
+	});
+	
+	if(tmp != ESpellCastProblem::NOT_DECIDED)
+		return tmp;
+	
 	TBonusListPtr levelImmunities = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
 
 	if(obj->hasBonusOfType(Bonus::SPELL_IMMUNITY, id)
 		|| ( levelImmunities->size() > 0  &&  levelImmunities->totalValue() >= level  &&  level))
 	{
-		return true;
+		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
-	return false;
+	return ESpellCastProblem::NOT_DECIDED;
 }
+
+ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const CGHeroInstance* caster, const CStack* obj) const
+{
+	const auto immuneResult = mechanics->isImmuneByStack(caster,obj);
+	
+	if (ESpellCastProblem::NOT_DECIDED != immuneResult) 
+		return immuneResult;
+	return ESpellCastProblem::OK;	
+}
+
 
 void CSpell::setIsOffensive(const bool val)
 {
@@ -512,6 +586,89 @@ void CSpell::setIsRising(const bool val)
 	}
 }
 
+void CSpell::setup()
+{
+	setupMechanics();
+	
+	air = school[ESpellSchool::AIR];
+	fire = school[ESpellSchool::FIRE];
+	water = school[ESpellSchool::WATER];
+	earth = school[ESpellSchool::EARTH];	
+}
+
+
+void CSpell::setupMechanics()
+{
+	if(nullptr != mechanics)
+	{
+		logGlobal->errorStream() << "Spell " << this->name << " mechanics already set";
+		delete mechanics;
+	}
+	
+	mechanics = ISpellMechanics::createMechanics(this);	
+}
+
+///CSpell::AnimationInfo
+CSpell::AnimationInfo::AnimationInfo()
+{
+	
+}
+
+CSpell::AnimationInfo::~AnimationInfo()
+{
+	
+}
+
+std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
+{	
+	std::string res;	
+	double maximum = 0.0;
+	
+	for(const auto & info : projectile)
+	{
+		if(info.minimumAngle < angle && info.minimumAngle > maximum)
+		{
+			maximum = info.minimumAngle;
+			res = info.resourceName;
+		}
+	}
+	
+	return std::move(res);	
+}
+
+
+///CSpell::TargetInfo
+CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level)
+{
+	init(spell, level);
+}
+
+CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, ECastingMode::ECastingMode mode)
+{
+	init(spell, level);
+	if(mode == ECastingMode::ENCHANTER_CASTING)
+	{
+		smart = true; //FIXME: not sure about that, this makes all spells smart in this mode
+		massive = true;
+	}
+	else if(mode == ECastingMode::SPELL_LIKE_ATTACK)
+	{
+		alwaysHitDirectly = true;
+	}	
+}
+
+void CSpell::TargetInfo::init(const CSpell * spell, const int level)
+{
+	auto & levelInfo = spell->getLevelInfo(level);
+
+	type = spell->getTargetType();
+	smart = levelInfo.smartTarget;
+	massive = levelInfo.range == "X";
+	onlyAlive = !spell->isRisingSpell();
+	alwaysHitDirectly = false;
+	clearAffected = levelInfo.clearAffected;
+	clearTarget = levelInfo.clearTarget;
+}
 
 
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
@@ -523,6 +680,7 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
 		return false;
 }
 
+///CSpellHandler
 CSpellHandler::CSpellHandler()
 {
 
@@ -590,17 +748,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 			for(size_t i = 0; i < GameConstants::SPELL_SCHOOL_LEVELS ; i++)
 				descriptions.push_back(parser.readString());
 
-			std::string attributes = parser.readString();
-
-			std::string targetType = "NO_TARGET";
-
-			if(attributes.find("CREATURE_TARGET_1") != std::string::npos
-				|| attributes.find("CREATURE_TARGET_2") != std::string::npos)
-				targetType = "CREATURE_EXPERT_MASSIVE";
-			else if(attributes.find("CREATURE_TARGET") != std::string::npos)
-				targetType = "CREATURE";
-			else if(attributes.find("OBSTACLE_TARGET") != std::string::npos)
-				targetType = "OBSTACLE";
+			parser.readString(); //ignore attributes. All data present in JSON
 
 			//save parsed level specific data
 			for(size_t i = 0; i < GameConstants::SPELL_SCHOOL_LEVELS; i++)
@@ -610,16 +758,6 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 				level["cost"].Float() = costs[i];
 				level["power"].Float() = powers[i];
 				level["aiValue"].Float() = AIVals[i];
-			}
-
-			if(targetType == "CREATURE_EXPERT_MASSIVE")
-			{
-				lineNode["targetType"].String() = "CREATURE";
-				getLevel(3)["range"].String() = "X";
-			}
-			else
-			{
-				lineNode["targetType"].String() = targetType;
 			}
 
 			legacyData.push_back(lineNode);
@@ -682,11 +820,11 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 	logGlobal->traceStream() << __FUNCTION__ << ": loading spell " << spell->name;
 
 	const auto schoolNames = json["school"];
-
-	spell->air   = schoolNames["air"].Bool();
-	spell->earth = schoolNames["earth"].Bool();
-	spell->fire  = schoolNames["fire"].Bool();
-	spell->water = schoolNames["water"].Bool();
+	
+	for(const SpellSchoolInfo & info : SpellConfig::SCHOOL)
+	{
+		spell->school[info.id] = schoolNames[info.jsonName].Bool();
+	}
 
 	spell->level = json["level"].Float();
 	spell->power = json["power"].Float();
@@ -711,18 +849,16 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 		spell->targetType = CSpell::CREATURE;
 	else if(targetType == "OBSTACLE")
 		spell->targetType = CSpell::OBSTACLE;
-
-
-	spell->mainEffectAnim = json["anim"].Float();
+	else if(targetType == "LOCATION")
+		spell->targetType = CSpell::LOCATION;
+	else 
+		logGlobal->warnStream() << "Spell " << spell->name << ". Target type " << (targetType.empty() ? "empty" : "unknown ("+targetType+")") << ". Assumed NO_TARGET.";
 
 	for(const auto & counteredSpell: json["counters"].Struct())
 		if (counteredSpell.second.Bool())
 		{
-			JsonNode tmp(JsonNode::DATA_STRING);
-			tmp.meta = json.meta;
-			tmp.String() = counteredSpell.first;
-
-			VLC->modh->identifiers.requestIdentifier(tmp,[=](si32 id){
+			VLC->modh->identifiers.requestIdentifier(json.meta, counteredSpell.first, [=](si32 id)
+			{
 				spell->counteredSpells.push_back(SpellID(id));
 			});
 		}
@@ -805,10 +941,46 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 	spell->iconScenarioBonus = graphicsNode["iconScenarioBonus"].String();
 	spell->iconScroll = graphicsNode["iconScroll"].String();
 
-
+	const JsonNode & animationNode = json["animation"];
+	
+	auto loadAnimationQueue = [&](const std::string & jsonName, CSpell::TAnimationQueue & q)	
+	{
+		auto queueNode = animationNode[jsonName].Vector();		
+		for(const JsonNode & item : queueNode)
+		{	
+			CSpell::TAnimation newItem;
+			newItem.verticalPosition = VerticalPosition::TOP;
+			
+			if(item.getType() == JsonNode::DATA_STRING)
+				newItem.resourceName = item.String();
+			else if(item.getType() == JsonNode::DATA_STRUCT)
+			{
+				newItem.resourceName = item["defName"].String();
+				
+				auto vPosStr = item["verticalPosition"].String();
+				if("bottom" == vPosStr)
+					newItem.verticalPosition = VerticalPosition::BOTTOM;
+			}	
+			q.push_back(newItem);		
+		}
+	};
+	
+	loadAnimationQueue("affect", spell->animationInfo.affect);
+	loadAnimationQueue("cast", spell->animationInfo.cast);
+	loadAnimationQueue("hit", spell->animationInfo.hit);	
+	
+	const JsonVector & projectile = animationNode["projectile"].Vector();
+	
+	for(const JsonNode & item : projectile)
+	{
+		CSpell::ProjectileInfo info;
+		info.resourceName = item["defName"].String();
+		info.minimumAngle = item["minimumAngle"].Float();
+		
+		spell->animationInfo.projectile.push_back(info);
+	}
 
 	const JsonNode & soundsNode = json["sounds"];
-
 	spell->castSound = soundsNode["cast"].String();
 
 
@@ -822,14 +994,15 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode& json)
 		
 		CSpell::LevelInfo & levelObject = spell->levels[levelIndex];
 
-		const si32 levelPower   = levelNode["power"].Float();		
-		
-		levelObject.description = levelNode["description"].String();
-		levelObject.cost        = levelNode["cost"].Float();
-		levelObject.power       = levelPower;
-		levelObject.AIValue     = levelNode["aiValue"].Float();
-		levelObject.smartTarget = levelNode["targetModifier"]["smart"].Bool();
-		levelObject.range       = levelNode["range"].String();
+		const si32 levelPower     = levelObject.power = levelNode["power"].Float();		
+
+		levelObject.description   = levelNode["description"].String();
+		levelObject.cost          = levelNode["cost"].Float();
+		levelObject.AIValue       = levelNode["aiValue"].Float();
+		levelObject.smartTarget   = levelNode["targetModifier"]["smart"].Bool();
+		levelObject.clearTarget   = levelNode["targetModifier"]["clearTarget"].Bool();
+		levelObject.clearAffected = levelNode["targetModifier"]["clearAffected"].Bool();			
+		levelObject.range         = levelNode["range"].String();
 		
 		for(const auto & elem : levelNode["effects"].Struct())
 		{
@@ -857,9 +1030,12 @@ void CSpellHandler::afterLoadFinalization()
 {
 	//FIXME: it is a bad place for this code, should refactor loadFromJson to know object id during loading
 	for(auto spell: objects)
+	{
 		for(auto & level: spell->levels)
 			for(auto & bonus: level.effects)
 				bonus.sid = spell->id;
+		spell->setup();
+	}
 }
 
 void CSpellHandler::beforeValidate(JsonNode & object)

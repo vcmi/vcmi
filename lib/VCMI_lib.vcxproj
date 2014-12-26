@@ -185,6 +185,7 @@
     <ClCompile Include="CObstacleInstance.cpp" />
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="CSpellHandler.cpp" />
+    <ClCompile Include="SpellMechanics.cpp" />
     <ClCompile Include="CThreadHelper.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
     <ClCompile Include="CRandomGenerator.cpp" />

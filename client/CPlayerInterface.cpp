@@ -876,16 +876,21 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
-
+	
 	std::vector<StackAttackedInfo> arg;
 	for(auto & elem : bsa)
 	{
 		const CStack *defender = cb->battleGetStackByID(elem.stackAttacked, false);
 		const CStack *attacker = cb->battleGetStackByID(elem.attackerID, false);
-		if(elem.isEffect() && elem.effect != 12) //and not armageddon
+		if(elem.isEffect())
 		{
 			if (defender && !elem.isSecondary())
 				battleInt->displayEffect(elem.effect, defender->position);
+		}
+		if(elem.isSpell())
+		{
+			if (defender)
+				battleInt->displaySpellEffect(elem.spellID, defender->position);			
 		}
 		//FIXME: why action is deleted during enchanter cast?
 		bool remoteAttack = false;
@@ -895,11 +900,6 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 
 		StackAttackedInfo to_put = {defender, elem.damageAmount, elem.killedAmount, attacker, remoteAttack, elem.killed(), elem.willRebirth(), elem.cloneKilled()};
 		arg.push_back(to_put);
-	}
-
-	if(bsa.begin()->isEffect() && bsa.begin()->effect == 12) //for armageddon - I hope this condition is enough
-	{
-		battleInt->displayEffect(bsa.begin()->effect, -1);
 	}
 
 	battleInt->stacksAreAttacked(arg);
@@ -972,6 +972,15 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 		}
 		const CStack * attacked = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
 		battleInt->stackAttacking( attacker, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, attacked, false);
+	}
+	
+	//battleInt->waitForAnims(); //FIXME: freeze
+	
+	if(ba->spellLike())
+	{
+		//display hit animation		
+		SpellID spellID = ba->spellID;			
+		battleInt->displaySpellHit(spellID,curAction->destinationTile);	
 	}
 }
 void CPlayerInterface::battleObstaclePlaced(const CObstacleInstance &obstacle)

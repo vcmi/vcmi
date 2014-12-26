@@ -118,24 +118,6 @@ void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
 	}
 }
 
-int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower)
-{
-	if(!caster)
-	{
-		if (!usedSpellPower)
-			return 3; //default duration of all creature spells
-		else
-			return usedSpellPower; //use creature spell power
-	}
-	switch(spell->id)
-	{
-	case SpellID::FRENZY:
-		return 1;
-	default: //other spells
-		return caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + caster->valOfBonuses(Bonus::SPELL_DURATION);
-	}
-}
-
 CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerOwned, SlotID slot, BattleHex position) const
 {
 	int stackID = getIdForNewStack();
@@ -157,36 +139,6 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 	ret->position = position;
 	ret->state.insert(EBattleStackState::ALIVE);  //alive state indication
 	return ret;
-}
-
-//All spells casted by hero 9resurrection, cure, sacrifice)
-ui32 CBattleInfoCallback::calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack) const
-{
-	bool resurrect = spell->isRisingSpell();
-	int healedHealth;
-	if (spell->id == SpellID::SACRIFICE && sacrificedStack)
-		healedHealth = (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + sacrificedStack->MaxHealth() + spell->getPower(caster->getSpellSchoolLevel(spell))) * sacrificedStack->count;
-	else
-		healedHealth = caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) * spell->power + spell->getPower(caster->getSpellSchoolLevel(spell)); //???
-	healedHealth = calculateSpellBonus(healedHealth, spell, caster, stack);
-	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
-}
-//Archangel
-ui32 CBattleInfoCallback::calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const
-{
-	bool resurrect = spell->isRisingSpell();
-	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
-}
-//Casted by stack, no hero bonus applied
-ui32 CBattleInfoCallback::calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const
-{
-	bool resurrect = spell->isRisingSpell();
-	int healedHealth = usedSpellPower * spell->power + spell->getPower(spellSchoolLevel);
-	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
-}
-bool BattleInfo::resurrects(SpellID spellid) const
-{
-	return spellid.toSpell()->isRisingSpell();
 }
 
 const CStack * BattleInfo::battleGetStack(BattleHex pos, bool onlyAlive)

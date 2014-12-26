@@ -1565,145 +1565,6 @@ std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 	return attackableBattleHexes;
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const
-{
-	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
-
-	// Get all stacks at destination hex -> subject of our spell. only alive if not rising spell
-	TStacks stacks = battleGetStacksIf([=](const CStack * s){
-		return s->coversPos(dest) && (spell->isRisingSpell() || s->alive());
-	});
-	
-	if(!stacks.empty())
-	{
-		bool allImmune = true;
-		
-		ESpellCastProblem::ESpellCastProblem problem;		
-		
-		for(auto s : stacks)
-		{
-			ESpellCastProblem::ESpellCastProblem res = battleStackIsImmune(caster,spell,mode,s);
-			
-			if(res == ESpellCastProblem::OK)
-			{
-				allImmune = false;
-			}
-			else
-			{
-				problem = res;
-			}
-		}
-		
-		if(allImmune)
-			return problem;
-	}
-	else //no target stack on this tile
-	{
-		if(spell->getTargetType() == CSpell::CREATURE)
-		{
-			if(caster && mode == ECastingMode::HERO_CASTING) //TODO why???
-			{
-				const CSpell::TargetInfo ti = spell->getTargetInfo(caster->getSpellSchoolLevel(spell));
-				
-				if(!ti.massive)
-					return ESpellCastProblem::WRONG_SPELL_TARGET;					
-			}
-			else
-			{
- 				return ESpellCastProblem::WRONG_SPELL_TARGET;
-			}
-			
-		}
-	}
-
-	return ESpellCastProblem::OK;
-}
-
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleStackIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, const CStack * subject) const
-{
-	if (spell->isPositive() && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
-		return ESpellCastProblem::OK;
-
-	if (spell->isImmuneBy(subject)) //TODO: move all logic to spellhandler
-		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-
-	switch (spell->id) //TODO: more general logic for new spells?
-	{
-	case SpellID::CLONE:
-		{
-			//can't clone already cloned creature
-			if (vstd::contains(subject->state, EBattleStackState::CLONED))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-			//TODO: how about stacks casting Clone?
-			//currently Clone casted by stack is assumed Expert level
-			ui8 schoolLevel;
-			if (caster)
-			{
-				schoolLevel = caster->getSpellSchoolLevel(spell);
-			}
-			else
-			{
-				schoolLevel = 3;
-			}
-
-			if (schoolLevel < 3)
-			{
-				int maxLevel = (std::max(schoolLevel, (ui8)1) + 4);
-				int creLevel = subject->getCreature()->level;
-				if (maxLevel < creLevel) //tier 1-5 for basic, 1-6 for advanced, any level for expert
-					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-			}
-		}
-		break;
-	case SpellID::DISPEL_HELPFUL_SPELLS:
-		{
-			TBonusListPtr spellBon = subject->getSpellBonuses();
-			bool hasPositiveSpell = false;
-			for(const Bonus * b : *spellBon)
-			{
-				if(SpellID(b->sid).toSpell()->isPositive())
-				{
-					hasPositiveSpell = true;
-					break;
-				}
-			}
-			if(!hasPositiveSpell)
-			{
-				return ESpellCastProblem::NO_SPELLS_TO_DISPEL;
-			}
-		}
-		break;
-	}
-
-    if (spell->isRisingSpell() && spell->id != SpellID::SACRIFICE)
-	{
-        // following does apply to resurrect and animate dead(?) only
-        // for sacrifice health calculation and health limit check don't matter
-
-		if(subject->count >= subject->baseAmount)
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		
-		if (caster) //FIXME: Archangels can cast immune stack
-		{
-			auto maxHealth = calculateHealedHP (caster, spell, subject);
-			if (maxHealth < subject->MaxHealth()) //must be able to rise at least one full creature
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}
-	}
-	else if(spell->id == SpellID::HYPNOTIZE && caster) //do not resist hypnotize casted after attack, for example
-	{
-		//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
-		ui64 subjectHealth = (subject->count - 1) * subject->MaxHealth() + subject->firstHPleft;
-		//apply 'damage' bonus for hypnotize, including hero specialty
-		ui64 maxHealth = calculateSpellBonus (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
-			* spell->power + spell->getPower(caster->getSpellSchoolLevel(spell)), spell, caster, subject);
-		if (subjectHealth > maxHealth)
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}	
-		
-	return ESpellCastProblem::OK;
-}
-
 ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell( PlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode ) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
@@ -1746,7 +1607,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		auto stacks = spell->isNegative() ? battleAliveStacks(!side) : battleAliveStacks();
 		for(auto stack : stacks)
 		{
-			if( ESpellCastProblem::OK == battleStackIsImmune(castingHero, spell, mode, stack))
+			if(ESpellCastProblem::OK == spell->isImmuneByStack(castingHero, stack))
 			{
 				allStacksImmune = false;
 				break;
@@ -1790,7 +1651,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 
             for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
 			{
-				bool immune =  ESpellCastProblem::OK != battleStackIsImmune(caster, spell, mode, stack);
+				bool immune =  ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
 				bool casterStack = stack->owner == caster->getOwner();
 				
                 if(spell->id == SpellID::SACRIFICE)
@@ -1847,8 +1708,6 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor
 	std::vector<BattleHex> ret;
 	RETURN_IF_NOT_BATTLE(ret);
 
-	auto mode = ECastingMode::HERO_CASTING; //TODO get rid of this!
-
 	switch(spell->getTargetType())
 	{
 	case CSpell::CREATURE:
@@ -1858,7 +1717,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor
 			
 			for(const CStack * stack : battleAliveStacks())
 			{
-				bool immune = ESpellCastProblem::OK != battleStackIsImmune(caster, spell, mode, stack);
+				bool immune = ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
 				bool casterStack = stack->owner == caster->getOwner();
 				
 				if(!immune)
@@ -1985,199 +1844,11 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 
-
+	const CGHeroInstance * caster = nullptr;
 	if (mode == ECastingMode::HERO_CASTING)
-		return battleIsImmune(battleGetFightingHero(playerToSide(player)), spell, mode, dest);
-	else
-		return battleIsImmune(nullptr, spell, mode, dest);
-}
-
-ui32 CBattleInfoCallback::calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const
-{
-	ui32 ret = baseDamage;
-	//applying sorcery secondary skill
-	if(caster)
-	{
-		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
-		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, sp->id.toEnum())) / 100.0;
-
-		if(sp->air)
-			ret *= (100.0 + caster->valOfBonuses(Bonus::AIR_SPELL_DMG_PREMY)) / 100.0;
-		else if(sp->fire) //only one type of bonus for Magic Arrow
-			ret *= (100.0 + caster->valOfBonuses(Bonus::FIRE_SPELL_DMG_PREMY)) / 100.0;
-		else if(sp->water)
-			ret *= (100.0 + caster->valOfBonuses(Bonus::WATER_SPELL_DMG_PREMY)) / 100.0;
-		else if(sp->earth)
-			ret *= (100.0 + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0;
-
-		if (affectedCreature && affectedCreature->getCreature()->level) //Hero specials like Solmyr, Deemer
-			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id.toEnum()) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
-	}
-	return ret;
-}
-
-ui32 CBattleInfoCallback::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower ) const
-{
-	ui32 ret = 0; //value to return
-
-	//check if spell really does damage - if not, return 0
-	if(!sp->isDamageSpell())
-		return 0;
-
-	ret = usedSpellPower * sp->power;
-	ret += sp->getPower(spellSchoolLevel);
-
-	//affected creature-specific part
-	if(affectedCreature)
-	{
-		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
-		if(sp->air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 0)) //air spell & protection from air
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 0);
-			ret /= 100;
-		}
-		else if(sp->fire && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 1)) //fire spell & protection from fire
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 1);
-			ret /= 100;
-		}
-		else if(sp->water && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 2)) //water spell & protection from water
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 2);
-			ret /= 100;
-		}
-		else if (sp->earth && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 3)) //earth spell & protection from earth
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 3);
-			ret /= 100;
-		}
-		//general spell dmg reduction
-		//FIXME?
-		if(sp->air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
-			ret /= 100;
-		}
-		//dmg increasing
-		if( affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id) )
-		{
-			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id.toEnum());
-			ret /= 100;
-		}
-	}
-	ret = calculateSpellBonus(ret, sp, caster, affectedCreature);
-	return ret;
-}
-
-std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell * spell, int skillLevel, PlayerColor attackerOwner, BattleHex destinationTile)
-{
-	std::set<const CStack*> attackedCres; //std::set to exclude multiple occurrences of two hex creatures
-
-	const ui8 attackerSide = playerToSide(attackerOwner) == 1;
-	const auto attackedHexes = spell->rangeInHexes(destinationTile, skillLevel, attackerSide);
+		caster = battleGetFightingHero(playerToSide(player));
 	
-	const CSpell::TargetInfo ti = spell->getTargetInfo(skillLevel);
-	//TODO: more generic solution for mass spells
-	if (spell->id == SpellID::CHAIN_LIGHTNING)
-	{
-		std::set<BattleHex> possibleHexes;
-		for (auto stack : battleGetAllStacks())
-		{
-			if (stack->isValidTarget())
-			{
-				for (auto hex : stack->getHexes())
-				{
-					possibleHexes.insert (hex);
-				}
-			}
-		}
-		int targetsOnLevel[4] = {4, 4, 5, 5};
-
-		BattleHex lightningHex =  destinationTile;
-		for (int i = 0; i < targetsOnLevel[skillLevel]; ++i)
-		{
-			auto stack = battleGetStackByPos (lightningHex, true);
-			if (!stack)
-				break;
-			attackedCres.insert (stack);
-			for (auto hex : stack->getHexes())
-			{
-				possibleHexes.erase (hex); //can't hit same place twice
-			}
-			if (possibleHexes.empty()) //not enough targets
-				break;
-			lightningHex = BattleHex::getClosestTile (stack->attackerOwned, destinationTile, possibleHexes);
-		}
-	}
-	else if (spell->getLevelInfo(skillLevel).range.size() > 1) //custom many-hex range
-	{
-		for(BattleHex hex : attackedHexes)
-		{
-			if(const CStack * st = battleGetStackByPos(hex, ti.onlyAlive))
-			{
-				if (spell->id == SpellID::DEATH_CLOUD) //Death Cloud //TODO: fireball and fire immunity
-				{
-					if (st->isLiving() || st->coversPos(destinationTile)) //directly hit or alive
-					{
-						attackedCres.insert(st);
-					}
-				}
-				else
-					attackedCres.insert(st);
-			}
-		}
-	}
-	else if(spell->getTargetType() == CSpell::CREATURE)
-	{
-		auto predicate = [=](const CStack * s){
-			const bool positiveToAlly = spell->isPositive() && s->owner == attackerOwner;
-			const bool negativeToEnemy = spell->isNegative() && s->owner != attackerOwner;
-			const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
-	
-			//for single target spells select stacks covering destination tile
-			const bool rangeCovers = ti.massive || s->coversPos(destinationTile);
-			//handle smart targeting
-			const bool positivenessFlag = !ti.smart || spell->isNeutral() || positiveToAlly || negativeToEnemy;
-			
-			return rangeCovers  && positivenessFlag && validTarget;		
-		};
-		
-		TStacks stacks = battleGetStacksIf(predicate);
-		
-		if (ti.massive)
-		{
-			//for massive spells add all targets
-			for (auto stack : stacks)
-				attackedCres.insert(stack);
-
-		}
-		else
-		{
-			//for single target spells we must select one target. Alive stack is preferred (issue #1763)
-			for(auto stack : stacks)
-			{
-				if(stack->alive())
-				{
-					attackedCres.insert(stack);
-					break;
-				}				
-			}	
-			
-			if(attackedCres.empty() && !stacks.empty())
-			{
-				attackedCres.insert(stacks.front());
-			}						
-		}
-	}
-	else //custom range from attackedHexes
-	{
-		for(BattleHex hex : attackedHexes)
-		{
-			if(const CStack * st = battleGetStackByPos(hex, ti.onlyAlive))
-				attackedCres.insert(st);
-		}
-	}
-	return attackedCres;
+	return spell->isImmuneAt(this, caster, mode, dest);
 }
 
 const CStack * CBattleInfoCallback::getStackIf(std::function<bool(const CStack*)> pred) const
@@ -2220,93 +1891,126 @@ std::set<const CStack*> CBattleInfoCallback:: batteAdjacentCreatures(const CStac
 SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) const
 {
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
-	std::vector<SpellID> possibleSpells;
-
-	for(const CSpell *spell : VLC->spellh->objects)
+	//This is complete list. No spells from mods.
+	//todo: this should be Spellbook of caster Stack
+	static const std::set<SpellID> allPossibleSpells = 
 	{
-		if (spell->isPositive() && !spell->isRisingSpell()) //only positive and not rising
+		SpellID::AIR_SHIELD,
+		SpellID::ANTI_MAGIC,
+		SpellID::BLESS,		
+		SpellID::BLOODLUST,
+		SpellID::COUNTERSTRIKE,
+		SpellID::CURE,
+		SpellID::FIRE_SHIELD,		
+		SpellID::FORTUNE,
+		SpellID::HASTE,
+		SpellID::MAGIC_MIRROR,
+		SpellID::MIRTH,				
+		SpellID::PRAYER,
+		SpellID::PRECISION,
+		SpellID::PROTECTION_FROM_AIR,
+		SpellID::PROTECTION_FROM_EARTH,
+		SpellID::PROTECTION_FROM_FIRE,
+		SpellID::PROTECTION_FROM_WATER,
+		SpellID::SHIELD,
+		SpellID::SLAYER,
+		SpellID::STONE_SKIN
+	};
+	std::vector<SpellID> beneficialSpells;
+	
+	auto getAliveEnemy = [=](const std::function<bool(const CStack * )> & pred)
+	{
+		return getStackIf([=](const CStack * stack)
 		{
-			if (subject->hasBonusFrom(Bonus::SPELL_EFFECT, spell->id)
-				|| battleCanCastThisSpellHere(subject->owner, spell, ECastingMode::CREATURE_ACTIVE_CASTING, subject->position) != ESpellCastProblem::OK)
-				continue;
+			return pred(stack) && stack->owner != subject->owner && stack->alive();
+		});
+	};
 
-			switch (spell->id)
-			{
-			case SpellID::SHIELD:
-			case SpellID::FIRE_SHIELD: // not if all enemy units are shooters
-				{
-					auto walker = getStackIf([&](const CStack *stack) //look for enemy, non-shooting stack
-					{
-						return stack->owner != subject->owner && !stack->shots;
-					});
+	for(const SpellID spellID : allPossibleSpells)
+	{
+		if (subject->hasBonusFrom(Bonus::SPELL_EFFECT, spellID)
+			//TODO: this ability has special limitations
+			|| battleCanCastThisSpellHere(subject->owner, spellID.toSpell(), ECastingMode::CREATURE_ACTIVE_CASTING, subject->position) != ESpellCastProblem::OK)
+			continue;
 
-					if (!walker)
-						continue;
-				}
-				break;
-			case SpellID::AIR_SHIELD: //only against active shooters
+		switch (spellID)
+		{
+		case SpellID::SHIELD:
+		case SpellID::FIRE_SHIELD: // not if all enemy units are shooters
+			{				
+				auto walker = getAliveEnemy([&](const CStack * stack) //look for enemy, non-shooting stack
 				{
+					return !stack->shots;
+				});
 
-					auto shooter = getStackIf([&](const CStack *stack) //look for enemy, non-shooting stack
-					{
-						return stack->owner != subject->owner && stack->hasBonusOfType(Bonus::SHOOTER) && stack->shots;
-					});
-					if (!shooter)
-						continue;
-				}
-				break;
-			case SpellID::ANTI_MAGIC:
-			case SpellID::MAGIC_MIRROR:
-				{
-					if (!battleHasHero(subject->attackerOwned)) //only if there is enemy hero
-						continue;
-				}
-				break;
-			case SpellID::CURE: //only damaged units - what about affected by curse?
-				{
-					if (subject->firstHPleft >= subject->MaxHealth())
-						continue;
-				}
-				break;
-			case SpellID::BLOODLUST:
-				{
-					if (subject->shots) //if can shoot - only if enemy uits are adjacent
-						continue;
-				}
-				break;
-			case SpellID::PRECISION:
-				{
-					if (!(subject->hasBonusOfType(Bonus::SHOOTER) && subject->shots))
-						continue;
-				}
-				break;
-			case SpellID::SLAYER://only if monsters are present
-				{
-					auto kingMonster = getStackIf([&](const CStack *stack) -> bool //look for enemy, non-shooting stack
-					{
-						const auto isKing = Selector::type(Bonus::KING1)
-							.Or(Selector::type(Bonus::KING2))
-							.Or(Selector::type(Bonus::KING3));
-
-						return stack->owner != subject->owner  &&  stack->hasBonus(isKing);
-					});
-
-					if (!kingMonster)
-						continue;
-				}
-				break;
-			case SpellID::TELEPORT: //issue 1928
-			case SpellID::CLONE: //not allowed
-				continue;
-				break;
+				if (!walker)
+					continue;
 			}
-			possibleSpells.push_back(spell->id);
+			break;
+		case SpellID::AIR_SHIELD: //only against active shooters
+			{
+				auto shooter = getAliveEnemy([&](const CStack * stack) //look for enemy, non-shooting stack
+				{
+					return stack->hasBonusOfType(Bonus::SHOOTER) && stack->shots;
+				});
+				if (!shooter)
+					continue;
+			}
+			break;
+		case SpellID::ANTI_MAGIC:
+		case SpellID::MAGIC_MIRROR:
+		case SpellID::PROTECTION_FROM_AIR:
+		case SpellID::PROTECTION_FROM_EARTH:
+		case SpellID::PROTECTION_FROM_FIRE:
+		case SpellID::PROTECTION_FROM_WATER:				
+			{
+				const ui8 enemySide = (ui8)subject->attackerOwned;
+				//todo: only if enemy has spellbook
+				if (!battleHasHero(enemySide)) //only if there is enemy hero
+					continue;
+			}
+			break;
+		case SpellID::CURE: //only damaged units
+			{
+				//do not cast on affected by debuffs
+				if (subject->firstHPleft >= subject->MaxHealth())
+					continue;
+			}
+			break;
+		case SpellID::BLOODLUST:
+			{
+				if (subject->shots) //if can shoot - only if enemy uits are adjacent
+					continue;
+			}
+			break;
+		case SpellID::PRECISION:
+			{
+				if (!(subject->hasBonusOfType(Bonus::SHOOTER) && subject->shots))
+					continue;
+			}
+			break;
+		case SpellID::SLAYER://only if monsters are present
+			{
+				auto kingMonster = getAliveEnemy([&](const CStack *stack) -> bool //look for enemy, non-shooting stack
+				{
+					const auto isKing = Selector::type(Bonus::KING1)
+						.Or(Selector::type(Bonus::KING2))
+						.Or(Selector::type(Bonus::KING3));
+
+					return stack->hasBonus(isKing);
+				});
+
+				if (!kingMonster)
+					continue;
+			}
+			break;
 		}
+		beneficialSpells.push_back(spellID);		
 	}
 
-	if(!possibleSpells.empty())
+	if(!beneficialSpells.empty())
 	{
-		return *RandomGeneratorUtil::nextItem(possibleSpells, gs->getRandomGenerator());
+		return *RandomGeneratorUtil::nextItem(beneficialSpells, gs->getRandomGenerator());
 	}
 	else
 	{
