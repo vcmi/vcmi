@@ -205,6 +205,7 @@
     </ClCompile>
     <ClCompile Include="registerTypes\TypesMapObjects3.cpp" />
     <ClCompile Include="IHandlerBase.cpp" />
+    <ClCompile Include="SpellMechanics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -490,6 +491,9 @@
       <Filter>mapObjects</Filter>
     </ClInclude>
     <ClInclude Include="CGameStateFwd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpellMechanics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
