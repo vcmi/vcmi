@@ -1428,7 +1428,6 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 
 bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, float min_dist, int3 &pos)
 {
-	//si32 min_dist = sqrt(tileinfo.size()/density);
 	float best_distance = 0;
 	bool result = false;
 
