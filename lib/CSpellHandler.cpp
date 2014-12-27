@@ -368,11 +368,6 @@ si32 CSpell::getPower(const int skillLevel) const
 	return getLevelInfo(skillLevel).power;
 }
 
-//si32 CSpell::calculatePower(const int skillLevel) const
-//{
-//    return power + getPower(skillLevel);
-//}
-
 si32 CSpell::getProbability(const TFaction factionId) const
 {
 	if(!vstd::contains(probabilities,factionId))
