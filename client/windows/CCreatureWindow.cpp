@@ -528,7 +528,7 @@ void CStackWindow::CWindowSection::createButtonPanel()
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	createBackground("button-panel");
 
-	if (parent->info->dismissInfo->callback)
+	if (parent->info->dismissInfo && parent->info->dismissInfo->callback)
 	{
 		auto onDismiss = [=]()
 		{
