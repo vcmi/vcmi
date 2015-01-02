@@ -1936,8 +1936,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 
 			auto hid = *RandomGeneratorUtil::nextItem(possibleHeroes, gen->rand);
 			obj->subID = hid; //will be initialized later
-			obj->exp = prisonExp[i]; //game crashes at hero level up
-			//obj->exp = 0;
+			obj->exp = prisonExp[i];
 			obj->setOwner(PlayerColor::NEUTRAL);
 			gen->map->allowedHeroes[hid] = false; //ban this hero
 			gen->decreasePrisonsRemaining();
@@ -2009,9 +2008,9 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			std::vector<SpellID> out;
 
 			//TODO: unify with cb->getAllowedSpells?
-			for (ui32 i = 0; i < gen->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
+			for (ui32 spellid = 0; spellid < gen->map->allowedSpell.size(); spellid++) //spellh size appears to be greater (?)
 			{
-				const CSpell *spell = SpellID(i).toSpell();
+				const CSpell *spell = SpellID(spellid).toSpell();
 				if (gen->map->allowedSpell[spell->id] && spell->level == i+1)
 				{
 					out.push_back(spell->id);
