@@ -161,7 +161,11 @@ public:
 
 	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
 	void drawTerrain(ETerrainType terType, CRandomGenerator * gen = nullptr);
-	void insertObject(CGObjectInstance * obj, const int3 & pos);
+	
+	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
+	void drawRoad(ERoadType::ERoadType roadType, CRandomGenerator * gen = nullptr);
+	
+	void insertObject(CGObjectInstance * obj, const int3 & pos);	
 
 	CTerrainSelection & getTerrainSelection();
 	CObjectSelection & getObjectSelection();

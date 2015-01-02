@@ -231,6 +231,7 @@
     <ClCompile Include="mapping\CMapEditManager.cpp" />
     <ClCompile Include="mapping\MapFormatH3M.cpp" />
     <ClCompile Include="mapping\MapFormatJson.cpp" />
+    <ClCompile Include="mapping\CDrawRoadsOperation.cpp" />
     <ClCompile Include="registerTypes\RegisterTypes.cpp" />
     <ClCompile Include="registerTypes\TypesClientPacks1.cpp" />
     <ClCompile Include="registerTypes\TypesClientPacks2.cpp" />

@@ -6,6 +6,7 @@
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../VCMI_Lib.h"
+#include "CDrawRoadsOperation.h"
 
 MapRect::MapRect() : x(0), y(0), z(0), width(0), height(0)
 {
@@ -225,6 +226,13 @@ void CMapEditManager::drawTerrain(ETerrainType terType, CRandomGenerator * gen/*
 	execute(make_unique<CDrawTerrainOperation>(map, terrainSel, terType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
 }
+
+void CMapEditManager::drawRoad(ERoadType::ERoadType roadType, CRandomGenerator* gen)
+{
+	execute(make_unique<CDrawRoadsOperation>(map, terrainSel, roadType, gen ? gen : &(this->gen)));
+	terrainSel.clearSelection();
+}
+
 
 void CMapEditManager::insertObject(CGObjectInstance * obj, const int3 & pos)
 {
