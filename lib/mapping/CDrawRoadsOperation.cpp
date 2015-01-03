@@ -13,7 +13,7 @@
 
 const std::vector<CDrawRoadsOperation::RoadPattern> CDrawRoadsOperation::patterns = 
 {
-	//single tile. fallback patern
+	//single tile. fall-back pattern
 	{
 		{
           "-","-","-",
@@ -57,8 +57,8 @@ const std::vector<CDrawRoadsOperation::RoadPattern> CDrawRoadsOperation::pattern
           "?","-","?"   
         },
         {15,15},{11,12},
-        false,
-        true
+        true,
+        false
 	},
 	//Dead end vertical
 	{
@@ -68,8 +68,8 @@ const std::vector<CDrawRoadsOperation::RoadPattern> CDrawRoadsOperation::pattern
           "?","+","?" 
         },
         {14,14},{9,10},
-        true,
-        false
+        false,
+        true
 	},
 	//T-cross horizontal
 	{
@@ -79,8 +79,8 @@ const std::vector<CDrawRoadsOperation::RoadPattern> CDrawRoadsOperation::pattern
           "?","+","?"  
         },
         {6,7},{7,8},
-        false,
-        true
+        true,
+        false
 	},
 	//T-cross vertical
 	{
@@ -90,8 +90,8 @@ const std::vector<CDrawRoadsOperation::RoadPattern> CDrawRoadsOperation::pattern
           "?","+","?" 
         },
         {8,9},{5,6},
-        true,
-        false
+        false,
+        true
 	},
 	//Straight Horizontal 
 	{
