@@ -24,6 +24,16 @@ public:
 	void redo() override;
 	std::string getLabel() const override;	
 private:
+	
+	struct RoadPattern
+	{
+		std::string rules[9];
+		std::pair<int, int> roadMapping, riverMapping;
+		bool hasHFlip, hasBFlip;
+	};
+	
+	static const  std::vector<RoadPattern> rules;
+	
 	CTerrainSelection terrainSel;
 	ERoadType::ERoadType roadType;
 	CRandomGenerator * gen;	
