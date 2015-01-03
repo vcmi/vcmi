@@ -133,6 +133,18 @@ std::string CMapOperation::getLabel() const
 	return "";
 }
 
+
+MapRect CMapOperation::extendTileAround(const int3 & centerPos) const
+{
+	return MapRect(int3(centerPos.x - 1, centerPos.y - 1, centerPos.z), 3, 3);
+}
+
+MapRect CMapOperation::extendTileAroundSafely(const int3 & centerPos) const
+{
+	return extendTileAround(centerPos) & MapRect(int3(0, 0, centerPos.z), map->width, map->height);
+}
+
+
 CMapUndoManager::CMapUndoManager() : undoRedoLimit(10)
 {
 
@@ -966,16 +978,6 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 		}
 	});
 	return tiles;
-}
-
-MapRect CDrawTerrainOperation::extendTileAround(const int3 & centerPos) const
-{
-	return MapRect(int3(centerPos.x - 1, centerPos.y - 1, centerPos.z), 3, 3);
-}
-
-MapRect CDrawTerrainOperation::extendTileAroundSafely(const int3 & centerPos) const
-{
-	return extendTileAround(centerPos) & MapRect(int3(0, 0, centerPos.z), map->width, map->height);
 }
 
 CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, const std::string & transitionReplacement /*= ""*/)

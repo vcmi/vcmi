@@ -27,12 +27,30 @@ private:
 	
 	struct RoadPattern
 	{
-		std::string rules[9];
+		std::string data[9];
 		std::pair<int, int> roadMapping, riverMapping;
-		bool hasHFlip, hasBFlip;
+		bool hasHFlip, hasVFlip;
 	};
 	
-	static const  std::vector<RoadPattern> rules;
+	struct ValidationResult
+	{
+		ValidationResult(bool result): result(result), flip(0){};
+		bool result;
+		int flip;
+	};
+	
+	static const std::vector<RoadPattern> patterns;
+	
+	void flipPattern(RoadPattern & pattern, int flip) const;
+	
+	void updateTiles(std::set<int3> & invalidated);
+	
+	ValidationResult validateTile(const RoadPattern & pattern, const int3 & pos);
+	void updateTile(TerrainTile & tile, const RoadPattern & pattern, const int flip);
+	
+	bool canApplyPattern(const RoadPattern & pattern) const;
+	bool needUpdateTile(const TerrainTile & tile) const;
+	bool tileHasSomething(const int3 & pos) const;
 	
 	CTerrainSelection terrainSel;
 	ERoadType::ERoadType roadType;

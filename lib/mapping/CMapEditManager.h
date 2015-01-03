@@ -113,7 +113,14 @@ public:
 	virtual void redo() = 0;
 	virtual std::string getLabel() const = 0; /// Returns a display-able name of the operation.
 
-protected:
+protected:	
+	MapRect extendTileAround(const int3 & centerPos) const;
+	MapRect extendTileAroundSafely(const int3 & centerPos) const; /// doesn't exceed map size	
+	
+	static const int FLIP_PATTERN_HORIZONTAL = 1;
+	static const int FLIP_PATTERN_VERTICAL = 2;
+	static const int FLIP_PATTERN_BOTH = 3;	
+	
 	CMap * map;
 };
 
@@ -330,8 +337,6 @@ private:
 	void updateTerrainTypes();
 	void invalidateTerrainViews(const int3 & centerPos);
 	InvalidTiles getInvalidTiles(const int3 & centerPos) const;
-	MapRect extendTileAround(const int3 & centerPos) const;
-	MapRect extendTileAroundSafely(const int3 & centerPos) const; /// doesn't exceed map size
 
 	void updateTerrainViews();
 	ETerrainGroup::ETerrainGroup getTerrainGroup(ETerrainType terType) const;
@@ -342,10 +347,6 @@ private:
 	/// Tests whether the given terrain type is a sand type. Sand types are: Water, Sand and Rock
 	bool isSandType(ETerrainType terType) const;
 	void flipPattern(TerrainViewPattern & pattern, int flip) const;
-
-	static const int FLIP_PATTERN_HORIZONTAL = 1;
-	static const int FLIP_PATTERN_VERTICAL = 2;
-	static const int FLIP_PATTERN_BOTH = 3;
 
 	CTerrainSelection terrainSel;
 	ETerrainType terType;
