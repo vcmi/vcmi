@@ -268,7 +268,7 @@ void CDrawRoadsOperation::updateTile(TerrainTile & tile, const RoadPattern & pat
 {
   //TODO: this method should be virtual for river support	
   
-	std::pair<int, int> mapping = pattern.roadMapping;
+	const std::pair<int, int> & mapping  = pattern.roadMapping;
   
 	tile.roadDir = gen->nextInt(mapping.first, mapping.second);
 	tile.extTileFlags = (tile.extTileFlags & 0xCF) | (flip << 4); 
@@ -314,7 +314,7 @@ CDrawRoadsOperation::ValidationResult CDrawRoadsOperation::validateTile(const Ro
 			}
 			else
 			{
-				hasSomething = tileHasSomething(pos);				
+				hasSomething = tileHasSomething(currentPos);				
 			}
 			
 			if(ruleIsSomething(flipped.data[i]))
