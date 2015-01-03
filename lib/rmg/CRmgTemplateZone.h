@@ -167,7 +167,8 @@ public:
 	void createTreasures(CMapGenerator* gen);
 	void createObstacles1(CMapGenerator* gen);
 	void createObstacles2(CMapGenerator* gen);
-	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles = nullptr);
+	bool crunchPath(CMapGenerator* gen, const int3 &src, const int3 &dst, std::set<int3>* clearedTiles = nullptr, bool forRoad = false);
+	bool crunchRoad(CMapGenerator* gen, const int3 &src, const int3 &dst, std::set<int3>* clearedTiles = nullptr);
 	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object);
 
 	void addConnection(TRmgTemplateZoneId otherZone);
@@ -216,6 +217,8 @@ private:
 	std::set<int3> possibleTiles; //optimization purposes for treasure generation
 	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
 	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
+	
+	std::set<int3> roads;
 	
 	void drawRoads(CMapGenerator* gen);
 

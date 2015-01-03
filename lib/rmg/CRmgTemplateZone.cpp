@@ -575,7 +575,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	//logGlobal->infoStream() << boost::format ("Zone %d subdivided fractally") %id;
 }
 
-bool CRmgTemplateZone::crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles)
+bool CRmgTemplateZone::crunchPath(CMapGenerator* gen, const int3 &src, const int3 &dst, std::set<int3>* clearedTiles, bool forRoad)
 {
 /*
 make shortest path with free tiles, reachning dst or closest already free tile. Avoid blocks.
@@ -596,7 +596,8 @@ do not leave zone border
 		}
 
 		auto lastDistance = distance;
-		gen->foreach_neighbour (currentPos, [this, gen, &currentPos, dst, &distance, &result, &end, clearedTiles](int3 &pos)
+			
+		auto processNeighbours = [this, gen, &currentPos, dst, &distance, &result, &end, clearedTiles](int3 &pos)
 		{
 			if (!result) //not sure if lambda is worth it...
 			{
@@ -628,15 +629,21 @@ do not leave zone border
 					}
 				}
 			}
-		});
-
+		};
+		
+		if(forRoad)
+			gen->foreachDirectNeighbour(currentPos,processNeighbours);
+		else
+			gen->foreach_neighbour (currentPos,processNeighbours);
+						
 		int3 anotherPos(-1, -1, -1);
 
-		if (!(result || distance < lastDistance)) //we do not advance, use more advaced pathfinding algorithm?
+		if (!(result || distance < lastDistance)) //we do not advance, use more advanced pathfinding algorithm?
 		{
 			//try any nearby tiles, even if its not closer than current
 			float lastDistance = 2 * distance; //start with significantly larger value
-			gen->foreach_neighbour(currentPos, [this, gen, &currentPos, dst, &lastDistance, &anotherPos, &end, clearedTiles](int3 &pos)
+			
+			auto processNeighbours2 = [this, gen, &currentPos, dst, &lastDistance, &anotherPos, &end, clearedTiles](int3 &pos)
 			{
 				if (currentPos.dist2dSQ(dst) < lastDistance) //try closest tiles from all surrounding unused tiles
 				{
@@ -651,7 +658,14 @@ do not leave zone border
 						}
 					}
 				}
-			});
+			};			
+		
+			if(forRoad)
+				gen->foreachDirectNeighbour(currentPos,processNeighbours2);
+			else
+				gen->foreach_neighbour (currentPos,processNeighbours2);
+						
+			
 			if (anotherPos.valid())
 			{
 				if (clearedTiles)
@@ -670,6 +684,26 @@ do not leave zone border
 
 	return result;
 }
+
+bool CRmgTemplateZone::crunchRoad(CMapGenerator* gen, const int3& src, const int3& dst, std::set<int3>* clearedTiles)
+{
+	std::set<int3> currentClearedTiles;
+	
+	if(crunchPath(gen, src, dst, &currentClearedTiles, true))
+	{
+		roads.insert(std::begin(currentClearedTiles), std::end(currentClearedTiles));		
+		
+		if(nullptr != clearedTiles)
+			clearedTiles->insert(std::begin(currentClearedTiles), std::end(currentClearedTiles));
+		
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 
 void CRmgTemplateZone::addRequiredObject(CGObjectInstance * obj, si32 strength)
 {
@@ -904,7 +938,7 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 				gen->setOccupied(tile, ETileType::BLOCKED); //so that crunch path doesn't cut through objects
 		}
 
-		if (!crunchPath (gen, closestTile, closestFreeTile, id))
+		if (!crunchPath (gen, closestTile, closestFreeTile))
 		{
 			//we can't connect this pile, just block it off and start over
 			for (auto treasure : treasures)
@@ -1239,7 +1273,22 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 			logGlobal->errorStream() << boost::format("Failed to fill zone %d due to lack of space") %id;
 			//TODO CLEANUP!
 			return false;
+		}		
+	
+		switch (obj.first->ID)
+		{
+		case Obj::TOWN:
+		case Obj::MONOLITH_TWO_WAY:
+		case Obj::SUBTERRANEAN_GATE:
+			{
+				crunchRoad(gen, this->pos, pos + obj.first->getVisitableOffset(), &freePaths);				
+			}
+			break;
+		
+		default:
+			break;
 		}
+		
 
 		placeObject (gen, obj.first, pos);
 		guardObject (gen, obj.first, obj.second, (obj.first->ID == Obj::MONOLITH_TWO_WAY), true);
@@ -1434,7 +1483,7 @@ void CRmgTemplateZone::createObstacles2(CMapGenerator* gen)
 void CRmgTemplateZone::drawRoads(CMapGenerator* gen)
 {
 	std::vector<int3> tiles;
-	for (auto tile : freePaths)
+	for (auto tile : roads)
 	{
 		tiles.push_back (tile);
 	}
@@ -1715,7 +1764,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	{
 		//crunching path may fail if center of the zone is directly over wide object
 		//make sure object is accessible before surrounding it with blocked tiles
-		if (crunchPath (gen, tile, findClosestTile(freePaths, tile), id, addToFreePaths ? &freePaths : nullptr))
+		if (crunchPath (gen, tile, findClosestTile(freePaths, tile), addToFreePaths ? &freePaths : nullptr))
 		{
 			guardTile = tile;
 			break;

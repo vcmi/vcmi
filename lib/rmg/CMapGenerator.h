@@ -66,6 +66,7 @@ public:
 	void createConnections();
 	void findZonesForQuestArts();
 	void foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo);
+	void foreachDirectNeighbour(const int3 &pos, std::function<void(int3& pos)> foo);
 
 	bool isBlocked(const int3 &tile) const;
 	bool shouldBeBlocked(const int3 &tile) const;

@@ -13,6 +13,8 @@
 #include "CZonePlacer.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 
+static const int3 dirs4[] = {int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0)};
+
 void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo)
 {
 	for(const int3 &dir : dirs)
@@ -21,6 +23,16 @@ void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& 
 		if(map->isInTheMap(n))
 			foo(n);
 	}
+}
+
+void CMapGenerator::foreachDirectNeighbour(const int3& pos, std::function<void(int3& pos)> foo)
+{
+	for(const int3 &dir : dirs4)
+	{
+		int3 n = pos + dir;
+		if(map->isInTheMap(n))
+			foo(n);
+	}	
 }
 
 
@@ -421,8 +433,8 @@ void CMapGenerator::createConnections()
 					setOccupied (guardPos, ETileType::FREE); //just in case monster is too weak to spawn
 					zoneA->addMonster (this, guardPos, connection.getGuardStrength(), false, true);
 					//zones can make paths only in their own area
-					zoneA->crunchPath (this, guardPos, posA, zoneA->getId(), zoneA->getFreePaths()); //make connection towards our zone center
-					zoneB->crunchPath (this, guardPos, posB, zoneB->getId(), zoneB->getFreePaths()); //make connection towards other zone center
+					zoneA->crunchRoad(this, guardPos, posA, zoneA->getFreePaths()); //make connection towards our zone center
+					zoneB->crunchRoad(this, guardPos, posB, zoneB->getFreePaths()); //make connection towards other zone center
 					break; //we're done with this connection
 				}
 			}
