@@ -51,11 +51,12 @@ public:
 	ETerrainType getTerrainType() const;
 	ETileType::ETileType getTileType() const;
 	void setTerrainType(ETerrainType value);
-
+	void setRoadType(ERoadType::ERoadType value);
 private:
 	float nearestObjectDistance;
 	ETileType::ETileType occupied;
 	ETerrainType terrain;
+	ERoadType::ERoadType roadType;
 };
 
 class DLL_LINKAGE CTreasureInfo
@@ -215,6 +216,8 @@ private:
 	std::set<int3> possibleTiles; //optimization purposes for treasure generation
 	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
 	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
+	
+	void drawRoads(CMapGenerator* gen);
 
 	bool pointIsIn(int x, int y);
 	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects

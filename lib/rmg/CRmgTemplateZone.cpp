@@ -81,7 +81,7 @@ void CRmgTemplateZone::CTownInfo::setCastleDensity(int value)
 	castleDensity = value;
 }
 
-CTileInfo::CTileInfo():nearestObjectDistance(INT_MAX), terrain(ETerrainType::WRONG) 
+CTileInfo::CTileInfo():nearestObjectDistance(INT_MAX), terrain(ETerrainType::WRONG),roadType(ERoadType::NO_ROAD) 
 {
 	occupied = ETileType::POSSIBLE; //all tiles are initially possible to place objects or passages
 }
@@ -134,6 +134,13 @@ void CTileInfo::setTerrainType(ETerrainType value)
 {
 	terrain = value;
 }
+
+void CTileInfo::setRoadType(ERoadType::ERoadType value)
+{
+	roadType = value;
+//	setOccupied(ETileType::FREE);
+}
+
 
 CRmgTemplateZone::CRmgTemplateZone() :
 	id(0),
@@ -1424,6 +1431,19 @@ void CRmgTemplateZone::createObstacles2(CMapGenerator* gen)
 	}
 }
 
+void CRmgTemplateZone::drawRoads(CMapGenerator* gen)
+{
+	std::vector<int3> tiles;
+	for (auto tile : freePaths)
+	{
+		tiles.push_back (tile);
+	}
+	gen->editManager->getTerrainSelection().setSelection(tiles);	
+	gen->editManager->drawRoad(ERoadType::COBBLESTONE_ROAD, &gen->rand);
+}
+
+
+
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
 {
 	initTerrainType(gen);
@@ -1436,7 +1456,9 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	createRequiredObjects(gen);
 	fractalize(gen); //after required objects are created and linked with their own paths
 	createTreasures(gen);
-
+	
+	drawRoads(gen);
+	
 	logGlobal->infoStream() << boost::format ("Zone %d filled successfully") %id;
 	return true;
 }
