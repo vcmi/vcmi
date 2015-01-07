@@ -207,18 +207,12 @@ void CMapGenerator::genZones()
 	editManager->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions->getWidth(), mapGenOptions->getHeight()));
 	editManager->drawTerrain(ETerrainType::GRASS, &rand);
 
-	auto pcnt = mapGenOptions->getPlayerCount();
-	auto w = mapGenOptions->getWidth();
-	auto h = mapGenOptions->getHeight();
-
 	auto tmpl = mapGenOptions->getMapTemplate();
 	zones = tmpl->getZones(); //copy from template (refactor?)
 
 	CZonePlacer placer(this);
 	placer.placeZones(mapGenOptions, &rand);
 	placer.assignZones(mapGenOptions);
-
-	int i = 0;
 
 	logGlobal->infoStream() << "Zones generated successfully";
 }

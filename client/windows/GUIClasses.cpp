@@ -1358,7 +1358,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
 	boost::replace_first(text, "%d", "2000");
 
-	confirm= new CButton(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [&]{makeDeal(SKILL);}, SDLK_RETURN);
+	confirm= new CButton(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [=]{makeDeal(SKILL);}, SDLK_RETURN);
 	confirm->block(!available);
 
 	cancel = new CButton(Point(252,299), "ICANCEL.DEF", CGI->generaltexth->zelp[631], [&]{ close(); }, SDLK_ESCAPE);
@@ -1392,10 +1392,9 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	for (int i = 0; i < slotsCount; i++)
 	{
 		currState[i] = getState(SlotID(i));
-		upgrade[i] = new CButton(Point(107 + i * 76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [&]{ makeDeal(SlotID(i)); }, SDLK_1 + i);
+		upgrade[i] = new CButton(Point(107 + i * 76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [=]{ makeDeal(SlotID(i)); }, SDLK_1 + i);
 		for (auto image : { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" })
 			upgrade[i]->addImage(image);
-		upgrade[i]->block(currState[i] == -1);
 	}
 
 	currState[slotsCount] = getState(SlotID(slotsCount));
@@ -1431,7 +1430,7 @@ void CHillFortWindow::updateGarrisons()
 		}
 
 		currState[i] = newState;
-		upgrade[i]->setIndex(newState);
+		upgrade[i]->setIndex(currState[i] == -1 ? 0 : currState[i]);
 		upgrade[i]->block(currState[i] == -1);
 		upgrade[i]->addHoverText(CButton::NORMAL, getTextForSlot(SlotID(i)));
 	}
