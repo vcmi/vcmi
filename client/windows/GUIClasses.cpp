@@ -1358,7 +1358,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
 	boost::replace_first(text, "%d", "2000");
 
-	confirm= new CButton(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [&]{makeDeal(SKILL);}, SDLK_RETURN);
+	confirm= new CButton(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [=]{makeDeal(SKILL);}, SDLK_RETURN);
 	confirm->block(!available);
 
 	cancel = new CButton(Point(252,299), "ICANCEL.DEF", CGI->generaltexth->zelp[631], [&]{ close(); }, SDLK_ESCAPE);
