@@ -1392,10 +1392,9 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	for (int i = 0; i < slotsCount; i++)
 	{
 		currState[i] = getState(SlotID(i));
-		upgrade[i] = new CButton(Point(107 + i * 76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [&]{ makeDeal(SlotID(i)); }, SDLK_1 + i);
+		upgrade[i] = new CButton(Point(107 + i * 76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [=]{ makeDeal(SlotID(i)); }, SDLK_1 + i);
 		for (auto image : { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" })
 			upgrade[i]->addImage(image);
-		upgrade[i]->block(currState[i] == -1);
 	}
 
 	currState[slotsCount] = getState(SlotID(slotsCount));
@@ -1431,7 +1430,7 @@ void CHillFortWindow::updateGarrisons()
 		}
 
 		currState[i] = newState;
-		upgrade[i]->setIndex(newState);
+		upgrade[i]->setIndex(currState[i] == -1 ? 0 : currState[i]);
 		upgrade[i]->block(currState[i] == -1);
 		upgrade[i]->addHoverText(CButton::NORMAL, getTextForSlot(SlotID(i)));
 	}
