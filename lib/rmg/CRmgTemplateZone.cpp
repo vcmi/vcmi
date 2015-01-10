@@ -681,7 +681,7 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, 
 	auto guard = new CGCreature();
 	guard->ID = Obj::MONSTER;
 	guard->subID = creId;
-	guard->character = 1; //MUST be initialized or switch will diverge
+	guard->character = CGCreature::HOSTILE;
 	auto  hlp = new CStackInstance(creId, amount);
 	//will be set during initialization
 	guard->putStack(SlotID(0), hlp);

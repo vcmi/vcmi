@@ -32,11 +32,15 @@ public:
 
 class DLL_LINKAGE CGCreature : public CArmedInstance //creatures on map
 {
+public:
 	enum Action {
 		FIGHT = -2, FLEE = -1, JOIN_FOR_FREE = 0 //values > 0 mean gold price
 	};
 
-public:
+	enum Character {
+		COMPLIANT = 0, FRIENDLY = 1, AGRESSIVE = 2, HOSTILE = 3, SAVAGE = 4
+	};
+
 	ui32 identifier; //unique code for this monster (used in missions)
 	si8 character; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
 	std::string message; //message printed for attacking hero
