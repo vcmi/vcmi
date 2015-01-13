@@ -11,6 +11,7 @@
 			"gem2": { "x": 6, "y": 6, "graphic": "agemUL.def" },
 			"gem3": { "x": 556, "y": 6, "graphic": "agemUR.def" },
 			"background": "AdvMap.bmp",
+			"backgroundWorldView": "VWorld.bmp",
 			"HeroList": { "size": 5, "x": 609, "y": 196, "movePoints": "IMOBIL.DEF", "manaPoints": "IMANA.DEF", "arrowUp": "IAM012.DEF", "arrowDown": "IAM013.DEF" },
 			"TownList": { "size": 5, "x": 747, "y": 196, "arrowUp": "IAM014.DEF", "arrowDown": "IAM015.DEF" },
 			"Minimap": { "width": 144, "height": 144, "x": 630, "y": 26 },

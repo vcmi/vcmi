@@ -25,6 +25,30 @@ struct SDL_Surface;
 //struct SDL_Rect;
 class CDefEssential;
 
+enum class EWorldViewIcon
+{
+	TOWN = 0,
+	HERO,
+	ARTIFACT,
+	TELEPORT,
+	GATE,
+	MINE_WOOD,
+	MINE_MERCURY,
+	MINE_STONE,
+	MINE_SULFUR,
+	MINE_CRYSTAL,
+	MINE_GEM,
+	MINE_GOLD,
+	RES_WOOD,
+	RES_MERCURY,
+	RES_STONE,
+	RES_SULFUR,
+	RES_CRYSTAL,
+	RES_GEM,
+	RES_GOLD,
+
+};
+
 struct TerrainTile2
 {
 	SDL_Surface * terbitmap; //bitmap of terrain
@@ -72,6 +96,33 @@ private:
 
 class CMapHandler
 {
+	enum class EMapCacheType
+	{
+		TERRAIN, TERRAIN_CUSTOM, OBJECTS, ROADS, RIVERS, FOW
+	};
+
+	/// temporarily caches rescaled sdl surfaces for map world view redrawing
+	class CMapCache
+	{
+		std::map<EMapCacheType, std::map<int, SDL_Surface *>> data;
+		float worldViewCachedScale;
+	public:
+		/// destroys all cached data (frees surfaces)
+		void discardWorldViewCache();
+		/// updates scale and determines if currently cached data is still valid
+		void updateWorldViewScale(float scale);
+		void removeFromWorldViewCache(EMapCacheType type, int key);
+		/// asks for cached data; @returns nullptr if data is not in cache
+		SDL_Surface * requestWorldViewCache(EMapCacheType type, int key);
+		/// asks for cached data; @returns cached data if found, new scaled surface otherwise
+		SDL_Surface * requestWorldViewCacheOrCreate(EMapCacheType type, int key, SDL_Surface * fullSurface, float scale);
+		SDL_Surface * cacheWorldViewEntry(EMapCacheType type, int key, SDL_Surface * entry);
+	};
+
+	CMapCache cache;
+
+	void drawWorldViewOverlay(int targetTilesX, int targetTilesY, int srx_init, int sry_init, CDefHandler * iconsDef, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, float scale, int targetTileSize, int3 top_tile, SDL_Surface * extSurf);
+	void calculateWorldViewCameraPos(int targetTilesX, int targetTilesY, int3 &top_tile);
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
@@ -121,11 +172,13 @@ public:
 	void prepareFOWDefs();
 
 	void terrainRect(int3 top_tile, ui8 anim, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, bool otherHeroAnim, ui8 heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect, int moveX, int moveY, bool puzzleMode, int3 grailPosRel) const;
+	void terrainRectScaled(int3 top_tile, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, SDL_Surface * extSurf, const SDL_Rect * extRect, float scale, CDefHandler * iconsDef);
 	void updateWater();
 	ui8 getHeroFrameNum(ui8 dir, bool isMoving) const; //terrainRect helper function
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper
 	static ui8 getDir(const int3 & a, const int3 & b);  //returns direction number in range 0 - 7 (0 is left top, clockwise) [direction: form a to b]
 
-	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
+	void discardWorldViewCache();
 
+	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
 };

@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- 
+
 #pragma once
 
 #include <SDL_events.h>
@@ -42,8 +42,8 @@ class ILockedUpdatable: public IUpdateable
 {
 	boost::recursive_mutex updateGuard;
 public:
-	virtual void runLocked(std::function<void(IUpdateable * )> cb);	
-	virtual ~ILockedUpdatable(){}; //d-tor	
+	virtual void runLocked(std::function<void(IUpdateable * )> cb);
+	virtual ~ILockedUpdatable(){}; //d-tor
 };
 
 // Defines a show method
@@ -97,7 +97,7 @@ public:
  * Don't use them unless you really know what they are for
  */
 	std::vector<CIntObject *> children;
-	
+
 	//FIXME: workaround
 	void deactivateKeyboard()
 	{
@@ -133,7 +133,7 @@ public:
 	bool captureAllKeys; //if true, only this object should get info about pressed keys
 	virtual void keyPressed(const SDL_KeyboardEvent & key){}
 	virtual bool captureThisEvent(const SDL_KeyboardEvent & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
-	
+
 #ifndef VCMI_SDL1
 	virtual void textInputed(const SDL_TextInputEvent & event){};
 	virtual void textEdited(const SDL_TextEditingEvent & event){};
@@ -201,6 +201,7 @@ public:
 	//functions for printing text. Use CLabel where possible instead
 	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printToLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
+	void printAtRightLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charsPerLine, SDL_Color color, SDL_Surface * dst);

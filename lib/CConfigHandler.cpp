@@ -238,6 +238,7 @@ void config::CConfigHandler::init()
 		setGem(current->ac, 3, g["gem3"]);
 
 		current->ac.mainGraphic = g["background"].String();
+		current->ac.worldViewGraphic = g["backgroundWorldView"].String();
 
 		current->ac.hlistX = g["HeroList"]["x"].Float();
 		current->ac.hlistY = g["HeroList"]["y"].Float();
