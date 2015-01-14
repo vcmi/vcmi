@@ -71,7 +71,7 @@ protected:
 	 * @param destroy - function for deleting items in listbox
 	 */
 	CList(int size, Point position, std::string btnUp, std::string btnDown, size_t listAmount, int helpUp, int helpDown,
-	      CListBox::CreateFunc create, CListBox::DestroyFunc destroy = CListBox::DestroyFunc());
+		  CListBox::CreateFunc create, CListBox::DestroyFunc destroy = CListBox::DestroyFunc());
 
 	//for selection\deselection
 	CListItem *selected;
@@ -313,6 +313,41 @@ public:
 
 	/// for 3 seconds shows amount of town halls and players status
 	void showGameStatus();
+};
+
+/// simple panel that contains other displayable elements; used to separate groups of controls
+class CAdvMapPanel : public CIntObject
+{
+	/// ptrs to child-buttons that can be recolored with setPlayerColor()
+	std::vector<CButton *> buttons;
+	/// the surface passed to this obj will be freed in dtor
+	SDL_Surface * background;
+public:
+	CAdvMapPanel(SDL_Surface * bg, Point position);
+	virtual ~CAdvMapPanel();
+
+	void addChildToPanel(CIntObject * obj, ui8 actions = 0);
+	void addChildColorableButton(CButton * btn);
+	/// recolors all buttons to given player color
+	void setPlayerColor(const PlayerColor & clr);
+
+	void showAll(SDL_Surface * to);
+};
+
+/// specialized version of CAdvMapPanel that handles recolorable def-based pictures for world view info panel
+class CAdvMapWorldViewPanel : public CAdvMapPanel
+{
+	/// data that allows reconstruction of panel info icons
+	std::vector<std::pair<int, Point>> iconsData;
+	/// ptrs to child-pictures constructed from iconsData
+	std::vector<CPicture *> currentIcons;
+public:
+	CAdvMapWorldViewPanel(SDL_Surface * bg, Point position);
+	virtual ~CAdvMapWorldViewPanel(){}
+
+	void addChildIcon(std::pair<int, Point> data, const CDefHandler *def, int indexOffset);
+	/// recreates all pictures from given def to recolor them according to current player color
+	void recolorIcons(const CDefHandler *def, int indexOffset);
 };
 
 class CInGameConsole : public CIntObject

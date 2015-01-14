@@ -1,6 +1,5 @@
 #pragma once
 
-#include <client/CDefHandler.h>
 #include "../widgets/AdventureMapClasses.h"
 #include "CWindowObject.h"
 
@@ -136,13 +135,16 @@ public:
 	CButton * endTurn;
 
 	CButton * worldViewUnderground;
-	std::vector<CIntObject *> worldViewUIObjects; // all ui objects visible in the right panel in world view mode
 
 	CTerrainRect terrain; //visible terrain
 	CResDataBar resdatabar;
 	CHeroList heroList;
 	CTownList townList;
 	CInfoBar infoBar;
+
+	CAdvMapPanel *panelMain; // panel that holds all right-side buttons in normal view
+	CAdvMapWorldViewPanel *panelWorldView; // panel that holds all buttons and other ui in world view
+	CAdvMapPanel *activeMapPanel; // currently active panel (either main or world view, depending on current mode)
 
 	CDefHandler * worldViewIconsDef; // images for world view overlay
 

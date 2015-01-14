@@ -438,7 +438,6 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	auto makeButton = [&] (int textID, std::function<void()> callback, config::ButtonInfo info, int key) -> CButton *
 	{
 		auto button = new CButton(Point(info.x, info.y), info.defName, CGI->generaltexth->zelp[textID], callback, key, info.playerColoured);
-
 		for (auto image : info.additionalDefs)
 			button->addImage(image);
 		return button;
@@ -455,34 +454,53 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	nextHero     = makeButton(301, std::bind(&CAdvMapInt::fnextHero,this),         ADVOPT.nextHero,     SDLK_h);
 	endTurn      = makeButton(302, std::bind(&CAdvMapInt::fendTurn,this),          ADVOPT.endTurn,      SDLK_e);
 
+	panelMain = new CAdvMapPanel(nullptr, Point(0, 0));
+	panelWorldView = new CAdvMapWorldViewPanel(bgWorldView, Point(heroList.pos.x - 2, 195)); // TODO correct drawing position
+
+	panelMain->addChildColorableButton(kingOverview);
+	panelMain->addChildColorableButton(underground);
+	panelMain->addChildColorableButton(questlog);
+	panelMain->addChildColorableButton(sleepWake);
+	panelMain->addChildColorableButton(moveHero);
+	panelMain->addChildColorableButton(spellbook);
+	panelMain->addChildColorableButton(advOptions);
+	panelMain->addChildColorableButton(sysOptions);
+	panelMain->addChildColorableButton(nextHero);
+	panelMain->addChildColorableButton(endTurn);
+
+
 	// TODO move configs to resolutions.json, similarly to previous buttons
 	config::ButtonInfo worldViewBackConfig = config::ButtonInfo();
 	worldViewBackConfig.defName = "IOK6432.DEF";
 	worldViewBackConfig.x = screen->w - 73;
 	worldViewBackConfig.y = 343 + 195;
 	worldViewBackConfig.playerColoured = false;
-	worldViewUIObjects.push_back(makeButton(288, std::bind(&CAdvMapInt::fworldViewBack,this), worldViewBackConfig, SDLK_ESCAPE));
+	panelWorldView->addChildToPanel(
+		makeButton(288, std::bind(&CAdvMapInt::fworldViewBack,this), worldViewBackConfig, SDLK_ESCAPE), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale1xConfig = config::ButtonInfo();
 	worldViewScale1xConfig.defName = "VWMAG1.DEF";
 	worldViewScale1xConfig.x = screen->w - 191;
 	worldViewScale1xConfig.y = 23 + 195;
 	worldViewScale1xConfig.playerColoured = false;
-	worldViewUIObjects.push_back(makeButton(291, std::bind(&CAdvMapInt::fworldViewScale1x,this), worldViewScale1xConfig, SDLK_y));
+	panelWorldView->addChildToPanel(
+		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale1x,this), worldViewScale1xConfig, SDLK_y), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale2xConfig = config::ButtonInfo();
 	worldViewScale2xConfig.defName = "VWMAG2.DEF";
 	worldViewScale2xConfig.x = screen->w - 191 + 63;
 	worldViewScale2xConfig.y = 23 + 195;
 	worldViewScale2xConfig.playerColoured = false;
-	worldViewUIObjects.push_back(makeButton(291, std::bind(&CAdvMapInt::fworldViewScale2x,this), worldViewScale2xConfig, SDLK_y));
+	panelWorldView->addChildToPanel(
+		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale2x,this), worldViewScale2xConfig, SDLK_y), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale4xConfig = config::ButtonInfo();
 	worldViewScale4xConfig.defName = "VWMAG4.DEF";
 	worldViewScale4xConfig.x = screen->w - 191 + 126;
 	worldViewScale4xConfig.y = 23 + 195;
 	worldViewScale4xConfig.playerColoured = false;
-	worldViewUIObjects.push_back(makeButton(291, std::bind(&CAdvMapInt::fworldViewScale4x,this), worldViewScale4xConfig, SDLK_y));
+	panelWorldView->addChildToPanel(
+		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale4x,this), worldViewScale4xConfig, SDLK_y), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewUndergroundConfig = config::ButtonInfo();
 	worldViewUndergroundConfig.defName = "IAM010.DEF";
@@ -491,31 +509,32 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	worldViewUndergroundConfig.y = 343 + 195;
 	worldViewUndergroundConfig.playerColoured = true;
 	worldViewUnderground = makeButton(294, std::bind(&CAdvMapInt::fworldViewSwitchLevel,this), worldViewUndergroundConfig, SDLK_u);
-	worldViewUIObjects.push_back(worldViewUnderground);
+	panelWorldView->addChildColorableButton(worldViewUnderground);
 
 	setPlayer(LOCPLINT->playerID);
 
 
 	int iconColorMultiplier = player.getNum() * 19;
-	int wvLeft = heroList.pos.x - 2; // TODO correct drawing position?
+	int wvLeft = heroList.pos.x - 2; // TODO correct drawing position
 	for (int i = 0; i < 5; ++i)
 	{
-		worldViewUIObjects.push_back(new CPicture(worldViewIconsDef->ourImages[i].bitmap, wvLeft + 5, 253 + i * 20));
-		worldViewUIObjects.push_back(new CLabel(wvLeft + 45, 263 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+		panelWorldView->addChildIcon(std::pair<int, Point>(i, Point(wvLeft + 5, 253 + i * 20)), worldViewIconsDef, iconColorMultiplier);
+		panelWorldView->addChildToPanel(new CLabel(wvLeft + 45, 263 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
 												Colors::WHITE, CGI->generaltexth->allTexts[612 + i]));
 	}
 	for (int i = 0; i < 7; ++i)
 	{
-		worldViewUIObjects.push_back(new CPicture(worldViewIconsDef->ourImages[i +  5 + iconColorMultiplier].bitmap, wvLeft +   5, 377 + i * 20));
-		worldViewUIObjects.push_back(new CPicture(worldViewIconsDef->ourImages[i + 12 + iconColorMultiplier].bitmap, wvLeft + 160, 377 + i * 20));
-		worldViewUIObjects.push_back(new CLabel(wvLeft + 45, 387 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+		panelWorldView->addChildIcon(std::pair<int, Point>(i +  5, Point(wvLeft +   5, 377 + i * 20)), worldViewIconsDef, iconColorMultiplier);
+		panelWorldView->addChildIcon(std::pair<int, Point>(i + 12, Point(wvLeft + 160, 377 + i * 20)), worldViewIconsDef, iconColorMultiplier);
+		panelWorldView->addChildToPanel(new CLabel(wvLeft + 45, 387 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
 												Colors::WHITE, CGI->generaltexth->allTexts[619 + i]));
 	}
-	worldViewUIObjects.push_back(new CLabel(wvLeft +   5, 367, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+	panelWorldView->addChildToPanel(new CLabel(wvLeft +   5, 367, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
 											Colors::WHITE, CGI->generaltexth->allTexts[617]));
-	worldViewUIObjects.push_back(new CLabel(wvLeft + 185, 387, EFonts::FONT_SMALL, EAlignment::BOTTOMRIGHT,
+	panelWorldView->addChildToPanel(new CLabel(wvLeft + 185, 387, EFonts::FONT_SMALL, EAlignment::BOTTOMRIGHT,
 											Colors::WHITE, CGI->generaltexth->allTexts[618]));
 
+	activeMapPanel = panelMain;
 
 	underground->block(!CGI->mh->map->twoLevel);
 	worldViewUnderground->block(!CGI->mh->map->twoLevel);
@@ -525,7 +544,6 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 CAdvMapInt::~CAdvMapInt()
 {
 	SDL_FreeSurface(bg);
-	SDL_FreeSurface(bgWorldView);
 
 	for(int i=0; i<gems.size(); i++)
 		delete gems[i];
@@ -560,6 +578,7 @@ void CAdvMapInt::fworldViewScale4x()
 	changeMode(EAdvMapMode::WORLD_VIEW, 0.6f);
 }
 
+// this method is nearly identical to fswitchLevel, so they could probably be merged
 void CAdvMapInt::fworldViewSwitchLevel()
 {
 	if(!CGI->mh->map->twoLevel)
@@ -567,12 +586,12 @@ void CAdvMapInt::fworldViewSwitchLevel()
 	if (position.z)
 	{
 		position.z--;
-		worldViewUnderground->setIndex(0,false);
+		worldViewUnderground->setIndex(0, true);
 		worldViewUnderground->showAll(screenBuf);
 	}
 	else
 	{
-		worldViewUnderground->setIndex(1,false);
+		worldViewUnderground->setIndex(1, true);
 		position.z++;
 		worldViewUnderground->showAll(screenBuf);
 	}
@@ -748,26 +767,12 @@ void CAdvMapInt::activate()
 	GH.statusbar = &statusbar;
 	if(!duringAITurn)
 	{
+		activeMapPanel->activate();
 		if (mode == EAdvMapMode::NORMAL)
 		{
-			kingOverview->activate();
-			underground->activate();
-			questlog->activate();
-			sleepWake->activate();
-			moveHero->activate();
-			spellbook->activate();
-			sysOptions->activate();
-			advOptions->activate();
-			nextHero->activate();
-			endTurn->activate();
 			heroList.activate();
 			townList.activate();
 			infoBar.activate();
-		}
-		else
-		{
-			for (auto &uiElem : worldViewUIObjects)
-				uiElem->activate();
 		}
 		minimap.activate();
 		terrain.activate();
@@ -786,26 +791,12 @@ void CAdvMapInt::deactivate()
 		scrollingDir = 0;
 
 		CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
+		activeMapPanel->deactivate();
 		if (mode == EAdvMapMode::NORMAL)
 		{
-			kingOverview->deactivate();
-			underground->deactivate();
-			questlog->deactivate();
-			sleepWake->deactivate();
-			moveHero->deactivate();
-			spellbook->deactivate();
-			advOptions->deactivate();
-			sysOptions->deactivate();
-			nextHero->deactivate();
-			endTurn->deactivate();
 			heroList.deactivate();
 			townList.deactivate();
 			infoBar.deactivate();
-		}
-		else
-		{
-			for (auto &uiElem : worldViewUIObjects)
-				uiElem->deactivate();
 		}
 		minimap.deactivate();
 		terrain.deactivate();
@@ -824,30 +815,17 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 	switch (mode)
 	{
 	case EAdvMapMode::NORMAL:
-		kingOverview->showAll(to);
-		underground->showAll(to);
-		questlog->showAll(to);
-		sleepWake->showAll(to);
-		moveHero->showAll(to);
-		spellbook->showAll(to);
-		advOptions->showAll(to);
-		sysOptions->showAll(to);
-		nextHero->showAll(to);
-		endTurn->showAll(to);
 
 		heroList.showAll(to);
 		townList.showAll(to);
 		infoBar.showAll(to);
 		break;
 	case EAdvMapMode::WORLD_VIEW:
-		blitAt(bgWorldView, heroList.pos.x - 2, 195, to); // TODO correct drawing position
-
-		for (auto &uiElem : worldViewUIObjects)
-			uiElem->showAll(to);
 
 		terrain.showAll(to);
 		break;
 	}
+	activeMapPanel->showAll(to);
 
 	updateScreen = true;
 	minimap.showAll(to);
@@ -1226,7 +1204,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 {
 	// adventure map scrolling with mouse
-	// currently blocked in world view mode (as it is in OH3), but should work correctly if mode check is removed
+	// currently disabled in world view mode (as it is in OH3), but should work correctly if mode check is removed
 	if(!isCtrlKeyDown() &&  isActive() && mode == EAdvMapMode::NORMAL)
 	{
 		if(sEvent.x<15)
@@ -1279,16 +1257,9 @@ void CAdvMapInt::setPlayer(PlayerColor Player)
 	player = Player;
 	graphics->blueToPlayersAdv(bg,player);
 
-	kingOverview->setPlayerColor(player);
-	underground->setPlayerColor(player);
-	questlog->setPlayerColor(player);
-	sleepWake->setPlayerColor(player);
-	moveHero->setPlayerColor(player);
-	spellbook->setPlayerColor(player);
-	sysOptions->setPlayerColor(player);
-	advOptions->setPlayerColor(player);
-	nextHero->setPlayerColor(player);
-	endTurn->setPlayerColor(player);
+	panelMain->setPlayerColor(player);
+	panelWorldView->setPlayerColor(player);
+	panelWorldView->recolorIcons(worldViewIconsDef, player.getNum() * 19);
 	graphics->blueToPlayersAdv(resdatabar.bg,player);
 
 	//heroList.updateHList();
@@ -1712,7 +1683,7 @@ void CAdvMapInt::adjustActiveness(bool aiTurnStart)
 		activate();
 }
 
-void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale /* = 0.65f */)
+void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale /* = 0.4f */)
 {
 	if (mode != newMode)
 	{
@@ -1721,41 +1692,25 @@ void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale /* = 0.65f */)
 		switch (mode)
 		{
 		case EAdvMapMode::NORMAL:
-			kingOverview->activate();
-			underground->activate();
-			questlog->activate();
-			sleepWake->activate();
-			moveHero->activate();
-			spellbook->activate();
-			sysOptions->activate();
-			advOptions->activate();
-			nextHero->activate();
-			endTurn->activate();
+			panelMain->activate();
+			panelWorldView->deactivate();
+			activeMapPanel = panelMain;
+
 			townList.activate();
 			heroList.activate();
 			infoBar.activate();
-
-			for (auto &uiElem : worldViewUIObjects)
-				uiElem->deactivate();
 			break;
 		case EAdvMapMode::WORLD_VIEW:
-			kingOverview->deactivate();
-			underground->deactivate();
-			questlog->deactivate();
-			sleepWake->deactivate();
-			moveHero->deactivate();
-			spellbook->deactivate();
-			sysOptions->deactivate();
-			advOptions->deactivate();
-			nextHero->deactivate();
-			endTurn->deactivate();
+			panelMain->deactivate();
+			panelWorldView->activate();
+
+			activeMapPanel = panelWorldView;
+
 			townList.deactivate();
 			heroList.deactivate();
 			infoBar.showSelection(); // to prevent new day animation interfering world view mode
 			infoBar.deactivate();
 
-			for (auto &uiElem : worldViewUIObjects)
-				uiElem->activate();
 			break;
 		}
 		worldViewScale = newScale;

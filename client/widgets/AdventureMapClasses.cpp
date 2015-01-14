@@ -8,6 +8,7 @@
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
+#include "../CDefHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CPreGame.h"
 #include "../Graphics.h"
@@ -1212,4 +1213,82 @@ CInGameConsole::CInGameConsole() : prevEntDisp(-1), defaultTimeout(10000), maxDi
 	#else
 	addUsedEvents(KEYBOARD | TEXTINPUT);
 	#endif
+}
+
+
+CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
+	: CIntObject(),
+	  background(bg)
+{
+//	addUsedEvents(LCLICK | RCLICK | KEYBOARD | HOVER);
+	defActions = 255;
+	recActions = 255;
+	pos.x += position.x;
+	pos.y += position.y;
+}
+
+CAdvMapPanel::~CAdvMapPanel()
+{
+	if (background)
+		SDL_FreeSurface(background);
+}
+
+void CAdvMapPanel::addChildColorableButton(CButton * btn)
+{
+	buttons.push_back(btn);
+	addChildToPanel(btn, ACTIVATE | DEACTIVATE);
+}
+
+void CAdvMapPanel::setPlayerColor(const PlayerColor & clr)
+{
+	for (auto &btn : buttons)
+	{
+		btn->setPlayerColor(clr);
+	}
+}
+
+void CAdvMapPanel::showAll(SDL_Surface * to)
+{
+	if (background)
+		blitAt(background, pos.x, pos.y, to);
+
+	CIntObject::showAll(to);
+}
+
+void CAdvMapPanel::addChildToPanel(CIntObject * obj, ui8 actions /* = 0 */)
+{
+	obj->recActions |= actions | SHOWALL;
+	addChild(obj, false);
+}
+
+CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(SDL_Surface * bg, Point position)
+	: CAdvMapPanel(bg, position)
+{
+
+}
+
+void CAdvMapWorldViewPanel::recolorIcons(const CDefHandler *def, int indexOffset)
+{
+	for (auto &pic : currentIcons)
+	{
+		removeChild(pic);
+		delete pic;
+	}
+	currentIcons.clear();
+
+	for (auto &data : iconsData)
+	{
+		auto pic = new CPicture(def->ourImages[data.first + indexOffset].bitmap, data.second.x, data.second.y, false);
+		pic->recActions |= SHOWALL;
+		currentIcons.push_back(pic);
+		addChildToPanel(pic);
+	}
+}
+
+void CAdvMapWorldViewPanel::addChildIcon(std::pair<int, Point> data, const CDefHandler *def, int indexOffset)
+{
+	iconsData.push_back(data);
+	auto pic = new CPicture(def->ourImages[data.first + indexOffset].bitmap, data.second.x, data.second.y, false);
+	currentIcons.push_back(pic);
+	addChildToPanel(pic);
 }

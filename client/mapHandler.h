@@ -98,7 +98,7 @@ class CMapHandler
 {
 	enum class EMapCacheType
 	{
-		TERRAIN, TERRAIN_CUSTOM, OBJECTS, ROADS, RIVERS, FOW
+		TERRAIN, TERRAIN_CUSTOM, OBJECTS, ROADS, RIVERS, FOW, HEROES, HERO_FLAGS
 	};
 
 	/// temporarily caches rescaled sdl surfaces for map world view redrawing
@@ -112,7 +112,7 @@ class CMapHandler
 		/// updates scale and determines if currently cached data is still valid
 		void updateWorldViewScale(float scale);
 		void removeFromWorldViewCache(EMapCacheType type, int key);
-		/// asks for cached data; @returns nullptr if data is not in cache
+		/// asks for cached data; @returns cached surface or nullptr if data is not in cache
 		SDL_Surface * requestWorldViewCache(EMapCacheType type, int key);
 		/// asks for cached data; @returns cached data if found, new scaled surface otherwise
 		SDL_Surface * requestWorldViewCacheOrCreate(EMapCacheType type, int key, SDL_Surface * fullSurface, float scale);

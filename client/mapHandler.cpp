@@ -547,7 +547,9 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 {
 	cache.updateWorldViewScale(scale);
 
+	// size of a map tile in pixels given the world view scale
 	int targetTileSize = (int) floorf(32.0f * scale);
+	// number of tiles that fit in the viewport
 	int targetTilesX = (int) ceilf(tilesW / scale) + 1;
 	int targetTilesY = (int) ceilf(tilesH / scale) + 1;
 
@@ -685,7 +687,6 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 				//print hero / boat and flag
 				if((themp && themp->moveDir && themp->type) || (obj->ID == Obj::BOAT)) //it's hero or boat
 				{
-					const int IMGVAL = 8; //frames per group of movement animation
 					ui8 dir;
 					std::vector<Cimage> * iv = nullptr;
 					std::vector<CDefEssential *> Graphics::*flg = nullptr;
@@ -732,21 +733,8 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 
 					if(themp && !themp->isStanding) //hero is moving
 					{
-						size_t gg;
-						for(gg=0; gg<iv->size(); ++gg)
-						{
-							if((*iv)[gg].groupNumber==getHeroFrameNum(dir, true))
-							{
-								tb = (*iv)[gg].bitmap;
-								break;
-							}
-						}
-						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr2);
+						// not the case for world view
 
-						//printing flag
-						pp.y+=IMGVAL*2-32;
-						sr2.y-=16;
-						CSDL_Ext::blitSurface((graphics->*flg)[color.getNum()]->ourImages[gg+35].bitmap, &pp, extSurf, &sr2);
 					}
 					else //hero / boat stands still
 					{
@@ -759,7 +747,8 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 								break;
 							}
 						}
-						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr2);
+						auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::HEROES, (int)tb, tb, scale);
+						CSDL_Ext::blit8bppAlphaTo24bpp(scaledSurf,&pp,extSurf,&sr2);
 
 						//printing flag
 						if(flg
@@ -767,12 +756,18 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 							&&  obj->pos.y == pos.y)
 						{
 							SDL_Rect bufr = sr2;
-							bufr.x-=2*32;
-							bufr.y-=1*32;
-							bufr.h = 64;
-							bufr.w = 96;
-							if(bufr.x-extRect->x>-64)
-								CSDL_Ext::blitSurface((graphics->*flg)[color.getNum()]->ourImages[getHeroFrameNum(dir, false) * 8].bitmap, nullptr, extSurf, &bufr);
+							bufr.x-=2*targetTileSize;
+							bufr.y-=1*targetTileSize;
+							bufr.h = 2 * targetTileSize;
+							bufr.w = 3 * targetTileSize;
+							if(bufr.x-extRect-> x > -targetTileSize * 2)
+							{
+								// flag drawing currently does not work (some color keying issues with scaling)
+
+//								auto baseSurf = (graphics->*flg)[color.getNum()]->ourImages[getHeroFrameNum(dir, false) * 8].bitmap;
+//								auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::HERO_FLAGS, (int)baseSurf, baseSurf, scale);
+//								CSDL_Ext::blitSurface(scaledSurf, nullptr, extSurf, &bufr);
+							}
 						}
 					}
 				}
@@ -796,12 +791,9 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 	}
 	// terrain printed
 
-	// blitting world view overlay
 	drawWorldViewOverlay(targetTilesX, targetTilesY, srx_init, sry_init, iconsDef, visibilityMap, scale, targetTileSize, topTile, extSurf);
-	// world view overlay blitted
 
-
-	// printing borders
+	//blitting Fog of War
 	srx = srx_init;
 
 	for (int bx = topTile.x; bx < topTile.x + targetTilesX; bx++, srx+=targetTileSize)
@@ -824,7 +816,6 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 			}
 			else
 			{
-				//blitting Fog of War
 				if (pos.x >= 0 &&
 					pos.y >= 0 &&
 					pos.x < sizes.x &&
@@ -838,11 +829,10 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 					else
 						CSDL_Ext::blitSurface(scaledSurf, &rtile, extSurf, &sr);
 				}
-				//FoW blitted
 			}
 		}
 	}
-	// borders printed
+	//FoW blitted
 
 	SDL_SetClipRect(extSurf, &prevClip); //restoring clip_rect
 }
