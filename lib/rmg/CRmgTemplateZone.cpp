@@ -814,7 +814,9 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 			}
 			if (placeFound.valid())
 				info.nextTreasurePos = placeFound;
-			}
+			else
+				break; //no more place to add any objects
+		}
 	}
 
 	if (treasures.size())
