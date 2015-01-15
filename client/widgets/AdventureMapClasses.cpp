@@ -1220,7 +1220,6 @@ CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
 	: CIntObject(),
 	  background(bg)
 {
-//	addUsedEvents(LCLICK | RCLICK | KEYBOARD | HOVER);
 	defActions = 255;
 	recActions = 255;
 	pos.x += position.x;

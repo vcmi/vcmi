@@ -104,19 +104,19 @@ class CMapHandler
 	/// temporarily caches rescaled sdl surfaces for map world view redrawing
 	class CMapCache
 	{
-		std::map<EMapCacheType, std::map<int, SDL_Surface *>> data;
+		std::map<EMapCacheType, std::map<intptr_t, SDL_Surface *>> data;
 		float worldViewCachedScale;
 	public:
 		/// destroys all cached data (frees surfaces)
 		void discardWorldViewCache();
 		/// updates scale and determines if currently cached data is still valid
 		void updateWorldViewScale(float scale);
-		void removeFromWorldViewCache(EMapCacheType type, int key);
+		void removeFromWorldViewCache(EMapCacheType type, intptr_t key);
 		/// asks for cached data; @returns cached surface or nullptr if data is not in cache
-		SDL_Surface * requestWorldViewCache(EMapCacheType type, int key);
+		SDL_Surface * requestWorldViewCache(EMapCacheType type, intptr_t key);
 		/// asks for cached data; @returns cached data if found, new scaled surface otherwise
-		SDL_Surface * requestWorldViewCacheOrCreate(EMapCacheType type, int key, SDL_Surface * fullSurface, float scale);
-		SDL_Surface * cacheWorldViewEntry(EMapCacheType type, int key, SDL_Surface * entry);
+		SDL_Surface * requestWorldViewCacheOrCreate(EMapCacheType type, intptr_t key, SDL_Surface * fullSurface, float scale);
+		SDL_Surface * cacheWorldViewEntry(EMapCacheType type, intptr_t key, SDL_Surface * entry);
 	};
 
 	CMapCache cache;

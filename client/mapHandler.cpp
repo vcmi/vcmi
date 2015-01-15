@@ -615,7 +615,7 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 			//blit terrain with river/road
 			if(tile.terbitmap)
 			{ //if custom terrain graphic - use it
-				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::TERRAIN_CUSTOM, (int)tile.terbitmap, tile.terbitmap, scale);
+				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::TERRAIN_CUSTOM, (intptr_t)tile.terbitmap, tile.terbitmap, scale);
 //				Rect tempSrc = Rect(0, 0, scaledSurf->w, scaledSurf->h);
 				Rect tempDst = Rect(sr.x, sr.y, scaledSurf->w, scaledSurf->h);
 				CSDL_Ext::blitSurface(scaledSurf, nullptr, extSurf, &tempDst);
@@ -623,7 +623,7 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 			else //use default terrain graphic
 			{
 				auto baseSurf = terrainGraphics[tinfo.terType][tinfo.terView];
-				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::TERRAIN, (int)baseSurf, baseSurf, scale);
+				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::TERRAIN, (intptr_t)baseSurf, baseSurf, scale);
 				Rect tempSrc = Rect(0, 0, scaledSurf->w, scaledSurf->h);
 				Rect tempDst = Rect(sr.x, sr.y, scaledSurf->w, scaledSurf->h);
 				blitterWithRotation(scaledSurf, tempSrc, extSurf, tempDst, tinfo.extTileFlags%4);
@@ -632,7 +632,7 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 			if(tinfo.riverType) //print river if present
 			{
 				auto baseSurf = staticRiverDefs[tinfo.riverType-1]->ourImages[tinfo.riverDir].bitmap;
-				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::RIVERS, (int)baseSurf, baseSurf, scale);
+				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::RIVERS, (intptr_t)baseSurf, baseSurf, scale);
 				blitterWithRotationAndAlpha(scaledSurf, rtile, extSurf, sr, (tinfo.extTileFlags>>2)%4);
 			}
 
@@ -643,7 +643,7 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 				Rect source(0, targetTileSize / 2, targetTileSize, targetTileSize / 2);
 				Rect dest(sr.x, sr.y, sr.w, sr.h/2);
 				auto baseSurf = roadDefs[topTile.roadType - 1]->ourImages[topTile.roadDir].bitmap;
-				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::ROADS, (int)baseSurf, baseSurf, scale);
+				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::ROADS, (intptr_t)baseSurf, baseSurf, scale);
 				blitterWithRotationAndAlpha(scaledSurf, source, extSurf, dest, (topTile.extTileFlags>>4)%4);
 			}
 
@@ -652,7 +652,7 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 				Rect source(0, 0, targetTileSize, targetTileSize);
 				Rect dest(sr.x, sr.y + targetTileSize / 2, sr.w, sr.h / 2);
 				auto baseSurf = roadDefs[tinfo.roadType-1]->ourImages[tinfo.roadDir].bitmap;
-				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::ROADS, (int)baseSurf, baseSurf, scale);
+				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::ROADS, (intptr_t)baseSurf, baseSurf, scale);
 				blitterWithRotationAndAlpha(scaledSurf, source, extSurf, dest, (tinfo.extTileFlags>>4)%4);
 			}
 
@@ -747,7 +747,7 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 								break;
 							}
 						}
-						auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::HEROES, (int)tb, tb, scale);
+						auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::HEROES, (intptr_t)tb, tb, scale);
 						CSDL_Ext::blit8bppAlphaTo24bpp(scaledSurf,&pp,extSurf,&sr2);
 
 						//printing flag
@@ -780,7 +780,7 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 					if(color < PlayerColor::PLAYER_LIMIT || color==PlayerColor::NEUTRAL)
 						CSDL_Ext::setPlayerColor(bitmap, color);
 
-					auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::OBJECTS, obj->id.getNum(), bitmap, scale);
+					auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::OBJECTS, (intptr_t)obj->id.getNum(), bitmap, scale);
 					Rect tempSrc = Rect(pp.x * scale, pp.y * scale, pp.w, pp.h);
 					Rect tempDst = Rect(sr2.x, sr2.y, pp.w, pp.h);
 					CSDL_Ext::blit8bppAlphaTo24bpp(scaledSurf,&tempSrc,extSurf,&tempDst);
@@ -823,7 +823,7 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 					!(*visibilityMap)[pos.x][pos.y][topTile.z])
 				{
 					std::pair<SDL_Surface *, bool> hide = getVisBitmap(pos, *visibilityMap);
-					auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::FOW, (int)hide.first, hide.first, scale);
+					auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::FOW, (intptr_t)hide.first, hide.first, scale);
 					if(hide.second)
 						CSDL_Ext::blit8bppAlphaTo24bpp(scaledSurf, &rtile, extSurf, &sr);
 					else
@@ -1563,27 +1563,25 @@ void CMapHandler::CMapCache::updateWorldViewScale(float scale)
 	worldViewCachedScale = scale;
 }
 
-void CMapHandler::CMapCache::removeFromWorldViewCache(CMapHandler::EMapCacheType type, int key)
+void CMapHandler::CMapCache::removeFromWorldViewCache(CMapHandler::EMapCacheType type, intptr_t key)
 {
 	auto iter = data[type].find(key);
 	if (iter != data[type].end())
 	{
 		SDL_FreeSurface((*iter).second);
 		data[type].erase(iter);
-//		logGlobal->errorStream() << "Removed world view cache entry: type=" << (int)type << ", key=" << key;
 	}
 }
 
-SDL_Surface * CMapHandler::CMapCache::requestWorldViewCache(CMapHandler::EMapCacheType type, int key)
+SDL_Surface * CMapHandler::CMapCache::requestWorldViewCache(CMapHandler::EMapCacheType type, intptr_t key)
 {
 	auto iter = data[type].find(key);
 	if (iter == data[type].end())
 		return nullptr;
-//	logGlobal->errorStream() << "Returning requested world view cache entry: type=" << (int)type << ", key=" << key << ", ptr=" << (*iter).second;
 	return (*iter).second;
 }
 
-SDL_Surface * CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CMapHandler::EMapCacheType type, int key, SDL_Surface * fullSurface, float scale)
+SDL_Surface * CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CMapHandler::EMapCacheType type, intptr_t key, SDL_Surface * fullSurface, float scale)
 {
 	auto cached = requestWorldViewCache(type, key);
 	if (cached)
@@ -1593,14 +1591,13 @@ SDL_Surface * CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CMapHandler:
 	return cacheWorldViewEntry(type, key, scaled);
 }
 
-SDL_Surface *CMapHandler::CMapCache::cacheWorldViewEntry(CMapHandler::EMapCacheType type, int key, SDL_Surface * entry)
+SDL_Surface *CMapHandler::CMapCache::cacheWorldViewEntry(CMapHandler::EMapCacheType type, intptr_t key, SDL_Surface * entry)
 {
 	if (!entry)
 		return nullptr;
 	if (requestWorldViewCache(type, key)) // valid cache already present, no need to do it again
 		return requestWorldViewCache(type, key);
 
-//	logGlobal->errorStream() << "Added world view cache entry: type=" << (int)type << ", key=" << key << ", ptr=" << entry;
 	data[type][key] = entry;
 	return entry;
 }
