@@ -49,6 +49,7 @@ public:
 	bool isUsed() const;
 	void setOccupied(ETileType::ETileType value);
 	ETerrainType getTerrainType() const;
+	ETileType::ETileType getTileType() const;
 	void setTerrainType(ETerrainType value);
 
 private:

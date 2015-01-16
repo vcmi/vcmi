@@ -120,6 +120,11 @@ void CTileInfo::setOccupied(ETileType::ETileType value)
 	occupied = value;
 }
 
+ETileType::ETileType CTileInfo::getTileType() const
+{
+	return occupied;
+}
+
 ETerrainType CTileInfo::getTerrainType() const
 {
 	return terrain;
@@ -413,7 +418,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	int totalDensity = 0;
 	for (auto ti : treasureInfo)
 		totalDensity =+ ti.density;
-	const float minDistance = totalDensity * 4; //squared
+	const float minDistance = 10 * 10; //squared
 
 	for (auto tile : tileinfo)
 	{
@@ -484,10 +489,13 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 
 	//now block most distant tiles away from passages
 
-	float blockDistance = minDistance * 0.6f;
+	float blockDistance = minDistance * 0.25f;
 
-	for (auto tile : possibleTiles)
+	for (auto tile : tileinfo)
 	{
+		if (!gen->isPossible(tile))
+			continue;
+
 		bool closeTileFound = false;
 
 		for (auto clearTile : freePaths)
@@ -504,7 +512,8 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 			gen->setOccupied(tile, ETileType::BLOCKED);
 	}
 
-	if (0) //enable to debug
+	#define PRINT_FRACTALIZED_MAP false
+	if (PRINT_FRACTALIZED_MAP) //enable to debug
 	{
 		std::ofstream out(boost::to_string(boost::format("zone %d") % id));
 		int levels = gen->map->twoLevel ? 2 : 1;
@@ -516,12 +525,26 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 			{
 				for (int i=0; i<width; i++)
 				{
-					out << (int)vstd::contains(freePaths, int3(i,j,k));
+					char t = '?';
+					switch (gen->getTile(int3(i, j, k)).getTileType())
+					{
+						case ETileType::FREE:
+							t = ' '; break;
+						case ETileType::BLOCKED:
+							t = '#'; break;
+						case ETileType::POSSIBLE:
+							t = '-'; break;
+						case ETileType::USED:
+							t = 'O'; break;
+					}
+
+					out << t;
 				}
 				out << std::endl;
 			}
 			out << std::endl;
 		}
+		out << std::endl;
 	}
 
 	//logGlobal->infoStream() << boost::format ("Zone %d subdivided fractally") %id;
