@@ -22,7 +22,7 @@ class CGObjectInstance;
 class CDefHandler;
 struct TerrainTile;
 struct SDL_Surface;
-//struct SDL_Rect;
+struct SDL_Rect;
 class CDefEssential;
 
 enum class EWorldViewIcon
@@ -117,11 +117,16 @@ class CMapHandler
 		/// asks for cached data; @returns cached data if found, new scaled surface otherwise
 		SDL_Surface * requestWorldViewCacheOrCreate(EMapCacheType type, intptr_t key, SDL_Surface * fullSurface, float scale);
 		SDL_Surface * cacheWorldViewEntry(EMapCacheType type, intptr_t key, SDL_Surface * entry);
+		intptr_t genKey(intptr_t realPtr, ui8 mod);
 	};
 
 	CMapCache cache;
 
-	void drawWorldViewOverlay(int targetTilesX, int targetTilesY, int srx_init, int sry_init, CDefHandler * iconsDef, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, float scale, int targetTileSize, int3 top_tile, SDL_Surface * extSurf);
+	void drawWorldViewOverlay(int targetTilesX, int targetTilesY, int srx_init, int sry_init, CDefHandler * iconsDef,
+							  const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, float scale, int targetTileSize,
+							  int3 top_tile, SDL_Surface * extSurf);
+	void drawScaledRotatedElement(EMapCacheType type, SDL_Surface * baseSurf, SDL_Surface * targetSurf, ui8 rotation,
+								  float scale, SDL_Rect * dstRect, SDL_Rect * srcRect = nullptr);
 	void calculateWorldViewCameraPos(int targetTilesX, int targetTilesY, int3 &top_tile);
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles

@@ -541,6 +541,36 @@ void CMapHandler::calculateWorldViewCameraPos(int targetTilesX, int targetTilesY
 		top_tile.y = sizes.y - targetTilesY;
 }
 
+void::CMapHandler::drawScaledRotatedElement(EMapCacheType type, SDL_Surface * baseSurf, SDL_Surface * targetSurf, ui8 rotation,
+											float scale, SDL_Rect * dstRect, SDL_Rect * srcRect /*= nullptr*/)
+{
+	auto key = cache.genKey((intptr_t)baseSurf, rotation);
+	auto scaledSurf = cache.requestWorldViewCache(type, key);
+	if (scaledSurf) // blitting from cache
+	{
+		if (srcRect)
+		{
+			dstRect->w = srcRect->w;
+			dstRect->h = srcRect->h;
+		}
+		CSDL_Ext::blitSurface(scaledSurf, srcRect, targetSurf, dstRect);
+	}
+	else // creating new
+	{
+		auto baseSurfRotated = CSDL_Ext::newSurface(baseSurf->w, baseSurf->h);
+		if (!baseSurfRotated)
+			return;
+		Rect baseRect(0, 0, baseSurf->w, baseSurf->h);
+
+		CSDL_Ext::getBlitterWithRotationAndAlpha(targetSurf)(baseSurf, baseRect, baseSurfRotated, baseRect, rotation);
+
+		SDL_Surface * scaledSurf2 = CSDL_Ext::scaleSurfaceFast(baseSurfRotated, baseSurf->w * scale, baseSurf->h * scale);
+
+		CSDL_Ext::blitSurface(scaledSurf2, srcRect, targetSurf, dstRect);
+		cache.cacheWorldViewEntry(type, key, scaledSurf2);
+	}
+}
+
 // updates map terrain when adventure map is in world view mode;
 // this method was copied from terrainRect(), so some parts are the same -- that probably should be refactored slightly
 void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, SDL_Surface * extSurf, const SDL_Rect * extRect, float scale, CDefHandler * iconsDef)
@@ -549,9 +579,10 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 
 	// size of a map tile in pixels given the world view scale
 	int targetTileSize = (int) floorf(32.0f * scale);
+	int halfTargetTileSizeHigh = (int)ceilf(targetTileSize / 2.0f);
 	// number of tiles that fit in the viewport
-	int targetTilesX = (int) ceilf(tilesW / scale) + 1;
-	int targetTilesY = (int) ceilf(tilesH / scale) + 1;
+	int targetTilesX = (int) ceilf((float)extRect->w / targetTileSize) + 1;
+	int targetTilesY = (int) ceilf((float)extRect->h / targetTileSize) + 1;
 
 	SDL_Rect rtile = { 0, 0, targetTileSize, targetTileSize };
 
@@ -572,9 +603,6 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 	SDL_Rect prevClip;
 	SDL_GetClipRect(extSurf, &prevClip);
 	SDL_SetClipRect(extSurf, &clipRect); //preventing blitting outside of that rect
-
-	const BlitterWithRotationVal blitterWithRotation = CSDL_Ext::getBlitterWithRotation(extSurf);
-	const BlitterWithRotationVal blitterWithRotationAndAlpha = CSDL_Ext::getBlitterWithRotationAndAlpha(extSurf);
 
 	// printing terrain
 	srx = srx_init;
@@ -616,44 +644,37 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 			if(tile.terbitmap)
 			{ //if custom terrain graphic - use it
 				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::TERRAIN_CUSTOM, (intptr_t)tile.terbitmap, tile.terbitmap, scale);
-//				Rect tempSrc = Rect(0, 0, scaledSurf->w, scaledSurf->h);
 				Rect tempDst = Rect(sr.x, sr.y, scaledSurf->w, scaledSurf->h);
-				CSDL_Ext::blitSurface(scaledSurf, nullptr, extSurf, &tempDst);
+				CSDL_Ext::blit8bppAlphaTo24bpp(scaledSurf, nullptr, extSurf, &tempDst);
 			}
 			else //use default terrain graphic
 			{
 				auto baseSurf = terrainGraphics[tinfo.terType][tinfo.terView];
-				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::TERRAIN, (intptr_t)baseSurf, baseSurf, scale);
-				Rect tempSrc = Rect(0, 0, scaledSurf->w, scaledSurf->h);
-				Rect tempDst = Rect(sr.x, sr.y, scaledSurf->w, scaledSurf->h);
-				blitterWithRotation(scaledSurf, tempSrc, extSurf, tempDst, tinfo.extTileFlags%4);
+				drawScaledRotatedElement(EMapCacheType::TERRAIN, baseSurf, extSurf, tinfo.extTileFlags % 4, scale, &sr);
 			}
 
 			if(tinfo.riverType) //print river if present
 			{
 				auto baseSurf = staticRiverDefs[tinfo.riverType-1]->ourImages[tinfo.riverDir].bitmap;
-				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::RIVERS, (intptr_t)baseSurf, baseSurf, scale);
-				blitterWithRotationAndAlpha(scaledSurf, rtile, extSurf, sr, (tinfo.extTileFlags>>2)%4);
+				drawScaledRotatedElement(EMapCacheType::RIVERS, baseSurf, extSurf, (tinfo.extTileFlags >> 2) % 4, scale, &sr);
 			}
 
 			//Roads are shifted by 16 pixels to bottom. We have to draw both parts separately
 			if (pos.y > 0 && map->getTile(int3(pos.x, pos.y-1, pos.z)).roadType != ERoadType::NO_ROAD)
-			{ //part from top tile
-				const TerrainTile &topTile = map->getTile(int3(pos.x, pos.y-1, pos.z));
+			{
+				const TerrainTile &topPathTile = map->getTile(int3(pos.x, pos.y-1, pos.z));
 				Rect source(0, targetTileSize / 2, targetTileSize, targetTileSize / 2);
-				Rect dest(sr.x, sr.y, sr.w, sr.h/2);
-				auto baseSurf = roadDefs[topTile.roadType - 1]->ourImages[topTile.roadDir].bitmap;
-				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::ROADS, (intptr_t)baseSurf, baseSurf, scale);
-				blitterWithRotationAndAlpha(scaledSurf, source, extSurf, dest, (topTile.extTileFlags>>4)%4);
+				Rect dest(sr.x, sr.y, targetTileSize, targetTileSize / 2);
+				auto baseSurf = roadDefs[topPathTile.roadType - 1]->ourImages[topPathTile.roadDir].bitmap;
+				drawScaledRotatedElement(EMapCacheType::ROADS, baseSurf, extSurf, (topPathTile.extTileFlags >> 4) % 4, scale, &dest, &source);
 			}
 
 			if(tinfo.roadType != ERoadType::NO_ROAD) //print road from this tile
 			{
-				Rect source(0, 0, targetTileSize, targetTileSize);
-				Rect dest(sr.x, sr.y + targetTileSize / 2, sr.w, sr.h / 2);
+				Rect source(0, 0, targetTileSize, halfTargetTileSizeHigh);
+				Rect dest(sr.x, sr.y + targetTileSize / 2, targetTileSize, halfTargetTileSizeHigh);
 				auto baseSurf = roadDefs[tinfo.roadType-1]->ourImages[tinfo.roadDir].bitmap;
-				auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::ROADS, (intptr_t)baseSurf, baseSurf, scale);
-				blitterWithRotationAndAlpha(scaledSurf, source, extSurf, dest, (tinfo.extTileFlags>>4)%4);
+				drawScaledRotatedElement(EMapCacheType::ROADS, baseSurf, extSurf, (tinfo.extTileFlags >> 4) % 4, scale, &dest, &source);
 			}
 
 			//blit objects
@@ -762,11 +783,9 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 							bufr.w = 3 * targetTileSize;
 							if(bufr.x-extRect-> x > -targetTileSize * 2)
 							{
-								// flag drawing currently does not work (some color keying issues with scaling)
-
-//								auto baseSurf = (graphics->*flg)[color.getNum()]->ourImages[getHeroFrameNum(dir, false) * 8].bitmap;
-//								auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::HERO_FLAGS, (int)baseSurf, baseSurf, scale);
-//								CSDL_Ext::blitSurface(scaledSurf, nullptr, extSurf, &bufr);
+								auto baseSurf = (graphics->*flg)[color.getNum()]->ourImages[getHeroFrameNum(dir, false) * 8].bitmap;
+								auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::HERO_FLAGS, (int)baseSurf, baseSurf, scale);
+								CSDL_Ext::blit8bppAlphaTo24bpp(scaledSurf, nullptr, extSurf, &bufr);
 							}
 						}
 					}
@@ -1600,6 +1619,11 @@ SDL_Surface *CMapHandler::CMapCache::cacheWorldViewEntry(CMapHandler::EMapCacheT
 
 	data[type][key] = entry;
 	return entry;
+}
+
+intptr_t CMapHandler::CMapCache::genKey(intptr_t realPtr, ui8 mod)
+{
+	return (intptr_t)(realPtr ^ (mod << (sizeof(intptr_t) - 2))); // maybe some cleaner method to pack rotation into cache key?
 }
 
 TerrainTile2::TerrainTile2()
