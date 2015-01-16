@@ -376,6 +376,11 @@ void CRmgTemplateZone::discardDistantTiles (CMapGenerator* gen, float distance)
 	});
 }
 
+void CRmgTemplateZone::clearTiles()
+{
+	tileinfo.clear();
+}
+
 void CRmgTemplateZone::initFreeTiles (CMapGenerator* gen)
 {
 	vstd::copy_if (tileinfo, vstd::set_inserter(possibleTiles), [gen](const int3 &tile) -> bool

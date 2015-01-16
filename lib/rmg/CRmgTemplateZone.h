@@ -149,6 +149,7 @@ public:
 	void initFreeTiles (CMapGenerator* gen);
 	std::set<int3> getTileInfo () const;
 	void discardDistantTiles (CMapGenerator* gen, float distance);
+	void clearTiles();
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);
