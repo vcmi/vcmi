@@ -429,57 +429,62 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	}
 	assert (clearedTiles.size()); //this should come from zone connections
 
-	while (possibleTiles.size())
+	if (type != ETemplateZoneType::JUNCTION)
 	{
-		//link tiles in random order
-		std::vector<int3> tilesToMakePath(possibleTiles.begin(), possibleTiles.end());
-		RandomGeneratorUtil::randomShuffle(tilesToMakePath, gen->rand);
-
-		for (auto tileToMakePath : tilesToMakePath)
+		//junction is not fractalized, has only one straight path
+		//everything else remains blocked
+		while (possibleTiles.size())
 		{
-			//find closest free tile
-			float currentDistance = 1e10;
-			int3 closestTile (-1,-1,-1);
+			//link tiles in random order
+			std::vector<int3> tilesToMakePath(possibleTiles.begin(), possibleTiles.end());
+			RandomGeneratorUtil::randomShuffle(tilesToMakePath, gen->rand);
 
-			for (auto clearTile : clearedTiles)
+			for (auto tileToMakePath : tilesToMakePath)
 			{
-				float distance = tileToMakePath.dist2dSQ(clearTile);
-				
-				if (distance < currentDistance)
+				//find closest free tile
+				float currentDistance = 1e10;
+				int3 closestTile(-1, -1, -1);
+
+				for (auto clearTile : clearedTiles)
 				{
-					currentDistance = distance;
-					closestTile = clearTile;
+					float distance = tileToMakePath.dist2dSQ(clearTile);
+
+					if (distance < currentDistance)
+					{
+						currentDistance = distance;
+						closestTile = clearTile;
+					}
+					if (currentDistance <= minDistance)
+					{
+						//this tile is close enough. Forget about it and check next one
+						tilesToIgnore.insert(tileToMakePath);
+						break;
+					}
 				}
-				if (currentDistance <= minDistance)
+				//if tiles is not close enough, make path to it
+				if (currentDistance > minDistance)
 				{
-					//this tile is close enough. Forget about it and check next one
-					tilesToIgnore.insert (tileToMakePath);
-					break;
+					crunchPath(gen, tileToMakePath, closestTile, id, &tilesToClear);
+					break; //next iteration - use already cleared tiles
 				}
 			}
-			//if tiles is not close enough, make path to it
-			if (currentDistance > minDistance)
-			{
-				crunchPath (gen, tileToMakePath, closestTile, id, &tilesToClear);
-				break; //next iteration - use already cleared tiles
-			}
-		}
 
-		for (auto tileToClear : tilesToClear)
-		{
-			//move cleared tiles from one set to another
-			clearedTiles.push_back(tileToClear);
-			vstd::erase_if_present(possibleTiles, tileToClear);
+			for (auto tileToClear : tilesToClear)
+			{
+				//move cleared tiles from one set to another
+				clearedTiles.push_back(tileToClear);
+				vstd::erase_if_present(possibleTiles, tileToClear);
+			}
+			for (auto tileToClear : tilesToIgnore)
+			{
+				//these tiles are already connected, ignore them
+				vstd::erase_if_present(possibleTiles, tileToClear);
+			}
+			if (tilesToClear.empty()) //nothing else can be done (?)
+				break;
+			tilesToClear.clear(); //empty this container
+			tilesToIgnore.clear();
 		}
-		for (auto tileToClear : tilesToIgnore)
-		{
-			//these tiles are already connected, ignore them
-			vstd::erase_if_present(possibleTiles, tileToClear);
-		}
-		if (tilesToClear.empty()) //nothing else can be done (?)
-			break;
-		tilesToClear.clear(); //empty this container
-		tilesToIgnore.clear();
 	}
 
 	for (auto tile : clearedTiles)

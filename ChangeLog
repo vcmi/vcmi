@@ -8,6 +8,7 @@ BATTLES:
 * Implemented OH3 stack split / upgrade formulas according to AlexSpl
 
 RANDOM MAP GENERATOR:
+* Implemented "junction" zone type
 * Improved zone placing algorithm
 * More balanced distribution of treasure piles
 * More obstacles within zones
