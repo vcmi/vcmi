@@ -608,6 +608,16 @@ void CMinimap::showAll(SDL_Surface * to)
 			ui16(tileCountOnScreen.y * pos.h / mapSizes.y)
 		};
 
+		if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
+		{
+			// adjusts radar so that it doesn't go out of map in world view mode (since there's no frame)
+			radar.x = std::min(std::max(pos.x, radar.x), pos.x + pos.w - radar.w);
+			radar.y = std::min(std::max(pos.y, radar.y), pos.y + pos.h - radar.h);
+
+			if (radar.x < pos.x && radar.y < pos.y)
+				return; // whole map is visible at once, no point in redrawing border
+		}
+
 		SDL_GetClipRect(to, &oldClip);
 		SDL_SetClipRect(to, &pos);
 		CSDL_Ext::drawDashedBorder(to, radar, int3(255,75,125));

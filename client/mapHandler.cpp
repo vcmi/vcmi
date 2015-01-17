@@ -505,40 +505,36 @@ void CMapHandler::drawWorldViewOverlay(int targetTilesX, int targetTilesY, int s
 	}
 }
 
-void CMapHandler::calculateWorldViewCameraPos(int targetTilesX, int targetTilesY, int3 &top_tile)
+void CMapHandler::calculateWorldViewCameraPos(int targetTilesX, int targetTilesY, int3 &tile)
 {
-	bool outsideLeft = top_tile.x < 0;
-	bool outsideTop = top_tile.y < 0;
-	bool outsideRight = std::max(0, top_tile.x) + targetTilesX > sizes.x;
-	bool outsideBottom = std::max(0, top_tile.y) + targetTilesY > sizes.y;
+	bool outsideLeft = tile.x < 0;
+	bool outsideTop = tile.y < 0;
+	bool outsideRight = std::max(0, tile.x) + targetTilesX > sizes.x;
+	bool outsideBottom = std::max(0, tile.y) + targetTilesY > sizes.y;
 
 	if (targetTilesX > sizes.x)
-		top_tile.x = sizes.x / 2 - targetTilesX / 2; // center viewport if the whole map can fit into the screen at once
+		tile.x = sizes.x / 2 - targetTilesX / 2; // center viewport if the whole map can fit into the screen at once
 	else if (outsideLeft)
 	{
 		if (outsideRight)
-		{
-			top_tile.x = sizes.x / 2 - targetTilesX / 2;
-		}
+			tile.x = sizes.x / 2 - targetTilesX / 2;
 		else
-			top_tile.x = 0;
+			tile.x = 0;
 	}
 	else if (outsideRight)
-		top_tile.x = sizes.x - targetTilesX;
+		tile.x = sizes.x - targetTilesX;
 
 	if (targetTilesY > sizes.y)
-		top_tile.y = sizes.y / 2 - targetTilesY / 2;
+		tile.y = sizes.y / 2 - targetTilesY / 2;
 	else if (outsideTop)
 	{
 		if (outsideBottom)
-		{
-			top_tile.y = sizes.y / 2 - targetTilesY / 2;
-		}
+			tile.y = sizes.y / 2 - targetTilesY / 2;
 		else
-			top_tile.y = 0;
+			tile.y = 0;
 	}
 	else if (outsideBottom)
-		top_tile.y = sizes.y - targetTilesY;
+		tile.y = sizes.y - targetTilesY;
 }
 
 void::CMapHandler::drawScaledRotatedElement(EMapCacheType type, SDL_Surface * baseSurf, SDL_Surface * targetSurf, ui8 rotation,

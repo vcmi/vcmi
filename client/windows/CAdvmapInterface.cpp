@@ -484,7 +484,7 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	worldViewScale1xConfig.y = 23 + 195;
 	worldViewScale1xConfig.playerColoured = false;
 	panelWorldView->addChildToPanel(
-		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale1x,this), worldViewScale1xConfig, SDLK_y), ACTIVATE | DEACTIVATE);
+		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale1x,this), worldViewScale1xConfig, SDLK_1), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale2xConfig = config::ButtonInfo();
 	worldViewScale2xConfig.defName = "VWMAG2.DEF";
@@ -492,7 +492,7 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	worldViewScale2xConfig.y = 23 + 195;
 	worldViewScale2xConfig.playerColoured = false;
 	panelWorldView->addChildToPanel(
-		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale2x,this), worldViewScale2xConfig, SDLK_y), ACTIVATE | DEACTIVATE);
+		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale2x,this), worldViewScale2xConfig, SDLK_2), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale4xConfig = config::ButtonInfo();
 	worldViewScale4xConfig.defName = "VWMAG4.DEF";
@@ -500,7 +500,7 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	worldViewScale4xConfig.y = 23 + 195;
 	worldViewScale4xConfig.playerColoured = false;
 	panelWorldView->addChildToPanel(
-		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale4x,this), worldViewScale4xConfig, SDLK_y), ACTIVATE | DEACTIVATE);
+		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale4x,this), worldViewScale4xConfig, SDLK_4), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewUndergroundConfig = config::ButtonInfo();
 	worldViewUndergroundConfig.defName = "IAM010.DEF";
@@ -560,6 +560,10 @@ void CAdvMapInt::fworldViewBack()
 {
 	changeMode(EAdvMapMode::NORMAL);
 	CGI->mh->discardWorldViewCache();
+
+	auto hero = curHero();
+	if (hero)
+		centerOn(hero);
 }
 
 void CAdvMapInt::fworldViewScale1x()
@@ -909,8 +913,19 @@ void CAdvMapInt::centerOn(int3 on)
 {
 	bool switchedLevels = on.z != position.z;
 
-	on.x -= CGI->mh->frameW;
-	on.y -= CGI->mh->frameH;
+	switch (mode)
+	{
+	default:
+	case EAdvMapMode::NORMAL:
+		on.x -= CGI->mh->frameW; // is this intentional? frame size doesn't really have to correspond to camera size...
+		on.y -= CGI->mh->frameH;
+		break;
+	case EAdvMapMode::WORLD_VIEW:
+		on.x -= CGI->mh->tilesW / 2 / worldViewScale;
+		on.y -= CGI->mh->tilesH / 2 / worldViewScale;
+		break;
+	}
+
 
 	on = LOCPLINT->repairScreenPos(on);
 
@@ -918,6 +933,8 @@ void CAdvMapInt::centerOn(int3 on)
 	updateScreen=true;
 	underground->setIndex(on.z,true); //change underground switch button image
 	underground->redraw();
+	worldViewUnderground->setIndex(on.z, true);
+	worldViewUnderground->redraw();
 	if (switchedLevels)
 		minimap.setLevel(position.z);
 	minimap.redraw();
@@ -933,6 +950,10 @@ void CAdvMapInt::centerOn(const CGObjectInstance *obj)
 
 void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 {
+
+	if (mode == EAdvMapMode::WORLD_VIEW)
+		return;
+
 	ui8 Dir = 0;
 	int k = key.keysym.sym;
 	const CGHeroInstance *h = curHero(); //selected hero
