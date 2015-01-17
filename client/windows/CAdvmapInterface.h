@@ -158,7 +158,6 @@ public:
 	void fworldViewScale1x();
 	void fworldViewScale2x();
 	void fworldViewScale4x();
-	void fworldViewSwitchLevel();
 	void fswitchLevel();
 	void fshowQuestlog();
 	void fsleepWake();

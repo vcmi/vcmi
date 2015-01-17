@@ -123,8 +123,8 @@ class CMapHandler
 	CMapCache cache;
 
 	void drawWorldViewOverlay(int targetTilesX, int targetTilesY, int srx_init, int sry_init, CDefHandler * iconsDef,
-							  const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, float scale, int targetTileSize,
-							  int3 top_tile, SDL_Surface * extSurf);
+							  const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, float scale,
+							  int targetTileSize, int3 top_tile, SDL_Surface * extSurf);
 	void drawScaledRotatedElement(EMapCacheType type, SDL_Surface * baseSurf, SDL_Surface * targetSurf, ui8 rotation,
 								  float scale, SDL_Rect * dstRect, SDL_Rect * srcRect = nullptr);
 	void calculateWorldViewCameraPos(int targetTilesX, int targetTilesY, int3 &top_tile);

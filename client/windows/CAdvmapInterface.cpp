@@ -508,7 +508,7 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	worldViewUndergroundConfig.x = screen->w - 115;
 	worldViewUndergroundConfig.y = 343 + 195;
 	worldViewUndergroundConfig.playerColoured = true;
-	worldViewUnderground = makeButton(294, std::bind(&CAdvMapInt::fworldViewSwitchLevel,this), worldViewUndergroundConfig, SDLK_u);
+	worldViewUnderground = makeButton(294, std::bind(&CAdvMapInt::fswitchLevel,this), worldViewUndergroundConfig, SDLK_u);
 	panelWorldView->addChildColorableButton(worldViewUnderground);
 
 	setPlayer(LOCPLINT->playerID);
@@ -565,60 +565,39 @@ void CAdvMapInt::fworldViewBack()
 void CAdvMapInt::fworldViewScale1x()
 {
 	// TODO set corresponding scale button to "selected" mode
-	changeMode(EAdvMapMode::WORLD_VIEW, 0.25f); // TODO find out correct scale values from OH3
+	changeMode(EAdvMapMode::WORLD_VIEW, 0.22f);
 }
 
 void CAdvMapInt::fworldViewScale2x()
 {
-	changeMode(EAdvMapMode::WORLD_VIEW, 0.4f);
+	changeMode(EAdvMapMode::WORLD_VIEW, 0.36f);
 }
 
 void CAdvMapInt::fworldViewScale4x()
 {
-	changeMode(EAdvMapMode::WORLD_VIEW, 0.6f);
-}
-
-// this method is nearly identical to fswitchLevel, so they could probably be merged
-void CAdvMapInt::fworldViewSwitchLevel()
-{
-	if(!CGI->mh->map->twoLevel)
-		return;
-	if (position.z)
-	{
-		position.z--;
-		worldViewUnderground->setIndex(0, true);
-		worldViewUnderground->showAll(screenBuf);
-	}
-	else
-	{
-		worldViewUnderground->setIndex(1, true);
-		position.z++;
-		worldViewUnderground->showAll(screenBuf);
-	}
-	updateScreen = true;
-	minimap.setLevel(position.z);
-
-	terrain.redraw();
+	changeMode(EAdvMapMode::WORLD_VIEW, 0.5f);
 }
 
 void CAdvMapInt::fswitchLevel()
 {
-	if(!CGI->mh->map->twoLevel)
+	// with support for future multi-level maps :)
+	int maxLevels = CGI->mh->map->twoLevel ? 2 : 1;
+	if (maxLevels < 2)
 		return;
-	if (position.z)
-	{
-		position.z--;
-		underground->setIndex(0,true);
-		underground->showAll(screenBuf);
-	}
-	else
-	{
-		underground->setIndex(1,true);
-		position.z++;
-		underground->showAll(screenBuf);
-	}
+
+	position.z = (position.z + 1) % maxLevels;
+
+	underground->setIndex(position.z, true);
+	underground->redraw();
+
+	worldViewUnderground->setIndex(position.z, true);
+	worldViewUnderground->redraw();
+
 	updateScreen = true;
 	minimap.setLevel(position.z);
+
+	if (mode == EAdvMapMode::WORLD_VIEW)
+		terrain.redraw();
 }
 void CAdvMapInt::fshowQuestlog()
 {

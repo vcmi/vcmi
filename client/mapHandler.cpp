@@ -784,7 +784,7 @@ void CMapHandler::terrainRectScaled(int3 topTile, const std::vector< std::vector
 							if(bufr.x-extRect-> x > -targetTileSize * 2)
 							{
 								auto baseSurf = (graphics->*flg)[color.getNum()]->ourImages[getHeroFrameNum(dir, false) * 8].bitmap;
-								auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::HERO_FLAGS, (int)baseSurf, baseSurf, scale);
+								auto scaledSurf = cache.requestWorldViewCacheOrCreate(EMapCacheType::HERO_FLAGS, (intptr_t)baseSurf, baseSurf, scale);
 								CSDL_Ext::blit8bppAlphaTo24bpp(scaledSurf, nullptr, extSurf, &bufr);
 							}
 						}
