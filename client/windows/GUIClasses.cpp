@@ -1099,11 +1099,12 @@ void CPuzzleWindow::showAll(SDL_Surface * to)
 {
 	int3 moveInt = int3(8, 9, 0);
 	Rect mapRect = genRect(544, 591, pos.x + 8, pos.y + 7);
+	int3 topTile = grailPos - moveInt;
 
-	CGI->mh->terrainRect
-		(grailPos - moveInt, adventureInt->anim,
-		 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-		 to, &mapRect, 0, 0, true, moveInt);
+	MapDrawingInfo info(topTile, &LOCPLINT->cb->getVisibilityMap(), &mapRect);
+	info.puzzleMode = true;
+	info.grailPos = grailPos;
+	CGI->mh->drawTerrainRectNew(to, &info);
 
 	CWindowObject::showAll(to);
 }

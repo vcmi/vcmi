@@ -266,16 +266,14 @@ void CTerrainRect::show(SDL_Surface * to)
 {
 	if (adventureInt->mode == EAdvMapMode::NORMAL)
 	{
+		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos);
+		info.otherheroAnim = true;
+		info.anim = adventureInt->anim;
+		info.heroAnim = adventureInt->heroAnim;
 		if (ADVOPT.smoothMove)
-			CGI->mh->terrainRect
-				(adventureInt->position, adventureInt->anim,
-					&LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-					to, &pos, moveX, moveY, false, int3());
-		else
-			CGI->mh->terrainRect
-				(adventureInt->position, adventureInt->anim,
-					&LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-					to, &pos, 0, 0, false, int3());
+			info.movement = int3(moveX, moveY, 0);
+
+		CGI->mh->drawTerrainRectNew(to, &info);
 
 		if (currentPath/* && adventureInt->position.z==currentPath->startPos().z*/) //drawing path
 		{
@@ -291,8 +289,13 @@ void CTerrainRect::showAll(SDL_Surface * to)
 {
 	// world view map is static and doesn't need redraw every frame
 	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
-		CGI->mh->terrainRectScaled (adventureInt->position, &LOCPLINT->cb->getVisibilityMap(),
-									to, &pos, adventureInt->worldViewScale, adventureInt->worldViewIconsDef);
+	{
+		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos, adventureInt->worldViewIconsDef);
+		info.scaled = true;
+		info.scale = adventureInt->worldViewScale;
+
+		CGI->mh->drawTerrainRectNew(to, &info);
+	}
 }
 
 int3 CTerrainRect::whichTileIsIt(const int & x, const int & y)
