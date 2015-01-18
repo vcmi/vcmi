@@ -33,6 +33,11 @@ CRmgTemplateZone::CTownInfo::CTownInfo() : townCount(0), castleCount(0), townDen
 
 }
 
+void CRmgTemplateZone::addRoadNode(const int3& node)
+{
+	roadNodes.insert(node);
+}
+
 int CRmgTemplateZone::CTownInfo::getTownCount() const
 {
 	return townCount;
@@ -111,6 +116,12 @@ bool CTileInfo::isFree() const
 {
 	return occupied == ETileType::FREE;
 }
+
+bool CTileInfo::isRoad() const
+{
+	return roadType != ERoadType::NO_ROAD;
+}
+
 bool CTileInfo::isUsed() const
 {
 	return occupied == ETileType::USED;
@@ -692,6 +703,8 @@ bool CRmgTemplateZone::crunchRoad(CMapGenerator* gen, const int3& src, const int
 	if(crunchPath(gen, src, dst, &currentClearedTiles, true))
 	{
 		roads.insert(std::begin(currentClearedTiles), std::end(currentClearedTiles));		
+		roads.insert(src);
+		roads.insert(dst);
 		
 		if(nullptr != clearedTiles)
 			clearedTiles->insert(std::begin(currentClearedTiles), std::end(currentClearedTiles));
@@ -700,7 +713,8 @@ bool CRmgTemplateZone::crunchRoad(CMapGenerator* gen, const int3& src, const int
 	}
 	else
 	{
-		return false;
+		logGlobal->warnStream() << boost::format("Failed to crunch road from %s to %s") %src %dst;
+		return crunchPath(gen, src, dst, clearedTiles, false);
 	}
 }
 
@@ -1265,6 +1279,7 @@ bool CRmgTemplateZone::placeMines (CMapGenerator* gen)
 bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 {
 	logGlobal->traceStream() << "Creating required objects";
+	
 	for(const auto &obj : requiredObjects)
 	{
 		int3 pos;
@@ -1275,24 +1290,9 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 			return false;
 		}		
 	
-		switch (obj.first->ID)
-		{
-		case Obj::TOWN:
-		case Obj::MONOLITH_TWO_WAY:
-		case Obj::SUBTERRANEAN_GATE:
-			{
-				crunchRoad(gen, this->pos, pos + obj.first->getVisitableOffset(), &freePaths);				
-			}
-			break;
-		
-		default:
-			break;
-		}
-		
-
 		placeObject (gen, obj.first, pos);
 		guardObject (gen, obj.first, obj.second, (obj.first->ID == Obj::MONOLITH_TWO_WAY), true);
-		//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones
+		//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones	
 	}
 
 	for (const auto &obj : closeObjects)
@@ -1482,15 +1482,42 @@ void CRmgTemplateZone::createObstacles2(CMapGenerator* gen)
 
 void CRmgTemplateZone::drawRoads(CMapGenerator* gen)
 {
+	
+	auto doDrawRoad = []()
+	{
+		
+	};
+	
+	while(!roadNodes.empty())
+	{
+		int3 node = *roadNodes.begin(); 
+		roadNodes.erase(node);
+		if(roads.empty())
+		{
+			//start road network
+			roads.insert(node);
+		}
+		else
+		{
+			
+			int3 cross = *RandomGeneratorUtil::nextItem(roads, gen->rand);
+			
+			crunchRoad(gen, node, cross, &freePaths);						
+		}		
+	}
+}
+
+void CRmgTemplateZone::buildRoads(CMapGenerator* gen)
+{
 	std::vector<int3> tiles;
 	for (auto tile : roads)
 	{
-		tiles.push_back (tile);
+		if(gen->map->isInTheMap(tile))	
+			tiles.push_back (tile);
 	}
 	gen->editManager->getTerrainSelection().setSelection(tiles);	
-	gen->editManager->drawRoad(ERoadType::COBBLESTONE_ROAD, &gen->rand);
+	gen->editManager->drawRoad(ERoadType::COBBLESTONE_ROAD, &gen->rand);	
 }
-
 
 
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
@@ -1503,10 +1530,10 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 
 	placeMines(gen);
 	createRequiredObjects(gen);
+	drawRoads(gen); 
+	buildRoads(gen);
 	fractalize(gen); //after required objects are created and linked with their own paths
 	createTreasures(gen);
-	
-	drawRoads(gen);
 	
 	logGlobal->infoStream() << boost::format ("Zone %d filled successfully") %id;
 	return true;
@@ -1718,6 +1745,24 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 		auto artid = sh->quest->m5arts.front();
 		logGlobal->warnStream() << boost::format("Placed Seer Hut at %s, quest artifact %d is %s") % object->pos % artid % VLC->arth->artifacts[artid]->Name();
 	}
+
+	
+	switch (object->ID)
+	{
+	case Obj::TOWN:
+	case Obj::RANDOM_TOWN:
+	case Obj::MONOLITH_TWO_WAY:
+	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+	case Obj::MONOLITH_ONE_WAY_EXIT:
+	case Obj::SUBTERRANEAN_GATE:
+		{
+			roadNodes.insert(pos + object->getVisitableOffset());
+		}
+		break;
+	
+	default:
+		break;
+	}		
 }
 
 void CRmgTemplateZone::placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str, bool zoneGuard)

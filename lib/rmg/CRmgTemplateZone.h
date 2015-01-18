@@ -47,10 +47,12 @@ public:
 	bool isPossible() const;
 	bool isFree() const;
 	bool isUsed() const;
+	bool isRoad() const;	
 	void setOccupied(ETileType::ETileType value);
 	ETerrainType getTerrainType() const;
 	ETileType::ETileType getTileType() const;
 	void setTerrainType(ETerrainType value);
+	
 	void setRoadType(ERoadType::ERoadType value);
 private:
 	float nearestObjectDistance;
@@ -168,7 +170,7 @@ public:
 	void createObstacles1(CMapGenerator* gen);
 	void createObstacles2(CMapGenerator* gen);
 	bool crunchPath(CMapGenerator* gen, const int3 &src, const int3 &dst, std::set<int3>* clearedTiles = nullptr, bool forRoad = false);
-	bool crunchRoad(CMapGenerator* gen, const int3 &src, const int3 &dst, std::set<int3>* clearedTiles = nullptr);
+	
 	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object);
 
 	void addConnection(TRmgTemplateZoneId otherZone);
@@ -181,7 +183,7 @@ public:
 	ObjectInfo getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue);
 
 	void placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str, bool zoneGuard = false);
-
+	void addRoadNode(const int3 & node);
 private:
 	//template info
 	TRmgTemplateZoneId id;
@@ -218,9 +220,11 @@ private:
 	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
 	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
 	
-	std::set<int3> roads;
+	std::set<int3> roadNodes; //tiles to be connected with roads
+	std::set<int3> roads; //all tiles with roads
 	
-	void drawRoads(CMapGenerator* gen);
+	void drawRoads(CMapGenerator* gen); //fills "roads" according to "roadNodes" 
+	void buildRoads(CMapGenerator* gen); //actually updates tiles
 
 	bool pointIsIn(int x, int y);
 	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects
@@ -233,4 +237,6 @@ private:
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, bool updateDistance = true);
 	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard = false, bool addToFreePaths = false);
+	//TODO:replace with A*-based algorithm on whole road network
+	bool crunchRoad(CMapGenerator* gen, const int3 &src, const int3 &dst, std::set<int3>* clearedTiles = nullptr);
 };

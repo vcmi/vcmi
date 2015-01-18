@@ -73,7 +73,11 @@ public:
 	bool isPossible(const int3 &tile) const;
 	bool isFree(const int3 &tile) const;
 	bool isUsed(const int3 &tile) const;
+	bool isRoad(const int3 &tile) const;
+	
 	void setOccupied(const int3 &tile, ETileType::ETileType state);
+	void setRoad(const int3 &tile, ERoadType::ERoadType roadType);
+	
 	CTileInfo getTile(const int3 & tile) const;
 
 	float getNearestObjectDistance(const int3 &tile) const; 
@@ -100,6 +104,7 @@ private:
 	//int questArtsRemaining;
 	int monolithIndex;
 	std::vector<ArtifactID> questArtifacts;
+	void checkIsOnMap(const int3 &tile) const; //throws
 
 	/// Generation methods
 	std::string getMapDescription() const;

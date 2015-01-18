@@ -433,8 +433,11 @@ void CMapGenerator::createConnections()
 					setOccupied (guardPos, ETileType::FREE); //just in case monster is too weak to spawn
 					zoneA->addMonster (this, guardPos, connection.getGuardStrength(), false, true);
 					//zones can make paths only in their own area
-					zoneA->crunchRoad(this, guardPos, posA, zoneA->getFreePaths()); //make connection towards our zone center
-					zoneB->crunchRoad(this, guardPos, posB, zoneB->getFreePaths()); //make connection towards other zone center
+					zoneA->crunchPath(this, guardPos, posA, zoneA->getFreePaths()); //make connection towards our zone center
+					zoneB->crunchPath(this, guardPos, posB, zoneB->getFreePaths()); //make connection towards other zone center		
+					
+					zoneA->addRoadNode(guardPos);
+					zoneB->addRoadNode(guardPos);
 					break; //we're done with this connection
 				}
 			}
@@ -528,6 +531,13 @@ void CMapGenerator::addHeaderInfo()
 	addPlayerInfo();
 }
 
+void CMapGenerator::checkIsOnMap(const int3& tile) const
+{
+	if (!map->isInTheMap(tile))
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));	
+}
+
+
 std::map<TRmgTemplateZoneId, CRmgTemplateZone*> CMapGenerator::getZones() const
 {
 	return zones;
@@ -535,67 +545,74 @@ std::map<TRmgTemplateZoneId, CRmgTemplateZone*> CMapGenerator::getZones() const
 
 bool CMapGenerator::isBlocked(const int3 &tile) const
 {
-	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z].isBlocked();
 }
 bool CMapGenerator::shouldBeBlocked(const int3 &tile) const
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z].shouldBeBlocked();
 }
 bool CMapGenerator::isPossible(const int3 &tile) const
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z].isPossible();
 }
 bool CMapGenerator::isFree(const int3 &tile) const
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z].isFree();
 }
 bool CMapGenerator::isUsed(const int3 &tile) const
 {
-	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z].isUsed();
 }
+
+bool CMapGenerator::isRoad(const int3& tile) const
+{
+	checkIsOnMap(tile);
+	
+	return tiles[tile.x][tile.y][tile.z].isRoad();	
+}
+
 void CMapGenerator::setOccupied(const int3 &tile, ETileType::ETileType state)
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	tiles[tile.x][tile.y][tile.z].setOccupied(state);
 }
 
-CTileInfo CMapGenerator::getTile(const int3&  tile) const
+void CMapGenerator::setRoad(const int3& tile, ERoadType::ERoadType roadType)
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
+
+	tiles[tile.x][tile.y][tile.z].setRoadType(roadType);	
+}
+
+
+CTileInfo CMapGenerator::getTile(const int3& tile) const
+{
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z];
 }
 
 void CMapGenerator::setNearestObjectDistance(int3 &tile, float value)
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	tiles[tile.x][tile.y][tile.z].setNearestObjectDistance(value);
 }
 
 float CMapGenerator::getNearestObjectDistance(const int3 &tile) const
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z].getNearestObjectDistance();
 }
