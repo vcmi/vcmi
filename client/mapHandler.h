@@ -2,6 +2,7 @@
 
 
 #include "../lib/int3.h"
+#include "gui/Geometries.h"
 #include "SDL.h"
 
 /*
@@ -134,7 +135,7 @@ class CMapHandler
 {
 	enum class EMapCacheType
 	{
-		TERRAIN, TERRAIN_CUSTOM, OBJECTS, ROADS, RIVERS, FOW, HEROES, HERO_FLAGS
+		TERRAIN, TERRAIN_CUSTOM, OBJECTS, ROADS, RIVERS, FOW, HEROES, HERO_FLAGS, FRAME
 	};
 
 	/// temporarily caches rescaled sdl surfaces for map world view redrawing
@@ -160,46 +161,81 @@ class CMapHandler
 	class CMapBlitter
 	{
 	protected:
-		CMapHandler * parent;
-		int tileSize;
-		int3 tileCount;
-		int3 topTile;
-		int3 initPos;
-		int3 pos;
-		int3 realPos;
+		CMapHandler * parent; // ptr to enclosing map handler; generally for legacy reasons, probably could/should be refactored out of here
+		int tileSize; // size of a tile drawn on map [in pixels]
+		int halfTileSizeCeil; // half of the tile size, rounded up
+		int3 tileCount; // number of tiles in current viewport
+		int3 topTile; // top-left tile of the viewport
+		int3 initPos; // starting drawing position [in pixels]
+		int3 pos; // current position [in tiles]
+		int3 realPos; // current position [in pixels]
+		Rect realTileRect; // default rect based on current pos: [realPos.x, realPos.y, tileSize, tileSize]
+		Rect defaultTileRect; // default rect based on 0: [0, 0, tileSize, tileSize]
+		const MapDrawingInfo * info; // data for drawing passed from outside
 
-		virtual void drawTileOverlay(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile2 & tile) = 0;
-		virtual void drawNormalObject(SDL_Surface * targetSurf, const MapDrawingInfo * info, SDL_Surface * sourceSurf, SDL_Rect * sourceRect) = 0;
-		virtual void drawHeroFlag(SDL_Surface * targetSurf, const MapDrawingInfo * info, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) = 0;
-		virtual void drawHero(SDL_Surface * targetSurf, const MapDrawingInfo * info, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) = 0;
-		void drawObjects(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile2 & tile);
-		virtual void drawRoad(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile & tinfo, const TerrainTile * tinfoUpper) = 0;
-		virtual void drawRiver(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile & tinfo) = 0;
-		virtual void drawFow(SDL_Surface * targetSurf, const MapDrawingInfo * info) = 0;
-		virtual void drawFrame(SDL_Surface * targetSurf, const MapDrawingInfo * info) = 0;
-		virtual void drawTileTerrain(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile & tinfo, const TerrainTile2 & tile) = 0;
-		virtual void init(const MapDrawingInfo * info) = 0;
-		virtual SDL_Rect clip(SDL_Surface * targetSurf, const MapDrawingInfo * info) = 0;
+		/// general drawing method, called internally by more specialized ones
+		virtual void drawElement(EMapCacheType cacheType, SDL_Surface * sourceSurf, SDL_Rect * sourceRect,
+								 SDL_Surface * targetSurf, SDL_Rect * destRect, bool alphaBlit = false, ui8 rotationInfo = 0u) const = 0;
+
+		// first drawing pass
+
+		/// draws terrain bitmap (or custom bitmap if applicable) on current tile
+		virtual void drawTileTerrain(SDL_Surface * targetSurf, const TerrainTile & tinfo, const TerrainTile2 & tile) const;
+		/// draws a river segment on current tile
+		virtual void drawRiver(SDL_Surface * targetSurf, const TerrainTile & tinfo) const;
+		/// draws a road segment on current tile
+		virtual void drawRoad(SDL_Surface * targetSurf, const TerrainTile & tinfo, const TerrainTile * tinfoUpper) const;
+		/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
+		virtual void drawObjects(SDL_Surface * targetSurf, const TerrainTile2 & tile) const;
+		/// current tile: draws non-hero object with given image/position
+		virtual void drawNormalObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect) const;
+		virtual void drawHeroFlag(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const;
+		virtual void drawHero(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const;
+
+		// second drawing pass
+
+		/// current tile: draws overlay over the map, used to draw world view icons
+		virtual void drawTileOverlay(SDL_Surface * targetSurf, const TerrainTile2 & tile) const = 0;
+		/// draws fog of war on current tile
+		virtual void drawFow(SDL_Surface * targetSurf) const;
+		/// draws map border frame on current position
+		virtual void drawFrame(SDL_Surface * targetSurf) const;
+
+		// third drawing pass
+
+		/// custom post-processing, if needed (used by puzzle view)
+		virtual void postProcessing(SDL_Surface * targetSurf) const {}
+
+		// misc methods
+
+		/// initializes frame-drawing (called at the start of every redraw)
+		virtual void init(const MapDrawingInfo * drawingInfo) = 0;
+		/// calculates clip region for map viewport
+		virtual SDL_Rect clip(SDL_Surface * targetSurf) const = 0;
+
+		virtual ui8 getHeroFrameNum(ui8 dir, bool isMoving) const;
+		///returns appropriate bitmap and info if alpha blitting is necessary
+		virtual std::pair<SDL_Surface *, bool> getVisBitmap() const;
+		virtual ui8 getPhaseShift(const CGObjectInstance *object) const;
+
+		virtual bool canDrawObject(const CGObjectInstance * obj) const;
+		virtual bool canDrawCurrentTile() const;
 	public:
 		CMapBlitter(CMapHandler * p) : parent(p) {}
 		virtual ~CMapBlitter(){}
-		void blit(SDL_Surface * targetSurf, const MapDrawingInfo * const info);
+		void blit(SDL_Surface * targetSurf, const MapDrawingInfo * info);
+
 	};
 
 	class CMapNormalBlitter : public CMapBlitter
 	{
 	protected:
-		void drawTileOverlay(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile2 & tile) {}
-		void drawNormalObject(SDL_Surface * targetSurf, const MapDrawingInfo * info, SDL_Surface * sourceSurf, SDL_Rect * sourceRect);
-		void drawHeroFlag(SDL_Surface * targetSurf, const MapDrawingInfo * info, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving);
-		void drawHero(SDL_Surface * targetSurf, const MapDrawingInfo * info, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving);
-		void drawRoad(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile & tinfo, const TerrainTile * tinfoUpper);
-		void drawRiver(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile & tinfo);
-		void drawFow(SDL_Surface * targetSurf, const MapDrawingInfo * info);
-		void drawFrame(SDL_Surface * targetSurf, const MapDrawingInfo * info);
-		void drawTileTerrain(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile & tinfo, const TerrainTile2 & tile);
-		void init(const MapDrawingInfo * info);
-		SDL_Rect clip(SDL_Surface * targetSurf, const MapDrawingInfo * info) override;
+		void drawElement(EMapCacheType cacheType, SDL_Surface * sourceSurf, SDL_Rect * sourceRect,
+						 SDL_Surface * targetSurf, SDL_Rect * destRect, bool alphaBlit = false, ui8 rotationInfo = 0u) const override;
+
+		void drawTileOverlay(SDL_Surface * targetSurf,const TerrainTile2 & tile) const override {}
+		void init(const MapDrawingInfo * info) override;
+		SDL_Rect clip(SDL_Surface * targetSurf) const override;
 	public:
 		CMapNormalBlitter(CMapHandler * parent);
 		virtual ~CMapNormalBlitter(){}
@@ -208,36 +244,47 @@ class CMapHandler
 	class CMapWorldViewBlitter : public CMapBlitter
 	{
 	protected:
-		int halfTargetTileSizeHigh;
+		void drawElement(EMapCacheType cacheType, SDL_Surface * sourceSurf, SDL_Rect * sourceRect,
+						 SDL_Surface * targetSurf, SDL_Rect * destRect, bool alphaBlit = false, ui8 rotationInfo = 0u) const override;
 
-		void drawTileOverlay(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile2 & tile);
-		void drawNormalObject(SDL_Surface * targetSurf, const MapDrawingInfo * info, SDL_Surface * sourceSurf, SDL_Rect * sourceRect);
-		void drawHeroFlag(SDL_Surface * targetSurf, const MapDrawingInfo * info, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving);
-		void drawHero(SDL_Surface * targetSurf, const MapDrawingInfo * info, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving);
-		void drawRoad(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile & tinfo, const TerrainTile * tinfoUpper);
-		void drawRiver(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile & tinfo);
-		void drawFow(SDL_Surface * targetSurf, const MapDrawingInfo * info);
-		void drawFrame(SDL_Surface * targetSurf, const MapDrawingInfo * info) {}
-		void drawTileTerrain(SDL_Surface * targetSurf, const MapDrawingInfo * info, const TerrainTile & tinfo, const TerrainTile2 & tile);
-		void init(const MapDrawingInfo * info);
-		SDL_Rect clip(SDL_Surface * targetSurf, const MapDrawingInfo * info) override;
+		void drawTileOverlay(SDL_Surface * targetSurf, const TerrainTile2 & tile) const override;
+		void drawNormalObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect) const override;
+		void drawHeroFlag(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const override;
+		void drawHero(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const;
+		void drawFrame(SDL_Surface * targetSurf) const override {}
+		void init(const MapDrawingInfo * info) override;
+		SDL_Rect clip(SDL_Surface * targetSurf) const override;
+
+		ui8 getHeroFrameNum(ui8 dir, bool isMoving) const override { return 0u; }
+		ui8 getPhaseShift(const CGObjectInstance *object) const override { return 0u; }
+
+		void drawScaledRotatedElement(EMapCacheType type, SDL_Surface * baseSurf, SDL_Surface * targetSurf, ui8 rotation,
+									  float scale, SDL_Rect * dstRect, SDL_Rect * srcRect = nullptr) const;
+		void calculateWorldViewCameraPos();
 	public:
 		CMapWorldViewBlitter(CMapHandler * parent);
 		virtual ~CMapWorldViewBlitter(){}
 	};
 
-//	class CPuzzleViewBlitter : public CMapNormalBlitter
-//	{
-//		void drawFow(SDL_Surface * targetSurf, const MapDrawingInfo * info) {} // skipping FoW in puzzle view
-//	};
+	class CMapPuzzleViewBlitter : public CMapNormalBlitter
+	{
+		std::vector<int> unblittableObjects;
+
+		void drawObjects(SDL_Surface * targetSurf, const TerrainTile2 & tile) const override;
+		void drawFow(SDL_Surface * targetSurf) const override {} // skipping FoW in puzzle view
+		void postProcessing(SDL_Surface * targetSurf) const override;
+		bool canDrawObject(const CGObjectInstance * obj) const override;
+		bool canDrawCurrentTile() const override { return true; }
+	public:
+		CMapPuzzleViewBlitter(CMapHandler * parent);
+	};
 
 	CMapCache cache;
 	CMapBlitter * normalBlitter;
 	CMapBlitter * worldViewBlitter;
+	CMapBlitter * puzzleViewBlitter;
 
-	void drawScaledRotatedElement(EMapCacheType type, SDL_Surface * baseSurf, SDL_Surface * targetSurf, ui8 rotation,
-								  float scale, SDL_Rect * dstRect, SDL_Rect * srcRect = nullptr);
-	void calculateWorldViewCameraPos(int targetTilesX, int targetTilesY, int3 &top_tile);
+	CMapBlitter * resolveBlitter(const MapDrawingInfo * info) const;
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
@@ -271,9 +318,6 @@ public:
 	CMapHandler(); //c-tor
 	~CMapHandler(); //d-tor
 
-	std::pair<SDL_Surface *, bool> getVisBitmap(const int3 & pos, const std::vector< std::vector< std::vector<ui8> > > & visibilityMap) const; //returns appropriate bitmap and info if alpha blitting is necessary
-	ui8 getPhaseShift(const CGObjectInstance *object) const;
-
 	void getTerrainDescr(const int3 &pos, std::string & out, bool terName); //if tername == false => empty string when tile is clear
 	CGObjectInstance * createObject(int id, int subid, int3 pos, int owner=254); //creates a new object with a certain id and subid
 	bool printObject(const CGObjectInstance * obj); //puts appropriate things to ttiles, so obj will be visible on map
@@ -288,7 +332,6 @@ public:
 
 	void drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info);
 	void updateWater();
-	ui8 getHeroFrameNum(ui8 dir, bool isMoving) const; //terrainRect helper function
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper
 	static ui8 getDir(const int3 & a, const int3 & b);  //returns direction number in range 0 - 7 (0 is left top, clockwise) [direction: form a to b]
 

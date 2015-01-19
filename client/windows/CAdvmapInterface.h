@@ -209,7 +209,7 @@ public:
 	void updateNextHero(const CGHeroInstance *h);
 
 	/// changes current adventure map mode; used to switch between default view and world view; scale is ignored if EAdvMapMode == NORMAL
-	void changeMode(EAdvMapMode newMode, float newScale = 0.4f);
+	void changeMode(EAdvMapMode newMode, float newScale = 0.36f);
 };
 
 extern CAdvMapInt *adventureInt;
