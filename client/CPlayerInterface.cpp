@@ -143,6 +143,8 @@ void CPlayerInterface::init(shared_ptr<CCallback> CB)
 
 	if(!adventureInt)
 		adventureInt = new CAdvMapInt();
+	else
+		adventureInt->restoreState();
 }
 void CPlayerInterface::yourTurn()
 {

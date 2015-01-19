@@ -208,6 +208,9 @@ public:
 	void updateMoveHero(const CGHeroInstance *h, tribool hasPath = boost::logic::indeterminate);
 	void updateNextHero(const CGHeroInstance *h);
 
+	/// called by player interface if it wants to reuse this object for new/loaded map
+	void restoreState();
+
 	/// changes current adventure map mode; used to switch between default view and world view; scale is ignored if EAdvMapMode == NORMAL
 	void changeMode(EAdvMapMode newMode, float newScale = 0.36f);
 };

@@ -402,10 +402,11 @@ void CResDataBar::showAll(SDL_Surface * to)
 CAdvMapInt::CAdvMapInt():
 	mode(EAdvMapMode::NORMAL),
 	minimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH)),
-statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
-heroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD),
-townList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD),
-infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
+	statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
+	heroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD),
+	townList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD),
+	infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) ),
+	activeMapPanel(nullptr)
 {
 	duringAITurn = false;
 	state = NA;
@@ -546,10 +547,17 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 											Colors::WHITE, CGI->generaltexth->allTexts[618]));
 
 	activeMapPanel = panelMain;
+	restoreState();
+
+	addUsedEvents(MOVE);
+}
+
+void CAdvMapInt::restoreState()
+{
+	changeMode(EAdvMapMode::NORMAL);
 
 	underground->block(!CGI->mh->map->twoLevel);
 	worldViewUnderground->block(!CGI->mh->map->twoLevel);
-	addUsedEvents(MOVE);
 }
 
 CAdvMapInt::~CAdvMapInt()
