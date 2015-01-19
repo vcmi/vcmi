@@ -481,12 +481,21 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	panelWorldView->addChildToPanel(
 		makeButton(288, std::bind(&CAdvMapInt::fworldViewBack,this), worldViewBackConfig, SDLK_ESCAPE), ACTIVATE | DEACTIVATE);
 
+	config::ButtonInfo worldViewPuzzleConfig = config::ButtonInfo();
+	worldViewPuzzleConfig.defName = "VWPUZ.DEF";
+	worldViewPuzzleConfig.x = screen->w - 188;
+	worldViewPuzzleConfig.y = 343 + 195;
+	worldViewPuzzleConfig.playerColoured = false;
+	panelWorldView->addChildToPanel( // no help text for this one
+		new CButton(Point(worldViewPuzzleConfig.x, worldViewPuzzleConfig.y), worldViewPuzzleConfig.defName, std::pair<std::string, std::string>(),
+				std::bind(&CPlayerInterface::showPuzzleMap,LOCPLINT), SDLK_p, worldViewPuzzleConfig.playerColoured), ACTIVATE | DEACTIVATE);
+
 	config::ButtonInfo worldViewScale1xConfig = config::ButtonInfo();
 	worldViewScale1xConfig.defName = "VWMAG1.DEF";
 	worldViewScale1xConfig.x = screen->w - 191;
 	worldViewScale1xConfig.y = 23 + 195;
 	worldViewScale1xConfig.playerColoured = false;
-	panelWorldView->addChildToPanel(
+	panelWorldView->addChildToPanel( // help text is wrong for this button
 		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale1x,this), worldViewScale1xConfig, SDLK_1), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale2xConfig = config::ButtonInfo();
@@ -494,7 +503,7 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	worldViewScale2xConfig.x = screen->w - 191 + 63;
 	worldViewScale2xConfig.y = 23 + 195;
 	worldViewScale2xConfig.playerColoured = false;
-	panelWorldView->addChildToPanel(
+	panelWorldView->addChildToPanel( // help text is wrong for this button
 		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale2x,this), worldViewScale2xConfig, SDLK_2), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale4xConfig = config::ButtonInfo();
@@ -502,7 +511,7 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	worldViewScale4xConfig.x = screen->w - 191 + 126;
 	worldViewScale4xConfig.y = 23 + 195;
 	worldViewScale4xConfig.playerColoured = false;
-	panelWorldView->addChildToPanel(
+	panelWorldView->addChildToPanel( // help text is wrong for this button
 		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale4x,this), worldViewScale4xConfig, SDLK_4), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewUndergroundConfig = config::ButtonInfo();
@@ -515,7 +524,6 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	panelWorldView->addChildColorableButton(worldViewUnderground);
 
 	setPlayer(LOCPLINT->playerID);
-
 
 	int iconColorMultiplier = player.getNum() * 19;
 	int wvLeft = heroList.pos.x - 2; // TODO correct drawing position
