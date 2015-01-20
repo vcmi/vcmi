@@ -1331,6 +1331,10 @@ CMapHandler::~CMapHandler()
 	delete graphics->FoWfullHide;
 	delete graphics->FoWpartialHide;
 
+	delete normalBlitter;
+	delete worldViewBlitter;
+	delete puzzleViewBlitter;
+
 	for(auto & elem : roadDefs)
 		delete elem;
 
