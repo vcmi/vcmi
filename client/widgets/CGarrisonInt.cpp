@@ -239,17 +239,20 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				{
 					const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
 					artSelected = true;
-					ArtifactLocation src(srcHero, commonInfo->src.slotID);
-					ArtifactLocation dst(myStack, ArtifactPosition::CREATURE_SLOT);
-					if (art->canBePutAt(dst, true))
-					{	//equip clicked stack
-						if(dst.getArt())
-						{
-							//creature can wear only one active artifact
-							//if we are placing a new one, the old one will be returned to the hero's backpack
-							LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
+					if (myStack) // try dropping the artifact only if the slot isn't empty
+					{
+						ArtifactLocation src(srcHero, commonInfo->src.slotID);
+						ArtifactLocation dst(myStack, ArtifactPosition::CREATURE_SLOT);
+						if (art->canBePutAt(dst, true))
+						{	//equip clicked stack
+							if(dst.getArt())
+							{
+								//creature can wear only one active artifact
+								//if we are placing a new one, the old one will be returned to the hero's backpack
+								LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
+							}
+							LOCPLINT->cb->swapArtifacts(src, dst);
 						}
-						LOCPLINT->cb->swapArtifacts(src, dst);
 					}
 				}
 			}
