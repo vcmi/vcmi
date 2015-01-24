@@ -2318,7 +2318,7 @@ void OptionsTab::nextCastle( PlayerColor player, int dir )
 
 	if(s.hero >= 0 && !SEL->current->mapHeader->players[s.color.getNum()].hasCustomMainHero()) // remove hero unless it set to fixed one in map editor
 	{
-		usedHeroes.erase(s.hero);
+		usedHeroes.erase(s.hero); // restore previously selected hero back to available pool
 		s.hero =  PlayerSettings::RANDOM;
 	}
 	if(cur < 0  &&  s.bonus == PlayerSettings::RESOURCE)
@@ -2355,7 +2355,7 @@ void OptionsTab::nextHero( PlayerColor player, int dir )
 		if(dir > 0)
 			s.hero = nextAllowedHero(player, s.hero, CGI->heroh->heroes.size(), 1, dir);
 		else
-			s.hero = nextAllowedHero(player, -1, s.hero, 1, dir);
+			s.hero = nextAllowedHero(player, -1, s.hero, 1, dir); // min needs to be -1 -- hero at index 0 would be skipped otherwise
 	}
 
 	if(old != s.hero)
@@ -2533,7 +2533,7 @@ void OptionsTab::flagPressed( PlayerColor color )
 			usedHeroes.erase(old->hero);
 
 		old->hero = entries[old->color]->pi.defaultHero();
-		entries[old->color]->update();
+		entries[old->color]->update(); // update previous frame images in case entries were auto-updated
 	}
 
 	SEL->propagateOptions();
