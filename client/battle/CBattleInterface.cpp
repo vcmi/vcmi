@@ -1797,6 +1797,9 @@ void CBattleInterface::printConsoleAttacked( const CStack * defender, int dmg, i
 	}
 	if(killed > 0)
 	{
+		if (attacker)
+			formattedText.append(" ");
+		
 		boost::format txt;
 		if(killed > 1)
 		{
