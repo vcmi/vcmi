@@ -35,14 +35,14 @@ ResourceID::ResourceID()
 ResourceID::ResourceID(std::string name)
 {
 	CFileInfo info(std::move(name));
-	setName(info.getStem());
 	setType(info.getType());
+	setName(info.getStem());
 }
 
 ResourceID::ResourceID(std::string name, EResType::Type type)
 {
-	setName(std::move(name));
 	setType(type);
+	setName(std::move(name));
 }
 
 std::string ResourceID::getName() const
@@ -61,8 +61,11 @@ void ResourceID::setName(std::string name)
 
 	size_t dotPos = this->name.find_last_of("/.");
 
-	if(dotPos != std::string::npos && this->name[dotPos] == '.')
+	if(dotPos != std::string::npos && this->name[dotPos] == '.'
+		&& this->type == EResTypeHelper::getTypeFromExtension(this->name.substr(dotPos)))
+	{
 		this->name.erase(dotPos);
+	}
 
 #ifdef ENABLE_TRIVIAL_TOUPPER
 	toUpper(this->name);
