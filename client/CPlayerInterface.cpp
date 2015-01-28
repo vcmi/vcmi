@@ -89,9 +89,9 @@ CondSh<EMoveState> stillMoveHero; //used during hero movement
 
 int CPlayerInterface::howManyPeople = 0;
 
-static bool objectBlitOrderSorter(const std::pair<const CGObjectInstance*,SDL_Rect>  & a, const std::pair<const CGObjectInstance*,SDL_Rect> & b)
+static bool objectBlitOrderSorter(const TerrainTileObject  & a, const TerrainTileObject & b)
 {
-	return CMapHandler::compareObjectBlitOrder(a.first, b.first);
+	return CMapHandler::compareObjectBlitOrder(a.obj, b.obj);
 }
 
 CPlayerInterface::CPlayerInterface(PlayerColor Player)
@@ -205,9 +205,9 @@ STRONG_INLINE void subRect(const int & x, const int & y, const int & z, const SD
 {
 	TerrainTile2 & hlp = CGI->mh->ttiles[x][y][z];
 	for(auto & elem : hlp.objects)
-		if(elem.first->id == hid)
+		if(elem.obj->id == hid)
 		{
-			elem.second = r;
+			elem.rect = r;
 			return;
 		}
 }
@@ -216,7 +216,7 @@ STRONG_INLINE void delObjRect(const int & x, const int & y, const int & z, const
 {
 	TerrainTile2 & hlp = CGI->mh->ttiles[x][y][z];
 	for(int h=0; h<hlp.objects.size(); ++h)
-		if(hlp.objects[h].first->id == hid)
+		if(hlp.objects[h].obj->id == hid)
 		{
 			hlp.objects.erase(hlp.objects.begin()+h);
 			return;
@@ -239,8 +239,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		// TODO -> we should not need full CGHeroInstance structure to display animation or it should not be handled by playerint (but by the client itself)
 		const TerrainTile2 &tile = CGI->mh->ttiles[hp.x-1][hp.y][hp.z];
 		for(auto & elem : tile.objects)
-			if(elem.first->id == details.id)
-				hero = dynamic_cast<const CGHeroInstance *>(elem.first);
+			if(elem.obj->id == details.id)
+				hero = dynamic_cast<const CGHeroInstance *>(elem.obj);
 
 		if(!hero) //still nothing...
 			return;
@@ -1674,17 +1674,17 @@ void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroIns
 	{
 		//ho->moveDir = 1;
 		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -31)));
-		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 1, -31)));
-		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 33, -31)));
-		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 65, -31)));
+		CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, -31)));
+		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 1, -31)));
+		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 33, -31)));
+		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 65, -31)));
 
-		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 1)));
+		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 1)));
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 1), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 1), ho->id);
 
-		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 33)));
+		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 33)));
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 33), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 33), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 33), ho->id);
@@ -1702,9 +1702,9 @@ void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroIns
 	{
 		//ho->moveDir = 2;
 		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, -31)));
-		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, -31)));
-		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 64, -31)));
+		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 0, -31)));
+		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 32, -31)));
+		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 64, -31)));
 
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, 1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, 1), ho->id);
@@ -1722,20 +1722,20 @@ void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroIns
 	{
 		//ho->moveDir = 3;
 		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -1, -31)));
-		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 31, -31)));
-		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 63, -31)));
-		CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, -31)));
+		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -1, -31)));
+		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 31, -31)));
+		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 63, -31)));
+		CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, -31)));
 
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 1), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 1), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 1)));
+		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 1)));
 
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 33), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 33), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 33), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 33)));
+		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 33)));
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
 		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), objectBlitOrderSorter);
@@ -1753,12 +1753,12 @@ void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroIns
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 0), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 0), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 0), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 0)));
+		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 0)));
 
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 32), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 32), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 32), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 32)));
+		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 32)));
 
 		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), objectBlitOrderSorter);
 
@@ -1771,17 +1771,17 @@ void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroIns
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, -1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, -1), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, -1), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, -1)));
+		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, -1)));
 
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 31), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 31), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 31), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 31)));
+		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 31)));
 
-		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -1, 63)));
-		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 31, 63)));
-		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 63, 63)));
-		CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 63)));
+		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -1, 63)));
+		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 31, 63)));
+		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 63, 63)));
+		CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 63)));
 
 		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), objectBlitOrderSorter);
 
@@ -1804,9 +1804,9 @@ void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroIns
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 31), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 31), ho->id);
 
-		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, 63)));
-		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, 63)));
-		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 64, 63)));
+		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 0, 63)));
+		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 32, 63)));
+		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 64, 63)));
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
 		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), objectBlitOrderSorter);
@@ -1816,20 +1816,20 @@ void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroIns
 	{
 		//ho->moveDir = 7;
 		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -1)));
+		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, -1)));
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, -1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, -1), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, -1), ho->id);
 
-		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 31)));
+		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 31)));
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 31), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 31), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 31), ho->id);
 
-		CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 63)));
-		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 1, 63)));
-		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 33, 63)));
-		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 65, 63)));
+		CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 63)));
+		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 1, 63)));
+		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 33, 63)));
+		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 65, 63)));
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), objectBlitOrderSorter);
 
@@ -1844,12 +1844,12 @@ void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroIns
 	{
 		//ho->moveDir = 8;
 		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 0)));
+		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 0)));
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 0), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 0), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 0), ho->id);
 
-		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 32)));
+		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 32)));
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 32), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 32), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 32), ho->id);

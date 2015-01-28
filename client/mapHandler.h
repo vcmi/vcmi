@@ -50,11 +50,34 @@ enum class EWorldViewIcon
 
 };
 
+enum class EMapObjectFadingType
+{
+	NONE,
+	IN,
+	OUT
+};
+
+struct TerrainTileObject
+{
+	const CGObjectInstance *obj;
+	SDL_Rect rect;
+	EMapObjectFadingType fading;
+	float fadingCounter;
+	std::string image;
+	
+	TerrainTileObject(const CGObjectInstance *obj_, SDL_Rect rect_)
+		: obj(obj_),
+		  rect(rect_),
+		  fading(EMapObjectFadingType::NONE),
+		  fadingCounter(0.0f)
+	{}
+};
+
 struct TerrainTile2
 {
 	SDL_Surface * terbitmap; //bitmap of terrain
 
-	std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > objects; //pointers to objects being on this tile with rects to be easier to blit this tile on screen
+	std::vector<TerrainTileObject> objects; //pointers to objects being on this tile with rects to be easier to blit this tile on screen
 	TerrainTile2();
 };
 
@@ -159,7 +182,7 @@ class CMapHandler
 
 
 	class CMapBlitter
-	{
+	{		
 	protected:
 		CMapHandler * parent; // ptr to enclosing map handler; generally for legacy reasons, probably could/should be refactored out of here
 		int tileSize; // size of a tile drawn on map [in pixels]
@@ -220,6 +243,7 @@ class CMapHandler
 
 		virtual bool canDrawObject(const CGObjectInstance * obj) const;
 		virtual bool canDrawCurrentTile() const;
+		
 	public:
 		CMapBlitter(CMapHandler * p) : parent(p) {}
 		virtual ~CMapBlitter(){}
@@ -283,8 +307,12 @@ class CMapHandler
 	CMapBlitter * normalBlitter;
 	CMapBlitter * worldViewBlitter;
 	CMapBlitter * puzzleViewBlitter;
+	
+//	std::vector<std::pair<int3, int>> fadingObjectsCache;
+	SDL_Surface * fadingOffscreenBitmapSurface;
 
 	CMapBlitter * resolveBlitter(const MapDrawingInfo * info) const;
+	void updateObjectsFade();
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
@@ -320,8 +348,8 @@ public:
 
 	void getTerrainDescr(const int3 &pos, std::string & out, bool terName); //if tername == false => empty string when tile is clear
 	CGObjectInstance * createObject(int id, int subid, int3 pos, int owner=254); //creates a new object with a certain id and subid
-	bool printObject(const CGObjectInstance * obj); //puts appropriate things to ttiles, so obj will be visible on map
-	bool hideObject(const CGObjectInstance * obj); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
+	bool printObject(const CGObjectInstance * obj, bool fadein = false); //puts appropriate things to ttiles, so obj will be visible on map
+	bool hideObject(const CGObjectInstance * obj, bool fadeout = false); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
 	bool removeObject(CGObjectInstance * obj); //removes object from each place in VCMI (I hope)
 	void init();
 	void calculateBlockedPos();

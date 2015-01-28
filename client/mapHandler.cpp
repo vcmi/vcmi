@@ -75,9 +75,9 @@ std::string nameFromType (int typ)
 	return std::string();
 }
 
-static bool objectBlitOrderSorter(const std::pair<const CGObjectInstance*,SDL_Rect>  & a, const std::pair<const CGObjectInstance*,SDL_Rect> & b)
+static bool objectBlitOrderSorter(const TerrainTileObject & a, const TerrainTileObject & b)
 {
-	return CMapHandler::compareObjectBlitOrder(a.first, b.first);
+	return CMapHandler::compareObjectBlitOrder(a.obj, b.obj);
 }
 
 struct NeighborTilesInfo
@@ -188,6 +188,7 @@ void CMapHandler::prepareFOWDefs()
 void CMapHandler::drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info)
 {
 	assert(info);
+	updateObjectsFade();
 	resolveBlitter(info)->blit(targetSurface, info);
 }
 
@@ -346,7 +347,7 @@ void CMapHandler::initObjectRects()
 				cr.h = 32;
 				cr.x = bitmap->w - fx * 32 - 32;
 				cr.y = bitmap->h - fy * 32 - 32;
-				std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj,cr);
+				TerrainTileObject toAdd(obj,cr);
 
 
 				if( map->isInTheMap(currTile) && // within map
@@ -609,12 +610,12 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 	auto & objects = tile.objects;
 	for(auto & object : objects)
 	{
-		const CGObjectInstance * obj = object.first;
+		const CGObjectInstance * obj = object.obj;
 
 		if (obj->pos.z != pos.z)
 			continue;
 		if (!(*info->visibilityMap)[pos.x][pos.y][pos.z])
-			continue; // TODO needs to skip this check if we have artifacts-aura-like spell cast
+			continue; // TODO needs to skip this check if we have view-air-like spell cast
 		if (!obj->visitableAt(pos.x, pos.y))
 			continue;
 
@@ -809,7 +810,24 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 	auto & objects = tile.objects;
 	for(auto & object : objects)
 	{
-		const CGObjectInstance * obj = object.first;
+		if (object.fading == EMapObjectFadingType::OUT)
+		{
+			auto &bitmap = graphics->advmapobjGraphics[object.image]->ourImages[0].bitmap;
+			if (!parent->fadingOffscreenBitmapSurface)
+				parent->fadingOffscreenBitmapSurface = CSDL_Ext::newSurface(tileSize, tileSize, targetSurf);
+			Rect r1(object.rect);
+			r1.w = tileSize;
+			r1.h = tileSize;
+			Rect r2(realTileRect);
+			SDL_SetSurfaceAlphaMod(parent->fadingOffscreenBitmapSurface, object.fadingCounter * 255);
+			SDL_BlitSurface(bitmap, &r1, parent->fadingOffscreenBitmapSurface, nullptr);
+			SDL_BlitSurface(parent->fadingOffscreenBitmapSurface, nullptr, targetSurf, &r2);
+			SDL_SetSurfaceAlphaMod(parent->fadingOffscreenBitmapSurface, 255);
+			SDL_FillRect(parent->fadingOffscreenBitmapSurface, nullptr, 0);
+			continue;
+		}
+		
+		const CGObjectInstance * obj = object.obj;
 		if (!graphics->getDef(obj))
 			processDef(obj->appearance);
 		if (!graphics->getDef(obj) && !obj->appearance.animationFile.empty())
@@ -820,7 +838,7 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 
 		PlayerColor color = obj->tempOwner;
 
-		SDL_Rect pp = object.second;
+		SDL_Rect pp = object.rect;
 		pp.h = tileSize;
 		pp.w = tileSize;
 
@@ -828,6 +846,8 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 			? nullptr
 			: static_cast<const CGHeroInstance*>(obj));
 
+		// this block probably could be changed into templated methods for heroes/boats/other objects;
+		
 		//print hero / boat and flag
 		if((hero && hero->moveDir && hero->type) || (obj->ID == Obj::BOAT)) //it's hero or boat
 		{
@@ -1144,7 +1164,53 @@ std::pair<SDL_Surface *, bool> CMapHandler::CMapBlitter::getVisBitmap() const
 	}
 }
 
-bool CMapHandler::printObject(const CGObjectInstance *obj)
+void CMapHandler::updateObjectsFade()
+{	
+	// TODO caching fading objects indices for optimization?
+	for (size_t i=0; i<map->width; i++)
+	{
+		for (size_t j=0; j<map->height; j++)
+		{
+			for (size_t k=0; k<(map->twoLevel ? 2 : 1); k++)
+			{
+				for(size_t x=0; x < ttiles[i][j][k].objects.size(); )
+				{
+					auto &obj = ttiles[i][j][k].objects[x];
+					
+					switch (obj.fading)
+					{
+					case EMapObjectFadingType::IN:
+						obj.fadingCounter += 0.2f;
+						if (obj.fadingCounter >= 1.0f)
+						{
+							obj.fadingCounter = 1.0f;
+							obj.fading = EMapObjectFadingType::NONE;
+						}
+						++x;
+						break;
+					case EMapObjectFadingType::OUT:
+						obj.fadingCounter -= 0.2f;
+						if (obj.fadingCounter <= 0.0f)
+						{
+							obj.fadingCounter = 0.0f;
+							obj.fading = EMapObjectFadingType::NONE;
+							ttiles[i][j][k].objects.erase(ttiles[i][j][k].objects.begin() + x);
+						}
+						else
+							++x;
+						break;
+					default:
+						// not fading
+						++x;
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+bool CMapHandler::printObject(const CGObjectInstance *obj, bool fadein /* = false */)
 {
 	if (!graphics->getDef(obj))
 		processDef(obj->appearance);
@@ -1162,10 +1228,16 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 			cr.h = 32;
 			cr.x = fx*32;
 			cr.y = fy*32;
-			std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj, cr);
+			TerrainTileObject toAdd(obj, cr);
+			if (fadein)
+			{
+				toAdd.fading = EMapObjectFadingType::IN;
+				toAdd.fadingCounter = 0.0f;
+			}
+			
 			if((obj->pos.x + fx - tilesW+1)>=0 && (obj->pos.x + fx - tilesW+1)<ttiles.size()-frameW && (obj->pos.y + fy - tilesH+1)>=0 && (obj->pos.y + fy - tilesH+1)<ttiles[0].size()-frameH)
 			{
-				TerrainTile2 & curt = ttiles[obj->pos.x + fx - tilesW+1][obj->pos.y + fy - tilesH+1][obj->pos.z];
+				TerrainTile2 & curt = ttiles[obj->pos.x + fx - tilesW+1][obj->pos.y + fy - tilesH+1][obj->pos.z];					
 
 				auto i = curt.objects.begin();
 				for(; i != curt.objects.end(); i++)
@@ -1187,7 +1259,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 	return true;
 }
 
-bool CMapHandler::hideObject(const CGObjectInstance *obj)
+bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = false */)
 {
 	for (size_t i=0; i<map->width; i++)
 	{
@@ -1197,9 +1269,17 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj)
 			{
 				for(size_t x=0; x < ttiles[i][j][k].objects.size(); x++)
 				{
-					if (ttiles[i][j][k].objects[x].first->id == obj->id)
+					if (ttiles[i][j][k].objects[x].obj->id == obj->id)
 					{
-						ttiles[i][j][k].objects.erase(ttiles[i][j][k].objects.begin() + x);
+						if (fadeout) // erase delayed until end of fadeout
+						{
+							ttiles[i][j][k].objects[x].fading = EMapObjectFadingType::OUT;
+							ttiles[i][j][k].objects[x].fadingCounter = 1.0f;
+							ttiles[i][j][k].objects[x].image = ttiles[i][j][k].objects[x].obj->appearance.animationFile;
+//							fadingObjectsCache.push_back(std::make_pair(int3(i, j, k), ttiles[i][j][k].objects[x].obj->ID));
+						}
+						else
+							ttiles[i][j][k].objects.erase(ttiles[i][j][k].objects.begin() + x);
 						break;
 					}
 				}
@@ -1330,6 +1410,8 @@ CMapHandler::~CMapHandler()
 {
 	delete graphics->FoWfullHide;
 	delete graphics->FoWpartialHide;
+	if (fadingOffscreenBitmapSurface)
+		delete fadingOffscreenBitmapSurface;
 
 	delete normalBlitter;
 	delete worldViewBlitter;
@@ -1354,6 +1436,7 @@ CMapHandler::CMapHandler()
 	frameW = frameH = 0;
 	graphics->FoWfullHide = nullptr;
 	graphics->FoWpartialHide = nullptr;
+	fadingOffscreenBitmapSurface = nullptr;
 	normalBlitter = new CMapNormalBlitter(this);
 	worldViewBlitter = new CMapWorldViewBlitter(this);
 	puzzleViewBlitter = new CMapPuzzleViewBlitter(this);
@@ -1366,9 +1449,9 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	const TerrainTile &t = map->getTile(pos);
 	for(auto & elem : tt.objects)
 	{
-		if(elem.first->ID == Obj::HOLE) //Hole
+		if(elem.obj->ID == Obj::HOLE) //Hole
 		{
-			out = elem.first->getObjectName();
+			out = elem.obj->getObjectName();
 			return;
 		}
 	}

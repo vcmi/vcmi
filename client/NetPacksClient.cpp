@@ -336,7 +336,7 @@ void RemoveObject::applyFirstCl( CClient *cl )
 {
 	const CGObjectInstance *o = cl->getObj(id);
 
-	CGI->mh->hideObject(o);
+	CGI->mh->hideObject(o, true);
 
 	//notify interfaces about removal
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
@@ -908,7 +908,7 @@ void NewObject::applyCl(CClient *cl)
 	cl->invalidatePaths();
 
 	const CGObjectInstance *obj = cl->getObj(id);
-	CGI->mh->printObject(obj);
+	CGI->mh->printObject(obj, true);
 
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
