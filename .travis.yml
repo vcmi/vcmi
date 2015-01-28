@@ -12,7 +12,7 @@ before_install:
   #new Qt
   - sudo add-apt-repository --yes ppa:beineri/opt-qt532
   #new FFmpeg
-  - sudo add-apt-repository --yes ppa:djcj/vlc-stable
+  - sudo add-apt-repository --yes ppa:jon-severinsson/ffmpeg
   #new CMake
   - sudo add-apt-repository --yes ppa:andykimpe/cmake 
 
