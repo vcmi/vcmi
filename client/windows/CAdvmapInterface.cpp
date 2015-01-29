@@ -1281,7 +1281,7 @@ void CAdvMapInt::setPlayer(PlayerColor Player)
 
 	panelMain->setPlayerColor(player);
 	panelWorldView->setPlayerColor(player);
-	panelWorldView->recolorIcons(worldViewIconsDef, player.getNum() * 19);
+	panelWorldView->recolorIcons(player, worldViewIconsDef, player.getNum() * 19);
 	graphics->blueToPlayersAdv(resdatabar.bg,player);
 
 	//heroList.updateHList();

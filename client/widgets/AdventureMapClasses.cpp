@@ -1235,6 +1235,11 @@ CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
 	recActions = 255;
 	pos.x += position.x;
 	pos.y += position.y;
+	if (bg)
+	{
+		pos.w = bg->w;
+		pos.h = bg->h;
+	}
 }
 
 CAdvMapPanel::~CAdvMapPanel()
@@ -1272,13 +1277,13 @@ void CAdvMapPanel::addChildToPanel(CIntObject * obj, ui8 actions /* = 0 */)
 }
 
 CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color)
-	: CAdvMapPanel(bg, position)
+	: CAdvMapPanel(bg, position)	  
 {
-	if (background && spaceBottom - pos.y > background->h)
+	fillerHeight = bg ? spaceBottom - pos.y - pos.h : 0;
+	
+	if (fillerHeight > 0)
 	{
-		logGlobal->debugStream() << "Creating filler bitmap for world view panel: " 
-								 << background->w << "x" << (spaceBottom - pos.y - background->h);
-		tmpBackgroundFiller = CMessage::drawDialogBox(background->w, spaceBottom - pos.y - background->h, color);
+		tmpBackgroundFiller = CMessage::drawDialogBox(pos.w, fillerHeight, color);
 	}
 	else
 		tmpBackgroundFiller = nullptr;
@@ -1287,10 +1292,10 @@ CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(SDL_Surface * bg, Point position, i
 CAdvMapWorldViewPanel::~CAdvMapWorldViewPanel()
 {
 	if (tmpBackgroundFiller)
-		delete tmpBackgroundFiller;
+		SDL_FreeSurface(tmpBackgroundFiller);
 }
 
-void CAdvMapWorldViewPanel::recolorIcons(const CDefHandler *def, int indexOffset)
+void CAdvMapWorldViewPanel::recolorIcons(const PlayerColor &color, const CDefHandler *def, int indexOffset)
 {
 	for (auto &pic : currentIcons)
 	{
@@ -1306,6 +1311,13 @@ void CAdvMapWorldViewPanel::recolorIcons(const CDefHandler *def, int indexOffset
 		currentIcons.push_back(pic);
 		addChildToPanel(pic);
 	}
+	
+	if (fillerHeight > 0)
+	{
+		if (tmpBackgroundFiller)
+			SDL_FreeSurface(tmpBackgroundFiller);
+		tmpBackgroundFiller = CMessage::drawDialogBox(pos.w, fillerHeight, color);
+	}
 }
 
 void CAdvMapWorldViewPanel::addChildIcon(std::pair<int, Point> data, const CDefHandler *def, int indexOffset)
@@ -1320,7 +1332,7 @@ void CAdvMapWorldViewPanel::showAll(SDL_Surface * to)
 {
 	if (tmpBackgroundFiller)
 	{		
-		blitAt(tmpBackgroundFiller, pos.x, pos.y + background->h, to);
+		blitAt(tmpBackgroundFiller, pos.x, pos.y + pos.h, to);
 	}
 
 	CAdvMapPanel::showAll(to);
