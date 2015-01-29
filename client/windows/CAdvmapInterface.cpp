@@ -458,8 +458,11 @@ CAdvMapInt::CAdvMapInt():
 	nextHero     = makeButton(301, std::bind(&CAdvMapInt::fnextHero,this),         ADVOPT.nextHero,     SDLK_h);
 	endTurn      = makeButton(302, std::bind(&CAdvMapInt::fendTurn,this),          ADVOPT.endTurn,      SDLK_e);
 
+	int panelSpaceBottom = screen->h - resdatabar.pos.h - 4;
+	
 	panelMain = new CAdvMapPanel(nullptr, Point(0, 0));
-	panelWorldView = new CAdvMapWorldViewPanel(bgWorldView, Point(heroList.pos.x - 2, 195)); // TODO correct drawing position
+	// TODO correct drawing position
+	panelWorldView = new CAdvMapWorldViewPanel(bgWorldView, Point(heroList.pos.x - 2, 195), panelSpaceBottom, LOCPLINT->playerID); 
 
 	panelMain->addChildColorableButton(kingOverview);
 	panelMain->addChildColorableButton(underground);

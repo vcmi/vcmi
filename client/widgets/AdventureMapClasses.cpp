@@ -12,6 +12,7 @@
 #include "../CPlayerInterface.h"
 #include "../CPreGame.h"
 #include "../Graphics.h"
+#include "../CMessage.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Pixels.h"
@@ -1270,10 +1271,23 @@ void CAdvMapPanel::addChildToPanel(CIntObject * obj, ui8 actions /* = 0 */)
 	addChild(obj, false);
 }
 
-CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(SDL_Surface * bg, Point position)
+CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color)
 	: CAdvMapPanel(bg, position)
 {
+	if (background && spaceBottom - pos.y > background->h)
+	{
+		logGlobal->debugStream() << "Creating filler bitmap for world view panel: " 
+								 << background->w << "x" << (spaceBottom - pos.y - background->h);
+		tmpBackgroundFiller = CMessage::drawDialogBox(background->w, spaceBottom - pos.y - background->h, color);
+	}
+	else
+		tmpBackgroundFiller = nullptr;
+}
 
+CAdvMapWorldViewPanel::~CAdvMapWorldViewPanel()
+{
+	if (tmpBackgroundFiller)
+		delete tmpBackgroundFiller;
 }
 
 void CAdvMapWorldViewPanel::recolorIcons(const CDefHandler *def, int indexOffset)
@@ -1300,4 +1314,14 @@ void CAdvMapWorldViewPanel::addChildIcon(std::pair<int, Point> data, const CDefH
 	auto pic = new CPicture(def->ourImages[data.first + indexOffset].bitmap, data.second.x, data.second.y, false);
 	currentIcons.push_back(pic);
 	addChildToPanel(pic);
+}
+
+void CAdvMapWorldViewPanel::showAll(SDL_Surface * to)
+{
+	if (tmpBackgroundFiller)
+	{		
+		blitAt(tmpBackgroundFiller, pos.x, pos.y + background->h, to);
+	}
+
+	CAdvMapPanel::showAll(to);
 }
