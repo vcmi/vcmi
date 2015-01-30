@@ -324,7 +324,7 @@ public:
 	///Shall be called (only) when applying packets on BOTH SIDES
 	
 	///implementation of BattleSpellCast applying
-	void afterCast(BattleInfo * battle, const BattleSpellCast * packet) const;
+	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const;
 		
 private:
 	void setIsOffensive(const bool val);

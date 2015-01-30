@@ -107,9 +107,9 @@ CSpell::~CSpell()
 	delete mechanics;
 }
 
-void CSpell::afterCast(BattleInfo * battle, const BattleSpellCast * packet) const
+void CSpell::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
-	mechanics->afterCast(battle, packet);
+	mechanics->applyBattle(battle, packet);
 }
 
 bool CSpell::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const

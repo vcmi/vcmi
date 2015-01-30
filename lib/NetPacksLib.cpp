@@ -1339,7 +1339,7 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 
 	const CSpell * spell = SpellID(id).toSpell();
 	
-	spell->afterCast(gs->curB, this);
+	spell->applyBattle(gs->curB, this);
 }
 
 void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)

@@ -146,7 +146,7 @@ public:
 	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override final; 
 	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const override;
 	
-	void afterCast(BattleInfo * battle, const BattleSpellCast * packet) const override;
+	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;
 protected:
 	
 	virtual void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
@@ -237,7 +237,7 @@ class CureMechanics: public DefaultSpellMechanics
 public:
 	CureMechanics(CSpell * s): DefaultSpellMechanics(s){};	
 	
-	void afterCast(BattleInfo * battle, const BattleSpellCast * packet) const override;	
+	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;	
 };
 
 class DeathStareMechnics: public DefaultSpellMechanics
@@ -253,7 +253,7 @@ class DispellHelpfulMechanics: public DefaultSpellMechanics
 public:
 	DispellHelpfulMechanics(CSpell * s): DefaultSpellMechanics(s){};
 	
-	void afterCast(BattleInfo * battle, const BattleSpellCast * packet) const override;
+	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;
 	
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;	
 };
@@ -263,7 +263,7 @@ class DispellMechanics: public DefaultSpellMechanics
 public:
 	DispellMechanics(CSpell * s): DefaultSpellMechanics(s){};
 	
-	void afterCast(BattleInfo * battle, const BattleSpellCast * packet) const override;	
+	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;	
 };
 
 class HypnotizeMechanics: public DefaultSpellMechanics
@@ -407,7 +407,7 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 
 
 ///DefaultSpellMechanics
-void DefaultSpellMechanics::afterCast(BattleInfo * battle, const BattleSpellCast * packet) const
+void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	if (packet->castedByHero)
 	{
@@ -1344,9 +1344,9 @@ ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHer
 }
 
 ///CureMechanics
-void CureMechanics::afterCast(BattleInfo * battle, const BattleSpellCast * packet) const
+void CureMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
-	DefaultSpellMechanics::afterCast(battle, packet);
+	DefaultSpellMechanics::applyBattle(battle, packet);
 	
 	for(auto stackID : packet->affectedCres)
 	{
@@ -1394,9 +1394,9 @@ void DeathStareMechnics::applyBattleEffects(const SpellCastEnvironment * env, Ba
 
 
 ///DispellHelpfulMechanics
-void DispellHelpfulMechanics::afterCast(BattleInfo * battle, const BattleSpellCast * packet) const
+void DispellHelpfulMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
-	DefaultSpellMechanics::afterCast(battle, packet);
+	DefaultSpellMechanics::applyBattle(battle, packet);
 	
 	for(auto stackID : packet->affectedCres)
 	{
@@ -1434,9 +1434,9 @@ ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(co
 }
 
 ///DispellMechanics
-void DispellMechanics::afterCast(BattleInfo * battle, const BattleSpellCast * packet) const
+void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
-	DefaultSpellMechanics::afterCast(battle, packet);
+	DefaultSpellMechanics::applyBattle(battle, packet);
 	
 	for(auto stackID : packet->affectedCres)
 	{
