@@ -18,6 +18,7 @@
 #include "../Graphics.h"
 #include "../mapHandler.h"
 
+#include "../gui/CAnimation.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
@@ -61,7 +62,10 @@ CAdvMapInt *adventureInt;
 
 
 CTerrainRect::CTerrainRect()
-	: curHoveredTile(-1,-1,-1), currentPath(nullptr)
+	: fadeSurface(nullptr), 
+	  fadeAnim(new CFadeAnimation()),
+	  curHoveredTile(-1,-1,-1), 
+	  currentPath(nullptr)
 {
 	tilesw=(ADVOPT.advmapW+31)/32;
 	tilesh=(ADVOPT.advmapH+31)/32;
@@ -71,6 +75,13 @@ CTerrainRect::CTerrainRect()
 	pos.h=ADVOPT.advmapH;
 	moveX = moveY = 0;
 	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
+}
+
+CTerrainRect::~CTerrainRect()
+{
+	if (fadeSurface)
+		SDL_FreeSurface(fadeSurface);
+	delete fadeAnim;
 }
 
 void CTerrainRect::deactivate()
@@ -272,8 +283,14 @@ void CTerrainRect::show(SDL_Surface * to)
 		info.heroAnim = adventureInt->heroAnim;
 		if (ADVOPT.smoothMove)
 			info.movement = int3(moveX, moveY, 0);
-
-		CGI->mh->drawTerrainRectNew(to, &info);
+		
+		lastRedrawStatus = CGI->mh->drawTerrainRectNew(to, &info);
+		if (fadeAnim->isFading())
+		{
+			Rect r(pos);
+			fadeAnim->update();
+			fadeAnim->draw(to, nullptr, &r);
+		}
 
 		if (currentPath/* && adventureInt->position.z==currentPath->startPos().z*/) //drawing path
 		{
@@ -296,6 +313,22 @@ void CTerrainRect::showAll(SDL_Surface * to)
 
 		CGI->mh->drawTerrainRectNew(to, &info);
 	}
+}
+
+void CTerrainRect::showAnim(SDL_Surface * to)
+{	
+	if (fadeAnim->isFading())
+		show(to);
+	else if (lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED)
+	{
+		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos);
+		info.otherheroAnim = true;
+		info.anim = adventureInt->anim;
+		info.heroAnim = adventureInt->heroAnim;
+		if (ADVOPT.smoothMove)
+			info.movement = int3(moveX, moveY, 0);
+		lastRedrawStatus = CGI->mh->drawTerrainRectNew(to, &info, true);
+	}		
 }
 
 int3 CTerrainRect::whichTileIsIt(const int & x, const int & y)
@@ -324,6 +357,22 @@ int3 CTerrainRect::tileCountOnScreen()
 	case EAdvMapMode::WORLD_VIEW:
 		return int3(tilesw / adventureInt->worldViewScale, tilesh / adventureInt->worldViewScale, 1);
 	}
+}
+
+void CTerrainRect::fadeFromCurrentView()
+{
+	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
+		return;
+	
+	if (!fadeSurface)
+		fadeSurface = CSDL_Ext::newSurface(pos.w, pos.h);
+	SDL_BlitSurface(screen, &pos, fadeSurface, nullptr);
+	fadeAnim->init(CFadeAnimation::EMode::OUT, 0.05f, fadeSurface);
+}
+
+bool CTerrainRect::needsAnimUpdate()
+{
+	return fadeAnim->isFading() || lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED;
 }
 
 void CResDataBar::clickRight(tribool down, bool previousState)
@@ -917,6 +966,13 @@ void CAdvMapInt::show(SDL_Surface * to)
 		updateScreen=false;
 		LOCPLINT->cingconsole->showAll(to);
 	}
+	else if (terrain.needsAnimUpdate())
+	{
+		terrain.showAnim(to);
+		for(int i=0;i<4;i++)
+			blitAt(gems[i]->ourImages[LOCPLINT->playerID.getNum()].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
+	}
+	
 	infoBar.show(to);
 	statusbar.showAll(to);
 }
@@ -928,9 +984,15 @@ void CAdvMapInt::selectionChanged()
 		select(to);
 }
 
-void CAdvMapInt::centerOn(int3 on)
+void CAdvMapInt::centerOn(int3 on, bool fadeIfZChanged /* = false */)
 {
 	bool switchedLevels = on.z != position.z;
+	
+	if (switchedLevels && fadeIfZChanged)
+	{
+		logGlobal->warnStream() << "START FADING";
+		terrain.fadeFromCurrentView();
+	}
 
 	switch (mode)
 	{
@@ -962,9 +1024,9 @@ void CAdvMapInt::centerOn(int3 on)
 		terrain.redraw();
 }
 
-void CAdvMapInt::centerOn(const CGObjectInstance *obj)
+void CAdvMapInt::centerOn(const CGObjectInstance *obj, bool fadeIfZChanged /* = false */)
 {
-	centerOn(obj->getSightCenter());
+	centerOn(obj->getSightCenter(), fadeIfZChanged);
 }
 
 void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)

@@ -276,6 +276,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 
 				}
 			}
+			adventureInt->centerOn(hero, true); //actualizing screen pos
+			adventureInt->minimap.redraw();
 			adventureInt->heroList.update(hero);
 			return;	//teleport - no fancy moving animation
 					//TODO: smooth disappear / appear effect

@@ -220,3 +220,31 @@ public:
 	//total count of frames in group (including not loaded)
 	size_t size(size_t group=0) const;
 };
+
+class CFadeAnimation
+{
+public:
+	enum class EMode
+	{
+		NONE, IN, OUT
+	};
+private:
+	static constexpr float DEFAULT_DELTA = 0.05f;
+	float delta;
+	SDL_Surface * fadingSurface;
+	bool fading;
+	float fadingCounter;
+	bool shouldFreeSurface;
+	
+	float initialCounter() const;
+	bool isFinished() const;
+public:
+	EMode fadingMode;
+
+	CFadeAnimation();
+	~CFadeAnimation();
+	void init(EMode mode, float animDelta = DEFAULT_DELTA, SDL_Surface * sourceSurface = nullptr, bool freeSurfaceAtEnd = false);
+	void update();
+	void draw(SDL_Surface * targetSurface, const SDL_Rect * sourceRect, SDL_Rect * destRect);
+	bool isFading() const { return fading; }
+};

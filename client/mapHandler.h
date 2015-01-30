@@ -25,6 +25,7 @@ struct TerrainTile;
 struct SDL_Surface;
 struct SDL_Rect;
 class CDefEssential;
+class CFadeAnimation;
 
 enum class EWorldViewIcon
 {
@@ -57,20 +58,20 @@ enum class EMapObjectFadingType
 	OUT
 };
 
+enum class EMapAnimRedrawStatus
+{
+	OK,
+	REDRAW_REQUESTED // map blitter requests quick redraw due to current animation
+};
+
 struct TerrainTileObject
 {
 	const CGObjectInstance *obj;
 	SDL_Rect rect;
-	EMapObjectFadingType fading;
-	float fadingCounter;
-	std::string image;
+	int fadeAnimKey;
 	
-	TerrainTileObject(const CGObjectInstance *obj_, SDL_Rect rect_)
-		: obj(obj_),
-		  rect(rect_),
-		  fading(EMapObjectFadingType::NONE),
-		  fadingCounter(0.0f)
-	{}
+	TerrainTileObject(const CGObjectInstance *obj_, SDL_Rect rect_);
+	~TerrainTileObject();
 };
 
 struct TerrainTile2
@@ -308,11 +309,11 @@ class CMapHandler
 	CMapBlitter * worldViewBlitter;
 	CMapBlitter * puzzleViewBlitter;
 	
-//	std::vector<std::pair<int3, int>> fadingObjectsCache;
-	SDL_Surface * fadingOffscreenBitmapSurface;
+	std::map<int, std::pair<int3, CFadeAnimation*>> fadeAnims;
+	int fadeAnimCounter;
 
 	CMapBlitter * resolveBlitter(const MapDrawingInfo * info) const;
-	void updateObjectsFade();
+	bool updateObjectsFade();
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
@@ -358,7 +359,7 @@ public:
 	void roadsRiverTerrainInit();
 	void prepareFOWDefs();
 
-	void drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info);
+	EMapAnimRedrawStatus drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info, bool redrawOnlyAnim = false);
 	void updateWater();
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper
 	static ui8 getDir(const int3 & a, const int3 & b);  //returns direction number in range 0 - 7 (0 is left top, clockwise) [direction: form a to b]
