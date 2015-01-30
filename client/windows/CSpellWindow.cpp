@@ -611,9 +611,9 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 
 void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 {
-	if(!down && mySpell!=-1)
+	if(!down && mySpell != SpellID::NONE)
 	{
-		const CSpell *sp = CGI->spellh->objects[mySpell];
+		const CSpell * sp = mySpell.toSpell();
 
 		int spellCost = owner->myInt->cb->getSpellCost(sp, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
@@ -625,8 +625,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		}
 
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
-		if((sp->combatSpell && !owner->myInt->battleInt)
-			|| (!sp->combatSpell && owner->myInt->battleInt))
+		if((sp->isCombatSpell() && !owner->myInt->battleInt)
+			|| (sp->isAdventureSpell() && owner->myInt->battleInt))
 		{
 			std::vector<CComponent*> hlp(1, new CComponent(CComponent::spell, mySpell, 0));
 			LOCPLINT->showInfoDialog(sp->getLevelInfo(schoolLevel).description, hlp);
@@ -701,97 +701,96 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				break;
 			}
 		}
-		else if(!sp->combatSpell && !owner->myInt->battleInt) //adventure spell
+		else if(sp->isAdventureSpell() && !owner->myInt->battleInt) //adventure spell and not in battle
 		{
-			SpellID spell = mySpell;
 			const CGHeroInstance *h = owner->myHero;
 			owner->fexitb();
+			
 
-			switch(spell)
+			if(mySpell == SpellID::TOWN_PORTAL)
 			{
-			case SpellID::SUMMON_BOAT:
+				//special case
+				//todo: move to mechanics
+				
+				std::vector <int> availableTowns;
+				std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(true);
+				if (Towns.empty())
 				{
-					int3 pos = h->bestLocation();
-					if(pos.x < 0)
-					{
-						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[334]); //There is no place to put the boat.
-						return;
-					}
-				}
-				break;
-			case SpellID::SCUTTLE_BOAT:
-			case SpellID::DIMENSION_DOOR:
-				adventureInt->enterCastingMode(sp);
-				return;
-			case SpellID::VISIONS:
-			case SpellID::VIEW_EARTH:
-			case SpellID::DISGUISE:
-			case SpellID::VIEW_AIR:
-			case SpellID::FLY:
-			case SpellID::WATER_WALK:
-				break;
-			case SpellID::TOWN_PORTAL:
-				{
-					std::vector <int> availableTowns;
-					std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(true);
-					if (Towns.empty())
-					{
-						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
-						return;
-					}
-
-					if (h->getSpellSchoolLevel(CGI->spellh->objects[spell]) < 2) //not advanced or expert - teleport to nearest available city
-					{
-						auto nearest = Towns.cbegin(); //nearest town's iterator
-						si32 dist = LOCPLINT->cb->getTown((*nearest)->id)->pos.dist2dSQ(h->pos);
-
-						for (auto i = nearest + 1; i != Towns.cend(); ++i)
-						{
-							const CGTownInstance * dest = LOCPLINT->cb->getTown((*i)->id);
-							si32 curDist = dest->pos.dist2dSQ(h->pos);
-
-							if (curDist < dist)
-							{
-								nearest = i;
-								dist = curDist;
-							}
-						}
-
-						if ((*nearest)->visitingHero)
-							LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[123]);
-						else
-						{
-							const CGTownInstance * town = LOCPLINT->cb->getTown((*nearest)->id);
-							LOCPLINT->cb->castSpell(h, spell, town->visitablePos());// - town->getVisitableOffset());
-						}
-					}
-					else
-					{ //let the player choose
-						for(auto & Town : Towns)
-						{
-							const CGTownInstance *t = Town;
-							if (t->visitingHero == nullptr) //empty town and this is
-							{
-								availableTowns.push_back(t->id.getNum());//add to the list
-							}
-						}
-						if (availableTowns.empty())
-							LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
-						else
-							GH.pushInt (new CObjectListWindow(availableTowns,
-								new CAnimImage("SPELLSCR",spell),
-								CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
-								std::bind (&CSpellWindow::teleportTo, owner, _1, h)));
-					}
+					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
 					return;
 				}
-				break;
-			default:
-				assert(0);
-			}
 
-			//can return earlier in some cases
-			LOCPLINT->cb->castSpell(h, spell);
+				if (h->getSpellSchoolLevel(sp) < 2) //not advanced or expert - teleport to nearest available city
+				{
+					auto nearest = Towns.cbegin(); //nearest town's iterator
+					si32 dist = LOCPLINT->cb->getTown((*nearest)->id)->pos.dist2dSQ(h->pos);
+
+					for (auto i = nearest + 1; i != Towns.cend(); ++i)
+					{
+						const CGTownInstance * dest = LOCPLINT->cb->getTown((*i)->id);
+						si32 curDist = dest->pos.dist2dSQ(h->pos);
+
+						if (curDist < dist)
+						{
+							nearest = i;
+							dist = curDist;
+						}
+					}
+
+					if ((*nearest)->visitingHero)
+						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[123]);
+					else
+					{
+						const CGTownInstance * town = LOCPLINT->cb->getTown((*nearest)->id);
+						LOCPLINT->cb->castSpell(h, mySpell, town->visitablePos());// - town->getVisitableOffset());
+					}
+				}
+				else
+				{ //let the player choose
+					for(auto & Town : Towns)
+					{
+						const CGTownInstance *t = Town;
+						if (t->visitingHero == nullptr) //empty town and this is
+						{
+							availableTowns.push_back(t->id.getNum());//add to the list
+						}
+					}
+					if (availableTowns.empty())
+						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
+					else
+						GH.pushInt (new CObjectListWindow(availableTowns,
+							new CAnimImage("SPELLSCR",mySpell),
+							CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
+							std::bind (&CSpellWindow::teleportTo, owner, _1, h)));
+				}
+				return;	
+			}
+			
+			if(mySpell == SpellID::SUMMON_BOAT)
+			{
+				//special case
+				//todo: move to mechanics				
+				int3 pos = h->bestLocation();
+				if(pos.x < 0)
+				{
+					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[334]); //There is no place to put the boat.
+					return;
+				}
+			}
+			
+			if(sp->getTargetType() == CSpell::LOCATION)
+			{
+				adventureInt->enterCastingMode(sp);
+					return;			
+			}
+			else if(sp->getTargetType() == CSpell::NO_TARGET)
+			{
+				LOCPLINT->cb->castSpell(h, mySpell);
+			}
+			else
+			{
+				logGlobal->error("Invalid spell target type");
+			}			
 		}
 	}
 }
