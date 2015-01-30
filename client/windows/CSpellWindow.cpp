@@ -593,12 +593,6 @@ Uint8 CSpellWindow::pagesWithinCurrentTab()
 	return battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab];
 }
 
-void CSpellWindow::teleportTo( int town, const CGHeroInstance * hero )
-{
-	const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(town));
-	LOCPLINT->cb->castSpell(hero, SpellID::TOWN_PORTAL, dest->visitablePos());
-}
-
 CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 {
 	this->pos = pos;
@@ -755,13 +749,20 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 							availableTowns.push_back(t->id.getNum());//add to the list
 						}
 					}
+					
+					auto castTownPortal = [h](int townId)
+					{
+						const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(townId));
+						LOCPLINT->cb->castSpell(h, SpellID::TOWN_PORTAL, dest->visitablePos());					
+					};
+					
 					if (availableTowns.empty())
 						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
 					else
 						GH.pushInt (new CObjectListWindow(availableTowns,
 							new CAnimImage("SPELLSCR",mySpell),
 							CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
-							std::bind (&CSpellWindow::teleportTo, owner, _1, h)));
+							castTownPortal));
 				}
 				return;	
 			}
@@ -780,8 +781,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			
 			if(sp->getTargetType() == CSpell::LOCATION)
 			{
-				adventureInt->enterCastingMode(sp);
-					return;			
+				adventureInt->enterCastingMode(sp);		
 			}
 			else if(sp->getTargetType() == CSpell::NO_TARGET)
 			{

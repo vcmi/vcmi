@@ -112,6 +112,4 @@ public:
 	void deactivate();
 	void showAll(SDL_Surface * to);
 	void show(SDL_Surface * to);
-
-	void teleportTo(int town, const CGHeroInstance * hero);
 };
