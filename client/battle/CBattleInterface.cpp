@@ -1502,7 +1502,7 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 	}
 }
 
-void CBattleInterface::castThisSpell(int spellID)
+void CBattleInterface::castThisSpell(SpellID spellID)
 {
 	auto  ba = new BattleAction;
 	ba->actionType = Battle::HERO_SPELL;

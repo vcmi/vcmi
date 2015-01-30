@@ -92,7 +92,6 @@ CSpell::LevelInfo::~LevelInfo()
 ///CSpell
 CSpell::CSpell():
 	id(SpellID::NONE), level(0),
-	earth(false), water(false), fire(false), air(false),
 	combatSpell(false), creatureAbility(false),
 	positiveness(ESpellPositiveness::NEUTRAL),
 	defaultProbability(0),
@@ -566,11 +565,6 @@ void CSpell::setIsRising(const bool val)
 void CSpell::setup()
 {
 	setupMechanics();
-	
-	air = school[ESpellSchool::AIR];
-	fire = school[ESpellSchool::FIRE];
-	water = school[ESpellSchool::WATER];
-	earth = school[ESpellSchool::EARTH];	
 }
 
 

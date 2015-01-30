@@ -2173,9 +2173,9 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 	}
 
 	//Pandora with 15 spells of certain school
-	for (int i = 1; i <= 4; i++)
+	for (int i = 0; i < 4; i++)
 	{
-		oi.generateObject = [i, gen]() -> CGObjectInstance *
+		oi.generateObject = [i,gen]() -> CGObjectInstance *
 		{
 			auto obj = new CGPandoraBox();
 			obj->ID = Obj::PANDORAS_BOX;
@@ -2184,27 +2184,8 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			std::vector <CSpell *> spells;
 			for (auto spell : VLC->spellh->objects)
 			{
-				if (!spell->isSpecialSpell())
-				{
-					bool school = false; //TODO: we could have better interface for iterating schools
-					switch (i)
-					{
-						case 1:
-							school = spell->air;
-							break;
-						case 2:
-							school = spell->earth;
-							break;
-						case 3:
-							school = spell->fire;
-							break;
-						case 4:
-							school = spell->water;
-							break;
-					}
-					if (school)
-						spells.push_back(spell);
-				}
+				if (!spell->isSpecialSpell() && spell->school[(ESpellSchool)i])
+					spells.push_back(spell);
 			}
 
 			RandomGeneratorUtil::randomShuffle(spells, gen->rand);

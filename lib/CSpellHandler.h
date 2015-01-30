@@ -208,11 +208,7 @@ public:
 	std::string name;
 
 	si32 level;
-	bool earth; //deprecated
-	bool water; //deprecated
-	bool fire;  //deprecated
-	bool air;   //deprecated
-	
+
 	std::map<ESpellSchool, bool> school; //todo: use this instead of separate boolean fields
 	
 	si32 power; //spell's power

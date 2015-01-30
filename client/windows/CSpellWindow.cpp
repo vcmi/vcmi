@@ -107,15 +107,11 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 		Uint8 *sitesPerOurTab = s.combatSpell ? sitesPerTabBattle : sitesPerTabAdv;
 
 		++sitesPerOurTab[4];
-
-		if(s.air)
-			++sitesPerOurTab[0];
-		if(s.fire)
-			++sitesPerOurTab[1];
-		if(s.water)
-			++sitesPerOurTab[2];
-		if(s.earth)
-			++sitesPerOurTab[3];
+		
+		s.forEachSchool([&sitesPerOurTab](const SpellSchoolInfo & school, bool & stop)
+		{
+			++sitesPerOurTab[(ui8)school.id];
+		});
 	}
 	if(sitesPerTabAdv[4] % 12 == 0)
 		sitesPerTabAdv[4]/=12;
@@ -382,23 +378,17 @@ public:
 		if(A.level<B.level)
 			return true;
 		if(A.level>B.level)
-			return false;
-		if(A.air && !B.air)
-			return true;
-		if(!A.air && B.air)
-			return false;
-		if(A.fire && !B.fire)
-			return true;
-		if(!A.fire && B.fire)
-			return false;
-		if(A.water && !B.water)
-			return true;
-		if(!A.water && B.water)
-			return false;
-		if(A.earth && !B.earth)
-			return true;
-		if(!A.earth && B.earth)
-			return false;
+			return false;		
+		
+		
+		for(ui8 schoolId = 0; schoolId < 4; schoolId++)
+		{
+			if(A.school.at((ESpellSchool)schoolId) && !B.school.at((ESpellSchool)schoolId))
+				return true;
+			if(!A.school.at((ESpellSchool)schoolId) && B.school.at((ESpellSchool)schoolId))
+				return false;
+		}
+		
 		return A.name < B.name;
 	}
 } spellsorter;
@@ -406,17 +396,15 @@ public:
 void CSpellWindow::computeSpellsPerArea()
 {
 	std::vector<SpellID> spellsCurSite;
-	for(auto it = mySpells.cbegin(); it != mySpells.cend(); ++it)
+	for(const SpellID & spellID : mySpells)
 	{
-		if(CGI->spellh->objects[*it]->combatSpell ^ !battleSpellsOnly
-			&& ((CGI->spellh->objects[*it]->air && selectedTab == 0) ||
-				(CGI->spellh->objects[*it]->fire && selectedTab == 1) ||
-				(CGI->spellh->objects[*it]->water && selectedTab == 2) ||
-				(CGI->spellh->objects[*it]->earth && selectedTab == 3) ||
-				selectedTab == 4 )
+		CSpell * s = spellID.toSpell(); 
+		
+		if(s->combatSpell ^ !battleSpellsOnly
+			&& ((selectedTab == 4) || (s->school[(ESpellSchool)selectedTab]))
 			)
 		{
-			spellsCurSite.push_back(*it);
+			spellsCurSite.push_back(spellID);
 		}
 	}
 	std::sort(spellsCurSite.begin(), spellsCurSite.end(), spellsorter);
@@ -653,9 +641,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			{
 			case ESpellCastProblem::OK:
 				{
-					int spell = mySpell;
 					owner->fexitb();
-					owner->myInt->battleInt->castThisSpell(spell);
+					owner->myInt->battleInt->castThisSpell(mySpell);
 				}
 				break;
 			case ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED:

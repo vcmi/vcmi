@@ -162,7 +162,7 @@ protected:
 
 ///ADVENTURE SPELLS
 
-//todo: make configyrable
+//todo: make configurable
 class AdventureBonusingMechanics: public DefaultSpellMechanics 
 {
 public:	
