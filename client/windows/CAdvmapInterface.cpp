@@ -320,15 +320,7 @@ void CTerrainRect::showAnim(SDL_Surface * to)
 	if (fadeAnim->isFading())
 		show(to);
 	else if (lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED)
-	{
-		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos);
-		info.otherheroAnim = true;
-		info.anim = adventureInt->anim;
-		info.heroAnim = adventureInt->heroAnim;
-		if (ADVOPT.smoothMove)
-			info.movement = int3(moveX, moveY, 0);
-		lastRedrawStatus = CGI->mh->drawTerrainRectNew(to, &info, true);
-	}		
+		show(to); // currently the same; maybe we should pass some flag to map handler so it redraws ONLY tiles that need redraw instead of full
 }
 
 int3 CTerrainRect::whichTileIsIt(const int & x, const int & y)
@@ -988,9 +980,8 @@ void CAdvMapInt::centerOn(int3 on, bool fadeIfZChanged /* = false */)
 {
 	bool switchedLevels = on.z != position.z;
 	
-	if (switchedLevels && fadeIfZChanged)
+	if (fadeIfZChanged)
 	{
-		logGlobal->warnStream() << "START FADING";
 		terrain.fadeFromCurrentView();
 	}
 

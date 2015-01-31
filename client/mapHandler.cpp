@@ -814,20 +814,20 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 	{
 		if (object.fadeAnimKey >= 0)
 		{
-			// this object is currently fading, so skip normal drawing
 			// TODO fading heroes/boats will not be drawn correctly this way
 			
 			auto fadeIter = parent->fadeAnims.find(object.fadeAnimKey);
 			if (fadeIter != parent->fadeAnims.end())
 			{
+				// this object is currently fading, so skip normal drawing
 				Rect r1(object.rect);
 				r1.w = tileSize;
 				r1.h = tileSize;
 				Rect r2(realTileRect);
 				CFadeAnimation * fade = (*fadeIter).second.second;
 				fade->draw(targetSurf, &r1, &r2);
+				continue;
 			}
-			continue;
 		}
 		
 		const CGObjectInstance * obj = object.obj;
@@ -1175,58 +1175,31 @@ bool CMapHandler::updateObjectsFade()
 		CFadeAnimation * anim = (*iter).second.second;
 		
 		anim->update();
+		
 		if (anim->isFading())
 			++iter;
-		else
+		else // fade finished
 		{
-			auto &objs = ttiles[pos.x][pos.y][pos.z].objects;
-			for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter)
+			
+			if (anim->fadingMode == CFadeAnimation::EMode::OUT)
 			{
-				if ((*objIter).fadeAnimKey == (*iter).first)
+				auto &objs = ttiles[pos.x][pos.y][pos.z].objects;
+				for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter)
 				{
-					objs.erase(objIter);
-					break;
+					if ((*objIter).fadeAnimKey == (*iter).first)
+					{						
+						if (anim->fadingMode == CFadeAnimation::EMode::OUT)
+							objs.erase(objIter); // if this was fadeout, remove the object from the map
+						else
+							(*objIter).fadeAnimKey = -1; // for fadein, just remove its connection to the finished fade
+						break;
+					}
 				}
 			}
 			iter = fadeAnims.erase(iter);
 		}
 	}
-	// TODO caching fading objects indices for optimization?
-//	for (size_t i=0; i<map->width; i++)
-//	{
-//		for (size_t j=0; j<map->height; j++)
-//		{
-//			for (size_t k=0; k<(map->twoLevel ? 2 : 1); k++)
-//			{
-//				for(size_t x=0; x < ttiles[i][j][k].objects.size(); )
-//				{
-//					auto &obj = ttiles[i][j][k].objects[x];
-					
-//					if (obj.fadeAnimKey >= 0)
-//					{
-//						auto fadeAnimIter = fadeAnims.find(obj.fadeAnimKey);
-//						if (fadeAnimIter == fadeAnims.end())
-//						{
-//							obj.fadeAnimKey = -1;
-//							++x;
-//							continue;
-//						}
-						
-//						obj.fadeAnim->update();
-//						if (obj.fadeAnim->isFading())
-//						{
-//							anyObjectsStillFading = true;
-//							++x;
-//						}
-//						else if (obj.fadeAnim->fadingMode == CFadeAnimation::EMode::OUT)
-//							ttiles[i][j][k].objects.erase(ttiles[i][j][k].objects.begin() + x);
-//					}
-//					else
-//						++x;
-//				}
-//			}
-//		}
-//	}
+	
 	return !fadeAnims.empty();
 }
 
@@ -1316,9 +1289,9 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = fals
 	}
 	return true;
 }
-bool CMapHandler::removeObject(CGObjectInstance *obj)
+bool CMapHandler::removeObject(CGObjectInstance *obj, bool fadeout /* = false */)
 {
-	hideObject(obj);
+	hideObject(obj, fadeout);
 	return true;
 }
 
