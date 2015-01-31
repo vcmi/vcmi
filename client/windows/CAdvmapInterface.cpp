@@ -1022,6 +1022,10 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		if(isActive())
 			LOCPLINT->showPuzzleMap();
 		return;
+	case SDLK_v:
+		if(isActive())
+			LOCPLINT->viewWorldMap();
+		return;
 	case SDLK_r:
 		if(isActive() && LOCPLINT->ctrlPressed())
 		{
@@ -1741,8 +1745,7 @@ void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale /* = 0.4f */)
 	else if (worldViewScale != newScale) // still in world view mode, but the scale changed
 	{
 		worldViewScale = newScale;
-		terrain.redraw();
-		minimap.redraw(); // to recalculate radar rect on minimap
+		redraw();
 	}
 }
 
@@ -1751,7 +1754,7 @@ CAdventureOptions::CAdventureOptions():
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	viewWorld = new CButton(Point(24, 23), "ADVVIEW.DEF", CButton::tooltip(), [&]{ close(); }, SDLK_x);
+	viewWorld = new CButton(Point(24, 23), "ADVVIEW.DEF", CButton::tooltip(), [&]{ close(); }, SDLK_v);
 	viewWorld->addCallback(std::bind(&CPlayerInterface::viewWorldMap, LOCPLINT));
 
 	exit = new CButton(Point(204, 313), "IOK6432.DEF", CButton::tooltip(), std::bind(&CAdventureOptions::close, this), SDLK_RETURN);
