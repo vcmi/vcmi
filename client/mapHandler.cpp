@@ -710,11 +710,11 @@ void CMapHandler::CMapWorldViewBlitter::init(const MapDrawingInfo * drawingInfo)
 	tileSize = (int) floorf(32.0f * info->scale);
 	halfTileSizeCeil = (int)ceilf(tileSize / 2.0f);
 
-	tileCount.x = (int) ceilf((float)info->drawBounds->w / tileSize) + 1;
-	tileCount.y = (int) ceilf((float)info->drawBounds->h / tileSize) + 1;
+	tileCount.x = (int) ceilf((float)info->drawBounds->w / tileSize);
+	tileCount.y = (int) ceilf((float)info->drawBounds->h / tileSize);
 
-	initPos.x = parent->offsetX + info->drawBounds->x;
-	initPos.y = parent->offsetY + info->drawBounds->y;
+	initPos.x = info->drawBounds->x;
+	initPos.y = info->drawBounds->y;
 
 	realTileRect = Rect(initPos.x, initPos.y, tileSize, tileSize);
 	defaultTileRect = Rect(0, 0, tileSize, tileSize);
@@ -729,10 +729,11 @@ SDL_Rect CMapHandler::CMapWorldViewBlitter::clip(SDL_Surface * targetSurf) const
 
 	SDL_FillRect(targetSurf, info->drawBounds, SDL_MapRGB(targetSurf->format, 0, 0, 0));
 	// makes the clip area smaller if the map is smaller than the screen frame
-	Rect clipRect(std::max(info->drawBounds->x, -topTile.x * tileSize),
-				  std::max(info->drawBounds->y, -topTile.y * tileSize),
-				  std::min(info->drawBounds->w, parent->sizes.x * tileSize),
-				  std::min(info->drawBounds->h, parent->sizes.y * tileSize));
+	// (actually, it could be made 1 tile bigger so that overlay icons on edge tiles could be drawn partly outside)
+	Rect clipRect(std::max(info->drawBounds->x, info->drawBounds->x - topTile.x * tileSize),
+				  std::max(info->drawBounds->y, info->drawBounds->y - topTile.y * tileSize),
+				  std::min(info->drawBounds->x + info->drawBounds->w, parent->sizes.x * tileSize),
+				  std::min(info->drawBounds->y + info->drawBounds->h, parent->sizes.y * tileSize));
 	SDL_GetClipRect(targetSurf, &prevClip);
 	SDL_SetClipRect(targetSurf, &clipRect); //preventing blitting outside of that rect
 	return prevClip;
