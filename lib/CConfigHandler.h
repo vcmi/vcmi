@@ -135,6 +135,7 @@ namespace config
 		bool puzzleSepia;
 		//general properties
 		std::string mainGraphic;
+		std::string worldViewGraphic;
 		//buttons
 		ButtonInfo kingOverview, underground, questlog,	sleepWake, moveHero, spellbook,	advOptions,
 			sysOptions,	nextHero, endTurn;

@@ -61,7 +61,7 @@ CAdvMapInt *adventureInt;
 
 
 CTerrainRect::CTerrainRect()
-	:curHoveredTile(-1,-1,-1), currentPath(nullptr)
+	: curHoveredTile(-1,-1,-1), currentPath(nullptr)
 {
 	tilesw=(ADVOPT.advmapW+31)/32;
 	tilesh=(ADVOPT.advmapH+31)/32;
@@ -81,6 +81,8 @@ void CTerrainRect::deactivate()
 
 void CTerrainRect::clickLeft(tribool down, bool previousState)
 {
+	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
+		return;
 	if ((down==false) || indeterminate(down))
 		return;
 
@@ -93,6 +95,8 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 
 void CTerrainRect::clickRight(tribool down, bool previousState)
 {
+	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
+		return;
 	int3 mp = whichTileIsIt();
 
 	if (CGI->mh->map->isInTheMap(mp) && down)
@@ -260,22 +264,37 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 
 void CTerrainRect::show(SDL_Surface * to)
 {
-	if(ADVOPT.smoothMove)
-		CGI->mh->terrainRect
-			(adventureInt->position, adventureInt->anim,
-			 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-			 to, &pos, moveX, moveY, false, int3());
-	else
-		CGI->mh->terrainRect
-			(adventureInt->position, adventureInt->anim,
-			 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-			 to, &pos, 0, 0, false, int3());
+	if (adventureInt->mode == EAdvMapMode::NORMAL)
+	{
+		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos);
+		info.otherheroAnim = true;
+		info.anim = adventureInt->anim;
+		info.heroAnim = adventureInt->heroAnim;
+		if (ADVOPT.smoothMove)
+			info.movement = int3(moveX, moveY, 0);
 
+		CGI->mh->drawTerrainRectNew(to, &info);
+
+		if (currentPath/* && adventureInt->position.z==currentPath->startPos().z*/) //drawing path
+		{
+			showPath(&pos, to);
+		}
+	}
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
-	if (currentPath/* && adventureInt->position.z==currentPath->startPos().z*/) //drawing path
+
+}
+
+void CTerrainRect::showAll(SDL_Surface * to)
+{
+	// world view map is static and doesn't need redraw every frame
+	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 	{
-		showPath(&pos, to);
+		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos, adventureInt->worldViewIconsDef);
+		info.scaled = true;
+		info.scale = adventureInt->worldViewScale;
+
+		CGI->mh->drawTerrainRectNew(to, &info);
 	}
 }
 
@@ -293,6 +312,20 @@ int3 CTerrainRect::whichTileIsIt()
 	return whichTileIsIt(GH.current->motion.x,GH.current->motion.y);
 }
 
+int3 CTerrainRect::tileCountOnScreen()
+{
+	switch (adventureInt->mode)
+	{
+	default:
+		logGlobal->errorStream() << "Unhandled map mode " << (int)adventureInt->mode;
+		return int3();
+	case EAdvMapMode::NORMAL:
+		return int3(tilesw, tilesh, 1);
+	case EAdvMapMode::WORLD_VIEW:
+		return int3(tilesw / adventureInt->worldViewScale, tilesh / adventureInt->worldViewScale, 1);
+	}
+}
+
 void CResDataBar::clickRight(tribool down, bool previousState)
 {
 }
@@ -300,7 +333,7 @@ void CResDataBar::clickRight(tribool down, bool previousState)
 CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist)
 {
 	bg = BitmapHandler::loadBitmap(defname);
-	CSDL_Ext::setDefaultColorKey(bg);	
+	CSDL_Ext::setDefaultColorKey(bg);
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h, bg->w, pos.x+x, pos.y+y);
 
@@ -319,7 +352,7 @@ CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int
 CResDataBar::CResDataBar()
 {
 	bg = BitmapHandler::loadBitmap(ADVOPT.resdatabarG);
-	CSDL_Ext::setDefaultColorKey(bg);	
+	CSDL_Ext::setDefaultColorKey(bg);
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h,bg->w,ADVOPT.resdatabarX,ADVOPT.resdatabarY);
 
@@ -367,11 +400,13 @@ void CResDataBar::showAll(SDL_Surface * to)
 }
 
 CAdvMapInt::CAdvMapInt():
-    minimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH)),
-statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
-heroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD),
-townList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD),
-infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
+	mode(EAdvMapMode::NORMAL),
+	minimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH)),
+	statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
+	heroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD),
+	townList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD),
+	infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) ),
+	activeMapPanel(nullptr)
 {
 	duringAITurn = false;
 	state = NA;
@@ -384,12 +419,20 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	townList.onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
 	adventureInt=this;
 	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
+	bgWorldView = BitmapHandler::loadBitmap(ADVOPT.worldViewGraphic);
 	scrollingDir = 0;
 	updateScreen  = false;
 	anim=0;
 	animValHitCount=0; //animation frame
 	heroAnim=0;
 	heroAnimValHitCount=0; // hero animation frame
+
+	if (!bgWorldView)
+	{
+		logGlobal->warn("bgWorldView not defined in resolution config; fallback to VWorld.bmp");
+		bgWorldView = BitmapHandler::loadBitmap("VWorld.bmp");
+	}
+	worldViewIconsDef = CDefHandler::giveDef("VwSymbol.def");
 
 	for (int g=0; g<ADVOPT.gemG.size(); ++g)
 	{
@@ -399,7 +442,6 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	auto makeButton = [&] (int textID, std::function<void()> callback, config::ButtonInfo info, int key) -> CButton *
 	{
 		auto button = new CButton(Point(info.x, info.y), info.defName, CGI->generaltexth->zelp[textID], callback, key, info.playerColoured);
-
 		for (auto image : info.additionalDefs)
 			button->addImage(image);
 		return button;
@@ -416,9 +458,109 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	nextHero     = makeButton(301, std::bind(&CAdvMapInt::fnextHero,this),         ADVOPT.nextHero,     SDLK_h);
 	endTurn      = makeButton(302, std::bind(&CAdvMapInt::fendTurn,this),          ADVOPT.endTurn,      SDLK_e);
 
+	int panelSpaceBottom = screen->h - resdatabar.pos.h - 4;
+	
+	panelMain = new CAdvMapPanel(nullptr, Point(0, 0));
+	// TODO correct drawing position
+	panelWorldView = new CAdvMapWorldViewPanel(bgWorldView, Point(heroList.pos.x - 2, 195), panelSpaceBottom, LOCPLINT->playerID); 
+
+	panelMain->addChildColorableButton(kingOverview);
+	panelMain->addChildColorableButton(underground);
+	panelMain->addChildColorableButton(questlog);
+	panelMain->addChildColorableButton(sleepWake);
+	panelMain->addChildColorableButton(moveHero);
+	panelMain->addChildColorableButton(spellbook);
+	panelMain->addChildColorableButton(advOptions);
+	panelMain->addChildColorableButton(sysOptions);
+	panelMain->addChildColorableButton(nextHero);
+	panelMain->addChildColorableButton(endTurn);
+
+
+	// TODO move configs to resolutions.json, similarly to previous buttons
+	config::ButtonInfo worldViewBackConfig = config::ButtonInfo();
+	worldViewBackConfig.defName = "IOK6432.DEF";
+	worldViewBackConfig.x = screen->w - 73;
+	worldViewBackConfig.y = 343 + 195;
+	worldViewBackConfig.playerColoured = false;
+	panelWorldView->addChildToPanel(
+		makeButton(288, std::bind(&CAdvMapInt::fworldViewBack,this), worldViewBackConfig, SDLK_ESCAPE), ACTIVATE | DEACTIVATE);
+
+	config::ButtonInfo worldViewPuzzleConfig = config::ButtonInfo();
+	worldViewPuzzleConfig.defName = "VWPUZ.DEF";
+	worldViewPuzzleConfig.x = screen->w - 188;
+	worldViewPuzzleConfig.y = 343 + 195;
+	worldViewPuzzleConfig.playerColoured = false;
+	panelWorldView->addChildToPanel( // no help text for this one
+		new CButton(Point(worldViewPuzzleConfig.x, worldViewPuzzleConfig.y), worldViewPuzzleConfig.defName, std::pair<std::string, std::string>(),
+				std::bind(&CPlayerInterface::showPuzzleMap,LOCPLINT), SDLK_p, worldViewPuzzleConfig.playerColoured), ACTIVATE | DEACTIVATE);
+
+	config::ButtonInfo worldViewScale1xConfig = config::ButtonInfo();
+	worldViewScale1xConfig.defName = "VWMAG1.DEF";
+	worldViewScale1xConfig.x = screen->w - 191;
+	worldViewScale1xConfig.y = 23 + 195;
+	worldViewScale1xConfig.playerColoured = false;
+	panelWorldView->addChildToPanel( // help text is wrong for this button
+		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale1x,this), worldViewScale1xConfig, SDLK_1), ACTIVATE | DEACTIVATE);
+
+	config::ButtonInfo worldViewScale2xConfig = config::ButtonInfo();
+	worldViewScale2xConfig.defName = "VWMAG2.DEF";
+	worldViewScale2xConfig.x = screen->w - 191 + 63;
+	worldViewScale2xConfig.y = 23 + 195;
+	worldViewScale2xConfig.playerColoured = false;
+	panelWorldView->addChildToPanel( // help text is wrong for this button
+		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale2x,this), worldViewScale2xConfig, SDLK_2), ACTIVATE | DEACTIVATE);
+
+	config::ButtonInfo worldViewScale4xConfig = config::ButtonInfo();
+	worldViewScale4xConfig.defName = "VWMAG4.DEF";
+	worldViewScale4xConfig.x = screen->w - 191 + 126;
+	worldViewScale4xConfig.y = 23 + 195;
+	worldViewScale4xConfig.playerColoured = false;
+	panelWorldView->addChildToPanel( // help text is wrong for this button
+		makeButton(291, std::bind(&CAdvMapInt::fworldViewScale4x,this), worldViewScale4xConfig, SDLK_4), ACTIVATE | DEACTIVATE);
+
+	config::ButtonInfo worldViewUndergroundConfig = config::ButtonInfo();
+	worldViewUndergroundConfig.defName = "IAM010.DEF";
+	worldViewUndergroundConfig.additionalDefs.push_back("IAM003.DEF");
+	worldViewUndergroundConfig.x = screen->w - 115;
+	worldViewUndergroundConfig.y = 343 + 195;
+	worldViewUndergroundConfig.playerColoured = true;
+	worldViewUnderground = makeButton(294, std::bind(&CAdvMapInt::fswitchLevel,this), worldViewUndergroundConfig, SDLK_u);
+	panelWorldView->addChildColorableButton(worldViewUnderground);
+
 	setPlayer(LOCPLINT->playerID);
-	underground->block(!CGI->mh->map->twoLevel);
+
+	int iconColorMultiplier = player.getNum() * 19;
+	int wvLeft = heroList.pos.x - 2; // TODO correct drawing position
+	for (int i = 0; i < 5; ++i)
+	{
+		panelWorldView->addChildIcon(std::pair<int, Point>(i, Point(wvLeft + 5, 253 + i * 20)), worldViewIconsDef, iconColorMultiplier);
+		panelWorldView->addChildToPanel(new CLabel(wvLeft + 45, 263 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+												Colors::WHITE, CGI->generaltexth->allTexts[612 + i]));
+	}
+	for (int i = 0; i < 7; ++i)
+	{
+		panelWorldView->addChildIcon(std::pair<int, Point>(i +  5, Point(wvLeft +   5, 377 + i * 20)), worldViewIconsDef, iconColorMultiplier);
+		panelWorldView->addChildIcon(std::pair<int, Point>(i + 12, Point(wvLeft + 160, 377 + i * 20)), worldViewIconsDef, iconColorMultiplier);
+		panelWorldView->addChildToPanel(new CLabel(wvLeft + 45, 387 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+												Colors::WHITE, CGI->generaltexth->allTexts[619 + i]));
+	}
+	panelWorldView->addChildToPanel(new CLabel(wvLeft +   5, 367, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+											Colors::WHITE, CGI->generaltexth->allTexts[617]));
+	panelWorldView->addChildToPanel(new CLabel(wvLeft + 185, 387, EFonts::FONT_SMALL, EAlignment::BOTTOMRIGHT,
+											Colors::WHITE, CGI->generaltexth->allTexts[618]));
+
+	activeMapPanel = panelMain;
+	restoreState();
+
 	addUsedEvents(MOVE);
+}
+
+void CAdvMapInt::restoreState()
+{
+	changeMode(EAdvMapMode::NORMAL);
+
+	underground->block(!CGI->mh->map->twoLevel);
+	worldViewUnderground->block(!CGI->mh->map->twoLevel);
 }
 
 CAdvMapInt::~CAdvMapInt()
@@ -427,30 +569,61 @@ CAdvMapInt::~CAdvMapInt()
 
 	for(int i=0; i<gems.size(); i++)
 		delete gems[i];
+
+	delete worldViewIconsDef;
 }
 
 void CAdvMapInt::fshowOverview()
 {
 	GH.pushInt(new CKingdomInterface);
 }
+
+void CAdvMapInt::fworldViewBack()
+{
+	changeMode(EAdvMapMode::NORMAL);
+	CGI->mh->discardWorldViewCache();
+
+	auto hero = curHero();
+	if (hero)
+		centerOn(hero);
+}
+
+void CAdvMapInt::fworldViewScale1x()
+{
+	// TODO set corresponding scale button to "selected" mode
+	changeMode(EAdvMapMode::WORLD_VIEW, 0.22f);
+}
+
+void CAdvMapInt::fworldViewScale2x()
+{
+	changeMode(EAdvMapMode::WORLD_VIEW, 0.36f);
+}
+
+void CAdvMapInt::fworldViewScale4x()
+{
+	changeMode(EAdvMapMode::WORLD_VIEW, 0.5f);
+}
+
 void CAdvMapInt::fswitchLevel()
 {
-	if(!CGI->mh->map->twoLevel)
+	// with support for future multi-level maps :)
+	int maxLevels = CGI->mh->map->twoLevel ? 2 : 1;
+	if (maxLevels < 2)
 		return;
-	if (position.z)
-	{
-		position.z--;
-		underground->setIndex(0,true);
-		underground->showAll(screenBuf);
-	}
-	else
-	{
-		underground->setIndex(1,true);
-		position.z++;
-		underground->showAll(screenBuf);
-	}
+
+	position.z = (position.z + 1) % maxLevels;
+
+	underground->setIndex(position.z, true);
+	underground->redraw();
+
+	worldViewUnderground->setIndex(position.z, true);
+	worldViewUnderground->redraw();
+
 	updateScreen = true;
 	minimap.setLevel(position.z);
+
+	if (mode == EAdvMapMode::WORLD_VIEW)
+		terrain.redraw();
 }
 void CAdvMapInt::fshowQuestlog()
 {
@@ -599,27 +772,21 @@ void CAdvMapInt::activate()
 	GH.statusbar = &statusbar;
 	if(!duringAITurn)
 	{
-		kingOverview->activate();
-		underground->activate();
-		questlog->activate();
-		sleepWake->activate();
-		moveHero->activate();
-		spellbook->activate();
-		sysOptions->activate();
-		advOptions->activate();
-		nextHero->activate();
-		endTurn->activate();
-
+		activeMapPanel->activate();
+		if (mode == EAdvMapMode::NORMAL)
+		{
+			heroList.activate();
+			townList.activate();
+			infoBar.activate();
+		}
 		minimap.activate();
-		heroList.activate();
-		townList.activate();
 		terrain.activate();
-		infoBar.activate();
 		LOCPLINT->cingconsole->activate();
 
 		GH.fakeMouseMove(); //to restore the cursor
 	}
 }
+
 void CAdvMapInt::deactivate()
 {
 	CIntObject::deactivate();
@@ -629,25 +796,20 @@ void CAdvMapInt::deactivate()
 		scrollingDir = 0;
 
 		CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
-		kingOverview->deactivate();
-		underground->deactivate();
-		questlog->deactivate();
-		sleepWake->deactivate();
-		moveHero->deactivate();
-		spellbook->deactivate();
-		advOptions->deactivate();
-		sysOptions->deactivate();
-		nextHero->deactivate();
-		endTurn->deactivate();
+		activeMapPanel->deactivate();
+		if (mode == EAdvMapMode::NORMAL)
+		{
+			heroList.deactivate();
+			townList.deactivate();
+			infoBar.deactivate();
+		}
 		minimap.deactivate();
-		heroList.deactivate();
-		townList.deactivate();
 		terrain.deactivate();
-		infoBar.deactivate();
 		if(LOCPLINT)
 			LOCPLINT->cingconsole->deactivate();
 	}
 }
+
 void CAdvMapInt::showAll(SDL_Surface * to)
 {
 	blitAt(bg,0,0,to);
@@ -655,28 +817,30 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 	if(state != INGAME)
 		return;
 
-	kingOverview->showAll(to);
-	underground->showAll(to);
-	questlog->showAll(to);
-	sleepWake->showAll(to);
-	moveHero->showAll(to);
-	spellbook->showAll(to);
-	advOptions->showAll(to);
-	sysOptions->showAll(to);
-	nextHero->showAll(to);
-	endTurn->showAll(to);
+	switch (mode)
+	{
+	case EAdvMapMode::NORMAL:
 
-	minimap.showAll(to);
-	heroList.showAll(to);
-	townList.showAll(to);
+		heroList.showAll(to);
+		townList.showAll(to);
+		infoBar.showAll(to);
+		break;
+	case EAdvMapMode::WORLD_VIEW:
+
+		terrain.showAll(to);
+		break;
+	}
+	activeMapPanel->showAll(to);
+
 	updateScreen = true;
+	minimap.showAll(to);
 	show(to);
+
 
 	resdatabar.draw(to);
 
 	statusbar.show(to);
 
-	infoBar.showAll(to);
 	LOCPLINT->cingconsole->showAll(to);
 }
 
@@ -737,6 +901,8 @@ void CAdvMapInt::show(SDL_Surface * to)
 		{
 			updateScreen = true;
 			minimap.redraw();
+			if (mode == EAdvMapMode::WORLD_VIEW)
+				terrain.redraw();
 		}
 	}
 	if(updateScreen)
@@ -769,8 +935,19 @@ void CAdvMapInt::centerOn(int3 on)
 {
 	bool switchedLevels = on.z != position.z;
 
-	on.x -= CGI->mh->frameW;
-	on.y -= CGI->mh->frameH;
+	switch (mode)
+	{
+	default:
+	case EAdvMapMode::NORMAL:
+		on.x -= CGI->mh->frameW; // is this intentional? frame size doesn't really have to correspond to camera size...
+		on.y -= CGI->mh->frameH;
+		break;
+	case EAdvMapMode::WORLD_VIEW:
+		on.x -= CGI->mh->tilesW / 2 / worldViewScale;
+		on.y -= CGI->mh->tilesH / 2 / worldViewScale;
+		break;
+	}
+
 
 	on = LOCPLINT->repairScreenPos(on);
 
@@ -778,9 +955,14 @@ void CAdvMapInt::centerOn(int3 on)
 	updateScreen=true;
 	underground->setIndex(on.z,true); //change underground switch button image
 	underground->redraw();
+	worldViewUnderground->setIndex(on.z, true);
+	worldViewUnderground->redraw();
 	if (switchedLevels)
 		minimap.setLevel(position.z);
 	minimap.redraw();
+
+	if (mode == EAdvMapMode::WORLD_VIEW)
+		terrain.redraw();
 }
 
 void CAdvMapInt::centerOn(const CGObjectInstance *obj)
@@ -790,6 +972,10 @@ void CAdvMapInt::centerOn(const CGObjectInstance *obj)
 
 void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 {
+
+	if (mode == EAdvMapMode::WORLD_VIEW)
+		return;
+
 	ui8 Dir = 0;
 	int k = key.keysym.sym;
 	const CGHeroInstance *h = curHero(); //selected hero
@@ -836,6 +1022,10 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		if(isActive())
 			LOCPLINT->showPuzzleMap();
 		return;
+	case SDLK_v:
+		if(isActive())
+			LOCPLINT->viewWorldMap();
+		return;
 	case SDLK_r:
 		if(isActive() && LOCPLINT->ctrlPressed())
 		{
@@ -852,7 +1042,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			{
 				auto unlockPim = vstd::makeUnlockGuard(*LOCPLINT->pim);
 				//TODO!!!!!!! possible freeze, when GS mutex is locked and network thread can't apply package
-				//this thread leaves scope and tries to lock pim while holding gs, 
+				//this thread leaves scope and tries to lock pim while holding gs,
 				//network thread tries to lock gs (appluy cl) while holding pim
 				//this thread should first lock pim, however gs locking/unlocking is done inside cb
 				LOCPLINT->cb->moveHero(h,h->pos);
@@ -916,12 +1106,12 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			//numpad arrow
 			if(CGuiHandler::isArrowKey(SDLKey(k)))
 				k = CGuiHandler::arrowToNum(SDLKey(k));
-			
+
 			#ifdef VCMI_SDL1
 			k -= SDLK_KP0 + 1;
 			#else
 			k -= SDLK_KP_1;
-			#endif // VCMI_SDL1			
+			#endif // VCMI_SDL1
 			if(k < 0 || k > 8)
 				return;
 
@@ -1039,8 +1229,9 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 
 void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 {
-	//adventure map scrolling with mouse
-	if(!isCtrlKeyDown() &&  isActive())
+	// adventure map scrolling with mouse
+	// currently disabled in world view mode (as it is in OH3), but should work correctly if mode check is removed
+	if(!isCtrlKeyDown() &&  isActive() && mode == EAdvMapMode::NORMAL)
 	{
 		if(sEvent.x<15)
 		{
@@ -1092,16 +1283,9 @@ void CAdvMapInt::setPlayer(PlayerColor Player)
 	player = Player;
 	graphics->blueToPlayersAdv(bg,player);
 
-	kingOverview->setPlayerColor(player);
-	underground->setPlayerColor(player);
-	questlog->setPlayerColor(player);
-	sleepWake->setPlayerColor(player);
-	moveHero->setPlayerColor(player);
-	spellbook->setPlayerColor(player);
-	sysOptions->setPlayerColor(player);
-	advOptions->setPlayerColor(player);
-	nextHero->setPlayerColor(player);
-	endTurn->setPlayerColor(player);
+	panelMain->setPlayerColor(player);
+	panelWorldView->setPlayerColor(player);
+	panelWorldView->recolorIcons(player, worldViewIconsDef, player.getNum() * 19);
 	graphics->blueToPlayersAdv(resdatabar.bg,player);
 
 	//heroList.updateHList();
@@ -1143,6 +1327,8 @@ const CGObjectInstance* CAdvMapInt::getActiveObject(const int3 &mapPos)
 
 void CAdvMapInt::tileLClicked(const int3 &mapPos)
 {
+	if(mode != EAdvMapMode::NORMAL)
+		return;
 	if(!LOCPLINT->cb->isVisible(mapPos) || !LOCPLINT->makingTurn)
 		return;
 
@@ -1227,6 +1413,8 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 
 void CAdvMapInt::tileHovered(const int3 &mapPos)
 {
+	if(mode != EAdvMapMode::NORMAL)
+		return;
 	if(!LOCPLINT->cb->isVisible(mapPos))
 	{
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
@@ -1394,12 +1582,12 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 				if (guardingCreature)
 				{
 					CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
-				} 
+				}
 				else
 				{
 					if(pnode->land)
 					{
-                        if(LOCPLINT->cb->getTile(h->getPosition(false))->terType != ETerrainType::WATER)
+						if(LOCPLINT->cb->getTile(h->getPosition(false))->terType != ETerrainType::WATER)
 							CCS->curh->changeGraphic(ECursor::ADVENTURE, 4 + turns*6);
 						else
 							CCS->curh->changeGraphic(ECursor::ADVENTURE, 7 + turns*6); //anchor
@@ -1421,6 +1609,8 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 
 void CAdvMapInt::tileRClicked(const int3 &mapPos)
 {
+	if(mode != EAdvMapMode::NORMAL)
+		return;
 	if(spellBeingCasted)
 	{
 		leaveCastingMode();
@@ -1512,11 +1702,51 @@ void CAdvMapInt::adjustActiveness(bool aiTurnStart)
 {
 	bool wasActive = isActive();
 
-	if(wasActive) 
+	if(wasActive)
 		deactivate();
 	adventureInt->duringAITurn = aiTurnStart;
-	if(wasActive) 
+	if(wasActive)
 		activate();
+}
+
+void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale /* = 0.4f */)
+{
+	if (mode != newMode)
+	{
+		mode = newMode;
+
+		switch (mode)
+		{
+		case EAdvMapMode::NORMAL:
+			panelMain->activate();
+			panelWorldView->deactivate();
+			activeMapPanel = panelMain;
+
+			townList.activate();
+			heroList.activate();
+			infoBar.activate();
+			break;
+		case EAdvMapMode::WORLD_VIEW:
+			panelMain->deactivate();
+			panelWorldView->activate();
+
+			activeMapPanel = panelWorldView;
+
+			townList.deactivate();
+			heroList.deactivate();
+			infoBar.showSelection(); // to prevent new day animation interfering world view mode
+			infoBar.deactivate();
+
+			break;
+		}
+		worldViewScale = newScale;
+		redraw();
+	}
+	else if (worldViewScale != newScale) // still in world view mode, but the scale changed
+	{
+		worldViewScale = newScale;
+		redraw();
+	}
 }
 
 CAdventureOptions::CAdventureOptions():
@@ -1524,13 +1754,14 @@ CAdventureOptions::CAdventureOptions():
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
+	viewWorld = new CButton(Point(24, 23), "ADVVIEW.DEF", CButton::tooltip(), [&]{ close(); }, SDLK_v);
+	viewWorld->addCallback(std::bind(&CPlayerInterface::viewWorldMap, LOCPLINT));
+
 	exit = new CButton(Point(204, 313), "IOK6432.DEF", CButton::tooltip(), std::bind(&CAdventureOptions::close, this), SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
 	scenInfo = new CButton(Point(24, 198), "ADVINFO.DEF", CButton::tooltip(), [&]{ close(); }, SDLK_i);
 	scenInfo->addCallback(CAdventureOptions::showScenarioInfo);
-
-	//viewWorld = new CButton("","",std::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
 
 	puzzle = new CButton(Point(24, 81), "ADVPUZ.DEF", CButton::tooltip(), [&]{ close(); }, SDLK_p);
 	puzzle->addCallback(std::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT));

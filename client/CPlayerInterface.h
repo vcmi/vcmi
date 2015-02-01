@@ -170,6 +170,7 @@ public:
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) override;
 	void showPuzzleMap() override;
+	void viewWorldMap() override;
 	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor) override;
 	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor) override;
 	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) override;
@@ -267,15 +268,15 @@ public:
 	~CPlayerInterface();//d-tor
 
 	static CondSh<bool> terminate_cond; // confirm termination
-	
+
 
 
 private:
 
 	template <typename Handler> void serializeTempl(Handler &h, const int version);
 
-private:	
-	
+private:
+
 	struct IgnoreEvents
 	{
 		CPlayerInterface & owner;
@@ -287,16 +288,16 @@ private:
 		{
 			owner.ignoreEvents = false;
 		};
-		
+
 	};
-	
-	
-	
+
+
+
 	bool duringMovement;
 	bool ignoreEvents;
-	
+
 	bool locked;
-	
+
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 };
 

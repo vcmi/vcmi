@@ -96,7 +96,7 @@ static bool objectBlitOrderSorter(const std::pair<const CGObjectInstance*,SDL_Re
 
 CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
-    logGlobal->traceStream() << "\tHuman player interface for player " << Player << " being constructed";
+	logGlobal->traceStream() << "\tHuman player interface for player " << Player << " being constructed";
 	observerInDuelMode = false;
 	howManyPeople++;
 	GH.defActionsDef = 0;
@@ -115,7 +115,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 	isAutoFightOn = false;
-	
+
 	duringMovement = false;
 	ignoreEvents = false;
 	locked = false;
@@ -143,6 +143,8 @@ void CPlayerInterface::init(shared_ptr<CCallback> CB)
 
 	if(!adventureInt)
 		adventureInt = new CAdvMapInt();
+	else
+		adventureInt->restoreState();
 }
 void CPlayerInterface::yourTurn()
 {
@@ -768,7 +770,7 @@ void CPlayerInterface::actionFinished(const BattleAction &action)
 BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
 {
 	THREAD_CREATED_BY_CLIENT;
-    logGlobal->traceStream() << "Awaiting command for " << stack->nodeName();
+	logGlobal->traceStream() << "Awaiting command for " << stack->nodeName();
 
 	if(autofightingAI)
 	{
@@ -813,7 +815,7 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	b->givenCommand->data = nullptr;
 
 	//return command
-    logGlobal->traceStream() << "Giving command for " << stack->nodeName();
+	logGlobal->traceStream() << "Giving command for " << stack->nodeName();
 	return ret;
 }
 
@@ -876,7 +878,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
-	
+
 	std::vector<StackAttackedInfo> arg;
 	for(auto & elem : bsa)
 	{
@@ -890,7 +892,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 		if(elem.isSpell())
 		{
 			if (defender)
-				battleInt->displaySpellEffect(elem.spellID, defender->position);			
+				battleInt->displaySpellEffect(elem.spellID, defender->position);
 		}
 		//FIXME: why action is deleted during enchanter cast?
 		bool remoteAttack = false;
@@ -973,14 +975,14 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 		const CStack * attacked = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
 		battleInt->stackAttacking( attacker, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, attacked, false);
 	}
-	
+
 	//battleInt->waitForAnims(); //FIXME: freeze
-	
+
 	if(ba->spellLike())
 	{
-		//display hit animation		
-		SpellID spellID = ba->spellID;			
-		battleInt->displaySpellHit(spellID,curAction->destinationTile);	
+		//display hit animation
+		SpellID spellID = ba->spellID;
+		battleInt->displaySpellHit(spellID,curAction->destinationTile);
 	}
 }
 void CPlayerInterface::battleObstaclePlaced(const CObstacleInstance &obstacle)
@@ -1264,15 +1266,15 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	{
 		h & pathsMap;
 
-        if(cb)
-            for(auto &p : pathsMap)
-            {
-                CGPath path;
-                cb->getPathsInfo(p.first)->getPath(p.second, path);
-                paths[p.first] = path;
-                logGlobal->traceStream() << boost::format("Restored path for hero %s leading to %s with %d nodes")
-                    % p.first->nodeName() % p.second % path.nodes.size();
-            }
+		if(cb)
+			for(auto &p : pathsMap)
+			{
+				CGPath path;
+				cb->getPathsInfo(p.first)->getPath(p.second, path);
+				paths[p.first] = path;
+				logGlobal->traceStream() << boost::format("Restored path for hero %s leading to %s with %d nodes")
+					% p.first->nodeName() % p.second % path.nodes.size();
+			}
 	}
 
 	h & spellbookSettings;
@@ -1293,7 +1295,7 @@ void CPlayerInterface::loadGame( CISer & h, const int version )
 
 void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 {
-    logGlobal->traceStream() << __FUNCTION__;
+	logGlobal->traceStream() << __FUNCTION__;
 	if(!LOCPLINT->makingTurn)
 		return;
 	if (!h)
@@ -1304,7 +1306,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 		return;
 
 	duringMovement = true;
-	
+
 	if (adventureInt && adventureInt->isHeroSleeping(h))
 	{
 		adventureInt->sleepWake->clickLeft(true, false);
@@ -1313,10 +1315,10 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 		//adventureInt->fsleepWake();
 		//but no authentic button click/sound ;-)
 	}
-	
+
 	boost::thread moveHeroTask(std::bind(&CPlayerInterface::doMoveHero,this,h,path));
 
-	
+
 }
 
 bool CPlayerInterface::shiftPressed() const
@@ -1480,7 +1482,7 @@ void CPlayerInterface::waitWhileDialog(bool unlockPim /*= true*/)
 {
 	if(GH.amIGuiThread())
 	{
-        logGlobal->warnStream() << "Cannot wait for dialogs in gui thread (deadlock risk)!";
+		logGlobal->warnStream() << "Cannot wait for dialogs in gui thread (deadlock risk)!";
 		return;
 	}
 
@@ -1539,7 +1541,7 @@ void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (LOCPLINT->cb->getCurrentPlayer() == playerID) {
 		std::string handlerName = VLC->objtypeh->getObjectHandlerName(obj->ID);
-        if ((handlerName == "pickable") || (handlerName == "scholar") || (handlerName== "artifact") || (handlerName == "pandora")) {
+		if ((handlerName == "pickable") || (handlerName == "scholar") || (handlerName== "artifact") || (handlerName == "pandora")) {
 			waitWhileDialog();
 			CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
 		} else if ((handlerName == "monster") || (handlerName == "hero")) {
@@ -1626,11 +1628,11 @@ void CPlayerInterface::runLocked(std::function<void(IUpdateable * )> functor)
 	// While mutexes were locked away we may be have stopped being the active interface
 	if(LOCPLINT != this)
 		return;
-		
+
 	// Make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
-	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());		
-	
-	locked = true;	
+	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
+
+	locked = true;
 	functor(this);
 	locked = false;
 }
@@ -2171,6 +2173,11 @@ void CPlayerInterface::showPuzzleMap()
 	GH.pushInt(new CPuzzleWindow(grailPos, ratio));
 }
 
+void CPlayerInterface::viewWorldMap()
+{
+	adventureInt->changeMode(EAdvMapMode::WORLD_VIEW);
+}
+
 void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -2179,7 +2186,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 		eraseCurrentPathOf(caster, false);
 	}
 	const CSpell * spell = CGI->spellh->objects[spellID];
-	
+
 	auto castSoundPath = spell->getCastSound();
 	if (!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
@@ -2216,7 +2223,7 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 		CGPath &path = paths[h];
 		if(!path.nodes.size())
 		{
-            logGlobal->warnStream() << "Warning: empty path found...";
+			logGlobal->warnStream() << "Warning: empty path found...";
 			paths.erase(h);
 		}
 		else
@@ -2601,7 +2608,7 @@ bool CPlayerInterface::capturedAllEvents()
 		//just inform that we are capturing events. they will be processed by heroMoved() in client thread.
 		return true;
 	}
-	
+
 	if(ignoreEvents)
 	{
 		boost::unique_lock<boost::mutex> un(eventsM);
@@ -2611,7 +2618,7 @@ bool CPlayerInterface::capturedAllEvents()
 		}
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -2690,7 +2697,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance* h, CGPath path)
 		// (i == 0) means hero went through all the path
 		adventureInt->updateMoveHero(h, (i != 0));
 		adventureInt->updateNextHero(h);
-	}	
-	
+	}
+
 	duringMovement = false;
 }

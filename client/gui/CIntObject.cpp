@@ -12,7 +12,7 @@ IShowActivatable::IShowActivatable()
 
 void ILockedUpdatable::runLocked(std::function<void(IUpdateable*)> cb)
 {
-	boost::unique_lock<boost::recursive_mutex> lock(updateGuard);	
+	boost::unique_lock<boost::recursive_mutex> lock(updateGuard);
 	cb(this);
 }
 
@@ -82,7 +82,7 @@ void CIntObject::activate()
 			return;
 		else
 		{
-            logGlobal->warnStream() << "Warning: IntObject re-activated with mismatching used and active";
+			logGlobal->warnStream() << "Warning: IntObject re-activated with mismatching used and active";
 			deactivate(); //FIXME: better to avoid such possibility at all
 		}
 	}
@@ -143,6 +143,11 @@ CIntObject::~CIntObject()
 void CIntObject::printAtLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
 {
 	graphics->fonts[font]->renderTextLeft(dst, text, kolor, Point(pos.x + x, pos.y + y));
+}
+
+void CIntObject::printAtRightLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
+{
+	graphics->fonts[font]->renderTextRight(dst, text, kolor, Point(pos.x + x, pos.y + y));
 }
 
 void CIntObject::printAtMiddleLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
@@ -312,8 +317,8 @@ const Rect & CIntObject::center( bool propagate )
 
 const Rect & CIntObject::center(const Point &p, bool propagate /*= true*/)
 {
-	moveBy(Point(p.x - pos.w/2 - pos.x, 
-		p.y - pos.h/2 - pos.y), 
+	moveBy(Point(p.x - pos.w/2 - pos.x,
+		p.y - pos.h/2 - pos.y),
 		propagate);
 	return pos;
 }
@@ -333,7 +338,7 @@ CKeyShortcut::CKeyShortcut(int key)
 }
 
 CKeyShortcut::CKeyShortcut(std::set<int> Keys)
-    :assignedKeys(Keys)
+	:assignedKeys(Keys)
 {}
 
 void CKeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
@@ -342,12 +347,12 @@ void CKeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key.keysym.sym)))
 	{
 		bool prev = pressedL;
-		if(key.state == SDL_PRESSED) 
+		if(key.state == SDL_PRESSED)
 		{
 			pressedL = true;
 			clickLeft(true, prev);
-		} 
-		else 
+		}
+		else
 		{
 			pressedL = false;
 			clickLeft(false, prev);

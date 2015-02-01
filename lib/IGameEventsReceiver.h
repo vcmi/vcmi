@@ -109,6 +109,7 @@ public:
 	virtual void showShipyardDialog(const IShipyard *obj){} //obj may be town or shipyard; state: 0 - can buid, 1 - lack of resources, 2 - dest tile is blocked, 3 - no water
 
 	virtual void showPuzzleMap(){};
+	virtual void viewWorldMap(){};
 	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor){};
 	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor){};
 	virtual void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor){};
