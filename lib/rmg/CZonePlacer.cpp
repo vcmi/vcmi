@@ -323,7 +323,7 @@ d = 0.01 * dx^3 - 0.1618 * dx^2 + 1 * dx + ...
 
 void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 {
-	logGlobal->infoStream()  << "Starting zone colouring";
+	logGlobal->infoStream() << "Starting zone colouring";
 
 	auto width = mapGenOptions->getWidth();
 	auto height = mapGenOptions->getHeight();
@@ -338,12 +338,62 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 	std::vector <Dpair> distances;
 	distances.reserve(zones.size());
 
+	//now place zones correctly and assign tiles to each zone
+
 	auto compareByDistance = [](const Dpair & lhs, const Dpair & rhs) -> bool
 	{
 		return lhs.second < rhs.second;
 	};
 
+	auto moveZoneToCenterOfMass = [](CRmgTemplateZone * zone) -> void
+	{
+		int3 total(0, 0, 0);
+		auto tiles = zone->getTileInfo();
+		for (auto tile : tiles)
+		{
+			total += tile;
+		}
+		int size = tiles.size();
+		assert(size);
+		zone->setPos(int3(total.x / size, total.y / size, total.z / size));
+	};
+
 	int levels = gen->map->twoLevel ? 2 : 1;
+
+	/*
+	1. Create Voronoi diagram
+	2. find current center of mass for each zone. Move zone to that center to balance zones sizes
+	*/
+
+	for (int i = 0; i<width; i++)
+	{
+		for (int j = 0; j<height; j++)
+		{
+			for (int k = 0; k < levels; k++)
+			{
+				distances.clear();
+				int3 pos(i, j, k);
+				for (auto zone : zones)
+				{
+					if (zone.second->getPos().z == k)
+						distances.push_back(std::make_pair(zone.second, pos.dist2dSQ(zone.second->getPos())));
+					else
+						distances.push_back(std::make_pair(zone.second, std::numeric_limits<float>::max()));
+				}
+				boost::sort(distances, compareByDistance);
+				distances.front().first->addTile(pos); //closest tile belongs to zone
+			}
+		}
+	}
+
+	for (auto zone : zones)
+		moveZoneToCenterOfMass(zone.second);
+
+	//assign actual tiles to each zone using nonlinear norm for fine edges
+
+	for (auto zone : zones)
+		zone.second->clearTiles(); //now populate them again
+
 	for (int i=0; i<width; i++)
 	{
 		for(int j=0; j<height; j++)
@@ -364,18 +414,10 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 			}
 		}
 	}
-	//set position to center of mass
+	//set position (town position) to center of mass of irregular zone
 	for (auto zone : zones)
 	{
-		int3 total(0,0,0);
-		auto tiles = zone.second->getTileInfo();
-		for (auto tile : tiles)
-		{
-			total += tile;
-		}
-		int size = tiles.size();
-		assert (size);
-		zone.second->setPos (int3(total.x/size, total.y/size, total.z/size));
+		moveZoneToCenterOfMass(zone.second);
 
 		//TODO: similiar for islands
 		#define	CREATE_FULL_UNDERGROUND true //consider linking this with water amount

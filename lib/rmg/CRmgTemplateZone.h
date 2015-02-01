@@ -49,6 +49,7 @@ public:
 	bool isUsed() const;
 	void setOccupied(ETileType::ETileType value);
 	ETerrainType getTerrainType() const;
+	ETileType::ETileType getTileType() const;
 	void setTerrainType(ETerrainType value);
 
 private:
@@ -148,6 +149,7 @@ public:
 	void initFreeTiles (CMapGenerator* gen);
 	std::set<int3> getTileInfo () const;
 	void discardDistantTiles (CMapGenerator* gen, float distance);
+	void clearTiles();
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);

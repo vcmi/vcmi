@@ -1788,14 +1788,19 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 
 void CBattleInterface::printConsoleAttacked( const CStack * defender, int dmg, int killed, const CStack * attacker, bool multiple )
 {
-	boost::format txt;
+	std::string formattedText;
 	if (attacker) //ignore if stacks were killed by spell
 	{
-		txt = boost::format (CGI->generaltexth->allTexts[attacker->count > 1 ? 377 : 376]) %
+		boost::format txt = boost::format (CGI->generaltexth->allTexts[attacker->count > 1 ? 377 : 376]) %
 			(attacker->count > 1 ? attacker->getCreature()->namePl : attacker->getCreature()->nameSing) % dmg;
+		formattedText.append(boost::to_string(txt));
 	}
 	if(killed > 0)
 	{
+		if (attacker)
+			formattedText.append(" ");
+		
+		boost::format txt;
 		if(killed > 1)
 		{
 			txt = boost::format (CGI->generaltexth->allTexts[379]) % killed % (multiple ? CGI->generaltexth->allTexts[43] : defender->getCreature()->namePl); // creatures perish
@@ -1804,9 +1809,12 @@ void CBattleInterface::printConsoleAttacked( const CStack * defender, int dmg, i
 		{
 			txt = boost::format (CGI->generaltexth->allTexts[378]) % (multiple ? CGI->generaltexth->allTexts[42] : defender->getCreature()->nameSing); // creature perishes
 		}
+		std::string trimmed = boost::to_string(txt);
+		boost::algorithm::trim(trimmed); // these default h3 texts have unnecessary new lines, so get rid of them before displaying
+		formattedText.append(trimmed);
 	}
+	console->addText(formattedText);
 
-	console->addText(boost::to_string (txt));
 }
 
 

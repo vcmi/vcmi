@@ -341,13 +341,17 @@ class CAdvMapWorldViewPanel : public CAdvMapPanel
 	std::vector<std::pair<int, Point>> iconsData;
 	/// ptrs to child-pictures constructed from iconsData
 	std::vector<CPicture *> currentIcons;
+	/// temporary surface drawn below world view panel on higher resolutions (won't be needed when world view panel is configured for extraResolutions mod)
+	SDL_Surface * tmpBackgroundFiller;
+	int fillerHeight;
 public:
-	CAdvMapWorldViewPanel(SDL_Surface * bg, Point position);
-	virtual ~CAdvMapWorldViewPanel(){}
+	CAdvMapWorldViewPanel(SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color);
+	virtual ~CAdvMapWorldViewPanel();
 
 	void addChildIcon(std::pair<int, Point> data, const CDefHandler *def, int indexOffset);
 	/// recreates all pictures from given def to recolor them according to current player color
-	void recolorIcons(const CDefHandler *def, int indexOffset);
+	void recolorIcons(const PlayerColor &color, const CDefHandler *def, int indexOffset);
+	void showAll(SDL_Surface * to);
 };
 
 class CInGameConsole : public CIntObject

@@ -316,11 +316,18 @@ void CStackWindow::CWindowSection::createActiveSpells()
 	std::vector<si32> spells = battleStack->activeSpells();
 	for(si32 effect : spells)
 	{
+		const CSpell * sp = CGI->spellh->objects[effect];
+		
 		std::string spellText;
-		if (effect < 77) //not all effects have graphics (for eg. Acid Breath)
+		
+		//not all effects have graphics (for eg. Acid Breath)
+		//for modded spells iconEffect is added to SpellInt.def
+		const bool hasGraphics = (effect < SpellID::THUNDERBOLT) || (effect >= SpellID::AFTER_LAST); 
+		
+		if (hasGraphics) 
 		{
 			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
-			boost::replace_first (spellText, "%s", CGI->spellh->objects[effect]->name);
+			boost::replace_first (spellText, "%s", sp->name);
 			int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
 			boost::replace_first (spellText, "%d", boost::lexical_cast<std::string>(duration));
 

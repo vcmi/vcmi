@@ -496,9 +496,19 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 	NET_EVENT_HANDLER;
 	if(sop->what == ObjProperty::OWNER)
 	{
+		//we don't want to visit know object twice (do we really?)
 		if(sop->val == playerID.getNum())
 			erase_if_present(visitableObjs, myCb->getObj(sop->id));
-		//TODO restore lost obj
+		else if (myCb->getPlayerRelations(playerID, (PlayerColor)sop->val) == PlayerRelations::ENEMIES)
+		{
+			//we want to visit objects owned by oppponents
+			auto obj = myCb->getObj(sop->id, false);
+			if (obj)
+			{
+				visitableObjs.insert(obj);
+				erase_if_present(alreadyVisited, obj);
+			}
+		}
 	}
 }
 

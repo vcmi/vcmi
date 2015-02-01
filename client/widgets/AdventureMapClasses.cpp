@@ -12,6 +12,7 @@
 #include "../CPlayerInterface.h"
 #include "../CPreGame.h"
 #include "../Graphics.h"
+#include "../CMessage.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Pixels.h"
@@ -1234,6 +1235,11 @@ CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
 	recActions = 255;
 	pos.x += position.x;
 	pos.y += position.y;
+	if (bg)
+	{
+		pos.w = bg->w;
+		pos.h = bg->h;
+	}
 }
 
 CAdvMapPanel::~CAdvMapPanel()
@@ -1270,13 +1276,26 @@ void CAdvMapPanel::addChildToPanel(CIntObject * obj, ui8 actions /* = 0 */)
 	addChild(obj, false);
 }
 
-CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(SDL_Surface * bg, Point position)
-	: CAdvMapPanel(bg, position)
+CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color)
+	: CAdvMapPanel(bg, position)	  
 {
-
+	fillerHeight = bg ? spaceBottom - pos.y - pos.h : 0;
+	
+	if (fillerHeight > 0)
+	{
+		tmpBackgroundFiller = CMessage::drawDialogBox(pos.w, fillerHeight, color);
+	}
+	else
+		tmpBackgroundFiller = nullptr;
 }
 
-void CAdvMapWorldViewPanel::recolorIcons(const CDefHandler *def, int indexOffset)
+CAdvMapWorldViewPanel::~CAdvMapWorldViewPanel()
+{
+	if (tmpBackgroundFiller)
+		SDL_FreeSurface(tmpBackgroundFiller);
+}
+
+void CAdvMapWorldViewPanel::recolorIcons(const PlayerColor &color, const CDefHandler *def, int indexOffset)
 {
 	for (auto &pic : currentIcons)
 	{
@@ -1292,6 +1311,13 @@ void CAdvMapWorldViewPanel::recolorIcons(const CDefHandler *def, int indexOffset
 		currentIcons.push_back(pic);
 		addChildToPanel(pic);
 	}
+	
+	if (fillerHeight > 0)
+	{
+		if (tmpBackgroundFiller)
+			SDL_FreeSurface(tmpBackgroundFiller);
+		tmpBackgroundFiller = CMessage::drawDialogBox(pos.w, fillerHeight, color);
+	}
 }
 
 void CAdvMapWorldViewPanel::addChildIcon(std::pair<int, Point> data, const CDefHandler *def, int indexOffset)
@@ -1300,4 +1326,14 @@ void CAdvMapWorldViewPanel::addChildIcon(std::pair<int, Point> data, const CDefH
 	auto pic = new CPicture(def->ourImages[data.first + indexOffset].bitmap, data.second.x, data.second.y, false);
 	currentIcons.push_back(pic);
 	addChildToPanel(pic);
+}
+
+void CAdvMapWorldViewPanel::showAll(SDL_Surface * to)
+{
+	if (tmpBackgroundFiller)
+	{		
+		blitAt(tmpBackgroundFiller, pos.x, pos.y + pos.h, to);
+	}
+
+	CAdvMapPanel::showAll(to);
 }

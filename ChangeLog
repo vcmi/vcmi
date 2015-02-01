@@ -1,4 +1,6 @@
 0.97 -> 0.98
+ADVENTURE MAP:
+* Implemented world veiw
 
 SPELLS:
 * implemented CURE spell negative dispell effect
@@ -8,6 +10,7 @@ BATTLES:
 * Implemented OH3 stack split / upgrade formulas according to AlexSpl
 
 RANDOM MAP GENERATOR:
+* Implemented "junction" zone type
 * Improved zone placing algorithm
 * More balanced distribution of treasure piles
 * More obstacles within zones
