@@ -1,5 +1,5 @@
 /*
- * SpellMechanics.h, part of VCMI engine
+ * ISpellMechanics.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
