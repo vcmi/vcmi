@@ -310,7 +310,7 @@ void CTerrainRect::showAll(SDL_Surface * to)
 		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos, adventureInt->worldViewIconsDef);
 		info.scaled = true;
 		info.scale = adventureInt->worldViewScale;
-
+		adventureInt->worldViewOptions.adjustDrawingInfo(info);
 		CGI->mh->drawTerrainRectNew(to, &info);
 	}
 }
@@ -1783,6 +1783,9 @@ void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale /* = 0.4f */)
 			townList.activate();
 			heroList.activate();
 			infoBar.activate();
+			
+			worldViewOptions.clear();
+			
 			break;
 		case EAdvMapMode::WORLD_VIEW:
 			panelMain->deactivate();
@@ -1843,3 +1846,24 @@ void CAdventureOptions::showScenarioInfo()
 		GH.pushInt(new CScenarioInfo(LOCPLINT->cb->getMapHeader(), LOCPLINT->cb->getStartInfo()));
 	}
 }
+
+CAdvMapInt::WorldViewOptions::WorldViewOptions()
+{
+	clear();
+}
+
+void CAdvMapInt::WorldViewOptions::clear()
+{
+	showAllArtifacts = showAllHeroes = showAllTowns = showAllResources  = showAllMines = showAllTerrain = false;
+}
+
+void CAdvMapInt::WorldViewOptions::adjustDrawingInfo(MapDrawingInfo& info)
+{
+	info.showAllArtifacts = showAllArtifacts;
+	info.showAllHeroes = showAllHeroes;
+	info.showAllTowns = showAllTowns;
+	info.showAllResources = showAllResources;
+	info.showAllMines = showAllMines;
+	info.showAllTerrain = showAllTerrain;	
+}
+

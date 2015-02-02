@@ -616,8 +616,7 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 
 		if (obj->pos.z != pos.z)
 			continue;
-		if (!(*info->visibilityMap)[pos.x][pos.y][pos.z])
-			continue; // TODO needs to skip this check if we have view-air-like spell cast
+		const bool isVisible = (*info->visibilityMap)[pos.x][pos.y][pos.z];
 		if (!obj->visitableAt(pos.x, pos.y))
 			continue;
 
@@ -640,25 +639,32 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 		case Obj::MONOLITH_ONE_WAY_EXIT:
 		case Obj::MONOLITH_TWO_WAY:
-			wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::TELEPORT].bitmap;
+			if(isVisible)
+				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::TELEPORT].bitmap;
 			break;
 		case Obj::SUBTERRANEAN_GATE:
-			wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::GATE].bitmap;
+			if(isVisible)
+				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::GATE].bitmap;
 			break;
 		case Obj::ARTIFACT:
-			wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::ARTIFACT].bitmap;
+			if(isVisible || info->showAllArtifacts)
+				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::ARTIFACT].bitmap;
 			break;
 		case Obj::TOWN:
-			wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::TOWN + ownerIndex].bitmap;
+			if(isVisible || info->showAllTowns)
+				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::TOWN + ownerIndex].bitmap;
 			break;
 		case Obj::HERO:
-			wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::HERO + ownerIndex].bitmap;
+			if(isVisible || info->showAllHeroes)
+				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::HERO + ownerIndex].bitmap;
 			break;
 		case Obj::MINE:
-			wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::MINE_WOOD + obj->subID + ownerIndex].bitmap;
+			if(isVisible || info->showAllMines)
+				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::MINE_WOOD + obj->subID + ownerIndex].bitmap;
 			break;
 		case Obj::RESOURCE:
-			wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::RES_WOOD + obj->subID + ownerIndex].bitmap;
+			if(isVisible || info->showAllResources)
+				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::RES_WOOD + obj->subID + ownerIndex].bitmap;
 			break;
 		}
 
@@ -904,9 +910,8 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 		{
 			if (pos.y < 0 || pos.y >= parent->sizes.y)
 				continue;
-
-			if (!canDrawCurrentTile())
-				continue;
+			
+			const bool isVisible = canDrawCurrentTile();
 
 			realTileRect.x = realPos.x;
 			realTileRect.y = realPos.y;
@@ -914,13 +919,17 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			const TerrainTile2 & tile = parent->ttiles[pos.x][pos.y][pos.z];
 			const TerrainTile & tinfo = parent->map->getTile(pos);
 			const TerrainTile * tinfoUpper = pos.y > 0 ? &parent->map->getTile(int3(pos.x, pos.y - 1, pos.z)) : nullptr;
+			
+			if(isVisible || info->showAllTerrain)
+			{
+				drawTileTerrain(targetSurf, tinfo, tile);
+				if (tinfo.riverType)
+					drawRiver(targetSurf, tinfo);
+				drawRoad(targetSurf, tinfo, tinfoUpper);				
+			}
 
-			drawTileTerrain(targetSurf, tinfo, tile);
-			if (tinfo.riverType)
-				drawRiver(targetSurf, tinfo);
-			drawRoad(targetSurf, tinfo, tinfoUpper);
-
-			drawObjects(targetSurf, tile);
+			if(isVisible)
+				drawObjects(targetSurf, tile);
 		}
 	}
 
@@ -940,7 +949,7 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			{
 				const TerrainTile2 & tile = parent->ttiles[pos.x][pos.y][pos.z];
 
-				if (!(*info->visibilityMap)[pos.x][pos.y][topTile.z])
+				if (!(*info->visibilityMap)[pos.x][pos.y][topTile.z] && !info->showAllTerrain)
 					drawFow(targetSurf);
 
 				// overlay needs to be drawn over fow, because of artifacts-aura-like spells

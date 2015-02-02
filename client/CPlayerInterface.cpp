@@ -2189,6 +2189,27 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 	}
 	const CSpell * spell = CGI->spellh->objects[spellID];
 
+	if(spellID == SpellID::VIEW_AIR)
+	{
+		int level = caster->getSpellSchoolLevel(spell);
+		
+		adventureInt->worldViewOptions.showAllArtifacts = true;
+		adventureInt->worldViewOptions.showAllHeroes = (level>1);
+		adventureInt->worldViewOptions.showAllTowns = (level>2);
+		
+		viewWorldMap();
+	}
+	else if(spellID == SpellID::VIEW_EARTH)
+	{
+		int level = caster->getSpellSchoolLevel(spell);
+		
+		adventureInt->worldViewOptions.showAllResources = true;
+		adventureInt->worldViewOptions.showAllMines = (level>1);
+		adventureInt->worldViewOptions.showAllTerrain = (level>2);
+				
+		viewWorldMap();
+	}
+	
 	auto castSoundPath = spell->getCastSound();
 	if (!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);

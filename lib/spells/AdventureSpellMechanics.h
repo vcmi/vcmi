@@ -55,3 +55,21 @@ public:
 protected:
 	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;	
 };
+
+class ViewAirMechanics: public DefaultSpellMechanics 
+{
+public:	
+	ViewAirMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+protected:
+	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;	
+};
+
+class ViewEarthMechanics: public DefaultSpellMechanics 
+{
+public:	
+	ViewEarthMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+protected:
+	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;	
+};
+
+

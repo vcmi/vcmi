@@ -74,10 +74,12 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 		return new AdventureBonusingMechanics(s, Bonus::WATER_WALKING);
 	case SpellID::TOWN_PORTAL:
 		return new TownPortalMechanics(s);
-	case SpellID::VISIONS:
 	case SpellID::VIEW_EARTH:
+		return new ViewEarthMechanics(s);
+	case SpellID::VIEW_AIR:			
+		return new ViewAirMechanics(s);
+	case SpellID::VISIONS:
 	case SpellID::DISGUISE:
-	case SpellID::VIEW_AIR:	
 	default:		
 		if(s->isRisingSpell())
 			return new SpecialRisingSpellMechanics(s);

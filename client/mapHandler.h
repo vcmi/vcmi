@@ -100,7 +100,16 @@ struct MapDrawingInfo
 
 	bool puzzleMode;
 	int3 grailPos; // location of grail for puzzle mode [in tiles]
-
+	
+	
+	bool showAllArtifacts; //for basic viewAir
+	bool showAllHeroes; //for advanced viewAir
+	bool showAllTowns; //for expert viewAir
+	
+	bool showAllResources; //for basic viewEarth
+	bool showAllMines; //for advanced viewEarth 
+	bool showAllTerrain; //for expert viewEarth
+	
 	MapDrawingInfo(int3 &topTile_, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap_, SDL_Rect * drawBounds_, CDefHandler * iconsDef_ = nullptr)
 		: scaled(false),
 		  topTile(topTile_),
@@ -113,7 +122,13 @@ struct MapDrawingInfo
 		  heroAnim(0u),
 		  movement(int3()),
 		  puzzleMode(false),
-		  grailPos(int3())
+		  grailPos(int3()),
+		  showAllArtifacts(false),
+		  showAllHeroes(false),
+		  showAllTowns(false),
+		  showAllResources(false),
+		  showAllMines(false),
+		  showAllTerrain(false)
 	{}
 
 	ui8 getHeroAnim() const { return otherheroAnim ? anim : heroAnim; }

@@ -253,3 +253,14 @@ bool TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env
 	env->moveHero(parameters.caster->id, town->visitablePos() + parameters.caster->getVisitableOffset() ,1);	
 	return true;
 }
+
+
+bool ViewAirMechanics::applyAdventureEffects(const SpellCastEnvironment* env, AdventureSpellCastParameters& parameters) const
+{
+	return true; //implemented on client side
+}
+
+bool ViewEarthMechanics::applyAdventureEffects(const SpellCastEnvironment* env, AdventureSpellCastParameters& parameters) const
+{
+	return true; //implemented on client side
+}

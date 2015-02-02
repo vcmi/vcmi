@@ -18,6 +18,8 @@ class IShipyard;
 enum class EMapAnimRedrawStatus;
 class CFadeAnimation;
 
+struct MapDrawingInfo;
+
 /*****************************/
 
 /*
@@ -126,6 +128,25 @@ public:
 
 	EAdvMapMode mode;
 	float worldViewScale;
+	
+	struct WorldViewOptions
+	{
+		bool showAllArtifacts; //for basic viewAir
+		bool showAllHeroes; //for advanced viewAir
+		bool showAllTowns; //for expert viewAir
+		
+		bool showAllResources; //for basic viewEarth
+		bool showAllMines; //for advanced viewEarth 
+		bool showAllTerrain; //for expert viewEarth
+		
+		WorldViewOptions();
+		
+		void clear();
+		
+		void adjustDrawingInfo(MapDrawingInfo & info);		
+	};
+	
+	WorldViewOptions worldViewOptions; 	
 
 	SDL_Surface * bg;
 	SDL_Surface * bgWorldView;
