@@ -359,7 +359,7 @@ void CTerrainRect::fadeFromCurrentView()
 	if (!fadeSurface)
 		fadeSurface = CSDL_Ext::newSurface(pos.w, pos.h);
 	SDL_BlitSurface(screen, &pos, fadeSurface, nullptr);
-	fadeAnim->init(CFadeAnimation::EMode::OUT, 0.05f, fadeSurface);
+	fadeAnim->init(CFadeAnimation::EMode::OUT, fadeSurface);
 }
 
 bool CTerrainRect::needsAnimUpdate()
@@ -979,11 +979,11 @@ void CAdvMapInt::selectionChanged()
 		select(to);
 }
 
-void CAdvMapInt::centerOn(int3 on, bool fadeIfZChanged /* = false */)
+void CAdvMapInt::centerOn(int3 on, bool fade /* = false */)
 {
 	bool switchedLevels = on.z != position.z;
 	
-	if (fadeIfZChanged)
+	if (fade)
 	{
 		terrain.fadeFromCurrentView();
 	}
@@ -1018,9 +1018,9 @@ void CAdvMapInt::centerOn(int3 on, bool fadeIfZChanged /* = false */)
 		terrain.redraw();
 }
 
-void CAdvMapInt::centerOn(const CGObjectInstance *obj, bool fadeIfZChanged /* = false */)
+void CAdvMapInt::centerOn(const CGObjectInstance *obj, bool fade /* = false */)
 {
-	centerOn(obj->getSightCenter(), fadeIfZChanged);
+	centerOn(obj->getSightCenter(), fade);
 }
 
 void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)

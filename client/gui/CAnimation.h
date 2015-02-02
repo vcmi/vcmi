@@ -243,7 +243,7 @@ public:
 
 	CFadeAnimation();
 	~CFadeAnimation();
-	void init(EMode mode, float animDelta = DEFAULT_DELTA, SDL_Surface * sourceSurface = nullptr, bool freeSurfaceAtEnd = false);
+	void init(EMode mode, SDL_Surface * sourceSurface, bool freeSurfaceAtEnd = false, float animDelta = DEFAULT_DELTA);
 	void update();
 	void draw(SDL_Surface * targetSurface, const SDL_Rect * sourceRect, SDL_Rect * destRect);
 	bool isFading() const { return fading; }

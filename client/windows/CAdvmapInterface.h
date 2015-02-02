@@ -186,8 +186,8 @@ public:
 
 	void select(const CArmedInstance *sel, bool centerView = true);
 	void selectionChanged();
-	void centerOn(int3 on, bool fadeIfZChanged = false);
-	void centerOn(const CGObjectInstance *obj, bool fadeIfZChanged = false);
+	void centerOn(int3 on, bool fade = false);
+	void centerOn(const CGObjectInstance *obj, bool fade = false);
 	int3 verifyPos(int3 ver);
 	void handleRightClick(std::string text, tribool down);
 	void keyPressed(const SDL_KeyboardEvent & key);

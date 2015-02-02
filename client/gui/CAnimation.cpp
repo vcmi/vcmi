@@ -1272,12 +1272,15 @@ CFadeAnimation::~CFadeAnimation()
 		SDL_FreeSurface(fadingSurface);		
 }
 
-void CFadeAnimation::init(EMode mode, float animDelta /* = DEFAULT_DELTA */, SDL_Surface * sourceSurface /* = nullptr */, bool freeSurfaceAtEnd /* = false */)
+void CFadeAnimation::init(EMode mode, SDL_Surface * sourceSurface, bool freeSurfaceAtEnd /* = false */, float animDelta /* = DEFAULT_DELTA */)
 {
 	if (fading)
 	{
+		// in that case, immediately finish the previous fade
+		// (alternatively, we could just return here to ignore the new fade request until this one finished (but we'd need to free the passed bitmap to avoid leaks))
 		logGlobal->warnStream() << "Tried to init fading animation that is already running.";
-		return;
+		if (fadingSurface && shouldFreeSurface)
+			SDL_FreeSurface(fadingSurface); 
 	}		
 	if (animDelta <= 0.0f)
 	{

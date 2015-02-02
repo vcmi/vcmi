@@ -1228,7 +1228,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj, bool fadein /* = fals
 				auto tmp = CSDL_Ext::newSurface(bitmap->w, bitmap->h);
 				SDL_BlitSurface(bitmap, nullptr, tmp, nullptr); // can't be 8bpp for fading
 				auto anim = new CFadeAnimation();
-				anim->init(CFadeAnimation::EMode::IN, 0.05f, tmp, true);
+				anim->init(CFadeAnimation::EMode::IN, tmp, true);
 				fadeAnims[++fadeAnimCounter] = std::pair<int3, CFadeAnimation*>(int3(fx, fy, obj->pos.z), anim);
 				toAdd.fadeAnimKey = fadeAnimCounter;
 			}
@@ -1276,7 +1276,7 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = fals
 							SDL_BlitSurface(bitmap, nullptr, tmp, nullptr); // can't be 8bpp for fading
 							
 							auto anim = new CFadeAnimation();
-							anim->init(CFadeAnimation::EMode::OUT, 0.05f, tmp, true);
+							anim->init(CFadeAnimation::EMode::OUT, tmp, true);
 							fadeAnims[++fadeAnimCounter] = std::pair<int3, CFadeAnimation*>(int3(i, j, k), anim);
 							ttiles[i][j][k].objects[x].fadeAnimKey = fadeAnimCounter;
 						}
