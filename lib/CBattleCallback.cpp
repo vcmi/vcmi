@@ -3,7 +3,7 @@
 #include "BattleState.h"
 #include "CGameState.h"
 #include "NetPacks.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 #include "VCMI_Lib.h"
 #include "CTownHandler.h"
 

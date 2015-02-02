@@ -7,7 +7,7 @@
 #include "CBuildingHandler.h"
 #include "CGeneralTextHandler.h"
 #include "CTownHandler.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CCreatureHandler.h"

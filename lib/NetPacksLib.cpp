@@ -9,7 +9,7 @@
 #include "CModHandler.h"
 #include "VCMI_Lib.h"
 #include "mapping/CMap.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 #include "CCreatureHandler.h"
 #include "CGameState.h"
 #include "BattleState.h"

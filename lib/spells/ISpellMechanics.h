@@ -11,7 +11,7 @@
 #pragma once
 
 #include "CSpellHandler.h"
-#include "BattleHex.h"
+#include "../BattleHex.h"
 
 class DLL_LINKAGE ISpellMechanics
 {

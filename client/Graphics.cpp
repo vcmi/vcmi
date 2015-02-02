@@ -15,7 +15,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "CBitmapHandler.h"
-#include "../lib/CSpellHandler.h"
+#include "../lib/spells/CSpellHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"

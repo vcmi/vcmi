@@ -4,7 +4,7 @@
 #include "../../lib/BattleState.h"
 #include "../../CCallback.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CSpellHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/VCMI_Lib.h"
 
 using boost::optional;

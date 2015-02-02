@@ -19,7 +19,7 @@
 #include "CVideoHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CCreatureHandler.h"
-#include "../lib/CSpellHandler.h"
+#include "../lib/spells/CSpellHandler.h"
 #include "CMusicHandler.h"
 #include "CVideoHandler.h"
 #include "CDefHandler.h"

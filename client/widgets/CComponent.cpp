@@ -12,7 +12,7 @@
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CSpellHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/NetPacksBase.h"
 

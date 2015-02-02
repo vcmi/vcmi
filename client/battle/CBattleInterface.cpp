@@ -28,7 +28,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/CRandomGenerator.h"
-#include "../../lib/CSpellHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapping/CMap.h"

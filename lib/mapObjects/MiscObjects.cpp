@@ -17,7 +17,7 @@
 #include "../CModHandler.h"
 
 #include "CObjectClassesHandler.h"
-#include "../CSpellHandler.h"
+#include "../spells/CSpellHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 

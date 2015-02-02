@@ -13,7 +13,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/CSpellHandler.h"
+#include "../lib/spells/CSpellHandler.h"
 #include "../lib/CSoundBase.h"
 #include "../lib/StartInfo.h"
 #include "mapHandler.h"

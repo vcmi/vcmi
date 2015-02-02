@@ -15,7 +15,7 @@
 
 #include "GameConstants.h"
 #include "CCreatureHandler.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 
 ///MacroString
 

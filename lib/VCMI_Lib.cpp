@@ -19,7 +19,7 @@
 #include "mapObjects/CObjectHandler.h"
 #include "CTownHandler.h"
 #include "CBuildingHandler.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 #include "CGeneralTextHandler.h"
 #include "CModHandler.h"
 #include "IGameEventsReceiver.h"

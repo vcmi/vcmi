@@ -8,7 +8,7 @@
 #include "IGameCallback.h"
 #include "CGameState.h"
 #include "CGeneralTextHandler.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 #include "CHeroHandler.h"
 #include "IBonusTypeHandler.h"
 

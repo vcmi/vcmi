@@ -9,18 +9,18 @@
  */
 
 #include "StdInc.h"
-#include "SpellMechanics.h"
+#include "ISpellMechanics.h"
 
-#include "CObstacleInstance.h"
-#include "mapObjects/CGHeroInstance.h"
-#include "BattleState.h"
-#include "CRandomGenerator.h"
+#include "../CObstacleInstance.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../BattleState.h"
+#include "../CRandomGenerator.h"
 
-#include "NetPacks.h"
+#include "../NetPacks.h"
 
-#include "mapping/CMap.h"
-#include "CGameInfoCallback.h"
-#include "CGameState.h"
+#include "../mapping/CMap.h"
+#include "../CGameInfoCallback.h"
+#include "../CGameState.h"
 
 namespace SRSLPraserHelpers
 {

@@ -17,7 +17,7 @@
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CSpellHandler.h" //for choosing random spells
+#include "../spells/CSpellHandler.h" //for choosing random spells
 
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h

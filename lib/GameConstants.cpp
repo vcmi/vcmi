@@ -16,7 +16,7 @@
 #include "mapObjects/CObjectClassesHandler.h"
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
 const PlayerColor PlayerColor::CANNOT_DETERMINE = PlayerColor(253);
