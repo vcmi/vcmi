@@ -1223,7 +1223,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj, bool fadein /* = fals
 			cr.x = fx*32;
 			cr.y = fy*32;
 			TerrainTileObject toAdd(obj, cr);
-			if (fadein)
+			if (fadein && ADVOPT.objectFading)
 			{
 				auto tmp = CSDL_Ext::newSurface(bitmap->w, bitmap->h);
 				SDL_BlitSurface(bitmap, nullptr, tmp, nullptr); // can't be 8bpp for fading
@@ -1269,7 +1269,7 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = fals
 				{
 					if (ttiles[i][j][k].objects[x].obj->id == obj->id)
 					{
-						if (fadeout) // erase delayed until end of fadeout
+						if (fadeout && ADVOPT.objectFading) // erase delayed until end of fadeout
 						{						
 							auto bitmap = graphics->getDef(obj)->ourImages[0].bitmap;
 							auto tmp = CSDL_Ext::newSurface(bitmap->w, bitmap->h); // TODO cache these bitmaps instead of creating new ones?

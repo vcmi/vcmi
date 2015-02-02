@@ -353,6 +353,8 @@ int3 CTerrainRect::tileCountOnScreen()
 
 void CTerrainRect::fadeFromCurrentView()
 {
+	if (!ADVOPT.screenFading)
+		return;
 	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 		return;
 	
