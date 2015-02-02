@@ -56,6 +56,10 @@ set(lib_SRCS
 
 		spells/CSpellHandler.cpp
 		spells/ISpellMechanics.cpp
+                spells/AdventureSpellMechanics.cpp
+                spells/BattleSpellMechanics.cpp
+                spells/CreatureSpellMechanics.cpp
+                spells/CDefaultSpellMechanics.cpp
 
 		BattleAction.cpp
 		BattleHex.cpp

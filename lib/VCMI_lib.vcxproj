@@ -189,6 +189,10 @@
     <ClCompile Include="CRandomGenerator.cpp" />
     <ClCompile Include="spells\CSpellHandler.cpp" />
     <ClCompile Include="spells\ISpellMechanics.cpp" />
+    <ClCompile Include="spells\AdventureSpellMechanics.cpp" />
+    <ClCompile Include="spells\BattleSpellMechanics.cpp" />
+    <ClCompile Include="spells\CreatureSpellMechanics.cpp" />
+    <ClCompile Include="spells\CDefaultSpellMechanics.cpp" />
     <ClCompile Include="filesystem\AdapterLoaders.cpp" />
     <ClCompile Include="filesystem\CArchiveLoader.cpp" />
     <ClCompile Include="filesystem\CBinaryReader.cpp" />
