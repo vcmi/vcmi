@@ -24,7 +24,7 @@
 bool AdventureBonusingMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
 {
 	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);	
-	const int subtype = schoolLevel >= 2 ? 1 : 2; //adv or expert
+	const int subtype = spellLevelToSubtype(schoolLevel);
 
 	GiveBonus gb;
 	gb.id = parameters.caster->id.getNum();
@@ -32,6 +32,23 @@ bool AdventureBonusingMechanics::applyAdventureEffects(const SpellCastEnvironmen
 	env->sendAndApply(&gb);	
 	return true;
 }
+
+int FlyMechanics::spellLevelToSubtype(const int schoolLevel) const
+{
+	return schoolLevel >= 2 ? 1 : 2; //adv or expert
+}
+
+int VisionsMechanics::spellLevelToSubtype(const int schoolLevel) const
+{
+	//0,1 schoolLevel => 0 subtype
+	//2 schoolLevel  => 1 subtype 
+	//3 schoolLevel  => 2 subtype 
+	int result = schoolLevel - 1;
+	vstd::amin(result, 0);
+	vstd::amax(result, 2);
+	return result; //adv or expert
+}
+
 
 ///SummonBoatMechanics
 bool SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
