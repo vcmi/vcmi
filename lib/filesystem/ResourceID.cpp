@@ -33,6 +33,7 @@ ResourceID::ResourceID()
 }
 
 ResourceID::ResourceID(std::string name)
+	:type(EResType::UNDEFINED)
 {
 	CFileInfo info(std::move(name));
 	setType(info.getType());
@@ -40,6 +41,7 @@ ResourceID::ResourceID(std::string name)
 }
 
 ResourceID::ResourceID(std::string name, EResType::Type type)
+	:type(EResType::UNDEFINED)
 {
 	setType(type);
 	setName(std::move(name));
@@ -57,6 +59,9 @@ EResType::Type ResourceID::getType() const
 
 void ResourceID::setName(std::string name)
 {
+	// setName shouldn't be used if type is UNDEFINED
+	assert(type != EResType::UNDEFINED);
+
 	this->name = std::move(name);
 
 	size_t dotPos = this->name.find_last_of("/.");
