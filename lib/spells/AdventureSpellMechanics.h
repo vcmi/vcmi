@@ -13,37 +13,6 @@
  #include "CDefaultSpellMechanics.h"
 
 
-//todo: make configurable
-class AdventureBonusingMechanics: public DefaultSpellMechanics 
-{
-public:	
-	AdventureBonusingMechanics(CSpell * s, Bonus::BonusType _bonusTypeID): DefaultSpellMechanics(s), bonusTypeID(_bonusTypeID){};	
-protected:
-	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;	
-	
-	virtual int spellLevelToSubtype(const int schoolLevel) const = 0;
-private:
-	Bonus::BonusType bonusTypeID;
-};
-
-//FLY & WATER_WALK
-class FlyMechanics: public AdventureBonusingMechanics
-{
-public:	
-	FlyMechanics(CSpell * s, Bonus::BonusType _bonusTypeID): AdventureBonusingMechanics(s, _bonusTypeID){};
-protected:
-	int spellLevelToSubtype(const int schoolLevel) const override;
-};
-
-//VISIONS & DISGUISE
-class VisionsMechanics: public AdventureBonusingMechanics
-{
-public:	
-	VisionsMechanics(CSpell * s, Bonus::BonusType _bonusTypeID): AdventureBonusingMechanics(s, _bonusTypeID){};
-protected:
-	int spellLevelToSubtype(const int schoolLevel) const override;
-};
-
 class SummonBoatMechanics: public DefaultSpellMechanics 
 {
 public:

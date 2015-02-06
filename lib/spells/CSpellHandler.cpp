@@ -358,8 +358,6 @@ const std::string& CSpell::getCastSound() const
 	return castSound;
 }
 
-
-
 si32 CSpell::getCost(const int skillLevel) const
 {
 	return getLevelInfo(skillLevel).cost;

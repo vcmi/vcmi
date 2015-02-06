@@ -525,6 +525,11 @@
 			"icon":  "zvs/Lib1.res/E_RETAIL1"
 		}
 	},
+	
+	"VISIONS":
+	{
+		"hidden": true
+	},
 	"WATER_IMMUNITY":
 	{
 		"graphics":

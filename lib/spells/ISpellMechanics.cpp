@@ -69,19 +69,16 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 	case SpellID::DIMENSION_DOOR:
 		return new DimensionDoorMechanics(s);
 	case SpellID::FLY:
-		return new FlyMechanics(s, Bonus::FLYING_MOVEMENT); //temporary
 	case SpellID::WATER_WALK:
-		return new FlyMechanics(s, Bonus::WATER_WALKING); //temporary
+	case SpellID::VISIONS:
+	case SpellID::DISGUISE:
+		return new DefaultSpellMechanics(s); //implemented using bonus system
 	case SpellID::TOWN_PORTAL:
 		return new TownPortalMechanics(s);
 	case SpellID::VIEW_EARTH:
 		return new ViewEarthMechanics(s);
 	case SpellID::VIEW_AIR:			
 		return new ViewAirMechanics(s);
-	case SpellID::VISIONS:
-		return new VisionsMechanics(s, Bonus::VISIONS); //temporary
-	case SpellID::DISGUISE:
-		return new VisionsMechanics(s, Bonus::DISGUISED); //temporary
 	default:		
 		if(s->isRisingSpell())
 			return new SpecialRisingSpellMechanics(s);

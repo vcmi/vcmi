@@ -439,11 +439,15 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr):
 
 CIntObject * CRClickPopup::createInfoWin(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
-	if(!specific)
+	if(nullptr == specific)
 		specific = adventureInt->selection;
-
-	assert(specific);
-
+	
+	if(nullptr == specific)
+	{
+		logGlobal->error("createInfoWin: no object to describe");
+		return nullptr;
+	}	
+	
 	switch(specific->ID)
 	{
 	case Obj::HERO:

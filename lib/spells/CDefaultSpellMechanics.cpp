@@ -191,9 +191,30 @@ bool DefaultSpellMechanics::adventureCast(const SpellCastEnvironment * env, Adve
 
 bool DefaultSpellMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
 {
-	//There is no generic algorithm of adventure cast
-	env->complain("Unimplemented adventure spell");
-	return false;		
+	if(owner->hasEffects())
+	{
+		const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
+		
+		std::vector<Bonus> bonuses;
+		
+		owner->getEffects(bonuses, schoolLevel);
+		
+		for(Bonus b : bonuses)
+		{
+			GiveBonus gb;
+			gb.id = parameters.caster->id.getNum();
+			gb.bonus = b;
+			env->sendAndApply(&gb);			
+		}
+		
+		return true;
+	}
+	else
+	{
+		//There is no generic algorithm of adventure cast
+		env->complain("Unimplemented adventure spell");
+		return false;				
+	}	
 }
 
 

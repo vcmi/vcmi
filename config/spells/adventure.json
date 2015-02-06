@@ -17,7 +17,7 @@
 	},
 	"scuttleBoat" : {
 		"index" : 1,
-		"targetType": "LOCATION",
+		"targetType": "NO_TARGET",
 		
 		"sounds": {
 			"cast": "SCUTBOAT"
@@ -40,7 +40,30 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "0",
+				"effects" : {
+					"visionsMonsters" : {
+						"type" : "VISIONS",
+						"subtype" : 0,
+						"duration" : "ONE_DAY",
+						"val" : 1,
+						"valueType" : "INDEPENDENT_MAX"
+					}
+				}				
+			},
+			"advanced":{
+				"effects" : {
+					"visionsMonsters" : {
+						"val" : 2
+					}
+				}			
+			},
+			"expert":{
+				"effects" : {
+					"visionsMonsters" : {
+						"val" : 3
+					}
+				}			
 			}
 		},
 		"flags" : {
@@ -104,7 +127,29 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "0",
+				"effects" : {
+					"fly" : {
+						"type" : "FLYING_MOVEMENT",
+						"subtype" : 2,
+						"duration" : "ONE_DAY",
+						"val" : 0 //in fact unused 
+					}
+				}				
+			},
+			"advanced":{
+				"effects" : {
+					"fly" : {
+						"subtype" : 1
+					}
+				}			
+			},
+			"expert":{
+				"effects" : {
+					"fly" : {
+						"subtype" : 1
+					}
+				}			
 			}
 		},
 		"flags" : {
@@ -120,7 +165,29 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "0",
+				"effects" : {
+					"waterWalk" : {
+						"type" : "WATER_WALKING",
+						"subtype" : 2,
+						"duration" : "ONE_DAY",
+						"val" : 0 //in fact unused
+					}
+				}				
+			},
+			"advanced":{
+				"effects" : {
+					"waterWalk" : {
+						"subtype" : 1
+					}
+				}			
+			},
+			"expert":{
+				"effects" : {
+					"waterWalk" : {
+						"subtype" : 1
+					}
+				}			
 			}
 		},
 		"flags" : {
