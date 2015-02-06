@@ -992,7 +992,9 @@ void DeathStareMechnics::applyBattleEffects(const SpellCastEnvironment * env, Ba
 {
 	//calculating dmg to display
 	ctx.sc.dmgToDisplay = parameters.usedSpellPower;
-	vstd::amin(ctx.sc.dmgToDisplay, (*ctx.attackedCres.begin())->count); //stack is already reduced after attack
+	
+	if(!ctx.attackedCres.empty())
+		vstd::amin(ctx.sc.dmgToDisplay, (*ctx.attackedCres.begin())->count); //stack is already reduced after attack
 	
 	for(auto & attackedCre : ctx.attackedCres)
 	{
