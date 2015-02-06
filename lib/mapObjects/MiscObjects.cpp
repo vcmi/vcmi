@@ -101,22 +101,8 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 
 std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 {
-	//VISIONS spell support
-	
-	static const std::string cached = boost::to_string((boost::format("type_%d__subtype_0") % Bonus::VISIONS)); 
-	
 	std::string hoverName;
-	
-	const int visionsMultiplier = hero->valOfBonuses(Selector::typeSubtype(Bonus::VISIONS,0), cached);
-	
-	int visionsRadius =  visionsMultiplier * hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
-		
-	if (visionsMultiplier > 0) 
-		vstd::amin(visionsRadius, 3); //minimum range is 3 tiles, but only if VISIONS bonus present
-	
-	const bool inVisionsRange = (pos.dist2d(hero->pos) < visionsRadius) && (pos.z == hero->pos.z);
-	
-	if(inVisionsRange)
+	if(hero->hasVisions(this, 0))
 	{
 		MetaString ms;
 		ms << stacks.begin()->second->count;

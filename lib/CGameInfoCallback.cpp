@@ -201,14 +201,23 @@ int CGameInfoCallback::howManyTowns(PlayerColor Player) const
 	return gs->players[Player].towns.size();
 }
 
-bool CGameInfoCallback::getTownInfo( const CGObjectInstance *town, InfoAboutTown &dest ) const
+bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject/* = nullptr*/) const
 {
 	ERROR_RET_VAL_IF(!isVisible(town, player), "Town is not visible!", false);  //it's not a town or it's not visible for layer
 	bool detailed = hasAccess(town->tempOwner);
 
 	//TODO vision support
 	if(town->ID == Obj::TOWN)
+	{
+		if(!detailed && nullptr != selectedObject)
+		{
+			const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);		
+			if(nullptr != selectedHero)
+				detailed = selectedHero->hasVisions(town, 1);			
+		}
+		
 		dest.initFromTown(static_cast<const CGTownInstance *>(town), detailed);
+	}		
 	else if(town->ID == Obj::GARRISON || town->ID == Obj::GARRISON2)
 		dest.initFromArmy(static_cast<const CArmedInstance *>(town), detailed);
 	else
@@ -233,15 +242,23 @@ std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (in
 	return ret;
 }
 
-bool CGameInfoCallback::getHeroInfo( const CGObjectInstance *hero, InfoAboutHero &dest ) const
+bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject/* = nullptr*/) const
 {
 	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(hero);
 
 	ERROR_RET_VAL_IF(!h, "That's not a hero!", false);
 	ERROR_RET_VAL_IF(!isVisible(h->getPosition(false)), "That hero is not visible!", false);
 
-	//TODO vision support
-	dest.initFromHero(h, hasAccess(h->tempOwner));
+	bool accessFlag = hasAccess(h->tempOwner);
+	
+	if(!accessFlag && nullptr != selectedObject)
+	{
+		const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);		
+		if(nullptr != selectedHero)
+			accessFlag = selectedHero->hasVisions(hero, 1);			
+	}
+	
+	dest.initFromHero(h, accessFlag);
 	return true;
 }
 

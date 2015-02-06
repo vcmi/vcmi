@@ -55,13 +55,35 @@
 				"effects" : {
 					"visionsMonsters" : {
 						"val" : 2
+					},
+					"visionsHeroes" :{
+						"type" : "VISIONS",
+						"subtype" : 1,
+						"duration" : "ONE_DAY",
+						"val" : 2,
+						"valueType" : "INDEPENDENT_MAX"					
 					}
+					
 				}			
 			},
 			"expert":{
 				"effects" : {
 					"visionsMonsters" : {
 						"val" : 3
+					},
+					"visionsHeroes" :{
+						"type" : "VISIONS",
+						"subtype" : 1,
+						"duration" : "ONE_DAY",
+						"val" : 3,
+						"valueType" : "INDEPENDENT_MAX"					
+					},
+					"visionsTowns" :{
+						"type" : "VISIONS",
+						"subtype" : 2,
+						"duration" : "ONE_DAY",
+						"val" : 3,
+						"valueType" : "INDEPENDENT_MAX"					
 					}
 				}			
 			}
