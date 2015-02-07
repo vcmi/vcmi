@@ -206,7 +206,6 @@ bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown
 	ERROR_RET_VAL_IF(!isVisible(town, player), "Town is not visible!", false);  //it's not a town or it's not visible for layer
 	bool detailed = hasAccess(town->tempOwner);
 
-	//TODO vision support
 	if(town->ID == Obj::TOWN)
 	{
 		if(!detailed && nullptr != selectedObject)
@@ -259,6 +258,92 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	}
 	
 	dest.initFromHero(h, accessFlag);
+	
+	//DISGUISED bonus implementation
+	
+	if(getPlayerRelations(getLocalPlayer(), hero->tempOwner) == PlayerRelations::ENEMIES)
+	{
+		//todo: bonus cashing	
+		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(Bonus::DISGUISED, 0));
+		
+		auto doBasicDisguise = [disguiseLevel](InfoAboutHero & info)		
+		{
+			int maxAIValue = 0;
+			const CCreature * mostStrong = nullptr;
+			
+			for(auto & elem : info.army)
+			{
+				if(elem.second.type->AIValue > maxAIValue)
+				{
+					maxAIValue = elem.second.type->AIValue;
+					mostStrong = elem.second.type;
+				}
+			}
+			
+			if(nullptr == mostStrong)//just in case
+				logGlobal->errorStream() << "CGameInfoCallback::getHeroInfo: Unable to select most strong stack" << disguiseLevel;
+			else
+				for(auto & elem : info.army)
+				{
+					elem.second.type = mostStrong;
+				}
+		};
+		
+		auto doAdvancedDisguise = [accessFlag, &doBasicDisguise](InfoAboutHero & info)		
+		{
+			doBasicDisguise(info);
+			
+			for(auto & elem : info.army)
+				elem.second.count = 0;
+		};
+		
+		auto doExpertDisguise = [this,h](InfoAboutHero & info)		
+		{
+			for(auto & elem : info.army)
+				elem.second.count = 0;
+			
+			const auto factionIndex = getStartInfo(false)->playerInfos.at(h->tempOwner).castle;
+			
+			int maxAIValue = 0;
+			const CCreature * mostStrong = nullptr;
+			
+			for(auto creature : VLC->creh->creatures)
+			{
+				if(creature->faction == factionIndex && creature->AIValue > maxAIValue)
+				{
+					maxAIValue = creature->AIValue;
+					mostStrong = creature;
+				}
+			}
+			
+			if(nullptr != mostStrong) //possible, faction may have no creatures at all
+				for(auto & elem : info.army)
+					elem.second.type = mostStrong;
+		};				
+		
+		
+		switch (disguiseLevel)
+		{
+		case 0:
+			//no bonus at all - do nothing
+			break;		
+		case 1:
+			doBasicDisguise(dest);
+			break;		
+		case 2:
+			doAdvancedDisguise(dest);
+			break;		
+		case 3:
+			doExpertDisguise(dest);
+			break;		
+		default:
+			//invalid value
+			logGlobal->errorStream() << "CGameInfoCallback::getHeroInfo: Invalid DISGUISED bonus value " << disguiseLevel;
+			break;
+		}
+		
+	}
+	
 	return true;
 }
 

@@ -117,7 +117,30 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "0",
+				"effects" : {
+					"stealth" : {
+						"type" : "DISGUISED",
+						"subtype" : 0, //required
+						"duration" : "ONE_DAY",
+						"val" : 1,
+						"valueType" : "INDEPENDENT_MAX"
+					}
+				}				
+			},
+			"advanced":{
+				"effects" : {
+					"stealth" : {
+						"val" : 2
+					}					
+				}			
+			},
+			"expert":{
+				"effects" : {
+					"stealth" : {
+						"val" : 3
+					}
+				}			
 			}
 		},
 		"flags" : {
