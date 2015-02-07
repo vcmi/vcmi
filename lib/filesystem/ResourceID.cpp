@@ -33,16 +33,18 @@ ResourceID::ResourceID()
 }
 
 ResourceID::ResourceID(std::string name)
+	:type(EResType::UNDEFINED)
 {
 	CFileInfo info(std::move(name));
-	setName(info.getStem());
 	setType(info.getType());
+	setName(info.getStem());
 }
 
 ResourceID::ResourceID(std::string name, EResType::Type type)
+	:type(EResType::UNDEFINED)
 {
-	setName(std::move(name));
 	setType(type);
+	setName(std::move(name));
 }
 
 std::string ResourceID::getName() const
@@ -57,12 +59,18 @@ EResType::Type ResourceID::getType() const
 
 void ResourceID::setName(std::string name)
 {
+	// setName shouldn't be used if type is UNDEFINED
+	assert(type != EResType::UNDEFINED);
+
 	this->name = std::move(name);
 
 	size_t dotPos = this->name.find_last_of("/.");
 
-	if(dotPos != std::string::npos && this->name[dotPos] == '.')
+	if(dotPos != std::string::npos && this->name[dotPos] == '.'
+		&& this->type == EResTypeHelper::getTypeFromExtension(this->name.substr(dotPos)))
+	{
 		this->name.erase(dotPos);
+	}
 
 #ifdef ENABLE_TRIVIAL_TOUPPER
 	toUpper(this->name);
