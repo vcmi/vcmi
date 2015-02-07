@@ -1228,13 +1228,18 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 {
 	const SpellID spellID(sc->id);
 	const CSpell &spell = * spellID.toSpell();
+	const std::string & spellName = spell.name;
 
 	const std::string& castSoundPath = spell.getCastSound();
-	
+
+	std::string casterName("Something");
+
+	if(sc->castedByHero)
+		casterName = curInt->cb->battleGetHeroInfo(sc->side).name;
+
 	if(!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
 
-	std::string casterCreatureName = "";
 	Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;	//hero position by default
 	{
 		const auto casterStackID = sc->casterStack;
@@ -1244,8 +1249,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			const CStack * casterStack = curInt->cb->battleGetStackByID(casterStackID);
 			if(casterStack != nullptr)
 			{
-				casterCreatureName = casterStack->type->namePl;
-				
+				casterName = casterStack->type->namePl;
 				srccoord = CClickableHex::getXYUnitAnim(casterStack->position, casterStack, this); 
 				srccoord.x += 250;
 				srccoord.y += 240;
@@ -1255,7 +1259,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 	//TODO: play custom cast animation
 	{
-				
+
 	}
 	
 	//playing projectile animation
@@ -1269,9 +1273,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		bool Vflip = (angle < 0);
 		if(Vflip)
 			angle = -angle;
-		
+
 		std::string animToDisplay = spell.animationInfo.selectProjectile(angle);
-		
+
 		if(!animToDisplay.empty())
 		{
 			//displaying animation
@@ -1285,7 +1289,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			int dy = (destcoord.y - srccoord.y - animDef->ourImages[0].bitmap->h)/steps;
 
 			delete animDef;
-			addNewAnim(new CSpellEffectAnimation(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));			
+			addNewAnim(new CSpellEffectAnimation(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));
 		}
 	}	
 	waitForAnims();
@@ -1296,11 +1300,11 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	for (auto & elem : sc->affectedCres) 
 	{
 		BattleHex position = curInt->cb->battleGetStackByID(elem, false)->position;
-		
+
 		if(vstd::contains(sc->resisted,elem))
 			displayEffect(78, position);
 		else
-			displaySpellEffect(spellID, position);	
+			displaySpellEffect(spellID, position);
 	}
 
 	switch(sc->id)
@@ -1319,15 +1323,26 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	bool customSpell = false;
 	if(sc->affectedCres.size() == 1)
 	{
+		const CStack * attackedStack = curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false);
+
+		const std::string attackedName = attackedStack->getName();
+		const std::string attackedNameSing = attackedStack->getCreature()->nameSing;
+		const std::string attackedNamePl = attackedStack->getCreature()->namePl;
+
 		std::string text = CGI->generaltexth->allTexts[195];
 		if(sc->castedByHero)
 		{
-			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetHeroInfo(sc->side).name);
-			boost::algorithm::replace_first(text, "%s", CGI->spellh->objects[sc->id]->name); //spell name
-			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl ); //target
+			boost::algorithm::replace_first(text, "%s", casterName);
+			boost::algorithm::replace_first(text, "%s", spellName);
+			boost::algorithm::replace_first(text, "%s", attackedNamePl); //target
 		}
 		else
 		{
+			auto getPluralText = [attackedStack](const int baseTextID) -> std::string
+			{
+				return CGI->generaltexth->allTexts[(attackedStack->count > 1 ? baseTextID+1 : baseTextID)];
+			};
+			
 			bool plural = false; //add singular / plural form of creature text if this is true
 			int textID = 0;
 			switch(sc->id)
@@ -1345,8 +1360,8 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 				case SpellID::BIND:
 					customSpell = true;
 					text = CGI->generaltexth->allTexts[560];
-					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
-					break;	//Roots and vines bind the %s to the ground!
+					boost::algorithm::replace_first(text, "%s", attackedNamePl);
+					break;//Roots and vines bind the %s to the ground!
 				case SpellID::DISEASE:
 					customSpell = true;
 					plural = true;
@@ -1360,25 +1375,17 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 				case SpellID::AGE:
 				{
 					customSpell = true;
-					if (curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->count > 1)
-					{
-						text = CGI->generaltexth->allTexts[552];
-						boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
-					}
-					else
-					{
-						text = CGI->generaltexth->allTexts[551];
-						boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
-					}
+					text = getPluralText(551);
+					boost::algorithm::replace_first(text, "%s", attackedName);
 					//The %s shrivel with age, and lose %d hit points."
-					TBonusListPtr bl = curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getBonuses(Selector::type(Bonus::STACK_HEALTH));
+					TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
 					bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bl->totalValue()/2));
 				}
 					break;
 				case SpellID::THUNDERBOLT:
 					text = CGI->generaltexth->allTexts[367];
-					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
+					boost::algorithm::replace_first(text, "%s", attackedNamePl);
 					console->addText(text);
 					text = CGI->generaltexth->allTexts[343].substr(1, CGI->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay)); //no more text afterwards
@@ -1388,7 +1395,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					break;
 				case SpellID::DISPEL_HELPFUL_SPELLS:
 					text = CGI->generaltexth->allTexts[555];
-					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
+					boost::algorithm::replace_first(text, "%s", attackedNamePl);
 					customSpell = true;
 					break;
 				case SpellID::DEATH_STARE:
@@ -1399,67 +1406,45 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 						{
 							text = CGI->generaltexth->allTexts[119]; //%d %s die under the terrible gaze of the %s.
 							boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
-							boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
+							boost::algorithm::replace_first(text, "%s", attackedNamePl);
 						}
 						else
 						{
 							text = CGI->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
-							boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->nameSing);
+							boost::algorithm::replace_first(text, "%s", attackedNameSing);
 						}
-						boost::algorithm::replace_first(text, "%s", casterCreatureName); //casting stack
+						boost::algorithm::replace_first(text, "%s", casterName); //casting stack
 					}
 					else
 						text = "";
 					break;
 				default:
 					text = CGI->generaltexth->allTexts[565]; //The %s casts %s
-					if(casterCreatureName != "")
-						boost::algorithm::replace_first(text, "%s", casterCreatureName); //casting stack
-					else
-						boost::algorithm::replace_first(text, "%s", "@Unknown caster@"); //should not happen
+					boost::algorithm::replace_first(text, "%s", casterName); //casting stack
+
 			}
 			if (plural)
 			{
-				if (curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->count > 1)
-				{
-					text = CGI->generaltexth->allTexts[textID + 1];
-					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->getName());
-				}
-				else
-				{
-					text = CGI->generaltexth->allTexts[textID];
-					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->getName());
-				}
+				text = getPluralText(textID);
+				boost::algorithm::replace_first(text, "%s", attackedName);
 			}
 		}
 		if (!customSpell && !sc->dmgToDisplay)
-			boost::algorithm::replace_first(text, "%s", CGI->spellh->objects[sc->id]->name); //simple spell name
+			boost::algorithm::replace_first(text, "%s", spellName); //simple spell name
 		if (text.size())
 			console->addText(text);
 	}
 	else
 	{
 		std::string text = CGI->generaltexth->allTexts[196];
-		if(sc->castedByHero)
-		{
-			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetHeroInfo(sc->side).name);
-		}
-		if(casterCreatureName != "")
-		{
-			boost::algorithm::replace_first(text, "%s", casterCreatureName); //creature caster
-		}
-		else
-		{
-			//TODO artifacts that cast spell; scripts some day
-			boost::algorithm::replace_first(text, "%s", "Something");
-		}
-		boost::algorithm::replace_first(text, "%s", CGI->spellh->objects[sc->id]->name);
+		boost::algorithm::replace_first(text, "%s", casterName);
+		boost::algorithm::replace_first(text, "%s", spellName);
 		console->addText(text);
 	}
 	if(sc->dmgToDisplay && !customSpell)
 	{
 		std::string dmgInfo = CGI->generaltexth->allTexts[376];
-		boost::algorithm::replace_first(dmgInfo, "%s", CGI->spellh->objects[sc->id]->name); //simple spell name
+		boost::algorithm::replace_first(dmgInfo, "%s", spellName); //simple spell name
 		boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
 		console->addText(dmgInfo); //todo: casualties (?)
 	}
