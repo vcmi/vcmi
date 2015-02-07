@@ -226,7 +226,7 @@
 				"targetModifier":{"smart":true}
 			}
 		},
-		"immunity" : {
+		"absoluteImmunity" : {
 			"SIEGE_WEAPON": true
 		},
 		"flags" : {
@@ -262,7 +262,7 @@
 				"targetModifier":{"smart":true}
 			}
 		},
-		"immunity" : {
+		"absoluteImmunity" : {
 			"SIEGE_WEAPON": true
 		},
 		"flags" : {
