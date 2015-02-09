@@ -796,7 +796,7 @@ void CMapHandler::CMapBlitter::drawNormalObject(SDL_Surface * targetSurf, SDL_Su
 
 void CMapHandler::CMapBlitter::drawHeroFlag(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const
 {
-	drawElement(EMapCacheType::HERO_FLAGS, sourceSurf, sourceRect, targetSurf, destRect, true);
+	drawElement(EMapCacheType::HERO_FLAGS, sourceSurf, sourceRect, targetSurf, destRect, false);
 }
 
 void CMapHandler::CMapBlitter::drawHero(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const
