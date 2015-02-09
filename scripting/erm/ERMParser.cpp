@@ -1,6 +1,21 @@
 #include "StdInc.h"
 #include "ERMParser.h"
 
+
+#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_fusion.hpp>
+#include <boost/spirit/include/phoenix_stl.hpp>
+#include <boost/spirit/include/phoenix_object.hpp>
+#include <boost/fusion/include/adapt_struct.hpp>
+
+
+namespace qi = boost::spirit::qi;
+namespace ascii = spirit::ascii;
+namespace phoenix = boost::phoenix;
+
+
 /*
  * ERMParser.cpp, part of VCMI engine
  *

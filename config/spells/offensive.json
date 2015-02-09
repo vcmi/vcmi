@@ -110,6 +110,9 @@
 			"offensive": true,
 			"negative": true
 		},
+		"absoluteImmunity" : {
+			"SIEGE_WEAPON": true
+		},
 		"immunity" : {
 			"DIRECT_DAMAGE_IMMUNITY": true
 		}
@@ -258,10 +261,10 @@
 			"negative": true
 		},
 		"absoluteImmunity":{
+			"SIEGE_WEAPON": true,
 			"UNDEAD": true,
 		},		
 		"immunity" : {
-			"SIEGE_WEAPON": true,			
 			"DIRECT_DAMAGE_IMMUNITY": true
 		}
 	},

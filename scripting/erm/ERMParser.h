@@ -1,20 +1,4 @@
 #pragma once
-
-
-#include <boost/spirit/home/support/unused.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
-#include <boost/spirit/include/phoenix_object.hpp>
-#include <boost/fusion/include/adapt_struct.hpp>
-
-namespace spirit = boost::spirit;
-namespace qi = boost::spirit::qi;
-namespace ascii = spirit::ascii;
-namespace phoenix = boost::phoenix;
-
 /*
  * ERMParser.h, part of VCMI engine
  *
@@ -24,7 +8,10 @@ namespace phoenix = boost::phoenix;
  * Full text of license available in license.txt file, in main folder
  *
  */
+ 
+#include <boost/spirit/home/support/unused.hpp>
 
+namespace spirit = boost::spirit;
 
 class CERMPreprocessor
 {

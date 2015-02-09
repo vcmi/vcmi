@@ -352,6 +352,7 @@
 			"spell.bless": true
 		},
 		"absoluteImmunity" : {
+			"SIEGE_WEAPON": true,
 			"UNDEAD": true
 		},
 		"flags" : {
@@ -400,6 +401,9 @@
 		},
 		"counters" : {
 			"spell.weakness": true
+		},
+		"absoluteImmunity" : {
+			"SIEGE_WEAPON": true
 		},
 		"flags" : {
 			"positive": true
@@ -695,6 +699,7 @@
 			"spell.sorrow":true
 		},
 		"absoluteImmunity":{
+			"SIEGE_WEAPON": true,
 			"UNDEAD": true,		
 		},
 		"immunity" : {
@@ -747,6 +752,7 @@
 			"spell.mirth":true
 		},
 		"absoluteImmunity":{
+			"SIEGE_WEAPON": true,
 			"UNDEAD": true,		
 		},
 		"immunity" : {
@@ -889,7 +895,7 @@
 		"counters" : {
 			"spell.slow": true
 		},
-		"immunity" : {
+		"absoluteImmunity" : {
 			"SIEGE_WEAPON": true
 		},
 		"flags" : {
@@ -940,7 +946,7 @@
 		"counters" : {
 			"spell.haste":true
 		},
-		"immunity" : {
+		"absoluteImmunity" : {
 			"SIEGE_WEAPON": true
 		},
 		"flags" : {
@@ -1038,6 +1044,9 @@
 				}
 			}
 		},
+		"absoluteImmunity" : {
+			"SIEGE_WEAPON": true
+		},
 		"flags" : {
 			"positive": true
 		}
@@ -1080,6 +1089,9 @@
 					}
 				}
 			}
+		},
+		"absoluteImmunity" : {
+			"SIEGE_WEAPON": true
 		},
 		"flags" : {
 			"positive": true
@@ -1137,7 +1149,9 @@
 				}
 			}
 		},
-
+		"absoluteImmunity" : {
+			"SIEGE_WEAPON": true
+		},
 		"immunity" : {
 			"MIND_IMMUNITY": true,
 			"UNDEAD": true,
@@ -1197,7 +1211,9 @@
 				}
 			}
 		},
-
+		"absoluteImmunity" : {
+			"SIEGE_WEAPON": true
+		},
 		"immunity" : {
 			"MIND_IMMUNITY": true,
 			"UNDEAD": true,
@@ -1261,6 +1277,9 @@
 		"absoluteLimit" : {
 			"SHOOTER": true
 		},
+		"absoluteImmunity" : {
+			"SIEGE_WEAPON": true
+		},
 		"immunity" : {
 			"MIND_IMMUNITY": true,
 			"UNDEAD": true,
@@ -1309,7 +1328,9 @@
 				}
 			}
 		},
-
+		"absoluteImmunity" : {
+			"SIEGE_WEAPON": true
+		},
 		"immunity" : {
 			"MIND_IMMUNITY": true,
 			"UNDEAD": true,

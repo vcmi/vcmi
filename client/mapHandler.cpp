@@ -727,10 +727,10 @@ SDL_Rect CMapHandler::CMapWorldViewBlitter::clip(SDL_Surface * targetSurf) const
 	SDL_FillRect(targetSurf, info->drawBounds, SDL_MapRGB(targetSurf->format, 0, 0, 0));
 	// makes the clip area smaller if the map is smaller than the screen frame
 	// (actually, it could be made 1 tile bigger so that overlay icons on edge tiles could be drawn partly outside)
-	Rect clipRect(std::max(info->drawBounds->x, info->drawBounds->x - topTile.x * tileSize),
-				  std::max(info->drawBounds->y, info->drawBounds->y - topTile.y * tileSize),
-				  std::min(info->drawBounds->w, parent->sizes.x * tileSize),
-				  std::min(info->drawBounds->h, parent->sizes.y * tileSize));
+	Rect clipRect(std::max<int>(info->drawBounds->x, info->drawBounds->x - topTile.x * tileSize),
+				  std::max<int>(info->drawBounds->y, info->drawBounds->y - topTile.y * tileSize),
+				  std::min<int>(info->drawBounds->w, parent->sizes.x * tileSize),
+				  std::min<int>(info->drawBounds->h, parent->sizes.y * tileSize));
 	SDL_GetClipRect(targetSurf, &prevClip);
 	SDL_SetClipRect(targetSurf, &clipRect); //preventing blitting outside of that rect
 	return prevClip;
