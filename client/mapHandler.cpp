@@ -1433,6 +1433,8 @@ SDL_Surface * CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CMapHandler:
 		return cached;
 
 	auto scaled = CSDL_Ext::scaleSurfaceFast(fullSurface, fullSurface->w * scale, fullSurface->h * scale);
+	if (scaled->format && scaled->format->palette) // fix color keying, because SDL loses it at this point
+		CSDL_Ext::setColorKey(scaled, scaled->format->palette->colors[0]);
 	return cacheWorldViewEntry(type, key, scaled);
 }
 
