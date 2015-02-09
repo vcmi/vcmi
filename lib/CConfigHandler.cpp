@@ -228,8 +228,8 @@ void config::CConfigHandler::init()
 		current->ac.advmapH = g["AdvMap"]["height"].Float();
 		current->ac.smoothMove = g["AdvMap"]["smoothMove"].Float();
 		current->ac.puzzleSepia = g["AdvMap"]["puzzleSepia"].Float();
-		current->ac.screenFading = g["AdvMap"]["screenFading"].Float();
-		current->ac.objectFading = g["AdvMap"]["objectFading"].Float();
+		current->ac.screenFading = g["AdvMap"]["screenFading"].isNull() ? true : g["AdvMap"]["screenFading"].Float(); // enabled by default
+		current->ac.objectFading = g["AdvMap"]["objectFading"].isNull() ? true : g["AdvMap"]["objectFading"].Float();
 
 		current->ac.infoboxX = g["InfoBox"]["x"].Float();
 		current->ac.infoboxY = g["InfoBox"]["y"].Float();
