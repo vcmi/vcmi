@@ -693,7 +693,7 @@ void CAdvMapInt::fsleepWake()
 void CAdvMapInt::fmoveHero()
 {
 	const CGHeroInstance *h = curHero();
-	if (!h || !terrain.currentPath)
+	if (!h || !terrain.currentPath || !CGI->mh->canStartHeroMovement())
 		return;
 
 	LOCPLINT->moveHero(h, *terrain.currentPath);
@@ -1169,6 +1169,9 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			#endif // VCMI_SDL1
 			if(k < 0 || k > 8)
 				return;
+			
+			if (!CGI->mh->canStartHeroMovement())
+				return;
 
 			int3 dir = directions[k];
 
@@ -1439,7 +1442,8 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 		{
 			if (terrain.currentPath  &&  terrain.currentPath->endPos() == mapPos)//we'll be moving
 			{
-				LOCPLINT->moveHero(currentHero,*terrain.currentPath);
+				if (CGI->mh->canStartHeroMovement())
+					LOCPLINT->moveHero(currentHero,*terrain.currentPath);
 				return;
 			}
 			else/* if(mp.z == currentHero->pos.z)*/ //remove old path and find a new one if we clicked on the map level on which hero is present
