@@ -116,12 +116,6 @@ JsonWriter::JsonWriter(std::ostream &output, const JsonNode &node):
 	writeNode(node);
 }
 
-std::ostream & operator<<(std::ostream &out, const JsonNode &node)
-{
-	JsonWriter writer(out, node);
-	return out << "\n";
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 JsonParser::JsonParser(const char * inputString, size_t stringSize):

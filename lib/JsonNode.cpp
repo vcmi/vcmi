@@ -27,6 +27,13 @@ class CModHandler;
 
 static const JsonNode nullNode;
 
+
+std::ostream & operator<<(std::ostream &out, const JsonNode &node)
+{
+	JsonWriter writer(out, node);
+	return out << "\n";
+}
+
 JsonNode::JsonNode(JsonType Type):
 	type(DATA_NULL)
 {
