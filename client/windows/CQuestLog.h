@@ -69,7 +69,6 @@ public:
 	CQuestMinimap (const Rect & position);
 	//should be called to invalidate whole map - different player or level
 	void update();
-	void setLevel(int level);
 	void addQuestMarks (const QuestInfo * q);
 
 	void showAll(SDL_Surface * to);

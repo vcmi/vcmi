@@ -87,6 +87,9 @@ void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 	int x,y;
 	minimap->tileToPixels (tile, x, y);
 
+	if (level != tile.z)
+		setLevel(tile.z);
+
 	CQuestIcon * pic = new CQuestIcon ("VwSymbol.def", 3, x, y);
 
 	pic->moveBy (Point ( -pic->pos.w/2, -pic->pos.h/2));
