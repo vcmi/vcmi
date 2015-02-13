@@ -55,7 +55,7 @@ public:
 	std::string getSubtitle();
 
 	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large);//c-tor
-	CComponent(const Component &c); //c-tor
+	CComponent(const Component &c, ESize imageSize=large); //c-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
 };
