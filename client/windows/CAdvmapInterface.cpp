@@ -560,6 +560,7 @@ void CAdvMapInt::restoreState()
 	changeMode(EAdvMapMode::NORMAL);
 
 	underground->block(!CGI->mh->map->twoLevel);
+	questlog->block(!CGI->mh->map->quests.size());
 	worldViewUnderground->block(!CGI->mh->map->twoLevel);
 	
 	terrain.currentPath = nullptr; // invalidate previously visible path after game reload
