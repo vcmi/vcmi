@@ -223,6 +223,9 @@ void CQuest::getVisitText (MetaString &iwText, std::vector<Component> &component
 
 void CQuest::getRolloverText (MetaString &ms, bool onHover) const
 {
+	// Quests with MISSION_NONE type don't have a text for them
+	assert(missionType != MISSION_NONE);
+
 	if (onHover)
 		ms << "\n\n";
 
