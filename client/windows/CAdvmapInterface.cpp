@@ -561,6 +561,8 @@ void CAdvMapInt::restoreState()
 
 	underground->block(!CGI->mh->map->twoLevel);
 	worldViewUnderground->block(!CGI->mh->map->twoLevel);
+	
+	terrain.currentPath = nullptr; // invalidate previously visible path after game reload
 }
 
 CAdvMapInt::~CAdvMapInt()
