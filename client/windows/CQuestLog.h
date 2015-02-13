@@ -30,7 +30,7 @@ class CSlider;
 class CLabel;
 struct QuestInfo;
 
-const int QUEST_COUNT = 9;
+const int QUEST_COUNT = 6;
 
 class CQuestLabel : public LRClickableAreaWText, public CMultiLineLabel
 {
