@@ -132,25 +132,41 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
 
 void CQuestLog::init()
 {
-	minimap = new CQuestMinimap (Rect (33, 18, 144, 144));
-	description = new CTextBox ("", Rect(221, 18, 350, 355), 1, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
-	ok = new CButton(Point(533, 386), "IOKAY.DEF", CGI->generaltexth->zelp[445], boost::bind(&CQuestLog::close,this), SDLK_RETURN);
+	minimap = new CQuestMinimap (Rect (12, 12, 169, 169));
+	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
+	description = new CTextBox ("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
+	ok = new CButton(Point(539, 398), "IOKAY.DEF", CGI->generaltexth->zelp[445], boost::bind(&CQuestLog::close,this), SDLK_RETURN);
 
-	if (quests.size() > QUEST_COUNT)
-		slider = new CSlider(Point(189, 184), 230, std::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, quests.size(), false, CSlider::BROWN);
-
+	int currentLabel = 0;
 	for (int i = 0; i < quests.size(); ++i)
 	{
+		// Quests with MISSION_NONE type don't have text for them and can't be displayed
+		if (quests[i].quest->missionType == CQuest::MISSION_NONE)
+			continue;
+
 		MetaString text;
 		quests[i].quest->getRolloverText (text, false);
 		if (quests[i].obj)
 			text.addReplacement (quests[i].obj->getObjectName()); //get name of the object
-		CQuestLabel * label = new CQuestLabel (Rect(14, 184 + i * 24, 172,30), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
-		label->callback = boost::bind(&CQuestLog::selectQuest, this, i);
-		labels.push_back(label);
-	}
+		CQuestLabel * label = new CQuestLabel (Rect(13, 195, 149,31), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
+		label->disable();
 
+		label->callback = boost::bind(&CQuestLog::selectQuest, this, i, currentLabel);
+		labels.push_back(label);
+
+		// Select latest active quest
+		if (quests[i].quest->progress != CQuest::COMPLETE) // TODO: there need to be difference between active and completed quests
+			selectQuest(i, currentLabel);
+
+		currentLabel = labels.size();
+	}
 	recreateQuestList (0);
+
+	slider = new CSlider(Point(166, 195), 191, std::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, currentLabel, false, CSlider::BROWN);
+	if (currentLabel > QUEST_COUNT)
+		slider->moveToMax();
+	else
+		slider->block(true);
 }
 
 void CQuestLog::showAll(SDL_Surface * to)
@@ -172,28 +188,26 @@ void CQuestLog::recreateQuestList (int newpos)
 {
 	for (int i = 0; i < labels.size(); ++i)
 	{
-		labels[i]->pos = Rect (pos.x + 14, pos.y + 192 + (i-newpos) * 25, 173, 23);
+		labels[i]->pos = Rect (pos.x + 14, pos.y + 195 + (i-newpos) * 32, 151, 31);
 		if (i >= newpos && i < newpos + QUEST_COUNT)
-		{
-			labels[i]->activate();
-		}
+			labels[i]->enable();
 		else
-		{
-			labels[i]->deactivate();
-		}
+			labels[i]->disable();
 	}
 	minimap->update();
 }
 
-void CQuestLog::selectQuest (int which)
+void CQuestLog::selectQuest (int which, int labelId)
 {
-	questIndex = which;
+	questIndex = labelId;
 	currentQuest = &quests[which];
 	minimap->currentQuest = currentQuest;
 
 	MetaString text;
 	std::vector<Component> components; //TODO: display them
 	currentQuest->quest->getVisitText (text, components , currentQuest->quest->isCustomFirst, true);
+	if (description->slider)
+		description->slider->moveToMin(); // scroll text to start position
 	description->setText (text.toString()); //TODO: use special log entry text
 	minimap->update();
 	redraw();

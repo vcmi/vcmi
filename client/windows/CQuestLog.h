@@ -31,6 +31,7 @@ class CLabel;
 struct QuestInfo;
 
 const int QUEST_COUNT = 6;
+const int DESCRIPTION_HEIGHT_MAX = 355;
 
 class CQuestLabel : public LRClickableAreaWText, public CMultiLineLabel
 {
@@ -93,7 +94,7 @@ public:
 
 	~CQuestLog(){};
 
-	void selectQuest (int which);
+	void selectQuest (int which, int labelId);
 	void updateMinimap (int which){};
 	void printDescription (int which){};
 	void sliderMoved (int newpos);
