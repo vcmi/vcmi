@@ -275,8 +275,9 @@ void CArtPlace::select ()
 	{
 		for(int i = 0; i < GameConstants::BACKPACK_START; i++)
 		{
-			CArtPlace *ap = ourOwner->getArtPlace(i);
-			ap->pickSlot(ourArt->isPart(ap->ourArt));
+			CArtPlace * ap = ourOwner->getArtPlace(i);
+			if(nullptr != ap)//getArtPlace may return null
+				ap->pickSlot(ourArt->isPart(ap->ourArt));
 		}
 	}
 
@@ -443,64 +444,6 @@ void CArtifactsOfHero::SCommonPart::reset()
 
 void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 {
-// 	// An update is made, rather than initialization.
-// 	if (curHero && curHero->id == hero->id)
-// 	{
-// 		if(curHero != hero)
-// 		{
-// 			//delete	curHero;
-// 			curHero = hero; //was: creating a copy
-// 		}
-//
-// 		// Compensate backpack pos if an artifact was insertad before it.
-// 		if (commonInfo->dst.slotID >= 19 && commonInfo->destAOH == this
-// 			&& commonInfo->dst.slotID - 19 < backpackPos)
-// 		{
-// 			backpackPos++;
-// 		}
-//
-// 		if (updateState && commonInfo->srcAOH == this)
-// 		{
-// 			// A swap was made, make the replaced artifact the current selected.
-// 			if (commonInfo->dst.slotID < 19 && commonInfo->destArtifact)
-// 			{
-// // 				// Temporarily remove artifact from hero.
-// // 				if (commonInfo->srcSlotID < 19)
-// // 					CGI->arth->unequipArtifact(curHero->artifWorn, commonInfo->srcSlotID);
-// // 				else
-// // 					curHero->artifacts.erase(curHero->artifacts.begin() + (commonInfo->srcSlotID - 19));
-//
-// 				updateParentWindow(); //TODO: evil! but does the thing
-//
-// 				// Source <- Dest
-// 				commonInfo->srcArtifact = commonInfo->destArtifact;
-//
-// 				// Reset destination parameters.
-// 				commonInfo->dst.clear();
-//
-// 				CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[commonInfo->srcArtifact->id].bitmap);
-// 				markPossibleSlots(commonInfo->srcArtifact);
-// 			}
-// 			else if (commonInfo->destAOH != nullptr)
-// 			{
-// 				// Reset all parameters.
-// 				commonInfo->reset();
-// 				unmarkSlots();
-// 			}
-// 		}
-// 	}
-// 	else
-// 	{
-// 		commonInfo->reset();
-// 	}
-//
-// 	if(hero != curHero)
-// 	{
-// // 		delete curHero;
-// 		// 		curHero = new CGHeroInstance(*hero);
-// 		curHero = hero; //was: creating a copy
-// 	}
-
 	curHero = hero;
 	if (curHero->artifactsInBackpack.size() > 0)
 		backpackPos %= curHero->artifactsInBackpack.size();
@@ -700,7 +643,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos += position;
-	artWorn.resize(19);
+	artWorn.resize(GameConstants::BACKPACK_START);
 
 	std::vector<Point> slotPos =
 	{
@@ -724,7 +667,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	// Create slots for the backpack.
 	for(size_t s=0; s<5; ++s)
 	{
-		auto   add = new CArtPlace(Point(403 + 46 * s, 365));
+		auto add = new CArtPlace(Point(403 + 46 * s, 365));
 
 		add->ourOwner = this;
 		eraseSlotData(add, ArtifactPosition(GameConstants::BACKPACK_START + s));
