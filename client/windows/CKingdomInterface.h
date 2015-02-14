@@ -307,15 +307,13 @@ class CHeroItem : public CIntObject, public CWindowWithGarrison
 public:
 	CArtifactsOfHero *heroArts;
 
-	CHeroItem(const CGHeroInstance* hero, CArtifactsOfHero::SCommonPart * artsCommonPart);
+	CHeroItem(const CGHeroInstance* hero);
 };
 
 /// Tab with all hero-specific data
 class CKingdHeroList : public CIntObject, public CGarrisonHolder, public CWindowWithArtifacts
 {
 private:
-	CArtifactsOfHero::SCommonPart artsCommonPart;
-
 	std::vector<CHeroItem*> heroItems;
 	CListBox * heroes;
 	CPicture * title;

@@ -707,8 +707,7 @@ CIntObject* CKingdHeroList::createHeroItem(size_t index)
 
 	if (index < heroesCount)
 	{
-		auto   hero = new CHeroItem(LOCPLINT->cb->getHeroBySerial(index, false), &artsCommonPart);
-		artsCommonPart.participants.insert(hero->heroArts);
+		auto   hero = new CHeroItem(LOCPLINT->cb->getHeroBySerial(index, false));
 		artSets.push_back(hero->heroArts);
 		return hero;
 	}
@@ -723,7 +722,6 @@ void CKingdHeroList::destroyHeroItem(CIntObject *object)
 	if (CHeroItem * hero = dynamic_cast<CHeroItem*>(object))
 	{
 		artSets.erase(std::find(artSets.begin(), artSets.end(), hero->heroArts));
-		artsCommonPart.participants.erase(hero->heroArts);
 	}
 	delete object;
 }
@@ -862,7 +860,7 @@ public:
 	}
 };
 
-CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart * artsCommonPart):
+CHeroItem::CHeroItem(const CGHeroInstance* Hero):
 	hero(Hero)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -908,8 +906,7 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	};
 
 
-	heroArts = new CArtifactsOfHero(arts, backpack->arts, backpack->btnLeft, backpack->btnRight, false);
-	heroArts->commonInfo = artsCommonPart;
+	heroArts = new CArtifactsOfHero(arts, backpack->arts, backpack->btnLeft, backpack->btnRight, true);
 	heroArts->setHero(hero);
 
 	artsTabs = new CTabbedInt(std::bind(&CHeroItem::onTabSelected, this, _1), std::bind(&CHeroItem::onTabDeselected, this, _1));
