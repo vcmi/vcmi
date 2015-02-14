@@ -275,8 +275,9 @@ void CArtPlace::select ()
 	{
 		for(int i = 0; i < GameConstants::BACKPACK_START; i++)
 		{
-			CArtPlace *ap = ourOwner->getArtPlace(i);
-			ap->pickSlot(ourArt->isPart(ap->ourArt));
+			CArtPlace * ap = ourOwner->getArtPlace(i);
+			if(nullptr != ap)//getArtPlace may return null
+				ap->pickSlot(ourArt->isPart(ap->ourArt));
 		}
 	}
 
@@ -294,7 +295,7 @@ void CArtPlace::select ()
 }
 
 /**
- * Deselects the artifact slot. FIXME: Not used. Maybe it should?
+ * Deselects the artifact slot.
  */
 void CArtPlace::deselect ()
 {
@@ -302,7 +303,12 @@ void CArtPlace::deselect ()
 	if(ourArt && ourArt->canBeDisassembled()) //combined art returned to its slot -> restore locks
 	{
 		for(int i = 0; i < GameConstants::BACKPACK_START; i++)
-			ourOwner->getArtPlace(i)->pickSlot(false);
+		{
+			auto place = ourOwner->getArtPlace(i);
+			
+			if(nullptr != place)//getArtPlace may return null
+				place->pickSlot(false);
+		}			
 	}
 
 	CCS->curh->dragAndDropCursor(nullptr);
@@ -443,64 +449,6 @@ void CArtifactsOfHero::SCommonPart::reset()
 
 void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 {
-// 	// An update is made, rather than initialization.
-// 	if (curHero && curHero->id == hero->id)
-// 	{
-// 		if(curHero != hero)
-// 		{
-// 			//delete	curHero;
-// 			curHero = hero; //was: creating a copy
-// 		}
-//
-// 		// Compensate backpack pos if an artifact was insertad before it.
-// 		if (commonInfo->dst.slotID >= 19 && commonInfo->destAOH == this
-// 			&& commonInfo->dst.slotID - 19 < backpackPos)
-// 		{
-// 			backpackPos++;
-// 		}
-//
-// 		if (updateState && commonInfo->srcAOH == this)
-// 		{
-// 			// A swap was made, make the replaced artifact the current selected.
-// 			if (commonInfo->dst.slotID < 19 && commonInfo->destArtifact)
-// 			{
-// // 				// Temporarily remove artifact from hero.
-// // 				if (commonInfo->srcSlotID < 19)
-// // 					CGI->arth->unequipArtifact(curHero->artifWorn, commonInfo->srcSlotID);
-// // 				else
-// // 					curHero->artifacts.erase(curHero->artifacts.begin() + (commonInfo->srcSlotID - 19));
-//
-// 				updateParentWindow(); //TODO: evil! but does the thing
-//
-// 				// Source <- Dest
-// 				commonInfo->srcArtifact = commonInfo->destArtifact;
-//
-// 				// Reset destination parameters.
-// 				commonInfo->dst.clear();
-//
-// 				CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[commonInfo->srcArtifact->id].bitmap);
-// 				markPossibleSlots(commonInfo->srcArtifact);
-// 			}
-// 			else if (commonInfo->destAOH != nullptr)
-// 			{
-// 				// Reset all parameters.
-// 				commonInfo->reset();
-// 				unmarkSlots();
-// 			}
-// 		}
-// 	}
-// 	else
-// 	{
-// 		commonInfo->reset();
-// 	}
-//
-// 	if(hero != curHero)
-// 	{
-// // 		delete curHero;
-// 		// 		curHero = new CGHeroInstance(*hero);
-// 		curHero = hero; //was: creating a copy
-// 	}
-
 	curHero = hero;
 	if (curHero->artifactsInBackpack.size() > 0)
 		backpackPos %= curHero->artifactsInBackpack.size();
@@ -700,17 +648,17 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos += position;
-	artWorn.resize(19);
+	artWorn.resize(GameConstants::BACKPACK_START);
 
 	std::vector<Point> slotPos =
 	{
-		Point(509,30),  Point(567,240), Point(509,80),
-		Point(383,68),  Point(564,183), Point(509,130),
-		Point(431,68),  Point(610,183), Point(515,295),
-		Point(383,143), Point(399,194), Point(415,245),
-		Point(431,296), Point(564,30),  Point(610,30),
-		Point(610,76),  Point(610,122), Point(610,310),
-		Point(381,296)
+		Point(509,30),  Point(567,240), Point(509,80),  //0-2
+		Point(383,68),  Point(564,183), Point(509,130), //3-5
+		Point(431,68),  Point(610,183), Point(515,295), //6-8
+		Point(383,143), Point(399,194), Point(415,245), //9-11
+		Point(431,296), Point(564,30),  Point(610,30), //12-14
+		Point(610,76),  Point(610,122), Point(610,310), //15-17
+		Point(381,296) //18
 	};
 
 	// Create slots for worn artifacts.
@@ -724,7 +672,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	// Create slots for the backpack.
 	for(size_t s=0; s<5; ++s)
 	{
-		auto   add = new CArtPlace(Point(403 + 46 * s, 365));
+		auto add = new CArtPlace(Point(403 + 46 * s, 365));
 
 		add->ourOwner = this;
 		eraseSlotData(add, ArtifactPosition(GameConstants::BACKPACK_START + s));
@@ -830,7 +778,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			if(dst.isHolder(aoh->curHero))
 			{
 				commonInfo->src.AOH = aoh;
-				if((ap = aoh->getArtPlace(dst.slot)))
+				if((ap = aoh->getArtPlace(dst.slot)))//getArtPlace may return null
 					break;
 			}
 		}
@@ -893,6 +841,12 @@ CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 {
 	if(slot < GameConstants::BACKPACK_START)
 	{
+		if(slot >= artWorn.size() || slot < 0)
+		{
+			logGlobal->errorStream() << "CArtifactsOfHero::getArtPlace: invalid slot " << slot << "; maximum is " << artWorn.size()-1;
+			return nullptr;
+		}
+
 		return artWorn[slot];
 	}
 	else
