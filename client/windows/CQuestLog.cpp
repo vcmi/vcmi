@@ -169,10 +169,6 @@ void CQuestLog::init()
 void CQuestLog::showAll(SDL_Surface * to)
 {
 	CWindowObject::showAll (to);
-	for (auto label : labels)
-	{
-		label->show(to); //shows only if active
-	}
 	if (labels.size() && labels[questIndex]->active)
 	{
 		Rect rect = Rect::around(labels[questIndex]->pos);
@@ -180,8 +176,6 @@ void CQuestLog::showAll(SDL_Surface * to)
 		rect.w += 2;
 		CSDL_Ext::drawBorder(to, rect, int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b));
 	}
-	description->show(to);
-	minimap->show(to);
 }
 
 void CQuestLog::recreateQuestList (int newpos)
