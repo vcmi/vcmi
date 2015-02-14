@@ -281,8 +281,6 @@ void CArtPlace::select ()
 		}
 	}
 
-	//int backpackCorrection = -(slotID - Arts::BACKPACK_START < ourOwner->backpackPos);
-
 	CCS->curh->dragAndDropCursor(new CAnimImage("artifact", ourArt->artType->iconIndex));
 	ourOwner->commonInfo->src.setTo(this, false);
 	ourOwner->markPossibleSlots(ourArt);
@@ -353,7 +351,7 @@ bool CArtPlace::fitsHere(const CArtifactInstance * art) const
 	if(!art)
 		return true;
 
-	// Anything can but War Machines can be placed in backpack.
+	// Anything but War Machines can be placed in backpack.
 	if (slotID >= GameConstants::BACKPACK_START)
 		return !CGI->arth->isBigArtifact(art->artType->id);
 
@@ -456,15 +454,17 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 		backpackPos = 0;
 
 	// Fill the slots for worn artifacts and backpack.
-	for (int g = 0; g < artWorn.size() ; g++)
-		setSlotData(artWorn[g], ArtifactPosition(g));
+	
+	for(auto p : artWorn)
+	{
+		setSlotData(p.second, p.first);
+	}
+	
 	scrollBackpack(0);
 }
 
 void CArtifactsOfHero::dispose()
 {
-	//vstd::clear_pointer(curHero);
-	//unmarkSlots(false);
 	CCS->curh->dragAndDropCursor(nullptr);
 }
 
@@ -540,8 +540,8 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
 {
 	for(CArtifactsOfHero *aoh : commonInfo->participants)
-		for(CArtPlace *place : aoh->artWorn)
-			place->selectSlot(art->canBePutAt(ArtifactLocation(aoh->curHero, place->slotID), true));
+		for(auto p : aoh->artWorn)
+			p.second->selectSlot(art->canBePutAt(ArtifactLocation(aoh->curHero, p.second->slotID), true));
 
 	safeRedraw();
 }
@@ -563,8 +563,8 @@ void CArtifactsOfHero::unmarkSlots(bool withRedraw /*= true*/)
 
 void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw /*= true*/)
 {
-	for(CArtPlace *place : artWorn)
-		place->selectSlot(false);
+	for(auto p : artWorn)
+		p.second->selectSlot(false);
 	for(CArtPlace *place : backpack)
 		place->selectSlot(false);
 
@@ -604,7 +604,7 @@ void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, ArtifactPosition slot
 	artPlace->setArtifact(nullptr);
 }
 
-CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector<CArtPlace *> Backpack,
+CArtifactsOfHero::CArtifactsOfHero(std::map<ArtifactPosition, CArtPlace *> ArtWorn, std::vector<CArtPlace *> Backpack,
 	CButton *leftScroll, CButton *rightScroll, bool createCommonPart):
 
 	curHero(nullptr),
@@ -620,10 +620,10 @@ CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector
 	}
 
 	// Init slots for worn artifacts.
-	for (size_t g = 0; g < artWorn.size() ; g++)
+	for (auto p : artWorn)
 	{
-		artWorn[g]->ourOwner = this;
-		eraseSlotData(artWorn[g], ArtifactPosition(g));
+		p.second->ourOwner = this;
+		eraseSlotData(p.second, p.first);
 	}
 
 	// Init slots for the backpack.
@@ -648,7 +648,6 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos += position;
-	artWorn.resize(GameConstants::BACKPACK_START);
 
 	std::vector<Point> slotPos =
 	{
@@ -841,9 +840,9 @@ CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 {
 	if(slot < GameConstants::BACKPACK_START)
 	{
-		if(slot >= artWorn.size() || slot < 0)
+		if(artWorn.find(slot) == artWorn.end())
 		{
-			logGlobal->errorStream() << "CArtifactsOfHero::getArtPlace: invalid slot " << slot << "; maximum is " << artWorn.size()-1;
+			logGlobal->errorStream() << "CArtifactsOfHero::getArtPlace: invalid slot " << slot;
 			return nullptr;
 		}
 
@@ -854,9 +853,8 @@ CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 		for(CArtPlace *ap : backpack)
 			if(ap->slotID == slot)
 				return ap;
+		return nullptr;				
 	}
-
-	return nullptr;
 }
 
 void CArtifactsOfHero::artifactAssembled(const ArtifactLocation &al)
@@ -873,9 +871,8 @@ void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
 
 void CArtifactsOfHero::updateWornSlots(bool redrawParent /*= true*/)
 {
-	for(int i = 0; i < artWorn.size(); i++)
-		updateSlot(ArtifactPosition(i));
-
+	for(auto p : artWorn)
+		updateSlot(p.first);
 
 	if(redrawParent)
 		updateParentWindow();

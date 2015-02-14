@@ -879,10 +879,34 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	backpack->recActions = DISPOSE | SHARE_POS;
 
 	name = new CLabel(75, 7, FONT_SMALL, TOPLEFT, Colors::WHITE, hero->name);
+	
+	//layout is not trivial: MACH4 - catapult - excluded, MISC[x] rearranged
+	assert(arts1->arts.size() == 9);
+	assert(arts2->arts.size() == 9);	
+	
+	std::map<ArtifactPosition, CArtPlace*> arts = 
+	{
+		{ArtifactPosition::HEAD, arts1->arts[0]}, 
+		{ArtifactPosition::SHOULDERS,arts1->arts[1]}, 
+		{ArtifactPosition::NECK,arts1->arts[2]}, 
+		{ArtifactPosition::RIGHT_HAND,arts1->arts[3]}, 
+		{ArtifactPosition::LEFT_HAND,arts1->arts[4]}, 
+		{ArtifactPosition::TORSO, arts1->arts[5]},
+		{ArtifactPosition::RIGHT_RING,arts1->arts[6]},
+		{ArtifactPosition::LEFT_RING, arts1->arts[7]},
+		{ArtifactPosition::FEET, arts1->arts[8]},
+		
+		{ArtifactPosition::MISC1, arts2->arts[0]},
+		{ArtifactPosition::MISC2, arts2->arts[1]},
+		{ArtifactPosition::MISC3, arts2->arts[2]},
+		{ArtifactPosition::MISC4, arts2->arts[3]},
+		{ArtifactPosition::MISC5, arts2->arts[4]},
+		{ArtifactPosition::MACH1, arts2->arts[5]},
+		{ArtifactPosition::MACH2, arts2->arts[6]},
+		{ArtifactPosition::MACH3, arts2->arts[7]},
+		{ArtifactPosition::SPELLBOOK, arts2->arts[8]}
+	};
 
-	std::vector<CArtPlace*> arts;
-	arts.insert(arts.end(), arts1->arts.begin(), arts1->arts.end());
-	arts.insert(arts.end(), arts2->arts.begin(), arts2->arts.end());
 
 	heroArts = new CArtifactsOfHero(arts, backpack->arts, backpack->btnLeft, backpack->btnRight, false);
 	heroArts->commonInfo = artsCommonPart;
