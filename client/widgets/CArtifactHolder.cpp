@@ -295,7 +295,7 @@ void CArtPlace::select ()
 }
 
 /**
- * Deselects the artifact slot. FIXME: Not used. Maybe it should?
+ * Deselects the artifact slot.
  */
 void CArtPlace::deselect ()
 {
@@ -303,7 +303,12 @@ void CArtPlace::deselect ()
 	if(ourArt && ourArt->canBeDisassembled()) //combined art returned to its slot -> restore locks
 	{
 		for(int i = 0; i < GameConstants::BACKPACK_START; i++)
-			ourOwner->getArtPlace(i)->pickSlot(false);
+		{
+			auto place = ourOwner->getArtPlace(i);
+			
+			if(nullptr != place)
+				place->pickSlot(false);
+		}			
 	}
 
 	CCS->curh->dragAndDropCursor(nullptr);
@@ -647,13 +652,13 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 
 	std::vector<Point> slotPos =
 	{
-		Point(509,30),  Point(567,240), Point(509,80),
-		Point(383,68),  Point(564,183), Point(509,130),
-		Point(431,68),  Point(610,183), Point(515,295),
-		Point(383,143), Point(399,194), Point(415,245),
-		Point(431,296), Point(564,30),  Point(610,30),
-		Point(610,76),  Point(610,122), Point(610,310),
-		Point(381,296)
+		Point(509,30),  Point(567,240), Point(509,80),  //0-2
+		Point(383,68),  Point(564,183), Point(509,130), //3-5
+		Point(431,68),  Point(610,183), Point(515,295), //6-8
+		Point(383,143), Point(399,194), Point(415,245), //9-11
+		Point(431,296), Point(564,30),  Point(610,30), //12-14
+		Point(610,76),  Point(610,122), Point(610,310), //15-17
+		Point(381,296) //18
 	};
 
 	// Create slots for worn artifacts.
@@ -836,6 +841,12 @@ CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 {
 	if(slot < GameConstants::BACKPACK_START)
 	{
+		if(slot >= artWorn.size() || slot < 0)
+		{
+			logGlobal->errorStream() << "CArtifactsOfHero::getArtPlace: invalid slot " << slot << "; maximum is " << artWorn.size()-1;
+			return nullptr;
+		}
+
 		return artWorn[slot];
 	}
 	else
