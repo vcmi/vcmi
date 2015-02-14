@@ -306,7 +306,7 @@ void CArtPlace::deselect ()
 		{
 			auto place = ourOwner->getArtPlace(i);
 			
-			if(nullptr != place)
+			if(nullptr != place)//getArtPlace may return null
 				place->pickSlot(false);
 		}			
 	}
@@ -778,7 +778,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			if(dst.isHolder(aoh->curHero))
 			{
 				commonInfo->src.AOH = aoh;
-				if((ap = aoh->getArtPlace(dst.slot)))
+				if((ap = aoh->getArtPlace(dst.slot)))//getArtPlace may return null
 					break;
 			}
 		}

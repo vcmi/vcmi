@@ -118,7 +118,7 @@ public:
 	void artifactRemoved(const ArtifactLocation &al);
 	void artifactAssembled(const ArtifactLocation &al);
 	void artifactDisassembled(const ArtifactLocation &al);
-	CArtPlace *getArtPlace(int slot);
+	CArtPlace *getArtPlace(int slot);//may return null
 
 	void setHero(const CGHeroInstance * hero);
 	const CGHeroInstance *getHero() const;
