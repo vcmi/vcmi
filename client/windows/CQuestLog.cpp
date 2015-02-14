@@ -72,26 +72,21 @@ CMinimap (position),
 void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	for (auto icon : icons)
-		delete icon;
 	icons.clear();
 
 	int3 tile;
 	if (q->obj)
-	{
 		tile = q->obj->pos;
-	}
 	else
-	{
 		tile = q->tile;
-	}
+
 	int x,y;
 	minimap->tileToPixels (tile, x, y);
 
 	if (level != tile.z)
 		setLevel(tile.z);
 
-	CQuestIcon * pic = new CQuestIcon ("VwSymbol.def", 3, x, y);
+	auto pic = make_shared<CQuestIcon>("VwSymbol.def", 3, x, y);
 
 	pic->moveBy (Point ( -pic->pos.w/2, -pic->pos.h/2));
 	pic->callback = std::bind (&CQuestMinimap::iconClicked, this);

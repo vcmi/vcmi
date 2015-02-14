@@ -57,7 +57,7 @@ public:
 
 class CQuestMinimap : public CMinimap
 {
-	std::vector <CQuestIcon *> icons;
+	std::vector <shared_ptr<CQuestIcon>> icons;
 
 	void clickLeft(tribool down, bool previousState){}; //minimap ignores clicking on its surface
 	void iconClicked();
