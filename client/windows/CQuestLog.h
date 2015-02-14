@@ -20,7 +20,7 @@ class CCreature;
 class CStackInstance;
 class CButton;
 class CGHeroInstance;
-class CComponent;
+class CComponentBox;
 class LRClickableAreaWText;
 class CButton;
 class CPicture;
@@ -79,6 +79,7 @@ class CQuestLog : public CWindowObject
 {
 	int questIndex;
 	const QuestInfo * currentQuest;
+	CComponentBox * componentsBox;
 
 	const std::vector<QuestInfo> quests;
 	std::vector<CQuestLabel *> labels;

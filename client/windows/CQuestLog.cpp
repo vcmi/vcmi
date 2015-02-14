@@ -11,6 +11,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
+#include "../widgets/CComponent.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CArtHandler.h"
@@ -123,6 +124,7 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
 	CWindowObject(PLAYER_COLORED | BORDERED, "questDialog.pcx"),
 	questIndex(0),
 	currentQuest(nullptr),
+	componentsBox(nullptr),
 	quests (Quests),
 	slider(nullptr)
 {
@@ -207,11 +209,66 @@ void CQuestLog::selectQuest (int which, int labelId)
 	minimap->currentQuest = currentQuest;
 
 	MetaString text;
-	std::vector<Component> components; //TODO: display them
-	currentQuest->quest->getVisitText (text, components , currentQuest->quest->isCustomFirst, true);
+	std::vector<Component> components;
+	currentQuest->quest->getVisitText (text, components, currentQuest->quest->isCustomFirst, true);
 	if (description->slider)
 		description->slider->moveToMin(); // scroll text to start position
 	description->setText (text.toString()); //TODO: use special log entry text
+
+	vstd::clear_pointer(componentsBox);
+	int componentsSize = components.size();
+	int descriptionHeight = DESCRIPTION_HEIGHT_MAX;
+	if (componentsSize)
+	{
+		descriptionHeight -= 15;
+		CComponent::ESize imageSize = CComponent::large;
+		switch (currentQuest->quest->missionType)
+		{
+			case CQuest::MISSION_ARMY:
+			{
+				if (componentsSize > 4)
+					descriptionHeight -= 195;
+				else
+					descriptionHeight -= 100;
+
+				break;
+			}
+			case CQuest::MISSION_ART:
+			{
+				if (componentsSize > 4)
+					descriptionHeight -= 190;
+				else
+					descriptionHeight -= 90;
+
+				break;
+			}
+			case CQuest::MISSION_PRIMARY_STAT:
+			case CQuest::MISSION_RESOURCES:
+			{
+				if (componentsSize > 4)
+				{
+					imageSize = CComponent::small; // Only small icons can be used for resources as 4+ icons take too much space
+					descriptionHeight -= 140;
+				}
+				else
+					descriptionHeight -= 125;
+
+				break;
+			}
+			default:
+				descriptionHeight -= 115;
+				break;
+		}
+
+		OBJ_CONSTRUCTION_CAPTURING_ALL;
+		std::vector<CComponent *> comps;
+		for (auto & component : components)
+			comps.push_back(new CComponent(component, imageSize));
+
+		componentsBox = new CComponentBox(comps, Rect(202, 20+descriptionHeight+15, 391, DESCRIPTION_HEIGHT_MAX-(20+descriptionHeight)));
+	}
+	description->resize(Point(385, descriptionHeight));
+
 	minimap->update();
 	redraw();
 }
