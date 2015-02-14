@@ -178,7 +178,10 @@ void CQuestLog::showAll(SDL_Surface * to)
 	}
 	if (labels.size() && labels[questIndex]->active)
 	{
-		CSDL_Ext::drawBorder(to, Rect::around(labels[questIndex]->pos), int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b));
+		Rect rect = Rect::around(labels[questIndex]->pos);
+		rect.x -= 2; // Adjustment needed as we want selection box on top of border in graphics
+		rect.w += 2;
+		CSDL_Ext::drawBorder(to, rect, int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b));
 	}
 	description->show(to);
 	minimap->show(to);
