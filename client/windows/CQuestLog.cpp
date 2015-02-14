@@ -121,7 +121,7 @@ void CQuestMinimap::showAll(SDL_Surface * to)
 }
 
 CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
-	CWindowObject(PLAYER_COLORED | BORDERED, "questDialog.pcx"),
+	CWindowObject(PLAYER_COLORED | BORDERED, "questDialog"),
 	questIndex(0),
 	currentQuest(nullptr),
 	componentsBox(nullptr),
