@@ -974,11 +974,16 @@ void CSelectionScreen::handleConnection()
 				upcomingPacks.push_back(pack);
 			}
 		}
-	} HANDLE_EXCEPTION
+	}
 	catch(int i)
 	{
 		if(i != 666)
 			throw;
+	}
+	catch(...)
+	{
+		handleException();
+		throw;
 	}
 }
 

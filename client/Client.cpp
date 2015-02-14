@@ -150,7 +150,11 @@ void CClient::waitForMoveAndSend(PlayerColor color)
         logNetwork->debugStream() << "Wait for move thread was interrupted and no action will be send. Was a battle ended by spell?";
 		return;
 	}
-	HANDLE_EXCEPTION
+	catch(...)
+	{
+		handleException();
+		return;
+	}
     logNetwork->errorStream() << "We should not be here!";
 }
 
@@ -787,7 +791,11 @@ void CClient::commenceTacticPhaseForInt(shared_ptr<CBattleGameInterface> battleI
 			MakeAction ma(BattleAction::makeEndOFTacticPhase(gs->curB->playerToSide(battleInt->playerID)));
 			sendRequest(&ma, battleInt->playerID);
 		}
-	} HANDLE_EXCEPTION
+	}
+	catch(...)
+	{
+		handleException();
+	}	
 }
 
 void CClient::invalidatePaths()
@@ -964,7 +972,13 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 	try
 	{
 		shared = new SharedMem();
-    } HANDLE_EXCEPTIONC(logNetwork->errorStream() << "Cannot open interprocess memory: ";)
+    }
+    catch(...)
+    {
+    	logNetwork->error("Cannot open interprocess memory.");
+    	handleException();
+    	throw;
+    }
 #endif
 }
 

@@ -942,7 +942,12 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
         logGlobal->errorStream() << e.what();
 		end2 = true;
 	}
-	HANDLE_EXCEPTION(end2 = true);
+	catch(...)
+	{
+		end2 = true;
+		handleException();
+		throw;
+	}
 
     logGlobal->errorStream() << "Ended handling connection";
 }

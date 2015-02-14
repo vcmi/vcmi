@@ -220,35 +220,6 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 
 #define ASSERT_IF_CALLED_WITH_PLAYER if(!player) {logGlobal->errorStream() << BOOST_CURRENT_FUNCTION; assert(0);}
 
-//XXX pls dont - 'debug macros' are usually more trouble than it's worth
-#define HANDLE_EXCEPTION  \
-    catch (const std::exception& e) {	\
-	logGlobal->errorStream() << e.what();		\
-    throw;								\
-}									\
-    catch (const std::exception * e)	\
-{									\
-	logGlobal->errorStream() << e->what();	\
-    throw;							\
-}									\
-    catch (const std::string& e) {		\
-	logGlobal->errorStream() << e;		\
-    throw;							\
-}
-
-#define HANDLE_EXCEPTIONC(COMMAND)  \
-    catch (const std::exception& e) {	\
-    COMMAND;						\
-	logGlobal->errorStream() << e.what();	\
-    throw;							\
-}									\
-    catch (const std::string &e)	\
-{									\
-    COMMAND;						\
-	logGlobal->errorStream() << e;	\
-    throw;							\
-}
-
 // can be used for counting arrays
 template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 #define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))

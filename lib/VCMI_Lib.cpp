@@ -40,16 +40,16 @@ DLL_LINKAGE void preinitDLL(CConsoleHandler *Console)
 	{
 		VLC->loadFilesystem();
 	}
-	HANDLE_EXCEPTION;
+	catch(...)
+	{
+		handleException();
+		throw;
+	}
 }
 
 DLL_LINKAGE void loadDLLClasses()
 {
-	//try
-	{
-		VLC->init();
-	}
-	//HANDLE_EXCEPTION;
+	VLC->init();
 }
 
 const IBonusTypeHandler * LibClasses::getBth() const
