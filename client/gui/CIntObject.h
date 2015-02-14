@@ -40,9 +40,8 @@ public:
 
 class ILockedUpdatable: public IUpdateable
 {
-	boost::recursive_mutex updateGuard;
 public:
-	virtual void runLocked(std::function<void(IUpdateable * )> cb);
+	virtual void runLocked(std::function<void(IUpdateable * )> cb) = 0;
 	virtual ~ILockedUpdatable(){}; //d-tor
 };
 

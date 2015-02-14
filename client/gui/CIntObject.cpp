@@ -10,12 +10,6 @@ IShowActivatable::IShowActivatable()
 	type = 0;
 }
 
-void ILockedUpdatable::runLocked(std::function<void(IUpdateable*)> cb)
-{
-	boost::unique_lock<boost::recursive_mutex> lock(updateGuard);
-	cb(this);
-}
-
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
 	active_m(0),
