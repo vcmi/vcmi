@@ -2683,7 +2683,10 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 bool CGameHandler::upgradeCreature( ObjectInstanceID objid, SlotID pos, CreatureID upgID )
 {
 	CArmedInstance *obj = static_cast<CArmedInstance*>(gs->getObjInstance(objid));
-	assert(obj->hasStackAtSlot(pos));
+	if (!obj->hasStackAtSlot(pos))
+	{
+		COMPLAIN_RET("Cannot upgrade, no stack at slot " + boost::to_string(pos));
+	}
 	UpgradeInfo ui = gs->getUpgradeInfo(obj->getStack(pos));
 	PlayerColor player = obj->tempOwner;
 	const PlayerState *p = getPlayer(player);
