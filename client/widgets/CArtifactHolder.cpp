@@ -663,9 +663,9 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	// Create slots for worn artifacts.
 	for (size_t g = 0; g < GameConstants::BACKPACK_START ; g++)
 	{
-		artWorn[g] = new CArtPlace(slotPos[g]);
-		artWorn[g]->ourOwner = this;
-		eraseSlotData(artWorn[g], ArtifactPosition(g));
+		artWorn[ArtifactPosition(g)] = new CArtPlace(slotPos[g]);
+		artWorn[ArtifactPosition(g)]->ourOwner = this;
+		eraseSlotData(artWorn[ArtifactPosition(g)], ArtifactPosition(g));
 	}
 
 	// Create slots for the backpack.
@@ -840,13 +840,13 @@ CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 {
 	if(slot < GameConstants::BACKPACK_START)
 	{
-		if(artWorn.find(slot) == artWorn.end())
+		if(artWorn.find(ArtifactPosition(slot)) == artWorn.end())
 		{
 			logGlobal->errorStream() << "CArtifactsOfHero::getArtPlace: invalid slot " << slot;
 			return nullptr;
 		}
 
-		return artWorn[slot];
+		return artWorn[ArtifactPosition(slot)];
 	}
 	else
 	{
