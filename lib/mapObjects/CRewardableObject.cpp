@@ -728,8 +728,8 @@ void CGBonusingObject::initObj()
 	case Obj::STABLES:
 		configureMessage(info[0], 137, 136, soundBase::STORE);
 
-		configureBonusDuration(info[0], Bonus::ONE_WEEK, Bonus::LAND_MOVEMENT, 600, 0);
-		info[0].reward.movePoints = 600;
+		configureBonusDuration(info[0], Bonus::ONE_WEEK, Bonus::LAND_MOVEMENT, 400, 0);
+		info[0].reward.movePoints = 400;
 		//TODO: upgrade champions to cavaliers
 /*
 		bool someUpgradeDone = false;
