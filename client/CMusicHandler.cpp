@@ -125,11 +125,10 @@ void CSoundHandler::release()
 	{
 		Mix_HaltChannel(-1);
 
-		std::map<soundBase::soundID, Mix_Chunk *>::iterator it;
-		for (it=soundChunks.begin(); it != soundChunks.end(); it++)
+		for (auto &chunk : soundChunks)
 		{
-			if (it->second)
-				Mix_FreeChunk(it->second);
+			if (chunk.second)
+				Mix_FreeChunk(chunk.second);
 		}
 	}
 
@@ -137,44 +136,20 @@ void CSoundHandler::release()
 }
 
 // Allocate an SDL chunk and cache it.
-Mix_Chunk *CSoundHandler::GetSoundChunk(soundBase::soundID soundID)
+Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound, bool cache)
 {
-	// Find its name
-	auto fname = sounds[soundID];
-	if (fname.empty())
-		return nullptr;
-
-	// Load and insert
 	try
 	{
-		auto data = CResourceHandler::get()->load(ResourceID(std::string("SOUNDS/") + fname, EResType::SOUND))->readAll();
+		if (cache && soundChunks.find(sound) != soundChunks.end())
+			return soundChunks[sound];
 
-		SDL_RWops *ops = SDL_RWFromMem(data.first.release(), data.second);
-		Mix_Chunk *chunk;
-		chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
-		soundChunks.insert(std::pair<soundBase::soundID, Mix_Chunk *>(soundID, chunk));
-		return chunk;
-	}
-	catch(std::exception &e)
-	{
-        logGlobal->warnStream() << "Cannot get sound " << soundID << " chunk: " << e.what();
-		return nullptr;
-	}
-}
-
-Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound)
-{
-	if (sound.empty())
-		return nullptr;
-
-	// Load and insert
-	try
-	{
 		auto data = CResourceHandler::get()->load(ResourceID(std::string("SOUNDS/") + sound, EResType::SOUND))->readAll();
-
 		SDL_RWops *ops = SDL_RWFromMem(data.first.release(), data.second);
-		Mix_Chunk *chunk;
-		chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
+		Mix_Chunk *chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
+
+		if (cache)
+			soundChunks.insert(std::pair<std::string, Mix_Chunk *>(sound, chunk));
+
 		return chunk;
 	}
 	catch(std::exception &e)
@@ -188,48 +163,36 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound)
 int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
 {
 	assert(soundID < soundBase::sound_after_last);
-	if (!initialized)
-		return -1;
+	auto sound = sounds[soundID];
+	logGlobal->traceStream() << "Attempt to play sound " << soundID << " with file name " << sound << " with cache";
 
-	int channel;
-	Mix_Chunk *chunk = GetSoundChunk(soundID);
-
-	if (chunk)
-	{
-		channel = Mix_PlayChannel(-1, chunk, repeats);
-		if (channel == -1)
-            logGlobal->errorStream() << "Unable to play sound file " << soundID << " , error " << Mix_GetError();
-		else
-			callbacks[channel];//insert empty callback
-	}
-	else
-	{
-		channel = -1;
-	}
-
-	return channel;
+	return playSound(sound, repeats, true);
 }
 
-int CSoundHandler::playSound(std::string sound, int repeats)
+int CSoundHandler::playSound(std::string sound, int repeats, bool cache)
 {
-	if (!initialized)
+	if (!initialized || sound.empty())
 		return -1;
 
 	int channel;
-	Mix_Chunk *chunk = GetSoundChunk(sound);
+	Mix_Chunk *chunk = GetSoundChunk(sound, cache);
 
 	if (chunk)
 	{
 		channel = Mix_PlayChannel(-1, chunk, repeats);
 		if (channel == -1)
+		{
             logGlobal->errorStream() << "Unable to play sound file " << sound << " , error " << Mix_GetError();
+			if (!cache)
+				Mix_FreeChunk(chunk);
+		}
+		else if (cache)
+			callbacks[channel];
 		else
-			callbacks[channel];//insert empty callback
+			callbacks[channel] = [chunk]{ Mix_FreeChunk(chunk);};
 	}
 	else
-	{
 		channel = -1;
-	}
 
 	return channel;
 }
