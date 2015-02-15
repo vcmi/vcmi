@@ -41,10 +41,9 @@ private:
 	SettingsListener listener;
 	void onVolumeChange(const JsonNode &volumeNode);
 
-	std::map<soundBase::soundID, Mix_Chunk *> soundChunks;
+	std::map<std::string, Mix_Chunk *> soundChunks;
 
-	Mix_Chunk *GetSoundChunk(soundBase::soundID soundID);
-	Mix_Chunk *GetSoundChunk(std::string &sound);
+	Mix_Chunk *GetSoundChunk(std::string &sound, bool cache);
 
 	//have entry for every currently active channel
 	//std::function will be nullptr if callback was not set
@@ -60,7 +59,7 @@ public:
 
 	// Sounds
 	int playSound(soundBase::soundID soundID, int repeats=0);
-	int playSound(std::string sound, int repeats=0);
+	int playSound(std::string sound, int repeats=0, bool cache=false);
 	int playSoundFromSet(std::vector<soundBase::soundID> &sound_vec);
 	void stopSound(int handler);
 
