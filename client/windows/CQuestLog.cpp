@@ -144,7 +144,17 @@ void CQuestLog::init()
 		MetaString text;
 		quests[i].quest->getRolloverText (text, false);
 		if (quests[i].obj)
-			text.addReplacement (quests[i].obj->getObjectName()); //get name of the object
+		{
+			if (auto seersHut = dynamic_cast<const CGSeerHut *>(quests[i].obj))
+			{
+				MetaString toSeer;
+				toSeer << VLC->generaltexth->allTexts[347];
+				toSeer.addReplacement(seersHut->seerName);
+				text.addReplacement(toSeer.toString());
+			}
+			else
+				text.addReplacement(quests[i].obj->getObjectName()); //get name of the object
+		}
 		CQuestLabel * label = new CQuestLabel (Rect(13, 195, 149,31), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
 		label->disable();
 
