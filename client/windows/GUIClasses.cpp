@@ -851,6 +851,7 @@ void CTavernWindow::HeroPortrait::hover( bool on )
 void CExchangeWindow::questlog(int whichHero)
 {
 	CCS->curh->dragAndDropCursor(nullptr);
+	LOCPLINT->showQuestLog();
 }
 
 void CExchangeWindow::prepareBackground()
