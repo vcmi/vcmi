@@ -234,7 +234,7 @@ void CQuest::getRolloverText (MetaString &ms, bool onHover) const
 	switch (missionType)
 	{
 		case MISSION_LEVEL:
-			ms.addReplacement(m13489val);
+			ms.addReplacement(boost::lexical_cast<std::string>(m13489val));
 			break;
 		case MISSION_PRIMARY_STAT:
 			{
