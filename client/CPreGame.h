@@ -609,7 +609,7 @@ public:
 
 	~CGPreGame();
 	void update() override;
-	void runLocked(std::function<void(IUpdateable * )> cb) override;
+	void runLocked(std::function<void()> cb) override;
 	void openSel(CMenuScreen::EState type, CMenuScreen::EMultiMode multi = CMenuScreen::SINGLE_PLAYER);
 
 	void openCampaignScreen(std::string name);

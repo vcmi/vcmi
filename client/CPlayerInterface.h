@@ -134,7 +134,7 @@ public:
 	} spellbookSettings;
 
 	void update() override;
-	void runLocked(std::function<void(IUpdateable * )> functor) override;
+	void runLocked(std::function<void()> functor) override;
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 

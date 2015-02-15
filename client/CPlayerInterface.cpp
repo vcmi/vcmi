@@ -1607,7 +1607,7 @@ void CPlayerInterface::update()
 		GH.drawFPSCounter();
 }
 
-void CPlayerInterface::runLocked(std::function<void(IUpdateable * )> functor)
+void CPlayerInterface::runLocked(std::function<void()> functor)
 {
 	// Updating GUI requires locking pim mutex (that protects screen and GUI state).
 	// When ending the game, the pim mutex might be hold by other thread,
@@ -1635,7 +1635,7 @@ void CPlayerInterface::runLocked(std::function<void(IUpdateable * )> functor)
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 
 	locked = true;
-	functor(this);
+	functor();
 	locked = false;
 }
 

@@ -411,10 +411,12 @@ void CGuiHandler::fakeMouseMove()
 
 void CGuiHandler::renderFrame()
 {
-	auto doUpdate = [](IUpdateable * target)
+	auto doUpdate = [this]()
 	{
-		if(nullptr != target)
-			target -> update();
+		if(nullptr != curInt)
+		{
+			curInt -> update();
+		}			
 		// draw the mouse cursor and update the screen
 		CCS->curh->render();
 
@@ -430,7 +432,7 @@ void CGuiHandler::renderFrame()
 	if(curInt)
 		curInt->runLocked(doUpdate);
 	else
-		doUpdate(nullptr);
+		doUpdate();
 	
 	mainFPSmng->framerateDelay(); // holds a constant FPS	
 }

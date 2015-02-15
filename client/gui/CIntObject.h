@@ -41,7 +41,7 @@ public:
 class ILockedUpdatable: public IUpdateable
 {
 public:
-	virtual void runLocked(std::function<void(IUpdateable * )> cb) = 0;
+	virtual void runLocked(std::function<void()> cb) = 0;
 	virtual ~ILockedUpdatable(){}; //d-tor
 };
 
