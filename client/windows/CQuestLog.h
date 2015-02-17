@@ -19,6 +19,7 @@
 class CCreature;
 class CStackInstance;
 class CButton;
+class CToggleButton;
 class CGHeroInstance;
 class CComponentBox;
 class LRClickableAreaWText;
@@ -80,9 +81,12 @@ class CQuestLog : public CWindowObject
 	int questIndex;
 	const QuestInfo * currentQuest;
 	CComponentBox * componentsBox;
+	bool hideComplete;
+	CToggleButton * hideCompleteButton;
+	CLabel * hideCompleteLabel;
 
 	const std::vector<QuestInfo> quests;
-	std::vector<CQuestLabel *> labels;
+	std::vector <shared_ptr<CQuestLabel>> labels;
 	CTextBox * description;
 	CQuestMinimap * minimap;
 	CSlider * slider; //scrolls quests
@@ -99,6 +103,8 @@ public:
 	void updateMinimap (int which){};
 	void printDescription (int which){};
 	void sliderMoved (int newpos);
+	void recreateLabelList();
 	void recreateQuestList (int pos);
+	void toggleComplete(bool on);
 	void showAll (SDL_Surface * to);
 };

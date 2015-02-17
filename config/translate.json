@@ -74,5 +74,13 @@
 			"label" : "Give back artifact",
 			"help" : "Use this button to return stack artifact back into hero backpack"
 		}
+	},
+	"questLog" :
+	{
+		"hideComplete" :
+		{
+			"label" : "Hide complete quests",
+			"help" : "Hide all quests that already completed"
+		}
 	}
 }

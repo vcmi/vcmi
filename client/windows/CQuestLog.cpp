@@ -121,6 +121,7 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
 	currentQuest(nullptr),
 	componentsBox(nullptr),
 	quests (Quests),
+	hideComplete(false),
 	slider(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -129,16 +130,32 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
 
 void CQuestLog::init()
 {
+	const JsonNode & texts = CGI->generaltexth->localizedTexts["questLog"];
+
 	minimap = new CQuestMinimap (Rect (12, 12, 169, 169));
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
 	description = new CTextBox ("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
 	ok = new CButton(Point(539, 398), "IOKAY.DEF", CGI->generaltexth->zelp[445], boost::bind(&CQuestLog::close,this), SDLK_RETURN);
+	// Both button and lable are shifted to -2px by x and y to not make them actually look like they're on same line with quests list and ok button
+	hideCompleteButton = new CToggleButton(Point(10, 396), "sysopchk.def", CButton::tooltip(texts["hideComplete"]), std::bind(&CQuestLog::toggleComplete, this, _1));
+	hideCompleteLabel = new CLabel(46, 398, FONT_MEDIUM, TOPLEFT, Colors::WHITE, texts["hideComplete"]["label"].String());
+	slider = new CSlider(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, false, CSlider::BROWN);
+
+	recreateLabelList();
+	recreateQuestList (0);
+}
+
+void CQuestLog::recreateLabelList()
+{
+	if (labels.size())
+		labels.clear();
 
 	int currentLabel = 0;
 	for (int i = 0; i < quests.size(); ++i)
 	{
 		// Quests with MISSION_NONE type don't have text for them and can't be displayed
-		if (quests[i].quest->missionType == CQuest::MISSION_NONE)
+		if (quests[i].quest->missionType == CQuest::MISSION_NONE
+			|| (hideComplete && quests[i].quest->progress == CQuest::COMPLETE))
 			continue;
 
 		MetaString text;
@@ -155,23 +172,25 @@ void CQuestLog::init()
 			else
 				text.addReplacement(quests[i].obj->getObjectName()); //get name of the object
 		}
-		CQuestLabel * label = new CQuestLabel (Rect(13, 195, 149,31), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
+		auto label = make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
 		label->disable();
 
 		label->callback = boost::bind(&CQuestLog::selectQuest, this, i, currentLabel);
 		labels.push_back(label);
 
 		// Select latest active quest
-		if (quests[i].quest->progress != CQuest::COMPLETE) // TODO: there need to be difference between active and completed quests
+		if (quests[i].quest->progress != CQuest::COMPLETE)
 			selectQuest(i, currentLabel);
 
 		currentLabel = labels.size();
 	}
-	recreateQuestList (0);
 
-	slider = new CSlider(Point(166, 195), 191, std::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, currentLabel, false, CSlider::BROWN);
+	slider->setAmount(currentLabel);
 	if (currentLabel > QUEST_COUNT)
+	{
+		slider->block(false);
 		slider->moveToMax();
+	}
 	else
 		slider->block(true);
 }
@@ -275,5 +294,14 @@ void CQuestLog::selectQuest (int which, int labelId)
 void CQuestLog::sliderMoved (int newpos)
 {
 	recreateQuestList (newpos); //move components
+	redraw();
+}
+
+void CQuestLog::toggleComplete(bool on)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	hideComplete = on;
+	recreateLabelList();
+	recreateQuestList(0);
 	redraw();
 }
