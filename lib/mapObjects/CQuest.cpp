@@ -223,6 +223,9 @@ void CQuest::getVisitText (MetaString &iwText, std::vector<Component> &component
 
 void CQuest::getRolloverText (MetaString &ms, bool onHover) const
 {
+	// Quests with MISSION_NONE type don't have a text for them
+	assert(missionType != MISSION_NONE);
+
 	if (onHover)
 		ms << "\n\n";
 
@@ -231,7 +234,7 @@ void CQuest::getRolloverText (MetaString &ms, bool onHover) const
 	switch (missionType)
 	{
 		case MISSION_LEVEL:
-			ms.addReplacement(m13489val);
+			ms.addReplacement(boost::lexical_cast<std::string>(m13489val));
 			break;
 		case MISSION_PRIMARY_STAT:
 			{

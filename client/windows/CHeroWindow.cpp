@@ -302,6 +302,7 @@ void CHeroWindow::dismissCurrent()
 
 void CHeroWindow::questlog()
 {
+	LOCPLINT->showQuestLog();
 }
 
 void CHeroWindow::commanderWindow()

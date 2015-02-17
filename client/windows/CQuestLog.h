@@ -19,8 +19,9 @@
 class CCreature;
 class CStackInstance;
 class CButton;
+class CToggleButton;
 class CGHeroInstance;
-class CComponent;
+class CComponentBox;
 class LRClickableAreaWText;
 class CButton;
 class CPicture;
@@ -30,7 +31,8 @@ class CSlider;
 class CLabel;
 struct QuestInfo;
 
-const int QUEST_COUNT = 9;
+const int QUEST_COUNT = 6;
+const int DESCRIPTION_HEIGHT_MAX = 355;
 
 class CQuestLabel : public LRClickableAreaWText, public CMultiLineLabel
 {
@@ -56,7 +58,7 @@ public:
 
 class CQuestMinimap : public CMinimap
 {
-	std::vector <CQuestIcon *> icons;
+	std::vector <shared_ptr<CQuestIcon>> icons;
 
 	void clickLeft(tribool down, bool previousState){}; //minimap ignores clicking on its surface
 	void iconClicked();
@@ -69,7 +71,6 @@ public:
 	CQuestMinimap (const Rect & position);
 	//should be called to invalidate whole map - different player or level
 	void update();
-	void setLevel(int level);
 	void addQuestMarks (const QuestInfo * q);
 
 	void showAll(SDL_Surface * to);
@@ -79,9 +80,13 @@ class CQuestLog : public CWindowObject
 {
 	int questIndex;
 	const QuestInfo * currentQuest;
+	CComponentBox * componentsBox;
+	bool hideComplete;
+	CToggleButton * hideCompleteButton;
+	CLabel * hideCompleteLabel;
 
 	const std::vector<QuestInfo> quests;
-	std::vector<CQuestLabel *> labels;
+	std::vector <shared_ptr<CQuestLabel>> labels;
 	CTextBox * description;
 	CQuestMinimap * minimap;
 	CSlider * slider; //scrolls quests
@@ -94,10 +99,12 @@ public:
 
 	~CQuestLog(){};
 
-	void selectQuest (int which);
+	void selectQuest (int which, int labelId);
 	void updateMinimap (int which){};
 	void printDescription (int which){};
 	void sliderMoved (int newpos);
+	void recreateLabelList();
 	void recreateQuestList (int pos);
+	void toggleComplete(bool on);
 	void showAll (SDL_Surface * to);
 };
