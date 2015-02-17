@@ -150,13 +150,20 @@ void CQuestLog::recreateLabelList()
 	if (labels.size())
 		labels.clear();
 
+	bool completeMissing = true;
 	int currentLabel = 0;
 	for (int i = 0; i < quests.size(); ++i)
 	{
 		// Quests with MISSION_NONE type don't have text for them and can't be displayed
-		if (quests[i].quest->missionType == CQuest::MISSION_NONE
-			|| (hideComplete && quests[i].quest->progress == CQuest::COMPLETE))
+		if (quests[i].quest->missionType == CQuest::MISSION_NONE)
 			continue;
+
+		if (quests[i].quest->progress == CQuest::COMPLETE)
+		{
+			completeMissing = false;
+			if (hideComplete)
+				continue;
+		}
 
 		MetaString text;
 		quests[i].quest->getRolloverText (text, false);
@@ -184,6 +191,9 @@ void CQuestLog::recreateLabelList()
 
 		currentLabel = labels.size();
 	}
+
+	if (completeMissing) // We can't use block(completeMissing) because if false button state reset to NORMAL
+		hideCompleteButton->block(true);
 
 	slider->setAmount(currentLabel);
 	if (currentLabel > QUEST_COUNT)
