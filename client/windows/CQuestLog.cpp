@@ -202,7 +202,10 @@ void CQuestLog::recreateLabelList()
 		slider->moveToMax();
 	}
 	else
+	{
 		slider->block(true);
+		slider->moveToMin();
+	}
 }
 
 void CQuestLog::showAll(SDL_Surface * to)
