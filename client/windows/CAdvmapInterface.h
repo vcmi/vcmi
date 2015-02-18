@@ -15,6 +15,8 @@ class CGTownInstance;
 class CHeroWindow;
 class CSpell;
 class IShipyard;
+enum class EMapAnimRedrawStatus;
+class CFadeAnimation;
 
 /*****************************/
 
@@ -48,12 +50,16 @@ public:
 class CTerrainRect
 	:  public CIntObject
 {
+	SDL_Surface * fadeSurface;
+	EMapAnimRedrawStatus lastRedrawStatus;
+	CFadeAnimation * fadeAnim;
 public:
 	int tilesw, tilesh; //width and height of terrain to blit in tiles
 	int3 curHoveredTile;
 	int moveX, moveY; //shift between actual position of screen and the one we wil blit; ranges from -31 to 31 (in pixels)
 
 	CTerrainRect();
+	virtual ~CTerrainRect();
 	CGPath * currentPath;
 	void deactivate();
 	void clickLeft(tribool down, bool previousState);
@@ -62,11 +68,15 @@ public:
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
+	void showAnim(SDL_Surface * to);
 	void showPath(const SDL_Rect * extRect, SDL_Surface * to);
 	int3 whichTileIsIt(const int & x, const int & y); //x,y are cursor position
 	int3 whichTileIsIt(); //uses current cursor pos
 	/// @returns number of visible tiles on screen respecting current map scaling
 	int3 tileCountOnScreen();
+	/// animates view by caching current surface and crossfading it with normal screen
+	void fadeFromCurrentView();
+	bool needsAnimUpdate();
 };
 
 /// Resources bar which shows information about how many gold, crystals,... you have
@@ -176,8 +186,8 @@ public:
 
 	void select(const CArmedInstance *sel, bool centerView = true);
 	void selectionChanged();
-	void centerOn(int3 on);
-	void centerOn(const CGObjectInstance *obj);
+	void centerOn(int3 on, bool fade = false);
+	void centerOn(const CGObjectInstance *obj, bool fade = false);
 	int3 verifyPos(int3 ver);
 	void handleRightClick(std::string text, tribool down);
 	void keyPressed(const SDL_KeyboardEvent & key);

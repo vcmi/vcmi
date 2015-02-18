@@ -336,7 +336,7 @@ void RemoveObject::applyFirstCl( CClient *cl )
 {
 	const CGObjectInstance *o = cl->getObj(id);
 
-	CGI->mh->hideObject(o);
+	CGI->mh->hideObject(o, true);
 
 	//notify interfaces about removal
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
@@ -367,7 +367,7 @@ void TryMoveHero::applyFirstCl( CClient *cl )
 	}
 
 	if(result == TELEPORTATION  ||  result == EMBARK  ||  result == DISEMBARK  ||  !humanKnows)
-		CGI->mh->removeObject(h);
+		CGI->mh->removeObject(h, result == EMBARK && humanKnows);
 
 
 	if(result == DISEMBARK)
@@ -381,7 +381,7 @@ void TryMoveHero::applyCl( CClient *cl )
 
 	if(result == TELEPORTATION  ||  result == EMBARK  ||  result == DISEMBARK)
 	{
-		CGI->mh->printObject(h);
+		CGI->mh->printObject(h, result == DISEMBARK);
 	}
 
 	if(result == EMBARK)
@@ -908,7 +908,7 @@ void NewObject::applyCl(CClient *cl)
 	cl->invalidatePaths();
 
 	const CGObjectInstance *obj = cl->getObj(id);
-	CGI->mh->printObject(obj);
+	CGI->mh->printObject(obj, true);
 
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{

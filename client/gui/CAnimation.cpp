@@ -1222,3 +1222,91 @@ void CAnimation::getAnimInfo()
             logGlobal->errorStream()<<", "<<anim->images.begin()->second.size()<<" image loaded in group "<< anim->images.begin()->first;
 	}
 }
+
+
+float CFadeAnimation::initialCounter() const
+{
+	if (fadingMode == EMode::OUT)
+		return 1.0f;
+	return 0.0f;
+}
+
+void CFadeAnimation::update()
+{
+	if (!fading)
+		return;
+	
+	if (fadingMode == EMode::OUT)
+		fadingCounter -= delta;
+	else
+		fadingCounter += delta;
+		
+	if (isFinished())
+	{
+		fading = false;
+		if (shouldFreeSurface)
+		{
+			SDL_FreeSurface(fadingSurface);
+			fadingSurface = nullptr;
+		}
+	}
+}
+
+bool CFadeAnimation::isFinished() const
+{
+	if (fadingMode == EMode::OUT)
+		return fadingCounter <= 0.0f;
+	return fadingCounter >= 1.0f;
+}
+
+CFadeAnimation::CFadeAnimation()
+	: fadingSurface(nullptr),
+	  fading(false),
+	  fadingMode(EMode::NONE)
+{
+}
+
+CFadeAnimation::~CFadeAnimation()
+{
+	if (fadingSurface && shouldFreeSurface)
+		SDL_FreeSurface(fadingSurface);		
+}
+
+void CFadeAnimation::init(EMode mode, SDL_Surface * sourceSurface, bool freeSurfaceAtEnd /* = false */, float animDelta /* = DEFAULT_DELTA */)
+{
+	if (fading)
+	{
+		// in that case, immediately finish the previous fade
+		// (alternatively, we could just return here to ignore the new fade request until this one finished (but we'd need to free the passed bitmap to avoid leaks))
+		logGlobal->warnStream() << "Tried to init fading animation that is already running.";
+		if (fadingSurface && shouldFreeSurface)
+			SDL_FreeSurface(fadingSurface); 
+	}		
+	if (animDelta <= 0.0f)
+	{
+		logGlobal->warnStream() << "Fade anim: delta should be positive; " << animDelta << " given.";
+		animDelta = DEFAULT_DELTA;
+	}
+	
+	if (sourceSurface)
+		fadingSurface = sourceSurface;
+	
+	delta = animDelta;
+	fadingMode = mode;
+	fadingCounter = initialCounter();
+	fading = true;
+	shouldFreeSurface = freeSurfaceAtEnd;
+}
+
+void CFadeAnimation::draw(SDL_Surface * targetSurface, const SDL_Rect * sourceRect, SDL_Rect * destRect)
+{	
+	if (!fading || !fadingSurface || fadingMode == EMode::NONE)
+	{
+		fading = false;
+		return;
+	}
+	
+	SDL_SetSurfaceAlphaMod(fadingSurface, fadingCounter * 255);
+	SDL_BlitSurface(fadingSurface, sourceRect, targetSurface, destRect);
+	SDL_SetSurfaceAlphaMod(fadingSurface, 255);
+}

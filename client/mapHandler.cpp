@@ -12,6 +12,7 @@
 #include "mapHandler.h"
 
 #include "CBitmapHandler.h"
+#include "gui/CAnimation.h"
 #include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
@@ -75,9 +76,9 @@ std::string nameFromType (int typ)
 	return std::string();
 }
 
-static bool objectBlitOrderSorter(const std::pair<const CGObjectInstance*,SDL_Rect>  & a, const std::pair<const CGObjectInstance*,SDL_Rect> & b)
+static bool objectBlitOrderSorter(const TerrainTileObject & a, const TerrainTileObject & b)
 {
-	return CMapHandler::compareObjectBlitOrder(a.first, b.first);
+	return CMapHandler::compareObjectBlitOrder(a.obj, b.obj);
 }
 
 struct NeighborTilesInfo
@@ -185,10 +186,12 @@ void CMapHandler::prepareFOWDefs()
 	}
 }
 
-void CMapHandler::drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info)
+EMapAnimRedrawStatus CMapHandler::drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info, bool redrawOnlyAnim /* = false */)
 {
 	assert(info);
+	bool hasActiveFade = updateObjectsFade();
 	resolveBlitter(info)->blit(targetSurface, info);
+	return hasActiveFade ? EMapAnimRedrawStatus::REDRAW_REQUESTED : EMapAnimRedrawStatus::OK;
 }
 
 void CMapHandler::roadsRiverTerrainInit()
@@ -346,7 +349,7 @@ void CMapHandler::initObjectRects()
 				cr.h = 32;
 				cr.x = bitmap->w - fx * 32 - 32;
 				cr.y = bitmap->h - fy * 32 - 32;
-				std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj,cr);
+				TerrainTileObject toAdd(obj,cr);
 
 
 				if( map->isInTheMap(currTile) && // within map
@@ -609,12 +612,12 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 	auto & objects = tile.objects;
 	for(auto & object : objects)
 	{
-		const CGObjectInstance * obj = object.first;
+		const CGObjectInstance * obj = object.obj;
 
 		if (obj->pos.z != pos.z)
 			continue;
 		if (!(*info->visibilityMap)[pos.x][pos.y][pos.z])
-			continue; // TODO needs to skip this check if we have artifacts-aura-like spell cast
+			continue; // TODO needs to skip this check if we have view-air-like spell cast
 		if (!obj->visitableAt(pos.x, pos.y))
 			continue;
 
@@ -668,12 +671,6 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 	}
 }
 
-void CMapHandler::CMapWorldViewBlitter::drawNormalObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect) const
-{
-	Rect scaledSourceRect(sourceRect->x * info->scale, sourceRect->y * info->scale, tileSize, tileSize);
-	CMapBlitter::drawNormalObject(targetSurf, sourceSurf, &scaledSourceRect);
-}
-
 void CMapHandler::CMapWorldViewBlitter::drawHeroFlag(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const
 {
 	if (moving)
@@ -682,13 +679,13 @@ void CMapHandler::CMapWorldViewBlitter::drawHeroFlag(SDL_Surface * targetSurf, S
 	CMapBlitter::drawHeroFlag(targetSurf, sourceSurf, sourceRect, destRect, false);
 }
 
-void CMapHandler::CMapWorldViewBlitter::drawHero(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const
+void CMapHandler::CMapWorldViewBlitter::drawObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const
 {
 	if (moving)
 		return;
 
 	Rect scaledSourceRect(sourceRect->x * info->scale, sourceRect->y * info->scale, sourceRect->w, sourceRect->h);
-	CMapBlitter::drawHero(targetSurf, sourceSurf, &scaledSourceRect, false);
+	CMapBlitter::drawObject(targetSurf, sourceSurf, &scaledSourceRect, false);
 }
 
 void CMapHandler::CMapBlitter::drawTileTerrain(SDL_Surface * targetSurf, const TerrainTile & tinfo, const TerrainTile2 & tile) const
@@ -788,21 +785,15 @@ void CMapHandler::CMapBlitter::drawFrame(SDL_Surface * targetSurf) const
 	drawElement(EMapCacheType::FRAME, parent->ttiles[pos.x][pos.y][topTile.z].terbitmap, nullptr, targetSurf, &destRect);
 }
 
-void CMapHandler::CMapBlitter::drawNormalObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect) const
-{
-	Rect destRect(realTileRect);
-	drawElement(EMapCacheType::OBJECTS, sourceSurf, sourceRect, targetSurf, &destRect, true);
-}
-
 void CMapHandler::CMapBlitter::drawHeroFlag(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const
 {
 	drawElement(EMapCacheType::HERO_FLAGS, sourceSurf, sourceRect, targetSurf, destRect, false);
 }
 
-void CMapHandler::CMapBlitter::drawHero(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const
+void CMapHandler::CMapBlitter::drawObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const
 {
 	Rect dstRect(realTileRect);
-	drawElement(EMapCacheType::HEROES, sourceSurf, sourceRect, targetSurf, &dstRect, true);
+	drawElement(EMapCacheType::OBJECTS, sourceSurf, sourceRect, targetSurf, &dstRect, true);
 }
 
 void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const TerrainTile2 & tile) const
@@ -810,7 +801,20 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 	auto & objects = tile.objects;
 	for(auto & object : objects)
 	{
-		const CGObjectInstance * obj = object.first;
+		if (object.fadeAnimKey >= 0)
+		{			
+			auto fadeIter = parent->fadeAnims.find(object.fadeAnimKey);
+			if (fadeIter != parent->fadeAnims.end())
+			{
+				// this object is currently fading, so skip normal drawing
+				Rect r2(realTileRect);
+				CFadeAnimation * fade = (*fadeIter).second.second;
+				fade->draw(targetSurf, nullptr, &r2);
+				continue;
+			}
+		}
+		
+		const CGObjectInstance * obj = object.obj;
 		if (!graphics->getDef(obj))
 			processDef(obj->appearance);
 		if (!graphics->getDef(obj) && !obj->appearance.animationFile.empty())
@@ -818,121 +822,27 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 
 		if (!canDrawObject(obj))
 			continue;
-
-		PlayerColor color = obj->tempOwner;
-
-		SDL_Rect pp = object.second;
-		pp.h = tileSize;
-		pp.w = tileSize;
-
-		const CGHeroInstance * hero = (obj->ID != Obj::HERO
-			? nullptr
-			: static_cast<const CGHeroInstance*>(obj));
-
-		//print hero / boat and flag
-		if((hero && hero->moveDir && hero->type) || (obj->ID == Obj::BOAT)) //it's hero or boat
-		{
-			const int IMGVAL = 8; //frames per group of movement animation
-			ui8 dir;
-			std::vector<Cimage> * iv = nullptr;
-			std::vector<CDefEssential *> Graphics::*flg = nullptr;
-			SDL_Surface * tb = nullptr; //surface to blitted
-
-			if(hero) //hero
+		
+		auto objData = findObjectBitmap(obj, info->anim);
+		if (objData.objBitmap)
+		{			
+			Rect srcRect(object.rect.x, object.rect.y, tileSize, tileSize);
+			
+			drawObject(targetSurf, objData.objBitmap, &srcRect, objData.isMoving);
+			if (objData.flagBitmap)
 			{
-				if(hero->tempOwner >= PlayerColor::PLAYER_LIMIT) //Neutral hero?
+				if (objData.isMoving)
 				{
-					logGlobal->errorStream() << "A neutral hero (" << hero->name << ") at " << hero->pos << ". Should not happen!";
-					continue;
+					srcRect.y += FRAMES_PER_MOVE_ANIM_GROUP * 2 - tileSize;
+					Rect dstRect(realPos.x, realPos.y - tileSize / 2, tileSize, tileSize);
+					drawHeroFlag(targetSurf, objData.flagBitmap, &srcRect, &dstRect, true);
 				}
-
-				dir = hero->moveDir;
-
-				//pick graphics of hero (or boat if hero is sailing)
-				if (hero->boat)
-					iv = &graphics->boatAnims[hero->boat->subID]->ourImages;
-				else
-					iv = &graphics->heroAnims[hero->appearance.animationFile]->ourImages;
-
-				//pick appropriate flag set
-				if(hero->boat)
-				{
-					switch (hero->boat->subID)
-					{
-						case 0: flg = &Graphics::flags1; break;
-						case 1: flg = &Graphics::flags2; break;
-						case 2: flg = &Graphics::flags3; break;
-						default: logGlobal->errorStream() << "Not supported boat subtype: " << hero->boat->subID;
-					}
-				}
-				else
-				{
-					flg = &Graphics::flags4;
-				}
-			}
-			else //boat
-			{
-				const CGBoat *boat = static_cast<const CGBoat*>(obj);
-				dir = boat->direction;
-				iv = &graphics->boatAnims[boat->subID]->ourImages;
-			}
-
-			if(hero && !hero->isStanding) //hero is moving
-			{
-				size_t gg;
-				for(gg=0; gg<iv->size(); ++gg)
-				{
-					if((*iv)[gg].groupNumber == getHeroFrameNum(dir, true))
-					{
-						tb = (*iv)[gg+info->getHeroAnim()%IMGVAL].bitmap;
-						break;
-					}
-				}
-				drawHero(targetSurf, tb, &pp, true);
-
-				pp.y += IMGVAL * 2 - tileSize;
-				Rect destRect(realPos.x, realPos.y - tileSize / 2, tileSize, tileSize);
-				drawHeroFlag(targetSurf, (graphics->*flg)[color.getNum()]->ourImages[gg + info->getHeroAnim() % IMGVAL + 35].bitmap, &pp, &destRect, true);
-
-			}
-			else //hero / boat stands still
-			{
-				size_t gg;
-				for(gg=0; gg < iv->size(); ++gg)
-				{
-					if((*iv)[gg].groupNumber == getHeroFrameNum(dir, false))
-					{
-						tb = (*iv)[gg].bitmap;
-						break;
-					}
-				}
-				drawHero(targetSurf, tb, &pp, false);
-
-				//printing flag
-				if(flg
-					&&  obj->pos.x == pos.x
-					&&  obj->pos.y == pos.y)
+				else if (obj->pos.x == pos.x && obj->pos.y == pos.y)
 				{
 					Rect dstRect(realPos.x - 2 * tileSize, realPos.y - tileSize, 3 * tileSize, 2 * tileSize);
-					if (dstRect.x - info->drawBounds->x > -tileSize * 2)
-					{
-						auto surf = (graphics->*flg)[color.getNum()]->ourImages
-								[getHeroFrameNum(dir, false) * 8 + (info->getHeroAnim() / 4) % IMGVAL].bitmap;
-						drawHeroFlag(targetSurf, surf, nullptr, &dstRect, false);
-					}
+					drawHeroFlag(targetSurf, objData.flagBitmap, nullptr, &dstRect, false);					
 				}
 			}
-		}
-		else //blit normal object
-		{
-			const std::vector<Cimage> &ourImages = graphics->getDef(obj)->ourImages;
-			SDL_Surface *bitmap = ourImages[(info->anim + getPhaseShift(obj)) % ourImages.size()].bitmap;
-
-			//setting appropriate flag color
-			if(color < PlayerColor::PLAYER_LIMIT || color==PlayerColor::NEUTRAL)
-				CSDL_Ext::setPlayerColor(bitmap, color);
-
-			drawNormalObject(targetSurf, bitmap, &pp);
 		}
 	}
 }
@@ -1086,6 +996,109 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 	SDL_SetClipRect(targetSurf, &prevClip);
 }
 
+CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findHeroBitmap(const CGHeroInstance * hero, int anim) const
+{
+	if(hero && hero->moveDir && hero->type) //it's hero or boat
+	{
+		if(hero->tempOwner >= PlayerColor::PLAYER_LIMIT) //Neutral hero?
+		{
+			logGlobal->errorStream() << "A neutral hero (" << hero->name << ") at " << hero->pos << ". Should not happen!";
+			return CMapHandler::AnimBitmapHolder();
+		}
+
+		//pick graphics of hero (or boat if hero is sailing)
+		CDefEssential * def = nullptr;
+		if (hero->boat)
+			def = graphics->boatAnims[hero->boat->subID];
+		else
+			def = graphics->heroAnims[hero->appearance.animationFile];
+
+		bool moving = !hero->isStanding;
+		int framesOffset = moving ? anim % FRAMES_PER_MOVE_ANIM_GROUP : 0;
+		int index = findAnimIndexByGroup(def, getHeroFrameNum(hero->moveDir, moving));
+		if (index >= 0)
+		{
+			auto heroBitmap = def->ourImages[index + framesOffset].bitmap;
+			auto flagBitmap = findFlagBitmap(hero, anim, &hero->tempOwner, index + 35);
+			return CMapHandler::AnimBitmapHolder(heroBitmap, flagBitmap, moving);
+		}
+	}
+	return CMapHandler::AnimBitmapHolder();
+}
+
+CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findBoatBitmap(const CGBoat * boat, int anim) const
+{
+	auto def = graphics->boatAnims[boat->subID];
+	int index = findAnimIndexByGroup(def, getHeroFrameNum(boat->direction, false));
+	if (index < 0)
+		return CMapHandler::AnimBitmapHolder();
+	return CMapHandler::AnimBitmapHolder(def->ourImages[index].bitmap);
+}
+
+SDL_Surface * CMapHandler::CMapBlitter::findFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor * color, int indexOffset) const
+{	
+	if (!hero)
+		return nullptr;
+	
+	if (hero->boat)
+		return findBoatFlagBitmap(hero->boat, anim, color, indexOffset, hero->moveDir);
+	return findHeroFlagBitmap(hero, anim, color, indexOffset);
+}
+
+SDL_Surface * CMapHandler::CMapBlitter::findHeroFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor * color, int indexOffset) const
+{
+	return findFlagBitmapInternal(graphics->flags4[color->getNum()], anim, indexOffset, hero->moveDir, !hero->isStanding);
+}
+
+SDL_Surface * CMapHandler::CMapBlitter::findBoatFlagBitmap(const CGBoat * boat, int anim, const PlayerColor * color, int indexOffset, ui8 dir) const
+{
+	std::vector<CDefEssential *> Graphics::*flg = nullptr;
+	switch (boat->subID)
+	{
+		case 0: flg = &Graphics::flags1; break;
+		case 1: flg = &Graphics::flags2; break;
+		case 2: flg = &Graphics::flags3; break;
+		default: logGlobal->errorStream() << "Not supported boat subtype: " << boat->subID; return nullptr;
+	}
+	return findFlagBitmapInternal((graphics->*flg)[color->getNum()], anim, indexOffset, dir, false);
+}
+
+SDL_Surface * CMapHandler::CMapBlitter::findFlagBitmapInternal(const CDefEssential * def, int anim, int indexOffset, ui8 dir, bool moving) const
+{
+	if (moving)
+		return def->ourImages[indexOffset + anim % FRAMES_PER_MOVE_ANIM_GROUP].bitmap;	
+	return def->ourImages[getHeroFrameNum(dir, false) * FRAMES_PER_MOVE_ANIM_GROUP + (anim / 4) % FRAMES_PER_MOVE_ANIM_GROUP].bitmap;	
+}
+
+int CMapHandler::CMapBlitter::findAnimIndexByGroup(const CDefEssential * def, int groupNum) const
+{
+	auto iter = std::find_if(def->ourImages.begin(), def->ourImages.end(), [&](const Cimage &img){ return img.groupNumber == groupNum; });
+	if (iter == def->ourImages.end())
+		return -1;
+	return static_cast<int>(iter - def->ourImages.begin());
+}
+
+CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findObjectBitmap(const CGObjectInstance * obj, int anim) const
+{
+	if (!obj)
+		return CMapHandler::AnimBitmapHolder();
+	if (obj->ID == Obj::HERO)
+		return findHeroBitmap(static_cast<const CGHeroInstance*>(obj), anim);
+	if (obj->ID == Obj::BOAT)
+		return findBoatBitmap(static_cast<const CGBoat*>(obj), anim);
+	
+	// normal object	
+	
+	const std::vector<Cimage> &ourImages = graphics->getDef(obj)->ourImages;
+	SDL_Surface *bitmap = ourImages[(anim + getPhaseShift(obj)) % ourImages.size()].bitmap;
+
+	//setting appropriate flag color
+	const PlayerColor &color = obj->tempOwner;
+	if(color < PlayerColor::PLAYER_LIMIT || color==PlayerColor::NEUTRAL)
+		CSDL_Ext::setPlayerColor(bitmap, color);
+	return CMapHandler::AnimBitmapHolder(bitmap);
+}
+
 ui8 CMapHandler::CMapBlitter::getPhaseShift(const CGObjectInstance *object) const
 {
 	auto i = parent->animationPhase.find(object);
@@ -1145,12 +1158,79 @@ std::pair<SDL_Surface *, bool> CMapHandler::CMapBlitter::getVisBitmap() const
 	}
 }
 
-bool CMapHandler::printObject(const CGObjectInstance *obj)
+bool CMapHandler::updateObjectsFade()
+{	
+	for (auto iter = fadeAnims.begin(); iter != fadeAnims.end(); )
+	{
+		int3 pos = (*iter).second.first;
+		CFadeAnimation * anim = (*iter).second.second;
+		
+		anim->update();
+		
+		if (anim->isFading())
+			++iter;
+		else // fade finished
+		{
+			auto &objs = ttiles[pos.x][pos.y][pos.z].objects;
+			for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter)
+			{
+				if ((*objIter).fadeAnimKey == (*iter).first)
+				{						
+					if (anim->fadingMode == CFadeAnimation::EMode::OUT)
+						objs.erase(objIter); // if this was fadeout, remove the object from the map
+					else
+						(*objIter).fadeAnimKey = -1; // for fadein, just remove its connection to the finished fade
+					break;
+				}
+			}
+			iter = fadeAnims.erase(iter);
+			logAnim->traceStream() << "Fade anim finished, remaining: " << fadeAnims.size();
+		}
+	}
+	
+	return !fadeAnims.empty();
+}
+
+bool CMapHandler::startObjectFade(TerrainTileObject & obj, bool in, int3 pos)
+{
+	SDL_Surface * fadeBitmap;
+	
+	auto objData = normalBlitter->findObjectBitmap(obj.obj, 0);
+	if (objData.objBitmap)
+	{
+		if (objData.isMoving) // ignore fading of moving objects (for now?)
+		{
+			logAnim->debugStream() << "Ignoring fade of moving object";
+			return false;
+		}
+				
+		fadeBitmap = CSDL_Ext::newSurface(32, 32); // TODO cache these bitmaps instead of creating new ones?
+		Rect objSrcRect(obj.rect.x, obj.rect.y, 32, 32);
+		CSDL_Ext::blit8bppAlphaTo24bpp(objData.objBitmap, &objSrcRect, fadeBitmap, nullptr);
+		if (objData.flagBitmap)
+		{
+			if (obj.obj->pos.x - 1 == pos.x && obj.obj->pos.y - 1 == pos.y) // -1 to draw flag in top-center instead of right-bottom; kind of a hack
+			{
+				Rect flagSrcRect(32, 0, 32, 32);
+				CSDL_Ext::blitSurface(objData.flagBitmap, &flagSrcRect, fadeBitmap, nullptr);
+			}
+		}
+		auto anim = new CFadeAnimation();
+		anim->init(in ? CFadeAnimation::EMode::IN : CFadeAnimation::EMode::OUT, fadeBitmap, true);
+		fadeAnims[++fadeAnimCounter] = std::pair<int3, CFadeAnimation*>(pos, anim);
+		obj.fadeAnimKey = fadeAnimCounter;
+		return true;
+	}
+	
+	return false;
+}
+
+bool CMapHandler::printObject(const CGObjectInstance *obj, bool fadein /* = false */)
 {
 	if (!graphics->getDef(obj))
 		processDef(obj->appearance);
 
-	const SDL_Surface *bitmap = graphics->getDef(obj)->ourImages[0].bitmap;
+	SDL_Surface *bitmap = graphics->getDef(obj)->ourImages[0].bitmap;
 	const int tilesW = bitmap->w/32;
 	const int tilesH = bitmap->h/32;
 
@@ -1163,11 +1243,18 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 			cr.h = 32;
 			cr.x = fx*32;
 			cr.y = fy*32;
-			std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj, cr);
+			TerrainTileObject toAdd(obj, cr);
+			
 			if((obj->pos.x + fx - tilesW+1)>=0 && (obj->pos.x + fx - tilesW+1)<ttiles.size()-frameW && (obj->pos.y + fy - tilesH+1)>=0 && (obj->pos.y + fy - tilesH+1)<ttiles[0].size()-frameH)
 			{
-				TerrainTile2 & curt = ttiles[obj->pos.x + fx - tilesW+1][obj->pos.y + fy - tilesH+1][obj->pos.z];
-
+				int3 pos(obj->pos.x + fx - tilesW + 1, obj->pos.y + fy - tilesH + 1, obj->pos.z);
+				TerrainTile2 & curt = ttiles[pos.x][pos.y][pos.z];					
+				
+				if (fadein && ADVOPT.objectFading)
+				{
+					startObjectFade(toAdd, true, pos);
+				}
+				
 				auto i = curt.objects.begin();
 				for(; i != curt.objects.end(); i++)
 				{
@@ -1188,8 +1275,9 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 	return true;
 }
 
-bool CMapHandler::hideObject(const CGObjectInstance *obj)
+bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = false */)
 {
+	// do we actually need to search through the whole map for this?
 	for (size_t i=0; i<map->width; i++)
 	{
 		for (size_t j=0; j<map->height; j++)
@@ -1198,9 +1286,15 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj)
 			{
 				for(size_t x=0; x < ttiles[i][j][k].objects.size(); x++)
 				{
-					if (ttiles[i][j][k].objects[x].first->id == obj->id)
+					if (ttiles[i][j][k].objects[x].obj->id == obj->id)
 					{
-						ttiles[i][j][k].objects.erase(ttiles[i][j][k].objects.begin() + x);
+						if (fadeout && ADVOPT.objectFading) // object should be faded == erase is delayed until the end of fadeout
+						{
+							if (!startObjectFade(ttiles[i][j][k].objects[x], false, int3(i, j, k)))
+								ttiles[i][j][k].objects.erase(ttiles[i][j][k].objects.begin() + x);
+						}
+						else
+							ttiles[i][j][k].objects.erase(ttiles[i][j][k].objects.begin() + x);
 						break;
 					}
 				}
@@ -1209,9 +1303,9 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj)
 	}
 	return true;
 }
-bool CMapHandler::removeObject(CGObjectInstance *obj)
+bool CMapHandler::removeObject(CGObjectInstance *obj, bool fadeout /* = false */)
 {
-	hideObject(obj);
+	hideObject(obj, fadeout);
 	return true;
 }
 
@@ -1286,6 +1380,11 @@ ui8 CMapHandler::getDir(const int3 &a, const int3 &b)
 	return -2; //shouldn't happen
 }
 
+bool CMapHandler::canStartHeroMovement()
+{
+	return fadeAnims.empty(); // don't allow movement during fade animation
+}
+
 void shiftColors(SDL_Surface *img, int from, int howMany) //shifts colors in palette
 {
 	//works with at most 16 colors, if needed more -> increase values
@@ -1331,6 +1430,8 @@ CMapHandler::~CMapHandler()
 {
 	delete graphics->FoWfullHide;
 	delete graphics->FoWpartialHide;
+//	if (fadingOffscreenBitmapSurface)
+//		delete fadingOffscreenBitmapSurface;
 
 	delete normalBlitter;
 	delete worldViewBlitter;
@@ -1347,6 +1448,11 @@ CMapHandler::~CMapHandler()
 		for(int j=0; j < elem.size(); ++j)
 			SDL_FreeSurface(elem[j]);
 	}
+	
+	for (auto & elem : fadeAnims)
+	{
+		delete elem.second.second;
+	}
 	terrainGraphics.clear();
 }
 
@@ -1358,6 +1464,7 @@ CMapHandler::CMapHandler()
 	normalBlitter = new CMapNormalBlitter(this);
 	worldViewBlitter = new CMapWorldViewBlitter(this);
 	puzzleViewBlitter = new CMapPuzzleViewBlitter(this);
+	fadeAnimCounter = 0;
 }
 
 void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terName )
@@ -1367,9 +1474,9 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	const TerrainTile &t = map->getTile(pos);
 	for(auto & elem : tt.objects)
 	{
-		if(elem.first->ID == Obj::HOLE) //Hole
+		if(elem.obj->ID == Obj::HOLE) //Hole
 		{
-			out = elem.first->getObjectName();
+			out = elem.obj->getObjectName();
 			return;
 		}
 	}
@@ -1478,5 +1585,16 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 	if(a->pos.x < b->pos.x)
 		return true;
 	return false;
+}
+
+TerrainTileObject::TerrainTileObject(const CGObjectInstance * obj_, SDL_Rect rect_)
+	: obj(obj_),
+	  rect(rect_),
+	  fadeAnimKey(-1)
+{
+}
+
+TerrainTileObject::~TerrainTileObject()
+{
 }
 

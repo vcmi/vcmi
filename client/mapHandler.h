@@ -17,14 +17,16 @@
 
 class CGObjectInstance;
 class CGHeroInstance;
+class CGBoat;
 class CMap;
 class CGDefInfo;
-class CGObjectInstance;
 class CDefHandler;
 struct TerrainTile;
 struct SDL_Surface;
 struct SDL_Rect;
 class CDefEssential;
+class CFadeAnimation;
+class PlayerColor;
 
 enum class EWorldViewIcon
 {
@@ -50,11 +52,34 @@ enum class EWorldViewIcon
 
 };
 
+enum class EMapObjectFadingType
+{
+	NONE,
+	IN,
+	OUT
+};
+
+enum class EMapAnimRedrawStatus
+{
+	OK,
+	REDRAW_REQUESTED // map blitter requests quick redraw due to current animation
+};
+
+struct TerrainTileObject
+{
+	const CGObjectInstance *obj;
+	SDL_Rect rect;
+	int fadeAnimKey;
+	
+	TerrainTileObject(const CGObjectInstance *obj_, SDL_Rect rect_);
+	~TerrainTileObject();
+};
+
 struct TerrainTile2
 {
 	SDL_Surface * terbitmap; //bitmap of terrain
 
-	std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > objects; //pointers to objects being on this tile with rects to be easier to blit this tile on screen
+	std::vector<TerrainTileObject> objects; //pointers to objects being on this tile with rects to be easier to blit this tile on screen
 	TerrainTile2();
 };
 
@@ -156,11 +181,26 @@ class CMapHandler
 		SDL_Surface * cacheWorldViewEntry(EMapCacheType type, intptr_t key, SDL_Surface * entry);
 		intptr_t genKey(intptr_t realPtr, ui8 mod);
 	};
+	
+	/// helper struct to pass around resolved bitmaps of an object; surfaces can be nullptr if object doesn't have bitmap of that type
+	struct AnimBitmapHolder
+	{
+		SDL_Surface * objBitmap; // main object bitmap
+		SDL_Surface * flagBitmap; // flag bitmap for the object (probably only for heroes and boats with heroes)
+		bool isMoving; // indicates if the object is moving (again, heroes/boats only)
+		
+		AnimBitmapHolder(SDL_Surface * objBitmap_ = nullptr, SDL_Surface * flagBitmap_ = nullptr, bool moving = false)
+			: objBitmap(objBitmap_),
+			  flagBitmap(flagBitmap_),
+			  isMoving(moving)
+		{}
+	};
 
 
 	class CMapBlitter
-	{
+	{		
 	protected:
+		static constexpr int FRAMES_PER_MOVE_ANIM_GROUP = 8;
 		CMapHandler * parent; // ptr to enclosing map handler; generally for legacy reasons, probably could/should be refactored out of here
 		int tileSize; // size of a tile drawn on map [in pixels]
 		int halfTileSizeCeil; // half of the tile size, rounded up
@@ -187,10 +227,8 @@ class CMapHandler
 		virtual void drawRoad(SDL_Surface * targetSurf, const TerrainTile & tinfo, const TerrainTile * tinfoUpper) const;
 		/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
 		virtual void drawObjects(SDL_Surface * targetSurf, const TerrainTile2 & tile) const;
-		/// current tile: draws non-hero object with given image/position
-		virtual void drawNormalObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect) const;
+		virtual void drawObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const;
 		virtual void drawHeroFlag(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const;
-		virtual void drawHero(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const;
 
 		// second drawing pass
 
@@ -220,10 +258,22 @@ class CMapHandler
 
 		virtual bool canDrawObject(const CGObjectInstance * obj) const;
 		virtual bool canDrawCurrentTile() const;
+		
+		// internal helper methods to choose correct bitmap(s) for object; called internally by findObjectBitmap
+		AnimBitmapHolder findHeroBitmap(const CGHeroInstance * hero, int anim) const;
+		AnimBitmapHolder findBoatBitmap(const CGBoat * hero, int anim) const;		
+		SDL_Surface * findFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int indexOffset) const;
+		SDL_Surface * findHeroFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int indexOffset) const;
+		SDL_Surface * findBoatFlagBitmap(const CGBoat * obj, int anim, const PlayerColor * color, int indexOffset, ui8 dir) const;
+		SDL_Surface * findFlagBitmapInternal(const CDefEssential * def, int anim, int indexOffset, ui8 dir, bool moving) const;
+		int findAnimIndexByGroup(const CDefEssential * def, int groupNum) const;
+		
 	public:
 		CMapBlitter(CMapHandler * p) : parent(p) {}
 		virtual ~CMapBlitter(){}
 		void blit(SDL_Surface * targetSurf, const MapDrawingInfo * info);
+		/// helper method that chooses correct bitmap(s) for given object
+		AnimBitmapHolder findObjectBitmap(const CGObjectInstance * obj, int anim) const;
 
 	};
 
@@ -248,14 +298,13 @@ class CMapHandler
 						 SDL_Surface * targetSurf, SDL_Rect * destRect, bool alphaBlit = false, ui8 rotationInfo = 0u) const override;
 
 		void drawTileOverlay(SDL_Surface * targetSurf, const TerrainTile2 & tile) const override;
-		void drawNormalObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect) const override;
 		void drawHeroFlag(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const override;
-		void drawHero(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const;
+		void drawObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const override;
 		void drawFrame(SDL_Surface * targetSurf) const override {}
 		void init(const MapDrawingInfo * info) override;
 		SDL_Rect clip(SDL_Surface * targetSurf) const override;
 
-		ui8 getHeroFrameNum(ui8 dir, bool isMoving) const override { return 0u; }
+//		ui8 getHeroFrameNum(ui8 dir, bool isMoving) const override { return 0u; }
 		ui8 getPhaseShift(const CGObjectInstance *object) const override { return 0u; }
 
 		void drawScaledRotatedElement(EMapCacheType type, SDL_Surface * baseSurf, SDL_Surface * targetSurf, ui8 rotation,
@@ -283,8 +332,13 @@ class CMapHandler
 	CMapBlitter * normalBlitter;
 	CMapBlitter * worldViewBlitter;
 	CMapBlitter * puzzleViewBlitter;
+	
+	std::map<int, std::pair<int3, CFadeAnimation*>> fadeAnims;
+	int fadeAnimCounter;
 
 	CMapBlitter * resolveBlitter(const MapDrawingInfo * info) const;
+	bool updateObjectsFade();
+	bool startObjectFade(TerrainTileObject & obj, bool in, int3 pos);
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
@@ -320,9 +374,9 @@ public:
 
 	void getTerrainDescr(const int3 &pos, std::string & out, bool terName); //if tername == false => empty string when tile is clear
 	CGObjectInstance * createObject(int id, int subid, int3 pos, int owner=254); //creates a new object with a certain id and subid
-	bool printObject(const CGObjectInstance * obj); //puts appropriate things to ttiles, so obj will be visible on map
-	bool hideObject(const CGObjectInstance * obj); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
-	bool removeObject(CGObjectInstance * obj); //removes object from each place in VCMI (I hope)
+	bool printObject(const CGObjectInstance * obj, bool fadein = false); //puts appropriate things to ttiles, so obj will be visible on map
+	bool hideObject(const CGObjectInstance * obj, bool fadeout = false); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
+	bool removeObject(CGObjectInstance * obj, bool fadeout = false); //removes object from each place in VCMI (I hope)
 	void init();
 	void calculateBlockedPos();
 	void initObjectRects();
@@ -330,10 +384,12 @@ public:
 	void roadsRiverTerrainInit();
 	void prepareFOWDefs();
 
-	void drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info);
+	EMapAnimRedrawStatus drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info, bool redrawOnlyAnim = false);
 	void updateWater();
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper
 	static ui8 getDir(const int3 & a, const int3 & b);  //returns direction number in range 0 - 7 (0 is left top, clockwise) [direction: form a to b]
+	/// determines if the map is ready to handle new hero movement (not available during fading animations)
+	bool canStartHeroMovement();
 
 	void discardWorldViewCache();
 
