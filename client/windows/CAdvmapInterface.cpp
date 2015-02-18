@@ -550,20 +550,14 @@ CAdvMapInt::CAdvMapInt():
 											Colors::WHITE, CGI->generaltexth->allTexts[618]));
 
 	activeMapPanel = panelMain;
-	restoreState();
-
-	addUsedEvents(MOVE);
-}
-
-void CAdvMapInt::restoreState()
-{
+	
 	changeMode(EAdvMapMode::NORMAL);
 
 	underground->block(!CGI->mh->map->twoLevel);
 	questlog->block(!CGI->mh->map->quests.size());
 	worldViewUnderground->block(!CGI->mh->map->twoLevel);
-	
-	terrain.currentPath = nullptr; // invalidate previously visible path after game reload
+
+	addUsedEvents(MOVE);
 }
 
 CAdvMapInt::~CAdvMapInt()

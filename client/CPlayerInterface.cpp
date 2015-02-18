@@ -141,10 +141,10 @@ void CPlayerInterface::init(shared_ptr<CCallback> CB)
 	if(!towns.size() && !wanderingHeroes.size())
 		initializeHeroTownList();
 
-	if(!adventureInt)
-		adventureInt = new CAdvMapInt();
-	else
-		adventureInt->restoreState();
+	// always recreate advmap interface to avoid possible memory-corruption bugs
+	if(adventureInt)
+		delete adventureInt;
+	adventureInt = new CAdvMapInt();
 }
 void CPlayerInterface::yourTurn()
 {
