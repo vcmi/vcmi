@@ -221,6 +221,8 @@ public:
 	size_t size(size_t group=0) const;
 };
 
+const float DEFAULT_DELTA = 0.05f;
+
 class CFadeAnimation
 {
 public:
@@ -229,7 +231,6 @@ public:
 		NONE, IN, OUT
 	};
 private:
-	static constexpr float DEFAULT_DELTA = 0.05f;
 	float delta;
 	SDL_Surface * fadingSurface;
 	bool fading;

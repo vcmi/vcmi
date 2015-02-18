@@ -1306,7 +1306,7 @@ void CFadeAnimation::draw(SDL_Surface * targetSurface, const SDL_Rect * sourceRe
 		return;
 	}
 	
-	SDL_SetSurfaceAlphaMod(fadingSurface, fadingCounter * 255);
-	SDL_BlitSurface(fadingSurface, sourceRect, targetSurface, destRect);
-	SDL_SetSurfaceAlphaMod(fadingSurface, 255);
+	CSDL_Ext::setAlpha(fadingSurface, fadingCounter * 255);
+	SDL_BlitSurface(fadingSurface, const_cast<SDL_Rect *>(sourceRect), targetSurface, destRect); //FIXME
+	CSDL_Ext::setAlpha(fadingSurface, 255);
 }

@@ -200,7 +200,7 @@ class CMapHandler
 	class CMapBlitter
 	{		
 	protected:
-		static constexpr int FRAMES_PER_MOVE_ANIM_GROUP = 8;
+		const int FRAMES_PER_MOVE_ANIM_GROUP = 8;
 		CMapHandler * parent; // ptr to enclosing map handler; generally for legacy reasons, probably could/should be refactored out of here
 		int tileSize; // size of a tile drawn on map [in pixels]
 		int halfTileSizeCeil; // half of the tile size, rounded up

@@ -86,23 +86,32 @@ namespace CSDL_Ext
 {
 	STRONG_INLINE void colorSetAlpha(SDL_Color & color, Uint8 alpha)
 	{
-		#ifdef VCMI_SDL1
+#ifdef VCMI_SDL1
 		color.unused = alpha;
-		#else
+#else
 		color.a = alpha;
-		#endif	
+#endif	
 	}
 	//todo: should this better be assignment operator?
 	STRONG_INLINE void colorAssign(SDL_Color & dest, const SDL_Color & source)
 	{
-		dest.r = source.r;		
+		dest.r = source.r;
 		dest.g = source.g;
-		dest.b = source.b;		
-		#ifdef VCMI_SDL1
+		dest.b = source.b;
+#ifdef VCMI_SDL1
 		dest.unused = source.unused;
-		#else
+#else
 		dest.a = source.a;
-		#endif			
+#endif			
+	}
+
+	inline void setAlpha(SDL_Surface * bg, int value)
+	{
+#ifdef VCMI_SDL1
+		SDL_SetAlpha(bg, SDL_SRCALPHA, value);
+#else
+		SDL_SetSurfaceAlphaMod(bg, value);
+#endif
 	}
 }
 struct Rect;

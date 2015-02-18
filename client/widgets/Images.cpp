@@ -151,11 +151,7 @@ void CPicture::convertToScreenBPP()
 
 void CPicture::setAlpha(int value)
 {	
-	#ifdef VCMI_SDL1
-	SDL_SetAlpha(bg, SDL_SRCALPHA, value);	
-	#else
-	SDL_SetSurfaceAlphaMod(bg,value);
-	#endif // 0
+	CSDL_Ext::setAlpha (bg, value);
 }
 
 void CPicture::scaleTo(Point size)
