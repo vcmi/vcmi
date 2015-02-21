@@ -120,8 +120,8 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
 	questIndex(0),
 	currentQuest(nullptr),
 	componentsBox(nullptr),
-	quests (Quests),
 	hideComplete(false),
+	quests(Quests),	
 	slider(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;

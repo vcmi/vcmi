@@ -424,7 +424,7 @@ void CToggleGroup::addToggle(int identifier, CToggleBase* bt)
 }
 
 CToggleGroup::CToggleGroup(const CFunctionList<void(int)> &OnChange, bool musicLikeButtons)
-: onChange(OnChange), musicLike(musicLikeButtons), selectedID(-1)
+: onChange(OnChange), selectedID(-1), musicLike(musicLikeButtons)
 {}
 
 void CToggleGroup::setSelected(int id)
