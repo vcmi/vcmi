@@ -812,9 +812,17 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 				fade->draw(targetSurf, nullptr, &r2);
 				continue;
 			}
+			logGlobal->errorStream() << "Fading map object with missing fade anim : " << object.fadeAnimKey;
+			continue;
 		}
 		
 		const CGObjectInstance * obj = object.obj;
+		if (!obj)
+		{
+			logGlobal->errorStream() << "Stray map object that isn't fading";
+			continue;
+		}
+		
 		if (!graphics->getDef(obj))
 			processDef(obj->appearance);
 		if (!graphics->getDef(obj) && !obj->appearance.animationFile.empty())
@@ -1176,6 +1184,7 @@ bool CMapHandler::updateObjectsFade()
 			{
 				if ((*objIter).fadeAnimKey == (*iter).first)
 				{						
+					logAnim->traceStream() << "Fade anim finished for obj at " << pos << "; remaining: " << (fadeAnims.size() - 1);
 					if (anim->fadingMode == CFadeAnimation::EMode::OUT)
 						objs.erase(objIter); // if this was fadeout, remove the object from the map
 					else
@@ -1184,7 +1193,6 @@ bool CMapHandler::updateObjectsFade()
 				}
 			}
 			iter = fadeAnims.erase(iter);
-			logAnim->traceStream() << "Fade anim finished, remaining: " << fadeAnims.size();
 		}
 	}
 	
@@ -1194,6 +1202,7 @@ bool CMapHandler::updateObjectsFade()
 bool CMapHandler::startObjectFade(TerrainTileObject & obj, bool in, int3 pos)
 {
 	SDL_Surface * fadeBitmap;
+	assert(obj.obj);
 	
 	auto objData = normalBlitter->findObjectBitmap(obj.obj, 0);
 	if (objData.objBitmap)
@@ -1219,6 +1228,9 @@ bool CMapHandler::startObjectFade(TerrainTileObject & obj, bool in, int3 pos)
 		anim->init(in ? CFadeAnimation::EMode::IN : CFadeAnimation::EMode::OUT, fadeBitmap, true);
 		fadeAnims[++fadeAnimCounter] = std::pair<int3, CFadeAnimation*>(pos, anim);
 		obj.fadeAnimKey = fadeAnimCounter;
+		
+		logAnim->traceStream() << "Fade anim started for obj " << obj.obj->ID 
+							   << " at " << pos << "; anim count: " << fadeAnims.size();
 		return true;
 	}
 	
@@ -1284,17 +1296,20 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = fals
 		{
 			for (size_t k=0; k<(map->twoLevel ? 2 : 1); k++)
 			{
-				for(size_t x=0; x < ttiles[i][j][k].objects.size(); x++)
+				auto &objs = ttiles[i][j][k].objects;
+				for(size_t x=0; x < objs.size(); x++)
 				{
-					if (ttiles[i][j][k].objects[x].obj->id == obj->id)
+					if (objs[x].obj && objs[x].obj->id == obj->id)
 					{
 						if (fadeout && ADVOPT.objectFading) // object should be faded == erase is delayed until the end of fadeout
 						{
-							if (!startObjectFade(ttiles[i][j][k].objects[x], false, int3(i, j, k)))
-								ttiles[i][j][k].objects.erase(ttiles[i][j][k].objects.begin() + x);
+							if (startObjectFade(objs[x], false, int3(i, j, k)))
+								objs[x].obj = nullptr;
+							else
+								objs.erase(objs.begin() + x);
 						}
 						else
-							ttiles[i][j][k].objects.erase(ttiles[i][j][k].objects.begin() + x);
+							objs.erase(objs.begin() + x);
 						break;
 					}
 				}
@@ -1474,7 +1489,7 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	const TerrainTile &t = map->getTile(pos);
 	for(auto & elem : tt.objects)
 	{
-		if(elem.obj->ID == Obj::HOLE) //Hole
+		if(elem.obj && elem.obj->ID == Obj::HOLE) //Hole
 		{
 			out = elem.obj->getObjectName();
 			return;
@@ -1567,6 +1582,10 @@ TerrainTile2::TerrainTile2()
 
 bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b)
 {
+	if (!a)
+		return true;
+	if (!b)
+		return false;
 	if (a->appearance.printPriority != b->appearance.printPriority)
 		return a->appearance.printPriority > b->appearance.printPriority;
 

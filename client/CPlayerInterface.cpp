@@ -205,7 +205,7 @@ STRONG_INLINE void subRect(const int & x, const int & y, const int & z, const SD
 {
 	TerrainTile2 & hlp = CGI->mh->ttiles[x][y][z];
 	for(auto & elem : hlp.objects)
-		if(elem.obj->id == hid)
+		if(elem.obj && elem.obj->id == hid)
 		{
 			elem.rect = r;
 			return;
@@ -216,7 +216,7 @@ STRONG_INLINE void delObjRect(const int & x, const int & y, const int & z, const
 {
 	TerrainTile2 & hlp = CGI->mh->ttiles[x][y][z];
 	for(int h=0; h<hlp.objects.size(); ++h)
-		if(hlp.objects[h].obj->id == hid)
+		if(hlp.objects[h].obj && hlp.objects[h].obj->id == hid)
 		{
 			hlp.objects.erase(hlp.objects.begin()+h);
 			return;
@@ -239,7 +239,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		// TODO -> we should not need full CGHeroInstance structure to display animation or it should not be handled by playerint (but by the client itself)
 		const TerrainTile2 &tile = CGI->mh->ttiles[hp.x-1][hp.y][hp.z];
 		for(auto & elem : tile.objects)
-			if(elem.obj->id == details.id)
+			if(elem.obj && elem.obj->id == details.id)
 				hero = dynamic_cast<const CGHeroInstance *>(elem.obj);
 
 		if(!hero) //still nothing...
