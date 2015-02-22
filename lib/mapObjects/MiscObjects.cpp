@@ -207,11 +207,14 @@ void CGCreature::initObj()
 
 void CGCreature::newTurn() const
 {//Works only for stacks of single type of size up to 2 millions
-	if (stacks.begin()->second->count < VLC->modh->settings.CREEP_SIZE && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
+	if (!notGrowingTeam)
 	{
-		ui32 power = temppower * (100 +  VLC->modh->settings.WEEKLY_GROWTH)/100;
-		cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min (power/1000 , (ui32)VLC->modh->settings.CREEP_SIZE)); //set new amount
-		cb->setObjProperty(id, ObjProperty::MONSTER_POWER, power); //increase temppower
+		if (stacks.begin()->second->count < VLC->modh->settings.CREEP_SIZE && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
+		{
+			ui32 power = temppower * (100 + VLC->modh->settings.WEEKLY_GROWTH) / 100;
+			cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min(power / 1000, (ui32)VLC->modh->settings.CREEP_SIZE)); //set new amount
+			cb->setObjProperty(id, ObjProperty::MONSTER_POWER, power); //increase temppower
+		}
 	}
 	if (VLC->modh->modules.STACK_EXP)
 		cb->setObjProperty(id, ObjProperty::MONSTER_EXP, VLC->modh->settings.NEUTRAL_STACK_EXP); //for testing purpose
