@@ -1192,7 +1192,8 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 			CGPath &path = LOCPLINT->paths[h];
 			terrain.currentPath = &path;
-			if(!LOCPLINT->cb->getPathsInfo(h)->getPath(h->getPosition(false) + dir, path))
+			int3 dst = h->getPosition(false) + dir;
+			if(dst != verifyPos(dst) || !LOCPLINT->cb->getPathsInfo(h)->getPath(dst, path))
 			{
 				terrain.currentPath = nullptr;
 				return;
@@ -1604,9 +1605,10 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 				{
 					const CGGarrison* garrObj = dynamic_cast<const CGGarrison*>(objAtTile); //TODO evil evil cast!
 
-					// Show battle cursor for guarded enemy garrisons, otherwise movement cursor.
-					if (garrObj  &&  garrObj->stacksCount()
-						&& !LOCPLINT->cb->getPlayerRelations( LOCPLINT->playerID, garrObj->tempOwner) )
+					// Show battle cursor for guarded enemy garrisons or garrisons have guarding creature behind, otherwise movement cursor.
+					if (garrObj  &&  ((garrObj->stacksCount()
+						&& !LOCPLINT->cb->getPlayerRelations( LOCPLINT->playerID, garrObj->tempOwner))
+						|| guardingCreature))
 						CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
 					else
 						CCS->curh->changeGraphic(ECursor::ADVENTURE, 9 + turns*6);
