@@ -2310,10 +2310,16 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 
 	if(what==1) //swap
 	{
-		if ( ((s1->tempOwner != player && s1->tempOwner != PlayerColor::UNFLAGGABLE) && s1->getStackCount(p1)) //why 254??
+		if ( ((s1->tempOwner != player && s1->tempOwner != PlayerColor::UNFLAGGABLE) && s1->getStackCount(p1))
 		  || ((s2->tempOwner != player && s2->tempOwner != PlayerColor::UNFLAGGABLE) && s2->getStackCount(p2)))
 		{
 			complain("Can't take troops from another player!");
+			return false;
+		}
+
+		if (sl1.army == sl2.army && sl1.slot == sl2.slot)
+		{
+			complain("Cannot swap stacks - slots are the same!");
 			return false;
 		}
 
