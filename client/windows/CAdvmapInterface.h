@@ -6,6 +6,8 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
 
+#include "../../lib/spells/ViewSpellInt.h"
+
 class CDefHandler;
 class CCallback;
 struct CGPath;
@@ -131,13 +133,9 @@ public:
 	
 	struct WorldViewOptions
 	{
-		bool showAllArtifacts; //for basic viewAir
-		bool showAllHeroes; //for advanced viewAir
-		bool showAllTowns; //for expert viewAir
-		
-		bool showAllResources; //for basic viewEarth
-		bool showAllMines; //for advanced viewEarth 
 		bool showAllTerrain; //for expert viewEarth
+		
+		std::vector<ObjectPosInfo> iconPositions;
 		
 		WorldViewOptions();
 		

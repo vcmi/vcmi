@@ -2189,25 +2189,11 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 	}
 	const CSpell * spell = CGI->spellh->objects[spellID];
 
-	if(spellID == SpellID::VIEW_AIR)
+	if(spellID == SpellID::VIEW_EARTH)
 	{
+		//TODO: implement on server side
 		int level = caster->getSpellSchoolLevel(spell);
-		
-		adventureInt->worldViewOptions.showAllArtifacts = true;
-		adventureInt->worldViewOptions.showAllHeroes = (level>1);
-		adventureInt->worldViewOptions.showAllTowns = (level>2);
-		
-		viewWorldMap();
-	}
-	else if(spellID == SpellID::VIEW_EARTH)
-	{
-		int level = caster->getSpellSchoolLevel(spell);
-		
-		adventureInt->worldViewOptions.showAllResources = true;
-		adventureInt->worldViewOptions.showAllMines = (level>1);
 		adventureInt->worldViewOptions.showAllTerrain = (level>2);
-				
-		viewWorldMap();
 	}
 	
 	auto castSoundPath = spell->getCastSound();
@@ -2723,4 +2709,14 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance* h, CGPath path)
 	}
 
 	duringMovement = false;
+}
+
+void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectPositions)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	//TODO: showWorldViewEx
+	
+	std::copy(objectPositions.begin(), objectPositions.end(), std::back_inserter(adventureInt->worldViewOptions.iconPositions));
+	
+	viewWorldMap();
 }

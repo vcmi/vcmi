@@ -528,6 +528,40 @@ CMapHandler::CMapNormalBlitter::CMapNormalBlitter(CMapHandler * parent)
 	defaultTileRect = Rect(0, 0, tileSize, tileSize);
 }
 
+SDL_Surface * CMapHandler::CMapWorldViewBlitter::objectToIcon(Obj id, si32 subId, PlayerColor owner) const
+{
+	int ownerIndex = 0;
+	if(owner < PlayerColor::PLAYER_LIMIT)
+	{
+		ownerIndex = owner.getNum() * 19;
+	}
+	else if (owner == PlayerColor::NEUTRAL)
+	{
+		ownerIndex = PlayerColor::PLAYER_LIMIT.getNum() * 19;
+	}
+	
+	switch(id)
+	{
+	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+	case Obj::MONOLITH_ONE_WAY_EXIT:
+	case Obj::MONOLITH_TWO_WAY:
+		return info->iconsDef->ourImages[(int)EWorldViewIcon::TELEPORT].bitmap;
+	case Obj::SUBTERRANEAN_GATE:
+		return info->iconsDef->ourImages[(int)EWorldViewIcon::GATE].bitmap;
+	case Obj::ARTIFACT:
+		return info->iconsDef->ourImages[(int)EWorldViewIcon::ARTIFACT].bitmap;
+	case Obj::TOWN:
+		return info->iconsDef->ourImages[(int)EWorldViewIcon::TOWN + ownerIndex].bitmap;
+	case Obj::HERO:
+		return info->iconsDef->ourImages[(int)EWorldViewIcon::HERO + ownerIndex].bitmap;
+	case Obj::MINE:
+		return info->iconsDef->ourImages[(int)EWorldViewIcon::MINE_WOOD + subId + ownerIndex].bitmap;
+	case Obj::RESOURCE:
+		return info->iconsDef->ourImages[(int)EWorldViewIcon::RES_WOOD + subId + ownerIndex].bitmap;
+	}	
+	return nullptr;	
+}
+
 void CMapHandler::CMapWorldViewBlitter::calculateWorldViewCameraPos()
 {
 	bool outsideLeft = topTile.x < 0;
@@ -609,71 +643,61 @@ void CMapHandler::CMapWorldViewBlitter::drawElement(EMapCacheType cacheType, SDL
 
 void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf, const TerrainTile2 & tile) const
 {
-	auto & objects = tile.objects;
-	for(auto & object : objects)
+	auto drawIcon = [this,targetSurf](Obj id, si32 subId, PlayerColor owner)
 	{
-		const CGObjectInstance * obj = object.obj;
+		SDL_Surface * wvIcon = this->objectToIcon(id, subId, owner);
 
-		if (obj->pos.z != pos.z)
-			continue;
-		const bool isVisible = (*info->visibilityMap)[pos.x][pos.y][pos.z];
-		if (!obj->visitableAt(pos.x, pos.y))
-			continue;
-
-		auto &ownerRaw = obj->tempOwner;
-		int ownerIndex = 0;
-		if (ownerRaw < PlayerColor::PLAYER_LIMIT)
-		{
-			ownerIndex = ownerRaw.getNum() * 19;
-		}
-		else if (ownerRaw == PlayerColor::NEUTRAL)
-		{
-			ownerIndex = PlayerColor::PLAYER_LIMIT.getNum() * 19;
-		}
-
-		SDL_Surface * wvIcon = nullptr;
-		switch (obj->ID)
-		{
-		default:
-			continue;
-		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
-		case Obj::MONOLITH_ONE_WAY_EXIT:
-		case Obj::MONOLITH_TWO_WAY:
-			if(isVisible)
-				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::TELEPORT].bitmap;
-			break;
-		case Obj::SUBTERRANEAN_GATE:
-			if(isVisible)
-				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::GATE].bitmap;
-			break;
-		case Obj::ARTIFACT:
-			if(isVisible || info->showAllArtifacts)
-				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::ARTIFACT].bitmap;
-			break;
-		case Obj::TOWN:
-			if(isVisible || info->showAllTowns)
-				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::TOWN + ownerIndex].bitmap;
-			break;
-		case Obj::HERO:
-			if(isVisible || info->showAllHeroes)
-				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::HERO + ownerIndex].bitmap;
-			break;
-		case Obj::MINE:
-			if(isVisible || info->showAllMines)
-				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::MINE_WOOD + obj->subID + ownerIndex].bitmap;
-			break;
-		case Obj::RESOURCE:
-			if(isVisible || info->showAllResources)
-				wvIcon = info->iconsDef->ourImages[(int)EWorldViewIcon::RES_WOOD + obj->subID + ownerIndex].bitmap;
-			break;
-		}
-
-		if (wvIcon)
+		if (nullptr != wvIcon)
 		{
 			// centering icon on the object
 			Rect destRect(realPos.x + tileSize / 2 - wvIcon->w / 2, realPos.y + tileSize / 2 - wvIcon->h / 2, wvIcon->w, wvIcon->h);
 			CSDL_Ext::blitSurface(wvIcon, nullptr, targetSurf, &destRect);
 		}
+	};
+
+	auto & objects = tile.objects;
+	for(auto & object : objects)
+	{
+		const CGObjectInstance * obj = object.obj;
+
+		const bool sameLevel = obj->pos.z == pos.z;			
+		const bool isVisible = (*info->visibilityMap)[pos.x][pos.y][pos.z];
+		const bool isVisitable = obj->visitableAt(pos.x, pos.y);
+
+		if(sameLevel && isVisible && isVisitable)
+			drawIcon(obj->ID, obj->subID, obj->tempOwner);
+	}
+}
+
+void CMapHandler::CMapWorldViewBlitter::drawOverlayEx(SDL_Surface * targetSurf)
+{
+	if(nullptr == info->additionalIcons)
+		return;
+		
+	const int3 bottomRight = pos + tileCount;
+	
+	for(const ObjectPosInfo & iconInfo : *(info->additionalIcons))
+	{
+		if(!iconInfo.pos.z == pos.z)
+			continue;
+		
+		if((iconInfo.pos.x < topTile.x) || (iconInfo.pos.y < topTile.y))
+			continue;
+		
+		if((iconInfo.pos.x > bottomRight.x) || (iconInfo.pos.y > bottomRight.y))
+			continue;		
+		
+		realPos.x = initPos.x + (iconInfo.pos.x - topTile.x) * tileSize;
+		realPos.y = initPos.x + (iconInfo.pos.y - topTile.y) * tileSize;
+		
+		SDL_Surface * wvIcon = this->objectToIcon(iconInfo.id, iconInfo.subId, iconInfo.owner);				
+		
+		if (nullptr != wvIcon)
+		{
+			// centering icon on the object
+			Rect destRect(realPos.x + tileSize / 2 - wvIcon->w / 2, realPos.y + tileSize / 2 - wvIcon->h / 2, wvIcon->w, wvIcon->h);
+			CSDL_Ext::blitSurface(wvIcon, nullptr, targetSurf, &destRect);
+		}		
 	}
 }
 
@@ -789,6 +813,11 @@ void CMapHandler::CMapBlitter::drawFrame(SDL_Surface * targetSurf) const
 {
 	Rect destRect(realTileRect);
 	drawElement(EMapCacheType::FRAME, parent->ttiles[pos.x][pos.y][topTile.z].terbitmap, nullptr, targetSurf, &destRect);
+}
+
+void CMapHandler::CMapBlitter::drawOverlayEx(SDL_Surface * targetSurf)
+{
+//nothing to do here
 }
 
 void CMapHandler::CMapBlitter::drawHeroFlag(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const
@@ -981,6 +1010,8 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			}
 		}
 	}
+	
+	drawOverlayEx(targetSurf);	
 
 	// drawDebugGrid()
 	if (settings["session"]["showGrid"].Bool())

@@ -834,6 +834,11 @@ void AdvmapSpellCast::applyCl(CClient *cl)
 	INTERFACE_CALL_IF_PRESENT(caster->getOwner(),advmapSpellCast, caster, spellID);
 }
 
+void ShowWorldViewEx::applyCl(CClient * cl)
+{
+	CALL_ONLY_THAT_INTERFACE(player, showWorldViewEx, objectPositions);
+}
+
 void OpenWindow::applyCl(CClient *cl)
 {
 	switch(window)

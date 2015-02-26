@@ -240,13 +240,34 @@ bool TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env
 	return true;
 }
 
-
-bool ViewAirMechanics::applyAdventureEffects(const SpellCastEnvironment* env, AdventureSpellCastParameters& parameters) const
+bool ViewMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
 {
-	return true; //implemented on client side
+	ShowWorldViewEx pack;
+	
+	pack.player = parameters.caster->tempOwner;
+	
+	const int spellLevel = parameters.caster->getSpellSchoolLevel(owner);
+	
+	for(const CGObjectInstance * obj : env->getMap()->objects)
+	{
+		//we need to send only not visible objects
+		
+		if(filterObject(obj, spellLevel))
+			pack.objectPositions.push_back(ObjectPosInfo(obj));
+	}	
+	
+	env->sendAndApply(&pack);
+	
+	return true;	
 }
 
-bool ViewEarthMechanics::applyAdventureEffects(const SpellCastEnvironment* env, AdventureSpellCastParameters& parameters) const
+bool ViewAirMechanics::filterObject(const CGObjectInstance * obj, const int spellLevel) const
 {
-	return true; //implemented on client side
+	return (obj->ID == Obj::ARTIFACT) || (spellLevel>1 && obj->ID == Obj::HERO) || (spellLevel>2 && obj->ID == Obj::TOWN);
 }
+
+bool ViewEarthMechanics::filterObject(const CGObjectInstance * obj, const int spellLevel) const
+{
+	return (obj->ID == Obj::RESOURCE) || (spellLevel>1 && obj->ID == Obj::MINE);
+}
+

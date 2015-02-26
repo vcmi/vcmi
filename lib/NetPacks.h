@@ -16,6 +16,8 @@
 #include "mapping/CMap.h"
 #include "CObstacleInstance.h"
 
+#include "spells/ViewSpellInt.h"
+
 /*
  * NetPacks.h, part of VCMI engine
  *
@@ -1683,6 +1685,22 @@ struct AdvmapSpellCast : public CPackForClient //108
 	{
 		h & caster & spellID;
 	}
+};
+
+struct ShowWorldViewEx : public CPackForClient //4000
+{
+	PlayerColor player;
+	
+	std::vector<ObjectPosInfo> objectPositions;
+	
+	ShowWorldViewEx(){type = 4000;}
+	
+	void applyCl(CClient *cl);
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & player & objectPositions;
+	}	
 };
 
 /***********************************************************************************************************/

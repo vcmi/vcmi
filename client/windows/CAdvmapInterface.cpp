@@ -1854,16 +1854,15 @@ CAdvMapInt::WorldViewOptions::WorldViewOptions()
 
 void CAdvMapInt::WorldViewOptions::clear()
 {
-	showAllArtifacts = showAllHeroes = showAllTowns = showAllResources  = showAllMines = showAllTerrain = false;
+	showAllTerrain = false;
+	
+	iconPositions.clear();
 }
 
 void CAdvMapInt::WorldViewOptions::adjustDrawingInfo(MapDrawingInfo& info)
 {
-	info.showAllArtifacts = showAllArtifacts;
-	info.showAllHeroes = showAllHeroes;
-	info.showAllTowns = showAllTowns;
-	info.showAllResources = showAllResources;
-	info.showAllMines = showAllMines;
-	info.showAllTerrain = showAllTerrain;	
+	info.showAllTerrain = showAllTerrain;
+	
+	info.additionalIcons = &iconPositions;	
 }
 

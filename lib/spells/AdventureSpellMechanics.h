@@ -45,20 +45,29 @@ protected:
 	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;	
 };
 
-class ViewAirMechanics: public DefaultSpellMechanics 
+class ViewMechanics: public DefaultSpellMechanics 
 {
 public:	
-	ViewAirMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+	ViewMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
 	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;	
+	virtual bool filterObject(const CGObjectInstance * obj, const int spellLevel) const = 0;
 };
 
-class ViewEarthMechanics: public DefaultSpellMechanics 
+class ViewAirMechanics: public ViewMechanics 
 {
 public:	
-	ViewEarthMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+	ViewAirMechanics(CSpell * s): ViewMechanics(s){};	
 protected:
-	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;	
+	bool filterObject(const CGObjectInstance * obj, const int spellLevel) const override;
+};
+
+class ViewEarthMechanics: public ViewMechanics 
+{
+public:	
+	ViewEarthMechanics(CSpell * s): ViewMechanics(s){};	
+protected:
+	bool filterObject(const CGObjectInstance * obj, const int spellLevel) const override;	
 };
 
 

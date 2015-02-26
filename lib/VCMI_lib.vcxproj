@@ -193,6 +193,7 @@
     <ClCompile Include="spells\BattleSpellMechanics.cpp" />
     <ClCompile Include="spells\CreatureSpellMechanics.cpp" />
     <ClCompile Include="spells\CDefaultSpellMechanics.cpp" />
+    <ClCompile Include="spells\ViewSpellInt.cpp" />
     <ClCompile Include="filesystem\AdapterLoaders.cpp" />
     <ClCompile Include="filesystem\CArchiveLoader.cpp" />
     <ClCompile Include="filesystem\CBinaryReader.cpp" />
