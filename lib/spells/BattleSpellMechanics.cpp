@@ -7,7 +7,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
 #include "StdInc.h"
 
 #include "BattleSpellMechanics.h"
@@ -19,7 +18,7 @@
 std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
 {
 	std::set<const CStack* > attackedCres;
-	
+
 	std::set<BattleHex> possibleHexes;
 	for(auto stack : ctx.cb->battleGetAllStacks())
 	{
@@ -47,8 +46,8 @@ std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(SpellTargeti
 		if(possibleHexes.empty()) //not enough targets
 			break;
 		lightningHex = BattleHex::getClosestTile(stack->attackerOwned, ctx.destination, possibleHexes);
-	}	
-		
+	}
+
 	return attackedCres;
 }
 
@@ -63,7 +62,7 @@ void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battle
 		env->complain ("No target stack to clone!");
 		return;
 	}
-	const int attacker = !(bool)parameters.casterSide; 
+	const int attacker = !(bool)parameters.casterSide;
 
 	BattleStackAdded bsa;
 	bsa.creID = clonedStack->type->idNumber;
@@ -78,7 +77,7 @@ void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battle
 	ssp.which = BattleSetStackProperty::CLONED;
 	ssp.val = 0;
 	ssp.absolute = 1;
-	env->sendAndApply(&ssp);	
+	env->sendAndApply(&ssp);
 }
 
 ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
@@ -105,22 +104,22 @@ ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHer
 		if(maxLevel < creLevel) //tier 1-5 for basic, 1-6 for advanced, any level for expert
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
-	//use default algorithm only if there is no mechanics-related problem		
-	return DefaultSpellMechanics::isImmuneByStack(caster, obj);	
+	//use default algorithm only if there is no mechanics-related problem
+	return DefaultSpellMechanics::isImmuneByStack(caster, obj);
 }
 
 ///CureMechanics
 void CureMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
-	
+
 	for(auto stackID : packet->affectedCres)
 	{
 		if(vstd::contains(packet->resisted, stackID))
 		{
 			logGlobal->errorStream() << "Resistance to positive spell CURE";
 			continue;
-		}			
+		}
 
 		CStack *s = battle->getStack(stackID);
 		s->popBonuses([&](const Bonus *b) -> bool
@@ -132,14 +131,14 @@ void CureMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * pac
 			}
 			return false; //not a spell effect
 		});
-	}		
+	}
 }
 
 ///DispellMechanics
 void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
-	
+
 	for(auto stackID : packet->affectedCres)
 	{
 		if(vstd::contains(packet->resisted, stackID))
@@ -150,7 +149,7 @@ void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * 
 		{
 			return Selector::sourceType(Bonus::SPELL_EFFECT)(b);
 		});
-	}	
+	}
 }
 
 
@@ -166,7 +165,7 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const C
 			* owner->power + owner->getPower(caster->getSpellSchoolLevel(owner)), caster, obj);
 		if (subjectHealth > maxHealth)
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}			
+	}
 	return DefaultSpellMechanics::isImmuneByStack(caster, obj);
 }
 
@@ -217,8 +216,8 @@ void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, Bat
 		BattleObstaclePlaced bop;
 		bop.obstacle = obstacle;
 		env->sendAndApply(&bop);
-	};	
-	
+	};
+
 	switch(owner->id)
 	{
 	case SpellID::QUICKSAND:
@@ -253,17 +252,17 @@ void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, Bat
 				placeObstacle(hex);
 		}
 		break;
-	default:		
+	default:
 		assert(0);
-	}			
+	}
 }
 
 
 ///WallMechanics
 std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes) const
 {
-	std::vector<BattleHex> ret;	
-	
+	std::vector<BattleHex> ret;
+
 	//Special case - shape of obstacle depends on caster's side
 	//TODO make it possible through spell config
 
@@ -293,7 +292,7 @@ std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 sch
 	if(schoolLvl >= 2) //advanced versions of fire wall / force field cotnains of 3 hexes
 		addIfValid(centralHex.moveInDir(secondStep, false)); //moveInDir function modifies subject hex
 
-	return ret;	
+	return ret;
 }
 
 ///RemoveObstacleMechanics
@@ -306,7 +305,7 @@ void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * en
 		env->sendAndApply(&obr);
 	}
 	else
-		env->complain("There's no obstacle to remove!");	
+		env->complain("There's no obstacle to remove!");
 }
 
 ///SpecialRisingSpellMechanics
@@ -338,7 +337,6 @@ void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, Ba
 	BattleStacksRemoved bsr;
 	bsr.stackIDs.insert(parameters.selectedStack->ID); //somehow it works for teleport?
 	env->sendAndApply(&bsr);
-		
 }
 
 
@@ -350,15 +348,15 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 
 	if(obj->count >= obj->baseAmount)
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	
+
 	if(caster) //FIXME: Archangels can cast immune stack
 	{
 		auto maxHealth = calculateHealedHP(caster, obj, nullptr);
 		if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}	
-	
-	return DefaultSpellMechanics::isImmuneByStack(caster,obj);	
+	}
+
+	return DefaultSpellMechanics::isImmuneByStack(caster,obj);
 }
 
 ///SummonMechanics
@@ -400,7 +398,7 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battl
 	if(bsa.amount)
 		env->sendAndApply(&bsa);
 	else
-		env->complain("Summoning didn't summon any!");	
+		env->complain("Summoning didn't summon any!");
 }
 
 
@@ -414,6 +412,6 @@ void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, Bat
 	tiles.push_back(parameters.destination);
 	bsm.tilesToMove = tiles;
 	bsm.teleporting = true;
-	env->sendAndApply(&bsm);	
+	env->sendAndApply(&bsm);
 }
-	
+

@@ -10,7 +10,6 @@
 
 #pragma once
 
-
 #include "ISpellMechanics.h"
 
 class BattleSpellCast;
@@ -18,9 +17,9 @@ class StacksInjured;
 
 struct SpellCastContext
 {
-	SpellCastContext(std::vector<const CStack*> & attackedCres, BattleSpellCast & sc, StacksInjured & si):
-		attackedCres(attackedCres), sc(sc), si(si){}; 
-	std::vector<const CStack*> & attackedCres;
+	SpellCastContext(std::vector<const CStack *> & attackedCres, BattleSpellCast & sc, StacksInjured & si):
+		attackedCres(attackedCres), sc(sc), si(si){};
+	std::vector<const CStack *> & attackedCres;
 	BattleSpellCast & sc;
 	StacksInjured & si;
 };
@@ -29,25 +28,24 @@ class DefaultSpellMechanics: public ISpellMechanics
 {
 public:
 	DefaultSpellMechanics(CSpell * s): ISpellMechanics(s){};
-	
+
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr) const override;
 	std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const override;
-	
+
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
-	
-	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override final; 
+
+	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override final;
 	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const override;
-	
+
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;
 protected:
-	
 	virtual void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
-	
+
 	virtual int calculateDuration(const CGHeroInstance * caster, int usedSpellPower) const;
-	
+
 	///calculate healed HP for all spells casted by hero
-	ui32 calculateHealedHP(const CGHeroInstance* caster, const CStack* stack, const CStack* sacrificedStack) const;
-	
+	ui32 calculateHealedHP(const CGHeroInstance * caster, const CStack * stack, const CStack * sacrificedStack) const;
+
 	///actual adventure cast implementation
 	virtual bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
 };

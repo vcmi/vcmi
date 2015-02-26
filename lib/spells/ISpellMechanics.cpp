@@ -17,12 +17,11 @@
 #include "BattleSpellMechanics.h"
 #include "CreatureSpellMechanics.h"
 
-
 ///ISpellMechanics
 ISpellMechanics::ISpellMechanics(CSpell * s):
 	owner(s)
 {
-	
+
 }
 
 ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
@@ -32,20 +31,20 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 	case SpellID::ACID_BREATH_DAMAGE:
 		return new AcidBreathDamageMechanics(s);
 	case SpellID::CHAIN_LIGHTNING:
-		return new ChainLightningMechanics(s);		
+		return new ChainLightningMechanics(s);
 	case SpellID::CLONE:
 		return new CloneMechanics(s);
 	case SpellID::CURE:
 		return new CureMechanics(s);
 	case SpellID::DEATH_STARE:
-		return new DeathStareMechanics(s);			
+		return new DeathStareMechanics(s);
 	case SpellID::DISPEL:
-		return new DispellMechanics(s);	
+		return new DispellMechanics(s);
 	case SpellID::DISPEL_HELPFUL_SPELLS:
 		return new DispellHelpfulMechanics(s);
 	case SpellID::FIRE_WALL:
 	case SpellID::FORCE_FIELD:
-		return new WallMechanics(s);		
+		return new WallMechanics(s);
 	case SpellID::HYPNOTIZE:
 		return new HypnotizeMechanics(s);
 	case SpellID::LAND_MINE:
@@ -61,11 +60,11 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 	case SpellID::SUMMON_AIR_ELEMENTAL:
 		return new SummonMechanics(s);
 	case SpellID::TELEPORT:
-		return new TeleportMechanics(s);	
+		return new TeleportMechanics(s);
 	case SpellID::SUMMON_BOAT:
 		return new SummonBoatMechanics(s);
-	case SpellID::SCUTTLE_BOAT:		
-		return new ScuttleBoatMechanics(s);		
+	case SpellID::SCUTTLE_BOAT:
+		return new ScuttleBoatMechanics(s);
 	case SpellID::DIMENSION_DOOR:
 		return new DimensionDoorMechanics(s);
 	case SpellID::FLY:
@@ -77,12 +76,12 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 		return new TownPortalMechanics(s);
 	case SpellID::VIEW_EARTH:
 		return new ViewEarthMechanics(s);
-	case SpellID::VIEW_AIR:			
+	case SpellID::VIEW_AIR:
 		return new ViewAirMechanics(s);
-	default:		
+	default:
 		if(s->isRisingSpell())
 			return new SpecialRisingSpellMechanics(s);
-		else	
-			return new DefaultSpellMechanics(s);		
-	}	
+		else
+			return new DefaultSpellMechanics(s);
+	}
 }

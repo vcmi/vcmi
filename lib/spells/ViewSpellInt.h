@@ -7,26 +7,26 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- 
+
  #pragma once
- 
- #include "../int3.h" 
+
+ #include "../int3.h"
  #include "../GameConstants.h"
- 
+
  class CGObjectInstance;
- 
+
  struct DLL_LINKAGE ObjectPosInfo
  {
- 	int3 pos; 	
+ 	int3 pos;
  	Obj id;
  	si32 subId;
  	PlayerColor owner;
  	ObjectPosInfo();
  	ObjectPosInfo(const CGObjectInstance * obj);
- 	
-	template <typename Handler> void serialize(Handler &h, const int version)
+
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & pos & id & subId & owner;
-	} 	
+	}
  };
 

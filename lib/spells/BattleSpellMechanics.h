@@ -7,16 +7,15 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- 
- #pragma once
- 
- #include "CDefaultSpellMechanics.h"
 
+#pragma once
+
+#include "CDefaultSpellMechanics.h"
 
 class ChainLightningMechanics: public DefaultSpellMechanics
 {
 public:
-	ChainLightningMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+	ChainLightningMechanics(CSpell * s): DefaultSpellMechanics(s){};
 	std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const override;
 };
 
@@ -26,48 +25,46 @@ public:
 	CloneMechanics(CSpell * s): DefaultSpellMechanics(s){};
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;	
+	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 class CureMechanics: public DefaultSpellMechanics
 {
 public:
-	CureMechanics(CSpell * s): DefaultSpellMechanics(s){};	
-	
-	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;	
+	CureMechanics(CSpell * s): DefaultSpellMechanics(s){};
+
+	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;
 };
-
-
 
 class DispellMechanics: public DefaultSpellMechanics
 {
 public:
 	DispellMechanics(CSpell * s): DefaultSpellMechanics(s){};
-	
-	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;	
+
+	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;
 };
 
 class HypnotizeMechanics: public DefaultSpellMechanics
 {
 public:
-	HypnotizeMechanics(CSpell * s): DefaultSpellMechanics(s){};	
-	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;	
-}; 
+	HypnotizeMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
+};
 
 class ObstacleMechanics: public DefaultSpellMechanics
 {
 public:
-	ObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};		
+	ObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};
 
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;	
+	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 class WallMechanics: public ObstacleMechanics
 {
 public:
-	WallMechanics(CSpell * s): ObstacleMechanics(s){};	
-	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr) const override;		
+	WallMechanics(CSpell * s): ObstacleMechanics(s){};
+	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr) const override;
 };
 
 class RemoveObstacleMechanics: public DefaultSpellMechanics
@@ -75,23 +72,23 @@ class RemoveObstacleMechanics: public DefaultSpellMechanics
 public:
 	RemoveObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;		
+	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 ///all rising spells
 class RisingSpellMechanics: public DefaultSpellMechanics
 {
 public:
-	RisingSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};		
-	
+	RisingSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};
+
 };
 
 class SacrificeMechanics: public RisingSpellMechanics
 {
 public:
-	SacrificeMechanics(CSpell * s): RisingSpellMechanics(s){};	
+	SacrificeMechanics(CSpell * s): RisingSpellMechanics(s){};
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;		
+	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 ///all rising spells but SACRIFICE
@@ -99,7 +96,7 @@ class SpecialRisingSpellMechanics: public RisingSpellMechanics
 {
 public:
 	SpecialRisingSpellMechanics(CSpell * s): RisingSpellMechanics(s){};
-	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;						
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
 };
 
 class SummonMechanics: public DefaultSpellMechanics
@@ -107,7 +104,7 @@ class SummonMechanics: public DefaultSpellMechanics
 public:
 	SummonMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;		
+	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 class TeleportMechanics: public DefaultSpellMechanics
@@ -115,5 +112,5 @@ class TeleportMechanics: public DefaultSpellMechanics
 public:
 	TeleportMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;		
+	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };

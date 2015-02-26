@@ -1,13 +1,3 @@
-#pragma once
-
-#include "../IHandlerBase.h"
-#include "../ConstTransitivePtr.h"
-#include "../int3.h"
-#include "../GameConstants.h"
-#include "../BattleHex.h"
-#include "../HeroBonus.h"
-
-
 /*
  * CSpellHandler.h, part of VCMI engine
  *
@@ -18,22 +8,25 @@
  *
  */
 
-class CGObjectInstance;
+#pragma once
 
+#include "../IHandlerBase.h"
+#include "../ConstTransitivePtr.h"
+#include "../int3.h"
+#include "../GameConstants.h"
+#include "../BattleHex.h"
+#include "../HeroBonus.h"
+
+class CGObjectInstance;
 class CSpell;
 class ISpellMechanics;
-
 class CLegacyConfigParser;
-
 class CGHeroInstance;
 class CStack;
-
 class CBattleInfoCallback;
 class BattleInfo;
-
 struct CPackForClient;
 struct BattleSpellCast;
-
 class CGameInfoCallback;
 class CRandomGenerator;
 class CMap;
@@ -42,10 +35,10 @@ struct SpellSchoolInfo
 {
 	ESpellSchool id; //backlink
 	Bonus::BonusType damagePremyBonus;
-	Bonus::BonusType immunityBonus;	
+	Bonus::BonusType immunityBonus;
 	std::string jsonName;
 	SecondarySkill::ESecondarySkill skill;
-	Bonus::BonusType knoledgeBonus;			
+	Bonus::BonusType knoledgeBonus;
 };
 
 ///callback to be provided by server
@@ -54,13 +47,13 @@ class DLL_LINKAGE SpellCastEnvironment
 public:
 	virtual ~SpellCastEnvironment(){};
 	virtual void sendAndApply(CPackForClient * info) const = 0;
-	
+
 	virtual CRandomGenerator & getRandomGenerator() const = 0;
 	virtual void complain(const std::string & problem) const = 0;
-	
+
 	virtual const CMap * getMap() const = 0;
-	virtual const CGameInfoCallback * getCb() const = 0;	
-	
+	virtual const CGameInfoCallback * getCb() const = 0;
+
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker = PlayerColor::NEUTRAL) const =0;	//TODO: remove
 };
 
@@ -78,14 +71,14 @@ public:
 	int usedSpellPower;
 	ECastingMode::ECastingMode mode;
 	const CStack * casterStack;
-	const CStack * selectedStack;	
-	const BattleInfo * cb;		
+	const CStack * selectedStack;
+	const BattleInfo * cb;
 };
 
 struct DLL_LINKAGE AdventureSpellCastParameters
 {
 	const CGHeroInstance * caster;
-	int3 pos;	
+	int3 pos;
 };
 
 enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
@@ -93,41 +86,40 @@ enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
 class DLL_LINKAGE CSpell
 {
 public:
-	
 	struct ProjectileInfo
 	{
 		///in radians. Only positive value. Negative angle is handled by vertical flip
-		double minimumAngle; 
-		
+		double minimumAngle;
+
 		///resource name
 		std::string resourceName;
-		 
-		template <typename Handler> void serialize(Handler &h, const int version)
+
+		template <typename Handler> void serialize(Handler & h, const int version)
 		{
-			h & minimumAngle & resourceName; 
-		}		
+			h & minimumAngle & resourceName;
+		}
 	};
-	
+
 	struct AnimationItem
 	{
 		std::string resourceName;
 		VerticalPosition verticalPosition;
-		
-		template <typename Handler> void serialize(Handler &h, const int version)
+
+		template <typename Handler> void serialize(Handler & h, const int version)
 		{
-			h & resourceName & verticalPosition; 
-		}		
+			h & resourceName & verticalPosition;
+		}
 	};
-	
+
 	typedef AnimationItem TAnimation;
-	typedef std::vector<TAnimation> TAnimationQueue; 
-	
+	typedef std::vector<TAnimation> TAnimationQueue;
+
 	struct DLL_LINKAGE AnimationInfo
 	{
 		AnimationInfo();
 		~AnimationInfo();
 
-		///displayed on all affected targets. 
+		///displayed on all affected targets.
 		TAnimationQueue affect;
 
 		///displayed on caster.
@@ -140,14 +132,13 @@ public:
 		///use selectProjectile to access
 		std::vector<ProjectileInfo> projectile;
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & projectile & hit & cast;
 		}
 
 		std::string selectProjectile(const double angle) const;
 	} animationInfo;
-	
 public:
 	struct LevelInfo
 	{
@@ -192,13 +183,13 @@ public:
 		bool onlyAlive;
 		///no immunity on primary target (mostly spell-like attack)
 		bool alwaysHitDirectly;
-		
+
 		bool clearTarget;
 		bool clearAffected;
-		
+
 		TargetInfo(const CSpell * spell, const int level);
 		TargetInfo(const CSpell * spell, const int level, ECastingMode::ECastingMode mode);
-		
+
 	private:
 		void init(const CSpell * spell, const int level);
 	};
@@ -210,7 +201,7 @@ public:
 	si32 level;
 
 	std::map<ESpellSchool, bool> school; //todo: use this instead of separate boolean fields
-	
+
 	si32 power; //spell's power
 
 	std::map<TFaction, si32> probabilities; //% chance to gain for castles
@@ -223,15 +214,13 @@ public:
 
 	CSpell();
 	~CSpell();
-	
-	bool isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const;
-	
 
-	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr ) const; //convert range to specific hexes; last optional out parameter is set to true, if spell would cover unavailable hexes (that are not included in ret)
+	bool isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const;
+
+	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr ) const; //convert range to specific hexes; last optional out parameter is set to true, if spell would cover unavailable hexes (that are not included in ret)
 	ETargetType getTargetType() const; //deprecated
 
 	CSpell::TargetInfo getTargetInfo(const int level) const;
-
 
 	bool isCombatSpell() const;
 	bool isAdventureSpell() const;
@@ -243,29 +232,29 @@ public:
 
 	bool isDamageSpell() const;
 	bool isHealingSpell() const;
-	bool isRisingSpell() const;	
+	bool isRisingSpell() const;
 	bool isOffensiveSpell() const;
 
 	bool isSpecialSpell() const;
 
 	bool hasEffects() const;
 	void getEffects(std::vector<Bonus> &lst, const int level) const;
-	
+
 	///checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into account general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem isImmuneAt(const CBattleInfoCallback * cb, const CGHeroInstance * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
-	
+
 	//internal, for use only by Mechanics classes
 	ESpellCastProblem::ESpellCastProblem isImmuneBy(const IBonusBearer *obj) const;
-	
+
 	//checks for creature immunity / anything that prevent casting *at given target* - doesn't take into account general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const;
-	
+
 	//internal, for use only by Mechanics classes. applying secondary skills
 	ui32 calculateBonus(ui32 baseDamage, const CGHeroInstance * caster, const CStack * affectedCreature) const;
-	
+
 	///calculate spell damage on stack taking caster`s secondary skills and affectedCreature`s bonuses into account
 	ui32 calculateDamage(const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
-	
+
 	///selects from allStacks actually affected stacks
 	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const CGHeroInstance * caster = nullptr) const;
 
@@ -282,7 +271,7 @@ public:
 	 * Calls cb for each school this spell belongs to
 	 *
 	 * Set stop to true to abort looping
-	 */	
+	 */
 	void forEachSchool(const std::function<void (const SpellSchoolInfo &, bool &)> & cb) const;
 
 	/**
@@ -303,8 +292,8 @@ public:
 		h & defaultProbability;
 		h & isSpecial;
 		h & castSound & iconBook & iconEffect & iconScenarioBonus & iconScroll;
-		h & levels;		
-		h & school;		
+		h & levels;
+		h & school;
 		h & animationInfo;
 
 		if(!h.saving)
@@ -315,21 +304,21 @@ public:
 public:
 	///Server logic. Has write access to GameState via packets.
 	///May be executed on client side by (future) non-cheat-proof scripts.
-	
-	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const; 
-	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const; 	
-		
-public:	
+
+	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
+	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const;
+
+public:
 	///Client-server logic. Has direct write access to GameState.
 	///Shall be called (only) when applying packets on BOTH SIDES
-	
+
 	///implementation of BattleSpellCast applying
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const;
-		
+
 private:
 	void setIsOffensive(const bool val);
 	void setIsRising(const bool val);
-	
+
 	//call this after load or deserialization. cant be done in constructor.
 	void setup();
 	void setupMechanics();
@@ -351,9 +340,7 @@ private:
 	std::vector<Bonus::BonusType> absoluteLimiters; //all of them are required to be affected, can't be negated
 
 	///graphics related stuff
-
 	std::string iconImmune;
-
 	std::string iconBook;
 	std::string iconEffect;
 	std::string iconScenarioBonus;
@@ -363,7 +350,7 @@ private:
 	std::string castSound;
 
 	std::vector<LevelInfo> levels;
-	
+
 	ISpellMechanics * mechanics;//(!) do not serialize
 };
 
@@ -393,7 +380,7 @@ public:
 	{
 		h & objects ;
 	}
-		
+
 protected:
 	CSpell * loadFromJson(const JsonNode & json) override;
 };

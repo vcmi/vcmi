@@ -117,7 +117,6 @@ namespace SRSLPraserHelpers
 	}
 }
 
-
 ///DefaultSpellMechanics
 void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
@@ -128,7 +127,7 @@ void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCa
 			battle->sides[packet->side].castSpellsCount++;
 		}
 	}
-	
+
 	//handle countering spells
 	for(auto stackID : packet->affectedCres)
 	{
@@ -144,7 +143,7 @@ void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCa
 
 			return isSpellEffect && vstd::contains(owner->counteredSpells, spellID);
 		});
-	}	
+	}
 }
 
 bool DefaultSpellMechanics::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
@@ -154,29 +153,29 @@ bool DefaultSpellMechanics::adventureCast(const SpellCastEnvironment * env, Adve
 		env->complain("Attempt to cast non adventure spell in adventure mode");
 		return false;
 	}
-	
+
 	const CGHeroInstance * caster = parameters.caster;
 	const int cost = caster->getSpellCost(owner);
-	
+
 	if(!caster->canCastThisSpell(owner))
 	{
 		env->complain("Hero cannot cast this spell!");
-		return false;		
+		return false;
 	}
 
 	if(caster->mana < cost)
 	{
 		env->complain("Hero doesn't have enough spell points to cast this spell!");
-		return false;		
+		return false;
 	}
 
 	{
 		AdvmapSpellCast asc;
 		asc.caster = caster;
 		asc.spellID = owner->id;
-		env->sendAndApply(&asc);		
+		env->sendAndApply(&asc);
 	}
-	
+
 	if(applyAdventureEffects(env, parameters))
 	{
 		SetMana sm;
@@ -194,27 +193,27 @@ bool DefaultSpellMechanics::applyAdventureEffects(const SpellCastEnvironment * e
 	if(owner->hasEffects())
 	{
 		const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
-		
+
 		std::vector<Bonus> bonuses;
-		
+
 		owner->getEffects(bonuses, schoolLevel);
-		
+
 		for(Bonus b : bonuses)
 		{
 			GiveBonus gb;
 			gb.id = parameters.caster->id.getNum();
 			gb.bonus = b;
-			env->sendAndApply(&gb);			
+			env->sendAndApply(&gb);
 		}
-		
+
 		return true;
 	}
 	else
 	{
 		//There is no generic algorithm of adventure cast
 		env->complain("Unimplemented adventure spell");
-		return false;				
-	}	
+		return false;
+	}
 }
 
 
@@ -229,11 +228,11 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	sc.castedByHero = nullptr != parameters.caster;
 	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
 	sc.manaGained = 0;
-	
-	int spellCost = 0;	
-	
+
+	int spellCost = 0;
+
 	//calculate spell cost
-	if(parameters.caster) 
+	if(parameters.caster)
 	{
 		spellCost = parameters.cb->battleGetSpellCost(owner, parameters.caster);
 
@@ -249,21 +248,20 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 			}
 			sc.manaGained = (manaChannel * spellCost) / 100;
 		}
-	}	
-	
-	
+	}
+
 	//calculating affected creatures for all spells
 	//must be vector, as in Chain Lightning order matters
 	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
 
 	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.caster);
 	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
-	
+
 	for (auto cre : attackedCres)
 	{
 		sc.affectedCres.insert(cre->ID);
 	}
-	
+
 	//checking if creatures resist
 	//resistance is applied only to negative spells
 	if(owner->isNegative())
@@ -271,52 +269,51 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 		for(auto s : attackedCres)
 		{
 			const int prob = std::min((s)->magicResistance(), 100); //probability of resistance in %
-			
+
 			if(env->getRandomGenerator().nextInt(99) < prob)
 			{
 				sc.resisted.push_back(s->ID);
 			}
 		}
 	}
-	
-	StacksInjured si;	
+
+	StacksInjured si;
 	SpellCastContext ctx(attackedCres, sc, si);
-	
+
 	applyBattleEffects(env, parameters, ctx);
-	
+
 	env->sendAndApply(&sc);
-	
 
 	//spend mana
-	if(parameters.caster) 
+	if(parameters.caster)
 	{
 		SetMana sm;
 		sm.absolute = false;
-		
+
 		sm.hid = parameters.caster->id;
 		sm.val = -spellCost;
-		
+
 		env->sendAndApply(&sm);
-		
+
 		if(sc.manaGained > 0)
 		{
 			assert(parameters.secHero);
-			
+
 			sm.hid = parameters.secHero->id;
 			sm.val = sc.manaGained;
 			env->sendAndApply(&sm);
-		}		
+		}
 	}
-	
+
 	if(!si.stacks.empty()) //after spellcast info shows
 		env->sendAndApply(&si);
-	
+
 	//reduce number of casts remaining
 	//TODO: this should be part of BattleSpellCast apply
-	if (parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING || parameters.mode == ECastingMode::ENCHANTER_CASTING) 
+	if (parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING || parameters.mode == ECastingMode::ENCHANTER_CASTING)
 	{
 		assert(parameters.casterStack);
-		
+
 		BattleSetStackProperty ssp;
 		ssp.stackID = parameters.casterStack->ID;
 		ssp.which = BattleSetStackProperty::CASTS;
@@ -346,7 +343,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 				if(!mirrorTargets.empty())
 				{
 					int targetHex = (*RandomGeneratorUtil::nextItem(mirrorTargets, env->getRandomGenerator()))->position;
-					
+
 					BattleSpellCastParameters mirrorParameters = parameters;
 					mirrorParameters.spellLvl = 0;
 					mirrorParameters.casterSide = 1-parameters.casterSide;
@@ -357,12 +354,12 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 					mirrorParameters.mode = ECastingMode::MAGIC_MIRROR;
 					mirrorParameters.casterStack = (attackedCre);
 					mirrorParameters.selectedStack = nullptr;
-					
-					battleCast(env, mirrorParameters);					
+
+					battleCast(env, mirrorParameters);
 				}
 			}
 		}
-	}	
+	}
 }
 
 int DefaultSpellMechanics::calculateDuration(const CGHeroInstance * caster, int usedSpellPower) const
@@ -380,28 +377,28 @@ int DefaultSpellMechanics::calculateDuration(const CGHeroInstance * caster, int 
 		return 1;
 	default: //other spells
 		return caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + caster->valOfBonuses(Bonus::SPELL_DURATION);
-	}	
+	}
 }
 
 ui32 DefaultSpellMechanics::calculateHealedHP(const CGHeroInstance* caster, const CStack* stack, const CStack* sacrificedStack) const
 {
 	int healedHealth;
-	
+
 	if(!owner->isHealingSpell())
 	{
 		logGlobal->errorStream() << "calculateHealedHP called for nonhealing spell "<< owner->name;
 		return 0;
-	}		
-	
+	}
+
 	const int spellPowerSkill = caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
 	const int levelPower = owner->getPower(caster->getSpellSchoolLevel(owner));
-	
+
 	if (owner->id == SpellID::SACRIFICE && sacrificedStack)
 		healedHealth = (spellPowerSkill + sacrificedStack->MaxHealth() + levelPower) * sacrificedStack->count;
 	else
 		healedHealth = spellPowerSkill * owner->power + levelPower; //???
 	healedHealth = owner->calculateBonus(healedHealth, caster, stack);
-	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (owner->isRisingSpell() ? stack->baseAmount * stack->MaxHealth() : 0));		
+	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (owner->isRisingSpell() ? stack->baseAmount * stack->MaxHealth() : 0));
 }
 
 
@@ -448,7 +445,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 				++chainLightningModifier;
 		}
 	}
-	
+
 	if(owner->hasEffects())
 	{
 		int stackSpellPower = 0;
@@ -531,7 +528,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 			env->sendAndApply(&sse);
 
 	}
-	
+
 	if(owner->isHealingSpell())
 	{
 		int hpGained = 0;
@@ -563,7 +560,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 					//any typical spell (commander's cure or animate dead)
 					int healedHealth = parameters.usedSpellPower * owner->power + owner->getPower(parameters.spellLvl);
 					hi.healedHP = std::min<ui32>(healedHealth, attackedCre->MaxHealth() - attackedCre->firstHPleft + (resurrect ? attackedCre->baseAmount * attackedCre->MaxHealth() : 0));
-				}					
+				}
 			}
 			else
 				hi.healedHP = calculateHealedHP(parameters.caster, attackedCre, parameters.selectedStack); //Casted by hero
@@ -572,14 +569,13 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		}
 		if(!shr.healedStacks.empty())
 			env->sendAndApply(&shr);
-	}		
+	}
 }
-
 
 std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
 {
 	using namespace SRSLPraserHelpers;
-	
+
 	std::vector<BattleHex> ret;
 	std::string rng = owner->getLevelInfo(schoolLvl).range + ','; //copy + artificial comma for easier handling
 
@@ -639,19 +635,18 @@ std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex,
 
 	//remove duplicates (TODO check if actually needed)
 	range::unique(ret);
-	return ret;		
+	return ret;
 }
-
 
 std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
 {
 	std::set<const CStack* > attackedCres;//std::set to exclude multiple occurrences of two hex creatures
-	
+
 	const ui8 attackerSide = ctx.cb->playerToSide(ctx.casterColor) == 1;
 	const auto attackedHexes = rangeInHexes(ctx.destination, ctx.schoolLvl, attackerSide);
 
 	const CSpell::TargetInfo ti(owner, ctx.schoolLvl, ctx.mode);
-	
+
 	//TODO: more generic solution for mass spells
 	if(owner->getLevelInfo(ctx.schoolLvl).range.size() > 1) //custom many-hex range
 	{
@@ -669,17 +664,17 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 			const bool positiveToAlly = owner->isPositive() && s->owner == ctx.casterColor;
 			const bool negativeToEnemy = owner->isNegative() && s->owner != ctx.casterColor;
 			const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
-	
+
 			//for single target spells select stacks covering destination tile
 			const bool rangeCovers = ti.massive || s->coversPos(ctx.destination);
 			//handle smart targeting
 			const bool positivenessFlag = !ti.smart || owner->isNeutral() || positiveToAlly || negativeToEnemy;
-			
-			return rangeCovers && positivenessFlag && validTarget;		
+
+			return rangeCovers && positivenessFlag && validTarget;
 		};
-		
+
 		TStacks stacks = ctx.cb->battleGetStacksIf(predicate);
-		
+
 		if(ti.massive)
 		{
 			//for massive spells add all targets
@@ -696,13 +691,13 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 				{
 					attackedCres.insert(stack);
 					break;
-				}				
-			}	
-			
+				}
+			}
+
 			if(attackedCres.empty() && !stacks.empty())
 			{
 				attackedCres.insert(stacks.front());
-			}						
+			}
 		}
 	}
 	else //custom range from attackedHexes
@@ -712,11 +707,10 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 			if(const CStack * st = ctx.cb->battleGetStackByPos(hex, ti.onlyAlive))
 				attackedCres.insert(st);
 		}
-	}	
-	
+	}
+
 	return attackedCres;
 }
-
 
 ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
 {
