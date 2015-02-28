@@ -77,6 +77,16 @@ void CMapGenerator::initPrisonsRemaining()
 	prisonsRemaining = std::max<int> (0, prisonsRemaining - 16 * mapGenOptions->getPlayerCount()); //so at least 16 heroes will be available for every player
 }
 
+void CMapGenerator::initQuestArtsRemaining()
+{
+	questArtsRemaining = 0;
+	for (auto art : VLC->arth->artifacts)
+	{
+		if (art->aClass == CArtifact::ART_TREASURE && art->constituentOf.empty()) //don't use parts of combined artifacts
+			questArtsRemaining++;
+	}
+}
+
 std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, int randomSeed /*= std::time(nullptr)*/)
 {
 	this->mapGenOptions = mapGenOptions;
@@ -98,6 +108,7 @@ std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, in
 		initTiles();
 
 		initPrisonsRemaining();
+		initQuestArtsRemaining();
 		genZones();
 		map->calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
 		fillZones();
@@ -484,6 +495,15 @@ int CMapGenerator::getPrisonsRemaning() const
 void CMapGenerator::decreasePrisonsRemaining()
 {
 	prisonsRemaining = std::max (0, prisonsRemaining - 1);
+}
+
+int CMapGenerator::getQuestArtsRemaning() const
+{
+	return questArtsRemaining;
+}
+void CMapGenerator::decreaseQuestArtsRemaining()
+{
+	questArtsRemaining = std::max(0, questArtsRemaining - 1);
 }
 
 void CMapGenerator::registerZone (TFaction faction)

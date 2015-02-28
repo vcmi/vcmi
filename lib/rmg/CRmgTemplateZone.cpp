@@ -694,7 +694,7 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, 
 			continue;
 		if (!vstd::contains(monsterTypes, cre->faction))
 			continue;
-		if ((cre->AIValue * (cre->ammMin + cre->ammMax) / 2 < strength) && (strength < cre->AIValue * 100)) //at least one full monster. size between minimum size of given stack and 100
+		if ((cre->AIValue * (cre->ammMin + cre->ammMax) / 2 < strength) && (strength < cre->AIValue * 100)) //at least one full monster. size between average size of given stack and 100
 		{
 			possibleCreatures.push_back(cre->idNumber);
 		}
@@ -2101,30 +2101,38 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 	//pandora box with creatures
 	static const int tierValues[] = {5000, 7000, 9000, 12000, 16000, 21000, 27000};
 
+	auto creatureToCount = [](CCreature * creature) -> int
+	{
+		int actualTier = creature->level > 7 ? 6 : creature->level - 1;
+		float creaturesAmount = tierValues[actualTier] / creature->AIValue;
+		if (creaturesAmount <= 5)
+		{
+			creaturesAmount = boost::math::round(creaturesAmount); //allow single monsters
+			if (creaturesAmount < 1)
+				return 0;
+		}
+		else if (creaturesAmount <= 12)
+		{
+			(creaturesAmount /= 2) *= 2;
+		}
+		else if (creaturesAmount <= 50)
+		{
+			creaturesAmount = boost::math::round(creaturesAmount / 5) * 5;
+		}
+		else
+		{
+			creaturesAmount = boost::math::round(creaturesAmount / 10) * 10;
+		}
+		return creaturesAmount;
+	};
+
 	for (auto creature : VLC->creh->creatures)
 	{
 		if (!creature->special && creature->faction == townType)
 		{
-			int actualTier = creature->level > 7 ? 6 : creature->level-1;
-			float creaturesAmount = tierValues[actualTier] / creature->AIValue;
-			if (creaturesAmount <= 5)
-			{
-				creaturesAmount = boost::math::round(creaturesAmount); //allow single monsters
-				if (creaturesAmount < 1)
-					continue;
-			}
-			else if (creaturesAmount <= 12)
-			{
-				(creaturesAmount /= 2) *= 2;
-			}
-			else if (creaturesAmount <= 50)
-			{
-				creaturesAmount = boost::math::round(creaturesAmount / 5) * 5;
-			}
-			else
-			{
-				creaturesAmount = boost::math::round(creaturesAmount / 10) * 10;
-			}
+			int creaturesAmount = creatureToCount(creature);
+			if (!creaturesAmount)
+				continue;
 
 			oi.generateObject = [creature, creaturesAmount]() -> CGObjectInstance *
 			{
@@ -2136,7 +2144,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 				return obj;
 			};
 			oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
-			oi.value = (2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount()))/3; //TODO: count number of towns on the map
+			oi.value = (2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount()))/3;
 			oi.probability = 3;
 			possibleObjects.push_back (oi);
 		}
@@ -2248,6 +2256,63 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 	oi.value = 3000;
 	oi.probability = 2;
 	possibleObjects.push_back (oi);
+
+	//seer huts with creatures or generic rewards
+
+	static const int genericSeerHuts = 8;
+	int seerHutsPerType = 0;
+	const int questArtsRemaining = gen->getQuestArtsRemaning();
+
+	std::vector<CCreature *> creatures;
+
+	for (auto cre : VLC->creh->creatures)
+	{
+		if (cre->faction == townType)
+		{
+			creatures.push_back(cre);
+		}
+	}
+
+	//general issue is that not many artifact types are available for quests
+
+	if (questArtsRemaining >= genericSeerHuts + creatures.size())
+	{
+		seerHutsPerType = questArtsRemaining / (genericSeerHuts + creatures.size());
+	}
+	else if (questArtsRemaining >= genericSeerHuts)
+	{
+		seerHutsPerType = 1;
+	}
+
+	RandomGeneratorUtil::randomShuffle(creatures, gen->rand);
+
+	for (int i = 0; i < std::min<int>(creatures.size(), questArtsRemaining - genericSeerHuts); i++)
+	{
+		auto creature = creatures[i];
+		int creaturesAmount = creatureToCount(creature);
+
+		if (!creaturesAmount)
+			continue;
+		
+		//int randomAppearance = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::SEER_HUT), gen->rand); //FIXME: empty subids?
+		int randomAppearance = 0;
+		oi.generateObject = [creature, creaturesAmount, randomAppearance, gen]() -> CGObjectInstance *
+		{
+			auto obj = new CGSeerHut();
+			obj->ID = Obj::SEER_HUT;
+			obj->subID = randomAppearance;
+			obj->rewardType = CGSeerHut::CREATURE;
+			obj->rID = creature->idNumber;
+			obj->rVal = creaturesAmount;
+			gen->decreaseQuestArtsRemaining();
+			return obj;
+			//TODO: place required artifact in next zone
+		};
+		oi.setTemplate(Obj::PANDORAS_BOX, randomAppearance, terrainType);
+		oi.value = ((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) - 4000) / 3;
+		oi.probability = 3;
+		possibleObjects.push_back(oi);
+	}
 }
 
 void ObjectInfo::setTemplate (si32 type, si32 subtype, ETerrainType terrainType)

@@ -150,6 +150,15 @@
 			"black" :  { "index" : 7 }
 		}
 	},
+	"seerHut" : {
+		"index" :83,
+		"handler": "seerHut",
+		"types" : {
+			"0" :  { "index" : 0 },
+			"1" :  { "index" : 1 },
+			"2" :    { "index" : 2 }
+		}
+	},
 
 	// subtype: different revealed areas
 	"cartographer" : {

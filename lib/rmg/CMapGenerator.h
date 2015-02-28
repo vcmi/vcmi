@@ -80,6 +80,8 @@ public:
 	int getNextMonlithIndex();
 	int getPrisonsRemaning() const;
 	void decreasePrisonsRemaining();
+	int getQuestArtsRemaning() const;
+	void decreaseQuestArtsRemaining();
 
 	void registerZone (TFaction faction);
 	ui32 getZoneCount(TFaction faction);
@@ -93,12 +95,14 @@ private:
 	CTileInfo*** tiles;
 
 	int prisonsRemaining;
+	int questArtsRemaining;
 	int monolithIndex;
 
 	/// Generation methods
 	std::string getMapDescription() const;
 
 	void initPrisonsRemaining();
+	void initQuestArtsRemaining();
 	void addPlayerInfo();
 	void addHeaderInfo();
 	void initTiles();
