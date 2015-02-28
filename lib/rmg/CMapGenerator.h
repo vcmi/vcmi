@@ -80,8 +80,8 @@ public:
 	int getNextMonlithIndex();
 	int getPrisonsRemaning() const;
 	void decreasePrisonsRemaining();
-	int getQuestArtsRemaning() const;
-	void decreaseQuestArtsRemaining();
+	std::vector<ArtifactID> getQuestArtsRemaning() const;
+	void banQuestArt(ArtifactID id);
 
 	void registerZone (TFaction faction);
 	ui32 getZoneCount(TFaction faction);
@@ -97,6 +97,7 @@ private:
 	int prisonsRemaining;
 	int questArtsRemaining;
 	int monolithIndex;
+	std::vector<ArtifactID> questArtifacts;
 
 	/// Generation methods
 	std::string getMapDescription() const;

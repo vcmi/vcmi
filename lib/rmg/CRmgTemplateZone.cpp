@@ -1917,18 +1917,18 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 	//FIXME: control reaches end of non-void function. Missing return?
 }
 
-void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
+void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 {
 	ObjectInfo oi;
 	oi.maxPerMap = std::numeric_limits<ui32>().max();
 
 	int numZones = gen->getZones().size();
 
-	for (auto primaryID : VLC->objtypeh->knownObjects()) 
-	{ 
-		for (auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID)) 
-		{ 
-			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID); 
+	for (auto primaryID : VLC->objtypeh->knownObjects())
+	{
+		for (auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
+		{
+			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if (!handler->isStaticObject() && handler->getRMGInfo().value)
 			{
 				for (auto temp : handler->getTemplates())
@@ -1944,18 +1944,18 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 						oi.probability = rmgInfo.rarity;
 						oi.templ = temp;
 						oi.maxPerZone = rmgInfo.zoneLimit;
-						vstd::amin (oi.maxPerZone, rmgInfo.mapLimit / numZones); //simple, but should distribute objects evenly on large maps
-						possibleObjects.push_back (oi);
+						vstd::amin(oi.maxPerZone, rmgInfo.mapLimit / numZones); //simple, but should distribute objects evenly on large maps
+						possibleObjects.push_back(oi);
 					}
 				}
 			}
-		} 
+		}
 	}
 
 	//prisons
 	//levels 1, 5, 10, 20, 30
-    static int prisonExp[] = {0, 5000, 15000, 90000, 500000};
-	static int prisonValues[] = {2500, 5000, 10000, 20000, 30000};
+	static int prisonExp[] = { 0, 5000, 15000, 90000, 500000 };
+	static int prisonValues[] = { 2500, 5000, 10000, 20000, 30000 };
 
 	for (int i = 0; i < 5; i++)
 	{
@@ -1981,11 +1981,11 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 
 			return obj;
 		};
-		oi.setTemplate (Obj::PRISON, 0, terrainType);
+		oi.setTemplate(Obj::PRISON, 0, terrainType);
 		oi.value = prisonValues[i];
 		oi.probability = 30;
 		oi.maxPerZone = gen->getPrisonsRemaning() / 5; //probably not perfect, but we can't generate more prisons than hereos.
-		possibleObjects.push_back (oi);
+		possibleObjects.push_back(oi);
 	}
 
 	//all following objects are unlimited
@@ -1996,7 +1996,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1);
 
 	//don't spawn original "neutral" dwellings that got replaced by Conflux dwellings in AB
-	static int elementalConfluxROE[] = {7, 13, 16, 47};
+	static int elementalConfluxROE[] = { 7, 13, 16, 47 };
 	for (int i = 0; i < 4; i++)
 		vstd::erase_if_present(subObjects, elementalConfluxROE[i]);
 
@@ -2027,13 +2027,13 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 					};
 
 					oi.templ = temp;
-					possibleObjects.push_back (oi);
+					possibleObjects.push_back(oi);
 				}
 			}
 		}
 	}
 
-	static const int scrollValues[] = {500, 2000, 3000, 4000, 5000};
+	static const int scrollValues[] = { 500, 2000, 3000, 4000, 5000 };
 
 	for (int i = 0; i < 5; i++)
 	{
@@ -2048,7 +2048,7 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			for (ui32 spellid = 0; spellid < gen->map->allowedSpell.size(); spellid++) //spellh size appears to be greater (?)
 			{
 				const CSpell *spell = SpellID(spellid).toSpell();
-				if (gen->map->allowedSpell[spell->id] && spell->level == i+1)
+				if (gen->map->allowedSpell[spell->id] && spell->level == i + 1)
 				{
 					out.push_back(spell->id);
 				}
@@ -2058,10 +2058,10 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			obj->storedArtifact = a;
 			return obj;
 		};
-		oi.setTemplate (Obj::SPELL_SCROLL, 0, terrainType);
+		oi.setTemplate(Obj::SPELL_SCROLL, 0, terrainType);
 		oi.value = scrollValues[i];
 		oi.probability = 30;
-		possibleObjects.push_back (oi);
+		possibleObjects.push_back(oi);
 	}
 
 	//pandora box with gold
@@ -2075,10 +2075,10 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			obj->resources[Res::GOLD] = i * 5000;
 			return obj;
 		};
-		oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
+		oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
 		oi.value = i * 5000;;
 		oi.probability = 5;
-		possibleObjects.push_back (oi);
+		possibleObjects.push_back(oi);
 	}
 
 	//pandora box with experience
@@ -2092,14 +2092,14 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			obj->gainedExp = i * 5000;
 			return obj;
 		};
-		oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
+		oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
 		oi.value = i * 6000;;
 		oi.probability = 20;
-		possibleObjects.push_back (oi);
+		possibleObjects.push_back(oi);
 	}
 
 	//pandora box with creatures
-	static const int tierValues[] = {5000, 7000, 9000, 12000, 16000, 21000, 27000};
+	static const int tierValues[] = { 5000, 7000, 9000, 12000, 16000, 21000, 27000 };
 
 	auto creatureToCount = [](CCreature * creature) -> int
 	{
@@ -2143,10 +2143,10 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 				obj->creatures.putStack(SlotID(0), stack);
 				return obj;
 			};
-			oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
-			oi.value = (2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount()))/3;
+			oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
+			oi.value = (2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) / 3;
 			oi.probability = 3;
-			possibleObjects.push_back (oi);
+			possibleObjects.push_back(oi);
 		}
 	}
 
@@ -2169,15 +2169,15 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			RandomGeneratorUtil::randomShuffle(spells, gen->rand);
 			for (int j = 0; j < std::min<int>(12, spells.size()); j++)
 			{
-				obj->spells.push_back (spells[j]->id);
+				obj->spells.push_back(spells[j]->id);
 			}
 
 			return obj;
 		};
-		oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
+		oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
 		oi.value = (i + 1) * 2500; //5000 - 15000
 		oi.probability = 2;
-		possibleObjects.push_back (oi);
+		possibleObjects.push_back(oi);
 	}
 
 	//Pandora with 15 spells of certain school
@@ -2197,18 +2197,18 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 					bool school = false; //TODO: we could have better interface for iterating schools
 					switch (i)
 					{
-						case 1:
-							school = spell->air;
-							break;
-						case 2:
-							school = spell->earth;
-							break;
-						case 3:
-							school = spell->fire;
-							break;
-						case 4:
-							school = spell->water;
-							break;
+					case 1:
+						school = spell->air;
+						break;
+					case 2:
+						school = spell->earth;
+						break;
+					case 3:
+						school = spell->fire;
+						break;
+					case 4:
+						school = spell->water;
+						break;
 					}
 					if (school)
 						spells.push_back(spell);
@@ -2218,15 +2218,15 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 			RandomGeneratorUtil::randomShuffle(spells, gen->rand);
 			for (int j = 0; j < std::min<int>(15, spells.size()); j++)
 			{
-				obj->spells.push_back (spells[j]->id);
+				obj->spells.push_back(spells[j]->id);
 			}
 
 			return obj;
 		};
-		oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
+		oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
 		oi.value = 15000;
 		oi.probability = 2;
-		possibleObjects.push_back (oi);
+		possibleObjects.push_back(oi);
 	}
 
 	// Pandora box with 60 random spells
@@ -2247,21 +2247,21 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 		RandomGeneratorUtil::randomShuffle(spells, gen->rand);
 		for (int j = 0; j < std::min<int>(60, spells.size()); j++)
 		{
-			obj->spells.push_back (spells[j]->id);
+			obj->spells.push_back(spells[j]->id);
 		}
 
 		return obj;
 	};
-	oi.setTemplate (Obj::PANDORAS_BOX, 0, terrainType);
+	oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
 	oi.value = 3000;
 	oi.probability = 2;
-	possibleObjects.push_back (oi);
+	possibleObjects.push_back(oi);
 
 	//seer huts with creatures or generic rewards
 
 	static const int genericSeerHuts = 8;
 	int seerHutsPerType = 0;
-	const int questArtsRemaining = gen->getQuestArtsRemaning();
+	const int questArtsRemaining = gen->getQuestArtsRemaning().size();
 
 	std::vector<CCreature *> creatures;
 
@@ -2286,32 +2286,44 @@ void CRmgTemplateZone::addAllPossibleObjects (CMapGenerator* gen)
 
 	RandomGeneratorUtil::randomShuffle(creatures, gen->rand);
 
-	for (int i = 0; i < std::min<int>(creatures.size(), questArtsRemaining - genericSeerHuts); i++)
+	for (int loops = 0; loops < seerHutsPerType; loops++) //in case there are many arties available
 	{
-		auto creature = creatures[i];
-		int creaturesAmount = creatureToCount(creature);
-
-		if (!creaturesAmount)
-			continue;
-		
-		//int randomAppearance = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::SEER_HUT), gen->rand); //FIXME: empty subids?
-		int randomAppearance = 0;
-		oi.generateObject = [creature, creaturesAmount, randomAppearance, gen]() -> CGObjectInstance *
+		for (int i = 0; i < std::min<int>(creatures.size(), questArtsRemaining - genericSeerHuts); i++)
 		{
-			auto obj = new CGSeerHut();
-			obj->ID = Obj::SEER_HUT;
-			obj->subID = randomAppearance;
-			obj->rewardType = CGSeerHut::CREATURE;
-			obj->rID = creature->idNumber;
-			obj->rVal = creaturesAmount;
-			gen->decreaseQuestArtsRemaining();
-			return obj;
-			//TODO: place required artifact in next zone
-		};
-		oi.setTemplate(Obj::PANDORAS_BOX, randomAppearance, terrainType);
-		oi.value = ((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) - 4000) / 3;
-		oi.probability = 3;
-		possibleObjects.push_back(oi);
+			auto creature = creatures[i];
+			int creaturesAmount = creatureToCount(creature);
+
+			if (!creaturesAmount)
+				continue;
+
+			int randomAppearance = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::SEER_HUT), gen->rand);
+
+			oi.generateObject = [creature, creaturesAmount, randomAppearance, gen]() -> CGObjectInstance *
+			{
+				auto obj = new CGSeerHut();
+				obj->ID = Obj::SEER_HUT;
+				obj->subID = randomAppearance;
+				obj->rewardType = CGSeerHut::CREATURE;
+				obj->rID = creature->idNumber;
+				obj->rVal = creaturesAmount;
+
+				obj->quest->missionType = CQuest::MISSION_ART;
+				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
+				obj->quest->m5arts.push_back(artid);
+				gen->banQuestArt(artid);
+				obj->quest->lastDay = -1;
+				obj->quest->isCustomFirst = false;
+				obj->quest->isCustomNext = false;
+				obj->quest->isCustomComplete = false;
+
+				return obj;
+				//TODO: place required artifact in next zone
+			};
+			oi.setTemplate(Obj::SEER_HUT, randomAppearance, terrainType);
+			oi.value = ((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) - 4000) / 3;
+			oi.probability = 3;
+			possibleObjects.push_back(oi);
+		}
 	}
 }
 

@@ -79,11 +79,10 @@ void CMapGenerator::initPrisonsRemaining()
 
 void CMapGenerator::initQuestArtsRemaining()
 {
-	questArtsRemaining = 0;
 	for (auto art : VLC->arth->artifacts)
 	{
 		if (art->aClass == CArtifact::ART_TREASURE && art->constituentOf.empty()) //don't use parts of combined artifacts
-			questArtsRemaining++;
+		questArtifacts.push_back(art->id);
 	}
 }
 
@@ -497,13 +496,14 @@ void CMapGenerator::decreasePrisonsRemaining()
 	prisonsRemaining = std::max (0, prisonsRemaining - 1);
 }
 
-int CMapGenerator::getQuestArtsRemaning() const
+std::vector<ArtifactID> CMapGenerator::getQuestArtsRemaning() const
 {
-	return questArtsRemaining;
+	return questArtifacts;
 }
-void CMapGenerator::decreaseQuestArtsRemaining()
+void CMapGenerator::banQuestArt(ArtifactID id)
 {
-	questArtsRemaining = std::max(0, questArtsRemaining - 1);
+	map->allowedArtifact[id] = false;
+	vstd::erase_if_present (questArtifacts, id);
 }
 
 void CMapGenerator::registerZone (TFaction faction)
