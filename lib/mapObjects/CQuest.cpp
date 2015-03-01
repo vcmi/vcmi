@@ -387,6 +387,14 @@ void CQuest::getCompletionText (MetaString &iwText, std::vector<Component> &comp
 	}
 }
 
+CGSeerHut::CGSeerHut() : IQuestObject()
+{
+	obj->quest->lastDay = -1;
+	obj->quest->isCustomFirst = false;
+	obj->quest->isCustomNext = false;
+	obj->quest->isCustomComplete = false;
+}
+
 void CGSeerHut::setObjToKill()
 {
 	if (quest->missionType == CQuest::MISSION_KILL_CREATURE)

@@ -95,7 +95,7 @@ public:
 	si32 rVal; //reward value
 	std::string seerName;
 
-	CGSeerHut() : IQuestObject(){};
+	CGSeerHut();
 	void initObj() override;
 	std::string getHoverText(PlayerColor player) const override;
 	void newTurn() const override;

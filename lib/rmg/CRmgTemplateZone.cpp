@@ -2311,10 +2311,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
 				obj->quest->m5arts.push_back(artid);
 				gen->banQuestArt(artid);
-				obj->quest->lastDay = -1;
-				obj->quest->isCustomFirst = false;
-				obj->quest->isCustomNext = false;
-				obj->quest->isCustomComplete = false;
+				gen->map->addQuest(obj);
 
 				return obj;
 				//TODO: place required artifact in next zone
