@@ -2295,20 +2295,17 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 
 		RandomGeneratorUtil::randomShuffle(creatures, gen->rand);
 
-		auto generateArtInfo = [](ArtifactID id) -> ObjectInfo
+		auto generateArtInfo = [this](ArtifactID id) -> ObjectInfo
 		{
 			ObjectInfo artInfo;
 			artInfo.probability = 1e6; //99,9% to spawn that art in first treasure pile
 			artInfo.maxPerZone = 1;
 			artInfo.value = 2000; //treasure art
+			artInfo.setTemplate(Obj::ARTIFACT, id, this->terrainType);
 			artInfo.generateObject = [id]() -> CGObjectInstance *
 			{
-				auto obj = new CGArtifact;
-				obj->ID = Obj::ARTIFACT;
-				obj->subID = id;
-
-				return obj;
-				//TODO: place required artifact in next zone
+				auto handler = VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, id);
+				return handler->create(handler->getTemplates().front());
 			};
 			return artInfo;
 		};
@@ -2341,7 +2338,6 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				this->questArtZone->possibleObjects.push_back (generateArtInfo(artid));
 
 				return obj;
-				//TODO: place required artifact in next zone
 			};
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, terrainType);
 			oi.value = ((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) - 4000) / 3;
@@ -2378,7 +2374,6 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				this->questArtZone->possibleObjects.push_back(generateArtInfo(artid));
 
 				return obj;
-				//TODO: place required artifact in next zone
 			};
 
 			possibleObjects.push_back(oi);
@@ -2401,7 +2396,6 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				this->questArtZone->possibleObjects.push_back(generateArtInfo(artid));
 
 				return obj;
-				//TODO: place required artifact in next zone
 			};
 
 			possibleObjects.push_back(oi);
