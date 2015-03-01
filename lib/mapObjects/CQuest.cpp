@@ -389,10 +389,10 @@ void CQuest::getCompletionText (MetaString &iwText, std::vector<Component> &comp
 
 CGSeerHut::CGSeerHut() : IQuestObject()
 {
-	obj->quest->lastDay = -1;
-	obj->quest->isCustomFirst = false;
-	obj->quest->isCustomNext = false;
-	obj->quest->isCustomComplete = false;
+	quest->lastDay = -1;
+	quest->isCustomFirst = false;
+	quest->isCustomNext = false;
+	quest->isCustomComplete = false;
 }
 
 void CGSeerHut::setObjToKill()
