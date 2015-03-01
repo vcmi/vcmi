@@ -2637,9 +2637,39 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance* h, CGPath path)
 		ETerrainType newTerrain;
 		int sh = -1;
 
-		const TerrainTile * curTile = cb->getTile(CGHeroInstance::convertPosition(h->pos, false));
+		auto allowedToStopAt = [this,h]{ //make sure hero won't able to stop on blocked tile while flying
+			bool canStopAt = true;
+			const TerrainTile * curTile = cb->getTile(CGHeroInstance::convertPosition(h->pos, false));
+			if (curTile->blocked)
+			{
+				canStopAt = false;
+				if (curTile->blockingObjects.size() == 1 && curTile->blockingObjects.front()->id == h->id)
+					canStopAt = true; //hero should be able to stop at tile that only blocked by himself
+				else if (curTile->visitable)
+				{
+					for (auto visitableObj : curTile->visitableObjects)
+					{
+						// I not sure why is convertPosition used in first above, but we have to use it there too.
+						// Otherwise this check won't work which going to cause freeze if player attempt to stop at visitable object that hero may pass through w/o stopping, e.g Garrisons.
+						if (visitableObj->id == h->id || visitableObj->visitablePos() != CGHeroInstance::convertPosition(h->pos, false))
+							continue; //TODO: hero should be able to stop on any non-blocked visitable entries of object with multiple visitable positions. e.g Magic Spring
 
-		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || curTile->blocked); i--)
+						if (!visitableObj->blockVisit) //flying hero can't stop on other hero or corpse, etc
+						{
+							canStopAt = true;
+							for (auto blockingObj : curTile->blockingObjects)
+							{
+								if (blockingObj->id != h->id && blockingObj->id != visitableObj->id)
+									canStopAt = false;
+							}
+						}
+					}
+				}
+			}
+			return canStopAt;
+		};
+
+		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || !allowedToStopAt()); i--)
 		{
 			//changing z coordinate means we're moving through subterranean gate -> it's done automatically upon the visit, so we don't have to request that move here
 			if(path.nodes[i-1].coord.z != path.nodes[i].coord.z)
