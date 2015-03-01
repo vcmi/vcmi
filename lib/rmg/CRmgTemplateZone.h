@@ -169,6 +169,7 @@ public:
 	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object);
 
 	void addConnection(TRmgTemplateZoneId otherZone);
+	void setQuestArtZone(CRmgTemplateZone * otherZone);
 	std::vector<TRmgTemplateZoneId> getConnections() const;
 	void addTreasureInfo(CTreasureInfo & info);
 	std::vector<CTreasureInfo> getTreasureInfo();
@@ -194,6 +195,7 @@ private:
 
 	si32 townType;
 	ETerrainType terrainType;
+	CRmgTemplateZone * questArtZone; //artifacts required for Seer Huts will be placed here - or not if null
 
 	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
 	std::vector<CTreasureInfo> treasureInfo;

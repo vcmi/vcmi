@@ -144,7 +144,8 @@ CRmgTemplateZone::CRmgTemplateZone() :
 	townType(ETownType::NEUTRAL),
 	terrainType (ETerrainType::GRASS),
 	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
-	minGuardedValue(0)
+	minGuardedValue(0),
+	questArtZone(nullptr)
 {
 	terrainTypes = getDefaultTerrainTypes();
 }
@@ -295,6 +296,11 @@ std::map<TResource, ui16> CRmgTemplateZone::getMinesInfo() const
 void CRmgTemplateZone::addConnection(TRmgTemplateZoneId otherZone)
 {
 	connections.push_back (otherZone);
+}
+
+void CRmgTemplateZone::setQuestArtZone(CRmgTemplateZone * otherZone)
+{
+	questArtZone = otherZone;
 }
 
 std::vector<TRmgTemplateZoneId> CRmgTemplateZone::getConnections() const
@@ -2259,120 +2265,147 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 
 	//seer huts with creatures or generic rewards
 
-	static const int genericSeerHuts = 8;
-	int seerHutsPerType = 0;
-	const int questArtsRemaining = gen->getQuestArtsRemaning().size();
-
-	std::vector<CCreature *> creatures;
-
-	for (auto cre : VLC->creh->creatures)
+	if (questArtZone) //we won't be placing seer huts if there is no zone left to place arties
 	{
-		if (cre->faction == townType)
+		static const int genericSeerHuts = 8;
+		int seerHutsPerType = 0;
+		const int questArtsRemaining = gen->getQuestArtsRemaning().size();
+
+		std::vector<CCreature *> creatures;
+
+		for (auto cre : VLC->creh->creatures)
 		{
-			creatures.push_back(cre);
+			if (cre->faction == townType)
+			{
+				creatures.push_back(cre);
+			}
 		}
-	}
 
-	//general issue is that not many artifact types are available for quests
+		//general issue is that not many artifact types are available for quests
 
-	if (questArtsRemaining >= genericSeerHuts + creatures.size())
-	{
-		seerHutsPerType = questArtsRemaining / (genericSeerHuts + creatures.size());
-	}
-	else if (questArtsRemaining >= genericSeerHuts)
-	{
-		seerHutsPerType = 1;
-	}
-	oi.maxPerZone = seerHutsPerType;
-
-	RandomGeneratorUtil::randomShuffle(creatures, gen->rand);
-
-	for (int i = 0; i < std::min<int>(creatures.size(), questArtsRemaining - genericSeerHuts); i++)
-	{
-		auto creature = creatures[i];
-		int creaturesAmount = creatureToCount(creature);
-
-		if (!creaturesAmount)
-			continue;
-
-		int randomAppearance = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::SEER_HUT), gen->rand);
-
-		oi.generateObject = [creature, creaturesAmount, randomAppearance, gen]() -> CGObjectInstance *
+		if (questArtsRemaining >= genericSeerHuts + creatures.size())
 		{
-			auto obj = new CGSeerHut();
-			obj->ID = Obj::SEER_HUT;
-			obj->subID = randomAppearance;
-			obj->rewardType = CGSeerHut::CREATURE;
-			obj->rID = creature->idNumber;
-			obj->rVal = creaturesAmount;
-
-			obj->quest->missionType = CQuest::MISSION_ART;
-			ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
-			obj->quest->m5arts.push_back(artid);
-			gen->banQuestArt(artid);
-			gen->map->addQuest(obj);
-
-			return obj;
-			//TODO: place required artifact in next zone
-		};
-		oi.setTemplate(Obj::SEER_HUT, randomAppearance, terrainType);
-		oi.value = ((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) - 4000) / 3;
-		oi.probability = 3;
-		possibleObjects.push_back(oi);
-	}
-
-	static int seerExpGold[] = { 5000, 10000, 15000, 20000 };
-	static int seerValues[] = { 2000, 5333, 8666, 12000};
-
-	for (int i = 0; i < 4; i++) //seems that code for exp and gold reward is similiar
-	{
-		int randomAppearance = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::SEER_HUT), gen->rand);
-
-		oi.setTemplate(Obj::SEER_HUT, randomAppearance, terrainType);
-		oi.value = seerValues[i];
-		oi.probability = 10;
-
-		oi.generateObject = [i, randomAppearance, gen]() -> CGObjectInstance *
+			seerHutsPerType = questArtsRemaining / (genericSeerHuts + creatures.size());
+		}
+		else if (questArtsRemaining >= genericSeerHuts)
 		{
-			auto obj = new CGSeerHut();
-			obj->ID = Obj::SEER_HUT;
-			obj->subID = randomAppearance;
-			obj->rewardType = CGSeerHut::EXPERIENCE;
-			obj->rID = 0; //unitialized?
-			obj->rVal = seerExpGold[i];
+			seerHutsPerType = 1;
+		}
+		oi.maxPerZone = seerHutsPerType;
 
-			obj->quest->missionType = CQuest::MISSION_ART;
-			ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
-			obj->quest->m5arts.push_back(artid);
-			gen->banQuestArt(artid);
-			gen->map->addQuest(obj);
+		RandomGeneratorUtil::randomShuffle(creatures, gen->rand);
 
-			return obj;
-			//TODO: place required artifact in next zone
+		auto generateArtInfo = [](ArtifactID id) -> ObjectInfo
+		{
+			ObjectInfo artInfo;
+			artInfo.probability = 1e6; //99,9% to spawn that art in first treasure pile
+			artInfo.maxPerZone = 1;
+			artInfo.value = 2000; //treasure art
+			artInfo.generateObject = [id]() -> CGObjectInstance *
+			{
+				auto obj = new CGArtifact;
+				obj->ID = Obj::ARTIFACT;
+				obj->subID = id;
+
+				return obj;
+				//TODO: place required artifact in next zone
+			};
+			return artInfo;
 		};
 
-		possibleObjects.push_back(oi);
-
-		oi.generateObject = [i, randomAppearance, gen]() -> CGObjectInstance *
+		for (int i = 0; i < std::min<int>(creatures.size(), questArtsRemaining - genericSeerHuts); i++)
 		{
-			auto obj = new CGSeerHut();
-			obj->ID = Obj::SEER_HUT;
-			obj->subID = randomAppearance;
-			obj->rewardType = CGSeerHut::RESOURCES;
-			obj->rID = Res::GOLD;
-			obj->rVal = seerExpGold[i];
+			auto creature = creatures[i];
+			int creaturesAmount = creatureToCount(creature);
 
-			obj->quest->missionType = CQuest::MISSION_ART;
-			ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
-			obj->quest->m5arts.push_back(artid);
-			gen->banQuestArt(artid);
-			gen->map->addQuest(obj);
+			if (!creaturesAmount)
+				continue;
 
-			return obj;
-			//TODO: place required artifact in next zone
-		};
+			int randomAppearance = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::SEER_HUT), gen->rand);
 
-		possibleObjects.push_back(oi);
+			oi.generateObject = [creature, creaturesAmount, randomAppearance, gen, this, generateArtInfo]() -> CGObjectInstance *
+			{
+				auto obj = new CGSeerHut();
+				obj->ID = Obj::SEER_HUT;
+				obj->subID = randomAppearance;
+				obj->rewardType = CGSeerHut::CREATURE;
+				obj->rID = creature->idNumber;
+				obj->rVal = creaturesAmount;
+
+				obj->quest->missionType = CQuest::MISSION_ART;
+				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
+				obj->quest->m5arts.push_back(artid);
+				gen->banQuestArt(artid);
+				gen->map->addQuest(obj);
+
+				this->questArtZone->possibleObjects.push_back (generateArtInfo(artid));
+
+				return obj;
+				//TODO: place required artifact in next zone
+			};
+			oi.setTemplate(Obj::SEER_HUT, randomAppearance, terrainType);
+			oi.value = ((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) - 4000) / 3;
+			oi.probability = 3;
+			possibleObjects.push_back(oi);
+		}
+
+		static int seerExpGold[] = { 5000, 10000, 15000, 20000 };
+		static int seerValues[] = { 2000, 5333, 8666, 12000 };
+
+		for (int i = 0; i < 4; i++) //seems that code for exp and gold reward is similiar
+		{
+			int randomAppearance = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::SEER_HUT), gen->rand);
+
+			oi.setTemplate(Obj::SEER_HUT, randomAppearance, terrainType);
+			oi.value = seerValues[i];
+			oi.probability = 10;
+
+			oi.generateObject = [i, randomAppearance, gen, this, generateArtInfo]() -> CGObjectInstance *
+			{
+				auto obj = new CGSeerHut();
+				obj->ID = Obj::SEER_HUT;
+				obj->subID = randomAppearance;
+				obj->rewardType = CGSeerHut::EXPERIENCE;
+				obj->rID = 0; //unitialized?
+				obj->rVal = seerExpGold[i];
+
+				obj->quest->missionType = CQuest::MISSION_ART;
+				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
+				obj->quest->m5arts.push_back(artid);
+				gen->banQuestArt(artid);
+				gen->map->addQuest(obj);
+
+				this->questArtZone->possibleObjects.push_back(generateArtInfo(artid));
+
+				return obj;
+				//TODO: place required artifact in next zone
+			};
+
+			possibleObjects.push_back(oi);
+
+			oi.generateObject = [i, randomAppearance, gen, this, generateArtInfo]() -> CGObjectInstance *
+			{
+				auto obj = new CGSeerHut();
+				obj->ID = Obj::SEER_HUT;
+				obj->subID = randomAppearance;
+				obj->rewardType = CGSeerHut::RESOURCES;
+				obj->rID = Res::GOLD;
+				obj->rVal = seerExpGold[i];
+
+				obj->quest->missionType = CQuest::MISSION_ART;
+				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
+				obj->quest->m5arts.push_back(artid);
+				gen->banQuestArt(artid);
+				gen->map->addQuest(obj);
+
+				this->questArtZone->possibleObjects.push_back(generateArtInfo(artid));
+
+				return obj;
+				//TODO: place required artifact in next zone
+			};
+
+			possibleObjects.push_back(oi);
+		}
 	}
 }
 

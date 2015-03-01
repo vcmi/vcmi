@@ -241,6 +241,7 @@ void CMapGenerator::fillZones()
 		it.second->initFreeTiles(this);
 	}
 
+	findZonesForQuestArts();
 	createConnections();
 	//make sure all connections are passable before creating borders
 	for (auto it : zones)
@@ -268,6 +269,26 @@ void CMapGenerator::fillZones()
 	map->grailPos = *RandomGeneratorUtil::nextItem(*grailZone->getFreePaths(), rand);
 
 	logGlobal->infoStream() << "Zones filled successfully";
+}
+
+void CMapGenerator::findZonesForQuestArts()
+{
+	//we want to place arties in zones that were not yet filled (higher index)
+
+	for (auto connection : mapGenOptions->getMapTemplate()->getConnections())
+	{
+		auto zoneA = connection.getZoneA();
+		auto zoneB = connection.getZoneB();
+
+		if (zoneA->getId() > zoneB->getId())
+		{
+			zoneB->setQuestArtZone(zoneA);
+		}
+		else if (zoneA->getId() < zoneB->getId())
+		{
+			zoneA->setQuestArtZone(zoneB);
+		}
+	}
 }
 
 void CMapGenerator::createConnections()

@@ -64,6 +64,7 @@ public:
 
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> getZones() const;
 	void createConnections();
+	void findZonesForQuestArts();
 	void foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo);
 
 	bool isBlocked(const int3 &tile) const;
