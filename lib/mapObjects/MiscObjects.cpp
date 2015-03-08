@@ -924,18 +924,18 @@ void CGMonolith::initObj()
 	IDs.push_back(ID);
 	switch(ID)
 	{
-		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
-			type = ENTRANCE;
-			IDs.push_back(Obj::MONOLITH_ONE_WAY_EXIT);
-			break;
-		case Obj::MONOLITH_ONE_WAY_EXIT:
-			type = EXIT;
-			IDs.push_back(Obj::MONOLITH_ONE_WAY_ENTRANCE);
-			break;
-		case Obj::MONOLITH_TWO_WAY:
-		default:
-			type = BOTH;
-			break;
+	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+		type = ENTRANCE;
+		IDs.push_back(Obj::MONOLITH_ONE_WAY_EXIT);
+		break;
+	case Obj::MONOLITH_ONE_WAY_EXIT:
+		type = EXIT;
+		IDs.push_back(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+		break;
+	case Obj::MONOLITH_TWO_WAY:
+	default:
+		type = BOTH;
+		break;
 	}
 
 	channel = findMeChannel(IDs, subID);
