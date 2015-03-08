@@ -1762,7 +1762,8 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 		}
 		else if(visitDest == VISIT_DEST)
 		{
-			visitObjectOnTile(t, h);
+			if(!transit || !CGTeleport::isTeleport(t.topVisitableObj()))
+				visitObjectOnTile(t, h);
 		}
 
 		queries.popIfTop(moveQuery);
