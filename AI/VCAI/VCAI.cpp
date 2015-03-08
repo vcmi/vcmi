@@ -129,7 +129,7 @@ void VCAI::heroMoved(const TryMoveHero & details)
 		{
 			if(cb->isTeleportChannelBidirectional(t1->channel))
 			{
-				if(o1->ID == Obj::SUBTERRANEAN_GATE)
+				if(o1->ID == Obj::SUBTERRANEAN_GATE && o1->ID == o2->ID) // We need to only add subterranean gates in knownSubterraneanGates. Used for features not yet ported to use teleport channels
 				{
 					knownSubterraneanGates[o1] = o2;
 					knownSubterraneanGates[o2] = o1;
