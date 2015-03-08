@@ -2524,6 +2524,7 @@ AIStatus::AIStatus()
 	battle = NO_BATTLE;
 	havingTurn = false;
 	ongoingHeroMovement = false;
+	ongoingChannelProbing = false;
 }
 
 AIStatus::~AIStatus()
@@ -2654,6 +2655,18 @@ void AIStatus::setMove(bool ongoing)
 	boost::unique_lock<boost::mutex> lock(mx);
 	ongoingHeroMovement = ongoing;
 	cv.notify_all();
+}
+
+void AIStatus::setChannelProbing(bool ongoing)
+{
+	boost::unique_lock<boost::mutex> lock(mx);
+	ongoingHeroMovement = ongoing;
+	cv.notify_all();
+}
+
+bool AIStatus::channelProbing()
+{
+	return ongoingChannelProbing;
 }
 
 SectorMap::SectorMap()
