@@ -1206,6 +1206,28 @@ struct ExchangeDialog : public Query//2005
 	}
 };
 
+struct TeleportDialog : public Query//2006
+{
+	TeleportDialog() {type = 2006;}
+	TeleportDialog(const CGHeroInstance *Hero, TeleportChannelID Channel)
+		: hero(Hero), channel(Channel), impassable(false)
+	{
+		type = 2006;
+	}
+
+	void applyCl(CClient *cl);
+
+	const CGHeroInstance *hero;
+	TeleportChannelID channel;
+	std::vector<ObjectInstanceID> exits;
+	bool impassable;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & queryID & hero & channel & exits & impassable;
+	}
+};
+
 struct BattleInfo;
 struct BattleStart : public CPackForClient//3000
 {

@@ -313,6 +313,18 @@ CBlockingDialogQuery::CBlockingDialogQuery(const BlockingDialog &bd)
 	addPlayer(bd.player);
 }
 
+void CTeleportDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
+{
+	auto obj = dynamic_cast<const CGTeleport *>(objectVisit.visitedObject);
+	obj->teleportDialogAnswered(objectVisit.visitingHero, *answer, td.exits);
+}
+
+CTeleportDialogQuery::CTeleportDialogQuery(const TeleportDialog &td)
+{
+	this->td = td;
+	addPlayer(td.hero->tempOwner);
+}
+
 CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(const HeroLevelUp &Hlu)
 {
 	hlu = Hlu;
