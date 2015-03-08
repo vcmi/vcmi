@@ -111,8 +111,11 @@ public:
 	//teleport
 	std::vector<ObjectInstanceID> getTeleportChannelEntraces(TeleportChannelID id, ObjectInstanceID excludeId = ObjectInstanceID(), PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
 	std::vector<ObjectInstanceID> getTeleportChannelExits(TeleportChannelID id, ObjectInstanceID excludeId = ObjectInstanceID(), PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
-	ETeleportChannelType getTeleportChannelType(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
-	bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor Player) const;
+	ETeleportChannelType getTeleportChannelType(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
+	bool isTeleportChannelImpassable(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
+	bool isTeleportChannelBidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
+	bool isTeleportChannelUnidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
+	bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const;
 };
 
 class DLL_LINKAGE CPlayerSpecificInfoCallback : public CGameInfoCallback

@@ -716,10 +716,10 @@ std::vector<ObjectInstanceID> CGameInfoCallback::getTeleportChannelExits(Telepor
 	return ret;
 }
 
-ETeleportChannelType CGameInfoCallback::getTeleportChannelType(TeleportChannelID id, PlayerColor Player) const
+ETeleportChannelType CGameInfoCallback::getTeleportChannelType(TeleportChannelID id, PlayerColor player) const
 {
-	std::vector<ObjectInstanceID> entrances = getTeleportChannelEntraces(id, ObjectInstanceID(), Player);
-	std::vector<ObjectInstanceID> exits = getTeleportChannelExits(id, ObjectInstanceID(), Player);
+	std::vector<ObjectInstanceID> entrances = getTeleportChannelEntraces(id, ObjectInstanceID(), player);
+	std::vector<ObjectInstanceID> exits = getTeleportChannelExits(id, ObjectInstanceID(), player);
 	if((!entrances.size() || !exits.size()) // impassable if exits or entrances list are empty
 		|| (entrances.size() == 1 && entrances == exits)) // impassable if only entrance and only exit is same object. e.g bidirectional monolith
 	{
@@ -735,12 +735,24 @@ ETeleportChannelType CGameInfoCallback::getTeleportChannelType(TeleportChannelID
 		return ETeleportChannelType::MIXED;
 }
 
-bool CGameInfoCallback::isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor Player) const
+bool CGameInfoCallback::isTeleportChannelImpassable(TeleportChannelID id, PlayerColor player) const
 {
-	if(obj && obj->isEntrance() && ETeleportChannelType::IMPASSABLE != getTeleportChannelType(obj->channel, Player))
-		return true;
-	else
-		return false;
+	return ETeleportChannelType::IMPASSABLE == getTeleportChannelType(id, player);
+}
+
+bool CGameInfoCallback::isTeleportChannelBidirectional(TeleportChannelID id, PlayerColor player) const
+{
+	return ETeleportChannelType::BIDIRECTIONAL == getTeleportChannelType(id, player);
+}
+
+bool CGameInfoCallback::isTeleportChannelUnidirectional(TeleportChannelID id, PlayerColor player) const
+{
+	return ETeleportChannelType::UNIDIRECTIONAL == getTeleportChannelType(id, player);
+}
+
+bool CGameInfoCallback::isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const
+{
+	return obj && obj->isEntrance() && !isTeleportChannelImpassable(obj->channel, player);
 }
 
 void IGameEventRealizer::showInfoDialog( InfoWindow *iw )
