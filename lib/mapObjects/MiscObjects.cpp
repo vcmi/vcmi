@@ -907,6 +907,8 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 		else if(getRandomExit(h) == ObjectInstanceID())
 			logGlobal->warnStream() << "All exits blocked for monolith "<< id << " (obj at " << pos << ") :(";
 	}
+	else
+		showInfoDialog(h, 70, 0);
 
 	cb->showTeleportDialog(&td);
 }
