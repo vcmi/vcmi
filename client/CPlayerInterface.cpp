@@ -97,6 +97,7 @@ static bool objectBlitOrderSorter(const TerrainTileObject  & a, const TerrainTil
 CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
 	logGlobal->traceStream() << "\tHuman player interface for player " << Player << " being constructed";
+	destinationTeleport = ObjectInstanceID();
 	observerInDuelMode = false;
 	howManyPeople++;
 	GH.defActionsDef = 0;
@@ -1141,6 +1142,16 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 }
 
+void CPlayerInterface::showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	ObjectInstanceID choosenExit;
+	if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, destinationTeleport))
+		choosenExit = destinationTeleport;
+
+	cb->selectionMade(choosenExit.getNum(), askID);
+}
+
 void CPlayerInterface::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -1389,8 +1400,17 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 void CPlayerInterface::requestRealized( PackageApplied *pa )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(pa->packType == typeList.getTypeID<MoveHero>()  &&  stillMoveHero.get() == DURING_MOVE)
+	if(pa->packType == typeList.getTypeID<MoveHero>()  &&  stillMoveHero.get() == DURING_MOVE
+	   && destinationTeleport == ObjectInstanceID())
 		stillMoveHero.setn(CONTINUE_MOVE);
+
+	if(destinationTeleport != ObjectInstanceID()
+	   && pa->packType == typeList.getTypeID<QueryReply>()
+	   && stillMoveHero.get() == DURING_MOVE)
+	{ // After teleportation via CGTeleport object is finished
+		destinationTeleport = ObjectInstanceID();
+		stillMoveHero.setn(CONTINUE_MOVE);
+	}
 }
 
 void CPlayerInterface::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
@@ -2624,30 +2644,47 @@ bool CPlayerInterface::capturedAllEvents()
 	return false;
 }
 
-void CPlayerInterface::doMoveHero(const CGHeroInstance* h, CGPath path)
+void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 {
 	int i = 1;
+	auto getObj = [&](int3 coord, bool ignoreHero = false)
+	{
+		return cb->getTile(CGHeroInstance::convertPosition(coord,false))->topVisitableObj(ignoreHero);
+	};
+
+	boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
+	stillMoveHero.data = CONTINUE_MOVE;
+	auto doMovement = [&](int3 dst, bool transit = false)
+	{
+		stillMoveHero.data = WAITING_MOVE;
+		cb->moveHero(h, dst, transit);
+		while(stillMoveHero.data != STOP_MOVE && stillMoveHero.data != CONTINUE_MOVE)
+			stillMoveHero.cond.wait(un);
+	};
 
 	{
 		path.convert(0);
-		boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
-		stillMoveHero.data = CONTINUE_MOVE;
-
 		ETerrainType currentTerrain = ETerrainType::BORDER; // not init yet
 		ETerrainType newTerrain;
 		int sh = -1;
 
-		const TerrainTile * curTile = cb->getTile(CGHeroInstance::convertPosition(h->pos, false));
-
-		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || curTile->blocked); i--)
+		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE); i--)
 		{
-			//changing z coordinate means we're moving through subterranean gate -> it's done automatically upon the visit, so we don't have to request that move here
-			if(path.nodes[i-1].coord.z != path.nodes[i].coord.z)
-				continue;
+			int3 currentCoord = path.nodes[i].coord;
+			int3 nextCoord = path.nodes[i-1].coord;
 
-			//stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
-			if(path.nodes[i-1].turns)
+			auto nextObject = getObj(nextCoord, nextCoord == h->pos);
+			if(CGTeleport::isConnected(getObj(currentCoord, currentCoord == h->pos), nextObject))
 			{
+				CCS->soundh->stopSound(sh);
+				destinationTeleport = nextObject->id;
+				doMovement(h->pos);
+				sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
+				continue;
+			}
+
+			if(path.nodes[i-1].turns)
+			{ //stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
 				stillMoveHero.data = STOP_MOVE;
 				break;
 			}
@@ -2655,13 +2692,12 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance* h, CGPath path)
 			// Start a new sound for the hero movement or let the existing one carry on.
 #if 0
 			// TODO
-			if (hero is flying && sh == -1)
+			if(hero is flying && sh == -1)
 				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
-				newTerrain = cb->getTile(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->terType;
-
-				if (newTerrain != currentTerrain)
+				newTerrain = cb->getTile(CGHeroInstance::convertPosition(currentCoord, false))->terType;
+				if(newTerrain != currentTerrain)
 				{
 					CCS->soundh->stopSound(sh);
 					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
@@ -2669,19 +2705,22 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance* h, CGPath path)
 				}
 			}
 
-			stillMoveHero.data = WAITING_MOVE;
-
-			int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
-			bool guarded = CGI->mh->map->isInTheMap(cb->getGuardingCreaturePosition(endpos - int3(1, 0, 0)));
-
+			assert(h->pos.z == nextCoord.z); // Z should change only if it's movement via teleporter and in this case this code shouldn't be executed at all
+			int3 endpos(nextCoord.x, nextCoord.y, h->pos.z);
 			logGlobal->traceStream() << "Requesting hero movement to " << endpos;
-			cb->moveHero(h,endpos);
 
-			while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
-				stillMoveHero.cond.wait(un);
+			if((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
+				&& (CGTeleport::isConnected(nextObject, getObj(path.nodes[i-2].coord))
+					|| CGTeleport::isTeleport(nextObject)))
+			{ // Hero should be able to go through object if it's allow transit
+				doMovement(endpos, true);
+			}
+			else
+				doMovement(endpos);
 
 			logGlobal->traceStream() << "Resuming " << __FUNCTION__;
-			if (guarded || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
+			bool guarded = cb->isInTheMap(cb->getGuardingCreaturePosition(endpos - int3(1, 0, 0)));
+			if(guarded || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
 				break;
 		}
 
@@ -2694,7 +2733,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance* h, CGPath path)
 
 
 	//todo: this should be in main thread
-	if (adventureInt)
+	if(adventureInt)
 	{
 		// (i == 0) means hero went through all the path
 		adventureInt->updateMoveHero(h, (i != 0));
