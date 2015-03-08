@@ -688,6 +688,61 @@ const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid
 	return gs->map->objects[oid.num];
 }
 
+std::vector<ObjectInstanceID> CGameInfoCallback::getTeleportChannelEntraces(TeleportChannelID id, ObjectInstanceID excludeId, PlayerColor Player) const
+{
+	std::vector<ObjectInstanceID> ret;
+	auto channel = gs->map->teleportChannels[id];
+	for(auto entrance : channel->entrances)
+	{
+		auto obj = getObj(entrance);
+		if(obj && (Player == PlayerColor::UNFLAGGABLE || isVisible(obj->pos, Player)))
+			ret.push_back(entrance);
+	}
+
+	return ret;
+}
+
+std::vector<ObjectInstanceID> CGameInfoCallback::getTeleportChannelExits(TeleportChannelID id, ObjectInstanceID excludeId, PlayerColor Player) const
+{
+	std::vector<ObjectInstanceID> ret;
+	auto channel = gs->map->teleportChannels[id];
+	for(auto exit : channel->exits)
+	{
+		auto obj = getObj(exit);
+		if(obj && (Player == PlayerColor::UNFLAGGABLE || isVisible(obj->pos, Player)))
+			ret.push_back(exit);
+	}
+
+	return ret;
+}
+
+ETeleportChannelType::ETeleportChannelType CGameInfoCallback::getTeleportChannelType(TeleportChannelID id, PlayerColor Player) const
+{
+	std::vector<ObjectInstanceID> entrances = getTeleportChannelEntraces(id, ObjectInstanceID(), Player);
+	std::vector<ObjectInstanceID> exits = getTeleportChannelExits(id, ObjectInstanceID(), Player);
+	if((!entrances.size() || !exits.size())
+		|| (entrances.size() == 1 && entrances == exits))
+	{
+		return ETeleportChannelType::IMPASSABLE;
+	}
+
+	auto intersection = vstd::intersection(entrances, exits);
+	if(intersection.size() == entrances.size() && intersection.size() == exits.size())
+		return ETeleportChannelType::BIDIRECTIONAL;
+	else if(!intersection.size())
+		return ETeleportChannelType::UNIDIRECTIONAL;
+	else
+		return ETeleportChannelType::MIXED;
+}
+
+bool CGameInfoCallback::isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor Player) const
+{
+	if(obj && obj->isEntrance() && ETeleportChannelType::IMPASSABLE != getTeleportChannelType(obj->channel, Player))
+		return true;
+	else
+		return false;
+}
+
 void IGameEventRealizer::showInfoDialog( InfoWindow *iw )
 {
 	commitPackage(iw);
