@@ -588,40 +588,39 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		{
 			switch (obj->ID.num)
 			{
-				case Obj::REDWOOD_OBSERVATORY:
-				case Obj::PILLAR_OF_FIRE:
-				case Obj::CARTOGRAPHER:
+			case Obj::REDWOOD_OBSERVATORY:
+			case Obj::PILLAR_OF_FIRE:
+			case Obj::CARTOGRAPHER:
+				objs.push_back (obj);
+				break;
+			case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+			case Obj::MONOLITH_TWO_WAY:
+			case Obj::SUBTERRANEAN_GATE:
+				auto tObj = dynamic_cast<const CGTeleport *>(obj);
+				assert(ai->knownTeleportChannels.find(tObj->channel) != ai->knownTeleportChannels.end());
+				if(TeleportChannel::IMPASSABLE != ai->knownTeleportChannels[tObj->channel]->passability)
 					objs.push_back (obj);
-					break;
-				case Obj::MONOLITH_ONE_WAY_ENTRANCE:
-				case Obj::MONOLITH_TWO_WAY:
-				case Obj::SUBTERRANEAN_GATE:
-					auto tObj = dynamic_cast<const CGTeleport *>(obj);
-					assert(ai->knownTeleportChannels.find(tObj->channel) != ai->knownTeleportChannels.end());
-					if(TeleportChannel::IMPASSABLE != ai->knownTeleportChannels[tObj->channel]->passability)
-						objs.push_back (obj);
+				break;
 			}
 		}
 		else
 		{
 			switch (obj->ID.num)
 			{
-				case Obj::MONOLITH_TWO_WAY:
-				case Obj::SUBTERRANEAN_GATE:
+			case Obj::MONOLITH_TWO_WAY:
+			case Obj::SUBTERRANEAN_GATE:
+				auto tObj = dynamic_cast<const CGTeleport *>(obj);
+				if(TeleportChannel::IMPASSABLE == ai->knownTeleportChannels[tObj->channel]->passability)
+					break;
+				for(auto exit : ai->knownTeleportChannels[tObj->channel]->exits)
 				{
-					auto tObj = dynamic_cast<const CGTeleport *>(obj);
-					if(TeleportChannel::IMPASSABLE == ai->knownTeleportChannels[tObj->channel]->passability)
+					if(!cb->getObj(exit))
+					{ // Always attempt to visit two-way teleports if one of channel exits is not visible
+						objs.push_back(obj);
 						break;
-
-					for(auto exit : ai->knownTeleportChannels[tObj->channel]->exits)
-					{
-						if(!cb->getObj(exit))
-						{ // Always attempt to visit two-way teleports if one of channel exits is not visible
-							objs.push_back(obj);
-							break;
-						}
 					}
 				}
+				break;
 			}
 		}
 	}
