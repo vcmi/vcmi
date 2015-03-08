@@ -977,7 +977,7 @@ void CGSubterraneanGate::postInit( CGameState * gs ) //matches subterranean gate
 	}
 
 	//sort by position
-	std::sort(gatesSplit[0].begin(), gatesSplit[0].end(), [](CGSubterraneanGate * a, CGSubterraneanGate * b)
+	std::sort(gatesSplit[0].begin(), gatesSplit[0].end(), [](const CGObjectInstance * a, const CGObjectInstance * b)
 	{
 		return a->pos < b->pos;
 	});
