@@ -878,13 +878,10 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 	TeleportDialog td(h, channel);
 	if(isEntrance())
 	{
-		if(ETeleportChannelType::BIDIRECTIONAL == cb->getTeleportChannelType(channel)
-			&& cb->getTeleportChannelExits(channel).size() > 1)
-		{
+		if(cb->isTeleportChannelBidirectional(channel) && 1 < cb->getTeleportChannelExits(channel).size())
 			td.exits = cb->getTeleportChannelExits(channel);
-		}
 
-		if(ETeleportChannelType::IMPASSABLE == cb->getTeleportChannelType(channel))
+		if(cb->isTeleportChannelImpassable(channel))
 		{
 			logGlobal->debugStream() << "Cannot find corresponding exit monolith for "<< id << " (obj at " << pos << ") :(";
 			td.impassable = true;
@@ -948,7 +945,7 @@ void CGMonolith::initObj()
 void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
 {
 	TeleportDialog td(h, channel);
-	if(ETeleportChannelType::IMPASSABLE == cb->getTeleportChannelType(channel)) //no exit
+	if(cb->isTeleportChannelImpassable(channel))
 	{
 		showInfoDialog(h,153,0);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
 		logGlobal->debugStream() << "Cannot find exit subterranean gate for "<< id << " (obj at " << pos << ") :(";
@@ -1018,7 +1015,7 @@ void CGSubterraneanGate::postInit( CGameState * gs ) //matches subterranean gate
 void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 {
 	TeleportDialog td(h, channel);
-	if(ETeleportChannelType::IMPASSABLE == cb->getTeleportChannelType(channel))
+	if(cb->isTeleportChannelImpassable(channel))
 	{
 		logGlobal->debugStream() << "Cannot find exit whirlpool for "<< id << " (obj at " << pos << ") :(";
 		td.impassable = true;

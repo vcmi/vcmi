@@ -127,7 +127,7 @@ void VCAI::heroMoved(const TryMoveHero & details)
 		auto t2 = dynamic_cast<const CGTeleport *>(o2);
 		if(t1 && t2)
 		{
-			if(ETeleportChannelType::BIDIRECTIONAL == cb->getTeleportChannelType(t1->channel))
+			if(cb->isTeleportChannelBidirectional(t1->channel))
 			{
 				if(o1->ID == Obj::SUBTERRANEAN_GATE)
 				{
