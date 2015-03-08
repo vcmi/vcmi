@@ -716,7 +716,7 @@ std::vector<ObjectInstanceID> CGameInfoCallback::getTeleportChannelExits(Telepor
 	return ret;
 }
 
-ETeleportChannelType::ETeleportChannelType CGameInfoCallback::getTeleportChannelType(TeleportChannelID id, PlayerColor Player) const
+ETeleportChannelType CGameInfoCallback::getTeleportChannelType(TeleportChannelID id, PlayerColor Player) const
 {
 	std::vector<ObjectInstanceID> entrances = getTeleportChannelEntraces(id, ObjectInstanceID(), Player);
 	std::vector<ObjectInstanceID> exits = getTeleportChannelExits(id, ObjectInstanceID(), Player);

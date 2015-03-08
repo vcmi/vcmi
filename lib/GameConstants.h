@@ -474,16 +474,13 @@ namespace ETileType
 	};
 }
 
-namespace ETeleportChannelType
+enum class ETeleportChannelType
 {
-	enum ETeleportChannelType
-	{
-		IMPASSABLE,
-		BIDIRECTIONAL,
-		UNIDIRECTIONAL,
-		MIXED
-	};
-}
+	IMPASSABLE,
+	BIDIRECTIONAL,
+	UNIDIRECTIONAL,
+	MIXED
+};
 
 class Obj
 {

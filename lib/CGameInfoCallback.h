@@ -111,7 +111,7 @@ public:
 	//teleport
 	std::vector<ObjectInstanceID> getTeleportChannelEntraces(TeleportChannelID id, ObjectInstanceID excludeId = ObjectInstanceID(), PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
 	std::vector<ObjectInstanceID> getTeleportChannelExits(TeleportChannelID id, ObjectInstanceID excludeId = ObjectInstanceID(), PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
-	ETeleportChannelType::ETeleportChannelType getTeleportChannelType(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
+	ETeleportChannelType getTeleportChannelType(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
 	bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor Player) const;
 };
 
