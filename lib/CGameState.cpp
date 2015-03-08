@@ -1867,7 +1867,7 @@ void CGameState::initMapObjects()
 			}
 		}
 	}
-	CGTeleport::postInit(); //pairing subterranean gates
+	CGSubterraneanGate::postInit(gs); //pairing subterranean gates
 
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized
 }

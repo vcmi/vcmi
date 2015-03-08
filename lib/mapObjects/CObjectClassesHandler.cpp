@@ -83,7 +83,9 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("shrine", CGShrine);
 	SET_HANDLER("sign", CGSignBottle);
 	SET_HANDLER("siren", CGSirens);
-	SET_HANDLER("teleport", CGTeleport);
+	SET_HANDLER("monolith", CGMonolith);
+	SET_HANDLER("subterraneanGate", CGSubterraneanGate);
+	SET_HANDLER("whirlpool", CGWhirlpool);
 	SET_HANDLER("university", CGUniversity);
 	SET_HANDLER("oncePerHero", CGVisitableOPH);
 	SET_HANDLER("oncePerWeek", CGVisitableOPW);

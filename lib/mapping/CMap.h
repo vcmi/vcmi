@@ -432,6 +432,7 @@ public:
 
 	//Helper lists
 	std::vector< ConstTransitivePtr<CGHeroInstance> > heroesOnMap;
+	std::map<TeleportChannelID, shared_ptr<TeleportChannel> > teleportChannels;
 
 	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
 	std::map<si32, ObjectInstanceID> questIdentifierToId;
@@ -499,11 +500,9 @@ public:
 		}
 
 		h & objects;
-		h & heroesOnMap & towns & artInstances;
+		h & heroesOnMap & teleportChannels & towns & artInstances;
 
 		// static members
-		h & CGTeleport::objs;
-		h & CGTeleport::gates;
 		h & CGKeys::playerKeyMap;
 		h & CGMagi::eyelist;
 		h & CGObelisk::obeliskCount & CGObelisk::visited;
