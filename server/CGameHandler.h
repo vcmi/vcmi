@@ -134,6 +134,7 @@ public:
 	//void showInfoDialog(InfoWindow *iw) override;
 
 	void showBlockingDialog(BlockingDialog *iw) override; 
+	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override;
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override;
 	void giveResource(PlayerColor player, Res::ERes which, int val) override;

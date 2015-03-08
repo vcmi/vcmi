@@ -92,6 +92,7 @@ public:
 
 	// all stacks operations between these objects become allowed, interface has to call onEnd when done
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) = 0;
+	virtual void showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID) = 0;
 	virtual void finish(){}; //if for some reason we want to end
 };
 

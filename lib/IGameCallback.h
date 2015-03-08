@@ -15,6 +15,7 @@
 struct SetMovePoints;
 struct GiveBonus;
 struct BlockingDialog;
+struct TeleportDialog;
 struct MetaString;
 struct ShowInInfobox;
 struct StackLocation;
@@ -52,6 +53,7 @@ public:
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0; 
 	virtual void showBlockingDialog(BlockingDialog *iw) =0;
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) =0; //cb will be called when player closes garrison window
+	virtual void showTeleportDialog(TeleportDialog *iw) =0;
 	virtual void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) =0;
 	virtual void giveResource(PlayerColor player, Res::ERes which, int val)=0;
 	virtual void giveResources(PlayerColor player, TResources resources)=0;

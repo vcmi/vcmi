@@ -30,6 +30,11 @@ void CEmptyAI::showBlockingDialog(const std::string &text, const std::vector<Com
 	cb->selectionMade(0, askID);
 }
 
+void CEmptyAI::showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID)
+{
+	cb->selectionMade(0, askID);
+}
+
 void CEmptyAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
 {
 	cb->selectionMade(0, queryID);

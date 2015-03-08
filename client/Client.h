@@ -179,6 +179,7 @@ public:
 
 	void showBlockingDialog(BlockingDialog *iw) override {}; 
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {};
+	void showTeleportDialog(TeleportDialog *iw) override {};
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override {};
 	void giveResource(PlayerColor player, Res::ERes which, int val) override {};
 	virtual void giveResources(PlayerColor player, TResources resources) override {};
