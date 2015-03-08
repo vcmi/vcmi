@@ -505,7 +505,7 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 			auto obj = myCb->getObj(sop->id, false);
 			if (obj)
 			{
-				visitableObjs.insert(obj);
+				addVisitableObj(obj);
 				erase_if_present(alreadyVisited, obj);
 			}
 		}
@@ -543,7 +543,7 @@ void VCAI::init(shared_ptr<CCallback> CB)
 	if(!fh)
 		fh = new FuzzyHelper();
 
-	retreiveVisitableObjs(visitableObjs);
+	retreiveVisitableObjs();
 }
 
 void VCAI::yourTurn()
@@ -667,7 +667,7 @@ void VCAI::makeTurn()
 			{
 				if (isWeeklyRevisitable(obj))
 				{
-					visitableObjs.insert(obj); //set doesn't need duplicate check
+					addVisitableObj(obj);
 					erase_if_present (alreadyVisited, obj);
 				}
 			}
@@ -1552,14 +1552,15 @@ void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, boo
 		}
 	});
 }
-void VCAI::retreiveVisitableObjs(std::set<const CGObjectInstance *> &out, bool includeOwned /*= false*/) const
+
+void VCAI::retreiveVisitableObjs()
 {
 	foreach_tile_pos([&](const int3 &pos)
 	{
 		for(const CGObjectInstance *obj : myCb->getVisitableObjs(pos, false))
 		{
 			if(includeOwned || obj->tempOwner != playerID)
-				out.insert(obj);
+				addVisitableObj(obj);
 		}
 	});
 }
@@ -1579,6 +1580,11 @@ void VCAI::addVisitableObj(const CGObjectInstance *obj)
 {
 	visitableObjs.insert(obj);
 	helperObjInfo[obj] = ObjInfo(obj);
+
+	// All teleport objects seen automatically assigned to appropriate channels
+	auto teleportObj = dynamic_cast<const CGTeleport *>(obj);
+	if(teleportObj)
+		CGTeleport::addToChannel(knownTeleportChannels, teleportObj);
 }
 
 const CGObjectInstance * VCAI::lookForArt(int aid) const

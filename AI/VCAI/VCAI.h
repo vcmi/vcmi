@@ -141,6 +141,7 @@ public:
 
 	friend class FuzzyHelper;
 
+	std::map<TeleportChannelID, shared_ptr<TeleportChannel> > knownTeleportChannels;
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::set<const CGTownInstance *> > townVisitsThisWeek;
@@ -293,7 +294,7 @@ public:
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
 	void validateVisitableObjs();
 	void retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned = false) const;
-	void retreiveVisitableObjs(std::set<const CGObjectInstance *> &out, bool includeOwned = false) const;
+	void retreiveVisitableObjs();
 	std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
 	const CGObjectInstance *lookForArt(int aid) const;
@@ -346,7 +347,7 @@ public:
 
 	template <typename Handler> void serializeInternal(Handler &h, const int version)
 	{
-		h & knownSubterraneanGates & townVisitsThisWeek & lockedHeroes & reservedHeroesMap; //FIXME: cannot instantiate abstract class
+		h & knownTeleportChannels & knownSubterraneanGates & townVisitsThisWeek & lockedHeroes & reservedHeroesMap; //FIXME: cannot instantiate abstract class
 		h & visitableObjs & alreadyVisited & reservedObjs;
 		h & saving & status & battlename;
 		h & heroesUnableToExplore;
