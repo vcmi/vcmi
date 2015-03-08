@@ -143,6 +143,8 @@ public:
 
 	std::map<TeleportChannelID, shared_ptr<TeleportChannel> > knownTeleportChannels;
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
+	ObjectInstanceID destinationTeleport;
+	std::vector<ObjectInstanceID> teleportChannelProbingList; //list of teleport channel exits that not visible and need to be (re-)explored
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::set<const CGTownInstance *> > townVisitsThisWeek;
 
