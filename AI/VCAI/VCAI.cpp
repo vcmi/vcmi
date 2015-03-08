@@ -1599,7 +1599,7 @@ void VCAI::retreiveVisitableObjs()
 	{
 		for(const CGObjectInstance *obj : myCb->getVisitableObjs(pos, false))
 		{
-			if(includeOwned || obj->tempOwner != playerID)
+			if(obj->tempOwner != playerID)
 				addVisitableObj(obj);
 		}
 	});
