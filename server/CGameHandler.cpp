@@ -1662,7 +1662,7 @@ void CGameHandler::setAmount(ObjectInstanceID objid, ui32 val)
 	sendAndApply(&sop);
 }
 
-bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker /*= 255*/ )
+bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit, PlayerColor asker /*= 255*/ )
 {
 	const CGHeroInstance *h = getHero(hid);
 

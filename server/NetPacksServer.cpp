@@ -83,7 +83,7 @@ bool DismissHero::applyGh( CGameHandler *gh )
 bool MoveHero::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(hid);
-	return gh->moveHero(hid,dest,0,gh->getPlayerAt(c));
+	return gh->moveHero(hid,dest,0,transit,gh->getPlayerAt(c));
 }
 
 bool CastleTeleportHero::applyGh( CGameHandler *gh )
