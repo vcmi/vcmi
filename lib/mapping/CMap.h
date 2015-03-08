@@ -289,8 +289,8 @@ struct DLL_LINKAGE TerrainTile
 	/// Checks for blocking objects and terraint type (water / land).
 	bool isClear(const TerrainTile * from = nullptr) const;
 	/// Gets the ID of the top visitable object or -1 if there is none.
-	int topVisitableId() const;
-	CGObjectInstance * topVisitableObj() const;
+	Obj topVisitableId(bool excludeTop = false) const;
+	CGObjectInstance * topVisitableObj(bool excludeTop = false) const;
 	bool isWater() const;
 	bool isCoastal() const;
 	bool hasFavourableWinds() const;
