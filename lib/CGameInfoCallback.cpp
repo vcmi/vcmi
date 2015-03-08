@@ -720,8 +720,8 @@ ETeleportChannelType::ETeleportChannelType CGameInfoCallback::getTeleportChannel
 {
 	std::vector<ObjectInstanceID> entrances = getTeleportChannelEntraces(id, ObjectInstanceID(), Player);
 	std::vector<ObjectInstanceID> exits = getTeleportChannelExits(id, ObjectInstanceID(), Player);
-	if((!entrances.size() || !exits.size())
-		|| (entrances.size() == 1 && entrances == exits))
+	if((!entrances.size() || !exits.size()) // impassable if exits or entrances list are empty
+		|| (entrances.size() == 1 && entrances == exits)) // impassable if only entrance and only exit is same object. e.g bidirectional monolith
 	{
 		return ETeleportChannelType::IMPASSABLE;
 	}

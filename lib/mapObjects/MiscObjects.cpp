@@ -758,18 +758,12 @@ bool CGTeleport::isExit() const
 
 bool CGTeleport::isChannelEntrance(ObjectInstanceID id) const
 {
-	if(vstd::contains(getAllEntrances(), id))
-		return true;
-	else
-		return false;
+	return vstd::contains(getAllEntrances(), id);
 }
 
 bool CGTeleport::isChannelExit(ObjectInstanceID id) const
 {
-	if(vstd::contains(getAllExits(), id))
-		return true;
-	else
-		return false;
+	return vstd::contains(getAllExits(), id);
 }
 
 std::vector<ObjectInstanceID> CGTeleport::getAllEntrances(bool excludeCurrent) const
@@ -801,19 +795,12 @@ ObjectInstanceID CGTeleport::getRandomExit(const CGHeroInstance * h) const
 
 bool CGTeleport::isTeleport(const CGObjectInstance * obj)
 {
-	auto teleportObj = dynamic_cast<const CGTeleport *>(obj);
-	if(teleportObj)
-		return true;
-	else
-		return false;
+	return ((dynamic_cast<const CGTeleport *>(obj)));
 }
 
 bool CGTeleport::isConnected(const CGTeleport * src, const CGTeleport * dst)
 {
-	if(src && dst && src->isChannelExit(dst->id) && src != dst)
-		return true;
-	else
-		return false;
+	return src && dst && src != dst && src->isChannelExit(dst->id);
 }
 
 bool CGTeleport::isConnected(const CGObjectInstance * src, const CGObjectInstance * dst)
@@ -896,16 +883,14 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			td.exits = cb->getTeleportChannelExits(channel);
 		}
-		else
-			td.exits.push_back(getRandomExit(h));
 
 		if(ETeleportChannelType::IMPASSABLE == cb->getTeleportChannelType(channel))
 		{
-			logGlobal->warnStream() << "Cannot find corresponding exit monolith for "<< id << " (obj at " << pos << ") :(";
+			logGlobal->debugStream() << "Cannot find corresponding exit monolith for "<< id << " (obj at " << pos << ") :(";
 			td.impassable = true;
 		}
 		else if(getRandomExit(h) == ObjectInstanceID())
-			logGlobal->warnStream() << "All exits blocked for monolith "<< id << " (obj at " << pos << ") :(";
+			logGlobal->debugStream() << "All exits blocked for monolith "<< id << " (obj at " << pos << ") :(";
 	}
 	else
 		showInfoDialog(h, 70, 0);
@@ -915,7 +900,7 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, std::vector<ObjectInstanceID> exits) const
 {
-	ObjectInstanceID objId = ObjectInstanceID(answer);
+	ObjectInstanceID objId(answer);
 	auto realExits = getAllExits(true);
 	if(!isEntrance() // Do nothing if hero visited exit only object
 		|| (!exits.size() && !realExits.size()) // Do nothing if there no exits on this channel
@@ -1035,11 +1020,11 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 	TeleportDialog td(h, channel);
 	if(ETeleportChannelType::IMPASSABLE == cb->getTeleportChannelType(channel))
 	{
-		logGlobal->warnStream() << "Cannot find exit whirlpool for "<< id << " (obj at " << pos << ") :(";
+		logGlobal->debugStream() << "Cannot find exit whirlpool for "<< id << " (obj at " << pos << ") :(";
 		td.impassable = true;
 	}
 	else if(getRandomExit(h) == ObjectInstanceID())
-		logGlobal->warnStream() << "All exits are blocked for whirlpool "<< id << " (obj at " << pos << ") :(";
+		logGlobal->debugStream() << "All exits are blocked for whirlpool "<< id << " (obj at " << pos << ") :(";
 
 	if(!isProtected(h))
 	{
@@ -1068,7 +1053,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, std::vector<ObjectInstanceID> exits) const
 {
-	ObjectInstanceID objId = ObjectInstanceID(answer);
+	ObjectInstanceID objId(answer);
 	auto realExits = getAllExits();
 	if(!exits.size() && !realExits.size())
 		return;
