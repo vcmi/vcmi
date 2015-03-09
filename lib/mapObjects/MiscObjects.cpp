@@ -768,18 +768,18 @@ bool CGTeleport::isChannelExit(ObjectInstanceID id) const
 
 std::vector<ObjectInstanceID> CGTeleport::getAllEntrances(bool excludeCurrent) const
 {
-	std::vector<ObjectInstanceID> ret = cb->getTeleportChannelEntraces(channel);
+	auto ret = cb->getTeleportChannelEntraces(channel);
 	if(excludeCurrent)
-		ret.erase(std::remove(ret.begin(), ret.end(), id), ret.end());
+		vstd::erase_if_present(ret, id);
 
 	return ret;
 }
 
 std::vector<ObjectInstanceID> CGTeleport::getAllExits(bool excludeCurrent) const
 {
-	std::vector<ObjectInstanceID> ret = cb->getTeleportChannelExits(channel);
+	auto ret = cb->getTeleportChannelExits(channel);
 	if(excludeCurrent)
-		ret.erase(std::remove(ret.begin(), ret.end(), id), ret.end());
+		vstd::erase_if_present(ret, id);
 
 	return ret;
 }
