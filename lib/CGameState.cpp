@@ -3435,17 +3435,28 @@ void CPathfinder::calculatePaths()
 				const bool guardedDst = gs->map->guardingCreaturePositions[dp->coord.x][dp->coord.y][dp->coord.z].valid()
 										&& dp->accessible == CGPathNode::BLOCKVIS;
 
-				if(dp->accessible == CGPathNode::ACCESSIBLE
-					|| dp->coord == CGHeroInstance::convertPosition(hero->pos, false) // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation.
-					|| (dp->accessible == CGPathNode::VISITABLE
-						&& CGTeleport::isTeleport(dt->topVisitableObj())) // For now we'll walways allos transit for teleports
-					|| (useEmbarkCost && allowEmbarkAndDisembark)
-					|| gs->isTeleportEntrancePassable(dObj, hero->tempOwner) // Always add entry teleport with non-dummy channel
-					|| CGTeleport::isConnected(cObj, dObj) // Always add exit points of teleport
-					|| (guardedDst && !guardedSource)) // Can step into a hostile tile once.
+				auto checkDestinationTile = [&]() -> bool
 				{
+					if(dp->accessible == CGPathNode::ACCESSIBLE)
+						return true;
+					if(dp->coord == CGHeroInstance::convertPosition(hero->pos, false))
+						return true; // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation
+					if(dp->accessible == CGPathNode::VISITABLE && CGTeleport::isTeleport(dt->topVisitableObj()))
+						return true; // For now we'll walways allos transit for teleports
+					if(useEmbarkCost && allowEmbarkAndDisembark)
+						return true;
+					if(gs->isTeleportEntrancePassable(dObj, hero->tempOwner))
+						return true; // Always add entry teleport with non-dummy channel
+					if(CGTeleport::isConnected(cObj, dObj))
+						return true; // Always add exit points of teleport
+					if(guardedDst && !guardedSource)
+						return true; // Can step into a hostile tile once
+
+					return false;
+				};
+
+				if(checkDestinationTile())
 					mq.push_back(dp);
-				}
 			}
 		} //neighbours loop
 	} //queue loop
