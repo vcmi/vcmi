@@ -616,11 +616,10 @@ void VCAI::showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInsta
 
 		if(!status.channelProbing())
 		{
-			vstd::erase_if(exits, [&](ObjectInstanceID id) -> bool
+			vstd::copy_if(exits, vstd::set_inserter(teleportChannelProbingList), [&](ObjectInstanceID id) -> bool
 			{
-				return vstd::contains(visitableObjs, cb->getObj(id)) || id == choosenExit;
+				return !(vstd::contains(visitableObjs, cb->getObj(id)) || id == choosenExit);
 			});
-			teleportChannelProbingList = exits;
 		}
 	}
 
