@@ -67,7 +67,7 @@ namespace boost
 	class shared_mutex;
 }
 
-//numbers of creatures are exact numbers if detailed else they are quantity ids (0 - a few, 1 - several and so on; additionally -1 - unknown)
+//numbers of creatures are exact numbers if detailed else they are quantity ids (1 - a few, 2 - several and so on; additionally 0 - unknown)
 struct ArmyDescriptor : public std::map<SlotID, CStackBasicDescriptor>
 {
 	bool isDetailed;

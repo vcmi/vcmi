@@ -13,7 +13,7 @@
 #include "../VCMI_Lib.h"
 #include "../CArtHandler.h"
 #include "../CHeroHandler.h"
-#include "../CSpellHandler.h"
+#include "../spells/CSpellHandler.h"
 #include "../CTownHandler.h"
 #include "../mapping/CCampaignHandler.h"
 #include "../NetPacks.h"

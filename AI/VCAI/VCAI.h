@@ -12,7 +12,7 @@
 #include "../../lib/CBuildingHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CTownHandler.h"
-#include "../../lib/CSpellHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/Connection.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapping/CMap.h"
@@ -241,6 +241,7 @@ public:
 	virtual void buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) override;
 	virtual void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) override;
 	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor) override;
+	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;	
 
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override;
 	virtual void battleEnd(const BattleResult *br) override;

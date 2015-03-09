@@ -69,7 +69,7 @@ public:
 	const CGHeroInstance* getHero(ObjectInstanceID objid) const;
 	const CGHeroInstance* getHeroWithSubid(int subid) const;
 	int getHeroCount(PlayerColor player, bool includeGarrisoned) const;
-	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
+	bool getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject = nullptr) const;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
 	int estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
 	const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const;
@@ -99,7 +99,7 @@ public:
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const; //heroes that can be recruited
 	std::string getTavernGossip(const CGObjectInstance * townOrTavern) const; 
 	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
-	virtual bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
+	virtual bool getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject = nullptr) const;
 	const CTown *getNativeTown(PlayerColor color) const;
 
 	//from gs

@@ -215,7 +215,10 @@ public:
 	BONUS_NAME(REBIRTH) /* val - percent of life restored, subtype = 0 - regular, 1 - at least one unit (sacred Phoenix) */\
 	BONUS_NAME(ADDITIONAL_UNITS) /*val of units with id = subtype will be added to hero's army at the beginning of battle */\
 	BONUS_NAME(SPOILS_OF_WAR) /*val * 10^-6 * gained exp resources of subtype will be given to hero after battle*/\
-	BONUS_NAME(BLOCK)
+	BONUS_NAME(BLOCK)\
+	BONUS_NAME(DISGUISED) /* subtype - spell level */\
+	BONUS_NAME(VISIONS) /* subtype - spell level */
+	
 
 #define BONUS_SOURCE_LIST \
 	BONUS_SOURCE(ARTIFACT)\

@@ -14,7 +14,7 @@
 #include "StringConstants.h"
 #include "CStopWatch.h"
 #include "IHandlerBase.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 
 /*
  * CModHandler.cpp, part of VCMI engine

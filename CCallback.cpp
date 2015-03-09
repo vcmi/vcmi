@@ -15,7 +15,7 @@
 #include "lib/Connection.h"
 #include "lib/NetPacks.h"
 #include "client/mapHandler.h"
-#include "lib/CSpellHandler.h"
+#include "lib/spells/CSpellHandler.h"
 #include "lib/CArtHandler.h"
 #include "lib/GameConstants.h"
 #ifdef min

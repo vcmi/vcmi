@@ -6,6 +6,8 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
 
+#include "../../lib/spells/ViewSpellInt.h"
+
 class CDefHandler;
 class CCallback;
 struct CGPath;
@@ -17,6 +19,8 @@ class CSpell;
 class IShipyard;
 enum class EMapAnimRedrawStatus;
 class CFadeAnimation;
+
+struct MapDrawingInfo;
 
 /*****************************/
 
@@ -126,6 +130,21 @@ public:
 
 	EAdvMapMode mode;
 	float worldViewScale;
+	
+	struct WorldViewOptions
+	{
+		bool showAllTerrain; //for expert viewEarth
+		
+		std::vector<ObjectPosInfo> iconPositions;
+		
+		WorldViewOptions();
+		
+		void clear();
+		
+		void adjustDrawingInfo(MapDrawingInfo & info);		
+	};
+	
+	WorldViewOptions worldViewOptions; 	
 
 	SDL_Surface * bg;
 	SDL_Surface * bgWorldView;

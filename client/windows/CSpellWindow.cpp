@@ -27,7 +27,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/CSpellHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -107,15 +107,11 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 		Uint8 *sitesPerOurTab = s.combatSpell ? sitesPerTabBattle : sitesPerTabAdv;
 
 		++sitesPerOurTab[4];
-
-		if(s.air)
-			++sitesPerOurTab[0];
-		if(s.fire)
-			++sitesPerOurTab[1];
-		if(s.water)
-			++sitesPerOurTab[2];
-		if(s.earth)
-			++sitesPerOurTab[3];
+		
+		s.forEachSchool([&sitesPerOurTab](const SpellSchoolInfo & school, bool & stop)
+		{
+			++sitesPerOurTab[(ui8)school.id];
+		});
 	}
 	if(sitesPerTabAdv[4] % 12 == 0)
 		sitesPerTabAdv[4]/=12;
@@ -382,23 +378,17 @@ public:
 		if(A.level<B.level)
 			return true;
 		if(A.level>B.level)
-			return false;
-		if(A.air && !B.air)
-			return true;
-		if(!A.air && B.air)
-			return false;
-		if(A.fire && !B.fire)
-			return true;
-		if(!A.fire && B.fire)
-			return false;
-		if(A.water && !B.water)
-			return true;
-		if(!A.water && B.water)
-			return false;
-		if(A.earth && !B.earth)
-			return true;
-		if(!A.earth && B.earth)
-			return false;
+			return false;		
+		
+		
+		for(ui8 schoolId = 0; schoolId < 4; schoolId++)
+		{
+			if(A.school.at((ESpellSchool)schoolId) && !B.school.at((ESpellSchool)schoolId))
+				return true;
+			if(!A.school.at((ESpellSchool)schoolId) && B.school.at((ESpellSchool)schoolId))
+				return false;
+		}
+		
 		return A.name < B.name;
 	}
 } spellsorter;
@@ -406,17 +396,15 @@ public:
 void CSpellWindow::computeSpellsPerArea()
 {
 	std::vector<SpellID> spellsCurSite;
-	for(auto it = mySpells.cbegin(); it != mySpells.cend(); ++it)
+	for(const SpellID & spellID : mySpells)
 	{
-		if(CGI->spellh->objects[*it]->combatSpell ^ !battleSpellsOnly
-			&& ((CGI->spellh->objects[*it]->air && selectedTab == 0) ||
-				(CGI->spellh->objects[*it]->fire && selectedTab == 1) ||
-				(CGI->spellh->objects[*it]->water && selectedTab == 2) ||
-				(CGI->spellh->objects[*it]->earth && selectedTab == 3) ||
-				selectedTab == 4 )
+		CSpell * s = spellID.toSpell(); 
+		
+		if(s->combatSpell ^ !battleSpellsOnly
+			&& ((selectedTab == 4) || (s->school[(ESpellSchool)selectedTab]))
 			)
 		{
-			spellsCurSite.push_back(*it);
+			spellsCurSite.push_back(spellID);
 		}
 	}
 	std::sort(spellsCurSite.begin(), spellsCurSite.end(), spellsorter);
@@ -605,12 +593,6 @@ Uint8 CSpellWindow::pagesWithinCurrentTab()
 	return battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab];
 }
 
-void CSpellWindow::teleportTo( int town, const CGHeroInstance * hero )
-{
-	const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(town));
-	LOCPLINT->cb->castSpell(hero, SpellID::TOWN_PORTAL, dest->visitablePos());
-}
-
 CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 {
 	this->pos = pos;
@@ -623,9 +605,9 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 
 void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 {
-	if(!down && mySpell!=-1)
+	if(!down && mySpell != SpellID::NONE)
 	{
-		const CSpell *sp = CGI->spellh->objects[mySpell];
+		const CSpell * sp = mySpell.toSpell();
 
 		int spellCost = owner->myInt->cb->getSpellCost(sp, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
@@ -637,8 +619,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		}
 
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
-		if((sp->combatSpell && !owner->myInt->battleInt)
-			|| (!sp->combatSpell && owner->myInt->battleInt))
+		if((sp->isCombatSpell() && !owner->myInt->battleInt)
+			|| (sp->isAdventureSpell() && owner->myInt->battleInt))
 		{
 			std::vector<CComponent*> hlp(1, new CComponent(CComponent::spell, mySpell, 0));
 			LOCPLINT->showInfoDialog(sp->getLevelInfo(schoolLevel).description, hlp);
@@ -653,9 +635,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			{
 			case ESpellCastProblem::OK:
 				{
-					int spell = mySpell;
 					owner->fexitb();
-					owner->myInt->battleInt->castThisSpell(spell);
+					owner->myInt->battleInt->castThisSpell(mySpell);
 				}
 				break;
 			case ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED:
@@ -714,97 +695,102 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				break;
 			}
 		}
-		else if(!sp->combatSpell && !owner->myInt->battleInt) //adventure spell
+		else if(sp->isAdventureSpell() && !owner->myInt->battleInt) //adventure spell and not in battle
 		{
-			SpellID spell = mySpell;
 			const CGHeroInstance *h = owner->myHero;
 			owner->fexitb();
+			
 
-			switch(spell)
+			if(mySpell == SpellID::TOWN_PORTAL)
 			{
-			case SpellID::SUMMON_BOAT:
+				//special case
+				//todo: move to mechanics
+				
+				std::vector <int> availableTowns;
+				std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(true);
+				if (Towns.empty())
 				{
-					int3 pos = h->bestLocation();
-					if(pos.x < 0)
-					{
-						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[334]); //There is no place to put the boat.
-						return;
-					}
-				}
-				break;
-			case SpellID::SCUTTLE_BOAT:
-			case SpellID::DIMENSION_DOOR:
-				adventureInt->enterCastingMode(sp);
-				return;
-			case SpellID::VISIONS:
-			case SpellID::VIEW_EARTH:
-			case SpellID::DISGUISE:
-			case SpellID::VIEW_AIR:
-			case SpellID::FLY:
-			case SpellID::WATER_WALK:
-				break;
-			case SpellID::TOWN_PORTAL:
-				{
-					std::vector <int> availableTowns;
-					std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(true);
-					if (Towns.empty())
-					{
-						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
-						return;
-					}
-
-					if (h->getSpellSchoolLevel(CGI->spellh->objects[spell]) < 2) //not advanced or expert - teleport to nearest available city
-					{
-						auto nearest = Towns.cbegin(); //nearest town's iterator
-						si32 dist = LOCPLINT->cb->getTown((*nearest)->id)->pos.dist2dSQ(h->pos);
-
-						for (auto i = nearest + 1; i != Towns.cend(); ++i)
-						{
-							const CGTownInstance * dest = LOCPLINT->cb->getTown((*i)->id);
-							si32 curDist = dest->pos.dist2dSQ(h->pos);
-
-							if (curDist < dist)
-							{
-								nearest = i;
-								dist = curDist;
-							}
-						}
-
-						if ((*nearest)->visitingHero)
-							LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[123]);
-						else
-						{
-							const CGTownInstance * town = LOCPLINT->cb->getTown((*nearest)->id);
-							LOCPLINT->cb->castSpell(h, spell, town->visitablePos());// - town->getVisitableOffset());
-						}
-					}
-					else
-					{ //let the player choose
-						for(auto & Town : Towns)
-						{
-							const CGTownInstance *t = Town;
-							if (t->visitingHero == nullptr) //empty town and this is
-							{
-								availableTowns.push_back(t->id.getNum());//add to the list
-							}
-						}
-						if (availableTowns.empty())
-							LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
-						else
-							GH.pushInt (new CObjectListWindow(availableTowns,
-								new CAnimImage("SPELLSCR",spell),
-								CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
-								std::bind (&CSpellWindow::teleportTo, owner, _1, h)));
-					}
+					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
 					return;
 				}
-				break;
-			default:
-				assert(0);
-			}
 
-			//can return earlier in some cases
-			LOCPLINT->cb->castSpell(h, spell);
+				if (h->getSpellSchoolLevel(sp) < 2) //not advanced or expert - teleport to nearest available city
+				{
+					auto nearest = Towns.cbegin(); //nearest town's iterator
+					si32 dist = LOCPLINT->cb->getTown((*nearest)->id)->pos.dist2dSQ(h->pos);
+
+					for (auto i = nearest + 1; i != Towns.cend(); ++i)
+					{
+						const CGTownInstance * dest = LOCPLINT->cb->getTown((*i)->id);
+						si32 curDist = dest->pos.dist2dSQ(h->pos);
+
+						if (curDist < dist)
+						{
+							nearest = i;
+							dist = curDist;
+						}
+					}
+
+					if ((*nearest)->visitingHero)
+						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[123]);
+					else
+					{
+						const CGTownInstance * town = LOCPLINT->cb->getTown((*nearest)->id);
+						LOCPLINT->cb->castSpell(h, mySpell, town->visitablePos());// - town->getVisitableOffset());
+					}
+				}
+				else
+				{ //let the player choose
+					for(auto & Town : Towns)
+					{
+						const CGTownInstance *t = Town;
+						if (t->visitingHero == nullptr) //empty town and this is
+						{
+							availableTowns.push_back(t->id.getNum());//add to the list
+						}
+					}
+					
+					auto castTownPortal = [h](int townId)
+					{
+						const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(townId));
+						LOCPLINT->cb->castSpell(h, SpellID::TOWN_PORTAL, dest->visitablePos());					
+					};
+					
+					if (availableTowns.empty())
+						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
+					else
+						GH.pushInt (new CObjectListWindow(availableTowns,
+							new CAnimImage("SPELLSCR",mySpell),
+							CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
+							castTownPortal));
+				}
+				return;	
+			}
+			
+			if(mySpell == SpellID::SUMMON_BOAT)
+			{
+				//special case
+				//todo: move to mechanics				
+				int3 pos = h->bestLocation();
+				if(pos.x < 0)
+				{
+					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[334]); //There is no place to put the boat.
+					return;
+				}
+			}
+			
+			if(sp->getTargetType() == CSpell::LOCATION)
+			{
+				adventureInt->enterCastingMode(sp);		
+			}
+			else if(sp->getTargetType() == CSpell::NO_TARGET)
+			{
+				LOCPLINT->cb->castSpell(h, mySpell);
+			}
+			else
+			{
+				logGlobal->error("Invalid spell target type");
+			}			
 		}
 	}
 }
@@ -816,7 +802,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 		std::string dmgInfo;
 		const CGHeroInstance * hero = owner->myHero;
 		int causedDmg = owner->myInt->cb->estimateSpellDamage( CGI->spellh->objects[mySpell], (hero ? hero : nullptr));
-		if(causedDmg == 0 || mySpell == 57) //Titan's Lightning Bolt already has damage info included
+		if(causedDmg == 0 || mySpell == SpellID::TITANS_LIGHTNING_BOLT) //Titan's Lightning Bolt already has damage info included
 			dmgInfo = "";
 		else
 		{

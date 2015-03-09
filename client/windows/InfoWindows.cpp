@@ -411,7 +411,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town):
 	CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "TOWNQVBK", toScreen(position))
 {
 	InfoAboutTown iah;
-	LOCPLINT->cb->getTownInfo(town, iah);
+	LOCPLINT->cb->getTownInfo(town, iah, adventureInt->selection); //todo: should this be nearest hero?
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CTownTooltip(Point(9, 10), iah);
@@ -421,7 +421,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero):
 	CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "HEROQVBK", toScreen(position))
 {
 	InfoAboutHero iah;
-	LOCPLINT->cb->getHeroInfo(hero, iah);
+	LOCPLINT->cb->getHeroInfo(hero, iah, adventureInt->selection);//todo: should this be nearest hero?
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CHeroTooltip(Point(9, 10), iah);
@@ -439,11 +439,15 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr):
 
 CIntObject * CRClickPopup::createInfoWin(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
-	if(!specific)
+	if(nullptr == specific)
 		specific = adventureInt->selection;
-
-	assert(specific);
-
+	
+	if(nullptr == specific)
+	{
+		logGlobal->error("createInfoWin: no object to describe");
+		return nullptr;
+	}	
+	
 	switch(specific->ID)
 	{
 	case Obj::HERO:

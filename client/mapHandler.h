@@ -2,6 +2,7 @@
 
 
 #include "../lib/int3.h"
+#include "../lib/spells/ViewSpellInt.h"
 #include "gui/Geometries.h"
 #include "SDL.h"
 
@@ -100,7 +101,11 @@ struct MapDrawingInfo
 
 	bool puzzleMode;
 	int3 grailPos; // location of grail for puzzle mode [in tiles]
-
+	
+	const std::vector<ObjectPosInfo> * additionalIcons;
+	
+	bool showAllTerrain; //for expert viewEarth
+	
 	MapDrawingInfo(int3 &topTile_, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap_, SDL_Rect * drawBounds_, CDefHandler * iconsDef_ = nullptr)
 		: scaled(false),
 		  topTile(topTile_),
@@ -113,7 +118,9 @@ struct MapDrawingInfo
 		  heroAnim(0u),
 		  movement(int3()),
 		  puzzleMode(false),
-		  grailPos(int3())
+		  grailPos(int3()),
+		  additionalIcons(nullptr),
+		  showAllTerrain(false)
 	{}
 
 	ui8 getHeroAnim() const { return otherheroAnim ? anim : heroAnim; }
@@ -238,6 +245,8 @@ class CMapHandler
 		virtual void drawFow(SDL_Surface * targetSurf) const;
 		/// draws map border frame on current position
 		virtual void drawFrame(SDL_Surface * targetSurf) const;
+		/// draws additional icons (for VIEW_AIR, VIEW_EARTH spells atm)
+		virtual void drawOverlayEx(SDL_Surface * targetSurf);
 
 		// third drawing pass
 
@@ -293,6 +302,8 @@ class CMapHandler
 
 	class CMapWorldViewBlitter : public CMapBlitter
 	{
+	private:
+		SDL_Surface * objectToIcon(Obj id, si32 subId, PlayerColor owner) const;
 	protected:
 		void drawElement(EMapCacheType cacheType, SDL_Surface * sourceSurf, SDL_Rect * sourceRect,
 						 SDL_Surface * targetSurf, SDL_Rect * destRect, bool alphaBlit = false, ui8 rotationInfo = 0u) const override;
@@ -301,6 +312,7 @@ class CMapHandler
 		void drawHeroFlag(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const override;
 		void drawObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const override;
 		void drawFrame(SDL_Surface * targetSurf) const override {}
+		void drawOverlayEx(SDL_Surface * targetSurf);
 		void init(const MapDrawingInfo * info) override;
 		SDL_Rect clip(SDL_Surface * targetSurf) const override;
 

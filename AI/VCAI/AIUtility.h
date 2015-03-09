@@ -4,7 +4,7 @@
 #include "../../lib/CBuildingHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CTownHandler.h"
-#include "../../lib/CSpellHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/Connection.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapping/CMap.h"

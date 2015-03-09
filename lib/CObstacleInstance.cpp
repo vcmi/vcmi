@@ -2,7 +2,7 @@
 #include "CObstacleInstance.h"
 #include "CHeroHandler.h"
 #include "VCMI_Lib.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 
 /*
  * CObstacleInstance.cpp, part of VCMI engine

@@ -530,6 +530,13 @@ void VCAI::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor
 	NET_EVENT_HANDLER;
 }
 
+void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions)
+{
+	//TODO: AI support for ViewXXX spell
+	LOG_TRACE(logAi);
+	NET_EVENT_HANDLER;
+}
+
 void VCAI::init(shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);

@@ -16,7 +16,7 @@
 #include "../CHeroHandler.h"
 #include "../CModHandler.h"
 #include "../CSoundBase.h"
-#include "../CSpellHandler.h"
+#include "../spells/CSpellHandler.h"
 #include "CObjectClassesHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
@@ -1343,3 +1343,24 @@ void CGHeroInstance::levelUpAutomatically()
 		levelUp(proposedSecondarySkills);
 	}
 }
+
+bool CGHeroInstance::hasVisions(const CGObjectInstance * target, const int subtype) const
+{
+	//VISIONS spell support
+	
+	const std::string cached = boost::to_string((boost::format("type_%d__subtype_%d") % Bonus::VISIONS % subtype)); 
+	
+	const int visionsMultiplier = valOfBonuses(Selector::typeSubtype(Bonus::VISIONS,subtype), cached);
+	
+	int visionsRange =  visionsMultiplier * getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+		
+	if (visionsMultiplier > 0) 	
+		vstd::amax(visionsRange, 3); //minimum range is 3 tiles, but only if VISIONS bonus present
+	
+	const int distance = target->pos.dist2d(getPosition(false));
+	
+	logGlobal->debug(boost::to_string(boost::format("Visions: dist %d, mult %d, range %d") % distance % visionsMultiplier % visionsRange));
+	
+	return (distance < visionsRange) && (target->pos.z == pos.z);	
+}
+

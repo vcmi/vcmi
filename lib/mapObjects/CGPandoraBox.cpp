@@ -14,7 +14,7 @@
 #include "../NetPacks.h"
 #include "../CSoundBase.h"
 
-#include "../CSpellHandler.h"
+#include "../spells/CSpellHandler.h"
 #include "../StartInfo.h"
 #include "../IGameCallback.h"
 

@@ -20,7 +20,7 @@
 #include "../CArtHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
-#include "../CSpellHandler.h"
+#include "../spells/CSpellHandler.h"
 
 namespace JsonRandom
 {

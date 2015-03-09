@@ -26,7 +26,7 @@
 #include "CPlayerInterface.h"
 #include "../CCallback.h"
 #include "CMessage.h"
-#include "../lib/CSpellHandler.h" /*for campaign bonuses*/
+#include "../lib/spells/CSpellHandler.h" /*for campaign bonuses*/
 #include "../lib/CArtHandler.h" /*for campaign bonuses*/
 #include "../lib/CBuildingHandler.h" /*for campaign bonuses*/
 #include "CBitmapHandler.h"
