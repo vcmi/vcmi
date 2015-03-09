@@ -349,7 +349,8 @@ public:
 
 	template <typename Handler> void serializeInternal(Handler &h, const int version)
 	{
-		h & knownTeleportChannels & knownSubterraneanGates & townVisitsThisWeek & lockedHeroes & reservedHeroesMap; //FIXME: cannot instantiate abstract class
+		h & knownTeleportChannels & knownSubterraneanGates & destinationTeleport;
+		h & townVisitsThisWeek & lockedHeroes & reservedHeroesMap; //FIXME: cannot instantiate abstract class
 		h & visitableObjs & alreadyVisited & reservedObjs;
 		h & saving & status & battlename;
 		h & heroesUnableToExplore;
