@@ -1696,7 +1696,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			lostHero(h);
 			if (status.channelProbing()) // if hero lost during channel probing we need to switch this mode off
 				status.setChannelProbing(false);
-			throw std::runtime_error("Hero was lost!");
+			throw cannotFulfillGoalException("Hero was lost!");
 		}
 	};
 
