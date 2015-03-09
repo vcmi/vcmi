@@ -3595,5 +3595,5 @@ bool CPathfinder::addTeleportOneWayRandom(const CGTeleport * obj) const
 
 bool CPathfinder::addTeleportWhirlpool(const CGWhirlpool * obj) const
 {
-   return allowTeleportWhirlpool && !gs->isTeleportChannelImpassable(obj->channel, hero->tempOwner);
+   return allowTeleportWhirlpool && obj && !gs->isTeleportChannelImpassable(obj->channel, hero->tempOwner);
 }
