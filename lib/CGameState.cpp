@@ -3357,7 +3357,7 @@ void CPathfinder::calculatePaths()
 				|| addTeleportOneWay(cObj)
 				|| addTeleportOneWayRandom(cObj)))
 		{
-			for(auto objId : gs->getTeleportChannelExits(cObj->channel, ObjectInstanceID(), hero->tempOwner))
+			for(auto objId : gs->getTeleportChannelExits(cObj->channel, hero->tempOwner))
 			{
 				auto obj = getObj(objId);
 				if(CGTeleport::isExitPassable(gs, hero, obj))
@@ -3575,7 +3575,7 @@ bool CPathfinder::addTeleportOneWay(const CGTeleport * obj) const
 {
 	if(allowTeleportOneWay && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
 	{
-		auto passableExits = CGTeleport::getPassableExits(gs, hero, gs->getTeleportChannelExits(obj->channel, ObjectInstanceID(), hero->tempOwner));
+		auto passableExits = CGTeleport::getPassableExits(gs, hero, gs->getTeleportChannelExits(obj->channel, hero->tempOwner));
 		if(passableExits.size() == 1)
 			return true;
 	}
@@ -3586,7 +3586,7 @@ bool CPathfinder::addTeleportOneWayRandom(const CGTeleport * obj) const
 {
 	if(allowTeleportOneWayRandom && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
 	{
-		auto passableExits = CGTeleport::getPassableExits(gs, hero, gs->getTeleportChannelExits(obj->channel, ObjectInstanceID(), hero->tempOwner));
+		auto passableExits = CGTeleport::getPassableExits(gs, hero, gs->getTeleportChannelExits(obj->channel, hero->tempOwner));
 		if(passableExits.size() > 1)
 			return true;
 	}

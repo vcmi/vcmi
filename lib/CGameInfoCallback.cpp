@@ -698,20 +698,20 @@ std::vector<ObjectInstanceID> CGameInfoCallback::getVisibleTeleportObjects(std::
 	return ids;
 }
 
-std::vector<ObjectInstanceID> CGameInfoCallback::getTeleportChannelEntraces(TeleportChannelID id, ObjectInstanceID excludeId, PlayerColor player) const
+std::vector<ObjectInstanceID> CGameInfoCallback::getTeleportChannelEntraces(TeleportChannelID id, PlayerColor player) const
 {
 	return getVisibleTeleportObjects(gs->map->teleportChannels[id]->entrances, player);
 }
 
-std::vector<ObjectInstanceID> CGameInfoCallback::getTeleportChannelExits(TeleportChannelID id, ObjectInstanceID excludeId, PlayerColor player) const
+std::vector<ObjectInstanceID> CGameInfoCallback::getTeleportChannelExits(TeleportChannelID id, PlayerColor player) const
 {
 	return getVisibleTeleportObjects(gs->map->teleportChannels[id]->exits, player);
 }
 
 ETeleportChannelType CGameInfoCallback::getTeleportChannelType(TeleportChannelID id, PlayerColor player) const
 {
-	std::vector<ObjectInstanceID> entrances = getTeleportChannelEntraces(id, ObjectInstanceID(), player);
-	std::vector<ObjectInstanceID> exits = getTeleportChannelExits(id, ObjectInstanceID(), player);
+	std::vector<ObjectInstanceID> entrances = getTeleportChannelEntraces(id, player);
+	std::vector<ObjectInstanceID> exits = getTeleportChannelExits(id, player);
 	if((!entrances.size() || !exits.size()) // impassable if exits or entrances list are empty
 		|| (entrances.size() == 1 && entrances == exits)) // impassable if only entrance and only exit is same object. e.g bidirectional monolith
 	{

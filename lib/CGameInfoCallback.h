@@ -110,8 +110,8 @@ public:
 
 	//teleport
 	std::vector<ObjectInstanceID> getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player)  const;
-	std::vector<ObjectInstanceID> getTeleportChannelEntraces(TeleportChannelID id, ObjectInstanceID excludeId = ObjectInstanceID(), PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
-	std::vector<ObjectInstanceID> getTeleportChannelExits(TeleportChannelID id, ObjectInstanceID excludeId = ObjectInstanceID(), PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
+	std::vector<ObjectInstanceID> getTeleportChannelEntraces(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
+	std::vector<ObjectInstanceID> getTeleportChannelExits(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
 	ETeleportChannelType getTeleportChannelType(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
 	bool isTeleportChannelImpassable(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
 	bool isTeleportChannelBidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
