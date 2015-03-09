@@ -5,9 +5,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{132126f1-89bb-4505-a77e-d4c3a18103be}</UniqueIdentifier>
-    </Filter>
     <Filter Include="filesystem">
       <UniqueIdentifier>{a2ca6977-50bf-4585-aa6e-779a10863922}</UniqueIdentifier>
     </Filter>

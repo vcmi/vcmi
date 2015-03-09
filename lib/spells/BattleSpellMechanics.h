@@ -33,7 +33,7 @@ class DLL_LINKAGE CureMechanics : public DefaultSpellMechanics
 public:
 	CureMechanics(CSpell * s): DefaultSpellMechanics(s){};
 
-	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;
+	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 };
 
 class DLL_LINKAGE DispellMechanics : public DefaultSpellMechanics
@@ -41,7 +41,7 @@ class DLL_LINKAGE DispellMechanics : public DefaultSpellMechanics
 public:
 	DispellMechanics(CSpell * s): DefaultSpellMechanics(s){};
 
-	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;
+	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 };
 
 class DLL_LINKAGE HypnotizeMechanics : public DefaultSpellMechanics

@@ -12,6 +12,8 @@
 
 #include "CSpellHandler.h"
 #include "../BattleHex.h"
+#include "../BattleState.h"
+#include "../NetPacks.h"
 
 class DLL_LINKAGE ISpellMechanics
 {
@@ -39,9 +41,9 @@ public:
 
 	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const = 0;
 
+	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const = 0;
 	virtual bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const = 0;
 	virtual void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const = 0;
-	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const = 0;
 
 	static ISpellMechanics * createMechanics(CSpell * s);
 protected:

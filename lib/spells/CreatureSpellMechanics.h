@@ -34,7 +34,7 @@ class DLL_LINKAGE DispellHelpfulMechanics : public DefaultSpellMechanics
 public:
 	DispellHelpfulMechanics(CSpell * s): DefaultSpellMechanics(s){};
 
-	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;
+	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
 };
