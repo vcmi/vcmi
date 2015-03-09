@@ -42,7 +42,7 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CondSh.h"
-#include "../lib/CSpellHandler.h"
+#include "../lib/spells/CSpellHandler.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/GameConstants.h"

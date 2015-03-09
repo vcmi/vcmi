@@ -12,7 +12,7 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/CBuildingHandler.h"
-#include "../lib/CSpellHandler.h"
+#include "../lib/spells/CSpellHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "zlib.h"
 #include "CVCMIServer.h"

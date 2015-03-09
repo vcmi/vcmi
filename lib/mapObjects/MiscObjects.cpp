@@ -17,7 +17,7 @@
 #include "../CModHandler.h"
 
 #include "CObjectClassesHandler.h"
-#include "../CSpellHandler.h"
+#include "../spells/CSpellHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 
@@ -101,7 +101,41 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 
 std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 {
-	std::string hoverName = getHoverText(hero->tempOwner);
+	std::string hoverName;
+	if(hero->hasVisions(this, 0))
+	{		
+		MetaString ms;
+		ms << stacks.begin()->second->count;
+		ms << " " ;
+		ms.addTxt(MetaString::CRE_PL_NAMES,subID);
+		
+		ms << "\n";
+		
+		int decision = takenAction(hero, true);
+		
+		switch (decision)
+		{
+		case FIGHT:
+			ms.addTxt(MetaString::GENERAL_TXT,246);
+			break;
+		case FLEE:
+			ms.addTxt(MetaString::GENERAL_TXT,245);
+			break;
+		case JOIN_FOR_FREE:
+			ms.addTxt(MetaString::GENERAL_TXT,243);
+			break;					
+		default: //decision = cost in gold
+			VLC->generaltexth->allTexts[244];
+			ms << boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision);			
+			break;
+		}		
+
+		ms.toString(hoverName);		
+	}
+	else
+	{
+		hoverName = getHoverText(hero->tempOwner);	
+	}	
 
 	const JsonNode & texts = VLC->generaltexth->localizedTexts["adventureMap"]["monsterThreat"];
 

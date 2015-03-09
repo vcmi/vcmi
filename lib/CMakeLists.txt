@@ -54,6 +54,14 @@ set(lib_SRCS
 		rmg/CZoneGraphGenerator.cpp
 		rmg/CZonePlacer.cpp
 
+		spells/CSpellHandler.cpp
+		spells/ISpellMechanics.cpp
+        spells/AdventureSpellMechanics.cpp
+        spells/BattleSpellMechanics.cpp
+        spells/CreatureSpellMechanics.cpp
+        spells/CDefaultSpellMechanics.cpp
+        spells/ViewSpellInt.cpp
+
 		BattleAction.cpp
 		BattleHex.cpp
 		BattleState.cpp
@@ -71,7 +79,7 @@ set(lib_SRCS
 		CModHandler.cpp
 		CObstacleInstance.cpp
 		CRandomGenerator.cpp
-		CSpellHandler.cpp
+
 		CThreadHelper.cpp
 		CTownHandler.cpp
 		GameConstants.cpp
@@ -83,7 +91,6 @@ set(lib_SRCS
 		VCMI_Lib.cpp
 		VCMIDirs.cpp
 		IHandlerBase.cpp
-                SpellMechanics.cpp
 
 		IGameCallback.cpp
 		CGameInfoCallback.cpp
@@ -96,7 +103,7 @@ set(lib_SRCS
 		registerTypes/TypesClientPacks2.cpp
 		registerTypes/TypesMapObjects1.cpp
 		registerTypes/TypesMapObjects2.cpp
-				registerTypes/TypesMapObjects3.cpp
+		registerTypes/TypesMapObjects3.cpp
 		registerTypes/TypesPregamePacks.cpp
 		registerTypes/TypesServerPacks.cpp
 )

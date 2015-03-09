@@ -16,7 +16,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/CSpellHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CGameState.h"
 
 using namespace CSDL_Ext;

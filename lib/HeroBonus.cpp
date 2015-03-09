@@ -12,7 +12,7 @@
 #include "HeroBonus.h"
 
 #include "VCMI_Lib.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 #include "CCreatureHandler.h"
 #include "CCreatureSet.h"
 #include "CHeroHandler.h"

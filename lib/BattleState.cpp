@@ -16,7 +16,7 @@
 #include "mapObjects/CObjectHandler.h"
 #include "CHeroHandler.h"
 #include "CCreatureHandler.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 #include "CTownHandler.h"
 #include "NetPacks.h"
 #include "JsonNode.h"

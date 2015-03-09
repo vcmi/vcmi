@@ -23,7 +23,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/Connection.h"
-#include "../lib/CSpellHandler.h"
+#include "../lib/spells/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h" // For displaying correct UI when interacting with objects
 #include "../lib/BattleState.h"
@@ -2189,6 +2189,13 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 	}
 	const CSpell * spell = CGI->spellh->objects[spellID];
 
+	if(spellID == SpellID::VIEW_EARTH)
+	{
+		//TODO: implement on server side
+		int level = caster->getSpellSchoolLevel(spell);
+		adventureInt->worldViewOptions.showAllTerrain = (level>2);
+	}
+	
 	auto castSoundPath = spell->getCastSound();
 	if (!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
@@ -2702,4 +2709,14 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance* h, CGPath path)
 	}
 
 	duringMovement = false;
+}
+
+void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectPositions)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	//TODO: showWorldViewEx
+	
+	std::copy(objectPositions.begin(), objectPositions.end(), std::back_inserter(adventureInt->worldViewOptions.iconPositions));
+	
+	viewWorldMap();
 }

@@ -9,7 +9,7 @@
 #include "CModHandler.h"
 #include "CHeroHandler.h"
 #include "CArtHandler.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 #include "filesystem/Filesystem.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"

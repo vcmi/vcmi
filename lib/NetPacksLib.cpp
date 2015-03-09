@@ -9,7 +9,7 @@
 #include "CModHandler.h"
 #include "VCMI_Lib.h"
 #include "mapping/CMap.h"
-#include "CSpellHandler.h"
+#include "spells/SpellMechanics.h"
 #include "CCreatureHandler.h"
 #include "CGameState.h"
 #include "BattleState.h"
@@ -1339,7 +1339,7 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 
 	const CSpell * spell = SpellID(id).toSpell();
 	
-	spell->afterCast(gs->curB, this);
+	spell->applyBattle(gs->curB, this);
 }
 
 void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)

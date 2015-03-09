@@ -128,6 +128,11 @@
 		}
 	},
 
+        "DISGUISED":
+        {
+        	"hidden": true
+        },
+
 	"EARTH_IMMUNITY":
 	{
 		"graphics":
@@ -328,6 +333,11 @@
 			"icon":  "zvs/Lib1.res/E_MIND"
 		}
 	},
+	
+	"NONE":
+	{
+		"hidden": true
+	},
 
 	"NO_DISTANCE_PENALTY":
 	{
@@ -514,6 +524,11 @@
 		{
 			"icon":  "zvs/Lib1.res/E_RETAIL1"
 		}
+	},
+	
+	"VISIONS":
+	{
+		"hidden": true
 	},
 	"WATER_IMMUNITY":
 	{

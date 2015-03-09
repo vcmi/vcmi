@@ -16,7 +16,7 @@
 
 #include "../CStopWatch.h"
 #include "../filesystem/Filesystem.h"
-#include "../CSpellHandler.h"
+#include "../spells/CSpellHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"

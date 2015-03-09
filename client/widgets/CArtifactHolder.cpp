@@ -16,7 +16,7 @@
 #include "../../CCallback.h"
 
 #include "../../lib/CArtHandler.h"
-#include "../../lib/CSpellHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"

@@ -9,7 +9,7 @@
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../CGeneralTextHandler.h"
-#include "../CSpellHandler.h"
+#include "../spells/CSpellHandler.h"
 #include "CMapEditManager.h"
 
 SHeroName::SHeroName() : heroId(-1)

@@ -9,7 +9,7 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CSpellHandler.h"
+#include "../lib/spells/CSpellHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/CCreatureHandler.h"
@@ -67,8 +67,11 @@ public:
 	void sendAndApply(CPackForClient * info) const override;	
 	CRandomGenerator & getRandomGenerator() const override;
 	void complain(const std::string & problem) const override;
+	const CMap * getMap() const override;
+	const CGameInfoCallback * getCb() const override;
+	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker = PlayerColor::NEUTRAL) const override;	
 private:
-	CGameHandler * gh;	
+	mutable CGameHandler * gh;	
 };
 
 CondSh<bool> battleMadeAction;
@@ -4970,222 +4973,12 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int3 &pos)
 {
 	const CSpell *s = spellID.toSpell();
-	int cost = h->getSpellCost(s);
-	int schoolLevel = h->getSpellSchoolLevel(s);
-
-	if(!h->canCastThisSpell(s))
-		COMPLAIN_RET("Hero cannot cast this spell!");
-	if(h->mana < cost)
-		COMPLAIN_RET("Hero doesn't have enough spell points to cast this spell!");
-	if(s->combatSpell)
-		COMPLAIN_RET("This function can be used only for adventure map spells!");
-
-	AdvmapSpellCast asc;
-	asc.caster = h;
-	asc.spellID = spellID;
-	sendAndApply(&asc);
-
-	switch(spellID)
-	{
-	case SpellID::SUMMON_BOAT:
-		{
-			//check if spell works at all
-			if(gs->getRandomGenerator().nextInt(99) >= s->getPower(schoolLevel)) //power is % chance of success
-			{
-				InfoWindow iw;
-				iw.player = h->tempOwner;
-				iw.text.addTxt(MetaString::GENERAL_TXT, 336); //%s tried to summon a boat, but failed.
-				iw.text.addReplacement(h->name);
-				sendAndApply(&iw);
-				break;
-			}
-
-			//try to find unoccupied boat to summon
-			const CGBoat *nearest = nullptr;
-			double dist = 0;
-			int3 summonPos = h->bestLocation();
-			if(summonPos.x < 0)
-				COMPLAIN_RET("There is no water tile available!");
-
-			for(const CGObjectInstance *obj : gs->map->objects)
-			{
-				if(obj && obj->ID == Obj::BOAT)
-				{
-					const CGBoat *b = static_cast<const CGBoat*>(obj);
-					if(b->hero) continue; //we're looking for unoccupied boat
-
-					double nDist = distance(b->pos, h->getPosition());
-					if(!nearest || nDist < dist) //it's first boat or closer than previous
-					{
-						nearest = b;
-						dist = nDist;
-					}
-				}
-			}
-
-			if(nearest) //we found boat to summon
-			{
-				ChangeObjPos cop;
-				cop.objid = nearest->id;
-				cop.nPos = summonPos + int3(1,0,0);;
-				cop.flags = 1;
-				sendAndApply(&cop);
-			}
-			else if(schoolLevel < 2) //none or basic level -> cannot create boat :(
-			{
-				InfoWindow iw;
-				iw.player = h->tempOwner;
-				iw.text.addTxt(MetaString::GENERAL_TXT, 335); //There are no boats to summon.
-				sendAndApply(&iw);
-			}
-			else //create boat
-			{
-				NewObject no;
-				no.ID = Obj::BOAT;
-				no.subID = h->getBoatType();
-				no.pos = summonPos + int3(1,0,0);;
-				sendAndApply(&no);
-			}
-			break;
-		}
-
-	case SpellID::SCUTTLE_BOAT:
-		{
-			//check if spell works at all
-			if(gs->getRandomGenerator().nextInt(99) >= s->getPower(schoolLevel)) //power is % chance of success
-			{
-				InfoWindow iw;
-				iw.player = h->tempOwner;
-				iw.text.addTxt(MetaString::GENERAL_TXT, 337); //%s tried to scuttle the boat, but failed
-				iw.text.addReplacement(h->name);
-				sendAndApply(&iw);
-				break;
-			}
-			if(!gs->map->isInTheMap(pos))
-				COMPLAIN_RET("Invalid dst tile for scuttle!");
-
-			//TODO: test range, visibility
-			const TerrainTile *t = &gs->map->getTile(pos);
-			if(!t->visitableObjects.size() || t->visitableObjects.back()->ID != Obj::BOAT)
-				COMPLAIN_RET("There is no boat to scuttle!");
-
-			RemoveObject ro;
-			ro.id = t->visitableObjects.back()->id;
-			sendAndApply(&ro);
-			break;
-		}
-	case SpellID::DIMENSION_DOOR:
-		{
-			const TerrainTile *dest = getTile(pos);
-			const TerrainTile *curr = getTile(h->getSightCenter());
-
-			if(!dest)
-				COMPLAIN_RET("Destination tile doesn't exist!");
-			if(!h->movement)
-				COMPLAIN_RET("Hero needs movement points to cast Dimension Door!");
-			if(h->getBonusesCount(Bonus::SPELL_EFFECT, SpellID::DIMENSION_DOOR) >= s->getPower(schoolLevel)) //limit casts per turn
-			{
-				InfoWindow iw;
-				iw.player = h->tempOwner;
-				iw.text.addTxt(MetaString::GENERAL_TXT, 338); //%s is not skilled enough to cast this spell again today.
-				iw.text.addReplacement(h->name);
-				sendAndApply(&iw);
-				break;
-			}
-
-			GiveBonus gb;
-			gb.id = h->id.getNum();
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::NONE, Bonus::SPELL_EFFECT, 0, SpellID::DIMENSION_DOOR);
-			sendAndApply(&gb);
-
-			if(!dest->isClear(curr)) //wrong dest tile
-			{
-				InfoWindow iw;
-				iw.player = h->tempOwner;
-				iw.text.addTxt(MetaString::GENERAL_TXT, 70); //Dimension Door failed!
-				sendAndApply(&iw);
-				break;
-			}
-
-			if (moveHero(h->id, pos + h->getVisitableOffset(), true))
-			{
-				SetMovePoints smp;
-				smp.hid = h->id;
-				smp.val = std::max<ui32>(0, h->movement - 300);
-				sendAndApply(&smp);
-			}
-		}
-		break;
-	case SpellID::FLY:
-		{
-			int subtype = schoolLevel >= 2 ? 1 : 2; //adv or expert
-
-			GiveBonus gb;
-			gb.id = h->id.getNum();
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::FLYING_MOVEMENT, Bonus::SPELL_EFFECT, 0, SpellID::FLY, subtype);
-			sendAndApply(&gb);
-		}
-		break;
-	case SpellID::WATER_WALK:
-		{
-			int subtype = schoolLevel >= 2 ? 1 : 2; //adv or expert
-
-			GiveBonus gb;
-			gb.id = h->id.getNum();
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::WATER_WALKING, Bonus::SPELL_EFFECT, 0, SpellID::WATER_WALK, subtype);
-			sendAndApply(&gb);
-		}
-		break;
-
-	case SpellID::TOWN_PORTAL:
-		{
-			if (!gs->map->isInTheMap(pos))
-				COMPLAIN_RET("Destination tile not present!")
-			TerrainTile tile = gs->map->getTile(pos);
-			if (tile.visitableObjects.empty() || tile.visitableObjects.back()->ID != Obj::TOWN )
-				COMPLAIN_RET("Town not found for Town Portal!");
-
-			CGTownInstance * town = static_cast<CGTownInstance*>(tile.visitableObjects.back());
-			if (town->tempOwner != h->tempOwner)
-				COMPLAIN_RET("Can't teleport to another player!");
-			if (town->visitingHero)
-				COMPLAIN_RET("Can't teleport to occupied town!");
-
-			if (h->getSpellSchoolLevel(s) < 2)
-			{
-				si32 dist = town->pos.dist2dSQ(h->pos);
-				ObjectInstanceID nearest = town->id; //nearest town's ID
-				for(const CGTownInstance * currTown : gs->getPlayer(h->tempOwner)->towns)
-				{
-					si32 currDist = currTown->pos.dist2dSQ(h->pos);
-					if (currDist < dist)
-					{
-						nearest = currTown->id;
-						dist = currDist;
-					}
-				}
-				if (town->id != nearest)
-					COMPLAIN_RET("This hero can only teleport to nearest town!")
-			}
-			moveHero(h->id, town->visitablePos() + h->getVisitableOffset() ,1);
-		}
-		break;
-
-	case SpellID::VISIONS:
-	case SpellID::VIEW_EARTH:
-	case SpellID::DISGUISE:
-	case SpellID::VIEW_AIR:
-	default:
-		COMPLAIN_RET("This spell is not implemented yet!");
-	}
-
-	SetMana sm;
-	sm.hid = h->id;
-	sm.absolute = false;
-	sm.val = -cost;
-	sendAndApply(&sm);
-
-	return true;
+	
+	AdventureSpellCastParameters p;
+	p.caster = h;
+	p.pos = pos;
+	
+	return s->adventureCast(spellEnv, p);
 }
 
 void CGameHandler::visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h)
@@ -6010,7 +5803,7 @@ CGameHandler::FinishingBattleHelper::FinishingBattleHelper()
 	winnerHero = loserHero = nullptr;
 }
 
-
+///ServerSpellCastEnvironment
 ServerSpellCastEnvironment::ServerSpellCastEnvironment(CGameHandler * gh): gh(gh)
 {
 	
@@ -6030,3 +5823,20 @@ void ServerSpellCastEnvironment::complain(const std::string& problem) const
 {
 	gh->complain(problem);
 }
+
+const CGameInfoCallback * ServerSpellCastEnvironment::getCb() const
+{
+	return gh;
+}
+
+
+const CMap * ServerSpellCastEnvironment::getMap() const
+{
+	return gh->gameState()->map;
+}
+
+bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker) const
+{
+	return gh->moveHero(hid, dst, teleporting, asker);
+}
+

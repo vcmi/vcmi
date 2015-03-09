@@ -5,9 +5,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{132126f1-89bb-4505-a77e-d4c3a18103be}</UniqueIdentifier>
-    </Filter>
     <Filter Include="filesystem">
       <UniqueIdentifier>{a2ca6977-50bf-4585-aa6e-779a10863922}</UniqueIdentifier>
     </Filter>
@@ -26,6 +23,9 @@
     <Filter Include="mapObjects">
       <UniqueIdentifier>{ee24c7f7-f4e2-4d35-b994-94a6e29ea92f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="spells">
+      <UniqueIdentifier>{bda963b1-00e1-412a-9b44-f5cd3f8e9e33}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BattleAction.cpp" />
@@ -35,7 +35,6 @@
     <ClCompile Include="CCreatureHandler.cpp" />
     <ClCompile Include="CGeneralTextHandler.cpp" />
     <ClCompile Include="CHeroHandler.cpp" />
-    <ClCompile Include="CSpellHandler.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
     <ClCompile Include="CCreatureSet.cpp" />
     <ClCompile Include="CGameState.cpp" />
@@ -205,7 +204,27 @@
     </ClCompile>
     <ClCompile Include="registerTypes\TypesMapObjects3.cpp" />
     <ClCompile Include="IHandlerBase.cpp" />
-    <ClCompile Include="SpellMechanics.cpp" />
+    <ClCompile Include="spells\AdventureSpellMechanics.cpp">
+      <Filter>spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\CDefaultSpellMechanics.cpp">
+      <Filter>spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\CSpellHandler.cpp">
+      <Filter>spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\ViewSpellInt.cpp">
+      <Filter>spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\ISpellMechanics.cpp">
+      <Filter>spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\BattleSpellMechanics.cpp">
+      <Filter>spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\CreatureSpellMechanics.cpp">
+      <Filter>spells</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -257,9 +276,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ConstTransitivePtr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CSpellHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CTownHandler.h">
@@ -493,8 +509,29 @@
     <ClInclude Include="CGameStateFwd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SpellMechanics.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="spells\AdventureSpellMechanics.h">
+      <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\BattleSpellMechanics.h">
+      <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\CreatureSpellMechanics.h">
+      <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\CSpellHandler.h">
+      <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\ISpellMechanics.h">
+      <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\ViewSpellInt.h">
+      <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\CDefaultSpellMechanics.h">
+      <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\SpellMechanics.h">
+      <Filter>spells</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

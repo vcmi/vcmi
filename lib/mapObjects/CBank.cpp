@@ -15,7 +15,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "CommonConstructors.h"
-#include "../CSpellHandler.h"
+#include "../spells/CSpellHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 

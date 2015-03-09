@@ -150,8 +150,6 @@
 		<Unit filename="CRandomGenerator.h" />
 		<Unit filename="CScriptingModule.h" />
 		<Unit filename="CSoundBase.h" />
-		<Unit filename="CSpellHandler.cpp" />
-		<Unit filename="CSpellHandler.h" />
 		<Unit filename="CStopWatch.h" />
 		<Unit filename="CThreadHelper.cpp" />
 		<Unit filename="CThreadHelper.h" />
@@ -185,8 +183,6 @@
 		<Unit filename="ResourceSet.cpp" />
 		<Unit filename="ResourceSet.h" />
 		<Unit filename="ScopeGuard.h" />
-		<Unit filename="SpellMechanics.cpp" />
-		<Unit filename="SpellMechanics.h" />
 		<Unit filename="StartInfo.h" />
 		<Unit filename="StdInc.h">
 			<Option weight="0" />
@@ -294,6 +290,20 @@
 		<Unit filename="rmg/CZoneGraphGenerator.h" />
 		<Unit filename="rmg/CZonePlacer.cpp" />
 		<Unit filename="rmg/CZonePlacer.h" />
+		<Unit filename="spells/AdventureSpellMechanics.cpp" />
+		<Unit filename="spells/AdventureSpellMechanics.h" />
+		<Unit filename="spells/BattleSpellMechanics.cpp" />
+		<Unit filename="spells/BattleSpellMechanics.h" />
+		<Unit filename="spells/CDefaultSpellMechanics.cpp" />
+		<Unit filename="spells/CDefaultSpellMechanics.h" />
+		<Unit filename="spells/CSpellHandler.cpp" />
+		<Unit filename="spells/CSpellHandler.h" />
+		<Unit filename="spells/CreatureSpellMechanics.cpp" />
+		<Unit filename="spells/CreatureSpellMechanics.h" />
+		<Unit filename="spells/ISpellMechanics.cpp" />
+		<Unit filename="spells/ISpellMechanics.h" />
+		<Unit filename="spells/ViewSpellInt.cpp" />
+		<Unit filename="spells/ViewSpellInt.h" />
 		<Unit filename="vcmi_endian.h" />
 		<Extensions>
 			<code_completion />

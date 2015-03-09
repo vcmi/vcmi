@@ -13,7 +13,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/CSpellHandler.h"
+#include "../lib/spells/CSpellHandler.h"
 #include "../lib/CSoundBase.h"
 #include "../lib/StartInfo.h"
 #include "mapHandler.h"
@@ -832,6 +832,11 @@ void AdvmapSpellCast::applyCl(CClient *cl)
 	cl->invalidatePaths();
 	//consider notifying other interfaces that see hero?
 	INTERFACE_CALL_IF_PRESENT(caster->getOwner(),advmapSpellCast, caster, spellID);
+}
+
+void ShowWorldViewEx::applyCl(CClient * cl)
+{
+	CALL_ONLY_THAT_INTERFACE(player, showWorldViewEx, objectPositions);
 }
 
 void OpenWindow::applyCl(CClient *cl)

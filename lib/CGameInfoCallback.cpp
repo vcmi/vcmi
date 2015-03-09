@@ -17,7 +17,7 @@
 #include "BattleState.h" // for BattleInfo
 #include "NetPacks.h" // for InfoWindow
 #include "CModHandler.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 
 //TODO make clean
 #define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
@@ -201,14 +201,22 @@ int CGameInfoCallback::howManyTowns(PlayerColor Player) const
 	return gs->players[Player].towns.size();
 }
 
-bool CGameInfoCallback::getTownInfo( const CGObjectInstance *town, InfoAboutTown &dest ) const
+bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject/* = nullptr*/) const
 {
 	ERROR_RET_VAL_IF(!isVisible(town, player), "Town is not visible!", false);  //it's not a town or it's not visible for layer
 	bool detailed = hasAccess(town->tempOwner);
 
-	//TODO vision support
 	if(town->ID == Obj::TOWN)
+	{
+		if(!detailed && nullptr != selectedObject)
+		{
+			const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);		
+			if(nullptr != selectedHero)
+				detailed = selectedHero->hasVisions(town, 1);			
+		}
+		
 		dest.initFromTown(static_cast<const CGTownInstance *>(town), detailed);
+	}		
 	else if(town->ID == Obj::GARRISON || town->ID == Obj::GARRISON2)
 		dest.initFromArmy(static_cast<const CArmedInstance *>(town), detailed);
 	else
@@ -233,15 +241,109 @@ std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (in
 	return ret;
 }
 
-bool CGameInfoCallback::getHeroInfo( const CGObjectInstance *hero, InfoAboutHero &dest ) const
+bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject/* = nullptr*/) const
 {
 	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(hero);
 
 	ERROR_RET_VAL_IF(!h, "That's not a hero!", false);
 	ERROR_RET_VAL_IF(!isVisible(h->getPosition(false)), "That hero is not visible!", false);
 
-	//TODO vision support
-	dest.initFromHero(h, hasAccess(h->tempOwner));
+	bool accessFlag = hasAccess(h->tempOwner);
+	
+	if(!accessFlag && nullptr != selectedObject)
+	{
+		const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);		
+		if(nullptr != selectedHero)
+			accessFlag = selectedHero->hasVisions(hero, 1);			
+	}
+	
+	dest.initFromHero(h, accessFlag);
+	
+	//DISGUISED bonus implementation
+	
+	if(getPlayerRelations(getLocalPlayer(), hero->tempOwner) == PlayerRelations::ENEMIES)
+	{
+		//todo: bonus cashing	
+		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(Bonus::DISGUISED, 0));
+		
+		auto doBasicDisguise = [disguiseLevel](InfoAboutHero & info)		
+		{
+			int maxAIValue = 0;
+			const CCreature * mostStrong = nullptr;
+			
+			for(auto & elem : info.army)
+			{
+				if(elem.second.type->AIValue > maxAIValue)
+				{
+					maxAIValue = elem.second.type->AIValue;
+					mostStrong = elem.second.type;
+				}
+			}
+			
+			if(nullptr == mostStrong)//just in case
+				logGlobal->errorStream() << "CGameInfoCallback::getHeroInfo: Unable to select most strong stack" << disguiseLevel;
+			else
+				for(auto & elem : info.army)
+				{
+					elem.second.type = mostStrong;
+				}
+		};
+		
+		auto doAdvancedDisguise = [accessFlag, &doBasicDisguise](InfoAboutHero & info)		
+		{
+			doBasicDisguise(info);
+			
+			for(auto & elem : info.army)
+				elem.second.count = 0;
+		};
+		
+		auto doExpertDisguise = [this,h](InfoAboutHero & info)		
+		{
+			for(auto & elem : info.army)
+				elem.second.count = 0;
+			
+			const auto factionIndex = getStartInfo(false)->playerInfos.at(h->tempOwner).castle;
+			
+			int maxAIValue = 0;
+			const CCreature * mostStrong = nullptr;
+			
+			for(auto creature : VLC->creh->creatures)
+			{
+				if(creature->faction == factionIndex && creature->AIValue > maxAIValue)
+				{
+					maxAIValue = creature->AIValue;
+					mostStrong = creature;
+				}
+			}
+			
+			if(nullptr != mostStrong) //possible, faction may have no creatures at all
+				for(auto & elem : info.army)
+					elem.second.type = mostStrong;
+		};				
+		
+		
+		switch (disguiseLevel)
+		{
+		case 0:
+			//no bonus at all - do nothing
+			break;		
+		case 1:
+			doBasicDisguise(dest);
+			break;		
+		case 2:
+			doAdvancedDisguise(dest);
+			break;		
+		case 3:
+			doExpertDisguise(dest);
+			break;		
+		default:
+			//invalid value
+			logGlobal->errorStream() << "CGameInfoCallback::getHeroInfo: Invalid DISGUISED bonus value " << disguiseLevel;
+			break;
+		}
+		
+	}
+	
 	return true;
 }
 

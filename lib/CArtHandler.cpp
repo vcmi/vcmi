@@ -15,7 +15,7 @@
 #include "CGeneralTextHandler.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
-#include "CSpellHandler.h"
+#include "spells/CSpellHandler.h"
 #include "mapObjects/MapObjects.h"
 #include "NetPacksBase.h"
 #include "GameConstants.h"

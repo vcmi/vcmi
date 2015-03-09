@@ -12,7 +12,7 @@
 #include "IGameCallback.h"
 
 #include "CHeroHandler.h" // for CHeroHandler
-#include "CSpellHandler.h" // for CSpell
+#include "spells/CSpellHandler.h"// for CSpell
 #include "NetPacks.h"
 #include "CBonusTypeHandler.h"
 #include "CModHandler.h"
