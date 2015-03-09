@@ -109,6 +109,7 @@ public:
 	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID) const;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 
 	//teleport
+	std::vector<ObjectInstanceID> getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player)  const;
 	std::vector<ObjectInstanceID> getTeleportChannelEntraces(TeleportChannelID id, ObjectInstanceID excludeId = ObjectInstanceID(), PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
 	std::vector<ObjectInstanceID> getTeleportChannelExits(TeleportChannelID id, ObjectInstanceID excludeId = ObjectInstanceID(), PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
 	ETeleportChannelType getTeleportChannelType(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;

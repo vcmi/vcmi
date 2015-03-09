@@ -688,32 +688,24 @@ const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid
 	return gs->map->objects[oid.num];
 }
 
-std::vector<ObjectInstanceID> CGameInfoCallback::getTeleportChannelEntraces(TeleportChannelID id, ObjectInstanceID excludeId, PlayerColor Player) const
+std::vector<ObjectInstanceID> CGameInfoCallback::getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player) const
 {
-	std::vector<ObjectInstanceID> ret;
-	auto channel = gs->map->teleportChannels[id];
-	for(auto entrance : channel->entrances)
+	vstd::erase_if(ids, [&](ObjectInstanceID id) -> bool
 	{
-		auto obj = getObj(entrance);
-		if(obj && (Player == PlayerColor::UNFLAGGABLE || isVisible(obj->pos, Player)))
-			ret.push_back(entrance);
-	}
-
-	return ret;
+		auto obj = getObj(id);
+		return player != PlayerColor::UNFLAGGABLE && (!obj || !isVisible(obj->pos, player));
+	});
+	return ids;
 }
 
-std::vector<ObjectInstanceID> CGameInfoCallback::getTeleportChannelExits(TeleportChannelID id, ObjectInstanceID excludeId, PlayerColor Player) const
+std::vector<ObjectInstanceID> CGameInfoCallback::getTeleportChannelEntraces(TeleportChannelID id, ObjectInstanceID excludeId, PlayerColor player) const
 {
-	std::vector<ObjectInstanceID> ret;
-	auto channel = gs->map->teleportChannels[id];
-	for(auto exit : channel->exits)
-	{
-		auto obj = getObj(exit);
-		if(obj && (Player == PlayerColor::UNFLAGGABLE || isVisible(obj->pos, Player)))
-			ret.push_back(exit);
-	}
+	return getVisibleTeleportObjects(gs->map->teleportChannels[id]->entrances, player);
+}
 
-	return ret;
+std::vector<ObjectInstanceID> CGameInfoCallback::getTeleportChannelExits(TeleportChannelID id, ObjectInstanceID excludeId, PlayerColor player) const
+{
+	return getVisibleTeleportObjects(gs->map->teleportChannels[id]->exits, player);
 }
 
 ETeleportChannelType CGameInfoCallback::getTeleportChannelType(TeleportChannelID id, PlayerColor player) const
