@@ -247,19 +247,92 @@ public:
 	ui32 defaultResProduction();
 };
 
-class DLL_LINKAGE CGTeleport : public CGObjectInstance //teleports and subterranean gates
+struct DLL_LINKAGE TeleportChannel
 {
-public:
-	static std::map<Obj, std::map<int, std::vector<ObjectInstanceID> > > objs; //teleports: map[ID][subID] => vector of ids
-	static std::vector<std::pair<ObjectInstanceID, ObjectInstanceID> > gates; //subterranean gates: pairs of ids
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj() override;
-	static void postInit();
-	static ObjectInstanceID getMatchingGate(ObjectInstanceID id); //receives id of one subterranean gate and returns id of the paired one, -1 if none
+	enum EPassability {UNKNOWN, IMPASSABLE, PASSABLE};
+
+	TeleportChannel() : passability(UNKNOWN) {}
+
+	std::vector<ObjectInstanceID> entrances;
+	std::vector<ObjectInstanceID> exits;
+	EPassability passability;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this);
+		h & entrances & exits & passability;
+	}
+};
+
+class DLL_LINKAGE CGTeleport : public CGObjectInstance
+{
+public:
+	enum EType {UNKNOWN, ENTRANCE, EXIT, BOTH};
+
+	EType type;
+	TeleportChannelID channel;
+
+	CGTeleport();
+	bool isEntrance() const;
+	bool isExit() const;
+	bool isChannelEntrance(ObjectInstanceID id) const;
+	bool isChannelExit(ObjectInstanceID id) const;
+	std::vector<ObjectInstanceID> getAllEntrances(bool excludeCurrent = false) const;
+	std::vector<ObjectInstanceID> getAllExits(bool excludeCurrent = false) const;
+	ObjectInstanceID getRandomExit(const CGHeroInstance * h) const;
+
+	virtual void teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, std::vector<ObjectInstanceID> exits) const = 0;
+
+	static bool isTeleport(const CGObjectInstance * dst);
+	static bool isConnected(const CGTeleport * src, const CGTeleport * dst);
+	static bool isConnected(const CGObjectInstance * src, const CGObjectInstance * dst);
+	static bool isExitPassable(CGameState * gs, const CGHeroInstance * h, const CGObjectInstance * obj);
+	static std::vector<ObjectInstanceID> getPassableExits(CGameState * gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits);
+	static void addToChannel(std::map<TeleportChannelID, shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & type & channel & static_cast<CGObjectInstance&>(*this);
+	}
+};
+
+class DLL_LINKAGE CGMonolith : public CGTeleport
+{
+	TeleportChannelID findMeChannel(std::vector<Obj> IDs, int SubID) const;
+
+public:
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, std::vector<ObjectInstanceID> exits) const override;
+	void initObj() override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGTeleport&>(*this);
+	}
+};
+
+class DLL_LINKAGE CGSubterraneanGate : public CGMonolith
+{
+public:
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj() override;
+	static void postInit(CGameState * gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGMonolith&>(*this);
+	}
+};
+
+class DLL_LINKAGE CGWhirlpool : public CGMonolith
+{
+public:
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, std::vector<ObjectInstanceID> exits) const override;
+	static bool isProtected( const CGHeroInstance * h );
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGMonolith&>(*this);
 	}
 };
 

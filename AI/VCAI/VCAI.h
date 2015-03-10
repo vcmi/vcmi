@@ -41,6 +41,7 @@ class AIStatus
 	std::map<int, QueryID> requestToQueryID; //IDs of answer-requests sent to server => query ids (so we can match answer confirmation from server to the query)
 	std::vector<const CGObjectInstance*> objectsBeingVisited;
 	bool ongoingHeroMovement;
+	bool ongoingChannelProbing; // true if AI currently explore bidirectional teleport channel exits
 
 	bool havingTurn;
 
@@ -49,6 +50,8 @@ public:
 	~AIStatus();
 	void setBattle(BattleState BS);
 	void setMove(bool ongoing);
+	void setChannelProbing(bool ongoing);
+	bool channelProbing();
 	BattleState getBattle();
 	void addQuery(QueryID ID, std::string description);
 	void removeQuery(QueryID ID);
@@ -138,7 +141,10 @@ public:
 
 	friend class FuzzyHelper;
 
+	std::map<TeleportChannelID, shared_ptr<TeleportChannel> > knownTeleportChannels;
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
+	ObjectInstanceID destinationTeleport;
+	std::vector<ObjectInstanceID> teleportChannelProbingList; //list of teleport channel exits that not visible and need to be (re-)explored
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::set<const CGTownInstance *> > townVisitsThisWeek;
 
@@ -190,6 +196,7 @@ public:
 	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override; //TODO
 	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
+	virtual void showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID) override;
 	virtual void saveGame(COSer & h, const int version) override; //saving
 	virtual void loadGame(CISer & h, const int version) override; //loading
 	virtual void finish() override;
@@ -290,7 +297,7 @@ public:
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
 	void validateVisitableObjs();
 	void retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned = false) const;
-	void retreiveVisitableObjs(std::set<const CGObjectInstance *> &out, bool includeOwned = false) const;
+	void retreiveVisitableObjs();
 	std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
 	const CGObjectInstance *lookForArt(int aid) const;
@@ -343,7 +350,8 @@ public:
 
 	template <typename Handler> void serializeInternal(Handler &h, const int version)
 	{
-		h & knownSubterraneanGates & townVisitsThisWeek & lockedHeroes & reservedHeroesMap; //FIXME: cannot instantiate abstract class
+		h & knownTeleportChannels & knownSubterraneanGates & destinationTeleport;
+		h & townVisitsThisWeek & lockedHeroes & reservedHeroesMap; //FIXME: cannot instantiate abstract class
 		h & visitableObjs & alreadyVisited & reservedObjs;
 		h & saving & status & battlename;
 		h & heroesUnableToExplore;

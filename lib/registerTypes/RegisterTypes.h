@@ -36,6 +36,9 @@ void registerTypesMapObjects1(Serializer &s)
 
 	// Non-armed objects
 	s.template registerType<CGObjectInstance, CGTeleport>();
+		s.template registerType<CGTeleport, CGMonolith>();
+			s.template registerType<CGMonolith, CGSubterraneanGate>();
+			s.template registerType<CGMonolith, CGWhirlpool>();
 	s.template registerType<CGObjectInstance, CGSignBottle>();
 	s.template registerType<CGObjectInstance, CGScholar>();
 	s.template registerType<CGObjectInstance, CGMagicWell>();
@@ -121,7 +124,9 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGShrine);
 	REGISTER_GENERIC_HANDLER(CGSignBottle);
 	REGISTER_GENERIC_HANDLER(CGSirens);
-	REGISTER_GENERIC_HANDLER(CGTeleport);
+	REGISTER_GENERIC_HANDLER(CGMonolith);
+	REGISTER_GENERIC_HANDLER(CGSubterraneanGate);
+	REGISTER_GENERIC_HANDLER(CGWhirlpool);
 	REGISTER_GENERIC_HANDLER(CGTownInstance);
 	REGISTER_GENERIC_HANDLER(CGUniversity);
 	REGISTER_GENERIC_HANDLER(CGVisitableOPH);
@@ -282,6 +287,7 @@ void registerTypesClientPacks2(Serializer &s)
 	s.template registerType<Query, BlockingDialog>();
 	s.template registerType<Query, GarrisonDialog>();
 	s.template registerType<Query, ExchangeDialog>();
+	s.template registerType<Query, TeleportDialog>();
 
 	s.template registerType<CPackForClient, CGarrisonOperationPack>();
 	s.template registerType<CGarrisonOperationPack, ChangeStackCount>();

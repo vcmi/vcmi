@@ -48,9 +48,9 @@ bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *wh
 	return true;
 }
 
-bool CCallback::moveHero(const CGHeroInstance *h, int3 dst)
+bool CCallback::moveHero(const CGHeroInstance *h, int3 dst, bool transit)
 {
-	MoveHero pack(dst,h->id);
+	MoveHero pack(dst,h->id,transit);
 	sendRequest(&pack);
 	return true;
 }

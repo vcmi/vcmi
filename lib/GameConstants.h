@@ -252,6 +252,14 @@ class TeamID : public BaseForID<TeamID, ui8>
 	friend class CNonConstInfoCallback;
 };
 
+class TeleportChannelID : public BaseForID<TeleportChannelID, si32>
+{
+	INSTID_LIKE_CLASS_COMMON(TeleportChannelID, si32)
+
+	friend class CGameInfoCallback;
+	friend class CNonConstInfoCallback;
+};
+
 // #ifndef INSTANTIATE_BASE_FOR_ID_HERE
 // extern template std::ostream & operator << <ArtifactInstanceID>(std::ostream & os, BaseForID<ArtifactInstanceID> id);
 // extern template std::ostream & operator << <ObjectInstanceID>(std::ostream & os, BaseForID<ObjectInstanceID> id);
@@ -465,6 +473,14 @@ namespace ETileType
 		USED
 	};
 }
+
+enum class ETeleportChannelType
+{
+	IMPASSABLE,
+	BIDIRECTIONAL,
+	UNIDIRECTIONAL,
+	MIXED
+};
 
 class Obj
 {

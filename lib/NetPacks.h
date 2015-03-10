@@ -1208,6 +1208,28 @@ struct ExchangeDialog : public Query//2005
 	}
 };
 
+struct TeleportDialog : public Query//2006
+{
+	TeleportDialog() {type = 2006;}
+	TeleportDialog(const CGHeroInstance *Hero, TeleportChannelID Channel)
+		: hero(Hero), channel(Channel), impassable(false)
+	{
+		type = 2006;
+	}
+
+	void applyCl(CClient *cl);
+
+	const CGHeroInstance *hero;
+	TeleportChannelID channel;
+	std::vector<ObjectInstanceID> exits;
+	bool impassable;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & queryID & hero & channel & exits & impassable;
+	}
+};
+
 struct BattleInfo;
 struct BattleStart : public CPackForClient//3000
 {
@@ -1758,14 +1780,15 @@ struct DismissHero : public CPackForServer
 struct MoveHero : public CPackForServer
 {
 	MoveHero(){};
-	MoveHero(const int3 &Dest, ObjectInstanceID HID) : dest(Dest), hid(HID){};
+	MoveHero(const int3 &Dest, ObjectInstanceID HID, bool Transit) : dest(Dest), hid(HID), transit(Transit) {};
 	int3 dest;
 	ObjectInstanceID hid;
+	bool transit;
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & dest & hid;
+		h & dest & hid & transit;
 	}
 };
 

@@ -595,6 +595,11 @@ void ExchangeDialog::applyCl(CClient *cl)
 	INTERFACE_CALL_IF_PRESENT(heroes[0]->tempOwner, heroExchangeStarted, heroes[0]->id, heroes[1]->id, queryID);
 }
 
+void TeleportDialog::applyCl( CClient *cl )
+{
+	CALL_ONLY_THAT_INTERFACE(hero->tempOwner,showTeleportDialog,channel,exits,impassable,queryID);
+}
+
 void BattleStart::applyFirstCl( CClient *cl )
 {
 	//Cannot use the usual macro because curB is not set yet

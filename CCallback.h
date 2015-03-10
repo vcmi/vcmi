@@ -46,7 +46,7 @@ class IGameActionCallback
 {
 public:
 	//hero
-	virtual bool moveHero(const CGHeroInstance *h, int3 dst) =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)
+	virtual bool moveHero(const CGHeroInstance *h, int3 dst, bool transit) =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses given hero; true - successfuly, false - not successfuly
 	virtual void dig(const CGObjectInstance *hero)=0;
 	virtual void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1))=0; //cast adventure map spell
@@ -119,7 +119,7 @@ public:
 	void unregisterAllInterfaces(); //stops delivering information about game events to player interfaces -> can be called ONLY after victory/loss
 
 //commands
-	bool moveHero(const CGHeroInstance *h, int3 dst); //dst must be free, neighbouring tile (this function can move hero only by one tile)
+	bool moveHero(const CGHeroInstance *h, int3 dst, bool transit = false); //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	bool teleportHero(const CGHeroInstance *who, const CGTownInstance *where);
 	int selectionMade(int selection, QueryID queryID);
 	int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2);

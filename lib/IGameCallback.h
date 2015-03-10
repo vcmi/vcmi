@@ -15,6 +15,7 @@
 struct SetMovePoints;
 struct GiveBonus;
 struct BlockingDialog;
+struct TeleportDialog;
 struct MetaString;
 struct ShowInInfobox;
 struct StackLocation;
@@ -52,6 +53,7 @@ public:
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0; 
 	virtual void showBlockingDialog(BlockingDialog *iw) =0;
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) =0; //cb will be called when player closes garrison window
+	virtual void showTeleportDialog(TeleportDialog *iw) =0;
 	virtual void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) =0;
 	virtual void giveResource(PlayerColor player, Res::ERes which, int val)=0;
 	virtual void giveResources(PlayerColor player, TResources resources)=0;
@@ -83,7 +85,7 @@ public:
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false)=0; //if any of armies is hero, hero will be used
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	virtual void setAmount(ObjectInstanceID objid, ui32 val)=0;
-	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker = PlayerColor::NEUTRAL)=0;
+	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;

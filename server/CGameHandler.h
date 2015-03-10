@@ -134,6 +134,7 @@ public:
 	//void showInfoDialog(InfoWindow *iw) override;
 
 	void showBlockingDialog(BlockingDialog *iw) override; 
+	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override;
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override;
 	void giveResource(PlayerColor player, Res::ERes which, int val) override;
@@ -167,7 +168,7 @@ public:
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false) override; //if any of armies is hero, hero will be used
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) override; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle//void startBattleI(int heroID, CCreatureSet army, int3 tile, std::function<void(BattleResult*)> cb) override; //for hero<=>neutral army
 	void setAmount(ObjectInstanceID objid, ui32 val) override;
-	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker = PlayerColor::NEUTRAL) override;
+	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override;
 	void giveHeroBonus(GiveBonus * bonus) override;
 	void setMovePoints(SetMovePoints * smp) override;
 	void setManaPoints(ObjectInstanceID hid, int val) override;

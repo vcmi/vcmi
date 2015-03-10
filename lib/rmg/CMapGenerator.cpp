@@ -381,11 +381,11 @@ void CMapGenerator::createConnections()
 
 						if (withinZone)
 						{
-							auto gate1 = new CGTeleport;
+							auto gate1 = new CGSubterraneanGate;
 							gate1->ID = Obj::SUBTERRANEAN_GATE;
 							gate1->subID = 0;
 							zoneA->placeAndGuardObject(this, gate1, tile, connection.getGuardStrength());
-							auto gate2 = new CGTeleport(*gate1);
+							auto gate2 = new CGSubterraneanGate(*gate1);
 							zoneB->placeAndGuardObject(this, gate2, otherTile, connection.getGuardStrength());
 
 							stop = true; //we are done, go to next connection
@@ -398,11 +398,11 @@ void CMapGenerator::createConnections()
 		}
 		if (!guardPos.valid())
 		{
-			auto teleport1 = new CGTeleport;
+			auto teleport1 = new CGMonolith;
 			teleport1->ID = Obj::MONOLITH_TWO_WAY;
 			teleport1->subID = getNextMonlithIndex();
 
-			auto teleport2 = new CGTeleport(*teleport1);
+			auto teleport2 = new CGMonolith(*teleport1);
 
 			zoneA->addRequiredObject (teleport1, connection.getGuardStrength());
 			zoneB->addRequiredObject (teleport2, connection.getGuardStrength());

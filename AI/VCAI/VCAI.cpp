@@ -95,6 +95,7 @@ VCAI::VCAI(void)
 {
 	LOG_TRACE(logAi);
 	makingTurn = nullptr;
+	destinationTeleport = ObjectInstanceID();
 }
 
 VCAI::~VCAI(void)
@@ -122,11 +123,19 @@ void VCAI::heroMoved(const TryMoveHero & details)
 		const CGObjectInstance *o1 = frontOrNull(cb->getVisitableObjs(from)),
 			*o2 = frontOrNull(cb->getVisitableObjs(to));
 
-		if(o1 && o2 && o1->ID == Obj::SUBTERRANEAN_GATE && o2->ID == Obj::SUBTERRANEAN_GATE)
+		auto t1 = dynamic_cast<const CGTeleport *>(o1);
+		auto t2 = dynamic_cast<const CGTeleport *>(o2);
+		if(t1 && t2)
 		{
-			knownSubterraneanGates[o1] = o2;
-			knownSubterraneanGates[o2] = o1;
-            logAi->debugStream() << boost::format("Found a pair of subterranean gates between %s and %s!") % from % to;
+			if(cb->isTeleportChannelBidirectional(t1->channel))
+			{
+				if(o1->ID == Obj::SUBTERRANEAN_GATE && o1->ID == o2->ID) // We need to only add subterranean gates in knownSubterraneanGates. Used for features not yet ported to use teleport channels
+				{
+					knownSubterraneanGates[o1] = o2;
+					knownSubterraneanGates[o2] = o1;
+					logAi->debugStream() << boost::format("Found a pair of subterranean gates between %s and %s!") % from % to;
+				}
+			}
 		}
 	}
 }
@@ -505,7 +514,7 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 			auto obj = myCb->getObj(sop->id, false);
 			if (obj)
 			{
-				visitableObjs.insert(obj);
+				addVisitableObj(obj);
 				erase_if_present(alreadyVisited, obj);
 			}
 		}
@@ -550,7 +559,7 @@ void VCAI::init(shared_ptr<CCallback> CB)
 	if(!fh)
 		fh = new FuzzyHelper();
 
-	retreiveVisitableObjs(visitableObjs);
+	retreiveVisitableObjs();
 }
 
 void VCAI::yourTurn()
@@ -594,6 +603,36 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 	requestActionASAP([=]()
 	{
 		answerQuery(askID, sel);
+	});
+}
+
+void VCAI::showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID)
+{
+	LOG_TRACE_PARAMS(logAi, "askID '%i', exits '%s'", askID % exits);
+	NET_EVENT_HANDLER;
+	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits")
+																			% exits.size()));
+
+	ObjectInstanceID choosenExit;
+	if(impassable)
+		knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
+	else
+	{
+		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, destinationTeleport))
+			choosenExit = destinationTeleport;
+
+		if(!status.channelProbing())
+		{
+			vstd::copy_if(exits, vstd::set_inserter(teleportChannelProbingList), [&](ObjectInstanceID id) -> bool
+			{
+				return !(vstd::contains(visitableObjs, cb->getObj(id)) || id == choosenExit);
+			});
+		}
+	}
+
+	requestActionASAP([=]()
+	{
+		answerQuery(askID, choosenExit.getNum());
 	});
 }
 
@@ -674,7 +713,7 @@ void VCAI::makeTurn()
 			{
 				if (isWeeklyRevisitable(obj))
 				{
-					visitableObjs.insert(obj); //set doesn't need duplicate check
+					addVisitableObj(obj);
 					erase_if_present (alreadyVisited, obj);
 				}
 			}
@@ -1559,14 +1598,15 @@ void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, boo
 		}
 	});
 }
-void VCAI::retreiveVisitableObjs(std::set<const CGObjectInstance *> &out, bool includeOwned /*= false*/) const
+
+void VCAI::retreiveVisitableObjs()
 {
 	foreach_tile_pos([&](const int3 &pos)
 	{
 		for(const CGObjectInstance *obj : myCb->getVisitableObjs(pos, false))
 		{
-			if(includeOwned || obj->tempOwner != playerID)
-				out.insert(obj);
+			if(obj->tempOwner != playerID)
+				addVisitableObj(obj);
 		}
 	});
 }
@@ -1586,6 +1626,11 @@ void VCAI::addVisitableObj(const CGObjectInstance *obj)
 {
 	visitableObjs.insert(obj);
 	helperObjInfo[obj] = ObjInfo(obj);
+
+	// All teleport objects seen automatically assigned to appropriate channels
+	auto teleportObj = dynamic_cast<const CGTeleport *>(obj);
+	if(teleportObj)
+		CGTeleport::addToChannel(knownTeleportChannels, teleportObj);
 }
 
 const CGObjectInstance * VCAI::lookForArt(int aid) const
@@ -1650,6 +1695,19 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /
 
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
+	auto afterMovementCheck = [&]() -> void
+	{
+		waitTillFree(); //movement may cause battle or blocking dialog
+		if(!h)
+		{
+			lostHero(h);
+			teleportChannelProbingList.clear();
+			if (status.channelProbing()) // if hero lost during channel probing we need to switch this mode off
+				status.setChannelProbing(false);
+			throw cannotFulfillGoalException("Hero was lost!");
+		}
+	};
+
 	logAi->debugStream() << boost::format("Moving hero %s to tile %s") % h->name % dst;
 	int3 startHpos = h->visitablePos();
 	bool ret = false;
@@ -1658,12 +1716,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
 		cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
-		waitTillFree(); //movement may cause battle or blocking dialog
-		if(!h) // TODO is it feasible to hero get killed there if game work properly?
-		{ // not sure if AI can currently reconsider to attack bank while staying on it. Check issue 2084 on mantis for more information.
-			lostHero(h);
-			throw std::runtime_error("Hero was lost!");
-		}
+		afterMovementCheck();// TODO: is it feasible to hero get killed there if game work properly?
+							 // not sure if AI can currently reconsider to attack bank while staying on it. Check issue 2084 on mantis for more information.
 		ret = true;
 	}
 	else
@@ -1676,9 +1730,54 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			throw goalFulfilledException (sptr(Goals::VisitTile(dst).sethero(h)));
 		}
 
+		auto getObj = [&](int3 coord, bool ignoreHero = false)
+		{
+			return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
+		};
+
+		auto doMovement = [&](int3 dst, bool transit = false)
+		{
+			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true), transit);
+		};
+
+		auto doTeleportMovement = [&](int3 dst, ObjectInstanceID exitId)
+		{
+			destinationTeleport = exitId;
+			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
+			destinationTeleport = ObjectInstanceID();
+			afterMovementCheck();
+		};
+
+		auto doChannelProbing = [&]() -> void
+		{
+			auto currentExit = getObj(CGHeroInstance::convertPosition(h->pos,false));
+			assert(currentExit);
+
+			status.setChannelProbing(true);
+			for(auto exit : teleportChannelProbingList)
+				doTeleportMovement(CGHeroInstance::convertPosition(h->pos,false), exit);
+			teleportChannelProbingList.clear();
+			doTeleportMovement(CGHeroInstance::convertPosition(h->pos,false), currentExit->id);
+			status.setChannelProbing(false);
+		};
+
 		int i=path.nodes.size()-1;
 		for(; i>0; i--)
 		{
+			int3 currentCoord = path.nodes[i].coord;
+			int3 nextCoord = path.nodes[i-1].coord;
+
+			auto currentObject = getObj(currentCoord, currentCoord == CGHeroInstance::convertPosition(h->pos,false));
+			auto nextObject = getObj(nextCoord);
+			if(CGTeleport::isConnected(currentObject, nextObject))
+			{ //we use special login if hero standing on teleporter it's mean we need
+				doTeleportMovement(currentCoord, nextObject->id);
+				if(teleportChannelProbingList.size())
+					doChannelProbing();
+
+				continue;
+			}
+
 			//stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
 			if(path.nodes[i-1].turns)
 			{
@@ -1690,16 +1789,19 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			if(endpos == h->visitablePos())
 				continue;
 
-			cb->moveHero(*h, CGHeroInstance::convertPosition(endpos, true));
-			waitTillFree(); //movement may cause battle or blocking dialog
-			boost::this_thread::interruption_point();
-			if(!h) //we lost hero - remove all tasks assigned to him/her
-			{
-				lostHero(h);
-				//we need to throw, otherwise hero will be assigned to sth again
-				throw std::runtime_error("Hero was lost!");
+			if((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
+				&& (CGTeleport::isConnected(nextObject, getObj(path.nodes[i-2].coord))
+					|| CGTeleport::isTeleport(nextObject)))
+			{ // Hero should be able to go through object if it's allow transit
+				doMovement(endpos, true);
 			}
+			else
+				doMovement(endpos);
 
+			afterMovementCheck();
+
+			if(teleportChannelProbingList.size())
+				doChannelProbing();
 		}
 		ret = !i;
 	}
@@ -2531,6 +2633,7 @@ AIStatus::AIStatus()
 	battle = NO_BATTLE;
 	havingTurn = false;
 	ongoingHeroMovement = false;
+	ongoingChannelProbing = false;
 }
 
 AIStatus::~AIStatus()
@@ -2661,6 +2764,18 @@ void AIStatus::setMove(bool ongoing)
 	boost::unique_lock<boost::mutex> lock(mx);
 	ongoingHeroMovement = ongoing;
 	cv.notify_all();
+}
+
+void AIStatus::setChannelProbing(bool ongoing)
+{
+	boost::unique_lock<boost::mutex> lock(mx);
+	ongoingHeroMovement = ongoing;
+	cv.notify_all();
+}
+
+bool AIStatus::channelProbing()
+{
+	return ongoingChannelProbing;
 }
 
 SectorMap::SectorMap()
