@@ -1,4 +1,11 @@
 0.97 -> 0.98
+GENERAL:
+* Pathfinder can now find way using monoliths and whirlpools (only used if hero have protection)
+
+ADVENTURE AI:
+* AI will try to use Monolith entrances for exploration
+* AI will now always revisit each exit of two way monolith if exit no longer visible
+
 ADVENTURE MAP:
 * Implemented world veiw
 
