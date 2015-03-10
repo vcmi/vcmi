@@ -9,7 +9,7 @@
 #include "CModHandler.h"
 #include "VCMI_Lib.h"
 #include "mapping/CMap.h"
-#include "spells/SpellMechanics.h"
+#include "spells/CSpellHandler.h"
 #include "CCreatureHandler.h"
 #include "CGameState.h"
 #include "BattleState.h"
@@ -185,11 +185,11 @@ DLL_LINKAGE void ChangeSpells::applyGs( CGameState *gs )
 DLL_LINKAGE void SetMana::applyGs( CGameState *gs )
 {
 	CGHeroInstance * hero = gs->getHero(hid);
-	
+
 	assert(hero);
-	
+
 	if(absolute)
-		hero->mana = val;		
+		hero->mana = val;
 	else
 		hero->mana += val;
 
@@ -1338,7 +1338,7 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 	assert(gs->curB);
 
 	const CSpell * spell = SpellID(id).toSpell();
-	
+
 	spell->applyBattle(gs->curB, this);
 }
 
@@ -1578,7 +1578,7 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 
 	gs->curB->localInitStack(addedStack);
 	gs->curB->stacks.push_back(addedStack); //the stack is not "SUMMONED", it is permanent
-	
+
 	newStackID = addedStack->ID;
 }
 

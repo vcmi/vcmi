@@ -27,7 +27,7 @@
 #include "../BattleState.h"
 #include "../CBattleCallback.h"
 
-#include "SpellMechanics.h"
+#include "ISpellMechanics.h"
 
 namespace SpellConfig
 {
