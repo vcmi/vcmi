@@ -1694,6 +1694,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		if(!h)
 		{
 			lostHero(h);
+			teleportChannelProbingList.clear();
 			if (status.channelProbing()) // if hero lost during channel probing we need to switch this mode off
 				status.setChannelProbing(false);
 			throw cannotFulfillGoalException("Hero was lost!");
