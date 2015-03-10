@@ -172,6 +172,7 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 ui32 CSpell::calculateBonus(ui32 baseDamage, const CGHeroInstance * caster, const CStack * affectedCreature) const
 {
 	ui32 ret = baseDamage;
+
 	//applying sorcery secondary skill
 	if(caster)
 	{
@@ -205,7 +206,6 @@ ui32 CSpell::calculateDamage(const CGHeroInstance * caster, const CStack * affec
 	if(nullptr != affectedCreature)
 	{
 		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
-
 		forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
 		{
 			if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
@@ -222,6 +222,7 @@ ui32 CSpell::calculateDamage(const CGHeroInstance * caster, const CStack * affec
 			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
 			ret /= 100;
 		}
+
 		//dmg increasing
 		if(affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, id))
 		{
@@ -407,7 +408,7 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallbac
 	{
 		bool allImmune = true;
 
-		ESpellCastProblem::ESpellCastProblem problem;
+		ESpellCastProblem::ESpellCastProblem problem = ESpellCastProblem::INVALID;
 
 		for(auto s : stacks)
 		{
@@ -564,7 +565,7 @@ void CSpell::setupMechanics()
 {
 	if(nullptr != mechanics)
 	{
-		logGlobal->errorStream() << "Spell " << this->name << " mechanics already set";
+		logGlobal->errorStream() << "Spell " << this->name << ": mechanics already set";
 		delete mechanics;
 	}
 
@@ -811,7 +812,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json)
 	else if(targetType == "LOCATION")
 		spell->targetType = CSpell::LOCATION;
 	else
-		logGlobal->warnStream() << "Spell " << spell->name << ". Target type " << (targetType.empty() ? "empty" : "unknown ("+targetType+")") << ". Assumed NO_TARGET.";
+		logGlobal->warnStream() << "Spell " << spell->name << ": target type " << (targetType.empty() ? "empty" : "unknown ("+targetType+")") << ", assumed NO_TARGET.";
 
 	for(const auto & counteredSpell: json["counters"].Struct())
 		if (counteredSpell.second.Bool())
@@ -856,7 +857,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json)
 	else if(!implicitPositiveness)
 	{
 		spell->positiveness = CSpell::NEUTRAL; //duplicates constructor but, just in case
-		logGlobal->errorStream() << "No positiveness specified, assumed NEUTRAL";
+		logGlobal->errorStream() << "Spell " << spell->name << ": no positiveness specified, assumed NEUTRAL.";
 	}
 
 	spell->isSpecial = flags["special"].Bool();
@@ -866,7 +867,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json)
 		auto it = bonusNameMap.find(name);
 		if(it == bonusNameMap.end())
 		{
-			logGlobal->errorStream() << spell->name << ": invalid bonus name" << name;
+			logGlobal->errorStream() << "Spell " << spell->name << ": invalid bonus name " << name;
 		}
 		else
 		{
@@ -890,7 +891,6 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json)
 	readBonusStruct("absoluteImmunity", spell->absoluteImmunities);
 	readBonusStruct("limit", spell->limiters);
 	readBonusStruct("absoluteLimit", spell->absoluteLimiters);
-
 
 	const JsonNode & graphicsNode = json["graphics"];
 
@@ -942,9 +942,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json)
 	const JsonNode & soundsNode = json["sounds"];
 	spell->castSound = soundsNode["cast"].String();
 
-
 	//load level attributes
-
 	const int levelsCount = GameConstants::SPELL_SCHOOL_LEVELS;
 
 	for(int levelIndex = 0; levelIndex < levelsCount; levelIndex++)
