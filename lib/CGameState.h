@@ -183,7 +183,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color & human & team & resources & status;
-		h & heroes & towns & availableHeroes & dwellings & visitedObjects;
+		h & heroes & towns & availableHeroes & dwellings & quests & visitedObjects;
 		h & getBonusList(); //FIXME FIXME FIXME
 		h & status & daysWithoutCastle;
 		h & enteredLosingCheatCode & enteredWinningCheatCode;
