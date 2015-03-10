@@ -1730,12 +1730,12 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			throw goalFulfilledException (sptr(Goals::VisitTile(dst).sethero(h)));
 		}
 
-		auto getObj = [&](int3 coord, bool ignoreHero = false)
+		auto getObj = [&](int3 coord, bool ignoreHero)
 		{
 			return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
 		};
 
-		auto doMovement = [&](int3 dst, bool transit = false)
+		auto doMovement = [&](int3 dst, bool transit)
 		{
 			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true), transit);
 		};
@@ -1750,7 +1750,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto doChannelProbing = [&]() -> void
 		{
-			auto currentExit = getObj(CGHeroInstance::convertPosition(h->pos,false));
+			auto currentExit = getObj(CGHeroInstance::convertPosition(h->pos,false), false);
 			assert(currentExit);
 
 			status.setChannelProbing(true);
@@ -1768,7 +1768,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			int3 nextCoord = path.nodes[i-1].coord;
 
 			auto currentObject = getObj(currentCoord, currentCoord == CGHeroInstance::convertPosition(h->pos,false));
-			auto nextObject = getObj(nextCoord);
+			auto nextObject = getObj(nextCoord, false);
 			if(CGTeleport::isConnected(currentObject, nextObject))
 			{ //we use special login if hero standing on teleporter it's mean we need
 				doTeleportMovement(currentCoord, nextObject->id);
@@ -1790,13 +1790,13 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				continue;
 
 			if((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
-				&& (CGTeleport::isConnected(nextObject, getObj(path.nodes[i-2].coord))
+				&& (CGTeleport::isConnected(nextObject, getObj(path.nodes[i-2].coord, false))
 					|| CGTeleport::isTeleport(nextObject)))
 			{ // Hero should be able to go through object if it's allow transit
 				doMovement(endpos, true);
 			}
 			else
-				doMovement(endpos);
+				doMovement(endpos, false);
 
 			afterMovementCheck();
 

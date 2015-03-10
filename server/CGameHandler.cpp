@@ -5846,6 +5846,6 @@ const CMap * ServerSpellCastEnvironment::getMap() const
 
 bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker) const
 {
-	return gh->moveHero(hid, dst, teleporting, asker);
+	return gh->moveHero(hid, dst, teleporting, false, asker);
 }
 

@@ -2654,14 +2654,14 @@ bool CPlayerInterface::capturedAllEvents()
 void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 {
 	int i = 1;
-	auto getObj = [&](int3 coord, bool ignoreHero = false)
+	auto getObj = [&](int3 coord, bool ignoreHero)
 	{
 		return cb->getTile(CGHeroInstance::convertPosition(coord,false))->topVisitableObj(ignoreHero);
 	};
 
 	boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
 	stillMoveHero.data = CONTINUE_MOVE;
-	auto doMovement = [&](int3 dst, bool transit = false)
+	auto doMovement = [&](int3 dst, bool transit)
 	{
 		stillMoveHero.data = WAITING_MOVE;
 		cb->moveHero(h, dst, transit);
@@ -2685,7 +2685,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 			{
 				CCS->soundh->stopSound(sh);
 				destinationTeleport = nextObject->id;
-				doMovement(h->pos);
+				doMovement(h->pos, false);
 				sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
 				continue;
 			}
@@ -2717,13 +2717,13 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 			logGlobal->traceStream() << "Requesting hero movement to " << endpos;
 
 			if((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
-				&& (CGTeleport::isConnected(nextObject, getObj(path.nodes[i-2].coord))
+				&& (CGTeleport::isConnected(nextObject, getObj(path.nodes[i-2].coord, false))
 					|| CGTeleport::isTeleport(nextObject)))
 			{ // Hero should be able to go through object if it's allow transit
 				doMovement(endpos, true);
 			}
 			else
-				doMovement(endpos);
+				doMovement(endpos, false);
 
 			logGlobal->traceStream() << "Resuming " << __FUNCTION__;
 			bool guarded = cb->isInTheMap(cb->getGuardingCreaturePosition(endpos - int3(1, 0, 0)));
