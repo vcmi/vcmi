@@ -1936,6 +1936,15 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 
 	int numZones = gen->getZones().size();
 
+	std::vector<CCreature *> creatures; //native creatures for this zone
+	for (auto cre : VLC->creh->creatures)
+	{
+		if (!cre->special && cre->faction == townType)
+		{
+			creatures.push_back(cre);
+		}
+	}
+
 	for (auto primaryID : VLC->objtypeh->knownObjects())
 	{
 		for (auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
@@ -2116,7 +2125,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 	auto creatureToCount = [](CCreature * creature) -> int
 	{
 		int actualTier = creature->level > 7 ? 6 : creature->level - 1;
-		float creaturesAmount = tierValues[actualTier] / creature->AIValue;
+		float creaturesAmount = ((float)tierValues[actualTier]) / creature->AIValue;
 		if (creaturesAmount <= 5)
 		{
 			creaturesAmount = boost::math::round(creaturesAmount); //allow single monsters
@@ -2138,28 +2147,25 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 		return creaturesAmount;
 	};
 
-	for (auto creature : VLC->creh->creatures)
+	for (auto creature : creatures)
 	{
-		if (!creature->special && creature->faction == townType)
-		{
-			int creaturesAmount = creatureToCount(creature);
-			if (!creaturesAmount)
-				continue;
+		int creaturesAmount = creatureToCount(creature);
+		if (!creaturesAmount)
+			continue;
 
-			oi.generateObject = [creature, creaturesAmount]() -> CGObjectInstance *
-			{
-				auto obj = new CGPandoraBox();
-				obj->ID = Obj::PANDORAS_BOX;
-				obj->subID = 0;
-				auto stack = new CStackInstance(creature, creaturesAmount);
-				obj->creatures.putStack(SlotID(0), stack);
-				return obj;
-			};
-			oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
-			oi.value = (2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) / 3;
-			oi.probability = 3;
-			possibleObjects.push_back(oi);
-		}
+		oi.generateObject = [creature, creaturesAmount]() -> CGObjectInstance *
+		{
+			auto obj = new CGPandoraBox();
+			obj->ID = Obj::PANDORAS_BOX;
+			obj->subID = 0;
+			auto stack = new CStackInstance(creature, creaturesAmount);
+			obj->creatures.putStack(SlotID(0), stack);
+			return obj;
+		};
+		oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
+		oi.value = (2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) / 3;
+		oi.probability = 3;
+		possibleObjects.push_back(oi);
 	}
 
 	//Pandora with 12 spells of certain level
@@ -2258,16 +2264,6 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 		static const int genericSeerHuts = 8;
 		int seerHutsPerType = 0;
 		const int questArtsRemaining = gen->getQuestArtsRemaning().size();
-
-		std::vector<CCreature *> creatures;
-
-		for (auto cre : VLC->creh->creatures)
-		{
-			if (!cre->special && cre->faction == townType)
-			{
-				creatures.push_back(cre);
-			}
-		}
 
 		//general issue is that not many artifact types are available for quests
 
