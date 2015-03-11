@@ -2263,7 +2263,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 
 		for (auto cre : VLC->creh->creatures)
 		{
-			if (cre->faction == townType)
+			if (!cre->special && cre->faction == townType)
 			{
 				creatures.push_back(cre);
 			}
