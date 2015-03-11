@@ -1304,6 +1304,12 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 	int totalDensity = 0;
 	for (auto t : treasureInfo)
 	{
+		//discard objects with too high value to be ever placed
+		vstd::erase_if(possibleObjects, [t](const ObjectInfo& oi) -> bool
+		{
+			return oi.value > t.max;
+		});
+
 		totalDensity += t.density;
 
 		//treasure density is inversely proportional to zone size but must be scaled back to map size
