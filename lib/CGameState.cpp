@@ -3349,13 +3349,26 @@ void CPathfinder::calculatePaths()
 		//add accessible neighbouring nodes to the queue
 		neighbours.clear();
 
+		auto isAllowedTeleportEntrance = [&](const CGTeleport * obj) -> bool
+		{
+			if(!gs->isTeleportEntrancePassable(obj, hero->tempOwner))
+				return false;
+
+			auto whirlpool = dynamic_cast<const CGWhirlpool *>(obj);
+			if(whirlpool)
+			{
+				if(addTeleportWhirlpool(whirlpool))
+					return true;
+			}
+			else if(addTeleportTwoWay(obj) || addTeleportOneWay(obj) || addTeleportOneWayRandom(obj))
+				return true;
+
+			return false;
+		};
+
 		auto sObj = ct->topVisitableObj(cp->coord == CGHeroInstance::convertPosition(hero->pos, false));
 		auto cObj = dynamic_cast<const CGTeleport *>(sObj);
-		if(gs->isTeleportEntrancePassable(cObj, hero->tempOwner)
-			&& (addTeleportWhirlpool(dynamic_cast<const CGWhirlpool *>(cObj))
-				|| addTeleportTwoWay(cObj)
-				|| addTeleportOneWay(cObj)
-				|| addTeleportOneWayRandom(cObj)))
+		if(isAllowedTeleportEntrance(cObj))
 		{
 			for(auto objId : gs->getTeleportChannelExits(cObj->channel, hero->tempOwner))
 			{
@@ -3595,5 +3608,5 @@ bool CPathfinder::addTeleportOneWayRandom(const CGTeleport * obj) const
 
 bool CPathfinder::addTeleportWhirlpool(const CGWhirlpool * obj) const
 {
-   return allowTeleportWhirlpool && obj && !gs->isTeleportChannelImpassable(obj->channel, hero->tempOwner);
+   return allowTeleportWhirlpool && obj;
 }
