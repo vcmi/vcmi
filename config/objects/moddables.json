@@ -241,9 +241,6 @@
 		}
 	},
 
-	// subtype: different appearance. That's all?
-	"seerHut" : { "index" :83, "handler": "seerHut" },
-
 	// subtype: level
 	"randomDwellingLvl" : {
 		"index" :217, "handler": "randomDwelling",
