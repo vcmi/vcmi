@@ -996,13 +996,13 @@ void CGSubterraneanGate::initObj()
 	type = BOTH;
 }
 
-void CGSubterraneanGate::postInit( CGameState * gs ) //matches subterranean gates into pairs
+void CGSubterraneanGate::postInit() //matches subterranean gates into pairs
 {
 	//split on underground and surface gates
 	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
 	for(auto & obj : cb->gameState()->map->objects)
 	{
-		auto hlp = dynamic_cast<CGSubterraneanGate *>(gs->getObjInstance(obj->id));
+		auto hlp = dynamic_cast<CGSubterraneanGate *>(cb->gameState()->getObjInstance(obj->id));
 		if(hlp)
 			gatesSplit[hlp->pos.z].push_back(hlp);
 	}
@@ -1013,6 +1013,15 @@ void CGSubterraneanGate::postInit( CGameState * gs ) //matches subterranean gate
 		return a->pos < b->pos;
 	});
 
+	auto assignToChannel = [&](CGSubterraneanGate * obj)
+	{
+		if(obj->channel == TeleportChannelID())
+		{ // if object not linked to channel then create new channel
+			obj->channel = TeleportChannelID(cb->gameState()->map->teleportChannels.size());
+			addToChannel(cb->gameState()->map->teleportChannels, obj);
+		}
+	};
+
 	for(size_t i = 0; i < gatesSplit[0].size(); i++)
 	{
 		CGSubterraneanGate * objCurrent = gatesSplit[0][i];
@@ -1022,7 +1031,7 @@ void CGSubterraneanGate::postInit( CGameState * gs ) //matches subterranean gate
 		for(int j = 0; j < gatesSplit[1].size(); j++)
 		{
 			CGSubterraneanGate *checked = gatesSplit[1][j];
-			if(!checked)
+			if(checked->channel != TeleportChannelID())
 				continue;
 			si32 hlp = checked->pos.dist2dSQ(objCurrent->pos);
 			if(hlp < best.second)
@@ -1032,18 +1041,17 @@ void CGSubterraneanGate::postInit( CGameState * gs ) //matches subterranean gate
 			}
 		}
 
-		if(objCurrent->channel == TeleportChannelID())
-		{ // if object not linked to channel then create new channel
-			objCurrent->channel = TeleportChannelID(gs->map->teleportChannels.size());
-			addToChannel(cb->gameState()->map->teleportChannels, objCurrent);
-		}
-
+		assignToChannel(objCurrent);
 		if(best.first >= 0) //found pair
 		{
 			gatesSplit[1][best.first]->channel = objCurrent->channel;
 			addToChannel(cb->gameState()->map->teleportChannels, gatesSplit[1][best.first]);
 		}
 	}
+
+	// we should assign empty channels to underground gates if they don't have matching overground gates
+	for(size_t i = 0; i < gatesSplit[1].size(); i++)
+		assignToChannel(gatesSplit[1][i]);
 }
 
 void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const

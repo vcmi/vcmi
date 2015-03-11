@@ -315,7 +315,7 @@ class DLL_LINKAGE CGSubterraneanGate : public CGMonolith
 public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
-	static void postInit(CGameState * gs);
+	static void postInit();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
