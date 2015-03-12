@@ -271,6 +271,10 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		if (dynamic_cast<CKingdomInterface*>(isa))
 			noDismiss = true;
 	}
+	//if player only have one hero and no towns
+	if(!LOCPLINT->cb->howManyTowns() && LOCPLINT->cb->howManyHeroes() == 1)
+		noDismiss = true;
+
 	dismissButton->block(!!curHero->visitedTown || noDismiss);
 
 	if(curHero->getSecSkillLevel(SecondarySkill::TACTICS) == 0)
