@@ -150,13 +150,20 @@
 			"black" :  { "index" : 7 }
 		}
 	},
+	//Seer Hut object is set off bottom-right corner, need to fix that
 	"seerHut" : {
 		"index" :83,
 		"handler": "seerHut",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "---", "+++", "+++" ],
+				"mask" : [ "VVV", "VAV" ]
+			}
+		},
 		"types" : {
-			"0" :  { "index" : 0 },
-			"1" :  { "index" : 1 },
-			"2" :    { "index" : 2 }
+			"0" :	{ "index" : 0 },
+			"1" :	{ "index" : 1 },
+			"2" :	{ "index" : 2 }
 		}
 	},
 

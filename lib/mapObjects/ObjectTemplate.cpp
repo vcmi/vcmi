@@ -329,7 +329,7 @@ int3 ObjectTemplate::getBlockMapOffset() const
 		for(int h = 0; h < getHeight(); ++h)
 		{
 			if (isBlockedAt(w, h))
-				return int3(-w, -h, 0);
+				return int3(w, h, 0);
 		}
 	}
 	return int3(-1,-1,-1);

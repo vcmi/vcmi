@@ -1447,7 +1447,7 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 	auto tryToPlaceObstacleHere = [this, gen, &possibleObstacles](int3& tile, int index)-> bool
 	{
 		auto temp = *RandomGeneratorUtil::nextItem(possibleObstacles[index].second, gen->rand);
-		int3 obstaclePos = tile - temp.getBlockMapOffset();
+		int3 obstaclePos = tile + temp.getBlockMapOffset();
 		if (canObstacleBePlacedHere(gen, temp, obstaclePos)) //can be placed here
 		{
 			auto obj = VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
