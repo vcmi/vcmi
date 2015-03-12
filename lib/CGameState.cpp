@@ -1741,7 +1741,9 @@ void CGameState::initTowns()
 		{
 			vti->builtBuildings.erase(BuildingID::DEFAULT);
 			vti->builtBuildings.insert(BuildingID::VILLAGE_HALL);
-			vti->builtBuildings.insert(BuildingID::TAVERN);
+			if(vti->tempOwner != PlayerColor::NEUTRAL)
+				vti->builtBuildings.insert(BuildingID::TAVERN);
+
 			vti->builtBuildings.insert(BuildingID::DWELL_FIRST);
 			if(rand.nextInt(1) == 1)
 			{
