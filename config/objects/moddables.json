@@ -157,7 +157,7 @@
 		"base" : {
 			"base" : {
 				"visitableFrom" : [ "---", "+++", "+++" ],
-				"mask" : [ "VVV", "VAV" ]
+				"mask" : [ "VVV", "VVV", "VAV" ]
 			}
 		},
 		"types" : {

@@ -801,12 +801,10 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 			oiptr->maxPerZone--;
 			if (!oiptr->maxPerZone)
 				possibleObjects.erase(oiptr);
-			//TODO
 
 			//update treasure pile area
 			int3 visitablePos = info.nextTreasurePos;
 
-			//TODO: actually we need to check is object is either !blockVisit or removable after visit - this means object below can be accessed
 			if (oi.templ.isVisitableFromTop())
 				info.visitableFromTopPositions.insert(visitablePos); //can be accessed from any direction
 			else
