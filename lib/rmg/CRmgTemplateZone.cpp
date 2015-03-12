@@ -1488,6 +1488,8 @@ void CRmgTemplateZone::drawRoads(CMapGenerator* gen)
 		
 	};
 	
+	logGlobal->debug("Started building roads");
+	
 	while(!roadNodes.empty())
 	{
 		int3 node = *roadNodes.begin(); 
@@ -1496,15 +1498,17 @@ void CRmgTemplateZone::drawRoads(CMapGenerator* gen)
 		{
 			//start road network
 			roads.insert(node);
+			logGlobal->debugStream() << "First node of road network: " << node; 
 		}
 		else
 		{
-			
 			int3 cross = *RandomGeneratorUtil::nextItem(roads, gen->rand);
-			
-			crunchRoad(gen, node, cross, &freePaths);						
-		}		
+			logGlobal->debugStream() << "Building road from " << node << " to " << cross; 
+			crunchRoad(gen, node, cross, &freePaths);
+		}
 	}
+	
+	logGlobal->debug("Finished building roads");	
 }
 
 void CRmgTemplateZone::buildRoads(CMapGenerator* gen)

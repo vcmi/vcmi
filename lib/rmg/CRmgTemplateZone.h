@@ -223,8 +223,8 @@ private:
 	std::set<int3> roadNodes; //tiles to be connected with roads
 	std::set<int3> roads; //all tiles with roads
 	
-	void drawRoads(CMapGenerator* gen); //fills "roads" according to "roadNodes" 
-	void buildRoads(CMapGenerator* gen); //actually updates tiles
+	void drawRoads(CMapGenerator * gen); //fills "roads" according to "roadNodes" 
+	void buildRoads(CMapGenerator * gen); //actually updates tiles
 
 	bool pointIsIn(int x, int y);
 	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects
