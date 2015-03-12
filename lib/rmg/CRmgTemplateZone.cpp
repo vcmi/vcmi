@@ -2263,7 +2263,8 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 
 	//seer huts with creatures or generic rewards
 
-	if (questArtZone) //we won't be placing seer huts if there is no zone left to place arties
+	//if (questArtZone) //we won't be placing seer huts if there is no zone left to place arties
+	if (false) //FIXME: Seer Huts are bugged
 	{
 		static const int genericSeerHuts = 8;
 		int seerHutsPerType = 0;
