@@ -1920,6 +1920,7 @@ CChatBox::CChatBox(const Rect &rect)
 	pos += rect;
 	addUsedEvents(KEYBOARD | TEXTINPUT);
 	captureAllKeys = true;
+	type |= REDRAW_PARENT;
 
 	const int height = graphics->fonts[FONT_SMALL]->getLineHeight();
 	inputBox = new CTextInput(Rect(0, rect.h - height, rect.w, height));
@@ -1942,6 +1943,7 @@ void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
 
 void CChatBox::addNewMessage(const std::string &text)
 {
+	CCS->soundh->playSound("CHAT");
 	chatHistory->setText(chatHistory->label->text + text + "\n");
 	if(chatHistory->slider)
 		chatHistory->slider->moveToMax();
@@ -1994,8 +1996,7 @@ InfoCard::InfoCard( bool Network )
 		if(network)
 		{
 			playerListBg = new CPicture("CHATPLUG.bmp", 16, 276);
-			chat = new CChatBox(descriptionRect);
-			chat->chatHistory->addChild(new CPicture(*bg, chat->chatHistory->pos - pos), true); //move subpicture bg to our description control (by default it's our (Infocard) child)
+			chat = new CChatBox(Rect(26, 132, 340, 132));
 
 			chatOn = true;
 			mapDescription->disable();

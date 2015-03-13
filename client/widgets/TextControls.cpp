@@ -292,6 +292,7 @@ void CTextBox::setText(const std::string &text)
 		// decrease width again if slider still used
 		label->pos.w = pos.w - 32;
 		label->setText(text);
+		slider->setAmount(label->textSize.y);
 	}
 	else if(label->textSize.y > label->pos.h)
 	{
