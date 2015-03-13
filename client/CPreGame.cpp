@@ -1008,6 +1008,9 @@ void CSelectionScreen::setSInfo(const StartInfo &si)
 
 	card->difficulty->setSelected(si.difficulty);
 
+	if(curTab == randMapTab)
+		randMapTab->setMapGenOptions(si.mapGenOptions);
+
 	GH.totalRedraw();
 }
 
@@ -1642,16 +1645,22 @@ CRandomMapTab::CRandomMapTab()
 	mapSizeBtnGroup->setSelected(1);
 	mapSizeBtnGroup->addCallback([&](int btnId)
 	{
-		const std::vector<int> mapSizeVal = {CMapHeader::MAP_SIZE_SMALL,CMapHeader::MAP_SIZE_MIDDLE,CMapHeader::MAP_SIZE_LARGE,CMapHeader::MAP_SIZE_XLARGE};
+		auto mapSizeVal = getPossibleMapSizes();
 		mapGenOptions.setWidth(mapSizeVal[btnId]);
 		mapGenOptions.setHeight(mapSizeVal[btnId]);
-		updateMapInfo();
+		if(!SEL->isGuest())
+			updateMapInfo();
 	});
 
 	// Two levels
 	twoLevelsBtn = new CToggleButton(Point(346, 81), "RANUNDR", CGI->generaltexth->zelp[202]);
 	//twoLevelsBtn->select(true); for now, deactivated
-	twoLevelsBtn->addCallback([&](bool on) { mapGenOptions.setHasTwoLevels(on); updateMapInfo(); });
+	twoLevelsBtn->addCallback([&](bool on)
+	{
+		mapGenOptions.setHasTwoLevels(on);
+		if(!SEL->isGuest())
+			updateMapInfo();
+	});
 
 	// Create number defs list
 	std::vector<std::string> numberDefs;
@@ -1673,7 +1682,8 @@ CRandomMapTab::CRandomMapTab()
 		deactivateButtonsFrom(teamsCntGroup, btnId);
 		deactivateButtonsFrom(compOnlyPlayersCntGroup, 8 - btnId + 1);
 		validatePlayersCnt(btnId);
-		updateMapInfo();
+		if(!SEL->isGuest())
+			updateMapInfo();
 	});
 
 	// Amount of teams
@@ -1684,7 +1694,8 @@ CRandomMapTab::CRandomMapTab()
 	teamsCntGroup->addCallback([&](int btnId)
 	{
 		mapGenOptions.setTeamCount(btnId);
-		updateMapInfo();
+		if(!SEL->isGuest())
+			updateMapInfo();
 	});
 
 	// Computer only players
@@ -1698,7 +1709,8 @@ CRandomMapTab::CRandomMapTab()
 		mapGenOptions.setCompOnlyPlayerCount(btnId);
 		deactivateButtonsFrom(compOnlyTeamsCntGroup, btnId);
 		validateCompOnlyPlayersCnt(btnId);
-		updateMapInfo();
+		if(!SEL->isGuest())
+			updateMapInfo();
 	});
 
 	// Computer only teams
@@ -1710,7 +1722,8 @@ CRandomMapTab::CRandomMapTab()
 	compOnlyTeamsCntGroup->addCallback([&](int btnId)
 	{
 		mapGenOptions.setCompOnlyTeamCount(btnId);
-		updateMapInfo();
+		if(!SEL->isGuest())
+			updateMapInfo();
 	});
 
 	const int WIDE_BTN_WIDTH = 85;
@@ -1743,7 +1756,8 @@ CRandomMapTab::CRandomMapTab()
 	showRandMaps = new CButton(Point(54, 535), "RANSHOW", CGI->generaltexth->zelp[252]);
 
 	// Initialize map info object
-	updateMapInfo();
+	if(!SEL->isGuest())
+		updateMapInfo();
 }
 
 void CRandomMapTab::addButtonsWithRandToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int nStart, int nEnd, int btnWidth, int helpStartIndex, int helpRandIndex) const
@@ -1824,6 +1838,11 @@ void CRandomMapTab::validateCompOnlyPlayersCnt(int compOnlyPlayersCnt)
 		mapGenOptions.setCompOnlyTeamCount(compOnlyPlayersCnt - 1);
 		compOnlyTeamsCntGroup->setSelected(mapGenOptions.getCompOnlyTeamCount());
 	}
+}
+
+std::vector<int> CRandomMapTab::getPossibleMapSizes()
+{
+	return {CMapHeader::MAP_SIZE_SMALL,CMapHeader::MAP_SIZE_MIDDLE,CMapHeader::MAP_SIZE_LARGE,CMapHeader::MAP_SIZE_XLARGE};
 }
 
 void CRandomMapTab::showAll(SDL_Surface * to)
@@ -1912,6 +1931,18 @@ const CMapInfo * CRandomMapTab::getMapInfo() const
 const CMapGenOptions & CRandomMapTab::getMapGenOptions() const
 {
 	return mapGenOptions;
+}
+
+void CRandomMapTab::setMapGenOptions(shared_ptr<CMapGenOptions> opts)
+{
+	mapSizeBtnGroup->setSelected(vstd::find_pos(getPossibleMapSizes(), opts->getWidth()));
+	twoLevelsBtn->setSelected(opts->getHasTwoLevels());
+	playersCntGroup->setSelected(opts->getPlayerCount());
+	teamsCntGroup->setSelected(opts->getTeamCount());
+	compOnlyPlayersCntGroup->setSelected(opts->getCompOnlyPlayerCount());
+	compOnlyTeamsCntGroup->setSelected(opts->getCompOnlyTeamCount());
+	waterContentGroup->setSelected(opts->getWaterContent());
+	monsterStrengthGroup->setSelected(opts->getMonsterStrength());
 }
 
 CChatBox::CChatBox(const Rect &rect)
@@ -3935,6 +3966,7 @@ void PlayerJoined::apply(CSelectionScreen *selScreen)
 
 	selScreen->propagateNames();
 	selScreen->propagateOptions();
+	selScreen->toggleTab(selScreen->curTab);
 
 	GH.totalRedraw();
 }
