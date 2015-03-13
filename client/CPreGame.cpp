@@ -3923,7 +3923,7 @@ void PlayerJoined::apply(CSelectionScreen *selScreen)
 	//put new player in first slot with AI
 	for(auto & elem : SEL->sInfo.playerInfos)
 	{
-		if(!elem.second.playerID)
+		if(!elem.second.playerID && !elem.second.compOnly)
 		{
 			selScreen->setPlayer(elem.second, connectionID);
 			selScreen->opt->entries[elem.second.color]->selectButtons();
