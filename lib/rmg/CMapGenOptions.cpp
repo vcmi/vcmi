@@ -67,6 +67,9 @@ void CMapGenOptions::setPlayerCount(si8 value)
 {
 	assert((value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE);
 	playerCount = value;
+	auto possibleCompPlayersCount = PlayerColor::PLAYER_LIMIT_I-value;
+	if(compOnlyPlayerCount > possibleCompPlayersCount)
+		setCompOnlyPlayerCount(possibleCompPlayersCount);
 	resetPlayersMap();
 }
 
@@ -129,11 +132,21 @@ void CMapGenOptions::resetPlayersMap()
 	players.clear();
 	int realPlayersCnt = playerCount == RANDOM_SIZE ? static_cast<int>(PlayerColor::PLAYER_LIMIT_I) : playerCount;
 	int realCompOnlyPlayersCnt = compOnlyPlayerCount == RANDOM_SIZE ? (PlayerColor::PLAYER_LIMIT_I - realPlayersCnt) : compOnlyPlayerCount;
-	for(int color = 0; color < (realPlayersCnt + realCompOnlyPlayersCnt); ++color)
+	int totalPlayersLimit = realPlayersCnt + realCompOnlyPlayersCnt;
+	if(playerCount == RANDOM_SIZE || compOnlyPlayerCount == RANDOM_SIZE)
+		totalPlayersLimit = static_cast<int>(PlayerColor::PLAYER_LIMIT_I);
+
+	for(int color = 0; color < totalPlayersLimit; ++color)
 	{
 		CPlayerSettings player;
 		player.setColor(PlayerColor(color));
-		player.setPlayerType((color >= realPlayersCnt) ? EPlayerType::COMP_ONLY : EPlayerType::AI);
+		auto playerType = EPlayerType::AI;
+		if((playerCount != RANDOM_SIZE && color >= realPlayersCnt)
+		   || (compOnlyPlayerCount != RANDOM_SIZE && color >= (PlayerColor::PLAYER_LIMIT_I-compOnlyPlayerCount)))
+		{
+			playerType = EPlayerType::COMP_ONLY;
+		}
+		player.setPlayerType(playerType);
 		players[PlayerColor(color)] = player;
 	}
 }
