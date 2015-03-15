@@ -2627,11 +2627,11 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 		whoCanPlay = HUMAN;
 
 	if(SEL->screenType != CMenuScreen::scenarioInfo
-		&&  SEL->current->mapHeader->players[s.color.getNum()].canHumanPlay
-		&&  SEL->multiPlayer != CMenuScreen::MULTI_NETWORK_GUEST)
+		&&  SEL->current->mapHeader->players[s.color.getNum()].canHumanPlay)
 	{
 		flag = new CButton(Point(-43, 2), flags[s.color.getNum()], CGI->generaltexth->zelp[180], std::bind(&OptionsTab::flagPressed, owner, s.color));
 		flag->hoverable = true;
+		flag->block(SEL->isGuest());
 	}
 	else
 		flag = nullptr;
