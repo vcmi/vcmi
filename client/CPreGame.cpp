@@ -584,10 +584,10 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	bool network = (MultiPlayer == CMenuScreen::MULTI_NETWORK_GUEST || MultiPlayer == CMenuScreen::MULTI_NETWORK_HOST);
+	bool network = (isGuest() || isHost());
 
 	CServerHandler *sh = nullptr;
-	if(multiPlayer == CMenuScreen::MULTI_NETWORK_HOST)
+	if(isHost())
 	{
 		sh = new CServerHandler;
 		sh->startServer();
@@ -645,7 +645,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 	case CMenuScreen::newGame:
 		{
 			SDL_Color orange = {232, 184, 32, 0};
-			SDL_Color overlayColor = multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST ? orange : Colors::WHITE;
+			SDL_Color overlayColor = isGuest() ? orange : Colors::WHITE;
 
 			card->difficulty->addCallback(std::bind(&CSelectionScreen::difficultyChange, this, _1));
 			card->difficulty->setSelected(1);
@@ -675,7 +675,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 				CButton *hideChat = new CButton(Point(619, 83), "GSPBUT2.DEF", CGI->generaltexth->zelp[48], std::bind(&InfoCard::toggleChat, card), SDLK_h);
 				hideChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL);
 
-				if(multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST)
+				if(isGuest())
 				{
 					select->block(true);
 					opts->block(true);
@@ -705,7 +705,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 
 	if(network)
 	{
-		if(multiPlayer == CMenuScreen::MULTI_NETWORK_HOST)
+		if(isHost())
 		{
 			assert(playerNames.size() == 1  &&  vstd::contains(playerNames, 1)); //TODO hot-seat/network combo
 			serv = sh->connectToServer();
@@ -713,30 +713,25 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 			myNameID = 1;
 		}
 		else
-		{
 			serv = CServerHandler::justConnectToServer(Address, Port);
-		}
 
 		serv->enterPregameConnectionMode();
 		*serv << playerNames.begin()->second;
 
-		if(multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST)
+		if(isGuest())
 		{
 			const CMapInfo *map;
 			*serv >> myNameID >> map;
 			serv->connectionID = myNameID;
 			changeSelection(map);
 		}
-		else //host
+		else if(current)
 		{
-			if(current)
-			{
-				SelectMap sm(*current);
-				*serv << &sm;
+			SelectMap sm(*current);
+			*serv << &sm;
 
-				UpdateStartOptions uso(sInfo);
-				*serv << &uso;
-			}
+			UpdateStartOptions uso(sInfo);
+			*serv << &uso;
 		}
 
 		applier = new CApplier<CBaseForPGApply>;
@@ -769,7 +764,7 @@ CSelectionScreen::~CSelectionScreen()
 
 void CSelectionScreen::toggleTab(CIntObject *tab)
 {
-	if(multiPlayer == CMenuScreen::MULTI_NETWORK_HOST && serv)
+	if(isHost() && serv)
 	{
 		PregameGuiAction pga;
 		if(tab == curTab)
@@ -805,10 +800,8 @@ void CSelectionScreen::toggleTab(CIntObject *tab)
 void CSelectionScreen::changeSelection(const CMapInfo * to)
 {
 	if(current == to) return;
-	if(multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST)
-	{
+	if(isGuest())
 		vstd::clear_pointer(current);
-	}
 
 	current = to;
 
@@ -836,7 +829,7 @@ void CSelectionScreen::changeSelection(const CMapInfo * to)
 		opt->recreate();
 	}
 
-	if(multiPlayer == CMenuScreen::MULTI_NETWORK_HOST && serv)
+	if(isHost() && serv)
 	{
 		SelectMap sm(*to);
 		*serv << &sm;
@@ -849,9 +842,7 @@ void CSelectionScreen::changeSelection(const CMapInfo * to)
 void CSelectionScreen::startCampaign()
 {
 	if (SEL->current)
-	{
 		GH.pushInt(new CBonusSelection(SEL->current->fileURI));
-	}
 }
 
 void CSelectionScreen::startScenario()
@@ -871,7 +862,7 @@ void CSelectionScreen::startScenario()
 		}
 	}
 
-	if(multiPlayer == CMenuScreen::MULTI_NETWORK_HOST)
+	if(isHost())
 	{
 		start->block(true);
 		StartWithCurrentSettings swcs;
@@ -3973,7 +3964,7 @@ void PlayerJoined::apply(CSelectionScreen *selScreen)
 
 void SelectMap::apply(CSelectionScreen *selScreen)
 {
-	if(selScreen->multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST)
+	if(selScreen->isGuest())
 	{
 		free = false;
 		selScreen->changeSelection(mapInfo);
