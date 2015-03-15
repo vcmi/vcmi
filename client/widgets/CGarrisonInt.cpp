@@ -127,6 +127,14 @@ bool CGarrisonSlot::our() const
 	return 	upg?(owner->owned[1]):(owner->owned[0]);
 }
 
+bool CGarrisonSlot::ally() const
+{
+	if(!getObj())
+		return false;
+
+	return PlayerRelations::ALLIES == LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, getObj()->tempOwner);
+}
+
 void CGarrisonSlot::clickRight(tribool down, bool previousState)
 {
 	if(down && creature)
@@ -459,10 +467,10 @@ void CGarrisonInt::setSplittingMode(bool on)
 	if (inSplittingMode || on)
 	{
 		for(CGarrisonSlot * slot : slotsUp)
-			slot->setHighlight( ( on && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
+			slot->setHighlight( ( on && (slot->our() || slot->ally()) && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
 
 		for(CGarrisonSlot * slot : slotsDown)
-			slot->setHighlight( ( on && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
+			slot->setHighlight( ( on && (slot->our() || slot->ally()) && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
 		inSplittingMode = on;
 	}
 }

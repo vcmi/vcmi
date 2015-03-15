@@ -39,6 +39,7 @@ public:
 	virtual void hover (bool on); //call-in
 	const CArmedInstance * getObj() const;
 	bool our() const;
+	bool ally() const;
 	void clickRight(tribool down, bool previousState);
 	void clickLeft(tribool down, bool previousState);
 	void update();
