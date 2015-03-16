@@ -1698,7 +1698,7 @@ CRandomMapTab::CRandomMapTab()
 	compOnlyPlayersCntGroup->addCallback([&](int btnId)
 	{
 		mapGenOptions.setCompOnlyPlayerCount(btnId);
-		deactivateButtonsFrom(compOnlyTeamsCntGroup, btnId);
+		deactivateButtonsFrom(compOnlyTeamsCntGroup, (btnId == 0 ? 1 : btnId));
 		validateCompOnlyPlayersCnt(btnId);
 		if(!SEL->isGuest())
 			updateMapInfo();
@@ -1709,7 +1709,7 @@ CRandomMapTab::CRandomMapTab()
 	compOnlyTeamsCntGroup->pos.y += 351;
 	compOnlyTeamsCntGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	addButtonsWithRandToGroup(compOnlyTeamsCntGroup, numberDefs, 0, 6, NUMBERS_WIDTH, 234, 241);
-	deactivateButtonsFrom(compOnlyTeamsCntGroup, 0);
+	deactivateButtonsFrom(compOnlyTeamsCntGroup, 1);
 	compOnlyTeamsCntGroup->addCallback([&](int btnId)
 	{
 		mapGenOptions.setCompOnlyTeamCount(btnId);
@@ -1826,8 +1826,9 @@ void CRandomMapTab::validateCompOnlyPlayersCnt(int compOnlyPlayersCnt)
 
 	if(mapGenOptions.getCompOnlyTeamCount() >= compOnlyPlayersCnt)
 	{
-		mapGenOptions.setCompOnlyTeamCount(compOnlyPlayersCnt - 1);
-		compOnlyTeamsCntGroup->setSelected(mapGenOptions.getCompOnlyTeamCount());
+		int compOnlyTeamCount = compOnlyPlayersCnt == 0 ? 0 : compOnlyPlayersCnt - 1;
+		mapGenOptions.setCompOnlyTeamCount(compOnlyTeamCount);
+		compOnlyTeamsCntGroup->setSelected(compOnlyTeamCount);
 	}
 }
 
