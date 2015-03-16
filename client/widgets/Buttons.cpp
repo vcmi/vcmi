@@ -144,7 +144,8 @@ bool CButton::isHighlighted()
 
 void CButton::block(bool on)
 {
-	setState(on?BLOCKED:NORMAL);
+	if(on || state == BLOCKED) //dont change button state if unblock requested, but it's not blocked
+		setState(on ? BLOCKED : NORMAL);
 }
 
 void CButton::onButtonClicked()
@@ -424,7 +425,7 @@ void CToggleGroup::addToggle(int identifier, CToggleBase* bt)
 }
 
 CToggleGroup::CToggleGroup(const CFunctionList<void(int)> &OnChange, bool musicLikeButtons)
-: onChange(OnChange), selectedID(-1), musicLike(musicLikeButtons)
+: onChange(OnChange), selectedID(-2), musicLike(musicLikeButtons)
 {}
 
 void CToggleGroup::setSelected(int id)
