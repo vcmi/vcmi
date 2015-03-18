@@ -42,6 +42,8 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 		return new DispellMechanics(s);
 	case SpellID::DISPEL_HELPFUL_SPELLS:
 		return new DispellHelpfulMechanics(s);
+	case SpellID::EARTHQUAKE:
+		return new EarthquakeMechanics(s);
 	case SpellID::FIRE_WALL:
 	case SpellID::FORCE_FIELD:
 		return new WallMechanics(s);

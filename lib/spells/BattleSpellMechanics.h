@@ -44,6 +44,14 @@ public:
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 };
 
+class DLL_LINKAGE EarthquakeMechanics : public DefaultSpellMechanics
+{
+public:
+	EarthquakeMechanics(CSpell * s): DefaultSpellMechanics(s){};
+protected:
+	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;	
+};
+
 class DLL_LINKAGE HypnotizeMechanics : public DefaultSpellMechanics
 {
 public:

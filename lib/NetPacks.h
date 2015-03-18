@@ -1555,7 +1555,6 @@ struct ObstaclesRemoved : public CPackForClient //3014
 };
 
 struct ELF_VISIBILITY CatapultAttack : public CPackForClient //3015
-
 {
 	struct AttackInfo
 	{

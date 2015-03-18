@@ -152,6 +152,83 @@ void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * 
 	}
 }
 
+///EarthquakeMechanics
+void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+{
+	if(nullptr == parameters.cb->town)
+	{
+		env->complain("EarthquakeMechanics: not town siege");
+		return;		
+	}
+	
+	if(CGTownInstance::NONE == parameters.cb->town->fortLevel())
+	{
+		env->complain("EarthquakeMechanics: town has no fort");
+		return;		
+	}
+	
+	//start with all damagable parts	
+	std::set<EWallPart::EWallPart> possibleTargets = 
+	{
+		EWallPart::KEEP,
+		EWallPart::BOTTOM_TOWER, 
+		EWallPart::BOTTOM_WALL, 
+		EWallPart::BELOW_GATE, 
+		EWallPart::OVER_GATE, 
+		EWallPart::UPPER_WALL, 
+		EWallPart::UPPER_TOWER, 
+		EWallPart::GATE
+	};
+	
+	assert(possibleTargets.size() == EWallPart::PARTS_COUNT);
+	
+	vstd::erase_if(possibleTargets, [parameters](EWallPart::EWallPart part)
+	{
+		return (parameters.cb->si.wallState[part] == EWallState::DESTROYED) || (parameters.cb->si.wallState[part] == EWallState::NONE);
+	});
+	
+	if(0 == possibleTargets.size())
+	{
+		env->complain("EarthquakeMechanics: no target to attack");
+		return;
+	}	
+	
+	int targetsToAttack = 2;
+	
+	switch(parameters.spellLvl)
+	{
+	case 2:
+		targetsToAttack = 3;
+		break;
+	case 3:
+		targetsToAttack = 4;
+		break;
+	default:
+		break;
+	}
+	
+	CatapultAttack ca;
+	ca.attacker = -1;
+	
+	do
+	{
+		EWallPart::EWallPart target = *RandomGeneratorUtil::nextItem(possibleTargets, env->getRandomGenerator());
+		
+		CatapultAttack::AttackInfo attackInfo;
+		
+		attackInfo.damageDealt = 1;
+		attackInfo.attackedPart = target;
+		attackInfo.destinationTile = BattleHex::INVALID;
+		
+		ca.attackedParts.push_back(attackInfo);
+		
+		possibleTargets.erase(target);
+		targetsToAttack--;
+	}
+	while(targetsToAttack > 0 && possibleTargets.size() > 0);
+	
+	env->sendAndApply(&ca);
+}
 
 ///HypnotizeMechanics
 ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
