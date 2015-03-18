@@ -1333,6 +1333,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	} //switch(sc->id)
 
 	//displaying message in console
+	std::vector<std::string> logLines;	
 	bool customSpell = false;
 	if(sc->affectedCres.size() == 1)
 	{
@@ -1342,12 +1343,13 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		const std::string attackedNameSing = attackedStack->getCreature()->nameSing;
 		const std::string attackedNamePl = attackedStack->getCreature()->namePl;
 
-		std::string text = CGI->generaltexth->allTexts[195];
 		if(sc->castedByHero)
 		{
+			std::string text = CGI->generaltexth->allTexts[195];
 			boost::algorithm::replace_first(text, "%s", casterName);
 			boost::algorithm::replace_first(text, "%s", spellName);
 			boost::algorithm::replace_first(text, "%s", attackedNamePl); //target
+			logLines.push_back(text);
 		}
 		else
 		{
@@ -1361,90 +1363,103 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			customSpell = true; //in most following cases text is custom
 			switch(sc->id)
 			{
-				case SpellID::STONE_GAZE:
-					text = getPluralText(558);
-					break;
-				case SpellID::POISON:
-					text = getPluralText(561);
-					break;
-				case SpellID::BIND:
-					text = CGI->generaltexth->allTexts[560];
-					boost::algorithm::replace_first(text, "%s", attackedNamePl);
-					break;//Roots and vines bind the %s to the ground!
-				case SpellID::DISEASE:
-					text = getPluralText(553);
-					break;
-				case SpellID::PARALYZE:
-					text = getPluralText(563);
-					break;
-				case SpellID::AGE:
+			case SpellID::STONE_GAZE:
+				logLines.push_back(getPluralText(558));
+				break;
+			case SpellID::POISON:
+				logLines.push_back(getPluralText(561));
+				break;
+			case SpellID::BIND:
 				{
-					text = getPluralText(551);
+					//Roots and vines bind the %s to the ground!
+					std::string text = CGI->generaltexth->allTexts[560];
+					boost::algorithm::replace_first(text, "%s", attackedNamePl);
+					logLines.push_back(text);
+				}
+				break;
+			case SpellID::DISEASE:
+				logLines.push_back(getPluralText(553));
+				break;
+			case SpellID::PARALYZE:
+				logLines.push_back(getPluralText(563));
+				break;
+			case SpellID::AGE:
+				{
+					std::string text = getPluralText(551);
 					//The %s shrivel with age, and lose %d hit points."
 					TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
 					bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bl->totalValue()/2));
+					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bl->totalValue()/2));						
+					logLines.push_back(text);
 				}
-					break;
-				case SpellID::THUNDERBOLT:
-					text = CGI->generaltexth->allTexts[367];
+				break;
+			case SpellID::THUNDERBOLT:
+				{
+					std::string text = CGI->generaltexth->allTexts[367];
 					boost::algorithm::replace_first(text, "%s", attackedNamePl);
-					console->addText(text);
+					logLines.push_back(text);
 					text = CGI->generaltexth->allTexts[343].substr(1, CGI->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay)); //no more text afterwards
-					console->addText(text);
-					text = ""; //yeah, it's a terrible mess
-					break;
-				case SpellID::DISPEL_HELPFUL_SPELLS:
-					text = CGI->generaltexth->allTexts[555];
-					boost::algorithm::replace_first(text, "%s", attackedNamePl);
-					break;
-				case SpellID::DEATH_STARE:
-					if (sc->dmgToDisplay)
+					logLines.push_back(text);									
+				}
+				break;
+			case SpellID::DISPEL_HELPFUL_SPELLS:
 					{
-						if (sc->dmgToDisplay > 1)
-						{
-							text = CGI->generaltexth->allTexts[119]; //%d %s die under the terrible gaze of the %s.
-							boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
-							boost::algorithm::replace_first(text, "%s", attackedNamePl);
-						}
-						else
-						{
-							text = CGI->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
-							boost::algorithm::replace_first(text, "%s", attackedNameSing);
-						}
-						boost::algorithm::replace_first(text, "%s", casterName); //casting stack
+						std::string text = CGI->generaltexth->allTexts[555];
+						boost::algorithm::replace_first(text, "%s", attackedNamePl);
+						logLines.push_back(text);
+					}
+				break;
+			case SpellID::DEATH_STARE:
+				if (sc->dmgToDisplay)
+				{
+					std::string text;
+					if (sc->dmgToDisplay > 1)
+					{
+						text = CGI->generaltexth->allTexts[119]; //%d %s die under the terrible gaze of the %s.
+						boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
+						boost::algorithm::replace_first(text, "%s", attackedNamePl);
 					}
 					else
-						text = "";
-					break;
-				default:
-					text = CGI->generaltexth->allTexts[565]; //The %s casts %s
+					{
+						text = CGI->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
+						boost::algorithm::replace_first(text, "%s", attackedNameSing);
+					}
 					boost::algorithm::replace_first(text, "%s", casterName); //casting stack
+					logLines.push_back(text);
+				}
+				break;
+			default:
+				{
+					std::string text = CGI->generaltexth->allTexts[565]; //The %s casts %s
+					boost::algorithm::replace_first(text, "%s", casterName); //casting stack
+					boost::algorithm::replace_first(text, "%s", spellName);
 					customSpell = false;
-					break;
-
+					logLines.push_back(text);						
+				}
+				break;
 			}
 		}
-		if (!customSpell && !sc->dmgToDisplay)
-			boost::algorithm::replace_first(text, "%s", spellName); //simple spell name
-		if (text.size())
-			console->addText(text);
 	}
 	else
 	{
 		std::string text = CGI->generaltexth->allTexts[196];
 		boost::algorithm::replace_first(text, "%s", casterName);
 		boost::algorithm::replace_first(text, "%s", spellName);
-		console->addText(text);
+		logLines.push_back(text);
 	}
+	
 	if(sc->dmgToDisplay && !customSpell)
 	{
 		std::string dmgInfo = CGI->generaltexth->allTexts[376];
 		boost::algorithm::replace_first(dmgInfo, "%s", spellName); //simple spell name
 		boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
-		console->addText(dmgInfo); //todo: casualties (?)
+		logLines.push_back(dmgInfo); //todo: casualties (?)
 	}
+	
+	for(auto line : logLines)
+		console->addText(line);
+	
 	waitForAnims();
 	//mana absorption
 	if(sc->manaGained > 0)
