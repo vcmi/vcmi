@@ -1599,6 +1599,11 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if(!spell->combatSpell)
 		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
 
+	const ESpellCastProblem::ESpellCastProblem specificProblem = spell->canBeCasted(this);
+	
+	if(specificProblem != ESpellCastProblem::OK)
+		return specificProblem;	
+
 	if(spell->isNegative() || spell->hasEffects())
 	{
 		bool allStacksImmune = true;

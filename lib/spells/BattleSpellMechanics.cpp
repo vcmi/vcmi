@@ -236,6 +236,21 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 	env->sendAndApply(&ca);
 }
 
+ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCasted(const CBattleInfoCallback * cb) const
+{
+	if(nullptr == cb->battleGetDefendedTown())
+	{
+		return ESpellCastProblem::NO_APPROPRIATE_TARGET;		
+	}
+	
+	if(CGTownInstance::NONE == cb->battleGetDefendedTown()->fortLevel())
+	{
+		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+	}
+	
+	return ESpellCastProblem::OK;
+}
+
 ///HypnotizeMechanics
 ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
 {

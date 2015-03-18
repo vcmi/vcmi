@@ -246,9 +246,6 @@ public:
 	//internal, for use only by Mechanics classes
 	ESpellCastProblem::ESpellCastProblem isImmuneBy(const IBonusBearer *obj) const;
 
-	//checks for creature immunity / anything that prevent casting *at given target* - doesn't take into account general problems such as not having spellbook or mana points etc.
-	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const;
-
 	//internal, for use only by Mechanics classes. applying secondary skills
 	ui32 calculateBonus(ui32 baseDamage, const CGHeroInstance * caster, const CStack * affectedCreature) const;
 
@@ -301,6 +298,14 @@ public:
 	}
 	friend class CSpellHandler;
 	friend class Graphics;
+public:
+	///internal interface (for callbacks)
+	
+	///Checks general but spell-specific problems for all casting modes. Use only during battle.
+	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb) const;
+
+	///checks for creature immunity / anything that prevent casting *at given target* - doesn't take into account general problems such as not having spellbook or mana points etc.
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const;
 public:
 	///Server logic. Has write access to GameState via packets.
 	///May be executed on client side by (future) non-cheat-proof scripts.

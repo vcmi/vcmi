@@ -712,6 +712,13 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 	return attackedCres;
 }
 
+ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCasted(const CBattleInfoCallback * cb) const
+{
+	//no problems by default, this method is for spell-specific problems	
+	return ESpellCastProblem::OK;
+}
+
+
 ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
 {
 	//by default use general algorithm

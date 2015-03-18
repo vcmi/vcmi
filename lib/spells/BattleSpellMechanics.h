@@ -48,6 +48,7 @@ class DLL_LINKAGE EarthquakeMechanics : public DefaultSpellMechanics
 {
 public:
 	EarthquakeMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb) const override;	
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;	
 };
