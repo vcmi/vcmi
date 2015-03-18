@@ -2218,7 +2218,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			{
 				ui8 skill = 0;
 				if (creatureCasting)
-					skill = sactive->valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, SpellID::TELEPORT));
+					skill = sactive->getSpellSchoolLevel(SpellID(SpellID::TELEPORT).toSpell());
 				else
 					skill = getActiveHero()->getSpellSchoolLevel (CGI->spellh->objects[spellToCast->additionalInfo]);
 				//TODO: explicitely save power, skill

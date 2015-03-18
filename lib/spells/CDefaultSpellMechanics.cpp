@@ -402,7 +402,7 @@ ui32 DefaultSpellMechanics::calculateHealedHP(const CGHeroInstance* caster, cons
 		healedHealth = (spellPowerSkill + sacrificedStack->MaxHealth() + levelPower) * sacrificedStack->count;
 	else
 		healedHealth = spellPowerSkill * owner->power + levelPower; //???
-	healedHealth = owner->calculateBonus(healedHealth, caster, stack);
+	healedHealth = caster->getSpellBonus(owner, healedHealth, stack);
 	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (owner->isRisingSpell() ? stack->baseAmount * stack->MaxHealth() : 0));
 }
 

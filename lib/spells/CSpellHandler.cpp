@@ -169,29 +169,7 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 	return levels.at(level);
 }
 
-ui32 CSpell::calculateBonus(ui32 baseDamage, const CGHeroInstance * caster, const CStack * affectedCreature) const
-{
-	ui32 ret = baseDamage;
-
-	//applying sorcery secondary skill
-	if(caster)
-	{
-		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
-		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, id.toEnum())) / 100.0;
-
-		forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
-		{
-			ret *= (100.0 + caster->valOfBonuses(cnf.damagePremyBonus)) / 100.0;
-			stop = true; //only bonus from one school is used
-		});
-
-		if (affectedCreature && affectedCreature->getCreature()->level) //Hero specials like Solmyr, Deemer
-			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, id.toEnum()) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
-	}
-	return ret;
-}
-
-ui32 CSpell::calculateDamage(const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const
+ui32 CSpell::calculateDamage(const ISpellCaster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const
 {
 	ui32 ret = 0; //value to return
 
@@ -230,7 +208,9 @@ ui32 CSpell::calculateDamage(const CGHeroInstance * caster, const CStack * affec
 			ret /= 100;
 		}
 	}
-	ret = calculateBonus(ret, caster, affectedCreature);
+	
+	if(nullptr != caster) //todo: make sure that caster always present	
+		ret = caster->getSpellBonus(this, ret, affectedCreature);
 	return ret;
 }
 

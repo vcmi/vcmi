@@ -310,8 +310,8 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const C
 		//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
 		ui64 subjectHealth = (obj->count - 1) * obj->MaxHealth() + obj->firstHPleft;
 		//apply 'damage' bonus for hypnotize, including hero specialty
-		ui64 maxHealth = owner->calculateBonus(caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
-			* owner->power + owner->getPower(caster->getSpellSchoolLevel(owner)), caster, obj);
+		ui64 maxHealth = caster->getSpellBonus(owner, caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
+			* owner->power + owner->getPower(caster->getSpellSchoolLevel(owner)), obj);
 		if (subjectHealth > maxHealth)
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}

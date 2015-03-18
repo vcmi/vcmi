@@ -1,5 +1,14 @@
-#pragma once
+/*
+ * BattleState.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
+#pragma once
 
 #include "BattleHex.h"
 #include "HeroBonus.h"
@@ -12,16 +21,7 @@
 #include "GameConstants.h"
 #include "CBattleCallback.h"
 #include "int3.h"
-
-/*
- * BattleState.h, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
+#include "spells/Magic.h"
 
 class CGHeroInstance;
 class CStack;
@@ -159,7 +159,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	static int battlefieldTypeToTerrain(int bfieldType); //converts above to ERM BI format
 };
 
-class DLL_LINKAGE CStack : public CBonusSystemNode, public CStackBasicDescriptor
+class DLL_LINKAGE CStack : public CBonusSystemNode, public CStackBasicDescriptor, public ISpellCaster
 {
 public:
 	const CStackInstance *base; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
@@ -222,6 +222,10 @@ public:
 	std::pair<int,int> countKilledByAttack(int damageReceived) const; //returns pair<killed count, new left HP>
 	void prepareAttacked(BattleStackAttacked &bsa, CRandomGenerator & rand, boost::optional<int> customCount = boost::none) const; //requires bsa.damageAmout filled
 
+	///ISpellCaster
+	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const override;
+	ui32 getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const override;
+	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		assert(isIndependentNode());
