@@ -33,7 +33,7 @@ public:
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr) const override;
 	std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const override;
 
-	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const override;
 	
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
 

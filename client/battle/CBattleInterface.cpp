@@ -1188,7 +1188,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 
 void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 {
-	if(ca.attacker != -1) //no shooting animation for spells like earthquake
+	if(ca.attacker != -1)
 	{
 		const CStack * stack = curInt->cb->battleGetStackByID(ca.attacker);
 		for(auto attackInfo : ca.attackedParts)
@@ -1196,6 +1196,16 @@ void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 			addNewAnim(new CShootingAnimation(this, stack, attackInfo.destinationTile, nullptr, true, attackInfo.damageDealt));
 		}		
 	}
+	else
+	{
+		//no attacker stack, assume spell-related (earthquake) - only hit animation 
+		for(auto attackInfo : ca.attackedParts)
+		{
+			Point destPos = CClickableHex::getXYUnitAnim(attackInfo.destinationTile, nullptr, this) + Point(99, 120);
+	
+			addNewAnim(new CSpellEffectAnimation(this, "SGEXPL.DEF", destPos.x, destPos.y));
+		}
+	}	
 
 	waitForAnims();
 

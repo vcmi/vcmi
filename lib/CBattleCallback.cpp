@@ -1599,7 +1599,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if(!spell->combatSpell)
 		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
 
-	const ESpellCastProblem::ESpellCastProblem specificProblem = spell->canBeCasted(this);
+	const ESpellCastProblem::ESpellCastProblem specificProblem = spell->canBeCasted(this, player);
 	
 	if(specificProblem != ESpellCastProblem::OK)
 		return specificProblem;	

@@ -196,7 +196,7 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 		
 		attackInfo.damageDealt = 1;
 		attackInfo.attackedPart = target;
-		attackInfo.destinationTile = BattleHex::INVALID;
+		attackInfo.destinationTile = parameters.cb->wallPartToBattleHex(target);
 		
 		ca.attackedParts.push_back(attackInfo);
 		
@@ -236,7 +236,7 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 	env->sendAndApply(&ca);
 }
 
-ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCasted(const CBattleInfoCallback * cb) const
+ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
 {
 	if(nullptr == cb->battleGetDefendedTown())
 	{
@@ -248,6 +248,13 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCasted(const CBat
 		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 	
+	if(owner->getTargetInfo(0).smart) //TODO: use real spell level
+	{
+		//if spell targeting is smart, then only attacker can use it
+		if(cb->playerToSide(player) != 0)
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+	}
+		
 	return ESpellCastProblem::OK;
 }
 
