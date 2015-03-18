@@ -1351,45 +1351,35 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		}
 		else
 		{
-			auto getPluralText = [attackedStack](const int baseTextID) -> std::string
+			auto getPluralText = [attackedStack, attackedName](const int baseTextID) -> std::string
 			{
-				return CGI->generaltexth->allTexts[(attackedStack->count > 1 ? baseTextID+1 : baseTextID)];
+				std::string res = CGI->generaltexth->allTexts[(attackedStack->count > 1 ? baseTextID+1 : baseTextID)];
+				boost::algorithm::replace_first(res, "%s", attackedName);
+				return res;
 			};
-			
-			bool plural = false; //add singular / plural form of creature text if this is true
-			int textID = 0;
+
+			customSpell = true; //in most following cases text is custom
 			switch(sc->id)
 			{
 				case SpellID::STONE_GAZE:
-					customSpell = true;
-					plural = true;
-					textID = 558;
+					text = getPluralText(558);
 					break;
 				case SpellID::POISON:
-					customSpell = true;
-					plural = true;
-					textID = 561;
+					text = getPluralText(561);
 					break;
 				case SpellID::BIND:
-					customSpell = true;
 					text = CGI->generaltexth->allTexts[560];
 					boost::algorithm::replace_first(text, "%s", attackedNamePl);
 					break;//Roots and vines bind the %s to the ground!
 				case SpellID::DISEASE:
-					customSpell = true;
-					plural = true;
-					textID = 553;
+					text = getPluralText(553);
 					break;
 				case SpellID::PARALYZE:
-					customSpell = true;
-					plural = true;
-					textID = 563;
+					text = getPluralText(563);
 					break;
 				case SpellID::AGE:
 				{
-					customSpell = true;
 					text = getPluralText(551);
-					boost::algorithm::replace_first(text, "%s", attackedName);
 					//The %s shrivel with age, and lose %d hit points."
 					TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
 					bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
@@ -1403,16 +1393,13 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					text = CGI->generaltexth->allTexts[343].substr(1, CGI->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay)); //no more text afterwards
 					console->addText(text);
-					customSpell = true;
 					text = ""; //yeah, it's a terrible mess
 					break;
 				case SpellID::DISPEL_HELPFUL_SPELLS:
 					text = CGI->generaltexth->allTexts[555];
 					boost::algorithm::replace_first(text, "%s", attackedNamePl);
-					customSpell = true;
 					break;
 				case SpellID::DEATH_STARE:
-					customSpell = true;
 					if (sc->dmgToDisplay)
 					{
 						if (sc->dmgToDisplay > 1)
@@ -1434,12 +1421,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 				default:
 					text = CGI->generaltexth->allTexts[565]; //The %s casts %s
 					boost::algorithm::replace_first(text, "%s", casterName); //casting stack
+					customSpell = false;
+					break;
 
-			}
-			if (plural)
-			{
-				text = getPluralText(textID);
-				boost::algorithm::replace_first(text, "%s", attackedName);
 			}
 		}
 		if (!customSpell && !sc->dmgToDisplay)
