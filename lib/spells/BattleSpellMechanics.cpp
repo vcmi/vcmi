@@ -182,17 +182,6 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 	
 	assert(possibleTargets.size() == EWallPart::PARTS_COUNT);
 	
-	vstd::erase_if(possibleTargets, [parameters](EWallPart::EWallPart part)
-	{
-		return (parameters.cb->si.wallState[part] == EWallState::DESTROYED) || (parameters.cb->si.wallState[part] == EWallState::NONE);
-	});
-	
-	if(0 == possibleTargets.size())
-	{
-		env->complain("EarthquakeMechanics: no target to attack");
-		return;
-	}	
-	
 	int targetsToAttack = 2;
 	
 	switch(parameters.spellLvl)
@@ -222,10 +211,41 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 		
 		ca.attackedParts.push_back(attackInfo);
 		
-		possibleTargets.erase(target);
+		//removing creatures in turrets / keep if one is destroyed
+		
+		BattleHex posRemove;
+
+		switch(target)
+		{
+		case EWallPart::KEEP:
+			posRemove = -2;
+			break;
+		case EWallPart::BOTTOM_TOWER:
+			posRemove = -3;
+			break;
+		case EWallPart::UPPER_TOWER:
+			posRemove = -4;
+			break;
+		}		
+		
+		if(posRemove != BattleHex::INVALID)
+		{
+			BattleStacksRemoved bsr;
+			for(auto & elem : parameters.cb->stacks)
+			{
+				if(elem->position == posRemove)
+				{
+					bsr.stackIDs.insert(elem->ID);
+					break;
+				}
+			}
+			if(bsr.stackIDs.size()>0)
+				env->sendAndApply(&bsr);
+		}		
+
 		targetsToAttack--;
 	}
-	while(targetsToAttack > 0 && possibleTargets.size() > 0);
+	while(targetsToAttack > 0);
 	
 	env->sendAndApply(&ca);
 }
