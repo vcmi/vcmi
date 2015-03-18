@@ -155,7 +155,7 @@ private:
 
 	shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
 	bool tacticsMode;
-	bool stackCanCastSpell; //if true, active stack could possibly cats some target spell
+	bool stackCanCastSpell; //if true, active stack could possibly cast some target spell
 	bool creatureCasting; //if true, stack currently aims to cats a spell
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell - only for GUI / console
 	PossibleActions spellSelMode;

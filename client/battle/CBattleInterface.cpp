@@ -1712,8 +1712,8 @@ void CBattleInterface::endCastingSpell()
 {
 	assert(spellDestSelectMode);
 
-	delete spellToCast;
-	spellToCast = nullptr;
+	vstd::clear_pointer(spellToCast);
+
 	sp = nullptr;
 	spellDestSelectMode = false;
 	CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
@@ -2283,7 +2283,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 
 	if (vstd::contains(localActions, selectedAction)) //try to use last selected action by default
 		currentAction = selectedAction;
-	else if (localActions.size()) //if not possible, select first available action 9they are sorted by suggested priority)
+	else if (localActions.size()) //if not possible, select first available action (they are sorted by suggested priority)
 		currentAction = localActions.front();
 	else //no legal action possible
 	{
