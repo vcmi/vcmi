@@ -495,7 +495,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 				//if tiles is not close enough, make path to it
 				if (currentDistance > minDistance)
 				{
-					crunchPath(gen, tileToMakePath, closestTile, id, &tilesToClear);
+					crunchPath(gen, tileToMakePath, closestTile, &tilesToClear);
 					break; //next iteration - use already cleared tiles
 				}
 			}
@@ -608,7 +608,7 @@ do not leave zone border
 
 		auto lastDistance = distance;
 			
-		auto processNeighbours = [this, gen, &currentPos, dst, &distance, &result, &end, clearedTiles](int3 &pos)
+		auto processNeighbours = [this, gen, &currentPos, dst, &distance, &result, &end, clearedTiles,forRoad](int3 &pos)
 		{
 			if (!result) //not sure if lambda is worth it...
 			{
@@ -631,10 +631,22 @@ do not leave zone border
 								currentPos = pos;
 								distance = currentPos.dist2dSQ (dst);
 							}
-							else if (gen->isFree(pos))
+							else if (!forRoad && gen->isFree(pos))
 							{
 								end = true;
 								result = true;
+							}
+							else if (forRoad && vstd::contains(this->roads, pos))
+							{
+								end = true;
+								result = true;
+							}
+							else if (forRoad && gen->isFree(pos))
+							{
+								if (clearedTiles)
+									clearedTiles->insert(pos);
+								currentPos = pos;
+								distance = currentPos.dist2dSQ (dst);								
 							}
 						}
 					}
@@ -714,7 +726,7 @@ bool CRmgTemplateZone::crunchRoad(CMapGenerator* gen, const int3& src, const int
 	else
 	{
 		logGlobal->warnStream() << boost::format("Failed to crunch road from %s to %s") %src %dst;
-		return crunchPath(gen, src, dst, clearedTiles, false);
+		return false;
 	}
 }
 
@@ -1482,13 +1494,9 @@ void CRmgTemplateZone::createObstacles2(CMapGenerator* gen)
 
 void CRmgTemplateZone::drawRoads(CMapGenerator* gen)
 {
-	
-	auto doDrawRoad = []()
-	{
-		
-	};
-	
 	logGlobal->debug("Started building roads");
+	
+	std::set<int3> processed;
 	
 	while(!roadNodes.empty())
 	{
@@ -1502,10 +1510,14 @@ void CRmgTemplateZone::drawRoads(CMapGenerator* gen)
 		}
 		else
 		{
-			int3 cross = *RandomGeneratorUtil::nextItem(roads, gen->rand);
+			auto comparator = [=](int3 lhs, int3 rhs) { return node.dist2dSQ(lhs)  < node.dist2dSQ(rhs); };
+			
+			int3 cross = * boost::range::min_element(processed, comparator);
 			logGlobal->debugStream() << "Building road from " << node << " to " << cross; 
-			crunchRoad(gen, node, cross, &freePaths);
+			crunchRoad(gen, node, cross, nullptr);
 		}
+		
+		processed.insert(node);		
 	}
 	
 	logGlobal->debug("Finished building roads");	
@@ -1760,7 +1772,7 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 	case Obj::MONOLITH_ONE_WAY_EXIT:
 	case Obj::SUBTERRANEAN_GATE:
 		{
-			roadNodes.insert(pos + object->getVisitableOffset());
+			roadNodes.insert(pos - object->getVisitableOffset());
 		}
 		break;
 	
