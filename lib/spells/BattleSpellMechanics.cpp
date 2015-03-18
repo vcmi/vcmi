@@ -167,7 +167,7 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 		return;		
 	}
 	
-	//start with all damagable parts	
+	//start with all destructible parts	
 	std::set<EWallPart::EWallPart> possibleTargets = 
 	{
 		EWallPart::KEEP,
@@ -182,25 +182,14 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 	
 	assert(possibleTargets.size() == EWallPart::PARTS_COUNT);
 	
-	int targetsToAttack = 2;
-	
-	switch(parameters.spellLvl)
-	{
-	case 2:
-		targetsToAttack = 3;
-		break;
-	case 3:
-		targetsToAttack = 4;
-		break;
-	default:
-		break;
-	}
-	
+	const int targetsToAttack = 2 + std::max<int>(parameters.spellLvl - 1, 0);
+ 
 	CatapultAttack ca;
 	ca.attacker = -1;
 	
-	do
+	for(int i = 0; i < targetsToAttack; i++)
 	{
+		//Any destructible part can be hit regardless of its HP. Multiple hit on same target is allowed.
 		EWallPart::EWallPart target = *RandomGeneratorUtil::nextItem(possibleTargets, env->getRandomGenerator());
 		
 		CatapultAttack::AttackInfo attackInfo;
@@ -241,11 +230,8 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 			}
 			if(bsr.stackIDs.size()>0)
 				env->sendAndApply(&bsr);
-		}		
-
-		targetsToAttack--;
-	}
-	while(targetsToAttack > 0);
+		}
+	};
 	
 	env->sendAndApply(&ca);
 }
