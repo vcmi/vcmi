@@ -1638,7 +1638,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if(arpos < ARRAY_COUNT(spellIDs))
 	{
 		//check if there are summoned elementals of other type
-		for( const CStack * st : battleAliveStacks())
+		for(const CStack * st : battleAliveStacks(side))
 			if(vstd::contains(st->state, EBattleStackState::SUMMONED) && st->getCreature()->idNumber != creIDs[arpos])
 				return ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED;
 	}
