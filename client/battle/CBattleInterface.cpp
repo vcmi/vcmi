@@ -1345,11 +1345,8 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 		if(sc->castedByHero)
 		{
-			std::string text = CGI->generaltexth->allTexts[195];
-			boost::algorithm::replace_first(text, "%s", casterName);
-			boost::algorithm::replace_first(text, "%s", spellName);
-			boost::algorithm::replace_first(text, "%s", attackedNamePl); //target
-			logLines.push_back(text);
+			const std::string fmt = CGI->generaltexth->allTexts[195];
+			logLines.push_back(boost::to_string(boost::format(fmt) % casterName % spellName % attackedNamePl));
 		}
 		else
 		{
@@ -1372,9 +1369,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			case SpellID::BIND:
 				{
 					//Roots and vines bind the %s to the ground!
-					std::string text = CGI->generaltexth->allTexts[560];
-					boost::algorithm::replace_first(text, "%s", attackedNamePl);
-					logLines.push_back(text);
+					boost::format text(CGI->generaltexth->allTexts[560]);
+					text % attackedNamePl;
+					logLines.push_back(text.str());
 				}
 				break;
 			case SpellID::DISEASE:
@@ -1385,12 +1382,12 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 				break;
 			case SpellID::AGE:
 				{
-					std::string text = getPluralText(551);
+					boost::format text(getPluralText(551));
 					//The %s shrivel with age, and lose %d hit points."
 					TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
 					bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bl->totalValue()/2));						
-					logLines.push_back(text);
+					text % (bl->totalValue()/2);						
+					logLines.push_back(text.str());
 				}
 				break;
 			case SpellID::THUNDERBOLT:
@@ -1405,9 +1402,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 				break;
 			case SpellID::DISPEL_HELPFUL_SPELLS:
 					{
-						std::string text = CGI->generaltexth->allTexts[555];
-						boost::algorithm::replace_first(text, "%s", attackedNamePl);
-						logLines.push_back(text);
+						boost::format text(CGI->generaltexth->allTexts[555]);
+						text % attackedNamePl;
+						logLines.push_back(text.str());
 					}
 				break;
 			case SpellID::DEATH_STARE:
@@ -1431,11 +1428,10 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 				break;
 			default:
 				{
-					std::string text = CGI->generaltexth->allTexts[565]; //The %s casts %s
-					boost::algorithm::replace_first(text, "%s", casterName); //casting stack
-					boost::algorithm::replace_first(text, "%s", spellName);
+					boost::format text(CGI->generaltexth->allTexts[565]); //The %s casts %s
+					text % casterName % spellName;
 					customSpell = false;
-					logLines.push_back(text);						
+					logLines.push_back(text.str());						
 				}
 				break;
 			}
@@ -1443,18 +1439,16 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	}
 	else
 	{
-		std::string text = CGI->generaltexth->allTexts[196];
-		boost::algorithm::replace_first(text, "%s", casterName);
-		boost::algorithm::replace_first(text, "%s", spellName);
-		logLines.push_back(text);
+		boost::format text(CGI->generaltexth->allTexts[196]);
+		text % casterName % spellName;
+		logLines.push_back(text.str());
 	}
 	
 	if(sc->dmgToDisplay && !customSpell)
 	{
-		std::string dmgInfo = CGI->generaltexth->allTexts[376];
-		boost::algorithm::replace_first(dmgInfo, "%s", spellName); //simple spell name
-		boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
-		logLines.push_back(dmgInfo); //todo: casualties (?)
+		boost::format dmgInfo(CGI->generaltexth->allTexts[376]);
+		dmgInfo % spellName % sc->dmgToDisplay;
+		logLines.push_back(dmgInfo.str());
 	}
 	
 	for(auto line : logLines)
