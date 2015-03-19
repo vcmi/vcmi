@@ -311,6 +311,7 @@
 		<Unit filename="spells/CreatureSpellMechanics.h" />
 		<Unit filename="spells/ISpellMechanics.cpp" />
 		<Unit filename="spells/ISpellMechanics.h" />
+		<Unit filename="spells/Magic.h" />
 		<Unit filename="spells/ViewSpellInt.cpp" />
 		<Unit filename="spells/ViewSpellInt.h" />
 		<Unit filename="vcmi_endian.h" />
