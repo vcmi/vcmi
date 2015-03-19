@@ -158,50 +158,54 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 	if(nullptr == parameters.cb->town)
 	{
 		env->complain("EarthquakeMechanics: not town siege");
-		return;		
+		return;
 	}
-	
+
 	if(CGTownInstance::NONE == parameters.cb->town->fortLevel())
 	{
 		env->complain("EarthquakeMechanics: town has no fort");
-		return;		
+		return;
 	}
-	
-	//start with all destructible parts	
-	std::set<EWallPart::EWallPart> possibleTargets = 
+
+	//start with all destructible parts
+	std::set<EWallPart::EWallPart> possibleTargets =
 	{
 		EWallPart::KEEP,
-		EWallPart::BOTTOM_TOWER, 
-		EWallPart::BOTTOM_WALL, 
-		EWallPart::BELOW_GATE, 
-		EWallPart::OVER_GATE, 
-		EWallPart::UPPER_WALL, 
-		EWallPart::UPPER_TOWER, 
+		EWallPart::BOTTOM_TOWER,
+		EWallPart::BOTTOM_WALL,
+		EWallPart::BELOW_GATE,
+		EWallPart::OVER_GATE,
+		EWallPart::UPPER_WALL,
+		EWallPart::UPPER_TOWER,
 		EWallPart::GATE
 	};
-	
+
 	assert(possibleTargets.size() == EWallPart::PARTS_COUNT);
-	
+
 	const int targetsToAttack = 2 + std::max<int>(parameters.spellLvl - 1, 0);
- 
+
 	CatapultAttack ca;
 	ca.attacker = -1;
-	
+
 	for(int i = 0; i < targetsToAttack; i++)
 	{
 		//Any destructible part can be hit regardless of its HP. Multiple hit on same target is allowed.
 		EWallPart::EWallPart target = *RandomGeneratorUtil::nextItem(possibleTargets, env->getRandomGenerator());
-		
+
+		auto & currentHP = parameters.cb->si.wallState;
+
+		if(currentHP.at(target) == EWallState::DESTROYED || currentHP.at(target) == EWallState::NONE)
+			continue;
+
 		CatapultAttack::AttackInfo attackInfo;
-		
+
 		attackInfo.damageDealt = 1;
 		attackInfo.attackedPart = target;
 		attackInfo.destinationTile = parameters.cb->wallPartToBattleHex(target);
-		
+
 		ca.attackedParts.push_back(attackInfo);
-		
+
 		//removing creatures in turrets / keep if one is destroyed
-		
 		BattleHex posRemove;
 
 		switch(target)
@@ -215,8 +219,8 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 		case EWallPart::UPPER_TOWER:
 			posRemove = -4;
 			break;
-		}		
-		
+		}
+
 		if(posRemove != BattleHex::INVALID)
 		{
 			BattleStacksRemoved bsr;
@@ -232,7 +236,7 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 				env->sendAndApply(&bsr);
 		}
 	};
-	
+
 	env->sendAndApply(&ca);
 }
 
@@ -240,21 +244,21 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCasted(const CBat
 {
 	if(nullptr == cb->battleGetDefendedTown())
 	{
-		return ESpellCastProblem::NO_APPROPRIATE_TARGET;		
+		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
-	
+
 	if(CGTownInstance::NONE == cb->battleGetDefendedTown()->fortLevel())
 	{
 		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
-	
+
 	if(owner->getTargetInfo(0).smart) //TODO: use real spell level
 	{
 		//if spell targeting is smart, then only attacker can use it
 		if(cb->playerToSide(player) != 0)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
-		
+
 	return ESpellCastProblem::OK;
 }
 
