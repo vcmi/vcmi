@@ -228,7 +228,7 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 					break;
 				}
 			}
-			if(bsr.stackIDs.size()>0)
+			if(bsr.stackIDs.size() > 0)
 				env->sendAndApply(&bsr);
 		}
 	};
