@@ -88,10 +88,10 @@ CCreature * CreatureID::toCreature() const
 CSpell * SpellID::toSpell() const
 {
 	if(num < 0 || num >= VLC->spellh->objects.size())
-	{	
+	{
 		logGlobal->errorStream() << "Unable to get spell of invalid ID " << int(num);
 		return nullptr;
-	}		
+	}
 	return VLC->spellh->objects[*this];
 }
 
@@ -128,4 +128,35 @@ std::ostream & operator<<(std::ostream & os, const Battle::ActionType actionType
 	auto it = actionTypeToString.find(actionType);
 	if (it == actionTypeToString.end()) return os << "<Unknown type>";
 	else return os << it->second;
+}
+
+std::ostream & operator<<(std::ostream & os, const ETerrainType actionType)
+{
+	static const std::map<ETerrainType::EETerrainType, std::string> terrainTypeToString =
+	{
+	#define DEFINE_ELEMENT(element) {ETerrainType::element, #element}
+		DEFINE_ELEMENT(WRONG),
+		DEFINE_ELEMENT(BORDER),
+		DEFINE_ELEMENT(DIRT),
+		DEFINE_ELEMENT(SAND),
+		DEFINE_ELEMENT(GRASS),
+		DEFINE_ELEMENT(SNOW),
+		DEFINE_ELEMENT(SWAMP),
+		DEFINE_ELEMENT(ROUGH),
+		DEFINE_ELEMENT(SUBTERRANEAN),
+		DEFINE_ELEMENT(LAVA),
+		DEFINE_ELEMENT(WATER),
+		DEFINE_ELEMENT(ROCK)
+	};
+
+	auto it = terrainTypeToString.find(actionType.num);
+	if (it == terrainTypeToString.end()) return os << "<Unknown type>";
+	else return os << it->second;
+}
+
+std::string ETerrainType::toString() const
+{
+	std::stringstream ss;
+	ss << *this;
+	return ss.str();
 }

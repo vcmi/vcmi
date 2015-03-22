@@ -27,3 +27,4 @@ ui_*.h
 /CPackConfig.cmake
 /CPackSourceConfig.cmake
 build-*
+CMakeLists.txt.user.*

@@ -166,6 +166,10 @@
 			"pattern" : "rock.s5"
 		},
 		{
+			"pos" : [ [ 16,4,1 ] ],
+			"pattern" : "rock.s5"
+		},
+		{
 			"pos" : [ [ 8,23,1 ] ],
 			"pattern" : "rock.s6"
 		},

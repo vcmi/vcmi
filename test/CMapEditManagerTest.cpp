@@ -71,6 +71,32 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 		}
 		editManager->drawTerrain(ETerrainType::GRASS);
 		BOOST_CHECK(map->getTile(int3(35, 44, 0)).terType == ETerrainType::WATER);
+
+		// Rock case
+		editManager->getTerrainSelection().selectRange(MapRect(int3(1, 1, 1), 15, 15));
+		editManager->drawTerrain(ETerrainType::SUBTERRANEAN);
+		std::vector<int3> vec({ int3(6, 6, 1), int3(7, 6, 1), int3(8, 6, 1), int3(5, 7, 1), int3(6, 7, 1), int3(7, 7, 1),
+								int3(8, 7, 1), int3(4, 8, 1), int3(5, 8, 1), int3(6, 8, 1)});
+		editManager->getTerrainSelection().setSelection(vec);
+		editManager->drawTerrain(ETerrainType::ROCK);
+		BOOST_CHECK(map->getTile(int3(5, 6, 1)).terType == ETerrainType::ROCK || map->getTile(int3(7, 8, 1)).terType == ETerrainType::ROCK);
+
+		// next check
+		auto map2 = make_unique<CMap>();
+		map2->width = 128;
+		map2->height = 128;
+		map2->initTerrain();
+		auto editManager2 = map2->getEditManager();
+
+		editManager2->getTerrainSelection().selectRange(MapRect(int3(0, 0, 1), 128, 128));
+		editManager2->drawTerrain(ETerrainType::SUBTERRANEAN);
+
+		std::vector<int3> selection({ int3(95, 43, 1), int3(95, 44, 1), int3(94, 45, 1), int3(95, 45, 1), int3(96, 45, 1),
+									int3(93, 46, 1), int3(94, 46, 1), int3(95, 46, 1), int3(96, 46, 1), int3(97, 46, 1),
+									int3(98, 46, 1), int3(99, 46, 1)});
+		editManager2->getTerrainSelection().setSelection(selection);
+		editManager2->drawTerrain(ETerrainType::ROCK);
+
 	}
 	catch(const std::exception & e)
 	{
@@ -83,14 +109,14 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 	try
 	{
 		// Load maps and json config
-		
+
 		#if defined(__MINGW32__)
-		const std::string TEST_DATA_DIR = "test/"; 
+		const std::string TEST_DATA_DIR = "test/";
 		#else
-		const std::string TEST_DATA_DIR = "."; 
+		const std::string TEST_DATA_DIR = ".";
 		#endif // defined
-		
-		
+
+
 		auto loader = new CFilesystemLoader("test/", TEST_DATA_DIR);
 		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
 		const auto originalMap = CMapService::loadMap("test/TerrainViewTest");
@@ -124,6 +150,7 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 				if(posVector.size() != 3) throw std::runtime_error("A position should consist of three values x,y,z. Continue with next position.");
 				int3 pos(posVector[0].Float(), posVector[1].Float(), posVector[2].Float());
 				logGlobal->infoStream() << boost::format("Test pattern '%s' on position x '%d', y '%d', z '%d'.") % patternStr % pos.x % pos.y % pos.z;
+				CTerrainViewPatternUtils::printDebuggingInfoAboutTile(map.get(), pos);
 				const auto & originalTile = originalMap->getTile(pos);
 				editManager->getTerrainSelection().selectRange(MapRect(pos, 1, 1));
 				editManager->drawTerrain(originalTile.terType, &gen);

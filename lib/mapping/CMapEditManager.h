@@ -318,6 +318,9 @@ private:
 	struct InvalidTiles
 	{
 		std::set<int3> foreignTiles, nativeTiles;
+		bool centerPosValid;
+
+		InvalidTiles() : centerPosValid(false) { }
 	};
 
 	void updateTerrainTypes();
@@ -344,6 +347,12 @@ private:
 	ETerrainType terType;
 	CRandomGenerator * gen;
 	std::set<int3> invalidatedTerViews;
+};
+
+class DLL_LINKAGE CTerrainViewPatternUtils
+{
+public:
+	static void printDebuggingInfoAboutTile(const CMap * map, int3 pos);
 };
 
 /// The CClearTerrainOperation clears+initializes the terrain.

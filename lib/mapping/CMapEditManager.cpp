@@ -482,13 +482,15 @@ void CDrawTerrainOperation::updateTerrainTypes()
 	{
 		const auto & centerPos = *(positions.begin());
 		auto centerTile = map->getTile(centerPos);
+		logGlobal->debugStream() << boost::format("Set terrain tile at pos '%s' to type '%s'") % centerPos % centerTile.terType;
 		auto tiles = getInvalidTiles(centerPos);
 		auto updateTerrainType = [&](const int3 & pos, bool tileRequiresValidation)
 		{
 			map->getTile(pos).terType = centerTile.terType;
 			if(tileRequiresValidation) positions.insert(pos);
 			invalidateTerrainViews(pos);
-			logGlobal->debugStream() << boost::format("Update terrain tile at '%s' to type '%i'.") % pos % centerTile.terType;
+			logGlobal->debugStream() << boost::format("Set additional terrain tile at pos '%s' to type '%s'; tileRequiresValidation '%s'") % pos
+				% centerTile.terType % tileRequiresValidation;
 		};
 
 		// Fill foreign invalid tiles
@@ -497,12 +499,14 @@ void CDrawTerrainOperation::updateTerrainTypes()
 			updateTerrainType(tile, true);
 		}
 
+		tiles = getInvalidTiles(centerPos);
 		if(tiles.nativeTiles.find(centerPos) != tiles.nativeTiles.end())
 		{
 			// Blow up
 			auto rect = extendTileAroundSafely(centerPos);
 			std::set<int3> suitableTiles;
 			int invalidForeignTilesCnt = std::numeric_limits<int>::max(), invalidNativeTilesCnt = 0;
+			bool centerPosValid = false;
 			rect.forEach([&](const int3 & posToTest)
 			{
 				auto & terrainTile = map->getTile(posToTest);
@@ -511,28 +515,64 @@ void CDrawTerrainOperation::updateTerrainTypes()
 					auto formerTerType = terrainTile.terType;
 					terrainTile.terType = centerTile.terType;
 					auto testTile = getInvalidTiles(posToTest);
-					auto addToSuitableTiles = [&](const int3 & pos)
-					{
-						suitableTiles.insert(pos);
-						logGlobal->debugStream() << boost::format(std::string("Found suitable tile '%s' for main tile '%s': ") +
-								"Invalid native tiles '%i', invalid foreign tiles '%i'.") % pos % centerPos % testTile.nativeTiles.size() %
-								testTile.foreignTiles.size();
-					};
 
 					int nativeTilesCntNorm = testTile.nativeTiles.empty() ? std::numeric_limits<int>::max() : testTile.nativeTiles.size();
-					if(nativeTilesCntNorm > invalidNativeTilesCnt ||
-							(nativeTilesCntNorm == invalidNativeTilesCnt && testTile.foreignTiles.size() < invalidForeignTilesCnt))
+
+					bool putSuitableTile = false;
+					bool addToSuitableTiles = false;
+					if(testTile.centerPosValid)
 					{
+						if (!centerPosValid)
+						{
+							centerPosValid = true;
+							putSuitableTile = true;
+						}
+						else
+						{
+							if(testTile.foreignTiles.size() < invalidForeignTilesCnt)
+							{
+								putSuitableTile = true;
+							}
+							else
+							{
+								addToSuitableTiles = true;
+							}
+						}
+					}
+					else if (!centerPosValid)
+					{
+						if((nativeTilesCntNorm > invalidNativeTilesCnt) ||
+								(nativeTilesCntNorm == invalidNativeTilesCnt && testTile.foreignTiles.size() < invalidForeignTilesCnt))
+						{
+							putSuitableTile = true;
+						}
+						else if(nativeTilesCntNorm == invalidNativeTilesCnt && testTile.foreignTiles.size() == invalidForeignTilesCnt)
+						{
+							addToSuitableTiles = true;
+						}
+					}
+
+					if (putSuitableTile)
+					{
+						if(!suitableTiles.empty())
+						{
+							logGlobal->debugStream() << "Clear suitables tiles.";
+						}
+
 						invalidNativeTilesCnt = nativeTilesCntNorm;
 						invalidForeignTilesCnt = testTile.foreignTiles.size();
 						suitableTiles.clear();
-						addToSuitableTiles(posToTest);
+						addToSuitableTiles = true;
 					}
-					else if(nativeTilesCntNorm == invalidNativeTilesCnt &&
-							testTile.foreignTiles.size() == invalidForeignTilesCnt)
+
+					if (addToSuitableTiles)
 					{
-						addToSuitableTiles(posToTest);
+						suitableTiles.insert(posToTest);
+						logGlobal->debugStream() << boost::format(std::string("Found suitable tile '%s' for main tile '%s': ") +
+								"Invalid native tiles '%i', invalid foreign tiles '%i', centerPosValid '%i'") % posToTest % centerPos % testTile.nativeTiles.size() %
+								testTile.foreignTiles.size() % testTile.centerPosValid;
 					}
+
 					terrainTile.terType = formerTerType;
 				}
 			});
@@ -591,6 +631,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 		{
 			// This shouldn't be the case
 			logGlobal->warnStream() << boost::format("No pattern detected at pos '%s'.") % pos;
+			CTerrainViewPatternUtils::printDebuggingInfoAboutTile(map, pos);
 			continue;
 		}
 
@@ -878,6 +919,10 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 				if(terType == centerTerType) tiles.nativeTiles.insert(pos);
 				else tiles.foreignTiles.insert(pos);
 			}
+			else if(centerPos == pos)
+			{
+				tiles.centerPosValid = true;
+			}
 		}
 	});
 	return tiles;
@@ -897,6 +942,35 @@ CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, const std
 	: result(result), transitionReplacement(transitionReplacement)
 {
 
+}
+
+void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap * map, int3 pos)
+{
+	logGlobal->debugStream() << "Printing detailed info about nearby map tiles of pos '" << pos << "'";
+	for(int y = pos.y - 2; y <= pos.y + 2; ++y)
+	{
+		std::string line;
+		const int PADDED_LENGTH = 10;
+		for(int x = pos.x - 2; x <= pos.x + 2; ++x)
+		{
+			auto debugPos = int3(x, y, pos.z);
+			if(map->isInTheMap(debugPos))
+			{
+				auto debugTile = map->getTile(debugPos);
+
+				std::string terType = debugTile.terType.toString().substr(0, 6);
+				line += terType;
+				line.insert(line.end(), PADDED_LENGTH - terType.size(), ' ');
+			}
+			else
+			{
+				line += "X";
+				line.insert(line.end(), PADDED_LENGTH - 1, ' ');
+			}
+		}
+
+		logGlobal->debugStream() << line;
+	}
 }
 
 CClearTerrainOperation::CClearTerrainOperation(CMap * map, CRandomGenerator * gen) : CComposedOperation(map)

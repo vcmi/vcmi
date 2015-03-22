@@ -702,7 +702,7 @@ namespace Battle
 
 std::ostream & operator<<(std::ostream & os, const Battle::ActionType actionType);
 
-class ETerrainType
+class DLL_LINKAGE ETerrainType
 {
 public:
 	enum EETerrainType
@@ -717,7 +717,11 @@ public:
 	ID_LIKE_CLASS_COMMON(ETerrainType, EETerrainType)
 
 	EETerrainType num;
+
+	std::string toString() const;
 };
+
+DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType actionType);
 
 ID_LIKE_OPERATORS_DECLS(ETerrainType, ETerrainType::EETerrainType)
 
