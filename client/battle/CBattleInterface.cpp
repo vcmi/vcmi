@@ -1385,8 +1385,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					boost::format text(getPluralText(551));
 					//The %s shrivel with age, and lose %d hit points."
 					TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
+					const int fullHP = bl->totalValue(); 
 					bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
-					text % (bl->totalValue()/2);						
+					text % (fullHP - bl->totalValue());
 					logLines.push_back(text.str());
 				}
 				break;
