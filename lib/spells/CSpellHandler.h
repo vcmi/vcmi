@@ -104,10 +104,19 @@ public:
 	{
 		std::string resourceName;
 		VerticalPosition verticalPosition;
+		int pause; 
 
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & resourceName & verticalPosition;
+			if(version >= 754)
+			{
+				h & pause;
+			}			
+			else if(!h.saving)
+			{
+				pause = 0;
+			}
 		}
 	};
 

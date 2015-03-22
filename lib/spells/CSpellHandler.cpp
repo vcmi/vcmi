@@ -970,6 +970,11 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json)
 				if("bottom" == vPosStr)
 					newItem.verticalPosition = VerticalPosition::BOTTOM;
 			}
+			else if(item.getType() == JsonNode::DATA_FLOAT)
+			{
+				newItem.pause = item.Float();
+			}
+			
 			q.push_back(newItem);
 		}
 	};
