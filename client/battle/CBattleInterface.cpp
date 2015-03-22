@@ -360,7 +360,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 		{
 			idToObstacle[ID] = CDefHandler::giveDef(elem->getInfo().defName);
 			for(auto & _n : idToObstacle[ID]->ourImages)
-			{		
+			{
 				CSDL_Ext::setDefaultColorKey(_n.bitmap);
 			}
 		}
@@ -1263,7 +1263,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			if(casterStack != nullptr)
 			{
 				casterName = casterStack->type->namePl;
-				srccoord = CClickableHex::getXYUnitAnim(casterStack->position, casterStack, this); 
+				srccoord = CClickableHex::getXYUnitAnim(casterStack->position, casterStack, this);
 				srccoord.x += 250;
 				srccoord.y += 240;
 			}
@@ -1274,7 +1274,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	{
 
 	}
-	
+
 	//playing projectile animation
 	if(sc->tile.isValid())
 	{
@@ -1304,13 +1304,13 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			delete animDef;
 			addNewAnim(new CSpellEffectAnimation(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));
 		}
-	}	
+	}
 	waitForAnims();
-	
+
 	displaySpellHit(spellID, sc->tile);
-	
-	//queuing affect /resist animation	
-	for (auto & elem : sc->affectedCres) 
+
+	//queuing affect /resist animation
+	for (auto & elem : sc->affectedCres)
 	{
 		BattleHex position = curInt->cb->battleGetStackByID(elem, false)->position;
 
@@ -1333,7 +1333,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	} //switch(sc->id)
 
 	//displaying message in console
-	std::vector<std::string> logLines;	
+	std::vector<std::string> logLines;
 	bool customSpell = false;
 	if(sc->affectedCres.size() == 1)
 	{
@@ -1350,42 +1350,50 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		}
 		else
 		{
-			auto getPluralText = [attackedStack, attackedName](const int baseTextID) -> std::string
+			auto getPluralFormat = [attackedStack](const int baseTextID) -> boost::format
 			{
-				std::string res = CGI->generaltexth->allTexts[(attackedStack->count > 1 ? baseTextID+1 : baseTextID)];
-				boost::algorithm::replace_first(res, "%s", attackedName);
-				return res;
+				return boost::format(CGI->generaltexth->allTexts[(attackedStack->count > 1 ? baseTextID+1 : baseTextID)]);
+			};
+
+			auto logSimple = [&logLines, getPluralFormat, attackedName](const int baseTextID)
+			{
+				boost::format fmt = getPluralFormat(baseTextID);
+				fmt % attackedName;
+				logLines.push_back(fmt.str());
+			};
+
+			auto logPlural = [&logLines, attackedNamePl](const int baseTextID)
+			{
+				boost::format fmt(CGI->generaltexth->allTexts[baseTextID]);
+				fmt % attackedNamePl;
+				logLines.push_back(fmt.str());
 			};
 
 			customSpell = true; //in most following cases text is custom
 			switch(sc->id)
 			{
 			case SpellID::STONE_GAZE:
-				logLines.push_back(getPluralText(558));
+				logSimple(558);
 				break;
 			case SpellID::POISON:
-				logLines.push_back(getPluralText(561));
+				logSimple(561);
 				break;
 			case SpellID::BIND:
-				{
-					//Roots and vines bind the %s to the ground!
-					boost::format text(CGI->generaltexth->allTexts[560]);
-					text % attackedNamePl;
-					logLines.push_back(text.str());
-				}
+				logPlural(560);//Roots and vines bind the %s to the ground!
 				break;
 			case SpellID::DISEASE:
-				logLines.push_back(getPluralText(553));
+				logSimple(553);
 				break;
 			case SpellID::PARALYZE:
-				logLines.push_back(getPluralText(563));
+				logSimple(563);
 				break;
 			case SpellID::AGE:
 				{
-					boost::format text(getPluralText(551));
+					boost::format text = getPluralFormat(551);
+					text % attackedName;
 					//The %s shrivel with age, and lose %d hit points."
 					TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
-					const int fullHP = bl->totalValue(); 
+					const int fullHP = bl->totalValue();
 					bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
 					text % (fullHP - bl->totalValue());
 					logLines.push_back(text.str());
@@ -1393,20 +1401,14 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 				break;
 			case SpellID::THUNDERBOLT:
 				{
-					std::string text = CGI->generaltexth->allTexts[367];
-					boost::algorithm::replace_first(text, "%s", attackedNamePl);
-					logLines.push_back(text);
-					text = CGI->generaltexth->allTexts[343].substr(1, CGI->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
+					logPlural(367);
+					std::string text = CGI->generaltexth->allTexts[343].substr(1, CGI->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay)); //no more text afterwards
-					logLines.push_back(text);									
+					logLines.push_back(text);
 				}
 				break;
 			case SpellID::DISPEL_HELPFUL_SPELLS:
-					{
-						boost::format text(CGI->generaltexth->allTexts[555]);
-						text % attackedNamePl;
-						logLines.push_back(text.str());
-					}
+				logPlural(555);
 				break;
 			case SpellID::DEATH_STARE:
 				if (sc->dmgToDisplay)
@@ -1432,7 +1434,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					boost::format text(CGI->generaltexth->allTexts[565]); //The %s casts %s
 					text % casterName % spellName;
 					customSpell = false;
-					logLines.push_back(text.str());						
+					logLines.push_back(text.str());
 				}
 				break;
 			}
@@ -1444,17 +1446,17 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		text % casterName % spellName;
 		logLines.push_back(text.str());
 	}
-	
+
 	if(sc->dmgToDisplay && !customSpell)
 	{
 		boost::format dmgInfo(CGI->generaltexth->allTexts[376]);
 		dmgInfo % spellName % sc->dmgToDisplay;
 		logLines.push_back(dmgInfo.str());
 	}
-	
+
 	for(auto line : logLines)
 		console->addText(line);
-	
+
 	waitForAnims();
 	//mana absorption
 	if(sc->manaGained > 0)
@@ -1511,14 +1513,14 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	assert(castingHero); // code below assumes non-null hero
 	sp = spellID.toSpell();
 	spellSelMode = ANY_LOCATION;
-	
+
 	const CSpell::TargetInfo ti = sp->getTargetInfo(castingHero->getSpellSchoolLevel(sp));
-	
+
 	if(ti.massive || ti.type == CSpell::NO_TARGET)
-		spellSelMode = NO_LOCATION;	
+		spellSelMode = NO_LOCATION;
 	else if(ti.type == CSpell::LOCATION && ti.clearAffected)
 	{
-		spellSelMode = FREE_LOCATION;		
+		spellSelMode = FREE_LOCATION;
 	}
 	else if(ti.type == CSpell::CREATURE)
 	{
@@ -1526,11 +1528,11 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 			spellSelMode = selectionTypeByPositiveness(*sp);
 		else
 			spellSelMode = ANY_CREATURE;
-	}	
+	}
 	else if(ti.type == CSpell::OBSTACLE)
 	{
 		spellSelMode = OBSTACLE;
-	} 
+	}
 
 	if (spellSelMode == NO_LOCATION) //user does not have to select location
 	{
@@ -1555,12 +1557,12 @@ void CBattleInterface::displayEffect(ui32 effect, int destTile, bool areaEffect)
 void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destinationTile, bool areaEffect)
 {
 	const CSpell * spell = spellID.toSpell();
-	
+
 	if(spell == nullptr)
 		return;
 
 	for(const CSpell::TAnimation & animation : spell->animationInfo.affect)
-	{				
+	{
 		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
 	}
 }
@@ -1568,12 +1570,12 @@ void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destination
 void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTile, bool areaEffect)
 {
 	const CSpell * spell = spellID.toSpell();
-	
+
 	if(spell == nullptr)
-		return;	
-	
+		return;
+
 	for(const CSpell::TAnimation & animation : spell->animationInfo.hit)
-	{			
+	{
 		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
 	}
 }
@@ -1791,7 +1793,7 @@ void CBattleInterface::printConsoleAttacked( const CStack * defender, int dmg, i
 	{
 		if (attacker)
 			formattedText.append(" ");
-		
+
 		boost::format txt;
 		if(killed > 1)
 		{
