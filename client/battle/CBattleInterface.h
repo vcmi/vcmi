@@ -1,11 +1,11 @@
 #pragma once
 
-
-//#include "../../lib/CCreatureSet.h"
 #include "../../lib/ConstTransitivePtr.h" //may be reundant
 #include "../../lib/GameConstants.h"
 
 #include "CBattleAnimations.h"
+
+#include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
 
 /*
  * CBattleInterface.h, part of VCMI engine
@@ -319,8 +319,12 @@ public:
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook
 	void displayEffect(ui32 effect, int destTile, bool areaEffect = true); //displays custom effect on the battlefield
+	
+	void displaySpellCast(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s cast animation
 	void displaySpellEffect(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s affected animation
 	void displaySpellHit(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s affected animation
+		
+	void displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile, bool areaEffect = true);
 	
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 	void setBattleCursor(const int myNumber); //really complex and messy, sets attackingHex

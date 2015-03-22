@@ -1244,11 +1244,6 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 	const std::string & castSoundPath = spell.getCastSound();
 
-	std::string casterName("Something");
-
-	if(sc->castedByHero)
-		casterName = curInt->cb->battleGetHeroInfo(sc->side).name;
-
 	if(!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
 
@@ -1261,7 +1256,6 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			const CStack * casterStack = curInt->cb->battleGetStackByID(casterStackID);
 			if(casterStack != nullptr)
 			{
-				casterName = casterStack->type->namePl;
 				srccoord = CClickableHex::getXYUnitAnim(casterStack->position, casterStack, this);
 				srccoord.x += 250;
 				srccoord.y += 240;
@@ -1269,10 +1263,8 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		}
 	}
 
-	//TODO: play custom cast animation
-	{
-
-	}
+	//todo: play custom cast animation
+	displaySpellCast(spellID, BattleHex::INVALID, false);
 
 	//playing projectile animation
 	if(sc->tile.isValid())
@@ -1318,18 +1310,6 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		else
 			displaySpellEffect(spellID, position);
 	}
-
-	switch(sc->id)
-	{
-	case SpellID::SUMMON_FIRE_ELEMENTAL:
-	case SpellID::SUMMON_EARTH_ELEMENTAL:
-	case SpellID::SUMMON_WATER_ELEMENTAL:
-	case SpellID::SUMMON_AIR_ELEMENTAL:
-	case SpellID::CLONE:
-	case SpellID::REMOVE_OBSTACLE:
-		addNewAnim(new CDummyAnimation(this, 2)); //interface won't return until animation is played. TODO: make it smarter?
-		break;
-	} //switch(sc->id)
 
 	//displaying message in console
 	std::vector<std::string> logLines;
@@ -1436,6 +1416,31 @@ void CBattleInterface::displayEffect(ui32 effect, int destTile, bool areaEffect)
 	addNewAnim(new CSpellEffectAnimation(this, effect, destTile, 0, 0, false));
 }
 
+void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile, bool areaEffect)
+{	
+	if(animation.pause > 0)
+	{
+		addNewAnim(new CDummyAnimation(this, animation.pause));	
+	}
+	else
+	{
+		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));	
+	}	
+}
+
+void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTile, bool areaEffect)
+{
+	const CSpell * spell = spellID.toSpell();
+
+	if(spell == nullptr)
+		return;
+		
+	for(const CSpell::TAnimation & animation : spell->animationInfo.cast)
+	{
+		displaySpellAnimation(animation, destinationTile, areaEffect);
+	}	
+}
+
 void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destinationTile, bool areaEffect)
 {
 	const CSpell * spell = spellID.toSpell();
@@ -1445,7 +1450,7 @@ void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destination
 
 	for(const CSpell::TAnimation & animation : spell->animationInfo.affect)
 	{
-		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
+		displaySpellAnimation(animation, destinationTile, areaEffect);
 	}
 }
 
@@ -1458,10 +1463,9 @@ void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTil
 
 	for(const CSpell::TAnimation & animation : spell->animationInfo.hit)
 	{
-		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
+		displaySpellAnimation(animation, destinationTile, areaEffect);
 	}
 }
-
 
 void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
 {
