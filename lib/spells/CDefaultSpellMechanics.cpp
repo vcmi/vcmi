@@ -15,6 +15,8 @@
 #include "../NetPacks.h"
 #include "../BattleState.h"
 
+#include "../CGeneralTextHandler.h"
+
 namespace SRSLPraserHelpers
 {
 	static int XYToHex(int x, int y)
@@ -365,6 +367,103 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 			}
 		}
 	}
+}
+
+void DefaultSpellMechanics::battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet, 
+	const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const
+{
+	const std::string attackedName = attackedStack->getName();
+	const std::string attackedNameSing = attackedStack->getCreature()->nameSing;
+	const std::string attackedNamePl = attackedStack->getCreature()->namePl;
+	
+	auto getPluralFormat = [attackedStack](const int baseTextID) -> boost::format
+	{
+		return boost::format(VLC->generaltexth->allTexts[(attackedStack->count > 1 ? baseTextID + 1 : baseTextID)]);
+	};
+
+	auto logSimple = [&logLines, getPluralFormat, attackedName](const int baseTextID)
+	{
+		boost::format fmt = getPluralFormat(baseTextID);
+		fmt % attackedName;
+		logLines.push_back(fmt.str());
+	};
+
+	auto logPlural = [&logLines, attackedNamePl](const int baseTextID)
+	{
+		boost::format fmt(VLC->generaltexth->allTexts[baseTextID]);
+		fmt % attackedNamePl;
+		logLines.push_back(fmt.str());
+	};
+
+	displayDamage = false; //in most following cases damage info text is custom
+	switch(owner->id)
+	{
+	case SpellID::STONE_GAZE:
+		logSimple(558);
+		break;
+	case SpellID::POISON:
+		logSimple(561);
+		break;
+	case SpellID::BIND:
+		logPlural(560);//Roots and vines bind the %s to the ground!
+		break;
+	case SpellID::DISEASE:
+		logSimple(553);
+		break;
+	case SpellID::PARALYZE:
+		logSimple(563);
+		break;
+	case SpellID::AGE:
+		{
+			boost::format text = getPluralFormat(551);
+			text % attackedName;
+			//The %s shrivel with age, and lose %d hit points."
+			TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
+			const int fullHP = bl->totalValue();
+			bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
+			text % (fullHP - bl->totalValue());
+			logLines.push_back(text.str());
+		}
+		break;
+	case SpellID::THUNDERBOLT:
+		{
+			logPlural(367);
+			std::string text = VLC->generaltexth->allTexts[343].substr(1, VLC->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
+			boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(packet->dmgToDisplay)); //no more text afterwards
+			logLines.push_back(text);
+		}
+		break;
+	case SpellID::DISPEL_HELPFUL_SPELLS:
+		logPlural(555);
+		break;
+	case SpellID::DEATH_STARE:
+		if (packet->dmgToDisplay > 0)
+		{
+			std::string text;
+			if (packet->dmgToDisplay > 1)
+			{
+				text = VLC->generaltexth->allTexts[119]; //%d %s die under the terrible gaze of the %s.
+				boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(packet->dmgToDisplay));
+				boost::algorithm::replace_first(text, "%s", attackedNamePl);
+			}
+			else
+			{
+				text = VLC->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
+				boost::algorithm::replace_first(text, "%s", attackedNameSing);
+			}
+			boost::algorithm::replace_first(text, "%s", casterName); //casting stack
+			logLines.push_back(text);
+		}
+		break;
+	default:
+		{
+			boost::format text(VLC->generaltexth->allTexts[565]); //The %s casts %s
+			text % casterName % owner->name;
+			displayDamage = true;
+			logLines.push_back(text.str());
+		}
+		break;
+	}	
 }
 
 int DefaultSpellMechanics::calculateDuration(const CGHeroInstance * caster, int usedSpellPower) const

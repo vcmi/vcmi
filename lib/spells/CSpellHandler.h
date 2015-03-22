@@ -319,6 +319,11 @@ public:
 	///implementation of BattleSpellCast applying
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const;
 
+public:
+	///Client logic.
+	
+	void prepareBattleLog(const CBattleInfoCallback * cb, const BattleSpellCast * packet, std::vector<std::string> & logLines) const;
+
 private:
 	void setIsOffensive(const bool val);
 	void setIsRising(const bool val);

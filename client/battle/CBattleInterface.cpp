@@ -1240,10 +1240,9 @@ void CBattleInterface::displayBattleFinished()
 void CBattleInterface::spellCast( const BattleSpellCast * sc )
 {
 	const SpellID spellID(sc->id);
-	const CSpell &spell = * spellID.toSpell();
-	const std::string & spellName = spell.name;
+	const CSpell & spell = * spellID.toSpell();
 
-	const std::string& castSoundPath = spell.getCastSound();
+	const std::string & castSoundPath = spell.getCastSound();
 
 	std::string casterName("Something");
 
@@ -1334,126 +1333,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 	//displaying message in console
 	std::vector<std::string> logLines;
-	bool customSpell = false;
-	if(sc->affectedCres.size() == 1)
-	{
-		const CStack * attackedStack = curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false);
-
-		const std::string attackedName = attackedStack->getName();
-		const std::string attackedNameSing = attackedStack->getCreature()->nameSing;
-		const std::string attackedNamePl = attackedStack->getCreature()->namePl;
-
-		if(sc->castedByHero)
-		{
-			const std::string fmt = CGI->generaltexth->allTexts[195];
-			logLines.push_back(boost::to_string(boost::format(fmt) % casterName % spellName % attackedNamePl));
-		}
-		else
-		{
-			auto getPluralFormat = [attackedStack](const int baseTextID) -> boost::format
-			{
-				return boost::format(CGI->generaltexth->allTexts[(attackedStack->count > 1 ? baseTextID+1 : baseTextID)]);
-			};
-
-			auto logSimple = [&logLines, getPluralFormat, attackedName](const int baseTextID)
-			{
-				boost::format fmt = getPluralFormat(baseTextID);
-				fmt % attackedName;
-				logLines.push_back(fmt.str());
-			};
-
-			auto logPlural = [&logLines, attackedNamePl](const int baseTextID)
-			{
-				boost::format fmt(CGI->generaltexth->allTexts[baseTextID]);
-				fmt % attackedNamePl;
-				logLines.push_back(fmt.str());
-			};
-
-			customSpell = true; //in most following cases text is custom
-			switch(sc->id)
-			{
-			case SpellID::STONE_GAZE:
-				logSimple(558);
-				break;
-			case SpellID::POISON:
-				logSimple(561);
-				break;
-			case SpellID::BIND:
-				logPlural(560);//Roots and vines bind the %s to the ground!
-				break;
-			case SpellID::DISEASE:
-				logSimple(553);
-				break;
-			case SpellID::PARALYZE:
-				logSimple(563);
-				break;
-			case SpellID::AGE:
-				{
-					boost::format text = getPluralFormat(551);
-					text % attackedName;
-					//The %s shrivel with age, and lose %d hit points."
-					TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
-					const int fullHP = bl->totalValue();
-					bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
-					text % (fullHP - bl->totalValue());
-					logLines.push_back(text.str());
-				}
-				break;
-			case SpellID::THUNDERBOLT:
-				{
-					logPlural(367);
-					std::string text = CGI->generaltexth->allTexts[343].substr(1, CGI->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
-					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay)); //no more text afterwards
-					logLines.push_back(text);
-				}
-				break;
-			case SpellID::DISPEL_HELPFUL_SPELLS:
-				logPlural(555);
-				break;
-			case SpellID::DEATH_STARE:
-				if (sc->dmgToDisplay)
-				{
-					std::string text;
-					if (sc->dmgToDisplay > 1)
-					{
-						text = CGI->generaltexth->allTexts[119]; //%d %s die under the terrible gaze of the %s.
-						boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(sc->dmgToDisplay));
-						boost::algorithm::replace_first(text, "%s", attackedNamePl);
-					}
-					else
-					{
-						text = CGI->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
-						boost::algorithm::replace_first(text, "%s", attackedNameSing);
-					}
-					boost::algorithm::replace_first(text, "%s", casterName); //casting stack
-					logLines.push_back(text);
-				}
-				break;
-			default:
-				{
-					boost::format text(CGI->generaltexth->allTexts[565]); //The %s casts %s
-					text % casterName % spellName;
-					customSpell = false;
-					logLines.push_back(text.str());
-				}
-				break;
-			}
-		}
-	}
-	else
-	{
-		boost::format text(CGI->generaltexth->allTexts[196]);
-		text % casterName % spellName;
-		logLines.push_back(text.str());
-	}
-
-	if(sc->dmgToDisplay && !customSpell)
-	{
-		boost::format dmgInfo(CGI->generaltexth->allTexts[376]);
-		dmgInfo % spellName % sc->dmgToDisplay;
-		logLines.push_back(dmgInfo.str());
-	}
-
+	
+	spell.prepareBattleLog(curInt->cb.get(), sc, logLines);
+	
 	for(auto line : logLines)
 		console->addText(line);
 

@@ -47,6 +47,9 @@ public:
 	virtual bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const = 0;
 	virtual void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const = 0;
 
+	virtual void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet, 
+		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const = 0;
+	
 	static ISpellMechanics * createMechanics(CSpell * s);
 protected:
 	CSpell * owner;
