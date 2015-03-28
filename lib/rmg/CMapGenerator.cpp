@@ -281,9 +281,10 @@ void CMapGenerator::fillZones()
 
 void CMapGenerator::createObstaclesCommon()
 {
-#define MAKE_COOL_UNDERGROUND_TUNNELS true
+	#define MAKE_COOL_UNDERGROUND_TUNNELS true
 	if (map->twoLevel && MAKE_COOL_UNDERGROUND_TUNNELS) //underground
 	{
+		//negative approach - create rock tiles first, then make sure all accessible tiles have no rock
 		std::vector<int3> rockTiles;
 
 		for (int x = 0; x < map->width; x++)
@@ -293,29 +294,41 @@ void CMapGenerator::createObstaclesCommon()
 				int3 tile(x, y, 1);
 				if (shouldBeBlocked(tile))
 				{
-					bool placeRock = true;
-					foreach_neighbour(tile, [this, tile, &placeRock](int3 &pos)
-					{
-						if (!(this->shouldBeBlocked(pos) || this->isPossible(pos)))
-							placeRock = false;
-					});
-					if (placeRock)
-					{
-						rockTiles.push_back(tile);
-					}
+					rockTiles.push_back(tile);
 				}
 			}
 		}
 		editManager->getTerrainSelection().setSelection(rockTiles);
 		editManager->drawTerrain(ETerrainType::ROCK, &rand);
-		for (auto tile : rockTiles)
+
+		//now make sure all accessible tiles have no additional rock on them
+
+		std::vector<int3> accessibleTiles;
+		for (int x = 0; x < map->width; x++)
 		{
-			setOccupied(tile, ETileType::USED); //don't place obstacles in a rock
-			//gen->foreach_neighbour (tile, [gen](int3 &pos)
-			//{
-			//	if (!gen->isUsed(pos))
-			//		gen->setOccupied (pos, ETileType::BLOCKED);
-			//});
+			for (int y = 0; y < map->height; y++)
+			{
+				int3 tile(x, y, 1);
+				if (isFree(tile) || isUsed(tile))
+				{
+					accessibleTiles.push_back(tile);
+				}
+			}
+		}
+		editManager->getTerrainSelection().setSelection(accessibleTiles);
+		editManager->drawTerrain(ETerrainType::SUBTERRANEAN, &rand);
+
+		//finally mark rock tiles as occupied, spawn no obstacles there
+		for (int x = 0; x < map->width; x++)
+		{
+			for (int y = 0; y < map->height; y++)
+			{
+				int3 tile(x, y, 1);
+				if (map->getTile(tile).terType == ETerrainType::ROCK)
+				{
+					setOccupied(tile, ETileType::USED);
+				}
+			}
 		}
 	}
 
