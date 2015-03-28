@@ -655,7 +655,8 @@ do not leave zone border
 		}
 		if (!(result || distance < lastDistance || anotherPos.valid()))
 		{
-			logGlobal->warnStream() << boost::format("No tile closer than %s found on path from %s to %s") % currentPos %src %dst;
+			//FIXME: seemingly this condition is messed up, tells nothing
+			//logGlobal->warnStream() << boost::format("No tile closer than %s found on path from %s to %s") % currentPos %src %dst;
 			break;
 		}
 	}
