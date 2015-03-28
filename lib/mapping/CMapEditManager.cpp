@@ -482,15 +482,14 @@ void CDrawTerrainOperation::updateTerrainTypes()
 	{
 		const auto & centerPos = *(positions.begin());
 		auto centerTile = map->getTile(centerPos);
-		logGlobal->debugStream() << boost::format("Set terrain tile at pos '%s' to type '%s'") % centerPos % centerTile.terType;
+		//logGlobal->debugStream() << boost::format("Set terrain tile at pos '%s' to type '%s'") % centerPos % centerTile.terType;
 		auto tiles = getInvalidTiles(centerPos);
 		auto updateTerrainType = [&](const int3 & pos)
 		{
 			map->getTile(pos).terType = centerTile.terType;
 			positions.insert(pos);
 			invalidateTerrainViews(pos);
-			logGlobal->debugStream() << boost::format("Set additional terrain tile at pos '%s' to type '%s'") % pos
-				% centerTile.terType;
+			//logGlobal->debugStream() << boost::format("Set additional terrain tile at pos '%s' to type '%s'") % pos % centerTile.terType;
 		};
 
 		// Fill foreign invalid tiles
