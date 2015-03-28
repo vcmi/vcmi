@@ -281,6 +281,44 @@ void CMapGenerator::fillZones()
 
 void CMapGenerator::createObstaclesCommon()
 {
+#define MAKE_COOL_UNDERGROUND_TUNNELS true
+	if (map->twoLevel && MAKE_COOL_UNDERGROUND_TUNNELS) //underground
+	{
+		std::vector<int3> rockTiles;
+
+		for (int x = 0; x < map->width; x++)
+		{
+			for (int y = 0; y < map->height; y++)
+			{
+				int3 tile(x, y, 1);
+				if (shouldBeBlocked(tile))
+				{
+					bool placeRock = true;
+					foreach_neighbour(tile, [this, tile, &placeRock](int3 &pos)
+					{
+						if (!(this->shouldBeBlocked(pos) || this->isPossible(pos)))
+							placeRock = false;
+					});
+					if (placeRock)
+					{
+						rockTiles.push_back(tile);
+					}
+				}
+			}
+		}
+		editManager->getTerrainSelection().setSelection(rockTiles);
+		editManager->drawTerrain(ETerrainType::ROCK, &rand);
+		for (auto tile : rockTiles)
+		{
+			setOccupied(tile, ETileType::USED); //don't place obstacles in a rock
+			//gen->foreach_neighbour (tile, [gen](int3 &pos)
+			//{
+			//	if (!gen->isUsed(pos))
+			//		gen->setOccupied (pos, ETileType::BLOCKED);
+			//});
+		}
+	}
+
 	//tighten obstacles to improve visuals
 
 	for (int i = 0; i < 3; ++i)
@@ -321,44 +359,6 @@ void CMapGenerator::createObstaclesCommon()
 			}
 		}
 		logGlobal->traceStream() << boost::format("Set %d tiles to BLOCKED and %d tiles to FREE") % blockedTiles % freeTiles;
-	}
-
-	#define MAKE_COOL_UNDERGROUND_TUNNELS true
-	if (map->twoLevel && MAKE_COOL_UNDERGROUND_TUNNELS) //underground
-	{
-		std::vector<int3> rockTiles;
-
-		for (int x = 0; x < map->width; x++)
-		{
-			for (int y = 0; y < map->height; y++)
-			{
-				int3 tile(x, y, 1);
-				if (shouldBeBlocked(tile))
-				{
-					bool placeRock = true;
-					foreach_neighbour(tile, [this, &placeRock](int3 &pos)
-					{
-						if (!(this->shouldBeBlocked(pos) || this->isPossible(pos)))
-							placeRock = false;
-					});
-					if (placeRock)
-					{
-						rockTiles.push_back(tile);
-					}
-				}
-			}
-		}
-		editManager->getTerrainSelection().setSelection(rockTiles);
-		editManager->drawTerrain(ETerrainType::ROCK, &rand);
-		for (auto tile : rockTiles)
-		{
-			setOccupied(tile, ETileType::USED); //don't place obstacles in a rock
-			//gen->foreach_neighbour (tile, [gen](int3 &pos)
-			//{
-			//	if (!gen->isUsed(pos))
-			//		gen->setOccupied (pos, ETileType::BLOCKED);
-			//});
-		}
 	}
 }
 
