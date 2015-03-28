@@ -484,19 +484,19 @@ void CDrawTerrainOperation::updateTerrainTypes()
 		auto centerTile = map->getTile(centerPos);
 		logGlobal->debugStream() << boost::format("Set terrain tile at pos '%s' to type '%s'") % centerPos % centerTile.terType;
 		auto tiles = getInvalidTiles(centerPos);
-		auto updateTerrainType = [&](const int3 & pos, bool tileRequiresValidation)
+		auto updateTerrainType = [&](const int3 & pos)
 		{
 			map->getTile(pos).terType = centerTile.terType;
-			if(tileRequiresValidation) positions.insert(pos);
+			positions.insert(pos);
 			invalidateTerrainViews(pos);
-			logGlobal->debugStream() << boost::format("Set additional terrain tile at pos '%s' to type '%s'; tileRequiresValidation '%s'") % pos
-				% centerTile.terType % tileRequiresValidation;
+			logGlobal->debugStream() << boost::format("Set additional terrain tile at pos '%s' to type '%s'") % pos
+				% centerTile.terType;
 		};
 
 		// Fill foreign invalid tiles
 		for(const auto & tile : tiles.foreignTiles)
 		{
-			updateTerrainType(tile, true);
+			updateTerrainType(tile);
 		}
 
 		tiles = getInvalidTiles(centerPos);
@@ -577,10 +577,9 @@ void CDrawTerrainOperation::updateTerrainTypes()
 				}
 			});
 
-			bool tileRequiresValidation = invalidForeignTilesCnt > 0;
 			if(suitableTiles.size() == 1)
 			{
-				updateTerrainType(*suitableTiles.begin(), tileRequiresValidation);
+				updateTerrainType(*suitableTiles.begin());
 			}
 			else
 			{
@@ -591,7 +590,7 @@ void CDrawTerrainOperation::updateTerrainTypes()
 					auto it = suitableTiles.find(centerPos + direction);
 					if(it != suitableTiles.end())
 					{
-						updateTerrainType(*it, tileRequiresValidation);
+						updateTerrainType(*it);
 						break;
 					}
 				}
@@ -599,6 +598,15 @@ void CDrawTerrainOperation::updateTerrainTypes()
 		}
 		else
 		{
+			// add invalid native tiles which are not in the positions list
+			for(const auto & nativeTile : tiles.nativeTiles)
+			{
+				if(positions.find(nativeTile) == positions.end())
+				{
+					positions.insert(nativeTile);
+				}
+			}
+
 			positions.erase(centerPos);
 		}
 	}
@@ -724,7 +732,32 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 		ETerrainType terType;
 		if(!map->isInTheMap(currentPos))
 		{
-			terType = centerTerType;
+			// position is not in the map, so take the ter type from the neighbor tile
+			bool widthTooHigh = currentPos.x >= map->width;
+			bool widthTooLess = currentPos.x < 0;
+			bool heightTooHigh = currentPos.y >= map->height;
+			bool heightTooLess = currentPos.y < 0;
+
+			if ((widthTooHigh && heightTooHigh) || (widthTooHigh && heightTooLess) || (widthTooLess && heightTooHigh) || (widthTooLess && heightTooLess))
+			{
+				terType = centerTerType;
+			}
+			else if(widthTooHigh)
+			{
+				terType = map->getTile(int3(currentPos.x - 1, currentPos.y, currentPos.z)).terType;
+			}
+			else if(heightTooHigh)
+			{
+				terType = map->getTile(int3(currentPos.x, currentPos.y - 1, currentPos.z)).terType;
+			}
+			else if (widthTooLess)
+			{
+				terType = map->getTile(int3(currentPos.x + 1, currentPos.y, currentPos.z)).terType;
+			}
+			else if (heightTooLess)
+			{
+				terType = map->getTile(int3(currentPos.x, currentPos.y + 1, currentPos.z)).terType;
+			}
 		}
 		else
 		{
@@ -894,7 +927,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 			auto valid = validateTerrainView(pos, ptrConfig->getTerrainTypePatternById("n1")).result;
 
 			// Special validity check for rock & water
-			if(valid && centerTerType != terType && (terType == ETerrainType::WATER || terType == ETerrainType::ROCK))
+			if(valid && (terType == ETerrainType::WATER || terType == ETerrainType::ROCK))
 			{
 				static const std::string patternIds[] = { "s1", "s2" };
 				for(auto & patternId : patternIds)

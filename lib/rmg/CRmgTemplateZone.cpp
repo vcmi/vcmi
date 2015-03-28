@@ -1374,7 +1374,7 @@ void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 		logGlobal->traceStream() << boost::format("Set %d tiles to BLOCKED and %d tiles to FREE") % blockedTiles % freeTiles;
 	}
 
-	#define MAKE_COOL_UNDERGROUND_TUNNELS false
+	#define MAKE_COOL_UNDERGROUND_TUNNELS true
 	if (pos.z && MAKE_COOL_UNDERGROUND_TUNNELS) //underground
 	{
 		std::vector<int3> rockTiles;
