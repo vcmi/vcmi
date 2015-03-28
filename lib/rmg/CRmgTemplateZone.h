@@ -164,7 +164,8 @@ public:
 	void fractalize(CMapGenerator* gen);
 	bool createRequiredObjects(CMapGenerator* gen);
 	void createTreasures(CMapGenerator* gen);
-	void createObstacles(CMapGenerator* gen);
+	void createObstacles1(CMapGenerator* gen);
+	void createObstacles2(CMapGenerator* gen);
 	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles = nullptr);
 	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object);
 

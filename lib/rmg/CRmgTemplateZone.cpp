@@ -1337,7 +1337,26 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 	}
 }
 
-void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
+void CRmgTemplateZone::createObstacles1(CMapGenerator * gen)
+{
+	if (pos.z) //underground
+	{
+		//now make sure all accessible tiles have no additional rock on them
+
+		std::vector<int3> accessibleTiles;
+		for (auto tile : tileinfo)
+		{
+			if (gen->isFree(tile) || gen->isUsed(tile))
+			{
+				accessibleTiles.push_back(tile);
+			}
+		}
+		gen->editManager->getTerrainSelection().setSelection(accessibleTiles);
+		gen->editManager->drawTerrain(terrainType, &gen->rand);
+	}
+}
+
+void CRmgTemplateZone::createObstacles2(CMapGenerator* gen)
 {
 
 	typedef std::vector<ObjectTemplate> obstacleVector;

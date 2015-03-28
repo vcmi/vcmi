@@ -259,12 +259,14 @@ void CMapGenerator::fillZones()
 	}
 
 	//set apriopriate free/occupied tiles, including blocked underground rock
-	createObstaclesCommon();
+	createObstaclesCommon1();
+	//set back original terrain for underground zones
+	for (auto it : zones)
+		it.second->createObstacles1(this);
+	createObstaclesCommon2();
 	//place actual obstacles matching zone terrain
 	for (auto it : zones)
-	{
-		it.second->createObstacles(this);
-	}
+		it.second->createObstacles2(this);
 
 	//find place for Grail
 	if (treasureZones.empty())
@@ -279,10 +281,9 @@ void CMapGenerator::fillZones()
 	logGlobal->infoStream() << "Zones filled successfully";
 }
 
-void CMapGenerator::createObstaclesCommon()
+void CMapGenerator::createObstaclesCommon1()
 {
-	#define MAKE_COOL_UNDERGROUND_TUNNELS true
-	if (map->twoLevel && MAKE_COOL_UNDERGROUND_TUNNELS) //underground
+	if (map->twoLevel) //underground
 	{
 		//negative approach - create rock tiles first, then make sure all accessible tiles have no rock
 		std::vector<int3> rockTiles;
@@ -300,24 +301,13 @@ void CMapGenerator::createObstaclesCommon()
 		}
 		editManager->getTerrainSelection().setSelection(rockTiles);
 		editManager->drawTerrain(ETerrainType::ROCK, &rand);
+	}
+}
 
-		//now make sure all accessible tiles have no additional rock on them
-
-		std::vector<int3> accessibleTiles;
-		for (int x = 0; x < map->width; x++)
-		{
-			for (int y = 0; y < map->height; y++)
-			{
-				int3 tile(x, y, 1);
-				if (isFree(tile) || isUsed(tile))
-				{
-					accessibleTiles.push_back(tile);
-				}
-			}
-		}
-		editManager->getTerrainSelection().setSelection(accessibleTiles);
-		editManager->drawTerrain(ETerrainType::SUBTERRANEAN, &rand);
-
+void CMapGenerator::createObstaclesCommon2()
+{
+	if (map->twoLevel)
+	{
 		//finally mark rock tiles as occupied, spawn no obstacles there
 		for (int x = 0; x < map->width; x++)
 		{

@@ -553,10 +553,10 @@ void CDrawTerrainOperation::updateTerrainTypes()
 
 					if (putSuitableTile)
 					{
-						if(!suitableTiles.empty())
-						{
-							logGlobal->debugStream() << "Clear suitables tiles.";
-						}
+						//if(!suitableTiles.empty())
+						//{
+						//	logGlobal->debugStream() << "Clear suitables tiles.";
+						//}
 
 						invalidNativeTilesCnt = nativeTilesCntNorm;
 						invalidForeignTilesCnt = testTile.foreignTiles.size();
@@ -567,9 +567,9 @@ void CDrawTerrainOperation::updateTerrainTypes()
 					if (addToSuitableTiles)
 					{
 						suitableTiles.insert(posToTest);
-						logGlobal->debugStream() << boost::format(std::string("Found suitable tile '%s' for main tile '%s': ") +
-								"Invalid native tiles '%i', invalid foreign tiles '%i', centerPosValid '%i'") % posToTest % centerPos % testTile.nativeTiles.size() %
-								testTile.foreignTiles.size() % testTile.centerPosValid;
+						//logGlobal->debugStream() << boost::format(std::string("Found suitable tile '%s' for main tile '%s': ") +
+						//		"Invalid native tiles '%i', invalid foreign tiles '%i', centerPosValid '%i'") % posToTest % centerPos % testTile.nativeTiles.size() %
+						//		testTile.foreignTiles.size() % testTile.centerPosValid;
 					}
 
 					terrainTile.terType = formerTerType;
