@@ -110,5 +110,6 @@ private:
 	void initTiles();
 	void genZones();
 	void fillZones();
+	void createObstaclesCommon();
 
 };

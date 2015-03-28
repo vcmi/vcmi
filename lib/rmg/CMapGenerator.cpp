@@ -258,6 +258,14 @@ void CMapGenerator::fillZones()
 			treasureZones.push_back(it.second);
 	}
 
+	//set apriopriate free/occupied tiles, including blocked underground rock
+	createObstaclesCommon();
+	//place actual obstacles matching zone terrain
+	for (auto it : zones)
+	{
+		it.second->createObstacles(this);
+	}
+
 	//find place for Grail
 	if (treasureZones.empty())
 	{
@@ -269,6 +277,89 @@ void CMapGenerator::fillZones()
 	map->grailPos = *RandomGeneratorUtil::nextItem(*grailZone->getFreePaths(), rand);
 
 	logGlobal->infoStream() << "Zones filled successfully";
+}
+
+void CMapGenerator::createObstaclesCommon()
+{
+	//tighten obstacles to improve visuals
+
+	for (int i = 0; i < 3; ++i)
+	{
+		int blockedTiles = 0;
+		int freeTiles = 0;
+
+		for (int z = 0; z < (map->twoLevel ? 2 : 1); z++)
+		{
+			for (int x = 0; x < map->width; x++)
+			{
+				for (int y = 0; y < map->height; y++)
+				{
+					int3 tile(x, y, z);
+					if (!isPossible(tile)) //only possible tiles can change
+						continue;
+
+					int blockedNeighbours = 0;
+					int freeNeighbours = 0;
+					foreach_neighbour(tile, [this, &blockedNeighbours, &freeNeighbours](int3 &pos)
+					{
+						if (this->isBlocked(pos))
+							blockedNeighbours++;
+						if (this->isFree(pos))
+							freeNeighbours++;
+					});
+					if (blockedNeighbours > 4)
+					{
+						setOccupied(tile, ETileType::BLOCKED);
+						blockedTiles++;
+					}
+					else if (freeNeighbours > 4)
+					{
+						setOccupied(tile, ETileType::FREE);
+						freeTiles++;
+					}
+				}
+			}
+		}
+		logGlobal->traceStream() << boost::format("Set %d tiles to BLOCKED and %d tiles to FREE") % blockedTiles % freeTiles;
+	}
+
+	#define MAKE_COOL_UNDERGROUND_TUNNELS true
+	if (map->twoLevel && MAKE_COOL_UNDERGROUND_TUNNELS) //underground
+	{
+		std::vector<int3> rockTiles;
+
+		for (int x = 0; x < map->width; x++)
+		{
+			for (int y = 0; y < map->height; y++)
+			{
+				int3 tile(x, y, 1);
+				if (shouldBeBlocked(tile))
+				{
+					bool placeRock = true;
+					foreach_neighbour(tile, [this, &placeRock](int3 &pos)
+					{
+						if (!(this->shouldBeBlocked(pos) || this->isPossible(pos)))
+							placeRock = false;
+					});
+					if (placeRock)
+					{
+						rockTiles.push_back(tile);
+					}
+				}
+			}
+		}
+		editManager->getTerrainSelection().setSelection(rockTiles);
+		editManager->drawTerrain(ETerrainType::ROCK, &rand);
+		for (auto tile : rockTiles)
+		{
+			setOccupied(tile, ETileType::USED); //don't place obstacles in a rock
+			//gen->foreach_neighbour (tile, [gen](int3 &pos)
+			//{
+			//	if (!gen->isUsed(pos))
+			//		gen->setOccupied (pos, ETileType::BLOCKED);
+			//});
+		}
+	}
 }
 
 void CMapGenerator::findZonesForQuestArts()

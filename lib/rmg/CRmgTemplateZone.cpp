@@ -1339,74 +1339,7 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 
 void CRmgTemplateZone::createObstacles(CMapGenerator* gen)
 {
-	//tighten obstacles to improve visuals
 
-	for (int i = 0; i < 3; ++i)
-	{
-		int blockedTiles = 0;
-		int freeTiles = 0;
-
-		for (auto tile : tileinfo)
-		{
-			if (!gen->isPossible(tile)) //only possible tiles can change
-				continue;
-
-			int blockedNeighbours = 0;
-			int freeNeighbours = 0;
-			gen->foreach_neighbour(tile, [gen, &blockedNeighbours, &freeNeighbours](int3 &pos)
-			{
-				if (gen->isBlocked(pos))
-					blockedNeighbours++;
-				if (gen->isFree(pos))
-					freeNeighbours++;
-			});
-			if (blockedNeighbours > 4)
-			{
-				gen->setOccupied(tile, ETileType::BLOCKED);
-				blockedTiles++;
-			}
-			else if (freeNeighbours > 4)
-			{
-				gen->setOccupied(tile, ETileType::FREE);
-				freeTiles++;
-			}
-		}
-		logGlobal->traceStream() << boost::format("Set %d tiles to BLOCKED and %d tiles to FREE") % blockedTiles % freeTiles;
-	}
-
-	#define MAKE_COOL_UNDERGROUND_TUNNELS true
-	if (pos.z && MAKE_COOL_UNDERGROUND_TUNNELS) //underground
-	{
-		std::vector<int3> rockTiles;
-
-		for (auto tile : tileinfo)
-		{	
-			if (gen->shouldBeBlocked(tile))
-			{
-				bool placeRock = true;
-				gen->foreach_neighbour (tile, [gen, &placeRock](int3 &pos)
-				{
-					if (!(gen->shouldBeBlocked(pos) || gen->isPossible(pos)))
-						placeRock = false;
-				});
-				if (placeRock)
-				{
-					rockTiles.push_back(tile);
-				}
-			}
-		}
-		gen->editManager->getTerrainSelection().setSelection(rockTiles);
-		gen->editManager->drawTerrain(ETerrainType::ROCK, &gen->rand);
-		for (auto tile : rockTiles)
-		{
-			gen->setOccupied (tile, ETileType::USED); //don't place obstacles in a rock
-			//gen->foreach_neighbour (tile, [gen](int3 &pos)
-			//{
-			//	if (!gen->isUsed(pos))
-			//		gen->setOccupied (pos, ETileType::BLOCKED);
-			//});
-		}
-	}
 	typedef std::vector<ObjectTemplate> obstacleVector;
 	//obstacleVector possibleObstacles;
 
@@ -1483,7 +1416,6 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	createRequiredObjects(gen);
 	fractalize(gen); //after required objects are created and linked with their own paths
 	createTreasures(gen);
-	createObstacles(gen);
 
 	logGlobal->infoStream() << boost::format ("Zone %d filled successfully") %id;
 	return true;
