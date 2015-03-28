@@ -1188,19 +1188,32 @@ void CBattleInterface::hexLclicked(int whichOne)
 
 void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 {
-	for(auto it = ca.attackedParts.begin(); it != ca.attackedParts.end(); ++it)
+	if(ca.attacker != -1)
 	{
 		const CStack * stack = curInt->cb->battleGetStackByID(ca.attacker);
-		addNewAnim(new CShootingAnimation(this, stack, it->destinationTile, nullptr, true, it->damageDealt));
+		for(auto attackInfo : ca.attackedParts)
+		{
+			addNewAnim(new CShootingAnimation(this, stack, attackInfo.destinationTile, nullptr, true, attackInfo.damageDealt));
+		}		
 	}
+	else
+	{
+		//no attacker stack, assume spell-related (earthquake) - only hit animation 
+		for(auto attackInfo : ca.attackedParts)
+		{
+			Point destPos = CClickableHex::getXYUnitAnim(attackInfo.destinationTile, nullptr, this) + Point(99, 120);
+	
+			addNewAnim(new CSpellEffectAnimation(this, "SGEXPL.DEF", destPos.x, destPos.y));
+		}
+	}	
 
 	waitForAnims();
 
-	for(auto it = ca.attackedParts.begin(); it != ca.attackedParts.end(); ++it)
+	for(auto attackInfo : ca.attackedParts)
 	{
-		SDL_FreeSurface(siegeH->walls[it->attackedPart + 2]);
-		siegeH->walls[it->attackedPart + 2] = BitmapHandler::loadBitmap(
-			siegeH->getSiegeName(it->attackedPart + 2, curInt->cb->battleGetWallState(it->attackedPart)) );
+		SDL_FreeSurface(siegeH->walls[attackInfo.attackedPart + 2]);
+		siegeH->walls[attackInfo.attackedPart + 2] = BitmapHandler::loadBitmap(
+			siegeH->getSiegeName(attackInfo.attackedPart + 2, curInt->cb->battleGetWallState(attackInfo.attackedPart)));
 	}
 }
 

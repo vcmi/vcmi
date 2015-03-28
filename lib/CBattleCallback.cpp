@@ -1599,6 +1599,11 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if(!spell->combatSpell)
 		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
 
+	const ESpellCastProblem::ESpellCastProblem specificProblem = spell->canBeCasted(this, player);
+	
+	if(specificProblem != ESpellCastProblem::OK)
+		return specificProblem;	
+
 	if(spell->isNegative() || spell->hasEffects())
 	{
 		bool allStacksImmune = true;
@@ -1633,7 +1638,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if(arpos < ARRAY_COUNT(spellIDs))
 	{
 		//check if there are summoned elementals of other type
-		for( const CStack * st : battleAliveStacks())
+		for(const CStack * st : battleAliveStacks(side))
 			if(vstd::contains(st->state, EBattleStackState::SUMMONED) && st->getCreature()->idNumber != creIDs[arpos])
 				return ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED;
 	}

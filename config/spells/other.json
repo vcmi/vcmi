@@ -86,6 +86,7 @@
 		},
 		"levels" : {
 			"base":{
+				"targetModifier":{"smart":true},
 				"range" : "X"
 			}
 		},
