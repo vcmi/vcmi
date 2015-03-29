@@ -2242,7 +2242,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					auto tilesThatMustBeClear = sp->rangeInHexes(myNumber, hero->getSpellSchoolLevel(sp), side, &hexesOutsideBattlefield);
 					for(BattleHex hex : tilesThatMustBeClear)
 					{
-						if(curInt->cb->battleGetStackByPos(hex, false)  ||  !!curInt->cb->battleGetObstacleOnPos(hex, false)
+						if(curInt->cb->battleGetStackByPos(hex, true)  ||  !!curInt->cb->battleGetObstacleOnPos(hex, false)
 						 || !hex.isAvailable())
 						{
 							legalAction = false;
