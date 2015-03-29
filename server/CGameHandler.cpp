@@ -4255,14 +4255,25 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 
 		oneTimeObstacle = true;
 		effect = 82; //makes
-		damage = SpellID(SpellID::LAND_MINE).toSpell()->calculateDamage(hero, curStack,
+
+		const CSpell * sp = SpellID(SpellID::LAND_MINE).toSpell();
+
+		if(sp->isImmuneByStack(hero, curStack))
+			return;
+
+		damage = sp->calculateDamage(hero, curStack,
 											 spellObstacle->spellLevel, spellObstacle->casterSpellPower);
 		//TODO even if obstacle wasn't created by hero (Tower "moat") it should deal dmg as if casted by hero,
 		//if it is bigger than default dmg. Or is it just irrelevant H3 implementation quirk
 	}
 	else if(obstacle.obstacleType == CObstacleInstance::FIRE_WALL)
 	{
-		damage = SpellID(SpellID::FIRE_WALL).toSpell()->calculateDamage(hero, curStack,
+		const CSpell * sp = SpellID(SpellID::FIRE_WALL).toSpell();
+
+		if(sp->isImmuneByStack(hero, curStack))
+			return;
+
+		damage = sp->calculateDamage(hero, curStack,
 											 spellObstacle->spellLevel, spellObstacle->casterSpellPower);
 	}
 	else
