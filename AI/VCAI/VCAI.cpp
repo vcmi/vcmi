@@ -1239,10 +1239,10 @@ void VCAI::buildStructure(const CGTownInstance * t)
 		return;
 }
 
-bool VCAI::isGoodForVisit(const CGObjectInstance *obj, HeroPtr h)
+bool VCAI::isGoodForVisit(const CGObjectInstance *obj, HeroPtr h, SectorMap &sm)
 {
 	const int3 pos = obj->visitablePos();
-	if (isAccessibleForHero(obj->visitablePos(), h) &&
+	if (canReachTile(h.get(), sm.firstTileToGet(h, obj->visitablePos())) &&
 			!obj->wasVisited(playerID) &&
 			(cb->getPlayerRelations(ai->playerID, obj->tempOwner) == PlayerRelations::ENEMIES || isWeeklyRevisitable(obj)) && //flag or get weekly resources / creatures
 			isSafeToVisit(h, pos) &&
@@ -1266,9 +1266,10 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 {
 	validateVisitableObjs();
 	std::vector<const CGObjectInstance *> possibleDestinations;
+	SectorMap sm(h);
 	for(const CGObjectInstance *obj : visitableObjs)
 	{
-		if (isGoodForVisit(obj, h))
+		if (isGoodForVisit(obj, h, sm))
 		{
 			possibleDestinations.push_back(obj);
 		}
@@ -3117,7 +3118,7 @@ For ship construction etc, another function (goal?) is needed
 							shipyards.push_back(t);
 					}
 
-					for(const CGObjectInstance *obj : ai->visitableObjs)
+					for(const CGObjectInstance *obj : ai->getFlaggedObjects())
 					{
 						if(obj->ID != Obj::TOWN) //towns were handled in the previous loop
 							if(const IShipyard *shipyard = IShipyard::castFrom(obj))

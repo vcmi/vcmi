@@ -359,6 +359,8 @@ int3 whereToExplore(HeroPtr h)
 	int radius = h->getSightRadious();
 	int3 hpos = h->visitablePos();
 
+	SectorMap sm(h);
+
 	//look for nearby objs -> visit them if they're close enouh
 	const int DIST_LIMIT = 3;
 	std::vector<const CGObjectInstance *> nearbyVisitableObjs;
@@ -372,7 +374,7 @@ int3 whereToExplore(HeroPtr h)
 				CGPath p;
 				ai->myCb->getPathsInfo(h.get())->getPath(op, p);
 				if (p.nodes.size() && p.endPos() == op && p.nodes.size() <= DIST_LIMIT)
-					if (ai->isGoodForVisit(obj, h))
+					if (ai->isGoodForVisit(obj, h, sm))
 						nearbyVisitableObjs.push_back(obj);
 			}
 		}
