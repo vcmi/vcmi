@@ -3881,7 +3881,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				p.mode = ECastingMode::CREATURE_ACTIVE_CASTING;
 				p.destination = destination;
 				p.casterColor = stack->owner;	
-				p.caster = nullptr;
+				p.casterHero = nullptr;
 				p.usedSpellPower = 0;	
 				p.casterStack = stack;	
 				p.selectedStack = nullptr;				
@@ -4081,7 +4081,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			parameters.destination = ba.destinationTile;
 			parameters.casterSide = ba.side;
 			parameters.casterColor =  h->tempOwner;	
-			parameters.caster = h;
+			parameters.casterHero = h;
 			parameters.secHero = secondHero;
 			
 			parameters.usedSpellPower = h->getPrimSkillLevel(PrimarySkill::SPELL_POWER);	
@@ -4953,7 +4953,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 				parameters.destination = destination;
 				parameters.casterSide = !attacker->attackerOwned;
 				parameters.casterColor = attacker->owner;	
-				parameters.caster = nullptr;
+				parameters.casterHero = nullptr;
 				parameters.secHero = nullptr;
 
 				parameters.usedSpellPower = 0;	
@@ -4988,7 +4988,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		parameters.destination = gs->curB->battleGetStackByID(bat.bsa.at(0).stackAttacked)->position;
 		parameters.casterSide = !attacker->attackerOwned;
 		parameters.casterColor = attacker->owner;	
-		parameters.caster = nullptr;
+		parameters.casterHero = nullptr;
 		parameters.secHero = nullptr;
 
 		parameters.usedSpellPower = power;	
@@ -5298,7 +5298,7 @@ void CGameHandler::runBattle()
 			parameters.destination = BattleHex::INVALID;
 			parameters.casterSide = i;
 			parameters.casterColor = h->tempOwner;	
-			parameters.caster = nullptr;
+			parameters.casterHero = nullptr;
 			parameters.secHero = gs->curB->battleGetFightingHero(1-i);
 			
 			

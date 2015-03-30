@@ -571,7 +571,7 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battl
 	bsa.pos = parameters.cb->getAvaliableHex(creatureToSummon, !(bool)parameters.casterSide); //TODO: unify it
 
 	//TODO stack casting -> probably power will be zero; set the proper number of creatures manually
-	int percentBonus = parameters.caster ? parameters.caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, owner->id.toEnum()) : 0;
+	int percentBonus = parameters.casterHero ? parameters.casterHero->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, owner->id.toEnum()) : 0;
 
 	bsa.amount = parameters.usedSpellPower
 		* owner->getPower(parameters.spellLvl)

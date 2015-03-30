@@ -66,7 +66,7 @@ public:
 	BattleHex destination;
 	ui8 casterSide;
 	PlayerColor casterColor;
-	const CGHeroInstance * caster;
+	const CGHeroInstance * casterHero; //deprecated
 	const CGHeroInstance * secHero;
 	int usedSpellPower;
 	ECastingMode::ECastingMode mode;

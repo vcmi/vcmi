@@ -232,16 +232,16 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	sc.skill = parameters.spellLvl;
 	sc.tile = parameters.destination;
 	sc.dmgToDisplay = 0;
-	sc.castedByHero = nullptr != parameters.caster;
+	sc.castedByHero = nullptr != parameters.casterHero;
 	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
 	sc.manaGained = 0;
 
 	int spellCost = 0;
 
 	//calculate spell cost
-	if(parameters.caster)
+	if(parameters.casterHero)
 	{
-		spellCost = parameters.cb->battleGetSpellCost(owner, parameters.caster);
+		spellCost = parameters.cb->battleGetSpellCost(owner, parameters.casterHero);
 
 		if(parameters.secHero && parameters.mode == ECastingMode::HERO_CASTING) //handle mana channel
 		{
@@ -261,7 +261,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	//must be vector, as in Chain Lightning order matters
 	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
 
-	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.caster);
+	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.casterHero);
 	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
 
 	for (auto cre : attackedCres)
@@ -292,12 +292,12 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	env->sendAndApply(&sc);
 
 	//spend mana
-	if(parameters.caster)
+	if(parameters.casterHero)
 	{
 		SetMana sm;
 		sm.absolute = false;
 
-		sm.hid = parameters.caster->id;
+		sm.hid = parameters.casterHero->id;
 		sm.val = -spellCost;
 
 		env->sendAndApply(&sm);
@@ -355,9 +355,9 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 					mirrorParameters.spellLvl = 0;
 					mirrorParameters.casterSide = 1-parameters.casterSide;
 					mirrorParameters.casterColor = (attackedCre)->owner;
-					mirrorParameters.caster = nullptr;
+					mirrorParameters.casterHero = nullptr;
 					mirrorParameters.destination = targetHex;
-					mirrorParameters.secHero = parameters.caster;
+					mirrorParameters.secHero = parameters.casterHero;
 					mirrorParameters.mode = ECastingMode::MAGIC_MIRROR;
 					mirrorParameters.casterStack = (attackedCre);
 					mirrorParameters.selectedStack = nullptr;
@@ -533,7 +533,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 			if(spellDamage)
 				bsa.damageAmount = spellDamage >> chainLightningModifier;
 			else
-				bsa.damageAmount =  owner->calculateDamage(parameters.caster, attackedCre, parameters.spellLvl, parameters.usedSpellPower) >> chainLightningModifier;
+				bsa.damageAmount =  owner->calculateDamage(parameters.casterHero, attackedCre, parameters.spellLvl, parameters.usedSpellPower) >> chainLightningModifier;
 
 			ctx.sc.dmgToDisplay += bsa.damageAmount;
 
@@ -561,7 +561,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		Bonus pseudoBonus;
 		pseudoBonus.sid = owner->id;
 		pseudoBonus.val = parameters.spellLvl;
-		pseudoBonus.turnsRemain = calculateDuration(parameters.caster, stackSpellPower ? stackSpellPower : parameters.usedSpellPower);
+		pseudoBonus.turnsRemain = calculateDuration(parameters.casterHero, stackSpellPower ? stackSpellPower : parameters.usedSpellPower);
 		CStack::stackEffectToFeature(sse.effect, pseudoBonus);
 		if(owner->id == SpellID::SHIELD || owner->id == SpellID::AIR_SHIELD)
 		{
@@ -572,8 +572,8 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 			sse.effect.back().additionalInfo =  parameters.casterStack->ID; //we need to know who casted Bind
 		}
 		const Bonus * bonus = nullptr;
-		if(parameters.caster)
-			bonus = parameters.caster->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, owner->id));
+		if(parameters.casterHero)
+			bonus = parameters.casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, owner->id));
 		//TODO does hero specialty should affects his stack casting spells?
 
 		si32 power = 0;
@@ -618,9 +618,9 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 					break;
 				}
 			}
-			if (parameters.caster && parameters.caster->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, owner->id)) //TODO: better handling of bonus percentages
+			if (parameters.casterHero && parameters.casterHero->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, owner->id)) //TODO: better handling of bonus percentages
 			{
-				int damagePercent = parameters.caster->level * parameters.caster->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, owner->id.toEnum()) / tier;
+				int damagePercent = parameters.casterHero->level * parameters.casterHero->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, owner->id.toEnum()) / tier;
 				Bonus specialBonus = CStack::featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, pseudoBonus.turnsRemain);
 				specialBonus.valType = Bonus::PERCENT_TO_ALL;
 				specialBonus.sid = owner->id;
@@ -667,7 +667,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 				}
 			}
 			else
-				hi.healedHP = calculateHealedHP(parameters.caster, attackedCre, parameters.selectedStack); //Casted by hero
+				hi.healedHP = calculateHealedHP(parameters.casterHero, attackedCre, parameters.selectedStack); //Casted by hero
 			hi.lowLevelResurrection = (parameters.spellLvl <= 1) && (owner->id != SpellID::ANIMATE_DEAD);
 			shr.healedStacks.push_back(hi);
 		}
