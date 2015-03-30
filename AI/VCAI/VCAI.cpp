@@ -1323,15 +1323,14 @@ void VCAI::wander(HeroPtr h)
 		validateVisitableObjs();
 		std::vector <ObjectIdRef> dests, tmp;
 
-		range::copy(reservedHeroesMap[h], std::back_inserter(tmp)); //visit our reserved objects first
+		range::copy(reservedHeroesMap[h], std::back_inserter(tmp)); //also visit our reserved objects - but they are not prioritized to avoid running back and forth
 		for (auto obj : tmp)
 		{
 			if (isAccessibleForHero (obj->visitablePos(), h)) //even nearby objects could be blocked by other heroes :(
 				dests.push_back(obj); //can't use lambda for member function :(
 		}
 
-		if (!dests.size())
-			range::copy(getPossibleDestinations(h), std::back_inserter(dests));
+		range::copy(getPossibleDestinations(h), std::back_inserter(dests));
 
 		if(!dests.size())
 		{
