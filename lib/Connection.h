@@ -1442,11 +1442,12 @@ public:
 	{
 		READ_CHECK_U32(length);
         data.clear();
-		T1 t;
+		T1 key;
+		T2 value;
 		for(ui32 i=0;i<length;i++)
 		{
-			*this >> t;
-			*this >> data[t];
+			*this >> key >> value;
+			data.insert(std::pair<T1, T2>(std::move(key), std::move(value)));
 		}
 	}
 	template <typename T1, typename T2>
