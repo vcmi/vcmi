@@ -5240,7 +5240,7 @@ void CGameHandler::runBattle()
 			BattleSpellCastParameters parameters(gs->curB);
 			parameters.spellLvl = 3;
 			parameters.destination = BattleHex::INVALID;
-			parameters.casterSide = 0;
+			parameters.casterSide = i;
 			parameters.casterColor = h->tempOwner;	
 			parameters.caster = nullptr;
 			parameters.secHero = gs->curB->battleGetFightingHero(1-i);
