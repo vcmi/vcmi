@@ -625,57 +625,6 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		}
 	}
 
-	//if there are any boats, pathfinder will use them. If not, try to build one
-	/*
-	TODO: this should be optional if no better ways are available.
-	On the other hand you wnat to build boat before looking for exploration point - preferably make boat building another goal
-	*/
-	bool boatsAvailable = false;
-
-	for (const CGObjectInstance *obj : ai->visitableObjs)
-	{
-		if (obj->ID == Obj::BOAT)
-		{
-			auto pos = obj->visitablePos();
-			if ((hero.h && ai->isAccessibleForHero(pos, hero)) || (!hero.h && ai->isAccessible(pos)))
-			{
-					boatsAvailable = true;
-			}
-		}
-	}
-	if (!boatsAvailable) //build one
-	{
-		std::vector<const CGObjectInstance *> shipyards;
-		for (const CGTownInstance *t : cb->getTownsInfo())
-		{
-			if (t->hasBuilt(BuildingID::SHIPYARD))
-				shipyards.push_back(t);
-		}
-
-		for (const CGObjectInstance *obj : ai->getFlaggedObjects())
-		{
-			if (obj->ID != Obj::TOWN) //towns were handled in the previous loop
-				if (const IShipyard *shipyard = IShipyard::castFrom(obj))
-					shipyards.push_back(obj);
-	}
-
-		for (auto shipyard : shipyards)
-		{
-			auto pos = shipyard->visitablePos();
-			if ((hero.h && ai->isAccessibleForHero(pos, hero)) || (!hero.h && ai->isAccessible(pos)))
-			{
-				TResources shipCost;
-				auto s = IShipyard::castFrom(shipyard);
-				s->getBoatCost(shipCost);
-				if (cb->getResourceAmount().canAfford(shipCost))
-				{
-					int3 ret = s->bestLocation();
-					cb->buildBoat(s); //TODO: move actions elsewhere
-				}
-			}
-		}
-	}
-
 	for (auto h : heroes)
 	{
 		SectorMap sm(h);
