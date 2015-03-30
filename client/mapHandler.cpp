@@ -678,7 +678,7 @@ void CMapHandler::CMapWorldViewBlitter::drawOverlayEx(SDL_Surface * targetSurf)
 	
 	for(const ObjectPosInfo & iconInfo : *(info->additionalIcons))
 	{
-		if(!iconInfo.pos.z == pos.z)
+		if( iconInfo.pos.z != pos.z)
 			continue;
 		
 		if((iconInfo.pos.x < topTile.x) || (iconInfo.pos.y < topTile.y))

@@ -377,7 +377,7 @@ TPossibleGuards CBankInfo::getPossibleGuards() const
 	for (const JsonNode & configEntry : config)
 	{
 		const JsonNode & guardsInfo = configEntry["guards"];
-		auto stacks = JsonRandom::evaluateCreatures(configEntry["guards"]);
+		auto stacks = JsonRandom::evaluateCreatures(guardsInfo);
 		IObjectInfo::CArmyStructure army;
 
 

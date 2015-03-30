@@ -96,7 +96,7 @@ private:
 	CTileInfo*** tiles;
 
 	int prisonsRemaining;
-	int questArtsRemaining;
+	//int questArtsRemaining;
 	int monolithIndex;
 	std::vector<ArtifactID> questArtifacts;
 

@@ -162,7 +162,7 @@ public:
 
 	TPossibleGuards getPossibleGuards() const;
 
-	//I have no idea what do these functions do or were supposed to do - War
+	// These functions should try to evaluate minimal possible/max possible guards to give provide information on possible thread to AI
 	CArmyStructure minGuards() const;
 	CArmyStructure maxGuards() const;
 

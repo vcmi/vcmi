@@ -430,7 +430,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	//the more treasure density, the greater distance between paths. Scaling is experimental.
 	int totalDensity = 0;
 	for (auto ti : treasureInfo)
-		totalDensity =+ ti.density;
+		totalDensity += ti.density;
 	const float minDistance = 10 * 10; //squared
 
 	for (auto tile : tileinfo)
@@ -2239,7 +2239,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 		auto generateArtInfo = [this](ArtifactID id) -> ObjectInfo
 		{
 			ObjectInfo artInfo;
-			artInfo.probability = 1e6; //99,9% to spawn that art in first treasure pile
+			artInfo.probability = std::numeric_limits<ui16>::max(); //99,9% to spawn that art in first treasure pile
 			artInfo.maxPerZone = 1;
 			artInfo.value = 2000; //treasure art
 			artInfo.setTemplate(Obj::ARTIFACT, id, this->terrainType);
