@@ -5,6 +5,7 @@ GENERAL:
 ADVENTURE AI:
 * AI will try to use Monolith entrances for exploration
 * AI will now always revisit each exit of two way monolith if exit no longer visible
+* AI will eagerly pick guarded and blocked treasures
 
 ADVENTURE MAP:
 * Implemented world view
@@ -12,6 +13,7 @@ ADVENTURE MAP:
 
 SPELLS:
 * New spells handled:
+- Earthquake
 - View Air
 - View Earth
 - Visions
@@ -23,6 +25,7 @@ BATTLES:
 * Implemented OH3 stack split / upgrade formulas according to AlexSpl
 
 RANDOM MAP GENERATOR:
+* Underground tunnels are working now
 * Implemented "junction" zone type
 * Improved zone placing algorithm
 * More balanced distribution of treasure piles
