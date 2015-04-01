@@ -709,15 +709,23 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				std::vector <int> availableTowns;
 				std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
 
-				vstd::erase_if(Towns, [](const CGTownInstance * t)
+				vstd::erase_if(Towns, [this](const CGTownInstance * t)
 				{
-					const auto relations = LOCPLINT->cb->getPlayerRelations(t->tempOwner, LOCPLINT->playerID);	
+					const auto relations = owner->myInt->cb->getPlayerRelations(t->tempOwner, owner->myInt->playerID);	
 					return relations == PlayerRelations::ENEMIES; 				
 				});
-				
+
 				if (Towns.empty())
 				{
-					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
+					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[124]);
+					return;
+				}
+
+				const int movementCost = (h->getSpellSchoolLevel(sp) >= 3) ? 200 : 300;
+
+				if(h->movement < movementCost)
+				{
+					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[125]);
 					return;
 				}
 

@@ -238,7 +238,22 @@ bool TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env
 		}
 
 	}
-	env->moveHero(parameters.caster->id, town->visitablePos() + parameters.caster->getVisitableOffset() ,1);
+	
+	const int movementCost = (parameters.caster->getSpellSchoolLevel(owner) >= 3) ? 200 : 300;
+	
+	if(parameters.caster->movement < movementCost)
+	{
+		env->complain("This hero has not enough movement points!");
+		return false;		
+	}
+	
+	if(env->moveHero(parameters.caster->id, town->visitablePos() + parameters.caster->getVisitableOffset() ,1))
+	{
+		SetMovePoints smp;
+		smp.hid = parameters.caster->id;
+		smp.val = std::max<ui32>(0, parameters.caster->movement - movementCost);
+		env->sendAndApply(&smp);		
+	}
 	return true;
 }
 
