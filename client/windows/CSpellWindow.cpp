@@ -707,7 +707,14 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				//todo: move to mechanics
 				
 				std::vector <int> availableTowns;
-				std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(true);
+				std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
+
+				vstd::erase_if(Towns, [](const CGTownInstance * t)
+				{
+					const auto relations = LOCPLINT->cb->getPlayerRelations(t->tempOwner, LOCPLINT->playerID);	
+					return relations == PlayerRelations::ENEMIES; 				
+				});
+				
 				if (Towns.empty())
 				{
 					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);

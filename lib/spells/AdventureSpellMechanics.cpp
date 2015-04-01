@@ -203,9 +203,12 @@ bool TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env
 	}
 
 	CGTownInstance * town = static_cast<CGTownInstance*>(tile.visitableObjects.back());
-	if (town->tempOwner != parameters.caster->tempOwner)
+	
+	const auto relations = env->getCb()->getPlayerRelations(town->tempOwner, parameters.caster->tempOwner);
+	
+	if(relations == PlayerRelations::ENEMIES)
 	{
-		env->complain("Can't teleport to another player!");
+		env->complain("Can't teleport to enemy!");
 		return false;
 	}
 
