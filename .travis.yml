@@ -11,8 +11,6 @@ before_install:
   - sudo add-apt-repository --yes ppa:zoogie/sdl2-snapshots
   #new Qt
   - sudo add-apt-repository --yes ppa:beineri/opt-qt532
-  #new FFmpeg
-  - sudo add-apt-repository --yes ppa:jon-severinsson/ffmpeg
   #new CMake
   - sudo add-apt-repository --yes ppa:andykimpe/cmake 
 
@@ -24,7 +22,7 @@ before_install:
   - sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
   - sudo apt-get install -qq libavformat-dev libswscale-dev
   - sudo apt-get install -qq qt53declarative
-  
+
   #setup compiler
   - source /opt/qt53/bin/qt53-env.sh
   - export CC=${REAL_CC} CXX=${REAL_CXX}
