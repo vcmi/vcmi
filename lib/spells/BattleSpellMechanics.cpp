@@ -172,8 +172,16 @@ ESpellCastProblem::ESpellCastProblem DispellMechanics::canBeCasted(const CBattle
 
 ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
 {
-	//DISPELL ignores all immunities
-	return ESpellCastProblem::OK;
+	//DISPELL ignores all immunities, so do not call default
+	std::stringstream cachingStr;
+	cachingStr << "source_" << Bonus::SPELL_EFFECT;	
+
+	if(obj->hasBonus(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str()))
+	{
+		return ESpellCastProblem::OK;
+	}		
+	
+	return ESpellCastProblem::WRONG_SPELL_TARGET;
 }
 
 ///EarthquakeMechanics

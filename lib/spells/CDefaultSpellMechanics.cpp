@@ -216,7 +216,6 @@ bool DefaultSpellMechanics::applyAdventureEffects(const SpellCastEnvironment * e
 	}
 }
 
-
 void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
 {
 	BattleSpellCast sc;
