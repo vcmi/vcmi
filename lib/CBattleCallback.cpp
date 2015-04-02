@@ -1635,26 +1635,13 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 			const CGHeroInstance * caster = battleGetFightingHero(side);
 			const CSpell::TargetInfo ti = spell->getTargetInfo(caster->getSpellSchoolLevel(spell));
 			bool targetExists = false;
-            bool targetToSacrificeExists = false; // for sacrifice we have to check for 2 targets (one dead to resurrect and one living to destroy)
 
             for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
 			{
 				bool immune =  ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
 				bool casterStack = stack->owner == caster->getOwner();
 				
-                if(spell->id == SpellID::SACRIFICE)
-                {
-                    if(!immune && casterStack)
-                    {
-                        if(stack->alive())
-                            targetToSacrificeExists = true;
-                        else
-                            targetExists = true;
-                        if(targetExists && targetToSacrificeExists)
-                            break;
-                    }
-                }
-                else if(!immune)
+                if(!immune)
                 {
 					switch (spell->positiveness)
 					{
@@ -1678,7 +1665,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 					}
                 }
 			}
-            if(!targetExists || (spell->id == SpellID::SACRIFICE && !targetExists && !targetToSacrificeExists))
+            if(!targetExists)
 			{
 				return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 			}

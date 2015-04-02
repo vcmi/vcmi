@@ -418,6 +418,40 @@ void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * en
 }
 
 ///SpecialRisingSpellMechanics
+ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
+{
+	// for sacrifice we have to check for 2 targets (one dead to resurrect and one living to destroy)
+	
+	bool targetExists = false;
+	bool targetToSacrificeExists = false;
+
+	for(const CStack * stack : cb->battleGetAllStacks())
+	{
+		//using isImmuneBy directly as this mechanics does not have overridden immunity check
+		//therefore we do not need to check caster and casting mode
+		//TODO: check that we really should check immunity for both stacks
+		const bool immune =  ESpellCastProblem::OK != owner->isImmuneBy(stack);
+		const bool casterStack = stack->owner == player;
+
+		if(!immune && casterStack)
+		{
+			if(stack->alive())
+				targetToSacrificeExists = true;
+			else
+				targetExists = true;
+			if(targetExists && targetToSacrificeExists)
+				break;
+		}
+		
+	}
+	
+	if(targetExists && targetToSacrificeExists)
+		return ESpellCastProblem::OK;
+	else
+		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+}
+
+
 void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	RisingSpellMechanics::applyBattleEffects(env, parameters, ctx);
