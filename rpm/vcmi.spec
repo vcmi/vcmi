@@ -5,6 +5,8 @@ Release:			1%{?dist}
 License:			GPLv2+
 Group:				Amusements/Games
 
+%define _unpackaged_files_terminate_build 0
+
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
 #  wget https://github.com/vcmi/vcmi/archive/0.98.tar.gz
