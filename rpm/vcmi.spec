@@ -1,6 +1,6 @@
-Summary:			VCMI is an open-source project aiming to reimplement HMM3:WoG game engine, giving it new and extended possibilities.
+Summary:			VCMI is an open-source project aiming to reimplement HoMM3 game engine, giving it new and extended possibilities.
 Name:				vcmi
-Version:			0.9.8
+Version:			0.98
 Release:			1%{?dist}
 License:			GPLv2+
 Group:				Amusements/Games
@@ -8,8 +8,8 @@ Group:				Amusements/Games
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
 #  wget https://github.com/vcmi/vcmi/archive/0.98.tar.gz
-#  tar -xzf 0.98.tar.gz vcmi-0.9.8-1
-Source:				vcmi-0.9.8-1.tar.gz
+#  tar -xzf 0.98.tar.gz vcmi-0.98-1
+Source:				vcmi-0.98-1.tar.gz
 
 URL:				http://forum.vcmi.eu/portal.php
 BuildRequires:		cmake
@@ -33,6 +33,7 @@ BuildRequires:		qt5-qtbase-devel
 
 %description
 VCMI is an open-source project aiming to reimplement HMM3:WoG game engine, giving it new and extended possibilities. 
+VCMI is an open-source project aiming to reimplement HoMM3 game engine, giving it new and extended possibilities.
 
 %prep
 %setup -q -n %{name}-%{version}-1
@@ -58,38 +59,38 @@ make DESTDIR=%{buildroot} install
 %{_datadir}/icons/*
 
 %changelog
-* Wed Apr 01 2015 VCMI - 0.9.8-1
+* Wed Apr 01 2015 VCMI - 0.98-1
 - New upstream release
 
-* Sun Nov 02 2014 VCMI - 0.9.7-1
+* Sun Nov 02 2014 VCMI - 0.97-1
 - New upstream release
 
-* Tue Jul 01 2014 VCMI - 0.9.6-1
+* Tue Jul 01 2014 VCMI - 0.96-1
 - New upstream release
 
-* Sat Mar 01 2014 VCMI - 0.9.5-1
+* Sat Mar 01 2014 VCMI - 0.95-1
 - New upstream release
 
-* Wed Oct 02 2013 VCMI - 0.9.4-1
+* Wed Oct 02 2013 VCMI - 0.94-1
 - New upstream release
 
-* Sun Jun 02 2013 VCMI - 0.9.3-1
+* Sun Jun 02 2013 VCMI - 0.93-1
 - New upstream release
 
-* Wed Mar 06 2013 VCMI - 0.9.2-1
+* Wed Mar 06 2013 VCMI - 0.92-1
 - New upstream release
 
-* Fri Feb 01 2013 VCMI - 0.9.1-2
+* Fri Feb 01 2013 VCMI - 0.91-2
 - New upstream release
 
-* Wed Jan 30 2013 VCMI - 0.9.1-1
+* Wed Jan 30 2013 VCMI - 0.91-1
 - Development release
 
-* Sun Oct 21 2012 VCMI - 0.9-2
-- Second release of 0.9, Fixed battles crash
+* Sun Oct 21 2012 VCMI - 0.90-2
+- Second release of 0.90, Fixed battles crash
 
-* Sat Oct 06 2012 VCMI - 0.9-1
+* Sat Oct 06 2012 VCMI - 0.90-1
 - New upstream release
 
-* Sun Jun 08 2012 VCMI - 0.89-1
+* Fri Jun 08 2012 VCMI - 0.89-1
 - Initial version
