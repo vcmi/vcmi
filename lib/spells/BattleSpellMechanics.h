@@ -42,6 +42,7 @@ public:
 	DispellMechanics(CSpell * s): DefaultSpellMechanics(s){};
 
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
+	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const override;	
 };
 
 class DLL_LINKAGE EarthquakeMechanics : public DefaultSpellMechanics

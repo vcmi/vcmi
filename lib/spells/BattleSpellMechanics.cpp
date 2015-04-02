@@ -152,6 +152,25 @@ void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * 
 	}
 }
 
+ESpellCastProblem::ESpellCastProblem DispellMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
+{
+	//todo: check for lower level
+
+	std::stringstream cachingStr;
+	cachingStr << "source_" << Bonus::SPELL_EFFECT;
+
+	for(const CStack * s : cb->battleAliveStacks())
+	{
+		if(s->hasBonus(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str()))
+		{
+			return ESpellCastProblem::OK;
+		}		
+	}
+	
+	return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+}
+
+
 ///EarthquakeMechanics
 void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
