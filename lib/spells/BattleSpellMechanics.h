@@ -112,6 +112,8 @@ class DLL_LINKAGE SummonMechanics : public DefaultSpellMechanics
 {
 public:
 	SummonMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	
+	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const override;	
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };

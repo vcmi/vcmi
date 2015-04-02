@@ -469,6 +469,28 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 }
 
 ///SummonMechanics
+ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
+{
+	const ui8 side = cb->playerToSide(player);
+	//IDs of summon elemental spells (fire, earth, water, air)
+	int spellIDs[] = {	SpellID::SUMMON_FIRE_ELEMENTAL, SpellID::SUMMON_EARTH_ELEMENTAL,
+						SpellID::SUMMON_WATER_ELEMENTAL, SpellID::SUMMON_AIR_ELEMENTAL };
+	//(fire, earth, water, air) elementals
+	int creIDs[] = {CreatureID::FIRE_ELEMENTAL,  CreatureID::EARTH_ELEMENTAL,
+					CreatureID::WATER_ELEMENTAL, CreatureID::AIR_ELEMENTAL};
+
+	int arpos = vstd::find_pos(spellIDs, owner->id);
+	if(arpos < ARRAY_COUNT(spellIDs))
+	{
+		//check if there are summoned elementals of other type
+		for(const CStack * st : cb->battleAliveStacks(side))
+			if(vstd::contains(st->state, EBattleStackState::SUMMONED) && st->getCreature()->idNumber != creIDs[arpos])
+				return ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED;
+	}
+
+	return ESpellCastProblem::OK;
+}
+
 void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//todo: make configurable
