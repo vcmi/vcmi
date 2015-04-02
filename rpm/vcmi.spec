@@ -12,12 +12,13 @@ Group:				Amusements/Games
 Source:				vcmi-0.98-1.tar.gz
 
 URL:				http://forum.vcmi.eu/portal.php
+
 BuildRequires:		cmake
 BuildRequires:		gcc-c++ >= 4.7.2
-BuildRequires:		SDL-devel
-BuildRequires:		SDL_image-devel
-BuildRequires:		SDL_ttf-devel
-BuildRequires:		SDL_mixer-devel >= 1.2.8
+BuildRequires:		SDL2-devel
+BuildRequires:		SDL2_image-devel
+BuildRequires:		SDL2_ttf-devel
+BuildRequires:		SDL2_mixer-devel
 BuildRequires:		boost >= 1.51
 BuildRequires:		boost-devel >= 1.51
 BuildRequires:		boost-filesystem >= 1.51
@@ -32,14 +33,13 @@ BuildRequires:		ffmpeg-libs
 BuildRequires:		qt5-qtbase-devel
 
 %description
-VCMI is an open-source project aiming to reimplement HMM3:WoG game engine, giving it new and extended possibilities. 
 VCMI is an open-source project aiming to reimplement HoMM3 game engine, giving it new and extended possibilities.
 
 %prep
 %setup -q -n %{name}-%{version}-1
 
 %build
-cmake -DCMAKE_INSTALL_PREFIX=/usr ./ -DENABLE_LAUNCHER=ON -DENABLE_PCH=ON
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ./
 make %{?_smp_mflags}
 
 %install
@@ -47,7 +47,7 @@ rm -rf %{buildroot}
 make DESTDIR=%{buildroot} install
 
 %files
-%doc README README.linux COPYING AUTHORS ChangeLog
+%doc README.md README.linux license.txt AUTHORS ChangeLog
 %{_bindir}/vcmiclient
 %{_bindir}/vcmiserver
 %{_bindir}/vcmibuilder
