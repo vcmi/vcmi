@@ -106,15 +106,20 @@
 			"cast": "DISPELL"
 		},
 		"levels" : {
-			"base":{
-				"range" : "0"
+ 			"base":{
+				"targetModifier":{"smart":true},			
+ 				"range" : "0"
+ 			},
+			"advanced:"{
+				"targetModifier":{"smart":false}			
 			},
-			"expert":{
-				"range" : "X"
-			}
+ 			"expert":{
+				"targetModifier":{"smart":false},			
+ 				"range" : "X"
+ 			}
 		},
 		"flags" : {
-			"indifferent": true
+			"positive": true
 		}
 	},
 	"cure" : {
