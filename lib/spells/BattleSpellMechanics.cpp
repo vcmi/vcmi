@@ -170,6 +170,11 @@ ESpellCastProblem::ESpellCastProblem DispellMechanics::canBeCasted(const CBattle
 	return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 }
 
+ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
+{
+	//DISPELL ignores all immunities
+	return ESpellCastProblem::OK;
+}
 
 ///EarthquakeMechanics
 void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const

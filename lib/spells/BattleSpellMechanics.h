@@ -40,7 +40,8 @@ class DLL_LINKAGE DispellMechanics : public DefaultSpellMechanics
 {
 public:
 	DispellMechanics(CSpell * s): DefaultSpellMechanics(s){};
-
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
+	
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const override;	
 };
