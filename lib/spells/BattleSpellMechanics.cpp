@@ -14,6 +14,31 @@
 #include "../NetPacks.h"
 #include "../BattleState.h"
 
+///AntimagicMechanics
+void AntimagicMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
+{
+	DefaultSpellMechanics::applyBattle(battle, packet);
+
+	for(auto stackID : packet->affectedCres)
+	{
+		if(vstd::contains(packet->resisted, stackID))
+		{
+			logGlobal->errorStream() << "Resistance to positive spell " << owner->name;
+			continue;
+		}
+
+		CStack * s = battle->getStack(stackID);
+		s->popBonuses([&](const Bonus *b) -> bool
+		{
+			if(b->source == Bonus::SPELL_EFFECT)
+			{				
+				return b->sid != owner->id; //effect from this spell
+			}
+			return false; //not a spell effect
+		});
+	}	
+}
+
 ///ChainLightningMechanics
 std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
 {

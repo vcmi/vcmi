@@ -12,6 +12,14 @@
 
 #include "CDefaultSpellMechanics.h"
 
+class DLL_LINKAGE AntimagicMechanics : public DefaultSpellMechanics
+{
+public:
+	AntimagicMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+	
+	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;	
+};
+
 class DLL_LINKAGE ChainLightningMechanics : public DefaultSpellMechanics
 {
 public:
