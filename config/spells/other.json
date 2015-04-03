@@ -110,7 +110,7 @@
 				"targetModifier":{"smart":true},			
  				"range" : "0"
  			},
-			"advanced:"{
+			"advanced":{
 				"targetModifier":{"smart":false}			
 			},
  			"expert":{
