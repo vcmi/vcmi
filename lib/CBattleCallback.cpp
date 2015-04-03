@@ -1231,37 +1231,36 @@ std::set<BattleHex> CBattleInfoCallback::getStoppers(BattlePerspective::BattlePe
 std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const
 {
 	auto reachability = getReachability(closest);
+	auto avHexes = battleGetAvailableHexes(closest, false);
 
 	// I hate std::pairs with their undescriptive member names first / second
 	struct DistStack
 	{
-		int distanceToPred;
+		int distanceToPred;	
+		BattleHex destination;	
 		const CStack *stack;
 	};
 
-	std::vector<DistStack> stackPairs; //pairs <<distance, hex>, stack>
-	for(int g=0; g<GameConstants::BFIELD_SIZE; ++g)
-	{
-		const CStack * atG = battleGetStackByPos(g);
-		if(!atG || atG->ID == closest->ID) //if there is no stack or we are the closest one
-			continue;
+	std::vector<DistStack> stackPairs;
 
-		if(boost::logic::indeterminate(attackerOwned) || atG->attackerOwned == attackerOwned)
-		{
-			if (reachability.isReachable(g))
-			//FIXME: hexes occupied by enemy stack are not accessible. Need to use BattleInfo::getPath or similar
+	std::vector<const CStack *> possibleStacks = battleGetStacksIf([=](const CStack * s)
+	{
+		return s != closest && s->alive() && (boost::logic::indeterminate(attackerOwned) || s->attackerOwned == attackerOwned);
+	}, false);
+	
+	for(const CStack * st : possibleStacks)
+		for(BattleHex hex : avHexes)
+			if(CStack::isMeleeAttackPossible(closest, st, hex))
 			{
-				DistStack hlp = {reachability.distances[reachability.predecessors[g]], atG};
+				DistStack hlp = {reachability.distances[st->position], hex, st};
 				stackPairs.push_back(hlp);
 			}
-		}
-	}
 
 	if (stackPairs.size())
 	{
 		auto comparator = [](DistStack lhs, DistStack rhs) { return lhs.distanceToPred < rhs.distanceToPred; };
 		auto minimal = boost::min_element(stackPairs, comparator);
-		return std::make_pair(minimal->stack, reachability.predecessors[minimal->stack->position]);
+		return std::make_pair(minimal->stack, minimal->destination);
 	}
 	else
 		return std::make_pair<const CStack * , BattleHex>(nullptr, BattleHex::INVALID);
