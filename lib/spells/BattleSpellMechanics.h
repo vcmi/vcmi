@@ -43,7 +43,9 @@ public:
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
 	
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
-	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const override;	
+	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const override;
+protected:
+	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;	
 };
 
 class DLL_LINKAGE EarthquakeMechanics : public DefaultSpellMechanics

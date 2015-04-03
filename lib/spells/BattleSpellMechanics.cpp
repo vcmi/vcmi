@@ -185,6 +185,29 @@ ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const CGH
 	return ESpellCastProblem::WRONG_SPELL_TARGET;
 }
 
+void DispellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+{
+	DefaultSpellMechanics::applyBattleEffects(env, parameters, ctx);
+	
+	if(parameters.spellLvl > 2)
+	{
+		//expert DISPELL also removes spell-created obstacles
+		
+		ObstaclesRemoved packet;
+		
+		for(const auto obstacle : parameters.cb->obstacles)
+		{
+			if(obstacle->obstacleType == CObstacleInstance::FIRE_WALL 
+				|| obstacle->obstacleType == CObstacleInstance::FORCE_FIELD 
+				|| obstacle->obstacleType == CObstacleInstance::LAND_MINE)
+				packet.obstacles.insert(obstacle->uniqueID);
+		}
+		
+		if(!packet.obstacles.empty())
+			env->sendAndApply(&packet);
+	}
+}
+
 ///EarthquakeMechanics
 void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
