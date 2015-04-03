@@ -178,24 +178,6 @@ void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * 
 	}
 }
 
-ESpellCastProblem::ESpellCastProblem DispellMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
-{
-	//todo: check for lower level
-
-	std::stringstream cachingStr;
-	cachingStr << "source_" << Bonus::SPELL_EFFECT;
-
-	for(const CStack * s : cb->battleAliveStacks())
-	{
-		if(s->hasBonus(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str()))
-		{
-			return ESpellCastProblem::OK;
-		}
-	}
-
-	return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-}
-
 ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
 {
 	//DISPELL ignores all immunities, so do not call default
