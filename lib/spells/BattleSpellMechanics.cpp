@@ -142,7 +142,7 @@ void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * 
 	for(auto stackID : packet->affectedCres)
 	{
 		if(vstd::contains(packet->resisted, stackID))
-			logGlobal->errorStream() << "Resistance to DISPELL";			
+			logGlobal->errorStream() << "Resistance to DISPELL";
 			continue;
 
 		CStack *s = battle->getStack(stackID);
@@ -165,9 +165,9 @@ ESpellCastProblem::ESpellCastProblem DispellMechanics::canBeCasted(const CBattle
 		if(s->hasBonus(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str()))
 		{
 			return ESpellCastProblem::OK;
-		}		
+		}
 	}
-	
+
 	return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 }
 
@@ -175,34 +175,33 @@ ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const CGH
 {
 	//DISPELL ignores all immunities, so do not call default
 	std::stringstream cachingStr;
-	cachingStr << "source_" << Bonus::SPELL_EFFECT;	
+	cachingStr << "source_" << Bonus::SPELL_EFFECT;
 
 	if(obj->hasBonus(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str()))
 	{
 		return ESpellCastProblem::OK;
-	}		
-	
+	}
+
 	return ESpellCastProblem::WRONG_SPELL_TARGET;
 }
 
 void DispellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	DefaultSpellMechanics::applyBattleEffects(env, parameters, ctx);
-	
+
 	if(parameters.spellLvl > 2)
 	{
 		//expert DISPELL also removes spell-created obstacles
-		
 		ObstaclesRemoved packet;
-		
+
 		for(const auto obstacle : parameters.cb->obstacles)
 		{
-			if(obstacle->obstacleType == CObstacleInstance::FIRE_WALL 
-				|| obstacle->obstacleType == CObstacleInstance::FORCE_FIELD 
+			if(obstacle->obstacleType == CObstacleInstance::FIRE_WALL
+				|| obstacle->obstacleType == CObstacleInstance::FORCE_FIELD
 				|| obstacle->obstacleType == CObstacleInstance::LAND_MINE)
 				packet.obstacles.insert(obstacle->uniqueID);
 		}
-		
+
 		if(!packet.obstacles.empty())
 			env->sendAndApply(&packet);
 	}
@@ -477,7 +476,7 @@ void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * en
 ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
 {
 	// for sacrifice we have to check for 2 targets (one dead to resurrect and one living to destroy)
-	
+
 	bool targetExists = false;
 	bool targetToSacrificeExists = false;
 
@@ -498,9 +497,9 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCasted(const CBatt
 			if(targetExists && targetToSacrificeExists)
 				break;
 		}
-		
+
 	}
-	
+
 	if(targetExists && targetToSacrificeExists)
 		return ESpellCastProblem::OK;
 	else
