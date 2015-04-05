@@ -351,7 +351,15 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"templates" :
+				{
+					"green" : { "animation" : "avxdent.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["grass", "swamp", "dirt"] },
+					"brown" : { "animation" : "avxdend0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["sand", "lava", "rough", "snow", "subterranean"] },
+				},	
 				"rmg" : {
+					"value"		: 100,
+					"rarity"	: 100,
+					"zoneLimit"	: 1
 				}
 			}
 		}
