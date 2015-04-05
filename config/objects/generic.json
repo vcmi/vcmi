@@ -354,7 +354,7 @@
 				"templates" :
 				{
 					"green" : { "animation" : "avxdent.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["grass", "swamp", "dirt"] },
-					"brown" : { "animation" : "avxdend0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["sand", "lava", "rough", "snow", "subterranean"] },
+					"brown" : { "animation" : "avxdend0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["sand", "lava", "rough", "snow", "subterra"] },
 				},	
 				"rmg" : {
 					"value"		: 100,
