@@ -835,8 +835,12 @@ void VCAI::makeTurnInternal()
 bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 {
 	int3 dst = obj->visitablePos();
+	SectorMap sm(h);
 	logAi->debugStream() << boost::format("%s will try to visit %s at (%s)") % h->name % obj->getObjectName() % strFromInt3(dst);
-	return moveHeroToTile(dst, h);
+	int3 pos = sm.firstTileToGet(h, dst);
+	if (!pos.valid()) //rare case when we are already standing on one of potential objects
+		return false;
+	return moveHeroToTile(pos, h);
 }
 
 void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
@@ -1242,7 +1246,8 @@ void VCAI::buildStructure(const CGTownInstance * t)
 bool VCAI::isGoodForVisit(const CGObjectInstance *obj, HeroPtr h, SectorMap &sm)
 {
 	const int3 pos = obj->visitablePos();
-	if (canReachTile(h.get(), sm.firstTileToGet(h, obj->visitablePos())) &&
+	const int3 targetPos = sm.firstTileToGet(h, pos);
+	if (canReachTile(h.get(), targetPos) &&
 			!obj->wasVisited(playerID) &&
 			(cb->getPlayerRelations(ai->playerID, obj->tempOwner) == PlayerRelations::ENEMIES || isWeeklyRevisitable(obj)) && //flag or get weekly resources / creatures
 			isSafeToVisit(h, pos) &&
@@ -1324,14 +1329,22 @@ void VCAI::wander(HeroPtr h)
 		validateVisitableObjs();
 		std::vector <ObjectIdRef> dests, tmp;
 
+		SectorMap sm(h);
+
 		range::copy(reservedHeroesMap[h], std::back_inserter(tmp)); //also visit our reserved objects - but they are not prioritized to avoid running back and forth
 		for (auto obj : tmp)
 		{
-			if (isAccessibleForHero (obj->visitablePos(), h)) //even nearby objects could be blocked by other heroes :(
-				dests.push_back(obj); //can't use lambda for member function :(
+			int3 pos = sm.firstTileToGet(h, obj->visitablePos());
+			if (pos.valid())
+				if (isAccessibleForHero (pos, h)) //even nearby objects could be blocked by other heroes :(
+					dests.push_back(obj); //can't use lambda for member function :(
 		}
 
 		range::copy(getPossibleDestinations(h), std::back_inserter(dests));
+		erase_if(dests, [&](ObjectIdRef obj) -> bool
+		{
+			return !isSafeToVisit(h, sm.firstTileToGet(h, obj->visitablePos()));
+		});
 
 		if(!dests.size())
 		{
