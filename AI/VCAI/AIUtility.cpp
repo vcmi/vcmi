@@ -499,3 +499,14 @@ bool compareArmyStrength(const CArmedInstance *a1, const CArmedInstance *a2)
 {
 	return a1->getArmyStrength() < a2->getArmyStrength();
 }
+
+bool compareArtifacts(const CArtifactInstance *a1, const CArtifactInstance *a2)
+{
+	auto art1 = a1->artType;
+	auto art2 = a2->artType;
+
+	if (art1->valOfBonuses(Bonus::PRIMARY_SKILL) > art2->valOfBonuses(Bonus::PRIMARY_SKILL))
+		return true;
+	else
+		return art1->price > art2->price;
+}

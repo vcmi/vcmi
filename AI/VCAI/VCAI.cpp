@@ -320,21 +320,26 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 		if (secondGoal->goalType == Goals::GATHER_ARMY)
 			goalpriority2 = secondGoal->priority;
 
+		auto transferFrom2to1 = [this](const CGHeroInstance * h1, const CGHeroInstance *h2) -> void
+		{
+			this->pickBestCreatures(h1, h2);
+			this->pickBestArtifacts(h1, h2);
+		};
+
 		if (goalpriority1 > goalpriority2)
-			pickBestCreatures (firstHero, secondHero);
+			transferFrom2to1 (firstHero, secondHero);
 		else if (goalpriority1 < goalpriority2)
-			pickBestCreatures (secondHero, firstHero);
+			transferFrom2to1 (secondHero, firstHero);
 		else //regular criteria
 		{
 			if (firstHero->getFightingStrength() > secondHero->getFightingStrength() && canGetArmy(firstHero, secondHero))
-				pickBestCreatures(firstHero, secondHero);
+				transferFrom2to1 (firstHero, secondHero);
 			else if (canGetArmy(secondHero, firstHero))
-				pickBestCreatures(secondHero, firstHero);
+				transferFrom2to1 (secondHero, firstHero);
 		}
 
 		completeGoal(sptr(Goals::VisitHero(firstHero->id.getNum()))); //TODO: what if we were visited by other hero in the meantime?
 		completeGoal(sptr(Goals::VisitHero(secondHero->id.getNum())));
-		//TODO: exchange artifacts
 
 		answerQuery(query, 0);
 	});
@@ -980,6 +985,68 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 	{
 		checkHeroArmy (hero);
 	}
+}
+
+void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other)
+{
+	std::vector<ArtifactLocation> allArtifacts;
+
+	for (auto p : h->artifactsWorn)
+	{
+		if (p.second.artifact)
+			allArtifacts.push_back(ArtifactLocation(h, p.first));
+	}
+	for (auto slot : h->artifactsInBackpack)
+		allArtifacts.push_back(ArtifactLocation(h, h->getArtPos(slot.artifact)));
+
+	if (other)
+	{
+		for (auto p : other->artifactsWorn)
+		{
+			if (p.second.artifact)
+				allArtifacts.push_back(ArtifactLocation(other, p.first));
+		}
+		for (auto slot : other->artifactsInBackpack)
+			allArtifacts.push_back(ArtifactLocation(other, other->getArtPos(slot.artifact)));
+	}
+	
+
+	for (auto location : allArtifacts)
+	{
+		auto artifact = location.getSlot()->artifact;
+		auto otherSlot = h->getSlot(artifact->firstAvailableSlot(h));
+		if (otherSlot && otherSlot->artifact)
+			if (compareArtifacts (artifact, otherSlot->artifact)) //if that artifact is better than what we have, pick it
+				cb->swapArtifacts (location, ArtifactLocation(h, h->getArtPos(otherSlot->artifact)));
+	}
+
+	if (other)
+	{
+		//do not touch artifacts worn by first (main) hero
+		//slots may have moved significantly, just start from scratch
+		allArtifacts.clear();
+
+		for (auto slot : h->artifactsInBackpack)
+			allArtifacts.push_back(ArtifactLocation(h, h->getArtPos(slot.artifact)));
+
+		for (auto p : other->artifactsWorn)
+		{
+			if (p.second.artifact)
+				allArtifacts.push_back(ArtifactLocation(other, p.first));
+		}
+		for (auto slot : other->artifactsInBackpack)
+			allArtifacts.push_back(ArtifactLocation(other, other->getArtPos(slot.artifact)));
+
+		for (auto location : allArtifacts)
+		{
+			auto artifact = location.getSlot()->artifact;
+			auto otherSlot = other->getSlot(artifact->firstAvailableSlot(other));
+			if (otherSlot && otherSlot->artifact)
+				if (compareArtifacts(artifact, otherSlot->artifact)) //if that artifact is better than what we have, pick it
+					cb->swapArtifacts(location, ArtifactLocation(other, other->getArtPos(otherSlot->artifact)));
+		}
+	}
+
 }
 
 void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter)
@@ -2315,6 +2382,7 @@ void VCAI::performTypicalActions()
 	{
         logAi->debugStream() << boost::format("Looking into %s, MP=%d") % h->name.c_str() % h->movement;
 		makePossibleUpgrades(*h);
+		pickBestArtifacts(*h);
 		try
 		{
 			wander(h);
