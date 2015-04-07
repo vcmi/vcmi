@@ -1413,8 +1413,10 @@ void VCAI::wander(HeroPtr h)
 		}
 		//end of objs empty
 
-		while (dests.size()) //performance improvement
+		if (dests.size()) //performance improvement
 		{
+			boost::sort(dests, CDistanceSorter(h.get())); //find next closest one
+
 			//wander should not cause heroes to be reserved - they are always considered free
 			const ObjectIdRef&dest = dests.front();
 			logAi->debugStream() << boost::format("Of all %d destinations, object oid=%d seems nice") % dests.size() % dest.id.getNum();
@@ -1430,22 +1432,6 @@ void VCAI::wander(HeroPtr h)
 					return;
 				}
 			}
-			//TODO: refactor removing deleted objects from the list
-			std::vector<const CGObjectInstance *> hlp;
-			retreiveVisitableObjs(hlp, true);
-
-			auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
-			{
-				if(!vstd::contains(hlp, obj))
-				{
-					return true;
-				}
-				return false;
-			};
-			erase_if(dests, shouldBeErased);
-
-			erase_if_present(dests, dest); //why that fails sometimes when removing monsters?
-			boost::sort(dests, CDistanceSorter(h.get())); //find next closest one
 		}
 
 		if (h->visitedTown)
