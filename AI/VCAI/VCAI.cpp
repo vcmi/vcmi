@@ -326,15 +326,15 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 			pickBestCreatures (secondHero, firstHero);
 		else //regular criteria
 		{
-			if (firstHero->getFightingStrength() > secondHero->getFightingStrength() && canGetArmy (firstHero, secondHero))
-				pickBestCreatures (firstHero, secondHero);
-			else if (canGetArmy (secondHero, firstHero))
-				pickBestCreatures (secondHero, firstHero);
-
-			completeGoal(sptr(Goals::VisitHero(firstHero->id.getNum()))); //TODO: what if we were visited by other hero in the meantime?
-			completeGoal(sptr(Goals::VisitHero(secondHero->id.getNum())));
-		//TODO: exchange artifacts
+			if (firstHero->getFightingStrength() > secondHero->getFightingStrength() && canGetArmy(firstHero, secondHero))
+				pickBestCreatures(firstHero, secondHero);
+			else if (canGetArmy(secondHero, firstHero))
+				pickBestCreatures(secondHero, firstHero);
 		}
+
+		completeGoal(sptr(Goals::VisitHero(firstHero->id.getNum()))); //TODO: what if we were visited by other hero in the meantime?
+		completeGoal(sptr(Goals::VisitHero(secondHero->id.getNum())));
+		//TODO: exchange artifacts
 
 		answerQuery(query, 0);
 	});
