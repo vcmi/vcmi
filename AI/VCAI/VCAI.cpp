@@ -988,63 +988,97 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 }
 
 void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other)
-{
-	std::vector<ArtifactLocation> allArtifacts;
-
-	for (auto p : h->artifactsWorn)
+{	
+	auto equipBest = [](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
 	{
-		if (p.second.artifact)
-			allArtifacts.push_back(ArtifactLocation(h, p.first));
-	}
-	for (auto slot : h->artifactsInBackpack)
-		allArtifacts.push_back(ArtifactLocation(h, h->getArtPos(slot.artifact)));
+		bool changeMade = false;
+
+		do
+		{
+			changeMade = false;
+
+			//we collect gear always in same order
+			std::vector<ArtifactLocation> allArtifacts;
+			if (giveStuffToFirstHero)
+			{
+				for (auto p : h->artifactsWorn)
+				{
+					if (p.second.artifact)
+						allArtifacts.push_back(ArtifactLocation(h, p.first));
+				}
+			}
+			for (auto slot : h->artifactsInBackpack)
+				allArtifacts.push_back(ArtifactLocation(h, h->getArtPos(slot.artifact)));
+
+			if (otherh)
+			{
+				for (auto p : otherh->artifactsWorn)
+				{
+					if (p.second.artifact)
+						allArtifacts.push_back(ArtifactLocation(otherh, p.first));
+				}
+				for (auto slot : otherh->artifactsInBackpack)
+					allArtifacts.push_back(ArtifactLocation(otherh, otherh->getArtPos(slot.artifact)));
+			}
+			//we give stuff to one hero or another, depending on giveStuffToFirstHero
+
+			const CGHeroInstance * target = nullptr;
+			if (giveStuffToFirstHero)
+				target = h;
+			else
+				target = otherh;
+
+			for (auto location : allArtifacts)
+			{
+				if (location.relatedObj() == target && location.slot < ArtifactPosition::AFTER_LAST)
+					continue; //don't reequip artifact we already wear
+
+				auto s = location.getSlot();
+				if (!s)
+					continue;
+				auto artifact = s->artifact;
+				if (!artifact)
+					continue;
+				//FIXME: why are the above possible to be null?
+
+				bool emptySlotFound = false;
+				for (auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
+				{
+					if (target->isPositionFree(slot))
+					{
+						cb->swapArtifacts(location, ArtifactLocation(target, slot)); //just put into empty slot
+						emptySlotFound = true;
+						changeMade = true;
+						break;
+					}
+				}
+				if (!emptySlotFound) //try to put that atifact in already occupied slot
+				{
+					for (auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
+					{
+						auto otherSlot = target->getSlot(slot);
+						if (otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
+						{
+							if (compareArtifacts(artifact, otherSlot->artifact)) //if that artifact is better than what we have, pick it
+							{
+								cb->swapArtifacts(location, ArtifactLocation(target, target->getArtPos(otherSlot->artifact)));
+								break;
+								changeMade = true;
+							}
+						}
+					}
+				}
+				if (changeMade)
+					break; //start evaluating artifacts from scratch
+			}
+		} while (changeMade);
+	};
+
+	equipBest (h, other, true);
 
 	if (other)
 	{
-		for (auto p : other->artifactsWorn)
-		{
-			if (p.second.artifact)
-				allArtifacts.push_back(ArtifactLocation(other, p.first));
-		}
-		for (auto slot : other->artifactsInBackpack)
-			allArtifacts.push_back(ArtifactLocation(other, other->getArtPos(slot.artifact)));
-	}
-	
-
-	for (auto location : allArtifacts)
-	{
-		auto artifact = location.getSlot()->artifact;
-		auto otherSlot = h->getSlot(artifact->firstAvailableSlot(h));
-		if (otherSlot && otherSlot->artifact)
-			if (compareArtifacts (artifact, otherSlot->artifact)) //if that artifact is better than what we have, pick it
-				cb->swapArtifacts (location, ArtifactLocation(h, h->getArtPos(otherSlot->artifact)));
-	}
-
-	if (other)
-	{
-		//do not touch artifacts worn by first (main) hero
-		//slots may have moved significantly, just start from scratch
-		allArtifacts.clear();
-
-		for (auto slot : h->artifactsInBackpack)
-			allArtifacts.push_back(ArtifactLocation(h, h->getArtPos(slot.artifact)));
-
-		for (auto p : other->artifactsWorn)
-		{
-			if (p.second.artifact)
-				allArtifacts.push_back(ArtifactLocation(other, p.first));
-		}
-		for (auto slot : other->artifactsInBackpack)
-			allArtifacts.push_back(ArtifactLocation(other, other->getArtPos(slot.artifact)));
-
-		for (auto location : allArtifacts)
-		{
-			auto artifact = location.getSlot()->artifact;
-			auto otherSlot = other->getSlot(artifact->firstAvailableSlot(other));
-			if (otherSlot && otherSlot->artifact)
-				if (compareArtifacts(artifact, otherSlot->artifact)) //if that artifact is better than what we have, pick it
-					cb->swapArtifacts(location, ArtifactLocation(other, other->getArtPos(otherSlot->artifact)));
-		}
+		equipBest(h, other, false);
 	}
 
 }
