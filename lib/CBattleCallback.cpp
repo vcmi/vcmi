@@ -775,6 +775,29 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const CStack
 	return ret;
 }
 
+bool CBattleInfoCallback::battleCanAttack(const CStack * stack, const CStack * target, BattleHex dest) const
+{
+	RETURN_IF_NOT_BATTLE(false);
+	
+	if(battleTacticDist())
+		return false;
+	
+	if (!stack || !target)
+		return false;
+	
+	if (stack->owner == target->owner)
+		return false;
+	
+	auto &id = stack->getCreature()->idNumber;
+	if (id == CreatureID::FIRST_AID_TENT || id == CreatureID::CATAPULT)
+		return false;
+	
+	if (!target->alive())
+		return false;
+	
+	return true;
+}
+
 bool CBattleInfoCallback::battleCanShoot(const CStack * stack, BattleHex dest) const
 {
 	RETURN_IF_NOT_BATTLE(false);
