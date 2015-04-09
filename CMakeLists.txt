@@ -105,12 +105,9 @@ if(NOT WIN32)
 	if(HAVE_RT_LIB)
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} rt)
 	endif()
-
-	CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIB)
-	if(HAVE_DL_LIB)
-		set(SYSTEM_LIBS ${SYSTEM_LIBS} dl)
-	endif()
 endif()
+
+set(SYSTEM_LIBS ${SYSTEM_LIBS} ${CMAKE_DL_LIBS})
 
 set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
 find_package(Boost 1.48.0 COMPONENTS filesystem locale program_options system thread REQUIRED)
