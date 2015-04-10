@@ -184,7 +184,7 @@ public:
 	int3 explorationBestNeighbour(int3 hpos, int radius, HeroPtr h);
 	int3 explorationNewPoint(HeroPtr h);
 	int3 explorationDesperate(HeroPtr h);
-	bool canReachTile (const CGHeroInstance * h, int3 t);
+	bool isTileNotReserved(const CGHeroInstance * h, int3 t); //the tile is not occupied by allied hero and the object is not reserved
 	void recruitHero();
 
 	virtual std::string getBattleAIName() const override;

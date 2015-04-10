@@ -1348,13 +1348,16 @@ bool VCAI::isGoodForVisit(const CGObjectInstance *obj, HeroPtr h, SectorMap &sm)
 {
 	const int3 pos = obj->visitablePos();
 	const int3 targetPos = sm.firstTileToGet(h, pos);
-	if (canReachTile(h.get(), targetPos) &&
+	if (!targetPos.valid())
+		return false;
+	if (isTileNotReserved(h.get(), targetPos) &&
 			!obj->wasVisited(playerID) &&
 			(cb->getPlayerRelations(ai->playerID, obj->tempOwner) == PlayerRelations::ENEMIES || isWeeklyRevisitable(obj)) && //flag or get weekly resources / creatures
 			isSafeToVisit(h, pos) &&
 			shouldVisit(h, obj) &&
 			!vstd::contains(alreadyVisited, obj) &&
-			!vstd::contains(reservedObjs, obj))
+			!vstd::contains(reservedObjs, obj) &&
+			isAccessibleForHero(targetPos, h))
 	{
 		const CGObjectInstance *topObj = cb->getVisitableObjs(obj->visitablePos()).back(); //it may be hero visiting this obj
 		//we don't try visiting object on which allied or owned hero stands
@@ -1386,7 +1389,7 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 	return possibleDestinations;
 }
 
-bool VCAI::canReachTile (const CGHeroInstance * h, int3 t)
+bool VCAI::isTileNotReserved(const CGHeroInstance * h, int3 t)
 {
 	if (t.valid())
 	{

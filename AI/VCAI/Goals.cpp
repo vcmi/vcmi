@@ -632,7 +632,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		for (auto obj : objs) //double loop, performance risk?
 		{
 			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
-			if (ai->canReachTile(h, t))
+			if (ai->isTileNotReserved(h, t))
 				ret.push_back (sptr(Goals::ClearWayTo(obj->visitablePos(), h).setisAbstract(true)));
 		}
 
@@ -968,7 +968,7 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 		for (auto obj : ourObjs) //double loop, performance risk?
 		{
 			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
-			if (ai->canReachTile(h, t))
+			if (ai->isTileNotReserved(h, t))
 				ret.push_back (sptr(Goals::ClearWayTo(obj->visitablePos(), h).setisAbstract(true)));
 		}
 	}
