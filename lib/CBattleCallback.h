@@ -252,6 +252,8 @@ public:
 	int battleGetSurrenderCost(PlayerColor Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
 	ReachabilityInfo::TDistances battleGetDistances(const CStack * stack, BattleHex hex = BattleHex::INVALID, BattleHex * predecessors = nullptr) const; //returns vector of distances to [dest hex number]
 	std::set<BattleHex> battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const;
+	
+	bool battleCanAttack(const CStack * stack, const CStack * target, BattleHex dest) const; //determines if stack with given ID can attack target at the selected destination
 	bool battleCanShoot(const CStack * stack, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleIsStackBlocked(const CStack * stack) const; //returns true if there is neighboring enemy stack
 	std::set<const CStack*>  batteAdjacentCreatures (const CStack * stack) const;
