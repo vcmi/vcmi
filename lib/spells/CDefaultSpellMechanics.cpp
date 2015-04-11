@@ -563,7 +563,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 			}
 			else
 				hi.healedHP = calculateHealedHP(parameters.caster, attackedCre, parameters.selectedStack); //Casted by hero
-			hi.lowLevelResurrection = parameters.spellLvl <= 1;
+			hi.lowLevelResurrection = (parameters.spellLvl <= 1) && (owner->id != SpellID::ANIMATE_DEAD);
 			shr.healedStacks.push_back(hi);
 		}
 		if(!shr.healedStacks.empty())
