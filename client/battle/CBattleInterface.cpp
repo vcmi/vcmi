@@ -1515,7 +1515,7 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	//choosing possible tragets
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
 	assert(castingHero); // code below assumes non-null hero
-	sp = CGI->spellh->objects[spellID];
+	sp = spellID.toSpell();
 	spellSelMode = ANY_LOCATION;
 	
 	const CSpell::TargetInfo ti = sp->getTargetInfo(castingHero->getSpellSchoolLevel(sp));
