@@ -167,8 +167,10 @@ void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * 
 	for(auto stackID : packet->affectedCres)
 	{
 		if(vstd::contains(packet->resisted, stackID))
+		{
 			logGlobal->errorStream() << "Resistance to DISPELL";
 			continue;
+		}
 
 		CStack *s = battle->getStack(stackID);
 		s->popBonuses([&](const Bonus *b) -> bool
