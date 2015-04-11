@@ -59,18 +59,8 @@ void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 void DispellHelpfulMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
-
-	for(auto stackID : packet->affectedCres)
-	{
-		if(vstd::contains(packet->resisted, stackID))
-			continue;
-
-		CStack *s = battle->getStack(stackID);
-		s->popBonuses([&](const Bonus *b) -> bool
-		{
-			return Selector::positiveSpellEffects(b);
-		});
-	}
+	
+	doDispell(battle, packet, Selector::positiveSpellEffects);	
 }
 
 ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const CGHeroInstance * caster,  const CStack * obj) const

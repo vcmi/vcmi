@@ -51,4 +51,6 @@ protected:
 
 	///actual adventure cast implementation
 	virtual bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
+	
+	void doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const;
 };
