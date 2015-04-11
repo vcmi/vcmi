@@ -980,7 +980,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json)
 			if(usePowerAsValue)
 				b->val = levelPower;
 
-			levelObject.effects.push_back(*b);
+			levelObject.effectsTmp.push_back(b);
 		}
 
 	}
@@ -994,9 +994,18 @@ void CSpellHandler::afterLoadFinalization()
 	for(auto spell: objects)
 	{
 		for(auto & level: spell->levels)
+		{
+			for(Bonus * bonus : level.effectsTmp)
+			{
+				level.effects.push_back(*bonus);
+				delete bonus;
+			}
+			level.effectsTmp.clear();
+			
 			for(auto & bonus: level.effects)
-				bonus.sid = spell->id;
-		spell->setup();
+				bonus.sid = spell->id;	
+		}
+		spell->setup();		
 	}
 }
 

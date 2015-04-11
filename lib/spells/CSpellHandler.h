@@ -153,6 +153,8 @@ public:
 		std::string range;
 
 		std::vector<Bonus> effects;
+		
+		std::vector<Bonus *> effectsTmp; //TODO: this should replace effects 
 
 		LevelInfo();
 		~LevelInfo();
