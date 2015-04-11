@@ -1175,7 +1175,7 @@ void BattleResult::applyGs( CGameState *gs )
 	{
 		if(auto h = gs->curB->battleGetFightingHero(i))
 		{
-			h->getBonusList().remove_if(Bonus::OneBattle); 	//remove any "until next battle" bonuses
+			h->popBonuses(Bonus::OneBattle); 	//remove any "until next battle" bonuses
 			if (h->commander && h->commander->alive)
 			{
 				for (auto art : h->commander->artifactsWorn) //increment bonuses for commander artifacts

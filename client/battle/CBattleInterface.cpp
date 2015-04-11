@@ -2153,9 +2153,9 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case WALK_AND_ATTACK:
 			case ATTACK_AND_RETURN:
 			{
-				if (shere && !ourStack && shere->alive())
+				if (curInt->cb->battleCanAttack(sactive, shere, myNumber))
 				{
-					if (isTileAttackable(myNumber))
+					if (isTileAttackable(myNumber)) // move isTileAttackable to be part of battleCanAttack?
 					{
 						setBattleCursor(myNumber); // temporary - needed for following function :(
 						BattleHex attackFromHex = fromWhichHexAttack(myNumber);

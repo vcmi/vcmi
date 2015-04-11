@@ -683,7 +683,6 @@ public:
 	void exportBonus(Bonus * b);
 	void exportBonuses();
 
-	static void incrementTreeChangedNum();
 	BonusList &getBonusList();
 	const BonusList &getBonusList() const;
 	BonusList &getExportedBonusList();
@@ -981,7 +980,7 @@ void BonusList::insert(const int position, InputIterator first, InputIterator la
 	bonuses.insert(bonuses.begin() + position, first, last);
 
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 }
 
 // Extensions for BOOST_FOREACH to enable iterating of BonusList objects

@@ -40,7 +40,7 @@ namespace fl {
 
         FL_DEFAULT_COPY_AND_MOVE(SNorm)
 
-        virtual SNorm* clone() const = 0;
+        virtual SNorm* clone() const FL_IOVERRIDE = 0;
     };
 }
 #endif  /* FL_SNORM_H */
