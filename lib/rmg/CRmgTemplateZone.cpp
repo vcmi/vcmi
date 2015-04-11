@@ -424,7 +424,6 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	}
 	std::vector<int3> clearedTiles (freePaths.begin(), freePaths.end());
 	std::set<int3> possibleTiles;
-	std::set<int3> tilesToClear; //will be set clear
 	std::set<int3> tilesToIgnore; //will be erased in this iteration
 
 	//the more treasure density, the greater distance between paths. Scaling is experimental.
@@ -442,6 +441,8 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	}
 	assert (clearedTiles.size()); //this should come from zone connections
 
+	std::vector<int3> nodes; //connect them with a grid
+
 	if (type != ETemplateZoneType::JUNCTION)
 	{
 		//junction is not fractalized, has only one straight path
@@ -451,6 +452,8 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 			//link tiles in random order
 			std::vector<int3> tilesToMakePath(possibleTiles.begin(), possibleTiles.end());
 			RandomGeneratorUtil::randomShuffle(tilesToMakePath, gen->rand);
+
+			int3 nodeFound(-1, -1, -1);
 
 			for (auto tileToMakePath : tilesToMakePath)
 			{
@@ -477,33 +480,52 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 				//if tiles is not close enough, make path to it
 				if (currentDistance > minDistance)
 				{
-					crunchPath(gen, tileToMakePath, closestTile, id, &tilesToClear);
+					nodeFound = tileToMakePath;
+					nodes.push_back(nodeFound);
+					clearedTiles.push_back(nodeFound); //from now on nearby tiles will be considered handled
 					break; //next iteration - use already cleared tiles
 				}
 			}
 
-			for (auto tileToClear : tilesToClear)
-			{
-				//move cleared tiles from one set to another
-				clearedTiles.push_back(tileToClear);
-				vstd::erase_if_present(possibleTiles, tileToClear);
-			}
 			for (auto tileToClear : tilesToIgnore)
 			{
 				//these tiles are already connected, ignore them
 				vstd::erase_if_present(possibleTiles, tileToClear);
 			}
-			if (tilesToClear.empty()) //nothing else can be done (?)
+			if (!nodeFound.valid()) //nothing else can be done (?)
 				break;
-			tilesToClear.clear(); //empty this container
 			tilesToIgnore.clear();
 		}
 	}
 
-	for (auto tile : clearedTiles)
+	for (auto node : nodes)
 	{
-		freePaths.insert(tile);
+		boost::sort(nodes, [&node](int3& ourNode, int3& otherNode) -> bool
+		{
+			return node.dist2dSQ(ourNode) < node.dist2dSQ(otherNode);
+		}
+		);
+
+		std::vector <int3> nearbyNodes;
+		if (nodes.size() >= 2)
+		{
+			nearbyNodes.push_back(nodes[1]); //node[0] is our node we want to connect
+		}
+		if (nodes.size() >= 3)
+		{
+			nearbyNodes.push_back(nodes[2]);
+		}
+
+		//connect with all the paths
+		crunchPath(gen, node, findClosestTile(freePaths, node), id, &freePaths);
+		//connect with nearby nodes
+		for (auto nearbyNode : nearbyNodes)
+		{
+			crunchPath(gen, node, nearbyNode, id, &freePaths);
+		}
 	}
+	for (auto node : nodes)
+		gen->setOccupied(node, ETileType::FREE); //make sure they are clear
 
 	//now block most distant tiles away from passages
 
