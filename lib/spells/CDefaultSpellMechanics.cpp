@@ -723,3 +723,15 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(cons
 	//by default use general algorithm
 	return owner->isImmuneBy(obj);
 }
+
+void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const
+{
+	for(auto stackID : packet->affectedCres)
+	{
+		if(vstd::contains(packet->resisted, stackID))
+			continue;
+
+		CStack *s = battle->getStack(stackID);
+		s->popBonuses(selector);
+	}	
+}

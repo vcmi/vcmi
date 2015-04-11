@@ -19,24 +19,14 @@ void AntimagicMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast 
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
 
-	for(auto stackID : packet->affectedCres)
+	doDispell(battle, packet, [this](const Bonus * b) -> bool
 	{
-		if(vstd::contains(packet->resisted, stackID))
-		{
-			logGlobal->errorStream() << "Resistance to positive spell " << owner->name;
-			continue;
+		if(b->source == Bonus::SPELL_EFFECT)
+		{				
+			return b->sid != owner->id; //effect from this spell
 		}
-
-		CStack * s = battle->getStack(stackID);
-		s->popBonuses([&](const Bonus *b) -> bool
-		{
-			if(b->source == Bonus::SPELL_EFFECT)
-			{				
-				return b->sid != owner->id; //effect from this spell
-			}
-			return false; //not a spell effect
-		});
-	}	
+		return false; //not a spell effect
+	});	
 }
 
 ///ChainLightningMechanics
@@ -163,21 +153,7 @@ void CureMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * pac
 void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
-
-	for(auto stackID : packet->affectedCres)
-	{
-		if(vstd::contains(packet->resisted, stackID))
-		{
-			logGlobal->errorStream() << "Resistance to DISPELL";
-			continue;
-		}
-
-		CStack *s = battle->getStack(stackID);
-		s->popBonuses([&](const Bonus *b) -> bool
-		{
-			return Selector::sourceType(Bonus::SPELL_EFFECT)(b);
-		});
-	}
+	doDispell(battle, packet, Selector::sourceType(Bonus::SPELL_EFFECT));
 }
 
 ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
