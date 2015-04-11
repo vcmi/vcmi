@@ -28,6 +28,8 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 {
 	switch (s->id)
 	{
+	case SpellID::ANTI_MAGIC:
+		return new AntimagicMechanics(s);
 	case SpellID::ACID_BREATH_DAMAGE:
 		return new AcidBreathDamageMechanics(s);
 	case SpellID::CHAIN_LIGHTNING:

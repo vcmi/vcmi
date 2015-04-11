@@ -14,6 +14,31 @@
 #include "../NetPacks.h"
 #include "../BattleState.h"
 
+///AntimagicMechanics
+void AntimagicMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
+{
+	DefaultSpellMechanics::applyBattle(battle, packet);
+
+	for(auto stackID : packet->affectedCres)
+	{
+		if(vstd::contains(packet->resisted, stackID))
+		{
+			logGlobal->errorStream() << "Resistance to positive spell " << owner->name;
+			continue;
+		}
+
+		CStack * s = battle->getStack(stackID);
+		s->popBonuses([&](const Bonus *b) -> bool
+		{
+			if(b->source == Bonus::SPELL_EFFECT)
+			{				
+				return b->sid != owner->id; //effect from this spell
+			}
+			return false; //not a spell effect
+		});
+	}	
+}
+
 ///ChainLightningMechanics
 std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
 {
@@ -142,13 +167,52 @@ void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * 
 	for(auto stackID : packet->affectedCres)
 	{
 		if(vstd::contains(packet->resisted, stackID))
+		{
+			logGlobal->errorStream() << "Resistance to DISPELL";
 			continue;
+		}
 
 		CStack *s = battle->getStack(stackID);
 		s->popBonuses([&](const Bonus *b) -> bool
 		{
 			return Selector::sourceType(Bonus::SPELL_EFFECT)(b);
 		});
+	}
+}
+
+ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
+{
+	//DISPELL ignores all immunities, so do not call default
+	std::stringstream cachingStr;
+	cachingStr << "source_" << Bonus::SPELL_EFFECT;
+
+	if(obj->hasBonus(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str()))
+	{
+		return ESpellCastProblem::OK;
+	}
+
+	return ESpellCastProblem::WRONG_SPELL_TARGET;
+}
+
+void DispellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+{
+	DefaultSpellMechanics::applyBattleEffects(env, parameters, ctx);
+
+	if(parameters.spellLvl > 2)
+	{
+		//expert DISPELL also removes spell-created obstacles
+		ObstaclesRemoved packet;
+
+		for(const auto obstacle : parameters.cb->obstacles)
+		{
+			if(obstacle->obstacleType == CObstacleInstance::FIRE_WALL
+				|| obstacle->obstacleType == CObstacleInstance::FORCE_FIELD
+				|| obstacle->obstacleType == CObstacleInstance::LAND_MINE)
+				packet.obstacles.insert(obstacle->uniqueID);
+		}
+
+		if(!packet.obstacles.empty())
+			env->sendAndApply(&packet);
 	}
 }
 
@@ -421,7 +485,7 @@ void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * en
 ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
 {
 	// for sacrifice we have to check for 2 targets (one dead to resurrect and one living to destroy)
-	
+
 	bool targetExists = false;
 	bool targetToSacrificeExists = false;
 
@@ -442,9 +506,9 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCasted(const CBatt
 			if(targetExists && targetToSacrificeExists)
 				break;
 		}
-		
+
 	}
-	
+
 	if(targetExists && targetToSacrificeExists)
 		return ESpellCastProblem::OK;
 	else
