@@ -470,10 +470,21 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj)
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
+	//spell-based spell immunity (only ANTIMAGIC in OH3) is treated as absolute
+	std::stringstream cachingStr;
+	cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "source_" << Bonus::SPELL_EFFECT;
+
+	TBonusListPtr levelImmunitiesFromSpell = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::sourceType(Bonus::SPELL_EFFECT)), cachingStr.str());	
+
+	if(levelImmunitiesFromSpell->size() > 0  &&  levelImmunitiesFromSpell->totalValue() >= level  &&  level)
+	{
+		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+	}
+
 	//check receptivity
 	if (isPositive() && obj->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
 		return ESpellCastProblem::OK;
-
+		
 	//3. Check negation
 	//FIXME: Orb of vulnerability mechanics is not such trivial
 	if(obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES)) //Orb of vulnerability
