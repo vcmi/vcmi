@@ -712,7 +712,7 @@ void CCommanderInstance::setAlive (bool Alive)
 	alive = Alive;
 	if (!alive)
 	{
-		getBonusList().remove_if (Bonus::UntilCommanderKilled);
+		popBonuses(Bonus::UntilCommanderKilled);
 	}
 }
 
