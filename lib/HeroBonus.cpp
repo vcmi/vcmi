@@ -273,13 +273,13 @@ void BonusList::push_back(Bonus* const &x)
 	bonuses.push_back(x);
 
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 }
 
 std::vector<Bonus*>::iterator BonusList::erase(const int position)
 {
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 	return bonuses.erase(bonuses.begin() + position);
 }
 
@@ -288,7 +288,7 @@ void BonusList::clear()
 	bonuses.clear();
 
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 }
 
 std::vector<BonusList*>::size_type BonusList::operator-=(Bonus* const &i)
@@ -299,7 +299,7 @@ std::vector<BonusList*>::size_type BonusList::operator-=(Bonus* const &i)
 	bonuses.erase(itr);
 
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 	return true;
 }
 
@@ -308,7 +308,7 @@ void BonusList::resize(std::vector<Bonus*>::size_type sz, Bonus* c )
 	bonuses.resize(sz, c);
 
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 }
 
 void BonusList::insert(std::vector<Bonus*>::iterator position, std::vector<Bonus*>::size_type n, Bonus* const &x)
@@ -316,7 +316,7 @@ void BonusList::insert(std::vector<Bonus*>::iterator position, std::vector<Bonus
 	bonuses.insert(position, n, x);
 
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 }
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
@@ -754,7 +754,7 @@ void CBonusSystemNode::attachTo(CBonusSystemNode *parent)
 		newRedDescendant(parent);
 
 	parent->newChildAttached(this);
-	CBonusSystemNode::treeChanged++;
+	CBonusSystemNode::treeHasChanged();
 }
 
 void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
@@ -768,7 +768,7 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
 
 	parents -= parent;
 	parent->childDetached(this);
-	CBonusSystemNode::treeChanged++;
+	CBonusSystemNode::treeHasChanged();
 }
 
 void CBonusSystemNode::popBonuses(const CSelector &s)
@@ -792,7 +792,7 @@ void CBonusSystemNode::addNewBonus(Bonus *b)
 	assert(!vstd::contains(exportedBonuses,b));
 	exportedBonuses.push_back(b);
 	exportBonus(b);
-	CBonusSystemNode::treeChanged++;
+	CBonusSystemNode::treeHasChanged();
 }
 
 void CBonusSystemNode::accumulateBonus(Bonus &b)
@@ -812,7 +812,7 @@ void CBonusSystemNode::removeBonus(Bonus *b)
 	else
 		bonuses -= b;
 	vstd::clear_pointer(b);
-	CBonusSystemNode::treeChanged++;
+	CBonusSystemNode::treeHasChanged();
 }
 
 bool CBonusSystemNode::actsAsBonusSourceOnly() const
@@ -995,7 +995,7 @@ void CBonusSystemNode::exportBonus(Bonus * b)
 	else
 		bonuses.push_back(b);
 
-	CBonusSystemNode::treeChanged++;
+	CBonusSystemNode::treeHasChanged();
 }
 
 void CBonusSystemNode::exportBonuses()
@@ -1047,11 +1047,6 @@ const std::string& CBonusSystemNode::getDescription() const
 void CBonusSystemNode::setDescription(const std::string &description)
 {
 	this->description = description;
-}
-
-void CBonusSystemNode::incrementTreeChangedNum()
-{
-	treeChanged++;
 }
 
 void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out) const
