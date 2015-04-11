@@ -1432,9 +1432,9 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 
 	addAllPossibleObjects (gen);
 
+	fractalize(gen);
 	placeMines(gen);
 	createRequiredObjects(gen);
-	fractalize(gen); //after required objects are created and linked with their own paths
 	createTreasures(gen);
 
 	logGlobal->infoStream() << boost::format ("Zone %d filled successfully") %id;
