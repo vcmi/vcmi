@@ -248,7 +248,7 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "0"
 			}
 		},
 		"flags" : {
