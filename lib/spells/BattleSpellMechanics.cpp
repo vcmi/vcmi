@@ -570,53 +570,29 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
 {
 	const ui8 side = cb->playerToSide(player);
-	//IDs of summon elemental spells (fire, earth, water, air)
-	int spellIDs[] = {	SpellID::SUMMON_FIRE_ELEMENTAL, SpellID::SUMMON_EARTH_ELEMENTAL,
-						SpellID::SUMMON_WATER_ELEMENTAL, SpellID::SUMMON_AIR_ELEMENTAL };
-	//(fire, earth, water, air) elementals
-	int creIDs[] = {CreatureID::FIRE_ELEMENTAL,  CreatureID::EARTH_ELEMENTAL,
-					CreatureID::WATER_ELEMENTAL, CreatureID::AIR_ELEMENTAL};
 
-	int arpos = vstd::find_pos(spellIDs, owner->id);
-	if(arpos < ARRAY_COUNT(spellIDs))
+	//check if there are summoned elementals of other type
+	
+	auto otherSummoned = cb->battleGetStacksIf([side, this](const CStack * st)
 	{
-		//check if there are summoned elementals of other type
-		for(const CStack * st : cb->battleAliveStacks(side))
-			if(vstd::contains(st->state, EBattleStackState::SUMMONED) && st->getCreature()->idNumber != creIDs[arpos])
-				return ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED;
-	}
+		return (st->attackerOwned == !side)
+			&& (vstd::contains(st->state, EBattleStackState::SUMMONED))
+			&& (st->getCreature()->idNumber != creatureToSummon);
+	});
+	
+	if(!otherSummoned.empty())
+		return ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED;	
 
 	return ESpellCastProblem::OK;
 }
 
 void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	//todo: make configurable
-	CreatureID creID = CreatureID::NONE;
-	switch(owner->id)
-	{
-		case SpellID::SUMMON_FIRE_ELEMENTAL:
-			creID = CreatureID::FIRE_ELEMENTAL;
-			break;
-		case SpellID::SUMMON_EARTH_ELEMENTAL:
-			creID = CreatureID::EARTH_ELEMENTAL;
-			break;
-		case SpellID::SUMMON_WATER_ELEMENTAL:
-			creID = CreatureID::WATER_ELEMENTAL;
-			break;
-		case SpellID::SUMMON_AIR_ELEMENTAL:
-			creID = CreatureID::AIR_ELEMENTAL;
-			break;
-		default:
-			env->complain("Unable to determine summoned creature");
-			return;
-	}
-
 	BattleStackAdded bsa;
-	bsa.creID = creID;
+	bsa.creID = creatureToSummon;
 	bsa.attacker = !(bool)parameters.casterSide;
 	bsa.summoned = true;
-	bsa.pos = parameters.cb->getAvaliableHex(creID, !(bool)parameters.casterSide); //TODO: unify it
+	bsa.pos = parameters.cb->getAvaliableHex(creatureToSummon, !(bool)parameters.casterSide); //TODO: unify it
 
 	//TODO stack casting -> probably power will be zero; set the proper number of creatures manually
 	int percentBonus = parameters.caster ? parameters.caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, owner->id.toEnum()) : 0;
@@ -629,7 +605,6 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battl
 	else
 		env->complain("Summoning didn't summon any!");
 }
-
 
 ///TeleportMechanics
 void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const

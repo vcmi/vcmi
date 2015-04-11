@@ -124,11 +124,13 @@ public:
 class DLL_LINKAGE SummonMechanics : public DefaultSpellMechanics
 {
 public:
-	SummonMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	SummonMechanics(CSpell * s, CreatureID cre): DefaultSpellMechanics(s), creatureToSummon(cre){};
 
 	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+private:
+	CreatureID creatureToSummon;
 };
 
 class DLL_LINKAGE TeleportMechanics: public DefaultSpellMechanics

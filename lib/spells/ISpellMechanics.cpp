@@ -59,10 +59,13 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 	case SpellID::SACRIFICE:
 		return new SacrificeMechanics(s);
 	case SpellID::SUMMON_FIRE_ELEMENTAL:
+		return new SummonMechanics(s, CreatureID::FIRE_ELEMENTAL);			
 	case SpellID::SUMMON_EARTH_ELEMENTAL:
+		return new SummonMechanics(s, CreatureID::EARTH_ELEMENTAL);		
 	case SpellID::SUMMON_WATER_ELEMENTAL:
+		return new SummonMechanics(s, CreatureID::WATER_ELEMENTAL);		
 	case SpellID::SUMMON_AIR_ELEMENTAL:
-		return new SummonMechanics(s);
+		return new SummonMechanics(s, CreatureID::AIR_ELEMENTAL);
 	case SpellID::TELEPORT:
 		return new TeleportMechanics(s);
 	case SpellID::SUMMON_BOAT:
@@ -89,3 +92,4 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 			return new DefaultSpellMechanics(s);
 	}
 }
+		
