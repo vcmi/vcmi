@@ -1,6 +1,8 @@
 #include "StdInc.h"
 #include "CSpellWindow.h"
 
+#include "../../lib/ScopeGuard.h"
+
 #include "CAdvmapInterface.h"
 #include "GUIClasses.h"
 #include "InfoWindows.h"
@@ -528,7 +530,10 @@ void CSpellWindow::turnPageRight()
 void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(key.keysym.sym == SDLK_ESCAPE ||  key.keysym.sym == SDLK_RETURN)
+	{
 		fexitb();
+		return;
+	}		
 
 	if(key.state == SDL_PRESSED)
 	{
@@ -635,8 +640,9 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			{
 			case ESpellCastProblem::OK:
 				{
-					owner->fexitb();
 					owner->myInt->battleInt->castThisSpell(mySpell);
+					owner->fexitb();
+					return;
 				}
 				break;
 			case ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED:
@@ -698,8 +704,14 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		else if(sp->isAdventureSpell() && !owner->myInt->battleInt) //adventure spell and not in battle
 		{
 			const CGHeroInstance *h = owner->myHero;
-			owner->fexitb();
+			GH.popInt(owner);
 			
+			auto guard = vstd::makeScopeGuard([this]								
+			{
+				(LOCPLINT->battleInt ? owner->myInt->spellbookSettings.spellbookLastTabBattle : owner->myInt->spellbookSettings.spellbookLastTabAdvmap) = owner->selectedTab;
+				(LOCPLINT->battleInt ? owner->myInt->spellbookSettings.spellbookLastPageBattle : owner->myInt->spellbookSettings.spellbokLastPageAdvmap) = owner->currentPage;				
+				delete owner;
+			}); 
 
 			if(mySpell == SpellID::TOWN_PORTAL)
 			{
