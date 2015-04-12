@@ -500,7 +500,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 
 	for (auto node : nodes)
 	{
-		boost::sort(nodes, [&node](int3& ourNode, int3& otherNode) -> bool
+		boost::sort(nodes, [&node](const int3& ourNode, const int3& otherNode) -> bool
 		{
 			return node.dist2dSQ(ourNode) < node.dist2dSQ(otherNode);
 		}
