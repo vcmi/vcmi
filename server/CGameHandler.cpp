@@ -1084,11 +1084,10 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 						//if stack didn't die in explosion, continue movement
 						if(obs->stopsMovement() || !curStack->alive())
 						{
-							obs.reset();
-
 							//movement has been interrupted by obstacle
 							stackIsMoving = false;
 						}
+						obs.reset();						
 					}
 				};
 				
