@@ -1020,11 +1020,9 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	}
 	else //for non-flying creatures
 	{
-		// send one package with the creature path information
-
 		shared_ptr<const CObstacleInstance> obstacle, obstacle2; //obstacle that interrupted movement
 		std::vector<BattleHex> tiles;
-		int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
+		const int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		int v = path.first.size()-1;
 
 		bool stackIsMoving = true;
@@ -1036,27 +1034,23 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 				logGlobal->error("Movement terminated abnormally");
 				break;
 			}
-			for(bool stop = false; (!stop) && (v >= tilesToMove); --v)
+
+			for(bool obstacleHit = false; (!obstacleHit) && (v >= tilesToMove); --v)
 			{
 				BattleHex hex = path.first[v];
 				tiles.push_back(hex);
 
-
+				//if we walked onto something, finalize this portion of stack movement check into obstacle
 				if((obstacle = battleGetObstacleOnPos(hex, false)))
-				{
-					//we walked onto something, so we finalize this portion of stack movement check into obstacle
-					stop = true;
-				}
+					obstacleHit = true;
 
 				if(curStack->doubleWide())
 				{
 					BattleHex otherHex = curStack->occupiedHex(hex);
-					
+
+					//two hex creature hit obstacle by backside
 					if(otherHex.isValid() && ((obstacle2 = battleGetObstacleOnPos(otherHex, false))))
-					{
-						//two hex creature hit obstacle by backside
-						stop = true;
-					}
+						obstacleHit = true;
 				}
 			}
 
@@ -1081,12 +1075,10 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 					{
 						handleDamageFromObstacle(*obs, curStack);
 
-						//if stack didn't die in explosion, continue movement
+						//if stack die in explosion or interrupted by obstacle, abort movement
 						if(obs->stopsMovement() || !curStack->alive())
-						{
-							//movement has been interrupted by obstacle
 							stackIsMoving = false;
-						}
+
 						obs.reset();						
 					}
 				};
@@ -1096,7 +1088,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 					processObstacle(obstacle2);
 			}
 			else
-				//movement finished normally
+				//movement finished normally: we reached destination
 				stackIsMoving = false;
 		}
 	}
