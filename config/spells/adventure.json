@@ -17,7 +17,7 @@
 	},
 	"scuttleBoat" : {
 		"index" : 1,
-		"targetType": "NO_TARGET",
+		"targetType": "LOCATION",
 		
 		"sounds": {
 			"cast": "SCUTBOAT"
