@@ -268,9 +268,10 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(const SpellCastEnvironment
 	for(const CGObjectInstance * obj : env->getMap()->objects)
 	{
 		//todo:we need to send only not visible objects
-
-		if(filterObject(obj, spellLevel))
-			pack.objectPositions.push_back(ObjectPosInfo(obj));
+		
+		if(obj)//for some reason deleted object remain as empty pointer
+			if(filterObject(obj, spellLevel))
+				pack.objectPositions.push_back(ObjectPosInfo(obj));
 	}
 
 	env->sendAndApply(&pack);
