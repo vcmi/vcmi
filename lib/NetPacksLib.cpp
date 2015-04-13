@@ -328,7 +328,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 	else
 		node = gs->getPlayer(PlayerColor(whoID));
 
-	BonusList &bonuses = node->getBonusList();
+	BonusList &bonuses = node->getExportedBonusList();
 
 	for (int i = 0; i < bonuses.size(); i++)
 	{
@@ -336,7 +336,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 		if(b->source == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
-			bonuses.erase(i);
+			node->removeBonus(b);			
 			break;
 		}
 	}
