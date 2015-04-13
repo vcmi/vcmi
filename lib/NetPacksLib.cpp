@@ -1342,21 +1342,6 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 	spell->applyBattle(gs->curB, this);
 }
 
-void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
-{
-	//actualizing features vector
-
-	for(const Bonus &fromEffect : ef)
-	{
-		for(Bonus *stackBonus : s->getBonusList()) //TODO: optimize
-		{
-			if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == fromEffect.type && stackBonus->subtype == fromEffect.subtype)
-			{
-				stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, fromEffect.turnsRemain);
-			}
-		}
-	}
-}
 void actualizeEffect(CStack * s, const Bonus & ef)
 {
 	for(Bonus *stackBonus : s->getBonusList()) //TODO: optimize
@@ -1365,6 +1350,17 @@ void actualizeEffect(CStack * s, const Bonus & ef)
 		{
 			stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, ef.turnsRemain);
 		}
+	}
+	CBonusSystemNode::treeHasChanged();	
+}
+
+void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
+{
+	//actualizing features vector
+
+	for(const Bonus &fromEffect : ef)
+	{
+		actualizeEffect(s, fromEffect);
 	}
 }
 
