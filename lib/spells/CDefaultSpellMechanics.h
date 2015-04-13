@@ -25,6 +25,13 @@ struct SpellCastContext
 	StacksInjured & si;
 };
 
+enum class ESpellCastResult
+{
+	OK,
+	CANCEL,//cast failed but it is not an error
+	ERROR//internal error occurred
+};
+
 class DLL_LINKAGE DefaultSpellMechanics : public ISpellMechanics
 {
 public:
@@ -50,7 +57,7 @@ protected:
 	ui32 calculateHealedHP(const CGHeroInstance * caster, const CStack * stack, const CStack * sacrificedStack) const;
 
 	///actual adventure cast implementation
-	virtual bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
+	virtual ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
 	
 	void doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const;
 };

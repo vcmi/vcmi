@@ -175,20 +175,26 @@ bool DefaultSpellMechanics::adventureCast(const SpellCastEnvironment * env, Adve
 		asc.spellID = owner->id;
 		env->sendAndApply(&asc);
 	}
-
-	if(applyAdventureEffects(env, parameters))
+	
+	switch(applyAdventureEffects(env, parameters))
 	{
-		SetMana sm;
-		sm.hid = caster->id;
-		sm.absolute = false;
-		sm.val = -cost;
-		env->sendAndApply(&sm);
+	case ESpellCastResult::OK:
+		{
+			SetMana sm;
+			sm.hid = caster->id;
+			sm.absolute = false;
+			sm.val = -cost;
+			env->sendAndApply(&sm);
+			return true;			
+		}
+		break;
+	case ESpellCastResult::CANCEL:
 		return true;
 	}
 	return false;
 }
 
-bool DefaultSpellMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+ESpellCastResult DefaultSpellMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
 {
 	if(owner->hasEffects())
 	{
@@ -206,13 +212,13 @@ bool DefaultSpellMechanics::applyAdventureEffects(const SpellCastEnvironment * e
 			env->sendAndApply(&gb);
 		}
 
-		return true;
+		return ESpellCastResult::OK;
 	}
 	else
 	{
 		//There is no generic algorithm of adventure cast
 		env->complain("Unimplemented adventure spell");
-		return false;
+		return ESpellCastResult::ERROR;
 	}
 }
 

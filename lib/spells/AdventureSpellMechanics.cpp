@@ -20,7 +20,7 @@
 #include "../CGameInfoCallback.h"
 
 ///SummonBoatMechanics
-bool SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+ESpellCastResult SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
 {
 	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
 	//check if spell works at all
@@ -31,7 +31,7 @@ bool SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env
 		iw.text.addTxt(MetaString::GENERAL_TXT, 336); //%s tried to summon a boat, but failed.
 		iw.text.addReplacement(parameters.caster->name);
 		env->sendAndApply(&iw);
-		return true;
+		return ESpellCastResult::OK;
 	}
 
 	//try to find unoccupied boat to summon
@@ -41,7 +41,7 @@ bool SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env
 	if(summonPos.x < 0)
 	{
 		env->complain("There is no water tile available!");
-		return false;
+		return ESpellCastResult::ERROR;
 	}
 
 	for(const CGObjectInstance * obj : env->getMap()->objects)
@@ -84,11 +84,11 @@ bool SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env
 		no.pos = summonPos + int3(1,0,0);;
 		env->sendAndApply(&no);
 	}
-	return true;
+	return ESpellCastResult::OK;
 }
 
 ///ScuttleBoatMechanics
-bool ScuttleBoatMechanics::applyAdventureEffects(const SpellCastEnvironment* env, AdventureSpellCastParameters& parameters) const
+ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(const SpellCastEnvironment* env, AdventureSpellCastParameters& parameters) const
 {
 	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
 	//check if spell works at all
@@ -99,13 +99,13 @@ bool ScuttleBoatMechanics::applyAdventureEffects(const SpellCastEnvironment* env
 		iw.text.addTxt(MetaString::GENERAL_TXT, 337); //%s tried to scuttle the boat, but failed
 		iw.text.addReplacement(parameters.caster->name);
 		env->sendAndApply(&iw);
-		return true;
+		return ESpellCastResult::OK;
 	}
 
 	if(!env->getMap()->isInTheMap(parameters.pos))
 	{
 		env->complain("Invalid dst tile for scuttle!");
-		return false;
+		return ESpellCastResult::ERROR;
 	}
 
 	//TODO: test range, visibility
@@ -113,22 +113,22 @@ bool ScuttleBoatMechanics::applyAdventureEffects(const SpellCastEnvironment* env
 	if(!t->visitableObjects.size() || t->visitableObjects.back()->ID != Obj::BOAT)
 	{
 		env->complain("There is no boat to scuttle!");
-		return false;
+		return ESpellCastResult::ERROR;
 	}
 
 	RemoveObject ro;
 	ro.id = t->visitableObjects.back()->id;
 	env->sendAndApply(&ro);
-	return true;
+	return ESpellCastResult::OK;
 }
 
 ///DimensionDoorMechanics
-bool DimensionDoorMechanics::applyAdventureEffects(const SpellCastEnvironment* env, AdventureSpellCastParameters& parameters) const
+ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(const SpellCastEnvironment* env, AdventureSpellCastParameters& parameters) const
 {
 	if(!env->getMap()->isInTheMap(parameters.pos))
 	{
 		env->complain("Destination is out of map!");
-		return false;
+		return ESpellCastResult::ERROR;
 	}
 
 	const TerrainTile * dest = env->getCb()->getTile(parameters.pos);
@@ -137,19 +137,19 @@ bool DimensionDoorMechanics::applyAdventureEffects(const SpellCastEnvironment* e
 	if(nullptr == dest)
 	{
 		env->complain("Destination tile doesn't exist!");
-		return false;
+		return ESpellCastResult::ERROR;
 	}
 
 	if(nullptr == curr)
 	{
 		env->complain("Source tile doesn't exist!");
-		return false;
+		return ESpellCastResult::ERROR;
 	}
 
 	if(parameters.caster->movement <= 0)
 	{
 		env->complain("Hero needs movement points to cast Dimension Door!");
-		return false;
+		return ESpellCastResult::ERROR;
 	}
 
 	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
@@ -161,7 +161,7 @@ bool DimensionDoorMechanics::applyAdventureEffects(const SpellCastEnvironment* e
 		iw.text.addTxt(MetaString::GENERAL_TXT, 338); //%s is not skilled enough to cast this spell again today.
 		iw.text.addReplacement(parameters.caster->name);
 		env->sendAndApply(&iw);
-		return true;
+		return ESpellCastResult::CANCEL;
 	}
 
 	GiveBonus gb;
@@ -183,23 +183,23 @@ bool DimensionDoorMechanics::applyAdventureEffects(const SpellCastEnvironment* e
 		smp.val = std::max<ui32>(0, parameters.caster->movement - 300);
 		env->sendAndApply(&smp);
 	}
-	return true;
+	return ESpellCastResult::OK;
 }
 
 ///TownPortalMechanics
-bool TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters& parameters) const
+ESpellCastResult TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters& parameters) const
 {
 	if (!env->getMap()->isInTheMap(parameters.pos))
 	{
 		env->complain("Destination tile not present!");
-		return false;
+		return ESpellCastResult::ERROR;
 	}
 
 	TerrainTile tile = env->getMap()->getTile(parameters.pos);
 	if (tile.visitableObjects.empty() || tile.visitableObjects.back()->ID != Obj::TOWN)
 	{
 		env->complain("Town not found for Town Portal!");
-		return false;
+		return ESpellCastResult::ERROR;
 	}
 
 	CGTownInstance * town = static_cast<CGTownInstance*>(tile.visitableObjects.back());
@@ -209,13 +209,13 @@ bool TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env
 	if(relations == PlayerRelations::ENEMIES)
 	{
 		env->complain("Can't teleport to enemy!");
-		return false;
+		return ESpellCastResult::ERROR;
 	}
 
 	if (town->visitingHero)
 	{
 		env->complain("Can't teleport to occupied town!");
-		return false;
+		return ESpellCastResult::ERROR;
 	}
 
 	if (parameters.caster->getSpellSchoolLevel(owner) < 2)
@@ -234,7 +234,7 @@ bool TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env
 		if (town->id != nearest)
 		{
 			env->complain("This hero can only teleport to nearest town!");
-			return false;
+			return ESpellCastResult::ERROR;
 		}
 
 	}
@@ -244,7 +244,7 @@ bool TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env
 	if(parameters.caster->movement < movementCost)
 	{
 		env->complain("This hero has not enough movement points!");
-		return false;		
+		return ESpellCastResult::ERROR;		
 	}
 	
 	if(env->moveHero(parameters.caster->id, town->visitablePos() + parameters.caster->getVisitableOffset() ,1))
@@ -254,10 +254,10 @@ bool TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env
 		smp.val = std::max<ui32>(0, parameters.caster->movement - movementCost);
 		env->sendAndApply(&smp);		
 	}
-	return true;
+	return ESpellCastResult::OK;
 }
 
-bool ViewMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+ESpellCastResult ViewMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
 {
 	ShowWorldViewEx pack;
 
@@ -275,7 +275,7 @@ bool ViewMechanics::applyAdventureEffects(const SpellCastEnvironment * env, Adve
 
 	env->sendAndApply(&pack);
 
-	return true;
+	return ESpellCastResult::OK;
 }
 
 bool ViewAirMechanics::filterObject(const CGObjectInstance * obj, const int spellLevel) const

@@ -20,7 +20,7 @@ class DLL_LINKAGE SummonBoatMechanics : public DefaultSpellMechanics
 public:
 	SummonBoatMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
-	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
+	ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
 };
 
 class DLL_LINKAGE ScuttleBoatMechanics : public DefaultSpellMechanics
@@ -28,7 +28,7 @@ class DLL_LINKAGE ScuttleBoatMechanics : public DefaultSpellMechanics
 public:
 	ScuttleBoatMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
-	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
+	ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
 };
 
 class DLL_LINKAGE DimensionDoorMechanics : public DefaultSpellMechanics
@@ -36,7 +36,7 @@ class DLL_LINKAGE DimensionDoorMechanics : public DefaultSpellMechanics
 public:
 	DimensionDoorMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
-	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
+	ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
 };
 
 class DLL_LINKAGE TownPortalMechanics : public DefaultSpellMechanics
@@ -44,7 +44,7 @@ class DLL_LINKAGE TownPortalMechanics : public DefaultSpellMechanics
 public:
 	TownPortalMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
-	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
+	ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
 };
 
 class DLL_LINKAGE ViewMechanics : public DefaultSpellMechanics
@@ -52,7 +52,7 @@ class DLL_LINKAGE ViewMechanics : public DefaultSpellMechanics
 public:
 	ViewMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
-	bool applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
+	ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
 	virtual bool filterObject(const CGObjectInstance * obj, const int spellLevel) const = 0;
 };
 
