@@ -221,6 +221,12 @@ TSubgoal Win::whatToDoToAchieve()
 			{
 				if (goal.object)
 				{
+					auto obj = cb->getObj (goal.object->id);
+					if (obj)
+						if (obj->getOwner() == ai->playerID) //we can't capture our own object
+							return sptr(Goals::Conquer());
+
+
 					return sptr (Goals::GetObj(goal.object->id.getNum()));
 				}
 				else
