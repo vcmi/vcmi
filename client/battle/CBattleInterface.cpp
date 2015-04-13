@@ -1487,7 +1487,7 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 				txtid++; //move to plural text
 
 			BonusList defenseBonuses = *(stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE)));
-			defenseBonuses.remove_if(Selector::durationType(Bonus::STACK_GETS_TURN)); //remove bonuses gained from defensive stance
+			defenseBonuses.remove_if(Bonus::UntilGetsTurn); //remove bonuses gained from defensive stance
 			int val = stack->Defense() - defenseBonuses.totalValue();
 			auto txt = boost::format (CGI->generaltexth->allTexts[txtid]) % ((stack->count != 1) ? stack->getCreature()->namePl : stack->getCreature()->nameSing) % val;
 			console->addText(boost::to_string(txt));
