@@ -1278,13 +1278,13 @@ DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 	for(BattleStackAttacked stackAttacked : bsa)
 		stackAttacked.applyGs(gs);
 
-	attacker->getBonusList().remove_if(Bonus::UntilAttack);
+	attacker->popBonuses(Bonus::UntilAttack);
 
 	for(auto & elem : bsa)
 	{
 		CStack * stack = gs->curB->getStack(elem.stackAttacked, false);
 		if (stack) //cloned stack is already gone
-			stack->getBonusList().remove_if(Bonus::UntilBeingAttacked);
+			stack->popBonuses(Bonus::UntilBeingAttacked);
 	}
 }
 
@@ -1456,15 +1456,6 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		//removal of negative effects
 		if(resurrected)
 		{
-
-// 			for (BonusList::iterator it = changedStack->bonuses.begin(); it != changedStack->bonuses.end(); it++)
-// 			{
-// 				if(VLC->spellh->spells[(*it)->sid]->positiveness < 0)
-// 				{
-// 					changedStack->bonuses.erase(it);
-// 				}
-// 			}
-
 			//removing all features from negative spells
 			const BonusList tmpFeatures = changedStack->getBonusList();
 			//changedStack->bonuses.clear();
