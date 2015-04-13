@@ -864,12 +864,12 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
 
 	//fire shield handling
-	if (!bat.shot() && def->hasBonusOfType(Bonus::FIRE_SHIELD) && !att->hasBonusOfType (Bonus::FIRE_IMMUNITY) && !bsa.killed() )
+	if(!bat.shot() && def->hasBonusOfType(Bonus::FIRE_SHIELD) && !att->hasBonusOfType (Bonus::FIRE_IMMUNITY))
 	{
 		BattleStackAttacked bsa2;
 		bsa2.stackAttacked = att->ID; //invert
 		bsa2.attackerID = def->ID;
-		bsa2.flags |= BattleStackAttacked::EFFECT; //FIXME: play anmation upon efreet and not attacker
+		bsa2.flags |= BattleStackAttacked::EFFECT; //FIXME: play animation upon efreet and not attacker
 		bsa2.effect = 11;
 
 		bsa2.damageAmount = (bsa.damageAmount * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100; //TODO: scale with attack/defense
