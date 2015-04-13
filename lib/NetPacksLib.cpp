@@ -1110,7 +1110,7 @@ DLL_LINKAGE void BattleSetActiveStack::applyGs( CGameState *gs )
 	CStack *st = gs->curB->getStack(stack);
 
 	//remove bonuses that last until when stack gets new turn
-	st->getBonusList().remove_if(Bonus::UntilGetsTurn);
+	st->popBonuses(Bonus::UntilGetsTurn);
 
 	if(vstd::contains(st->state,EBattleStackState::MOVED)) //if stack is moving second time this turn it must had a high morale bonus
 		st->state.insert(EBattleStackState::HAD_MORALE);
