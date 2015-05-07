@@ -671,7 +671,7 @@ boost::optional<std::vector<CArtifact*>&> CArtHandler::listFromClass( CArtifact:
 	case CArtifact::ART_RELIC:
 		return relics;
 	default: //special artifacts should not be erased
-		return nullptr;
+		return boost::optional<std::vector<CArtifact*>&>();
 	}
 }
 
