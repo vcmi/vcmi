@@ -80,7 +80,7 @@ void CCallback::recruitCreatures(const CGDwelling *obj, const CArmedInstance * d
 
 bool CCallback::dismissCreature(const CArmedInstance *obj, SlotID stackPos)
 {
-	if(((player>=0)  &&  obj->tempOwner != player) || (obj->stacksCount()<2  && obj->needsLastStack()))
+	if(((player>=boost::optional<PlayerColor>())  &&  obj->tempOwner != player) || (obj->stacksCount()<2  && obj->needsLastStack()))
 		return false;
 
 	DisbandCreature pack(stackPos,obj->id);

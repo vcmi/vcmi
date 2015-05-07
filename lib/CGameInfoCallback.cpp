@@ -403,7 +403,7 @@ std::vector <const CGObjectInstance * > CGameInfoCallback::getVisitableObjs(int3
 
 	for(const CGObjectInstance * obj : t->visitableObjects)
 	{
-		if(player < nullptr || obj->ID != Obj::EVENT) //hide events from players
+		if(player < boost::optional<PlayerColor>() || obj->ID != Obj::EVENT) //hide events from players
 			ret.push_back(obj);
 	}
 
