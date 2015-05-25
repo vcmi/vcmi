@@ -722,6 +722,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 	std::map<int3, int> distances;
 
 	int3 currentNode = src;
+	gen->setRoad (src, ERoadType::NO_ROAD); //just in case zone guard already has road under it. Road under nodes will be added at very end
 
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
 	distances[src] = 0;
@@ -735,8 +736,8 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 			return distances[pos1] < distances[pos2];
 		});
 
-		vstd::erase_if_present(open, currentNode);
-		closed.insert(currentNode);
+		vstd::erase_if_present (open, currentNode);
+		closed.insert (currentNode);
 
 		if (currentNode == dst || gen->isRoad(currentNode))
 		{
@@ -746,8 +747,8 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 			while (cameFrom[backTracking].valid())
 			{
 				// add node to path
-				roads.insert(backTracking);
-				gen->setRoad(backTracking, ERoadType::COBBLESTONE_ROAD);
+				roads.insert (backTracking);
+				gen->setRoad (backTracking, ERoadType::COBBLESTONE_ROAD);
 				//logGlobal->traceStream() << boost::format("Setting road at tile %s") % backTracking;
 				// do the same for the predecessor
 				backTracking = cameFrom[backTracking];
@@ -772,21 +773,21 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 					//if (gen->map->checkForVisitableDir(currentNode, &gen->map->getTile(pos), pos)) //TODO: why it has no effect?
 					if (gen->isFree(pos) || pos == dst || (obj && obj->ID == Obj::MONSTER))
 					{
-						//if (vstd::contains(this->tileinfo, pos))
-						//{
+						if (vstd::contains(this->tileinfo, pos)) //otherwise guard position may appear already connected to other zone.
+						{
 							cameFrom[pos] = currentNode;
 							open.insert(pos);
 							distances[pos] = distance;
 							directNeighbourFound = true;
 							//logGlobal->traceStream() << boost::format("Found connection between node %s and %s, current distance %d") % currentNode % pos % distance;
-						//}
+						}
 					}
 				}
 			};
 
-			gen->foreachDirectNeighbour(currentNode, foo); // roads cannot be rendered correctly for diagonal directions
+			gen->foreachDirectNeighbour (currentNode, foo); // roads cannot be rendered correctly for diagonal directions
 			if (!directNeighbourFound)
-				gen->foreach_neighbour(currentNode, foo);
+				gen->foreach_neighbour (currentNode, foo);
 		}
 
 	}
