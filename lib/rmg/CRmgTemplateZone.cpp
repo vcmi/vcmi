@@ -719,7 +719,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 	std::set<int3> closed;    // The set of nodes already evaluated.
 	std::set<int3> open{src};    // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
-	std::map<int3, int> distances;
+	std::map<int3, float> distances;
 
 	int3 currentNode = src;
 	gen->setRoad (src, ERoadType::NO_ROAD); //just in case zone guard already has road under it. Road under nodes will be added at very end
@@ -758,10 +758,11 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 		else
 		{
 			bool directNeighbourFound = false;
+			float movementCost = 1;
 
-			auto foo = [gen, this, &open, &closed, &cameFrom, &currentNode, &distances, &dst, &directNeighbourFound](int3& pos) -> void
+			auto foo = [gen, this, &open, &closed, &cameFrom, &currentNode, &distances, &dst, &directNeighbourFound, movementCost](int3& pos) -> void
 			{
-				int distance = distances[currentNode] + 1;
+				int distance = distances[currentNode] + movementCost;
 				int bestDistanceSoFar = 1e6; //FIXME: boost::limits
 				auto it = distances.find(pos);
 				if (it != distances.end())
@@ -787,7 +788,10 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 
 			gen->foreachDirectNeighbour (currentNode, foo); // roads cannot be rendered correctly for diagonal directions
 			if (!directNeighbourFound)
-				gen->foreach_neighbour (currentNode, foo);
+			{
+				movementCost = 2.1f; //moving diagonally is penalized over moving two tiles straight
+				gen->foreach_neighbour(currentNode, foo);
+			}
 		}
 
 	}
