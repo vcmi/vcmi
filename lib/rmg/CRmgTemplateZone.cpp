@@ -748,7 +748,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 				// add node to path
 				roads.insert(backTracking);
 				gen->setRoad(backTracking, ERoadType::COBBLESTONE_ROAD);
-				logGlobal->traceStream() << boost::format("Setting road at tile %s") % backTracking;
+				//logGlobal->traceStream() << boost::format("Setting road at tile %s") % backTracking;
 				// do the same for the predecessor
 				backTracking = cameFrom[backTracking];
 			}
@@ -778,7 +778,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 							open.insert(pos);
 							distances[pos] = distance;
 							directNeighbourFound = true;
-							logGlobal->traceStream() << boost::format("Found connection between node %s and %s, current distance %d") % currentNode % pos % distance;
+							//logGlobal->traceStream() << boost::format("Found connection between node %s and %s, current distance %d") % currentNode % pos % distance;
 						//}
 					}
 				}
@@ -1561,28 +1561,36 @@ void CRmgTemplateZone::connectRoads(CMapGenerator* gen)
 {
 	logGlobal->debug("Started building roads");
 	
+	std::set<int3> roadNodesCopy(roadNodes);
 	std::set<int3> processed;
 	
-	while(!roadNodes.empty())
+	while(!roadNodesCopy.empty())
 	{
-		int3 node = *roadNodes.begin(); 
-		roadNodes.erase(node);
-		if(roads.empty())
+		int3 node = *roadNodesCopy.begin(); 
+		roadNodesCopy.erase(node);
+		int3 cross(-1, -1, -1);
+
+		auto comparator = [=](int3 lhs, int3 rhs) { return node.dist2dSQ(lhs)  < node.dist2dSQ(rhs); };
+
+		if (processed.size()) //connect with already existing network
 		{
-			//start road network
-			roads.insert(node);
-			logGlobal->debugStream() << "First node of road network: " << node; 
+			cross = *boost::range::min_element(processed, comparator); //find another remaining node
 		}
-		else
+		else if (roadNodesCopy.size()) //connect with any other unconnected node
 		{
-			auto comparator = [=](int3 lhs, int3 rhs) { return node.dist2dSQ(lhs)  < node.dist2dSQ(rhs); };
-			
-			int3 cross = * boost::range::min_element(processed, comparator);
-			logGlobal->debugStream() << "Building road from " << node << " to " << cross; 
-			createRoad(gen, node, cross);
+			cross = *boost::range::min_element(roadNodesCopy, comparator); //find another remaining node
+		}
+		else //no other nodes left, for example single road node in this zone
+			break;
+
+		logGlobal->debugStream() << "Building road from " << node << " to " << cross;
+		if (createRoad(gen, node, cross))
+		{
+			processed.insert(cross); //don't draw road starting at end point which is already connected
+			vstd::erase_if_present(roadNodesCopy, cross);
 		}
 		
-		processed.insert(node);		
+		processed.insert(node); 
 	}
 
 	drawRoads(gen);
@@ -1598,6 +1606,9 @@ void CRmgTemplateZone::drawRoads(CMapGenerator* gen)
 		if(gen->map->isInTheMap(tile))	
 			tiles.push_back (tile);
 	}
+	for (auto tile : roadNodes)
+		tiles.push_back(tile);
+
 	gen->editManager->getTerrainSelection().setSelection(tiles);	
 	gen->editManager->drawRoad(ERoadType::COBBLESTONE_ROAD, &gen->rand);	
 }
@@ -1837,7 +1848,7 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 	case Obj::MONOLITH_ONE_WAY_EXIT:
 	case Obj::SUBTERRANEAN_GATE:
 		{
-			roadNodes.insert(object->visitablePos());
+			addRoadNode(object->visitablePos());
 		}
 		break;
 	
