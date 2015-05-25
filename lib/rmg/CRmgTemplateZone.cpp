@@ -1612,7 +1612,10 @@ void CRmgTemplateZone::drawRoads(CMapGenerator* gen)
 			tiles.push_back (tile);
 	}
 	for (auto tile : roadNodes)
-		tiles.push_back(tile);
+	{
+		if (vstd::contains(tileinfo, tile)) //mark roads for our nodes, but not for zone guards in other zones
+			tiles.push_back(tile);
+	}
 
 	gen->editManager->getTerrainSelection().setSelection(tiles);	
 	gen->editManager->drawRoad(ERoadType::COBBLESTONE_ROAD, &gen->rand);	
