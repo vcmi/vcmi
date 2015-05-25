@@ -342,12 +342,10 @@ bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile *pom, const 
 {
 	if (!pom->entrableTerrain()) //rock is never accessible
 		return false;
-	for(ui32 b=0; b<pom->visitableObjects.size(); ++b) //checking destination tile
+	for (auto obj : pom->visitableObjects) //checking destination tile
 	{
-		if(!vstd::contains(pom->blockingObjects, pom->visitableObjects[b])) //this visitable object is not blocking, ignore
+		if(!vstd::contains(pom->blockingObjects, obj)) //this visitable object is not blocking, ignore
 			continue;
-
-		const CGObjectInstance * obj = pom->visitableObjects[b];
 
 		if (!obj->appearance.isVisitableFrom(src.x - dst.x, src.y - dst.y))
 			return false;
