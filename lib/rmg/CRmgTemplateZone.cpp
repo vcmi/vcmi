@@ -756,7 +756,9 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 		}
 		else
 		{
-			gen->foreach_neighbour(currentNode, [gen, this, &open, &closed, &cameFrom, &currentNode, &distances, &dst](int3& pos)
+			bool directNeighbourFound = false;
+
+			auto foo = [gen, this, &open, &closed, &cameFrom, &currentNode, &distances, &dst, &directNeighbourFound](int3& pos) -> void
 			{
 				int distance = distances[currentNode] + 1;
 				int bestDistanceSoFar = 1e6; //FIXME: boost::limits
@@ -770,16 +772,21 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 					//if (gen->map->checkForVisitableDir(currentNode, &gen->map->getTile(pos), pos)) //TODO: why it has no effect?
 					if (gen->isFree(pos) || pos == dst || (obj && obj->ID == Obj::MONSTER))
 					{
-						if (vstd::contains(this->tileinfo, pos))
-						{
+						//if (vstd::contains(this->tileinfo, pos))
+						//{
 							cameFrom[pos] = currentNode;
 							open.insert(pos);
 							distances[pos] = distance;
+							directNeighbourFound = true;
 							logGlobal->traceStream() << boost::format("Found connection between node %s and %s, current distance %d") % currentNode % pos % distance;
-						}
+						//}
 					}
 				}
-			});
+			};
+
+			gen->foreachDirectNeighbour(currentNode, foo); // roads cannot be rendered correctly for diagonal directions
+			if (!directNeighbourFound)
+				gen->foreach_neighbour(currentNode, foo);
 		}
 
 	}
