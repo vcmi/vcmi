@@ -494,6 +494,33 @@
 		"index": 143,
 		"level": 2,
 		"faction": "neutral",
+		"abilities":
+		{
+			"visionsMonsters" :
+			{
+				"type" : "VISIONS",
+				"subtype" : 0,
+				"val" : 3,
+				"valueType" : "INDEPENDENT_MAX",
+				"propagator" : "HERO"
+			},
+			"visionsHeroes" :
+			{
+				"type" : "VISIONS",
+				"subtype" : 1,
+				"val" : 3,
+				"valueType" : "INDEPENDENT_MAX",
+				"propagator" : "HERO"				
+			},
+			"visionsTowns" :
+			{
+				"type" : "VISIONS",
+				"subtype" : 2,
+				"val" : 3,
+				"valueType" : "INDEPENDENT_MAX",
+				"propagator" : "HERO"				
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CROGUE.DEF"
