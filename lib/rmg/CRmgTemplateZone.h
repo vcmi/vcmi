@@ -47,15 +47,18 @@ public:
 	bool isPossible() const;
 	bool isFree() const;
 	bool isUsed() const;
+	bool isRoad() const;	
 	void setOccupied(ETileType::ETileType value);
 	ETerrainType getTerrainType() const;
 	ETileType::ETileType getTileType() const;
 	void setTerrainType(ETerrainType value);
-
+	
+	void setRoadType(ERoadType::ERoadType value);
 private:
 	float nearestObjectDistance;
 	ETileType::ETileType occupied;
 	ETerrainType terrain;
+	ERoadType::ERoadType roadType;
 };
 
 class DLL_LINKAGE CTreasureInfo
@@ -166,7 +169,8 @@ public:
 	void createTreasures(CMapGenerator* gen);
 	void createObstacles1(CMapGenerator* gen);
 	void createObstacles2(CMapGenerator* gen);
-	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles = nullptr);
+	bool crunchPath(CMapGenerator* gen, const int3 &src, const int3 &dst, std::set<int3>* clearedTiles = nullptr);
+	
 	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object);
 
 	void addConnection(TRmgTemplateZoneId otherZone);
@@ -179,6 +183,8 @@ public:
 	ObjectInfo getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue);
 
 	void placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str, bool zoneGuard = false);
+	void addRoadNode(const int3 & node);
+	void connectRoads(CMapGenerator * gen); //fills "roads" according to "roadNodes"
 
 private:
 	//template info
@@ -215,6 +221,12 @@ private:
 	std::set<int3> possibleTiles; //optimization purposes for treasure generation
 	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
 	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
+	
+	std::set<int3> roadNodes; //tiles to be connected with roads
+	std::set<int3> roads; //all tiles with roads
+	
+	bool createRoad(CMapGenerator* gen, const int3 &src, const int3 &dst);
+	void drawRoads(CMapGenerator * gen); //actually updates tiles
 
 	bool pointIsIn(int x, int y);
 	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects

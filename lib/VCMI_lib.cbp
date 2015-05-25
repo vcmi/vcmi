@@ -255,6 +255,8 @@
 		<Unit filename="mapObjects/ObjectTemplate.h" />
 		<Unit filename="mapping/CCampaignHandler.cpp" />
 		<Unit filename="mapping/CCampaignHandler.h" />
+		<Unit filename="mapping/CDrawRoadsOperation.cpp" />
+		<Unit filename="mapping/CDrawRoadsOperation.h" />
 		<Unit filename="mapping/CMap.cpp" />
 		<Unit filename="mapping/CMap.h" />
 		<Unit filename="mapping/CMapEditManager.cpp" />

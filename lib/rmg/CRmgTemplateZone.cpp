@@ -33,6 +33,11 @@ CRmgTemplateZone::CTownInfo::CTownInfo() : townCount(0), castleCount(0), townDen
 
 }
 
+void CRmgTemplateZone::addRoadNode(const int3& node)
+{
+	roadNodes.insert(node);
+}
+
 int CRmgTemplateZone::CTownInfo::getTownCount() const
 {
 	return townCount;
@@ -81,7 +86,7 @@ void CRmgTemplateZone::CTownInfo::setCastleDensity(int value)
 	castleDensity = value;
 }
 
-CTileInfo::CTileInfo():nearestObjectDistance(INT_MAX), terrain(ETerrainType::WRONG) 
+CTileInfo::CTileInfo():nearestObjectDistance(INT_MAX), terrain(ETerrainType::WRONG),roadType(ERoadType::NO_ROAD) 
 {
 	occupied = ETileType::POSSIBLE; //all tiles are initially possible to place objects or passages
 }
@@ -111,6 +116,12 @@ bool CTileInfo::isFree() const
 {
 	return occupied == ETileType::FREE;
 }
+
+bool CTileInfo::isRoad() const
+{
+	return roadType != ERoadType::NO_ROAD;
+}
+
 bool CTileInfo::isUsed() const
 {
 	return occupied == ETileType::USED;
@@ -134,6 +145,13 @@ void CTileInfo::setTerrainType(ETerrainType value)
 {
 	terrain = value;
 }
+
+void CTileInfo::setRoadType(ERoadType::ERoadType value)
+{
+	roadType = value;
+//	setOccupied(ETileType::FREE);
+}
+
 
 CRmgTemplateZone::CRmgTemplateZone() :
 	id(0),
@@ -517,11 +535,11 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 		}
 
 		//connect with all the paths
-		crunchPath(gen, node, findClosestTile(freePaths, node), id, &freePaths);
+		crunchPath(gen, node, findClosestTile(freePaths, node), &freePaths);
 		//connect with nearby nodes
 		for (auto nearbyNode : nearbyNodes)
 		{
-			crunchPath(gen, node, nearbyNode, id, &freePaths);
+			crunchPath(gen, node, nearbyNode, &freePaths);
 		}
 	}
 	for (auto node : nodes)
@@ -590,7 +608,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	//logGlobal->infoStream() << boost::format ("Zone %d subdivided fractally") %id;
 }
 
-bool CRmgTemplateZone::crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles)
+bool CRmgTemplateZone::crunchPath(CMapGenerator* gen, const int3 &src, const int3 &dst, std::set<int3>* clearedTiles)
 {
 /*
 make shortest path with free tiles, reachning dst or closest already free tile. Avoid blocks.
@@ -611,7 +629,8 @@ do not leave zone border
 		}
 
 		auto lastDistance = distance;
-		gen->foreach_neighbour (currentPos, [this, gen, &currentPos, dst, &distance, &result, &end, clearedTiles](int3 &pos)
+			
+		auto processNeighbours = [this, gen, &currentPos, dst, &distance, &result, &end, clearedTiles](int3 &pos)
 		{
 			if (!result) //not sure if lambda is worth it...
 			{
@@ -643,15 +662,18 @@ do not leave zone border
 					}
 				}
 			}
-		});
-
+		};
+		
+		gen->foreach_neighbour (currentPos,processNeighbours);
+						
 		int3 anotherPos(-1, -1, -1);
 
-		if (!(result || distance < lastDistance)) //we do not advance, use more advaced pathfinding algorithm?
+		if (!(result || distance < lastDistance)) //we do not advance, use more advanced pathfinding algorithm?
 		{
 			//try any nearby tiles, even if its not closer than current
 			float lastDistance = 2 * distance; //start with significantly larger value
-			gen->foreach_neighbour(currentPos, [this, gen, &currentPos, dst, &lastDistance, &anotherPos, &end, clearedTiles](int3 &pos)
+			
+			auto processNeighbours2 = [this, gen, &currentPos, dst, &lastDistance, &anotherPos, &end, clearedTiles](int3 &pos)
 			{
 				if (currentPos.dist2dSQ(dst) < lastDistance) //try closest tiles from all surrounding unused tiles
 				{
@@ -666,7 +688,11 @@ do not leave zone border
 						}
 					}
 				}
-			});
+			};			
+		
+			gen->foreach_neighbour (currentPos,processNeighbours2);
+						
+			
 			if (anotherPos.valid())
 			{
 				if (clearedTiles)
@@ -685,6 +711,82 @@ do not leave zone border
 
 	return result;
 }
+
+bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int3& dst)
+{
+	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
+
+	std::set<int3> closed;    // The set of nodes already evaluated.
+	std::set<int3> open{src};    // The set of tentative nodes to be evaluated, initially containing the start node
+	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
+	std::map<int3, int> distances;
+
+	int3 currentNode = src;
+
+	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
+	distances[src] = 0;
+	// Cost from start along best known path.
+	// Estimated total cost from start to goal through y.
+
+	while (open.size())
+	{
+		int3 currentNode = *boost::min_element(open, [&distances](const int3 &pos1, const int3 &pos2) -> bool
+		{
+			return distances[pos1], distances[pos2];
+		});
+
+		vstd::erase_if_present(open, currentNode);
+		closed.insert(currentNode);
+
+		if (currentNode == dst || gen->isRoad(currentNode))
+		{
+			// The goal node was reached. Trace the path using
+			// the saved parent information and return path
+			int3 backTracking = currentNode;
+			while (cameFrom[backTracking].valid())
+			{
+				// add node to path
+				roads.insert(backTracking);
+				gen->setRoad(backTracking, ERoadType::COBBLESTONE_ROAD);
+				logGlobal->traceStream() << boost::format("Setting road at tile %s") % backTracking;
+				// do the same for the predecessor
+				backTracking = cameFrom[backTracking];
+			}
+			return true;
+		}
+		else
+		{
+			gen->foreach_neighbour(currentNode, [gen, this, &open, &closed, &cameFrom, &currentNode, &distances](int3& pos)
+			{
+				int distance = distances[currentNode] + 1;
+				int bestDistanceSoFar = 1e6; //FIXME: boost::limits
+				auto it = distances.find(pos);
+				if (it != distances.end())
+					bestDistanceSoFar = it->second;
+
+				if (distance < bestDistanceSoFar || !vstd::contains(closed, pos))
+				{
+					if (gen->map->checkForVisitableDir(currentNode, &gen->map->getTile(pos), pos))
+					//if (gen->isFree(pos))
+					{
+						if (vstd::contains(this->tileinfo, pos))
+						{
+							cameFrom[pos] = currentNode;
+							open.insert(pos);
+							distances[pos] = distance;
+							logGlobal->traceStream() << boost::format("Found connection between node %s and %s, current distance %d") % currentNode % pos % distance;
+						}
+					}
+				}
+			});
+		}
+
+	}
+	logGlobal->warnStream() << boost::format("Failed to create road from %s to %s") % src %dst;
+	return false;
+
+}
+
 
 void CRmgTemplateZone::addRequiredObject(CGObjectInstance * obj, si32 strength)
 {
@@ -919,7 +1021,7 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 				gen->setOccupied(tile, ETileType::BLOCKED); //so that crunch path doesn't cut through objects
 		}
 
-		if (!crunchPath (gen, closestTile, closestFreeTile, id))
+		if (!crunchPath (gen, closestTile, closestFreeTile))
 		{
 			//we can't connect this pile, just block it off and start over
 			for (auto treasure : treasures)
@@ -1246,6 +1348,7 @@ bool CRmgTemplateZone::placeMines (CMapGenerator* gen)
 bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 {
 	logGlobal->traceStream() << "Creating required objects";
+	
 	for(const auto &obj : requiredObjects)
 	{
 		int3 pos;
@@ -1254,11 +1357,11 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 			logGlobal->errorStream() << boost::format("Failed to fill zone %d due to lack of space") %id;
 			//TODO CLEANUP!
 			return false;
-		}
-
+		}		
+	
 		placeObject (gen, obj.first, pos);
 		guardObject (gen, obj.first, obj.second, (obj.first->ID == Obj::MONOLITH_TWO_WAY), true);
-		//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones
+		//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones	
 	}
 
 	for (const auto &obj : closeObjects)
@@ -1446,6 +1549,52 @@ void CRmgTemplateZone::createObstacles2(CMapGenerator* gen)
 	}
 }
 
+void CRmgTemplateZone::connectRoads(CMapGenerator* gen)
+{
+	logGlobal->debug("Started building roads");
+	
+	std::set<int3> processed;
+	
+	while(!roadNodes.empty())
+	{
+		int3 node = *roadNodes.begin(); 
+		roadNodes.erase(node);
+		if(roads.empty())
+		{
+			//start road network
+			roads.insert(node);
+			logGlobal->debugStream() << "First node of road network: " << node; 
+		}
+		else
+		{
+			auto comparator = [=](int3 lhs, int3 rhs) { return node.dist2dSQ(lhs)  < node.dist2dSQ(rhs); };
+			
+			int3 cross = * boost::range::min_element(processed, comparator);
+			logGlobal->debugStream() << "Building road from " << node << " to " << cross; 
+			createRoad(gen, node, cross);
+		}
+		
+		processed.insert(node);		
+	}
+
+	drawRoads(gen);
+	
+	logGlobal->debug("Finished building roads");	
+}
+
+void CRmgTemplateZone::drawRoads(CMapGenerator* gen)
+{
+	std::vector<int3> tiles;
+	for (auto tile : roads)
+	{
+		if(gen->map->isInTheMap(tile))	
+			tiles.push_back (tile);
+	}
+	gen->editManager->getTerrainSelection().setSelection(tiles);	
+	gen->editManager->drawRoad(ERoadType::COBBLESTONE_ROAD, &gen->rand);	
+}
+
+
 bool CRmgTemplateZone::fill(CMapGenerator* gen)
 {
 	initTerrainType(gen);
@@ -1458,7 +1607,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	placeMines(gen);
 	createRequiredObjects(gen);
 	createTreasures(gen);
-
+	
 	logGlobal->infoStream() << boost::format ("Zone %d filled successfully") %id;
 	return true;
 }
@@ -1669,6 +1818,24 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 		auto artid = sh->quest->m5arts.front();
 		logGlobal->warnStream() << boost::format("Placed Seer Hut at %s, quest artifact %d is %s") % object->pos % artid % VLC->arth->artifacts[artid]->Name();
 	}
+
+	
+	switch (object->ID)
+	{
+	case Obj::TOWN:
+	case Obj::RANDOM_TOWN:
+	case Obj::MONOLITH_TWO_WAY:
+	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+	case Obj::MONOLITH_ONE_WAY_EXIT:
+	case Obj::SUBTERRANEAN_GATE:
+		{
+			roadNodes.insert(object->visitablePos());
+		}
+		break;
+	
+	default:
+		break;
+	}		
 }
 
 void CRmgTemplateZone::placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str, bool zoneGuard)
@@ -1715,7 +1882,7 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	{
 		//crunching path may fail if center of the zone is directly over wide object
 		//make sure object is accessible before surrounding it with blocked tiles
-		if (crunchPath (gen, tile, findClosestTile(freePaths, tile), id, addToFreePaths ? &freePaths : nullptr))
+		if (crunchPath (gen, tile, findClosestTile(freePaths, tile), addToFreePaths ? &freePaths : nullptr))
 		{
 			guardTile = tile;
 			break;

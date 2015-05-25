@@ -13,6 +13,8 @@
 #include "CZonePlacer.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 
+static const int3 dirs4[] = {int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0)};
+
 void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo)
 {
 	for(const int3 &dir : dirs)
@@ -21,6 +23,16 @@ void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& 
 		if(map->isInTheMap(n))
 			foo(n);
 	}
+}
+
+void CMapGenerator::foreachDirectNeighbour(const int3& pos, std::function<void(int3& pos)> foo)
+{
+	for(const int3 &dir : dirs4)
+	{
+		int3 n = pos + dir;
+		if(map->isInTheMap(n))
+			foo(n);
+	}	
 }
 
 
@@ -132,7 +144,7 @@ std::string CMapGenerator::getMapDescription() const
 
     std::stringstream ss;
     ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
-        ", levels %s, humans %d, computers %d, water %s, monster %s, second expansion map") % mapGenOptions->getMapTemplate()->getName() %
+        ", levels %s, humans %d, computers %d, water %s, monster %s, VCMI map") % mapGenOptions->getMapTemplate()->getName() %
 		randomSeed % map->width % map->height % (map->twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions->getPlayerCount()) %
 		static_cast<int>(mapGenOptions->getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions->getWaterContent()] %
 		monsterStrengthStr[monsterStrengthIndex]);
@@ -266,7 +278,49 @@ void CMapGenerator::fillZones()
 	createObstaclesCommon2();
 	//place actual obstacles matching zone terrain
 	for (auto it : zones)
+	{
 		it.second->createObstacles2(this);
+	}
+
+	#define PRINT_MAP_BEFORE_ROADS true
+	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
+	{
+		std::ofstream out("road debug");
+		int levels = map->twoLevel ? 2 : 1;
+		int width = map->width;
+		int height = map->height;
+		for (int k = 0; k < levels; k++)
+		{
+			for (int j = 0; j<height; j++)
+			{
+				for (int i = 0; i<width; i++)
+				{
+					char t = '?';
+					switch (getTile(int3(i, j, k)).getTileType())
+					{
+					case ETileType::FREE:
+						t = ' '; break;
+					case ETileType::BLOCKED:
+						t = '#'; break;
+					case ETileType::POSSIBLE:
+						t = '-'; break;
+					case ETileType::USED:
+						t = 'O'; break;
+					}
+
+					out << t;
+				}
+				out << std::endl;
+			}
+			out << std::endl;
+		}
+		out << std::endl;
+	}
+
+	for (auto it : zones)
+	{
+		it.second->connectRoads(this); //draw roads after everything else has been placed
+	}
 
 	//find place for Grail
 	if (treasureZones.empty())
@@ -421,8 +475,11 @@ void CMapGenerator::createConnections()
 					setOccupied (guardPos, ETileType::FREE); //just in case monster is too weak to spawn
 					zoneA->addMonster (this, guardPos, connection.getGuardStrength(), false, true);
 					//zones can make paths only in their own area
-					zoneA->crunchPath (this, guardPos, posA, zoneA->getId(), zoneA->getFreePaths()); //make connection towards our zone center
-					zoneB->crunchPath (this, guardPos, posB, zoneB->getId(), zoneB->getFreePaths()); //make connection towards other zone center
+					zoneA->crunchPath(this, guardPos, posA, zoneA->getFreePaths()); //make connection towards our zone center
+					zoneB->crunchPath(this, guardPos, posB, zoneB->getFreePaths()); //make connection towards other zone center		
+					
+					zoneA->addRoadNode(guardPos);
+					zoneB->addRoadNode(guardPos);
 					break; //we're done with this connection
 				}
 			}
@@ -516,6 +573,13 @@ void CMapGenerator::addHeaderInfo()
 	addPlayerInfo();
 }
 
+void CMapGenerator::checkIsOnMap(const int3& tile) const
+{
+	if (!map->isInTheMap(tile))
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));	
+}
+
+
 std::map<TRmgTemplateZoneId, CRmgTemplateZone*> CMapGenerator::getZones() const
 {
 	return zones;
@@ -523,67 +587,74 @@ std::map<TRmgTemplateZoneId, CRmgTemplateZone*> CMapGenerator::getZones() const
 
 bool CMapGenerator::isBlocked(const int3 &tile) const
 {
-	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z].isBlocked();
 }
 bool CMapGenerator::shouldBeBlocked(const int3 &tile) const
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z].shouldBeBlocked();
 }
 bool CMapGenerator::isPossible(const int3 &tile) const
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z].isPossible();
 }
 bool CMapGenerator::isFree(const int3 &tile) const
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z].isFree();
 }
 bool CMapGenerator::isUsed(const int3 &tile) const
 {
-	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z].isUsed();
 }
+
+bool CMapGenerator::isRoad(const int3& tile) const
+{
+	checkIsOnMap(tile);
+	
+	return tiles[tile.x][tile.y][tile.z].isRoad();	
+}
+
 void CMapGenerator::setOccupied(const int3 &tile, ETileType::ETileType state)
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	tiles[tile.x][tile.y][tile.z].setOccupied(state);
 }
 
-CTileInfo CMapGenerator::getTile(const int3&  tile) const
+void CMapGenerator::setRoad(const int3& tile, ERoadType::ERoadType roadType)
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
+
+	tiles[tile.x][tile.y][tile.z].setRoadType(roadType);	
+}
+
+
+CTileInfo CMapGenerator::getTile(const int3& tile) const
+{
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z];
 }
 
 void CMapGenerator::setNearestObjectDistance(int3 &tile, float value)
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	tiles[tile.x][tile.y][tile.z].setNearestObjectDistance(value);
 }
 
 float CMapGenerator::getNearestObjectDistance(const int3 &tile) const
 {
-	if (!map->isInTheMap(tile))
-		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z].getNearestObjectDistance();
 }

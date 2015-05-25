@@ -6,6 +6,7 @@
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../VCMI_Lib.h"
+#include "CDrawRoadsOperation.h"
 
 MapRect::MapRect() : x(0), y(0), z(0), width(0), height(0)
 {
@@ -132,6 +133,18 @@ std::string CMapOperation::getLabel() const
 	return "";
 }
 
+
+MapRect CMapOperation::extendTileAround(const int3 & centerPos) const
+{
+	return MapRect(int3(centerPos.x - 1, centerPos.y - 1, centerPos.z), 3, 3);
+}
+
+MapRect CMapOperation::extendTileAroundSafely(const int3 & centerPos) const
+{
+	return extendTileAround(centerPos) & MapRect(int3(0, 0, centerPos.z), map->width, map->height);
+}
+
+
 CMapUndoManager::CMapUndoManager() : undoRedoLimit(10)
 {
 
@@ -225,6 +238,13 @@ void CMapEditManager::drawTerrain(ETerrainType terType, CRandomGenerator * gen/*
 	execute(make_unique<CDrawTerrainOperation>(map, terrainSel, terType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
 }
+
+void CMapEditManager::drawRoad(ERoadType::ERoadType roadType, CRandomGenerator* gen)
+{
+	execute(make_unique<CDrawRoadsOperation>(map, terrainSel, roadType, gen ? gen : &(this->gen)));
+	terrainSel.clearSelection();
+}
+
 
 void CMapEditManager::insertObject(CGObjectInstance * obj, const int3 & pos)
 {
@@ -958,16 +978,6 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 		}
 	});
 	return tiles;
-}
-
-MapRect CDrawTerrainOperation::extendTileAround(const int3 & centerPos) const
-{
-	return MapRect(int3(centerPos.x - 1, centerPos.y - 1, centerPos.z), 3, 3);
-}
-
-MapRect CDrawTerrainOperation::extendTileAroundSafely(const int3 & centerPos) const
-{
-	return extendTileAround(centerPos) & MapRect(int3(0, 0, centerPos.z), map->width, map->height);
 }
 
 CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, const std::string & transitionReplacement /*= ""*/)

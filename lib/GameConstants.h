@@ -482,6 +482,23 @@ enum class ETeleportChannelType
 	MIXED
 };
 
+
+namespace ERiverType
+{
+	enum ERiverType
+	{
+		NO_RIVER, CLEAR_RIVER, ICY_RIVER, MUDDY_RIVER, LAVA_RIVER
+	};
+}
+
+namespace ERoadType
+{
+	enum ERoadType
+	{
+		NO_ROAD, DIRT_ROAD, GRAVEL_ROAD, COBBLESTONE_ROAD
+	};
+}
+
 class Obj
 {
 public:
