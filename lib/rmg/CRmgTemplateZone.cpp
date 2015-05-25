@@ -732,7 +732,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 	{
 		int3 currentNode = *boost::min_element(open, [&distances](const int3 &pos1, const int3 &pos2) -> bool
 		{
-			return distances[pos1], distances[pos2];
+			return distances[pos1] < distances[pos2];
 		});
 
 		vstd::erase_if_present(open, currentNode);
@@ -756,7 +756,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 		}
 		else
 		{
-			gen->foreach_neighbour(currentNode, [gen, this, &open, &closed, &cameFrom, &currentNode, &distances](int3& pos)
+			gen->foreach_neighbour(currentNode, [gen, this, &open, &closed, &cameFrom, &currentNode, &distances, &dst](int3& pos)
 			{
 				int distance = distances[currentNode] + 1;
 				int bestDistanceSoFar = 1e6; //FIXME: boost::limits
@@ -766,8 +766,9 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 
 				if (distance < bestDistanceSoFar || !vstd::contains(closed, pos))
 				{
-					if (gen->map->checkForVisitableDir(currentNode, &gen->map->getTile(pos), pos))
-					//if (gen->isFree(pos))
+					auto obj = gen->map->getTile(pos).topVisitableObj();
+					//if (gen->map->checkForVisitableDir(currentNode, &gen->map->getTile(pos), pos)) //TODO: why it has no effect?
+					if (gen->isFree(pos) || pos == dst || (obj && obj->ID == Obj::MONSTER))
 					{
 						if (vstd::contains(this->tileinfo, pos))
 						{
