@@ -774,7 +774,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 					//if (gen->map->checkForVisitableDir(currentNode, &gen->map->getTile(pos), pos)) //TODO: why it has no effect?
 					if (gen->isFree(pos) || pos == dst || (obj && obj->ID == Obj::MONSTER))
 					{
-						if (vstd::contains(this->tileinfo, pos)) //otherwise guard position may appear already connected to other zone.
+						if (vstd::contains(this->tileinfo, pos) || pos == dst) //otherwise guard position may appear already connected to other zone.
 						{
 							cameFrom[pos] = currentNode;
 							open.insert(pos);
