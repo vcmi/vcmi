@@ -11,7 +11,7 @@
 	{
 		"zone":{
 			"type": "object",
-			"required" : ["type", "monsters", "size", "level"],
+			"required" : ["type", "monsters", "size"],
 			"properties":{
 				"type":{"$ref" : "#/definitions/type"},
 				"size":{"$ref" : "#/definitions/size"},			
@@ -35,9 +35,8 @@
 			}		
 		},
 		"type" :{
-			"type" : "object",
-			"enum": ["playerStart", "treasure", "junction"]
-			"additionalProperties" : false
+			"enum": ["playerStart", "cpuStart", "treasure", "junction"],
+			"additionalProperties" : false,
 			"type":"string"
 		},
 		"size":{
@@ -50,13 +49,13 @@
 	"properties":
 	{
 		"zones":{
-			"type": "array",
-			"items":{"$ref" : "#/definitions/zone"	}						
+			"type": "object",
+			"additionalProperties":{"$ref" : "#/definitions/zone"	}						
 		},
 		"connections":{
 			"type": "array",
 			"items":{"$ref" : "#/definitions/connection"}	
-		}
+		},
 		"required" : ["zones", "connections"],
 		"additionalProperties" : false
 	}

@@ -20,7 +20,7 @@
 #include "../CTownHandler.h"
 
 CMapGenOptions::CMapGenOptions() : width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), hasTwoLevels(false),
-	playerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(0), compOnlyTeamCount(RANDOM_SIZE),
+	playerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(RANDOM_SIZE), compOnlyTeamCount(RANDOM_SIZE), humanPlayersCount(0),
 	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM), mapTemplate(nullptr)
 {
 	resetPlayersMap();
@@ -67,9 +67,11 @@ void CMapGenOptions::setPlayerCount(si8 value)
 {
 	assert((value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE);
 	playerCount = value;
-	auto possibleCompPlayersCount = PlayerColor::PLAYER_LIMIT_I-value;
-	if(compOnlyPlayerCount > possibleCompPlayersCount)
+	auto possibleCompPlayersCount = value;
+	if (compOnlyPlayerCount > possibleCompPlayersCount)
 		setCompOnlyPlayerCount(possibleCompPlayersCount);
+
+	humanPlayersCount = playerCount - compOnlyPlayerCount;
 	resetPlayersMap();
 }
 
@@ -91,8 +93,9 @@ si8 CMapGenOptions::getCompOnlyPlayerCount() const
 
 void CMapGenOptions::setCompOnlyPlayerCount(si8 value)
 {
-	assert(value == RANDOM_SIZE || (value >= 0 && value <= PlayerColor::PLAYER_LIMIT_I - playerCount));
+	assert(value == RANDOM_SIZE || (value >= 0 && value <= playerCount));
 	compOnlyPlayerCount = value;
+	humanPlayersCount = playerCount - compOnlyPlayerCount;
 	resetPlayersMap();
 }
 
@@ -130,12 +133,13 @@ void CMapGenOptions::setMonsterStrength(EMonsterStrength::EMonsterStrength value
 void CMapGenOptions::resetPlayersMap()
 {
 	players.clear();
-	int realPlayersCnt = playerCount == RANDOM_SIZE ? static_cast<int>(PlayerColor::PLAYER_LIMIT_I) : playerCount;
-	int realCompOnlyPlayersCnt = compOnlyPlayerCount == RANDOM_SIZE ? (PlayerColor::PLAYER_LIMIT_I - realPlayersCnt) : compOnlyPlayerCount;
+	int realPlayersCnt = humanPlayersCount;
+	int realCompOnlyPlayersCnt = (compOnlyPlayerCount == RANDOM_SIZE) ? (PlayerColor::PLAYER_LIMIT_I - realPlayersCnt) : compOnlyPlayerCount;
 	int totalPlayersLimit = realPlayersCnt + realCompOnlyPlayersCnt;
 	if(playerCount == RANDOM_SIZE || compOnlyPlayerCount == RANDOM_SIZE)
 		totalPlayersLimit = static_cast<int>(PlayerColor::PLAYER_LIMIT_I);
 
+	//FIXME: what happens with human players here?
 	for(int color = 0; color < totalPlayersLimit; ++color)
 	{
 		CPlayerSettings player;
@@ -262,14 +266,12 @@ void CMapGenOptions::updatePlayers()
 
 void CMapGenOptions::updateCompOnlyPlayers()
 {
-	auto totalPlayersCnt = playerCount + compOnlyPlayerCount;
-
 	// Remove comp only players only from the end of the players map if necessary
 	for(auto itrev = players.end(); itrev != players.begin();)
 	{
 		auto it = itrev;
 		--it;
-		if(players.size() <= totalPlayersCnt) break;
+		if (players.size() <= playerCount) break;
 		if(it->second.getPlayerType() == EPlayerType::COMP_ONLY)
 		{
 			players.erase(it);
@@ -281,7 +283,7 @@ void CMapGenOptions::updateCompOnlyPlayers()
 	}
 
 	// Add some comp only players if necessary
-	auto compOnlyPlayersToAdd = totalPlayersCnt - players.size();
+	auto compOnlyPlayersToAdd = playerCount - players.size();
 	for(int i = 0; i < compOnlyPlayersToAdd; ++i)
 	{
 		CPlayerSettings pSettings;
@@ -340,31 +342,34 @@ const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand
 			bool isPlayerCountValid = false;
 			if(playerCount != RANDOM_SIZE)
 			{
-				if(tpl->getPlayers().isInRange(playerCount)) isPlayerCountValid = true;
+				if (tpl->getPlayers().isInRange(playerCount))
+					isPlayerCountValid = true;
 			}
 			else
 			{
 				// Human players shouldn't be banned when playing with random player count
 				auto playerNumbers = tpl->getPlayers().getNumbers();
-				if(playerNumbers.lower_bound(countHumanPlayers()) != playerNumbers.end())
+				if(countHumanPlayers() <= *boost::min_element(playerNumbers))
 				{
 					isPlayerCountValid = true;
 				}
 			}
 
-			if(isPlayerCountValid)
+			if (isPlayerCountValid)
 			{
 				bool isCpuPlayerCountValid = false;
 				if(compOnlyPlayerCount != RANDOM_SIZE)
 				{
-					if(tpl->getCpuPlayers().isInRange(compOnlyPlayerCount)) isCpuPlayerCountValid = true;
+					if (tpl->getCpuPlayers().isInRange(compOnlyPlayerCount))
+						isCpuPlayerCountValid = true;
 				}
 				else
 				{
 					isCpuPlayerCountValid = true;
 				}
 
-				if(isCpuPlayerCountValid) potentialTpls.push_back(tpl);
+				if(isCpuPlayerCountValid)
+					potentialTpls.push_back(tpl);
 			}
 		}
 	}
