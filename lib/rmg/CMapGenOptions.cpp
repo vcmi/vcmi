@@ -201,7 +201,7 @@ const std::map<std::string, CRmgTemplate *> & CMapGenOptions::getAvailableTempla
 void CMapGenOptions::finalize(CRandomGenerator & rand)
 {
 	logGlobal->infoStream() << boost::format ("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d")
-											% getPlayerCount() % getTeamCount() % getCompOnlyPlayerCount() % getCompOnlyTeamCount() % getWaterContent() % getMonsterStrength();
+											% (int)getPlayerCount() % (int)getTeamCount() % (int)getCompOnlyPlayerCount() % (int)getCompOnlyTeamCount() % (int)getWaterContent() % (int)getMonsterStrength();
 
 	if(!mapTemplate)
 	{
@@ -212,7 +212,8 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	if (getPlayerCount() == RANDOM_SIZE)
 	{
 		auto possiblePlayers = mapTemplate->getPlayers().getNumbers();
-		possiblePlayers.erase(possiblePlayers.begin(), possiblePlayers.lower_bound(countHumanPlayers()));
+		//ignore all non-randomized players, make sure these players will not be missing after roll
+		possiblePlayers.erase(possiblePlayers.begin(), possiblePlayers.lower_bound(countHumanPlayers() + countCompOnlyPlayers()));
 		assert(!possiblePlayers.empty());
 		setPlayerCount (*RandomGeneratorUtil::nextItem(possiblePlayers, rand));
 		updatePlayers();
@@ -246,9 +247,37 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	assert (vstd::iswithin(waterContent, EWaterContent::NONE, EWaterContent::ISLANDS));
 	assert (vstd::iswithin(monsterStrength, EMonsterStrength::GLOBAL_WEAK, EMonsterStrength::GLOBAL_STRONG));
 
+
 	//rectangular maps are the future of gaming
 	//setHeight(20);
 	//setWidth(50);
+
+	logGlobal->traceStream() << "Player config:";
+	int humanPlayers = 0, cpuOnlyPlayers = 0, AIplayers = 0;
+	for (auto player : players)
+	{
+		std::string playerType;
+		switch (player.second.getPlayerType())
+		{
+		case EPlayerType::AI:
+			playerType = "AI";
+			AIplayers++;
+			break;
+		case EPlayerType::COMP_ONLY:
+			playerType = "computer only";
+			cpuOnlyPlayers++;
+			break;
+		case EPlayerType::HUMAN:
+			playerType = "human only";
+			humanPlayers++;
+			break;
+			default:
+				assert(false);
+		}
+		logGlobal->traceStream() << boost::format("Player %d: %s") % player.second.getColor() % playerType;
+	}
+	setCompOnlyPlayerCount(cpuOnlyPlayers); //human players are set automaticlaly (?)
+	logGlobal->infoStream() << boost::format("Final player config: %d total, %d cpu-only") % players.size() % (int)getCompOnlyPlayerCount();
 }
 
 void CMapGenOptions::updatePlayers()
@@ -312,6 +341,15 @@ int CMapGenOptions::countHumanPlayers() const
 		return pair.second.getPlayerType() == EPlayerType::HUMAN;
 	}));
 }
+
+int CMapGenOptions::countCompOnlyPlayers() const
+{
+	return static_cast<int>(boost::count_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & pair)
+	{
+		return pair.second.getPlayerType() == EPlayerType::COMP_ONLY;
+	}));
+}
+
 
 PlayerColor CMapGenOptions::getNextPlayerColor() const
 {

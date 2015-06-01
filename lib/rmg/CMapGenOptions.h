@@ -155,6 +155,7 @@ public:
 private:
 	void resetPlayersMap();
 	int countHumanPlayers() const;
+	int CMapGenOptions::countCompOnlyPlayers() const;
 	PlayerColor getNextPlayerColor() const;
 	void updateCompOnlyPlayers();
 	void updatePlayers();
