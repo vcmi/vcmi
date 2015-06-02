@@ -162,6 +162,7 @@ public:
 	bool placeMines (CMapGenerator* gen);
 	void initTownType (CMapGenerator* gen);
 	void paintZoneTerrain (CMapGenerator* gen, ETerrainType terrainType);
+	void randomizeTownType(CMapGenerator* gen); //helper function
 	void initTerrainType (CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
 	void fractalize(CMapGenerator* gen);
