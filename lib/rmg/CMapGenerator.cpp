@@ -483,7 +483,7 @@ void CMapGenerator::createConnections()
 			{
 				if (isBlocked(tile)) //tiles may be occupied by subterranean gates already placed
 					continue;
-				foreach_neighbour (tile, [&guardPos, tile, &otherZoneTiles, this](int3 &pos)
+				foreachDirectNeighbour (tile, [&guardPos, tile, &otherZoneTiles, this](int3 &pos) //must be direct since paths also also generated between direct neighbours
 				{
 					//if (vstd::contains(otherZoneTiles, pos) && !this->isBlocked(pos))
 					if (vstd::contains(otherZoneTiles, pos))
@@ -494,8 +494,8 @@ void CMapGenerator::createConnections()
 					setOccupied (guardPos, ETileType::FREE); //just in case monster is too weak to spawn
 					zoneA->addMonster (this, guardPos, connection.getGuardStrength(), false, true);
 					//zones can make paths only in their own area
-					zoneA->crunchPath(this, guardPos, posA, zoneA->getFreePaths()); //make connection towards our zone center
-					zoneB->crunchPath(this, guardPos, posB, zoneB->getFreePaths()); //make connection towards other zone center		
+					zoneA->crunchPath(this, guardPos, posA, true, zoneA->getFreePaths()); //make connection towards our zone center
+					zoneB->crunchPath(this, guardPos, posB, true, zoneB->getFreePaths()); //make connection towards other zone center		
 					
 					zoneA->addRoadNode(guardPos);
 					zoneB->addRoadNode(guardPos);

@@ -535,11 +535,11 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 		}
 
 		//connect with all the paths
-		crunchPath(gen, node, findClosestTile(freePaths, node), &freePaths);
+		crunchPath(gen, node, findClosestTile(freePaths, node), true, &freePaths);
 		//connect with nearby nodes
 		for (auto nearbyNode : nearbyNodes)
 		{
-			crunchPath(gen, node, nearbyNode, &freePaths);
+			crunchPath(gen, node, nearbyNode, true, &freePaths);
 		}
 	}
 	for (auto node : nodes)
@@ -608,7 +608,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	//logGlobal->infoStream() << boost::format ("Zone %d subdivided fractally") %id;
 }
 
-bool CRmgTemplateZone::crunchPath(CMapGenerator* gen, const int3 &src, const int3 &dst, std::set<int3>* clearedTiles)
+bool CRmgTemplateZone::crunchPath(CMapGenerator* gen, const int3 &src, const int3 &dst, bool onlyStraight, std::set<int3>* clearedTiles)
 {
 /*
 make shortest path with free tiles, reachning dst or closest already free tile. Avoid blocks.
@@ -664,7 +664,10 @@ do not leave zone border
 			}
 		};
 		
-		gen->foreach_neighbour (currentPos,processNeighbours);
+		if (onlyStraight)
+			gen->foreachDirectNeighbour (currentPos, processNeighbours);
+		else
+			gen->foreach_neighbour (currentPos,processNeighbours);
 						
 		int3 anotherPos(-1, -1, -1);
 
@@ -689,8 +692,10 @@ do not leave zone border
 					}
 				}
 			};			
-		
-			gen->foreach_neighbour (currentPos,processNeighbours2);
+			if (onlyStraight)
+				gen->foreachDirectNeighbour(currentPos, processNeighbours2);
+			else
+				gen->foreach_neighbour(currentPos, processNeighbours2);
 						
 			
 			if (anotherPos.valid())
@@ -798,6 +803,85 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 	logGlobal->warnStream() << boost::format("Failed to create road from %s to %s") % src %dst;
 	return false;
 
+}
+
+bool CRmgTemplateZone::connectPath(CMapGenerator* gen, const int3& src, bool onlyStraight)
+///connect current tile to any other free tile within zone
+{
+	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
+
+	std::set<int3> closed;    // The set of nodes already evaluated.
+	std::set<int3> open{ src };    // The set of tentative nodes to be evaluated, initially containing the start node
+	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
+	std::map<int3, float> distances;
+
+	int3 currentNode = src;
+	gen->setRoad(src, ERoadType::NO_ROAD); //just in case zone guard already has road under it. Road under nodes will be added at very end
+
+	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
+	distances[src] = 0;
+	// Cost from start along best known path.
+	// Estimated total cost from start to goal through y.
+
+	while (open.size())
+	{
+		int3 currentNode = *boost::min_element(open, [&distances](const int3 &pos1, const int3 &pos2) -> bool
+		{
+			return distances[pos1] < distances[pos2];
+		});
+
+		vstd::erase_if_present(open, currentNode);
+		closed.insert(currentNode);
+
+		if (gen->isFree(currentNode))
+		{
+			// Trace the path using the saved parent information and return path
+			int3 backTracking = currentNode;
+			while (cameFrom[backTracking].valid())
+			{
+				gen->setOccupied(backTracking, ETileType::FREE);
+				backTracking = cameFrom[backTracking];
+			}
+			return true;
+		}
+		else
+		{
+			auto foo = [gen, this, &open, &closed, &cameFrom, &currentNode, &distances](int3& pos) -> void
+			{
+				int distance = distances[currentNode] + 1;
+				int bestDistanceSoFar = 1e6; //FIXME: boost::limits
+				auto it = distances.find(pos);
+				if (it != distances.end())
+					bestDistanceSoFar = it->second;
+
+				if (gen->isBlocked(pos)) //no paths through blocked or occupied tiles
+					return;
+				if (distance < bestDistanceSoFar || !vstd::contains(closed, pos))
+				{
+					auto obj = gen->map->getTile(pos).topVisitableObj();
+					if (vstd::contains(this->tileinfo, pos))
+					{
+						cameFrom[pos] = currentNode;
+						open.insert(pos);
+						distances[pos] = distance;
+					}
+				}
+			};
+
+			if (onlyStraight)
+				gen->foreachDirectNeighbour(currentNode, foo);
+			else 
+				gen->foreach_neighbour(currentNode, foo);
+		}
+
+	}
+	for (auto tile : closed) //these tiles are sealed off and can't be connected anymore
+	{
+		//TODO: refactor, unify?
+		gen->setOccupied (tile, ETileType::BLOCKED);
+		vstd::erase_if_present(possibleTiles, tile);
+	}
+	return false;
 }
 
 
@@ -998,17 +1082,13 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 
 	if (treasures.size())
 	{
-		//find object closest to zone center, then connect it to the middle of the zone
-		int3 closestFreeTile (-1,-1,-1);
-		if (info.visitableFromBottomPositions.size()) //get random treasure tile, starting from objects accessible only from bottom
-			closestFreeTile = findClosestTile (freePaths, *RandomGeneratorUtil::nextItem(info.visitableFromBottomPositions, gen->rand));
-		else
-			closestFreeTile = findClosestTile (freePaths, *RandomGeneratorUtil::nextItem(info.visitableFromTopPositions, gen->rand));
+		//find object closest to free path, then connect it to the middle of the zone
 
 		int3 closestTile = int3(-1,-1,-1);
 		float minDistance = 1e10;
 		for (auto visitablePos : info.visitableFromBottomPositions) //objects that are not visitable from top must be accessible from bottom or side
 		{
+			int3 closestFreeTile = findClosestTile(freePaths, visitablePos);
 			if (closestFreeTile.dist2d(visitablePos) < minDistance)
 			{
 				closestTile = visitablePos + int3 (0, 1, 0); //start below object (y+1), possibly even outside the map (?)
@@ -1019,6 +1099,7 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 		{
 			for (auto visitablePos : info.visitableFromTopPositions) //all objects are accessible from any direction
 			{
+				int3 closestFreeTile = findClosestTile(freePaths, visitablePos);
 				if (closestFreeTile.dist2d(visitablePos) < minDistance)
 				{
 					closestTile = visitablePos;
@@ -1034,19 +1115,12 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 				gen->setOccupied(tile, ETileType::BLOCKED); //so that crunch path doesn't cut through objects
 		}
 
-		if (!crunchPath (gen, closestTile, closestFreeTile))
+		if (!connectPath (gen, closestTile, false)) //this place is sealed off, need to find new position
 		{
-			//we can't connect this pile, just block it off and start over
-			for (auto treasure : treasures)
-			{
-				if (gen->isPossible(treasure.first))
-					gen->setOccupied (treasure.first, ETileType::BLOCKED);
-			}
-			return true;
+			return false;
 		}
 
 		//update boundary around our objects, including knowledge about objects visitable from bottom
-
 		boundary.clear();
 
 		for (auto tile : info.visitableFromBottomPositions)
@@ -1118,7 +1192,11 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 		return true;
 	}
 	else //we did not place eveyrthing successfully
+	{
+		gen->setOccupied(pos, ETileType::BLOCKED); //TODO: refactor stop condition
+		vstd::erase_if_present(possibleTiles, pos);
 		return false;
+	}
 }
 void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 {
@@ -1367,18 +1445,32 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 {
 	logGlobal->traceStream() << "Creating required objects";
 	
-	for(const auto &obj : requiredObjects)
+	for(const auto &object : requiredObjects)
 	{
+		auto obj = object.first;
 		int3 pos;
-		if ( ! findPlaceForObject(gen, obj.first, 3, pos))		
+		do
 		{
-			logGlobal->errorStream() << boost::format("Failed to fill zone %d due to lack of space") %id;
-			//TODO CLEANUP!
-			return false;
-		}		
+			if (!findPlaceForObject(gen, obj, 3, pos))
+			{
+				logGlobal->errorStream() << boost::format("Failed to fill zone %d due to lack of space") % id;
+				return false;
+			}
+
+			//check if we can find a path around this object. Tiles will be set to "USED" after object is successfully placed.
+			obj->pos = pos;
+			gen->setOccupied (obj->visitablePos(), ETileType::BLOCKED);
+			for (auto tile : obj->getBlockedPos())
+			{
+				if (gen->map->isInTheMap(tile))
+					gen->setOccupied(tile, ETileType::BLOCKED);
+			}		
+
+		}
+		while (!connectPath(gen, getAccessibleOffset(gen, obj->appearance, pos, obj->getBlockedOffsets()), true)); //position was wrong, cannot connect it with free paths
 	
-		placeObject (gen, obj.first, pos);
-		guardObject (gen, obj.first, obj.second, (obj.first->ID == Obj::MONOLITH_TWO_WAY), true);
+		placeObject(gen, obj, pos);
+		guardObject (gen, obj, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
 		//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones	
 	}
 
@@ -1461,6 +1553,7 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 		const double minDistance = std::max<float>((125.f / totalDensity), 2);
 		//distance lower than 2 causes objects to overlap and crash
 
+		bool stop = false;
 		do {
 			//optimization - don't check tiles which are not allowed
 			vstd::erase_if(possibleTiles, [gen](const int3 &tile) -> bool
@@ -1468,16 +1561,20 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 				return !gen->isPossible(tile);
 			});
 
-			int3 pos;
-
+			
+			int3 treasureTilePos;
 			//If we are able to place at least one object with value lower than minGuardedValue, it's ok
-			if (!findPlaceForTreasurePile(gen, minDistance, pos, t.min))
+			do
 			{
-				break;
+				if (!findPlaceForTreasurePile(gen, minDistance, treasureTilePos, t.min))
+				{
+					stop = true;
+					break;
+				}
 			}
-			createTreasurePile(gen, pos, minDistance, t);
+			while (!createTreasurePile(gen, treasureTilePos, minDistance, t)); //failed creation - position was wrong, cannot connect it
 
-		} while (true);
+		} while (!stop);
 	}
 }
 
@@ -1701,7 +1798,12 @@ bool CRmgTemplateZone::canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplat
 
 bool CRmgTemplateZone::isAccessibleFromAnywhere (CMapGenerator* gen, ObjectTemplate &appearance,  int3 &tile, const std::set<int3> &tilesBlockedByObject) const
 {
-	bool accessible = false;
+	return getAccessibleOffset(gen, appearance, tile, tilesBlockedByObject).valid();
+}
+
+int3 CRmgTemplateZone::getAccessibleOffset(CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile, const std::set<int3> &tilesBlockedByObject) const
+{
+	int3 ret(-1, -1, -1);
 	for (int x = -1; x < 2; x++)
 	{
 		for (int y = -1; y <2; y++)
@@ -1715,13 +1817,13 @@ bool CRmgTemplateZone::isAccessibleFromAnywhere (CMapGenerator* gen, ObjectTempl
 					if (gen->map->isInTheMap(nearbyPos))
 					{
 						if (appearance.isVisitableFrom(x, y) && !gen->isBlocked(nearbyPos))
-							accessible = true;
+							ret = nearbyPos;
 					}
 				}
 			}
 		};
 	}
-	return accessible;
+	return ret;
 }
 
 void CRmgTemplateZone::setTemplateForObject(CMapGenerator* gen, CGObjectInstance* obj)
@@ -1886,7 +1988,7 @@ std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (CMapGenerator* gen, CG
 
 	gen->foreach_neighbour(visitable, [&](int3& pos) 
 	{
-		if (gen->isPossible(pos))
+		if (gen->isPossible(pos) || gen->isFree(pos))
 		{
 			if (!vstd::contains(tilesBlockedByObject, pos))
 			{
@@ -1904,25 +2006,18 @@ std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (CMapGenerator* gen, CG
 
 bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard, bool addToFreePaths)
 {
-	logGlobal->traceStream() << boost::format("Guard object at %s") % object->pos();
+	std::vector<int3> tiles = getAccessibleOffsets(gen, object);
 
-	std::vector<int3> tiles = getAccessibleOffsets (gen, object);
+	int3 guardTile(-1, -1, -1);
 
-	int3 guardTile(-1,-1,-1);
-
-	for (auto tile : tiles)
+	if (tiles.size())
 	{
-		//crunching path may fail if center of the zone is directly over wide object
-		//make sure object is accessible before surrounding it with blocked tiles
-		if (crunchPath (gen, tile, findClosestTile(freePaths, tile), addToFreePaths ? &freePaths : nullptr))
-		{
-			guardTile = tile;
-			break;
-		}
+		guardTile = tiles.front();
+		logGlobal->traceStream() << boost::format("Guard object at %s") % object->pos();
 	}
-	if (!guardTile.valid())
+	else
 	{
-		logGlobal->errorStream() << boost::format("Failed to crunch path to object at %s") % object->pos();
+		logGlobal->errorStream() << boost::format("Failed to guard object at %s") % object->pos();
 		return false;
 	}
 
