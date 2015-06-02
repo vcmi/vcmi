@@ -1191,70 +1191,66 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 		logGlobal->infoStream() << "Preparing playing zone";
 		int player_id = *owner - 1;
 		auto & playerInfo = gen->map->players[player_id];
+		PlayerColor player(player_id);
 		if (playerInfo.canAnyonePlay())
 		{
-			PlayerColor player(player_id);
+			player = PlayerColor(player_id);
 			townType = gen->mapGenOptions->getPlayersSettings().find(player)->second.getStartingTown();
 
 			if (townType == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
-			{
-				if (townTypes.size())
-					townType = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
-				else
-					townType = *RandomGeneratorUtil::nextItem(getDefaultTownTypes(), gen->rand); //it is possible to have zone with no towns allowed
-			}
-			
-			auto  town = new CGTownInstance();
-			town->ID = Obj::TOWN;
+				randomizeTownType(gen);
+		}
+		else //no player - randomize town
+		{
+			player = PlayerColor::NEUTRAL;
+			randomizeTownType(gen);
+		}
 
-			town->subID = townType;
-			town->tempOwner = player;
-			town->builtBuildings.insert(BuildingID::FORT);
-			town->builtBuildings.insert(BuildingID::DEFAULT);
+		auto  town = new CGTownInstance();
+		town->ID = Obj::TOWN;
 
-			for (auto spell : VLC->spellh->objects) //add all regular spells to town
-			{
-				if (!spell->isSpecialSpell() && !spell->isCreatureAbility())
-					town->possibleSpells.push_back(spell->id);
-			}
-			//towns are big objects and should be centered around visitable position
-			placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0); //generate no guards, but free path to entrance
-			cutPathAroundTown(town);
+		town->subID = townType;
+		town->tempOwner = player;
+		town->builtBuildings.insert(BuildingID::FORT);
+		town->builtBuildings.insert(BuildingID::DEFAULT);
 
-			totalTowns++;
-			//register MAIN town of zone only
-			gen->registerZone (town->subID);
+		for (auto spell : VLC->spellh->objects) //add all regular spells to town
+		{
+			if (!spell->isSpecialSpell() && !spell->isCreatureAbility())
+				town->possibleSpells.push_back(spell->id);
+		}
+		//towns are big objects and should be centered around visitable position
+		placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0); //generate no guards, but free path to entrance
+		cutPathAroundTown(town);
 
+		totalTowns++;
+		//register MAIN town of zone only
+		gen->registerZone (town->subID);
+
+		if (playerInfo.canAnyonePlay()) //configure info for owning player
+		{
 			logGlobal->traceStream() << "Fill player info " << player_id;
 
 			// Update player info
 			playerInfo.allowedFactions.clear();
-			playerInfo.allowedFactions.insert (townType);
+			playerInfo.allowedFactions.insert(townType);
 			playerInfo.hasMainTown = true;
 			playerInfo.posOfMainTown = town->pos - town->getVisitableOffset();
 			playerInfo.generateHeroAtMainTown = true;
 
 			//now create actual towns
-			addNewTowns (playerTowns.getCastleCount() - 1, true, player);
-			addNewTowns (playerTowns.getTownCount(), false, player);
-
-			//requiredObjects.push_back(town);
+			addNewTowns(playerTowns.getCastleCount() - 1, true, player);
+			addNewTowns(playerTowns.getTownCount(), false, player);
 		}
 		else
-		{			
-			type = ETemplateZoneType::TREASURE;
-			if (townTypes.size())
-				townType = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
-			else
-				townType = *RandomGeneratorUtil::nextItem(getDefaultTownTypes(), gen->rand); //it is possible to have zone with no towns allowed
+		{
+			addNewTowns(playerTowns.getCastleCount() - 1, true, PlayerColor::NEUTRAL);
+			addNewTowns(playerTowns.getTownCount(), false, PlayerColor::NEUTRAL);
 		}
 	}
-	else //no player
+	else //randomize town types for any other zones as well
 	{
-		if (townTypes.size())
-			townType = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
-		else
-			townType = *RandomGeneratorUtil::nextItem(getDefaultTownTypes(), gen->rand); //it is possible to have zone with no towns allowed
+		randomizeTownType(gen);
 	}
 
 	addNewTowns (neutralTowns.getCastleCount(), true, PlayerColor::NEUTRAL);
@@ -1273,9 +1269,18 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				townType = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
 			else if (monsterTypes.size())
 				townType = *RandomGeneratorUtil::nextItem(monsterTypes, gen->rand); //this happens in Clash of Dragons in treasure zones, where all towns are banned
+			else //just in any case
+				randomizeTownType(gen);
 		}
-
 	}
+}
+
+void CRmgTemplateZone::randomizeTownType (CMapGenerator* gen)
+{
+	if (townTypes.size())
+		townType = *RandomGeneratorUtil::nextItem(townTypes, gen->rand);
+	else
+		townType = *RandomGeneratorUtil::nextItem(getDefaultTownTypes(), gen->rand); //it is possible to have zone with no towns allowed, we still need some
 }
 
 void CRmgTemplateZone::initTerrainType (CMapGenerator* gen)

@@ -1,0 +1,12 @@
+{
+	"name" : "Clash of Dragons",
+	"description" : "Random map template, 1v1 L+U/XL+U",
+
+	"version" : "0.99",
+	"author" : "Malekith, ported by VCMI Team",
+	"contact" : "http://forum.vcmi.eu/index.php",
+	"modType" : "Templates",
+	"templates" : [
+		"config/defaultTemplates/clashOfDragons"
+	],
+}

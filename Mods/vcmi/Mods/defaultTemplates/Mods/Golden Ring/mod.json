@@ -1,0 +1,12 @@
+{
+	"name" : "Golden Ring",
+	"description" : "Random map template, 3p M+U/L",
+
+	"version" : "0.99",
+	"author" : "VCMI Team",
+	"contact" : "http://forum.vcmi.eu/index.php",
+	"modType" : "Templates",
+	"templates" : [
+		"config/defaultTemplates/goldenRing"
+	],
+}

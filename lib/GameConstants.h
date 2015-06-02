@@ -942,6 +942,8 @@ enum class ESpellSchool: ui8
 	EARTH 	= 3
 };
 
+ID_LIKE_OPERATORS_DECLS(SpellID, SpellID::ESpellID)
+
 // Typedef declarations
 typedef ui8 TFaction;
 typedef si64 TExpType;

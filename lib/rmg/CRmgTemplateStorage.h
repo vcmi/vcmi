@@ -13,28 +13,27 @@
 
 #include "CRmgTemplate.h"
 #include "CRmgTemplateZone.h"
+#include "../IHandlerBase.h"
 
 class JsonNode;
 
 typedef std::vector<JsonNode> JsonVector;
 
-/// The CRmgTemplateLoader is a abstract base class for loading templates.
-class DLL_LINKAGE CRmgTemplateLoader
+/// The CJsonRmgTemplateLoader loads templates from a JSON file.
+class DLL_LINKAGE CRmgTemplateStorage : public IHandlerBase
 {
 public:
-	virtual ~CRmgTemplateLoader() { };
-	virtual void loadTemplates() = 0;
+	CRmgTemplateStorage();
+	~CRmgTemplateStorage();
+
 	const std::map<std::string, CRmgTemplate *> & getTemplates() const;
 
-protected:
-	std::map<std::string, CRmgTemplate *> templates;
-};
+	std::vector<bool> getDefaultAllowed() const;
+	std::vector<JsonNode> loadLegacyData(size_t dataSize);
 
-/// The CJsonRmgTemplateLoader loads templates from a JSON file.
-class DLL_LINKAGE CJsonRmgTemplateLoader : public CRmgTemplateLoader
-{
-public:
-	void loadTemplates() override;
+	/// loads single object into game. Scope is namespace of this object, same as name of source mod
+	virtual void loadObject(std::string scope, std::string name, const JsonNode & data);
+	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index);
 
 private:
 	CRmgTemplate::CSize parseMapTemplateSize(const std::string & text) const;
@@ -43,17 +42,8 @@ private:
 	std::set<TFaction> parseTownTypes(const JsonVector & townTypesVector, const std::set<TFaction> & defaultTownTypes) const;
 	std::set<ETerrainType> parseTerrainTypes(const JsonVector & terTypeStrings, const std::set<ETerrainType> & defaultTerrainTypes) const;
 	CRmgTemplate::CPlayerCountRange parsePlayers(const std::string & players) const;
+
+protected:
+	std::map<std::string, CRmgTemplate *> templates;
 };
 
-/// The class CRmgTemplateStorage stores random map templates.
-class DLL_LINKAGE CRmgTemplateStorage
-{
-public:
-	CRmgTemplateStorage();
-	~CRmgTemplateStorage();
-
-	const std::map<std::string, CRmgTemplate *> & getTemplates() const;
-
-private:
-	std::map<std::string, CRmgTemplate *> templates; /// Key: Template name
-};
