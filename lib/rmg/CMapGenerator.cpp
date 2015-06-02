@@ -144,7 +144,7 @@ std::string CMapGenerator::getMapDescription() const
 
     std::stringstream ss;
     ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
-        ", levels %s, humans %d, computers %d, water %s, monster %s, VCMI map") % mapGenOptions->getMapTemplate()->getName() %
+        ", levels %s, players %d, computers %d, water %s, monster %s, VCMI map") % mapGenOptions->getMapTemplate()->getName() %
 		randomSeed % map->width % map->height % (map->twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions->getPlayerCount()) %
 		static_cast<int>(mapGenOptions->getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions->getWaterContent()] %
 		monsterStrengthStr[monsterStrengthIndex]);
@@ -169,19 +169,32 @@ std::string CMapGenerator::getMapDescription() const
 void CMapGenerator::addPlayerInfo()
 {
 	// Calculate which team numbers exist
-	std::array<std::list<int>, 2> teamNumbers; // 0= cpu/human, 1= cpu only
-	int teamOffset = 0;
-	for(int i = 0; i < 2; ++i)
-	{
-		int playerCount = i == 0 ? mapGenOptions->getPlayerCount() : mapGenOptions->getCompOnlyPlayerCount();
-		int teamCount = i == 0 ? mapGenOptions->getTeamCount() : mapGenOptions->getCompOnlyTeamCount();
 
+	enum ETeams {CPHUMAN = 0, CPUONLY = 1, AFTER_LAST = 2};
+	std::array<std::list<int>, 2> teamNumbers;
+
+	int teamOffset = 0;
+	int playerCount = 0;
+	int teamCount = 0;
+
+	for (int i = CPHUMAN; i < AFTER_LAST; ++i)
+	{
+		if (i == CPHUMAN)
+		{
+			playerCount = mapGenOptions->getPlayerCount();
+			teamCount = mapGenOptions->getTeamCount();
+		}
+		else
+		{
+			playerCount = mapGenOptions->getCompOnlyPlayerCount();
+			teamCount = mapGenOptions->getCompOnlyTeamCount();
+		}
+		
 		if(playerCount == 0)
 		{
 			continue;
 		}
-		int playersPerTeam = playerCount /
-				(teamCount == 0 ? playerCount : teamCount);
+		int playersPerTeam = playerCount / (teamCount == 0 ? playerCount : teamCount);
 		int teamCountNorm = teamCount;
 		if(teamCountNorm == 0)
 		{
@@ -202,17 +215,23 @@ void CMapGenerator::addPlayerInfo()
 	}
 
 	// Team numbers are assigned randomly to every player
+	//TODO: allow customize teams in rmg template
 	for(const auto & pair : mapGenOptions->getPlayersSettings())
 	{
 		const auto & pSettings = pair.second;
 		PlayerInfo player;
 		player.canComputerPlay = true;
-		int j = pSettings.getPlayerType() == EPlayerType::COMP_ONLY ? 1 : 0;
-		if(j == 0)
+		int j = (pSettings.getPlayerType() == EPlayerType::COMP_ONLY) ? CPUONLY : CPHUMAN;
+		if (j == CPHUMAN)
 		{
 			player.canHumanPlay = true;
 		}
 
+		if (teamNumbers[j].empty())
+		{
+			logGlobal->errorStream() << boost::format("Not enough places in team for %s player") % ((j == CPUONLY) ? "CPU" : "CPU or human");
+			assert (teamNumbers[j].size());
+		}
         auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
 		player.team = TeamID(*itTeam);
 		teamNumbers[j].erase(itTeam);

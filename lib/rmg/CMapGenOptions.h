@@ -103,7 +103,7 @@ public:
 	bool getHasTwoLevels() const;
 	void setHasTwoLevels(bool value);
 
-	/// The count of the players ranging from 1 to PlayerColor::PLAYER_LIMIT or RANDOM_SIZE for random. If you call
+	/// The count of all (human or computer) players ranging from 1 to PlayerColor::PLAYER_LIMIT or RANDOM_SIZE for random. If you call
 	/// this method, all player settings are reset to default settings.
 	si8 getPlayerCount() const;
 	void setPlayerCount(si8 value);
@@ -155,6 +155,7 @@ public:
 private:
 	void resetPlayersMap();
 	int countHumanPlayers() const;
+	int countCompOnlyPlayers() const;
 	PlayerColor getNextPlayerColor() const;
 	void updateCompOnlyPlayers();
 	void updatePlayers();
@@ -162,7 +163,7 @@ private:
 
 	si32 width, height;
 	bool hasTwoLevels;
-	si8 playerCount, teamCount, compOnlyPlayerCount, compOnlyTeamCount;
+	si8 playerCount, teamCount, humanPlayersCount, compOnlyPlayerCount, compOnlyTeamCount;
 	EWaterContent::EWaterContent waterContent;
 	EMonsterStrength::EMonsterStrength monsterStrength;
 	std::map<PlayerColor, CPlayerSettings> players;
@@ -173,7 +174,7 @@ public:
 	void serialize(Handler & h, const int version)
 	{
 		h & width & height & hasTwoLevels & playerCount & teamCount & compOnlyPlayerCount;
-		h & compOnlyTeamCount & waterContent & monsterStrength & players;
+		h & compOnlyTeamCount & waterContent & monsterStrength & players & humanPlayersCount;
 		//TODO add name of template to class, enables selection of a template by a user
 	}
 };
