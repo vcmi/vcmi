@@ -43,11 +43,11 @@
 			"type": "number",
 			"minimum": 1,
 			"additionalProperties" : false,
-		}
+		},
 		"connection":
 		{
-			required: ["a", "b", "guard"]
-			properties:{
+			"required": ["a", "b", "guard"],
+			"properties":{
 				"a":{
 					"type" : "string"
 				},
