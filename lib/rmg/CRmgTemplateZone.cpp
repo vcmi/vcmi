@@ -1466,7 +1466,7 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 				if (gen->map->isInTheMap(tile))
 					gen->setOccupied(tile, ETileType::BLOCKED);
 			}
-			accessibleOffset = getAccessibleOffset(gen, obj->appearance, pos, obj->getBlockedOffsets());
+			accessibleOffset = getAccessibleOffset(gen, obj->appearance, pos);
 			if (!accessibleOffset.valid())
 			{
 				logGlobal->warnStream() << boost::format("Cannot access required object at position %s, retrying") % pos;
@@ -1506,7 +1506,7 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 		for (auto tile : tiles)
 		{
 			//object must be accessible from at least one surounding tile
-			if (!isAccessibleFromAnywhere(gen, obj.first->appearance, tile, tilesBlockedByObject))
+			if (!isAccessibleFromAnywhere(gen, obj.first->appearance, tile))
 				continue;
 
 			//avoid borders
@@ -1817,13 +1817,15 @@ bool CRmgTemplateZone::canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplat
 	return true;
 }
 
-bool CRmgTemplateZone::isAccessibleFromAnywhere (CMapGenerator* gen, ObjectTemplate &appearance,  int3 &tile, const std::set<int3> &tilesBlockedByObject) const
+bool CRmgTemplateZone::isAccessibleFromAnywhere (CMapGenerator* gen, ObjectTemplate &appearance,  int3 &tile) const
 {
-	return getAccessibleOffset(gen, appearance, tile, tilesBlockedByObject).valid();
+	return getAccessibleOffset(gen, appearance, tile).valid();
 }
 
-int3 CRmgTemplateZone::getAccessibleOffset(CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile, const std::set<int3> &tilesBlockedByObject) const
+int3 CRmgTemplateZone::getAccessibleOffset(CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile) const
 {
+	auto tilesBlockedByObject = appearance.getBlockedOffsets();
+
 	int3 ret(-1, -1, -1);
 	for (int x = -1; x < 2; x++)
 	{
@@ -1891,7 +1893,7 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 	for (auto tile : tileinfo)
 	{
 		//object must be accessible from at least one surounding tile
-		if (!isAccessibleFromAnywhere(gen, obj->appearance, tile, tilesBlockedByObject))
+		if (!isAccessibleFromAnywhere(gen, obj->appearance, tile))
 			continue;
 
 		auto ti = gen->getTile(tile);
@@ -2033,7 +2035,8 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 
 	if (tiles.size())
 	{
-		guardTile = tiles.front();
+		//guardTile = tiles.front();
+		guardTile = getAccessibleOffset(gen, object->appearance, object->pos);
 		logGlobal->traceStream() << boost::format("Guard object at %s") % object->pos();
 	}
 	else
@@ -2091,7 +2094,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 				//objectsVisitableFromBottom++;
 				//there must be free tiles under object
 				auto blockedOffsets = oi.templ.getBlockedOffsets();
-				if (!isAccessibleFromAnywhere(gen, oi.templ, newVisitablePos, blockedOffsets))
+				if (!isAccessibleFromAnywhere(gen, oi.templ, newVisitablePos))
 					continue;
 			}
 
