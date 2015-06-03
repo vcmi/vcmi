@@ -1662,6 +1662,14 @@ void CRmgTemplateZone::createObstacles2(CMapGenerator* gen)
 			}
 		}
 	}
+	//cleanup - remove unused possible tiles to make space for roads
+	for (auto tile : tileinfo)
+	{
+		if (gen->isPossible(tile))
+		{
+			gen->setOccupied (tile, ETileType::FREE);
+		}
+	}
 }
 
 void CRmgTemplateZone::connectRoads(CMapGenerator* gen)

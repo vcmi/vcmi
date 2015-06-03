@@ -557,6 +557,7 @@ void CMapGenerator::createConnections()
 							zoneA->placeAndGuardObject(this, gate1, tile, connection.getGuardStrength());
 							auto gate2 = new CGSubterraneanGate(*gate1);
 							zoneB->placeAndGuardObject(this, gate2, otherTile, connection.getGuardStrength());
+							//TODO: connect gates with middle of zone / free paths. At this point free paths do not exist yet.
 
 							stop = true; //we are done, go to next connection
 						}
