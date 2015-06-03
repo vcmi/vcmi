@@ -1449,7 +1449,8 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 	{
 		auto obj = object.first;
 		int3 pos;
-		do
+		int3 accessibleOffset;
+		while (true)
 		{
 			if (!findPlaceForObject(gen, obj, 3, pos))
 			{
@@ -1464,10 +1465,22 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 			{
 				if (gen->map->isInTheMap(tile))
 					gen->setOccupied(tile, ETileType::BLOCKED);
-			}		
-
+			}
+			accessibleOffset = getAccessibleOffset(gen, obj->appearance, pos, obj->getBlockedOffsets());
+			if (!accessibleOffset.valid())
+			{
+				logGlobal->warnStream() << boost::format("Cannot access required object at position %s, retrying") % pos;
+				continue;
+			}
+			if (!connectPath(gen, accessibleOffset, true))
+			{
+				logGlobal->warnStream() << boost::format("Failed to create path to required object at position %s, retrying") % pos;
+				continue;
+			}
+			else
+				break;
 		}
-		while (!connectPath(gen, getAccessibleOffset(gen, obj->appearance, pos, obj->getBlockedOffsets()), true)); //position was wrong, cannot connect it with free paths
+
 	
 		placeObject(gen, obj, pos);
 		guardObject (gen, obj, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
@@ -1818,7 +1831,7 @@ int3 CRmgTemplateZone::getAccessibleOffset(CMapGenerator* gen, ObjectTemplate &a
 		{
 			if (x && y) //check only if object is visitable from another tile
 			{
-				int3 offset = appearance.getVisitableOffset() + int3(x, y, 0);
+				int3 offset = int3(x, y, 0) - appearance.getVisitableOffset();
 				if (!vstd::contains(tilesBlockedByObject, offset))
 				{
 					int3 nearbyPos = tile + offset;
