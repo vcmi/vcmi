@@ -1347,7 +1347,6 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0);
 				cutPathAroundTown(town);
 				setPos(town->visitablePos() + (0, 1, 0)); //new center of zone that paths connect to
-				gen->setOccupied (this->getPos(), ETileType::FREE);
 			}
 			else
 				addRequiredObject (town);
@@ -1394,7 +1393,6 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 		placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0); //generate no guards, but free path to entrance
 		cutPathAroundTown(town);
 		setPos(town->visitablePos() + (0, 1, 0)); //new center of zone that paths connect to
-		gen->setOccupied (getPos(), ETileType::FREE);
 
 		totalTowns++;
 		//register MAIN town of zone only
@@ -1844,7 +1842,9 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 {
 	initTerrainType(gen);
 
-	freePaths.insert(pos); //zone center should be always clear to allow other tiles to connect
+	//zone center should be always clear to allow other tiles to connect
+	gen->setOccupied(this->getPos(), ETileType::FREE);
+	freePaths.insert(pos); 
 
 	addAllPossibleObjects (gen);
 
