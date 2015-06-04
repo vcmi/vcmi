@@ -156,6 +156,7 @@ public:
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);
+	void addToConnectLater(const int3& src);
 	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength, bool clearSurroundingTiles = true, bool zoneGuard = false);
 	bool createTreasurePile(CMapGenerator* gen, int3 &pos, float minDistance, const CTreasureInfo& treasureInfo);
 	bool fill (CMapGenerator* gen);
@@ -166,12 +167,14 @@ public:
 	void initTerrainType (CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
 	void fractalize(CMapGenerator* gen);
+	void connectLater(CMapGenerator* gen);
 	bool createRequiredObjects(CMapGenerator* gen);
 	void createTreasures(CMapGenerator* gen);
 	void createObstacles1(CMapGenerator* gen);
 	void createObstacles2(CMapGenerator* gen);
 	bool crunchPath(CMapGenerator* gen, const int3 &src, const int3 &dst, bool onlyStraight, std::set<int3>* clearedTiles = nullptr);
 	bool connectPath(CMapGenerator* gen, const int3& src, bool onlyStraight);
+	bool connectWithCenter(CMapGenerator* gen, const int3& src, bool onlyStraight);
 	
 	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object);
 
@@ -184,6 +187,9 @@ public:
 
 	ObjectInfo getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue);
 
+	void placeSubterraneanGate(CMapGenerator* gen, int3 pos, si32 guardStrength);
+	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, bool updateDistance = true);
+	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard = false, bool addToFreePaths = false);
 	void placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str, bool zoneGuard = false);
 	void addRoadNode(const int3 & node);
 	void connectRoads(CMapGenerator * gen); //fills "roads" according to "roadNodes"
@@ -226,6 +232,7 @@ private:
 	
 	std::set<int3> roadNodes; //tiles to be connected with roads
 	std::set<int3> roads; //all tiles with roads
+	std::set<int3> tilesToConnectLater; //will be connected after paths are fractalized
 	
 	bool createRoad(CMapGenerator* gen, const int3 &src, const int3 &dst);
 	void drawRoads(CMapGenerator * gen); //actually updates tiles
@@ -240,6 +247,4 @@ private:
 	void setTemplateForObject(CMapGenerator* gen, CGObjectInstance* obj);
 	bool areAllTilesAvailable(CMapGenerator* gen, CGObjectInstance* obj, int3& tile, std::set<int3>& tilesBlockedByObject) const;
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
-	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, bool updateDistance = true);
-	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard = false, bool addToFreePaths = false);
 };

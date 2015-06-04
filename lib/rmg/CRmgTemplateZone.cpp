@@ -608,6 +608,15 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 	//logGlobal->infoStream() << boost::format ("Zone %d subdivided fractally") %id;
 }
 
+void CRmgTemplateZone::connectLater(CMapGenerator* gen)
+{
+	for (const int3 node : tilesToConnectLater)
+	{
+		if (!connectWithCenter(gen, node, true))
+			logGlobal->errorStream() << boost::format("Failed to connect node %s with center of the zone") % node;
+	}
+}
+
 bool CRmgTemplateZone::crunchPath(CMapGenerator* gen, const int3 &src, const int3 &dst, bool onlyStraight, std::set<int3>* clearedTiles)
 {
 /*
@@ -767,7 +776,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 
 			auto foo = [gen, this, &open, &closed, &cameFrom, &currentNode, &distances, &dst, &directNeighbourFound, movementCost](int3& pos) -> void
 			{
-				int distance = distances[currentNode] + movementCost;
+				float distance = distances[currentNode] + movementCost;
 				int bestDistanceSoFar = 1e6; //FIXME: boost::limits
 				auto it = distances.find(pos);
 				if (it != distances.end())
@@ -816,7 +825,6 @@ bool CRmgTemplateZone::connectPath(CMapGenerator* gen, const int3& src, bool onl
 	std::map<int3, float> distances;
 
 	int3 currentNode = src;
-	gen->setRoad(src, ERoadType::NO_ROAD); //just in case zone guard already has road under it. Road under nodes will be added at very end
 
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
 	distances[src] = 0;
@@ -833,7 +841,7 @@ bool CRmgTemplateZone::connectPath(CMapGenerator* gen, const int3& src, bool onl
 		vstd::erase_if_present(open, currentNode);
 		closed.insert(currentNode);
 
-		if (gen->isFree(currentNode))
+		if (gen->isFree(currentNode)) //we reached free paths, stop
 		{
 			// Trace the path using the saved parent information and return path
 			int3 backTracking = currentNode;
@@ -884,6 +892,84 @@ bool CRmgTemplateZone::connectPath(CMapGenerator* gen, const int3& src, bool onl
 	return false;
 }
 
+bool CRmgTemplateZone::connectWithCenter(CMapGenerator* gen, const int3& src, bool onlyStraight)
+///connect current tile to any other free tile within zone
+{
+	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
+
+	std::set<int3> closed;    // The set of nodes already evaluated.
+	std::set<int3> open{ src };    // The set of tentative nodes to be evaluated, initially containing the start node
+	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
+	std::map<int3, float> distances;
+
+	int3 currentNode = src;
+
+	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
+	distances[src] = 0;
+	// Cost from start along best known path.
+	// Estimated total cost from start to goal through y.
+
+	while (open.size())
+	{
+		int3 currentNode = *boost::min_element(open, [&distances](const int3 &pos1, const int3 &pos2) -> bool
+		{
+			return distances[pos1] < distances[pos2];
+		});
+
+		vstd::erase_if_present(open, currentNode);
+		closed.insert(currentNode);
+
+		if (currentNode == pos) //we reached center of the zone, stop
+		{
+			// Trace the path using the saved parent information and return path
+			int3 backTracking = currentNode;
+			while (cameFrom[backTracking].valid())
+			{
+				gen->setOccupied(backTracking, ETileType::FREE);
+				backTracking = cameFrom[backTracking];
+			}
+			return true;
+		}
+		else
+		{
+			auto foo = [gen, this, &open, &closed, &cameFrom, &currentNode, &distances](int3& pos) -> void
+			{
+				float movementCost = 0;
+				if (gen->isFree(pos))
+					movementCost = 1;
+				else if (gen->isPossible(pos))
+					movementCost = 2;
+				else
+					return;
+
+				float distance = distances[currentNode] + movementCost; //we prefer to use already free paths
+				int bestDistanceSoFar = 1e6; //FIXME: boost::limits
+				auto it = distances.find(pos);
+				if (it != distances.end())
+					bestDistanceSoFar = it->second;
+
+				if (distance < bestDistanceSoFar || !vstd::contains(closed, pos))
+				{
+					auto obj = gen->map->getTile(pos).topVisitableObj();
+					if (vstd::contains(this->tileinfo, pos))
+					{
+						cameFrom[pos] = currentNode;
+						open.insert(pos);
+						distances[pos] = distance;
+					}
+				}
+			};
+
+			if (onlyStraight)
+				gen->foreachDirectNeighbour(currentNode, foo);
+			else
+				gen->foreach_neighbour(currentNode, foo);
+		}
+
+	}
+	return false;
+}
+
 
 void CRmgTemplateZone::addRequiredObject(CGObjectInstance * obj, si32 strength)
 {
@@ -892,6 +978,11 @@ void CRmgTemplateZone::addRequiredObject(CGObjectInstance * obj, si32 strength)
 void CRmgTemplateZone::addCloseObject(CGObjectInstance * obj, si32 strength)
 {
 	closeObjects.push_back(std::make_pair(obj, strength));
+}
+
+void CRmgTemplateZone::addToConnectLater(const int3& src)
+{
+	tilesToConnectLater.insert(src);
 }
 
 bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, bool clearSurroundingTiles, bool zoneGuard)
@@ -1255,6 +1346,8 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				//first town in zone goes in the middle
 				placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0);
 				cutPathAroundTown(town);
+				setPos(town->visitablePos() + (0, 1, 0)); //new center of zone that paths connect to
+				gen->setOccupied (this->getPos(), ETileType::FREE);
 			}
 			else
 				addRequiredObject (town);
@@ -1300,6 +1393,8 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 		//towns are big objects and should be centered around visitable position
 		placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0); //generate no guards, but free path to entrance
 		cutPathAroundTown(town);
+		setPos(town->visitablePos() + (0, 1, 0)); //new center of zone that paths connect to
+		gen->setOccupied (getPos(), ETileType::FREE);
 
 		totalTowns++;
 		//register MAIN town of zone only
@@ -1753,6 +1848,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 
 	addAllPossibleObjects (gen);
 
+	connectLater(gen); //ideally this should work after fractalize, but fails
 	fractalize(gen);
 	placeMines(gen);
 	createRequiredObjects(gen);
@@ -1999,6 +2095,16 @@ void CRmgTemplateZone::placeAndGuardObject(CMapGenerator* gen, CGObjectInstance*
 {
 	placeObject(gen, object, pos);
 	guardObject(gen, object, str, zoneGuard);
+}
+
+void CRmgTemplateZone::placeSubterraneanGate(CMapGenerator* gen, int3 pos, si32 guardStrength)
+{
+	auto gate = new CGSubterraneanGate;
+	gate->ID = Obj::SUBTERRANEAN_GATE;
+	gate->subID = 0;
+	placeObject (gen, gate, pos, true);
+	addToConnectLater (getAccessibleOffset (gen, gate->appearance, pos)); //guard will be placed on accessibleOffset
+	guardObject (gen, gate, guardStrength, true);
 }
 
 std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object)
