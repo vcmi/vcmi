@@ -196,17 +196,41 @@ void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CR
 			dwelling->creatures.back().second.push_back(cre->idNumber);
 	}
 
-	if (guards.getType() == JsonNode::DATA_BOOL)
+	bool guarded = false; //TODO: serialize for sanity
+
+	if (guards.getType() == JsonNode::DATA_BOOL) //simple switch
 	{
 		if (guards.Bool())
 		{
-			const CCreature * crea = availableCreatures.at(0).at(0);
-			dwelling->putStack(SlotID(0), new CStackInstance(crea->idNumber, crea->growth * 3 ));
+			guarded = true;
 		}
 	}
-	else for (auto & stack : JsonRandom::loadCreatures(guards, rng))
+	else if (guards.getType() == JsonNode::DATA_VECTOR) //custom guards (eg. Elemental Conflux)
 	{
-		dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->idNumber, stack.count));
+		for (auto & stack : JsonRandom::loadCreatures(guards, rng))
+		{
+			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->idNumber, stack.count));
+		}
+	}
+	else //default condition - creatures are of level 5 or higher
+	{
+		for (auto creatureEntry : availableCreatures)
+		{
+			if (creatureEntry.at(0)->level >= 5)
+			{
+				guarded = true;
+				break;
+			}
+		}
+	}
+
+	if (guarded)
+	{
+		for (auto creatureEntry : availableCreatures)
+		{
+			const CCreature * crea = creatureEntry.at(0);
+			dwelling->putStack (SlotID(dwelling->stacksCount()), new CStackInstance(crea->idNumber, crea->growth * 3));
+		}
 	}
 }
 

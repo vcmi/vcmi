@@ -65,6 +65,7 @@ public:
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
 private:
+	void updateGuards() const;
 	void heroAcceptsCreatures(const CGHeroInstance *h) const;
 };
 

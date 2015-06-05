@@ -171,6 +171,51 @@ void CGDwelling::newTurn() const
 
 	if(change)
 		cb->sendAndApply(&sac);
+
+	updateGuards();
+}
+
+void CGDwelling::updateGuards() const
+{
+	//TODO: store custom guard config and use it
+	//TODO: store boolean flag for guards
+
+	bool guarded = false;
+	//default condition - creatures are of level 5 or higher
+	for (auto creatureEntry : creatures)
+	{
+		if (VLC->creh->creatures[creatureEntry.second.at(0)]->level >= 5)
+		{
+			guarded = true;
+			break;
+		}
+	}
+
+	if (guarded)
+	{
+		for (auto creatureEntry : creatures)
+		{
+			const CCreature * crea = VLC->creh->creatures[creatureEntry.second.at(0)];
+
+			SlotID slot = getSlotFor(crea->idNumber);
+			StackLocation stackLocation = StackLocation(this, slot);;
+			if (hasStackAtSlot(slot)) //stack already exists, overwrite it
+			{
+				ChangeStackCount csc;
+				csc.sl = stackLocation;
+				csc.count = crea->growth * 3;
+				csc.absoluteValue = true;
+				cb->sendAndApply(&csc);
+			}
+			else //slot is empty, create whole new stack
+			{
+				InsertNewStack ns;
+				ns.sl = stackLocation;
+				ns.stack = CStackBasicDescriptor(crea->idNumber, crea->growth * 3);
+				cb->sendAndApply(&ns);
+			}
+		}
+	}
 }
 
 void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
