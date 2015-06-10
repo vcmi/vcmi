@@ -200,9 +200,22 @@
 		}
 	},
 
-	// subtype: 0 = normal, 1 = anti-magic
-	"garrisonHorizontal"			: { "index" :33, "handler": "garrison" },
-	"garrisonVertical"				: { "index" :219, "handler": "garrison" },
+	"garrisonHorizontal": { 
+		"index" :33, 
+		"handler": "garrison",
+		"types":{
+			"normal":{"index": 0},
+			"antiMagic":{"index": 1}			
+		}	
+	},
+	"garrisonVertical": { 
+		"index" :219, 
+		"handler": "garrison",
+		"types":{
+			"normal":{"index": 0},
+			"antiMagic":{"index": 1}			
+		}	
+	},
 
 	// Subtype: paired monoliths
 	"monolithOneWayEntrance" : {
