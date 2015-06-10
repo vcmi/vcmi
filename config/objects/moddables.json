@@ -190,6 +190,7 @@
 			"crystalCavern" : { "index" : 4, "rmg" : { "value" : 3500 } },
 			"gemPond" :       { "index" : 5, "rmg" : { "value" : 3500 } },
 			"goldMine" :      { "index" : 6, "rmg" : { "value" : 7000 } },
+			"abandoned" :	  { "index" : 7}
 		}
 	},
 	"abandonedMine" : {
