@@ -2582,7 +2582,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 			std::vector <CSpell *> spells;
 			for (auto spell : VLC->spellh->objects)
 			{
-				if (!spell->isSpecialSpell() && spell->level == i)
+				if (!spell->isSpecialSpell() && !spell->isCreatureAbility() && spell->level == i)
 					spells.push_back(spell);
 			}
 
@@ -2613,7 +2613,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 			for (auto spell : VLC->spellh->objects)
 			{
 
-				if (!spell->isSpecialSpell() && spell->school[(ESpellSchool)i])
+				if (!spell->isSpecialSpell() && !spell->isCreatureAbility() &&spell->school[(ESpellSchool)i])
 					spells.push_back(spell);
 			}
 
@@ -2642,7 +2642,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 		std::vector <CSpell *> spells;
 		for (auto spell : VLC->spellh->objects)
 		{
-			if (!spell->isSpecialSpell())
+			if (!spell->isSpecialSpell() && !spell->isCreatureAbility())
 				spells.push_back(spell);
 		}
 
