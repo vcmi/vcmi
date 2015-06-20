@@ -782,11 +782,6 @@ void CBonusSystemNode::popBonuses(const CSelector &s)
 		child->popBonuses(s);
 }
 
-// void CBonusSystemNode::addNewBonus(const Bonus &b)
-// {
-// 	addNewBonus(new Bonus(b));
-// }
-
 void CBonusSystemNode::addNewBonus(Bonus *b)
 {
 	assert(!vstd::contains(exportedBonuses,b));
@@ -1204,7 +1199,6 @@ namespace Selector
 	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type(&Bonus::type);
 	DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype(&Bonus::subtype);
 	DLL_LINKAGE CSelectFieldEqual<si32> info(&Bonus::additionalInfo);
-	DLL_LINKAGE CSelectFieldEqual<ui16> duration(&Bonus::duration);
 	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType(&Bonus::source);
 	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange(&Bonus::effectRange);
 	DLL_LINKAGE CWillLastTurns turns;
@@ -1226,11 +1220,6 @@ namespace Selector
 	{
 		return CSelectFieldEqual<Bonus::BonusSource>(&Bonus::source)(source)
 			.And(CSelectFieldEqual<ui32>(&Bonus::sid)(sourceID));
-	}
-
-	CSelector DLL_EXPORT durationType(ui16 duration)
-	{
-		return CSelectFieldEqual<ui16>(&Bonus::duration)(duration);
 	}
 
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source)

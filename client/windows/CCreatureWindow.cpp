@@ -748,7 +748,7 @@ void CStackWindow::initSections()
 void CStackWindow::initBonusesList()
 {
 	BonusList output, input;
-	input = *(info->stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT).And(Selector::anyRange())));
+	input = *(info->stackNode->getBonuses(CSelector(Bonus::Permanent).And(Selector::anyRange())));
 
 	while (!input.empty())
 	{
