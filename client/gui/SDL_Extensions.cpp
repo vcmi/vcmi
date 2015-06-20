@@ -14,7 +14,6 @@ const SDL_Color Colors::METALLIC_GOLD = { 173, 142, 66, 0 };
 const SDL_Color Colors::GREEN = { 0, 255, 0, 0 };
 const SDL_Color Colors::DEFAULT_KEY_COLOR = {0, 255, 255, 0};
 
-#if (SDL_MAJOR_VERSION == 2)
 void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
 {
 	Rect rect(x,y,w,h);
@@ -27,7 +26,6 @@ void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
 	SDL_RenderPresent(mainRenderer);	
 	
 }
-#endif // VCMI_SDL1
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {

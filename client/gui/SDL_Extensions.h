@@ -27,13 +27,6 @@
 	#define STRONG_INLINE inline
 #endif
 
-#if SDL_VERSION_ATLEAST(1,3,0)
-#define SDL_GetKeyState SDL_GetKeyboardState
-#endif
-
-//SDL2 support
-#if (SDL_MAJOR_VERSION == 2)
-
 extern SDL_Window * mainWindow;
 extern SDL_Renderer * mainRenderer;
 extern SDL_Texture * screenTexture;
@@ -49,7 +42,6 @@ inline void SDL_WarpMouse(int x, int y)
 }
 
 void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h);
-#endif
 
 inline bool isCtrlKeyDown()
 {

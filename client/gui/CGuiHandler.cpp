@@ -398,13 +398,10 @@ void CGuiHandler::renderFrame()
 		// draw the mouse cursor and update the screen
 		CCS->curh->render();
 
-		#ifndef	VCMI_SDL1
 		if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
 			logGlobal->errorStream() << __FUNCTION__ << " SDL_RenderCopy " << SDL_GetError();
 
 		SDL_RenderPresent(mainRenderer);				
-		#endif		
-		
 	};
 	
 	if(curInt)
