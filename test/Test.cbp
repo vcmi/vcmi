@@ -18,18 +18,6 @@
 					<Add option="-g" />
 				</Compiler>
 			</Target>
-			<Target title="Debug-win32-SDL1">
-				<Option platforms="Windows;" />
-				<Option output="../Test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
-				<Option type="1" />
-				<Option compiler="gcc" />
-				<Compiler>
-					<Add option="-march=athlon-xp" />
-					<Add option="-Wextra" />
-					<Add option="-g" />
-				</Compiler>
-			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
