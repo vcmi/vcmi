@@ -174,12 +174,8 @@ public:
 	void keyPressed(const SDL_KeyboardEvent & key) override;
 	bool captureThisEvent(const SDL_KeyboardEvent & key) override;
 	
-#ifndef VCMI_SDL1
 	void textInputed(const SDL_TextInputEvent & event) override;
 	void textEdited(const SDL_TextEditingEvent & event) override;
-	
-	
-#endif // VCMI_SDL1	
 
 	//Filter that will block all characters not allowed in filenames
 	static void filenameFilter(std::string &text, const std::string & oldText);

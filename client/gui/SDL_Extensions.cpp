@@ -967,23 +967,19 @@ SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
 
 void CSDL_Ext::startTextInput(SDL_Rect * where)
 {
-	#ifndef VCMI_SDL1
 	if (SDL_IsTextInputActive() == SDL_FALSE)		
 	{		
 		SDL_StartTextInput();		
 	}		
 	SDL_SetTextInputRect(where);
-	#endif
 }
 
 void CSDL_Ext::stopTextInput()
 {
-	#ifndef VCMI_SDL1
 	if (SDL_IsTextInputActive() == SDL_TRUE)
 	{		
 		SDL_StopTextInput();			
 	}		
-	#endif	
 }
 
 STRONG_INLINE static uint32_t mapColor(SDL_Surface * surface, SDL_Color color)

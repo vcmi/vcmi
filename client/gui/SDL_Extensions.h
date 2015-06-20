@@ -10,15 +10,10 @@
  
 #pragma once
 #include <SDL_version.h>
-
-#ifndef VCMI_SDL1
 #include <SDL_render.h>
-#endif
-
 #include <SDL_video.h>
 #include <SDL_events.h>
 #include "../../lib/int3.h"
-//#include "../Graphics.h"
 #include "Geometries.h"
 #include "../../lib/GameConstants.h"
 

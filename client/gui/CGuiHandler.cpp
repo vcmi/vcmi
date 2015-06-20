@@ -63,10 +63,7 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 	processList(CIntObject::TIME,activityFlag,&timeinterested,cb);
 	processList(CIntObject::WHEEL,activityFlag,&wheelInterested,cb);
 	processList(CIntObject::DOUBLECLICK,activityFlag,&doubleClickInterested,cb);
-	
-	#ifndef VCMI_SDL1
 	processList(CIntObject::TEXTINPUT,activityFlag,&textInterested,cb);
-	#endif // VCMI_SDL1
 }
 
 void CGuiHandler::handleElementActivate(CIntObject * elem, ui16 activityFlag)
@@ -197,9 +194,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		if(key.keysym.sym == SDLK_KP_ENTER)
 		{
 			key.keysym.sym = (SDLKey)SDLK_RETURN;
-			#ifndef VCMI_SDL1
 			key.keysym.scancode = SDL_SCANCODE_RETURN;
-			#endif // VCMI_SDL1
 		}
 
 		bool keysCaptured = false;
@@ -271,7 +266,6 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 			}
 		}
 	}
-	#ifndef VCMI_SDL1 //SDL2x only events	
 	else if (sEvent->type == SDL_MOUSEWHEEL)
 	{
 		std::list<CIntObject*> hlp = wheelInterested;
@@ -296,7 +290,6 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		}
 	}	
 	//todo: muiltitouch
-	#endif // VCMI_SDL1
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
 		std::list<CIntObject*> hlp = lclickable;
@@ -330,7 +323,6 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		}
 	}
 	current = nullptr;
-
 } //event end
 
 void CGuiHandler::handleMouseMotion(SDL_Event *sEvent)

@@ -58,10 +58,9 @@ private:
 				   motioninterested,
 	               timeinterested,
 	               wheelInterested,
-	               doubleClickInterested;
-	#ifndef VCMI_SDL1
-	CIntObjectList textInterested;
-	#endif // VCMI_SDL1
+	               doubleClickInterested,
+	               textInterested;
+
 	               
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);               
 public:

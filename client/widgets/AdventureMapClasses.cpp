@@ -1126,8 +1126,6 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 	}
 }
 
-#ifndef VCMI_SDL1
-
 void CInGameConsole::textInputed(const SDL_TextInputEvent & event)
 {
 	if(!captureAllKeys || enteredText.size() == 0)
@@ -1144,8 +1142,6 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 {
  //do nothing here
 }
-
-#endif // VCMI_SDL1
 
 void CInGameConsole::startEnteringText()
 {
