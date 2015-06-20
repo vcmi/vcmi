@@ -18,11 +18,6 @@
 typedef int SDLX_Coord;
 typedef int SDLX_Size;
 
-typedef SDL_Keycode SDLKey;
-
-#define SDL_SRCCOLORKEY SDL_TRUE
-
-#define SDL_FULLSCREEN SDL_WINDOW_FULLSCREEN
 
 #else
 #error "unknown or unsupported SDL version"

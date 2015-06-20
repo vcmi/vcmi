@@ -103,10 +103,10 @@ public:
 	ui8 captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
 	std::list<CIntObject *> createdObj; //stack of objs being created
 
-	static SDLKey arrowToNum(SDLKey key); //converts arrow key to according numpad key
-	static SDLKey numToDigit(SDLKey key);//converts numpad digit key to normal digit key
-	static bool isNumKey(SDLKey key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
-	static bool isArrowKey(SDLKey key);
+	static SDL_Keycode arrowToNum(SDL_Keycode key); //converts arrow key to according numpad key
+	static SDL_Keycode numToDigit(SDL_Keycode key);//converts numpad digit key to normal digit key
+	static bool isNumKey(SDL_Keycode key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
+	static bool isArrowKey(SDL_Keycode key);
 	static bool amIGuiThread();
 	static void pushSDLEvent(int type, int usercode = 0);
 };

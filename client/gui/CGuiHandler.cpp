@@ -193,7 +193,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		//translate numpad keys
 		if(key.keysym.sym == SDLK_KP_ENTER)
 		{
-			key.keysym.sym = (SDLKey)SDLK_RETURN;
+			key.keysym.sym = SDLK_RETURN;
 			key.keysym.scancode = SDL_SCANCODE_RETURN;
 		}
 
@@ -445,7 +445,7 @@ void CGuiHandler::drawFPSCounter()
 	graphics->fonts[FONT_BIG]->renderTextLeft(screen, fps, yellow, Point(10, 10));
 }
 
-SDLKey CGuiHandler::arrowToNum( SDLKey key )
+SDL_Keycode CGuiHandler::arrowToNum(SDL_Keycode key )
 {
 	switch(key)
 	{
@@ -462,7 +462,7 @@ SDLKey CGuiHandler::arrowToNum( SDLKey key )
 	}	
 }
 
-SDLKey CGuiHandler::numToDigit( SDLKey key )
+SDL_Keycode CGuiHandler::numToDigit(SDL_Keycode key)
 {
 
 #define REMOVE_KP(keyName) case SDLK_KP_ ## keyName : return SDLK_ ## keyName;
@@ -495,7 +495,7 @@ SDLKey CGuiHandler::numToDigit( SDLKey key )
 #undef REMOVE_KP
 }
 
-bool CGuiHandler::isNumKey( SDLKey key, bool number )
+bool CGuiHandler::isNumKey(SDL_Keycode key, bool number)
 {
 	if(number)
 		return key >= SDLK_KP_1 && key <= SDLK_KP_0;
@@ -503,7 +503,7 @@ bool CGuiHandler::isNumKey( SDLKey key, bool number )
 		return (key >= SDLK_KP_1 && key <= SDLK_KP_0) || key == SDLK_KP_MINUS || key == SDLK_KP_PLUS || key == SDLK_KP_EQUALS;
 }
 
-bool CGuiHandler::isArrowKey( SDLKey key )
+bool CGuiHandler::isArrowKey(SDL_Keycode key)
 {
 	return key == SDLK_UP || key == SDLK_DOWN || key == SDLK_LEFT || key == SDLK_RIGHT;
 }

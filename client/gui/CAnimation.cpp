@@ -387,7 +387,7 @@ inline void SDLImageLoader::EndLine()
 SDLImageLoader::~SDLImageLoader()
 {
 	SDL_UnlockSurface(image->surf);
-	SDL_SetColorKey(image->surf, SDL_SRCCOLORKEY, 0);
+	SDL_SetColorKey(image->surf, SDL_TRUE, 0);
 	//TODO: RLE if compressed and bpp>1
 }
 

@@ -571,7 +571,7 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 		//alt + 1234567890-= casts spell from 1 - 12 slot
 		if(LOCPLINT->altPressed())
 		{
-			SDLKey hlpKey = key.keysym.sym;
+			SDL_Keycode hlpKey = key.keysym.sym;
 			if(CGuiHandler::isNumKey(hlpKey, false))
 			{
 				if(hlpKey == SDLK_KP_PLUS)
@@ -580,7 +580,7 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 					hlpKey = CGuiHandler::numToDigit(hlpKey);
 			}
 
-			static const SDLKey spellSelectors[] = {SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7, SDLK_8, SDLK_9, SDLK_0, SDLK_MINUS, SDLK_EQUALS};
+			static const SDL_Keycode spellSelectors[] = {SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7, SDLK_8, SDLK_9, SDLK_0, SDLK_MINUS, SDLK_EQUALS};
 
 			int index = -1;
 			while(++index < ARRAY_COUNT(spellSelectors) && spellSelectors[index] != hlpKey);

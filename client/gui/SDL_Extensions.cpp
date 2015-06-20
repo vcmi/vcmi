@@ -169,7 +169,7 @@ void CSDL_Ext::alphaTransform(SDL_Surface *src)
 		SDL_Color & palColor = src->format->palette->colors[i];
 		palColor = colors[i];
 	}
-	SDL_SetColorKey(src, SDL_SRCCOLORKEY, 0);
+	SDL_SetColorKey(src, SDL_TRUE, 0);
 }
 
 static void prepareOutRect(SDL_Rect *src, SDL_Rect *dst, const SDL_Rect & clip_rect)
@@ -988,7 +988,7 @@ STRONG_INLINE static uint32_t mapColor(SDL_Surface * surface, SDL_Color color)
 void CSDL_Ext::setColorKey(SDL_Surface * surface, SDL_Color color)
 {
 	uint32_t key = mapColor(surface,color);
-	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, key);	
+	SDL_SetColorKey(surface, SDL_TRUE, key);	
 }
 
 void CSDL_Ext::setDefaultColorKey(SDL_Surface * surface)
@@ -1003,7 +1003,7 @@ void CSDL_Ext::setDefaultColorKeyPresize(SDL_Surface * surface)
 
 	// set color key only if exactly such color was found
 	if (color.r == Colors::DEFAULT_KEY_COLOR.r && color.g == Colors::DEFAULT_KEY_COLOR.g && color.b == Colors::DEFAULT_KEY_COLOR.b)
-		SDL_SetColorKey(surface, SDL_SRCCOLORKEY, key);	
+		SDL_SetColorKey(surface, SDL_TRUE, key);	
 }
 
 
