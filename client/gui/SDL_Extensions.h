@@ -58,39 +58,24 @@ void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h);
 
 inline bool isCtrlKeyDown()
 {
-	#ifdef VCMI_SDL1
-	return SDL_GetKeyState(nullptr)[SDLK_LCTRL] || SDL_GetKeyState(nullptr)[SDLK_RCTRL];
-	#else
 	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
-	#endif
 }
 
 inline bool isAltKeyDown()
 {
-	#ifdef VCMI_SDL1
-	return SDL_GetKeyState(nullptr)[SDLK_LALT] || SDL_GetKeyState(nullptr)[SDLK_RALT];
-	#else
 	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LALT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RALT];
-	#endif
 }
 
 inline bool isShiftKeyDown()
 {
-	#ifdef VCMI_SDL1
-	return SDL_GetKeyState(nullptr)[SDLK_LSHIFT] || SDL_GetKeyState(nullptr)[SDLK_RSHIFT];
-	#else
 	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RSHIFT];
-	#endif
 }
 namespace CSDL_Ext
 {
+	//todo: remove
 	STRONG_INLINE void colorSetAlpha(SDL_Color & color, Uint8 alpha)
 	{
-#ifdef VCMI_SDL1
-		color.unused = alpha;
-#else
 		color.a = alpha;
-#endif	
 	}
 	//todo: should this better be assignment operator?
 	STRONG_INLINE void colorAssign(SDL_Color & dest, const SDL_Color & source)
@@ -98,20 +83,12 @@ namespace CSDL_Ext
 		dest.r = source.r;
 		dest.g = source.g;
 		dest.b = source.b;
-#ifdef VCMI_SDL1
-		dest.unused = source.unused;
-#else
 		dest.a = source.a;
-#endif			
 	}
 
 	inline void setAlpha(SDL_Surface * bg, int value)
 	{
-#ifdef VCMI_SDL1
-		SDL_SetAlpha(bg, SDL_SRCALPHA, value);
-#else
 		SDL_SetSurfaceAlphaMod(bg, value);
-#endif
 	}
 }
 struct Rect;

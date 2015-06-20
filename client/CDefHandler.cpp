@@ -181,24 +181,11 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 	BaseOffset += sizeof(SSpriteDef);
 	int BaseOffsetor = BaseOffset;
 
-	#ifdef VCMI_SDL1
-	for(int i=0; i<256; ++i)
-	{		
-		SDL_Color pr;
-		pr.r = palette[i].r;
-		pr.g = palette[i].g;
-		pr.b = palette[i].b;
-		pr.unused = palette[i].unused;
-		(*(ret->format->palette->colors+i))=pr;		
-	}
-	#else
 	if(SDL_SetPaletteColors(ret->format->palette,palette,0,256) != 0)
 	{
 		throw std::runtime_error("Unable to set palette");	
 	}
 	
-	#endif
-
 	int ftcp=0;
 
 	// If there's a margin anywhere, just blank out the whole surface.
@@ -363,13 +350,8 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 	}
 
 	SDL_Color ttcol = ret->format->palette->colors[0];
-	#ifdef VCMI_SDL1
-	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.unused);	
-	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, keycol);	
-	#else
 	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.a);	
 	SDL_SetColorKey(ret, SDL_TRUE, keycol);	
-	#endif // 0
 
 	return ret;
 }

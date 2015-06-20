@@ -53,11 +53,7 @@ CVideoPlayer::CVideoPlayer()
 	frame = nullptr;
 	codec = nullptr;
 	sws = nullptr;
-#ifdef VCMI_SDL1
-	overlay = nullptr;
-#else
 	texture = nullptr;
-#endif
 	dest = nullptr;
 	context = nullptr;
 
@@ -173,13 +169,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	// Allocate a place to put our YUV image on that screen
 	if (useOverlay)
 	{
-#ifdef VCMI_SDL1
-		overlay = SDL_CreateYUVOverlay(pos.w, pos.h,
-									   SDL_YV12_OVERLAY, screen);
-#else
 		texture = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STATIC, pos.w, pos.h);
-#endif
-
 	}
 	else
 	{
@@ -188,17 +178,11 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 		destRect.w = pos.w;
 		destRect.h = pos.h;
 	}
-#ifdef VCMI_SDL1
-	if (overlay == nullptr && dest == nullptr)
-		return false;
 
-	if (overlay)
-#else
 	if (texture == nullptr && dest == nullptr)
 		return false;
 
 	if (texture)
-#endif
 	{ // Convert the image into YUV format that SDL uses
 		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt, 
 							 pos.w, pos.h, PIX_FMT_YUV420P, 
@@ -284,23 +268,6 @@ bool CVideoPlayer::nextFrame()
 				{
 					AVPicture pict;
 
-#ifdef VCMI_SDL1
-					if (overlay) {
-						SDL_LockYUVOverlay(overlay);
-
-						pict.data[0] = overlay->pixels[0];
-						pict.data[1] = overlay->pixels[2];
-						pict.data[2] = overlay->pixels[1];
-
-						pict.linesize[0] = overlay->pitches[0];
-						pict.linesize[1] = overlay->pitches[2];
-						pict.linesize[2] = overlay->pitches[1];
-
-						sws_scale(sws, frame->data, frame->linesize,
-								  0, codecContext->height, pict.data, pict.linesize);
-
-						SDL_UnlockYUVOverlay(overlay);
-#else
 					if (texture) {
 						avpicture_alloc(&pict, AV_PIX_FMT_YUV420P, pos.w, pos.h);
 
@@ -311,7 +278,6 @@ bool CVideoPlayer::nextFrame()
 								pict.data[1], pict.linesize[1],
 								pict.data[2], pict.linesize[2]);
 						avpicture_free(&pict);
-#endif
 					}
 					else
 					{
@@ -387,21 +353,11 @@ void CVideoPlayer::close()
 		sws = nullptr;
 	}
 
-#ifdef VCMI_SDL1
-	if (overlay)
-	{
-		SDL_FreeYUVOverlay(overlay);
-		overlay = nullptr;
-	}
-#else
 	if (texture)
 	{
 		SDL_DestroyTexture(texture);
 		texture = nullptr;
 	}
-
-#endif
-
 
 	if (dest)
 	{
@@ -455,13 +411,8 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 		if(stopOnKey && keyDown())
 			return false;
 
-#ifdef VCMI_SDL1
-		SDL_DisplayYUVOverlay(overlay, &pos);
-#else
 		SDL_RenderCopy(mainRenderer, texture, NULL, &pos);
 		SDL_RenderPresent(mainRenderer);
-#endif
-
 
 		// Wait 3 frames
 		GH.mainFPSmng->framerateDelay();

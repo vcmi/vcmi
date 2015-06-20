@@ -1159,14 +1159,11 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(CGuiHandler::isArrowKey(SDLKey(k)))
 				k = CGuiHandler::arrowToNum(SDLKey(k));
 
-			#ifdef VCMI_SDL1
-			k -= SDLK_KP0 + 1;
-			#else
 			k -= SDLK_KP_1;
-			#endif // VCMI_SDL1
+
 			if(k < 0 || k > 8)
 				return;
-			
+
 			if (!CGI->mh->canStartHeroMovement())
 				return;
 
