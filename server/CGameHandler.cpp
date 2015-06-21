@@ -4213,34 +4213,42 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 		}
 		BonusList bl = *(st->getBonuses(Selector::type(Bonus::ENCHANTER)));
 		int side = gs->curB->whatSide(st->owner);
-		if (bl.size() && st->casts && !gs->curB->sides.at(side).enchanterCounter)
+		if (st->casts && !gs->curB->sides.at(side).enchanterCounter)
 		{
-			auto bonus = *RandomGeneratorUtil::nextItem(bl, gs->getRandomGenerator());
-			auto spellID = SpellID(bonus->subtype);
-			const CSpell * spell = SpellID(spellID).toSpell();
-			if (gs->curB->battleCanCastThisSpell(st->owner, spell, ECastingMode::ENCHANTER_CASTING) == ESpellCastProblem::OK) //TODO: select another available?
+			bool casted = false;
+			while (!bl.empty() and !casted)
 			{
-				BattleSpellCastParameters parameters(gs->curB);
-				parameters.spellLvl = bonus->val;
-				parameters.destination = BattleHex::INVALID;
-				parameters.casterSide = side;
-				parameters.casterColor = st->owner;	
-				parameters.caster = nullptr;
-				parameters.secHero = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
-				parameters.usedSpellPower = 0;	
-				parameters.mode = ECastingMode::ENCHANTER_CASTING;
-				parameters.casterStack = st;	
-				parameters.selectedStack = nullptr;
+				auto bonus = *RandomGeneratorUtil::nextItem(bl, gs->getRandomGenerator());
+				auto spellID = SpellID(bonus->subtype);
+				const CSpell * spell = SpellID(spellID).toSpell();
+				bl.remove_if([&bonus](Bonus * b){return b==bonus;});					
 				
-				spell->battleCast(spellEnv, parameters);				
+				if (gs->curB->battleCanCastThisSpell(st->owner, spell, ECastingMode::ENCHANTER_CASTING) == ESpellCastProblem::OK)
+				{
+					BattleSpellCastParameters parameters(gs->curB);
+					parameters.spellLvl = bonus->val;
+					parameters.destination = BattleHex::INVALID;
+					parameters.casterSide = side;
+					parameters.casterColor = st->owner;	
+					parameters.caster = nullptr;
+					parameters.secHero = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
+					parameters.usedSpellPower = 0;	
+					parameters.mode = ECastingMode::ENCHANTER_CASTING;
+					parameters.casterStack = st;	
+					parameters.selectedStack = nullptr;
+					
+					spell->battleCast(spellEnv, parameters);				
 
-				BattleSetStackProperty ssp;
-				ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
-				ssp.absolute = false;
-				ssp.val = bonus->additionalInfo; //increase cooldown counter
-				ssp.stackID = st->ID;
-				sendAndApply(&ssp);
-			}
+					BattleSetStackProperty ssp;
+					ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
+					ssp.absolute = false;
+					ssp.val = bonus->additionalInfo; //increase cooldown counter
+					ssp.stackID = st->ID;
+					sendAndApply(&ssp);
+					
+					casted = true;
+				}				
+			};
 		}
 		bl = *(st->getBonuses(Selector::type(Bonus::ENCHANTED)));
 		for (auto b : bl)
