@@ -80,7 +80,8 @@ enum
 	RESTART_GAME,
 	RETURN_TO_MENU_LOAD,
 	FULLSCREEN_TOGGLED,
-	PREPARE_RESTART_CAMPAIGN
+	PREPARE_RESTART_CAMPAIGN,
+	FORCE_QUIT //quit client without question
 };
 
 /// Central class for managing user interface logic

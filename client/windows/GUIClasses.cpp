@@ -656,7 +656,7 @@ void CSystemOptionsWindow::setGameRes(int index)
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this]{ closeAndPushEvent(SDL_QUIT); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this]{ closeAndPushEvent(SDL_USEREVENT, FORCE_QUIT); }, 0);
 }
 
 void CSystemOptionsWindow::breturnf()

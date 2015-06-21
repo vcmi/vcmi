@@ -1127,6 +1127,12 @@ static void handleEvent(SDL_Event & ev)
 	{
 		switch(ev.user.code)
 		{
+		case FORCE_QUIT:
+			{
+				handleQuit(false);	
+				return;			
+			}
+		    break;
 		case RETURN_TO_MAIN_MENU:
 			{
 				endGame();
@@ -1244,7 +1250,7 @@ void endGame()
 	vstd::clear_pointer(client);
 }
 
-void handleQuit()
+void handleQuit(bool ask/* = true*/)
 {
 	auto quitApplication = []()
 	{
@@ -1261,7 +1267,7 @@ void handleQuit()
 		exit(0);
 	};
 
-	if(client && LOCPLINT)
+	if(client && LOCPLINT && ask)
 	{
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, 0);
