@@ -183,7 +183,8 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 
 	if(SDL_SetPaletteColors(ret->format->palette,palette,0,256) != 0)
 	{
-		throw std::runtime_error("Unable to set palette");	
+		logGlobal->errorStream() << __FUNCTION__ <<": Unable to set palette";
+		logGlobal->errorStream() << SDL_GetError();		
 	}
 	
 	int ftcp=0;
