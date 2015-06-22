@@ -414,6 +414,9 @@ void CGuiHandler::renderFrame()
 
 		if(nullptr != curInt)
 			curInt->update();
+		
+		if (settings["general"]["showfps"].Bool())
+			drawFPSCounter();		
 			
 		// draw the mouse cursor and update the screen
 		CCS->curh->render();

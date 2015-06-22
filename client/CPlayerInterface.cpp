@@ -1617,9 +1617,6 @@ void CPlayerInterface::update()
 		GH.totalRedraw();
 	else
 		GH.simpleRedraw();
-
-	if (settings["general"]["showfps"].Bool())
-		GH.drawFPSCounter();
 }
 
 int CPlayerInterface::getLastIndex( std::string namePrefix)

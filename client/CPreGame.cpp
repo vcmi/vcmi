@@ -537,9 +537,6 @@ void CGPreGame::update()
 	// /FIXME: find out why GH.listInt is empty to begin with
 	if (GH.topInt() != nullptr)
 		GH.topInt()->show(screen);
-
-	if (settings["general"]["showfps"].Bool())
-		GH.drawFPSCounter();
 }
 
 void CGPreGame::openCampaignScreen(std::string name)
