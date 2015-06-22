@@ -69,12 +69,10 @@ std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX 
 CGuiHandler GH;
 static CClient *client=nullptr;
 
-#ifndef VCMI_SDL1
 int preferredDriverIndex = -1;
 SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
 SDL_Texture * screenTexture = nullptr;
-#endif // VCMI_SDL1
 
 extern boost::thread_specific_ptr<bool> inGuiThread;
 
@@ -264,11 +262,6 @@ int main(int argc, char** argv)
 		gNoGUI = true;
 		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
 	}
-#ifdef VCMI_SDL1
-	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
-	putenv((char*)"SDL_VIDEO_WINDOW_POS");
-	putenv((char*)"SDL_VIDEO_CENTERED=1");
-#endif
 
 	// Have effect on X11 system only (Linux).
 	// For whatever reason in fullscreen mode SDL takes "raw" mouse input from DGA X11 extension
@@ -338,11 +331,7 @@ int main(int argc, char** argv)
 
 	if(!gNoGUI)
 	{
-		#ifdef VCMI_SDL1
-		if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO))
-		#else
 		if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE))
-		#endif
 		{
 			logGlobal->errorStream()<<"Something was wrong: "<< SDL_GetError();
 			exit(-1);
@@ -350,7 +339,6 @@ int main(int argc, char** argv)
 		GH.mainFPSmng->init(); //(!)init here AFTER SDL_Init() while using SDL for FPS management
 		atexit(SDL_Quit);
 		
-		#ifndef VCMI_SDL1
 		int driversCount = SDL_GetNumRenderDrivers();
 		std::string preferredDriverName = video["driver"].String();
 		
@@ -371,7 +359,6 @@ int main(int argc, char** argv)
 			else
 				logGlobal->infoStream() << "\t" << driverName;
 		}			
-		#endif // VCMI_SDL1	
 		
 		config::CConfigHandler::GuiOptionsMap::key_type resPair(res["width"].Float(), res["height"].Float());
 		if (conf.guiOptions.count(resPair) == 0)
@@ -823,7 +810,6 @@ void dispose()
 
 static bool checkVideoMode(int monitorIndex, int w, int h, int& bpp, bool fullscreen)
 {
-	#ifndef VCMI_SDL1
 	SDL_DisplayMode mode;
 	const int modeCount = SDL_GetNumDisplayModes(monitorIndex);
 	for (int i = 0; i < modeCount; i++) {
@@ -833,13 +819,8 @@ static bool checkVideoMode(int monitorIndex, int w, int h, int& bpp, bool fullsc
 		}
 	}
 	return false;	
-	#else
-	bpp = SDL_VideoModeOK(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
-	return !(bpp==0);
-	#endif // VCMI_SDL1
 }
 
-#ifndef VCMI_SDL1
 static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 {
 	// VCMI will only work with 2 or 4 bytes per pixel	
@@ -982,91 +963,14 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 		
 	return true;	
 }
-#endif
-
-
 
 //used only once during initialization
 static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo)
 {
-#ifdef VCMI_SDL1
-	
-	// VCMI will only work with 2, 3 or 4 bytes per pixel
-	vstd::amax(bpp, 16);
-	vstd::amin(bpp, 32);
-
-	// Try to use the best screen depth for the display
-	int suggestedBpp = SDL_VideoModeOK(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
-	if(suggestedBpp == 0)
-	{
-		logGlobal->errorStream() << "Error: SDL says that " << w << "x" << h << " resolution is not available!";
-		return;
-	}
-
-	bool bufOnScreen = (screenBuf == screen);
-
-	if(suggestedBpp != bpp)
-	{
-		logGlobal->infoStream() << boost::format("Using %s bpp (bits per pixel) for the video mode. Default or overridden setting was %s bpp.") % suggestedBpp % bpp;
-	}
-
-	//For some reason changing fullscreen via config window checkbox result in SDL_Quit event
-	if (resetVideo)
-	{
-		if(screen) //screen has been already initialized
-			SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		SDL_InitSubSystem(SDL_INIT_VIDEO);
-	}
-
-	if((screen = SDL_SetVideoMode(w, h, suggestedBpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == nullptr)
-	{
-		logGlobal->errorStream() << "Requested screen resolution is not available (" << w << "x" << h << "x" << suggestedBpp << "bpp)";
-		throw std::runtime_error("Requested screen resolution is not available\n");
-	}
-
-	logGlobal->infoStream() << "New screen flags: " << screen->flags;
-
-	if(screen2)
-		SDL_FreeSurface(screen2);
-	screen2 = CSDL_Ext::copySurface(screen);
-	SDL_EnableUNICODE(1);
-	SDL_WM_SetCaption(NAME.c_str(),""); //set window title
-	SDL_ShowCursor(SDL_DISABLE);
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-
-#ifdef VCMI_WINDOWS
-	SDL_SysWMinfo wm;
-	SDL_VERSION(&wm.version);
-	int getwm = SDL_GetWMInfo(&wm);
-	if(getwm == 1)
-	{
-		int sw = GetSystemMetrics(SM_CXSCREEN),
-			sh = GetSystemMetrics(SM_CYSCREEN);
-		RECT curpos;
-		GetWindowRect(wm.window,&curpos);
-		int ourw = curpos.right - curpos.left,
-			ourh = curpos.bottom - curpos.top;
-		SetWindowPos(wm.window, 0, (sw - ourw)/2, (sh - ourh)/2, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	}
-	else
-	{
-        logGlobal->warnStream() << "Something went wrong, getwm=" << getwm;
-        logGlobal->warnStream() << "SDL says: " << SDL_GetError();
-        logGlobal->warnStream() << "Window won't be centered.";
-	}
-#endif
-	//TODO: centering game window on other platforms (or does the environment do their job correctly there?)
-
-	screenBuf = bufOnScreen ? screen : screen2;
-	//setResolution = true;	
-	
-#else
-	
 	if(!recreateWindow(w,h,bpp,fullscreen))
 	{
 		throw std::runtime_error("Requested screen resolution is not available\n");
 	}	
-#endif // VCMI_SDL1
 }
 
 static void fullScreenChanged()
@@ -1078,19 +982,6 @@ static void fullScreenChanged()
 
 	auto bitsPerPixel = screen->format->BitsPerPixel;
 	
-	#ifdef VCMI_SDL1
-	bitsPerPixel = SDL_VideoModeOK(screen->w, screen->h, bitsPerPixel, SDL_SWSURFACE|(toFullscreen?SDL_FULLSCREEN:0));
-	if(bitsPerPixel == 0)
-	{
-        logGlobal->errorStream() << "Error: SDL says that " << screen->w << "x" << screen->h << " resolution is not available!";
-		return;
-	}
-
-	bool bufOnScreen = (screenBuf == screen);
-	screen = SDL_SetVideoMode(screen->w, screen->h, bitsPerPixel, SDL_SWSURFACE|(toFullscreen?SDL_FULLSCREEN:0));
-	screenBuf = bufOnScreen ? screen : screen2;
-	
-	#else
 	auto w = screen->w;
 	auto h = screen->h;
 	
@@ -1099,7 +990,6 @@ static void fullScreenChanged()
 		//will return false and report error if video mode is not supported
 		return;	
 	}	
-	#endif
 	
 	GH.totalRedraw();
 }
@@ -1111,13 +1001,7 @@ static void handleEvent(SDL_Event & ev)
 		handleQuit();	
 		return;
 	}
-
-	#ifdef VCMI_SDL1
-	//FIXME: this should work even in pregame
-	else if(LOCPLINT && ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
-	#else
 	else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
-	#endif // VCMI_SDL1		
 	{
 		Settings full = settings.write["video"]["fullscreen"];
 		full->Bool() = !full->Bool();

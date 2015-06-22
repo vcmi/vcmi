@@ -295,13 +295,8 @@ void CButton::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	
-	#ifdef VCMI_SDL1
-	if (borderColor && borderColor->unused == 0)
-		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor->r, borderColor->g, borderColor->b));
-	#else
 	if (borderColor && borderColor->a == 0)
 		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor->r, borderColor->g, borderColor->b));
-	#endif // 0
 }
 
 std::pair<std::string, std::string> CButton::tooltip()

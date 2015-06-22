@@ -1089,9 +1089,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 			piecesToRemove.push_back(piece);
 			piece->needRefresh = true;
 			piece->recActions = piece->recActions & ~SHOWALL;
-			#ifndef VCMI_SDL1
 			SDL_SetSurfaceBlendMode(piece->bg,SDL_BLENDMODE_BLEND);
-			#endif // VCMI_SDL1
 		}
 	}
 }

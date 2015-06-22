@@ -1545,16 +1545,11 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 	if(focusTime)
 	{
 		GH.totalRedraw();
-		#ifdef VCMI_SDL1
-		CSDL_Ext::update(screen);
-		SDL_Delay(focusTime);
-		#else
 		{
 			auto unlockPim = vstd::makeUnlockGuard(*pim);
 			IgnoreEvents ignore(*this);
 			SDL_Delay(focusTime);
 		}
-		#endif
 	}
 }
 

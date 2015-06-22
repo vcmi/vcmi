@@ -387,7 +387,7 @@ inline void SDLImageLoader::EndLine()
 SDLImageLoader::~SDLImageLoader()
 {
 	SDL_UnlockSurface(image->surf);
-	SDL_SetColorKey(image->surf, SDL_SRCCOLORKEY, 0);
+	SDL_SetColorKey(image->surf, SDL_TRUE, 0);
 	//TODO: RLE if compressed and bpp>1
 }
 
@@ -444,13 +444,9 @@ inline ui8 CompImageLoader::typeOf(ui8 color)
 {
 	if (color == 0)
 		return 0;
-	#ifdef VCMI_SDL1
-	if (image->palette[color].unused != 255)
-		return 1;
-	#else
+
 	if (image->palette[color].a != 255)
 		return 1;
-	#endif // 0
 		
 	return 2;
 }
@@ -628,22 +624,11 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 	{
 		SDL_Surface *temp = surf;
 		// add RLE flag
-		#ifdef VCMI_SDL1
-		if (surf->format->palette)
-		{
-			const SDL_Color &c = temp->format->palette->colors[0];
-			SDL_SetColorKey(temp, (SDL_SRCCOLORKEY | SDL_RLEACCEL),
-				SDL_MapRGB(temp -> format, c.r, c.g, c.b));
-		}
-		else
-			SDL_SetColorKey(temp, SDL_RLEACCEL, 0);
-		#else
 		if (surf->format->palette)
 		{
 			CSDL_Ext::setColorKey(temp,temp->format->palette->colors[0]);
 		}
 		SDL_SetSurfaceRLE(temp, SDL_RLEACCEL);		
-		#endif		
 
 		// convert surface to enable RLE
 		surf = SDL_ConvertSurface(temp, temp->format, temp->flags);
@@ -811,21 +796,13 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 			for (size_t i=0; i<size; i++)
 			{
 				SDL_Color col = palette[*(data++)];
-				#ifdef VCMI_SDL1
-				col.unused = (ui32)col.unused*alpha/255;
-				#else
 				col.a = (ui32)col.a*alpha/255;
-				#endif // 0				
 				ColorPutter<bpp, 1>::PutColorAlpha(dest, col);
 			}
 			return;
 		}
-		
-		#ifdef VCMI_SDL1
-		if (palette[color].unused == 255)
-		#else
+
 		if (palette[color].a == 255)
-		#endif // 0		
 		{
 			//Put row of RGB data
 			for (size_t i=0; i<size; i++)
@@ -842,19 +819,6 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 	//RLE-d sequence
 	else
 	{
-		#ifdef VCMI_SDL1
-		if (alpha != 255 && palette[type].unused !=0)//Per-surface alpha is set
-		{
-			SDL_Color col = palette[type];
-			col.unused = (int)col.unused*(255-alpha)/255;
-			for (size_t i=0; i<size; i++)
-				ColorPutter<bpp, 1>::PutColorAlpha(dest, col);
-			return;
-		}	
-
-		switch (palette[type].unused)
-				
-		#else
 		if (alpha != 255 && palette[type].a !=0)//Per-surface alpha is set
 		{
 			SDL_Color col = palette[type];
@@ -865,7 +829,6 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 		}
 		
 		switch (palette[type].a)
-		#endif // 0
 		{
 			case 0:
 			{

@@ -1,14 +1,11 @@
 #pragma once
 
-#ifndef VCMI_SDL1
 #include <SDL_render.h>
 
 extern SDL_Texture * screenTexture;
 
 extern SDL_Window * mainWindow;
 extern SDL_Renderer * mainRenderer;
-
-#endif // VCMI_SDL2
 
 extern SDL_Surface *screen;      // main screen surface
 extern SDL_Surface *screen2;     // and hlp surface (used to store not-active interfaces layer)

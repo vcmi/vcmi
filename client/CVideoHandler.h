@@ -47,9 +47,6 @@ public:
 
 #include <SDL.h>
 #include <SDL_video.h>
-#if SDL_VERSION_ATLEAST(1,3,0) && !SDL_VERSION_ATLEAST(2,0,0)
-#include <SDL_compat.h>
-#endif
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -80,12 +77,8 @@ class CVideoPlayer : public IMainVideoPlayer
 	AVIOContext * context;
 
 	// Destination. Either overlay or dest.
-#ifdef VCMI_SDL1
-	SDL_Overlay * overlay;
-#else
-	SDL_Texture *texture;
-#endif
 
+	SDL_Texture *texture;
 	SDL_Surface *dest;
 	SDL_Rect destRect;			// valid when dest is used
 	SDL_Rect pos;				// destination on screen

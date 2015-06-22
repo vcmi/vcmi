@@ -47,47 +47,6 @@
 					<Add directory="$(#sdl2.lib)" />
 				</Linker>
 			</Target>
-			<Target title="Debug-win32-SDL1">
-				<Option platforms="Windows;" />
-				<Option output="../VCMI_client" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../" />
-				<Option object_output="../obj/Debug/" />
-				<Option type="1" />
-				<Option compiler="gcc" />
-				<Compiler>
-					<Add option="-Og" />
-					<Add option="-g" />
-					<Add directory="$(#sdl.include)" />
-				</Compiler>
-				<Linker>
-					<Add option="-lSDL" />
-					<Add option="-lSDL_image" />
-					<Add option="-lSDL_mixer" />
-					<Add option="-lSDL_ttf" />
-					<Add directory="$(#sdl.lib)" />
-				</Linker>
-			</Target>
-			<Target title="Release-win32-SDL1">
-				<Option platforms="Windows;" />
-				<Option output="../VCMI_client" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../" />
-				<Option object_output="../obj/Release/" />
-				<Option type="1" />
-				<Option compiler="gcc" />
-				<Compiler>
-					<Add option="-fomit-frame-pointer" />
-					<Add option="-O2" />
-					<Add directory="$(#sdl.include)" />
-				</Compiler>
-				<Linker>
-					<Add option="-s" />
-					<Add option="-lSDL" />
-					<Add option="-lSDL_image" />
-					<Add option="-lSDL_mixer" />
-					<Add option="-lSDL_ttf" />
-					<Add directory="$(#sdl.lib)" />
-				</Linker>
-			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wextra" />
