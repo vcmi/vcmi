@@ -78,7 +78,6 @@ void processCommand(const std::string &message, CClient *&client);
 extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
 boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
-CondSh<bool> CPlayerInterface::terminate_cond;
 
 CPlayerInterface * LOCPLINT;
 
@@ -112,14 +111,13 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	makingTurn = false;
 	showingDialog = new CondSh<bool>(false);
 	cingconsole = new CInGameConsole;
-	terminate_cond.set(false);
+	GH.terminate_cond.set(false);
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 	isAutoFightOn = false;
 
 	duringMovement = false;
-	ignoreEvents = false;
-	locked = false;
+	ignoreEvents = false;	
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -1590,11 +1588,13 @@ void CPlayerInterface::setSelection(const CArmedInstance * obj)
 
 void CPlayerInterface::update()
 {
-	if (!locked)
-	{
-		logGlobal->errorStream() << "Non synchronized update of PlayerInterface";
+	// Make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
+	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
+	
+	// While mutexes were locked away we may be have stopped being the active interface	
+	if(LOCPLINT != this)
 		return;
-	}
+	
 	//if there are any waiting dialogs, show them
 	if((howManyPeople <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->get())
 	{
@@ -1620,38 +1620,6 @@ void CPlayerInterface::update()
 
 	if (settings["general"]["showfps"].Bool())
 		GH.drawFPSCounter();
-}
-
-void CPlayerInterface::runLocked(std::function<void()> functor)
-{
-	// Updating GUI requires locking pim mutex (that protects screen and GUI state).
-	// When ending the game, the pim mutex might be hold by other thread,
-	// that will notify us about the ending game by setting terminate_cond flag.
-
-	bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
-	while(!terminate_cond.get() && !(acquiredTheLockOnPim = pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
-		boost::this_thread::sleep(boost::posix_time::milliseconds(15));
-
-	if(!acquiredTheLockOnPim)
-	{
-		// We broke the while loop above and not because of mutex, so we must be terminating.
-		assert(terminate_cond.get());
-		return;
-	}
-
-	// If we are here, pim mutex has been successfully locked - let's store it in a safe RAII lock.
-	boost::unique_lock<boost::recursive_mutex> un(*pim, boost::adopt_lock);
-
-	// While mutexes were locked away we may be have stopped being the active interface
-	if(LOCPLINT != this)
-		return;
-
-	// Make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
-	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
-
-	locked = true;
-	functor();
-	locked = false;
 }
 
 int CPlayerInterface::getLastIndex( std::string namePrefix)
@@ -2133,7 +2101,7 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		{
 			if(adventureInt)
 			{
-				terminate_cond.setn(true);
+				GH.terminate_cond.setn(true);
 				adventureInt->deactivate();
 				if(GH.topInt() == adventureInt)
 					GH.popInt(adventureInt);

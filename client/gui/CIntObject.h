@@ -38,13 +38,6 @@ public:
 	virtual ~IUpdateable(){}; //d-tor
 };
 
-class ILockedUpdatable: public IUpdateable
-{
-public:
-	virtual void runLocked(std::function<void()> cb) = 0;
-	virtual ~ILockedUpdatable(){}; //d-tor
-};
-
 // Defines a show method
 class IShowable
 {

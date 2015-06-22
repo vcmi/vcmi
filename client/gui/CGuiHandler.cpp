@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include "CGuiHandler.h"
+#include "../lib/CondSh.h"
 
 #include <SDL.h>
 
@@ -15,6 +16,7 @@
 extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
 
+CondSh<bool> CGuiHandler::terminate_cond;
 boost::thread_specific_ptr<bool> inGuiThread;
 
 SObjectConstruction::SObjectConstruction( CIntObject *obj )
@@ -389,25 +391,39 @@ void CGuiHandler::fakeMouseMove()
 
 void CGuiHandler::renderFrame()
 {
-	auto doUpdate = [this]()
 	{
-		if(nullptr != curInt)
+	// Updating GUI requires locking pim mutex (that protects screen and GUI state).
+	// During game:
+	// When ending the game, the pim mutex might be hold by other thread,
+	// that will notify us about the ending game by setting terminate_cond flag.		
+	//in PreGame terminate_cond stay false 
+		
+		bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
+		while(!terminate_cond.get() && !(acquiredTheLockOnPim = CPlayerInterface::pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
+			boost::this_thread::sleep(boost::posix_time::milliseconds(15));
+
+		if(!acquiredTheLockOnPim)
 		{
-			curInt -> update();
-		}			
+			// We broke the while loop above and not because of mutex, so we must be terminating.
+			assert(terminate_cond.get());
+			return;
+		}
+
+		// If we are here, pim mutex has been successfully locked - let's store it in a safe RAII lock.
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim, boost::adopt_lock);
+
+		if(nullptr != curInt)
+			curInt->update();
+			
 		// draw the mouse cursor and update the screen
 		CCS->curh->render();
 
 		if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
 			logGlobal->errorStream() << __FUNCTION__ << " SDL_RenderCopy " << SDL_GetError();
 
-		SDL_RenderPresent(mainRenderer);				
-	};
-	
-	if(curInt)
-		curInt->runLocked(doUpdate);
-	else
-		doUpdate();
+		SDL_RenderPresent(mainRenderer);					
+	}
+
 	
 	mainFPSmng->framerateDelay(); // holds a constant FPS	
 }
@@ -423,6 +439,8 @@ CGuiHandler::CGuiHandler()
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
 	mainFPSmng = new CFramerateManager(48);
 	//do not init CFramerateManager here --AVS
+	
+	terminate_cond.set(false);
 }
 
 CGuiHandler::~CGuiHandler()

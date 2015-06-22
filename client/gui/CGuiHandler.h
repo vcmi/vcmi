@@ -8,9 +8,9 @@ class CFramerateManager;
 class CGStatusBar;
 class CIntObject;
 class IUpdateable;
-class ILockedUpdatable;
 class IShowActivatable;
 class IShowable;
+template <typename T> struct CondSh;
 
 /*
  * CGuiHandler.h, part of VCMI engine
@@ -72,7 +72,7 @@ public:
 	std::vector<IShowable*> objsToBlit;
 
 	SDL_Event * current; //current event - can be set to nullptr to stop handling event
-	ILockedUpdatable *curInt;
+	IUpdateable *curInt;
 
 	Point lastClick;
 	unsigned lastClickTime;
@@ -109,6 +109,8 @@ public:
 	static bool isArrowKey(SDL_Keycode key);
 	static bool amIGuiThread();
 	static void pushSDLEvent(int type, int usercode = 0);
+	
+	static CondSh<bool> terminate_cond; // confirm termination
 };
 
 extern CGuiHandler GH; //global gui handler
