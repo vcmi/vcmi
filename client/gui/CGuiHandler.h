@@ -29,7 +29,7 @@ private:
 	double rateticks;
 	ui32 lastticks, timeElapsed;
 	int rate;
-
+	ui32 accumulatedTime,accumulatedFrames;
 public:
 	int fps; // the actual fps value
 

@@ -547,6 +547,8 @@ CFramerateManager::CFramerateManager(int rate)
 	this->rate = rate;
 	this->rateticks = (1000.0 / rate);
 	this->fps = 0;
+	this->accumulatedFrames = 0;
+	this->accumulatedTime = 0;
 }
 
 void CFramerateManager::init()
@@ -558,18 +560,28 @@ void CFramerateManager::framerateDelay()
 {
 	ui32 currentTicks = SDL_GetTicks();
 	timeElapsed = currentTicks - lastticks;
-
+	
 	// FPS is higher than it should be, then wait some time
 	if (timeElapsed < rateticks)
 	{
 		SDL_Delay(ceil(this->rateticks) - timeElapsed);
 	}
+	
+	accumulatedTime += timeElapsed;
+	accumulatedFrames++;
+
+	if(accumulatedFrames >= 100)
+	{
+		//about 2 second should be passed
+		fps = ceil(1000.0 / (accumulatedTime/accumulatedFrames));		
+		accumulatedTime = 0;
+		accumulatedFrames = 0;	
+	};	
+
 	currentTicks = SDL_GetTicks();
-
-	fps = ceil(1000.0 / timeElapsed);
-
 	// recalculate timeElapsed for external calls via getElapsed()
 	// limit it to 1000 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)
 	timeElapsed = std::min<ui32>(currentTicks - lastticks, 1000);
+
 	lastticks = SDL_GetTicks();
 }
