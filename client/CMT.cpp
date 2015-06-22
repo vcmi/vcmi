@@ -180,6 +180,18 @@ static void prog_help(const po::options_description &opts)
 // 	printf("  -v, --version     display version information and exit\n");
 }
 
+static void SDLLogCallback(void*           userdata,
+                           int             category,
+                           SDL_LogPriority priority,
+                           const char*     message)
+{
+	//todo: convert SDL log priority to vcmi log priority
+	//todo: make separate log domain for SDL
+	
+	logGlobal->debugStream() << "SDL(category " << category << "; priority " <<priority <<") "<<message;
+}
+
+
 #ifdef VCMI_APPLE
 void OSX_checkForUpdates();
 #endif
@@ -338,6 +350,8 @@ int main(int argc, char** argv)
 		}
 		GH.mainFPSmng->init(); //(!)init here AFTER SDL_Init() while using SDL for FPS management
 		atexit(SDL_Quit);
+		
+		SDL_LogSetOutputFunction(&SDLLogCallback, nullptr);
 		
 		int driversCount = SDL_GetNumRenderDrivers();
 		std::string preferredDriverName = video["driver"].String();
