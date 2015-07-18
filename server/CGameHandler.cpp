@@ -4216,7 +4216,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 		if (st->casts && !gs->curB->sides.at(side).enchanterCounter)
 		{
 			bool casted = false;
-			while (!bl.empty() and !casted)
+			while (!bl.empty() && !casted)
 			{
 				auto bonus = *RandomGeneratorUtil::nextItem(bl, gs->getRandomGenerator());
 				auto spellID = SpellID(bonus->subtype);
