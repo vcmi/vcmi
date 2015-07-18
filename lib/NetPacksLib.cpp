@@ -328,7 +328,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 	else
 		node = gs->getPlayer(PlayerColor(whoID));
 
-	BonusList &bonuses = node->getBonusList();
+	BonusList &bonuses = node->getExportedBonusList();
 
 	for (int i = 0; i < bonuses.size(); i++)
 	{
@@ -336,7 +336,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 		if(b->source == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
-			bonuses.erase(i);
+			node->removeBonus(b);			
 			break;
 		}
 	}
@@ -1110,7 +1110,7 @@ DLL_LINKAGE void BattleSetActiveStack::applyGs( CGameState *gs )
 	CStack *st = gs->curB->getStack(stack);
 
 	//remove bonuses that last until when stack gets new turn
-	st->getBonusList().remove_if(Bonus::UntilGetsTurn);
+	st->popBonuses(Bonus::UntilGetsTurn);
 
 	if(vstd::contains(st->state,EBattleStackState::MOVED)) //if stack is moving second time this turn it must had a high morale bonus
 		st->state.insert(EBattleStackState::HAD_MORALE);
@@ -1278,13 +1278,13 @@ DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 	for(BattleStackAttacked stackAttacked : bsa)
 		stackAttacked.applyGs(gs);
 
-	attacker->getBonusList().remove_if(Bonus::UntilAttack);
+	attacker->popBonuses(Bonus::UntilAttack);
 
 	for(auto & elem : bsa)
 	{
 		CStack * stack = gs->curB->getStack(elem.stackAttacked, false);
 		if (stack) //cloned stack is already gone
-			stack->getBonusList().remove_if(Bonus::UntilBeingAttacked);
+			stack->popBonuses(Bonus::UntilBeingAttacked);
 	}
 }
 
@@ -1342,21 +1342,6 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 	spell->applyBattle(gs->curB, this);
 }
 
-void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
-{
-	//actualizing features vector
-
-	for(const Bonus &fromEffect : ef)
-	{
-		for(Bonus *stackBonus : s->getBonusList()) //TODO: optimize
-		{
-			if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == fromEffect.type && stackBonus->subtype == fromEffect.subtype)
-			{
-				stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, fromEffect.turnsRemain);
-			}
-		}
-	}
-}
 void actualizeEffect(CStack * s, const Bonus & ef)
 {
 	for(Bonus *stackBonus : s->getBonusList()) //TODO: optimize
@@ -1365,6 +1350,17 @@ void actualizeEffect(CStack * s, const Bonus & ef)
 		{
 			stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, ef.turnsRemain);
 		}
+	}
+	CBonusSystemNode::treeHasChanged();	
+}
+
+void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
+{
+	//actualizing features vector
+
+	for(const Bonus &fromEffect : ef)
+	{
+		actualizeEffect(s, fromEffect);
 	}
 }
 
@@ -1460,15 +1456,6 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		//removal of negative effects
 		if(resurrected)
 		{
-
-// 			for (BonusList::iterator it = changedStack->bonuses.begin(); it != changedStack->bonuses.end(); it++)
-// 			{
-// 				if(VLC->spellh->spells[(*it)->sid]->positiveness < 0)
-// 				{
-// 					changedStack->bonuses.erase(it);
-// 				}
-// 			}
-
 			//removing all features from negative spells
 			const BonusList tmpFeatures = changedStack->getBonusList();
 			//changedStack->bonuses.clear();

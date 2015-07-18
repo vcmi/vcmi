@@ -190,6 +190,7 @@
 			"crystalCavern" : { "index" : 4, "rmg" : { "value" : 3500 } },
 			"gemPond" :       { "index" : 5, "rmg" : { "value" : 3500 } },
 			"goldMine" :      { "index" : 6, "rmg" : { "value" : 7000 } },
+			"abandoned" :	  { "index" : 7}
 		}
 	},
 	"abandonedMine" : {
@@ -200,9 +201,22 @@
 		}
 	},
 
-	// subtype: 0 = normal, 1 = anti-magic
-	"garrisonHorizontal"			: { "index" :33, "handler": "garrison" },
-	"garrisonVertical"				: { "index" :219, "handler": "garrison" },
+	"garrisonHorizontal": { 
+		"index" :33, 
+		"handler": "garrison",
+		"types":{
+			"normal":{"index": 0},
+			"antiMagic":{"index": 1}			
+		}	
+	},
+	"garrisonVertical": { 
+		"index" :219, 
+		"handler": "garrison",
+		"types":{
+			"normal":{"index": 0},
+			"antiMagic":{"index": 1}			
+		}	
+	},
 
 	// Subtype: paired monoliths
 	"monolithOneWayEntrance" : {

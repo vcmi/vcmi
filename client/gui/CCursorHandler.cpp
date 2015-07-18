@@ -27,10 +27,8 @@ void CCursorHandler::initCursor()
 	currentCursor = nullptr;
 
 	help = CSDL_Ext::newSurface(40,40);
-	#ifndef VCMI_SDL1
 	//No blending. Ensure, that we are copying pixels during "screen restore draw"
 	SDL_SetSurfaceBlendMode(help,SDL_BLENDMODE_NONE);	
-	#endif // VCMI_SDL1
 	SDL_ShowCursor(SDL_DISABLE);
 
 	changeGraphic(ECursor::ADVENTURE, 0);

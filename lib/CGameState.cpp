@@ -1353,11 +1353,11 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 	// Removing short-term bonuses
 	for(CGHeroInstance * cgh : crossoverHeroes)
 	{
-		cgh->popBonuses(Selector::durationType(Bonus::ONE_DAY));
-		cgh->popBonuses(Selector::durationType(Bonus::ONE_WEEK));
-		cgh->popBonuses(Selector::durationType(Bonus::N_TURNS));
-		cgh->popBonuses(Selector::durationType(Bonus::N_DAYS));
-		cgh->popBonuses(Selector::durationType(Bonus::ONE_BATTLE));
+		cgh->popBonuses(CSelector(Bonus::OneDay)
+			.Or(CSelector(Bonus::OneWeek))
+			.Or(CSelector(Bonus::NTurns))
+			.Or(CSelector(Bonus::NDays))
+			.Or(CSelector(Bonus::OneBattle)));
 	}
 
 }

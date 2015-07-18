@@ -1121,23 +1121,10 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		}
 	default:
 		{
-			#ifdef VCMI_SDL1
-			if(enteredText.size() > 0 && enteredText.size() < conf.go()->ac.inputLineLength)
-			{
-				if( key.keysym.unicode < 0x80 && key.keysym.unicode > 0 )
-				{
-					enteredText[enteredText.size()-1] = (char)key.keysym.unicode;
-					enteredText += "_";
-					refreshEnteredText();
-				}
-			}
-			#endif // VCMI_SDL1
 			break;
 		}
 	}
 }
-
-#ifndef VCMI_SDL1
 
 void CInGameConsole::textInputed(const SDL_TextInputEvent & event)
 {
@@ -1155,8 +1142,6 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 {
  //do nothing here
 }
-
-#endif // VCMI_SDL1
 
 void CInGameConsole::startEnteringText()
 {
@@ -1219,13 +1204,8 @@ void CInGameConsole::refreshEnteredText()
 
 CInGameConsole::CInGameConsole() : prevEntDisp(-1), defaultTimeout(10000), maxDisplayedTexts(10)
 {
-	#ifdef VCMI_SDL1
-	addUsedEvents(KEYBOARD);
-	#else
 	addUsedEvents(KEYBOARD | TEXTINPUT);
-	#endif
 }
-
 
 CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
 	: CIntObject(),

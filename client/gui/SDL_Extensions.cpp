@@ -14,7 +14,6 @@ const SDL_Color Colors::METALLIC_GOLD = { 173, 142, 66, 0 };
 const SDL_Color Colors::GREEN = { 0, 255, 0, 0 };
 const SDL_Color Colors::DEFAULT_KEY_COLOR = {0, 255, 255, 0};
 
-#if (SDL_MAJOR_VERSION == 2)
 void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
 {
 	Rect rect(x,y,w,h);
@@ -27,7 +26,6 @@ void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
 	SDL_RenderPresent(mainRenderer);	
 	
 }
-#endif // VCMI_SDL1
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
@@ -171,7 +169,7 @@ void CSDL_Ext::alphaTransform(SDL_Surface *src)
 		SDL_Color & palColor = src->format->palette->colors[i];
 		palColor = colors[i];
 	}
-	SDL_SetColorKey(src, SDL_SRCCOLORKEY, 0);
+	SDL_SetColorKey(src, SDL_TRUE, 0);
 }
 
 static void prepareOutRect(SDL_Rect *src, SDL_Rect *dst, const SDL_Rect & clip_rect)
@@ -460,11 +458,7 @@ int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * sr
 				for(int x = w; x; x--)
 				{
 					const SDL_Color &tbc = colors[*color++]; //color to blit
-					#ifdef VCMI_SDL1
-					ColorPutter<bpp, +1>::PutColorAlphaSwitch(p, tbc.r, tbc.g, tbc.b, tbc.unused);
-					#else
 					ColorPutter<bpp, +1>::PutColorAlphaSwitch(p, tbc.r, tbc.g, tbc.b, tbc.a);
-					#endif // 0					
 				}
 			}
 			SDL_UnlockSurface(dst);
@@ -489,11 +483,7 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * src
 Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
 {
 	Uint32 ret = 0;
-	#ifdef VCMI_SDL1
-	ret+=color->unused;
-	#else
 	ret+=color->a;
-	#endif // 0	
 	ret<<=8; //*=256
 	ret+=color->b;
 	ret<<=8; //*=256
@@ -505,15 +495,10 @@ Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
 
 void CSDL_Ext::update(SDL_Surface * what)
 {
-	#ifdef VCMI_SDL1
-	if(what)
-		SDL_UpdateRect(what, 0, 0, what->w, what->h);	
-	#else
 	if(!what)
 		return;
 	if(0 !=SDL_UpdateTexture(screenTexture, nullptr, what->pixels, what->pitch))
 		logGlobal->errorStream() << __FUNCTION__ << "SDL_UpdateTexture " << SDL_GetError();		
-	#endif // VCMI_SDL1
 }
 void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color)
 {
@@ -633,21 +618,13 @@ bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
 
 	SDL_Color color;
 	
-	#ifdef VCMI_SDL1
-	SDL_GetRGBA(SDL_GetPixel(srf, x, y), srf->format, &color.r, &color.g, &color.b, &color.unused);
-	#else
 	SDL_GetRGBA(SDL_GetPixel(srf, x, y), srf->format, &color.r, &color.g, &color.b, &color.a);
-	#endif // 0	
 
 	// color is considered transparent here if
 	// a) image has aplha: less than 50% transparency
 	// b) no alpha: color is cyan
 	if (srf->format->Amask)
-	#ifdef VCMI_SDL1
-		return color.unused < 128; // almost transparent
-	#else
 		return color.a < 128; // almost transparent
-	#endif // 0				
 	else
 		return (color.r == 0 && color.g == 255 && color.b == 255);
 }
@@ -988,38 +965,30 @@ SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
 
 void CSDL_Ext::startTextInput(SDL_Rect * where)
 {
-	#ifndef VCMI_SDL1
 	if (SDL_IsTextInputActive() == SDL_FALSE)		
 	{		
 		SDL_StartTextInput();		
 	}		
 	SDL_SetTextInputRect(where);
-	#endif
 }
 
 void CSDL_Ext::stopTextInput()
 {
-	#ifndef VCMI_SDL1
 	if (SDL_IsTextInputActive() == SDL_TRUE)
 	{		
 		SDL_StopTextInput();			
 	}		
-	#endif	
 }
 
 STRONG_INLINE static uint32_t mapColor(SDL_Surface * surface, SDL_Color color)
 {
-	#ifdef VCMI_SDL1
-	return SDL_MapRGB(surface->format, color.r, color.g, color.b); 
-	#else
 	return SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a); 
-	#endif		
 }
 
 void CSDL_Ext::setColorKey(SDL_Surface * surface, SDL_Color color)
 {
 	uint32_t key = mapColor(surface,color);
-	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, key);	
+	SDL_SetColorKey(surface, SDL_TRUE, key);	
 }
 
 void CSDL_Ext::setDefaultColorKey(SDL_Surface * surface)
@@ -1034,7 +1003,7 @@ void CSDL_Ext::setDefaultColorKeyPresize(SDL_Surface * surface)
 
 	// set color key only if exactly such color was found
 	if (color.r == Colors::DEFAULT_KEY_COLOR.r && color.g == Colors::DEFAULT_KEY_COLOR.g && color.b == Colors::DEFAULT_KEY_COLOR.b)
-		SDL_SetColorKey(surface, SDL_SRCCOLORKEY, key);	
+		SDL_SetColorKey(surface, SDL_TRUE, key);	
 }
 
 

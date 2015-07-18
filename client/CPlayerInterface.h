@@ -1,7 +1,6 @@
 #pragma once
 
 
-//#include "../lib/CondSh.h"
 #include "../lib/FunctionList.h"
 #include "../lib/CGameInterface.h"
 #include "../lib/NetPacksBase.h"
@@ -80,11 +79,12 @@ enum
 	RESTART_GAME,
 	RETURN_TO_MENU_LOAD,
 	FULLSCREEN_TOGGLED,
-	PREPARE_RESTART_CAMPAIGN
+	PREPARE_RESTART_CAMPAIGN,
+	FORCE_QUIT //quit client without question
 };
 
 /// Central class for managing user interface logic
-class CPlayerInterface : public CGameInterface, public ILockedUpdatable
+class CPlayerInterface : public CGameInterface, public IUpdateable
 {
 	const CArmedInstance * currentSelection;
 public:
@@ -135,7 +135,6 @@ public:
 	} spellbookSettings;
 
 	void update() override;
-	void runLocked(std::function<void()> functor) override;
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 
@@ -270,10 +269,6 @@ public:
 	CPlayerInterface(PlayerColor Player);//c-tor
 	~CPlayerInterface();//d-tor
 
-	static CondSh<bool> terminate_cond; // confirm termination
-
-
-
 private:
 
 	template <typename Handler> void serializeTempl(Handler &h, const int version);
@@ -298,8 +293,6 @@ private:
 
 	bool duringMovement;
 	bool ignoreEvents;
-
-	bool locked;
 
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 };

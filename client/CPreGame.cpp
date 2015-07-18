@@ -516,7 +516,6 @@ void CGPreGame::disposeGraphics()
 
 void CGPreGame::update()
 {
-	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 	if(CGP != this) //don't update if you are not a main interface
 		return;
 
@@ -538,15 +537,6 @@ void CGPreGame::update()
 	// /FIXME: find out why GH.listInt is empty to begin with
 	if (GH.topInt() != nullptr)
 		GH.topInt()->show(screen);
-
-	if (settings["general"]["showfps"].Bool())
-		GH.drawFPSCounter();
-}
-
-void CGPreGame::runLocked(std::function<void()> cb)
-{
-	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-	cb();	
 }
 
 void CGPreGame::openCampaignScreen(std::string name)

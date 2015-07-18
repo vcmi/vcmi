@@ -38,13 +38,6 @@ public:
 	virtual ~IUpdateable(){}; //d-tor
 };
 
-class ILockedUpdatable: public IUpdateable
-{
-public:
-	virtual void runLocked(std::function<void()> cb) = 0;
-	virtual ~ILockedUpdatable(){}; //d-tor
-};
-
 // Defines a show method
 class IShowable
 {
@@ -133,10 +126,8 @@ public:
 	virtual void keyPressed(const SDL_KeyboardEvent & key){}
 	virtual bool captureThisEvent(const SDL_KeyboardEvent & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
 
-#ifndef VCMI_SDL1
 	virtual void textInputed(const SDL_TextInputEvent & event){};
 	virtual void textEdited(const SDL_TextEditingEvent & event){};
-#endif // VCMI_SDL1
 
 	//mouse movement handling
 	bool strongInterest; //if true - report all mouse movements, if not - only when hovered

@@ -337,6 +337,14 @@ struct DLL_LINKAGE Bonus
 	{
 		return a->additionalInfo < b->additionalInfo;
 	}
+	static bool NDays(const Bonus *hb)
+	{
+		return hb->duration & Bonus::N_DAYS;
+	}
+	static bool NTurns(const Bonus *hb)
+	{
+		return hb->duration & Bonus::N_TURNS;
+	}	
 	static bool OneDay(const Bonus *hb)
 	{
 		return hb->duration & Bonus::ONE_DAY;
@@ -348,6 +356,10 @@ struct DLL_LINKAGE Bonus
 	static bool OneBattle(const Bonus *hb)
 	{
 		return hb->duration & Bonus::ONE_BATTLE;
+	}
+	static bool Permanent(const Bonus *hb)
+	{
+		return hb->duration & Bonus::PERMANENT;
 	}
 	static bool UntilGetsTurn(const Bonus *hb)
 	{
@@ -947,7 +959,6 @@ namespace Selector
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type;
 	extern DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype;
 	extern DLL_LINKAGE CSelectFieldEqual<si32> info;
-	extern DLL_LINKAGE CSelectFieldEqual<ui16> duration;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
@@ -956,7 +967,6 @@ namespace Selector
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);
 	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info);
 	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID);
-	CSelector DLL_LINKAGE durationType(ui16 duration);
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source);
 
 	bool DLL_LINKAGE matchesType(const CSelector &sel, Bonus::BonusType type);

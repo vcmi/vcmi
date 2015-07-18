@@ -389,6 +389,9 @@
 					"value"		: 100,
 					"rarity"	: 100
 				}
+			},
+			"object1" : {//WoG?
+				"index" : 1
 			}
 		}
 	},
