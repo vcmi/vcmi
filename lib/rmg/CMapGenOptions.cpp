@@ -138,6 +138,17 @@ void CMapGenOptions::setMonsterStrength(EMonsterStrength::EMonsterStrength value
 
 void CMapGenOptions::resetPlayersMap()
 {
+
+	std::map<PlayerColor, TFaction> rememberTownTypes;
+
+	for (auto p : players)
+	{
+		auto town = p.second.getStartingTown();
+		if (town != RANDOM_SIZE)
+			rememberTownTypes[p.first] = town;
+	}
+
+
 	players.clear();
 	int realPlayersCnt = humanPlayersCount;
 	int realCompOnlyPlayersCnt = (compOnlyPlayerCount == RANDOM_SIZE) ? (PlayerColor::PLAYER_LIMIT_I - realPlayersCnt) : compOnlyPlayerCount;
@@ -149,7 +160,8 @@ void CMapGenOptions::resetPlayersMap()
 	for(int color = 0; color < totalPlayersLimit; ++color)
 	{
 		CPlayerSettings player;
-		player.setColor(PlayerColor(color));
+		auto pc = PlayerColor(color);
+		player.setColor(pc);
 		auto playerType = EPlayerType::AI;
 		if ((getPlayerCount() != RANDOM_SIZE && color >= realPlayersCnt)
 		   || (compOnlyPlayerCount != RANDOM_SIZE && color >= (PlayerColor::PLAYER_LIMIT_I-compOnlyPlayerCount)))
@@ -157,7 +169,10 @@ void CMapGenOptions::resetPlayersMap()
 			playerType = EPlayerType::COMP_ONLY;
 		}
 		player.setPlayerType(playerType);
-		players[PlayerColor(color)] = player;
+		players[pc] = player;
+
+		if (vstd::contains(rememberTownTypes, pc))
+			players[pc].setStartingTown(rememberTownTypes[pc]);
 	}
 }
 
