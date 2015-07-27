@@ -10,6 +10,7 @@
 				<Option platforms="Windows;" />
 				<Option output="../Test" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/x86/" />
+				<Option working_dir="../." />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -57,6 +58,7 @@
 			<Add directory="../" />
 		</Linker>
 		<Unit filename="CMapEditManagerTest.cpp" />
+		<Unit filename="CMapFormatTest.cpp" />
 		<Unit filename="CVcmiTestConfig.cpp" />
 		<Unit filename="CVcmiTestConfig.h" />
 		<Unit filename="StdInc.cpp">

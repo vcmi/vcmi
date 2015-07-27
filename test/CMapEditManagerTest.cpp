@@ -110,11 +110,11 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 	{
 		// Load maps and json config
 
-		#if defined(__MINGW32__)
+//		#if defined(__MINGW32__)
 		const std::string TEST_DATA_DIR = "test/";
-		#else
-		const std::string TEST_DATA_DIR = ".";
-		#endif // defined
+//		#else
+//		const std::string TEST_DATA_DIR = ".";
+//		#endif // defined
 
 
 		auto loader = new CFilesystemLoader("test/", TEST_DATA_DIR);
