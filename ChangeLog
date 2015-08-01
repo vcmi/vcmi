@@ -2,11 +2,13 @@
 
 GENERAL:
 * Rogues provide expert Vision spell effect
+* Random map templates now are a part of mod system
+* Dropped SDL1 support
 
 ADVETURE AI:
 * Fixed AI trying to go through underground rock
 * Fixed several cases causing AI wandering aimlessly
-* AI can again pick bets artifacts and exchange artifacts between heroes
+* AI can again pick best artifacts and exchange artifacts between heroes
 
 RANDOM MAP GENERATOR:
 * Added roads generation
