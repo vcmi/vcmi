@@ -15,8 +15,61 @@
 #include "../JsonNode.h"
 
 class TriggeredEvent;
+class CInputStream;
 
-class DLL_LINKAGE CMapLoaderJson : public IMapPatcher
+class DLL_LINKAGE CMapFormatJson
+{
+
+protected:
+	
+	/** ptr to the map object which gets filled by data from the buffer or written to buffer */
+	CMap * map;
+
+	/**
+	 * ptr to the map header object which gets filled by data from the buffer or written to buffer.
+	 * (when loading map and mapHeader point to the same object)
+	 */
+	std::unique_ptr<CMapHeader> mapHeader;	
+	
+	/**
+	 * Reads triggered events, including victory/loss conditions
+	 */
+	void readTriggeredEvents(const JsonNode & input);
+
+	/**
+	 * Reads one of triggered events
+	 */
+	void readTriggeredEvent(TriggeredEvent & event, const JsonNode & source);		
+};
+
+class DLL_LINKAGE CMapPatcher : public CMapFormatJson, public IMapPatcher
+{
+public:
+	/**
+	 * Default constructor.
+	 *
+	 * @param stream. A stream containing the map data.
+	 */
+	CMapPatcher(JsonNode stream);
+		
+public: //IMapPatcher
+	/**
+	 * Modifies supplied map header using Json data
+	 *
+	 */
+	void patchMapHeader(std::unique_ptr<CMapHeader> & header) override;
+	
+private:
+	/**
+	 * Reads subset of header that can be replaced by patching.
+	 */
+	void readPatchData();
+
+
+	const JsonNode input;	
+};
+
+class DLL_LINKAGE CMapLoaderJson :  public CMapFormatJson, public IMapLoader
 {
 public:
 	/**
@@ -24,7 +77,7 @@ public:
 	 *
 	 * @param stream a stream containing the map data
 	 */
-	CMapLoaderJson(JsonNode stream);
+	CMapLoaderJson(CInputStream * stream);
 
 	/**
 	 * Loads the VCMI/Json map file.
@@ -40,12 +93,6 @@ public:
 	 */
 	std::unique_ptr<CMapHeader> loadMapHeader() override;
 
-	/**
-	 * Modifies supplied map header using Json data
-	 *
-	 */
-	void patchMapHeader(std::unique_ptr<CMapHeader> & header) override;
-
 private:
 	/**
 	 * Reads complete map.
@@ -58,34 +105,10 @@ private:
 	void readHeader();
 
 	/**
-	 * Reads subset of header that can be replaced by patching.
-	 */
-	void readPatchData();
-
-	/**
 	 * Reads player information.
 	 */
 	void readPlayerInfo();
 
-	/**
-	 * Reads triggered events, including victory/loss conditions
-	 */
-	void readTriggeredEvents();
 
-	/**
-	 * Reads one of triggered events
-	 */
-	void readTriggeredEvent(TriggeredEvent & event, const JsonNode & source);
-
-
-	/** ptr to the map object which gets filled by data from the buffer */
-	CMap * map;
-
-	/**
-	 * ptr to the map header object which gets filled by data from the buffer.
-	 * (when loading map and mapHeader point to the same object)
-	 */
-	std::unique_ptr<CMapHeader> mapHeader;
-
-	const JsonNode input;
+	CInputStream * input;
 };

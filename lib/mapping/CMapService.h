@@ -126,7 +126,7 @@ public:
 	virtual std::unique_ptr<CMapHeader> loadMapHeader() = 0;
 };
 
-class DLL_LINKAGE IMapPatcher : public IMapLoader
+class DLL_LINKAGE IMapPatcher
 {
 public:
 	/**

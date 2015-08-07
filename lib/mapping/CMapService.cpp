@@ -103,5 +103,5 @@ std::unique_ptr<IMapPatcher> CMapService::getMapPatcher(std::string scenarioName
 
 	boost::to_lower(scenarioName);
 	logGlobal->debugStream() << "Request to patch map " << scenarioName;
-	return std::unique_ptr<IMapPatcher>(new CMapLoaderJson(node[scenarioName]));
+	return std::unique_ptr<IMapPatcher>(new CMapPatcher(node[scenarioName]));
 }
