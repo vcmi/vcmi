@@ -135,3 +135,16 @@ public:
 	 */
 	virtual void patchMapHeader(std::unique_ptr<CMapHeader> & header) = 0;
 };
+
+/**
+ * Interface for saving a map.
+ */
+class DLL_LINKAGE IMapSaver
+{
+public:
+	/**
+	 * Saves the VCMI/H3 map file.
+	 *
+	 */	
+	 virtual void saveMap(const std::unique_ptr<CMap> & map) = 0;
+};

@@ -69,7 +69,7 @@ private:
 	const JsonNode input;	
 };
 
-class DLL_LINKAGE CMapLoaderJson :  public CMapFormatJson, public IMapLoader
+class DLL_LINKAGE CMapLoaderJson : public CMapFormatJson, public IMapLoader
 {
 public:
 	/**
@@ -111,4 +111,10 @@ private:
 
 
 	CInputStream * input;
+};
+
+class DLL_LINKAGE CMapSaverJson : public CMapFormatJson, public IMapSaver
+{
+public:
+	void saveMap(const std::unique_ptr<CMap> & map) override;	
 };

@@ -180,3 +180,10 @@ void CMapLoaderJson::readPlayerInfo()
 {
 	assert(0); // Not implemented
 }
+
+///CMapSaverJson
+void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
+{
+	
+}
+
