@@ -12,7 +12,8 @@ set(lib_SRCS
 		filesystem/CFilesystemLoader.cpp
 		filesystem/CArchiveLoader.cpp
 		filesystem/CFileInfo.cpp
-		filesystem/CMemoryStream.cpp
+                filesystem/CMemoryBuffer.cpp
+                filesystem/CMemoryStream.cpp
 		filesystem/CBinaryReader.cpp
 		filesystem/CFileInputStream.cpp
 		filesystem/CZipLoader.cpp

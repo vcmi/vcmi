@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * CMemoryStream.h, part of VCMI engine
+ * CMemoryBuffer.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,23 +9,34 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+ 
 
 #include "CInputStream.h"
+#include "COutputStream.h"
 
 /**
- * A class which provides method definitions for reading from memory.
- * @deprecated use CMemoryBuffer
- */ 
-class DLL_LINKAGE CMemoryStream : public CInputStream
+ * A class which provides IO memory buffer.
+ */
+ 
+class DLL_LINKAGE CMemoryBuffer : public CInputStream, public COutputStream
 {
 public:
+	typedef std::vector<ui8> TBuffer;
+
 	/**
-	 * C-tor. The data buffer won't be free'd. (no ownership)
+	 * C-tor.
 	 *
-	 * @param data a pointer to the data array.
-	 * @param size The size in bytes of the array.
 	 */
-	CMemoryStream(const ui8 * data, si64 size);
+	CMemoryBuffer();
+	
+	/**
+	 * Write n bytes from the stream into the data buffer.
+	 *
+	 * @param data A pointer to the destination data array.
+	 * @param size The number of bytes to write.
+	 * @return the number of bytes written actually.
+	 */
+	si64 write(ui8 * data, si64 size) override;	
 
 	/**
 	 * Reads n bytes from the stream into the data buffer.
@@ -67,12 +78,10 @@ public:
 	si64 getSize() override;
 
 private:
-	/** A pointer to the data array. */
-	const ui8 * data;
-
-	/** The size in bytes of the array. */
-	si64 size;
-
+	/** Actual data. */
+	TBuffer buffer;
+	
 	/** Current reading position of the stream. */
 	si64 position;
 };
+
