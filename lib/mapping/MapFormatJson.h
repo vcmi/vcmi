@@ -1,6 +1,5 @@
-
 /*
- * MapFormatH3M.h, part of VCMI engine
+ * MapFormatJSON.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

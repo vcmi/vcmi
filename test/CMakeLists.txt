@@ -8,6 +8,8 @@ set(test_SRCS
 		StdInc.cpp
 		CVcmiTestConfig.cpp
 		CMapEditManagerTest.cpp
+                MapComparer.cpp
+                CMapFormatTest.cpp
 )
 
 add_executable(vcmitest ${test_SRCS})

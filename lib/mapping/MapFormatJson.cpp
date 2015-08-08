@@ -110,10 +110,9 @@ CMapLoaderJson::CMapLoaderJson(CInputStream * stream):
 std::unique_ptr<CMap> CMapLoaderJson::loadMap()
 {
 	map = new CMap();
-	mapHeader.reset(map);
+	mapHeader = std::unique_ptr<CMapHeader>(dynamic_cast<CMapHeader *>(map));
 	readMap();
-	mapHeader.reset();
-	return std::unique_ptr<CMap>(map);
+	return std::unique_ptr<CMap>(dynamic_cast<CMap *>(mapHeader.release()));
 }
 
 std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
@@ -167,7 +166,7 @@ JsonNode eventToJson(const EventCondition & cond)
 void CMapLoaderJson::readMap()
 {
 	readHeader();
-	assert(0); // Not implemented, vcmi does not have its own map format right now
+	//TODO:readMap
 }
 
 void CMapLoaderJson::readHeader()
@@ -175,12 +174,12 @@ void CMapLoaderJson::readHeader()
 	//TODO: read such data like map name & size
 //	readTriggeredEvents();
 	readPlayerInfo();
-	assert(0); // Not implemented
+	//TODO: readHeader
 }
 
 void CMapLoaderJson::readPlayerInfo()
 {
-	assert(0); // Not implemented
+	//TODO: readPlayerInfo
 }
 
 ///CMapSaverJson
@@ -193,6 +192,6 @@ CMapSaverJson::CMapSaverJson(COutputStream * stream):
 
 void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
 {
-	assert(0); // Not implemented	
+	//TODO: saveMap
 }
 

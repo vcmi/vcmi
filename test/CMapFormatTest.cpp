@@ -8,18 +8,22 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-
 #include "StdInc.h"
+
 #include <boost/test/unit_test.hpp>
+
+#include "../lib/filesystem/CMemoryBuffer.h"
 
 #include "../lib/mapping/CMap.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/rmg/CMapGenerator.h"
+#include "../lib/mapping/MapFormatJSON.h"
+
+#include "MapComparer.h"
 
 static const int TEST_RANDOM_SEED = 1337;
 
-static CMap * initialMap;
+static std::unique_ptr<CMap> initialMap;
 
 class CMapTestFixture
 {
@@ -35,11 +39,11 @@ public:
 		
 		CMapGenerator gen;
 		
-		initialMap = gen.generate(&opt, TEST_RANDOM_SEED).release();
+		initialMap = gen.generate(&opt, TEST_RANDOM_SEED);
 	};
 	~CMapTestFixture()
 	{
-		delete initialMap;
+		initialMap.reset();
 	};
 };
 
@@ -49,11 +53,18 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 {
 	try
 	{
-
-		//TODO: serialize map
-		//TODO: deserialize map
-		//TODO: compare results
+		CMemoryBuffer serializeBuffer;
+		CMapSaverJson saver(&serializeBuffer);
+		saver.saveMap(initialMap);
 		
+		CMapLoaderJson loader(&serializeBuffer);
+		serializeBuffer.seek(0);		
+		std::unique_ptr<CMap> serialized = loader.loadMap();
+		
+		
+		MapComparer c;
+		
+		BOOST_REQUIRE_MESSAGE(c(initialMap, serialized), "Serialize cycle failed");
 	}
 	catch(const std::exception & e)
 	{
