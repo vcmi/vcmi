@@ -16,6 +16,7 @@
 
 class TriggeredEvent;
 class CInputStream;
+class COutputStream;
 
 class DLL_LINKAGE CMapFormatJson
 {
@@ -116,5 +117,18 @@ private:
 class DLL_LINKAGE CMapSaverJson : public CMapFormatJson, public IMapSaver
 {
 public:
+	/**
+	 * Default constructor.
+	 *
+	 * @param stream a stream to save the map to
+	 */
+	CMapSaverJson(COutputStream * stream);	
+	
+	/**
+	 * Actually saves the VCMI/Json map into stream.
+	 *
+	 */	
 	void saveMap(const std::unique_ptr<CMap> & map) override;	
+private:
+	COutputStream * output;		
 };

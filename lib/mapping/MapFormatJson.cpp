@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "MapFormatJson.h"
 
+#include "../filesystem/CInputStream.h"
+#include "../filesystem/COutputStream.h"
 #include "CMap.h"
 #include "../CModHandler.h"
 #include "../VCMI_Lib.h"
@@ -182,8 +184,15 @@ void CMapLoaderJson::readPlayerInfo()
 }
 
 ///CMapSaverJson
-void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
+CMapSaverJson::CMapSaverJson(COutputStream * stream):
+	output(stream)
 {
 	
+}
+
+
+void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
+{
+	assert(0); // Not implemented	
 }
 
