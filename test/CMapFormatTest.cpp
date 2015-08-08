@@ -17,7 +17,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/rmg/CMapGenerator.h"
-#include "../lib/mapping/MapFormatJSON.h"
+#include "../lib/mapping/MapFormatJson.h"
 
 #include "MapComparer.h"
 
