@@ -14,7 +14,17 @@
 
 struct MapComparer
 {
-	bool operator() (const std::unique_ptr<CMap>& lhs, const std::unique_ptr<CMap>& rhs);
+	const CMap * actual;
+	const CMap * expected;
+	
+	void compareHeader();
+	void compareOptions();
+	void compareObjects();
+	void compareTerrain();	
+	
+	void compare(); 
+	
+	void operator() (const std::unique_ptr<CMap>& actual, const std::unique_ptr<CMap>& expected);
 };
 
 

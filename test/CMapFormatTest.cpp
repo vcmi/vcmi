@@ -62,9 +62,8 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 		std::unique_ptr<CMap> serialized = loader.loadMap();
 		
 		
-		MapComparer c;
-		
-		BOOST_REQUIRE_MESSAGE(c(initialMap, serialized), "Serialize cycle failed");
+		MapComparer c;		
+		c(initialMap, serialized);
 	}
 	catch(const std::exception & e)
 	{
