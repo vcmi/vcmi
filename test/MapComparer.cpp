@@ -13,40 +13,52 @@
 
 #include "MapComparer.h"
 
-#define VCMI_CHECK_FIELD_EQUAL(field) BOOST_CHECK_EQUAL(actual->field, expected->field)
+#define VCMI_CHECK_FIELD_EQUAL_P(field) BOOST_CHECK_EQUAL(actual->field, expected->field)
 
-std::ostream& operator<< (std::ostream& os, const PlayerInfo & p)
+#define VCMI_CHECK_FIELD_EQUAL(field) BOOST_CHECK_EQUAL(actual.field, expected.field)
+
+#define VCMI_REQUIRE_FIELD_EQUAL(field) BOOST_REQUIRE_EQUAL(actual->field, expected->field)
+
+std::ostream& operator<< (std::ostream& os, const PlayerInfo & value)
 {
 	os << "PlayerInfo"; 
 	return os;
 }
 
+//std::ostream& operator<< (std::ostream& os, const std::set<ui8> & value)
+//{
+//	os << "'Set'"; 
+//	return os;
+//}
+
 bool operator!=(const PlayerInfo & actual, const PlayerInfo & expected)
 {
-	
-	
-	return true;
+	VCMI_CHECK_FIELD_EQUAL(canHumanPlay);
+	VCMI_CHECK_FIELD_EQUAL(canComputerPlay);
+	VCMI_CHECK_FIELD_EQUAL(aiTactic);
+	//VCMI_CHECK_FIELD_EQUAL(allowedFactions);
+	return false;
 }
 
 void MapComparer::compareHeader()
 {
-	VCMI_CHECK_FIELD_EQUAL(name);
-	VCMI_CHECK_FIELD_EQUAL(description);
-	VCMI_CHECK_FIELD_EQUAL(difficulty);
-	VCMI_CHECK_FIELD_EQUAL(levelLimit);
+	VCMI_CHECK_FIELD_EQUAL_P(name);
+	VCMI_CHECK_FIELD_EQUAL_P(description);
+	VCMI_CHECK_FIELD_EQUAL_P(difficulty);
+	VCMI_CHECK_FIELD_EQUAL_P(levelLimit);
 
-	VCMI_CHECK_FIELD_EQUAL(victoryMessage);
-	VCMI_CHECK_FIELD_EQUAL(defeatMessage);
-	VCMI_CHECK_FIELD_EQUAL(victoryIconIndex);
-	VCMI_CHECK_FIELD_EQUAL(defeatIconIndex);
+	VCMI_CHECK_FIELD_EQUAL_P(victoryMessage);
+	VCMI_CHECK_FIELD_EQUAL_P(defeatMessage);
+	VCMI_CHECK_FIELD_EQUAL_P(victoryIconIndex);
+	VCMI_CHECK_FIELD_EQUAL_P(defeatIconIndex);
 	
 	BOOST_CHECK_EQUAL_COLLECTIONS(actual->players.begin(), actual->players.end(), expected->players.begin(), expected->players.end());
 
 
 	//map size parameters are vital for further checks 
-	BOOST_REQUIRE_EQUAL(actual->height, expected->height);
-	BOOST_REQUIRE_EQUAL(actual->width, expected->width);
-	BOOST_REQUIRE_EQUAL(actual->twoLevel, expected->twoLevel);
+	VCMI_REQUIRE_FIELD_EQUAL(height);
+	VCMI_REQUIRE_FIELD_EQUAL(width);
+	VCMI_REQUIRE_FIELD_EQUAL(twoLevel);
 
 	BOOST_FAIL("Not implemented");
 }
@@ -73,8 +85,8 @@ void MapComparer::compare()
 	BOOST_REQUIRE_MESSAGE(actual != nullptr, "Expected map is not defined");
 
 	compareHeader();
-	compareObjects();
 	compareOptions();
+	compareObjects();
 	compareTerrain();
 }
 
