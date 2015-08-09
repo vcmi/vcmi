@@ -61,6 +61,8 @@
 		<Unit filename="CMapFormatTest.cpp" />
 		<Unit filename="CVcmiTestConfig.cpp" />
 		<Unit filename="CVcmiTestConfig.h" />
+		<Unit filename="MapComparer.cpp" />
+		<Unit filename="MapComparer.h" />
 		<Unit filename="StdInc.cpp">
 			<Option weight="0" />
 		</Unit>

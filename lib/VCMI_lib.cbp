@@ -223,8 +223,12 @@
 		<Unit filename="filesystem/CFilesystemLoader.cpp" />
 		<Unit filename="filesystem/CFilesystemLoader.h" />
 		<Unit filename="filesystem/CInputStream.h" />
+		<Unit filename="filesystem/CMemoryBuffer.cpp" />
+		<Unit filename="filesystem/CMemoryBuffer.h" />
 		<Unit filename="filesystem/CMemoryStream.cpp" />
 		<Unit filename="filesystem/CMemoryStream.h" />
+		<Unit filename="filesystem/COutputStream.h" />
+		<Unit filename="filesystem/CStream.h" />
 		<Unit filename="filesystem/CZipLoader.cpp" />
 		<Unit filename="filesystem/CZipLoader.h" />
 		<Unit filename="filesystem/Filesystem.cpp" />
