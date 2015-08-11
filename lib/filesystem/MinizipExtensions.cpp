@@ -11,7 +11,7 @@
 
 #include "MinizipExtensions.h"
 
-static voidpf ZCALLBACK openFileProxy(voidpf opaque, const void * filename, int mode)
+voidpf ZCALLBACK CIOApi::openFileProxy(voidpf opaque, const void * filename, int mode)
 {
 	assert(opaque != nullptr);
 	
@@ -23,7 +23,7 @@ static voidpf ZCALLBACK openFileProxy(voidpf opaque, const void * filename, int 
 	return ((CIOApi *)opaque)->openFile(filename_s, mode);
 }
 
-static uLong ZCALLBACK readFileProxy(voidpf opaque, voidpf stream, void * buf, uLong size)
+uLong ZCALLBACK CIOApi::readFileProxy(voidpf opaque, voidpf stream, void * buf, uLong size)
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
@@ -33,7 +33,7 @@ static uLong ZCALLBACK readFileProxy(voidpf opaque, voidpf stream, void * buf, u
 	return actualStream->read((ui8 *)buf, size);
 }
 
-static uLong ZCALLBACK writeFileProxy(voidpf opaque, voidpf stream, const void * buf, uLong size)
+uLong ZCALLBACK CIOApi::writeFileProxy(voidpf opaque, voidpf stream, const void * buf, uLong size)
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
@@ -42,7 +42,7 @@ static uLong ZCALLBACK writeFileProxy(voidpf opaque, voidpf stream, const void *
     return (uLong)actualStream->write((const ui8 *)buf, size);
 }
 
-static ZPOS64_T ZCALLBACK tellFileProxy(voidpf opaque, voidpf stream)
+ZPOS64_T ZCALLBACK CIOApi::tellFileProxy(voidpf opaque, voidpf stream)
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
@@ -51,7 +51,7 @@ static ZPOS64_T ZCALLBACK tellFileProxy(voidpf opaque, voidpf stream)
     return actualStream->tell();
 }
 
-static long ZCALLBACK seekFileProxy(voidpf  opaque, voidpf stream, ZPOS64_T offset, int origin)
+long ZCALLBACK CIOApi::seekFileProxy(voidpf  opaque, voidpf stream, ZPOS64_T offset, int origin)
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
@@ -75,7 +75,7 @@ static long ZCALLBACK seekFileProxy(voidpf  opaque, voidpf stream, ZPOS64_T offs
     return ret;
 }
 
-static int ZCALLBACK closeFileProxy(voidpf opaque, voidpf stream)
+int ZCALLBACK CIOApi::closeFileProxy(voidpf opaque, voidpf stream)
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
@@ -87,14 +87,16 @@ static int ZCALLBACK closeFileProxy(voidpf opaque, voidpf stream)
     return 0;
 }
 
-static int ZCALLBACK errorFileProxy(voidpf opaque, voidpf stream)
+int ZCALLBACK CIOApi::errorFileProxy(voidpf opaque, voidpf stream)
 {
     return 0;
 }
 
-void CIOApi::fillApiStructure(zlib_filefunc64_def & api)
+///CIOApi
+zlib_filefunc64_def CIOApi::getApiStructure() const
 {
-	api.opaque = this;
+	zlib_filefunc64_def api;
+	api.opaque = (void *) this;
 	api.zopen64_file = &openFileProxy;
 	api.zread_file = &readFileProxy;
 	api.zwrite_file = &writeFileProxy;
@@ -102,5 +104,40 @@ void CIOApi::fillApiStructure(zlib_filefunc64_def & api)
 	api.zseek64_file = &seekFileProxy;
 	api.zclose_file = &closeFileProxy;
 	api.zerror_file = &errorFileProxy;	
+	
+	return api;
 }
 
+CDefaultIOApi::CDefaultIOApi()
+{
+	
+}
+
+CDefaultIOApi::~CDefaultIOApi()
+{
+	
+}
+
+zlib_filefunc64_def CDefaultIOApi::getApiStructure() const
+{
+	zlib_filefunc64_def api;
+	
+	fill_fopen64_filefunc(&api);
+	
+	return api;	
+}
+
+CInputOutputStream * CDefaultIOApi::openFile(const std::string& filename, int mode) const
+{
+	throw new std::runtime_error("CDefaultIOApi::openFile call not expected.");	
+}
+
+CZipArchive::CZipArchive(const CIOApi* api)
+{
+	
+}
+
+CZipArchive::~CZipArchive()
+{
+	
+}

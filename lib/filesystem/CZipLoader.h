@@ -15,12 +15,7 @@
 #include "ResourceID.h"
 #include "CCompressedStream.h"
 
-// Necessary here in order to get all types
-#ifdef USE_SYSTEM_MINIZIP
-#include <minizip/unzip.h>
-#else
-#include "../minizip/unzip.h"
-#endif
+#include "MinizipExtensions.h"
 
 class DLL_LINKAGE CZipStream : public CBufferedStream
 {
@@ -29,10 +24,12 @@ class DLL_LINKAGE CZipStream : public CBufferedStream
 public:
 	/**
 	 * @brief constructs zip stream from already opened file
+	 * @param api virtual filesystem interface
 	 * @param archive path to archive to open
 	 * @param filepos position of file to open
 	 */
-	CZipStream(const std::string & archive, unz_file_pos filepos);
+	CZipStream(std::shared_ptr<CIOApi> api, const std::string & archive, unz_file_pos filepos);
+		
 	~CZipStream();
 
 	si64 getSize() override;
@@ -44,6 +41,9 @@ protected:
 
 class DLL_LINKAGE CZipLoader : public ISimpleResourceLoader
 {
+	std::shared_ptr<CIOApi> ioApi;
+	zlib_filefunc64_def zlibApi;
+	
 	std::string archiveName;
 	std::string mountPoint;
 
@@ -51,8 +51,8 @@ class DLL_LINKAGE CZipLoader : public ISimpleResourceLoader
 
 	std::unordered_map<ResourceID, unz_file_pos> listFiles(const std::string & mountPoint, const std::string &archive);
 public:
-	CZipLoader(const std::string & mountPoint, const std::string & archive);
-
+	CZipLoader(const std::string & mountPoint, const std::string & archive, std::shared_ptr<CIOApi> api = std::shared_ptr<CIOApi>(new CDefaultIOApi()));
+	
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
 	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;

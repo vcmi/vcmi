@@ -14,11 +14,15 @@
  *
  */
 
-CZipStream::CZipStream(const std::string & archive, unz_file_pos filepos)
+CZipStream::CZipStream(std::shared_ptr<CIOApi> api, const std::string & archive, unz_file_pos filepos)
 {
-	file = unzOpen(archive.c_str());
+	zlib_filefunc64_def zlibApi;
+	
+	zlibApi = api->getApiStructure();
+	
+	file = unzOpen2_64(archive.c_str(), &zlibApi);
 	unzGoToFilePos(file, &filepos);
-	unzOpenCurrentFile(file);
+	unzOpenCurrentFile(file);	
 }
 
 CZipStream::~CZipStream()
@@ -46,7 +50,9 @@ ui32 CZipStream::calculateCRC32()
 	return info.crc;
 }
 
-CZipLoader::CZipLoader(const std::string & mountPoint, const std::string & archive):
+CZipLoader::CZipLoader(const std::string & mountPoint, const std::string & archive, std::shared_ptr<CIOApi> api):
+	ioApi(api),
+    zlibApi(ioApi->getApiStructure()),	
     archiveName(archive),
     mountPoint(mountPoint),
     files(listFiles(mountPoint, archive))
@@ -58,7 +64,7 @@ std::unordered_map<ResourceID, unz_file_pos> CZipLoader::listFiles(const std::st
 {
 	std::unordered_map<ResourceID, unz_file_pos> ret;
 
-	unzFile file = unzOpen(archive.c_str());
+	unzFile file = unzOpen2_64(archive.c_str(), &zlibApi);
 
 	if (unzGoToFirstFile(file) == UNZ_OK)
 	{
@@ -85,7 +91,7 @@ std::unordered_map<ResourceID, unz_file_pos> CZipLoader::listFiles(const std::st
 
 std::unique_ptr<CInputStream> CZipLoader::load(const ResourceID & resourceName) const
 {
-	return std::unique_ptr<CInputStream>(new CZipStream(archiveName, files.at(resourceName)));
+	return std::unique_ptr<CInputStream>(new CZipStream(ioApi, archiveName, files.at(resourceName)));	
 }
 
 bool CZipLoader::existsResource(const ResourceID & resourceName) const
