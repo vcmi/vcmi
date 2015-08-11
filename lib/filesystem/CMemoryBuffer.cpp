@@ -18,7 +18,7 @@ CMemoryBuffer::CMemoryBuffer():
 	
 }
 
-si64 CMemoryBuffer::write(ui8 * data, si64 size)
+si64 CMemoryBuffer::write(const ui8 * data, si64 size)
 {
 	buffer.reserve(tell()+size);
 	

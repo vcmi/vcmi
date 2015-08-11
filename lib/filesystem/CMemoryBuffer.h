@@ -11,14 +11,14 @@
  */
  
 
-#include "CInputStream.h"
-#include "COutputStream.h"
+#include "CInputOutputStream.h"
+
 
 /**
  * A class which provides IO memory buffer.
  */
  
-class DLL_LINKAGE CMemoryBuffer : public CInputStream, public COutputStream
+class DLL_LINKAGE CMemoryBuffer : public CInputOutputStream
 {
 public:
 	typedef std::vector<ui8> TBuffer;
@@ -36,7 +36,7 @@ public:
 	 * @param size The number of bytes to write.
 	 * @return the number of bytes written actually.
 	 */
-	si64 write(ui8 * data, si64 size) override;	
+	si64 write(const ui8 * data, si64 size) override;	
 
 	/**
 	 * Reads n bytes from the stream into the data buffer.

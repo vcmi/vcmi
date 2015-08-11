@@ -30,5 +30,5 @@ public:
 	 * @param size The number of bytes to write.
 	 * @return the number of bytes written actually.
 	 */
-	virtual si64 write(ui8 * data, si64 size) = 0;
+	virtual si64 write(const ui8 * data, si64 size) = 0;
 };

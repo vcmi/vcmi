@@ -19,6 +19,7 @@ set(lib_SRCS
 		filesystem/CZipLoader.cpp
 		filesystem/Filesystem.cpp
 		filesystem/ResourceID.cpp
+                filesystem/MinizipExtensions.cpp
 
 		mapObjects/CArmedInstance.cpp
 		mapObjects/CBank.cpp

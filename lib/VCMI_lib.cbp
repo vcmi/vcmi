@@ -222,6 +222,7 @@
 		<Unit filename="filesystem/CFileInputStream.h" />
 		<Unit filename="filesystem/CFilesystemLoader.cpp" />
 		<Unit filename="filesystem/CFilesystemLoader.h" />
+		<Unit filename="filesystem/CInputOutputStream.h" />
 		<Unit filename="filesystem/CInputStream.h" />
 		<Unit filename="filesystem/CMemoryBuffer.cpp" />
 		<Unit filename="filesystem/CMemoryBuffer.h" />
@@ -234,6 +235,8 @@
 		<Unit filename="filesystem/Filesystem.cpp" />
 		<Unit filename="filesystem/Filesystem.h" />
 		<Unit filename="filesystem/ISimpleResourceLoader.h" />
+		<Unit filename="filesystem/MinizipExtensions.cpp" />
+		<Unit filename="filesystem/MinizipExtensions.h" />
 		<Unit filename="filesystem/ResourceID.cpp" />
 		<Unit filename="filesystem/ResourceID.h" />
 		<Unit filename="int3.h" />
