@@ -51,6 +51,8 @@ static EventCondition JsonToCondition(const JsonNode & node)
 }
 
 ///CMapFormatJson
+const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
+
 void CMapFormatJson::readTriggeredEvents(const JsonNode & input)
 {
 	mapHeader->victoryMessage = input["victoryString"].String();
@@ -183,15 +185,40 @@ void CMapLoaderJson::readPlayerInfo()
 }
 
 ///CMapSaverJson
-CMapSaverJson::CMapSaverJson(COutputStream * stream):
-	output(stream)
+CMapSaverJson::CMapSaverJson(CInputOutputStream * stream):
+	output(stream),
+	ioApi(new CProxyIOApi(output)),
+	saver(ioApi, "_")
 {
 	
 }
 
+CMapSaverJson::~CMapSaverJson()
+{
+	
+}
 
 void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
 {
 	//TODO: saveMap
+	this->map = map.get();
 }
 
+void CMapSaverJson::saveHeader()
+{
+	JsonNode header;
+	//TODO: save header
+	
+	header["name"].String() = map->name;
+	
+	std::ostringstream out;
+	out << header;
+	out.flush();
+	
+	{
+		auto s = out.str();
+		auto stream = saver.addFile(HEADER_FILE_NAME);
+		
+		stream->write((const ui8*)s.c_str(), s.size());
+	}	
+}

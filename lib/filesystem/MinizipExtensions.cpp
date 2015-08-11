@@ -8,9 +8,12 @@
  *
  */
 #include "StdInc.h"
-
 #include "MinizipExtensions.h"
 
+#include "CMemoryBuffer.h"
+
+
+///CIOApi
 voidpf ZCALLBACK CIOApi::openFileProxy(voidpf opaque, const void * filename, int mode)
 {
 	assert(opaque != nullptr);
@@ -82,7 +85,7 @@ int ZCALLBACK CIOApi::closeFileProxy(voidpf opaque, voidpf stream)
 		
 	CInputOutputStream * actualStream = static_cast<CInputOutputStream *>(stream);
 	
-	delete actualStream;
+	((CIOApi *)opaque)->closeFile(actualStream);
 	
     return 0;
 }
@@ -92,7 +95,6 @@ int ZCALLBACK CIOApi::errorFileProxy(voidpf opaque, voidpf stream)
     return 0;
 }
 
-///CIOApi
 zlib_filefunc64_def CIOApi::getApiStructure() const
 {
 	zlib_filefunc64_def api;
@@ -108,6 +110,12 @@ zlib_filefunc64_def CIOApi::getApiStructure() const
 	return api;
 }
 
+void CIOApi::closeFile(CInputOutputStream * stream) const
+{
+	delete stream;
+}
+
+///CDefaultIOApi
 CDefaultIOApi::CDefaultIOApi()
 {
 	
@@ -132,12 +140,28 @@ CInputOutputStream * CDefaultIOApi::openFile(const std::string& filename, int mo
 	throw new std::runtime_error("CDefaultIOApi::openFile call not expected.");	
 }
 
-CZipArchive::CZipArchive(const CIOApi* api)
+///CProxyIOApi
+CProxyIOApi::CProxyIOApi(CInputOutputStream * buffer):
+	data(buffer)
 {
 	
 }
 
-CZipArchive::~CZipArchive()
+CProxyIOApi::~CProxyIOApi()
 {
 	
+}
+
+CInputOutputStream * CProxyIOApi::openFile(const std::string& filename, int mode) const
+{
+	logGlobal->traceStream() << "CProxyIOApi: stream opened for" <<filename<<" with mode "<<mode; 
+	
+	data->seek(0);
+	return data;//todo: check that only one "copy" is opened
+}
+
+void CProxyIOApi::closeFile(CInputOutputStream * stream) const
+{
+	logGlobal->traceStream() << "CProxyIOApi: stream closed";
+	stream->seek(0);//stream is local singleton and even not owned, just seek
 }

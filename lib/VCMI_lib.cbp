@@ -232,6 +232,8 @@
 		<Unit filename="filesystem/CStream.h" />
 		<Unit filename="filesystem/CZipLoader.cpp" />
 		<Unit filename="filesystem/CZipLoader.h" />
+		<Unit filename="filesystem/CZipSaver.cpp" />
+		<Unit filename="filesystem/CZipSaver.h" />
 		<Unit filename="filesystem/Filesystem.cpp" />
 		<Unit filename="filesystem/Filesystem.h" />
 		<Unit filename="filesystem/ISimpleResourceLoader.h" />

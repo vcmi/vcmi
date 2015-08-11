@@ -1,5 +1,4 @@
 #include "StdInc.h"
-#include "../../Global.h"
 #include "CZipLoader.h"
 
 #include "../ScopeGuard.h"
@@ -14,6 +13,7 @@
  *
  */
 
+///CZipStream
 CZipStream::CZipStream(std::shared_ptr<CIOApi> api, const std::string & archive, unz_file_pos filepos)
 {
 	zlib_filefunc64_def zlibApi;
@@ -50,6 +50,7 @@ ui32 CZipStream::calculateCRC32()
 	return info.crc;
 }
 
+///CZipLoader
 CZipLoader::CZipLoader(const std::string & mountPoint, const std::string & archive, std::shared_ptr<CIOApi> api):
 	ioApi(api),
     zlibApi(ioApi->getApiStructure()),	

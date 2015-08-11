@@ -42,9 +42,9 @@ public:
 	virtual si64 skip(si64 delta) = 0;
 
 	/**
-	 * Gets the length in bytes of the stream.
+	 * Gets the length of the stream.
 	 *
-	 * @return the length in bytes of the stream.
+	 * @return the length in bytes
 	 */
 	virtual si64 getSize() = 0;	
 };

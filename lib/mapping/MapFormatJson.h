@@ -13,12 +13,16 @@
 #include "CMapService.h"
 #include "../JsonNode.h"
 
+#include "../filesystem/CZipSaver.h"
+#include "../filesystem/CZipLoader.h"
+
 class TriggeredEvent;
-class CInputStream;
-class COutputStream;
+
 
 class DLL_LINKAGE CMapFormatJson
 {
+public:	
+	static const std::string HEADER_FILE_NAME;
 
 protected:
 	
@@ -121,7 +125,9 @@ public:
 	 *
 	 * @param stream a stream to save the map to
 	 */
-	CMapSaverJson(COutputStream * stream);	
+	CMapSaverJson(CInputOutputStream * stream);	
+	
+	~CMapSaverJson();
 	
 	/**
 	 * Actually saves the VCMI/Json map into stream.
@@ -129,5 +135,9 @@ public:
 	 */	
 	void saveMap(const std::unique_ptr<CMap> & map) override;	
 private:
-	COutputStream * output;		
+	void saveHeader();
+	
+	CInputOutputStream * output;
+	std::shared_ptr<CIOApi> ioApi;		
+	CZipSaver saver;	
 };

@@ -61,7 +61,6 @@ public:
 	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
 };
 
-
 namespace ZipArchive
 {
 	/// List all files present in archive

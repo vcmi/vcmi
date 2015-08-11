@@ -20,7 +20,8 @@
 #include "../minizip/ioapi.h"
 #endif
 
-#include "CInputOutputStream.h"
+class CInputOutputStream;
+class CMemoryBuffer;
 
 class DLL_LINKAGE CIOApi
 {
@@ -32,6 +33,9 @@ public:
 protected:	
 	virtual CInputOutputStream * openFile(const std::string & filename, int mode) const = 0;
 	
+	///default implementation deletes stream object
+	virtual void closeFile(CInputOutputStream * stream) const;
+	
 private:
 	static voidpf ZCALLBACK openFileProxy(voidpf opaque, const void * filename, int mode);
 	static uLong ZCALLBACK readFileProxy(voidpf opaque, voidpf stream, void * buf, uLong size);
@@ -42,7 +46,8 @@ private:
 	static int ZCALLBACK errorFileProxy(voidpf opaque, voidpf stream);
 };
 
-
+///redirects back to minizip ioapi
+//todo: replace with Virtual FileSystem interface
 class DLL_LINKAGE CDefaultIOApi: public CIOApi
 {
 public:
@@ -55,12 +60,15 @@ protected:
 	CInputOutputStream * openFile(const std::string & filename, int mode) const override;
 };
 
-class CZipArchive
+///redirects all file IO to single stream
+class DLL_LINKAGE CProxyIOApi: public CIOApi
 {
 public:
-	explicit CZipArchive(const CIOApi * api);
-	virtual ~CZipArchive();
-	
+	CProxyIOApi(CInputOutputStream * buffer);
+	~CProxyIOApi();
+protected:
+	CInputOutputStream * openFile(const std::string & filename, int mode) const override;
+	void closeFile(CInputOutputStream * stream) const override;
 private:
-	
+	CInputOutputStream * data;
 };

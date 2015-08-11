@@ -47,6 +47,7 @@
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-Wno-unused-local-typedefs" />
+			<Add directory="$(#zlib.include)" />
 			<Add directory="$(#boost.include)" />
 		</Compiler>
 		<Linker>

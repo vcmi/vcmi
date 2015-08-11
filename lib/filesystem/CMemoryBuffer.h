@@ -13,7 +13,6 @@
 
 #include "CInputOutputStream.h"
 
-
 /**
  * A class which provides IO memory buffer.
  */
