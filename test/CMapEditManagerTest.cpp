@@ -25,11 +25,12 @@
 
 BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 {
+	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_Type start";
 	try
 	{
 		auto map = make_unique<CMap>();
-		map->width = 100;
-		map->height = 100;
+		map->width = 52;
+		map->height = 52;
 		map->initTerrain();
 		auto editManager = map->getEditManager();
 		editManager->clearTerrain();
@@ -81,6 +82,9 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 		editManager->drawTerrain(ETerrainType::ROCK);
 		BOOST_CHECK(map->getTile(int3(5, 6, 1)).terType == ETerrainType::ROCK || map->getTile(int3(7, 8, 1)).terType == ETerrainType::ROCK);
 
+		//todo: add checks here and enable, also use smaller size
+		#if 0 
+		
 		// next check
 		auto map2 = make_unique<CMap>();
 		map2->width = 128;
@@ -96,26 +100,24 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 									int3(98, 46, 1), int3(99, 46, 1)});
 		editManager2->getTerrainSelection().setSelection(selection);
 		editManager2->drawTerrain(ETerrainType::ROCK);
+		#endif // 0
 
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal-> errorStream() << e.what();
-	}
+		logGlobal->errorStream() << "CMapEditManager_DrawTerrain_Type crash" << "\n" << e.what();	
+		throw;
+	}	
+	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_Type finish";
 }
 
 BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 {
+	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_View start";	
 	try
 	{
 		// Load maps and json config
-
-//		#if defined(__MINGW32__)
 		const std::string TEST_DATA_DIR = "test/";
-//		#else
-//		const std::string TEST_DATA_DIR = ".";
-//		#endif // defined
-
 
 		auto loader = new CFilesystemLoader("test/", TEST_DATA_DIR);
 		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
@@ -171,6 +173,8 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal-> errorStream() << e.what();
+		logGlobal->infoStream() << "CMapEditManager_DrawTerrain_View crash"<< "\n" << e.what();
+		throw;
 	}
+	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_View finish";
 }
