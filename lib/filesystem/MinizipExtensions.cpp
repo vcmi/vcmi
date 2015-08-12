@@ -154,7 +154,7 @@ CProxyIOApi::~CProxyIOApi()
 
 CInputOutputStream * CProxyIOApi::openFile(const std::string& filename, int mode) const
 {
-	logGlobal->traceStream() << "CProxyIOApi: stream opened for" <<filename<<" with mode "<<mode; 
+	logGlobal->traceStream() << "CProxyIOApi: stream opened for " <<filename<<" with mode "<<mode; 
 	
 	data->seek(0);
 	return data;//todo: check that only one "copy" is opened

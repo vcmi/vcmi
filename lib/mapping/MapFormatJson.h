@@ -22,6 +22,9 @@ class TriggeredEvent;
 class DLL_LINKAGE CMapFormatJson
 {
 public:	
+	static const int VERSION_MAJOR;
+	static const int VERSION_MINOR;	
+	
 	static const std::string HEADER_FILE_NAME;
 
 protected:
@@ -73,7 +76,16 @@ private:
 	const JsonNode input;	
 };
 
-class DLL_LINKAGE CMapLoaderJson : public CMapFormatJson, public IMapLoader
+class DLL_LINKAGE CMapFormatZip : public CMapFormatJson
+{
+public:
+	CMapFormatZip(CInputOutputStream * stream);
+protected:
+	CInputOutputStream * buffer;
+	std::shared_ptr<CIOApi> ioApi;
+};
+
+class DLL_LINKAGE CMapLoaderJson : public CMapFormatZip, public IMapLoader
 {
 public:
 	/**
@@ -81,7 +93,7 @@ public:
 	 *
 	 * @param stream a stream containing the map data
 	 */
-	CMapLoaderJson(CInputStream * stream);
+	CMapLoaderJson(CInputOutputStream * stream);
 
 	/**
 	 * Loads the VCMI/Json map file.
@@ -112,12 +124,11 @@ private:
 	 * Reads player information.
 	 */
 	void readPlayerInfo();
-
-
-	CInputStream * input;
+	
+	CZipLoader loader;
 };
 
-class DLL_LINKAGE CMapSaverJson : public CMapFormatJson, public IMapSaver
+class DLL_LINKAGE CMapSaverJson : public CMapFormatZip, public IMapSaver
 {
 public:
 	/**
@@ -136,8 +147,6 @@ public:
 	void saveMap(const std::unique_ptr<CMap> & map) override;	
 private:
 	void saveHeader();
-	
-	CInputOutputStream * output;
-	std::shared_ptr<CIOApi> ioApi;		
+		
 	CZipSaver saver;	
 };

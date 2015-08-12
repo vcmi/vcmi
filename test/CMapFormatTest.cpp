@@ -40,6 +40,7 @@ public:
 		CMapGenerator gen;
 		
 		initialMap = gen.generate(&opt, TEST_RANDOM_SEED);
+		initialMap->name = "Test";
 	};
 	~CMapTestFixture()
 	{
@@ -53,20 +54,26 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 {
 	try
 	{
+		logGlobal->info("CMapFormatVCMI_Simple start");
 		CMemoryBuffer serializeBuffer;
-		CMapSaverJson saver(&serializeBuffer);
-		saver.saveMap(initialMap);
-		
-		CMapLoaderJson loader(&serializeBuffer);
-		serializeBuffer.seek(0);		
-		std::unique_ptr<CMap> serialized = loader.loadMap();
-		
-		
-		MapComparer c;		
-		c(initialMap, serialized);
+		{
+			CMapSaverJson saver(&serializeBuffer);
+			saver.saveMap(initialMap);
+		}
+		serializeBuffer.seek(0);
+		{
+			CMapLoaderJson loader(&serializeBuffer);
+			std::unique_ptr<CMap> serialized = loader.loadMap();
+
+			MapComparer c;
+			c(initialMap, serialized);
+		}
+
+		logGlobal->info("CMapFormatVCMI_Simple finish");
 	}
 	catch(const std::exception & e)
 	{
+		logGlobal->info("CMapFormatVCMI_Simple crash");
 		logGlobal-> errorStream() << e.what();
 		throw;
 	}

@@ -14,6 +14,8 @@
 
 #include "MinizipExtensions.h"
 
+class CZipSaver;
+
 class DLL_LINKAGE CZipOutputStream: public COutputStream
 {
 public:
@@ -22,7 +24,7 @@ public:
 	 * @param archive archive handle, must be opened
 	 * @param archiveFilename name of file to write
 	 */	
-	explicit CZipOutputStream(zipFile archive, const std::string & archiveFilename);
+	explicit CZipOutputStream(CZipSaver * owner_, zipFile archive, const std::string & archiveFilename);
 	~CZipOutputStream();
 	
 	si64 write(const ui8 * data, si64 size) override;
@@ -33,6 +35,7 @@ public:
 	si64 getSize() override {return 0;};	
 private:
 	zipFile handle;
+	CZipSaver * owner;
 };
 
 class DLL_LINKAGE CZipSaver
@@ -50,4 +53,5 @@ private:
 	
 	///due to minizip design only one file stream may opened at a time
 	COutputStream * activeStream;
+	friend class CZipOutputStream;
 };

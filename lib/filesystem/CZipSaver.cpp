@@ -12,8 +12,9 @@
 #include "CZipSaver.h"
 
 ///CZipOutputStream
-CZipOutputStream::CZipOutputStream(zipFile archive, const std::string & archiveFilename):
-	handle(archive)
+CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const std::string & archiveFilename):
+	handle(archive),
+	owner(owner_)
 {
 	//zip_fileinfo fileInfo;
 	
@@ -27,13 +28,14 @@ CZipOutputStream::CZipOutputStream(zipFile archive, const std::string & archiveF
                        "",
                        Z_DEFLATED,
                        Z_DEFAULT_COMPRESSION);
+	owner->activeStream = this;
 }
 
 CZipOutputStream::~CZipOutputStream()
 {
 	zipCloseFileInZip(handle);
+	owner->activeStream = nullptr;
 }
-
 
 si64 CZipOutputStream::write(const ui8 * data, si64 size)
 {
@@ -49,18 +51,24 @@ si64 CZipOutputStream::write(const ui8 * data, si64 size)
 CZipSaver::CZipSaver(std::shared_ptr<CIOApi> api, const std::string & path):
 	ioApi(api),
 	zipApi(ioApi->getApiStructure()),
-	handle(nullptr)	
+	handle(nullptr),
+	activeStream(nullptr)
 {
-	
-	
 	handle = zipOpen2_64(path.c_str(), APPEND_STATUS_CREATE, nullptr, &zipApi);
 	
 	if (handle == nullptr)
-		throw new std::runtime_error("Failed to create archive");
+		throw new std::runtime_error("Failed to create archive");	
 }
 
 CZipSaver::~CZipSaver()
 {
+	if(activeStream != nullptr)
+	{
+		logGlobal->error("CZipSaver::~CZipSaver: active stream found");	
+		zipCloseFileInZip(handle);
+	}
+		
+	
 	if(handle != nullptr)
 		zipClose(handle, nullptr);
 }
@@ -70,10 +78,7 @@ std::unique_ptr<COutputStream> CZipSaver::addFile(const std::string & archiveFil
 	if(activeStream != nullptr)
 		throw new std::runtime_error("CZipSaver::addFile: stream already opened");
 	
-	std::unique_ptr<COutputStream> stream(new CZipOutputStream(handle, archiveFilename));
-	
-	activeStream = stream.get();
-	
-	return stream;
+	std::unique_ptr<COutputStream> stream(new CZipOutputStream(this, handle, archiveFilename));
+	return std::move(stream);
 }
 

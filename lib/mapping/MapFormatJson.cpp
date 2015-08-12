@@ -51,6 +51,9 @@ static EventCondition JsonToCondition(const JsonNode & node)
 }
 
 ///CMapFormatJson
+const int CMapFormatJson::VERSION_MAJOR = 1;
+const int CMapFormatJson::VERSION_MINOR = 0;
+
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
 
 void CMapFormatJson::readTriggeredEvents(const JsonNode & input)
@@ -102,9 +105,19 @@ void CMapPatcher::readPatchData()
 	readTriggeredEvents(input);
 }
 
+///CMapFormatZip
+CMapFormatZip::CMapFormatZip(CInputOutputStream * stream):
+	buffer(stream),
+	ioApi(new CProxyIOApi(buffer))
+{
+	
+}
+
+
 ///CMapLoaderJson
-CMapLoaderJson::CMapLoaderJson(CInputStream * stream):
-	input(stream)
+CMapLoaderJson::CMapLoaderJson(CInputOutputStream * stream):
+	CMapFormatZip(stream),
+	loader("", "_", ioApi)	
 {
 	
 }
@@ -168,26 +181,66 @@ JsonNode eventToJson(const EventCondition & cond)
 void CMapLoaderJson::readMap()
 {
 	readHeader();
+	map->initTerrain();
 	//TODO:readMap
 }
 
 void CMapLoaderJson::readHeader()
 {
+	//do not use map field here, use only mapHeader
+	ResourceID headerID(HEADER_FILE_NAME, EResType::TEXT);
+
+	if(!loader.existsResource(headerID))
+		throw new std::runtime_error(HEADER_FILE_NAME+" not found");
+
+	auto headerData = loader.load(headerID)->readAll();
+
+	const JsonNode header(reinterpret_cast<char*>(headerData.first.get()), headerData.second);
+
 	//TODO: read such data like map name & size
-//	readTriggeredEvents();
+	//mapHeader->version = ??? //todo: new version field
+
+	//todo: multilevel map load support	
+	const JsonNode levels = header["mapLevels"];	
+	mapHeader->height = levels["surface"]["height"].Float();
+	mapHeader->width = levels["surface"]["width"].Float();	
+	mapHeader->twoLevel = !levels["underground"].isNull();
+
+	mapHeader->name = header["name"].String();
+	mapHeader->description = header["description"].String();
+	
+	//todo: support arbitrary percentage
+	
+	static const std::map<std::string, ui8> difficultyMap =
+	{
+		{"EASY", 0},
+		{"NORMAL", 1}, 
+		{"HARD", 2}, 
+		{"EXPERT", 3},
+		{"IMPOSSIBLE", 4}		
+	};
+	
+	mapHeader->difficulty = difficultyMap.at(header["difficulty"].String()); 
+	mapHeader->levelLimit = header["levelLimit"].Float();
+	
+
+//	std::vector<bool> allowedHeroes;
+//	std::vector<ui16> placeholdedHeroes;	
+	
+	readTriggeredEvents(header);
 	readPlayerInfo();
 	//TODO: readHeader
 }
 
 void CMapLoaderJson::readPlayerInfo()
 {
+	//ui8 howManyTeams;
 	//TODO: readPlayerInfo
 }
 
 ///CMapSaverJson
 CMapSaverJson::CMapSaverJson(CInputOutputStream * stream):
-	output(stream),
-	ioApi(new CProxyIOApi(output)),
+	CMapFormatZip(stream),
 	saver(ioApi, "_")
 {
 	
@@ -202,14 +255,48 @@ void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
 {
 	//TODO: saveMap
 	this->map = map.get();
+	saveHeader();	
+	
 }
 
 void CMapSaverJson::saveHeader()
 {
 	JsonNode header;
-	//TODO: save header
+	header["versionMajor"].Float() = VERSION_MAJOR;
+	header["versionMinor"].Float() = VERSION_MINOR;	
+	
+	//todo: multilevel map save support	
+	JsonNode levels = header["mapLevels"];
+	levels["surface"]["height"].Float() = map->height;	
+	levels["surface"]["width"].Float() = map->width;
+	levels["surface"]["index"].Float() = 0;
+	
+	if(map->twoLevel)
+	{
+		levels["underground"]["height"].Float() = map->height;	
+		levels["underground"]["width"].Float() = map->width;	
+		levels["underground"]["index"].Float() = 1;
+	}
 	
 	header["name"].String() = map->name;
+	header["description"].String() = map->description;
+	
+	
+	//todo: support arbitrary percentage	
+	static const std::map<ui8, std::string> difficultyMap =
+	{
+		{0, "EASY"},
+		{1, "NORMAL"},
+		{2, "HARD"},
+		{3, "EXPERT"},
+		{4, "IMPOSSIBLE"}
+	};
+	
+	header["difficulty"].String() = difficultyMap.at(map->difficulty);	
+	header["levelLimit"].Float() = map->levelLimit;
+	
+	//todo:	allowedHeroes;
+	//todo: placeholdedHeroes;	
 	
 	std::ostringstream out;
 	out << header;
@@ -217,7 +304,7 @@ void CMapSaverJson::saveHeader()
 	
 	{
 		auto s = out.str();
-		auto stream = saver.addFile(HEADER_FILE_NAME);
+		std::unique_ptr<COutputStream> stream = saver.addFile(HEADER_FILE_NAME);
 		
 		stream->write((const ui8*)s.c_str(), s.size());
 	}	

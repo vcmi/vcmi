@@ -20,7 +20,10 @@ CMemoryBuffer::CMemoryBuffer():
 
 si64 CMemoryBuffer::write(const ui8 * data, si64 size)
 {
-	buffer.reserve(tell()+size);
+	//do not shrink
+	const si64 newSize = tell()+size;
+	if(newSize>getSize())
+		buffer.resize(newSize);
 	
 	std::copy(data, data + size, buffer.data() + position);
 	position += size;
@@ -32,8 +35,12 @@ si64 CMemoryBuffer::read(ui8 * data, si64 size)
 {
 	si64 toRead = std::min(getSize() - tell(), size);
 	
-	std::copy(buffer.data() + position, buffer.data() + position + toRead, data);
-	position += toRead;
+	if(toRead > 0)
+	{
+		std::copy(buffer.data() + position, buffer.data() + position + toRead, data);
+		position += toRead;		
+	}
+	
 	
 	return toRead;	
 }
@@ -42,7 +49,7 @@ si64 CMemoryBuffer::seek(si64 position)
 {
 	this->position = position;
 	if (this->position >=getSize())
-		this->position = getSize()-1;
+		this->position = getSize();
 	return this->position;
 }
 
