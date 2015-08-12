@@ -2467,11 +2467,9 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 			obj->subID = 0;
 			std::vector<SpellID> out;
 
-			//TODO: unify with cb->getAllowedSpells?
-			for (ui32 spellid = 0; spellid < gen->map->allowedSpell.size(); spellid++) //spellh size appears to be greater (?)
+			for (auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
 			{
-				const CSpell *spell = SpellID(spellid).toSpell();
-				if (gen->map->allowedSpell[spell->id] && spell->level == i + 1)
+				if (gen->isAllowedSpell(spell->id) && spell->level == i + 1)
 				{
 					out.push_back(spell->id);
 				}
@@ -2582,7 +2580,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 			std::vector <CSpell *> spells;
 			for (auto spell : VLC->spellh->objects)
 			{
-				if (!spell->isSpecialSpell() && !spell->isCreatureAbility() && spell->level == i)
+				if (gen->isAllowedSpell(spell->id) && spell->level == i)
 					spells.push_back(spell);
 			}
 
@@ -2613,7 +2611,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 			for (auto spell : VLC->spellh->objects)
 			{
 
-				if (!spell->isSpecialSpell() && !spell->isCreatureAbility() &&spell->school[(ESpellSchool)i])
+				if (gen->isAllowedSpell(spell->id) && spell->school[(ESpellSchool)i])
 					spells.push_back(spell);
 			}
 
@@ -2642,7 +2640,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 		std::vector <CSpell *> spells;
 		for (auto spell : VLC->spellh->objects)
 		{
-			if (!spell->isSpecialSpell() && !spell->isCreatureAbility())
+			if (gen->isAllowedSpell(spell->id))
 				spells.push_back(spell);
 		}
 

@@ -406,7 +406,6 @@ public:
 	int3 grailPos;
 	int grailRadious;
 
-
 	//Central lists of items in game. Position of item in the vectors below is their (instance) id.
 	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;
 	std::vector< ConstTransitivePtr<CGTownInstance> > towns;

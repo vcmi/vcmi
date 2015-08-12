@@ -79,6 +79,7 @@ public:
 	void setRoad(const int3 &tile, ERoadType::ERoadType roadType);
 	
 	CTileInfo getTile(const int3 & tile) const;
+	bool isAllowedSpell(SpellID sid) const;
 
 	float getNearestObjectDistance(const int3 &tile) const; 
 	void setNearestObjectDistance(int3 &tile, float value);
