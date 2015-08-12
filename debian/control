@@ -2,14 +2,31 @@ Source: vcmi
 Section: games
 Priority: optional
 Maintainer: Ivan Savenko <saven.ivan@gmail.com>
-Build-Depends: debhelper (>= 8), cmake, libsdl2-dev, libsdl2-image-dev, libsdl2-ttf-dev, libsdl2-mixer-dev, zlib1g-dev, libavformat-dev, libswscale-dev, libboost-dev (>=1.48), libboost-program-options-dev (>=1.48), libboost-filesystem-dev (>=1.48), libboost-system-dev (>=1.48), libboost-locale-dev (>=1.48), libboost-thread-dev (>=1.48), qtbase5-dev
-Standards-Version: 3.9.1
+Build-Depends:
+ debhelper (>= 9),
+ cmake (>= 2.8.12~),
+ libsdl2-dev,
+ libsdl2-image-dev,
+ libsdl2-ttf-dev,
+ libsdl2-mixer-dev,
+ zlib1g-dev,
+ libavformat-dev,
+ libswscale-dev,
+ libboost-dev (>= 1.48),
+ libboost-program-options-dev (>= 1.48),
+ libboost-filesystem-dev (>= 1.48),
+ libboost-system-dev (>= 1.48),
+ libboost-locale-dev (>= 1.48),
+ libboost-thread-dev (>= 1.48),
+ qtbase5-dev
+Standards-Version: 3.9.6
 Homepage: http://vcmi.eu
 Vcs-Git: git://github.com/vcmi/vcmi.git
 Vcs-Browser: https://github.com/vcmi/vcmi
 
 Package: vcmi
 Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Rewrite of the Heroes of Might and Magic 3 engine
  The purpose of VCMI project is to rewrite entire HOMM 3: WoG engine from
@@ -22,6 +39,13 @@ Description: Rewrite of the Heroes of Might and Magic 3 engine
 
 Package: vcmi-dbg
 Architecture: any
+Priority: extra
 Section: debug
-Depends: vcmi (= ${binary:Version}),    ${misc:Depends} 
+Depends: vcmi (= ${binary:Version}), ${misc:Depends}
 Description: Debug symbols for vcmi package
+ The purpose of VCMI project is to rewrite entire HOMM 3: WoG engine from
+ scratch, giving it new and extended possibilities. It will help to support
+ mods and new towns already made by fans but abandoned because of game code
+ limitations.
+ .
+ This package will install debug symbols for the vcmi package.
