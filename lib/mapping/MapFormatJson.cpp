@@ -267,7 +267,7 @@ void CMapSaverJson::saveHeader()
 	header["versionMinor"].Float() = VERSION_MINOR;	
 	
 	//todo: multilevel map save support	
-	JsonNode levels = header["mapLevels"];
+	JsonNode & levels = header["mapLevels"];
 	levels["surface"]["height"].Float() = map->height;	
 	levels["surface"]["width"].Float() = map->width;
 	levels["surface"]["index"].Float() = 0;

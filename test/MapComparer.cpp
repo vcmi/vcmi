@@ -60,22 +60,22 @@ void MapComparer::compareHeader()
 	VCMI_REQUIRE_FIELD_EQUAL(width);
 	VCMI_REQUIRE_FIELD_EQUAL(twoLevel);
 
-	BOOST_FAIL("Not implemented");
+	BOOST_ERROR("Not implemented");
 }
 
 void MapComparer::compareOptions()
 {
-	BOOST_FAIL("Not implemented");
+	BOOST_ERROR("Not implemented");
 }
 
 void MapComparer::compareObjects()
 {
-	BOOST_FAIL("Not implemented");
+	BOOST_ERROR("Not implemented");
 }
 
 void MapComparer::compareTerrain()
 {
-	BOOST_FAIL("Not implemented");
+	BOOST_ERROR("Not implemented");
 }
 
 void MapComparer::compare()
