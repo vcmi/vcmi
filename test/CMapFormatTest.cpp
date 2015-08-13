@@ -55,39 +55,32 @@ BOOST_GLOBAL_FIXTURE(CMapTestFixture);
 
 BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 {
-	try
+	logGlobal->info("CMapFormatVCMI_Simple start");
+	CMemoryBuffer serializeBuffer;
 	{
-		logGlobal->info("CMapFormatVCMI_Simple start");
-		CMemoryBuffer serializeBuffer;
-		{
-			CMapSaverJson saver(&serializeBuffer);
-			saver.saveMap(initialMap);
-		}
-		
-		#if 1
-		{
-			std::ofstream tmp((VCMIDirs::get().userDataPath()/"temp.zip").string());
-			tmp.write((const char *)&serializeBuffer.getBuffer()[0],serializeBuffer.getSize());
-			tmp.flush();
-		}
-		
-		
-		#endif // 1
-		
-		serializeBuffer.seek(0);
-		{
-			CMapLoaderJson loader(&serializeBuffer);
-			std::unique_ptr<CMap> serialized = loader.loadMap();
-
-			MapComparer c;
-			c(initialMap, serialized);
-		}
-
-		logGlobal->info("CMapFormatVCMI_Simple finish");
+		CMapSaverJson saver(&serializeBuffer);
+		saver.saveMap(initialMap);
 	}
-	catch(...)
+	
+	#if 1
 	{
-		handleException();
-		BOOST_FAIL("Test case crashed");
+		auto path = VCMIDirs::get().userDataPath()/"temp.zip";
+		boost::filesystem::remove(path);
+		boost::filesystem::ofstream tmp(path);
+		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
 	}
+	
+	
+	#endif // 1
+	
+	serializeBuffer.seek(0);
+	{
+		CMapLoaderJson loader(&serializeBuffer);
+		std::unique_ptr<CMap> serialized = loader.loadMap();
+
+		MapComparer c;
+		c(serialized, initialMap);
+	}
+
+	logGlobal->info("CMapFormatVCMI_Simple finish");
 }

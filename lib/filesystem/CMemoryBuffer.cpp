@@ -15,7 +15,7 @@
 CMemoryBuffer::CMemoryBuffer():
 	position(0)
 {
-	
+	buffer.reserve(4096);
 }
 
 si64 CMemoryBuffer::write(const ui8 * data, si64 size)
@@ -48,7 +48,7 @@ si64 CMemoryBuffer::read(ui8 * data, si64 size)
 si64 CMemoryBuffer::seek(si64 position)
 {
 	this->position = position;
-	if (this->position >=getSize())
+	if (this->position >getSize())
 		this->position = getSize();
 	return this->position;
 }

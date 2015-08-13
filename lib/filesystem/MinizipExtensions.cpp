@@ -65,16 +65,24 @@ long ZCALLBACK CIOApi::seekFileProxy(voidpf  opaque, voidpf stream, ZPOS64_T off
     switch (origin)
     {
     case ZLIB_FILEFUNC_SEEK_CUR :
-        actualStream->skip(offset);//TODO: should we check actual skipped? 
+        if(actualStream->skip(offset) != offset)
+			ret = -1;
         break;
-    case ZLIB_FILEFUNC_SEEK_END :
-    	actualStream->seek(actualStream->getSize() - offset);
+    case ZLIB_FILEFUNC_SEEK_END:
+    	{
+    		const si64 pos = actualStream->getSize() - offset;
+    		if(actualStream->seek(pos) != pos)
+				ret = -1;
+    	}    	
         break;
     case ZLIB_FILEFUNC_SEEK_SET :
-    	actualStream->seek(offset);
+		if(actualStream->seek(offset) != offset)
+			ret = -1;
         break;
     default: ret = -1;
     }
+    if(ret == -1)
+		logGlobal->error("CIOApi::seekFileProxy: seek failed");			
     return ret;
 }
 

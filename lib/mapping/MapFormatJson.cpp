@@ -213,6 +213,7 @@ void CMapLoaderJson::readHeader()
 	
 	static const std::map<std::string, ui8> difficultyMap =
 	{
+		{"", 1},
 		{"EASY", 0},
 		{"NORMAL", 1}, 
 		{"HARD", 2}, 

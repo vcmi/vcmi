@@ -82,7 +82,7 @@ void MapComparer::compare()
 {
 	BOOST_REQUIRE_NE((void *) actual, (void *) expected); //should not point to the same object
 	BOOST_REQUIRE_MESSAGE(actual != nullptr, "Actual map is not defined");
-	BOOST_REQUIRE_MESSAGE(actual != nullptr, "Expected map is not defined");
+	BOOST_REQUIRE_MESSAGE(expected != nullptr, "Expected map is not defined");
 
 	compareHeader();
 	compareOptions();

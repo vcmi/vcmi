@@ -60,6 +60,7 @@
 		</Linker>
 		<Unit filename="CMapEditManagerTest.cpp" />
 		<Unit filename="CMapFormatTest.cpp" />
+		<Unit filename="CMemoryBufferTest.cpp" />
 		<Unit filename="CVcmiTestConfig.cpp" />
 		<Unit filename="CVcmiTestConfig.h" />
 		<Unit filename="MapComparer.cpp" />
