@@ -75,6 +75,8 @@ public:
 	 * @return the length in bytes of the stream.
 	 */
 	si64 getSize() override;
+	
+	const TBuffer & getBuffer(){return buffer;}
 
 private:
 	/** Actual data. */

@@ -19,7 +19,10 @@
 #include "../lib/rmg/CMapGenerator.h"
 #include "../lib/mapping/MapFormatJson.h"
 
+#include "../lib/VCMIDirs.h"
+
 #include "MapComparer.h"
+
 
 static const int TEST_RANDOM_SEED = 1337;
 
@@ -60,6 +63,17 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 			CMapSaverJson saver(&serializeBuffer);
 			saver.saveMap(initialMap);
 		}
+		
+		#if 1
+		{
+			std::ofstream tmp((VCMIDirs::get().userDataPath()/"temp.zip").string());
+			tmp.write((const char *)&serializeBuffer.getBuffer()[0],serializeBuffer.getSize());
+			tmp.flush();
+		}
+		
+		
+		#endif // 1
+		
 		serializeBuffer.seek(0);
 		{
 			CMapLoaderJson loader(&serializeBuffer);
@@ -71,10 +85,9 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 
 		logGlobal->info("CMapFormatVCMI_Simple finish");
 	}
-	catch(const std::exception & e)
+	catch(...)
 	{
-		logGlobal->info("CMapFormatVCMI_Simple crash");
-		logGlobal-> errorStream() << e.what();
-		throw;
+		handleException();
+		BOOST_FAIL("Test case crashed");
 	}
 }

@@ -18,7 +18,7 @@ CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const st
 {
 	//zip_fileinfo fileInfo;
 	
-	zipOpenNewFileInZip(handle,
+	int status = zipOpenNewFileInZip(handle,
                        archiveFilename.c_str(),
                        nullptr,//todo: use fileInfo,
                        nullptr,
@@ -28,6 +28,10 @@ CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const st
                        "",
                        Z_DEFLATED,
                        Z_DEFAULT_COMPRESSION);
+    
+    if(status != ZIP_OK)
+		throw new std::runtime_error("CZipOutputStream: zipOpenNewFileInZip failed");
+	
 	owner->activeStream = this;
 }
 
@@ -57,7 +61,7 @@ CZipSaver::CZipSaver(std::shared_ptr<CIOApi> api, const std::string & path):
 	handle = zipOpen2_64(path.c_str(), APPEND_STATUS_CREATE, nullptr, &zipApi);
 	
 	if (handle == nullptr)
-		throw new std::runtime_error("Failed to create archive");	
+		throw new std::runtime_error("CZipSaver: Failed to create archive");	
 }
 
 CZipSaver::~CZipSaver()

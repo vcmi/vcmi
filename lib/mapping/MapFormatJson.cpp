@@ -306,6 +306,7 @@ void CMapSaverJson::saveHeader()
 		auto s = out.str();
 		std::unique_ptr<COutputStream> stream = saver.addFile(HEADER_FILE_NAME);
 		
-		stream->write((const ui8*)s.c_str(), s.size());
+		if (stream->write((const ui8*)s.c_str(), s.size()) != s.size())
+			throw new std::runtime_error("CMapSaverJson::saveHeader() zip compression failed.");
 	}	
 }

@@ -68,10 +68,10 @@ long ZCALLBACK CIOApi::seekFileProxy(voidpf  opaque, voidpf stream, ZPOS64_T off
         actualStream->skip(offset);//TODO: should we check actual skipped? 
         break;
     case ZLIB_FILEFUNC_SEEK_END :
-    	ret = -1;
+    	actualStream->seek(actualStream->getSize() - offset);
         break;
     case ZLIB_FILEFUNC_SEEK_SET :
-    	ret = actualStream->seek(offset);
+    	actualStream->seek(offset);
         break;
     default: ret = -1;
     }

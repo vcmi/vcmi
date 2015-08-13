@@ -66,6 +66,9 @@ std::unordered_map<ResourceID, unz_file_pos> CZipLoader::listFiles(const std::st
 	std::unordered_map<ResourceID, unz_file_pos> ret;
 
 	unzFile file = unzOpen2_64(archive.c_str(), &zlibApi);
+	
+	if(file == nullptr)
+		logGlobal->errorStream() << archive << " failed to open";
 
 	if (unzGoToFirstFile(file) == UNZ_OK)
 	{
