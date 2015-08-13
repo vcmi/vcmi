@@ -68,6 +68,8 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 		boost::filesystem::remove(path);
 		boost::filesystem::ofstream tmp(path);
 		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
+		tmp.flush();
+		tmp.close();
 	}
 	
 	

@@ -16,16 +16,30 @@ CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const st
 	handle(archive),
 	owner(owner_)
 {
-	//zip_fileinfo fileInfo;
+	zip_fileinfo fileInfo;
+	
+	std::time_t t = time(nullptr);
+	fileInfo.dosDate = 0;	
+	
+	struct tm * localTime = std::localtime(&t);
+	fileInfo.tmz_date.tm_hour = localTime->tm_hour;
+	fileInfo.tmz_date.tm_mday = localTime->tm_mday;
+	fileInfo.tmz_date.tm_min  = localTime->tm_min;
+	fileInfo.tmz_date.tm_mon  = localTime->tm_mon;
+	fileInfo.tmz_date.tm_sec  = localTime->tm_sec;
+	fileInfo.tmz_date.tm_year = localTime->tm_year;
+		
+	fileInfo.external_fa = 0; //??? 
+	fileInfo.internal_fa = 0;	
 	
 	int status = zipOpenNewFileInZip(handle,
                        archiveFilename.c_str(),
-                       nullptr,//todo: use fileInfo,
+                       &fileInfo,
                        nullptr,
                        0,
                        nullptr,
                        0,
-                       "",
+                       nullptr,
                        Z_DEFLATED,
                        Z_DEFAULT_COMPRESSION);
     
