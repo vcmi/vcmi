@@ -61,20 +61,32 @@ void JsonWriter::writeEntry(JsonVector::const_iterator entry)
 void JsonWriter::writeString(const std::string &string)
 {
 	static const std::string escaped = "\"\\\b\f\n\r\t";
-	static const std::string escaped_code = "\"\\bfnrt";	
+	
+	static const std::array<char, 7> escaped_code = {'\"', '\\', 'b', 'f', 'n', 'r', 't'};
 	
 	out <<'\"';
 	size_t pos=0, start=0;
 	for (; pos<string.size(); pos++)
 	{
-		size_t escapedPos = escaped.find(string[pos]);
-
-		if (escapedPos != std::string::npos)
+		//we need to check if special character was been already escaped		
+		if((string[pos] == '\\') 
+			&& (pos+1 < string.size()) 
+			&& (std::find(escaped_code.begin(), escaped_code.end(), string[pos+1]) != escaped_code.end()) )
 		{
-			out.write(string.data()+start, pos - start);
-			out << '\\' << escaped_code[escapedPos];
-			start = pos;
+			pos++; //write unchanged, next simbol also checked
 		}
+		else
+		{
+			size_t escapedPos = escaped.find(string[pos]);
+
+			if (escapedPos != std::string::npos)
+			{
+				out.write(string.data()+start, pos - start);
+				out << '\\' << escaped_code[escapedPos];
+				start = pos+1;
+			}			
+		}
+
 	}
 	out.write(string.data()+start, pos - start);
 	out <<'\"';
