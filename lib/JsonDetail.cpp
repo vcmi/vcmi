@@ -61,17 +61,18 @@ void JsonWriter::writeEntry(JsonVector::const_iterator entry)
 void JsonWriter::writeString(const std::string &string)
 {
 	static const std::string escaped = "\"\\\b\f\n\r\t";
-
+	static const std::string escaped_code = "\"\\bfnrt";	
+	
 	out <<'\"';
 	size_t pos=0, start=0;
 	for (; pos<string.size(); pos++)
 	{
-		size_t escapedChar = escaped.find(string[pos]);
+		size_t escapedPos = escaped.find(string[pos]);
 
-		if (escapedChar != std::string::npos)
+		if (escapedPos != std::string::npos)
 		{
 			out.write(string.data()+start, pos - start);
-			out << '\\' << escaped[escapedChar];
+			out << '\\' << escaped_code[escapedPos];
 			start = pos;
 		}
 	}
