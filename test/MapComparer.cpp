@@ -42,6 +42,11 @@ bool operator!=(const PlayerInfo & actual, const PlayerInfo & expected)
 
 void MapComparer::compareHeader()
 {
+	//map size parameters are vital for further checks 
+	VCMI_REQUIRE_FIELD_EQUAL(height);
+	VCMI_REQUIRE_FIELD_EQUAL(width);
+	VCMI_REQUIRE_FIELD_EQUAL(twoLevel);
+
 	VCMI_CHECK_FIELD_EQUAL_P(name);
 	VCMI_CHECK_FIELD_EQUAL_P(description);
 	VCMI_CHECK_FIELD_EQUAL_P(difficulty);
@@ -53,12 +58,6 @@ void MapComparer::compareHeader()
 	VCMI_CHECK_FIELD_EQUAL_P(defeatIconIndex);
 	
 	BOOST_CHECK_EQUAL_COLLECTIONS(actual->players.begin(), actual->players.end(), expected->players.begin(), expected->players.end());
-
-
-	//map size parameters are vital for further checks 
-	VCMI_REQUIRE_FIELD_EQUAL(height);
-	VCMI_REQUIRE_FIELD_EQUAL(width);
-	VCMI_REQUIRE_FIELD_EQUAL(twoLevel);
 
 	BOOST_ERROR("Not implemented");
 }

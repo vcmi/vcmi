@@ -17,13 +17,13 @@
 #include "../CModHandler.h"
 #include "../VCMI_Lib.h"
 
-static const std::string conditionNames[] = {
+static const std::array<std::string, 12> conditionNames = {
 "haveArtifact", "haveCreatures",   "haveResources",   "haveBuilding",
 "control",      "destroy",         "transport",       "daysPassed",
 "isHuman",      "daysWithoutTown", "standardWin",     "constValue"
 };
 
-static const std::string typeNames[] = { "victory", "defeat" };
+static const std::array<std::string, 2> typeNames = { "victory", "defeat" };
 
 static EventCondition JsonToCondition(const JsonNode & node)
 {
@@ -48,6 +48,11 @@ static EventCondition JsonToCondition(const JsonNode & node)
 		}
 	}
 	return event;
+}
+
+static void ConditionToJson(const EventCondition& event, JsonNode& dest)
+{
+	
 }
 
 ///CMapFormatJson
@@ -84,6 +89,32 @@ void CMapFormatJson::readTriggeredEvent(TriggeredEvent & event, const JsonNode &
 	event.effect.toOtherMessage = source["effect"]["messageToSend"].String();
 	event.trigger = EventExpression(source["condition"], JsonToCondition); // logical expression
 }
+
+void CMapFormatJson::writeTriggeredEvents(JsonNode& output)
+{
+	output["victoryString"].String() = map->victoryMessage;
+	output["victoryIconIndex"].Float() = map->victoryIconIndex;
+
+	output["defeatString"].String() = map->defeatMessage;
+	output["defeatIconIndex"].Float() = map->defeatIconIndex;
+	
+//	JsonMap & triggeredEvents = output["triggeredEvents"].Struct();
+//	
+//	for(auto event : map->triggeredEvents)
+//		writeTriggeredEvent(event, triggeredEvents[event.identifier]);
+}
+
+void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent& event, JsonNode& dest)
+{
+	dest["message"].String() = event.onFulfill;
+	dest["description"].String() = event.description;
+	
+	dest["effect"]["type"].String() = typeNames.at(event.effect.type);
+	dest["effect"]["messageToSend"].String() = event.effect.toOtherMessage;
+	
+
+}
+
 
 ///CMapPatcher
 CMapPatcher::CMapPatcher(JsonNode stream):
@@ -295,6 +326,10 @@ void CMapSaverJson::saveHeader()
 	
 	header["difficulty"].String() = difficultyMap.at(map->difficulty);	
 	header["levelLimit"].Float() = map->levelLimit;
+	
+	writeTriggeredEvents(header);
+	
+	//todo: player info
 	
 	//todo:	allowedHeroes;
 	//todo: placeholdedHeroes;	
