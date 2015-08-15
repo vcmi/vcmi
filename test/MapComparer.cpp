@@ -121,8 +121,19 @@ void MapComparer::compareHeader()
 	checkEqual(actual->players, expected->players);	
 	
 	//todo: allowedHeroes, placeholdedHeroes
-
-	checkEqual(actual->triggeredEvents, expected->triggeredEvents);	
+	
+	
+	std::vector<TriggeredEvent> actualEvents = actual->triggeredEvents;
+	std::vector<TriggeredEvent> expectedEvents = expected->triggeredEvents;
+	
+	auto sortByIdentifier = [](const TriggeredEvent & lhs, const TriggeredEvent & rhs) -> bool
+	{
+		return lhs.identifier  < rhs.identifier;
+	};
+	boost::sort (actualEvents, sortByIdentifier);
+	boost::sort (expectedEvents, sortByIdentifier);
+	
+	checkEqual(actualEvents, expectedEvents);	
 }
 
 void MapComparer::compareOptions()
