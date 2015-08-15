@@ -42,9 +42,10 @@ static EventCondition JsonToCondition(const JsonNode & node)
 
 		if (!data["position"].isNull())
 		{
-			event.position.x = data["position"].Vector()[0].Float();
-			event.position.y = data["position"].Vector()[1].Float();
-			event.position.z = data["position"].Vector()[2].Float();
+			auto & position = data["position"].Vector();			
+			event.position.x = position.at(0).Float();
+			event.position.y = position.at(1).Float();
+			event.position.z = position.at(2).Float();
 		}
 	}
 	return event;
@@ -70,13 +71,10 @@ static JsonNode ConditionToJson(const EventCondition& event)
 	if(event.position != int3(-1,-1,-1))
 	{
 		auto & position = data["position"].Vector();
-		JsonNode coord;
-		coord.Float() = event.position.x; 
-		position.push_back(coord);
-		coord.Float() = event.position.y; 
-		position.push_back(coord);
-		coord.Float() = event.position.z; 
-		position.push_back(coord);		
+		position.resize(3);
+		position[0].Float() = event.position.x; 
+		position[1].Float() = event.position.y; 
+		position[2].Float() = event.position.z;	
 	}		
 	
 	asVector.push_back(data);
@@ -109,7 +107,6 @@ void CMapFormatJson::readTriggeredEvents(const JsonNode & input)
 	}
 }
 
-
 void CMapFormatJson::readTriggeredEvent(TriggeredEvent & event, const JsonNode & source)
 {
 	event.onFulfill = source["message"].String();
@@ -138,7 +135,7 @@ void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent& event, JsonNode& 
 	dest["message"].String() = event.onFulfill;
 	dest["description"].String() = event.description;
 	
-	dest["effect"]["type"].String() = typeNames.at(event.effect.type);
+	dest["effect"]["type"].String() = typeNames.at(size_t(event.effect.type));
 	dest["effect"]["messageToSend"].String() = event.effect.toOtherMessage;
 	
 	dest["condition"] = event.trigger.toJson(ConditionToJson);
@@ -196,47 +193,6 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 	readHeader();
 	return std::move(mapHeader);
 }
-
-/*
-	//This code can be used to write map header to console or file in its Json representation
-
-	JsonNode out;
-	JsonNode data;
-	data["victoryString"].String() = mapHeader->victoryMessage;
-	data["defeatString"].String() = mapHeader->defeatMessage;
-
-	data["victoryIconIndex"].Float() = mapHeader->victoryIconIndex;
-	data["defeatIconIndex"].Float() = mapHeader->defeatIconIndex;
-
-	for (const TriggeredEvent & entry : mapHeader->triggeredEvents)
-	{
-		JsonNode event;
-		event["message"].String() = entry.onFulfill;
-		event["effect"]["messageToSend"].String() = entry.effect.toOtherMessage;
-		event["effect"]["type"].String() = typeNames[entry.effect.type];
-		event["condition"] = entry.trigger.toJson(eventToJson);
-		data["triggeredEvents"][entry.identifier] = event;
-	}
-
-	out[mapHeader->name] = data;
-	logGlobal->errorStream() << out;
-
-JsonNode eventToJson(const EventCondition & cond)
-{
-	JsonNode ret;
-	ret.Vector().resize(2);
-	ret.Vector()[0].String() = conditionNames[size_t(cond.condition)];
-	JsonNode & data = ret.Vector()[1];
-	data["type"].Float() = cond.objectType;
-	data["value"].Float() = cond.value;
-	data["position"].Vector().resize(3);
-	data["position"].Vector()[0].Float() = cond.position.x;
-	data["position"].Vector()[1].Float() = cond.position.y;
-	data["position"].Vector()[2].Float() = cond.position.z;
-
-	return ret;
-}
-*/
 
 void CMapLoaderJson::readMap()
 {
