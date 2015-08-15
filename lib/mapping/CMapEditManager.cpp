@@ -478,7 +478,6 @@ void CDrawTerrainOperation::execute()
 
 	updateTerrainTypes();
 	updateTerrainViews();
-	//TODO add coastal bit to extTileFlags appropriately
 }
 
 void CDrawTerrainOperation::undo()

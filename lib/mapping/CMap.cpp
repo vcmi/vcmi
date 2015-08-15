@@ -141,11 +141,6 @@ CGObjectInstance * TerrainTile::topVisitableObj(bool excludeTop) const
 	return visitableObjects.back();
 }
 
-bool TerrainTile::isCoastal() const
-{
-	return extTileFlags & 64;
-}
-
 EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 {
 	if(terType == ETerrainType::WATER || terType == ETerrainType::ROCK)
@@ -322,6 +317,35 @@ CGHeroInstance * CMap::getHero(int heroID)
 	return nullptr;
 }
 
+bool CMap::isCoastalTile(const int3 & pos) const
+{
+	//todo: refactoring: extract neighbor tile iterator and use it in GameState
+	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
+					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
+
+	if(!isInTheMap(pos))
+	{
+		logGlobal->errorStream() << "Coastal check outside of map :"<<pos;
+		return false;	
+	}
+
+	if(isWaterTile(pos))
+		return false;
+
+	for (auto & dir : dirs)
+	{
+		const int3 hlp = pos + dir;		
+		
+		if(!isInTheMap(hlp))
+			continue;
+		const TerrainTile &hlpt = getTile(hlp);
+		if(hlpt.isWater())
+			return true;		
+	}	
+
+	return false;
+}
+
 bool CMap::isInTheMap(const int3 & pos) const
 {
 	if(pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= width || pos.y >= height
@@ -349,7 +373,7 @@ const TerrainTile & CMap::getTile(const int3 & tile) const
 
 bool CMap::isWaterTile(const int3 &pos) const
 {
-	return isInTheMap(pos) && getTile(pos).terType == ETerrainType::WATER;
+	return isInTheMap(pos) && getTile(pos).isWater();
 }
 
 bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst ) const

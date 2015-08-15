@@ -736,7 +736,7 @@ BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2],
 {
 	const TerrainTile &t = map->getTile(tile);
 	ETerrainType terrain = t.terType;
-	if(t.isCoastal() && !t.isWater())
+	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		terrain = ETerrainType::SAND;
 
 	BFieldType terType = battleGetBattlefieldType(tile);
@@ -1955,7 +1955,7 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile)
 		}
 	}
 
-	if(!t.isWater() && t.isCoastal())
+	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BFieldType::SAND_SHORE;
 
 	switch(t.terType)

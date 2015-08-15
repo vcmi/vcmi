@@ -275,7 +275,7 @@ bool CPathfinder::isLayerTransitionPossible(const ELayer destLayer) const
 		break;
 
 	case ELayer::SAIL:
-		if(destLayer == ELayer::LAND && dt->isCoastal())
+		if(destLayer == ELayer::LAND && gs->map->isCoastalTile(dp->coord))
 			return true;
 
 		break;
