@@ -262,7 +262,7 @@ namespace LogicalExpressionDetail
 		}
 	};
 
-	/// Prints expression in human-readable format
+	/// Serializes expression in JSON format. Part of map format.
 	template <typename ContainedClass>
 	class Writer : public boost::static_visitor<JsonNode>
 	{

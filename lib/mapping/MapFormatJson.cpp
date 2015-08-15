@@ -50,9 +50,38 @@ static EventCondition JsonToCondition(const JsonNode & node)
 	return event;
 }
 
-static void ConditionToJson(const EventCondition& event, JsonNode& dest)
+static JsonNode ConditionToJson(const EventCondition& event)
 {
+	JsonNode json;
 	
+	JsonVector& asVector = json.Vector();
+	
+	JsonNode condition;
+	condition.String() = conditionNames.at(event.condition);
+	asVector.push_back(condition);
+	
+	JsonNode data;
+	
+	//todo: save identifier
+	
+	if(event.value != -1)
+		data["value"].Float() = event.value;
+	
+	if(event.position != int3(-1,-1,-1))
+	{
+		auto & position = data["position"].Vector();
+		JsonNode coord;
+		coord.Float() = event.position.x; 
+		position.push_back(coord);
+		coord.Float() = event.position.y; 
+		position.push_back(coord);
+		coord.Float() = event.position.z; 
+		position.push_back(coord);		
+	}		
+	
+	asVector.push_back(data);
+			
+	return std::move(json);
 }
 
 ///CMapFormatJson
@@ -98,10 +127,10 @@ void CMapFormatJson::writeTriggeredEvents(JsonNode& output)
 	output["defeatString"].String() = map->defeatMessage;
 	output["defeatIconIndex"].Float() = map->defeatIconIndex;
 	
-//	JsonMap & triggeredEvents = output["triggeredEvents"].Struct();
-//	
-//	for(auto event : map->triggeredEvents)
-//		writeTriggeredEvent(event, triggeredEvents[event.identifier]);
+	JsonMap & triggeredEvents = output["triggeredEvents"].Struct();
+	
+	for(auto event : map->triggeredEvents)
+		writeTriggeredEvent(event, triggeredEvents[event.identifier]);
 }
 
 void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent& event, JsonNode& dest)
@@ -112,7 +141,7 @@ void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent& event, JsonNode& 
 	dest["effect"]["type"].String() = typeNames.at(event.effect.type);
 	dest["effect"]["messageToSend"].String() = event.effect.toOtherMessage;
 	
-
+	dest["condition"] = event.trigger.toJson(ConditionToJson);
 }
 
 
