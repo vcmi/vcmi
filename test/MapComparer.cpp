@@ -17,7 +17,8 @@
 
 #define VCMI_CHECK_FIELD_EQUAL(field) BOOST_CHECK_EQUAL(actual.field, expected.field)
 
-#define VCMI_REQUIRE_FIELD_EQUAL(field) BOOST_REQUIRE_EQUAL(actual->field, expected->field)
+#define VCMI_REQUIRE_FIELD_EQUAL_P(field) BOOST_REQUIRE_EQUAL(actual->field, expected->field)
+#define VCMI_REQUIRE_FIELD_EQUAL(field) BOOST_REQUIRE_EQUAL(actual.field, expected.field)
 
 template <class T>
 void checkEqual(const T & actual, const T & expected)
@@ -88,12 +89,24 @@ void checkEqual(const TriggeredEvent & actual,  const TriggeredEvent & expected)
 	checkEqual(actual.trigger, expected.trigger);	
 }
 
+void checkEqual(const TerrainTile & actual, const TerrainTile & expected)
+{
+	//fatal fail here on any error
+	VCMI_REQUIRE_FIELD_EQUAL(terType);
+	VCMI_REQUIRE_FIELD_EQUAL(terView);
+	VCMI_REQUIRE_FIELD_EQUAL(riverType);
+	VCMI_REQUIRE_FIELD_EQUAL(riverDir);
+	VCMI_REQUIRE_FIELD_EQUAL(roadType);
+	VCMI_REQUIRE_FIELD_EQUAL(roadDir);
+	VCMI_REQUIRE_FIELD_EQUAL(extTileFlags);
+}
+
 void MapComparer::compareHeader()
 {
 	//map size parameters are vital for further checks 
-	VCMI_REQUIRE_FIELD_EQUAL(height);
-	VCMI_REQUIRE_FIELD_EQUAL(width);
-	VCMI_REQUIRE_FIELD_EQUAL(twoLevel);
+	VCMI_REQUIRE_FIELD_EQUAL_P(height);
+	VCMI_REQUIRE_FIELD_EQUAL_P(width);
+	VCMI_REQUIRE_FIELD_EQUAL_P(twoLevel);
 
 	VCMI_CHECK_FIELD_EQUAL_P(name);
 	VCMI_CHECK_FIELD_EQUAL_P(description);
@@ -121,17 +134,27 @@ void MapComparer::compareOptions()
 	//allowedArtifact
 	//allowedAbilities
 	
-	BOOST_ERROR("Not implemented");
+	BOOST_ERROR("Not implemented compareOptions()");
 }
 
 void MapComparer::compareObjects()
 {
-	BOOST_ERROR("Not implemented");
+	BOOST_ERROR("Not implemented compareObjects()");
 }
 
 void MapComparer::compareTerrain()
 {
-	BOOST_ERROR("Not implemented");
+	//assume map dimensions check passed
+	//todo: separate check for underground
+	
+	for(int x = 0; x < expected->width; x++)
+		for(int y = 0; y < expected->height; y++)
+		{
+			int3 coord(x,y,0);
+			BOOST_TEST_CHECKPOINT(coord);
+			
+			checkEqual(actual->getTile(coord), expected->getTile(coord));
+		}
 }
 
 void MapComparer::compare()

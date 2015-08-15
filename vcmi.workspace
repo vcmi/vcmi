@@ -27,13 +27,13 @@
 			<Depends filename="lib/VCMI_lib.cbp" />
 		</Project>
 		<Project filename="test/Test.cbp">
+			<Depends filename="lib/VCMI_lib.cbp" />
+			<Depends filename="client/VCMI_client.cbp" />
 			<Depends filename="server/VCMI_server.cbp" />
 			<Depends filename="AI/EmptyAI/EmptyAI.cbp" />
 			<Depends filename="AI/VCAI/VCAI.cbp" />
 			<Depends filename="AI/StupidAI/StupidAI.cbp" />
 			<Depends filename="AI/BattleAI/BattleAI.cbp" />
-			<Depends filename="lib/VCMI_lib.cbp" />
-			<Depends filename="client/VCMI_client.cbp" />
 		</Project>
 		<Project filename="scripting/erm/ERM.cbp">
 			<Depends filename="lib/VCMI_lib.cbp" />
