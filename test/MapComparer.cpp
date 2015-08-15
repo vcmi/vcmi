@@ -19,25 +19,73 @@
 
 #define VCMI_REQUIRE_FIELD_EQUAL(field) BOOST_REQUIRE_EQUAL(actual->field, expected->field)
 
-std::ostream& operator<< (std::ostream& os, const PlayerInfo & value)
+template <class T>
+void checkEqual(const T & actual, const T & expected)
 {
-	os << "PlayerInfo"; 
-	return os;
+	BOOST_CHECK_EQUAL(actual, expected)	;
 }
 
-//std::ostream& operator<< (std::ostream& os, const std::set<ui8> & value)
-//{
-//	os << "'Set'"; 
-//	return os;
-//}
+template <class Element>
+void checkEqual(const std::vector<Element> & actual, const std::vector<Element> & expected)
+{
+	BOOST_CHECK_EQUAL(actual.size(), expected.size());
+	
+	for(auto actualIt = actual.begin(), expectedIt = expected.begin(); actualIt != actual.end() && expectedIt != expected.end(); actualIt++, expectedIt++)
+	{
+		checkEqual(*actualIt, *expectedIt);
+	}		
+}
 
-bool operator!=(const PlayerInfo & actual, const PlayerInfo & expected)
+template <class Element>
+void checkEqual(const std::set<Element> & actual, const std::set<Element> & expected)
+{
+	BOOST_CHECK_EQUAL(actual.size(), expected.size());
+	
+	for(auto elem : expected)
+	{
+		if(!vstd::contains(actual, elem))
+			BOOST_ERROR("Required element not found "+boost::to_string(elem));
+	}		
+}
+
+void checkEqual(const PlayerInfo & actual, const PlayerInfo & expected)
 {
 	VCMI_CHECK_FIELD_EQUAL(canHumanPlay);
 	VCMI_CHECK_FIELD_EQUAL(canComputerPlay);
 	VCMI_CHECK_FIELD_EQUAL(aiTactic);
-	//VCMI_CHECK_FIELD_EQUAL(allowedFactions);
-	return false;
+	
+	checkEqual(actual.allowedFactions, expected.allowedFactions);
+	
+	VCMI_CHECK_FIELD_EQUAL(isFactionRandom);
+	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroPortrait);	
+	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroName);
+	
+	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroId);
+	
+	//todo:heroesNames
+	
+	VCMI_CHECK_FIELD_EQUAL(hasMainTown);
+	VCMI_CHECK_FIELD_EQUAL(generateHeroAtMainTown);
+	VCMI_CHECK_FIELD_EQUAL(posOfMainTown);
+	VCMI_CHECK_FIELD_EQUAL(team);
+	VCMI_CHECK_FIELD_EQUAL(hasRandomHero);
+
+}
+
+void checkEqual(const EventExpression & actual,  const EventExpression & expected)
+{
+	//todo: checkEventExpression
+}
+
+void checkEqual(const TriggeredEvent & actual,  const TriggeredEvent & expected)
+{
+	VCMI_CHECK_FIELD_EQUAL(identifier);
+	VCMI_CHECK_FIELD_EQUAL(description);
+	VCMI_CHECK_FIELD_EQUAL(onFulfill);
+	VCMI_CHECK_FIELD_EQUAL(effect.type);
+	VCMI_CHECK_FIELD_EQUAL(effect.toOtherMessage);	
+
+	checkEqual(actual.trigger, expected.trigger);	
 }
 
 void MapComparer::compareHeader()
@@ -57,13 +105,22 @@ void MapComparer::compareHeader()
 	VCMI_CHECK_FIELD_EQUAL_P(victoryIconIndex);
 	VCMI_CHECK_FIELD_EQUAL_P(defeatIconIndex);
 	
-	BOOST_CHECK_EQUAL_COLLECTIONS(actual->players.begin(), actual->players.end(), expected->players.begin(), expected->players.end());
+	checkEqual(actual->players, expected->players);	
+	
+	//todo: allowedHeroes, placeholdedHeroes
 
-	BOOST_ERROR("Not implemented");
+	checkEqual(actual->triggeredEvents, expected->triggeredEvents);	
 }
 
 void MapComparer::compareOptions()
 {
+	//rumors
+	//disposedHeroes
+	//predefinedHeroes
+	//allowedSpell
+	//allowedArtifact
+	//allowedAbilities
+	
 	BOOST_ERROR("Not implemented");
 }
 
