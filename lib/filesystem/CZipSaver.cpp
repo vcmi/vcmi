@@ -32,16 +32,27 @@ CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const st
 	fileInfo.external_fa = 0; //??? 
 	fileInfo.internal_fa = 0;	
 	
-	int status = zipOpenNewFileInZip(handle,
-                       archiveFilename.c_str(),
-                       &fileInfo,
-                       nullptr,
-                       0,
-                       nullptr,
-                       0,
-                       nullptr,
-                       Z_DEFLATED,
-                       Z_DEFAULT_COMPRESSION);
+	int status = zipOpenNewFileInZip4_64(
+						handle,
+						archiveFilename.c_str(),
+						&fileInfo,
+						nullptr,//extrafield_local
+						0,
+						nullptr,//extrafield_global
+						0,
+						nullptr,//comment
+						Z_DEFLATED,
+						Z_DEFAULT_COMPRESSION,
+						0,//raw
+						-15,//windowBits
+						9,//memLevel
+						Z_DEFAULT_STRATEGY,//strategy
+						nullptr,//password
+						0,//crcForCrypting
+						20,//versionMadeBy
+						0,//flagBase
+						0//zip64
+						);
     
     if(status != ZIP_OK)
 		throw new std::runtime_error("CZipOutputStream: zipOpenNewFileInZip failed");
@@ -51,7 +62,9 @@ CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const st
 
 CZipOutputStream::~CZipOutputStream()
 {
-	zipCloseFileInZip(handle);
+	int status = zipCloseFileInZip(handle);
+	if (status != ZIP_OK)
+		logGlobal->errorStream() << "CZipOutputStream: stream finalize failed: "<<status;
 	owner->activeStream = nullptr;
 }
 
@@ -88,7 +101,12 @@ CZipSaver::~CZipSaver()
 		
 	
 	if(handle != nullptr)
-		zipClose(handle, nullptr);
+	{
+		int status = zipClose(handle, nullptr);
+		if (status != ZIP_OK)
+			logGlobal->errorStream() << "CZipSaver: archive finalize failed: "<<status;		
+	}
+		
 }
 
 std::unique_ptr<COutputStream> CZipSaver::addFile(const std::string & archiveFilename)

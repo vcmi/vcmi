@@ -17,7 +17,7 @@
 #include "../filesystem/CZipLoader.h"
 
 class TriggeredEvent;
-
+struct TerrainTile;
 
 class DLL_LINKAGE CMapFormatJson
 {
@@ -135,6 +135,14 @@ private:
 	 */
 	void readPlayerInfo();
 	
+	void readTerrainTile(const std::string & src, TerrainTile & tile);
+	
+	void readTerrainLevel(const JsonNode & src, const int index);	
+	
+	void readTerrain();
+	
+	const JsonNode readJson(const std::string & archiveFilename);
+	
 	CZipLoader loader;
 };
 
@@ -156,7 +164,19 @@ public:
 	 */	
 	void saveMap(const std::unique_ptr<CMap> & map) override;	
 private:
-	void saveHeader();
+	/**
+	 * Save @data as json file with specified @filename
+	 *
+	 */		
+	void addToArchive(const JsonNode & data, const std::string & filename);
+	
+	void writeHeader();
+	
+	const std::string writeTerrainTile(const TerrainTile & tile);
+	
+	JsonNode writeTerrainLevel(const int index);
+		
+	void writeTerrain();
 		
 	CZipSaver saver;	
 };

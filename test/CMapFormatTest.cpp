@@ -35,9 +35,9 @@ public:
 	{
 		CMapGenOptions opt;
 		
-		opt.setHeight(72);
-		opt.setWidth(72);
-		opt.setHasTwoLevels(false);
+		opt.setHeight(CMapHeader::MAP_SIZE_SMALL);
+		opt.setWidth(CMapHeader::MAP_SIZE_SMALL);
+		opt.setHasTwoLevels(true);
 		opt.setPlayerCount(2);
 		
 		CMapGenerator gen;
@@ -66,7 +66,8 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 	{
 		auto path = VCMIDirs::get().userDataPath()/"temp.zip";
 		boost::filesystem::remove(path);
-		boost::filesystem::ofstream tmp(path);
+		boost::filesystem::ofstream tmp(path, boost::filesystem::ofstream::binary);
+
 		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
 		tmp.flush();
 		tmp.close();
