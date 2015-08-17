@@ -30,23 +30,23 @@ template <class Element>
 void checkEqual(const std::vector<Element> & actual, const std::vector<Element> & expected)
 {
 	BOOST_CHECK_EQUAL(actual.size(), expected.size());
-	
+
 	for(auto actualIt = actual.begin(), expectedIt = expected.begin(); actualIt != actual.end() && expectedIt != expected.end(); actualIt++, expectedIt++)
 	{
 		checkEqual(*actualIt, *expectedIt);
-	}		
+	}
 }
 
 template <class Element>
 void checkEqual(const std::set<Element> & actual, const std::set<Element> & expected)
 {
 	BOOST_CHECK_EQUAL(actual.size(), expected.size());
-	
+
 	for(auto elem : expected)
 	{
 		if(!vstd::contains(actual, elem))
 			BOOST_ERROR("Required element not found "+boost::to_string(elem));
-	}		
+	}
 }
 
 void checkEqual(const PlayerInfo & actual, const PlayerInfo & expected)
@@ -54,17 +54,17 @@ void checkEqual(const PlayerInfo & actual, const PlayerInfo & expected)
 	VCMI_CHECK_FIELD_EQUAL(canHumanPlay);
 	VCMI_CHECK_FIELD_EQUAL(canComputerPlay);
 	VCMI_CHECK_FIELD_EQUAL(aiTactic);
-	
+
 	checkEqual(actual.allowedFactions, expected.allowedFactions);
-	
+
 	VCMI_CHECK_FIELD_EQUAL(isFactionRandom);
-	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroPortrait);	
+	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroPortrait);
 	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroName);
-	
+
 	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroId);
-	
+
 	//todo:heroesNames
-	
+
 	VCMI_CHECK_FIELD_EQUAL(hasMainTown);
 	VCMI_CHECK_FIELD_EQUAL(generateHeroAtMainTown);
 	VCMI_CHECK_FIELD_EQUAL(posOfMainTown);
@@ -84,9 +84,9 @@ void checkEqual(const TriggeredEvent & actual,  const TriggeredEvent & expected)
 	VCMI_CHECK_FIELD_EQUAL(description);
 	VCMI_CHECK_FIELD_EQUAL(onFulfill);
 	VCMI_CHECK_FIELD_EQUAL(effect.type);
-	VCMI_CHECK_FIELD_EQUAL(effect.toOtherMessage);	
+	VCMI_CHECK_FIELD_EQUAL(effect.toOtherMessage);
 
-	checkEqual(actual.trigger, expected.trigger);	
+	checkEqual(actual.trigger, expected.trigger);
 }
 
 void checkEqual(const TerrainTile & actual, const TerrainTile & expected)
@@ -103,7 +103,7 @@ void checkEqual(const TerrainTile & actual, const TerrainTile & expected)
 
 void MapComparer::compareHeader()
 {
-	//map size parameters are vital for further checks 
+	//map size parameters are vital for further checks
 	VCMI_REQUIRE_FIELD_EQUAL_P(height);
 	VCMI_REQUIRE_FIELD_EQUAL_P(width);
 	VCMI_REQUIRE_FIELD_EQUAL_P(twoLevel);
@@ -117,23 +117,23 @@ void MapComparer::compareHeader()
 	VCMI_CHECK_FIELD_EQUAL_P(defeatMessage);
 	VCMI_CHECK_FIELD_EQUAL_P(victoryIconIndex);
 	VCMI_CHECK_FIELD_EQUAL_P(defeatIconIndex);
-	
-	checkEqual(actual->players, expected->players);	
-	
+
+	checkEqual(actual->players, expected->players);
+
 	//todo: allowedHeroes, placeholdedHeroes
-	
-	
+
+
 	std::vector<TriggeredEvent> actualEvents = actual->triggeredEvents;
 	std::vector<TriggeredEvent> expectedEvents = expected->triggeredEvents;
-	
+
 	auto sortByIdentifier = [](const TriggeredEvent & lhs, const TriggeredEvent & rhs) -> bool
 	{
 		return lhs.identifier  < rhs.identifier;
 	};
 	boost::sort (actualEvents, sortByIdentifier);
 	boost::sort (expectedEvents, sortByIdentifier);
-	
-	checkEqual(actualEvents, expectedEvents);	
+
+	checkEqual(actualEvents, expectedEvents);
 }
 
 void MapComparer::compareOptions()
@@ -144,7 +144,7 @@ void MapComparer::compareOptions()
 	//allowedSpell
 	//allowedArtifact
 	//allowedAbilities
-	
+
 	BOOST_ERROR("Not implemented compareOptions()");
 }
 
@@ -157,13 +157,13 @@ void MapComparer::compareTerrain()
 {
 	//assume map dimensions check passed
 	//todo: separate check for underground
-	
+
 	for(int x = 0; x < expected->width; x++)
 		for(int y = 0; y < expected->height; y++)
 		{
 			int3 coord(x,y,0);
 			BOOST_TEST_CHECKPOINT(coord);
-			
+
 			checkEqual(actual->getTile(coord), expected->getTile(coord));
 		}
 }

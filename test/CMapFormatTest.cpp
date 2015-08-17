@@ -30,18 +30,18 @@ static std::unique_ptr<CMap> initialMap;
 
 class CMapTestFixture
 {
-public:	
+public:
 	CMapTestFixture()
 	{
 		CMapGenOptions opt;
-		
+
 		opt.setHeight(CMapHeader::MAP_SIZE_SMALL);
 		opt.setWidth(CMapHeader::MAP_SIZE_SMALL);
 		opt.setHasTwoLevels(true);
 		opt.setPlayerCount(2);
-		
+
 		CMapGenerator gen;
-		
+
 		initialMap = gen.generate(&opt, TEST_RANDOM_SEED);
 		initialMap->name = "Test";
 	};
@@ -61,10 +61,10 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 		CMapSaverJson saver(&serializeBuffer);
 		saver.saveMap(initialMap);
 	}
-	
+
 	#if 1
 	{
-		auto path = VCMIDirs::get().userDataPath()/"temp.zip";
+		auto path = VCMIDirs::get().userDataPath()/"test.zip";
 		boost::filesystem::remove(path);
 		boost::filesystem::ofstream tmp(path, boost::filesystem::ofstream::binary);
 
@@ -72,10 +72,10 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 		tmp.flush();
 		tmp.close();
 	}
-	
-	
+
+
 	#endif // 1
-	
+
 	serializeBuffer.seek(0);
 	{
 		CMapLoaderJson loader(&serializeBuffer);
