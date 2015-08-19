@@ -1364,7 +1364,7 @@ std::string CBuildWindow::getTextForState(int state)
 			};
 
 			ret = CGI->generaltexth->allTexts[52];
-			ret += "\n" + town->genBuildingRequirements(building->bid).toString(toStr);
+			ret += "\n" + town->genBuildingRequirements(building->bid, false).toString(toStr);
 			break;
 		}
 	case EBuildingState::MISSING_BASE:
