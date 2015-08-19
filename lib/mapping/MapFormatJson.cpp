@@ -16,6 +16,7 @@
 #include "CMap.h"
 #include "../CModHandler.h"
 #include "../VCMI_Lib.h"
+#include "../StringConstants.h"
 
 namespace TriggeredEventsDetail
 {
@@ -508,12 +509,31 @@ void CMapSaverJson::writeHeader()
 
 	writeTriggeredEvents(header);
 
-	//todo: player info
+	writePlayerInfo(header);
 
 	//todo:	allowedHeroes;
 	//todo: placeholdedHeroes;
 
 	addToArchive(header, HEADER_FILE_NAME);
+}
+
+void CMapSaverJson::writePlayerInfo(JsonNode & output)
+{
+	JsonNode & dest = output["players"];
+	dest.setType(JsonNode::DATA_STRUCT);
+	
+	for(int player = 0; player < PlayerColor::PLAYER_LIMIT_I; player++)
+	{
+		const PlayerInfo & info = map->players[player];
+		
+		if(info.canAnyonePlay())
+			writePlayerInfo(info, dest[GameConstants::PLAYER_COLOR_NAMES[player]);
+	}
+}
+
+void CMapSaverJson::writePlayerInfo(const PlayerInfo & info, JsonNode & output)
+{
+	
 }
 
 const std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)

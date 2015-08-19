@@ -171,7 +171,18 @@ private:
 	void addToArchive(const JsonNode & data, const std::string & filename);
 	
 	void writeHeader();
-	
+
+	/**
+	 * Save all players info to header
+	 * @param output serialized header	 
+	 */	
+	void writePlayerInfo(JsonNode & output);
+	/**
+	 * Save one player info
+	 * @param output empty object	 
+	 */	
+	void writePlayerInfo(const PlayerInfo & info, JsonNode & output);	
+
 	const std::string writeTerrainTile(const TerrainTile & tile);
 	
 	JsonNode writeTerrainLevel(const int index);
