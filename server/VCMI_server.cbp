@@ -6,7 +6,7 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="Debug-win32-SDL2">
+			<Target title="Debug-win32">
 				<Option platforms="Windows;" />
 				<Option output="../VCMI_server" prefix_auto="1" extension_auto="1" />
 				<Option object_output="../obj/Debug/Server" />
@@ -16,10 +16,13 @@
 				<Compiler>
 					<Add option="-Og" />
 					<Add option="-ggdb" />
-					<Add directory="$(#sdl2.include)" />
+					<Add directory="$(#zlib.include)" />
 				</Compiler>
+				<Linker>
+					<Add directory="$(#boost.lib32)" />
+				</Linker>
 			</Target>
-			<Target title="Release-win32-SDL2">
+			<Target title="Release-win32">
 				<Option platforms="Windows;" />
 				<Option output="../VCMI_server" prefix_auto="1" extension_auto="1" />
 				<Option object_output="../obj/Release/Server" />
@@ -29,10 +32,27 @@
 				<Compiler>
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O2" />
-					<Add directory="$(#sdl2.include)" />
+					<Add directory="$(#zlib.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add directory="$(#boost.lib32)" />
+				</Linker>
+			</Target>
+			<Target title="Debug-win64">
+				<Option platforms="Windows;" />
+				<Option output="../VCMI_server" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/Debug/Server" />
+				<Option type="1" />
+				<Option compiler="gnu_gcc_compiler_x64" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-Og" />
+					<Add option="-ggdb" />
+					<Add directory="$(#zlib64.include)" />
+				</Compiler>
+				<Linker>
+					<Add directory="$(#boost.lib64)" />
 				</Linker>
 			</Target>
 		</Build>
@@ -45,11 +65,11 @@
 			<Add option="-Wno-sign-compare" />
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
-			<Add option="-D_WIN32_WINNT=0x0501" />
+			<Add option="-D_WIN32_WINNT=0x0601" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
-			<Add directory="$(#zlib.include)" />
 			<Add directory="$(#boost.include)" />
 			<Add directory="../include" />
+			<Add directory="$(#sdl2.include)" />
 		</Compiler>
 		<Linker>
 			<Add option="-lole32" />
@@ -62,7 +82,6 @@
 			<Add option="-lboost_thread$(#boost.libsuffix)" />
 			<Add option="-lboost_chrono$(#boost.libsuffix)" />
 			<Add option="-lVCMI_lib" />
-			<Add directory="$(#boost.lib32)" />
 			<Add directory="../" />
 		</Linker>
 		<Unit filename="CGameHandler.cpp" />
