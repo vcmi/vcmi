@@ -1346,7 +1346,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				//first town in zone goes in the middle
 				placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0);
 				cutPathAroundTown(town);
-				setPos(town->visitablePos() + (0, 1, 0)); //new center of zone that paths connect to
+				setPos(town->visitablePos() + int3(0, 1, 0)); //new center of zone that paths connect to
 			}
 			else
 				addRequiredObject (town);
@@ -1392,7 +1392,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 		//towns are big objects and should be centered around visitable position
 		placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0); //generate no guards, but free path to entrance
 		cutPathAroundTown(town);
-		setPos(town->visitablePos() + (0, 1, 0)); //new center of zone that paths connect to
+		setPos(town->visitablePos() + int3(0, 1, 0)); //new center of zone that paths connect to
 
 		totalTowns++;
 		//register MAIN town of zone only
