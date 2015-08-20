@@ -4240,7 +4240,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 					parameters.destination = BattleHex::INVALID;
 					parameters.casterSide = side;
 					parameters.casterColor = st->owner;	
-					parameters.caster = nullptr;
+					parameters.casterHero = nullptr;
 					parameters.secHero = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
 					parameters.usedSpellPower = 0;	
 					parameters.mode = ECastingMode::ENCHANTER_CASTING;
