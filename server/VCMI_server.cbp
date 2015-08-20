@@ -65,7 +65,7 @@
 			<Add option="-Wno-sign-compare" />
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
-			<Add option="-D_WIN32_WINNT=0x0601" />
+			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add directory="$(#boost.include)" />
 			<Add directory="../include" />
