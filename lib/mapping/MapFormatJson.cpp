@@ -424,12 +424,12 @@ void CMapLoaderJson::readTerrainLevel(const JsonNode& src, const int index)
 void CMapLoaderJson::readTerrain()
 {
 	{
-		const JsonNode surface = readJson("surface.json");
+		const JsonNode surface = readJson("surface_terrain.json");
 		readTerrainLevel(surface, 0);
 	}
 	if(map->twoLevel)
 	{
-		const JsonNode underground = readJson("underground.json");
+		const JsonNode underground = readJson("underground_terrain.json");
 		readTerrainLevel(underground, 1);
 	}
 
@@ -527,7 +527,7 @@ void CMapSaverJson::writePlayerInfo(JsonNode & output)
 		const PlayerInfo & info = map->players[player];
 		
 		if(info.canAnyonePlay())
-			writePlayerInfo(info, dest[GameConstants::PLAYER_COLOR_NAMES[player]);
+			writePlayerInfo(info, dest[GameConstants::PLAYER_COLOR_NAMES[player]]);
 	}
 }
 
@@ -584,11 +584,11 @@ void CMapSaverJson::writeTerrain()
 	//todo: multilevel map save support
 
 	JsonNode surface = writeTerrainLevel(0);
-	addToArchive(surface, "surface.json");
+	addToArchive(surface, "surface_terrain.json");
 
 	if(map->twoLevel)
 	{
 		JsonNode underground = writeTerrainLevel(1);
-		addToArchive(underground, "underground.json");
+		addToArchive(underground, "underground_terrain.json");
 	}
 }

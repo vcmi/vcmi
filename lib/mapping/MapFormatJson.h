@@ -18,6 +18,7 @@
 
 class TriggeredEvent;
 struct TerrainTile;
+struct PlayerInfo;
 
 class DLL_LINKAGE CMapFormatJson
 {
