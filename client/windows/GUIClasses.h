@@ -31,6 +31,7 @@ class CListBox;
 class CLabelGroup;
 class CToggleButton;
 class CToggleGroup;
+class CVolumeSlider;
 class CGStatusBar;
 
 /// Recruitment window where you can recruit creatures
@@ -192,7 +193,7 @@ private:
 	CToggleGroup * heroMoveSpeed;
 	CToggleGroup * enemyMoveSpeed;
 	CToggleGroup * mapScrollSpeed;
-	CToggleGroup * musicVolume, * effectsVolume;
+	CVolumeSlider * musicVolume, * effectsVolume;
 
 	//CHighlightableButton * showPath;
 	CToggleButton * showReminder;
