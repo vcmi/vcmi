@@ -391,24 +391,19 @@ void CGuiHandler::fakeMouseMove()
 
 void CGuiHandler::renderFrame()
 {
-	{
+
 	// Updating GUI requires locking pim mutex (that protects screen and GUI state).
 	// During game:
 	// When ending the game, the pim mutex might be hold by other thread,
 	// that will notify us about the ending game by setting terminate_cond flag.		
 	//in PreGame terminate_cond stay false 
 		
-		bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
-		while(!terminate_cond.get() && !(acquiredTheLockOnPim = CPlayerInterface::pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
-			boost::this_thread::sleep(boost::posix_time::milliseconds(15));
+	bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
+	while(!terminate_cond.get() && !(acquiredTheLockOnPim = CPlayerInterface::pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
+		boost::this_thread::sleep(boost::posix_time::milliseconds(15));
 
-		if(!acquiredTheLockOnPim)
-		{
-			// We broke the while loop above and not because of mutex, so we must be terminating.
-			assert(terminate_cond.get());
-			return;
-		}
-
+	if(acquiredTheLockOnPim)
+	{
 		// If we are here, pim mutex has been successfully locked - let's store it in a safe RAII lock.
 		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim, boost::adopt_lock);
 
@@ -424,10 +419,9 @@ void CGuiHandler::renderFrame()
 		if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
 			logGlobal->errorStream() << __FUNCTION__ << " SDL_RenderCopy " << SDL_GetError();
 
-		SDL_RenderPresent(mainRenderer);					
-	}
+		SDL_RenderPresent(mainRenderer);			
+	}					
 
-	
 	mainFPSmng->framerateDelay(); // holds a constant FPS	
 }
 

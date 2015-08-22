@@ -47,6 +47,7 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/CRandomGenerator.h"
+#include "../lib/CondSh.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine
@@ -553,6 +554,8 @@ CGPreGame *CGPreGame::create()
 {
 	if(!CGP)
 		CGP = new CGPreGame();
+		
+	GH.terminate_cond.set(false);		
 	return CGP;
 }
 
