@@ -274,8 +274,11 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		for(auto i=hlp.begin(); i != hlp.end() && current; i++)
 		{
 			if(!vstd::contains(wheelInterested,*i)) continue;
-			(*i)->wheelScrolled(sEvent->wheel.y < 0, isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y));
-		}		
+			// SDL doesn't have the proper values for mouse positions on SDL_MOUSEWHEEL, refetch them
+			int x = 0, y = 0;
+			SDL_GetMouseState(&x, &y);
+			(*i)->wheelScrolled(sEvent->wheel.y < 0, isItIn(&(*i)->pos, x, y));
+		}
 	}
 	else if(sEvent->type == SDL_TEXTINPUT)
 	{
