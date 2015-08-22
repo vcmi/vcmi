@@ -1605,6 +1605,15 @@ void CGameHandler::run(bool resume)
 				}
 			}
 		}
+		//additional check that game is not finished
+		bool activePlayer = false;
+		for(auto player : playerTurnOrder)
+		{
+			if(gs->players[player].status == EPlayerStatus::INGAME)
+					activePlayer = true;
+		}
+		if(!activePlayer)
+			end2 = true;
 	}
 	while(conns.size() && (*conns.begin())->isOpen())
 		boost::this_thread::sleep(boost::posix_time::milliseconds(5)); //give time client to close socket
