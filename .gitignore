@@ -13,6 +13,8 @@
 *.layout
 *.pro.user
 *.pro.user.*
+*.swp
+*~
 /CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
