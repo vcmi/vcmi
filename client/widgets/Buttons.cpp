@@ -212,7 +212,7 @@ void CButton::hover (bool on)
 		? hoverTexts[0]
 		: hoverTexts[getState()];
 
-	if(!name.empty() && !isBlocked()) //if there is no name, there is nohing to display also
+	if(!name.empty() && !isBlocked()) //if there is no name, there is nothing to display also
 	{
 		if (LOCPLINT && LOCPLINT->battleInt) //for battle buttons
 		{
