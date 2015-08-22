@@ -419,8 +419,8 @@ void CToggleGroup::addToggle(int identifier, CToggleBase* bt)
 	buttons[identifier] = bt;
 }
 
-CToggleGroup::CToggleGroup(const CFunctionList<void(int)> &OnChange, bool musicLikeButtons)
-: onChange(OnChange), selectedID(-2), musicLike(musicLikeButtons)
+CToggleGroup::CToggleGroup(const CFunctionList<void(int)> &OnChange)
+: onChange(OnChange), selectedID(-2)
 {}
 
 void CToggleGroup::setSelected(int id)
@@ -445,28 +445,6 @@ void CToggleGroup::selectionChanged(int to)
 	onChange(to);
 	if (parent)
 		parent->redraw();
-}
-
-void CToggleGroup::show(SDL_Surface * to)
-{
-	if (musicLike)
-	{
-		if (auto intObj = dynamic_cast<CIntObject*>(buttons[selectedID])) // hack-ish workagound to avoid diamond problem with inheritance
-			intObj->show(to);
-	}
-	else
-		CIntObject::show(to);
-}
-
-void CToggleGroup::showAll(SDL_Surface * to)
-{
-	if (musicLike)
-	{
-		if (auto intObj = dynamic_cast<CIntObject*>(buttons[selectedID])) // hack-ish workagound to avoid diamond problem with inheritance
-			intObj->showAll(to);
-	}
-	else
-		CIntObject::showAll(to);
 }
 
 CVolumeSlider::CVolumeSlider(const Point &position, const std::string &defName, const int value,

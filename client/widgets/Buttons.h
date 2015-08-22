@@ -178,12 +178,11 @@ class CToggleGroup : public CIntObject
 	CFunctionList<void(int)> onChange; //called when changing selected button with new button's id
 
 	int selectedID;
-	bool musicLike; //determines the behaviour of this group
 	void selectionChanged(int to);
 public:
 	std::map<int, CToggleBase*> buttons;
 
-	CToggleGroup(const CFunctionList<void(int)> & OnChange, bool musicLikeButtons = false);
+	CToggleGroup(const CFunctionList<void(int)> & OnChange);
 
 	void addCallback(std::function<void(int)> callback);
 
@@ -191,9 +190,6 @@ public:
 	void addToggle(int index, CToggleBase * button);
 	/// Changes selection to specific value. Will select toggle with this ID, if present
 	void setSelected(int id);
-
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
 };
 
 /// A typical slider for volume with an animated indicator
