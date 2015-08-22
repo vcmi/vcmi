@@ -248,14 +248,12 @@ public:
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void showAll(SDL_Surface * to);	
 
-	/**
-	 * @param position, coordinates of slider
-	 * @param length, length of slider ribbon, including left/right buttons
-	 * @param Moved, function that will be called whenever slider moves
-	 * @param Capacity, maximal number of visible at once elements
-	 * @param Amount, total amount of elements, including not visible
-	 * @param Value, starting position
-	 */
+	 /// @param position coordinates of slider
+	 /// @param length length of slider ribbon, including left/right buttons
+	 /// @param Moved function that will be called whenever slider moves
+	 /// @param Capacity maximal number of visible at once elements
+	 /// @param Amount total amount of elements, including not visible
+	 /// @param Value starting position
 	CSlider(Point position, int length, std::function<void(int)> Moved, int Capacity, int Amount,
 		int Value=0, bool Horizontal=true, EStyle style = BROWN);
 	~CSlider();
