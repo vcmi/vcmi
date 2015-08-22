@@ -209,8 +209,8 @@ void CButton::hover (bool on)
 		setState(PRESSED);*/
 
 	std::string name = hoverTexts[getState()].empty()
-		? hoverTexts[getState()]
-		: hoverTexts[0];
+		? hoverTexts[0]
+		: hoverTexts[getState()];
 
 	if(!name.empty() && !isBlocked()) //if there is no name, there is nohing to display also
 	{
