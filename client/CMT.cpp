@@ -419,8 +419,6 @@ int main(int argc, char** argv)
 #endif // defined
 
 	//initializing audio
-	// Note: because of interface button range, volume can only be a
-	// multiple of 11, from 0 to 99.
 	CCS->soundh = new CSoundHandler;
 	CCS->soundh->init();
 	CCS->soundh->setVolume(settings["general"]["sound"].Float());

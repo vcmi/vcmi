@@ -469,6 +469,88 @@ void CToggleGroup::showAll(SDL_Surface * to)
 		CIntObject::showAll(to);
 }
 
+CVolumeSlider::CVolumeSlider(const Point &position, const std::string &defName, const int value,
+                             const std::pair<std::string, std::string> * const help) :
+	value(value),
+	helpHandlers(help)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	animImage = new CAnimImage(new CAnimation(defName), 0, 0, position.x, position.y),
+	assert(!defName.empty());
+	addUsedEvents(LCLICK | RCLICK | WHEEL);
+	pos.x += position.x;
+	pos.y += position.y;
+	pos.w = (animImage->pos.w + 1) * animImage->size();
+	pos.h = animImage->pos.h;
+	type |= REDRAW_PARENT;
+	setVolume(value);
+}
+
+void CVolumeSlider::setVolume(int value_)
+{
+	value = value_;
+	moveTo(value * static_cast<double>(animImage->size()) / 100.0);
+}
+
+void CVolumeSlider::moveTo(int id)
+{
+	vstd::abetween(id, 0, animImage->size() - 1);
+	animImage->setFrame(id);
+	animImage->moveTo(Point(pos.x + (animImage->pos.w + 1) * id, pos.y));
+	if (active)
+		redraw();
+}
+
+void CVolumeSlider::addCallback(std::function<void(int)> callback)
+{
+	onChange += callback;
+}
+
+void CVolumeSlider::clickLeft(tribool down, bool previousState)
+{
+	if (down)
+	{
+		double px = GH.current->motion.x - pos.x;
+		double rx = px / static_cast<double>(pos.w);
+		// setVolume is out of 100
+		setVolume(rx * 100);
+		// Volume config is out of 100, set to increments of 5ish roughly based on the half point of the indicator
+		// 0.0 -> 0, 0.05 -> 5, 0.09 -> 5,...,
+		// 0.1 -> 10, ..., 0.19 -> 15, 0.2 -> 20, ...,
+		// 0.28 -> 25, 0.29 -> 30, 0.3 -> 30, ...,
+		// 0.85 -> 85, 0.86 -> 90, ..., 0.87 -> 90,...,
+		// 0.95 -> 95, 0.96 -> 100, 0.99 -> 100
+		int volume = 5 * int(rx * (2 * animImage->size() + 1));
+		onChange(volume);
+	}
+}
+
+void CVolumeSlider::clickRight(tribool down, bool previousState)
+{
+	if (down)
+	{
+		double px = GH.current->motion.x - pos.x;
+		int index = px / static_cast<double>(pos.w) * animImage->size();
+		std::string hoverText = helpHandlers[index].first;
+		std::string helpBox = helpHandlers[index].second;
+		if(!helpBox.empty())
+			CRClickPopup::createAndPush(helpBox);
+		if(GH.statusbar)
+			GH.statusbar->setText(helpBox);
+	}
+}
+
+void CVolumeSlider::wheelScrolled(bool down, bool in)
+{
+	if (in)
+	{
+		int volume = value + 3 * (down ? 1 : -1);
+		vstd::abetween(volume, 0, 100);
+		setVolume(volume);
+		onChange(volume);
+	}
+}
+
 void CSlider::sliderClicked()
 {
 	if(!(active & MOVE))

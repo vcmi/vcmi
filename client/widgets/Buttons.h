@@ -196,6 +196,32 @@ public:
 	void showAll(SDL_Surface * to);
 };
 
+/// A typical slider for volume with an animated indicator
+class CVolumeSlider : public CIntObject
+{
+	int value;
+	CFunctionList<void(int)> onChange;
+	CAnimImage * animImage;
+	const std::pair<std::string, std::string> * const helpHandlers;
+	void setVolume(const int v);
+public:
+
+	/// @param position coordinates of slider
+	/// @param defName name of def animation for slider
+	/// @param value initial value for volume
+	/// @param help pointer to first helptext of slider
+	CVolumeSlider(const Point &position, const std::string &defName, const int value,
+	              const std::pair<std::string, std::string> * const help);
+
+	void moveTo(int id);
+	void addCallback(std::function<void(int)> callback);
+
+
+	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(tribool down, bool previousState) override;
+	void wheelScrolled(bool down, bool in);
+};
+
 /// A typical slider which can be orientated horizontally/vertically.
 class CSlider : public CIntObject
 {
