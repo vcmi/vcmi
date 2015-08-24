@@ -149,9 +149,10 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 	if(down)
 	{
 		bool refr = false;
-		if(owner->getSelection())
+		const CGarrisonSlot * selection = owner->getSelection();
+		if(selection)
 		{
-			if(owner->getSelection() == this) //view info
+			if(selection == this) //view info
 			{
 				UpgradeInfo pom;
 				LOCPLINT->cb->getUpgradeInfo(getObj(), ID, pom);
@@ -176,16 +177,16 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 			else
 			{
 				// Only allow certain moves if troops aren't removable or not ours.
-				if (  ( owner->getSelection()->our()//our creature is selected
-				     || owner->getSelection()->creature == creature )//or we are rebalancing army
+				if (  ( selection->our()//our creature is selected
+				     || selection->creature == creature )//or we are rebalancing army
 				   && ( owner->removableUnits
-				     || (upg == 0 &&  ( owner->getSelection()->upg == 1 && !creature ) )
-					 || (upg == 1 &&    owner->getSelection()->upg == 1 ) ) )
+				     || (upg == 0 &&  ( selection->upg == 1 && !creature ) )
+					 || (upg == 1 &&    selection->upg == 1 ) ) )
 				{
 					//we want to split
 					if((owner->getSplittingMode() || LOCPLINT->shiftPressed())
 						&& (!creature
-							|| (creature == owner->getSelection()->creature)))
+							|| (creature == selection->creature)))
 					{
 						owner->p2 = ID; //store the second stack pos
 						owner->pb = upg;//store the second stack owner (up or down army)
@@ -193,41 +194,41 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 
 						int minLeft=0, minRight=0;
 
-						if(upg != owner->getSelection()->upg) //not splitting within same army
+						if(upg != selection->upg) //not splitting within same army
 						{
-							if(owner->getSelection()->getObj()->stacksCount() == 1 //we're splitting away the last stack
-								&& owner->getSelection()->getObj()->needsLastStack() )
+							if(selection->getObj()->stacksCount() == 1 //we're splitting away the last stack
+								&& selection->getObj()->needsLastStack() )
 							{
 								minLeft = 1;
 							}
 							if(getObj()->stacksCount() == 1 //destination army can't be emptied, unless we're rebalancing two stacks of same creature
-								&& owner->getSelection()->creature == creature
+								&& selection->creature == creature
 								&& getObj()->needsLastStack() )
 							{
 								minRight = 1;
 							}
 						}
 
-						int countLeft = owner->getSelection()->myStack ? owner->getSelection()->myStack->count : 0;
+						int countLeft = selection->myStack ? selection->myStack->count : 0;
 						int countRight = myStack ? myStack->count : 0;
 
-						GH.pushInt(new CSplitWindow(owner->getSelection()->creature, std::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
+						GH.pushInt(new CSplitWindow(selection->creature, std::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
 						                            minLeft, minRight, countLeft, countRight));
 						refr = true;
 					}
-					else if(creature != owner->getSelection()->creature) //swap
+					else if(creature != selection->creature) //swap
 					{
 						LOCPLINT->cb->swapCreatures(
 							(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-							(!owner->getSelection()->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-							ID,owner->getSelection()->ID);
+							(!selection->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
+							ID,selection->ID);
 					}
 					else //merge
 					{
 						LOCPLINT->cb->mergeStacks(
-							(!owner->getSelection()->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
+							(!selection->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
 							(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-							owner->getSelection()->ID,ID);
+							selection->ID,ID);
 					}
 				}
 				else // Highlight
