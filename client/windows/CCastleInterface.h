@@ -90,6 +90,7 @@ public:
 
 	void hover (bool on);
 	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState);
 	void deactivate();
 	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSlots * Owner); //c-tor
 	~CHeroGSlot(); //d-tor

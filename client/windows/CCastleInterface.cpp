@@ -393,6 +393,14 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 	}
 }
 
+void CHeroGSlot::clickRight(tribool down, bool previousState)
+{
+	if(down && hero)
+	{
+		GH.pushInt(new CInfoBoxPopup(Point(pos.x + 175, pos.y + 100), hero));
+	}
+}
+
 void CHeroGSlot::deactivate()
 {
 	vstd::clear_pointer(selection);
@@ -411,7 +419,7 @@ CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSl
 	image = nullptr;
 	set(h);
 
-	addUsedEvents(LCLICK | HOVER);
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 }
 
 CHeroGSlot::~CHeroGSlot()
