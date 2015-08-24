@@ -122,11 +122,13 @@ const CArmedInstance * CGarrisonSlot::getObj() const
 	return 	(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]);
 }
 
+/// @return Whether the unit in the slot belongs to the current player.
 bool CGarrisonSlot::our() const
 {
 	return 	upg?(owner->owned[1]):(owner->owned[0]);
 }
 
+/// @return Whether the unit in the slot belongs to an ally but not to the current player.
 bool CGarrisonSlot::ally() const
 {
 	if(!getObj())
