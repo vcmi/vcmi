@@ -34,6 +34,10 @@ class CGarrisonSlot : public CIntObject
 	CAnimImage * selectionImage; // image for selection, not always visible
 	CLabel * stackCount;
 
+	bool viewInfo();
+	bool highlightOrDropArtifact();
+	bool split();
+
 	void setHighlight(bool on);
 public:
 	virtual void hover (bool on); //call-in
