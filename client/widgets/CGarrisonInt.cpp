@@ -71,7 +71,7 @@ void CGarrisonSlot::hover (bool on)
 			}
 			else
 			{
-				if(upg)
+				if(upg == EGarrisonType::UP)
 				{
 					temp = CGI->generaltexth->tcommands[32]; //Select %s (visiting)
 				}
@@ -119,13 +119,13 @@ void CGarrisonSlot::hover (bool on)
 
 const CArmedInstance * CGarrisonSlot::getObj() const
 {
-	return 	(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]);
+	return 	owner->armedObjs[upg];
 }
 
 /// @return Whether the unit in the slot belongs to the current player.
 bool CGarrisonSlot::our() const
 {
-	return 	upg?(owner->owned[1]):(owner->owned[0]);
+	return owner->owned[upg];
 }
 
 /// @return Whether the unit in the slot belongs to an ally but not to the current player.
@@ -255,8 +255,8 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 		else if (!(  ( selection->our()//our creature is selected
 		         || selection->creature == creature )//or we are rebalancing army
 		       && ( owner->removableUnits
-		         || (upg == 0 &&  ( selection->upg == 1 && !creature ) )
-		         || (upg == 1 &&    selection->upg == 1 ) ) ))
+		         || (upg == EGarrisonType::UP &&  ( selection->upg == EGarrisonType::down && !creature ) )
+		         || (upg == EGarrisonType::down &&    selection->upg == EGarrisonType::down ) ) ))
 		{
 			// Highlight
 			if(creature)
@@ -270,17 +270,16 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 			refr = split();
 		// swap
 		else if(creature != selection->creature)
-			LOCPLINT->cb->swapCreatures(
-				(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-				(!selection->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-				ID,selection->ID);
+			LOCPLINT->cb->swapCreatures(owner->armedObjs[upg], owner->armedObjs[selection->upg], ID, selection->ID);
 		// merge
 		else
-			LOCPLINT->cb->mergeStacks(
-				(!selection->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-				(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-				selection->ID,ID);
-		if(refr) {hover(false);	hover(true); } //to refresh statusbar
+			LOCPLINT->cb->mergeStacks(owner->armedObjs[selection->upg], owner->armedObjs[upg], selection->ID, ID);
+		if(refr)
+		{
+			// Refresh Statusbar
+			hover(false);
+			hover(true);
+		}
 	}
 }
 
@@ -314,7 +313,7 @@ void CGarrisonSlot::update()
 	}
 }
 
-CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, int Upg, const CStackInstance * Creature):
+CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, CGarrisonSlot::EGarrisonType Upg, const CStackInstance * Creature):
     ID(IID),
     owner(Owner),
     myStack(Creature),
@@ -362,7 +361,7 @@ void CGarrisonInt::addSplitBtn(CButton * button)
 	button->block(getSelection() == nullptr);
 }
 
-void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int posY, int distance, int Upg )
+void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int posY, int distance, CGarrisonSlot::EGarrisonType Upg )
 {
 	ret.resize(7);
 
@@ -392,8 +391,8 @@ void CGarrisonInt::createSlots()
 
 	int width = smallIcons? 32 : 58;
 
-	createSet(slotsUp, armedObjs[0], 0, 0, width+interx, 0);
-	createSet(slotsDown, armedObjs[1], garOffset.x, garOffset.y, width+interx, 1);
+	createSet(slotsUp, armedObjs[0], 0, 0, width+interx, CGarrisonSlot::EGarrisonType::UP);
+	createSet(slotsDown, armedObjs[1], garOffset.x, garOffset.y, width+interx, CGarrisonSlot::EGarrisonType::DOWN);
 }
 
 void CGarrisonInt::recreateSlots()

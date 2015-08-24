@@ -28,7 +28,13 @@ class CGarrisonSlot : public CIntObject
 	CGarrisonInt *owner;
 	const CStackInstance *myStack; //nullptr if slot is empty
 	const CCreature *creature;
-	int upg; //0 - up garrison, 1 - down garrison
+
+	/// Type of Garrison for slot (up or down)
+	enum EGarrisonType
+	{
+		UP=0,  ///< 0 - up garrison (Garrisoned)
+		DOWN,  ///< 1 - down garrison (Visiting)
+	} upg; ///< Flag indicating if it is the up or down garrison
 
 	CAnimImage * creatureImage;
 	CAnimImage * selectionImage; // image for selection, not always visible
@@ -47,7 +53,7 @@ public:
 	void clickRight(tribool down, bool previousState);
 	void clickLeft(tribool down, bool previousState);
 	void update();
-	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, int Upg=0, const CStackInstance * Creature=nullptr);
+	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, EGarrisonType Upg=EGarrisonType::UP, const CStackInstance * Creature=nullptr);
 
 	friend class CGarrisonInt;
 };
@@ -87,7 +93,7 @@ public:
 
 	void setArmy(const CArmedInstance *army, bool bottomGarrison);
 	void addSplitBtn(CButton * button);
-	void createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int distance, int posY, int Upg );
+	void createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int distance, int posY, CGarrisonSlot::EGarrisonType Upg );
 
 	void createSlots();
 	void recreateSlots();
