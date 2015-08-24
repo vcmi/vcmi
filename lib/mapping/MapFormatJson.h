@@ -120,7 +120,9 @@ public:
 	 */
 	std::unique_ptr<CMapHeader> loadMapHeader() override;
 
-private:
+private:	
+	si32 getIdentifier(const std::string & type, const std::string & name);
+	
 	/**
 	 * Reads complete map.
 	 */
@@ -134,7 +136,12 @@ private:
 	/**
 	 * Reads player information.
 	 */
-	void readPlayerInfo();
+	void readPlayerInfo(const JsonNode & input);
+	
+	/**
+	 * Reads one player information.
+	 */
+	void readPlayerInfo(PlayerInfo & info, const JsonNode & input);
 	
 	void readTerrainTile(const std::string & src, TerrainTile & tile);
 	

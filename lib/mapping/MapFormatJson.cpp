@@ -210,6 +210,17 @@ CMapLoaderJson::CMapLoaderJson(CInputOutputStream * stream):
 
 }
 
+si32 CMapLoaderJson::getIdentifier(const std::string& type, const std::string& name)
+{
+	boost::optional<si32> res = VLC->modh->identifiers.getIdentifier("core", type, name, false);
+	
+	if(!res)
+	{
+		throw new std::runtime_error("Map load failed. Identifier not resolved.");
+	}
+	return res.get();
+}
+
 std::unique_ptr<CMap> CMapLoaderJson::loadMap()
 {
 	map = new CMap();
@@ -285,15 +296,60 @@ void CMapLoaderJson::readHeader()
 //	std::vector<ui16> placeholdedHeroes;
 
 	readTriggeredEvents(header);
-	readPlayerInfo();
+	readPlayerInfo(header);
 	//TODO: readHeader
 }
 
-void CMapLoaderJson::readPlayerInfo()
+void CMapLoaderJson::readPlayerInfo(const JsonNode & input)
 {
-	//ui8 howManyTeams;
-	//TODO: readPlayerInfo
+	const JsonNode & src = input["players"];
+	int howManyTeams = 0;
+
+	for(int player = 0; player < PlayerColor::PLAYER_LIMIT_I; player++)
+	{
+		PlayerInfo & info = map->players.at(player);
+
+		const JsonNode & playerSrc = src[GameConstants::PLAYER_COLOR_NAMES[player]];
+
+		if(playerSrc.isNull())
+		{
+			info.canComputerPlay = false;
+			info.canHumanPlay = false;
+		}
+		else
+		{
+			readPlayerInfo(info, playerSrc);
+			vstd::amax(howManyTeams, info.team.getNum()+1);
+		}
+	}
+	mapHeader->howManyTeams = howManyTeams;
 }
+
+void CMapLoaderJson::readPlayerInfo(PlayerInfo& info, const JsonNode& input)
+{
+	//allowed factions
+	
+	info.isFactionRandom = input["randomFaction"].Bool();
+	info.canComputerPlay = input["canComputerPlay"].Bool();	
+	info.canHumanPlay = input["canHumanPlay"].Bool();
+	
+	//plasedHeroes
+	
+	//mainTown
+	
+	info.generateHeroAtMainTown = input["generateHeroAtMainTown"].Bool();
+	
+	info.hasRandomHero = input["randomHero"].Bool();
+	
+	//mainHero
+	
+	//mainHeroPortrait
+	
+	info.mainCustomHeroName = input["mainHeroName"].String();
+	
+	info.team = TeamID(input["team"].Float());
+}
+
 
 void CMapLoaderJson::readTerrainTile(const std::string& src, TerrainTile& tile)
 {
@@ -533,7 +589,28 @@ void CMapSaverJson::writePlayerInfo(JsonNode & output)
 
 void CMapSaverJson::writePlayerInfo(const PlayerInfo & info, JsonNode & output)
 {
+	//allowed factions
 	
+	output["randomFaction"].Bool() = info.isFactionRandom;
+	
+	output["canComputerPlay"].Bool() = info.canComputerPlay;
+	output["canHumanPlay"].Bool() = info.canHumanPlay;
+	
+	//plasedHeroes
+	
+	//mainTown
+	
+	output["generateHeroAtMainTown"].Bool() = info.generateHeroAtMainTown;
+	
+	output["randomHero"].Bool() = info.hasRandomHero;
+	
+	//mainHero
+	
+	//mainHeroPortrait
+	
+	output["mainHeroName"].String() =  info.mainCustomHeroName;
+	
+	output["team"].Float() = info.team.getNum();	
 }
 
 const std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)
