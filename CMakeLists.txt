@@ -23,6 +23,12 @@ option(ENABLE_TEST "Enable compilation of unit tests" OFF)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 
 ############################################
+#        Documentation section             #
+############################################
+
+include(UseDoxygen OPTIONAL)
+
+############################################
 #        Building section                  #
 ############################################
 

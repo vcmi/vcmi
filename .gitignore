@@ -30,3 +30,5 @@ ui_*.h
 /CPackSourceConfig.cmake
 build-*
 CMakeLists.txt.user.*
+Doxyfile
+doc/*

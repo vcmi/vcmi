@@ -93,3 +93,14 @@ Go to /LIB_PATH/vcmi/AI, and type:
 Go to /DATA_PATH/vcmi, and type:
   ln -s .../trunk/source/config
   ln -s .../trunk/source/Mods
+
+IV. Compiling documentation
+
+To compile using Doxygen, the UseDoxygen CMake module must be installed. It can
+be fetched from: http://tobias.rautenkranz.ch/cmake/doxygen/
+
+Once UseDoxygen is installed, run:
+    cmake .
+    make doc
+
+The built documentation will be available from ./doc
