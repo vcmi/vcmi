@@ -75,7 +75,7 @@ void CGarrisonSlot::hover (bool on)
 				{
 					temp = CGI->generaltexth->tcommands[32]; //Select %s (visiting)
 				}
-				else if(owner->armedObjs[0] && owner->armedObjs[0]->ID == Obj::TOWN)
+				else if(owner->armedObjs[0] && (owner->armedObjs[0]->ID == Obj::TOWN || owner->armedObjs[0]->ID == Obj::HERO))
 				{
 					temp = CGI->generaltexth->tcommands[12]; //Select %s (in garrison)
 				}
