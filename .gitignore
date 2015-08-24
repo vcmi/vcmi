@@ -16,6 +16,7 @@
 *.swp
 *~
 /CMakeLists.txt.user
+CMakeLists.txt.user.*
 CMakeCache.txt
 CMakeFiles
 Makefile
@@ -29,4 +30,9 @@ ui_*.h
 /CPackConfig.cmake
 /CPackSourceConfig.cmake
 build-*
-CMakeLists.txt.user.*
+obj-*
+debian/*.log
+debian/*.substvars
+debian/files
+debian/vcmi
+debian/vcmi-dbg
