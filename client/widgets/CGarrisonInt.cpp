@@ -137,14 +137,8 @@ bool CGarrisonSlot::ally() const
 	return PlayerRelations::ALLIES == LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, getObj()->tempOwner);
 }
 
-void CGarrisonSlot::clickRight(tribool down, bool previousState)
-{
-	if(down && creature)
-	{
-		GH.pushInt(new CStackWindow(myStack, true));
-	}
-}
-
+/// The creature slot has been clicked twice, therefore the creature info should be shown
+/// @return Whether the view should be refreshed
 bool CGarrisonSlot::viewInfo()
 {
 	UpgradeInfo pom;
@@ -168,6 +162,8 @@ bool CGarrisonSlot::viewInfo()
 	return true;
 }
 
+/// The selection is empty, therefore the creature should be moved
+/// @return Whether the view should be refreshed
 bool CGarrisonSlot::highlightOrDropArtifact()
 {
 	bool artSelected = false;
@@ -208,6 +204,8 @@ bool CGarrisonSlot::highlightOrDropArtifact()
 	return true;
 }
 
+/// The creature is only being partially moved
+/// @return Whether the view should be refreshed
 bool CGarrisonSlot::split()
 {
 	const CGarrisonSlot * selection = owner->getSelection();
@@ -241,6 +239,35 @@ bool CGarrisonSlot::split()
 	return true;
 }
 
+/// If certain creates cannot be moved, the selection should change
+/// Force reselection in these cases
+///     * When attempting to swap creatures with an ally
+///     * When attempting to take unremovable units
+/// @return Whether reselection must be done
+bool CGarrisonSlot::mustForceReselection() const
+{
+	const CGarrisonSlot * selection = owner->getSelection();
+	// Attempt to swap creatures with ally
+	if (selection->creature != creature && !selection->our())
+		return true;
+	if (!owner->removableUnits)
+	{
+		if (selection->upg == EGarrisonType::UP)
+			return true;
+		else
+			return creature || upg == EGarrisonType::UP;
+	}
+	return false;
+}
+
+void CGarrisonSlot::clickRight(tribool down, bool previousState)
+{
+	if(down && creature)
+	{
+		GH.pushInt(new CStackWindow(myStack, true));
+	}
+}
+
 void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 {
 	if(down)
@@ -251,14 +278,9 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 			refr = highlightOrDropArtifact();
 		else if(selection == this)
 			refr = viewInfo();
-		// Only allow certain moves if troops aren't removable or not ours.
-		else if (!(  ( selection->our()//our creature is selected
-		         || selection->creature == creature )//or we are rebalancing army
-		       && ( owner->removableUnits
-		         || (upg == EGarrisonType::UP &&  ( selection->upg == EGarrisonType::down && !creature ) )
-		         || (upg == EGarrisonType::down &&    selection->upg == EGarrisonType::down ) ) ))
+		// Re-highlight if troops aren't removable or not ours.
+		else if (mustForceReselection())
 		{
-			// Highlight
 			if(creature)
 				owner->selectSlot(this);
 			redraw();

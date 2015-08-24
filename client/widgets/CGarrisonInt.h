@@ -43,6 +43,7 @@ class CGarrisonSlot : public CIntObject
 	bool viewInfo();
 	bool highlightOrDropArtifact();
 	bool split();
+	bool mustForceReselection() const;
 
 	void setHighlight(bool on);
 public:
