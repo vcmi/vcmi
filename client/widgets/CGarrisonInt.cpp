@@ -272,7 +272,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				if(creature)
 				{
 					for(auto & elem : owner->splitButtons)
-						elem->block(false);
+						elem->block(!our());
 				}
 			}
 			redraw();
@@ -455,7 +455,7 @@ void CGarrisonInt::selectSlot(CGarrisonSlot *slot)
 
 		highlighted = slot;
 		for (auto button : splitButtons)
-			button->block(highlighted == nullptr);
+			button->block(highlighted == nullptr || !slot->our());
 
 		if (highlighted)
 			highlighted->setHighlight(true);
