@@ -799,7 +799,7 @@ const std::string CSpellHandler::getTypeName() const
 	return "spell";
 }
 
-CSpell * CSpellHandler::loadFromJson(const JsonNode & json)
+CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & identifier)
 {
 	using namespace SpellConfig;
 

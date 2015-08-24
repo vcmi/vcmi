@@ -633,7 +633,7 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-CFaction * CTownHandler::loadFromJson(const JsonNode &source, std::string identifier)
+CFaction * CTownHandler::loadFromJson(const JsonNode &source, const std::string & identifier)
 {
 	auto  faction = new CFaction();
 

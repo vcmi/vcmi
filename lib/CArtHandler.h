@@ -48,7 +48,8 @@ protected:
 	std::string eventText; //short story displayed upon picking
 public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
-
+	
+	std::string identifier;
 	std::string image;
 	std::string large; // big image for cutom artifacts, used in drag & drop
 	std::string advMapDef; //used for adventure map object
@@ -79,6 +80,10 @@ public:
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & name & description & eventText & image & large & advMapDef & iconIndex &
 			price & possibleSlots & constituents & constituentOf & aClass & id;
+		if(version>=755)
+		{
+			h & identifier;
+		}
 	}
 
 	CArtifact();
@@ -244,7 +249,7 @@ public:
 	}
 
 private:
-	CArtifact * loadFromJson(const JsonNode & node);
+	CArtifact * loadFromJson(const JsonNode & node, const std::string & identifier);
 
 	void addSlot(CArtifact * art, const std::string & slotID);
 	void loadSlots(CArtifact * art, const JsonNode & node);

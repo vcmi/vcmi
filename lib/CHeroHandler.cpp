@@ -96,12 +96,12 @@ bool CObstacleInfo::isAppropriate(ETerrainType terrainType, int specialBattlefie
 	return vstd::contains(allowedTerrains, terrainType);
 }
 
-CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
+CHeroClass * CHeroClassHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
 {
 	std::string affinityStr[2] = { "might", "magic" };
 
 	auto  heroClass = new CHeroClass();
-
+	heroClass->identifier = identifier;
 	heroClass->imageBattleFemale = node["animation"]["battle"]["female"].String();
 	heroClass->imageBattleMale   = node["animation"]["battle"]["male"].String();
 	//MODS COMPATIBILITY FOR 0.96
@@ -192,7 +192,7 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData(size_t dataSize)
 
 void CHeroClassHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, name);
 	object->id = heroClasses.size();
 
 	heroClasses.push_back(object);
@@ -210,7 +210,7 @@ void CHeroClassHandler::loadObject(std::string scope, std::string name, const Js
 
 void CHeroClassHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, name);
 	object->id = index;
 
 	assert(heroClasses[index] == nullptr); // ensure that this id was not loaded before
@@ -288,10 +288,10 @@ CHeroHandler::CHeroHandler()
 	loadExperience();
 }
 
-CHero * CHeroHandler::loadFromJson(const JsonNode & node)
+CHero * CHeroHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
 {
 	auto  hero = new CHero;
-
+	hero->identifier = identifier;
 	hero->sex = node["female"].Bool();
 	hero->special = node["special"].Bool();
 
@@ -536,7 +536,7 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, name);
 	object->ID = HeroTypeID(heroes.size());
 	object->imageIndex = heroes.size() + 30; // 2 special frames + some extra portraits
 
@@ -547,7 +547,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, name);
 	object->ID = HeroTypeID(index);
 	object->imageIndex = index;
 

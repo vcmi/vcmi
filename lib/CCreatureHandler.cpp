@@ -357,23 +357,23 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 
 void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, name);
 	object->setId(CreatureID(creatures.size()));
 	object->iconIndex = object->idNumber + 2;
 
 	creatures.push_back(object);
 
-	VLC->modh->identifiers.registerObject(scope, "creature", name, object->idNumber);
+	registerObject(scope, "creature", name, object->idNumber);
 
 	for(auto node : data["extraNames"].Vector())
 	{
-		VLC->modh->identifiers.registerObject(scope, "creature", node.String(), object->idNumber);
+		registerObject(scope, "creature", node.String(), object->idNumber);
 	}
 }
 
 void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, name);
 	object->setId(CreatureID(index));
 	object->iconIndex = object->idNumber + 2;
 
@@ -385,10 +385,10 @@ void CCreatureHandler::loadObject(std::string scope, std::string name, const Jso
 	assert(creatures[index] == nullptr); // ensure that this id was not loaded before
 	creatures[index] = object;
 
-	VLC->modh->identifiers.registerObject(scope, "creature", name, object->idNumber);
+	registerObject(scope, "creature", name, object->idNumber);
 	for(auto & node : data["extraNames"].Vector())
 	{
-		VLC->modh->identifiers.registerObject(scope, "creature", node.String(), object->idNumber);
+		registerObject(scope, "creature", node.String(), object->idNumber);
 	}
 }
 
@@ -561,11 +561,12 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 		graphics.Struct().erase("missile");
 }
 
-CCreature * CCreatureHandler::loadFromJson(const JsonNode & node)
+CCreature * CCreatureHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
 {
 	auto  cre = new CCreature();
 
 	const JsonNode & name = node["name"];
+	cre->identifier = identifier;
 	cre->nameSing = name["singular"].String();
 	cre->namePl = name["plural"].String();
 

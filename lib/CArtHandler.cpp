@@ -201,28 +201,28 @@ std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, name);
 	object->id = ArtifactID(artifacts.size());
 	object->iconIndex = object->id + 5;
 
 	artifacts.push_back(object);
 
-	VLC->modh->identifiers.registerObject(scope, "artifact", name, object->id);
+	registerObject(scope, "artifact", object->identifier, object->id);
 }
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, name);
 	object->id = ArtifactID(index);
 	object->iconIndex = object->id;
 
 	assert(artifacts[index] == nullptr); // ensure that this id was not loaded before
 	artifacts[index] = object;
 
-	VLC->modh->identifiers.registerObject(scope, "artifact", name, object->id);
+	registerObject(scope, "artifact", object->identifier, object->id);
 }
 
-CArtifact * CArtHandler::loadFromJson(const JsonNode & node)
+CArtifact * CArtHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
 {
 	CArtifact * art;
 
@@ -234,7 +234,7 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node)
 		loadGrowingArt(growing, node);
 		art = growing;
 	}
-
+	art->identifier = identifier;
 	const JsonNode & text = node["text"];
 	art->name        = text["name"].String();
 	art->description = text["description"].String();

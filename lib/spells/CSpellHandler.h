@@ -172,7 +172,7 @@ public:
 	};
 
 	SpellID id;
-	std::string identifier; //???
+	std::string identifier;
 	std::string name;
 
 	si32 level;
@@ -366,5 +366,5 @@ public:
 	}
 
 protected:
-	CSpell * loadFromJson(const JsonNode & json) override;
+	CSpell * loadFromJson(const JsonNode & json, const std::string & identifier) override;
 };

@@ -250,7 +250,7 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 
 	void loadPuzzle(CFaction & faction, const JsonNode & source);
 
-	CFaction * loadFromJson(const JsonNode & data, std::string identifier);
+	CFaction * loadFromJson(const JsonNode & data, const std::string & identifier);
 
 public:
 	std::vector<ConstTransitivePtr<CFaction> > factions;

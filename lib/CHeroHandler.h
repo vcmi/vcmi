@@ -59,7 +59,7 @@ public:
 			h & minAmount & maxAmount & creature;
 		}
 	};
-
+	std::string identifier;
 	HeroTypeID ID;
 	si32 imageIndex;
 
@@ -92,6 +92,10 @@ public:
 		h & ID & imageIndex & initialArmy & heroClass & secSkillsInit & spec & specialty & spells & haveSpellBook & sex & special;
 		h & name & biography & specName & specDescr & specTooltip;
 		h & iconSpecSmall & iconSpecLarge & portraitSmall & portraitLarge;
+		if(version>=755)
+		{
+			h & identifier;
+		}		
 	}
 };
 
@@ -169,7 +173,7 @@ struct DLL_LINKAGE CObstacleInfo
 
 class DLL_LINKAGE CHeroClassHandler : public IHandlerBase
 {
-	CHeroClass *loadFromJson(const JsonNode & node);
+	CHeroClass *loadFromJson(const JsonNode & node, const std::string & identifier);
 public:
 	std::vector< ConstTransitivePtr<CHeroClass> > heroClasses;
 
@@ -207,7 +211,7 @@ class DLL_LINKAGE CHeroHandler : public IHandlerBase
 	void loadObstacles();
 
 	/// Load single hero from json
-	CHero * loadFromJson(const JsonNode & node);
+	CHero * loadFromJson(const JsonNode & node, const std::string & identifier);
 
 public:
 	CHeroClassHandler classes;

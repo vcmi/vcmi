@@ -26,6 +26,8 @@ class CCreature;
 class DLL_LINKAGE CCreature : public CBonusSystemNode
 {
 public:
+	std::string identifier;
+
 	std::string nameRef; // reference name, stringID
 	std::string nameSing;// singular name, e.g. Centaur
 	std::string namePl;  // plural name, e.g. Centaurs
@@ -136,6 +138,10 @@ public:
 		h & idNumber & faction & sounds & animation;
 
 		h & doubleWide & special;
+		if(version>=755)
+		{
+			h & identifier;
+		}		
 	}
 
 	CCreature();
@@ -148,7 +154,7 @@ private:
 	CBonusSystemNode creaturesOfLevel[GameConstants::CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
 
 	/// load one creature from json config
-	CCreature * loadFromJson(const JsonNode & node);
+	CCreature * loadFromJson(const JsonNode & node, const std::string & identifier);
 
 	void loadJsonAnimation(CCreature * creature, const JsonNode & graphics);
 	void loadStackExperience(CCreature * creature, const JsonNode &input);
