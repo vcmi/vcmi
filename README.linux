@@ -33,6 +33,12 @@ On Debian-based systems (e.g. Ubuntu) run:
 On RPM-based distributions (e.g. Fedora) run:
   sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale zlib-devel ffmpeg-devel ffmpeg-libs qt5-qtbase-devel 
 
+On Arch-based distributions, there is a development package available for VCMI on the AUR. It can be found at:
+  https://aur.archlinux.org/packages/vcmi-git/
+
+  Information about building packages from the Arch User Repository (AUR) can be
+  found at the Arch wiki.
+
 II. Getting the sources
 
 VCMI is still in development. We recommend the following initial directory structure:
