@@ -221,7 +221,7 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 	if (parent->info->stackNode != nullptr && parent->info->commander == nullptr)
 	{
 		//normal stack, not a commander and not non-existing stack (e.g. recruitment dialog)
-		pic->setAmount(parent->info->stackNode->count);
+		pic->setAmount(parent->info->creatureCount);
 	}
 
 	std::string visibleName;
