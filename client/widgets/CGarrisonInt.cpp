@@ -299,10 +299,22 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 			refr = split();
 		// swap
 		else if(creature != selection->creature)
-			LOCPLINT->cb->swapCreatures(owner->armedObjs[upg], owner->armedObjs[selection->upg], ID, selection->ID);
+		{
+			const CArmedInstance * selectedObj = owner->armedObjs[selection->upg];
+			if (!creature && selectedObj->stacksCount() == 1)
+				LOCPLINT->cb->splitStack(selectedObj, owner->armedObjs[upg], selection->ID, ID, myStack->count - 1);
+			else
+				LOCPLINT->cb->swapCreatures(owner->armedObjs[upg], owner->armedObjs[selection->upg], ID, selection->ID);
+		}
 		// merge
 		else
-			LOCPLINT->cb->mergeStacks(owner->armedObjs[selection->upg], owner->armedObjs[upg], selection->ID, ID);
+		{
+			const CArmedInstance * selectedObj = owner->armedObjs[selection->upg];
+			if (selectedObj->stacksCount() == 1)
+				LOCPLINT->cb->splitStack(owner->armedObjs[upg], selectedObj, selection->ID, ID, 1);
+			else
+				LOCPLINT->cb->mergeStacks(owner->armedObjs[selection->upg], owner->armedObjs[upg], selection->ID, ID);
+		}
 		if(refr)
 		{
 			// Refresh Statusbar
