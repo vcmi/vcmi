@@ -241,14 +241,21 @@ bool CGarrisonSlot::split()
 
 /// If certain creates cannot be moved, the selection should change
 /// Force reselection in these cases
+///     * When attempting to take creatures from ally
 ///     * When attempting to swap creatures with an ally
 ///     * When attempting to take unremovable units
 /// @return Whether reselection must be done
 bool CGarrisonSlot::mustForceReselection() const
 {
 	const CGarrisonSlot * selection = owner->getSelection();
-	// Attempt to swap creatures with ally
-	if (selection->creature != creature && !selection->our())
+	bool withAlly = selection->our() ^ our();
+	if (!creature || !selection->creature)
+		return false;
+	// Attempt to take creatures from ally (select theirs first)
+	if (!selection->our())
+		return true;
+	// Attempt to swap creatures with ally (select ours first)
+	if (selection->creature != creature && withAlly)
 		return true;
 	if (!owner->removableUnits)
 	{
