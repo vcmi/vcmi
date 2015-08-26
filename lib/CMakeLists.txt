@@ -17,6 +17,7 @@ set(lib_SRCS
 		filesystem/CBinaryReader.cpp
 		filesystem/CFileInputStream.cpp
 		filesystem/CZipLoader.cpp
+                filesystem/CZipSaver.cpp
 		filesystem/Filesystem.cpp
 		filesystem/ResourceID.cpp
                 filesystem/MinizipExtensions.cpp
