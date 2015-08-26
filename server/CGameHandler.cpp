@@ -5436,6 +5436,16 @@ void CGameHandler::runBattle()
 				continue;
 			}
 
+			if( next->getCreature()->idNumber == CreatureID::CATAPULT
+				&& curOwner && curOwner->getSecSkillLevel(SecondarySkill::BALLISTICS) > 0)
+			{
+				if(curB.getAttackableBattleHexes().empty())
+				{
+					makeStackDoNothing(next);
+					continue;
+				}
+			}
+
 			if(next->getCreature()->idNumber == CreatureID::FIRST_AID_TENT)
 			{
 				TStacks possibleStacks = battleGetStacksIf([&](const CStack * s){
