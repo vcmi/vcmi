@@ -381,7 +381,10 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 			other->setHighlight(false);
 
 			if(allow)
+			{
 				owner->swapArmies();
+				hero = other->hero;
+			}
 		}
 		else if(hero)
 		{
