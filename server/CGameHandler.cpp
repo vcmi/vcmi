@@ -5414,34 +5414,27 @@ void CGameHandler::runBattle()
 				continue;
 			}
 
-			if(next->getCreature()->idNumber == CreatureID::CATAPULT && (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::BALLISTICS) == 0)) //catapult, hero has no ballistics
+			if( next->getCreature()->idNumber == CreatureID::CATAPULT )
 			{
 				const auto & attackableBattleHexes = curB.getAttackableBattleHexes();
 
-				if(!attackableBattleHexes.empty())
+				if(attackableBattleHexes.empty())
+				{
+					makeStackDoNothing(next);
+					continue;
+				}
+
+				if(!curOwner || curOwner->getSecSkillLevel(SecondarySkill::BALLISTICS) == 0)
 				{
 					BattleAction attack;
-					attack.destinationTile = *RandomGeneratorUtil::nextItem(attackableBattleHexes, gs->getRandomGenerator());
+					attack.destinationTile = *RandomGeneratorUtil::nextItem(attackableBattleHexes,
+																			gs->getRandomGenerator());
 					attack.actionType = Battle::CATAPULT;
 					attack.additionalInfo = 0;
 					attack.side = !next->attackerOwned;
 					attack.stackNumber = next->ID;
 
 					makeAutomaticAction(next, attack);
-				}
-				else
-				{
-					makeStackDoNothing(next);
-				}
-				continue;
-			}
-
-			if( next->getCreature()->idNumber == CreatureID::CATAPULT
-				&& curOwner && curOwner->getSecSkillLevel(SecondarySkill::BALLISTICS) > 0)
-			{
-				if(curB.getAttackableBattleHexes().empty())
-				{
-					makeStackDoNothing(next);
 					continue;
 				}
 			}
