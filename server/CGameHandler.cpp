@@ -5414,7 +5414,7 @@ void CGameHandler::runBattle()
 				continue;
 			}
 
-			if( next->getCreature()->idNumber == CreatureID::CATAPULT )
+			if(next->getCreature()->idNumber == CreatureID::CATAPULT)
 			{
 				const auto & attackableBattleHexes = curB.getAttackableBattleHexes();
 
@@ -5428,7 +5428,7 @@ void CGameHandler::runBattle()
 				{
 					BattleAction attack;
 					attack.destinationTile = *RandomGeneratorUtil::nextItem(attackableBattleHexes,
-																			gs->getRandomGenerator());
+												gs->getRandomGenerator());
 					attack.actionType = Battle::CATAPULT;
 					attack.additionalInfo = 0;
 					attack.side = !next->attackerOwned;
