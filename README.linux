@@ -20,7 +20,7 @@ To compile, the following packages (and their development counterparts) are need
 	* zlib and zlib-devel
 	* (optional) Qt 5, widget and network modules
 	* the ffmpeg libraries (libavformat and libswscale). Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names.
-	* boost c++ libraries v1.48+ (www.boost.org):
+	* boost c++ libraries v1.50+ (www.boost.org):
 		- program-options
 		- filesystem
 		- system
