@@ -61,17 +61,26 @@ bool CGameInfoCallback::isAllowed( int type, int id )
 
 const PlayerState * CGameInfoCallback::getPlayer(PlayerColor color, bool verbose) const
 {
-	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!hasAccess(color), verbose, "Cannot access player " << color << "info!", nullptr);
-	//if (!vstd::contains(gs->players, color))
-	//{
-	//	logGlobal->errorStream() << "Cannot access player " << color << "info!";
-	//	return nullptr; //macros are not really useful when debugging :?
-	//}
-	//else
-	//{
-	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!vstd::contains(gs->players,color), verbose, "Cannot find player " << color << "info!", nullptr);
-	return &gs->players[color];
-	//}
+	//funtion written from scratch since it's accessed A LOT by AI
+
+	auto player = gs->players.find(color);
+	if (player != gs->players.end())
+	{
+		if (hasAccess(color))
+			return &player->second;
+		else
+		{
+			if (verbose)
+				logGlobal->errorStream() << boost::format("Cannot access player %d info!") % color;
+			return nullptr;
+		}
+	}
+	else
+	{
+		if (verbose)
+			logGlobal->errorStream() << boost::format("Cannot find player %d info!") % color;
+		return nullptr;
+	}
 }
 
 const CTown * CGameInfoCallback::getNativeTown(PlayerColor color) const
