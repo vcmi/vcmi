@@ -1659,12 +1659,19 @@ void VCAI::validateVisitableObjs()
 	std::string errorMsg;
 	auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
 	{
-		if(!vstd::contains(hlp, obj))
-		{
-			logAi->errorStream() << helperObjInfo[obj].name << " at " << helperObjInfo[obj].pos << errorMsg;
+		if (obj)
+			return !cb->getObj(obj->id);
+		else
 			return true;
-		}
-		return false;
+
+		//why would we have our local logic for object checks? use cb!
+
+		//if(!vstd::contains(hlp, obj))
+		//{
+		//	logAi->errorStream() << helperObjInfo[obj].name << " at " << helperObjInfo[obj].pos << errorMsg;
+		//	return true;
+		//}
+		//return false;
 	};
 
 	//errorMsg is captured by ref so lambda will take the new text
