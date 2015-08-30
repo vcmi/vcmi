@@ -1034,7 +1034,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 					continue; //don't reequip artifact we already wear
 
 				auto s = location.getSlot();
-				if (!s)
+				if (!s || s->locked) //we can't move locks
 					continue;
 				auto artifact = s->artifact;
 				if (!artifact)
@@ -1044,9 +1044,10 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				bool emptySlotFound = false;
 				for (auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
 				{
-					if (target->isPositionFree(slot))
+					ArtifactLocation destLocation(target, slot);
+					if (target->isPositionFree(slot) && artifact->canBePutAt(destLocation, true)) //combined artifacts are not always allowed to move
 					{
-						cb->swapArtifacts(location, ArtifactLocation(target, slot)); //just put into empty slot
+						cb->swapArtifacts(location, destLocation); //just put into empty slot
 						emptySlotFound = true;
 						changeMade = true;
 						break;
@@ -1059,7 +1060,9 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 						auto otherSlot = target->getSlot(slot);
 						if (otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
 						{
-							if (compareArtifacts(artifact, otherSlot->artifact)) //if that artifact is better than what we have, pick it
+							ArtifactLocation destLocation(target, slot);
+							//if that artifact is better than what we have, pick it
+							if (compareArtifacts(artifact, otherSlot->artifact) && artifact->canBePutAt(destLocation, true)) //combined artifacts are not always allowed to move
 							{
 								cb->swapArtifacts(location, ArtifactLocation(target, target->getArtPos(otherSlot->artifact)));
 								break;
@@ -1842,7 +1845,10 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto getObj = [&](int3 coord, bool ignoreHero)
 		{
-			return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
+			auto tile = cb->getTile(coord, false);
+			assert(tile);
+			return tile->topVisitableObj(ignoreHero);
+			//return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
 		};
 
 		auto doMovement = [&](int3 dst, bool transit)
