@@ -756,18 +756,43 @@ TResources CPlayerSpecificInfoCallback::getResourceAmount() const
 
 const TeamState * CGameInfoCallback::getTeam( TeamID teamID ) const
 {
-	ERROR_RET_VAL_IF(!vstd::contains(gs->teams, teamID), "Cannot find info for team " << teamID, nullptr);
-	const TeamState *ret = &gs->teams[teamID];
-	ERROR_RET_VAL_IF(!!player && !vstd::contains(ret->players, *player), "Illegal attempt to access team data!", nullptr);
-	return ret;
+	//rewritten by hand, AI calls this function a lot
+
+	auto team = gs->teams.find(teamID);
+	if (team != gs->teams.end())
+	{
+		const TeamState *ret = &team->second;
+		if (!player.is_initialized()) //neutral (or invalid) player
+			return ret;
+		else
+		{
+			if (vstd::contains(ret->players, *player)) //specific player
+				return ret;
+			else
+			{
+				logGlobal->errorStream() << boost::format("Illegal attempt to access team data!");
+				return nullptr;
+			}
+		}
+	}
+	else
+	{
+		logGlobal->errorStream() << boost::format("Cannot find info for team %d") % teamID;
+		return nullptr;
+	}
 }
 
 const TeamState * CGameInfoCallback::getPlayerTeam( PlayerColor color ) const
 {
-	const PlayerState * ps = getPlayer(color);
-	if (ps)
-		return getTeam(ps->team);
-	return nullptr;
+	auto player = gs->players.find(color);
+	if (player != gs->players.end())
+	{
+		return getTeam (player->second.team);
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 const CGHeroInstance* CGameInfoCallback::getHeroWithSubid( int subid ) const
