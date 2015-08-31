@@ -464,6 +464,31 @@ const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 	return &gs->map->getTile(tile);
 }
 
+//TODO: typedef?
+unique_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisibleTiles() const
+{
+	assert(player.is_initialized());
+	auto team = getPlayerTeam(player.get());
+
+	size_t width = gs->map->width;
+	size_t height = gs->map->height;
+	size_t levels = (gs->map->twoLevel ? 2 : 1);
+
+
+	boost::multi_array<TerrainTile*, 3> tileArray(boost::extents[width][height][levels]);
+	
+	for (size_t x = 0; x < width; x++)
+		for (size_t y = 0; y < height; y++)
+			for (size_t z = 0; z < levels; z++)
+			{
+				if (team->fogOfWarMap[x][y][z])
+					tileArray[x][y][z] = &gs->map->getTile(int3(x, y, z));
+				else
+					tileArray[x][y][z] = nullptr;
+			}
+	return make_unique<boost::multi_array<TerrainTile*, 3>>(tileArray);
+}
+
 EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, BuildingID ID )
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", EBuildingState::TOWN_NOT_OWNED);

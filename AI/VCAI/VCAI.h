@@ -95,6 +95,7 @@ struct SectorMap
 	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector;
 
 	std::map<int, Sector> infoOnSectors;
+	unique_ptr<boost::multi_array<TerrainTile*, 3>> visibleTiles;
 
 	SectorMap();
 	SectorMap(HeroPtr h);
@@ -103,7 +104,10 @@ struct SectorMap
 	void exploreNewSector(crint3 pos, int num, CCallback * cbp);
 	void write(crstring fname);
 
+	bool markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t);
+	bool markIfBlocked(ui8 &sec, crint3 pos);
 	unsigned char &retreiveTile(crint3 pos);
+	TerrainTile* getTile(crint3 pos) const;
 
 	void makeParentBFS(crint3 source);
 

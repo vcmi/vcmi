@@ -2906,7 +2906,7 @@ SectorMap::SectorMap(HeroPtr h)
 	makeParentBFS(h->visitablePos());
 }
 
-bool markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
+bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
 {
 	if(t->blocked && !t->visitable)
 	{
@@ -2917,13 +2917,15 @@ bool markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
 	return false;
 }
 
-bool markIfBlocked(ui8 &sec, crint3 pos)
+bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos)
 {
-	return markIfBlocked(sec, pos, cb->getTile(pos));
+	return markIfBlocked(sec, pos, getTile(pos));
 }
 
 void SectorMap::update()
 {
+	visibleTiles = std::move(cb->getAllVisibleTiles());
+
 	clear();
 	int curSector = 3; //0 is invisible, 1 is not explored
 
@@ -2949,7 +2951,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 {
 	Sector &s = infoOnSectors[num];
 	s.id = num;
-	s.water = cbp->getTile(pos)->isWater();
+	s.water = getTile(pos)->isWater();
 
 	std::queue<int3> toVisit;
 	toVisit.push(pos);
@@ -2960,7 +2962,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 		ui8 &sec = retreiveTile(curPos);
 		if(sec == NOT_CHECKED)
 		{
-			const TerrainTile *t = cbp->getTile(curPos);
+			const TerrainTile *t = getTile(curPos);
 			if(!markIfBlocked(sec, curPos, t))
 			{
 				if(t->isWater() == s.water) //sector is only-water or only-land
@@ -2974,7 +2976,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 							toVisit.push(neighPos);
 							//parent[neighPos] = curPos;
 						}
-						const TerrainTile *nt = cbp->getTile(neighPos, false);
+						const TerrainTile *nt = getTile(neighPos);
 						if(nt && nt->isWater() != s.water && canBeEmbarkmentPoint(nt, s.water))
 						{
 							s.embarkmentPoints.push_back(neighPos);
@@ -3406,3 +3408,9 @@ unsigned char & SectorMap::retreiveTile(crint3 pos)
 	return retreiveTileN(sector, pos);
 }
 
+TerrainTile* SectorMap::getTile(crint3 pos) const
+{
+	//out of bounds access should be handled by boost::multi_array
+	//still we cached this array to avoid any checks
+	return visibleTiles->operator[](pos.x)[pos.y][pos.z];
+}
