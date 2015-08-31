@@ -91,7 +91,7 @@ public:
 	const CMapHeader * getMapHeader()const;
 	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 	const TerrainTile * getTile(int3 tile, bool verbose = true) const;
-	shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisibleTiles() const;
+	shared_ptr<boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	bool isInTheMap(const int3 &pos) const;
 
 	//town
