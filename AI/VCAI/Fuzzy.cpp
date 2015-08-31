@@ -539,8 +539,7 @@ SectorMap& FuzzyHelper::getCachedSectorMap(HeroPtr h)
 		return it->second;
 	else
 	{
-		cachedSectorMaps[h] = SectorMap(h);
+		cachedSectorMaps.insert (std::make_pair(h, SectorMap(h)));
+		return cachedSectorMaps[h];
 	}
-
-	return cachedSectorMaps[h];
 }
