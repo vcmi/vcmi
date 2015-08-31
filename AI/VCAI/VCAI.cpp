@@ -701,11 +701,11 @@ void makePossibleUpgrades(const CArmedInstance *obj)
 
 void VCAI::makeTurn()
 {
+	logGlobal->infoStream() << boost::format("Player %d starting turn") % static_cast<int>(playerID.getNum());
+
 	MAKING_TURN;
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 	setThreadName("VCAI::makeTurn");
-
-    logGlobal->infoStream() << boost::format("Player %d starting turn") % static_cast<int>(playerID.getNum());
 
 	switch(cb->getDate(Date::DAY_OF_WEEK))
 	{
@@ -2773,18 +2773,20 @@ BattleState AIStatus::getBattle()
 }
 
 void AIStatus::addQuery(QueryID ID, std::string description)
-{
-	boost::unique_lock<boost::mutex> lock(mx);
+{	
 	if(ID == QueryID(-1))
 	{
         logAi->debugStream() << boost::format("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s") % ID % description;
 		return;
 	}
 
-	assert(!vstd::contains(remainingQueries, ID));
 	assert(ID.getNum() >= 0);
+	boost::unique_lock<boost::mutex> lock(mx);
+
+	assert(!vstd::contains(remainingQueries, ID));
 
 	remainingQueries[ID] = description;
+
 	cv.notify_all();
     logAi->debugStream() << boost::format("Adding query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
@@ -2796,6 +2798,7 @@ void AIStatus::removeQuery(QueryID ID)
 
 	std::string description = remainingQueries[ID];
 	remainingQueries.erase(ID);
+	
 	cv.notify_all();
     logAi->debugStream() << boost::format("Removing query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
@@ -2906,7 +2909,7 @@ SectorMap::SectorMap(HeroPtr h)
 	makeParentBFS(h->visitablePos());
 }
 
-bool markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
+bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
 {
 	if(t->blocked && !t->visitable)
 	{
@@ -2917,13 +2920,15 @@ bool markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
 	return false;
 }
 
-bool markIfBlocked(ui8 &sec, crint3 pos)
+bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos)
 {
-	return markIfBlocked(sec, pos, cb->getTile(pos));
+	return markIfBlocked(sec, pos, getTile(pos));
 }
 
 void SectorMap::update()
 {
+	visibleTiles = cb->getAllVisibleTiles();
+
 	clear();
 	int curSector = 3; //0 is invisible, 1 is not explored
 
@@ -2949,7 +2954,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 {
 	Sector &s = infoOnSectors[num];
 	s.id = num;
-	s.water = cbp->getTile(pos)->isWater();
+	s.water = getTile(pos)->isWater();
 
 	std::queue<int3> toVisit;
 	toVisit.push(pos);
@@ -2960,7 +2965,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 		ui8 &sec = retreiveTile(curPos);
 		if(sec == NOT_CHECKED)
 		{
-			const TerrainTile *t = cbp->getTile(curPos);
+			const TerrainTile *t = getTile(curPos);
 			if(!markIfBlocked(sec, curPos, t))
 			{
 				if(t->isWater() == s.water) //sector is only-water or only-land
@@ -2974,7 +2979,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 							toVisit.push(neighPos);
 							//parent[neighPos] = curPos;
 						}
-						const TerrainTile *nt = cbp->getTile(neighPos, false);
+						const TerrainTile *nt = getTile(neighPos);
 						if(nt && nt->isWater() != s.water && canBeEmbarkmentPoint(nt, s.water))
 						{
 							s.embarkmentPoints.push_back(neighPos);
@@ -3406,3 +3411,9 @@ unsigned char & SectorMap::retreiveTile(crint3 pos)
 	return retreiveTileN(sector, pos);
 }
 
+TerrainTile* SectorMap::getTile(crint3 pos) const
+{
+	//out of bounds access should be handled by boost::multi_array
+	//still we cached this array to avoid any checks
+	return visibleTiles->operator[](pos.x)[pos.y][pos.z];
+}
