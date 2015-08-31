@@ -701,11 +701,11 @@ void makePossibleUpgrades(const CArmedInstance *obj)
 
 void VCAI::makeTurn()
 {
+	logGlobal->infoStream() << boost::format("Player %d starting turn") % static_cast<int>(playerID.getNum());
+
 	MAKING_TURN;
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 	setThreadName("VCAI::makeTurn");
-
-    logGlobal->infoStream() << boost::format("Player %d starting turn") % static_cast<int>(playerID.getNum());
 
 	switch(cb->getDate(Date::DAY_OF_WEEK))
 	{
@@ -2773,18 +2773,20 @@ BattleState AIStatus::getBattle()
 }
 
 void AIStatus::addQuery(QueryID ID, std::string description)
-{
-	boost::unique_lock<boost::mutex> lock(mx);
+{	
 	if(ID == QueryID(-1))
 	{
         logAi->debugStream() << boost::format("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s") % ID % description;
 		return;
 	}
 
-	assert(!vstd::contains(remainingQueries, ID));
 	assert(ID.getNum() >= 0);
+	boost::unique_lock<boost::mutex> lock(mx);
+
+	assert(!vstd::contains(remainingQueries, ID));
 
 	remainingQueries[ID] = description;
+
 	cv.notify_all();
     logAi->debugStream() << boost::format("Adding query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
@@ -2796,6 +2798,7 @@ void AIStatus::removeQuery(QueryID ID)
 
 	std::string description = remainingQueries[ID];
 	remainingQueries.erase(ID);
+	
 	cv.notify_all();
     logAi->debugStream() << boost::format("Removing query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
