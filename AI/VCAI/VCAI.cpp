@@ -2924,7 +2924,7 @@ bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos)
 
 void SectorMap::update()
 {
-	visibleTiles = std::move(cb->getAllVisibleTiles());
+	visibleTiles = cb->getAllVisibleTiles();
 
 	clear();
 	int curSector = 3; //0 is invisible, 1 is not explored

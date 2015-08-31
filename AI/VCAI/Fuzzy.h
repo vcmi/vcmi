@@ -15,6 +15,7 @@
 class VCAI;
 class CArmedInstance;
 class CBank;
+class SectorMap;
 
 class engineBase
 {
@@ -54,6 +55,8 @@ class FuzzyHelper
 		~EvalVisitTile();
 	} vt;
 
+	std::map <HeroPtr, SectorMap> cachedSectorMaps;
+
 public:
 	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE, VISIT_TILE};
 	//blocks should be initialized in this order, which may be confusing :/
@@ -81,4 +84,7 @@ public:
 
 	Goals::TSubgoal chooseSolution (Goals::TGoalVec vec);
 	//shared_ptr<AbstractGoal> chooseSolution (std::vector<shared_ptr<AbstractGoal>> & vec);
+
+	//optimization - use one SM for every hero call
+	SectorMap& getCachedSectorMap (HeroPtr h);
 };

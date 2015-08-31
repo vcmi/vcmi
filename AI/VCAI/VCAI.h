@@ -95,7 +95,7 @@ struct SectorMap
 	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector;
 
 	std::map<int, Sector> infoOnSectors;
-	unique_ptr<boost::multi_array<TerrainTile*, 3>> visibleTiles;
+	shared_ptr<boost::multi_array<TerrainTile*, 3>> visibleTiles;
 
 	SectorMap();
 	SectorMap(HeroPtr h);
