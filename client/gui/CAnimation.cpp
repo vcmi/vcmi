@@ -158,7 +158,7 @@ CDefFile::CDefFile(std::string Name):
 		palette[i].r = data[it++];
 		palette[i].g = data[it++];
 		palette[i].b = data[it++];
-		CSDL_Ext::colorSetAlpha(palette[i],255);	
+		palette[i].a = SDL_ALPHA_OPAQUE;
 	}
 	if (type == 71 || type == 64)//Buttons/buildings don't have shadows\semi-transparency
 		memset(palette, 0, sizeof(SDL_Color)*2);

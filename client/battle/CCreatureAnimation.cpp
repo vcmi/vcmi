@@ -178,7 +178,7 @@ CCreatureAnimation::CCreatureAnimation(std::string name, TSpeedController contro
 		elem.r = reader.readUInt8();
 		elem.g = reader.readUInt8();
 		elem.b = reader.readUInt8();
-		CSDL_Ext::colorSetAlpha(elem,0);
+		elem.a = SDL_ALPHA_OPAQUE;
 	}
 
 	for (int i=0; i<totalBlocks; i++)

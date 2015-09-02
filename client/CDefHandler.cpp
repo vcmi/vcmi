@@ -67,7 +67,7 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 		palette[it].r = de.palette[it].R;
 		palette[it].g = de.palette[it].G;
 		palette[it].b = de.palette[it].B;
-		CSDL_Ext::colorSetAlpha(palette[it],SDL_ALPHA_OPAQUE);	
+		palette[it].a = SDL_ALPHA_OPAQUE;	
 	}
 
 	// The SDefEntryBlock starts just after the SDefEntry
