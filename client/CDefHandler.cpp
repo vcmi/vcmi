@@ -122,12 +122,6 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 	}
 }
 
-void CDefHandler::expand(ui8 N,ui8 & BL, ui8 & BR)
-{
-	BL = (N & 0xE0) >> 5;
-	BR = N & 0x1F;
-}
-
 SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Color * palette) const
 {
 	SDL_Surface * ret=nullptr;
