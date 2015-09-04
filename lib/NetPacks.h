@@ -795,7 +795,7 @@ struct ChangeStackCount : CGarrisonOperationPack  //521
 struct SetStackType : CGarrisonOperationPack  //522
 {
 	StackLocation sl;
-	CCreature *type;
+	const CCreature *type;
 
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);

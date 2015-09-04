@@ -2789,7 +2789,7 @@ bool CGameHandler::upgradeCreature( ObjectInstanceID objid, SlotID pos, Creature
 	return true;
 }
 
-bool CGameHandler::changeStackType(const StackLocation &sl, CCreature *c)
+bool CGameHandler::changeStackType(const StackLocation &sl, const CCreature *c)
 {
 	if(!sl.army->hasStackAtSlot(sl.slot))
 		COMPLAIN_RET("Cannot find a stack to change type");
@@ -3208,14 +3208,15 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 
 
 	const CStackInstance &s = army->getStack(slot);
-	int resCreature;//resulting creature - bone dragons or skeletons
 
-	if	(s.hasBonusOfType(Bonus::DRAGON_NATURE))
-		resCreature = 68;
-	else
-		resCreature = 56;
+	//resulting creature - bone dragons or skeletons
+	CreatureID resCreature = CreatureID::SKELETON;
 
-	changeStackType(StackLocation(army, slot), VLC->creh->creatures.at(resCreature));
+	if(s.hasBonusOfType(Bonus::DRAGON_NATURE)
+			|| (s.getCreatureID() == CreatureID::HYDRA)
+			|| (s.getCreatureID() == CreatureID::CHAOS_HYDRA))
+		resCreature = CreatureID::BONE_DRAGON;
+	changeStackType(StackLocation(army, slot), resCreature.toCreature());
 	return true;
 }
 
