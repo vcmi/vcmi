@@ -355,7 +355,11 @@ void SDLImageLoader::init(Point SpriteSize, Point Margins, Point FullSize, SDL_C
 	image->fullSize = FullSize;
 
 	//Prepare surface
-	SDL_SetColors(image->surf, pal, 0, 256);
+	SDL_Palette * p = SDL_AllocPalette(256);	
+	SDL_SetPaletteColors(p, pal, 0, 256);
+	SDL_SetSurfacePalette(image->surf, p);
+	SDL_FreePalette(p);	
+
 	SDL_LockSurface(image->surf);
 	lineStart = position = (ui8*)image->surf->pixels;
 }
