@@ -127,26 +127,15 @@ ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHer
 void CureMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
-
-	for(auto stackID : packet->affectedCres)
+	doDispell(battle, packet, [](const Bonus * b) -> bool
 	{
-		if(vstd::contains(packet->resisted, stackID))
+		if(b->source == Bonus::SPELL_EFFECT)
 		{
-			logGlobal->errorStream() << "Resistance to positive spell CURE";
-			continue;
+			CSpell * sp = SpellID(b->sid).toSpell();
+			return sp->isNegative();
 		}
-
-		CStack *s = battle->getStack(stackID);
-		s->popBonuses([&](const Bonus *b) -> bool
-		{
-			if(b->source == Bonus::SPELL_EFFECT)
-			{
-				CSpell * sp = SpellID(b->sid).toSpell();
-				return sp->isNegative();
-			}
-			return false; //not a spell effect
-		});
-	}
+		return false; //not a spell effect		
+	});
 }
 
 ///DispellMechanics

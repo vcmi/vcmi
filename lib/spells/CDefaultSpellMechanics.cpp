@@ -834,8 +834,11 @@ void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast
 	for(auto stackID : packet->affectedCres)
 	{
 		if(vstd::contains(packet->resisted, stackID))
+		{
+			if(owner->isPositive())
+				logGlobal->errorStream() <<"Resistance to positive spell " << owner->name;
 			continue;
-
+		}
 		CStack *s = battle->getStack(stackID);
 		s->popBonuses(selector);
 	}	
