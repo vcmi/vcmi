@@ -623,6 +623,14 @@ void CSpell::setupMechanics()
 }
 
 ///CSpell::AnimationInfo
+CSpell::AnimationItem::AnimationItem()
+	:resourceName(""),verticalPosition(VerticalPosition::TOP),pause(0)
+{
+	
+}
+
+
+///CSpell::AnimationInfo
 CSpell::AnimationInfo::AnimationInfo()
 {
 
@@ -958,7 +966,6 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json)
 		for(const JsonNode & item : queueNode)
 		{
 			CSpell::TAnimation newItem;
-			newItem.verticalPosition = VerticalPosition::TOP;
 
 			if(item.getType() == JsonNode::DATA_STRING)
 				newItem.resourceName = item.String();
