@@ -1491,10 +1491,10 @@ struct BattleSpellCast : public CPackForClient//3009
 	std::vector<ui32> resisted; //ids of creatures that resisted this spell
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
 	si32 casterStack;// -1 if not cated by creature, >=0 caster stack ID
-	bool castedByHero; //if true - spell has been casted by hero, otherwise by a creature
+	bool castByHero; //if true - spell has been casted by hero, otherwise by a creature
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & dmgToDisplay & side & id & skill & manaGained & tile & resisted & affectedCres & casterStack & castedByHero;
+		h & dmgToDisplay & side & id & skill & manaGained & tile & resisted & affectedCres & casterStack & castByHero;
 	}
 };
 

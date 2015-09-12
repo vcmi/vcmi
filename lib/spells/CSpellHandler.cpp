@@ -538,7 +538,7 @@ void CSpell::prepareBattleLog(const CBattleInfoCallback * cb,  const BattleSpell
 	
 	std::string casterName("Something"); //todo: localize
 	
-	if(packet->castedByHero)
+	if(packet->castByHero)
 		casterName = cb->battleGetHeroInfo(packet->side).name;
 
 	{
@@ -558,7 +558,7 @@ void CSpell::prepareBattleLog(const CBattleInfoCallback * cb,  const BattleSpell
 		
 		const std::string attackedNamePl = attackedStack->getCreature()->namePl;
 		
-		if(packet->castedByHero)
+		if(packet->castByHero)
 		{
 			const std::string fmt = VLC->generaltexth->allTexts[195];
 			logLines.push_back(boost::to_string(boost::format(fmt) % casterName % this->name % attackedNamePl));

@@ -122,7 +122,7 @@ namespace SRSLPraserHelpers
 ///DefaultSpellMechanics
 void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
-	if (packet->castedByHero)
+	if (packet->castByHero)
 	{
 		if (packet->side < 2)
 		{
@@ -232,7 +232,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	sc.skill = parameters.spellLvl;
 	sc.tile = parameters.destination;
 	sc.dmgToDisplay = 0;
-	sc.castedByHero = nullptr != parameters.casterHero;
+	sc.castByHero = nullptr != parameters.casterHero;
 	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
 	sc.manaGained = 0;
 
