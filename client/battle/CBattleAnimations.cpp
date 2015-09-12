@@ -283,7 +283,9 @@ void CDefenceAnimation::endAnim()
 
 CDummyAnimation::CDummyAnimation(CBattleInterface * _owner, int howManyFrames) 
 : CBattleAnimation(_owner), counter(0), howMany(howManyFrames)
-{}
+{
+	logAnim->debugStream() << "Created dummy animation for " << howManyFrames <<" frames";
+}
 
 bool CDummyAnimation::init()
 {
