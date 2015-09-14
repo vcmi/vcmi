@@ -488,22 +488,15 @@ void DefaultSpellMechanics::battleLogSingleTarget(std::vector<std::string> & log
 
 int DefaultSpellMechanics::calculateDuration(const CGHeroInstance * caster, int usedSpellPower) const
 {
-	switch(owner->id)
+	if(caster == nullptr)
 	{
-	case SpellID::FRENZY: 
-	case SpellID::BERSERK:
-		return 1;
-	default: //other spells		
-		if(caster == nullptr)
-		{
-			if (!usedSpellPower)
-				return 3; //default duration of all creature spells
-			else
-				return usedSpellPower; //use creature spell power			
-		}
+		if (!usedSpellPower)
+			return 3; //default duration of all creature spells
 		else
-			return caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + caster->valOfBonuses(Bonus::SPELL_DURATION);
+			return usedSpellPower; //use creature spell power			
 	}
+	else
+		return caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + caster->valOfBonuses(Bonus::SPELL_DURATION);
 }
 
 ui32 DefaultSpellMechanics::calculateHealedHP(const CGHeroInstance* caster, const CStack* stack, const CStack* sacrificedStack) const
@@ -577,18 +570,33 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 			stackSpellPower =  parameters.casterStack->valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
 		}
 		SetStackEffect sse;
-		Bonus pseudoBonus;
-		pseudoBonus.sid = owner->id;
-		pseudoBonus.val = parameters.spellLvl;
-		pseudoBonus.turnsRemain = calculateDuration(parameters.casterHero, stackSpellPower ? stackSpellPower : parameters.usedSpellPower);
-		CStack::stackEffectToFeature(sse.effect, pseudoBonus);
+		//get default spell duration (spell power with bonuses for heroes)
+		int duration = calculateDuration(parameters.casterHero, stackSpellPower ? stackSpellPower : parameters.usedSpellPower);
+		//generate actual stack bonuses
+		{
+			int maxDuration = 0;
+			std::vector<Bonus> tmp;
+			owner->getEffects(tmp, parameters.spellLvl);
+			for(Bonus& b : tmp)
+			{
+				//use configured duration if present
+				if(b.turnsRemain == 0)
+					b.turnsRemain = duration;
+				vstd::amax(maxDuration, b.turnsRemain);
+				sse.effect.push_back(b);
+			}
+			//if all spell effects have special duration, use it 
+			duration = maxDuration;			
+		}
+		//fix to original config: shield should display damage reduction
 		if(owner->id == SpellID::SHIELD || owner->id == SpellID::AIR_SHIELD)
 		{
-			sse.effect.back().val = (100 - sse.effect.back().val); //fix to original config: shield should display damage reduction
+			sse.effect.back().val = (100 - sse.effect.back().val); 
 		}
-		if(owner->id == SpellID::BIND &&  parameters.casterStack)//bind
+		//we need to know who cast Bind
+		if(owner->id == SpellID::BIND && parameters.casterStack)
 		{
-			sse.effect.back().additionalInfo =  parameters.casterStack->ID; //we need to know who casted Bind
+			sse.effect.back().additionalInfo =  parameters.casterStack->ID;
 		}
 		const Bonus * bonus = nullptr;
 		if(parameters.casterHero)
@@ -628,7 +636,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 					case 1: //only Coronius as yet
 					{
 						power = std::max(5 - tier, 0);
-						Bonus specialBonus = CStack::featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, pseudoBonus.turnsRemain);
+						Bonus specialBonus = CStack::featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, duration);
 						specialBonus.sid = owner->id;
 						sse.uniqueBonuses.push_back(std::pair<ui32,Bonus> (affected->ID, specialBonus)); //additional attack to Slayer effect
 					}
@@ -638,7 +646,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 			if (parameters.casterHero && parameters.casterHero->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, owner->id)) //TODO: better handling of bonus percentages
 			{
 				int damagePercent = parameters.casterHero->level * parameters.casterHero->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, owner->id.toEnum()) / tier;
-				Bonus specialBonus = CStack::featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, pseudoBonus.turnsRemain);
+				Bonus specialBonus = CStack::featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, duration);
 				specialBonus.valType = Bonus::PERCENT_TO_ALL;
 				specialBonus.sid = owner->id;
 				sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> (affected->ID, specialBonus));

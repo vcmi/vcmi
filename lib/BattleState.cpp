@@ -848,10 +848,10 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 
 	for(Bonus& b : tmp)
 	{
-		b.turnsRemain =  sse.turnsRemain;
+		if(b.turnsRemain == 0)
+			b.turnsRemain = sse.turnsRemain;
 		sf.push_back(b);
 	}
-
 }
 
 bool CStack::willMove(int turn /*= 0*/) const

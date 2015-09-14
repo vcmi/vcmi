@@ -1022,7 +1022,8 @@
 					"inFrenzy" : {
 						"type" : "IN_FRENZY",
 						"val" : 100,
-						"duration" : "N_TURNS"//hardcoded to 1
+						"duration" : "N_TURNS",
+						"turns" : 1
 					}
 				}
 			},
@@ -1111,7 +1112,8 @@
 				"effects" : {
 					"attacksNearestCreature" : {
 						"type" : "ATTACKS_NEAREST_CREATURE",
-						"duration" : "N_TURNS" //hardcoded to 1
+						"duration" : "N_TURNS",
+						"turns" : 1
 					}
 				}
 			},
