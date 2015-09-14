@@ -1307,11 +1307,11 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		displaySpellEffect(spellID, position);
 	}
 
-	//queuing resist animation
-	for(auto & elem : sc->resisted)
+	//queuing additional animation
+	for(auto & elem : sc->customEffects)
 	{
-		BattleHex position = curInt->cb->battleGetStackByID(elem, false)->position;
-		displayEffect(78, position);
+		BattleHex position = curInt->cb->battleGetStackByID(elem.stack, false)->position;
+		displayEffect(elem.effect, position);
 	}
 
 	//displaying message in console

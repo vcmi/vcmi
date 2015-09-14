@@ -265,20 +265,29 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	//resistance is applied only to negative spells
 	if(owner->isNegative())
 	{
+		std::vector <const CStack*> resisted;
 		for(auto s : attackedCres)
 		{
 			const int prob = std::min((s)->magicResistance(), 100); //probability of resistance in %
 
 			if(env->getRandomGenerator().nextInt(99) < prob)
 			{
-				sc.resisted.push_back(s->ID);
+				resisted.push_back(s);
 			}
 		}
 
-		vstd::erase_if(attackedCres, [&sc](const CStack * s)
+		vstd::erase_if(attackedCres, [&resisted](const CStack * s)
 		{
-			return vstd::contains(sc.resisted, s->ID);
+			return vstd::contains(resisted, s);
 		});
+
+		for(auto s : resisted)
+		{
+			BattleSpellCast::CustomEffect effect;
+			effect.effect = 78;
+			effect.stack = s->ID;
+			sc.customEffects.push_back(effect);
+		}
 	}
 
 	for(auto cre : attackedCres)
