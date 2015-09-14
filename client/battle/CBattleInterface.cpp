@@ -1300,15 +1300,18 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 	displaySpellHit(spellID, sc->tile);
 
-	//queuing affect /resist animation
-	for (auto & elem : sc->affectedCres)
+	//queuing affect animation
+	for(auto & elem : sc->affectedCres)
 	{
 		BattleHex position = curInt->cb->battleGetStackByID(elem, false)->position;
+		displaySpellEffect(spellID, position);
+	}
 
-		if(vstd::contains(sc->resisted,elem))
-			displayEffect(78, position);
-		else
-			displaySpellEffect(spellID, position);
+	//queuing additional animation
+	for(auto & elem : sc->customEffects)
+	{
+		BattleHex position = curInt->cb->battleGetStackByID(elem.stack, false)->position;
+		displayEffect(elem.effect, position);
 	}
 
 	//displaying message in console

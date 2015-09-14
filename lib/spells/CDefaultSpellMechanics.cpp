@@ -133,9 +133,6 @@ void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCa
 	//handle countering spells
 	for(auto stackID : packet->affectedCres)
 	{
-		if(vstd::contains(packet->resisted, stackID))
-			continue;
-
 		CStack * s = battle->getStack(stackID);
 		s->popBonuses([&](const Bonus * b) -> bool
 		{
@@ -264,24 +261,57 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.casterHero);
 	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
 
-	for (auto cre : attackedCres)
-	{
-		sc.affectedCres.insert(cre->ID);
-	}
-
+	std::vector <const CStack*> reflected;//for magic mirror
+	
 	//checking if creatures resist
-	//resistance is applied only to negative spells
+	//resistance/reflection is applied only to negative spells
 	if(owner->isNegative())
 	{
+		//it is actual spell and can be reflected to single target, no recurrence
+		const bool tryMagicMirror = parameters.mode != ECastingMode::MAGIC_MIRROR && owner->level && owner->getLevelInfo(0).range == "0";
+		std::vector <const CStack*> resisted;
 		for(auto s : attackedCres)
 		{
+			//magic resistance
 			const int prob = std::min((s)->magicResistance(), 100); //probability of resistance in %
 
 			if(env->getRandomGenerator().nextInt(99) < prob)
 			{
-				sc.resisted.push_back(s->ID);
+				resisted.push_back(s);
+			}
+			//magic mirror
+			if(tryMagicMirror)
+			{
+				const int mirrorChance = (s)->valOfBonuses(Bonus::MAGIC_MIRROR);
+				if(env->getRandomGenerator().nextInt(99) < mirrorChance)
+					reflected.push_back(s);
 			}
 		}
+
+		vstd::erase_if(attackedCres, [&resisted, reflected](const CStack * s)
+		{
+			return vstd::contains(resisted, s) || vstd::contains(reflected, s);
+		});
+
+		for(auto s : resisted)
+		{
+			BattleSpellCast::CustomEffect effect;
+			effect.effect = 78;
+			effect.stack = s->ID;
+			sc.customEffects.push_back(effect);
+		}
+		for(auto s : reflected)
+		{
+			BattleSpellCast::CustomEffect effect;
+			effect.effect = 3;
+			effect.stack = s->ID;
+			sc.customEffects.push_back(effect);
+		}		
+	}
+
+	for(auto cre : attackedCres)
+	{
+		sc.affectedCres.insert(cre->ID);
 	}
 
 	StacksInjured si;
@@ -330,41 +360,31 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	}
 
 	//Magic Mirror effect
-	if(owner->isNegative() && parameters.mode != ECastingMode::MAGIC_MIRROR && owner->level && owner->getLevelInfo(0).range == "0") //it is actual spell and can be reflected to single target, no recurrence
+	for(auto & attackedCre : reflected)
 	{
-		for(auto & attackedCre : attackedCres)
+		TStacks mirrorTargets = parameters.cb->battleGetStacksIf([this, parameters](const CStack * battleStack)
 		{
-			int mirrorChance = (attackedCre)->valOfBonuses(Bonus::MAGIC_MIRROR);
-			if(mirrorChance > env->getRandomGenerator().nextInt(99))
-			{
-				std::vector<const CStack *> mirrorTargets;
-				auto battleStacks = parameters.cb->battleGetAllStacks(true);
-				for(auto & battleStack : battleStacks)
-				{
-					if(battleStack->owner == parameters.casterColor) //get enemy stacks which can be affected by this spell
-					{
-						if (ESpellCastProblem::OK == owner->isImmuneByStack(nullptr, battleStack))
-							mirrorTargets.push_back(battleStack);
-					}
-				}
-				if(!mirrorTargets.empty())
-				{
-					int targetHex = (*RandomGeneratorUtil::nextItem(mirrorTargets, env->getRandomGenerator()))->position;
+			//Get all enemy stacks. Magic mirror can reflect to immune creature (with no effect)
+			return battleStack->owner == parameters.casterColor;
+		},
+		true);//turrets included
 
-					BattleSpellCastParameters mirrorParameters = parameters;
-					mirrorParameters.spellLvl = 0;
-					mirrorParameters.casterSide = 1-parameters.casterSide;
-					mirrorParameters.casterColor = (attackedCre)->owner;
-					mirrorParameters.casterHero = nullptr;
-					mirrorParameters.destination = targetHex;
-					mirrorParameters.secHero = parameters.casterHero;
-					mirrorParameters.mode = ECastingMode::MAGIC_MIRROR;
-					mirrorParameters.casterStack = (attackedCre);
-					mirrorParameters.selectedStack = nullptr;
+		if(!mirrorTargets.empty())
+		{
+			int targetHex = (*RandomGeneratorUtil::nextItem(mirrorTargets, env->getRandomGenerator()))->position;
 
-					battleCast(env, mirrorParameters);
-				}
-			}
+			BattleSpellCastParameters mirrorParameters = parameters;
+			mirrorParameters.spellLvl = 0;
+			mirrorParameters.casterSide = 1-parameters.casterSide;
+			mirrorParameters.casterColor = (attackedCre)->owner;
+			mirrorParameters.casterHero = nullptr;
+			mirrorParameters.destination = targetHex;
+			mirrorParameters.secHero = parameters.casterHero;
+			mirrorParameters.mode = ECastingMode::MAGIC_MIRROR;
+			mirrorParameters.casterStack = (attackedCre);
+			mirrorParameters.selectedStack = nullptr;
+
+			battleCast(env, mirrorParameters);
 		}
 	}
 }
@@ -526,9 +546,6 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		int chainLightningModifier = 0;
 		for(auto & attackedCre : ctx.attackedCres)
 		{
-			if(vstd::contains(ctx.sc.resisted, (attackedCre)->ID)) //this creature resisted the spell
-				continue;
-
 			BattleStackAttacked bsa;
 			if(spellDamage)
 				bsa.damageAmount = spellDamage >> chainLightningModifier;
@@ -579,8 +596,6 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		si32 power = 0;
 		for(const CStack * affected : ctx.attackedCres)
 		{
-			if(vstd::contains(ctx.sc.resisted, affected->ID)) //this creature resisted the spell
-				continue;
 			sse.stacks.push_back(affected->ID);
 
 			//Apply hero specials - peculiar enchants
@@ -833,12 +848,6 @@ void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast
 {
 	for(auto stackID : packet->affectedCres)
 	{
-		if(vstd::contains(packet->resisted, stackID))
-		{
-			if(owner->isPositive())
-				logGlobal->errorStream() <<"Resistance to positive spell " << owner->name;
-			continue;
-		}
 		CStack *s = battle->getStack(stackID);
 		s->popBonuses(selector);
 	}	
