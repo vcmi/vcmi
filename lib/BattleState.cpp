@@ -1152,6 +1152,21 @@ bool CStack::canBeHealed() const
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON);
 }
 
+ui8 CStack::getSpellSchoolLevel(const CSpell * spell, int * outSelectedSchool) const
+{
+	int skill = valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, spell->id));
+	
+	vstd::abetween(skill, 0, 3);
+	
+	return skill;
+}
+
+ui32 CStack::getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const
+{
+	//stacks does not have spellpower etc. (yet?)
+	return base;
+}
+
 bool CMP_stack::operator()( const CStack* a, const CStack* b )
 {
 	switch(phase)

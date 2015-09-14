@@ -127,26 +127,15 @@ ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHer
 void CureMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
-
-	for(auto stackID : packet->affectedCres)
+	doDispell(battle, packet, [](const Bonus * b) -> bool
 	{
-		if(vstd::contains(packet->resisted, stackID))
+		if(b->source == Bonus::SPELL_EFFECT)
 		{
-			logGlobal->errorStream() << "Resistance to positive spell CURE";
-			continue;
+			CSpell * sp = SpellID(b->sid).toSpell();
+			return sp->isNegative();
 		}
-
-		CStack *s = battle->getStack(stackID);
-		s->popBonuses([&](const Bonus *b) -> bool
-		{
-			if(b->source == Bonus::SPELL_EFFECT)
-			{
-				CSpell * sp = SpellID(b->sid).toSpell();
-				return sp->isNegative();
-			}
-			return false; //not a spell effect
-		});
-	}
+		return false; //not a spell effect		
+	});
 }
 
 ///DispellMechanics
@@ -310,8 +299,8 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const C
 		//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
 		ui64 subjectHealth = (obj->count - 1) * obj->MaxHealth() + obj->firstHPleft;
 		//apply 'damage' bonus for hypnotize, including hero specialty
-		ui64 maxHealth = owner->calculateBonus(caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
-			* owner->power + owner->getPower(caster->getSpellSchoolLevel(owner)), caster, obj);
+		ui64 maxHealth = caster->getSpellBonus(owner, caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
+			* owner->power + owner->getPower(caster->getSpellSchoolLevel(owner)), obj);
 		if (subjectHealth > maxHealth)
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
@@ -571,7 +560,7 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battl
 	bsa.pos = parameters.cb->getAvaliableHex(creatureToSummon, !(bool)parameters.casterSide); //TODO: unify it
 
 	//TODO stack casting -> probably power will be zero; set the proper number of creatures manually
-	int percentBonus = parameters.caster ? parameters.caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, owner->id.toEnum()) : 0;
+	int percentBonus = parameters.casterHero ? parameters.casterHero->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, owner->id.toEnum()) : 0;
 
 	bsa.amount = parameters.usedSpellPower
 		* owner->getPower(parameters.spellLvl)

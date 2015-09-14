@@ -48,6 +48,8 @@ public:
 	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override final;
 	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const override;
 
+	void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet, 
+		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const override;	
 protected:
 	virtual void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
 

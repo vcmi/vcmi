@@ -21,6 +21,7 @@
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 #include "../CCreatureHandler.h"
+#include "../BattleState.h"
 
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
@@ -882,6 +883,26 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	assert(skill >= 0 && skill <= 3);
 	return skill;
 }
+
+ui32 CGHeroInstance::getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const
+{
+	//applying sorcery secondary skill
+
+	base *= (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
+	base *= (100.0 + valOfBonuses(Bonus::SPELL_DAMAGE) + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->id.toEnum())) / 100.0;
+
+	spell->forEachSchool([&base, this](const SpellSchoolInfo & cnf, bool & stop)
+	{
+		base *= (100.0 + valOfBonuses(cnf.damagePremyBonus)) / 100.0;
+		stop = true; //only bonus from one school is used
+	});
+
+	if (affectedStack && affectedStack->getCreature()->level) //Hero specials like Solmyr, Deemer
+		base *= (100. + ((valOfBonuses(Bonus::SPECIAL_SPELL_LEV,  spell->id.toEnum()) * level) / affectedStack->getCreature()->level)) / 100.0;
+
+	return base;	
+}
+
 
 bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {

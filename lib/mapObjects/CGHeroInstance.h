@@ -2,6 +2,7 @@
 
 #include "CObjectHandler.h"
 #include "CArmedInstance.h"
+#include "../spells/Magic.h"
 
 #include "../CArtHandler.h" // For CArtifactSet
 #include "../CRandomGenerator.h"
@@ -35,7 +36,7 @@ public:
 };
 
 
-class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet
+class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public ISpellCaster
 {
 public:
 	enum ECanDig
@@ -162,14 +163,13 @@ public:
 	int maxMovePoints(bool onLand) const;
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false) const;
 
-	//int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	double getFightingStrength() const; // takes attack / defense skill into account
 	double getMagicStrength() const; // takes knowledge / spell power skill into account
 	double getHeroStrength() const; // includes fighting and magic strength
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
-	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const; //returns level on which given spell would be cast by this hero (0 - none, 1 - basic etc); optionally returns number of selected school by arg - 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
+	
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
@@ -198,13 +198,18 @@ public:
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
-	//////////////////////////////////////////////////////////////////////////
-	//
+	
+	///ArtBearer
 	ArtBearer::ArtBearer bearerType() const override;
-	//////////////////////////////////////////////////////////////////////////
 
+	///IBonusBearer
 	CBonusSystemNode *whereShouldBeAttached(CGameState *gs) override;
 	std::string nodeName() const override;
+	
+	///ISpellCaster
+	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const override;
+	ui32 getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const override;
+	
 	void deserializationFix();
 
 	void initObj() override;
