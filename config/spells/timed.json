@@ -1022,7 +1022,7 @@
 					"inFrenzy" : {
 						"type" : "IN_FRENZY",
 						"val" : 100,
-						"duration" : "STACK_GETS_TURN"
+						"duration" : "N_TURNS"//hardcoded to 1
 					}
 				}
 			},
@@ -1096,7 +1096,7 @@
 	},
 	"berserk" : {
 		"index" : 59,
-		"targetType" : "CREATURE",
+		"targetType" : "LOCATION",
 
 		"animation":{
 			"affect":["C01SPF"] //C01SPF0
@@ -1111,7 +1111,7 @@
 				"effects" : {
 					"attacksNearestCreature" : {
 						"type" : "ATTACKS_NEAREST_CREATURE",
-						"duration" : "N_TURNS"
+						"duration" : "N_TURNS" //hardcoded to 1
 					}
 				}
 			},

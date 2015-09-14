@@ -488,19 +488,21 @@ void DefaultSpellMechanics::battleLogSingleTarget(std::vector<std::string> & log
 
 int DefaultSpellMechanics::calculateDuration(const CGHeroInstance * caster, int usedSpellPower) const
 {
-	if(!caster)
-	{
-		if (!usedSpellPower)
-			return 3; //default duration of all creature spells
-		else
-			return usedSpellPower; //use creature spell power
-	}
 	switch(owner->id)
 	{
-	case SpellID::FRENZY:
+	case SpellID::FRENZY: 
+	case SpellID::BERSERK:
 		return 1;
-	default: //other spells
-		return caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + caster->valOfBonuses(Bonus::SPELL_DURATION);
+	default: //other spells		
+		if(caster == nullptr)
+		{
+			if (!usedSpellPower)
+				return 3; //default duration of all creature spells
+			else
+				return usedSpellPower; //use creature spell power			
+		}
+		else
+			return caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + caster->valOfBonuses(Bonus::SPELL_DURATION);
 	}
 }
 
