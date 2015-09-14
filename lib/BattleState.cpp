@@ -763,7 +763,7 @@ CGHeroInstance * BattleInfo::battleGetFightingHero(ui8 side) const
 
 CStack::CStack(const CStackInstance *Base, PlayerColor O, int I, bool AO, SlotID S)
 	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),
-	counterAttacks(1)
+	counterAttacksPerformed(0),counterAttacksTotalCache(0)
 {
 	assert(base);
 	type = base->type;
@@ -776,7 +776,7 @@ CStack::CStack()
 	setNodeType(STACK_BATTLE);
 }
 CStack::CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, bool AO, SlotID S)
-	: base(nullptr), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacks(1)
+	: base(nullptr), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacksPerformed(0)
 {
 	type = stack->type;
 	count = baseAmount = stack->count;
@@ -794,7 +794,8 @@ void CStack::init()
 	slot = SlotID(255);
 	attackerOwned = false;
 	position = BattleHex();
-	counterAttacks = -1;
+	counterAttacksPerformed = 0;
+	counterAttacksTotalCache = 0;
 }
 
 void CStack::postInit()
@@ -804,7 +805,8 @@ void CStack::postInit()
 
 	firstHPleft = MaxHealth();
 	shots = getCreature()->valOfBonuses(Bonus::SHOTS);
-	counterAttacks = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
+	counterAttacksPerformed = 0;
+	counterAttacksTotalCache = 0;
 	casts = valOfBonuses(Bonus::CASTS);
 	resurrected = 0;
 }
@@ -1129,10 +1131,23 @@ bool CStack::isMeleeAttackPossible(const CStack * attacker, const CStack * defen
 bool CStack::ableToRetaliate() const //FIXME: crash after clone is killed
 {
 	return alive()
-		&& (counterAttacks > 0 || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
+		&& (counterAttacksPerformed < counterAttacksTotal() || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON)
 		&& !hasBonusOfType(Bonus::HYPNOTIZED)
 		&& !hasBonusOfType(Bonus::NO_RETALIATION);
+}
+
+ui8 CStack::counterAttacksTotal() const
+{
+	//after dispell bonus should remain during current round 
+	ui8 val = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
+	vstd::amax(counterAttacksTotalCache, val);
+	return counterAttacksTotalCache;
+}
+
+si8 CStack::counterAttacksRemaining() const
+{
+	return counterAttacksTotal() - counterAttacksPerformed;
 }
 
 std::string CStack::getName() const

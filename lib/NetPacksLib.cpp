@@ -1095,7 +1095,8 @@ DLL_LINKAGE void BattleNextRound::applyGs( CGameState *gs )
 		s->state -= EBattleStackState::HAD_MORALE;
 		s->state -= EBattleStackState::FEAR;
 		s->state -= EBattleStackState::DRAINED_MANA;
-		s->counterAttacks = 1 + s->valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
+		s->counterAttacksPerformed = 0;
+		s->counterAttacksTotalCache = 0;
 		// new turn effects
 		s->battleTurnPassed();
 	}
@@ -1255,7 +1256,7 @@ DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 {
 	CStack *attacker = gs->curB->getStack(stackAttacking);
 	if(counter())
-		attacker->counterAttacks--;
+		attacker->counterAttacksPerformed++;
 
 	if(shot())
 	{

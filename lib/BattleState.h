@@ -171,7 +171,10 @@ public:
 	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
 	bool attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
 	BattleHex position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
-	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
+	///how many times this stack has been counterattacked this round
+	ui8 counterAttacksPerformed;
+	///cached total count of counterattacks; should be cleared each round;do not serialize
+	mutable ui8 counterAttacksTotalCache;
 	si16 shots; //how many shots left
 	ui8 casts; //how many casts left
 	TQuantity resurrected; // these units will be taken back after battle is over
@@ -191,6 +194,10 @@ public:
 	std::string getName() const; //plural or singular
 	bool willMove(int turn = 0) const; //if stack has remaining move this turn
 	bool ableToRetaliate() const; //if stack can retaliate after attacked
+	///how many times this stack can counterattack in one round
+	ui8 counterAttacksTotal() const;
+	///how many times this stack can counterattack in one round more
+	si8 counterAttacksRemaining() const;
 	bool moved(int turn = 0) const; //if stack was already moved this turn
 	bool waited(int turn = 0) const;
 	bool canMove(int turn = 0) const; //if stack can move
@@ -231,7 +238,7 @@ public:
 		assert(isIndependentNode());
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CStackBasicDescriptor&>(*this);
-		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
+		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacksPerformed
 			& shots & casts & count & resurrected;
 
 		const CArmedInstance *army = (base ? base->armyObj : nullptr);
