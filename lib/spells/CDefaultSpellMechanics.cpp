@@ -133,9 +133,6 @@ void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCa
 	//handle countering spells
 	for(auto stackID : packet->affectedCres)
 	{
-		if(vstd::contains(packet->resisted, stackID))
-			continue;
-
 		CStack * s = battle->getStack(stackID);
 		s->popBonuses([&](const Bonus * b) -> bool
 		{
@@ -264,11 +261,6 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.casterHero);
 	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
 
-	for (auto cre : attackedCres)
-	{
-		sc.affectedCres.insert(cre->ID);
-	}
-
 	//checking if creatures resist
 	//resistance is applied only to negative spells
 	if(owner->isNegative())
@@ -282,6 +274,16 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 				sc.resisted.push_back(s->ID);
 			}
 		}
+
+		vstd::erase_if(attackedCres, [&sc](const CStack * s)
+		{
+			return vstd::contains(sc.resisted, s->ID);
+		});
+	}
+
+	for(auto cre : attackedCres)
+	{
+		sc.affectedCres.insert(cre->ID);
 	}
 
 	StacksInjured si;
@@ -526,9 +528,6 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		int chainLightningModifier = 0;
 		for(auto & attackedCre : ctx.attackedCres)
 		{
-			if(vstd::contains(ctx.sc.resisted, (attackedCre)->ID)) //this creature resisted the spell
-				continue;
-
 			BattleStackAttacked bsa;
 			if(spellDamage)
 				bsa.damageAmount = spellDamage >> chainLightningModifier;
@@ -579,8 +578,6 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		si32 power = 0;
 		for(const CStack * affected : ctx.attackedCres)
 		{
-			if(vstd::contains(ctx.sc.resisted, affected->ID)) //this creature resisted the spell
-				continue;
 			sse.stacks.push_back(affected->ID);
 
 			//Apply hero specials - peculiar enchants
@@ -833,12 +830,6 @@ void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast
 {
 	for(auto stackID : packet->affectedCres)
 	{
-		if(vstd::contains(packet->resisted, stackID))
-		{
-			if(owner->isPositive())
-				logGlobal->errorStream() <<"Resistance to positive spell " << owner->name;
-			continue;
-		}
 		CStack *s = battle->getStack(stackID);
 		s->popBonuses(selector);
 	}	
