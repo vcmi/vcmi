@@ -1248,7 +1248,12 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 	{
 		//"hide" killed creatures instead so we keep info about it
 		at->state.insert(EBattleStackState::DEAD_CLONE);
-
+		
+		for(CStack * s : gs->curB->stacks)
+		{
+			if(s->cloneID == at->ID)
+				s->cloneID = -1;
+		}
 	}
 }
 
@@ -1602,6 +1607,11 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState *gs)
 		case CLONED:
 		{
 			stack->state.insert(EBattleStackState::CLONED);
+			break;
+		}
+		case HAS_CLONE:
+		{
+			stack->cloneID = val;
 			break;
 		}
 	}

@@ -178,7 +178,8 @@ public:
 	si16 shots; //how many shots left
 	ui8 casts; //how many casts left
 	TQuantity resurrected; // these units will be taken back after battle is over
-
+	///id of alive clone of this stack clone if any
+	si32 cloneID;
 	std::set<EBattleStackState::EBattleStackState> state;
 	//overrides
 	const CCreature* getCreature() const {return type;}

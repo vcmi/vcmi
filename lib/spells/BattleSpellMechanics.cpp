@@ -93,12 +93,20 @@ void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battle
 	ssp.val = 0;
 	ssp.absolute = 1;
 	env->sendAndApply(&ssp);
+	
+	ssp.stackID = clonedStack->ID;
+	ssp.which = BattleSetStackProperty::HAS_CLONE;
+	ssp.val = bsa.newStackID;
+	ssp.absolute = 1;
+	env->sendAndApply(&ssp);	
 }
 
 ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
 {
 	//can't clone already cloned creature
 	if(vstd::contains(obj->state, EBattleStackState::CLONED))
+		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+	if(obj->cloneID != -1)
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	//TODO: how about stacks casting Clone?
 	//currently Clone casted by stack is assumed Expert level

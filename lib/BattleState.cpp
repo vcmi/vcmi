@@ -763,7 +763,7 @@ CGHeroInstance * BattleInfo::battleGetFightingHero(ui8 side) const
 
 CStack::CStack(const CStackInstance *Base, PlayerColor O, int I, bool AO, SlotID S)
 	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),
-	counterAttacksPerformed(0),counterAttacksTotalCache(0)
+	counterAttacksPerformed(0),counterAttacksTotalCache(0), cloneID(-1)
 {
 	assert(base);
 	type = base->type;
@@ -776,7 +776,8 @@ CStack::CStack()
 	setNodeType(STACK_BATTLE);
 }
 CStack::CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, bool AO, SlotID S)
-	: base(nullptr), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacksPerformed(0)
+	: base(nullptr), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacksPerformed(0),
+	 cloneID(-1)
 {
 	type = stack->type;
 	count = baseAmount = stack->count;
@@ -796,6 +797,7 @@ void CStack::init()
 	position = BattleHex();
 	counterAttacksPerformed = 0;
 	counterAttacksTotalCache = 0;
+	cloneID = -1;
 }
 
 void CStack::postInit()
@@ -809,6 +811,7 @@ void CStack::postInit()
 	counterAttacksTotalCache = 0;
 	casts = valOfBonuses(Bonus::CASTS);
 	resurrected = 0;
+	cloneID = -1;
 }
 
 ui32 CStack::level() const
