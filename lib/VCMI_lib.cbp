@@ -31,6 +31,7 @@
 					<Add option="-lboost_chrono$(#boost.libsuffix)" />
 					<Add option="-lboost_locale$(#boost.libsuffix)" />
 					<Add option="-liconv" />
+					<Add option="-ldbghelp" />
 					<Add directory="$(#sdl2.lib)" />
 					<Add directory="$(#boost.lib32)" />
 					<Add directory="$(#zlib.lib)" />
@@ -59,6 +60,7 @@
 					<Add option="-lboost_chrono$(#boost.libsuffix)" />
 					<Add option="-lboost_locale$(#boost.libsuffix)" />
 					<Add option="-liconv" />
+					<Add option="-ldbghelp" />
 					<Add directory="$(#sdl2.lib)" />
 					<Add directory="$(#boost.lib32)" />
 					<Add directory="$(#zlib.lib)" />
@@ -88,6 +90,7 @@
 					<Add option="-lboost_chrono$(#boost.libsuffix)" />
 					<Add option="-lboost_locale$(#boost.libsuffix)" />
 					<Add option="-liconv" />
+					<Add option="-ldbghelp" />
 					<Add directory="$(#sdl2.lib64)" />
 					<Add directory="$(#boost.lib64)" />
 					<Add directory="$(#zlib64.lib)" />
