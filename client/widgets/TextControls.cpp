@@ -498,10 +498,10 @@ void CTextInput::setText( const std::string &nText, bool callCb )
 
 bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
 {
-	if(key.keysym.sym == SDLK_RETURN || key.keysym.sym == SDLK_KP_ENTER)
+	if(key.keysym.sym == SDLK_RETURN || key.keysym.sym == SDLK_KP_ENTER || key.keysym.sym == SDLK_ESCAPE)
 		return false;
 	
-	return false;
+	return true;
 }
 
 void CTextInput::textInputed(const SDL_TextInputEvent & event)
