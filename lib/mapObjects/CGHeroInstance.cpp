@@ -217,9 +217,10 @@ CGHeroInstance::CGHeroInstance()
 	setNodeType(HERO);
 	ID = Obj::HERO;
 	tacticFormationEnabled = inTownGarrison = false;
-	mana = movement = portrait = level = -1;
+	mana = movement = portrait = -1;
 	isStanding = true;
 	moveDir = 4;
+	level = 1;
 	exp = 0xffffffff;
 	visitedTown = nullptr;
 	type = nullptr;
@@ -291,7 +292,6 @@ void CGHeroInstance::initHero()
 	}
 	assert(validTypes());
 
-	level = 1;
 	if(exp == 0xffffffff)
 	{
 		initExp();
