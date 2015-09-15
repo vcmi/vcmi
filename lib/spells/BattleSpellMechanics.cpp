@@ -467,7 +467,8 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCasted(const CBatt
 		//using isImmuneBy directly as this mechanics does not have overridden immunity check
 		//therefore we do not need to check caster and casting mode
 		//TODO: check that we really should check immunity for both stacks
-		const bool immune =  ESpellCastProblem::OK != owner->isImmuneBy(stack);
+		ESpellCastProblem::ESpellCastProblem res = owner->isImmuneBy(stack);
+		const bool immune =  ESpellCastProblem::OK != res && ESpellCastProblem::NOT_DECIDED != res;
 		const bool casterStack = stack->owner == player;
 
 		if(!immune && casterStack)
