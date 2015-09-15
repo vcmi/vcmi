@@ -500,8 +500,13 @@ bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" b
 const TBonusListPtr IBonusBearer::getSpellBonuses() const
 {
 	std::stringstream cachingStr;
-	cachingStr << "source_" << Bonus::SPELL_EFFECT;
-	return getBonuses(Selector::sourceType(Bonus::SPELL_EFFECT), Selector::anyRange(), cachingStr.str());
+	cachingStr << "!type_" << Bonus::NONE << "source_" << Bonus::SPELL_EFFECT;
+	CSelector selector = Selector::sourceType(Bonus::SPELL_EFFECT)
+		.And(CSelector([](const Bonus * b)->bool
+		{
+			return !b->type == Bonus::NONE;
+		})); 
+	return getBonuses(selector, Selector::anyRange(), cachingStr.str());
 }
 
 const Bonus * IBonusBearer::getEffect(ui16 id, int turn /*= 0*/) const
