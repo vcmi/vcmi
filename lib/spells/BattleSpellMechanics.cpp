@@ -480,7 +480,6 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCasted(const CBatt
 			if(targetExists && targetToSacrificeExists)
 				break;
 		}
-
 	}
 
 	if(targetExists && targetToSacrificeExists)

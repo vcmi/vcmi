@@ -523,6 +523,14 @@ ui32 DefaultSpellMechanics::calculateHealedHP(const CGHeroInstance* caster, cons
 
 void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
+	int effectLevel = parameters.spellLvl;
+	{
+		//MAXED_SPELL bonus.
+		if(parameters.casterHero != nullptr)
+			if(parameters.casterHero->hasBonusOfType(Bonus::MAXED_SPELL, owner->id))
+				effectLevel = 3;
+	}
+
 	//applying effects
 	if(owner->isOffensiveSpell())
 	{
@@ -545,7 +553,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 			if(spellDamage)
 				bsa.damageAmount = spellDamage >> chainLightningModifier;
 			else
-				bsa.damageAmount =  owner->calculateDamage(parameters.casterHero, attackedCre, parameters.spellLvl, parameters.usedSpellPower) >> chainLightningModifier;
+				bsa.damageAmount =  owner->calculateDamage(parameters.casterHero, attackedCre, effectLevel, parameters.usedSpellPower) >> chainLightningModifier;
 
 			ctx.sc.dmgToDisplay += bsa.damageAmount;
 
@@ -571,12 +579,12 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		}
 		SetStackEffect sse;
 		//get default spell duration (spell power with bonuses for heroes)
-		int duration = calculateDuration(parameters.casterHero, stackSpellPower ? stackSpellPower : parameters.usedSpellPower);
+		int duration = calculateDuration(parameters.casterHero, stackSpellPower ? stackSpellPower : parameters.usedSpellPower);		
 		//generate actual stack bonuses
 		{
 			int maxDuration = 0;
 			std::vector<Bonus> tmp;
-			owner->getEffects(tmp, parameters.spellLvl);
+			owner->getEffects(tmp, effectLevel);
 			for(Bonus& b : tmp)
 			{
 				//use configured duration if present
@@ -687,13 +695,13 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 				else
 				{
 					//any typical spell (commander's cure or animate dead)
-					int healedHealth = parameters.usedSpellPower * owner->power + owner->getPower(parameters.spellLvl);
+					int healedHealth = parameters.usedSpellPower * owner->power + owner->getPower(effectLevel);
 					hi.healedHP = std::min<ui32>(healedHealth, attackedCre->MaxHealth() - attackedCre->firstHPleft + (resurrect ? attackedCre->baseAmount * attackedCre->MaxHealth() : 0));
 				}
 			}
 			else
 				hi.healedHP = calculateHealedHP(parameters.casterHero, attackedCre, parameters.selectedStack); //Casted by hero
-			hi.lowLevelResurrection = (parameters.spellLvl <= 1) && (owner->id != SpellID::ANIMATE_DEAD);
+			hi.lowLevelResurrection = (effectLevel <= 1) && (owner->id != SpellID::ANIMATE_DEAD);
 			shr.healedStacks.push_back(hi);
 		}
 		if(!shr.healedStacks.empty())

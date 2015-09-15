@@ -878,8 +878,7 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	
 	vstd::amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
 	vstd::amax(skill, valOfBonuses(Bonus::SPELL, spell->id.toEnum())); //given by artifact or other effect
-	if (hasBonusOfType(Bonus::MAXED_SPELL, spell->id))//hero specialty (Daremyth, Melodia)
-		skill = 3;
+
 	assert(skill >= 0 && skill <= 3);
 	return skill;
 }
