@@ -12,6 +12,14 @@
 
 #include "CDefaultSpellMechanics.h"
 
+class DLL_LINKAGE HealingSpellMechanics : public DefaultSpellMechanics
+{
+public:
+	HealingSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+protected:
+	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+};
+
 class DLL_LINKAGE AntimagicMechanics : public DefaultSpellMechanics
 {
 public:
@@ -36,10 +44,10 @@ protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
-class DLL_LINKAGE CureMechanics : public DefaultSpellMechanics
+class DLL_LINKAGE CureMechanics : public HealingSpellMechanics
 {
 public:
-	CureMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	CureMechanics(CSpell * s): HealingSpellMechanics(s){};
 
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 };
@@ -96,10 +104,10 @@ protected:
 };
 
 ///all rising spells
-class DLL_LINKAGE RisingSpellMechanics : public DefaultSpellMechanics
+class DLL_LINKAGE RisingSpellMechanics : public HealingSpellMechanics
 {
 public:
-	RisingSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	RisingSpellMechanics(CSpell * s): HealingSpellMechanics(s){};
 
 };
 

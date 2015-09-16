@@ -14,6 +14,60 @@
 #include "../NetPacks.h"
 #include "../BattleState.h"
 
+///HealingSpellMechanics
+void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
+{
+	int effectLevel = calculateEffectLevel(parameters);
+	int hpGained = 0;
+	
+	if(owner->id == SpellID::SACRIFICE)
+	{
+		if(nullptr == parameters.selectedStack)
+			env->complain("No stack to sacrifice.");
+		else
+			hpGained = (parameters.usedSpellPower + parameters.selectedStack->MaxHealth() + owner->getPower(effectLevel)) * parameters.selectedStack->count;
+	}
+	else if(parameters.casterStack)
+	{
+		int unitSpellPower = parameters.casterStack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, owner->id.toEnum());
+		if(unitSpellPower)
+			hpGained = parameters.casterStack->count * unitSpellPower; //Archangel
+		else //Faerie Dragon-like effect - commanders(?)
+		{			
+			parameters.usedSpellPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * parameters.casterStack->count / 100;
+			hpGained = parameters.usedSpellPower * owner->power + owner->getPower(effectLevel);
+		}
+	}
+	else
+	{
+		hpGained = parameters.usedSpellPower * owner->power + owner->getPower(effectLevel); //???
+	}
+	StacksHealedOrResurrected shr;
+	shr.lifeDrain = false;
+	shr.tentHealing = false;
+
+	const bool resurrect = owner->isRisingSpell();
+	for(auto & attackedCre : ctx.attackedCres)
+	{
+		StacksHealedOrResurrected::HealInfo hi;
+		hi.stackID = (attackedCre)->ID;
+		if (parameters.casterStack) //casted by creature
+		{
+			hi.healedHP = attackedCre->calculateHealedHealthPoints(hpGained, resurrect);
+		}
+		else
+		{
+			int stackHPgained = parameters.casterHero->getSpellBonus(owner, hpGained, attackedCre); 
+			hi.healedHP = attackedCre->calculateHealedHealthPoints(stackHPgained, resurrect);		
+		}
+			
+		hi.lowLevelResurrection = (effectLevel <= 1) && (owner->id == SpellID::RESURRECTION);
+		shr.healedStacks.push_back(hi);
+	}
+	if(!shr.healedStacks.empty())
+		env->sendAndApply(&shr);	
+}
+
 ///AntimagicMechanics
 void AntimagicMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {

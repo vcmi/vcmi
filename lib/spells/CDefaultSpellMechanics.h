@@ -54,9 +54,10 @@ protected:
 	virtual void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
 
 	virtual int calculateDuration(const CGHeroInstance * caster, int usedSpellPower) const;
-
+	int calculateEffectLevel(const BattleSpellCastParameters & parameters) const;
+	
 	///actual adventure cast implementation
 	virtual ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
 	
-	void doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const;
+	void doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const;	
 };
