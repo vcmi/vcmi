@@ -3795,7 +3795,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 				StacksHealedOrResurrected::HealInfo hi;
 				hi.healedHP = healed;
-				hi.lowLevelResurrection = 0;
+				hi.lowLevelResurrection = false;
 				hi.stackID = destStack->ID;
 
 				shr.healedStacks.push_back(hi);
