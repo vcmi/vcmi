@@ -325,7 +325,28 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	StacksInjured si;
 	SpellCastContext ctx(attackedCres, sc, si);
 	ctx.effectLevel = calculateEffectLevel(parameters);
+	ctx.effectPower = parameters.usedSpellPower;
+	ctx.enchantPower = parameters.usedSpellPower;
+	ctx.effectValue = 0;
+	if(parameters.casterStack)
+		ctx.caster = parameters.casterStack;
+	else if(parameters.mode == ECastingMode::HERO_CASTING)
+		ctx.caster = parameters.cb->battleGetFightingHero(parameters.casterSide);
 
+	if(parameters.casterStack && parameters.mode != ECastingMode::MAGIC_MIRROR)
+	{
+		auto enchantPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
+		if(ctx.enchantPower == 0)
+			ctx.enchantPower = enchantPower;
+		//Fairy Dragon, etc.	
+		int effectPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * parameters.casterStack->count / 100;
+		if(ctx.effectPower == 0)
+			ctx.effectPower = effectPower;
+		//Archangel, etc 
+		int unitSpellPower = parameters.casterStack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, owner->id.toEnum());
+		if(unitSpellPower != 0)
+			ctx.effectValue = parameters.casterStack->count * unitSpellPower; 						
+	}
 	applyBattleEffects(env, parameters, ctx);
 
 	env->sendAndApply(&sc);
@@ -526,25 +547,16 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 	//applying effects
 	if(owner->isOffensiveSpell())
 	{
-		int spellDamage = 0;
-		if(parameters.casterStack && parameters.mode != ECastingMode::MAGIC_MIRROR)
-		{
-			int unitSpellPower = parameters.casterStack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, owner->id.toEnum());
-			if(unitSpellPower)
-				spellDamage = parameters.casterStack->count * unitSpellPower; //TODO: handle immunities
-			else //Faerie Dragon
-			{
-				parameters.usedSpellPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * parameters.casterStack->count / 100;				
-			}
-		}
+		int spellDamage = ctx.effectValue;
+		
 		int chainLightningModifier = 0;
 		for(auto & attackedCre : ctx.attackedCres)
 		{
 			BattleStackAttacked bsa;
-			if(spellDamage)
-				bsa.damageAmount = spellDamage >> chainLightningModifier;
+			if(spellDamage != 0)
+				bsa.damageAmount = owner->adjustRawDamage(parameters.casterHero, attackedCre, spellDamage) >> chainLightningModifier;
 			else
-				bsa.damageAmount =  owner->calculateDamage(parameters.casterHero, attackedCre, ctx.effectLevel, parameters.usedSpellPower) >> chainLightningModifier;
+				bsa.damageAmount = owner->calculateDamage(parameters.casterHero, attackedCre, ctx.effectLevel, ctx.effectPower) >> chainLightningModifier;
 
 			ctx.sc.dmgToDisplay += bsa.damageAmount;
 
@@ -563,14 +575,9 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 
 	if(owner->hasEffects())
 	{
-		int stackSpellPower = 0;
-		if(parameters.casterStack && parameters.mode != ECastingMode::MAGIC_MIRROR)
-		{
-			stackSpellPower =  parameters.casterStack->valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
-		}
 		SetStackEffect sse;
 		//get default spell duration (spell power with bonuses for heroes)
-		int duration = calculateDuration(parameters.casterHero, stackSpellPower ? stackSpellPower : parameters.usedSpellPower);		
+		int duration = calculateDuration(parameters.casterHero, ctx.enchantPower);
 		//generate actual stack bonuses
 		{
 			int maxDuration = 0;

@@ -28,16 +28,10 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, 
 	{
 		StacksHealedOrResurrected::HealInfo hi;
 		hi.stackID = (attackedCre)->ID;
-		if (parameters.casterStack) //casted by creature
-		{
-			hi.healedHP = attackedCre->calculateHealedHealthPoints(hpGained, resurrect);
-		}
-		else
-		{
-			int stackHPgained = parameters.casterHero->getSpellBonus(owner, hpGained, attackedCre);
-			hi.healedHP = attackedCre->calculateHealedHealthPoints(stackHPgained, resurrect);
-		}
-
+		int stackHPgained = hpGained;
+		if(ctx.caster != nullptr)
+			stackHPgained = ctx.caster->getSpellBonus(owner, hpGained, attackedCre);
+		hi.healedHP = attackedCre->calculateHealedHealthPoints(stackHPgained, resurrect);
 		hi.lowLevelResurrection = (healLevel == EHealLevel::RESURRECT);
 		shr.healedStacks.push_back(hi);
 	}
@@ -45,23 +39,11 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, 
 		env->sendAndApply(&shr);
 }
 
-int HealingSpellMechanics::calculateHealedHP(const SpellCastEnvironment* env, const BattleSpellCastParameters& parameters, const SpellCastContext& ctx) const
+int HealingSpellMechanics::calculateHealedHP(const SpellCastEnvironment* env, const BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
 {
-	if(parameters.casterStack)
-	{
-		int unitSpellPower = parameters.casterStack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, owner->id.toEnum());
-		if(unitSpellPower)
-			return parameters.casterStack->count * unitSpellPower; //Archangel
-		else //Faerie Dragon-like effect - commanders(?)
-		{			
-			int spellPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * parameters.casterStack->count / 100;
-			return spellPower * owner->power + owner->getPower(ctx.effectLevel);
-		}
-	}
-	else
-	{
-		return parameters.usedSpellPower * owner->power + owner->getPower(ctx.effectLevel); //???
-	}	
+	if(ctx.effectValue != 0)
+		return ctx.effectValue; //Archangel
+	return owner->calculateRawEffectValue(ctx.effectLevel, ctx.effectPower); //???
 }
 
 ///AntimagicMechanics
@@ -411,7 +393,7 @@ void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, Bat
 		obstacle->casterSide = parameters.casterSide;
 		obstacle->ID = owner->id;
 		obstacle->spellLevel = parameters.spellLvl;
-		obstacle->casterSpellPower = parameters.usedSpellPower;
+		obstacle->casterSpellPower = ctx.effectPower;
 		obstacle->uniqueID = obstacleIdToGive++;
 
 		BattleObstaclePlaced bop;
@@ -583,13 +565,13 @@ void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, Ba
 	env->sendAndApply(&bsr);
 }
 
-int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const BattleSpellCastParameters& parameters, const SpellCastContext& ctx) const
+int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
 {
 	int res = 0;
 	if(nullptr == parameters.selectedStack)
 		env->complain("No stack to sacrifice.");
 	else
-		res = (parameters.usedSpellPower + parameters.selectedStack->MaxHealth() + owner->getPower(ctx.effectLevel)) * parameters.selectedStack->count;
+		res = (ctx.effectPower + parameters.selectedStack->MaxHealth() + owner->getPower(ctx.effectLevel)) * parameters.selectedStack->count;
 	return res;
 }
 
@@ -644,7 +626,7 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battl
 	//TODO stack casting -> probably power will be zero; set the proper number of creatures manually
 	int percentBonus = parameters.casterHero ? parameters.casterHero->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, owner->id.toEnum()) : 0;
 
-	bsa.amount = parameters.usedSpellPower
+	bsa.amount = ctx.effectPower
 		* owner->getPower(parameters.spellLvl)
 		* (100 + percentBonus) / 100.0; //new feature - percentage bonus
 	if(bsa.amount)

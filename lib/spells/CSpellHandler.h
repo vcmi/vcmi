@@ -218,9 +218,6 @@ public:
 	///checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into account general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem isImmuneAt(const CBattleInfoCallback * cb, const CGHeroInstance * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
 
-	//internal, for use only by Mechanics classes
-	ESpellCastProblem::ESpellCastProblem isImmuneBy(const IBonusBearer *obj) const;
-
 	///calculate spell damage on stack taking caster`s secondary skills and affectedCreature`s bonuses into account
 	ui32 calculateDamage(const ISpellCaster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
 
@@ -292,10 +289,16 @@ public:
 	///implementation of BattleSpellCast applying
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const;
 
-public:
-	///Client logic.
-	
+public://Client logic.
 	void prepareBattleLog(const CBattleInfoCallback * cb, const BattleSpellCast * packet, std::vector<std::string> & logLines) const;
+
+public://internal, for use only by Mechanics classes
+	///applies caster`s secondary skills and affectedCreature`s to raw damage
+	int adjustRawDamage(const ISpellCaster * caster, const CStack * affectedCreature, int rawDamage) const;
+	///returns raw damage or healed HP
+	int calculateRawEffectValue(int effectLevel, int effectPower) const;		
+	///generic immunity calculation
+	ESpellCastProblem::ESpellCastProblem isImmuneBy(const IBonusBearer *obj) const;
 
 private:
 	void setIsOffensive(const bool val);

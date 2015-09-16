@@ -133,47 +133,10 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 
 ui32 CSpell::calculateDamage(const ISpellCaster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const
 {
-	ui32 ret = 0; //value to return
-
 	//check if spell really does damage - if not, return 0
 	if(!isDamageSpell())
 		return 0;
-
-	ret = usedSpellPower * power;
-	ret += getPower(spellSchoolLevel);
-
-	//affected creature-specific part
-	if(nullptr != affectedCreature)
-	{
-		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
-		forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
-		{
-			if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
-			{
-				ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
-				ret /= 100;
-				stop = true;//only bonus from one school is used
-			}
-		});
-
-		//general spell dmg reduction
-		if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
-			ret /= 100;
-		}
-
-		//dmg increasing
-		if(affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, id))
-		{
-			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, id.toEnum());
-			ret /= 100;
-		}
-	}
-	
-	if(nullptr != caster) //todo: make sure that caster always present	
-		ret = caster->getSpellBonus(this, ret, affectedCreature);
-	return ret;
+	return adjustRawDamage(caster, affectedCreature, calculateRawEffectValue(spellSchoolLevel, usedSpellPower));	
 }
 
 ESpellCastProblem::ESpellCastProblem CSpell::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
@@ -393,6 +356,49 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallbac
 	}
 
 	return ESpellCastProblem::OK;
+}
+
+int CSpell::adjustRawDamage(const ISpellCaster * caster, const CStack * affectedCreature, int rawDamage) const
+{
+	int ret = rawDamage;
+	//affected creature-specific part
+	if(nullptr != affectedCreature)
+	{
+		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
+		forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
+		{
+			if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
+			{
+				ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
+				ret /= 100;
+				stop = true;//only bonus from one school is used
+			}
+		});
+
+		//general spell dmg reduction
+		if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
+		{
+			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
+			ret /= 100;
+		}
+
+		//dmg increasing
+		if(affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, id))
+		{
+			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, id.toEnum());
+			ret /= 100;
+		}
+	}
+
+	if(nullptr != caster) //todo: make sure that caster always present
+		ret = caster->getSpellBonus(this, ret, affectedCreature);
+
+	return ret;
+}
+
+int CSpell::calculateRawEffectValue(int effectLevel, int effectPower) const
+{
+	return effectPower * power + getPower(effectLevel);	
 }
 
 ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj) const

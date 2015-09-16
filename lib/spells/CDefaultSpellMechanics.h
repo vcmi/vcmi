@@ -19,11 +19,23 @@ class StacksInjured;
 struct SpellCastContext
 {
 	SpellCastContext(std::vector<const CStack *> & attackedCres, BattleSpellCast & sc, StacksInjured & si):
-		attackedCres(attackedCres), sc(sc), si(si){};
+		attackedCres(attackedCres), sc(sc), si(si), 
+		effectLevel(0),effectPower(0),enchantPower(0),effectValue(0)		
+	{
+	};
 	std::vector<const CStack *> & attackedCres;
 	BattleSpellCast & sc;
-	StacksInjured & si;	
+	StacksInjured & si;
+	///spell school level to use for effects
 	int effectLevel;
+	///actual spell-power affecting effect values
+	int effectPower;
+	///actual spell-power affecting effect duration	
+	int enchantPower;
+	///for FairyDragon-like casting, if !=0 ignores effectPower
+	int effectValue;
+	///stack or hero
+	const ISpellCaster * caster;
 };
 
 enum class ESpellCastResult
