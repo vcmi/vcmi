@@ -530,12 +530,12 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 
 	//FIXME: Archangels can cast immune stack and this should be applied for them and not hero
-	if(caster) 
-	{
-		auto maxHealth = calculateHealedHP(caster, obj, nullptr);
-		if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}
+//	if(caster) 
+//	{
+//		auto maxHealth = calculateHealedHP(caster, obj, nullptr);
+//		if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
+//			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+//	}
 
 	return DefaultSpellMechanics::isImmuneByStack(caster,obj);
 }
