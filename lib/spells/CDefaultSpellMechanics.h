@@ -55,9 +55,6 @@ protected:
 
 	virtual int calculateDuration(const CGHeroInstance * caster, int usedSpellPower) const;
 
-	///calculate healed HP for all spells casted by hero
-	ui32 calculateHealedHP(const CGHeroInstance * caster, const CStack * stack, const CStack * sacrificedStack) const;
-
 	///actual adventure cast implementation
 	virtual ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
 	
