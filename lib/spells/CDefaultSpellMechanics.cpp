@@ -524,11 +524,10 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		{
 			int unitSpellPower = parameters.casterStack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, owner->id.toEnum());
 			if(unitSpellPower)
-				ctx.sc.dmgToDisplay = spellDamage = parameters.casterStack->count * unitSpellPower; //TODO: handle immunities
+				spellDamage = parameters.casterStack->count * unitSpellPower; //TODO: handle immunities
 			else //Faerie Dragon
 			{
-				parameters.usedSpellPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * parameters.casterStack->count / 100;
-				ctx.sc.dmgToDisplay = 0;
+				parameters.usedSpellPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * parameters.casterStack->count / 100;				
 			}
 		}
 		int chainLightningModifier = 0;

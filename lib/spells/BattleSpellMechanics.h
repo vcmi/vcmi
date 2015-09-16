@@ -21,11 +21,11 @@ public:
 		RESURRECT,
 		TRUE_RESURRECT
 	};
-	
+
 	HealingSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};	
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
-	
+ 
 	virtual EHealLevel getHealLevel(int effectLevel) const = 0;
 };
 
