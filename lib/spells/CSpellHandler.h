@@ -30,6 +30,9 @@ struct BattleSpellCast;
 class CGameInfoCallback;
 class CRandomGenerator;
 class CMap;
+struct AdventureSpellCastParameters;
+struct BattleSpellCastParameters;
+class SpellCastEnvironment;
 
 struct SpellSchoolInfo
 {
@@ -41,45 +44,6 @@ struct SpellSchoolInfo
 	Bonus::BonusType knoledgeBonus;
 };
 
-///callback to be provided by server
-class DLL_LINKAGE SpellCastEnvironment
-{
-public:
-	virtual ~SpellCastEnvironment(){};
-	virtual void sendAndApply(CPackForClient * info) const = 0;
-
-	virtual CRandomGenerator & getRandomGenerator() const = 0;
-	virtual void complain(const std::string & problem) const = 0;
-
-	virtual const CMap * getMap() const = 0;
-	virtual const CGameInfoCallback * getCb() const = 0;
-
-	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker = PlayerColor::NEUTRAL) const =0;	//TODO: remove
-};
-
-///helper struct
-struct DLL_LINKAGE BattleSpellCastParameters
-{
-public:
-	BattleSpellCastParameters(const BattleInfo * cb);
-	int spellLvl;
-	BattleHex destination;
-	ui8 casterSide;
-	PlayerColor casterColor;
-	const CGHeroInstance * casterHero; //deprecated
-	const CGHeroInstance * secHero;
-	int usedSpellPower;
-	ECastingMode::ECastingMode mode;
-	const CStack * casterStack;
-	const CStack * selectedStack;
-	const BattleInfo * cb;
-};
-
-struct DLL_LINKAGE AdventureSpellCastParameters
-{
-	const CGHeroInstance * caster;
-	int3 pos;
-};
 
 enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
 

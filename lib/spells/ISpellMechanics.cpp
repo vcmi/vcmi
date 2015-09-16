@@ -17,6 +17,14 @@
 #include "BattleSpellMechanics.h"
 #include "CreatureSpellMechanics.h"
 
+BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo* cb)
+	: spellLvl(0), destination(BattleHex::INVALID), casterSide(0),casterColor(PlayerColor::CANNOT_DETERMINE),casterHero(nullptr), secHero(nullptr),
+	usedSpellPower(0),mode(ECastingMode::HERO_CASTING), casterStack(nullptr), selectedStack(nullptr), cb(cb)
+{
+
+}
+
+
 ///ISpellMechanics
 ISpellMechanics::ISpellMechanics(CSpell * s):
 	owner(s)
