@@ -226,14 +226,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	logGlobal->debugStream() << "Started spell cast. Spell: "<<owner->name<<"; mode:"<<parameters.mode<<"; level: "<<parameters.spellLvl<<"; SP: "<<parameters.usedSpellPower;
 
 	BattleSpellCast sc;
-	sc.side = parameters.casterSide;
-	sc.id = owner->id;
-	sc.skill = parameters.spellLvl;
-	sc.tile = parameters.destination;
-	sc.dmgToDisplay = 0;
-	sc.castByHero = nullptr != parameters.casterHero;
-	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
-	sc.manaGained = 0;
+	prepareBattleCast(parameters, sc);
 	
 	//check it there is opponent hero
 	const ui8 otherSide = 1-parameters.casterSide;
@@ -270,44 +263,24 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";
 
 	std::vector <const CStack*> reflected;//for magic mirror
-	
-	//checking if creatures resist
-	//resistance/reflection is applied only to negative spells
-	if(owner->isNegative())
+	//checking if creatures resist	
+	handleResistance(env, attackedCres, sc);
+	//it is actual spell and can be reflected to single target, no recurrence
+	const bool tryMagicMirror = owner->isNegative() && owner->level && owner->getLevelInfo(0).range == "0";	
+	if(tryMagicMirror)
 	{
-		//it is actual spell and can be reflected to single target, no recurrence
-		const bool tryMagicMirror = parameters.mode != ECastingMode::MAGIC_MIRROR && owner->level && owner->getLevelInfo(0).range == "0";
-		std::vector <const CStack*> resisted;
 		for(auto s : attackedCres)
 		{
-			//magic resistance
-			const int prob = std::min((s)->magicResistance(), 100); //probability of resistance in %
-
-			if(env->getRandomGenerator().nextInt(99) < prob)
-			{
-				resisted.push_back(s);
-			}
-			//magic mirror
-			if(tryMagicMirror)
-			{
-				const int mirrorChance = (s)->valOfBonuses(Bonus::MAGIC_MIRROR);
-				if(env->getRandomGenerator().nextInt(99) < mirrorChance)
-					reflected.push_back(s);
-			}
+			const int mirrorChance = (s)->valOfBonuses(Bonus::MAGIC_MIRROR);
+			if(env->getRandomGenerator().nextInt(99) < mirrorChance)
+				reflected.push_back(s);
 		}
 
-		vstd::erase_if(attackedCres, [&resisted, reflected](const CStack * s)
+		vstd::erase_if(attackedCres, [&reflected](const CStack * s)
 		{
-			return vstd::contains(resisted, s) || vstd::contains(reflected, s);
+			return vstd::contains(reflected, s);
 		});
 
-		for(auto s : resisted)
-		{
-			BattleSpellCast::CustomEffect effect;
-			effect.effect = 78;
-			effect.stack = s->ID;
-			sc.customEffects.push_back(effect);
-		}
 		for(auto s : reflected)
 		{
 			BattleSpellCast::CustomEffect effect;
@@ -333,7 +306,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	else if(parameters.mode == ECastingMode::HERO_CASTING)
 		ctx.caster = parameters.cb->battleGetFightingHero(parameters.casterSide);
 
-	if(parameters.casterStack && parameters.mode != ECastingMode::MAGIC_MIRROR)
+	if(parameters.casterStack)
 	{
 		auto enchantPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
 		if(ctx.enchantPower == 0)
@@ -413,7 +386,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 			mirrorParameters.casterStack = (attackedCre);
 			mirrorParameters.selectedStack = nullptr;
 
-			battleCast(env, mirrorParameters);
+			castMagicMirror(env, mirrorParameters, ctx);
 		}
 	}
 }
@@ -826,3 +799,97 @@ void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast
 		s->popBonuses(selector);
 	}	
 }
+
+void DefaultSpellMechanics::castMagicMirror(const SpellCastEnvironment* env, BattleSpellCastParameters& parameters, const SpellCastContext& originalContext) const
+{
+	logGlobal->debugStream() << "Started spell cast. Spell: "<<owner->name<<"; mode: MAGIC_MIRROR";
+	if(parameters.mode != ECastingMode::MAGIC_MIRROR)
+	{
+		env->complain("MagicMirror: invalid mode");
+		return;
+	}
+	if(!parameters.destination.isValid())
+	{
+		env->complain("MagicMirror: invalid destination");
+		return;		
+	}
+
+	BattleSpellCast sc;
+	prepareBattleCast(parameters, sc);
+	
+	//calculating affected creatures for all spells
+	//must be vector, as in Chain Lightning order matters
+	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
+
+	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.casterHero);
+	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
+
+	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";
+
+	handleResistance(env, attackedCres, sc);
+
+	for(auto cre : attackedCres)
+	{
+		sc.affectedCres.insert(cre->ID);
+	}
+	
+	StacksInjured si;
+	SpellCastContext ctx(attackedCres, sc, si);
+	ctx.effectLevel = originalContext.effectLevel;
+	ctx.effectPower = originalContext.effectPower;
+	ctx.enchantPower = originalContext.enchantPower;
+	ctx.effectValue = originalContext.effectValue;
+	ctx.caster = parameters.casterStack;
+	applyBattleEffects(env, parameters, ctx);
+
+	env->sendAndApply(&sc);
+	if(!si.stacks.empty()) //after spellcast info shows
+		env->sendAndApply(&si);	
+	logGlobal->debugStream() << "Finished spell cast. Spell: "<<owner->name<<"; mode: MAGIC_MIRROR";
+}
+
+void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, std::vector<const CStack* >& attackedCres, BattleSpellCast& sc) const
+{
+	//checking if creatures resist
+	//resistance/reflection is applied only to negative spells
+	if(owner->isNegative())
+	{
+		std::vector <const CStack*> resisted;
+		for(auto s : attackedCres)
+		{
+			//magic resistance
+			const int prob = std::min((s)->magicResistance(), 100); //probability of resistance in %
+
+			if(env->getRandomGenerator().nextInt(99) < prob)
+			{
+				resisted.push_back(s);
+			}
+		}
+
+		vstd::erase_if(attackedCres, [&resisted](const CStack * s)
+		{
+			return vstd::contains(resisted, s);
+		});
+
+		for(auto s : resisted)
+		{
+			BattleSpellCast::CustomEffect effect;
+			effect.effect = 78;
+			effect.stack = s->ID;
+			sc.customEffects.push_back(effect);
+		}		
+	}	
+}
+
+void DefaultSpellMechanics::prepareBattleCast(const BattleSpellCastParameters& parameters, BattleSpellCast& sc) const
+{
+	sc.side = parameters.casterSide;
+	sc.id = owner->id;
+	sc.skill = parameters.spellLvl;
+	sc.tile = parameters.destination;
+	sc.dmgToDisplay = 0;
+	sc.castByHero = nullptr != parameters.casterHero;
+	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
+	sc.manaGained = 0;	
+}
+
