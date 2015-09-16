@@ -19,6 +19,7 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, 
 {
 	int effectLevel = calculateEffectLevel(parameters);
 	int hpGained = 0;
+	EHealLevel healLevel = getHealLevel(effectLevel);
 	
 	if(owner->id == SpellID::SACRIFICE)
 	{
@@ -46,7 +47,7 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, 
 	shr.lifeDrain = false;
 	shr.tentHealing = false;
 
-	const bool resurrect = owner->isRisingSpell();
+	const bool resurrect = (healLevel != EHealLevel::HEAL);
 	for(auto & attackedCre : ctx.attackedCres)
 	{
 		StacksHealedOrResurrected::HealInfo hi;
@@ -61,7 +62,7 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, 
 			hi.healedHP = attackedCre->calculateHealedHealthPoints(stackHPgained, resurrect);		
 		}
 			
-		hi.lowLevelResurrection = (effectLevel <= 1) && (owner->id == SpellID::RESURRECTION);
+		hi.lowLevelResurrection = (healLevel == EHealLevel::RESURRECT);
 		shr.healedStacks.push_back(hi);
 	}
 	if(!shr.healedStacks.empty())
@@ -198,6 +199,11 @@ void CureMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * pac
 		}
 		return false; //not a spell effect		
 	});
+}
+
+HealingSpellMechanics::EHealLevel CureMechanics::getHealLevel(int effectLevel) const
+{
+	return EHealLevel::HEAL;
 }
 
 ///DispellMechanics
@@ -508,7 +514,16 @@ void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * en
 		env->complain("There's no obstacle to remove!");
 }
 
-///SpecialRisingSpellMechanics
+HealingSpellMechanics::EHealLevel RisingSpellMechanics::getHealLevel(int effectLevel) const
+{
+	//this may be even distinct class
+	if((effectLevel <= 1) && (owner->id == SpellID::RESURRECTION))
+		return EHealLevel::RESURRECT;
+	
+	return EHealLevel::TRUE_RESURRECT;
+}
+
+///SacrificeMechanics
 ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
 {
 	// for sacrifice we have to check for 2 targets (one dead to resurrect and one living to destroy)

@@ -15,9 +15,18 @@
 class DLL_LINKAGE HealingSpellMechanics : public DefaultSpellMechanics
 {
 public:
+	enum class EHealLevel 
+	{
+		HEAL,
+		RESURRECT,
+		TRUE_RESURRECT
+	};
+	
 	HealingSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};	
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	
+	virtual EHealLevel getHealLevel(int effectLevel) const = 0;
 };
 
 class DLL_LINKAGE AntimagicMechanics : public DefaultSpellMechanics
@@ -50,6 +59,8 @@ public:
 	CureMechanics(CSpell * s): HealingSpellMechanics(s){};
 
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
+	
+	EHealLevel getHealLevel(int effectLevel) const override final;
 };
 
 class DLL_LINKAGE DispellMechanics : public DefaultSpellMechanics
@@ -108,7 +119,7 @@ class DLL_LINKAGE RisingSpellMechanics : public HealingSpellMechanics
 {
 public:
 	RisingSpellMechanics(CSpell * s): HealingSpellMechanics(s){};
-
+	EHealLevel getHealLevel(int effectLevel) const override;
 };
 
 class DLL_LINKAGE SacrificeMechanics : public RisingSpellMechanics
