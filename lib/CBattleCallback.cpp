@@ -335,6 +335,11 @@ int CBattleInfoEssentials::battleCastSpells(ui8 side) const
 	return getBattle()->sides[side].castSpellsCount;
 }
 
+const IBonusBearer * CBattleInfoEssentials::getBattleNode() const
+{
+	return getBattle();
+}
+
 ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(PlayerColor player, ECastingMode::ECastingMode mode) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
@@ -1645,7 +1650,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 
-	if(battleMaxSpellLevel() < spell->level) //effect like Recanter's Cloak or Orb of Inhibition
+	if(battleMaxSpellLevel(side) < spell->level) //effect like Recanter's Cloak or Orb of Inhibition
 		return ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED;
 
 	//checking if there exists an appropriate target
@@ -2060,12 +2065,14 @@ int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
 	return ret;
 }
 
-si8 CBattleInfoCallback::battleMaxSpellLevel() const
+si8 CBattleInfoCallback::battleMaxSpellLevel(ui8 side) const
 {
-	const CBonusSystemNode *node = nullptr;
-	if(const CGHeroInstance *h =  battleGetFightingHero(battleGetMySide()))
+	const IBonusBearer *node = nullptr;
+	if(const CGHeroInstance * h = battleGetFightingHero(side))
 		node = h;
-	//TODO else use battle node
+	else
+		node = getBattleNode();
+
 	if(!node)
 		return GameConstants::SPELL_LEVELS;
 

@@ -158,6 +158,7 @@ class DLL_LINKAGE CBattleInfoEssentials : public virtual CCallbackBase
 {
 protected:
 	bool battleDoWeKnowAbout(ui8 side) const;
+	const IBonusBearer * getBattleNode() const;
 public:
 	enum EStackOwnership
 	{
@@ -276,7 +277,7 @@ public:
 	std::vector<BattleHex> getAttackableBattleHexes() const;
 
 	//*** MAGIC 
-	si8 battleMaxSpellLevel() const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
+	si8 battleMaxSpellLevel(ui8 side) const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	ui32 battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(PlayerColor player, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(PlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell

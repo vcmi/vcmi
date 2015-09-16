@@ -4183,17 +4183,17 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 		}
 		if (st->hasBonusOfType(Bonus::MANA_DRAIN) && !vstd::contains(st->state, EBattleStackState::DRAINED_MANA))
 		{
-			const CGHeroInstance * enemy = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
-			//const CGHeroInstance * owner = gs->curB->getHero(st->owner);
-			if (enemy)
+			const PlayerColor opponent = gs->curB->theOtherPlayer(st->owner);
+			const CGHeroInstance * opponentHero = gs->curB->getHero(opponent);
+			if (opponentHero)
 			{
 				ui32 manaDrained = st->valOfBonuses(Bonus::MANA_DRAIN);
-				vstd::amin(manaDrained, gs->curB->battleGetFightingHero(0)->mana);
+				vstd::amin(manaDrained, opponentHero->mana);
 				if (manaDrained)
 				{
 					bte.effect = Bonus::MANA_DRAIN;
 					bte.val = manaDrained;
-					bte.additionalInfo = enemy->id.getNum(); //for sanity
+					bte.additionalInfo = opponentHero->id.getNum(); //for sanity
 					sendAndApply(&bte);
 				}
 			}
