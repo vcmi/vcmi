@@ -41,7 +41,6 @@ public:
 	ui8 casterSide;
 	PlayerColor casterColor;
 	const CGHeroInstance * casterHero; //deprecated
-	const CGHeroInstance * secHero;
 	int usedSpellPower;
 	ECastingMode::ECastingMode mode;
 	const CStack * casterStack;

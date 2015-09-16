@@ -232,7 +232,10 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	sc.castByHero = nullptr != parameters.casterHero;
 	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
 	sc.manaGained = 0;
-
+	
+	//check it there is opponent hero
+	const ui8 otherSide = 1-parameters.casterSide;
+	const CGHeroInstance * otherHero = parameters.cb->battleGetFightingHero(otherSide);
 	int spellCost = 0;
 
 	//calculate spell cost
@@ -240,12 +243,12 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	{
 		spellCost = parameters.cb->battleGetSpellCost(owner, parameters.casterHero);
 
-		if(parameters.secHero && parameters.mode == ECastingMode::HERO_CASTING) //handle mana channel
-		{
+		if(parameters.mode == ECastingMode::HERO_CASTING && nullptr != otherHero) //handle mana channel
+		{			
 			int manaChannel = 0;
 			for(const CStack * stack : parameters.cb->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
 			{
-				if(stack->owner == parameters.secHero->tempOwner)
+				if(stack->owner == otherHero->tempOwner)
 				{
 					vstd::amax(manaChannel, stack->valOfBonuses(Bonus::MANA_CHANNELING));
 				}
@@ -335,9 +338,9 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 
 		if(sc.manaGained > 0)
 		{
-			assert(parameters.secHero);
+			assert(otherHero);
 
-			sm.hid = parameters.secHero->id;
+			sm.hid = otherHero->id;
 			sm.val = sc.manaGained;
 			env->sendAndApply(&sm);
 		}
@@ -380,7 +383,6 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 			mirrorParameters.casterColor = (attackedCre)->owner;
 			mirrorParameters.casterHero = nullptr;
 			mirrorParameters.destination = targetHex;
-			mirrorParameters.secHero = parameters.casterHero;
 			mirrorParameters.mode = ECastingMode::MAGIC_MIRROR;
 			mirrorParameters.casterStack = (attackedCre);
 			mirrorParameters.selectedStack = nullptr;

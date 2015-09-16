@@ -3878,7 +3878,6 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				vstd::amin (p.spellLvl, 3);
 
 				p.casterSide = gs->curB->whatSide(stack->owner);
-				p.secHero = gs->curB->getHero(gs->curB->theOtherPlayer(stack->owner));
 				p.mode = ECastingMode::CREATURE_ACTIVE_CASTING;
 				p.destination = destination;
 				p.casterColor = stack->owner;	
@@ -4063,7 +4062,6 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 
 			const CGHeroInstance *h = gs->curB->battleGetFightingHero(ba.side);
-			const CGHeroInstance *secondHero = gs->curB->battleGetFightingHero(!ba.side);
 			if(!h)
 			{
                 logGlobal->warnStream() << "Wrong caster!";
@@ -4083,8 +4081,6 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			parameters.casterSide = ba.side;
 			parameters.casterColor =  h->tempOwner;	
 			parameters.casterHero = h;
-			parameters.secHero = secondHero;
-			
 			parameters.usedSpellPower = h->getPrimSkillLevel(PrimarySkill::SPELL_POWER);	
 			parameters.mode = ECastingMode::HERO_CASTING;
 			parameters.casterStack = nullptr;	
@@ -4242,7 +4238,6 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 					parameters.casterSide = side;
 					parameters.casterColor = st->owner;	
 					parameters.casterHero = nullptr;
-					parameters.secHero = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
 					parameters.usedSpellPower = 0;	
 					parameters.mode = ECastingMode::ENCHANTER_CASTING;
 					parameters.casterStack = st;	
@@ -4955,8 +4950,6 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 				parameters.casterSide = !attacker->attackerOwned;
 				parameters.casterColor = attacker->owner;	
 				parameters.casterHero = nullptr;
-				parameters.secHero = nullptr;
-
 				parameters.usedSpellPower = 0;	
 				parameters.mode = ECastingMode::AFTER_ATTACK_CASTING;
 				parameters.casterStack = attacker;	
@@ -4990,8 +4983,6 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		parameters.casterSide = !attacker->attackerOwned;
 		parameters.casterColor = attacker->owner;	
 		parameters.casterHero = nullptr;
-		parameters.secHero = nullptr;
-
 		parameters.usedSpellPower = power;	
 		parameters.mode = ECastingMode::AFTER_ATTACK_CASTING;
 		parameters.casterStack = attacker;	
@@ -5300,9 +5291,6 @@ void CGameHandler::runBattle()
 			parameters.casterSide = i;
 			parameters.casterColor = h->tempOwner;	
 			parameters.casterHero = nullptr;
-			parameters.secHero = gs->curB->battleGetFightingHero(1-i);
-			
-			
 			parameters.mode = ECastingMode::HERO_CASTING;
 			parameters.casterStack = nullptr;	
 			parameters.selectedStack = nullptr;	
