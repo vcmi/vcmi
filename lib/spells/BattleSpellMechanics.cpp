@@ -17,32 +17,8 @@
 ///HealingSpellMechanics
 void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
 {
-	int effectLevel = calculateEffectLevel(parameters);
-	int hpGained = 0;
-	EHealLevel healLevel = getHealLevel(effectLevel);
-	
-	if(owner->id == SpellID::SACRIFICE)
-	{
-		if(nullptr == parameters.selectedStack)
-			env->complain("No stack to sacrifice.");
-		else
-			hpGained = (parameters.usedSpellPower + parameters.selectedStack->MaxHealth() + owner->getPower(effectLevel)) * parameters.selectedStack->count;
-	}
-	else if(parameters.casterStack)
-	{
-		int unitSpellPower = parameters.casterStack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, owner->id.toEnum());
-		if(unitSpellPower)
-			hpGained = parameters.casterStack->count * unitSpellPower; //Archangel
-		else //Faerie Dragon-like effect - commanders(?)
-		{			
-			parameters.usedSpellPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * parameters.casterStack->count / 100;
-			hpGained = parameters.usedSpellPower * owner->power + owner->getPower(effectLevel);
-		}
-	}
-	else
-	{
-		hpGained = parameters.usedSpellPower * owner->power + owner->getPower(effectLevel); //???
-	}
+	EHealLevel healLevel = getHealLevel(ctx.effectLevel);
+	int hpGained = calculateHealedHP(env, parameters, ctx);
 	StacksHealedOrResurrected shr;
 	shr.lifeDrain = false;
 	shr.tentHealing = false;
@@ -58,15 +34,34 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, 
 		}
 		else
 		{
-			int stackHPgained = parameters.casterHero->getSpellBonus(owner, hpGained, attackedCre); 
-			hi.healedHP = attackedCre->calculateHealedHealthPoints(stackHPgained, resurrect);		
+			int stackHPgained = parameters.casterHero->getSpellBonus(owner, hpGained, attackedCre);
+			hi.healedHP = attackedCre->calculateHealedHealthPoints(stackHPgained, resurrect);
 		}
-			
+
 		hi.lowLevelResurrection = (healLevel == EHealLevel::RESURRECT);
 		shr.healedStacks.push_back(hi);
 	}
 	if(!shr.healedStacks.empty())
-		env->sendAndApply(&shr);	
+		env->sendAndApply(&shr);
+}
+
+int HealingSpellMechanics::calculateHealedHP(const SpellCastEnvironment* env, const BattleSpellCastParameters& parameters, const SpellCastContext& ctx) const
+{
+	if(parameters.casterStack)
+	{
+		int unitSpellPower = parameters.casterStack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, owner->id.toEnum());
+		if(unitSpellPower)
+			return parameters.casterStack->count * unitSpellPower; //Archangel
+		else //Faerie Dragon-like effect - commanders(?)
+		{			
+			int spellPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * parameters.casterStack->count / 100;
+			return spellPower * owner->power + owner->getPower(ctx.effectLevel);
+		}
+	}
+	else
+	{
+		return parameters.usedSpellPower * owner->power + owner->getPower(ctx.effectLevel); //???
+	}	
 }
 
 ///AntimagicMechanics
@@ -588,6 +583,15 @@ void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, Ba
 	env->sendAndApply(&bsr);
 }
 
+int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const BattleSpellCastParameters& parameters, const SpellCastContext& ctx) const
+{
+	int res = 0;
+	if(nullptr == parameters.selectedStack)
+		env->complain("No stack to sacrifice.");
+	else
+		res = (parameters.usedSpellPower + parameters.selectedStack->MaxHealth() + owner->getPower(ctx.effectLevel)) * parameters.selectedStack->count;
+	return res;
+}
 
 ///SpecialRisingSpellMechanics
 ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const

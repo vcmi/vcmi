@@ -25,7 +25,7 @@ public:
 	HealingSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};	
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
- 
+	virtual int calculateHealedHP(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, const SpellCastContext & ctx) const;
 	virtual EHealLevel getHealLevel(int effectLevel) const = 0;
 };
 
@@ -130,6 +130,7 @@ public:
 	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	int calculateHealedHP(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, const SpellCastContext & ctx) const override;	
 };
 
 ///all rising spells but SACRIFICE

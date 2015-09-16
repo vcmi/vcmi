@@ -22,7 +22,8 @@ struct SpellCastContext
 		attackedCres(attackedCres), sc(sc), si(si){};
 	std::vector<const CStack *> & attackedCres;
 	BattleSpellCast & sc;
-	StacksInjured & si;
+	StacksInjured & si;	
+	int effectLevel;
 };
 
 enum class ESpellCastResult

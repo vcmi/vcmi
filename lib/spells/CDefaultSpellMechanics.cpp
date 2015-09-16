@@ -316,6 +316,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 
 	StacksInjured si;
 	SpellCastContext ctx(attackedCres, sc, si);
+	ctx.effectLevel = calculateEffectLevel(parameters);
 
 	applyBattleEffects(env, parameters, ctx);
 
@@ -515,7 +516,6 @@ int DefaultSpellMechanics::calculateEffectLevel(const BattleSpellCastParameters&
 
 void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	int effectLevel = calculateEffectLevel(parameters);
 	//applying effects
 	if(owner->isOffensiveSpell())
 	{
@@ -537,7 +537,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 			if(spellDamage)
 				bsa.damageAmount = spellDamage >> chainLightningModifier;
 			else
-				bsa.damageAmount =  owner->calculateDamage(parameters.casterHero, attackedCre, effectLevel, parameters.usedSpellPower) >> chainLightningModifier;
+				bsa.damageAmount =  owner->calculateDamage(parameters.casterHero, attackedCre, ctx.effectLevel, parameters.usedSpellPower) >> chainLightningModifier;
 
 			ctx.sc.dmgToDisplay += bsa.damageAmount;
 
@@ -568,7 +568,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		{
 			int maxDuration = 0;
 			std::vector<Bonus> tmp;
-			owner->getEffects(tmp, effectLevel);
+			owner->getEffects(tmp, ctx.effectLevel);
 			for(Bonus& b : tmp)
 			{
 				//use configured duration if present
