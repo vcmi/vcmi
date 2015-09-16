@@ -2475,6 +2475,8 @@ bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CSta
 		else
 			isCastingPossible = (curInt->cb->battleCanCastThisSpell (sp, myNumber) == ESpellCastProblem::OK);
 	}
+	else
+		isCastingPossible = false;
 	if(!myNumber.isAvailable() && !shere) //empty tile outside battlefield (or in the unavailable border column)
 			isCastingPossible = false;
 
