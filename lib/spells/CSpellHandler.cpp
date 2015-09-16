@@ -132,30 +132,42 @@ bool CSpell::isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const 
 	if(!hasSpellBook)
 		return false;
 
-	const bool inSpellBook = vstd::contains(spellBook, id);
-	const bool isBonus = caster->hasBonusOfType(Bonus::SPELL, id);
+	const bool isAllowed = IObjectInterface::cb->isAllowed(0, id);
 
-	bool inTome = false;
+	const bool inSpellBook = vstd::contains(spellBook, id);
+	const bool specificBonus = caster->hasBonusOfType(Bonus::SPELL, id);
+
+	bool schoolBonus = false;
 
 	forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
 	{
 		if(caster->hasBonusOfType(cnf.knoledgeBonus))
 		{
-			inTome = stop = true;
+			schoolBonus = stop = true;
 		}
 	});
+
+	const bool levelBonus = caster->hasBonusOfType(Bonus::SPELLS_OF_LEVEL, level);
 
     if (isSpecialSpell())
     {
         if (inSpellBook)
         {//hero has this spell in spellbook
-            logGlobal->errorStream() << "Special spell in spellbook "<<name;
+            logGlobal->errorStream() << "Special spell " << name << "in spellbook.";
         }
-        return isBonus;
+        return specificBonus;
+    }
+    else if(!isAllowed)
+    {
+        if (inSpellBook)
+        {//hero has this spell in spellbook
+            logGlobal->errorStream() << "Banned spell " << name << " in spellbook.";
+        }
+        return specificBonus;
     }
     else
     {
-       return inSpellBook || inTome || isBonus || caster->hasBonusOfType(Bonus::SPELLS_OF_LEVEL, level);
+       return inSpellBook || schoolBonus || specificBonus || levelBonus;
     }
 }
 
