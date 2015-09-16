@@ -223,6 +223,8 @@ ESpellCastResult DefaultSpellMechanics::applyAdventureEffects(const SpellCastEnv
 
 void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
 {
+	logGlobal->debugStream() << "Started spell cast. Spell: "<<owner->name<<"; mode:"<<parameters.mode<<"; level: "<<parameters.spellLvl<<"; SP: "<<parameters.usedSpellPower;
+
 	BattleSpellCast sc;
 	sc.side = parameters.casterSide;
 	sc.id = owner->id;
@@ -256,6 +258,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 			sc.manaGained = (manaChannel * spellCost) / 100;
 		}
 	}
+	logGlobal->debugStream() << "spellCost: " << spellCost;
 
 	//calculating affected creatures for all spells
 	//must be vector, as in Chain Lightning order matters
@@ -263,6 +266,8 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 
 	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.casterHero);
 	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
+
+	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";
 
 	std::vector <const CStack*> reflected;//for magic mirror
 	
@@ -362,7 +367,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 		ssp.absolute = false;
 		env->sendAndApply(&ssp);
 	}
-
+	logGlobal->debugStream() << "Finished spell cast. Spell: "<<owner->name<<"; mode:"<<parameters.mode;
 	//Magic Mirror effect
 	for(auto & attackedCre : reflected)
 	{
