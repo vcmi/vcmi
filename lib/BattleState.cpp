@@ -1192,7 +1192,7 @@ ui8 CStack::getSpellSchoolLevel(const CSpell * spell, int * outSelectedSchool) c
 
 ui32 CStack::getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const
 {
-	//stacks does not have spellpower etc. (yet?)
+	//stacks does not have sorcery-like bonuses (yet?)
 	return base;
 }
 

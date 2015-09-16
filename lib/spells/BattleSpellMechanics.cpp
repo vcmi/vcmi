@@ -529,7 +529,8 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 	if(obj->count >= obj->baseAmount)
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 
-	if(caster) //FIXME: Archangels can cast immune stack
+	//FIXME: Archangels can cast immune stack and this should be applied for them and not hero
+	if(caster) 
 	{
 		auto maxHealth = calculateHealedHP(caster, obj, nullptr);
 		if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
