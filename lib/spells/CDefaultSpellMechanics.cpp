@@ -517,9 +517,8 @@ ui32 DefaultSpellMechanics::calculateHealedHP(const CGHeroInstance* caster, cons
 	else
 		healedHealth = spellPowerSkill * owner->power + levelPower; //???
 	healedHealth = caster->getSpellBonus(owner, healedHealth, stack);
-	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (owner->isRisingSpell() ? stack->baseAmount * stack->MaxHealth() : 0));
+	return stack->calculateHealedHealthPoints(healedHealth, owner->isRisingSpell());
 }
-
 
 void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
@@ -675,7 +674,10 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 			if(unitSpellPower)
 				hpGained = parameters.casterStack->count * unitSpellPower; //Archangel
 			else //Faerie Dragon-like effect - unused so far
+			{			
 				parameters.usedSpellPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * parameters.casterStack->count / 100;
+				hpGained =  parameters.usedSpellPower * owner->power + owner->getPower(effectLevel);
+			}
 		}
 		StacksHealedOrResurrected shr;
 		shr.lifeDrain = false;
@@ -687,21 +689,11 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 			if (parameters.casterStack) //casted by creature
 			{
 				const bool resurrect = owner->isRisingSpell();
-				if (hpGained)
-				{
-					//archangel
-					hi.healedHP = std::min<ui32>(hpGained, attackedCre->MaxHealth() - attackedCre->firstHPleft + (resurrect ? attackedCre->baseAmount * attackedCre->MaxHealth() : 0));
-				}
-				else
-				{
-					//any typical spell (commander's cure or animate dead)
-					int healedHealth = parameters.usedSpellPower * owner->power + owner->getPower(effectLevel);
-					hi.healedHP = std::min<ui32>(healedHealth, attackedCre->MaxHealth() - attackedCre->firstHPleft + (resurrect ? attackedCre->baseAmount * attackedCre->MaxHealth() : 0));
-				}
+				hi.healedHP = attackedCre->calculateHealedHealthPoints(hpGained, resurrect);
 			}
 			else
 				hi.healedHP = calculateHealedHP(parameters.casterHero, attackedCre, parameters.selectedStack); //Casted by hero
-			hi.lowLevelResurrection = (effectLevel <= 1) && (owner->id != SpellID::ANIMATE_DEAD);
+			hi.lowLevelResurrection = (effectLevel <= 1) && (owner->id == SpellID::RESURRECTION);
 			shr.healedStacks.push_back(hi);
 		}
 		if(!shr.healedStacks.empty())

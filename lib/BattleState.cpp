@@ -1170,6 +1170,17 @@ bool CStack::canBeHealed() const
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON);
 }
 
+ui32 CStack::calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) const
+{
+	if(!resurrect && !alive())
+	{
+		logGlobal->warnStream() <<"Attempt to heal corpse detected.";
+		return 0;
+	}
+
+	return std::min<ui32>(toHeal, MaxHealth() - firstHPleft + (resurrect ? baseAmount * MaxHealth() : 0));
+}
+
 ui8 CStack::getSpellSchoolLevel(const CSpell * spell, int * outSelectedSchool) const
 {
 	int skill = valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, spell->id));

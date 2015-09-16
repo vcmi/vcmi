@@ -203,6 +203,8 @@ public:
 	bool waited(int turn = 0) const;
 	bool canMove(int turn = 0) const; //if stack can move
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
+	///returns actual heal value based on internal state
+	ui32 calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) const;
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance
 	static void stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse);
