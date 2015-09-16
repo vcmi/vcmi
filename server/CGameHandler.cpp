@@ -845,14 +845,13 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 	if (att->hasBonusOfType(Bonus::LIFE_DRAIN) && def->isLiving())
 	{
 		StacksHealedOrResurrected shi;
-		shi.lifeDrain = (ui8)true;
-		shi.tentHealing = (ui8)false;
+		shi.lifeDrain = true;
+		shi.tentHealing = false;
 		shi.drainedFrom = def->ID;
 
 		StacksHealedOrResurrected::HealInfo hi;
 		hi.stackID = att->ID;
-		hi.healedHP = std::min<int> (bsa.damageAmount * att->valOfBonuses (Bonus::LIFE_DRAIN) / 100,
-			att->MaxHealth() - att->firstHPleft + att->MaxHealth() * (att->baseAmount - att->count) );
+		hi.healedHP = att->calculateHealedHealthPoints(bsa.damageAmount * att->valOfBonuses (Bonus::LIFE_DRAIN) / 100, true);
 		hi.lowLevelResurrection = false;
 		shi.healedStacks.push_back(hi);
 
@@ -3771,14 +3770,17 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			const CStack *healer = gs->curB->battleGetStackByID(ba.stackNumber),
 				*destStack = gs->curB->battleGetStackByPos(ba.destinationTile);
 
+			ui32 healed = 0;
+
 			if(healer == nullptr || destStack == nullptr || !healer->hasBonusOfType(Bonus::HEALER))
 			{
 				complain("There is either no healer, no destination, or healer cannot heal :P");
 			}
-			int maxHealable = destStack->MaxHealth() - destStack->firstHPleft;
-			int maxiumHeal = healer->count * std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::FIRST_AID));
-
-			int healed = std::min(maxHealable, maxiumHeal);
+			else
+			{
+				ui32 maxiumHeal = healer->count * std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::FIRST_AID));
+				healed = destStack->calculateHealedHealthPoints(maxiumHeal, false);
+			}
 
 			if(healed == 0)
 			{
@@ -3799,8 +3801,6 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				shr.healedStacks.push_back(hi);
 				sendAndApply(&shr);
 			}
-
-
 			sendAndApply(&end_action);
 			break;
 		}

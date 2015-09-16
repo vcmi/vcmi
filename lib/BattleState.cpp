@@ -1178,7 +1178,7 @@ ui32 CStack::calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) cons
 		return 0;
 	}
 
-	return std::min<ui32>(toHeal, MaxHealth() - firstHPleft + (resurrect ? baseAmount * MaxHealth() : 0));
+	return std::min<ui32>(toHeal, MaxHealth() - firstHPleft + (resurrect ? (baseAmount - count) * MaxHealth() : 0));
 }
 
 ui8 CStack::getSpellSchoolLevel(const CSpell * spell, int * outSelectedSchool) const
