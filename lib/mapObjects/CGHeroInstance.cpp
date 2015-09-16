@@ -905,7 +905,46 @@ ui32 CGHeroInstance::getSpellBonus(const CSpell * spell, ui32 base, const CStack
 
 bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {
-	return spell->isCastableBy(this, nullptr !=getArt(ArtifactPosition::SPELLBOOK), spells);
+	if(nullptr == getArt(ArtifactPosition::SPELLBOOK))
+		return false;
+
+	const bool isAllowed = IObjectInterface::cb->isAllowed(0, spell->id);
+
+	const bool inSpellBook = vstd::contains(spells, spell->id);
+	const bool specificBonus = hasBonusOfType(Bonus::SPELL, spell->id);
+
+	bool schoolBonus = false;
+
+	spell->forEachSchool([this, &schoolBonus](const SpellSchoolInfo & cnf, bool & stop)
+	{
+		if(hasBonusOfType(cnf.knoledgeBonus))
+		{
+			schoolBonus = stop = true;
+		}
+	});
+
+	const bool levelBonus = hasBonusOfType(Bonus::SPELLS_OF_LEVEL, spell->level);
+
+    if (spell->isSpecialSpell())
+    {
+        if (inSpellBook)
+        {//hero has this spell in spellbook
+            logGlobal->errorStream() << "Special spell " << spell->name << "in spellbook.";
+        }
+        return specificBonus;
+    }
+    else if(!isAllowed)
+    {
+        if (inSpellBook)
+        {//hero has this spell in spellbook
+            logGlobal->errorStream() << "Banned spell " << spell->name << " in spellbook.";
+        }
+        return specificBonus;
+    }
+    else
+    {
+		return inSpellBook || schoolBonus || specificBonus || levelBonus;
+    }
 }
 
 /**

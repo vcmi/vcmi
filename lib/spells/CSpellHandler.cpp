@@ -127,50 +127,6 @@ void CSpell::battleCast(const SpellCastEnvironment * env, BattleSpellCastParamet
 	mechanics->battleCast(env, parameters);
 }
 
-bool CSpell::isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const
-{
-	if(!hasSpellBook)
-		return false;
-
-	const bool isAllowed = IObjectInterface::cb->isAllowed(0, id);
-
-	const bool inSpellBook = vstd::contains(spellBook, id);
-	const bool specificBonus = caster->hasBonusOfType(Bonus::SPELL, id);
-
-	bool schoolBonus = false;
-
-	forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
-	{
-		if(caster->hasBonusOfType(cnf.knoledgeBonus))
-		{
-			schoolBonus = stop = true;
-		}
-	});
-
-	const bool levelBonus = caster->hasBonusOfType(Bonus::SPELLS_OF_LEVEL, level);
-
-    if (isSpecialSpell())
-    {
-        if (inSpellBook)
-        {//hero has this spell in spellbook
-            logGlobal->errorStream() << "Special spell " << name << "in spellbook.";
-        }
-        return specificBonus;
-    }
-    else if(!isAllowed)
-    {
-        if (inSpellBook)
-        {//hero has this spell in spellbook
-            logGlobal->errorStream() << "Banned spell " << name << " in spellbook.";
-        }
-        return specificBonus;
-    }
-    else
-    {
-       return inSpellBook || schoolBonus || specificBonus || levelBonus;
-    }
-}
-
 const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 {
 	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
