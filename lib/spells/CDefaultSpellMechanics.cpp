@@ -223,38 +223,15 @@ ESpellCastResult DefaultSpellMechanics::applyAdventureEffects(const SpellCastEnv
 
 void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
 {
-	logGlobal->debugStream() << "Started spell cast. Spell: "<<owner->name<<"; mode:"<<parameters.mode<<"; level: "<<parameters.spellLvl;
-
-
-	parameters.effectLevel = calculateEffectLevel(parameters);	
+	logGlobal->debugStream() << "Started spell cast. Spell: "<<owner->name<<"; mode:"<<parameters.mode;
 	
-	if(parameters.casterStack)
-	{
-		if(parameters.enchantPower == 0)
-			parameters.enchantPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);;
-		if(parameters.enchantPower == 0)
-			parameters.enchantPower = 3; //default for creatures
-		//Fairy Dragon, etc.	
-		int effectPower = parameters.casterStack->valOfBonuses(Bonus::CREATURE_SPELL_POWER) * parameters.casterStack->count / 100;
-		if(parameters.effectPower == 0)
-			parameters.effectPower = effectPower;
-		//Archangel, etc 
-		int unitSpellPower = parameters.casterStack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, owner->id.toEnum());
-		if(parameters.effectValue == 0)
-			parameters.effectValue = parameters.casterStack->count * unitSpellPower; 						
-	}
-	else if (parameters.casterHero)
-	{
-		if(parameters.enchantPower == 0)
-			parameters.enchantPower = parameters.casterHero->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + parameters.casterHero->valOfBonuses(Bonus::SPELL_DURATION);	
-		if(parameters.effectPower == 0)
-			parameters.effectPower = parameters.casterHero->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
-	}
-	else
+	if(nullptr == parameters.caster)
 	{
 		env->complain("No spell-caster provided.");
 		return;		
 	}
+	
+	const ISpellCaster * caster = parameters.caster;
 
 	BattleSpellCast sc;
 	prepareBattleCast(parameters, sc);
@@ -331,11 +308,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	StacksInjured si;
 	SpellCastContext ctx(attackedCres, sc, si);
 
-
-	if(parameters.casterStack)
-		ctx.caster = parameters.casterStack;
-	else if(parameters.casterHero)
-		ctx.caster = parameters.casterHero;
+	ctx.caster = caster;
 	
 	applyBattleEffects(env, parameters, ctx);
 
@@ -504,20 +477,6 @@ void DefaultSpellMechanics::battleLogSingleTarget(std::vector<std::string> & log
 		break;
 	}	
 }
-
-int DefaultSpellMechanics::calculateEffectLevel(const BattleSpellCastParameters& parameters) const
-{
-	int effectLevel = parameters.spellLvl;
-	{
-		//MAXED_SPELL bonus.
-		if(parameters.casterHero != nullptr)
-			if(parameters.casterHero->hasBonusOfType(Bonus::MAXED_SPELL, owner->id))
-				effectLevel = 3;
-	}
-	
-	return effectLevel;	
-}
-
 
 void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {

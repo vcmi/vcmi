@@ -902,6 +902,28 @@ ui32 CGHeroInstance::getSpellBonus(const CSpell * spell, ui32 base, const CStack
 	return base;	
 }
 
+int CGHeroInstance::getEffectLevel(const CSpell * spell) const
+{
+	if(hasBonusOfType(Bonus::MAXED_SPELL, spell->id))
+		return 3;//todo: recheck specialty from where this bonus is. possible bug
+	else
+		return getSpellSchoolLevel(spell);		
+}
+
+int CGHeroInstance::getEffectPower(const CSpell * spell) const
+{
+	return getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+}
+
+int CGHeroInstance::getEnchantPower(const CSpell * spell) const
+{
+	return getPrimSkillLevel(PrimarySkill::SPELL_POWER) + valOfBonuses(Bonus::SPELL_DURATION);	
+}
+
+int CGHeroInstance::getEffectValue(const CSpell * spell) const
+{
+	return 0;
+}
 
 bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {

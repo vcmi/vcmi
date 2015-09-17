@@ -58,8 +58,6 @@ public:
 protected:
 	virtual void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
 
-	int calculateEffectLevel(const BattleSpellCastParameters & parameters) const;
-	
 	///actual adventure cast implementation
 	virtual ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
 	

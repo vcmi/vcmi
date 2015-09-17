@@ -12,8 +12,7 @@
 
 #include "CSpellHandler.h"
 #include "../BattleHex.h"
-#include "../BattleState.h"
-#include "../NetPacks.h"
+
 
 ///callback to be provided by server
 class DLL_LINKAGE SpellCastEnvironment
@@ -35,26 +34,30 @@ public:
 struct DLL_LINKAGE BattleSpellCastParameters
 {
 public:
-	BattleSpellCastParameters(const BattleInfo * cb);
-	///spell school level , 0-use default
+	BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell);
+	const BattleInfo * cb;
+	const ISpellCaster * caster;
+	ui8 casterSide;
+	PlayerColor casterColor;	
+	///spell school level , -1-use default
 	int spellLvl;
 	BattleHex destination;
-	ui8 casterSide;
-	PlayerColor casterColor;
 	const CGHeroInstance * casterHero; //deprecated
 	ECastingMode::ECastingMode mode;
-	const CStack * casterStack;
+	const CStack * casterStack; //deprecated
 	const CStack * selectedStack;
-	const BattleInfo * cb;
+
 	
-	///spell school level to use for effects, 0-use spellLvl
+	///spell school level to use for effects
 	int effectLevel;
-	///actual spell-power affecting effect values, 0-use default
+	///actual spell-power affecting effect values
 	int effectPower;
-	///actual spell-power affecting effect duration, 0-use default
+	///actual spell-power affecting effect duration
 	int enchantPower;
-	///for Archangel-like casting, 0-use default
-	int effectValue;	
+	///for Archangel-like casting
+	int effectValue;
+private:	
+	void prepare(const CSpell * spell);
 };
 
 struct DLL_LINKAGE AdventureSpellCastParameters

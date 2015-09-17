@@ -26,7 +26,9 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../BattleState.h"
 #include "../CBattleCallback.h"
-#include "../CGameState.h"
+#include "../CGameState.h" //todo: remove
+
+#include "../NetPacks.h" //todo: remove
 
 #include "ISpellMechanics.h"
 

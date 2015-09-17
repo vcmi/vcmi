@@ -210,6 +210,18 @@ public:
 	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const override;
 	ui32 getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const override;
 	
+	///default spell school level for effect calculation
+	int getEffectLevel(const CSpell * spell) const override;
+
+	///default spell-power for damage/heal calculation
+	int getEffectPower(const CSpell * spell) const override;
+
+	///default spell-power for timed effects duration
+	int getEnchantPower(const CSpell * spell) const override;
+
+	///damage/heal override(ignores spell configuration, effect level and effect power)
+	int getEffectValue(const CSpell * spell) const override;
+	
 	void deserializationFix();
 
 	void initObj() override;

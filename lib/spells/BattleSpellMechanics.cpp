@@ -636,6 +636,8 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battl
 ///TeleportMechanics
 void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
+	//todo: check legal teleport
+	
 	BattleStackMoved bsm;
 	bsm.distance = -1;
 	bsm.stack = parameters.selectedStack->ID;

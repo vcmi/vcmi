@@ -3868,24 +3868,20 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				complain("That stack can't cast spells!");
 			else
 			{
-				BattleSpellCastParameters parameters(gs->curB);				
-				
+				const CSpell * spell = SpellID(spellID).toSpell();				
+				BattleSpellCastParameters parameters(gs->curB, stack, spell);				
 				parameters.spellLvl = 0;
 				if (spellcaster)
 					vstd::amax(parameters.spellLvl, spellcaster->val);
 				if (randSpellcaster)
 					vstd::amax(parameters.spellLvl, randSpellcaster->val);
 				vstd::amin (parameters.spellLvl, 3);
-
+				parameters.effectLevel = parameters.spellLvl;
 				parameters.casterSide = gs->curB->whatSide(stack->owner);
 				parameters.mode = ECastingMode::CREATURE_ACTIVE_CASTING;
 				parameters.destination = destination;
 				parameters.casterColor = stack->owner;	
-				parameters.casterHero = nullptr;
-				parameters.casterStack = stack;	
-				parameters.selectedStack = nullptr;				
-
-				const CSpell * spell = SpellID(spellID).toSpell();
+				parameters.selectedStack = nullptr;
 				spell->battleCast(spellEnv, parameters);
 			}
 			sendAndApply(&end_action);
@@ -4074,14 +4070,11 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			const CSpell * s = SpellID(ba.additionalInfo).toSpell();
 			
-			BattleSpellCastParameters parameters(gs->curB);
-			parameters.spellLvl =  h->getSpellSchoolLevel(s);
+			BattleSpellCastParameters parameters(gs->curB, h, s);
 			parameters.destination = ba.destinationTile;
 			parameters.casterSide = ba.side;
 			parameters.casterColor =  h->tempOwner;	
-			parameters.casterHero = h;
 			parameters.mode = ECastingMode::HERO_CASTING;
-			parameters.casterStack = nullptr;	
 			parameters.selectedStack = gs->curB->battleGetStackByID(ba.selectedStack, false);			
 
 			ESpellCastProblem::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h->tempOwner, s, ECastingMode::HERO_CASTING);
@@ -4230,14 +4223,13 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 				
 				if (gs->curB->battleCanCastThisSpell(st->owner, spell, ECastingMode::ENCHANTER_CASTING) == ESpellCastProblem::OK)
 				{
-					BattleSpellCastParameters parameters(gs->curB);
+					BattleSpellCastParameters parameters(gs->curB, st, spell);
 					parameters.spellLvl = bonus->val;
+					parameters.effectLevel = bonus->val;//todo: recheck
 					parameters.destination = BattleHex::INVALID;
 					parameters.casterSide = side;
 					parameters.casterColor = st->owner;	
-					parameters.casterHero = nullptr;
 					parameters.mode = ECastingMode::ENCHANTER_CASTING;
-					parameters.casterStack = st;	
 					parameters.selectedStack = nullptr;
 					
 					spell->battleCast(spellEnv, parameters);				
@@ -4942,14 +4934,13 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			{
 				const CSpell * spell = SpellID(spellID).toSpell();
 
-				BattleSpellCastParameters parameters(gs->curB);
+				BattleSpellCastParameters parameters(gs->curB, attacker, spell);
 				parameters.spellLvl = spellLevel;
+				parameters.effectLevel = spellLevel;
 				parameters.destination = destination;
 				parameters.casterSide = !attacker->attackerOwned;
 				parameters.casterColor = attacker->owner;	
-				parameters.casterHero = nullptr;
 				parameters.mode = ECastingMode::AFTER_ATTACK_CASTING;
-				parameters.casterStack = attacker;	
 				parameters.selectedStack = nullptr;
 
 				spell->battleCast(spellEnv, parameters);			
@@ -4974,15 +4965,14 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	{
 		const CSpell * spell = SpellID(spellID).toSpell();
 
-		BattleSpellCastParameters parameters(gs->curB);
+		BattleSpellCastParameters parameters(gs->curB, attacker, spell);
 		parameters.spellLvl = 0;
+		parameters.effectLevel = 0;
 		parameters.destination = gs->curB->battleGetStackByID(bat.bsa.at(0).stackAttacked)->position;
 		parameters.casterSide = !attacker->attackerOwned;
 		parameters.casterColor = attacker->owner;	
-		parameters.casterHero = nullptr;
 		parameters.effectPower = power;	
 		parameters.mode = ECastingMode::AFTER_ATTACK_CASTING;
-		parameters.casterStack = attacker;	
 		parameters.selectedStack = nullptr;
 
 		spell->battleCast(this->spellEnv, parameters);		
@@ -5282,22 +5272,18 @@ void CGameHandler::runBattle()
 		{
 			TBonusListPtr bl = h->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));		
 			
-			BattleSpellCastParameters parameters(gs->curB);
-			parameters.spellLvl = 3;
-			parameters.destination = BattleHex::INVALID;
-			parameters.casterSide = i;
-			parameters.casterColor = h->tempOwner;	
-			parameters.casterHero = h;
-			parameters.mode = ECastingMode::PASSIVE_CASTING;
-			parameters.casterStack = nullptr;	
-			parameters.selectedStack = nullptr;	
-					
 			for (Bonus *b : *bl)
 			{
-				parameters.enchantPower = b->val;	
-				
 				const CSpell * spell = SpellID(b->subtype).toSpell();
-				
+				BattleSpellCastParameters parameters(gs->curB, h, spell);
+				parameters.spellLvl = 3;
+				parameters.effectLevel = 3;
+				parameters.destination = BattleHex::INVALID;
+				parameters.casterSide = i;
+				parameters.casterColor = h->tempOwner;	
+				parameters.mode = ECastingMode::PASSIVE_CASTING;
+				parameters.selectedStack = nullptr;					
+				parameters.enchantPower = b->val;
 				spell->battleCast(spellEnv, parameters);
 			}
 		}

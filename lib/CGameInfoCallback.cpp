@@ -173,7 +173,7 @@ int CGameInfoCallback::estimateSpellDamage(const CSpell * sp, const CGHeroInstan
 	ERROR_RET_VAL_IF(hero && !canGetFullInfo(hero), "Cannot get info about caster!", -1);
 
 	if (hero) //we see hero's spellbook
-		return sp->calculateDamage(hero, nullptr, hero->getSpellSchoolLevel(sp), hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER));
+		return sp->calculateDamage(hero, nullptr, hero->getEffectLevel(sp), hero->getEffectPower(sp));
 	else
 		return 0; //mage guild
 }

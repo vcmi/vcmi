@@ -2103,9 +2103,9 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			{
 				ui8 skill = 0;
 				if (creatureCasting)
-					skill = sactive->getSpellSchoolLevel(SpellID(SpellID::TELEPORT).toSpell());
+					skill = sactive->getEffectLevel(SpellID(SpellID::TELEPORT).toSpell());
 				else
-					skill = getActiveHero()->getSpellSchoolLevel (CGI->spellh->objects[spellToCast->additionalInfo]);
+					skill = getActiveHero()->getEffectLevel(SpellID(SpellID::TELEPORT).toSpell());
 				//TODO: explicitely save power, skill
 				if (curInt->cb->battleCanTeleportTo(selectedStack, myNumber, skill))
 					legalAction = true;

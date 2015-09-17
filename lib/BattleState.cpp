@@ -1196,6 +1196,29 @@ ui32 CStack::getSpellBonus(const CSpell * spell, ui32 base, const CStack * affec
 	return base;
 }
 
+int CStack::getEffectLevel(const CSpell * spell) const
+{
+	return getSpellSchoolLevel(spell);
+}
+
+int CStack::getEffectPower(const CSpell * spell) const
+{
+	return valOfBonuses(Bonus::CREATURE_SPELL_POWER) * count / 100;
+}
+
+int CStack::getEnchantPower(const CSpell * spell) const
+{
+	int res = valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
+	if(res<=0)
+		res = 3;//default for creatures
+	return res;
+}
+
+int CStack::getEffectValue(const CSpell * spell) const
+{
+	return valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spell->id.toEnum()) * count;
+}
+
 bool CMP_stack::operator()( const CStack* a, const CStack* b )
 {
 	switch(phase)
