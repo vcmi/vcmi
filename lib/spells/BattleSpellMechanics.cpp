@@ -227,13 +227,13 @@ void DispellMechanics::applyBattleEffects(const SpellCastEnvironment * env, Batt
 ///EarthquakeMechanics
 void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	if(nullptr == parameters.cb->town)
+	if(nullptr == parameters.cb->battleGetDefendedTown())
 	{
 		env->complain("EarthquakeMechanics: not town siege");
 		return;
 	}
 
-	if(CGTownInstance::NONE == parameters.cb->town->fortLevel())
+	if(CGTownInstance::NONE == parameters.cb->battleGetDefendedTown()->fortLevel())
 	{
 		env->complain("EarthquakeMechanics: town has no fort");
 		return;
