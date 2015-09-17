@@ -402,7 +402,7 @@ int CSpell::calculateRawEffectValue(int effectLevel, int effectPower) const
 	return effectPower * power + getPower(effectLevel);	
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj) const
+ESpellCastProblem::ESpellCastProblem CSpell::internalIsImmune(const ISpellCaster * caster, const CStack *obj) const
 {
 	//todo: use new bonus API
 	//1. Check absolute limiters
@@ -435,9 +435,21 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj)
 		return ESpellCastProblem::OK;
 		
 	//3. Check negation
-	//FIXME: Orb of vulnerability mechanics is not such trivial
-	if(obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES)) //Orb of vulnerability
+	//Orb of vulnerability
+	//FIXME: Orb of vulnerability mechanics is not such trivial (issue 1791)
+	const bool battleWideNegation = obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, 0);
+	const bool heroNegation = obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, 1);
+	//anyone can cast on artifact holder`s stacks
+	if(heroNegation) 
 		return ESpellCastProblem::NOT_DECIDED;
+	//this stack is from other player
+	//todo: check that caster is always present (not trivial is this case)
+	//todo: NEGATE_ALL_NATURAL_IMMUNITIES special cases: dispell, chain lightning
+	else if(battleWideNegation && caster)
+	{
+		if(obj->owner != caster->getOwner())
+			return ESpellCastProblem::NOT_DECIDED;
+	}
 
 	//4. Check negatable limit
 	for(auto b : limiters)

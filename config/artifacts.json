@@ -1324,10 +1324,17 @@
 		"bonuses" : [
 			{
 				"type" : "NEGATE_ALL_NATURAL_IMMUNITIES",
+				"subtype" : 0,
 				"val" : 0,
 				"valueType" : "BASE_NUMBER",
 				"propagator": "BATTLE_WIDE"
-			}
+			},
+			{
+				"type" : "NEGATE_ALL_NATURAL_IMMUNITIES",
+				"subtype" : 1,
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}			
 		],
 		"index" : 93,
 		"type" : ["HERO"]

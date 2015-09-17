@@ -746,7 +746,7 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCasted(const CB
 ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
 {
 	//by default use general algorithm
-	return owner->isImmuneBy(obj);
+	return owner->internalIsImmune(caster, obj);
 }
 
 void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const

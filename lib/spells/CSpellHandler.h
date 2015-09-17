@@ -298,7 +298,7 @@ public://internal, for use only by Mechanics classes
 	///returns raw damage or healed HP
 	int calculateRawEffectValue(int effectLevel, int effectPower) const;		
 	///generic immunity calculation
-	ESpellCastProblem::ESpellCastProblem isImmuneBy(const IBonusBearer *obj) const;
+	ESpellCastProblem::ESpellCastProblem internalIsImmune(const ISpellCaster * caster, const CStack *obj) const;
 
 private:
 	void setIsOffensive(const bool val);

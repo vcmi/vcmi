@@ -13,6 +13,7 @@
 
 #include "../NetPacks.h"
 #include "../BattleState.h"
+#include "../mapObjects/CGHeroInstance.h"
 
 ///HealingSpellMechanics
 void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
@@ -505,13 +506,18 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCasted(const CBatt
 
 	bool targetExists = false;
 	bool targetToSacrificeExists = false;
+	
+	const CGHeroInstance * caster = nullptr; //todo: use ISpellCaster
+	
+	if(cb->battleHasHero(cb->playerToSide(player)))
+		caster = cb->battleGetFightingHero(cb->playerToSide(player));
 
 	for(const CStack * stack : cb->battleGetAllStacks())
 	{
 		//using isImmuneBy directly as this mechanics does not have overridden immunity check
 		//therefore we do not need to check caster and casting mode
 		//TODO: check that we really should check immunity for both stacks
-		ESpellCastProblem::ESpellCastProblem res = owner->isImmuneBy(stack);
+		ESpellCastProblem::ESpellCastProblem res = owner->internalIsImmune(caster, stack);
 		const bool immune =  ESpellCastProblem::OK != res && ESpellCastProblem::NOT_DECIDED != res;
 		const bool casterStack = stack->owner == player;
 
