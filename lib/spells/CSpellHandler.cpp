@@ -390,8 +390,7 @@ int CSpell::adjustRawDamage(const ISpellCaster * caster, const CStack * affected
 		}
 	}
 
-	if(nullptr != caster) //todo: make sure that caster always present
-		ret = caster->getSpellBonus(this, ret, affectedCreature);
+	ret = caster->getSpellBonus(this, ret, affectedCreature);
 
 	return ret;
 }

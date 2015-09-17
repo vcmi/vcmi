@@ -414,7 +414,8 @@ namespace ECastingMode
 	{
 		HERO_CASTING, AFTER_ATTACK_CASTING, //also includes cast before attack
 		MAGIC_MIRROR, CREATURE_ACTIVE_CASTING, ENCHANTER_CASTING,
-		SPELL_LIKE_ATTACK	
+		SPELL_LIKE_ATTACK, 
+		PASSIVE_CASTING//f.e. opening battle spells
 	};
 }
 

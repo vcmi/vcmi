@@ -230,15 +230,17 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	
 	//check it there is opponent hero
 	const ui8 otherSide = 1-parameters.casterSide;
-	const CGHeroInstance * otherHero = parameters.cb->battleGetFightingHero(otherSide);
+	const CGHeroInstance * otherHero = nullptr;
+	if(parameters.cb->battleHasHero(otherSide))
+		otherHero = parameters.cb->battleGetFightingHero(otherSide);
 	int spellCost = 0;
 
 	//calculate spell cost
-	if(parameters.casterHero)
+	if(parameters.mode == ECastingMode::HERO_CASTING)
 	{
 		spellCost = parameters.cb->battleGetSpellCost(owner, parameters.casterHero);
 
-		if(parameters.mode == ECastingMode::HERO_CASTING && nullptr != otherHero) //handle mana channel
+		if(nullptr != otherHero) //handle mana channel
 		{			
 			int manaChannel = 0;
 			for(const CStack * stack : parameters.cb->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
@@ -303,8 +305,16 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	ctx.effectValue = 0;
 	if(parameters.casterStack)
 		ctx.caster = parameters.casterStack;
+	else if(parameters.casterHero)
+		ctx.caster = parameters.casterHero;
 	else if(parameters.mode == ECastingMode::HERO_CASTING)
 		ctx.caster = parameters.cb->battleGetFightingHero(parameters.casterSide);
+	
+	if(ctx.caster == nullptr)
+	{
+		env->complain("No spell-caster provided.");
+		return;
+	}
 
 	if(parameters.casterStack)
 	{
@@ -325,7 +335,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	env->sendAndApply(&sc);
 
 	//spend mana
-	if(parameters.casterHero)
+	if(parameters.mode == ECastingMode::HERO_CASTING)
 	{
 		SetMana sm;
 		sm.absolute = false;
@@ -527,9 +537,9 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		{
 			BattleStackAttacked bsa;
 			if(spellDamage != 0)
-				bsa.damageAmount = owner->adjustRawDamage(parameters.casterHero, attackedCre, spellDamage) >> chainLightningModifier;
+				bsa.damageAmount = owner->adjustRawDamage(ctx.caster, attackedCre, spellDamage) >> chainLightningModifier;
 			else
-				bsa.damageAmount = owner->calculateDamage(parameters.casterHero, attackedCre, ctx.effectLevel, ctx.effectPower) >> chainLightningModifier;
+				bsa.damageAmount = owner->calculateDamage(ctx.caster, attackedCre, ctx.effectLevel, ctx.effectPower) >> chainLightningModifier;
 
 			ctx.sc.dmgToDisplay += bsa.damageAmount;
 
@@ -888,7 +898,7 @@ void DefaultSpellMechanics::prepareBattleCast(const BattleSpellCastParameters& p
 	sc.skill = parameters.spellLvl;
 	sc.tile = parameters.destination;
 	sc.dmgToDisplay = 0;
-	sc.castByHero = nullptr != parameters.casterHero;
+	sc.castByHero = parameters.mode == ECastingMode::HERO_CASTING;
 	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
 	sc.manaGained = 0;	
 }

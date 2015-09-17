@@ -5290,8 +5290,8 @@ void CGameHandler::runBattle()
 			parameters.destination = BattleHex::INVALID;
 			parameters.casterSide = i;
 			parameters.casterColor = h->tempOwner;	
-			parameters.casterHero = nullptr;
-			parameters.mode = ECastingMode::HERO_CASTING;
+			parameters.casterHero = h;
+			parameters.mode = ECastingMode::PASSIVE_CASTING;
 			parameters.casterStack = nullptr;	
 			parameters.selectedStack = nullptr;	
 					
