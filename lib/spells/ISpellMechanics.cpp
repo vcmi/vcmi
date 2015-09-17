@@ -19,7 +19,8 @@
 
 BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo* cb)
 	: spellLvl(0), destination(BattleHex::INVALID), casterSide(0),casterColor(PlayerColor::CANNOT_DETERMINE),casterHero(nullptr),
-	usedSpellPower(0),mode(ECastingMode::HERO_CASTING), casterStack(nullptr), selectedStack(nullptr), cb(cb)
+	mode(ECastingMode::HERO_CASTING), casterStack(nullptr), selectedStack(nullptr), cb(cb),
+	effectLevel(0), effectPower(0), enchantPower(0), effectValue(0)
 {
 
 }

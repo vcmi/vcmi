@@ -36,16 +36,25 @@ struct DLL_LINKAGE BattleSpellCastParameters
 {
 public:
 	BattleSpellCastParameters(const BattleInfo * cb);
+	///spell school level , 0-use default
 	int spellLvl;
 	BattleHex destination;
 	ui8 casterSide;
 	PlayerColor casterColor;
 	const CGHeroInstance * casterHero; //deprecated
-	int usedSpellPower;
 	ECastingMode::ECastingMode mode;
 	const CStack * casterStack;
 	const CStack * selectedStack;
 	const BattleInfo * cb;
+	
+	///spell school level to use for effects, 0-use spellLvl
+	int effectLevel;
+	///actual spell-power affecting effect values, 0-use default
+	int effectPower;
+	///actual spell-power affecting effect duration, 0-use default
+	int enchantPower;
+	///for Archangel-like casting, 0-use default
+	int effectValue;	
 };
 
 struct DLL_LINKAGE AdventureSpellCastParameters

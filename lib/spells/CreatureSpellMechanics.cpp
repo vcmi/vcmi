@@ -18,15 +18,16 @@
 ///AcidBreathDamageMechanics
 void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
+	//todo: this should be effectValue
 	//calculating dmg to display
-	ctx.sc.dmgToDisplay = ctx.effectPower;
+	ctx.sc.dmgToDisplay = parameters.effectPower;
 
 	for(auto & attackedCre : ctx.attackedCres) //no immunities
 	{
 		BattleStackAttacked bsa;
 		bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
 		bsa.spellID = owner->id;
-		bsa.damageAmount = ctx.effectPower; //damage times the number of attackers
+		bsa.damageAmount = parameters.effectPower; //damage times the number of attackers
 		bsa.stackAttacked = (attackedCre)->ID;
 		bsa.attackerID = -1;
 		(attackedCre)->prepareAttacked(bsa, env->getRandomGenerator());
@@ -38,7 +39,7 @@ void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * 
 void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//calculating dmg to display
-	ctx.sc.dmgToDisplay = ctx.effectPower;
+	ctx.sc.dmgToDisplay = parameters.effectPower;
 	if(!ctx.attackedCres.empty())
 		vstd::amin(ctx.sc.dmgToDisplay, (*ctx.attackedCres.begin())->count); //stack is already reduced after attack
 
@@ -47,7 +48,7 @@ void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 		BattleStackAttacked bsa;
 		bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
 		bsa.spellID = owner->id;
-		bsa.damageAmount = ctx.effectPower * (attackedCre)->valOfBonuses(Bonus::STACK_HEALTH);//todo: move here all DeathStare calculation 
+		bsa.damageAmount = parameters.effectPower * (attackedCre)->valOfBonuses(Bonus::STACK_HEALTH);//todo: move here all DeathStare calculation 
 		bsa.stackAttacked = (attackedCre)->ID;
 		bsa.attackerID = -1;
 		(attackedCre)->prepareAttacked(bsa, env->getRandomGenerator());

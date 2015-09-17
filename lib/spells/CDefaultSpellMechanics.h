@@ -19,21 +19,13 @@ class StacksInjured;
 struct SpellCastContext
 {
 	SpellCastContext(std::vector<const CStack *> & attackedCres, BattleSpellCast & sc, StacksInjured & si):
-		attackedCres(attackedCres), sc(sc), si(si), 
-		effectLevel(0),effectPower(0),enchantPower(0),effectValue(0)		
+		attackedCres(attackedCres), sc(sc), si(si)	
 	{
 	};
 	std::vector<const CStack *> & attackedCres;
 	BattleSpellCast & sc;
 	StacksInjured & si;
-	///spell school level to use for effects
-	int effectLevel;
-	///actual spell-power affecting effect values
-	int effectPower;
-	///actual spell-power affecting effect duration	
-	int enchantPower;
-	///for FairyDragon-like casting, if !=0 ignores effectPower
-	int effectValue;
+
 	///stack or hero
 	const ISpellCaster * caster;
 };
@@ -66,7 +58,6 @@ public:
 protected:
 	virtual void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
 
-	virtual int calculateDuration(const CGHeroInstance * caster, int usedSpellPower) const;
 	int calculateEffectLevel(const BattleSpellCastParameters & parameters) const;
 	
 	///actual adventure cast implementation
@@ -74,7 +65,7 @@ protected:
 	
 	void doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const;
 private:
-	void castMagicMirror(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, const SpellCastContext & originalContext) const;
+	void castMagicMirror(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const;
 	void handleResistance(const SpellCastEnvironment * env, std::vector<const CStack*> & attackedCres, BattleSpellCast & sc) const;
 	void prepareBattleCast(const BattleSpellCastParameters & parameters, BattleSpellCast & sc) const;
 };

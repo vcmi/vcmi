@@ -17,7 +17,7 @@
 ///HealingSpellMechanics
 void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
 {
-	EHealLevel healLevel = getHealLevel(ctx.effectLevel);
+	EHealLevel healLevel = getHealLevel(parameters.effectLevel);
 	int hpGained = calculateHealedHP(env, parameters, ctx);
 	StacksHealedOrResurrected shr;
 	shr.lifeDrain = false;
@@ -39,9 +39,9 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, 
 
 int HealingSpellMechanics::calculateHealedHP(const SpellCastEnvironment* env, const BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
 {
-	if(ctx.effectValue != 0)
-		return ctx.effectValue; //Archangel
-	return owner->calculateRawEffectValue(ctx.effectLevel, ctx.effectPower); //???
+	if(parameters.effectValue != 0)
+		return parameters.effectValue; //Archangel
+	return owner->calculateRawEffectValue(parameters.effectLevel, parameters.effectPower); //???
 }
 
 ///AntimagicMechanics
@@ -390,8 +390,8 @@ void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, Bat
 		obstacle->pos = pos;
 		obstacle->casterSide = parameters.casterSide;
 		obstacle->ID = owner->id;
-		obstacle->spellLevel = parameters.spellLvl;
-		obstacle->casterSpellPower = ctx.effectPower;
+		obstacle->spellLevel = parameters.effectLevel;
+		obstacle->casterSpellPower = parameters.effectPower;
 		obstacle->uniqueID = obstacleIdToGive++;
 
 		BattleObstaclePlaced bop;
@@ -569,7 +569,7 @@ int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const
 	if(nullptr == parameters.selectedStack)
 		env->complain("No stack to sacrifice.");
 	else
-		res = (ctx.effectPower + parameters.selectedStack->MaxHealth() + owner->getPower(ctx.effectLevel)) * parameters.selectedStack->count;
+		res = (parameters.effectPower + parameters.selectedStack->MaxHealth() + owner->getPower(parameters.effectLevel)) * parameters.selectedStack->count;
 	return res;
 }
 
@@ -624,7 +624,7 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battl
 	//TODO stack casting -> probably power will be zero; set the proper number of creatures manually
 	int percentBonus = parameters.casterHero ? parameters.casterHero->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, owner->id.toEnum()) : 0;
 
-	bsa.amount = ctx.effectPower
+	bsa.amount = parameters.effectPower
 		* owner->getPower(parameters.spellLvl)
 		* (100 + percentBonus) / 100.0; //new feature - percentage bonus
 	if(bsa.amount)
