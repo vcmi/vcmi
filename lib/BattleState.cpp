@@ -1219,6 +1219,12 @@ int CStack::getEffectValue(const CSpell * spell) const
 	return valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spell->id.toEnum()) * count;
 }
 
+const PlayerColor CStack::getOwner() const
+{
+	return owner;
+}
+
+
 bool CMP_stack::operator()( const CStack* a, const CStack* b )
 {
 	switch(phase)

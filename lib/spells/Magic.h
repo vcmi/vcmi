@@ -17,6 +17,7 @@
 
 class CSpell;
 class CStack;
+class PlayerColor;
 
 class DLL_LINKAGE ISpellCaster
 {
@@ -43,4 +44,5 @@ public:
 	///damage/heal override(ignores spell configuration, effect level and effect power)
 	virtual int getEffectValue(const CSpell * spell) const = 0;
 	
+	virtual const PlayerColor getOwner() const = 0;
 };

@@ -925,6 +925,11 @@ int CGHeroInstance::getEffectValue(const CSpell * spell) const
 	return 0;
 }
 
+const PlayerColor CGHeroInstance::getOwner() const
+{
+	return tempOwner;
+}
+
 bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {
 	if(nullptr == getArt(ArtifactPosition::SPELLBOOK))

@@ -37,17 +37,17 @@ public:
 	BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell);
 	const BattleInfo * cb;
 	const ISpellCaster * caster;
-	ui8 casterSide;
-	PlayerColor casterColor;	
-	///spell school level , -1-use default
-	int spellLvl;
+	const PlayerColor casterColor;	
+	const ui8 casterSide;
+
 	BattleHex destination;
 	const CGHeroInstance * casterHero; //deprecated
 	ECastingMode::ECastingMode mode;
 	const CStack * casterStack; //deprecated
 	const CStack * selectedStack;
 
-	
+	///spell school level
+	int spellLvl;	
 	///spell school level to use for effects
 	int effectLevel;
 	///actual spell-power affecting effect values

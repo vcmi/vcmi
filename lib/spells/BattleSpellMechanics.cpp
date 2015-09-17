@@ -28,7 +28,7 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, 
 	{
 		StacksHealedOrResurrected::HealInfo hi;
 		hi.stackID = (attackedCre)->ID;		
-		int stackHPgained = ctx.caster->getSpellBonus(owner, hpGained, attackedCre);
+		int stackHPgained = parameters.caster->getSpellBonus(owner, hpGained, attackedCre);
 		hi.healedHP = attackedCre->calculateHealedHealthPoints(stackHPgained, resurrect);
 		hi.lowLevelResurrection = (healLevel == EHealLevel::RESURRECT);
 		shr.healedStacks.push_back(hi);

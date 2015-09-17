@@ -25,9 +25,6 @@ struct SpellCastContext
 	std::vector<const CStack *> & attackedCres;
 	BattleSpellCast & sc;
 	StacksInjured & si;
-
-	///stack or hero
-	const ISpellCaster * caster;
 };
 
 enum class ESpellCastResult

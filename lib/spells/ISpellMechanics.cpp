@@ -21,10 +21,10 @@
 #include "CreatureSpellMechanics.h"
 
 BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell)
-	: cb(cb), caster(caster),  casterSide(0),casterColor(PlayerColor::CANNOT_DETERMINE), 
-	spellLvl(-1), destination(BattleHex::INVALID),casterHero(nullptr),
+	: cb(cb), caster(caster), casterColor(caster->getOwner()), casterSide(cb->whatSide(casterColor)),
+	destination(BattleHex::INVALID),casterHero(nullptr),
 	mode(ECastingMode::HERO_CASTING), casterStack(nullptr), selectedStack(nullptr),
-	effectLevel(-1), effectPower(0), enchantPower(0), effectValue(0)
+	spellLvl(-1),  effectLevel(-1), effectPower(0), enchantPower(0), effectValue(0)
 {
 	casterStack = dynamic_cast<const CStack *>(caster);
 	casterHero = dynamic_cast<const CGHeroInstance *>(caster);

@@ -222,6 +222,8 @@ public:
 	///damage/heal override(ignores spell configuration, effect level and effect power)
 	int getEffectValue(const CSpell * spell) const override;
 	
+	const PlayerColor getOwner() const override;
+	
 	void deserializationFix();
 
 	void initObj() override;

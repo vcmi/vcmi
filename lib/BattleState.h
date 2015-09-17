@@ -247,6 +247,8 @@ public:
 
 	///damage/heal override(ignores spell configuration, effect level and effect power)
 	int getEffectValue(const CSpell * spell) const override;
+
+	const PlayerColor getOwner() const override;
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

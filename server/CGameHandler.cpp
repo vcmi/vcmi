@@ -3877,10 +3877,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 					vstd::amax(parameters.spellLvl, randSpellcaster->val);
 				vstd::amin (parameters.spellLvl, 3);
 				parameters.effectLevel = parameters.spellLvl;
-				parameters.casterSide = gs->curB->whatSide(stack->owner);
 				parameters.mode = ECastingMode::CREATURE_ACTIVE_CASTING;
 				parameters.destination = destination;
-				parameters.casterColor = stack->owner;	
 				parameters.selectedStack = nullptr;
 				spell->battleCast(spellEnv, parameters);
 			}
@@ -4072,8 +4070,6 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			
 			BattleSpellCastParameters parameters(gs->curB, h, s);
 			parameters.destination = ba.destinationTile;
-			parameters.casterSide = ba.side;
-			parameters.casterColor =  h->tempOwner;	
 			parameters.mode = ECastingMode::HERO_CASTING;
 			parameters.selectedStack = gs->curB->battleGetStackByID(ba.selectedStack, false);			
 
@@ -4227,8 +4223,6 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 					parameters.spellLvl = bonus->val;
 					parameters.effectLevel = bonus->val;//todo: recheck
 					parameters.destination = BattleHex::INVALID;
-					parameters.casterSide = side;
-					parameters.casterColor = st->owner;	
 					parameters.mode = ECastingMode::ENCHANTER_CASTING;
 					parameters.selectedStack = nullptr;
 					
@@ -4938,8 +4932,6 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 				parameters.spellLvl = spellLevel;
 				parameters.effectLevel = spellLevel;
 				parameters.destination = destination;
-				parameters.casterSide = !attacker->attackerOwned;
-				parameters.casterColor = attacker->owner;	
 				parameters.mode = ECastingMode::AFTER_ATTACK_CASTING;
 				parameters.selectedStack = nullptr;
 
@@ -4969,8 +4961,6 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		parameters.spellLvl = 0;
 		parameters.effectLevel = 0;
 		parameters.destination = gs->curB->battleGetStackByID(bat.bsa.at(0).stackAttacked)->position;
-		parameters.casterSide = !attacker->attackerOwned;
-		parameters.casterColor = attacker->owner;	
 		parameters.effectPower = power;	
 		parameters.mode = ECastingMode::AFTER_ATTACK_CASTING;
 		parameters.selectedStack = nullptr;
@@ -5279,8 +5269,6 @@ void CGameHandler::runBattle()
 				parameters.spellLvl = 3;
 				parameters.effectLevel = 3;
 				parameters.destination = BattleHex::INVALID;
-				parameters.casterSide = i;
-				parameters.casterColor = h->tempOwner;	
 				parameters.mode = ECastingMode::PASSIVE_CASTING;
 				parameters.selectedStack = nullptr;					
 				parameters.enchantPower = b->val;

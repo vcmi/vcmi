@@ -231,8 +231,6 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 		return;		
 	}
 	
-	const ISpellCaster * caster = parameters.caster;
-
 	BattleSpellCast sc;
 	prepareBattleCast(parameters, sc);
 	
@@ -307,9 +305,6 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 
 	StacksInjured si;
 	SpellCastContext ctx(attackedCres, sc, si);
-
-	ctx.caster = caster;
-	
 	applyBattleEffects(env, parameters, ctx);
 
 	env->sendAndApply(&sc);
@@ -366,16 +361,16 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 		{
 			int targetHex = (*RandomGeneratorUtil::nextItem(mirrorTargets, env->getRandomGenerator()))->position;
 
-			BattleSpellCastParameters mirrorParameters = parameters;
+			BattleSpellCastParameters mirrorParameters(parameters.cb, attackedCre, owner);
 			mirrorParameters.spellLvl = 0;
-			mirrorParameters.casterSide = 1-parameters.casterSide;
-			mirrorParameters.casterColor = (attackedCre)->owner;
-			mirrorParameters.casterHero = nullptr;
 			mirrorParameters.destination = targetHex;
 			mirrorParameters.mode = ECastingMode::MAGIC_MIRROR;
-			mirrorParameters.casterStack = (attackedCre);
 			mirrorParameters.selectedStack = nullptr;
-
+			mirrorParameters.spellLvl = parameters.spellLvl;
+			mirrorParameters.effectLevel = parameters.effectLevel;
+			mirrorParameters.effectPower = parameters.effectPower;
+			mirrorParameters.effectValue = parameters.effectValue;
+			mirrorParameters.enchantPower = parameters.enchantPower;
 			castMagicMirror(env, mirrorParameters);
 		}
 	}
@@ -490,9 +485,9 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		{
 			BattleStackAttacked bsa;
 			if(spellDamage != 0)
-				bsa.damageAmount = owner->adjustRawDamage(ctx.caster, attackedCre, spellDamage) >> chainLightningModifier;
+				bsa.damageAmount = owner->adjustRawDamage(parameters.caster, attackedCre, spellDamage) >> chainLightningModifier;
 			else
-				bsa.damageAmount = owner->calculateDamage(ctx.caster, attackedCre, parameters.effectLevel, parameters.effectPower) >> chainLightningModifier;
+				bsa.damageAmount = owner->calculateDamage(parameters.caster, attackedCre, parameters.effectLevel, parameters.effectPower) >> chainLightningModifier;
 
 			ctx.sc.dmgToDisplay += bsa.damageAmount;
 
@@ -798,7 +793,6 @@ void DefaultSpellMechanics::castMagicMirror(const SpellCastEnvironment* env, Bat
 	
 	StacksInjured si;
 	SpellCastContext ctx(attackedCres, sc, si);
-	ctx.caster = parameters.casterStack;
 	applyBattleEffects(env, parameters, ctx);
 
 	env->sendAndApply(&sc);
