@@ -1831,8 +1831,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	{
 		if(!deadStack && !aliveStack)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(spell->id == SpellID::ANIMATE_DEAD  &&  deadStack  &&  !deadStack->hasBonusOfType(Bonus::UNDEAD))
-			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 		if(deadStack && deadStack->owner != player) //you can resurrect only your own stacks //FIXME: it includes alive stacks as well
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
