@@ -419,16 +419,25 @@ ESpellCastProblem::ESpellCastProblem CSpell::internalIsImmune(const ISpellCaster
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
-	//spell-based spell immunity (only ANTIMAGIC in OH3) is treated as absolute
-	std::stringstream cachingStr;
-	cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "source_" << Bonus::SPELL_EFFECT;
-
-	TBonusListPtr levelImmunitiesFromSpell = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::sourceType(Bonus::SPELL_EFFECT)), cachingStr.str());	
-
-	if(levelImmunitiesFromSpell->size() > 0  &&  levelImmunitiesFromSpell->totalValue() >= level  &&  level)
 	{
-		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		//spell-based spell immunity (only ANTIMAGIC in OH3) is treated as absolute
+		std::stringstream cachingStr;
+		cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "source_" << Bonus::SPELL_EFFECT;
+
+		TBonusListPtr levelImmunitiesFromSpell = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::sourceType(Bonus::SPELL_EFFECT)), cachingStr.str());	
+
+		if(levelImmunitiesFromSpell->size() > 0  &&  levelImmunitiesFromSpell->totalValue() >= level  &&  level)
+		{
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		}
 	}
+	{
+		//SPELL_IMMUNITY absolute case
+		std::stringstream cachingStr;
+		cachingStr << "type_" << Bonus::SPELL_IMMUNITY << "subtype_" << id.toEnum() << "addInfo_1";
+		if(obj->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, id.toEnum(), 1), cachingStr.str()))
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+	}	
 
 	//check receptivity
 	if (isPositive() && obj->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
