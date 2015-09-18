@@ -191,16 +191,30 @@ void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * 
 
 ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
 {
-	//DISPELL ignores all immunities, so do not call default
-	std::stringstream cachingStr;
-	cachingStr << "source_" << Bonus::SPELL_EFFECT;
-
-	if(obj->hasBonus(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str()))
 	{
-		return ESpellCastProblem::OK;
+		//just in case
+		if(!obj->alive())
+			return ESpellCastProblem::WRONG_SPELL_TARGET;			
 	}
+	//DISPELL ignores all immunities, except specific absolute immunity 
+	{
+		//SPELL_IMMUNITY absolute case
+		std::stringstream cachingStr;
+		cachingStr << "type_" << Bonus::SPELL_IMMUNITY << "subtype_" << owner->id.toEnum() << "addInfo_1";
+		if(obj->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, owner->id.toEnum(), 1), cachingStr.str()))
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+	}
+	{
+		std::stringstream cachingStr;
+		cachingStr << "source_" << Bonus::SPELL_EFFECT;
 
+		if(obj->hasBonus(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str()))
+		{
+			return ESpellCastProblem::OK;
+		}		
+	}
 	return ESpellCastProblem::WRONG_SPELL_TARGET;
+	//any other immunities are ignored - do not execute default algorithm
 }
 
 void DispellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
