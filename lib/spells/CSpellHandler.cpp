@@ -175,12 +175,6 @@ CSpell::ETargetType CSpell::getTargetType() const
 	return targetType;
 }
 
-CSpell::TargetInfo CSpell::getTargetInfo(const int level) const
-{
-	TargetInfo info(this, level);
-	return info;
-}
-
 void CSpell::forEachSchool(const std::function<void(const SpellSchoolInfo &, bool &)>& cb) const
 {
 	bool stop = false;

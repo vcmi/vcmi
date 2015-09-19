@@ -1660,7 +1660,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		if(mode == ECastingMode::HERO_CASTING)
 		{
 			const CGHeroInstance * caster = battleGetFightingHero(side);
-			const CSpell::TargetInfo ti = spell->getTargetInfo(caster->getSpellSchoolLevel(spell));
+			const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell));
 			bool targetExists = false;
 
             for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
@@ -1715,7 +1715,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor
 	case CSpell::CREATURE:
 		{
 			const CGHeroInstance * caster = battleGetFightingHero(playerToSide(player)); //TODO
-			const CSpell::TargetInfo ti = spell->getTargetInfo(caster->getSpellSchoolLevel(spell));
+			const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell));
 			
 			for(const CStack * stack : battleAliveStacks())
 			{

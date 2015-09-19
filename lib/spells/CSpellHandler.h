@@ -152,7 +152,7 @@ public:
 	enum ETargetType {NO_TARGET, CREATURE, OBSTACLE, LOCATION};
 	enum ESpellPositiveness {NEGATIVE = -1, NEUTRAL = 0, POSITIVE = 1};
 
-	struct TargetInfo
+	struct DLL_LINKAGE TargetInfo
 	{
 		ETargetType type;
 		bool smart;
@@ -194,8 +194,6 @@ public:
 
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr ) const; //convert range to specific hexes; last optional out parameter is set to true, if spell would cover unavailable hexes (that are not included in ret)
 	ETargetType getTargetType() const; //deprecated
-
-	CSpell::TargetInfo getTargetInfo(const int level) const;
 
 	bool isCombatSpell() const;
 	bool isAdventureSpell() const;

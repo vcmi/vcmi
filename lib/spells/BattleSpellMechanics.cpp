@@ -338,8 +338,9 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCasted(const CBat
 	{
 		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
-
-	if(owner->getTargetInfo(0).smart) //TODO: use real spell level
+	
+	CSpell::TargetInfo ti(owner, 0);//TODO: use real spell level
+	if(ti.smart)
 	{
 		//if spell targeting is smart, then only attacker can use it
 		if(cb->playerToSide(player) != 0)

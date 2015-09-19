@@ -1379,7 +1379,7 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	sp = spellID.toSpell();
 	spellSelMode = ANY_LOCATION;
 
-	const CSpell::TargetInfo ti = sp->getTargetInfo(castingHero->getSpellSchoolLevel(sp));
+	const CSpell::TargetInfo ti(sp, castingHero->getSpellSchoolLevel(sp));
 
 	if(ti.massive || ti.type == CSpell::NO_TARGET)
 		spellSelMode = NO_LOCATION;
