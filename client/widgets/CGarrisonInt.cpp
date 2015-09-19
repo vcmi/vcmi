@@ -302,7 +302,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 		{
 			const CArmedInstance * selectedObj = owner->armedObjs[selection->upg];
 			if (!creature && selectedObj->stacksCount() == 1)
-				LOCPLINT->cb->splitStack(selectedObj, owner->armedObjs[upg], selection->ID, ID, myStack->count - 1);
+				LOCPLINT->cb->splitStack(selectedObj, owner->armedObjs[upg], selection->ID, ID, selection->myStack->count - 1);
 			else
 				LOCPLINT->cb->swapCreatures(owner->armedObjs[upg], owner->armedObjs[selection->upg], ID, selection->ID);
 		}
