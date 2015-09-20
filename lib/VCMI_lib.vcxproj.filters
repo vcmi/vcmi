@@ -225,6 +225,7 @@
     <ClCompile Include="spells\CreatureSpellMechanics.cpp">
       <Filter>spells</Filter>
     </ClCompile>
+    <ClCompile Include="mapping\CDrawRoadsOperation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -531,6 +532,9 @@
       <Filter>spells</Filter>
     </ClInclude>
     <ClInclude Include="spells\SpellMechanics.h">
+      <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\Magic.h">
       <Filter>spells</Filter>
     </ClInclude>
   </ItemGroup>

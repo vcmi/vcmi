@@ -364,6 +364,7 @@
     <ClInclude Include="spells\CreatureSpellMechanics.h" />
     <ClInclude Include="spells\CSpellHandler.h" />
     <ClInclude Include="spells\ISpellMechanics.h" />
+    <ClInclude Include="spells\Magic.h" />
     <ClInclude Include="spells\SpellMechanics.h" />
     <ClInclude Include="spells\ViewSpellInt.h" />
     <ClInclude Include="StartInfo.h" />

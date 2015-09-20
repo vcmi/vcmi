@@ -373,11 +373,21 @@ void Graphics::loadFonts()
 
 CDefEssential * Graphics::getDef( const CGObjectInstance * obj )
 {
+	if (obj->appearance.animationFile.empty())
+	{
+		logGlobal->warnStream() << boost::format("Def name for (%d,%d) is empty!") % obj->id % obj->subID;
+		return nullptr;
+	}
 	return advmapobjGraphics[obj->appearance.animationFile];
 }
 
 CDefEssential * Graphics::getDef( const ObjectTemplate & info )
 {
+	if (info.animationFile.empty())
+	{
+		logGlobal->warnStream() << boost::format("Def name for obj (%d,%d) is empty!") % info.id % info.subid;
+		return nullptr;
+	}
 	return advmapobjGraphics[info.animationFile];
 }
 
