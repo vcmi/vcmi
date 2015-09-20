@@ -375,7 +375,7 @@ CDefEssential * Graphics::getDef( const CGObjectInstance * obj )
 {
 	if (obj->appearance.animationFile.empty())
 	{
-		logGlobal->warnStream() << boost::format("Def name for (%d,%d) is empty!") % obj->id % obj->subID;
+		logGlobal->warnStream() << boost::format("Def name for obj %d (%d,%d) is empty!") % obj->id % obj->ID % obj->subID;
 		return nullptr;
 	}
 	return advmapobjGraphics[obj->appearance.animationFile];

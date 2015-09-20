@@ -865,7 +865,7 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 			if (!obj->appearance.animationFile.empty())
 				logGlobal->errorStream() << "Failed to load image " << obj->appearance.animationFile;
 			else
-				logGlobal->warnStream() << boost::format("Def name for (%d,%d) is empty!") % obj->id % obj->subID;
+				logGlobal->warnStream() << boost::format("Def name for obj %d (%d,%d) is empty!") % obj->id % obj->ID % obj->subID;
 
 			continue;
 		}
