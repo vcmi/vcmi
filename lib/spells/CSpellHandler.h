@@ -9,7 +9,7 @@
  */
 
 #pragma once
-
+#include "Magic.h"
 #include "../IHandlerBase.h"
 #include "../ConstTransitivePtr.h"
 #include "../int3.h"
@@ -66,7 +66,7 @@ public:
 	BattleHex destination;
 	ui8 casterSide;
 	PlayerColor casterColor;
-	const CGHeroInstance * caster;
+	const CGHeroInstance * casterHero; //deprecated
 	const CGHeroInstance * secHero;
 	int usedSpellPower;
 	ECastingMode::ECastingMode mode;
@@ -104,10 +104,21 @@ public:
 	{
 		std::string resourceName;
 		VerticalPosition verticalPosition;
+		int pause; 
+
+		AnimationItem();
 
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & resourceName & verticalPosition;
+			if(version >= 754)
+			{
+				h & pause;
+			}			
+			else if(!h.saving)
+			{
+				pause = 0;
+			}
 		}
 	};
 
@@ -217,8 +228,6 @@ public:
 	CSpell();
 	~CSpell();
 
-	bool isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const;
-
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr ) const; //convert range to specific hexes; last optional out parameter is set to true, if spell would cover unavailable hexes (that are not included in ret)
 	ETargetType getTargetType() const; //deprecated
 
@@ -248,11 +257,8 @@ public:
 	//internal, for use only by Mechanics classes
 	ESpellCastProblem::ESpellCastProblem isImmuneBy(const IBonusBearer *obj) const;
 
-	//internal, for use only by Mechanics classes. applying secondary skills
-	ui32 calculateBonus(ui32 baseDamage, const CGHeroInstance * caster, const CStack * affectedCreature) const;
-
 	///calculate spell damage on stack taking caster`s secondary skills and affectedCreature`s bonuses into account
-	ui32 calculateDamage(const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
+	ui32 calculateDamage(const ISpellCaster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
 
 	///selects from allStacks actually affected stacks
 	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const CGHeroInstance * caster = nullptr) const;
@@ -321,6 +327,11 @@ public:
 
 	///implementation of BattleSpellCast applying
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const;
+
+public:
+	///Client logic.
+	
+	void prepareBattleLog(const CBattleInfoCallback * cb, const BattleSpellCast * packet, std::vector<std::string> & logLines) const;
 
 private:
 	void setIsOffensive(const bool val);

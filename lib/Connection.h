@@ -27,8 +27,8 @@
 #include "mapping/CCampaignHandler.h" //for CCampaignState
 #include "rmg/CMapGenerator.h" // for CMapGenOptions
 
-const ui32 version = 753;
-const ui32 minSupportedVersion = version;
+const ui32 version = 754;
+const ui32 minSupportedVersion = 753;
 
 class CISer;
 class COSer;

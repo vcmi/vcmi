@@ -21,6 +21,7 @@
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 #include "../CCreatureHandler.h"
+#include "../BattleState.h"
 
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
@@ -216,9 +217,10 @@ CGHeroInstance::CGHeroInstance()
 	setNodeType(HERO);
 	ID = Obj::HERO;
 	tacticFormationEnabled = inTownGarrison = false;
-	mana = movement = portrait = level = -1;
+	mana = movement = portrait = -1;
 	isStanding = true;
 	moveDir = 4;
+	level = 1;
 	exp = 0xffffffff;
 	visitedTown = nullptr;
 	type = nullptr;
@@ -290,7 +292,6 @@ void CGHeroInstance::initHero()
 	}
 	assert(validTypes());
 
-	level = 1;
 	if(exp == 0xffffffff)
 	{
 		initExp();
@@ -877,15 +878,73 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	
 	vstd::amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
 	vstd::amax(skill, valOfBonuses(Bonus::SPELL, spell->id.toEnum())); //given by artifact or other effect
-	if (hasBonusOfType(Bonus::MAXED_SPELL, spell->id))//hero specialty (Daremyth, Melodia)
-		skill = 3;
+
 	assert(skill >= 0 && skill <= 3);
 	return skill;
 }
 
+ui32 CGHeroInstance::getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const
+{
+	//applying sorcery secondary skill
+
+	base *= (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
+	base *= (100.0 + valOfBonuses(Bonus::SPELL_DAMAGE) + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->id.toEnum())) / 100.0;
+
+	spell->forEachSchool([&base, this](const SpellSchoolInfo & cnf, bool & stop)
+	{
+		base *= (100.0 + valOfBonuses(cnf.damagePremyBonus)) / 100.0;
+		stop = true; //only bonus from one school is used
+	});
+
+	if (affectedStack && affectedStack->getCreature()->level) //Hero specials like Solmyr, Deemer
+		base *= (100. + ((valOfBonuses(Bonus::SPECIAL_SPELL_LEV,  spell->id.toEnum()) * level) / affectedStack->getCreature()->level)) / 100.0;
+
+	return base;	
+}
+
+
 bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {
-	return spell->isCastableBy(this, nullptr !=getArt(ArtifactPosition::SPELLBOOK), spells);
+	if(nullptr == getArt(ArtifactPosition::SPELLBOOK))
+		return false;
+
+	const bool isAllowed = IObjectInterface::cb->isAllowed(0, spell->id);
+
+	const bool inSpellBook = vstd::contains(spells, spell->id);
+	const bool specificBonus = hasBonusOfType(Bonus::SPELL, spell->id);
+
+	bool schoolBonus = false;
+
+	spell->forEachSchool([this, &schoolBonus](const SpellSchoolInfo & cnf, bool & stop)
+	{
+		if(hasBonusOfType(cnf.knoledgeBonus))
+		{
+			schoolBonus = stop = true;
+		}
+	});
+
+	const bool levelBonus = hasBonusOfType(Bonus::SPELLS_OF_LEVEL, spell->level);
+
+    if (spell->isSpecialSpell())
+    {
+        if (inSpellBook)
+        {//hero has this spell in spellbook
+            logGlobal->errorStream() << "Special spell " << spell->name << "in spellbook.";
+        }
+        return specificBonus;
+    }
+    else if(!isAllowed)
+    {
+        if (inSpellBook)
+        {//hero has this spell in spellbook
+            logGlobal->errorStream() << "Banned spell " << spell->name << " in spellbook.";
+        }
+        return specificBonus;
+    }
+    else
+    {
+		return inSpellBook || schoolBonus || specificBonus || levelBonus;
+    }
 }
 
 /**

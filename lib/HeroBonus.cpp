@@ -211,21 +211,8 @@ Bonus * BonusList::getFirst(const CSelector &select)
 	return nullptr;
 }
 
-void BonusList::getModifiersWDescr(TModDescr &out) const
-{
-	for (auto & elem : bonuses)
-	{
-		Bonus *b = elem;
-		out.push_back(std::make_pair(b->val, b->Description()));
-	}
-}
-
 void BonusList::getBonuses(BonusList & out, const CSelector &selector) const
 {
-// 	for(Bonus *i : *this)
-// 		if(selector(i) && i->effectRange == Bonus::NO_LIMIT)
-// 			out.push_back(i);
-
 	getBonuses(out, selector, nullptr);
 }
 
@@ -359,17 +346,6 @@ bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) c
 	return hasBonus(s, cachingStr.str());
 }
 
-void IBonusBearer::getModifiersWDescr(TModDescr &out, Bonus::BonusType type, int subtype /*= -1 */) const
-{
-	std::stringstream cachingStr;
-	cachingStr << "type_" << type << "s_" << subtype;
-	getModifiersWDescr(out, subtype != -1 ? Selector::typeSubtype(type, subtype) : Selector::type(type), cachingStr.str());
-}
-
-void IBonusBearer::getModifiersWDescr(TModDescr &out, const CSelector &selector, const std::string &cachingStr /* =""*/) const
-{
-	getBonuses(selector, cachingStr)->getModifiersWDescr(out);
-}
 int IBonusBearer::getBonusesCount(Bonus::BonusSource from, int id) const
 {
 	std::stringstream cachingStr;
@@ -524,8 +500,13 @@ bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" b
 const TBonusListPtr IBonusBearer::getSpellBonuses() const
 {
 	std::stringstream cachingStr;
-	cachingStr << "source_" << Bonus::SPELL_EFFECT;
-	return getBonuses(Selector::sourceType(Bonus::SPELL_EFFECT), Selector::anyRange(), cachingStr.str());
+	cachingStr << "!type_" << Bonus::NONE << "source_" << Bonus::SPELL_EFFECT;
+	CSelector selector = Selector::sourceType(Bonus::SPELL_EFFECT)
+		.And(CSelector([](const Bonus * b)->bool
+		{
+			return !b->type == Bonus::NONE;
+		})); 
+	return getBonuses(selector, Selector::anyRange(), cachingStr.str());
 }
 
 const Bonus * IBonusBearer::getEffect(ui16 id, int turn /*= 0*/) const
@@ -1105,12 +1086,6 @@ bool NBonus::hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int s
 	return false;
 }
 
-void NBonus::getModifiersWDescr(const CBonusSystemNode *obj, TModDescr &out, Bonus::BonusType type, int subtype /*= -1 */)
-{
-	if(obj)
-		return obj->getModifiersWDescr(out, type, subtype);
-}
-
 int NBonus::getCount(const CBonusSystemNode *obj, Bonus::BonusSource from, int id)
 {
 	if(obj)
@@ -1127,28 +1102,34 @@ const CSpell * Bonus::sourceSpell() const
 
 std::string Bonus::Description() const
 {
-	if(description.size())
-		return description;
-
 	std::ostringstream str;
-	str << std::showpos << val << " ";
-
-	switch(source)
-	{
-	case ARTIFACT:
-		str << VLC->arth->artifacts[sid]->Name();
-		break;;
-	case SPELL_EFFECT:
-		str << SpellID(sid).toSpell()->name;
-		break;
-	case CREATURE_ABILITY:
-		str << VLC->creh->creatures[sid]->namePl;
-		break;
-	case SECONDARY_SKILL:
-		str << VLC->generaltexth->skillName[sid]/* << " secondary skill"*/;
-		break;
-	}
-
+	
+	if(description.empty())
+		switch(source)
+		{
+		case ARTIFACT:
+			str << VLC->arth->artifacts[sid]->Name();
+			break;;
+		case SPELL_EFFECT:
+			str << SpellID(sid).toSpell()->name;
+			break;
+		case CREATURE_ABILITY:
+			str << VLC->creh->creatures[sid]->namePl;
+			break;
+		case SECONDARY_SKILL:
+			str << VLC->generaltexth->skillName[sid]/* << " secondary skill"*/;
+			break;
+		default:
+			//todo: handle all possible sources
+			str << "Unknown"; 
+			break;
+		}
+	else
+		str << description;
+		
+	if(val != 0)
+		str << " " << std::showpos << val;
+	
 	return str.str();
 }
 

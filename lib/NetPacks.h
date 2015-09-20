@@ -795,7 +795,7 @@ struct ChangeStackCount : CGarrisonOperationPack  //521
 struct SetStackType : CGarrisonOperationPack  //522
 {
 	StackLocation sl;
-	CCreature *type;
+	const CCreature *type;
 
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
@@ -1478,6 +1478,18 @@ struct EndAction : public CPackForClient//3008
 
 struct BattleSpellCast : public CPackForClient//3009
 {
+	///custom effect (resistance, reflection, etc)
+	struct CustomEffect
+	{
+		/// WoG AC format
+		ui32 effect;		
+		ui32 stack;
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & effect & stack;
+		}		
+	};
+
 	BattleSpellCast(){type = 3009; casterStack = -1;};
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
@@ -1488,13 +1500,13 @@ struct BattleSpellCast : public CPackForClient//3009
 	ui8 skill; //caster's skill level
 	ui8 manaGained; //mana channeling ability
 	BattleHex tile; //destination tile (may not be set in some global/mass spells
-	std::vector<ui32> resisted; //ids of creatures that resisted this spell
+	std::vector<CustomEffect> customEffects;
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
 	si32 casterStack;// -1 if not cated by creature, >=0 caster stack ID
-	bool castedByHero; //if true - spell has been casted by hero, otherwise by a creature
+	bool castByHero; //if true - spell has been casted by hero, otherwise by a creature
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & dmgToDisplay & side & id & skill & manaGained & tile & resisted & affectedCres & casterStack & castedByHero;
+		h & dmgToDisplay & side & id & skill & manaGained & tile & customEffects & affectedCres & casterStack & castByHero;
 	}
 };
 
@@ -1629,10 +1641,9 @@ struct BattleSetStackProperty : public CPackForClient //3018
 {
 	BattleSetStackProperty(){type = 3018;};
 
-	enum BattleStackProperty {CASTS, ENCHANTER_COUNTER, UNBIND, CLONED};
+	enum BattleStackProperty {CASTS, ENCHANTER_COUNTER, UNBIND, CLONED, HAS_CLONE};
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
-	//void applyCl(CClient *cl){};
 
 	int stackID;
 	BattleStackProperty which;

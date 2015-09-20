@@ -59,11 +59,6 @@ inline bool isShiftKeyDown()
 }
 namespace CSDL_Ext
 {
-	//todo: remove
-	STRONG_INLINE void colorSetAlpha(SDL_Color & color, Uint8 alpha)
-	{
-		color.a = alpha;
-	}
 	//todo: should this better be assignment operator?
 	STRONG_INLINE void colorAssign(SDL_Color & dest, const SDL_Color & source)
 	{

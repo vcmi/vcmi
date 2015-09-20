@@ -130,6 +130,7 @@ struct DLL_LINKAGE GrowthInfo
 		std::string description;
 		Entry(const std::string &format, int _count);
 		Entry(int subID, BuildingID building, int _count);
+		Entry(int _count, const std::string &fullDescription);
 	};
 
 	std::vector<Entry> entries;

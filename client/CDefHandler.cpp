@@ -67,7 +67,7 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 		palette[it].r = de.palette[it].R;
 		palette[it].g = de.palette[it].G;
 		palette[it].b = de.palette[it].B;
-		CSDL_Ext::colorSetAlpha(palette[it],SDL_ALPHA_OPAQUE);	
+		palette[it].a = SDL_ALPHA_OPAQUE;	
 	}
 
 	// The SDefEntryBlock starts just after the SDefEntry
@@ -122,12 +122,6 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 	}
 }
 
-void CDefHandler::expand(ui8 N,ui8 & BL, ui8 & BR)
-{
-	BL = (N & 0xE0) >> 5;
-	BR = N & 0x1F;
-}
-
 SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Color * palette) const
 {
 	SDL_Surface * ret=nullptr;
@@ -180,13 +174,12 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 
 	BaseOffset += sizeof(SSpriteDef);
 	int BaseOffsetor = BaseOffset;
-
-	if(SDL_SetPaletteColors(ret->format->palette,palette,0,256) != 0)
-	{
-		logGlobal->errorStream() << __FUNCTION__ <<": Unable to set palette";
-		logGlobal->errorStream() << SDL_GetError();		
-	}
 	
+	SDL_Palette * p = SDL_AllocPalette(256);	
+	SDL_SetPaletteColors(p, palette, 0, 256);
+	SDL_SetSurfacePalette(ret, p);
+	SDL_FreePalette(p);	
+
 	int ftcp=0;
 
 	// If there's a margin anywhere, just blank out the whole surface.

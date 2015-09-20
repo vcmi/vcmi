@@ -135,7 +135,7 @@ void CQuestLog::init()
 	minimap = new CQuestMinimap (Rect (12, 12, 169, 169));
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
 	description = new CTextBox ("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
-	ok = new CButton(Point(539, 398), "IOKAY.DEF", CGI->generaltexth->zelp[445], boost::bind(&CQuestLog::close,this), SDLK_RETURN);
+	ok = new CButton(Point(539, 398), "IOKAY.DEF", CGI->generaltexth->zelp[445], std::bind(&CQuestLog::close,this), SDLK_RETURN);
 	// Both button and lable are shifted to -2px by x and y to not make them actually look like they're on same line with quests list and ok button
 	hideCompleteButton = new CToggleButton(Point(10, 396), "sysopchk.def", CButton::tooltip(texts["hideComplete"]), std::bind(&CQuestLog::toggleComplete, this, _1));
 	hideCompleteLabel = new CLabel(46, 398, FONT_MEDIUM, TOPLEFT, Colors::WHITE, texts["hideComplete"]["label"].String());
@@ -182,7 +182,7 @@ void CQuestLog::recreateLabelList()
 		auto label = make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
 		label->disable();
 
-		label->callback = boost::bind(&CQuestLog::selectQuest, this, i, currentLabel);
+		label->callback = std::bind(&CQuestLog::selectQuest, this, i, currentLabel);
 		labels.push_back(label);
 
 		// Select latest active quest

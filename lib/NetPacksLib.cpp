@@ -1095,7 +1095,8 @@ DLL_LINKAGE void BattleNextRound::applyGs( CGameState *gs )
 		s->state -= EBattleStackState::HAD_MORALE;
 		s->state -= EBattleStackState::FEAR;
 		s->state -= EBattleStackState::DRAINED_MANA;
-		s->counterAttacks = 1 + s->valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
+		s->counterAttacksPerformed = 0;
+		s->counterAttacksTotalCache = 0;
 		// new turn effects
 		s->battleTurnPassed();
 	}
@@ -1247,7 +1248,12 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 	{
 		//"hide" killed creatures instead so we keep info about it
 		at->state.insert(EBattleStackState::DEAD_CLONE);
-
+		
+		for(CStack * s : gs->curB->stacks)
+		{
+			if(s->cloneID == at->ID)
+				s->cloneID = -1;
+		}
 	}
 }
 
@@ -1255,7 +1261,7 @@ DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 {
 	CStack *attacker = gs->curB->getStack(stackAttacking);
 	if(counter())
-		attacker->counterAttacks--;
+		attacker->counterAttacksPerformed++;
 
 	if(shot())
 	{
@@ -1601,6 +1607,11 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState *gs)
 		case CLONED:
 		{
 			stack->state.insert(EBattleStackState::CLONED);
+			break;
+		}
+		case HAS_CLONE:
+		{
+			stack->cloneID = val;
 			break;
 		}
 	}

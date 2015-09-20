@@ -158,7 +158,7 @@ CDefFile::CDefFile(std::string Name):
 		palette[i].r = data[it++];
 		palette[i].g = data[it++];
 		palette[i].b = data[it++];
-		CSDL_Ext::colorSetAlpha(palette[i],255);	
+		palette[i].a = SDL_ALPHA_OPAQUE;
 	}
 	if (type == 71 || type == 64)//Buttons/buildings don't have shadows\semi-transparency
 		memset(palette, 0, sizeof(SDL_Color)*2);
@@ -355,7 +355,11 @@ void SDLImageLoader::init(Point SpriteSize, Point Margins, Point FullSize, SDL_C
 	image->fullSize = FullSize;
 
 	//Prepare surface
-	SDL_SetColors(image->surf, pal, 0, 256);
+	SDL_Palette * p = SDL_AllocPalette(256);	
+	SDL_SetPaletteColors(p, pal, 0, 256);
+	SDL_SetSurfacePalette(image->surf, p);
+	SDL_FreePalette(p);	
+
 	SDL_LockSurface(image->surf);
 	lineStart = position = (ui8*)image->surf->pixels;
 }

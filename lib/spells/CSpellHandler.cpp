@@ -26,6 +26,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../BattleState.h"
 #include "../CBattleCallback.h"
+#include "../CGameState.h"
 
 #include "ISpellMechanics.h"
 
@@ -71,7 +72,7 @@ namespace SpellConfig
 }
 
 BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo* cb)
-	: spellLvl(0), destination(BattleHex::INVALID), casterSide(0),casterColor(PlayerColor::CANNOT_DETERMINE),caster(nullptr), secHero(nullptr),
+	: spellLvl(0), destination(BattleHex::INVALID), casterSide(0),casterColor(PlayerColor::CANNOT_DETERMINE),casterHero(nullptr), secHero(nullptr),
 	usedSpellPower(0),mode(ECastingMode::HERO_CASTING), casterStack(nullptr), selectedStack(nullptr), cb(cb)
 {
 
@@ -126,38 +127,6 @@ void CSpell::battleCast(const SpellCastEnvironment * env, BattleSpellCastParamet
 	mechanics->battleCast(env, parameters);
 }
 
-bool CSpell::isCastableBy(const IBonusBearer * caster, bool hasSpellBook, const std::set<SpellID> & spellBook) const
-{
-	if(!hasSpellBook)
-		return false;
-
-	const bool inSpellBook = vstd::contains(spellBook, id);
-	const bool isBonus = caster->hasBonusOfType(Bonus::SPELL, id);
-
-	bool inTome = false;
-
-	forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
-	{
-		if(caster->hasBonusOfType(cnf.knoledgeBonus))
-		{
-			inTome = stop = true;
-		}
-	});
-
-    if (isSpecialSpell())
-    {
-        if (inSpellBook)
-        {//hero has this spell in spellbook
-            logGlobal->errorStream() << "Special spell in spellbook "<<name;
-        }
-        return isBonus;
-    }
-    else
-    {
-       return inSpellBook || inTome || isBonus || caster->hasBonusOfType(Bonus::SPELLS_OF_LEVEL, level);
-    }
-}
-
 const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 {
 	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
@@ -169,29 +138,7 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 	return levels.at(level);
 }
 
-ui32 CSpell::calculateBonus(ui32 baseDamage, const CGHeroInstance * caster, const CStack * affectedCreature) const
-{
-	ui32 ret = baseDamage;
-
-	//applying sorcery secondary skill
-	if(caster)
-	{
-		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
-		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, id.toEnum())) / 100.0;
-
-		forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
-		{
-			ret *= (100.0 + caster->valOfBonuses(cnf.damagePremyBonus)) / 100.0;
-			stop = true; //only bonus from one school is used
-		});
-
-		if (affectedCreature && affectedCreature->getCreature()->level) //Hero specials like Solmyr, Deemer
-			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, id.toEnum()) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
-	}
-	return ret;
-}
-
-ui32 CSpell::calculateDamage(const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const
+ui32 CSpell::calculateDamage(const ISpellCaster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const
 {
 	ui32 ret = 0; //value to return
 
@@ -230,7 +177,9 @@ ui32 CSpell::calculateDamage(const CGHeroInstance * caster, const CStack * affec
 			ret /= 100;
 		}
 	}
-	ret = calculateBonus(ret, caster, affectedCreature);
+	
+	if(nullptr != caster) //todo: make sure that caster always present	
+		ret = caster->getSpellBonus(this, ret, affectedCreature);
 	return ret;
 }
 
@@ -551,6 +500,59 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const CGHeroInstanc
 	return ESpellCastProblem::OK;
 }
 
+void CSpell::prepareBattleLog(const CBattleInfoCallback * cb,  const BattleSpellCast * packet, std::vector<std::string> & logLines) const
+{
+	bool displayDamage = true;
+	
+	std::string casterName("Something"); //todo: localize
+	
+	if(packet->castByHero)
+		casterName = cb->battleGetHeroInfo(packet->side).name;
+
+	{
+		const auto casterStackID = packet->casterStack;
+
+		if(casterStackID > 0)
+		{
+			const CStack * casterStack = cb->battleGetStackByID(casterStackID);
+			if(casterStack != nullptr)
+				casterName = casterStack->type->namePl;
+		}
+	}
+	
+	if(packet->affectedCres.size() == 1)
+	{
+		const CStack * attackedStack = cb->battleGetStackByID(*packet->affectedCres.begin(), false);
+		
+		const std::string attackedNamePl = attackedStack->getCreature()->namePl;
+		
+		if(packet->castByHero)
+		{
+			const std::string fmt = VLC->generaltexth->allTexts[195];
+			logLines.push_back(boost::to_string(boost::format(fmt) % casterName % this->name % attackedNamePl));
+		}
+		else
+		{
+			mechanics->battleLogSingleTarget(logLines, packet, casterName, attackedStack, displayDamage);		
+		}
+	}
+	else
+	{
+		boost::format text(VLC->generaltexth->allTexts[196]);
+		text % casterName % this->name;
+		logLines.push_back(text.str());		
+	}
+	
+	
+	if(packet->dmgToDisplay > 0 && displayDamage)
+	{
+		boost::format dmgInfo(VLC->generaltexth->allTexts[376]);
+		dmgInfo % this->name % packet->dmgToDisplay;
+		logLines.push_back(dmgInfo.str());
+	}
+}
+
+
 void CSpell::setIsOffensive(const bool val)
 {
 	isOffensive = val;
@@ -587,6 +589,14 @@ void CSpell::setupMechanics()
 
 	mechanics = ISpellMechanics::createMechanics(this);
 }
+
+///CSpell::AnimationInfo
+CSpell::AnimationItem::AnimationItem()
+	:resourceName(""),verticalPosition(VerticalPosition::TOP),pause(0)
+{
+	
+}
+
 
 ///CSpell::AnimationInfo
 CSpell::AnimationInfo::AnimationInfo()
@@ -924,7 +934,6 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json)
 		for(const JsonNode & item : queueNode)
 		{
 			CSpell::TAnimation newItem;
-			newItem.verticalPosition = VerticalPosition::TOP;
 
 			if(item.getType() == JsonNode::DATA_STRING)
 				newItem.resourceName = item.String();
@@ -936,6 +945,11 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json)
 				if("bottom" == vPosStr)
 					newItem.verticalPosition = VerticalPosition::BOTTOM;
 			}
+			else if(item.getType() == JsonNode::DATA_FLOAT)
+			{
+				newItem.pause = item.Float();
+			}
+			
 			q.push_back(newItem);
 		}
 	};

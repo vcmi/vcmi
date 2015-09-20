@@ -2789,7 +2789,7 @@ bool CGameHandler::upgradeCreature( ObjectInstanceID objid, SlotID pos, Creature
 	return true;
 }
 
-bool CGameHandler::changeStackType(const StackLocation &sl, CCreature *c)
+bool CGameHandler::changeStackType(const StackLocation &sl, const CCreature *c)
 {
 	if(!sl.army->hasStackAtSlot(sl.slot))
 		COMPLAIN_RET("Cannot find a stack to change type");
@@ -3208,14 +3208,15 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 
 
 	const CStackInstance &s = army->getStack(slot);
-	int resCreature;//resulting creature - bone dragons or skeletons
 
-	if	(s.hasBonusOfType(Bonus::DRAGON_NATURE))
-		resCreature = 68;
-	else
-		resCreature = 56;
+	//resulting creature - bone dragons or skeletons
+	CreatureID resCreature = CreatureID::SKELETON;
 
-	changeStackType(StackLocation(army, slot), VLC->creh->creatures.at(resCreature));
+	if(s.hasBonusOfType(Bonus::DRAGON_NATURE)
+			|| (s.getCreatureID() == CreatureID::HYDRA)
+			|| (s.getCreatureID() == CreatureID::CHAOS_HYDRA))
+		resCreature = CreatureID::BONE_DRAGON;
+	changeStackType(StackLocation(army, slot), resCreature.toCreature());
 	return true;
 }
 
@@ -3431,7 +3432,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			//defensive stance //TODO: remove this bonus when stack becomes active
 			SetStackEffect sse;
 			sse.effect.push_back( Bonus(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, 20, -1, PrimarySkill::DEFENSE, Bonus::PERCENT_TO_ALL) );
-			sse.effect.push_back( Bonus(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, gs->curB->stacks.at(ba.stackNumber)->valOfBonuses(Bonus::DEFENSIVE_STANCE),
+			sse.effect.push_back( Bonus(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, gs->curB->battleGetStackByID(ba.stackNumber)->valOfBonuses(Bonus::DEFENSIVE_STANCE),
 				 -1, PrimarySkill::DEFENSE, Bonus::ADDITIVE_VALUE));
 			sse.stacks.push_back(ba.stackNumber);
 			sendAndApply(&sse);
@@ -3880,7 +3881,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				p.mode = ECastingMode::CREATURE_ACTIVE_CASTING;
 				p.destination = destination;
 				p.casterColor = stack->owner;	
-				p.caster = nullptr;
+				p.casterHero = nullptr;
 				p.usedSpellPower = 0;	
 				p.casterStack = stack;	
 				p.selectedStack = nullptr;				
@@ -4080,7 +4081,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			parameters.destination = ba.destinationTile;
 			parameters.casterSide = ba.side;
 			parameters.casterColor =  h->tempOwner;	
-			parameters.caster = h;
+			parameters.casterHero = h;
 			parameters.secHero = secondHero;
 			
 			parameters.usedSpellPower = h->getPrimSkillLevel(PrimarySkill::SPELL_POWER);	
@@ -4239,7 +4240,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 					parameters.destination = BattleHex::INVALID;
 					parameters.casterSide = side;
 					parameters.casterColor = st->owner;	
-					parameters.caster = nullptr;
+					parameters.casterHero = nullptr;
 					parameters.secHero = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
 					parameters.usedSpellPower = 0;	
 					parameters.mode = ECastingMode::ENCHANTER_CASTING;
@@ -4952,7 +4953,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 				parameters.destination = destination;
 				parameters.casterSide = !attacker->attackerOwned;
 				parameters.casterColor = attacker->owner;	
-				parameters.caster = nullptr;
+				parameters.casterHero = nullptr;
 				parameters.secHero = nullptr;
 
 				parameters.usedSpellPower = 0;	
@@ -4987,7 +4988,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		parameters.destination = gs->curB->battleGetStackByID(bat.bsa.at(0).stackAttacked)->position;
 		parameters.casterSide = !attacker->attackerOwned;
 		parameters.casterColor = attacker->owner;	
-		parameters.caster = nullptr;
+		parameters.casterHero = nullptr;
 		parameters.secHero = nullptr;
 
 		parameters.usedSpellPower = power;	
@@ -5297,7 +5298,7 @@ void CGameHandler::runBattle()
 			parameters.destination = BattleHex::INVALID;
 			parameters.casterSide = i;
 			parameters.casterColor = h->tempOwner;	
-			parameters.caster = nullptr;
+			parameters.casterHero = nullptr;
 			parameters.secHero = gs->curB->battleGetFightingHero(1-i);
 			
 			
