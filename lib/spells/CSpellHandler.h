@@ -100,10 +100,10 @@ public:
 		///displayed on caster.
 		TAnimationQueue cast;
 
-		///displayed on target hex. If spell was casted with no target selection displayed on entire battlefield (f.e. ARMAGEDDON)
+		///displayed on target hex. If spell was cast with no target selection displayed on entire battlefield (f.e. ARMAGEDDON)
 		TAnimationQueue hit;
 
-		///displayed "between" caster and (first) target. Ignored if spell was casted with no target selection.
+		///displayed "between" caster and (first) target. Ignored if spell was cast with no target selection.
 		///use selectProjectile to access
 		std::vector<ProjectileInfo> projectile;
 
@@ -269,7 +269,7 @@ public:
 	///internal interface (for callbacks)
 	
 	///Checks general but spell-specific problems for all casting modes. Use only during battle.
-	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const;
 
 	///checks for creature immunity / anything that prevent casting *at given target* - doesn't take into account general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const;

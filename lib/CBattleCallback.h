@@ -190,7 +190,7 @@ public:
 	ui8 playerToSide(PlayerColor player) const;
 	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	bool battleHasHero(ui8 side) const;
-	int battleCastSpells(ui8 side) const; //how many spells has given side casted
+	int battleCastSpells(ui8 side) const; //how many spells has given side cast
 	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //depracated for players callback, easy to get wrong
 	const CArmedInstance * battleGetArmyObject(ui8 side) const; 
 	InfoAboutHero battleGetHeroInfo(ui8 side) const;
@@ -325,7 +325,7 @@ class DLL_LINKAGE CPlayerBattleCallback : public CBattleInfoCallback
 public:
 	bool battleCanFlee() const; //returns true if caller can flee from the battle
 	TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true) const; //returns stacks on battlefield
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell) const; //determines if given spell can be casted (and returns problem description)
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell) const; //determines if given spell can be cast (and returns problem description)
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell, BattleHex destination) const; //if hero can cast spell here
 	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination) const; //determines if creature can cast a spell here
 	int battleGetSurrenderCost() const; //returns cost of surrendering battle, -1 if surrendering is not possible

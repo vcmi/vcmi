@@ -140,7 +140,7 @@ ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHer
 	if(obj->cloneID != -1)
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	//TODO: how about stacks casting Clone?
-	//currently Clone casted by stack is assumed Expert level
+	//currently Clone cast by stack is assumed Expert level
 	ui8 schoolLevel;
 	if(caster)
 	{
@@ -327,7 +327,7 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 	env->sendAndApply(&ca);
 }
 
-ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
+ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
 {
 	if(nullptr == cb->battleGetDefendedTown())
 	{
@@ -353,7 +353,7 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCasted(const CBat
 ///HypnotizeMechanics
 ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
 {
-	if(nullptr != caster) //do not resist hypnotize casted after attack, for example
+	if(nullptr != caster) //do not resist hypnotize cast after attack, for example
 	{
 		//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
 		ui64 subjectHealth = (obj->count - 1) * obj->MaxHealth() + obj->firstHPleft;
@@ -515,7 +515,7 @@ HealingSpellMechanics::EHealLevel RisingSpellMechanics::getHealLevel(int effectL
 }
 
 ///SacrificeMechanics
-ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
+ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
 {
 	// for sacrifice we have to check for 2 targets (one dead to resurrect and one living to destroy)
 
@@ -615,7 +615,7 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 }
 
 ///SummonMechanics
-ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
+ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
 {
 	const ui8 side = cb->playerToSide(player);
 

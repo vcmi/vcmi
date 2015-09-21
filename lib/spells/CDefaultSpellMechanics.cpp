@@ -736,7 +736,7 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 	return attackedCres;
 }
 
-ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
+ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
 {
 	//no problems by default, this method is for spell-specific problems	
 	return ESpellCastProblem::OK;

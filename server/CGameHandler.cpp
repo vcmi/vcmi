@@ -4209,8 +4209,8 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 		int side = gs->curB->whatSide(st->owner);
 		if (st->casts && !gs->curB->sides.at(side).enchanterCounter)
 		{
-			bool casted = false;
-			while (!bl.empty() && !casted)
+			bool cast = false;
+			while (!bl.empty() && !cast)
 			{
 				auto bonus = *RandomGeneratorUtil::nextItem(bl, gs->getRandomGenerator());
 				auto spellID = SpellID(bonus->subtype);
@@ -4236,7 +4236,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 					ssp.stackID = st->ID;
 					sendAndApply(&ssp);
 					
-					casted = true;
+					cast = true;
 				}				
 			};
 		}
@@ -4299,7 +4299,7 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 
 		damage = sp->calculateDamage(hero, curStack,
 											 spellObstacle->spellLevel, spellObstacle->casterSpellPower);
-		//TODO even if obstacle wasn't created by hero (Tower "moat") it should deal dmg as if casted by hero,
+		//TODO even if obstacle wasn't created by hero (Tower "moat") it should deal dmg as if cast by hero,
 		//if it is bigger than default dmg. Or is it just irrelevant H3 implementation quirk
 	}
 	else if(obstacle.obstacleType == CObstacleInstance::FIRE_WALL)
@@ -4919,7 +4919,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			if(gs->curB->battleCanCastThisSpellHere(attacker->owner, spell, ECastingMode::AFTER_ATTACK_CASTING, oneOfAttacked->position) != ESpellCastProblem::OK)
 				continue;
 
-			//check if spell should be casted (probability handling)
+			//check if spell should be cast (probability handling)
 			if(gs->getRandomGenerator().nextInt(99) >= chance)
 				continue;
 
