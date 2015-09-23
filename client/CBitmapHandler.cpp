@@ -70,7 +70,7 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 			tp.r = pcx[it++];
 			tp.g = pcx[it++];
 			tp.b = pcx[it++];
-			CSDL_Ext::colorSetAlpha(tp,SDL_ALPHA_OPAQUE);
+			tp.a = SDL_ALPHA_OPAQUE;
 			ret->format->palette->colors[i] = tp;
 		}
 	}
@@ -142,7 +142,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 			{
 				//set correct value for alpha\unused channel
 				for (int i=0; i < ret->format->palette->ncolors; i++)
-					CSDL_Ext::colorSetAlpha(ret->format->palette->colors[i],SDL_ALPHA_OPAQUE);				
+					ret->format->palette->colors[i].a = SDL_ALPHA_OPAQUE;
 			}
 		}
 		else

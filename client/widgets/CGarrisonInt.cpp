@@ -293,27 +293,30 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 			redraw();
 			refr = true;
 		}
-		// we want to split
-		else if(  (owner->getSplittingMode() || LOCPLINT->shiftPressed())
-		       && (!creature || creature == selection->creature) )
-			refr = split();
-		// swap
-		else if(creature != selection->creature)
-		{
-			const CArmedInstance * selectedObj = owner->armedObjs[selection->upg];
-			if (!creature && selectedObj->stacksCount() == 1)
-				LOCPLINT->cb->splitStack(selectedObj, owner->armedObjs[upg], selection->ID, ID, myStack->count - 1);
-			else
-				LOCPLINT->cb->swapCreatures(owner->armedObjs[upg], owner->armedObjs[selection->upg], ID, selection->ID);
-		}
-		// merge
 		else
 		{
 			const CArmedInstance * selectedObj = owner->armedObjs[selection->upg];
-			if (selectedObj->stacksCount() == 1)
-				LOCPLINT->cb->splitStack(owner->armedObjs[upg], selectedObj, selection->ID, ID, 1);
-			else
-				LOCPLINT->cb->mergeStacks(owner->armedObjs[selection->upg], owner->armedObjs[upg], selection->ID, ID);
+			bool lastHeroStackSelected = false;
+			if(selectedObj->stacksCount() == 1
+				&& owner->getSelection()->upg != upg
+				&& dynamic_cast<const CGHeroInstance*>(selectedObj))
+			{
+				lastHeroStackSelected = true;
+			}
+
+			if((owner->getSplittingMode() || LOCPLINT->shiftPressed()) // split window
+				&& (!creature || creature == selection->creature))
+			{
+				refr = split();
+			}
+			else if(!creature && lastHeroStackSelected) // split all except last creature
+				LOCPLINT->cb->splitStack(selectedObj, owner->armedObjs[upg], selection->ID, ID, selection->myStack->count - 1);
+			else if(creature != selection->creature) // swap
+				LOCPLINT->cb->swapCreatures(owner->armedObjs[upg], selectedObj, ID, selection->ID);
+			else if(lastHeroStackSelected) // merge last stack to other hero stack
+				refr = split();
+			else // merge
+				LOCPLINT->cb->mergeStacks(selectedObj, owner->armedObjs[upg], selection->ID, ID);
 		}
 		if(refr)
 		{

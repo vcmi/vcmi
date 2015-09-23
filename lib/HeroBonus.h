@@ -23,7 +23,6 @@ class BonusList;
 typedef shared_ptr<BonusList> TBonusListPtr;
 typedef shared_ptr<ILimiter> TLimiterPtr;
 typedef shared_ptr<IPropagator> TPropagatorPtr;
-typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
 typedef std::vector<CBonusSystemNode *> TNodesVector;
@@ -448,7 +447,6 @@ public:
 	int totalValue() const; //subtype -> subtype of bonus, if -1 then any
 	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	void getAllBonuses(BonusList &out) const;
-	void getModifiersWDescr(TModDescr &out) const;
 
 	void getBonuses(BonusList & out, const CSelector &selector) const;
 
@@ -579,7 +577,6 @@ public:
 	// * root is node on which call was made (nullptr will be replaced with this)
 	//interface
 	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const = 0;
-	void getModifiersWDescr(TModDescr &out, const CSelector &selector, const std::string &cachingStr = "") const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(const CSelector &selector, const std::string &cachingStr = "") const;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;
@@ -594,7 +591,6 @@ public:
 	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then anyt;
 	bool hasBonusOfType(Bonus::BonusType type, int subtype = -1) const;//determines if hero has a bonus of given type (and optionally subtype)
 	bool hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const;
-	void getModifiersWDescr( TModDescr &out, Bonus::BonusType type, int subtype = -1 ) const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(Bonus::BonusSource from, int id) const;
 
 	//various hlp functions for non-trivial values
@@ -722,8 +718,6 @@ namespace NBonus
 	//set of methods that may be safely called with nullptr objs
 	DLL_LINKAGE int valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1); //subtype -> subtype of bonus, if -1 then any
 	DLL_LINKAGE bool hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1);//determines if hero has a bonus of given type (and optionally subtype)
-	//DLL_LINKAGE const HeroBonus * get(const CBonusSystemNode *obj, int from, int id );
-	DLL_LINKAGE void getModifiersWDescr(const CBonusSystemNode *obj, TModDescr &out, Bonus::BonusType type, int subtype = -1 );  //out: pairs<modifier value, modifier description>
 	DLL_LINKAGE int getCount(const CBonusSystemNode *obj, Bonus::BonusSource from, int id);
 }
 

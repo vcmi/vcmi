@@ -93,12 +93,20 @@ void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battle
 	ssp.val = 0;
 	ssp.absolute = 1;
 	env->sendAndApply(&ssp);
+	
+	ssp.stackID = clonedStack->ID;
+	ssp.which = BattleSetStackProperty::HAS_CLONE;
+	ssp.val = bsa.newStackID;
+	ssp.absolute = 1;
+	env->sendAndApply(&ssp);	
 }
 
 ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
 {
 	//can't clone already cloned creature
 	if(vstd::contains(obj->state, EBattleStackState::CLONED))
+		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+	if(obj->cloneID != -1)
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	//TODO: how about stacks casting Clone?
 	//currently Clone casted by stack is assumed Expert level
@@ -127,26 +135,15 @@ ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHer
 void CureMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
-
-	for(auto stackID : packet->affectedCres)
+	doDispell(battle, packet, [](const Bonus * b) -> bool
 	{
-		if(vstd::contains(packet->resisted, stackID))
+		if(b->source == Bonus::SPELL_EFFECT)
 		{
-			logGlobal->errorStream() << "Resistance to positive spell CURE";
-			continue;
+			CSpell * sp = SpellID(b->sid).toSpell();
+			return sp->isNegative();
 		}
-
-		CStack *s = battle->getStack(stackID);
-		s->popBonuses([&](const Bonus *b) -> bool
-		{
-			if(b->source == Bonus::SPELL_EFFECT)
-			{
-				CSpell * sp = SpellID(b->sid).toSpell();
-				return sp->isNegative();
-			}
-			return false; //not a spell effect
-		});
-	}
+		return false; //not a spell effect		
+	});
 }
 
 ///DispellMechanics
@@ -310,8 +307,8 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const C
 		//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
 		ui64 subjectHealth = (obj->count - 1) * obj->MaxHealth() + obj->firstHPleft;
 		//apply 'damage' bonus for hypnotize, including hero specialty
-		ui64 maxHealth = owner->calculateBonus(caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
-			* owner->power + owner->getPower(caster->getSpellSchoolLevel(owner)), caster, obj);
+		ui64 maxHealth = caster->getSpellBonus(owner, caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
+			* owner->power + owner->getPower(caster->getSpellSchoolLevel(owner)), obj);
 		if (subjectHealth > maxHealth)
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
@@ -470,7 +467,8 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCasted(const CBatt
 		//using isImmuneBy directly as this mechanics does not have overridden immunity check
 		//therefore we do not need to check caster and casting mode
 		//TODO: check that we really should check immunity for both stacks
-		const bool immune =  ESpellCastProblem::OK != owner->isImmuneBy(stack);
+		ESpellCastProblem::ESpellCastProblem res = owner->isImmuneBy(stack);
+		const bool immune =  ESpellCastProblem::OK != res && ESpellCastProblem::NOT_DECIDED != res;
 		const bool casterStack = stack->owner == player;
 
 		if(!immune && casterStack)
@@ -482,7 +480,6 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCasted(const CBatt
 			if(targetExists && targetToSacrificeExists)
 				break;
 		}
-
 	}
 
 	if(targetExists && targetToSacrificeExists)
@@ -571,7 +568,7 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battl
 	bsa.pos = parameters.cb->getAvaliableHex(creatureToSummon, !(bool)parameters.casterSide); //TODO: unify it
 
 	//TODO stack casting -> probably power will be zero; set the proper number of creatures manually
-	int percentBonus = parameters.caster ? parameters.caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, owner->id.toEnum()) : 0;
+	int percentBonus = parameters.casterHero ? parameters.casterHero->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, owner->id.toEnum()) : 0;
 
 	bsa.amount = parameters.usedSpellPower
 		* owner->getPower(parameters.spellLvl)

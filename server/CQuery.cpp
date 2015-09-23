@@ -297,7 +297,11 @@ bool CGarrisonDialogQuery::blocksPack(const CPack *pack) const
 	{
 		return !vstd::contains(ourIds, dismiss->heroID);
 	}
-
+	
+	if(auto upgrade = dynamic_cast<const UpgradeCreature*>(pack))
+	{
+		return !vstd::contains(ourIds, upgrade->id);
+	}
 	return CDialogQuery::blocksPack(pack);
 }
 
