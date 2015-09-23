@@ -609,17 +609,12 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 
 	for (ArtifactID i=ArtifactID::SPELLBOOK; i<ArtifactID::ART_SELECTION; i.advance(1))
 	{
+		//check artifacts allowed on a map
+		//TODO: This line will be different when custom map format is implemented
 		if (allowed[i] && legalArtifact(i))
 			allowedArtifacts.push_back(artifacts[i]);
 	}
-	if (VLC->modh->modules.COMMANDERS) //allow all commander artifacts for testing
-	{
-		for (int i = 146; i <= 155; ++i)
-		{
-			allowedArtifacts.push_back(artifacts[i]);
-		}
-	}
-	for (int i = GameConstants::ARTIFACTS_QUANTITY; i < artifacts.size(); ++i) //allow all new artifacts by default
+	for (ArtifactID i = ArtifactID::ART_SELECTION; i<ArtifactID(artifacts.size()); i.advance(1)) //try to allow all artifacts added by mods
 	{
 		if (legalArtifact(ArtifactID(i)))
 			allowedArtifacts.push_back(artifacts[i]);
