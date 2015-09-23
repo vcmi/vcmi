@@ -986,7 +986,6 @@ struct NewTurn : public CPackForClient //101
 	std::map<PlayerColor, TResources> res; //player ID => resource value[res_id]
 	std::map<ObjectInstanceID, SetAvailableCreatures> cres;//creatures to be placed in towns
 	ui32 day;
-	bool resetBuilded;
 	ui8 specialWeek; //weekType
 	CreatureID creatureid; //for creature weeks
 
@@ -994,7 +993,7 @@ struct NewTurn : public CPackForClient //101
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroes & cres & res & day & resetBuilded & specialWeek & creatureid;
+		h & heroes & cres & res & day & specialWeek & creatureid;
 	}
 };
 
