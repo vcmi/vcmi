@@ -578,9 +578,11 @@ bool CArtHandler::legalArtifact(ArtifactID id)
 	auto art = artifacts[id];
 	//assert ( (!art->constituents) || art->constituents->size() ); //artifacts is not combined or has some components
 	return (art->possibleSlots[ArtBearer::HERO].size() ||
-			(art->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS) ||
-			(art->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT)) &&
-			!(art->constituents); //no combo artifacts spawning
+		(art->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS) ||
+		(art->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT) &&
+		!(art->constituents) && //no combo artifacts spawning
+		art->aClass >= CArtifact::ART_TREASURE &&
+		art->aClass <= CArtifact::ART_RELIC);
 }
 
 bool CArtHandler::isTradableArtifact(ArtifactID id) const

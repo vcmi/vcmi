@@ -823,6 +823,7 @@ public:
 		//BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
 		TITANS_THUNDER = 135,
 		//CORNUCOPIA = 140,
+		//FIXME: the following is only true if WoG is enabled. Otherwise other mod artifacts will take these slots.
 		ART_SELECTION = 144,
 		ART_LOCK = 145,
 		AXE_OF_SMASHING = 146,
