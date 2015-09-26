@@ -806,7 +806,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		
 		//TODO: should spell override creature`s projectile?
 		
-		std::set<const CStack*> attackedCreatures = SpellID(bonus->subtype).toSpell()->getAffectedStacks(gs->curB, ECastingMode::SPELL_LIKE_ATTACK, att->owner, bonus->val, targetHex);
+		std::set<const CStack*> attackedCreatures = SpellID(bonus->subtype).toSpell()->getAffectedStacks(gs->curB, ECastingMode::SPELL_LIKE_ATTACK, att->owner, bonus->val, targetHex, att);
 	
 		//TODO: get exact attacked hex for defender
 

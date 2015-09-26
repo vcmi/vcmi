@@ -265,7 +265,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	//must be vector, as in Chain Lightning order matters
 	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
 
-	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.casterHero);
+	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.caster);
 	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
 
 	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";
@@ -779,7 +779,7 @@ void DefaultSpellMechanics::castMagicMirror(const SpellCastEnvironment* env, Bat
 	//must be vector, as in Chain Lightning order matters
 	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
 
-	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.casterHero);
+	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.caster);
 	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
 
 	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";
