@@ -64,7 +64,7 @@ void DispellHelpfulMechanics::applyBattle(BattleInfo * battle, const BattleSpell
 	doDispell(battle, packet, Selector::positiveSpellEffects);	
 }
 
-ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const CGHeroInstance * caster,  const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const ISpellCaster * caster,  const CStack * obj) const
 {
 	TBonusListPtr spellBon = obj->getSpellBonuses();
 	bool hasPositiveSpell = false;

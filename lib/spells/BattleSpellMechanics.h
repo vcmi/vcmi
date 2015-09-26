@@ -48,7 +48,7 @@ class DLL_LINKAGE CloneMechanics : public DefaultSpellMechanics
 {
 public:
 	CloneMechanics(CSpell * s): DefaultSpellMechanics(s){};
-	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
@@ -67,7 +67,7 @@ class DLL_LINKAGE DispellMechanics : public DefaultSpellMechanics
 {
 public:
 	DispellMechanics(CSpell * s): DefaultSpellMechanics(s){};
-	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 protected:
@@ -87,7 +87,7 @@ class DLL_LINKAGE HypnotizeMechanics : public DefaultSpellMechanics
 {
 public:
 	HypnotizeMechanics(CSpell * s): DefaultSpellMechanics(s){};
-	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 };
 
 class DLL_LINKAGE ObstacleMechanics : public DefaultSpellMechanics
@@ -138,7 +138,7 @@ class DLL_LINKAGE SpecialRisingSpellMechanics : public RisingSpellMechanics
 {
 public:
 	SpecialRisingSpellMechanics(CSpell * s): RisingSpellMechanics(s){};
-	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 };
 
 class DLL_LINKAGE SummonMechanics : public DefaultSpellMechanics

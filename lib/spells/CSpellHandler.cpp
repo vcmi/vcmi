@@ -506,7 +506,7 @@ ESpellCastProblem::ESpellCastProblem CSpell::internalIsImmune(const ISpellCaster
 	return ESpellCastProblem::NOT_DECIDED;
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	const auto immuneResult = mechanics->isImmuneByStack(caster,obj);
 

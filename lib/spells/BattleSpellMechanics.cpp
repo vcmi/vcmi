@@ -132,7 +132,7 @@ void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battle
 	env->sendAndApply(&ssp);	
 }
 
-ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	//can't clone already cloned creature
 	if(vstd::contains(obj->state, EBattleStackState::CLONED))
@@ -144,7 +144,7 @@ ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHer
 	ui8 schoolLevel;
 	if(caster)
 	{
-		schoolLevel = caster->getSpellSchoolLevel(owner);
+		schoolLevel = caster->getEffectLevel(owner);
 	}
 	else
 	{
@@ -189,7 +189,7 @@ void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * 
 	doDispell(battle, packet, Selector::sourceType(Bonus::SPELL_EFFECT));
 }
 
-ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	{
 		//just in case
@@ -351,15 +351,15 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattl
 }
 
 ///HypnotizeMechanics
-ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
-	if(nullptr != caster) //do not resist hypnotize cast after attack, for example
+	//todo: maybe do not resist on passive cast
+	if(nullptr != caster) 
 	{
 		//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
 		ui64 subjectHealth = (obj->count - 1) * obj->MaxHealth() + obj->firstHPleft;
 		//apply 'damage' bonus for hypnotize, including hero specialty
-		ui64 maxHealth = caster->getSpellBonus(owner, caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
-			* owner->power + owner->getPower(caster->getSpellSchoolLevel(owner)), obj);
+		ui64 maxHealth = caster->getSpellBonus(owner, owner->calculateRawEffectValue(caster->getEffectLevel(owner), caster->getEffectPower(owner)), obj);
 		if (subjectHealth > maxHealth)
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
@@ -595,7 +595,7 @@ int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const
 }
 
 ///SpecialRisingSpellMechanics
-ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	// following does apply to resurrect and animate dead(?) only
 	// for sacrifice health calculation and health limit check don't matter

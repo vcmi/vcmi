@@ -743,7 +743,7 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBat
 }
 
 
-ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	//by default use general algorithm
 	return owner->internalIsImmune(caster, obj);

@@ -44,7 +44,7 @@ public:
 
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const override;
 	
-	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 
 	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;
 	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override final;

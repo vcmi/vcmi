@@ -36,5 +36,5 @@ public:
 
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 
-	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const override;
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 };
