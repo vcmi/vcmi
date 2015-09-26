@@ -53,7 +53,7 @@ public:
 	void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet, 
 		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const override;	
 protected:
-	virtual void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
+	virtual void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
 
 	///actual adventure cast implementation
 	virtual ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;

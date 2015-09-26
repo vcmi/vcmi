@@ -16,7 +16,7 @@
 #include "../BattleState.h"
 
 ///AcidBreathDamageMechanics
-void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//todo: this should be effectValue
 	//calculating dmg to display
@@ -36,7 +36,7 @@ void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * 
 }
 
 ///DeathStareMechanics
-void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//calculating dmg to display
 	ctx.sc.dmgToDisplay = parameters.effectPower;

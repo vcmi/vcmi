@@ -18,7 +18,7 @@ class DLL_LINKAGE AcidBreathDamageMechanics : public DefaultSpellMechanics
 public:
 	AcidBreathDamageMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 class DLL_LINKAGE DeathStareMechanics : public DefaultSpellMechanics
@@ -26,7 +26,7 @@ class DLL_LINKAGE DeathStareMechanics : public DefaultSpellMechanics
 public:
 	DeathStareMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 class DLL_LINKAGE DispellHelpfulMechanics : public DefaultSpellMechanics

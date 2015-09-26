@@ -473,7 +473,7 @@ void DefaultSpellMechanics::battleLogSingleTarget(std::vector<std::string> & log
 	}	
 }
 
-void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//applying effects
 	if(owner->isOffensiveSpell())

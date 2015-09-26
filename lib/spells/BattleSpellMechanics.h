@@ -24,7 +24,7 @@ public:
 
 	HealingSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};	
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 	virtual int calculateHealedHP(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
 	virtual EHealLevel getHealLevel(int effectLevel) const = 0;
 };
@@ -50,7 +50,7 @@ public:
 	CloneMechanics(CSpell * s): DefaultSpellMechanics(s){};
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 class DLL_LINKAGE CureMechanics : public HealingSpellMechanics
@@ -71,7 +71,7 @@ public:
 
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 class DLL_LINKAGE EarthquakeMechanics : public DefaultSpellMechanics
@@ -80,7 +80,7 @@ public:
 	EarthquakeMechanics(CSpell * s): DefaultSpellMechanics(s){};
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const override;
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 class DLL_LINKAGE HypnotizeMechanics : public DefaultSpellMechanics
@@ -96,7 +96,7 @@ public:
 	ObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};
 
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 class DLL_LINKAGE WallMechanics : public ObstacleMechanics
@@ -111,7 +111,7 @@ class DLL_LINKAGE RemoveObstacleMechanics : public DefaultSpellMechanics
 public:
 	RemoveObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 ///all rising spells
@@ -129,7 +129,7 @@ public:
 
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const override;
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 	int calculateHealedHP(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;	
 };
 
@@ -148,7 +148,7 @@ public:
 
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const override;
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 private:
 	CreatureID creatureToSummon;
 };
@@ -158,5 +158,5 @@ class DLL_LINKAGE TeleportMechanics: public DefaultSpellMechanics
 public:
 	TeleportMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
-	void applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };

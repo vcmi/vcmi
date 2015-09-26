@@ -16,7 +16,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 
 ///HealingSpellMechanics
-void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment* env, BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
+void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	EHealLevel healLevel = getHealLevel(parameters.effectLevel);
 	int hpGained = calculateHealedHP(env, parameters, ctx);
@@ -98,7 +98,7 @@ std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(SpellTargeti
 }
 
 ///CloneMechanics
-void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	const CStack * clonedStack = nullptr;
 	if(ctx.attackedCres.size())
@@ -217,7 +217,7 @@ ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const ISp
 	//any other immunities are ignored - do not execute default algorithm
 }
 
-void DispellMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void DispellMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	DefaultSpellMechanics::applyBattleEffects(env, parameters, ctx);
 
@@ -240,7 +240,7 @@ void DispellMechanics::applyBattleEffects(const SpellCastEnvironment * env, Batt
 }
 
 ///EarthquakeMechanics
-void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	if(nullptr == parameters.cb->battleGetDefendedTown())
 	{
@@ -367,7 +367,7 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const I
 }
 
 ///ObstacleMechanics
-void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	auto placeObstacle = [&, this](BattleHex pos)
 	{
@@ -493,7 +493,7 @@ std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 sch
 }
 
 ///RemoveObstacleMechanics
-void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	if(auto obstacleToRemove = parameters.cb->battleGetObstacleOnPos(parameters.destination, false))
 	{
@@ -554,7 +554,7 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCast(const CBattle
 }
 
 
-void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	RisingSpellMechanics::applyBattleEffects(env, parameters, ctx);
 
@@ -634,7 +634,7 @@ ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCast(const CBattleInf
 	return ESpellCastProblem::OK;
 }
 
-void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	BattleStackAdded bsa;
 	bsa.creID = creatureToSummon;
@@ -655,7 +655,7 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battl
 }
 
 ///TeleportMechanics
-void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//todo: check legal teleport
 	
