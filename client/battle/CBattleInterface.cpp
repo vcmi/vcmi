@@ -2470,10 +2470,16 @@ bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CSta
 
 	if (sp)
 	{
-		if (creatureCasting)
-			isCastingPossible = (curInt->cb->battleCanCreatureCastThisSpell (sp, myNumber) == ESpellCastProblem::OK);
+		const ISpellCaster * caster = creatureCasting ? dynamic_cast<const ISpellCaster *>(sactive) : dynamic_cast<const ISpellCaster *>(curInt->cb->battleGetMyHero());
+		if(caster == nullptr)
+		{
+			isCastingPossible = false;//just in case
+		}
 		else
-			isCastingPossible = (curInt->cb->battleCanCastThisSpell (sp, myNumber) == ESpellCastProblem::OK);
+		{
+			const ECastingMode::ECastingMode mode = creatureCasting ? ECastingMode::CREATURE_ACTIVE_CASTING : ECastingMode::HERO_CASTING;
+			isCastingPossible = (curInt->cb->battleCanCastThisSpellHere(caster, sp, mode, myNumber) == ESpellCastProblem::OK);
+		}
 	}
 	else
 		isCastingPossible = false;

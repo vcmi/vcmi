@@ -23,7 +23,6 @@
 #include "../CModHandler.h"
 #include "../StringConstants.h"
 
-#include "../mapObjects/CGHeroInstance.h"
 #include "../BattleState.h"
 #include "../CBattleCallback.h"
 #include "../CGameState.h" //todo: remove
@@ -303,7 +302,7 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level) const
 	}
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallback * cb, const CGHeroInstance * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
+ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
 {
 	// Get all stacks at destination hex. only alive if not rising spell
 	TStacks stacks = cb->battleGetStacksIf([=](const CStack * s){
@@ -385,9 +384,8 @@ int CSpell::adjustRawDamage(const ISpellCaster * caster, const CStack * affected
 			ret /= 100;
 		}
 	}
-
-	ret = caster->getSpellBonus(this, ret, affectedCreature);
-
+	if(caster != nullptr)
+		ret = caster->getSpellBonus(this, ret, affectedCreature);
 	return ret;
 }
 

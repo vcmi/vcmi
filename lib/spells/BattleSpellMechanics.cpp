@@ -139,8 +139,6 @@ ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const ISpel
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	if(obj->cloneID != -1)
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	//TODO: how about stacks casting Clone?
-	//currently Clone cast by stack is assumed Expert level
 	ui8 schoolLevel;
 	if(caster)
 	{
@@ -148,7 +146,7 @@ ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const ISpel
 	}
 	else
 	{
-		schoolLevel = 3;
+		schoolLevel = 3;//todo: remove
 	}
 
 	if(schoolLevel < 3)

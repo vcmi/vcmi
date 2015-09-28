@@ -4073,7 +4073,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			parameters.mode = ECastingMode::HERO_CASTING;
 			parameters.selectedStack = gs->curB->battleGetStackByID(ba.selectedStack, false);			
 
-			ESpellCastProblem::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h->tempOwner, s, ECastingMode::HERO_CASTING);
+			ESpellCastProblem::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h, s, ECastingMode::HERO_CASTING);//todo: should we check aimed cast(battleCanCastThisSpellHere)?
 			if(escp != ESpellCastProblem::OK)
 			{
 				logGlobal->warnStream() << "Spell cannot be cast!";
@@ -4217,7 +4217,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 				const CSpell * spell = SpellID(spellID).toSpell();
 				bl.remove_if([&bonus](Bonus * b){return b==bonus;});					
 				
-				if (gs->curB->battleCanCastThisSpell(st->owner, spell, ECastingMode::ENCHANTER_CASTING) == ESpellCastProblem::OK)
+				if (gs->curB->battleCanCastThisSpell(st, spell, ECastingMode::ENCHANTER_CASTING) == ESpellCastProblem::OK)
 				{
 					BattleSpellCastParameters parameters(gs->curB, st, spell);
 					parameters.spellLvl = bonus->val;
@@ -4277,7 +4277,7 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 	//helper info
 	const SpellCreatedObstacle *spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(&obstacle); //not nice but we may need spell params
 	const ui8 side = !curStack->attackerOwned; //if enemy is defending (false = 0), side of enemy hero is 1 (true)
-	const CGHeroInstance *hero = gs->curB->battleGetFightingHero(side);
+	const CGHeroInstance *hero = gs->curB->battleGetFightingHero(side);//FIXME: there may be no hero - landmines in Tower
 
 	if(obstacle.obstacleType == CObstacleInstance::MOAT)
 	{
@@ -4916,7 +4916,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			int destination = oneOfAttacked->position;
 
 			const CSpell * spell = SpellID(spellID).toSpell();
-			if(gs->curB->battleCanCastThisSpellHere(attacker->owner, spell, ECastingMode::AFTER_ATTACK_CASTING, oneOfAttacked->position) != ESpellCastProblem::OK)
+			if(gs->curB->battleCanCastThisSpellHere(attacker, spell, ECastingMode::AFTER_ATTACK_CASTING, oneOfAttacked->position) != ESpellCastProblem::OK)
 				continue;
 
 			//check if spell should be cast (probability handling)
@@ -4926,8 +4926,6 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			//casting
 			if (castMe) //stacks use 0 spell power. If needed, default = 3 or custom value is used
 			{
-				const CSpell * spell = SpellID(spellID).toSpell();
-
 				BattleSpellCastParameters parameters(gs->curB, attacker, spell);
 				parameters.spellLvl = spellLevel;
 				parameters.effectLevel = spellLevel;
