@@ -133,7 +133,7 @@ public:
 	BONUS_NAME(SPELL_RESISTANCE_AURA) /*eg. unicorns, value - resistance bonus in % for adjacent creatures*/ \
 	BONUS_NAME(LEVEL_SPELL_IMMUNITY) /*creature is immune to all spell with level below or equal to value of this bonus*/ \
 	BONUS_NAME(BLOCK_MAGIC_ABOVE) /*blocks casting spells of the level > value */ \
-	BONUS_NAME(BLOCK_ALL_MAGIC) /*blocks casting spells of the level > value */ \
+	BONUS_NAME(BLOCK_ALL_MAGIC) /*blocks casting spells*/ \
 	BONUS_NAME(TWO_HEX_ATTACK_BREATH) /*eg. dragons*/	\
 	BONUS_NAME(SPELL_DAMAGE_REDUCTION) /*eg. golems; value - reduction in %, subtype - spell school; -1 - all, 0 - air, 1 - fire, 2 - water, 3 - earth*/ \
 	BONUS_NAME(NO_WALL_PENALTY)							\
