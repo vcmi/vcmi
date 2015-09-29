@@ -30,21 +30,37 @@ public:
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker = PlayerColor::NEUTRAL) const =0;	//TODO: remove
 };
 
-///helper struct
+///all parameters of particular cast event
 struct DLL_LINKAGE BattleSpellCastParameters
 {
 public:
+	///Single spell destination. 
+	/// (assumes that anything but battle stack can share same hex)
+	struct DLL_LINKAGE Destination
+	{
+		explicit Destination(const CStack * destination); 
+		explicit Destination(const BattleHex & destination);
+		
+		const CStack * stackValue;
+		const BattleHex hexValue;
+	};
+
 	BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell);
+	void aimToHex(const BattleHex & destination);
+	void aimToStack(const CStack * destination);
+	BattleHex getFirstDestinationHex() const;
+	
 	const BattleInfo * cb;
 	const ISpellCaster * caster;
 	const PlayerColor casterColor;	
 	const ui8 casterSide;
 
-	BattleHex destination;
+	std::vector<Destination> destinations;
+
 	const CGHeroInstance * casterHero; //deprecated
 	ECastingMode::ECastingMode mode;
 	const CStack * casterStack; //deprecated
-	const CStack * selectedStack;
+	const CStack * selectedStack;//deprecated
 
 	///spell school level
 	int spellLvl;	

@@ -265,7 +265,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	//must be vector, as in Chain Lightning order matters
 	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
 
-	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.caster);
+	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.getFirstDestinationHex(), parameters.caster);
 	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
 
 	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";
@@ -363,7 +363,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 
 			BattleSpellCastParameters mirrorParameters(parameters.cb, attackedCre, owner);
 			mirrorParameters.spellLvl = 0;
-			mirrorParameters.destination = targetHex;
+			mirrorParameters.aimToHex(targetHex);
 			mirrorParameters.mode = ECastingMode::MAGIC_MIRROR;
 			mirrorParameters.selectedStack = nullptr;
 			mirrorParameters.spellLvl = parameters.spellLvl;
@@ -766,7 +766,8 @@ void DefaultSpellMechanics::castMagicMirror(const SpellCastEnvironment* env, Bat
 		env->complain("MagicMirror: invalid mode");
 		return;
 	}
-	if(!parameters.destination.isValid())
+	BattleHex destination = parameters.getFirstDestinationHex();
+	if(!destination.isValid())
 	{
 		env->complain("MagicMirror: invalid destination");
 		return;		
@@ -779,7 +780,7 @@ void DefaultSpellMechanics::castMagicMirror(const SpellCastEnvironment* env, Bat
 	//must be vector, as in Chain Lightning order matters
 	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
 
-	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.destination, parameters.caster);
+	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, destination, parameters.caster);
 	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
 
 	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";
@@ -839,7 +840,7 @@ void DefaultSpellMechanics::prepareBattleCast(const BattleSpellCastParameters& p
 	sc.side = parameters.casterSide;
 	sc.id = owner->id;
 	sc.skill = parameters.spellLvl;
-	sc.tile = parameters.destination;
+	sc.tile = parameters.getFirstDestinationHex();
 	sc.dmgToDisplay = 0;
 	sc.castByHero = parameters.mode == ECastingMode::HERO_CASTING;
 	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);

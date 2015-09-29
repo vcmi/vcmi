@@ -367,7 +367,7 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const I
 ///ObstacleMechanics
 void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	auto placeObstacle = [&, this](BattleHex pos)
+	auto placeObstacle = [&, this](const BattleHex & pos)
 	{
 		static int obstacleIdToGive =  parameters.cb->obstacles.size()
 									? (parameters.cb->obstacles.back()->uniqueID+1)
@@ -413,6 +413,8 @@ void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 		env->sendAndApply(&bop);
 	};
 
+	const BattleHex destination = parameters.getFirstDestinationHex();
+
 	switch(owner->id)
 	{
 	case SpellID::QUICKSAND:
@@ -437,12 +439,22 @@ void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 
 		break;
 	case SpellID::FORCE_FIELD:
-		placeObstacle(parameters.destination);
+		if(!destination.isValid())
+		{
+			env->complain("Invalid destination for FORCE_FIELD");
+			return;
+		}
+		placeObstacle(destination);
 		break;
 	case SpellID::FIRE_WALL:
 		{
+			if(!destination.isValid())
+			{
+				env->complain("Invalid destination for FIRE_WALL");
+				return;
+			}
 			//fire wall is build from multiple obstacles - one fire piece for each affected hex
-			auto affectedHexes = owner->rangeInHexes(parameters.destination, parameters.spellLvl, parameters.casterSide);
+			auto affectedHexes = owner->rangeInHexes(destination, parameters.spellLvl, parameters.casterSide);
 			for(BattleHex hex : affectedHexes)
 				placeObstacle(hex);
 		}
@@ -493,7 +505,7 @@ std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 sch
 ///RemoveObstacleMechanics
 void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	if(auto obstacleToRemove = parameters.cb->battleGetObstacleOnPos(parameters.destination, false))
+	if(auto obstacleToRemove = parameters.cb->battleGetObstacleOnPos(parameters.getFirstDestinationHex(), false))
 	{
 		ObstaclesRemoved obr;
 		obr.obstacles.insert(obstacleToRemove->uniqueID);
@@ -659,9 +671,9 @@ void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 	
 	BattleStackMoved bsm;
 	bsm.distance = -1;
-	bsm.stack = parameters.selectedStack->ID;
+	bsm.stack = parameters.selectedStack->ID;//todo: use destinations
 	std::vector<BattleHex> tiles;
-	tiles.push_back(parameters.destination);
+	tiles.push_back(parameters.getFirstDestinationHex());
 	bsm.tilesToMove = tiles;
 	bsm.teleporting = true;
 	env->sendAndApply(&bsm);
