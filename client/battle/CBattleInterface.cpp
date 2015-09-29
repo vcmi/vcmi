@@ -1091,10 +1091,6 @@ void CBattleInterface::newRoundFirst( int round )
 void CBattleInterface::newRound(int number)
 {
 	console->addText(CGI->generaltexth->allTexts[412]);
-
-	//unlock spellbook
-	//bSpell->block(!curInt->cb->battleCanCastSpell());
-	//don't unlock spellbook - this should be done when we have axctive creature
 }
 
 void CBattleInterface::giveCommand(Battle::ActionType action, BattleHex tile, ui32 stackID, si32 additional, si32 selected)
