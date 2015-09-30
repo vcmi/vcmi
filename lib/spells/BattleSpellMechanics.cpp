@@ -567,8 +567,23 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCast(const CBattle
 void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	RisingSpellMechanics::applyBattleEffects(env, parameters, ctx);
+	const CStack * victim = nullptr;
+	if(parameters.destinations.size() == 2)
+	{
+		victim = parameters.destinations[1].stackValue;
+	}
+	else
+	{
+		//todo: remove and report error
+		victim = parameters.selectedStack;
+	}
+	if(nullptr == victim)
+	{
+		env->complain("SacrificeMechanics: No stack to sacrifice");
+		return;
+	}
 
-	if(parameters.selectedStack == parameters.cb->battleActiveStack())
+	if(victim == parameters.cb->battleActiveStack())
 	//set another active stack than the one removed, or bad things will happen
 	//TODO: make that part of BattleStacksRemoved? what about client update?
 	{
@@ -590,17 +605,31 @@ void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, co
 
 	}
 	BattleStacksRemoved bsr;
-	bsr.stackIDs.insert(parameters.selectedStack->ID); //somehow it works for teleport?
+	bsr.stackIDs.insert(victim->ID);
 	env->sendAndApply(&bsr);
 }
 
 int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
 {
 	int res = 0;
-	if(nullptr == parameters.selectedStack)
-		env->complain("No stack to sacrifice.");
+	const CStack * victim = nullptr;
+
+	if(parameters.destinations.size() == 2)
+	{
+		victim = parameters.destinations[1].stackValue;
+	}
 	else
-		res = (parameters.effectPower + parameters.selectedStack->MaxHealth() + owner->getPower(parameters.effectLevel)) * parameters.selectedStack->count;
+	{
+		//todo: remove and report error
+		victim = parameters.selectedStack;
+	}
+	if(nullptr == victim)
+	{
+		env->complain("SacrificeMechanics: No stack to sacrifice");
+		return 0;
+	}
+
+	res = (parameters.effectPower + victim->MaxHealth() + owner->getPower(parameters.effectLevel)) * victim->count;
 	return res;
 }
 
