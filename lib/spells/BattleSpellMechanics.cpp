@@ -668,14 +668,43 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, const
 void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//todo: check legal teleport
-	
-	BattleStackMoved bsm;
-	bsm.distance = -1;
-	bsm.stack = parameters.selectedStack->ID;//todo: use destinations
-	std::vector<BattleHex> tiles;
-	tiles.push_back(parameters.getFirstDestinationHex());
-	bsm.tilesToMove = tiles;
-	bsm.teleporting = true;
-	env->sendAndApply(&bsm);
+	if(parameters.destinations.size() == 2)
+	{
+		//first destination creature to move
+		const CStack * target = parameters.destinations[0].stackValue;
+		if(nullptr == target)
+		{
+			env->complain("TeleportMechanics: no stack to teleport");
+			return;
+		}
+		//second destination hex to move to
+		const BattleHex destination = parameters.destinations[1].hexValue;
+		if(!destination.isValid())
+		{
+			env->complain("TeleportMechanics: invalid teleport destination");
+			return;			
+		}
+		BattleStackMoved bsm;
+		bsm.distance = -1;
+		bsm.stack = target->ID;
+		std::vector<BattleHex> tiles;
+		tiles.push_back(destination);
+		bsm.tilesToMove = tiles;
+		bsm.teleporting = true;
+		env->sendAndApply(&bsm);		
+	}
+	else
+	{
+		//todo: remove and report error
+		BattleStackMoved bsm;
+		bsm.distance = -1;
+		bsm.stack = parameters.selectedStack->ID;
+		std::vector<BattleHex> tiles;
+		tiles.push_back(parameters.getFirstDestinationHex());
+		bsm.tilesToMove = tiles;
+		bsm.teleporting = true;
+		env->sendAndApply(&bsm);
+	}		
 }
+
 
