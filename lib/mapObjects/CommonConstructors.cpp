@@ -313,17 +313,15 @@ void CBankInstanceConstructor::configureObject(CGObjectInstance * object, CRando
 	si32 selectedChance = rng.nextInt(totalChance - 1);
 	//logGlobal->debugStream() << "Selected chance for bank config is " << selectedChance;
 
+	int cumulativeChance = 0;
 	for (auto & node : levels)
 	{
-		if (selectedChance < node["chance"].Float())
+		cumulativeChance += node["chance"].Float();
+		if (selectedChance < cumulativeChance)
 		{
 			 bank->setConfig(generateConfig(node, rng));
+			 break;
 		}
-		else
-		{
-			selectedChance -= node["chance"].Float();
-		}
-
 	}
 }
 
