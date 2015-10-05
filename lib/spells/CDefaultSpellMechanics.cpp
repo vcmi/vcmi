@@ -742,7 +742,6 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBat
 	return ESpellCastProblem::OK;
 }
 
-
 ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	//by default use general algorithm
@@ -751,10 +750,22 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(cons
 
 void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const
 {
+	auto localSelector = [](const Bonus * bonus)
+	{
+		const CSpell * sourceSpell = bonus->sourceSpell();
+		if(sourceSpell != nullptr)
+		{
+			//Special case: DISRUPTING_RAY is "immune" to dispell
+			//Other even PERMANENT effects can be removed (f.e. BIND)						
+			if(sourceSpell->id == SpellID::DISRUPTING_RAY)
+				return false;
+		}
+		return true;
+	};
 	for(auto stackID : packet->affectedCres)
 	{
 		CStack *s = battle->getStack(stackID);
-		s->popBonuses(selector);
+		s->popBonuses(CSelector(localSelector).And(selector));
 	}	
 }
 

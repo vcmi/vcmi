@@ -1459,21 +1459,15 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			}
 		}
 		vstd::amin(changedStack->firstHPleft, changedStack->MaxHealth());
-		//removal of negative effects
 		if(resurrected)
 		{
-			//removing all features from negative spells
-			const BonusList tmpFeatures = changedStack->getBonusList();
-			//changedStack->bonuses.clear();
-
-			for(Bonus *b : tmpFeatures)
+			//removing all effects from negative spells
+			auto selector = [](const Bonus * b)
 			{
 				const CSpell *s = b->sourceSpell();
-				if(s && s->isNegative())
-				{
-					changedStack->removeBonus(b);
-				}
-			}
+				return (s != nullptr) && s->isNegative() && (s->id != SpellID::DISRUPTING_RAY);
+			};
+			changedStack->popBonuses(selector);
 		}
 	}
 }
