@@ -5441,8 +5441,9 @@ void CGameHandler::runBattle()
 					else
 					{
                         logGlobal->traceStream() << "Activating " << next->nodeName();
-						BattleSetActiveStack sas;
-						sas.stack = next->ID;
+                        auto nextId = next->ID;
+						BattleSetActiveStack sas;						
+						sas.stack = nextId;
 						sendAndApply(&sas);
 
 						auto actionWasMade = [&]() -> bool
@@ -5459,7 +5460,8 @@ void CGameHandler::runBattle()
 						while(!actionWasMade())
 						{
 							battleMadeAction.cond.wait(lock);
-							next = gs->curB->battleActiveStack(); //it may change while we wait
+							if(battleGetStackByID(nextId, false) != next)
+								next = nullptr; //it may be removed, while we wait
 						}
 					}
 				}
@@ -5469,36 +5471,37 @@ void CGameHandler::runBattle()
 					breakOuter = true;
 					break;
 				}
-
 				//we're after action, all results applied
 				checkForBattleEnd(); //check if this action ended the battle
 
-				//check for good morale
-				nextStackMorale = next->MoraleVal();
-				if(!vstd::contains(next->state,EBattleStackState::HAD_MORALE)  //only one extra move per turn possible
-					&& !vstd::contains(next->state,EBattleStackState::DEFENDING)
-					&& !next->waited()
-					&& !vstd::contains(next->state, EBattleStackState::FEAR)
-					&&  next->alive()
-					&&  nextStackMorale > 0
-					&& !(NBonus::hasOfType(gs->curB->battleGetFightingHero(0), Bonus::BLOCK_MORALE)
-						|| NBonus::hasOfType(gs->curB->battleGetFightingHero(1), Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses
-					)
+				if(next != nullptr)
 				{
-					if(gs->getRandomGenerator().nextInt(23) < nextStackMorale) //this stack hasn't got morale this turn
+					//check for good morale
+					nextStackMorale = next->MoraleVal();
+					if(!vstd::contains(next->state,EBattleStackState::HAD_MORALE)  //only one extra move per turn possible
+						&& !vstd::contains(next->state,EBattleStackState::DEFENDING)
+						&& !next->waited()
+						&& !vstd::contains(next->state, EBattleStackState::FEAR)
+						&&  next->alive()
+						&&  nextStackMorale > 0
+						&& !(NBonus::hasOfType(gs->curB->battleGetFightingHero(0), Bonus::BLOCK_MORALE)
+							|| NBonus::hasOfType(gs->curB->battleGetFightingHero(1), Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses
+						)
+					{
+						if(gs->getRandomGenerator().nextInt(23) < nextStackMorale) //this stack hasn't got morale this turn
 
-						{
-							BattleTriggerEffect bte;
-							bte.stackID = next->ID;
-							bte.effect = Bonus::MORALE;
-							bte.val = 1;
-							bte.additionalInfo = 0;
-							sendAndApply(&bte); //play animation
+							{
+								BattleTriggerEffect bte;
+								bte.stackID = next->ID;
+								bte.effect = Bonus::MORALE;
+								bte.val = 1;
+								bte.additionalInfo = 0;
+								sendAndApply(&bte); //play animation
 
-							++numberOfAsks; //move this stack once more
-						}
+								++numberOfAsks; //move this stack once more
+							}
+					}
 				}
-
 				--numberOfAsks;
 			} while (numberOfAsks > 0);
 
