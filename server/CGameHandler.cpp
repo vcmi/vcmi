@@ -5444,11 +5444,23 @@ void CGameHandler::runBattle()
 						BattleSetActiveStack sas;
 						sas.stack = next->ID;
 						sendAndApply(&sas);
+
+						auto actionWasMade = [&]() -> bool
+						{
+							if(battleMadeAction.data)//active stack has made its action
+								return true;
+							if(battleResult.get())// battle is finished
+								return true;
+							return !next->alive();//active stack is dead
+						};
+
 						boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
 						battleMadeAction.data = false;
-						while (next->alive() && //next is invalid after sacrificing current stack :?
-							(!battleMadeAction.data  &&  !battleResult.get())) //active stack hasn't made its action and battle is still going
+						while(!actionWasMade())
+						{
 							battleMadeAction.cond.wait(lock);
+							next = gs->curB->battleActiveStack(); //it may change while we wait
+						}
 					}
 				}
 
