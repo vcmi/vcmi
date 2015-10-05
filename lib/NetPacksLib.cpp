@@ -1136,7 +1136,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 		}
 		case Bonus::POISON:
 		{
-			Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, 71)
+			Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON)
 											.And(Selector::type(Bonus::STACK_HEALTH)));
 			if (b)
 				b->val = val;
