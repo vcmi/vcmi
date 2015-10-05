@@ -566,7 +566,6 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCast(const CBattle
 
 void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	RisingSpellMechanics::applyBattleEffects(env, parameters, ctx);
 	const CStack * victim = nullptr;
 	if(parameters.destinations.size() == 2)
 	{
@@ -582,27 +581,35 @@ void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, co
 		env->complain("SacrificeMechanics: No stack to sacrifice");
 		return;
 	}
+	//resurrect target after basic checks
+	RisingSpellMechanics::applyBattleEffects(env, parameters, ctx);
 
 	if(victim == parameters.cb->battleActiveStack())
 	//set another active stack than the one removed, or bad things will happen
 	//TODO: make that part of BattleStacksRemoved? what about client update?
 	{
-		//makeStackDoNothing(gs->curB->getStack (selectedStack));
-
+		std::vector<const CStack *> stackQueue;
+		parameters.cb->battleGetStackQueue(stackQueue, 100, -1); //FIXME: magic values detected, there should be a way to get stack queue for one full turn
+		const CStack * stackToActivate = nullptr;		
+		for(const CStack * iter : stackQueue)
+		{
+			//we need to find first stack distinct from victim
+			//stack may appear in queue multiple times even in a row
+			if(iter != victim)
+			{
+				assert(iter->ID != victim->ID);//yes it is paranoid
+				stackToActivate = iter;
+				break;
+			}
+		}
+		if(nullptr == stackToActivate)
+		{
+			env->complain("No new stack to activate! Cast aborted");
+			return; //do not sacrifice stack if there is no new stack. should now ever happen, but just in case
+		}
 		BattleSetActiveStack sas;
-
-		//std::vector<const CStack *> hlp;
-		//battleGetStackQueue(hlp, 1, selectedStack); //next after this one
-
-		//if(hlp.size())
-		//{
-		//	sas.stack = hlp[0]->ID;
-		//}
-		//else
-		//	complain ("No new stack to activate!");
-		sas.stack = parameters.cb->getNextStack()->ID; //why the hell next stack has same ID as current?
+		sas.stack = stackToActivate->ID;
 		env->sendAndApply(&sas);
-
 	}
 	BattleStacksRemoved bsr;
 	bsr.stackIDs.insert(victim->ID);
