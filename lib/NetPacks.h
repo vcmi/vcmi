@@ -1604,7 +1604,7 @@ struct BattleStacksRemoved : public CPackForClient //3016
 	BattleStacksRemoved(){type = 3016;}
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
-	void applyCl(CClient *cl);
+	void applyFirstCl(CClient *cl);//inform client before stack objects are destroyed
 
 	std::set<ui32> stackIDs; //IDs of removed stacks
 

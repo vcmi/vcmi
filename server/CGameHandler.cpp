@@ -5452,6 +5452,8 @@ void CGameHandler::runBattle()
 								return true;
 							if(battleResult.get())// battle is finished
 								return true;
+							if(next == nullptr)//active stack was been removed
+								return true;
 							return !next->alive();//active stack is dead
 						};
 

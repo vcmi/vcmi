@@ -609,7 +609,7 @@ void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, co
 		}
 		BattleSetActiveStack sas;
 		sas.stack = stackToActivate->ID;
-		env->sendAndApply(&sas);
+		//env->sendAndApply(&sas);
 	}
 	BattleStacksRemoved bsr;
 	bsr.stackIDs.insert(victim->ID);

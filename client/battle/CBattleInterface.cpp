@@ -1005,11 +1005,17 @@ void CBattleInterface::newStack(const CStack * stack)
 
 void CBattleInterface::stackRemoved(int stackID)
 {
+	if(activeStack != nullptr)
+	{
+		if(activeStack->ID == stackID)
+		{
+			setActiveStack(nullptr);
+		}
+	}
+	
 	delete creAnims[stackID];
 	creAnims.erase(stackID);
 	creDir.erase(stackID);
-	//FIXME: what if currently removed stack is active one (Sacrifice)?
-
 	redrawBackgroundWithHexes(activeStack);
 	queue->update();
 }
