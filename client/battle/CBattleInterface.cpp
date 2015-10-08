@@ -1009,6 +1009,11 @@ void CBattleInterface::stackRemoved(int stackID)
 	{
 		if(activeStack->ID == stackID)
 		{
+			BattleAction * action = new BattleAction();
+			action->side = defendingHeroInstance ? (curInt->playerID == defendingHeroInstance->tempOwner) : false;
+			action->actionType = Battle::CANCEL;
+			action->stackNumber = activeStack->ID;
+			givenCommand->setn(action);
 			setActiveStack(nullptr);
 		}
 	}

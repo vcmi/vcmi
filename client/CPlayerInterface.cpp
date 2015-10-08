@@ -813,21 +813,17 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 
 	//tidy up
 	BattleAction ret = *(b->givenCommand->data);
-	//todo: remove this evil hack
-	//dirty evil hack...
-	//if active stack was changed, new thread was started for new active stack but we will receive notification too
-	//we need check that givenCommand is for our stack (use ID as stack object may be even destroyed)
-	if(stackId != ret.stackNumber)
+	vstd::clear_pointer(b->givenCommand->data);
+	
+	if(ret.actionType == Battle::CANCEL)
 	{
-		logGlobal->traceStream() << "Interrupted command for " << stackName;
-		throw boost::thread_interrupted();
+		if(stackId != ret.stackNumber)
+			logGlobal->error("Not current active stack action canceled");
+		logGlobal->traceStream() << "Canceled command for " << stackName;			
 	}
-			
-	delete b->givenCommand->data;
-	b->givenCommand->data = nullptr;
-
-	//return command
-	logGlobal->traceStream() << "Giving command for " << stackName;
+	else
+		logGlobal->traceStream() << "Giving command for " << stackName;
+		
 	return ret;
 }
 

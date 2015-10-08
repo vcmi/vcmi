@@ -700,6 +700,7 @@ namespace Battle
 {
 	enum ActionType
 	{
+		CANCEL = -3,
 		END_TACTIC_PHASE = -2,
 		INVALID = -1,
 		NO_ACTION = 0,
