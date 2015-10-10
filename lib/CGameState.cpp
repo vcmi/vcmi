@@ -3300,12 +3300,32 @@ void CPathfinder::initializeGraph()
 	}
 }
 
-void CPathfinder::getNeighbours(const int3 &coord, bool noTeleportExcludes)
+void CPathfinder::getNeighbours(const int3 &coord)
 {
+	neighbours.clear();
 	ct = &gs->map->getTile(coord);
 // Will be needed for usage outside of calculatePaths
 //	if(!cp)
 //		cp = getNode(coord);
+
+	std::vector<int3> tiles;
+	gs->getNeighbours(*ct, coord, tiles, boost::logic::indeterminate, !cp->land);
+	sTileObj = ct->topVisitableObj(coord == CGHeroInstance::convertPosition(hero->pos, false));
+	if(sTileObj)
+	{
+		for(int3 tile: tiles)
+		{
+			if(canMoveBetween(tile, sTileObj->visitablePos()))
+				neighbours.push_back(tile);
+		}
+	}
+	else
+		vstd::concatenate(neighbours, tiles);
+}
+
+void CPathfinder::getTeleportExits(bool noTeleportExcludes)
+{
+	assert(sTileObj);
 
 	neighbours.clear();
 	auto isAllowedTeleportEntrance = [&](const CGTeleport * obj) -> bool
@@ -3328,7 +3348,6 @@ void CPathfinder::getNeighbours(const int3 &coord, bool noTeleportExcludes)
 		return false;
 	};
 
-	sTileObj = ct->topVisitableObj(coord == CGHeroInstance::convertPosition(hero->pos, false));
 	sTileTeleport = dynamic_cast<const CGTeleport *>(sTileObj);
 	if(isAllowedTeleportEntrance(sTileTeleport))
 	{
@@ -3339,19 +3358,6 @@ void CPathfinder::getNeighbours(const int3 &coord, bool noTeleportExcludes)
 				neighbours.push_back(obj->visitablePos());
 		}
 	}
-
-	std::vector<int3> neighbour_tiles;
-	gs->getNeighbours(*ct, coord, neighbour_tiles, boost::logic::indeterminate, !cp->land);
-	if(sTileObj)
-	{
-		for(int3 neighbour_tile: neighbour_tiles)
-		{
-			if(canMoveBetween(neighbour_tile, sTileObj->visitablePos()))
-				neighbours.push_back(neighbour_tile);
-		}
-	}
-	else
-		vstd::concatenate(neighbours, neighbour_tiles);
 }
 
 void CPathfinder::calculatePaths()
@@ -3406,13 +3412,11 @@ void CPathfinder::calculatePaths()
 			dp = getNode(neighbour);
 			dt = &gs->map->getTile(neighbour);
 			destTopVisObjID = dt->topVisitableId();
-
 			useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
 			const bool destIsGuardian = sourceGuardPosition == neighbour;
 
-			dTileTeleport = dynamic_cast<const CGTeleport*>(dt->topVisitableObj());
 			if(!goodForLandSeaTransition()
-			   || (!canMoveBetween(cp->coord, dp->coord) && !CGTeleport::isConnected(sTileTeleport, dTileTeleport))
+			   || !canMoveBetween(cp->coord, dp->coord)
 			   || dp->accessible == CGPathNode::BLOCKED)
 			{
 				continue;
@@ -3423,10 +3427,6 @@ void CPathfinder::calculatePaths()
 				guardedSource = false;
 
 			int cost = gs->getMovementCost(hero, cp->coord, dp->coord, flying, movement);
-			//special case -> moving from src Subterranean gate to dest gate -> it's free
-			if(CGTeleport::isConnected(sTileTeleport, dTileTeleport))
-				cost = 0;
-
 			int remains = movement - cost;
 			if(useEmbarkCost)
 			{
@@ -3467,10 +3467,6 @@ void CPathfinder::calculatePaths()
 						return true; // For now we'll walways allos transit for teleports
 					if(useEmbarkCost && allowEmbarkAndDisembark)
 						return true;
-					if(gs->isTeleportEntrancePassable(dTileTeleport, hero->tempOwner))
-						return true; // Always add entry teleport with non-dummy channel
-					if(CGTeleport::isConnected(sTileTeleport, dTileTeleport))
-						return true; // Always add exit points of teleport
 					if(guardedDst && !guardedSource)
 						return true; // Can step into a hostile tile once
 
@@ -3481,6 +3477,23 @@ void CPathfinder::calculatePaths()
 					mq.push_back(dp);
 			}
 		} //neighbours loop
+
+		//just add all passable teleport exits
+		if(sTileObj)
+		{
+			getTeleportExits();
+			for(auto & neighbour : neighbours)
+			{
+				dp = getNode(neighbour);
+				if (dp->turns == 0xff)
+				{
+					dp->moveRemains = movement;
+					dp->turns = turn;
+					dp->theNodeBefore = cp;
+					mq.push_back(dp);
+				}
+			}
+		}
 	} //queue loop
 }
 
