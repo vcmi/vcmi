@@ -3411,7 +3411,6 @@ void CPathfinder::calculatePaths()
 		{
 			dp = getNode(neighbour);
 			dt = &gs->map->getTile(neighbour);
-			destTopVisObjID = dt->topVisitableId();
 			useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
 			const bool destIsGuardian = sourceGuardPosition == neighbour;
 
@@ -3552,6 +3551,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 
 bool CPathfinder::goodForLandSeaTransition()
 {
+	Obj destTopVisObjID = dt->topVisitableId();
 	if(cp->land != dp->land) //hero can traverse land<->sea only in special circumstances
 	{
 		if(cp->land) //from land to sea -> embark or assault hero on boat

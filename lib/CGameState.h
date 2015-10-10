@@ -297,7 +297,6 @@ private:
 	CGPathNode *dp; //destination node -> it's a neighbour of cp that we consider
 	const TerrainTile *ct, *dt; //tile info for both nodes
 	ui8 useEmbarkCost; //0 - usual movement; 1 - embark; 2 - disembark
-	Obj destTopVisObjID;
 
 	CGObjectInstance *sTileObj;
 	CGObjectInstance *dTileObj;
