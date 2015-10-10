@@ -290,6 +290,7 @@ private:
 
 	std::list<CGPathNode*> mq; //BFS queue -> nodes to be checked
 
+	std::vector<int3> neighbours;
 
 	int3 curPos;
 	CGPathNode *cp; //current (source) path node -> we took it from the queue
@@ -298,10 +299,16 @@ private:
 	ui8 useEmbarkCost; //0 - usual movement; 1 - embark; 2 - disembark
 	Obj destTopVisObjID;
 
+	CGObjectInstance *sTileObj;
+	CGObjectInstance *dTileObj;
+	const CGTeleport *sTileTeleport;
+	const CGTeleport *dTileTeleport;
 
 	CGPathNode *getNode(const int3 &coord);
 	void initializeGraph();
 	bool goodForLandSeaTransition(); //checks if current move will be between sea<->land. If so, checks it legality (returns false if movement is not possible) and sets useEmbarkCost
+
+	void getNeighbours(const int3 &coord, bool noTeleportExcludes = false);
 
 	CGPathNode::EAccessibility evaluateAccessibility(const TerrainTile *tinfo) const;
 	bool canMoveBetween(const int3 &a, const int3 &b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
