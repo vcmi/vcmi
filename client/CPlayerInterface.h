@@ -147,11 +147,11 @@ public:
 	void newStackInserted(const StackLocation &location, const CStackInstance &stack) override; //new stack inserted at given (previously empty position)
 	void stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count) override; //moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
 
-	void artifactPut(const ArtifactLocation &al);
-	void artifactRemoved(const ArtifactLocation &al);
-	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
-	void artifactAssembled(const ArtifactLocation &al);
-	void artifactDisassembled(const ArtifactLocation &al);
+	void artifactPut(const ArtifactLocation &al) override;
+	void artifactRemoved(const ArtifactLocation &al) override;
+	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst) override;
+	void artifactAssembled(const ArtifactLocation &al) override;
+	void artifactDisassembled(const ArtifactLocation &al) override;
 
 	void heroCreated(const CGHeroInstance* hero) override;
 	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) override;
@@ -236,7 +236,7 @@ public:
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	void updateInfo(const CGObjectInstance * specific);
-	void init(shared_ptr<CCallback> CB);
+	void init(shared_ptr<CCallback> CB) override;
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 
 	// show dialogs

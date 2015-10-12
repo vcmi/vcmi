@@ -116,7 +116,7 @@ private:
 	/**
 	 * Decompresses data to ensure that buffer has newSize bytes or end of stream was reached
 	 */
-	si64 readMore(ui8 * data, si64 size);
+	si64 readMore(ui8 * data, si64 size) override;
 
 	/** The file stream with compressed data. */
 	std::unique_ptr<CInputStream> gzipStream;

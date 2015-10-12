@@ -117,18 +117,18 @@ public:
 	} skillsInfo;
 
 	//int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
-	int getSightRadious() const; //sight distance (should be used if player-owned structure)
+	int getSightRadious() const override; //sight distance (should be used if player-owned structure)
 	//////////////////////////////////////////////////////////////////////////
 
-	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
-	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
+	int getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
 
 	//////////////////////////////////////////////////////////////////////////
 
 	bool hasSpellbook() const;
 	EAlignment::EAlignment getAlignment() const;
 	const std::string &getBiography() const;
-	bool needsLastStack()const;
+	bool needsLastStack()const override;
 	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	ui32 getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
@@ -177,7 +177,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	void setType(si32 ID, si32 subID);
+	void setType(si32 ID, si32 subID) override;
 
 	void initHero();
 	void initHero(HeroTypeID SUBID);

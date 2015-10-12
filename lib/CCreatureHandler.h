@@ -199,7 +199,7 @@ public:
 	/// generates tier-specific bonus tree entries
 	void buildBonusTreeForTiers();
 
-	void afterLoadFinalization();
+	void afterLoadFinalization() override;
 
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 

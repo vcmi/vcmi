@@ -178,9 +178,9 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
-	void afterLoadFinalization();
+	void afterLoadFinalization() override;
 
-	std::vector<bool> getDefaultAllowed() const;
+	std::vector<bool> getDefaultAllowed() const override;
 
 	~CHeroClassHandler();
 
@@ -244,7 +244,7 @@ public:
 	CHeroHandler(); //c-tor
 	~CHeroHandler(); //d-tor
 
-	std::vector<bool> getDefaultAllowed() const;
+	std::vector<bool> getDefaultAllowed() const override;
 
 	/**
 	 * Gets a list of default allowed abilities. OH3 abilities/skills are all allowed by default.

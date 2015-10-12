@@ -157,15 +157,15 @@ public:
 
 	// activate or deactivate object. Inactive object won't receive any input events (keyboard\mouse)
 	// usually used automatically by parent
-	void activate();
-	void deactivate();
+	void activate() override;
+	void deactivate() override;
 
 	//called each frame to update screen
-	void show(SDL_Surface * to);
+	void show(SDL_Surface * to) override;
 	//called on complete redraw only
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 	//request complete redraw of this object
-	void redraw();
+	void redraw() override;
 
 	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
 
@@ -212,5 +212,5 @@ public:
 	CKeyShortcut();
 	CKeyShortcut(int key);
 	CKeyShortcut(std::set<int> Keys);
-	virtual void keyPressed(const SDL_KeyboardEvent & key); //call-in
+	virtual void keyPressed(const SDL_KeyboardEvent & key) override; //call-in
 };

@@ -207,7 +207,7 @@ public:
 template <typename T> class CApplyOnPG : public CBaseForPGApply
 {
 public:
-	void applyOnPG(CSelectionScreen *selScr, void *pack) const
+	void applyOnPG(CSelectionScreen *selScr, void *pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
 		ptr->apply(selScr);
@@ -217,7 +217,7 @@ public:
 template <> class CApplyOnPG<CPack> : public CBaseForPGApply
 {
 public:
-	void applyOnPG(CSelectionScreen *selScr, void *pack) const
+	void applyOnPG(CSelectionScreen *selScr, void *pack) const override
 	{
 			logGlobal->errorStream() << "Cannot apply on PG plain CPack!";
 			assert(0);

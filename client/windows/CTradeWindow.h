@@ -50,10 +50,10 @@ public:
 
 		void showAllAt(const Point &dstPos, const std::string &customSub, SDL_Surface * to);
 
-		void clickRight(tribool down, bool previousState);
-		void hover (bool on);
-		void showAll(SDL_Surface * to);
-		void clickLeft(tribool down, bool previousState);
+		void clickRight(tribool down, bool previousState) override;
+		void hover (bool on) override;
+		void showAll(SDL_Surface * to) override;
+		void clickLeft(tribool down, bool previousState) override;
 		std::string getName(int number = -1) const;
 		CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial);
 	};
@@ -74,7 +74,7 @@ public:
 
 	CTradeWindow(std::string bgName, const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode); //c
 
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 
 	void initSubs(bool Left);
 	void initTypes();
@@ -109,19 +109,19 @@ public:
 	void setMax();
 	void sliderMoved(int to);
 	void makeDeal();
-	void selectionChanged(bool side); //true == left
+	void selectionChanged(bool side) override; //true == left
 	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = nullptr, EMarketMode::EMarketMode Mode = EMarketMode::RESOURCE_RESOURCE); //c-tor
 	~CMarketplaceWindow(); //d-tor
 
-	Point selectionOffset(bool Left) const;
-	std::string selectionSubtitle(bool Left) const;
+	Point selectionOffset(bool Left) const override;
+	std::string selectionSubtitle(bool Left) const override;
 
 
-	void garrisonChanged(); //removes creatures with count 0 from the list (apparently whole stack has been sold)
-	void artifactsChanged(bool left);
+	void garrisonChanged() override; //removes creatures with count 0 from the list (apparently whole stack has been sold)
+	void artifactsChanged(bool left) override;
 	void resourceChanged(int type, int val);
 
-	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const;
+	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const override;
 	void updateTraderText();
 };
 
@@ -141,24 +141,24 @@ public:
 	CLabel *expToLevel, *expOnAltar;
 
 
-	void selectionChanged(bool side); //true == left
+	void selectionChanged(bool side) override; //true == left
 	void SacrificeAll();
 	void SacrificeBackpack();
 
 	void putOnAltar(int backpackIndex);
 	bool putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance *art);
 	void makeDeal();
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 
 	void blockTrade();
 	void sliderMoved(int to);
-	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const;
+	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const override;
 	void mimicCres();
 
-	Point selectionOffset(bool Left) const;
-	std::string selectionSubtitle(bool Left) const;
-	void garrisonChanged();
-	void artifactsChanged(bool left);
+	Point selectionOffset(bool Left) const override;
+	std::string selectionSubtitle(bool Left) const override;
+	void garrisonChanged() override;
+	void artifactsChanged(bool left) override;
 	void calcTotalExp();
 	void setExpToLevel();
 	void updateRight(CTradeableItem *toUpdate);

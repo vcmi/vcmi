@@ -72,12 +72,12 @@ public:
 template <typename T> class CApplyOnCL : public CBaseForCLApply
 {
 public:
-	void applyOnClAfter(CClient *cl, void *pack) const
+	void applyOnClAfter(CClient *cl, void *pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
 		ptr->applyCl(cl);
 	}
-	void applyOnClBefore(CClient *cl, void *pack) const
+	void applyOnClBefore(CClient *cl, void *pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
 		ptr->applyFirstCl(cl);
@@ -87,12 +87,12 @@ public:
 template <> class CApplyOnCL<CPack> : public CBaseForCLApply
 {
 public:
-	void applyOnClAfter(CClient *cl, void *pack) const
+	void applyOnClAfter(CClient *cl, void *pack) const override
 	{
 		logGlobal->errorStream() << "Cannot apply on CL plain CPack!";
 		assert(0);
 	}
-	void applyOnClBefore(CClient *cl, void *pack) const
+	void applyOnClBefore(CClient *cl, void *pack) const override
 	{
 		logGlobal->errorStream() << "Cannot apply on CL plain CPack!";
 		assert(0);

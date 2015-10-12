@@ -50,14 +50,14 @@ public:
 	 *
 	 * @return a unique ptr of the loaded map class
 	 */
-	std::unique_ptr<CMap> loadMap();
+	std::unique_ptr<CMap> loadMap() override;
 
 	/**
 	 * Loads the VCMI/H3 map header.
 	 *
 	 * @return a unique ptr of the loaded map header class
 	 */
-	std::unique_ptr<CMapHeader> loadMapHeader();
+	std::unique_ptr<CMapHeader> loadMapHeader() override;
 
 	/** true if you want to enable the map loader profiler to see how long a specific part took; default=false */
 	static const bool IS_PROFILING_ENABLED;

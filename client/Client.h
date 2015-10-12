@@ -189,7 +189,7 @@ public:
 	bool changeStackType(const StackLocation &sl, const CCreature *c) override {return false;};
 	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) override {return false;};
 	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) override {return false;};
-	bool eraseStack(const StackLocation &sl, bool forceRemoval = false){return false;};
+	bool eraseStack(const StackLocation &sl, bool forceRemoval = false) override{return false;};
 	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2) override {return false;}
 	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) override {return false;}
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) override {}

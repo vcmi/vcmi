@@ -42,7 +42,7 @@ public:
 	bool existsResource(const ResourceID & resourceName) const override;
 	std::string getMountPoint() const override;
 	boost::optional<std::string> getResourceName(const ResourceID & resourceName) const override;
-	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const;
+	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
 
 private:
 	/** A list of files in this map

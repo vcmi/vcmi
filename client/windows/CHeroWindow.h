@@ -35,7 +35,7 @@ class CHeroSwitcher : public CIntObject
 	const CGHeroInstance * hero;
 	CAnimImage *image;
 public:
-	virtual void clickLeft(tribool down, bool previousState);
+	virtual void clickLeft(tribool down, bool previousState) override;
 
 	CHeroSwitcher(Point pos, const CGHeroInstance * hero);
 };
@@ -85,7 +85,7 @@ public:
 	CHeroWindow(const CGHeroInstance *hero); //c-tor
 
 	void update(const CGHeroInstance * hero, bool redrawNeeded = false); //sets main displayed hero
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void questlog(); //show quest log in hero window

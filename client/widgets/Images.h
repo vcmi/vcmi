@@ -49,8 +49,8 @@ public:
 
 	void scaleTo(Point size);
 	void createSimpleRect(const Rect &r, bool screenFormat, ui32 color);
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 	void convertToScreenBPP();
 	void colorizeAndConvert(PlayerColor player);
 	void colorize(PlayerColor player);
@@ -64,7 +64,7 @@ class CFilledTexture : CIntObject
 public:
 	CFilledTexture(std::string imageName, Rect position);
 	~CFilledTexture();
-	void showAll(SDL_Surface *to);
+	void showAll(SDL_Surface *to) override;
 };
 
 /// Class for displaying one image from animation
@@ -94,7 +94,7 @@ public:
 	//makes image player-colored
 	void playerColored(PlayerColor player);
 
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 };
 
 /// Base class for displaying animation, used as superclass for different animations
@@ -155,8 +155,8 @@ public:
 	virtual void reset();
 
 	//show current frame and increase counter
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 };
 
 /// Creature-dependend animations like attacking, moving,...
@@ -210,7 +210,7 @@ private:
 
 public:
 	//change anim to next if queue is not empty, call callback othervice
-	void reset();
+	void reset() override;
 
 	//add sequence to the end of queue
 	void addLast(EAnimType newType);

@@ -31,20 +31,20 @@ public:
 	 *
 	 * @return a unique ptr of the loaded map class
 	 */
-	std::unique_ptr<CMap> loadMap();
+	std::unique_ptr<CMap> loadMap() override;
 
 	/**
 	 * Loads the VCMI/Json map header.
 	 *
 	 * @return a unique ptr of the loaded map header class
 	 */
-	std::unique_ptr<CMapHeader> loadMapHeader();
+	std::unique_ptr<CMapHeader> loadMapHeader() override;
 
 	/**
 	 * Modifies supplied map header using Json data
 	 *
 	 */
-	void patchMapHeader(std::unique_ptr<CMapHeader> & header);
+	void patchMapHeader(std::unique_ptr<CMapHeader> & header) override;
 
 private:
 	/**

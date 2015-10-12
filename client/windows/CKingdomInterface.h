@@ -74,8 +74,8 @@ public:
 	InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data);
 	~InfoBox();
 
-	void clickRight(tribool down, bool previousState);
-	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(tribool down, bool previousState) override;
 
 	//Update object if data may have changed
 	//void update();
@@ -121,13 +121,13 @@ protected:
 public:
 	InfoBoxAbstractHeroData(InfoType Type);
 
-	std::string getValueText();
-	std::string getNameText();
-	std::string getImageName(InfoBox::InfoSize size);
-	std::string getHoverText();
-	size_t getImageIndex();
+	std::string getValueText() override;
+	std::string getNameText() override;
+	std::string getImageName(InfoBox::InfoSize size) override;
+	std::string getHoverText() override;
+	size_t getImageIndex() override;
 
-	bool prepareMessage(std::string &text, CComponent **comp);
+	bool prepareMessage(std::string &text, CComponent **comp) override;
 };
 
 class InfoBoxHeroData : public InfoBoxAbstractHeroData
@@ -135,17 +135,17 @@ class InfoBoxHeroData : public InfoBoxAbstractHeroData
 	const CGHeroInstance * hero;
 	int index;//index of data in hero (0-7 for sec. skill, 0-3 for pr. skill)
 
-	int  getSubID();
-	si64 getValue();
+	int  getSubID() override;
+	si64 getValue() override;
 
 public:
 	InfoBoxHeroData(InfoType Type, const CGHeroInstance *Hero, int Index=0);
 
 	//To get a bit different texts for hero window
-	std::string getHoverText();
-	std::string getValueText();
+	std::string getHoverText() override;
+	std::string getValueText() override;
 
-	bool prepareMessage(std::string &text, CComponent **comp);
+	bool prepareMessage(std::string &text, CComponent **comp) override;
 };
 
 class InfoBoxCustomHeroData : public InfoBoxAbstractHeroData
@@ -153,8 +153,8 @@ class InfoBoxCustomHeroData : public InfoBoxAbstractHeroData
 	int subID;//subID of data (0=attack...)
 	si64 value;//actual value of data, 64-bit to fit experience and negative values
 
-	int  getSubID();
-	si64 getValue();
+	int  getSubID() override;
+	si64 getValue() override;
 
 public:
 	InfoBoxCustomHeroData(InfoType Type, int subID, si64 value);
@@ -171,13 +171,13 @@ public:
 
 	InfoBoxCustom(std::string ValueText, std::string NameText, std::string ImageName, size_t ImageIndex, std::string HoverText="");
 
-	std::string getValueText();
-	std::string getNameText();
-	std::string getImageName(InfoBox::InfoSize size);
-	std::string getHoverText();
-	size_t getImageIndex();
+	std::string getValueText() override;
+	std::string getNameText() override;
+	std::string getImageName(InfoBox::InfoSize size) override;
+	std::string getHoverText() override;
+	size_t getImageIndex() override;
 
-	bool prepareMessage(std::string &text, CComponent **comp);
+	bool prepareMessage(std::string &text, CComponent **comp) override;
 };
 
 //TODO!!!
@@ -191,11 +191,11 @@ public:
 	InfoBoxTownData(InfoType Type, const CGTownInstance * Town, int Index);
 	InfoBoxTownData(InfoType Type, int SubID, int Value);
 
-	std::string getValueText();
-	std::string getNameText();
-	std::string getImageName(InfoBox::InfoSize size);
-	std::string getHoverText();
-	size_t getImageIndex();
+	std::string getValueText() override;
+	std::string getNameText() override;
+	std::string getImageName(InfoBox::InfoSize size) override;
+	std::string getHoverText() override;
+	size_t getImageIndex() override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -250,11 +250,11 @@ public:
 	CKingdomInterface();
 
 	void townChanged(const CGTownInstance *town);
-	void updateGarrisons();
-	void artifactRemoved(const ArtifactLocation &artLoc);
-	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc);
-	void artifactDisassembled(const ArtifactLocation &artLoc);
-	void artifactAssembled(const ArtifactLocation &artLoc);
+	void updateGarrisons() override;
+	void artifactRemoved(const ArtifactLocation &artLoc) override;
+	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc) override;
+	void artifactDisassembled(const ArtifactLocation &artLoc) override;
+	void artifactAssembled(const ArtifactLocation &artLoc) override;
 };
 
 /// List item with town
@@ -277,7 +277,7 @@ public:
 
 	CTownItem(const CGTownInstance* town);
 
-	void updateGarrisons();
+	void updateGarrisons() override;
 	void update();
 };
 
@@ -325,7 +325,7 @@ private:
 public:
 	CKingdHeroList(size_t maxSize);
 
-	void updateGarrisons();
+	void updateGarrisons() override;
 };
 
 /// Tab with all town-specific data
@@ -344,5 +344,5 @@ public:
 	CKingdTownList(size_t maxSize);
 	
 	void townChanged(const CGTownInstance *town);
-	void updateGarrisons();
+	void updateGarrisons() override;
 };

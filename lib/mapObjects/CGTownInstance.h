@@ -203,21 +203,21 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	bool passableFor(PlayerColor color) const;
+	bool passableFor(PlayerColor color) const override;
 	//int3 getSightCenter() const override; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const override; //returns sight distance
-	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
-	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed. Parameter will be cleared
+	int getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed. Parameter will be cleared
 	int getMarketEfficiency() const override; //=market count
-	bool allowsTrade(EMarketMode::EMarketMode mode) const;
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
+	bool allowsTrade(EMarketMode::EMarketMode mode) const override;
+	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
 
-	void setType(si32 ID, si32 subID);
+	void setType(si32 ID, si32 subID) override;
 	void updateAppearance();
 
 	//////////////////////////////////////////////////////////////////////////
 
-	bool needsLastStack() const;
+	bool needsLastStack() const override;
 	CGTownInstance::EFortLevel fortLevel() const;
 	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 	int mageGuildLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
