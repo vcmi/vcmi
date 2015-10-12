@@ -3407,7 +3407,7 @@ bool CPathfinder::checkDestinationTile()
 		return true; // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation
 	if(dp->accessible == CGPathNode::VISITABLE && CGTeleport::isTeleport(dt->topVisitableObj()))
 		return true; // For now we'll walways allos transit for teleports
-	if(useEmbarkCost && allowEmbarkAndDisembark)
+	if(useEmbarkCost && vstd::contains(options, EOptions::EMBARK_AND_DISEMBARK))
 		return true;
 	if(isDestinationGuarded() && !isSourceGuarded())
 		return true; // Can step into a hostile tile once
@@ -3612,13 +3612,11 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 
 	initializeGraph();
 
-	allowEmbarkAndDisembark = true;
-	allowTeleportTwoWay = true;
-	allowTeleportOneWay = true;
-	allowTeleportOneWayRandom = false;
-	allowTeleportWhirlpool = false;
+	options.insert(EOptions::EMBARK_AND_DISEMBARK);
+	options.insert(EOptions::TELEPORT_TWO_WAY);
+	options.insert(EOptions::TELEPORT_ONE_WAY);
 	if (CGWhirlpool::isProtected(hero))
-		allowTeleportWhirlpool = true;
+		options.insert(EOptions::TELEPORT_WHIRLPOOL);
 
 	neighbours.reserve(16);
 }
@@ -3631,12 +3629,12 @@ CRandomGenerator & CGameState::getRandomGenerator()
 
 bool CPathfinder::addTeleportTwoWay(const CGTeleport * obj) const
 {
-	return allowTeleportTwoWay && gs->isTeleportChannelBidirectional(obj->channel, hero->tempOwner);
+	return vstd::contains(options,EOptions::TELEPORT_TWO_WAY) && gs->isTeleportChannelBidirectional(obj->channel, hero->tempOwner);
 }
 
 bool CPathfinder::addTeleportOneWay(const CGTeleport * obj) const
 {
-	if(allowTeleportOneWay && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
+	if(vstd::contains(options,EOptions::TELEPORT_ONE_WAY) && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
 	{
 		auto passableExits = CGTeleport::getPassableExits(gs, hero, gs->getTeleportChannelExits(obj->channel, hero->tempOwner));
 		if(passableExits.size() == 1)
@@ -3647,7 +3645,7 @@ bool CPathfinder::addTeleportOneWay(const CGTeleport * obj) const
 
 bool CPathfinder::addTeleportOneWayRandom(const CGTeleport * obj) const
 {
-	if(allowTeleportOneWayRandom && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
+	if(vstd::contains(options,EOptions::TELEPORT_ONE_WAY_RANDOM) && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
 	{
 		auto passableExits = CGTeleport::getPassableExits(gs, hero, gs->getTeleportChannelExits(obj->channel, hero->tempOwner));
 		if(passableExits.size() > 1)
@@ -3658,5 +3656,5 @@ bool CPathfinder::addTeleportOneWayRandom(const CGTeleport * obj) const
 
 bool CPathfinder::addTeleportWhirlpool(const CGWhirlpool * obj) const
 {
-   return allowTeleportWhirlpool && obj;
+   return vstd::contains(options,EOptions::TELEPORT_WHIRLPOOL) && obj;
 }
