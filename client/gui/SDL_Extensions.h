@@ -113,7 +113,7 @@ template<typename IntType>
 std::string makeNumberShort(IntType number, IntType maxLength = 3) //the output is a string containing at most 5 characters [4 if positive] (eg. intead 10000 it gives 10k)
 {
 	IntType max = pow(10, maxLength);
-	if (abs(number) < max)
+	if (std::abs(number) < max)
 		return boost::lexical_cast<std::string>(number);
 
 	std::string symbols = " kMGTPE";

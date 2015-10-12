@@ -782,7 +782,7 @@ bool CShootingAnimation::init()
 		spi.catapultInfo.reset(new CatapultProjectileInfo(Point(spi.x, spi.y), destPos));
 
 		double animSpeed = AnimationControls::getProjectileSpeed() / 10;
-		spi.lastStep = abs((destPos.x - spi.x) / animSpeed);
+		spi.lastStep = std::abs((destPos.x - spi.x) / animSpeed);
 		spi.dx = animSpeed;
 		spi.dy = 0;
 
