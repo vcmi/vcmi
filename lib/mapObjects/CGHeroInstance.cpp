@@ -136,9 +136,14 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 	}
 }
 
+bool CGHeroInstance::canFly() const
+{
+	return hasBonusOfType(Bonus::FLYING_MOVEMENT);
+}
+
 bool CGHeroInstance::canWalkOnSea() const
 {
-	return hasBonusOfType(Bonus::FLYING_MOVEMENT) || hasBonusOfType(Bonus::WATER_WALKING);
+	return hasBonusOfType(Bonus::WATER_WALKING);
 }
 
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
