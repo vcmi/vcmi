@@ -307,6 +307,11 @@ private:
 	void initializeGraph();
 	bool isMovementPossible(); //checks if current move will be between sea<->land. If so, checks it legality (returns false if movement is not possible) and sets useEmbarkCost
 
+	int3 getSourceGuardPosition();
+	bool isSourceGuarded();
+	bool isDestinationGuarded();
+	bool isDestinationGuardian();
+
 	void getNeighbours(const int3 &coord);
 	void getTeleportExits(bool noTeleportExcludes = false);
 

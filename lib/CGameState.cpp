@@ -3360,12 +3360,50 @@ void CPathfinder::getTeleportExits(bool noTeleportExcludes)
 	}
 }
 
+int3 CPathfinder::getSourceGuardPosition()
+{
+	return gs->map->guardingCreaturePositions[cp->coord.x][cp->coord.y][cp->coord.z];
+}
+
+bool CPathfinder::isSourceGuarded()
+{
+	//TODO: find out why exactly source can't be guarded if hero on it. Why this quirk was nessesaary in first place? Map where hero start on guarded tile?
+	if(getSourceGuardPosition() != int3(-1, -1, -1)
+		&& cp->coord != hero->getPosition(false))
+	{
+		//special case -> hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
+		if(cp->accessible != CGPathNode::VISITABLE
+		   || !cp->theNodeBefore->land
+		   || ct->topVisitableId() != Obj::BOAT)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool CPathfinder::isDestinationGuarded()
+{
+	if(gs->map->guardingCreaturePositions[dp->coord.x][dp->coord.y][dp->coord.z].valid()
+		&& dp->accessible == CGPathNode::BLOCKVIS)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool CPathfinder::isDestinationGuardian()
+{
+	return getSourceGuardPosition() == dp->coord;
+}
+
 void CPathfinder::calculatePaths()
 {
 	bool flying = hero->hasBonusOfType(Bonus::FLYING_MOVEMENT);
 	int maxMovePointsLand = hero->maxMovePoints(true);
 	int maxMovePointsWater = hero->maxMovePoints(false);
-	int3 src = hero->getPosition(false);
 
 	auto maxMovePoints = [&](CGPathNode *cp) -> int
 	{
@@ -3395,9 +3433,6 @@ void CPathfinder::calculatePaths()
 		cp = mq.front();
 		mq.pop_front();
 
-		const int3 sourceGuardPosition = gs->map->guardingCreaturePositions[cp->coord.x][cp->coord.y][cp->coord.z];
-		bool guardedSource = (sourceGuardPosition != int3(-1, -1, -1) && cp->coord != src);
-
 		int movement = cp->moveRemains, turn = cp->turns;
 		if(!movement)
 		{
@@ -3412,7 +3447,6 @@ void CPathfinder::calculatePaths()
 			dp = getNode(neighbour);
 			dt = &gs->map->getTile(neighbour);
 			useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
-			const bool destIsGuardian = sourceGuardPosition == neighbour;
 
 			if(!isMovementPossible())
 				continue;
@@ -3435,22 +3469,15 @@ void CPathfinder::calculatePaths()
 				remains = moveAtNextTile - cost;
 			}
 
-			//special case -> hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
-			if(cp->accessible == CGPathNode::VISITABLE && guardedSource && cp->theNodeBefore->land && ct->topVisitableId() == Obj::BOAT)
-				guardedSource = false;
-
 			if((dp->turns==0xff		//we haven't been here before
 				|| dp->turns > turnAtNextTile
 				|| (dp->turns >= turnAtNextTile  &&  dp->moveRemains < remains)) //this route is faster
-				&& (!guardedSource || destIsGuardian)) // Can step into tile of guard
+				&& (!isSourceGuarded() || isDestinationGuardian())) // Can step into tile of guard
 			{
 				assert(dp != cp->theNodeBefore); //two tiles can't point to each other
 				dp->moveRemains = remains;
 				dp->turns = turnAtNextTile;
 				dp->theNodeBefore = cp;
-
-				const bool guardedDst = gs->map->guardingCreaturePositions[dp->coord.x][dp->coord.y][dp->coord.z].valid()
-										&& dp->accessible == CGPathNode::BLOCKVIS;
 
 				auto checkDestinationTile = [&]() -> bool
 				{
@@ -3462,7 +3489,7 @@ void CPathfinder::calculatePaths()
 						return true; // For now we'll walways allos transit for teleports
 					if(useEmbarkCost && allowEmbarkAndDisembark)
 						return true;
-					if(guardedDst && !guardedSource)
+					if(isDestinationGuarded() && !isSourceGuarded())
 						return true; // Can step into a hostile tile once
 
 					return false;
