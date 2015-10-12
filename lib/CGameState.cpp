@@ -3417,10 +3417,6 @@ void CPathfinder::calculatePaths()
 			if(!isMovementPossible())
 				continue;
 
-			//special case -> hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
-			if(cp->accessible == CGPathNode::VISITABLE && guardedSource && cp->theNodeBefore->land && ct->topVisitableId() == Obj::BOAT)
-				guardedSource = false;
-
 			int cost = gs->getMovementCost(hero, cp->coord, dp->coord, flying, movement);
 			int remains = movement - cost;
 			if(useEmbarkCost)
@@ -3438,6 +3434,10 @@ void CPathfinder::calculatePaths()
 				cost = gs->getMovementCost(hero, cp->coord, dp->coord, flying, moveAtNextTile); //cost must be updated, movement points changed :(
 				remains = moveAtNextTile - cost;
 			}
+
+			//special case -> hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
+			if(cp->accessible == CGPathNode::VISITABLE && guardedSource && cp->theNodeBefore->land && ct->topVisitableId() == Obj::BOAT)
+				guardedSource = false;
 
 			if((dp->turns==0xff		//we haven't been here before
 				|| dp->turns > turnAtNextTile
