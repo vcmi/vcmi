@@ -3417,7 +3417,6 @@ bool CPathfinder::checkDestinationTile()
 
 void CPathfinder::calculatePaths()
 {
-	bool flying = hero->hasBonusOfType(Bonus::FLYING_MOVEMENT);
 	int maxMovePointsLand = hero->maxMovePoints(true);
 	int maxMovePointsWater = hero->maxMovePoints(false);
 
@@ -3457,7 +3456,7 @@ void CPathfinder::calculatePaths()
 			if(!isMovementPossible())
 				continue;
 
-			int cost = gs->getMovementCost(hero, cp->coord, dp->coord, flying, movement);
+			int cost = gs->getMovementCost(hero, cp->coord, dp->coord, vstd::contains(options, EOptions::FLYING), movement);
 			int remains = movement - cost;
 			if(useEmbarkCost)
 			{
@@ -3471,7 +3470,7 @@ void CPathfinder::calculatePaths()
 				//occurs rarely, when hero with low movepoints tries to leave the road
 				turnAtNextTile++;
 				int moveAtNextTile = maxMovePoints(cp);
-				cost = gs->getMovementCost(hero, cp->coord, dp->coord, flying, moveAtNextTile); //cost must be updated, movement points changed :(
+				cost = gs->getMovementCost(hero, cp->coord, dp->coord, vstd::contains(options, EOptions::FLYING), moveAtNextTile); //cost must be updated, movement points changed :(
 				remains = moveAtNextTile - cost;
 			}
 
@@ -3612,6 +3611,10 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 
 	initializeGraph();
 
+	if(hero->canFly())
+		options.insert(EOptions::FLYING);
+	else if(hero->canWalkOnSea())
+		options.insert(EOptions::WALKING_ON_SEA);
 	options.insert(EOptions::EMBARK_AND_DISEMBARK);
 	options.insert(EOptions::TELEPORT_TWO_WAY);
 	options.insert(EOptions::TELEPORT_ONE_WAY);

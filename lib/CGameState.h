@@ -281,6 +281,8 @@ class CPathfinder : private CGameInfoCallback
 private:
 	enum class EOptions
 	{
+		FLYING,
+		WALKING_ON_SEA,
 		EMBARK_AND_DISEMBARK,
 		TELEPORT_TWO_WAY, // Two-way monoliths and Subterranean Gate
 		TELEPORT_ONE_WAY, // One-way monoliths with one known exit only
