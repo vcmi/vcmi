@@ -3399,6 +3399,22 @@ bool CPathfinder::isDestinationGuardian()
 	return getSourceGuardPosition() == dp->coord;
 }
 
+bool CPathfinder::checkDestinationTile()
+{
+	if(dp->accessible == CGPathNode::ACCESSIBLE)
+		return true;
+	if(dp->coord == CGHeroInstance::convertPosition(hero->pos, false))
+		return true; // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation
+	if(dp->accessible == CGPathNode::VISITABLE && CGTeleport::isTeleport(dt->topVisitableObj()))
+		return true; // For now we'll walways allos transit for teleports
+	if(useEmbarkCost && allowEmbarkAndDisembark)
+		return true;
+	if(isDestinationGuarded() && !isSourceGuarded())
+		return true; // Can step into a hostile tile once
+
+	return false;
+}
+
 void CPathfinder::calculatePaths()
 {
 	bool flying = hero->hasBonusOfType(Bonus::FLYING_MOVEMENT);
@@ -3478,22 +3494,6 @@ void CPathfinder::calculatePaths()
 				dp->moveRemains = remains;
 				dp->turns = turnAtNextTile;
 				dp->theNodeBefore = cp;
-
-				auto checkDestinationTile = [&]() -> bool
-				{
-					if(dp->accessible == CGPathNode::ACCESSIBLE)
-						return true;
-					if(dp->coord == CGHeroInstance::convertPosition(hero->pos, false))
-						return true; // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation
-					if(dp->accessible == CGPathNode::VISITABLE && CGTeleport::isTeleport(dt->topVisitableObj()))
-						return true; // For now we'll walways allos transit for teleports
-					if(useEmbarkCost && allowEmbarkAndDisembark)
-						return true;
-					if(isDestinationGuarded() && !isSourceGuarded())
-						return true; // Can step into a hostile tile once
-
-					return false;
-				};
 
 				if(checkDestinationTile())
 					mq.push_back(dp);

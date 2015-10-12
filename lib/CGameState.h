@@ -315,6 +315,8 @@ private:
 	void getNeighbours(const int3 &coord);
 	void getTeleportExits(bool noTeleportExcludes = false);
 
+	bool checkDestinationTile();
+
 	CGPathNode::EAccessibility evaluateAccessibility(const TerrainTile *tinfo) const;
 	bool canMoveBetween(const int3 &a, const int3 &b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
 
