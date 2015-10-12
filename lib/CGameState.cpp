@@ -3414,12 +3414,8 @@ void CPathfinder::calculatePaths()
 			useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
 			const bool destIsGuardian = sourceGuardPosition == neighbour;
 
-			if(!goodForLandSeaTransition()
-			   || !canMoveBetween(cp->coord, dp->coord)
-			   || dp->accessible == CGPathNode::BLOCKED)
-			{
+			if(!isMovementPossible())
 				continue;
-			}
 
 			//special case -> hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
 			if(cp->accessible == CGPathNode::VISITABLE && guardedSource && cp->theNodeBefore->land && ct->topVisitableId() == Obj::BOAT)
@@ -3549,8 +3545,11 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 	return ret;
 }
 
-bool CPathfinder::goodForLandSeaTransition()
+bool CPathfinder::isMovementPossible()
 {
+	if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
+		return false;
+
 	Obj destTopVisObjID = dt->topVisitableId();
 	if(cp->land != dp->land) //hero can traverse land<->sea only in special circumstances
 	{

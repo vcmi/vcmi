@@ -305,7 +305,7 @@ private:
 
 	CGPathNode *getNode(const int3 &coord);
 	void initializeGraph();
-	bool goodForLandSeaTransition(); //checks if current move will be between sea<->land. If so, checks it legality (returns false if movement is not possible) and sets useEmbarkCost
+	bool isMovementPossible(); //checks if current move will be between sea<->land. If so, checks it legality (returns false if movement is not possible) and sets useEmbarkCost
 
 	void getNeighbours(const int3 &coord);
 	void getTeleportExits(bool noTeleportExcludes = false);
