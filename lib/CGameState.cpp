@@ -3426,17 +3426,7 @@ void CPathfinder::calculatePaths()
 		return cp->land ? maxMovePointsLand : maxMovePointsWater;
 	};
 
-	out.hero = hero;
-	out.hpos = hero->getPosition(false);
-
-	if(!gs->map->isInTheMap(out.hpos)/* || !gs->map->isInTheMap(dest)*/) //check input
-	{
-		logGlobal->errorStream() << "CGameState::calculatePaths: Hero outside the gs->map? How dare you...";
-		return;
-	}
-
 	//logGlobal->infoStream() << boost::format("Calculating paths for hero %s (adress  %d) of player %d") % hero->name % hero % hero->tempOwner;
-	initializeGraph();
 
 	//initial tile - set cost on 0 and add to the queue
 	CGPathNode &initialNode = *getNode(out.hpos);
@@ -3611,6 +3601,16 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 {
 	assert(hero);
 	assert(hero == getHero(hero->id));
+
+	out.hero = hero;
+	out.hpos = hero->getPosition(false);
+	if(!gs->map->isInTheMap(out.hpos)/* || !gs->map->isInTheMap(dest)*/) //check input
+	{
+		logGlobal->errorStream() << "CGameState::calculatePaths: Hero outside the gs->map? How dare you...";
+		throw std::runtime_error("Wrong checksum");
+	}
+
+	initializeGraph();
 
 	allowEmbarkAndDisembark = true;
 	allowTeleportTwoWay = true;
