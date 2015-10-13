@@ -966,7 +966,7 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
         {//hero has this spell in spellbook
             logGlobal->errorStream() << "Banned spell " << spell->name << " in spellbook.";
         }
-        return specificBonus;
+        return specificBonus || schoolBonus || levelBonus;
     }
     else
     {

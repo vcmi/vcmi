@@ -3900,21 +3900,23 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	if(message == "vcmiistari") //give all spells and 999 mana
 	{
 		SetMana sm;
-		ChangeSpells cs;
-
+		GiveBonus giveBonus(GiveBonus::HERO);
+		
 		CGHeroInstance *h = gs->getHero(currObj);
 		if(!h && complain("Cannot realize cheat, no hero selected!")) return;
 
-		sm.hid = cs.hid = h->id;
+		sm.hid = h->id;
+		
+		giveBonus.id = h->id.getNum();
 
-		//give all spells
-		cs.learn = 1;
-		for(auto spell : VLC->spellh->objects)
+		//give all spells with bonus (to allow banned spells)
+		giveBonus.bonus = Bonus(Bonus::PERMANENT, Bonus::SPELLS_OF_LEVEL, Bonus::OTHER, 0, 0);
+		//start with level 0 to skip abilities
+		for(int level = 1; level <= GameConstants::SPELL_LEVELS; level++)
 		{
-			if(!spell->creatureAbility)
-				cs.spells.insert(spell->id);
+			giveBonus.bonus.subtype = level;
+			sendAndApply(&giveBonus);
 		}
-
 		//give mana
 		sm.val = 999;
 		sm.absolute = true;
@@ -3922,7 +3924,6 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		if(!h->hasSpellbook()) //hero doesn't have spellbook
 			giveHeroNewArtifact(h, VLC->arth->artifacts.at(0), ArtifactPosition::SPELLBOOK); //give spellbook
 
-		sendAndApply(&cs);
 		sendAndApply(&sm);
 	}
 	else if (message == "vcmiarmenelos") //build all buildings in selected town
