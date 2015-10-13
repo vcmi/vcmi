@@ -853,34 +853,42 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'B': //Blind
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::BLIND;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'H': //Hypnotize
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::HYPNOTIZE;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'I': //Implosion
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::IMPLOSION;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'K': //Berserk
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::BERSERK;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'M': //Meteor Shower
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::METEOR_SHOWER;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'N': //dispell beneficial spells
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::DISPEL_HELPFUL_SPELLS;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'R': //Armageddon
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::ARMAGEDDON;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'S': //Slow
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::SLOW;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case '6':
 			case '7':

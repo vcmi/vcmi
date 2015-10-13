@@ -564,7 +564,7 @@
 						"subtype" : "primSkill.defence",
 						"val" : -3,
 						"valueType" : "ADDITIVE_VALUE",
-						"duration" : "N_TURNS"
+						"duration" : "PERMANENT"
 					}
 				}
 			},

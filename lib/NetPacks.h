@@ -1323,7 +1323,7 @@ struct StacksHealedOrResurrected : public CPackForClient //3013
 	{
 		ui32 stackID;
 		ui32 healedHP;
-		ui8 lowLevelResurrection; //in case this stack is resurrected by this heal, it will be marked as SUMMONED //TODO: replace with separate counter
+		bool lowLevelResurrection; //in case this stack is resurrected by this heal, it will be marked as SUMMONED //TODO: replace with separate counter
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & stackID & healedHP & lowLevelResurrection;
@@ -1502,7 +1502,7 @@ struct BattleSpellCast : public CPackForClient//3009
 	std::vector<CustomEffect> customEffects;
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
 	si32 casterStack;// -1 if not cated by creature, >=0 caster stack ID
-	bool castByHero; //if true - spell has been casted by hero, otherwise by a creature
+	bool castByHero; //if true - spell has been cast by hero, otherwise by a creature
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & dmgToDisplay & side & id & skill & manaGained & tile & customEffects & affectedCres & casterStack & castByHero;
@@ -1604,7 +1604,7 @@ struct BattleStacksRemoved : public CPackForClient //3016
 	BattleStacksRemoved(){type = 3016;}
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
-	void applyCl(CClient *cl);
+	void applyFirstCl(CClient *cl);//inform client before stack objects are destroyed
 
 	std::set<ui32> stackIDs; //IDs of removed stacks
 

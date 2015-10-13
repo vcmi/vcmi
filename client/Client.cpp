@@ -140,9 +140,12 @@ void CClient::waitForMoveAndSend(PlayerColor color)
 		setThreadName("CClient::waitForMoveAndSend");
 		assert(vstd::contains(battleints, color));
 		BattleAction ba = battleints[color]->activeStack(gs->curB->battleGetStackByID(gs->curB->activeStack, false));
-		logNetwork->traceStream() << "Send battle action to server: " << ba;
-		MakeAction temp_action(ba);
-		sendRequest(&temp_action, color);
+		if(ba.actionType != Battle::CANCEL)
+		{
+			logNetwork->traceStream() << "Send battle action to server: " << ba;
+			MakeAction temp_action(ba);
+			sendRequest(&temp_action, color);			
+		}
 		return;
 	}
 	catch(boost::thread_interrupted&)

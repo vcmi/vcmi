@@ -1136,7 +1136,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 		}
 		case Bonus::POISON:
 		{
-			Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, 71)
+			Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON)
 											.And(Selector::type(Bonus::STACK_HEALTH)));
 			if (b)
 				b->val = val;
@@ -1459,21 +1459,17 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			}
 		}
 		vstd::amin(changedStack->firstHPleft, changedStack->MaxHealth());
-		//removal of negative effects
 		if(resurrected)
 		{
-			//removing all features from negative spells
-			const BonusList tmpFeatures = changedStack->getBonusList();
-			//changedStack->bonuses.clear();
-
-			for(Bonus *b : tmpFeatures)
+			//removing all effects from negative spells
+			auto selector = [](const Bonus * b)
 			{
 				const CSpell *s = b->sourceSpell();
-				if(s && s->isNegative())
-				{
-					changedStack->removeBonus(b);
-				}
-			}
+				//Special case: DISRUPTING_RAY is "immune" to dispell
+				//Other even PERMANENT effects can be removed
+				return (s != nullptr) && s->isNegative() && (s->id != SpellID::DISRUPTING_RAY);
+			};
+			changedStack->popBonuses(selector);
 		}
 	}
 }

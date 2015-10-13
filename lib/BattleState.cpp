@@ -1170,6 +1170,17 @@ bool CStack::canBeHealed() const
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON);
 }
 
+ui32 CStack::calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) const
+{
+	if(!resurrect && !alive())
+	{
+		logGlobal->warnStream() <<"Attempt to heal corpse detected.";
+		return 0;
+	}
+
+	return std::min<ui32>(toHeal, MaxHealth() - firstHPleft + (resurrect ? (baseAmount - count) * MaxHealth() : 0));
+}
+
 ui8 CStack::getSpellSchoolLevel(const CSpell * spell, int * outSelectedSchool) const
 {
 	int skill = valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, spell->id));
@@ -1181,9 +1192,38 @@ ui8 CStack::getSpellSchoolLevel(const CSpell * spell, int * outSelectedSchool) c
 
 ui32 CStack::getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const
 {
-	//stacks does not have spellpower etc. (yet?)
+	//stacks does not have sorcery-like bonuses (yet?)
 	return base;
 }
+
+int CStack::getEffectLevel(const CSpell * spell) const
+{
+	return getSpellSchoolLevel(spell);
+}
+
+int CStack::getEffectPower(const CSpell * spell) const
+{
+	return valOfBonuses(Bonus::CREATURE_SPELL_POWER) * count / 100;
+}
+
+int CStack::getEnchantPower(const CSpell * spell) const
+{
+	int res = valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
+	if(res<=0)
+		res = 3;//default for creatures
+	return res;
+}
+
+int CStack::getEffectValue(const CSpell * spell) const
+{
+	return valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spell->id.toEnum()) * count;
+}
+
+const PlayerColor CStack::getOwner() const
+{
+	return owner;
+}
+
 
 bool CMP_stack::operator()( const CStack* a, const CStack* b )
 {

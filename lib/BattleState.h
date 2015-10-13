@@ -203,6 +203,8 @@ public:
 	bool waited(int turn = 0) const;
 	bool canMove(int turn = 0) const; //if stack can move
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
+	///returns actual heal value based on internal state
+	ui32 calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) const;
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance
 	static void stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse);
@@ -233,6 +235,20 @@ public:
 	///ISpellCaster
 	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const override;
 	ui32 getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const override;
+
+	///default spell school level for effect calculation
+	int getEffectLevel(const CSpell * spell) const override;
+
+	///default spell-power for damage/heal calculation
+	int getEffectPower(const CSpell * spell) const override;
+
+	///default spell-power for timed effects duration
+	int getEnchantPower(const CSpell * spell) const override;
+
+	///damage/heal override(ignores spell configuration, effect level and effect power)
+	int getEffectValue(const CSpell * spell) const override;
+
+	const PlayerColor getOwner() const override;
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
