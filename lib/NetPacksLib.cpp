@@ -1465,6 +1465,8 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			auto selector = [](const Bonus * b)
 			{
 				const CSpell *s = b->sourceSpell();
+				//Special case: DISRUPTING_RAY is "immune" to dispell
+				//Other even PERMANENT effects can be removed
 				return (s != nullptr) && s->isNegative() && (s->id != SpellID::DISRUPTING_RAY);
 			};
 			changedStack->popBonuses(selector);

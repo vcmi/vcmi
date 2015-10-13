@@ -139,7 +139,7 @@ void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCa
 			//check for each bonus if it should be removed
 			const bool isSpellEffect = Selector::sourceType(Bonus::SPELL_EFFECT)(b);
 			const int spellID = isSpellEffect ? b->sid : -1;
-
+			//No exceptions, ANY spell can be countered, even if it can`t be dispelled.
 			return isSpellEffect && vstd::contains(owner->counteredSpells, spellID);
 		});
 	}
