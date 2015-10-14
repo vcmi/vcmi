@@ -3854,12 +3854,13 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			const CStack *summoner = gs->curB->battleGetStackByID(ba.stackNumber),
 				*destStack = gs->curB->battleGetStackByPos(ba.destinationTile, false);
 
+			CreatureID summonedType(summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype);//in case summoner can summon more than one type of monsters... scream!
 			BattleStackAdded bsa;
 			bsa.attacker = summoner->attackerOwned;
 
-			bsa.creID = CreatureID(summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype); //in case summoner can summon more than one type of monsters... scream!
+			bsa.creID = summonedType; 
 			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID.toEnum());
-			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;
+			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;//todo: ignore AGE effect
 
 			ui64 canRiseHp = std::min(targetHealth, risedHp);
 			ui32 canRiseAmount = canRiseHp / VLC->creh->creatures.at(bsa.creID)->MaxHealth();
@@ -5811,6 +5812,32 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleI
 	PlayerColor color = army->tempOwner;
 	if(color == PlayerColor::UNFLAGGABLE)
 		color = PlayerColor::NEUTRAL;
+
+	//1. Find removed stacks.
+	for(const auto & slotInfo : army->stacks)
+	{
+		const SlotID slot = slotInfo.first;
+		const CStackInstance * instance = slotInfo.second;
+
+		if(nullptr != instance)//just in case
+		{
+			bool found = false;
+			for(const CStack * sta : bat->stacks)
+			{
+				if(sta->base == instance)
+				{
+					found = true;
+					break;
+				}
+			}
+			//stack in this slot was removed == it is dead
+			if(!found)
+			{
+				StackLocation sl(army, slot);
+				newStackCounts.push_back(TStackAndItsNewCount(sl, 0));
+			}
+		}
+	}
 
 	for(CStack *st : bat->stacks)
 	{
