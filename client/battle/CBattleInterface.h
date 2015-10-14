@@ -291,14 +291,14 @@ public:
 	void bEndTacticPhase();
 	//end of button handle funcs
 	//napisz tu klase odpowiadajaca za wyswietlanie bitwy i obsluge uzytkownika, polecenia ma przekazywac callbackiem
-	void activate();
-	void deactivate();
-	void keyPressed(const SDL_KeyboardEvent & key);
-	void mouseMoved(const SDL_MouseMotionEvent &sEvent);
-	void clickRight(tribool down, bool previousState);
+	void activate() override;
+	void deactivate() override;
+	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void mouseMoved(const SDL_MouseMotionEvent &sEvent) override;
+	void clickRight(tribool down, bool previousState) override;
 
-	void show(SDL_Surface *to);
-	void showAll(SDL_Surface *to);
+	void show(SDL_Surface *to) override;
+	void showAll(SDL_Surface *to) override;
 
 	//call-ins
 	void startAction(const BattleAction* action);

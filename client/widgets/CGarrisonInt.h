@@ -47,12 +47,12 @@ class CGarrisonSlot : public CIntObject
 
 	void setHighlight(bool on);
 public:
-	virtual void hover (bool on); //call-in
+	virtual void hover (bool on) override; //call-in
 	const CArmedInstance * getObj() const;
 	bool our() const;
 	bool ally() const;
-	void clickRight(tribool down, bool previousState);
-	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(tribool down, bool previousState) override;
 	void update();
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, EGarrisonType Upg=EGarrisonType::UP, const CStackInstance * Creature=nullptr);
 
@@ -132,7 +132,7 @@ class CWindowWithGarrison : public virtual CGarrisonHolder
 {
 public:
 	CGarrisonInt *garr;
-	virtual void updateGarrisons();
+	virtual void updateGarrisons() override;
 };
 
 /// Garrison window where you can take creatures out of the hero to place it on the garrison

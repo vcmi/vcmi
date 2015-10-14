@@ -215,7 +215,7 @@ public:
 
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
-	void wheelScrolled(bool down, bool in);
+	void wheelScrolled(bool down, bool in) override;
 };
 
 /// A typical slider which can be orientated horizontally/vertically.
@@ -264,11 +264,11 @@ public:
 
 	void addCallback(std::function<void(int)> callback);
 
-	void keyPressed(const SDL_KeyboardEvent & key);
-	void wheelScrolled(bool down, bool in);
-	void clickLeft(tribool down, bool previousState);
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void showAll(SDL_Surface * to);	
+	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void wheelScrolled(bool down, bool in) override;
+	void clickLeft(tribool down, bool previousState) override;
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void showAll(SDL_Surface * to) override;	
 
 	 /// @param position coordinates of slider
 	 /// @param length length of slider ribbon, including left/right buttons

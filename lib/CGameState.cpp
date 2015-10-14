@@ -63,7 +63,7 @@ public:
 template <typename T> class CApplyOnGS : public CBaseForGSApply
 {
 public:
-	void applyOnGS(CGameState *gs, void *pack) const
+	void applyOnGS(CGameState *gs, void *pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
 

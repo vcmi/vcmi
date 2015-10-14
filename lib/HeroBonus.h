@@ -539,7 +539,7 @@ class DLL_LINKAGE CPropagatorNodeType : public IPropagator
 public:
 	CPropagatorNodeType();
 	CPropagatorNodeType(int NodeType);
-	bool shouldBeAttached(CBonusSystemNode *dest);
+	bool shouldBeAttached(CBonusSystemNode *dest) override;
 	//CBonusSystemNode *getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -651,7 +651,7 @@ public:
 
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
 	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
-	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const;
+	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 	const Bonus *getBonusLocalFirst(const CSelector &selector) const;
 

@@ -94,7 +94,7 @@ public:
 	bool visitDestAfterVictory; //if hero moved to guarded tile and it should be visited once guard is defeated
 	const CGHeroInstance *hero;
 
-	virtual void onExposure(CGameHandler *gh, QueryPtr topQuery);
+	virtual void onExposure(CGameHandler *gh, QueryPtr topQuery) override;
 
 	CHeroMovementQuery(const TryMoveHero &Tmh, const CGHeroInstance *Hero, bool VisitDestAfterVictory = false);
 	virtual void onAdding(CGameHandler *gh, PlayerColor color) override;

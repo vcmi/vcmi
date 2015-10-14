@@ -65,13 +65,13 @@ public:
 	CTerrainRect();
 	virtual ~CTerrainRect();
 	CGPath * currentPath;
-	void deactivate();
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState);
-	void hover(bool on);
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void deactivate() override;
+	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(tribool down, bool previousState) override;
+	void hover(bool on) override;
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 	void showAnim(SDL_Surface * to);
 	void showPath(const SDL_Rect * extRect, SDL_Surface * to);
 	int3 whichTileIsIt(const int & x, const int & y); //x,y are cursor position
@@ -92,14 +92,14 @@ public:
 	std::vector<std::pair<int,int> > txtpos;
 	std::string datetext;
 
-	void clickRight(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState) override;
 	CResDataBar();
 	CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist);
 	~CResDataBar();
 
 	void draw(SDL_Surface * to);
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 };
 
 /// That's a huge class which handles general adventure map actions and
@@ -197,11 +197,11 @@ public:
 	void fnextHero();
 	void fendTurn();
 
-	void activate();
-	void deactivate();
+	void activate() override;
+	void deactivate() override;
 
-	void show(SDL_Surface * to); //redraws terrain
-	void showAll(SDL_Surface * to); //shows and activates adv. map interface
+	void show(SDL_Surface * to) override; //redraws terrain
+	void showAll(SDL_Surface * to) override; //shows and activates adv. map interface
 
 	void select(const CArmedInstance *sel, bool centerView = true);
 	void selectionChanged();
@@ -209,8 +209,8 @@ public:
 	void centerOn(const CGObjectInstance *obj, bool fade = false);
 	int3 verifyPos(int3 ver);
 	void handleRightClick(std::string text, tribool down);
-	void keyPressed(const SDL_KeyboardEvent & key);
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
+	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
 	bool isActive();
 
 	bool isHeroSleeping(const CGHeroInstance *hero);

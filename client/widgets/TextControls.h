@@ -52,7 +52,7 @@ public:
 
 	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT,
 	       const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
-	void showAll(SDL_Surface * to); //shows statusbar (with current text)
+	void showAll(SDL_Surface * to) override; //shows statusbar (with current text)
 };
 
 /// Small helper class to manage group of similar labels
@@ -85,8 +85,8 @@ public:
 
 	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
 
-	void setText(const std::string &Txt);
-	void showAll(SDL_Surface * to);
+	void setText(const std::string &Txt) override;
+	void showAll(SDL_Surface * to) override;
 
 	void setVisibleSize(Rect visibleSize);
 	// scrolls text visible in widget. Positive value will move text up
@@ -125,7 +125,7 @@ public:
 	void clear();//clears statusbar and refreshes
 	void setText(const std::string & Text) override; //prints text and refreshes statusbar
 
-	void show(SDL_Surface * to); //shows statusbar (with current text)
+	void show(SDL_Surface * to) override; //shows statusbar (with current text)
 
 	CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::WHITE); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
 	CGStatusBar(int x, int y, std::string name, int maxw=-1);

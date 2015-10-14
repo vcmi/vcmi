@@ -250,7 +250,7 @@ public:
 	void sendMessageToAll(const std::string &message);
 	void sendMessageTo(CConnection &c, const std::string &message);
 	void sendToAllClients(CPackForClient * info);
-	void sendAndApply(CPackForClient * info);
+	void sendAndApply(CPackForClient * info) override;
 	void applyAndSend(CPackForClient * info);
 	void sendAndApply(CGarrisonOperationPack * info);
 	void sendAndApply(SetResource * info);

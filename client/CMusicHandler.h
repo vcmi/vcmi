@@ -52,10 +52,10 @@ private:
 public:
 	CSoundHandler();
 
-	void init();
-	void release();
+	void init() override;
+	void release() override;
 
-	void setVolume(ui32 percent);
+	void setVolume(ui32 percent) override;
 
 	// Sounds
 	int playSound(soundBase::soundID soundID, int repeats=0);
@@ -127,9 +127,9 @@ public:
 	/// add entry with URI musicURI in set. Track will have ID musicID
 	void addEntryToSet(std::string set, int musicID, std::string musicURI);
 
-	void init();
-	void release();
-	void setVolume(ui32 percent);
+	void init() override;
+	void release() override;
+	void setVolume(ui32 percent) override;
 
 	/// play track by URI, if loop = true music will be looped
 	void playMusic(std::string musicURI, bool loop);

@@ -312,7 +312,7 @@ class CMapHandler
 		void drawHeroFlag(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const override;
 		void drawObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const override;
 		void drawFrame(SDL_Surface * targetSurf) const override {}
-		void drawOverlayEx(SDL_Surface * targetSurf);
+		void drawOverlayEx(SDL_Surface * targetSurf) override;
 		void init(const MapDrawingInfo * info) override;
 		SDL_Rect clip(SDL_Surface * targetSurf) const override;
 

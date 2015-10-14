@@ -45,7 +45,7 @@ public:
 	CComponent *comp;
 
 	//blit component with image centered at this position
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 
 	//ComponentResolved(); //c-tor
 	ComponentResolved(CComponent *Comp); //c-tor

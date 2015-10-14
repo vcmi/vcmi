@@ -28,12 +28,12 @@ public:
 
 	const std::map<std::string, CRmgTemplate *> & getTemplates() const;
 
-	std::vector<bool> getDefaultAllowed() const;
-	std::vector<JsonNode> loadLegacyData(size_t dataSize);
+	std::vector<bool> getDefaultAllowed() const override;
+	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data);
-	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index);
+	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
 private:
 	CRmgTemplate::CSize parseMapTemplateSize(const std::string & text) const;

@@ -57,7 +57,7 @@ public:
 	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large);//c-tor
 	CComponent(const Component &c, ESize imageSize=large); //c-tor
 
-	void clickRight(tribool down, bool previousState); //call-in
+	void clickRight(tribool down, bool previousState) override; //call-in
 };
 
 /// component that can be selected or deselected
@@ -68,10 +68,10 @@ public:
 	bool selected; //if true, this component is selected
 	std::function<void()> onSelect; //function called on selection change
 
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 	void select(bool on);
 
-	void clickLeft(tribool down, bool previousState); //call-in
+	void clickLeft(tribool down, bool previousState) override; //call-in
 	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr); //c-tor
 	CSelectableComponent(const Component &c, std::function<void()> OnSelect = nullptr); //c-tor
 };

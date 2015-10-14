@@ -39,9 +39,9 @@ protected:
 	//Simple function with call to GH.popInt
 	void close();
 	//Used only if RCLICK_POPUP was set
-	void clickRight(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState) override;
 	//To display border
-	void showAll(SDL_Surface *to);
+	void showAll(SDL_Surface *to) override;
 	//change or set background image
 	void setBackground(std::string filename);
 	void updateShadow();
