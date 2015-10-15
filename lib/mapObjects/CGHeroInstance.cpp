@@ -62,50 +62,44 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 	unsigned ret = 100;
 
 	//if there is road both on dest and src tiles - use road movement cost
-    if(dest.roadType != ERoadType::NO_ROAD && from.roadType != ERoadType::NO_ROAD)
+	if(dest.roadType != ERoadType::NO_ROAD && from.roadType != ERoadType::NO_ROAD)
 	{
-        int road = std::min(dest.roadType,from.roadType); //used road ID
+		int road = std::min(dest.roadType,from.roadType); //used road ID
 		switch(road)
 		{
-        case ERoadType::DIRT_ROAD:
+		case ERoadType::DIRT_ROAD:
 			ret = 75;
 			break;
-        case ERoadType::GRAVEL_ROAD:
+		case ERoadType::GRAVEL_ROAD:
 			ret = 65;
 			break;
-        case ERoadType::COBBLESTONE_ROAD:
+		case ERoadType::COBBLESTONE_ROAD:
 			ret = 50;
 			break;
 		default:
-            logGlobal->errorStream() << "Unknown road type: " << road << "... Something wrong!";
+			logGlobal->errorStream() << "Unknown road type: " << road << "... Something wrong!";
 			break;
 		}
 	}
-	else
+	else if(!hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
 	{
 		// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
 		// This is clearly bug in H3 however intended behaviour is not clear.
 		// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
 		// will always have best penalty without any influence from player-defined stacks order
 
-		bool nativeArmy = true;
 		for(auto stack : stacks)
 		{
 			int nativeTerrain = VLC->townh->factions[stack.second->type->faction]->nativeTerrain;
-
-            if (nativeTerrain != -1 && nativeTerrain != from.terType)
+			if(nativeTerrain != -1 && nativeTerrain != from.terType)
 			{
-				nativeArmy = false;
+				ret = VLC->heroh->terrCosts[from.terType];
+				ret -= getSecSkillLevel(SecondarySkill::PATHFINDING) * 25;
+				ret = ret < 100 ? 100 : ret;
 				break;
 			}
 		}
-		if(!nativeArmy && !hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
-        {
-            ret = VLC->heroh->terrCosts[from.terType];
-            ret-=getSecSkillLevel(SecondarySkill::PATHFINDING)*25;
-            ret = ret < 100 ? 100 : ret;
-        }
- 	}
+	}
 	return ret;
 }
 
