@@ -768,7 +768,7 @@ void CCastleBuildings::enterCastleGate()
 		return;//only visiting hero can use castle gates
 	}
 	std::vector <int> availableTowns;
-	std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
+	std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(true);
 	for(auto & Town : Towns)
 	{
 		const CGTownInstance *t = Town;
