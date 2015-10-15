@@ -218,6 +218,7 @@ public:
 	BONUS_NAME(DISGUISED) /* subtype - spell level */\
 	BONUS_NAME(VISIONS) /* subtype - spell level */\
 	BONUS_NAME(NO_TERRAIN_PENALTY) /* subtype - terrain type */\
+	/* end of list */
 	
 
 #define BONUS_SOURCE_LIST \
