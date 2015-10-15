@@ -216,6 +216,7 @@ class SlotID : public BaseForID<SlotID, si32>
 	friend class CNonConstInfoCallback;
 
 	DLL_LINKAGE static const SlotID COMMANDER_SLOT_PLACEHOLDER;
+	DLL_LINKAGE static const SlotID SUMMONED_SLOT_PLACEHOLDER; ///<for all summoned creatures, only during battle
 
 	bool validSlot() const
 	{

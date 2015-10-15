@@ -5862,7 +5862,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 		//FIXME: this info is also used in BattleInfo::calculateCasualties, refactor
 		st->count = std::max (0, st->count - st->resurrected);
 
-		if (!st->count && !st->base) //we can imagine stacks of war mahcines that are not spawned by artifacts?
+		if (!st->count && !st->base) //we can imagine stacks of war machines that are not spawned by artifacts?
 		{
 			auto warMachine = VLC->arth->creatureToMachineID(st->type->idNumber);
 			if (warMachine != ArtifactID::NONE)
@@ -5875,7 +5875,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 		
 		if(army->slotEmpty(st->slot))
 		{
-			if(st->slot == SlotID(255) && !vstd::contains(st->state, EBattleStackState::SUMMONED) && st->alive())
+			if(st->slot == SlotID::SUMMONED_SLOT_PLACEHOLDER && !vstd::contains(st->state, EBattleStackState::SUMMONED) && st->alive())
 			{
 				//this stack was permanently summoned
 				const CreatureID summonedType = st->type->idNumber;

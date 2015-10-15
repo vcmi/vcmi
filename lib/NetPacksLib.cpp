@@ -1567,7 +1567,7 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 	}
 
 	CStackBasicDescriptor csbd(creID, amount);
-	CStack * addedStack = gs->curB->generateNewStack(csbd, attacker, SlotID(255), pos); //TODO: netpacks?
+	CStack * addedStack = gs->curB->generateNewStack(csbd, attacker, SlotID::SUMMONED_SLOT_PLACEHOLDER, pos); //TODO: netpacks?
 	if (summoned)
 		addedStack->state.insert(EBattleStackState::SUMMONED);
 
