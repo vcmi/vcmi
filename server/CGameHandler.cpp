@@ -5875,7 +5875,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 		
 		if(army->slotEmpty(st->slot))
 		{
-			if(st->slot == SlotID::SUMMONED_SLOT_PLACEHOLDER && !vstd::contains(st->state, EBattleStackState::SUMMONED) && st->alive())
+			if(st->slot == SlotID::SUMMONED_SLOT_PLACEHOLDER && !vstd::contains(st->state, EBattleStackState::SUMMONED) && st->alive() && st->count > 0)
 			{
 				//this stack was permanently summoned
 				const CreatureID summonedType = st->type->idNumber;
