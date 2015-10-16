@@ -58,8 +58,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 
 ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from) const
 {
-	//base move cost
-	unsigned ret = 100;
+	unsigned ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
 	if(dest.roadType != ERoadType::NO_ROAD && from.roadType != ERoadType::NO_ROAD)
@@ -95,7 +94,9 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 			{
 				ret = VLC->heroh->terrCosts[from.terType];
 				ret -= getSecSkillLevel(SecondarySkill::PATHFINDING) * 25;
-				ret = ret < 100 ? 100 : ret;
+				if(ret < GameConstants::BASE_MOVEMENT_COST)
+					ret = GameConstants::BASE_MOVEMENT_COST;
+
 				break;
 			}
 		}
