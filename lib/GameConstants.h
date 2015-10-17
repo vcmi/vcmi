@@ -51,6 +51,7 @@ namespace GameConstants
 	const int SPELLS_QUANTITY=70;
 	const int CREATURES_COUNT = 197;
 
+	const ui32 BASE_MOVEMENT_COST = 100; //default cost for non-diagonal movement
 }
 
 class CArtifact;

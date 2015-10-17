@@ -475,6 +475,15 @@
 		"index": 142,
 		"level": 3,
 		"faction": "neutral",
+		"abilities":
+		{
+			"sandWalker" :
+			{
+				"type" : "NO_TERRAIN_PENALTY",
+				"subtype" : 1,
+				"propagator" : "HERO"
+			}
+		},
 		"doubleWide" : true,
 		"graphics" :
 		{

@@ -216,7 +216,9 @@ public:
 	BONUS_NAME(SPOILS_OF_WAR) /*val * 10^-6 * gained exp resources of subtype will be given to hero after battle*/\
 	BONUS_NAME(BLOCK)\
 	BONUS_NAME(DISGUISED) /* subtype - spell level */\
-	BONUS_NAME(VISIONS) /* subtype - spell level */
+	BONUS_NAME(VISIONS) /* subtype - spell level */\
+	BONUS_NAME(NO_TERRAIN_PENALTY) /* subtype - terrain type */\
+	/* end of list */
 	
 
 #define BONUS_SOURCE_LIST \
