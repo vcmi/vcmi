@@ -3406,7 +3406,7 @@ bool CPathfinder::checkDestinationTile()
 	if(dp->coord == CGHeroInstance::convertPosition(hero->pos, false))
 		return true; // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation
 	if(dp->accessible == CGPathNode::VISITABLE && CGTeleport::isTeleport(dt->topVisitableObj()))
-		return true; // For now we'll walways allos transit for teleports
+		return true; // For now we'll always allow transit for teleporters
 	if(useEmbarkCost && vstd::contains(options, EOptions::EMBARK_AND_DISEMBARK))
 		return true;
 	if(isDestinationGuarded() && !isSourceGuarded())
