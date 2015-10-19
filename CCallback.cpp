@@ -292,7 +292,7 @@ bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 
 int CCallback::getMovementCost(const CGHeroInstance * hero, int3 dest)
 {
-	return gs->getMovementCost(hero, hero->visitablePos(), dest, hero->hasBonusOfType (Bonus::FLYING_MOVEMENT), hero->movement);
+	return gs->getMovementCost(hero, hero->visitablePos(), dest, hero->movement);
 }
 
 const CPathsInfo * CCallback::getPathsInfo(const CGHeroInstance *h)

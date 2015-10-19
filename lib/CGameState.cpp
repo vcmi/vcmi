@@ -2099,7 +2099,7 @@ void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<i
 	}
 }
 
-int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, bool flying, int remainingMovePoints, bool checkLast)
+int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, int remainingMovePoints, bool checkLast)
 {
 	if(src == dest) //same tile
 		return 0;
@@ -2110,7 +2110,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	//get basic cost
 	int ret = h->getTileCost(d,s);
 
-	if(d.blocked && flying)
+	if(d.blocked && h->canFly())
 	{
 		bool freeFlying = h->getBonusesCount(Selector::typeSubtype(Bonus::FLYING_MOVEMENT, 1)) > 0;
 
@@ -2147,7 +2147,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
         getNeighbours(d, dest, vec, s.terType != ETerrainType::WATER, true);
 		for(auto & elem : vec)
 		{
-			int fcost = getMovementCost(h,dest, elem, flying, left, false);
+			int fcost = getMovementCost(h, dest, elem, left, false);
 			if(fcost <= left)
 			{
 				return ret;
@@ -3456,7 +3456,7 @@ void CPathfinder::calculatePaths()
 			if(!isMovementPossible())
 				continue;
 
-			int cost = gs->getMovementCost(hero, cp->coord, dp->coord, vstd::contains(options, EOptions::FLYING), movement);
+			int cost = gs->getMovementCost(hero, cp->coord, dp->coord, movement);
 			int remains = movement - cost;
 			if(useEmbarkCost)
 			{
@@ -3470,7 +3470,7 @@ void CPathfinder::calculatePaths()
 				//occurs rarely, when hero with low movepoints tries to leave the road
 				turnAtNextTile++;
 				int moveAtNextTile = maxMovePoints(cp);
-				cost = gs->getMovementCost(hero, cp->coord, dp->coord, vstd::contains(options, EOptions::FLYING), moveAtNextTile); //cost must be updated, movement points changed :(
+				cost = gs->getMovementCost(hero, cp->coord, dp->coord, moveAtNextTile); //cost must be updated, movement points changed :(
 				remains = moveAtNextTile - cost;
 			}
 
