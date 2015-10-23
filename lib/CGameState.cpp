@@ -2112,19 +2112,22 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 
 	if(d.blocked && h->canFly())
 	{
-		bool freeFlying = h->getBonusesCount(Selector::typeSubtype(Bonus::FLYING_MOVEMENT, 1)) > 0;
-
-		if(!freeFlying)
-		{
+		if(h->hasBonusOfType(Bonus::FLYING_MOVEMENT, 1)) // base flying
 			ret *= 1.4; //40% penalty for movement over blocked tile
-		}
+		else if(h->hasBonusOfType(Bonus::FLYING_MOVEMENT, 2)) // advanced flying
+			ret *= 1.2;
 	}
-    else if (d.terType == ETerrainType::WATER)
+	else if(d.terType == ETerrainType::WATER)
 	{
 		if(h->boat && s.hasFavourableWinds() && d.hasFavourableWinds()) //Favourable Winds
 			ret *= 0.666;
-		else if (!h->boat && h->getBonusesCount(Selector::typeSubtype(Bonus::WATER_WALKING, 1)) > 0)
-			ret *= 1.4; //40% penalty for water walking
+		else if(!h->boat && h->canWalkOnSea())
+		{
+			if(h->hasBonusOfType(Bonus::WATER_WALKING, 1)) // base
+				ret *= 1.4; //40% penalty for water walking
+			else if(h->hasBonusOfType(Bonus::WATER_WALKING, 2)) // advanced
+				ret *= 1.2;
+		}
 	}
 
 	if(src.x != dest.x  &&  src.y != dest.y) //it's diagonal move
@@ -2144,7 +2147,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	{
 		std::vector<int3> vec;
 		vec.reserve(8); //optimization
-        getNeighbours(d, dest, vec, s.terType != ETerrainType::WATER, true);
+		getNeighbours(d, dest, vec, s.terType != ETerrainType::WATER, true);
 		for(auto & elem : vec)
 		{
 			int fcost = getMovementCost(h, dest, elem, left, false);
