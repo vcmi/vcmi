@@ -3848,9 +3848,6 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			//TODO: From Strategija:
 			//Summon Demon is a level 2 spell.
 		{
-			StartAction start_action(ba);
-			sendAndApply(&start_action);
-
 			const CStack *summoner = gs->curB->battleGetStackByID(ba.stackNumber),
 				*destStack = gs->curB->battleGetStackByPos(ba.destinationTile, false);
 
@@ -3872,6 +3869,9 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			if (bsa.amount) //there's rare possibility single creature cannot rise desired type
 			{
+				StartAction start_action(ba);
+				sendAndApply(&start_action);
+
 				BattleStacksRemoved bsr; //remove body
 				bsr.stackIDs.insert(destStack->ID);
 				sendAndApply(&bsr);
@@ -3883,9 +3883,9 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				ssp.val = -1;
 				ssp.absolute = false;
 				sendAndApply(&ssp);
-			}
 
-			sendAndApply(&end_action);
+				sendAndApply(&end_action);
+			}
 			break;
 		}
 		case Battle::MONSTER_SPELL:
