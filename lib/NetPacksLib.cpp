@@ -468,6 +468,12 @@ static int getDir(int3 src, int3 dst)
 void TryMoveHero::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(id);
+	if (!h)
+	{
+		logGlobal->errorStream() << "Attempt ot move unavailable hero " << id;
+		return;
+	}
+
 	h->movement = movePoints;
 
 	if((result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK) && start != end)

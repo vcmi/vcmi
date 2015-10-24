@@ -4772,42 +4772,41 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		else
 		{
 			//player lost -> all his objects become unflagged (neutral)
-			auto hlp = p->heroes;
-			for (auto i = hlp.cbegin(); i != hlp.cend(); i++) //eliminate heroes
-				removeObject(*i);
+			for (auto h : p->heroes) //eliminate heroes
+				if (h.get())
+					removeObject(h);
 
-			for (auto i = gs->map->objects.cbegin(); i != gs->map->objects.cend(); i++) //unflag objs
+			for (auto obj : gs->map->objects) //unflag objs
 			{
-				if(*i  &&  (*i)->tempOwner == player)
-					setOwner(*i,PlayerColor::NEUTRAL);
+				if(obj.get() && obj->tempOwner == player)
+					setOwner(obj, PlayerColor::NEUTRAL);
 			}
 
 			//eliminating one player may cause victory of another:
 			std::set<PlayerColor> playerColors;
-			for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
+			for (auto p : gs->players) //FIXME: players may have different colors, iterate by over players and not integers
 			{
-				if(player.getNum() != i) playerColors.insert(PlayerColor(i));
+				if (p.first != player)
+					playerColors.insert(p.first);
 			}
 
 			//notify all players
-			for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
+			for (auto pc : playerColors)
 			{
-				if(i->first != player && gs->getPlayer(i->first)->status == EPlayerStatus::INGAME)
+				if (gs->getPlayer(pc)->status == EPlayerStatus::INGAME)
 				{
 					InfoWindow iw;
 					getVictoryLossMessage(player, victoryLossCheckResult.invert(), iw);
-					iw.player = i->first;
+					iw.player = pc;
 					sendAndApply(&iw);
 				}
 			}
-
-
 			checkVictoryLossConditions(playerColors);
 		}
 
 		auto playerInfo = gs->getPlayer(gs->currentPlayer, false);
 		// If we are called before the actual game start, there might be no current player
-		if(playerInfo && playerInfo->status != EPlayerStatus::INGAME)
+		if (playerInfo && playerInfo->status != EPlayerStatus::INGAME)
 		{
 			// If player making turn has lost his turn must be over as well
 			states.setFlag(gs->currentPlayer, &PlayerStatus::makingTurn, false);
