@@ -4808,10 +4808,12 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 			//eliminating one player may cause victory of another:
 			std::set<PlayerColor> playerColors;
-			for (auto p : gs->players) //FIXME: players may have different colors, iterate by over players and not integers
+
+			//do not copy player state (CBonusSystemNode) by value
+			for (auto p = gs->players.begin(); p != gs->players.end(); p++) //players may have different colors, iterate over players and not integers
 			{
-				if (p.first != player)
-					playerColors.insert(p.first);
+				if (p->first != player)
+					playerColors.insert(p->first);
 			}
 
 			//notify all players
