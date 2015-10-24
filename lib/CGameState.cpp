@@ -2906,7 +2906,7 @@ const CGPathNode * CPathsInfo::getPathInfo( int3 tile ) const
 {
 	boost::unique_lock<boost::mutex> pathLock(pathMx);
 
-	if (tile.x >= sizes.x || tile.y >= sizes.y || tile.z >= sizes.z)
+	if(tile.x >= sizes.x || tile.y >= sizes.y || tile.z >= sizes.z)
 		return nullptr;
 	return &nodes[tile.x][tile.y][tile.z];
 }
@@ -2916,7 +2916,7 @@ int CPathsInfo::getDistance( int3 tile ) const
 	boost::unique_lock<boost::mutex> pathLock(pathMx);
 
 	CGPath ret;
-	if (getPath(tile, ret))
+	if(getPath(tile, ret))
 		return ret.nodes.size();
 	else
 		return 255;
@@ -2949,7 +2949,7 @@ CPathsInfo::CPathsInfo( const int3 &Sizes )
 	for(int i = 0; i < sizes.x; i++)
 	{
 		nodes[i] = new CGPathNode*[sizes.y];
-		for (int j = 0; j < sizes.y; j++)
+		for(int j = 0; j < sizes.y; j++)
 		{
 			nodes[i][j] = new CGPathNode[sizes.z];
 		}
@@ -2960,7 +2960,7 @@ CPathsInfo::~CPathsInfo()
 {
 	for(int i = 0; i < sizes.x; i++)
 	{
-		for (int j = 0; j < sizes.y; j++)
+		for(int j = 0; j < sizes.y; j++)
 		{
 			delete [] nodes[i][j];
 		}
@@ -3296,7 +3296,7 @@ void CPathfinder::initializeGraph()
 				node.coord.x = i;
 				node.coord.y = j;
 				node.coord.z = k;
-                node.land = tinfo->terType != ETerrainType::WATER;
+				node.land = tinfo->terType != ETerrainType::WATER;
 				node.theNodeBefore = nullptr;
 			}
 		}
@@ -3307,9 +3307,6 @@ void CPathfinder::getNeighbours(const int3 &coord)
 {
 	neighbours.clear();
 	ct = &gs->map->getTile(coord);
-// Will be needed for usage outside of calculatePaths
-//	if(!cp)
-//		cp = getNode(coord);
 
 	std::vector<int3> tiles;
 	gs->getNeighbours(*ct, coord, tiles, boost::logic::indeterminate, !cp->land);
@@ -3508,7 +3505,7 @@ void CPathfinder::calculatePaths()
 			for(auto & neighbour : neighbours)
 			{
 				dp = getNode(neighbour);
-				if (isBetterWay(movement, turn))
+				if(isBetterWay(movement, turn))
 				{
 					dp->moveRemains = movement;
 					dp->turns = turn;
@@ -3535,7 +3532,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 	CGPathNode::EAccessibility ret = (tinfo->blocked ? CGPathNode::BLOCKED : CGPathNode::ACCESSIBLE);
 
 
-    if(tinfo->terType == ETerrainType::ROCK || !FoW[curPos.x][curPos.y][curPos.z])
+	if(tinfo->terType == ETerrainType::ROCK || !FoW[curPos.x][curPos.y][curPos.z])
 		return CGPathNode::BLOCKED;
 
 	if(tinfo->visitable)
@@ -3548,7 +3545,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 		{
 			for(const CGObjectInstance *obj : tinfo->visitableObjects)
 			{
-				if (obj->passableFor(hero->tempOwner))
+				if(obj->passableFor(hero->tempOwner))
 				{
 					ret = CGPathNode::ACCESSIBLE;
 				}
@@ -3563,7 +3560,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 			}
 		}
 	}
-	else if (gs->map->guardingCreaturePositions[curPos.x][curPos.y][curPos.z].valid()
+	else if(gs->map->guardingCreaturePositions[curPos.x][curPos.y][curPos.z].valid()
 		&& !tinfo->blocked)
 	{
 		// Monster close by; blocked visit for battle.
@@ -3597,7 +3594,7 @@ bool CPathfinder::isMovementPossible()
 				return false;
 
 			//tile must be accessible -> exception: unblocked blockvis tiles -> clear but guarded by nearby monster coast
-			if( (dp->accessible != CGPathNode::ACCESSIBLE && (dp->accessible != CGPathNode::BLOCKVIS || dt->blocked))
+			if((dp->accessible != CGPathNode::ACCESSIBLE && (dp->accessible != CGPathNode::BLOCKVIS || dt->blocked))
 				|| dt->visitable)  //TODO: passableness problem -> town says it's passable (thus accessible) but we obviously can't disembark onto town gate
 				return false;;
 
@@ -3641,7 +3638,7 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 		options.useFlying = true;
 	if(hero->canWalkOnSea())
 		options.useWaterWalking = true;
-	if (CGWhirlpool::isProtected(hero))
+	if(CGWhirlpool::isProtected(hero))
 		options.useTeleportWhirlpool = true;
 
 	neighbours.reserve(16);
