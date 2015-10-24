@@ -167,7 +167,7 @@ struct YourTurn : public CPackForClient //100
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	PlayerColor player;
-	ui8 daysWithoutCastle;
+	boost::optional<ui8> daysWithoutCastle;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

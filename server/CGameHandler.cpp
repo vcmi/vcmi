@@ -1587,21 +1587,19 @@ void CGameHandler::run(bool resume)
 		{
 			auto playerColor = *it;
 
-			auto playerState = gs->players[playerColor];
-			if (playerState.status == EPlayerStatus::INGAME)
+			PlayerState * playerState = &gs->players[playerColor]; //can't copy CBonusSystemNode by value
+			if (playerState->status == EPlayerStatus::INGAME)
 			{
-				states.setFlag (playerColor, &PlayerStatus::makingTurn, true);
-
 				//count days without town
-				if (playerState.towns.empty())
+				if (playerState->towns.empty())
 				{
-					if (playerState.daysWithoutCastle)
-						++(*playerState.daysWithoutCastle);
-					else playerState.daysWithoutCastle = 0;
+					if (playerState->daysWithoutCastle)
+						++(*playerState->daysWithoutCastle);
+					else playerState->daysWithoutCastle = 0;
 				}
 				else
 				{
-					playerState.daysWithoutCastle = boost::none; //TODO: reset this immediatelly when player conquers any castle
+					playerState->daysWithoutCastle = boost::none; //TODO: reset this immediatelly when player conquers any castle
 				}
 
 				//if player runs out of time, he shouldn't get the turn (especially AI)
@@ -1611,20 +1609,23 @@ void CGameHandler::run(bool resume)
 				{ //player lost at the beginning of his turn
 					continue;
 				}
-
-				YourTurn yt;
-				yt.player = playerColor;
-				//Change local daysWithoutCastle counter for local interface message //TODO: needed?
-				if (playerState.daysWithoutCastle)
-					yt.daysWithoutCastle = playerState.daysWithoutCastle.get();
-				applyAndSend(&yt);
-
-				//wait till turn is done
-				boost::unique_lock<boost::mutex> lock(states.mx);
-				while(states.players.at(playerColor).makingTurn && !end2)
+				else //give normal turn
 				{
-					static time_duration p = milliseconds(200);
-					states.cv.timed_wait(lock,p);
+					states.setFlag(playerColor, &PlayerStatus::makingTurn, true);
+
+					YourTurn yt;
+					yt.player = playerColor;
+					//Change local daysWithoutCastle counter for local interface message //TODO: needed?
+					yt.daysWithoutCastle = playerState->daysWithoutCastle;
+					applyAndSend(&yt);
+
+					//wait till turn is done
+					boost::unique_lock<boost::mutex> lock(states.mx);
+					while (states.players.at(playerColor).makingTurn && !end2)
+					{
+						static time_duration p = milliseconds(100);
+						states.cv.timed_wait(lock, p);
+					}
 				}
 			}
 		}
