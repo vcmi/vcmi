@@ -3477,10 +3477,9 @@ void CPathfinder::calculatePaths()
 				remains = moveAtNextTile - cost;
 			}
 
-			if((dp->turns==0xff		//we haven't been here before
+			if(dp->turns==0xff		//we haven't been here before
 				|| dp->turns > turnAtNextTile
 				|| (dp->turns >= turnAtNextTile  &&  dp->moveRemains < remains)) //this route is faster
-				&& (!isSourceGuarded() || isDestinationGuardian())) // Can step into tile of guard
 			{
 				assert(dp != cp->theNodeBefore); //two tiles can't point to each other
 				dp->moveRemains = remains;
@@ -3595,6 +3594,9 @@ bool CPathfinder::isMovementPossible()
 			useEmbarkCost = 2;
 		}
 	}
+
+	if(isSourceGuarded() && !isDestinationGuardian()) // Can step into tile of guard
+		return false;
 
 	return true;
 }
