@@ -1329,43 +1329,71 @@ bool CMapHandler::printObject(const CGObjectInstance *obj, bool fadein /* = fals
 					curt.objects.insert(i, toAdd);
 			}
 
-		} // for(int fy=0; fy<tilesH; ++fy)
-	} //for(int fx=0; fx<tilesW; ++fx)
+		}
+	}
 	return true;
 }
 
 bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = false */)
 {
-	auto pos = obj->pos;
+	//optimized version which reveals weird bugs with missing def name
+	//auto pos = obj->pos;
 
-	for (size_t i = pos.x; i > pos.x - obj->getWidth(); i--)
+	//for (size_t i = pos.x; i > pos.x - obj->getWidth(); i--)
+	//{
+	//	for (size_t j = pos.y; j > pos.y - obj->getHeight(); j--)
+	//	{
+	//		int3 t(i, j, pos.z);
+	//		if (!map->isInTheMap(t))
+	//			continue;
+
+	//		auto &objs = ttiles[i][j][pos.z].objects;
+	//		for (size_t x = 0; x < objs.size(); x++)
+	//		{
+	//			auto ourObj = objs[x].obj;
+	//			if (ourObj && ourObj->id == obj->id)
+	//			{
+	//				if (fadeout && ADVOPT.objectFading) // object should be faded == erase is delayed until the end of fadeout
+	//				{
+	//					if (startObjectFade(objs[x], false, t))
+	//						objs[x].obj = nullptr; //set original pointer to null
+	//					else
+	//						objs.erase(objs.begin() + x);
+	//				}
+	//				else
+	//					objs.erase(objs.begin() + x);
+	//				break;
+	//			}
+	//		}
+	//	}
+
+	//}
+
+	for (size_t i = 0; i<map->width; i++)
 	{
-		for (size_t j = pos.y; j > pos.y - obj->getHeight(); j--)
+		for (size_t j = 0; j<map->height; j++)
 		{
-			int3 t(i, j, pos.z);
-			if (!map->isInTheMap(t))
-				continue;
-
-			auto &objs = ttiles[i][j][pos.z].objects;
-			for (size_t x = 0; x < objs.size(); x++)
+			for (size_t k = 0; k<(map->twoLevel ? 2 : 1); k++)
 			{
-				auto ourObj = objs[x].obj;
-				if (ourObj && ourObj->id == obj->id)
+				auto &objs = ttiles[i][j][k].objects;
+				for (size_t x = 0; x < objs.size(); x++)
 				{
-					if (fadeout && ADVOPT.objectFading) // object should be faded == erase is delayed until the end of fadeout
+					if (objs[x].obj && objs[x].obj->id == obj->id)
 					{
-						if (startObjectFade(objs[x], false, t))
-							objs[x].obj = nullptr; //set original pointer to null
+						if (fadeout && ADVOPT.objectFading) // object should be faded == erase is delayed until the end of fadeout
+						{
+							if (startObjectFade(objs[x], false, int3(i, j, k)))
+								objs[x].obj = nullptr;
+							else
+								objs.erase(objs.begin() + x);
+						}
 						else
 							objs.erase(objs.begin() + x);
+						break;
 					}
-					else
-						objs.erase(objs.begin() + x);
-					break;
 				}
 			}
 		}
-
 	}
 
 	return true;
