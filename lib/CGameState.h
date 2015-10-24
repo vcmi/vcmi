@@ -279,17 +279,19 @@ struct DLL_EXPORT DuelParameters
 class CPathfinder : private CGameInfoCallback
 {
 private:
-	enum class EOptions
+	struct PathfinderOptions
 	{
-		FLYING,
-		WALKING_ON_SEA,
-		EMBARK_AND_DISEMBARK,
-		TELEPORT_TWO_WAY, // Two-way monoliths and Subterranean Gate
-		TELEPORT_ONE_WAY, // One-way monoliths with one known exit only
-		TELEPORT_ONE_WAY_RANDOM, // One-way monoliths with more than one known exit
-		TELEPORT_WHIRLPOOL // Force enabled if hero protected or unaffected (have one stack of one creature)
+		bool useFlying;
+		bool useWaterWalking;
+		bool useEmbarkAndDisembark;
+		bool useTeleportTWoWay; // Two-way monoliths and Subterranean Gate
+		bool useTeleportOneWay; // One-way monoliths with one known exit only
+		bool useTeleportOneWayRandom; // One-way monoliths with more than one known exit
+		bool useTeleportWhirlpool; // Force enabled if hero protected or unaffected (have one stack of one creature)
+
+		PathfinderOptions();
 	};
-	std::set<EOptions> options;
+	PathfinderOptions options;
 
 	CPathsInfo &out;
 	const CGHeroInstance *hero;

@@ -3410,7 +3410,7 @@ bool CPathfinder::checkDestinationTile()
 		return true; // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation
 	if(dp->accessible == CGPathNode::VISITABLE && CGTeleport::isTeleport(dt->topVisitableObj()))
 		return true; // For now we'll always allow transit for teleporters
-	if(useEmbarkCost && vstd::contains(options, EOptions::EMBARK_AND_DISEMBARK))
+	if(useEmbarkCost && options.useEmbarkAndDisembark)
 		return true;
 	if(isDestinationGuarded() && !isSourceGuarded())
 		return true; // Can step into a hostile tile once
@@ -3611,6 +3611,17 @@ bool CPathfinder::isMovementPossible()
 	return true;
 }
 
+CPathfinder::PathfinderOptions::PathfinderOptions()
+{
+	useFlying = false;
+	useWaterWalking = false;
+	useEmbarkAndDisembark = true;
+	useTeleportTWoWay = true;
+	useTeleportOneWay = true;
+	useTeleportOneWayRandom = false;
+	useTeleportWhirlpool = false;
+}
+
 CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero) : CGameInfoCallback(_gs, boost::optional<PlayerColor>()), out(_out), hero(_hero), FoW(getPlayerTeam(hero->tempOwner)->fogOfWarMap)
 {
 	assert(hero);
@@ -3627,14 +3638,11 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 	initializeGraph();
 
 	if(hero->canFly())
-		options.insert(EOptions::FLYING);
-	else if(hero->canWalkOnSea())
-		options.insert(EOptions::WALKING_ON_SEA);
-	options.insert(EOptions::EMBARK_AND_DISEMBARK);
-	options.insert(EOptions::TELEPORT_TWO_WAY);
-	options.insert(EOptions::TELEPORT_ONE_WAY);
+		options.useFlying = true;
+	if(hero->canWalkOnSea())
+		options.useWaterWalking = true;
 	if (CGWhirlpool::isProtected(hero))
-		options.insert(EOptions::TELEPORT_WHIRLPOOL);
+		options.useTeleportWhirlpool = true;
 
 	neighbours.reserve(16);
 }
@@ -3647,12 +3655,12 @@ CRandomGenerator & CGameState::getRandomGenerator()
 
 bool CPathfinder::addTeleportTwoWay(const CGTeleport * obj) const
 {
-	return vstd::contains(options,EOptions::TELEPORT_TWO_WAY) && gs->isTeleportChannelBidirectional(obj->channel, hero->tempOwner);
+	return options.useTeleportTWoWay && gs->isTeleportChannelBidirectional(obj->channel, hero->tempOwner);
 }
 
 bool CPathfinder::addTeleportOneWay(const CGTeleport * obj) const
 {
-	if(vstd::contains(options,EOptions::TELEPORT_ONE_WAY) && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
+	if(options.useTeleportOneWay && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
 	{
 		auto passableExits = CGTeleport::getPassableExits(gs, hero, gs->getTeleportChannelExits(obj->channel, hero->tempOwner));
 		if(passableExits.size() == 1)
@@ -3663,7 +3671,7 @@ bool CPathfinder::addTeleportOneWay(const CGTeleport * obj) const
 
 bool CPathfinder::addTeleportOneWayRandom(const CGTeleport * obj) const
 {
-	if(vstd::contains(options,EOptions::TELEPORT_ONE_WAY_RANDOM) && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
+	if(options.useTeleportOneWayRandom && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
 	{
 		auto passableExits = CGTeleport::getPassableExits(gs, hero, gs->getTeleportChannelExits(obj->channel, hero->tempOwner));
 		if(passableExits.size() > 1)
@@ -3674,5 +3682,5 @@ bool CPathfinder::addTeleportOneWayRandom(const CGTeleport * obj) const
 
 bool CPathfinder::addTeleportWhirlpool(const CGWhirlpool * obj) const
 {
-   return vstd::contains(options,EOptions::TELEPORT_WHIRLPOOL) && obj;
+	return options.useTeleportWhirlpool && obj;
 }
