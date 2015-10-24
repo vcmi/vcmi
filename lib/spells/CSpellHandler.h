@@ -30,6 +30,9 @@ struct BattleSpellCast;
 class CGameInfoCallback;
 class CRandomGenerator;
 class CMap;
+struct AdventureSpellCastParameters;
+struct BattleSpellCastParameters;
+class SpellCastEnvironment;
 
 struct SpellSchoolInfo
 {
@@ -41,45 +44,6 @@ struct SpellSchoolInfo
 	Bonus::BonusType knoledgeBonus;
 };
 
-///callback to be provided by server
-class DLL_LINKAGE SpellCastEnvironment
-{
-public:
-	virtual ~SpellCastEnvironment(){};
-	virtual void sendAndApply(CPackForClient * info) const = 0;
-
-	virtual CRandomGenerator & getRandomGenerator() const = 0;
-	virtual void complain(const std::string & problem) const = 0;
-
-	virtual const CMap * getMap() const = 0;
-	virtual const CGameInfoCallback * getCb() const = 0;
-
-	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker = PlayerColor::NEUTRAL) const =0;	//TODO: remove
-};
-
-///helper struct
-struct DLL_LINKAGE BattleSpellCastParameters
-{
-public:
-	BattleSpellCastParameters(const BattleInfo * cb);
-	int spellLvl;
-	BattleHex destination;
-	ui8 casterSide;
-	PlayerColor casterColor;
-	const CGHeroInstance * casterHero; //deprecated
-	const CGHeroInstance * secHero;
-	int usedSpellPower;
-	ECastingMode::ECastingMode mode;
-	const CStack * casterStack;
-	const CStack * selectedStack;
-	const BattleInfo * cb;
-};
-
-struct DLL_LINKAGE AdventureSpellCastParameters
-{
-	const CGHeroInstance * caster;
-	int3 pos;
-};
 
 enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
 
@@ -136,10 +100,10 @@ public:
 		///displayed on caster.
 		TAnimationQueue cast;
 
-		///displayed on target hex. If spell was casted with no target selection displayed on entire battlefield (f.e. ARMAGEDDON)
+		///displayed on target hex. If spell was cast with no target selection displayed on entire battlefield (f.e. ARMAGEDDON)
 		TAnimationQueue hit;
 
-		///displayed "between" caster and (first) target. Ignored if spell was casted with no target selection.
+		///displayed "between" caster and (first) target. Ignored if spell was cast with no target selection.
 		///use selectProjectile to access
 		std::vector<ProjectileInfo> projectile;
 
@@ -188,7 +152,7 @@ public:
 	enum ETargetType {NO_TARGET, CREATURE, OBSTACLE, LOCATION};
 	enum ESpellPositiveness {NEGATIVE = -1, NEUTRAL = 0, POSITIVE = 1};
 
-	struct TargetInfo
+	struct DLL_LINKAGE TargetInfo
 	{
 		ETargetType type;
 		bool smart;
@@ -231,8 +195,6 @@ public:
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr ) const; //convert range to specific hexes; last optional out parameter is set to true, if spell would cover unavailable hexes (that are not included in ret)
 	ETargetType getTargetType() const; //deprecated
 
-	CSpell::TargetInfo getTargetInfo(const int level) const;
-
 	bool isCombatSpell() const;
 	bool isAdventureSpell() const;
 	bool isCreatureAbility() const;
@@ -251,17 +213,12 @@ public:
 	bool hasEffects() const;
 	void getEffects(std::vector<Bonus> &lst, const int level) const;
 
-	///checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into account general problems such as not having spellbook or mana points etc.
-	ESpellCastProblem::ESpellCastProblem isImmuneAt(const CBattleInfoCallback * cb, const CGHeroInstance * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
-
-	//internal, for use only by Mechanics classes
-	ESpellCastProblem::ESpellCastProblem isImmuneBy(const IBonusBearer *obj) const;
 
 	///calculate spell damage on stack taking caster`s secondary skills and affectedCreature`s bonuses into account
 	ui32 calculateDamage(const ISpellCaster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
 
 	///selects from allStacks actually affected stacks
-	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const CGHeroInstance * caster = nullptr) const;
+	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const ISpellCaster * caster) const;
 
 	si32 getCost(const int skillLevel) const;
 
@@ -310,10 +267,13 @@ public:
 	///internal interface (for callbacks)
 	
 	///Checks general but spell-specific problems for all casting modes. Use only during battle.
-	ESpellCastProblem::ESpellCastProblem canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const;
 
+	///checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into account general problems such as not having spellbook or mana points etc.
+	ESpellCastProblem::ESpellCastProblem isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
+	
 	///checks for creature immunity / anything that prevent casting *at given target* - doesn't take into account general problems such as not having spellbook or mana points etc.
-	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const;
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const;
 public:
 	///Server logic. Has write access to GameState via packets.
 	///May be executed on client side by (future) non-cheat-proof scripts.
@@ -328,10 +288,16 @@ public:
 	///implementation of BattleSpellCast applying
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const;
 
-public:
-	///Client logic.
-	
+public://Client logic.
 	void prepareBattleLog(const CBattleInfoCallback * cb, const BattleSpellCast * packet, std::vector<std::string> & logLines) const;
+
+public://internal, for use only by Mechanics classes
+	///applies caster`s secondary skills and affectedCreature`s to raw damage
+	int adjustRawDamage(const ISpellCaster * caster, const CStack * affectedCreature, int rawDamage) const;
+	///returns raw damage or healed HP
+	int calculateRawEffectValue(int effectLevel, int effectPower) const;		
+	///generic immunity calculation
+	ESpellCastProblem::ESpellCastProblem internalIsImmune(const ISpellCaster * caster, const CStack *obj) const;
 
 private:
 	void setIsOffensive(const bool val);

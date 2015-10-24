@@ -68,7 +68,7 @@ public:
 	std::string getQuantityTXT(bool capitalized = true) const;
 	virtual int getExpRank() const;
 	virtual int getLevel() const; //different for regular stack and commander
-	si32 magicResistance() const;
+	si32 magicResistance() const override;
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
 	virtual void init();
@@ -104,12 +104,12 @@ public:
 	CCommanderInstance (CreatureID id);
 	~CCommanderInstance();
 	void setAlive (bool alive);
-	void giveStackExp (TExpType exp);
+	void giveStackExp (TExpType exp) override;
 	void levelUp ();
 
 	bool gainsLevel() const; //true if commander has lower level than should upon his experience
-	ui64 getPower() const {return 0;};
-	int getExpRank() const;
+	ui64 getPower() const override {return 0;};
+	int getExpRank() const override;
 	int getLevel() const override; 
 	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
 

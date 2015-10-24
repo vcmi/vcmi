@@ -468,6 +468,12 @@ static int getDir(int3 src, int3 dst)
 void TryMoveHero::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(id);
+	if (!h)
+	{
+		logGlobal->errorStream() << "Attempt ot move unavailable hero " << id;
+		return;
+	}
+
 	h->movement = movePoints;
 
 	if((result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK) && start != end)
@@ -1136,7 +1142,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 		}
 		case Bonus::POISON:
 		{
-			Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, 71)
+			Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON)
 											.And(Selector::type(Bonus::STACK_HEALTH)));
 			if (b)
 				b->val = val;
@@ -1459,21 +1465,17 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			}
 		}
 		vstd::amin(changedStack->firstHPleft, changedStack->MaxHealth());
-		//removal of negative effects
 		if(resurrected)
 		{
-			//removing all features from negative spells
-			const BonusList tmpFeatures = changedStack->getBonusList();
-			//changedStack->bonuses.clear();
-
-			for(Bonus *b : tmpFeatures)
+			//removing all effects from negative spells
+			auto selector = [](const Bonus * b)
 			{
 				const CSpell *s = b->sourceSpell();
-				if(s && s->isNegative())
-				{
-					changedStack->removeBonus(b);
-				}
-			}
+				//Special case: DISRUPTING_RAY is "immune" to dispell
+				//Other even PERMANENT effects can be removed
+				return (s != nullptr) && s->isNegative() && (s->id != SpellID::DISRUPTING_RAY);
+			};
+			changedStack->popBonuses(selector);
 		}
 	}
 }
@@ -1621,18 +1623,8 @@ DLL_LINKAGE void YourTurn::applyGs( CGameState *gs )
 {
 	gs->currentPlayer = player;
 
-	//count days without town
 	auto & playerState = gs->players[player];
-	if(playerState.towns.empty())
-	{
-		if(playerState.daysWithoutCastle)
-			++(*playerState.daysWithoutCastle);
-		else playerState.daysWithoutCastle = 0;
-	}
-	else
-	{
-		playerState.daysWithoutCastle = boost::none;
-	}
+	playerState.daysWithoutCastle = daysWithoutCastle;
 }
 
 DLL_LINKAGE Component::Component(const CStackBasicDescriptor &stack)

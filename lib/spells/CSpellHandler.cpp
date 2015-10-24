@@ -23,10 +23,11 @@
 #include "../CModHandler.h"
 #include "../StringConstants.h"
 
-#include "../mapObjects/CGHeroInstance.h"
 #include "../BattleState.h"
 #include "../CBattleCallback.h"
-#include "../CGameState.h"
+#include "../CGameState.h" //todo: remove
+
+#include "../NetPacks.h" //todo: remove
 
 #include "ISpellMechanics.h"
 
@@ -69,13 +70,6 @@ namespace SpellConfig
 			Bonus::EARTH_SPELLS
 		}
 	};
-}
-
-BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo* cb)
-	: spellLvl(0), destination(BattleHex::INVALID), casterSide(0),casterColor(PlayerColor::CANNOT_DETERMINE),casterHero(nullptr), secHero(nullptr),
-	usedSpellPower(0),mode(ECastingMode::HERO_CASTING), casterStack(nullptr), selectedStack(nullptr), cb(cb)
-{
-
 }
 
 ///CSpell::LevelInfo
@@ -121,9 +115,13 @@ bool CSpell::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastP
 }
 
 void CSpell::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
-{
+{	
 	assert(env);
-
+	if(parameters.destinations.size()<1)
+	{
+		env->complain("Spell must have at least one destination");
+		return;
+	}
 	mechanics->battleCast(env, parameters);
 }
 
@@ -140,52 +138,15 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 
 ui32 CSpell::calculateDamage(const ISpellCaster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const
 {
-	ui32 ret = 0; //value to return
-
 	//check if spell really does damage - if not, return 0
 	if(!isDamageSpell())
 		return 0;
-
-	ret = usedSpellPower * power;
-	ret += getPower(spellSchoolLevel);
-
-	//affected creature-specific part
-	if(nullptr != affectedCreature)
-	{
-		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
-		forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
-		{
-			if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
-			{
-				ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
-				ret /= 100;
-				stop = true;//only bonus from one school is used
-			}
-		});
-
-		//general spell dmg reduction
-		if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
-			ret /= 100;
-		}
-
-		//dmg increasing
-		if(affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, id))
-		{
-			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, id.toEnum());
-			ret /= 100;
-		}
-	}
-	
-	if(nullptr != caster) //todo: make sure that caster always present	
-		ret = caster->getSpellBonus(this, ret, affectedCreature);
-	return ret;
+	return adjustRawDamage(caster, affectedCreature, calculateRawEffectValue(spellSchoolLevel, usedSpellPower));	
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
+ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
 {
-	return mechanics->canBeCasted(cb, player);
+	return mechanics->canBeCast(cb, player);
 }
 
 std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
@@ -193,7 +154,7 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 	return mechanics->rangeInHexes(centralHex,schoolLvl,side,outDroppedHexes);
 }
 
-std::set<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const CGHeroInstance * caster) const
+std::set<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const ISpellCaster * caster) const
 {
 	ISpellMechanics::SpellTargetingContext ctx(this, cb,mode,casterColor,spellLvl,destination);
 
@@ -215,12 +176,6 @@ std::set<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * c
 CSpell::ETargetType CSpell::getTargetType() const
 {
 	return targetType;
-}
-
-CSpell::TargetInfo CSpell::getTargetInfo(const int level) const
-{
-	TargetInfo info(this, level);
-	return info;
 }
 
 void CSpell::forEachSchool(const std::function<void(const SpellSchoolInfo &, bool &)>& cb) const
@@ -351,7 +306,7 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level) const
 	}
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallback * cb, const CGHeroInstance * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
+ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
 {
 	// Get all stacks at destination hex. only alive if not rising spell
 	TStacks stacks = cb->battleGetStacksIf([=](const CStack * s){
@@ -402,7 +357,48 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallbac
 	return ESpellCastProblem::OK;
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj) const
+int CSpell::adjustRawDamage(const ISpellCaster * caster, const CStack * affectedCreature, int rawDamage) const
+{
+	int ret = rawDamage;
+	//affected creature-specific part
+	if(nullptr != affectedCreature)
+	{
+		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
+		forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
+		{
+			if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
+			{
+				ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
+				ret /= 100;
+				stop = true;//only bonus from one school is used
+			}
+		});
+
+		//general spell dmg reduction
+		if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
+		{
+			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
+			ret /= 100;
+		}
+
+		//dmg increasing
+		if(affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, id))
+		{
+			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, id.toEnum());
+			ret /= 100;
+		}
+	}
+	if(caster != nullptr)
+		ret = caster->getSpellBonus(this, ret, affectedCreature);
+	return ret;
+}
+
+int CSpell::calculateRawEffectValue(int effectLevel, int effectPower) const
+{
+	return effectPower * power + getPower(effectLevel);	
+}
+
+ESpellCastProblem::ESpellCastProblem CSpell::internalIsImmune(const ISpellCaster * caster, const CStack *obj) const
 {
 	//todo: use new bonus API
 	//1. Check absolute limiters
@@ -419,25 +415,46 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj)
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
-	//spell-based spell immunity (only ANTIMAGIC in OH3) is treated as absolute
-	std::stringstream cachingStr;
-	cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "source_" << Bonus::SPELL_EFFECT;
-
-	TBonusListPtr levelImmunitiesFromSpell = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::sourceType(Bonus::SPELL_EFFECT)), cachingStr.str());	
-
-	if(levelImmunitiesFromSpell->size() > 0  &&  levelImmunitiesFromSpell->totalValue() >= level  &&  level)
 	{
-		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		//spell-based spell immunity (only ANTIMAGIC in OH3) is treated as absolute
+		std::stringstream cachingStr;
+		cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "source_" << Bonus::SPELL_EFFECT;
+
+		TBonusListPtr levelImmunitiesFromSpell = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::sourceType(Bonus::SPELL_EFFECT)), cachingStr.str());	
+
+		if(levelImmunitiesFromSpell->size() > 0  &&  levelImmunitiesFromSpell->totalValue() >= level  &&  level)
+		{
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		}
 	}
+	{
+		//SPELL_IMMUNITY absolute case
+		std::stringstream cachingStr;
+		cachingStr << "type_" << Bonus::SPELL_IMMUNITY << "subtype_" << id.toEnum() << "addInfo_1";
+		if(obj->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, id.toEnum(), 1), cachingStr.str()))
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+	}	
 
 	//check receptivity
 	if (isPositive() && obj->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
 		return ESpellCastProblem::OK;
 		
 	//3. Check negation
-	//FIXME: Orb of vulnerability mechanics is not such trivial
-	if(obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES)) //Orb of vulnerability
+	//Orb of vulnerability
+	//FIXME: Orb of vulnerability mechanics is not such trivial (issue 1791)
+	const bool battleWideNegation = obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, 0);
+	const bool heroNegation = obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, 1);
+	//anyone can cast on artifact holder`s stacks
+	if(heroNegation) 
 		return ESpellCastProblem::NOT_DECIDED;
+	//this stack is from other player
+	//todo: check that caster is always present (not trivial is this case)
+	//todo: NEGATE_ALL_NATURAL_IMMUNITIES special cases: dispell, chain lightning
+	else if(battleWideNegation && caster)
+	{
+		if(obj->owner != caster->getOwner())
+			return ESpellCastProblem::NOT_DECIDED;
+	}
 
 	//4. Check negatable limit
 	for(auto b : limiters)
@@ -491,7 +508,7 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneBy(const IBonusBearer* obj)
 	return ESpellCastProblem::NOT_DECIDED;
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	const auto immuneResult = mechanics->isImmuneByStack(caster,obj);
 

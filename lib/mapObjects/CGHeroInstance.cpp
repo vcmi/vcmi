@@ -58,56 +58,49 @@ static int lowestSpeed(const CGHeroInstance * chi)
 
 ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from) const
 {
-	//base move cost
-	unsigned ret = 100;
+	unsigned ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
-    if(dest.roadType != ERoadType::NO_ROAD && from.roadType != ERoadType::NO_ROAD)
+	if(dest.roadType != ERoadType::NO_ROAD && from.roadType != ERoadType::NO_ROAD)
 	{
-        int road = std::min(dest.roadType,from.roadType); //used road ID
+		int road = std::min(dest.roadType,from.roadType); //used road ID
 		switch(road)
 		{
-        case ERoadType::DIRT_ROAD:
+		case ERoadType::DIRT_ROAD:
 			ret = 75;
 			break;
-        case ERoadType::GRAVEL_ROAD:
+		case ERoadType::GRAVEL_ROAD:
 			ret = 65;
 			break;
-        case ERoadType::COBBLESTONE_ROAD:
+		case ERoadType::COBBLESTONE_ROAD:
 			ret = 50;
 			break;
 		default:
-            logGlobal->errorStream() << "Unknown road type: " << road << "... Something wrong!";
+			logGlobal->errorStream() << "Unknown road type: " << road << "... Something wrong!";
 			break;
 		}
 	}
-	else
+	else if(!hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
 	{
-		//FIXME: in H3 presence of Nomad in army will remove terrain penalty for sand. Bonus not implemented in VCMI
-
 		// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
 		// This is clearly bug in H3 however intended behaviour is not clear.
 		// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
 		// will always have best penalty without any influence from player-defined stacks order
 
-		bool nativeArmy = true;
 		for(auto stack : stacks)
 		{
 			int nativeTerrain = VLC->townh->factions[stack.second->type->faction]->nativeTerrain;
-
-            if (nativeTerrain != -1 && nativeTerrain != from.terType)
+			if(nativeTerrain != -1 && nativeTerrain != from.terType)
 			{
-				nativeArmy = false;
+				ret = VLC->heroh->terrCosts[from.terType];
+				ret -= getSecSkillLevel(SecondarySkill::PATHFINDING) * 25;
+				if(ret < GameConstants::BASE_MOVEMENT_COST)
+					ret = GameConstants::BASE_MOVEMENT_COST;
+
 				break;
 			}
 		}
-		if (!nativeArmy)
-        {
-            ret = VLC->heroh->terrCosts[from.terType];
-            ret-=getSecSkillLevel(SecondarySkill::PATHFINDING)*25;
-            ret = ret < 100 ? 100 : ret;
-        }
- 	}
+	}
 	return ret;
 }
 
@@ -902,6 +895,33 @@ ui32 CGHeroInstance::getSpellBonus(const CSpell * spell, ui32 base, const CStack
 	return base;	
 }
 
+int CGHeroInstance::getEffectLevel(const CSpell * spell) const
+{
+	if(hasBonusOfType(Bonus::MAXED_SPELL, spell->id))
+		return 3;//todo: recheck specialty from where this bonus is. possible bug
+	else
+		return getSpellSchoolLevel(spell);		
+}
+
+int CGHeroInstance::getEffectPower(const CSpell * spell) const
+{
+	return getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+}
+
+int CGHeroInstance::getEnchantPower(const CSpell * spell) const
+{
+	return getPrimSkillLevel(PrimarySkill::SPELL_POWER) + valOfBonuses(Bonus::SPELL_DURATION);	
+}
+
+int CGHeroInstance::getEffectValue(const CSpell * spell) const
+{
+	return 0;
+}
+
+const PlayerColor CGHeroInstance::getOwner() const
+{
+	return tempOwner;
+}
 
 bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {
@@ -939,7 +959,7 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
         {//hero has this spell in spellbook
             logGlobal->errorStream() << "Banned spell " << spell->name << " in spellbook.";
         }
-        return specificBonus;
+        return specificBonus || schoolBonus || levelBonus;
     }
     else
     {

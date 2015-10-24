@@ -504,7 +504,7 @@ const TBonusListPtr IBonusBearer::getSpellBonuses() const
 	CSelector selector = Selector::sourceType(Bonus::SPELL_EFFECT)
 		.And(CSelector([](const Bonus * b)->bool
 		{
-			return !b->type == Bonus::NONE;
+			return b->type != Bonus::NONE;
 		})); 
 	return getBonuses(selector, Selector::anyRange(), cachingStr.str());
 }

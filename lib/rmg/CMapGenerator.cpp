@@ -93,8 +93,8 @@ void CMapGenerator::initQuestArtsRemaining()
 {
 	for (auto art : VLC->arth->artifacts)
 	{
-		if (art->aClass == CArtifact::ART_TREASURE && art->constituentOf.empty()) //don't use parts of combined artifacts
-		questArtifacts.push_back(art->id);
+		if (art->aClass == CArtifact::ART_TREASURE && VLC->arth->legalArtifact(art->id) && art->constituentOf.empty()) //don't use parts of combined artifacts
+			questArtifacts.push_back(art->id);
 	}
 }
 

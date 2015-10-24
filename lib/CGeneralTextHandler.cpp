@@ -159,7 +159,7 @@ void Unicode::trimRight(std::string & text, const size_t amount/* =1 */)
 class LocaleWithComma: public std::numpunct<char>
 {
 protected:
-	char do_decimal_point() const
+	char do_decimal_point() const override
 	{
 		return ',';
 	}

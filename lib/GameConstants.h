@@ -14,7 +14,7 @@
 
 namespace GameConstants
 {
-	const std::string VCMI_VERSION = "VCMI 0.98d";
+	const std::string VCMI_VERSION = "VCMI 0.98e";
 
 	const int BFIELD_WIDTH = 17;
 	const int BFIELD_HEIGHT = 11;
@@ -51,6 +51,7 @@ namespace GameConstants
 	const int SPELLS_QUANTITY=70;
 	const int CREATURES_COUNT = 197;
 
+	const ui32 BASE_MOVEMENT_COST = 100; //default cost for non-diagonal movement
 }
 
 class CArtifact;
@@ -414,7 +415,8 @@ namespace ECastingMode
 	{
 		HERO_CASTING, AFTER_ATTACK_CASTING, //also includes cast before attack
 		MAGIC_MIRROR, CREATURE_ACTIVE_CASTING, ENCHANTER_CASTING,
-		SPELL_LIKE_ATTACK	
+		SPELL_LIKE_ATTACK, 
+		PASSIVE_CASTING//f.e. opening battle spells
 	};
 }
 
@@ -699,6 +701,7 @@ namespace Battle
 {
 	enum ActionType
 	{
+		CANCEL = -3,
 		END_TACTIC_PHASE = -2,
 		INVALID = -1,
 		NO_ACTION = 0,
@@ -823,6 +826,7 @@ public:
 		//BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
 		TITANS_THUNDER = 135,
 		//CORNUCOPIA = 140,
+		//FIXME: the following is only true if WoG is enabled. Otherwise other mod artifacts will take these slots.
 		ART_SELECTION = 144,
 		ART_LOCK = 145,
 		AXE_OF_SMASHING = 146,

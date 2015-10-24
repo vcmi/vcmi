@@ -1005,11 +1005,22 @@ void CBattleInterface::newStack(const CStack * stack)
 
 void CBattleInterface::stackRemoved(int stackID)
 {
+	if(activeStack != nullptr)
+	{
+		if(activeStack->ID == stackID)
+		{
+			BattleAction * action = new BattleAction();
+			action->side = defendingHeroInstance ? (curInt->playerID == defendingHeroInstance->tempOwner) : false;
+			action->actionType = Battle::CANCEL;
+			action->stackNumber = activeStack->ID;
+			givenCommand->setn(action);
+			setActiveStack(nullptr);
+		}
+	}
+	
 	delete creAnims[stackID];
 	creAnims.erase(stackID);
 	creDir.erase(stackID);
-	//FIXME: what if currently removed stack is active one (Sacrifice)?
-
 	redrawBackgroundWithHexes(activeStack);
 	queue->update();
 }
@@ -1091,10 +1102,6 @@ void CBattleInterface::newRoundFirst( int round )
 void CBattleInterface::newRound(int number)
 {
 	console->addText(CGI->generaltexth->allTexts[412]);
-
-	//unlock spellbook
-	//bSpell->block(!curInt->cb->battleCanCastSpell());
-	//don't unlock spellbook - this should be done when we have axctive creature
 }
 
 void CBattleInterface::giveCommand(Battle::ActionType action, BattleHex tile, ui32 stackID, si32 additional, si32 selected)
@@ -1379,7 +1386,7 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	sp = spellID.toSpell();
 	spellSelMode = ANY_LOCATION;
 
-	const CSpell::TargetInfo ti = sp->getTargetInfo(castingHero->getSpellSchoolLevel(sp));
+	const CSpell::TargetInfo ti(sp, castingHero->getSpellSchoolLevel(sp));
 
 	if(ti.massive || ti.type == CSpell::NO_TARGET)
 		spellSelMode = NO_LOCATION;
@@ -2103,9 +2110,9 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			{
 				ui8 skill = 0;
 				if (creatureCasting)
-					skill = sactive->getSpellSchoolLevel(SpellID(SpellID::TELEPORT).toSpell());
+					skill = sactive->getEffectLevel(SpellID(SpellID::TELEPORT).toSpell());
 				else
-					skill = getActiveHero()->getSpellSchoolLevel (CGI->spellh->objects[spellToCast->additionalInfo]);
+					skill = getActiveHero()->getEffectLevel(SpellID(SpellID::TELEPORT).toSpell());
 				//TODO: explicitely save power, skill
 				if (curInt->cb->battleCanTeleportTo(selectedStack, myNumber, skill))
 					legalAction = true;
@@ -2470,11 +2477,19 @@ bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CSta
 
 	if (sp)
 	{
-		if (creatureCasting)
-			isCastingPossible = (curInt->cb->battleCanCreatureCastThisSpell (sp, myNumber) == ESpellCastProblem::OK);
+		const ISpellCaster * caster = creatureCasting ? dynamic_cast<const ISpellCaster *>(sactive) : dynamic_cast<const ISpellCaster *>(curInt->cb->battleGetMyHero());
+		if(caster == nullptr)
+		{
+			isCastingPossible = false;//just in case
+		}
 		else
-			isCastingPossible = (curInt->cb->battleCanCastThisSpell (sp, myNumber) == ESpellCastProblem::OK);
+		{
+			const ECastingMode::ECastingMode mode = creatureCasting ? ECastingMode::CREATURE_ACTIVE_CASTING : ECastingMode::HERO_CASTING;
+			isCastingPossible = (curInt->cb->battleCanCastThisSpellHere(caster, sp, mode, myNumber) == ESpellCastProblem::OK);
+		}
 	}
+	else
+		isCastingPossible = false;
 	if(!myNumber.isAvailable() && !shere) //empty tile outside battlefield (or in the unavailable border column)
 			isCastingPossible = false;
 

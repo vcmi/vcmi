@@ -31,7 +31,7 @@ class CSimpleWindow : public CIntObject
 {
 public:
 	SDL_Surface * bitmap; //background
-	virtual void show(SDL_Surface * to);
+	virtual void show(SDL_Surface * to) override;
 	CSimpleWindow():bitmap(nullptr){}; //c-tor
 	virtual ~CSimpleWindow(); //d-tor
 };
@@ -53,8 +53,8 @@ public:
 	void setDelComps(bool DelComps);
 	virtual void close();
 
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 	void sliderMoved(int to);
 
 	CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo &comps = TCompsInfo(), const TButtonsInfo &Buttons = TButtonsInfo(), bool delComps = true); //c-tor
@@ -76,7 +76,7 @@ class CRClickPopup : public CIntObject
 {
 public:
 	virtual void close();
-	void clickRight(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState) override;
 
 	CRClickPopup();
 	virtual ~CRClickPopup(); //d-tor
@@ -94,8 +94,8 @@ public:
 	IShowActivatable *inner;
 	bool delInner;
 
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 	CRClickPopupInt(IShowActivatable *our, bool deleteInt); //c-tor
 	virtual ~CRClickPopupInt(); //d-tor
 };
@@ -105,8 +105,8 @@ class CInfoPopup : public CRClickPopup
 public:
 	bool free; //TODO: comment me
 	SDL_Surface * bitmap; //popup background
-	void close();
-	void show(SDL_Surface * to);
+	void close() override;
+	void show(SDL_Surface * to) override;
 	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false); //c-tor
 	CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free=false); //c-tor
 	CInfoPopup(SDL_Surface * Bitmap = nullptr, bool Free = false); //default c-tor

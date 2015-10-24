@@ -76,7 +76,7 @@ class DLL_LINKAGE CGUniversity : public CGMarket
 public:
 	std::vector<int> skills; //available skills
 
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
+	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
 	void initObj() override;//set skills for trade
 	void onHeroVisit(const CGHeroInstance * h) const override; //open window
 

@@ -750,7 +750,7 @@ void CatapultAttack::applyCl( CClient *cl )
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleCatapultAttacked, *this);
 }
 
-void BattleStacksRemoved::applyCl( CClient *cl )
+void BattleStacksRemoved::applyFirstCl(CClient * cl)
 {
 	//inform interfaces about removed stacks
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksRemoved, *this);

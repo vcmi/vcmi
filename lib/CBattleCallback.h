@@ -15,6 +15,7 @@ class CGameState;
 class CGTownInstance;
 class CGHeroInstance;
 class CStack;
+class ISpellCaster;
 class CSpell;
 struct BattleInfo;
 struct CObstacleInstance;
@@ -158,6 +159,7 @@ class DLL_LINKAGE CBattleInfoEssentials : public virtual CCallbackBase
 {
 protected:
 	bool battleDoWeKnowAbout(ui8 side) const;
+	const IBonusBearer * getBattleNode() const;
 public:
 	enum EStackOwnership
 	{
@@ -189,7 +191,7 @@ public:
 	ui8 playerToSide(PlayerColor player) const;
 	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	bool battleHasHero(ui8 side) const;
-	int battleCastSpells(ui8 side) const; //how many spells has given side casted
+	int battleCastSpells(ui8 side) const; //how many spells has given side cast
 	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //depracated for players callback, easy to get wrong
 	const CArmedInstance * battleGetArmyObject(ui8 side) const; 
 	InfoAboutHero battleGetHeroInfo(ui8 side) const;
@@ -276,12 +278,11 @@ public:
 	std::vector<BattleHex> getAttackableBattleHexes() const;
 
 	//*** MAGIC 
-	si8 battleMaxSpellLevel() const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
+	si8 battleMaxSpellLevel(ui8 side) const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	ui32 battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(PlayerColor player, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(PlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(PlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
-	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination) const; //determines if creature can cast a spell here
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const ISpellCaster * caster, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(const ISpellCaster * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
 	std::vector<BattleHex> battleGetPossibleTargets(PlayerColor player, const CSpell *spell) const;
 
 	SpellID battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const;
@@ -324,9 +325,8 @@ class DLL_LINKAGE CPlayerBattleCallback : public CBattleInfoCallback
 public:
 	bool battleCanFlee() const; //returns true if caller can flee from the battle
 	TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true) const; //returns stacks on battlefield
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell) const; //determines if given spell can be casted (and returns problem description)
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell, BattleHex destination) const; //if hero can cast spell here
-	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination) const; //determines if creature can cast a spell here
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell) const; //determines if given spell can be cast (and returns problem description)
+
 	int battleGetSurrenderCost() const; //returns cost of surrendering battle, -1 if surrendering is not possible
 
 	bool battleCanCastSpell(ESpellCastProblem::ESpellCastProblem *outProblem = nullptr) const; //returns true, if caller can cast a spell. If not, if pointer is given via arg, the reason will be written.

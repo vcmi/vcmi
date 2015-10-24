@@ -35,10 +35,10 @@ class CWindowWithArtifacts : public CArtifactHolder
 public:
 	std::vector<CArtifactsOfHero *> artSets;
 
-	void artifactRemoved(const ArtifactLocation &artLoc);
-	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc);
-	void artifactDisassembled(const ArtifactLocation &artLoc);
-	void artifactAssembled(const ArtifactLocation &artLoc);
+	void artifactRemoved(const ArtifactLocation &artLoc) override;
+	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc) override;
+	void artifactDisassembled(const ArtifactLocation &artLoc) override;
+	void artifactAssembled(const ArtifactLocation &artLoc) override;
 };
 
 /// Artifacts can be placed there. Gets shown at the hero window
@@ -65,11 +65,11 @@ public:
 	const CArtifactInstance * ourArt; // should be changed only with setArtifact()
 
 	CArtPlace(Point position, const CArtifactInstance * Art = nullptr); //c-tor
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState);
+	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(tribool down, bool previousState) override;
 	void select ();
 	void deselect ();
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 	bool fitsHere (const CArtifactInstance * art) const; //returns true if given artifact can be placed here
 
 	void setMeAsDest(bool backpackAsVoid = true);

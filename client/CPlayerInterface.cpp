@@ -772,7 +772,8 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 {
 	THREAD_CREATED_BY_CLIENT;
 	logGlobal->traceStream() << "Awaiting command for " << stack->nodeName();
-
+	auto stackId = stack->ID;
+	auto stackName = stack->nodeName();
 	if(autofightingAI)
 	{
 		if(isAutoFightOn)
@@ -806,17 +807,23 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	while(!b->givenCommand->data)
 	{
 		b->givenCommand->cond.wait(lock);
-		if(!battleInt) //batle ended while we were waiting for movement (eg. because of spell)
+		if(!battleInt) //battle ended while we were waiting for movement (eg. because of spell)
 			throw boost::thread_interrupted(); //will shut the thread peacefully
 	}
 
 	//tidy up
 	BattleAction ret = *(b->givenCommand->data);
-	delete b->givenCommand->data;
-	b->givenCommand->data = nullptr;
-
-	//return command
-	logGlobal->traceStream() << "Giving command for " << stack->nodeName();
+	vstd::clear_pointer(b->givenCommand->data);
+	
+	if(ret.actionType == Battle::CANCEL)
+	{
+		if(stackId != ret.stackNumber)
+			logGlobal->error("Not current active stack action canceled");
+		logGlobal->traceStream() << "Canceled command for " << stackName;			
+	}
+	else
+		logGlobal->traceStream() << "Giving command for " << stackName;
+		
 	return ret;
 }
 

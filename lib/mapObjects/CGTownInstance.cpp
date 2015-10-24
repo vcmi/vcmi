@@ -184,7 +184,7 @@ void CGDwelling::updateGuards() const
 	//default condition - creatures are of level 5 or higher
 	for (auto creatureEntry : creatures)
 	{
-		if (VLC->creh->creatures[creatureEntry.second.at(0)]->level >= 5)
+		if (VLC->creh->creatures[creatureEntry.second.at(0)]->level >= 5 && ID != Obj::REFUGEE_CAMP)
 		{
 			guarded = true;
 			break;

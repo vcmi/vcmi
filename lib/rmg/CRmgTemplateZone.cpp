@@ -1506,7 +1506,10 @@ bool CRmgTemplateZone::placeMines (CMapGenerator* gen)
 			mine->subID = static_cast<si32>(res);
 			mine->producedResource = res;
 			mine->producedQuantity = mine->defaultResProduction();
-			addCloseObject(mine, 1500);
+			if (!i)
+				addCloseObject(mine, 1500); //only firts one is close
+			else
+				addRequiredObject(mine, 1500);
 		}
 	}
 	for (const auto & res : preciousResources)
@@ -1587,7 +1590,12 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 		// smallest distance to zone center, greatest distance to nearest object
 		auto isCloser = [this, gen](const int3 & lhs, const int3 & rhs) -> bool
 		{
-			return (this->pos.dist2dSQ(lhs) * 0.5f - gen->getNearestObjectDistance(lhs)) < (this->pos.dist2dSQ(rhs) * 0.5f - gen->getNearestObjectDistance(rhs));
+			float lDist = this->pos.dist2d(lhs);
+			float rDist = this->pos.dist2d(rhs);
+			lDist *= (lDist > 12) ? 10 : 1; //objects within 12 tile radius are preferred (smaller distance rating)
+			rDist *= (rDist > 12) ? 10 : 1;
+
+			return (lDist * 0.5f - std::sqrt(gen->getNearestObjectDistance(lhs))) < (rDist * 0.5f - std::sqrt(gen->getNearestObjectDistance(rhs)));
 		};
 
 		boost::sort (tiles, isCloser);

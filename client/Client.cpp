@@ -72,12 +72,12 @@ public:
 template <typename T> class CApplyOnCL : public CBaseForCLApply
 {
 public:
-	void applyOnClAfter(CClient *cl, void *pack) const
+	void applyOnClAfter(CClient *cl, void *pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
 		ptr->applyCl(cl);
 	}
-	void applyOnClBefore(CClient *cl, void *pack) const
+	void applyOnClBefore(CClient *cl, void *pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
 		ptr->applyFirstCl(cl);
@@ -87,12 +87,12 @@ public:
 template <> class CApplyOnCL<CPack> : public CBaseForCLApply
 {
 public:
-	void applyOnClAfter(CClient *cl, void *pack) const
+	void applyOnClAfter(CClient *cl, void *pack) const override
 	{
 		logGlobal->errorStream() << "Cannot apply on CL plain CPack!";
 		assert(0);
 	}
-	void applyOnClBefore(CClient *cl, void *pack) const
+	void applyOnClBefore(CClient *cl, void *pack) const override
 	{
 		logGlobal->errorStream() << "Cannot apply on CL plain CPack!";
 		assert(0);
@@ -140,9 +140,12 @@ void CClient::waitForMoveAndSend(PlayerColor color)
 		setThreadName("CClient::waitForMoveAndSend");
 		assert(vstd::contains(battleints, color));
 		BattleAction ba = battleints[color]->activeStack(gs->curB->battleGetStackByID(gs->curB->activeStack, false));
-		logNetwork->traceStream() << "Send battle action to server: " << ba;
-		MakeAction temp_action(ba);
-		sendRequest(&temp_action, color);
+		if(ba.actionType != Battle::CANCEL)
+		{
+			logNetwork->traceStream() << "Send battle action to server: " << ba;
+			MakeAction temp_action(ba);
+			sendRequest(&temp_action, color);			
+		}
 		return;
 	}
 	catch(boost::thread_interrupted&)

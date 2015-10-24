@@ -16,17 +16,18 @@
 #include "../BattleState.h"
 
 ///AcidBreathDamageMechanics
-void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
+	//todo: this should be effectValue
 	//calculating dmg to display
-	ctx.sc.dmgToDisplay = parameters.usedSpellPower;
+	ctx.sc.dmgToDisplay = parameters.effectPower;
 
 	for(auto & attackedCre : ctx.attackedCres) //no immunities
 	{
 		BattleStackAttacked bsa;
 		bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
 		bsa.spellID = owner->id;
-		bsa.damageAmount = parameters.usedSpellPower; //damage times the number of attackers
+		bsa.damageAmount = parameters.effectPower; //damage times the number of attackers
 		bsa.stackAttacked = (attackedCre)->ID;
 		bsa.attackerID = -1;
 		(attackedCre)->prepareAttacked(bsa, env->getRandomGenerator());
@@ -35,10 +36,10 @@ void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * 
 }
 
 ///DeathStareMechanics
-void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//calculating dmg to display
-	ctx.sc.dmgToDisplay = parameters.usedSpellPower;
+	ctx.sc.dmgToDisplay = parameters.effectPower;
 	if(!ctx.attackedCres.empty())
 		vstd::amin(ctx.sc.dmgToDisplay, (*ctx.attackedCres.begin())->count); //stack is already reduced after attack
 
@@ -47,7 +48,7 @@ void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 		BattleStackAttacked bsa;
 		bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
 		bsa.spellID = owner->id;
-		bsa.damageAmount = parameters.usedSpellPower * (attackedCre)->valOfBonuses(Bonus::STACK_HEALTH);
+		bsa.damageAmount = parameters.effectPower * (attackedCre)->valOfBonuses(Bonus::STACK_HEALTH);//todo: move here all DeathStare calculation 
 		bsa.stackAttacked = (attackedCre)->ID;
 		bsa.attackerID = -1;
 		(attackedCre)->prepareAttacked(bsa, env->getRandomGenerator());
@@ -63,7 +64,7 @@ void DispellHelpfulMechanics::applyBattle(BattleInfo * battle, const BattleSpell
 	doDispell(battle, packet, Selector::positiveSpellEffects);	
 }
 
-ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const CGHeroInstance * caster,  const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const ISpellCaster * caster,  const CStack * obj) const
 {
 	TBonusListPtr spellBon = obj->getSpellBonuses();
 	bool hasPositiveSpell = false;

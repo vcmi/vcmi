@@ -368,6 +368,11 @@
 			"icon":  "zvs/Lib1.res/E_OBST"
 		}
 	},
+	
+	"NO_TERRAIN_PENALTY":
+	{
+		"hidden": true
+	},
 
 	"NON_LIVING":
 	{

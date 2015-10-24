@@ -1,6 +1,6 @@
 // macros:
 // ${val} - value of bonuses; Selector: type,subtype
-// ${subtype.creature} - creature name 
+// ${subtype.creature} - creature name
 // ${subtype.spell} - spell name
 // ${MR} - magic resistance of bearer
 
@@ -11,19 +11,19 @@
 		"name": "Double Strike",
 		"description": "Attacks twice"
 	},
-	
+
 	"ADDITIONAL_RETALIATION":
 	{
 		"name": "Additional retaliations",
 		"description": "May Retaliate ${val} extra times"
 	},
-	
+
 	"AIR_IMMUNITY":
 	{
-		"name": "Immune to Air",
-		"description": ""
+		"name": "Air immunity",
+		"description": "Immune to all Air school spells"
 	},
-			
+
 	"ATTACKS_ALL_ADJACENT":
 	{
 		"name": "Attack all around",
@@ -35,19 +35,19 @@
 		"name": "No retaliation",
 		"description": "Enemy cannot Retaliate"
 	},
-	
+
 	"CATAPULT":
 	{
 		"name": "Catapult",
 		"description": "Attacks siege walls"
-	},	
-	
+	},
+
 	"CHANGES_SPELL_COST_FOR_ALLY":
 	{
 		"name": "Reduce Casting Cost (${val})",
 		"description": "Reduce Casting Cost for hero"
 	},
-	
+
 	"CHANGES_SPELL_COST_FOR_ENEMY":
 	{
 		"name": "Magic Damper (${val})",
@@ -59,31 +59,31 @@
 		"name": "Immune to Charge",
 		"description": "Immune to Champion charge"
 	},
-	
+
 	"DAEMON_SUMMONING":
 	{
 		"name": "Summoner (${subtype.creature})",
-		"description": "Can rise creatures from corpses" 
+		"description": "Can rise creatures from corpses"
 	},
-	
-	"DARKNESS":		
+
+	"DARKNESS":
 	{
 		"name": "Darness cover",
 		"description": "Adds ${val} darkness radius"
 	},
-			
+
 	"DEATH_STARE":
 	{
 		"name": "Death Stare (${val}%)",
 		"description": "${val}% chance to kill single creature"
-	},	
-		
+	},
+
 	"DEFENSIVE_STANCE":
 	{
 		"name": "Defense Bonus",
 		"description": "+${val} Defense when defending"
 	},
-		
+
 	"DOUBLE_DAMAGE_CHANCE":
 	{
 		"name": "Death Blow",
@@ -95,7 +95,7 @@
 		"name": "Dragon",
 		"description": "Creature has a Dragon Nature"
 	},
-	
+
 	"DIRECT_DAMAGE_IMMUNITY":
 	{
 		"name": "Direct Damage Immunity",
@@ -104,62 +104,63 @@
 
 	"EARTH_IMMUNITY":
 	{
-		"name": "Immune to Earth",
-		"description": ""
+		"name": "Earth immunity",
+		"description": "Immune to all Earth school spells"
 	},
-					
+
 	"ENCHANTER":
 	{
 		"name": "Enchanter",
 		"description": "Can cast mass ${subtype.spell} every turn"
 	},
-	
+
 	"ENCHANTED":
 	{
 		"name": "Enchanted",
 		"description": "Affected by permanent ${subtype.spell}"
-	},		
+	},
 
 	"ENEMY_DEFENCE_REDUCTION":
 	{
 		"name": "Reduce Enemy Defense (${val}%)",
 		"description": "Reduces Defense for one attack"
 	},
-	
+
 	"GENERAL_DAMAGE_REDUCTION":
 	{
 		"name": "Reduce Damage (${val}%)",
 		"description": "Reduces physical damage"
 	},
-	
+
 	"FIRE_IMMUNITY":
 	{
-		"name": "Immune to Fire",
-		"description": ""
+		"name": "Fire immunity",
+		"description": "Immune to all Fire school spells"
 	},
 
 	"FIRE_SHIELD":
 	{
 		"name": "Fire Shield (${val}%)",
-		"description": "Reflects melee damage"		
+		"description": "Reflects melee damage"
 	},
+
 	"FEAR":
 	{
 		"name": "Fear",
 		"description": "Causes Fear on an enemy stack"
 	},
-	
+
 	"FEARLESS":
 	{
 		"name": "Fearless",
 		"description": "Immune to Fear ability"
 	},
-	
+
 	"FLYING":
 	{
 		"name": "Fly",
 		"description": "Can Fly (ignores obstacles)"
-	},		
+	},
 
 	"FREE_SHOOTING":
 	{
@@ -172,51 +173,55 @@
 		"name": "Regeneration",
 		"description": "May Regenerate full Health"
 	},
-			
+
 	"HATE":
 	{
 		"name": "Hates ${subtype.creature}",
 		"description": "Does ${val}% more damage"
 	},
-	
+
 	"HEALER":
 	{
 		"name": "Healer",
 		"description": "Heals allied units"
 	},
-	
+
 	"HP_REGENERATION":
 	{
 		"name": "Regeneration",
 		"description": "Heals ${val} hit points every round"
 	},
+
 	"JOUSTING":
 	{
 		"name": "Champion Charge",
 		"description": "+5% damage per hex travelled"
 	},
-	
+
 	"KING1":
 	{
-                "name": "King1"
+		"name": "King1",
+		"description": "Vulnerable to basic SLAYER"
 	},
-	
+
 	"KING2":
 	{
-                "name": "King2"
+		"name": "King2",
+		"description": "Vulnerable to adv. SLAYER"
 	},
-	
+
 	"KING3":
 	{
-                "name": "King3"
+		"name": "King3",
+		"description":"Vulnerable to expert SLAYER"
 	},
-	
+
 	"LEVEL_SPELL_IMMUNITY":
 	{
 		"name": "Spell immunity 1-${val}",
 		"description": "Immune to spells levels 1-${val}"
 	},
-	
+
 	"LIFE_DRAIN":
 	{
 		"name": "Drain life (${val}%)",
@@ -228,6 +233,7 @@
 		"name": "Magic Channel ${val}%",
 		"description": "Gives mana spent by enemy"
 	},
+
 	"MANA_DRAIN":
 	{
 		"name": "Mana Drain",
@@ -257,19 +263,19 @@
 		"name": "No distance penalty",
 		"description": "Full damage from any distance"
 	},
+
 	"NO_MELEE_PENALTY":
 	{
 		"name": "No melee penalty",
 		"description": "Creature has no Melee Penalty"
 	},
-	
-	
+
 	"NO_MORALE":
 	{
 
-	
-	},	
-		
+
+	},
+
 	"NO_WALL_PENALTY":
 	{
 		"name": "No wall penalty",
@@ -280,7 +286,7 @@
 	{
 		"name": "Non living",
 		"description": "Immunity to many effects"
-	},	
+	},
 
 	"RANDOM_SPELLCASTER":
 	{
@@ -298,48 +304,49 @@
 		"name": "Rebirth (${val}%)",
 		"description": "${val}% of stack will rise after death"
 	},
-								
+
 	"RETURN_AFTER_STRIKE":
 	{
 		"name": "Attack and Return",
 		"description": "Returns after melee attack"
 	},
-	
+
 	"SELF_LUCK":
 	{
 		"name": "Positive luck",
 		"description": "Always has Positive Luck"
 	},
-	
+
 	"SELF_MORALE":
 	{
 		"name": "Positive morale",
 		"description": "Always has Positive Morale"
 	},
-	
+
 	"SHOOTER":
 	{
 		"name": "Ranged",
 		"description": "Creature can shoot"
-	},	
+	},
+
 	"SPELLCASTER":
 	{
 		"name": "Spellcaster",
 		"description": "Can cast ${subtype.spell}"
 	},
-					
+
 	"SPELL_AFTER_ATTACK":
 	{
-		"name": "Caster - ${subtype.spell}",
-		"description": "${val}% chance to cast after attack"
+		"name": "After attack cast",
+		"description": "${val}% to cast ${subtype.spell} after attack"
 	},
-	
+
 	"SPELL_BEFORE_ATTACK":
 	{
-		"name": "Caster - ${subtype.spell}",
-		"description": "${val}% chance to cast before attack"
+		"name": "Before attack cast",
+		"description": "${val}% to cast ${subtype.spell} before attack"
 	},
-	
+
 	"SPELL_DAMAGE_REDUCTION":
 	{
 		"name": "Spell Resistance",
@@ -348,17 +355,16 @@
 
 	"SPELL_IMMUNITY":
 	{
-		"name": "Immune to ${subtype.spell}",
-		"description": ""
+		"name": "Spell immunity",
+		"description": "Immune to ${subtype.spell}"
 	},
 
-	
 	"SPELL_LIKE_ATTACK":
 	{
 		"name": "Spell-like attack",
 		"description": "Attacks with ${subtype.spell}"
 	},
-			
+
 	"SPELL_RESISTANCE_AURA":
 	{
 		"name": "Aura of Resistance",
@@ -371,8 +377,6 @@
 		"description": "Breath Attack (2-hex range)"
 	},
 
-
-
 	"THREE_HEADED_ATTACK":
 	{
 		"name": "Three-headed attack",
@@ -384,14 +388,16 @@
 		"name": "Undead",
 		"description": "Creature is Undead"
 	},
+
 	"UNLIMITED_RETALIATIONS":
 	{
 		"name": "Unlimited retaliations",
 		"description": "Retaliate any number of attacks"
 	},
+
 	"WATER_IMMUNITY":
 	{
-		"name": "Immune to Water",
-		"description": ""
+		"name": "Water immunity",
+		"description": "Immune to all Water school spells"
 	}
 }

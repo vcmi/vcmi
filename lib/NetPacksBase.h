@@ -115,7 +115,7 @@ public:
 		numbers.clear();
 	}
 	void toString(std::string &dst) const;
-	std::string toString() const;
+	std::string toString() const override;
 	void getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst) const;
 
 	MetaString()

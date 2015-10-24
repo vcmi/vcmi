@@ -531,7 +531,7 @@ std::vector<BattleHex> CBattleAI::getTargetsToConsider( const CSpell *spell ) co
 {
 	if(spell->getTargetType() == CSpell::NO_TARGET)
 	{
-		//Spell can be casted anywhere, all hexes are potentially considerable.
+		//Spell can be cast anywhere, all hexes are potentially considerable.
 		std::vector<BattleHex> ret;
 
 		for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)

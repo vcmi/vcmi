@@ -98,10 +98,10 @@ public:
 	SDLImage(SDL_Surface * from, bool extraRef);
 	~SDLImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr,  ui8 alpha=255) const;
-	void playerColored(PlayerColor player);
-	int width() const;
-	int height() const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr,  ui8 alpha=255) const override;
+	void playerColored(PlayerColor player) override;
+	int width() const override;
+	int height() const override;
 
 	friend class SDLImageLoader;
 };
@@ -144,10 +144,10 @@ public:
 	CompImage(SDL_Surface * surf);
 	~CompImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const;
-	void playerColored(PlayerColor player);
-	int width() const;
-	int height() const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
+	void playerColored(PlayerColor player) override;
+	int width() const override;
+	int height() const override;
 
 	friend class CompImageLoader;
 };

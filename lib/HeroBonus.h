@@ -133,7 +133,7 @@ public:
 	BONUS_NAME(SPELL_RESISTANCE_AURA) /*eg. unicorns, value - resistance bonus in % for adjacent creatures*/ \
 	BONUS_NAME(LEVEL_SPELL_IMMUNITY) /*creature is immune to all spell with level below or equal to value of this bonus*/ \
 	BONUS_NAME(BLOCK_MAGIC_ABOVE) /*blocks casting spells of the level > value */ \
-	BONUS_NAME(BLOCK_ALL_MAGIC) /*blocks casting spells of the level > value */ \
+	BONUS_NAME(BLOCK_ALL_MAGIC) /*blocks casting spells*/ \
 	BONUS_NAME(TWO_HEX_ATTACK_BREATH) /*eg. dragons*/	\
 	BONUS_NAME(SPELL_DAMAGE_REDUCTION) /*eg. golems; value - reduction in %, subtype - spell school; -1 - all, 0 - air, 1 - fire, 2 - water, 3 - earth*/ \
 	BONUS_NAME(NO_WALL_PENALTY)							\
@@ -207,16 +207,18 @@ public:
 	BONUS_NAME(RECEPTIVE) /*accepts friendly spells even with immunity*/\
 	BONUS_NAME(DIRECT_DAMAGE_IMMUNITY) /*direct damage spells, that is*/\
 	BONUS_NAME(CASTS) /*how many times creature can cast activated spell*/ \
-	BONUS_NAME(SPECIFIC_SPELL_POWER) /* value used for Thunderbolt and Resurrection casted by units, subtype - spell id */\
+	BONUS_NAME(SPECIFIC_SPELL_POWER) /* value used for Thunderbolt and Resurrection cast by units, subtype - spell id */\
 	BONUS_NAME(CREATURE_SPELL_POWER) /* value per unit, divided by 100 (so faerie Dragons have 800)*/ \
-	BONUS_NAME(CREATURE_ENCHANT_POWER) /* total duration of spells casted by creature */ \
+	BONUS_NAME(CREATURE_ENCHANT_POWER) /* total duration of spells cast by creature */ \
 	BONUS_NAME(ENCHANTED) /* permanently enchanted with spell subID of level = val, if val > 3 then spell is mass and has level of val-3*/ \
 	BONUS_NAME(REBIRTH) /* val - percent of life restored, subtype = 0 - regular, 1 - at least one unit (sacred Phoenix) */\
 	BONUS_NAME(ADDITIONAL_UNITS) /*val of units with id = subtype will be added to hero's army at the beginning of battle */\
 	BONUS_NAME(SPOILS_OF_WAR) /*val * 10^-6 * gained exp resources of subtype will be given to hero after battle*/\
 	BONUS_NAME(BLOCK)\
 	BONUS_NAME(DISGUISED) /* subtype - spell level */\
-	BONUS_NAME(VISIONS) /* subtype - spell level */
+	BONUS_NAME(VISIONS) /* subtype - spell level */\
+	BONUS_NAME(NO_TERRAIN_PENALTY) /* subtype - terrain type */\
+	/* end of list */
 	
 
 #define BONUS_SOURCE_LIST \
@@ -539,7 +541,7 @@ class DLL_LINKAGE CPropagatorNodeType : public IPropagator
 public:
 	CPropagatorNodeType();
 	CPropagatorNodeType(int NodeType);
-	bool shouldBeAttached(CBonusSystemNode *dest);
+	bool shouldBeAttached(CBonusSystemNode *dest) override;
 	//CBonusSystemNode *getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -651,7 +653,7 @@ public:
 
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
 	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
-	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const;
+	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 	const Bonus *getBonusLocalFirst(const CSelector &selector) const;
 

@@ -156,7 +156,7 @@ protected:
 class DLL_LINKAGE CGKeymasterTent : public CGKeys
 {
 public:
-	bool wasVisited (PlayerColor player) const;
+	bool wasVisited (PlayerColor player) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -173,9 +173,9 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
-	void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 	void getRolloverText (MetaString &text, bool onHover) const;
-	bool checkQuest (const CGHeroInstance * h) const;
+	bool checkQuest (const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
