@@ -1623,18 +1623,8 @@ DLL_LINKAGE void YourTurn::applyGs( CGameState *gs )
 {
 	gs->currentPlayer = player;
 
-	//count days without town
 	auto & playerState = gs->players[player];
-	if(playerState.towns.empty())
-	{
-		if(playerState.daysWithoutCastle)
-			++(*playerState.daysWithoutCastle);
-		else playerState.daysWithoutCastle = 0;
-	}
-	else
-	{
-		playerState.daysWithoutCastle = boost::none;
-	}
+	playerState.daysWithoutCastle = daysWithoutCastle;
 }
 
 DLL_LINKAGE Component::Component(const CStackBasicDescriptor &stack)

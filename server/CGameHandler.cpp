@@ -1583,18 +1583,41 @@ void CGameHandler::run(bool resume)
 		}
 
 		resume = false;
-		for(; it != playerTurnOrder.end(); it++)
+		for (; it != playerTurnOrder.end(); it++)
 		{
 			auto playerColor = *it;
-			if(gs->players[playerColor].status == EPlayerStatus::INGAME)
+
+			auto playerState = gs->players[playerColor];
+			if (playerState.status == EPlayerStatus::INGAME)
 			{
-				states.setFlag(playerColor, &PlayerStatus::makingTurn, true);
+				states.setFlag (playerColor, &PlayerStatus::makingTurn, true);
+
+				//count days without town
+				if (playerState.towns.empty())
+				{
+					if (playerState.daysWithoutCastle)
+						++(*playerState.daysWithoutCastle);
+					else playerState.daysWithoutCastle = 0;
+				}
+				else
+				{
+					playerState.daysWithoutCastle = boost::none; //TODO: reset this immediatelly when player conquers any castle
+				}
+
+				//if player runs out of time, he shouldn't get the turn (especially AI)
+				checkVictoryLossConditionsForAll();
+
+				if (gs->players[playerColor].status != EPlayerStatus::INGAME)
+				{ //player lost at the beginning of his turn
+					continue;
+				}
 
 				YourTurn yt;
 				yt.player = playerColor;
+				//Change local daysWithoutCastle counter for local interface message //TODO: needed?
+				if (playerState.daysWithoutCastle)
+					yt.daysWithoutCastle = playerState.daysWithoutCastle.get();
 				applyAndSend(&yt);
-
-				checkVictoryLossConditionsForAll();
 
 				//wait till turn is done
 				boost::unique_lock<boost::mutex> lock(states.mx);
