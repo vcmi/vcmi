@@ -1510,6 +1510,25 @@ void CGameHandler::newTurn()
 			elem->newTurn();
 	}
 
+	//count days without town for all players, regardless of their turn order
+	for (auto p = gs->players.begin(); p != gs->players.end(); p++)
+	{
+		PlayerState * playerState = &p->second;
+		if (playerState->status == EPlayerStatus::INGAME)
+		{
+			if (playerState->towns.empty())
+			{
+				if (playerState->daysWithoutCastle)
+					++(*playerState->daysWithoutCastle);
+				else playerState->daysWithoutCastle = 0;
+			}
+			else
+			{
+				playerState->daysWithoutCastle = boost::none;
+			}
+		}
+	}
+
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
 }
 void CGameHandler::run(bool resume)
@@ -1590,18 +1609,6 @@ void CGameHandler::run(bool resume)
 			PlayerState * playerState = &gs->players[playerColor]; //can't copy CBonusSystemNode by value
 			if (playerState->status == EPlayerStatus::INGAME)
 			{
-				//count days without town
-				if (playerState->towns.empty())
-				{
-					if (playerState->daysWithoutCastle)
-						++(*playerState->daysWithoutCastle);
-					else playerState->daysWithoutCastle = 0;
-				}
-				else
-				{
-					playerState->daysWithoutCastle = boost::none; //TODO: reset this immediatelly when player conquers any castle
-				}
-
 				//if player runs out of time, he shouldn't get the turn (especially AI)
 				checkVictoryLossConditionsForAll();
 
