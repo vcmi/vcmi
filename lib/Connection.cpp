@@ -448,7 +448,7 @@ CTypeList::TypeInfoPtr CTypeList::registerType( const std::type_info *type )
 	return newType;
 }
 
-ui16 CTypeList::getTypeID( const std::type_info *type )
+ui16 CTypeList::getTypeID(const std::type_info * type) const
 {
 	auto i = typeInfos.find(type);
 	if(i != typeInfos.end())
@@ -457,7 +457,7 @@ ui16 CTypeList::getTypeID( const std::type_info *type )
 		return 0;
 }
 
-std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, TypeInfoPtr to)
+std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, TypeInfoPtr to) const
 {
 	if(from == to)
 		return std::vector<CTypeList::TypeInfoPtr>();
@@ -510,7 +510,7 @@ std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, Ty
 	return ret;
 }
 
-std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(const std::type_info *from, const std::type_info *to)
+std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(const std::type_info *from, const std::type_info *to) const
 {
 	//This additional if is needed because getTypeDescriptor might fail if type is not registered
 	// (and if casting is not needed, then registereing should no  be required)
@@ -520,7 +520,7 @@ std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(const std::type_info
 	return castSequence(getTypeDescriptor(from), getTypeDescriptor(to));
 }
 
-CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(const std::type_info *type, bool throws)
+CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(const std::type_info *type, bool throws) const
 {
 	auto i = typeInfos.find(type);
 	if(i != typeInfos.end())

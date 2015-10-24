@@ -136,7 +136,7 @@ struct PointerCaster : IPointerCaster
 // 	}
 };
 
-class DLL_LINKAGE CTypeList
+class DLL_LINKAGE CTypeList: public boost::noncopyable
 {
 public:
 	struct TypeDescriptor;
@@ -152,58 +152,14 @@ private:
 	std::map<const std::type_info *, TypeInfoPtr, TypeComparer> typeInfos;
 	std::map<std::pair<TypeInfoPtr, TypeInfoPtr>, std::unique_ptr<const IPointerCaster>> casters; //for each pair <Base, Der> we provide a caster (each registered relations creates a single entry here)
 
-	CTypeList(CTypeList &)
-	{
-		// This type is non-copyable.
-		// Unfortunately on Windows it is required for DLL_EXPORT-ed type to provide copy c-tor, so we can't =delete it.
-		assert(0);
-	}
-	CTypeList &operator=(CTypeList &)
-	{
-		// As above.
-		assert(0);
-		return *this;
-	}
-public:
-
-	CTypeList();
-
-	TypeInfoPtr registerType(const std::type_info *type);
-
-
-	template <typename Base, typename Derived>
-	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
-	{
-		static_assert(std::is_base_of<Base, Derived>::value, "First registerType template parameter needs to ba a base class of the second one.");
-		static_assert(std::has_virtual_destructor<Base>::value, "Base class needs to have a virtual destructor.");
-		static_assert(!std::is_same<Base, Derived>::value, "Parameters of registerTypes should be two diffrenet types.");
-		auto bt = getTypeInfo(b), dt = getTypeInfo(d); //obtain std::type_info
-		auto bti = registerType(bt), dti = registerType(dt); //obtain our TypeDescriptor
-
-		// register the relation between classes
-		bti->children.push_back(dti);
-		dti->parents.push_back(bti);
-		casters[std::make_pair(bti, dti)] = make_unique<const PointerCaster<Base, Derived>>();
-		casters[std::make_pair(dti, bti)] = make_unique<const PointerCaster<Derived, Base>>();
-	}
-
-	ui16 getTypeID(const std::type_info *type);
-	TypeInfoPtr getTypeDescriptor(const std::type_info *type, bool throws = true); //if not throws, failure returns nullptr
-
-	template <typename T>
-	ui16 getTypeID(const T * t = nullptr)
-	{
-		return getTypeID(getTypeInfo(t));
-	}
-
-
-	// Returns sequence of types starting from "from" and ending on "to". Every next type is derived from the previous.
-	// Throws if there is no link registered.
-	std::vector<TypeInfoPtr> castSequence(TypeInfoPtr from, TypeInfoPtr to);
-	std::vector<TypeInfoPtr> castSequence(const std::type_info *from, const std::type_info *to);
+	/// Returns sequence of types starting from "from" and ending on "to". Every next type is derived from the previous.
+	/// Throws if there is no link registered.
+	std::vector<TypeInfoPtr> castSequence(TypeInfoPtr from, TypeInfoPtr to) const;
+	std::vector<TypeInfoPtr> castSequence(const std::type_info *from, const std::type_info *to) const;
+	
 
 	template<boost::any(IPointerCaster::*CastingFunction)(const boost::any &) const>
-	boost::any castHelper(boost::any inputPtr, const std::type_info *fromArg, const std::type_info *toArg)
+	boost::any castHelper(boost::any inputPtr, const std::type_info *fromArg, const std::type_info *toArg) const
 	{
 		auto typesSequence = castSequence(fromArg, toArg);
 
@@ -223,8 +179,37 @@ public:
 		return ptr;
 	}
 
+	TypeInfoPtr registerType(const std::type_info *type);	
+public:
+	CTypeList();
+
+	template <typename Base, typename Derived>
+	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
+	{
+		static_assert(std::is_base_of<Base, Derived>::value, "First registerType template parameter needs to ba a base class of the second one.");
+		static_assert(std::has_virtual_destructor<Base>::value, "Base class needs to have a virtual destructor.");
+		static_assert(!std::is_same<Base, Derived>::value, "Parameters of registerTypes should be two diffrenet types.");
+		auto bt = getTypeInfo(b), dt = getTypeInfo(d); //obtain std::type_info
+		auto bti = registerType(bt), dti = registerType(dt); //obtain our TypeDescriptor
+
+		// register the relation between classes
+		bti->children.push_back(dti);
+		dti->parents.push_back(bti);
+		casters[std::make_pair(bti, dti)] = make_unique<const PointerCaster<Base, Derived>>();
+		casters[std::make_pair(dti, bti)] = make_unique<const PointerCaster<Derived, Base>>();
+	}
+
+	ui16 getTypeID(const std::type_info *type) const;
+	TypeInfoPtr getTypeDescriptor(const std::type_info *type, bool throws = true) const; //if not throws, failure returns nullptr
+
+	template <typename T>
+	ui16 getTypeID(const T * t = nullptr) const
+	{
+		return getTypeID(getTypeInfo(t));
+	}
+
 	template<typename TInput>
-	void *castToMostDerived(const TInput *inputPtr)
+	void * castToMostDerived(const TInput * inputPtr) const
 	{
 		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
 		auto derivedType = getTypeInfo(inputPtr);
@@ -236,7 +221,7 @@ public:
 	}
 
 	template<typename TInput>
-	boost::any castSharedToMostDerived(const std::shared_ptr<TInput> inputPtr)
+	boost::any castSharedToMostDerived(const std::shared_ptr<TInput> inputPtr) const
 	{
 		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
 		auto derivedType = getTypeInfo(inputPtr.get());
@@ -247,17 +232,16 @@ public:
 		return castHelper<&IPointerCaster::castSharedPtr>(inputPtr, &baseType, derivedType);
 	}
 
-	void* castRaw(void *inputPtr, const std::type_info *from, const std::type_info *to)
+	void * castRaw(void *inputPtr, const std::type_info *from, const std::type_info *to) const
 	{
 		return boost::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>(inputPtr, from, to));
 	}
-	boost::any castShared(boost::any inputPtr, const std::type_info *from, const std::type_info *to)
+	boost::any castShared(boost::any inputPtr, const std::type_info *from, const std::type_info *to) const
 	{
 		return castHelper<&IPointerCaster::castSharedPtr>(inputPtr, from, to);
 	}
 
-
-	template <typename T> const std::type_info * getTypeInfo(const T * t = nullptr)
+	template <typename T> const std::type_info * getTypeInfo(const T * t = nullptr) const
 	{
 		if(t)
 			return &typeid(*t);
