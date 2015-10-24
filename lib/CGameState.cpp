@@ -3428,6 +3428,18 @@ void CPathfinder::calculatePaths()
 		return cp->land ? maxMovePointsLand : maxMovePointsWater;
 	};
 
+	auto isBetterWay = [&](int remains, int turn) -> bool
+	{
+		if(dp->turns == 0xff) //we haven't been here before
+			return true;
+		else if(dp->turns > turn)
+			return true;
+		else if(dp->turns >= turn  &&  dp->moveRemains < remains) //this route is faster
+			return true;
+
+		return false;
+	};
+
 	//logGlobal->infoStream() << boost::format("Calculating paths for hero %s (adress  %d) of player %d") % hero->name % hero % hero->tempOwner;
 
 	//initial tile - set cost on 0 and add to the queue
@@ -3477,9 +3489,7 @@ void CPathfinder::calculatePaths()
 				remains = moveAtNextTile - cost;
 			}
 
-			if(dp->turns==0xff		//we haven't been here before
-				|| dp->turns > turnAtNextTile
-				|| (dp->turns >= turnAtNextTile  &&  dp->moveRemains < remains)) //this route is faster
+			if(isBetterWay(remains, turnAtNextTile))
 			{
 				assert(dp != cp->theNodeBefore); //two tiles can't point to each other
 				dp->moveRemains = remains;
@@ -3498,7 +3508,7 @@ void CPathfinder::calculatePaths()
 			for(auto & neighbour : neighbours)
 			{
 				dp = getNode(neighbour);
-				if (dp->turns == 0xff)
+				if (isBetterWay(movement, turn))
 				{
 					dp->moveRemains = movement;
 					dp->turns = turn;
