@@ -1937,18 +1937,26 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 	std::set<PlayerColor> playerColors = {owner, oldOwner};
 	checkVictoryLossConditions(playerColors);
 
-	if(owner < PlayerColor::PLAYER_LIMIT && dynamic_cast<const CGTownInstance *>(obj)) //town captured
+	if(dynamic_cast<const CGTownInstance *>(obj)) //town captured
 	{
-		const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
-		if (town->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
-			setPortalDwelling(town, true, false);
-
-		if (!gs->getPlayer(owner)->towns.size())//player lost last town
+		if (owner < PlayerColor::PLAYER_LIMIT) //new owner is real player
 		{
-			InfoWindow iw;
-			iw.player = oldOwner;
-			iw.text.addTxt(MetaString::GENERAL_TXT, 6); //%s, you have lost your last town.  If you do not conquer another town in the next week, you will be eliminated.
-			sendAndApply(&iw);
+			const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
+			if (town->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
+				setPortalDwelling(town, true, false);
+
+			gs->getPlayer(owner)->daysWithoutCastle = boost::none; // reset counter
+		}
+
+		if (oldOwner < PlayerColor::PLAYER_LIMIT) //old owner is real player
+		{
+			if (gs->getPlayer(oldOwner)->towns.empty())//previous player lost last last town
+			{
+				InfoWindow iw;
+				iw.player = oldOwner;
+				iw.text.addTxt (MetaString::GENERAL_TXT, 6); //%s, you have lost your last town.  If you do not conquer another town in the next week, you will be eliminated.
+				sendAndApply(&iw);
+			}
 		}
 	}
 
