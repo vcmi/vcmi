@@ -3220,7 +3220,7 @@ For ship construction etc, another function (goal?) is needed
 				//embark on ship -> look for an EP with a boat
 				auto firstEP = boost::find_if(src->embarkmentPoints, [=](crint3 pos) -> bool
 				{
-					const TerrainTile *t = cb->getTile(pos);
+					const TerrainTile *t = getTile(pos);
                     return t && t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::BOAT
 						&& retreiveTile(pos) == sectorToReach->id;
 				});
@@ -3310,7 +3310,7 @@ For ship construction etc, another function (goal?) is needed
 				{
 					//make sure no hero block the way
 					auto pos = ai->knownSubterraneanGates[gate]->visitablePos();
-					const TerrainTile *t = cb->getTile(pos);
+					const TerrainTile *t = getTile(pos);
 					return t && t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::SUBTERRANEAN_GATE
 						&& retreiveTile(pos) == sectorToReach->id;
 				});
