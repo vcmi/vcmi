@@ -2941,6 +2941,12 @@ void SectorMap::update()
 
 void SectorMap::clear()
 {
+	//FIXME: temporary workaround for compatibility
+	//auto visibilityMap = cb->getVisibilityMap();
+	//int width = cb->getMapSize().x;
+	//int height = cb->getMapSize().y;
+	//int twoLevel = cb->getMapSize().z;
+	//for ()
 	sector = cb->getVisibilityMap();
 	valid = false;
 }

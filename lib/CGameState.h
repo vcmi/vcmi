@@ -196,7 +196,8 @@ struct DLL_LINKAGE TeamState : public CBonusSystemNode
 public:
 	TeamID id; //position in gameState::teams
 	std::set<PlayerColor> players; // members of this team
-	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
+	//TODO: would be boost::array even better?
+	TFoWMap fogOfWarMap; //true - visible, false - hidden
 
 	TeamState();
 
@@ -286,7 +287,7 @@ private:
 	bool allowTeleportWhirlpool; // Force enabled if hero protected or unaffected (have one stack of one creature)
 	CPathsInfo &out;
 	const CGHeroInstance *hero;
-	const std::vector<std::vector<std::vector<ui8> > > &FoW;
+	const TFoWMap &FoW;
 
 	std::list<CGPathNode*> mq; //BFS queue -> nodes to be checked
 
