@@ -3351,7 +3351,7 @@ int3 SectorMap::findFirstVisitableTile (HeroPtr h, crint3 dst)
 	while(curtile != h->visitablePos())
 	{
 		auto topObj = cb->getTopObj(curtile);
-		if (topObj && topObj->ID == Obj::HERO && topObj != h.h)
+		if (topObj && topObj->ID == Obj::HERO && h->tempOwner == topObj->tempOwner && topObj != h.h)
 		{
 			logAi->warnStream() << ("Another allied hero stands in our way");
 			return ret;
