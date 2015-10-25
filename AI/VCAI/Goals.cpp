@@ -971,11 +971,30 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 			if (conquerable(obj))
 				ourObjs.push_back(obj);
 		}
-		for (auto obj : ourObjs) //double loop, performance risk?
+		for (auto obj : ourObjs)
 		{
-			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
-			if (ai->isTileNotReserved(h, t))
-				ret.push_back (sptr(Goals::ClearWayTo(obj->visitablePos(), h).setisAbstract(true)));
+			int3 dest = obj->visitablePos();
+			auto t = sm.firstTileToGet(h, dest); //we assume that no more than one tile on the way is guarded
+			if (t.valid()) //we know any path at all
+			{
+				if (ai->isTileNotReserved(h, t)) //no other hero wants to conquer that tile
+				{
+					if (isSafeToVisit(h, dest))
+					{
+						if (dest != t) //there is something blocking our way
+							ret.push_back(sptr(Goals::ClearWayTo(dest, h).setisAbstract(true)));
+						else
+						{
+							if (obj->ID.num == Obj::HERO) //enemy hero may move to other position
+								ret.push_back(sptr(Goals::VisitHero(obj->id.getNum()).sethero(h).setisAbstract(true)));
+							else //just visit that tile
+								ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setisAbstract(true)));
+						}
+					}
+					else //we need to get army in order to conquer that place
+						ret.push_back(sptr(Goals::GatherArmy(evaluateDanger(dest, h) * SAFE_ATTACK_CONSTANT).sethero(h).setisAbstract(true)));
+				}
+			}
 		}
 	}
 	if (!objs.empty() && ai->canRecruitAnyHero()) //probably no point to recruit hero if we see no objects to capture

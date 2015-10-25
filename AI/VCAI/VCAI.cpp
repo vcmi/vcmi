@@ -1932,6 +1932,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	if(h) //we could have lost hero after last move
 	{
 		completeGoal (sptr(Goals::VisitTile(dst).sethero(h))); //we stepped on some tile, anyway
+		completeGoal (sptr(Goals::ClearWayTo(dst).sethero(h)));
+
 		if (!ret) //reserve object we are heading towards
 		{
 			auto obj = frontOrNull(cb->getVisitableObjs(dst));
