@@ -1511,20 +1511,20 @@ void CGameHandler::newTurn()
 	}
 
 	//count days without town for all players, regardless of their turn order
-	for (auto p = gs->players.begin(); p != gs->players.end(); p++)
+	for (auto &p : gs->players)
 	{
-		PlayerState * playerState = &p->second;
-		if (playerState->status == EPlayerStatus::INGAME)
+		PlayerState & playerState = p.second;
+		if (playerState.status == EPlayerStatus::INGAME)
 		{
-			if (playerState->towns.empty())
+			if (playerState.towns.empty())
 			{
-				if (playerState->daysWithoutCastle)
-					++(*playerState->daysWithoutCastle);
-				else playerState->daysWithoutCastle = 0;
+				if (playerState.daysWithoutCastle)
+					++(*playerState.daysWithoutCastle);
+				else playerState.daysWithoutCastle = 0;
 			}
 			else
 			{
-				playerState->daysWithoutCastle = boost::none;
+				playerState.daysWithoutCastle = boost::none;
 			}
 		}
 	}
@@ -4825,10 +4825,10 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			std::set<PlayerColor> playerColors;
 
 			//do not copy player state (CBonusSystemNode) by value
-			for (auto p = gs->players.begin(); p != gs->players.end(); p++) //players may have different colors, iterate over players and not integers
+			for (auto &p : gs->players) //players may have different colors, iterate over players and not integers
 			{
-				if (p->first != player)
-					playerColors.insert(p->first);
+				if (p.first != player)
+					playerColors.insert(p.first);
 			}
 
 			//notify all players
