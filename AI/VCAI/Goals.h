@@ -346,7 +346,7 @@ public:
 	DigAtTile(int3 Tile) : CGoal (Goals::DIG_AT_TILE) {tile = Tile; priority = 20;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	bool operator== (DigAtTile &g) { g.goalType == goalType && g.tile == tile; }
+	bool operator== (DigAtTile &g) { return g.goalType == goalType && g.tile == tile; }
 };
 
 class CIssueCommand : public CGoal<CIssueCommand>
