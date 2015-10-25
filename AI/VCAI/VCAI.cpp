@@ -2481,13 +2481,12 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 
 int3 VCAI::explorationNewPoint(HeroPtr h)
 {
-    //logAi->debugStream() << "Looking for an another place for exploration...";
 	int radius = h->getSightRadious();
+	CCallback * cbp = cb.get();
+	const CGHeroInstance * hero = h.get();
 
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
 	tiles.resize(radius);
-
-	CCallback * cbp = cb.get();
 
 	foreach_tile_pos([&](const int3 &pos)
 	{
@@ -2497,6 +2496,7 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 	float bestValue = 0; //discovered tile to node distance ratio
 	int3 bestTile(-1,-1,-1);
+	int3 ourPos = h->convertPosition(h->pos, false);
 
 	for (int i = 1; i < radius; i++)
 	{
@@ -2505,11 +2505,13 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 		for(const int3 &tile : tiles[i])
 		{
-			if (!cb->getPathsInfo(h.get())->getPathInfo(tile)->reachable()) //this will remove tiles that are guarded by monsters (or removable objects)
+			if (tile == ourPos) //shouldn't happen, but it does
+				continue;
+			if (!cb->getPathsInfo(hero)->getPathInfo(tile)->reachable()) //this will remove tiles that are guarded by monsters (or removable objects)
 				continue;
 
 			CGPath path;
-			cb->getPathsInfo(h.get())->getPath(tile, path);
+			cb->getPathsInfo(hero)->getPath(tile, path);
 			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius, cbp) / (path.nodes.size() + 1); //+1 prevents erratic jumps
 
 			if (ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
