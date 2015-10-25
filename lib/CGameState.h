@@ -317,8 +317,8 @@ private:
 	bool isDestinationGuarded();
 	bool isDestinationGuardian();
 
-	void getNeighbours(const int3 &coord);
-	void getTeleportExits(bool noTeleportExcludes = false);
+	void addNeighbours(const int3 &coord);
+	void addTeleportExits(bool noTeleportExcludes = false);
 
 	bool checkDestinationTile();
 

@@ -3300,7 +3300,7 @@ void CPathfinder::initializeGraph()
 	}
 }
 
-void CPathfinder::getNeighbours(const int3 &coord)
+void CPathfinder::addNeighbours(const int3 &coord)
 {
 	neighbours.clear();
 	ct = &gs->map->getTile(coord);
@@ -3320,7 +3320,7 @@ void CPathfinder::getNeighbours(const int3 &coord)
 		vstd::concatenate(neighbours, tiles);
 }
 
-void CPathfinder::getTeleportExits(bool noTeleportExcludes)
+void CPathfinder::addTeleportExits(bool noTeleportExcludes)
 {
 	assert(sTileObj);
 
@@ -3455,7 +3455,7 @@ void CPathfinder::calculatePaths()
 		}
 
 		//add accessible neighbouring nodes to the queue
-		getNeighbours(cp->coord);
+		addNeighbours(cp->coord);
 		for(auto & neighbour : neighbours)
 		{
 			dp = getNode(neighbour);
@@ -3498,7 +3498,7 @@ void CPathfinder::calculatePaths()
 		//just add all passable teleport exits
 		if(sTileObj)
 		{
-			getTeleportExits();
+			addTeleportExits();
 			for(auto & neighbour : neighbours)
 			{
 				dp = getNode(neighbour);
