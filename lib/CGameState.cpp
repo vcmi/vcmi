@@ -1075,13 +1075,14 @@ void CGameState::initPlayerStates()
 	logGlobal->debug("\tCreating player entries in gs");
 	for(auto & elem : scenarioOps->playerInfos)
 	{
-		std::pair<PlayerColor, PlayerState> ins(elem.first,PlayerState());
-		ins.second.color=ins.first;
-		ins.second.human = elem.second.playerID;
-		ins.second.team = map->players[ins.first.getNum()].team;
-		teams[ins.second.team].id = ins.second.team;//init team
-		teams[ins.second.team].players.insert(ins.first);//add player to team
-		players.insert(ins);
+		PlayerState & p = players[elem.first];
+		//std::pair<PlayerColor, PlayerState> ins(elem.first,PlayerState());
+		p.color=elem.first;
+		p.human = elem.second.playerID;
+		p.team = map->players[elem.first.getNum()].team;
+		teams[p.team].id = p.team;//init team
+		teams[p.team].players.insert(elem.first);//add player to team
+		//players.insert(ins);
 	}
 }
 
