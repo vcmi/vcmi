@@ -614,7 +614,7 @@ public:
 	const TBonusListPtr getSpellBonuses() const;
 };
 
-class DLL_LINKAGE CBonusSystemNode : public IBonusBearer
+class DLL_LINKAGE CBonusSystemNode : public IBonusBearer, public boost::noncopyable
 {
 public:
 	enum ENodeTypes
