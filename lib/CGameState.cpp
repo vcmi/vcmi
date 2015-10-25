@@ -3287,15 +3287,12 @@ void CPathfinder::initializeGraph()
 			for(size_t k=0; k < out.sizes.z; ++k)
 			{
 				curPos = int3(i,j,k);
-				const TerrainTile *tinfo = &gs->map->getTile(int3(i, j, k));
+				const TerrainTile *tinfo = &gs->map->getTile(curPos);
 				CGPathNode &node = graph[i][j][k];
-
 				node.accessible = evaluateAccessibility(tinfo);
 				node.turns = 0xff;
 				node.moveRemains = 0;
-				node.coord.x = i;
-				node.coord.y = j;
-				node.coord.z = k;
+				node.coord = curPos;
 				node.land = tinfo->terType != ETerrainType::WATER;
 				node.theNodeBefore = nullptr;
 			}
@@ -3348,7 +3345,7 @@ void CPathfinder::getTeleportExits(bool noTeleportExcludes)
 		return false;
 	};
 
-	sTileTeleport = dynamic_cast<const CGTeleport *>(sTileObj);
+	const CGTeleport *sTileTeleport = dynamic_cast<const CGTeleport *>(sTileObj);
 	if(isAllowedTeleportEntrance(sTileTeleport))
 	{
 		for(auto objId : gs->getTeleportChannelExits(sTileTeleport->channel, hero->tempOwner))
@@ -3613,7 +3610,7 @@ CPathfinder::PathfinderOptions::PathfinderOptions()
 	useFlying = false;
 	useWaterWalking = false;
 	useEmbarkAndDisembark = true;
-	useTeleportTWoWay = true;
+	useTeleportTwoWay = true;
 	useTeleportOneWay = true;
 	useTeleportOneWayRandom = false;
 	useTeleportWhirlpool = false;
@@ -3652,7 +3649,7 @@ CRandomGenerator & CGameState::getRandomGenerator()
 
 bool CPathfinder::addTeleportTwoWay(const CGTeleport * obj) const
 {
-	return options.useTeleportTWoWay && gs->isTeleportChannelBidirectional(obj->channel, hero->tempOwner);
+	return options.useTeleportTwoWay && gs->isTeleportChannelBidirectional(obj->channel, hero->tempOwner);
 }
 
 bool CPathfinder::addTeleportOneWay(const CGTeleport * obj) const

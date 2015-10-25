@@ -284,7 +284,7 @@ private:
 		bool useFlying;
 		bool useWaterWalking;
 		bool useEmbarkAndDisembark;
-		bool useTeleportTWoWay; // Two-way monoliths and Subterranean Gate
+		bool useTeleportTwoWay; // Two-way monoliths and Subterranean Gate
 		bool useTeleportOneWay; // One-way monoliths with one known exit only
 		bool useTeleportOneWayRandom; // One-way monoliths with more than one known exit
 		bool useTeleportWhirlpool; // Force enabled if hero protected or unaffected (have one stack of one creature)
@@ -305,12 +305,8 @@ private:
 	CGPathNode *cp; //current (source) path node -> we took it from the queue
 	CGPathNode *dp; //destination node -> it's a neighbour of cp that we consider
 	const TerrainTile *ct, *dt; //tile info for both nodes
+	const CGObjectInstance *sTileObj;
 	ui8 useEmbarkCost; //0 - usual movement; 1 - embark; 2 - disembark
-
-	CGObjectInstance *sTileObj;
-	CGObjectInstance *dTileObj;
-	const CGTeleport *sTileTeleport;
-	const CGTeleport *dTileTeleport;
 
 	CGPathNode *getNode(const int3 &coord);
 	void initializeGraph();
