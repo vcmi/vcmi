@@ -518,10 +518,10 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 				{
 					//TODO: we should be able to return apriopriate quest here (VCAI::striveToQuest)
 					logAi->debugStream() << "Quest guard blocks the way to " + tile();
+					continue; //do not access quets guard if we can't complete the quest
 				}
 			}
 		}
-
 		if (isSafeToVisit(h, tileToHit)) //this makes sense only if tile is guarded, but there i no quest object
 		{
 			ret.push_back (sptr (Goals::VisitTile(tileToHit).sethero(h)));

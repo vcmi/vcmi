@@ -2455,11 +2455,13 @@ void VCAI::buildArmyIn(const CGTownInstance * t)
 
 int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 {
+	int3 ourPos = h->convertPosition(h->pos, false);
 	std::map<int3, int> dstToRevealedTiles;
 	for(crint3 dir : dirs)
 		if(cb->isInTheMap(hpos+dir))
-			if (isSafeToVisit(h, hpos + dir) && isAccessibleForHero (hpos + dir, h))
-				dstToRevealedTiles[hpos + dir] = howManyTilesWillBeDiscovered(radius, hpos, dir);
+			if (ourPos != dir) //don't stand in place
+				if (isSafeToVisit(h, hpos + dir) && isAccessibleForHero (hpos + dir, h))
+					dstToRevealedTiles[hpos + dir] = howManyTilesWillBeDiscovered(radius, hpos, dir);
 
 	if (dstToRevealedTiles.empty()) //yes, it DID happen!
 		throw cannotFulfillGoalException("No neighbour will bring new discoveries!");
