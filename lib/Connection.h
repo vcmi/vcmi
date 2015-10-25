@@ -81,10 +81,14 @@ enum SerializationLvl
 
 struct TypeComparer
 {
-	bool operator()(const std::type_info *a, const std::type_info *b) const
-	{
-		return a->before(*b);
-	}
+    bool operator()(const std::type_info *a, const std::type_info *b) const
+    {
+    #ifndef __APPLE__
+      return a->before(*b);
+    #else
+      return std::string(a->name()) < std::string(b->name());
+    #endif
+    }
 };
 
 struct IPointerCaster
@@ -160,7 +164,7 @@ private:
 	/// Throws if there is no link registered.
 	std::vector<TypeInfoPtr> castSequence(TypeInfoPtr from, TypeInfoPtr to) const;
 	std::vector<TypeInfoPtr> castSequence(const std::type_info *from, const std::type_info *to) const;
-	
+
 
 	template<boost::any(IPointerCaster::*CastingFunction)(const boost::any &) const>
 	boost::any castHelper(boost::any inputPtr, const std::type_info *fromArg, const std::type_info *toArg) const
@@ -207,12 +211,12 @@ public:
 		casters[std::make_pair(dti, bti)] = make_unique<const PointerCaster<Derived, Base>>();
 	}
 
-	ui16 getTypeID(const std::type_info *type) const;
+	ui16 getTypeID(const std::type_info *type, bool throws = false) const;
 
 	template <typename T>
-	ui16 getTypeID(const T * t = nullptr) const
+	ui16 getTypeID(const T * t = nullptr, bool throws = false) const
 	{
-		return getTypeID(getTypeInfo(t));
+		return getTypeID(getTypeInfo(t), throws);
 	}
 
 	template<typename TInput>
@@ -435,13 +439,13 @@ public:
 	virtual int write(const void * data, unsigned size) = 0;
 };
 
-class DLL_LINKAGE CSaverBase 
+class DLL_LINKAGE CSaverBase
 {
 protected:
 	IBinaryWriter * writer;
 public:
 	CSaverBase(IBinaryWriter * w): writer(w){};
-	
+
 	inline int write(const void * data, unsigned size)
 	{
 		return writer->write(data, size);
@@ -577,15 +581,15 @@ struct LoadIfStackInstance<Ser, CStackInstance *>
 class DLL_LINKAGE COSer : public CSaverBase
 {
 public:
-	
+
 	struct SaveBoolean
 	{
 		static void invoke(COSer &s, const bool &data)
 		{
 			s.saveBoolean(data);
 		}
-	};	
-	
+	};
+
 	struct SaveBooleanVector
 	{
 		static void invoke(COSer &s, const std::vector<bool> &data)
@@ -620,7 +624,7 @@ public:
 			s.saveEnum(data);
 		}
 	};
-		
+
 	template<typename T>
 	struct SavePointer
 	{
@@ -629,7 +633,7 @@ public:
 			s.savePointer(data);
 		}
 	};
-	
+
 	template<typename T>
 	struct SaveArray
 	{
@@ -646,9 +650,9 @@ public:
 		{
 			throw std::runtime_error("Wrong save serialization call!");
 		}
-	};	
-	
-	template <typename T> 
+	};
+
+	template <typename T>
 	class CPointerSaver : public CBasicPointerSaver
 	{
 	public:
@@ -660,8 +664,8 @@ public:
 			//T is most derived known type, it's time to call actual serialize
 			const_cast<T&>(*ptr).serialize(s,version);
 		}
-	};	
-			
+	};
+
 	bool saving;
 	std::map<ui16,CBasicPointerSaver*> savers; // typeID => CPointerSaver<serializer,type>
 
@@ -955,13 +959,13 @@ public:
 	virtual int read(void * data, unsigned size) = 0;
 };
 
-class DLL_LINKAGE CLoaderBase 
+class DLL_LINKAGE CLoaderBase
 {
 protected:
 	IBinaryReader * reader;
 public:
 	CLoaderBase(IBinaryReader * r): reader(r){};
-	
+
 	inline int read(void * data, unsigned size)
 	{
 		return reader->read(data, size);
@@ -1006,15 +1010,15 @@ public:
 			s.loadBoolean(data);
 		}
 	};
-	
+
 	struct LoadBooleanVector
 	{
 		static void invoke(CISer &s, std::vector<bool> &data)
 		{
 			s.loadBooleanVector(data);
 		}
-	};	
-	
+	};
+
 	template<typename T>
 	struct LoadEnum
 	{
@@ -1031,7 +1035,7 @@ public:
 		{
 			s.loadPrimitive(data);
 		}
-	};	
+	};
 
 	template<typename T>
 	struct LoadPointer
@@ -1040,8 +1044,8 @@ public:
 		{
 			s.loadPointer(data);
 		}
-	};	
-	
+	};
+
 	template<typename T>
 	struct LoadArray
 	{
@@ -1067,8 +1071,8 @@ public:
 		{
 			throw std::runtime_error("Wrong load serialization call!");
 		}
-	};	
-	
+	};
+
 	template <typename T> class CPointerLoader : public CBasicPointerLoader
 	{
 	public:
@@ -1085,8 +1089,8 @@ public:
 			ptr->serialize(s,version);
 			return &typeid(T);
 		}
-	};		
-	
+	};
+
 	bool saving;
 	std::map<ui16,CBasicPointerLoader*> loaders; // typeID => CPointerSaver<serializer,type>
 	si32 fileVersion;
@@ -1530,9 +1534,9 @@ class DLL_LINKAGE CSaveFile
 	:public IBinaryWriter
 {
 public:
-	
+
 	COSer serializer;
-	
+
 	std::string fName;
 	unique_ptr<std::ofstream> sfile;
 
@@ -1545,13 +1549,13 @@ public:
     void reportState(CLogger * out) override;
 
 	void putMagicBytes(const std::string &text);
-	
+
 	template<class T>
 	CSaveFile & operator<<(const T &t)
 	{
 		serializer << t;
 		return * this;
-	}		
+	}
 };
 
 class DLL_LINKAGE CLoadFile
@@ -1559,7 +1563,7 @@ class DLL_LINKAGE CLoadFile
 {
 public:
 	CISer serializer;
-		
+
 	std::string fName;
 	unique_ptr<boost::filesystem::ifstream> sfile;
 
@@ -1572,20 +1576,20 @@ public:
     void reportState(CLogger * out) override;
 
 	void checkMagicBytes(const std::string & text);
-	
+
 	template<class T>
 	CLoadFile & operator>>(T &t)
 	{
 		serializer >> t;
 		return * this;
-	}		
+	}
 };
 
-class DLL_LINKAGE CLoadIntegrityValidator 
+class DLL_LINKAGE CLoadIntegrityValidator
 	: public IBinaryReader
 {
 public:
-	CISer serializer;	
+	CISer serializer;
 	unique_ptr<CLoadFile> primaryFile, controlFile;
 	bool foundDesync;
 
@@ -1611,7 +1615,7 @@ class DLL_LINKAGE CConnection
 public:
 	CISer iser;
 	COSer oser;
-	
+
 	boost::mutex *rmx, *wmx; // read/write mutexes
 	TSocket * socket;
 	bool logging;
@@ -1649,14 +1653,14 @@ public:
 
 	void prepareForSendingHeroes(); //disables sending vectorised, enables smart pointer serialization, clears saved/loaded ptr cache
 	void enterPregameConnectionMode();
-	
+
 	template<class T>
 	CConnection & operator>>(T &t)
 	{
 		iser >> t;
 		return * this;
-	}	
-	
+	}
+
 	template<class T>
 	CConnection & operator<<(const T &t)
 	{
@@ -1678,7 +1682,7 @@ class DLL_LINKAGE CMemorySerializer
 public:
 	CISer iser;
 	COSer oser;
-		
+
 	int read(void * data, unsigned size) override; //throws!
 	int write(const void * data, unsigned size) override;
 
