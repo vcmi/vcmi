@@ -450,6 +450,7 @@ CTypeList::TypeInfoPtr CTypeList::registerType( const std::type_info *type )
 
 ui16 CTypeList::getTypeID(const std::type_info * type) const
 {
+	TSharedLock lock(mx);
 	auto i = typeInfos.find(type);
 	if(i != typeInfos.end())
 		return i->second->typeID;

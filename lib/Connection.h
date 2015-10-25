@@ -147,7 +147,11 @@ public:
 		const char *name;
 		std::vector<TypeInfoPtr> children, parents;
 	};
+	typedef boost::shared_mutex TMutex;
+	typedef boost::unique_lock<TMutex> TUniqueLock;
+	typedef boost::shared_lock<TMutex> TSharedLock;
 private:
+	mutable TMutex mx;
 
 	std::map<const std::type_info *, TypeInfoPtr, TypeComparer> typeInfos;
 	std::map<std::pair<TypeInfoPtr, TypeInfoPtr>, std::unique_ptr<const IPointerCaster>> casters; //for each pair <Base, Der> we provide a caster (each registered relations creates a single entry here)
@@ -161,6 +165,7 @@ private:
 	template<boost::any(IPointerCaster::*CastingFunction)(const boost::any &) const>
 	boost::any castHelper(boost::any inputPtr, const std::type_info *fromArg, const std::type_info *toArg) const
 	{
+		TSharedLock lock(mx);
 		auto typesSequence = castSequence(fromArg, toArg);
 
 		boost::any ptr = inputPtr;
@@ -179,13 +184,16 @@ private:
 		return ptr;
 	}
 
-	TypeInfoPtr registerType(const std::type_info *type);	
+	TypeInfoPtr getTypeDescriptor(const std::type_info *type, bool throws = true) const; //if not throws, failure returns nullptr
+
+	TypeInfoPtr registerType(const std::type_info *type);
 public:
 	CTypeList();
 
 	template <typename Base, typename Derived>
 	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
 	{
+		TUniqueLock lock(mx);
 		static_assert(std::is_base_of<Base, Derived>::value, "First registerType template parameter needs to ba a base class of the second one.");
 		static_assert(std::has_virtual_destructor<Base>::value, "Base class needs to have a virtual destructor.");
 		static_assert(!std::is_same<Base, Derived>::value, "Parameters of registerTypes should be two diffrenet types.");
@@ -200,7 +208,6 @@ public:
 	}
 
 	ui16 getTypeID(const std::type_info *type) const;
-	TypeInfoPtr getTypeDescriptor(const std::type_info *type, bool throws = true) const; //if not throws, failure returns nullptr
 
 	template <typename T>
 	ui16 getTypeID(const T * t = nullptr) const
