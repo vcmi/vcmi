@@ -115,6 +115,7 @@ void VCAI::heroMoved(const TryMoveHero & details)
 	NET_EVENT_HANDLER;
 
 	validateObject(details.id); //enemy hero may have left visible area
+	cachedSectorMaps.clear();
 
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
@@ -296,7 +297,7 @@ void VCAI::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
 		for(const CGObjectInstance *obj : myCb->getVisitableObjs(tile))
 			addVisitableObj(obj);
 
-	clearHeroesUnableToExplore();
+	clearPathsInfo();
 }
 
 void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
@@ -382,7 +383,7 @@ void VCAI::newObject(const CGObjectInstance * obj)
 	if(obj->isVisitable())
 		addVisitableObj(obj);
 
-	clearHeroesUnableToExplore();
+	cachedSectorMaps.clear();
 }
 
 void VCAI::objectRemoved(const CGObjectInstance *obj)
@@ -395,6 +396,8 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 
 	for (auto h : cb->getHeroesInfo())
 		unreserveObject(h, obj);
+
+	cachedSectorMaps.clear(); //invalidate all paths
 
 	//TODO
 	//there are other places where CGObjectinstance ptrs are stored...
@@ -840,7 +843,7 @@ void VCAI::makeTurnInternal()
 bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 {
 	int3 dst = obj->visitablePos();
-	SectorMap sm(h);
+	SectorMap &sm = getCachedSectorMap(h);
 	logAi->debugStream() << boost::format("%s will try to visit %s at (%s)") % h->name % obj->getObjectName() % strFromInt3(dst);
 	int3 pos = sm.firstTileToGet(h, dst);
 	if (!pos.valid()) //rare case when we are already standing on one of potential objects
@@ -1378,7 +1381,7 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 {
 	validateVisitableObjs();
 	std::vector<const CGObjectInstance *> possibleDestinations;
-	SectorMap sm(h);
+	SectorMap &sm = getCachedSectorMap(h);
 	for(const CGObjectInstance *obj : visitableObjs)
 	{
 		if (isGoodForVisit(obj, h, sm))
@@ -1436,7 +1439,7 @@ void VCAI::wander(HeroPtr h)
 		validateVisitableObjs();
 		std::vector <ObjectIdRef> dests, tmp;
 
-		SectorMap sm(h);
+		SectorMap &sm = getCachedSectorMap(h);
 
 		range::copy(reservedHeroesMap[h], std::back_inserter(tmp)); //also visit our reserved objects - but they are not prioritized to avoid running back and forth
 		for (auto obj : tmp)
@@ -1649,9 +1652,10 @@ bool VCAI::isAbleToExplore (HeroPtr h)
 {
 	return !vstd::contains (heroesUnableToExplore, h);
 }
-void VCAI::clearHeroesUnableToExplore()
+void VCAI::clearPathsInfo()
 {
 	heroesUnableToExplore.clear();
+	cachedSectorMaps.clear();
 }
 
 void VCAI::validateVisitableObjs()
@@ -2533,8 +2537,7 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 int3 VCAI::explorationDesperate(HeroPtr h)
 {
-    //logAi->debugStream() << "Looking for an another place for exploration...";
-	SectorMap sm(h);
+	SectorMap &sm = getCachedSectorMap(h);
 	int radius = h->getSightRadious();
 	
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
@@ -2691,6 +2694,7 @@ void VCAI::lostHero(HeroPtr h)
 		erase_if_present(reservedObjs, obj); //unreserve all objects for that hero
 	}
 	erase_if_present(reservedHeroesMap, h);
+	erase_if_present(cachedSectorMaps, h);
 }
 
 void VCAI::answerQuery(QueryID queryID, int selection)
@@ -2749,6 +2753,18 @@ TResources VCAI::freeResources() const
 	myRes[Res::GOLD] -= GOLD_RESERVE;
 	vstd::amax(myRes[Res::GOLD], 0);
 	return myRes;
+}
+
+SectorMap& VCAI::getCachedSectorMap(HeroPtr h)
+{
+	auto it = cachedSectorMaps.find(h);
+	if (it != cachedSectorMaps.end())
+		return it->second;
+	else
+	{
+		cachedSectorMaps.insert(std::make_pair(h, SectorMap(h)));
+		return cachedSectorMaps[h];
+	}
 }
 
 AIStatus::AIStatus()
