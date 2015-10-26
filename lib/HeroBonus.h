@@ -86,13 +86,13 @@ public:
 	BONUS_NAME(SECONDARY_SKILL_PREMY) /*%*/  \
 	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
 	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
-	BONUS_NAME(FLYING_MOVEMENT) /*subtype 1 - 40% penalty, 2 - 20% penalty, 3 - without penalty*/ \
+	BONUS_NAME(FLYING_MOVEMENT) /*value - penalty percentage*/ \
 	BONUS_NAME(SPELL_DURATION) \
 	BONUS_NAME(AIR_SPELL_DMG_PREMY) \
 	BONUS_NAME(EARTH_SPELL_DMG_PREMY) \
 	BONUS_NAME(FIRE_SPELL_DMG_PREMY) \
 	BONUS_NAME(WATER_SPELL_DMG_PREMY) \
-	BONUS_NAME(WATER_WALKING) /*subtype 1 - 40% penalty, 2 - 20% penalty, 3 - without penalty*/ \
+	BONUS_NAME(WATER_WALKING) /*value - penalty percentage*/ \
 	BONUS_NAME(NEGATE_ALL_NATURAL_IMMUNITIES) \
 	BONUS_NAME(STACK_HEALTH) \
 	BONUS_NAME(BLOCK_MORALE) \

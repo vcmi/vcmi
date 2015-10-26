@@ -176,23 +176,23 @@
 				"effects" : {
 					"fly" : {
 						"type" : "FLYING_MOVEMENT",
-						"subtype" : 1,
 						"duration" : "ONE_DAY",
-						"val" : 0 //in fact unused 
+						"val" : 40,
+						"valueType" : "INDEPENDENT_MIN"
 					}
 				}				
 			},
 			"advanced":{
 				"effects" : {
 					"fly" : {
-						"subtype" : 2
+						"val" : 20
 					}
 				}			
 			},
 			"expert":{
 				"effects" : {
 					"fly" : {
-						"subtype" : 3
+						"val" : 0
 					}
 				}			
 			}
@@ -214,23 +214,23 @@
 				"effects" : {
 					"waterWalk" : {
 						"type" : "WATER_WALKING",
-						"subtype" : 1,
 						"duration" : "ONE_DAY",
-						"val" : 0 //in fact unused
+						"val" : 40,
+						"valueType" : "INDEPENDENT_MIN"
 					}
 				}				
 			},
 			"advanced":{
 				"effects" : {
 					"waterWalk" : {
-						"subtype" : 2
+						"val" : 20
 					}
 				}			
 			},
 			"expert":{
 				"effects" : {
 					"waterWalk" : {
-						"subtype" : 3
+						"val" : 0
 					}
 				}			
 			}

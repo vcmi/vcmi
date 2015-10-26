@@ -2112,10 +2112,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 
 	if(d.blocked && h->canFly())
 	{
-		if(h->hasBonusOfType(Bonus::FLYING_MOVEMENT, 1)) // base flying
-			ret *= 1.4; //40% penalty for movement over blocked tile
-		else if(h->hasBonusOfType(Bonus::FLYING_MOVEMENT, 2)) // advanced flying
-			ret *= 1.2;
+		ret *= (100.0 + h->valOfBonuses(Bonus::FLYING_MOVEMENT)) / 100.0;
 	}
 	else if(d.terType == ETerrainType::WATER)
 	{
@@ -2123,10 +2120,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 			ret *= 0.666;
 		else if(!h->boat && h->canWalkOnSea())
 		{
-			if(h->hasBonusOfType(Bonus::WATER_WALKING, 1)) // base
-				ret *= 1.4; //40% penalty for water walking
-			else if(h->hasBonusOfType(Bonus::WATER_WALKING, 2)) // advanced
-				ret *= 1.2;
+			ret *= (100.0 + h->valOfBonuses(Bonus::WATER_WALKING)) / 100.0;
 		}
 	}
 
