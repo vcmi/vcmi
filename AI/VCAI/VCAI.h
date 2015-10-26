@@ -95,6 +95,7 @@ struct SectorMap
 	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector;
 
 	std::map<int, Sector> infoOnSectors;
+	shared_ptr<boost::multi_array<TerrainTile*, 3>> visibleTiles;
 
 	SectorMap();
 	SectorMap(HeroPtr h);
@@ -103,7 +104,10 @@ struct SectorMap
 	void exploreNewSector(crint3 pos, int num, CCallback * cbp);
 	void write(crstring fname);
 
+	bool markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t);
+	bool markIfBlocked(ui8 &sec, crint3 pos);
 	unsigned char &retreiveTile(crint3 pos);
+	TerrainTile* getTile(crint3 pos) const;
 
 	void makeParentBFS(crint3 source);
 
@@ -156,6 +160,8 @@ public:
 	std::set<const CGObjectInstance *> visitableObjs;
 	std::set<const CGObjectInstance *> alreadyVisited;
 	std::set<const CGObjectInstance *> reservedObjs; //to be visited by specific hero
+
+	std::map <HeroPtr, SectorMap> cachedSectorMaps; //TODO: serialize? not necessary
 
 	TResources saving;
 
@@ -292,7 +298,7 @@ public:
 	void markHeroUnableToExplore (HeroPtr h);
 	void markHeroAbleToExplore (HeroPtr h);
 	bool isAbleToExplore (HeroPtr h);
-	void clearHeroesUnableToExplore();
+	void clearPathsInfo();
 
 	void validateObject(const CGObjectInstance *obj); //checks if object is still visible and if not, removes references to it
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
@@ -307,6 +313,8 @@ public:
 
 	const CGObjectInstance *getUnvisitedObj(const std::function<bool(const CGObjectInstance *)> &predicate);
 	bool isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies = false) const;
+	//optimization - use one SM for every hero call
+	SectorMap& getCachedSectorMap(HeroPtr h);
 
 	const CGTownInstance *findTownWithTavern() const;
 	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;

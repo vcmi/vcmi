@@ -483,7 +483,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 
 		//if our hero is trapped, make sure we request clearing the way from OUR perspective
 
-		SectorMap sm(h);
+		SectorMap &sm = ai->getCachedSectorMap(h);
 
 		int3 tileToHit = sm.firstTileToGet(h, tile);
 		if (!tileToHit.valid())
@@ -518,10 +518,10 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 				{
 					//TODO: we should be able to return apriopriate quest here (VCAI::striveToQuest)
 					logAi->debugStream() << "Quest guard blocks the way to " + tile();
+					continue; //do not access quets guard if we can't complete the quest
 				}
 			}
 		}
-
 		if (isSafeToVisit(h, tileToHit)) //this makes sense only if tile is guarded, but there i no quest object
 		{
 			ret.push_back (sptr (Goals::VisitTile(tileToHit).sethero(h)));
@@ -633,7 +633,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 
 	for (auto h : heroes)
 	{
-		SectorMap sm(h);
+		SectorMap &sm = ai->getCachedSectorMap(h);
 
 		for (auto obj : objs) //double loop, performance risk?
 		{
@@ -963,7 +963,7 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 
 	for (auto h : cb->getHeroesInfo())
 	{
-		SectorMap sm(h);
+		SectorMap &sm = ai->getCachedSectorMap(h);
 		std::vector<const CGObjectInstance *> ourObjs(objs); //copy common objects
 
 		for (auto obj : ai->reservedHeroesMap[h]) //add objects reserved by this hero
@@ -971,11 +971,30 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 			if (conquerable(obj))
 				ourObjs.push_back(obj);
 		}
-		for (auto obj : ourObjs) //double loop, performance risk?
+		for (auto obj : ourObjs)
 		{
-			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
-			if (ai->isTileNotReserved(h, t))
-				ret.push_back (sptr(Goals::ClearWayTo(obj->visitablePos(), h).setisAbstract(true)));
+			int3 dest = obj->visitablePos();
+			auto t = sm.firstTileToGet(h, dest); //we assume that no more than one tile on the way is guarded
+			if (t.valid()) //we know any path at all
+			{
+				if (ai->isTileNotReserved(h, t)) //no other hero wants to conquer that tile
+				{
+					if (isSafeToVisit(h, dest))
+					{
+						if (dest != t) //there is something blocking our way
+							ret.push_back(sptr(Goals::ClearWayTo(dest, h).setisAbstract(true)));
+						else
+						{
+							if (obj->ID.num == Obj::HERO) //enemy hero may move to other position
+								ret.push_back(sptr(Goals::VisitHero(obj->id.getNum()).sethero(h).setisAbstract(true)));
+							else //just visit that tile
+								ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setisAbstract(true)));
+						}
+					}
+					else //we need to get army in order to conquer that place
+						ret.push_back(sptr(Goals::GatherArmy(evaluateDanger(dest, h) * SAFE_ATTACK_CONSTANT).sethero(h).setisAbstract(true)));
+				}
+			}
 		}
 	}
 	if (!objs.empty() && ai->canRecruitAnyHero()) //probably no point to recruit hero if we see no objects to capture
@@ -1074,7 +1093,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	}
 	for(auto h : cb->getHeroesInfo())
 	{
-		SectorMap sm(h);
+		SectorMap &sm = ai->getCachedSectorMap(h);
 		for (auto obj : objs)
 		{ //find safe dwelling
 			auto pos = obj->visitablePos();
