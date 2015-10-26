@@ -3358,7 +3358,8 @@ int3 CPathfinder::getSourceGuardPosition()
 
 bool CPathfinder::isSourceGuarded()
 {
-	//TODO: find out why exactly source can't be guarded if hero on it. Why this quirk was nessesaary in first place? Map where hero start on guarded tile?
+	//map can start with hero on guarded tile or teleport there using dimension door
+	//so threat tile hero standing on like it's not guarded because it's should be possible to move out of here
 	if(getSourceGuardPosition() != int3(-1, -1, -1)
 		&& cp->coord != hero->getPosition(false))
 	{
