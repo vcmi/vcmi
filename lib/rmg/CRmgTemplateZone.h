@@ -56,9 +56,9 @@ public:
 	void setRoadType(ERoadType::ERoadType value);
 private:
 	float nearestObjectDistance;
-	ETileType::ETileType occupied;
-	ETerrainType terrain;
-	ERoadType::ERoadType roadType;
+	ETileType::ETileType occupied; //1 byte
+	ETerrainType terrain; //1 byte
+	ERoadType::ERoadType roadType; //1 byte
 };
 
 class DLL_LINKAGE CTreasureInfo

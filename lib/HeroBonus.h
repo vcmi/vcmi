@@ -293,22 +293,22 @@ struct DLL_LINKAGE Bonus
 #undef BONUS_VALUE
 	};
 
+	TBonusSubtype subtype; //-1 if not applicable - 4 bytes
+	si32 val; //4 bytes
+
+	//mind 4-byte alignment - bigger structures first
 	ui16 duration; //uses BonusDuration values //2 bytes
 	si16 turnsRemain; //used if duration is N_TURNS or N_DAYS //2 bytes
-
-	TBonusSubtype subtype; //-1 if not applicable - 4 bytes
 
 	BonusType type; //uses BonusType values - says to what is this bonus // 1 byte
 	BonusSource source;//source type" uses BonusSource values - what gave that bonus // 1 byte
 	ValueType valType;// 1 byte
 	LimitEffect effectRange; //if not NO_LIMIT, bonus will be omitted by default // 1 byte
 
-	si32 val;
+
 	ui32 sid; //source id: id of object/artifact/spell
-	
 	si32 additionalInfo;
 	
-
 	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
 
@@ -333,7 +333,7 @@ struct DLL_LINKAGE Bonus
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & duration & turnsRemain & type & source & valType & effectRange & subtype  & val & sid & description & additionalInfo  & limiter & propagator;
+		h & subtype & val & duration & turnsRemain & type & source & valType & effectRange & sid & additionalInfo & description & limiter & propagator;
 	}
 
 	static bool compareByAdditionalInfo(const Bonus *a, const Bonus *b)

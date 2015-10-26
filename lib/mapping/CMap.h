@@ -279,15 +279,16 @@ struct DLL_LINKAGE TerrainTile
 	bool isCoastal() const;
 	bool hasFavourableWinds() const;
 
-	ETerrainType terType;
-	ui8 terView;
-	ERiverType::ERiverType riverType;
-	ui8 riverDir;
-	ERoadType::ERoadType roadType;
-	ui8 roadDir;
+	ETerrainType terType; //1 byte
+	ui8 terView; //1 byte
+	ERiverType::ERiverType riverType; //1 byte
+	ui8 riverDir; //1 byte
+	ERoadType::ERoadType roadType; // 1 byte
+	ui8 roadDir; // 1 byte
 	/// first two bits - how to rotate terrain graphic (next two - river graphic, next two - road);
 	///	7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favourable Winds effect
-	ui8 extTileFlags;
+	ui8 extTileFlags; //1 byte
+
 	bool visitable;
 	bool blocked;
 
