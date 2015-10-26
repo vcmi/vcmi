@@ -3273,20 +3273,20 @@ TeamState::TeamState()
 
 void CPathfinder::initializeGraph()
 {
+	int3 pos;
 	CGPathNode ***graph = out.nodes;
-	for(size_t i=0; i < out.sizes.x; ++i)
+	for(pos.x=0; pos.x < out.sizes.x; ++pos.x)
 	{
-		for(size_t j=0; j < out.sizes.y; ++j)
+		for(pos.y=0; pos.y < out.sizes.y; ++pos.y)
 		{
-			for(size_t k=0; k < out.sizes.z; ++k)
+			for(pos.z=0; pos.z < out.sizes.z; ++pos.z)
 			{
-				curPos = int3(i,j,k);
-				const TerrainTile *tinfo = &gs->map->getTile(curPos);
-				CGPathNode &node = graph[i][j][k];
-				node.accessible = evaluateAccessibility(tinfo);
+				const TerrainTile *tinfo = &gs->map->getTile(pos);
+				CGPathNode &node = graph[pos.x][pos.y][pos.z];
+				node.accessible = evaluateAccessibility(pos, tinfo);
 				node.turns = 0xff;
 				node.moveRemains = 0;
-				node.coord = curPos;
+				node.coord = pos;
 				node.land = tinfo->terType != ETerrainType::WATER;
 				node.theNodeBefore = nullptr;
 			}
@@ -3518,12 +3518,12 @@ bool CPathfinder::canMoveBetween(const int3 &a, const int3 &b) const
 	return gs->checkForVisitableDir(a, b);
 }
 
-CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile *tinfo) const
+CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 &pos, const TerrainTile *tinfo) const
 {
 	CGPathNode::EAccessibility ret = (tinfo->blocked ? CGPathNode::BLOCKED : CGPathNode::ACCESSIBLE);
 
 
-	if(tinfo->terType == ETerrainType::ROCK || !FoW[curPos.x][curPos.y][curPos.z])
+	if(tinfo->terType == ETerrainType::ROCK || !FoW[pos.x][pos.y][pos.z])
 		return CGPathNode::BLOCKED;
 
 	if(tinfo->visitable)
@@ -3551,7 +3551,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 			}
 		}
 	}
-	else if(gs->map->guardingCreaturePositions[curPos.x][curPos.y][curPos.z].valid()
+	else if(gs->map->guardingCreaturePositions[pos.x][pos.y][pos.z].valid()
 		&& !tinfo->blocked)
 	{
 		// Monster close by; blocked visit for battle.

@@ -301,7 +301,6 @@ private:
 
 	std::vector<int3> neighbours;
 
-	int3 curPos;
 	CGPathNode *cp; //current (source) path node -> we took it from the queue
 	CGPathNode *dp; //destination node -> it's a neighbour of cp that we consider
 	const TerrainTile *ct, *dt; //tile info for both nodes
@@ -322,7 +321,7 @@ private:
 
 	bool checkDestinationTile();
 
-	CGPathNode::EAccessibility evaluateAccessibility(const TerrainTile *tinfo) const;
+	CGPathNode::EAccessibility evaluateAccessibility(const int3 &pos, const TerrainTile *tinfo) const;
 	bool canMoveBetween(const int3 &a, const int3 &b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
 
 	bool addTeleportTwoWay(const CGTeleport * obj) const;
