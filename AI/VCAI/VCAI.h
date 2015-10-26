@@ -161,6 +161,8 @@ public:
 	std::set<const CGObjectInstance *> alreadyVisited;
 	std::set<const CGObjectInstance *> reservedObjs; //to be visited by specific hero
 
+	std::map <HeroPtr, SectorMap> cachedSectorMaps; //TODO: serialize? not necessary
+
 	TResources saving;
 
 	AIStatus status;
@@ -296,7 +298,7 @@ public:
 	void markHeroUnableToExplore (HeroPtr h);
 	void markHeroAbleToExplore (HeroPtr h);
 	bool isAbleToExplore (HeroPtr h);
-	void clearHeroesUnableToExplore();
+	void clearPathsInfo();
 
 	void validateObject(const CGObjectInstance *obj); //checks if object is still visible and if not, removes references to it
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
@@ -311,6 +313,8 @@ public:
 
 	const CGObjectInstance *getUnvisitedObj(const std::function<bool(const CGObjectInstance *)> &predicate);
 	bool isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies = false) const;
+	//optimization - use one SM for every hero call
+	SectorMap& getCachedSectorMap(HeroPtr h);
 
 	const CGTownInstance *findTownWithTavern() const;
 	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;

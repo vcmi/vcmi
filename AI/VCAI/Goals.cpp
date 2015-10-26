@@ -483,7 +483,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 
 		//if our hero is trapped, make sure we request clearing the way from OUR perspective
 
-		SectorMap sm(h);
+		SectorMap &sm = ai->getCachedSectorMap(h);
 
 		int3 tileToHit = sm.firstTileToGet(h, tile);
 		if (!tileToHit.valid())
@@ -633,7 +633,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 
 	for (auto h : heroes)
 	{
-		SectorMap sm(h);
+		SectorMap &sm = ai->getCachedSectorMap(h);
 
 		for (auto obj : objs) //double loop, performance risk?
 		{
@@ -963,7 +963,7 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 
 	for (auto h : cb->getHeroesInfo())
 	{
-		SectorMap sm(h);
+		SectorMap &sm = ai->getCachedSectorMap(h);
 		std::vector<const CGObjectInstance *> ourObjs(objs); //copy common objects
 
 		for (auto obj : ai->reservedHeroesMap[h]) //add objects reserved by this hero
@@ -1093,7 +1093,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	}
 	for(auto h : cb->getHeroesInfo())
 	{
-		SectorMap sm(h);
+		SectorMap &sm = ai->getCachedSectorMap(h);
 		for (auto obj : objs)
 		{ //find safe dwelling
 			auto pos = obj->visitablePos();

@@ -55,7 +55,7 @@ class FuzzyHelper
 		~EvalVisitTile();
 	} vt;
 
-	std::map <HeroPtr, SectorMap> cachedSectorMaps;
+	
 
 public:
 	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE, VISIT_TILE};
@@ -84,7 +84,4 @@ public:
 
 	Goals::TSubgoal chooseSolution (Goals::TGoalVec vec);
 	//shared_ptr<AbstractGoal> chooseSolution (std::vector<shared_ptr<AbstractGoal>> & vec);
-
-	//optimization - use one SM for every hero call
-	SectorMap& getCachedSectorMap (HeroPtr h);
 };
