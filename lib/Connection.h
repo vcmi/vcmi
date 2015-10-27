@@ -86,7 +86,7 @@ struct TypeComparer
     #ifndef __APPLE__
       return a->before(*b);
     #else
-      return std::string(a->name()) < std::string(b->name());
+      return strcmp(a->name(), b->name()) < 0;
     #endif
     }
 };
@@ -106,6 +106,11 @@ struct PointerCaster : IPointerCaster
 	{
 		From * from = (From*)boost::any_cast<void*>(ptr);
 		To * ret = dynamic_cast<To*>(from);
+		if (ret == nullptr)
+		{
+			// Last resort when RTTI goes mad
+			ret = static_cast<To*>(from);
+		}
 		return (void*)ret;
 	}
 
@@ -117,6 +122,11 @@ struct PointerCaster : IPointerCaster
 		{
 			auto from = boost::any_cast<SmartPt>(ptr);
 			auto ret = std::dynamic_pointer_cast<To>(from);
+			if (!ret)
+			{
+				// Last resort when RTTI goes mad
+				ret = std::static_pointer_cast<To>(from);
+			}
 			return ret;
 		}
 		catch(std::exception &e)
@@ -173,7 +183,7 @@ private:
 		auto typesSequence = castSequence(fromArg, toArg);
 
 		boost::any ptr = inputPtr;
-		for(int i = 0; i < (int)typesSequence.size() - 1; i++)
+		for(int i = 0; i < static_cast<int>(typesSequence.size()) - 1; i++)
 		{
 			auto &from = typesSequence[i];
 			auto &to = typesSequence[i + 1];
@@ -182,7 +192,7 @@ private:
 				THROW_FORMAT("Cannot find caster for conversion %s -> %s which is needed to cast %s -> %s", from->name % to->name % fromArg->name() % toArg->name());
 
 			auto &caster = casters.at(castingPair);
-			ptr = (*caster.*CastingFunction)(ptr); //Why does unique_ptr does not have operator->* ..?
+			ptr = (*caster.*CastingFunction)(ptr); //Why does unique_ptr not have operator->* ..?
 		}
 
 		return ptr;
@@ -225,10 +235,14 @@ public:
 		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
 		auto derivedType = getTypeInfo(inputPtr);
 
-		if(baseType == *derivedType)
-			return (void*)inputPtr;
+		if (!strcmp(baseType.name(), derivedType->name()))
+		{
+			return const_cast<void*>(reinterpret_cast<const void*>(inputPtr));
+		}
 
-		return boost::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>((void*)inputPtr, &baseType, derivedType));
+		return boost::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>(
+			const_cast<void*>(reinterpret_cast<const void*>(inputPtr)), &baseType,
+			derivedType));
 	}
 
 	template<typename TInput>
@@ -237,7 +251,7 @@ public:
 		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
 		auto derivedType = getTypeInfo(inputPtr.get());
 
-		if(baseType == *derivedType)
+		if (!strcmp(baseType.name(), derivedType->name()))
 			return inputPtr;
 
 		return castHelper<&IPointerCaster::castSharedPtr>(inputPtr, &baseType, derivedType);
@@ -660,9 +674,8 @@ public:
 		{
 			COSer &s = static_cast<COSer&>(ar);
 			const T *ptr = static_cast<const T*>(data);
-
 			//T is most derived known type, it's time to call actual serialize
-			const_cast<T&>(*ptr).serialize(s,version);
+			const_cast<T*>(ptr)->serialize(s,version);
 		}
 	};
 
