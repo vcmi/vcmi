@@ -84,8 +84,7 @@ private:
 		bool useTeleportWhirlpool; // Force enabled if hero protected or unaffected (have one stack of one creature)
 
 		PathfinderOptions();
-	};
-	PathfinderOptions options;
+	} options;
 
 	CPathsInfo &out;
 	const CGHeroInstance *hero;
