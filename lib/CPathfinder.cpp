@@ -3,7 +3,8 @@
 
 #include "CHeroHandler.h"
 #include "mapping/CMap.h"
-#include "registerTypes/RegisterTypes.h"
+#include "CGameState.h"
+#include "mapObjects/CGHeroInstance.h"
 #include "GameConstants.h"
 #include "CStopWatch.h"
 
