@@ -16,6 +16,7 @@
 #include "int3.h"
 #include "CRandomGenerator.h"
 #include "CGameStateFwd.h"
+#include "CPathfinder.h"
 
 /*
  * CGameState.h, part of VCMI engine
@@ -44,7 +45,6 @@ class CMap;
 struct StartInfo;
 struct SDL_Surface;
 class CMapHandler;
-class CPathfinder;
 struct SetObjectProperty;
 struct MetaString;
 struct CPack;
@@ -274,64 +274,6 @@ struct DLL_EXPORT DuelParameters
 	{
 		h & terType & bfieldType & sides & obstacles & creatures;
 	}
-};
-
-class CPathfinder : private CGameInfoCallback
-{
-private:
-	struct PathfinderOptions
-	{
-		bool useFlying;
-		bool useWaterWalking;
-		bool useEmbarkAndDisembark;
-		bool useTeleportTwoWay; // Two-way monoliths and Subterranean Gate
-		bool useTeleportOneWay; // One-way monoliths with one known exit only
-		bool useTeleportOneWayRandom; // One-way monoliths with more than one known exit
-		bool useTeleportWhirlpool; // Force enabled if hero protected or unaffected (have one stack of one creature)
-
-		PathfinderOptions();
-	};
-	PathfinderOptions options;
-
-	CPathsInfo &out;
-	const CGHeroInstance *hero;
-	const std::vector<std::vector<std::vector<ui8> > > &FoW;
-
-	std::list<CGPathNode*> mq; //BFS queue -> nodes to be checked
-
-	std::vector<int3> neighbours;
-
-	CGPathNode *cp; //current (source) path node -> we took it from the queue
-	CGPathNode *dp; //destination node -> it's a neighbour of cp that we consider
-	const TerrainTile *ct, *dt; //tile info for both nodes
-	const CGObjectInstance *sTileObj;
-	ui8 useEmbarkCost; //0 - usual movement; 1 - embark; 2 - disembark
-
-	CGPathNode *getNode(const int3 &coord);
-	void initializeGraph();
-	bool isMovementPossible(); //checks if current move will be between sea<->land. If so, checks it legality (returns false if movement is not possible) and sets useEmbarkCost
-
-	int3 getSourceGuardPosition();
-	bool isSourceGuarded();
-	bool isDestinationGuarded();
-	bool isDestinationGuardian();
-
-	void addNeighbours(const int3 &coord);
-	void addTeleportExits(bool noTeleportExcludes = false);
-
-	bool checkDestinationTile();
-
-	CGPathNode::EAccessibility evaluateAccessibility(const int3 &pos, const TerrainTile *tinfo) const;
-	bool canMoveBetween(const int3 &a, const int3 &b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
-
-	bool addTeleportTwoWay(const CGTeleport * obj) const;
-	bool addTeleportOneWay(const CGTeleport * obj) const;
-	bool addTeleportOneWayRandom(const CGTeleport * obj) const;
-	bool addTeleportWhirlpool(const CGWhirlpool * obj) const;
-
-public:
-	CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero);
-	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 };
 
 

@@ -95,6 +95,7 @@ set(lib_SRCS
 
 		IGameCallback.cpp
 		CGameInfoCallback.cpp
+		CPathfinder.cpp
 		CGameState.cpp
 		Connection.cpp
 		NetPacksLib.cpp
