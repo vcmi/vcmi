@@ -957,7 +957,8 @@ typedef si64 TExpType;
 typedef std::pair<ui32, ui32> TDmgRange;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;
-typedef std::vector<std::vector<std::vector<ui8>>> TFoWMap;
+typedef boost::multi_array<ui8, 3> TFoWMap;
+typedef boost::multi_array<ui8, 3> TSectorMap;
 
 typedef int TRmgTemplateZoneId;
 

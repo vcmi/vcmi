@@ -470,10 +470,10 @@ shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisible
 	assert(player.is_initialized());
 	auto team = getPlayerTeam(player.get());
 
-	size_t width = gs->map->width;
-	size_t height = gs->map->height;
-	size_t levels = (gs->map->twoLevel ? 2 : 1);
-
+	int3 dim = gs->getMapSize();
+	size_t width = dim.x;
+	size_t height = dim.y;
+	size_t levels = dim.z;
 
 	boost::multi_array<TerrainTile*, 3> tileArray(boost::extents[width][height][levels]);
 	

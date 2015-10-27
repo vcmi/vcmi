@@ -91,7 +91,7 @@ struct SectorMap
 
 	bool valid; //some kind of lazy eval
 	std::map<int3, int3> parent;
-	std::vector<std::vector<std::vector<unsigned char>>> sector;
+	TSectorMap sector;
 	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector;
 
 	std::map<int, Sector> infoOnSectors;

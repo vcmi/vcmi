@@ -1618,13 +1618,7 @@ void CGameState::initFogOfWar()
 	logGlobal->debugStream() << "\tFog of war"; //FIXME: should be initialized after all bonuses are set
 	for(auto & elem : teams)
 	{
-		elem.second.fogOfWarMap.resize(map->width);
-		for(int g=0; g<map->width; ++g)
-			elem.second.fogOfWarMap[g].resize(map->height);
-
-		for(int g=-0; g<map->width; ++g)
-			for(int h=0; h<map->height; ++h)
-				elem.second.fogOfWarMap[g][h].resize(map->twoLevel ? 2 : 1, 0);
+		elem.second.fogOfWarMap.resize(boost::extents[map->width][map->height][map->twoLevel ? 2 : 1]);
 
 		for(int g=0; g<map->width; ++g)
 			for(int h=0; h<map->height; ++h)

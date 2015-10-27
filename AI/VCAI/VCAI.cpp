@@ -59,21 +59,21 @@ struct SetGlobalState
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
 #define MAKING_TURN SET_GLOBAL_STATE(this)
 
-unsigned char &retreiveTileN(std::vector< std::vector< std::vector<unsigned char> > > &vectors, const int3 &pos)
+unsigned char &retreiveTileN(TSectorMap &array, const int3 &pos)
 {
-	return vectors[pos.x][pos.y][pos.z];
+	return array[pos.x][pos.y][pos.z];
 }
 
-const unsigned char &retreiveTileN(const std::vector< std::vector< std::vector<unsigned char> > > &vectors, const int3 &pos)
+const unsigned char &retreiveTileN(const TSectorMap &array, const int3 &pos)
 {
-	return vectors[pos.x][pos.y][pos.z];
+	return array[pos.x][pos.y][pos.z];
 }
 
-void foreach_tile(std::vector< std::vector< std::vector<unsigned char> > > &vectors, std::function<void(unsigned char &in)> foo)
+void foreach_tile(TSectorMap &array, std::function<void(unsigned char &in)> foo)
 {
-	for(auto & vector : vectors)
-		for(auto j = vector.begin(); j != vector.end(); j++)
-			for(auto & elem : *j)
+	for (auto & array2d : array)
+		for (auto & vec : array2d)
+			for (auto & elem : vec)
 				foo(elem);
 }
 
@@ -2968,12 +2968,9 @@ void SectorMap::update()
 
 void SectorMap::clear()
 {
-	//FIXME: temporary workaround for compatibility
-	//auto visibilityMap = cb->getVisibilityMap();
-	//int width = cb->getMapSize().x;
-	//int height = cb->getMapSize().y;
-	//int twoLevel = cb->getMapSize().z;
-	//for ()
+	//TODO: copy by pointer and not value?
+	int3 dim = cb->getMapSize();
+	sector.resize(boost::extents[dim.x][dim.y][dim.z]);
 	sector = cb->getVisibilityMap();
 	valid = false;
 }
