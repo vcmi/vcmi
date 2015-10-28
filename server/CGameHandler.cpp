@@ -4480,7 +4480,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 
 			for(auto & i : ev.buildings)
 			{
-				if ( town->hasBuilt(i))
+				if(!town->hasBuilt(i))
 				{
 					buildStructure(town->id, i, true);
 					iw.components.push_back(Component(Component::BUILDING, town->subID, i, 0));
