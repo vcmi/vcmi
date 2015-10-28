@@ -253,13 +253,13 @@ struct DLL_LINKAGE Bonus
 {
 	enum { EVERY_TYPE = -1 };
 
-	enum BonusType
+	enum BonusType : ui8 //TODO: at 2015:10:24 there are 149 possible values, how about EVERY_TYPE = -1?
 	{
 #define BONUS_NAME(x) x,
 		BONUS_LIST
 #undef BONUS_NAME
 	};
-	enum BonusDuration //when bonus is automatically removed
+	enum BonusDuration : ui16 //when bonus is automatically removed
 	{
 		PERMANENT = 1,
 		ONE_BATTLE = 2, //at the end of battle
@@ -272,41 +272,43 @@ struct DLL_LINKAGE Bonus
 		STACK_GETS_TURN = 256, /*removed when stack gets its turn - used for defensive stance*/
 		COMMANDER_KILLED = 512
 	};
-	enum BonusSource
+	enum BonusSource : ui8
 	{
 #define BONUS_SOURCE(x) x,
 		BONUS_SOURCE_LIST
 #undef BONUS_SOURCE
 	};
 
-	enum LimitEffect
+	enum LimitEffect : ui8
 	{
 		NO_LIMIT = 0,
 		ONLY_DISTANCE_FIGHT=1, ONLY_MELEE_FIGHT, //used to mark bonuses for attack/defense primary skills from spells like Precision (distance only)
 		ONLY_ENEMY_ARMY
 	};
 
-	enum ValueType
+	enum ValueType : ui8
 	{
 #define BONUS_VALUE(x) x,
 		BONUS_VALUE_LIST
 #undef BONUS_VALUE
 	};
 
-	ui16 duration; //uses BonusDuration values
-	si16 turnsRemain; //used if duration is N_TURNS or N_DAYS
-
-	BonusType type; //uses BonusType values - says to what is this bonus - 1 byte
 	TBonusSubtype subtype; //-1 if not applicable - 4 bytes
+	si32 val; //4 bytes
 
-	BonusSource source;//source type" uses BonusSource values - what gave that bonus
-	si32 val;
+	//mind 4-byte alignment - bigger structures first
+	ui16 duration; //uses BonusDuration values //2 bytes
+	si16 turnsRemain; //used if duration is N_TURNS or N_DAYS //2 bytes
+
+	BonusType type; //uses BonusType values - says to what is this bonus // 1 byte
+	BonusSource source;//source type" uses BonusSource values - what gave that bonus // 1 byte
+	ValueType valType;// 1 byte
+	LimitEffect effectRange; //if not NO_LIMIT, bonus will be omitted by default // 1 byte
+
+
 	ui32 sid; //source id: id of object/artifact/spell
-	ValueType valType;
-
 	si32 additionalInfo;
-	LimitEffect effectRange; //if not NO_LIMIT, bonus will be omitted by default
-
+	
 	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
 
@@ -331,7 +333,7 @@ struct DLL_LINKAGE Bonus
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter & propagator;
+		h & subtype & val & duration & turnsRemain & type & source & valType & effectRange & sid & additionalInfo & description & limiter & propagator;
 	}
 
 	static bool compareByAdditionalInfo(const Bonus *a, const Bonus *b)

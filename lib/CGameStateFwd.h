@@ -120,7 +120,7 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 
 struct DLL_LINKAGE CGPathNode
 {
-	enum EAccessibility
+	enum EAccessibility : ui8
 	{
 		NOT_SET = 0,
 		ACCESSIBLE = 1, //tile can be entered and passed

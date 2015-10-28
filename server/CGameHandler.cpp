@@ -1417,11 +1417,18 @@ void CGameHandler::newTurn()
 				fw.player = player;
 				// find all hidden tiles
 				const auto & fow = gs->getPlayerTeam(player)->fogOfWarMap;
-				for (size_t i=0; i<fow.size(); i++)
-					for (size_t j=0; j<fow.at(i).size(); j++)
-						for (size_t k=0; k<fow.at(i).at(j).size(); k++)
-							if (!fow.at(i).at(j).at(k))
-								fw.tiles.insert(int3(i,j,k));
+
+				int3 dim = gs->getMapSize();
+				size_t width = dim.x;
+				size_t height = dim.y;
+				size_t levels = dim.z;
+				int3 pos(0,0,0); //do not construct/destroy object
+
+				for (pos.x = 0; pos.x < width; pos.x++)
+					for (pos.y = 0; pos.y < width; pos.y++)
+						for (pos.z = 0; pos.z < levels; pos.z++)
+							if (!fow[pos.x][pos.y][pos.z])
+								fw.tiles.insert(pos);
 
 				sendAndApply (&fw);
 			}
@@ -4058,11 +4065,21 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		fc.player = player;
 		auto  hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->twoLevel ? 2 : 1)];
 		int lastUnc = 0;
-		for(int i=0;i<gs->map->width;i++)
-			for(int j=0;j<gs->map->height;j++)
-				for(int k = 0; k < (gs->map->twoLevel ? 2 : 1); k++)
-					if(!gs->getPlayerTeam(fc.player)->fogOfWarMap.at(i).at(j).at(k))
-						hlp_tab[lastUnc++] = int3(i,j,k);
+
+		auto fow = gs->getPlayerTeam(fc.player)->fogOfWarMap;
+
+		int3 dim = gs->getMapSize();
+		size_t width = dim.x;
+		size_t height = dim.y;
+		size_t levels = dim.z;
+		int3 pos(0, 0, 0); //do not construct/destroy object
+
+		for (pos.x = 0; pos.x < width; pos.x++)
+			for (pos.y = 0; pos.y < width; pos.y++)
+				for (pos.z = 0; pos.z < levels; pos.z++)
+					if(!fow[pos.x][pos.y][pos.x])
+						hlp_tab[lastUnc++] = pos;
+
 		fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
 		delete [] hlp_tab;
 		sendAndApply(&fc);

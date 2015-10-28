@@ -799,6 +799,7 @@ public:
 		for(ui32 i=0; i < size; i++)
 			*this << data[i];
 	}
+
 	template <typename T>
 	void save(const T &data)
 	{
@@ -859,6 +860,18 @@ public:
 		*this << length;
 		for(ui32 i=0;i<length;i++)
 			*this << data[i];
+	}
+	template <typename T>
+	void saveSerializable(const boost::multi_array<T, 3> & data)
+	{
+		ui32 xSize = data.shape()[0];
+		ui32 ySize = data.shape()[1];
+		ui32 zSize = data.shape()[2];
+		*this << xSize << ySize << zSize;
+		for (ui32 x = 0; x < xSize; x++)
+			for (ui32 y = 0; y < ySize; y++)
+				for (ui32 z = 0; z < zSize; z++)
+			*this << data[x][y][z];
 	}
 	template <typename T, size_t N>
 	void saveSerializable(const std::array<T, N> &data)
@@ -1314,11 +1327,11 @@ public:
 	}
 
 #define READ_CHECK_U32(x)			\
-	ui32 length;			\
-	*this >> length;				\
-	if(length > 500000)				\
+	ui32 x;			\
+	*this >> x;				\
+	if(x > 500000)				\
 	{								\
-        logGlobal->warnStream() << "Warning: very big length: " << length;\
+        logGlobal->warnStream() << "Warning: very big length: " << x;\
         reader->reportState(logGlobal);			\
 	};
 
@@ -1388,6 +1401,19 @@ public:
 		data.resize(length);
 		for(ui32 i=0;i<length;i++)
 			*this >> data[i];
+	}
+	template <typename T>
+	void loadSerializable(boost::multi_array<T, 3> & data)
+	{
+		READ_CHECK_U32(xSize);
+		READ_CHECK_U32(ySize);
+		READ_CHECK_U32(zSize);
+
+		data.resize(boost::extents[xSize][ySize][zSize]);
+		for (ui32 x = 0; x < xSize; x++)
+			for (ui32 y = 0; y < ySize; y++)
+				for (ui32 z = 0; z < zSize; z++)
+					*this >> data[x][y][z];
 	}
 	template <typename T, size_t N>
 	void loadSerializable(std::array<T, N> &data)

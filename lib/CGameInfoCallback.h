@@ -139,7 +139,7 @@ public:
 
 	int getResourceAmount(Res::ERes type) const;
 	TResources getResourceAmount() const;
-	const std::vector< std::vector< std::vector<ui8> > > & getVisibilityMap()const; //returns visibility map 
+	const TFoWMap & getVisibilityMap()const; //returns visibility map 
 	const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 };
 

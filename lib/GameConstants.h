@@ -467,7 +467,7 @@ namespace EWallState
 
 namespace ETileType
 {
-	enum ETileType
+	enum ETileType : ui8
 	{
 		FREE,
 		POSSIBLE,
@@ -487,7 +487,7 @@ enum class ETeleportChannelType
 
 namespace ERiverType
 {
-	enum ERiverType
+	enum ERiverType : ui8
 	{
 		NO_RIVER, CLEAR_RIVER, ICY_RIVER, MUDDY_RIVER, LAVA_RIVER
 	};
@@ -495,7 +495,7 @@ namespace ERiverType
 
 namespace ERoadType
 {
-	enum ERoadType
+	enum ERoadType : ui8
 	{
 		NO_ROAD, DIRT_ROAD, GRAVEL_ROAD, COBBLESTONE_ROAD
 	};
@@ -725,7 +725,7 @@ std::ostream & operator<<(std::ostream & os, const Battle::ActionType actionType
 class DLL_LINKAGE ETerrainType
 {
 public:
-	enum EETerrainType
+	enum EETerrainType : si8
 	{
 		WRONG = -2, BORDER = -1, DIRT, SAND, GRASS, SNOW, SWAMP,
 		ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK
@@ -957,6 +957,8 @@ typedef si64 TExpType;
 typedef std::pair<ui32, ui32> TDmgRange;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;
+typedef boost::multi_array<ui8, 3> TFoWMap;
+typedef boost::multi_array<ui8, 3> TSectorMap;
 
 typedef int TRmgTemplateZoneId;
 

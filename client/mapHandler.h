@@ -88,7 +88,7 @@ struct MapDrawingInfo
 {
 	bool scaled;
 	int3 &topTile; // top-left tile in viewport [in tiles]
-	const std::vector< std::vector< std::vector<ui8> > > * visibilityMap;
+	const TFoWMap * visibilityMap;
 	SDL_Rect * drawBounds; // map rect drawing bounds on screen
 	CDefHandler * iconsDef; // holds overlay icons for world view mode
 	float scale; // map scale for world view mode (only if scaled == true)
@@ -106,7 +106,7 @@ struct MapDrawingInfo
 	
 	bool showAllTerrain; //for expert viewEarth
 	
-	MapDrawingInfo(int3 &topTile_, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap_, SDL_Rect * drawBounds_, CDefHandler * iconsDef_ = nullptr)
+	MapDrawingInfo(int3 &topTile_, const TFoWMap * visibilityMap_, SDL_Rect * drawBounds_, CDefHandler * iconsDef_ = nullptr)
 		: scaled(false),
 		  topTile(topTile_),
 		  visibilityMap(visibilityMap_),
