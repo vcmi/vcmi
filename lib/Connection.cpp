@@ -68,7 +68,7 @@ void CConnection::init()
 }
 
 CConnection::CConnection(std::string host, std::string port, std::string Name)
-:iser(this), oser(this), io_service(new asio::io_service), name(Name) 
+:iser(this), oser(this), io_service(new asio::io_service), name(Name)
 {
 	int i;
 	boost::system::error_code error = asio::error::host_not_found;
@@ -119,7 +119,7 @@ connerror1:
 	else
         logNetwork->errorStream() << "No error info. ";
 	delete io_service;
-	//delete socket;	
+	//delete socket;
 	throw std::runtime_error("Can't establish connection :(");
 }
 CConnection::CConnection(TSocket * Socket, std::string Name )
@@ -134,10 +134,10 @@ CConnection::CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_servi
 	socket = new tcp::socket(*io_service);
 	acceptor->accept(*socket,error);
 	if (error)
-	{ 
+	{
         logNetwork->errorStream() << "Error on accepting: " << error;
-		delete socket;	
-		throw std::runtime_error("Can't establish connection :("); 
+		delete socket;
+		throw std::runtime_error("Can't establish connection :(");
 	}
 	init();
 }
@@ -238,12 +238,12 @@ void CConnection::sendPackToServer(const CPack &pack, PlayerColor player, ui32 r
 
 void CConnection::disableStackSendingByID()
 {
-	CSerializer::sendStackInstanceByIds = false;	
+	CSerializer::sendStackInstanceByIds = false;
 }
 
 void CConnection::enableStackSendingByID()
 {
-	CSerializer::sendStackInstanceByIds = true;	
+	CSerializer::sendStackInstanceByIds = true;
 }
 
 void CConnection::disableSmartPointerSerialization()
@@ -283,7 +283,7 @@ void CConnection::enableSmartVectorMemberSerializatoin()
 	CSerializer::smartVectorMembersSerialization = true;
 }
 
-CSaveFile::CSaveFile( const std::string &fname ): serializer(this) 
+CSaveFile::CSaveFile( const std::string &fname ): serializer(this)
 {
 	registerTypes(serializer);
 	openNextFile(fname);
@@ -377,7 +377,7 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 		if(std::memcmp(buffer,"VCMI",4))
 			THROW_FORMAT("Error: not a VCMI file(%s)!", fName);
 
-		serializer >> serializer.fileVersion;	
+		serializer >> serializer.fileVersion;
 		if(serializer.fileVersion < minimalVersion)
 			THROW_FORMAT("Error: too old file format (%s)!", fName);
 
@@ -448,18 +448,19 @@ CTypeList::TypeInfoPtr CTypeList::registerType( const std::type_info *type )
 	return newType;
 }
 
-ui16 CTypeList::getTypeID( const std::type_info *type )
+ui16 CTypeList::getTypeID( const std::type_info *type, bool throws ) const
 {
-	auto i = typeInfos.find(type);
-	if(i != typeInfos.end())
-		return i->second->typeID;
-	else
+	auto descriptor = getTypeDescriptor(type, throws);
+	if (descriptor == nullptr)
+	{
 		return 0;
+	}
+	return descriptor->typeID;
 }
 
-std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, TypeInfoPtr to)
+std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, TypeInfoPtr to) const
 {
-	if(from == to)
+	if(!strcmp(from->name, to->name))
 		return std::vector<CTypeList::TypeInfoPtr>();
 
 	// Perform a simple BFS in the class hierarchy.
@@ -482,7 +483,7 @@ std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, Ty
 				}
 			}
 		}
-		
+
 		std::vector<TypeInfoPtr> ret;
 
 		if(!previous.count(from))
@@ -510,21 +511,21 @@ std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, Ty
 	return ret;
 }
 
-std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(const std::type_info *from, const std::type_info *to)
+std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(const std::type_info *from, const std::type_info *to) const
 {
 	//This additional if is needed because getTypeDescriptor might fail if type is not registered
 	// (and if casting is not needed, then registereing should no  be required)
-	if(*from == *to)
+	if(!strcmp(from->name(), to->name()))
 		return std::vector<CTypeList::TypeInfoPtr>();
 
 	return castSequence(getTypeDescriptor(from), getTypeDescriptor(to));
 }
 
-CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(const std::type_info *type, bool throws)
+CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(const std::type_info *type, bool throws) const
 {
 	auto i = typeInfos.find(type);
 	if(i != typeInfos.end())
-		return i->second; //type found, return ptr to structure	
+		return i->second; //type found, return ptr to structure
 
 	if(!throws)
 		return nullptr;
@@ -551,19 +552,19 @@ CSerializer::CSerializer()
 
 void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
 {
-	registerVectoredType<CGObjectInstance, ObjectInstanceID>(&gs->map->objects, 
+	registerVectoredType<CGObjectInstance, ObjectInstanceID>(&gs->map->objects,
 		[](const CGObjectInstance &obj){ return obj.id; });
-	registerVectoredType<CHero, HeroTypeID>(&lib->heroh->heroes, 
+	registerVectoredType<CHero, HeroTypeID>(&lib->heroh->heroes,
 		[](const CHero &h){ return h.ID; });
 	registerVectoredType<CGHeroInstance, HeroTypeID>(&gs->map->allHeroes,
 		[](const CGHeroInstance &h){ return h.type->ID; });
-	registerVectoredType<CCreature, CreatureID>(&lib->creh->creatures, 
+	registerVectoredType<CCreature, CreatureID>(&lib->creh->creatures,
 		[](const CCreature &cre){ return cre.idNumber; });
 	registerVectoredType<CArtifact, ArtifactID>(&lib->arth->artifacts,
 		[](const CArtifact &art){ return art.id; });
-	registerVectoredType<CArtifactInstance, ArtifactInstanceID>(&gs->map->artInstances, 
+	registerVectoredType<CArtifactInstance, ArtifactInstanceID>(&gs->map->artInstances,
 		[](const CArtifactInstance &artInst){ return artInst.id; });
-	registerVectoredType<CQuest, si32>(&gs->map->quests, 
+	registerVectoredType<CQuest, si32>(&gs->map->quests,
 		[](const CQuest &q){ return q.qid; });
 
 	smartVectorMembersSerialization = true;
@@ -644,4 +645,3 @@ CMemorySerializer::CMemorySerializer(): iser(this), oser(this)
 	registerTypes(iser);
 	registerTypes(oser);
 }
-
