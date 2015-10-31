@@ -62,9 +62,9 @@ CAdvMapInt *adventureInt;
 
 
 CTerrainRect::CTerrainRect()
-	: fadeSurface(nullptr), 
+	: fadeSurface(nullptr),
 	  fadeAnim(new CFadeAnimation()),
-	  curHoveredTile(-1,-1,-1), 
+	  curHoveredTile(-1,-1,-1),
 	  currentPath(nullptr)
 {
 	tilesw=(ADVOPT.advmapW+31)/32;
@@ -283,7 +283,7 @@ void CTerrainRect::show(SDL_Surface * to)
 		info.heroAnim = adventureInt->heroAnim;
 		if (ADVOPT.smoothMove)
 			info.movement = int3(moveX, moveY, 0);
-		
+
 		lastRedrawStatus = CGI->mh->drawTerrainRectNew(to, &info);
 		if (fadeAnim->isFading())
 		{
@@ -316,7 +316,7 @@ void CTerrainRect::showAll(SDL_Surface * to)
 }
 
 void CTerrainRect::showAnim(SDL_Surface * to)
-{	
+{
 	if (fadeAnim->isFading())
 		show(to);
 	else if (lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED)
@@ -357,7 +357,7 @@ void CTerrainRect::fadeFromCurrentView()
 		return;
 	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 		return;
-	
+
 	if (!fadeSurface)
 		fadeSurface = CSDL_Ext::newSurface(pos.w, pos.h);
 	SDL_BlitSurface(screen, &pos, fadeSurface, nullptr);
@@ -502,10 +502,10 @@ CAdvMapInt::CAdvMapInt():
 	endTurn      = makeButton(302, std::bind(&CAdvMapInt::fendTurn,this),          ADVOPT.endTurn,      SDLK_e);
 
 	int panelSpaceBottom = screen->h - resdatabar.pos.h - 4;
-	
+
 	panelMain = new CAdvMapPanel(nullptr, Point(0, 0));
 	// TODO correct drawing position
-	panelWorldView = new CAdvMapWorldViewPanel(bgWorldView, Point(heroList.pos.x - 2, 195), panelSpaceBottom, LOCPLINT->playerID); 
+	panelWorldView = new CAdvMapWorldViewPanel(bgWorldView, Point(heroList.pos.x - 2, 195), panelSpaceBottom, LOCPLINT->playerID);
 
 	panelMain->addChildColorableButton(kingOverview);
 	panelMain->addChildColorableButton(underground);
@@ -593,7 +593,7 @@ CAdvMapInt::CAdvMapInt():
 											Colors::WHITE, CGI->generaltexth->allTexts[618]));
 
 	activeMapPanel = panelMain;
-	
+
 	changeMode(EAdvMapMode::NORMAL);
 
 	underground->block(!CGI->mh->map->twoLevel);
@@ -966,7 +966,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 		for(int i=0;i<4;i++)
 			blitAt(gems[i]->ourImages[LOCPLINT->playerID.getNum()].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
 	}
-	
+
 	infoBar.show(to);
 	statusbar.showAll(to);
 }
@@ -981,7 +981,7 @@ void CAdvMapInt::selectionChanged()
 void CAdvMapInt::centerOn(int3 on, bool fade /* = false */)
 {
 	bool switchedLevels = on.z != position.z;
-	
+
 	if (fade)
 	{
 		terrain.fadeFromCurrentView();
@@ -1534,7 +1534,9 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	}
 	else if(const CGHeroInstance *h = curHero())
 	{
-		const CGPathNode *pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPos);
+		int3 mapPosCopy = mapPos;
+		const CGPathNode *pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPosCopy);
+		assert(pnode);
 
 		int turns = pnode->turns;
 		vstd::amin(turns, 3);
@@ -1780,9 +1782,9 @@ void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale /* = 0.4f */)
 			townList.activate();
 			heroList.activate();
 			infoBar.activate();
-			
+
 			worldViewOptions.clear();
-			
+
 			break;
 		case EAdvMapMode::WORLD_VIEW:
 			panelMain->deactivate();
@@ -1852,14 +1854,13 @@ CAdvMapInt::WorldViewOptions::WorldViewOptions()
 void CAdvMapInt::WorldViewOptions::clear()
 {
 	showAllTerrain = false;
-	
+
 	iconPositions.clear();
 }
 
 void CAdvMapInt::WorldViewOptions::adjustDrawingInfo(MapDrawingInfo& info)
 {
 	info.showAllTerrain = showAllTerrain;
-	
-	info.additionalIcons = &iconPositions;	
-}
 
+	info.additionalIcons = &iconPositions;
+}

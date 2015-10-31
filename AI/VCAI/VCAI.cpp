@@ -825,7 +825,7 @@ void VCAI::makeTurnInternal()
 		{
 			if (h->movement)
 				logAi->warnStream() << boost::format("hero %s has %d MP left") % h->name % h->movement;
-		}	
+		}
 	}
 	catch(boost::thread_interrupted &e)
 	{
@@ -894,7 +894,7 @@ bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * sourc
 
 
 	const CArmedInstance *armies[] = {army, source};
- 
+
 	//we calculate total strength for each creature type available in armies
 	std::map<const CCreature*, int> creToPower;
 	for(auto armyPtr : armies)
@@ -991,7 +991,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 }
 
 void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other)
-{	
+{
 	auto equipBest = [](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
 	{
 		bool changeMade = false;
@@ -2065,7 +2065,7 @@ void VCAI::tryRealize(Goals::CollectRes & g)
 				cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, i, g.resID, toGive);
 				if(cb->getResourceAmount(static_cast<Res::ERes>(g.resID)) >= g.value)
 					return;
-			} 
+			}
 
 			throw cannotFulfillGoalException("I cannot get needed resources by trade!");
 		}
@@ -2283,7 +2283,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			completeGoal (goal);
 			//completed goal was main goal //TODO: find better condition
 			if (ultimateGoal->fulfillsMe(goal) || maxGoals > searchDepth2)
-				return sptr(Goals::Invalid()); 
+				return sptr(Goals::Invalid());
 		}
 		catch(std::exception &e)
 		{
@@ -2539,7 +2539,7 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 {
 	SectorMap &sm = getCachedSectorMap(h);
 	int radius = h->getSightRadious();
-	
+
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
 	tiles.resize(radius);
 
@@ -2669,19 +2669,13 @@ void VCAI::finish()
 
 void VCAI::requestActionASAP(std::function<void()> whatToDo)
 {
-// 	static boost::mutex m;
-// 	boost::unique_lock<boost::mutex> mylock(m);
-
-	boost::barrier b(2);
-	boost::thread newThread([&b,this,whatToDo]()
+	boost::thread newThread([this, whatToDo]()
 	{
-		setThreadName("VCAI::requestActionASAP::helper");
+		setThreadName("VCAI::requestActionASAP::whatToDo");
 		SET_GLOBAL_STATE(this);
 		boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
-		b.wait();
 		whatToDo();
 	});
-	b.wait();
 }
 
 void VCAI::lostHero(HeroPtr h)
@@ -2795,7 +2789,7 @@ BattleState AIStatus::getBattle()
 }
 
 void AIStatus::addQuery(QueryID ID, std::string description)
-{	
+{
 	if(ID == QueryID(-1))
 	{
         logAi->debugStream() << boost::format("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s") % ID % description;
@@ -2820,7 +2814,7 @@ void AIStatus::removeQuery(QueryID ID)
 
 	std::string description = remainingQueries[ID];
 	remainingQueries.erase(ID);
-	
+
 	cv.notify_all();
     logAi->debugStream() << boost::format("Removing query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
@@ -2892,8 +2886,8 @@ void AIStatus::heroVisit(const CGObjectInstance *obj, bool started)
 		objectsBeingVisited.push_back(obj);
 	else
 	{
-		// There can be more than one object visited at the time (eg. hero visits Subterranean Gate 
-		// causing visit to hero on the other side. 
+		// There can be more than one object visited at the time (eg. hero visits Subterranean Gate
+		// causing visit to hero on the other side.
 		// However, we are guaranteed that start/end visit notification maintain stack order.
 		assert(!objectsBeingVisited.empty());
 		objectsBeingVisited.pop_back();
@@ -3007,7 +3001,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 							s.embarkmentPoints.push_back(neighPos);
 						}
 					});
-					
+
 					if(t->visitable)
 					{
 						auto obj = t->visitableObjects.front();
@@ -3063,7 +3057,7 @@ bool isWeeklyRevisitable (const CGObjectInstance * obj)
 bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 {
 	switch (obj->ID)
-	{	
+	{
 		case Obj::TOWN:
 		case Obj::HERO: //never visit our heroes at random
 			return obj->tempOwner != h->tempOwner; //do not visit our towns at random
@@ -3114,7 +3108,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			return canRecruitCreatures;
 		}
 		case Obj::HILL_FORT:
-		{	
+		{
 			for (auto slot : h->Slots())
 			{
 				if (slot.second->type->upgrades.size())
@@ -3413,7 +3407,7 @@ void SectorMap::makeParentBFS(crint3 source)
 		ui8 &sec = retreiveTile(curPos);
 		assert(sec == mySector); //consider only tiles from the same sector
 		UNUSED(sec);
-	
+
 		foreach_neighbour(curPos, [&](crint3 neighPos)
 		{
 			if(retreiveTile(neighPos) == mySector && !vstd::contains(parent, neighPos))

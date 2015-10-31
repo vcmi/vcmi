@@ -86,8 +86,8 @@ void CPregameServer::handleConnection(CConnection *cpc)
             logNetwork->infoStream() << "Got package to announce " << typeid(*cpfs).name() << " from " << *cpc;
 
 			boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-			bool quitting = dynamic_cast<QuitMenuWithoutStarting*>(cpfs), 
-				startingGame = dynamic_cast<StartWithCurrentSettings*>(cpfs);
+			bool quitting = dynamic_ptr_cast<QuitMenuWithoutStarting>(cpfs),
+				startingGame = dynamic_ptr_cast<StartWithCurrentSettings>(cpfs);
 			if(quitting || startingGame) //host leaves main menu or wants to start game -> we end
 			{
 				cpc->receivedStop = true;
@@ -258,11 +258,11 @@ void CPregameServer::sendPack(CConnection * pc, const CPackForSelectionScreen & 
 		*pc << &pack;
 	}
 
-	if(dynamic_cast<const QuitMenuWithoutStarting*>(&pack))
+	if(dynamic_ptr_cast<QuitMenuWithoutStarting>(&pack))
 	{
 		pc->sendStop = true;
 	}
-	else if(dynamic_cast<const StartWithCurrentSettings*>(&pack))
+	else if(dynamic_ptr_cast<StartWithCurrentSettings>(&pack))
 	{
 		pc->sendStop = true;
 	}
@@ -270,25 +270,25 @@ void CPregameServer::sendPack(CConnection * pc, const CPackForSelectionScreen & 
 
 void CPregameServer::processPack(CPackForSelectionScreen * pack)
 {
-	if(dynamic_cast<CPregamePackToHost*>(pack))
+	if(dynamic_ptr_cast<CPregamePackToHost>(pack))
 	{
 		sendPack(host, *pack);
 	}
-	else if(SelectMap *sm = dynamic_cast<SelectMap*>(pack))
+	else if(SelectMap *sm = dynamic_ptr_cast<SelectMap>(pack))
 	{
 		vstd::clear_pointer(curmap);
 		curmap = sm->mapInfo;
 		sm->free = false;
 		announcePack(*pack);
 	}
-	else if(UpdateStartOptions *uso = dynamic_cast<UpdateStartOptions*>(pack))
+	else if(UpdateStartOptions *uso = dynamic_ptr_cast<UpdateStartOptions>(pack))
 	{
 		vstd::clear_pointer(curStartInfo);
 		curStartInfo = uso->options;
 		uso->free = false;
 		announcePack(*pack);
 	}
-	else if(dynamic_cast<const StartWithCurrentSettings*>(pack))
+	else if(dynamic_ptr_cast<StartWithCurrentSettings>(pack))
 	{
 		state = ENDING_AND_STARTING_GAME;
 		announcePack(*pack);
@@ -307,7 +307,7 @@ void CPregameServer::initConnection(CConnection *c)
 }
 
 void CPregameServer::startListeningThread(CConnection * pc)
-{	
+{
 	listeningThreads++;
 	pc->enterPregameConnectionMode();
 	pc->handler = new boost::thread(&CPregameServer::handleConnection, this, pc);
@@ -355,7 +355,7 @@ void CVCMIServer::newGame()
 {
 	CConnection &c = *firstConnection;
 	ui8 clients;
-	c >> clients; //how many clients should be connected 
+	c >> clients; //how many clients should be connected
 	assert(clients == 1); //multi goes now by newPregame, TODO: custom lobbies
 
 	CGameHandler *gh = initGhFromHostingConnection(c);
@@ -469,14 +469,14 @@ void CVCMIServer::loadGame()
 // 		char sig[8];
 // 		CMapHeader dum;
 // 		StartInfo *si;
-// 
+//
 // 		CLoadFile lf(CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::LIB_SAVEGAME)));
 // 		lf >> sig >> dum >> si;
 // 		logNetwork->infoStream() <<"Reading save signature";
-// 
+//
 // 		lf >> *VLC;
 // 		logNetwork->infoStream() <<"Reading handlers";
-// 
+//
 // 		lf >> (gh.gs);
 // 		c.addStdVecItems(gh.gs);
 // 		logNetwork->infoStream() <<"Reading gamestate";
@@ -493,7 +493,7 @@ void CVCMIServer::loadGame()
 	CConnection* cc; //tcp::socket * ss;
 	for(int i=0; i<clients; i++)
 	{
-		if(!i) 
+		if(!i)
 		{
 			cc = &c;
 		}
@@ -508,7 +508,7 @@ void CVCMIServer::loadGame()
 				continue;
 			}
 			cc = new CConnection(s,NAME);
-		}	
+		}
 		gh.conns.insert(cc);
 	}
 
@@ -531,7 +531,7 @@ static void handleCommandOptions(int argc, char *argv[])
 		{
 			po::store(po::parse_command_line(argc, argv, opts), cmdLineOptions);
 		}
-		catch(std::exception &e) 
+		catch(std::exception &e)
 		{
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
