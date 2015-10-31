@@ -2168,6 +2168,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 						|| shere->hasBonusOfType(Bonus::NON_LIVING) 
 						|| vstd::contains(shere->state, EBattleStackState::SUMMONED)
 						|| vstd::contains(shere->state, EBattleStackState::CLONED)
+						|| shere->hasBonusOfType(Bonus::SIEGE_WEAPON)
 						))
 						legalAction = true;
 				}					
