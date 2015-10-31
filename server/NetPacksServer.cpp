@@ -89,7 +89,7 @@ bool MoveHero::applyGh( CGameHandler *gh )
 bool CastleTeleportHero::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(hid);
-	
+
 	return gh->teleportHero(hid,dest,source,gh->getPlayerAt(c));
 }
 
@@ -126,7 +126,7 @@ bool GarrisonHeroSwap::applyGh( CGameHandler *gh )
 {
 	const CGTownInstance * town = gh->getTown(tid);
 	if (!PLAYER_OWNS(tid) && !( town->garrisonHero && PLAYER_OWNS(town->garrisonHero->id) ) )
-		ERROR_AND_RETURN;//neither town nor garrisoned hero (if present) is ours 
+		ERROR_AND_RETURN;//neither town nor garrisoned hero (if present) is ours
 	return gh->garrisonSwap(tid);
 }
 
@@ -201,7 +201,7 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 }
 
 bool SetFormation::applyGh( CGameHandler *gh )
-{	
+{
 	ERROR_IF_NOT_OWNS(hid);
 	return gh->setFormation(hid,formation);
 }
@@ -209,7 +209,7 @@ bool SetFormation::applyGh( CGameHandler *gh )
 bool HireHero::applyGh( CGameHandler *gh )
 {
 	const CGObjectInstance *obj = gh->getObj(tid);
-	const CGTownInstance *town = dynamic_cast<const CGTownInstance *>(obj);
+	const CGTownInstance *town = dynamic_ptr_cast<CGTownInstance>(obj);
 	if(town && PlayerRelations::ENEMIES == gh->getPlayerRelations(obj->tempOwner, gh->getPlayerAt(c)))
 		COMPLAIN_AND_RETURN("Can't buy hero in enemy town!");
 
@@ -240,16 +240,16 @@ bool MakeAction::applyGh( CGameHandler *gh )
 {
 	const BattleInfo *b = GS(gh)->curB;
 	if(!b) ERROR_AND_RETURN;
-	
+
 	if(b->tacticDistance)
 	{
-		if(ba.actionType != Battle::WALK  &&  ba.actionType != Battle::END_TACTIC_PHASE  
+		if(ba.actionType != Battle::WALK  &&  ba.actionType != Battle::END_TACTIC_PHASE
 			&& ba.actionType != Battle::RETREAT && ba.actionType != Battle::SURRENDER)
 			ERROR_AND_RETURN;
-		if(gh->connections[b->sides[b->tacticsSide].color] != c) 
+		if(gh->connections[b->sides[b->tacticsSide].color] != c)
 			ERROR_AND_RETURN;
 	}
-	else if(gh->connections[b->battleGetStackByID(b->activeStack)->owner] != c) 
+	else if(gh->connections[b->battleGetStackByID(b->activeStack)->owner] != c)
 		ERROR_AND_RETURN;
 
 	return gh->makeBattleAction(ba);

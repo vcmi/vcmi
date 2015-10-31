@@ -5688,7 +5688,7 @@ bool CGameHandler::isValidObject(const CGObjectInstance *obj) const
 
 bool CGameHandler::isBlockedByQueries(const CPack *pack, PlayerColor player)
 {
-	if(dynamic_cast<const PlayerMessage*>(pack))
+	if(!strcmp(typeid(*pack).name(), typeid(PlayerMessage).name()))
 		return false;
 
 	auto query = queries.topQuery(player);
@@ -5826,7 +5826,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleI
 			auto warMachine = VLC->arth->creatureToMachineID(st->type->idNumber);
 			if (warMachine != ArtifactID::NONE)
 			{
-				auto hero = dynamic_cast<const CGHeroInstance*> (army);
+				auto hero = dynamic_ptr_cast<CGHeroInstance> (army);
 				if (hero)
 					removedWarMachines.push_back (ArtifactLocation(hero, hero->getArtPos(warMachine, true)));
 			}
