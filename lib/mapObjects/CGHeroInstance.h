@@ -133,6 +133,7 @@ public:
 	ui32 getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
+	bool canFly() const;
 	bool canWalkOnSea() const;
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
