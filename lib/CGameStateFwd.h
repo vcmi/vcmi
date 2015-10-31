@@ -158,7 +158,7 @@ struct DLL_LINKAGE CPathsInfo
 	int3 sizes;
 	CGPathNode ***nodes; //[w][h][level]
 
-	const CGPathNode * getPathInfo( int3 tile ) const;
+	const CGPathNode * getPathInfo( const int3& tile ) const;
 	bool getPath(const int3 &dst, CGPath &out) const;
 	int getDistance( int3 tile ) const;
 	CPathsInfo(const int3 &Sizes);

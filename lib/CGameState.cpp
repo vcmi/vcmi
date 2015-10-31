@@ -674,8 +674,8 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	}
 	else
 	{
-		cur->setType(ran.first, ran.second);	
-	}	
+		cur->setType(ran.first, ran.second);
+	}
 }
 
 int CGameState::getDate(Date::EDateType mode) const
@@ -2899,11 +2899,11 @@ bool CGPathNode::reachable() const
 	return turns < 255;
 }
 
-const CGPathNode * CPathsInfo::getPathInfo( int3 tile ) const
+const CGPathNode * CPathsInfo::getPathInfo( const int3& tile ) const
 {
 	boost::unique_lock<boost::mutex> pathLock(pathMx);
-
-	if (tile.x >= sizes.x || tile.y >= sizes.y || tile.z >= sizes.z)
+	if (tile.x >= sizes.x || tile.y >= sizes.y || tile.z >= sizes.z ||
+	    tile.x < 0 || tile.y < 0 || tile.z < 0)
 		return nullptr;
 	return &nodes[tile.x][tile.y][tile.z];
 }
