@@ -129,9 +129,14 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 	}
 }
 
+bool CGHeroInstance::canFly() const
+{
+	return hasBonusOfType(Bonus::FLYING_MOVEMENT);
+}
+
 bool CGHeroInstance::canWalkOnSea() const
 {
-	return hasBonusOfType(Bonus::FLYING_MOVEMENT) || hasBonusOfType(Bonus::WATER_WALKING);
+	return hasBonusOfType(Bonus::WATER_WALKING);
 }
 
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
@@ -860,7 +865,7 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	
 	spell->forEachSchool([&, this](const SpellSchoolInfo & cnf, bool & stop)
 	{
-		int thisSchool = std::max<int>(getSecSkillLevel(cnf.skill),	valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); 
+		int thisSchool = std::max<int>(getSecSkillLevel(cnf.skill),	valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
 		if(thisSchool > skill)									
 		{														
 			skill = thisSchool;									
@@ -872,7 +877,8 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	vstd::amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
 	vstd::amax(skill, valOfBonuses(Bonus::SPELL, spell->id.toEnum())); //given by artifact or other effect
 
-	assert(skill >= 0 && skill <= 3);
+	vstd::amax(skill, 0); //in case we don't know any school
+	vstd::amin(skill, 3);
 	return skill;
 }
 

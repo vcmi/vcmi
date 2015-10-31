@@ -226,6 +226,7 @@
       <Filter>spells</Filter>
     </ClCompile>
     <ClCompile Include="mapping\CDrawRoadsOperation.cpp" />
+    <ClCompile Include="CPathfinder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -536,6 +537,9 @@
     </ClInclude>
     <ClInclude Include="spells\Magic.h">
       <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="CPathfinder.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

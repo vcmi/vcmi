@@ -359,7 +359,7 @@ int3 whereToExplore(HeroPtr h)
 	int radius = h->getSightRadious();
 	int3 hpos = h->visitablePos();
 
-	SectorMap sm(h);
+	SectorMap &sm = ai->getCachedSectorMap(h);
 
 	//look for nearby objs -> visit them if they're close enouh
 	const int DIST_LIMIT = 3;
