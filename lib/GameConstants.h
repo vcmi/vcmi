@@ -745,6 +745,25 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType acti
 
 ID_LIKE_OPERATORS_DECLS(ETerrainType, ETerrainType::EETerrainType)
 
+class DLL_LINKAGE EPathfindingLayer
+{
+public:
+	enum EEPathfindingLayer
+	{
+		AUTO = -1, LAND = 0, SAIL = 1, WATER, AIR, NUM_LAYERS
+	};
+
+	EPathfindingLayer(EEPathfindingLayer _num = AUTO) : num(_num)
+	{}
+
+	ID_LIKE_CLASS_COMMON(EPathfindingLayer, EEPathfindingLayer)
+
+	EEPathfindingLayer num;
+};
+
+DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EPathfindingLayer actionType);
+
+ID_LIKE_OPERATORS_DECLS(EPathfindingLayer, EPathfindingLayer::EEPathfindingLayer)
 
 class BFieldType
 {
