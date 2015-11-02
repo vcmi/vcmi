@@ -32,3 +32,6 @@ build-*
 CMakeLists.txt.user.*
 Doxyfile
 doc/*
+VCMI_VS11.sdf
+*.ipch
+VCMI_VS11.opensdf
