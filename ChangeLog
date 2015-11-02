@@ -1,5 +1,9 @@
 0.98 -> 0.next
 
+GENERAL:
+* New Bonus NO_TERRAIN_PENALTY
+* Nomads will remove Sand movement penalty from army
+
 ADVETURE AI:
 * Fixed AI trying to go through underground rock
 * Fixed several cases causing AI wandering aimlessly
