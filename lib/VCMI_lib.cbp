@@ -158,6 +158,8 @@
 		<Unit filename="CModHandler.h" />
 		<Unit filename="CObstacleInstance.cpp" />
 		<Unit filename="CObstacleInstance.h" />
+		<Unit filename="CPathfinder.cpp" />
+		<Unit filename="CPathfinder.h" />
 		<Unit filename="CRandomGenerator.cpp" />
 		<Unit filename="CRandomGenerator.h" />
 		<Unit filename="CScriptingModule.h" />
