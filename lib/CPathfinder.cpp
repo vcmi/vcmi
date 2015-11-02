@@ -79,7 +79,7 @@ void CPathfinder::calculatePaths()
 	//logGlobal->infoStream() << boost::format("Calculating paths for hero %s (adress  %d) of player %d") % hero->name % hero % hero->tempOwner;
 
 	//initial tile - set cost on 0 and add to the queue
-	CGPathNode &initialNode = *getNode(out.hpos);
+	CGPathNode &initialNode = *getNode(out.hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
 	initialNode.turns = 0;
 	initialNode.moveRemains = hero->movement;
 	mq.push_back(&initialNode);
@@ -100,7 +100,7 @@ void CPathfinder::calculatePaths()
 		addNeighbours(cp->coord);
 		for(auto & neighbour : neighbours)
 		{
-			dp = getNode(neighbour);
+			dp = getNode(neighbour, EPathfindingLayer::LAND);
 			dt = &gs->map->getTile(neighbour);
 			useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
 
@@ -138,12 +138,12 @@ void CPathfinder::calculatePaths()
 		} //neighbours loop
 
 		//just add all passable teleport exits
-		if(sTileObj)
+		if(sTileObj && canVisitObject())
 		{
 			addTeleportExits();
 			for(auto & neighbour : neighbours)
 			{
-				dp = getNode(neighbour);
+				dp = getNode(neighbour, EPathfindingLayer::LAND);
 				if(isBetterWay(movement, turn))
 				{
 					dp->moveRemains = movement;
@@ -164,13 +164,18 @@ void CPathfinder::addNeighbours(const int3 &coord)
 	std::vector<int3> tiles;
 	gs->getNeighbours(*ct, coord, tiles, boost::logic::indeterminate, !cp->land);
 	sTileObj = ct->topVisitableObj(coord == CGHeroInstance::convertPosition(hero->pos, false));
-	if(sTileObj)
+	if(canVisitObject())
 	{
-		for(int3 tile: tiles)
+		if(sTileObj)
 		{
-			if(canMoveBetween(tile, sTileObj->visitablePos()))
-				neighbours.push_back(tile);
+			for(int3 tile: tiles)
+			{
+				if(canMoveBetween(tile, sTileObj->visitablePos()))
+					neighbours.push_back(tile);
+			}
 		}
+		else
+			vstd::concatenate(neighbours, tiles);
 	}
 	else
 		vstd::concatenate(neighbours, tiles);
@@ -310,7 +315,20 @@ bool CPathfinder::isDestinationGuardian()
 void CPathfinder::initializeGraph()
 {
 	int3 pos;
-	CGPathNode ***graph = out.nodes;
+	CGPathNode ****graph = out.nodes;
+	const TerrainTile *tinfo;
+	auto addNode = [&](EPathfindingLayer layer)
+	{
+		CGPathNode &node = graph[pos.x][pos.y][pos.z][layer];
+		node.accessible = evaluateAccessibility(pos, tinfo);
+		node.turns = 0xff;
+		node.moveRemains = 0;
+		node.coord = pos;
+		node.land = tinfo->terType != ETerrainType::WATER;
+		node.theNodeBefore = nullptr;
+		node.layer = layer;
+	};
+
 	for(pos.x=0; pos.x < out.sizes.x; ++pos.x)
 	{
 		for(pos.y=0; pos.y < out.sizes.y; ++pos.y)
@@ -318,21 +336,33 @@ void CPathfinder::initializeGraph()
 			for(pos.z=0; pos.z < out.sizes.z; ++pos.z)
 			{
 				const TerrainTile *tinfo = &gs->map->getTile(pos);
-				CGPathNode &node = graph[pos.x][pos.y][pos.z];
-				node.accessible = evaluateAccessibility(pos, tinfo);
-				node.turns = 0xff;
-				node.moveRemains = 0;
-				node.coord = pos;
-				node.land = tinfo->terType != ETerrainType::WATER;
-				node.theNodeBefore = nullptr;
+				switch (tinfo->terType)
+				{
+					case ETerrainType::WRONG:
+					case ETerrainType::BORDER:
+					case ETerrainType::ROCK:
+						break;
+					case ETerrainType::WATER:
+						addNode(EPathfindingLayer::SAIL);
+						if(options.useFlying)
+							addNode(EPathfindingLayer::AIR);
+						if(options.useWaterWalking)
+							addNode(EPathfindingLayer::WATER);
+						break;
+					default:
+						addNode(EPathfindingLayer::LAND);
+						if(options.useFlying)
+							addNode(EPathfindingLayer::AIR);
+						break;
+				}
 			}
 		}
 	}
 }
 
-CGPathNode *CPathfinder::getNode(const int3 &coord)
+CGPathNode *CPathfinder::getNode(const int3 &coord, const EPathfindingLayer &layer)
 {
-	return &out.nodes[coord.x][coord.y][coord.z];
+	return &out.nodes[coord.x][coord.y][coord.z][layer];
 }
 
 CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 &pos, const TerrainTile *tinfo) const
@@ -415,6 +445,12 @@ bool CPathfinder::addTeleportWhirlpool(const CGWhirlpool * obj) const
 	return options.useTeleportWhirlpool && obj;
 }
 
+bool CPathfinder::canVisitObject() const
+{
+	//hero can't visit objects while walking on water or flying
+	return cp->layer == EPathfindingLayer::LAND || cp->layer == EPathfindingLayer::SAIL;
+}
+
 CGPathNode::CGPathNode()
 :coord(-1,-1,-1)
 {
@@ -455,13 +491,17 @@ CPathsInfo::CPathsInfo( const int3 &Sizes )
 :sizes(Sizes)
 {
 	hero = nullptr;
-	nodes = new CGPathNode**[sizes.x];
+	nodes = new CGPathNode***[sizes.x];
 	for(int i = 0; i < sizes.x; i++)
 	{
-		nodes[i] = new CGPathNode*[sizes.y];
+		nodes[i] = new CGPathNode**[sizes.y];
 		for(int j = 0; j < sizes.y; j++)
 		{
-			nodes[i][j] = new CGPathNode[sizes.z];
+			nodes[i][j] = new CGPathNode*[sizes.z];
+			for (int z = 0; z < sizes.z; z++)
+			{
+				nodes[i][j][z] = new CGPathNode[EPathfindingLayer::NUM_LAYERS];
+			}
 		}
 	}
 }
@@ -472,6 +512,10 @@ CPathsInfo::~CPathsInfo()
 	{
 		for(int j = 0; j < sizes.y; j++)
 		{
+			for (int z = 0; z < sizes.z; z++)
+			{
+				delete [] nodes[i][j][z];
+			}
 			delete [] nodes[i][j];
 		}
 		delete [] nodes[i];
@@ -479,21 +523,21 @@ CPathsInfo::~CPathsInfo()
 	delete [] nodes;
 }
 
-const CGPathNode * CPathsInfo::getPathInfo( int3 tile ) const
+const CGPathNode * CPathsInfo::getPathInfo(const int3 &tile, const EPathfindingLayer &layer) const
 {
 	boost::unique_lock<boost::mutex> pathLock(pathMx);
 
-	if(tile.x >= sizes.x || tile.y >= sizes.y || tile.z >= sizes.z)
+	if(tile.x >= sizes.x || tile.y >= sizes.y || tile.z >= sizes.z || layer >= EPathfindingLayer::NUM_LAYERS)
 		return nullptr;
-	return &nodes[tile.x][tile.y][tile.z];
+	return &nodes[tile.x][tile.y][tile.z][layer];
 }
 
-bool CPathsInfo::getPath( const int3 &dst, CGPath &out ) const
+bool CPathsInfo::getPath(const int3 &dst, const EPathfindingLayer &layer, CGPath &out) const
 {
 	boost::unique_lock<boost::mutex> pathLock(pathMx);
 
 	out.nodes.clear();
-	const CGPathNode *curnode = &nodes[dst.x][dst.y][dst.z];
+	const CGPathNode *curnode = &nodes[dst.x][dst.y][dst.z][layer];
 	if(!curnode->theNodeBefore)
 		return false;
 
@@ -507,12 +551,12 @@ bool CPathsInfo::getPath( const int3 &dst, CGPath &out ) const
 	return true;
 }
 
-int CPathsInfo::getDistance( int3 tile ) const
+int CPathsInfo::getDistance(const int3 &tile, const EPathfindingLayer &layer) const
 {
 	boost::unique_lock<boost::mutex> pathLock(pathMx);
 
 	CGPath ret;
-	if(getPath(tile, ret))
+	if(getPath(tile, layer, ret))
 		return ret.nodes.size();
 	else
 		return 255;

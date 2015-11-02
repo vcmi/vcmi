@@ -36,6 +36,7 @@ struct DLL_LINKAGE CGPathNode
 	ui32 moveRemains; //remaining tiles after hero reaches the tile
 	CGPathNode * theNodeBefore;
 	int3 coord; //coordinates
+	EPathfindingLayer layer;
 
 	CGPathNode();
 	bool reachable() const;
@@ -57,13 +58,13 @@ struct DLL_LINKAGE CPathsInfo
 	const CGHeroInstance *hero;
 	int3 hpos;
 	int3 sizes;
-	CGPathNode ***nodes; //[w][h][level]
+	CGPathNode ****nodes; //[w][h][level][layer]
 
 	CPathsInfo(const int3 &Sizes);
 	~CPathsInfo();
-	const CGPathNode * getPathInfo( int3 tile ) const;
-	bool getPath(const int3 &dst, CGPath &out) const;
-	int getDistance( int3 tile ) const;
+	const CGPathNode * getPathInfo(const int3 &tile, const EPathfindingLayer &layer) const;
+	bool getPath(const int3 &dst, const EPathfindingLayer &layer, CGPath &out) const;
+	int getDistance(const int3 &tile, const EPathfindingLayer &layer) const;
 };
 
 class CPathfinder : private CGameInfoCallback
@@ -113,7 +114,7 @@ private:
 
 	void initializeGraph();
 
-	CGPathNode *getNode(const int3 &coord);
+	CGPathNode *getNode(const int3 &coord, const EPathfindingLayer &layer);
 	CGPathNode::EAccessibility evaluateAccessibility(const int3 &pos, const TerrainTile *tinfo) const;
 	bool canMoveBetween(const int3 &a, const int3 &b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
 
@@ -121,4 +122,6 @@ private:
 	bool addTeleportOneWay(const CGTeleport * obj) const;
 	bool addTeleportOneWayRandom(const CGTeleport * obj) const;
 	bool addTeleportWhirlpool(const CGWhirlpool * obj) const;
+
+	bool canVisitObject() const;
 };
