@@ -63,6 +63,8 @@ ID_LIKE_OPERATORS(Obj, Obj::EObj)
 
 ID_LIKE_OPERATORS(ETerrainType, ETerrainType::EETerrainType)
 
+ID_LIKE_OPERATORS(EPathfindingLayer, EPathfindingLayer::EEPathfindingLayer)
+
 ID_LIKE_OPERATORS(ArtifactID, ArtifactID::EArtifactID)
 
 ID_LIKE_OPERATORS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
@@ -155,6 +157,33 @@ std::ostream & operator<<(std::ostream & os, const ETerrainType actionType)
 }
 
 std::string ETerrainType::toString() const
+{
+	std::stringstream ss;
+	ss << *this;
+	return ss.str();
+}
+
+std::ostream & operator<<(std::ostream & os, const EPathfindingLayer actionType)
+{
+	static const std::map<EPathfindingLayer::EEPathfindingLayer, std::string> pathfinderLayerToString =
+	{
+	#define DEFINE_ELEMENT(element) {EPathfindingLayer::element, #element}
+		DEFINE_ELEMENT(WRONG),
+		DEFINE_ELEMENT(AUTO),
+		DEFINE_ELEMENT(LAND),
+		DEFINE_ELEMENT(SAIL),
+		DEFINE_ELEMENT(WATER),
+		DEFINE_ELEMENT(AIR),
+		DEFINE_ELEMENT(NUM_LAYERS)
+
+	};
+
+	auto it = pathfinderLayerToString.find(actionType.num);
+	if (it == pathfinderLayerToString.end()) return os << "<Unknown type>";
+	else return os << it->second;
+}
+
+std::string EPathfindingLayer::toString() const
 {
 	std::stringstream ss;
 	ss << *this;

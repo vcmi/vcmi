@@ -750,15 +750,17 @@ class DLL_LINKAGE EPathfindingLayer
 public:
 	enum EEPathfindingLayer
 	{
-		AUTO = -1, LAND = 0, SAIL = 1, WATER, AIR, NUM_LAYERS
+		WRONG = -2, AUTO = -1, LAND = 0, SAIL = 1, WATER, AIR, NUM_LAYERS
 	};
 
-	EPathfindingLayer(EEPathfindingLayer _num = AUTO) : num(_num)
+	EPathfindingLayer(EEPathfindingLayer _num = WRONG) : num(_num)
 	{}
 
 	ID_LIKE_CLASS_COMMON(EPathfindingLayer, EEPathfindingLayer)
 
 	EEPathfindingLayer num;
+
+	std::string toString() const;
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EPathfindingLayer actionType);

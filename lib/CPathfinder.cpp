@@ -459,6 +459,7 @@ CGPathNode::CGPathNode()
 	moveRemains = 0;
 	turns = 255;
 	theNodeBefore = nullptr;
+	layer = EPathfindingLayer::WRONG;
 }
 
 bool CGPathNode::reachable() const
