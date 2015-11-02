@@ -1190,7 +1190,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			CGPath &path = LOCPLINT->paths[h];
 			terrain.currentPath = &path;
 			int3 dst = h->getPosition(false) + dir;
-			if(dst != verifyPos(dst) || !LOCPLINT->cb->getPathsInfo(h)->getPath(dst, path))
+			if(dst != verifyPos(dst) || !LOCPLINT->cb->getPathsInfo(h)->getPath(path, dst))
 			{
 				terrain.currentPath = nullptr;
 				return;
@@ -1445,7 +1445,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 			{
 				CGPath &path = LOCPLINT->paths[currentHero];
 				terrain.currentPath = &path;
-				bool gotPath = LOCPLINT->cb->getPathsInfo(currentHero)->getPath(mapPos, path); //try getting path, erase if failed
+				bool gotPath = LOCPLINT->cb->getPathsInfo(currentHero)->getPath(path, mapPos); //try getting path, erase if failed
 				updateMoveHero(currentHero);
 				if (!gotPath)
 					LOCPLINT->eraseCurrentPathOf(currentHero);

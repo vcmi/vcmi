@@ -532,7 +532,7 @@ const CGPathNode * CPathsInfo::getPathInfo(const int3 &tile, const EPathfindingL
 	return &nodes[tile.x][tile.y][tile.z][layer];
 }
 
-bool CPathsInfo::getPath(const int3 &dst, const EPathfindingLayer &layer, CGPath &out) const
+bool CPathsInfo::getPath(CGPath &out, const int3 &dst, const EPathfindingLayer &layer) const
 {
 	boost::unique_lock<boost::mutex> pathLock(pathMx);
 
@@ -556,7 +556,7 @@ int CPathsInfo::getDistance(const int3 &tile, const EPathfindingLayer &layer) co
 	boost::unique_lock<boost::mutex> pathLock(pathMx);
 
 	CGPath ret;
-	if(getPath(tile, layer, ret))
+	if(getPath(ret, tile, layer))
 		return ret.nodes.size();
 	else
 		return 255;

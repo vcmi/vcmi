@@ -62,9 +62,9 @@ struct DLL_LINKAGE CPathsInfo
 
 	CPathsInfo(const int3 &Sizes);
 	~CPathsInfo();
-	const CGPathNode * getPathInfo(const int3 &tile, const EPathfindingLayer &layer) const;
-	bool getPath(const int3 &dst, const EPathfindingLayer &layer, CGPath &out) const;
-	int getDistance(const int3 &tile, const EPathfindingLayer &layer) const;
+	const CGPathNode * getPathInfo(const int3 &tile, const EPathfindingLayer &layer = EPathfindingLayer::AUTO) const;
+	bool getPath(CGPath &out, const int3 &dst, const EPathfindingLayer &layer = EPathfindingLayer::AUTO) const;
+	int getDistance(const int3 &tile, const EPathfindingLayer &layer = EPathfindingLayer::AUTO) const;
 };
 
 class CPathfinder : private CGameInfoCallback

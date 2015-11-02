@@ -372,7 +372,7 @@ int3 whereToExplore(HeroPtr h)
 			{
 				int3 op = obj->visitablePos();
 				CGPath p;
-				ai->myCb->getPathsInfo(h.get())->getPath(op, p);
+				ai->myCb->getPathsInfo(h.get())->getPath(p, ops);
 				if (p.nodes.size() && p.endPos() == op && p.nodes.size() <= DIST_LIMIT)
 					if (ai->isGoodForVisit(obj, h, sm))
 						nearbyVisitableObjs.push_back(obj);

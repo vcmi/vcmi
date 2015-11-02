@@ -1288,7 +1288,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 			for(auto &p : pathsMap)
 			{
 				CGPath path;
-				cb->getPathsInfo(p.first)->getPath(p.second, path);
+				cb->getPathsInfo(p.first)->getPath(path, p.second);
 				paths[p.first] = path;
 				logGlobal->traceStream() << boost::format("Restored path for hero %s leading to %s with %d nodes")
 					% p.first->nodeName() % p.second % path.nodes.size();
@@ -2226,7 +2226,7 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 		{
 			assert(h->getPosition(false) == path.startPos());
 			//update the hero path in case of something has changed on map
-			if(LOCPLINT->cb->getPathsInfo(h)->getPath(path.endPos(), path))
+			if(LOCPLINT->cb->getPathsInfo(h)->getPath(path, path.endPos()))
 				return &path;
 			else
 				paths.erase(h);
