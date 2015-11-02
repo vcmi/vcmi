@@ -42,8 +42,6 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 		throw std::runtime_error("Wrong checksum");
 	}
 
-	initializeGraph();
-
 	if(hero->canFly())
 		options.useFlying = true;
 	if(hero->canWalkOnSea())
@@ -51,6 +49,7 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 	if(CGWhirlpool::isProtected(hero))
 		options.useTeleportWhirlpool = true;
 
+	initializeGraph();
 	neighbours.reserve(16);
 }
 
@@ -79,10 +78,10 @@ void CPathfinder::calculatePaths()
 	//logGlobal->infoStream() << boost::format("Calculating paths for hero %s (adress  %d) of player %d") % hero->name % hero % hero->tempOwner;
 
 	//initial tile - set cost on 0 and add to the queue
-	CGPathNode &initialNode = *out.getNode(out.hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
-	initialNode.turns = 0;
-	initialNode.moveRemains = hero->movement;
-	mq.push_back(&initialNode);
+	CGPathNode *initialNode = out.getNode(out.hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
+	initialNode->turns = 0;
+	initialNode->moveRemains = hero->movement;
+	mq.push_back(initialNode);
 
 	while(!mq.empty())
 	{
@@ -322,16 +321,16 @@ bool CPathfinder::isDestinationGuardian()
 
 void CPathfinder::initializeGraph()
 {
-	auto addNode = [&](EPathfindingLayer layer, const TerrainTile *tinfo, int3 pos)
+	auto initializeNode = [&](int3 pos, EPathfindingLayer layer, const TerrainTile *tinfo)
 	{
-		CGPathNode &node = out.nodes[pos.x][pos.y][pos.z][layer];
-		node.accessible = evaluateAccessibility(pos, tinfo);
-		node.turns = 0xff;
-		node.moveRemains = 0;
-		node.coord = pos;
-		node.land = tinfo->terType != ETerrainType::WATER;
-		node.theNodeBefore = nullptr;
-		node.layer = layer;
+		auto node = out.getNode(pos, layer);
+		node->accessible = evaluateAccessibility(pos, tinfo);
+		node->turns = 0xff;
+		node->moveRemains = 0;
+		node->coord = pos;
+		node->land = tinfo->terType != ETerrainType::WATER;
+		node->theNodeBefore = nullptr;
+		node->layer = layer;
 	};
 
 	int3 pos;
@@ -342,6 +341,10 @@ void CPathfinder::initializeGraph()
 			for(pos.z=0; pos.z < out.sizes.z; ++pos.z)
 			{
 				const TerrainTile *tinfo = &gs->map->getTile(pos);
+				for(EPathfindingLayer i = EPathfindingLayer::LAND; i <= EPathfindingLayer::AIR; i.advance(1))
+				{
+					initializeNode(pos, i, tinfo);
+				}
 				switch (tinfo->terType)
 				{
 					case ETerrainType::WRONG:
@@ -349,16 +352,16 @@ void CPathfinder::initializeGraph()
 					case ETerrainType::ROCK:
 						break;
 					case ETerrainType::WATER:
-						addNode(EPathfindingLayer::SAIL, tinfo, pos);
+//						initializeNode(EPathfindingLayer::SAIL, tinfo, pos);
 //						if(options.useFlying)
-							addNode(EPathfindingLayer::AIR, tinfo, pos);
+//							initializeNode(EPathfindingLayer::AIR, tinfo, pos);
 //						if(options.useWaterWalking)
-							addNode(EPathfindingLayer::WATER, tinfo, pos);
+//							initializeNode(EPathfindingLayer::WATER, tinfo, pos);
 						break;
 					default:
-						addNode(EPathfindingLayer::LAND, tinfo, pos);
+//						initializeNode(EPathfindingLayer::LAND, tinfo, pos);
 //						if(options.useFlying)
-							addNode(EPathfindingLayer::AIR, tinfo, pos);
+//							initializeNode(EPathfindingLayer::AIR, tinfo, pos);
 						break;
 				}
 			}
