@@ -65,6 +65,7 @@ struct DLL_LINKAGE CPathsInfo
 	const CGPathNode * getPathInfo(const int3 &tile, const EPathfindingLayer &layer = EPathfindingLayer::AUTO) const;
 	bool getPath(CGPath &out, const int3 &dst, const EPathfindingLayer &layer = EPathfindingLayer::AUTO) const;
 	int getDistance(const int3 &tile, const EPathfindingLayer &layer = EPathfindingLayer::AUTO) const;
+	CGPathNode *getNode(const int3 &coord, const EPathfindingLayer &layer) const;
 };
 
 class CPathfinder : private CGameInfoCallback
@@ -114,7 +115,6 @@ private:
 
 	void initializeGraph();
 
-	CGPathNode *getNode(const int3 &coord, const EPathfindingLayer &layer);
 	CGPathNode::EAccessibility evaluateAccessibility(const int3 &pos, const TerrainTile *tinfo) const;
 	bool canMoveBetween(const int3 &a, const int3 &b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
 
