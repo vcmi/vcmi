@@ -124,4 +124,6 @@ private:
 	bool addTeleportWhirlpool(const CGWhirlpool * obj) const;
 
 	bool canVisitObject() const;
+
+	bool isLayerTransitionPossible();
 };

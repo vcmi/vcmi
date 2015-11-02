@@ -100,40 +100,44 @@ void CPathfinder::calculatePaths()
 		addNeighbours(cp->coord);
 		for(auto & neighbour : neighbours)
 		{
-			dp = out.getNode(neighbour, EPathfindingLayer::LAND);
 			dt = &gs->map->getTile(neighbour);
-			useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
-
-			if(!isMovementPossible())
-				continue;
-
-			int cost = gs->getMovementCost(hero, cp->coord, dp->coord, movement);
-			int remains = movement - cost;
-			if(useEmbarkCost)
+			for(EPathfindingLayer i = EPathfindingLayer::LAND; i <= EPathfindingLayer::AIR; i.advance(1))
 			{
-				remains = hero->movementPointsAfterEmbark(movement, cost, useEmbarkCost - 1);
-				cost = movement - remains;
-			}
+				useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
+				dp = out.getNode(neighbour, i);
+				if(cp->layer != i && isLayerTransitionPossible())
+					continue;
 
-			int turnAtNextTile = turn;
-			if(remains < 0)
-			{
-				//occurs rarely, when hero with low movepoints tries to leave the road
-				turnAtNextTile++;
-				int moveAtNextTile = maxMovePoints(cp);
-				cost = gs->getMovementCost(hero, cp->coord, dp->coord, moveAtNextTile); //cost must be updated, movement points changed :(
-				remains = moveAtNextTile - cost;
-			}
+				if(!isMovementPossible())
+					continue;
+				int cost = gs->getMovementCost(hero, cp->coord, dp->coord, movement);
+				int remains = movement - cost;
+				if(useEmbarkCost)
+				{
+					remains = hero->movementPointsAfterEmbark(movement, cost, useEmbarkCost - 1);
+					cost = movement - remains;
+				}
 
-			if(isBetterWay(remains, turnAtNextTile))
-			{
-				assert(dp != cp->theNodeBefore); //two tiles can't point to each other
-				dp->moveRemains = remains;
-				dp->turns = turnAtNextTile;
-				dp->theNodeBefore = cp;
+				int turnAtNextTile = turn;
+				if(remains < 0)
+				{
+					//occurs rarely, when hero with low movepoints tries to leave the road
+					turnAtNextTile++;
+					int moveAtNextTile = maxMovePoints(cp);
+					cost = gs->getMovementCost(hero, cp->coord, dp->coord, moveAtNextTile); //cost must be updated, movement points changed :(
+					remains = moveAtNextTile - cost;
+				}
 
-				if(checkDestinationTile())
-					mq.push_back(dp);
+				if(isBetterWay(remains, turnAtNextTile))
+				{
+					assert(dp != cp->theNodeBefore); //two tiles can't point to each other
+					dp->moveRemains = remains;
+					dp->turns = turnAtNextTile;
+					dp->theNodeBefore = cp;
+
+					if(checkDestinationTile())
+						mq.push_back(dp);
+				}
 			}
 		} //neighbours loop
 
@@ -143,7 +147,7 @@ void CPathfinder::calculatePaths()
 			addTeleportExits();
 			for(auto & neighbour : neighbours)
 			{
-				dp = out.getNode(neighbour, EPathfindingLayer::LAND);
+				dp = out.getNode(neighbour, cp->layer);
 				if(isBetterWay(movement, turn))
 				{
 					dp->moveRemains = movement;
@@ -220,38 +224,42 @@ void CPathfinder::addTeleportExits(bool noTeleportExcludes)
 
 bool CPathfinder::isMovementPossible()
 {
-	if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
-		return false;
-
-	Obj destTopVisObjID = dt->topVisitableId();
-	if(cp->land != dp->land) //hero can traverse land<->sea only in special circumstances
+	switch (dp->layer)
 	{
-		if(cp->land) //from land to sea -> embark or assault hero on boat
-		{
-			if(dp->accessible == CGPathNode::ACCESSIBLE || destTopVisObjID < 0) //cannot enter empty water tile from land -> it has to be visitable
+		case EPathfindingLayer::LAND:
+			if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
 				return false;
-			if(destTopVisObjID != Obj::HERO && destTopVisObjID != Obj::BOAT) //only boat or hero can be accessed from land
-				return false;
-			if(destTopVisObjID == Obj::BOAT)
-				useEmbarkCost = 1;
-		}
-		else //disembark
-		{
-			//can disembark only on coastal tiles
-			if(!dt->isCoastal())
+			if(isSourceGuarded() && !isDestinationGuardian()) // Can step into tile of guard
 				return false;
 
-			//tile must be accessible -> exception: unblocked blockvis tiles -> clear but guarded by nearby monster coast
-			if((dp->accessible != CGPathNode::ACCESSIBLE && (dp->accessible != CGPathNode::BLOCKVIS || dt->blocked))
-				|| dt->visitable)  //TODO: passableness problem -> town says it's passable (thus accessible) but we obviously can't disembark onto town gate
-				return false;;
+			break;
+		case EPathfindingLayer::SAIL:
+			if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
+				return false;
+			if(isSourceGuarded() && !isDestinationGuardian()) // Can step into tile of guard
+				return false;
 
-			useEmbarkCost = 2;
-		}
+			break;
+
+		case EPathfindingLayer::AIR:
+			if(!options.useFlying)
+				return false;
+			if(!canMoveBetween(cp->coord, dp->coord))
+				return false;
+
+			break;
+
+		case EPathfindingLayer::WATER:
+			if(!options.useWaterWalking)
+				return false;
+			if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
+				return false;
+			if(isDestinationGuarded())
+				return false;
+
+			break;
 	}
 
-	if(isSourceGuarded() && !isDestinationGuardian()) // Can step into tile of guard
-		return false;
 
 	return true;
 }
@@ -314,12 +322,9 @@ bool CPathfinder::isDestinationGuardian()
 
 void CPathfinder::initializeGraph()
 {
-	int3 pos;
-	CGPathNode ****graph = out.nodes;
-	const TerrainTile *tinfo;
-	auto addNode = [&](EPathfindingLayer layer)
+	auto addNode = [&](EPathfindingLayer layer, const TerrainTile *tinfo, int3 pos)
 	{
-		CGPathNode &node = graph[pos.x][pos.y][pos.z][layer];
+		CGPathNode &node = out.nodes[pos.x][pos.y][pos.z][layer];
 		node.accessible = evaluateAccessibility(pos, tinfo);
 		node.turns = 0xff;
 		node.moveRemains = 0;
@@ -329,6 +334,7 @@ void CPathfinder::initializeGraph()
 		node.layer = layer;
 	};
 
+	int3 pos;
 	for(pos.x=0; pos.x < out.sizes.x; ++pos.x)
 	{
 		for(pos.y=0; pos.y < out.sizes.y; ++pos.y)
@@ -343,16 +349,16 @@ void CPathfinder::initializeGraph()
 					case ETerrainType::ROCK:
 						break;
 					case ETerrainType::WATER:
-						addNode(EPathfindingLayer::SAIL);
-						if(options.useFlying)
-							addNode(EPathfindingLayer::AIR);
-						if(options.useWaterWalking)
-							addNode(EPathfindingLayer::WATER);
+						addNode(EPathfindingLayer::SAIL, tinfo, pos);
+//						if(options.useFlying)
+							addNode(EPathfindingLayer::AIR, tinfo, pos);
+//						if(options.useWaterWalking)
+							addNode(EPathfindingLayer::WATER, tinfo, pos);
 						break;
 					default:
-						addNode(EPathfindingLayer::LAND);
-						if(options.useFlying)
-							addNode(EPathfindingLayer::AIR);
+						addNode(EPathfindingLayer::LAND, tinfo, pos);
+//						if(options.useFlying)
+							addNode(EPathfindingLayer::AIR, tinfo, pos);
 						break;
 				}
 			}
@@ -444,6 +450,40 @@ bool CPathfinder::canVisitObject() const
 {
 	//hero can't visit objects while walking on water or flying
 	return cp->layer == EPathfindingLayer::LAND || cp->layer == EPathfindingLayer::SAIL;
+}
+
+bool CPathfinder::isLayerTransitionPossible()
+{
+	Obj destTopVisObjID = dt->topVisitableId();
+	if((cp->layer == EPathfindingLayer::AIR || EPathfindingLayer::WATER)
+	   && dp->layer != EPathfindingLayer::LAND)
+	{
+		return false;
+	}
+	else if(cp->layer == EPathfindingLayer::SAIL && dp->layer != EPathfindingLayer::LAND)
+		return false;
+	else if(cp->layer == EPathfindingLayer::SAIL && dp->layer == EPathfindingLayer::LAND)
+	{
+		if(!dt->isCoastal())
+			return false;
+
+		//tile must be accessible -> exception: unblocked blockvis tiles -> clear but guarded by nearby monster coast
+		if((dp->accessible != CGPathNode::ACCESSIBLE && (dp->accessible != CGPathNode::BLOCKVIS || dt->blocked))
+			|| dt->visitable)  //TODO: passableness problem -> town says it's passable (thus accessible) but we obviously can't disembark onto town gate
+			return false;
+
+		useEmbarkCost = 2;
+	}
+	else if(cp->layer == EPathfindingLayer::LAND && dp->layer == EPathfindingLayer::SAIL)
+	{
+		if(dp->accessible == CGPathNode::ACCESSIBLE || destTopVisObjID < 0) //cannot enter empty water tile from land -> it has to be visitable
+			return false;
+		if(destTopVisObjID != Obj::HERO && destTopVisObjID != Obj::BOAT) //only boat or hero can be accessed from land
+			return false;
+		if(destTopVisObjID == Obj::BOAT)
+			useEmbarkCost = 1;
+	}
+	return true;
 }
 
 CGPathNode::CGPathNode()
