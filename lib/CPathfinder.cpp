@@ -104,11 +104,15 @@ void CPathfinder::calculatePaths()
 			{
 				useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
 				dp = out.getNode(neighbour, i);
-				if(cp->layer != i && isLayerTransitionPossible())
+				if(dp->accessible == CGPathNode::NOT_SET)
+					continue;
+
+				if(cp->layer != i && !isLayerTransitionPossible())
 					continue;
 
 				if(!isMovementPossible())
 					continue;
+
 				int cost = gs->getMovementCost(hero, cp->coord, dp->coord, movement);
 				int remains = movement - cost;
 				if(useEmbarkCost)
@@ -241,16 +245,12 @@ bool CPathfinder::isMovementPossible()
 			break;
 
 		case EPathfindingLayer::AIR:
-			if(!options.useFlying)
-				return false;
-			if(!canMoveBetween(cp->coord, dp->coord))
-				return false;
+			//if(!canMoveBetween(cp->coord, dp->coord))
+			//	return false;
 
 			break;
 
 		case EPathfindingLayer::WATER:
-			if(!options.useWaterWalking)
-				return false;
 			if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
 				return false;
 			if(isDestinationGuarded())
@@ -341,10 +341,6 @@ void CPathfinder::initializeGraph()
 			for(pos.z=0; pos.z < out.sizes.z; ++pos.z)
 			{
 				const TerrainTile *tinfo = &gs->map->getTile(pos);
-				for(EPathfindingLayer i = EPathfindingLayer::LAND; i <= EPathfindingLayer::AIR; i.advance(1))
-				{
-					initializeNode(pos, i, tinfo);
-				}
 				switch (tinfo->terType)
 				{
 					case ETerrainType::WRONG:
@@ -352,16 +348,16 @@ void CPathfinder::initializeGraph()
 					case ETerrainType::ROCK:
 						break;
 					case ETerrainType::WATER:
-//						initializeNode(EPathfindingLayer::SAIL, tinfo, pos);
-//						if(options.useFlying)
-//							initializeNode(EPathfindingLayer::AIR, tinfo, pos);
-//						if(options.useWaterWalking)
-//							initializeNode(EPathfindingLayer::WATER, tinfo, pos);
+						initializeNode(pos, EPathfindingLayer::SAIL, tinfo);
+						if(options.useFlying)
+							initializeNode(pos, EPathfindingLayer::AIR, tinfo);
+						if(options.useWaterWalking)
+							initializeNode(pos, EPathfindingLayer::WATER, tinfo);
 						break;
 					default:
-//						initializeNode(EPathfindingLayer::LAND, tinfo, pos);
-//						if(options.useFlying)
-//							initializeNode(EPathfindingLayer::AIR, tinfo, pos);
+						initializeNode(pos, EPathfindingLayer::LAND, tinfo);
+						if(options.useFlying)
+							initializeNode(pos, EPathfindingLayer::AIR, tinfo);
 						break;
 				}
 			}
@@ -457,8 +453,7 @@ bool CPathfinder::canVisitObject() const
 
 bool CPathfinder::isLayerTransitionPossible()
 {
-	Obj destTopVisObjID = dt->topVisitableId();
-	if((cp->layer == EPathfindingLayer::AIR || EPathfindingLayer::WATER)
+	if((cp->layer == EPathfindingLayer::AIR || cp->layer ==  EPathfindingLayer::WATER)
 	   && dp->layer != EPathfindingLayer::LAND)
 	{
 		return false;
@@ -479,6 +474,7 @@ bool CPathfinder::isLayerTransitionPossible()
 	}
 	else if(cp->layer == EPathfindingLayer::LAND && dp->layer == EPathfindingLayer::SAIL)
 	{
+		Obj destTopVisObjID = dt->topVisitableId();
 		if(dp->accessible == CGPathNode::ACCESSIBLE || destTopVisObjID < 0) //cannot enter empty water tile from land -> it has to be visitable
 			return false;
 		if(destTopVisObjID != Obj::HERO && destTopVisObjID != Obj::BOAT) //only boat or hero can be accessed from land
@@ -579,7 +575,6 @@ bool CPathsInfo::getPath(CGPath &out, const int3 &dst, const EPathfindingLayer &
 	const CGPathNode *curnode = getNode(dst, layer);
 	if(!curnode->theNodeBefore)
 		return false;
-
 
 	while(curnode)
 	{
