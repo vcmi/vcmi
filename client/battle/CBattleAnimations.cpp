@@ -233,7 +233,7 @@ std::string CDefenceAnimation::getMySound()
 	if(killed)
 		return battle_sound(stack->getCreature(), killed);
 
-	if (stack->valOfBonuses(Bonus::UntilGetsTurn))
+	if (vstd::contains(stack->state, EBattleStackState::DEFENDING_ANI))
 		return battle_sound(stack->getCreature(), defend);
 	return battle_sound(stack->getCreature(), wince);
 }
@@ -243,9 +243,7 @@ CCreatureAnim::EAnimType CDefenceAnimation::getMyAnimType()
 	if(killed)
 		return CCreatureAnim::DEATH;
 	
-	auto selector = CSelector(Bonus::UntilGetsTurn).And(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
-	
-	if(stack->valOfBonuses(selector))
+	if (vstd::contains(stack->state, EBattleStackState::DEFENDING_ANI))
 		return CCreatureAnim::DEFENCE;
 	return CCreatureAnim::HITTED;
 }
