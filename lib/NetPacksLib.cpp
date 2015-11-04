@@ -1332,7 +1332,7 @@ DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
 	switch(ba.actionType)
 	{
 	case Battle::DEFEND:
-		st->state.insert(EBattleStackState::DEFENDING);	
+		st->state.insert(EBattleStackState::DEFENDING);
 		st->state.insert(EBattleStackState::DEFENDING_ANI);
 		break;
 	case Battle::WAIT:

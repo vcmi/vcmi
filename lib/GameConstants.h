@@ -432,8 +432,21 @@ namespace EMarketMode
 
 namespace EBattleStackState
 {
-	enum EBattleStackState{ALIVE = 180, SUMMONED, CLONED, DEAD_CLONE, HAD_MORALE, WAITING, MOVED, DEFENDING, FEAR,
-		DRAINED_MANA /*remember to drain mana only once per turn*/, DEFENDING_ANI/*only for animation*/};
+	enum EBattleStackState
+	{
+		ALIVE = 180,
+		SUMMONED, CLONED,
+		DEAD_CLONE,
+		HAD_MORALE,
+		WAITING,
+		MOVED,
+		DEFENDING,
+		FEAR,
+		//remember to drain mana only once per turn
+		DRAINED_MANA,
+		//only for defending animation
+		DEFENDING_ANI
+	};
 }
 
 namespace ECommander
