@@ -171,6 +171,51 @@ void CGDwelling::newTurn() const
 
 	if(change)
 		cb->sendAndApply(&sac);
+
+	updateGuards();
+}
+
+void CGDwelling::updateGuards() const
+{
+	//TODO: store custom guard config and use it
+	//TODO: store boolean flag for guards
+
+	bool guarded = false;
+	//default condition - creatures are of level 5 or higher
+	for (auto creatureEntry : creatures)
+	{
+		if (VLC->creh->creatures[creatureEntry.second.at(0)]->level >= 5 && ID != Obj::REFUGEE_CAMP)
+		{
+			guarded = true;
+			break;
+		}
+	}
+
+	if (guarded)
+	{
+		for (auto creatureEntry : creatures)
+		{
+			const CCreature * crea = VLC->creh->creatures[creatureEntry.second.at(0)];
+
+			SlotID slot = getSlotFor(crea->idNumber);
+			StackLocation stackLocation = StackLocation(this, slot);;
+			if (hasStackAtSlot(slot)) //stack already exists, overwrite it
+			{
+				ChangeStackCount csc;
+				csc.sl = stackLocation;
+				csc.count = crea->growth * 3;
+				csc.absoluteValue = true;
+				cb->sendAndApply(&csc);
+			}
+			else //slot is empty, create whole new stack
+			{
+				InsertNewStack ns;
+				ns.sl = stackLocation;
+				ns.stack = CStackBasicDescriptor(crea->idNumber, crea->growth * 3);
+				cb->sendAndApply(&ns);
+			}
+		}
+	}
 }
 
 void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
@@ -391,12 +436,12 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
 	TBonusListPtr bonuses = getBonuses(Selector::type(Bonus::CREATURE_GROWTH).And(Selector::subtype(level)));
 	for(const Bonus *b : *bonuses)
-		ret.entries.push_back(GrowthInfo::Entry(b->Description() + " %+d", b->val));
+		ret.entries.push_back(GrowthInfo::Entry(b->val, b->Description()));
 
 	//statue-of-legion-like bonus: % to base+castle
 	TBonusListPtr bonuses2 = getBonuses(Selector::type(Bonus::CREATURE_GROWTH_PERCENT));
 	for(const Bonus *b : *bonuses2)
-		ret.entries.push_back(GrowthInfo::Entry(b->Description() + " %+d", b->val * (base + castleBonus) / 100));
+		ret.entries.push_back(GrowthInfo::Entry(b->val * (base + castleBonus) / 100, b->Description()));
 
 	if(hasBuilt(BuildingID::GRAIL)) //grail - +50% to ALL (so far added) growth
 		ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::GRAIL, ret.totalGrowth() / 2));
@@ -1001,7 +1046,7 @@ bool CGTownInstance::hasBuilt(BuildingID buildingID) const
 	return vstd::contains(builtBuildings, buildingID);
 }
 
-CBuilding::TRequired CGTownInstance::genBuildingRequirements(BuildingID buildID) const
+CBuilding::TRequired CGTownInstance::genBuildingRequirements(BuildingID buildID, bool includeUpgrade) const
 {
 	const CBuilding * building = town->buildings.at(buildID);
 
@@ -1024,7 +1069,8 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(BuildingID buildID)
 	{
 		const CBuilding * upgr = town->buildings.at(building->upgrade);
 
-		requirements.expressions.push_back(upgr->bid);
+		if (includeUpgrade)
+			requirements.expressions.push_back(upgr->bid);
 		requirements.expressions.push_back(upgr->requirements.morph(dependTest));
 	}
 	requirements.expressions.push_back(building->requirements.morph(dependTest));
@@ -1196,6 +1242,12 @@ GrowthInfo::Entry::Entry(int subID, BuildingID building, int _count)
 	: count(_count)
 {
 	description = boost::str(boost::format("%s %+d") % VLC->townh->factions[subID]->town->buildings.at(building)->Name() % count);
+}
+
+GrowthInfo::Entry::Entry(int _count, const std::string &fullDescription)
+	: count(_count)
+{
+	description = fullDescription;
 }
 
 CTownAndVisitingHero::CTownAndVisitingHero()

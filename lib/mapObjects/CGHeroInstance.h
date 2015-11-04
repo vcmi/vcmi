@@ -2,6 +2,7 @@
 
 #include "CObjectHandler.h"
 #include "CArmedInstance.h"
+#include "../spells/Magic.h"
 
 #include "../CArtHandler.h" // For CArtifactSet
 #include "../CRandomGenerator.h"
@@ -35,7 +36,7 @@ public:
 };
 
 
-class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet
+class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public ISpellCaster
 {
 public:
 	enum ECanDig
@@ -116,22 +117,23 @@ public:
 	} skillsInfo;
 
 	//int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
-	int getSightRadious() const; //sight distance (should be used if player-owned structure)
+	int getSightRadious() const override; //sight distance (should be used if player-owned structure)
 	//////////////////////////////////////////////////////////////////////////
 
-	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
-	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
+	int getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
 
 	//////////////////////////////////////////////////////////////////////////
 
 	bool hasSpellbook() const;
 	EAlignment::EAlignment getAlignment() const;
 	const std::string &getBiography() const;
-	bool needsLastStack()const;
+	bool needsLastStack()const override;
 	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	ui32 getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
+	bool canFly() const;
 	bool canWalkOnSea() const;
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
@@ -162,14 +164,13 @@ public:
 	int maxMovePoints(bool onLand) const;
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false) const;
 
-	//int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	double getFightingStrength() const; // takes attack / defense skill into account
 	double getMagicStrength() const; // takes knowledge / spell power skill into account
 	double getHeroStrength() const; // includes fighting and magic strength
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
-	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const; //returns level on which given spell would be cast by this hero (0 - none, 1 - basic etc); optionally returns number of selected school by arg - 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
+	
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
@@ -177,7 +178,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	void setType(si32 ID, si32 subID);
+	void setType(si32 ID, si32 subID) override;
 
 	void initHero();
 	void initHero(HeroTypeID SUBID);
@@ -198,13 +199,32 @@ public:
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
-	//////////////////////////////////////////////////////////////////////////
-	//
+	
+	///ArtBearer
 	ArtBearer::ArtBearer bearerType() const override;
-	//////////////////////////////////////////////////////////////////////////
 
+	///IBonusBearer
 	CBonusSystemNode *whereShouldBeAttached(CGameState *gs) override;
 	std::string nodeName() const override;
+	
+	///ISpellCaster
+	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const override;
+	ui32 getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const override;
+	
+	///default spell school level for effect calculation
+	int getEffectLevel(const CSpell * spell) const override;
+
+	///default spell-power for damage/heal calculation
+	int getEffectPower(const CSpell * spell) const override;
+
+	///default spell-power for timed effects duration
+	int getEnchantPower(const CSpell * spell) const override;
+
+	///damage/heal override(ignores spell configuration, effect level and effect power)
+	int getEffectValue(const CSpell * spell) const override;
+	
+	const PlayerColor getOwner() const override;
+	
 	void deserializationFix();
 
 	void initObj() override;

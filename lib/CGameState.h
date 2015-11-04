@@ -16,6 +16,7 @@
 #include "int3.h"
 #include "CRandomGenerator.h"
 #include "CGameStateFwd.h"
+#include "CPathfinder.h"
 
 /*
  * CGameState.h, part of VCMI engine
@@ -44,7 +45,6 @@ class CMap;
 struct StartInfo;
 struct SDL_Surface;
 class CMapHandler;
-class CPathfinder;
 struct SetObjectProperty;
 struct MetaString;
 struct CPack;
@@ -276,46 +276,6 @@ struct DLL_EXPORT DuelParameters
 	}
 };
 
-class CPathfinder : private CGameInfoCallback
-{
-private:
-	bool allowEmbarkAndDisembark;
-	bool allowTeleportTwoWay; // Two-way monoliths and Subterranean Gate
-	bool allowTeleportOneWay; // One-way monoliths with one known exit only
-	bool allowTeleportOneWayRandom; // One-way monoliths with more than one known exit
-	bool allowTeleportWhirlpool; // Force enabled if hero protected or unaffected (have one stack of one creature)
-	CPathsInfo &out;
-	const CGHeroInstance *hero;
-	const std::vector<std::vector<std::vector<ui8> > > &FoW;
-
-	std::list<CGPathNode*> mq; //BFS queue -> nodes to be checked
-
-
-	int3 curPos;
-	CGPathNode *cp; //current (source) path node -> we took it from the queue
-	CGPathNode *dp; //destination node -> it's a neighbour of cp that we consider
-	const TerrainTile *ct, *dt; //tile info for both nodes
-	ui8 useEmbarkCost; //0 - usual movement; 1 - embark; 2 - disembark
-	Obj destTopVisObjID;
-
-
-	CGPathNode *getNode(const int3 &coord);
-	void initializeGraph();
-	bool goodForLandSeaTransition(); //checks if current move will be between sea<->land. If so, checks it legality (returns false if movement is not possible) and sets useEmbarkCost
-
-	CGPathNode::EAccessibility evaluateAccessibility(const TerrainTile *tinfo) const;
-	bool canMoveBetween(const int3 &a, const int3 &b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
-
-	bool addTeleportTwoWay(const CGTeleport * obj) const;
-	bool addTeleportOneWay(const CGTeleport * obj) const;
-	bool addTeleportOneWayRandom(const CGTeleport * obj) const;
-	bool addTeleportWhirlpool(const CGWhirlpool * obj) const;
-
-public:
-	CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero);
-	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
-};
-
 
 struct BattleInfo;
 
@@ -380,7 +340,7 @@ public:
 	bool isVisible(const CGObjectInstance *obj, boost::optional<PlayerColor> player);
 
 	void getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing);
-	int getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, bool flying, int remainingMovePoints=-1, bool checkLast=true);
+	int getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, int remainingMovePoints=-1, bool checkLast=true);
 	int getDate(Date::EDateType mode=Date::DAY) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 
 	// ----- getters, setters -----

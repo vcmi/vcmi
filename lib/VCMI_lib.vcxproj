@@ -184,6 +184,7 @@
     <ClCompile Include="CModHandler.cpp" />
     <ClCompile Include="CObstacleInstance.cpp" />
     <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="CPathfinder.cpp" />
     <ClCompile Include="CThreadHelper.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
     <ClCompile Include="CRandomGenerator.cpp" />
@@ -231,6 +232,7 @@
     <ClCompile Include="mapping\CMapEditManager.cpp" />
     <ClCompile Include="mapping\MapFormatH3M.cpp" />
     <ClCompile Include="mapping\MapFormatJson.cpp" />
+    <ClCompile Include="mapping\CDrawRoadsOperation.cpp" />
     <ClCompile Include="registerTypes\RegisterTypes.cpp" />
     <ClCompile Include="registerTypes\TypesClientPacks1.cpp" />
     <ClCompile Include="registerTypes\TypesClientPacks2.cpp" />
@@ -290,6 +292,7 @@
     <ClInclude Include="CondSh.h" />
     <ClInclude Include="Connection.h" />
     <ClInclude Include="ConstTransitivePtr.h" />
+    <ClInclude Include="CPathfinder.h" />
     <ClInclude Include="CRandomGenerator.h" />
     <ClInclude Include="CScriptingModule.h" />
     <ClInclude Include="CStopWatch.h" />
@@ -363,6 +366,7 @@
     <ClInclude Include="spells\CreatureSpellMechanics.h" />
     <ClInclude Include="spells\CSpellHandler.h" />
     <ClInclude Include="spells\ISpellMechanics.h" />
+    <ClInclude Include="spells\Magic.h" />
     <ClInclude Include="spells\SpellMechanics.h" />
     <ClInclude Include="spells\ViewSpellInt.h" />
     <ClInclude Include="StartInfo.h" />

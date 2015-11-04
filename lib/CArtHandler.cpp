@@ -577,10 +577,12 @@ bool CArtHandler::legalArtifact(ArtifactID id)
 {
 	auto art = artifacts[id];
 	//assert ( (!art->constituents) || art->constituents->size() ); //artifacts is not combined or has some components
-	return (art->possibleSlots[ArtBearer::HERO].size() ||
-			(art->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS) ||
-			(art->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT)) &&
-			!(art->constituents); //no combo artifacts spawning
+	return ((art->possibleSlots[ArtBearer::HERO].size() ||
+		(art->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS) ||
+		(art->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT)) &&
+		!(art->constituents) && //no combo artifacts spawning
+		art->aClass >= CArtifact::ART_TREASURE &&
+		art->aClass <= CArtifact::ART_RELIC);
 }
 
 bool CArtHandler::isTradableArtifact(ArtifactID id) const
@@ -609,17 +611,12 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 
 	for (ArtifactID i=ArtifactID::SPELLBOOK; i<ArtifactID::ART_SELECTION; i.advance(1))
 	{
+		//check artifacts allowed on a map
+		//TODO: This line will be different when custom map format is implemented
 		if (allowed[i] && legalArtifact(i))
 			allowedArtifacts.push_back(artifacts[i]);
 	}
-	if (VLC->modh->modules.COMMANDERS) //allow all commander artifacts for testing
-	{
-		for (int i = 146; i <= 155; ++i)
-		{
-			allowedArtifacts.push_back(artifacts[i]);
-		}
-	}
-	for (int i = GameConstants::ARTIFACTS_QUANTITY; i < artifacts.size(); ++i) //allow all new artifacts by default
+	for (ArtifactID i = ArtifactID::ART_SELECTION; i<ArtifactID(artifacts.size()); i.advance(1)) //try to allow all artifacts added by mods
 	{
 		if (legalArtifact(ArtifactID(i)))
 			allowedArtifacts.push_back(artifacts[i]);
@@ -671,7 +668,7 @@ boost::optional<std::vector<CArtifact*>&> CArtHandler::listFromClass( CArtifact:
 	case CArtifact::ART_RELIC:
 		return relics;
 	default: //special artifacts should not be erased
-		return nullptr;
+		return boost::optional<std::vector<CArtifact*>&>();
 	}
 }
 

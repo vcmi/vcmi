@@ -47,6 +47,7 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/CRandomGenerator.h"
+#include "../lib/CondSh.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine
@@ -206,7 +207,7 @@ public:
 template <typename T> class CApplyOnPG : public CBaseForPGApply
 {
 public:
-	void applyOnPG(CSelectionScreen *selScr, void *pack) const
+	void applyOnPG(CSelectionScreen *selScr, void *pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
 		ptr->apply(selScr);
@@ -216,7 +217,7 @@ public:
 template <> class CApplyOnPG<CPack> : public CBaseForPGApply
 {
 public:
-	void applyOnPG(CSelectionScreen *selScr, void *pack) const
+	void applyOnPG(CSelectionScreen *selScr, void *pack) const override
 	{
 			logGlobal->errorStream() << "Cannot apply on PG plain CPack!";
 			assert(0);
@@ -516,7 +517,6 @@ void CGPreGame::disposeGraphics()
 
 void CGPreGame::update()
 {
-	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 	if(CGP != this) //don't update if you are not a main interface
 		return;
 
@@ -538,15 +538,6 @@ void CGPreGame::update()
 	// /FIXME: find out why GH.listInt is empty to begin with
 	if (GH.topInt() != nullptr)
 		GH.topInt()->show(screen);
-
-	if (settings["general"]["showfps"].Bool())
-		GH.drawFPSCounter();
-}
-
-void CGPreGame::runLocked(std::function<void()> cb)
-{
-	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-	cb();	
 }
 
 void CGPreGame::openCampaignScreen(std::string name)
@@ -563,6 +554,8 @@ CGPreGame *CGPreGame::create()
 {
 	if(!CGP)
 		CGP = new CGPreGame();
+		
+	GH.terminate_cond.set(false);		
 	return CGP;
 }
 
@@ -1671,7 +1664,7 @@ CRandomMapTab::CRandomMapTab()
 	{
 		mapGenOptions.setPlayerCount(btnId);
 		deactivateButtonsFrom(teamsCntGroup, btnId);
-		deactivateButtonsFrom(compOnlyPlayersCntGroup, 8 - btnId + 1);
+		deactivateButtonsFrom(compOnlyPlayersCntGroup, btnId);
 		validatePlayersCnt(btnId);
 		if(!SEL->isGuest())
 			updateMapInfo();
@@ -1694,7 +1687,6 @@ CRandomMapTab::CRandomMapTab()
 	compOnlyPlayersCntGroup->pos.y += 285;
 	compOnlyPlayersCntGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	addButtonsWithRandToGroup(compOnlyPlayersCntGroup, numberDefs, 0, 7, NUMBERS_WIDTH, 224, 232);
-	compOnlyPlayersCntGroup->setSelected(0);
 	compOnlyPlayersCntGroup->addCallback([&](int btnId)
 	{
 		mapGenOptions.setCompOnlyPlayerCount(btnId);
@@ -1808,9 +1800,9 @@ void CRandomMapTab::validatePlayersCnt(int playersCnt)
 		mapGenOptions.setTeamCount(playersCnt - 1);
 		teamsCntGroup->setSelected(mapGenOptions.getTeamCount());
 	}
-	if(mapGenOptions.getCompOnlyPlayerCount() > 8 - playersCnt)
+	if(mapGenOptions.getCompOnlyPlayerCount() >= playersCnt)
 	{
-		mapGenOptions.setCompOnlyPlayerCount(8 - playersCnt);
+		mapGenOptions.setCompOnlyPlayerCount(playersCnt - 1);
 		compOnlyPlayersCntGroup->setSelected(mapGenOptions.getCompOnlyPlayerCount());
 	}
 

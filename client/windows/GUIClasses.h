@@ -31,6 +31,7 @@ class CListBox;
 class CLabelGroup;
 class CToggleButton;
 class CToggleGroup;
+class CVolumeSlider;
 class CGStatusBar;
 
 /// Recruitment window where you can recruit creatures
@@ -42,9 +43,9 @@ class CRecruitmentWindow : public CWindowObject
 		CCreaturePic *pic; //creature's animation
 		bool selected;
 
-		void clickLeft(tribool down, bool previousState);
-		void clickRight(tribool down, bool previousState);
-		void showAll(SDL_Surface *to);
+		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(tribool down, bool previousState) override;
+		void showAll(SDL_Surface *to) override;
 	public:
 		const CCreature * creature;
 		si32 amount;
@@ -87,7 +88,7 @@ class CRecruitmentWindow : public CWindowObject
 	void buy();
 	void sliderMoved(int to);
 
-	void showAll(SDL_Surface *to);
+	void showAll(SDL_Surface *to) override;
 public:
 	const CGDwelling * const dwelling;
 	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset = 0); //creatures - pairs<creature_ID,amount> //c-tor
@@ -152,7 +153,7 @@ class CObjectListWindow : public CWindowObject
 		CItem(CObjectListWindow *parent, size_t id, std::string text);
 
 		void select(bool on);
-		void clickLeft(tribool down, bool previousState);
+		void clickLeft(tribool down, bool previousState) override;
 	};
 
 	std::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
@@ -179,7 +180,7 @@ public:
 	CIntObject *genItem(size_t index);
 	void elementSelected();//call callback and close this window
 	void changeSelection(size_t which);
-	void keyPressed (const SDL_KeyboardEvent & key);
+	void keyPressed (const SDL_KeyboardEvent & key) override;
 };
 
 class CSystemOptionsWindow : public CWindowObject
@@ -192,7 +193,7 @@ private:
 	CToggleGroup * heroMoveSpeed;
 	CToggleGroup * enemyMoveSpeed;
 	CToggleGroup * mapScrollSpeed;
-	CToggleGroup * musicVolume, * effectsVolume;
+	CVolumeSlider * musicVolume, * effectsVolume;
 
 	//CHighlightableButton * showPath;
 	CToggleButton * showReminder;
@@ -231,9 +232,9 @@ public:
 		std::string description; // "XXX is a level Y ZZZ with N artifacts"
 		const CGHeroInstance *h;
 
-		void clickLeft(tribool down, bool previousState);
-		void clickRight(tribool down, bool previousState);
-		void hover (bool on);
+		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(tribool down, bool previousState) override;
+		void hover (bool on) override;
 		HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H);
 
 	private:
@@ -254,7 +255,7 @@ public:
 
 	void recruitb();
 	void thievesguildb();
-	void show(SDL_Surface * to);
+	void show(SDL_Surface * to) override;
 };
 
 class CExchangeWindow : public CWindowObject, public CWindowWithGarrison, public CWindowWithArtifacts
@@ -318,8 +319,8 @@ private:
 	ui8 currentAlpha;
 
 public:
-	void showAll(SDL_Surface * to);
-	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
+	void show(SDL_Surface * to) override;
 
 	CPuzzleWindow(const int3 &grailPos, double discoveredRatio);
 };
@@ -338,7 +339,7 @@ public:
 		CAnimImage *icon;
 
 		void move();
-		void clickLeft(tribool down, bool previousState);
+		void clickLeft(tribool down, bool previousState) override;
 		void update();
 		CItem(CTransformerWindow * parent, int size, int id);
 	};
@@ -352,7 +353,7 @@ public:
 	CGStatusBar *bar;
 	void makeDeal();
 	void addAll();
-	void updateGarrisons();
+	void updateGarrisons() override;
 	CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town); //c-tor
 };
 
@@ -364,10 +365,10 @@ class CUniversityWindow : public CWindowObject
 		int ID;//id of selected skill
 		CUniversityWindow * parent;
 
-		void showAll(SDL_Surface * to);
-		void clickLeft(tribool down, bool previousState);
-		void clickRight(tribool down, bool previousState);
-		void hover(bool on);
+		void showAll(SDL_Surface * to) override;
+		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(tribool down, bool previousState) override;
+		void hover(bool on) override;
 		int state();//0=can't learn, 1=learned, 2=can learn
 		CItem(CUniversityWindow * _parent, int _ID, int X, int Y);
 	};
@@ -418,12 +419,12 @@ public:
 
 	CHillFortWindow(const CGHeroInstance *visitor, const CGObjectInstance *object); //c-tor
 
-	void showAll (SDL_Surface *to);
+	void showAll (SDL_Surface *to) override;
 	std::string getDefForSlot(SlotID slot);//return def name for this slot
 	std::string getTextForSlot(SlotID slot);//return hover text for this slot
 	void makeDeal(SlotID slot);//-1 for upgrading all creatures
 	int getState(SlotID slot); //-1 = no creature 0=can't upgrade, 1=upgraded, 2=can upgrade
-	void updateGarrisons();//update buttons after garrison changes
+	void updateGarrisons() override;//update buttons after garrison changes
 };
 
 class CThievesGuildWindow : public CWindowObject

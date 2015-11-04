@@ -531,7 +531,7 @@ std::vector<BattleHex> CBattleAI::getTargetsToConsider( const CSpell *spell ) co
 {
 	if(spell->getTargetType() == CSpell::NO_TARGET)
 	{
-		//Spell can be casted anywhere, all hexes are potentially considerable.
+		//Spell can be cast anywhere, all hexes are potentially considerable.
 		std::vector<BattleHex> ret;
 
 		for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
@@ -643,7 +643,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo &AttackInfo
 	auto attacker = AttackInfo.attacker;
 	auto enemy = AttackInfo.defender;
 
-	const int remainingCounterAttacks = getValOr(state.counterAttacksLeft, enemy, enemy->counterAttacks);
+	const int remainingCounterAttacks = getValOr(state.counterAttacksLeft, enemy, enemy->counterAttacksRemaining());
 	const bool counterAttacksBlocked = attacker->hasBonusOfType(Bonus::BLOCKS_RETALIATION) || enemy->hasBonusOfType(Bonus::NO_RETALIATION);
 	const int totalAttacks = 1 + AttackInfo.attackerBonuses->getBonuses(Selector::type(Bonus::ADDITIONAL_ATTACK), (Selector::effectRange (Bonus::NO_LIMIT).Or(Selector::effectRange(Bonus::ONLY_MELEE_FIGHT))))->totalValue();
 

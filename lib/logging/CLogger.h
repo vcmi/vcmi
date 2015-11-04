@@ -188,14 +188,17 @@ private:
 struct DLL_LINKAGE LogRecord
 {
 	LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, const std::string & message)
-		: domain(domain), level(level), message(message), timeStamp(boost::posix_time::microsec_clock::local_time()),
-		  threadId(boost::this_thread::get_id()) { }
+		: domain(domain),
+		level(level),
+		message(message),
+		timeStamp(boost::posix_time::microsec_clock::local_time()),
+		threadId(boost::lexical_cast<std::string>(boost::this_thread::get_id())) { }
 
 	CLoggerDomain domain;
 	ELogLevel::ELogLevel level;
 	std::string message;
 	boost::posix_time::ptime timeStamp;
-	boost::thread::id threadId;
+	std::string threadId;
 };
 
 /// The class CLogFormatter formats log records.

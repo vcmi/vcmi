@@ -86,11 +86,13 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	{
 		b->val = +1;
 		b->description = VLC->generaltexth->arraytxt[115]; //All troops of one alignment +1
+		b->description = b->description.substr(0, b->description.size()-3);//trim "+1"
 	}
 	else if (!factions.empty()) // no bonus from empty garrison
 	{
 	 	b->val = 2 - factionsInArmy;
 		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
+		b->description = b->description.substr(0, b->description.size()-2);//trim value
 	}
 	boost::algorithm::trim(b->description);
 
@@ -100,7 +102,11 @@ void CArmedInstance::updateMoraleBonusFromArmy()
  	if(hasUndead)
 	{
 		if(!undeadModifier)
-			addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, UNDEAD_MODIFIER_ID, VLC->generaltexth->arraytxt[116]));
+		{
+			undeadModifier = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, UNDEAD_MODIFIER_ID, VLC->generaltexth->arraytxt[116]);
+			undeadModifier->description = undeadModifier->description.substr(0, undeadModifier->description.size()-2);//trim value
+			addNewBonus(undeadModifier);
+		}			
 	}
 	else if(undeadModifier)
 		removeBonus(undeadModifier);

@@ -21,6 +21,7 @@
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 #include "../CCreatureHandler.h"
+#include "../BattleState.h"
 
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
@@ -57,56 +58,49 @@ static int lowestSpeed(const CGHeroInstance * chi)
 
 ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from) const
 {
-	//base move cost
-	unsigned ret = 100;
+	unsigned ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
-    if(dest.roadType != ERoadType::NO_ROAD && from.roadType != ERoadType::NO_ROAD)
+	if(dest.roadType != ERoadType::NO_ROAD && from.roadType != ERoadType::NO_ROAD)
 	{
-        int road = std::min(dest.roadType,from.roadType); //used road ID
+		int road = std::min(dest.roadType,from.roadType); //used road ID
 		switch(road)
 		{
-        case ERoadType::DIRT_ROAD:
+		case ERoadType::DIRT_ROAD:
 			ret = 75;
 			break;
-        case ERoadType::GRAVEL_ROAD:
+		case ERoadType::GRAVEL_ROAD:
 			ret = 65;
 			break;
-        case ERoadType::COBBLESTONE_ROAD:
+		case ERoadType::COBBLESTONE_ROAD:
 			ret = 50;
 			break;
 		default:
-            logGlobal->errorStream() << "Unknown road type: " << road << "... Something wrong!";
+			logGlobal->errorStream() << "Unknown road type: " << road << "... Something wrong!";
 			break;
 		}
 	}
-	else
+	else if(!hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
 	{
-		//FIXME: in H3 presence of Nomad in army will remove terrain penalty for sand. Bonus not implemented in VCMI
-
 		// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
 		// This is clearly bug in H3 however intended behaviour is not clear.
 		// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
 		// will always have best penalty without any influence from player-defined stacks order
 
-		bool nativeArmy = true;
 		for(auto stack : stacks)
 		{
 			int nativeTerrain = VLC->townh->factions[stack.second->type->faction]->nativeTerrain;
-
-            if (nativeTerrain != -1 && nativeTerrain != from.terType)
+			if(nativeTerrain != -1 && nativeTerrain != from.terType)
 			{
-				nativeArmy = false;
+				ret = VLC->heroh->terrCosts[from.terType];
+				ret -= getSecSkillLevel(SecondarySkill::PATHFINDING) * 25;
+				if(ret < GameConstants::BASE_MOVEMENT_COST)
+					ret = GameConstants::BASE_MOVEMENT_COST;
+
 				break;
 			}
 		}
-		if (!nativeArmy)
-        {
-            ret = VLC->heroh->terrCosts[from.terType];
-            ret-=getSecSkillLevel(SecondarySkill::PATHFINDING)*25;
-            ret = ret < 100 ? 100 : ret;
-        }
- 	}
+	}
 	return ret;
 }
 
@@ -135,9 +129,14 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 	}
 }
 
+bool CGHeroInstance::canFly() const
+{
+	return hasBonusOfType(Bonus::FLYING_MOVEMENT);
+}
+
 bool CGHeroInstance::canWalkOnSea() const
 {
-	return hasBonusOfType(Bonus::FLYING_MOVEMENT) || hasBonusOfType(Bonus::WATER_WALKING);
+	return hasBonusOfType(Bonus::WATER_WALKING);
 }
 
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
@@ -216,9 +215,10 @@ CGHeroInstance::CGHeroInstance()
 	setNodeType(HERO);
 	ID = Obj::HERO;
 	tacticFormationEnabled = inTownGarrison = false;
-	mana = movement = portrait = level = -1;
+	mana = movement = portrait = -1;
 	isStanding = true;
 	moveDir = 4;
+	level = 1;
 	exp = 0xffffffff;
 	visitedTown = nullptr;
 	type = nullptr;
@@ -290,7 +290,6 @@ void CGHeroInstance::initHero()
 	}
 	assert(validTypes());
 
-	level = 1;
 	if(exp == 0xffffffff)
 	{
 		initExp();
@@ -866,7 +865,7 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	
 	spell->forEachSchool([&, this](const SpellSchoolInfo & cnf, bool & stop)
 	{
-		int thisSchool = std::max<int>(getSecSkillLevel(cnf.skill),	valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); 
+		int thisSchool = std::max<int>(getSecSkillLevel(cnf.skill),	valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
 		if(thisSchool > skill)									
 		{														
 			skill = thisSchool;									
@@ -877,15 +876,101 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	
 	vstd::amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
 	vstd::amax(skill, valOfBonuses(Bonus::SPELL, spell->id.toEnum())); //given by artifact or other effect
-	if (hasBonusOfType(Bonus::MAXED_SPELL, spell->id))//hero specialty (Daremyth, Melodia)
-		skill = 3;
-	assert(skill >= 0 && skill <= 3);
+
+	vstd::amax(skill, 0); //in case we don't know any school
+	vstd::amin(skill, 3);
 	return skill;
+}
+
+ui32 CGHeroInstance::getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const
+{
+	//applying sorcery secondary skill
+
+	base *= (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
+	base *= (100.0 + valOfBonuses(Bonus::SPELL_DAMAGE) + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->id.toEnum())) / 100.0;
+
+	spell->forEachSchool([&base, this](const SpellSchoolInfo & cnf, bool & stop)
+	{
+		base *= (100.0 + valOfBonuses(cnf.damagePremyBonus)) / 100.0;
+		stop = true; //only bonus from one school is used
+	});
+
+	if (affectedStack && affectedStack->getCreature()->level) //Hero specials like Solmyr, Deemer
+		base *= (100. + ((valOfBonuses(Bonus::SPECIAL_SPELL_LEV,  spell->id.toEnum()) * level) / affectedStack->getCreature()->level)) / 100.0;
+
+	return base;	
+}
+
+int CGHeroInstance::getEffectLevel(const CSpell * spell) const
+{
+	if(hasBonusOfType(Bonus::MAXED_SPELL, spell->id))
+		return 3;//todo: recheck specialty from where this bonus is. possible bug
+	else
+		return getSpellSchoolLevel(spell);		
+}
+
+int CGHeroInstance::getEffectPower(const CSpell * spell) const
+{
+	return getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+}
+
+int CGHeroInstance::getEnchantPower(const CSpell * spell) const
+{
+	return getPrimSkillLevel(PrimarySkill::SPELL_POWER) + valOfBonuses(Bonus::SPELL_DURATION);	
+}
+
+int CGHeroInstance::getEffectValue(const CSpell * spell) const
+{
+	return 0;
+}
+
+const PlayerColor CGHeroInstance::getOwner() const
+{
+	return tempOwner;
 }
 
 bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {
-	return spell->isCastableBy(this, nullptr !=getArt(ArtifactPosition::SPELLBOOK), spells);
+	if(nullptr == getArt(ArtifactPosition::SPELLBOOK))
+		return false;
+
+	const bool isAllowed = IObjectInterface::cb->isAllowed(0, spell->id);
+
+	const bool inSpellBook = vstd::contains(spells, spell->id);
+	const bool specificBonus = hasBonusOfType(Bonus::SPELL, spell->id);
+
+	bool schoolBonus = false;
+
+	spell->forEachSchool([this, &schoolBonus](const SpellSchoolInfo & cnf, bool & stop)
+	{
+		if(hasBonusOfType(cnf.knoledgeBonus))
+		{
+			schoolBonus = stop = true;
+		}
+	});
+
+	const bool levelBonus = hasBonusOfType(Bonus::SPELLS_OF_LEVEL, spell->level);
+
+    if (spell->isSpecialSpell())
+    {
+        if (inSpellBook)
+        {//hero has this spell in spellbook
+            logGlobal->errorStream() << "Special spell " << spell->name << "in spellbook.";
+        }
+        return specificBonus;
+    }
+    else if(!isAllowed)
+    {
+        if (inSpellBook)
+        {//hero has this spell in spellbook
+            logGlobal->errorStream() << "Banned spell " << spell->name << " in spellbook.";
+        }
+        return specificBonus || schoolBonus || levelBonus;
+    }
+    else
+    {
+		return inSpellBook || schoolBonus || specificBonus || levelBonus;
+    }
 }
 
 /**

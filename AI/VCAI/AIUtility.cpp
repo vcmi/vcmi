@@ -359,7 +359,7 @@ int3 whereToExplore(HeroPtr h)
 	int radius = h->getSightRadious();
 	int3 hpos = h->visitablePos();
 
-	SectorMap sm(h);
+	SectorMap &sm = ai->getCachedSectorMap(h);
 
 	//look for nearby objs -> visit them if they're close enouh
 	const int DIST_LIMIT = 3;
@@ -432,7 +432,7 @@ bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2, CCallback * cbp) //determin
 		for (int y = yMin; y <= yMax; ++y)
 		{
 			int3 tile = int3(x, y, pos1.z); //use only on same level, ofc
-			if (abs(pos1.dist2d(tile) - pos2.dist2d(tile)) < 1.5)
+			if (std::abs(pos1.dist2d(tile) - pos2.dist2d(tile)) < 1.5)
 			{
 				if (!(cbp->isVisible(tile) && cbp->getTile(tile)->blocked)) //if there's invisible or unblocked tile between, it's good
 					return false;
@@ -498,4 +498,15 @@ bool compareHeroStrength(HeroPtr h1, HeroPtr h2)
 bool compareArmyStrength(const CArmedInstance *a1, const CArmedInstance *a2)
 {
 	return a1->getArmyStrength() < a2->getArmyStrength();
+}
+
+bool compareArtifacts(const CArtifactInstance *a1, const CArtifactInstance *a2)
+{
+	auto art1 = a1->artType;
+	auto art2 = a2->artType;
+
+	if (art1->valOfBonuses(Bonus::PRIMARY_SKILL) > art2->valOfBonuses(Bonus::PRIMARY_SKILL))
+		return true;
+	else
+		return art1->price > art2->price;
 }

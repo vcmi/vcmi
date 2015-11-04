@@ -71,13 +71,16 @@ public:
 struct CasualtiesAfterBattle
 {
 	typedef std::pair<StackLocation, int> TStackAndItsNewCount;
+	typedef std::map<CreatureID, TQuantity> TSummoned;
 	enum {ERASE = -1};
+	const CArmedInstance * army;
 	std::vector<TStackAndItsNewCount> newStackCounts;
 	std::vector<ArtifactLocation> removedWarMachines;
-	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack loactions
+	TSummoned summoned;
+	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack locations
 
-	CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat);
-	void takeFromArmy(CGameHandler *gh);
+	CasualtiesAfterBattle(const CArmedInstance * _army, BattleInfo *bat);
+	void updateArmy(CGameHandler *gh);
 };
 
 class CGameHandler : public IGameCallback, CBattleInfoCallback
@@ -142,7 +145,7 @@ public:
 
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override;
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures) override;
-	bool changeStackType(const StackLocation &sl, CCreature *c) override;
+	bool changeStackType(const StackLocation &sl, const CCreature *c) override;
 	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) override;
 	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) override;
 	bool eraseStack(const StackLocation &sl, bool forceRemoval = false) override;
@@ -250,7 +253,7 @@ public:
 	void sendMessageToAll(const std::string &message);
 	void sendMessageTo(CConnection &c, const std::string &message);
 	void sendToAllClients(CPackForClient * info);
-	void sendAndApply(CPackForClient * info);
+	void sendAndApply(CPackForClient * info) override;
 	void applyAndSend(CPackForClient * info);
 	void sendAndApply(CGarrisonOperationPack * info);
 	void sendAndApply(SetResource * info);

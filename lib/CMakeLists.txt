@@ -39,6 +39,7 @@ set(lib_SRCS
 		logging/CLogger.cpp
 
 		mapping/CCampaignHandler.cpp
+		mapping/CDrawRoadsOperation.cpp
 		mapping/CMap.cpp
 		mapping/CMapEditManager.cpp
 		mapping/CMapInfo.cpp
@@ -94,6 +95,7 @@ set(lib_SRCS
 
 		IGameCallback.cpp
 		CGameInfoCallback.cpp
+		CPathfinder.cpp
 		CGameState.cpp
 		Connection.cpp
 		NetPacksLib.cpp

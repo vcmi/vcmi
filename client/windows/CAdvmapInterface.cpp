@@ -1029,7 +1029,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 
 	ui8 Dir = 0;
-	int k = key.keysym.sym;
+	SDL_Keycode k = key.keysym.sym;
 	const CGHeroInstance *h = curHero(); //selected hero
 	const CGTownInstance *t = curTown(); //selected town
 
@@ -1156,17 +1156,14 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 												int3(-1, -1, 0), int3(0, -1, 0), int3(+1, -1, 0) };
 
 			//numpad arrow
-			if(CGuiHandler::isArrowKey(SDLKey(k)))
-				k = CGuiHandler::arrowToNum(SDLKey(k));
+			if(CGuiHandler::isArrowKey(k))
+				k = CGuiHandler::arrowToNum(k);
 
-			#ifdef VCMI_SDL1
-			k -= SDLK_KP0 + 1;
-			#else
 			k -= SDLK_KP_1;
-			#endif // VCMI_SDL1
+
 			if(k < 0 || k > 8)
 				return;
-			
+
 			if (!CGI->mh->canStartHeroMovement())
 				return;
 

@@ -159,7 +159,7 @@ void Unicode::trimRight(std::string & text, const size_t amount/* =1 */)
 class LocaleWithComma: public std::numpunct<char>
 {
 protected:
-	char do_decimal_point() const
+	char do_decimal_point() const override
 	{
 		return ',';
 	}
@@ -206,12 +206,24 @@ std::string CLegacyConfigParser::extractQuotedString()
 	{
 		ret += extractQuotedPart();
 
-		// double quote - add it to string and continue unless
-		// line terminated using tabulation
-		if (curr < end && *curr == '\"' && *curr != '\t')
+		// double quote - add it to string and continue quoted part
+		if (curr < end && *curr == '\"')
 		{
 			ret += '\"';
 		}
+		//extract normal part
+		else if(curr < end && *curr != '\t' && *curr != '\r')
+		{
+			char * begin = curr;
+
+			while (curr < end && *curr != '\t' && *curr != '\r' && *curr != '\"')//find end of string or next quoted part start
+				curr++;	
+				
+			ret += std::string(begin, curr);
+			
+			if(curr>=end || *curr != '\"')
+				return ret;
+		}		
 		else // end of string
 			return ret;
 	}

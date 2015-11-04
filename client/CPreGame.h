@@ -75,10 +75,10 @@ public:
 	};
 	CMenuScreen(const JsonNode& configNode);
 
-	void showAll(SDL_Surface * to);
-	void show(SDL_Surface * to);
-	void activate();
-	void deactivate();
+	void showAll(SDL_Surface * to) override;
+	void show(SDL_Surface * to) override;
+	void activate() override;
+	void deactivate() override;
 
 	void switchToTab(size_t index);
 };
@@ -100,10 +100,10 @@ class CreditsScreen : public CIntObject
 public:
 	CreditsScreen();
 
-	void show(SDL_Surface * to);
+	void show(SDL_Surface * to) override;
 
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState);
+	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(tribool down, bool previousState) override;
 };
 
 /// Implementation of the chat box
@@ -115,7 +115,7 @@ public:
 
 	CChatBox(const Rect &rect);
 
-	void keyPressed(const SDL_KeyboardEvent & key);
+	void keyPressed(const SDL_KeyboardEvent & key) override;
 
 	void addNewMessage(const std::string &text);
 };
@@ -136,8 +136,8 @@ public:
 	CDefHandler *sizes, *sFlags;
 
 	void changeSelection(const CMapInfo *to);
-	void showAll(SDL_Surface * to);
-	void clickRight(tribool down, bool previousState);
+	void showAll(SDL_Surface * to) override;
+	void clickRight(tribool down, bool previousState) override;
 	void showTeamsPopup();
 	void toggleChat();
 	void setChat(bool activateChat);
@@ -184,10 +184,10 @@ public:
 	void selectFName(std::string fname);
 	const CMapInfo * getSelectedMapInfo() const;
 
-	void showAll(SDL_Surface * to);
-	void clickLeft(tribool down, bool previousState);
-	void keyPressed(const SDL_KeyboardEvent & key);
-	void onDoubleClick();
+	void showAll(SDL_Surface * to) override;
+	void clickLeft(tribool down, bool previousState) override;
+	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void onDoubleClick() override;
 	SelectionTab(CMenuScreen::EState Type, const std::function<void(CMapInfo *)> &OnSelect, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER);
     ~SelectionTab();
 };
@@ -235,7 +235,7 @@ public:
 		CLabel *subtitle;
 
 		SelectedBox(Point position, PlayerSettings & settings, SelType type);
-		void clickRight(tribool down, bool previousState);
+		void clickRight(tribool down, bool previousState) override;
 
 		void update();
 	};
@@ -254,7 +254,7 @@ public:
 
 		PlayerOptionsEntry(OptionsTab *owner, PlayerSettings &S);
 		void selectButtons(); //hides unavailable buttons
-		void showAll(SDL_Surface * to);
+		void showAll(SDL_Surface * to) override;
 		void update();
 	};
 
@@ -282,7 +282,7 @@ public:
 	void recreate();
 	OptionsTab();
 	~OptionsTab();
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 
 	int nextAllowedHero(PlayerColor player, int min, int max, int incl, int dir );
 
@@ -295,7 +295,7 @@ class CRandomMapTab : public CIntObject
 public:
 	CRandomMapTab();
 
-    void showAll(SDL_Surface * to);
+    void showAll(SDL_Surface * to) override;
 	void updateMapInfo();
 	CFunctionList<void (const CMapInfo *)> & getMapInfoChanged();
 	const CMapInfo * getMapInfo() const;
@@ -385,7 +385,7 @@ public:
 	void postRequest(ui8 what, ui8 dir) override;
 	void postChatMessage(const std::string &txt) override;
 	void propagateNames();
-	void showAll(SDL_Surface *to);
+	void showAll(SDL_Surface *to) override;
 };
 
 /// Save game screen
@@ -454,8 +454,8 @@ class CPrologEpilogVideo : public CWindowObject
 public:
 	CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback);
 
-	void clickLeft(tribool down, bool previousState);
-	void show(SDL_Surface * to);
+	void clickLeft(tribool down, bool previousState) override;
+	void show(SDL_Surface * to) override;
 };
 
 /// Campaign screen where you can choose one out of three starting bonuses
@@ -498,9 +498,9 @@ private:
 		CRegion(CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber);
 		~CRegion();
 
-		void clickLeft(tribool down, bool previousState);
-		void clickRight(tribool down, bool previousState);
-		void show(SDL_Surface * to);
+		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(tribool down, bool previousState) override;
+		void show(SDL_Surface * to) override;
 	};
 
 	void init();
@@ -560,12 +560,12 @@ private:
 		std::string video; // the resource name of the video
 		std::string hoverText;
 
-		void clickLeft(tribool down, bool previousState);
-		void hover(bool on);
+		void clickLeft(tribool down, bool previousState) override;
+		void hover(bool on) override;
 
 	public:
 		CCampaignButton(const JsonNode &config );
-		void show(SDL_Surface * to);
+		void show(SDL_Surface * to) override;
 	};
 
 	CButton *back;
@@ -578,7 +578,7 @@ public:
 	enum CampaignSet {ROE, AB, SOD, WOG};
 
 	CCampaignScreen(const JsonNode &config);
-	void showAll(SDL_Surface *to);
+	void showAll(SDL_Surface *to) override;
 };
 
 /// Manages the configuration of pregame GUI elements like campaign screen, main menu, loading screen,...
@@ -597,7 +597,7 @@ private:
 };
 
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
-class CGPreGame : public CIntObject, public ILockedUpdatable
+class CGPreGame : public CIntObject, public IUpdateable
 {
 	void loadGraphics();
 	void disposeGraphics();
@@ -611,7 +611,6 @@ public:
 
 	~CGPreGame();
 	void update() override;
-	void runLocked(std::function<void()> cb) override;
 	void openSel(CMenuScreen::EState type, CMenuScreen::EMultiMode multi = CMenuScreen::SINGLE_PLAYER);
 
 	void openCampaignScreen(std::string name);
@@ -630,7 +629,7 @@ public:
 	CLoadingScreen(std::function<void()> loader);
 	~CLoadingScreen();
 
-	void showAll(SDL_Surface *to);
+	void showAll(SDL_Surface *to) override;
 };
 
 /// Simple window to enter the server's address.

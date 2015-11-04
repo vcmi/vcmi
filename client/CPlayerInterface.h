@@ -1,7 +1,6 @@
 #pragma once
 
 
-//#include "../lib/CondSh.h"
 #include "../lib/FunctionList.h"
 #include "../lib/CGameInterface.h"
 #include "../lib/NetPacksBase.h"
@@ -80,11 +79,12 @@ enum
 	RESTART_GAME,
 	RETURN_TO_MENU_LOAD,
 	FULLSCREEN_TOGGLED,
-	PREPARE_RESTART_CAMPAIGN
+	PREPARE_RESTART_CAMPAIGN,
+	FORCE_QUIT //quit client without question
 };
 
 /// Central class for managing user interface logic
-class CPlayerInterface : public CGameInterface, public ILockedUpdatable
+class CPlayerInterface : public CGameInterface, public IUpdateable
 {
 	const CArmedInstance * currentSelection;
 public:
@@ -135,7 +135,6 @@ public:
 	} spellbookSettings;
 
 	void update() override;
-	void runLocked(std::function<void()> functor) override;
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 
@@ -148,11 +147,11 @@ public:
 	void newStackInserted(const StackLocation &location, const CStackInstance &stack) override; //new stack inserted at given (previously empty position)
 	void stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count) override; //moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
 
-	void artifactPut(const ArtifactLocation &al);
-	void artifactRemoved(const ArtifactLocation &al);
-	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
-	void artifactAssembled(const ArtifactLocation &al);
-	void artifactDisassembled(const ArtifactLocation &al);
+	void artifactPut(const ArtifactLocation &al) override;
+	void artifactRemoved(const ArtifactLocation &al) override;
+	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst) override;
+	void artifactAssembled(const ArtifactLocation &al) override;
+	void artifactDisassembled(const ArtifactLocation &al) override;
 
 	void heroCreated(const CGHeroInstance* hero) override;
 	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) override;
@@ -237,7 +236,7 @@ public:
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	void updateInfo(const CGObjectInstance * specific);
-	void init(shared_ptr<CCallback> CB);
+	void init(shared_ptr<CCallback> CB) override;
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 
 	// show dialogs
@@ -270,10 +269,6 @@ public:
 	CPlayerInterface(PlayerColor Player);//c-tor
 	~CPlayerInterface();//d-tor
 
-	static CondSh<bool> terminate_cond; // confirm termination
-
-
-
 private:
 
 	template <typename Handler> void serializeTempl(Handler &h, const int version);
@@ -298,8 +293,6 @@ private:
 
 	bool duringMovement;
 	bool ignoreEvents;
-
-	bool locked;
 
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 };

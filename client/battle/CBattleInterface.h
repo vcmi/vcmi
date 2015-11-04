@@ -1,11 +1,11 @@
 #pragma once
 
-
-//#include "../../lib/CCreatureSet.h"
 #include "../../lib/ConstTransitivePtr.h" //may be reundant
 #include "../../lib/GameConstants.h"
 
 #include "CBattleAnimations.h"
+
+#include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
 
 /*
  * CBattleInterface.h, part of VCMI engine
@@ -155,7 +155,7 @@ private:
 
 	shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
 	bool tacticsMode;
-	bool stackCanCastSpell; //if true, active stack could possibly cats some target spell
+	bool stackCanCastSpell; //if true, active stack could possibly cast some target spell
 	bool creatureCasting; //if true, stack currently aims to cats a spell
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell - only for GUI / console
 	PossibleActions spellSelMode;
@@ -291,14 +291,14 @@ public:
 	void bEndTacticPhase();
 	//end of button handle funcs
 	//napisz tu klase odpowiadajaca za wyswietlanie bitwy i obsluge uzytkownika, polecenia ma przekazywac callbackiem
-	void activate();
-	void deactivate();
-	void keyPressed(const SDL_KeyboardEvent & key);
-	void mouseMoved(const SDL_MouseMotionEvent &sEvent);
-	void clickRight(tribool down, bool previousState);
+	void activate() override;
+	void deactivate() override;
+	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void mouseMoved(const SDL_MouseMotionEvent &sEvent) override;
+	void clickRight(tribool down, bool previousState) override;
 
-	void show(SDL_Surface *to);
-	void showAll(SDL_Surface *to);
+	void show(SDL_Surface *to) override;
+	void showAll(SDL_Surface *to) override;
 
 	//call-ins
 	void startAction(const BattleAction* action);
@@ -319,8 +319,12 @@ public:
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook
 	void displayEffect(ui32 effect, int destTile, bool areaEffect = true); //displays custom effect on the battlefield
+	
+	void displaySpellCast(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s cast animation
 	void displaySpellEffect(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s affected animation
 	void displaySpellHit(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s affected animation
+		
+	void displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile, bool areaEffect = true);
 	
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 	void setBattleCursor(const int myNumber); //really complex and messy, sets attackingHex

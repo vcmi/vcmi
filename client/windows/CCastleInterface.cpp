@@ -381,7 +381,10 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 			other->setHighlight(false);
 
 			if(allow)
+			{
 				owner->swapArmies();
+				hero = other->hero;
+			}
 		}
 		else if(hero)
 		{
@@ -390,6 +393,14 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 			showAll(screen2);
 		}
 		hover(false);hover(true); //refresh statusbar
+	}
+}
+
+void CHeroGSlot::clickRight(tribool down, bool previousState)
+{
+	if(down && hero)
+	{
+		GH.pushInt(new CInfoBoxPopup(Point(pos.x + 175, pos.y + 100), hero));
 	}
 }
 
@@ -411,7 +422,7 @@ CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSl
 	image = nullptr;
 	set(h);
 
-	addUsedEvents(LCLICK | HOVER);
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 }
 
 CHeroGSlot::~CHeroGSlot()
@@ -757,7 +768,7 @@ void CCastleBuildings::enterCastleGate()
 		return;//only visiting hero can use castle gates
 	}
 	std::vector <int> availableTowns;
-	std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
+	std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(true);
 	for(auto & Town : Towns)
 	{
 		const CGTownInstance *t = Town;
@@ -1364,7 +1375,7 @@ std::string CBuildWindow::getTextForState(int state)
 			};
 
 			ret = CGI->generaltexth->allTexts[52];
-			ret += "\n" + town->genBuildingRequirements(building->bid).toString(toStr);
+			ret += "\n" + town->genBuildingRequirements(building->bid, false).toString(toStr);
 			break;
 		}
 	case EBuildingState::MISSING_BASE:

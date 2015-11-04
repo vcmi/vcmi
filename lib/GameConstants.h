@@ -14,7 +14,7 @@
 
 namespace GameConstants
 {
-	const std::string VCMI_VERSION = "VCMI 0.98";
+	const std::string VCMI_VERSION = "VCMI 0.98f";
 
 	const int BFIELD_WIDTH = 17;
 	const int BFIELD_HEIGHT = 11;
@@ -51,6 +51,7 @@ namespace GameConstants
 	const int SPELLS_QUANTITY=70;
 	const int CREATURES_COUNT = 197;
 
+	const ui32 BASE_MOVEMENT_COST = 100; //default cost for non-diagonal movement
 }
 
 class CArtifact;
@@ -215,6 +216,7 @@ class SlotID : public BaseForID<SlotID, si32>
 	friend class CNonConstInfoCallback;
 
 	DLL_LINKAGE static const SlotID COMMANDER_SLOT_PLACEHOLDER;
+	DLL_LINKAGE static const SlotID SUMMONED_SLOT_PLACEHOLDER; ///<for all summoned creatures, only during battle
 
 	bool validSlot() const
 	{
@@ -414,7 +416,8 @@ namespace ECastingMode
 	{
 		HERO_CASTING, AFTER_ATTACK_CASTING, //also includes cast before attack
 		MAGIC_MIRROR, CREATURE_ACTIVE_CASTING, ENCHANTER_CASTING,
-		SPELL_LIKE_ATTACK	
+		SPELL_LIKE_ATTACK, 
+		PASSIVE_CASTING//f.e. opening battle spells
 	};
 }
 
@@ -481,6 +484,23 @@ enum class ETeleportChannelType
 	UNIDIRECTIONAL,
 	MIXED
 };
+
+
+namespace ERiverType
+{
+	enum ERiverType
+	{
+		NO_RIVER, CLEAR_RIVER, ICY_RIVER, MUDDY_RIVER, LAVA_RIVER
+	};
+}
+
+namespace ERoadType
+{
+	enum ERoadType
+	{
+		NO_ROAD, DIRT_ROAD, GRAVEL_ROAD, COBBLESTONE_ROAD
+	};
+}
 
 class Obj
 {
@@ -682,6 +702,7 @@ namespace Battle
 {
 	enum ActionType
 	{
+		CANCEL = -3,
 		END_TACTIC_PHASE = -2,
 		INVALID = -1,
 		NO_ACTION = 0,
@@ -806,6 +827,7 @@ public:
 		//BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
 		TITANS_THUNDER = 135,
 		//CORNUCOPIA = 140,
+		//FIXME: the following is only true if WoG is enabled. Otherwise other mod artifacts will take these slots.
 		ART_SELECTION = 144,
 		ART_LOCK = 145,
 		AXE_OF_SMASHING = 146,
@@ -847,7 +869,10 @@ public:
 		WALKING_DEAD = 58,
 		WIGHTS = 60,
 		LICHES = 64,
+		BONE_DRAGON = 68,
 		TROGLODYTES = 70,
+		HYDRA = 110,
+		CHAOS_HYDRA = 111,
 		AIR_ELEMENTAL = 112,
 		EARTH_ELEMENTAL = 113,
 		FIRE_ELEMENTAL = 114,
@@ -924,6 +949,8 @@ enum class ESpellSchool: ui8
 	WATER 	= 2,
 	EARTH 	= 3
 };
+
+ID_LIKE_OPERATORS_DECLS(SpellID, SpellID::ESpellID)
 
 // Typedef declarations
 typedef ui8 TFaction;

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 #
 # VCMI data builder script
@@ -66,7 +66,7 @@ fi
 test_utility ()
 {
 	$1 $2 > /dev/null 2>&1 || { echo "$1 was not found. Please install it" 1>&2 ; exit 1; }
-} 
+}
 
 #print error message and exit
 fail ()
@@ -106,7 +106,7 @@ then
 	fi
 fi
 
-if [[ -n "$useffmpeg" ]] 
+if [[ -n "$useffmpeg" ]]
 then
 	ffmpeg -version > /dev/null 2>&1 && AUDIO_CONV=ffmpeg
 	avconv -version > /dev/null 2>&1 && AUDIO_CONV=avconv
@@ -116,7 +116,7 @@ then
 	fi
 fi
 
-if [[ -n "$cd1_dir" ]] 
+if [[ -n "$cd1_dir" ]]
 then
 	test_utility "unshield" "-V"
 fi
@@ -163,7 +163,8 @@ if [[ -n "$gog_file" ]]
 then
 	# innoextract always reports error (iconv 84 error). Just test file for presence
 	test -f "$gog_file" || fail "Error: gog.com executable was not found!"
-	(gog_file=`readlink -f "$gog_file"` && cd "$temp_dir" && innoextract -s -p 1 "$gog_file")
+        gog_file="$(cd "$(dirname "$gog_file")"; pwd)/$(basename "$gog_file")"
+	cd "$temp_dir" && innoextract -s -p 1 "$gog_file"
 
 	data_dir="$temp_dir"/app
 fi
@@ -171,23 +172,23 @@ fi
 if [[ -n "$cd1_dir" ]]
 then
 	data_dir="$temp_dir"/cddir
-	mkdir -p "$data_dir" 
+	mkdir -p "$data_dir"
 	unshield -d "$data_dir" x "$cd1_dir"/_setup/data1.cab || fail "Error: failed to extract from Install Shield installer!" "rm -rf $data_dir" 
 
 	# a bit tricky - different releases have different root directory. Move extracted files to data_dir
-	if [ -d "$data_dir"/Heroes3 ] 
+	if [ -d "$data_dir"/Heroes3 ]
 	then
-		mv "$data_dir"/Heroes3/* "$data_dir" 
-	elif [ -d "$data_dir""/Program_Files" ] 
+		mv "$data_dir"/Heroes3/* "$data_dir"
+	elif [ -d "$data_dir""/Program_Files" ]
 	then
-		mv "$data_dir"/Program_Files/* "$data_dir" 
+		mv "$data_dir"/Program_Files/* "$data_dir"
 	elif [ -d "$data_dir""/LangInde_Program_Files" ]
 	then
 		mv "$data_dir"/LangInde_Program_Files/* "$data_dir"
 	else
 		echo "Error: failed to find extracted game files!"
 		echo "Extracted directories are: "
-		ls -la "$data_dir" 
+		ls -la "$data_dir"
 		echo "Please report this on vcmi.eu"
 		exit 1;
 	fi
@@ -213,7 +214,7 @@ then
 	# bash also has `shopt -s nocaseglob` but we don't want this to
 	# accidentally influence other parts of this script
 	# since the directory names are short, we use this pattern matching
-	cp -r "$data_dir"/[Dd][Aa][Tt][Aa] "$dest_dir" 
+	cp -r "$data_dir"/[Dd][Aa][Tt][Aa] "$dest_dir"
 	cp -r "$data_dir"/[Mm][Aa][Pp][Ss] "$dest_dir"
 	cp -r "$data_dir"/[Mm][Pp]3 "$dest_dir"
 fi
@@ -236,7 +237,7 @@ then
 	echo "Converting mp3 files..."
 
 	OIFS="$IFS"
-	IFS=$'\n' 
+	IFS=$'\n'
 
 	for file in `find "$dest_dir" -type f -iname "*.mp3"`
 	do

@@ -27,8 +27,8 @@
 #include "mapping/CCampaignHandler.h" //for CCampaignState
 #include "rmg/CMapGenerator.h" // for CMapGenOptions
 
-const ui32 version = 753;
-const ui32 minSupportedVersion = version;
+const ui32 version = 754;
+const ui32 minSupportedVersion = 753;
 
 class CISer;
 class COSer;
@@ -1551,7 +1551,7 @@ public:
 
 	void openNextFile(const std::string &fname); //throws!
 	void clear();
-    void reportState(CLogger * out);
+    void reportState(CLogger * out) override;
 
 	void putMagicBytes(const std::string &text);
 	
@@ -1578,7 +1578,7 @@ public:
 
 	void openNextFile(const boost::filesystem::path & fname, int minimalVersion); //throws!
 	void clear();
-    void reportState(CLogger * out);
+    void reportState(CLogger * out) override;
 
 	void checkMagicBytes(const std::string & text);
 	
@@ -1616,7 +1616,7 @@ class DLL_LINKAGE CConnection
 	CConnection(void);
 
 	void init();
-    void reportState(CLogger * out);
+    void reportState(CLogger * out) override;
 public:
 	CISer iser;
 	COSer oser;

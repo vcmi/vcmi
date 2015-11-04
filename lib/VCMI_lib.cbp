@@ -7,10 +7,10 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="Debug-win32-SDL2">
+			<Target title="Debug-win32">
 				<Option platforms="Windows;" />
 				<Option output="../VCMI_lib" prefix_auto="0" extension_auto="1" />
-				<Option object_output="../obj/Debug/Lib" />
+				<Option object_output="../obj/Lib/Debug/x86" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option host_application="D:/projects/vcmi/engine/VCMI_client.exe" />
@@ -19,62 +19,84 @@
 				<Compiler>
 					<Add option="-Og" />
 					<Add option="-g" />
-					<Add directory="$(#sdl2.include)" />
+					<Add directory="$(#zlib.include)" />
 				</Compiler>
 				<Linker>
+					<Add option="-lws2_32" />
+					<Add option="-lz" />
+					<Add option="-lminizip" />
+					<Add option="-lboost_filesystem$(#boost.libsuffix)" />
+					<Add option="-lboost_system$(#boost.libsuffix)" />
+					<Add option="-lboost_thread$(#boost.libsuffix)" />
+					<Add option="-lboost_chrono$(#boost.libsuffix)" />
+					<Add option="-lboost_locale$(#boost.libsuffix)" />
+					<Add option="-lboost_date_time$(#boost.libsuffix)" />
+					<Add option="-liconv" />
+					<Add option="-ldbghelp" />
 					<Add directory="$(#sdl2.lib)" />
+					<Add directory="$(#boost.lib32)" />
+					<Add directory="$(#zlib.lib)" />
 				</Linker>
 			</Target>
-			<Target title="Release-win32-SDL2">
+			<Target title="Release-win32">
 				<Option platforms="Windows;" />
 				<Option output="../VCMI_lib" prefix_auto="0" extension_auto="1" />
-				<Option object_output="../obj/Release/Lib" />
+				<Option object_output="../obj/Lib/Release/x86" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O2" />
-					<Add directory="$(#sdl2.include)" />
+					<Add directory="$(#zlib.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-lws2_32" />
+					<Add option="-lz" />
+					<Add option="-lminizip" />
+					<Add option="-lboost_filesystem$(#boost.libsuffix)" />
+					<Add option="-lboost_system$(#boost.libsuffix)" />
+					<Add option="-lboost_thread$(#boost.libsuffix)" />
+					<Add option="-lboost_chrono$(#boost.libsuffix)" />
+					<Add option="-lboost_locale$(#boost.libsuffix)" />
+					<Add option="-lboost_date_time$(#boost.libsuffix)" />
+					<Add option="-liconv" />
+					<Add option="-ldbghelp" />
 					<Add directory="$(#sdl2.lib)" />
+					<Add directory="$(#boost.lib32)" />
+					<Add directory="$(#zlib.lib)" />
 				</Linker>
 			</Target>
-			<Target title="Debug-win32-SDL1">
+			<Target title="Debug-win64">
 				<Option platforms="Windows;" />
 				<Option output="../VCMI_lib" prefix_auto="0" extension_auto="1" />
-				<Option object_output="../obj/Debug/Lib" />
+				<Option object_output="../obj/Lib/Debug/x64" />
 				<Option type="3" />
-				<Option compiler="gcc" />
+				<Option compiler="gnu_gcc_compiler_x64" />
 				<Option host_application="D:/projects/vcmi/engine/VCMI_client.exe" />
 				<Option run_host_application_in_terminal="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-Og" />
 					<Add option="-g" />
-					<Add directory="$(#sdl.include)" />
+					<Add directory="$(#zlib64.include)" />
 				</Compiler>
 				<Linker>
-					<Add directory="$(#sdl.lib)" />
-				</Linker>
-			</Target>
-			<Target title="Release-win32-SDL1">
-				<Option platforms="Windows;" />
-				<Option output="../VCMI_lib" prefix_auto="0" extension_auto="1" />
-				<Option object_output="../obj/Release/Lib" />
-				<Option type="3" />
-				<Option compiler="gcc" />
-				<Option createStaticLib="1" />
-				<Compiler>
-					<Add option="-fomit-frame-pointer" />
-					<Add option="-O2" />
-					<Add directory="$(#sdl.include)" />
-				</Compiler>
-				<Linker>
-					<Add option="-s" />
-					<Add directory="$(#sdl.lib)" />
+					<Add option="-lws2_32" />
+					<Add option="-lzlib" />
+					<Add option="-lminizip" />
+					<Add option="-lboost_filesystem$(#boost.libsuffix)" />
+					<Add option="-lboost_system$(#boost.libsuffix)" />
+					<Add option="-lboost_thread$(#boost.libsuffix)" />
+					<Add option="-lboost_chrono$(#boost.libsuffix)" />
+					<Add option="-lboost_locale$(#boost.libsuffix)" />
+					<Add option="-lboost_date_time$(#boost.libsuffix)" />
+					<Add option="-liconv" />
+					<Add option="-ldbghelp" />
+					<Add directory="$(#sdl2.lib64)" />
+					<Add directory="$(#boost.lib64)" />
+					<Add directory="$(#zlib64.lib)" />
 				</Linker>
 			</Target>
 		</Build>
@@ -91,22 +113,12 @@
 			<Add option="-DVCMI_DLL" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
-			<Add directory="$(#zlib.include)" />
 			<Add directory="$(#boost.include)" />
 			<Add directory="../include" />
 			<Add directory="../lib" />
+			<Add directory="$(#sdl2.include)" />
 		</Compiler>
 		<Linker>
-			<Add option="-lws2_32" />
-			<Add option="-lz" />
-			<Add option="-lminizip" />
-			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
-			<Add option="-lboost_system$(#boost.libsuffix)" />
-			<Add option="-lboost_thread$(#boost.libsuffix)" />
-			<Add option="-lboost_chrono$(#boost.libsuffix)" />
-			<Add option="-lboost_locale$(#boost.libsuffix)" />
-			<Add directory="$(#boost.lib32)" />
-			<Add directory="$(#zlib.lib)" />
 			<Add directory="../" />
 		</Linker>
 		<Unit filename="AI_Base.h" />
@@ -146,6 +158,8 @@
 		<Unit filename="CModHandler.h" />
 		<Unit filename="CObstacleInstance.cpp" />
 		<Unit filename="CObstacleInstance.h" />
+		<Unit filename="CPathfinder.cpp" />
+		<Unit filename="CPathfinder.h" />
 		<Unit filename="CRandomGenerator.cpp" />
 		<Unit filename="CRandomGenerator.h" />
 		<Unit filename="CScriptingModule.h" />
@@ -186,6 +200,7 @@
 		<Unit filename="StartInfo.h" />
 		<Unit filename="StdInc.h">
 			<Option weight="0" />
+			<Option target="Debug-win64" />
 		</Unit>
 		<Unit filename="StringConstants.h" />
 		<Unit filename="UnlockGuard.h" />
@@ -255,6 +270,8 @@
 		<Unit filename="mapObjects/ObjectTemplate.h" />
 		<Unit filename="mapping/CCampaignHandler.cpp" />
 		<Unit filename="mapping/CCampaignHandler.h" />
+		<Unit filename="mapping/CDrawRoadsOperation.cpp" />
+		<Unit filename="mapping/CDrawRoadsOperation.h" />
 		<Unit filename="mapping/CMap.cpp" />
 		<Unit filename="mapping/CMap.h" />
 		<Unit filename="mapping/CMapEditManager.cpp" />
@@ -302,6 +319,7 @@
 		<Unit filename="spells/CreatureSpellMechanics.h" />
 		<Unit filename="spells/ISpellMechanics.cpp" />
 		<Unit filename="spells/ISpellMechanics.h" />
+		<Unit filename="spells/Magic.h" />
 		<Unit filename="spells/ViewSpellInt.cpp" />
 		<Unit filename="spells/ViewSpellInt.h" />
 		<Unit filename="vcmi_endian.h" />

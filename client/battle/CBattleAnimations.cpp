@@ -233,7 +233,7 @@ std::string CDefenceAnimation::getMySound()
 	if(killed)
 		return battle_sound(stack->getCreature(), killed);
 
-	if (stack->valOfBonuses(Selector::durationType(Bonus::STACK_GETS_TURN)))
+	if (stack->valOfBonuses(Bonus::UntilGetsTurn))
 		return battle_sound(stack->getCreature(), defend);
 	return battle_sound(stack->getCreature(), wince);
 }
@@ -242,8 +242,10 @@ CCreatureAnim::EAnimType CDefenceAnimation::getMyAnimType()
 {
 	if(killed)
 		return CCreatureAnim::DEATH;
-
-	if (stack->valOfBonuses(Selector::durationType(Bonus::STACK_GETS_TURN).And(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE))))
+	
+	auto selector = CSelector(Bonus::UntilGetsTurn).And(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
+	
+	if(stack->valOfBonuses(selector))
 		return CCreatureAnim::DEFENCE;
 	return CCreatureAnim::HITTED;
 }
@@ -281,7 +283,9 @@ void CDefenceAnimation::endAnim()
 
 CDummyAnimation::CDummyAnimation(CBattleInterface * _owner, int howManyFrames) 
 : CBattleAnimation(_owner), counter(0), howMany(howManyFrames)
-{}
+{
+	logAnim->debugStream() << "Created dummy animation for " << howManyFrames <<" frames";
+}
 
 bool CDummyAnimation::init()
 {
@@ -778,7 +782,7 @@ bool CShootingAnimation::init()
 		spi.catapultInfo.reset(new CatapultProjectileInfo(Point(spi.x, spi.y), destPos));
 
 		double animSpeed = AnimationControls::getProjectileSpeed() / 10;
-		spi.lastStep = abs((destPos.x - spi.x) / animSpeed);
+		spi.lastStep = std::abs((destPos.x - spi.x) / animSpeed);
 		spi.dx = animSpeed;
 		spi.dy = 0;
 

@@ -230,13 +230,10 @@ std::string CLogFormatter::format(const LogRecord & record) const
 {
 	std::string message = pattern;
 
-	// Format date
-	dateStream.str(std::string());
-	dateStream.clear();
-	dateStream << record.timeStamp;
-	boost::algorithm::replace_first(message, "%d", dateStream.str());
+	//Format date
+	boost::algorithm::replace_first(message, "%d", boost::posix_time::to_simple_string (record.timeStamp));
 
-	// Format log level
+	//Format log level 
 	std::string level;
 	switch(record.level)
 	{
@@ -258,10 +255,12 @@ std::string CLogFormatter::format(const LogRecord & record) const
 	}
 	boost::algorithm::replace_first(message, "%l", level);
 
-	// Format name, thread id and message
+	//Format name, thread id and message
 	boost::algorithm::replace_first(message, "%n", record.domain.getName());
-	boost::algorithm::replace_first(message, "%t", boost::lexical_cast<std::string>(record.threadId));
+	boost::algorithm::replace_first(message, "%t", record.threadId);
 	boost::algorithm::replace_first(message, "%m", record.message);
+
+	//return boost::to_string (boost::format("%d %d %d[%d] - %d") % dateStream.str() % level % record.domain.getName() % record.threadId % record.message);
 
 	return message;
 }
@@ -365,8 +364,9 @@ CLogFileTarget::CLogFileTarget(boost::filesystem::path filePath, bool append /*=
 
 void CLogFileTarget::write(const LogRecord & record)
 {
+	std::string message = formatter.format(record); //formatting is slow, do it outside the lock
 	TLockGuard _(mx);
-	file << formatter.format(record) << std::endl;
+	file << message << std::endl;
 }
 
 const CLogFormatter & CLogFileTarget::getFormatter() const { return formatter; }

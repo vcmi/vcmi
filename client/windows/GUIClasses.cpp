@@ -575,18 +575,10 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	mapScrollSpeed->setSelected(settings["adventure"]["scrollSpeed"].Float());
 	mapScrollSpeed->addCallback(std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
 
-	musicVolume = new CToggleGroup(0, true);
-	for(int i=0; i<10; ++i)
-		musicVolume->addToggle(i*11, new CToggleButton(Point(29 + 19*i, 359), "syslb.def", CGI->generaltexth->zelp[326+i]));
-
-	musicVolume->setSelected(CCS->musich->getVolume());
+	musicVolume = new CVolumeSlider(Point(29, 359), "syslb.def", CCS->musich->getVolume(), &CGI->generaltexth->zelp[326]);
 	musicVolume->addCallback(std::bind(&setIntSetting, "general", "music", _1));
 
-	effectsVolume = new CToggleGroup(0, true);
-	for(int i=0; i<10; ++i)
-		effectsVolume->addToggle(i*11, new CToggleButton(Point(29 + 19*i, 425), "syslb.def", CGI->generaltexth->zelp[336+i]));
-
-	effectsVolume->setSelected(CCS->soundh->getVolume());
+	effectsVolume = new CVolumeSlider(Point(29, 425), "syslb.def", CCS->soundh->getVolume(), &CGI->generaltexth->zelp[336]);
 	effectsVolume->addCallback(std::bind(&setIntSetting, "general", "sound", _1));
 
 	showReminder = new CToggleButton(Point(246, 87), "sysopchk.def", CGI->generaltexth->zelp[361],
@@ -656,7 +648,7 @@ void CSystemOptionsWindow::setGameRes(int index)
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this]{ closeAndPushEvent(SDL_QUIT); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this]{ closeAndPushEvent(SDL_USEREVENT, FORCE_QUIT); }, 0);
 }
 
 void CSystemOptionsWindow::breturnf()
@@ -1089,9 +1081,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 			piecesToRemove.push_back(piece);
 			piece->needRefresh = true;
 			piece->recActions = piece->recActions & ~SHOWALL;
-			#ifndef VCMI_SDL1
 			SDL_SetSurfaceBlendMode(piece->bg,SDL_BLENDMODE_BLEND);
-			#endif // VCMI_SDL1
 		}
 	}
 }

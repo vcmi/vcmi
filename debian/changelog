@@ -1,3 +1,10 @@
+vcmi (0.98) trusty; urgency=medium
+
+  * New upstream release
+  * Now built with SDL2
+
+ -- Ivan Savenko <saven.ivan@gmail.com>  Wed, 01 Apr 2015 22:57:38 +0200
+
 vcmi (0.97) trusty; urgency=medium
 
   * New upstream release

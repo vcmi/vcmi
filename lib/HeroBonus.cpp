@@ -211,21 +211,8 @@ Bonus * BonusList::getFirst(const CSelector &select)
 	return nullptr;
 }
 
-void BonusList::getModifiersWDescr(TModDescr &out) const
-{
-	for (auto & elem : bonuses)
-	{
-		Bonus *b = elem;
-		out.push_back(std::make_pair(b->val, b->Description()));
-	}
-}
-
 void BonusList::getBonuses(BonusList & out, const CSelector &selector) const
 {
-// 	for(Bonus *i : *this)
-// 		if(selector(i) && i->effectRange == Bonus::NO_LIMIT)
-// 			out.push_back(i);
-
 	getBonuses(out, selector, nullptr);
 }
 
@@ -273,13 +260,13 @@ void BonusList::push_back(Bonus* const &x)
 	bonuses.push_back(x);
 
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 }
 
 std::vector<Bonus*>::iterator BonusList::erase(const int position)
 {
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 	return bonuses.erase(bonuses.begin() + position);
 }
 
@@ -288,7 +275,7 @@ void BonusList::clear()
 	bonuses.clear();
 
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 }
 
 std::vector<BonusList*>::size_type BonusList::operator-=(Bonus* const &i)
@@ -299,7 +286,7 @@ std::vector<BonusList*>::size_type BonusList::operator-=(Bonus* const &i)
 	bonuses.erase(itr);
 
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 	return true;
 }
 
@@ -308,7 +295,7 @@ void BonusList::resize(std::vector<Bonus*>::size_type sz, Bonus* c )
 	bonuses.resize(sz, c);
 
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 }
 
 void BonusList::insert(std::vector<Bonus*>::iterator position, std::vector<Bonus*>::size_type n, Bonus* const &x)
@@ -316,7 +303,7 @@ void BonusList::insert(std::vector<Bonus*>::iterator position, std::vector<Bonus
 	bonuses.insert(position, n, x);
 
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 }
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
@@ -359,17 +346,6 @@ bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) c
 	return hasBonus(s, cachingStr.str());
 }
 
-void IBonusBearer::getModifiersWDescr(TModDescr &out, Bonus::BonusType type, int subtype /*= -1 */) const
-{
-	std::stringstream cachingStr;
-	cachingStr << "type_" << type << "s_" << subtype;
-	getModifiersWDescr(out, subtype != -1 ? Selector::typeSubtype(type, subtype) : Selector::type(type), cachingStr.str());
-}
-
-void IBonusBearer::getModifiersWDescr(TModDescr &out, const CSelector &selector, const std::string &cachingStr /* =""*/) const
-{
-	getBonuses(selector, cachingStr)->getModifiersWDescr(out);
-}
 int IBonusBearer::getBonusesCount(Bonus::BonusSource from, int id) const
 {
 	std::stringstream cachingStr;
@@ -524,8 +500,13 @@ bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" b
 const TBonusListPtr IBonusBearer::getSpellBonuses() const
 {
 	std::stringstream cachingStr;
-	cachingStr << "source_" << Bonus::SPELL_EFFECT;
-	return getBonuses(Selector::sourceType(Bonus::SPELL_EFFECT), Selector::anyRange(), cachingStr.str());
+	cachingStr << "!type_" << Bonus::NONE << "source_" << Bonus::SPELL_EFFECT;
+	CSelector selector = Selector::sourceType(Bonus::SPELL_EFFECT)
+		.And(CSelector([](const Bonus * b)->bool
+		{
+			return b->type != Bonus::NONE;
+		})); 
+	return getBonuses(selector, Selector::anyRange(), cachingStr.str());
 }
 
 const Bonus * IBonusBearer::getEffect(ui16 id, int turn /*= 0*/) const
@@ -754,7 +735,7 @@ void CBonusSystemNode::attachTo(CBonusSystemNode *parent)
 		newRedDescendant(parent);
 
 	parent->newChildAttached(this);
-	CBonusSystemNode::treeChanged++;
+	CBonusSystemNode::treeHasChanged();
 }
 
 void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
@@ -768,7 +749,7 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
 
 	parents -= parent;
 	parent->childDetached(this);
-	CBonusSystemNode::treeChanged++;
+	CBonusSystemNode::treeHasChanged();
 }
 
 void CBonusSystemNode::popBonuses(const CSelector &s)
@@ -782,17 +763,12 @@ void CBonusSystemNode::popBonuses(const CSelector &s)
 		child->popBonuses(s);
 }
 
-// void CBonusSystemNode::addNewBonus(const Bonus &b)
-// {
-// 	addNewBonus(new Bonus(b));
-// }
-
 void CBonusSystemNode::addNewBonus(Bonus *b)
 {
 	assert(!vstd::contains(exportedBonuses,b));
 	exportedBonuses.push_back(b);
 	exportBonus(b);
-	CBonusSystemNode::treeChanged++;
+	CBonusSystemNode::treeHasChanged();
 }
 
 void CBonusSystemNode::accumulateBonus(Bonus &b)
@@ -812,7 +788,7 @@ void CBonusSystemNode::removeBonus(Bonus *b)
 	else
 		bonuses -= b;
 	vstd::clear_pointer(b);
-	CBonusSystemNode::treeChanged++;
+	CBonusSystemNode::treeHasChanged();
 }
 
 bool CBonusSystemNode::actsAsBonusSourceOnly() const
@@ -995,7 +971,7 @@ void CBonusSystemNode::exportBonus(Bonus * b)
 	else
 		bonuses.push_back(b);
 
-	CBonusSystemNode::treeChanged++;
+	CBonusSystemNode::treeHasChanged();
 }
 
 void CBonusSystemNode::exportBonuses()
@@ -1047,11 +1023,6 @@ const std::string& CBonusSystemNode::getDescription() const
 void CBonusSystemNode::setDescription(const std::string &description)
 {
 	this->description = description;
-}
-
-void CBonusSystemNode::incrementTreeChangedNum()
-{
-	treeChanged++;
 }
 
 void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out) const
@@ -1115,12 +1086,6 @@ bool NBonus::hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int s
 	return false;
 }
 
-void NBonus::getModifiersWDescr(const CBonusSystemNode *obj, TModDescr &out, Bonus::BonusType type, int subtype /*= -1 */)
-{
-	if(obj)
-		return obj->getModifiersWDescr(out, type, subtype);
-}
-
 int NBonus::getCount(const CBonusSystemNode *obj, Bonus::BonusSource from, int id)
 {
 	if(obj)
@@ -1137,28 +1102,34 @@ const CSpell * Bonus::sourceSpell() const
 
 std::string Bonus::Description() const
 {
-	if(description.size())
-		return description;
-
 	std::ostringstream str;
-	str << std::showpos << val << " ";
-
-	switch(source)
-	{
-	case ARTIFACT:
-		str << VLC->arth->artifacts[sid]->Name();
-		break;;
-	case SPELL_EFFECT:
-		str << SpellID(sid).toSpell()->name;
-		break;
-	case CREATURE_ABILITY:
-		str << VLC->creh->creatures[sid]->namePl;
-		break;
-	case SECONDARY_SKILL:
-		str << VLC->generaltexth->skillName[sid]/* << " secondary skill"*/;
-		break;
-	}
-
+	
+	if(description.empty())
+		switch(source)
+		{
+		case ARTIFACT:
+			str << VLC->arth->artifacts[sid]->Name();
+			break;;
+		case SPELL_EFFECT:
+			str << SpellID(sid).toSpell()->name;
+			break;
+		case CREATURE_ABILITY:
+			str << VLC->creh->creatures[sid]->namePl;
+			break;
+		case SECONDARY_SKILL:
+			str << VLC->generaltexth->skillName[sid]/* << " secondary skill"*/;
+			break;
+		default:
+			//todo: handle all possible sources
+			str << "Unknown"; 
+			break;
+		}
+	else
+		str << description;
+		
+	if(val != 0)
+		str << " " << std::showpos << val;
+	
 	return str.str();
 }
 
@@ -1209,7 +1180,6 @@ namespace Selector
 	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type(&Bonus::type);
 	DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype(&Bonus::subtype);
 	DLL_LINKAGE CSelectFieldEqual<si32> info(&Bonus::additionalInfo);
-	DLL_LINKAGE CSelectFieldEqual<ui16> duration(&Bonus::duration);
 	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType(&Bonus::source);
 	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange(&Bonus::effectRange);
 	DLL_LINKAGE CWillLastTurns turns;
@@ -1231,11 +1201,6 @@ namespace Selector
 	{
 		return CSelectFieldEqual<Bonus::BonusSource>(&Bonus::source)(source)
 			.And(CSelectFieldEqual<ui32>(&Bonus::sid)(sourceID));
-	}
-
-	CSelector DLL_EXPORT durationType(ui16 duration)
-	{
-		return CSelectFieldEqual<ui16>(&Bonus::duration)(duration);
 	}
 
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source)

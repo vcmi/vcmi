@@ -11,8 +11,8 @@
 		],
 		"specialties":
 		[
-			{ "type":10, "val": 1, "subtype": 5, "info": 0 }
-		],
+			{ "type":1, "val": 0, "subtype": 0, "info": 106 }
+		],		
 		"army" :
 		[
 			{
@@ -41,7 +41,7 @@
 		],
 		"specialties":
 		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 106 }
+			{ "type":1, "val": 0, "subtype": 0, "info": 98 }
 		]
 	},
 	"wystan":
@@ -56,7 +56,7 @@
 		],
 		"specialties":
 		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 98 }
+			{ "type":1, "val": 0, "subtype": 0, "info": 100 }
 		]
 	},
 	"tazar":
@@ -70,7 +70,7 @@
 		],
 		"specialties":
 		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 100 }
+			{ "type":2, "val": 5, "subtype": 23, "info": 0 }
 		]
 	},
 	"alkin":
@@ -85,7 +85,7 @@
 		],
 		"specialties":
 		[
-			{ "type":2, "val": 5, "subtype": 23, "info": 0 }
+			{ "type":1, "val": 0, "subtype": 0, "info": 102 }
 		]
 	},
 	"korbac":
@@ -100,7 +100,7 @@
 		],
 		"specialties":
 		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 102 }
+			{ "type":1, "val": 0, "subtype": 0, "info": 104 }
 		]
 	},
 	"gerwulf":
@@ -115,7 +115,7 @@
 		],
 		"specialties":
 		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 104 }
+			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
 		]
 	},
 	"broghild":
@@ -130,7 +130,7 @@
 		],
 		"specialties":
 		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
+			{ "type":1, "val": 0, "subtype": 0, "info": 108 }
 		]
 	},
 	"mirlanda":
@@ -145,7 +145,7 @@
 		],
 		"specialties":
 		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 108 }
+			{ "type":8, "val": 0, "subtype": 45, "info": 0 }
 		]
 	},
 	"rosic":

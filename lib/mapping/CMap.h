@@ -261,22 +261,6 @@ public:
 	}
 };
 
-namespace ERiverType
-{
-enum ERiverType
-{
-	NO_RIVER, CLEAR_RIVER, ICY_RIVER, MUDDY_RIVER, LAVA_RIVER
-};
-}
-
-namespace ERoadType
-{
-enum ERoadType
-{
-	NO_ROAD, DIRT_ROAD, GRAVEL_ROAD, COBBLESTONE_ROAD
-};
-}
-
 /// The terrain tile describes the terrain type and the visual representation of the terrain.
 /// Furthermore the struct defines whether the tile is visitable or/and blocked and which objects reside in it.
 struct DLL_LINKAGE TerrainTile
@@ -421,7 +405,6 @@ public:
 	std::list<CMapEvent> events;
 	int3 grailPos;
 	int grailRadious;
-
 
 	//Central lists of items in game. Position of item in the vectors below is their (instance) id.
 	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;

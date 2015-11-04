@@ -1,5 +1,14 @@
-#pragma once
+/*
+ * BattleState.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
+#pragma once
 
 #include "BattleHex.h"
 #include "HeroBonus.h"
@@ -12,16 +21,7 @@
 #include "GameConstants.h"
 #include "CBattleCallback.h"
 #include "int3.h"
-
-/*
- * BattleState.h, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
+#include "spells/Magic.h"
 
 class CGHeroInstance;
 class CStack;
@@ -159,7 +159,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	static int battlefieldTypeToTerrain(int bfieldType); //converts above to ERM BI format
 };
 
-class DLL_LINKAGE CStack : public CBonusSystemNode, public CStackBasicDescriptor
+class DLL_LINKAGE CStack : public CBonusSystemNode, public CStackBasicDescriptor, public ISpellCaster
 {
 public:
 	const CStackInstance *base; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
@@ -171,11 +171,15 @@ public:
 	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
 	bool attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
 	BattleHex position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
-	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
+	///how many times this stack has been counterattacked this round
+	ui8 counterAttacksPerformed;
+	///cached total count of counterattacks; should be cleared each round;do not serialize
+	mutable ui8 counterAttacksTotalCache;
 	si16 shots; //how many shots left
 	ui8 casts; //how many casts left
 	TQuantity resurrected; // these units will be taken back after battle is over
-
+	///id of alive clone of this stack clone if any
+	si32 cloneID;
 	std::set<EBattleStackState::EBattleStackState> state;
 	//overrides
 	const CCreature* getCreature() const {return type;}
@@ -191,10 +195,16 @@ public:
 	std::string getName() const; //plural or singular
 	bool willMove(int turn = 0) const; //if stack has remaining move this turn
 	bool ableToRetaliate() const; //if stack can retaliate after attacked
+	///how many times this stack can counterattack in one round
+	ui8 counterAttacksTotal() const;
+	///how many times this stack can counterattack in one round more
+	si8 counterAttacksRemaining() const;
 	bool moved(int turn = 0) const; //if stack was already moved this turn
 	bool waited(int turn = 0) const;
 	bool canMove(int turn = 0) const; //if stack can move
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
+	///returns actual heal value based on internal state
+	ui32 calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) const;
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance
 	static void stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse);
@@ -222,12 +232,30 @@ public:
 	std::pair<int,int> countKilledByAttack(int damageReceived) const; //returns pair<killed count, new left HP>
 	void prepareAttacked(BattleStackAttacked &bsa, CRandomGenerator & rand, boost::optional<int> customCount = boost::none) const; //requires bsa.damageAmout filled
 
+	///ISpellCaster
+	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const override;
+	ui32 getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const override;
+
+	///default spell school level for effect calculation
+	int getEffectLevel(const CSpell * spell) const override;
+
+	///default spell-power for damage/heal calculation
+	int getEffectPower(const CSpell * spell) const override;
+
+	///default spell-power for timed effects duration
+	int getEnchantPower(const CSpell * spell) const override;
+
+	///damage/heal override(ignores spell configuration, effect level and effect power)
+	int getEffectValue(const CSpell * spell) const override;
+
+	const PlayerColor getOwner() const override;
+	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		assert(isIndependentNode());
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CStackBasicDescriptor&>(*this);
-		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
+		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacksPerformed
 			& shots & casts & count & resurrected;
 
 		const CArmedInstance *army = (base ? base->armyObj : nullptr);

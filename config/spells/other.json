@@ -106,15 +106,20 @@
 			"cast": "DISPELL"
 		},
 		"levels" : {
-			"base":{
-				"range" : "0"
+ 			"base":{
+				"targetModifier":{"smart":true},			
+ 				"range" : "0"
+ 			},
+			"advanced":{
+				"targetModifier":{"smart":false}			
 			},
-			"expert":{
-				"range" : "X"
-			}
+ 			"expert":{
+				"targetModifier":{"smart":false},			
+ 				"range" : "X"
+ 			}
 		},
 		"flags" : {
-			"indifferent": true
+			"positive": true
 		}
 	},
 	"cure" : {
@@ -237,13 +242,15 @@
 	"removeObstacle" : {
 		"index" : 64,
 		"targetType" : "OBSTACLE",		
-		
+		"animation":{
+			"cast":[2]
+		},		
 		"sounds": {
 			"cast": "REMOVEOB"
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "0"
 			}
 		},
 		"flags" : {
@@ -253,7 +260,9 @@
 	"clone" : {
 		"index" : 65,
 		"targetType" : "CREATURE",		
-		
+		"animation":{
+			"cast":[2]
+		},			
 		"sounds": {
 			"cast": "CLONE"
 		},
@@ -273,7 +282,9 @@
 	"fireElemental" : {
 		"index" : 66,
 		"targetType" : "NO_TARGET",		
-		
+		"animation":{
+			"cast":[2]
+		},			
 		"sounds": {
 			"cast": "SUMNELM"
 		},
@@ -289,7 +300,9 @@
 	"earthElemental" : {
 		"index" : 67,
 		"targetType" : "NO_TARGET",	
-		
+		"animation":{
+			"cast":[2]
+		},			
 		"sounds": {
 			"cast": "SUMNELM"
 		},
@@ -305,7 +318,9 @@
 	"waterElemental" : {
 		"index" : 68,
 		"targetType" : "NO_TARGET",	
-		
+		"animation":{
+			"cast":[2]
+		},			
 		"sounds": {
 			"cast": "SUMNELM"
 		},
@@ -321,7 +336,9 @@
 	"airElemental" : {
 		"index" : 69,
 		"targetType" : "NO_TARGET",	
-		
+		"animation":{
+			"cast":[2]
+		},			
 		"sounds": {
 			"cast": "SUMNELM"
 		},

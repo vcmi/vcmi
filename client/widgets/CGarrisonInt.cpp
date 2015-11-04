@@ -71,11 +71,11 @@ void CGarrisonSlot::hover (bool on)
 			}
 			else
 			{
-				if(upg)
+				if(upg == EGarrisonType::UP)
 				{
 					temp = CGI->generaltexth->tcommands[32]; //Select %s (visiting)
 				}
-				else if(owner->armedObjs[0] && owner->armedObjs[0]->ID == Obj::TOWN)
+				else if(owner->armedObjs[0] && (owner->armedObjs[0]->ID == Obj::TOWN || owner->armedObjs[0]->ID == Obj::HERO))
 				{
 					temp = CGI->generaltexth->tcommands[12]; //Select %s (in garrison)
 				}
@@ -119,20 +119,152 @@ void CGarrisonSlot::hover (bool on)
 
 const CArmedInstance * CGarrisonSlot::getObj() const
 {
-	return 	(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]);
+	return 	owner->armedObjs[upg];
 }
 
+/// @return Whether the unit in the slot belongs to the current player.
 bool CGarrisonSlot::our() const
 {
-	return 	upg?(owner->owned[1]):(owner->owned[0]);
+	return owner->owned[upg];
 }
 
+/// @return Whether the unit in the slot belongs to an ally but not to the current player.
 bool CGarrisonSlot::ally() const
 {
 	if(!getObj())
 		return false;
 
 	return PlayerRelations::ALLIES == LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, getObj()->tempOwner);
+}
+
+/// The creature slot has been clicked twice, therefore the creature info should be shown
+/// @return Whether the view should be refreshed
+bool CGarrisonSlot::viewInfo()
+{
+	UpgradeInfo pom;
+	LOCPLINT->cb->getUpgradeInfo(getObj(), ID, pom);
+
+	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID>=0; //upgrade is possible
+	bool canDismiss = getObj()->tempOwner == LOCPLINT->playerID && (getObj()->stacksCount()>1  || !getObj()->needsLastStack());
+	std::function<void(CreatureID)> upgr = nullptr;
+	std::function<void()> dism = nullptr;
+	if(canUpgrade) upgr = [=] (CreatureID newID) { LOCPLINT->cb->upgradeCreature(getObj(), ID, newID); };
+	if(canDismiss) dism = [=] { LOCPLINT->cb->dismissCreature(getObj(), ID); };
+
+	owner->selectSlot(nullptr);
+	owner->setSplittingMode(false);
+
+	for(auto & elem : owner->splitButtons)
+		elem->block(true);
+
+	redraw();
+	GH.pushInt(new CStackWindow(myStack, dism, pom, upgr));
+	return true;
+}
+
+/// The selection is empty, therefore the creature should be moved
+/// @return Whether the view should be refreshed
+bool CGarrisonSlot::highlightOrDropArtifact()
+{
+	bool artSelected = false;
+	if (CWindowWithArtifacts* chw = dynamic_cast<CWindowWithArtifacts*>(GH.topInt())) //dirty solution
+	{
+		const CArtifactsOfHero::SCommonPart *commonInfo = chw->artSets.front()->commonInfo;
+		if (const CArtifactInstance *art = commonInfo->src.art)
+		{
+			const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
+			artSelected = true;
+			if (myStack) // try dropping the artifact only if the slot isn't empty
+			{
+				ArtifactLocation src(srcHero, commonInfo->src.slotID);
+				ArtifactLocation dst(myStack, ArtifactPosition::CREATURE_SLOT);
+				if (art->canBePutAt(dst, true))
+				{	//equip clicked stack
+					if(dst.getArt())
+					{
+						//creature can wear only one active artifact
+						//if we are placing a new one, the old one will be returned to the hero's backpack
+						LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
+					}
+					LOCPLINT->cb->swapArtifacts(src, dst);
+				}
+			}
+		}
+	}
+	if (!artSelected && creature)
+	{
+		owner->selectSlot(this);
+		if(creature)
+		{
+			for(auto & elem : owner->splitButtons)
+				elem->block(!our());
+		}
+	}
+	redraw();
+	return true;
+}
+
+/// The creature is only being partially moved
+/// @return Whether the view should be refreshed
+bool CGarrisonSlot::split()
+{
+	const CGarrisonSlot * selection = owner->getSelection();
+	owner->p2 = ID;   // store the second stack pos
+	owner->pb = upg;  // store the second stack owner (up or down army)
+	owner->setSplittingMode(false);
+
+	int minLeft=0, minRight=0;
+
+	if(upg != selection->upg) // not splitting within same army
+	{
+		if(selection->getObj()->stacksCount() == 1 // we're splitting away the last stack
+			&& selection->getObj()->needsLastStack() )
+		{
+			minLeft = 1;
+		}
+		// destination army can't be emptied, unless we're rebalancing two stacks of same creature
+		if(getObj()->stacksCount() == 1
+			&& selection->creature == creature
+			&& getObj()->needsLastStack() )
+		{
+			minRight = 1;
+		}
+	}
+
+	int countLeft = selection->myStack ? selection->myStack->count : 0;
+	int countRight = myStack ? myStack->count : 0;
+
+	GH.pushInt(new CSplitWindow(selection->creature, std::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
+	                            minLeft, minRight, countLeft, countRight));
+	return true;
+}
+
+/// If certain creates cannot be moved, the selection should change
+/// Force reselection in these cases
+///     * When attempting to take creatures from ally
+///     * When attempting to swap creatures with an ally
+///     * When attempting to take unremovable units
+/// @return Whether reselection must be done
+bool CGarrisonSlot::mustForceReselection() const
+{
+	const CGarrisonSlot * selection = owner->getSelection();
+	bool withAlly = selection->our() ^ our();
+	if (!creature || !selection->creature)
+		return false;
+	// Attempt to take creatures from ally (select theirs first)
+	if (!selection->our())
+		return true;
+	// Attempt to swap creatures with ally (select ours first)
+	if (selection->creature != creature && withAlly)
+		return true;
+	if (!owner->removableUnits)
+	{
+		if (selection->upg == EGarrisonType::UP)
+			return true;
+		else
+			return creature || upg == EGarrisonType::UP;
+	}
+	return false;
 }
 
 void CGarrisonSlot::clickRight(tribool down, bool previousState)
@@ -142,141 +274,56 @@ void CGarrisonSlot::clickRight(tribool down, bool previousState)
 		GH.pushInt(new CStackWindow(myStack, true));
 	}
 }
+
 void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 {
 	if(down)
 	{
 		bool refr = false;
-		if(owner->getSelection())
+		const CGarrisonSlot * selection = owner->getSelection();
+		if(!selection)
+			refr = highlightOrDropArtifact();
+		else if(selection == this)
+			refr = viewInfo();
+		// Re-highlight if troops aren't removable or not ours.
+		else if (mustForceReselection())
 		{
-			if(owner->getSelection() == this) //view info
-			{
-				UpgradeInfo pom;
-				LOCPLINT->cb->getUpgradeInfo(getObj(), ID, pom);
-
-				bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID>=0; //upgrade is possible
-				bool canDismiss = getObj()->tempOwner == LOCPLINT->playerID && (getObj()->stacksCount()>1  || !getObj()->needsLastStack());
-				std::function<void(CreatureID)> upgr = nullptr;
-				std::function<void()> dism = nullptr;
-				if(canUpgrade) upgr = [=] (CreatureID newID) { LOCPLINT->cb->upgradeCreature(getObj(), ID, newID); };
-				if(canDismiss) dism = [=] { LOCPLINT->cb->dismissCreature(getObj(), ID); };
-
-				owner->selectSlot(nullptr);
-				owner->setSplittingMode(false);
-
-				for(auto & elem : owner->splitButtons)
-					elem->block(true);
-
-				redraw();
-				refr = true;
-				GH.pushInt(new CStackWindow(myStack, dism, pom, upgr));
-			}
-			else
-			{
-				// Only allow certain moves if troops aren't removable or not ours.
-				if (  ( owner->getSelection()->our()//our creature is selected
-				     || owner->getSelection()->creature == creature )//or we are rebalancing army
-				   && ( owner->removableUnits
-				     || (upg == 0 &&  ( owner->getSelection()->upg == 1 && !creature ) )
-					 || (upg == 1 &&    owner->getSelection()->upg == 1 ) ) )
-				{
-					//we want to split
-					if((owner->getSplittingMode() || LOCPLINT->shiftPressed())
-						&& (!creature
-							|| (creature == owner->getSelection()->creature)))
-					{
-						owner->p2 = ID; //store the second stack pos
-						owner->pb = upg;//store the second stack owner (up or down army)
-						owner->setSplittingMode(false);
-
-						int minLeft=0, minRight=0;
-
-						if(upg != owner->getSelection()->upg) //not splitting within same army
-						{
-							if(owner->getSelection()->getObj()->stacksCount() == 1 //we're splitting away the last stack
-								&& owner->getSelection()->getObj()->needsLastStack() )
-							{
-								minLeft = 1;
-							}
-							if(getObj()->stacksCount() == 1 //destination army can't be emptied, unless we're rebalancing two stacks of same creature
-								&& owner->getSelection()->creature == creature
-								&& getObj()->needsLastStack() )
-							{
-								minRight = 1;
-							}
-						}
-
-						int countLeft = owner->getSelection()->myStack ? owner->getSelection()->myStack->count : 0;
-						int countRight = myStack ? myStack->count : 0;
-
-						GH.pushInt(new CSplitWindow(owner->getSelection()->creature, std::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
-						                            minLeft, minRight, countLeft, countRight));
-						refr = true;
-					}
-					else if(creature != owner->getSelection()->creature) //swap
-					{
-						LOCPLINT->cb->swapCreatures(
-							(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-							(!owner->getSelection()->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-							ID,owner->getSelection()->ID);
-					}
-					else //merge
-					{
-						LOCPLINT->cb->mergeStacks(
-							(!owner->getSelection()->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-							(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-							owner->getSelection()->ID,ID);
-					}
-				}
-				else // Highlight
-				{
-					if(creature)
-						owner->selectSlot(this);
-					redraw();
-					refr = true;
-				}
-			}
-		}
-		else //highlight or drop artifact
-		{
-			bool artSelected = false;
-			if (CWindowWithArtifacts* chw = dynamic_cast<CWindowWithArtifacts*>(GH.topInt())) //dirty solution
-			{
-				const CArtifactsOfHero::SCommonPart *commonInfo = chw->artSets.front()->commonInfo;
-				if (const CArtifactInstance *art = commonInfo->src.art)
-				{
-					const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
-					artSelected = true;
-					if (myStack) // try dropping the artifact only if the slot isn't empty
-					{
-						ArtifactLocation src(srcHero, commonInfo->src.slotID);
-						ArtifactLocation dst(myStack, ArtifactPosition::CREATURE_SLOT);
-						if (art->canBePutAt(dst, true))
-						{	//equip clicked stack
-							if(dst.getArt())
-							{
-								//creature can wear only one active artifact
-								//if we are placing a new one, the old one will be returned to the hero's backpack
-								LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
-							}
-							LOCPLINT->cb->swapArtifacts(src, dst);
-						}
-					}
-				}
-			}
-			if (!artSelected && creature)
-			{
+			if(creature)
 				owner->selectSlot(this);
-				if(creature)
-				{
-					for(auto & elem : owner->splitButtons)
-						elem->block(false);
-				}
-			}
 			redraw();
 			refr = true;
 		}
-		if(refr) {hover(false);	hover(true); } //to refresh statusbar
+		else
+		{
+			const CArmedInstance * selectedObj = owner->armedObjs[selection->upg];
+			bool lastHeroStackSelected = false;
+			if(selectedObj->stacksCount() == 1
+				&& owner->getSelection()->upg != upg
+				&& dynamic_cast<const CGHeroInstance*>(selectedObj))
+			{
+				lastHeroStackSelected = true;
+			}
+
+			if((owner->getSplittingMode() || LOCPLINT->shiftPressed()) // split window
+				&& (!creature || creature == selection->creature))
+			{
+				refr = split();
+			}
+			else if(!creature && lastHeroStackSelected) // split all except last creature
+				LOCPLINT->cb->splitStack(selectedObj, owner->armedObjs[upg], selection->ID, ID, selection->myStack->count - 1);
+			else if(creature != selection->creature) // swap
+				LOCPLINT->cb->swapCreatures(owner->armedObjs[upg], selectedObj, ID, selection->ID);
+			else if(lastHeroStackSelected) // merge last stack to other hero stack
+				refr = split();
+			else // merge
+				LOCPLINT->cb->mergeStacks(selectedObj, owner->armedObjs[upg], selection->ID, ID);
+		}
+		if(refr)
+		{
+			// Refresh Statusbar
+			hover(false);
+			hover(true);
+		}
 	}
 }
 
@@ -310,7 +357,7 @@ void CGarrisonSlot::update()
 	}
 }
 
-CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, int Upg, const CStackInstance * Creature):
+CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, CGarrisonSlot::EGarrisonType Upg, const CStackInstance * Creature):
     ID(IID),
     owner(Owner),
     myStack(Creature),
@@ -358,7 +405,7 @@ void CGarrisonInt::addSplitBtn(CButton * button)
 	button->block(getSelection() == nullptr);
 }
 
-void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int posY, int distance, int Upg )
+void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int posY, int distance, CGarrisonSlot::EGarrisonType Upg )
 {
 	ret.resize(7);
 
@@ -388,8 +435,8 @@ void CGarrisonInt::createSlots()
 
 	int width = smallIcons? 32 : 58;
 
-	createSet(slotsUp, armedObjs[0], 0, 0, width+interx, 0);
-	createSet(slotsDown, armedObjs[1], garOffset.x, garOffset.y, width+interx, 1);
+	createSet(slotsUp, armedObjs[0], 0, 0, width+interx, CGarrisonSlot::EGarrisonType::UP);
+	createSet(slotsDown, armedObjs[1], garOffset.x, garOffset.y, width+interx, CGarrisonSlot::EGarrisonType::DOWN);
 }
 
 void CGarrisonInt::recreateSlots()
@@ -453,7 +500,7 @@ void CGarrisonInt::selectSlot(CGarrisonSlot *slot)
 
 		highlighted = slot;
 		for (auto button : splitButtons)
-			button->block(highlighted == nullptr);
+			button->block(highlighted == nullptr || !slot->our());
 
 		if (highlighted)
 			highlighted->setHighlight(true);

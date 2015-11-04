@@ -1058,10 +1058,9 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 1,
 				"type" : "FLYING_MOVEMENT",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "INDEPENDENT_MIN"
 			}
 		],
 		"index" : 72,
@@ -1276,10 +1275,9 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 1,
 				"type" : "WATER_WALKING",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "INDEPENDENT_MIN"
 			}
 		],
 		"index" : 90,
@@ -1313,7 +1311,8 @@
 				"subtype" : 35,
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "BASE_NUMBER",
+				"addInfo" : 1
 			}
 		],
 		"index" : 92,
@@ -1324,10 +1323,17 @@
 		"bonuses" : [
 			{
 				"type" : "NEGATE_ALL_NATURAL_IMMUNITIES",
+				"subtype" : 0,
 				"val" : 0,
 				"valueType" : "BASE_NUMBER",
 				"propagator": "BATTLE_WIDE"
-			}
+			},
+			{
+				"type" : "NEGATE_ALL_NATURAL_IMMUNITIES",
+				"subtype" : 1,
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}			
 		],
 		"index" : 93,
 		"type" : ["HERO"]
@@ -1812,7 +1818,8 @@
 				"subtype" : "spell.armageddon",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "BASE_NUMBER",
+				"addInfo" : 1
 			},
 			{
 				"subtype" : "primSkill.attack",

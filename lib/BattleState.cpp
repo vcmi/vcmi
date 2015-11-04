@@ -763,7 +763,7 @@ CGHeroInstance * BattleInfo::battleGetFightingHero(ui8 side) const
 
 CStack::CStack(const CStackInstance *Base, PlayerColor O, int I, bool AO, SlotID S)
 	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),
-	counterAttacks(1)
+	counterAttacksPerformed(0),counterAttacksTotalCache(0), cloneID(-1)
 {
 	assert(base);
 	type = base->type;
@@ -776,7 +776,8 @@ CStack::CStack()
 	setNodeType(STACK_BATTLE);
 }
 CStack::CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, bool AO, SlotID S)
-	: base(nullptr), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacks(1)
+	: base(nullptr), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacksPerformed(0),
+	 cloneID(-1)
 {
 	type = stack->type;
 	count = baseAmount = stack->count;
@@ -794,7 +795,9 @@ void CStack::init()
 	slot = SlotID(255);
 	attackerOwned = false;
 	position = BattleHex();
-	counterAttacks = -1;
+	counterAttacksPerformed = 0;
+	counterAttacksTotalCache = 0;
+	cloneID = -1;
 }
 
 void CStack::postInit()
@@ -804,9 +807,11 @@ void CStack::postInit()
 
 	firstHPleft = MaxHealth();
 	shots = getCreature()->valOfBonuses(Bonus::SHOTS);
-	counterAttacks = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
+	counterAttacksPerformed = 0;
+	counterAttacksTotalCache = 0;
 	casts = valOfBonuses(Bonus::CASTS);
 	resurrected = 0;
+	cloneID = -1;
 }
 
 ui32 CStack::level() const
@@ -848,10 +853,10 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 
 	for(Bonus& b : tmp)
 	{
-		b.turnsRemain =  sse.turnsRemain;
+		if(b.turnsRemain == 0)
+			b.turnsRemain = sse.turnsRemain;
 		sf.push_back(b);
 	}
-
 }
 
 bool CStack::willMove(int turn /*= 0*/) const
@@ -1129,10 +1134,23 @@ bool CStack::isMeleeAttackPossible(const CStack * attacker, const CStack * defen
 bool CStack::ableToRetaliate() const //FIXME: crash after clone is killed
 {
 	return alive()
-		&& (counterAttacks > 0 || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
+		&& (counterAttacksPerformed < counterAttacksTotal() || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON)
 		&& !hasBonusOfType(Bonus::HYPNOTIZED)
 		&& !hasBonusOfType(Bonus::NO_RETALIATION);
+}
+
+ui8 CStack::counterAttacksTotal() const
+{
+	//after dispell bonus should remain during current round 
+	ui8 val = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
+	vstd::amax(counterAttacksTotalCache, val);
+	return counterAttacksTotalCache;
+}
+
+si8 CStack::counterAttacksRemaining() const
+{
+	return counterAttacksTotal() - counterAttacksPerformed;
 }
 
 std::string CStack::getName() const
@@ -1151,6 +1169,61 @@ bool CStack::canBeHealed() const
 		&& isValidTarget()
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON);
 }
+
+ui32 CStack::calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) const
+{
+	if(!resurrect && !alive())
+	{
+		logGlobal->warnStream() <<"Attempt to heal corpse detected.";
+		return 0;
+	}
+
+	return std::min<ui32>(toHeal, MaxHealth() - firstHPleft + (resurrect ? (baseAmount - count) * MaxHealth() : 0));
+}
+
+ui8 CStack::getSpellSchoolLevel(const CSpell * spell, int * outSelectedSchool) const
+{
+	int skill = valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, spell->id));
+	
+	vstd::abetween(skill, 0, 3);
+	
+	return skill;
+}
+
+ui32 CStack::getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const
+{
+	//stacks does not have sorcery-like bonuses (yet?)
+	return base;
+}
+
+int CStack::getEffectLevel(const CSpell * spell) const
+{
+	return getSpellSchoolLevel(spell);
+}
+
+int CStack::getEffectPower(const CSpell * spell) const
+{
+	return valOfBonuses(Bonus::CREATURE_SPELL_POWER) * count / 100;
+}
+
+int CStack::getEnchantPower(const CSpell * spell) const
+{
+	int res = valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
+	if(res<=0)
+		res = 3;//default for creatures
+	return res;
+}
+
+int CStack::getEffectValue(const CSpell * spell) const
+{
+	return valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spell->id.toEnum()) * count;
+}
+
+const PlayerColor CStack::getOwner() const
+{
+	return owner;
+}
+
 
 bool CMP_stack::operator()( const CStack* a, const CStack* b )
 {

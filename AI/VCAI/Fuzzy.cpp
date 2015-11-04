@@ -302,6 +302,8 @@ Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
 	if (vec.empty()) //no possibilities found
 		return sptr(Goals::Invalid());
 
+	ai->cachedSectorMaps.clear();
+
 	//a trick to switch between heroes less often - calculatePaths is costly
 	auto sortByHeroes = [](const Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
 	{
@@ -480,8 +482,7 @@ float FuzzyHelper::evaluate (Goals::ClearWayTo & g)
 	if (!g.hero.h)
 		throw cannotFulfillGoalException("ClearWayTo called without hero!");
 
-	SectorMap sm(g.hero);
-	int3 t = sm.firstTileToGet(g.hero, g.tile);
+	int3 t = ai->getCachedSectorMap(g.hero).firstTileToGet(g.hero, g.tile);
 
 	if (t.valid())
 	{

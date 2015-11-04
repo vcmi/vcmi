@@ -97,6 +97,12 @@
 			"description": "List of configuration files for spells",
 			"items": { "type":"string", "format" : "textFile" }
 		},
+		"templates":{
+			"type":"array",
+			"description": "List of configuration files for RMG templates",
+			"items": { "type":"string", "format" : "textFile" }
+		
+		},
 
 		"changelog" : {
 			"type":"object",

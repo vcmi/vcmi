@@ -1,0 +1,12 @@
+{
+	"name" : "Upgrade",
+	"description" : "Random map template, 1v1 S+U/M",
+
+	"version" : "0.99",
+	"author" : "BVCMI Team",
+	"contact" : "http://forum.vcmi.eu/index.php",
+	"modType" : "Templates",
+	"templates" : [
+		"config/defaultTemplates/upgrade"
+	],
+}

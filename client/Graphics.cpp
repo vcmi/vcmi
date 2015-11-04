@@ -58,7 +58,7 @@ void Graphics::loadPaletteAndColors()
 		col.r = pals[startPoint++];
 		col.g = pals[startPoint++];
 		col.b = pals[startPoint++];
-		CSDL_Ext::colorSetAlpha(col,SDL_ALPHA_OPAQUE);
+		col.a = SDL_ALPHA_OPAQUE;
 		startPoint++;
 		playerColorPalette[i] = col;
 	}
@@ -74,7 +74,7 @@ void Graphics::loadPaletteAndColors()
 		neutralColorPalette[i].g = reader.readUInt8();
 		neutralColorPalette[i].b = reader.readUInt8();
 		reader.readUInt8(); // this is "flags" entry, not alpha
-		CSDL_Ext::colorSetAlpha(neutralColorPalette[i], SDL_ALPHA_OPAQUE);
+		neutralColorPalette[i].a = SDL_ALPHA_OPAQUE;
 	}
 	//colors initialization
 	SDL_Color colors[]  = { 
@@ -92,8 +92,11 @@ void Graphics::loadPaletteAndColors()
 	{
 		playerColors[i] = colors[i];
 	}
-	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; //gray
-	CSDL_Ext::colorSetAlpha(*neutralColor,SDL_ALPHA_OPAQUE);
+	//gray
+	neutralColor->r = 0x84;
+	neutralColor->g = 0x84;
+	neutralColor->b = 0x84;
+	neutralColor->a = SDL_ALPHA_OPAQUE;
 }
 
 void Graphics::initializeBattleGraphics()
@@ -266,9 +269,7 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 		for(auto & curImg : curImgs)
 		{
 			CSDL_Ext::setDefaultColorKey(curImg.bitmap);
-			#ifndef VCMI_SDL1
 			SDL_SetSurfaceBlendMode(curImg.bitmap,SDL_BLENDMODE_NONE);
-			#endif
 		}
 	}
 }
@@ -372,11 +373,21 @@ void Graphics::loadFonts()
 
 CDefEssential * Graphics::getDef( const CGObjectInstance * obj )
 {
+	if (obj->appearance.animationFile.empty())
+	{
+		logGlobal->warnStream() << boost::format("Def name for obj %d (%d,%d) is empty!") % obj->id % obj->ID % obj->subID;
+		return nullptr;
+	}
 	return advmapobjGraphics[obj->appearance.animationFile];
 }
 
 CDefEssential * Graphics::getDef( const ObjectTemplate & info )
 {
+	if (info.animationFile.empty())
+	{
+		logGlobal->warnStream() << boost::format("Def name for obj (%d,%d) is empty!") % info.id % info.subid;
+		return nullptr;
+	}
 	return advmapobjGraphics[info.animationFile];
 }
 

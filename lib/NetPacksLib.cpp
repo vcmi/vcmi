@@ -328,7 +328,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 	else
 		node = gs->getPlayer(PlayerColor(whoID));
 
-	BonusList &bonuses = node->getBonusList();
+	BonusList &bonuses = node->getExportedBonusList();
 
 	for (int i = 0; i < bonuses.size(); i++)
 	{
@@ -336,7 +336,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 		if(b->source == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
-			bonuses.erase(i);
+			node->removeBonus(b);			
 			break;
 		}
 	}
@@ -468,6 +468,12 @@ static int getDir(int3 src, int3 dst)
 void TryMoveHero::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(id);
+	if (!h)
+	{
+		logGlobal->errorStream() << "Attempt ot move unavailable hero " << id;
+		return;
+	}
+
 	h->movement = movePoints;
 
 	if((result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK) && start != end)
@@ -1095,7 +1101,8 @@ DLL_LINKAGE void BattleNextRound::applyGs( CGameState *gs )
 		s->state -= EBattleStackState::HAD_MORALE;
 		s->state -= EBattleStackState::FEAR;
 		s->state -= EBattleStackState::DRAINED_MANA;
-		s->counterAttacks = 1 + s->valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
+		s->counterAttacksPerformed = 0;
+		s->counterAttacksTotalCache = 0;
 		// new turn effects
 		s->battleTurnPassed();
 	}
@@ -1110,7 +1117,7 @@ DLL_LINKAGE void BattleSetActiveStack::applyGs( CGameState *gs )
 	CStack *st = gs->curB->getStack(stack);
 
 	//remove bonuses that last until when stack gets new turn
-	st->getBonusList().remove_if(Bonus::UntilGetsTurn);
+	st->popBonuses(Bonus::UntilGetsTurn);
 
 	if(vstd::contains(st->state,EBattleStackState::MOVED)) //if stack is moving second time this turn it must had a high morale bonus
 		st->state.insert(EBattleStackState::HAD_MORALE);
@@ -1135,7 +1142,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 		}
 		case Bonus::POISON:
 		{
-			Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, 71)
+			Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON)
 											.And(Selector::type(Bonus::STACK_HEALTH)));
 			if (b)
 				b->val = val;
@@ -1175,7 +1182,7 @@ void BattleResult::applyGs( CGameState *gs )
 	{
 		if(auto h = gs->curB->battleGetFightingHero(i))
 		{
-			h->getBonusList().remove_if(Bonus::OneBattle); 	//remove any "until next battle" bonuses
+			h->popBonuses(Bonus::OneBattle); 	//remove any "until next battle" bonuses
 			if (h->commander && h->commander->alive)
 			{
 				for (auto art : h->commander->artifactsWorn) //increment bonuses for commander artifacts
@@ -1247,7 +1254,12 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 	{
 		//"hide" killed creatures instead so we keep info about it
 		at->state.insert(EBattleStackState::DEAD_CLONE);
-
+		
+		for(CStack * s : gs->curB->stacks)
+		{
+			if(s->cloneID == at->ID)
+				s->cloneID = -1;
+		}
 	}
 }
 
@@ -1255,7 +1267,7 @@ DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 {
 	CStack *attacker = gs->curB->getStack(stackAttacking);
 	if(counter())
-		attacker->counterAttacks--;
+		attacker->counterAttacksPerformed++;
 
 	if(shot())
 	{
@@ -1278,13 +1290,13 @@ DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 	for(BattleStackAttacked stackAttacked : bsa)
 		stackAttacked.applyGs(gs);
 
-	attacker->getBonusList().remove_if(Bonus::UntilAttack);
+	attacker->popBonuses(Bonus::UntilAttack);
 
 	for(auto & elem : bsa)
 	{
 		CStack * stack = gs->curB->getStack(elem.stackAttacked, false);
 		if (stack) //cloned stack is already gone
-			stack->getBonusList().remove_if(Bonus::UntilBeingAttacked);
+			stack->popBonuses(Bonus::UntilBeingAttacked);
 	}
 }
 
@@ -1342,21 +1354,6 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 	spell->applyBattle(gs->curB, this);
 }
 
-void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
-{
-	//actualizing features vector
-
-	for(const Bonus &fromEffect : ef)
-	{
-		for(Bonus *stackBonus : s->getBonusList()) //TODO: optimize
-		{
-			if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == fromEffect.type && stackBonus->subtype == fromEffect.subtype)
-			{
-				stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, fromEffect.turnsRemain);
-			}
-		}
-	}
-}
 void actualizeEffect(CStack * s, const Bonus & ef)
 {
 	for(Bonus *stackBonus : s->getBonusList()) //TODO: optimize
@@ -1365,6 +1362,17 @@ void actualizeEffect(CStack * s, const Bonus & ef)
 		{
 			stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, ef.turnsRemain);
 		}
+	}
+	CBonusSystemNode::treeHasChanged();	
+}
+
+void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
+{
+	//actualizing features vector
+
+	for(const Bonus &fromEffect : ef)
+	{
+		actualizeEffect(s, fromEffect);
 	}
 }
 
@@ -1457,30 +1465,17 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			}
 		}
 		vstd::amin(changedStack->firstHPleft, changedStack->MaxHealth());
-		//removal of negative effects
 		if(resurrected)
 		{
-
-// 			for (BonusList::iterator it = changedStack->bonuses.begin(); it != changedStack->bonuses.end(); it++)
-// 			{
-// 				if(VLC->spellh->spells[(*it)->sid]->positiveness < 0)
-// 				{
-// 					changedStack->bonuses.erase(it);
-// 				}
-// 			}
-
-			//removing all features from negative spells
-			const BonusList tmpFeatures = changedStack->getBonusList();
-			//changedStack->bonuses.clear();
-
-			for(Bonus *b : tmpFeatures)
+			//removing all effects from negative spells
+			auto selector = [](const Bonus * b)
 			{
 				const CSpell *s = b->sourceSpell();
-				if(s && s->isNegative())
-				{
-					changedStack->removeBonus(b);
-				}
-			}
+				//Special case: DISRUPTING_RAY is "immune" to dispell
+				//Other even PERMANENT effects can be removed
+				return (s != nullptr) && s->isNegative() && (s->id != SpellID::DISRUPTING_RAY);
+			};
+			changedStack->popBonuses(selector);
 		}
 	}
 }
@@ -1572,7 +1567,7 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 	}
 
 	CStackBasicDescriptor csbd(creID, amount);
-	CStack * addedStack = gs->curB->generateNewStack(csbd, attacker, SlotID(255), pos); //TODO: netpacks?
+	CStack * addedStack = gs->curB->generateNewStack(csbd, attacker, SlotID::SUMMONED_SLOT_PLACEHOLDER, pos); //TODO: netpacks?
 	if (summoned)
 		addedStack->state.insert(EBattleStackState::SUMMONED);
 
@@ -1616,6 +1611,11 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState *gs)
 			stack->state.insert(EBattleStackState::CLONED);
 			break;
 		}
+		case HAS_CLONE:
+		{
+			stack->cloneID = val;
+			break;
+		}
 	}
 }
 
@@ -1623,18 +1623,8 @@ DLL_LINKAGE void YourTurn::applyGs( CGameState *gs )
 {
 	gs->currentPlayer = player;
 
-	//count days without town
 	auto & playerState = gs->players[player];
-	if(playerState.towns.empty())
-	{
-		if(playerState.daysWithoutCastle)
-			++(*playerState.daysWithoutCastle);
-		else playerState.daysWithoutCastle = 0;
-	}
-	else
-	{
-		playerState.daysWithoutCastle = boost::none;
-	}
+	playerState.daysWithoutCastle = daysWithoutCastle;
 }
 
 DLL_LINKAGE Component::Component(const CStackBasicDescriptor &stack)

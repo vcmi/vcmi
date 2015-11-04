@@ -13,6 +13,52 @@
 
 #include "../NetPacks.h"
 #include "../BattleState.h"
+#include "../mapObjects/CGHeroInstance.h"
+
+///HealingSpellMechanics
+void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+{
+	EHealLevel healLevel = getHealLevel(parameters.effectLevel);
+	int hpGained = calculateHealedHP(env, parameters, ctx);
+	StacksHealedOrResurrected shr;
+	shr.lifeDrain = false;
+	shr.tentHealing = false;
+
+	const bool resurrect = (healLevel != EHealLevel::HEAL);
+	for(auto & attackedCre : ctx.attackedCres)
+	{
+		StacksHealedOrResurrected::HealInfo hi;
+		hi.stackID = (attackedCre)->ID;		
+		int stackHPgained = parameters.caster->getSpellBonus(owner, hpGained, attackedCre);
+		hi.healedHP = attackedCre->calculateHealedHealthPoints(stackHPgained, resurrect);
+		hi.lowLevelResurrection = (healLevel == EHealLevel::RESURRECT);
+		shr.healedStacks.push_back(hi);
+	}
+	if(!shr.healedStacks.empty())
+		env->sendAndApply(&shr);
+}
+
+int HealingSpellMechanics::calculateHealedHP(const SpellCastEnvironment* env, const BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
+{
+	if(parameters.effectValue != 0)
+		return parameters.effectValue; //Archangel
+	return owner->calculateRawEffectValue(parameters.effectLevel, parameters.effectPower); //???
+}
+
+///AntimagicMechanics
+void AntimagicMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
+{
+	DefaultSpellMechanics::applyBattle(battle, packet);
+
+	doDispell(battle, packet, [this](const Bonus * b) -> bool
+	{
+		if(b->source == Bonus::SPELL_EFFECT)
+		{				
+			return b->sid != owner->id; //effect from this spell
+		}
+		return false; //not a spell effect
+	});	
+}
 
 ///ChainLightningMechanics
 std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
@@ -52,7 +98,7 @@ std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(SpellTargeti
 }
 
 ///CloneMechanics
-void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	const CStack * clonedStack = nullptr;
 	if(ctx.attackedCres.size())
@@ -78,23 +124,29 @@ void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battle
 	ssp.val = 0;
 	ssp.absolute = 1;
 	env->sendAndApply(&ssp);
+	
+	ssp.stackID = clonedStack->ID;
+	ssp.which = BattleSetStackProperty::HAS_CLONE;
+	ssp.val = bsa.newStackID;
+	ssp.absolute = 1;
+	env->sendAndApply(&ssp);	
 }
 
-ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	//can't clone already cloned creature
 	if(vstd::contains(obj->state, EBattleStackState::CLONED))
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	//TODO: how about stacks casting Clone?
-	//currently Clone casted by stack is assumed Expert level
+	if(obj->cloneID != -1)
+		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	ui8 schoolLevel;
 	if(caster)
 	{
-		schoolLevel = caster->getSpellSchoolLevel(owner);
+		schoolLevel = caster->getEffectLevel(owner);
 	}
 	else
 	{
-		schoolLevel = 3;
+		schoolLevel = 3;//todo: remove
 	}
 
 	if(schoolLevel < 3)
@@ -112,56 +164,89 @@ ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const CGHer
 void CureMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
-
-	for(auto stackID : packet->affectedCres)
+	doDispell(battle, packet, [](const Bonus * b) -> bool
 	{
-		if(vstd::contains(packet->resisted, stackID))
+		if(b->source == Bonus::SPELL_EFFECT)
 		{
-			logGlobal->errorStream() << "Resistance to positive spell CURE";
-			continue;
+			CSpell * sp = SpellID(b->sid).toSpell();
+			return sp->isNegative();
 		}
+		return false; //not a spell effect		
+	});
+}
 
-		CStack *s = battle->getStack(stackID);
-		s->popBonuses([&](const Bonus *b) -> bool
-		{
-			if(b->source == Bonus::SPELL_EFFECT)
-			{
-				CSpell * sp = SpellID(b->sid).toSpell();
-				return sp->isNegative();
-			}
-			return false; //not a spell effect
-		});
-	}
+HealingSpellMechanics::EHealLevel CureMechanics::getHealLevel(int effectLevel) const
+{
+	return EHealLevel::HEAL;
 }
 
 ///DispellMechanics
 void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
+	doDispell(battle, packet, Selector::sourceType(Bonus::SPELL_EFFECT));
+}
 
-	for(auto stackID : packet->affectedCres)
+ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
+{
 	{
-		if(vstd::contains(packet->resisted, stackID))
-			continue;
+		//just in case
+		if(!obj->alive())
+			return ESpellCastProblem::WRONG_SPELL_TARGET;			
+	}
+	//DISPELL ignores all immunities, except specific absolute immunity 
+	{
+		//SPELL_IMMUNITY absolute case
+		std::stringstream cachingStr;
+		cachingStr << "type_" << Bonus::SPELL_IMMUNITY << "subtype_" << owner->id.toEnum() << "addInfo_1";
+		if(obj->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, owner->id.toEnum(), 1), cachingStr.str()))
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+	}
+	{
+		std::stringstream cachingStr;
+		cachingStr << "source_" << Bonus::SPELL_EFFECT;
 
-		CStack *s = battle->getStack(stackID);
-		s->popBonuses([&](const Bonus *b) -> bool
+		if(obj->hasBonus(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str()))
 		{
-			return Selector::sourceType(Bonus::SPELL_EFFECT)(b);
-		});
+			return ESpellCastProblem::OK;
+		}		
+	}
+	return ESpellCastProblem::WRONG_SPELL_TARGET;
+	//any other immunities are ignored - do not execute default algorithm
+}
+
+void DispellMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+{
+	DefaultSpellMechanics::applyBattleEffects(env, parameters, ctx);
+
+	if(parameters.spellLvl > 2)
+	{
+		//expert DISPELL also removes spell-created obstacles
+		ObstaclesRemoved packet;
+
+		for(const auto obstacle : parameters.cb->obstacles)
+		{
+			if(obstacle->obstacleType == CObstacleInstance::FIRE_WALL
+				|| obstacle->obstacleType == CObstacleInstance::FORCE_FIELD
+				|| obstacle->obstacleType == CObstacleInstance::LAND_MINE)
+				packet.obstacles.insert(obstacle->uniqueID);
+		}
+
+		if(!packet.obstacles.empty())
+			env->sendAndApply(&packet);
 	}
 }
 
 ///EarthquakeMechanics
-void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	if(nullptr == parameters.cb->town)
+	if(nullptr == parameters.cb->battleGetDefendedTown())
 	{
 		env->complain("EarthquakeMechanics: not town siege");
 		return;
 	}
 
-	if(CGTownInstance::NONE == parameters.cb->town->fortLevel())
+	if(CGTownInstance::NONE == parameters.cb->battleGetDefendedTown()->fortLevel())
 	{
 		env->complain("EarthquakeMechanics: town has no fort");
 		return;
@@ -240,7 +325,7 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, B
 	env->sendAndApply(&ca);
 }
 
-ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCasted(const CBattleInfoCallback * cb, PlayerColor player) const
+ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
 {
 	if(nullptr == cb->battleGetDefendedTown())
 	{
@@ -251,8 +336,9 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCasted(const CBat
 	{
 		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
-
-	if(owner->getTargetInfo(0).smart) //TODO: use real spell level
+	
+	CSpell::TargetInfo ti(owner, 0);//TODO: use real spell level
+	if(ti.smart)
 	{
 		//if spell targeting is smart, then only attacker can use it
 		if(cb->playerToSide(player) != 0)
@@ -263,15 +349,15 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCasted(const CBat
 }
 
 ///HypnotizeMechanics
-ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
-	if(nullptr != caster) //do not resist hypnotize casted after attack, for example
+	//todo: maybe do not resist on passive cast
+	if(nullptr != caster) 
 	{
 		//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
 		ui64 subjectHealth = (obj->count - 1) * obj->MaxHealth() + obj->firstHPleft;
 		//apply 'damage' bonus for hypnotize, including hero specialty
-		ui64 maxHealth = owner->calculateBonus(caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER)
-			* owner->power + owner->getPower(caster->getSpellSchoolLevel(owner)), caster, obj);
+		ui64 maxHealth = caster->getSpellBonus(owner, owner->calculateRawEffectValue(caster->getEffectLevel(owner), caster->getEffectPower(owner)), obj);
 		if (subjectHealth > maxHealth)
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
@@ -279,9 +365,9 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const C
 }
 
 ///ObstacleMechanics
-void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	auto placeObstacle = [&, this](BattleHex pos)
+	auto placeObstacle = [&, this](const BattleHex & pos)
 	{
 		static int obstacleIdToGive =  parameters.cb->obstacles.size()
 									? (parameters.cb->obstacles.back()->uniqueID+1)
@@ -318,14 +404,16 @@ void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, Bat
 		obstacle->pos = pos;
 		obstacle->casterSide = parameters.casterSide;
 		obstacle->ID = owner->id;
-		obstacle->spellLevel = parameters.spellLvl;
-		obstacle->casterSpellPower = parameters.usedSpellPower;
+		obstacle->spellLevel = parameters.effectLevel;
+		obstacle->casterSpellPower = parameters.effectPower;
 		obstacle->uniqueID = obstacleIdToGive++;
 
 		BattleObstaclePlaced bop;
 		bop.obstacle = obstacle;
 		env->sendAndApply(&bop);
 	};
+
+	const BattleHex destination = parameters.getFirstDestinationHex();
 
 	switch(owner->id)
 	{
@@ -351,12 +439,22 @@ void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, Bat
 
 		break;
 	case SpellID::FORCE_FIELD:
-		placeObstacle(parameters.destination);
+		if(!destination.isValid())
+		{
+			env->complain("Invalid destination for FORCE_FIELD");
+			return;
+		}
+		placeObstacle(destination);
 		break;
 	case SpellID::FIRE_WALL:
 		{
+			if(!destination.isValid())
+			{
+				env->complain("Invalid destination for FIRE_WALL");
+				return;
+			}
 			//fire wall is build from multiple obstacles - one fire piece for each affected hex
-			auto affectedHexes = owner->rangeInHexes(parameters.destination, parameters.spellLvl, parameters.casterSide);
+			auto affectedHexes = owner->rangeInHexes(destination, parameters.spellLvl, parameters.casterSide);
 			for(BattleHex hex : affectedHexes)
 				placeObstacle(hex);
 		}
@@ -405,9 +503,9 @@ std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 sch
 }
 
 ///RemoveObstacleMechanics
-void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	if(auto obstacleToRemove = parameters.cb->battleGetObstacleOnPos(parameters.destination, false))
+	if(auto obstacleToRemove = parameters.cb->battleGetObstacleOnPos(parameters.getFirstDestinationHex(), false))
 	{
 		ObstaclesRemoved obr;
 		obr.obstacles.insert(obstacleToRemove->uniqueID);
@@ -417,40 +515,106 @@ void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * en
 		env->complain("There's no obstacle to remove!");
 }
 
-///SpecialRisingSpellMechanics
-void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+HealingSpellMechanics::EHealLevel RisingSpellMechanics::getHealLevel(int effectLevel) const
 {
-	RisingSpellMechanics::applyBattleEffects(env, parameters, ctx);
+	//this may be even distinct class
+	if((effectLevel <= 1) && (owner->id == SpellID::RESURRECTION))
+		return EHealLevel::RESURRECT;
+	
+	return EHealLevel::TRUE_RESURRECT;
+}
 
-	if(parameters.selectedStack == parameters.cb->battleActiveStack())
-	//set another active stack than the one removed, or bad things will happen
-	//TODO: make that part of BattleStacksRemoved? what about client update?
+///SacrificeMechanics
+ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
+{
+	// for sacrifice we have to check for 2 targets (one dead to resurrect and one living to destroy)
+
+	bool targetExists = false;
+	bool targetToSacrificeExists = false;
+	
+	const CGHeroInstance * caster = nullptr; //todo: use ISpellCaster
+	
+	if(cb->battleHasHero(cb->playerToSide(player)))
+		caster = cb->battleGetFightingHero(cb->playerToSide(player));
+
+	for(const CStack * stack : cb->battleGetAllStacks())
 	{
-		//makeStackDoNothing(gs->curB->getStack (selectedStack));
+		//using isImmuneBy directly as this mechanics does not have overridden immunity check
+		//therefore we do not need to check caster and casting mode
+		//TODO: check that we really should check immunity for both stacks
+		ESpellCastProblem::ESpellCastProblem res = owner->internalIsImmune(caster, stack);
+		const bool immune =  ESpellCastProblem::OK != res && ESpellCastProblem::NOT_DECIDED != res;
+		const bool casterStack = stack->owner == player;
 
-		BattleSetActiveStack sas;
-
-		//std::vector<const CStack *> hlp;
-		//battleGetStackQueue(hlp, 1, selectedStack); //next after this one
-
-		//if(hlp.size())
-		//{
-		//	sas.stack = hlp[0]->ID;
-		//}
-		//else
-		//	complain ("No new stack to activate!");
-		sas.stack = parameters.cb->getNextStack()->ID; //why the hell next stack has same ID as current?
-		env->sendAndApply(&sas);
-
+		if(!immune && casterStack)
+		{
+			if(stack->alive())
+				targetToSacrificeExists = true;
+			else
+				targetExists = true;
+			if(targetExists && targetToSacrificeExists)
+				break;
+		}
 	}
-	BattleStacksRemoved bsr;
-	bsr.stackIDs.insert(parameters.selectedStack->ID); //somehow it works for teleport?
-	env->sendAndApply(&bsr);
+
+	if(targetExists && targetToSacrificeExists)
+		return ESpellCastProblem::OK;
+	else
+		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 }
 
 
+void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+{
+	const CStack * victim = nullptr;
+	if(parameters.destinations.size() == 2)
+	{
+		victim = parameters.destinations[1].stackValue;
+	}
+	else
+	{
+		//todo: remove and report error
+		victim = parameters.selectedStack;
+	}
+	if(nullptr == victim)
+	{
+		env->complain("SacrificeMechanics: No stack to sacrifice");
+		return;
+	}
+	//resurrect target after basic checks
+	RisingSpellMechanics::applyBattleEffects(env, parameters, ctx);
+	//it is safe to remove even active stack
+	BattleStacksRemoved bsr;
+	bsr.stackIDs.insert(victim->ID);
+	env->sendAndApply(&bsr);
+}
+
+int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
+{
+	int res = 0;
+	const CStack * victim = nullptr;
+
+	if(parameters.destinations.size() == 2)
+	{
+		victim = parameters.destinations[1].stackValue;
+	}
+	else
+	{
+		//todo: remove and report error
+		victim = parameters.selectedStack;
+	}
+	if(nullptr == victim)
+	{
+		env->complain("SacrificeMechanics: No stack to sacrifice");
+		return 0;
+	}
+
+	res = (parameters.effectPower + victim->MaxHealth() + owner->getPower(parameters.effectLevel)) * victim->count;
+	return res;
+}
+
 ///SpecialRisingSpellMechanics
-ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStack(const CGHeroInstance * caster, const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	// following does apply to resurrect and animate dead(?) only
 	// for sacrifice health calculation and health limit check don't matter
@@ -458,50 +622,49 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 	if(obj->count >= obj->baseAmount)
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 
-	if(caster) //FIXME: Archangels can cast immune stack
-	{
-		auto maxHealth = calculateHealedHP(caster, obj, nullptr);
-		if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}
+	//FIXME: Archangels can cast immune stack and this should be applied for them and not hero
+//	if(caster) 
+//	{
+//		auto maxHealth = calculateHealedHP(caster, obj, nullptr);
+//		if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
+//			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+//	}
 
 	return DefaultSpellMechanics::isImmuneByStack(caster,obj);
 }
 
 ///SummonMechanics
-void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
 {
-	//todo: make configurable
-	CreatureID creID = CreatureID::NONE;
-	switch(owner->id)
-	{
-		case SpellID::SUMMON_FIRE_ELEMENTAL:
-			creID = CreatureID::FIRE_ELEMENTAL;
-			break;
-		case SpellID::SUMMON_EARTH_ELEMENTAL:
-			creID = CreatureID::EARTH_ELEMENTAL;
-			break;
-		case SpellID::SUMMON_WATER_ELEMENTAL:
-			creID = CreatureID::WATER_ELEMENTAL;
-			break;
-		case SpellID::SUMMON_AIR_ELEMENTAL:
-			creID = CreatureID::AIR_ELEMENTAL;
-			break;
-		default:
-			env->complain("Unable to determine summoned creature");
-			return;
-	}
+	const ui8 side = cb->playerToSide(player);
 
+	//check if there are summoned elementals of other type
+	
+	auto otherSummoned = cb->battleGetStacksIf([side, this](const CStack * st)
+	{
+		return (st->attackerOwned == !side)
+			&& (vstd::contains(st->state, EBattleStackState::SUMMONED))
+			&& (st->getCreature()->idNumber != creatureToSummon);
+	});
+	
+	if(!otherSummoned.empty())
+		return ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED;	
+
+	return ESpellCastProblem::OK;
+}
+
+void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+{
 	BattleStackAdded bsa;
-	bsa.creID = creID;
+	bsa.creID = creatureToSummon;
 	bsa.attacker = !(bool)parameters.casterSide;
 	bsa.summoned = true;
-	bsa.pos = parameters.cb->getAvaliableHex(creID, !(bool)parameters.casterSide); //TODO: unify it
+	bsa.pos = parameters.cb->getAvaliableHex(creatureToSummon, !(bool)parameters.casterSide); //TODO: unify it
 
 	//TODO stack casting -> probably power will be zero; set the proper number of creatures manually
-	int percentBonus = parameters.caster ? parameters.caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, owner->id.toEnum()) : 0;
+	int percentBonus = parameters.casterHero ? parameters.casterHero->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, owner->id.toEnum()) : 0;
 
-	bsa.amount = parameters.usedSpellPower
+	bsa.amount = parameters.effectPower
 		* owner->getPower(parameters.spellLvl)
 		* (100 + percentBonus) / 100.0; //new feature - percentage bonus
 	if(bsa.amount)
@@ -510,17 +673,47 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, Battl
 		env->complain("Summoning didn't summon any!");
 }
 
-
 ///TeleportMechanics
-void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	BattleStackMoved bsm;
-	bsm.distance = -1;
-	bsm.stack = parameters.selectedStack->ID;
-	std::vector<BattleHex> tiles;
-	tiles.push_back(parameters.destination);
-	bsm.tilesToMove = tiles;
-	bsm.teleporting = true;
-	env->sendAndApply(&bsm);
+	//todo: check legal teleport
+	if(parameters.destinations.size() == 2)
+	{
+		//first destination creature to move
+		const CStack * target = parameters.destinations[0].stackValue;
+		if(nullptr == target)
+		{
+			env->complain("TeleportMechanics: no stack to teleport");
+			return;
+		}
+		//second destination hex to move to
+		const BattleHex destination = parameters.destinations[1].hexValue;
+		if(!destination.isValid())
+		{
+			env->complain("TeleportMechanics: invalid teleport destination");
+			return;			
+		}
+		BattleStackMoved bsm;
+		bsm.distance = -1;
+		bsm.stack = target->ID;
+		std::vector<BattleHex> tiles;
+		tiles.push_back(destination);
+		bsm.tilesToMove = tiles;
+		bsm.teleporting = true;
+		env->sendAndApply(&bsm);		
+	}
+	else
+	{
+		//todo: remove and report error
+		BattleStackMoved bsm;
+		bsm.distance = -1;
+		bsm.stack = parameters.selectedStack->ID;
+		std::vector<BattleHex> tiles;
+		tiles.push_back(parameters.getFirstDestinationHex());
+		bsm.tilesToMove = tiles;
+		bsm.teleporting = true;
+		env->sendAndApply(&bsm);
+	}		
 }
+
 

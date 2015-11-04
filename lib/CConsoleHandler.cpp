@@ -27,9 +27,9 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 	#define CONSOLE_GRAY "\x1b[1;30m"
 	#define CONSOLE_TEAL "\x1b[1;36m"
 #else
-	#include <Windows.h>
+	#include <windows.h>
+	#include <dbghelp.h>	
 #ifndef __MINGW32__
-	#include <dbghelp.h>
 	#pragma comment(lib, "dbghelp.lib")
 #endif
 	typedef WORD TColor;
@@ -121,7 +121,6 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	const DWORD threadId = ::GetCurrentThreadId();
     logGlobal->errorStream() << "Thread ID: " << threadId << " [" << std::dec << std::setw(0) << threadId << "]";
 
-#ifndef __MINGW32__
 	//exception info to be placed in the dump
 	MINIDUMP_EXCEPTION_INFORMATION meinfo = {threadId, exception, TRUE};
 
@@ -140,7 +139,6 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	HANDLE dfile = CreateFileA(mname, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
     logGlobal->errorStream() << "Crash info will be put in " << mname;
 	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, MiniDumpWithDataSegs, &meinfo, 0, 0);
-#endif
 	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
 	return EXCEPTION_EXECUTE_HANDLER;
 }

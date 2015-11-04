@@ -10,15 +10,10 @@
  
 #pragma once
 #include <SDL_version.h>
-
-#ifndef VCMI_SDL1
 #include <SDL_render.h>
-#endif
-
 #include <SDL_video.h>
 #include <SDL_events.h>
 #include "../../lib/int3.h"
-//#include "../Graphics.h"
 #include "Geometries.h"
 #include "../../lib/GameConstants.h"
 
@@ -31,13 +26,6 @@
 #else
 	#define STRONG_INLINE inline
 #endif
-
-#if SDL_VERSION_ATLEAST(1,3,0)
-#define SDL_GetKeyState SDL_GetKeyboardState
-#endif
-
-//SDL2 support
-#if (SDL_MAJOR_VERSION == 2)
 
 extern SDL_Window * mainWindow;
 extern SDL_Renderer * mainRenderer;
@@ -54,64 +42,35 @@ inline void SDL_WarpMouse(int x, int y)
 }
 
 void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h);
-#endif
 
 inline bool isCtrlKeyDown()
 {
-	#ifdef VCMI_SDL1
-	return SDL_GetKeyState(nullptr)[SDLK_LCTRL] || SDL_GetKeyState(nullptr)[SDLK_RCTRL];
-	#else
 	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
-	#endif
 }
 
 inline bool isAltKeyDown()
 {
-	#ifdef VCMI_SDL1
-	return SDL_GetKeyState(nullptr)[SDLK_LALT] || SDL_GetKeyState(nullptr)[SDLK_RALT];
-	#else
 	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LALT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RALT];
-	#endif
 }
 
 inline bool isShiftKeyDown()
 {
-	#ifdef VCMI_SDL1
-	return SDL_GetKeyState(nullptr)[SDLK_LSHIFT] || SDL_GetKeyState(nullptr)[SDLK_RSHIFT];
-	#else
 	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RSHIFT];
-	#endif
 }
 namespace CSDL_Ext
 {
-	STRONG_INLINE void colorSetAlpha(SDL_Color & color, Uint8 alpha)
-	{
-#ifdef VCMI_SDL1
-		color.unused = alpha;
-#else
-		color.a = alpha;
-#endif	
-	}
 	//todo: should this better be assignment operator?
 	STRONG_INLINE void colorAssign(SDL_Color & dest, const SDL_Color & source)
 	{
 		dest.r = source.r;
 		dest.g = source.g;
 		dest.b = source.b;
-#ifdef VCMI_SDL1
-		dest.unused = source.unused;
-#else
 		dest.a = source.a;
-#endif			
 	}
 
 	inline void setAlpha(SDL_Surface * bg, int value)
 	{
-#ifdef VCMI_SDL1
-		SDL_SetAlpha(bg, SDL_SRCALPHA, value);
-#else
 		SDL_SetSurfaceAlphaMod(bg, value);
-#endif
 	}
 }
 struct Rect;
@@ -154,7 +113,7 @@ template<typename IntType>
 std::string makeNumberShort(IntType number, IntType maxLength = 3) //the output is a string containing at most 5 characters [4 if positive] (eg. intead 10000 it gives 10k)
 {
 	IntType max = pow(10, maxLength);
-	if (abs(number) < max)
+	if (std::abs(number) < max)
 		return boost::lexical_cast<std::string>(number);
 
 	std::string symbols = " kMGTPE";

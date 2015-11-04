@@ -235,7 +235,10 @@
 					"value"		: 3000,
 					"rarity"	: 100
 				}
-			}
+			},
+			"object1":{ //WoG?
+				"index" :1
+			}			
 		}
 	},
 	"eyeOfTheMagi" : {
@@ -351,7 +354,15 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"templates" :
+				{
+					"green" : { "animation" : "avxdent.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["grass", "swamp", "dirt"] },
+					"brown" : { "animation" : "avxdend0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["sand", "lava", "rough", "snow", "subterra"] },
+				},	
 				"rmg" : {
+					"value"		: 100,
+					"rarity"	: 100,
+					"zoneLimit"	: 1
 				}
 			}
 		}
@@ -380,6 +391,9 @@
 					"value"		: 1500,
 					"rarity"	: 80
 				}
+			},
+			"object1" : { //WoG?
+				"index" : 1
 			}
 		}
 	},

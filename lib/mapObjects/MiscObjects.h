@@ -19,7 +19,7 @@ class DLL_LINKAGE CPlayersVisited: public CGObjectInstance
 public:
 	std::set<PlayerColor> players; //players that visited this object
 
-	bool wasVisited(PlayerColor player) const;
+	bool wasVisited(PlayerColor player) const override;
 	bool wasVisited(TeamID team) const;
 	void setPropertyDer(ui8 what, ui32 val) override;
 
@@ -394,7 +394,7 @@ public:
 class CGShipyard : public CGObjectInstance, public IShipyard
 {
 public:
-	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
+	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
 	CGShipyard();
 	void onHeroVisit(const CGHeroInstance * h) const override;
 

@@ -6,23 +6,24 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="Debug-win32-SDL2">
+			<Target title="Debug-win32">
 				<Option platforms="Windows;" />
-				<Option output="bin/Debug/FuzzyLite" prefix_auto="1" extension_auto="1" />
+				<Option output="../FuzzyLite" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="obj/Debug/" />
+				<Option object_output="obj/Debug/x86/" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
+					<Add option="-Og" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
-			<Target title="Release-win32-SDL2">
+			<Target title="Release-win32">
 				<Option platforms="Windows;" />
-				<Option output="bin/Release/FuzzyLite" prefix_auto="1" extension_auto="1" />
+				<Option output="../FuzzyLite" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="obj/Release/" />
+				<Option object_output="obj/Release/x86/" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -34,33 +35,18 @@
 					<Add option="-s" />
 				</Linker>
 			</Target>
-			<Target title="Debug-win32-SDL1">
+			<Target title="Debug-win64">
 				<Option platforms="Windows;" />
-				<Option output="bin/Debug/FuzzyLite" prefix_auto="1" extension_auto="1" />
+				<Option output="../FuzzyLite" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="obj/Debug/" />
+				<Option object_output="obj/Debug/x64/" />
 				<Option type="2" />
-				<Option compiler="gcc" />
+				<Option compiler="gnu_gcc_compiler_x64" />
 				<Option createDefFile="1" />
 				<Compiler>
+					<Add option="-Og" />
 					<Add option="-g" />
 				</Compiler>
-			</Target>
-			<Target title="Release-win32-SDL1">
-				<Option platforms="Windows;" />
-				<Option output="bin/Release/FuzzyLite" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="" />
-				<Option object_output="obj/Release/" />
-				<Option type="2" />
-				<Option compiler="gcc" />
-				<Option createDefFile="1" />
-				<Compiler>
-					<Add option="-fomit-frame-pointer" />
-					<Add option="-O2" />
-				</Compiler>
-				<Linker>
-					<Add option="-s" />
-				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
@@ -74,7 +60,6 @@
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-DFL_CPP11" />
 			<Add option="-DFL_WINDOWS" />
-			<Add directory="$(#boost.include)" />
 			<Add directory="fuzzylite" />
 		</Compiler>
 		<Unit filename="fuzzylite/fl/Console.h" />

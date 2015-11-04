@@ -178,12 +178,11 @@ class CToggleGroup : public CIntObject
 	CFunctionList<void(int)> onChange; //called when changing selected button with new button's id
 
 	int selectedID;
-	bool musicLike; //determines the behaviour of this group
 	void selectionChanged(int to);
 public:
 	std::map<int, CToggleBase*> buttons;
 
-	CToggleGroup(const CFunctionList<void(int)> & OnChange, bool musicLikeButtons = false);
+	CToggleGroup(const CFunctionList<void(int)> & OnChange);
 
 	void addCallback(std::function<void(int)> callback);
 
@@ -191,9 +190,32 @@ public:
 	void addToggle(int index, CToggleBase * button);
 	/// Changes selection to specific value. Will select toggle with this ID, if present
 	void setSelected(int id);
+};
 
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+/// A typical slider for volume with an animated indicator
+class CVolumeSlider : public CIntObject
+{
+	int value;
+	CFunctionList<void(int)> onChange;
+	CAnimImage * animImage;
+	const std::pair<std::string, std::string> * const helpHandlers;
+	void setVolume(const int v);
+public:
+
+	/// @param position coordinates of slider
+	/// @param defName name of def animation for slider
+	/// @param value initial value for volume
+	/// @param help pointer to first helptext of slider
+	CVolumeSlider(const Point &position, const std::string &defName, const int value,
+	              const std::pair<std::string, std::string> * const help);
+
+	void moveTo(int id);
+	void addCallback(std::function<void(int)> callback);
+
+
+	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(tribool down, bool previousState) override;
+	void wheelScrolled(bool down, bool in) override;
 };
 
 /// A typical slider which can be orientated horizontally/vertically.
@@ -242,20 +264,18 @@ public:
 
 	void addCallback(std::function<void(int)> callback);
 
-	void keyPressed(const SDL_KeyboardEvent & key);
-	void wheelScrolled(bool down, bool in);
-	void clickLeft(tribool down, bool previousState);
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void showAll(SDL_Surface * to);	
+	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void wheelScrolled(bool down, bool in) override;
+	void clickLeft(tribool down, bool previousState) override;
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void showAll(SDL_Surface * to) override;	
 
-	/**
-	 * @param position, coordinates of slider
-	 * @param length, length of slider ribbon, including left/right buttons
-	 * @param Moved, function that will be called whenever slider moves
-	 * @param Capacity, maximal number of visible at once elements
-	 * @param Amount, total amount of elements, including not visible
-	 * @param Value, starting position
-	 */
+	 /// @param position coordinates of slider
+	 /// @param length length of slider ribbon, including left/right buttons
+	 /// @param Moved function that will be called whenever slider moves
+	 /// @param Capacity maximal number of visible at once elements
+	 /// @param Amount total amount of elements, including not visible
+	 /// @param Value starting position
 	CSlider(Point position, int length, std::function<void(int)> Moved, int Capacity, int Amount,
 		int Value=0, bool Horizontal=true, EStyle style = BROWN);
 	~CSlider();

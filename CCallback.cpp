@@ -80,7 +80,7 @@ void CCallback::recruitCreatures(const CGDwelling *obj, const CArmedInstance * d
 
 bool CCallback::dismissCreature(const CArmedInstance *obj, SlotID stackPos)
 {
-	if(((player>=0)  &&  obj->tempOwner != player) || (obj->stacksCount()<2  && obj->needsLastStack()))
+	if((player && obj->tempOwner != player) || (obj->stacksCount()<2  && obj->needsLastStack()))
 		return false;
 
 	DisbandCreature pack(stackPos,obj->id);
@@ -292,7 +292,7 @@ bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 
 int CCallback::getMovementCost(const CGHeroInstance * hero, int3 dest)
 {
-	return gs->getMovementCost(hero, hero->visitablePos(), dest, hero->hasBonusOfType (Bonus::FLYING_MOVEMENT), hero->movement);
+	return gs->getMovementCost(hero, hero->visitablePos(), dest, hero->movement);
 }
 
 const CPathsInfo * CCallback::getPathsInfo(const CGHeroInstance *h)

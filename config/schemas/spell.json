@@ -13,6 +13,10 @@
 			"items":{
 				"anyOf":[
 					{
+						//dummy animation, pause, Value - frame count
+						"type": "number"
+					},
+					{
 						//assumed verticalPosition: top
 						"type": "string",
 						"format": "defFile"				

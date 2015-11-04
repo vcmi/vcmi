@@ -23,7 +23,6 @@ class BonusList;
 typedef shared_ptr<BonusList> TBonusListPtr;
 typedef shared_ptr<ILimiter> TLimiterPtr;
 typedef shared_ptr<IPropagator> TPropagatorPtr;
-typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
 typedef std::vector<CBonusSystemNode *> TNodesVector;
@@ -87,13 +86,13 @@ public:
 	BONUS_NAME(SECONDARY_SKILL_PREMY) /*%*/  \
 	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
 	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
-	BONUS_NAME(FLYING_MOVEMENT) /*subtype 1 - without penalty, 2 - with penalty*/ \
+	BONUS_NAME(FLYING_MOVEMENT) /*value - penalty percentage*/ \
 	BONUS_NAME(SPELL_DURATION) \
 	BONUS_NAME(AIR_SPELL_DMG_PREMY) \
 	BONUS_NAME(EARTH_SPELL_DMG_PREMY) \
 	BONUS_NAME(FIRE_SPELL_DMG_PREMY) \
 	BONUS_NAME(WATER_SPELL_DMG_PREMY) \
-	BONUS_NAME(WATER_WALKING) /*subtype 1 - without penalty, 2 - with penalty*/ \
+	BONUS_NAME(WATER_WALKING) /*value - penalty percentage*/ \
 	BONUS_NAME(NEGATE_ALL_NATURAL_IMMUNITIES) \
 	BONUS_NAME(STACK_HEALTH) \
 	BONUS_NAME(BLOCK_MORALE) \
@@ -134,7 +133,7 @@ public:
 	BONUS_NAME(SPELL_RESISTANCE_AURA) /*eg. unicorns, value - resistance bonus in % for adjacent creatures*/ \
 	BONUS_NAME(LEVEL_SPELL_IMMUNITY) /*creature is immune to all spell with level below or equal to value of this bonus*/ \
 	BONUS_NAME(BLOCK_MAGIC_ABOVE) /*blocks casting spells of the level > value */ \
-	BONUS_NAME(BLOCK_ALL_MAGIC) /*blocks casting spells of the level > value */ \
+	BONUS_NAME(BLOCK_ALL_MAGIC) /*blocks casting spells*/ \
 	BONUS_NAME(TWO_HEX_ATTACK_BREATH) /*eg. dragons*/	\
 	BONUS_NAME(SPELL_DAMAGE_REDUCTION) /*eg. golems; value - reduction in %, subtype - spell school; -1 - all, 0 - air, 1 - fire, 2 - water, 3 - earth*/ \
 	BONUS_NAME(NO_WALL_PENALTY)							\
@@ -208,16 +207,18 @@ public:
 	BONUS_NAME(RECEPTIVE) /*accepts friendly spells even with immunity*/\
 	BONUS_NAME(DIRECT_DAMAGE_IMMUNITY) /*direct damage spells, that is*/\
 	BONUS_NAME(CASTS) /*how many times creature can cast activated spell*/ \
-	BONUS_NAME(SPECIFIC_SPELL_POWER) /* value used for Thunderbolt and Resurrection casted by units, subtype - spell id */\
+	BONUS_NAME(SPECIFIC_SPELL_POWER) /* value used for Thunderbolt and Resurrection cast by units, subtype - spell id */\
 	BONUS_NAME(CREATURE_SPELL_POWER) /* value per unit, divided by 100 (so faerie Dragons have 800)*/ \
-	BONUS_NAME(CREATURE_ENCHANT_POWER) /* total duration of spells casted by creature */ \
+	BONUS_NAME(CREATURE_ENCHANT_POWER) /* total duration of spells cast by creature */ \
 	BONUS_NAME(ENCHANTED) /* permanently enchanted with spell subID of level = val, if val > 3 then spell is mass and has level of val-3*/ \
 	BONUS_NAME(REBIRTH) /* val - percent of life restored, subtype = 0 - regular, 1 - at least one unit (sacred Phoenix) */\
 	BONUS_NAME(ADDITIONAL_UNITS) /*val of units with id = subtype will be added to hero's army at the beginning of battle */\
 	BONUS_NAME(SPOILS_OF_WAR) /*val * 10^-6 * gained exp resources of subtype will be given to hero after battle*/\
 	BONUS_NAME(BLOCK)\
 	BONUS_NAME(DISGUISED) /* subtype - spell level */\
-	BONUS_NAME(VISIONS) /* subtype - spell level */
+	BONUS_NAME(VISIONS) /* subtype - spell level */\
+	BONUS_NAME(NO_TERRAIN_PENALTY) /* subtype - terrain type */\
+	/* end of list */
 	
 
 #define BONUS_SOURCE_LIST \
@@ -337,6 +338,14 @@ struct DLL_LINKAGE Bonus
 	{
 		return a->additionalInfo < b->additionalInfo;
 	}
+	static bool NDays(const Bonus *hb)
+	{
+		return hb->duration & Bonus::N_DAYS;
+	}
+	static bool NTurns(const Bonus *hb)
+	{
+		return hb->duration & Bonus::N_TURNS;
+	}	
 	static bool OneDay(const Bonus *hb)
 	{
 		return hb->duration & Bonus::ONE_DAY;
@@ -348,6 +357,10 @@ struct DLL_LINKAGE Bonus
 	static bool OneBattle(const Bonus *hb)
 	{
 		return hb->duration & Bonus::ONE_BATTLE;
+	}
+	static bool Permanent(const Bonus *hb)
+	{
+		return hb->duration & Bonus::PERMANENT;
 	}
 	static bool UntilGetsTurn(const Bonus *hb)
 	{
@@ -436,7 +449,6 @@ public:
 	int totalValue() const; //subtype -> subtype of bonus, if -1 then any
 	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	void getAllBonuses(BonusList &out) const;
-	void getModifiersWDescr(TModDescr &out) const;
 
 	void getBonuses(BonusList & out, const CSelector &selector) const;
 
@@ -529,7 +541,7 @@ class DLL_LINKAGE CPropagatorNodeType : public IPropagator
 public:
 	CPropagatorNodeType();
 	CPropagatorNodeType(int NodeType);
-	bool shouldBeAttached(CBonusSystemNode *dest);
+	bool shouldBeAttached(CBonusSystemNode *dest) override;
 	//CBonusSystemNode *getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -567,7 +579,6 @@ public:
 	// * root is node on which call was made (nullptr will be replaced with this)
 	//interface
 	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const = 0;
-	void getModifiersWDescr(TModDescr &out, const CSelector &selector, const std::string &cachingStr = "") const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(const CSelector &selector, const std::string &cachingStr = "") const;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;
@@ -582,7 +593,6 @@ public:
 	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then anyt;
 	bool hasBonusOfType(Bonus::BonusType type, int subtype = -1) const;//determines if hero has a bonus of given type (and optionally subtype)
 	bool hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const;
-	void getModifiersWDescr( TModDescr &out, Bonus::BonusType type, int subtype = -1 ) const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(Bonus::BonusSource from, int id) const;
 
 	//various hlp functions for non-trivial values
@@ -643,7 +653,7 @@ public:
 
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
 	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
-	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const;
+	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 	const Bonus *getBonusLocalFirst(const CSelector &selector) const;
 
@@ -683,7 +693,6 @@ public:
 	void exportBonus(Bonus * b);
 	void exportBonuses();
 
-	static void incrementTreeChangedNum();
 	BonusList &getBonusList();
 	const BonusList &getBonusList() const;
 	BonusList &getExportedBonusList();
@@ -711,8 +720,6 @@ namespace NBonus
 	//set of methods that may be safely called with nullptr objs
 	DLL_LINKAGE int valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1); //subtype -> subtype of bonus, if -1 then any
 	DLL_LINKAGE bool hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1);//determines if hero has a bonus of given type (and optionally subtype)
-	//DLL_LINKAGE const HeroBonus * get(const CBonusSystemNode *obj, int from, int id );
-	DLL_LINKAGE void getModifiersWDescr(const CBonusSystemNode *obj, TModDescr &out, Bonus::BonusType type, int subtype = -1 );  //out: pairs<modifier value, modifier description>
 	DLL_LINKAGE int getCount(const CBonusSystemNode *obj, Bonus::BonusSource from, int id);
 }
 
@@ -948,7 +955,6 @@ namespace Selector
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type;
 	extern DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype;
 	extern DLL_LINKAGE CSelectFieldEqual<si32> info;
-	extern DLL_LINKAGE CSelectFieldEqual<ui16> duration;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
@@ -957,7 +963,6 @@ namespace Selector
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);
 	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info);
 	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID);
-	CSelector DLL_LINKAGE durationType(ui16 duration);
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source);
 
 	bool DLL_LINKAGE matchesType(const CSelector &sel, Bonus::BonusType type);
@@ -981,7 +986,7 @@ void BonusList::insert(const int position, InputIterator first, InputIterator la
 	bonuses.insert(bonuses.begin() + position, first, last);
 
 	if (belongsToTree)
-		CBonusSystemNode::incrementTreeChangedNum();
+		CBonusSystemNode::treeHasChanged();
 }
 
 // Extensions for BOOST_FOREACH to enable iterating of BonusList objects

@@ -1,0 +1,9 @@
+{
+	"name" : "Default templates",
+	"description" : "A set of random map templates for VCMI",
+
+	"version" : "0.99",
+	"author" : "VCMI Team",
+	"contact" : "http://forum.vcmi.eu/index.php",
+	"modType" : "Templates"
+}

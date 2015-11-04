@@ -340,12 +340,12 @@ bool CMap::isWaterTile(const int3 &pos) const
 
 bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst ) const
 {
-	for(ui32 b=0; b<pom->visitableObjects.size(); ++b) //checking destination tile
+	if (!pom->entrableTerrain()) //rock is never accessible
+		return false;
+	for (auto obj : pom->visitableObjects) //checking destination tile
 	{
-		if(!vstd::contains(pom->blockingObjects, pom->visitableObjects[b])) //this visitable object is not blocking, ignore
+		if(!vstd::contains(pom->blockingObjects, obj)) //this visitable object is not blocking, ignore
 			continue;
-
-		const CGObjectInstance * obj = pom->visitableObjects[b];
 
 		if (!obj->appearance.isVisitableFrom(src.x - dst.x, src.y - dst.y))
 			return false;
