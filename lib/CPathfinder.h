@@ -114,6 +114,7 @@ private:
 	bool isMovementToDestPossible();
 	bool isMovementAfterDestPossible();
 
+	bool isSourceInitialPosition();
 	int3 getSourceGuardPosition();
 	bool isSourceGuarded();
 	bool isDestinationGuarded();

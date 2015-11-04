@@ -172,7 +172,7 @@ void CPathfinder::addNeighbours(const int3 &coord)
 
 	std::vector<int3> tiles;
 	gs->getNeighbours(*ct, coord, tiles, boost::logic::indeterminate, !cp->land);
-	sTileObj = ct->topVisitableObj(coord == CGHeroInstance::convertPosition(hero->pos, false));
+	sTileObj = ct->topVisitableObj(coord == out.hpos);
 	if(canVisitObject())
 	{
 		if(sTileObj)
@@ -236,7 +236,7 @@ bool CPathfinder::isLayerTransitionPossible()
 	}
 	else if(cp->layer == EPathfindingLayer::LAND && dp->layer == EPathfindingLayer::AIR)
 	{
-		if(options.lightweightFlyingMode && cp->coord != hero->getPosition(false))
+		if(options.lightweightFlyingMode && !isSourceInitialPosition())
 			return false;
 	}
 	else if(cp->layer == EPathfindingLayer::SAIL && dp->layer != EPathfindingLayer::LAND)
@@ -312,7 +312,7 @@ bool CPathfinder::isMovementAfterDestPossible()
 		case EPathfindingLayer::SAIL:
 			if(dp->accessible == CGPathNode::ACCESSIBLE)
 				return true;
-			if(dp->coord == CGHeroInstance::convertPosition(hero->pos, false))
+			if(dp->coord == out.hpos)
 				return true; // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation
 			if(dp->accessible == CGPathNode::VISITABLE && CGTeleport::isTeleport(dt->topVisitableObj()))
 				return true; // For now we'll always allow transit for teleporters
@@ -332,6 +332,11 @@ bool CPathfinder::isMovementAfterDestPossible()
 	return false;
 }
 
+bool CPathfinder::isSourceInitialPosition()
+{
+	return cp->coord == out.hpos;
+}
+
 int3 CPathfinder::getSourceGuardPosition()
 {
 	return gs->map->guardingCreaturePositions[cp->coord.x][cp->coord.y][cp->coord.z];
@@ -341,8 +346,7 @@ bool CPathfinder::isSourceGuarded()
 {
 	//map can start with hero on guarded tile or teleport there using dimension door
 	//so threat tile hero standing on like it's not guarded because it's should be possible to move out of here
-	if(getSourceGuardPosition() != int3(-1, -1, -1)
-		&& cp->coord != hero->getPosition(false))
+	if(getSourceGuardPosition() != int3(-1, -1, -1) && !isSourceInitialPosition())
 	{
 		//special case -> hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
 		if(cp->accessible != CGPathNode::VISITABLE
