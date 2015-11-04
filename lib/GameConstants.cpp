@@ -19,6 +19,7 @@
 #include "spells/CSpellHandler.h"
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
+const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(255);
 const PlayerColor PlayerColor::CANNOT_DETERMINE = PlayerColor(253);
 const PlayerColor PlayerColor::UNFLAGGABLE = PlayerColor(254);
 const PlayerColor PlayerColor::NEUTRAL = PlayerColor(255);

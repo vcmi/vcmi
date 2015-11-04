@@ -651,8 +651,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		sendAndApply(&cs);
 	}
 
-	cab1.takeFromArmy(this);
-	cab2.takeFromArmy(this); //take casualties after battle is deleted
+	cab1.updateArmy(this);
+	cab2.updateArmy(this); //take casualties after battle is deleted
 
 	//if one hero has lost we will erase him
 	if(battleResult.data->winner!=0 && hero1)
@@ -3848,18 +3848,16 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			//TODO: From Strategija:
 			//Summon Demon is a level 2 spell.
 		{
-			StartAction start_action(ba);
-			sendAndApply(&start_action);
-
 			const CStack *summoner = gs->curB->battleGetStackByID(ba.stackNumber),
 				*destStack = gs->curB->battleGetStackByPos(ba.destinationTile, false);
 
+			CreatureID summonedType(summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype);//in case summoner can summon more than one type of monsters... scream!
 			BattleStackAdded bsa;
 			bsa.attacker = summoner->attackerOwned;
 
-			bsa.creID = CreatureID(summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype); //in case summoner can summon more than one type of monsters... scream!
+			bsa.creID = summonedType; 
 			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID.toEnum());
-			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;
+			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;//todo: ignore AGE effect
 
 			ui64 canRiseHp = std::min(targetHealth, risedHp);
 			ui32 canRiseAmount = canRiseHp / VLC->creh->creatures.at(bsa.creID)->MaxHealth();
@@ -3871,6 +3869,9 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			if (bsa.amount) //there's rare possibility single creature cannot rise desired type
 			{
+				StartAction start_action(ba);
+				sendAndApply(&start_action);
+
 				BattleStacksRemoved bsr; //remove body
 				bsr.stackIDs.insert(destStack->ID);
 				sendAndApply(&bsr);
@@ -3882,9 +3883,9 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				ssp.val = -1;
 				ssp.absolute = false;
 				sendAndApply(&ssp);
-			}
 
-			sendAndApply(&end_action);
+				sendAndApply(&end_action);
+			}
 			break;
 		}
 		case Battle::MONSTER_SPELL:
@@ -5804,13 +5805,52 @@ void CGameHandler::duelFinished()
 	return;
 }
 
-CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)
+CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, BattleInfo *bat):
+	army(_army)
 {
 	heroWithDeadCommander = ObjectInstanceID();
 
 	PlayerColor color = army->tempOwner;
 	if(color == PlayerColor::UNFLAGGABLE)
 		color = PlayerColor::NEUTRAL;
+		
+	auto killStack = [&, this](const SlotID slot, const CStackInstance * instance)
+	{
+		StackLocation sl(army, slot);
+		newStackCounts.push_back(TStackAndItsNewCount(sl, 0));
+		if(nullptr == instance)
+			return;
+		auto c = dynamic_cast <const CCommanderInstance *>(instance);
+		if (c) //switch commander status to dead
+		{
+			auto h = dynamic_cast <const CGHeroInstance *>(army);
+			if (h && h->commander == c)
+				heroWithDeadCommander = army->id; //TODO: unify commander handling
+		}
+	};
+
+	//1. Find removed stacks.
+	for(const auto & slotInfo : army->stacks)
+	{
+		const SlotID slot = slotInfo.first;
+		const CStackInstance * instance = slotInfo.second;
+
+		if(nullptr != instance)//just in case
+		{
+			bool found = false;
+			for(const CStack * sta : bat->stacks)
+			{
+				if(sta->base == instance)
+				{
+					found = true;
+					break;
+				}
+			}
+			//stack in this slot was removed == it is dead
+			if(!found)
+				killStack(slot, instance);
+		}
+	}
 
 	for(CStack *st : bat->stacks)
 	{
@@ -5822,7 +5862,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleI
 		//FIXME: this info is also used in BattleInfo::calculateCasualties, refactor
 		st->count = std::max (0, st->count - st->resurrected);
 
-		if (!st->count && !st->base) //we can imagine stacks of war mahcines that are not spawned by artifacts?
+		if (!st->count && !st->base) //we can imagine stacks of war machines that are not spawned by artifacts?
 		{
 			auto warMachine = VLC->arth->creatureToMachineID(st->type->idNumber);
 			if (warMachine != ArtifactID::NONE)
@@ -5832,29 +5872,32 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleI
 					removedWarMachines.push_back (ArtifactLocation(hero, hero->getArtPos(warMachine, true)));
 			}
 		}
-
-		if(!army->slotEmpty(st->slot) && st->count < army->getStackCount(st->slot))
+		
+		if(army->slotEmpty(st->slot))
 		{
-			StackLocation sl(army, st->slot);
-			if(st->alive())
-				newStackCounts.push_back(std::pair<StackLocation, int>(sl, st->count));
-			else
-				newStackCounts.push_back(std::pair<StackLocation, int>(sl, 0));
-		}
-		if (st->base && !st->count)
-		{
-			auto c = dynamic_cast <const CCommanderInstance *>(st->base);
-			if (c) //switch commander status to dead
+			if(st->slot == SlotID::SUMMONED_SLOT_PLACEHOLDER && !vstd::contains(st->state, EBattleStackState::SUMMONED) && st->alive() && st->count > 0)
 			{
-				auto h = dynamic_cast <const CGHeroInstance *>(army);
-				if (h && h->commander == c)
-					heroWithDeadCommander = army->id; //TODO: unify commander handling
+				//this stack was permanently summoned
+				const CreatureID summonedType = st->type->idNumber;
+				summoned[summonedType] += st->count;
+			}			
+		}
+		else
+		{
+			if(st->count == 0 || !st->alive())
+			{
+				killStack(st->slot, st->base);
+			}
+			else if(st->count < army->getStackCount(st->slot))
+			{			
+				StackLocation sl(army, st->slot);
+				newStackCounts.push_back(TStackAndItsNewCount(sl, st->count));
 			}
 		}
 	}
 }
 
-void CasualtiesAfterBattle::takeFromArmy(CGameHandler *gh)
+void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 {
 	for(TStackAndItsNewCount &ncount : newStackCounts)
 	{
@@ -5862,6 +5905,21 @@ void CasualtiesAfterBattle::takeFromArmy(CGameHandler *gh)
 			gh->changeStackCount(ncount.first, ncount.second, true);
 		else
 			gh->eraseStack(ncount.first, true);
+	}
+	for(auto summoned_iter : summoned)
+	{
+		SlotID slot = army->getSlotFor(summoned_iter.first);
+		if(slot.validSlot())
+		{
+			StackLocation location(army, slot);
+			gh->addToSlot(location, summoned_iter.first.toCreature(), summoned_iter.second);
+		}
+		else
+		{
+			//even if it will be possible to summon anything permanently it should be checked for free slot
+			//necromancy is handled separately
+			gh->complain("No free slot to put summoned creature");
+		}
 	}
 	for (auto al : removedWarMachines)
 	{

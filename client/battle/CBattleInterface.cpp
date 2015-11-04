@@ -2163,7 +2163,15 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case RISE_DEMONS:
 				if (shere && ourStack && !shere->alive())
-					legalAction = true;
+				{
+					if(!(shere->hasBonusOfType(Bonus::UNDEAD) 
+						|| shere->hasBonusOfType(Bonus::NON_LIVING) 
+						|| vstd::contains(shere->state, EBattleStackState::SUMMONED)
+						|| vstd::contains(shere->state, EBattleStackState::CLONED)
+						|| shere->hasBonusOfType(Bonus::SIEGE_WEAPON)
+						))
+						legalAction = true;
+				}					
 				break;
 		}
 		if (legalAction)
@@ -2320,7 +2328,10 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case RISE_DEMONS:
 				cursorType = ECursor::SPELLBOOK;
-				realizeAction = [=]{ giveCommand(Battle::DAEMON_SUMMONING, myNumber, activeStack->ID); };
+				realizeAction = [=]
+				{ 
+					giveCommand(Battle::DAEMON_SUMMONING, myNumber, activeStack->ID); 
+				};
 				break;
 			case CATAPULT:
 				cursorFrame = ECursor::COMBAT_SHOOT_CATAPULT;
