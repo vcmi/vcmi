@@ -105,8 +105,8 @@ private:
 	void addNeighbours(const int3 &coord);
 	void addTeleportExits(bool noTeleportExcludes = false);
 
-	bool isMovementPossible(); //checks if current move will be between sea<->land. If so, checks it legality (returns false if movement is not possible) and sets useEmbarkCost
-	bool checkDestinationTile();
+	bool isMovementToDestPossible(); //checks if current move will be between sea<->land. If so, checks it legality (returns false if movement is not possible) and sets useEmbarkCost
+	bool isMovementAfterDestPossible();
 
 	int3 getSourceGuardPosition();
 	bool isSourceGuarded();

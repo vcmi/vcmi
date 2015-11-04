@@ -110,7 +110,7 @@ void CPathfinder::calculatePaths()
 				if(cp->layer != i && !isLayerTransitionPossible())
 					continue;
 
-				if(!isMovementPossible())
+				if(!isMovementToDestPossible())
 					continue;
 
 				int cost = gs->getMovementCost(hero, cp->coord, dp->coord, movement);
@@ -138,7 +138,7 @@ void CPathfinder::calculatePaths()
 					dp->turns = turnAtNextTile;
 					dp->theNodeBefore = cp;
 
-					if(checkDestinationTile())
+					if(isMovementAfterDestPossible())
 						mq.push_back(dp);
 				}
 			}
@@ -225,7 +225,7 @@ void CPathfinder::addTeleportExits(bool noTeleportExcludes)
 	}
 }
 
-bool CPathfinder::isMovementPossible()
+bool CPathfinder::isMovementToDestPossible()
 {
 	switch (dp->layer)
 	{
@@ -263,7 +263,7 @@ bool CPathfinder::isMovementPossible()
 	return true;
 }
 
-bool CPathfinder::checkDestinationTile()
+bool CPathfinder::isMovementAfterDestPossible()
 {
 	if(dp->accessible == CGPathNode::ACCESSIBLE)
 		return true;
