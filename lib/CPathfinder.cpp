@@ -265,16 +265,28 @@ bool CPathfinder::isMovementToDestPossible()
 
 bool CPathfinder::isMovementAfterDestPossible()
 {
-	if(dp->accessible == CGPathNode::ACCESSIBLE)
-		return true;
-	if(dp->coord == CGHeroInstance::convertPosition(hero->pos, false))
-		return true; // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation
-	if(dp->accessible == CGPathNode::VISITABLE && CGTeleport::isTeleport(dt->topVisitableObj()))
-		return true; // For now we'll always allow transit for teleporters
-	if(useEmbarkCost && options.useEmbarkAndDisembark)
-		return true;
-	if(isDestinationGuarded() && !isSourceGuarded())
-		return true; // Can step into a hostile tile once
+	switch (dp->layer)
+	{
+		case EPathfindingLayer::LAND:
+		case EPathfindingLayer::SAIL:
+			if(dp->accessible == CGPathNode::ACCESSIBLE)
+				return true;
+			if(dp->coord == CGHeroInstance::convertPosition(hero->pos, false))
+				return true; // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation
+			if(dp->accessible == CGPathNode::VISITABLE && CGTeleport::isTeleport(dt->topVisitableObj()))
+				return true; // For now we'll always allow transit for teleporters
+			if(useEmbarkCost && options.useEmbarkAndDisembark)
+				return true;
+			if(isDestinationGuarded() && !isSourceGuarded())
+				return true; // Can step into a hostile tile once
+			break;
+
+		case EPathfindingLayer::AIR:
+		case EPathfindingLayer::WATER:
+				return true;
+
+			break;
+	}
 
 	return false;
 }
