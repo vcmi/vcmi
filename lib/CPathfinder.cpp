@@ -225,6 +225,40 @@ void CPathfinder::addTeleportExits(bool noTeleportExcludes)
 	}
 }
 
+bool CPathfinder::isLayerTransitionPossible()
+{
+	if((cp->layer == EPathfindingLayer::AIR || cp->layer ==  EPathfindingLayer::WATER)
+	   && dp->layer != EPathfindingLayer::LAND)
+	{
+		return false;
+	}
+	else if(cp->layer == EPathfindingLayer::SAIL && dp->layer != EPathfindingLayer::LAND)
+		return false;
+	else if(cp->layer == EPathfindingLayer::SAIL && dp->layer == EPathfindingLayer::LAND)
+	{
+		if(!dt->isCoastal())
+			return false;
+
+		//tile must be accessible -> exception: unblocked blockvis tiles -> clear but guarded by nearby monster coast
+		if((dp->accessible != CGPathNode::ACCESSIBLE && (dp->accessible != CGPathNode::BLOCKVIS || dt->blocked))
+			|| dt->visitable)  //TODO: passableness problem -> town says it's passable (thus accessible) but we obviously can't disembark onto town gate
+			return false;
+
+		useEmbarkCost = 2;
+	}
+	else if(cp->layer == EPathfindingLayer::LAND && dp->layer == EPathfindingLayer::SAIL)
+	{
+		Obj destTopVisObjID = dt->topVisitableId();
+		if(dp->accessible == CGPathNode::ACCESSIBLE || destTopVisObjID < 0) //cannot enter empty water tile from land -> it has to be visitable
+			return false;
+		if(destTopVisObjID != Obj::HERO && destTopVisObjID != Obj::BOAT) //only boat or hero can be accessed from land
+			return false;
+		if(destTopVisObjID == Obj::BOAT)
+			useEmbarkCost = 1;
+	}
+	return true;
+}
+
 bool CPathfinder::isMovementToDestPossible()
 {
 	switch (dp->layer)
@@ -461,40 +495,6 @@ bool CPathfinder::canVisitObject() const
 {
 	//hero can't visit objects while walking on water or flying
 	return cp->layer == EPathfindingLayer::LAND || cp->layer == EPathfindingLayer::SAIL;
-}
-
-bool CPathfinder::isLayerTransitionPossible()
-{
-	if((cp->layer == EPathfindingLayer::AIR || cp->layer ==  EPathfindingLayer::WATER)
-	   && dp->layer != EPathfindingLayer::LAND)
-	{
-		return false;
-	}
-	else if(cp->layer == EPathfindingLayer::SAIL && dp->layer != EPathfindingLayer::LAND)
-		return false;
-	else if(cp->layer == EPathfindingLayer::SAIL && dp->layer == EPathfindingLayer::LAND)
-	{
-		if(!dt->isCoastal())
-			return false;
-
-		//tile must be accessible -> exception: unblocked blockvis tiles -> clear but guarded by nearby monster coast
-		if((dp->accessible != CGPathNode::ACCESSIBLE && (dp->accessible != CGPathNode::BLOCKVIS || dt->blocked))
-			|| dt->visitable)  //TODO: passableness problem -> town says it's passable (thus accessible) but we obviously can't disembark onto town gate
-			return false;
-
-		useEmbarkCost = 2;
-	}
-	else if(cp->layer == EPathfindingLayer::LAND && dp->layer == EPathfindingLayer::SAIL)
-	{
-		Obj destTopVisObjID = dt->topVisitableId();
-		if(dp->accessible == CGPathNode::ACCESSIBLE || destTopVisObjID < 0) //cannot enter empty water tile from land -> it has to be visitable
-			return false;
-		if(destTopVisObjID != Obj::HERO && destTopVisObjID != Obj::BOAT) //only boat or hero can be accessed from land
-			return false;
-		if(destTopVisObjID == Obj::BOAT)
-			useEmbarkCost = 1;
-	}
-	return true;
 }
 
 CGPathNode::CGPathNode()

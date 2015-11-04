@@ -105,7 +105,8 @@ private:
 	void addNeighbours(const int3 &coord);
 	void addTeleportExits(bool noTeleportExcludes = false);
 
-	bool isMovementToDestPossible(); //checks if current move will be between sea<->land. If so, checks it legality (returns false if movement is not possible) and sets useEmbarkCost
+	bool isLayerTransitionPossible();
+	bool isMovementToDestPossible();
 	bool isMovementAfterDestPossible();
 
 	int3 getSourceGuardPosition();
@@ -125,5 +126,4 @@ private:
 
 	bool canVisitObject() const;
 
-	bool isLayerTransitionPossible();
 };
