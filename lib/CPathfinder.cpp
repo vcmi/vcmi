@@ -27,6 +27,8 @@ CPathfinder::PathfinderOptions::PathfinderOptions()
 	useTeleportOneWay = true;
 	useTeleportOneWayRandom = false;
 	useTeleportWhirlpool = false;
+
+	lightweightFlyingMode = false;
 }
 
 CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero) : CGameInfoCallback(_gs, boost::optional<PlayerColor>()), out(_out), hero(_hero), FoW(getPlayerTeam(hero->tempOwner)->fogOfWarMap)
@@ -231,6 +233,11 @@ bool CPathfinder::isLayerTransitionPossible()
 	   && dp->layer != EPathfindingLayer::LAND)
 	{
 		return false;
+	}
+	else if(cp->layer == EPathfindingLayer::LAND && dp->layer == EPathfindingLayer::AIR)
+	{
+		if(options.lightweightFlyingMode && cp->coord != hero->getPosition(false))
+			return false;
 	}
 	else if(cp->layer == EPathfindingLayer::SAIL && dp->layer != EPathfindingLayer::LAND)
 		return false;

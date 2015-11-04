@@ -85,6 +85,11 @@ private:
 		bool useTeleportOneWayRandom; // One-way monoliths with more than one known exit
 		bool useTeleportWhirlpool; // Force enabled if hero protected or unaffected (have one stack of one creature)
 
+		/// If true transition into air layer only possible from initial node.
+		/// This is drastically decrease path calculation complexity (and time).
+		/// Downside is less MP effective paths calculation.
+		bool lightweightFlyingMode;
+
 		PathfinderOptions();
 	} options;
 
