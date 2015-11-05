@@ -292,7 +292,7 @@ bool CPathfinder::isMovementToDestPossible()
 			break;
 
 		case EPathfindingLayer::WATER:
-			if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
+			if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible != CGPathNode::ACCESSIBLE)
 				return false;
 			if(isDestinationGuarded())
 				return false;
