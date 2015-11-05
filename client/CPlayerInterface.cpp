@@ -2689,6 +2689,8 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 			{ // Hero should be able to go through object if it's allow transit
 				doMovement(endpos, true);
 			}
+			else if(path.nodes[i-1].layer == EPathfindingLayer::AIR)
+				doMovement(endpos, true);
 			else
 				doMovement(endpos, false);
 
