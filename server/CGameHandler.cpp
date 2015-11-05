@@ -1794,6 +1794,8 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 			&& complain("Can not move garrisoned hero!"))
 		|| ((h->movement < cost  &&  dst != h->pos  &&  !teleporting)
 			&& complain("Hero doesn't have any movement points left!"))
+		|| ((transit && !h->canFly() && !CGTeleport::isTeleport(t.topVisitableObj()))
+			&& complain("Hero cannot transit over this tile!"))
 		/*|| (states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle)
 			&& complain("Cannot move hero during the battle"))*/)
 	{
@@ -1866,7 +1868,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	};
 
 
-	if(embarking)
+	if(!transit && embarking)
 	{
 		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false);
 		return doMove(TryMoveHero::EMBARK, IGNORE_GUARDS, DONT_VISIT_DEST, LEAVING_TILE);
