@@ -2683,20 +2683,21 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 			int3 endpos(nextCoord.x, nextCoord.y, h->pos.z);
 			logGlobal->traceStream() << "Requesting hero movement to " << endpos;
 
+			bool useTransit = false;
 			if((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
 				&& (CGTeleport::isConnected(nextObject, getObj(path.nodes[i-2].coord, false))
 					|| CGTeleport::isTeleport(nextObject)))
 			{ // Hero should be able to go through object if it's allow transit
-				doMovement(endpos, true);
+				useTransit = true;
 			}
 			else if(path.nodes[i-1].layer == EPathfindingLayer::AIR)
-				doMovement(endpos, true);
-			else
-				doMovement(endpos, false);
+				useTransit = true;
+
+			doMovement(endpos, useTransit);
 
 			logGlobal->traceStream() << "Resuming " << __FUNCTION__;
 			bool guarded = cb->isInTheMap(cb->getGuardingCreaturePosition(endpos - int3(1, 0, 0)));
-			if(guarded || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
+			if((!useTransit && guarded) || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
 				break;
 		}
 
