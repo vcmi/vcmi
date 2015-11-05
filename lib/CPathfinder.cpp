@@ -318,8 +318,6 @@ bool CPathfinder::isMovementAfterDestPossible()
 				return true; // For now we'll always allow transit for teleporters
 			if(useEmbarkCost && options.useEmbarkAndDisembark)
 				return true;
-			if(isDestinationGuarded() && !isSourceGuarded())
-				return true; // Can step into a hostile tile once
 			break;
 
 		case EPathfindingLayer::AIR:
