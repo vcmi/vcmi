@@ -31,7 +31,8 @@ CPathfinder::PathfinderOptions::PathfinderOptions()
 	lightweightFlyingMode = false;
 }
 
-CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero) : CGameInfoCallback(_gs, boost::optional<PlayerColor>()), out(_out), hero(_hero), FoW(getPlayerTeam(hero->tempOwner)->fogOfWarMap)
+CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero)
+	: CGameInfoCallback(_gs, boost::optional<PlayerColor>()), out(_out), hero(_hero)
 {
 	assert(hero);
 	assert(hero == getHero(hero->id));
@@ -268,7 +269,7 @@ bool CPathfinder::isLayerTransitionPossible()
 
 bool CPathfinder::isMovementToDestPossible()
 {
-	switch (dp->layer)
+	switch(dp->layer)
 	{
 		case EPathfindingLayer::LAND:
 			if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
@@ -306,7 +307,7 @@ bool CPathfinder::isMovementToDestPossible()
 
 bool CPathfinder::isMovementAfterDestPossible()
 {
-	switch (dp->layer)
+	switch(dp->layer)
 	{
 		case EPathfindingLayer::LAND:
 		case EPathfindingLayer::SAIL:
@@ -382,7 +383,7 @@ bool CPathfinder::isDestinationGuardian()
 
 void CPathfinder::initializeGraph()
 {
-	auto initializeNode = [&](int3 pos, EPathfindingLayer layer, const TerrainTile *tinfo)
+	auto updateNode = [&](int3 pos, EPathfindingLayer layer, const TerrainTile *tinfo)
 	{
 		auto node = out.getNode(pos, layer);
 		node->accessible = evaluateAccessibility(pos, tinfo);
@@ -402,23 +403,21 @@ void CPathfinder::initializeGraph()
 			for(pos.z=0; pos.z < out.sizes.z; ++pos.z)
 			{
 				const TerrainTile *tinfo = &gs->map->getTile(pos);
-				switch (tinfo->terType)
+				switch(tinfo->terType)
 				{
-					case ETerrainType::WRONG:
-					case ETerrainType::BORDER:
 					case ETerrainType::ROCK:
 						break;
 					case ETerrainType::WATER:
-						initializeNode(pos, EPathfindingLayer::SAIL, tinfo);
+						updateNode(pos, EPathfindingLayer::SAIL, tinfo);
 						if(options.useFlying)
-							initializeNode(pos, EPathfindingLayer::AIR, tinfo);
+							updateNode(pos, EPathfindingLayer::AIR, tinfo);
 						if(options.useWaterWalking)
-							initializeNode(pos, EPathfindingLayer::WATER, tinfo);
+							updateNode(pos, EPathfindingLayer::WATER, tinfo);
 						break;
 					default:
-						initializeNode(pos, EPathfindingLayer::LAND, tinfo);
+						updateNode(pos, EPathfindingLayer::LAND, tinfo);
 						if(options.useFlying)
-							initializeNode(pos, EPathfindingLayer::AIR, tinfo);
+							updateNode(pos, EPathfindingLayer::AIR, tinfo);
 						break;
 				}
 			}
@@ -430,8 +429,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 &pos, c
 {
 	CGPathNode::EAccessibility ret = (tinfo->blocked ? CGPathNode::BLOCKED : CGPathNode::ACCESSIBLE);
 
-
-	if(tinfo->terType == ETerrainType::ROCK || !FoW[pos.x][pos.y][pos.z])
+	if(tinfo->terType == ETerrainType::ROCK || !isVisible(pos, hero->tempOwner))
 		return CGPathNode::BLOCKED;
 
 	if(tinfo->visitable)
@@ -513,7 +511,7 @@ bool CPathfinder::canVisitObject() const
 }
 
 CGPathNode::CGPathNode()
-:coord(-1,-1,-1)
+	: coord(-1,-1,-1)
 {
 	accessible = NOT_SET;
 	land = 0;
@@ -538,7 +536,7 @@ int3 CGPath::endPos() const
 	return nodes[0].coord;
 }
 
-void CGPath::convert( ui8 mode )
+void CGPath::convert(ui8 mode)
 {
 	if(mode==0)
 	{
@@ -549,8 +547,8 @@ void CGPath::convert( ui8 mode )
 	}
 }
 
-CPathsInfo::CPathsInfo( const int3 &Sizes )
-:sizes(Sizes)
+CPathsInfo::CPathsInfo(const int3 &Sizes)
+	: sizes(Sizes)
 {
 	hero = nullptr;
 	nodes = new CGPathNode***[sizes.x];

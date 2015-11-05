@@ -95,7 +95,6 @@ private:
 
 	CPathsInfo &out;
 	const CGHeroInstance *hero;
-	const std::vector<std::vector<std::vector<ui8> > > &FoW;
 
 	std::list<CGPathNode*> mq; //BFS queue -> nodes to be checked
 
