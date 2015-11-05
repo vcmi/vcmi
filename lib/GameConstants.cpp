@@ -132,7 +132,7 @@ std::ostream & operator<<(std::ostream & os, const Battle::ActionType actionType
 	else return os << it->second;
 }
 
-std::ostream & operator<<(std::ostream & os, const ETerrainType actionType)
+std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType)
 {
 	static const std::map<ETerrainType::EETerrainType, std::string> terrainTypeToString =
 	{
@@ -149,9 +149,10 @@ std::ostream & operator<<(std::ostream & os, const ETerrainType actionType)
 		DEFINE_ELEMENT(LAVA),
 		DEFINE_ELEMENT(WATER),
 		DEFINE_ELEMENT(ROCK)
+	#undef DEFINE_ELEMENT
 	};
 
-	auto it = terrainTypeToString.find(actionType.num);
+	auto it = terrainTypeToString.find(terrainType.num);
 	if (it == terrainTypeToString.end()) return os << "<Unknown type>";
 	else return os << it->second;
 }
@@ -163,9 +164,9 @@ std::string ETerrainType::toString() const
 	return ss.str();
 }
 
-std::ostream & operator<<(std::ostream & os, const EPathfindingLayer actionType)
+std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfindingLayer)
 {
-	static const std::map<EPathfindingLayer::EEPathfindingLayer, std::string> pathfinderLayerToString =
+	static const std::map<EPathfindingLayer::EEPathfindingLayer, std::string> pathfinderLayerToString
 	{
 	#define DEFINE_ELEMENT(element) {EPathfindingLayer::element, #element}
 		DEFINE_ELEMENT(WRONG),
@@ -175,17 +176,10 @@ std::ostream & operator<<(std::ostream & os, const EPathfindingLayer actionType)
 		DEFINE_ELEMENT(WATER),
 		DEFINE_ELEMENT(AIR),
 		DEFINE_ELEMENT(NUM_LAYERS)
-
+	#undef DEFINE_ELEMENT
 	};
 
-	auto it = pathfinderLayerToString.find(actionType.num);
+	auto it = pathfinderLayerToString.find(pathfindingLayer.num);
 	if (it == pathfinderLayerToString.end()) return os << "<Unknown type>";
 	else return os << it->second;
-}
-
-std::string EPathfindingLayer::toString() const
-{
-	std::stringstream ss;
-	ss << *this;
-	return ss.str();
 }

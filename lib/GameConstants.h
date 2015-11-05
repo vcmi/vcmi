@@ -741,7 +741,7 @@ public:
 	std::string toString() const;
 };
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType actionType);
+DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType);
 
 ID_LIKE_OPERATORS_DECLS(ETerrainType, ETerrainType::EETerrainType)
 
@@ -759,11 +759,9 @@ public:
 	ID_LIKE_CLASS_COMMON(EPathfindingLayer, EEPathfindingLayer)
 
 	EEPathfindingLayer num;
-
-	std::string toString() const;
 };
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EPathfindingLayer actionType);
+DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfindingLayer);
 
 ID_LIKE_OPERATORS_DECLS(EPathfindingLayer, EPathfindingLayer::EEPathfindingLayer)
 
