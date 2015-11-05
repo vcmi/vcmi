@@ -315,7 +315,13 @@ bool CPathfinder::isMovementAfterDestPossible()
 			if(dp->coord == out.hpos)
 				return true; // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation
 			if(dp->accessible == CGPathNode::VISITABLE && CGTeleport::isTeleport(dt->topVisitableObj()))
-				return true; // For now we'll always allow transit for teleporters
+			{
+				/// For now we'll always allow transit over teleporters
+				/// Transit over whirlpools only allowed when hero protected
+				auto whirlpool = dynamic_cast<const CGWhirlpool *>(dt->topVisitableObj());
+				if(!whirlpool || options.useTeleportWhirlpool)
+					return true;
+			}
 			if(useEmbarkCost && options.useEmbarkAndDisembark)
 				return true;
 			break;
