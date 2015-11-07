@@ -668,8 +668,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 		}
 		if (map->version == EMapFormat::ROE)
 		{
-			// Armageddon's Blade
-			map->allowedArtifact[128] = false;
+			map->allowedArtifact[ArtifactID::ARMAGEDDONS_BLADE] = false;
 		}
 	}
 
