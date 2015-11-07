@@ -71,16 +71,13 @@ public:
 struct CasualtiesAfterBattle
 {
 	typedef std::pair<StackLocation, int> TStackAndItsNewCount;
-	typedef std::map<CreatureID, TQuantity> TSummoned;
 	enum {ERASE = -1};
-	const CArmedInstance * army;
 	std::vector<TStackAndItsNewCount> newStackCounts;
 	std::vector<ArtifactLocation> removedWarMachines;
-	TSummoned summoned;
-	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack locations
+	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack loactions
 
-	CasualtiesAfterBattle(const CArmedInstance * _army, BattleInfo *bat);
-	void updateArmy(CGameHandler *gh);
+	CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat);
+	void takeFromArmy(CGameHandler *gh);
 };
 
 class CGameHandler : public IGameCallback, CBattleInfoCallback
