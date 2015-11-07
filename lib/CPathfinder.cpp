@@ -393,14 +393,9 @@ void CPathfinder::initializeGraph()
 	auto updateNode = [&](int3 pos, EPathfindingLayer layer, const TerrainTile *tinfo)
 	{
 		auto node = out.getNode(pos, layer);
-		node->locked = false;
+		node->reset();
 		node->accessible = evaluateAccessibility(pos, tinfo);
-		node->turns = 0xff;
-		node->moveRemains = 0;
-		node->coord = pos;
 		node->land = tinfo->terType != ETerrainType::WATER;
-		node->theNodeBefore = nullptr;
-		node->layer = layer;
 	};
 
 	int3 pos;
@@ -520,6 +515,11 @@ bool CPathfinder::canVisitObject() const
 
 CGPathNode::CGPathNode(int3 Coord, EPathfindingLayer Layer)
 	: coord(Coord), layer(Layer)
+{
+	reset();
+}
+
+void CGPathNode::reset()
 {
 	locked = false;
 	accessible = NOT_SET;

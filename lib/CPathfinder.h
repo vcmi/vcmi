@@ -42,6 +42,7 @@ struct DLL_LINKAGE CGPathNode
 	EPathfindingLayer layer;
 
 	CGPathNode(int3 Coord, EPathfindingLayer Layer);
+	void reset();
 	bool reachable() const;
 };
 
