@@ -84,12 +84,13 @@ void CPathfinder::calculatePaths()
 	CGPathNode *initialNode = out.getNode(out.hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
 	initialNode->turns = 0;
 	initialNode->moveRemains = hero->movement;
-	mq.push_back(initialNode);
+	pq.push(initialNode);
 
-	while(!mq.empty())
+	while(!pq.empty())
 	{
-		cp = mq.front();
-		mq.pop_front();
+		cp = pq.top();
+		pq.pop();
+		cp->locked = true;
 
 		int movement = cp->moveRemains, turn = cp->turns;
 		if(!movement)
@@ -108,6 +109,9 @@ void CPathfinder::calculatePaths()
 				useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
 				dp = out.getNode(neighbour, i);
 				if(dp->accessible == CGPathNode::NOT_SET)
+					continue;
+
+				if(dp->locked)
 					continue;
 
 				if(cp->layer != i && !isLayerTransitionPossible())
@@ -142,7 +146,7 @@ void CPathfinder::calculatePaths()
 					dp->theNodeBefore = cp;
 
 					if(isMovementAfterDestPossible())
-						mq.push_back(dp);
+						pq.push(dp);
 				}
 			}
 		} //neighbours loop
@@ -154,12 +158,15 @@ void CPathfinder::calculatePaths()
 			for(auto & neighbour : neighbours)
 			{
 				dp = out.getNode(neighbour, cp->layer);
+				if(dp->locked)
+					continue;
+
 				if(isBetterWay(movement, turn))
 				{
 					dp->moveRemains = movement;
 					dp->turns = turn;
 					dp->theNodeBefore = cp;
-					mq.push_back(dp);
+					pq.push(dp);
 				}
 			}
 		}
@@ -386,6 +393,7 @@ void CPathfinder::initializeGraph()
 	auto updateNode = [&](int3 pos, EPathfindingLayer layer, const TerrainTile *tinfo)
 	{
 		auto node = out.getNode(pos, layer);
+		node->locked = false;
 		node->accessible = evaluateAccessibility(pos, tinfo);
 		node->turns = 0xff;
 		node->moveRemains = 0;
@@ -513,6 +521,7 @@ bool CPathfinder::canVisitObject() const
 CGPathNode::CGPathNode()
 	: coord(-1,-1,-1)
 {
+	locked = false;
 	accessible = NOT_SET;
 	land = 0;
 	moveRemains = 0;

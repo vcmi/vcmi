@@ -5,6 +5,8 @@
 #include "IGameCallback.h"
 #include "int3.h"
 
+#include <boost/heap/priority_queue.hpp>
+
 /*
  * CPathfinder.h, part of VCMI engine
  *
@@ -30,6 +32,7 @@ struct DLL_LINKAGE CGPathNode
 		BLOCKED //tile can't be entered nor visited
 	};
 
+	bool locked;
 	EAccessibility accessible;
 	ui8 land;
 	ui8 turns; //how many turns we have to wait before reachng the tile - 0 means current turn
@@ -96,7 +99,19 @@ private:
 	CPathsInfo &out;
 	const CGHeroInstance *hero;
 
-	std::list<CGPathNode*> mq; //BFS queue -> nodes to be checked
+	struct NodeComparer
+	{
+		bool operator()(const CGPathNode * lhs, const CGPathNode * rhs) const
+		{
+			if(rhs->turns > lhs->turns)
+				return false;
+			else if(rhs->turns == lhs->turns && rhs->moveRemains < lhs->moveRemains)
+				return false;
+
+			return true;
+		}
+	};
+	boost::heap::priority_queue<CGPathNode *, boost::heap::compare<NodeComparer> > pq;
 
 	std::vector<int3> neighbours;
 
