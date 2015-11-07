@@ -23,6 +23,17 @@ struct TerrainTile;
 
 struct DLL_LINKAGE CGPathNode
 {
+	enum ENodeAction
+	{
+		UNKNOWN = -1,
+		NORMAL = 0,
+		EMBARK = 1,
+		DISEMBARK, //2
+		BATTLE,//3
+		VISIT,//4
+		BLOCKING_VISIT//5
+	};
+
 	enum EAccessibility
 	{
 		NOT_SET = 0,
@@ -40,6 +51,7 @@ struct DLL_LINKAGE CGPathNode
 	CGPathNode * theNodeBefore;
 	int3 coord; //coordinates
 	EPathfindingLayer layer;
+	ENodeAction action;
 
 	CGPathNode(int3 Coord, EPathfindingLayer Layer);
 	void reset();
@@ -120,7 +132,7 @@ private:
 	CGPathNode *dp; //destination node -> it's a neighbour of cp that we consider
 	const TerrainTile *ct, *dt; //tile info for both nodes
 	const CGObjectInstance *sTileObj;
-	ui8 useEmbarkCost; //0 - usual movement; 1 - embark; 2 - disembark
+	CGPathNode::ENodeAction destAction;
 
 	void addNeighbours(const int3 &coord);
 	void addTeleportExits(bool noTeleportExcludes = false);

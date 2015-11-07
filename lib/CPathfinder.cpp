@@ -106,7 +106,6 @@ void CPathfinder::calculatePaths()
 			dt = &gs->map->getTile(neighbour);
 			for(EPathfindingLayer i = EPathfindingLayer::LAND; i <= EPathfindingLayer::AIR; i.advance(1))
 			{
-				useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
 				dp = out.getNode(neighbour, i);
 				if(dp->accessible == CGPathNode::NOT_SET)
 					continue;
@@ -117,14 +116,15 @@ void CPathfinder::calculatePaths()
 				if(cp->layer != i && !isLayerTransitionPossible())
 					continue;
 
+				destAction = CGPathNode::UNKNOWN;
 				if(!isMovementToDestPossible())
 					continue;
 
 				int cost = gs->getMovementCost(hero, cp->coord, dp->coord, movement);
 				int remains = movement - cost;
-				if(useEmbarkCost)
+				if(destAction == CGPathNode::EMBARK || destAction == CGPathNode::DISEMBARK)
 				{
-					remains = hero->movementPointsAfterEmbark(movement, cost, useEmbarkCost - 1);
+					remains = hero->movementPointsAfterEmbark(movement, cost, destAction - 1);
 					cost = movement - remains;
 				}
 
@@ -144,6 +144,7 @@ void CPathfinder::calculatePaths()
 					dp->moveRemains = remains;
 					dp->turns = turnAtNextTile;
 					dp->theNodeBefore = cp;
+					dp->action = destAction;
 
 					if(isMovementAfterDestPossible())
 						pq.push(dp);
@@ -166,6 +167,7 @@ void CPathfinder::calculatePaths()
 					dp->moveRemains = movement;
 					dp->turns = turn;
 					dp->theNodeBefore = cp;
+					dp->action = CGPathNode::NORMAL;
 					pq.push(dp);
 				}
 			}
@@ -258,24 +260,18 @@ bool CPathfinder::isLayerTransitionPossible()
 		if((dp->accessible != CGPathNode::ACCESSIBLE && (dp->accessible != CGPathNode::BLOCKVIS || dt->blocked))
 			|| dt->visitable)  //TODO: passableness problem -> town says it's passable (thus accessible) but we obviously can't disembark onto town gate
 			return false;
-
-		useEmbarkCost = 2;
 	}
 	else if(cp->layer == EPathfindingLayer::LAND && dp->layer == EPathfindingLayer::SAIL)
 	{
-		Obj destTopVisObjID = dt->topVisitableId();
-		if(dp->accessible == CGPathNode::ACCESSIBLE || destTopVisObjID < 0) //cannot enter empty water tile from land -> it has to be visitable
+		if(dp->accessible == CGPathNode::ACCESSIBLE) //cannot enter empty water tile from land -> it has to be visitable
 			return false;
-		if(destTopVisObjID != Obj::HERO && destTopVisObjID != Obj::BOAT) //only boat or hero can be accessed from land
-			return false;
-		if(destTopVisObjID == Obj::BOAT)
-			useEmbarkCost = 1;
 	}
 	return true;
 }
 
 bool CPathfinder::isMovementToDestPossible()
 {
+	auto obj = dt->topVisitableObj();
 	switch(dp->layer)
 	{
 		case EPathfindingLayer::LAND:
@@ -284,6 +280,9 @@ bool CPathfinder::isMovementToDestPossible()
 			if(isSourceGuarded() && !isDestinationGuardian()) // Can step into tile of guard
 				return false;
 
+			if(cp->layer == EPathfindingLayer::SAIL)
+				destAction = CGPathNode::DISEMBARK;
+
 			break;
 		case EPathfindingLayer::SAIL:
 			if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
@@ -291,6 +290,16 @@ bool CPathfinder::isMovementToDestPossible()
 			if(isSourceGuarded() && !isDestinationGuardian()) // Can step into tile of guard
 				return false;
 
+			if(cp->layer == EPathfindingLayer::LAND)
+			{
+				if(!obj)
+					return false;
+
+				if(obj->ID == Obj::BOAT)
+					destAction = CGPathNode::EMBARK;
+				else if(obj->ID != Obj::HERO)
+					return false;
+			}
 			break;
 
 		case EPathfindingLayer::AIR:
@@ -308,6 +317,29 @@ bool CPathfinder::isMovementToDestPossible()
 			break;
 	}
 
+	if(destAction == CGPathNode::UNKNOWN)
+	{
+		destAction = CGPathNode::NORMAL;
+		if(dp->layer == EPathfindingLayer::LAND || dp->layer == EPathfindingLayer::SAIL)
+		{
+			if(obj)
+			{
+				if(obj->ID == Obj::HERO || obj->ID == Obj::TOWN)
+				{
+					if(getPlayerRelations(obj->tempOwner, hero->tempOwner) == PlayerRelations::ENEMIES)
+						destAction = CGPathNode::BATTLE;
+					else
+						destAction = CGPathNode::BLOCKING_VISIT; // TODO: Probably you should be able to go into air from town too
+				}
+				else if(obj->blockVisit)
+					destAction = CGPathNode::BLOCKING_VISIT;
+				else
+					destAction = CGPathNode::VISIT;
+			}
+			else if(isDestinationGuarded())
+				destAction = CGPathNode::BATTLE;
+		}
+	}
 
 	return true;
 }
@@ -330,7 +362,7 @@ bool CPathfinder::isMovementAfterDestPossible()
 				if(!whirlpool || options.useTeleportWhirlpool)
 					return true;
 			}
-			if(useEmbarkCost && options.useEmbarkAndDisembark)
+			if((destAction == CGPathNode::EMBARK || destAction == CGPathNode::DISEMBARK) && options.useEmbarkAndDisembark)
 				return true;
 			break;
 
@@ -527,6 +559,7 @@ void CGPathNode::reset()
 	moveRemains = 0;
 	turns = 255;
 	theNodeBefore = nullptr;
+	action = UNKNOWN;
 }
 
 bool CGPathNode::reachable() const
