@@ -445,7 +445,7 @@ namespace EBattleStackState
 		//remember to drain mana only once per turn
 		DRAINED_MANA,
 		//only for defending animation
-		DEFENDING_ANI
+		DEFENDING_ANIM
 	};
 }
 
