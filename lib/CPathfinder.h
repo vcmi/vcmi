@@ -41,7 +41,7 @@ struct DLL_LINKAGE CGPathNode
 	int3 coord; //coordinates
 	EPathfindingLayer layer;
 
-	CGPathNode();
+	CGPathNode(int3 Coord, EPathfindingLayer Layer);
 	bool reachable() const;
 };
 
@@ -61,7 +61,7 @@ struct DLL_LINKAGE CPathsInfo
 	const CGHeroInstance *hero;
 	int3 hpos;
 	int3 sizes;
-	CGPathNode ****nodes; //[w][h][level][layer]
+	boost::multi_array<CGPathNode *, 4> nodes; //[w][h][level][layer]
 
 	CPathsInfo(const int3 &Sizes);
 	~CPathsInfo();

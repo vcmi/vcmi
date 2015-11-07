@@ -518,8 +518,8 @@ bool CPathfinder::canVisitObject() const
 	return cp->layer == EPathfindingLayer::LAND || cp->layer == EPathfindingLayer::SAIL;
 }
 
-CGPathNode::CGPathNode()
-	: coord(-1,-1,-1)
+CGPathNode::CGPathNode(int3 Coord, EPathfindingLayer Layer)
+	: coord(Coord), layer(Layer)
 {
 	locked = false;
 	accessible = NOT_SET;
@@ -527,7 +527,6 @@ CGPathNode::CGPathNode()
 	moveRemains = 0;
 	turns = 255;
 	theNodeBefore = nullptr;
-	layer = EPathfindingLayer::WRONG;
 }
 
 bool CGPathNode::reachable() const
@@ -560,36 +559,16 @@ CPathsInfo::CPathsInfo(const int3 &Sizes)
 	: sizes(Sizes)
 {
 	hero = nullptr;
-	nodes = new CGPathNode***[sizes.x];
+	nodes.resize(boost::extents[sizes.x][sizes.y][sizes.z][EPathfindingLayer::NUM_LAYERS]);
 	for(int i = 0; i < sizes.x; i++)
-	{
-		nodes[i] = new CGPathNode**[sizes.y];
 		for(int j = 0; j < sizes.y; j++)
-		{
-			nodes[i][j] = new CGPathNode*[sizes.z];
-			for (int z = 0; z < sizes.z; z++)
-			{
-				nodes[i][j][z] = new CGPathNode[EPathfindingLayer::NUM_LAYERS];
-			}
-		}
-	}
+			for(int z = 0; z < sizes.z; z++)
+				for(int l = 0; l < EPathfindingLayer::NUM_LAYERS; l++)
+					nodes[i][j][z][l] = new CGPathNode(int3(i, j, z), static_cast<EPathfindingLayer>(l));
 }
 
 CPathsInfo::~CPathsInfo()
 {
-	for(int i = 0; i < sizes.x; i++)
-	{
-		for(int j = 0; j < sizes.y; j++)
-		{
-			for (int z = 0; z < sizes.z; z++)
-			{
-				delete [] nodes[i][j][z];
-			}
-			delete [] nodes[i][j];
-		}
-		delete [] nodes[i];
-	}
-	delete [] nodes;
 }
 
 const CGPathNode * CPathsInfo::getPathInfo(const int3 &tile, const EPathfindingLayer &layer) const
@@ -633,11 +612,11 @@ int CPathsInfo::getDistance(const int3 &tile, const EPathfindingLayer &layer) co
 CGPathNode *CPathsInfo::getNode(const int3 &coord, const EPathfindingLayer &layer) const
 {
 	if(layer != EPathfindingLayer::AUTO)
-		return &nodes[coord.x][coord.y][coord.z][layer];
+		return nodes[coord.x][coord.y][coord.z][layer];
 
-	auto landNode = &nodes[coord.x][coord.y][coord.z][EPathfindingLayer::LAND];
+	auto landNode = nodes[coord.x][coord.y][coord.z][EPathfindingLayer::LAND];
 	if(landNode->theNodeBefore)
 		return landNode;
 	else
-		return &nodes[coord.x][coord.y][coord.z][EPathfindingLayer::SAIL];
+		return nodes[coord.x][coord.y][coord.z][EPathfindingLayer::SAIL];
 }
