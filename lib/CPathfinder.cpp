@@ -363,31 +363,31 @@ bool CPathfinder::isMovementToDestPossible()
 
 bool CPathfinder::isMovementAfterDestPossible()
 {
-	switch(dp->layer)
+	switch(destAction)
 	{
-		case EPathfindingLayer::LAND:
-		case EPathfindingLayer::SAIL:
-			if(dp->accessible == CGPathNode::ACCESSIBLE)
+	/// TODO: Investigate what kind of limitation is possible to apply on movement from visitable tiles
+	/// Likely in many cases we don't need to add visitable tile to queue when hero don't fly
+	case CGPathNode::VISIT:
+		if(CGTeleport::isTeleport(dt->topVisitableObj()))
+		{
+			/// For now we'll always allow transit over teleporters
+			/// Transit over whirlpools only allowed when hero protected
+			auto whirlpool = dynamic_cast<const CGWhirlpool *>(dt->topVisitableObj());
+			if(!whirlpool || options.useTeleportWhirlpool)
 				return true;
-			if(dp->coord == out.hpos)
-				return true; // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation
-			if(dp->accessible == CGPathNode::VISITABLE && CGTeleport::isTeleport(dt->topVisitableObj()))
-			{
-				/// For now we'll always allow transit over teleporters
-				/// Transit over whirlpools only allowed when hero protected
-				auto whirlpool = dynamic_cast<const CGWhirlpool *>(dt->topVisitableObj());
-				if(!whirlpool || options.useTeleportWhirlpool)
-					return true;
-			}
-			if((destAction == CGPathNode::EMBARK || destAction == CGPathNode::DISEMBARK) && options.useEmbarkAndDisembark)
-				return true;
-			break;
+		}
+		else
+			return true;
+	case CGPathNode::NORMAL:
+		return true;
 
-		case EPathfindingLayer::AIR:
-		case EPathfindingLayer::WATER:
-				return true;
+	case CGPathNode::EMBARK:
+		if(options.useEmbarkAndDisembark)
+			return true;
 
-			break;
+	case CGPathNode::DISEMBARK:
+		if(options.useEmbarkAndDisembark && !isDestinationGuarded())
+			return true;
 	}
 
 	return false;
