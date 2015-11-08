@@ -23,6 +23,8 @@ struct TerrainTile;
 
 struct DLL_LINKAGE CGPathNode
 {
+	typedef EPathfindingLayer ELayer;
+
 	enum ENodeAction
 	{
 		UNKNOWN = -1,
@@ -49,10 +51,10 @@ struct DLL_LINKAGE CGPathNode
 	ui32 moveRemains; //remaining tiles after hero reaches the tile
 	CGPathNode * theNodeBefore;
 	int3 coord; //coordinates
-	EPathfindingLayer layer;
+	ELayer layer;
 	ENodeAction action;
 
-	CGPathNode(int3 Coord, EPathfindingLayer Layer);
+	CGPathNode(int3 Coord, ELayer Layer);
 	void reset();
 	bool reachable() const;
 };
@@ -68,6 +70,8 @@ struct DLL_LINKAGE CGPath
 
 struct DLL_LINKAGE CPathsInfo
 {
+	typedef EPathfindingLayer ELayer;
+
 	mutable boost::mutex pathMx;
 
 	const CGHeroInstance *hero;
@@ -77,10 +81,10 @@ struct DLL_LINKAGE CPathsInfo
 
 	CPathsInfo(const int3 &Sizes);
 	~CPathsInfo();
-	const CGPathNode * getPathInfo(const int3 &tile, const EPathfindingLayer &layer = EPathfindingLayer::AUTO) const;
-	bool getPath(CGPath &out, const int3 &dst, const EPathfindingLayer &layer = EPathfindingLayer::AUTO) const;
-	int getDistance(const int3 &tile, const EPathfindingLayer &layer = EPathfindingLayer::AUTO) const;
-	CGPathNode *getNode(const int3 &coord, const EPathfindingLayer &layer) const;
+	const CGPathNode * getPathInfo(const int3 &tile, const ELayer &layer = ELayer::AUTO) const;
+	bool getPath(CGPath &out, const int3 &dst, const ELayer &layer = ELayer::AUTO) const;
+	int getDistance(const int3 &tile, const ELayer &layer = ELayer::AUTO) const;
+	CGPathNode *getNode(const int3 &coord, const ELayer &layer) const;
 };
 
 class CPathfinder : private CGameInfoCallback
@@ -90,6 +94,8 @@ public:
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 
 private:
+	typedef EPathfindingLayer ELayer;
+
 	struct PathfinderOptions
 	{
 		bool useFlying;
