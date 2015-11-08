@@ -1961,7 +1961,8 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 			{
 				InfoWindow iw;
 				iw.player = oldOwner;
-				iw.text.addTxt (MetaString::GENERAL_TXT, 6); //%s, you have lost your last town.  If you do not conquer another town in the next week, you will be eliminated.
+				iw.text.addTxt(MetaString::GENERAL_TXT, 6); //%s, you have lost your last town. If you do not conquer another town in the next week, you will be eliminated.
+				iw.text.addReplacement(MetaString::COLOR, oldOwner.getNum());
 				sendAndApply(&iw);
 			}
 		}
