@@ -1467,7 +1467,8 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 
 void CAdvMapInt::tileHovered(const int3 &mapPos)
 {
-	if(mode != EAdvMapMode::NORMAL)
+	if(mode != EAdvMapMode::NORMAL //disable in world view
+		|| !selection) //may occur just at the start of game (fake move before full intiialization)
 		return;
 	if(!LOCPLINT->cb->isVisible(mapPos))
 	{
@@ -1475,9 +1476,8 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		statusbar.clear();
 		return;
 	}
-	const CGObjectInstance *objAtTile = getActiveObject(mapPos);
-
 	auto objRelations = PlayerRelations::ALLIES;
+	const CGObjectInstance *objAtTile = getActiveObject(mapPos);
 	if(objAtTile)
 	{
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
@@ -1492,9 +1492,6 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		statusbar.setText(hlp);
 	}
 
-	if(!selection) //may occur just at the start of game (fake move before full intiialization)
-		return;
-
 	if(spellBeingCasted)
 	{
 		switch(spellBeingCasted->id)
@@ -1507,9 +1504,9 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 			return;
 		case SpellID::DIMENSION_DOOR:
 			{
-				const TerrainTile *t = LOCPLINT->cb->getTile(mapPos, false);
+				const TerrainTile * t = LOCPLINT->cb->getTile(mapPos, false);
 				int3 hpos = selection->getSightCenter();
-				if((!t  ||  t->isClear(LOCPLINT->cb->getTile(hpos)))   &&   isInScreenRange(hpos, mapPos))
+				if((!t || t->isClear(LOCPLINT->cb->getTile(hpos))) && isInScreenRange(hpos, mapPos))
 					CCS->curh->changeGraphic(ECursor::ADVENTURE, 41);
 				else
 					CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
@@ -1522,9 +1519,9 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	{
 		if(objAtTile)
 		{
-			if(objAtTile->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner) != PlayerRelations::ENEMIES)
+			if(objAtTile->ID == Obj::TOWN && objRelations != PlayerRelations::ENEMIES)
 				CCS->curh->changeGraphic(ECursor::ADVENTURE, 3);
-			else if(objAtTile->ID == Obj::HERO && objAtTile->tempOwner == LOCPLINT->playerID)
+			else if(objAtTile->ID == Obj::HERO && objRelations == PlayerRelations::SAME_PLAYER)
 				CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
 			else
 				CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
@@ -1532,7 +1529,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		else
 			CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 	}
-	else if(const CGHeroInstance *h = curHero())
+	else if(const CGHeroInstance * h = curHero())
 	{
 		const CGPathNode * pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPos);
 		int turns = pnode->turns;
@@ -1577,13 +1574,9 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 			if(objAtTile && objRelations != PlayerRelations::ENEMIES)
 			{
 				if(objAtTile->ID == Obj::TOWN)
-				{
 					CCS->curh->changeGraphic(ECursor::ADVENTURE, 3);
-				}
 				else if(objAtTile->ID == Obj::HERO && objRelations == PlayerRelations::SAME_PLAYER)
-				{
 					CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
-				}
 			}
 			else
 				CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
