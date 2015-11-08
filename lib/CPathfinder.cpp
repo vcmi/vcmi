@@ -29,6 +29,7 @@ CPathfinder::PathfinderOptions::PathfinderOptions()
 	useTeleportWhirlpool = false;
 
 	lightweightFlyingMode = false;
+	oneTurnSpecialLayersLimit = true;
 }
 
 CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero)
@@ -64,6 +65,19 @@ void CPathfinder::calculatePaths()
 	auto maxMovePoints = [&](CGPathNode *cp) -> int
 	{
 		return cp->layer == EPathfindingLayer::SAIL ? maxMovePointsWater : maxMovePointsLand;
+	};
+
+	auto passOneTurnLimitCheck = [&](bool shouldCheck) -> bool
+	{
+		if(options.oneTurnSpecialLayersLimit && shouldCheck)
+		{
+			if((cp->layer == EPathfindingLayer::AIR || cp->layer == EPathfindingLayer::WATER)
+				&& cp->accessible != CGPathNode::ACCESSIBLE)
+			{
+				return false;
+			}
+		}
+		return true;
 	};
 
 	auto isBetterWay = [&](int remains, int turn) -> bool
@@ -113,8 +127,12 @@ void CPathfinder::calculatePaths()
 				if(dp->locked)
 					continue;
 
+				if(!passOneTurnLimitCheck(cp->turns != turn))
+					continue;
+
 				if(cp->layer != i && !isLayerTransitionPossible())
 					continue;
+
 
 				destAction = CGPathNode::UNKNOWN;
 				if(!isMovementToDestPossible())
@@ -127,7 +145,6 @@ void CPathfinder::calculatePaths()
 					remains = hero->movementPointsAfterEmbark(movement, cost, destAction - 1);
 					cost = movement - remains;
 				}
-
 				int turnAtNextTile = turn;
 				if(remains < 0)
 				{
@@ -138,7 +155,8 @@ void CPathfinder::calculatePaths()
 					remains = moveAtNextTile - cost;
 				}
 
-				if(isBetterWay(remains, turnAtNextTile))
+				if(isBetterWay(remains, turnAtNextTile)
+					&& passOneTurnLimitCheck(cp->turns != turnAtNextTile || !remains))
 				{
 					assert(dp != cp->theNodeBefore); //two tiles can't point to each other
 					dp->moveRemains = remains;
@@ -439,11 +457,16 @@ bool CPathfinder::isDestinationGuardian()
 
 void CPathfinder::initializeGraph()
 {
-	auto updateNode = [&](int3 pos, EPathfindingLayer layer, const TerrainTile *tinfo)
+	auto updateNode = [&](int3 pos, EPathfindingLayer layer, const TerrainTile *tinfo, bool blockNotAccessible)
 	{
 		auto node = out.getNode(pos, layer);
 		node->reset();
-		node->accessible = evaluateAccessibility(pos, tinfo);
+
+		auto accessibility = evaluateAccessibility(pos, tinfo);
+		if(blockNotAccessible
+			&& (accessibility != CGPathNode::ACCESSIBLE || tinfo->terType == ETerrainType::WATER))
+			accessibility = CGPathNode::BLOCKED;
+		node->accessible = accessibility;
 	};
 
 	int3 pos;
@@ -459,16 +482,16 @@ void CPathfinder::initializeGraph()
 					case ETerrainType::ROCK:
 						break;
 					case ETerrainType::WATER:
-						updateNode(pos, EPathfindingLayer::SAIL, tinfo);
+						updateNode(pos, EPathfindingLayer::SAIL, tinfo, false);
 						if(options.useFlying)
-							updateNode(pos, EPathfindingLayer::AIR, tinfo);
+							updateNode(pos, EPathfindingLayer::AIR, tinfo, true);
 						if(options.useWaterWalking)
-							updateNode(pos, EPathfindingLayer::WATER, tinfo);
+							updateNode(pos, EPathfindingLayer::WATER, tinfo, true);
 						break;
 					default:
-						updateNode(pos, EPathfindingLayer::LAND, tinfo);
+						updateNode(pos, EPathfindingLayer::LAND, tinfo, false);
 						if(options.useFlying)
-							updateNode(pos, EPathfindingLayer::AIR, tinfo);
+							updateNode(pos, EPathfindingLayer::AIR, tinfo, true);
 						break;
 				}
 			}

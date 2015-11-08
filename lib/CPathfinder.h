@@ -105,6 +105,13 @@ private:
 		/// Downside is less MP effective paths calculation.
 		bool lightweightFlyingMode;
 
+		/// This option enable one turn limitation for flying and water walking.
+		/// So if we're out of MP while cp is blocked or water tile we won't add dest tile to queue.
+		///
+		/// Following imitation is default H3 mechanics, but someone may want to disable it in mods.
+		/// After all this limit should benefit performance on maps with tons of water or blocked tiles.
+		bool oneTurnSpecialLayersLimit;
+
 		PathfinderOptions();
 	} options;
 
