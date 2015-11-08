@@ -2164,8 +2164,11 @@ void CGameState::apply(CPack *pack)
 
 void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
 {
+	if(pathfinderWorking)
+		pathfinderWorking->interrupt();
+
 	CPathfinder pathfinder(out, this, hero);
-	pathfinder.calculatePaths();
+	pathfinderWorking = make_unique<boost::thread>(&CPathfinder::startPathfinder, pathfinder);
 }
 
 /**
