@@ -324,16 +324,33 @@ bool CPathfinder::isMovementToDestPossible()
 		{
 			if(obj)
 			{
-				if(obj->ID == Obj::HERO || obj->ID == Obj::TOWN)
+				auto objRel = getPlayerRelations(obj->tempOwner, hero->tempOwner);
+				if(obj->ID == Obj::HERO)
 				{
-					if(getPlayerRelations(obj->tempOwner, hero->tempOwner) == PlayerRelations::ENEMIES)
+					if(objRel == PlayerRelations::ENEMIES)
 						destAction = CGPathNode::BATTLE;
 					else
-						destAction = CGPathNode::BLOCKING_VISIT; // TODO: Probably you should be able to go into air from town too
+						destAction = CGPathNode::BLOCKING_VISIT;
 				}
+				else if(obj->ID == Obj::TOWN && objRel == PlayerRelations::ENEMIES)
+				{
+					const CGTownInstance * townObj = dynamic_cast<const CGTownInstance *>(obj);
+					if (townObj->armedGarrison())
+						destAction = CGPathNode::BATTLE;
+				}
+				else if(obj->ID == Obj::GARRISON || obj->ID == Obj::GARRISON2)
+				{
+					const CGGarrison * garrisonObj = dynamic_cast<const CGGarrison *>(obj);
+					if((garrisonObj->stacksCount() && objRel == PlayerRelations::ENEMIES) || isDestinationGuarded(true))
+						destAction = CGPathNode::BATTLE;
+				}
+				else if(isDestinationGuardian())
+					destAction = CGPathNode::BATTLE;
 				else if(obj->blockVisit)
 					destAction = CGPathNode::BLOCKING_VISIT;
-				else
+
+
+				if(destAction == CGPathNode::NORMAL)
 					destAction = CGPathNode::VISIT;
 			}
 			else if(isDestinationGuarded())
@@ -404,10 +421,10 @@ bool CPathfinder::isSourceGuarded()
 	return false;
 }
 
-bool CPathfinder::isDestinationGuarded()
+bool CPathfinder::isDestinationGuarded(bool ignoreAccessibility)
 {
 	if(gs->map->guardingCreaturePositions[dp->coord.x][dp->coord.y][dp->coord.z].valid()
-		&& dp->accessible == CGPathNode::BLOCKVIS)
+		&& (ignoreAccessibility || dp->accessible == CGPathNode::BLOCKVIS))
 	{
 		return true;
 	}

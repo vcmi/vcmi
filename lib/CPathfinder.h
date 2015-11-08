@@ -144,7 +144,7 @@ private:
 	bool isSourceInitialPosition();
 	int3 getSourceGuardPosition();
 	bool isSourceGuarded();
-	bool isDestinationGuarded();
+	bool isDestinationGuarded(bool ignoreAccessibility = true);
 	bool isDestinationGuardian();
 
 	void initializeGraph();

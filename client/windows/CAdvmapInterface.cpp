@@ -1477,8 +1477,10 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	}
 	const CGObjectInstance *objAtTile = getActiveObject(mapPos);
 
-	if (objAtTile)
+	auto objRelations = PlayerRelations::ALLIES;
+	if(objAtTile)
 	{
+		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
 		std::string text = curHero() ? objAtTile->getHoverText(curHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
 		boost::replace_all(text,"\n"," ");
 		statusbar.setText(text);
@@ -1516,8 +1518,6 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		}
 	}
 
-	const bool guardingCreature = CGI->mh->map->isInTheMap(LOCPLINT->cb->getGuardingCreaturePosition(mapPos));
-
 	if(selection->ID == Obj::TOWN)
 	{
 		if(objAtTile)
@@ -1534,125 +1534,60 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	}
 	else if(const CGHeroInstance *h = curHero())
 	{
-		const CGPathNode *pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPos);
-
+		const CGPathNode * pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPos);
 		int turns = pnode->turns;
 		vstd::amin(turns, 3);
-		bool accessible  =  pnode->turns < 255;
-
-		if(objAtTile)
+		switch(pnode->action)
 		{
+		case CGPathNode::NORMAL:
+			if(pnode->layer == EPathfindingLayer::LAND)
+				CCS->curh->changeGraphic(ECursor::ADVENTURE, 4 + turns*6);
+			else
+				CCS->curh->changeGraphic(ECursor::ADVENTURE, 28 + turns);
+			break;
+
+		case CGPathNode::VISIT:
+		case CGPathNode::BLOCKING_VISIT:
 			if(objAtTile->ID == Obj::HERO)
 			{
-				if(!LOCPLINT->cb->getPlayerRelations( LOCPLINT->playerID, objAtTile->tempOwner)) //enemy hero
-				{
-					if(accessible)
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
-					else
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
-				}
-				else //our or ally hero
-				{
-					if(selection == objAtTile)
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
-					else if(accessible)
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 8 + turns*6);
-					else
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
-				}
-			}
-			else if(objAtTile->ID == Obj::TOWN)
-			{
-				if(!LOCPLINT->cb->getPlayerRelations( LOCPLINT->playerID, objAtTile->tempOwner)) //enemy town
-				{
-					if(accessible)
-					{
-						const CGTownInstance* townObj = dynamic_cast<const CGTownInstance*>(objAtTile);
-
-						// Show movement cursor for unguarded enemy towns, otherwise attack cursor.
-						if (townObj && !townObj->armedGarrison())
-							CCS->curh->changeGraphic(ECursor::ADVENTURE, 9 + turns*6);
-						else
-							CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
-
-					}
-					else
-					{
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
-					}
-				}
-				else //our or ally town
-				{
-					if(accessible)
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 9 + turns*6);
-					else
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 3);
-				}
-			}
-			else if(objAtTile->ID == Obj::BOAT)
-			{
-				if(accessible)
-					CCS->curh->changeGraphic(ECursor::ADVENTURE, 6 + turns*6);
+				if(selection == objAtTile)
+					CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
 				else
-					CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+					CCS->curh->changeGraphic(ECursor::ADVENTURE, 8 + turns*6);
 			}
-			else if (objAtTile->ID == Obj::GARRISON || objAtTile->ID == Obj::GARRISON2)
-			{
-				if (accessible)
-				{
-					const CGGarrison* garrObj = dynamic_cast<const CGGarrison*>(objAtTile); //TODO evil evil cast!
-
-					// Show battle cursor for guarded enemy garrisons or garrisons have guarding creature behind, otherwise movement cursor.
-					if (garrObj  &&  ((garrObj->stacksCount()
-						&& !LOCPLINT->cb->getPlayerRelations( LOCPLINT->playerID, garrObj->tempOwner))
-						|| guardingCreature))
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
-					else
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 9 + turns*6);
-				}
-				else
-					CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
-			}
-			else if (guardingCreature && accessible) //(objAtTile->ID == 54) //monster
-			{
-				CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
-			}
+			else if(pnode->layer == EPathfindingLayer::LAND)
+				CCS->curh->changeGraphic(ECursor::ADVENTURE, 9 + turns*6);
 			else
+				CCS->curh->changeGraphic(ECursor::ADVENTURE, 28 + turns);
+			break;
+
+		case CGPathNode::BATTLE:
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
+			break;
+
+		case CGPathNode::EMBARK:
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 6 + turns*6);
+			break;
+
+		case CGPathNode::DISEMBARK:
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 7 + turns*6);
+			break;
+
+		default:
+			if(objAtTile && objRelations != PlayerRelations::ENEMIES)
 			{
-				if(accessible)
+				if(objAtTile->ID == Obj::TOWN)
 				{
-					if(pnode->land)
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 9 + turns*6);
-					else
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 28 + turns);
+					CCS->curh->changeGraphic(ECursor::ADVENTURE, 3);
 				}
-				else
-					CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
-			}
-		}
-		else //no objs
-		{
-			if(accessible/* && pnode->accessible != CGPathNode::FLYABLE*/)
-			{
-				if (guardingCreature)
+				else if(objAtTile->ID == Obj::HERO && objRelations == PlayerRelations::SAME_PLAYER)
 				{
-					CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
-				}
-				else
-				{
-					if(pnode->land)
-					{
-						if(LOCPLINT->cb->getTile(h->getPosition(false))->terType != ETerrainType::WATER)
-							CCS->curh->changeGraphic(ECursor::ADVENTURE, 4 + turns*6);
-						else
-							CCS->curh->changeGraphic(ECursor::ADVENTURE, 7 + turns*6); //anchor
-					}
-					else
-						CCS->curh->changeGraphic(ECursor::ADVENTURE, 6 + turns*6);
+					CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
 				}
 			}
 			else
 				CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+			break;
 		}
 	}
 
