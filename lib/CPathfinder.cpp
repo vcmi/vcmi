@@ -63,7 +63,7 @@ void CPathfinder::calculatePaths()
 
 	auto maxMovePoints = [&](CGPathNode *cp) -> int
 	{
-		return cp->land ? maxMovePointsLand : maxMovePointsWater;
+		return cp->layer == EPathfindingLayer::SAIL ? maxMovePointsWater : maxMovePointsLand;
 	};
 
 	auto isBetterWay = [&](int remains, int turn) -> bool
@@ -181,7 +181,7 @@ void CPathfinder::addNeighbours(const int3 &coord)
 	ct = &gs->map->getTile(coord);
 
 	std::vector<int3> tiles;
-	gs->getNeighbours(*ct, coord, tiles, boost::logic::indeterminate, !cp->land);
+	gs->getNeighbours(*ct, coord, tiles, boost::logic::indeterminate, cp->layer == EPathfindingLayer::SAIL); // TODO: find out if we still need "limitCoastSailing" option
 	sTileObj = ct->topVisitableObj(coord == out.hpos);
 	if(canVisitObject())
 	{
@@ -411,7 +411,7 @@ bool CPathfinder::isSourceGuarded()
 	{
 		//special case -> hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
 		if(cp->accessible != CGPathNode::VISITABLE
-		   || !cp->theNodeBefore->land
+		   || !cp->theNodeBefore->layer != EPathfindingLayer::LAND
 		   || ct->topVisitableId() != Obj::BOAT)
 		{
 			return true;
@@ -444,7 +444,6 @@ void CPathfinder::initializeGraph()
 		auto node = out.getNode(pos, layer);
 		node->reset();
 		node->accessible = evaluateAccessibility(pos, tinfo);
-		node->land = tinfo->terType != ETerrainType::WATER;
 	};
 
 	int3 pos;
@@ -572,7 +571,6 @@ void CGPathNode::reset()
 {
 	locked = false;
 	accessible = NOT_SET;
-	land = 0;
 	moveRemains = 0;
 	turns = 255;
 	theNodeBefore = nullptr;

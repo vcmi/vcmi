@@ -188,7 +188,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			 * is id1=7, id2=5 (pns[7][5])
 			*/
 			bool pathContinuous = curPos.areNeighbours(nextPos) && curPos.areNeighbours(prevPos);
-			if(pathContinuous && cv[i].land == cv[i+1].land)
+			if(pathContinuous && cv[i].action != CGPathNode::EMBARK && cv[i].action != CGPathNode::DISEMBARK)
 			{
 				int id1=(curPos.x-nextPos.x+1)+3*(curPos.y-nextPos.y+1);   //Direction of entering vector
 				int id2=(cv[i-1].coord.x-curPos.x+1)+3*(cv[i-1].coord.y-curPos.y+1); //Direction of exiting vector
