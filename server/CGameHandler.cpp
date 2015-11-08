@@ -1880,6 +1880,8 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 		return doMove(TryMoveHero::DISEMBARK, CHECK_FOR_GUARDS, VISIT_DEST, LEAVING_TILE);
 	}
 
+	tmh.movePoints = h->movement >= cost ? h->movement - cost : 0;
+
 	if(teleporting)
 	{
 		if(blockingVisit()) // e.g. hero on the other side of teleporter
@@ -1901,10 +1903,6 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 
 	//still here? it is standard movement!
 	{
-		tmh.movePoints = h->movement >= cost
-						? h->movement - cost
-						: 0;
-
 		if(blockingVisit())
 			return true;
 
