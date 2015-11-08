@@ -28,6 +28,8 @@ CPathfinder::PathfinderOptions::PathfinderOptions()
 	useTeleportOneWayRandom = false;
 	useTeleportWhirlpool = false;
 
+	useCastleGate = false;
+
 	lightweightFlyingMode = false;
 	oneTurnSpecialLayersLimit = true;
 }
@@ -253,6 +255,23 @@ void CPathfinder::addTeleportExits(bool noTeleportExcludes)
 				neighbours.push_back(obj->visitablePos());
 		}
 	}
+
+	if(options.useCastleGate
+		&& (sTileObj->ID == Obj::TOWN && sTileObj->subID == ETownType::INFERNO
+		&& getPlayerRelations(hero->tempOwner, sTileObj->tempOwner) != PlayerRelations::ENEMIES))
+	{
+		/// TODO: Find way to reuse CPlayerSpecificInfoCallback::getTownsInfo
+		/// This may be handy if we allow to use teleportation to friendly towns
+		auto towns = gs->getPlayer(hero->tempOwner)->towns;
+		for(const auto & town : towns)
+		{
+			if(town->id != sTileObj->id && town->visitingHero == nullptr
+				&& town->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
+			{
+				neighbours.push_back(town->visitablePos());
+			}
+		}
+	}
 }
 
 bool CPathfinder::isLayerTransitionPossible() const
@@ -364,7 +383,7 @@ bool CPathfinder::isMovementToDestPossible()
 				}
 				else if(isDestinationGuardian())
 					destAction = CGPathNode::BATTLE;
-				else if(obj->blockVisit)
+				else if(obj->blockVisit && (!options.useCastleGate || obj->ID != Obj::TOWN))
 					destAction = CGPathNode::BLOCKING_VISIT;
 
 

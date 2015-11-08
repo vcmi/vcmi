@@ -106,6 +106,11 @@ private:
 		bool useTeleportOneWayRandom; // One-way monoliths with more than one known exit
 		bool useTeleportWhirlpool; // Force enabled if hero protected or unaffected (have one stack of one creature)
 
+		/// TODO: Find out with client and server code, merge with normal teleporters.
+		/// Likely proper implementation would require some refactoring of CGTeleport.
+		/// So for now this is unfinished and disabled by default.
+		bool useCastleGate;
+
 		/// If true transition into air layer only possible from initial node.
 		/// This is drastically decrease path calculation complexity (and time).
 		/// Downside is less MP effective paths calculation.
