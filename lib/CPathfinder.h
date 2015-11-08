@@ -149,15 +149,15 @@ private:
 	void addNeighbours(const int3 &coord);
 	void addTeleportExits(bool noTeleportExcludes = false);
 
-	bool isLayerTransitionPossible();
+	bool isLayerTransitionPossible() const;
 	bool isMovementToDestPossible();
-	bool isMovementAfterDestPossible();
+	bool isMovementAfterDestPossible() const;
 
-	bool isSourceInitialPosition();
-	int3 getSourceGuardPosition();
-	bool isSourceGuarded();
-	bool isDestinationGuarded(bool ignoreAccessibility = true);
-	bool isDestinationGuardian();
+	bool isSourceInitialPosition() const;
+	int3 getSourceGuardPosition() const;
+	bool isSourceGuarded() const;
+	bool isDestinationGuarded(const bool ignoreAccessibility = true) const;
+	bool isDestinationGuardian() const;
 
 	void initializeGraph();
 

@@ -255,7 +255,7 @@ void CPathfinder::addTeleportExits(bool noTeleportExcludes)
 	}
 }
 
-bool CPathfinder::isLayerTransitionPossible()
+bool CPathfinder::isLayerTransitionPossible() const
 {
 	if((cp->layer == ELayer::AIR || cp->layer ==  ELayer::WATER)
 	   && dp->layer != ELayer::LAND)
@@ -379,7 +379,7 @@ bool CPathfinder::isMovementToDestPossible()
 	return true;
 }
 
-bool CPathfinder::isMovementAfterDestPossible()
+bool CPathfinder::isMovementAfterDestPossible() const
 {
 	switch(destAction)
 	{
@@ -411,17 +411,17 @@ bool CPathfinder::isMovementAfterDestPossible()
 	return false;
 }
 
-bool CPathfinder::isSourceInitialPosition()
+bool CPathfinder::isSourceInitialPosition() const
 {
 	return cp->coord == out.hpos;
 }
 
-int3 CPathfinder::getSourceGuardPosition()
+int3 CPathfinder::getSourceGuardPosition() const
 {
 	return gs->map->guardingCreaturePositions[cp->coord.x][cp->coord.y][cp->coord.z];
 }
 
-bool CPathfinder::isSourceGuarded()
+bool CPathfinder::isSourceGuarded() const
 {
 	//map can start with hero on guarded tile or teleport there using dimension door
 	//so threat tile hero standing on like it's not guarded because it's should be possible to move out of here
@@ -429,7 +429,7 @@ bool CPathfinder::isSourceGuarded()
 	{
 		//special case -> hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
 		if(cp->accessible != CGPathNode::VISITABLE
-		   || !cp->theNodeBefore->layer != ELayer::LAND
+		   || cp->theNodeBefore->layer == ELayer::LAND
 		   || ct->topVisitableId() != Obj::BOAT)
 		{
 			return true;
@@ -439,7 +439,7 @@ bool CPathfinder::isSourceGuarded()
 	return false;
 }
 
-bool CPathfinder::isDestinationGuarded(bool ignoreAccessibility)
+bool CPathfinder::isDestinationGuarded(const bool ignoreAccessibility) const
 {
 	if(gs->map->guardingCreaturePositions[dp->coord.x][dp->coord.y][dp->coord.z].valid()
 		&& (ignoreAccessibility || dp->accessible == CGPathNode::BLOCKVIS))
@@ -450,7 +450,7 @@ bool CPathfinder::isDestinationGuarded(bool ignoreAccessibility)
 	return false;
 }
 
-bool CPathfinder::isDestinationGuardian()
+bool CPathfinder::isDestinationGuardian() const
 {
 	return getSourceGuardPosition() == dp->coord;
 }
