@@ -686,6 +686,7 @@ public:
 	//bool isLimitedOnUs(Bonus *b) const; //if bonus should be removed from list acquired from this node
 
 	void popBonuses(const CSelector &s);
+	void updateBonuses(const CSelector &s);
 	virtual std::string bonusToString(const Bonus *bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
 
@@ -816,6 +817,31 @@ public:
 	CWillLastTurns& operator()(const int &setVal)
 	{
 		turnsRequested = setVal;
+		return *this;
+	}
+};
+
+class DLL_LINKAGE CWillLastDays
+{
+public:
+	int daysRequested;
+
+	bool operator()(const Bonus *bonus) const
+	{
+		if(daysRequested <= 0)
+			return true;
+		else if(bonus->duration & Bonus::ONE_DAY)
+			return false;
+		else if(bonus->duration & Bonus::N_DAYS)
+		{
+			return bonus->turnsRemain > daysRequested;
+		}
+
+		return false; // TODO: ONE_WEEK need support for turnsRemain, but for now we'll exclude all unhandled durations
+	}
+	CWillLastDays& operator()(const int &setVal)
+	{
+		daysRequested = setVal;
 		return *this;
 	}
 };
@@ -958,6 +984,7 @@ namespace Selector
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
+	extern DLL_LINKAGE CWillLastDays days;
 	extern DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange;
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);
