@@ -769,12 +769,9 @@ void CBonusSystemNode::updateBonuses(const CSelector &s)
 	exportedBonuses.getBonuses(bl, s);
 	for(Bonus *b : bl)
 	{
-		if(b->duration & Bonus::N_DAYS)
-		{
-			b->turnsRemain--;
-			if(b->turnsRemain <= 0)
-				removeBonus(b);
-		}
+		b->turnsRemain--;
+		if(b->turnsRemain <= 0)
+			removeBonus(b);
 	}
 
 	for(CBonusSystemNode *child : children)
@@ -968,18 +965,7 @@ void CBonusSystemNode::getRedDescendants(TNodes &out)
 
 void CBonusSystemNode::battleTurnPassed()
 {
-	BonusList bonusesCpy = exportedBonuses; //copy, because removing bonuses invalidates iters
-	for (auto & elem : bonusesCpy)
-	{
-		Bonus *b = elem;
-
-		if(b->duration & Bonus::N_TURNS)
-		{
-			b->turnsRemain--;
-			if(b->turnsRemain <= 0)
-				removeBonus(b);
-		}
-	}
+	updateBonuses(Bonus::NTurns);
 }
 
 void CBonusSystemNode::exportBonus(Bonus * b)
