@@ -7,7 +7,6 @@
 #include "mapObjects/CGHeroInstance.h"
 #include "GameConstants.h"
 #include "CStopWatch.h"
-#include "CThreadHelper.h"
 
 /*
  * CPathfinder.cpp, part of VCMI engine
@@ -59,24 +58,6 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 	initializeGraph();
 	neighbours.reserve(16);
 }
-
-void CPathfinder::startPathfinder()
-{
-	try
-	{
-		setThreadName("CPathfinder::startPathfinder");
-
-		calculatePaths();
-	}
-	catch(boost::thread_interrupted &e)
-	{
-		gs->pathfinderWorking.reset();
-		return;
-	}
-
-	gs->pathfinderWorking.reset();
-}
-
 
 void CPathfinder::calculatePaths()
 {
@@ -211,8 +192,6 @@ void CPathfinder::calculatePaths()
 				}
 			}
 		}
-
-		boost::this_thread::interruption_point();
 	} //queue loop
 }
 

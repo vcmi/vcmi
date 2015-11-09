@@ -314,8 +314,6 @@ public:
 
 	boost::shared_mutex *mx;
 
-	unique_ptr<boost::thread> pathfinderWorking;
-
 	void giveHeroArtifact(CGHeroInstance *h, ArtifactID aid);
 
 	void apply(CPack *pack);
