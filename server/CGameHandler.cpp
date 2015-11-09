@@ -1764,7 +1764,6 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	}
 
 	const TerrainTile t = *gs->getTile(hmpos);
-	const int cost = gs->getMovementCost(h, h->getPosition(), hmpos, h->movement);
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
 	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::BOAT;
@@ -1779,8 +1778,9 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	tmh.movePoints = h->movement;
 
 	//check if destination tile is available
-	bool canFly = h->getBonusAtTurn(Bonus::FLYING_MOVEMENT);
-	bool canWalkOnSea = h->getBonusAtTurn(Bonus::WATER_WALKING);
+	const bool canFly = h->getBonusAtTurn(Bonus::FLYING_MOVEMENT);
+	const bool canWalkOnSea = h->getBonusAtTurn(Bonus::WATER_WALKING);
+	const int cost = CPathfinderHelper::getCost(h, h->getPosition(), hmpos, h->movement);
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)

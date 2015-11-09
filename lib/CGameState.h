@@ -339,8 +339,6 @@ public:
 	bool isVisible(int3 pos, PlayerColor player);
 	bool isVisible(const CGObjectInstance *obj, boost::optional<PlayerColor> player);
 
-	void getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing);
-	int getMovementCost(const CGHeroInstance * h, const int3 &src, const int3 &dest, int remainingMovePoints =- 1, const int &turn = 0, bool checkLast = true);
 	int getDate(Date::EDateType mode=Date::DAY) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 
 	// ----- getters, setters -----

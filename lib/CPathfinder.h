@@ -178,3 +178,12 @@ private:
 	bool canVisitObject() const;
 
 };
+
+class DLL_LINKAGE CPathfinderHelper
+{
+public:
+	static void getNeighbours(CGameState * gs, const TerrainTile &srct, const int3 &tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, const bool &limitCoastSailing);
+
+	static int getCost(const CGHeroInstance * h, const int3 &src, const int3 &dst, const int &remainingMovePoints =- 1, const int &turn = 0, const bool &checkLast = true);
+	static int getCost(const CGHeroInstance * h, const int3 &dst);
+};

@@ -143,7 +143,7 @@ void CPathfinder::calculatePaths()
 				if(!isMovementToDestPossible())
 					continue;
 
-				int cost = gs->getMovementCost(hero, cp->coord, dp->coord, movement);
+				int cost = CPathfinderHelper::getCost(hero, cp->coord, dp->coord, movement);
 				int remains = movement - cost;
 				if(destAction == CGPathNode::EMBARK || destAction == CGPathNode::DISEMBARK)
 				{
@@ -156,7 +156,7 @@ void CPathfinder::calculatePaths()
 					//occurs rarely, when hero with low movepoints tries to leave the road
 					turnAtNextTile++;
 					int moveAtNextTile = maxMovePoints(cp);
-					cost = gs->getMovementCost(hero, cp->coord, dp->coord, moveAtNextTile); //cost must be updated, movement points changed :(
+					cost = CPathfinderHelper::getCost(hero, cp->coord, dp->coord, moveAtNextTile); //cost must be updated, movement points changed :(
 					remains = moveAtNextTile - cost;
 				}
 
@@ -204,7 +204,7 @@ void CPathfinder::addNeighbours(const int3 &coord)
 	ct = &gs->map->getTile(coord);
 
 	std::vector<int3> tiles;
-	gs->getNeighbours(*ct, coord, tiles, boost::logic::indeterminate, cp->layer == ELayer::SAIL); // TODO: find out if we still need "limitCoastSailing" option
+	CPathfinderHelper::getNeighbours(gs, *ct, coord, tiles, boost::logic::indeterminate, cp->layer == ELayer::SAIL); // TODO: find out if we still need "limitCoastSailing" option
 	sTileObj = ct->topVisitableObj(coord == out.hpos);
 	if(canVisitObject())
 	{
@@ -623,6 +623,100 @@ bool CPathfinder::canVisitObject() const
 {
 	//hero can't visit objects while walking on water or flying
 	return cp->layer == ELayer::LAND || cp->layer == ELayer::SAIL;
+}
+
+void CPathfinderHelper::getNeighbours(CGameState * gs, const TerrainTile &srct, const int3 &tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, const bool &limitCoastSailing)
+{
+	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
+					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
+
+	//vec.reserve(8); //optimization
+	for (auto & dir : dirs)
+	{
+		const int3 hlp = tile + dir;
+		if(!gs->isInTheMap(hlp))
+			continue;
+
+		const TerrainTile &hlpt = gs->map->getTile(hlp);
+
+// 		//we cannot visit things from blocked tiles
+// 		if(srct.blocked && !srct.visitable && hlpt.visitable && srct.blockingObjects.front()->ID != HEROI_TYPE)
+// 		{
+// 			continue;
+// 		}
+
+		if(srct.terType == ETerrainType::WATER && limitCoastSailing && hlpt.terType == ETerrainType::WATER && dir.x && dir.y) //diagonal move through water
+		{
+			int3 hlp1 = tile,
+				hlp2 = tile;
+			hlp1.x += dir.x;
+			hlp2.y += dir.y;
+
+			if(gs->map->getTile(hlp1).terType != ETerrainType::WATER || gs->map->getTile(hlp2).terType != ETerrainType::WATER)
+				continue;
+		}
+
+		if((indeterminate(onLand)  ||  onLand == (hlpt.terType!=ETerrainType::WATER) )
+			&& hlpt.terType != ETerrainType::ROCK)
+		{
+			vec.push_back(hlp);
+		}
+	}
+}
+
+int CPathfinderHelper::getCost(const CGHeroInstance * h, const int3 &src, const int3 &dst, const int &remainingMovePoints, const int &turn, const bool &checkLast)
+{
+	if(src == dst) //same tile
+		return 0;
+
+	auto s = h->cb->getTile(src), d = h->cb->getTile(dst);
+	int ret = h->getTileCost(*d, *s, turn);
+
+	auto flyBonus = h->getBonusAtTurn(Bonus::FLYING_MOVEMENT, turn);
+	auto waterWalkingBonus = h->getBonusAtTurn(Bonus::WATER_WALKING, turn);
+	if(d->blocked && flyBonus)
+	{
+		ret *= (100.0 + flyBonus->val) / 100.0;
+	}
+	else if(d->terType == ETerrainType::WATER)
+	{
+		if(h->boat && s->hasFavourableWinds() && d->hasFavourableWinds()) //Favourable Winds
+			ret *= 0.666;
+		else if(!h->boat && waterWalkingBonus)
+		{
+			ret *= (100.0 + waterWalkingBonus->val) / 100.0;
+		}
+	}
+
+	if(src.x != dst.x && src.y != dst.y) //it's diagonal move
+	{
+		int old = ret;
+		ret *= 1.414213;
+		//diagonal move costs too much but normal move is possible - allow diagonal move for remaining move points
+		if(ret > remainingMovePoints && remainingMovePoints >= old)
+			return remainingMovePoints;
+	}
+
+	int left = remainingMovePoints-ret;
+	if(checkLast && left > 0 && remainingMovePoints-ret < 250) //it might be the last tile - if no further move possible we take all move points
+	{
+		std::vector<int3> vec;
+		vec.reserve(8); //optimization
+		getNeighbours(h->cb->gameState(), *d, dst, vec, s->terType != ETerrainType::WATER, true);
+		for(auto & elem : vec)
+		{
+			int fcost = getCost(h, dst, elem, left, turn, false);
+			if(fcost <= left)
+				return ret;
+		}
+		ret = remainingMovePoints;
+	}
+	return ret;
+}
+
+int CPathfinderHelper::getCost(const CGHeroInstance * h, const int3 &dst)
+{
+	return getCost(h, h->visitablePos(), dst, h->movement);
 }
 
 CGPathNode::CGPathNode(int3 Coord, ELayer Layer)
