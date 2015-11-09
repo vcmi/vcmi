@@ -819,10 +819,10 @@ void SaveGame::applyCl(CClient *cl)
 
 void PlayerMessage::applyCl(CClient *cl)
 {
-	std::ostringstream str;
-	str << "Player "<< player <<" sends a message: " << text;
+	logNetwork->debugStream() << "Player "<< player <<" sends a message: " << text;
 
-    logNetwork->debugStream() << str.str();
+	std::ostringstream str;
+	str << cl->getPlayer(player)->nodeName() <<": " << text;
 	if(LOCPLINT)
 		LOCPLINT->cingconsole->print(str.str());
 }

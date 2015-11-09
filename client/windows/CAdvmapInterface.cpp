@@ -881,7 +881,7 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 
 	statusbar.show(to);
 
-	LOCPLINT->cingconsole->showAll(to);
+	LOCPLINT->cingconsole->show(to);
 }
 
 bool CAdvMapInt::isHeroSleeping(const CGHeroInstance *hero)
@@ -958,7 +958,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 		for(int i=0;i<4;i++)
 			blitAt(gems[i]->ourImages[LOCPLINT->playerID.getNum()].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
 		updateScreen=false;
-		LOCPLINT->cingconsole->showAll(to);
+		LOCPLINT->cingconsole->show(to);
 	}
 	else if (terrain.needsAnimUpdate())
 	{

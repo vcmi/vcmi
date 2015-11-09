@@ -738,8 +738,8 @@ std::string CArtifactInstance::nodeName() const
 
 CArtifactInstance * CArtifactInstance::createScroll( const CSpell *s)
 {
-	auto ret = new CArtifactInstance(VLC->arth->artifacts[1]);
-	auto b = new Bonus(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, 1, s->id);
+	auto ret = new CArtifactInstance(VLC->arth->artifacts[ArtifactID::SPELL_SCROLL]);
+	auto b = new Bonus(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, ArtifactID::SPELL_SCROLL, s->id);
 	ret->addNewBonus(b);
 	return ret;
 }

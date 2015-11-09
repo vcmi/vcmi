@@ -151,7 +151,11 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	}
 
 	// Allocate video frame
+#if LIBAVUTIL_VERSION_MAJOR > 52
+	frame = av_alloc_frame();
+#else
 	frame = avcodec_alloc_frame();
+#endif
 	
 	//setup scaling
 	
@@ -185,21 +189,36 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	if (texture)
 	{ // Convert the image into YUV format that SDL uses
 		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt, 
-							 pos.w, pos.h, PIX_FMT_YUV420P, 
+							 pos.w, pos.h,
+#if LIBAVUTIL_VERSION_MAJOR > 51
+							 AV_PIX_FMT_YUV420P,
+#else
+							 PIX_FMT_YUV420P,
+#endif
 							 SWS_BICUBIC, nullptr, nullptr, nullptr);
 	}
 	else
 	{
 
+#if LIBAVUTIL_VERSION_MAJOR > 51
+		AVPixelFormat screenFormat = AV_PIX_FMT_NONE;
+#else
 		PixelFormat screenFormat = PIX_FMT_NONE;
+#endif
 		if (screen->format->Bshift > screen->format->Rshift)
 		{
 			// this a BGR surface
 			switch (screen->format->BytesPerPixel)
 			{
+#if LIBAVUTIL_VERSION_MAJOR > 51
+				case 2: screenFormat = AV_PIX_FMT_BGR565; break;
+				case 3: screenFormat = AV_PIX_FMT_BGR24; break;
+				case 4: screenFormat = AV_PIX_FMT_BGR32; break;
+#else
 				case 2: screenFormat = PIX_FMT_BGR565; break;
 				case 3: screenFormat = PIX_FMT_BGR24; break;
 				case 4: screenFormat = PIX_FMT_BGR32; break;
+#endif
 				default: return false;
 			}
 		}
@@ -208,9 +227,15 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 			// this a RGB surface
 			switch (screen->format->BytesPerPixel)
 			{
+#if LIBAVUTIL_VERSION_MAJOR > 51
+				case 2: screenFormat = AV_PIX_FMT_RGB565; break;
+				case 3: screenFormat = AV_PIX_FMT_RGB24; break;
+				case 4: screenFormat = AV_PIX_FMT_RGB32; break;
+#else
 				case 2: screenFormat = PIX_FMT_RGB565; break;
 				case 3: screenFormat = PIX_FMT_RGB24; break;
 				case 4: screenFormat = PIX_FMT_RGB32; break;
+#endif
 				default: return false;
 			}
 		}
@@ -367,7 +392,11 @@ void CVideoPlayer::close()
 
 	if (frame)
 	{
+#if LIBAVUTIL_VERSION_MAJOR > 52
+		av_frame_free(frame);
+#else
 		av_free(frame);
+#endif
 		frame = nullptr;
 	}
 

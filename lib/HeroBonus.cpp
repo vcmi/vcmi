@@ -763,6 +763,21 @@ void CBonusSystemNode::popBonuses(const CSelector &s)
 		child->popBonuses(s);
 }
 
+void CBonusSystemNode::updateBonuses(const CSelector &s)
+{
+	BonusList bl;
+	exportedBonuses.getBonuses(bl, s);
+	for(Bonus *b : bl)
+	{
+		b->turnsRemain--;
+		if(b->turnsRemain <= 0)
+			removeBonus(b);
+	}
+
+	for(CBonusSystemNode *child : children)
+		child->updateBonuses(s);
+}
+
 void CBonusSystemNode::addNewBonus(Bonus *b)
 {
 	assert(!vstd::contains(exportedBonuses,b));
@@ -950,18 +965,7 @@ void CBonusSystemNode::getRedDescendants(TNodes &out)
 
 void CBonusSystemNode::battleTurnPassed()
 {
-	BonusList bonusesCpy = exportedBonuses; //copy, because removing bonuses invalidates iters
-	for (auto & elem : bonusesCpy)
-	{
-		Bonus *b = elem;
-
-		if(b->duration & Bonus::N_TURNS)
-		{
-			b->turnsRemain--;
-			if(b->turnsRemain <= 0)
-				removeBonus(b);
-		}
-	}
+	updateBonuses(Bonus::NTurns);
 }
 
 void CBonusSystemNode::exportBonus(Bonus * b)
@@ -1183,6 +1187,7 @@ namespace Selector
 	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType(&Bonus::source);
 	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange(&Bonus::effectRange);
 	DLL_LINKAGE CWillLastTurns turns;
+	DLL_LINKAGE CWillLastDays days;
 	DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange(&Bonus::effectRange);
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype)

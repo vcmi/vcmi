@@ -907,7 +907,7 @@ void CGameState::initDuel()
 
 			if(!ss.spells.empty())
 			{
-				h->putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
+				h->putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(ArtifactID::SPELLBOOK));
 				boost::copy(ss.spells, std::inserter(h->spells, h->spells.begin()));
 			}
 

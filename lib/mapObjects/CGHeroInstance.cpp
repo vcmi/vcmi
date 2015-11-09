@@ -261,10 +261,10 @@ void CGHeroInstance::initHero()
 		spells -= SpellID::PRESET;
 
 	if(!getArt(ArtifactPosition::MACH4) && !getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook) //no catapult means we haven't read pre-existent set -> use default rules for spellbook
-		putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
+		putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(ArtifactID::SPELLBOOK));
 
 	if(!getArt(ArtifactPosition::MACH4))
-		putArtifact(ArtifactPosition::MACH4, CArtifactInstance::createNewArtifactInstance(3)); //everyone has a catapult
+		putArtifact(ArtifactPosition::MACH4, CArtifactInstance::createNewArtifactInstance(ArtifactID::CATAPULT)); //everyone has a catapult
 
 	if(portrait < 0 || portrait == 255)
 		portrait = type->imageIndex;

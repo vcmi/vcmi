@@ -1975,7 +1975,8 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 			{
 				InfoWindow iw;
 				iw.player = oldOwner;
-				iw.text.addTxt (MetaString::GENERAL_TXT, 6); //%s, you have lost your last town.  If you do not conquer another town in the next week, you will be eliminated.
+				iw.text.addTxt(MetaString::GENERAL_TXT, 6); //%s, you have lost your last town. If you do not conquer another town in the next week, you will be eliminated.
+				iw.text.addReplacement(MetaString::COLOR, oldOwner.getNum());
 				sendAndApply(&iw);
 			}
 		}
@@ -2786,14 +2787,14 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 
 		switch(crid)
 		{
-		case 146:
-			giveHeroNewArtifact(h, VLC->arth->artifacts[4], ArtifactPosition::MACH1);
+		case CreatureID::BALLISTA:
+			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::BALLISTA], ArtifactPosition::MACH1);
 			break;
-		case 147:
-			giveHeroNewArtifact(h, VLC->arth->artifacts[6], ArtifactPosition::MACH3);
+		case CreatureID::FIRST_AID_TENT:
+			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::FIRST_AID_TENT], ArtifactPosition::MACH3);
 			break;
-		case 148:
-			giveHeroNewArtifact(h, VLC->arth->artifacts[5], ArtifactPosition::MACH2);
+		case CreatureID::AMMO_CART:
+			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::AMMO_CART], ArtifactPosition::MACH2);
 			break;
 		default:
 			complain("This war machine cannot be recruited!");
@@ -3012,7 +3013,7 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 
 	if(assemble)
 	{
-		CArtifact *combinedArt = VLC->arth->artifacts.at(assembleTo);
+		CArtifact *combinedArt = VLC->arth->artifacts[assembleTo];
 		if(!combinedArt->constituents)
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
 		if(!vstd::contains(destArtifact->assemblyPossibilities(hero), combinedArt))
@@ -3056,7 +3057,7 @@ bool CGameHandler::buyArtifact( ObjectInstanceID hid, ArtifactID aid )
 	}
 	else if(aid < 7  &&  aid > 3) //war machine
 	{
-		int price = VLC->arth->artifacts.at(aid)->price;
+		int price = VLC->arth->artifacts[aid]->price;
 
 		if(( hero->getArt(ArtifactPosition(9+aid)) && complain("Hero already has this machine!"))
 		 || (gs->getPlayer(hero->getOwner())->resources.at(Res::GOLD) < price && complain("Not enough gold!")))
@@ -3067,7 +3068,7 @@ bool CGameHandler::buyArtifact( ObjectInstanceID hid, ArtifactID aid )
 		 || ((town->hasBuilt(BuildingID::BALLISTA_YARD, ETownType::STRONGHOLD)) && aid == ArtifactID::BALLISTA))
 		{
 			giveResource(hero->getOwner(),Res::GOLD,-price);
-			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(aid), ArtifactPosition(9+aid));
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], ArtifactPosition(9+aid));
 			return true;
 		}
 		else
@@ -3124,7 +3125,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::E
 
 	sendAndApply(&saa);
 
-	giveHeroNewArtifact(h, VLC->arth->artifacts.at(aid), ArtifactPosition::FIRST_AVAILABLE);
+	giveHeroNewArtifact(h, VLC->arth->artifacts[aid], ArtifactPosition::FIRST_AVAILABLE);
 	return true;
 }
 
@@ -3975,7 +3976,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		sm.absolute = true;
 
 		if(!h->hasSpellbook()) //hero doesn't have spellbook
-			giveHeroNewArtifact(h, VLC->arth->artifacts.at(0), ArtifactPosition::SPELLBOOK); //give spellbook
+			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK); //give spellbook
 
 		sendAndApply(&sm);
 	}
@@ -4028,18 +4029,18 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		if(!hero) return;
 
 		if(!hero->getArt(ArtifactPosition::MACH1))
-			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(4), ArtifactPosition::MACH1);
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::BALLISTA], ArtifactPosition::MACH1);
 		if(!hero->getArt(ArtifactPosition::MACH2))
-			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(5), ArtifactPosition::MACH2);
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::AMMO_CART], ArtifactPosition::MACH2);
 		if(!hero->getArt(ArtifactPosition::MACH3))
-			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(6), ArtifactPosition::MACH3);
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::FIRST_AID_TENT], ArtifactPosition::MACH3);
 	}
 	else if (message == "vcmiforgeofnoldorking") //hero gets all artifacts except war machines, spell scrolls and spell book
 	{
 		CGHeroInstance *hero = gs->getHero(currObj);
 		if(!hero) return;
 		for (int g = 7; g < VLC->arth->artifacts.size(); ++g) //including artifacts from mods
-			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(g), ArtifactPosition::PRE_FIRST);
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[g], ArtifactPosition::PRE_FIRST);
 	}
 	else if(message == "vcmiglorfindel") //selected hero gains a new level
 	{
@@ -4913,14 +4914,14 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 	if(gs->map->grailPos == h->getPosition())
 	{
 		iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
-		iw.text.addTxt(MetaString::ART_NAMES, 2);
+		iw.text.addTxt(MetaString::ART_NAMES, ArtifactID::GRAIL);
 		iw.soundID = soundBase::ULTIMATEARTIFACT;
-		giveHeroNewArtifact(h, VLC->arth->artifacts.at(2), ArtifactPosition::PRE_FIRST); //give grail
+		giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::GRAIL], ArtifactPosition::PRE_FIRST); //give grail
 		sendAndApply(&iw);
 
 		iw.soundID = soundBase::invalid;
 		iw.text.clear();
-		iw.text.addTxt(MetaString::ART_DESCR, 2);
+		iw.text.addTxt(MetaString::ART_DESCR, ArtifactID::GRAIL);
 		sendAndApply(&iw);
 	}
 	else

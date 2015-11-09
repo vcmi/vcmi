@@ -14,7 +14,7 @@
 
 namespace GameConstants
 {
-	const std::string VCMI_VERSION = "VCMI 0.98e";
+	const std::string VCMI_VERSION = "VCMI 0.98f";
 
 	const int BFIELD_WIDTH = 17;
 	const int BFIELD_HEIGHT = 11;
@@ -843,6 +843,7 @@ public:
 		FIRST_AID_TENT = 6,
 		//CENTAUR_AXE = 7,
 		//BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
+		ARMAGEDDONS_BLADE = 128,
 		TITANS_THUNDER = 135,
 		//CORNUCOPIA = 140,
 		//FIXME: the following is only true if WoG is enabled. Otherwise other mod artifacts will take these slots.

@@ -1026,6 +1026,7 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 	if(gs->getDate(Date::DAY_OF_WEEK) == 1) //new week
 		gs->globalEffects.popBonuses(Bonus::OneWeek); //works for children -> all game objs
 
+	gs->globalEffects.updateBonuses(Bonus::NDays);
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
 	for(CGTownInstance* t : gs->map->towns)

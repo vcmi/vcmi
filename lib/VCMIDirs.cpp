@@ -34,9 +34,9 @@ void IVCMIDirs::init()
 	#endif    
 #endif // __MINGW32__
 
-#include <Windows.h>
-#include <Shlobj.h>
-#include <Shellapi.h>
+#include <windows.h>
+#include <shlobj.h>
+#include <shellapi.h>
 
 // Generates script file named _temp.bat in 'to' directory and runs it
 // Script will:
