@@ -1780,7 +1780,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	//check if destination tile is available
 	const bool canFly = h->getBonusAtTurn(Bonus::FLYING_MOVEMENT);
 	const bool canWalkOnSea = h->getBonusAtTurn(Bonus::WATER_WALKING);
-	const int cost = CPathfinderHelper::getCost(h, h->getPosition(), hmpos, h->movement);
+	const int cost = CPathfinderHelper::getMovementCost(h, h->getPosition(), hmpos, h->movement);
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)

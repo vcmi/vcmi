@@ -143,7 +143,7 @@ void CPathfinder::calculatePaths()
 				if(!isMovementToDestPossible())
 					continue;
 
-				int cost = CPathfinderHelper::getCost(hero, cp->coord, dp->coord, movement);
+				int cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, movement);
 				int remains = movement - cost;
 				if(destAction == CGPathNode::EMBARK || destAction == CGPathNode::DISEMBARK)
 				{
@@ -156,7 +156,7 @@ void CPathfinder::calculatePaths()
 					//occurs rarely, when hero with low movepoints tries to leave the road
 					turnAtNextTile++;
 					int moveAtNextTile = maxMovePoints(cp);
-					cost = CPathfinderHelper::getCost(hero, cp->coord, dp->coord, moveAtNextTile); //cost must be updated, movement points changed :(
+					cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, moveAtNextTile); //cost must be updated, movement points changed :(
 					remains = moveAtNextTile - cost;
 				}
 
@@ -664,7 +664,7 @@ void CPathfinderHelper::getNeighbours(CGameState * gs, const TerrainTile &srct, 
 	}
 }
 
-int CPathfinderHelper::getCost(const CGHeroInstance * h, const int3 &src, const int3 &dst, const int &remainingMovePoints, const int &turn, const bool &checkLast)
+int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 &src, const int3 &dst, const int &remainingMovePoints, const int &turn, const bool &checkLast)
 {
 	if(src == dst) //same tile
 		return 0;
@@ -705,7 +705,7 @@ int CPathfinderHelper::getCost(const CGHeroInstance * h, const int3 &src, const 
 		getNeighbours(h->cb->gameState(), *d, dst, vec, s->terType != ETerrainType::WATER, true);
 		for(auto & elem : vec)
 		{
-			int fcost = getCost(h, dst, elem, left, turn, false);
+			int fcost = getMovementCost(h, dst, elem, left, turn, false);
 			if(fcost <= left)
 				return ret;
 		}
@@ -714,9 +714,9 @@ int CPathfinderHelper::getCost(const CGHeroInstance * h, const int3 &src, const 
 	return ret;
 }
 
-int CPathfinderHelper::getCost(const CGHeroInstance * h, const int3 &dst)
+int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 &dst)
 {
-	return getCost(h, h->visitablePos(), dst, h->movement);
+	return getMovementCost(h, h->visitablePos(), dst, h->movement);
 }
 
 CGPathNode::CGPathNode(int3 Coord, ELayer Layer)
