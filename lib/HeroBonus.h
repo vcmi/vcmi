@@ -832,6 +832,8 @@ public:
 			return true;
 		else if(bonus->duration & Bonus::ONE_DAY)
 			return false;
+		else if(bonus->duration & Bonus::PERMANENT || bonus->duration & Bonus::ONE_BATTLE)
+			return true;
 		else if(bonus->duration & Bonus::N_DAYS)
 		{
 			return bonus->turnsRemain > daysRequested;
