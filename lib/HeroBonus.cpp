@@ -763,6 +763,24 @@ void CBonusSystemNode::popBonuses(const CSelector &s)
 		child->popBonuses(s);
 }
 
+void CBonusSystemNode::updateBonuses(const CSelector &s)
+{
+	BonusList bl;
+	exportedBonuses.getBonuses(bl, s);
+	for(Bonus *b : bl)
+	{
+		if(b->duration & Bonus::N_DAYS)
+		{
+			b->turnsRemain--;
+			if(b->turnsRemain <= 0)
+				removeBonus(b);
+		}
+	}
+
+	for(CBonusSystemNode *child : children)
+		child->updateBonuses(s);
+}
+
 void CBonusSystemNode::addNewBonus(Bonus *b)
 {
 	assert(!vstd::contains(exportedBonuses,b));
