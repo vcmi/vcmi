@@ -1201,6 +1201,7 @@ namespace Selector
 	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType(&Bonus::source);
 	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange(&Bonus::effectRange);
 	DLL_LINKAGE CWillLastTurns turns;
+	DLL_LINKAGE CWillLastDays days;
 	DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange(&Bonus::effectRange);
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype)

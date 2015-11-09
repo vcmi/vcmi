@@ -821,6 +821,31 @@ public:
 	}
 };
 
+class DLL_LINKAGE CWillLastDays
+{
+public:
+	int daysRequested;
+
+	bool operator()(const Bonus *bonus) const
+	{
+		if(daysRequested <= 0)
+			return true;
+		else if(bonus->duration & Bonus::ONE_DAY)
+			return false;
+		else if(bonus->duration & Bonus::N_DAYS)
+		{
+			return bonus->turnsRemain > daysRequested;
+		}
+
+		return false; // TODO: ONE_WEEK need support for turnsRemain, but for now we'll exclude all unhandled durations
+	}
+	CWillLastDays& operator()(const int &setVal)
+	{
+		daysRequested = setVal;
+		return *this;
+	}
+};
+
 //Stores multiple limiters. If any of them fails -> bonus is dropped.
 class DLL_LINKAGE LimiterList : public ILimiter
 {
@@ -959,6 +984,7 @@ namespace Selector
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
+	extern DLL_LINKAGE CWillLastDays days;
 	extern DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange;
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);
