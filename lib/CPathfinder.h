@@ -154,6 +154,7 @@ private:
 	void addNeighbours(const int3 &coord);
 	void addTeleportExits(bool noTeleportExcludes = false);
 
+	bool isLayerAvailable(const ELayer &layer, const int &turn) const;
 	bool isLayerTransitionPossible() const;
 	bool isMovementToDestPossible();
 	bool isMovementAfterDestPossible() const;

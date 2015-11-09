@@ -129,12 +129,11 @@ public:
 	EAlignment::EAlignment getAlignment() const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const override;
-	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
+	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from, const int &turn) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	ui32 getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
-	bool canFly() const;
-	bool canWalkOnSea() const;
+	const Bonus * getBonusAtTurn(const Bonus::BonusType &type, const int &turn = 0, const TBonusSubtype &subType = -1) const;
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
 

@@ -56,7 +56,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 	return ret;
 }
 
-ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from) const
+ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from, const int &turn) const
 {
 	unsigned ret = GameConstants::BASE_MOVEMENT_COST;
 
@@ -80,7 +80,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 			break;
 		}
 	}
-	else if(!hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
+	else if(!getBonusAtTurn(Bonus::NO_TERRAIN_PENALTY, turn, from.terType))
 	{
 		// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
 		// This is clearly bug in H3 however intended behaviour is not clear.
@@ -129,14 +129,9 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 	}
 }
 
-bool CGHeroInstance::canFly() const
+const Bonus * CGHeroInstance::getBonusAtTurn(const Bonus::BonusType &type, const int &turn, const TBonusSubtype &subType) const
 {
-	return hasBonusOfType(Bonus::FLYING_MOVEMENT);
-}
-
-bool CGHeroInstance::canWalkOnSea() const
-{
-	return hasBonusOfType(Bonus::WATER_WALKING);
+	return getBonus(Selector::type(type).And(Selector::days(turn)).And(Selector::subtype(subType)));
 }
 
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const

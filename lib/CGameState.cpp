@@ -2100,7 +2100,7 @@ void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<i
 	}
 }
 
-int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, int remainingMovePoints, bool checkLast)
+int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, int remainingMovePoints, const int &turn, bool checkLast)
 {
 	if(src == dest) //same tile
 		return 0;
@@ -2109,19 +2109,21 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 		&d = map->getTile(dest);
 
 	//get basic cost
-	int ret = h->getTileCost(d,s);
+	int ret = h->getTileCost(d, s, turn);
 
-	if(d.blocked && h->canFly())
+	auto flyBonus = h->getBonusAtTurn(Bonus::FLYING_MOVEMENT, turn);
+	auto waterWalkingBonus = h->getBonusAtTurn(Bonus::WATER_WALKING, turn);
+	if(d.blocked && flyBonus)
 	{
-		ret *= (100.0 + h->valOfBonuses(Bonus::FLYING_MOVEMENT)) / 100.0;
+		ret *= (100.0 + flyBonus->val) / 100.0;
 	}
 	else if(d.terType == ETerrainType::WATER)
 	{
 		if(h->boat && s.hasFavourableWinds() && d.hasFavourableWinds()) //Favourable Winds
 			ret *= 0.666;
-		else if(!h->boat && h->canWalkOnSea())
+		else if(!h->boat && waterWalkingBonus)
 		{
-			ret *= (100.0 + h->valOfBonuses(Bonus::WATER_WALKING)) / 100.0;
+			ret *= (100.0 + waterWalkingBonus->val) / 100.0;
 		}
 	}
 
@@ -2145,7 +2147,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 		getNeighbours(d, dest, vec, s.terType != ETerrainType::WATER, true);
 		for(auto & elem : vec)
 		{
-			int fcost = getMovementCost(h, dest, elem, left, false);
+			int fcost = getMovementCost(h, dest, elem, left, turn, false);
 			if(fcost <= left)
 			{
 				return ret;

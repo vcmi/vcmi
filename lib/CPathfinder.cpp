@@ -48,9 +48,9 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 		throw std::runtime_error("Wrong checksum");
 	}
 
-	if(hero->canFly())
+	if(hero->getBonusAtTurn(Bonus::FLYING_MOVEMENT))
 		options.useFlying = true;
-	if(hero->canWalkOnSea())
+	if(hero->getBonusAtTurn(Bonus::WATER_WALKING))
 		options.useWaterWalking = true;
 	if(CGWhirlpool::isProtected(hero))
 		options.useTeleportWhirlpool = true;
@@ -130,6 +130,9 @@ void CPathfinder::calculatePaths()
 					continue;
 
 				if(!passOneTurnLimitCheck(cp->turns != turn))
+					continue;
+
+				if(!isLayerAvailable(i, turn))
 					continue;
 
 				if(cp->layer != i && !isLayerTransitionPossible())
@@ -272,6 +275,25 @@ void CPathfinder::addTeleportExits(bool noTeleportExcludes)
 			}
 		}
 	}
+}
+
+bool CPathfinder::isLayerAvailable(const ELayer &layer, const int &turn) const
+{
+	switch(layer)
+	{
+		case ELayer::AIR:
+			if(!hero->getBonusAtTurn(Bonus::FLYING_MOVEMENT, turn))
+				return false;
+
+			break;
+
+		case ELayer::WATER:
+			if(!hero->getBonusAtTurn(Bonus::WATER_WALKING, turn))
+				return false;
+			break;
+	}
+
+	return true;
 }
 
 bool CPathfinder::isLayerTransitionPossible() const

@@ -1779,12 +1779,14 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	tmh.movePoints = h->movement;
 
 	//check if destination tile is available
+	bool canFly = h->getBonusAtTurn(Bonus::FLYING_MOVEMENT);
+	bool canWalkOnSea = h->getBonusAtTurn(Bonus::WATER_WALKING);
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if(((t.terType == ETerrainType::ROCK  ||  (t.blocked && !t.visitable && !h->canFly() ))
+	if(((t.terType == ETerrainType::ROCK  ||  (t.blocked && !t.visitable && !canFly))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-		|| ((!h->boat && !h->canWalkOnSea() && !h->canFly() && t.terType == ETerrainType::WATER && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType == ETerrainType::WATER && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
 		|| ((h->boat && t.terType != ETerrainType::WATER && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
@@ -1794,7 +1796,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 			&& complain("Can not move garrisoned hero!"))
 		|| ((h->movement < cost  &&  dst != h->pos  &&  !teleporting)
 			&& complain("Hero doesn't have any movement points left!"))
-		|| ((transit && !h->canFly() && !CGTeleport::isTeleport(t.topVisitableObj()))
+		|| ((transit && !canFly && !CGTeleport::isTeleport(t.topVisitableObj()))
 			&& complain("Hero cannot transit over this tile!"))
 		/*|| (states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle)
 			&& complain("Cannot move hero during the battle"))*/)
@@ -1913,7 +1915,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 			if(CGTeleport::isTeleport(t.topVisitableObj()))
 				visitDest = DONT_VISIT_DEST;
 
-			if(h->canFly())
+			if(canFly)
 			{
 				lookForGuards = IGNORE_GUARDS;
 				visitDest = DONT_VISIT_DEST;
