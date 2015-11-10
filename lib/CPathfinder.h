@@ -124,6 +124,13 @@ private:
 		/// After all this limit should benefit performance on maps with tons of water or blocked tiles.
 		bool oneTurnSpecialLayersLimit;
 
+		/// VCMI have different movement rules to solve flaws original engine has.
+		/// If this option enabled you'll able to do following things in fly:
+		/// - Move from blocked tiles to visitable one
+		/// - Move from guarded tiles to blockvis tiles without being attacked
+		/// - Move from guarded tiles to guarded visitable tiles with being attacked after
+		bool originalMovementRules;
+
 		PathfinderOptions();
 	} options;
 

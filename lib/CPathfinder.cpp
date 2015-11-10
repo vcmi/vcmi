@@ -32,6 +32,7 @@ CPathfinder::PathfinderOptions::PathfinderOptions()
 
 	lightweightFlyingMode = false;
 	oneTurnSpecialLayersLimit = true;
+	originalMovementRules = true;
 }
 
 CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero)
@@ -304,10 +305,19 @@ bool CPathfinder::isLayerTransitionPossible() const
 	}
 	else if(cp->layer == ELayer::AIR && dp->layer == ELayer::LAND)
 	{
-		/// Hero that fly can only land on accessible tiles
-		if(cp->accessible != CGPathNode::ACCESSIBLE &&
-			dp->accessible != CGPathNode::ACCESSIBLE)
+		if(options.originalMovementRules)
 		{
+			if ((cp->accessible != CGPathNode::ACCESSIBLE &&
+				cp->accessible != CGPathNode::VISITABLE) &&
+				(dp->accessible != CGPathNode::VISITABLE &&
+				 dp->accessible != CGPathNode::ACCESSIBLE))
+			{
+				return false;
+			}
+		}
+		else if(cp->accessible != CGPathNode::ACCESSIBLE &&	dp->accessible != CGPathNode::ACCESSIBLE)
+		{
+			/// Hero that fly can only land on accessible tiles
 			return false;
 		}
 	}
@@ -344,9 +354,14 @@ bool CPathfinder::isMovementToDestPossible()
 		case ELayer::LAND:
 			if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
 				return false;
-			if(isSourceGuarded() && !isDestinationGuardian()) // Can step into tile of guard
-				return false;
-
+			if(isSourceGuarded())
+			{
+				if(!(options.originalMovementRules && cp->layer == ELayer::AIR) &&
+					!isDestinationGuardian()) // Can step into tile of guard
+				{
+					return false;
+				}
+			}
 			if(cp->layer == ELayer::SAIL)
 				destAction = CGPathNode::DISEMBARK;
 
@@ -418,7 +433,12 @@ bool CPathfinder::isMovementToDestPossible()
 
 
 				if(destAction == CGPathNode::NORMAL)
-					destAction = CGPathNode::VISIT;
+				{
+					if(options.originalMovementRules && isDestinationGuarded())
+						destAction = CGPathNode::BATTLE;
+					else
+						destAction = CGPathNode::VISIT;
+				}
 			}
 			else if(isDestinationGuarded())
 				destAction = CGPathNode::BATTLE;
