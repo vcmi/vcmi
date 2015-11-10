@@ -48,9 +48,10 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 		throw std::runtime_error("Wrong checksum");
 	}
 
-	if(hero->getBonusAtTurn(Bonus::FLYING_MOVEMENT))
+	hlp = new CPathfinderHelper(hero);
+	if(hlp->ti->bonusFlying)
 		options.useFlying = true;
-	if(hero->getBonusAtTurn(Bonus::WATER_WALKING))
+	if(hlp->ti->bonusWaterWalking)
 		options.useWaterWalking = true;
 	if(CGWhirlpool::isProtected(hero))
 		options.useTeleportWhirlpool = true;
@@ -61,14 +62,6 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 
 void CPathfinder::calculatePaths()
 {
-	int maxMovePointsLand = hero->maxMovePoints(true);
-	int maxMovePointsWater = hero->maxMovePoints(false);
-
-	auto maxMovePoints = [&](CGPathNode *cp) -> int
-	{
-		return cp->layer == ELayer::SAIL ? maxMovePointsWater : maxMovePointsLand;
-	};
-
 	auto passOneTurnLimitCheck = [&](bool shouldCheck) -> bool
 	{
 		if(options.oneTurnSpecialLayersLimit && shouldCheck)
@@ -109,10 +102,11 @@ void CPathfinder::calculatePaths()
 		cp->locked = true;
 
 		int movement = cp->moveRemains, turn = cp->turns;
+		hlp->updateTurnInfo(turn);
 		if(!movement)
 		{
-			movement = maxMovePoints(cp);
-			turn++;
+			hlp->updateTurnInfo(++turn);
+			movement = hlp->getMaxMovePoints(cp->layer);
 		}
 
 		//add accessible neighbouring nodes to the queue
@@ -143,7 +137,7 @@ void CPathfinder::calculatePaths()
 				if(!isMovementToDestPossible())
 					continue;
 
-				int cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, movement);
+				int cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, movement, hlp->ti);
 				int remains = movement - cost;
 				if(destAction == CGPathNode::EMBARK || destAction == CGPathNode::DISEMBARK)
 				{
@@ -154,9 +148,9 @@ void CPathfinder::calculatePaths()
 				if(remains < 0)
 				{
 					//occurs rarely, when hero with low movepoints tries to leave the road
-					turnAtNextTile++;
-					int moveAtNextTile = maxMovePoints(cp);
-					cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, moveAtNextTile); //cost must be updated, movement points changed :(
+					hlp->updateTurnInfo(++turnAtNextTile);
+					int moveAtNextTile = hlp->getMaxMovePoints(i);
+					cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, moveAtNextTile, hlp->ti); //cost must be updated, movement points changed :(
 					remains = moveAtNextTile - cost;
 				}
 
@@ -282,13 +276,13 @@ bool CPathfinder::isLayerAvailable(const ELayer &layer, const int &turn) const
 	switch(layer)
 	{
 		case ELayer::AIR:
-			if(!hero->getBonusAtTurn(Bonus::FLYING_MOVEMENT, turn))
+			if(!hlp->ti->bonusFlying)
 				return false;
 
 			break;
 
 		case ELayer::WATER:
-			if(!hero->getBonusAtTurn(Bonus::WATER_WALKING, turn))
+			if(!hlp->ti->bonusWaterWalking)
 				return false;
 			break;
 	}
@@ -625,6 +619,43 @@ bool CPathfinder::canVisitObject() const
 	return cp->layer == ELayer::LAND || cp->layer == ELayer::SAIL;
 }
 
+CPathfinderHelper::CPathfinderHelper(const CGHeroInstance * Hero)
+	: ti(nullptr), hero(Hero)
+{
+	turnsInfo.reserve(16);
+	updateTurnInfo();
+}
+
+void CPathfinderHelper::updateTurnInfo(const int &turn)
+{
+	if(!ti || ti->turn != turn)
+	{
+		if(turn < turnsInfo.size())
+			ti = turnsInfo[turn];
+		else
+		{
+			ti = getTurnInfo(hero, turn);
+			turnsInfo.push_back(ti);
+		}
+	}
+}
+
+int CPathfinderHelper::getMaxMovePoints(const EPathfindingLayer &layer) const
+{
+	return layer == EPathfindingLayer::SAIL ? ti->maxMovePointsWater : ti->maxMovePointsLand;
+}
+
+TurnInfo * CPathfinderHelper::getTurnInfo(const CGHeroInstance * h, const int &turn)
+{
+	auto turnInfo = new TurnInfo;
+	turnInfo->turn = turn;
+	turnInfo->maxMovePointsLand = h->maxMovePoints(true);
+	turnInfo->maxMovePointsWater = h->maxMovePoints(false);
+	turnInfo->bonusFlying = h->getBonusAtTurn(Bonus::FLYING_MOVEMENT, turn);
+	turnInfo->bonusWaterWalking = h->getBonusAtTurn(Bonus::WATER_WALKING, turn);
+	return turnInfo;
+}
+
 void CPathfinderHelper::getNeighbours(CGameState * gs, const TerrainTile &srct, const int3 &tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, const bool &limitCoastSailing)
 {
 	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
@@ -664,27 +695,28 @@ void CPathfinderHelper::getNeighbours(CGameState * gs, const TerrainTile &srct, 
 	}
 }
 
-int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 &src, const int3 &dst, const int &remainingMovePoints, const int &turn, const bool &checkLast)
+int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 &src, const int3 &dst, const int &remainingMovePoints, const TurnInfo * ti, const bool &checkLast)
 {
 	if(src == dst) //same tile
 		return 0;
 
-	auto s = h->cb->getTile(src), d = h->cb->getTile(dst);
-	int ret = h->getTileCost(*d, *s, turn);
+	if(!ti)
+		ti = getTurnInfo(h);
 
-	auto flyBonus = h->getBonusAtTurn(Bonus::FLYING_MOVEMENT, turn);
-	auto waterWalkingBonus = h->getBonusAtTurn(Bonus::WATER_WALKING, turn);
-	if(d->blocked && flyBonus)
+	auto s = h->cb->getTile(src), d = h->cb->getTile(dst);
+	int ret = h->getTileCost(*d, *s, ti);
+
+	if(d->blocked && ti->bonusFlying)
 	{
-		ret *= (100.0 + flyBonus->val) / 100.0;
+		ret *= (100.0 + ti->bonusFlying->val) / 100.0;
 	}
 	else if(d->terType == ETerrainType::WATER)
 	{
 		if(h->boat && s->hasFavourableWinds() && d->hasFavourableWinds()) //Favourable Winds
 			ret *= 0.666;
-		else if(!h->boat && waterWalkingBonus)
+		else if(!h->boat && ti->bonusWaterWalking)
 		{
-			ret *= (100.0 + waterWalkingBonus->val) / 100.0;
+			ret *= (100.0 + ti->bonusWaterWalking->val) / 100.0;
 		}
 	}
 
@@ -705,7 +737,7 @@ int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 &src
 		getNeighbours(h->cb->gameState(), *d, dst, vec, s->terType != ETerrainType::WATER, true);
 		for(auto & elem : vec)
 		{
-			int fcost = getMovementCost(h, dst, elem, left, turn, false);
+			int fcost = getMovementCost(h, dst, elem, left, ti, false);
 			if(fcost <= left)
 				return ret;
 		}

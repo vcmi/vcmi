@@ -20,6 +20,7 @@
 class CGHeroInstance;
 class CGObjectInstance;
 struct TerrainTile;
+class CPathfinderHelper;
 
 struct DLL_LINKAGE CGPathNode
 {
@@ -128,6 +129,7 @@ private:
 
 	CPathsInfo &out;
 	const CGHeroInstance *hero;
+	CPathfinderHelper * hlp;
 
 	struct NodeComparer
 	{
@@ -179,11 +181,31 @@ private:
 
 };
 
+struct TurnInfo
+{
+	int turn;
+	int maxMovePointsLand;
+	int maxMovePointsWater;
+	const Bonus * bonusFlying;
+	const Bonus * bonusWaterWalking;
+};
+
 class DLL_LINKAGE CPathfinderHelper
 {
 public:
+	TurnInfo * ti;
+	const CGHeroInstance * hero;
+
+	CPathfinderHelper(const CGHeroInstance * Hero);
+	void updateTurnInfo(const int &turn = 0);
+	int getMaxMovePoints(const EPathfindingLayer &layer) const;
+	static TurnInfo * getTurnInfo(const CGHeroInstance * h, const int &turn = 0);
+
 	static void getNeighbours(CGameState * gs, const TerrainTile &srct, const int3 &tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, const bool &limitCoastSailing);
 
-	static int getMovementCost(const CGHeroInstance * h, const int3 &src, const int3 &dst, const int &remainingMovePoints =- 1, const int &turn = 0, const bool &checkLast = true);
+	static int getMovementCost(const CGHeroInstance * h, const int3 &src, const int3 &dst, const int &remainingMovePoints =- 1, const TurnInfo * ti = nullptr, const bool &checkLast = true);
 	static int getMovementCost(const CGHeroInstance * h, const int3 &dst);
+
+private:
+	std::vector<TurnInfo *> turnsInfo;
 };

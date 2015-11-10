@@ -56,7 +56,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 	return ret;
 }
 
-ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from, const int &turn) const
+ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const
 {
 	unsigned ret = GameConstants::BASE_MOVEMENT_COST;
 
@@ -80,7 +80,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 			break;
 		}
 	}
-	else if(!getBonusAtTurn(Bonus::NO_TERRAIN_PENALTY, turn, from.terType))
+	else if(!getBonusAtTurn(Bonus::NO_TERRAIN_PENALTY, ti->turn, from.terType))
 	{
 		// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
 		// This is clearly bug in H3 however intended behaviour is not clear.
