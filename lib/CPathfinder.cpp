@@ -48,7 +48,7 @@ CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance
 		throw std::runtime_error("Wrong checksum");
 	}
 
-	hlp = new CPathfinderHelper(hero);
+	hlp = make_unique<CPathfinderHelper>(hero);
 	if(hlp->ti->bonusFlying)
 		options.useFlying = true;
 	if(hlp->ti->bonusWaterWalking)
@@ -292,10 +292,24 @@ bool CPathfinder::isLayerAvailable(const ELayer &layer, const int &turn) const
 
 bool CPathfinder::isLayerTransitionPossible() const
 {
+	/// No layer transition allowed when previous node action is BATTLE
+	if(cp->action == CGPathNode::BATTLE)
+		return false;
+
 	if((cp->layer == ELayer::AIR || cp->layer ==  ELayer::WATER)
 	   && dp->layer != ELayer::LAND)
 	{
+		/// Hero that fly or walking on water can only go into ground layer
 		return false;
+	}
+	else if(cp->layer == ELayer::AIR && dp->layer == ELayer::LAND)
+	{
+		/// Hero that fly can only land on accessible tiles
+		if(cp->accessible != CGPathNode::ACCESSIBLE &&
+			dp->accessible != CGPathNode::ACCESSIBLE)
+		{
+			return false;
+		}
 	}
 	else if(cp->layer == ELayer::LAND && dp->layer == ELayer::AIR)
 	{
@@ -421,6 +435,8 @@ bool CPathfinder::isMovementAfterDestPossible() const
 	/// TODO: Investigate what kind of limitation is possible to apply on movement from visitable tiles
 	/// Likely in many cases we don't need to add visitable tile to queue when hero don't fly
 	case CGPathNode::VISIT:
+		/// For now we only add visitable tile into queue when it's teleporter that allow transit
+		/// Movement from visitable tile when hero is standing on it is possible into any layer
 		if(CGTeleport::isTeleport(dt->topVisitableObj()))
 		{
 			/// For now we'll always allow transit over teleporters
@@ -430,7 +446,7 @@ bool CPathfinder::isMovementAfterDestPossible() const
 				return true;
 		}
 		else
-			return true;
+			return false;
 	case CGPathNode::NORMAL:
 		return true;
 
@@ -440,6 +456,11 @@ bool CPathfinder::isMovementAfterDestPossible() const
 
 	case CGPathNode::DISEMBARK:
 		if(options.useEmbarkAndDisembark && !isDestinationGuarded())
+			return true;
+
+	case CGPathNode::BATTLE:
+		/// Movement after BATTLE action only possible to guardian tile
+		if(isDestinationGuarded())
 			return true;
 	}
 
@@ -498,6 +519,7 @@ void CPathfinder::initializeGraph()
 		node->reset();
 
 		auto accessibility = evaluateAccessibility(pos, tinfo);
+		/// TODO: Probably this shouldn't be handled by initializeGraph
 		if(blockNotAccessible
 			&& (accessibility != CGPathNode::ACCESSIBLE || tinfo->terType == ETerrainType::WATER))
 			accessibility = CGPathNode::BLOCKED;
@@ -521,7 +543,7 @@ void CPathfinder::initializeGraph()
 						if(options.useFlying)
 							updateNode(pos, ELayer::AIR, tinfo, true);
 						if(options.useWaterWalking)
-							updateNode(pos, ELayer::WATER, tinfo, true);
+							updateNode(pos, ELayer::WATER, tinfo, false);
 						break;
 					default:
 						updateNode(pos, ELayer::LAND, tinfo, false);

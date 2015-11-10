@@ -129,7 +129,7 @@ private:
 
 	CPathsInfo &out;
 	const CGHeroInstance *hero;
-	CPathfinderHelper * hlp;
+	unique_ptr<CPathfinderHelper> hlp;
 
 	struct NodeComparer
 	{
