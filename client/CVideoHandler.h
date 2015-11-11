@@ -58,6 +58,30 @@ extern "C" {
 #define VCMI_USE_OLD_AVUTIL
 #endif // LIBSWSCALE_VERSION_INT
 
+#ifdef VCMI_USE_OLD_AVUTIL
+
+#define AVPixelFormat PixelFormat 
+#define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
+#define AV_PIX_FMT_BGR565 PIX_FMT_BGR565
+#define AV_PIX_FMT_BGR24 PIX_FMT_BGR24
+#define AV_PIX_FMT_BGR32 PIX_FMT_BGR32
+#define AV_PIX_FMT_RGB565 PIX_FMT_RGB565
+#define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
+#define AV_PIX_FMT_RGB32 PIX_FMT_RGB32
+
+inline AVFrame * av_frame_alloc()
+{
+	return avcodec_alloc_frame();
+}
+
+inline void av_frame_free(AVFrame ** frame)
+{
+	av_free(*frame);
+	*frame = nullptr;
+}
+
+#endif // VCMI_USE_OLD_AVUTIL
+
 class CVideoPlayer : public IMainVideoPlayer
 {
 	int stream;					// stream index in video

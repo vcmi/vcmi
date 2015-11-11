@@ -142,14 +142,9 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 		return false;
 	}
 	// Allocate video frame
-#ifdef VCMI_USE_OLD_AVUTIL 
- 	frame = avcodec_alloc_frame();
-#else
 	frame = av_frame_alloc();
-#endif
 	
 	//setup scaling
-	
 	if(scale)
 	{
 		pos.w = screen->w;		
@@ -362,12 +357,7 @@ void CVideoPlayer::close()
 
 	if (frame)
 	{
-#ifdef VCMI_USE_OLD_AVUTIL
-		av_free(frame);
-		frame = nullptr;
-#else
 		av_frame_free(&frame);//will be set to null		
-#endif		
 	}
 
 	if (codec)
