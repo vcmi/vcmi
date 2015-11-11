@@ -53,6 +53,11 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+//compatibility for libav 9.18 in ubuntu 14.04, 52.66.100 is ffmpeg 2.2.3
+#if LIBAVUTIL_VERSION_INT < AV_VERSION_INT(52, 66, 100) 
+#define VCMI_USE_OLD_AVUTIL
+#endif // LIBSWSCALE_VERSION_INT
+
 class CVideoPlayer : public IMainVideoPlayer
 {
 	int stream;					// stream index in video
