@@ -61,6 +61,7 @@ extern "C" {
 #ifdef VCMI_USE_OLD_AVUTIL
 
 #define AVPixelFormat PixelFormat 
+#define AV_PIX_FMT_NONE PIX_FMT_NONE
 #define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
 #define AV_PIX_FMT_BGR565 PIX_FMT_BGR565
 #define AV_PIX_FMT_BGR24 PIX_FMT_BGR24
