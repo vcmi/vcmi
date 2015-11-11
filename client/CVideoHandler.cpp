@@ -151,10 +151,14 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	}
 
 	// Allocate video frame
+#ifdef _MSC_VER
+	frame = av_frame_alloc();
+#else
 #if LIBAVUTIL_VERSION_MAJOR > 52
 	frame = av_alloc_frame();
 #else
 	frame = avcodec_alloc_frame();
+#endif
 #endif
 	
 	//setup scaling
@@ -392,11 +396,14 @@ void CVideoPlayer::close()
 
 	if (frame)
 	{
+#ifndef _MSC_VER
 #if LIBAVUTIL_VERSION_MAJOR > 52
 		av_frame_free(frame);
+#endif
 #else
 		av_free(frame);
 #endif
+
 		frame = nullptr;
 	}
 
