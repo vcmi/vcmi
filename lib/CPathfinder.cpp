@@ -566,14 +566,15 @@ void CPathfinder::initializeGraph()
 	auto updateNode = [&](int3 pos, ELayer layer, const TerrainTile * tinfo, bool blockNotAccessible)
 	{
 		auto node = out.getNode(pos, layer);
-		node->reset();
 
 		auto accessibility = evaluateAccessibility(pos, tinfo);
 		/// TODO: Probably this shouldn't be handled by initializeGraph
 		if(blockNotAccessible
 			&& (accessibility != CGPathNode::ACCESSIBLE || tinfo->terType == ETerrainType::WATER))
+		{
 			accessibility = CGPathNode::BLOCKED;
-		node->accessible = accessibility;
+		}
+		node->update(pos, layer, accessibility);
 	};
 
 	int3 pos;
@@ -823,8 +824,8 @@ int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 & ds
 	return getMovementCost(h, h->visitablePos(), dst, h->movement);
 }
 
-CGPathNode::CGPathNode(int3 Coord, ELayer Layer)
-	: coord(Coord), layer(Layer)
+CGPathNode::CGPathNode()
+	: coord(int3(-1, -1, -1)), layer(ELayer::WRONG)
 {
 	reset();
 }
@@ -837,6 +838,19 @@ void CGPathNode::reset()
 	turns = 255;
 	theNodeBefore = nullptr;
 	action = UNKNOWN;
+}
+
+void CGPathNode::update(const int3 & Coord, const ELayer Layer, const EAccessibility Accessible)
+{
+	if(layer == ELayer::WRONG)
+	{
+		coord = Coord;
+		layer = Layer;
+	}
+	else
+		reset();
+
+	accessible = Accessible;
 }
 
 bool CGPathNode::reachable() const
@@ -870,63 +884,61 @@ CPathsInfo::CPathsInfo(const int3 & Sizes)
 {
 	hero = nullptr;
 	nodes.resize(boost::extents[sizes.x][sizes.y][sizes.z][ELayer::NUM_LAYERS]);
-	for(int i = 0; i < sizes.x; i++)
-		for(int j = 0; j < sizes.y; j++)
-			for(int z = 0; z < sizes.z; z++)
-				for(int l = 0; l < ELayer::NUM_LAYERS; l++)
-					nodes[i][j][z][l] = new CGPathNode(int3(i, j, z), static_cast<ELayer>(l));
 }
 
 CPathsInfo::~CPathsInfo()
 {
 }
 
-const CGPathNode * CPathsInfo::getPathInfo(const int3 & tile, const ELayer layer) const
+const CGPathNode * CPathsInfo::getPathInfo(const int3 & tile) const
 {
-	boost::unique_lock<boost::mutex> pathLock(pathMx);
+	assert(vstd::iswithin(tile.x, 0, sizes.x));
+	assert(vstd::iswithin(tile.y, 0, sizes.y));
+	assert(vstd::iswithin(tile.z, 0, sizes.z));
 
-	if(tile.x >= sizes.x || tile.y >= sizes.y || tile.z >= sizes.z || layer >= ELayer::NUM_LAYERS)
-		return nullptr;
-	return getNode(tile, layer);
+	boost::unique_lock<boost::mutex> pathLock(pathMx);
+	return getNode(tile);
 }
 
-bool CPathsInfo::getPath(CGPath & out, const int3 & dst, const ELayer layer) const
+bool CPathsInfo::getPath(CGPath & out, const int3 & dst) const
 {
 	boost::unique_lock<boost::mutex> pathLock(pathMx);
 
 	out.nodes.clear();
-	const CGPathNode * curnode = getNode(dst, layer);
+	const CGPathNode * curnode = getNode(dst);
 	if(!curnode->theNodeBefore)
 		return false;
 
 	while(curnode)
 	{
-		CGPathNode cpn = * curnode;
+		const CGPathNode cpn = * curnode;
 		curnode = curnode->theNodeBefore;
 		out.nodes.push_back(cpn);
 	}
 	return true;
 }
 
-int CPathsInfo::getDistance(const int3 & tile, const ELayer layer) const
+int CPathsInfo::getDistance(const int3 & tile) const
 {
 	boost::unique_lock<boost::mutex> pathLock(pathMx);
 
 	CGPath ret;
-	if(getPath(ret, tile, layer))
+	if(getPath(ret, tile))
 		return ret.nodes.size();
 	else
 		return 255;
 }
 
-CGPathNode * CPathsInfo::getNode(const int3 & coord, const ELayer layer) const
+const CGPathNode * CPathsInfo::getNode(const int3 & coord) const
 {
-	if(layer != ELayer::AUTO)
-		return nodes[coord.x][coord.y][coord.z][layer];
-
-	auto landNode = nodes[coord.x][coord.y][coord.z][ELayer::LAND];
-	if(landNode->theNodeBefore)
+	auto landNode = &nodes[coord.x][coord.y][coord.z][ELayer::LAND];
+	if(landNode->reachable())
 		return landNode;
 	else
-		return nodes[coord.x][coord.y][coord.z][ELayer::SAIL];
+		return &nodes[coord.x][coord.y][coord.z][ELayer::SAIL];
+}
+
+CGPathNode * CPathsInfo::getNode(const int3 & coord, const ELayer layer)
+{
+	return &nodes[coord.x][coord.y][coord.z][layer];
 }

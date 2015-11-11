@@ -55,8 +55,9 @@ struct DLL_LINKAGE CGPathNode
 	ELayer layer;
 	ENodeAction action;
 
-	CGPathNode(int3 Coord, ELayer Layer);
+	CGPathNode();
 	void reset();
+	void update(const int3 & Coord, const ELayer Layer, const EAccessibility Accessible);
 	bool reachable() const;
 };
 
@@ -78,14 +79,16 @@ struct DLL_LINKAGE CPathsInfo
 	const CGHeroInstance * hero;
 	int3 hpos;
 	int3 sizes;
-	boost::multi_array<CGPathNode *, 4> nodes; //[w][h][level][layer]
+	boost::multi_array<CGPathNode, 4> nodes; //[w][h][level][layer]
 
 	CPathsInfo(const int3 & Sizes);
 	~CPathsInfo();
-	const CGPathNode * getPathInfo(const int3 & tile, const ELayer layer = ELayer::AUTO) const;
-	bool getPath(CGPath & out, const int3 & dst, const ELayer layer = ELayer::AUTO) const;
-	int getDistance(const int3 & tile, const ELayer layer = ELayer::AUTO) const;
-	CGPathNode * getNode(const int3 & coord, const ELayer layer) const;
+	const CGPathNode * getPathInfo(const int3 & tile) const;
+	bool getPath(CGPath & out, const int3 & dst) const;
+	int getDistance(const int3 & tile) const;
+	const CGPathNode * getNode(const int3 & coord) const;
+
+	CGPathNode * getNode(const int3 & coord, const ELayer layer);
 };
 
 class CPathfinder : private CGameInfoCallback
