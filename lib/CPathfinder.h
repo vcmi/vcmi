@@ -157,7 +157,7 @@ private:
 	CGPathNode *cp; //current (source) path node -> we took it from the queue
 	CGPathNode *dp; //destination node -> it's a neighbour of cp that we consider
 	const TerrainTile *ct, *dt; //tile info for both nodes
-	const CGObjectInstance *sTileObj;
+	const CGObjectInstance * cObj, * dObj;
 	CGPathNode::ENodeAction destAction;
 
 	void addNeighbours(const int3 &coord);
@@ -165,8 +165,9 @@ private:
 
 	bool isLayerAvailable(const ELayer &layer, const int &turn) const;
 	bool isLayerTransitionPossible() const;
-	bool isMovementToDestPossible();
+	bool isMovementToDestPossible() const;
 	bool isMovementAfterDestPossible() const;
+	CGPathNode::ENodeAction getDestAction() const;
 
 	bool isSourceInitialPosition() const;
 	int3 getSourceGuardPosition() const;
