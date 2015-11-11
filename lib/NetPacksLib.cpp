@@ -1305,6 +1305,9 @@ DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
 {
 	CStack *st = gs->curB->getStack(ba.stackNumber);
 
+	if(vstd::contains(st->state, EBattleStackState::DEFENDING_ANIM))
+		st->state -= EBattleStackState::DEFENDING_ANIM;
+
 	if(ba.actionType == Battle::END_TACTIC_PHASE)
 	{
 		gs->curB->tacticDistance = 0;
@@ -1331,6 +1334,7 @@ DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
 	{
 	case Battle::DEFEND:
 		st->state.insert(EBattleStackState::DEFENDING);
+		st->state.insert(EBattleStackState::DEFENDING_ANIM);
 		break;
 	case Battle::WAIT:
 		st->state.insert(EBattleStackState::WAITING);
