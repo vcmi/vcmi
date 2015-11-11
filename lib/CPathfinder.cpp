@@ -248,7 +248,16 @@ void CPathfinder::addTeleportExits(bool noTeleportExcludes)
 		for(auto objId : gs->getTeleportChannelExits(sTileTeleport->channel, hero->tempOwner))
 		{
 			auto obj = getObj(objId);
-			if(CGTeleport::isExitPassable(gs, hero, obj))
+			if(dynamic_cast<const CGWhirlpool *>(obj))
+			{
+				auto pos = obj->getBlockedPos();
+				for(auto p : pos)
+				{
+					if(gs->getTile(p)->topVisitableId() == obj->ID)
+						neighbours.push_back(p);
+				}
+			}
+			else if(CGTeleport::isExitPassable(gs, hero, obj))
 				neighbours.push_back(obj->visitablePos());
 		}
 	}
