@@ -1106,9 +1106,7 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 	{
 		std::set<int3> tiles = obj->getBlockedPos();
 		auto & tile = *RandomGeneratorUtil::nextItem(tiles, cb->gameState()->getRandomGenerator());
-		cb->moveHero(hero->id, tile + int3(1,0,0), true);
-
-		cb->moveHero(hero->id,CGHeroInstance::convertPosition(obj->pos,true) - getVisitableOffset(), true);
+		cb->moveHero(hero->id, CGHeroInstance::convertPosition(tile, true), true);
 	}
 }
 
