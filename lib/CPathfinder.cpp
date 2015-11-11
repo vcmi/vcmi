@@ -327,6 +327,7 @@ bool CPathfinder::isLayerTransitionPossible() const
 		{
 			return false;
 		}
+
 		break;
 
 	case ELayer::AIR:
@@ -382,8 +383,12 @@ bool CPathfinder::isMovementToDestPossible() const
 	case ELayer::SAIL:
 		if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
 			return false;
-		if(isSourceGuarded() && !isDestinationGuardian()) // Can step into tile of guard
-			return false;
+		if(isSourceGuarded())
+		{
+			// Hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
+			if(cp->action != CGPathNode::EMBARK && !isDestinationGuardian())
+				return false;
+		}
 
 		if(cp->layer == ELayer::LAND)
 		{
@@ -393,6 +398,7 @@ bool CPathfinder::isMovementToDestPossible() const
 			if(dObj->ID != Obj::BOAT && dObj->ID != Obj::HERO)
 				return false;
 		}
+
 		break;
 
 	case ELayer::WATER:
@@ -526,17 +532,14 @@ int3 CPathfinder::getSourceGuardPosition() const
 
 bool CPathfinder::isSourceGuarded() const
 {
-	//map can start with hero on guarded tile or teleport there using dimension door
-	//so threat tile hero standing on like it's not guarded because it's should be possible to move out of here
+	/// Hero can move from guarded tile if movement started on that tile
+	/// It's possible at least in these cases:
+	/// - Map start with hero on guarded tile
+	/// - Dimention door used
+	///  TODO: check what happen when there is several guards
 	if(getSourceGuardPosition() != int3(-1, -1, -1) && !isSourceInitialPosition())
 	{
-		//special case -> hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
-		if(cp->accessible != CGPathNode::VISITABLE ||
-			cp->theNodeBefore->layer == ELayer::LAND ||
-			cObj->ID != Obj::BOAT)
-		{
-			return true;
-		}
+		return true;
 	}
 
 	return false;
