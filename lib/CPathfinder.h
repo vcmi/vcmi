@@ -166,7 +166,6 @@ private:
 	void addNeighbours(const int3 & coord);
 	void addTeleportExits(bool noTeleportExcludes = false);
 
-	bool isLayerAvailable(const ELayer layer, const int turn) const;
 	bool isLayerTransitionPossible() const;
 	bool isMovementToDestPossible() const;
 	bool isMovementAfterDestPossible() const;
@@ -200,6 +199,7 @@ struct DLL_LINKAGE TurnInfo
 	mutable int maxMovePointsWater;
 
 	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
+	bool isLayerAvailable(const EPathfindingLayer layer) const;
 	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
 	int valOfBonuses(const Bonus::BonusType type, const int subtype = -1) const;
 	int getMaxMovePoints(const EPathfindingLayer layer) const;
@@ -208,11 +208,9 @@ struct DLL_LINKAGE TurnInfo
 class DLL_LINKAGE CPathfinderHelper
 {
 public:
-	int turn;
-	const CGHeroInstance * hero;
-
 	CPathfinderHelper(const CGHeroInstance * Hero);
 	void updateTurnInfo(const int turn = 0);
+	bool isLayerAvailable(const EPathfindingLayer layer) const;
 	const TurnInfo * getTurnInfo() const;
 	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
 	int getMaxMovePoints(const EPathfindingLayer layer) const;
@@ -223,5 +221,7 @@ public:
 	static int getMovementCost(const CGHeroInstance * h, const int3 & dst);
 
 private:
+	int turn;
+	const CGHeroInstance * hero;
 	std::vector<TurnInfo *> turnsInfo;
 };

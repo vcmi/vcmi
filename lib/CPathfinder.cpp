@@ -130,7 +130,7 @@ void CPathfinder::calculatePaths()
 				if(!passOneTurnLimitCheck(cp->turns != turn))
 					continue;
 
-				if(!isLayerAvailable(i, turn))
+				if(!hlp->isLayerAvailable(i))
 					continue;
 
 				if(cp->layer != i && !isLayerTransitionPossible())
@@ -278,26 +278,6 @@ void CPathfinder::addTeleportExits(bool noTeleportExcludes)
 			}
 		}
 	}
-}
-
-bool CPathfinder::isLayerAvailable(const ELayer layer, const int turn) const
-{
-	switch(layer)
-	{
-	case ELayer::AIR:
-		if(!hlp->hasBonusOfType(Bonus::FLYING_MOVEMENT))
-			return false;
-
-		break;
-
-	case ELayer::WATER:
-		if(!hlp->hasBonusOfType(Bonus::WATER_WALKING))
-			return false;
-
-		break;
-	}
-
-	return true;
 }
 
 bool CPathfinder::isLayerTransitionPossible() const
@@ -707,6 +687,26 @@ TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)
 	bonuses = hero->getAllBonuses(Selector::days(turn), nullptr);
 }
 
+bool TurnInfo::isLayerAvailable(const EPathfindingLayer layer) const
+{
+	switch(layer)
+	{
+	case EPathfindingLayer::AIR:
+		if(!hasBonusOfType(Bonus::FLYING_MOVEMENT))
+			return false;
+
+		break;
+
+	case EPathfindingLayer::WATER:
+		if(!hasBonusOfType(Bonus::WATER_WALKING))
+			return false;
+
+		break;
+	}
+
+	return true;
+}
+
 bool TurnInfo::hasBonusOfType(Bonus::BonusType type, int subtype) const
 {
 	return bonuses->getFirst(Selector::type(type).And(Selector::subtype(subtype)));
@@ -728,7 +728,7 @@ int TurnInfo::getMaxMovePoints(const EPathfindingLayer layer) const
 }
 
 CPathfinderHelper::CPathfinderHelper(const CGHeroInstance * Hero)
-	: turn(0), hero(Hero)
+	: turn(-1), hero(Hero)
 {
 	turnsInfo.reserve(16);
 	updateTurnInfo();
@@ -745,6 +745,11 @@ void CPathfinderHelper::updateTurnInfo(const int Turn)
 			turnsInfo.push_back(ti);
 		}
 	}
+}
+
+bool CPathfinderHelper::isLayerAvailable(const EPathfindingLayer layer) const
+{
+	return turnsInfo[turn]->isLayerAvailable(layer);
 }
 
 const TurnInfo * CPathfinderHelper::getTurnInfo() const
