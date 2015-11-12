@@ -80,7 +80,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 			break;
 		}
 	}
-	else if(!getBonusAtTurn(Bonus::NO_TERRAIN_PENALTY, ti->turn, from.terType))
+	else if(!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
 	{
 		// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
 		// This is clearly bug in H3 however intended behaviour is not clear.
@@ -129,11 +129,6 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 	}
 }
 
-const Bonus * CGHeroInstance::getBonusAtTurn(const Bonus::BonusType &type, const int &turn, const TBonusSubtype &subType) const
-{
-	return getBonus(Selector::type(type).And(Selector::days(turn)).And(Selector::subtype(subType)));
-}
-
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
 {
 	for(auto & elem : secSkills)
@@ -176,8 +171,11 @@ bool CGHeroInstance::canLearnSkill() const
 	return secSkills.size() < GameConstants::SKILL_PER_HERO;
 }
 
-int CGHeroInstance::maxMovePoints(bool onLand) const
+int CGHeroInstance::maxMovePoints(bool onLand, const TurnInfo * ti) const
 {
+	if(!ti)
+		ti = new TurnInfo(this);
+
 	int base;
 
 	if(onLand)
@@ -196,10 +194,10 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	}
 
 	const Bonus::BonusType bt = onLand ? Bonus::LAND_MOVEMENT : Bonus::SEA_MOVEMENT;
-	const int bonus = valOfBonuses(Bonus::MOVEMENT) + valOfBonuses(bt);
+	const int bonus = ti->valOfBonuses(Bonus::MOVEMENT) + ti->valOfBonuses(bt);
 
 	const int subtype = onLand ? SecondarySkill::LOGISTICS : SecondarySkill::NAVIGATION;
-	const double modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, subtype) / 100.0;
+	const double modifier = ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, subtype) / 100.0;
 
 	return int(base* (1+modifier)) + bonus;
 }
@@ -1166,9 +1164,12 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)
 		return CArmedInstance::whereShouldBeAttached(gs);
 }
 
-int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark /*= false*/) const
+int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark /*= false*/, const TurnInfo * ti) const
 {
-	if(hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
+	if(!ti)
+		ti = new TurnInfo(this);
+
+	if(ti->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
 		return (MPsBefore - basicCost) * static_cast<double>(maxMovePoints(disembark)) / maxMovePoints(!disembark);
 
 	return 0; //take all MPs otherwise

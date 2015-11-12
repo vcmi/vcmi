@@ -192,28 +192,30 @@ private:
 
 };
 
-struct TurnInfo
+struct DLL_LINKAGE TurnInfo
 {
-	int turn;
-	int maxMovePointsLand;
-	int maxMovePointsWater;
-	const Bonus * bonusFlying;
-	const Bonus * bonusWaterWalking;
+	const CGHeroInstance * hero;
+	TBonusListPtr bonuses;
+	mutable int maxMovePointsLand;
+	mutable int maxMovePointsWater;
 
-	TurnInfo(const CGHeroInstance * h, const int Turn = 0);
+	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
+	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
+	int valOfBonuses(const Bonus::BonusType type, const int subtype = -1) const;
 	int getMaxMovePoints(const EPathfindingLayer layer) const;
 };
 
 class DLL_LINKAGE CPathfinderHelper
 {
 public:
-	TurnInfo * ti;
+	int turn;
 	const CGHeroInstance * hero;
 
 	CPathfinderHelper(const CGHeroInstance * Hero);
 	void updateTurnInfo(const int turn = 0);
-	const TurnInfo * getTurnInfo(const int turn) const;
-	int getMaxMovePoints(const EPathfindingLayer layer, const int turn) const;
+	const TurnInfo * getTurnInfo() const;
+	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
+	int getMaxMovePoints(const EPathfindingLayer layer) const;
 
 	static void getNeighbours(CGameState * gs, const TerrainTile & srct, const int3 & tile, std::vector<int3> & vec, const boost::logic::tribool & onLand, const bool limitCoastSailing);
 
