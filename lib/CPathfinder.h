@@ -199,6 +199,9 @@ struct TurnInfo
 	int maxMovePointsWater;
 	const Bonus * bonusFlying;
 	const Bonus * bonusWaterWalking;
+
+	TurnInfo(const CGHeroInstance * h, const int Turn = 0);
+	int getMaxMovePoints(const EPathfindingLayer layer) const;
 };
 
 class DLL_LINKAGE CPathfinderHelper
@@ -209,8 +212,8 @@ public:
 
 	CPathfinderHelper(const CGHeroInstance * Hero);
 	void updateTurnInfo(const int turn = 0);
-	int getMaxMovePoints(const EPathfindingLayer layer) const;
-	static TurnInfo * getTurnInfo(const CGHeroInstance * h, const int turn = 0);
+	const TurnInfo * getTurnInfo(const int turn) const;
+	int getMaxMovePoints(const EPathfindingLayer layer, const int turn) const;
 
 	static void getNeighbours(CGameState * gs, const TerrainTile & srct, const int3 & tile, std::vector<int3> & vec, const boost::logic::tribool & onLand, const bool limitCoastSailing);
 
