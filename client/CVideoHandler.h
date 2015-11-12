@@ -51,19 +51,37 @@ public:
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
-
-// compatibility with different versions od libavutil
-#if (LIBAVUTIL_VERSION_INT < AV_VERSION_INT(51, 42, 0)) || \
-    (LIBAVUTIL_VERSION_INT == AV_VERSION_INT(51, 73, 101))
-
-#define AV_PIX_FMT_NONE         PIX_FMT_NONE
-#define AV_PIX_FMT_NV12         PIX_FMT_NV12
-#define AV_PIX_FMT_YUV420P      PIX_FMT_YUV420P
-#define AV_PIX_FMT_UYVY422      PIX_FMT_UYVY422
-#define AV_PIX_FMT_YUYV422      PIX_FMT_YUYV422
-
-#endif 
 }
+
+//compatibility for libav 9.18 in ubuntu 14.04, 52.66.100 is ffmpeg 2.2.3
+#if LIBAVUTIL_VERSION_INT < AV_VERSION_INT(52, 66, 100) 
+#define VCMI_USE_OLD_AVUTIL
+#endif // LIBSWSCALE_VERSION_INT
+
+#ifdef VCMI_USE_OLD_AVUTIL
+
+#define AVPixelFormat PixelFormat 
+#define AV_PIX_FMT_NONE PIX_FMT_NONE
+#define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
+#define AV_PIX_FMT_BGR565 PIX_FMT_BGR565
+#define AV_PIX_FMT_BGR24 PIX_FMT_BGR24
+#define AV_PIX_FMT_BGR32 PIX_FMT_BGR32
+#define AV_PIX_FMT_RGB565 PIX_FMT_RGB565
+#define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
+#define AV_PIX_FMT_RGB32 PIX_FMT_RGB32
+
+inline AVFrame * av_frame_alloc()
+{
+	return avcodec_alloc_frame();
+}
+
+inline void av_frame_free(AVFrame ** frame)
+{
+	av_free(*frame);
+	*frame = nullptr;
+}
+
+#endif // VCMI_USE_OLD_AVUTIL
 
 class CVideoPlayer : public IMainVideoPlayer
 {

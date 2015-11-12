@@ -104,11 +104,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 		return false;
 	}
 	// Retrieve stream information
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 17, 0)
-	if (av_find_stream_info(format) < 0)
-#else
 	if (avformat_find_stream_info(format, nullptr) < 0)
-#endif
 		return false;
 
 	// Find the first video stream
@@ -139,27 +135,16 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	}
 
 	// Open codec
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 6, 0)
-	if ( avcodec_open(codecContext, codec) < 0 )
-#else
 	if ( avcodec_open2(codecContext, codec, nullptr) < 0 )
-#endif
 	{
 		// Could not open codec
 		codec = nullptr;
 		return false;
 	}
-
 	// Allocate video frame
-#if LIBAVUTIL_VERSION_MAJOR > 51
 	frame = av_frame_alloc();
-#else
-	frame = avcodec_alloc_frame();
-#endif
-
 	
 	//setup scaling
-	
 	if(scale)
 	{
 		pos.w = screen->w;		
@@ -191,35 +176,20 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	{ // Convert the image into YUV format that SDL uses
 		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt, 
 							 pos.w, pos.h,
-#if LIBAVUTIL_VERSION_MAJOR > 51
 							 AV_PIX_FMT_YUV420P,
-#else
-							 PIX_FMT_YUV420P,
-#endif
 							 SWS_BICUBIC, nullptr, nullptr, nullptr);
 	}
 	else
 	{
-
-#if LIBAVUTIL_VERSION_MAJOR > 51
 		AVPixelFormat screenFormat = AV_PIX_FMT_NONE;
-#else
-		PixelFormat screenFormat = PIX_FMT_NONE;
-#endif
 		if (screen->format->Bshift > screen->format->Rshift)
 		{
 			// this a BGR surface
 			switch (screen->format->BytesPerPixel)
 			{
-#if LIBAVUTIL_VERSION_MAJOR > 51
 				case 2: screenFormat = AV_PIX_FMT_BGR565; break;
 				case 3: screenFormat = AV_PIX_FMT_BGR24; break;
 				case 4: screenFormat = AV_PIX_FMT_BGR32; break;
-#else
-				case 2: screenFormat = PIX_FMT_BGR565; break;
-				case 3: screenFormat = PIX_FMT_BGR24; break;
-				case 4: screenFormat = PIX_FMT_BGR32; break;
-#endif
 				default: return false;
 			}
 		}
@@ -228,15 +198,9 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 			// this a RGB surface
 			switch (screen->format->BytesPerPixel)
 			{
-#if LIBAVUTIL_VERSION_MAJOR > 51
 				case 2: screenFormat = AV_PIX_FMT_RGB565; break;
 				case 3: screenFormat = AV_PIX_FMT_RGB24; break;
 				case 4: screenFormat = AV_PIX_FMT_RGB32; break;
-#else
-				case 2: screenFormat = PIX_FMT_RGB565; break;
-				case 3: screenFormat = PIX_FMT_RGB24; break;
-				case 4: screenFormat = PIX_FMT_RGB32; break;
-#endif
 				default: return false;
 			}
 		}
@@ -393,12 +357,7 @@ void CVideoPlayer::close()
 
 	if (frame)
 	{
-#if LIBAVUTIL_VERSION_MAJOR > 51
-		av_frame_free(&frame);//will be set to null
-#else
-		av_free(frame);
-		frame = nullptr;		
-#endif
+		av_frame_free(&frame);//will be set to null		
 	}
 
 	if (codec)
@@ -410,12 +369,7 @@ void CVideoPlayer::close()
 
 	if (format)
 	{
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 17, 0)
-		av_close_input_file(format);
-		format = nullptr;
-#else
 		avformat_close_input(&format);
-#endif
 	}
 
 	if (context)
