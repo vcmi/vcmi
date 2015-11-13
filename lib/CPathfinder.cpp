@@ -519,11 +519,6 @@ bool CPathfinder::isSourceInitialPosition() const
 	return cp->coord == out.hpos;
 }
 
-int3 CPathfinder::getSourceGuardPosition() const
-{
-	return gs->map->guardingCreaturePositions[cp->coord.x][cp->coord.y][cp->coord.z];
-}
-
 bool CPathfinder::isSourceGuarded() const
 {
 	/// Hero can move from guarded tile if movement started on that tile
@@ -531,7 +526,7 @@ bool CPathfinder::isSourceGuarded() const
 	/// - Map start with hero on guarded tile
 	/// - Dimention door used
 	///  TODO: check what happen when there is several guards
-	if(getSourceGuardPosition() != int3(-1, -1, -1) && !isSourceInitialPosition())
+	if(gs->guardingCreaturePosition(cp->coord) != int3(-1, -1, -1) && !isSourceInitialPosition())
 	{
 		return true;
 	}
@@ -541,7 +536,7 @@ bool CPathfinder::isSourceGuarded() const
 
 bool CPathfinder::isDestinationGuarded(const bool ignoreAccessibility) const
 {
-	if(gs->map->guardingCreaturePositions[dp->coord.x][dp->coord.y][dp->coord.z].valid()
+	if(gs->guardingCreaturePosition(dp->coord).valid()
 		&& (ignoreAccessibility || dp->accessible == CGPathNode::BLOCKVIS))
 	{
 		return true;
@@ -552,7 +547,7 @@ bool CPathfinder::isDestinationGuarded(const bool ignoreAccessibility) const
 
 bool CPathfinder::isDestinationGuardian() const
 {
-	return getSourceGuardPosition() == dp->coord;
+	return gs->guardingCreaturePosition(cp->coord) == dp->coord;
 }
 
 void CPathfinder::initializeGraph()
@@ -633,8 +628,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 & pos, 
 			}
 		}
 	}
-	else if(gs->map->guardingCreaturePositions[pos.x][pos.y][pos.z].valid()
-		&& !tinfo->blocked)
+	else if(gs->guardingCreaturePosition(pos).valid() && !tinfo->blocked)
 	{
 		// Monster close by; blocked visit for battle.
 		return CGPathNode::BLOCKVIS;

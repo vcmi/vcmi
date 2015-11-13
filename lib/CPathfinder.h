@@ -172,7 +172,6 @@ private:
 	CGPathNode::ENodeAction getDestAction() const;
 
 	bool isSourceInitialPosition() const;
-	int3 getSourceGuardPosition() const;
 	bool isSourceGuarded() const;
 	bool isDestinationGuarded(const bool ignoreAccessibility = true) const;
 	bool isDestinationGuardian() const;
