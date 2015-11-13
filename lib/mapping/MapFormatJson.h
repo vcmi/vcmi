@@ -143,6 +143,8 @@ private:
 	 */
 	void readPlayerInfo(PlayerInfo & info, const JsonNode & input);
 	
+	void readTeams(const JsonNode & input);
+	
 	void readTerrainTile(const std::string & src, TerrainTile & tile);
 	
 	void readTerrainLevel(const JsonNode & src, const int index);	
@@ -189,7 +191,9 @@ private:
 	 * Save one player info
 	 * @param output empty object	 
 	 */	
-	void writePlayerInfo(const PlayerInfo & info, JsonNode & output);	
+	void writePlayerInfo(const PlayerInfo & info, JsonNode & output);
+	
+	void writeTeams(JsonNode & output);	
 
 	const std::string writeTerrainTile(const TerrainTile & tile);
 	

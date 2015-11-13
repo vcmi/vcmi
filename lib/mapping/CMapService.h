@@ -145,6 +145,6 @@ public:
 	/**
 	 * Saves the VCMI/H3 map file.
 	 *
-	 */	
+	 */
 	 virtual void saveMap(const std::unique_ptr<CMap> & map) = 0;
 };
