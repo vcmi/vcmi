@@ -443,8 +443,8 @@ bool CPathfinder::isMovementAfterDestPossible() const
 		break;
 
 	case CGPathNode::BATTLE:
-		/// Movement after BATTLE action only possible to guardian tile
-		if(isDestinationGuardian())
+		/// Movement after BATTLE action only possible from guarded tile to guardian tile
+		if(isDestinationGuarded())
 			return true;
 
 		break;
