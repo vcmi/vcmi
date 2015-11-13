@@ -19,7 +19,7 @@ SHeroName::SHeroName() : heroId(-1)
 
 PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
 	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainCustomHeroPortrait(-1), mainCustomHeroId(-1), hasMainTown(false),
-	generateHeroAtMainTown(false), team(255), hasRandomHero(false), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
+	generateHeroAtMainTown(false), team(TeamID::NO_TEAM), hasRandomHero(false), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
 {
 	allowedFactions = VLC->townh->getAllowedFactions();
 }
@@ -326,7 +326,7 @@ bool CMap::isCoastalTile(const int3 & pos) const
 	if(!isInTheMap(pos))
 	{
 		logGlobal->errorStream() << "Coastal check outside of map :"<<pos;
-		return false;	
+		return false;
 	}
 
 	if(isWaterTile(pos))
@@ -334,14 +334,14 @@ bool CMap::isCoastalTile(const int3 & pos) const
 
 	for (auto & dir : dirs)
 	{
-		const int3 hlp = pos + dir;		
-		
+		const int3 hlp = pos + dir;
+
 		if(!isInTheMap(hlp))
 			continue;
 		const TerrainTile &hlpt = getTile(hlp);
 		if(hlpt.isWater())
-			return true;		
-	}	
+			return true;
+	}
 
 	return false;
 }

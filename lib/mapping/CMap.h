@@ -76,7 +76,7 @@ struct DLL_LINKAGE PlayerInfo
 	bool hasMainTown; /// The default value is false.
 	bool generateHeroAtMainTown; /// The default value is false.
 	int3 posOfMainTown;
-	TeamID team; /// The default value is 255 representing that the player belongs to no team.
+	TeamID team; /// The default value NO_TEAM
 	bool hasRandomHero; /// Player has a random hero
 
 	bool generateHero; /// Unused.

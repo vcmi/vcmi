@@ -337,9 +337,10 @@ void CMapLoaderJson::readPlayerInfo(PlayerInfo& info, const JsonNode& input)
 {
 	//allowed factions
 
-	info.isFactionRandom = input["randomFaction"].Bool();
-	info.canComputerPlay = input["canComputerPlay"].Bool();
-	info.canHumanPlay = input["canHumanPlay"].Bool();
+//	info.isFactionRandom =
+
+	info.canComputerPlay = true;
+	info.canHumanPlay = input["canPlay"].String() != "AIOnly";
 
 	//placedHeroes
 
@@ -347,13 +348,11 @@ void CMapLoaderJson::readPlayerInfo(PlayerInfo& info, const JsonNode& input)
 
 	info.generateHeroAtMainTown = input["generateHeroAtMainTown"].Bool();
 
-	info.hasRandomHero = input["randomHero"].Bool();
-
 	//mainHero
 
 	//mainHeroPortrait
 
-	info.mainCustomHeroName = input["mainHeroName"].String();
+	//mainCustomHeroName
 }
 
 void CMapLoaderJson::readTeams(const JsonNode& input)
@@ -387,10 +386,20 @@ void CMapLoaderJson::readTeams(const JsonNode& input)
 				PlayerColor player = PlayerColor(vstd::find_pos(MapHeaderDetail::playerColorNames, playerData.String()));
 				if(player.isValidPlayer())
 				{
-					map->players[player.getNum()].team = TeamID(team);
+					if(map->players[player.getNum()].canAnyonePlay())
+					{
+						map->players[player.getNum()].team = TeamID(team);
+					}
 				}
 			}
 		}
+
+		for(PlayerInfo & player : map->players)
+		{
+			if(player.canAnyonePlay() && player.team == TeamID::NO_TEAM)
+				player.team = TeamID(mapHeader->howManyTeams++);
+		}
+
 	}
 }
 
@@ -635,24 +644,15 @@ void CMapSaverJson::writePlayerInfo(const PlayerInfo & info, JsonNode & output)
 {
 	//allowed factions
 
-	output["randomFaction"].Bool() = info.isFactionRandom;
-
-	output["canComputerPlay"].Bool() = info.canComputerPlay;
-	output["canHumanPlay"].Bool() = info.canHumanPlay;
-
-	//plasedHeroes
+	output["canPlay"].String() = info.canHumanPlay ? "PlayerOrAI" : "AIOnly";
 
 	//mainTown
-
 	output["generateHeroAtMainTown"].Bool() = info.generateHeroAtMainTown;
-
-	output["randomHero"].Bool() = info.hasRandomHero;
 
 	//mainHero
 
-	//mainHeroPortrait
-
-	output["mainHeroName"].String() =  info.mainCustomHeroName;
+	//towns
+	//heroes
 }
 
 void CMapSaverJson::writeTeams(JsonNode& output)
@@ -667,16 +667,19 @@ void CMapSaverJson::writeTeams(JsonNode& output)
 	{
 		const PlayerInfo & player = map->players.at(idx);
 		int team = player.team.getNum();
-		if(vstd::isbetween(team, 0, map->howManyTeams-1))
+		if(vstd::isbetween(team, 0, map->howManyTeams-1) && player.canAnyonePlay())
 			teamsData.at(team).insert(PlayerColor(idx));
 	}
-
+//just an optimization but breaks test
+#if 0
 	//remove single-member teams
 	vstd::erase_if(teamsData, [](std::set<PlayerColor> & elem) -> bool
 	{
 		return elem.size() <= 1;
 	});
+#endif
 
+	//construct output
 	dest.setType(JsonNode::DATA_VECTOR);
 
 	for(const std::set<PlayerColor> & teamData : teamsData)
