@@ -387,6 +387,11 @@ bool CPathfinder::isMovementToDestPossible() const
 			if(dObj->ID != Obj::BOAT && dObj->ID != Obj::HERO)
 				return false;
 		}
+		else if(dObj && dObj->ID == Obj::BOAT)
+		{
+			/// Hero in boat can't visit empty boats
+			return false;
+		}
 
 		break;
 
