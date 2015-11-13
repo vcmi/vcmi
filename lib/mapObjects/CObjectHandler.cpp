@@ -136,6 +136,19 @@ CGObjectInstance::~CGObjectInstance()
 {
 }
 
+const std::string & CGObjectInstance::getStringId() const
+{
+	//todo: getStringId use real object type
+	if(stringId == "")
+	{
+		boost::format fmt("%s_%d");
+		fmt % "object" % id.getNum();
+		stringId = fmt.str();
+	}
+
+	return stringId;
+}
+
 void CGObjectInstance::setOwner(PlayerColor ow)
 {
 	tempOwner = ow;
@@ -310,6 +323,50 @@ bool CGObjectInstance::passableFor(PlayerColor color) const
 {
 	return false;
 }
+
+void CGObjectInstance::writeJson(JsonNode & json, bool withState) const
+{
+	json.setType(JsonNode::DATA_STRUCT);
+
+	appearance.writeJson(json["template"]);
+	writeJsonOptions(json["options"]);
+	if(withState)
+		writeJsonState(json["state"]);
+}
+
+void CGObjectInstance::readJson(const JsonNode & json, bool withState)
+{
+	if(json.getType() != JsonNode::DATA_STRUCT)
+	{
+		logGlobal->error("Invalid object instance data");
+		return;
+	}
+	appearance.readJson(json["template"]);
+	readJsonOptions(json["options"]);
+	if(withState)
+		readJsonState(json["state"]);
+}
+
+void CGObjectInstance::writeJsonOptions(JsonNode & json) const
+{
+
+}
+
+void CGObjectInstance::readJsonOptions(const JsonNode & json)
+{
+
+}
+
+void CGObjectInstance::writeJsonState(JsonNode & json) const
+{
+
+}
+
+void CGObjectInstance::readJsonState(const JsonNode & json)
+{
+
+}
+
 
 CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)
 {

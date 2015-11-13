@@ -148,9 +148,22 @@ void MapComparer::compareOptions()
 	BOOST_ERROR("Not implemented compareOptions()");
 }
 
+void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectInstance * expected)
+{
+	BOOST_CHECK_EQUAL(actual->getStringId(), expected->getStringId());
+	BOOST_CHECK_EQUAL(typeid(actual).name(), typeid(expected).name());//todo: remove and use just comparison
+}
+
 void MapComparer::compareObjects()
 {
-	BOOST_ERROR("Not implemented compareObjects()");
+	BOOST_CHECK_EQUAL(actual->objects.size(), expected->objects.size());
+
+	for(size_t idx = 0; idx < std::min(actual->objects.size(), expected->objects.size()); idx++)
+	{
+		BOOST_REQUIRE_EQUAL(idx, expected->objects[idx]->id.getNum());
+		BOOST_CHECK_EQUAL(idx, actual->objects[idx]->id.getNum());
+		compareObject(actual->objects[idx], expected->objects[idx]);
+	}
 }
 
 void MapComparer::compareTerrain()

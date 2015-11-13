@@ -35,7 +35,7 @@ public:
 	virtual void newTurn() const;
 	virtual void initObj(); //synchr
 	virtual void setProperty(ui8 what, ui32 val);//synchr
-	
+
 	//Called when queries created DURING HERO VISIT are resolved
 	//First parameter is always hero that visited object and triggered the query
 	virtual void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const;
@@ -116,6 +116,8 @@ public:
 	CGObjectInstance();
 	~CGObjectInstance();
 
+	const std::string & getStringId() const;
+
 	/// "center" tile from which the sight distance is calculated
 	int3 getSightCenter() const;
 
@@ -164,17 +166,44 @@ public:
 
 	//friend class CGameHandler;
 
+	///Entry point of binary (de-)serialization
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & pos & ID & subID & id & tempOwner & blockVisit & appearance;
 		//definfo is handled by map serializer
 	}
+
+	///Entry point of Json serialization
+	void writeJson(JsonNode & json, bool withState = false) const;
+
+	///Entry point of Json de-serialization
+	void readJson(const JsonNode & json, bool withState = false);
+
 protected:
 	/// virtual method that allows synchronously update object state on server and all clients
 	virtual void setPropertyDer(ui8 what, ui32 val);
 
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
 	void giveDummyBonus(ObjectInstanceID heroID, ui8 duration = Bonus::ONE_DAY) const;
+
+	///Saves object-type specific options
+	///(!) do not forget to call inherited method first when overriding
+	virtual void writeJsonOptions(JsonNode & json) const;
+
+	///Loads object-type specific options
+	///(!) do not forget to call inherited method  first when overriding
+	virtual void readJsonOptions(const JsonNode & json);
+
+	///Saves object-type specific state
+	///(!) do not forget to call inherited method  first when overriding
+	virtual void writeJsonState(JsonNode & json) const;
+
+	///Loads object-type specific state
+	///(!) do not forget to call inherited method  first  when overriding
+	virtual void readJsonState(const JsonNode & json);
+
+private:
+	mutable std::string stringId;///<alternate id, dynamically generated, do not serialize
 };
 
 /// function object which can be used to find an object with an specific sub ID

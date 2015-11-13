@@ -83,8 +83,8 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 		BOOST_CHECK(map->getTile(int3(5, 6, 1)).terType == ETerrainType::ROCK || map->getTile(int3(7, 8, 1)).terType == ETerrainType::ROCK);
 
 		//todo: add checks here and enable, also use smaller size
-		#if 0 
-		
+		#if 0
+
 		// next check
 		auto map2 = make_unique<CMap>();
 		map2->width = 128;
@@ -105,15 +105,15 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal->errorStream() << "CMapEditManager_DrawTerrain_Type crash" << "\n" << e.what();	
+		logGlobal->errorStream() << "CMapEditManager_DrawTerrain_Type crash" << "\n" << e.what();
 		throw;
-	}	
+	}
 	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_Type finish";
 }
 
 BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 {
-	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_View start";	
+	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_View start";
 	try
 	{
 		// Load maps and json config
@@ -151,8 +151,10 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 				const auto & posVector = posNode.Vector();
 				if(posVector.size() != 3) throw std::runtime_error("A position should consist of three values x,y,z. Continue with next position.");
 				int3 pos(posVector[0].Float(), posVector[1].Float(), posVector[2].Float());
-				logGlobal->infoStream() << boost::format("Test pattern '%s' on position x '%d', y '%d', z '%d'.") % patternStr % pos.x % pos.y % pos.z;
+#if 0
+				logGlobal->traceStream() << boost::format("Test pattern '%s' on position x '%d', y '%d', z '%d'.") % patternStr % pos.x % pos.y % pos.z;
 				CTerrainViewPatternUtils::printDebuggingInfoAboutTile(map.get(), pos);
+#endif // 0
 				const auto & originalTile = originalMap->getTile(pos);
 				editManager->getTerrainSelection().selectRange(MapRect(pos, 1, 1));
 				editManager->drawTerrain(originalTile.terType, &gen);

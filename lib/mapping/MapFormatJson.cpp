@@ -16,6 +16,9 @@
 #include "CMap.h"
 #include "../CModHandler.h"
 #include "../VCMI_Lib.h"
+#include "../mapObjects/ObjectTemplate.h"
+#include "../mapObjects/CObjectHandler.h"
+#include "../mapObjects/CObjectClassesHandler.h"
 #include "../StringConstants.h"
 
 namespace TriggeredEventsDetail
@@ -117,11 +120,27 @@ namespace MapHeaderDetail
 	};
 }
 
+static std::string tailString(const std::string & input, char separator)
+{
+	std::string ret;
+	size_t splitPos = input.find(separator);
+	if (splitPos != std::string::npos)
+		ret = input.substr(splitPos + 1);
+	return ret;
+}
+
+static si32 extractNumber(const std::string & input, char separator)
+{
+	std::string tmp = tailString(input, separator);
+	return atoi(tmp.c_str());
+}
+
 ///CMapFormatJson
 const int CMapFormatJson::VERSION_MAJOR = 1;
 const int CMapFormatJson::VERSION_MINOR = 0;
 
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
+const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
 
 void CMapFormatJson::readTriggeredEvents(const JsonNode & input)
 {
@@ -264,7 +283,7 @@ void CMapLoaderJson::readMap()
 	readHeader();
 	map->initTerrain();
 	readTerrain();
-	//TODO:readMap
+	readObjects();
 }
 
 void CMapLoaderJson::readHeader()
@@ -542,6 +561,65 @@ void CMapLoaderJson::readTerrain()
 
 }
 
+CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, const JsonMap::value_type& json):
+	owner(_owner), instance(nullptr),handler(nullptr),id(-1), jsonKey(json.first), configuration(json.second), internalId(extractNumber(jsonKey, '_'))
+{
+
+}
+
+void CMapLoaderJson::MapObjectLoader::construct()
+{
+	//find type handler
+	std::string typeName = configuration["type"].String(), subTypeName = configuration["subType"].String();
+	if(typeName.empty())
+	{
+		logGlobal->errorStream() << "Object type missing";
+		return;
+	}
+	if(subTypeName.empty())
+	{
+		logGlobal->errorStream() << "Object subType missing";
+		return;
+	}
+
+	si32 type = owner->getIdentifier("object", typeName);
+
+//	VLC->objtypeh->getHandlerFor()
+//TODO:MapObjectLoader::construct()
+}
+
+void CMapLoaderJson::MapObjectLoader::configure()
+{
+//TODO:MapObjectLoader::configure()
+}
+
+void CMapLoaderJson::readObjects()
+{
+	LOG_TRACE(logGlobal);
+
+	std::vector<std::unique_ptr<MapObjectLoader>> loaders;//todo: optimize MapObjectLoader memory layout
+
+	const JsonNode data = readJson(OBJECTS_FILE_NAME);
+
+	//get raw data
+	for(const auto & p : data.Struct())
+		loaders.push_back(vstd::make_unique<MapObjectLoader>(this, p));
+
+	auto sortInfos = [](const std::unique_ptr<MapObjectLoader> & lhs, const std::unique_ptr<MapObjectLoader> & rhs) -> bool
+	{
+		return lhs->internalId < rhs->internalId;
+	};
+	boost::sort(loaders, sortInfos);//this makes instance ids consistent after save-load, needed for testing
+	//todo: use internalId in CMap
+
+	for(auto & ptr : loaders)
+		ptr->construct();
+
+	//configure objects after all objects are constructed so we may resolve internal IDs even to actual pointers OTF
+	for(auto & ptr : loaders)
+		ptr->configure();
+}
+
 ///CMapSaverJson
 CMapSaverJson::CMapSaverJson(CInputOutputStream * stream):
 	CMapFormatZip(stream),
@@ -576,6 +654,7 @@ void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
 	this->map = map.get();
 	writeHeader();
 	writeTerrain();
+	writeObjects();
 }
 
 void CMapSaverJson::writeHeader()
@@ -751,3 +830,14 @@ void CMapSaverJson::writeTerrain()
 		addToArchive(underground, "underground_terrain.json");
 	}
 }
+
+void CMapSaverJson::writeObjects()
+{
+	JsonNode data(JsonNode::DATA_STRUCT);
+
+	for(const CGObjectInstance * obj : map->objects)
+		obj->writeJson(data[obj->getStringId()], false);
+
+	addToArchive(data, OBJECTS_FILE_NAME);
+}
+

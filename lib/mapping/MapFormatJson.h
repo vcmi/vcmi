@@ -15,21 +15,24 @@
 
 #include "../filesystem/CZipSaver.h"
 #include "../filesystem/CZipLoader.h"
+#include "../GameConstants.h"
 
 class TriggeredEvent;
 struct TerrainTile;
 struct PlayerInfo;
+class CGObjectInstance;
+class AObjectTypeHandler;
 
 class DLL_LINKAGE CMapFormatJson
 {
-public:	
+public:
 	static const int VERSION_MAJOR;
-	static const int VERSION_MINOR;	
-	
-	static const std::string HEADER_FILE_NAME;
+	static const int VERSION_MINOR;
 
+	static const std::string HEADER_FILE_NAME;
+	static const std::string OBJECTS_FILE_NAME;
 protected:
-	
+
 	/** ptr to the map object which gets filled by data from the buffer or written to buffer */
 	CMap * map;
 
@@ -37,8 +40,8 @@ protected:
 	 * ptr to the map header object which gets filled by data from the buffer.
 	 * (when loading map and mapHeader point to the same object)
 	 */
-	std::unique_ptr<CMapHeader> mapHeader;	
-	
+	std::unique_ptr<CMapHeader> mapHeader;
+
 	/**
 	 * Reads triggered events, including victory/loss conditions
 	 */
@@ -53,11 +56,11 @@ protected:
 	 * Reads one of triggered events
 	 */
 	void readTriggeredEvent(TriggeredEvent & event, const JsonNode & source);
-	
+
 	/**
 	 * Writes one of triggered events
 	 */
-	void writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest);			
+	void writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest);
 };
 
 class DLL_LINKAGE CMapPatcher : public CMapFormatJson, public IMapPatcher
@@ -69,14 +72,14 @@ public:
 	 * @param stream. A stream containing the map data.
 	 */
 	CMapPatcher(JsonNode stream);
-		
+
 public: //IMapPatcher
 	/**
 	 * Modifies supplied map header using Json data
 	 *
 	 */
 	void patchMapHeader(std::unique_ptr<CMapHeader> & header) override;
-	
+
 private:
 	/**
 	 * Reads subset of header that can be replaced by patching.
@@ -84,7 +87,7 @@ private:
 	void readPatchData();
 
 
-	const JsonNode input;	
+	const JsonNode input;
 };
 
 class DLL_LINKAGE CMapFormatZip : public CMapFormatJson
@@ -100,7 +103,7 @@ class DLL_LINKAGE CMapLoaderJson : public CMapFormatZip, public IMapLoader
 {
 public:
 	/**
-	 * Default constructor.
+	 * Constructor.
 	 *
 	 * @param stream a stream containing the map data
 	 */
@@ -120,9 +123,28 @@ public:
 	 */
 	std::unique_ptr<CMapHeader> loadMapHeader() override;
 
-private:	
+private:
+
+	struct MapObjectLoader
+	{
+		MapObjectLoader(CMapLoaderJson * _owner, const JsonMap::value_type & json);
+		CMapLoaderJson * owner;
+		CGObjectInstance * instance;
+		std::shared_ptr<AObjectTypeHandler> handler;
+		ObjectInstanceID id;
+		std::string jsonKey;//full id defined by map creator
+		const JsonNode & configuration;
+		si32 internalId;//unique part of id defined by map creator (also = quest identifier)
+		///constructs object (without configuration)
+		void construct();
+
+		///configures object
+		void configure();
+
+	};
+
 	si32 getIdentifier(const std::string & type, const std::string & name);
-	
+
 	/**
 	 * Reads complete map.
 	 */
@@ -137,69 +159,101 @@ private:
 	 * Reads player information.
 	 */
 	void readPlayerInfo(const JsonNode & input);
-	
+
 	/**
 	 * Reads one player information.
 	 */
 	void readPlayerInfo(PlayerInfo & info, const JsonNode & input);
-	
+
+	/**
+	 * Reads team settings to header
+	 * @param input serialized header
+	 */
 	void readTeams(const JsonNode & input);
-	
+
 	void readTerrainTile(const std::string & src, TerrainTile & tile);
-	
-	void readTerrainLevel(const JsonNode & src, const int index);	
-	
+
+	void readTerrainLevel(const JsonNode & src, const int index);
+
 	void readTerrain();
-	
+
+	/**
+	 * Loads all map objects from zip archive
+	 */
+	void readObjects();
+
 	const JsonNode readJson(const std::string & archiveFilename);
-	
-	CZipLoader loader;
+
+	CZipLoader loader;///< object to handle zip archive operations
 };
 
 class DLL_LINKAGE CMapSaverJson : public CMapFormatZip, public IMapSaver
 {
 public:
 	/**
-	 * Default constructor.
+	 * Constructor.
 	 *
-	 * @param stream a stream to save the map to
+	 * @param stream a stream to save the map to, will contain zip archive
 	 */
-	CMapSaverJson(CInputOutputStream * stream);	
-	
+	CMapSaverJson(CInputOutputStream * stream);
+
 	~CMapSaverJson();
-	
+
 	/**
 	 * Actually saves the VCMI/Json map into stream.
-	 *
-	 */	
-	void saveMap(const std::unique_ptr<CMap> & map) override;	
+	 */
+	void saveMap(const std::unique_ptr<CMap> & map) override;
 private:
+
 	/**
-	 * Save @data as json file with specified @filename
-	 *
-	 */		
+	 * Saves @data as json file with specified @filename
+	 */
 	void addToArchive(const JsonNode & data, const std::string & filename);
-	
+
+	/**
+	 * Saves header to zip archive
+	 */
 	void writeHeader();
 
 	/**
-	 * Save all players info to header
-	 * @param output serialized header	 
-	 */	
+	 * Saves all players info to header
+	 * @param output serialized header
+	 */
 	void writePlayerInfo(JsonNode & output);
-	/**
-	 * Save one player info
-	 * @param output empty object	 
-	 */	
-	void writePlayerInfo(const PlayerInfo & info, JsonNode & output);
-	
-	void writeTeams(JsonNode & output);	
 
+	/**
+	 * Saves one player info
+	 * @param output empty object
+	 */
+	void writePlayerInfo(const PlayerInfo & info, JsonNode & output);
+
+	/**
+	 * Saves team settings to header
+	 * @param output serialized header
+	 */
+	void writeTeams(JsonNode & output);
+
+	/**
+	 * Encodes one tile into string
+	 * @param tile tile to serialize
+	 */
 	const std::string writeTerrainTile(const TerrainTile & tile);
-	
+
+	/**
+	 * Saves map level into json
+	 * @param index z coordinate
+	 */
 	JsonNode writeTerrainLevel(const int index);
-		
+
+	/**
+	 * Saves all terrain into zip archive
+	 */
 	void writeTerrain();
-		
-	CZipSaver saver;	
+
+	/**
+	 * Saves all map objects into zip archive
+	 */
+	void writeObjects();
+
+	CZipSaver saver;///< object to handle zip archive operations
 };

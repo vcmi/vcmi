@@ -74,6 +74,7 @@ public:
 	void readMsk();
 	void readMap(CBinaryReader & reader);
 	void readJson(const JsonNode & node);
+	void writeJson(JsonNode & node) const;
 
 	bool operator==(const ObjectTemplate& ot) const { return (id == ot.id && subid == ot.subid); }
 

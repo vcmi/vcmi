@@ -7,23 +7,24 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- 
+
 #pragma once
- 
+
 #include "../lib/mapping/CMap.h"
 
 struct MapComparer
 {
 	const CMap * actual;
 	const CMap * expected;
-	
+
 	void compareHeader();
 	void compareOptions();
+	void compareObject(const CGObjectInstance * actual, const CGObjectInstance * expected);
 	void compareObjects();
-	void compareTerrain();	
-	
-	void compare(); 
-	
+	void compareTerrain();
+
+	void compare();
+
 	void operator() (const std::unique_ptr<CMap>& actual, const std::unique_ptr<CMap>& expected);
 };
 

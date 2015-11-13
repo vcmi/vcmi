@@ -256,6 +256,12 @@ void ObjectTemplate::readJson(const JsonNode &node)
 		printPriority = 0; //default value
 }
 
+void ObjectTemplate::writeJson(JsonNode & node) const
+{
+	//todo: ObjectTemplate::writeJson
+}
+
+
 ui32 ObjectTemplate::getWidth() const
 {
 	return usedTiles.empty() ? 0 : usedTiles.front().size();
