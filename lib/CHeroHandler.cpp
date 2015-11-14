@@ -205,6 +205,13 @@ void CHeroClassHandler::loadObject(std::string scope, std::string name, const Js
 		VLC->objtypeh->loadSubObject(name, classConf, index, object->id);
 	});
 
+//	VLC->modh->identifiers.requestIdentifier(scope, "object", "prison", [=](si32 index)
+//	{
+//		JsonNode conf;
+//		conf.setMeta(scope);
+//		VLC->objtypeh->loadSubObject(name, conf, index, object->id);
+//	});
+
 	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->id);
 }
 

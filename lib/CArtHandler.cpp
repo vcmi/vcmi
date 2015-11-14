@@ -207,6 +207,28 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 
 	artifacts.push_back(object);
 
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "artifact", [=](si32 index)
+	{
+		JsonNode conf;
+		conf.setMeta(scope);
+
+		VLC->objtypeh->loadSubObject(object->identifier, conf, Obj::ARTIFACT, object->id.num);
+
+		if (!object->advMapDef.empty())
+		{
+			JsonNode templ;
+			templ.setMeta(scope);
+			templ["animation"].String() = object->advMapDef;
+
+			// add new template.
+			// Necessary for objects added via mods that don't have any templates in H3
+			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->addTemplate(templ);
+		}
+		// object does not have any templates - this is not usable object (e.g. pseudo-art like lock)
+		if (VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, object->id);
+	});
+
 	registerObject(scope, "artifact", object->identifier, object->id);
 }
 
@@ -219,6 +241,27 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 	assert(artifacts[index] == nullptr); // ensure that this id was not loaded before
 	artifacts[index] = object;
 
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "artifact", [=](si32 index)
+	{
+		JsonNode conf;
+		conf.setMeta(scope);
+
+		VLC->objtypeh->loadSubObject(object->identifier, conf, Obj::ARTIFACT, object->id.num);
+
+		if (!object->advMapDef.empty())
+		{
+			JsonNode templ;
+			templ.setMeta(scope);
+			templ["animation"].String() = object->advMapDef;
+
+			// add new template.
+			// Necessary for objects added via mods that don't have any templates in H3
+			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->addTemplate(templ);
+		}
+		// object does not have any templates - this is not usable object (e.g. pseudo-art like lock)
+		if (VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, object->id);
+	});
 	registerObject(scope, "artifact", object->identifier, object->id);
 }
 
@@ -280,16 +323,16 @@ ArtifactPosition CArtHandler::stringToSlot(std::string slotName)
 
 void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
 {
-	static const std::vector<ArtifactPosition> miscSlots = 
+	static const std::vector<ArtifactPosition> miscSlots =
 	{
 		ArtifactPosition::MISC1, ArtifactPosition::MISC2, ArtifactPosition::MISC3, ArtifactPosition::MISC4, ArtifactPosition::MISC5
 	};
-	
+
 	static const std::vector<ArtifactPosition> ringSlots =
 	{
 		ArtifactPosition::LEFT_RING, ArtifactPosition::RIGHT_RING
 	};
-	
+
 	if (slotID == "MISC")
 	{
 		vstd::concatenate(art->possibleSlots[ArtBearer::HERO], miscSlots);
@@ -323,7 +366,7 @@ void CArtHandler::loadSlots(CArtifact * art, const JsonNode & node)
 CArtifact::EartClass CArtHandler::stringToClass(std::string className)
 {
 	static const std::map<std::string, CArtifact::EartClass> artifactClassMap =
-	{	
+	{
 		{"TREASURE", CArtifact::ART_TREASURE},
 		{"MINOR", CArtifact::ART_MINOR},
 		{"MAJOR", CArtifact::ART_MAJOR},
@@ -693,24 +736,6 @@ void CArtHandler::afterLoadFinalization()
 			assert(bonus->source == Bonus::ARTIFACT);
 			bonus->sid = art->id;
 		}
-	}
-
-	for (CArtifact * art : artifacts)
-	{
-		VLC->objtypeh->loadSubObject(art->Name(), JsonNode(), Obj::ARTIFACT, art->id.num);
-
-		if (!art->advMapDef.empty())
-		{
-			JsonNode templ;
-			templ["animation"].String() = art->advMapDef;
-
-			// add new template.
-			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->id)->addTemplate(templ);
-		}
-		// object does not have any templates - this is not usable object (e.g. pseudo-art like lock)
-		if (VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->id)->getTemplates().empty())
-			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, art->id);
 	}
 }
 

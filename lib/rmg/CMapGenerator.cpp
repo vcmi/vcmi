@@ -32,7 +32,7 @@ void CMapGenerator::foreachDirectNeighbour(const int3& pos, std::function<void(i
 		int3 n = pos + dir;
 		if(map->isInTheMap(n))
 			foo(n);
-	}	
+	}
 }
 
 
@@ -189,7 +189,7 @@ void CMapGenerator::addPlayerInfo()
 			playerCount = mapGenOptions->getCompOnlyPlayerCount();
 			teamCount = mapGenOptions->getCompOnlyTeamCount();
 		}
-		
+
 		if(playerCount == 0)
 		{
 			continue;
@@ -259,7 +259,7 @@ void CMapGenerator::genZones()
 }
 
 void CMapGenerator::fillZones()
-{	
+{
 	//init native town count with 0
 	for (auto faction : VLC->townh->getAllowedFactions())
 		zonesPerFaction[faction] = 0;
@@ -495,8 +495,8 @@ void CMapGenerator::createConnections()
 					zoneA->addMonster (this, guardPos, connection.getGuardStrength(), false, true);
 					//zones can make paths only in their own area
 					zoneA->crunchPath(this, guardPos, posA, true, zoneA->getFreePaths()); //make connection towards our zone center
-					zoneB->crunchPath(this, guardPos, posB, true, zoneB->getFreePaths()); //make connection towards other zone center		
-					
+					zoneB->crunchPath(this, guardPos, posB, true, zoneB->getFreePaths()); //make connection towards other zone center
+
 					zoneA->addRoadNode(guardPos);
 					zoneB->addRoadNode(guardPos);
 					break; //we're done with this connection
@@ -504,7 +504,7 @@ void CMapGenerator::createConnections()
 			}
 		}
 		else //create subterranean gates between two zones
-		{	
+		{
 			//find point on the path between zones
 			float3 offset (posB.x - posA.x, posB.y - posA.y, 0);
 
@@ -563,15 +563,14 @@ void CMapGenerator::createConnections()
 		}
 		if (!guardPos.valid())
 		{
-			auto teleport1 = new CGMonolith;
-			teleport1->ID = Obj::MONOLITH_TWO_WAY;
-			teleport1->subID = getNextMonlithIndex();
+			auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, getNextMonlithIndex());
+			auto teleport1 = factory->create(ObjectTemplate());
 
-			auto teleport2 = new CGMonolith(*teleport1);
+			auto teleport2 = factory->create(ObjectTemplate());
 
 			zoneA->addRequiredObject (teleport1, connection.getGuardStrength());
 			zoneB->addRequiredObject (teleport2, connection.getGuardStrength());
-		}		
+		}
 	}
 }
 
@@ -590,7 +589,7 @@ void CMapGenerator::addHeaderInfo()
 void CMapGenerator::checkIsOnMap(const int3& tile) const
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));	
+		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
 }
 
 
@@ -633,8 +632,8 @@ bool CMapGenerator::isUsed(const int3 &tile) const
 bool CMapGenerator::isRoad(const int3& tile) const
 {
 	checkIsOnMap(tile);
-	
-	return tiles[tile.x][tile.y][tile.z].isRoad();	
+
+	return tiles[tile.x][tile.y][tile.z].isRoad();
 }
 
 void CMapGenerator::setOccupied(const int3 &tile, ETileType::ETileType state)
@@ -648,7 +647,7 @@ void CMapGenerator::setRoad(const int3& tile, ERoadType::ERoadType roadType)
 {
 	checkIsOnMap(tile);
 
-	tiles[tile.x][tile.y][tile.z].setRoadType(roadType);	
+	tiles[tile.x][tile.y][tile.z].setRoadType(roadType);
 }
 
 

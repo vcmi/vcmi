@@ -104,11 +104,14 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	si32 type;
 	si32 subtype;
 
+	std::string typeName;
+	std::string subTypeName;
+
 	JsonNode base; /// describes base template
 
 	std::vector<ObjectTemplate> templates;
 protected:
-
+	void preInitObject(CGObjectInstance * obj) const;
 	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
 
 	/// initialization for classes that inherit this one
@@ -117,6 +120,7 @@ public:
 	virtual ~AObjectTypeHandler(){}
 
 	void setType(si32 type, si32 subtype);
+	void setTypeName(std::string type, std::string subtype);
 
 	/// loads generic data from Json structure and passes it towards type-specific constructors
 	void init(const JsonNode & input, boost::optional<std::string> name = boost::optional<std::string>());
@@ -149,12 +153,16 @@ public:
 	/// This should set remaining properties, including randomized or depending on map
 	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const = 0;
 
-	/// Returns object configuration, if available. Othervice returns NULL
+	/// Returns object configuration, if available. Otherwise returns NULL
 	virtual std::unique_ptr<IObjectInfo> getObjectInfo(ObjectTemplate tmpl) const = 0;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & type & subtype & templates & rmgInfo & objectName;
+		if(version >= 755)
+		{
+			h & typeName & subTypeName;
+		}
 	}
 };
 
@@ -167,16 +175,21 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	struct ObjectContainter
 	{
 		si32 id;
-
+		std::string identifier;
 		std::string name; // human-readable name
-		std::string handlerName; // ID of handler that controls this object, shoul be determined using hadlerConstructor map
+		std::string handlerName; // ID of handler that controls this object, should be determined using handlerConstructor map
 
 		JsonNode base;
-		std::map<si32, TObjectTypeHandler> objects;
+		std::map<si32, TObjectTypeHandler> subObjects;
+		std::map<std::string, si32> subIds;//full id from core scope -> subtype
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & name & handlerName & base & objects;
+			h & name & handlerName & base & subObjects;
+			if(version >= 755)
+			{
+				h & identifier & subIds;
+			}
 		}
 	};
 
@@ -194,8 +207,8 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	/// format: customNames[primaryID][secondaryID] -> name
 	std::map<si32, std::vector<std::string>> customNames;
 
-	void loadObjectEntry(const JsonNode & entry, ObjectContainter * obj);
-	ObjectContainter * loadFromJson(const JsonNode & json);
+	void loadObjectEntry(const std::string & identifier, const JsonNode & entry, ObjectContainter * obj);
+	ObjectContainter * loadFromJson(const JsonNode & json, const std::string & name);
 public:
 	CObjectClassesHandler();
 
@@ -204,7 +217,7 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
-	void loadSubObject(std::string name, JsonNode config, si32 ID, boost::optional<si32> subID = boost::optional<si32>());
+	void loadSubObject(const std::string & identifier, JsonNode config, si32 ID, boost::optional<si32> subID = boost::optional<si32>());
 	void removeSubObject(si32 ID, si32 subID);
 
 	void beforeValidate(JsonNode & object) override;
@@ -218,10 +231,11 @@ public:
 
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
 	TObjectTypeHandler getHandlerFor(si32 type, si32 subtype) const;
+	TObjectTypeHandler getHandlerFor(std::string type, std::string subtype) const;
 
 	std::string getObjectName(si32 type) const;
 	std::string getObjectName(si32 type, si32 subtype) const;
-	
+
 	/// Returns handler string describing the handler (for use in client)
 	std::string getObjectHandlerName(si32 type) const;
 

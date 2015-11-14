@@ -152,6 +152,12 @@ void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectI
 {
 	BOOST_CHECK_EQUAL(actual->getStringId(), expected->getStringId());
 	BOOST_CHECK_EQUAL(typeid(actual).name(), typeid(expected).name());//todo: remove and use just comparison
+
+	std::string actualFullID = boost::to_string(boost::format("%s(%d)|%s(%d)") % actual->typeName % actual->id % actual->subTypeName % actual->subID);
+	std::string expectedFullID = boost::to_string(boost::format("%s(%d)|%s(%d)") % expected->typeName % expected->id % expected->subTypeName % expected->subID);
+
+	BOOST_CHECK_EQUAL(actualFullID, expectedFullID);
+	BOOST_CHECK_EQUAL(actual->pos, expected->pos);
 }
 
 void MapComparer::compareObjects()

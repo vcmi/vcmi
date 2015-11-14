@@ -31,8 +31,7 @@ protected:
 	ObjectType * createTyped(ObjectTemplate tmpl) const
 	{
 		auto obj = new ObjectType();
-		obj->ID = tmpl.id;
-		obj->subID = tmpl.subid;
+		preInitObject(obj);
 		obj->appearance = tmpl;
 		return obj;
 	}

@@ -101,9 +101,9 @@ void CIdentifierStorage::requestIdentifier(std::string scope, std::string type, 
 
 void CIdentifierStorage::requestIdentifier(std::string scope, std::string fullName, const std::function<void(si32)>& callback)
 {
-	auto scopeAndFullName = splitString(fullName, ':');	
-	auto typeAndName = splitString(scopeAndFullName.second, '.');	
-	
+	auto scopeAndFullName = splitString(fullName, ':');
+	auto typeAndName = splitString(scopeAndFullName.second, '.');
+
 	requestIdentifier(ObjectCallback(scope, scopeAndFullName.first, typeAndName.first, typeAndName.second, callback, false));
 }
 
@@ -186,6 +186,7 @@ void CIdentifierStorage::registerObject(std::string scope, std::string type, std
 	checkIdentifier(fullID);
 
 	registeredObjects.insert(std::make_pair(fullID, data));
+	logGlobal->traceStream() << scope << "::" << fullID;
 }
 
 std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdentifiers(const ObjectCallback & request)
@@ -331,11 +332,11 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 {
 	ModInfo & modInfo = modData[modName];
 	bool result = true;
-	
+
 	auto performValidate = [&,this](JsonNode & data, const std::string & name){
 		handler->beforeValidate(data);
 		if (validate)
-			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);	
+			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);
 	};
 
 	// apply patches
@@ -355,7 +356,7 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			if (originalData.size() > index)
 			{
 				JsonUtils::merge(originalData[index], data);
-				
+
 				performValidate(originalData[index],name);
 				handler->loadObject(modName, name, originalData[index], index);
 

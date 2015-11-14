@@ -113,6 +113,9 @@ public:
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	bool blockVisit;
 
+	std::string typeName;
+	std::string subTypeName;
+
 	CGObjectInstance();
 	~CGObjectInstance();
 
@@ -171,6 +174,11 @@ public:
 	{
 		h & pos & ID & subID & id & tempOwner & blockVisit & appearance;
 		//definfo is handled by map serializer
+
+		if(version >= 755)
+		{
+			h & typeName & subTypeName;
+		}
 	}
 
 	///Entry point of Json serialization

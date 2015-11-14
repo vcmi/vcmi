@@ -326,7 +326,14 @@ bool CGObjectInstance::passableFor(PlayerColor color) const
 
 void CGObjectInstance::writeJson(JsonNode & json, bool withState) const
 {
+	logGlobal->debugStream() <<"Save: [" << pos << "] " << id << " " << ID << " " << subID << " " << typeName << " " << subTypeName;
+
 	json.setType(JsonNode::DATA_STRUCT);
+	json["type"].String() = typeName;
+	json["subType"].String() = subTypeName;
+	json["x"].Float() = pos.x;
+	json["y"].Float() = pos.y;
+	json["l"].Float() = pos.z;
 
 	appearance.writeJson(json["template"]);
 	writeJsonOptions(json["options"]);
@@ -341,10 +348,16 @@ void CGObjectInstance::readJson(const JsonNode & json, bool withState)
 		logGlobal->error("Invalid object instance data");
 		return;
 	}
+	pos.x = json["x"].Float();
+	pos.y = json["y"].Float();
+	pos.z = json["l"].Float();
+
 	appearance.readJson(json["template"]);
 	readJsonOptions(json["options"]);
 	if(withState)
 		readJsonState(json["state"]);
+
+	logGlobal->debugStream() <<"Load: [" << pos << "] " << id << " " << ID << " " << subID << " " << typeName << " " << subTypeName;
 }
 
 void CGObjectInstance::writeJsonOptions(JsonNode & json) const

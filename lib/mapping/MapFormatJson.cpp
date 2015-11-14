@@ -284,6 +284,13 @@ void CMapLoaderJson::readMap()
 	map->initTerrain();
 	readTerrain();
 	readObjects();
+
+	// Calculate blocked / visitable positions
+	for(auto & elem : map->objects)
+	{
+		map->addBlockVisTiles(elem);
+	}
+	map->calculateGuardingGreaturePositions();
 }
 
 void CMapLoaderJson::readHeader()
@@ -569,6 +576,7 @@ CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, const 
 
 void CMapLoaderJson::MapObjectLoader::construct()
 {
+	//TODO:consider move to ObjectTypeHandler
 	//find type handler
 	std::string typeName = configuration["type"].String(), subTypeName = configuration["subType"].String();
 	if(typeName.empty())
@@ -584,13 +592,16 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	si32 type = owner->getIdentifier("object", typeName);
 
-//	VLC->objtypeh->getHandlerFor()
-//TODO:MapObjectLoader::construct()
+	handler = VLC->objtypeh->getHandlerFor(typeName, subTypeName);
+
+	instance = handler->create(ObjectTemplate());
+	instance->id = ObjectInstanceID(owner->map->objects.size());
+	owner->map->objects.push_back(instance);
 }
 
 void CMapLoaderJson::MapObjectLoader::configure()
 {
-//TODO:MapObjectLoader::configure()
+	instance->readJson(configuration, false);
 }
 
 void CMapLoaderJson::readObjects()
