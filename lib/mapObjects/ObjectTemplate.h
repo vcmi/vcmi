@@ -73,8 +73,8 @@ public:
 	void readTxt(CLegacyConfigParser & parser);
 	void readMsk();
 	void readMap(CBinaryReader & reader);
-	void readJson(const JsonNode & node);
-	void writeJson(JsonNode & node) const;
+	void readJson(const JsonNode & node, const bool withTerrain = true);
+	void writeJson(JsonNode & node, const bool withTerrain = true) const;
 
 	bool operator==(const ObjectTemplate& ot) const { return (id == ot.id && subid == ot.subid); }
 

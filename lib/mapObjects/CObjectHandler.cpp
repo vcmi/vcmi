@@ -335,7 +335,7 @@ void CGObjectInstance::writeJson(JsonNode & json, bool withState) const
 	json["y"].Float() = pos.y;
 	json["l"].Float() = pos.z;
 
-	appearance.writeJson(json["template"]);
+	appearance.writeJson(json["template"], false);
 	writeJsonOptions(json["options"]);
 	if(withState)
 		writeJsonState(json["state"]);
@@ -352,7 +352,7 @@ void CGObjectInstance::readJson(const JsonNode & json, bool withState)
 	pos.y = json["y"].Float();
 	pos.z = json["l"].Float();
 
-	appearance.readJson(json["template"]);
+	appearance.readJson(json["template"], false);
 	readJsonOptions(json["options"]);
 	if(withState)
 		readJsonState(json["state"]);
