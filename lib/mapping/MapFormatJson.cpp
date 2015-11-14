@@ -72,6 +72,9 @@ namespace TriggeredEventsDetail
 
 		//todo: save identifier
 
+		if(event.objectType != -1)
+			data["type"].Float() = event.objectType;
+
 		if(event.value != -1)
 			data["value"].Float() = event.value;
 
@@ -84,7 +87,8 @@ namespace TriggeredEventsDetail
 			position[2].Float() = event.position.z;
 		}
 
-		asVector.push_back(data);
+		if(!data.isNull())
+			asVector.push_back(data);
 
 		return std::move(json);
 	}
@@ -589,8 +593,6 @@ void CMapLoaderJson::MapObjectLoader::construct()
 		logGlobal->errorStream() << "Object subType missing";
 		return;
 	}
-
-	si32 type = owner->getIdentifier("object", typeName);
 
 	handler = VLC->objtypeh->getHandlerFor(typeName, subTypeName);
 

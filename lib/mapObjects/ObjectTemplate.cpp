@@ -258,9 +258,9 @@ void ObjectTemplate::readJson(const JsonNode &node)
 
 void ObjectTemplate::writeJson(JsonNode & node) const
 {
+	node.setType(JsonNode::DATA_STRUCT);
 	//todo: ObjectTemplate::writeJson
 }
-
 
 ui32 ObjectTemplate::getWidth() const
 {

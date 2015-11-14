@@ -362,7 +362,7 @@ void CGObjectInstance::readJson(const JsonNode & json, bool withState)
 
 void CGObjectInstance::writeJsonOptions(JsonNode & json) const
 {
-
+	json.setType(JsonNode::DATA_STRUCT);
 }
 
 void CGObjectInstance::readJsonOptions(const JsonNode & json)
@@ -372,7 +372,7 @@ void CGObjectInstance::readJsonOptions(const JsonNode & json)
 
 void CGObjectInstance::writeJsonState(JsonNode & json) const
 {
-
+	json.setType(JsonNode::DATA_STRUCT);
 }
 
 void CGObjectInstance::readJsonState(const JsonNode & json)
