@@ -1956,7 +1956,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 }
 void VCAI::tryRealize(Goals::Explore & g)
 {
-	throw cannotFulfillGoalException("EXPLORE is not a elementar goal!");
+	throw cannotFulfillGoalException("EXPLORE is not an elementary goal!");
 }
 
 void VCAI::tryRealize(Goals::RecruitHero & g)
