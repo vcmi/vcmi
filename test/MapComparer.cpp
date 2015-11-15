@@ -158,6 +158,7 @@ void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectI
 
 	BOOST_CHECK_EQUAL(actualFullID, expectedFullID);
 	BOOST_CHECK_EQUAL(actual->pos, expected->pos);
+	BOOST_CHECK_EQUAL(actual->tempOwner,expected->tempOwner);
 }
 
 void MapComparer::compareObjects()
