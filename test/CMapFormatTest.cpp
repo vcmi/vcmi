@@ -40,6 +40,9 @@ public:
 		opt.setHasTwoLevels(true);
 		opt.setPlayerCount(2);
 
+		opt.setPlayerTypeForStandardPlayer(PlayerColor(0), EPlayerType::HUMAN);
+		opt.setPlayerTypeForStandardPlayer(PlayerColor(1), EPlayerType::HUMAN);
+
 		CMapGenerator gen;
 
 		initialMap = gen.generate(&opt, TEST_RANDOM_SEED);
@@ -71,6 +74,8 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
 		tmp.flush();
 		tmp.close();
+
+		logGlobal->infoStream() << "Test map has been saved to " << path;
 	}
 
 
