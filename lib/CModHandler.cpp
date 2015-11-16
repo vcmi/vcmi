@@ -884,3 +884,16 @@ void CModHandler::afterLoad()
 	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);
 	file << modSettings;
 }
+
+std::string CModHandler::normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier) const
+{
+	auto p = splitString(identifier, ':');
+
+	if(p.first.empty())
+		p.first = scope;
+
+	if(p.first == remoteScope)
+		p.first.clear();
+
+	return p.first.empty() ? p.second : p.first +":"+p.second;
+}

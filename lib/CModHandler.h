@@ -73,7 +73,7 @@ public:
 	/// Function callback will be called during ID resolution phase of loading
 	void requestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback);
 	///fullName = [remoteScope:]type.name
-	void requestIdentifier(std::string scope, std::string fullName, const std::function<void(si32)> & callback);	
+	void requestIdentifier(std::string scope, std::string fullName, const std::function<void(si32)> & callback);
 	void requestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback);
 	void requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback);
 
@@ -253,7 +253,7 @@ public:
 
 		int CREEP_SIZE; // neutral stacks won't grow beyond this number
 		int WEEKLY_GROWTH; //percent
-		int NEUTRAL_STACK_EXP; 
+		int NEUTRAL_STACK_EXP;
 		int MAX_BUILDING_PER_TURN;
 		bool DWELLINGS_ACCUMULATE_CREATURES;
 		bool ALL_CREATURES_GET_DOUBLE_MONTHS;
@@ -281,6 +281,8 @@ public:
 	} modules;
 
 	CModHandler();
+
+	std::string normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

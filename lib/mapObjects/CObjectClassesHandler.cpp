@@ -154,11 +154,14 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 		logGlobal->errorStream() << "Handler with name " << obj->handlerName << " was not found!";
 		return;
 	}
+
+	std::string convertedId = VLC->modh->normalizeIdentifier(entry.meta, "core", identifier);
+
 	si32 id = selectNextID(entry["index"], obj->subObjects, 1000);
 
 	auto handler = handlerConstructors.at(obj->handlerName)();
 	handler->setType(obj->id, id);
-	handler->setTypeName(obj->identifier, identifier);
+	handler->setTypeName(obj->identifier, convertedId);
 
 	if (customNames.count(obj->id) && customNames.at(obj->id).size() > id)
 		handler->init(entry, customNames.at(obj->id).at(id));
@@ -175,10 +178,10 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 		legacyTemplates.erase(range.first, range.second);
 	}
 
-	logGlobal->debugStream() << "Loaded object " << obj->identifier << "(" << obj->id << ")" << ":" << identifier << "(" << id << ")" ;
+	logGlobal->debugStream() << "Loaded object " << obj->identifier << "(" << obj->id << ")" << ":" << convertedId << "(" << id << ")" ;
 	assert(!obj->subObjects.count(id)); // DO NOT override
 	obj->subObjects[id] = handler;
-	obj->subIds[identifier] = id;//todo: scope
+	obj->subIds[convertedId] = id;
 }
 
 CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const JsonNode & json, const std::string & name)

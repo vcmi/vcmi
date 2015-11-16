@@ -143,7 +143,7 @@ const std::string & CGObjectInstance::getStringId() const
 	if(stringId == "")
 	{
 		boost::format fmt("%s_%d");
-		fmt % "object" % id.getNum();
+		fmt % typeName % id.getNum();
 		stringId = fmt.str();
 	}
 
