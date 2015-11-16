@@ -203,36 +203,16 @@ void CPathfinder::addNeighbours(const int3 & coord)
 		vstd::concatenate(neighbours, tiles);
 }
 
-void CPathfinder::addTeleportExits(bool noTeleportExcludes)
+void CPathfinder::addTeleportExits()
 {
 	neighbours.clear();
 	if(!isSourceVisitableObj())
 		return;
 
-	auto isAllowedTeleportEntrance = [&](const CGTeleport * obj) -> bool
+	const CGTeleport * objTeleport = dynamic_cast<const CGTeleport *>(ctObj);
+	if(isAllowedTeleportEntrance(objTeleport))
 	{
-		if(!gs->isTeleportEntrancePassable(obj, hero->tempOwner))
-			return false;
-
-		if(noTeleportExcludes)
-			return true;
-
-		auto whirlpool = dynamic_cast<const CGWhirlpool *>(obj);
-		if(whirlpool)
-		{
-			if(addTeleportWhirlpool(whirlpool))
-				return true;
-		}
-		else if(addTeleportTwoWay(obj) || addTeleportOneWay(obj) || addTeleportOneWayRandom(obj))
-			return true;
-
-		return false;
-	};
-
-	const CGTeleport * sTileTeleport = dynamic_cast<const CGTeleport *>(ctObj);
-	if(isAllowedTeleportEntrance(sTileTeleport))
-	{
-		for(auto objId : gs->getTeleportChannelExits(sTileTeleport->channel, hero->tempOwner))
+		for(auto objId : gs->getTeleportChannelExits(objTeleport->channel, hero->tempOwner))
 		{
 			auto obj = getObj(objId);
 			if(dynamic_cast<const CGWhirlpool *>(obj))
@@ -401,18 +381,19 @@ bool CPathfinder::isMovementAfterDestPossible() const
 	/// TODO: Investigate what kind of limitation is possible to apply on movement from visitable tiles
 	/// Likely in many cases we don't need to add visitable tile to queue when hero don't fly
 	case CGPathNode::VISIT:
+	{
 		/// For now we only add visitable tile into queue when it's teleporter that allow transit
 		/// Movement from visitable tile when hero is standing on it is possible into any layer
-		if(CGTeleport::isTeleport(dtObj))
+		const CGTeleport * objTeleport = dynamic_cast<const CGTeleport *>(dtObj);
+		if(isAllowedTeleportEntrance(objTeleport))
 		{
 			/// For now we'll always allow transit over teleporters
 			/// Transit over whirlpools only allowed when hero protected
-			auto whirlpool = dynamic_cast<const CGWhirlpool *>(dtObj);
-			if(!whirlpool || options.useTeleportWhirlpool)
-				return true;
+			return true;
 		}
 
 		break;
+	}
 
 	case CGPathNode::NORMAL:
 		return true;
@@ -635,6 +616,23 @@ bool CPathfinder::canMoveBetween(const int3 & a, const int3 & b) const
 	return gs->checkForVisitableDir(a, b);
 }
 
+bool CPathfinder::isAllowedTeleportEntrance(const CGTeleport * obj) const
+{
+	if(!obj || !gs->isTeleportEntrancePassable(obj, hero->tempOwner))
+		return false;
+
+	auto whirlpool = dynamic_cast<const CGWhirlpool *>(obj);
+	if(whirlpool)
+	{
+		if(addTeleportWhirlpool(whirlpool))
+			return true;
+	}
+	else if(addTeleportTwoWay(obj) || addTeleportOneWay(obj) || addTeleportOneWayRandom(obj))
+		return true;
+
+	return false;
+}
+
 bool CPathfinder::addTeleportTwoWay(const CGTeleport * obj) const
 {
 	return options.useTeleportTwoWay && gs->isTeleportChannelBidirectional(obj->channel, hero->tempOwner);
@@ -664,7 +662,7 @@ bool CPathfinder::addTeleportOneWayRandom(const CGTeleport * obj) const
 
 bool CPathfinder::addTeleportWhirlpool(const CGWhirlpool * obj) const
 {
-	return options.useTeleportWhirlpool && obj;
+	return options.useTeleportWhirlpool && hlp->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION) && obj;
 }
 
 TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)

@@ -166,7 +166,7 @@ private:
 	CGPathNode::ENodeAction destAction;
 
 	void addNeighbours(const int3 & coord);
-	void addTeleportExits(bool noTeleportExcludes = false);
+	void addTeleportExits();
 
 	bool isLayerTransitionPossible() const;
 	bool isMovementToDestPossible() const;
@@ -184,6 +184,7 @@ private:
 	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo) const;
 	bool canMoveBetween(const int3 & a, const int3 & b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
 
+	bool isAllowedTeleportEntrance(const CGTeleport * obj) const;
 	bool addTeleportTwoWay(const CGTeleport * obj) const;
 	bool addTeleportOneWay(const CGTeleport * obj) const;
 	bool addTeleportOneWayRandom(const CGTeleport * obj) const;
