@@ -160,7 +160,7 @@ private:
 	CGPathNode * cp; //current (source) path node -> we took it from the queue
 	CGPathNode * dp; //destination node -> it's a neighbour of cp that we consider
 	const TerrainTile * ct, * dt; //tile info for both nodes
-	const CGObjectInstance * cObj, * dObj;
+	const CGObjectInstance * ctObj, * dtObj;
 	CGPathNode::ENodeAction destAction;
 
 	void addNeighbours(const int3 & coord);

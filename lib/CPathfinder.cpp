@@ -102,7 +102,7 @@ void CPathfinder::calculatePaths()
 		pq.pop();
 		cp->locked = true;
 		ct = &gs->map->getTile(cp->coord);
-		cObj = ct->topVisitableObj(isSourceInitialPosition());
+		ctObj = ct->topVisitableObj(isSourceInitialPosition());
 
 		int movement = cp->moveRemains, turn = cp->turns;
 		hlp->updateTurnInfo(turn);
@@ -117,7 +117,7 @@ void CPathfinder::calculatePaths()
 		for(auto & neighbour : neighbours)
 		{
 			dt = &gs->map->getTile(neighbour);
-			dObj = dt->topVisitableObj();
+			dtObj = dt->topVisitableObj();
 			for(ELayer i = ELayer::LAND; i <= ELayer::AIR; i.advance(1))
 			{
 				dp = out.getNode(neighbour, i);
@@ -201,7 +201,7 @@ void CPathfinder::addNeighbours(const int3 & coord)
 	{
 		for(int3 tile: tiles)
 		{
-			if(canMoveBetween(tile, cObj->visitablePos()))
+			if(canMoveBetween(tile, ctObj->visitablePos()))
 				neighbours.push_back(tile);
 		}
 	}
@@ -235,7 +235,7 @@ void CPathfinder::addTeleportExits(bool noTeleportExcludes)
 		return false;
 	};
 
-	const CGTeleport * sTileTeleport = dynamic_cast<const CGTeleport *>(cObj);
+	const CGTeleport * sTileTeleport = dynamic_cast<const CGTeleport *>(ctObj);
 	if(isAllowedTeleportEntrance(sTileTeleport))
 	{
 		for(auto objId : gs->getTeleportChannelExits(sTileTeleport->channel, hero->tempOwner))
@@ -256,15 +256,15 @@ void CPathfinder::addTeleportExits(bool noTeleportExcludes)
 	}
 
 	if(options.useCastleGate
-		&& (cObj->ID == Obj::TOWN && cObj->subID == ETownType::INFERNO
-		&& getPlayerRelations(hero->tempOwner, cObj->tempOwner) != PlayerRelations::ENEMIES))
+		&& (ctObj->ID == Obj::TOWN && ctObj->subID == ETownType::INFERNO
+		&& getPlayerRelations(hero->tempOwner, ctObj->tempOwner) != PlayerRelations::ENEMIES))
 	{
 		/// TODO: Find way to reuse CPlayerSpecificInfoCallback::getTownsInfo
 		/// This may be handy if we allow to use teleportation to friendly towns
 		auto towns = gs->getPlayer(hero->tempOwner)->towns;
 		for(const auto & town : towns)
 		{
-			if(town->id != cObj->id && town->visitingHero == nullptr
+			if(town->id != ctObj->id && town->visitingHero == nullptr
 				&& town->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
 			{
 				neighbours.push_back(town->visitablePos());
@@ -374,13 +374,13 @@ bool CPathfinder::isMovementToDestPossible() const
 
 		if(cp->layer == ELayer::LAND)
 		{
-			if(!dObj)
+			if(!dtObj)
 				return false;
 
-			if(dObj->ID != Obj::BOAT && dObj->ID != Obj::HERO)
+			if(dtObj->ID != Obj::BOAT && dtObj->ID != Obj::HERO)
 				return false;
 		}
-		else if(dObj && dObj->ID == Obj::BOAT)
+		else if(dtObj && dtObj->ID == Obj::BOAT)
 		{
 			/// Hero in boat can't visit empty boats
 			return false;
@@ -409,11 +409,11 @@ bool CPathfinder::isMovementAfterDestPossible() const
 	case CGPathNode::VISIT:
 		/// For now we only add visitable tile into queue when it's teleporter that allow transit
 		/// Movement from visitable tile when hero is standing on it is possible into any layer
-		if(CGTeleport::isTeleport(dObj))
+		if(CGTeleport::isTeleport(dtObj))
 		{
 			/// For now we'll always allow transit over teleporters
 			/// Transit over whirlpools only allowed when hero protected
-			auto whirlpool = dynamic_cast<const CGWhirlpool *>(dObj);
+			auto whirlpool = dynamic_cast<const CGWhirlpool *>(dtObj);
 			if(!whirlpool || options.useTeleportWhirlpool)
 				return true;
 		}
@@ -460,34 +460,34 @@ CGPathNode::ENodeAction CPathfinder::getDestAction() const
 		}
 
 	case ELayer::SAIL:
-		if(dObj)
+		if(dtObj)
 		{
-			auto objRel = getPlayerRelations(dObj->tempOwner, hero->tempOwner);
+			auto objRel = getPlayerRelations(dtObj->tempOwner, hero->tempOwner);
 
-			if(dObj->ID == Obj::BOAT)
+			if(dtObj->ID == Obj::BOAT)
 				action = CGPathNode::EMBARK;
-			else if(dObj->ID == Obj::HERO)
+			else if(dtObj->ID == Obj::HERO)
 			{
 				if(objRel == PlayerRelations::ENEMIES)
 					action = CGPathNode::BATTLE;
 				else
 					action = CGPathNode::BLOCKING_VISIT;
 			}
-			else if(dObj->ID == Obj::TOWN && objRel == PlayerRelations::ENEMIES)
+			else if(dtObj->ID == Obj::TOWN && objRel == PlayerRelations::ENEMIES)
 			{
-				const CGTownInstance * townObj = dynamic_cast<const CGTownInstance *>(dObj);
+				const CGTownInstance * townObj = dynamic_cast<const CGTownInstance *>(dtObj);
 				if(townObj->armedGarrison())
 					action = CGPathNode::BATTLE;
 			}
-			else if(dObj->ID == Obj::GARRISON || dObj->ID == Obj::GARRISON2)
+			else if(dtObj->ID == Obj::GARRISON || dtObj->ID == Obj::GARRISON2)
 			{
-				const CGGarrison * garrisonObj = dynamic_cast<const CGGarrison *>(dObj);
+				const CGGarrison * garrisonObj = dynamic_cast<const CGGarrison *>(dtObj);
 				if((garrisonObj->stacksCount() && objRel == PlayerRelations::ENEMIES) || isDestinationGuarded(true))
 					action = CGPathNode::BATTLE;
 			}
 			else if(isDestinationGuardian())
 				action = CGPathNode::BATTLE;
-			else if(dObj->blockVisit && (!options.useCastleGate || dObj->ID != Obj::TOWN))
+			else if(dtObj->blockVisit && (!options.useCastleGate || dtObj->ID != Obj::TOWN))
 				action = CGPathNode::BLOCKING_VISIT;
 
 			if(action == CGPathNode::NORMAL)
@@ -515,7 +515,7 @@ bool CPathfinder::isSourceInitialPosition() const
 bool CPathfinder::isSourceVisitableObj() const
 {
 	/// Hero can't visit objects while walking on water or flying
-	return cObj != nullptr && (cp->layer == ELayer::LAND || cp->layer == ELayer::SAIL);
+	return ctObj != nullptr && (cp->layer == ELayer::LAND || cp->layer == ELayer::SAIL);
 }
 
 bool CPathfinder::isSourceGuarded() const
