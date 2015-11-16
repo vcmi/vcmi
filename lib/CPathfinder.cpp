@@ -20,13 +20,13 @@
 
 CPathfinder::PathfinderOptions::PathfinderOptions()
 {
-	useFlying = false;
-	useWaterWalking = false;
+	useFlying = true;
+	useWaterWalking = true;
 	useEmbarkAndDisembark = true;
 	useTeleportTwoWay = true;
 	useTeleportOneWay = true;
 	useTeleportOneWayRandom = false;
-	useTeleportWhirlpool = false;
+	useTeleportWhirlpool = true;
 
 	useCastleGate = false;
 
@@ -49,13 +49,7 @@ CPathfinder::CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstan
 		throw std::runtime_error("Wrong checksum");
 	}
 
-	hlp = make_unique<CPathfinderHelper>(hero);
-	if(hlp->hasBonusOfType(Bonus::FLYING_MOVEMENT))
-		options.useFlying = true;
-	if(hlp->hasBonusOfType(Bonus::WATER_WALKING))
-		options.useWaterWalking = true;
-	if(hlp->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION))
-		options.useTeleportWhirlpool = true;
+	hlp = make_unique<CPathfinderHelper>(hero, options);
 
 	initializeGraph();
 	neighbours.reserve(16);
@@ -719,8 +713,8 @@ int TurnInfo::getMaxMovePoints(const EPathfindingLayer layer) const
 	return layer == EPathfindingLayer::SAIL ? maxMovePointsWater : maxMovePointsLand;
 }
 
-CPathfinderHelper::CPathfinderHelper(const CGHeroInstance * Hero)
-	: turn(-1), hero(Hero)
+CPathfinderHelper::CPathfinderHelper(const CGHeroInstance * Hero, const CPathfinder::PathfinderOptions & Options)
+	: turn(-1), hero(Hero), options(Options)
 {
 	turnsInfo.reserve(16);
 	updateTurnInfo();
@@ -741,6 +735,21 @@ void CPathfinderHelper::updateTurnInfo(const int Turn)
 
 bool CPathfinderHelper::isLayerAvailable(const EPathfindingLayer layer) const
 {
+	switch(layer)
+	{
+	case EPathfindingLayer::AIR:
+		if(!options.useFlying)
+			return false;
+
+		break;
+
+	case EPathfindingLayer::WATER:
+		if(!options.useWaterWalking)
+			return false;
+
+		break;
+	}
+
 	return turnsInfo[turn]->isLayerAvailable(layer);
 }
 

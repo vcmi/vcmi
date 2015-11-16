@@ -94,6 +94,8 @@ struct DLL_LINKAGE CPathsInfo
 class CPathfinder : private CGameInfoCallback
 {
 public:
+	friend class CPathfinderHelper;
+
 	CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstance * _hero);
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 
@@ -206,7 +208,7 @@ struct DLL_LINKAGE TurnInfo
 class DLL_LINKAGE CPathfinderHelper
 {
 public:
-	CPathfinderHelper(const CGHeroInstance * Hero);
+	CPathfinderHelper(const CGHeroInstance * Hero, const CPathfinder::PathfinderOptions & Options);
 	void updateTurnInfo(const int turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer layer) const;
 	const TurnInfo * getTurnInfo() const;
@@ -222,4 +224,5 @@ private:
 	int turn;
 	const CGHeroInstance * hero;
 	std::vector<TurnInfo *> turnsInfo;
+	const CPathfinder::PathfinderOptions & options;
 };
