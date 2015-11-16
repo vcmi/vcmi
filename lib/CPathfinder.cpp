@@ -102,7 +102,7 @@ void CPathfinder::calculatePaths()
 		pq.pop();
 		cp->locked = true;
 		ct = &gs->map->getTile(cp->coord);
-		cObj = ct->topVisitableObj(cp->coord == out.hpos);
+		cObj = ct->topVisitableObj(isSourceInitialPosition());
 
 		int movement = cp->moveRemains, turn = cp->turns;
 		hlp->updateTurnInfo(turn);
@@ -173,23 +173,20 @@ void CPathfinder::calculatePaths()
 		} //neighbours loop
 
 		//just add all passable teleport exits
-		if(cObj && canVisitObject())
+		addTeleportExits();
+		for(auto & neighbour : neighbours)
 		{
-			addTeleportExits();
-			for(auto & neighbour : neighbours)
-			{
-				dp = out.getNode(neighbour, cp->layer);
-				if(dp->locked)
-					continue;
+			dp = out.getNode(neighbour, cp->layer);
+			if(dp->locked)
+				continue;
 
-				if(isBetterWay(movement, turn))
-				{
-					dp->moveRemains = movement;
-					dp->turns = turn;
-					dp->theNodeBefore = cp;
-					dp->action = CGPathNode::NORMAL;
-					pq.push(dp);
-				}
+			if(isBetterWay(movement, turn))
+			{
+				dp->moveRemains = movement;
+				dp->turns = turn;
+				dp->theNodeBefore = cp;
+				dp->action = CGPathNode::NORMAL;
+				pq.push(dp);
 			}
 		}
 	} //queue loop
@@ -200,18 +197,13 @@ void CPathfinder::addNeighbours(const int3 & coord)
 	neighbours.clear();
 	std::vector<int3> tiles;
 	CPathfinderHelper::getNeighbours(gs, *ct, coord, tiles, boost::logic::indeterminate, cp->layer == ELayer::SAIL); // TODO: find out if we still need "limitCoastSailing" option
-	if(canVisitObject())
+	if(isSourceVisitableObj())
 	{
-		if(cObj)
+		for(int3 tile: tiles)
 		{
-			for(int3 tile: tiles)
-			{
-				if(canMoveBetween(tile, cObj->visitablePos()))
-					neighbours.push_back(tile);
-			}
+			if(canMoveBetween(tile, cObj->visitablePos()))
+				neighbours.push_back(tile);
 		}
-		else
-			vstd::concatenate(neighbours, tiles);
 	}
 	else
 		vstd::concatenate(neighbours, tiles);
@@ -219,9 +211,10 @@ void CPathfinder::addNeighbours(const int3 & coord)
 
 void CPathfinder::addTeleportExits(bool noTeleportExcludes)
 {
-	assert(cObj);
-
 	neighbours.clear();
+	if(!isSourceVisitableObj())
+		return;
+
 	auto isAllowedTeleportEntrance = [&](const CGTeleport * obj) -> bool
 	{
 		if(!gs->isTeleportEntrancePassable(obj, hero->tempOwner))
@@ -519,6 +512,12 @@ bool CPathfinder::isSourceInitialPosition() const
 	return cp->coord == out.hpos;
 }
 
+bool CPathfinder::isSourceVisitableObj() const
+{
+	/// Hero can't visit objects while walking on water or flying
+	return cObj != nullptr && (cp->layer == ELayer::LAND || cp->layer == ELayer::SAIL);
+}
+
 bool CPathfinder::isSourceGuarded() const
 {
 	/// Hero can move from guarded tile if movement started on that tile
@@ -672,12 +671,6 @@ bool CPathfinder::addTeleportOneWayRandom(const CGTeleport * obj) const
 bool CPathfinder::addTeleportWhirlpool(const CGWhirlpool * obj) const
 {
 	return options.useTeleportWhirlpool && obj;
-}
-
-bool CPathfinder::canVisitObject() const
-{
-	//hero can't visit objects while walking on water or flying
-	return cp->layer == ELayer::LAND || cp->layer == ELayer::SAIL;
 }
 
 TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)

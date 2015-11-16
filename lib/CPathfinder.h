@@ -172,6 +172,7 @@ private:
 	CGPathNode::ENodeAction getDestAction() const;
 
 	bool isSourceInitialPosition() const;
+	bool isSourceVisitableObj() const;
 	bool isSourceGuarded() const;
 	bool isDestinationGuarded(const bool ignoreAccessibility = true) const;
 	bool isDestinationGuardian() const;
@@ -185,8 +186,6 @@ private:
 	bool addTeleportOneWay(const CGTeleport * obj) const;
 	bool addTeleportOneWayRandom(const CGTeleport * obj) const;
 	bool addTeleportWhirlpool(const CGWhirlpool * obj) const;
-
-	bool canVisitObject() const;
 
 };
 
