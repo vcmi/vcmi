@@ -43,7 +43,7 @@ CPathfinder::CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstan
 
 	out.hero = hero;
 	out.hpos = hero->getPosition(false);
-	if(!gs->map->isInTheMap(out.hpos)/* || !gs->map->isInTheMap(dest)*/) //check input
+	if(!isInTheMap(out.hpos)/* || !gs->map->isInTheMap(dest)*/) //check input
 	{
 		logGlobal->errorStream() << "CGameState::calculatePaths: Hero outside the gs->map? How dare you...";
 		throw std::runtime_error("Wrong checksum");
@@ -95,7 +95,7 @@ void CPathfinder::calculatePaths()
 		cp = pq.top();
 		pq.pop();
 		cp->locked = true;
-		ct = &gs->map->getTile(cp->coord);
+		ct = getTile(cp->coord);
 		ctObj = ct->topVisitableObj(isSourceInitialPosition());
 
 		int movement = cp->moveRemains, turn = cp->turns;
@@ -110,7 +110,7 @@ void CPathfinder::calculatePaths()
 		addNeighbours();
 		for(auto & neighbour : neighbours)
 		{
-			dt = &gs->map->getTile(neighbour);
+			dt = getTile(neighbour);
 			dtObj = dt->topVisitableObj();
 			for(ELayer i = ELayer::LAND; i <= ELayer::AIR; i.advance(1))
 			{
@@ -190,7 +190,7 @@ void CPathfinder::addNeighbours()
 {
 	neighbours.clear();
 	std::vector<int3> tiles;
-	CPathfinderHelper::getNeighbours(gs, *ct, cp->coord, tiles, boost::logic::indeterminate, cp->layer == ELayer::SAIL); // TODO: find out if we still need "limitCoastSailing" option
+	CPathfinderHelper::getNeighbours(gs->map, *ct, cp->coord, tiles, boost::logic::indeterminate, cp->layer == ELayer::SAIL); // TODO: find out if we still need "limitCoastSailing" option
 	if(isSourceVisitableObj())
 	{
 		for(int3 tile: tiles)
@@ -212,7 +212,7 @@ void CPathfinder::addTeleportExits()
 	const CGTeleport * objTeleport = dynamic_cast<const CGTeleport *>(ctObj);
 	if(isAllowedTeleportEntrance(objTeleport))
 	{
-		for(auto objId : gs->getTeleportChannelExits(objTeleport->channel, hero->tempOwner))
+		for(auto objId : getTeleportChannelExits(objTeleport->channel, hero->tempOwner))
 		{
 			auto obj = getObj(objId);
 			if(dynamic_cast<const CGWhirlpool *>(obj))
@@ -220,7 +220,7 @@ void CPathfinder::addTeleportExits()
 				auto pos = obj->getBlockedPos();
 				for(auto p : pos)
 				{
-					if(gs->getTile(p)->topVisitableId() == obj->ID)
+					if(getTile(p)->topVisitableId() == obj->ID)
 						neighbours.push_back(p);
 				}
 			}
@@ -235,7 +235,7 @@ void CPathfinder::addTeleportExits()
 	{
 		/// TODO: Find way to reuse CPlayerSpecificInfoCallback::getTownsInfo
 		/// This may be handy if we allow to use teleportation to friendly towns
-		auto towns = gs->getPlayer(hero->tempOwner)->towns;
+		auto towns = getPlayer(hero->tempOwner)->towns;
 		for(const auto & town : towns)
 		{
 			if(town->id != ctObj->id && town->visitingHero == nullptr
@@ -500,7 +500,7 @@ bool CPathfinder::isSourceGuarded() const
 	/// - Map start with hero on guarded tile
 	/// - Dimention door used
 	///  TODO: check what happen when there is several guards
-	if(gs->guardingCreaturePosition(cp->coord) != int3(-1, -1, -1) && !isSourceInitialPosition())
+	if(guardingCreaturePosition(cp->coord) != int3(-1, -1, -1) && !isSourceInitialPosition())
 	{
 		return true;
 	}
@@ -510,7 +510,7 @@ bool CPathfinder::isSourceGuarded() const
 
 bool CPathfinder::isDestinationGuarded(const bool ignoreAccessibility) const
 {
-	if(gs->guardingCreaturePosition(dp->coord).valid()
+	if(guardingCreaturePosition(dp->coord).valid()
 		&& (ignoreAccessibility || dp->accessible == CGPathNode::BLOCKVIS))
 	{
 		return true;
@@ -521,7 +521,7 @@ bool CPathfinder::isDestinationGuarded(const bool ignoreAccessibility) const
 
 bool CPathfinder::isDestinationGuardian() const
 {
-	return gs->guardingCreaturePosition(cp->coord) == dp->coord;
+	return guardingCreaturePosition(cp->coord) == dp->coord;
 }
 
 void CPathfinder::initializeGraph()
@@ -547,7 +547,7 @@ void CPathfinder::initializeGraph()
 		{
 			for(pos.z=0; pos.z < out.sizes.z; ++pos.z)
 			{
-				const TerrainTile * tinfo = &gs->map->getTile(pos);
+				const TerrainTile * tinfo = getTile(pos);
 				switch(tinfo->terType)
 				{
 					case ETerrainType::ROCK:
@@ -602,7 +602,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 & pos, 
 			}
 		}
 	}
-	else if(gs->guardingCreaturePosition(pos).valid() && !tinfo->blocked)
+	else if(guardingCreaturePosition(pos).valid() && !tinfo->blocked)
 	{
 		// Monster close by; blocked visit for battle.
 		return CGPathNode::BLOCKVIS;
@@ -618,7 +618,7 @@ bool CPathfinder::canMoveBetween(const int3 & a, const int3 & b) const
 
 bool CPathfinder::isAllowedTeleportEntrance(const CGTeleport * obj) const
 {
-	if(!obj || !gs->isTeleportEntrancePassable(obj, hero->tempOwner))
+	if(!obj || !isTeleportEntrancePassable(obj, hero->tempOwner))
 		return false;
 
 	auto whirlpool = dynamic_cast<const CGWhirlpool *>(obj);
@@ -635,14 +635,14 @@ bool CPathfinder::isAllowedTeleportEntrance(const CGTeleport * obj) const
 
 bool CPathfinder::addTeleportTwoWay(const CGTeleport * obj) const
 {
-	return options.useTeleportTwoWay && gs->isTeleportChannelBidirectional(obj->channel, hero->tempOwner);
+	return options.useTeleportTwoWay && isTeleportChannelBidirectional(obj->channel, hero->tempOwner);
 }
 
 bool CPathfinder::addTeleportOneWay(const CGTeleport * obj) const
 {
 	if(options.useTeleportOneWay && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
 	{
-		auto passableExits = CGTeleport::getPassableExits(gs, hero, gs->getTeleportChannelExits(obj->channel, hero->tempOwner));
+		auto passableExits = CGTeleport::getPassableExits(gs, hero, getTeleportChannelExits(obj->channel, hero->tempOwner));
 		if(passableExits.size() == 1)
 			return true;
 	}
@@ -653,7 +653,7 @@ bool CPathfinder::addTeleportOneWayRandom(const CGTeleport * obj) const
 {
 	if(options.useTeleportOneWayRandom && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
 	{
-		auto passableExits = CGTeleport::getPassableExits(gs, hero, gs->getTeleportChannelExits(obj->channel, hero->tempOwner));
+		auto passableExits = CGTeleport::getPassableExits(gs, hero, getTeleportChannelExits(obj->channel, hero->tempOwner));
 		if(passableExits.size() > 1)
 			return true;
 	}
@@ -766,7 +766,7 @@ int CPathfinderHelper::getMaxMovePoints(const EPathfindingLayer layer) const
 	return turnsInfo[turn]->getMaxMovePoints(layer);
 }
 
-void CPathfinderHelper::getNeighbours(CGameState * gs, const TerrainTile & srct, const int3 & tile, std::vector<int3> & vec, const boost::logic::tribool & onLand, const bool limitCoastSailing)
+void CPathfinderHelper::getNeighbours(const CMap * map, const TerrainTile & srct, const int3 & tile, std::vector<int3> & vec, const boost::logic::tribool & onLand, const bool limitCoastSailing)
 {
 	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
@@ -775,10 +775,10 @@ void CPathfinderHelper::getNeighbours(CGameState * gs, const TerrainTile & srct,
 	for(auto & dir : dirs)
 	{
 		const int3 hlp = tile + dir;
-		if(!gs->isInTheMap(hlp))
+		if(!map->isInTheMap(hlp))
 			continue;
 
-		const TerrainTile & hlpt = gs->map->getTile(hlp);
+		const TerrainTile & hlpt = map->getTile(hlp);
 
 // 		//we cannot visit things from blocked tiles
 // 		if(srct.blocked && !srct.visitable && hlpt.visitable && srct.blockingObjects.front()->ID != HEROI_TYPE)
@@ -793,7 +793,7 @@ void CPathfinderHelper::getNeighbours(CGameState * gs, const TerrainTile & srct,
 			hlp1.x += dir.x;
 			hlp2.y += dir.y;
 
-			if(gs->map->getTile(hlp1).terType != ETerrainType::WATER || gs->map->getTile(hlp2).terType != ETerrainType::WATER)
+			if(map->getTile(hlp1).terType != ETerrainType::WATER || map->getTile(hlp2).terType != ETerrainType::WATER)
 				continue;
 		}
 
@@ -844,7 +844,7 @@ int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 & sr
 	{
 		std::vector<int3> vec;
 		vec.reserve(8); //optimization
-		getNeighbours(h->cb->gameState(), *d, dst, vec, s->terType != ETerrainType::WATER, true);
+		getNeighbours(h->cb->gameState()->map, *d, dst, vec, s->terType != ETerrainType::WATER, true);
 		for(auto & elem : vec)
 		{
 			int fcost = getMovementCost(h, dst, elem, left, ti, false);
