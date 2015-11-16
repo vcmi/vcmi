@@ -107,7 +107,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 			undeadModifier = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, UNDEAD_MODIFIER_ID, VLC->generaltexth->arraytxt[116]);
 			undeadModifier->description = undeadModifier->description.substr(0, undeadModifier->description.size()-2);//trim value
 			addNewBonus(undeadModifier);
-		}			
+		}
 	}
 	else if(undeadModifier)
 		removeBonus(undeadModifier);
@@ -130,4 +130,14 @@ CBonusSystemNode * CArmedInstance::whereShouldBeAttached(CGameState *gs)
 CBonusSystemNode * CArmedInstance::whatShouldBeAttached()
 {
 	return this;
+}
+
+void CArmedInstance::writeJsonOptions(JsonNode& json) const
+{
+
+}
+
+void CArmedInstance::readJsonOptions(const JsonNode& json)
+{
+
 }

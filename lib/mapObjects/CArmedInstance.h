@@ -40,4 +40,7 @@ public:
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CCreatureSet&>(*this);
 	}
+protected:
+	void writeJsonOptions(JsonNode & json) const override;
+	void readJsonOptions(const JsonNode & json) override;
 };

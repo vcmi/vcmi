@@ -103,16 +103,16 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 {
 	std::string hoverName;
 	if(hero->hasVisions(this, 0))
-	{		
+	{
 		MetaString ms;
 		ms << stacks.begin()->second->count;
 		ms << " " ;
 		ms.addTxt(MetaString::CRE_PL_NAMES,subID);
-		
+
 		ms << "\n";
-		
+
 		int decision = takenAction(hero, true);
-		
+
 		switch (decision)
 		{
 		case FIGHT:
@@ -123,19 +123,19 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 			break;
 		case JOIN_FOR_FREE:
 			ms.addTxt(MetaString::GENERAL_TXT,243);
-			break;					
+			break;
 		default: //decision = cost in gold
 			VLC->generaltexth->allTexts[244];
-			ms << boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision);			
+			ms << boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision);
 			break;
-		}		
+		}
 
-		ms.toString(hoverName);		
+		ms.toString(hoverName);
 	}
 	else
 	{
-		hoverName = getHoverText(hero->tempOwner);	
-	}	
+		hoverName = getHoverText(hero->tempOwner);
+	}
 
 	const JsonNode & texts = VLC->generaltexth->localizedTexts["adventureMap"]["monsterThreat"];
 
@@ -557,6 +557,17 @@ int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
 	return split;
 }
 
+void CGCreature::writeJsonOptions(JsonNode& json) const
+{
+
+}
+
+void CGCreature::readJsonOptions(const JsonNode& json)
+{
+
+}
+
+//CGMine
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
@@ -693,6 +704,17 @@ void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) con
 		cb->startBattleI(hero, this);
 }
 
+void CGMine::writeJsonOptions(JsonNode& json) const
+{
+
+}
+
+void CGMine::readJsonOptions(const JsonNode& json)
+{
+
+}
+
+
 std::string CGResource::getHoverText(PlayerColor player) const
 {
 	return VLC->generaltexth->restypes[subID];
@@ -776,6 +798,17 @@ void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 	if(answer)
 		cb->startBattleI(hero, this);
 }
+
+void CGResource::writeJsonOptions(JsonNode& json) const
+{
+
+}
+
+void CGResource::readJsonOptions(const JsonNode& json)
+{
+
+}
+
 
 CGTeleport::CGTeleport() :
 	type(UNKNOWN), channel(TeleportChannelID())
@@ -1223,6 +1256,16 @@ void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 		cb->startBattleI(hero, this);
 }
 
+void CGArtifact::writeJsonOptions(JsonNode& json) const
+{
+
+}
+
+void CGArtifact::readJsonOptions(const JsonNode& json)
+{
+
+}
+
 void CGWitchHut::initObj()
 {
 	if (allowedAbilities.empty()) //this can happen for RMG. regular maps load abilities from map file
@@ -1279,6 +1322,17 @@ std::string CGWitchHut::getHoverText(const CGHeroInstance * hero) const
 		hoverName += "\n\n" + VLC->generaltexth->allTexts[357]; // (Already learned)
 	return hoverName;
 }
+
+void CGWitchHut::writeJsonOptions(JsonNode& json) const
+{
+
+}
+
+void CGWitchHut::readJsonOptions(const JsonNode& json)
+{
+
+}
+
 
 void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 {
@@ -1419,6 +1473,17 @@ std::string CGShrine::getHoverText(const CGHeroInstance * hero) const
 	return hoverName;
 }
 
+void CGShrine::writeJsonOptions(JsonNode& json) const
+{
+
+}
+
+void CGShrine::readJsonOptions(const JsonNode& json)
+{
+
+}
+
+
 void CGSignBottle::initObj()
 {
 	//if no text is set than we pick random from the predefined ones
@@ -1445,11 +1510,15 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 		cb->removeObject(this);
 }
 
-//TODO: remove
-//void CGScholar::giveAnyBonus( const CGHeroInstance * h ) const
-//{
-//
-//}
+void CGSignBottle::writeJsonOptions(JsonNode& json) const
+{
+
+}
+
+void CGSignBottle::readJsonOptions(const JsonNode& json)
+{
+
+}
 
 void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 {
@@ -1524,6 +1593,16 @@ void CGScholar::initObj()
 	}
 }
 
+void CGScholar::writeJsonOptions(JsonNode& json) const
+{
+
+}
+
+void CGScholar::readJsonOptions(const JsonNode& json)
+{
+
+}
+
 void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 {
 	int ally = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
@@ -1558,6 +1637,16 @@ void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &
 {
 	if (result.winner == 0)
 		onHeroVisit(hero);
+}
+
+void CGGarrison::writeJsonOptions(JsonNode& json) const
+{
+
+}
+
+void CGGarrison::readJsonOptions(const JsonNode& json)
+{
+
 }
 
 void CGMagi::initObj()
@@ -1674,7 +1763,7 @@ void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
 		int3(-3,0,0), int3(1,0,0), //AB
 		int3(-3,1,0), int3(1,1,0), int3(-2,1,0), int3(0,1,0), int3(-1,1,0), //CDEFG
 		int3(-3,-1,0), int3(1,-1,0), int3(-2,-1,0), int3(0,-1,0), int3(-1,-1,0) //HIJKL
-	}; 
+	};
 }
 
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
@@ -1695,6 +1784,17 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 		openWindow(OpenWindow::SHIPYARD_WINDOW,id.getNum(),h->id.getNum());
 	}
 }
+
+void CGShipyard::writeJsonOptions(JsonNode& json) const
+{
+
+}
+
+void CGShipyard::readJsonOptions(const JsonNode& json)
+{
+
+}
+
 
 void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 {
@@ -1859,4 +1959,14 @@ void CGLighthouse::giveBonusTo( PlayerColor player ) const
 	gb.bonus.source = Bonus::OBJECT;
 	gb.bonus.sid = id.getNum();
 	cb->sendAndApply(&gb);
+}
+
+void CGLighthouse::writeJsonOptions(JsonNode& json) const
+{
+
+}
+
+void CGLighthouse::readJsonOptions(const JsonNode& json)
+{
+
 }
