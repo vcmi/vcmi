@@ -434,6 +434,8 @@ CGPathNode::ENodeAction CPathfinder::getDestAction() const
 			break;
 		}
 
+		/// don't break - next case shared for both land and sail layers
+
 	case ELayer::SAIL:
 		if(dtObj)
 		{
@@ -510,6 +512,8 @@ bool CPathfinder::isSourceGuarded() const
 
 bool CPathfinder::isDestinationGuarded(const bool ignoreAccessibility) const
 {
+	/// isDestinationGuarded is exception needed for garrisons.
+	/// When monster standing behind garrison it's visitable and guarded at the same time.
 	if(guardingCreaturePosition(dp->coord).valid()
 		&& (ignoreAccessibility || dp->accessible == CGPathNode::BLOCKVIS))
 	{
@@ -814,7 +818,14 @@ int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 & sr
 		ti = new TurnInfo(h);
 
 	auto s = h->cb->getTile(src), d = h->cb->getTile(dst);
+
+	/// TODO: by the original game rules hero shouldn't be affected by terrain penalty while flying.
+	/// Also flying movement only has penalty when player moving over blocked tiles.
+	/// So if you only have base flying with 40% penalty you can still ignore terrain penalty while having zero flying penalty.
 	int ret = h->getTileCost(*d, *s, ti);
+	/// Unfortunately this can't be implemented yet as server don't know when player flying and when he's not.
+	/// Difference in cost calculation on client and server is much worse than incorrect cost.
+	/// So this one is waiting till server going to use pathfinder rules for path validation.
 
 	if(d->blocked && ti->hasBonusOfType(Bonus::FLYING_MOVEMENT))
 	{
@@ -839,6 +850,8 @@ int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 & sr
 			return remainingMovePoints;
 	}
 
+	/// TODO: This part need rework in order to work properly with flying and water walking
+	/// Currently it's only work properly for normal movement or sailing
 	int left = remainingMovePoints-ret;
 	if(checkLast && left > 0 && remainingMovePoints-ret < 250) //it might be the last tile - if no further move possible we take all move points
 	{
