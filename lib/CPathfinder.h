@@ -165,7 +165,7 @@ private:
 	const CGObjectInstance * ctObj, * dtObj;
 	CGPathNode::ENodeAction destAction;
 
-	void addNeighbours(const int3 & coord);
+	void addNeighbours();
 	void addTeleportExits();
 
 	bool isLayerTransitionPossible() const;

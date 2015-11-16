@@ -107,7 +107,7 @@ void CPathfinder::calculatePaths()
 		}
 
 		//add accessible neighbouring nodes to the queue
-		addNeighbours(cp->coord);
+		addNeighbours();
 		for(auto & neighbour : neighbours)
 		{
 			dt = &gs->map->getTile(neighbour);
@@ -186,11 +186,11 @@ void CPathfinder::calculatePaths()
 	} //queue loop
 }
 
-void CPathfinder::addNeighbours(const int3 & coord)
+void CPathfinder::addNeighbours()
 {
 	neighbours.clear();
 	std::vector<int3> tiles;
-	CPathfinderHelper::getNeighbours(gs, *ct, coord, tiles, boost::logic::indeterminate, cp->layer == ELayer::SAIL); // TODO: find out if we still need "limitCoastSailing" option
+	CPathfinderHelper::getNeighbours(gs, *ct, cp->coord, tiles, boost::logic::indeterminate, cp->layer == ELayer::SAIL); // TODO: find out if we still need "limitCoastSailing" option
 	if(isSourceVisitableObj())
 	{
 		for(int3 tile: tiles)
