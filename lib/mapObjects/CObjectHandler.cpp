@@ -365,6 +365,7 @@ void CGObjectInstance::writeJsonOptions(JsonNode & json) const
 {
 	json.setType(JsonNode::DATA_STRUCT);
 
+	//todo: move up to descendants
 	if(tempOwner != PlayerColor::UNFLAGGABLE)
 	{
 		PlayerColor p (tempOwner);
