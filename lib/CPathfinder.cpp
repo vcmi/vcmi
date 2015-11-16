@@ -190,7 +190,8 @@ void CPathfinder::addNeighbours()
 {
 	neighbours.clear();
 	std::vector<int3> tiles;
-	CPathfinderHelper::getNeighbours(gs->map, *ct, cp->coord, tiles, boost::logic::indeterminate, cp->layer == ELayer::SAIL); // TODO: find out if we still need "limitCoastSailing" option
+	tiles.reserve(8);
+	CPathfinderHelper::getNeighbours(gs->map, *ct, cp->coord, tiles, boost::logic::indeterminate, cp->layer == ELayer::SAIL);
 	if(isSourceVisitableObj())
 	{
 		for(int3 tile: tiles)
@@ -464,7 +465,7 @@ CGPathNode::ENodeAction CPathfinder::getDestAction() const
 			}
 			else if(isDestinationGuardian())
 				action = CGPathNode::BATTLE;
-			else if(dtObj->blockVisit && (!options.useCastleGate || dtObj->ID != Obj::TOWN))
+			else if(dtObj->blockVisit && !(options.useCastleGate && dtObj->ID == Obj::TOWN))
 				action = CGPathNode::BLOCKING_VISIT;
 
 			if(action == CGPathNode::NORMAL)
@@ -772,10 +773,12 @@ int CPathfinderHelper::getMaxMovePoints(const EPathfindingLayer layer) const
 
 void CPathfinderHelper::getNeighbours(const CMap * map, const TerrainTile & srct, const int3 & tile, std::vector<int3> & vec, const boost::logic::tribool & onLand, const bool limitCoastSailing)
 {
-	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
-					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
+	static const int3 dirs[] = {
+		int3(-1, +1, +0),	int3(0, +1, +0),	int3(+1, +1, +0),
+		int3(-1, +0, +0),	/* source pos */	int3(+1, +0, +0),
+		int3(-1, -1, +0),	int3(0, -1, +0),	int3(+1, -1, +0)
+	};
 
-	//vec.reserve(8); //optimization
 	for(auto & dir : dirs)
 	{
 		const int3 hlp = tile + dir;
@@ -783,6 +786,8 @@ void CPathfinderHelper::getNeighbours(const CMap * map, const TerrainTile & srct
 			continue;
 
 		const TerrainTile & hlpt = map->getTile(hlp);
+		if(hlpt.terType == ETerrainType::ROCK)
+			continue;
 
 // 		//we cannot visit things from blocked tiles
 // 		if(srct.blocked && !srct.visitable && hlpt.visitable && srct.blockingObjects.front()->ID != HEROI_TYPE)
@@ -790,6 +795,7 @@ void CPathfinderHelper::getNeighbours(const CMap * map, const TerrainTile & srct
 // 			continue;
 // 		}
 
+		/// Following condition let us avoid diagonal movement over coast when sailing
 		if(srct.terType == ETerrainType::WATER && limitCoastSailing && hlpt.terType == ETerrainType::WATER && dir.x && dir.y) //diagonal move through water
 		{
 			int3 hlp1 = tile,
@@ -801,8 +807,7 @@ void CPathfinderHelper::getNeighbours(const CMap * map, const TerrainTile & srct
 				continue;
 		}
 
-		if((indeterminate(onLand) || onLand == (hlpt.terType!=ETerrainType::WATER) )
-			&& hlpt.terType != ETerrainType::ROCK)
+		if(indeterminate(onLand) || onLand == (hlpt.terType != ETerrainType::WATER))
 		{
 			vec.push_back(hlp);
 		}
