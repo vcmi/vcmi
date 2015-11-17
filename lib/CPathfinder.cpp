@@ -395,6 +395,11 @@ bool CPathfinder::isMovementAfterDestPossible() const
 			/// Transit over whirlpools only allowed when hero protected
 			return true;
 		}
+		else if(dtObj->ID == Obj::GARRISON || dtObj->ID == Obj::GARRISON2)
+		{
+			/// Transit via unguarded garrisons is always possible
+			return true;
+		}
 
 		break;
 	}
