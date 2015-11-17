@@ -321,10 +321,13 @@ bool CPathfinder::isLayerTransitionPossible() const
 
 bool CPathfinder::isMovementToDestPossible() const
 {
+	if(dp->accessible == CGPathNode::BLOCKED)
+		return false;
+
 	switch(dp->layer)
 	{
 	case ELayer::LAND:
-		if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
+		if(!canMoveBetween(cp->coord, dp->coord))
 			return false;
 		if(isSourceGuarded())
 		{
@@ -338,7 +341,7 @@ bool CPathfinder::isMovementToDestPossible() const
 		break;
 
 	case ELayer::SAIL:
-		if(!canMoveBetween(cp->coord, dp->coord) || dp->accessible == CGPathNode::BLOCKED)
+		if(!canMoveBetween(cp->coord, dp->coord))
 			return false;
 		if(isSourceGuarded())
 		{
@@ -531,17 +534,10 @@ bool CPathfinder::isDestinationGuardian() const
 
 void CPathfinder::initializeGraph()
 {
-	auto updateNode = [&](int3 pos, ELayer layer, const TerrainTile * tinfo, bool blockNotAccessible)
+	auto updateNode = [&](int3 pos, ELayer layer, const TerrainTile * tinfo)
 	{
 		auto node = out.getNode(pos, layer);
-
-		auto accessibility = evaluateAccessibility(pos, tinfo);
-		/// TODO: Probably this shouldn't be handled by initializeGraph
-		if(blockNotAccessible
-			&& (accessibility != CGPathNode::ACCESSIBLE || tinfo->terType == ETerrainType::WATER))
-		{
-			accessibility = CGPathNode::BLOCKED;
-		}
+		auto accessibility = evaluateAccessibility(pos, tinfo, layer);
 		node->update(pos, layer, accessibility);
 	};
 
@@ -555,65 +551,86 @@ void CPathfinder::initializeGraph()
 				const TerrainTile * tinfo = getTile(pos);
 				switch(tinfo->terType)
 				{
-					case ETerrainType::ROCK:
-						break;
-					case ETerrainType::WATER:
-						updateNode(pos, ELayer::SAIL, tinfo, false);
-						if(options.useFlying)
-							updateNode(pos, ELayer::AIR, tinfo, true);
-						if(options.useWaterWalking)
-							updateNode(pos, ELayer::WATER, tinfo, false);
-						break;
-					default:
-						updateNode(pos, ELayer::LAND, tinfo, false);
-						if(options.useFlying)
-							updateNode(pos, ELayer::AIR, tinfo, true);
-						break;
+				case ETerrainType::ROCK:
+					break;
+
+				case ETerrainType::WATER:
+					updateNode(pos, ELayer::SAIL, tinfo);
+					if(options.useFlying)
+						updateNode(pos, ELayer::AIR, tinfo);
+					if(options.useWaterWalking)
+						updateNode(pos, ELayer::WATER, tinfo);
+					break;
+
+				default:
+					updateNode(pos, ELayer::LAND, tinfo);
+					if(options.useFlying)
+						updateNode(pos, ELayer::AIR, tinfo);
+					break;
 				}
 			}
 		}
 	}
 }
 
-CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo) const
+CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, const ELayer layer) const
 {
-	CGPathNode::EAccessibility ret = (tinfo->blocked ? CGPathNode::BLOCKED : CGPathNode::ACCESSIBLE);
-
 	if(tinfo->terType == ETerrainType::ROCK || !isVisible(pos, hero->tempOwner))
 		return CGPathNode::BLOCKED;
 
-	if(tinfo->visitable)
+	switch(layer)
 	{
-		if(tinfo->visitableObjects.front()->ID == Obj::SANCTUARY && tinfo->visitableObjects.back()->ID == Obj::HERO && tinfo->visitableObjects.back()->tempOwner != hero->tempOwner) //non-owned hero stands on Sanctuary
+	case ELayer::LAND:
+	case ELayer::SAIL:
+		if(tinfo->visitable)
 		{
-			return CGPathNode::BLOCKED;
-		}
-		else
-		{
-			for(const CGObjectInstance * obj : tinfo->visitableObjects)
+			if(tinfo->visitableObjects.front()->ID == Obj::SANCTUARY && tinfo->visitableObjects.back()->ID == Obj::HERO && tinfo->visitableObjects.back()->tempOwner != hero->tempOwner) //non-owned hero stands on Sanctuary
 			{
-				if(obj->passableFor(hero->tempOwner))
+				return CGPathNode::BLOCKED;
+			}
+			else
+			{
+				for(const CGObjectInstance * obj : tinfo->visitableObjects)
 				{
-					ret = CGPathNode::ACCESSIBLE;
-				}
-				else if(obj->blockVisit)
-				{
-					return CGPathNode::BLOCKVIS;
-				}
-				else if(obj->ID != Obj::EVENT) //pathfinder should ignore placed events
-				{
-					ret = CGPathNode::VISITABLE;
+					if(obj->passableFor(hero->tempOwner))
+					{
+						return CGPathNode::ACCESSIBLE;
+					}
+					else if(obj->blockVisit)
+					{
+						return CGPathNode::BLOCKVIS;
+					}
+					else if(obj->ID != Obj::EVENT) //pathfinder should ignore placed events
+					{
+						return CGPathNode::VISITABLE;
+					}
 				}
 			}
 		}
-	}
-	else if(guardingCreaturePosition(pos).valid() && !tinfo->blocked)
-	{
-		// Monster close by; blocked visit for battle.
-		return CGPathNode::BLOCKVIS;
+		else if(guardingCreaturePosition(pos).valid() && !tinfo->blocked)
+		{
+			// Monster close by; blocked visit for battle
+			return CGPathNode::BLOCKVIS;
+		}
+		else if(tinfo->blocked)
+			return CGPathNode::BLOCKED;
+
+		break;
+
+	case ELayer::WATER:
+		if(tinfo->blocked || tinfo->terType != ETerrainType::WATER)
+			return CGPathNode::BLOCKED;
+
+		break;
+
+	case ELayer::AIR:
+		if(tinfo->blocked || tinfo->terType == ETerrainType::WATER)
+			return CGPathNode::FLYABLE;
+
+		break;
 	}
 
-	return ret;
+	return CGPathNode::ACCESSIBLE;
 }
 
 bool CPathfinder::canMoveBetween(const int3 & a, const int3 & b) const

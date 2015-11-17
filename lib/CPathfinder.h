@@ -43,6 +43,7 @@ struct DLL_LINKAGE CGPathNode
 		ACCESSIBLE = 1, //tile can be entered and passed
 		VISITABLE, //tile can be entered as the last tile in path
 		BLOCKVIS,  //visitable from neighbouring tile but not passable
+		FLYABLE, //can only be accessed in air layer
 		BLOCKED //tile can't be entered nor visited
 	};
 
@@ -181,7 +182,7 @@ private:
 
 	void initializeGraph();
 
-	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo) const;
+	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, const ELayer layer) const;
 	bool canMoveBetween(const int3 & a, const int3 & b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
 
 	bool isAllowedTeleportEntrance(const CGTeleport * obj) const;
