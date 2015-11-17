@@ -1545,7 +1545,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 
 		case CGPathNode::VISIT:
 		case CGPathNode::BLOCKING_VISIT:
-			if(objAtTile->ID == Obj::HERO)
+			if(objAtTile && objAtTile->ID == Obj::HERO)
 			{
 				if(selection == objAtTile)
 					CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);

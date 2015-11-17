@@ -188,12 +188,15 @@ private:
 	bool isSourceInitialPosition() const;
 	bool isSourceVisitableObj() const;
 	bool isSourceGuarded() const;
+	bool isDestVisitableObj() const;
 	bool isDestinationGuarded(const bool ignoreAccessibility = true) const;
 	bool isDestinationGuardian() const;
 
 	void initializeGraph();
 
 	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, const ELayer layer) const;
+	bool isVisitableObj(const CGObjectInstance * obj, const ELayer layer) const;
+	bool canSeeObj(const CGObjectInstance * obj) const;
 	bool canMoveBetween(const int3 & a, const int3 & b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
 
 	bool isAllowedTeleportEntrance(const CGTeleport * obj) const;

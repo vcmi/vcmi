@@ -352,13 +352,13 @@ bool CPathfinder::isMovementToDestPossible() const
 
 		if(cp->layer == ELayer::LAND)
 		{
-			if(!dtObj)
+			if(!isDestVisitableObj())
 				return false;
 
 			if(dtObj->ID != Obj::BOAT && dtObj->ID != Obj::HERO)
 				return false;
 		}
-		else if(dtObj && dtObj->ID == Obj::BOAT)
+		else if(isDestVisitableObj() && dtObj->ID == Obj::BOAT)
 		{
 			/// Hero in boat can't visit empty boats
 			return false;
@@ -441,7 +441,7 @@ CGPathNode::ENodeAction CPathfinder::getDestAction() const
 		/// don't break - next case shared for both land and sail layers
 
 	case ELayer::SAIL:
-		if(dtObj)
+		if(isDestVisitableObj())
 		{
 			auto objRel = getPlayerRelations(dtObj->tempOwner, hero->tempOwner);
 
@@ -495,8 +495,7 @@ bool CPathfinder::isSourceInitialPosition() const
 
 bool CPathfinder::isSourceVisitableObj() const
 {
-	/// Hero can't visit objects while walking on water or flying
-	return ctObj != nullptr && (cp->layer == ELayer::LAND || cp->layer == ELayer::SAIL);
+	return isVisitableObj(ctObj, cp->layer);
 }
 
 bool CPathfinder::isSourceGuarded() const
@@ -505,13 +504,18 @@ bool CPathfinder::isSourceGuarded() const
 	/// It's possible at least in these cases:
 	/// - Map start with hero on guarded tile
 	/// - Dimention door used
-	///  TODO: check what happen when there is several guards
+	/// TODO: check what happen when there is several guards
 	if(guardingCreaturePosition(cp->coord) != int3(-1, -1, -1) && !isSourceInitialPosition())
 	{
 		return true;
 	}
 
 	return false;
+}
+
+bool CPathfinder::isDestVisitableObj() const
+{
+	return isVisitableObj(dtObj, dp->layer);
 }
 
 bool CPathfinder::isDestinationGuarded(const bool ignoreAccessibility) const
@@ -600,7 +604,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 & pos, 
 					{
 						return CGPathNode::BLOCKVIS;
 					}
-					else if(obj->ID != Obj::EVENT) //pathfinder should ignore placed events
+					else if(canSeeObj(obj))
 					{
 						return CGPathNode::VISITABLE;
 					}
@@ -631,6 +635,18 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 & pos, 
 	}
 
 	return CGPathNode::ACCESSIBLE;
+}
+
+bool CPathfinder::isVisitableObj(const CGObjectInstance * obj, const ELayer layer) const
+{
+	/// Hero can't visit objects while walking on water or flying
+	return canSeeObj(obj) && (layer == ELayer::LAND || layer == ELayer::SAIL);
+}
+
+bool CPathfinder::canSeeObj(const CGObjectInstance * obj) const
+{
+	/// Pathfinder should ignore placed events
+	return obj != nullptr && obj->ID != Obj::EVENT;
 }
 
 bool CPathfinder::canMoveBetween(const int3 & a, const int3 & b) const
