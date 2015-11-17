@@ -2642,7 +2642,18 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		ETerrainType newTerrain;
 		int sh = -1;
 
-		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE); i--)
+		auto canStop = [&](CGPathNode * node) -> bool
+		{
+			if(node->layer == EPathfindingLayer::LAND || node->layer == EPathfindingLayer::SAIL)
+				return true;
+
+			if(node->accessible == CGPathNode::ACCESSIBLE)
+				return true;
+
+			return false;
+		};
+
+		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || !canStop(&path.nodes[i])); i--)
 		{
 			int3 currentCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i-1].coord;
