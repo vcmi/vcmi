@@ -121,6 +121,13 @@ private:
 		/// If true transition into air layer only possible from initial node.
 		/// This is drastically decrease path calculation complexity (and time).
 		/// Downside is less MP effective paths calculation.
+		///
+		/// TODO: If this option end up useful for slow devices it's can be improved:
+		/// - Allow transition into air layer not only from initial position, but also from teleporters.
+		///   Movement into air can be also allowed when hero disembarked.
+		/// - Other idea is to allow transition into air within certain radius of N tiles around hero.
+		///   Patrol support need similar functionality so it's won't be ton of useless code.
+		///   Such limitation could be useful as it's can be scaled depend on device performance.
 		bool lightweightFlyingMode;
 
 		/// This option enable one turn limitation for flying and water walking.
@@ -135,6 +142,10 @@ private:
 		/// - Move from blocked tiles to visitable one
 		/// - Move from guarded tiles to blockvis tiles without being attacked
 		/// - Move from guarded tiles to guarded visitable tiles with being attacked after
+		/// TODO:
+		/// - Option should also allow same tile land <-> air layer transitions.
+		///   Current implementation only allow go into (from) air layer only to neighbour tiles.
+		///   I find it's reasonable limitation, but it's will make some movements more expensive than in H3.
 		bool originalMovementRules;
 
 		PathfinderOptions();
