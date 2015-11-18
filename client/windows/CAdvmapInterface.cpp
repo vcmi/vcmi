@@ -114,7 +114,7 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 		adventureInt->tileRClicked(mp);
 }
 
-void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
+void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 {
 	int3 tHovered = whichTileIsIt(sEvent.x,sEvent.y);
 	int3 pom = adventureInt->verifyPos(tHovered);
@@ -126,11 +126,11 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	}
 
 	if (pom != curHoveredTile)
-		curHoveredTile=pom;
+		curHoveredTile = pom;
 	else
 		return;
 
-	adventureInt->tileHovered(curHoveredTile);
+	adventureInt->tileHovered(pom);
 }
 void CTerrainRect::hover(bool on)
 {
