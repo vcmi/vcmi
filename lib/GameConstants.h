@@ -748,9 +748,9 @@ ID_LIKE_OPERATORS_DECLS(ETerrainType, ETerrainType::EETerrainType)
 class DLL_LINKAGE EPathfindingLayer
 {
 public:
-	enum EEPathfindingLayer
+	enum EEPathfindingLayer : ui8
 	{
-		WRONG = -2, AUTO = -1, LAND = 0, SAIL = 1, WATER, AIR, NUM_LAYERS
+		WRONG = 0, AUTO = 1, LAND = 2, SAIL = 3, WATER, AIR, NUM_LAYERS
 	};
 
 	EPathfindingLayer(EEPathfindingLayer _num = WRONG) : num(_num)

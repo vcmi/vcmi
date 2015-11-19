@@ -26,18 +26,18 @@ struct DLL_LINKAGE CGPathNode
 {
 	typedef EPathfindingLayer ELayer;
 
-	enum ENodeAction
+	enum ENodeAction : ui8
 	{
-		UNKNOWN = -1,
-		NORMAL = 0,
+		UNKNOWN = 0,
 		EMBARK = 1,
-		DISEMBARK, //2
-		BATTLE,//3
-		VISIT,//4
-		BLOCKING_VISIT//5
+		DISEMBARK,
+		NORMAL,
+		BATTLE,
+		VISIT,
+		BLOCKING_VISIT
 	};
 
-	enum EAccessibility
+	enum EAccessibility : ui8
 	{
 		NOT_SET = 0,
 		ACCESSIBLE = 1, //tile can be entered and passed
@@ -47,14 +47,14 @@ struct DLL_LINKAGE CGPathNode
 		BLOCKED //tile can't be entered nor visited
 	};
 
-	bool locked;
-	EAccessibility accessible;
-	ui8 turns; //how many turns we have to wait before reachng the tile - 0 means current turn
-	ui32 moveRemains; //remaining tiles after hero reaches the tile
 	CGPathNode * theNodeBefore;
 	int3 coord; //coordinates
+	ui32 moveRemains; //remaining tiles after hero reaches the tile
+	ui8 turns; //how many turns we have to wait before reachng the tile - 0 means current turn
 	ELayer layer;
+	EAccessibility accessible;
 	ENodeAction action;
+	bool locked;
 
 	CGPathNode();
 	void reset();
