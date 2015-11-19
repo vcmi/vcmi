@@ -750,7 +750,7 @@ class DLL_LINKAGE EPathfindingLayer
 public:
 	enum EEPathfindingLayer : ui8
 	{
-		WRONG = 0, AUTO = 1, LAND = 2, SAIL = 3, WATER, AIR, NUM_LAYERS
+		LAND = 0, SAIL = 1, WATER, AIR, NUM_LAYERS, WRONG, AUTO
 	};
 
 	EPathfindingLayer(EEPathfindingLayer _num = WRONG) : num(_num)
