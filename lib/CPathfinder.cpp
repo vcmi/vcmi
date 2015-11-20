@@ -7,6 +7,7 @@
 #include "mapObjects/CGHeroInstance.h"
 #include "GameConstants.h"
 #include "CStopWatch.h"
+#include "CConfigHandler.h"
 
 /*
  * CPathfinder.cpp, part of VCMI engine
@@ -20,19 +21,19 @@
 
 CPathfinder::PathfinderOptions::PathfinderOptions()
 {
-	useFlying = true;
-	useWaterWalking = true;
-	useEmbarkAndDisembark = true;
-	useTeleportTwoWay = true;
-	useTeleportOneWay = true;
-	useTeleportOneWayRandom = false;
-	useTeleportWhirlpool = true;
+	useFlying = settings["pathfinder"]["layers"]["flying"].Bool();
+	useWaterWalking = settings["pathfinder"]["layers"]["waterWalking"].Bool();
+	useEmbarkAndDisembark = settings["pathfinder"]["layers"]["sailing"].Bool();
+	useTeleportTwoWay = settings["pathfinder"]["teleports"]["twoWay"].Bool();
+	useTeleportOneWay = settings["pathfinder"]["teleports"]["oneWay"].Bool();
+	useTeleportOneWayRandom = settings["pathfinder"]["teleports"]["oneWayRandom"].Bool();
+	useTeleportWhirlpool = settings["pathfinder"]["teleports"]["whirlpool"].Bool();
 
-	useCastleGate = false;
+	useCastleGate = settings["pathfinder"]["teleports"]["castleGate"].Bool();
 
-	lightweightFlyingMode = false;
-	oneTurnSpecialLayersLimit = true;
-	originalMovementRules = true;
+	lightweightFlyingMode = settings["pathfinder"]["lightweightFlyingMode"].Bool();
+	oneTurnSpecialLayersLimit = settings["pathfinder"]["oneTurnSpecialLayersLimit"].Bool();
+	originalMovementRules = settings["pathfinder"]["originalMovementRules"].Bool();
 }
 
 CPathfinder::CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstance * _hero)
