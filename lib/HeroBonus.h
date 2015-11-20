@@ -294,7 +294,7 @@ struct DLL_LINKAGE Bonus
 	};
 
 	ui16 duration; //uses BonusDuration values
-	si16 turnsRemain; //used if duration is N_TURNS or N_DAYS
+	si16 turnsRemain; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 
 	BonusType type; //uses BonusType values - says to what is this bonus - 1 byte
 	TBonusSubtype subtype; //-1 if not applicable - 4 bytes
@@ -828,13 +828,11 @@ public:
 
 	bool operator()(const Bonus *bonus) const
 	{
-		if(daysRequested <= 0)
+		if(daysRequested <= 0 || bonus->duration & Bonus::PERMANENT || bonus->duration & Bonus::ONE_BATTLE)
 			return true;
 		else if(bonus->duration & Bonus::ONE_DAY)
 			return false;
-		else if(bonus->duration & Bonus::PERMANENT || bonus->duration & Bonus::ONE_BATTLE)
-			return true;
-		else if(bonus->duration & Bonus::N_DAYS)
+		else if(bonus->duration & Bonus::N_DAYS || bonus->duration & Bonus::ONE_WEEK)
 		{
 			return bonus->turnsRemain > daysRequested;
 		}

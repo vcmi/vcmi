@@ -263,6 +263,9 @@ DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 
 	assert(cbsn);
 
+	if(Bonus::OneWeek(&bonus))
+		bonus.turnsRemain = 8 - gs->getDate(Date::DAY_OF_WEEK); // set correct number of days before adding bonus
+
 	auto b = new Bonus(bonus);
 	cbsn->addNewBonus(b);
 
@@ -1023,10 +1026,8 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 		creatureSet.second.applyGs(gs);
 
 	gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
-	if(gs->getDate(Date::DAY_OF_WEEK) == 1) //new week
-		gs->globalEffects.popBonuses(Bonus::OneWeek); //works for children -> all game objs
-
 	gs->globalEffects.updateBonuses(Bonus::NDays);
+	gs->globalEffects.updateBonuses(Bonus::OneWeek);
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
 	for(CGTownInstance* t : gs->map->towns)
