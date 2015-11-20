@@ -711,7 +711,10 @@ bool CPathfinder::addTeleportWhirlpool(const CGWhirlpool * obj) const
 TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)
 	: hero(Hero), maxMovePointsLand(-1), maxMovePointsWater(-1)
 {
-	bonuses = hero->getAllBonuses(Selector::days(turn), nullptr);
+	std::stringstream cachingStr;
+	cachingStr << "days_" << turn;
+
+	bonuses = hero->getAllBonuses(Selector::days(turn), nullptr, nullptr, cachingStr.str());
 }
 
 bool TurnInfo::isLayerAvailable(const EPathfindingLayer layer) const
