@@ -811,7 +811,7 @@ public:
 	bool operator()(const Bonus *bonus) const
 	{
 		return turnsRequested <= 0					//every present effect will last zero (or "less") turns
-			|| !(bonus->duration & Bonus::N_TURNS)	//so do every not expriing after N-turns effect
+			|| !Bonus::NTurns(bonus) //so do every not expriing after N-turns effect
 			|| bonus->turnsRemain > turnsRequested;
 	}
 	CWillLastTurns& operator()(const int &setVal)
@@ -828,11 +828,11 @@ public:
 
 	bool operator()(const Bonus *bonus) const
 	{
-		if(daysRequested <= 0 || bonus->duration & Bonus::PERMANENT || bonus->duration & Bonus::ONE_BATTLE)
+		if(daysRequested <= 0 || Bonus::Permanent(bonus) || Bonus::OneBattle(bonus))
 			return true;
-		else if(bonus->duration & Bonus::ONE_DAY)
+		else if(Bonus::OneDay(bonus))
 			return false;
-		else if(bonus->duration & Bonus::N_DAYS || bonus->duration & Bonus::ONE_WEEK)
+		else if(Bonus::NDays(bonus) || Bonus::OneWeek(bonus))
 		{
 			return bonus->turnsRemain > daysRequested;
 		}
