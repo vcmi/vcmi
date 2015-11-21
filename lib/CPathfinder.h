@@ -248,7 +248,7 @@ public:
 
 	static void getNeighbours(const CMap * map, const TerrainTile & srct, const int3 & tile, std::vector<int3> & vec, const boost::logic::tribool & onLand, const bool limitCoastSailing);
 
-	static int getMovementCost(const CGHeroInstance * h, const int3 & src, const int3 & dst, const int remainingMovePoints =- 1, const TurnInfo * ti = nullptr, const bool checkLast = true);
+	static int getMovementCost(const CGHeroInstance * h, const int3 & src, const int3 & dst, const TerrainTile * ct, const TerrainTile * dt, const int remainingMovePoints =- 1, const TurnInfo * ti = nullptr, const bool checkLast = true);
 	static int getMovementCost(const CGHeroInstance * h, const int3 & dst);
 
 private:

@@ -96,7 +96,7 @@ void CPathfinder::calculatePaths()
 		cp = pq.top();
 		pq.pop();
 		cp->locked = true;
-		ct = getTile(cp->coord);
+		ct = &gs->map->getTile(cp->coord);
 		ctObj = ct->topVisitableObj(isSourceInitialPosition());
 
 		int movement = cp->moveRemains, turn = cp->turns;
@@ -111,7 +111,7 @@ void CPathfinder::calculatePaths()
 		addNeighbours();
 		for(auto & neighbour : neighbours)
 		{
-			dt = getTile(neighbour);
+			dt = &gs->map->getTile(neighbour);
 			dtObj = dt->topVisitableObj();
 			for(ELayer i = ELayer::LAND; i <= ELayer::AIR; i.advance(1))
 			{
@@ -135,7 +135,7 @@ void CPathfinder::calculatePaths()
 					continue;
 
 				destAction = getDestAction();
-				int cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, movement, hlp->getTurnInfo());
+				int cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, ct, dt, movement, hlp->getTurnInfo());
 				int remains = movement - cost;
 				if(destAction == CGPathNode::EMBARK || destAction == CGPathNode::DISEMBARK)
 				{
@@ -148,7 +148,7 @@ void CPathfinder::calculatePaths()
 					//occurs rarely, when hero with low movepoints tries to leave the road
 					hlp->updateTurnInfo(++turnAtNextTile);
 					int moveAtNextTile = hlp->getMaxMovePoints(i);
-					cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, moveAtNextTile, hlp->getTurnInfo()); //cost must be updated, movement points changed :(
+					cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, ct, dt, moveAtNextTile, hlp->getTurnInfo()); //cost must be updated, movement points changed :(
 					remains = moveAtNextTile - cost;
 				}
 
@@ -222,7 +222,7 @@ void CPathfinder::addTeleportExits()
 				auto pos = obj->getBlockedPos();
 				for(auto p : pos)
 				{
-					if(getTile(p)->topVisitableId() == obj->ID)
+					if(gs->map->getTile(p).topVisitableId() == obj->ID)
 						neighbours.push_back(p);
 				}
 			}
@@ -511,7 +511,7 @@ bool CPathfinder::isSourceGuarded() const
 	/// - Map start with hero on guarded tile
 	/// - Dimention door used
 	/// TODO: check what happen when there is several guards
-	if(guardingCreaturePosition(cp->coord) != int3(-1, -1, -1) && !isSourceInitialPosition())
+	if(gs->guardingCreaturePosition(cp->coord).valid() && !isSourceInitialPosition())
 	{
 		return true;
 	}
@@ -528,7 +528,7 @@ bool CPathfinder::isDestinationGuarded(const bool ignoreAccessibility) const
 {
 	/// isDestinationGuarded is exception needed for garrisons.
 	/// When monster standing behind garrison it's visitable and guarded at the same time.
-	if(guardingCreaturePosition(dp->coord).valid()
+	if(gs->guardingCreaturePosition(dp->coord).valid()
 		&& (ignoreAccessibility || dp->accessible == CGPathNode::BLOCKVIS))
 	{
 		return true;
@@ -539,7 +539,7 @@ bool CPathfinder::isDestinationGuarded(const bool ignoreAccessibility) const
 
 bool CPathfinder::isDestinationGuardian() const
 {
-	return guardingCreaturePosition(cp->coord) == dp->coord;
+	return gs->guardingCreaturePosition(cp->coord) == dp->coord;
 }
 
 void CPathfinder::initializeGraph()
@@ -558,7 +558,7 @@ void CPathfinder::initializeGraph()
 		{
 			for(pos.z=0; pos.z < out.sizes.z; ++pos.z)
 			{
-				const TerrainTile * tinfo = getTile(pos);
+				const TerrainTile * tinfo = &gs->map->getTile(pos);
 				switch(tinfo->terType)
 				{
 				case ETerrainType::ROCK:
@@ -893,7 +893,7 @@ void CPathfinderHelper::getNeighbours(const CMap * map, const TerrainTile & srct
 	}
 }
 
-int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 & src, const int3 & dst, const int remainingMovePoints, const TurnInfo * ti, const bool checkLast)
+int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 & src, const int3 & dst, const TerrainTile * ct, const TerrainTile * dt, const int remainingMovePoints, const TurnInfo * ti, const bool checkLast)
 {
 	if(src == dst) //same tile
 		return 0;
@@ -901,23 +901,27 @@ int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 & sr
 	if(!ti)
 		ti = new TurnInfo(h);
 
-	auto s = h->cb->getTile(src), d = h->cb->getTile(dst);
+	if(ct == nullptr || dt == nullptr)
+	{
+		ct = h->cb->getTile(src);
+		dt = h->cb->getTile(dst);
+	}
 
 	/// TODO: by the original game rules hero shouldn't be affected by terrain penalty while flying.
 	/// Also flying movement only has penalty when player moving over blocked tiles.
 	/// So if you only have base flying with 40% penalty you can still ignore terrain penalty while having zero flying penalty.
-	int ret = h->getTileCost(*d, *s, ti);
+	int ret = h->getTileCost(*dt, *ct, ti);
 	/// Unfortunately this can't be implemented yet as server don't know when player flying and when he's not.
 	/// Difference in cost calculation on client and server is much worse than incorrect cost.
 	/// So this one is waiting till server going to use pathfinder rules for path validation.
 
-	if(d->blocked && ti->hasBonusOfType(Bonus::FLYING_MOVEMENT))
+	if(dt->blocked && ti->hasBonusOfType(Bonus::FLYING_MOVEMENT))
 	{
 		ret *= (100.0 + ti->valOfBonuses(Bonus::FLYING_MOVEMENT)) / 100.0;
 	}
-	else if(d->terType == ETerrainType::WATER)
+	else if(dt->terType == ETerrainType::WATER)
 	{
-		if(h->boat && s->hasFavourableWinds() && d->hasFavourableWinds()) //Favourable Winds
+		if(h->boat && ct->hasFavourableWinds() && dt->hasFavourableWinds()) //Favourable Winds
 			ret *= 0.666;
 		else if(!h->boat && ti->hasBonusOfType(Bonus::WATER_WALKING))
 		{
@@ -941,10 +945,10 @@ int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 & sr
 	{
 		std::vector<int3> vec;
 		vec.reserve(8); //optimization
-		getNeighbours(h->cb->gameState()->map, *d, dst, vec, s->terType != ETerrainType::WATER, true);
+		getNeighbours(h->cb->gameState()->map, *dt, dst, vec, ct->terType != ETerrainType::WATER, true);
 		for(auto & elem : vec)
 		{
-			int fcost = getMovementCost(h, dst, elem, left, ti, false);
+			int fcost = getMovementCost(h, dst, elem, nullptr, nullptr, left, ti, false);
 			if(fcost <= left)
 				return ret;
 		}
@@ -955,7 +959,7 @@ int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 & sr
 
 int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 & dst)
 {
-	return getMovementCost(h, h->visitablePos(), dst, h->movement);
+	return getMovementCost(h, h->visitablePos(), dst, nullptr, nullptr, h->movement);
 }
 
 CGPathNode::CGPathNode()
