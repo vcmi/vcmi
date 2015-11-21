@@ -709,6 +709,21 @@ bool CPathfinder::addTeleportWhirlpool(const CGWhirlpool * obj) const
 	return options.useTeleportWhirlpool && hlp->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION) && obj;
 }
 
+TurnInfo::BonusCache::BonusCache(TBonusListPtr bl)
+{
+	noTerrainPenalty.reserve(ETerrainType::ROCK);
+	for(int i = 0; i < ETerrainType::ROCK; i++)
+	{
+		noTerrainPenalty.push_back(bl->getFirst(Selector::type(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype(i))));
+	}
+
+	freeShipBoarding = bl->getFirst(Selector::type(Bonus::FREE_SHIP_BOARDING));
+	flyingMovement = bl->getFirst(Selector::type(Bonus::FLYING_MOVEMENT));
+	flyingMovementVal = bl->valOfBonuses(Selector::type(Bonus::FLYING_MOVEMENT));
+	waterWalking = bl->getFirst(Selector::type(Bonus::WATER_WALKING));
+	waterWalkingVal = bl->valOfBonuses(Selector::type(Bonus::WATER_WALKING));
+}
+
 TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)
 	: hero(Hero), maxMovePointsLand(-1), maxMovePointsWater(-1)
 {
@@ -716,6 +731,7 @@ TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)
 	cachingStr << "days_" << turn;
 
 	bonuses = hero->getAllBonuses(Selector::days(turn), nullptr, nullptr, cachingStr.str());
+	bonusCache = make_unique<BonusCache>(bonuses);
 }
 
 bool TurnInfo::isLayerAvailable(const EPathfindingLayer layer) const
@@ -740,11 +756,31 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer layer) const
 
 bool TurnInfo::hasBonusOfType(Bonus::BonusType type, int subtype) const
 {
+	switch(type)
+	{
+	case Bonus::FREE_SHIP_BOARDING:
+		return bonusCache->freeShipBoarding;
+	case Bonus::FLYING_MOVEMENT:
+		return bonusCache->flyingMovement;
+	case Bonus::WATER_WALKING:
+		return bonusCache->waterWalking;
+	case Bonus::NO_TERRAIN_PENALTY:
+		return bonusCache->noTerrainPenalty[subtype];
+	}
+
 	return bonuses->getFirst(Selector::type(type).And(Selector::subtype(subtype)));
 }
 
 int TurnInfo::valOfBonuses(Bonus::BonusType type, int subtype) const
 {
+	switch(type)
+	{
+	case Bonus::FLYING_MOVEMENT:
+		return bonusCache->flyingMovementVal;
+	case Bonus::WATER_WALKING:
+		return bonusCache->waterWalkingVal;
+	}
+
 	return bonuses->valOfBonuses(Selector::type(type).And(Selector::subtype(subtype)));
 }
 
