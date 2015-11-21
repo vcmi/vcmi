@@ -80,28 +80,38 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 			break;
 		}
 	}
-	else if(!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
+	else if(ti->nativeTerrain != from.terType && !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
 	{
-		// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
-		// This is clearly bug in H3 however intended behaviour is not clear.
-		// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
-		// will always have best penalty without any influence from player-defined stacks order
-
-		for(auto stack : stacks)
-		{
-			int nativeTerrain = VLC->townh->factions[stack.second->type->faction]->nativeTerrain;
-			if(nativeTerrain != -1 && nativeTerrain != from.terType)
-			{
-				ret = VLC->heroh->terrCosts[from.terType];
-				ret -= getSecSkillLevel(SecondarySkill::PATHFINDING) * 25;
-				if(ret < GameConstants::BASE_MOVEMENT_COST)
-					ret = GameConstants::BASE_MOVEMENT_COST;
-
-				break;
-			}
-		}
+		ret = VLC->heroh->terrCosts[from.terType];
+		ret -= getSecSkillLevel(SecondarySkill::PATHFINDING) * 25;
+		if(ret < GameConstants::BASE_MOVEMENT_COST)
+			ret = GameConstants::BASE_MOVEMENT_COST;
 	}
 	return ret;
+}
+
+int CGHeroInstance::getNativeTerrain() const
+{
+	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
+	// This is clearly bug in H3 however intended behaviour is not clear.
+	// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
+	// will always have best penalty without any influence from player-defined stacks order
+
+	// TODO: What should we do if all hero stacks are neutral creatures?
+	int nativeTerrain = -1;
+	for(auto stack : stacks)
+	{
+		int stackNativeTerrain = VLC->townh->factions[stack.second->type->faction]->nativeTerrain;
+		if(stackNativeTerrain == -1)
+			continue;
+
+		if(nativeTerrain == -1)
+			nativeTerrain = stackNativeTerrain;
+		else if(nativeTerrain != stackNativeTerrain)
+			return -1;
+	}
+
+	return nativeTerrain;
 }
 
 int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest

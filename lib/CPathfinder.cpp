@@ -732,6 +732,7 @@ TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)
 
 	bonuses = hero->getAllBonuses(Selector::days(turn), nullptr, nullptr, cachingStr.str());
 	bonusCache = make_unique<BonusCache>(bonuses);
+	nativeTerrain = hero->getNativeTerrain();
 }
 
 bool TurnInfo::isLayerAvailable(const EPathfindingLayer layer) const
