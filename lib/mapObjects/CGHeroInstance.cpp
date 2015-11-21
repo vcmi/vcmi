@@ -1169,8 +1169,10 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 	if(!ti)
 		ti = new TurnInfo(this);
 
+	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL);
+	int mp2 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
 	if(ti->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
-		return (MPsBefore - basicCost) * static_cast<double>(maxMovePoints(disembark)) / maxMovePoints(!disembark);
+		return (MPsBefore - basicCost) * static_cast<double>(mp1) / mp2;
 
 	return 0; //take all MPs otherwise
 }
