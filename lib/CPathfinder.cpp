@@ -37,7 +37,7 @@ CPathfinder::PathfinderOptions::PathfinderOptions()
 }
 
 CPathfinder::CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstance * _hero)
-	: CGameInfoCallback(_gs, boost::optional<PlayerColor>()), out(_out), hero(_hero)
+	: CGameInfoCallback(_gs, boost::optional<PlayerColor>()), out(_out), hero(_hero), FoW(getPlayerTeam(hero->tempOwner)->fogOfWarMap)
 {
 	assert(hero);
 	assert(hero == getHero(hero->id));
@@ -602,7 +602,7 @@ void CPathfinder::initializeGraph()
 
 CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, const ELayer layer) const
 {
-	if(tinfo->terType == ETerrainType::ROCK || !isVisible(pos, hero->tempOwner))
+	if(tinfo->terType == ETerrainType::ROCK || !FoW[pos.x][pos.y][pos.z])
 		return CGPathNode::BLOCKED;
 
 	switch(layer)

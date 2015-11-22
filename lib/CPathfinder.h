@@ -153,6 +153,7 @@ private:
 
 	CPathsInfo & out;
 	const CGHeroInstance * hero;
+	const std::vector<std::vector<std::vector<ui8> > > &FoW;
 	unique_ptr<CPathfinderHelper> hlp;
 
 	struct NodeComparer
