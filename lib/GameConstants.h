@@ -93,18 +93,37 @@ CLASS_NAME & advance(int i)							\
 }
 
 
-#define ID_LIKE_OPERATORS_INTERNAL_DECLS(A, B)			\
-bool DLL_LINKAGE operator==(const A & a, const B & b);	\
-bool DLL_LINKAGE operator!=(const A & a, const B & b);	\
-bool DLL_LINKAGE operator<(const A & a, const B & b);	\
-bool DLL_LINKAGE operator<=(const A & a, const B & b);	\
-bool DLL_LINKAGE operator>(const A & a, const B & b);	\
-bool DLL_LINKAGE operator>=(const A & a, const B & b);
+// Operators are performance-critical and to be inlined they must be in header
+#define ID_LIKE_OPERATORS_INTERNAL(A, B, AN, BN)	\
+STRONG_INLINE bool operator==(const A & a, const B & b)			\
+{													\
+	return AN == BN ;								\
+}													\
+STRONG_INLINE bool operator!=(const A & a, const B & b)			\
+{													\
+	return AN != BN ;								\
+}													\
+STRONG_INLINE bool operator<(const A & a, const B & b)			\
+{													\
+	return AN < BN ;								\
+}													\
+STRONG_INLINE bool operator<=(const A & a, const B & b)			\
+{													\
+	return AN <= BN ;								\
+}													\
+STRONG_INLINE bool operator>(const A & a, const B & b)			\
+{													\
+	return AN > BN ;								\
+}													\
+STRONG_INLINE bool operator>=(const A & a, const B & b)			\
+{													\
+	return AN >= BN ;								\
+}
 
-#define ID_LIKE_OPERATORS_DECLS(CLASS_NAME, ENUM_NAME)			\
-	ID_LIKE_OPERATORS_INTERNAL_DECLS(CLASS_NAME, CLASS_NAME)	\
-	ID_LIKE_OPERATORS_INTERNAL_DECLS(CLASS_NAME, ENUM_NAME)		\
-	ID_LIKE_OPERATORS_INTERNAL_DECLS(ENUM_NAME, CLASS_NAME)
+#define ID_LIKE_OPERATORS(CLASS_NAME, ENUM_NAME)	\
+	ID_LIKE_OPERATORS_INTERNAL(CLASS_NAME, CLASS_NAME, a.num, b.num)	\
+	ID_LIKE_OPERATORS_INTERNAL(CLASS_NAME, ENUM_NAME, a.num, b)	\
+	ID_LIKE_OPERATORS_INTERNAL(ENUM_NAME, CLASS_NAME, a, b.num)
 
 
 #define OP_DECL_INT(CLASS_NAME, OP)					\
@@ -296,7 +315,7 @@ public:
 	ESecondarySkill num;
 };
 
-ID_LIKE_OPERATORS_DECLS(SecondarySkill, SecondarySkill::ESecondarySkill)
+ID_LIKE_OPERATORS(SecondarySkill, SecondarySkill::ESecondarySkill)
 
 namespace EAlignment
 {
@@ -384,7 +403,7 @@ public:
 	EBuildingID num;
 };
 
-ID_LIKE_OPERATORS_DECLS(BuildingID, BuildingID::EBuildingID)
+ID_LIKE_OPERATORS(BuildingID, BuildingID::EBuildingID)
 
 namespace EBuildingState
 {
@@ -651,7 +670,7 @@ public:
 	EObj num;
 };
 
-ID_LIKE_OPERATORS_DECLS(Obj, Obj::EObj)
+ID_LIKE_OPERATORS(Obj, Obj::EObj)
 
 namespace SecSkillLevel
 {
@@ -743,7 +762,7 @@ public:
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType);
 
-ID_LIKE_OPERATORS_DECLS(ETerrainType, ETerrainType::EETerrainType)
+ID_LIKE_OPERATORS(ETerrainType, ETerrainType::EETerrainType)
 
 class DLL_LINKAGE EPathfindingLayer
 {
@@ -763,7 +782,7 @@ public:
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfindingLayer);
 
-ID_LIKE_OPERATORS_DECLS(EPathfindingLayer, EPathfindingLayer::EEPathfindingLayer)
+ID_LIKE_OPERATORS(EPathfindingLayer, EPathfindingLayer::EEPathfindingLayer)
 
 class BFieldType
 {
@@ -786,7 +805,7 @@ public:
 	EBFieldType num;
 };
 
-ID_LIKE_OPERATORS_DECLS(BFieldType, BFieldType::EBFieldType)
+ID_LIKE_OPERATORS(BFieldType, BFieldType::EBFieldType)
 
 namespace EPlayerStatus
 {
@@ -826,7 +845,7 @@ public:
 	EArtifactPosition num;
 };
 
-ID_LIKE_OPERATORS_DECLS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
+ID_LIKE_OPERATORS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
 
 class ArtifactID
 {
@@ -871,7 +890,7 @@ public:
 	EArtifactID num;
 };
 
-ID_LIKE_OPERATORS_DECLS(ArtifactID, ArtifactID::EArtifactID)
+ID_LIKE_OPERATORS(ArtifactID, ArtifactID::EArtifactID)
 
 class CreatureID
 {
@@ -915,7 +934,7 @@ public:
 	ECreatureID num;
 };
 
-ID_LIKE_OPERATORS_DECLS(CreatureID, CreatureID::ECreatureID)
+ID_LIKE_OPERATORS(CreatureID, CreatureID::ECreatureID)
 
 class SpellID
 {
@@ -959,7 +978,7 @@ public:
 	ESpellID num;
 };
 
-ID_LIKE_OPERATORS_DECLS(SpellID, SpellID::ESpellID)
+ID_LIKE_OPERATORS(SpellID, SpellID::ESpellID)
 
 enum class ESpellSchool: ui8
 {
@@ -968,8 +987,6 @@ enum class ESpellSchool: ui8
 	WATER 	= 2,
 	EARTH 	= 3
 };
-
-ID_LIKE_OPERATORS_DECLS(SpellID, SpellID::ESpellID)
 
 // Typedef declarations
 typedef ui8 TFaction;
@@ -981,8 +998,8 @@ typedef si32 TQuantity;
 typedef int TRmgTemplateZoneId;
 
 #undef ID_LIKE_CLASS_COMMON
-#undef ID_LIKE_OPERATORS_DECLS
-#undef ID_LIKE_OPERATORS_INTERNAL_DECLS
+#undef ID_LIKE_OPERATORS
+#undef ID_LIKE_OPERATORS_INTERNAL
 #undef INSTID_LIKE_CLASS_COMMON
 #undef OP_DECL_INT
 
