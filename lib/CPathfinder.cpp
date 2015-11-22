@@ -619,13 +619,13 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 & pos, 
 			{
 				for(const CGObjectInstance * obj : tinfo->visitableObjects)
 				{
-					if(obj->passableFor(hero->tempOwner))
-					{
-						return CGPathNode::ACCESSIBLE;
-					}
-					else if(obj->blockVisit)
+					if(obj->blockVisit)
 					{
 						return CGPathNode::BLOCKVIS;
+					}
+					else if(obj->passableFor(hero->tempOwner))
+					{
+						return CGPathNode::ACCESSIBLE;
 					}
 					else if(canSeeObj(obj))
 					{
@@ -634,13 +634,15 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 & pos, 
 				}
 			}
 		}
-		else if(guardingCreaturePosition(pos).valid() && !tinfo->blocked)
+		else if(tinfo->blocked)
+		{
+			return CGPathNode::BLOCKED;
+		}
+		else if(gs->guardingCreaturePosition(pos).valid())
 		{
 			// Monster close by; blocked visit for battle
 			return CGPathNode::BLOCKVIS;
 		}
-		else if(tinfo->blocked)
-			return CGPathNode::BLOCKED;
 
 		break;
 
