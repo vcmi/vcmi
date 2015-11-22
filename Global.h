@@ -95,6 +95,18 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define NOMINMAX					// Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
 #endif
 
+/* ---------------------------------------------------------------------------- */
+/* A macro to force inlining some of our functions */
+/* ---------------------------------------------------------------------------- */
+// Compiler (at least MSVC) is not so smart here-> without that displaying is MUCH slower
+#ifdef _MSC_VER
+#  define STRONG_INLINE __forceinline
+#elif __GNUC__
+#  define STRONG_INLINE inline __attribute__((always_inline))
+#else
+#  define STRONG_INLINE inline
+#endif
+
 #define _USE_MATH_DEFINES
 
 #include <cstdio>
