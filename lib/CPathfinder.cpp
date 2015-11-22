@@ -115,6 +115,12 @@ void CPathfinder::calculatePaths()
 			dtObj = dt->topVisitableObj();
 			for(ELayer i = ELayer::LAND; i <= ELayer::AIR; i.advance(1))
 			{
+				if(!hlp->isLayerAvailable(i))
+					continue;
+
+				if(cp->layer != i && !isLayerTransitionPossible(i))
+					continue;
+
 				dp = out.getNode(neighbour, i);
 				if(dp->accessible == CGPathNode::NOT_SET)
 					continue;
@@ -123,9 +129,6 @@ void CPathfinder::calculatePaths()
 					continue;
 
 				if(!passOneTurnLimitCheck(cp->turns != turn))
-					continue;
-
-				if(!hlp->isLayerAvailable(i))
 					continue;
 
 				if(cp->layer != i && !isLayerTransitionPossible())
@@ -249,7 +252,7 @@ void CPathfinder::addTeleportExits()
 	}
 }
 
-bool CPathfinder::isLayerTransitionPossible() const
+bool CPathfinder::isLayerTransitionPossible(const ELayer destLayer) const
 {
 	/// No layer transition allowed when previous node action is BATTLE
 	if(cp->action == CGPathNode::BATTLE)
@@ -258,12 +261,42 @@ bool CPathfinder::isLayerTransitionPossible() const
 	switch(cp->layer)
 	{
 	case ELayer::LAND:
-		if(options.lightweightFlyingMode && dp->layer == ELayer::AIR)
-		{
-			if(!isSourceInitialPosition())
-				return false;
-		}
-		else if(dp->layer == ELayer::SAIL)
+		if(destLayer != ELayer::AIR)
+			return true;
+
+		if(!options.lightweightFlyingMode || isSourceInitialPosition())
+			return true;
+
+		break;
+
+	case ELayer::SAIL:
+		if(destLayer == ELayer::LAND && dt->isCoastal())
+			return true;
+
+		break;
+
+	case ELayer::AIR:
+		if(destLayer == ELayer::LAND)
+			return true;
+
+		break;
+
+	case ELayer::WATER:
+		if(destLayer == ELayer::LAND)
+			return true;
+
+		break;
+	}
+
+	return false;
+}
+
+bool CPathfinder::isLayerTransitionPossible() const
+{
+	switch(cp->layer)
+	{
+	case ELayer::LAND:
+		if(dp->layer == ELayer::SAIL)
 		{
 			/// Cannot enter empty water tile from land -> it has to be visitable
 			if(dp->accessible == CGPathNode::ACCESSIBLE)
@@ -273,12 +306,6 @@ bool CPathfinder::isLayerTransitionPossible() const
 		break;
 
 	case ELayer::SAIL:
-		if(dp->layer != ELayer::LAND)
-			return false;
-
-		if(!dt->isCoastal())
-			return false;
-
 		//tile must be accessible -> exception: unblocked blockvis tiles -> clear but guarded by nearby monster coast
 		if((dp->accessible != CGPathNode::ACCESSIBLE && (dp->accessible != CGPathNode::BLOCKVIS || dt->blocked))
 			|| dt->visitable)  //TODO: passableness problem -> town says it's passable (thus accessible) but we obviously can't disembark onto town gate
@@ -289,9 +316,6 @@ bool CPathfinder::isLayerTransitionPossible() const
 		break;
 
 	case ELayer::AIR:
-		if(dp->layer != ELayer::LAND)
-			return false;
-
 		if(options.originalMovementRules)
 		{
 			if((cp->accessible != CGPathNode::ACCESSIBLE &&
@@ -307,12 +331,6 @@ bool CPathfinder::isLayerTransitionPossible() const
 			/// Hero that fly can only land on accessible tiles
 			return false;
 		}
-
-		break;
-
-	case ELayer::WATER:
-		if(dp->layer != ELayer::LAND)
-			return false;
 
 		break;
 	}

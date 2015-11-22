@@ -180,6 +180,7 @@ private:
 	void addNeighbours();
 	void addTeleportExits();
 
+	bool isLayerTransitionPossible(const ELayer dstLayer) const;
 	bool isLayerTransitionPossible() const;
 	bool isMovementToDestPossible() const;
 	bool isMovementAfterDestPossible() const;
