@@ -96,8 +96,6 @@ void CPathfinder::calculatePaths()
 		cp = pq.top();
 		pq.pop();
 		cp->locked = true;
-		ct = &gs->map->getTile(cp->coord);
-		ctObj = ct->topVisitableObj(isSourceInitialPosition());
 
 		int movement = cp->moveRemains, turn = cp->turns;
 		hlp->updateTurnInfo(turn);
@@ -105,7 +103,11 @@ void CPathfinder::calculatePaths()
 		{
 			hlp->updateTurnInfo(++turn);
 			movement = hlp->getMaxMovePoints(cp->layer);
+			if(!passOneTurnLimitCheck(true))
+				continue;
 		}
+		ct = &gs->map->getTile(cp->coord);
+		ctObj = ct->topVisitableObj(isSourceInitialPosition());
 
 		//add accessible neighbouring nodes to the queue
 		addNeighbours();
@@ -122,13 +124,10 @@ void CPathfinder::calculatePaths()
 					continue;
 
 				dp = out.getNode(neighbour, i);
-				if(dp->accessible == CGPathNode::NOT_SET)
-					continue;
-
 				if(dp->locked)
 					continue;
 
-				if(!passOneTurnLimitCheck(cp->turns != turn))
+				if(dp->accessible == CGPathNode::NOT_SET)
 					continue;
 
 				if(cp->layer != i && !isLayerTransitionPossible())
