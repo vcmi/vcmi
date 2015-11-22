@@ -169,6 +169,7 @@ private:
 	};
 	boost::heap::priority_queue<CGPathNode *, boost::heap::compare<NodeComparer> > pq;
 
+	std::vector<int3> neighbourTiles;
 	std::vector<int3> neighbours;
 
 	CGPathNode * cp; //current (source) path node -> we took it from the queue

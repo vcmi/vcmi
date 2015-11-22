@@ -53,6 +53,7 @@ CPathfinder::CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstan
 	hlp = make_unique<CPathfinderHelper>(hero, options);
 
 	initializeGraph();
+	neighbourTiles.reserve(8);
 	neighbours.reserve(16);
 }
 
@@ -192,19 +193,18 @@ void CPathfinder::calculatePaths()
 void CPathfinder::addNeighbours()
 {
 	neighbours.clear();
-	std::vector<int3> tiles;
-	tiles.reserve(8);
-	CPathfinderHelper::getNeighbours(gs->map, *ct, cp->coord, tiles, boost::logic::indeterminate, cp->layer == ELayer::SAIL);
+	neighbourTiles.clear();
+	CPathfinderHelper::getNeighbours(gs->map, *ct, cp->coord, neighbourTiles, boost::logic::indeterminate, cp->layer == ELayer::SAIL);
 	if(isSourceVisitableObj())
 	{
-		for(int3 tile: tiles)
+		for(int3 tile: neighbourTiles)
 		{
 			if(canMoveBetween(tile, ctObj->visitablePos()))
 				neighbours.push_back(tile);
 		}
 	}
 	else
-		vstd::concatenate(neighbours, tiles);
+		vstd::concatenate(neighbours, neighbourTiles);
 }
 
 void CPathfinder::addTeleportExits()
