@@ -59,16 +59,21 @@ CPathfinder::CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstan
 
 void CPathfinder::calculatePaths()
 {
-	auto passOneTurnLimitCheck = [&](bool shouldCheck) -> bool
+	auto passOneTurnLimitCheck = [&]() -> bool
 	{
-		if(options.oneTurnSpecialLayersLimit && shouldCheck)
+		if(!options.oneTurnSpecialLayersLimit)
+			return true;
+
+		if(cp->layer == ELayer::WATER)
+			return false;
+		if(cp->layer == ELayer::AIR)
 		{
-			if((cp->layer == ELayer::AIR || cp->layer == ELayer::WATER)
-				&& cp->accessible != CGPathNode::ACCESSIBLE)
-			{
+			if(options.originalMovementRules && cp->accessible == CGPathNode::ACCESSIBLE)
+				return true;
+			else
 				return false;
-			}
 		}
+
 		return true;
 	};
 
@@ -104,7 +109,7 @@ void CPathfinder::calculatePaths()
 		{
 			hlp->updateTurnInfo(++turn);
 			movement = hlp->getMaxMovePoints(cp->layer);
-			if(!passOneTurnLimitCheck(true))
+			if(!passOneTurnLimitCheck())
 				continue;
 		}
 		ct = &gs->map->getTile(cp->coord);
@@ -155,8 +160,8 @@ void CPathfinder::calculatePaths()
 					remains = moveAtNextTile - cost;
 				}
 
-				if(isBetterWay(remains, turnAtNextTile)
-					&& passOneTurnLimitCheck(cp->turns != turnAtNextTile || !remains))
+				if(isBetterWay(remains, turnAtNextTile) &&
+					((cp->turns == turnAtNextTile && remains) || passOneTurnLimitCheck()))
 				{
 					assert(dp != cp->theNodeBefore); //two tiles can't point to each other
 					dp->moveRemains = remains;

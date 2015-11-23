@@ -135,6 +135,9 @@ private:
 		///
 		/// Following imitation is default H3 mechanics, but someone may want to disable it in mods.
 		/// After all this limit should benefit performance on maps with tons of water or blocked tiles.
+		///
+		/// TODO:
+		/// - Behavior when option is disabled not implemented and will lead to crashes.
 		bool oneTurnSpecialLayersLimit;
 
 		/// VCMI have different movement rules to solve flaws original engine has.
