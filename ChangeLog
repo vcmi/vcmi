@@ -3,6 +3,10 @@
 GENERAL:
 * New Bonus NO_TERRAIN_PENALTY
 * Nomads will remove Sand movement penalty from army
+* Flying and water walking is now supported in pathfinder
+* New artifacts supported
+- Angel Wings
+- Boots of Levitation
 
 ADVETURE AI:
 * Fixed AI trying to go through underground rock
