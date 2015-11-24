@@ -1840,7 +1840,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	else
 	{
 		CGPath path;
-		cb->getPathsInfo(h.get())->getPath(dst, path);
+		cb->getPathsInfo(h.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
             logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
@@ -1915,6 +1915,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			{ // Hero should be able to go through object if it's allow transit
 				doMovement(endpos, true);
 			}
+			else if(path.nodes[i-1].layer == EPathfindingLayer::AIR)
+				doMovement(endpos, true);
 			else
 				doMovement(endpos, false);
 
@@ -2519,7 +2521,7 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 				continue;
 
 			CGPath path;
-			cb->getPathsInfo(hero)->getPath(tile, path);
+			cb->getPathsInfo(hero)->getPath(path, tile);
 			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius, cbp) / (path.nodes.size() + 1); //+1 prevents erratic jumps
 
 			if (ourValue > bestValue) //avoid costly checks of tiles that don't reveal much

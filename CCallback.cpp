@@ -290,11 +290,6 @@ bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 	return gs->checkForVisitableDir(a, b) && gs->checkForVisitableDir(b, a);
 }
 
-int CCallback::getMovementCost(const CGHeroInstance * hero, int3 dest)
-{
-	return gs->getMovementCost(hero, hero->visitablePos(), dest, hero->movement);
-}
-
 const CPathsInfo * CCallback::getPathsInfo(const CGHeroInstance *h)
 {
 	return cl->getPathsInfo(h);

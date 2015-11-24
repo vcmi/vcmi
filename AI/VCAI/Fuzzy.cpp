@@ -421,7 +421,7 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 
 	//assert(cb->isInTheMap(g.tile));
 	float turns = 0;
-	float distance = cb->getMovementCost(g.hero.h, g.tile);
+	float distance = CPathfinderHelper::getMovementCost(g.hero.h, g.tile);
 	if (!distance) //we stand on that tile
 		turns = 0;
 	else

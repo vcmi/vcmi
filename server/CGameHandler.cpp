@@ -1764,7 +1764,6 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	}
 
 	const TerrainTile t = *gs->getTile(hmpos);
-	const int cost = gs->getMovementCost(h, h->getPosition(), hmpos, h->movement);
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
 	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::BOAT;
@@ -1779,12 +1778,16 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	tmh.movePoints = h->movement;
 
 	//check if destination tile is available
+	auto ti = new TurnInfo(h);
+	const bool canFly = ti->hasBonusOfType(Bonus::FLYING_MOVEMENT);
+	const bool canWalkOnSea = ti->hasBonusOfType(Bonus::WATER_WALKING);
+	const int cost = CPathfinderHelper::getMovementCost(h, h->getPosition(), hmpos, nullptr, nullptr, h->movement, ti);
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if(((t.terType == ETerrainType::ROCK  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) ))
+	if(((t.terType == ETerrainType::ROCK  ||  (t.blocked && !t.visitable && !canFly))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-		|| ((!h->boat && !h->canWalkOnSea() && t.terType == ETerrainType::WATER && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType == ETerrainType::WATER && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
 		|| ((h->boat && t.terType != ETerrainType::WATER && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
@@ -1794,6 +1797,8 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 			&& complain("Can not move garrisoned hero!"))
 		|| ((h->movement < cost  &&  dst != h->pos  &&  !teleporting)
 			&& complain("Hero doesn't have any movement points left!"))
+		|| ((transit && !canFly && !CGTeleport::isTeleport(t.topVisitableObj()))
+			&& complain("Hero cannot transit over this tile!"))
 		/*|| (states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle)
 			&& complain("Cannot move hero during the battle"))*/)
 	{
@@ -1843,8 +1848,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 		}
 		else if(visitDest == VISIT_DEST)
 		{
-			if(!transit || !CGTeleport::isTeleport(t.topVisitableObj()))
-				visitObjectOnTile(t, h);
+			visitObjectOnTile(t, h);
 		}
 
 		queries.popIfTop(moveQuery);
@@ -1867,16 +1871,16 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	};
 
 
-	if(embarking)
+	if(!transit && embarking)
 	{
-		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false);
+		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false, ti);
 		return doMove(TryMoveHero::EMBARK, IGNORE_GUARDS, DONT_VISIT_DEST, LEAVING_TILE);
 		//attack guards on embarking? In H3 creatures on water had no zone of control at all
 	}
 
 	if(disembarking)
 	{
-		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, true);
+		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, true, ti);
 		return doMove(TryMoveHero::DISEMBARK, CHECK_FOR_GUARDS, VISIT_DEST, LEAVING_TILE);
 	}
 
@@ -1905,10 +1909,23 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 						? h->movement - cost
 						: 0;
 
-		if(blockingVisit())
+		EGuardLook lookForGuards = CHECK_FOR_GUARDS;
+		EVisitDest visitDest = VISIT_DEST;
+		if(transit)
+		{
+			if(CGTeleport::isTeleport(t.topVisitableObj()))
+				visitDest = DONT_VISIT_DEST;
+
+			if(canFly)
+			{
+				lookForGuards = IGNORE_GUARDS;
+				visitDest = DONT_VISIT_DEST;
+			}
+		}
+		else if(blockingVisit())
 			return true;
 
-		doMove(TryMoveHero::SUCCESS, CHECK_FOR_GUARDS, VISIT_DEST, LEAVING_TILE);
+		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
 		return true;
 	}
 }

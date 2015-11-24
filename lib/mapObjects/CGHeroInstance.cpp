@@ -56,7 +56,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 	return ret;
 }
 
-ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from) const
+ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const
 {
 	unsigned ret = GameConstants::BASE_MOVEMENT_COST;
 
@@ -80,28 +80,38 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 			break;
 		}
 	}
-	else if(!hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
+	else if(ti->nativeTerrain != from.terType && !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
 	{
-		// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
-		// This is clearly bug in H3 however intended behaviour is not clear.
-		// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
-		// will always have best penalty without any influence from player-defined stacks order
-
-		for(auto stack : stacks)
-		{
-			int nativeTerrain = VLC->townh->factions[stack.second->type->faction]->nativeTerrain;
-			if(nativeTerrain != -1 && nativeTerrain != from.terType)
-			{
-				ret = VLC->heroh->terrCosts[from.terType];
-				ret -= getSecSkillLevel(SecondarySkill::PATHFINDING) * 25;
-				if(ret < GameConstants::BASE_MOVEMENT_COST)
-					ret = GameConstants::BASE_MOVEMENT_COST;
-
-				break;
-			}
-		}
+		ret = VLC->heroh->terrCosts[from.terType];
+		ret -= getSecSkillLevel(SecondarySkill::PATHFINDING) * 25;
+		if(ret < GameConstants::BASE_MOVEMENT_COST)
+			ret = GameConstants::BASE_MOVEMENT_COST;
 	}
 	return ret;
+}
+
+int CGHeroInstance::getNativeTerrain() const
+{
+	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
+	// This is clearly bug in H3 however intended behaviour is not clear.
+	// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
+	// will always have best penalty without any influence from player-defined stacks order
+
+	// TODO: What should we do if all hero stacks are neutral creatures?
+	int nativeTerrain = -1;
+	for(auto stack : stacks)
+	{
+		int stackNativeTerrain = VLC->townh->factions[stack.second->type->faction]->nativeTerrain;
+		if(stackNativeTerrain == -1)
+			continue;
+
+		if(nativeTerrain == -1)
+			nativeTerrain = stackNativeTerrain;
+		else if(nativeTerrain != stackNativeTerrain)
+			return -1;
+	}
+
+	return nativeTerrain;
 }
 
 int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
@@ -127,16 +137,6 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 	{
 		return convertPosition(pos,false);
 	}
-}
-
-bool CGHeroInstance::canFly() const
-{
-	return hasBonusOfType(Bonus::FLYING_MOVEMENT);
-}
-
-bool CGHeroInstance::canWalkOnSea() const
-{
-	return hasBonusOfType(Bonus::WATER_WALKING);
 }
 
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
@@ -181,8 +181,11 @@ bool CGHeroInstance::canLearnSkill() const
 	return secSkills.size() < GameConstants::SKILL_PER_HERO;
 }
 
-int CGHeroInstance::maxMovePoints(bool onLand) const
+int CGHeroInstance::maxMovePoints(bool onLand, const TurnInfo * ti) const
 {
+	if(!ti)
+		ti = new TurnInfo(this);
+
 	int base;
 
 	if(onLand)
@@ -201,10 +204,10 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	}
 
 	const Bonus::BonusType bt = onLand ? Bonus::LAND_MOVEMENT : Bonus::SEA_MOVEMENT;
-	const int bonus = valOfBonuses(Bonus::MOVEMENT) + valOfBonuses(bt);
+	const int bonus = ti->valOfBonuses(Bonus::MOVEMENT) + ti->valOfBonuses(bt);
 
 	const int subtype = onLand ? SecondarySkill::LOGISTICS : SecondarySkill::NAVIGATION;
-	const double modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, subtype) / 100.0;
+	const double modifier = ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, subtype) / 100.0;
 
 	return int(base* (1+modifier)) + bonus;
 }
@@ -1171,10 +1174,15 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)
 		return CArmedInstance::whereShouldBeAttached(gs);
 }
 
-int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark /*= false*/) const
+int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark /*= false*/, const TurnInfo * ti) const
 {
-	if(hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
-		return (MPsBefore - basicCost) * static_cast<double>(maxMovePoints(disembark)) / maxMovePoints(!disembark);
+	if(!ti)
+		ti = new TurnInfo(this);
+
+	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL);
+	int mp2 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
+	if(ti->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
+		return (MPsBefore - basicCost) * static_cast<double>(mp1) / mp2;
 
 	return 0; //take all MPs otherwise
 }

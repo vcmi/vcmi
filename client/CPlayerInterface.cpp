@@ -1288,7 +1288,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 			for(auto &p : pathsMap)
 			{
 				CGPath path;
-				cb->getPathsInfo(p.first)->getPath(p.second, path);
+				cb->getPathsInfo(p.first)->getPath(path, p.second);
 				paths[p.first] = path;
 				logGlobal->traceStream() << boost::format("Restored path for hero %s leading to %s with %d nodes")
 					% p.first->nodeName() % p.second % path.nodes.size();
@@ -2226,7 +2226,7 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 		{
 			assert(h->getPosition(false) == path.startPos());
 			//update the hero path in case of something has changed on map
-			if(LOCPLINT->cb->getPathsInfo(h)->getPath(path.endPos(), path))
+			if(LOCPLINT->cb->getPathsInfo(h)->getPath(path, path.endPos()))
 				return &path;
 			else
 				paths.erase(h);
@@ -2642,7 +2642,18 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		ETerrainType newTerrain;
 		int sh = -1;
 
-		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE); i--)
+		auto canStop = [&](CGPathNode * node) -> bool
+		{
+			if(node->layer == EPathfindingLayer::LAND || node->layer == EPathfindingLayer::SAIL)
+				return true;
+
+			if(node->accessible == CGPathNode::ACCESSIBLE)
+				return true;
+
+			return false;
+		};
+
+		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || !canStop(&path.nodes[i])); i--)
 		{
 			int3 currentCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i-1].coord;
@@ -2683,18 +2694,21 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 			int3 endpos(nextCoord.x, nextCoord.y, h->pos.z);
 			logGlobal->traceStream() << "Requesting hero movement to " << endpos;
 
+			bool useTransit = false;
 			if((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
 				&& (CGTeleport::isConnected(nextObject, getObj(path.nodes[i-2].coord, false))
 					|| CGTeleport::isTeleport(nextObject)))
 			{ // Hero should be able to go through object if it's allow transit
-				doMovement(endpos, true);
+				useTransit = true;
 			}
-			else
-				doMovement(endpos, false);
+			else if(path.nodes[i-1].layer == EPathfindingLayer::AIR)
+				useTransit = true;
+
+			doMovement(endpos, useTransit);
 
 			logGlobal->traceStream() << "Resuming " << __FUNCTION__;
 			bool guarded = cb->isInTheMap(cb->getGuardingCreaturePosition(endpos - int3(1, 0, 0)));
-			if(guarded || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
+			if((!useTransit && guarded) || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
 				break;
 		}
 

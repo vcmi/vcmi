@@ -132,11 +132,13 @@ Obj TerrainTile::topVisitableId(bool excludeTop) const
 
 CGObjectInstance * TerrainTile::topVisitableObj(bool excludeTop) const
 {
-	auto visitableObj = visitableObjects;
-	if(excludeTop && visitableObj.size())
-		visitableObj.pop_back();
+	if(visitableObjects.empty() || (excludeTop && visitableObjects.size() == 1))
+		return nullptr;
 
-	return visitableObj.size() ? visitableObj.back() : nullptr;
+	if(excludeTop)
+		return visitableObjects[visitableObjects.size()-2];
+
+	return visitableObjects.back();
 }
 
 bool TerrainTile::isCoastal() const
