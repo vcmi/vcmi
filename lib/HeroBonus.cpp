@@ -780,6 +780,12 @@ void CBonusSystemNode::updateBonuses(const CSelector &s)
 
 void CBonusSystemNode::addNewBonus(Bonus *b)
 {
+	//turnsRemain shouldn't be zero for following durations
+	if(Bonus::NTurns(b) || Bonus::NDays(b) || Bonus::OneWeek(b))
+	{
+		assert(b->turnsRemain);
+	}
+
 	assert(!vstd::contains(exportedBonuses,b));
 	exportedBonuses.push_back(b);
 	exportBonus(b);

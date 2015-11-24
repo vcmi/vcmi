@@ -294,7 +294,7 @@ struct DLL_LINKAGE Bonus
 	};
 
 	ui16 duration; //uses BonusDuration values
-	si16 turnsRemain; //used if duration is N_TURNS or N_DAYS
+	si16 turnsRemain; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 
 	BonusType type; //uses BonusType values - says to what is this bonus - 1 byte
 	TBonusSubtype subtype; //-1 if not applicable - 4 bytes
@@ -811,7 +811,7 @@ public:
 	bool operator()(const Bonus *bonus) const
 	{
 		return turnsRequested <= 0					//every present effect will last zero (or "less") turns
-			|| !(bonus->duration & Bonus::N_TURNS)	//so do every not expriing after N-turns effect
+			|| !Bonus::NTurns(bonus) //so do every not expriing after N-turns effect
 			|| bonus->turnsRemain > turnsRequested;
 	}
 	CWillLastTurns& operator()(const int &setVal)
@@ -828,13 +828,11 @@ public:
 
 	bool operator()(const Bonus *bonus) const
 	{
-		if(daysRequested <= 0)
+		if(daysRequested <= 0 || Bonus::Permanent(bonus) || Bonus::OneBattle(bonus))
 			return true;
-		else if(bonus->duration & Bonus::ONE_DAY)
+		else if(Bonus::OneDay(bonus))
 			return false;
-		else if(bonus->duration & Bonus::PERMANENT || bonus->duration & Bonus::ONE_BATTLE)
-			return true;
-		else if(bonus->duration & Bonus::N_DAYS)
+		else if(Bonus::NDays(bonus) || Bonus::OneWeek(bonus))
 		{
 			return bonus->turnsRemain > daysRequested;
 		}
