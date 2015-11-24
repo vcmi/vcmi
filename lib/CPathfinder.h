@@ -70,6 +70,7 @@ class CPathfinder : private CGameInfoCallback
 {
 public:
 	CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero);
+	void startPathfinder();
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 
 private:
