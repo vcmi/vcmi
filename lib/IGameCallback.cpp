@@ -38,7 +38,7 @@ void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
-				if (tinfo->terType != ETerrainType::WATER && !tinfo->blocked) //land and free
+				if (tinfo->terType != ETerrainType::WATER && tinfo->terType != ETerrainType::ROCK && !tinfo->blocked) //land and free
 					tiles.push_back (int3 (xd,yd,zd));
 			}
 		}
