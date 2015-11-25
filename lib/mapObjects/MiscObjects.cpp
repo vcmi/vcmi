@@ -164,7 +164,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 	case FIGHT:
 		fight(h);
 		break;
-	case FLEE: //flee
+	case FLEE:
 		{
 			flee(h);
 			break;
@@ -322,13 +322,13 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	int charisma = powerFactor + h->getSecSkillLevel(SecondarySkill::DIPLOMACY) + sympathy;
 
-	if(charisma < character) //creatures will fight
-		return -2;
+	if(charisma < character)
+		return FIGHT;
 
 	if (allowJoin)
 	{
 		if(h->getSecSkillLevel(SecondarySkill::DIPLOMACY) + sympathy + 1 >= character)
-			return 0; //join for free
+			return JOIN_FOR_FREE;
 
 		else if(h->getSecSkillLevel(SecondarySkill::DIPLOMACY) * 2  +  sympathy  +  1 >= character)
 			return VLC->creh->creatures[subID]->cost[6] * getStackCount(SlotID(0)); //join for gold
@@ -336,10 +336,10 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	//we are still here - creatures have not joined hero, flee or fight
 
-	if (charisma > character)
-		return -1; //flee
+	if (charisma > character && !neverFlees)
+		return FLEE;
 	else
-		return -2; //fight
+		return FIGHT;
 }
 
 void CGCreature::fleeDecision(const CGHeroInstance *h, ui32 pursue) const
@@ -361,7 +361,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 {
 	if(!accept)
 	{
-		if(takenAction(h,false) == -1) //they flee
+		if(takenAction(h,false) == FLEE)
 		{
 			cb->setObjProperty(id, ObjProperty::MONSTER_REFUSED_JOIN, true);
 			flee(h);
