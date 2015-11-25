@@ -1885,7 +1885,8 @@ void CRandomMapTab::updateMapInfo()
 		PlayerInfo player;
 		player.isFactionRandom = true;
 		player.canComputerPlay = true;
-		if(i >= mapGenOptions.getHumanOnlyPlayerCount())
+		if(mapGenOptions.getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE &&
+			i >= mapGenOptions.getHumanOnlyPlayerCount())
 		{
 			player.canHumanPlay = false;
 		}
