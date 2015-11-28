@@ -1073,6 +1073,15 @@ static void handleEvent(SDL_Event & ev)
 
 		return;
 	}
+	else if(ev.type == SDL_WINDOWEVENT)
+	{
+		switch (ev.window.event) {
+		case SDL_WINDOWEVENT_RESTORED:
+			fullScreenChanged();
+			break;
+		}
+		return;
+	}
 	{
 		boost::unique_lock<boost::mutex> lock(eventsM);
 		events.push(ev);
