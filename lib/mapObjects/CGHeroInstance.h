@@ -82,7 +82,17 @@ public:
 		ui32 patrolRadious;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & patrolling & initialPos & patrolRadious;
+			h & patrolling;
+			if(version >= 755)
+			{
+				h & initialPos;
+			}
+			else if(!h.saving)
+			{
+				patrolling = false;
+				initialPos = int3();
+			}
+			h & patrolRadious;
 		}
 	} patrol;
 
