@@ -1658,7 +1658,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 	else
 	{
 		nhi->patrol.patrolling = true;
-		nhi->patrol.initialPos = initialPos;
+		nhi->patrol.initialPos = CGHeroInstance::convertPosition(initialPos, false);
 	}
 
 	if(map->version > EMapFormat::ROE)
