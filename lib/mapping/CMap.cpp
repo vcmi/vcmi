@@ -146,6 +146,18 @@ bool TerrainTile::isCoastal() const
 	return extTileFlags & 64;
 }
 
+EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
+{
+	if(terType == ETerrainType::WATER || terType == ETerrainType::ROCK)
+		return EDiggingStatus::WRONG_TERRAIN;
+
+	int allowedBlocked = excludeTop ? 1 : 0;
+	if(blockingObjects.size() > allowedBlocked || topVisitableObj(excludeTop))
+		return EDiggingStatus::TILE_OCCUPIED;
+	else
+		return EDiggingStatus::CAN_DIG;
+}
+
 bool TerrainTile::hasFavourableWinds() const
 {
 	return extTileFlags & 128;

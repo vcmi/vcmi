@@ -4896,7 +4896,7 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 		}
 	}
 
-	if(h->diggingStatus() != CGHeroInstance::CAN_DIG) //checks for terrain and movement
+	if(h->diggingStatus() != EDiggingStatus::CAN_DIG) //checks for terrain and movement
 		COMPLAIN_RETF("Hero cannot dig (error code %d)!", h->diggingStatus());
 
 	//create a hole

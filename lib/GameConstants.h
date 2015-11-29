@@ -777,6 +777,28 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType terr
 
 ID_LIKE_OPERATORS(ETerrainType, ETerrainType::EETerrainType)
 
+class DLL_LINKAGE EDiggingStatus
+{
+public:
+	enum EEDiggingStatus
+	{
+		UNKNOWN = -1,
+		CAN_DIG = 0,
+		LACK_OF_MOVEMENT,
+		WRONG_TERRAIN,
+		TILE_OCCUPIED
+	};
+
+	EDiggingStatus(EEDiggingStatus _num = UNKNOWN) : num(_num)
+	{}
+
+	ID_LIKE_CLASS_COMMON(EDiggingStatus, EEDiggingStatus)
+
+	EEDiggingStatus num;
+};
+
+ID_LIKE_OPERATORS(EDiggingStatus, EDiggingStatus::EEDiggingStatus)
+
 class DLL_LINKAGE EPathfindingLayer
 {
 public:

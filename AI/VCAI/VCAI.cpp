@@ -2036,7 +2036,7 @@ void VCAI::tryRealize(Goals::BuildThis & g)
 void VCAI::tryRealize(Goals::DigAtTile & g)
 {
 	assert(g.hero->visitablePos() == g.tile); //surely we want to crash here?
-	if (g.hero->diggingStatus() == CGHeroInstance::CAN_DIG)
+	if (g.hero->diggingStatus() == EDiggingStatus::CAN_DIG)
 	{
 		cb->dig(g.hero.get());
 		completeGoal(sptr(g)); // finished digging

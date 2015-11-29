@@ -40,10 +40,6 @@ public:
 class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public ISpellCaster
 {
 public:
-	enum ECanDig
-	{
-		CAN_DIG, LACK_OF_MOVEMENT, WRONG_TERRAIN, TILE_OCCUPIED
-	};
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 moveDir; //format:	123
@@ -174,7 +170,7 @@ public:
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
-	ECanDig diggingStatus() const; //0 - can dig; 1 - lack of movement; 2 -
+	EDiggingStatus diggingStatus() const;
 
 	//////////////////////////////////////////////////////////////////////////
 

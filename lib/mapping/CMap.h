@@ -277,6 +277,7 @@ struct DLL_LINKAGE TerrainTile
 	CGObjectInstance * topVisitableObj(bool excludeTop = false) const;
 	bool isWater() const;
 	bool isCoastal() const;
+	EDiggingStatus getDiggingStatus(const bool excludeTop = true) const;
 	bool hasFavourableWinds() const;
 
 	ETerrainType terType;

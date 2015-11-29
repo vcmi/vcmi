@@ -2315,23 +2315,22 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
 {
 	std::string hlp;
 	CGI->mh->getTerrainDescr(h->getPosition(false), hlp, false);
+	auto isDiggingPossible = h->diggingStatus();
+	if(hlp.length())
+		isDiggingPossible = EDiggingStatus::TILE_OCCUPIED; //TODO integrate with canDig
 
 	int msgToShow = -1;
-	CGHeroInstance::ECanDig isDiggingPossible = h->diggingStatus();
-	if(hlp.length())
-		isDiggingPossible = CGHeroInstance::TILE_OCCUPIED; //TODO integrate with canDig
-
 	switch(isDiggingPossible)
 	{
-	case CGHeroInstance::CAN_DIG:
+	case EDiggingStatus::CAN_DIG:
 		break;
-	case CGHeroInstance::LACK_OF_MOVEMENT:
+	case EDiggingStatus::LACK_OF_MOVEMENT:
 		msgToShow = 56; //"Digging for artifacts requires a whole day, try again tomorrow."
 		break;
-	case CGHeroInstance::TILE_OCCUPIED:
+	case EDiggingStatus::TILE_OCCUPIED:
 		msgToShow = 97; //Try searching on clear ground.
 		break;
-	case CGHeroInstance::WRONG_TERRAIN:
+	case EDiggingStatus::WRONG_TERRAIN:
 		msgToShow = 60; ////Try looking on land!
 		break;
 	default:
