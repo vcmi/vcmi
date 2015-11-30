@@ -327,6 +327,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 	readToVector("DATA/PRISKILL.TXT", primarySkillNames);
 	readToVector("DATA/JKTEXT.TXT",   jktexts);
 	readToVector("DATA/TVRNINFO.TXT", tavernInfo);
+	readToVector("DATA/RANDTVRN.TXT", tavernRumors);
 	readToVector("DATA/TURNDUR.TXT",  turnDurations);
 	readToVector("DATA/HEROSCRN.TXT", heroscrn);
 	readToVector("DATA/TENTCOLR.TXT", tentColors);

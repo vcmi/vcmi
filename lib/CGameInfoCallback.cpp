@@ -12,6 +12,7 @@
 #include "CGameInfoCallback.h"
 
 #include "CGameState.h" // PlayerState
+#include "CGeneralTextHandler.h"
 #include "mapObjects/CObjectHandler.h" // for CGObjectInstance
 #include "StartInfo.h" // for StartInfo
 #include "BattleState.h" // for BattleInfo
@@ -566,7 +567,70 @@ EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bo
 
 std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern) const
 {
-	return "GOSSIP TEST";
+	std::string text = "";
+	auto & rand = gs->getRandomGenerator();
+
+	static std::vector<int> rumorTypes = {0, 1, 2, 2};
+	auto & rumorType = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
+	switch(rumorType)
+	{
+	case 0:
+	{
+		SThievesGuildInfo tgi;
+		gs->obtainPlayersStats(tgi, 20);
+		static std::vector<int> statRumorTypes = {208, 209, 210};// 211, 212};
+		std::vector<PlayerColor> players = {};
+		auto statRumorType = *RandomGeneratorUtil::nextItem(statRumorTypes, rand);
+		switch(statRumorType)
+		{
+		case 208:
+			players = tgi.obelisks[0];
+			break;
+
+		case 209:
+			players = tgi.artifacts[0];
+			break;
+
+		case 210:
+			players = tgi.army[0];
+			break;
+
+		case 211:
+			/// TODO: not implemented in obtainPlayersStats
+			players = tgi.income[0];
+			break;
+
+		case 212:
+			/// TODO: Check that ultimate artifact (grail) found
+			break;
+		}
+		auto & playerId = *RandomGeneratorUtil::nextItem(players, rand);
+		std::string playerName = VLC->generaltexth->colors[playerId.getNum()];
+		text = boost::str(boost::format(VLC->generaltexth->allTexts[statRumorType]) % playerName);
+
+		break;
+	}
+	case 1:
+		if(gs->map->rumors.size())
+		{
+			auto & mapRumor = *RandomGeneratorUtil::nextItem(gs->map->rumors, rand);
+			text = mapRumor.text;
+			break;
+		}
+
+		/// don't break - if map don't have rumors we show predefined instead
+
+	case 2:
+		do
+		{
+			text = *RandomGeneratorUtil::nextItem(VLC->generaltexth->tavernRumors, rand);
+		}
+		while(!text.length());
+
+		break;
+	}
+
+	return text;
 }
 
 PlayerRelations::PlayerRelations CGameInfoCallback::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
