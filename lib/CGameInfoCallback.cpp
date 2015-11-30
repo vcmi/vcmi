@@ -568,65 +568,22 @@ EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bo
 std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern) const
 {
 	std::string text = "";
-	auto & rand = gs->getRandomGenerator();
+	if(gs->rumor.type == RumorState::RUMOR_NONE) // (version < 755 backward compatability
+		return text;
 
-	static std::vector<int> rumorTypes = {0, 1, 2, 2};
-	auto & rumorType = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
-	switch(rumorType)
+	auto rumor = gs->rumor.last[gs->rumor.type];
+	switch(gs->rumor.type)
 	{
-	case 0:
-	{
-		SThievesGuildInfo tgi;
-		gs->obtainPlayersStats(tgi, 20);
-		static std::vector<int> statRumorTypes = {208, 209, 210};// 211, 212};
-		std::vector<PlayerColor> players = {};
-		auto statRumorType = *RandomGeneratorUtil::nextItem(statRumorTypes, rand);
-		switch(statRumorType)
-		{
-		case 208:
-			players = tgi.obelisks[0];
-			break;
-
-		case 209:
-			players = tgi.artifacts[0];
-			break;
-
-		case 210:
-			players = tgi.army[0];
-			break;
-
-		case 211:
-			/// TODO: not implemented in obtainPlayersStats
-			players = tgi.income[0];
-			break;
-
-		case 212:
-			/// TODO: Check that ultimate artifact (grail) found
-			break;
-		}
-		auto & playerId = *RandomGeneratorUtil::nextItem(players, rand);
-		std::string playerName = VLC->generaltexth->colors[playerId.getNum()];
-		text = boost::str(boost::format(VLC->generaltexth->allTexts[statRumorType]) % playerName);
-
+	case RumorState::RUMOR_STATS:
+		text = boost::str(boost::format(VLC->generaltexth->allTexts[rumor.first]) % VLC->generaltexth->colors[rumor.second]);
 		break;
-	}
-	case 1:
-		if(gs->map->rumors.size())
-		{
-			auto & mapRumor = *RandomGeneratorUtil::nextItem(gs->map->rumors, rand);
-			text = mapRumor.text;
-			break;
-		}
 
-		/// don't break - if map don't have rumors we show predefined instead
+	case RumorState::RUMOR_MAP:
+		text = gs->map->rumors[rumor.first].text;
+		break;
 
-	case 2:
-		do
-		{
-			text = *RandomGeneratorUtil::nextItem(VLC->generaltexth->tavernRumors, rand);
-		}
-		while(!text.length());
-
+	case RumorState::RUMOR_RAND:
+		text = VLC->generaltexth->tavernRumors[rumor.first];
 		break;
 	}
 
