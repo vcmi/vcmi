@@ -575,7 +575,7 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 	switch(gs->rumor.type)
 	{
 	case RumorState::RUMOR_STATS:
-		text = boost::str(boost::format(VLC->generaltexth->allTexts[rumor.first]) % VLC->generaltexth->colors[rumor.second]);
+		text = boost::str(boost::format(VLC->generaltexth->allTexts[rumor.first]) % VLC->generaltexth->capColors[rumor.second]);
 		break;
 
 	case RumorState::RUMOR_MAP:

@@ -2145,61 +2145,59 @@ void CGameState::updateRumor()
 	if(!gs->map->rumors.size() && rumor.type == RumorState::RUMOR_MAP)
 		rumor.type = RumorState::RUMOR_RAND;
 
-	switch(rumor.type)
+	do
 	{
-	case RumorState::RUMOR_STATS:
-	{
-		SThievesGuildInfo tgi;
-		gs->obtainPlayersStats(tgi, 20);
-		std::vector<PlayerColor> players = {};
-		rumorId = *RandomGeneratorUtil::nextItem(statsRumorTypes, rand);
-		switch(rumorId)
+		switch(rumor.type)
 		{
-		case 208:
-			players = tgi.obelisks[0];
-			break;
+		case RumorState::RUMOR_STATS:
+		{
+			SThievesGuildInfo tgi;
+			gs->obtainPlayersStats(tgi, 20);
+			std::vector<PlayerColor> players = {};
+			rumorId = *RandomGeneratorUtil::nextItem(statsRumorTypes, rand);
+			switch(rumorId)
+			{
+			case 208:
+				players = tgi.obelisks[0];
+				break;
 
-		case 209:
-			players = tgi.artifacts[0];
-			break;
+			case 209:
+				players = tgi.artifacts[0];
+				break;
 
-		case 210:
-			players = tgi.army[0];
-			break;
+			case 210:
+				players = tgi.army[0];
+				break;
 
-		case 211:
-			/// TODO: not implemented in obtainPlayersStats
-			players = tgi.income[0];
-			break;
+			case 211:
+				/// TODO: not implemented in obtainPlayersStats
+				players = tgi.income[0];
+				break;
 
-		case 212:
-			/// TODO: Check that ultimate artifact (grail) found
+			case 212:
+				/// TODO: Check that ultimate artifact (grail) found
+				break;
+			}
+			rumorPlayer = RandomGeneratorUtil::nextItem(players, rand)->getNum();
+
 			break;
 		}
-		rumorPlayer = RandomGeneratorUtil::nextItem(players, rand)->getNum();
+		case RumorState::RUMOR_MAP:
+			rumorId = rand.nextInt(gs->map->rumors.size() - 1);
 
-		break;
-	}
-	case RumorState::RUMOR_MAP:
-		rumorId = rand.nextInt(gs->map->rumors.size() - 1);
+			break;
 
-		break;
+		case RumorState::RUMOR_RAND:
+			do
+			{
+				rumorId = rand.nextInt(VLC->generaltexth->tavernRumors.size() - 1);
+			}
+			while(!VLC->generaltexth->tavernRumors[rumorId].length());
 
-	case RumorState::RUMOR_RAND:
-		do
-		{
-			rumorId = rand.nextInt(VLC->generaltexth->tavernRumors.size() - 1);
+			break;
 		}
-		while(!VLC->generaltexth->tavernRumors[rumorId].length());
-
-		break;
 	}
-
-	if(vstd::contains(rumor.last, rumor.type))
-	{
-		rumor.last.erase(rumor.type);
-	}
-	rumor.last[rumor.type] = std::make_pair(rumorId, rumorPlayer);
+	while(!rumor.update(rumorId, rumorPlayer));
 }
 
 bool CGameState::isVisible(int3 pos, PlayerColor player)
@@ -2866,6 +2864,25 @@ PlayerState::PlayerState()
 std::string PlayerState::nodeName() const
 {
 	return "Player " + (color.getNum() < VLC->generaltexth->capColors.size() ? VLC->generaltexth->capColors[color.getNum()] : boost::lexical_cast<std::string>(color));
+}
+
+
+bool RumorState::update(int id, int player)
+{
+	if(vstd::contains(last, type))
+	{
+		if(last[type].first != id)
+		{
+			last[type].first = id;
+			last[type].second = player;
+		}
+		else
+			return false;
+	}
+	else
+		last[type] = std::make_pair(id, player);
+
+	return true;
 }
 
 InfoAboutArmy::InfoAboutArmy():
