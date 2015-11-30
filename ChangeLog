@@ -7,6 +7,7 @@ GENERAL:
 * New artifacts supported
 - Angel Wings
 - Boots of Levitation
+* Implemented rumors in tavern window
 
 ADVETURE AI:
 * Fixed AI trying to go through underground rock
