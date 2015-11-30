@@ -564,7 +564,7 @@ EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bo
 	return ps->status;
 }
 
-std::string CGameInfoCallback::getTavernGossip(const CGObjectInstance * townOrTavern) const
+std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern) const
 {
 	return "GOSSIP TEST";
 }
