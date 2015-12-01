@@ -2136,7 +2136,7 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 void CGameState::updateRumor()
 {
 	static std::vector<RumorState::ERumorType> rumorTypes = {RumorState::RUMOR_MAP, RumorState::RUMOR_STATS, RumorState::RUMOR_RAND, RumorState::RUMOR_RAND};
-	static std::vector<int> statsRumorTypes = {208, 209, 210, 212};// 211};
+	static std::vector<int> statsRumorTypes = {208, 209, 210, 211, 212};
 
 	int rumorId = -1, rumorExtra = -1;
 	auto & rand = gs->getRandomGenerator();
@@ -2175,7 +2175,6 @@ void CGameState::updateRumor()
 				break;
 
 			case 211:
-				/// TODO: not implemented in obtainPlayersStats
 				players = tgi.income[0];
 				break;
 			}
@@ -2522,6 +2521,58 @@ struct statsHLP
 		}
 		return str;
 	}
+
+	// get total gold income
+	static int getIncome(const PlayerState * ps)
+	{
+		int totalIncome = 0;
+		const CGObjectInstance * heroOrTown = nullptr;
+
+		//Heroes can produce gold as well - skill, specialty or arts
+		for(auto & h : ps->heroes)
+		{
+			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ESTATES));
+			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
+
+			if(!heroOrTown)
+				heroOrTown = h;
+		}
+
+		//Add town income of all towns
+		for(auto & t : ps->towns)
+		{
+			totalIncome += t->dailyIncome()[Res::GOLD];
+
+			if(!heroOrTown)
+				heroOrTown = t;
+		}
+
+		/// FIXME: Dirty dirty hack
+		/// Stats helper need some access to gamestate.
+		std::vector<const CGObjectInstance *> ownedObjects;
+		for(const CGObjectInstance * obj : heroOrTown->cb->gameState()->map->objects)
+		{
+			if(obj && obj->tempOwner == ps->color)
+				ownedObjects.push_back(obj);
+		}
+		/// This is code from CPlayerSpecificInfoCallback::getMyObjects
+		/// I'm really need to find out about callback interface design...
+
+		for(auto object : ownedObjects)
+		{
+			//Mines
+			if ( object->ID == Obj::MINE )
+			{
+				const CGMine *mine = dynamic_cast<const CGMine*>(object);
+				assert(mine);
+
+				if (mine->producedResource == Res::GOLD)
+					totalIncome += mine->producedQuantity;
+			}
+		}
+
+		return totalIncome;
+	}
 };
 
 void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
@@ -2596,7 +2647,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 7) //income
 	{
-		//TODO:obtainPlayersStats - income
+		FILL_FIELD(income, statsHLP::getIncome(&g->second))
 	}
 	if(level >= 8) //best hero's stats
 	{
