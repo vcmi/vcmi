@@ -2136,10 +2136,9 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 void CGameState::updateRumor()
 {
 	static std::vector<RumorState::ERumorType> rumorTypes = {RumorState::RUMOR_MAP, RumorState::RUMOR_STATS, RumorState::RUMOR_RAND, RumorState::RUMOR_RAND};
-	static std::vector<int> statsRumorTypes = {208, 209, 210};// 211, 212};
+	static std::vector<int> statsRumorTypes = {208, 209, 210, 212};// 211};
 
-	int rumorId = -1;
-	int rumorPlayer = PlayerColor::CANNOT_DETERMINE.getNum();
+	int rumorId = -1, rumorExtra = -1;
 	auto & rand = gs->getRandomGenerator();
 	rumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
 	if(!gs->map->rumors.size() && rumor.type == RumorState::RUMOR_MAP)
@@ -2153,8 +2152,14 @@ void CGameState::updateRumor()
 		{
 			SThievesGuildInfo tgi;
 			gs->obtainPlayersStats(tgi, 20);
-			std::vector<PlayerColor> players = {};
 			rumorId = *RandomGeneratorUtil::nextItem(statsRumorTypes, rand);
+			if(rumorId == 212)
+			{
+				rumorExtra = getTile(map->grailPos)->terType;
+				break;
+			}
+
+			std::vector<PlayerColor> players = {};
 			switch(rumorId)
 			{
 			case 208:
@@ -2173,12 +2178,8 @@ void CGameState::updateRumor()
 				/// TODO: not implemented in obtainPlayersStats
 				players = tgi.income[0];
 				break;
-
-			case 212:
-				/// TODO: Check that ultimate artifact (grail) found
-				break;
 			}
-			rumorPlayer = RandomGeneratorUtil::nextItem(players, rand)->getNum();
+			rumorExtra = RandomGeneratorUtil::nextItem(players, rand)->getNum();
 
 			break;
 		}
@@ -2197,7 +2198,7 @@ void CGameState::updateRumor()
 			break;
 		}
 	}
-	while(!rumor.update(rumorId, rumorPlayer));
+	while(!rumor.update(rumorId, rumorExtra));
 }
 
 bool CGameState::isVisible(int3 pos, PlayerColor player)
@@ -2867,20 +2868,20 @@ std::string PlayerState::nodeName() const
 }
 
 
-bool RumorState::update(int id, int player)
+bool RumorState::update(int id, int extra)
 {
 	if(vstd::contains(last, type))
 	{
 		if(last[type].first != id)
 		{
 			last[type].first = id;
-			last[type].second = player;
+			last[type].second = extra;
 		}
 		else
 			return false;
 	}
 	else
-		last[type] = std::make_pair(id, player);
+		last[type] = std::make_pair(id, extra);
 
 	return true;
 }

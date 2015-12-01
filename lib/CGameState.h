@@ -219,7 +219,7 @@ struct DLL_LINKAGE RumorState
 	std::map<ERumorType, std::pair<int, int>> last;
 
 	RumorState(){type = RUMOR_NONE; last = {};};
-	bool update(int id, int player);
+	bool update(int id, int extra);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

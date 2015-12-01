@@ -567,7 +567,7 @@ EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bo
 
 std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern) const
 {
-	std::string text = "";
+	std::string text = "", extraText = "";
 	if(gs->rumor.type == RumorState::RUMOR_NONE) // (version < 755 backward compatability
 		return text;
 
@@ -575,9 +575,14 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 	switch(gs->rumor.type)
 	{
 	case RumorState::RUMOR_STATS:
-		text = boost::str(boost::format(VLC->generaltexth->allTexts[rumor.first]) % VLC->generaltexth->capColors[rumor.second]);
-		break;
+		if(rumor.first == 212)
+			extraText = VLC->generaltexth->arraytxt[158 + rumor.second];
+		else
+			extraText = VLC->generaltexth->capColors[rumor.second];
 
+		text = boost::str(boost::format(VLC->generaltexth->allTexts[rumor.first]) % extraText);
+
+		break;
 	case RumorState::RUMOR_MAP:
 		text = gs->map->rumors[rumor.first].text;
 		break;
