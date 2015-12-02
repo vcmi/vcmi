@@ -631,13 +631,18 @@ void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exit
 		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
 			choosenExit = vstd::find_pos(exits, neededExit);
 
-/*		if(!status.channelProbing())
+		if(!status.channelProbing())
 		{
-			vstd::copy_if(exits, vstd::set_inserter(teleportChannelProbingList), [&](ObjectInstanceID id) -> bool
+			for(auto exit : exits)
 			{
-				return !(vstd::contains(visitableObjs, cb->getObj(id)) || id == choosenExit);
-			});
-		}*/
+				if(!vstd::contains(visitableObjs, cb->getObj(exit.first)) &&
+					!vstd::contains(teleportChannelProbingList, exit.first) &&
+					exit.first != destinationTeleport)
+				{
+					teleportChannelProbingList.push_back(exit.first);
+				}
+			}
+		}
 	}
 
 	requestActionASAP([=]()
