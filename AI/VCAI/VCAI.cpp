@@ -9,6 +9,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CGameState.h"
+#include "../../lib/NetPacks.h"
 
 
 /*

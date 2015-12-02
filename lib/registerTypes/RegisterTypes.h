@@ -24,8 +24,6 @@
  *
  */
 
-
-
 template<typename Serializer>
 void registerTypesMapObjects1(Serializer &s)
 {

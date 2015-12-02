@@ -6,8 +6,6 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/Connection.h"
-//#include "../../lib/CGameState.h"
-#include "../../lib/NetPacks.h"
 #include "../../lib/CStopWatch.h"
 
 /*

@@ -10,6 +10,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/CPathfinder.h"
+#include "../../lib/mapping/CMapDefines.h"
 
 /*
  * AIUtility.cpp, part of VCMI engine
