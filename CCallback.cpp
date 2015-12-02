@@ -18,12 +18,7 @@
 #include "lib/spells/CSpellHandler.h"
 #include "lib/CArtHandler.h"
 #include "lib/GameConstants.h"
-#ifdef min
-#undef min
-#endif
-#ifdef max
-#undef max
-#endif
+#include "lib/CPlayerState.h"
 #include "lib/UnlockGuard.h"
 
 /*

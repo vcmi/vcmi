@@ -2,7 +2,7 @@
 
 
 #include "../lib/FunctionList.h"
-#include "../lib/CGameState.h"
+//#include "../lib/CGameState.h"
 #include "../lib/Connection.h"
 #include "../lib/IGameCallback.h"
 #include "../lib/BattleAction.h"

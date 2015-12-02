@@ -37,6 +37,7 @@
 #include "../lib/CStopWatch.h"
 #include "../lib/StartInfo.h"
 #include "../lib/CGameState.h"
+#include "../lib/CPlayerState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
 #include "windows/InfoWindows.h"

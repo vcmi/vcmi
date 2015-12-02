@@ -8,6 +8,7 @@
 #include "GameConstants.h"
 #include "CStopWatch.h"
 #include "CConfigHandler.h"
+#include "../lib/CPlayerState.h"
 
 /*
  * CPathfinder.cpp, part of VCMI engine

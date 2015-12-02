@@ -18,6 +18,7 @@
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 #include "../mapping/CMapDefines.h"
+#include "../CPlayerState.h"
 
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;

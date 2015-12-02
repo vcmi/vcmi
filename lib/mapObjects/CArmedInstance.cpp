@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CArmedInstance.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -15,6 +15,7 @@
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CGameState.h"
+#include "../CPlayerState.h"
 
 void CArmedInstance::randomizeArmy(int type)
 {

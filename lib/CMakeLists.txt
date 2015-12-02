@@ -132,6 +132,7 @@ set(lib_HEADERS
 		IGameEventsReceiver.h
 		int3.h
 		CGameStateFwd.h
+		CPlayerState.h
 		Interprocess.h
 		NetPacks.h
 		NetPacksBase.h

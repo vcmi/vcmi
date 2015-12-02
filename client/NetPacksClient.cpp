@@ -25,6 +25,7 @@
 #include "../lib/CGameState.h"
 #include "../lib/BattleState.h"
 #include "../lib/GameConstants.h"
+#include "../lib/CPlayerState.h"
 #include "gui/CGuiHandler.h"
 #include "widgets/MiscWidgets.h"
 #include "widgets/AdventureMapClasses.h"

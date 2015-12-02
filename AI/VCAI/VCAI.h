@@ -15,7 +15,7 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/Connection.h"
-#include "../../lib/CGameState.h"
+//#include "../../lib/CGameState.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/CondSh.h"
 

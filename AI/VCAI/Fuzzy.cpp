@@ -5,6 +5,8 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/CommonConstructors.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/CPathfinder.h"
+#include "../../lib/CGameStateFwd.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../CCallback.h"
 #include "VCAI.h"

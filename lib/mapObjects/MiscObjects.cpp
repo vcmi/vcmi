@@ -21,6 +21,7 @@
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 #include "../mapping/CMap.h"
+#include "../CPlayerState.h"
 
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
 ui8 CGObelisk::obeliskCount; //how many obelisks are on map

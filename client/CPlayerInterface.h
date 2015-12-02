@@ -5,7 +5,6 @@
 #include "../lib/CGameInterface.h"
 #include "../lib/NetPacksBase.h"
 #include "gui/CIntObject.h"
-//#include "../lib/CGameState.h"
 
 #ifdef __GNUC__
 #define sprintf_s snprintf

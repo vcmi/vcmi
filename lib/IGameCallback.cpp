@@ -22,6 +22,7 @@
 #include "StartInfo.h"
 #include "CGameState.h"
 #include "mapping/CMap.h"
+#include "CPlayerState.h"
 
 void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 {
