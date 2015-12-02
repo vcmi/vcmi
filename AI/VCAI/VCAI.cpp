@@ -96,6 +96,7 @@ VCAI::VCAI(void)
 	LOG_TRACE(logAi);
 	makingTurn = nullptr;
 	destinationTeleport = ObjectInstanceID();
+	destinationTeleportPos = int3();
 }
 
 VCAI::~VCAI(void)
@@ -616,31 +617,32 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 
 void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
-	LOG_TRACE_PARAMS(logAi, "askID '%i', exits '%s'", askID % exits);
+//	LOG_TRACE_PARAMS(logAi, "askID '%i', exits '%s'", askID % exits);
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits")
 																			% exits.size()));
 
-	ObjectInstanceID choosenExit;
+	int choosenExit = -1;
 	if(impassable)
 		knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
 	else
 	{
-		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, destinationTeleport))
-			choosenExit = destinationTeleport;
+		auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
+		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
+			choosenExit = vstd::find_pos(exits, neededExit);
 
-		if(!status.channelProbing())
+/*		if(!status.channelProbing())
 		{
 			vstd::copy_if(exits, vstd::set_inserter(teleportChannelProbingList), [&](ObjectInstanceID id) -> bool
 			{
 				return !(vstd::contains(visitableObjs, cb->getObj(id)) || id == choosenExit);
 			});
-		}
+		}*/
 	}
 
 	requestActionASAP([=]()
 	{
-		answerQuery(askID, choosenExit.getNum());
+		answerQuery(askID, choosenExit);
 	});
 }
 
@@ -1863,8 +1865,10 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		auto doTeleportMovement = [&](int3 dst, ObjectInstanceID exitId)
 		{
 			destinationTeleport = exitId;
-			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
+			destinationTeleportPos = CGHeroInstance::convertPosition(dst, true);
+			cb->moveHero(*h, destinationTeleportPos);
 			destinationTeleport = ObjectInstanceID();
+			destinationTeleportPos = int3();
 			afterMovementCheck();
 		};
 

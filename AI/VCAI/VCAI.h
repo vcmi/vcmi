@@ -148,6 +148,7 @@ public:
 	std::map<TeleportChannelID, shared_ptr<TeleportChannel> > knownTeleportChannels;
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
 	ObjectInstanceID destinationTeleport;
+	int3 destinationTeleportPos;
 	std::vector<ObjectInstanceID> teleportChannelProbingList; //list of teleport channel exits that not visible and need to be (re-)explored
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::set<const CGTownInstance *> > townVisitsThisWeek;
@@ -360,6 +361,14 @@ public:
 	template <typename Handler> void serializeInternal(Handler &h, const int version)
 	{
 		h & knownTeleportChannels & knownSubterraneanGates & destinationTeleport;
+		if(version >= 755)
+		{
+			h & destinationTeleportPos;
+		}
+		else if(!h.saving)
+		{
+			destinationTeleportPos = int3();
+		}
 		h & townVisitsThisWeek & lockedHeroes & reservedHeroesMap; //FIXME: cannot instantiate abstract class
 		h & visitableObjs & alreadyVisited & reservedObjs;
 		h & saving & status & battlename;

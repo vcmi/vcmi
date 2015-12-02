@@ -247,7 +247,7 @@ public:
 	ui32 defaultResProduction();
 };
 
-typedef std::vector<ObjectInstanceID> TTeleportExitsList;
+typedef std::vector<std::pair<ObjectInstanceID, int3>> TTeleportExitsList;
 
 struct DLL_LINKAGE TeleportChannel
 {
@@ -282,7 +282,7 @@ public:
 	std::vector<ObjectInstanceID> getAllExits(bool excludeCurrent = false) const;
 	ObjectInstanceID getRandomExit(const CGHeroInstance * h) const;
 
-	virtual void teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, std::vector<ObjectInstanceID> exits) const = 0;
+	virtual void teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const = 0;
 
 	static bool isTeleport(const CGObjectInstance * dst);
 	static bool isConnected(const CGTeleport * src, const CGTeleport * dst);
@@ -303,7 +303,7 @@ class DLL_LINKAGE CGMonolith : public CGTeleport
 
 public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, std::vector<ObjectInstanceID> exits) const override;
+	void teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const override;
 	void initObj() override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -329,7 +329,7 @@ class DLL_LINKAGE CGWhirlpool : public CGMonolith
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, std::vector<ObjectInstanceID> exits) const override;
+	void teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const override;
 	static bool isProtected( const CGHeroInstance * h );
 
 	template <typename Handler> void serialize(Handler &h, const int version)
