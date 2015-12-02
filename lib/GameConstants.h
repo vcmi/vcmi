@@ -405,6 +405,18 @@ public:
 
 ID_LIKE_OPERATORS(BuildingID, BuildingID::EBuildingID)
 
+namespace EAiTactic
+{
+enum EAiTactic
+{
+	NONE = -1,
+	RANDOM,
+	WARRIOR,
+	BUILDER,
+	EXPLORER
+};
+}
+
 namespace EBuildingState
 {
 	enum EBuildingState

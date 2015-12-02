@@ -1,8 +1,8 @@
 #pragma once
 
 #include "VCMI_Lib.h"
-#include "mapping/CMap.h"
 #include "IGameCallback.h"
+#include "HeroBonus.h"
 #include "int3.h"
 
 #include <boost/heap/priority_queue.hpp>
@@ -21,6 +21,8 @@ class CGHeroInstance;
 class CGObjectInstance;
 struct TerrainTile;
 class CPathfinderHelper;
+class CMap;
+class CGWhirlpool;
 
 struct DLL_LINKAGE CGPathNode
 {

@@ -117,6 +117,7 @@ set(lib_HEADERS
 		filesystem/ISimpleResourceLoader.h
 
 		mapObjects/MapObjects.h
+		mapping/CMapDefines.h
 
 		CSoundBase.h
 		AI_Base.h

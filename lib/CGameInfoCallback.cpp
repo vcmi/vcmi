@@ -18,6 +18,7 @@
 #include "NetPacks.h" // for InfoWindow
 #include "CModHandler.h"
 #include "spells/CSpellHandler.h"
+#include "mapping/CMap.h"
 
 //TODO make clean
 #define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)

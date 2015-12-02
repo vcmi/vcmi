@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CObjectHandler.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -18,8 +18,10 @@
 #include "../filesystem/ResourceID.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
+#include "../mapping/CMap.h"
 
 #include "CObjectClassesHandler.h"
+#include "CGTownInstance.h"
 
 IGameCallback * IObjectInterface::cb = nullptr;
 

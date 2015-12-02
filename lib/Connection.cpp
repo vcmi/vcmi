@@ -2,6 +2,7 @@
 #include "Connection.h"
 
 #include "registerTypes/RegisterTypes.h"
+#include "mapping/CMap.h"
 
 #include <boost/asio.hpp>
 

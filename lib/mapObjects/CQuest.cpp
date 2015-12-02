@@ -17,6 +17,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "CObjectClassesHandler.h"
+#include "MiscObjects.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 

@@ -13,7 +13,7 @@
 #include "ResourceSet.h"
 //#include "CObstacleInstance.h"
 #include "CGameStateFwd.h"
-#include "mapping/CMap.h"
+#include "mapping/CMapDefines.h"
 #include "CObstacleInstance.h"
 
 #include "spells/ViewSpellInt.h"

@@ -7,6 +7,8 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/mapObjects/CBank.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/CQuest.h"
 
 /*
  * AIUtility.cpp, part of VCMI engine

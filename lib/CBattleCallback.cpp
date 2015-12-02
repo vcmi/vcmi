@@ -6,6 +6,7 @@
 #include "spells/CSpellHandler.h"
 #include "VCMI_Lib.h"
 #include "CTownHandler.h"
+#include "mapObjects/CGTownInstance.h"
 
 /*
  * CBattleCallback.cpp, part of VCMI engine
