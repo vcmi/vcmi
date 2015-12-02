@@ -227,7 +227,8 @@ class DLL_LINKAGE CGMine : public CArmedInstance
 public:
 	Res::ERes producedResource;
 	ui32 producedQuantity;
-	
+
+private:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
@@ -239,6 +240,7 @@ public:
 	std::string getObjectName() const override;
 	std::string getHoverText(PlayerColor player) const override;
 
+public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
