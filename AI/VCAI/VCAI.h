@@ -367,7 +367,7 @@ public:
 		}
 		else if(!h.saving)
 		{
-			destinationTeleportPos = int3();
+			destinationTeleportPos = int3(-1);
 		}
 		h & townVisitsThisWeek & lockedHeroes & reservedHeroesMap; //FIXME: cannot instantiate abstract class
 		h & visitableObjs & alreadyVisited & reservedObjs;

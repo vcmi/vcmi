@@ -97,7 +97,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
 	logGlobal->traceStream() << "\tHuman player interface for player " << Player << " being constructed";
 	destinationTeleport = ObjectInstanceID();
-	destinationTeleportPos = int3();
+	destinationTeleportPos = int3(-1);
 	observerInDuelMode = false;
 	howManyPeople++;
 	GH.defActionsDef = 0;
@@ -1416,7 +1416,7 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 	   && stillMoveHero.get() == DURING_MOVE)
 	{ // After teleportation via CGTeleport object is finished
 		destinationTeleport = ObjectInstanceID();
-		destinationTeleportPos = int3();
+		destinationTeleportPos = int3(-1);
 		stillMoveHero.setn(CONTINUE_MOVE);
 	}
 }

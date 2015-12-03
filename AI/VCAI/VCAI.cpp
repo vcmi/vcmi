@@ -96,7 +96,7 @@ VCAI::VCAI(void)
 	LOG_TRACE(logAi);
 	makingTurn = nullptr;
 	destinationTeleport = ObjectInstanceID();
-	destinationTeleportPos = int3();
+	destinationTeleportPos = int3(-1);
 }
 
 VCAI::~VCAI(void)
@@ -1881,7 +1881,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				destinationTeleportPos = CGHeroInstance::convertPosition(exitPos, true);
 			cb->moveHero(*h, h->pos);
 			destinationTeleport = ObjectInstanceID();
-			destinationTeleportPos = int3();
+			destinationTeleportPos = int3(-1);
 			afterMovementCheck();
 		};
 
@@ -1893,7 +1893,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 			status.setChannelProbing(true);
 			for(auto exit : teleportChannelProbingList)
-				doTeleportMovement(exit, int3());
+				doTeleportMovement(exit, int3(-1));
 			teleportChannelProbingList.clear();
 			doTeleportMovement(currentExit->id, currentExitPos);
 			status.setChannelProbing(false);
@@ -2931,7 +2931,7 @@ void AIStatus::setMove(bool ongoing)
 void AIStatus::setChannelProbing(bool ongoing)
 {
 	boost::unique_lock<boost::mutex> lock(mx);
-	ongoingHeroMovement = ongoing;
+	ongoingChannelProbing = ongoing;
 	cv.notify_all();
 }
 
