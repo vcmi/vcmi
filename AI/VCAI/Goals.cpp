@@ -1028,6 +1028,10 @@ TSubgoal GatherArmy::whatToDoToAchieve()
 
 	return fh->chooseSolution (getAllPossibleSubgoals()); //find dwelling. use current hero to prevent him from doing nothing.
 }
+
+static const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
+	BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7};
+
 TGoalVec GatherArmy::getAllPossibleSubgoals()
 {
 	//get all possible towns, heroes and dwellings we may use

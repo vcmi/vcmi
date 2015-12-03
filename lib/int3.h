@@ -131,6 +131,12 @@ public:
 	{
 		h & x & y & z;
 	}
+
+	static std::array<int3, 8> getDirs()
+	{
+		return { { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
+			int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) } };
+	}
 };
 
 inline std::ostream & operator<<(std::ostream & str, const int3 & sth)
@@ -153,9 +159,6 @@ struct ShashInt3
 		return ret;
 	}
 };
-
-static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
-	int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
 
 template<typename Container>
 int3 findClosestTile (Container & container, int3 dest)

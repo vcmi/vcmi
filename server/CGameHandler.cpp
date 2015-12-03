@@ -1665,7 +1665,7 @@ std::list<PlayerColor> CGameHandler::generatePlayerTurnOrder() const
 		if(!player.second.human)
 			playerTurnOrder.push_back(player.first);
 	}
-	return std::move(playerTurnOrder);
+	return playerTurnOrder;
 }
 
 void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town )

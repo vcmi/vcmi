@@ -154,7 +154,7 @@ void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo
 {
 	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
 
-	for(const int3 &dir : dirs)
+	for(const int3 &dir : int3::getDirs())
 	{
 		const int3 n = pos + dir;
 		if(cbp->isInTheMap(n))
@@ -164,7 +164,7 @@ void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo
 
 void foreach_neighbour(CCallback * cbp, const int3 &pos, std::function<void(CCallback * cbp, const int3& pos)> foo)
 {
-	for(const int3 &dir : dirs)
+	for(const int3 &dir : int3::getDirs())
 	{
 		const int3 n = pos + dir;
 		if(cbp->isInTheMap(n))

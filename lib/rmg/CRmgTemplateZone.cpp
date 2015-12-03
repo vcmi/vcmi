@@ -2336,7 +2336,8 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 		}
 		assert (0); //we should never be here
 	}
-	//FIXME: control reaches end of non-void function. Missing return?
+
+	return ObjectInfo(); // unreachable
 }
 
 void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)

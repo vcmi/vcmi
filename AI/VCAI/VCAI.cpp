@@ -1303,6 +1303,20 @@ bool VCAI::tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingI
 	return false;//Nothing to build
 }
 
+//Set of buildings for different goals. Does not include any prerequisites.
+static const BuildingID essential[] = {BuildingID::TAVERN, BuildingID::TOWN_HALL};
+static const BuildingID goldSource[] = {BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL};
+static const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
+	BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7};
+static const BuildingID unitsUpgrade[] = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
+	BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP};
+static const BuildingID unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
+	BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR};
+static const BuildingID spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
+	BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
+static const BuildingID extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
+	BuildingID::SPECIAL_4, BuildingID::SHIPYARD}; // all remaining buildings
+
 void VCAI::buildStructure(const CGTownInstance * t)
 {
 	//TODO make *real* town development system
@@ -2467,7 +2481,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 {
 	int3 ourPos = h->convertPosition(h->pos, false);
 	std::map<int3, int> dstToRevealedTiles;
-	for(crint3 dir : dirs)
+	for(crint3 dir : int3::getDirs())
 		if(cb->isInTheMap(hpos+dir))
 			if (ourPos != dir) //don't stand in place
 				if (isSafeToVisit(h, hpos + dir) && isAccessibleForHero (hpos + dir, h))
