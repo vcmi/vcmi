@@ -2246,6 +2246,7 @@ BattleAttackInfo::BattleAttackInfo(const CStack *Attacker, const CStack *Defende
 	chargedFields = 0;
 
 	luckyHit = false;
+	unluckyHit = false;
 	deathBlow = false;
 	ballistaDoubleDamage = false;
 }
