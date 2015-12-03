@@ -641,10 +641,10 @@ void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exit
 		}
 		else
 		{
-			// FIXME: This code generate "Object is not visible." errors
-			// What is better way to check that certain teleport exit wasn't visited yet or not visible?
-			if(!vstd::contains(visitableObjs, cb->getObj(exit.first)) &&
-				!vstd::contains(teleportChannelProbingList, exit.first) &&
+			// TODO: Implement checking if visiting that teleport will uncovert any FoW
+			// So far this is the best option to handle decision about probing
+			auto obj = cb->getObj(exit.first, false);
+			if(obj == nullptr && !vstd::contains(teleportChannelProbingList, exit.first) &&
 				exit.first != destinationTeleport)
 			{
 				teleportChannelProbingList.push_back(exit.first);
@@ -1877,7 +1877,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
 			destinationTeleport = exitId;
-			destinationTeleportPos = CGHeroInstance::convertPosition(exitPos, true);
+			if(exitPos.valid())
+				destinationTeleportPos = CGHeroInstance::convertPosition(exitPos, true);
 			cb->moveHero(*h, h->pos);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3();
