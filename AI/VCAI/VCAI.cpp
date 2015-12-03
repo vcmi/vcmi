@@ -625,22 +625,29 @@ void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exit
 	int choosenExit = -1;
 	if(impassable)
 		knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
-	else
+	else if(destinationTeleport != ObjectInstanceID() && destinationTeleportPos.valid())
 	{
 		auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
 		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
 			choosenExit = vstd::find_pos(exits, neededExit);
+	}
 
-		if(!status.channelProbing())
+	for(auto exit : exits)
+	{
+		if(status.channelProbing() && exit.first == destinationTeleport)
 		{
-			for(auto exit : exits)
+			choosenExit = vstd::find_pos(exits, exit);
+			break;
+		}
+		else
+		{
+			// FIXME: This code generate "Object is not visible." errors
+			// What is better way to check that certain teleport exit wasn't visited yet or not visible?
+			if(!vstd::contains(visitableObjs, cb->getObj(exit.first)) &&
+				!vstd::contains(teleportChannelProbingList, exit.first) &&
+				exit.first != destinationTeleport)
 			{
-				if(!vstd::contains(visitableObjs, cb->getObj(exit.first)) &&
-					!vstd::contains(teleportChannelProbingList, exit.first) &&
-					exit.first != destinationTeleport)
-				{
-					teleportChannelProbingList.push_back(exit.first);
-				}
+				teleportChannelProbingList.push_back(exit.first);
 			}
 		}
 	}
@@ -1867,11 +1874,11 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true), transit);
 		};
 
-		auto doTeleportMovement = [&](int3 dst, ObjectInstanceID exitId)
+		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
 			destinationTeleport = exitId;
-			destinationTeleportPos = CGHeroInstance::convertPosition(dst, true);
-			cb->moveHero(*h, destinationTeleportPos);
+			destinationTeleportPos = CGHeroInstance::convertPosition(exitPos, true);
+			cb->moveHero(*h, h->pos);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3();
 			afterMovementCheck();
@@ -1880,13 +1887,14 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		auto doChannelProbing = [&]() -> void
 		{
 			auto currentExit = getObj(CGHeroInstance::convertPosition(h->pos,false), false);
+			auto currentExitPos = CGHeroInstance::convertPosition(h->pos,false);
 			assert(currentExit);
 
 			status.setChannelProbing(true);
 			for(auto exit : teleportChannelProbingList)
-				doTeleportMovement(CGHeroInstance::convertPosition(h->pos,false), exit);
+				doTeleportMovement(exit, int3());
 			teleportChannelProbingList.clear();
-			doTeleportMovement(CGHeroInstance::convertPosition(h->pos,false), currentExit->id);
+			doTeleportMovement(currentExit->id, currentExitPos);
 			status.setChannelProbing(false);
 		};
 
@@ -1900,7 +1908,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			auto nextObject = getObj(nextCoord, false);
 			if(CGTeleport::isConnected(currentObject, nextObject))
 			{ //we use special login if hero standing on teleporter it's mean we need
-				doTeleportMovement(currentCoord, nextObject->id);
+				doTeleportMovement(nextObject->id, nextCoord);
 				if(teleportChannelProbingList.size())
 					doChannelProbing();
 
