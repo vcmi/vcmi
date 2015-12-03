@@ -153,6 +153,12 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		}
 	}
 
+	for ( auto & enemy : enemiesReachable )
+		enemy.calcDmg( stack );
+
+	for ( auto & enemy : enemiesShootable )
+		enemy.calcDmg( stack );
+
 	if(enemiesShootable.size())
 	{
 		const EnemyInfo &ei= *std::max_element(enemiesShootable.begin(), enemiesShootable.end(), isMoreProfitable);
