@@ -484,7 +484,7 @@ float FuzzyHelper::evaluate (Goals::ClearWayTo & g)
 	if (!g.hero.h)
 		throw cannotFulfillGoalException("ClearWayTo called without hero!");
 
-	int3 t = ai->getCachedSectorMap(g.hero).firstTileToGet(g.hero, g.tile);
+	int3 t = ai->getCachedSectorMap(g.hero)->firstTileToGet(g.hero, g.tile);
 
 	if (t.valid())
 	{

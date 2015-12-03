@@ -845,9 +845,9 @@ void VCAI::makeTurnInternal()
 bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 {
 	int3 dst = obj->visitablePos();
-	SectorMap &sm = getCachedSectorMap(h);
+	auto sm = getCachedSectorMap(h);
 	logAi->debugStream() << boost::format("%s will try to visit %s at (%s)") % h->name % obj->getObjectName() % strFromInt3(dst);
-	int3 pos = sm.firstTileToGet(h, dst);
+	int3 pos = sm->firstTileToGet(h, dst);
 	if (!pos.valid()) //rare case when we are already standing on one of potential objects
 		return false;
 	return moveHeroToTile(pos, h);
@@ -1383,10 +1383,10 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 {
 	validateVisitableObjs();
 	std::vector<const CGObjectInstance *> possibleDestinations;
-	SectorMap &sm = getCachedSectorMap(h);
+	auto sm = getCachedSectorMap(h);
 	for(const CGObjectInstance *obj : visitableObjs)
 	{
-		if (isGoodForVisit(obj, h, sm))
+		if (isGoodForVisit(obj, h, *sm))
 		{
 			possibleDestinations.push_back(obj);
 		}
@@ -1441,12 +1441,12 @@ void VCAI::wander(HeroPtr h)
 		validateVisitableObjs();
 		std::vector <ObjectIdRef> dests, tmp;
 
-		SectorMap &sm = getCachedSectorMap(h);
+		auto sm = getCachedSectorMap(h);
 
 		range::copy(reservedHeroesMap[h], std::back_inserter(tmp)); //also visit our reserved objects - but they are not prioritized to avoid running back and forth
 		for (auto obj : tmp)
 		{
-			int3 pos = sm.firstTileToGet(h, obj->visitablePos());
+			int3 pos = sm->firstTileToGet(h, obj->visitablePos());
 			if (pos.valid())
 				if (isAccessibleForHero (pos, h)) //even nearby objects could be blocked by other heroes :(
 					dests.push_back(obj); //can't use lambda for member function :(
@@ -1455,7 +1455,7 @@ void VCAI::wander(HeroPtr h)
 		range::copy(getPossibleDestinations(h), std::back_inserter(dests));
 		erase_if(dests, [&](ObjectIdRef obj) -> bool
 		{
-			return !isSafeToVisit(h, sm.firstTileToGet(h, obj->visitablePos()));
+			return !isSafeToVisit(h, sm->firstTileToGet(h, obj->visitablePos()));
 		});
 
 		if(!dests.size())
@@ -2541,7 +2541,7 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 int3 VCAI::explorationDesperate(HeroPtr h)
 {
-	SectorMap &sm = getCachedSectorMap(h);
+	auto sm = getCachedSectorMap(h);
 	int radius = h->getSightRadious();
 	
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
@@ -2570,7 +2570,7 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 			if (!howManyTilesWillBeDiscovered(tile, radius, cbp)) //avoid costly checks of tiles that don't reveal much
 				continue;
 
-			auto t = sm.firstTileToGet(h, tile);
+			auto t = sm->firstTileToGet(h, tile);
 			if (t.valid())
 			{
 				ui64 ourDanger = evaluateDanger(t, h.h);
@@ -2759,14 +2759,14 @@ TResources VCAI::freeResources() const
 	return myRes;
 }
 
-SectorMap& VCAI::getCachedSectorMap(HeroPtr h)
+std::shared_ptr<SectorMap> VCAI::getCachedSectorMap(HeroPtr h)
 {
 	auto it = cachedSectorMaps.find(h);
 	if (it != cachedSectorMaps.end())
 		return it->second;
 	else
 	{
-		cachedSectorMaps.insert(std::make_pair(h, SectorMap(h)));
+		cachedSectorMaps[h] = std::make_shared<SectorMap>(h);
 		return cachedSectorMaps[h];
 	}
 }

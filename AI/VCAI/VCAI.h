@@ -159,7 +159,7 @@ public:
 	std::set<const CGObjectInstance *> alreadyVisited;
 	std::set<const CGObjectInstance *> reservedObjs; //to be visited by specific hero
 
-	std::map <HeroPtr, SectorMap> cachedSectorMaps; //TODO: serialize? not necessary
+	std::map <HeroPtr, std::shared_ptr<SectorMap>> cachedSectorMaps; //TODO: serialize? not necessary
 
 	TResources saving;
 
@@ -312,7 +312,7 @@ public:
 	const CGObjectInstance *getUnvisitedObj(const std::function<bool(const CGObjectInstance *)> &predicate);
 	bool isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies = false) const;
 	//optimization - use one SM for every hero call
-	SectorMap& getCachedSectorMap(HeroPtr h);
+	std::shared_ptr<SectorMap> getCachedSectorMap(HeroPtr h);
 
 	const CGTownInstance *findTownWithTavern() const;
 	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;
