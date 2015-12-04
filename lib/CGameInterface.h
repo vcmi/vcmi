@@ -7,7 +7,7 @@
 
 #include "spells/ViewSpellInt.h"
 
-#include "mapObjects/MiscObjects.h"
+#include "mapObjects/CObjectHandler.h"
 
 /*
  * CGameInterface.h, part of VCMI engine

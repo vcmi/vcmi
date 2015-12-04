@@ -247,8 +247,6 @@ public:
 	ui32 defaultResProduction();
 };
 
-typedef std::vector<std::pair<ObjectInstanceID, int3>> TTeleportExitsList;
-
 struct DLL_LINKAGE TeleportChannel
 {
 	enum EPassability {UNKNOWN, IMPASSABLE, PASSABLE};
