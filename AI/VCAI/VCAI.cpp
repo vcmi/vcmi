@@ -1887,16 +1887,16 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto doChannelProbing = [&]() -> void
 		{
-			auto currentExit = getObj(CGHeroInstance::convertPosition(h->pos,false), false);
-			auto currentExitPos = CGHeroInstance::convertPosition(h->pos,false);
-			assert(currentExit);
+			auto currentPos = CGHeroInstance::convertPosition(h->pos,false);
+			auto currentExit = getObj(currentPos, true)->id;
 
 			status.setChannelProbing(true);
 			for(auto exit : teleportChannelProbingList)
 				doTeleportMovement(exit, int3(-1));
 			teleportChannelProbingList.clear();
-			doTeleportMovement(currentExit->id, currentExitPos);
 			status.setChannelProbing(false);
+
+			doTeleportMovement(currentExit, currentPos);
 		};
 
 		int i=path.nodes.size()-1;
