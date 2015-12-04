@@ -2616,7 +2616,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 				continue;
 			const CGHeroInstance * best = statsHLP::findBestHero(this, g->second.color);
 			InfoAboutHero iah;
-			iah.initFromHero(best, level >= 8);
+			iah.initFromHero(best, level >= 2);
 			iah.army.clear();
 			tgi.colorToBestHero[g->second.color] = iah;
 		}
@@ -2633,27 +2633,27 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	{
 		FILL_FIELD(mercSulfCrystGems, g->second.resources[Res::MERCURY] + g->second.resources[Res::SULFUR] + g->second.resources[Res::CRYSTAL] + g->second.resources[Res::GEMS])
 	}
-	if(level >= 4) //obelisks found
+	if(level >= 3) //obelisks found
 	{
 		FILL_FIELD(obelisks, CGObelisk::visited[gs->getPlayerTeam(g->second.color)->id])
 	}
-	if(level >= 5) //artifacts
+	if(level >= 4) //artifacts
 	{
 		FILL_FIELD(artifacts, statsHLP::getNumberOfArts(&g->second))
 	}
-	if(level >= 6) //army strength
+	if(level >= 4) //army strength
 	{
 		FILL_FIELD(army, statsHLP::getArmyStrength(&g->second))
 	}
-	if(level >= 7) //income
+	if(level >= 5) //income
 	{
 		FILL_FIELD(income, statsHLP::getIncome(&g->second))
 	}
-	if(level >= 8) //best hero's stats
+	if(level >= 2) //best hero's stats
 	{
 		//already set in  lvl 1 handling
 	}
-	if(level >= 9) //personality
+	if(level >= 3) //personality
 	{
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
@@ -2670,7 +2670,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 
 		}
 	}
-	if(level >= 10) //best creature
+	if(level >= 4) //best creature
 	{
 		//best creatures belonging to player (highest AI value)
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
