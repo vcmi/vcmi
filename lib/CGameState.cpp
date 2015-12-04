@@ -2135,25 +2135,28 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 
 void CGameState::updateRumor()
 {
-	static std::vector<RumorState::ERumorType> rumorTypes = {RumorState::RUMOR_MAP, RumorState::RUMOR_STATS, RumorState::RUMOR_RAND, RumorState::RUMOR_RAND};
-	static std::vector<int> statsRumorTypes = {208, 209, 210, 211, 212};
+	static std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
+	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
+		RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
+	if(map->grailPos.valid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
+		sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
 
 	int rumorId = -1, rumorExtra = -1;
-	auto & rand = gs->getRandomGenerator();
+	auto & rand = getRandomGenerator();
 	rumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
-	if(!gs->map->rumors.size() && rumor.type == RumorState::RUMOR_MAP)
-		rumor.type = RumorState::RUMOR_RAND;
+	if(!map->rumors.size() && rumor.type == RumorState::TYPE_MAP)
+		rumor.type = RumorState::TYPE_RAND;
 
 	do
 	{
 		switch(rumor.type)
 		{
-		case RumorState::RUMOR_STATS:
+		case RumorState::TYPE_SPECIAL:
 		{
 			SThievesGuildInfo tgi;
-			gs->obtainPlayersStats(tgi, 20);
-			rumorId = *RandomGeneratorUtil::nextItem(statsRumorTypes, rand);
-			if(rumorId == 212)
+			obtainPlayersStats(tgi, 20);
+			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
+			if(rumorId == RumorState::RUMOR_GRAIL)
 			{
 				rumorExtra = getTile(map->grailPos)->terType;
 				break;
@@ -2162,19 +2165,19 @@ void CGameState::updateRumor()
 			std::vector<PlayerColor> players = {};
 			switch(rumorId)
 			{
-			case 208:
+			case RumorState::RUMOR_OBELISKS:
 				players = tgi.obelisks[0];
 				break;
 
-			case 209:
+			case RumorState::RUMOR_ARTIFACTS:
 				players = tgi.artifacts[0];
 				break;
 
-			case 210:
+			case RumorState::RUMOR_ARMY:
 				players = tgi.army[0];
 				break;
 
-			case 211:
+			case RumorState::RUMOR_INCOME:
 				players = tgi.income[0];
 				break;
 			}
@@ -2182,12 +2185,12 @@ void CGameState::updateRumor()
 
 			break;
 		}
-		case RumorState::RUMOR_MAP:
-			rumorId = rand.nextInt(gs->map->rumors.size() - 1);
+		case RumorState::TYPE_MAP:
+			rumorId = rand.nextInt(map->rumors.size() - 1);
 
 			break;
 
-		case RumorState::RUMOR_RAND:
+		case RumorState::TYPE_RAND:
 			do
 			{
 				rumorId = rand.nextInt(VLC->generaltexth->tavernRumors.size() - 1);

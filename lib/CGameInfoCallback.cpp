@@ -575,14 +575,14 @@ EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bo
 std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern) const
 {
 	std::string text = "", extraText = "";
-	if(gs->rumor.type == RumorState::RUMOR_NONE) // (version < 755 backward compatability
+	if(gs->rumor.type == RumorState::TYPE_NONE) // (version < 755 backward compatability
 		return text;
 
 	auto rumor = gs->rumor.last[gs->rumor.type];
 	switch(gs->rumor.type)
 	{
-	case RumorState::RUMOR_STATS:
-		if(rumor.first == 212)
+	case RumorState::TYPE_SPECIAL:
+		if(rumor.first == RumorState::RUMOR_GRAIL)
 			extraText = VLC->generaltexth->arraytxt[158 + rumor.second];
 		else
 			extraText = VLC->generaltexth->capColors[rumor.second];
@@ -590,11 +590,11 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 		text = boost::str(boost::format(VLC->generaltexth->allTexts[rumor.first]) % extraText);
 
 		break;
-	case RumorState::RUMOR_MAP:
+	case RumorState::TYPE_MAP:
 		text = gs->map->rumors[rumor.first].text;
 		break;
 
-	case RumorState::RUMOR_RAND:
+	case RumorState::TYPE_RAND:
 		text = VLC->generaltexth->tavernRumors[rumor.first];
 		break;
 	}

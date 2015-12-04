@@ -212,13 +212,22 @@ struct DLL_LINKAGE RumorState
 {
 	enum ERumorType : ui8
 	{
-		RUMOR_NONE = 0, RUMOR_RAND, RUMOR_STATS, RUMOR_MAP
+		TYPE_NONE = 0, TYPE_RAND, TYPE_SPECIAL, TYPE_MAP
+	};
+
+	enum ERumorTypeSpecial : ui8
+	{
+		RUMOR_OBELISKS = 208,
+		RUMOR_ARTIFACTS = 209,
+		RUMOR_ARMY = 210,
+		RUMOR_INCOME = 211,
+		RUMOR_GRAIL = 212
 	};
 
 	ERumorType type;
 	std::map<ERumorType, std::pair<int, int>> last;
 
-	RumorState(){type = RUMOR_NONE; last = {};};
+	RumorState(){type = TYPE_NONE; last = {};};
 	bool update(int id, int extra);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
