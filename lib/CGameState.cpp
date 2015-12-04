@@ -1383,7 +1383,8 @@ void CGameState::placeStartingHeroes()
 			}
 
 			int heroTypeId = pickNextHeroType(playerColor);
-			if(playerSettingPair.second.hero == -1) playerSettingPair.second.hero = heroTypeId;
+			if(playerSettingPair.second.hero == -1)
+				playerSettingPair.second.hero = heroTypeId;
 
 			placeStartingHero(playerColor, HeroTypeID(heroTypeId), playerInfo.posOfMainTown);
 		}
@@ -2770,7 +2771,7 @@ CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
 {
 	for(auto hero : map->heroesOnMap)  //heroes instances initialization
 	{
-		if(hero->subID == hid.getNum())
+		if(hero->type && hero->type->ID == hid)
 		{
 			return hero;
 		}
@@ -2778,9 +2779,12 @@ CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
 
 	for(auto obj : map->objects) //prisons
 	{
-		if(obj && obj->ID == Obj::PRISON && obj->subID == hid.getNum())
+		if(obj && obj->ID == Obj::PRISON )
 		{
-			return dynamic_cast<CGHeroInstance *>(obj.get());
+			auto hero = dynamic_cast<CGHeroInstance *>(obj.get());
+			assert(hero);
+			if ( hero->type && hero->type->ID == hid )
+				return hero;
 		}
 	}
 
