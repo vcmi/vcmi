@@ -366,6 +366,7 @@ struct GiveBonus :  public CPackForClient //115
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & bonus & id & bdescr & who;
+		assert( id != -1);
 	}
 };
 
