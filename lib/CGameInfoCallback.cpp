@@ -853,7 +853,7 @@ std::vector<ObjectInstanceID> CGameInfoCallback::getVisibleTeleportObjects(std::
 {
 	vstd::erase_if(ids, [&](ObjectInstanceID id) -> bool
 	{
-		auto obj = getObj(id);
+		auto obj = getObj(id, false);
 		return player != PlayerColor::UNFLAGGABLE && (!obj || !isVisible(obj->pos, player));
 	});
 	return ids;
