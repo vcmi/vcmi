@@ -1630,9 +1630,9 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	int counter = 0;
 	for(auto & iter : tgi.colorToBestHero)
 	{
+		new CPicture(colorToBox[iter.first.getNum()], 253 + 66 * counter, 334);
 		if(iter.second.portrait >= 0)
 		{
-			new CPicture(colorToBox[iter.first.getNum()], 253 + 66 * counter, 334);
 			new CAnimImage("PortraitsSmall", iter.second.portrait, 0, 260 + 66 * counter, 360);
 			//TODO: r-click info:
 			// - r-click on hero

@@ -2603,13 +2603,15 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			tgi.playerColors.push_back(elem.second.color);
 	}
 
-	if(level >= 1) //num of towns & num of heroes
+	if(level >= 0) //num of towns & num of heroes
 	{
 		//num of towns
 		FILL_FIELD(numOfTowns, g->second.towns.size())
 		//num of heroes
 		FILL_FIELD(numOfHeroes, g->second.heroes.size())
-		//best hero's portrait
+	}
+	if(level >= 1) //best hero's portrait
+	{
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
 			if(playerInactive(g->second.color))

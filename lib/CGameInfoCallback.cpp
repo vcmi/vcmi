@@ -197,7 +197,14 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 
 	if(obj->ID == Obj::TOWN  ||  obj->ID == Obj::TAVERN)
 	{
-		gs->obtainPlayersStats(thi, gs->players[obj->tempOwner].towns.size());
+		int taverns = 0;
+		for(auto town : gs->players[*player].towns)
+		{
+			if(town->hasBuilt(BuildingID::TAVERN))
+				taverns++;
+		}
+
+		gs->obtainPlayersStats(thi, taverns);
 	}
 	else if(obj->ID == Obj::DEN_OF_THIEVES)
 	{
