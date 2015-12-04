@@ -596,7 +596,7 @@ void CPathfinder::initializePatrol()
 		if(hero->patrol.patrolRadious)
 		{
 			state = PATROL_RADIUS;
-			gs->getTilesInRange(patrolTiles, hero->patrol.initialPos, hero->patrol.patrolRadious);
+			gs->getTilesInRange(patrolTiles, hero->patrol.initialPos, hero->patrol.patrolRadious, hero->tempOwner, 0, true);
 		}
 		else
 			state = PATROL_LOCKED;
