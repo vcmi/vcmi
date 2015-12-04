@@ -8,6 +8,8 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
+#include "../../lib/CGameState.h"
+#include "../../lib/NetPacks.h"
 
 
 /*
@@ -843,9 +845,9 @@ void VCAI::makeTurnInternal()
 bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 {
 	int3 dst = obj->visitablePos();
-	SectorMap &sm = getCachedSectorMap(h);
+	auto sm = getCachedSectorMap(h);
 	logAi->debugStream() << boost::format("%s will try to visit %s at (%s)") % h->name % obj->getObjectName() % strFromInt3(dst);
-	int3 pos = sm.firstTileToGet(h, dst);
+	int3 pos = sm->firstTileToGet(h, dst);
 	if (!pos.valid()) //rare case when we are already standing on one of potential objects
 		return false;
 	return moveHeroToTile(pos, h);
@@ -1301,6 +1303,20 @@ bool VCAI::tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingI
 	return false;//Nothing to build
 }
 
+//Set of buildings for different goals. Does not include any prerequisites.
+static const BuildingID essential[] = {BuildingID::TAVERN, BuildingID::TOWN_HALL};
+static const BuildingID goldSource[] = {BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL};
+static const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
+	BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7};
+static const BuildingID unitsUpgrade[] = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
+	BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP};
+static const BuildingID unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
+	BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR};
+static const BuildingID spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
+	BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
+static const BuildingID extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
+	BuildingID::SPECIAL_4, BuildingID::SHIPYARD}; // all remaining buildings
+
 void VCAI::buildStructure(const CGTownInstance * t)
 {
 	//TODO make *real* town development system
@@ -1381,10 +1397,10 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 {
 	validateVisitableObjs();
 	std::vector<const CGObjectInstance *> possibleDestinations;
-	SectorMap &sm = getCachedSectorMap(h);
+	auto sm = getCachedSectorMap(h);
 	for(const CGObjectInstance *obj : visitableObjs)
 	{
-		if (isGoodForVisit(obj, h, sm))
+		if (isGoodForVisit(obj, h, *sm))
 		{
 			possibleDestinations.push_back(obj);
 		}
@@ -1439,12 +1455,12 @@ void VCAI::wander(HeroPtr h)
 		validateVisitableObjs();
 		std::vector <ObjectIdRef> dests, tmp;
 
-		SectorMap &sm = getCachedSectorMap(h);
+		auto sm = getCachedSectorMap(h);
 
 		range::copy(reservedHeroesMap[h], std::back_inserter(tmp)); //also visit our reserved objects - but they are not prioritized to avoid running back and forth
 		for (auto obj : tmp)
 		{
-			int3 pos = sm.firstTileToGet(h, obj->visitablePos());
+			int3 pos = sm->firstTileToGet(h, obj->visitablePos());
 			if (pos.valid())
 				if (isAccessibleForHero (pos, h)) //even nearby objects could be blocked by other heroes :(
 					dests.push_back(obj); //can't use lambda for member function :(
@@ -1453,7 +1469,7 @@ void VCAI::wander(HeroPtr h)
 		range::copy(getPossibleDestinations(h), std::back_inserter(dests));
 		erase_if(dests, [&](ObjectIdRef obj) -> bool
 		{
-			return !isSafeToVisit(h, sm.firstTileToGet(h, obj->visitablePos()));
+			return !isSafeToVisit(h, sm->firstTileToGet(h, obj->visitablePos()));
 		});
 
 		if(!dests.size())
@@ -2465,7 +2481,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 {
 	int3 ourPos = h->convertPosition(h->pos, false);
 	std::map<int3, int> dstToRevealedTiles;
-	for(crint3 dir : dirs)
+	for(crint3 dir : int3::getDirs())
 		if(cb->isInTheMap(hpos+dir))
 			if (ourPos != dir) //don't stand in place
 				if (isSafeToVisit(h, hpos + dir) && isAccessibleForHero (hpos + dir, h))
@@ -2539,7 +2555,7 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 int3 VCAI::explorationDesperate(HeroPtr h)
 {
-	SectorMap &sm = getCachedSectorMap(h);
+	auto sm = getCachedSectorMap(h);
 	int radius = h->getSightRadious();
 	
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
@@ -2568,7 +2584,7 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 			if (!howManyTilesWillBeDiscovered(tile, radius, cbp)) //avoid costly checks of tiles that don't reveal much
 				continue;
 
-			auto t = sm.firstTileToGet(h, tile);
+			auto t = sm->firstTileToGet(h, tile);
 			if (t.valid())
 			{
 				ui64 ourDanger = evaluateDanger(t, h.h);
@@ -2671,19 +2687,24 @@ void VCAI::finish()
 
 void VCAI::requestActionASAP(std::function<void()> whatToDo)
 {
-// 	static boost::mutex m;
-// 	boost::unique_lock<boost::mutex> mylock(m);
+	boost::mutex mutex;
+	mutex.lock();
 
-	boost::barrier b(2);
-	boost::thread newThread([&b,this,whatToDo]()
+	boost::thread newThread([&mutex,this,whatToDo]()
 	{
 		setThreadName("VCAI::requestActionASAP::helper");
 		SET_GLOBAL_STATE(this);
 		boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
-		b.wait();
+		// unlock mutex and allow parent function to exit
+		mutex.unlock();
 		whatToDo();
 	});
-	b.wait();
+
+	// wait for mutex to unlock and for thread to initialize properly
+	mutex.lock();
+
+	// unlock mutex - boost dislikes destruction of locked mutexes
+	mutex.unlock();
 }
 
 void VCAI::lostHero(HeroPtr h)
@@ -2757,14 +2778,14 @@ TResources VCAI::freeResources() const
 	return myRes;
 }
 
-SectorMap& VCAI::getCachedSectorMap(HeroPtr h)
+std::shared_ptr<SectorMap> VCAI::getCachedSectorMap(HeroPtr h)
 {
 	auto it = cachedSectorMaps.find(h);
 	if (it != cachedSectorMaps.end())
 		return it->second;
 	else
 	{
-		cachedSectorMaps.insert(std::make_pair(h, SectorMap(h)));
+		cachedSectorMaps[h] = std::make_shared<SectorMap>(h);
 		return cachedSectorMaps[h];
 	}
 }

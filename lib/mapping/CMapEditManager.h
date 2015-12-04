@@ -12,11 +12,13 @@
 #pragma once
 
 #include "../CRandomGenerator.h"
-#include "CMap.h"
+#include "../int3.h"
+#include "../GameConstants.h"
 
 class CGObjectInstance;
 class CTerrainViewPatternConfig;
 struct TerrainViewPattern;
+class CMap;
 
 /// Represents a map rectangle.
 struct DLL_LINKAGE MapRect

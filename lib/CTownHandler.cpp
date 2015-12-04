@@ -774,12 +774,8 @@ std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown /*=true*/) con
 	if (withTown)
 		allowed = getDefaultAllowed();
 	else
-	{
-		for (auto town : factions)
-		{
-			allowed.push_back (true);
-		}
-	}
+		allowed.resize( factions.size(), true);
+
 	for (size_t i=0; i<allowed.size(); i++)
 		if (allowed[i])
 			allowedFactions.insert(i);

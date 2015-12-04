@@ -1,4 +1,4 @@
-﻿/*
+/*
  * BattleState.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -22,6 +22,7 @@
 #include "JsonNode.h"
 #include "filesystem/Filesystem.h"
 #include "CRandomGenerator.h"
+#include "mapObjects/CGTownInstance.h"
 
 const CStack * BattleInfo::getNextStack() const
 {

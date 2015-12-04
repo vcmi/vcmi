@@ -1,12 +1,7 @@
 #pragma once
 
-
-
-//#ifndef _MSC_VER
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
-#include "mapping/CMap.h"
-//#endif
 
 #include "HeroBonus.h"
 #include "CCreatureSet.h"
@@ -67,79 +62,6 @@ namespace boost
 	class shared_mutex;
 }
 
-//numbers of creatures are exact numbers if detailed else they are quantity ids (1 - a few, 2 - several and so on; additionally 0 - unknown)
-struct ArmyDescriptor : public std::map<SlotID, CStackBasicDescriptor>
-{
-	bool isDetailed;
-	DLL_LINKAGE ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
-	DLL_LINKAGE ArmyDescriptor();
-
-	DLL_LINKAGE int getStrength() const;
-};
-
-struct DLL_LINKAGE InfoAboutArmy
-{
-	PlayerColor owner;
-	std::string name;
-
-	ArmyDescriptor army;
-
-	InfoAboutArmy();
-	InfoAboutArmy(const CArmedInstance *Army, bool detailed);
-
-	void initFromArmy(const CArmedInstance *Army, bool detailed);
-};
-
-struct DLL_LINKAGE InfoAboutHero : public InfoAboutArmy
-{
-private:
-	void assign(const InfoAboutHero & iah);
-public:
-	struct DLL_LINKAGE Details
-	{
-		std::vector<si32> primskills;
-		si32 mana, luck, morale;
-	} *details;
-
-	const CHeroClass *hclass;
-	int portrait;
-
-	InfoAboutHero();
-	InfoAboutHero(const InfoAboutHero & iah);
-	InfoAboutHero(const CGHeroInstance *h, bool detailed);
-	~InfoAboutHero();
-
-	InfoAboutHero & operator=(const InfoAboutHero & iah);
-
-	void initFromHero(const CGHeroInstance *h, bool detailed);
-};
-
-/// Struct which holds a int information about a town
-struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
-{
-	struct DLL_LINKAGE Details
-	{
-		si32 hallLevel, goldIncome;
-		bool customRes;
-		bool garrisonedHero;
-
-	} *details;
-
-	const CTown *tType;
-
-	si32 built;
-	si32 fortLevel; //0 - none
-
-	InfoAboutTown();
-	InfoAboutTown(const CGTownInstance *t, bool detailed);
-	~InfoAboutTown();
-	void initFromTown(const CGTownInstance *t, bool detailed);
-};
-
-// typedef si32 TResourceUnit;
-// typedef std::vector<si32> TResourceVector;
-// typedef std::set<si32> TResourceSet;
-
 struct DLL_LINKAGE SThievesGuildInfo
 {
 	std::vector<PlayerColor> playerColors; //colors of players that are in-game
@@ -156,55 +78,6 @@ struct DLL_LINKAGE SThievesGuildInfo
 // 		h & playerColors & numOfTowns & numOfHeroes & gold & woodOre & mercSulfCrystGems & obelisks & artifacts & army & income;
 // 		h & colorToBestHero & personality & bestCreature;
 // 	}
-
-};
-
-struct DLL_LINKAGE PlayerState : public CBonusSystemNode
-{
-public:
-	PlayerColor color;
-	bool human; //true if human controlled player, false for AI
-	TeamID team;
-	TResources resources;
-	std::set<ObjectInstanceID> visitedObjects; // as a std::set, since most accesses here will be from visited status checks
-	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;
-	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
-	std::vector<ConstTransitivePtr<CGHeroInstance> > availableHeroes; //heroes available in taverns
-	std::vector<ConstTransitivePtr<CGDwelling> > dwellings; //used for town growth
-	std::vector<QuestInfo> quests; //store info about all received quests
-
-	bool enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
-	EPlayerStatus::EStatus status;
-	boost::optional<ui8> daysWithoutCastle;
-
-	PlayerState();
-	std::string nodeName() const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & color & human & team & resources & status;
-		h & heroes & towns & availableHeroes & dwellings & quests & visitedObjects;
-		h & getBonusList(); //FIXME FIXME FIXME
-		h & status & daysWithoutCastle;
-		h & enteredLosingCheatCode & enteredWinningCheatCode;
-		h & static_cast<CBonusSystemNode&>(*this);
-	}
-};
-
-struct DLL_LINKAGE TeamState : public CBonusSystemNode
-{
-public:
-	TeamID id; //position in gameState::teams
-	std::set<PlayerColor> players; // members of this team
-	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
-
-	TeamState();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & id & players & fogOfWarMap;
-		h & static_cast<CBonusSystemNode&>(*this);
-	}
 
 };
 
@@ -303,7 +176,6 @@ struct DLL_EXPORT DuelParameters
 		h & terType & bfieldType & sides & obstacles & creatures;
 	}
 };
-
 
 struct BattleInfo;
 

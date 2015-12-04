@@ -20,7 +20,7 @@ std::unique_ptr<CMap> CMapService::loadMap(const std::string & name)
 	getMapPatcher(name)->patchMapHeader(header);
 	header.release();
 
-	return std::move(map);
+	return map;
 }
 
 std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const std::string & name)
@@ -28,7 +28,7 @@ std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const std::string & name)
 	auto stream = getStreamFromFS(name);
 	std::unique_ptr<CMapHeader> header = getMapLoader(stream)->loadMapHeader();
 	getMapPatcher(name)->patchMapHeader(header);
-	return std::move(header);
+	return header;
 }
 
 std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const std::string & name)
@@ -40,7 +40,7 @@ std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const s
 	getMapPatcher(name)->patchMapHeader(header);
 	header.release();
 
-	return std::move(map);
+	return map;
 }
 
 std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ui8 * buffer, int size, const std::string & name)
@@ -48,7 +48,7 @@ std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ui8 * buffer, int s
 	auto stream = getStreamFromMem(buffer, size);
 	std::unique_ptr<CMapHeader> header = getMapLoader(stream)->loadMapHeader();
 	getMapPatcher(name)->patchMapHeader(header);
-	return std::move(header);
+	return header;
 }
 
 std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const std::string & name)

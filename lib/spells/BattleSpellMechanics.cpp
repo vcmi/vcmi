@@ -14,6 +14,7 @@
 #include "../NetPacks.h"
 #include "../BattleState.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
 
 ///HealingSpellMechanics
 void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const

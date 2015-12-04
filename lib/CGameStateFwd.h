@@ -10,8 +10,81 @@
  *
  */
 
+#include "CCreatureSet.h"
+
 class CQuest;
 class CGObjectInstance;
+class CHeroClass;
+class CTown;
+
+//numbers of creatures are exact numbers if detailed else they are quantity ids (1 - a few, 2 - several and so on; additionally 0 - unknown)
+struct ArmyDescriptor : public std::map<SlotID, CStackBasicDescriptor>
+{
+	bool isDetailed;
+	DLL_LINKAGE ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
+	DLL_LINKAGE ArmyDescriptor();
+
+	DLL_LINKAGE int getStrength() const;
+};
+
+struct DLL_LINKAGE InfoAboutArmy
+{
+	PlayerColor owner;
+	std::string name;
+
+	ArmyDescriptor army;
+
+	InfoAboutArmy();
+	InfoAboutArmy(const CArmedInstance *Army, bool detailed);
+
+	void initFromArmy(const CArmedInstance *Army, bool detailed);
+};
+
+struct DLL_LINKAGE InfoAboutHero : public InfoAboutArmy
+{
+private:
+	void assign(const InfoAboutHero & iah);
+public:
+	struct DLL_LINKAGE Details
+	{
+		std::vector<si32> primskills;
+		si32 mana, luck, morale;
+	} *details;
+
+	const CHeroClass *hclass;
+	int portrait;
+
+	InfoAboutHero();
+	InfoAboutHero(const InfoAboutHero & iah);
+	InfoAboutHero(const CGHeroInstance *h, bool detailed);
+	~InfoAboutHero();
+
+	InfoAboutHero & operator=(const InfoAboutHero & iah);
+
+	void initFromHero(const CGHeroInstance *h, bool detailed);
+};
+
+/// Struct which holds a int information about a town
+struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
+{
+	struct DLL_LINKAGE Details
+	{
+		si32 hallLevel, goldIncome;
+		bool customRes;
+		bool garrisonedHero;
+
+	} *details;
+
+	const CTown *tType;
+
+	si32 built;
+	si32 fortLevel; //0 - none
+
+	InfoAboutTown();
+	InfoAboutTown(const CGTownInstance *t, bool detailed);
+	~InfoAboutTown();
+	void initFromTown(const CGTownInstance *t, bool detailed);
+};
 
 class DLL_LINKAGE EVictoryLossCheckResult
 {

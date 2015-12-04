@@ -16,6 +16,7 @@
 #include "CTownHandler.h"
 #include "mapping/CMapInfo.h"
 #include "StartInfo.h"
+#include "CPlayerState.h"
 
 /*
  * NetPacksLib.cpp, part of VCMI engine

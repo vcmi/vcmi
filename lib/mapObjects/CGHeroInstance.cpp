@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CGHeroInstance.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -22,6 +22,8 @@
 #include "../CGameState.h"
 #include "../CCreatureHandler.h"
 #include "../BattleState.h"
+#include "../CTownHandler.h"
+#include "CGTownInstance.h"
 
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)

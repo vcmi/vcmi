@@ -11,12 +11,9 @@
 #pragma once
 
 #include "BattleHex.h"
-#include "HeroBonus.h"
-#include "CCreatureSet.h"
 #include "mapObjects/CArmedInstance.h" // for army serialization
 #include "mapObjects/CGHeroInstance.h" // for commander serialization
 #include "CCreatureHandler.h"
-#include "CObstacleInstance.h"
 #include "ConstTransitivePtr.h"
 #include "GameConstants.h"
 #include "CBattleCallback.h"

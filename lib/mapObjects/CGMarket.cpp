@@ -1,4 +1,4 @@
-﻿/*
+/*
  *
  * CGMarket.cpp, part of VCMI engine
  *
@@ -17,6 +17,7 @@
 #include "../IGameCallback.h"
 #include "../CCreatureHandler.h"
 #include "../CGameState.h"
+#include "CGTownInstance.h"
 
 ///helpers
 static void openWindow(const OpenWindow::EWindow type, const int id1, const int id2 = -1)

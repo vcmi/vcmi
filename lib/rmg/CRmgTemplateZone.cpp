@@ -735,7 +735,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
-	int3 currentNode = src;
+	//int3 currentNode = src;
 	gen->setRoad (src, ERoadType::NO_ROAD); //just in case zone guard already has road under it. Road under nodes will be added at very end
 
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
@@ -824,7 +824,7 @@ bool CRmgTemplateZone::connectPath(CMapGenerator* gen, const int3& src, bool onl
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
-	int3 currentNode = src;
+	//int3 currentNode = src;
 
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
 	distances[src] = 0;
@@ -866,7 +866,7 @@ bool CRmgTemplateZone::connectPath(CMapGenerator* gen, const int3& src, bool onl
 					return;
 				if (distance < bestDistanceSoFar || !vstd::contains(closed, pos))
 				{
-					auto obj = gen->map->getTile(pos).topVisitableObj();
+					//auto obj = gen->map->getTile(pos).topVisitableObj();
 					if (vstd::contains(this->tileinfo, pos))
 					{
 						cameFrom[pos] = currentNode;
@@ -902,7 +902,7 @@ bool CRmgTemplateZone::connectWithCenter(CMapGenerator* gen, const int3& src, bo
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
-	int3 currentNode = src;
+	//int3 currentNode = src;
 
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
 	distances[src] = 0;
@@ -950,7 +950,7 @@ bool CRmgTemplateZone::connectWithCenter(CMapGenerator* gen, const int3& src, bo
 
 				if (distance < bestDistanceSoFar || !vstd::contains(closed, pos))
 				{
-					auto obj = gen->map->getTile(pos).topVisitableObj();
+					//auto obj = gen->map->getTile(pos).topVisitableObj();
 					if (vstd::contains(this->tileinfo, pos))
 					{
 						cameFrom[pos] = currentNode;
@@ -2336,7 +2336,8 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 		}
 		assert (0); //we should never be here
 	}
-	//FIXME: control reaches end of non-void function. Missing return?
+
+	return ObjectInfo(); // unreachable
 }
 
 void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
