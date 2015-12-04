@@ -12,6 +12,7 @@ ADVETURE AI:
 * Fixed AI trying to go through underground rock
 * Fixed several cases causing AI wandering aimlessly
 * AI can again pick best artifacts and exchange artifacts between heroes
+* AI heroes with patrol enabled won't leave patrol area anymore
 
 RANDOM MAP GENERATOR:
 * Changed fractalization algorithm so it can create cycles
