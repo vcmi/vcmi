@@ -705,7 +705,9 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 
 	new CLabel(200, 35, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
 	new CLabel(320, 328, FONT_SMALL, CENTER, Colors::WHITE, "2500");
-	new CTextBox(LOCPLINT->cb->getTavernGossip(tavernObj), Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
+
+	auto rumorText = boost::str(boost::format(CGI->generaltexth->allTexts[216]) % LOCPLINT->cb->getTavernRumor(tavernObj));
+	new CTextBox(rumorText, Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
 
 	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	cancel = new CButton(Point(310, 428), "ICANCEL.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), SDLK_ESCAPE);
@@ -1628,9 +1630,9 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	int counter = 0;
 	for(auto & iter : tgi.colorToBestHero)
 	{
+		new CPicture(colorToBox[iter.first.getNum()], 253 + 66 * counter, 334);
 		if(iter.second.portrait >= 0)
 		{
-			new CPicture(colorToBox[iter.first.getNum()], 253 + 66 * counter, 334);
 			new CAnimImage("PortraitsSmall", iter.second.portrait, 0, 260 + 66 * counter, 360);
 			//TODO: r-click info:
 			// - r-click on hero

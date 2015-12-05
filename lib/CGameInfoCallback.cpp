@@ -12,6 +12,7 @@
 #include "CGameInfoCallback.h"
 
 #include "CGameState.h" // PlayerState
+#include "CGeneralTextHandler.h"
 #include "mapObjects/CObjectHandler.h" // for CGObjectInstance
 #include "StartInfo.h" // for StartInfo
 #include "BattleState.h" // for BattleInfo
@@ -198,7 +199,14 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 
 	if(obj->ID == Obj::TOWN  ||  obj->ID == Obj::TAVERN)
 	{
-		gs->obtainPlayersStats(thi, gs->players[obj->tempOwner].towns.size());
+		int taverns = 0;
+		for(auto town : gs->players[*player].towns)
+		{
+			if(town->hasBuilt(BuildingID::TAVERN))
+				taverns++;
+		}
+
+		gs->obtainPlayersStats(thi, taverns);
 	}
 	else if(obj->ID == Obj::DEN_OF_THIEVES)
 	{
@@ -566,9 +574,34 @@ EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bo
 	return ps->status;
 }
 
-std::string CGameInfoCallback::getTavernGossip(const CGObjectInstance * townOrTavern) const
+std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern) const
 {
-	return "GOSSIP TEST";
+	std::string text = "", extraText = "";
+	if(gs->rumor.type == RumorState::TYPE_NONE) // (version < 755 backward compatability
+		return text;
+
+	auto rumor = gs->rumor.last[gs->rumor.type];
+	switch(gs->rumor.type)
+	{
+	case RumorState::TYPE_SPECIAL:
+		if(rumor.first == RumorState::RUMOR_GRAIL)
+			extraText = VLC->generaltexth->arraytxt[158 + rumor.second];
+		else
+			extraText = VLC->generaltexth->capColors[rumor.second];
+
+		text = boost::str(boost::format(VLC->generaltexth->allTexts[rumor.first]) % extraText);
+
+		break;
+	case RumorState::TYPE_MAP:
+		text = gs->map->rumors[rumor.first].text;
+		break;
+
+	case RumorState::TYPE_RAND:
+		text = VLC->generaltexth->tavernRumors[rumor.first];
+		break;
+	}
+
+	return text;
 }
 
 PlayerRelations::PlayerRelations CGameInfoCallback::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
