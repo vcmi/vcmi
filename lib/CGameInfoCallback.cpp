@@ -577,7 +577,7 @@ EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bo
 std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern) const
 {
 	std::string text = "", extraText = "";
-	if(gs->rumor.type == RumorState::TYPE_NONE) // (version < 755 backward compatability
+	if(gs->rumor.type == RumorState::TYPE_NONE)
 		return text;
 
 	auto rumor = gs->rumor.last[gs->rumor.type];
