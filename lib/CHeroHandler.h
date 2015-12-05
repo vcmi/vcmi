@@ -92,7 +92,7 @@ public:
 		h & ID & imageIndex & initialArmy & heroClass & secSkillsInit & spec & specialty & spells & haveSpellBook & sex & special;
 		h & name & biography & specName & specDescr & specTooltip;
 		h & iconSpecSmall & iconSpecLarge & portraitSmall & portraitLarge;
-		if(version>=755)
+		if(version>=756)
 		{
 			h & identifier;
 		}		

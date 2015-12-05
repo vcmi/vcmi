@@ -21,6 +21,9 @@
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../mapObjects/CObjectClassesHandler.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+
 #include "../StringConstants.h"
 
 namespace TriggeredEventsDetail
@@ -606,7 +609,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 	if(instance->ID == Obj::HERO)
 	{
 		logGlobal->debugStream() << "Hero: " << VLC->heroh->heroes[instance->subID]->name << " at " << instance->pos;
-		owner->map->heroesOnMap.push_back(static_cast<CGHeroInstance*>(instance));
+		owner->map->heroesOnMap.push_back(static_cast<CGHeroInstance *>(instance));
 	}
 }
 

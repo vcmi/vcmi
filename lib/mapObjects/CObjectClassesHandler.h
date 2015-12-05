@@ -159,7 +159,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & type & subtype & templates & rmgInfo & objectName;
-		if(version >= 755)
+		if(version >= 756)
 		{
 			h & typeName & subTypeName;
 		}
@@ -186,7 +186,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & name & handlerName & base & subObjects;
-			if(version >= 755)
+			if(version >= 756)
 			{
 				h & identifier & subIds;
 			}

@@ -179,7 +179,7 @@ public:
 		h & pos & ID & subID & id & tempOwner & blockVisit & appearance;
 		//definfo is handled by map serializer
 
-		if(version >= 755)
+		if(version >= 756)
 		{
 			h & typeName & subTypeName;
 		}

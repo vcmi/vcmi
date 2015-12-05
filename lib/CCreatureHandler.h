@@ -138,7 +138,7 @@ public:
 		h & idNumber & faction & sounds & animation;
 
 		h & doubleWide & special;
-		if(version>=755)
+		if(version>=756)
 		{
 			h & identifier;
 		}		
