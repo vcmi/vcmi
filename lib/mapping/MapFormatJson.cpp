@@ -15,6 +15,8 @@
 #include "../filesystem/COutputStream.h"
 #include "CMap.h"
 #include "../CModHandler.h"
+#include "../CHeroHandler.h"
+#include "../CTownHandler.h"
 #include "../VCMI_Lib.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/CObjectHandler.h"
@@ -113,14 +115,6 @@ namespace TerrainDetail
 	static const std::array<char, 10> flipCodes =
 	{
 		'_', '-', '|', '+'
-	};
-}
-
-namespace MapHeaderDetail
-{
-	static const std::array<std::string, PlayerColor::PLAYER_LIMIT_I>  playerColorNames =
-	{
-		"red", "blue", "tan", "green", "orange", "purple", "teal", "pink"
 	};
 }
 
@@ -413,7 +407,7 @@ void CMapLoaderJson::readTeams(const JsonNode& input)
 		{
 			for(const JsonNode & playerData : srcVector[team].Vector())
 			{
-				PlayerColor player = PlayerColor(vstd::find_pos(MapHeaderDetail::playerColorNames, playerData.String()));
+				PlayerColor player = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, playerData.String()));
 				if(player.isValidPlayer())
 				{
 					if(map->players[player.getNum()].canAnyonePlay())
@@ -604,6 +598,16 @@ void CMapLoaderJson::MapObjectLoader::construct()
 void CMapLoaderJson::MapObjectLoader::configure()
 {
 	instance->readJson(configuration, false);
+
+	if(instance->ID == Obj::TOWN)
+	{
+		owner->map->towns.push_back(static_cast<CGTownInstance *>(instance));
+	}
+	if(instance->ID == Obj::HERO)
+	{
+		logGlobal->debugStream() << "Hero: " << VLC->heroh->heroes[instance->subID]->name << " at " << instance->pos;
+		owner->map->heroesOnMap.push_back(static_cast<CGHeroInstance*>(instance));
+	}
 }
 
 void CMapLoaderJson::readObjects()
