@@ -38,7 +38,7 @@ CPathfinder::PathfinderOptions::PathfinderOptions()
 }
 
 CPathfinder::CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstance * _hero)
-	: CGameInfoCallback(_gs, boost::optional<PlayerColor>()), out(_out), hero(_hero), FoW(getPlayerTeam(hero->tempOwner)->fogOfWarMap)
+	: CGameInfoCallback(_gs, boost::optional<PlayerColor>()), out(_out), hero(_hero), FoW(getPlayerTeam(hero->tempOwner)->fogOfWarMap), patrolTiles({})
 {
 	assert(hero);
 	assert(hero == getHero(hero->id));
@@ -53,6 +53,7 @@ CPathfinder::CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstan
 
 	hlp = make_unique<CPathfinderHelper>(hero, options);
 
+	initializePatrol();
 	initializeGraph();
 	neighbourTiles.reserve(8);
 	neighbours.reserve(16);
@@ -96,8 +97,10 @@ void CPathfinder::calculatePaths()
 	CGPathNode * initialNode = out.getNode(out.hpos, hero->boat ? ELayer::SAIL : ELayer::LAND);
 	initialNode->turns = 0;
 	initialNode->moveRemains = hero->movement;
-	pq.push(initialNode);
+	if(isHeroPatrolLocked())
+		return;
 
+	pq.push(initialNode);
 	while(!pq.empty())
 	{
 		cp = pq.top();
@@ -120,6 +123,9 @@ void CPathfinder::calculatePaths()
 		addNeighbours();
 		for(auto & neighbour : neighbours)
 		{
+			if(!isPatrolMovementAllowed(neighbour))
+				continue;
+
 			dt = &gs->map->getTile(neighbour);
 			dtObj = dt->topVisitableObj();
 			for(ELayer i = ELayer::LAND; i <= ELayer::AIR; i.advance(1))
@@ -216,7 +222,9 @@ void CPathfinder::addNeighbours()
 void CPathfinder::addTeleportExits()
 {
 	neighbours.clear();
-	if(!isSourceVisitableObj())
+	/// For now we disable teleports usage for patrol movement
+	/// VCAI not aware about patrol and may stuck while attempt to use teleport
+	if(!isSourceVisitableObj() || patrolState == PATROL_RADIUS)
 		return;
 
 	const CGTeleport * objTeleport = dynamic_cast<const CGTeleport *>(ctObj);
@@ -255,6 +263,22 @@ void CPathfinder::addTeleportExits()
 			}
 		}
 	}
+}
+
+bool CPathfinder::isHeroPatrolLocked() const
+{
+	return patrolState == PATROL_LOCKED;
+}
+
+bool CPathfinder::isPatrolMovementAllowed(const int3 & dst) const
+{
+	if(patrolState == PATROL_RADIUS)
+	{
+		if(!vstd::contains(patrolTiles, dst))
+			return false;
+	}
+
+	return true;
 }
 
 bool CPathfinder::isLayerTransitionPossible(const ELayer destLayer) const
@@ -563,6 +587,23 @@ bool CPathfinder::isDestinationGuarded(const bool ignoreAccessibility) const
 bool CPathfinder::isDestinationGuardian() const
 {
 	return gs->guardingCreaturePosition(cp->coord) == dp->coord;
+}
+
+void CPathfinder::initializePatrol()
+{
+	auto state = PATROL_NONE;
+	if(hero->patrol.patrolling && !getPlayer(hero->tempOwner)->human)
+	{
+		if(hero->patrol.patrolRadious)
+		{
+			state = PATROL_RADIUS;
+			gs->getTilesInRange(patrolTiles, hero->patrol.initialPos, hero->patrol.patrolRadious, boost::optional<PlayerColor>(), 0, true);
+		}
+		else
+			state = PATROL_LOCKED;
+	}
+
+	patrolState = state;
 }
 
 void CPathfinder::initializeGraph()

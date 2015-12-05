@@ -161,6 +161,13 @@ private:
 	const std::vector<std::vector<std::vector<ui8> > > &FoW;
 	unique_ptr<CPathfinderHelper> hlp;
 
+	enum EPatrolState {
+		PATROL_NONE = 0,
+		PATROL_LOCKED = 1,
+		PATROL_RADIUS
+	} patrolState;
+	std::unordered_set<int3, ShashInt3> patrolTiles;
+
 	struct NodeComparer
 	{
 		bool operator()(const CGPathNode * lhs, const CGPathNode * rhs) const
@@ -187,6 +194,9 @@ private:
 	void addNeighbours();
 	void addTeleportExits();
 
+	bool isHeroPatrolLocked() const;
+	bool isPatrolMovementAllowed(const int3 & dst) const;
+
 	bool isLayerTransitionPossible(const ELayer dstLayer) const;
 	bool isLayerTransitionPossible() const;
 	bool isMovementToDestPossible() const;
@@ -200,6 +210,7 @@ private:
 	bool isDestinationGuarded(const bool ignoreAccessibility = true) const;
 	bool isDestinationGuardian() const;
 
+	void initializePatrol();
 	void initializeGraph();
 
 	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, const ELayer layer) const;
