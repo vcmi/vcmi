@@ -98,6 +98,7 @@ VCAI::VCAI(void)
 	LOG_TRACE(logAi);
 	makingTurn = nullptr;
 	destinationTeleport = ObjectInstanceID();
+	destinationTeleportPos = int3(-1);
 }
 
 VCAI::~VCAI(void)
@@ -616,33 +617,46 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 	});
 }
 
-void VCAI::showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID)
+void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
-	LOG_TRACE_PARAMS(logAi, "askID '%i', exits '%s'", askID % exits);
+//	LOG_TRACE_PARAMS(logAi, "askID '%i', exits '%s'", askID % exits);
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits")
 																			% exits.size()));
 
-	ObjectInstanceID choosenExit;
+	int choosenExit = -1;
 	if(impassable)
 		knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
-	else
+	else if(destinationTeleport != ObjectInstanceID() && destinationTeleportPos.valid())
 	{
-		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, destinationTeleport))
-			choosenExit = destinationTeleport;
+		auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
+		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
+			choosenExit = vstd::find_pos(exits, neededExit);
+	}
 
-		if(!status.channelProbing())
+	for(auto exit : exits)
+	{
+		if(status.channelProbing() && exit.first == destinationTeleport)
 		{
-			vstd::copy_if(exits, vstd::set_inserter(teleportChannelProbingList), [&](ObjectInstanceID id) -> bool
+			choosenExit = vstd::find_pos(exits, exit);
+			break;
+		}
+		else
+		{
+			// TODO: Implement checking if visiting that teleport will uncovert any FoW
+			// So far this is the best option to handle decision about probing
+			auto obj = cb->getObj(exit.first, false);
+			if(obj == nullptr && !vstd::contains(teleportChannelProbingList, exit.first) &&
+				exit.first != destinationTeleport)
 			{
-				return !(vstd::contains(visitableObjs, cb->getObj(id)) || id == choosenExit);
-			});
+				teleportChannelProbingList.push_back(exit.first);
+			}
 		}
 	}
 
 	requestActionASAP([=]()
 	{
-		answerQuery(askID, choosenExit.getNum());
+		answerQuery(askID, choosenExit);
 	});
 }
 
@@ -1876,25 +1890,29 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true), transit);
 		};
 
-		auto doTeleportMovement = [&](int3 dst, ObjectInstanceID exitId)
+		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
 			destinationTeleport = exitId;
-			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
+			if(exitPos.valid())
+				destinationTeleportPos = CGHeroInstance::convertPosition(exitPos, true);
+			cb->moveHero(*h, h->pos);
 			destinationTeleport = ObjectInstanceID();
+			destinationTeleportPos = int3(-1);
 			afterMovementCheck();
 		};
 
 		auto doChannelProbing = [&]() -> void
 		{
-			auto currentExit = getObj(CGHeroInstance::convertPosition(h->pos,false), false);
-			assert(currentExit);
+			auto currentPos = CGHeroInstance::convertPosition(h->pos,false);
+			auto currentExit = getObj(currentPos, true)->id;
 
 			status.setChannelProbing(true);
 			for(auto exit : teleportChannelProbingList)
-				doTeleportMovement(CGHeroInstance::convertPosition(h->pos,false), exit);
+				doTeleportMovement(exit, int3(-1));
 			teleportChannelProbingList.clear();
-			doTeleportMovement(CGHeroInstance::convertPosition(h->pos,false), currentExit->id);
 			status.setChannelProbing(false);
+
+			doTeleportMovement(currentExit, currentPos);
 		};
 
 		int i=path.nodes.size()-1;
@@ -1907,7 +1925,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			auto nextObject = getObj(nextCoord, false);
 			if(CGTeleport::isConnected(currentObject, nextObject))
 			{ //we use special login if hero standing on teleporter it's mean we need
-				doTeleportMovement(currentCoord, nextObject->id);
+				doTeleportMovement(nextObject->id, nextCoord);
 				if(teleportChannelProbingList.size())
 					doChannelProbing();
 
@@ -2934,7 +2952,7 @@ void AIStatus::setMove(bool ongoing)
 void AIStatus::setChannelProbing(bool ongoing)
 {
 	boost::unique_lock<boost::mutex> lock(mx);
-	ongoingHeroMovement = ongoing;
+	ongoingChannelProbing = ongoing;
 	cv.notify_all();
 }
 

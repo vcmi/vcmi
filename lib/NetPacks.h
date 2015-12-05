@@ -1222,7 +1222,7 @@ struct TeleportDialog : public Query//2006
 
 	const CGHeroInstance *hero;
 	TeleportChannelID channel;
-	std::vector<ObjectInstanceID> exits;
+	TTeleportExitsList exits;
 	bool impassable;
 
 	template <typename Handler> void serialize(Handler &h, const int version)

@@ -109,6 +109,7 @@ public:
 	//towns
 	std::vector<std::string> tcommands, hcommands, fcommands; //texts for town screen, town hall screen and fort screen
 	std::vector<std::string> tavernInfo;
+	std::vector<std::string> tavernRumors;
 
 	std::vector<std::pair<std::string,std::string> > zelp;
 	std::vector<std::string> lossCondtions;

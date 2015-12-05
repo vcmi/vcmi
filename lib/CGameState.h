@@ -81,6 +81,34 @@ struct DLL_LINKAGE SThievesGuildInfo
 
 };
 
+struct DLL_LINKAGE RumorState
+{
+	enum ERumorType : ui8
+	{
+		TYPE_NONE = 0, TYPE_RAND, TYPE_SPECIAL, TYPE_MAP
+	};
+
+	enum ERumorTypeSpecial : ui8
+	{
+		RUMOR_OBELISKS = 208,
+		RUMOR_ARTIFACTS = 209,
+		RUMOR_ARMY = 210,
+		RUMOR_INCOME = 211,
+		RUMOR_GRAIL = 212
+	};
+
+	ERumorType type;
+	std::map<ERumorType, std::pair<int, int>> last;
+
+	RumorState(){type = TYPE_NONE; last = {};};
+	bool update(int id, int extra);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & type & last;
+	}
+};
+
 struct UpgradeInfo
 {
 	CreatureID oldID; //creature to be upgraded
@@ -183,6 +211,7 @@ public:
 	std::map<PlayerColor, PlayerState> players;
 	std::map<TeamID, TeamState> teams;
 	CBonusSystemNode globalEffects;
+	RumorState rumor;
 
 	boost::shared_mutex *mx;
 
@@ -196,6 +225,7 @@ public:
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 	int3 guardingCreaturePosition (int3 pos) const;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
+	void updateRumor();
 
 	// ----- victory, loss condition checks -----
 
@@ -219,6 +249,13 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects & rand;
+		if(version >= 755)
+		{
+			h & rumor;
+		}
+		else if(!h.saving)
+			rumor = RumorState();
+
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 

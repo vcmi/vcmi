@@ -72,12 +72,23 @@ public:
 
 	struct DLL_LINKAGE Patrol
 	{
-		Patrol(){patrolling=false;patrolRadious=-1;};
+		Patrol(){patrolling=false;initialPos=int3();patrolRadious=-1;};
 		bool patrolling;
+		int3 initialPos;
 		ui32 patrolRadious;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & patrolling & patrolRadious;
+			h & patrolling;
+			if(version >= 755)
+			{
+				h & initialPos;
+			}
+			else if(!h.saving)
+			{
+				patrolling = false;
+				initialPos = int3();
+			}
+			h & patrolRadious;
 		}
 	} patrol;
 

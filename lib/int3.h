@@ -105,6 +105,11 @@ public:
 	{
 		return std::sqrt((double)dist2dSQ(o));
 	}
+	//manhattan distance used for patrol radius (z coord is not used)
+	double mandist2d(const int3 & o) const
+	{
+		return abs(o.x - x) + abs(o.y - y);
+	}
 
 	bool areNeighbours(const int3 & o) const
 	{
