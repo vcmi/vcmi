@@ -13,6 +13,7 @@
 #include "../CRandomGenerator.h"
 #include "CZonePlacer.h"
 #include "CRmgTemplateZone.h"
+#include "../mapping/CMap.h"
 
 #include "CZoneGraphGenerator.h"
 

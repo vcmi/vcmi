@@ -1875,9 +1875,9 @@ void CRandomMapTab::updateMapInfo()
 
 	// Generate player information
 	mapInfo->mapHeader->players.clear();
-	int playersToGen = (mapGenOptions.getPlayerCount() == CMapGenOptions::RANDOM_SIZE
-		|| mapGenOptions.getCompOnlyPlayerCount() == CMapGenOptions::RANDOM_SIZE)
-			? 8 : mapGenOptions.getPlayerCount() + mapGenOptions.getCompOnlyPlayerCount();
+	int playersToGen = PlayerColor::PLAYER_LIMIT_I;
+	if(mapGenOptions.getPlayerCount() != CMapGenOptions::RANDOM_SIZE)
+		playersToGen = mapGenOptions.getPlayerCount();
 	mapInfo->mapHeader->howManyTeams = playersToGen;
 
 	for(int i = 0; i < playersToGen; ++i)
@@ -1885,7 +1885,8 @@ void CRandomMapTab::updateMapInfo()
 		PlayerInfo player;
 		player.isFactionRandom = true;
 		player.canComputerPlay = true;
-		if(i >= mapGenOptions.getPlayerCount() && mapGenOptions.getPlayerCount() != CMapGenOptions::RANDOM_SIZE)
+		if(mapGenOptions.getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE &&
+			i >= mapGenOptions.getHumanOnlyPlayerCount())
 		{
 			player.canHumanPlay = false;
 		}

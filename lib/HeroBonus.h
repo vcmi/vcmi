@@ -294,7 +294,7 @@ struct DLL_LINKAGE Bonus
 	};
 
 	ui16 duration; //uses BonusDuration values
-	si16 turnsRemain; //used if duration is N_TURNS or N_DAYS
+	si16 turnsRemain; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 
 	BonusType type; //uses BonusType values - says to what is this bonus - 1 byte
 	TBonusSubtype subtype; //-1 if not applicable - 4 bytes
@@ -686,6 +686,7 @@ public:
 	//bool isLimitedOnUs(Bonus *b) const; //if bonus should be removed from list acquired from this node
 
 	void popBonuses(const CSelector &s);
+	void updateBonuses(const CSelector &s);
 	virtual std::string bonusToString(const Bonus *bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
 
@@ -810,12 +811,37 @@ public:
 	bool operator()(const Bonus *bonus) const
 	{
 		return turnsRequested <= 0					//every present effect will last zero (or "less") turns
-			|| !(bonus->duration & Bonus::N_TURNS)	//so do every not expriing after N-turns effect
+			|| !Bonus::NTurns(bonus) //so do every not expriing after N-turns effect
 			|| bonus->turnsRemain > turnsRequested;
 	}
 	CWillLastTurns& operator()(const int &setVal)
 	{
 		turnsRequested = setVal;
+		return *this;
+	}
+};
+
+class DLL_LINKAGE CWillLastDays
+{
+public:
+	int daysRequested;
+
+	bool operator()(const Bonus *bonus) const
+	{
+		if(daysRequested <= 0 || Bonus::Permanent(bonus) || Bonus::OneBattle(bonus))
+			return true;
+		else if(Bonus::OneDay(bonus))
+			return false;
+		else if(Bonus::NDays(bonus) || Bonus::OneWeek(bonus))
+		{
+			return bonus->turnsRemain > daysRequested;
+		}
+
+		return false; // TODO: ONE_WEEK need support for turnsRemain, but for now we'll exclude all unhandled durations
+	}
+	CWillLastDays& operator()(const int &setVal)
+	{
+		daysRequested = setVal;
 		return *this;
 	}
 };
@@ -958,6 +984,7 @@ namespace Selector
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
+	extern DLL_LINKAGE CWillLastDays days;
 	extern DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange;
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);

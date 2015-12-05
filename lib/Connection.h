@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <typeinfo> //XXX this is in namespace std if you want w/o use typeinfo.h?
+#include <typeinfo>
 #include <type_traits>
 
 #include <boost/mpl/eval_if.hpp>
@@ -27,7 +27,7 @@
 #include "mapping/CCampaignHandler.h" //for CCampaignState
 #include "rmg/CMapGenerator.h" // for CMapGenOptions
 
-const ui32 version = 754;
+const ui32 version = 755;
 const ui32 minSupportedVersion = 753;
 
 class CISer;

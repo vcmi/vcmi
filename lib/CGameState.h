@@ -1,12 +1,7 @@
 #pragma once
 
-
-
-//#ifndef _MSC_VER
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
-#include "mapping/CMap.h"
-//#endif
 
 #include "HeroBonus.h"
 #include "CCreatureSet.h"
@@ -67,79 +62,6 @@ namespace boost
 	class shared_mutex;
 }
 
-//numbers of creatures are exact numbers if detailed else they are quantity ids (1 - a few, 2 - several and so on; additionally 0 - unknown)
-struct ArmyDescriptor : public std::map<SlotID, CStackBasicDescriptor>
-{
-	bool isDetailed;
-	DLL_LINKAGE ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
-	DLL_LINKAGE ArmyDescriptor();
-
-	DLL_LINKAGE int getStrength() const;
-};
-
-struct DLL_LINKAGE InfoAboutArmy
-{
-	PlayerColor owner;
-	std::string name;
-
-	ArmyDescriptor army;
-
-	InfoAboutArmy();
-	InfoAboutArmy(const CArmedInstance *Army, bool detailed);
-
-	void initFromArmy(const CArmedInstance *Army, bool detailed);
-};
-
-struct DLL_LINKAGE InfoAboutHero : public InfoAboutArmy
-{
-private:
-	void assign(const InfoAboutHero & iah);
-public:
-	struct DLL_LINKAGE Details
-	{
-		std::vector<si32> primskills;
-		si32 mana, luck, morale;
-	} *details;
-
-	const CHeroClass *hclass;
-	int portrait;
-
-	InfoAboutHero();
-	InfoAboutHero(const InfoAboutHero & iah);
-	InfoAboutHero(const CGHeroInstance *h, bool detailed);
-	~InfoAboutHero();
-
-	InfoAboutHero & operator=(const InfoAboutHero & iah);
-
-	void initFromHero(const CGHeroInstance *h, bool detailed);
-};
-
-/// Struct which holds a int information about a town
-struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
-{
-	struct DLL_LINKAGE Details
-	{
-		si32 hallLevel, goldIncome;
-		bool customRes;
-		bool garrisonedHero;
-
-	} *details;
-
-	const CTown *tType;
-
-	si32 built;
-	si32 fortLevel; //0 - none
-
-	InfoAboutTown();
-	InfoAboutTown(const CGTownInstance *t, bool detailed);
-	~InfoAboutTown();
-	void initFromTown(const CGTownInstance *t, bool detailed);
-};
-
-// typedef si32 TResourceUnit;
-// typedef std::vector<si32> TResourceVector;
-// typedef std::set<si32> TResourceSet;
-
 struct DLL_LINKAGE SThievesGuildInfo
 {
 	std::vector<PlayerColor> playerColors; //colors of players that are in-game
@@ -159,53 +81,32 @@ struct DLL_LINKAGE SThievesGuildInfo
 
 };
 
-struct DLL_LINKAGE PlayerState : public CBonusSystemNode
+struct DLL_LINKAGE RumorState
 {
-public:
-	PlayerColor color;
-	bool human; //true if human controlled player, false for AI
-	TeamID team;
-	TResources resources;
-	std::set<ObjectInstanceID> visitedObjects; // as a std::set, since most accesses here will be from visited status checks
-	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;
-	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
-	std::vector<ConstTransitivePtr<CGHeroInstance> > availableHeroes; //heroes available in taverns
-	std::vector<ConstTransitivePtr<CGDwelling> > dwellings; //used for town growth
-	std::vector<QuestInfo> quests; //store info about all received quests
+	enum ERumorType : ui8
+	{
+		TYPE_NONE = 0, TYPE_RAND, TYPE_SPECIAL, TYPE_MAP
+	};
 
-	bool enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
-	EPlayerStatus::EStatus status;
-	boost::optional<ui8> daysWithoutCastle;
+	enum ERumorTypeSpecial : ui8
+	{
+		RUMOR_OBELISKS = 208,
+		RUMOR_ARTIFACTS = 209,
+		RUMOR_ARMY = 210,
+		RUMOR_INCOME = 211,
+		RUMOR_GRAIL = 212
+	};
 
-	PlayerState();
-	std::string nodeName() const override;
+	ERumorType type;
+	std::map<ERumorType, std::pair<int, int>> last;
+
+	RumorState(){type = TYPE_NONE; last = {};};
+	bool update(int id, int extra);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & color & human & team & resources & status;
-		h & heroes & towns & availableHeroes & dwellings & quests & visitedObjects;
-		h & getBonusList(); //FIXME FIXME FIXME
-		h & status & daysWithoutCastle;
-		h & enteredLosingCheatCode & enteredWinningCheatCode;
-		h & static_cast<CBonusSystemNode&>(*this);
+		h & type & last;
 	}
-};
-
-struct DLL_LINKAGE TeamState : public CBonusSystemNode
-{
-public:
-	TeamID id; //position in gameState::teams
-	std::set<PlayerColor> players; // members of this team
-	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
-
-	TeamState();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & id & players & fogOfWarMap;
-		h & static_cast<CBonusSystemNode&>(*this);
-	}
-
 };
 
 struct UpgradeInfo
@@ -276,7 +177,6 @@ struct DLL_EXPORT DuelParameters
 	}
 };
 
-
 struct BattleInfo;
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
@@ -311,6 +211,7 @@ public:
 	std::map<PlayerColor, PlayerState> players;
 	std::map<TeamID, TeamState> teams;
 	CBonusSystemNode globalEffects;
+	RumorState rumor;
 
 	boost::shared_mutex *mx;
 
@@ -324,6 +225,7 @@ public:
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 	int3 guardingCreaturePosition (int3 pos) const;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
+	void updateRumor();
 
 	// ----- victory, loss condition checks -----
 
@@ -339,8 +241,6 @@ public:
 	bool isVisible(int3 pos, PlayerColor player);
 	bool isVisible(const CGObjectInstance *obj, boost::optional<PlayerColor> player);
 
-	void getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing);
-	int getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, int remainingMovePoints=-1, bool checkLast=true);
 	int getDate(Date::EDateType mode=Date::DAY) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 
 	// ----- getters, setters -----
@@ -349,6 +249,13 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects & rand;
+		if(version >= 755)
+		{
+			h & rumor;
+		}
+		else if(!h.saving)
+			rumor = RumorState();
+
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 

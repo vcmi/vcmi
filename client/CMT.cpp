@@ -529,8 +529,9 @@ void processCommand(const std::string &message)
 	std::string cn; //command name
 	readed >> cn;
 
-	if(LOCPLINT && LOCPLINT->cingconsole)
-		LOCPLINT->cingconsole->print(message);
+// Check mantis issue 2292 for details
+//	if(LOCPLINT && LOCPLINT->cingconsole)
+//		LOCPLINT->cingconsole->print(message);
 
 	if(ermInteractiveMode)
 	{
@@ -789,11 +790,12 @@ void processCommand(const std::string &message)
 		Settings session = settings.write["session"];
 		session["autoSkip"].Bool() = !session["autoSkip"].Bool();
 	}
-	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server
+	// Check mantis issue 2292 for details
+/* 	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 		LOCPLINT->cb->sendMessage(message);
-	}
+	}*/
 }
 
 //plays intro, ends when intro is over or button has been pressed (handles events)
@@ -1069,6 +1071,15 @@ static void handleEvent(SDL_Event & ev)
 			break;	
 		}
 
+		return;
+	}
+	else if(ev.type == SDL_WINDOWEVENT)
+	{
+		switch (ev.window.event) {
+		case SDL_WINDOWEVENT_RESTORED:
+			fullScreenChanged();
+			break;
+		}
 		return;
 	}
 	{

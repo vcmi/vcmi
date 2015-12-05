@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "CDrawRoadsOperation.h"
+#include "CMap.h"
 
 const std::vector<CDrawRoadsOperation::RoadPattern> CDrawRoadsOperation::patterns = 
 {

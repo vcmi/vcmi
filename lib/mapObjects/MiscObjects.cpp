@@ -20,6 +20,8 @@
 #include "../spells/CSpellHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
+#include "../mapping/CMap.h"
+#include "../CPlayerState.h"
 
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
 ui8 CGObelisk::obeliskCount; //how many obelisks are on map
@@ -164,7 +166,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 	case FIGHT:
 		fight(h);
 		break;
-	case FLEE: //flee
+	case FLEE:
 		{
 			flee(h);
 			break;
@@ -322,13 +324,13 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	int charisma = powerFactor + h->getSecSkillLevel(SecondarySkill::DIPLOMACY) + sympathy;
 
-	if(charisma < character) //creatures will fight
-		return -2;
+	if(charisma < character)
+		return FIGHT;
 
 	if (allowJoin)
 	{
 		if(h->getSecSkillLevel(SecondarySkill::DIPLOMACY) + sympathy + 1 >= character)
-			return 0; //join for free
+			return JOIN_FOR_FREE;
 
 		else if(h->getSecSkillLevel(SecondarySkill::DIPLOMACY) * 2  +  sympathy  +  1 >= character)
 			return VLC->creh->creatures[subID]->cost[6] * getStackCount(SlotID(0)); //join for gold
@@ -336,10 +338,10 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	//we are still here - creatures have not joined hero, flee or fight
 
-	if (charisma > character)
-		return -1; //flee
+	if (charisma > character && !neverFlees)
+		return FLEE;
 	else
-		return -2; //fight
+		return FIGHT;
 }
 
 void CGCreature::fleeDecision(const CGHeroInstance *h, ui32 pursue) const
@@ -361,7 +363,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 {
 	if(!accept)
 	{
-		if(takenAction(h,false) == -1) //they flee
+		if(takenAction(h,false) == FLEE)
 		{
 			cb->setObjProperty(id, ObjProperty::MONSTER_REFUSED_JOIN, true);
 			flee(h);
@@ -834,7 +836,7 @@ bool CGTeleport::isTeleport(const CGObjectInstance * obj)
 
 bool CGTeleport::isConnected(const CGTeleport * src, const CGTeleport * dst)
 {
-	return src && dst && src != dst && src->isChannelExit(dst->id);
+	return src && dst && src->isChannelExit(dst->id);
 }
 
 bool CGTeleport::isConnected(const CGObjectInstance * src, const CGObjectInstance * dst)
@@ -913,7 +915,13 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 	if(isEntrance())
 	{
 		if(cb->isTeleportChannelBidirectional(channel) && 1 < cb->getTeleportChannelExits(channel).size())
-			td.exits = cb->getTeleportChannelExits(channel);
+		{
+			auto exits = cb->getTeleportChannelExits(channel);
+			for(auto exit : exits)
+			{
+				td.exits.push_back(std::make_pair(exit, CGHeroInstance::convertPosition(cb->getObj(exit)->visitablePos(), true)));
+			}
+		}
 
 		if(cb->isTeleportChannelImpassable(channel))
 		{
@@ -929,9 +937,9 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 	cb->showTeleportDialog(&td);
 }
 
-void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, std::vector<ObjectInstanceID> exits) const
+void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const
 {
-	ObjectInstanceID objId(answer);
+	int3 dPos;
 	auto realExits = getAllExits(true);
 	if(!isEntrance() // Do nothing if hero visited exit only object
 		|| (!exits.size() && !realExits.size()) // Do nothing if there no exits on this channel
@@ -939,14 +947,12 @@ void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer,
 	{
 		return;
 	}
-	else if(objId == ObjectInstanceID())
-		objId = getRandomExit(hero);
+	else if(vstd::isValidIndex(exits, answer))
+		dPos = exits[answer].second;
 	else
-		assert(vstd::contains(exits, objId)); // Likely cheating attempt: not random teleporter choosen, but it's not from provided list
+		dPos = CGHeroInstance::convertPosition(cb->getObj(getRandomExit(hero))->visitablePos(), true);
 
-	auto obj = cb->getObj(objId);
-	if(obj)
-		cb->moveHero(hero->id,CGHeroInstance::convertPosition(obj->pos,true) - getVisitableOffset(), true);
+	cb->moveHero(hero->id, dPos, true);
 }
 
 void CGMonolith::initObj()
@@ -986,7 +992,10 @@ void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
 		td.impassable = true;
 	}
 	else
-		td.exits.push_back(getRandomExit(h));
+	{
+		auto exit = getRandomExit(h);
+		td.exits.push_back(std::make_pair(exit, CGHeroInstance::convertPosition(cb->getObj(exit)->visitablePos(), true)));
+	}
 
 	cb->showTeleportDialog(&td);
 }
@@ -1085,31 +1094,35 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		cb->changeStackCount(StackLocation(h, targetstack), -countToTake);
 	}
 	else
-		 td.exits = getAllExits(true);
+	{
+		auto exits = getAllExits();
+		for(auto exit : exits)
+		{
+			auto blockedPosList = cb->getObj(exit)->getBlockedPos();
+			for(auto bPos : blockedPosList)
+				td.exits.push_back(std::make_pair(exit, CGHeroInstance::convertPosition(bPos, true)));
+		}
+	}
 
 	cb->showTeleportDialog(&td);
 }
 
-void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, std::vector<ObjectInstanceID> exits) const
+void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const
 {
-	ObjectInstanceID objId(answer);
+	int3 dPos;
 	auto realExits = getAllExits();
 	if(!exits.size() && !realExits.size())
 		return;
-	else if(objId == ObjectInstanceID())
-		objId = getRandomExit(hero);
+	else if(vstd::isValidIndex(exits, answer))
+		dPos = exits[answer].second;
 	else
-		assert(vstd::contains(exits, objId)); // Likely cheating attempt: not random teleporter choosen, but it's not from provided list
-
-	auto obj = cb->getObj(objId);
-	if(obj)
 	{
+		auto obj = cb->getObj(getRandomExit(hero));
 		std::set<int3> tiles = obj->getBlockedPos();
-		auto & tile = *RandomGeneratorUtil::nextItem(tiles, cb->gameState()->getRandomGenerator());
-		cb->moveHero(hero->id, tile + int3(1,0,0), true);
-
-		cb->moveHero(hero->id,CGHeroInstance::convertPosition(obj->pos,true) - getVisitableOffset(), true);
+		dPos = CGHeroInstance::convertPosition(*RandomGeneratorUtil::nextItem(tiles, cb->gameState()->getRandomGenerator()), true);
 	}
+
+	cb->moveHero(hero->id, dPos, true);
 }
 
 bool CGWhirlpool::isProtected( const CGHeroInstance * h )

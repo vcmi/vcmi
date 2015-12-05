@@ -22,6 +22,7 @@
 #include "../lib/GameConstants.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/mapObjects/CObjectHandler.h"
 
 using namespace CSDL_Ext;
 #ifdef min

@@ -6,6 +6,7 @@
 #include "spells/CSpellHandler.h"
 #include "VCMI_Lib.h"
 #include "CTownHandler.h"
+#include "mapObjects/CGTownInstance.h"
 
 /*
  * CBattleCallback.cpp, part of VCMI engine
@@ -2245,6 +2246,7 @@ BattleAttackInfo::BattleAttackInfo(const CStack *Attacker, const CStack *Defende
 	chargedFields = 0;
 
 	luckyHit = false;
+	unluckyHit = false;
 	deathBlow = false;
 	ballistaDoubleDamage = false;
 }

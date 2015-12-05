@@ -51,19 +51,34 @@ public:
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
-
-// compatibility with different versions od libavutil
-#if (LIBAVUTIL_VERSION_INT < AV_VERSION_INT(51, 42, 0)) || \
-    (LIBAVUTIL_VERSION_INT == AV_VERSION_INT(51, 73, 101))
-
-#define AV_PIX_FMT_NONE         PIX_FMT_NONE
-#define AV_PIX_FMT_NV12         PIX_FMT_NV12
-#define AV_PIX_FMT_YUV420P      PIX_FMT_YUV420P
-#define AV_PIX_FMT_UYVY422      PIX_FMT_UYVY422
-#define AV_PIX_FMT_YUYV422      PIX_FMT_YUYV422
-
-#endif 
 }
+
+//compatibility for libav 9.18 in ubuntu 14.04, 52.66.100 is ffmpeg 2.2.3
+#if (LIBAVUTIL_VERSION_INT < AV_VERSION_INT(52, 66, 100))
+inline AVFrame * av_frame_alloc()
+{
+	return avcodec_alloc_frame();
+}
+
+inline void av_frame_free(AVFrame ** frame)
+{
+	av_free(*frame);
+	*frame = nullptr;
+}
+#endif // VCMI_USE_OLD_AVUTIL
+
+//fix for travis-ci
+#if (LIBAVUTIL_VERSION_INT < AV_VERSION_INT(52, 0, 0))
+	#define AVPixelFormat PixelFormat
+	#define AV_PIX_FMT_NONE PIX_FMT_NONE
+	#define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
+	#define AV_PIX_FMT_BGR565 PIX_FMT_BGR565
+	#define AV_PIX_FMT_BGR24 PIX_FMT_BGR24
+	#define AV_PIX_FMT_BGR32 PIX_FMT_BGR32
+	#define AV_PIX_FMT_RGB565 PIX_FMT_RGB565
+	#define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
+	#define AV_PIX_FMT_RGB32 PIX_FMT_RGB32
+#endif
 
 class CVideoPlayer : public IMainVideoPlayer
 {
@@ -71,7 +86,7 @@ class CVideoPlayer : public IMainVideoPlayer
 	AVFormatContext *format;
 	AVCodecContext *codecContext; // codec context for stream
 	AVCodec *codec;
-	AVFrame *frame; 
+	AVFrame *frame;
 	struct SwsContext *sws;
 
 	AVIOContext * context;
@@ -102,7 +117,7 @@ public:
 	void show(int x, int y, SDL_Surface *dst, bool update = true) override; //blit current frame
 	void redraw(int x, int y, SDL_Surface *dst, bool update = true) override; //reblits buffer
 	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true) override; //moves to next frame if appropriate, and blits it or blits only if redraw parameter is set true
-	
+
 	// Opens video, calls playVideo, closes video; returns playVideo result (if whole video has been played)
 	bool openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey = false, bool scale = false) override;
 

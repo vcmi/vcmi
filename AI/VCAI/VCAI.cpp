@@ -8,6 +8,8 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
+#include "../../lib/CGameState.h"
+#include "../../lib/NetPacks.h"
 
 
 /*
@@ -96,6 +98,7 @@ VCAI::VCAI(void)
 	LOG_TRACE(logAi);
 	makingTurn = nullptr;
 	destinationTeleport = ObjectInstanceID();
+	destinationTeleportPos = int3(-1);
 }
 
 VCAI::~VCAI(void)
@@ -614,33 +617,46 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 	});
 }
 
-void VCAI::showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID)
+void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
-	LOG_TRACE_PARAMS(logAi, "askID '%i', exits '%s'", askID % exits);
+//	LOG_TRACE_PARAMS(logAi, "askID '%i', exits '%s'", askID % exits);
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits")
 																			% exits.size()));
 
-	ObjectInstanceID choosenExit;
+	int choosenExit = -1;
 	if(impassable)
 		knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
-	else
+	else if(destinationTeleport != ObjectInstanceID() && destinationTeleportPos.valid())
 	{
-		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, destinationTeleport))
-			choosenExit = destinationTeleport;
+		auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
+		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
+			choosenExit = vstd::find_pos(exits, neededExit);
+	}
 
-		if(!status.channelProbing())
+	for(auto exit : exits)
+	{
+		if(status.channelProbing() && exit.first == destinationTeleport)
 		{
-			vstd::copy_if(exits, vstd::set_inserter(teleportChannelProbingList), [&](ObjectInstanceID id) -> bool
+			choosenExit = vstd::find_pos(exits, exit);
+			break;
+		}
+		else
+		{
+			// TODO: Implement checking if visiting that teleport will uncovert any FoW
+			// So far this is the best option to handle decision about probing
+			auto obj = cb->getObj(exit.first, false);
+			if(obj == nullptr && !vstd::contains(teleportChannelProbingList, exit.first) &&
+				exit.first != destinationTeleport)
 			{
-				return !(vstd::contains(visitableObjs, cb->getObj(id)) || id == choosenExit);
-			});
+				teleportChannelProbingList.push_back(exit.first);
+			}
 		}
 	}
 
 	requestActionASAP([=]()
 	{
-		answerQuery(askID, choosenExit.getNum());
+		answerQuery(askID, choosenExit);
 	});
 }
 
@@ -843,9 +859,9 @@ void VCAI::makeTurnInternal()
 bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 {
 	int3 dst = obj->visitablePos();
-	SectorMap &sm = getCachedSectorMap(h);
+	auto sm = getCachedSectorMap(h);
 	logAi->debugStream() << boost::format("%s will try to visit %s at (%s)") % h->name % obj->getObjectName() % strFromInt3(dst);
-	int3 pos = sm.firstTileToGet(h, dst);
+	int3 pos = sm->firstTileToGet(h, dst);
 	if (!pos.valid()) //rare case when we are already standing on one of potential objects
 		return false;
 	return moveHeroToTile(pos, h);
@@ -1301,6 +1317,20 @@ bool VCAI::tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingI
 	return false;//Nothing to build
 }
 
+//Set of buildings for different goals. Does not include any prerequisites.
+static const BuildingID essential[] = {BuildingID::TAVERN, BuildingID::TOWN_HALL};
+static const BuildingID goldSource[] = {BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL};
+static const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
+	BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7};
+static const BuildingID unitsUpgrade[] = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
+	BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP};
+static const BuildingID unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
+	BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR};
+static const BuildingID spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
+	BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
+static const BuildingID extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
+	BuildingID::SPECIAL_4, BuildingID::SHIPYARD}; // all remaining buildings
+
 void VCAI::buildStructure(const CGTownInstance * t)
 {
 	//TODO make *real* town development system
@@ -1381,10 +1411,10 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 {
 	validateVisitableObjs();
 	std::vector<const CGObjectInstance *> possibleDestinations;
-	SectorMap &sm = getCachedSectorMap(h);
+	auto sm = getCachedSectorMap(h);
 	for(const CGObjectInstance *obj : visitableObjs)
 	{
-		if (isGoodForVisit(obj, h, sm))
+		if (isGoodForVisit(obj, h, *sm))
 		{
 			possibleDestinations.push_back(obj);
 		}
@@ -1439,12 +1469,12 @@ void VCAI::wander(HeroPtr h)
 		validateVisitableObjs();
 		std::vector <ObjectIdRef> dests, tmp;
 
-		SectorMap &sm = getCachedSectorMap(h);
+		auto sm = getCachedSectorMap(h);
 
 		range::copy(reservedHeroesMap[h], std::back_inserter(tmp)); //also visit our reserved objects - but they are not prioritized to avoid running back and forth
 		for (auto obj : tmp)
 		{
-			int3 pos = sm.firstTileToGet(h, obj->visitablePos());
+			int3 pos = sm->firstTileToGet(h, obj->visitablePos());
 			if (pos.valid())
 				if (isAccessibleForHero (pos, h)) //even nearby objects could be blocked by other heroes :(
 					dests.push_back(obj); //can't use lambda for member function :(
@@ -1453,7 +1483,7 @@ void VCAI::wander(HeroPtr h)
 		range::copy(getPossibleDestinations(h), std::back_inserter(dests));
 		erase_if(dests, [&](ObjectIdRef obj) -> bool
 		{
-			return !isSafeToVisit(h, sm.firstTileToGet(h, obj->visitablePos()));
+			return !isSafeToVisit(h, sm->firstTileToGet(h, obj->visitablePos()));
 		});
 
 		if(!dests.size())
@@ -1840,7 +1870,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	else
 	{
 		CGPath path;
-		cb->getPathsInfo(h.get())->getPath(dst, path);
+		cb->getPathsInfo(h.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
             logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
@@ -1860,25 +1890,29 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true), transit);
 		};
 
-		auto doTeleportMovement = [&](int3 dst, ObjectInstanceID exitId)
+		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
 			destinationTeleport = exitId;
-			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
+			if(exitPos.valid())
+				destinationTeleportPos = CGHeroInstance::convertPosition(exitPos, true);
+			cb->moveHero(*h, h->pos);
 			destinationTeleport = ObjectInstanceID();
+			destinationTeleportPos = int3(-1);
 			afterMovementCheck();
 		};
 
 		auto doChannelProbing = [&]() -> void
 		{
-			auto currentExit = getObj(CGHeroInstance::convertPosition(h->pos,false), false);
-			assert(currentExit);
+			auto currentPos = CGHeroInstance::convertPosition(h->pos,false);
+			auto currentExit = getObj(currentPos, true)->id;
 
 			status.setChannelProbing(true);
 			for(auto exit : teleportChannelProbingList)
-				doTeleportMovement(CGHeroInstance::convertPosition(h->pos,false), exit);
+				doTeleportMovement(exit, int3(-1));
 			teleportChannelProbingList.clear();
-			doTeleportMovement(CGHeroInstance::convertPosition(h->pos,false), currentExit->id);
 			status.setChannelProbing(false);
+
+			doTeleportMovement(currentExit, currentPos);
 		};
 
 		int i=path.nodes.size()-1;
@@ -1891,7 +1925,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			auto nextObject = getObj(nextCoord, false);
 			if(CGTeleport::isConnected(currentObject, nextObject))
 			{ //we use special login if hero standing on teleporter it's mean we need
-				doTeleportMovement(currentCoord, nextObject->id);
+				doTeleportMovement(nextObject->id, nextCoord);
 				if(teleportChannelProbingList.size())
 					doChannelProbing();
 
@@ -1915,6 +1949,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			{ // Hero should be able to go through object if it's allow transit
 				doMovement(endpos, true);
 			}
+			else if(path.nodes[i-1].layer == EPathfindingLayer::AIR)
+				doMovement(endpos, true);
 			else
 				doMovement(endpos, false);
 
@@ -2034,7 +2070,7 @@ void VCAI::tryRealize(Goals::BuildThis & g)
 void VCAI::tryRealize(Goals::DigAtTile & g)
 {
 	assert(g.hero->visitablePos() == g.tile); //surely we want to crash here?
-	if (g.hero->diggingStatus() == CGHeroInstance::CAN_DIG)
+	if (g.hero->diggingStatus() == EDiggingStatus::CAN_DIG)
 	{
 		cb->dig(g.hero.get());
 		completeGoal(sptr(g)); // finished digging
@@ -2463,7 +2499,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 {
 	int3 ourPos = h->convertPosition(h->pos, false);
 	std::map<int3, int> dstToRevealedTiles;
-	for(crint3 dir : dirs)
+	for(crint3 dir : int3::getDirs())
 		if(cb->isInTheMap(hpos+dir))
 			if (ourPos != dir) //don't stand in place
 				if (isSafeToVisit(h, hpos + dir) && isAccessibleForHero (hpos + dir, h))
@@ -2519,7 +2555,7 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 				continue;
 
 			CGPath path;
-			cb->getPathsInfo(hero)->getPath(tile, path);
+			cb->getPathsInfo(hero)->getPath(path, tile);
 			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius, cbp) / (path.nodes.size() + 1); //+1 prevents erratic jumps
 
 			if (ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
@@ -2537,7 +2573,7 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 int3 VCAI::explorationDesperate(HeroPtr h)
 {
-	SectorMap &sm = getCachedSectorMap(h);
+	auto sm = getCachedSectorMap(h);
 	int radius = h->getSightRadious();
 
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
@@ -2566,7 +2602,7 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 			if (!howManyTilesWillBeDiscovered(tile, radius, cbp)) //avoid costly checks of tiles that don't reveal much
 				continue;
 
-			auto t = sm.firstTileToGet(h, tile);
+			auto t = sm->firstTileToGet(h, tile);
 			if (t.valid())
 			{
 				ui64 ourDanger = evaluateDanger(t, h.h);
@@ -2669,13 +2705,24 @@ void VCAI::finish()
 
 void VCAI::requestActionASAP(std::function<void()> whatToDo)
 {
-	boost::thread newThread([this, whatToDo]()
+	boost::mutex mutex;
+	mutex.lock();
+
+	boost::thread newThread([&mutex,this,whatToDo]()
 	{
 		setThreadName("VCAI::requestActionASAP::whatToDo");
 		SET_GLOBAL_STATE(this);
 		boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
+		// unlock mutex and allow parent function to exit
+		mutex.unlock();
 		whatToDo();
 	});
+
+	// wait for mutex to unlock and for thread to initialize properly
+	mutex.lock();
+
+	// unlock mutex - boost dislikes destruction of locked mutexes
+	mutex.unlock();
 }
 
 void VCAI::lostHero(HeroPtr h)
@@ -2749,14 +2796,14 @@ TResources VCAI::freeResources() const
 	return myRes;
 }
 
-SectorMap& VCAI::getCachedSectorMap(HeroPtr h)
+std::shared_ptr<SectorMap> VCAI::getCachedSectorMap(HeroPtr h)
 {
 	auto it = cachedSectorMaps.find(h);
 	if (it != cachedSectorMaps.end())
 		return it->second;
 	else
 	{
-		cachedSectorMaps.insert(std::make_pair(h, SectorMap(h)));
+		cachedSectorMaps[h] = std::make_shared<SectorMap>(h);
 		return cachedSectorMaps[h];
 	}
 }
@@ -2905,7 +2952,7 @@ void AIStatus::setMove(bool ongoing)
 void AIStatus::setChannelProbing(bool ongoing)
 {
 	boost::unique_lock<boost::mutex> lock(mx);
-	ongoingHeroMovement = ongoing;
+	ongoingChannelProbing = ongoing;
 	cv.notify_all();
 }
 
@@ -3366,7 +3413,8 @@ int3 SectorMap::findFirstVisitableTile (HeroPtr h, crint3 dst)
 	while(curtile != h->visitablePos())
 	{
 		auto topObj = cb->getTopObj(curtile);
-		if (topObj && topObj->ID == Obj::HERO && h->tempOwner == topObj->tempOwner && topObj != h.h)
+		if(topObj && topObj->ID == Obj::HERO && topObj != h.h &&
+			cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			logAi->warnStream() << ("Another allied hero stands in our way");
 			return ret;

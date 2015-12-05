@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CGTownInstance.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -17,6 +17,8 @@
 #include "../CModHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
+#include "../mapping/CMapDefines.h"
+#include "../CPlayerState.h"
 
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;

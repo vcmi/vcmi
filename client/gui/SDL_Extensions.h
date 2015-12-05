@@ -18,15 +18,6 @@
 #include "../../lib/GameConstants.h"
 
 
-//A macro to force inlining some of our functions. Compiler (at least MSVC) is not so smart here-> without that displaying is MUCH slower
-#ifdef _MSC_VER
-	#define STRONG_INLINE __forceinline
-#elif __GNUC__
-	#define STRONG_INLINE inline __attribute__((always_inline))
-#else
-	#define STRONG_INLINE inline
-#endif
-
 extern SDL_Window * mainWindow;
 extern SDL_Renderer * mainRenderer;
 extern SDL_Texture * screenTexture;

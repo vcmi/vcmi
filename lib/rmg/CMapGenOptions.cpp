@@ -78,6 +78,11 @@ void CMapGenOptions::setPlayerCount(si8 value)
 	resetPlayersMap();
 }
 
+si8 CMapGenOptions::getHumanOnlyPlayerCount() const
+{
+	return humanPlayersCount;
+}
+
 si8 CMapGenOptions::getTeamCount() const
 {
 	return teamCount;
@@ -96,7 +101,7 @@ si8 CMapGenOptions::getCompOnlyPlayerCount() const
 
 void CMapGenOptions::setCompOnlyPlayerCount(si8 value)
 {
-	assert(value == RANDOM_SIZE || (value >= 0 && value <= getPlayerCount()));
+	assert(value == RANDOM_SIZE || (getPlayerCount() == RANDOM_SIZE || (value >= 0 && value <= getPlayerCount())));
 	compOnlyPlayerCount = value;
 
 	if (getPlayerCount() != RANDOM_SIZE && getCompOnlyPlayerCount() != RANDOM_SIZE)

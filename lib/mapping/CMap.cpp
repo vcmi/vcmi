@@ -132,16 +132,30 @@ Obj TerrainTile::topVisitableId(bool excludeTop) const
 
 CGObjectInstance * TerrainTile::topVisitableObj(bool excludeTop) const
 {
-	auto visitableObj = visitableObjects;
-	if(excludeTop && visitableObj.size())
-		visitableObj.pop_back();
+	if(visitableObjects.empty() || (excludeTop && visitableObjects.size() == 1))
+		return nullptr;
 
-	return visitableObj.size() ? visitableObj.back() : nullptr;
+	if(excludeTop)
+		return visitableObjects[visitableObjects.size()-2];
+
+	return visitableObjects.back();
 }
 
 bool TerrainTile::isCoastal() const
 {
 	return extTileFlags & 64;
+}
+
+EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
+{
+	if(terType == ETerrainType::WATER || terType == ETerrainType::ROCK)
+		return EDiggingStatus::WRONG_TERRAIN;
+
+	int allowedBlocked = excludeTop ? 1 : 0;
+	if(blockingObjects.size() > allowedBlocked || topVisitableObj(excludeTop))
+		return EDiggingStatus::TILE_OCCUPIED;
+	else
+		return EDiggingStatus::CAN_DIG;
 }
 
 bool TerrainTile::hasFavourableWinds() const

@@ -18,6 +18,8 @@
 #include "../BattleState.h"
 #include "../CGameState.h"
 #include "../CGameInfoCallback.h"
+#include "../mapping/CMap.h"
+#include "../CPlayerState.h"
 
 ///SummonBoatMechanics
 ESpellCastResult SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const

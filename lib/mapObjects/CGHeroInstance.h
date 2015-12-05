@@ -21,6 +21,7 @@ class CHero;
 class CGBoat;
 class CGTownInstance;
 struct TerrainTile;
+struct TurnInfo;
 
 class CGHeroPlaceholder : public CGObjectInstance
 {
@@ -39,10 +40,6 @@ public:
 class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public ISpellCaster
 {
 public:
-	enum ECanDig
-	{
-		CAN_DIG, LACK_OF_MOVEMENT, WRONG_TERRAIN, TILE_OCCUPIED
-	};
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 moveDir; //format:	123
@@ -75,12 +72,23 @@ public:
 
 	struct DLL_LINKAGE Patrol
 	{
-		Patrol(){patrolling=false;patrolRadious=-1;};
+		Patrol(){patrolling=false;initialPos=int3();patrolRadious=-1;};
 		bool patrolling;
+		int3 initialPos;
 		ui32 patrolRadious;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & patrolling & patrolRadious;
+			h & patrolling;
+			if(version >= 755)
+			{
+				h & initialPos;
+			}
+			else if(!h.saving)
+			{
+				patrolling = false;
+				initialPos = int3();
+			}
+			h & patrolRadious;
 		}
 	} patrol;
 
@@ -129,12 +137,11 @@ public:
 	EAlignment::EAlignment getAlignment() const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const override;
-	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
+	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
+	int getNativeTerrain() const;
 	ui32 getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
-	bool canFly() const;
-	bool canWalkOnSea() const;
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
 
@@ -161,8 +168,8 @@ public:
 	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
 	void levelUp(std::vector<SecondarySkill> skills);
 
-	int maxMovePoints(bool onLand) const;
-	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false) const;
+	int maxMovePoints(bool onLand, const TurnInfo * ti = nullptr) const;
+	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
 
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	double getFightingStrength() const; // takes attack / defense skill into account
@@ -174,7 +181,7 @@ public:
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
-	ECanDig diggingStatus() const; //0 - can dig; 1 - lack of movement; 2 -
+	EDiggingStatus diggingStatus() const;
 
 	//////////////////////////////////////////////////////////////////////////
 

@@ -640,7 +640,7 @@ std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
 		}
 	}
 
-	return std::move(res);
+	return res;
 }
 
 ///CSpell::TargetInfo

@@ -907,7 +907,7 @@ void CGameState::initDuel()
 
 			if(!ss.spells.empty())
 			{
-				h->putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
+				h->putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(ArtifactID::SPELLBOOK));
 				boost::copy(ss.spells, std::inserter(h->spells, h->spells.begin()));
 			}
 
@@ -1383,7 +1383,8 @@ void CGameState::placeStartingHeroes()
 			}
 
 			int heroTypeId = pickNextHeroType(playerColor);
-			if(playerSettingPair.second.hero == -1) playerSettingPair.second.hero = heroTypeId;
+			if(playerSettingPair.second.hero == -1)
+				playerSettingPair.second.hero = heroTypeId;
 
 			placeStartingHero(playerColor, HeroTypeID(heroTypeId), playerInfo.posOfMainTown);
 		}
@@ -2061,101 +2062,6 @@ PlayerRelations::PlayerRelations CGameState::getPlayerRelations( PlayerColor col
 	return PlayerRelations::ENEMIES;
 }
 
-void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing)
-{
-	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
-					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
-
-	//vec.reserve(8); //optimization
-	for (auto & dir : dirs)
-	{
-		const int3 hlp = tile + dir;
-		if(!map->isInTheMap(hlp))
-			continue;
-
-		const TerrainTile &hlpt = map->getTile(hlp);
-
-// 		//we cannot visit things from blocked tiles
-// 		if(srct.blocked && !srct.visitable && hlpt.visitable && srct.blockingObjects.front()->ID != HEROI_TYPE)
-// 		{
-// 			continue;
-// 		}
-
-        if(srct.terType == ETerrainType::WATER && limitCoastSailing && hlpt.terType == ETerrainType::WATER && dir.x && dir.y) //diagonal move through water
-		{
-			int3 hlp1 = tile,
-				hlp2 = tile;
-			hlp1.x += dir.x;
-			hlp2.y += dir.y;
-
-            if(map->getTile(hlp1).terType != ETerrainType::WATER || map->getTile(hlp2).terType != ETerrainType::WATER)
-				continue;
-		}
-
-        if((indeterminate(onLand)  ||  onLand == (hlpt.terType!=ETerrainType::WATER) )
-            && hlpt.terType != ETerrainType::ROCK)
-		{
-			vec.push_back(hlp);
-		}
-	}
-}
-
-int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, int remainingMovePoints, bool checkLast)
-{
-	if(src == dest) //same tile
-		return 0;
-
-	TerrainTile &s = map->getTile(src),
-		&d = map->getTile(dest);
-
-	//get basic cost
-	int ret = h->getTileCost(d,s);
-
-	if(d.blocked && h->canFly())
-	{
-		ret *= (100.0 + h->valOfBonuses(Bonus::FLYING_MOVEMENT)) / 100.0;
-	}
-	else if(d.terType == ETerrainType::WATER)
-	{
-		if(h->boat && s.hasFavourableWinds() && d.hasFavourableWinds()) //Favourable Winds
-			ret *= 0.666;
-		else if(!h->boat && h->canWalkOnSea())
-		{
-			ret *= (100.0 + h->valOfBonuses(Bonus::WATER_WALKING)) / 100.0;
-		}
-	}
-
-	if(src.x != dest.x  &&  src.y != dest.y) //it's diagonal move
-	{
-		int old = ret;
-		ret *= 1.414213;
-		//diagonal move costs too much but normal move is possible - allow diagonal move for remaining move points
-		if(ret > remainingMovePoints  &&  remainingMovePoints >= old)
-		{
-			return remainingMovePoints;
-		}
-	}
-
-
-	int left = remainingMovePoints-ret;
-	if(checkLast  &&  left > 0  &&  remainingMovePoints-ret < 250) //it might be the last tile - if no further move possible we take all move points
-	{
-		std::vector<int3> vec;
-		vec.reserve(8); //optimization
-		getNeighbours(d, dest, vec, s.terType != ETerrainType::WATER, true);
-		for(auto & elem : vec)
-		{
-			int fcost = getMovementCost(h, dest, elem, left, false);
-			if(fcost <= left)
-			{
-				return ret;
-			}
-		}
-		ret = remainingMovePoints;
-	}
-	return ret;
-}
-
 void CGameState::apply(CPack *pack)
 {
 	ui16 typ = typeList.getTypeID(pack);
@@ -2226,6 +2132,76 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
 	return gs->map->guardingCreaturePositions[pos.x][pos.y][pos.z];
+}
+
+void CGameState::updateRumor()
+{
+	static std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
+	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
+		RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
+	if(map->grailPos.valid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
+		sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
+
+	int rumorId = -1, rumorExtra = -1;
+	auto & rand = getRandomGenerator();
+	rumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
+	if(!map->rumors.size() && rumor.type == RumorState::TYPE_MAP)
+		rumor.type = RumorState::TYPE_RAND;
+
+	do
+	{
+		switch(rumor.type)
+		{
+		case RumorState::TYPE_SPECIAL:
+		{
+			SThievesGuildInfo tgi;
+			obtainPlayersStats(tgi, 20);
+			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
+			if(rumorId == RumorState::RUMOR_GRAIL)
+			{
+				rumorExtra = getTile(map->grailPos)->terType;
+				break;
+			}
+
+			std::vector<PlayerColor> players = {};
+			switch(rumorId)
+			{
+			case RumorState::RUMOR_OBELISKS:
+				players = tgi.obelisks[0];
+				break;
+
+			case RumorState::RUMOR_ARTIFACTS:
+				players = tgi.artifacts[0];
+				break;
+
+			case RumorState::RUMOR_ARMY:
+				players = tgi.army[0];
+				break;
+
+			case RumorState::RUMOR_INCOME:
+				players = tgi.income[0];
+				break;
+			}
+			rumorExtra = RandomGeneratorUtil::nextItem(players, rand)->getNum();
+
+			break;
+		}
+		case RumorState::TYPE_MAP:
+			rumorId = rand.nextInt(map->rumors.size() - 1);
+
+			break;
+
+		case RumorState::TYPE_RAND:
+			do
+			{
+				rumorId = rand.nextInt(VLC->generaltexth->tavernRumors.size() - 1);
+			}
+			while(!VLC->generaltexth->tavernRumors[rumorId].length());
+
+			break;
+		}
+	}
+	while(!rumor.update(rumorId, rumorExtra));
 }
 
 bool CGameState::isVisible(int3 pos, PlayerColor player)
@@ -2549,6 +2525,58 @@ struct statsHLP
 		}
 		return str;
 	}
+
+	// get total gold income
+	static int getIncome(const PlayerState * ps)
+	{
+		int totalIncome = 0;
+		const CGObjectInstance * heroOrTown = nullptr;
+
+		//Heroes can produce gold as well - skill, specialty or arts
+		for(auto & h : ps->heroes)
+		{
+			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ESTATES));
+			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
+
+			if(!heroOrTown)
+				heroOrTown = h;
+		}
+
+		//Add town income of all towns
+		for(auto & t : ps->towns)
+		{
+			totalIncome += t->dailyIncome()[Res::GOLD];
+
+			if(!heroOrTown)
+				heroOrTown = t;
+		}
+
+		/// FIXME: Dirty dirty hack
+		/// Stats helper need some access to gamestate.
+		std::vector<const CGObjectInstance *> ownedObjects;
+		for(const CGObjectInstance * obj : heroOrTown->cb->gameState()->map->objects)
+		{
+			if(obj && obj->tempOwner == ps->color)
+				ownedObjects.push_back(obj);
+		}
+		/// This is code from CPlayerSpecificInfoCallback::getMyObjects
+		/// I'm really need to find out about callback interface design...
+
+		for(auto object : ownedObjects)
+		{
+			//Mines
+			if ( object->ID == Obj::MINE )
+			{
+				const CGMine *mine = dynamic_cast<const CGMine*>(object);
+				assert(mine);
+
+				if (mine->producedResource == Res::GOLD)
+					totalIncome += mine->producedQuantity;
+			}
+		}
+
+		return totalIncome;
+	}
 };
 
 void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
@@ -2579,20 +2607,22 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			tgi.playerColors.push_back(elem.second.color);
 	}
 
-	if(level >= 1) //num of towns & num of heroes
+	if(level >= 0) //num of towns & num of heroes
 	{
 		//num of towns
 		FILL_FIELD(numOfTowns, g->second.towns.size())
 		//num of heroes
 		FILL_FIELD(numOfHeroes, g->second.heroes.size())
-		//best hero's portrait
+	}
+	if(level >= 1) //best hero's portrait
+	{
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
 			if(playerInactive(g->second.color))
 				continue;
 			const CGHeroInstance * best = statsHLP::findBestHero(this, g->second.color);
 			InfoAboutHero iah;
-			iah.initFromHero(best, level >= 8);
+			iah.initFromHero(best, level >= 2);
 			iah.army.clear();
 			tgi.colorToBestHero[g->second.color] = iah;
 		}
@@ -2609,27 +2639,27 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	{
 		FILL_FIELD(mercSulfCrystGems, g->second.resources[Res::MERCURY] + g->second.resources[Res::SULFUR] + g->second.resources[Res::CRYSTAL] + g->second.resources[Res::GEMS])
 	}
-	if(level >= 4) //obelisks found
+	if(level >= 3) //obelisks found
 	{
 		FILL_FIELD(obelisks, CGObelisk::visited[gs->getPlayerTeam(g->second.color)->id])
 	}
-	if(level >= 5) //artifacts
+	if(level >= 4) //artifacts
 	{
 		FILL_FIELD(artifacts, statsHLP::getNumberOfArts(&g->second))
 	}
-	if(level >= 6) //army strength
+	if(level >= 4) //army strength
 	{
 		FILL_FIELD(army, statsHLP::getArmyStrength(&g->second))
 	}
-	if(level >= 7) //income
+	if(level >= 5) //income
 	{
-		//TODO:obtainPlayersStats - income
+		FILL_FIELD(income, statsHLP::getIncome(&g->second))
 	}
-	if(level >= 8) //best hero's stats
+	if(level >= 2) //best hero's stats
 	{
 		//already set in  lvl 1 handling
 	}
-	if(level >= 9) //personality
+	if(level >= 3) //personality
 	{
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
@@ -2646,7 +2676,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 
 		}
 	}
-	if(level >= 10) //best creature
+	if(level >= 4) //best creature
 	{
 		//best creatures belonging to player (highest AI value)
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
@@ -2865,7 +2895,7 @@ CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
 {
 	for(auto hero : map->heroesOnMap)  //heroes instances initialization
 	{
-		if(hero->subID == hid.getNum())
+		if(hero->type && hero->type->ID == hid)
 		{
 			return hero;
 		}
@@ -2873,9 +2903,12 @@ CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
 
 	for(auto obj : map->objects) //prisons
 	{
-		if(obj && obj->ID == Obj::PRISON && obj->subID == hid.getNum())
+		if(obj && obj->ID == Obj::PRISON )
 		{
-			return dynamic_cast<CGHeroInstance *>(obj.get());
+			auto hero = dynamic_cast<CGHeroInstance *>(obj.get());
+			assert(hero);
+			if ( hero->type && hero->type->ID == hid )
+				return hero;
 		}
 	}
 
@@ -2892,6 +2925,25 @@ PlayerState::PlayerState()
 std::string PlayerState::nodeName() const
 {
 	return "Player " + (color.getNum() < VLC->generaltexth->capColors.size() ? VLC->generaltexth->capColors[color.getNum()] : boost::lexical_cast<std::string>(color));
+}
+
+
+bool RumorState::update(int id, int extra)
+{
+	if(vstd::contains(last, type))
+	{
+		if(last[type].first != id)
+		{
+			last[type].first = id;
+			last[type].second = extra;
+		}
+		else
+			return false;
+	}
+	else
+		last[type] = std::make_pair(id, extra);
+
+	return true;
 }
 
 InfoAboutArmy::InfoAboutArmy():

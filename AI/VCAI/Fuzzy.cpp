@@ -5,6 +5,8 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/CommonConstructors.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/CPathfinder.h"
+#include "../../lib/CGameStateFwd.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../CCallback.h"
 #include "VCAI.h"
@@ -421,7 +423,7 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 
 	//assert(cb->isInTheMap(g.tile));
 	float turns = 0;
-	float distance = cb->getMovementCost(g.hero.h, g.tile);
+	float distance = CPathfinderHelper::getMovementCost(g.hero.h, g.tile);
 	if (!distance) //we stand on that tile
 		turns = 0;
 	else
@@ -482,7 +484,7 @@ float FuzzyHelper::evaluate (Goals::ClearWayTo & g)
 	if (!g.hero.h)
 		throw cannotFulfillGoalException("ClearWayTo called without hero!");
 
-	int3 t = ai->getCachedSectorMap(g.hero).firstTileToGet(g.hero, g.tile);
+	int3 t = ai->getCachedSectorMap(g.hero)->firstTileToGet(g.hero, g.tile);
 
 	if (t.valid())
 	{

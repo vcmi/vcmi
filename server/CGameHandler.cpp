@@ -1665,7 +1665,7 @@ std::list<PlayerColor> CGameHandler::generatePlayerTurnOrder() const
 		if(!player.second.human)
 			playerTurnOrder.push_back(player.first);
 	}
-	return std::move(playerTurnOrder);
+	return playerTurnOrder;
 }
 
 void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town )
@@ -1755,7 +1755,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	}
 
     logGlobal->traceStream() << "Player " << asker << " wants to move hero "<< hid.getNum() << " from "<< h->pos << " to " << dst;
-	const int3 hmpos = dst + int3(-1,0,0);
+	const int3 hmpos = CGHeroInstance::convertPosition(dst, false);
 
 	if(!gs->map->isInTheMap(hmpos))
 	{
@@ -1764,7 +1764,6 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	}
 
 	const TerrainTile t = *gs->getTile(hmpos);
-	const int cost = gs->getMovementCost(h, h->getPosition(), hmpos, h->movement);
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
 	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::BOAT;
@@ -1779,12 +1778,16 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	tmh.movePoints = h->movement;
 
 	//check if destination tile is available
+	auto ti = new TurnInfo(h);
+	const bool canFly = ti->hasBonusOfType(Bonus::FLYING_MOVEMENT);
+	const bool canWalkOnSea = ti->hasBonusOfType(Bonus::WATER_WALKING);
+	const int cost = CPathfinderHelper::getMovementCost(h, h->getPosition(), hmpos, nullptr, nullptr, h->movement, ti);
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if(((t.terType == ETerrainType::ROCK  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) ))
+	if(((t.terType == ETerrainType::ROCK  ||  (t.blocked && !t.visitable && !canFly))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-		|| ((!h->boat && !h->canWalkOnSea() && t.terType == ETerrainType::WATER && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType == ETerrainType::WATER && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
 		|| ((h->boat && t.terType != ETerrainType::WATER && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
@@ -1794,6 +1797,8 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 			&& complain("Can not move garrisoned hero!"))
 		|| ((h->movement < cost  &&  dst != h->pos  &&  !teleporting)
 			&& complain("Hero doesn't have any movement points left!"))
+		|| ((transit && !canFly && !CGTeleport::isTeleport(t.topVisitableObj()))
+			&& complain("Hero cannot transit over this tile!"))
 		/*|| (states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle)
 			&& complain("Cannot move hero during the battle"))*/)
 	{
@@ -1843,8 +1848,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 		}
 		else if(visitDest == VISIT_DEST)
 		{
-			if(!transit || !CGTeleport::isTeleport(t.topVisitableObj()))
-				visitObjectOnTile(t, h);
+			visitObjectOnTile(t, h);
 		}
 
 		queries.popIfTop(moveQuery);
@@ -1867,16 +1871,16 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	};
 
 
-	if(embarking)
+	if(!transit && embarking)
 	{
-		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false);
+		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false, ti);
 		return doMove(TryMoveHero::EMBARK, IGNORE_GUARDS, DONT_VISIT_DEST, LEAVING_TILE);
 		//attack guards on embarking? In H3 creatures on water had no zone of control at all
 	}
 
 	if(disembarking)
 	{
-		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, true);
+		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, true, ti);
 		return doMove(TryMoveHero::DISEMBARK, CHECK_FOR_GUARDS, VISIT_DEST, LEAVING_TILE);
 	}
 
@@ -1905,10 +1909,23 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 						? h->movement - cost
 						: 0;
 
-		if(blockingVisit())
+		EGuardLook lookForGuards = CHECK_FOR_GUARDS;
+		EVisitDest visitDest = VISIT_DEST;
+		if(transit)
+		{
+			if(CGTeleport::isTeleport(t.topVisitableObj()))
+				visitDest = DONT_VISIT_DEST;
+
+			if(canFly)
+			{
+				lookForGuards = IGNORE_GUARDS;
+				visitDest = DONT_VISIT_DEST;
+			}
+		}
+		else if(blockingVisit())
 			return true;
 
-		doMove(TryMoveHero::SUCCESS, CHECK_FOR_GUARDS, VISIT_DEST, LEAVING_TILE);
+		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
 		return true;
 	}
 }
@@ -1961,7 +1978,8 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 			{
 				InfoWindow iw;
 				iw.player = oldOwner;
-				iw.text.addTxt (MetaString::GENERAL_TXT, 6); //%s, you have lost your last town.  If you do not conquer another town in the next week, you will be eliminated.
+				iw.text.addTxt(MetaString::GENERAL_TXT, 6); //%s, you have lost your last town. If you do not conquer another town in the next week, you will be eliminated.
+				iw.text.addReplacement(MetaString::COLOR, oldOwner.getNum());
 				sendAndApply(&iw);
 			}
 		}
@@ -2772,14 +2790,14 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 
 		switch(crid)
 		{
-		case 146:
-			giveHeroNewArtifact(h, VLC->arth->artifacts[4], ArtifactPosition::MACH1);
+		case CreatureID::BALLISTA:
+			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::BALLISTA], ArtifactPosition::MACH1);
 			break;
-		case 147:
-			giveHeroNewArtifact(h, VLC->arth->artifacts[6], ArtifactPosition::MACH3);
+		case CreatureID::FIRST_AID_TENT:
+			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::FIRST_AID_TENT], ArtifactPosition::MACH3);
 			break;
-		case 148:
-			giveHeroNewArtifact(h, VLC->arth->artifacts[5], ArtifactPosition::MACH2);
+		case CreatureID::AMMO_CART:
+			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::AMMO_CART], ArtifactPosition::MACH2);
 			break;
 		default:
 			complain("This war machine cannot be recruited!");
@@ -2998,7 +3016,7 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 
 	if(assemble)
 	{
-		CArtifact *combinedArt = VLC->arth->artifacts.at(assembleTo);
+		CArtifact *combinedArt = VLC->arth->artifacts[assembleTo];
 		if(!combinedArt->constituents)
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
 		if(!vstd::contains(destArtifact->assemblyPossibilities(hero), combinedArt))
@@ -3042,7 +3060,7 @@ bool CGameHandler::buyArtifact( ObjectInstanceID hid, ArtifactID aid )
 	}
 	else if(aid < 7  &&  aid > 3) //war machine
 	{
-		int price = VLC->arth->artifacts.at(aid)->price;
+		int price = VLC->arth->artifacts[aid]->price;
 
 		if(( hero->getArt(ArtifactPosition(9+aid)) && complain("Hero already has this machine!"))
 		 || (gs->getPlayer(hero->getOwner())->resources.at(Res::GOLD) < price && complain("Not enough gold!")))
@@ -3053,7 +3071,7 @@ bool CGameHandler::buyArtifact( ObjectInstanceID hid, ArtifactID aid )
 		 || ((town->hasBuilt(BuildingID::BALLISTA_YARD, ETownType::STRONGHOLD)) && aid == ArtifactID::BALLISTA))
 		{
 			giveResource(hero->getOwner(),Res::GOLD,-price);
-			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(aid), ArtifactPosition(9+aid));
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], ArtifactPosition(9+aid));
 			return true;
 		}
 		else
@@ -3110,7 +3128,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::E
 
 	sendAndApply(&saa);
 
-	giveHeroNewArtifact(h, VLC->arth->artifacts.at(aid), ArtifactPosition::FIRST_AVAILABLE);
+	giveHeroNewArtifact(h, VLC->arth->artifacts[aid], ArtifactPosition::FIRST_AVAILABLE);
 	return true;
 }
 
@@ -3961,7 +3979,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		sm.absolute = true;
 
 		if(!h->hasSpellbook()) //hero doesn't have spellbook
-			giveHeroNewArtifact(h, VLC->arth->artifacts.at(0), ArtifactPosition::SPELLBOOK); //give spellbook
+			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK); //give spellbook
 
 		sendAndApply(&sm);
 	}
@@ -4014,18 +4032,18 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		if(!hero) return;
 
 		if(!hero->getArt(ArtifactPosition::MACH1))
-			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(4), ArtifactPosition::MACH1);
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::BALLISTA], ArtifactPosition::MACH1);
 		if(!hero->getArt(ArtifactPosition::MACH2))
-			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(5), ArtifactPosition::MACH2);
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::AMMO_CART], ArtifactPosition::MACH2);
 		if(!hero->getArt(ArtifactPosition::MACH3))
-			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(6), ArtifactPosition::MACH3);
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::FIRST_AID_TENT], ArtifactPosition::MACH3);
 	}
 	else if (message == "vcmiforgeofnoldorking") //hero gets all artifacts except war machines, spell scrolls and spell book
 	{
 		CGHeroInstance *hero = gs->getHero(currObj);
 		if(!hero) return;
 		for (int g = 7; g < VLC->arth->artifacts.size(); ++g) //including artifacts from mods
-			giveHeroNewArtifact(hero, VLC->arth->artifacts.at(g), ArtifactPosition::PRE_FIRST);
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[g], ArtifactPosition::PRE_FIRST);
 	}
 	else if(message == "vcmiglorfindel") //selected hero gains a new level
 	{
@@ -4878,7 +4896,7 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 		}
 	}
 
-	if(h->diggingStatus() != CGHeroInstance::CAN_DIG) //checks for terrain and movement
+	if(h->diggingStatus() != EDiggingStatus::CAN_DIG) //checks for terrain and movement
 		COMPLAIN_RETF("Hero cannot dig (error code %d)!", h->diggingStatus());
 
 	//create a hole
@@ -4899,14 +4917,14 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 	if(gs->map->grailPos == h->getPosition())
 	{
 		iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
-		iw.text.addTxt(MetaString::ART_NAMES, 2);
+		iw.text.addTxt(MetaString::ART_NAMES, ArtifactID::GRAIL);
 		iw.soundID = soundBase::ULTIMATEARTIFACT;
-		giveHeroNewArtifact(h, VLC->arth->artifacts.at(2), ArtifactPosition::PRE_FIRST); //give grail
+		giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::GRAIL], ArtifactPosition::PRE_FIRST); //give grail
 		sendAndApply(&iw);
 
 		iw.soundID = soundBase::invalid;
 		iw.text.clear();
-		iw.text.addTxt(MetaString::ART_DESCR, 2);
+		iw.text.addTxt(MetaString::ART_DESCR, ArtifactID::GRAIL);
 		sendAndApply(&iw);
 	}
 	else

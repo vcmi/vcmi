@@ -3,7 +3,7 @@
 	[
 		{
 			"resolution": { "x": 800, "y": 600 },
-			"InGameConsole": { "maxInputPerLine": 60, "maxOutputPerLine": 39 },
+			"InGameConsole": { "maxInputPerLine": 60, "maxOutputPerLine": 60 },
 			"AdvMap": { "x": 7, "y": 7, "width": 594, "height": 546, "smoothMove": 1, "puzzleSepia": 1, "objectFading" : 1, "screenFading" : 1 },
 			"InfoBox": { "x": 605, "y": 389 },
 			"gem0": { "x": 6, "y": 508, "graphic": "agemLL.def" },

@@ -13,13 +13,6 @@
  *
  */
 
-#ifdef max
-#undef max
-#endif
-#ifdef min
-#undef min
-#endif
-
 struct SDL_MouseMotionEvent;
 
 // A point with x/y coordinate, used mostly for graphic rendering

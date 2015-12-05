@@ -3,6 +3,7 @@
 #include "VCAI.h"
 #include "Fuzzy.h"
 #include "../../lib/mapping/CMap.h" //for victory conditions
+#include "../../lib/CPathfinder.h"
 
 /*
  * Goals.cpp, part of VCMI engine
@@ -483,9 +484,9 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 
 		//if our hero is trapped, make sure we request clearing the way from OUR perspective
 
-		SectorMap &sm = ai->getCachedSectorMap(h);
+		auto sm = ai->getCachedSectorMap(h);
 
-		int3 tileToHit = sm.firstTileToGet(h, tile);
+		int3 tileToHit = sm->firstTileToGet(h, tile);
 		if (!tileToHit.valid())
 			continue;
 
@@ -633,11 +634,11 @@ TGoalVec Explore::getAllPossibleSubgoals()
 
 	for (auto h : heroes)
 	{
-		SectorMap &sm = ai->getCachedSectorMap(h);
+		auto sm = ai->getCachedSectorMap(h);
 
 		for (auto obj : objs) //double loop, performance risk?
 		{
-			auto t = sm.firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
+			auto t = sm->firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
 			if (ai->isTileNotReserved(h, t))
 				ret.push_back (sptr(Goals::ClearWayTo(obj->visitablePos(), h).setisAbstract(true)));
 		}
@@ -963,7 +964,7 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 
 	for (auto h : cb->getHeroesInfo())
 	{
-		SectorMap &sm = ai->getCachedSectorMap(h);
+		auto sm = ai->getCachedSectorMap(h);
 		std::vector<const CGObjectInstance *> ourObjs(objs); //copy common objects
 
 		for (auto obj : ai->reservedHeroesMap[h]) //add objects reserved by this hero
@@ -974,7 +975,7 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 		for (auto obj : ourObjs)
 		{
 			int3 dest = obj->visitablePos();
-			auto t = sm.firstTileToGet(h, dest); //we assume that no more than one tile on the way is guarded
+			auto t = sm->firstTileToGet(h, dest); //we assume that no more than one tile on the way is guarded
 			if (t.valid()) //we know any path at all
 			{
 				if (ai->isTileNotReserved(h, t)) //no other hero wants to conquer that tile
@@ -1027,6 +1028,10 @@ TSubgoal GatherArmy::whatToDoToAchieve()
 
 	return fh->chooseSolution (getAllPossibleSubgoals()); //find dwelling. use current hero to prevent him from doing nothing.
 }
+
+static const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
+	BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7};
+
 TGoalVec GatherArmy::getAllPossibleSubgoals()
 {
 	//get all possible towns, heroes and dwellings we may use
@@ -1093,11 +1098,11 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	}
 	for(auto h : cb->getHeroesInfo())
 	{
-		SectorMap &sm = ai->getCachedSectorMap(h);
+		auto sm = ai->getCachedSectorMap(h);
 		for (auto obj : objs)
 		{ //find safe dwelling
 			auto pos = obj->visitablePos();
-			if (ai->isGoodForVisit(obj, h, sm))
+			if (ai->isGoodForVisit(obj, h, *sm))
 				ret.push_back (sptr (Goals::VisitTile(pos).sethero(h)));
 		}
 	}

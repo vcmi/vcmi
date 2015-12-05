@@ -108,6 +108,8 @@ public:
 	si8 getPlayerCount() const;
 	void setPlayerCount(si8 value);
 
+	si8 getHumanOnlyPlayerCount() const;
+
 	/// The count of the teams ranging from 0 to <players count - 1> or RANDOM_SIZE for random.
 	si8 getTeamCount() const;
 	void setTeamCount(si8 value);

@@ -11,9 +11,9 @@
 #pragma once
  
 #include "../CRandomGenerator.h"
-#include "CMap.h"
 #include "CMapEditManager.h"
 
+struct TerrainTile;
 
 class CDrawRoadsOperation : public CMapOperation
 {

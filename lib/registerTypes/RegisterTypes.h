@@ -4,7 +4,7 @@
 #include "../NetPacks.h"
 #include "../VCMI_Lib.h"
 #include "../CArtHandler.h"
-#include "../CGameState.h"
+#include "../CPlayerState.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../CModHandler.h" //needed?
@@ -23,8 +23,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-
 
 template<typename Serializer>
 void registerTypesMapObjects1(Serializer &s)

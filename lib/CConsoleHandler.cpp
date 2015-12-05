@@ -27,7 +27,7 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 	#define CONSOLE_GRAY "\x1b[1;30m"
 	#define CONSOLE_TEAL "\x1b[1;36m"
 #else
-	#include <Windows.h>
+	#include <windows.h>
 	#include <dbghelp.h>	
 #ifndef __MINGW32__
 	#pragma comment(lib, "dbghelp.lib")

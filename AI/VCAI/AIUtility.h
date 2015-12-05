@@ -6,9 +6,6 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/Connection.h"
-#include "../../lib/CGameState.h"
-#include "../../lib/mapping/CMap.h"
-#include "../../lib/NetPacks.h"
 #include "../../lib/CStopWatch.h"
 
 /*
@@ -20,6 +17,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+class CCallback;
 
 typedef const int3& crint3;
 typedef const std::string& crstring;

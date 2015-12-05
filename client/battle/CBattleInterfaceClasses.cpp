@@ -29,6 +29,7 @@
 #include "../../lib/NetPacks.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/CondSh.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 
 /*
  * CBattleInterfaceClasses.cpp, part of VCMI engine
