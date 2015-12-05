@@ -98,6 +98,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
 	logGlobal->traceStream() << "\tHuman player interface for player " << Player << " being constructed";
 	destinationTeleport = ObjectInstanceID();
+	destinationTeleportPos = int3(-1);
 	observerInDuelMode = false;
 	howManyPeople++;
 	GH.defActionsDef = 0;
@@ -1148,14 +1149,15 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 }
 
-void CPlayerInterface::showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID)
+void CPlayerInterface::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	ObjectInstanceID choosenExit;
-	if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, destinationTeleport))
-		choosenExit = destinationTeleport;
+	int choosenExit = -1;
+	auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
+	if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
+		choosenExit = vstd::find_pos(exits, neededExit);
 
-	cb->selectionMade(choosenExit.getNum(), askID);
+	cb->selectionMade(choosenExit, askID);
 }
 
 void CPlayerInterface::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
@@ -1415,6 +1417,7 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 	   && stillMoveHero.get() == DURING_MOVE)
 	{ // After teleportation via CGTeleport object is finished
 		destinationTeleport = ObjectInstanceID();
+		destinationTeleportPos = int3(-1);
 		stillMoveHero.setn(CONTINUE_MOVE);
 	}
 }
@@ -2663,6 +2666,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 			{
 				CCS->soundh->stopSound(sh);
 				destinationTeleport = nextObject->id;
+				destinationTeleportPos = nextCoord;
 				doMovement(h->pos, false);
 				sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
 				continue;

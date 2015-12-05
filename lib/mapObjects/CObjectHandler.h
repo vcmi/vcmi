@@ -22,6 +22,10 @@ class CGObjectInstance;
 struct MetaString;
 struct BattleResult;
 
+// This one teleport-specific, but has to be available everywhere in callbacks and netpacks
+// For now it's will be there till teleports code refactored and moved into own file
+typedef std::vector<std::pair<ObjectInstanceID, int3>> TTeleportExitsList;
+
 class DLL_LINKAGE IObjectInterface
 {
 public:
