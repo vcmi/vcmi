@@ -837,10 +837,10 @@ public:
 	//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines
 	//8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields
 	//15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog
-	//21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
+	//21. "favorable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	enum EBFieldType {NONE = -1, NONE2, SAND_SHORE, SAND_MESAS, DIRT_BIRCHES, DIRT_HILLS, DIRT_PINES, GRASS_HILLS,
 		GRASS_PINES, LAVA, MAGIC_PLAINS, SNOW_MOUNTAINS, SNOW_TREES, SUBTERRANEAN, SWAMP_TREES, FIERY_FIELDS,
-		ROCKLANDS, MAGIC_CLOUDS, LUCID_POOLS, HOLY_GROUND, CLOVER_FIELD, EVIL_FOG, FAVOURABLE_WINDS, CURSED_GROUND,
+		ROCKLANDS, MAGIC_CLOUDS, LUCID_POOLS, HOLY_GROUND, CLOVER_FIELD, EVIL_FOG, FAVORABLE_WINDS, CURSED_GROUND,
 		ROUGH, SHIP_TO_SHIP, SHIP
 	};
 

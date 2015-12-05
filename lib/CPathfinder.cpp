@@ -987,7 +987,7 @@ int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 & sr
 	}
 	else if(dt->terType == ETerrainType::WATER)
 	{
-		if(h->boat && ct->hasFavourableWinds() && dt->hasFavourableWinds()) //Favourable Winds
+		if(h->boat && ct->hasFavorableWinds() && dt->hasFavorableWinds())
 			ret *= 0.666;
 		else if(!h->boat && ti->hasBonusOfType(Bonus::WATER_WALKING))
 		{

@@ -1939,7 +1939,7 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile)
 		case Obj::EVIL_FOG:
 			return BFieldType::EVIL_FOG;
 		case Obj::FAVORABLE_WINDS:
-			return BFieldType::FAVOURABLE_WINDS;
+			return BFieldType::FAVORABLE_WINDS;
 		case Obj::FIERY_FIELDS:
 			return BFieldType::FIERY_FIELDS;
 		case Obj::HOLY_GROUNDS:

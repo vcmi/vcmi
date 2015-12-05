@@ -1576,7 +1576,7 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 		}
 	}
 
-	if(t.hasFavourableWinds())
+	if(t.hasFavorableWinds())
 		out = CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS);
 	else if(terName)
 	{
