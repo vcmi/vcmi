@@ -767,6 +767,11 @@ void CAdvMapInt::updateMoveHero(const CGHeroInstance *h, tribool hasPath)
 	moveHero->block(!hasPath || (h->movement == 0));
 }
 
+void CAdvMapInt::updateSpellbook(const CGHeroInstance *h)
+{
+	spellbook->block(!h);
+}
+
 int CAdvMapInt::getNextHeroIndex(int startIndex)
 {
 	if (LOCPLINT->wanderingHeroes.size() == 0)
@@ -1262,6 +1267,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 
 		updateSleepWake(nullptr);
 		updateMoveHero(nullptr);
+		updateSpellbook(nullptr);
 	}
 	else //hero selected
 	{
@@ -1275,6 +1281,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 
 		updateSleepWake(hero);
 		updateMoveHero(hero);
+		updateSpellbook(hero);
 	}
 	townList.redraw();
 	heroList.redraw();
