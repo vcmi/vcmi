@@ -33,6 +33,7 @@ namespace GameConstants
 	const int SPELL_SCHOOL_LEVELS = 4;
 	const int CRE_LEVELS = 10; // number of creature experience levels
 
+	const int HERO_GOLD_COST = 2500;
 	const int SPELLBOOK_GOLD_COST = 500;
 	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 	const int ARMY_SIZE = 7;

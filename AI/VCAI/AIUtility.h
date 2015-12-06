@@ -23,7 +23,6 @@ class CCallback;
 typedef const int3& crint3;
 typedef const std::string& crstring;
 
-const int HERO_GOLD_COST = 2500;
 const int GOLD_MINE_PRODUCTION = 1000, WOOD_ORE_MINE_PRODUCTION = 2, RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
 const int ALLOWED_ROAMING_HEROES = 8;

@@ -704,7 +704,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 	oldSelected = -1;
 
 	new CLabel(200, 35, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
-	new CLabel(320, 328, FONT_SMALL, CENTER, Colors::WHITE, "2500");
+	new CLabel(320, 328, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(GameConstants::HERO_GOLD_COST));
 
 	auto rumorText = boost::str(boost::format(CGI->generaltexth->allTexts[216]) % LOCPLINT->cb->getTavernRumor(tavernObj));
 	new CTextBox(rumorText, Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
@@ -714,7 +714,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 	recruit = new CButton(Point(272, 355), "TPTAV01.DEF", CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), SDLK_RETURN);
 	thiefGuild = new CButton(Point(22, 428), "TPTAV02.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), SDLK_t);
 
-	if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < 2500) //not enough gold
+	if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
 	{
 		recruit->addHoverText(CButton::NORMAL, CGI->generaltexth->tavernInfo[0]); //Cannot afford a Hero
 		recruit->block(true);

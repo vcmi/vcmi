@@ -693,8 +693,8 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 	if(!t)
 		return sptr (Goals::BuildThis(BuildingID::TAVERN));
 
-	if(cb->getResourceAmount(Res::GOLD) < HERO_GOLD_COST)
-		return sptr (Goals::CollectRes(Res::GOLD, HERO_GOLD_COST));
+	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST)
+		return sptr (Goals::CollectRes(Res::GOLD, GameConstants::HERO_GOLD_COST));
 
 	return iAmElementar();
 }

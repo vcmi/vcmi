@@ -1445,7 +1445,7 @@ bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
 	if (!t)
 		t = findTownWithTavern();
 	if (t)
-		return cb->getResourceAmount(Res::GOLD) >= HERO_GOLD_COST &&
+		return cb->getResourceAmount(Res::GOLD) >= GameConstants::HERO_GOLD_COST &&
 			cb->getHeroesInfo().size() < ALLOWED_ROAMING_HEROES &&
 			cb->getAvailableHeroes(t).size();
 	else
@@ -1530,7 +1530,7 @@ void VCAI::wander(HeroPtr h)
 				}
 				break;
 			}
-			else if(cb->getResourceAmount(Res::GOLD) >= HERO_GOLD_COST)
+			else if(cb->getResourceAmount(Res::GOLD) >= GameConstants::HERO_GOLD_COST)
 			{
 				std::vector<const CGTownInstance *> towns = cb->getTownsInfo();
 				erase_if(towns, [](const CGTownInstance *t) -> bool
