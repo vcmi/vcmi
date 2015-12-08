@@ -1697,7 +1697,7 @@ void VCAI::validateVisitableObjs()
 	auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
 	{
 		if (obj)
-			return !cb->getObj(obj->id);
+			return !cb->getObj(obj->id, false); // no verbose output needed as we check object visibility
 		else
 			return true;
 
