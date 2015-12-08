@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * CLodStream.h, part of VCMI engine
+ * CCompressedStream.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

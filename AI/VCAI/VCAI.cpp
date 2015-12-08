@@ -13,7 +13,7 @@
 
 
 /*
- * CCreatureHandler.h, part of VCMI engine
+ * VCAI.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

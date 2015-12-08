@@ -3,7 +3,7 @@
 #include "GameConstants.h"
 
 /*
- * GameConstants.h, part of VCMI engine
+ * StringConstants.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
