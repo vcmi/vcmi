@@ -230,7 +230,7 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 		}
 		else
 		{
-            logGlobal->warnStream() << "Problem: dwelling with id " << bid << " offers no creatures!";
+			logGlobal->warnStream() << "Problem: dwelling with id " << bid << " offers no creatures!";
 			return "#ERROR#";
 		}
 	}
@@ -501,7 +501,10 @@ void CCastleBuildings::recreate()
 
 	if(vstd::contains(town->builtBuildings, BuildingID::SHIPYARD))
 	{
-		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(town->bestLocation());
+		auto bayPos = town->bestLocation();
+		if(!bayPos.valid())
+			logGlobal->warnStream() << "Shipyard in non-coastal town!";
+		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(bayPos, false);
 		//there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
 		if(!vobjs.empty() && (vobjs.front()->ID == Obj::BOAT || vobjs.front()->ID == Obj::HERO))
 		{

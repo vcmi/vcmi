@@ -1784,7 +1784,7 @@ const CGObjectInstance * VCAI::lookForArt(int aid) const
 {
 	for(const CGObjectInstance *obj : ai->visitableObjs)
 	{
-		if(obj->ID == 5 && obj->subID == aid)
+		if(obj->ID == Obj::ARTIFACT && obj->subID == aid)
 			return obj;
 	}
 
