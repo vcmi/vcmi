@@ -1052,6 +1052,10 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				if (location.relatedObj() == target && location.slot < ArtifactPosition::AFTER_LAST)
 					continue; //don't reequip artifact we already wear
 
+				if(location.slot == ArtifactPosition::MACH4) // don't attempt to move catapult
+					continue;
+				//FIXME: why do we really attempt to move catapults between heroes in first case?
+
 				auto s = location.getSlot();
 				if (!s || s->locked) //we can't move locks
 					continue;
