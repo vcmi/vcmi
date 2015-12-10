@@ -195,8 +195,15 @@ void CPathfinder::calculatePaths()
 				dp->moveRemains = movement;
 				dp->turns = turn;
 				dp->theNodeBefore = cp;
-				dp->action = CGPathNode::NORMAL;
-				pq.push(dp);
+
+				dtObj = gs->map->getTile(neighbour).topVisitableObj();
+				if(CGTeleport::isTeleport(dtObj))
+				{
+					dp->action = CGPathNode::NORMAL;
+					pq.push(dp);
+				}
+				else
+					dp->action = getDestAction(); // TODO: We only need to check for hero on other side, but not for guards.
 			}
 		}
 	} //queue loop
