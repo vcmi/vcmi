@@ -4827,11 +4827,15 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		}
 		else
 		{
-			//player lost -> all his objects become unflagged (neutral)
-			for (auto h : p->heroes) //eliminate heroes
-				if (h.get())
+			//copy heroes vector to avoid iterator invalidation as removal change PlayerState
+			auto hlp = p->heroes;
+			for(auto h : hlp) //eliminate heroes
+			{
+				if(h.get())
 					removeObject(h);
+			}
 
+			//player lost -> all his objects become unflagged (neutral)
 			for (auto obj : gs->map->objects) //unflag objs
 			{
 				if(obj.get() && obj->tempOwner == player)
