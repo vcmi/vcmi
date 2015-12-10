@@ -3245,6 +3245,14 @@ For ship construction etc, another function (goal?) is needed
 				}
 			}
 
+
+/*
+			// TODO: this code need to be rewritten in order to work porperly
+			// And we need to support teleport channels instead of just gates
+			//
+			// At moment it's cause more issues than it's solve so it's disabled.
+			// Check mantis 2119, 2228 and 2212 (Warmonger posts)
+
 			for (auto gate : s->subterraneanGates)
 			{
 				auto gatePair = ai->knownSubterraneanGates.find(gate);
@@ -3259,6 +3267,7 @@ For ship construction etc, another function (goal?) is needed
 					}
 				}
 			}
+*/
 		}
 
 		if(!preds[dest])
@@ -3372,6 +3381,9 @@ For ship construction etc, another function (goal?) is needed
 
 				//TODO: pop sectors linked by Subterranean Gate in loop
 
+/*
+				// Same as above, check issues 2119, 2228
+
 				auto firstGate = boost::find_if(src->subterraneanGates, [=](const CGObjectInstance * gate) -> bool
 				{
 					//make sure no hero block the way
@@ -3386,6 +3398,7 @@ For ship construction etc, another function (goal?) is needed
 					//TODO: pahtfinder can find path through subterranean gates, but this function only reaches closest gate
 					return (*firstGate)->visitablePos();
 				}
+*/
 				//TODO
 				//Monolith? Whirlpool? ...
 				return ret;
