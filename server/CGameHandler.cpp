@@ -5846,7 +5846,8 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleI
 		if (!st->count && !st->base) //we can imagine stacks of war mahcines that are not spawned by artifacts?
 		{
 			auto warMachine = VLC->arth->creatureToMachineID(st->type->idNumber);
-			if (warMachine != ArtifactID::NONE)
+			//catapult artifact remain even if "creature" killed in siege
+			if(warMachine != ArtifactID::NONE && warMachine != ArtifactID::CATAPULT)
 			{
 				auto hero = dynamic_cast<const CGHeroInstance*> (army);
 				if (hero)
