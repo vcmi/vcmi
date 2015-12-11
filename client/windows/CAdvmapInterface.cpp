@@ -1544,6 +1544,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		switch(pnode->action)
 		{
 		case CGPathNode::NORMAL:
+		case CGPathNode::TELEPORT_NORMAL:
 			if(pnode->layer == EPathfindingLayer::LAND)
 				CCS->curh->changeGraphic(ECursor::ADVENTURE, 4 + turns*6);
 			else
@@ -1552,6 +1553,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 
 		case CGPathNode::VISIT:
 		case CGPathNode::BLOCKING_VISIT:
+		case CGPathNode::TELEPORT_BLOCKING_VISIT:
 			if(objAtTile && objAtTile->ID == Obj::HERO)
 			{
 				if(selection == objAtTile)
@@ -1566,6 +1568,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 			break;
 
 		case CGPathNode::BATTLE:
+		case CGPathNode::TELEPORT_BATTLE:
 			CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
 			break;
 

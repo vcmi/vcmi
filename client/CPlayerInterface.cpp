@@ -2629,6 +2629,31 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		return cb->getTile(CGHeroInstance::convertPosition(coord,false))->topVisitableObj(ignoreHero);
 	};
 
+	auto isTeleportAction = [&](CGPathNode::ENodeAction action) -> bool
+	{
+		if(action != CGPathNode::TELEPORT_NORMAL &&
+			action != CGPathNode::TELEPORT_BLOCKING_VISIT &&
+			action != CGPathNode::TELEPORT_BATTLE)
+		{
+			return false;
+		}
+
+		return true;
+	};
+
+	auto getDestTeleportObj = [&](const CGObjectInstance * currentObject, const CGObjectInstance * nextObjectTop, const CGObjectInstance * nextObject) -> const CGObjectInstance *
+	{
+		if(CGTeleport::isConnected(currentObject, nextObjectTop))
+			return nextObjectTop;
+		if(nextObjectTop && nextObjectTop->ID == Obj::HERO &&
+			CGTeleport::isConnected(currentObject, nextObject))
+		{
+			return nextObject;
+		}
+
+		return nullptr;
+	};
+
 	boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
 	stillMoveHero.data = CONTINUE_MOVE;
 	auto doMovement = [&](int3 dst, bool transit)
@@ -2661,13 +2686,21 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 			int3 currentCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i-1].coord;
 
-			auto nextObject = getObj(nextCoord, nextCoord == h->pos);
-			if(CGTeleport::isConnected(getObj(currentCoord, currentCoord == h->pos), nextObject))
+			auto currentObject = getObj(currentCoord, currentCoord == h->pos);
+			auto nextObjectTop = getObj(nextCoord, false);
+			auto nextObject = getObj(nextCoord, true);
+			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
+			if(isTeleportAction(path.nodes[i-1].action) && destTeleportObj != nullptr)
 			{
 				CCS->soundh->stopSound(sh);
-				destinationTeleport = nextObject->id;
+				destinationTeleport = destTeleportObj->id;
 				destinationTeleportPos = nextCoord;
 				doMovement(h->pos, false);
+				if(path.nodes[i-1].action == CGPathNode::TELEPORT_BLOCKING_VISIT)
+				{
+					destinationTeleport = ObjectInstanceID();
+					destinationTeleportPos = int3(-1);
+				}
 				sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
 				continue;
 			}
@@ -2700,8 +2733,8 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 			bool useTransit = false;
 			if((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
-				&& (CGTeleport::isConnected(nextObject, getObj(path.nodes[i-2].coord, false))
-					|| CGTeleport::isTeleport(nextObject)))
+				&& (CGTeleport::isConnected(nextObjectTop, getObj(path.nodes[i-2].coord, false))
+					|| CGTeleport::isTeleport(nextObjectTop)))
 			{ // Hero should be able to go through object if it's allow transit
 				useTransit = true;
 			}

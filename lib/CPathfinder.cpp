@@ -199,18 +199,14 @@ void CPathfinder::calculatePaths()
 
 			if(isBetterWay(movement, turn))
 			{
+				dtObj = gs->map->getTile(neighbour).topVisitableObj();
+
 				dp->moveRemains = movement;
 				dp->turns = turn;
 				dp->theNodeBefore = cp;
-
-				dtObj = gs->map->getTile(neighbour).topVisitableObj();
-				if(CGTeleport::isTeleport(dtObj))
-				{
-					dp->action = CGPathNode::NORMAL;
+				dp->action = getTeleportDestAction();
+				if(dp->action == CGPathNode::TELEPORT_NORMAL)
 					pq.push(dp);
-				}
-				else
-					dp->action = getDestAction(); // TODO: We only need to check for hero on other side, but not for guards.
 			}
 		}
 	} //queue loop
@@ -550,6 +546,21 @@ CGPathNode::ENodeAction CPathfinder::getDestAction() const
 			action = CGPathNode::BATTLE;
 
 		break;
+	}
+
+	return action;
+}
+
+CGPathNode::ENodeAction CPathfinder::getTeleportDestAction() const
+{
+	CGPathNode::ENodeAction action = CGPathNode::TELEPORT_NORMAL;
+	if(isDestVisitableObj() && dtObj->ID == Obj::HERO)
+	{
+		auto objRel = getPlayerRelations(dtObj->tempOwner, hero->tempOwner);
+		if(objRel == PlayerRelations::ENEMIES)
+			action = CGPathNode::TELEPORT_BATTLE;
+		else
+			action = CGPathNode::TELEPORT_BLOCKING_VISIT;
 	}
 
 	return action;

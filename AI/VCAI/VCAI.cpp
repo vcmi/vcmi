@@ -1879,6 +1879,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
             logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
 			throw goalFulfilledException (sptr(Goals::VisitTile(dst).sethero(h)));
 		}
+		int i = path.nodes.size()-1;
 
 		auto getObj = [&](int3 coord, bool ignoreHero)
 		{
@@ -1886,6 +1887,31 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			assert(tile);
 			return tile->topVisitableObj(ignoreHero);
 			//return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
+		};
+
+		auto isTeleportAction = [&](CGPathNode::ENodeAction action) -> bool
+		{
+			if(action != CGPathNode::TELEPORT_NORMAL &&
+				action != CGPathNode::TELEPORT_BLOCKING_VISIT &&
+				action != CGPathNode::TELEPORT_BATTLE)
+			{
+				return false;
+			}
+
+			return true;
+		};
+
+		auto getDestTeleportObj = [&](const CGObjectInstance * currentObject, const CGObjectInstance * nextObjectTop, const CGObjectInstance * nextObject) -> const CGObjectInstance *
+		{
+			if(CGTeleport::isConnected(currentObject, nextObjectTop))
+				return nextObjectTop;
+			if(nextObjectTop && nextObjectTop->ID == Obj::HERO &&
+				CGTeleport::isConnected(currentObject, nextObject))
+			{
+				return nextObject;
+			}
+
+			return nullptr;
 		};
 
 		auto doMovement = [&](int3 dst, bool transit)
@@ -1918,17 +1944,18 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			doTeleportMovement(currentExit, currentPos);
 		};
 
-		int i=path.nodes.size()-1;
 		for(; i>0; i--)
 		{
 			int3 currentCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i-1].coord;
 
 			auto currentObject = getObj(currentCoord, currentCoord == CGHeroInstance::convertPosition(h->pos,false));
-			auto nextObject = getObj(nextCoord, false);
-			if(CGTeleport::isConnected(currentObject, nextObject))
+			auto nextObjectTop = getObj(nextCoord, false);
+			auto nextObject = getObj(nextCoord, true);
+			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
+			if(isTeleportAction(path.nodes[i-1].action) && destTeleportObj != nullptr)
 			{ //we use special login if hero standing on teleporter it's mean we need
-				doTeleportMovement(nextObject->id, nextCoord);
+				doTeleportMovement(destTeleportObj->id, nextCoord);
 				if(teleportChannelProbingList.size())
 					doChannelProbing();
 
@@ -1947,8 +1974,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				continue;
 
 			if((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
-				&& (CGTeleport::isConnected(nextObject, getObj(path.nodes[i-2].coord, false))
-					|| CGTeleport::isTeleport(nextObject)))
+				&& (CGTeleport::isConnected(nextObjectTop, getObj(path.nodes[i-2].coord, false))
+					|| CGTeleport::isTeleport(nextObjectTop)))
 			{ // Hero should be able to go through object if it's allow transit
 				doMovement(endpos, true);
 			}

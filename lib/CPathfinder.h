@@ -36,7 +36,10 @@ struct DLL_LINKAGE CGPathNode
 		NORMAL,
 		BATTLE,
 		VISIT,
-		BLOCKING_VISIT
+		BLOCKING_VISIT,
+		TELEPORT_NORMAL,
+		TELEPORT_BLOCKING_VISIT,
+		TELEPORT_BATTLE
 	};
 
 	enum EAccessibility : ui8
@@ -202,6 +205,7 @@ private:
 	bool isMovementToDestPossible() const;
 	bool isMovementAfterDestPossible() const;
 	CGPathNode::ENodeAction getDestAction() const;
+	CGPathNode::ENodeAction getTeleportDestAction() const;
 
 	bool isSourceInitialPosition() const;
 	bool isSourceVisitableObj() const;
