@@ -831,6 +831,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 		addNewBonus(bonus);
 	}
 
+	CBonusSystemNode::treeHasChanged();
 }
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 {
@@ -1365,6 +1366,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si
 		{
 			skill->val += value;
 		}
+		CBonusSystemNode::treeHasChanged();
 	}
 	else if(primarySkill == PrimarySkill::EXPERIENCE)
 	{

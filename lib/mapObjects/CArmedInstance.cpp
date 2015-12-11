@@ -96,6 +96,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		b->description = b->description.substr(0, b->description.size()-2);//trim value
 	}
 	boost::algorithm::trim(b->description);
+	CBonusSystemNode::treeHasChanged();
 
 	//-1 modifier for any Undead unit in army
 	const ui8 UNDEAD_MODIFIER_ID = -2;

@@ -140,6 +140,7 @@ void CCreature::setId(CreatureID ID)
 		if(bonus->source == Bonus::CREATURE_ABILITY)
 			bonus->sid = ID;
 	}
+	CBonusSystemNode::treeHasChanged();
 }
 
 static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
