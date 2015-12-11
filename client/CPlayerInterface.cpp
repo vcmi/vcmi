@@ -2242,8 +2242,10 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 
 void CPlayerInterface::acceptTurn()
 {
+	bool centerView = true;
 	if(settings["session"]["autoSkip"].Bool())
 	{
+		centerView = false;
 		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt()))
 			iw->close();
 	}
@@ -2270,10 +2272,10 @@ void CPlayerInterface::acceptTurn()
 	//select first hero if available.
 	if(heroToSelect != nullptr)
 	{
-		adventureInt->select(heroToSelect);
+		adventureInt->select(heroToSelect, centerView);
 	}
 	else
-		adventureInt->select(towns.front());
+		adventureInt->select(towns.front(), centerView);
 
 	//show new day animation and sound on infobar
 	adventureInt->infoBar.showDate();
