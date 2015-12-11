@@ -818,7 +818,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 
 
 	Bonus::ValueType skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
-	if(Bonus * b = getBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which)
+	if(Bonus * b = getExportedBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which)
 										.And(Selector::sourceType(Bonus::SECONDARY_SKILL)))) //only local hero bonus
 	{
 		b->val = skillVal;

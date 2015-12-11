@@ -452,8 +452,14 @@ void CCreatureHandler::loadCrExpBon()
 		}
 		do //parse everything that's left
 		{
-			b.sid = parser.readNumber(); //id = this particular creature ID
-			loadStackExp(b, creatures[b.sid]->getBonusList(), parser); //add directly to CCreature Node
+			auto sid = parser.readNumber(); //id = this particular creature ID
+			b.sid = sid;
+			bl.clear();
+			loadStackExp(b, bl, parser);
+			for(Bonus * b : bl)
+			{
+				creatures[sid]->addNewBonus(b); //add directly to CCreature Node
+			}
 		}
 		while (parser.endLine());
 
