@@ -694,7 +694,6 @@ public:
 	void exportBonus(Bonus * b);
 	void exportBonuses();
 
-	BonusList &getBonusList();
 	const BonusList &getBonusList() const;
 	BonusList &getExportedBonusList();
 	CBonusSystemNode::ENodeTypes getNodeType() const;
