@@ -189,6 +189,13 @@ void CPathfinder::calculatePaths()
 			dp = out.getNode(neighbour, cp->layer);
 			if(dp->locked)
 				continue;
+			/// TODO: We may consider use invisible exits on FoW border in future
+			/// Useful for AI when at least one tile around exit is visible and passable
+			/// Objects are usually visible on FoW border anyway so it's not cheating.
+			///
+			/// For now it's disabled as it's will cause crashes in movement code.
+			if(dp->accessible == CGPathNode::BLOCKED)
+				continue;
 
 			if(isBetterWay(movement, turn))
 			{
