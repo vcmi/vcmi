@@ -249,13 +249,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects & rand;
-		if(version >= 755) //save format backward compatibility
-		{
-			h & rumor;
-		}
-		else if(!h.saving)
-			rumor = RumorState();
-
+		h & rumor;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 

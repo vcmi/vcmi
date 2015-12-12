@@ -79,15 +79,7 @@ public:
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & patrolling;
-			if(version >= 755) //save format backward compatibility
-			{
-				h & initialPos;
-			}
-			else if(!h.saving)
-			{
-				patrolling = false;
-				initialPos = int3();
-			}
+			h & initialPos;
 			h & patrolRadious;
 		}
 	} patrol;
@@ -177,7 +169,7 @@ public:
 	double getHeroStrength() const; // includes fighting and magic strength
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
-	
+
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
@@ -201,23 +193,23 @@ public:
 	void Updatespecialty();
 	void recreateSecondarySkillsBonuses();
 	void updateSkill(SecondarySkill which, int val);
-	
+
 	bool hasVisions(const CGObjectInstance * target, const int subtype) const;
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
-	
+
 	///ArtBearer
 	ArtBearer::ArtBearer bearerType() const override;
 
 	///IBonusBearer
 	CBonusSystemNode *whereShouldBeAttached(CGameState *gs) override;
 	std::string nodeName() const override;
-	
+
 	///ISpellCaster
 	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const override;
 	ui32 getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const override;
-	
+
 	///default spell school level for effect calculation
 	int getEffectLevel(const CSpell * spell) const override;
 
@@ -229,9 +221,9 @@ public:
 
 	///damage/heal override(ignores spell configuration, effect level and effect power)
 	int getEffectValue(const CSpell * spell) const override;
-	
+
 	const PlayerColor getOwner() const override;
-	
+
 	void deserializationFix();
 
 	void initObj() override;
