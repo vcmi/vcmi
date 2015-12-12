@@ -730,6 +730,11 @@ CGameState::~CGameState()
 
 	for(auto ptr : hpool.heroesPool) // clean hero pool
 		ptr.second.dellNull();
+
+	for(auto p : teams)
+		delete p.second;
+	for(auto p : players)
+		delete p.second;
 }
 
 BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town)
