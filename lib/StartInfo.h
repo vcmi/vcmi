@@ -31,7 +31,7 @@ struct PlayerSettings
 	Ebonus bonus;
 	si16 castle;
 	si32 hero,
-	     heroPortrait; //-1 if default, else ID
+		 heroPortrait; //-1 if default, else ID
 
 	std::string heroName;
 	PlayerColor color; //from 0 - 

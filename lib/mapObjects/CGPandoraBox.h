@@ -20,7 +20,7 @@ class DLL_LINKAGE CGPandoraBox : public CArmedInstance
 {
 public:
 	std::string message;
-	bool hasGuardians; //helper - after battle even though we have no stacks, allows us to know that there was battle
+	mutable bool hasGuardians; //helper - after battle even though we have no stacks, allows us to know that there was battle
 
 	//gained things:
 	ui32 gainedExp;
@@ -54,6 +54,7 @@ protected:
 private:
 	void getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const;
 	void getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const;
+	virtual void afterSuccessfulVisit() const;
 };
 
 class DLL_LINKAGE CGEvent : public CGPandoraBox  //event objects
@@ -74,4 +75,5 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 private:
 	void activated(const CGHeroInstance * h) const;
+	void afterSuccessfulVisit() const override;
 };

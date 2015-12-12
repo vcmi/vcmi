@@ -12,11 +12,9 @@
 #include "../../lib/CBuildingHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CTownHandler.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/Connection.h"
-#include "../../lib/CGameState.h"
-#include "../../lib/mapping/CMap.h"
-#include "../../lib/NetPacks.h"
 #include "../../lib/CondSh.h"
 
 struct QuestInfo;
@@ -95,6 +93,7 @@ struct SectorMap
 	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector;
 
 	std::map<int, Sector> infoOnSectors;
+	shared_ptr<boost::multi_array<TerrainTile*, 3>> visibleTiles;
 
 	SectorMap();
 	SectorMap(HeroPtr h);
@@ -103,27 +102,16 @@ struct SectorMap
 	void exploreNewSector(crint3 pos, int num, CCallback * cbp);
 	void write(crstring fname);
 
+	bool markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t);
+	bool markIfBlocked(ui8 &sec, crint3 pos);
 	unsigned char &retreiveTile(crint3 pos);
+	TerrainTile* getTile(crint3 pos) const;
 
 	void makeParentBFS(crint3 source);
 
 	int3 firstTileToGet(HeroPtr h, crint3 dst); //if h wants to reach tile dst, which tile he should visit to clear the way?
 	int3 findFirstVisitableTile(HeroPtr h, crint3 dst);
 };
-
-//Set of buildings for different goals. Does not include any prerequisites.
-const BuildingID essential[] = {BuildingID::TAVERN, BuildingID::TOWN_HALL};
-const BuildingID goldSource[] = {BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL};
-const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
-	BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7};
-const BuildingID unitsUpgrade[] = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
-	BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP};
-const BuildingID unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
-	BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR};
-const BuildingID spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
-	BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
-const BuildingID extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
-	BuildingID::SPECIAL_4, BuildingID::SHIPYARD}; // all remaining buildings
 
 class VCAI : public CAdventureAI
 {
@@ -144,6 +132,7 @@ public:
 	std::map<TeleportChannelID, shared_ptr<TeleportChannel> > knownTeleportChannels;
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
 	ObjectInstanceID destinationTeleport;
+	int3 destinationTeleportPos;
 	std::vector<ObjectInstanceID> teleportChannelProbingList; //list of teleport channel exits that not visible and need to be (re-)explored
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::set<const CGTownInstance *> > townVisitsThisWeek;
@@ -156,6 +145,8 @@ public:
 	std::set<const CGObjectInstance *> visitableObjs;
 	std::set<const CGObjectInstance *> alreadyVisited;
 	std::set<const CGObjectInstance *> reservedObjs; //to be visited by specific hero
+
+	std::map <HeroPtr, std::shared_ptr<SectorMap>> cachedSectorMaps; //TODO: serialize? not necessary
 
 	TResources saving;
 
@@ -196,7 +187,7 @@ public:
 	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override; //TODO
 	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
-	virtual void showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID) override;
+	virtual void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	virtual void saveGame(COSer & h, const int version) override; //saving
 	virtual void loadGame(CISer & h, const int version) override; //loading
 	virtual void finish() override;
@@ -292,7 +283,7 @@ public:
 	void markHeroUnableToExplore (HeroPtr h);
 	void markHeroAbleToExplore (HeroPtr h);
 	bool isAbleToExplore (HeroPtr h);
-	void clearHeroesUnableToExplore();
+	void clearPathsInfo();
 
 	void validateObject(const CGObjectInstance *obj); //checks if object is still visible and if not, removes references to it
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
@@ -307,6 +298,8 @@ public:
 
 	const CGObjectInstance *getUnvisitedObj(const std::function<bool(const CGObjectInstance *)> &predicate);
 	bool isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies = false) const;
+	//optimization - use one SM for every hero call
+	std::shared_ptr<SectorMap> getCachedSectorMap(HeroPtr h);
 
 	const CGTownInstance *findTownWithTavern() const;
 	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;

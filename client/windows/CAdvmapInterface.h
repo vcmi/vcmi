@@ -235,6 +235,7 @@ public:
 	//button updates
 	void updateSleepWake(const CGHeroInstance *h);
 	void updateMoveHero(const CGHeroInstance *h, tribool hasPath = boost::logic::indeterminate);
+	void updateSpellbook(const CGHeroInstance *h);
 	void updateNextHero(const CGHeroInstance *h);
 
 	/// changes current adventure map mode; used to switch between default view and world view; scale is ignored if EAdvMapMode == NORMAL

@@ -13,7 +13,7 @@
 #include "ResourceSet.h"
 //#include "CObstacleInstance.h"
 #include "CGameStateFwd.h"
-#include "mapping/CMap.h"
+#include "mapping/CMapDefines.h"
 #include "CObstacleInstance.h"
 
 #include "spells/ViewSpellInt.h"
@@ -366,6 +366,7 @@ struct GiveBonus :  public CPackForClient //115
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & bonus & id & bdescr & who;
+		assert( id != -1);
 	}
 };
 
@@ -1221,7 +1222,7 @@ struct TeleportDialog : public Query//2006
 
 	const CGHeroInstance *hero;
 	TeleportChannelID channel;
-	std::vector<ObjectInstanceID> exits;
+	TTeleportExitsList exits;
 	bool impassable;
 
 	template <typename Handler> void serialize(Handler &h, const int version)

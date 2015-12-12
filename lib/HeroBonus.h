@@ -86,13 +86,13 @@ public:
 	BONUS_NAME(SECONDARY_SKILL_PREMY) /*%*/  \
 	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
 	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
-	BONUS_NAME(FLYING_MOVEMENT) /*subtype 1 - without penalty, 2 - with penalty*/ \
+	BONUS_NAME(FLYING_MOVEMENT) /*value - penalty percentage*/ \
 	BONUS_NAME(SPELL_DURATION) \
 	BONUS_NAME(AIR_SPELL_DMG_PREMY) \
 	BONUS_NAME(EARTH_SPELL_DMG_PREMY) \
 	BONUS_NAME(FIRE_SPELL_DMG_PREMY) \
 	BONUS_NAME(WATER_SPELL_DMG_PREMY) \
-	BONUS_NAME(WATER_WALKING) /*subtype 1 - without penalty, 2 - with penalty*/ \
+	BONUS_NAME(WATER_WALKING) /*value - penalty percentage*/ \
 	BONUS_NAME(NEGATE_ALL_NATURAL_IMMUNITIES) \
 	BONUS_NAME(STACK_HEALTH) \
 	BONUS_NAME(BLOCK_MORALE) \
@@ -294,7 +294,7 @@ struct DLL_LINKAGE Bonus
 	};
 
 	ui16 duration; //uses BonusDuration values
-	si16 turnsRemain; //used if duration is N_TURNS or N_DAYS
+	si16 turnsRemain; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 
 	BonusType type; //uses BonusType values - says to what is this bonus - 1 byte
 	TBonusSubtype subtype; //-1 if not applicable - 4 bytes
@@ -686,6 +686,7 @@ public:
 	//bool isLimitedOnUs(Bonus *b) const; //if bonus should be removed from list acquired from this node
 
 	void popBonuses(const CSelector &s);
+	void updateBonuses(const CSelector &s);
 	virtual std::string bonusToString(const Bonus *bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
 
@@ -693,7 +694,6 @@ public:
 	void exportBonus(Bonus * b);
 	void exportBonuses();
 
-	BonusList &getBonusList();
 	const BonusList &getBonusList() const;
 	BonusList &getExportedBonusList();
 	CBonusSystemNode::ENodeTypes getNodeType() const;
@@ -810,12 +810,37 @@ public:
 	bool operator()(const Bonus *bonus) const
 	{
 		return turnsRequested <= 0					//every present effect will last zero (or "less") turns
-			|| !(bonus->duration & Bonus::N_TURNS)	//so do every not expriing after N-turns effect
+			|| !Bonus::NTurns(bonus) //so do every not expriing after N-turns effect
 			|| bonus->turnsRemain > turnsRequested;
 	}
 	CWillLastTurns& operator()(const int &setVal)
 	{
 		turnsRequested = setVal;
+		return *this;
+	}
+};
+
+class DLL_LINKAGE CWillLastDays
+{
+public:
+	int daysRequested;
+
+	bool operator()(const Bonus *bonus) const
+	{
+		if(daysRequested <= 0 || Bonus::Permanent(bonus) || Bonus::OneBattle(bonus))
+			return true;
+		else if(Bonus::OneDay(bonus))
+			return false;
+		else if(Bonus::NDays(bonus) || Bonus::OneWeek(bonus))
+		{
+			return bonus->turnsRemain > daysRequested;
+		}
+
+		return false; // TODO: ONE_WEEK need support for turnsRemain, but for now we'll exclude all unhandled durations
+	}
+	CWillLastDays& operator()(const int &setVal)
+	{
+		daysRequested = setVal;
 		return *this;
 	}
 };
@@ -958,6 +983,7 @@ namespace Selector
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
+	extern DLL_LINKAGE CWillLastDays days;
 	extern DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange;
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);

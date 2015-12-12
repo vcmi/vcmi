@@ -18,12 +18,7 @@
 #include "lib/spells/CSpellHandler.h"
 #include "lib/CArtHandler.h"
 #include "lib/GameConstants.h"
-#ifdef min
-#undef min
-#endif
-#ifdef max
-#undef max
-#endif
+#include "lib/CPlayerState.h"
 #include "lib/UnlockGuard.h"
 
 /*
@@ -288,11 +283,6 @@ bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 {
 	//TODO: merge with Pathfinder::canMoveBetween
 	return gs->checkForVisitableDir(a, b) && gs->checkForVisitableDir(b, a);
-}
-
-int CCallback::getMovementCost(const CGHeroInstance * hero, int3 dest)
-{
-	return gs->getMovementCost(hero, hero->visitablePos(), dest, hero->hasBonusOfType (Bonus::FLYING_MOVEMENT), hero->movement);
 }
 
 const CPathsInfo * CCallback::getPathsInfo(const CGHeroInstance *h)

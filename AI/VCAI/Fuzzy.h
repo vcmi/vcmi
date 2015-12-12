@@ -15,6 +15,7 @@
 class VCAI;
 class CArmedInstance;
 class CBank;
+class SectorMap;
 
 class engineBase
 {
@@ -53,6 +54,8 @@ class FuzzyHelper
 		fl::RuleBlock rules;
 		~EvalVisitTile();
 	} vt;
+
+	
 
 public:
 	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE, VISIT_TILE};

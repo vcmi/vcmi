@@ -1,4 +1,4 @@
-﻿/*
+/*
  * BattleState.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -22,6 +22,7 @@
 #include "JsonNode.h"
 #include "filesystem/Filesystem.h"
 #include "CRandomGenerator.h"
+#include "mapObjects/CGTownInstance.h"
 
 const CStack * BattleInfo::getNextStack() const
 {
@@ -718,7 +719,7 @@ BattlefieldBI::BattlefieldBI BattleInfo::battlefieldTypeToBI(BFieldType bfieldTy
 		{BFieldType::CLOVER_FIELD, BattlefieldBI::CLOVER_FIELD},
 		{BFieldType::CURSED_GROUND, BattlefieldBI::CURSED_GROUND},
 		{BFieldType::EVIL_FOG, BattlefieldBI::EVIL_FOG},
-		{BFieldType::FAVOURABLE_WINDS, BattlefieldBI::NONE},
+		{BFieldType::FAVORABLE_WINDS, BattlefieldBI::NONE},
 		{BFieldType::FIERY_FIELDS, BattlefieldBI::FIERY_FIELDS},
 		{BFieldType::HOLY_GROUND, BattlefieldBI::HOLY_GROUND},
 		{BFieldType::LUCID_POOLS, BattlefieldBI::LUCID_POOLS},

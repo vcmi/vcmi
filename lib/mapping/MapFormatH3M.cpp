@@ -668,8 +668,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 		}
 		if (map->version == EMapFormat::ROE)
 		{
-			// Armageddon's Blade
-			map->allowedArtifact[128] = false;
+			map->allowedArtifact[ArtifactID::ARMAGEDDONS_BLADE] = false;
 		}
 	}
 
@@ -1061,7 +1060,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::RANDOM_HERO:
 		case Obj::PRISON:
 			{
-				nobj = readHero(idToBeGiven);
+				nobj = readHero(idToBeGiven, objPos);
 				break;
 			}
 		case Obj::MONSTER:  //Monster
@@ -1550,7 +1549,7 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 	out->validTypes(true);
 }
 
-CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
+CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const int3 & initialPos)
 {
 	auto nhi = new CGHeroInstance();
 
@@ -1659,6 +1658,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 	else
 	{
 		nhi->patrol.patrolling = true;
+		nhi->patrol.initialPos = CGHeroInstance::convertPosition(initialPos, false);
 	}
 
 	if(map->version > EMapFormat::ROE)

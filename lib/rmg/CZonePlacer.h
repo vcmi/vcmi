@@ -12,8 +12,6 @@
 #pragma once
 
 #include "CMapGenerator.h"
-#include "../mapping/CMap.h"
-
 #include "float3.h"
 #include "../int3.h"
 

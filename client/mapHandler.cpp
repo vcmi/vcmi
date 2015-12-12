@@ -860,8 +860,15 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 		
 		if (!graphics->getDef(obj))
 			processDef(obj->appearance);
-		if (!graphics->getDef(obj) && !obj->appearance.animationFile.empty())
-			logGlobal->errorStream() << "Failed to load image " << obj->appearance.animationFile;
+		if (!graphics->getDef(obj))
+		{
+			if (!obj->appearance.animationFile.empty())
+				logGlobal->errorStream() << "Failed to load image " << obj->appearance.animationFile;
+			else
+				logGlobal->warnStream() << boost::format("Def name for obj %d (%d,%d) is empty!") % obj->id % obj->ID % obj->subID;
+
+			continue;
+		}
 
 		if (!canDrawObject(obj))
 			continue;
@@ -1322,22 +1329,54 @@ bool CMapHandler::printObject(const CGObjectInstance *obj, bool fadein /* = fals
 					curt.objects.insert(i, toAdd);
 			}
 
-		} // for(int fy=0; fy<tilesH; ++fy)
-	} //for(int fx=0; fx<tilesW; ++fx)
+		}
+	}
 	return true;
 }
 
 bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = false */)
 {
-	// do we actually need to search through the whole map for this?
-	for (size_t i=0; i<map->width; i++)
+	//optimized version which reveals weird bugs with missing def name
+	//auto pos = obj->pos;
+
+	//for (size_t i = pos.x; i > pos.x - obj->getWidth(); i--)
+	//{
+	//	for (size_t j = pos.y; j > pos.y - obj->getHeight(); j--)
+	//	{
+	//		int3 t(i, j, pos.z);
+	//		if (!map->isInTheMap(t))
+	//			continue;
+
+	//		auto &objs = ttiles[i][j][pos.z].objects;
+	//		for (size_t x = 0; x < objs.size(); x++)
+	//		{
+	//			auto ourObj = objs[x].obj;
+	//			if (ourObj && ourObj->id == obj->id)
+	//			{
+	//				if (fadeout && ADVOPT.objectFading) // object should be faded == erase is delayed until the end of fadeout
+	//				{
+	//					if (startObjectFade(objs[x], false, t))
+	//						objs[x].obj = nullptr; //set original pointer to null
+	//					else
+	//						objs.erase(objs.begin() + x);
+	//				}
+	//				else
+	//					objs.erase(objs.begin() + x);
+	//				break;
+	//			}
+	//		}
+	//	}
+
+	//}
+
+	for (size_t i = 0; i<map->width; i++)
 	{
-		for (size_t j=0; j<map->height; j++)
+		for (size_t j = 0; j<map->height; j++)
 		{
-			for (size_t k=0; k<(map->twoLevel ? 2 : 1); k++)
+			for (size_t k = 0; k<(map->twoLevel ? 2 : 1); k++)
 			{
 				auto &objs = ttiles[i][j][k].objects;
-				for(size_t x=0; x < objs.size(); x++)
+				for (size_t x = 0; x < objs.size(); x++)
 				{
 					if (objs[x].obj && objs[x].obj->id == obj->id)
 					{
@@ -1356,6 +1395,7 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = fals
 			}
 		}
 	}
+
 	return true;
 }
 bool CMapHandler::removeObject(CGObjectInstance *obj, bool fadeout /* = false */)
@@ -1536,10 +1576,16 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 		}
 	}
 
-	if(t.hasFavourableWinds())
+	if(t.hasFavorableWinds())
 		out = CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS);
 	else if(terName)
+	{
 		out = CGI->generaltexth->terrainNames[t.terType];
+		if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
+		{
+			out = boost::str(boost::format("%s %s") % out % CGI->generaltexth->allTexts[330]); /// digging ok
+		}
+	}
 }
 
 void CMapHandler::discardWorldViewCache()

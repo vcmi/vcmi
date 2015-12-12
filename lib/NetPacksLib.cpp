@@ -16,6 +16,7 @@
 #include "CTownHandler.h"
 #include "mapping/CMapInfo.h"
 #include "StartInfo.h"
+#include "CPlayerState.h"
 
 /*
  * NetPacksLib.cpp, part of VCMI engine
@@ -222,7 +223,7 @@ DLL_LINKAGE void FoWChange::applyGs( CGameState *gs )
 				case Obj::TOWN:
 				case Obj::ABANDONED_MINE:
 					if(vstd::contains(team->players, o->tempOwner)) //check owned observators
-						gs->getTilesInRange(tiles, o->getSightCenter(), o->getSightRadious(), o->tempOwner, 1);
+						gs->getTilesInRange(tilesRevealed, o->getSightCenter(), o->getSightRadious(), o->tempOwner, 1);
 					break;
 				}
 			}
@@ -262,6 +263,9 @@ DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 	}
 
 	assert(cbsn);
+
+	if(Bonus::OneWeek(&bonus))
+		bonus.turnsRemain = 8 - gs->getDate(Date::DAY_OF_WEEK); // set correct number of days before adding bonus
 
 	auto b = new Bonus(bonus);
 	cbsn->addNewBonus(b);
@@ -1023,13 +1027,15 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 		creatureSet.second.applyGs(gs);
 
 	gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
-	if(gs->getDate(Date::DAY_OF_WEEK) == 1) //new week
-		gs->globalEffects.popBonuses(Bonus::OneWeek); //works for children -> all game objs
-
+	gs->globalEffects.updateBonuses(Bonus::NDays);
+	gs->globalEffects.updateBonuses(Bonus::OneWeek);
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
 	for(CGTownInstance* t : gs->map->towns)
 		t->builded = 0;
+
+	if(gs->getDate(Date::DAY_OF_WEEK) == 1)
+		gs->updateRumor();
 }
 
 DLL_LINKAGE void SetObjectProperty::applyGs( CGameState *gs )
@@ -1329,14 +1335,18 @@ DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
 	switch(ba.actionType)
 	{
 	case Battle::DEFEND:
+		st->state -= EBattleStackState::DEFENDING_ANIM;
 		st->state.insert(EBattleStackState::DEFENDING);
+		st->state.insert(EBattleStackState::DEFENDING_ANIM);
 		break;
 	case Battle::WAIT:
+		st->state -= EBattleStackState::DEFENDING_ANIM;
 		st->state.insert(EBattleStackState::WAITING);
 		return;
 	case Battle::HERO_SPELL: //no change in current stack state
 		return;
 	default: //any active stack action - attack, catapult, heal, spell...
+		st->state -= EBattleStackState::DEFENDING_ANIM;
 		st->state.insert(EBattleStackState::MOVED);
 		break;
 	}

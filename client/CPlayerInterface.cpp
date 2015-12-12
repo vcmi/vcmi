@@ -37,6 +37,7 @@
 #include "../lib/CStopWatch.h"
 #include "../lib/StartInfo.h"
 #include "../lib/CGameState.h"
+#include "../lib/CPlayerState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
 #include "windows/InfoWindows.h"
@@ -97,6 +98,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
 	logGlobal->traceStream() << "\tHuman player interface for player " << Player << " being constructed";
 	destinationTeleport = ObjectInstanceID();
+	destinationTeleportPos = int3(-1);
 	observerInDuelMode = false;
 	howManyPeople++;
 	GH.defActionsDef = 0;
@@ -1147,14 +1149,15 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 }
 
-void CPlayerInterface::showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID)
+void CPlayerInterface::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	ObjectInstanceID choosenExit;
-	if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, destinationTeleport))
-		choosenExit = destinationTeleport;
+	int choosenExit = -1;
+	auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
+	if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
+		choosenExit = vstd::find_pos(exits, neededExit);
 
-	cb->selectionMade(choosenExit.getNum(), askID);
+	cb->selectionMade(choosenExit, askID);
 }
 
 void CPlayerInterface::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
@@ -1288,7 +1291,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 			for(auto &p : pathsMap)
 			{
 				CGPath path;
-				cb->getPathsInfo(p.first)->getPath(p.second, path);
+				cb->getPathsInfo(p.first)->getPath(path, p.second);
 				paths[p.first] = path;
 				logGlobal->traceStream() << boost::format("Restored path for hero %s leading to %s with %d nodes")
 					% p.first->nodeName() % p.second % path.nodes.size();
@@ -1414,6 +1417,7 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 	   && stillMoveHero.get() == DURING_MOVE)
 	{ // After teleportation via CGTeleport object is finished
 		destinationTeleport = ObjectInstanceID();
+		destinationTeleportPos = int3(-1);
 		stillMoveHero.setn(CONTINUE_MOVE);
 	}
 }
@@ -2226,7 +2230,7 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 		{
 			assert(h->getPosition(false) == path.startPos());
 			//update the hero path in case of something has changed on map
-			if(LOCPLINT->cb->getPathsInfo(h)->getPath(path.endPos(), path))
+			if(LOCPLINT->cb->getPathsInfo(h)->getPath(path, path.endPos()))
 				return &path;
 			else
 				paths.erase(h);
@@ -2238,8 +2242,10 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 
 void CPlayerInterface::acceptTurn()
 {
+	bool centerView = true;
 	if(settings["session"]["autoSkip"].Bool())
 	{
+		centerView = false;
 		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt()))
 			iw->close();
 	}
@@ -2266,10 +2272,10 @@ void CPlayerInterface::acceptTurn()
 	//select first hero if available.
 	if(heroToSelect != nullptr)
 	{
-		adventureInt->select(heroToSelect);
+		adventureInt->select(heroToSelect, centerView);
 	}
 	else
-		adventureInt->select(towns.front());
+		adventureInt->select(towns.front(), centerView);
 
 	//show new day animation and sound on infobar
 	adventureInt->infoBar.showDate();
@@ -2315,23 +2321,22 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
 {
 	std::string hlp;
 	CGI->mh->getTerrainDescr(h->getPosition(false), hlp, false);
+	auto isDiggingPossible = h->diggingStatus();
+	if(hlp.length())
+		isDiggingPossible = EDiggingStatus::TILE_OCCUPIED; //TODO integrate with canDig
 
 	int msgToShow = -1;
-	CGHeroInstance::ECanDig isDiggingPossible = h->diggingStatus();
-	if(hlp.length())
-		isDiggingPossible = CGHeroInstance::TILE_OCCUPIED; //TODO integrate with canDig
-
 	switch(isDiggingPossible)
 	{
-	case CGHeroInstance::CAN_DIG:
+	case EDiggingStatus::CAN_DIG:
 		break;
-	case CGHeroInstance::LACK_OF_MOVEMENT:
+	case EDiggingStatus::LACK_OF_MOVEMENT:
 		msgToShow = 56; //"Digging for artifacts requires a whole day, try again tomorrow."
 		break;
-	case CGHeroInstance::TILE_OCCUPIED:
+	case EDiggingStatus::TILE_OCCUPIED:
 		msgToShow = 97; //Try searching on clear ground.
 		break;
-	case CGHeroInstance::WRONG_TERRAIN:
+	case EDiggingStatus::WRONG_TERRAIN:
 		msgToShow = 60; ////Try looking on land!
 		break;
 	default:
@@ -2626,6 +2631,31 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		return cb->getTile(CGHeroInstance::convertPosition(coord,false))->topVisitableObj(ignoreHero);
 	};
 
+	auto isTeleportAction = [&](CGPathNode::ENodeAction action) -> bool
+	{
+		if(action != CGPathNode::TELEPORT_NORMAL &&
+			action != CGPathNode::TELEPORT_BLOCKING_VISIT &&
+			action != CGPathNode::TELEPORT_BATTLE)
+		{
+			return false;
+		}
+
+		return true;
+	};
+
+	auto getDestTeleportObj = [&](const CGObjectInstance * currentObject, const CGObjectInstance * nextObjectTop, const CGObjectInstance * nextObject) -> const CGObjectInstance *
+	{
+		if(CGTeleport::isConnected(currentObject, nextObjectTop))
+			return nextObjectTop;
+		if(nextObjectTop && nextObjectTop->ID == Obj::HERO &&
+			CGTeleport::isConnected(currentObject, nextObject))
+		{
+			return nextObject;
+		}
+
+		return nullptr;
+	};
+
 	boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
 	stillMoveHero.data = CONTINUE_MOVE;
 	auto doMovement = [&](int3 dst, bool transit)
@@ -2642,17 +2672,37 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		ETerrainType newTerrain;
 		int sh = -1;
 
-		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE); i--)
+		auto canStop = [&](CGPathNode * node) -> bool
+		{
+			if(node->layer == EPathfindingLayer::LAND || node->layer == EPathfindingLayer::SAIL)
+				return true;
+
+			if(node->accessible == CGPathNode::ACCESSIBLE)
+				return true;
+
+			return false;
+		};
+
+		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || !canStop(&path.nodes[i])); i--)
 		{
 			int3 currentCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i-1].coord;
 
-			auto nextObject = getObj(nextCoord, nextCoord == h->pos);
-			if(CGTeleport::isConnected(getObj(currentCoord, currentCoord == h->pos), nextObject))
+			auto currentObject = getObj(currentCoord, currentCoord == h->pos);
+			auto nextObjectTop = getObj(nextCoord, false);
+			auto nextObject = getObj(nextCoord, true);
+			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
+			if(isTeleportAction(path.nodes[i-1].action) && destTeleportObj != nullptr)
 			{
 				CCS->soundh->stopSound(sh);
-				destinationTeleport = nextObject->id;
+				destinationTeleport = destTeleportObj->id;
+				destinationTeleportPos = nextCoord;
 				doMovement(h->pos, false);
+				if(path.nodes[i-1].action == CGPathNode::TELEPORT_BLOCKING_VISIT)
+				{
+					destinationTeleport = ObjectInstanceID();
+					destinationTeleportPos = int3(-1);
+				}
 				sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
 				continue;
 			}
@@ -2683,18 +2733,21 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 			int3 endpos(nextCoord.x, nextCoord.y, h->pos.z);
 			logGlobal->traceStream() << "Requesting hero movement to " << endpos;
 
+			bool useTransit = false;
 			if((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
-				&& (CGTeleport::isConnected(nextObject, getObj(path.nodes[i-2].coord, false))
-					|| CGTeleport::isTeleport(nextObject)))
+				&& (CGTeleport::isConnected(nextObjectTop, getObj(path.nodes[i-2].coord, false))
+					|| CGTeleport::isTeleport(nextObjectTop)))
 			{ // Hero should be able to go through object if it's allow transit
-				doMovement(endpos, true);
+				useTransit = true;
 			}
-			else
-				doMovement(endpos, false);
+			else if(path.nodes[i-1].layer == EPathfindingLayer::AIR)
+				useTransit = true;
+
+			doMovement(endpos, useTransit);
 
 			logGlobal->traceStream() << "Resuming " << __FUNCTION__;
 			bool guarded = cb->isInTheMap(cb->getGuardingCreaturePosition(endpos - int3(1, 0, 0)));
-			if(guarded || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
+			if((!useTransit && guarded) || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
 				break;
 		}
 

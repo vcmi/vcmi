@@ -95,6 +95,7 @@ set(lib_SRCS
 
 		IGameCallback.cpp
 		CGameInfoCallback.cpp
+		CPathfinder.cpp
 		CGameState.cpp
 		Connection.cpp
 		NetPacksLib.cpp
@@ -116,6 +117,7 @@ set(lib_HEADERS
 		filesystem/ISimpleResourceLoader.h
 
 		mapObjects/MapObjects.h
+		mapping/CMapDefines.h
 
 		CSoundBase.h
 		AI_Base.h
@@ -130,6 +132,7 @@ set(lib_HEADERS
 		IGameEventsReceiver.h
 		int3.h
 		CGameStateFwd.h
+		CPlayerState.h
 		Interprocess.h
 		NetPacks.h
 		NetPacksBase.h

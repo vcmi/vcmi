@@ -14,7 +14,7 @@
 
 namespace GameConstants
 {
-	const std::string VCMI_VERSION = "VCMI 0.98e";
+	const std::string VCMI_VERSION = "VCMI 0.98f";
 
 	const int BFIELD_WIDTH = 17;
 	const int BFIELD_HEIGHT = 11;
@@ -33,6 +33,7 @@ namespace GameConstants
 	const int SPELL_SCHOOL_LEVELS = 4;
 	const int CRE_LEVELS = 10; // number of creature experience levels
 
+	const int HERO_GOLD_COST = 2500;
 	const int SPELLBOOK_GOLD_COST = 500;
 	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 	const int ARMY_SIZE = 7;
@@ -93,18 +94,37 @@ CLASS_NAME & advance(int i)							\
 }
 
 
-#define ID_LIKE_OPERATORS_INTERNAL_DECLS(A, B)			\
-bool DLL_LINKAGE operator==(const A & a, const B & b);	\
-bool DLL_LINKAGE operator!=(const A & a, const B & b);	\
-bool DLL_LINKAGE operator<(const A & a, const B & b);	\
-bool DLL_LINKAGE operator<=(const A & a, const B & b);	\
-bool DLL_LINKAGE operator>(const A & a, const B & b);	\
-bool DLL_LINKAGE operator>=(const A & a, const B & b);
+// Operators are performance-critical and to be inlined they must be in header
+#define ID_LIKE_OPERATORS_INTERNAL(A, B, AN, BN)	\
+STRONG_INLINE bool operator==(const A & a, const B & b)			\
+{													\
+	return AN == BN ;								\
+}													\
+STRONG_INLINE bool operator!=(const A & a, const B & b)			\
+{													\
+	return AN != BN ;								\
+}													\
+STRONG_INLINE bool operator<(const A & a, const B & b)			\
+{													\
+	return AN < BN ;								\
+}													\
+STRONG_INLINE bool operator<=(const A & a, const B & b)			\
+{													\
+	return AN <= BN ;								\
+}													\
+STRONG_INLINE bool operator>(const A & a, const B & b)			\
+{													\
+	return AN > BN ;								\
+}													\
+STRONG_INLINE bool operator>=(const A & a, const B & b)			\
+{													\
+	return AN >= BN ;								\
+}
 
-#define ID_LIKE_OPERATORS_DECLS(CLASS_NAME, ENUM_NAME)			\
-	ID_LIKE_OPERATORS_INTERNAL_DECLS(CLASS_NAME, CLASS_NAME)	\
-	ID_LIKE_OPERATORS_INTERNAL_DECLS(CLASS_NAME, ENUM_NAME)		\
-	ID_LIKE_OPERATORS_INTERNAL_DECLS(ENUM_NAME, CLASS_NAME)
+#define ID_LIKE_OPERATORS(CLASS_NAME, ENUM_NAME)	\
+	ID_LIKE_OPERATORS_INTERNAL(CLASS_NAME, CLASS_NAME, a.num, b.num)	\
+	ID_LIKE_OPERATORS_INTERNAL(CLASS_NAME, ENUM_NAME, a.num, b)	\
+	ID_LIKE_OPERATORS_INTERNAL(ENUM_NAME, CLASS_NAME, a, b.num)
 
 
 #define OP_DECL_INT(CLASS_NAME, OP)					\
@@ -296,7 +316,7 @@ public:
 	ESecondarySkill num;
 };
 
-ID_LIKE_OPERATORS_DECLS(SecondarySkill, SecondarySkill::ESecondarySkill)
+ID_LIKE_OPERATORS(SecondarySkill, SecondarySkill::ESecondarySkill)
 
 namespace EAlignment
 {
@@ -384,7 +404,19 @@ public:
 	EBuildingID num;
 };
 
-ID_LIKE_OPERATORS_DECLS(BuildingID, BuildingID::EBuildingID)
+ID_LIKE_OPERATORS(BuildingID, BuildingID::EBuildingID)
+
+namespace EAiTactic
+{
+enum EAiTactic
+{
+	NONE = -1,
+	RANDOM,
+	WARRIOR,
+	BUILDER,
+	EXPLORER
+};
+}
 
 namespace EBuildingState
 {
@@ -432,8 +464,21 @@ namespace EMarketMode
 
 namespace EBattleStackState
 {
-	enum EBattleStackState{ALIVE = 180, SUMMONED, CLONED, DEAD_CLONE, HAD_MORALE, WAITING, MOVED, DEFENDING, FEAR,
-		DRAINED_MANA /*remember to drain mana only once per turn*/};
+	enum EBattleStackState
+	{
+		ALIVE = 180,
+		SUMMONED, CLONED,
+		DEAD_CLONE,
+		HAD_MORALE,
+		WAITING,
+		MOVED,
+		DEFENDING,
+		FEAR,
+		//remember to drain mana only once per turn
+		DRAINED_MANA,
+		//only for defending animation
+		DEFENDING_ANIM
+	};
 }
 
 namespace ECommander
@@ -651,7 +696,7 @@ public:
 	EObj num;
 };
 
-ID_LIKE_OPERATORS_DECLS(Obj, Obj::EObj)
+ID_LIKE_OPERATORS(Obj, Obj::EObj)
 
 namespace SecSkillLevel
 {
@@ -741,10 +786,51 @@ public:
 	std::string toString() const;
 };
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType actionType);
+DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType);
 
-ID_LIKE_OPERATORS_DECLS(ETerrainType, ETerrainType::EETerrainType)
+ID_LIKE_OPERATORS(ETerrainType, ETerrainType::EETerrainType)
 
+class DLL_LINKAGE EDiggingStatus
+{
+public:
+	enum EEDiggingStatus
+	{
+		UNKNOWN = -1,
+		CAN_DIG = 0,
+		LACK_OF_MOVEMENT,
+		WRONG_TERRAIN,
+		TILE_OCCUPIED
+	};
+
+	EDiggingStatus(EEDiggingStatus _num = UNKNOWN) : num(_num)
+	{}
+
+	ID_LIKE_CLASS_COMMON(EDiggingStatus, EEDiggingStatus)
+
+	EEDiggingStatus num;
+};
+
+ID_LIKE_OPERATORS(EDiggingStatus, EDiggingStatus::EEDiggingStatus)
+
+class DLL_LINKAGE EPathfindingLayer
+{
+public:
+	enum EEPathfindingLayer : ui8
+	{
+		LAND = 0, SAIL = 1, WATER, AIR, NUM_LAYERS, WRONG, AUTO
+	};
+
+	EPathfindingLayer(EEPathfindingLayer _num = WRONG) : num(_num)
+	{}
+
+	ID_LIKE_CLASS_COMMON(EPathfindingLayer, EEPathfindingLayer)
+
+	EEPathfindingLayer num;
+};
+
+DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfindingLayer);
+
+ID_LIKE_OPERATORS(EPathfindingLayer, EPathfindingLayer::EEPathfindingLayer)
 
 class BFieldType
 {
@@ -752,10 +838,10 @@ public:
 	//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines
 	//8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields
 	//15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog
-	//21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
+	//21. "favorable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	enum EBFieldType {NONE = -1, NONE2, SAND_SHORE, SAND_MESAS, DIRT_BIRCHES, DIRT_HILLS, DIRT_PINES, GRASS_HILLS,
 		GRASS_PINES, LAVA, MAGIC_PLAINS, SNOW_MOUNTAINS, SNOW_TREES, SUBTERRANEAN, SWAMP_TREES, FIERY_FIELDS,
-		ROCKLANDS, MAGIC_CLOUDS, LUCID_POOLS, HOLY_GROUND, CLOVER_FIELD, EVIL_FOG, FAVOURABLE_WINDS, CURSED_GROUND,
+		ROCKLANDS, MAGIC_CLOUDS, LUCID_POOLS, HOLY_GROUND, CLOVER_FIELD, EVIL_FOG, FAVORABLE_WINDS, CURSED_GROUND,
 		ROUGH, SHIP_TO_SHIP, SHIP
 	};
 
@@ -767,7 +853,7 @@ public:
 	EBFieldType num;
 };
 
-ID_LIKE_OPERATORS_DECLS(BFieldType, BFieldType::EBFieldType)
+ID_LIKE_OPERATORS(BFieldType, BFieldType::EBFieldType)
 
 namespace EPlayerStatus
 {
@@ -807,7 +893,7 @@ public:
 	EArtifactPosition num;
 };
 
-ID_LIKE_OPERATORS_DECLS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
+ID_LIKE_OPERATORS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
 
 class ArtifactID
 {
@@ -824,6 +910,7 @@ public:
 		FIRST_AID_TENT = 6,
 		//CENTAUR_AXE = 7,
 		//BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
+		ARMAGEDDONS_BLADE = 128,
 		TITANS_THUNDER = 135,
 		//CORNUCOPIA = 140,
 		//FIXME: the following is only true if WoG is enabled. Otherwise other mod artifacts will take these slots.
@@ -851,7 +938,7 @@ public:
 	EArtifactID num;
 };
 
-ID_LIKE_OPERATORS_DECLS(ArtifactID, ArtifactID::EArtifactID)
+ID_LIKE_OPERATORS(ArtifactID, ArtifactID::EArtifactID)
 
 class CreatureID
 {
@@ -895,7 +982,7 @@ public:
 	ECreatureID num;
 };
 
-ID_LIKE_OPERATORS_DECLS(CreatureID, CreatureID::ECreatureID)
+ID_LIKE_OPERATORS(CreatureID, CreatureID::ECreatureID)
 
 class SpellID
 {
@@ -939,7 +1026,7 @@ public:
 	ESpellID num;
 };
 
-ID_LIKE_OPERATORS_DECLS(SpellID, SpellID::ESpellID)
+ID_LIKE_OPERATORS(SpellID, SpellID::ESpellID)
 
 enum class ESpellSchool: ui8
 {
@@ -948,8 +1035,6 @@ enum class ESpellSchool: ui8
 	WATER 	= 2,
 	EARTH 	= 3
 };
-
-ID_LIKE_OPERATORS_DECLS(SpellID, SpellID::ESpellID)
 
 // Typedef declarations
 typedef ui8 TFaction;
@@ -961,8 +1046,8 @@ typedef si32 TQuantity;
 typedef int TRmgTemplateZoneId;
 
 #undef ID_LIKE_CLASS_COMMON
-#undef ID_LIKE_OPERATORS_DECLS
-#undef ID_LIKE_OPERATORS_INTERNAL_DECLS
+#undef ID_LIKE_OPERATORS
+#undef ID_LIKE_OPERATORS_INTERNAL
 #undef INSTID_LIKE_CLASS_COMMON
 #undef OP_DECL_INT
 

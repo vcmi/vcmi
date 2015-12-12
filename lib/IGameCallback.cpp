@@ -21,6 +21,8 @@
 #include "mapObjects/CObjectClassesHandler.h"
 #include "StartInfo.h"
 #include "CGameState.h"
+#include "mapping/CMap.h"
+#include "CPlayerState.h"
 
 void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 {
@@ -38,14 +40,14 @@ void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
-				if (tinfo->terType != ETerrainType::WATER && !tinfo->blocked) //land and free
+				if (tinfo->terType != ETerrainType::WATER && tinfo->terType != ETerrainType::ROCK && !tinfo->blocked) //land and free
 					tiles.push_back (int3 (xd,yd,zd));
 			}
 		}
 	}
 }
 
-void CPrivilagedInfoCallback::getTilesInRange( std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player/*=uninit*/, int mode/*=0*/ ) const
+void CPrivilagedInfoCallback::getTilesInRange( std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player/*=uninit*/, int mode/*=0*/, bool patrolDistance/*=false*/) const
 {
 	if(!!player && *player >= PlayerColor::PLAYER_LIMIT)
 	{
@@ -61,7 +63,13 @@ void CPrivilagedInfoCallback::getTilesInRange( std::unordered_set<int3, ShashInt
 		{
 			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gs->map->height - 1); yd++)
 			{
-				double distance = pos.dist2d(int3(xd,yd,pos.z)) - 0.5;
+				int3 tilePos(xd,yd,pos.z);
+				double distance;
+				if(patrolDistance)
+					distance = pos.mandist2d(tilePos);
+				else
+					distance = pos.dist2d(tilePos) - 0.5;
+
 				if(distance <= radious)
 				{
 					if(!player

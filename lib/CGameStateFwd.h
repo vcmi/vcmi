@@ -10,8 +10,81 @@
  *
  */
 
+#include "CCreatureSet.h"
+
 class CQuest;
 class CGObjectInstance;
+class CHeroClass;
+class CTown;
+
+//numbers of creatures are exact numbers if detailed else they are quantity ids (1 - a few, 2 - several and so on; additionally 0 - unknown)
+struct ArmyDescriptor : public std::map<SlotID, CStackBasicDescriptor>
+{
+	bool isDetailed;
+	DLL_LINKAGE ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
+	DLL_LINKAGE ArmyDescriptor();
+
+	DLL_LINKAGE int getStrength() const;
+};
+
+struct DLL_LINKAGE InfoAboutArmy
+{
+	PlayerColor owner;
+	std::string name;
+
+	ArmyDescriptor army;
+
+	InfoAboutArmy();
+	InfoAboutArmy(const CArmedInstance *Army, bool detailed);
+
+	void initFromArmy(const CArmedInstance *Army, bool detailed);
+};
+
+struct DLL_LINKAGE InfoAboutHero : public InfoAboutArmy
+{
+private:
+	void assign(const InfoAboutHero & iah);
+public:
+	struct DLL_LINKAGE Details
+	{
+		std::vector<si32> primskills;
+		si32 mana, luck, morale;
+	} *details;
+
+	const CHeroClass *hclass;
+	int portrait;
+
+	InfoAboutHero();
+	InfoAboutHero(const InfoAboutHero & iah);
+	InfoAboutHero(const CGHeroInstance *h, bool detailed);
+	~InfoAboutHero();
+
+	InfoAboutHero & operator=(const InfoAboutHero & iah);
+
+	void initFromHero(const CGHeroInstance *h, bool detailed);
+};
+
+/// Struct which holds a int information about a town
+struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
+{
+	struct DLL_LINKAGE Details
+	{
+		si32 hallLevel, goldIncome;
+		bool customRes;
+		bool garrisonedHero;
+
+	} *details;
+
+	const CTown *tType;
+
+	si32 built;
+	si32 fortLevel; //0 - none
+
+	InfoAboutTown();
+	InfoAboutTown(const CGTownInstance *t, bool detailed);
+	~InfoAboutTown();
+	void initFromTown(const CGTownInstance *t, bool detailed);
+};
 
 class DLL_LINKAGE EVictoryLossCheckResult
 {
@@ -116,51 +189,4 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 	{
 		h & quest & obj & tile;
 	}
-};
-
-struct DLL_LINKAGE CGPathNode
-{
-	enum EAccessibility
-	{
-		NOT_SET = 0,
-		ACCESSIBLE = 1, //tile can be entered and passed
-		VISITABLE, //tile can be entered as the last tile in path
-		BLOCKVIS,  //visitable from neighbouring tile but not passable
-		BLOCKED //tile can't be entered nor visited
-	};
-
-	EAccessibility accessible;
-	ui8 land;
-	ui8 turns; //how many turns we have to wait before reachng the tile - 0 means current turn
-	ui32 moveRemains; //remaining tiles after hero reaches the tile
-	CGPathNode * theNodeBefore;
-	int3 coord; //coordinates
-
-	CGPathNode();
-	bool reachable() const;
-};
-
-struct DLL_LINKAGE CGPath
-{
-	std::vector<CGPathNode> nodes; //just get node by node
-
-	int3 startPos() const; // start point
-	int3 endPos() const; //destination point
-	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
-};
-
-struct DLL_LINKAGE CPathsInfo
-{
-	mutable boost::mutex pathMx;
-
-	const CGHeroInstance *hero;
-	int3 hpos;
-	int3 sizes;
-	CGPathNode ***nodes; //[w][h][level]
-
-	const CGPathNode * getPathInfo( int3 tile ) const;
-	bool getPath(const int3 &dst, CGPath &out) const;
-	int getDistance( int3 tile ) const;
-	CPathsInfo(const int3 &Sizes);
-	~CPathsInfo();
 };

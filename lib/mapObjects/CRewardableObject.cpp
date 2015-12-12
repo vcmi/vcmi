@@ -17,6 +17,7 @@
 #include "../NetPacks.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
+#include "../CPlayerState.h"
 
 #include "CObjectClassesHandler.h"
 

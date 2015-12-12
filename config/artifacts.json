@@ -1058,10 +1058,9 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 1,
 				"type" : "FLYING_MOVEMENT",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "INDEPENDENT_MIN"
 			}
 		],
 		"index" : 72,
@@ -1276,10 +1275,9 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : 1,
 				"type" : "WATER_WALKING",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "INDEPENDENT_MIN"
 			}
 		],
 		"index" : 90,

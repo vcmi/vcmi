@@ -51,7 +51,7 @@ void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
 
 void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 {
-	cb->removeAfterVisit(this);
+	afterSuccessfulVisit();
 
 	InfoWindow iw;
 	iw.player = h->getOwner();
@@ -331,6 +331,11 @@ void CGPandoraBox::heroLevelUpDone(const CGHeroInstance *hero) const
 	giveContentsAfterExp(hero);
 }
 
+void CGPandoraBox::afterSuccessfulVisit() const
+{
+	cb->removeAfterVisit(this);
+}
+
 void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(!(availableFor & (1 << h->tempOwner.getNum())))
@@ -361,4 +366,14 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 	{
 		giveContentsUpToExp(h);
 	}
+}
+
+void CGEvent::afterSuccessfulVisit() const
+{
+	if(removeAfterVisit)
+	{
+		cb->removeAfterVisit(this);
+	}
+	else if(hasGuardians)
+		hasGuardians = false;
 }

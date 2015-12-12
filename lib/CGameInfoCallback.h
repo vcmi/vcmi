@@ -91,6 +91,7 @@ public:
 	const CMapHeader * getMapHeader()const;
 	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 	const TerrainTile * getTile(int3 tile, bool verbose = true) const;
+	shared_ptr<boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	bool isInTheMap(const int3 &pos) const;
 
 	//town
@@ -98,7 +99,7 @@ public:
 	int howManyTowns(PlayerColor Player) const;
 	const CGTownInstance * getTownInfo(int val, bool mode)const; //mode = 0 -> val = player town serial; mode = 1 -> val = object id (serial)
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const; //heroes that can be recruited
-	std::string getTavernGossip(const CGObjectInstance * townOrTavern) const; 
+	std::string getTavernRumor(const CGObjectInstance * townOrTavern) const;
 	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	virtual bool getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject = nullptr) const;
 	const CTown *getNativeTown(PlayerColor color) const;

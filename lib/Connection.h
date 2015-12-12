@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <typeinfo> //XXX this is in namespace std if you want w/o use typeinfo.h?
+#include <typeinfo>
 #include <type_traits>
 
 #include <boost/mpl/eval_if.hpp>

@@ -292,7 +292,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 
 std::vector< std::vector<ui8> > CCampaignHandler::getFile(const std::string & name, bool headerOnly)
 {
-	CCompressedStream stream(std::move(CResourceHandler::get()->load(ResourceID(name, EResType::CAMPAIGN))), true);
+	CCompressedStream stream(CResourceHandler::get()->load(ResourceID(name, EResType::CAMPAIGN)), true);
 
 	std::vector< std::vector<ui8> > ret;
 	do
@@ -363,7 +363,7 @@ std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes() const
 			}
 		}
 	}
-	return std::move(lostCrossoverHeroes);
+	return lostCrossoverHeroes;
 }
 
 bool CScenarioTravel::STravelBonus::isBonusForHero() const

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CGTownInstance.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -17,6 +17,8 @@
 #include "../CModHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
+#include "../mapping/CMapDefines.h"
+#include "../CPlayerState.h"
 
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
@@ -854,7 +856,7 @@ void CGTownInstance::deserializationFix()
 
 void CGTownInstance::updateMoraleBonusFromArmy()
 {
-	Bonus *b = getBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
+	Bonus *b = getExportedBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
 	if(!b)
 	{
 		b = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
@@ -862,7 +864,10 @@ void CGTownInstance::updateMoraleBonusFromArmy()
 	}
 
 	if (garrisonHero)
+	{
 		b->val = 0;
+		CBonusSystemNode::treeHasChanged();
+	}
 	else
 		CArmedInstance::updateMoraleBonusFromArmy();
 }

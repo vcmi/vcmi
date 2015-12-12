@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CGHeroInstance.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -22,6 +22,8 @@
 #include "../CGameState.h"
 #include "../CCreatureHandler.h"
 #include "../BattleState.h"
+#include "../CTownHandler.h"
+#include "CGTownInstance.h"
 
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
@@ -56,7 +58,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 	return ret;
 }
 
-ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from) const
+ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const
 {
 	unsigned ret = GameConstants::BASE_MOVEMENT_COST;
 
@@ -80,28 +82,38 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 			break;
 		}
 	}
-	else if(!hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
+	else if(ti->nativeTerrain != from.terType && !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
 	{
-		// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
-		// This is clearly bug in H3 however intended behaviour is not clear.
-		// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
-		// will always have best penalty without any influence from player-defined stacks order
-
-		for(auto stack : stacks)
-		{
-			int nativeTerrain = VLC->townh->factions[stack.second->type->faction]->nativeTerrain;
-			if(nativeTerrain != -1 && nativeTerrain != from.terType)
-			{
-				ret = VLC->heroh->terrCosts[from.terType];
-				ret -= getSecSkillLevel(SecondarySkill::PATHFINDING) * 25;
-				if(ret < GameConstants::BASE_MOVEMENT_COST)
-					ret = GameConstants::BASE_MOVEMENT_COST;
-
-				break;
-			}
-		}
+		ret = VLC->heroh->terrCosts[from.terType];
+		ret -= getSecSkillLevel(SecondarySkill::PATHFINDING) * 25;
+		if(ret < GameConstants::BASE_MOVEMENT_COST)
+			ret = GameConstants::BASE_MOVEMENT_COST;
 	}
 	return ret;
+}
+
+int CGHeroInstance::getNativeTerrain() const
+{
+	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
+	// This is clearly bug in H3 however intended behaviour is not clear.
+	// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
+	// will always have best penalty without any influence from player-defined stacks order
+
+	// TODO: What should we do if all hero stacks are neutral creatures?
+	int nativeTerrain = -1;
+	for(auto stack : stacks)
+	{
+		int stackNativeTerrain = VLC->townh->factions[stack.second->type->faction]->nativeTerrain;
+		if(stackNativeTerrain == -1)
+			continue;
+
+		if(nativeTerrain == -1)
+			nativeTerrain = stackNativeTerrain;
+		else if(nativeTerrain != stackNativeTerrain)
+			return -1;
+	}
+
+	return nativeTerrain;
 }
 
 int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
@@ -127,11 +139,6 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 	{
 		return convertPosition(pos,false);
 	}
-}
-
-bool CGHeroInstance::canWalkOnSea() const
-{
-	return hasBonusOfType(Bonus::FLYING_MOVEMENT) || hasBonusOfType(Bonus::WATER_WALKING);
 }
 
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
@@ -176,8 +183,11 @@ bool CGHeroInstance::canLearnSkill() const
 	return secSkills.size() < GameConstants::SKILL_PER_HERO;
 }
 
-int CGHeroInstance::maxMovePoints(bool onLand) const
+int CGHeroInstance::maxMovePoints(bool onLand, const TurnInfo * ti) const
 {
+	if(!ti)
+		ti = new TurnInfo(this);
+
 	int base;
 
 	if(onLand)
@@ -196,10 +206,10 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	}
 
 	const Bonus::BonusType bt = onLand ? Bonus::LAND_MOVEMENT : Bonus::SEA_MOVEMENT;
-	const int bonus = valOfBonuses(Bonus::MOVEMENT) + valOfBonuses(bt);
+	const int bonus = ti->valOfBonuses(Bonus::MOVEMENT) + ti->valOfBonuses(bt);
 
 	const int subtype = onLand ? SecondarySkill::LOGISTICS : SecondarySkill::NAVIGATION;
-	const double modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, subtype) / 100.0;
+	const double modifier = ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, subtype) / 100.0;
 
 	return int(base* (1+modifier)) + bonus;
 }
@@ -256,10 +266,10 @@ void CGHeroInstance::initHero()
 		spells -= SpellID::PRESET;
 
 	if(!getArt(ArtifactPosition::MACH4) && !getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook) //no catapult means we haven't read pre-existent set -> use default rules for spellbook
-		putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
+		putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(ArtifactID::SPELLBOOK));
 
 	if(!getArt(ArtifactPosition::MACH4))
-		putArtifact(ArtifactPosition::MACH4, CArtifactInstance::createNewArtifactInstance(3)); //everyone has a catapult
+		putArtifact(ArtifactPosition::MACH4, CArtifactInstance::createNewArtifactInstance(ArtifactID::CATAPULT)); //everyone has a catapult
 
 	if(portrait < 0 || portrait == 255)
 		portrait = type->imageIndex;
@@ -808,7 +818,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 
 
 	Bonus::ValueType skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
-	if(Bonus * b = getBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which)
+	if(Bonus * b = getExportedBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which)
 										.And(Selector::sourceType(Bonus::SECONDARY_SKILL)))) //only local hero bonus
 	{
 		b->val = skillVal;
@@ -821,6 +831,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 		addNewBonus(bonus);
 	}
 
+	CBonusSystemNode::treeHasChanged();
 }
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 {
@@ -860,7 +871,7 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	
 	spell->forEachSchool([&, this](const SpellSchoolInfo & cnf, bool & stop)
 	{
-		int thisSchool = std::max<int>(getSecSkillLevel(cnf.skill),	valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); 
+		int thisSchool = std::max<int>(getSecSkillLevel(cnf.skill),	valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
 		if(thisSchool > skill)									
 		{														
 			skill = thisSchool;									
@@ -872,7 +883,8 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	vstd::amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
 	vstd::amax(skill, valOfBonuses(Bonus::SPELL, spell->id.toEnum())); //given by artifact or other effect
 
-	assert(skill >= 0 && skill <= 3);
+	vstd::amax(skill, 0); //in case we don't know any school
+	vstd::amin(skill, 3);
 	return skill;
 }
 
@@ -1093,9 +1105,11 @@ int CGHeroInstance::getBoatType() const
 
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
 {
+	// FIXME: Offsets need to be fixed once we get rid of convertPosition
+	// Check issue 515 for details
 	offsets = 
 	{ 
-		int3(0,1,0), int3(0,-1,0), int3(-1,0,0), int3(+1,0,0), int3(1,1,0), int3(-1,1,0), int3(1,-1,0), int3(-1,-1,0) 
+		int3(-1,1,0), int3(-1,-1,0), int3(-2,0,0), int3(0,0,0), int3(0,1,0), int3(-2,1,0), int3(0,-1,0), int3(-2,-1,0)
 	};
 }
 
@@ -1165,30 +1179,25 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)
 		return CArmedInstance::whereShouldBeAttached(gs);
 }
 
-int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark /*= false*/) const
+int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark /*= false*/, const TurnInfo * ti) const
 {
-	if(hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
-		return (MPsBefore - basicCost) * static_cast<double>(maxMovePoints(disembark)) / maxMovePoints(!disembark);
+	if(!ti)
+		ti = new TurnInfo(this);
+
+	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL);
+	int mp2 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
+	if(ti->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
+		return (MPsBefore - basicCost) * static_cast<double>(mp1) / mp2;
 
 	return 0; //take all MPs otherwise
 }
 
-CGHeroInstance::ECanDig CGHeroInstance::diggingStatus() const
+EDiggingStatus CGHeroInstance::diggingStatus() const
 {
 	if(movement < maxMovePoints(true))
-		return LACK_OF_MOVEMENT;
-    else if(cb->getTile(getPosition(false))->terType == ETerrainType::WATER)
-		return WRONG_TERRAIN;
-	else
-	{
-		const TerrainTile *t = cb->getTile(getPosition());
-		//TODO look for hole
-		//CGI->mh->getTerrainDescr(h->getPosition(false), hlp, false);
-		if(/*hlp.length() || */t->blockingObjects.size() > 1)
-			return TILE_OCCUPIED;
-		else
-			return CAN_DIG;
-	}
+		return EDiggingStatus::LACK_OF_MOVEMENT;
+
+	return cb->getTile(getPosition(false))->getDiggingStatus();
 }
 
 ArtBearer::ArtBearer CGHeroInstance::bearerType() const
@@ -1357,6 +1366,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si
 		{
 			skill->val += value;
 		}
+		CBonusSystemNode::treeHasChanged();
 	}
 	else if(primarySkill == PrimarySkill::EXPERIENCE)
 	{

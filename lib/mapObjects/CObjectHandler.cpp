@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CObjectHandler.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -18,8 +18,10 @@
 #include "../filesystem/ResourceID.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
+#include "../mapping/CMap.h"
 
 #include "CObjectClassesHandler.h"
+#include "CGTownInstance.h"
 
 IGameCallback * IObjectInterface::cb = nullptr;
 
@@ -328,7 +330,7 @@ int3 IBoatGenerator::bestLocation() const
 	{
 		if (const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offset, false)) //tile is in the map
 		{
-			if (tile->terType == ETerrainType::WATER  &&  (!tile->blocked || tile->blockingObjects.front()->ID == 8)) //and is water and is not blocked or is blocked by boat
+			if (tile->terType == ETerrainType::WATER  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
 				return o->pos + offset;
 		}
 	}

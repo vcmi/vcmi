@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CObjectHandler.h"
 #include "CGMarket.h" // For IMarket interface
@@ -52,11 +52,7 @@ public:
 	CSpecObjInfo * info; //h3m info about dewlling
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CArmedInstance&>(*this) & creatures;
-	}
-
+private:
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void newTurn() const override;
@@ -64,9 +60,14 @@ public:
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
-private:
 	void updateGuards() const;
 	void heroAcceptsCreatures(const CGHeroInstance *h) const;
+
+public:
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArmedInstance&>(*this) & creatures;
+	}
 };
 
 class DLL_LINKAGE CGTownBuilding : public IObjectInterface

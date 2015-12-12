@@ -27,6 +27,7 @@
 #include "rmg/CMapGenerator.h"
 #include "CStopWatch.h"
 #include "mapping/CMapEditManager.h"
+#include "CPathfinder.h"
 
 class CGObjectInstance;
 
@@ -906,7 +907,7 @@ void CGameState::initDuel()
 
 			if(!ss.spells.empty())
 			{
-				h->putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
+				h->putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(ArtifactID::SPELLBOOK));
 				boost::copy(ss.spells, std::inserter(h->spells, h->spells.begin()));
 			}
 
@@ -1390,7 +1391,8 @@ void CGameState::placeStartingHeroes()
 			}
 
 			int heroTypeId = pickNextHeroType(playerColor);
-			if(playerSettingPair.second.hero == -1) playerSettingPair.second.hero = heroTypeId;
+			if(playerSettingPair.second.hero == -1)
+				playerSettingPair.second.hero = heroTypeId;
 
 			placeStartingHero(playerColor, HeroTypeID(heroTypeId), playerInfo.posOfMainTown);
 		}
@@ -1945,7 +1947,7 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile)
 		case Obj::EVIL_FOG:
 			return BFieldType::EVIL_FOG;
 		case Obj::FAVORABLE_WINDS:
-			return BFieldType::FAVOURABLE_WINDS;
+			return BFieldType::FAVORABLE_WINDS;
 		case Obj::FIERY_FIELDS:
 			return BFieldType::FIERY_FIELDS;
 		case Obj::HOLY_GROUNDS:
@@ -2068,104 +2070,6 @@ PlayerRelations::PlayerRelations CGameState::getPlayerRelations( PlayerColor col
 	return PlayerRelations::ENEMIES;
 }
 
-void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing)
-{
-	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
-					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
-
-	//vec.reserve(8); //optimization
-	for (auto & dir : dirs)
-	{
-		const int3 hlp = tile + dir;
-		if(!map->isInTheMap(hlp))
-			continue;
-
-		const TerrainTile &hlpt = map->getTile(hlp);
-
-// 		//we cannot visit things from blocked tiles
-// 		if(srct.blocked && !srct.visitable && hlpt.visitable && srct.blockingObjects.front()->ID != HEROI_TYPE)
-// 		{
-// 			continue;
-// 		}
-
-        if(srct.terType == ETerrainType::WATER && limitCoastSailing && hlpt.terType == ETerrainType::WATER && dir.x && dir.y) //diagonal move through water
-		{
-			int3 hlp1 = tile,
-				hlp2 = tile;
-			hlp1.x += dir.x;
-			hlp2.y += dir.y;
-
-            if(map->getTile(hlp1).terType != ETerrainType::WATER || map->getTile(hlp2).terType != ETerrainType::WATER)
-				continue;
-		}
-
-        if((indeterminate(onLand)  ||  onLand == (hlpt.terType!=ETerrainType::WATER) )
-            && hlpt.terType != ETerrainType::ROCK)
-		{
-			vec.push_back(hlp);
-		}
-	}
-}
-
-int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, bool flying, int remainingMovePoints, bool checkLast)
-{
-	if(src == dest) //same tile
-		return 0;
-
-	TerrainTile &s = map->getTile(src),
-		&d = map->getTile(dest);
-
-	//get basic cost
-	int ret = h->getTileCost(d,s);
-
-	if(d.blocked && flying)
-	{
-		bool freeFlying = h->getBonusesCount(Selector::typeSubtype(Bonus::FLYING_MOVEMENT, 1)) > 0;
-
-		if(!freeFlying)
-		{
-			ret *= 1.4; //40% penalty for movement over blocked tile
-		}
-	}
-    else if (d.terType == ETerrainType::WATER)
-	{
-		if(h->boat && s.hasFavourableWinds() && d.hasFavourableWinds()) //Favourable Winds
-			ret *= 0.666;
-		else if (!h->boat && h->getBonusesCount(Selector::typeSubtype(Bonus::WATER_WALKING, 1)) > 0)
-			ret *= 1.4; //40% penalty for water walking
-	}
-
-	if(src.x != dest.x  &&  src.y != dest.y) //it's diagonal move
-	{
-		int old = ret;
-		ret *= 1.414213;
-		//diagonal move costs too much but normal move is possible - allow diagonal move for remaining move points
-		if(ret > remainingMovePoints  &&  remainingMovePoints >= old)
-		{
-			return remainingMovePoints;
-		}
-	}
-
-
-	int left = remainingMovePoints-ret;
-	if(checkLast  &&  left > 0  &&  remainingMovePoints-ret < 250) //it might be the last tile - if no further move possible we take all move points
-	{
-		std::vector<int3> vec;
-		vec.reserve(8); //optimization
-        getNeighbours(d, dest, vec, s.terType != ETerrainType::WATER, true);
-		for(auto & elem : vec)
-		{
-			int fcost = getMovementCost(h,dest, elem, flying, left, false);
-			if(fcost <= left)
-			{
-				return ret;
-			}
-		}
-		ret = remainingMovePoints;
-	}
-	return ret;
-}
-
 void CGameState::apply(CPack *pack)
 {
 	ui16 typ = typeList.getTypeID(pack);
@@ -2236,6 +2140,76 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
 	return gs->map->guardingCreaturePositions[pos.x][pos.y][pos.z];
+}
+
+void CGameState::updateRumor()
+{
+	static std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
+	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
+		RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
+	if(map->grailPos.valid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
+		sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
+
+	int rumorId = -1, rumorExtra = -1;
+	auto & rand = getRandomGenerator();
+	rumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
+	if(!map->rumors.size() && rumor.type == RumorState::TYPE_MAP)
+		rumor.type = RumorState::TYPE_RAND;
+
+	do
+	{
+		switch(rumor.type)
+		{
+		case RumorState::TYPE_SPECIAL:
+		{
+			SThievesGuildInfo tgi;
+			obtainPlayersStats(tgi, 20);
+			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
+			if(rumorId == RumorState::RUMOR_GRAIL)
+			{
+				rumorExtra = getTile(map->grailPos)->terType;
+				break;
+			}
+
+			std::vector<PlayerColor> players = {};
+			switch(rumorId)
+			{
+			case RumorState::RUMOR_OBELISKS:
+				players = tgi.obelisks[0];
+				break;
+
+			case RumorState::RUMOR_ARTIFACTS:
+				players = tgi.artifacts[0];
+				break;
+
+			case RumorState::RUMOR_ARMY:
+				players = tgi.army[0];
+				break;
+
+			case RumorState::RUMOR_INCOME:
+				players = tgi.income[0];
+				break;
+			}
+			rumorExtra = RandomGeneratorUtil::nextItem(players, rand)->getNum();
+
+			break;
+		}
+		case RumorState::TYPE_MAP:
+			rumorId = rand.nextInt(map->rumors.size() - 1);
+
+			break;
+
+		case RumorState::TYPE_RAND:
+			do
+			{
+				rumorId = rand.nextInt(VLC->generaltexth->tavernRumors.size() - 1);
+			}
+			while(!VLC->generaltexth->tavernRumors[rumorId].length());
+
+			break;
+		}
+	}
+	while(!rumor.update(rumorId, rumorExtra));
 }
 
 bool CGameState::isVisible(int3 pos, PlayerColor player)
@@ -2559,6 +2533,58 @@ struct statsHLP
 		}
 		return str;
 	}
+
+	// get total gold income
+	static int getIncome(const PlayerState * ps)
+	{
+		int totalIncome = 0;
+		const CGObjectInstance * heroOrTown = nullptr;
+
+		//Heroes can produce gold as well - skill, specialty or arts
+		for(auto & h : ps->heroes)
+		{
+			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ESTATES));
+			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
+
+			if(!heroOrTown)
+				heroOrTown = h;
+		}
+
+		//Add town income of all towns
+		for(auto & t : ps->towns)
+		{
+			totalIncome += t->dailyIncome()[Res::GOLD];
+
+			if(!heroOrTown)
+				heroOrTown = t;
+		}
+
+		/// FIXME: Dirty dirty hack
+		/// Stats helper need some access to gamestate.
+		std::vector<const CGObjectInstance *> ownedObjects;
+		for(const CGObjectInstance * obj : heroOrTown->cb->gameState()->map->objects)
+		{
+			if(obj && obj->tempOwner == ps->color)
+				ownedObjects.push_back(obj);
+		}
+		/// This is code from CPlayerSpecificInfoCallback::getMyObjects
+		/// I'm really need to find out about callback interface design...
+
+		for(auto object : ownedObjects)
+		{
+			//Mines
+			if ( object->ID == Obj::MINE )
+			{
+				const CGMine *mine = dynamic_cast<const CGMine*>(object);
+				assert(mine);
+
+				if (mine->producedResource == Res::GOLD)
+					totalIncome += mine->producedQuantity;
+			}
+		}
+
+		return totalIncome;
+	}
 };
 
 void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
@@ -2589,20 +2615,22 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			tgi.playerColors.push_back(elem.second->color);
 	}
 
-	if(level >= 1) //num of towns & num of heroes
+	if(level >= 0) //num of towns & num of heroes
 	{
 		//num of towns
 		FILL_FIELD(numOfTowns, g->second->towns.size())
 		//num of heroes
 		FILL_FIELD(numOfHeroes, g->second->heroes.size())
-		//best hero's portrait
+	}
+	if(level >= 1) //best hero's portrait
+	{
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
 			if(playerInactive(g->second->color))
 				continue;
 			const CGHeroInstance * best = statsHLP::findBestHero(this, g->second->color);
 			InfoAboutHero iah;
-			iah.initFromHero(best, level >= 8);
+			iah.initFromHero(best, level >= 2);
 			iah.army.clear();
 			tgi.colorToBestHero[g->second->color] = iah;
 		}
@@ -2619,27 +2647,27 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	{
 		FILL_FIELD(mercSulfCrystGems, g->second->resources[Res::MERCURY] + g->second->resources[Res::SULFUR] + g->second->resources[Res::CRYSTAL] + g->second->resources[Res::GEMS])
 	}
-	if(level >= 4) //obelisks found
+	if(level >= 3) //obelisks found
 	{
 		FILL_FIELD(obelisks, CGObelisk::visited[gs->getPlayerTeam(g->second->color)->id])
 	}
-	if(level >= 5) //artifacts
+	if(level >= 4) //artifacts
 	{
 		FILL_FIELD(artifacts, statsHLP::getNumberOfArts(g->second))
 	}
-	if(level >= 6) //army strength
+	if(level >= 4) //army strength
 	{
 		FILL_FIELD(army, statsHLP::getArmyStrength(g->second))
 	}
-	if(level >= 7) //income
+	if(level >= 5) //income
 	{
-		//TODO:obtainPlayersStats - income
+		FILL_FIELD(income, statsHLP::getIncome(g->second))
 	}
-	if(level >= 8) //best hero's stats
+	if(level >= 2) //best hero's stats
 	{
 		//already set in  lvl 1 handling
 	}
-	if(level >= 9) //personality
+	if(level >= 3) //personality
 	{
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
@@ -2656,7 +2684,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 
 		}
 	}
-	if(level >= 10) //best creature
+	if(level >= 4) //best creature
 	{
 		//best creatures belonging to player (highest AI value)
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
@@ -2875,7 +2903,7 @@ CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
 {
 	for(auto hero : map->heroesOnMap)  //heroes instances initialization
 	{
-		if(hero->subID == hid.getNum())
+		if(hero->type && hero->type->ID == hid)
 		{
 			return hero;
 		}
@@ -2883,116 +2911,16 @@ CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
 
 	for(auto obj : map->objects) //prisons
 	{
-		if(obj && obj->ID == Obj::PRISON && obj->subID == hid.getNum())
+		if(obj && obj->ID == Obj::PRISON )
 		{
-			return dynamic_cast<CGHeroInstance *>(obj.get());
+			auto hero = dynamic_cast<CGHeroInstance *>(obj.get());
+			assert(hero);
+			if ( hero->type && hero->type->ID == hid )
+				return hero;
 		}
 	}
 
 	return nullptr;
-}
-
-CGPathNode::CGPathNode()
-:coord(-1,-1,-1)
-{
-	accessible = NOT_SET;
-	land = 0;
-	moveRemains = 0;
-	turns = 255;
-	theNodeBefore = nullptr;
-}
-
-bool CGPathNode::reachable() const
-{
-	return turns < 255;
-}
-
-const CGPathNode * CPathsInfo::getPathInfo( int3 tile ) const
-{
-	boost::unique_lock<boost::mutex> pathLock(pathMx);
-
-	if (tile.x >= sizes.x || tile.y >= sizes.y || tile.z >= sizes.z)
-		return nullptr;
-	return &nodes[tile.x][tile.y][tile.z];
-}
-
-int CPathsInfo::getDistance( int3 tile ) const
-{
-	boost::unique_lock<boost::mutex> pathLock(pathMx);
-
-	CGPath ret;
-	if (getPath(tile, ret))
-		return ret.nodes.size();
-	else
-		return 255;
-}
-
-bool CPathsInfo::getPath( const int3 &dst, CGPath &out ) const
-{
-	boost::unique_lock<boost::mutex> pathLock(pathMx);
-
-	out.nodes.clear();
-	const CGPathNode *curnode = &nodes[dst.x][dst.y][dst.z];
-	if(!curnode->theNodeBefore)
-		return false;
-
-
-	while(curnode)
-	{
-		CGPathNode cpn = *curnode;
-		curnode = curnode->theNodeBefore;
-		out.nodes.push_back(cpn);
-	}
-	return true;
-}
-
-CPathsInfo::CPathsInfo( const int3 &Sizes )
-:sizes(Sizes)
-{
-	hero = nullptr;
-	nodes = new CGPathNode**[sizes.x];
-	for(int i = 0; i < sizes.x; i++)
-	{
-		nodes[i] = new CGPathNode*[sizes.y];
-		for (int j = 0; j < sizes.y; j++)
-		{
-			nodes[i][j] = new CGPathNode[sizes.z];
-		}
-	}
-}
-
-CPathsInfo::~CPathsInfo()
-{
-	for(int i = 0; i < sizes.x; i++)
-	{
-		for (int j = 0; j < sizes.y; j++)
-		{
-			delete [] nodes[i][j];
-		}
-		delete [] nodes[i];
-	}
-	delete [] nodes;
-}
-
-int3 CGPath::startPos() const
-{
-	return nodes[nodes.size()-1].coord;
-}
-
-int3 CGPath::endPos() const
-{
-	return nodes[0].coord;
-}
-
-void CGPath::convert( ui8 mode )
-{
-	if(mode==0)
-	{
-		for(auto & elem : nodes)
-		{
-			elem.coord = CGHeroInstance::convertPosition(elem.coord,true);
-		}
-	}
 }
 
 PlayerState::PlayerState()
@@ -3005,6 +2933,25 @@ PlayerState::PlayerState()
 std::string PlayerState::nodeName() const
 {
 	return "Player " + (color.getNum() < VLC->generaltexth->capColors.size() ? VLC->generaltexth->capColors[color.getNum()] : boost::lexical_cast<std::string>(color));
+}
+
+
+bool RumorState::update(int id, int extra)
+{
+	if(vstd::contains(last, type))
+	{
+		if(last[type].first != id)
+		{
+			last[type].first = id;
+			last[type].second = extra;
+		}
+		else
+			return false;
+	}
+	else
+		last[type] = std::make_pair(id, extra);
+
+	return true;
 }
 
 InfoAboutArmy::InfoAboutArmy():
@@ -3282,341 +3229,8 @@ TeamState::TeamState()
 	setNodeType(TEAM);
 }
 
-void CPathfinder::initializeGraph()
-{
-	CGPathNode ***graph = out.nodes;
-	for(size_t i=0; i < out.sizes.x; ++i)
-	{
-		for(size_t j=0; j < out.sizes.y; ++j)
-		{
-			for(size_t k=0; k < out.sizes.z; ++k)
-			{
-				curPos = int3(i,j,k);
-				const TerrainTile *tinfo = &gs->map->getTile(int3(i, j, k));
-				CGPathNode &node = graph[i][j][k];
-
-				node.accessible = evaluateAccessibility(tinfo);
-				node.turns = 0xff;
-				node.moveRemains = 0;
-				node.coord.x = i;
-				node.coord.y = j;
-				node.coord.z = k;
-                node.land = tinfo->terType != ETerrainType::WATER;
-				node.theNodeBefore = nullptr;
-			}
-		}
-	}
-}
-
-void CPathfinder::calculatePaths()
-{
-	bool flying = hero->hasBonusOfType(Bonus::FLYING_MOVEMENT);
-	int maxMovePointsLand = hero->maxMovePoints(true);
-	int maxMovePointsWater = hero->maxMovePoints(false);
-	int3 src = hero->getPosition(false);
-
-	auto maxMovePoints = [&](CGPathNode *cp) -> int
-	{
-		return cp->land ? maxMovePointsLand : maxMovePointsWater;
-	};
-
-	out.hero = hero;
-	out.hpos = hero->getPosition(false);
-
-	if(!gs->map->isInTheMap(out.hpos)/* || !gs->map->isInTheMap(dest)*/) //check input
-	{
-		logGlobal->errorStream() << "CGameState::calculatePaths: Hero outside the gs->map? How dare you...";
-		return;
-	}
-
-	//logGlobal->infoStream() << boost::format("Calculating paths for hero %s (adress  %d) of player %d") % hero->name % hero % hero->tempOwner;
-	initializeGraph();
-
-	//initial tile - set cost on 0 and add to the queue
-	CGPathNode &initialNode = *getNode(out.hpos);
-	initialNode.turns = 0;
-	initialNode.moveRemains = hero->movement;
-	mq.push_back(&initialNode);
-
-	std::vector<int3> neighbours;
-	neighbours.reserve(16);
-	while(!mq.empty())
-	{
-		cp = mq.front();
-		mq.pop_front();
-
-		const int3 sourceGuardPosition = gs->map->guardingCreaturePositions[cp->coord.x][cp->coord.y][cp->coord.z];
-		bool guardedSource = (sourceGuardPosition != int3(-1, -1, -1) && cp->coord != src);
-		ct = &gs->map->getTile(cp->coord);
-
-		int movement = cp->moveRemains, turn = cp->turns;
-		if(!movement)
-		{
-			movement = maxMovePoints(cp);
-			turn++;
-		}
-
-		//add accessible neighbouring nodes to the queue
-		neighbours.clear();
-
-		auto isAllowedTeleportEntrance = [&](const CGTeleport * obj) -> bool
-		{
-			if(!gs->isTeleportEntrancePassable(obj, hero->tempOwner))
-				return false;
-
-			auto whirlpool = dynamic_cast<const CGWhirlpool *>(obj);
-			if(whirlpool)
-			{
-				if(addTeleportWhirlpool(whirlpool))
-					return true;
-			}
-			else if(addTeleportTwoWay(obj) || addTeleportOneWay(obj) || addTeleportOneWayRandom(obj))
-				return true;
-
-			return false;
-		};
-
-		auto sObj = ct->topVisitableObj(cp->coord == CGHeroInstance::convertPosition(hero->pos, false));
-		auto cObj = dynamic_cast<const CGTeleport *>(sObj);
-		if(isAllowedTeleportEntrance(cObj))
-		{
-			for(auto objId : gs->getTeleportChannelExits(cObj->channel, hero->tempOwner))
-			{
-				auto obj = getObj(objId);
-				if(CGTeleport::isExitPassable(gs, hero, obj))
-					neighbours.push_back(obj->visitablePos());
-			}
-		}
-
-		std::vector<int3> neighbour_tiles;
-		gs->getNeighbours(*ct, cp->coord, neighbour_tiles, boost::logic::indeterminate, !cp->land);
-		if(sObj)
-		{
-			for(int3 neighbour_tile: neighbour_tiles)
-			{
-				if(canMoveBetween(neighbour_tile, sObj->visitablePos()))
-					neighbours.push_back(neighbour_tile);
-			}
-		}
-		else
-			vstd::concatenate(neighbours, neighbour_tiles);
-
-		for(auto & neighbour : neighbours)
-		{
-			const int3 &n = neighbour; //current neighbor
-			dp = getNode(n);
-			dt = &gs->map->getTile(n);
-			destTopVisObjID = dt->topVisitableId();
-
-			useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
-			const bool destIsGuardian = sourceGuardPosition == n;
-
-			auto dObj = dynamic_cast<const CGTeleport*>(dt->topVisitableObj());
-			if(!goodForLandSeaTransition()
-			   || (!canMoveBetween(cp->coord, dp->coord) && !CGTeleport::isConnected(cObj, dObj))
-			   || dp->accessible == CGPathNode::BLOCKED)
-			{
-				continue;
-			}
-
-			//special case -> hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
-			if(cp->accessible == CGPathNode::VISITABLE && guardedSource && cp->theNodeBefore->land && ct->topVisitableId() == Obj::BOAT)
-				guardedSource = false;
-
-			int cost = gs->getMovementCost(hero, cp->coord, dp->coord, flying, movement);
-			//special case -> moving from src Subterranean gate to dest gate -> it's free
-			if(CGTeleport::isConnected(cObj, dObj))
-				cost = 0;
-
-			int remains = movement - cost;
-			if(useEmbarkCost)
-			{
-				remains = hero->movementPointsAfterEmbark(movement, cost, useEmbarkCost - 1);
-				cost = movement - remains;
-			}
-
-			int turnAtNextTile = turn;
-			if(remains < 0)
-			{
-				//occurs rarely, when hero with low movepoints tries to leave the road
-				turnAtNextTile++;
-				int moveAtNextTile = maxMovePoints(cp);
-				cost = gs->getMovementCost(hero, cp->coord, dp->coord, flying, moveAtNextTile); //cost must be updated, movement points changed :(
-				remains = moveAtNextTile - cost;
-			}
-
-			if((dp->turns==0xff		//we haven't been here before
-				|| dp->turns > turnAtNextTile
-				|| (dp->turns >= turnAtNextTile  &&  dp->moveRemains < remains)) //this route is faster
-				&& (!guardedSource || destIsGuardian)) // Can step into tile of guard
-			{
-				assert(dp != cp->theNodeBefore); //two tiles can't point to each other
-				dp->moveRemains = remains;
-				dp->turns = turnAtNextTile;
-				dp->theNodeBefore = cp;
-
-				const bool guardedDst = gs->map->guardingCreaturePositions[dp->coord.x][dp->coord.y][dp->coord.z].valid()
-										&& dp->accessible == CGPathNode::BLOCKVIS;
-
-				auto checkDestinationTile = [&]() -> bool
-				{
-					if(dp->accessible == CGPathNode::ACCESSIBLE)
-						return true;
-					if(dp->coord == CGHeroInstance::convertPosition(hero->pos, false))
-						return true; // This one is tricky, we can ignore fact that tile is not ACCESSIBLE in case if it's our hero block it. Though this need investigation
-					if(dp->accessible == CGPathNode::VISITABLE && CGTeleport::isTeleport(dt->topVisitableObj()))
-						return true; // For now we'll walways allos transit for teleports
-					if(useEmbarkCost && allowEmbarkAndDisembark)
-						return true;
-					if(gs->isTeleportEntrancePassable(dObj, hero->tempOwner))
-						return true; // Always add entry teleport with non-dummy channel
-					if(CGTeleport::isConnected(cObj, dObj))
-						return true; // Always add exit points of teleport
-					if(guardedDst && !guardedSource)
-						return true; // Can step into a hostile tile once
-
-					return false;
-				};
-
-				if(checkDestinationTile())
-					mq.push_back(dp);
-			}
-		} //neighbours loop
-	} //queue loop
-}
-
-CGPathNode *CPathfinder::getNode(const int3 &coord)
-{
-	return &out.nodes[coord.x][coord.y][coord.z];
-}
-
-bool CPathfinder::canMoveBetween(const int3 &a, const int3 &b) const
-{
-	return gs->checkForVisitableDir(a, b);
-}
-
-CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile *tinfo) const
-{
-	CGPathNode::EAccessibility ret = (tinfo->blocked ? CGPathNode::BLOCKED : CGPathNode::ACCESSIBLE);
-
-
-    if(tinfo->terType == ETerrainType::ROCK || !FoW[curPos.x][curPos.y][curPos.z])
-		return CGPathNode::BLOCKED;
-
-	if(tinfo->visitable)
-	{
-		if(tinfo->visitableObjects.front()->ID == Obj::SANCTUARY && tinfo->visitableObjects.back()->ID == Obj::HERO && tinfo->visitableObjects.back()->tempOwner != hero->tempOwner) //non-owned hero stands on Sanctuary
-		{
-			return CGPathNode::BLOCKED;
-		}
-		else
-		{
-			for(const CGObjectInstance *obj : tinfo->visitableObjects)
-			{
-				if (obj->passableFor(hero->tempOwner))
-				{
-					ret = CGPathNode::ACCESSIBLE;
-				}
-				else if(obj->blockVisit)
-				{
-					return CGPathNode::BLOCKVIS;
-				}
-				else if(obj->ID != Obj::EVENT) //pathfinder should ignore placed events
-				{
-					ret =  CGPathNode::VISITABLE;
-				}
-			}
-		}
-	}
-	else if (gs->map->guardingCreaturePositions[curPos.x][curPos.y][curPos.z].valid()
-		&& !tinfo->blocked)
-	{
-		// Monster close by; blocked visit for battle.
-		return CGPathNode::BLOCKVIS;
-	}
-
-	return ret;
-}
-
-bool CPathfinder::goodForLandSeaTransition()
-{
-	if(cp->land != dp->land) //hero can traverse land<->sea only in special circumstances
-	{
-		if(cp->land) //from land to sea -> embark or assault hero on boat
-		{
-			if(dp->accessible == CGPathNode::ACCESSIBLE || destTopVisObjID < 0) //cannot enter empty water tile from land -> it has to be visitable
-				return false;
-			if(destTopVisObjID != Obj::HERO && destTopVisObjID != Obj::BOAT) //only boat or hero can be accessed from land
-				return false;
-			if(destTopVisObjID == Obj::BOAT)
-				useEmbarkCost = 1;
-		}
-		else //disembark
-		{
-			//can disembark only on coastal tiles
-			if(!dt->isCoastal())
-				return false;
-
-			//tile must be accessible -> exception: unblocked blockvis tiles -> clear but guarded by nearby monster coast
-			if( (dp->accessible != CGPathNode::ACCESSIBLE && (dp->accessible != CGPathNode::BLOCKVIS || dt->blocked))
-				|| dt->visitable)  //TODO: passableness problem -> town says it's passable (thus accessible) but we obviously can't disembark onto town gate
-				return false;;
-
-			useEmbarkCost = 2;
-		}
-	}
-
-	return true;
-}
-
-CPathfinder::CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero) : CGameInfoCallback(_gs, boost::optional<PlayerColor>()), out(_out), hero(_hero), FoW(getPlayerTeam(hero->tempOwner)->fogOfWarMap)
-{
-	assert(hero);
-	assert(hero == getHero(hero->id));
-
-	allowEmbarkAndDisembark = true;
-	allowTeleportTwoWay = true;
-	allowTeleportOneWay = true;
-	allowTeleportOneWayRandom = false;
-	allowTeleportWhirlpool = false;
-	if (CGWhirlpool::isProtected(hero))
-		allowTeleportWhirlpool = true;
-}
-
 CRandomGenerator & CGameState::getRandomGenerator()
 {
 	//logGlobal->traceStream() << "Fetching CGameState::rand with seed " << rand.nextInt();
 	return rand;
-}
-
-bool CPathfinder::addTeleportTwoWay(const CGTeleport * obj) const
-{
-	return allowTeleportTwoWay && gs->isTeleportChannelBidirectional(obj->channel, hero->tempOwner);
-}
-
-bool CPathfinder::addTeleportOneWay(const CGTeleport * obj) const
-{
-	if(allowTeleportOneWay && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
-	{
-		auto passableExits = CGTeleport::getPassableExits(gs, hero, gs->getTeleportChannelExits(obj->channel, hero->tempOwner));
-		if(passableExits.size() == 1)
-			return true;
-	}
-	return false;
-}
-
-bool CPathfinder::addTeleportOneWayRandom(const CGTeleport * obj) const
-{
-	if(allowTeleportOneWayRandom && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
-	{
-		auto passableExits = CGTeleport::getPassableExits(gs, hero, gs->getTeleportChannelExits(obj->channel, hero->tempOwner));
-		if(passableExits.size() > 1)
-			return true;
-	}
-	return false;
-}
-
-bool CPathfinder::addTeleportWhirlpool(const CGWhirlpool * obj) const
-{
-   return allowTeleportWhirlpool && obj;
 }

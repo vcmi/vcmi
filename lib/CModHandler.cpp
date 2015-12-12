@@ -467,7 +467,7 @@ static JsonNode loadModSettings(std::string path)
 JsonNode addMeta(JsonNode config, std::string meta)
 {
 	config.setMeta(meta);
-	return std::move(config);
+	return config;
 }
 
 CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode & config):
