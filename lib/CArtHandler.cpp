@@ -694,6 +694,7 @@ void CArtHandler::afterLoadFinalization()
 			bonus->sid = art->id;
 		}
 	}
+	CBonusSystemNode::treeHasChanged();
 
 	for (CArtifact * art : artifacts)
 	{

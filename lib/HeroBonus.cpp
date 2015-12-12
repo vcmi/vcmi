@@ -995,11 +995,6 @@ CBonusSystemNode::ENodeTypes CBonusSystemNode::getNodeType() const
 	return nodeType;
 }
 
-BonusList& CBonusSystemNode::getBonusList()
-{
-	return bonuses;
-}
-
 const BonusList& CBonusSystemNode::getBonusList() const
 {
 	return bonuses;

@@ -818,7 +818,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 
 
 	Bonus::ValueType skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
-	if(Bonus * b = getBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which)
+	if(Bonus * b = getExportedBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which)
 										.And(Selector::sourceType(Bonus::SECONDARY_SKILL)))) //only local hero bonus
 	{
 		b->val = skillVal;
@@ -831,6 +831,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 		addNewBonus(bonus);
 	}
 
+	CBonusSystemNode::treeHasChanged();
 }
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 {
@@ -1365,6 +1366,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si
 		{
 			skill->val += value;
 		}
+		CBonusSystemNode::treeHasChanged();
 	}
 	else if(primarySkill == PrimarySkill::EXPERIENCE)
 	{

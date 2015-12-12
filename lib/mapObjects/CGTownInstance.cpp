@@ -856,7 +856,7 @@ void CGTownInstance::deserializationFix()
 
 void CGTownInstance::updateMoraleBonusFromArmy()
 {
-	Bonus *b = getBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
+	Bonus *b = getExportedBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
 	if(!b)
 	{
 		b = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
@@ -864,7 +864,10 @@ void CGTownInstance::updateMoraleBonusFromArmy()
 	}
 
 	if (garrisonHero)
+	{
 		b->val = 0;
+		CBonusSystemNode::treeHasChanged();
+	}
 	else
 		CArmedInstance::updateMoraleBonusFromArmy();
 }
