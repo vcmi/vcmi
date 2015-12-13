@@ -245,12 +245,8 @@ CBattleQuery::CBattleQuery()
 
 bool CBattleQuery::blocksPack(const CPack *pack) const
 {
-	#ifndef __APPLE__
-	bool dynamic_success = !dynamic_cast<const MakeAction*>(pack) && !dynamic_cast<const MakeCustomAction*>(pack);
-	#else
 	const char * name = typeid(*pack).name();
 	return strcmp(name, typeid(MakeAction).name()) && strcmp(name, typeid(MakeCustomAction).name());
-	#endif
 }
 
 void CBattleQuery::onRemoval(CGameHandler *gh, PlayerColor color)
