@@ -2705,24 +2705,13 @@ void VCAI::finish()
 
 void VCAI::requestActionASAP(std::function<void()> whatToDo)
 {
-	boost::mutex mutex;
-	mutex.lock();
-
-	boost::thread newThread([&mutex,this,whatToDo]()
+	boost::thread newThread([this,whatToDo]()
 	{
 		setThreadName("VCAI::requestActionASAP::whatToDo");
 		SET_GLOBAL_STATE(this);
 		boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
-		// unlock mutex and allow parent function to exit
-		mutex.unlock();
 		whatToDo();
 	});
-
-	// wait for mutex to unlock and for thread to initialize properly
-	mutex.lock();
-
-	// unlock mutex - boost dislikes destruction of locked mutexes
-	mutex.unlock();
 }
 
 void VCAI::lostHero(HeroPtr h)
