@@ -170,9 +170,9 @@ static void prog_version(void)
 static void prog_help(const po::options_description &opts)
 {
 	printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
-    printf("Copyright (C) 2007-2014 VCMI dev team - see AUTHORS file\n");
-    printf("This is free software; see the source for copying conditions. There is NO\n");
-    printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+	printf("Copyright (C) 2007-2016 VCMI dev team - see AUTHORS file\n");
+	printf("This is free software; see the source for copying conditions. There is NO\n");
+	printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	printf("\n");
 	printf("Usage:\n");
 	std::cout << opts;
@@ -244,7 +244,9 @@ int main(int argc, char** argv)
         ("loadhumanplayerindices",po::value<std::vector<int>>(),"Indexes of human players (0=Red, etc.)")
         ("loadplayer", po::value<int>(),"specifies which player we are in multiplayer loaded games (0=Red, etc.)")
         ("loadserverip",po::value<std::string>(),"IP for loaded game server")
-        ("loadserverport",po::value<std::string>(),"port for loaded game server");
+		("loadserverport",po::value<std::string>(),"port for loaded game server")
+		("testingport",po::value<std::string>(),"port for testing, override specified in config file")
+		("testingfileprefix",po::value<std::string>(),"prefix for auto save files");
 
 	if(argc > 1)
 	{
@@ -281,7 +283,7 @@ int main(int argc, char** argv)
 	// it may result in very small \ very fast mouse when game in fullscreen mode
 	putenv((char*)"SDL_VIDEO_X11_DGAMOUSE=0");
 
-    // Init old logging system and new (temporary) logging system
+	// Init old logging system and new (temporary) logging system
 	CStopWatch total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
 	console = new CConsoleHandler;
@@ -291,16 +293,25 @@ int main(int argc, char** argv)
 
 	const bfs::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Client_log.txt";
 	CBasicLogConfigurator logConfig(logPath, console);
-    logConfig.configureDefault();
+	logConfig.configureDefault();
 	logGlobal->infoStream() << "Creating console and configuring logger: " << pomtime.getDiff();
 	logGlobal->infoStream() << "The log file will be saved to " << logPath;
 
-    // Init filesystem and settings
+	// Init filesystem and settings
 	preinitDLL(::console);
-    settings.init();
+	settings.init();
 
-    // Initialize logging based on settings
-    logConfig.configure();
+	// Init special testing settings
+	Settings testingSettings = settings.write["testing"];
+	if(vm.count("testingport") && vm.count("testingfileprefix"))
+	{
+		testingSettings["enabled"].Bool() = true;
+		testingSettings["port"].String() = vm["testingport"].as<std::string>();
+		testingSettings["prefix"].String() = vm["testingfileprefix"].as<std::string>();
+	}
+
+	// Initialize logging based on settings
+	logConfig.configure();
 
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message) -> bool
@@ -308,13 +319,15 @@ int main(int argc, char** argv)
 		if (CResourceHandler::get()->existsResource(ResourceID(filename)))
 			return true;
 
-        logGlobal->errorStream() << "Error: " << message << " was not found!";
+		logGlobal->errorStream() << "Error: " << message << " was not found!";
 		return false;
 	};
 
 	if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
-	    !testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
+		!testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
+	{
 		exit(1); // These are unrecoverable errors
+	}
 
 	// these two are optional + some installs have them on CD and not in data directory
 	testFile("VIDEO/GOOD1A.SMK", "campaign movies");

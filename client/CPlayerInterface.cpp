@@ -157,24 +157,30 @@ void CPlayerInterface::yourTurn()
 		GH.curInt = this;
 		adventureInt->selection = nullptr;
 
+		std::string prefix = "";
+		if(settings["testing"]["enabled"].Bool())
+		{
+			prefix = settings["testing"]["prefix"].String();
+		}
+
 		if(firstCall)
 		{
 			if(howManyPeople == 1)
 				adventureInt->setPlayer(playerID);
 
-			autosaveCount = getLastIndex("Autosave_");
+			autosaveCount = getLastIndex(prefix + "Autosave_");
 
 			if(firstCall > 0) //new game, not loaded
 			{
-				int index = getLastIndex("Newgame_Autosave_");
+				int index = getLastIndex(prefix + "Newgame_");
 				index %= SAVES_COUNT;
-				cb->save("Saves/Newgame_Autosave_" + boost::lexical_cast<std::string>(index + 1));
+				cb->save("Saves/" + prefix + "Newgame_Autosave_" + boost::lexical_cast<std::string>(index + 1));
 			}
 			firstCall = 0;
 		}
 		else
 		{
-			LOCPLINT->cb->save("Saves/Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
+			LOCPLINT->cb->save("Saves/" + prefix + "Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
 			autosaveCount %= 5;
 		}
 

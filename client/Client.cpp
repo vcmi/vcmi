@@ -246,18 +246,25 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 #if 1
 void CClient::loadGame(const std::string & fname, const bool server, const std::vector<int>& humanplayerindices, const int loadNumPlayers, int player_, const std::string & ipaddr, const std::string & port)
 {
-    PlayerColor player(player_); //intentional shadowing
+	PlayerColor player(player_); //intentional shadowing
+	logNetwork->infoStream() << "Loading procedure started!";
 
-    logNetwork->infoStream() <<"Loading procedure started!";
+	std::string realPort;
+	if(settings["testing"]["enabled"].Bool())
+		realPort = settings["testing"]["port"].String();
+	else if(port.size())
+		realPort = port;
+	else
+		realPort = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
 
 	CServerHandler sh;
-    if(server)
-         sh.startServer();
-    else
-         serv = sh.justConnectToServer(ipaddr,port=="" ? "3030" : port);
+	if(server)
+		sh.startServer();
+	else
+		serv = sh.justConnectToServer(ipaddr, realPort);
 
 	CStopWatch tmh;
-    unique_ptr<CLoadFile> loader;
+	unique_ptr<CLoadFile> loader;
 	try
 	{
 		std::string clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
@@ -967,7 +974,10 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 {
 	serverThread = nullptr;
 	shared = nullptr;
-	port = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
+	if(settings["testing"]["enabled"].Bool())
+		port = settings["testing"]["port"].String();
+	else
+		port = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
 	verbose = true;
 
 #ifndef VCMI_ANDROID
@@ -1009,6 +1019,14 @@ void CServerHandler::callServer()
 
 CConnection * CServerHandler::justConnectToServer(const std::string &host, const std::string &port)
 {
+	std::string realPort;
+	if(settings["testing"]["enabled"].Bool())
+		realPort = settings["testing"]["port"].String();
+	else if(port.size())
+		realPort = port;
+	else
+		realPort = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
+
 	CConnection *ret = nullptr;
 	while(!ret)
 	{
@@ -1016,7 +1034,7 @@ CConnection * CServerHandler::justConnectToServer(const std::string &host, const
 		{
             logNetwork->infoStream() << "Establishing connection...";
 			ret = new CConnection(	host.size() ? host : settings["server"]["server"].String(), 
-									port.size() ? port : boost::lexical_cast<std::string>(settings["server"]["port"].Float()), 
+									realPort,
 									NAME);
 		}
 		catch(...)
