@@ -321,7 +321,7 @@ CBlockingDialogQuery::CBlockingDialogQuery(const BlockingDialog &bd)
 
 void CTeleportDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
 {
-	auto obj = dynamic_cast<const CGTeleport*>(objectVisit.visitedObject);
+	auto obj = dynamic_ptr_cast<const CGTeleport>(objectVisit.visitedObject);
 	obj->teleportDialogAnswered(objectVisit.visitingHero, *answer, td.exits);
 }
 
