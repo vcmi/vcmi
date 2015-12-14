@@ -453,7 +453,7 @@ bool CPathfinder::isMovementAfterDestPossible() const
 			/// Transit over whirlpools only allowed when hero protected
 			return true;
 		}
-		else if(dtObj->ID == Obj::GARRISON || dtObj->ID == Obj::GARRISON2)
+		else if(dtObj->ID == Obj::GARRISON || dtObj->ID == Obj::GARRISON2 || dtObj->ID == Obj::BORDER_GATE)
 		{
 			/// Transit via unguarded garrisons is always possible
 			return true;
@@ -517,17 +517,32 @@ CGPathNode::ENodeAction CPathfinder::getDestAction() const
 				else
 					action = CGPathNode::BLOCKING_VISIT;
 			}
-			else if(dtObj->ID == Obj::TOWN && objRel == PlayerRelations::ENEMIES)
+			else if(dtObj->ID == Obj::TOWN)
 			{
-				const CGTownInstance * townObj = dynamic_cast<const CGTownInstance *>(dtObj);
-				if(townObj->armedGarrison())
+				if(dtObj->passableFor(hero->tempOwner))
+					action = CGPathNode::VISIT;
+				else if(objRel == PlayerRelations::ENEMIES)
 					action = CGPathNode::BATTLE;
 			}
 			else if(dtObj->ID == Obj::GARRISON || dtObj->ID == Obj::GARRISON2)
 			{
-				const CGGarrison * garrisonObj = dynamic_cast<const CGGarrison *>(dtObj);
-				if((garrisonObj->stacksCount() && objRel == PlayerRelations::ENEMIES) || isDestinationGuarded(true))
+				if(dtObj->passableFor(hero->tempOwner))
+				{
+					if(isDestinationGuarded(true))
+						action = CGPathNode::BATTLE;
+				}
+				else if(objRel == PlayerRelations::ENEMIES)
 					action = CGPathNode::BATTLE;
+			}
+			else if(dtObj->ID == Obj::BORDER_GATE)
+			{
+				if(dtObj->passableFor(hero->tempOwner))
+				{
+					if(isDestinationGuarded(true))
+						action = CGPathNode::BATTLE;
+				}
+				else
+					action = CGPathNode::BLOCKING_VISIT;
 			}
 			else if(isDestinationGuardian())
 				action = CGPathNode::BATTLE;
