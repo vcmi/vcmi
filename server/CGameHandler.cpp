@@ -1875,7 +1875,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	{
 		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false, ti);
 		return doMove(TryMoveHero::EMBARK, IGNORE_GUARDS, DONT_VISIT_DEST, LEAVING_TILE);
-		//attack guards on embarking? In H3 creatures on water had no zone of control at all
+		// In H3 embark ignore guards
 	}
 
 	if(disembarking)

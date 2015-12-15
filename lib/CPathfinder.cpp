@@ -150,21 +150,23 @@ void CPathfinder::calculatePaths()
 					continue;
 
 				destAction = getDestAction();
-				int cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, ct, dt, movement, hlp->getTurnInfo());
-				int remains = movement - cost;
-				if(destAction == CGPathNode::EMBARK || destAction == CGPathNode::DISEMBARK)
-				{
-					remains = hero->movementPointsAfterEmbark(movement, cost, destAction - 1, hlp->getTurnInfo());
-					cost = movement - remains;
-				}
-				int turnAtNextTile = turn;
+				int turnAtNextTile = turn, moveAtNextTile = movement;
+				int cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, ct, dt, moveAtNextTile, hlp->getTurnInfo());
+				int remains = moveAtNextTile - cost;
 				if(remains < 0)
 				{
 					//occurs rarely, when hero with low movepoints tries to leave the road
 					hlp->updateTurnInfo(++turnAtNextTile);
-					int moveAtNextTile = hlp->getMaxMovePoints(i);
+					moveAtNextTile = hlp->getMaxMovePoints(i);
 					cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, ct, dt, moveAtNextTile, hlp->getTurnInfo()); //cost must be updated, movement points changed :(
 					remains = moveAtNextTile - cost;
+				}
+				if(destAction == CGPathNode::EMBARK || destAction == CGPathNode::DISEMBARK)
+				{
+					/// FREE_SHIP_BOARDING bonus only remove additional penalty
+					/// land <-> sail transition still cost movement points as normal movement
+					remains = hero->movementPointsAfterEmbark(moveAtNextTile, cost, destAction - 1, hlp->getTurnInfo());
+					cost = moveAtNextTile - remains;
 				}
 
 				if(isBetterWay(remains, turnAtNextTile) &&
