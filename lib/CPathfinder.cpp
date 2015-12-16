@@ -374,6 +374,16 @@ bool CPathfinder::isLayerTransitionPossible() const
 		}
 
 		break;
+
+	case ELayer::WATER:
+		if(dp->accessible != CGPathNode::ACCESSIBLE && dp->accessible != CGPathNode::VISITABLE)
+		{
+			/// Hero that walking on water can transit to accessible and visitable tiles
+			/// Though hero can't interact with blocking visit objects while standing on water
+			return false;
+		}
+
+		break;
 	}
 
 	return true;
