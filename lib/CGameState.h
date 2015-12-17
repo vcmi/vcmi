@@ -208,8 +208,8 @@ public:
 	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
 	ConstTransitivePtr<CMap> map;
-	std::map<PlayerColor, PlayerState> players;
-	std::map<TeamID, TeamState> teams;
+	std::map<PlayerColor, PlayerState * > players;
+	std::map<TeamID, TeamState * > teams;
 	CBonusSystemNode globalEffects;
 	RumorState rumor;
 
@@ -249,13 +249,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects & rand;
-		if(version >= 755) //save format backward compatibility
-		{
-			h & rumor;
-		}
-		else if(!h.saving)
-			rumor = RumorState();
-
+		h & rumor;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 

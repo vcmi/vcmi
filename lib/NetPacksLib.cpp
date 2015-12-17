@@ -130,7 +130,7 @@ DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
 DLL_LINKAGE void AddQuest::applyGs(CGameState *gs)
 {
 	assert (vstd::contains(gs->players, player));
-	auto vec = &gs->players[player].quests;
+	auto vec = &gs->players[player]->quests;
 	if (!vstd::contains(*vec, quest))
 		vec->push_back (quest);
 	else
@@ -340,7 +340,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 		if(b->source == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
-			node->removeBonus(b);			
+			node->removeBonus(b);
 			break;
 		}
 	}
@@ -395,7 +395,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		gs->map->quests[quest->quest->qid] = nullptr;
 		for (auto &player : gs->players)
 		{
-			for (auto &q : player.second.quests)
+			for (auto &q : player.second->quests)
 			{
 				if (q.obj == obj)
 				{
@@ -1260,7 +1260,7 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 	{
 		//"hide" killed creatures instead so we keep info about it
 		at->state.insert(EBattleStackState::DEAD_CLONE);
-		
+
 		for(CStack * s : gs->curB->stacks)
 		{
 			if(s->cloneID == at->ID)
@@ -1373,7 +1373,7 @@ void actualizeEffect(CStack * s, const Bonus & ef)
 			stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, ef.turnsRemain);
 		}
 	}
-	CBonusSystemNode::treeHasChanged();	
+	CBonusSystemNode::treeHasChanged();
 }
 
 void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
@@ -1633,8 +1633,8 @@ DLL_LINKAGE void YourTurn::applyGs( CGameState *gs )
 {
 	gs->currentPlayer = player;
 
-	auto & playerState = gs->players[player];
-	playerState.daysWithoutCastle = daysWithoutCastle;
+	auto playerState = gs->players[player];
+	playerState->daysWithoutCastle = daysWithoutCastle;
 }
 
 DLL_LINKAGE Component::Component(const CStackBasicDescriptor &stack)

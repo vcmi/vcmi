@@ -235,9 +235,9 @@ void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroIn
 	assert(townOrTavern);
 	assert(hero);
 	ui8 i=0;
-	for(; i<gs->players[*player].availableHeroes.size(); i++)
+	for(; i<gs->players[*player]->availableHeroes.size(); i++)
 	{
-		if(gs->players[*player].availableHeroes[i] == hero)
+		if(gs->players[*player]->availableHeroes[i] == hero)
 		{
 			HireHero pack(i, townOrTavern->id);
 			pack.player = *player;

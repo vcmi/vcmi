@@ -70,7 +70,7 @@ const PlayerState * CGameInfoCallback::getPlayer(PlayerColor color, bool verbose
 	if (player != gs->players.end())
 	{
 		if (hasAccess(color))
-			return &player->second;
+			return player->second;
 		else
 		{
 			if (verbose)
@@ -200,7 +200,7 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 	if(obj->ID == Obj::TOWN  ||  obj->ID == Obj::TAVERN)
 	{
 		int taverns = 0;
-		for(auto town : gs->players[*player].towns)
+		for(auto town : gs->players[*player]->towns)
 		{
 			if(town->hasBuilt(BuildingID::TAVERN))
 				taverns++;
@@ -217,7 +217,7 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 int CGameInfoCallback::howManyTowns(PlayerColor Player) const
 {
 	ERROR_RET_VAL_IF(!hasAccess(Player), "Access forbidden!", -1);
-	return gs->players[Player].towns.size();
+	return gs->players[Player]->towns.size();
 }
 
 bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject/* = nullptr*/) const
@@ -229,13 +229,13 @@ bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown
 	{
 		if(!detailed && nullptr != selectedObject)
 		{
-			const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);		
+			const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 			if(nullptr != selectedHero)
-				detailed = selectedHero->hasVisions(town, 1);			
+				detailed = selectedHero->hasVisions(town, 1);
 		}
-		
+
 		dest.initFromTown(static_cast<const CGTownInstance *>(town), detailed);
-	}		
+	}
 	else if(town->ID == Obj::GARRISON || town->ID == Obj::GARRISON2)
 		dest.initFromArmy(static_cast<const CArmedInstance *>(town), detailed);
 	else
@@ -268,28 +268,28 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	ERROR_RET_VAL_IF(!isVisible(h->getPosition(false)), "That hero is not visible!", false);
 
 	bool accessFlag = hasAccess(h->tempOwner);
-	
+
 	if(!accessFlag && nullptr != selectedObject)
 	{
-		const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);		
+		const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 		if(nullptr != selectedHero)
-			accessFlag = selectedHero->hasVisions(hero, 1);			
+			accessFlag = selectedHero->hasVisions(hero, 1);
 	}
-	
+
 	dest.initFromHero(h, accessFlag);
-	
+
 	//DISGUISED bonus implementation
-	
+
 	if(getPlayerRelations(getLocalPlayer(), hero->tempOwner) == PlayerRelations::ENEMIES)
 	{
-		//todo: bonus cashing	
+		//todo: bonus cashing
 		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(Bonus::DISGUISED, 0));
-		
-		auto doBasicDisguise = [disguiseLevel](InfoAboutHero & info)		
+
+		auto doBasicDisguise = [disguiseLevel](InfoAboutHero & info)
 		{
 			int maxAIValue = 0;
 			const CCreature * mostStrong = nullptr;
-			
+
 			for(auto & elem : info.army)
 			{
 				if(elem.second.type->AIValue > maxAIValue)
@@ -298,7 +298,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 					mostStrong = elem.second.type;
 				}
 			}
-			
+
 			if(nullptr == mostStrong)//just in case
 				logGlobal->errorStream() << "CGameInfoCallback::getHeroInfo: Unable to select most strong stack" << disguiseLevel;
 			else
@@ -307,25 +307,25 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 					elem.second.type = mostStrong;
 				}
 		};
-		
-		auto doAdvancedDisguise = [accessFlag, &doBasicDisguise](InfoAboutHero & info)		
+
+		auto doAdvancedDisguise = [accessFlag, &doBasicDisguise](InfoAboutHero & info)
 		{
 			doBasicDisguise(info);
-			
+
 			for(auto & elem : info.army)
 				elem.second.count = 0;
 		};
-		
-		auto doExpertDisguise = [this,h](InfoAboutHero & info)		
+
+		auto doExpertDisguise = [this,h](InfoAboutHero & info)
 		{
 			for(auto & elem : info.army)
 				elem.second.count = 0;
-			
+
 			const auto factionIndex = getStartInfo(false)->playerInfos.at(h->tempOwner).castle;
-			
+
 			int maxAIValue = 0;
 			const CCreature * mostStrong = nullptr;
-			
+
 			for(auto creature : VLC->creh->creatures)
 			{
 				if(creature->faction == factionIndex && creature->AIValue > maxAIValue)
@@ -334,35 +334,35 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 					mostStrong = creature;
 				}
 			}
-			
+
 			if(nullptr != mostStrong) //possible, faction may have no creatures at all
 				for(auto & elem : info.army)
 					elem.second.type = mostStrong;
-		};				
-		
-		
+		};
+
+
 		switch (disguiseLevel)
 		{
 		case 0:
 			//no bonus at all - do nothing
-			break;		
+			break;
 		case 1:
 			doBasicDisguise(dest);
-			break;		
+			break;
 		case 2:
 			doAdvancedDisguise(dest);
-			break;		
+			break;
 		case 3:
 			doExpertDisguise(dest);
-			break;		
+			break;
 		default:
 			//invalid value
 			logGlobal->errorStream() << "CGameInfoCallback::getHeroInfo: Invalid DISGUISED bonus value " << disguiseLevel;
 			break;
 		}
-		
+
 	}
-	
+
 	return true;
 }
 
@@ -461,7 +461,7 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 	std::vector<const CGHeroInstance *> ret;
 	//ERROR_RET_VAL_IF(!isOwnedOrVisited(townOrTavern), "Town or tavern must be owned or visited!", ret);
 	//TODO: town needs to be owned, advmap tavern needs to be visited; to be reimplemented when visit tracking is done
-	range::copy(gs->players[*player].availableHeroes, std::back_inserter(ret));
+	range::copy(gs->players[*player]->availableHeroes, std::back_inserter(ret));
 	vstd::erase_if(ret, [](const CGHeroInstance *h) { return h == nullptr; });
 	return ret;
 }
@@ -486,7 +486,7 @@ shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisible
 
 
 	boost::multi_array<TerrainTile*, 3> tileArray(boost::extents[width][height][levels]);
-	
+
 	for (size_t x = 0; x < width; x++)
 		for (size_t y = 0; y < height; y++)
 			for (size_t z = 0; z < levels; z++)
@@ -673,14 +673,14 @@ std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(
 	std::vector < const CGTownInstance *> ret = std::vector < const CGTownInstance *>();
 	for(const auto & i : gs->players)
 	{
-		for(const auto & town : i.second.towns)
+		for(const auto & town : i.second->towns)
 		{
 			if (i.first==player || (isVisible(town, player) && !onlyOur))
 			{
 				ret.push_back(town);
 			}
 		}
-	} //	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+	}
 	return ret;
 }
 std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo(bool onlyOur) const
@@ -710,7 +710,7 @@ int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool
 		return -1;
 
 	size_t index = 0;
-	auto & heroes = gs->players[*player].heroes;
+	auto & heroes = gs->players[*player]->heroes;
 
 	for (auto & heroe : heroes)
 	{
@@ -811,7 +811,7 @@ TResources CPlayerSpecificInfoCallback::getResourceAmount() const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	ERROR_RET_VAL_IF(!player, "Applicable only for player callbacks", TResources());
-	return gs->players[*player].resources;
+	return gs->players[*player]->resources;
 }
 
 const TeamState * CGameInfoCallback::getTeam( TeamID teamID ) const
@@ -821,7 +821,7 @@ const TeamState * CGameInfoCallback::getTeam( TeamID teamID ) const
 	auto team = gs->teams.find(teamID);
 	if (team != gs->teams.end())
 	{
-		const TeamState *ret = &team->second;
+		const TeamState *ret = team->second;
 		if (!player.is_initialized()) //neutral (or invalid) player
 			return ret;
 		else
@@ -847,7 +847,7 @@ const TeamState * CGameInfoCallback::getPlayerTeam( PlayerColor color ) const
 	auto player = gs->players.find(color);
 	if (player != gs->players.end())
 	{
-		return getTeam (player->second.team);
+		return getTeam(player->second->team);
 	}
 	else
 	{
