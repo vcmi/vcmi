@@ -940,17 +940,18 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const
 {
 	int3 dPos;
+	auto randomExit = getRandomExit(hero);
 	auto realExits = getAllExits(true);
 	if(!isEntrance() // Do nothing if hero visited exit only object
 		|| (!exits.size() && !realExits.size()) // Do nothing if there no exits on this channel
-		|| (!exits.size() && ObjectInstanceID() == getRandomExit(hero))) // Do nothing if all exits are blocked by friendly hero and it's not subterranean gate
+		|| ObjectInstanceID() == randomExit) // Do nothing if all exits are blocked by friendly hero and it's not subterranean gate
 	{
 		return;
 	}
 	else if(vstd::isValidIndex(exits, answer))
 		dPos = exits[answer].second;
 	else
-		dPos = CGHeroInstance::convertPosition(cb->getObj(getRandomExit(hero))->visitablePos(), true);
+		dPos = CGHeroInstance::convertPosition(cb->getObj(randomExit)->visitablePos(), true);
 
 	cb->moveHero(hero->id, dPos, true);
 }
