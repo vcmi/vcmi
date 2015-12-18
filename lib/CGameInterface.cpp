@@ -248,10 +248,10 @@ void CAdventureAI::saveGame(COSer & h, const int version) /*saving */
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	CGlobalAI::saveGame(h, version);
 	bool hasBattleAI = static_cast<bool>(battleAI);
-	h << hasBattleAI;
+	h & hasBattleAI;
 	if(hasBattleAI)
 	{
-		h << std::string(battleAI->dllName);
+		h & std::string(battleAI->dllName);
 		battleAI->saveGame(h, version);
 	}
 }
@@ -261,11 +261,11 @@ void CAdventureAI::loadGame(CISer & h, const int version) /*loading */
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	CGlobalAI::loadGame(h, version);
 	bool hasBattleAI = false;
-	h >> hasBattleAI;
+	h & hasBattleAI;
 	if(hasBattleAI)
 	{
 		std::string dllName;
-		h >> dllName;
+		h & dllName;
 		battleAI = CDynLibHandler::getNewBattleAI(dllName);
 		assert(cbc); //it should have been set by the one who new'ed us
 		battleAI->init(cbc);

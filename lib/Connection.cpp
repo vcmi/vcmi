@@ -57,8 +57,8 @@ void CConnection::init()
 	connected = true;
 	std::string pom;
 	//we got connection
-	oser << std::string("Aiya!\n") << name << myEndianess; //identify ourselves
-	iser >> pom >> pom >> contactEndianess;
+	oser & std::string("Aiya!\n") & name & myEndianess; //identify ourselves
+	iser & pom & pom & contactEndianess;
     logNetwork->infoStream() << "Established connection with "<<pom;
 	wmx = new boost::mutex;
 	rmx = new boost::mutex;
@@ -226,7 +226,7 @@ CPack * CConnection::retreivePack()
 	CPack *ret = nullptr;
 	boost::unique_lock<boost::mutex> lock(*rmx);
     logNetwork->traceStream() << "Listening... ";
-	iser >> ret;
+	iser & ret;
 	logNetwork->traceStream() << "\treceived server message of type " << typeid(*ret).name() << ", data: " << ret;
 	return ret;
 }
@@ -235,7 +235,7 @@ void CConnection::sendPackToServer(const CPack &pack, PlayerColor player, ui32 r
 {
 	boost::unique_lock<boost::mutex> lock(*wmx);
     logNetwork->traceStream() << "Sending to server a pack of type " << typeid(pack).name();
-	oser << player << requestID << &pack; //packs has to be sent as polymorphic pointers!
+	oser & player & requestID & &pack; //packs has to be sent as polymorphic pointers!
 }
 
 void CConnection::disableStackSendingByID()
@@ -313,7 +313,7 @@ void CSaveFile::openNextFile(const std::string &fname)
 			THROW_FORMAT("Error: cannot open to write %s!", fname);
 
 		sfile->write("VCMI",4); //write magic identifier
-		serializer << version; //write format version
+		serializer & version; //write format version
 	}
 	catch(...)
 	{
@@ -379,7 +379,7 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 		if(std::memcmp(buffer,"VCMI",4))
 			THROW_FORMAT("Error: not a VCMI file(%s)!", fName);
 
-		serializer >> serializer.fileVersion;	
+		serializer & serializer.fileVersion;
 		if(serializer.fileVersion < minimalVersion)
 			THROW_FORMAT("Error: too old file format (%s)!", fName);
 
