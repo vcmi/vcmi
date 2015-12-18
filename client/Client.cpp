@@ -246,25 +246,18 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 #if 1
 void CClient::loadGame(const std::string & fname, const bool server, const std::vector<int>& humanplayerindices, const int loadNumPlayers, int player_, const std::string & ipaddr, const std::string & port)
 {
-	PlayerColor player(player_); //intentional shadowing
-	logNetwork->infoStream() << "Loading procedure started!";
+    PlayerColor player(player_); //intentional shadowing
 
-	std::string realPort;
-	if(settings["testing"]["enabled"].Bool())
-		realPort = settings["testing"]["port"].String();
-	else if(port.size())
-		realPort = port;
-	else
-		realPort = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
+    logNetwork->infoStream() <<"Loading procedure started!";
 
 	CServerHandler sh;
-	if(server)
-		sh.startServer();
-	else
-		serv = sh.justConnectToServer(ipaddr, realPort);
+    if(server)
+         sh.startServer();
+    else
+         serv = sh.justConnectToServer(ipaddr,port=="" ? "3030" : port);
 
 	CStopWatch tmh;
-	unique_ptr<CLoadFile> loader;
+    unique_ptr<CLoadFile> loader;
 	try
 	{
 		std::string clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
@@ -974,10 +967,7 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 {
 	serverThread = nullptr;
 	shared = nullptr;
-	if(settings["testing"]["enabled"].Bool())
-		port = settings["testing"]["port"].String();
-	else
-		port = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
+	port = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
 	verbose = true;
 
 #ifndef VCMI_ANDROID

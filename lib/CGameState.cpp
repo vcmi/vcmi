@@ -675,8 +675,8 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	}
 	else
 	{
-		cur->setType(ran.first, ran.second);	
-	}	
+		cur->setType(ran.first, ran.second);
+	}
 }
 
 int CGameState::getDate(Date::EDateType mode) const

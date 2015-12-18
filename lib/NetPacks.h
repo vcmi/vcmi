@@ -331,9 +331,6 @@ struct SetAvailableHeroes : public CPackForClient //113
 		for (int i = 0; i < GameConstants::AVAILABLE_HEROES_PER_PLAYER; i++)
 			army[i].clear();
 	}
-	~SetAvailableHeroes()
-	{
-	}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
