@@ -57,8 +57,8 @@ void CConnection::init()
 	connected = true;
 	std::string pom;
 	//we got connection
-	oser << std::string("Aiya!\n") << name << myEndianess; //identify ourselves
-	iser >> pom >> pom >> contactEndianess;
+	oser & std::string("Aiya!\n") & name & myEndianess; //identify ourselves
+	iser & pom & pom & contactEndianess;
     logNetwork->infoStream() << "Established connection with "<<pom;
 	wmx = new boost::mutex;
 	rmx = new boost::mutex;
@@ -226,7 +226,7 @@ CPack * CConnection::retreivePack()
 	CPack *ret = nullptr;
 	boost::unique_lock<boost::mutex> lock(*rmx);
     logNetwork->traceStream() << "Listening... ";
-	iser >> ret;
+	iser & ret;
 	logNetwork->traceStream() << "\treceived server message of type " << typeid(*ret).name() << ", data: " << ret;
 	return ret;
 }
@@ -235,7 +235,7 @@ void CConnection::sendPackToServer(const CPack &pack, PlayerColor player, ui32 r
 {
 	boost::unique_lock<boost::mutex> lock(*wmx);
     logNetwork->traceStream() << "Sending to server a pack of type " << typeid(pack).name();
-	oser << player << requestID << &pack; //packs has to be sent as polymorphic pointers!
+	oser & player & requestID & &pack; //packs has to be sent as polymorphic pointers!
 }
 
 void CConnection::disableStackSendingByID()
@@ -313,7 +313,7 @@ void CSaveFile::openNextFile(const std::string &fname)
 			THROW_FORMAT("Error: cannot open to write %s!", fname);
 
 		sfile->write("VCMI",4); //write magic identifier
-		serializer << version; //write format version
+		serializer & version; //write format version
 	}
 	catch(...)
 	{
@@ -409,10 +409,10 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 
 void CLoadFile::reportState(CLogger * out)
 {
-    out->debugStream() << "CLoadFile";
+	out->debugStream() << "CLoadFile";
 	if(!!sfile && *sfile)
 	{
-        out->debugStream() << "\tOpened " << fName << "\n\tPosition: " << sfile->tellg();
+		out->debugStream() << "\tOpened " << fName << "\n\tPosition: " << sfile->tellg();
 	}
 }
 
@@ -450,18 +450,19 @@ CTypeList::TypeInfoPtr CTypeList::registerType( const std::type_info *type )
 	return newType;
 }
 
-ui16 CTypeList::getTypeID( const std::type_info *type )
+ui16 CTypeList::getTypeID( const std::type_info *type, bool throws ) const
 {
-	auto i = typeInfos.find(type);
-	if(i != typeInfos.end())
-		return i->second->typeID;
-	else
+	auto descriptor = getTypeDescriptor(type, throws);
+	if (descriptor == nullptr)
+	{
 		return 0;
+	}
+	return descriptor->typeID;
 }
 
-std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, TypeInfoPtr to)
+std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, TypeInfoPtr to) const
 {
-	if(from == to)
+	if(!strcmp(from->name, to->name))
 		return std::vector<CTypeList::TypeInfoPtr>();
 
 	// Perform a simple BFS in the class hierarchy.
@@ -484,7 +485,7 @@ std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, Ty
 				}
 			}
 		}
-		
+
 		std::vector<TypeInfoPtr> ret;
 
 		if(!previous.count(from))
@@ -512,21 +513,21 @@ std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, Ty
 	return ret;
 }
 
-std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(const std::type_info *from, const std::type_info *to)
+std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(const std::type_info *from, const std::type_info *to) const
 {
 	//This additional if is needed because getTypeDescriptor might fail if type is not registered
 	// (and if casting is not needed, then registereing should no  be required)
-	if(*from == *to)
+	if(!strcmp(from->name(), to->name()))
 		return std::vector<CTypeList::TypeInfoPtr>();
 
 	return castSequence(getTypeDescriptor(from), getTypeDescriptor(to));
 }
 
-CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(const std::type_info *type, bool throws)
+CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(const std::type_info *type, bool throws) const
 {
 	auto i = typeInfos.find(type);
 	if(i != typeInfos.end())
-		return i->second; //type found, return ptr to structure	
+		return i->second; //type found, return ptr to structure
 
 	if(!throws)
 		return nullptr;
@@ -536,7 +537,7 @@ CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(const std::type_info *type, 
 
  std::ostream & operator<<(std::ostream &str, const CConnection &cpc)
  {
- 	return str << "Connection with " << cpc.name << " (ID: " << cpc.connectionID << /*", " << (cpc.host ? "host" : "guest") <<*/ ")";
+	return str << "Connection with " << cpc.name << " (ID: " << cpc.connectionID << /*", " << (cpc.host ? "host" : "guest") <<*/ ")";
  }
 
 CSerializer::~CSerializer()
@@ -553,19 +554,19 @@ CSerializer::CSerializer()
 
 void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
 {
-	registerVectoredType<CGObjectInstance, ObjectInstanceID>(&gs->map->objects, 
+	registerVectoredType<CGObjectInstance, ObjectInstanceID>(&gs->map->objects,
 		[](const CGObjectInstance &obj){ return obj.id; });
-	registerVectoredType<CHero, HeroTypeID>(&lib->heroh->heroes, 
+	registerVectoredType<CHero, HeroTypeID>(&lib->heroh->heroes,
 		[](const CHero &h){ return h.ID; });
 	registerVectoredType<CGHeroInstance, HeroTypeID>(&gs->map->allHeroes,
 		[](const CGHeroInstance &h){ return h.type->ID; });
-	registerVectoredType<CCreature, CreatureID>(&lib->creh->creatures, 
+	registerVectoredType<CCreature, CreatureID>(&lib->creh->creatures,
 		[](const CCreature &cre){ return cre.idNumber; });
 	registerVectoredType<CArtifact, ArtifactID>(&lib->arth->artifacts,
 		[](const CArtifact &art){ return art.id; });
-	registerVectoredType<CArtifactInstance, ArtifactInstanceID>(&gs->map->artInstances, 
+	registerVectoredType<CArtifactInstance, ArtifactInstanceID>(&gs->map->artInstances,
 		[](const CArtifactInstance &artInst){ return artInst.id; });
-	registerVectoredType<CQuest, si32>(&gs->map->quests, 
+	registerVectoredType<CQuest, si32>(&gs->map->quests,
 		[](const CQuest &q){ return q.qid; });
 
 	smartVectorMembersSerialization = true;
@@ -598,7 +599,7 @@ int CLoadIntegrityValidator::read( void * data, unsigned size )
 		controlFile->read(controlData.data(), size);
 		if(std::memcmp(data, controlData.data(), size))
 		{
-            logGlobal->errorStream() << "Desync found! Position: " << primaryFile->sfile->tellg();
+			logGlobal->errorStream() << "Desync found! Position: " << primaryFile->sfile->tellg();
 			foundDesync = true;
 			//throw std::runtime_error("Savegame dsynchronized!");
 		}
