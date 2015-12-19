@@ -27,60 +27,71 @@ public:
 	};
 };
 
-class CBasicPointerSaver
-{
-public:
-	virtual void savePtr(CSaverBase &ar, const void *data) const =0;
-	virtual ~CBasicPointerSaver(){}
-};
-
-template <typename Handler>
-struct VariantVisitorSaver : boost::static_visitor<>
-{
-	Handler &h;
-	VariantVisitorSaver(Handler &H):h(H)
-	{
-	}
-
-	template <typename T>
-	void operator()(const T &t)
-	{
-		h & t;
-	}
-};
-
-template<typename Ser,typename T>
-struct SaveIfStackInstance
-{
-	static bool invoke(Ser &s, const T &data)
-	{
-		return false;
-	}
-};
-
-template<typename Ser>
-struct SaveIfStackInstance<Ser, CStackInstance *>
-{
-	static bool invoke(Ser &s, const CStackInstance* const &data)
-	{
-		assert(data->armyObj);
-		SlotID slot;
-
-		if(data->getNodeType() == CBonusSystemNode::COMMANDER)
-			slot = SlotID::COMMANDER_SLOT_PLACEHOLDER;
-		else
-			slot = data->armyObj->findStack(data);
-
-		assert(slot != SlotID());
-		s & data->armyObj & slot;
-		return true;
-	}
-};
-
-/// The class which manages saving objects.
+/// Main class for serialization of classes into binary form
+/// Behaviour for various classes is following:
+/// Primitives:    copy memory into underlying stream (defined in CSaverBase)
+/// Containers:    custom overloaded method that decouples class into primitives
+/// VCMI Classes:  recursively serialize them via ClassName::serialize( BinarySerializer &, int version) call
 class DLL_LINKAGE BinarySerializer : public CSaverBase
 {
-public:
+	template <typename Handler>
+	struct VariantVisitorSaver : boost::static_visitor<>
+	{
+		Handler &h;
+		VariantVisitorSaver(Handler &H):h(H)
+		{
+		}
+
+		template <typename T>
+		void operator()(const T &t)
+		{
+			h & t;
+		}
+	};
+
+	template<typename Ser,typename T>
+	struct SaveIfStackInstance
+	{
+		static bool invoke(Ser &s, const T &data)
+		{
+			return false;
+		}
+	};
+
+	template<typename Ser>
+	struct SaveIfStackInstance<Ser, CStackInstance *>
+	{
+		static bool invoke(Ser &s, const CStackInstance* const &data)
+		{
+			assert(data->armyObj);
+			SlotID slot;
+
+			if(data->getNodeType() == CBonusSystemNode::COMMANDER)
+				slot = SlotID::COMMANDER_SLOT_PLACEHOLDER;
+			else
+				slot = data->armyObj->findStack(data);
+
+			assert(slot != SlotID());
+			s & data->armyObj & slot;
+			return true;
+		}
+	};
+
+	template <typename T> class CPointerSaver;
+
+	class CBasicPointerSaver
+	{
+	public:
+		virtual void savePtr(CSaverBase &ar, const void *data) const =0;
+		virtual ~CBasicPointerSaver(){}
+
+		template<typename T> static CBasicPointerSaver *getApplier(const T * t=nullptr)
+		{
+			return new CPointerSaver<T>();
+		}
+	};
+
+
 	template <typename T>
 	class CPointerSaver : public CBasicPointerSaver
 	{
@@ -95,11 +106,13 @@ public:
 		}
 	};
 
-	bool saving;
-	std::map<ui16,std::unique_ptr<CBasicPointerSaver>> savers; // typeID => CPointerSaver<serializer,type>
+	CApplier<CBasicPointerSaver> applier;
 
+public:
 	std::map<const void*, ui32> savedPointers;
+
 	bool smartPointerSerialization;
+	bool saving;
 
 	BinarySerializer(IBinaryWriter * w): CSaverBase(w)
 	{
@@ -107,19 +120,10 @@ public:
 		smartPointerSerialization = true;
 	}
 
-	template<typename T>
-	void addSaver(const T * t = nullptr)
+	template<typename Base, typename Derived>
+	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
 	{
-		auto ID = typeList.getTypeID(t);
-		if(!savers.count(ID))
-			savers[ID].reset(new CPointerSaver<T>);
-	}
-
-	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
-	{
-		typeList.registerType(b, d);
-		addSaver(b);
-		addSaver(d);
+		applier.registerType(b, d);
 	}
 
 	template<class T>
@@ -133,7 +137,7 @@ public:
 	void save(const T &data)
 	{
 		ui8 writ = static_cast<ui8>(data);
-		*this & writ;
+		save(writ);
 	}
 
 	template < typename T, typename std::enable_if < std::is_same<T, std::vector<bool> >::value, int  >::type = 0 >
@@ -225,7 +229,7 @@ public:
 		if(!tid)
 			save(*data); //if type is unregistered simply write all data in a standard way
 		else
-			savers[tid]->savePtr(*this, typeList.castToMostDerived(data));  //call serializer specific for our real type
+			applier.getApplier(tid)->savePtr(*this, typeList.castToMostDerived(data));  //call serializer specific for our real type
 	}
 
 	template < typename T, typename std::enable_if < is_serializeable<BinarySerializer, T>::value, int  >::type = 0 >
@@ -342,11 +346,9 @@ public:
 	}
 };
 
-class DLL_LINKAGE CSaveFile
-	:public IBinaryWriter
+class DLL_LINKAGE CSaveFile : public IBinaryWriter
 {
 public:
-
 	BinarySerializer serializer;
 
 	std::string fName;

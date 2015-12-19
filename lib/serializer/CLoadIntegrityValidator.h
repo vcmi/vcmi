@@ -12,24 +12,8 @@
 #pragma once
 
 #include "BinaryDeserializer.h"
-/*
-#include <typeinfo>
-#include <type_traits>
 
-#include <boost/mpl/eval_if.hpp>
-#include <boost/mpl/equal_to.hpp>
-#include <boost/mpl/int.hpp>
-#include <boost/mpl/identity.hpp>
-#include <boost/mpl/for_each.hpp>
-#include <boost/any.hpp>
-
-#include "ConstTransitivePtr.h"
-#include "CCreatureSet.h" //for CStackInstance
-#include "mapObjects/CGHeroInstance.h"
-#include "mapping/CCampaignHandler.h" //for CCampaignState
-#include "rmg/CMapGenerator.h" // for CMapGenOptions
-*/
-
+/// Simple byte-to-byte saves comparator
 class DLL_LINKAGE CLoadIntegrityValidator
 	: public IBinaryReader
 {

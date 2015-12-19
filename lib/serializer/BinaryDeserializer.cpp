@@ -2,12 +2,6 @@
 #include "BinaryDeserializer.h"
 
 #include "../registerTypes/RegisterTypes.h"
-/*
-
-#include "mapping/CMap.h"
-#include "CGameState.h"
-
-#include <boost/asio.hpp>*/
 
 /*
  * BinaryDeserializer.cpp, part of VCMI engine

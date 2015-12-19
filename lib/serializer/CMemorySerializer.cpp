@@ -2,12 +2,6 @@
 #include "CMemorySerializer.h"
 
 #include "../registerTypes/RegisterTypes.h"
-/*
-#include "registerTypes/RegisterTypes.h"
-#include "mapping/CMap.h"
-#include "CGameState.h"
-
-#include <boost/asio.hpp>*/
 
 /*
  * CMemorySerializer.cpp, part of VCMI engine

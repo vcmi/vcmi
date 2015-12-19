@@ -43,7 +43,6 @@ struct VectorizedObjectInfo
 {
 	const std::vector<ConstTransitivePtr<ObjType> > *vector;	//pointer to the appropriate vector
 	std::function<IdType(const ObjType &)> idRetriever;
-	//const IdType ObjType::*idPtr;			//pointer to the field representing the position in the vector
 
 	VectorizedObjectInfo(const std::vector< ConstTransitivePtr<ObjType> > *Vector, std::function<IdType(const ObjType &)> IdGetter)
 		:vector(Vector), idRetriever(IdGetter)
@@ -51,32 +50,20 @@ struct VectorizedObjectInfo
 	}
 };
 
-template<typename T>
-si32 idToNumber(const T &t, typename boost::enable_if<boost::is_convertible<T,si32> >::type * dummy = 0)
-{
-	return t;
-}
-
-template<typename T, typename NT>
-NT idToNumber(const BaseForID<T, NT> &t)
-{
-	return t.getNum();
-}
-
-/// Class which is responsible for storing and loading data.
+/// Base class for serializers capable of reading or writing data
 class DLL_LINKAGE CSerializer
 {
-public:
-	typedef std::map<const std::type_info *, boost::any, TypeComparer> TTypeVecMap;
-	TTypeVecMap vectors; //entry must be a pointer to vector containing pointers to the objects of key type
+	template<typename T>
+	static si32 idToNumber(const T &t, typename boost::enable_if<boost::is_convertible<T,si32> >::type * dummy = 0)
+	{
+		return t;
+	}
 
-	bool smartVectorMembersSerialization;
-	bool sendStackInstanceByIds;
-
-	CSerializer();
-	~CSerializer();
-
-	virtual void reportState(CLogger * out){};
+	template<typename T, typename NT>
+	static NT idToNumber(const BaseForID<T, NT> &t)
+	{
+		return t.getNum();
+	}
 
 	template <typename T, typename U>
 	void registerVectoredType(const std::vector<T*> *Vector, const std::function<U(const T&)> &idRetriever)
@@ -88,6 +75,18 @@ public:
 	{
 		vectors[&typeid(T)] = VectorizedObjectInfo<T, U>(Vector, idRetriever);
 	}
+
+	typedef std::map<const std::type_info *, boost::any, TypeComparer> TTypeVecMap;
+	TTypeVecMap vectors; //entry must be a pointer to vector containing pointers to the objects of key type
+
+public:
+	bool smartVectorMembersSerialization;
+	bool sendStackInstanceByIds;
+
+	CSerializer();
+	~CSerializer();
+
+	virtual void reportState(CLogger * out){};
 
 	template <typename T, typename U>
 	const VectorizedObjectInfo<T, U> *getVectorizedTypeInfo()
@@ -130,6 +129,7 @@ public:
 	void addStdVecItems(CGameState *gs, LibClasses *lib = VLC);
 };
 
+/// Helper to detect classes with user-provided serialize(S&, int version) method
 template<class S, class T>
 struct is_serializeable
 {
@@ -186,12 +186,14 @@ struct VectorizedIDType
 		> > > > > >::type type;
 };
 
+/// Base class for deserializers
 class IBinaryReader : public virtual CSerializer
 {
 public:
 	virtual int read(void * data, unsigned size) = 0;
 };
 
+/// Base class for serializers
 class IBinaryWriter : public virtual CSerializer
 {
 public:

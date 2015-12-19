@@ -14,7 +14,7 @@
 #include "BinarySerializer.h"
 #include "BinaryDeserializer.h"
 
-// Serializer that stores objects in the dynamic buffer. Allows performing deep object copies.
+/// Serializer that stores objects in the dynamic buffer. Allows performing deep object copies.
 class DLL_LINKAGE CMemorySerializer
 	: public IBinaryReader, public IBinaryWriter
 {

@@ -18,63 +18,6 @@
 
 class CStackInstance;
 
-template<typename Variant, typename Source>
-struct VariantLoaderHelper
-{
-	Source & source;
-	std::vector<std::function<Variant()>> funcs;
-
-	VariantLoaderHelper(Source & source):
-		source(source)
-	{
-		boost::mpl::for_each<typename Variant::types>(std::ref(*this));
-	}
-
-	template<typename Type>
-	void operator()(Type)
-	{
-		funcs.push_back([&]() -> Variant
-		{
-			Type obj;
-			source & obj;
-			return Variant(obj);
-		});
-	}
-};
-
-template<typename Ser,typename T>
-struct LoadIfStackInstance
-{
-	static bool invoke(Ser &s, T &data)
-	{
-		return false;
-	}
-};
-
-template<typename Ser>
-struct LoadIfStackInstance<Ser, CStackInstance *>
-{
-	static bool invoke(Ser &s, CStackInstance* &data)
-	{
-		CArmedInstance *armedObj;
-		SlotID slot;
-		s & armedObj & slot;
-		if(slot != SlotID::COMMANDER_SLOT_PLACEHOLDER)
-		{
-			assert(armedObj->hasStackAtSlot(slot));
-			data = armedObj->stacks[slot];
-		}
-		else
-		{
-			auto hero = dynamic_cast<CGHeroInstance *>(armedObj);
-			assert(hero);
-			assert(hero->commander);
-			data = hero->commander;
-		}
-		return true;
-	}
-};
-
 class DLL_LINKAGE CLoaderBase
 {
 protected:
@@ -88,37 +31,87 @@ public:
 	};
 };
 
-class CBasicPointerLoader
-{
-public:
-	virtual const std::type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
-	virtual ~CBasicPointerLoader(){}
-};
-
-template <typename T, typename Enable = void>
-struct ClassObjectCreator
-{
-	static T *invoke()
-	{
-		static_assert(!std::is_abstract<T>::value, "Cannot call new upon abstract classes!");
-		return new T();
-	}
-};
-
-template<typename T>
-struct ClassObjectCreator<T, typename std::enable_if<std::is_abstract<T>::value>::type>
-{
-	static T *invoke()
-	{
-		throw std::runtime_error("Something went really wrong during deserialization. Attempted creating an object of an abstract class " + std::string(typeid(T).name()));
-	}
-};
-
-
-/// The class which manages loading of objects.
+/// Main class for deserialization of classes from binary form
+/// Effectively revesed version of BinarySerializer
 class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 {
-public:
+	template<typename Variant, typename Source>
+	struct VariantLoaderHelper
+	{
+		Source & source;
+		std::vector<std::function<Variant()>> funcs;
+
+		VariantLoaderHelper(Source & source):
+			source(source)
+		{
+			boost::mpl::for_each<typename Variant::types>(std::ref(*this));
+		}
+
+		template<typename Type>
+		void operator()(Type)
+		{
+			funcs.push_back([&]() -> Variant
+			{
+				Type obj;
+				source.load(obj);
+				return Variant(obj);
+			});
+		}
+	};
+
+	template<typename Ser,typename T>
+	struct LoadIfStackInstance
+	{
+		static bool invoke(Ser &s, T &data)
+		{
+			return false;
+		}
+	};
+
+	template<typename Ser>
+	struct LoadIfStackInstance<Ser, CStackInstance *>
+	{
+		static bool invoke(Ser &s, CStackInstance* &data)
+		{
+			CArmedInstance *armedObj;
+			SlotID slot;
+			s.load(armedObj);
+			s.load(slot);
+			if(slot != SlotID::COMMANDER_SLOT_PLACEHOLDER)
+			{
+				assert(armedObj->hasStackAtSlot(slot));
+				data = armedObj->stacks[slot];
+			}
+			else
+			{
+				auto hero = dynamic_cast<CGHeroInstance *>(armedObj);
+				assert(hero);
+				assert(hero->commander);
+				data = hero->commander;
+			}
+			return true;
+		}
+	};
+
+	template <typename T, typename Enable = void>
+	struct ClassObjectCreator
+	{
+		static T *invoke()
+		{
+			static_assert(!std::is_abstract<T>::value, "Cannot call new upon abstract classes!");
+			return new T();
+		}
+	};
+
+	template<typename T>
+	struct ClassObjectCreator<T, typename std::enable_if<std::is_abstract<T>::value>::type>
+	{
+		static T *invoke()
+		{
+			throw std::runtime_error("Something went really wrong during deserialization. Attempted creating an object of an abstract class " + std::string(typeid(T).name()));
+		}
+	};
+
 #define READ_CHECK_U32(x)			\
 	ui32 length;			\
 	load(length);				\
@@ -126,6 +119,20 @@ public:
 	{								\
 		logGlobal->warnStream() << "Warning: very big length: " << length;\
 		reader->reportState(logGlobal);			\
+	};
+
+	template <typename T> class CPointerLoader;
+
+	class CBasicPointerLoader
+	{
+	public:
+		virtual const std::type_info * loadPtr(CLoaderBase &ar, void *data, ui32 pid) const =0; //data is pointer to the ACTUAL POINTER
+		virtual ~CBasicPointerLoader(){}
+
+		template<typename T> static CBasicPointerLoader *getApplier(const T * t=nullptr)
+		{
+			return new CPointerLoader<T>();
+		}
 	};
 
 	template <typename T> class CPointerLoader : public CBasicPointerLoader
@@ -146,18 +153,19 @@ public:
 		}
 	};
 
-	bool saving;
-	std::map<ui16, std::unique_ptr<CBasicPointerLoader> > loaders; // typeID => CPointerSaver<serializer,type>
-	si32 fileVersion;
+	CApplier<CBasicPointerLoader> applier;
+
+	int write(const void * data, unsigned size);
+
+public:
 	bool reverseEndianess; //if source has different endianness than us, we reverse bytes
+	si32 fileVersion;
 
 	std::map<ui32, void*> loadedPointers;
 	std::map<ui32, const std::type_info*> loadedPointersTypes;
 	std::map<const void*, boost::any> loadedSharedPointers;
-
 	bool smartPointerSerialization;
-
-	int write(const void * data, unsigned size);
+	bool saving;
 
 	BinaryDeserializer(IBinaryReader * r): CLoaderBase(r)
 	{
@@ -165,21 +173,6 @@ public:
 		fileVersion = 0;
 		smartPointerSerialization = true;
 		reverseEndianess = false;
-	}
-
-	template<typename T>
-	void addLoader(const T * t = nullptr)
-	{
-		auto ID = typeList.getTypeID(t);
-		if(!loaders.count(ID))
-			loaders[ID].reset(new CPointerLoader<T>);
-	}
-
-	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
-	{
-		typeList.registerType(b, d);
-		addLoader(b);
-		addLoader(d);
 	}
 
 	template<class T>
@@ -321,7 +314,7 @@ public:
 		}
 		else
 		{
-			auto typeInfo = loaders[tid]->loadPtr(*this,&data, pid);
+			auto typeInfo = applier.getApplier(tid)->loadPtr(*this,&data, pid);
 			data = reinterpret_cast<T>(typeList.castRaw((void*)data, typeInfo, &typeid(typename std::remove_const<typename std::remove_pointer<T>::type>::type)));
 		}
 	}
@@ -334,6 +327,11 @@ public:
 			loadedPointersTypes[pid] = &typeid(T);
 			loadedPointers[pid] = (void*)ptr; //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
 		}
+	}
+
+	template<typename Base, typename Derived> void registerType(const Base * b = nullptr, const Derived * d = nullptr)
+	{
+		applier.registerType(b, d);
 	}
 
 	template <typename T>
@@ -508,8 +506,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CLoadFile
-	: public IBinaryReader
+class DLL_LINKAGE CLoadFile : public IBinaryReader
 {
 public:
 	BinaryDeserializer serializer;

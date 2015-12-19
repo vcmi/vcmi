@@ -58,9 +58,12 @@ struct PointerCaster : IPointerCaster
 	}
 };
 
+/// Class that implements basic reflection-like mechanisms
+/// For every type registered via registerType() generates inheritance tree
+/// Rarely used directly - usually used as part of CApplier
 class DLL_LINKAGE CTypeList: public boost::noncopyable
 {
-public:
+//public:
 	struct TypeDescriptor;
 	typedef std::shared_ptr<TypeDescriptor> TypeInfoPtr;
 	struct TypeDescriptor
@@ -82,7 +85,6 @@ private:
 	/// Throws if there is no link registered.
 	std::vector<TypeInfoPtr> castSequence(TypeInfoPtr from, TypeInfoPtr to) const;
 	std::vector<TypeInfoPtr> castSequence(const std::type_info *from, const std::type_info *to) const;
-
 
 	template<boost::any(IPointerCaster::*CastingFunction)(const boost::any &) const>
 	boost::any castHelper(boost::any inputPtr, const std::type_info *fromArg, const std::type_info *toArg) const
@@ -111,12 +113,12 @@ private:
 		assert(0);
 		return *this;
 	}
-public:
 
 	TypeInfoPtr getTypeDescriptor(const std::type_info *type, bool throws = true) const; //if not throws, failure returns nullptr
-
 	TypeInfoPtr registerType(const std::type_info *type);
+
 public:
+
 	CTypeList();
 
 	template <typename Base, typename Derived>
@@ -125,9 +127,11 @@ public:
 		TUniqueLock lock(mx);
 		static_assert(std::is_base_of<Base, Derived>::value, "First registerType template parameter needs to ba a base class of the second one.");
 		static_assert(std::has_virtual_destructor<Base>::value, "Base class needs to have a virtual destructor.");
-		static_assert(!std::is_same<Base, Derived>::value, "Parameters of registerTypes should be two diffrenet types.");
-		auto bt = getTypeInfo(b), dt = getTypeInfo(d); //obtain std::type_info
-		auto bti = registerType(bt), dti = registerType(dt); //obtain our TypeDescriptor
+		static_assert(!std::is_same<Base, Derived>::value, "Parameters of registerTypes should be two different types.");
+		auto bt = getTypeInfo(b);
+		auto dt = getTypeInfo(d); //obtain std::type_info
+		auto bti = registerType(bt);
+		auto dti = registerType(dt); //obtain our TypeDescriptor
 
 		// register the relation between classes
 		bti->children.push_back(dti);
@@ -150,7 +154,7 @@ public:
 		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
 		auto derivedType = getTypeInfo(inputPtr);
 
-		if (!strcmp(baseType.name(), derivedType->name()))
+		if (strcmp(baseType.name(), derivedType->name()) == 0)
 		{
 			return const_cast<void*>(reinterpret_cast<const void*>(inputPtr));
 		}
@@ -192,16 +196,12 @@ public:
 
 extern DLL_LINKAGE CTypeList typeList;
 
+/// Wrapper over CTypeList. Allows execution of templated class T for any type
+/// that was resgistered for this applier
 template<typename T>
 class CApplier
 {
 	std::map<ui16, std::unique_ptr<T>> apps;
-public:
-	T * getApplier(ui16 ID)
-	{
-		assert(apps.count(ID));
-		return apps[ID].get();
-	}
 
 	template<typename RegisteredType>
 	void addApplier(ui16 ID)
@@ -211,6 +211,13 @@ public:
 			RegisteredType * rtype = nullptr;
 			apps[ID].reset(T::getApplier(rtype));
 		}
+	}
+
+public:
+	T * getApplier(ui16 ID)
+	{
+		assert(apps.count(ID));
+		return apps[ID].get();
 	}
 
 	template<typename Base, typename Derived>

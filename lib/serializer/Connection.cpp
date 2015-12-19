@@ -20,9 +20,6 @@
 using namespace boost;
 using namespace boost::asio::ip;
 
-#define LOG(a) \
-	if(logging)\
-		out << a
 #if defined(__hppa__) || \
 	defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || \
 	(defined(__MIPS__) && defined(__MISPEB__)) || \
@@ -139,7 +136,6 @@ CConnection::CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_servi
 }
 int CConnection::write(const void * data, unsigned size)
 {
-	//LOG("Sending " << size << " byte(s) of data" <<std::endl);
 	try
 	{
 		int ret;
@@ -155,7 +151,6 @@ int CConnection::write(const void * data, unsigned size)
 }
 int CConnection::read(void * data, unsigned size)
 {
-	//LOG("Receiving " << size << " byte(s) of data" <<std::endl);
 	try
 	{
 		int ret = asio::read(*socket,asio::mutable_buffers_1(asio::mutable_buffer(data,size)));
