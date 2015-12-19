@@ -19,7 +19,8 @@
 #include "CMusicHandler.h"
 #include "CVideoHandler.h"
 #include "Graphics.h"
-#include "../lib/Connection.h"
+#include "../lib/serializer/Connection.h"
+#include "../lib/serializer/CTypeList.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/mapping/CMap.h"
 #include "windows/GUIClasses.h"
@@ -1005,7 +1006,7 @@ void CSelectionScreen::processPacks()
 	{
 		CPackForSelectionScreen *pack = upcomingPacks.front();
 		upcomingPacks.pop_front();
-		CBaseForPGApply *apply = applier->apps[typeList.getTypeID(pack)]; //find the applier
+		CBaseForPGApply *apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
 		apply->applyOnPG(this, pack);
 		delete pack;
 	}

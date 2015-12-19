@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "../lib/filesystem/Filesystem.h"
 #include "../lib/StartInfo.h"
 #include "../lib/FunctionList.h"
 #include "../lib/mapping/CMapInfo.h"

@@ -8,6 +8,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/mapObjects/CBank.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/CPathfinder.h"
 #include "../../lib/mapping/CMapDefines.h"

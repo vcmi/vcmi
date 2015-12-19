@@ -9,7 +9,8 @@
 #else
 	#include <dlfcn.h>
 #endif
-#include "Connection.h"
+#include "serializer/BinaryDeserializer.h"
+#include "serializer/BinarySerializer.h"
 
 /*
  * CGameInterface.cpp, part of VCMI engine
@@ -243,7 +244,7 @@ void CAdventureAI::yourTacticPhase(int distance)
 	battleAI->yourTacticPhase(distance);
 }
 
-void CAdventureAI::saveGame(COSer & h, const int version) /*saving */
+void CAdventureAI::saveGame(BinarySerializer & h, const int version) /*saving */
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	CGlobalAI::saveGame(h, version);
@@ -256,7 +257,7 @@ void CAdventureAI::saveGame(COSer & h, const int version) /*saving */
 	}
 }
 
-void CAdventureAI::loadGame(CISer & h, const int version) /*loading */
+void CAdventureAI::loadGame(BinaryDeserializer & h, const int version) /*loading */
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	CGlobalAI::loadGame(h, version);
@@ -273,10 +274,10 @@ void CAdventureAI::loadGame(CISer & h, const int version) /*loading */
 	}
 }
 
-void CBattleGameInterface::saveGame(COSer & h, const int version)
+void CBattleGameInterface::saveGame(BinarySerializer & h, const int version)
 {
 }
 
-void CBattleGameInterface::loadGame(CISer  & h, const int version)
+void CBattleGameInterface::loadGame(BinaryDeserializer  & h, const int version)
 {
 }

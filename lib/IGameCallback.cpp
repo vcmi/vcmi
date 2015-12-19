@@ -17,7 +17,13 @@
 #include "CBonusTypeHandler.h"
 #include "CModHandler.h"
 
-#include "Connection.h" // for SAVEGAME_MAGIC
+#include "serializer/CSerializer.h" // for SAVEGAME_MAGIC
+#include "serializer/BinaryDeserializer.h"
+#include "serializer/BinarySerializer.h"
+#include "serializer/CLoadIntegrityValidator.h"
+#include "rmg/CMapGenOptions.h"
+#include "mapping/CCampaignHandler.h"
+
 #include "mapObjects/CObjectClassesHandler.h"
 #include "StartInfo.h"
 #include "CGameState.h"

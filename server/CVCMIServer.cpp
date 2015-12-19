@@ -5,7 +5,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../lib/CThreadHelper.h"
-#include "../lib/Connection.h"
+#include "../lib/serializer/Connection.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -29,6 +29,7 @@
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/ScopeGuard.h"
+#include "../lib/rmg/CMapGenOptions.h"
 
 #include "../lib/UnlockGuard.h"
 

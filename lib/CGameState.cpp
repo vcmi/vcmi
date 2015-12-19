@@ -13,7 +13,7 @@
 #include "CCreatureHandler.h"
 #include "CModHandler.h"
 #include "VCMI_Lib.h"
-#include "Connection.h"
+#include "serializer/CTypeList.h"
 #include "mapping/CMap.h"
 #include "mapping/CMapService.h"
 #include "StartInfo.h"
@@ -28,6 +28,7 @@
 #include "CStopWatch.h"
 #include "mapping/CMapEditManager.h"
 #include "CPathfinder.h"
+#include "serializer/CMemorySerializer.h"
 
 class CGObjectInstance;
 
@@ -2065,7 +2066,7 @@ PlayerRelations::PlayerRelations CGameState::getPlayerRelations( PlayerColor col
 void CGameState::apply(CPack *pack)
 {
 	ui16 typ = typeList.getTypeID(pack);
-	applierGs->apps[typ]->applyOnGS(this,pack);
+	applierGs->getApplier(typ)->applyOnGS(this,pack);
 }
 
 void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)

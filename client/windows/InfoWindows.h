@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CWindowObject.h"
-//#include "../gui/SDL_Extensions.h"
 #include "../../lib/FunctionList.h"
 
 struct SDL_Surface;
