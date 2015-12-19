@@ -15,7 +15,7 @@
 
 struct IPointerCaster
 {
-	virtual boost::any castRawPtr(const boost::any &ptr) const = 0; // takes From*, performs dynamic cast, returns To*
+	virtual boost::any castRawPtr(const boost::any &ptr) const = 0; // takes From*, returns To*
 	virtual boost::any castSharedPtr(const boost::any &ptr) const = 0; // takes std::shared_ptr<From>, performs dynamic cast, returns std::shared_ptr<To>
 	virtual boost::any castWeakPtr(const boost::any &ptr) const = 0; // takes std::weak_ptr<From>, performs dynamic cast, returns std::weak_ptr<To>. The object under poitner must live.
 	//virtual boost::any castUniquePtr(const boost::any &ptr) const = 0; // takes std::unique_ptr<From>, performs dynamic cast, returns std::unique_ptr<To>
@@ -27,28 +27,18 @@ struct PointerCaster : IPointerCaster
 	virtual boost::any castRawPtr(const boost::any &ptr) const override // takes void* pointing to From object, performs dynamic cast, returns void* pointing to To object
 	{
 		From * from = (From*)boost::any_cast<void*>(ptr);
-		To * ret = dynamic_cast<To*>(from);
-		if (ret == nullptr)
-		{
-			// Last resort when RTTI goes mad
-			ret = static_cast<To*>(from);
-		}
+		To * ret = static_cast<To*>(from);
 		return (void*)ret;
 	}
 
-	// Helper function performing casts between smart pointers using dynamic_pointer_cast
+	// Helper function performing casts between smart pointers
 	template<typename SmartPt>
 	boost::any castSmartPtr(const boost::any &ptr) const
 	{
 		try
 		{
 			auto from = boost::any_cast<SmartPt>(ptr);
-			auto ret = std::dynamic_pointer_cast<To>(from);
-			if (!ret)
-			{
-				// Last resort when RTTI goes mad
-				ret = std::static_pointer_cast<To>(from);
-			}
+			auto ret = std::static_pointer_cast<To>(from);
 			return ret;
 		}
 		catch(std::exception &e)

@@ -30,11 +30,11 @@ struct TypeComparer
 {
 	bool operator()(const std::type_info *a, const std::type_info *b) const
 	{
-	#ifndef __APPLE__
-	  return a->before(*b);
-	#else
-	  return strcmp(a->name(), b->name()) < 0;
-	#endif
+	//#ifndef __APPLE__
+	//  return a->before(*b);
+	//#else
+		return strcmp(a->name(), b->name()) < 0;
+	//#endif
 	}
 };
 
@@ -150,10 +150,10 @@ struct VectorizedTypeFor
 {
 	typedef typename
 		//if
-		boost::mpl::eval_if<boost::is_same<CGHeroInstance,T>,
+		boost::mpl::eval_if<std::is_same<CGHeroInstance,T>,
 		boost::mpl::identity<CGHeroInstance>,
 		//else if
-		boost::mpl::eval_if<boost::is_base_of<CGObjectInstance,T>,
+		boost::mpl::eval_if<std::is_base_of<CGObjectInstance,T>,
 		boost::mpl::identity<CGObjectInstance>,
 		//else
 		boost::mpl::identity<T>
@@ -164,22 +164,22 @@ struct VectorizedIDType
 {
 	typedef typename
 		//if
-		boost::mpl::eval_if<boost::is_same<CArtifact,U>,
+		boost::mpl::eval_if<std::is_same<CArtifact,U>,
 		boost::mpl::identity<ArtifactID>,
 		//else if
-		boost::mpl::eval_if<boost::is_same<CCreature,U>,
+		boost::mpl::eval_if<std::is_same<CCreature,U>,
 		boost::mpl::identity<CreatureID>,
 		//else if
-		boost::mpl::eval_if<boost::is_same<CHero,U>,
+		boost::mpl::eval_if<std::is_same<CHero,U>,
 		boost::mpl::identity<HeroTypeID>,
 		//else if
-		boost::mpl::eval_if<boost::is_same<CArtifactInstance,U>,
+		boost::mpl::eval_if<std::is_same<CArtifactInstance,U>,
 		boost::mpl::identity<ArtifactInstanceID>,
 		//else if
-		boost::mpl::eval_if<boost::is_same<CGHeroInstance,U>,
+		boost::mpl::eval_if<std::is_same<CGHeroInstance,U>,
 		boost::mpl::identity<HeroTypeID>,
 		//else if
-		boost::mpl::eval_if<boost::is_base_of<CGObjectInstance,U>,
+		boost::mpl::eval_if<std::is_base_of<CGObjectInstance,U>,
 		boost::mpl::identity<ObjectInstanceID>,
 		//else
 		boost::mpl::identity<si32>
