@@ -93,6 +93,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #ifdef VCMI_WINDOWS
 #  define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers - delete this line if something is missing.
 #  define NOMINMAX					// Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
+#  define _NO_W32_PSEUDO_MODIFIERS  // Exclude more macros for compiling with MinGW on Linux.
 #endif
 
 /* ---------------------------------------------------------------------------- */
