@@ -2,6 +2,7 @@
 
 #include "CObjectClassesHandler.h"
 #include "../CTownHandler.h" // for building ID-based filters
+#include "MapObjects.h"
 
 /*
  * CommonConstructors.h, part of VCMI engine
