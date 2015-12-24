@@ -3260,30 +3260,6 @@ For ship construction etc, another function (goal?) is needed
 					sectorQueue.push(neigh);
 				}
 			}
-
-
-/*
-			// TODO: this code need to be rewritten in order to work porperly
-			// And we need to support teleport channels instead of just gates
-			//
-			// At moment it's cause more issues than it's solve so it's disabled.
-			// Check mantis 2119, 2228 and 2212 (Warmonger posts)
-
-			for (auto gate : s->subterraneanGates)
-			{
-				auto gatePair = ai->knownSubterraneanGates.find(gate);
-				if (gatePair != ai->knownSubterraneanGates.end())
-				{
-					//check the other side of gate
-					Sector *neigh = &infoOnSectors[retreiveTile(gatePair->second->visitablePos())];
-					if(!preds[neigh]) //if we didn't come into this sector yet
-					{
-						preds[neigh] = s; //it becomes our new target sector
-						sectorQueue.push(neigh);
-					}
-				}
-			}
-*/
 		}
 
 		if(!preds[dest])
@@ -3389,34 +3365,8 @@ For ship construction etc, another function (goal?) is needed
 				//disembark
 				return ret;
 			}
-			else //use subterranean gates
+			else //use subterranean gates - not needed since gates are now handled via Pathfinder
 			{
-				//auto t = findFirstVisitableTile (h, dst);
-				//if (t.valid())
-				//	return t;
-
-				//TODO: pop sectors linked by Subterranean Gate in loop
-
-/*
-				// Same as above, check issues 2119, 2228
-
-				auto firstGate = boost::find_if(src->subterraneanGates, [=](const CGObjectInstance * gate) -> bool
-				{
-					//make sure no hero block the way
-					auto pos = ai->knownSubterraneanGates[gate]->visitablePos();
-					const TerrainTile *t = getTile(pos);
-					return t && t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::SUBTERRANEAN_GATE
-						&& retreiveTile(pos) == sectorToReach->id;
-				});
-
-				if(firstGate != src->subterraneanGates.end())
-				{
-					//TODO: pahtfinder can find path through subterranean gates, but this function only reaches closest gate
-					return (*firstGate)->visitablePos();
-				}
-*/
-				//TODO
-				//Monolith? Whirlpool? ...
 				return ret;
 				//throw cannotFulfillGoalException("Land-land and water-water inter-sector transitions are not implemented!");
 			}
