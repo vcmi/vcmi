@@ -1010,6 +1010,13 @@ DLL_LINKAGE void SetAvailableArtifacts::applyGs( CGameState *gs )
 DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 {
 	gs->day = day;
+
+	// Update bonuses before doing anything else so hero don't get more MP than needed
+	gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
+	gs->globalEffects.updateBonuses(Bonus::NDays);
+	gs->globalEffects.updateBonuses(Bonus::OneWeek);
+	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
+
 	for(NewTurn::Hero h : heroes) //give mana/movement point
 	{
 		CGHeroInstance *hero = gs->getHero(h.id);
@@ -1025,11 +1032,6 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 
 	for(auto creatureSet : cres) //set available creatures in towns
 		creatureSet.second.applyGs(gs);
-
-	gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
-	gs->globalEffects.updateBonuses(Bonus::NDays);
-	gs->globalEffects.updateBonuses(Bonus::OneWeek);
-	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
 	for(CGTownInstance* t : gs->map->towns)
 		t->builded = 0;
