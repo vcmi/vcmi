@@ -225,12 +225,37 @@ ui64 CCreatureSet::getPower (SlotID slot) const
 	return getStack(slot).getPower();
 }
 
-std::string CCreatureSet::getRoughAmount (SlotID slot) const
+std::string CCreatureSet::getRoughAmount(SlotID slot, int mode) const
 {
+	/// Mode represent return string format
+	/// "Pack" - 0, "A pack of" - 1, "a pack of" - 2
 	int quantity = CCreature::getQuantityID(getStackCount(slot));
-	if (quantity)
-		return VLC->generaltexth->arraytxt[174 + 3*CCreature::getQuantityID(getStackCount(slot))];
+	if(quantity)
+		return VLC->generaltexth->arraytxt[(174 + mode) + 3*CCreature::getQuantityID(getStackCount(slot))];
 	return "";
+}
+
+std::string CCreatureSet::getArmyDescription() const
+{
+	std::string text;
+	std::vector<std::string> guards;
+	for(auto & elem : stacks)
+	{
+		auto str = boost::str(boost::format("%s %s") % getRoughAmount(elem.first, 2) % getCreature(elem.first)->namePl);
+		guards.push_back(str);
+	}
+	if(guards.size())
+	{
+		for(int i = 0; i < guards.size(); i++)
+		{
+			text += guards[i];
+			if(i + 2 < guards.size())
+				text += ", ";
+			else if(i + 2 == guards.size())
+				text += VLC->generaltexth->allTexts[237];
+		}
+	}
+	return text;
 }
 
 int CCreatureSet::stacksCount() const
