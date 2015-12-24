@@ -3223,8 +3223,8 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 
 	const CStackInstance &s = hero->getStack(slot);
 
-	if( s.count < count  //can't sell more creatures than have
-		|| (hero->Slots().size() == 1  &&  hero->needsLastStack()  &&  s.count == count)) //can't sell last stack
+	if( s.count < count //can't sell more creatures than have
+		|| (hero->stacksCount() == 1 && hero->needsLastStack() && s.count == count)) //can't sell last stack
 	{
 		COMPLAIN_RET("Not enough creatures in army!");
 	}
@@ -5103,7 +5103,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 
 	if(oldCount < count)
 		COMPLAIN_RET("Not enough creatures to sacrifice!")
-	else if(oldCount == count && hero->Slots().size() == 1 && hero->needsLastStack())
+	else if(oldCount == count && hero->stacksCount() == 1 && hero->needsLastStack())
 		COMPLAIN_RET("Cannot sacrifice last creature!");
 
 	int crid = hero->getStack(slot).type->idNumber;
@@ -5167,7 +5167,7 @@ bool CGameHandler::eraseStack(const StackLocation &sl, bool forceRemoval/* = fal
 	if(!sl.army->hasStackAtSlot(sl.slot))
 		COMPLAIN_RET("Cannot find a stack to erase");
 
-	if(sl.army->Slots().size() == 1 //from the last stack
+	if(sl.army->stacksCount() == 1 //from the last stack
 		&& sl.army->needsLastStack() //that must be left
 		&& !forceRemoval) //ignore above conditions if we are forcing removal
 	{
@@ -5270,7 +5270,7 @@ bool CGameHandler::moveStack(const StackLocation &src, const StackLocation &dst,
 
 	if(src.army != dst.army  //moving away
 		&&  count == src.army->getStackCount(src.slot) //all creatures
-		&& src.army->Slots().size() == 1 //from the last stack
+		&& src.army->stacksCount() == 1 //from the last stack
 		&& src.army->needsLastStack()) //that must be left
 	{
 		COMPLAIN_RET("Cannot move away the last creature!");

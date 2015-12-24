@@ -945,7 +945,7 @@ bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * sourc
 				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  armyPtr != army) //it's a searched creature not in dst ARMY
 				{
 					//FIXME: line below is useless when simulating exchange between two non-singular armies
-					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1)) //can't take away last creature
+					if(!(armyPtr->needsLastStack() && armyPtr->stacksCount() == 1)) //can't take away last creature
 						return true; //at least one exchange will be performed
 					else
 						return false; //no further exchange possible
@@ -992,7 +992,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
 				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst SLOT
-					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1)) //can't take away last creature
+					if(!(armyPtr->needsLastStack() && armyPtr->stacksCount() == 1)) //can't take away last creature
 						cb->mergeOrSwapStacks(armyPtr, army, SlotID(j), SlotID(i));
 			}
 	}

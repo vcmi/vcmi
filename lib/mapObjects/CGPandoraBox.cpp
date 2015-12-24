@@ -235,7 +235,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	iw.components.clear();
 	iw.text.clear();
 
-	if (creatures.Slots().size())
+	if(creatures.stacksCount())
 	{ //this part is taken straight from creature bank
 		MetaString loot;
 		for(auto & elem : creatures.Slots())
@@ -245,7 +245,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 			loot.addReplacement(*elem.second);
 		}
 
-		if (creatures.Slots().size() == 1 && creatures.Slots().begin()->second->count == 1)
+		if(creatures.stacksCount() == 1 && creatures.Slots().begin()->second->count == 1)
 			iw.text.addTxt(MetaString::ADVOB_TXT, 185);
 		else
 			iw.text.addTxt(MetaString::ADVOB_TXT, 186);
@@ -303,17 +303,17 @@ void CGPandoraBox::battleFinished(const CGHeroInstance *hero, const BattleResult
 
 void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
-	if (answer)
+	if(answer)
 	{
-		if (stacksCount() > 0) //if pandora's box is protected by army
+		if(stacksCount() > 0) //if pandora's box is protected by army
 		{
 			showInfoDialog(hero,16,0);
 			cb->startBattleI(hero, this); //grants things after battle
 		}
-		else if (message.size() == 0 && resources.size() == 0
+		else if(message.size() == 0 && resources.size() == 0
 			&& primskills.size() == 0 && abilities.size() == 0
-			&& abilityLevels.size() == 0 &&  artifacts.size() == 0
-			&& spells.size() == 0 && creatures.Slots().size() > 0
+			&& abilityLevels.size() == 0 && artifacts.size() == 0
+			&& spells.size() == 0 && creatures.stacksCount() > 0
 			&& gainedExp == 0 && manaDiff == 0 && moraleDiff == 0 && luckDiff == 0) //if it gives nothing without battle
 		{
 			showInfoDialog(hero,15,0);

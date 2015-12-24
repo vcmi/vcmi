@@ -292,9 +292,9 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			loot.addReplacement(*elem.second);
 		}
 
-		if (ourArmy.Slots().size())
+		if(ourArmy.stacksCount())
 		{
-			if (ourArmy.Slots().size() == 1 && ourArmy.Slots().begin()->second->count == 1)
+			if(ourArmy.stacksCount() == 1 && ourArmy.Slots().begin()->second->count == 1)
 				iw.text.addTxt (MetaString::ADVOB_TXT, 185);
 			else
 				iw.text.addTxt (MetaString::ADVOB_TXT, 186);

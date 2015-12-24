@@ -43,7 +43,7 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 
 static int lowestSpeed(const CGHeroInstance * chi)
 {
-	if(!chi->Slots().size())
+	if(!chi->stacksCount())
 	{
         logGlobal->errorStream() << "Error! Hero " << chi->id.getNum() << " ("<<chi->name<<") has no army!";
 		return 20;
