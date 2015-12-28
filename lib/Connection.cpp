@@ -17,9 +17,6 @@
  *
  */
 
-using namespace boost;
-using namespace boost::asio::ip;
-
 extern template void registerTypes<CISer>(CISer & s);
 extern template void registerTypes<COSer>(COSer & s);
 extern template void registerTypes<CTypeList>(CTypeList & s);
@@ -70,13 +67,13 @@ void CConnection::init()
 }
 
 CConnection::CConnection(std::string host, std::string port, std::string Name)
-:iser(this), oser(this), io_service(new asio::io_service), name(Name)
+:iser(this), oser(this), io_service(new boost::asio::io_service), name(Name)
 {
 	int i;
-	boost::system::error_code error = asio::error::host_not_found;
-	socket = new tcp::socket(*io_service);
-    tcp::resolver resolver(*io_service);
-    tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host,port),error);
+	boost::system::error_code error = boost::asio::error::host_not_found;
+	socket = new boost::asio::ip::tcp::socket(*io_service);
+	boost::asio::ip::tcp::resolver resolver(*io_service);
+	boost::asio::ip::tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(boost::asio::ip::tcp::resolver::query(host,port),error);
 	if(error)
 	{
         logNetwork->errorStream() << "Problem with resolving: \n" << error;
@@ -132,8 +129,8 @@ CConnection::CConnection(TSocket * Socket, std::string Name )
 CConnection::CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_service, std::string Name)
 : iser(this), oser(this), name(Name)//, send(this), rec(this)
 {
-	boost::system::error_code error = asio::error::host_not_found;
-	socket = new tcp::socket(*io_service);
+	boost::system::error_code error = boost::asio::error::host_not_found;
+	socket = new boost::asio::ip::tcp::socket(*io_service);
 	acceptor->accept(*socket,error);
 	if (error)
 	{
@@ -149,7 +146,7 @@ int CConnection::write(const void * data, unsigned size)
 	try
 	{
 		int ret;
-		ret = asio::write(*socket,asio::const_buffers_1(asio::const_buffer(data,size)));
+		ret = boost::asio::write(*socket,boost::asio::const_buffers_1(boost::asio::const_buffer(data,size)));
 		return ret;
 	}
 	catch(...)
@@ -164,7 +161,7 @@ int CConnection::read(void * data, unsigned size)
 	//LOG("Receiving " << size << " byte(s) of data" <<std::endl);
 	try
 	{
-		int ret = asio::read(*socket,asio::mutable_buffers_1(asio::mutable_buffer(data,size)));
+		int ret = boost::asio::read(*socket,boost::asio::mutable_buffers_1(boost::asio::mutable_buffer(data,size)));
 		return ret;
 	}
 	catch(...)

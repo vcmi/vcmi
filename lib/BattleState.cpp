@@ -201,9 +201,7 @@ void BattleInfo::localInitStack(CStack * s)
 
 namespace CGH
 {
-	using namespace std;
-
-	static void readBattlePositions(const JsonNode &node, vector< vector<int> > & dest)
+	static void readBattlePositions(const JsonNode &node, std::vector< std::vector<int> > & dest)
 	{
 		for(const JsonNode &level : node.Vector())
 		{
