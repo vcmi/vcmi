@@ -192,7 +192,7 @@ private:
 				THROW_FORMAT("Cannot find caster for conversion %s -> %s which is needed to cast %s -> %s", from->name % to->name % fromArg->name() % toArg->name());
 
 			auto &caster = casters.at(castingPair);
-			ptr = (*caster.*CastingFunction)(ptr); //Why does unique_ptr not have operator->* ..?
+			ptr = (*caster.*CastingFunction)(ptr); //Why does std::unique_ptr not have operator->* ..?
 		}
 
 		return ptr;
@@ -849,13 +849,13 @@ public:
 		const_cast<T&>(data).serialize(*this,version);
 	}
 	template <typename T>
-	void saveSerializable(const shared_ptr<T> &data)
+	void saveSerializable(const std::shared_ptr<T> &data)
 	{
 		T *internalPtr = data.get();
 		*this << internalPtr;
 	}
 	template <typename T>
-	void saveSerializable(const unique_ptr<T> &data)
+	void saveSerializable(const std::unique_ptr<T> &data)
 	{
 		T *internalPtr = data.get();
 		*this << internalPtr;
@@ -1332,7 +1332,7 @@ public:
 
 
 	template <typename T>
-	void loadSerializable(shared_ptr<T> &data)
+	void loadSerializable(std::shared_ptr<T> &data)
 	{
 		typedef typename boost::remove_const<T>::type NonConstT;
 		NonConstT *internalPtr;
@@ -1353,7 +1353,7 @@ public:
 					auto typeWeNeedToReturn = typeList.getTypeInfo<T>();
 					if(*actualType == *typeWeNeedToReturn)
 					{
-						// No casting needed, just unpack already stored shared_ptr and return it
+						// No casting needed, just unpack already stored std::shared_ptr and return it
 						data = boost::any_cast<std::shared_ptr<T>>(itr->second);
 					}
 					else
@@ -1383,7 +1383,7 @@ public:
 			data.reset();
 	}
 	template <typename T>
-	void loadSerializable(unique_ptr<T> &data)
+	void loadSerializable(std::unique_ptr<T> &data)
 	{
 		T *internalPtr;
 		*this >> internalPtr;
@@ -1551,7 +1551,7 @@ public:
 	COSer serializer;
 
 	std::string fName;
-	unique_ptr<std::ofstream> sfile;
+	std::unique_ptr<std::ofstream> sfile;
 
 	CSaveFile(const std::string &fname); //throws!
 	~CSaveFile();
@@ -1578,7 +1578,7 @@ public:
 	CISer serializer;
 
 	std::string fName;
-	unique_ptr<boost::filesystem::ifstream> sfile;
+	std::unique_ptr<boost::filesystem::ifstream> sfile;
 
 	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = version); //throws!
 	~CLoadFile();
@@ -1603,7 +1603,7 @@ class DLL_LINKAGE CLoadIntegrityValidator
 {
 public:
 	CISer serializer;
-	unique_ptr<CLoadFile> primaryFile, controlFile;
+	std::unique_ptr<CLoadFile> primaryFile, controlFile;
 	bool foundDesync;
 
 	CLoadIntegrityValidator(const std::string &primaryFileName, const std::string &controlFileName, int minimalVersion = version); //throws!
@@ -1611,7 +1611,7 @@ public:
 	int read( void * data, unsigned size) override; //throws!
 	void checkMagicBytes(const std::string &text);
 
-	unique_ptr<CLoadFile> decay(); //returns primary file. CLoadIntegrityValidator stops being usable anymore
+	std::unique_ptr<CLoadFile> decay(); //returns primary file. CLoadIntegrityValidator stops being usable anymore
 };
 
 typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > TSocket;
@@ -1702,12 +1702,12 @@ public:
 	CMemorySerializer();
 
 	template <typename T>
-	static unique_ptr<T> deepCopy(const T &data)
+	static std::unique_ptr<T> deepCopy(const T &data)
 	{
 		CMemorySerializer mem;
 		mem.oser << &data;
 
-		unique_ptr<T> ret;
+		std::unique_ptr<T> ret;
 		mem.iser >> ret;
 		return ret;
 	}

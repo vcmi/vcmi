@@ -58,7 +58,7 @@ public:
 
 class CQuestMinimap : public CMinimap
 {
-	std::vector <shared_ptr<CQuestIcon>> icons;
+	std::vector <std::shared_ptr<CQuestIcon>> icons;
 
 	void clickLeft(tribool down, bool previousState) override{}; //minimap ignores clicking on its surface
 	void iconClicked();
@@ -86,7 +86,7 @@ class CQuestLog : public CWindowObject
 	CLabel * hideCompleteLabel;
 
 	const std::vector<QuestInfo> quests;
-	std::vector <shared_ptr<CQuestLabel>> labels;
+	std::vector <std::shared_ptr<CQuestLabel>> labels;
 	CTextBox * description;
 	CQuestMinimap * minimap;
 	CSlider * slider; //scrolls quests

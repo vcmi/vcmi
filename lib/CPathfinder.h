@@ -162,7 +162,7 @@ private:
 	CPathsInfo & out;
 	const CGHeroInstance * hero;
 	const std::vector<std::vector<std::vector<ui8> > > &FoW;
-	unique_ptr<CPathfinderHelper> hlp;
+	std::unique_ptr<CPathfinderHelper> hlp;
 
 	enum EPatrolState {
 		PATROL_NONE = 0,
@@ -244,7 +244,7 @@ struct DLL_LINKAGE TurnInfo
 
 		BonusCache(TBonusListPtr bonusList);
 	};
-	unique_ptr<BonusCache> bonusCache;
+	std::unique_ptr<BonusCache> bonusCache;
 
 	const CGHeroInstance * hero;
 	TBonusListPtr bonuses;

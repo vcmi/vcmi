@@ -115,17 +115,17 @@ public:
 /// Class which handles client - server logic
 class CClient : public IGameCallback
 {
-	unique_ptr<CPathsInfo> pathInfo;
+	std::unique_ptr<CPathsInfo> pathInfo;
 public:
-	std::map<PlayerColor,shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
-	std::map<PlayerColor,shared_ptr<CBattleCallback> > battleCallbacks; //callbacks given to player interfaces
-	std::vector<shared_ptr<IGameEventsReceiver>> privilagedGameEventReceivers; //scripting modules, spectator interfaces
-	std::vector<shared_ptr<IBattleEventsReceiver>> privilagedBattleEventReceivers; //scripting modules, spectator interfaces
-	std::map<PlayerColor, shared_ptr<CGameInterface>> playerint;
-	std::map<PlayerColor, shared_ptr<CBattleGameInterface>> battleints;
+	std::map<PlayerColor,std::shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
+	std::map<PlayerColor,std::shared_ptr<CBattleCallback> > battleCallbacks; //callbacks given to player interfaces
+	std::vector<std::shared_ptr<IGameEventsReceiver>> privilagedGameEventReceivers; //scripting modules, spectator interfaces
+	std::vector<std::shared_ptr<IBattleEventsReceiver>> privilagedBattleEventReceivers; //scripting modules, spectator interfaces
+	std::map<PlayerColor, std::shared_ptr<CGameInterface>> playerint;
+	std::map<PlayerColor, std::shared_ptr<CBattleGameInterface>> battleints;
 
-	std::map<PlayerColor,std::vector<shared_ptr<IGameEventsReceiver>>> additionalPlayerInts;
-	std::map<PlayerColor,std::vector<shared_ptr<IBattleEventsReceiver>>> additionalBattleInts;
+	std::map<PlayerColor,std::vector<std::shared_ptr<IGameEventsReceiver>>> additionalPlayerInts;
+	std::map<PlayerColor,std::vector<std::shared_ptr<IBattleEventsReceiver>>> additionalBattleInts;
 
 	bool hotSeat;
 	CConnection *serv;
@@ -146,8 +146,8 @@ public:
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server
 
 	void loadNeutralBattleAI();
-	void installNewPlayerInterface(shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color);
-	void installNewBattleInterface(shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback = true);
+	void installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color);
+	void installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback = true);
 	std::string aiNameForPlayer(const PlayerSettings &ps, bool battleAI); //empty means no AI -> human
 
 	void endGame(bool closeConnection = true);
@@ -155,9 +155,9 @@ public:
 	void save(const std::string & fname);
 	void loadGame(const std::string & fname, const bool server = true, const std::vector<int>& humanplayerindices = std::vector<int>(), const int loadnumplayers = 1, int player_ = -1, const std::string & ipaddr = "", const std::string & port = "");
 	void run();
-	void campaignMapFinished( shared_ptr<CCampaignState> camp );
-	void finishCampaign( shared_ptr<CCampaignState> camp );
-	void proposeNextMission(shared_ptr<CCampaignState> camp);
+	void campaignMapFinished( std::shared_ptr<CCampaignState> camp );
+	void finishCampaign( std::shared_ptr<CCampaignState> camp );
+	void proposeNextMission(std::shared_ptr<CCampaignState> camp);
 
 	void invalidatePaths();
 	const CPathsInfo * getPathsInfo(const CGHeroInstance *h);
@@ -233,7 +233,7 @@ public:
 
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
 	void battleStarted(const BattleInfo * info);
-	void commenceTacticPhaseForInt(shared_ptr<CBattleGameInterface> battleInt); //will be called as separate thread
+	void commenceTacticPhaseForInt(std::shared_ptr<CBattleGameInterface> battleInt); //will be called as separate thread
 
 	void commitPackage(CPackForClient *pack) override;
 

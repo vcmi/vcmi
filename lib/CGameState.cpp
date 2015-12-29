@@ -3177,7 +3177,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 
 	for(const JsonNode &n : duelData["obstacles"].Vector())
 	{
-		auto oi = make_shared<CObstacleInstance>();
+		auto oi = std::make_shared<CObstacleInstance>();
 		if(n.getType() == JsonNode::DATA_VECTOR)
 		{
 			oi->ID = n.Vector()[0].Float();

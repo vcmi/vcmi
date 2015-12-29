@@ -296,7 +296,7 @@ FuzzyHelper::TacticalAdvantage::~TacticalAdvantage()
 	delete threat;
 }
 
-//shared_ptr<AbstractGoal> chooseSolution (std::vector<shared_ptr<AbstractGoal>> & vec)
+//std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec)
 
 Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
 {

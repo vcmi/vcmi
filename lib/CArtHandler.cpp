@@ -502,7 +502,7 @@ ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags)
 	return pickRandomArtifact(rand, flags, [](ArtifactID){ return true;});
 }
 
-Bonus *createBonus(Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalInfo = 0)
+Bonus *createBonus(Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, std::shared_ptr<ILimiter> limiter = std::shared_ptr<ILimiter>(), int additionalInfo = 0)
 {
 	auto added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,-1,subtype);
 	added->additionalInfo = additionalInfo;
@@ -511,7 +511,7 @@ Bonus *createBonus(Bonus::BonusType type, int val, int subtype, Bonus::ValueType
 	return added;
 }
 
-Bonus *createBonus(Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator = shared_ptr<IPropagator>(), int additionalInfo = 0)
+Bonus *createBonus(Bonus::BonusType type, int val, int subtype, std::shared_ptr<IPropagator> propagator = std::shared_ptr<IPropagator>(), int additionalInfo = 0)
 {
 	auto added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,-1,subtype);
 	added->additionalInfo = additionalInfo;
@@ -520,12 +520,12 @@ Bonus *createBonus(Bonus::BonusType type, int val, int subtype, shared_ptr<IProp
 	return added;
 }
 
-void CArtHandler::giveArtBonus( ArtifactID aid, Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, shared_ptr<ILimiter> limiter, int additionalInfo)
+void CArtHandler::giveArtBonus( ArtifactID aid, Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, std::shared_ptr<ILimiter> limiter, int additionalInfo)
 {
 	giveArtBonus(aid, createBonus(type, val, subtype, valType, limiter, additionalInfo));
 }
 
-void CArtHandler::giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator /*= nullptr*/, int additionalInfo)
+void CArtHandler::giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, std::shared_ptr<IPropagator> propagator /*= nullptr*/, int additionalInfo)
 {
 	giveArtBonus(aid, createBonus(type, val, subtype, propagator, additionalInfo));
 }

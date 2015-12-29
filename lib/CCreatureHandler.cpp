@@ -723,7 +723,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 			{
 				if (val.Bool() == true)
 				{
-					bonus->limiter = make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
+					bonus->limiter = std::make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
 					creature->addNewBonus (new Bonus(*bonus)); //bonuses must be unique objects
 					break; //TODO: allow bonuses to turn off?
 				}

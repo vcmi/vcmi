@@ -20,9 +20,9 @@ class ILimiter;
 class IPropagator;
 class BonusList;
 
-typedef shared_ptr<BonusList> TBonusListPtr;
-typedef shared_ptr<ILimiter> TLimiterPtr;
-typedef shared_ptr<IPropagator> TPropagatorPtr;
+typedef std::shared_ptr<BonusList> TBonusListPtr;
+typedef std::shared_ptr<ILimiter> TLimiterPtr;
+typedef std::shared_ptr<IPropagator> TPropagatorPtr;
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
 typedef std::vector<CBonusSystemNode *> TNodesVector;

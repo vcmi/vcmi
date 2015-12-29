@@ -439,7 +439,7 @@ CTypeList::TypeInfoPtr CTypeList::registerType( const std::type_info *type )
 		return typeDescr;  //type found, return ptr to structure
 
 	//type not found - add it to the list and return given ID
-	auto newType = make_shared<TypeDescriptor>();
+	auto newType = std::make_shared<TypeDescriptor>();
 	newType->typeID = typeInfos.size() + 1;
 	newType->name = type->name();
 	typeInfos[type] = newType;
@@ -604,7 +604,7 @@ int CLoadIntegrityValidator::read( void * data, unsigned size )
 	return ret;
 }
 
-unique_ptr<CLoadFile> CLoadIntegrityValidator::decay()
+std::unique_ptr<CLoadFile> CLoadIntegrityValidator::decay()
 {
 	primaryFile->serializer.loadedPointers = this->serializer.loadedPointers;
 	primaryFile->serializer.loadedPointersTypes = this->serializer.loadedPointersTypes;

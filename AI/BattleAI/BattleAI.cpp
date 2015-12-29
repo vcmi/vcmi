@@ -8,7 +8,7 @@
 #include "../../lib/VCMI_Lib.h"
 
 using boost::optional;
-static shared_ptr<CBattleCallback> cbc;
+static std::shared_ptr<CBattleCallback> cbc;
 
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
@@ -91,7 +91,7 @@ CBattleAI::~CBattleAI(void)
 	}
 }
 
-void CBattleAI::init(shared_ptr<CBattleCallback> CB)
+void CBattleAI::init(std::shared_ptr<CBattleCallback> CB)
 {
 	print("init called, saving ptr to IBattleCallback");
 	cbc = cb = CB;
@@ -610,7 +610,7 @@ ThreatMap::ThreatMap(const CStack *Endangered) : endangered(Endangered)
 
 const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= nullptr*/, const std::string &cachingStr /*= ""*/) const
 {
-	TBonusListPtr ret = make_shared<BonusList>();
+	TBonusListPtr ret = std::make_shared<BonusList>();
 	const TBonusListPtr originalList = stack->getAllBonuses(selector, limit, root, cachingStr);
 	range::copy(*originalList, std::back_inserter(*ret));
 	for(auto &bonus : bonusesToAdd)

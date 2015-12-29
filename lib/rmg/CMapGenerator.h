@@ -52,7 +52,7 @@ class DLL_LINKAGE CMapGenerator
 {
 public:
 	explicit CMapGenerator();
-	~CMapGenerator(); // required due to unique_ptr
+	~CMapGenerator(); // required due to std::unique_ptr
 
 	std::unique_ptr<CMap> generate(CMapGenOptions * mapGenOptions, int RandomSeed = std::time(nullptr));
 	

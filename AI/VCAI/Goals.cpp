@@ -23,7 +23,7 @@ using namespace Goals;
 
 TSubgoal Goals::sptr(const AbstractGoal & tmp)
 {
-	shared_ptr<AbstractGoal> ptr;
+	std::shared_ptr<AbstractGoal> ptr;
 	ptr.reset(tmp.clone());
 	return ptr;
 }

@@ -79,7 +79,7 @@ struct BattleObjectsByHex
 	typedef std::vector<int> TWallList;
 	typedef std::vector<const CStack * > TStackList;
 	typedef std::vector<const BattleEffect *> TEffectList;
-	typedef std::vector<shared_ptr<const CObstacleInstance> > TObstacleList;
+	typedef std::vector<std::shared_ptr<const CObstacleInstance> > TObstacleList;
 
 	struct HexData
 	{
@@ -153,7 +153,7 @@ private:
 	BattleHex currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
 	int attackingHex; //hex from which the stack would perform attack with current cursor
 
-	shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
+	std::shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
 	bool tacticsMode;
 	bool stackCanCastSpell; //if true, active stack could possibly cast some target spell
 	bool creatureCasting; //if true, stack currently aims to cats a spell
@@ -212,8 +212,8 @@ private:
 		friend class CBattleInterface;
 	} * siegeH;
 
-	shared_ptr<CPlayerInterface> attackerInt, defenderInt; //because LOCPLINT is not enough in hotSeat
-	shared_ptr<CPlayerInterface> curInt; //current player interface
+	std::shared_ptr<CPlayerInterface> attackerInt, defenderInt; //because LOCPLINT is not enough in hotSeat
+	std::shared_ptr<CPlayerInterface> curInt; //current player interface
 	const CGHeroInstance * getActiveHero(); //returns hero that can currently cast a spell
 
 	/** Methods for displaying battle screen */
@@ -229,7 +229,7 @@ private:
 
 	void showAliveStacks(SDL_Surface * to, std::vector<const CStack *> stacks);
 	void showStacks(SDL_Surface * to, std::vector<const CStack *> stacks);
-	void showObstacles(SDL_Surface *to, std::vector<shared_ptr<const CObstacleInstance> > &obstacles);
+	void showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance> > &obstacles);
 	void showPiecesOfWall(SDL_Surface * to, std::vector<int> pieces);
 
 	void showBattleEffects(SDL_Surface *to, const std::vector<const BattleEffect *> &battleEffects);
@@ -249,7 +249,7 @@ public:
 	ui32 animIDhelper; //for giving IDs for animations
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 
-	CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const SDL_Rect & myRect, shared_ptr<CPlayerInterface> att, shared_ptr<CPlayerInterface> defen); //c-tor
+	CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const SDL_Rect & myRect, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen); //c-tor
 	~CBattleInterface(); //d-tor
 
 	//std::vector<TimeInterested*> timeinterested; //animation handling

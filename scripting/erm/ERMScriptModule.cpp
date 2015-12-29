@@ -28,7 +28,7 @@ extern "C" DLL_EXPORT void GetAiName(char* name)
 	strcpy_s(name, strlen(g_cszAiName) + 1, g_cszAiName);
 }
 
-extern "C" DLL_EXPORT void GetNewModule(shared_ptr<CScriptingModule> &out)
+extern "C" DLL_EXPORT void GetNewModule(std::shared_ptr<CScriptingModule> &out)
 {
-	out = make_shared<ERMInterpreter>();
+	out = std::make_shared<ERMInterpreter>();
 }

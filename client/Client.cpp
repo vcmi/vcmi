@@ -264,7 +264,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 		serv = sh.justConnectToServer(ipaddr, realPort);
 
 	CStopWatch tmh;
-	unique_ptr<CLoadFile> loader;
+	std::unique_ptr<CLoadFile> loader;
 	try
 	{
 		std::string clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
@@ -461,7 +461,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			}
 			else 
 			{
-				installNewPlayerInterface(make_shared<CPlayerInterface>(color), color);
+				installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 				humanPlayers++;
 			}
 		}
@@ -477,7 +477,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		if(!gNoGUI)
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
-			auto p = make_shared<CPlayerInterface>(PlayerColor::NEUTRAL);
+			auto p = std::make_shared<CPlayerInterface>(PlayerColor::NEUTRAL);
 			p->observerInDuelMode = true;
 			installNewPlayerInterface(p, boost::none);
 			GH.curInt = p.get();
@@ -542,7 +542,7 @@ void CClient::serialize(CISer & h, const int version)
 			h & pid & dllname & isHuman;
 			LOG_TRACE_PARAMS(logGlobal, "Loading player %s interface", pid);
 
-			shared_ptr<CGameInterface> nInt;
+			std::shared_ptr<CGameInterface> nInt;
 			if(dllname.length())
 			{
 				if(pid == PlayerColor::NEUTRAL)
@@ -560,7 +560,7 @@ void CClient::serialize(CISer & h, const int version)
 			else
 			{
 				assert(isHuman);
-				nInt = make_shared<CPlayerInterface>(pid);
+				nInt = std::make_shared<CPlayerInterface>(pid);
 			}
 
 			nInt->dllName = dllname;
@@ -611,7 +611,7 @@ void CClient::serialize(CISer & h, const int version, const std::set<PlayerColor
 			h & pid & dllname & isHuman;
 			LOG_TRACE_PARAMS(logGlobal, "Loading player %s interface", pid);
 
-			shared_ptr<CGameInterface> nInt;
+			std::shared_ptr<CGameInterface> nInt;
 			if(dllname.length())
 			{
 				if(pid == PlayerColor::NEUTRAL)
@@ -630,7 +630,7 @@ void CClient::serialize(CISer & h, const int version, const std::set<PlayerColor
 			else
 			{
 				assert(isHuman);
-				nInt = make_shared<CPlayerInterface>(pid);
+				nInt = std::make_shared<CPlayerInterface>(pid);
 			}
 
 			nInt->dllName = dllname;
@@ -668,11 +668,11 @@ void CClient::handlePack( CPack * pack )
 	delete pack;
 }
 
-void CClient::finishCampaign( shared_ptr<CCampaignState> camp )
+void CClient::finishCampaign( std::shared_ptr<CCampaignState> camp )
 {
 }
 
-void CClient::proposeNextMission(shared_ptr<CCampaignState> camp)
+void CClient::proposeNextMission(std::shared_ptr<CCampaignState> camp)
 {
 	GH.pushInt(new CBonusSelection(camp));
 }
@@ -724,7 +724,7 @@ void CClient::battleStarted(const BattleInfo * info)
 // 		if(battleCallbacks.count(side))
 // 			battleCallbacks[side]->setBattle(info);
 
-	shared_ptr<CPlayerInterface> att, def;
+	std::shared_ptr<CPlayerInterface> att, def;
 	auto &leftSide = info->sides[0], &rightSide = info->sides[1];
 
 
@@ -790,7 +790,7 @@ PlayerColor CClient::getLocalPlayer() const
 	return getCurrentPlayer();
 }
 
-void CClient::commenceTacticPhaseForInt(shared_ptr<CBattleGameInterface> battleInt)
+void CClient::commenceTacticPhaseForInt(std::shared_ptr<CBattleGameInterface> battleInt)
 {
 	setThreadName("CClient::commenceTacticPhaseForInt");
 	try
@@ -842,7 +842,7 @@ int CClient::sendRequest(const CPack *request, PlayerColor player)
 	return requestID;
 }
 
-void CClient::campaignMapFinished( shared_ptr<CCampaignState> camp )
+void CClient::campaignMapFinished( std::shared_ptr<CCampaignState> camp )
 {
 	endGame(false);
 
@@ -865,7 +865,7 @@ void CClient::campaignMapFinished( shared_ptr<CCampaignState> camp )
 	}
 }
 
-void CClient::installNewPlayerInterface(shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color)
+void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
@@ -876,7 +876,7 @@ void CClient::installNewPlayerInterface(shared_ptr<CGameInterface> gameInterface
 	playerint[colorUsed] = gameInterface;
 
 	logGlobal->traceStream() << boost::format("\tInitializing the interface for player %s") % colorUsed;
-	auto cb = make_shared<CCallback>(gs, color, this);
+	auto cb = std::make_shared<CCallback>(gs, color, this);
 	callbacks[colorUsed] = cb;
 	battleCallbacks[colorUsed] = cb;
 	gameInterface->init(cb);
@@ -884,7 +884,7 @@ void CClient::installNewPlayerInterface(shared_ptr<CGameInterface> gameInterface
 	installNewBattleInterface(gameInterface, color, false);
 }
 
-void CClient::installNewBattleInterface(shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback /*= true*/)
+void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback /*= true*/)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
@@ -897,7 +897,7 @@ void CClient::installNewBattleInterface(shared_ptr<CBattleGameInterface> battleI
 	if(needCallback)
 	{
 		logGlobal->traceStream() << boost::format("\tInitializing the battle interface for player %s") % *color;
-		auto cbc = make_shared<CBattleCallback>(gs, color, this);
+		auto cbc = std::make_shared<CBattleCallback>(gs, color, this);
 		battleCallbacks[colorUsed] = cbc;
 		battleInterface->init(cbc);
 	}

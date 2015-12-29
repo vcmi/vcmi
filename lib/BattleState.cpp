@@ -373,7 +373,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 
 			try
 			{
-				auto obstPtr = make_shared<CObstacleInstance>();
+				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
 				obstPtr->ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
 				obstPtr->uniqueID = curB->obstacles.size();
@@ -422,7 +422,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 
 				RangeGenerator posgenerator(18, 168, ourRand);
 
-				auto obstPtr = make_shared<CObstacleInstance>();
+				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->ID = obid;
 				obstPtr->pos = posgenerator.getSuchNumber(validPosition);
 				obstPtr->uniqueID = curB->obstacles.size();
@@ -539,7 +539,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		}
 
 		//moat
-		auto moat = make_shared<MoatObstacle>();
+		auto moat = std::make_shared<MoatObstacle>();
 		moat->ID = curB->town->subID;
 		moat->obstacleType = CObstacleInstance::MOAT;
 		moat->uniqueID = curB->obstacles.size();
@@ -584,19 +584,19 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 
 	case BFieldType::HOLY_GROUND:
 		{
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD)));
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL)));
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(std::make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD)));
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(std::make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL)));
 			break;
 		}
 	case BFieldType::CLOVER_FIELD:
 		{ //+2 luck bonus for neutral creatures
-			curB->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, +2, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::NEUTRAL)));
+			curB->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, +2, Bonus::TERRAIN_OVERLAY)->addLimiter(std::make_shared<CreatureAlignmentLimiter>(EAlignment::NEUTRAL)));
 			break;
 		}
 	case BFieldType::EVIL_FOG:
 		{
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD)));
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL)));
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(std::make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD)));
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(std::make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL)));
 			break;
 		}
 	case BFieldType::CURSED_GROUND:
@@ -612,7 +612,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	//overlay premies given
 
 	//native terrain bonuses
-	auto nativeTerrain = make_shared<CreatureNativeTerrainLimiter>(curB->terrainType);
+	auto nativeTerrain = std::make_shared<CreatureNativeTerrainLimiter>(curB->terrainType);
 	curB->addNewBonus(makeFeature(Bonus::STACKS_SPEED, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
 	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::ATTACK, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
 	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::DEFENSE, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
@@ -701,13 +701,13 @@ int BattleInfo::getIdForNewStack() const
 	return 0;
 }
 
-shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) const
+std::shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) const
 {
 	for(auto &obs : obstacles)
 		if(vstd::contains(obs->getAffectedTiles(), tile))
 			return obs;
 
-	return shared_ptr<CObstacleInstance>();
+	return std::shared_ptr<CObstacleInstance>();
 }
 
 BattlefieldBI::BattlefieldBI BattleInfo::battlefieldTypeToBI(BFieldType bfieldType)

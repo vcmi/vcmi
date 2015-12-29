@@ -555,7 +555,7 @@ void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::init(shared_ptr<CCallback> CB)
+void VCAI::init(std::shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);
 	myCb = CB;

@@ -83,7 +83,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
 	std::vector<CStack*> stacks;
-	std::vector<shared_ptr<CObstacleInstance> > obstacles;
+	std::vector<std::shared_ptr<CObstacleInstance> > obstacles;
 	SiegeInfo si;
 
 	BFieldType battlefieldType; //like !!BA:B
@@ -124,7 +124,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	//std::vector<BattleHex> getAccessibility(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = nullptr, bool forPassingBy = false) const; //returns vector of accessible tiles (taking into account the creature range)
 
 	//bool isObstacleVisibleForSide(const CObstacleInstance &obstacle, ui8 side) const;
-	shared_ptr<CObstacleInstance> getObstacleOnTile(BattleHex tile) const;
+	std::shared_ptr<CObstacleInstance> getObstacleOnTile(BattleHex tile) const;
 	std::set<BattleHex> getStoppers(bool whichSidePerspective) const;
 
 	ui32 calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg, CRandomGenerator & rand); //charge - number of hexes travelled before attack (for champion's jousting)

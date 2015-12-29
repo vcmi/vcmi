@@ -300,7 +300,7 @@ public:
 	CFunctionList<void (const CMapInfo *)> & getMapInfoChanged();
 	const CMapInfo * getMapInfo() const;
 	const CMapGenOptions & getMapGenOptions() const;
-	void setMapGenOptions(shared_ptr<CMapGenOptions> opts);
+	void setMapGenOptions(std::shared_ptr<CMapGenOptions> opts);
 
 private:
     void addButtonsToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex) const;
@@ -316,7 +316,7 @@ private:
 		* compOnlyTeamsCntGroup, * waterContentGroup, * monsterStrengthGroup;
     CButton * showRandMaps;
 	CMapGenOptions mapGenOptions;
-	unique_ptr<CMapInfo> mapInfo;
+	std::unique_ptr<CMapInfo> mapInfo;
 	CFunctionList<void(const CMapInfo *)> mapInfoChanged;
 };
 
@@ -463,7 +463,7 @@ class CBonusSelection : public CIntObject
 {
 public:
 	CBonusSelection(const std::string & campaignFName);
-	CBonusSelection(shared_ptr<CCampaignState> _ourCampaign);
+	CBonusSelection(std::shared_ptr<CCampaignState> _ourCampaign);
 	~CBonusSelection();
 
 	void showAll(SDL_Surface * to) override;
@@ -532,7 +532,7 @@ private:
 	CDefHandler * sFlags;
 
 	// Data
-	shared_ptr<CCampaignState> ourCampaign;
+	std::shared_ptr<CCampaignState> ourCampaign;
 	int selectedMap;
 	boost::optional<int> selectedBonus;
 	StartInfo startInfo;

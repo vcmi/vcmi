@@ -149,7 +149,7 @@ struct DLL_EXPORT DuelParameters
 		}
 	} sides[2];
 
-	std::vector<shared_ptr<CObstacleInstance> > obstacles;
+	std::vector<std::shared_ptr<CObstacleInstance> > obstacles;
 
 	static DuelParameters fromJSON(const std::string &fname);
 

@@ -874,12 +874,12 @@ std::vector<ObjectInstanceID> CGTeleport::getPassableExits(CGameState * gs, cons
 	return exits;
 }
 
-void CGTeleport::addToChannel(std::map<TeleportChannelID, shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj)
+void CGTeleport::addToChannel(std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj)
 {
-	shared_ptr<TeleportChannel> tc;
+	std::shared_ptr<TeleportChannel> tc;
 	if(channelsList.find(obj->channel) == channelsList.end())
 	{
-		tc = make_shared<TeleportChannel>();
+		tc = std::make_shared<TeleportChannel>();
 		channelsList.insert(std::make_pair(obj->channel, tc));
 	}
 	else

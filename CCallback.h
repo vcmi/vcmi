@@ -110,10 +110,10 @@ public:
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out);
 
 	//Set of metrhods that allows adding more interfaces for this player that'll receive game event call-ins.
-	void registerGameInterface(shared_ptr<IGameEventsReceiver> gameEvents);
-	void registerBattleInterface(shared_ptr<IBattleEventsReceiver> battleEvents);
-	void unregisterGameInterface(shared_ptr<IGameEventsReceiver> gameEvents);
-	void unregisterBattleInterface(shared_ptr<IBattleEventsReceiver> battleEvents);
+	void registerGameInterface(std::shared_ptr<IGameEventsReceiver> gameEvents);
+	void registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);
+	void unregisterGameInterface(std::shared_ptr<IGameEventsReceiver> gameEvents);
+	void unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);
 
 	void unregisterAllInterfaces(); //stops delivering information about game events to player interfaces -> can be called ONLY after victory/loss
 

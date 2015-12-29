@@ -475,7 +475,7 @@ const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 }
 
 //TODO: typedef?
-shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisibleTiles() const
+std::shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisibleTiles() const
 {
 	assert(player.is_initialized());
 	auto team = getPlayerTeam(player.get());
@@ -496,7 +496,7 @@ shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisible
 				else
 					tileArray[x][y][z] = nullptr;
 			}
-	return make_shared<boost::multi_array<TerrainTile*, 3>>(tileArray);
+	return std::make_shared<boost::multi_array<TerrainTile*, 3>>(tileArray);
 }
 
 EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, BuildingID ID )
