@@ -71,7 +71,7 @@ struct DLL_LINKAGE TerrainTile
 	CGObjectInstance * topVisitableObj(bool excludeTop = false) const;
 	bool isWater() const;
 	EDiggingStatus getDiggingStatus(const bool excludeTop = true) const;
-	bool hasFavourableWinds() const;
+	bool hasFavorableWinds() const;
 
 	ETerrainType terType;
 	ui8 terView;
@@ -80,7 +80,7 @@ struct DLL_LINKAGE TerrainTile
 	ERoadType::ERoadType roadType;
 	ui8 roadDir;
 	/// first two bits - how to rotate terrain graphic (next two - river graphic, next two - road);
-	///	7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favourable Winds effect
+	///	7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favorable Winds effect
 	ui8 extTileFlags;
 	bool visitable;
 	bool blocked;

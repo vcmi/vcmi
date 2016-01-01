@@ -1918,7 +1918,7 @@ const CMapGenOptions & CRandomMapTab::getMapGenOptions() const
 	return mapGenOptions;
 }
 
-void CRandomMapTab::setMapGenOptions(shared_ptr<CMapGenOptions> opts)
+void CRandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 {
 	mapSizeBtnGroup->setSelected(vstd::find_pos(getPossibleMapSizes(), opts->getWidth()));
 	twoLevelsBtn->setSelected(opts->getHasTwoLevels());
@@ -3291,14 +3291,14 @@ void CBonusSelection::init()
 	sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
 }
 
-CBonusSelection::CBonusSelection(shared_ptr<CCampaignState> _ourCampaign) : ourCampaign(_ourCampaign)
+CBonusSelection::CBonusSelection(std::shared_ptr<CCampaignState> _ourCampaign) : ourCampaign(_ourCampaign)
 {
 	init();
 }
 
 CBonusSelection::CBonusSelection(const std::string & campaignFName)
 {
-	ourCampaign = make_shared<CCampaignState>(CCampaignHandler::getCampaign(campaignFName));
+	ourCampaign = std::make_shared<CCampaignState>(CCampaignHandler::getCampaign(campaignFName));
 	init();
 }
 

@@ -3,7 +3,7 @@
 #include "../lib/JsonNode.h"
 
 /*
- * CConfighandler.h, part of VCMI engine
+ * CConfigHandler.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

@@ -46,7 +46,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	if(!validTypes(false)) //object not randomized, don't bother
 		return;
 
-	Bonus *b = getBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
+	Bonus *b = getExportedBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
 	if(!b)
 	{
 		b = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
@@ -96,10 +96,11 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		b->description = b->description.substr(0, b->description.size()-2);//trim value
 	}
 	boost::algorithm::trim(b->description);
+	CBonusSystemNode::treeHasChanged();
 
 	//-1 modifier for any Undead unit in army
 	const ui8 UNDEAD_MODIFIER_ID = -2;
-	Bonus *undeadModifier = getBonusList().getFirst(Selector::source(Bonus::ARMY, UNDEAD_MODIFIER_ID));
+	Bonus *undeadModifier = getExportedBonusList().getFirst(Selector::source(Bonus::ARMY, UNDEAD_MODIFIER_ID));
  	if(hasUndead)
 	{
 		if(!undeadModifier)

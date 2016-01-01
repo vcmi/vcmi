@@ -153,7 +153,7 @@ EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 		return EDiggingStatus::CAN_DIG;
 }
 
-bool TerrainTile::hasFavourableWinds() const
+bool TerrainTile::hasFavorableWinds() const
 {
 	return extTileFlags & 128;
 }

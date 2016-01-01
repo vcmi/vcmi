@@ -148,13 +148,14 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(const SpellCastEn
 		return ESpellCastResult::ERROR;
 	}
 
-	if(parameters.caster->movement <= 0)
+	if(parameters.caster->movement <= 0) //unlike town portal non-zero MP is enough
 	{
 		env->complain("Hero needs movement points to cast Dimension Door!");
 		return ESpellCastResult::ERROR;
 	}
 
 	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
+	const int movementCost = GameConstants::BASE_MOVEMENT_COST * ((schoolLevel >= 3) ? 2 : 3);
 
 	if(parameters.caster->getBonusesCount(Bonus::SPELL_EFFECT, SpellID::DIMENSION_DOOR) >= owner->getPower(schoolLevel)) //limit casts per turn
 	{
@@ -182,7 +183,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(const SpellCastEn
 	{
 		SetMovePoints smp;
 		smp.hid = parameters.caster->id;
-		smp.val = std::max<ui32>(0, parameters.caster->movement - 300);
+		smp.val = std::max<ui32>(0, parameters.caster->movement - movementCost);
 		env->sendAndApply(&smp);
 	}
 	return ESpellCastResult::OK;
@@ -241,7 +242,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(const SpellCastEnvir
 
 	}
 	
-	const int movementCost = (parameters.caster->getSpellSchoolLevel(owner) >= 3) ? 200 : 300;
+	const int movementCost = GameConstants::BASE_MOVEMENT_COST * ((parameters.caster->getSpellSchoolLevel(owner) >= 3) ? 2 : 3);
 	
 	if(parameters.caster->movement < movementCost)
 	{

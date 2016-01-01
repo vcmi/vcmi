@@ -675,8 +675,8 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	}
 	else
 	{
-		cur->setType(ran.first, ran.second);	
-	}	
+		cur->setType(ran.first, ran.second);
+	}
 }
 
 int CGameState::getDate(Date::EDateType mode) const
@@ -1939,7 +1939,7 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile)
 		case Obj::EVIL_FOG:
 			return BFieldType::EVIL_FOG;
 		case Obj::FAVORABLE_WINDS:
-			return BFieldType::FAVOURABLE_WINDS;
+			return BFieldType::FAVORABLE_WINDS;
 		case Obj::FIERY_FIELDS:
 			return BFieldType::FIERY_FIELDS;
 		case Obj::HOLY_GROUNDS:
@@ -3177,7 +3177,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 
 	for(const JsonNode &n : duelData["obstacles"].Vector())
 	{
-		auto oi = make_shared<CObstacleInstance>();
+		auto oi = std::make_shared<CObstacleInstance>();
 		if(n.getType() == JsonNode::DATA_VECTOR)
 		{
 			oi->ID = n.Vector()[0].Float();

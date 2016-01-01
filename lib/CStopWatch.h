@@ -11,7 +11,7 @@
 #endif
 
 /*
- * timeHandler.h, part of VCMI engine
+ * CStopWatch.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

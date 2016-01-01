@@ -861,7 +861,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 			if(itemsType[1] == RESOURCE)
 				newAmount = LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(soldItemId));
 			else if(itemsType[1] ==  CREATURE)
-				newAmount = hero->getStackCount(SlotID(hLeft->serial)) - (hero->Slots().size() == 1  &&  hero->needsLastStack());
+				newAmount = hero->getStackCount(SlotID(hLeft->serial)) - (hero->stacksCount() == 1  &&  hero->needsLastStack());
 			else
 				assert(0);
 

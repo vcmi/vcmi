@@ -24,19 +24,19 @@
 #ifdef VCMI_ANDROID
 // we can't use shared libraries on Android so here's a hack
 extern "C" DLL_EXPORT void VCAI_GetAiName(char* name);
-extern "C" DLL_EXPORT void VCAI_GetNewAI(shared_ptr<CGlobalAI> &out);
+extern "C" DLL_EXPORT void VCAI_GetNewAI(std::shared_ptr<CGlobalAI> &out);
 
 extern "C" DLL_EXPORT void StupidAI_GetAiName(char* name);
-extern "C" DLL_EXPORT void StupidAI_GetNewBattleAI(shared_ptr<CGlobalAI> &out);
+extern "C" DLL_EXPORT void StupidAI_GetNewBattleAI(std::shared_ptr<CGlobalAI> &out);
 
 extern "C" DLL_EXPORT void BattleAI_GetAiName(char* name);
-extern "C" DLL_EXPORT void BattleAI_GetNewBattleAI(shared_ptr<CBattleGameInterface> &out);
+extern "C" DLL_EXPORT void BattleAI_GetNewBattleAI(std::shared_ptr<CBattleGameInterface> &out);
 #endif
 
 template<typename rett>
-shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::string& methodName)
+std::shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::string& methodName)
 {
-	typedef void(*TGetAIFun)(shared_ptr<rett>&); 
+	typedef void(*TGetAIFun)(std::shared_ptr<rett>&); 
 	typedef void(*TGetNameFun)(char*); 
 
 	char temp[150];
@@ -102,7 +102,7 @@ shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::st
 	getName(temp);
     logGlobal->infoStream() << "Loaded " << temp;
 
-	shared_ptr<rett> ret;
+	std::shared_ptr<rett> ret;
 	getAI(ret);
 	if(!ret)
         logGlobal->errorStream() << "Cannot get AI!";
@@ -111,7 +111,7 @@ shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::st
 }
 
 template<typename rett>
-shared_ptr<rett> createAnyAI(std::string dllname, const std::string& methodName)
+std::shared_ptr<rett> createAnyAI(std::string dllname, const std::string& methodName)
 {
 	logGlobal->infoStream() << "Opening " << dllname;
 	const boost::filesystem::path filePath =
@@ -121,17 +121,17 @@ shared_ptr<rett> createAnyAI(std::string dllname, const std::string& methodName)
 	return ret;
 }
 
-shared_ptr<CGlobalAI> CDynLibHandler::getNewAI(std::string dllname)
+std::shared_ptr<CGlobalAI> CDynLibHandler::getNewAI(std::string dllname)
 {
 	return createAnyAI<CGlobalAI>(dllname, "GetNewAI");
 }
 
-shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(std::string dllname )
+std::shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(std::string dllname )
 {
 	return createAnyAI<CBattleGameInterface>(dllname, "GetNewBattleAI");
 }
 
-shared_ptr<CScriptingModule> CDynLibHandler::getNewScriptingModule(std::string dllname)
+std::shared_ptr<CScriptingModule> CDynLibHandler::getNewScriptingModule(std::string dllname)
 {
 	return createAny<CScriptingModule>(dllname, "GetNewModule");
 }

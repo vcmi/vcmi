@@ -2,6 +2,7 @@
 
 #include "CObjectClassesHandler.h"
 #include "../CTownHandler.h" // for building ID-based filters
+#include "MapObjects.h"
 
 /*
  * CommonConstructors.h, part of VCMI engine
@@ -155,9 +156,9 @@ typedef std::vector<std::pair<ui8, IObjectInfo::CArmyStructure>> TPossibleGuards
 
 class DLL_LINKAGE CBankInfo : public IObjectInfo
 {
-	JsonVector config;
+	const JsonVector & config;
 public:
-	CBankInfo(JsonVector config);
+	CBankInfo(const JsonVector & Config);
 
 	TPossibleGuards getPossibleGuards() const;
 

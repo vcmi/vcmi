@@ -155,8 +155,6 @@
     <ClCompile Include="registerTypes\TypesClientPacks1.cpp">
       <Filter>registerTypes</Filter>
     </ClCompile>
-    <ClCompile Include="registerTypes\TypesMapObjects1.cpp" />
-    <ClCompile Include="registerTypes\TypesMapObjects2.cpp" />
     <ClCompile Include="mapObjects\CArmedInstance.cpp">
       <Filter>mapObjects</Filter>
     </ClCompile>
@@ -202,7 +200,6 @@
     <ClCompile Include="mapObjects\ObjectTemplate.cpp">
       <Filter>mapObjects</Filter>
     </ClCompile>
-    <ClCompile Include="registerTypes\TypesMapObjects3.cpp" />
     <ClCompile Include="IHandlerBase.cpp" />
     <ClCompile Include="spells\AdventureSpellMechanics.cpp">
       <Filter>spells</Filter>
@@ -227,6 +224,15 @@
     </ClCompile>
     <ClCompile Include="mapping\CDrawRoadsOperation.cpp" />
     <ClCompile Include="CPathfinder.cpp" />
+    <ClCompile Include="registerTypes\TypesMapObjects1.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="registerTypes\TypesMapObjects2.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="registerTypes\TypesMapObjects3.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -540,6 +546,33 @@
     </ClInclude>
     <ClInclude Include="CPathfinder.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlayerState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapping\CMapDefines.h">
+      <Filter>mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="CSoundBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IHandlerBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NetPacksBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScopeGuard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StringConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmi_endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapping\CDrawRoadsOperation.h">
+      <Filter>mapping</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

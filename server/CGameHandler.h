@@ -258,9 +258,9 @@ public:
 	struct FinishingBattleHelper
 	{
 		FinishingBattleHelper();
-		FinishingBattleHelper(shared_ptr<const CBattleQuery> Query, bool Duel, int RemainingBattleQueriesCount);
+		FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, bool Duel, int RemainingBattleQueriesCount);
 
-		//shared_ptr<const CBattleQuery> query;
+		//std::shared_ptr<const CBattleQuery> query;
 		const CGHeroInstance *winnerHero, *loserHero;
 		PlayerColor victor, loser;
 		bool duel;
@@ -273,7 +273,7 @@ public:
 		}
 	};
 
-	unique_ptr<FinishingBattleHelper> finishingBattle;
+	std::unique_ptr<FinishingBattleHelper> finishingBattle;
 
 	void battleAfterLevelUp(const BattleResult &result);
 

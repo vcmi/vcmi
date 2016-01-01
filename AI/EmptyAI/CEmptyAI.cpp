@@ -3,7 +3,7 @@
 
 #include "../../lib/CRandomGenerator.h"
 
-void CEmptyAI::init(shared_ptr<CCallback> CB)
+void CEmptyAI::init(std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
 	human=false;

@@ -150,21 +150,23 @@ void CPathfinder::calculatePaths()
 					continue;
 
 				destAction = getDestAction();
-				int cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, ct, dt, movement, hlp->getTurnInfo());
-				int remains = movement - cost;
-				if(destAction == CGPathNode::EMBARK || destAction == CGPathNode::DISEMBARK)
-				{
-					remains = hero->movementPointsAfterEmbark(movement, cost, destAction - 1, hlp->getTurnInfo());
-					cost = movement - remains;
-				}
-				int turnAtNextTile = turn;
+				int turnAtNextTile = turn, moveAtNextTile = movement;
+				int cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, ct, dt, moveAtNextTile, hlp->getTurnInfo());
+				int remains = moveAtNextTile - cost;
 				if(remains < 0)
 				{
 					//occurs rarely, when hero with low movepoints tries to leave the road
 					hlp->updateTurnInfo(++turnAtNextTile);
-					int moveAtNextTile = hlp->getMaxMovePoints(i);
+					moveAtNextTile = hlp->getMaxMovePoints(i);
 					cost = CPathfinderHelper::getMovementCost(hero, cp->coord, dp->coord, ct, dt, moveAtNextTile, hlp->getTurnInfo()); //cost must be updated, movement points changed :(
 					remains = moveAtNextTile - cost;
+				}
+				if(destAction == CGPathNode::EMBARK || destAction == CGPathNode::DISEMBARK)
+				{
+					/// FREE_SHIP_BOARDING bonus only remove additional penalty
+					/// land <-> sail transition still cost movement points as normal movement
+					remains = hero->movementPointsAfterEmbark(moveAtNextTile, cost, destAction - 1, hlp->getTurnInfo());
+					cost = moveAtNextTile - remains;
 				}
 
 				if(isBetterWay(remains, turnAtNextTile) &&
@@ -189,14 +191,24 @@ void CPathfinder::calculatePaths()
 			dp = out.getNode(neighbour, cp->layer);
 			if(dp->locked)
 				continue;
+			/// TODO: We may consider use invisible exits on FoW border in future
+			/// Useful for AI when at least one tile around exit is visible and passable
+			/// Objects are usually visible on FoW border anyway so it's not cheating.
+			///
+			/// For now it's disabled as it's will cause crashes in movement code.
+			if(dp->accessible == CGPathNode::BLOCKED)
+				continue;
 
 			if(isBetterWay(movement, turn))
 			{
+				dtObj = gs->map->getTile(neighbour).topVisitableObj();
+
 				dp->moveRemains = movement;
 				dp->turns = turn;
 				dp->theNodeBefore = cp;
-				dp->action = CGPathNode::NORMAL;
-				pq.push(dp);
+				dp->action = getTeleportDestAction();
+				if(dp->action == CGPathNode::TELEPORT_NORMAL)
+					pq.push(dp);
 			}
 		}
 	} //queue loop
@@ -362,6 +374,16 @@ bool CPathfinder::isLayerTransitionPossible() const
 		}
 
 		break;
+
+	case ELayer::WATER:
+		if(dp->accessible != CGPathNode::ACCESSIBLE && dp->accessible != CGPathNode::VISITABLE)
+		{
+			/// Hero that walking on water can transit to accessible and visitable tiles
+			/// Though hero can't interact with blocking visit objects while standing on water
+			return false;
+		}
+
+		break;
 	}
 
 	return true;
@@ -443,7 +465,7 @@ bool CPathfinder::isMovementAfterDestPossible() const
 			/// Transit over whirlpools only allowed when hero protected
 			return true;
 		}
-		else if(dtObj->ID == Obj::GARRISON || dtObj->ID == Obj::GARRISON2)
+		else if(dtObj->ID == Obj::GARRISON || dtObj->ID == Obj::GARRISON2 || dtObj->ID == Obj::BORDER_GATE)
 		{
 			/// Transit via unguarded garrisons is always possible
 			return true;
@@ -507,17 +529,32 @@ CGPathNode::ENodeAction CPathfinder::getDestAction() const
 				else
 					action = CGPathNode::BLOCKING_VISIT;
 			}
-			else if(dtObj->ID == Obj::TOWN && objRel == PlayerRelations::ENEMIES)
+			else if(dtObj->ID == Obj::TOWN)
 			{
-				const CGTownInstance * townObj = dynamic_cast<const CGTownInstance *>(dtObj);
-				if(townObj->armedGarrison())
+				if(dtObj->passableFor(hero->tempOwner))
+					action = CGPathNode::VISIT;
+				else if(objRel == PlayerRelations::ENEMIES)
 					action = CGPathNode::BATTLE;
 			}
 			else if(dtObj->ID == Obj::GARRISON || dtObj->ID == Obj::GARRISON2)
 			{
-				const CGGarrison * garrisonObj = dynamic_cast<const CGGarrison *>(dtObj);
-				if((garrisonObj->stacksCount() && objRel == PlayerRelations::ENEMIES) || isDestinationGuarded(true))
+				if(dtObj->passableFor(hero->tempOwner))
+				{
+					if(isDestinationGuarded(true))
+						action = CGPathNode::BATTLE;
+				}
+				else if(objRel == PlayerRelations::ENEMIES)
 					action = CGPathNode::BATTLE;
+			}
+			else if(dtObj->ID == Obj::BORDER_GATE)
+			{
+				if(dtObj->passableFor(hero->tempOwner))
+				{
+					if(isDestinationGuarded(true))
+						action = CGPathNode::BATTLE;
+				}
+				else
+					action = CGPathNode::BLOCKING_VISIT;
 			}
 			else if(isDestinationGuardian())
 				action = CGPathNode::BATTLE;
@@ -536,6 +573,21 @@ CGPathNode::ENodeAction CPathfinder::getDestAction() const
 			action = CGPathNode::BATTLE;
 
 		break;
+	}
+
+	return action;
+}
+
+CGPathNode::ENodeAction CPathfinder::getTeleportDestAction() const
+{
+	CGPathNode::ENodeAction action = CGPathNode::TELEPORT_NORMAL;
+	if(isDestVisitableObj() && dtObj->ID == Obj::HERO)
+	{
+		auto objRel = getPlayerRelations(dtObj->tempOwner, hero->tempOwner);
+		if(objRel == PlayerRelations::ENEMIES)
+			action = CGPathNode::TELEPORT_BATTLE;
+		else
+			action = CGPathNode::TELEPORT_BLOCKING_VISIT;
 	}
 
 	return action;
@@ -987,7 +1039,7 @@ int CPathfinderHelper::getMovementCost(const CGHeroInstance * h, const int3 & sr
 	}
 	else if(dt->terType == ETerrainType::WATER)
 	{
-		if(h->boat && ct->hasFavourableWinds() && dt->hasFavourableWinds()) //Favourable Winds
+		if(h->boat && ct->hasFavorableWinds() && dt->hasFavorableWinds())
 			ret *= 0.666;
 		else if(!h->boat && ti->hasBonusOfType(Bonus::WATER_WALKING))
 		{

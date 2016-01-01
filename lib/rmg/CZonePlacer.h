@@ -50,6 +50,6 @@ private:
 	float scaleY;
     //float a1, b1, c1, a2, b2, c2;
 	//CMap * map;
-	//unique_ptr<CZoneGraph> graph;
+	//std::unique_ptr<CZoneGraph> graph;
 	CMapGenerator * gen;
 };

@@ -19,12 +19,11 @@ extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 extern FuzzyHelper * fh; //TODO: this logic should be moved inside VCAI
 
-using namespace vstd;
 using namespace Goals;
 
 TSubgoal Goals::sptr(const AbstractGoal & tmp)
 {
-	shared_ptr<AbstractGoal> ptr;
+	std::shared_ptr<AbstractGoal> ptr;
 	ptr.reset(tmp.clone());
 	return ptr;
 }
@@ -575,7 +574,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	{
 		//heroes = ai->getUnblockedHeroes();
 		heroes = cb->getHeroesInfo();
-		erase_if (heroes, [](const HeroPtr h)
+		vstd::erase_if(heroes, [](const HeroPtr h)
 		{
 			if (ai->getGoal(h)->goalType == Goals::EXPLORE) //do not reassign hero who is already explorer
 				return true;
@@ -693,8 +692,8 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 	if(!t)
 		return sptr (Goals::BuildThis(BuildingID::TAVERN));
 
-	if(cb->getResourceAmount(Res::GOLD) < HERO_GOLD_COST)
-		return sptr (Goals::CollectRes(Res::GOLD, HERO_GOLD_COST));
+	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST)
+		return sptr (Goals::CollectRes(Res::GOLD, GameConstants::HERO_GOLD_COST));
 
 	return iAmElementar();
 }
@@ -747,10 +746,10 @@ TGoalVec VisitTile::getAllPossibleSubgoals()
 		if (ai->canRecruitAnyHero())
 			ret.push_back (sptr(Goals::RecruitHero()));
 	}
-	if (ret.empty())
+	if(ret.empty())
 	{
-		auto obj = frontOrNull(cb->getVisitableObjs(tile));
-		if (obj && obj->ID == Obj::HERO && obj->tempOwner == ai->playerID) //our own hero stands on that tile
+		auto obj = vstd::frontOrNull(cb->getVisitableObjs(tile));
+		if(obj && obj->ID == Obj::HERO && obj->tempOwner == ai->playerID) //our own hero stands on that tile
 		{
 			if (hero.get(true) && hero->id == obj->id) //if it's assigned hero, visit tile. If it's different hero, we can't visit tile now
 				ret.push_back(sptr(Goals::VisitTile(tile).sethero(dynamic_cast<const CGHeroInstance *>(obj)).setisElementar(true)));
@@ -767,7 +766,7 @@ TGoalVec VisitTile::getAllPossibleSubgoals()
 
 TSubgoal DigAtTile::whatToDoToAchieve()
 {
-	const CGObjectInstance *firstObj = frontOrNull(cb->getVisitableObjs(tile));
+	const CGObjectInstance *firstObj = vstd::frontOrNull(cb->getVisitableObjs(tile));
 	if(firstObj && firstObj->ID == Obj::HERO && firstObj->tempOwner == ai->playerID) //we have hero at dest
 	{
 		const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(firstObj);
@@ -1057,7 +1056,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 
 	auto otherHeroes = cb->getHeroesInfo();
 	auto heroDummy = hero;
-	erase_if(otherHeroes, [heroDummy](const CGHeroInstance * h)
+	vstd::erase_if(otherHeroes, [heroDummy](const CGHeroInstance * h)
 	{
 		return (h == heroDummy.h || !ai->isAccessibleForHero(heroDummy->visitablePos(), h, true)
 			|| !ai->canGetArmy(heroDummy.h, h) || ai->getGoal(h)->goalType == Goals::GATHER_ARMY);

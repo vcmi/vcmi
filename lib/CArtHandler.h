@@ -258,8 +258,8 @@ private:
 	void loadComponents(CArtifact * art, const JsonNode & node);
 	void loadGrowingArt(CGrowingArtifact * art, const JsonNode & node);
 
-	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalinfo = 0);
-	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
+	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, std::shared_ptr<ILimiter> limiter = std::shared_ptr<ILimiter>(), int additionalinfo = 0);
+	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, std::shared_ptr<IPropagator> propagator, int additionalinfo = 0);
 	void giveArtBonus(ArtifactID aid, Bonus *bonus);
 
 	void erasePickedArt(ArtifactID id);

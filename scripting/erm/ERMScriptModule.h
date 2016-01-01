@@ -3,7 +3,7 @@
 #include "../../lib/CScriptingModule.h"
 
 /*
- * ERMScriptingModule.cpp, part of VCMI engine
+ * ERMScriptingModule.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

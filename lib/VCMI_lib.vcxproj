@@ -293,8 +293,10 @@
     <ClInclude Include="Connection.h" />
     <ClInclude Include="ConstTransitivePtr.h" />
     <ClInclude Include="CPathfinder.h" />
+    <ClInclude Include="CPlayerState.h" />
     <ClInclude Include="CRandomGenerator.h" />
     <ClInclude Include="CScriptingModule.h" />
+    <ClInclude Include="CSoundBase.h" />
     <ClInclude Include="CStopWatch.h" />
     <ClInclude Include="CThreadHelper.h" />
     <ClInclude Include="CTownHandler.h" />
@@ -313,6 +315,7 @@
     <ClInclude Include="filesystem\ResourceID.h" />
     <ClInclude Include="FunctionList.h" />
     <ClInclude Include="IBonusTypeHandler.h" />
+    <ClInclude Include="IHandlerBase.h" />
     <ClInclude Include="JsonDetail.h" />
     <ClInclude Include="LogicalExpression.h" />
     <ClInclude Include="mapObjects\CArmedInstance.h" />
@@ -332,12 +335,15 @@
     <ClInclude Include="mapObjects\MiscObjects.h" />
     <ClInclude Include="mapObjects\ObjectTemplate.h" />
     <ClInclude Include="mapping\CCampaignHandler.h" />
+    <ClInclude Include="mapping\CDrawRoadsOperation.h" />
     <ClInclude Include="mapping\CMap.h" />
+    <ClInclude Include="mapping\CMapDefines.h" />
     <ClInclude Include="mapping\CMapInfo.h" />
     <ClInclude Include="mapping\CMapService.h" />
     <ClInclude Include="mapping\CMapEditManager.h" />
     <ClInclude Include="mapping\MapFormatH3M.h" />
     <ClInclude Include="mapping\MapFormatJson.h" />
+    <ClInclude Include="NetPacksBase.h" />
     <ClInclude Include="registerTypes\RegisterTypes.h" />
     <ClInclude Include="rmg\CMapGenerator.h" />
     <ClInclude Include="logging\CLogger.h" />
@@ -360,6 +366,7 @@
     <ClInclude Include="rmg\CZoneGraphGenerator.h" />
     <ClInclude Include="rmg\CZonePlacer.h" />
     <ClInclude Include="rmg\float3.h" />
+    <ClInclude Include="ScopeGuard.h" />
     <ClInclude Include="spells\AdventureSpellMechanics.h" />
     <ClInclude Include="spells\BattleSpellMechanics.h" />
     <ClInclude Include="spells\CDefaultSpellMechanics.h" />
@@ -371,7 +378,9 @@
     <ClInclude Include="spells\ViewSpellInt.h" />
     <ClInclude Include="StartInfo.h" />
     <ClInclude Include="StdInc.h" />
+    <ClInclude Include="StringConstants.h" />
     <ClInclude Include="UnlockGuard.h" />
+    <ClInclude Include="vcmi_endian.h" />
     <ClInclude Include="VCMI_Lib.h" />
     <ClInclude Include="VCMIDirs.h" />
   </ItemGroup>

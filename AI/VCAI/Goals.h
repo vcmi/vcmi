@@ -107,7 +107,7 @@ public:
 	static TSubgoal tryRecruitHero();
 
 	///Visitor pattern
-	//TODO: make accept work for shared_ptr... somehow
+	//TODO: make accept work for std::shared_ptr... somehow
 	virtual void accept (VCAI * ai); //unhandled goal will report standard error
 	virtual float accept (FuzzyHelper * f);
 
@@ -162,7 +162,7 @@ public:
 	TSubgoal iAmElementar()
 	{
 		setisElementar(true);
-		shared_ptr<AbstractGoal> ptr;
+		std::shared_ptr<AbstractGoal> ptr;
 		ptr.reset(clone());
 		return ptr;
 	}

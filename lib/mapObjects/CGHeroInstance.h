@@ -79,7 +79,7 @@ public:
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & patrolling;
-			if(version >= 755)
+			if(version >= 755) //save format backward compatibility
 			{
 				h & initialPos;
 			}

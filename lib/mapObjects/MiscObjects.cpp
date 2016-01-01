@@ -640,7 +640,6 @@ std::string CGMine::getObjectName() const
 
 std::string CGMine::getHoverText(PlayerColor player) const
 {
-
 	std::string hoverName = getObjectName(); // Sawmill
 
 	if (tempOwner != PlayerColor::NEUTRAL)
@@ -650,11 +649,12 @@ std::string CGMine::getHoverText(PlayerColor player) const
 		hoverName += "\n(" + VLC->generaltexth->restypes[producedResource] + ")";
 	}
 
-	for (auto & slot : Slots()) // guarded by a few Pikeman
+	if(stacksCount())
 	{
 		hoverName += "\n";
-		hoverName += getRoughAmount(slot.first);
-		hoverName += getCreature(slot.first)->namePl;
+		hoverName += VLC->generaltexth->allTexts[202]; //Guarded by
+		hoverName += " ";
+		hoverName += getArmyDescription();
 	}
 	return hoverName;
 }
@@ -907,12 +907,12 @@ std::vector<ObjectInstanceID> CGTeleport::getPassableExits(CGameState * gs, cons
 	return exits;
 }
 
-void CGTeleport::addToChannel(std::map<TeleportChannelID, shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj)
+void CGTeleport::addToChannel(std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj)
 {
-	shared_ptr<TeleportChannel> tc;
+	std::shared_ptr<TeleportChannel> tc;
 	if(channelsList.find(obj->channel) == channelsList.end())
 	{
-		tc = make_shared<TeleportChannel>();
+		tc = std::make_shared<TeleportChannel>();
 		channelsList.insert(std::make_pair(obj->channel, tc));
 	}
 	else
@@ -973,17 +973,18 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const
 {
 	int3 dPos;
+	auto randomExit = getRandomExit(hero);
 	auto realExits = getAllExits(true);
 	if(!isEntrance() // Do nothing if hero visited exit only object
 		|| (!exits.size() && !realExits.size()) // Do nothing if there no exits on this channel
-		|| (!exits.size() && ObjectInstanceID() == getRandomExit(hero))) // Do nothing if all exits are blocked by friendly hero and it's not subterranean gate
+		|| ObjectInstanceID() == randomExit) // Do nothing if all exits are blocked by friendly hero and it's not subterranean gate
 	{
 		return;
 	}
 	else if(vstd::isValidIndex(exits, answer))
 		dPos = exits[answer].second;
 	else
-		dPos = CGHeroInstance::convertPosition(cb->getObj(getRandomExit(hero))->visitablePos(), true);
+		dPos = CGHeroInstance::convertPosition(cb->getObj(randomExit)->visitablePos(), true);
 
 	cb->moveHero(hero->id, dPos, true);
 }
@@ -1158,10 +1159,10 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 	cb->moveHero(hero->id, dPos, true);
 }
 
-bool CGWhirlpool::isProtected( const CGHeroInstance * h )
+bool CGWhirlpool::isProtected(const CGHeroInstance * h)
 {
-	if(h->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION)
-		|| (h->Slots().size() == 1 && h->Slots().begin()->second->count == 1)) //we can't remove last unit
+	if(h->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION) ||
+		(h->stacksCount() == 1 && h->Slots().begin()->second->count == 1)) //we can't remove last unit
 	{
 		return true;
 	}
@@ -1196,7 +1197,7 @@ std::string CGArtifact::getObjectName() const
 	return VLC->arth->artifacts[subID]->Name();
 }
 
-void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
+void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 {
 	if(!stacksCount())
 	{
@@ -1207,28 +1208,32 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 		case Obj::ARTIFACT:
 			{
 				iw.soundID = soundBase::treasure; //play sound only for non-scroll arts
-				iw.components.push_back(Component(Component::ARTIFACT,subID,0,0));
+				iw.components.push_back(Component(Component::ARTIFACT, subID, 0, 0));
 				if(message.length())
-					iw.text <<  message;
+					iw.text << message;
 				else
 				{
-					if (VLC->arth->artifacts[subID]->EventText().size())
-						iw.text << std::pair<ui8, ui32> (MetaString::ART_EVNTS, subID);
+					if(VLC->arth->artifacts[subID]->EventText().size())
+						iw.text << std::pair<ui8, ui32>(MetaString::ART_EVNTS, subID);
 					else //fix for mod artifacts with no event text
 					{
-						iw.text.addTxt (MetaString::ADVOB_TXT, 183); //% has found treasure
-						iw.text.addReplacement (h->name);
+						iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure
+						iw.text.addReplacement(h->name);
 					}
-
 				}
 			}
 			break;
 		case Obj::SPELL_SCROLL:
 			{
 				int spellID = storedArtifact->getGivenSpellID();
-				iw.components.push_back (Component(Component::SPELL, spellID,0,0));
-				iw.text.addTxt (MetaString::ADVOB_TXT,135);
-				iw.text.addReplacement(MetaString::SPELL_NAME, spellID);
+				iw.components.push_back(Component(Component::SPELL, spellID, 0, 0));
+				if(message.length())
+					iw.text << message;
+				else
+				{
+					iw.text.addTxt(MetaString::ADVOB_TXT,135);
+					iw.text.addReplacement(MetaString::SPELL_NAME, spellID);
+				}
 			}
 			break;
 		}
@@ -1237,16 +1242,38 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		if(message.size())
+		switch(ID)
 		{
-			BlockingDialog ynd(true,false);
-			ynd.player = h->getOwner();
-			ynd.text << message;
-			cb->showBlockingDialog(&ynd);
-		}
-		else
-		{
-			blockingDialogAnswered(h, true);
+		case Obj::ARTIFACT:
+			{
+				BlockingDialog ynd(true,false);
+				ynd.player = h->getOwner();
+				if(message.length())
+					ynd.text << message;
+				else
+				{
+					// TODO: Guard text is more complex in H3, see mantis issue 2325 for details
+					ynd.text.addTxt(MetaString::GENERAL_TXT, 420);
+					ynd.text.addReplacement("");
+					ynd.text.addReplacement(getArmyDescription());
+					ynd.text.addReplacement(MetaString::GENERAL_TXT, 43); // creatures
+				}
+				cb->showBlockingDialog(&ynd);
+			}
+			break;
+		case Obj::SPELL_SCROLL:
+			{
+				if(message.length())
+				{
+					BlockingDialog ynd(true,false);
+					ynd.player = h->getOwner();
+					ynd.text << message;
+					cb->showBlockingDialog(&ynd);
+				}
+				else
+					blockingDialogAnswered(h, true);
+			}
+			break;
 		}
 	}
 }

@@ -95,7 +95,7 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2,
 								   const CGHeroInstance *hero1, const CGHeroInstance *hero2,
 								   const SDL_Rect & myRect,
-								   shared_ptr<CPlayerInterface> att, shared_ptr<CPlayerInterface> defen)
+								   std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen)
 	: background(nullptr), queue(nullptr), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
       activeStack(nullptr), mouseHoveredStack(nullptr), stackToActivate(nullptr), selectedStack(nullptr), previouslyHoveredHex(-1),
 	  currentlyHoveredHex(-1), attackingHex(-1), stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(nullptr), sp(nullptr),
@@ -3260,7 +3260,7 @@ void CBattleInterface::showStacks(SDL_Surface * to, std::vector<const CStack *> 
 	}
 }
 
-void CBattleInterface::showObstacles(SDL_Surface *to, std::vector<shared_ptr<const CObstacleInstance> > &obstacles)
+void CBattleInterface::showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance> > &obstacles)
 {
 	for (auto & obstacle : obstacles)
 	{

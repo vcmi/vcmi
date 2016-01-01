@@ -189,7 +189,7 @@ const CMapOperation * CMapUndoManager::peekUndo() const
 	return peek(undoStack);
 }
 
-void CMapUndoManager::addOperation(unique_ptr<CMapOperation> && operation)
+void CMapUndoManager::addOperation(std::unique_ptr<CMapOperation> && operation)
 {
 	undoStack.push_front(std::move(operation));
 	if(undoStack.size() > undoRedoLimit) undoStack.pop_back();
@@ -252,7 +252,7 @@ void CMapEditManager::insertObject(CGObjectInstance * obj, const int3 & pos)
 	execute(make_unique<CInsertObjectOperation>(map, obj, pos));
 }
 
-void CMapEditManager::execute(unique_ptr<CMapOperation> && operation)
+void CMapEditManager::execute(std::unique_ptr<CMapOperation> && operation)
 {
 	operation->execute();
 	undoManager.addOperation(std::move(operation));
@@ -302,7 +302,7 @@ void CComposedOperation::redo()
 	}
 }
 
-void CComposedOperation::addOperation(unique_ptr<CMapOperation> && operation)
+void CComposedOperation::addOperation(std::unique_ptr<CMapOperation> && operation)
 {
 	operations.push_back(std::move(operation));
 }

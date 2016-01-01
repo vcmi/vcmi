@@ -144,10 +144,10 @@ public:
 	const CMapOperation * peekRedo() const;
 	const CMapOperation * peekUndo() const;
 
-	void addOperation(unique_ptr<CMapOperation> && operation); /// Client code does not need to call this method.
+	void addOperation(std::unique_ptr<CMapOperation> && operation); /// Client code does not need to call this method.
 
 private:
-	typedef std::list<unique_ptr<CMapOperation> > TStack;
+	typedef std::list<std::unique_ptr<CMapOperation> > TStack;
 
 	void doOperation(TStack & fromStack, TStack & toStack, bool doUndo);
 	const CMapOperation * peek(const TStack & stack) const;
@@ -182,7 +182,7 @@ public:
 	CMapUndoManager & getUndoManager();
 
 private:
-	void execute(unique_ptr<CMapOperation> && operation);
+	void execute(std::unique_ptr<CMapOperation> && operation);
 
 	CMap * map;
 	CMapUndoManager undoManager;
@@ -205,10 +205,10 @@ public:
 	void undo() override;
 	void redo() override;
 
-	void addOperation(unique_ptr<CMapOperation> && operation);
+	void addOperation(std::unique_ptr<CMapOperation> && operation);
 
 private:
-	std::list<unique_ptr<CMapOperation> > operations;
+	std::list<std::unique_ptr<CMapOperation> > operations;
 };
 
 namespace ETerrainGroup

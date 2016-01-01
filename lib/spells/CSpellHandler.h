@@ -75,7 +75,7 @@ public:
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & resourceName & verticalPosition;
-			if(version >= 754)
+			if(version >= 754) //save format backward compatibility
 			{
 				h & pause;
 			}			
