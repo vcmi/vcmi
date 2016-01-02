@@ -31,7 +31,7 @@ void IVCMIDirs::init()
 
 	#ifndef CSIDL_MYDOCUMENTS
 	#define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
-	#endif    
+	#endif
 #endif // __MINGW32__
 
 #include <windows.h>
@@ -87,7 +87,7 @@ bool StartBatchCopyDataProgram(
 		"%5%"													"\n"
 		"del \"%%~f0\"&exit"									"\n" // Script deletes itself
 		;
-	
+
 	const auto startGameString =
 		bfs::equivalent(currentPath, from) ?
 		(boost::format("start \"\" %1%") % (to / exeName)) :						// Start game in new path.
@@ -166,7 +166,7 @@ void VCMIDirsWIN32::init()
 		{
 			const std::wstring& pathStr = path.native();
 			std::unique_ptr<wchar_t[]> result(new wchar_t[pathStr.length() + 2]);
-			
+
 			size_t i = 0;
 			for (const wchar_t ch : pathStr)
 				result[i++] = ch;
@@ -195,7 +195,7 @@ void VCMIDirsWIN32::init()
 			return false;
 		else if (!bfs::is_empty(from)) // TODO: Log warn. Some files not moved. User should try to move files.
 			return false;
-		
+
 		if (bfs::current_path() == from)
 			bfs::current_path(to);
 
@@ -203,7 +203,7 @@ void VCMIDirsWIN32::init()
 		bfs::remove(from);
 		return true;
 	};
-	
+
 	// Retrieves the fully qualified path for the file that contains the specified module.
 	// The module must have been loaded by the current process.
 	// If this parameter is nullptr, retrieves the path of the executable file of the current process.
@@ -247,7 +247,7 @@ void VCMIDirsWIN32::init()
 		// Start copying script and exit program.
 		if (StartBatchCopyDataProgram(from, to, executableName))
 			exit(ERROR_SUCCESS);
-		
+
 		// Everything failed :C
 		return false;
 	};
@@ -261,15 +261,19 @@ bfs::path VCMIDirsWIN32::userDataPath() const
 	wchar_t profileDir[MAX_PATH];
 
 	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
-		return bfs::path(profileDir) / "My Games\\vcmi";
-	
+	{
+		wchar_t shortPath[MAX_PATH];
+		if (GetShortPathNameW(profileDir, shortPath, MAX_PATH) <= MAX_PATH)
+			return bfs::path(shortPath) / "My Games\\vcmi";
+	}
+
 	return ".";
 }
 
 bfs::path VCMIDirsWIN32::oldUserDataPath() const
 {
 	wchar_t profileDir[MAX_PATH];
-	
+
 	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_PROFILE, FALSE) == FALSE) // WinAPI way failed
 	{
 #if defined(_MSC_VER) && _MSC_VER >= 1700
