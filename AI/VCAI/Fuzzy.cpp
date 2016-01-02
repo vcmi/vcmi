@@ -31,7 +31,6 @@ class Engine;
 class InputVariable;
 class CGTownInstance;
 
-using namespace vstd;
 //using namespace Goals;
 
 FuzzyHelper *fh;
@@ -85,7 +84,7 @@ armyStructure evaluateArmyStructure (const CArmedInstance * army)
 		if (walker)
 			walkersStrenght += s.second->getPower();
 
-		amax (maxSpeed, s.second->type->valOfBonuses(Bonus::STACKS_SPEED));
+		vstd::amax(maxSpeed, s.second->type->valOfBonuses(Bonus::STACKS_SPEED));
 	}
 	armyStructure as;
 	as.walkers = walkersStrenght / totalStrenght;
@@ -297,7 +296,7 @@ FuzzyHelper::TacticalAdvantage::~TacticalAdvantage()
 	delete threat;
 }
 
-//shared_ptr<AbstractGoal> chooseSolution (std::vector<shared_ptr<AbstractGoal>> & vec)
+//std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec)
 
 Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
 {

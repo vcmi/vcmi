@@ -317,12 +317,12 @@ public:
 
 	//Helper lists
 	std::vector< ConstTransitivePtr<CGHeroInstance> > heroesOnMap;
-	std::map<TeleportChannelID, shared_ptr<TeleportChannel> > teleportChannels;
+	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > teleportChannels;
 
 	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
 	std::map<si32, ObjectInstanceID> questIdentifierToId;
 
-	unique_ptr<CMapEditManager> editManager;
+	std::unique_ptr<CMapEditManager> editManager;
 
 	int3 ***guardingCreaturePositions;
 

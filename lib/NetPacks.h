@@ -443,7 +443,7 @@ struct UpdateCampaignState : public CPackForClient //119
 		type = 119;
 	}
 
-	shared_ptr<CCampaignState> camp;
+	std::shared_ptr<CCampaignState> camp;
 	void applyCl(CClient *cl);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1681,7 +1681,7 @@ struct BattleObstaclePlaced : public CPackForClient //3020
 	DLL_LINKAGE void applyGs(CGameState *gs); //effect
 	void applyCl(CClient *cl); //play animations & stuff
 
-	shared_ptr<CObstacleInstance> obstacle;
+	std::shared_ptr<CObstacleInstance> obstacle;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

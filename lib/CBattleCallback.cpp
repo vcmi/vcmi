@@ -130,9 +130,9 @@ BFieldType CBattleInfoEssentials::battleGetBattlefieldType() const
 	return getBattle()->battlefieldType;
 }
 
-std::vector<shared_ptr<const CObstacleInstance> > CBattleInfoEssentials::battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective /*= boost::none*/) const
+std::vector<std::shared_ptr<const CObstacleInstance> > CBattleInfoEssentials::battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective /*= boost::none*/) const
 {
-	std::vector<shared_ptr<const CObstacleInstance> > ret;
+	std::vector<std::shared_ptr<const CObstacleInstance> > ret;
 	RETURN_IF_NOT_BATTLE(ret);
 
 	if(!perspective)
@@ -1100,9 +1100,9 @@ std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(const BattleAtta
 	return ret;
 }
 
-shared_ptr<const CObstacleInstance> CBattleInfoCallback::battleGetObstacleOnPos(BattleHex tile, bool onlyBlocking /*= true*/) const
+std::shared_ptr<const CObstacleInstance> CBattleInfoCallback::battleGetObstacleOnPos(BattleHex tile, bool onlyBlocking /*= true*/) const
 {
-	RETURN_IF_NOT_BATTLE(shared_ptr<const CObstacleInstance>());
+	RETURN_IF_NOT_BATTLE(std::shared_ptr<const CObstacleInstance>());
 
 	for(auto &obs : battleGetAllObstacles())
 	{
@@ -1113,7 +1113,7 @@ shared_ptr<const CObstacleInstance> CBattleInfoCallback::battleGetObstacleOnPos(
 		}
 	}
 
-	return shared_ptr<const CObstacleInstance>();
+	return std::shared_ptr<const CObstacleInstance>();
 }
 
 AccessibilityInfo CBattleInfoCallback::getAccesibility() const

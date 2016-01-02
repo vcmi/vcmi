@@ -134,7 +134,7 @@ void CLogger::setLevel(ELogLevel::ELogLevel level)
 
 const CLoggerDomain & CLogger::getDomain() const { return domain; }
 
-void CLogger::addTarget(unique_ptr<ILogTarget> && target)
+void CLogger::addTarget(std::unique_ptr<ILogTarget> && target)
 {
 	TLockGuard _(mx);
 	targets.push_back(std::move(target));

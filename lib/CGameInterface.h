@@ -67,7 +67,7 @@ public:
 	std::string dllName;
 
 	virtual ~CBattleGameInterface() {};
-	virtual void init(shared_ptr<CBattleCallback> CB){};
+	virtual void init(std::shared_ptr<CBattleCallback> CB){};
 
 	//battle call-ins
 	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
@@ -82,7 +82,7 @@ public:
 class DLL_LINKAGE CGameInterface : public CBattleGameInterface, public IGameEventsReceiver
 {
 public:
-	virtual void init(shared_ptr<CCallback> CB){};
+	virtual void init(std::shared_ptr<CCallback> CB){};
 	virtual void yourTurn(){}; //called AFTER playerStartsTurn(player)
 
 	//pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
@@ -105,9 +105,9 @@ public:
 class DLL_LINKAGE CDynLibHandler
 {
 public:
-	static shared_ptr<CGlobalAI> getNewAI(std::string dllname);
-	static shared_ptr<CBattleGameInterface> getNewBattleAI(std::string dllname);
-	static shared_ptr<CScriptingModule> getNewScriptingModule(std::string dllname);
+	static std::shared_ptr<CGlobalAI> getNewAI(std::string dllname);
+	static std::shared_ptr<CBattleGameInterface> getNewBattleAI(std::string dllname);
+	static std::shared_ptr<CScriptingModule> getNewScriptingModule(std::string dllname);
 };
 
 class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
@@ -123,8 +123,8 @@ class DLL_LINKAGE CAdventureAI : public CGlobalAI
 public:
 	CAdventureAI() {};
 
-	shared_ptr<CBattleGameInterface> battleAI;
-	shared_ptr<CBattleCallback> cbc;
+	std::shared_ptr<CBattleGameInterface> battleAI;
+	std::shared_ptr<CBattleCallback> cbc;
 
 	virtual std::string getBattleAIName() const = 0; //has to return name of the battle AI to be used
 

@@ -483,10 +483,10 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 					break;
 				case JsonNode::DATA_STRUCT: //customizable limiters
 					{
-						shared_ptr<ILimiter> l;
+						std::shared_ptr<ILimiter> l;
 						if (limiter["type"].String() == "CREATURE_TYPE_LIMITER")
 						{
-							shared_ptr<CCreatureTypeLimiter> l2 = make_shared<CCreatureTypeLimiter>(); //TODO: How the hell resolve pointer to creature?
+							std::shared_ptr<CCreatureTypeLimiter> l2 = std::make_shared<CCreatureTypeLimiter>(); //TODO: How the hell resolve pointer to creature?
 							const JsonVector vec = limiter["parameters"].Vector();
 							VLC->modh->identifiers.requestIdentifier("creature", vec[0], [=](si32 creature)
 							{
@@ -503,7 +503,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 						}
 						if (limiter["type"].String() == "HAS_ANOTHER_BONUS_LIMITER")
 						{
-							shared_ptr<HasAnotherBonusLimiter> l2 = make_shared<HasAnotherBonusLimiter>();
+							std::shared_ptr<HasAnotherBonusLimiter> l2 = std::make_shared<HasAnotherBonusLimiter>();
 							const JsonVector vec = limiter["parameters"].Vector();
 							std::string anotherBonusType = vec[0].String();
 

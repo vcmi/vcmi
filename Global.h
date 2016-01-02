@@ -180,9 +180,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 /* ---------------------------------------------------------------------------- */
 /* Usings */
 /* ---------------------------------------------------------------------------- */
-using std::shared_ptr;
-using std::unique_ptr;
-using std::make_shared;
 using namespace std::placeholders;
 namespace range = boost::range;
 

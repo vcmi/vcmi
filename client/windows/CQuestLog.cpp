@@ -86,7 +86,7 @@ void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 	if (level != tile.z)
 		setLevel(tile.z);
 
-	auto pic = make_shared<CQuestIcon>("VwSymbol.def", 3, x, y);
+	auto pic = std::make_shared<CQuestIcon>("VwSymbol.def", 3, x, y);
 
 	pic->moveBy (Point ( -pic->pos.w/2, -pic->pos.h/2));
 	pic->callback = std::bind (&CQuestMinimap::iconClicked, this);
@@ -179,7 +179,7 @@ void CQuestLog::recreateLabelList()
 			else
 				text.addReplacement(quests[i].obj->getObjectName()); //get name of the object
 		}
-		auto label = make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
+		auto label = std::make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
 		label->disable();
 
 		label->callback = std::bind(&CQuestLog::selectQuest, this, i, currentLabel);

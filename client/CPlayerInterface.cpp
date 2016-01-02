@@ -133,7 +133,7 @@ CPlayerInterface::~CPlayerInterface()
 	if(LOCPLINT == this)
 		LOCPLINT = nullptr;
 }
-void CPlayerInterface::init(shared_ptr<CCallback> CB)
+void CPlayerInterface::init(std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
 	if(observerInDuelMode)

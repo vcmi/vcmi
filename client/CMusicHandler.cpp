@@ -349,7 +349,7 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loo
 	queueNext(this, "", selectedEntry->second, loop);
 }
 
-void CMusicHandler::queueNext(unique_ptr<MusicEntry> queued)
+void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 {
 	if (!initialized)
 		return;

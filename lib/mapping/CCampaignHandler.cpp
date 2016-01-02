@@ -40,7 +40,7 @@ CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 	return ret;
 }
 
-unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
+std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
 {
 	auto ret = make_unique<CCampaign>();
 
@@ -411,7 +411,7 @@ CCampaignState::CCampaignState()
 
 }
 
-CCampaignState::CCampaignState( unique_ptr<CCampaign> _camp ) : camp(std::move(_camp))
+CCampaignState::CCampaignState( std::unique_ptr<CCampaign> _camp ) : camp(std::move(_camp))
 {
 	for(int i = 0; i < camp->scenarios.size(); i++)
 	{

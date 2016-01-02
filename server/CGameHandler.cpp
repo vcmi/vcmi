@@ -225,7 +225,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	}
 	else if(hlu.skills.size() > 1)
 	{
-		auto levelUpQuery = make_shared<CHeroLevelUpDialogQuery>(hlu);
+		auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(hlu);
 		hlu.queryID = levelUpQuery->queryID;
 		queries.addQuery(levelUpQuery);
 		sendAndApply(&hlu);
@@ -363,7 +363,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	}
 	else if(skillAmount > 1) //apply and ask for secondary skill
 	{
-		auto commanderLevelUp = make_shared<CCommanderLevelUpDialogQuery>(clu);
+		auto commanderLevelUp = std::make_shared<CCommanderLevelUpDialogQuery>(clu);
 		clu.queryID = commanderLevelUp->queryID;
 		queries.addQuery(commanderLevelUp);
 		sendAndApply(&clu);
@@ -471,7 +471,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	const CArmedInstance *bEndArmy2 = gs->curB->sides.at(1).armyObject;
 	const BattleResult::EResult result = battleResult.get()->result;
 
-	auto findBattleQuery = [this] () -> shared_ptr<CBattleQuery>
+	auto findBattleQuery = [this] () -> std::shared_ptr<CBattleQuery>
 	{
 		for(auto &q : queries.allQueries())
 		{
@@ -479,7 +479,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 				if(bq->bi == gs->curB)
 					return bq;
 		}
-		return shared_ptr<CBattleQuery>();
+		return std::shared_ptr<CBattleQuery>();
 	};
 
 	auto battleQuery = findBattleQuery();
@@ -488,7 +488,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		logGlobal->errorStream() << "Cannot find battle query!";
 		if(gs->initialOpts->mode == StartInfo::DUEL)
 		{
-			battleQuery = make_shared<CBattleQuery>(gs->curB);
+			battleQuery = std::make_shared<CBattleQuery>(gs->curB);
 		}
 	}
 	if(battleQuery != queries.topQuery(gs->curB->sides[0].color))
@@ -1020,7 +1020,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	}
 	else //for non-flying creatures
 	{
-		shared_ptr<const CObstacleInstance> obstacle, obstacle2; //obstacle that interrupted movement
+		std::shared_ptr<const CObstacleInstance> obstacle, obstacle2; //obstacle that interrupted movement
 		std::vector<BattleHex> tiles;
 		const int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		int v = path.first.size()-1;
@@ -1069,7 +1069,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			//we don't handle obstacle at the destination tile -> it's handled separately in the if at the end
 			if(curStack->position != dest)
 			{
-				auto processObstacle = [&](shared_ptr<const CObstacleInstance> & obs)
+				auto processObstacle = [&](std::shared_ptr<const CObstacleInstance> & obs)
 				{
 					if(obs)
 					{
@@ -1825,7 +1825,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	{
 		LOG_TRACE_PARAMS(logGlobal, "Hero %s starts movement from %s to %s", h->name % tmh.start % tmh.end);
 
-		auto moveQuery = make_shared<CHeroMovementQuery>(tmh, h);
+		auto moveQuery = std::make_shared<CHeroMovementQuery>(tmh, h);
 		queries.addQuery(moveQuery);
 
 		if(leavingTile == LEAVING_TILE)
@@ -2000,7 +2000,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 
 void CGameHandler::showBlockingDialog( BlockingDialog *iw )
 {
-	auto dialogQuery = make_shared<CBlockingDialogQuery>(*iw);
+	auto dialogQuery = std::make_shared<CBlockingDialogQuery>(*iw);
 	queries.addQuery(dialogQuery);
 	iw->queryID = dialogQuery->queryID;
 	sendToAllClients(iw);
@@ -2008,7 +2008,7 @@ void CGameHandler::showBlockingDialog( BlockingDialog *iw )
 
 void CGameHandler::showTeleportDialog( TeleportDialog *iw )
 {
-	auto dialogQuery = make_shared<CTeleportDialogQuery>(*iw);
+	auto dialogQuery = std::make_shared<CTeleportDialogQuery>(*iw);
 	queries.addQuery(dialogQuery);
 	iw->queryID = dialogQuery->queryID;
 	sendToAllClients(iw);
@@ -2135,7 +2135,7 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 
 	setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
-	auto battleQuery = make_shared<CBattleQuery>(gs->curB);
+	auto battleQuery = std::make_shared<CBattleQuery>(gs->curB);
 	queries.addQuery(battleQuery);
 
 	boost::thread(&CGameHandler::runBattle, this);
@@ -2302,7 +2302,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 
 	if( gameState()->getPlayerRelations(h1->getOwner(), h2->getOwner()))
 	{
-		auto exchange = make_shared<CGarrisonDialogQuery>(h1, h2);
+		auto exchange = std::make_shared<CGarrisonDialogQuery>(h1, h2);
 		ExchangeDialog hex;
 		hex.queryID = exchange->queryID;
 		hex.heroes[0] = getHero(hero1);
@@ -4563,7 +4563,7 @@ void CGameHandler::showGarrisonDialog( ObjectInstanceID upobj, ObjectInstanceID 
 	assert(lowerArmy);
 	assert(upperArmy);
 
-	auto garrisonQuery = make_shared<CGarrisonDialogQuery>(upperArmy, lowerArmy);
+	auto garrisonQuery = std::make_shared<CGarrisonDialogQuery>(upperArmy, lowerArmy);
 	queries.addQuery(garrisonQuery);
 
 	GarrisonDialog gd;
@@ -4634,7 +4634,7 @@ bool CGameHandler::isAllowedExchange( ObjectInstanceID id1, ObjectInstanceID id2
 void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h )
 {
 	logGlobal->debugStream()  << h->nodeName() << " visits " << obj->getObjectName() << "(" << obj->ID << ":" << obj->subID << ")";
-	auto visitQuery = make_shared<CObjectVisitQuery>(obj, h, obj->visitablePos());
+	auto visitQuery = std::make_shared<CObjectVisitQuery>(obj, h, obj->visitablePos());
 	queries.addQuery(visitQuery); //TODO real visit pos
 
 	HeroVisit hv;
@@ -5899,7 +5899,7 @@ void CasualtiesAfterBattle::takeFromArmy(CGameHandler *gh)
 	}
 }
 
-CGameHandler::FinishingBattleHelper::FinishingBattleHelper(shared_ptr<const CBattleQuery> Query, bool Duel, int RemainingBattleQueriesCount)
+CGameHandler::FinishingBattleHelper::FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, bool Duel, int RemainingBattleQueriesCount)
 {
 	assert(Query->result);
 	assert(Query->bi);

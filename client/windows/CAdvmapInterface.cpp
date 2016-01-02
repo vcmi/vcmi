@@ -55,7 +55,6 @@
  */
 
 #define ADVOPT (conf.go()->ac)
-using namespace boost::logic;
 using namespace CSDL_Ext;
 
 CAdvMapInt *adventureInt;

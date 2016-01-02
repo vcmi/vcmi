@@ -14,7 +14,7 @@
 
 namespace GameConstants
 {
-	const std::string VCMI_VERSION = "VCMI 0.98f";
+	const std::string VCMI_VERSION = "VCMI 0.98g";
 
 	const int BFIELD_WIDTH = 17;
 	const int BFIELD_HEIGHT = 11;
