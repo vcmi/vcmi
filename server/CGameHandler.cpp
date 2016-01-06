@@ -2383,7 +2383,7 @@ void CGameHandler::save(const std::string & filename )
 // 		}
 
 		{
-			CSaveFile save(*CResourceHandler::get("local")->getResourceName(ResourceID(info.getStem(), EResType::SERVER_SAVEGAME)));
+			CSaveFile save(CResourceHandler::get("local")->getResourceName(ResourceID(info.getStem(), EResType::SERVER_SAVEGAME))->string());
 			saveCommonState(save);
             logGlobal->infoStream() << "Saving server state";
 			save << *this;
