@@ -19,13 +19,13 @@ class DLL_LINKAGE CLoadIntegrityValidator
 {
 public:
 	BinaryDeserializer serializer;
-	unique_ptr<CLoadFile> primaryFile, controlFile;
+	std::unique_ptr<CLoadFile> primaryFile, controlFile;
 	bool foundDesync;
 
 	CLoadIntegrityValidator(const std::string &primaryFileName, const std::string &controlFileName, int minimalVersion = version); //throws!
 
-	int read( void * data, unsigned size) override; //throws!
+	int read(void * data, unsigned size) override; //throws!
 	void checkMagicBytes(const std::string &text);
 
-	unique_ptr<CLoadFile> decay(); //returns primary file. CLoadIntegrityValidator stops being usable anymore
+	std::unique_ptr<CLoadFile> decay(); //returns primary file. CLoadIntegrityValidator stops being usable anymore
 };

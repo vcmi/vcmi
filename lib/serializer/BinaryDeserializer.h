@@ -335,7 +335,7 @@ public:
 	}
 
 	template <typename T>
-	void load(shared_ptr<T> &data)
+	void load(std::shared_ptr<T> &data)
 	{
 		typedef typename std::remove_const<T>::type NonConstT;
 		NonConstT *internalPtr;
@@ -386,7 +386,7 @@ public:
 			data.reset();
 	}
 	template <typename T>
-	void load(unique_ptr<T> &data)
+	void load(std::unique_ptr<T> &data)
 	{
 		T *internalPtr;
 		load( internalPtr );
@@ -512,7 +512,7 @@ public:
 	BinaryDeserializer serializer;
 
 	std::string fName;
-	unique_ptr<boost::filesystem::ifstream> sfile;
+	std::unique_ptr<boost::filesystem::ifstream> sfile;
 
 	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = version); //throws!
 	~CLoadFile();
