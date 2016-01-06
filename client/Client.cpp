@@ -59,8 +59,8 @@ template <typename T> class CApplyOnCL;
 class CBaseForCLApply
 {
 public:
-	virtual void applyOnClAfter(CClient *cl, void *pack) const =0; 
-	virtual void applyOnClBefore(CClient *cl, void *pack) const =0; 
+	virtual void applyOnClAfter(CClient *cl, void *pack) const =0;
+	virtual void applyOnClBefore(CClient *cl, void *pack) const =0;
 	virtual ~CBaseForCLApply(){}
 
 	template<typename U> static CBaseForCLApply *getApplier(const U * t=nullptr)
@@ -144,7 +144,7 @@ void CClient::waitForMoveAndSend(PlayerColor color)
 		{
 			logNetwork->traceStream() << "Send battle action to server: " << ba;
 			MakeAction temp_action(ba);
-			sendRequest(&temp_action, color);			
+			sendRequest(&temp_action, color);
 		}
 		return;
 	}
@@ -169,8 +169,8 @@ void CClient::run()
 		while(!terminate)
 		{
 			CPack *pack = serv->retreivePack(); //get the package from the server
-			
-			if (terminate) 
+
+			if (terminate)
 			{
 				vstd::clear_pointer(pack);
 				break;
@@ -178,10 +178,10 @@ void CClient::run()
 
 			handlePack(pack);
 		}
-	} 
+	}
 	//catch only asio exceptions
 	catch (const boost::system::system_error& e)
-	{	
+	{
         logNetwork->errorStream() << "Lost connection to server, ending listening thread!";
         logNetwork->errorStream() << e.what();
 		if(!terminate) //rethrow (-> boom!) only if closing connection was unexpected
@@ -267,8 +267,8 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 	std::unique_ptr<CLoadFile> loader;
 	try
 	{
-		std::string clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
-		std::string controlServerSaveName;
+		boost::filesystem::path clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
+		boost::filesystem::path controlServerSaveName;
 
 		if (CResourceHandler::get("local")->existsResource(ResourceID(fname, EResType::SERVER_SAVEGAME)))
 		{
@@ -276,7 +276,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 		}
 		else// create entry for server savegame. Triggered if save was made after launch and not yet present in res handler
 		{
-			controlServerSaveName = clientSaveName.substr(0, clientSaveName.find_last_of(".")) + ".vsgm1";
+			controlServerSaveName = clientSaveName.stem() / ".vsgm1";
 			CResourceHandler::get("local")->createResource(controlServerSaveName, true);
 		}
 
@@ -320,7 +320,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
          *serv << ui8(3) << ui8(loadNumPlayers); //load game; one client if single-player
          *serv << fname;
          *serv >> pom8;
-         if(pom8) 
+         if(pom8)
               throw std::runtime_error("Server cannot open the savegame!");
          else
               logNetwork->infoStream() << "Server opened savegame properly.";
@@ -376,7 +376,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 {
 	enum {SINGLE, HOST, GUEST} networkMode = SINGLE;
 
-	if (con == nullptr) 
+	if (con == nullptr)
 	{
 		CServerHandler sh;
 		serv = sh.connectToServer();
@@ -459,7 +459,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 				logNetwork->infoStream() << boost::format("Player %s will be lead by %s") % color % AiToGive;
 				installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 			}
-			else 
+			else
 			{
 				installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 				humanPlayers++;
@@ -502,7 +502,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 // 		nm->giveActionCB(this);
 // 		nm->giveInfoCB(this);
 // 		nm->init();
-// 
+//
 // 		erm = nm; //something tells me that there'll at most one module and it'll be ERM
 // 	}
 }
@@ -510,7 +510,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 void CClient::serialize(COSer & h, const int version)
 {
 	assert(h.saving);
-	h & hotSeat;	
+	h & hotSeat;
 	{
 		ui8 players = playerint.size();
 		h & players;
@@ -520,7 +520,7 @@ void CClient::serialize(COSer & h, const int version)
 			LOG_TRACE_PARAMS(logGlobal, "Saving player %s interface", i->first);
 			assert(i->first == i->second->playerID);
 			h & i->first & i->second->dllName & i->second->human;
-			i->second->saveGame(h, version); 			
+			i->second->saveGame(h, version);
 		}
 	}
 }
@@ -536,7 +536,7 @@ void CClient::serialize(CISer & h, const int version)
 		for(int i=0; i < players; i++)
 		{
 			std::string dllname;
-			PlayerColor pid; 
+			PlayerColor pid;
 			bool isHuman = false;
 
 			h & pid & dllname & isHuman;
@@ -548,7 +548,7 @@ void CClient::serialize(CISer & h, const int version)
 				if(pid == PlayerColor::NEUTRAL)
 				{
 					installNewBattleInterface(CDynLibHandler::getNewBattleAI(dllname), pid);
-					//TODO? consider serialization 
+					//TODO? consider serialization
 					continue;
 				}
 				else
@@ -589,7 +589,7 @@ void CClient::serialize(COSer & h, const int version, const std::set<PlayerColor
 			LOG_TRACE_PARAMS(logGlobal, "Saving player %s interface", i->first);
 			assert(i->first == i->second->playerID);
 			h & i->first & i->second->dllName & i->second->human;
-			i->second->saveGame(h, version); 			
+			i->second->saveGame(h, version);
 		}
 	}
 }
@@ -605,7 +605,7 @@ void CClient::serialize(CISer & h, const int version, const std::set<PlayerColor
 		for(int i=0; i < players; i++)
 		{
 			std::string dllname;
-			PlayerColor pid; 
+			PlayerColor pid;
 			bool isHuman = false;
 
 			h & pid & dllname & isHuman;
@@ -618,7 +618,7 @@ void CClient::serialize(CISer & h, const int version, const std::set<PlayerColor
 				{
                     if(playerIDs.count(pid))
                        installNewBattleInterface(CDynLibHandler::getNewBattleAI(dllname), pid);
-					//TODO? consider serialization 
+					//TODO? consider serialization
 					continue;
 				}
 				else
@@ -640,7 +640,7 @@ void CClient::serialize(CISer & h, const int version, const std::set<PlayerColor
             if(playerIDs.count(pid))
                  installNewPlayerInterface(nInt, pid);
 
-            nInt->loadGame(h, version);       
+            nInt->loadGame(h, version);
 		}
 
 		if(playerIDs.count(PlayerColor::NEUTRAL))
@@ -714,7 +714,7 @@ void CClient::battleStarted(const BattleInfo * info)
 {
 	for(auto &battleCb : battleCallbacks)
 	{
-		if(vstd::contains_if(info->sides, [&](const SideInBattle& side) {return side.color == battleCb.first; })  
+		if(vstd::contains_if(info->sides, [&](const SideInBattle& side) {return side.color == battleCb.first; })
 			||  battleCb.first >= PlayerColor::PLAYER_LIMIT)
 		{
 			battleCb.second->setBattle(info);
@@ -742,7 +742,7 @@ void CClient::battleStarted(const BattleInfo * info)
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 		auto bi = new CBattleInterface(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero,
-			Rect((screen->w - 800)/2, 
+			Rect((screen->w - 800)/2,
 			     (screen->h - 600)/2, 800, 600), att, def);
 
 		GH.pushInt(bi);
@@ -805,7 +805,7 @@ void CClient::commenceTacticPhaseForInt(std::shared_ptr<CBattleGameInterface> ba
 	catch(...)
 	{
 		handleException();
-	}	
+	}
 }
 
 void CClient::invalidatePaths()
@@ -889,7 +889,7 @@ void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> ba
 	boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
 
-	if(!color) 
+	if(!color)
 		privilagedBattleEventReceivers.push_back(battleInterface);
 
 	battleints[colorUsed] = battleInterface;
@@ -961,7 +961,7 @@ CConnection * CServerHandler::connectToServer()
 #endif
 
 	th.update(); //put breakpoint here to attach to server before it does something stupid
-    
+
 	CConnection *ret = justConnectToServer(settings["server"]["server"].String(), port);
 
 	if(verbose)
@@ -1033,7 +1033,7 @@ CConnection * CServerHandler::justConnectToServer(const std::string &host, const
 		try
 		{
             logNetwork->infoStream() << "Establishing connection...";
-			ret = new CConnection(	host.size() ? host : settings["server"]["server"].String(), 
+			ret = new CConnection(	host.size() ? host : settings["server"]["server"].String(),
 									realPort,
 									NAME);
 		}
