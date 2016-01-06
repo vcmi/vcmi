@@ -21,6 +21,7 @@ class CLegacyConfigParser;
 class JsonNode;
 class CTown;
 class CFaction;
+struct BattleHex;
 
 /// a typical building encountered in every castle ;]
 /// this is structure available to both client and server
@@ -156,6 +157,7 @@ public:
 	ui16 primaryRes;
 	ArtifactID warMachine;
 	si32 moatDamage;
+	std::vector<BattleHex> moatHexes;
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
 	// resulting chance = sqrt(town.chance * heroClass.chance)
 	ui32 defaultTavernChance;
@@ -205,7 +207,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & names & faction & creatures & dwellings & dwellingNames & buildings & hordeLvl & mageLevel
-			& primaryRes & warMachine & clientInfo & moatDamage & defaultTavernChance;
+			& primaryRes & warMachine & clientInfo & moatDamage & moatHexes & defaultTavernChance;
 
 		auto findNull = [](const std::pair<BuildingID, ConstTransitivePtr<CBuilding>> &building)
 		{ return building.second == nullptr; };

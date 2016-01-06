@@ -13,6 +13,7 @@
 #include "filesystem/Filesystem.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
+#include "BattleHex.h"
 
 /*
  * CTownHandler.cpp, part of VCMI engine
@@ -542,6 +543,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 
 	town.moatDamage = source["moatDamage"].Float();
 
+	town.moatHexes = source["moatHexes"].convertTo<std::vector<BattleHex> >();
 	
 
 	town.mageLevel = source["mageGuild"].Float();
