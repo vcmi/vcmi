@@ -327,13 +327,13 @@ BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
 	}
 }
 
-void CStupidAI::saveGame(COSer & h, const int version)
+void CStupidAI::saveGame(BinarySerializer & h, const int version)
 {
 	//TODO to be implemented with saving/loading during the battles
 	assert(0);
 }
 
-void CStupidAI::loadGame(CISer & h, const int version)
+void CStupidAI::loadGame(BinaryDeserializer & h, const int version)
 {
 	//TODO to be implemented with saving/loading during the battles
 	assert(0);

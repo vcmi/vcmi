@@ -1,7 +1,7 @@
 #include "StdInc.h"
 
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/CFileInfo.h"
+#include "../lib/filesystem/ResourceID.h"
 #include "SDL.h"
 #include "SDL_image.h"
 #include "CBitmapHandler.h"

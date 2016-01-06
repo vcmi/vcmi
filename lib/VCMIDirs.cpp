@@ -262,9 +262,9 @@ bfs::path VCMIDirsWIN32::userDataPath() const
 
 	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
 	{
-		wchar_t shortPath[MAX_PATH];
-		if (GetShortPathNameW(profileDir, shortPath, MAX_PATH) <= MAX_PATH)
-			return bfs::path(shortPath) / "My Games\\vcmi";
+		//wchar_t shortPath[MAX_PATH];
+		//if (GetShortPathNameW(profileDir, shortPath, MAX_PATH) <= MAX_PATH)
+			return bfs::path(profileDir) / "My Games\\vcmi";
 	}
 
 	return ".";

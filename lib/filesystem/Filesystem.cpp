@@ -1,8 +1,6 @@
 #include "StdInc.h"
 #include "Filesystem.h"
 
-#include "CFileInfo.h"
-
 #include "CArchiveLoader.h"
 #include "CFilesystemLoader.h"
 #include "AdapterLoaders.h"
@@ -131,6 +129,7 @@ ISimpleResourceLoader * CResourceHandler::createInitial()
 			if (filename)
 			{
 				auto dir = new CFilesystemLoader(URI + '/', *filename, depth, true);
+
 				initialLoader->addLoader(dir, false);
 			}
 		}

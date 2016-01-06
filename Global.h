@@ -108,6 +108,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define STRONG_INLINE inline
 #endif
 
+#define TO_STRING_HELPER(x) #x
+#define TO_STRING(x) TO_STRING_HELPER(x)
+#define LINE_IN_FILE __FILE__ ":" TO_STRING(__LINE__)
+
 #define _USE_MATH_DEFINES
 
 #include <cstdio>
@@ -217,7 +221,6 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 #  ifdef __GNUC__
 #    define DLL_IMPORT	__attribute__ ((visibility("default")))
 #    define DLL_EXPORT __attribute__ ((visibility("default")))
-#    define ELF_VISIBILITY __attribute__ ((visibility("default")))
 #    define ELF_VISIBILITY __attribute__ ((visibility("default")))
 #  endif
 #endif

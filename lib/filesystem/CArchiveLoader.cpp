@@ -5,7 +5,6 @@
 #include "CCompressedStream.h"
 
 #include "CBinaryReader.h"
-#include "CFileInfo.h"
 
 ArchiveEntry::ArchiveEntry()
 	: offset(0), fullSize(0), compressedSize(0)

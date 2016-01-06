@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "../../lib/CStopWatch.h"
 #include "Geometries.h"
 #include "SDL_Extensions.h"
 
