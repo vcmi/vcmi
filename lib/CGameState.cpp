@@ -1658,7 +1658,7 @@ void CGameState::initStartingBonus()
 		switch(scenarioOps->playerInfos[elem.first].bonus)
 		{
 		case PlayerSettings::GOLD:
-			elem.second.resources[Res::GOLD] += rand.nextInt(500, 1000);
+			elem.second.resources[Res::GOLD] += rand.nextInt(5, 10) * 100;
 			break;
 		case PlayerSettings::RESOURCE:
 			{
