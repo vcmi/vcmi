@@ -1246,6 +1246,8 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 			for (auto treasure : treasures)
 			{
 				int3 visitableOffset = treasure.second->getVisitableOffset();
+				if (treasure.second->ID == Obj::SEER_HUT) //FIXME: find generic solution or figure out why Seer Hut doesn't behave correctly
+					visitableOffset.x += 1;
 				placeObject(gen, treasure.second, treasure.first + visitableOffset);
 			}
 			if (addMonster(gen, guardPos, currentValue, false))
