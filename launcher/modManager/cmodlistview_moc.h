@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Global.h"
+#include "StdInc.h"
 #include "../../lib/CConfigHandler.h"
 
 namespace Ui {
@@ -55,7 +55,7 @@ class CModListView : public QWidget
 public:
 	explicit CModListView(QWidget *parent = 0);
 	~CModListView();
-	
+
 	void showModInfo();
 	void hideModInfo();
 	void loadScreenshots();

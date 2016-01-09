@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include "jsonutils.h"
+#include "../lib/filesystem/FileStream.h"
 
 static QVariantMap JsonToMap(const JsonMap & json)
 {
@@ -96,7 +97,11 @@ JsonNode toJson(QVariant object)
 
 void JsonToFile(QString filename, QVariant object)
 {
-	std::ofstream file(filename.toUtf8().data(), std::ofstream::binary);
+	#ifdef _WIN32
+	FileStream file(boost::filesystem::path(filename.toStdWString()), std::ios::out | std::ios_base::binary);
+	#else
+	FileStream file(boost::filesystem::path(filename.toUtf8().data()), std::ios::out | std::ios_base::binary);
+	#endif
 
 	file << toJson(object);
 }

@@ -11,6 +11,7 @@
  */
 
 #include "CInputStream.h"
+#include "FileStream.h"
 
 class CFileInfo;
 
@@ -94,5 +95,5 @@ private:
 	si64 dataSize;
 
 	/** Native c++ input file stream object. */
-	boost::filesystem::ifstream fileStream;
+	FileStream fileStream;
 };

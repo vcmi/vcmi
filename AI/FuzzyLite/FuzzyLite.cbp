@@ -50,6 +50,7 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-std=c++11" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
