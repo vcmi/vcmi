@@ -299,6 +299,16 @@ void CObjectClassesHandler::afterLoadFinalization()
 				logGlobal->warnStream() << "No templates found for " << entry.first << ":" << obj.first;
 		}
 	}
+
+	//duplicate existing two-way portals to make reserve for RMG
+	auto& portalVec = objects[Obj::MONOLITH_TWO_WAY]->objects;
+	size_t portalCount = portalVec.size();
+	size_t currentIndex = portalCount;
+	while (portalVec.size() < 100)
+	{
+		portalVec[currentIndex] = portalVec[currentIndex % portalCount];
+		currentIndex++;
+	}
 }
 
 std::string CObjectClassesHandler::getObjectName(si32 type) const
