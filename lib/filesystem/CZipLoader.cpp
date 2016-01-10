@@ -14,9 +14,10 @@
  *
  */
 
-CZipStream::CZipStream(const std::string & archive, unz_file_pos filepos)
+CZipStream::CZipStream(const boost::filesystem::path & archive, unz_file_pos filepos)
 {
-	file = unzOpen(archive.c_str());
+	// TODO: when later on minizip supports unicode filenames, remove .string() below
+	file = unzOpen(archive.string().c_str());
 	unzGoToFilePos(file, &filepos);
 	unzOpenCurrentFile(file);
 }
@@ -46,7 +47,7 @@ ui32 CZipStream::calculateCRC32()
 	return info.crc;
 }
 
-CZipLoader::CZipLoader(const std::string & mountPoint, const std::string & archive):
+CZipLoader::CZipLoader(const std::string & mountPoint, const boost::filesystem::path & archive):
     archiveName(archive),
     mountPoint(mountPoint),
     files(listFiles(mountPoint, archive))
@@ -54,11 +55,12 @@ CZipLoader::CZipLoader(const std::string & mountPoint, const std::string & archi
 	logGlobal->traceStream() << "Zip archive loaded, " << files.size() << " files found";
 }
 
-std::unordered_map<ResourceID, unz_file_pos> CZipLoader::listFiles(const std::string & mountPoint, const std::string & archive)
+std::unordered_map<ResourceID, unz_file_pos> CZipLoader::listFiles(const std::string & mountPoint, const boost::filesystem::path & archive)
 {
 	std::unordered_map<ResourceID, unz_file_pos> ret;
 
-	unzFile file = unzOpen(archive.c_str());
+	// TODO: when later on minizip supports unicode filenames, remove .string() below
+	unzFile file = unzOpen(archive.string().c_str());
 
 	if (unzGoToFirstFile(file) == UNZ_OK)
 	{

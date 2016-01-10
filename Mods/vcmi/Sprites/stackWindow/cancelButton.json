@@ -1,8 +1,0 @@
-{
-	"basepath" : "stackWindow/",
-	"images" :
-	[
-		{ "frame" : 0, "file" : "cancel-normal.png"},
-		{ "frame" : 1, "file" : "cancel-pressed.png"}
-	]
-}

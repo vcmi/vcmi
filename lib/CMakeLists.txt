@@ -55,13 +55,21 @@ set(lib_SRCS
 		rmg/CZoneGraphGenerator.cpp
 		rmg/CZonePlacer.cpp
 
+		serializer/BinaryDeserializer.cpp
+		serializer/BinarySerializer.cpp
+		serializer/CLoadIntegrityValidator.cpp
+		serializer/CMemorySerializer.cpp
+		serializer/Connection.cpp
+		serializer/CSerializer.cpp
+		serializer/CTypeList.cpp
+
 		spells/CSpellHandler.cpp
 		spells/ISpellMechanics.cpp
-        spells/AdventureSpellMechanics.cpp
-        spells/BattleSpellMechanics.cpp
-        spells/CreatureSpellMechanics.cpp
-        spells/CDefaultSpellMechanics.cpp
-        spells/ViewSpellInt.cpp
+		spells/AdventureSpellMechanics.cpp
+		spells/BattleSpellMechanics.cpp
+		spells/CreatureSpellMechanics.cpp
+		spells/CDefaultSpellMechanics.cpp
+		spells/ViewSpellInt.cpp
 
 		BattleAction.cpp
 		BattleHex.cpp
@@ -97,7 +105,6 @@ set(lib_SRCS
 		CGameInfoCallback.cpp
 		CPathfinder.cpp
 		CGameState.cpp
-		Connection.cpp
 		NetPacksLib.cpp
 
 		registerTypes/RegisterTypes.cpp

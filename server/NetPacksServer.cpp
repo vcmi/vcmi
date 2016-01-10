@@ -7,6 +7,7 @@
 #include "../lib/CGameState.h"
 #include "../lib/BattleState.h"
 #include "../lib/BattleAction.h"
+#include "../lib/serializer/Connection.h"
 
 
 #define PLAYER_OWNS(id) (gh->getPlayerAt(c)==gh->getOwner(id))

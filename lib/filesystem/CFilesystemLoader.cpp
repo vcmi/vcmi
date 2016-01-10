@@ -1,8 +1,8 @@
 #include "StdInc.h"
 #include "CFilesystemLoader.h"
 
-#include "CFileInfo.h"
 #include "CFileInputStream.h"
+#include "FileStream.h"
 
 namespace bfs = boost::filesystem;
 
@@ -32,11 +32,11 @@ std::string CFilesystemLoader::getMountPoint() const
 	return mountPoint;
 }
 
-boost::optional<std::string> CFilesystemLoader::getResourceName(const ResourceID & resourceName) const
+boost::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const ResourceID & resourceName) const
 {
 	assert(existsResource(resourceName));
 
-	return (baseDirectory / fileList.at(resourceName)).string();
+	return baseDirectory / fileList.at(resourceName);
 }
 
 std::unordered_set<ResourceID> CFilesystemLoader::getFilteredFiles(std::function<bool(const ResourceID &)> filter) const
@@ -68,8 +68,7 @@ bool CFilesystemLoader::createResource(std::string filename, bool update)
 
 	if (!update)
 	{
-		bfs::ofstream newfile(baseDirectory / filename);
-		if (!newfile.good())
+		if (!FileStream::CreateFile(baseDirectory / filename))
 			return false;
 	}
 	fileList[resID] = filename;

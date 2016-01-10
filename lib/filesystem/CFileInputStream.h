@@ -11,8 +11,7 @@
  */
 
 #include "CInputStream.h"
-
-class CFileInfo;
+#include "FileStream.h"
 
 /**
  * A class which provides method definitions for reading a file from the filesystem.
@@ -26,13 +25,6 @@ public:
 	 * @see CFileInputStream::open
 	 */
 	CFileInputStream(const boost::filesystem::path & file, si64 start = 0, si64 size = 0);
-
-	/**
-	 * C-tor. Opens the specified file.
-	 *
-	 * @see CFileInputStream::open
-	 */
-	CFileInputStream(const CFileInfo & file, si64 start=0, si64 size=0);
 
 	/**
 	 * D-tor. Calls the close method implicitely, if the file is still opened.
@@ -94,5 +86,5 @@ private:
 	si64 dataSize;
 
 	/** Native c++ input file stream object. */
-	boost::filesystem::ifstream fileStream;
+	FileStream fileStream;
 };

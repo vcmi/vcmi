@@ -2,8 +2,6 @@
 
 
 #include "../lib/HeroBonus.h"
-//#include "../lib/ConstTransitivePtr.h"
-//#include "JsonNode.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 

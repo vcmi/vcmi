@@ -48,9 +48,9 @@ public:
 	 *
 	 * @return path or empty optional if file can't be accessed independently (e.g. file in archive)
 	 */
-	virtual boost::optional<std::string> getResourceName(const ResourceID & resourceName) const
+	virtual boost::optional<boost::filesystem::path> getResourceName(const ResourceID & resourceName) const
 	{
-		return boost::optional<std::string>();
+		return boost::optional<boost::filesystem::path>();
 	}
 
 	/**

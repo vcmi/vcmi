@@ -4,7 +4,7 @@
 	<Project>
 		<Option title="VCMI_lib" />
 		<Option execution_dir="D:/projects/vcmi/engine/VCMI_lib/" />
-		<Option pch_mode="2" />
+		<Option pch_mode="0" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug-win32">
@@ -17,8 +17,8 @@
 				<Option run_host_application_in_terminal="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-Og" />
 					<Add option="-g" />
+					<Add option="-Og" />
 					<Add directory="$(#zlib.include)" />
 				</Compiler>
 				<Linker>
@@ -34,7 +34,7 @@
 					<Add option="-liconv" />
 					<Add option="-ldbghelp" />
 					<Add directory="$(#sdl2.lib)" />
-					<Add directory="$(#boost.lib32)" />
+					<Add directory="$(#boost.lib)" />
 					<Add directory="$(#zlib.lib)" />
 				</Linker>
 			</Target>
@@ -62,7 +62,6 @@
 					<Add option="-lboost_locale$(#boost.libsuffix)" />
 					<Add option="-lboost_date_time$(#boost.libsuffix)" />
 					<Add option="-liconv" />
-					<Add option="-ldbghelp" />
 					<Add directory="$(#sdl2.lib)" />
 					<Add directory="$(#boost.lib32)" />
 					<Add directory="$(#zlib.lib)" />
@@ -101,6 +100,7 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-std=c++11" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
@@ -110,9 +110,13 @@
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-Wno-unused-local-typedefs" />
+			<Add option="-Winvalid-pch" />
+			<Add option="-msse2" />
 			<Add option="-DVCMI_DLL" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
+			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
+			<Add option="-D_WIN32" />
 			<Add directory="$(#boost.include)" />
 			<Add directory="../include" />
 			<Add directory="../lib" />
@@ -170,8 +174,6 @@
 		<Unit filename="CTownHandler.cpp" />
 		<Unit filename="CTownHandler.h" />
 		<Unit filename="CondSh.h" />
-		<Unit filename="Connection.cpp" />
-		<Unit filename="Connection.h" />
 		<Unit filename="ConstTransitivePtr.h" />
 		<Unit filename="FunctionList.h" />
 		<Unit filename="GameConstants.cpp" />
@@ -199,8 +201,8 @@
 		<Unit filename="ScopeGuard.h" />
 		<Unit filename="StartInfo.h" />
 		<Unit filename="StdInc.h">
+			<Option compile="1" />
 			<Option weight="0" />
-			<Option target="Debug-win64" />
 		</Unit>
 		<Unit filename="StringConstants.h" />
 		<Unit filename="UnlockGuard.h" />
@@ -227,6 +229,8 @@
 		<Unit filename="filesystem/CMemoryStream.h" />
 		<Unit filename="filesystem/CZipLoader.cpp" />
 		<Unit filename="filesystem/CZipLoader.h" />
+		<Unit filename="filesystem/FileStream.cpp" />
+		<Unit filename="filesystem/FileStream.h" />
 		<Unit filename="filesystem/Filesystem.cpp" />
 		<Unit filename="filesystem/Filesystem.h" />
 		<Unit filename="filesystem/ISimpleResourceLoader.h" />
@@ -307,6 +311,20 @@
 		<Unit filename="rmg/CZoneGraphGenerator.h" />
 		<Unit filename="rmg/CZonePlacer.cpp" />
 		<Unit filename="rmg/CZonePlacer.h" />
+		<Unit filename="serializer/BinaryDeserializer.cpp" />
+		<Unit filename="serializer/BinaryDeserializer.h" />
+		<Unit filename="serializer/BinarySerializer.cpp" />
+		<Unit filename="serializer/BinarySerializer.h" />
+		<Unit filename="serializer/CLoadIntegrityValidator.cpp" />
+		<Unit filename="serializer/CLoadIntegrityValidator.h" />
+		<Unit filename="serializer/CMemorySerializer.cpp" />
+		<Unit filename="serializer/CMemorySerializer.h" />
+		<Unit filename="serializer/CSerializer.cpp" />
+		<Unit filename="serializer/CSerializer.h" />
+		<Unit filename="serializer/CTypeList.cpp" />
+		<Unit filename="serializer/CTypeList.h" />
+		<Unit filename="serializer/Connection.cpp" />
+		<Unit filename="serializer/Connection.h" />
 		<Unit filename="spells/AdventureSpellMechanics.cpp" />
 		<Unit filename="spells/AdventureSpellMechanics.h" />
 		<Unit filename="spells/BattleSpellMechanics.cpp" />

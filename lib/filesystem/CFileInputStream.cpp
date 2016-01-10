@@ -8,11 +8,6 @@ CFileInputStream::CFileInputStream(const boost::filesystem::path & file, si64 st
 	open(file, start, size);
 }
 
-CFileInputStream::CFileInputStream(const CFileInfo & file, si64 start, si64 size)
-{
-	open(file.getName(), start, size);
-}
-
 CFileInputStream::~CFileInputStream()
 {
 	fileStream.close();

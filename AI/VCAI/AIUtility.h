@@ -5,7 +5,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
-#include "../../lib/Connection.h"
+#include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/CStopWatch.h"
 
 /*
@@ -19,6 +19,9 @@
  */
 
 class CCallback;
+class CArmedInstance;
+class CGTownInstance;
+struct TerrainTile;
 
 typedef const int3& crint3;
 typedef const std::string& crstring;
