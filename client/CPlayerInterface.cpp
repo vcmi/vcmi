@@ -647,6 +647,8 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 		autofightingAI->battleStart(army1, army2, int3(0,0,0), hero1, hero2, side);
 		isAutoFightOn = true;
 		cb->registerBattleInterface(autofightingAI);
+		// Player shouldn't be able to move on adventure map if quick combat is going
+		adventureInt->quickCombatLock();
 	}
 
 	//Don't wait for dialogs when we are non-active hot-seat player
@@ -843,6 +845,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 		isAutoFightOn = false;
 		cb->unregisterBattleInterface(autofightingAI);
 		autofightingAI.reset();
+		adventureInt->quickCombatUnlock();
 
 		if(!battleInt)
 		{

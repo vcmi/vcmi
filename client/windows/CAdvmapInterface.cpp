@@ -1707,6 +1707,18 @@ void CAdvMapInt::adjustActiveness(bool aiTurnStart)
 		activate();
 }
 
+void CAdvMapInt::quickCombatLock()
+{
+	if(!duringAITurn)
+		deactivate();
+}
+
+void CAdvMapInt::quickCombatUnlock()
+{
+	if(!duringAITurn)
+		activate();
+}
+
 void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale /* = 0.4f */)
 {
 	if (mode != newMode)
