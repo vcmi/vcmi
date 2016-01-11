@@ -322,18 +322,21 @@ void CTerrainRect::showAnim(SDL_Surface * to)
 		show(to); // currently the same; maybe we should pass some flag to map handler so it redraws ONLY tiles that need redraw instead of full
 }
 
-int3 CTerrainRect::whichTileIsIt(const int & x, const int & y)
+int3 CTerrainRect::whichTileIsIt(const int x, const int y)
 {
 	int3 ret;
-	ret.x = adventureInt->position.x + ((GH.current->motion.x-CGI->mh->offsetX-pos.x)/32);
-	ret.y = adventureInt->position.y + ((GH.current->motion.y-CGI->mh->offsetY-pos.y)/32);
+	ret.x = adventureInt->position.x + ((x-CGI->mh->offsetX-pos.x)/32);
+	ret.y = adventureInt->position.y + ((y-CGI->mh->offsetY-pos.y)/32);
 	ret.z = adventureInt->position.z;
 	return ret;
 }
 
 int3 CTerrainRect::whichTileIsIt()
 {
-	return whichTileIsIt(GH.current->motion.x,GH.current->motion.y);
+	if(GH.current)
+		return whichTileIsIt(GH.current->motion.x,GH.current->motion.y);
+	else
+		return int3(-1);
 }
 
 int3 CTerrainRect::tileCountOnScreen()
@@ -1701,6 +1704,18 @@ void CAdvMapInt::adjustActiveness(bool aiTurnStart)
 		deactivate();
 	adventureInt->duringAITurn = aiTurnStart;
 	if(wasActive)
+		activate();
+}
+
+void CAdvMapInt::quickCombatLock()
+{
+	if(!duringAITurn)
+		deactivate();
+}
+
+void CAdvMapInt::quickCombatUnlock()
+{
+	if(!duringAITurn)
 		activate();
 }
 

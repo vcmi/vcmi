@@ -1246,6 +1246,8 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 			for (auto treasure : treasures)
 			{
 				int3 visitableOffset = treasure.second->getVisitableOffset();
+				if (treasure.second->ID == Obj::SEER_HUT) //FIXME: find generic solution or figure out why Seer Hut doesn't behave correctly
+					visitableOffset.x += 1;
 				placeObject(gen, treasure.second, treasure.first + visitableOffset);
 			}
 			if (addMonster(gen, guardPos, currentValue, false))
@@ -2668,8 +2670,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 
 	//seer huts with creatures or generic rewards
 
-	//if (questArtZone) //we won't be placing seer huts if there is no zone left to place arties
-	if (false) //FIXME: Seer Huts are bugged
+	if (questArtZone) //we won't be placing seer huts if there is no zone left to place arties
 	{
 		static const int genericSeerHuts = 8;
 		int seerHutsPerType = 0;
@@ -2726,6 +2727,9 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
 				obj->quest->m5arts.push_back(artid);
+				obj->quest->lastDay = -1;
+				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
+
 				gen->banQuestArt(artid);
 				gen->map->addQuest(obj);
 
@@ -2762,6 +2766,9 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
 				obj->quest->m5arts.push_back(artid);
+				obj->quest->lastDay = -1;
+				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
+
 				gen->banQuestArt(artid);
 				gen->map->addQuest(obj);
 
@@ -2784,6 +2791,9 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
 				obj->quest->m5arts.push_back(artid);
+				obj->quest->lastDay = -1;
+				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
+
 				gen->banQuestArt(artid);
 				gen->map->addQuest(obj);
 
