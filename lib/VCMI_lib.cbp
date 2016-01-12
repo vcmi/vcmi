@@ -34,7 +34,7 @@
 					<Add option="-liconv" />
 					<Add option="-ldbghelp" />
 					<Add directory="$(#sdl2.lib)" />
-					<Add directory="$(#boost.lib)" />
+					<Add directory="$(#boost.lib32)" />
 					<Add directory="$(#zlib.lib)" />
 				</Linker>
 			</Target>
@@ -110,8 +110,6 @@
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-Wno-unused-local-typedefs" />
-			<Add option="-Winvalid-pch" />
-			<Add option="-msse2" />
 			<Add option="-DVCMI_DLL" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
@@ -236,7 +234,6 @@
 		<Unit filename="filesystem/Filesystem.cpp" />
 		<Unit filename="filesystem/Filesystem.h" />
 		<Unit filename="filesystem/ISimpleResourceLoader.h" />
-		<Unit filename="filesystem/MinizipExtensions.h" />
 		<Unit filename="filesystem/ResourceID.cpp" />
 		<Unit filename="filesystem/ResourceID.h" />
 		<Unit filename="int3.h" />

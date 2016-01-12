@@ -97,12 +97,7 @@ JsonNode toJson(QVariant object)
 
 void JsonToFile(QString filename, QVariant object)
 {
-	#ifdef _WIN32
-	FileStream file(boost::filesystem::path(filename.toStdWString()), std::ios::out | std::ios_base::binary);
-	#else
-	FileStream file(boost::filesystem::path(filename.toUtf8().data()), std::ios::out | std::ios_base::binary);
-	#endif
-
+	FileStream file(qstringToPath(filename), std::ios::out | std::ios_base::binary);
 	file << toJson(object);
 }
 

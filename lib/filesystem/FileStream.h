@@ -4,15 +4,16 @@
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>
 
-class DLL_LINKAGE FileBuf {
+class FileBuf
+{
 public:
-	typedef char                 					char_type;
+	typedef char char_type;
     typedef struct category_ :
     	boost::iostreams::seekable_device_tag,
     	boost::iostreams::closable_tag
     	{} category;
 
-	FileBuf(const boost::filesystem::path& filename, std::ios_base::openmode mode = (std::ios_base::in | std::ios_base::out));
+	FileBuf(const boost::filesystem::path& filename, std::ios_base::openmode mode);
 
     std::streamsize read(char* s, std::streamsize n);
     std::streamsize write(const char* s, std::streamsize n);
@@ -35,7 +36,9 @@ template class DLL_LINKAGE boost::iostreams::stream<FileBuf>;
 class DLL_LINKAGE FileStream : public boost::iostreams::stream<FileBuf>
 {
 public:
-	using boost::iostreams::stream<FileBuf>::stream;
+	FileStream() = default;
+	explicit FileStream(const boost::filesystem::path& p, std::ios_base::openmode mode = std::ios_base::in | std::ios_base::out)
+		: boost::iostreams::stream<FileBuf>(p, mode) {}
 
 	static bool CreateFile(const boost::filesystem::path& filename);
 

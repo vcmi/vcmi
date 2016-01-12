@@ -69,8 +69,8 @@ void CModManager::loadMods()
 		ResourceID resID(CModInfo::getModFile(modname));
 		if (CResourceHandler::get()->existsResource(resID))
 		{
-			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
-			auto mod = JsonUtils::JsonFromFile(QString::fromUtf8(name.string().c_str()));
+			std::string name = *CResourceHandler::get()->getResourceName(resID);
+			auto mod = JsonUtils::JsonFromFile(QString::fromUtf8(name.c_str()));
 			localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);
 		}
 	}
