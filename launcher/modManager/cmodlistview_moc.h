@@ -1,6 +1,5 @@
 #pragma once
 
-#include "StdInc.h"
 #include "../../lib/CConfigHandler.h"
 
 namespace Ui {
