@@ -1177,25 +1177,23 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 
 		int3 closestTile = int3(-1,-1,-1);
 		float minDistance = 1e10;
+
 		for (auto visitablePos : info.visitableFromBottomPositions) //objects that are not visitable from top must be accessible from bottom or side
 		{
 			int3 closestFreeTile = findClosestTile(freePaths, visitablePos);
 			if (closestFreeTile.dist2d(visitablePos) < minDistance)
 			{
-				closestTile = visitablePos + int3 (0, 1, 0); //start below object (y+1), possibly even outside the map (?)
+				closestTile = visitablePos + int3 (0, 1, 0); //start below object (y+1), possibly even outside the map, to not make path up through it
 				minDistance = closestFreeTile.dist2d(visitablePos);
 			}
 		}
-		if (!closestTile.valid())
+		for (auto visitablePos : info.visitableFromTopPositions) //all objects are accessible from any direction
 		{
-			for (auto visitablePos : info.visitableFromTopPositions) //all objects are accessible from any direction
+			int3 closestFreeTile = findClosestTile(freePaths, visitablePos);
+			if (closestFreeTile.dist2d(visitablePos) < minDistance)
 			{
-				int3 closestFreeTile = findClosestTile(freePaths, visitablePos);
-				if (closestFreeTile.dist2d(visitablePos) < minDistance)
-				{
-					closestTile = visitablePos;
-					minDistance = closestFreeTile.dist2d(visitablePos);
-				}
+				closestTile = visitablePos;
+				minDistance = closestFreeTile.dist2d(visitablePos);
 			}
 		}
 		assert (closestTile.valid());
