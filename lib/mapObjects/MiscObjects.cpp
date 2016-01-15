@@ -392,6 +392,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 		if(cost)
 			cb->giveResource(h->tempOwner,Res::GOLD,-cost);
 
+		giveReward(h);
 		cb->tryJoiningArmy(this, h, true, true);
 	}
 }
@@ -455,6 +456,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 
 	if(result.winner==0)
 	{
+		giveReward(hero);
 		cb->removeObject(this);
 	}
 	else
@@ -555,6 +557,35 @@ int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
 	vstd::amin(split, 7); //can't have more than 7 stacks
 
 	return split;
+}
+
+void CGCreature::giveReward(const CGHeroInstance * h) const
+{
+	InfoWindow iw;
+	iw.player = h->tempOwner;
+
+	if(resources.size())
+	{
+		cb->giveResources(h->tempOwner, resources);
+		for(int i = 0; i < resources.size(); i++)
+		{
+			if(resources[i] > 0)
+				iw.components.push_back(Component(Component::RESOURCE, i, resources[i], 0));
+		}
+	}
+
+	if(gainedArtifact != ArtifactID::NONE)
+	{
+		cb->giveHeroNewArtifact(h, VLC->arth->artifacts[gainedArtifact], ArtifactPosition::FIRST_AVAILABLE);
+		iw.components.push_back(Component(Component::ARTIFACT, gainedArtifact, 0, 0));
+	}
+
+	if(iw.components.size())
+	{
+		iw.text.addTxt(MetaString::ADVOB_TXT, 183); // % has found treasure
+		iw.text.addReplacement(h->name);
+		cb->showInfoDialog(&iw);
+	}
 }
 
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const
