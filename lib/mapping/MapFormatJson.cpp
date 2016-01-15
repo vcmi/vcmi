@@ -600,7 +600,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 void CMapLoaderJson::MapObjectLoader::configure()
 {
-	instance->readJson(configuration, false);
+	instance->readJson(configuration);
 
 	if(instance->ID == Obj::TOWN)
 	{
@@ -856,7 +856,7 @@ void CMapSaverJson::writeObjects()
 	JsonNode data(JsonNode::DATA_STRUCT);
 
 	for(const CGObjectInstance * obj : map->objects)
-		obj->writeJson(data[obj->getStringId()], false);
+		obj->writeJson(data[obj->getStringId()]);
 
 	addToArchive(data, OBJECTS_FILE_NAME);
 }

@@ -188,6 +188,16 @@ CCreatureHandler::CCreatureHandler()
 	loadCommanders();
 }
 
+const CCreature * CCreatureHandler::getCreature(const std::string & scope, const std::string & identifier) const
+{
+	boost::optional<si32> index = VLC->modh->identifiers.getIdentifier(scope, "creature", identifier);
+
+	if(!index)
+		throw std::runtime_error("Creature not found "+identifier);
+
+	return creatures[*index];
+}
+
 void CCreatureHandler::loadCommanders()
 {
 	JsonNode data(ResourceID("config/commanders.json"));

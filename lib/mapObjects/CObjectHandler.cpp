@@ -325,7 +325,7 @@ bool CGObjectInstance::passableFor(PlayerColor color) const
 	return false;
 }
 
-void CGObjectInstance::writeJson(JsonNode & json, bool withState) const
+void CGObjectInstance::writeJson(JsonNode & json) const
 {
 	logGlobal->debugStream() <<"Save: [" << pos << "] " << id << " " << ID << " " << subID << " " << typeName << " " << subTypeName;
 
@@ -338,11 +338,9 @@ void CGObjectInstance::writeJson(JsonNode & json, bool withState) const
 
 	appearance.writeJson(json["template"], false);
 	writeJsonOptions(json["options"]);
-	if(withState)
-		writeJsonState(json["state"]);
 }
 
-void CGObjectInstance::readJson(const JsonNode & json, bool withState)
+void CGObjectInstance::readJson(const JsonNode & json)
 {
 	if(json.getType() != JsonNode::DATA_STRUCT)
 	{
@@ -355,8 +353,6 @@ void CGObjectInstance::readJson(const JsonNode & json, bool withState)
 
 	appearance.readJson(json["template"], false);
 	readJsonOptions(json["options"]);
-	if(withState)
-		readJsonState(json["state"]);
 
 	logGlobal->debugStream() <<"Load: [" << pos << "] " << id << " " << ID << " " << subID << " " << typeName << " " << subTypeName;
 }
@@ -380,15 +376,6 @@ void CGObjectInstance::readJsonOptions(const JsonNode & json)
 		tempOwner = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, json["owner"].String()));
 }
 
-void CGObjectInstance::writeJsonState(JsonNode & json) const
-{
-	json.setType(JsonNode::DATA_STRUCT);
-}
-
-void CGObjectInstance::readJsonState(const JsonNode & json)
-{
-
-}
 
 CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)
 {

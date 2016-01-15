@@ -186,10 +186,10 @@ public:
 	}
 
 	///Entry point of Json serialization
-	void writeJson(JsonNode & json, bool withState = false) const;
+	void writeJson(JsonNode & json) const;
 
 	///Entry point of Json de-serialization
-	void readJson(const JsonNode & json, bool withState = false);
+	void readJson(const JsonNode & json);
 
 protected:
 	/// virtual method that allows synchronously update object state on server and all clients
@@ -205,14 +205,6 @@ protected:
 	///Loads object-type specific options
 	///(!) do not forget to call inherited method  first when overriding
 	virtual void readJsonOptions(const JsonNode & json);
-
-	///Saves object-type specific state
-	///(!) do not forget to call inherited method  first when overriding
-	virtual void writeJsonState(JsonNode & json) const;
-
-	///Loads object-type specific state
-	///(!) do not forget to call inherited method  first  when overriding
-	virtual void readJsonState(const JsonNode & json);
 
 private:
 	mutable std::string stringId;///<alternate id, dynamically generated, do not serialize

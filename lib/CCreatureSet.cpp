@@ -481,6 +481,28 @@ void CCreatureSet::armyChanged()
 {
 }
 
+void CCreatureSet::writeJson(JsonNode& json) const
+{
+	for(const auto & p : stacks)
+	{
+		JsonNode stack_node;
+		p.second->writeJson(stack_node);
+		json.Vector()[p.first.getNum()] = stack_node;
+	}
+}
+
+void CCreatureSet::readJson(const JsonNode& json)
+{
+	for(size_t idx = 0; idx < json.Vector().size(); idx++)
+	{
+		CStackInstance * new_stack = new CStackInstance();
+
+		new_stack->readJson(json.Vector()[idx]);
+
+		putStack(SlotID(idx), new_stack);
+	}
+}
+
 CStackInstance::CStackInstance()
 	: armyObj(_armyObj)
 {
@@ -605,7 +627,7 @@ std::string CStackInstance::bonusToString(const Bonus *bonus, bool description) 
 	{
 		return VLC->getBth()->bonusToString(bonus, this, description);
 	}
-	
+
 }
 
 std::string CStackInstance::bonusToGraphics(const Bonus *bonus) const
@@ -700,6 +722,25 @@ ArtBearer::ArtBearer CStackInstance::bearerType() const
 	return ArtBearer::CREATURE;
 }
 
+void CStackInstance::writeJson(JsonNode& json) const
+{
+	if(idRand > -1)
+	{
+		json["level"].Float() = (int)idRand / 2;
+		json["upgraded"].Bool() = (idRand % 2) > 0;
+	}
+	CStackBasicDescriptor::writeJson(json);
+}
+
+void CStackInstance::readJson(const JsonNode& json)
+{
+	if(json["type"].String() == "")
+	{
+		idRand = json["level"].Float() * 2 + (int)json["upgraded"].Bool();
+	}
+	CStackBasicDescriptor::readJson(json);
+}
+
 CCommanderInstance::CCommanderInstance()
 {
 	init();
@@ -790,6 +831,22 @@ CStackBasicDescriptor::CStackBasicDescriptor(CreatureID id, TQuantity Count)
 CStackBasicDescriptor::CStackBasicDescriptor(const CCreature *c, TQuantity Count)
 	: type(c), count(Count)
 {
+}
+
+void CStackBasicDescriptor::writeJson(JsonNode& json) const
+{
+	json.setType(JsonNode::DATA_STRUCT);
+	if(type)
+		json["type"].String() = type->identifier;
+	json["amount"].Float() = count;
+}
+
+void CStackBasicDescriptor::readJson(const JsonNode& json)
+{
+	auto typeName = json["type"].String();
+	if(typeName != "")
+		type = VLC->creh->getCreature("core", json["type"].String());
+	count = json["amount"].Float();
 }
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & str, const CStackInstance & sth)
