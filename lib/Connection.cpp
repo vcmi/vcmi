@@ -4,6 +4,7 @@
 #include "registerTypes/RegisterTypes.h"
 #include "mapping/CMap.h"
 #include "CGameState.h"
+#include "filesystem/FileStream.h"
 
 #include <boost/asio.hpp>
 
@@ -282,7 +283,7 @@ void CConnection::enableSmartVectorMemberSerializatoin()
 	CSerializer::smartVectorMembersSerialization = true;
 }
 
-CSaveFile::CSaveFile( const std::string &fname ): serializer(this)
+CSaveFile::CSaveFile( const boost::filesystem::path &fname ): serializer(this)
 {
 	registerTypes(serializer);
 	openNextFile(fname);
@@ -298,12 +299,12 @@ int CSaveFile::write( const void * data, unsigned size )
 	return size;
 }
 
-void CSaveFile::openNextFile(const std::string &fname)
+void CSaveFile::openNextFile(const boost::filesystem::path &fname)
 {
 	fName = fname;
 	try
 	{
-		sfile = make_unique<std::ofstream>(fname.c_str(), std::ios::binary);
+		sfile = make_unique<FileStream>(fname, std::ios::out | std::ios::binary);
 		sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
 
 		if(!(*sfile))
@@ -364,7 +365,7 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 	try
 	{
 		fName = fname.string();
-		sfile = make_unique<boost::filesystem::ifstream>(fname, std::ios::binary);
+		sfile = make_unique<FileStream>(fname, std::ios::in | std::ios::binary);
 		sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
 
 		if(!(*sfile))
@@ -569,7 +570,7 @@ void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
 	smartVectorMembersSerialization = true;
 }
 
-CLoadIntegrityValidator::CLoadIntegrityValidator( const std::string &primaryFileName, const std::string &controlFileName, int minimalVersion /*= version*/ )
+CLoadIntegrityValidator::CLoadIntegrityValidator( const boost::filesystem::path &primaryFileName, const boost::filesystem::path &controlFileName, int minimalVersion /*= version*/ )
 	: serializer(this), foundDesync(false)
 {
 	registerTypes(serializer);

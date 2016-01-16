@@ -2,6 +2,7 @@
 #include "CModHandler.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "JsonNode.h"
+#include "filesystem/FileStream.h"
 #include "filesystem/Filesystem.h"
 #include "filesystem/AdapterLoaders.h"
 #include "filesystem/CFilesystemLoader.h"
@@ -101,9 +102,9 @@ void CIdentifierStorage::requestIdentifier(std::string scope, std::string type, 
 
 void CIdentifierStorage::requestIdentifier(std::string scope, std::string fullName, const std::function<void(si32)>& callback)
 {
-	auto scopeAndFullName = splitString(fullName, ':');	
-	auto typeAndName = splitString(scopeAndFullName.second, '.');	
-	
+	auto scopeAndFullName = splitString(fullName, ':');
+	auto typeAndName = splitString(scopeAndFullName.second, '.');
+
 	requestIdentifier(ObjectCallback(scope, scopeAndFullName.first, typeAndName.first, typeAndName.second, callback, false));
 }
 
@@ -331,11 +332,11 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 {
 	ModInfo & modInfo = modData[modName];
 	bool result = true;
-	
+
 	auto performValidate = [&,this](JsonNode & data, const std::string & name){
 		handler->beforeValidate(data);
 		if (validate)
-			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);	
+			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);
 	};
 
 	// apply patches
@@ -355,7 +356,7 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			if (originalData.size() > index)
 			{
 				JsonUtils::merge(originalData[index], data);
-				
+
 				performValidate(originalData[index],name);
 				handler->loadObject(modName, name, originalData[index], index);
 
@@ -880,6 +881,6 @@ void CModHandler::afterLoad()
 	}
 	modSettings["core"] = coreMod.saveLocalData();
 
-	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);
+	FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::out | std::ofstream::trunc);
 	file << modSettings;
 }

@@ -307,10 +307,10 @@ void CMenuScreen::switchToTab(size_t index)
 //funciton for std::string -> std::function conversion for main menu
 static std::function<void()> genCommand(CMenuScreen* menu, std::vector<std::string> menuType, const std::string &string)
 {
-	static const std::vector<std::string> commandType  = 
+	static const std::vector<std::string> commandType  =
 		{"to", "campaigns", "start", "load", "exit", "highscores"};
 
-	static const std::vector<std::string> gameType = 
+	static const std::vector<std::string> gameType =
 		{"single", "multi", "campaign", "tutorial"};
 
 	std::list<std::string> commands;
@@ -554,8 +554,8 @@ CGPreGame *CGPreGame::create()
 {
 	if(!CGP)
 		CGP = new CGPreGame();
-		
-	GH.terminate_cond.set(false);		
+
+	GH.terminate_cond.set(false);
 	return CGP;
 }
 
@@ -1362,9 +1362,9 @@ void SelectionTab::select( int position )
 
 	if(txt)
 	{
-		std::string filename = *CResourceHandler::get("local")->getResourceName(
+		auto filename = *CResourceHandler::get("local")->getResourceName(
 								   ResourceID(curItems[py]->fileURI, EResType::CLIENT_SAVEGAME));
-		txt->setText(CFileInfo(filename).getBaseName());
+		txt->setText(filename.stem());
 	}
 
 	onSelect(curItems[py]);
@@ -1487,8 +1487,8 @@ void SelectionTab::printMaps(SDL_Surface *to)
 		}
 		else
 		{
-			name = CFileInfo(*CResourceHandler::get("local")->getResourceName(
-								 ResourceID(currentItem->fileURI, EResType::CLIENT_SAVEGAME))).getBaseName();
+			name = CResourceHandler::get("local")->getResourceName(
+								 ResourceID(currentItem->fileURI, EResType::CLIENT_SAVEGAME))->stem().string();
 		}
 
 		//print name

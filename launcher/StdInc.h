@@ -24,6 +24,6 @@ inline boost::filesystem::path qstringToPath(const QString & path)
 #ifdef VCMI_WINDOWS
 	return boost::filesystem::path(path.toStdWString());
 #else
-	return boost::filesystem::path(filename.toUtf8().data());
+	return boost::filesystem::path(path.toUtf8().data());
 #endif
 }

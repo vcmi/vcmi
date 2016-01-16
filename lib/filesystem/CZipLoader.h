@@ -32,7 +32,7 @@ public:
 	 * @param archive path to archive to open
 	 * @param filepos position of file to open
 	 */
-	CZipStream(const std::string & archive, unz_file_pos filepos);
+	CZipStream(const boost::filesystem::path & archive, unz64_file_pos filepos);
 	~CZipStream();
 
 	si64 getSize() override;
@@ -44,14 +44,14 @@ protected:
 
 class DLL_LINKAGE CZipLoader : public ISimpleResourceLoader
 {
-	std::string archiveName;
+	boost::filesystem::path archiveName;
 	std::string mountPoint;
 
-	std::unordered_map<ResourceID, unz_file_pos> files;
+	std::unordered_map<ResourceID, unz64_file_pos> files;
 
-	std::unordered_map<ResourceID, unz_file_pos> listFiles(const std::string & mountPoint, const std::string &archive);
+	std::unordered_map<ResourceID, unz64_file_pos> listFiles(const std::string & mountPoint, const boost::filesystem::path &archive);
 public:
-	CZipLoader(const std::string & mountPoint, const std::string & archive);
+	CZipLoader(const std::string & mountPoint, const boost::filesystem::path & archive);
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader

@@ -1,5 +1,4 @@
 #include "StdInc.h"
-#define INC_FROM_FILESTREAM_CPP
 #include "FileStream.h"
 #include "../minizip/unzip.h"
 

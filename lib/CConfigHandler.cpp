@@ -2,6 +2,7 @@
 #include "CConfigHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/FileStream.h"
 #include "../lib/GameConstants.h"
 #include "../lib/VCMIDirs.h"
 
@@ -80,7 +81,7 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 	savedConf.Struct().erase("session");
 	JsonUtils::minimize(savedConf, "vcmi:settings");
 
-	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::trunc);
+	FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::out | std::ofstream::trunc);
 	file << savedConf;
 }
 
@@ -173,7 +174,7 @@ JsonNode& Settings::operator [](std::string value)
 {
 	return node[value];
 }
-// 
+//
 // template DLL_LINKAGE struct SettingsStorage::NodeAccessor<SettingsListener>;
 // template DLL_LINKAGE struct SettingsStorage::NodeAccessor<Settings>;
 
@@ -214,14 +215,14 @@ void config::CConfigHandler::init()
 	const JsonNode config(ResourceID("config/resolutions.json"));
 	const JsonVector &guisettings_vec = config["GUISettings"].Vector();
 
-	for(const JsonNode &g : guisettings_vec) 
+	for(const JsonNode &g : guisettings_vec)
 	{
 		std::pair<int,int> curRes(g["resolution"]["x"].Float(), g["resolution"]["y"].Float());
 		GUIOptions *current = &conf.guiOptions[curRes];
-		
+
 		current->ac.inputLineLength = g["InGameConsole"]["maxInputPerLine"].Float();
 		current->ac.outputLineLength = g["InGameConsole"]["maxOutputPerLine"].Float();
-		
+
 		current->ac.advmapX = g["AdvMap"]["x"].Float();
 		current->ac.advmapY = g["AdvMap"]["y"].Float();
 		current->ac.advmapW = g["AdvMap"]["width"].Float();

@@ -15,10 +15,10 @@
  *
  */
 
-CZipStream::CZipStream(const std::string & archive, unz_file_pos filepos)
+CZipStream::CZipStream(const boost::filesystem::path & archive, unz64_file_pos filepos)
 {
-	file = unzOpen(archive.c_str());
-	unzGoToFilePos(file, &filepos);
+	file = unzOpen2_64(archive.c_str(), FileStream::GetMinizipFilefunc());
+	unzGoToFilePos64(file, &filepos);
 	unzOpenCurrentFile(file);
 }
 
@@ -35,19 +35,19 @@ si64 CZipStream::readMore(ui8 * data, si64 size)
 
 si64 CZipStream::getSize()
 {
-	unz_file_info info;
-	unzGetCurrentFileInfo (file, &info, nullptr, 0, nullptr, 0, nullptr, 0);
+	unz_file_info64 info;
+	unzGetCurrentFileInfo64 (file, &info, nullptr, 0, nullptr, 0, nullptr, 0);
 	return info.uncompressed_size;
 }
 
 ui32 CZipStream::calculateCRC32()
 {
-	unz_file_info info;
-	unzGetCurrentFileInfo (file, &info, nullptr, 0, nullptr, 0, nullptr, 0);
+	unz_file_info64 info;
+	unzGetCurrentFileInfo64 (file, &info, nullptr, 0, nullptr, 0, nullptr, 0);
 	return info.crc;
 }
 
-CZipLoader::CZipLoader(const std::string & mountPoint, const std::string & archive):
+CZipLoader::CZipLoader(const std::string & mountPoint, const boost::filesystem::path & archive):
     archiveName(archive),
     mountPoint(mountPoint),
     files(listFiles(mountPoint, archive))
@@ -55,27 +55,27 @@ CZipLoader::CZipLoader(const std::string & mountPoint, const std::string & archi
 	logGlobal->traceStream() << "Zip archive loaded, " << files.size() << " files found";
 }
 
-std::unordered_map<ResourceID, unz_file_pos> CZipLoader::listFiles(const std::string & mountPoint, const std::string & archive)
+std::unordered_map<ResourceID, unz64_file_pos> CZipLoader::listFiles(const std::string & mountPoint, const boost::filesystem::path & archive)
 {
-	std::unordered_map<ResourceID, unz_file_pos> ret;
+	std::unordered_map<ResourceID, unz64_file_pos> ret;
 
-	unzFile file = unzOpen(archive.c_str());
+	unzFile file = unzOpen2_64(archive.c_str(), FileStream::GetMinizipFilefunc());
 
 	if (unzGoToFirstFile(file) == UNZ_OK)
 	{
 		do
 		{
-			unz_file_info info;
+			unz_file_info64 info;
 			std::vector<char> filename;
 			// Fill unz_file_info structure with current file info
-			unzGetCurrentFileInfo (file, &info, nullptr, 0, nullptr, 0, nullptr, 0);
+			unzGetCurrentFileInfo64 (file, &info, nullptr, 0, nullptr, 0, nullptr, 0);
 
 			filename.resize(info.size_filename);
 			// Get name of current file. Contrary to docs "info" parameter can't be null
-			unzGetCurrentFileInfo (file, &info, filename.data(), filename.size(), nullptr, 0, nullptr, 0);
+			unzGetCurrentFileInfo64 (file, &info, filename.data(), filename.size(), nullptr, 0, nullptr, 0);
 
 			std::string filenameString(filename.data(), filename.size());
-			unzGetFilePos(file, &ret[ResourceID(mountPoint + filenameString)]);
+			unzGetFilePos64(file, &ret[ResourceID(mountPoint + filenameString)]);
 		}
 		while (unzGoToNextFile(file) == UNZ_OK);
 	}

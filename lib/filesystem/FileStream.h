@@ -4,7 +4,7 @@
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>
 
-class FileBuf
+class DLL_LINKAGE FileBuf
 {
 public:
 	typedef char char_type;
@@ -29,8 +29,6 @@ typedef zlib_filefunc64_def_s zlib_filefunc64_def;
 
 #ifdef VCMI_DLL
 extern template class DLL_LINKAGE boost::iostreams::stream<FileBuf>;
-#else
-template class DLL_LINKAGE boost::iostreams::stream<FileBuf>;
 #endif
 
 class DLL_LINKAGE FileStream : public boost::iostreams::stream<FileBuf>
