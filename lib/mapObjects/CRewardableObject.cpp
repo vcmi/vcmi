@@ -496,6 +496,7 @@ void CGPickable::initObj()
 					info.resize(1);
 					info[0].message.addTxt(MetaString::ADVOB_TXT, 51);
 					info[0].reward.removeObject = true;
+					break;
 			case 1:
 				{
 					info.resize(1);
