@@ -70,7 +70,7 @@ void CModManager::loadMods()
 		if (CResourceHandler::get()->existsResource(resID))
 		{
 			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
-			auto mod = JsonUtils::JsonFromFile(qstringToPath(name));
+			auto mod = JsonUtils::JsonFromFile(pathToQString(name));
 			localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);
 		}
 	}
@@ -262,7 +262,7 @@ bool CModManager::doUninstallMod(QString modname)
 {
 	ResourceID resID(std::string("Mods/") + modname.toUtf8().data(), EResType::DIRECTORY);
 	// Get location of the mod, in case-insensitive way
-	QString modDir = qstringFromPath(*CResourceHandler::get()->getResourceName(resID));
+	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
 
 	if (!QDir(modDir).exists())
 		return addError(modname, "Data with this mod was not found");
