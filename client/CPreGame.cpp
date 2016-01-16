@@ -1151,7 +1151,7 @@ void SelectionTab::parseGames(const std::unordered_set<ResourceID> &files, bool 
 			lf >> *(mapInfo.mapHeader.get()) >> mapInfo.scenarioOpts;
 			mapInfo.fileURI = file.getName();
 			mapInfo.countPlayers();
-			std::time_t time = CFileInfo(*CResourceHandler::get()->getResourceName(file)).getDate();
+			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(file));
 			mapInfo.date = std::asctime(std::localtime(&time));
 
 			// If multi mode then only multi games, otherwise single
@@ -1364,7 +1364,7 @@ void SelectionTab::select( int position )
 	{
 		auto filename = *CResourceHandler::get("local")->getResourceName(
 								   ResourceID(curItems[py]->fileURI, EResType::CLIENT_SAVEGAME));
-		txt->setText(filename.stem());
+		txt->setText(filename.stem().string());
 	}
 
 	onSelect(curItems[py]);

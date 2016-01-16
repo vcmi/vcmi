@@ -277,7 +277,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 		else// create entry for server savegame. Triggered if save was made after launch and not yet present in res handler
 		{
 			controlServerSaveName = boost::filesystem::path(clientSaveName).replace_extension(".vsgm1");
-			CResourceHandler::get("local")->createResource(controlServerSaveName, true);
+			CResourceHandler::get("local")->createResource(controlServerSaveName.string(), true);
 		}
 
 		if(clientSaveName.empty())
