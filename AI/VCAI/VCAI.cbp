@@ -55,9 +55,9 @@
 		</Build>
 		<Compiler>
 			<Add option="-pedantic" />
-			<Add option="-std=c++11" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
+			<Add option="-std=gnu++11" />
 			<Add option="-fexceptions" />
 			<Add option="-Wpointer-arith" />
 			<Add option="-Wno-switch" />
