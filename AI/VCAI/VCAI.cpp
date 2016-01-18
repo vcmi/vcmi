@@ -1987,7 +1987,6 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			if(teleportChannelProbingList.size())
 				doChannelProbing();
 		}
-		ret = !i;
 	}
 	if (h)
 	{
@@ -2001,6 +2000,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	{
 		completeGoal (sptr(Goals::VisitTile(dst).sethero(h))); //we stepped on some tile, anyway
 		completeGoal (sptr(Goals::ClearWayTo(dst).sethero(h)));
+
+		ret = (dst == h->visitablePos());
 
 		if(!ret) //reserve object we are heading towards
 		{
@@ -2020,7 +2021,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 }
 void VCAI::tryRealize(Goals::Explore & g)
 {
-	throw cannotFulfillGoalException("EXPLORE is not a elementar goal!");
+	throw cannotFulfillGoalException("EXPLORE is not an elementar goal!");
 }
 
 void VCAI::tryRealize(Goals::RecruitHero & g)
@@ -2853,7 +2854,7 @@ BattleState AIStatus::getBattle()
 }
 
 void AIStatus::addQuery(QueryID ID, std::string description)
-{	
+{
 	if(ID == QueryID(-1))
 	{
         logAi->debugStream() << boost::format("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s") % ID % description;
@@ -2878,7 +2879,7 @@ void AIStatus::removeQuery(QueryID ID)
 
 	std::string description = remainingQueries[ID];
 	remainingQueries.erase(ID);
-	
+
 	cv.notify_all();
     logAi->debugStream() << boost::format("Removing query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
