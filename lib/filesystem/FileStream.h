@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iosfwd>
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>
 

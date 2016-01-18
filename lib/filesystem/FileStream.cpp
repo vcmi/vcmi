@@ -11,13 +11,20 @@
 	#endif
 	#include <cwchar>
 	#define CHAR_LITERAL(s) L##s
-	#define DO_OPEN(name, mode) _wfopen(name, mode)
 	using CharType = wchar_t;
 #else
 	#define CHAR_LITERAL(s) s
-	#define DO_OPEN(name, mode) fopen(name, mode)
 	using CharType = char;
 #endif
+
+inline FILE* do_open(const CharType* name, const CharType* mode)
+{
+	#ifdef _WIN32
+		return _wfopen(name, mode);
+	#else
+		return std::fopen(name, mode);
+	#endif
+}
 
 #define GETFILE static_cast<std::FILE*>(filePtr)
 
@@ -35,7 +42,7 @@ voidpf ZCALLBACK MinizipOpenFunc(voidpf opaque, const void* filename, int mode)
     }();
 
     if (filename != nullptr && mode_fopen != nullptr)
-        return DO_OPEN(static_cast<const CharType*>(filename), mode_fopen);
+        return do_open(static_cast<const CharType*>(filename), mode_fopen);
 	else
 		return nullptr;
 }
@@ -57,7 +64,7 @@ template class boost::iostreams::stream<FileBuf>;
 /*static*/
 bool FileStream::CreateFile(const boost::filesystem::path& filename)
 {
-	FILE* f = DO_OPEN(filename.c_str(), CHAR_LITERAL("wb"));
+	FILE* f = do_open(filename.c_str(), CHAR_LITERAL("wb"));
 	bool result = (f != nullptr);
 	fclose(f);
 	return result;
@@ -65,39 +72,35 @@ bool FileStream::CreateFile(const boost::filesystem::path& filename)
 
 FileBuf::FileBuf(const boost::filesystem::path& filename, std::ios_base::openmode mode)
 {
-	std::string openmode = [mode]() -> std::string
+	auto openmode = [mode]() -> std::basic_string<CharType>
 	{
 		using namespace std;
 		switch (mode & (~ios_base::ate & ~ios_base::binary))
 		{
 		case (ios_base::in):
-			return "r";
+			return CHAR_LITERAL("r");
 		case (ios_base::out):
 		case (ios_base::out | ios_base::trunc):
-			return "w";
+			return CHAR_LITERAL("w");
 		case (ios_base::app):
 		case (ios_base::out | ios_base::app):
-			return "a";
+			return CHAR_LITERAL("a");
 		case (ios_base::out | ios_base::in):
-			return "r+";
+			return CHAR_LITERAL("r+");
 		case (ios_base::out | ios_base::in | ios_base::trunc):
-			return "w+";
+			return CHAR_LITERAL("w+");
 		case (ios_base::out | ios_base::in | ios_base::app):
 		case (ios_base::in | ios_base::app):
-			return "a+";
+			return CHAR_LITERAL("a+");
 		default:
 			throw std::ios_base::failure("invalid open mode");
 		}
 	}();
 
 	if (mode & std::ios_base::binary)
-		openmode += 'b';
+		openmode += CHAR_LITERAL('b');
 
-	#if defined(_WIN32)
-	filePtr = _wfopen(filename.c_str(), std::wstring(openmode.begin(), openmode.end()).c_str());
-	#else
-	filePtr = std::open(filename.c_str(), openmode);
-	#endif
+	filePtr = do_open(filename.c_str(), openmode.c_str());
 
 	if (filePtr == nullptr)
 		throw std::ios_base::failure("could not open file");
@@ -127,7 +130,7 @@ std::streamsize FileBuf::write(const char* s, std::streamsize n)
 
 std::streamoff FileBuf::seek(std::streamoff off, std::ios_base::seekdir way)
 {
-	auto src = [way]() -> int
+	const auto src = [way]() -> int
 	{
 		switch(way)
 		{
