@@ -1,11 +1,16 @@
 #include "StdInc.h"
 #include "FileStream.h"
+
+#ifdef USE_SYSTEM_MINIZIP
+#include <minizip/unzip.h>
+#else
 #include "../minizip/unzip.h"
+#endif
 
 #include <cstdio>
 
 
-#ifdef _WIN32
+#ifdef VCMI_WINDOWS
 	#ifndef _CRT_SECURE_NO_WARNINGS
 		#define _CRT_SECURE_NO_WARNINGS
 	#endif
@@ -19,7 +24,7 @@
 
 inline FILE* do_open(const CharType* name, const CharType* mode)
 {
-	#ifdef _WIN32
+	#ifdef VCMI_WINDOWS
 		return _wfopen(name, mode);
 	#else
 		return std::fopen(name, mode);
