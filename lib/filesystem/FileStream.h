@@ -17,18 +17,18 @@ class DLL_LINKAGE FileBuf
 {
 public:
 	typedef char char_type;
-    typedef struct category_ :
-    	boost::iostreams::seekable_device_tag,
-    	boost::iostreams::closable_tag
-    	{} category;
+	typedef struct category_ :
+		boost::iostreams::seekable_device_tag,
+		boost::iostreams::closable_tag
+		{} category;
 
 	FileBuf(const boost::filesystem::path& filename, std::ios_base::openmode mode);
 
-    std::streamsize read(char* s, std::streamsize n);
-    std::streamsize write(const char* s, std::streamsize n);
-    std::streamoff  seek(std::streamoff off, std::ios_base::seekdir way);
+	std::streamsize read(char* s, std::streamsize n);
+	std::streamsize write(const char* s, std::streamsize n);
+	std::streamoff  seek(std::streamoff off, std::ios_base::seekdir way);
 
-    void close();
+	void close();
 private:
 	void* filePtr;
 };
