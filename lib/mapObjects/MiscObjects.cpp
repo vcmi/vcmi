@@ -24,7 +24,7 @@
 #include "../CPlayerState.h"
 
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
-ui8 CGObelisk::obeliskCount; //how many obelisks are on map
+ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
 std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
 
 ///helpers
