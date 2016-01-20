@@ -416,6 +416,7 @@ void CGSeerHut::init()
 {
 	seerName = *RandomGeneratorUtil::nextItem(VLC->generaltexth->seerNames, cb->gameState()->getRandomGenerator());
 	quest->textOption = cb->gameState()->getRandomGenerator().nextInt(2);
+	quest->completedOption = cb->gameState()->getRandomGenerator().nextInt(1, 5);
 }
 
 void CGSeerHut::initObj()
@@ -435,7 +436,7 @@ void CGSeerHut::initObj()
 	else
 	{
 		quest->progress = CQuest::COMPLETE;
-		quest->firstVisitText = VLC->generaltexth->seerEmpty[quest->textOption];
+		quest->firstVisitText = VLC->generaltexth->seerEmpty[quest->completedOption];
 	}
 }
 
@@ -582,7 +583,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		iw.text << VLC->generaltexth->seerEmpty[quest->textOption];
+		iw.text << VLC->generaltexth->seerEmpty[quest->completedOption];
 		if (ID == Obj::SEER_HUT)
 			iw.text.addReplacement(seerName);
 		cb->showInfoDialog(&iw);
