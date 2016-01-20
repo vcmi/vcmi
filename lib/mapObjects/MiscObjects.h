@@ -28,6 +28,8 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 		h & players;
 	}
+
+	static constexpr int OBJPROP_VISITED = 10;
 };
 
 class DLL_LINKAGE CGCreature : public CArmedInstance //creatures on map
@@ -451,6 +453,7 @@ class DLL_LINKAGE CGDenOfthieves : public CGObjectInstance
 class DLL_LINKAGE CGObelisk : public CPlayersVisited
 {
 public:
+	static constexpr int OBJPROP_INC = 20;
 	static ui8 obeliskCount; //how many obelisks are on map
 	static std::map<TeamID, ui8> visited; //map: team_id => how many obelisks has been visited
 

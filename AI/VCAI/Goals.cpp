@@ -275,7 +275,7 @@ TSubgoal Win::whatToDoToAchieve()
 					// 0.85 -> radius now 2 tiles
 					// 0.95 -> 1 tile radius, position is fully known
 					// AFAIK H3 AI does something like this
-					int3 grailPos = cb->getGrailPos(ratio);
+					int3 grailPos = cb->getGrailPos(&ratio);
 					if(ratio > 0.99)
 					{
 						return sptr (Goals::DigAtTile(grailPos));
