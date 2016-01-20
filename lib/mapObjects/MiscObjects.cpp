@@ -1848,8 +1848,11 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 
 		openWindow(OpenWindow::PUZZLE_MAP, h->tempOwner.getNum());
 
-		// mark that particular obelisk as visited
-		cb->setObjProperty(id, CGObelisk::OBJPROP_VISITED, h->tempOwner.getNum());
+		// mark that particular obelisk as visited for all players in the team
+		for (auto & color : ts->players)
+		{
+			cb->setObjProperty(id, CGObelisk::OBJPROP_VISITED, color.getNum());
+		}
 	}
 	else
 	{
