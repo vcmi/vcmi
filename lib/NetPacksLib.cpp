@@ -362,6 +362,10 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		p->heroes -= h;
 		h->detachFrom(h->whereShouldBeAttached(gs));
 		h->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
+		vstd::erase_if(h->artifactsInBackpack, [](const ArtSlotInfo& asi)
+		{
+			return asi.artifact->artType->id == ArtifactID::GRAIL;
+		});
 
 		if(h->visitedTown)
 		{
