@@ -460,6 +460,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
 	std::string getHoverText(PlayerColor player) const override;
+	static void reset();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

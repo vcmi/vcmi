@@ -1867,6 +1867,12 @@ void CGObelisk::initObj()
 	obeliskCount++;
 }
 
+void CGObelisk::reset()
+{
+	obeliskCount = 0;
+	visited.clear();
+}
+
 std::string CGObelisk::getHoverText(PlayerColor player) const
 {
 	return getObjectName() + " " + visitedTxt(wasVisited(player));
