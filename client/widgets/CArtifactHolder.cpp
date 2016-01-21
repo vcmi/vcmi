@@ -303,10 +303,10 @@ void CArtPlace::deselect ()
 		for(int i = 0; i < GameConstants::BACKPACK_START; i++)
 		{
 			auto place = ourOwner->getArtPlace(i);
-			
+
 			if(nullptr != place)//getArtPlace may return null
 				place->pickSlot(false);
-		}			
+		}
 	}
 
 	CCS->curh->dragAndDropCursor(nullptr);
@@ -454,12 +454,12 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 		backpackPos = 0;
 
 	// Fill the slots for worn artifacts and backpack.
-	
+
 	for(auto p : artWorn)
 	{
 		setSlotData(p.second, p.first);
 	}
-	
+
 	scrollBackpack(0);
 }
 
@@ -587,8 +587,8 @@ void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, ArtifactPosition slotID)
 
 	if(const ArtSlotInfo *asi = curHero->getSlot(slotID))
 	{
-		artPlace->setArtifact(asi->artifact);
 		artPlace->lockSlot(asi->locked);
+		artPlace->setArtifact(asi->artifact);
 	}
 	else
 		artPlace->setArtifact(nullptr);
@@ -853,7 +853,7 @@ CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 		for(CArtPlace *ap : backpack)
 			if(ap->slotID == slot)
 				return ap;
-		return nullptr;				
+		return nullptr;
 	}
 }
 
