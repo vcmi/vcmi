@@ -8,6 +8,8 @@ GENERAL:
 - Angel Wings
 - Boots of Levitation
 * Implemented rumors in tavern window
+* New cheat code:
+- vcmiglaurung - gives 5000 crystal dragons into each slot
 
 ADVETURE AI:
 * Fixed AI trying to go through underground rock
