@@ -119,6 +119,7 @@ public:
 	void deserializationFix();
 	void setType(CArtifact *Art);
 
+	std::string getEffectiveDescription(const CGHeroInstance *hero = nullptr) const;
 	ArtifactPosition firstAvailableSlot(const CArtifactSet *h) const;
 	ArtifactPosition firstBackpackSlot(const CArtifactSet *h) const;
 	SpellID getGivenSpellID() const; //to be used with scrolls (and similar arts), -1 if none
@@ -143,6 +144,7 @@ public:
 	}
 
 	static CArtifactInstance *createScroll(const CSpell *s);
+	static CArtifactInstance *createScroll(SpellID sid);
 	static CArtifactInstance *createNewArtifactInstance(CArtifact *Art);
 	static CArtifactInstance *createNewArtifactInstance(int aid);
 };

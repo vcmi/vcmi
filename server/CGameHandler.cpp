@@ -471,7 +471,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	const CArmedInstance *bEndArmy2 = gs->curB->sides.at(1).armyObject;
 	const BattleResult::EResult result = battleResult.get()->result;
 
-	auto findBattleQuery = [this] () -> std::shared_ptr<CBattleQuery>
+	auto findBattleQuery = [this]() -> std::shared_ptr<CBattleQuery>
 	{
 		for(auto &q : queries.allQueries())
 		{
@@ -526,66 +526,70 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	}
 
 
-	std::vector<ui32> arts; //display them in window
+	std::vector<const CArtifactInstance *> arts; //display them in window
 
-	if (result == BattleResult::NORMAL && finishingBattle->winnerHero)
+	if(result == BattleResult::NORMAL && finishingBattle->winnerHero)
 	{
-		if (finishingBattle->loserHero)
+		auto sendMoveArtifact = [&](const CArtifactInstance *art, MoveArtifact *ma)
 		{
-			auto artifactsWorn = finishingBattle->loserHero->artifactsWorn; //TODO: wrap it into a function, somehow (boost::variant -_-)
+			arts.push_back(art);
+			ma->dst = ArtifactLocation(finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
+			sendAndApply(ma);
+		};
+		if(finishingBattle->loserHero)
+		{
+			//TODO: wrap it into a function, somehow (boost::variant -_-)
+			auto artifactsWorn = finishingBattle->loserHero->artifactsWorn;
 			for (auto artSlot : artifactsWorn)
 			{
 				MoveArtifact ma;
-				ma.src = ArtifactLocation (finishingBattle->loserHero, artSlot.first);
+				ma.src = ArtifactLocation(finishingBattle->loserHero, artSlot.first);
 				const CArtifactInstance * art =  ma.src.getArt();
-				if (art && !art->artType->isBig() && art->artType->id != ArtifactID::SPELLBOOK) // don't move war machines or locked arts (spellbook)
+				if(art && !art->artType->isBig() &&
+				    art->artType->id != ArtifactID::SPELLBOOK)
+						// don't move war machines or locked arts (spellbook)
 				{
-					arts.push_back (art->artType->id);
-					ma.dst = ArtifactLocation (finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
-					sendAndApply(&ma);
+					sendMoveArtifact(art, &ma);
 				}
 			}
-			while (!finishingBattle->loserHero->artifactsInBackpack.empty())
+			while(!finishingBattle->loserHero->artifactsInBackpack.empty())
 			{
 				//we assume that no big artifacts can be found
 				MoveArtifact ma;
-				ma.src = ArtifactLocation (finishingBattle->loserHero,
+				ma.src = ArtifactLocation(finishingBattle->loserHero,
 					ArtifactPosition(GameConstants::BACKPACK_START)); //backpack automatically shifts arts to beginning
 				const CArtifactInstance * art =  ma.src.getArt();
-				arts.push_back (art->artType->id);
-				ma.dst = ArtifactLocation (finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
-				sendAndApply(&ma);
+				if(art->artType->id != ArtifactID::GRAIL) //grail may not be won
+				{
+					sendMoveArtifact(art, &ma);
+				}
 			}
-			if (finishingBattle->loserHero->commander) //TODO: what if commanders belong to no hero?
+			if(finishingBattle->loserHero->commander) //TODO: what if commanders belong to no hero?
 			{
 				artifactsWorn = finishingBattle->loserHero->commander->artifactsWorn;
-				for (auto artSlot : artifactsWorn)
+				for(auto artSlot : artifactsWorn)
 				{
 					MoveArtifact ma;
-					ma.src = ArtifactLocation (finishingBattle->loserHero->commander.get(), artSlot.first);
+					ma.src = ArtifactLocation(finishingBattle->loserHero->commander.get(), artSlot.first);
 					const CArtifactInstance * art =  ma.src.getArt();
 					if (art && !art->artType->isBig())
 					{
-						arts.push_back (art->artType->id);
-						ma.dst = ArtifactLocation (finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
-						sendAndApply(&ma);
+						sendMoveArtifact(art, &ma);
 					}
 				}
 			}
 		}
-		for (auto armySlot : gs->curB->battleGetArmyObject(!battleResult.data->winner)->stacks)
+		for(auto armySlot : gs->curB->battleGetArmyObject(!battleResult.data->winner)->stacks)
 		{
 			auto artifactsWorn = armySlot.second->artifactsWorn;
 			for (auto artSlot : artifactsWorn)
 			{
 				MoveArtifact ma;
-				ma.src = ArtifactLocation (armySlot.second, artSlot.first);
+				ma.src = ArtifactLocation(armySlot.second, artSlot.first);
 				const CArtifactInstance * art =  ma.src.getArt();
 				if (art && !art->artType->isBig())
 				{
-					arts.push_back (art->artType->id);
-					ma.dst = ArtifactLocation (finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
-					sendAndApply(&ma);
+					sendMoveArtifact(art, &ma);
 				}
 			}
 		}
@@ -593,23 +597,25 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	sendAndApply(battleResult.data); //after this point casualties objects are destroyed
 
-	if (arts.size()) //display loot
+	if(arts.size()) //display loot
 	{
 		InfoWindow iw;
 		iw.player = finishingBattle->winnerHero->tempOwner;
 
 		iw.text.addTxt (MetaString::GENERAL_TXT, 30); //You have captured enemy artifact
 
-		for (auto id : arts) //TODO; separate function to display loot for various ojects?
+		for(auto art : arts) //TODO; separate function to display loot for various ojects?
 		{
-			iw.components.push_back (Component (Component::ARTIFACT, id, 0, 0));
+			iw.components.push_back(Component(
+				Component::ARTIFACT, art->artType->id,
+				art->artType->id == ArtifactID::SPELL_SCROLL? art->getGivenSpellID() : 0, 0));
 			if(iw.components.size() >= 14)
 			{
 				sendAndApply(&iw);
 				iw.components.clear();
 			}
 		}
-		if (iw.components.size())
+		if(iw.components.size())
 		{
 			sendAndApply(&iw);
 		}

@@ -739,8 +739,13 @@ std::string CArtifactInstance::nodeName() const
 
 CArtifactInstance * CArtifactInstance::createScroll( const CSpell *s)
 {
+	return createScroll(s->id);
+}
+
+CArtifactInstance *CArtifactInstance::createScroll(SpellID sid)
+{
 	auto ret = new CArtifactInstance(VLC->arth->artifacts[ArtifactID::SPELL_SCROLL]);
-	auto b = new Bonus(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, ArtifactID::SPELL_SCROLL, s->id);
+	auto b = new Bonus(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, ArtifactID::SPELL_SCROLL, sid);
 	ret->addNewBonus(b);
 	return ret;
 }
@@ -750,6 +755,48 @@ void CArtifactInstance::init()
 	id = ArtifactInstanceID();
 	id = static_cast<ArtifactInstanceID>(ArtifactID::NONE); //to be randomized
 	setNodeType(ARTIFACT_INSTANCE);
+}
+
+std::string CArtifactInstance::getEffectiveDescription(
+	const CGHeroInstance *hero) const
+{
+	std::string text = this->artType->Description();
+	if (!vstd::contains(text, '{'))
+		text = '{' + this->artType->Name() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
+
+	if(this->artType->id == ArtifactID::SPELL_SCROLL)
+	{
+		// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
+		// so we want to replace text in [...] with a spell name
+		// however other language versions don't have name placeholder at all, so we have to be careful
+		int spellID = this->getGivenSpellID();
+		size_t nameStart = text.find_first_of('[');
+		size_t nameEnd = text.find_first_of(']', nameStart);
+		if(spellID >= 0)
+		{
+			if(nameStart != std::string::npos  &&  nameEnd != std::string::npos)
+				text = text.replace(nameStart, nameEnd - nameStart + 1, VLC->spellh->objects[spellID]->name);
+		}
+	}
+	else if (hero && this->artType->constituentOf.size()) //display info about set
+	{
+		std::string artList;
+		auto combinedArt = this->artType->constituentOf[0];
+		text += "\n\n";
+		text += "{" + combinedArt->Name() + "}";
+		int wornArtifacts = 0;
+		for (auto a : *combinedArt->constituents) //TODO: can the artifact be a part of more than one set?
+		{
+			artList += "\n" + a->Name();
+			if (hero->hasArt(a->id, true))
+				wornArtifacts++;
+		}
+		text += " (" + boost::str(boost::format("%d") % wornArtifacts) +  " / " +
+			boost::str(boost::format("%d") % combinedArt->constituents->size()) + ")" + artList;
+		//TODO: fancy colors and fonts for this text
+	}
+
+	return text;
 }
 
 ArtifactPosition CArtifactInstance::firstAvailableSlot(const CArtifactSet *h) const
@@ -900,7 +947,7 @@ SpellID CArtifactInstance::getGivenSpellID() const
 	const Bonus * b = getBonusLocalFirst(Selector::type(Bonus::SPELL));
 	if(!b)
 	{
-        logGlobal->warnStream() << "Warning: " << nodeName() << " doesn't bear any spell!";
+		logGlobal->warnStream() << "Warning: " << nodeName() << " doesn't bear any spell!";
 		return SpellID::NONE;
 	}
 	return SpellID(b->subtype);
