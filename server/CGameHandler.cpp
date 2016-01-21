@@ -4026,6 +4026,16 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 			if(!hero->hasStackAtSlot(SlotID(i)))
 				insertNewStack(StackLocation(hero, SlotID(i)), blackKnight, 10);
 	}
+	else if(message == "vcmiglaurung") //gives 5000 crystal dragons into each slot
+	{
+		CGHeroInstance *hero = gs->getHero(currObj);
+		const CCreature *crystalDragon = VLC->creh->creatures.at(133);
+		if(!hero) return;
+
+		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
+			if(!hero->hasStackAtSlot(SlotID(i)))
+				insertNewStack(StackLocation(hero, SlotID(i)), crystalDragon, 5000);
+	}
 	else if(message == "vcminoldor") //all war machines
 	{
 		CGHeroInstance *hero = gs->getHero(currObj);
