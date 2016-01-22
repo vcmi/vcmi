@@ -280,16 +280,16 @@ ArtifactPosition CArtHandler::stringToSlot(std::string slotName)
 
 void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
 {
-	static const std::vector<ArtifactPosition> miscSlots = 
+	static const std::vector<ArtifactPosition> miscSlots =
 	{
 		ArtifactPosition::MISC1, ArtifactPosition::MISC2, ArtifactPosition::MISC3, ArtifactPosition::MISC4, ArtifactPosition::MISC5
 	};
-	
+
 	static const std::vector<ArtifactPosition> ringSlots =
 	{
 		ArtifactPosition::LEFT_RING, ArtifactPosition::RIGHT_RING
 	};
-	
+
 	if (slotID == "MISC")
 	{
 		vstd::concatenate(art->possibleSlots[ArtBearer::HERO], miscSlots);
@@ -323,7 +323,7 @@ void CArtHandler::loadSlots(CArtifact * art, const JsonNode & node)
 CArtifact::EartClass CArtHandler::stringToClass(std::string className)
 {
 	static const std::map<std::string, CArtifact::EartClass> artifactClassMap =
-	{	
+	{
 		{"TREASURE", CArtifact::ART_TREASURE},
 		{"MINOR", CArtifact::ART_MINOR},
 		{"MAJOR", CArtifact::ART_MAJOR},
@@ -1152,9 +1152,42 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId( ArtifactInstanceID a
 	return nullptr;
 }
 
-bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= false*/) const
+bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= false*/,
+                          bool searchBackpackAssemblies /*= false*/) const
 {
-	return getArtPos(aid, onlyWorn) != ArtifactPosition::PRE_FIRST;
+	return getArtPos(aid, onlyWorn) != ArtifactPosition::PRE_FIRST ||
+	       (searchBackpackAssemblies && getHiddenArt(aid));
+}
+
+std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *>
+CArtifactSet::searchForConstituent(int aid) const
+{
+	for(auto & slot : artifactsInBackpack)
+	{
+		auto art = slot.artifact;
+		if(art->canBeDisassembled())
+		{
+			auto ass = static_cast<CCombinedArtifactInstance *>(art.get());
+			for(auto& ci : ass->constituentsInfo)
+			{
+				if(ci.art->artType->id == aid)
+				{
+					return {ass, ci.art};
+				}
+			}
+		}
+	}
+	return {nullptr, nullptr};
+}
+
+const CArtifactInstance *CArtifactSet::getHiddenArt(int aid) const
+{
+	return searchForConstituent(aid).second;
+}
+
+const CCombinedArtifactInstance *CArtifactSet::getAssemblyByConstituent(int aid) const
+{
+	return searchForConstituent(aid).first;
 }
 
 const ArtSlotInfo * CArtifactSet::getSlot(ArtifactPosition pos) const
