@@ -103,16 +103,16 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 {
 	std::string hoverName;
 	if(hero->hasVisions(this, 0))
-	{		
+	{
 		MetaString ms;
 		ms << stacks.begin()->second->count;
 		ms << " " ;
 		ms.addTxt(MetaString::CRE_PL_NAMES,subID);
-		
+
 		ms << "\n";
-		
+
 		int decision = takenAction(hero, true);
-		
+
 		switch (decision)
 		{
 		case FIGHT:
@@ -123,19 +123,19 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 			break;
 		case JOIN_FOR_FREE:
 			ms.addTxt(MetaString::GENERAL_TXT,243);
-			break;					
+			break;
 		default: //decision = cost in gold
 			VLC->generaltexth->allTexts[244];
-			ms << boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision);			
+			ms << boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision);
 			break;
-		}		
+		}
 
-		ms.toString(hoverName);		
+		ms.toString(hoverName);
 	}
 	else
 	{
-		hoverName = getHoverText(hero->tempOwner);	
-	}	
+		hoverName = getHoverText(hero->tempOwner);
+	}
 
 	const JsonNode & texts = VLC->generaltexth->localizedTexts["adventureMap"]["monsterThreat"];
 
@@ -1667,6 +1667,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 				cb->sendAndApply(&cv);
 			}
 			cv.pos = h->getPosition(false);
+			cv.focusTime = 0;
 			cb->sendAndApply(&cv);
 		}
 	}
@@ -1745,7 +1746,7 @@ void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
 		int3(-3,0,0), int3(1,0,0), //AB
 		int3(-3,1,0), int3(1,1,0), int3(-2,1,0), int3(0,1,0), int3(-1,1,0), //CDEFG
 		int3(-3,-1,0), int3(1,-1,0), int3(-2,-1,0), int3(0,-1,0), int3(-1,-1,0) //HIJKL
-	}; 
+	};
 }
 
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const

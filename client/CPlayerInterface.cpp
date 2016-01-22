@@ -1335,7 +1335,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	if(showingDialog->get() || !dialogs.empty())
 		return;
 
-	duringMovement = true;
+	setMovementStatus(true);
 
 	if (adventureInt && adventureInt->isHeroSleeping(h))
 	{
@@ -1347,8 +1347,6 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	}
 
 	boost::thread moveHeroTask(std::bind(&CPlayerInterface::doMoveHero,this,h,path));
-
-
 }
 
 bool CPlayerInterface::shiftPressed() const
@@ -1559,6 +1557,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
+	CCS->curh->hide();
 	adventureInt->centerOn (pos);
 	if(focusTime)
 	{
@@ -1569,6 +1568,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 			SDL_Delay(focusTime);
 		}
 	}
+	CCS->curh->show();
 }
 
 void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
@@ -2633,6 +2633,19 @@ bool CPlayerInterface::capturedAllEvents()
 	return false;
 }
 
+void CPlayerInterface::setMovementStatus(bool value)
+{
+	duringMovement = value;
+	if(value)
+	{
+		CCS->curh->hide();
+	}
+	else
+	{
+		CCS->curh->show();
+	}
+}
+
 void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 {
 	int i = 1;
@@ -2777,7 +2790,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		adventureInt->updateNextHero(h);
 	}
 
-	duringMovement = false;
+	setMovementStatus(false);
 }
 
 void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectPositions)
