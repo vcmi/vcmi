@@ -712,7 +712,7 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 
 	setBattle(nullptr);
 
-	if(visitObjectAfterVictory && result.winner==0)
+	if(visitObjectAfterVictory && result.winner==0 && !finishingBattle->winnerHero->stacks.empty())
 	{
 		logGlobal->traceStream() << "post-victory visit";
 		visitObjectOnTile(*getTile(finishingBattle->winnerHero->getPosition()), finishingBattle->winnerHero);
@@ -735,6 +735,24 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 		}
 
 		if(const CGHeroInstance *another =  getPlayer(finishingBattle->loser)->availableHeroes.at(1))
+			sah.hid[1] = another->subID;
+		else
+			sah.hid[1] = -1;
+
+		sendAndApply(&sah);
+	}
+	if(finishingBattle->winnerHero->stacks.empty())
+	{
+		RemoveObject ro(finishingBattle->winnerHero->id);
+		sendAndApply(&ro);
+
+		SetAvailableHeroes sah;
+		sah.player = finishingBattle->victor;
+		sah.hid[0] = finishingBattle->winnerHero->subID;
+		sah.army[0].clear();
+		sah.army[0].setCreature(SlotID(0), finishingBattle->winnerHero->type->initialArmy.at(0).creature, 1);
+
+		if(const CGHeroInstance *another =  getPlayer(finishingBattle->victor)->availableHeroes.at(1))
 			sah.hid[1] = another->subID;
 		else
 			sah.hid[1] = -1;
