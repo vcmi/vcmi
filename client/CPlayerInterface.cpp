@@ -119,7 +119,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	isAutoFightOn = false;
 
 	duringMovement = false;
-	ignoreEvents = false;	
+	ignoreEvents = false;
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -824,16 +824,16 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	//tidy up
 	BattleAction ret = *(b->givenCommand->data);
 	vstd::clear_pointer(b->givenCommand->data);
-	
+
 	if(ret.actionType == Battle::CANCEL)
 	{
 		if(stackId != ret.stackNumber)
 			logGlobal->error("Not current active stack action canceled");
-		logGlobal->traceStream() << "Canceled command for " << stackName;			
+		logGlobal->traceStream() << "Canceled command for " << stackName;
 	}
 	else
 		logGlobal->traceStream() << "Giving command for " << stackName;
-		
+
 	return ret;
 }
 
@@ -1610,11 +1610,11 @@ void CPlayerInterface::update()
 {
 	// Make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
-	
-	// While mutexes were locked away we may be have stopped being the active interface	
+
+	// While mutexes were locked away we may be have stopped being the active interface
 	if(LOCPLINT != this)
 		return;
-	
+
 	//if there are any waiting dialogs, show them
 	if((howManyPeople <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->get())
 	{
@@ -2195,7 +2195,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 		int level = caster->getSpellSchoolLevel(spell);
 		adventureInt->worldViewOptions.showAllTerrain = (level>2);
 	}
-	
+
 	auto castSoundPath = spell->getCastSound();
 	if (!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
@@ -2513,6 +2513,7 @@ void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLoc
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	adventureInt->infoBar.showSelection();
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
@@ -2783,8 +2784,8 @@ void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectP
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	//TODO: showWorldViewEx
-	
+
 	std::copy(objectPositions.begin(), objectPositions.end(), std::back_inserter(adventureInt->worldViewOptions.iconPositions));
-	
+
 	viewWorldMap();
 }
