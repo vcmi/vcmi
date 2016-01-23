@@ -19,6 +19,7 @@
 #include "mapObjects/MapObjects.h"
 #include "NetPacksBase.h"
 #include "GameConstants.h"
+#include "StringConstants.h"
 #include "CRandomGenerator.h"
 
 #include "mapObjects/CObjectClassesHandler.h"
@@ -1257,4 +1258,14 @@ void CArtifactSet::artDeserializationFix(CBonusSystemNode *node)
 	for(auto & elem : artifactsWorn)
 		if(elem.second.artifact && !elem.second.locked)
 			node->attachTo(elem.second.artifact);
+}
+
+void CArtifactSet::writeJson(JsonNode& json) const
+{
+
+}
+
+void CArtifactSet::readJson(const JsonNode& json)
+{
+
 }

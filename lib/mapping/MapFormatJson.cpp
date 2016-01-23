@@ -683,7 +683,6 @@ void CMapSaverJson::addToArchive(const JsonNode& data, const std::string& filena
 
 void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
 {
-	//TODO: saveMap
 	this->map = map.get();
 	writeHeader();
 	writeTerrain();

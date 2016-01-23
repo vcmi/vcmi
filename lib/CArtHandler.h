@@ -48,7 +48,7 @@ protected:
 	std::string eventText; //short story displayed upon picking
 public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
-	
+
 	std::string identifier;
 	std::string image;
 	std::string large; // big image for cutom artifacts, used in drag & drop
@@ -309,4 +309,8 @@ public:
 	}
 
 	void artDeserializationFix(CBonusSystemNode *node);
+
+protected:
+	void writeJson(JsonNode & json) const;
+	void readJson(const JsonNode & json);
 };
