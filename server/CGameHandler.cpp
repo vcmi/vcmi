@@ -2116,7 +2116,6 @@ void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroI
 
 void CGameHandler::removeArtifact(const ArtifactLocation &al)
 {
-	assert(al.getArt());
 	EraseArtifact ea;
 	ea.al = al;
 	sendAndApply(&ea);
