@@ -296,6 +296,7 @@ private:
 
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 	void setMovementStatus(bool value);
+	void askToAssembleArtifact(const ArtifactLocation &al);
 };
 
 extern CPlayerInterface * LOCPLINT;

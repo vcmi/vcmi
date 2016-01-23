@@ -214,6 +214,32 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 	}
 }
 
+bool CArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition slot,
+                              const CGHeroInstance *hero)
+{
+	std::vector<const CArtifact *> assemblyPossibilities = art->assemblyPossibilities(hero);
+
+	// If the artifact can be assembled, display dialog.
+	for(const CArtifact *combination : assemblyPossibilities)
+	{
+		LOCPLINT->showArtifactAssemblyDialog(
+			art->artType->id,
+			combination->id,
+			true,
+			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combination->id),
+			0);
+
+		if(assemblyPossibilities.size() > 2)
+		{
+			logGlobal->warnStream() << boost::format(
+				"More than one possibility of assembling on %s... taking only first")
+				% art->artType->Name();
+		}
+		return true;
+	}
+	return false;
+}
+
 void CArtPlace::clickRight(tribool down, bool previousState)
 {
 	if(down && ourArt && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
@@ -225,20 +251,8 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 				std::vector<const CArtifact *> assemblyPossibilities = ourArt->assemblyPossibilities(ourOwner->curHero);
 
 				// If the artifact can be assembled, display dialog.
-				for(const CArtifact *combination : assemblyPossibilities)
+				if (askToAssemble(ourArt, slotID, ourOwner->curHero))
 				{
-					LOCPLINT->showArtifactAssemblyDialog(
-						ourArt->artType->id,
-						combination->id,
-						true,
-						std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, true, combination->id),
-						0);
-
-					if(assemblyPossibilities.size() > 2)
-					{
-                        logGlobal->warnStream() << "More than one possibility of assembling... taking only first";
-						break;
-					}
 					return;
 				}
 
