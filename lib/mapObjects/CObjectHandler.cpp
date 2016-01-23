@@ -352,9 +352,10 @@ void CGObjectInstance::readJson(const JsonNode & json)
 	pos.z = json["l"].Float();
 
 	appearance.readJson(json["template"], false);
-	readJsonOptions(json["options"]);
 
-	logGlobal->debugStream() <<"Load: [" << pos << "] " << id << " " << ID << " " << subID << " " << typeName << " " << subTypeName;
+	logGlobal->debugStream() <<"Loading: [" << pos << "] " << id << " " << ID << " " << subID << " " << typeName << " " << subTypeName;
+
+	readJsonOptions(json["options"]);
 }
 
 void CGObjectInstance::writeJsonOptions(JsonNode & json) const
