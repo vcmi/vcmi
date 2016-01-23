@@ -741,7 +741,7 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 
 		sendAndApply(&sah);
 	}
-	if(finishingBattle->winnerHero->stacks.empty())
+	if(finishingBattle->winnerHero && finishingBattle->winnerHero->stacks.empty())
 	{
 		RemoveObject ro(finishingBattle->winnerHero->id);
 		sendAndApply(&ro);
