@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "ObjectTemplate.h"
 
@@ -206,6 +206,8 @@ protected:
 	///(!) do not forget to call inherited method  first when overriding
 	virtual void readJsonOptions(const JsonNode & json);
 
+	void writeOwner(JsonNode & json) const;
+	void readOwner(const JsonNode & json);
 private:
 	mutable std::string stringId;///<alternate id, dynamically generated, do not serialize
 };

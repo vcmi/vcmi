@@ -313,6 +313,18 @@ void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 	}
 }
 
+void CGDwelling::writeJsonOptions(JsonNode& json) const
+{
+	//todo:CGDwelling::writeJsonOptions
+	CGObjectInstance::writeOwner(json);
+}
+
+void CGDwelling::readJsonOptions(const JsonNode& json)
+{
+	//todo:CGDwelling::readJsonOptions
+	CGObjectInstance::readOwner(json);
+}
+
 int CGTownInstance::getSightRadious() const //returns sight distance
 {
 	if (subID == ETownType::TOWER)
@@ -360,7 +372,7 @@ CGTownInstance::EFortLevel CGTownInstance::fortLevel() const //0 - none, 1 - for
 
 int CGTownInstance::hallLevel() const // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 {
-	
+
 	if (hasBuilt(BuildingID::CAPITOL))
 		return 3;
 	if (hasBuilt(BuildingID::CITY_HALL))
@@ -455,12 +467,12 @@ TResources CGTownInstance::dailyIncome() const
 {
 	TResources ret;
 
-	for (auto & p : town->buildings) 
-	{ 
+	for (auto & p : town->buildings)
+	{
 		BuildingID buildingUpgrade;
 
-		for (auto & p2 : town->buildings) 
-		{ 
+		for (auto & p2 : town->buildings)
+		{
 			if (p2.second->upgrade == p.first)
 			{
 				buildingUpgrade = p2.first;
@@ -471,7 +483,7 @@ TResources CGTownInstance::dailyIncome() const
 		{
 			ret += p.second->produce;
 		}
-	
+
 	}
 
 	return ret;
@@ -964,7 +976,7 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 	//{
 	//	logGlobal->warnStream() << boost::format("Hero visiting town %s is %s ") % name % (visitingHero.get() ? visitingHero->name : "NULL");
 	//	logGlobal->warnStream() << boost::format("New hero will be %s ") % (h ? h->name : "NULL");
-	//	
+	//
 	//}
 	assert(!!visitingHero == !h);
 

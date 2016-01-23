@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "MiscObjects.h"
 
+#include "../StringConstants.h"
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
@@ -606,7 +607,7 @@ void CGMine::newTurn() const
 
 void CGMine::initObj()
 {
-	if(subID >= 7) //Abandoned Mine
+	if(isAbandoned())
 	{
 		//set guardians
 		int howManyTroglodytes = cb->gameState()->getRandomGenerator().nextInt(100, 199);
@@ -631,6 +632,11 @@ void CGMine::initObj()
 	}
 
 	producedQuantity = defaultResProduction();
+}
+
+bool CGMine::isAbandoned() const
+{
+	return (subID >= 7);
 }
 
 std::string CGMine::getObjectName() const
@@ -690,7 +696,7 @@ void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &resu
 {
 	if(result.winner == 0) //attacker won
 	{
-		if(subID == 7)
+		if(isAbandoned())
 		{
 			showInfoDialog(hero->tempOwner, 85, 0);
 		}
@@ -704,14 +710,68 @@ void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) con
 		cb->startBattleI(hero, this);
 }
 
-void CGMine::writeJsonOptions(JsonNode& json) const
+void CGMine::writeJsonOptions(JsonNode & json) const
 {
+	CArmedInstance::writeJsonOptions(json);
 
+	if(isAbandoned())
+	{
+		JsonNode & node = json["possibleResources"];
+
+		for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
+			if(tempOwner.getNum() & 1<<i)
+			{
+				JsonNode one(JsonNode::DATA_STRING);
+				one.String() = GameConstants::RESOURCE_NAMES[i];
+				node.Vector().push_back(one);
+			}
+	}
+	else
+	{
+		CGObjectInstance::writeOwner(json);
+	}
 }
 
-void CGMine::readJsonOptions(const JsonNode& json)
+void CGMine::readJsonOptions(const JsonNode & json)
 {
+	CArmedInstance::readJsonOptions(json);
 
+	if(isAbandoned())
+	{
+		const JsonNode & node = json["possibleResources"];
+
+		std::set<int> possibleResources;
+
+		if(node.Vector().size() == 0)
+		{
+			//assume all allowed
+			for(int i = (int)Res::WOOD; i < (int) Res::GOLD; i++)
+				possibleResources.insert(i);
+		}
+		else
+		{
+            auto names = node.convertTo<std::vector<std::string>>();
+
+            for(const std::string & s : names)
+			{
+                int raw_res = vstd::find_pos(GameConstants::RESOURCE_NAMES, s);
+                if(raw_res < 0)
+					logGlobal->errorStream() << "Invalid resource name: "+s;
+				else
+					possibleResources.insert(raw_res);
+			}
+
+			int tmp = 0;
+
+			for(int r : possibleResources)
+				tmp |=  (1<<r);
+			tempOwner = PlayerColor(tmp);
+		}
+	}
+	else
+	{
+		CGObjectInstance::readOwner(json);
+	}
 }
 
 
@@ -1298,12 +1358,14 @@ void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGArtifact::writeJsonOptions(JsonNode& json) const
 {
-
+	CCreatureSet::writeJson(json["guards"]);
+	json["guardMessage"].String() = message;
 }
 
 void CGArtifact::readJsonOptions(const JsonNode& json)
 {
-
+	CCreatureSet::readJson(json["guards"]);
+	message = json["guardMessage"].String();
 }
 
 void CGWitchHut::initObj()
@@ -1681,12 +1743,16 @@ void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &
 
 void CGGarrison::writeJsonOptions(JsonNode& json) const
 {
-
+	CArmedInstance::writeJsonOptions(json);
+	CGObjectInstance::writeOwner(json);
+	json["removableUnits"].Bool() = removableUnits;
 }
 
 void CGGarrison::readJsonOptions(const JsonNode& json)
 {
-
+	CArmedInstance::readJsonOptions(json);
+	CGObjectInstance::readOwner(json);
+	removableUnits = json["removableUnits"].Bool();
 }
 
 void CGMagi::initObj()

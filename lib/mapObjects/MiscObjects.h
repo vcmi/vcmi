@@ -263,6 +263,7 @@ private:
 	std::string getObjectName() const override;
 	std::string getHoverText(PlayerColor player) const override;
 
+	bool isAbandoned() const;
 public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

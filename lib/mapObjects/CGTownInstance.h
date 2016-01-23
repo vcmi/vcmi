@@ -52,6 +52,10 @@ public:
 	CSpecObjInfo * info; //h3m info about dewlling
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
+protected:
+	void writeJsonOptions(JsonNode & json) const override;
+	void readJsonOptions(const JsonNode & json) override;
+
 private:
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;

@@ -362,7 +362,23 @@ void CGObjectInstance::writeJsonOptions(JsonNode & json) const
 {
 	json.setType(JsonNode::DATA_STRUCT);
 
-	//todo: move up to descendants
+//	//todo: move up to descendants
+//	if(tempOwner != PlayerColor::UNFLAGGABLE)
+//	{
+//		PlayerColor p (tempOwner);
+//		if(p.isValidPlayer())
+//			json["owner"].String() = GameConstants::PLAYER_COLOR_NAMES[p.getNum()];
+//	}
+}
+
+void CGObjectInstance::readJsonOptions(const JsonNode & json)
+{
+//	if(json["owner"].getType() == JsonNode::DATA_STRING)
+//		tempOwner = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, json["owner"].String()));
+}
+
+void CGObjectInstance::writeOwner(JsonNode & json) const
+{
 	if(tempOwner != PlayerColor::UNFLAGGABLE)
 	{
 		PlayerColor p (tempOwner);
@@ -371,12 +387,11 @@ void CGObjectInstance::writeJsonOptions(JsonNode & json) const
 	}
 }
 
-void CGObjectInstance::readJsonOptions(const JsonNode & json)
+void CGObjectInstance::readOwner(const JsonNode & json)
 {
 	if(json["owner"].getType() == JsonNode::DATA_STRING)
 		tempOwner = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, json["owner"].String()));
 }
-
 
 CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)
 {
