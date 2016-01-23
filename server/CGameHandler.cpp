@@ -926,13 +926,16 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 			{
 				const bool result = apply->applyOnGH(this,&c,pack, player);
 				if(!result)
-					complain("Got false in applying... that request must have been fishy!");
-                logGlobal->traceStream() << "Message successfully applied (result=" << result << ")!";
+				{
+					complain((boost::format("Got false in applying %s... that request must have been fishy!")
+				            % typeid(*pack).name()).str());
+				}
+				logGlobal->traceStream() << "Message successfully applied (result=" << result << ")!";
 				sendPackageResponse(true);
 			}
 			else
 			{
-                logGlobal->errorStream() << "Message cannot be applied, cannot find applier (unregistered type)!";
+				logGlobal->errorStream() << "Message cannot be applied, cannot find applier (unregistered type)!";
 				sendPackageResponse(false);
 			}
 
@@ -3038,7 +3041,7 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 		sendAndApply(&da);
 	}
 
-	return false;
+	return true;
 }
 
 bool CGameHandler::buyArtifact( ObjectInstanceID hid, ArtifactID aid )

@@ -2510,10 +2510,20 @@ void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLoc
 	garrisonsChanged(objects);
 }
 
+void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
+{
+	auto hero = dynamic_cast<const CGHeroInstance*>(al.relatedObj());
+	if(hero)
+	{
+		CArtPlace::askToAssemble(hero->getArt(al.slot), al.slot, hero);
+	}
+}
+
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->infoBar.showSelection();
+	askToAssembleArtifact(al);
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
@@ -2538,6 +2548,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 		if(artWin)
 			artWin->artifactMoved(src, dst);
 	}
+	askToAssembleArtifact(dst);
 }
 
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)

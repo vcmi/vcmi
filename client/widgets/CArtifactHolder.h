@@ -74,15 +74,17 @@ public:
 
 	void setMeAsDest(bool backpackAsVoid = true);
 	void setArtifact(const CArtifactInstance *art);
+	static bool askToAssemble(const CArtifactInstance *art, ArtifactPosition slot,
+	                          const CGHeroInstance *hero);
 };
 
 /// Contains artifacts of hero. Distincts which artifacts are worn or backpacked
 class CArtifactsOfHero : public CIntObject
 {
 	const CGHeroInstance * curHero;
-	
+
 	std::map<ArtifactPosition, CArtPlace *> artWorn;
- 
+
 	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
 	int backpackPos; //number of first art visible in backpack (in hero's vector)
 
