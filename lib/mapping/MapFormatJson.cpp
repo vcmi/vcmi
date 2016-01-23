@@ -591,6 +591,16 @@ void CMapLoaderJson::MapObjectLoader::construct()
 		return;
 	}
 
+	//special case for grail
+    if(typeName == "grail")
+	{
+		auto & pos = owner->map->grailPos;
+		pos.x = configuration["x"].Float();
+		pos.y = configuration["y"].Float();
+		pos.z = configuration["l"].Float();
+		owner->map->grailRadious = configuration["options"]["grailRadius"].Float();
+	}
+
 	handler = VLC->objtypeh->getHandlerFor(typeName, subTypeName);
 
 	instance = handler->create(ObjectTemplate());
@@ -600,6 +610,9 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 void CMapLoaderJson::MapObjectLoader::configure()
 {
+	if(nullptr == instance)
+		return;
+
 	instance->readJson(configuration);
 
 	if(instance->ID == Obj::TOWN)
@@ -857,6 +870,23 @@ void CMapSaverJson::writeObjects()
 
 	for(const CGObjectInstance * obj : map->objects)
 		obj->writeJson(data[obj->getStringId()]);
+
+	if(map->grailPos.valid())
+	{
+		JsonNode grail(JsonNode::DATA_STRUCT);
+		grail["type"].String() = "grail";
+
+		grail["x"].Float() = map->grailPos.x;
+		grail["y"].Float() = map->grailPos.y;
+		grail["l"].Float() = map->grailPos.z;
+
+		grail["options"]["radius"].Float() = map->grailRadious;
+
+		std::string grailId = boost::str(boost::format("grail_%d") % map->objects.size());
+
+		data[grailId] = grail;
+
+	}
 
 	addToArchive(data, OBJECTS_FILE_NAME);
 }
