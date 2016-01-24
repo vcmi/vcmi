@@ -70,7 +70,7 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 		case MISSION_ART:
 			for (auto & elem : m5arts)
 			{
-				if (h->hasArt(elem))
+				if (h->hasArt(elem, false, true))
 					continue;
 				return false; //if the artifact was not found
 			}
@@ -630,6 +630,18 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			case CQuest::MISSION_ART:
 				for (auto & elem : quest->m5arts)
 				{
+					if(!h->hasArt(elem))
+					{
+						// first we need to disassemble this backpack artifact
+						auto assembly = h->getAssemblyByConstituent(elem);
+						assert(assembly);
+						for(auto & ci : assembly->constituentsInfo)
+						{
+							cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::PRE_FIRST);
+						}
+						// remove the assembly
+						cb->removeArtifact(ArtifactLocation(h, h->getArtPos(assembly)));
+					}
 					cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
 				}
 				break;

@@ -133,7 +133,9 @@ public:
 	virtual bool canBeDisassembled() const;
 	virtual void putAt(ArtifactLocation al);
 	virtual void removeFrom(ArtifactLocation al);
-	virtual bool isPart(const CArtifactInstance *supposedPart) const; //checks if this a part of this artifact: artifact instance is a part of itself, additionally truth is returned for consituents of combined arts
+	/// Checks if this a part of this artifact: artifact instance is a part
+	/// of itself, additionally truth is returned for constituents of combined arts
+	virtual bool isPart(const CArtifactInstance *supposedPart) const;
 
 	std::vector<const CArtifact *> assemblyPossibilities(const CArtifactSet *h) const;
 	void move(ArtifactLocation src, ArtifactLocation dst);
@@ -177,7 +179,7 @@ public:
 
 	void createConstituents();
 	void addAsConstituent(CArtifactInstance *art, ArtifactPosition slot);
-	CArtifactInstance *figureMainConstituent(const ArtifactLocation al); //main constituent is replcaed with us (combined art), not lock
+	CArtifactInstance *figureMainConstituent(const ArtifactLocation al); //main constituent is replaced with us (combined art), not lock
 
 	CCombinedArtifactInstance();
 
@@ -270,10 +272,8 @@ struct DLL_LINKAGE ArtSlotInfo
 	ConstTransitivePtr<CArtifactInstance> artifact;
 	ui8 locked; //if locked, then artifact points to the combined artifact
 
-	ArtSlotInfo()
-	{
-		locked = false;
-	}
+	ArtSlotInfo() : locked(false) {}
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & artifact & locked;
@@ -293,10 +293,16 @@ public:
 	const ArtSlotInfo *getSlot(ArtifactPosition pos) const;
 	const CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true) const; //nullptr - no artifact
 	CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true); //nullptr - no artifact
-	ArtifactPosition getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
+	/// Looks for equipped artifact with given ID and returns its slot ID or -1 if none
+	/// (if more than one such artifact lower ID is returned)
+	ArtifactPosition getArtPos(int aid, bool onlyWorn = true) const;
 	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
 	const CArtifactInstance *getArtByInstanceId(ArtifactInstanceID artInstId) const;
-	bool hasArt(ui32 aid, bool onlyWorn = false) const; //checks if hero possess artifact of given id (either in backack or worn)
+	/// Search for constituents of assemblies in backpack which do not have an ArtifactPosition
+	const CArtifactInstance *getHiddenArt(int aid) const;
+	const CCombinedArtifactInstance *getAssemblyByConstituent(int aid) const;
+	/// Checks if hero possess artifact of given id (either in backack or worn)
+	bool hasArt(ui32 aid, bool onlyWorn = false, bool searchBackpackAssemblies = false) const;
 	bool isPositionFree(ArtifactPosition pos, bool onlyLockCheck = false) const;
 	si32 getArtTypeId(ArtifactPosition pos) const;
 
@@ -313,4 +319,7 @@ public:
 protected:
 	void writeJson(JsonNode & json) const;
 	void readJson(const JsonNode & json);
+
+protected:
+	std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *> searchForConstituent(int aid) const;
 };

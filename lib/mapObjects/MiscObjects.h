@@ -93,6 +93,7 @@ private:
 	void joinDecision(const CGHeroInstance *h, int cost, ui32 accept) const;
 
 	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
+	void giveReward(const CGHeroInstance * h) const;
 
 };
 

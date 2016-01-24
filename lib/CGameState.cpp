@@ -1658,15 +1658,16 @@ void CGameState::initStartingBonus()
 		switch(scenarioOps->playerInfos[elem.first].bonus)
 		{
 		case PlayerSettings::GOLD:
-			elem.second.resources[Res::GOLD] += rand.nextInt(500, 1000);
+			elem.second.resources[Res::GOLD] += rand.nextInt(5, 10) * 100;
 			break;
 		case PlayerSettings::RESOURCE:
 			{
 				int res = VLC->townh->factions[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
 				if(res == Res::WOOD_AND_ORE)
 				{
-					elem.second.resources[Res::WOOD] += rand.nextInt(5, 10);
-					elem.second.resources[Res::ORE] += rand.nextInt(5, 10);
+					int amount = rand.nextInt(5, 10);
+					elem.second.resources[Res::WOOD] += amount;
+					elem.second.resources[Res::ORE] += amount;
 				}
 				else
 				{

@@ -926,13 +926,16 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 			{
 				const bool result = apply->applyOnGH(this,&c,pack, player);
 				if(!result)
-					complain("Got false in applying... that request must have been fishy!");
-                logGlobal->traceStream() << "Message successfully applied (result=" << result << ")!";
+				{
+					complain((boost::format("Got false in applying %s... that request must have been fishy!")
+				            % typeid(*pack).name()).str());
+				}
+				logGlobal->traceStream() << "Message successfully applied (result=" << result << ")!";
 				sendPackageResponse(true);
 			}
 			else
 			{
-                logGlobal->errorStream() << "Message cannot be applied, cannot find applier (unregistered type)!";
+				logGlobal->errorStream() << "Message cannot be applied, cannot find applier (unregistered type)!";
 				sendPackageResponse(false);
 			}
 
@@ -2113,7 +2116,6 @@ void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroI
 
 void CGameHandler::removeArtifact(const ArtifactLocation &al)
 {
-	assert(al.getArt());
 	EraseArtifact ea;
 	ea.al = al;
 	sendAndApply(&ea);
@@ -3038,7 +3040,7 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 		sendAndApply(&da);
 	}
 
-	return false;
+	return true;
 }
 
 bool CGameHandler::buyArtifact( ObjectInstanceID hid, ArtifactID aid )
@@ -4025,6 +4027,16 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
 			if(!hero->hasStackAtSlot(SlotID(i)))
 				insertNewStack(StackLocation(hero, SlotID(i)), blackKnight, 10);
+	}
+	else if(message == "vcmiglaurung") //gives 5000 crystal dragons into each slot
+	{
+		CGHeroInstance *hero = gs->getHero(currObj);
+		const CCreature *crystalDragon = VLC->creh->creatures.at(133);
+		if(!hero) return;
+
+		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
+			if(!hero->hasStackAtSlot(SlotID(i)))
+				insertNewStack(StackLocation(hero, SlotID(i)), crystalDragon, 5000);
 	}
 	else if(message == "vcminoldor") //all war machines
 	{

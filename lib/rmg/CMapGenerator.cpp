@@ -20,6 +20,8 @@ void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& 
 	for(const int3 &dir : int3::getDirs())
 	{
 		int3 n = pos + dir;
+		/*important notice: perform any translation before this function is called,
+		so the actual map position is checked*/
 		if(map->isInTheMap(n))
 			foo(n);
 	}

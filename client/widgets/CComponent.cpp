@@ -186,19 +186,31 @@ std::string CComponent::getSubtitleInternal()
 	case artifact:   return CGI->arth->artifacts[subtype]->Name();
 	case experience:
 		{
-			if (subtype == 1) //+1 level - tree of knowledge
+			if(subtype == 1) //+1 level - tree of knowledge
 			{
 				std::string level = CGI->generaltexth->allTexts[442];
 				boost::replace_first(level, "1", boost::lexical_cast<std::string>(val));
 				return level;
 			}
 			else
+			{
 				return boost::lexical_cast<std::string>(val); //amount of experience OR level required for seer hut;
+			}
 		}
 	case spell:      return CGI->spellh->objects[subtype]->name;
 	case morale:     return "";
 	case luck:       return "";
-	case building:   return CGI->townh->factions[subtype]->town->buildings[BuildingID(val)]->Name();
+	case building:
+		{
+			auto building = CGI->townh->factions[subtype]->town->buildings[BuildingID(val)];
+			if(!building)
+			{
+				logGlobal->errorStream() << boost::format("Town of faction %s has no building #%d")
+					% CGI->townh->factions[subtype]->town->faction->name % val;
+				return (boost::format("Missing building #%d") % val).str();
+			}
+			return building->Name();
+		}
 	case hero:       return "";
 	case flag:       return CGI->generaltexth->capColors[subtype];
 	}

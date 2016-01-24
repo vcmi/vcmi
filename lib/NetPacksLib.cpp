@@ -340,7 +340,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 		if(b->source == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
-			node->removeBonus(b);			
+			node->removeBonus(b);
 			break;
 		}
 	}
@@ -754,7 +754,7 @@ DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 			return s->artifact;
 		else
 		{
-            logNetwork->warnStream() << "ArtifactLocation::getArt: That location is locked!";
+			logNetwork->warnStream() << "ArtifactLocation::getArt: This location is locked!";
 			return nullptr;
 		}
 	}
@@ -914,6 +914,32 @@ DLL_LINKAGE void PutArtifact::applyGs( CGameState *gs )
 
 DLL_LINKAGE void EraseArtifact::applyGs( CGameState *gs )
 {
+	auto slot = al.getSlot();
+	if(slot->locked)
+	{
+		logGlobal->debugStream() << "Erasing locked artifact: " << slot->artifact->artType->Name();
+		DisassembledArtifact dis;
+		dis.al.artHolder = al.artHolder;
+		auto aset = al.getHolderArtSet();
+		bool found = false;
+		for(auto& p : aset->artifactsWorn)
+		{
+			auto art = p.second.artifact;
+			if(art->canBeDisassembled() && art->isPart(slot->artifact))
+			{
+				dis.al.slot = aset->getArtPos(art);
+				found = true;
+				break;
+			}
+		}
+		assert(found && "Failed to determine the assembly this locked artifact belongs to");
+		logGlobal->debugStream() << "Found the corresponding assembly: " << dis.al.getSlot()->artifact->artType->Name();
+		dis.applyGs(gs);
+	}
+	else
+	{
+		logGlobal->debugStream() << "Erasing artifact " << slot->artifact->artType->Name();
+	}
 	al.removeArtifact();
 }
 
@@ -1262,7 +1288,7 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 	{
 		//"hide" killed creatures instead so we keep info about it
 		at->state.insert(EBattleStackState::DEAD_CLONE);
-		
+
 		for(CStack * s : gs->curB->stacks)
 		{
 			if(s->cloneID == at->ID)
@@ -1375,7 +1401,7 @@ void actualizeEffect(CStack * s, const Bonus & ef)
 			stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, ef.turnsRemain);
 		}
 	}
-	CBonusSystemNode::treeHasChanged();	
+	CBonusSystemNode::treeHasChanged();
 }
 
 void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)

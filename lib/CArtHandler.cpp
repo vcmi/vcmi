@@ -1178,9 +1178,42 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId( ArtifactInstanceID a
 	return nullptr;
 }
 
-bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= false*/) const
+bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= false*/,
+                          bool searchBackpackAssemblies /*= false*/) const
 {
-	return getArtPos(aid, onlyWorn) != ArtifactPosition::PRE_FIRST;
+	return getArtPos(aid, onlyWorn) != ArtifactPosition::PRE_FIRST ||
+	       (searchBackpackAssemblies && getHiddenArt(aid));
+}
+
+std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *>
+CArtifactSet::searchForConstituent(int aid) const
+{
+	for(auto & slot : artifactsInBackpack)
+	{
+		auto art = slot.artifact;
+		if(art->canBeDisassembled())
+		{
+			auto ass = static_cast<CCombinedArtifactInstance *>(art.get());
+			for(auto& ci : ass->constituentsInfo)
+			{
+				if(ci.art->artType->id == aid)
+				{
+					return {ass, ci.art};
+				}
+			}
+		}
+	}
+	return {nullptr, nullptr};
+}
+
+const CArtifactInstance *CArtifactSet::getHiddenArt(int aid) const
+{
+	return searchForConstituent(aid).second;
+}
+
+const CCombinedArtifactInstance *CArtifactSet::getAssemblyByConstituent(int aid) const
+{
+	return searchForConstituent(aid).first;
 }
 
 const ArtSlotInfo * CArtifactSet::getSlot(ArtifactPosition pos) const
