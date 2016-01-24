@@ -317,7 +317,7 @@ void CObjectClassesHandler::afterLoadFinalization()
 	}
 
 	//duplicate existing two-way portals to make reserve for RMG
-	auto& portalVec = objects[Obj::MONOLITH_TWO_WAY]->objects;
+	auto& portalVec = objects[Obj::MONOLITH_TWO_WAY]->subObjects;
 	size_t portalCount = portalVec.size();
 	size_t currentIndex = portalCount;
 	while (portalVec.size() < 100)
