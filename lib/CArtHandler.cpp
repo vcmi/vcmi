@@ -760,16 +760,16 @@ void CArtifactInstance::init()
 std::string CArtifactInstance::getEffectiveDescription(
 	const CGHeroInstance *hero) const
 {
-	std::string text = this->artType->Description();
+	std::string text = artType->Description();
 	if (!vstd::contains(text, '{'))
-		text = '{' + this->artType->Name() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
+		text = '{' + artType->Name() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
 
-	if(this->artType->id == ArtifactID::SPELL_SCROLL)
+	if(artType->id == ArtifactID::SPELL_SCROLL)
 	{
 		// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
 		// so we want to replace text in [...] with a spell name
 		// however other language versions don't have name placeholder at all, so we have to be careful
-		int spellID = this->getGivenSpellID();
+		int spellID = getGivenSpellID();
 		size_t nameStart = text.find_first_of('[');
 		size_t nameEnd = text.find_first_of(']', nameStart);
 		if(spellID >= 0)
@@ -778,10 +778,10 @@ std::string CArtifactInstance::getEffectiveDescription(
 				text = text.replace(nameStart, nameEnd - nameStart + 1, VLC->spellh->objects[spellID]->name);
 		}
 	}
-	else if (hero && this->artType->constituentOf.size()) //display info about set
+	else if (hero && artType->constituentOf.size()) //display info about set
 	{
 		std::string artList;
-		auto combinedArt = this->artType->constituentOf[0];
+		auto combinedArt = artType->constituentOf[0];
 		text += "\n\n";
 		text += "{" + combinedArt->Name() + "}";
 		int wornArtifacts = 0;
