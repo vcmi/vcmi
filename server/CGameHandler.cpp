@@ -124,6 +124,11 @@ static inline double distance(int3 a, int3 b)
 }
 static void giveExp(BattleResult &r)
 {
+	if(r.winner > 1)
+	{
+		// draw
+		return;
+	}
 	r.exp[0] = 0;
 	r.exp[1] = 0;
 	for(auto i = r.casualties[!r.winner].begin(); i!=r.casualties[!r.winner].end(); i++)
@@ -5679,16 +5684,18 @@ void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact 
 
 void CGameHandler::setBattleResult(BattleResult::EResult resultType, int victoriusSide)
 {
-	if(battleResult.get())
+	boost::unique_lock<boost::mutex> guard(battleResult.mx);
+	if(battleResult.data)
 	{
-		complain("There is already set result?");
+		complain((boost::format("The battle result has been already set (to %d, asked to %d)")
+		          % battleResult.data->result % resultType).str());
 		return;
 	}
 	auto br = new BattleResult;
 	br->result = resultType;
 	br->winner = victoriusSide; //surrendering side loses
 	gs->curB->calculateCasualties(br->casualties);
-	battleResult.set(br);
+	battleResult.data = br;
 }
 
 void CGameHandler::commitPackage( CPackForClient *pack )
