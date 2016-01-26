@@ -453,10 +453,14 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 
 void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-
-	if(result.winner==0)
+	if(result.winner == 0)
 	{
 		giveReward(hero);
+		cb->removeObject(this);
+	}
+	else if(result.winner > 1) // draw
+	{
+		// guarded reward is lost forever on draw
 		cb->removeObject(this);
 	}
 	else
@@ -464,11 +468,11 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		//merge stacks into one
 		TSlots::const_iterator i;
 		CCreature * cre = VLC->creh->creatures[formation.basicType];
-		for (i = stacks.begin(); i != stacks.end(); i++)
+		for(i = stacks.begin(); i != stacks.end(); i++)
 		{
-			if (cre->isMyUpgrade(i->second->type))
+			if(cre->isMyUpgrade(i->second->type))
 			{
-				cb->changeStackType (StackLocation(this, i->first), cre); //un-upgrade creatures
+				cb->changeStackType(StackLocation(this, i->first), cre); //un-upgrade creatures
 			}
 		}
 
@@ -476,16 +480,16 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		if(!hasStackAtSlot(SlotID(0)))
 			cb->moveStack(StackLocation(this, stacks.begin()->first), StackLocation(this, SlotID(0)), stacks.begin()->second->count);
 
-		while (stacks.size() > 1) //hopefully that's enough
+		while(stacks.size() > 1) //hopefully that's enough
 		{
 			// TODO it's either overcomplicated (if we assume there'll be only one stack) or buggy (if we allow multiple stacks... but that'll also cause troubles elsewhere)
 			i = stacks.end();
 			i--;
 			SlotID slot = getSlotFor(i->second->type);
-			if (slot == i->first) //no reason to move stack to its own slot
+			if(slot == i->first) //no reason to move stack to its own slot
 				break;
 			else
-				cb->moveStack (StackLocation(this, i->first), StackLocation(this, slot), i->second->count);
+				cb->moveStack(StackLocation(this, i->first), StackLocation(this, slot), i->second->count);
 		}
 
 		cb->setObjProperty(id, ObjProperty::MONSTER_POWER, stacks.begin()->second->count * 1000); //remember casualties

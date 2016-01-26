@@ -295,10 +295,10 @@ void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int val, int nega
 
 void CGPandoraBox::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(result.winner)
-		return;
-
-	giveContentsUpToExp(hero);
+	if(result.winner == 0)
+	{
+		giveContentsUpToExp(hero);
+	}
 }
 
 void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
