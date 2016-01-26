@@ -3328,22 +3328,26 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 //		|| (getHeroCount(player, false) >= GameConstants::MAX_HEROES_PER_PLAYER && complain("Cannot hire hero, only 8 wandering heroes are allowed!")))
 	if((p->resources.at(Res::GOLD) < GameConstants::HERO_GOLD_COST && complain("Not enough gold for buying hero!"))
 		|| ((!t) && (getHeroCount(player, false) >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER && complain("Cannot hire hero, too many wandering heroes already!")))
-			|| ((t) && (getHeroCount(player, true) >= VLC->modh->settings.MAX_HEROES_AVAILABLE_PER_PLAYER && complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))) )
-
-	return false;
+		|| ((t) && (getHeroCount(player, true) >= VLC->modh->settings.MAX_HEROES_AVAILABLE_PER_PLAYER && complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))) )
+	{
+		return false;
+	}
 
 	if(t) //tavern in town
 	{
-		if(    (!t->hasBuilt(BuildingID::TAVERN)  && complain("No tavern!"))
-			|| (t->visitingHero  && complain("There is visiting hero - no place!")))
+		if((!t->hasBuilt(BuildingID::TAVERN) && complain("No tavern!"))
+			 || (t->visitingHero  && complain("There is visiting hero - no place!")))
+		{
 			return false;
+		}
 	}
 	else if(obj->ID == Obj::TAVERN)
 	{
-		if(getTile(obj->visitablePos())->visitableObjects.back() != obj  &&  complain("Tavern entry must be unoccupied!"))
+		if(getTile(obj->visitablePos())->visitableObjects.back() != obj && complain("Tavern entry must be unoccupied!"))
+		{
 			return false;
+		}
 	}
-
 
 	const CGHeroInstance *nh = p->availableHeroes.at(hid);
 	if (!nh)
@@ -3359,13 +3363,14 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	hr.tile = obj->visitablePos() + nh->getVisitableOffset();
 	sendAndApply(&hr);
 
-
 	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->unusedHeroesFromPool();
 
 	const CGHeroInstance *theOtherHero = p->availableHeroes.at(!hid);
 	const CGHeroInstance *newHero = nullptr;
 	if (theOtherHero) //on XXL maps all heroes can be imprisoned :(
+	{
 		newHero = gs->hpool.pickHeroFor(false, player, getNativeTown(player), pool, gs->getRandomGenerator(), theOtherHero->type->heroClass);
+	}
 
 	SetAvailableHeroes sah;
 	sah.player = player;
@@ -3377,7 +3382,9 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 		sah.army[hid].setCreature(SlotID(0), newHero->type->initialArmy[0].creature, 1);
 	}
 	else
+	{
 		sah.hid[hid] = -1;
+	}
 
 	sah.hid[!hid] = theOtherHero ? theOtherHero->subID : -1;
 	sendAndApply(&sah);
