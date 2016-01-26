@@ -12,6 +12,7 @@
 #pragma once
 
 #include "../CConsoleHandler.h"
+#include "../filesystem/FileStream.h"
 
 class CLogger;
 struct LogRecord;
@@ -147,7 +148,7 @@ private:
 
 /// Macros for tracing the control flow of the application conveniently. If the LOG_TRACE macro is used it should be
 /// the first statement in the function. Logging traces via this macro have almost no impact when the trace is disabled.
-/// 
+///
 #define RAII_TRACE(logger, onEntry, onLeave)			\
 	std::unique_ptr<CTraceLogger> ctl00;						\
 	if(logger->isTraceEnabled())						\
@@ -217,7 +218,7 @@ public:
 	CLogFormatter(CLogFormatter && move);
 
 	CLogFormatter(const std::string & pattern);
-	
+
 	CLogFormatter & operator=(const CLogFormatter & copy);
 	CLogFormatter & operator=(CLogFormatter && move);
 
@@ -302,7 +303,7 @@ public:
 	void write(const LogRecord & record) override;
 
 private:
-	boost::filesystem::ofstream file;
+	FileStream file;
 	CLogFormatter formatter;
 	mutable boost::mutex mx;
 };
