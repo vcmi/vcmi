@@ -1,7 +1,7 @@
 #include "StdInc.h"
 
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/CFileInfo.h"
+#include "../lib/filesystem/FileInfo.h"
 #include "../lib/int3.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../lib/StartInfo.h"
@@ -2362,13 +2362,13 @@ void CGameHandler::sendAndApply( NewStructures * info )
 void CGameHandler::save(const std::string & filename )
 {
     logGlobal->infoStream() << "Saving to " << filename;
-	CFileInfo info(filename);
-	//CResourceHandler::get("local")->createResource(info.getStem() + ".vlgm1");
-	CResourceHandler::get("local")->createResource(info.getStem() + ".vsgm1");
+	const auto stem	= FileInfo::GetPathStem(filename);
+	const auto savefname = stem.to_string() + ".vsgm1";
+	CResourceHandler::get("local")->createResource(savefname);
 
 	{
         logGlobal->infoStream() << "Ordering clients to serialize...";
-		SaveGame sg(info.getStem() + ".vcgm1");
+		SaveGame sg(savefname);
 		sendToAllClients(&sg);
 	}
 
@@ -2383,7 +2383,7 @@ void CGameHandler::save(const std::string & filename )
 // 		}
 
 		{
-			CSaveFile save(*CResourceHandler::get("local")->getResourceName(ResourceID(info.getStem(), EResType::SERVER_SAVEGAME)));
+			CSaveFile save(*CResourceHandler::get("local")->getResourceName(ResourceID(stem.to_string(), EResType::SERVER_SAVEGAME)));
 			saveCommonState(save);
             logGlobal->infoStream() << "Saving server state";
 			save << *this;

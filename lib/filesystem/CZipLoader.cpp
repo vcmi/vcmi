@@ -86,7 +86,7 @@ std::unordered_map<ResourceID, unz64_file_pos> CZipLoader::listFiles(const std::
 
 std::unique_ptr<CInputStream> CZipLoader::load(const ResourceID & resourceName) const
 {
-	return std::unique_ptr<CInputStream>(new CZipStream(archiveName, files.at(resourceName)));
+	return make_unique<CZipStream>(archiveName, files.at(resourceName));
 }
 
 bool CZipLoader::existsResource(const ResourceID & resourceName) const

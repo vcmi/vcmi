@@ -1,7 +1,6 @@
 #include "StdInc.h"
 #include "CFilesystemLoader.h"
 
-#include "CFileInfo.h"
 #include "CFileInputStream.h"
 #include "FileStream.h"
 
@@ -19,8 +18,7 @@ std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourceID & resourc
 {
 	assert(fileList.count(resourceName));
 
-	std::unique_ptr<CInputStream> stream(new CFileInputStream(baseDirectory / fileList.at(resourceName)));
-	return stream;
+	return make_unique<CFileInputStream>(baseDirectory / fileList.at(resourceName));
 }
 
 bool CFilesystemLoader::existsResource(const ResourceID & resourceName) const

@@ -229,6 +229,8 @@
 		<Unit filename="filesystem/CMemoryStream.h" />
 		<Unit filename="filesystem/CZipLoader.cpp" />
 		<Unit filename="filesystem/CZipLoader.h" />
+		<Unit filename="filesystem/FileInfo.cpp" />
+		<Unit filename="filesystem/FileInfo.h" />
 		<Unit filename="filesystem/FileStream.cpp" />
 		<Unit filename="filesystem/FileStream.h" />
 		<Unit filename="filesystem/Filesystem.cpp" />

@@ -100,18 +100,18 @@ public:
 
 	std::string getName() const;
 	EResType::Type getType() const;
-	void setName(std::string name);
-	void setType(EResType::Type type);
+	//void setName(std::string name);
+	//void setType(EResType::Type type);
 
 private:
-	/** Specifies the resource name. No extension so .pcx and .png can override each other, always in upper case. **/
-	std::string name;
-
 	/**
 	 * Specifies the resource type. EResType::OTHER if not initialized.
 	 * Required to prevent conflicts if files with different types (e.g. text and image) have the same name.
 	 */
 	EResType::Type type;
+
+	/** Specifies the resource name. No extension so .pcx and .png can override each other, always in upper case. **/
+	std::string name;
 };
 
 namespace std

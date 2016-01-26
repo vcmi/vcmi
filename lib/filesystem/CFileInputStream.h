@@ -13,8 +13,6 @@
 #include "CInputStream.h"
 #include "FileStream.h"
 
-class CFileInfo;
-
 /**
  * A class which provides method definitions for reading a file from the filesystem.
  */
@@ -31,13 +29,6 @@ public:
 	 * @throws std::runtime_error if file wasn't found
 	 */
 	CFileInputStream(const boost::filesystem::path & file, si64 start = 0, si64 size = 0);
-
-	/**
-	 * C-tor. Opens the specified file.
-	 *
-	 * @see CFileInputStream::CFileInputStream(const boost::filesystem::path &, si64, si64)
-	 */
-	CFileInputStream(const CFileInfo & file, si64 start=0, si64 size=0);
 
 	/**
 	 * Reads n bytes from the stream into the data buffer.

@@ -1,8 +1,6 @@
 #include "StdInc.h"
 #include "CFileInputStream.h"
 
-#include "CFileInfo.h"
-
 CFileInputStream::CFileInputStream(const boost::filesystem::path & file, si64 start, si64 size)
   : dataStart{start},
 	dataSize{size},
@@ -19,9 +17,6 @@ CFileInputStream::CFileInputStream(const boost::filesystem::path & file, si64 st
 
 	fileStream.seekg(dataStart, std::ios::beg);
 }
-
-CFileInputStream::CFileInputStream(const CFileInfo & file, si64 start, si64 size)
-	: CFileInputStream{file.getName(), start, size} {}
 
 si64 CFileInputStream::read(ui8 * data, si64 size)
 {
