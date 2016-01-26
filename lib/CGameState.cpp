@@ -1219,8 +1219,8 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 				// remove heroes which didn't reached the end of the scenario, but were available at the start
 				for(auto hero : lostCrossoverHeroes)
 				{
-					crossoverHeroes.heroesFromAnyPreviousScenarios.erase(range::remove_if(crossoverHeroes.heroesFromAnyPreviousScenarios,
-						CGObjectInstanceBySubIdFinder(hero)), crossoverHeroes.heroesFromAnyPreviousScenarios.end());
+					vstd::erase_if(crossoverHeroes.heroesFromAnyPreviousScenarios,
+					               CGObjectInstanceBySubIdFinder(hero));
 				}
 
 				// now add heroes which completed the scenario

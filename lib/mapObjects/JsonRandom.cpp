@@ -133,10 +133,10 @@ namespace JsonRandom
 		if (value["type"].getType() == JsonNode::DATA_STRING)
 			return SpellID(VLC->modh->identifiers.getIdentifier("spell", value["type"]).get());
 
-		spells.erase(std::remove_if(spells.begin(), spells.end(), [=](SpellID spell)
+		vstd::erase_if(spells, [=](SpellID spell)
 		{
 			return VLC->spellh->objects[spell]->level != si32(value["level"].Float());
-		}), spells.end());
+		});
 
 		return SpellID(*RandomGeneratorUtil::nextItem(spells, rng));
 	}
