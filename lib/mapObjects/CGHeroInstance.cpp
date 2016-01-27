@@ -23,6 +23,7 @@
 #include "../CCreatureHandler.h"
 #include "../BattleState.h"
 #include "../CTownHandler.h"
+#include "../mapping/CMap.h"
 #include "CGTownInstance.h"
 
 ///helpers
@@ -220,7 +221,9 @@ CGHeroInstance::CGHeroInstance()
 	setNodeType(HERO);
 	ID = Obj::HERO;
 	tacticFormationEnabled = inTownGarrison = false;
-	mana = movement = portrait = -1;
+	mana = UNINITIALIZED_MANA;
+	movement = UNINITIALIZED_MOVEMENT;
+	portrait = UNINITIALIZED_PORTRAIT;
 	isStanding = true;
 	moveDir = 4;
 	level = 1;
@@ -868,18 +871,18 @@ TExpType CGHeroInstance::calculateXp(TExpType exp) const
 ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool) const
 {
 	si16 skill = -1; //skill level
-	
+
 	spell->forEachSchool([&, this](const SpellSchoolInfo & cnf, bool & stop)
 	{
 		int thisSchool = std::max<int>(getSecSkillLevel(cnf.skill),	valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
-		if(thisSchool > skill)									
-		{														
-			skill = thisSchool;									
-			if(outSelectedSchool)								
-				*outSelectedSchool = (ui8)cnf.id;				
-		}																
+		if(thisSchool > skill)
+		{
+			skill = thisSchool;
+			if(outSelectedSchool)
+				*outSelectedSchool = (ui8)cnf.id;
+		}
 	});
-	
+
 	vstd::amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
 	vstd::amax(skill, valOfBonuses(Bonus::SPELL, spell->id.toEnum())); //given by artifact or other effect
 
@@ -904,7 +907,7 @@ ui32 CGHeroInstance::getSpellBonus(const CSpell * spell, ui32 base, const CStack
 	if (affectedStack && affectedStack->getCreature()->level) //Hero specials like Solmyr, Deemer
 		base *= (100. + ((valOfBonuses(Bonus::SPECIAL_SPELL_LEV,  spell->id.toEnum()) * level) / affectedStack->getCreature()->level)) / 100.0;
 
-	return base;	
+	return base;
 }
 
 int CGHeroInstance::getEffectLevel(const CSpell * spell) const
@@ -912,7 +915,7 @@ int CGHeroInstance::getEffectLevel(const CSpell * spell) const
 	if(hasBonusOfType(Bonus::MAXED_SPELL, spell->id))
 		return 3;//todo: recheck specialty from where this bonus is. possible bug
 	else
-		return getSpellSchoolLevel(spell);		
+		return getSpellSchoolLevel(spell);
 }
 
 int CGHeroInstance::getEffectPower(const CSpell * spell) const
@@ -922,7 +925,7 @@ int CGHeroInstance::getEffectPower(const CSpell * spell) const
 
 int CGHeroInstance::getEnchantPower(const CSpell * spell) const
 {
-	return getPrimSkillLevel(PrimarySkill::SPELL_POWER) + valOfBonuses(Bonus::SPELL_DURATION);	
+	return getPrimSkillLevel(PrimarySkill::SPELL_POWER) + valOfBonuses(Bonus::SPELL_DURATION);
 }
 
 int CGHeroInstance::getEffectValue(const CSpell * spell) const
@@ -1107,8 +1110,8 @@ void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
 {
 	// FIXME: Offsets need to be fixed once we get rid of convertPosition
 	// Check issue 515 for details
-	offsets = 
-	{ 
+	offsets =
+	{
 		int3(-1,1,0), int3(-1,-1,0), int3(-2,0,0), int3(0,0,0), int3(0,1,0), int3(-2,1,0), int3(0,-1,0), int3(-2,-1,0)
 	};
 }
@@ -1436,20 +1439,43 @@ void CGHeroInstance::levelUpAutomatically()
 bool CGHeroInstance::hasVisions(const CGObjectInstance * target, const int subtype) const
 {
 	//VISIONS spell support
-	
-	const std::string cached = boost::to_string((boost::format("type_%d__subtype_%d") % Bonus::VISIONS % subtype)); 
-	
+
+	const std::string cached = boost::to_string((boost::format("type_%d__subtype_%d") % Bonus::VISIONS % subtype));
+
 	const int visionsMultiplier = valOfBonuses(Selector::typeSubtype(Bonus::VISIONS,subtype), cached);
-	
+
 	int visionsRange =  visionsMultiplier * getPrimSkillLevel(PrimarySkill::SPELL_POWER);
-		
-	if (visionsMultiplier > 0) 	
+
+	if (visionsMultiplier > 0)
 		vstd::amax(visionsRange, 3); //minimum range is 3 tiles, but only if VISIONS bonus present
-	
+
 	const int distance = target->pos.dist2d(getPosition(false));
-	
+
 	//logGlobal->debug(boost::to_string(boost::format("Visions: dist %d, mult %d, range %d") % distance % visionsMultiplier % visionsRange));
-	
-	return (distance < visionsRange) && (target->pos.z == pos.z);	
+
+	return (distance < visionsRange) && (target->pos.z == pos.z);
 }
 
+bool CGHeroInstance::isMissionCritical() const
+{
+	for(const TriggeredEvent & event : IObjectInterface::cb->getMapHeader()->triggeredEvents)
+	{
+		if(event.trigger.test([&](const EventCondition & condition)
+		{
+			if (condition.condition == EventCondition::CONTROL && condition.object)
+			{
+				auto hero = dynamic_cast<const CGHeroInstance*>(condition.object);
+				return (hero != this);
+			}
+			else if(condition.condition == EventCondition::IS_HUMAN)
+			{
+				return true;
+			}
+			return false;
+		}))
+		{
+			return true;
+		}
+	}
+	return false;
+}

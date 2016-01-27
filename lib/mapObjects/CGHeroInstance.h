@@ -20,6 +20,7 @@
 class CHero;
 class CGBoat;
 class CGTownInstance;
+class CMap;
 struct TerrainTile;
 struct TurnInfo;
 
@@ -64,6 +65,9 @@ public:
 	ConstTransitivePtr<CCommanderInstance> commander;
 	const CGBoat *boat; //set to CGBoat when sailing
 
+	static const ui32 UNINITIALIZED_PORTRAIT = -1;
+	static const ui32 UNINITIALIZED_MANA = -1;
+	static const ui32 UNINITIALIZED_MOVEMENT = -1;
 
 	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
 	//std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
@@ -124,6 +128,11 @@ public:
 		}
 	} skillsInfo;
 
+	inline bool isInitialized() const
+	{ // has this hero been on the map at least once?
+		return movement != UNINITIALIZED_MOVEMENT && mana != UNINITIALIZED_MANA;
+	}
+
 	//int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const override; //sight distance (should be used if player-owned structure)
 	//////////////////////////////////////////////////////////////////////////
@@ -177,7 +186,7 @@ public:
 	double getHeroStrength() const; // includes fighting and magic strength
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
-	
+
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
@@ -201,23 +210,25 @@ public:
 	void Updatespecialty();
 	void recreateSecondarySkillsBonuses();
 	void updateSkill(SecondarySkill which, int val);
-	
+
 	bool hasVisions(const CGObjectInstance * target, const int subtype) const;
+	/// If this hero perishes, the scenario is failed
+	bool isMissionCritical() const;
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
-	
+
 	///ArtBearer
 	ArtBearer::ArtBearer bearerType() const override;
 
 	///IBonusBearer
 	CBonusSystemNode *whereShouldBeAttached(CGameState *gs) override;
 	std::string nodeName() const override;
-	
+
 	///ISpellCaster
 	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const override;
 	ui32 getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const override;
-	
+
 	///default spell school level for effect calculation
 	int getEffectLevel(const CSpell * spell) const override;
 
@@ -229,9 +240,9 @@ public:
 
 	///damage/heal override(ignores spell configuration, effect level and effect power)
 	int getEffectValue(const CSpell * spell) const override;
-	
+
 	const PlayerColor getOwner() const override;
-	
+
 	void deserializationFix();
 
 	void initObj() override;

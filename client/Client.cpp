@@ -219,18 +219,20 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 	GH.curInt = nullptr;
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
-        logNetwork->infoStream() << "Ending current game!";
+		logNetwork->infoStream() << "Ending current game!";
 		if(GH.topInt())
+		{
 			GH.topInt()->deactivate();
+		}
 		GH.listInt.clear();
 		GH.objsToBlit.clear();
 		GH.statusbar = nullptr;
-        logNetwork->infoStream() << "Removed GUI.";
+		logNetwork->infoStream() << "Removed GUI.";
 
 		vstd::clear_pointer(const_cast<CGameInfo*>(CGI)->mh);
 		vstd::clear_pointer(gs);
 
-        logNetwork->infoStream() << "Deleted mapHandler and gameState.";
+		logNetwork->infoStream() << "Deleted mapHandler and gameState.";
 		LOCPLINT = nullptr;
 	}
 
@@ -238,9 +240,9 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 	battleints.clear();
 	callbacks.clear();
 	battleCallbacks.clear();
-    logNetwork->infoStream() << "Deleted playerInts.";
-
-    logNetwork->infoStream() << "Client stopped.";
+	CGObelisk::reset();
+	logNetwork->infoStream() << "Deleted playerInts.";
+	logNetwork->infoStream() << "Client stopped.";
 }
 
 #if 1

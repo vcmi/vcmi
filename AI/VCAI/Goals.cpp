@@ -154,8 +154,8 @@ bool Goals::AbstractGoal::operator== (AbstractGoal &g)
 
 //TODO: find out why the following are not generated automatically on MVS?
 
-namespace Goals 
-{ 
+namespace Goals
+{
 	template <>
 	void CGoal<Win>::accept (VCAI * ai)
 	{
@@ -275,7 +275,7 @@ TSubgoal Win::whatToDoToAchieve()
 					// 0.85 -> radius now 2 tiles
 					// 0.95 -> 1 tile radius, position is fully known
 					// AFAIK H3 AI does something like this
-					int3 grailPos = cb->getGrailPos(ratio);
+					int3 grailPos = cb->getGrailPos(&ratio);
 					if(ratio > 0.99)
 					{
 						return sptr (Goals::DigAtTile(grailPos));
@@ -367,7 +367,7 @@ TSubgoal FindObj::whatToDoToAchieve()
 
 std::string GetObj::completeMessage() const
 {
-	return "hero " + hero.get()->name + " captured Object ID = " + boost::lexical_cast<std::string>(objid); 
+	return "hero " + hero.get()->name + " captured Object ID = " + boost::lexical_cast<std::string>(objid);
 }
 
 TSubgoal GetObj::whatToDoToAchieve()
@@ -409,7 +409,7 @@ bool GetObj::fulfillsMe (TSubgoal goal)
 
 std::string VisitHero::completeMessage() const
 {
-	return "hero " + hero.get()->name + " visited hero " + boost::lexical_cast<std::string>(objid); 
+	return "hero " + hero.get()->name + " visited hero " + boost::lexical_cast<std::string>(objid);
 }
 
 TSubgoal VisitHero::whatToDoToAchieve()
@@ -435,10 +435,18 @@ TSubgoal VisitHero::whatToDoToAchieve()
 
 bool VisitHero::fulfillsMe (TSubgoal goal)
 {
-	if (goal->goalType == Goals::VISIT_TILE && cb->getObj(ObjectInstanceID(objid))->visitablePos() == goal->tile)
-		return true;
-	else
+	if (goal->goalType != Goals::VISIT_TILE)
+	{
 		return false;
+	}
+	auto obj = cb->getObj(ObjectInstanceID(objid));
+	if (!obj)
+	{
+		logAi->errorStream() << boost::format("Hero %s: VisitHero::fulfillsMe at %s: object %d not found")
+			% hero.name % goal->tile % objid;
+		return false;
+	}
+	return obj->visitablePos() == goal->tile;
 }
 
 TSubgoal GetArtOfType::whatToDoToAchieve()
@@ -458,7 +466,7 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 		return sptr (Goals::Explore());
 	}
 
-	return (fh->chooseSolution(getAllPossibleSubgoals()));	
+	return (fh->chooseSolution(getAllPossibleSubgoals()));
 }
 
 TGoalVec ClearWayTo::getAllPossibleSubgoals()
@@ -862,7 +870,7 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 		{
 			auto creatures = vstd::tryAt(t->town->creatures, creature->level - 1);
 			if(!creatures)
-				continue; 
+				continue;
 
 			int upgradeNumber = vstd::find_pos(*creatures, creature->idNumber);
 			if(upgradeNumber < 0)
@@ -957,7 +965,7 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 	std::vector<const CGObjectInstance *> objs;
 	for (auto obj : ai->visitableObjs)
 	{
-		if (conquerable(obj)) 
+		if (conquerable(obj))
 			objs.push_back (obj);
 	}
 
@@ -1035,7 +1043,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 {
 	//get all possible towns, heroes and dwellings we may use
 	TGoalVec ret;
-	
+
 	//TODO: include evaluation of monsters gather in calculation
 	for (auto t : cb->getTownsInfo())
 	{

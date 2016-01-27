@@ -24,7 +24,7 @@
 #include "../CPlayerState.h"
 
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
-ui8 CGObelisk::obeliskCount; //how many obelisks are on map
+ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
 std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
 
 ///helpers
@@ -60,7 +60,7 @@ static std::string & visitedTxt(const bool visited)
 
 void CPlayersVisited::setPropertyDer( ui8 what, ui32 val )
 {
-	if(what == 10)
+	if(what == CPlayersVisited::OBJPROP_VISITED)
 		players.insert(PlayerColor(val));
 }
 
@@ -103,16 +103,16 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 {
 	std::string hoverName;
 	if(hero->hasVisions(this, 0))
-	{		
+	{
 		MetaString ms;
 		ms << stacks.begin()->second->count;
 		ms << " " ;
 		ms.addTxt(MetaString::CRE_PL_NAMES,subID);
-		
+
 		ms << "\n";
-		
+
 		int decision = takenAction(hero, true);
-		
+
 		switch (decision)
 		{
 		case FIGHT:
@@ -123,19 +123,19 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 			break;
 		case JOIN_FOR_FREE:
 			ms.addTxt(MetaString::GENERAL_TXT,243);
-			break;					
+			break;
 		default: //decision = cost in gold
 			VLC->generaltexth->allTexts[244];
-			ms << boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision);			
+			ms << boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision);
 			break;
-		}		
+		}
 
-		ms.toString(hoverName);		
+		ms.toString(hoverName);
 	}
 	else
 	{
-		hoverName = getHoverText(hero->tempOwner);	
-	}	
+		hoverName = getHoverText(hero->tempOwner);
+	}
 
 	const JsonNode & texts = VLC->generaltexth->localizedTexts["adventureMap"]["monsterThreat"];
 
@@ -392,6 +392,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 		if(cost)
 			cb->giveResource(h->tempOwner,Res::GOLD,-cost);
 
+		giveReward(h);
 		cb->tryJoiningArmy(this, h, true, true);
 	}
 }
@@ -452,9 +453,14 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 
 void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-
-	if(result.winner==0)
+	if(result.winner == 0)
 	{
+		giveReward(hero);
+		cb->removeObject(this);
+	}
+	else if(result.winner > 1) // draw
+	{
+		// guarded reward is lost forever on draw
 		cb->removeObject(this);
 	}
 	else
@@ -462,11 +468,11 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		//merge stacks into one
 		TSlots::const_iterator i;
 		CCreature * cre = VLC->creh->creatures[formation.basicType];
-		for (i = stacks.begin(); i != stacks.end(); i++)
+		for(i = stacks.begin(); i != stacks.end(); i++)
 		{
-			if (cre->isMyUpgrade(i->second->type))
+			if(cre->isMyUpgrade(i->second->type))
 			{
-				cb->changeStackType (StackLocation(this, i->first), cre); //un-upgrade creatures
+				cb->changeStackType(StackLocation(this, i->first), cre); //un-upgrade creatures
 			}
 		}
 
@@ -474,16 +480,16 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		if(!hasStackAtSlot(SlotID(0)))
 			cb->moveStack(StackLocation(this, stacks.begin()->first), StackLocation(this, SlotID(0)), stacks.begin()->second->count);
 
-		while (stacks.size() > 1) //hopefully that's enough
+		while(stacks.size() > 1) //hopefully that's enough
 		{
 			// TODO it's either overcomplicated (if we assume there'll be only one stack) or buggy (if we allow multiple stacks... but that'll also cause troubles elsewhere)
 			i = stacks.end();
 			i--;
 			SlotID slot = getSlotFor(i->second->type);
-			if (slot == i->first) //no reason to move stack to its own slot
+			if(slot == i->first) //no reason to move stack to its own slot
 				break;
 			else
-				cb->moveStack (StackLocation(this, i->first), StackLocation(this, slot), i->second->count);
+				cb->moveStack(StackLocation(this, i->first), StackLocation(this, slot), i->second->count);
 		}
 
 		cb->setObjProperty(id, ObjProperty::MONSTER_POWER, stacks.begin()->second->count * 1000); //remember casualties
@@ -555,6 +561,35 @@ int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
 	vstd::amin(split, 7); //can't have more than 7 stacks
 
 	return split;
+}
+
+void CGCreature::giveReward(const CGHeroInstance * h) const
+{
+	InfoWindow iw;
+	iw.player = h->tempOwner;
+
+	if(resources.size())
+	{
+		cb->giveResources(h->tempOwner, resources);
+		for(int i = 0; i < resources.size(); i++)
+		{
+			if(resources[i] > 0)
+				iw.components.push_back(Component(Component::RESOURCE, i, resources[i], 0));
+		}
+	}
+
+	if(gainedArtifact != ArtifactID::NONE)
+	{
+		cb->giveHeroNewArtifact(h, VLC->arth->artifacts[gainedArtifact], ArtifactPosition::FIRST_AVAILABLE);
+		iw.components.push_back(Component(Component::ARTIFACT, gainedArtifact, 0, 0));
+	}
+
+	if(iw.components.size())
+	{
+		iw.text.addTxt(MetaString::ADVOB_TXT, 183); // % has found treasure
+		iw.text.addReplacement(h->name);
+		cb->showInfoDialog(&iw);
+	}
 }
 
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const
@@ -1279,7 +1314,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	iw.soundID = soundBase::gazebo;
 	iw.player = h->getOwner();
 	if(!wasVisited(h->tempOwner))
-		cb->setObjProperty(id, 10, h->tempOwner.getNum());
+		cb->setObjProperty(id, CGWitchHut::OBJPROP_VISITED, h->tempOwner.getNum());
 	ui32 txt_id;
 	if(h->getSecSkillLevel(SecondarySkill(ability))) //you already know this skill
 	{
@@ -1389,7 +1424,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	if(!wasVisited(h->tempOwner))
-		cb->setObjProperty(id, 10, h->tempOwner.getNum());
+		cb->setObjProperty(id, CGShrine::OBJPROP_VISITED, h->tempOwner.getNum());
 
 	InfoWindow iw;
 	iw.soundID = soundBase::temple;
@@ -1636,6 +1671,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 				cb->sendAndApply(&cv);
 			}
 			cv.pos = h->getPosition(false);
+			cv.focusTime = 0;
 			cb->sendAndApply(&cv);
 		}
 	}
@@ -1714,7 +1750,7 @@ void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
 		int3(-3,0,0), int3(1,0,0), //AB
 		int3(-3,1,0), int3(1,1,0), int3(-2,1,0), int3(0,1,0), int3(-1,1,0), //CDEFG
 		int3(-3,-1,0), int3(1,-1,0), int3(-2,-1,0), int3(0,-1,0), int3(-1,-1,0) //HIJKL
-	}; 
+	};
 }
 
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
@@ -1790,7 +1826,7 @@ void CCartographer::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answ
 		//water = 0; land = 1; underground = 2;
 		cb->getAllTiles (fw.tiles, hero->tempOwner, subID - 1, !subID + 1); //reveal appropriate tiles
 		cb->sendAndApply (&fw);
-		cb->setObjProperty (id, 10, hero->tempOwner.getNum());
+		cb->setObjProperty (id, CCartographer::OBJPROP_VISITED, hero->tempOwner.getNum());
 	}
 }
 
@@ -1812,11 +1848,16 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 		iw.text.addTxt(MetaString::ADVOB_TXT, 96);
 		cb->sendAndApply(&iw);
 
-		cb->setObjProperty(id, 20, h->tempOwner.getNum()); //increment general visited obelisks counter
+		// increment general visited obelisks counter
+		cb->setObjProperty(id, CGObelisk::OBJPROP_INC, team.getNum());
 
 		openWindow(OpenWindow::PUZZLE_MAP, h->tempOwner.getNum());
 
-		cb->setObjProperty(id, 10, h->tempOwner.getNum()); //mark that particular obelisk as visited
+		// mark that particular obelisk as visited for all players in the team
+		for (auto & color : ts->players)
+		{
+			cb->setObjProperty(id, CGObelisk::OBJPROP_VISITED, color.getNum());
+		}
 	}
 	else
 	{
@@ -1831,6 +1872,12 @@ void CGObelisk::initObj()
 	obeliskCount++;
 }
 
+void CGObelisk::reset()
+{
+	obeliskCount = 0;
+	visited.clear();
+}
+
 std::string CGObelisk::getHoverText(PlayerColor player) const
 {
 	return getObjectName() + " " + visitedTxt(wasVisited(player));
@@ -1838,20 +1885,26 @@ std::string CGObelisk::getHoverText(PlayerColor player) const
 
 void CGObelisk::setPropertyDer( ui8 what, ui32 val )
 {
-	CPlayersVisited::setPropertyDer(what, val);
 	switch(what)
 	{
-	case 20:
-		assert(val < PlayerColor::PLAYER_LIMIT_I);
-		visited[TeamID(val)]++;
+		case CGObelisk::OBJPROP_INC:
+			{
+				assert(val < PlayerColor::PLAYER_LIMIT_I);
+				auto progress = ++visited[TeamID(val)];
+				logGlobal->debugStream() << boost::format("Player %d: obelisk progress %d / %d")
+					% val % static_cast<int>(progress) % static_cast<int>(obeliskCount);
 
-		if(visited[TeamID(val)] > obeliskCount)
-		{
-            logGlobal->errorStream() << "Error: Visited " << visited[TeamID(val)] << "\t\t" << obeliskCount;
-			assert(0);
-		}
+				if(progress > obeliskCount)
+				{
+					logGlobal->errorStream() << "Error: Visited " << progress << "\t\t" << obeliskCount;
+					assert(0);
+				}
 
-		break;
+				break;
+			}
+		default:
+			CPlayersVisited::setPropertyDer(what, val);
+			break;
 	}
 }
 

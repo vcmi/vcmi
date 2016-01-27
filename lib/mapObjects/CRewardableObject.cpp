@@ -496,6 +496,7 @@ void CGPickable::initObj()
 					info.resize(1);
 					info[0].message.addTxt(MetaString::ADVOB_TXT, 51);
 					info[0].reward.removeObject = true;
+					break;
 			case 1:
 				{
 					info.resize(1);
@@ -682,7 +683,6 @@ void CGBonusingObject::initObj()
 			info[i].message.addTxt(MetaString::ADVOB_TXT, 62);
 			soundID = soundBase::experience;
 		}
-		onVisited.addTxt(MetaString::ADVOB_TXT, 63);
 		info.back().limiter.dayOfWeek = 7;
 		configureBonus(info.back(), Bonus::MORALE, 1, 68); // on last day of week
 		configureBonus(info.back(), Bonus::LUCK,   1, 68);

@@ -38,6 +38,5 @@
 		<Project filename="scripting/erm/ERM.cbp">
 			<Depends filename="lib/VCMI_lib.cbp" />
 		</Project>
-		<Project filename="launcher/VCMI_launcher.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

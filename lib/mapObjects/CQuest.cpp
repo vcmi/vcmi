@@ -70,7 +70,7 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 		case MISSION_ART:
 			for (auto & elem : m5arts)
 			{
-				if (h->hasArt(elem))
+				if (h->hasArt(elem, false, true))
 					continue;
 				return false; //if the artifact was not found
 			}
@@ -416,6 +416,7 @@ void CGSeerHut::init()
 {
 	seerName = *RandomGeneratorUtil::nextItem(VLC->generaltexth->seerNames, cb->gameState()->getRandomGenerator());
 	quest->textOption = cb->gameState()->getRandomGenerator().nextInt(2);
+	quest->completedOption = cb->gameState()->getRandomGenerator().nextInt(1, 5);
 }
 
 void CGSeerHut::initObj()
@@ -435,7 +436,7 @@ void CGSeerHut::initObj()
 	else
 	{
 		quest->progress = CQuest::COMPLETE;
-		quest->firstVisitText = VLC->generaltexth->seerEmpty[quest->textOption];
+		quest->firstVisitText = VLC->generaltexth->seerEmpty[quest->completedOption];
 	}
 }
 
@@ -533,7 +534,7 @@ void CGSeerHut::newTurn() const
 {
 	if (quest->lastDay >= 0 && quest->lastDay < cb->getDate()-1) //time is up
 	{
-		cb->setObjProperty (id, 10, CQuest::COMPLETE);
+		cb->setObjProperty (id, CGSeerHut::OBJPROP_VISITED, CQuest::COMPLETE);
 	}
 }
 
@@ -550,7 +551,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 		if (firstVisit)
 		{
 			isCustom = quest->isCustomFirst;
-			cb->setObjProperty (id, 10, CQuest::IN_PROGRESS);
+			cb->setObjProperty (id, CGSeerHut::OBJPROP_VISITED, CQuest::IN_PROGRESS);
 
 			AddQuest aq;
 			aq.quest = QuestInfo (quest, this, visitablePos());
@@ -582,7 +583,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		iw.text << VLC->generaltexth->seerEmpty[quest->textOption];
+		iw.text << VLC->generaltexth->seerEmpty[quest->completedOption];
 		if (ID == Obj::SEER_HUT)
 			iw.text.addReplacement(seerName);
 		cb->showInfoDialog(&iw);
@@ -630,6 +631,18 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			case CQuest::MISSION_ART:
 				for (auto & elem : quest->m5arts)
 				{
+					if(!h->hasArt(elem))
+					{
+						// first we need to disassemble this backpack artifact
+						auto assembly = h->getAssemblyByConstituent(elem);
+						assert(assembly);
+						for(auto & ci : assembly->constituentsInfo)
+						{
+							cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::PRE_FIRST);
+						}
+						// remove the assembly
+						cb->removeArtifact(ArtifactLocation(h, h->getArtPos(assembly)));
+					}
 					cb->removeArtifact(ArtifactLocation(h, h->getArtPos(elem, false)));
 				}
 				break;
@@ -645,7 +658,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			default:
 				break;
 		}
-		cb->setObjProperty (id, 10, CQuest::COMPLETE); //mission complete
+		cb->setObjProperty (id, CGSeerHut::OBJPROP_VISITED, CQuest::COMPLETE); //mission complete
 		completeQuest(h); //make sure to remove QuestGuard at the very end
 	}
 }

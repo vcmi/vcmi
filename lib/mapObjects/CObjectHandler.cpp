@@ -169,7 +169,7 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 	{
 		for(int h=0; h<getHeight(); ++h)
 		{
-			if (appearance.isBlockedAt(w, h))
+			if(appearance.isBlockedAt(w, h))
 				ret.insert(int3(pos.x - w, pos.y - h, pos.z));
 		}
 	}
@@ -191,7 +191,13 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
 	cb->gameState()->map->removeBlockVisTiles(this, true);
 	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
-	if (!handler->getTemplates(tile.terType).empty())
+	if(!handler)
+	{
+		logGlobal->errorStream() << boost::format(
+			  "Unknown object type %d:%d at %s") % ID % subID % visitablePos();
+		return;
+	}
+	if(!handler->getTemplates(tile.terType).empty())
 		appearance = handler->getTemplates(tile.terType)[0];
 	else
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
@@ -328,9 +334,9 @@ int3 IBoatGenerator::bestLocation() const
 
 	for (auto & offset : offsets)
 	{
-		if (const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offset, false)) //tile is in the map
+		if(const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offset, false)) //tile is in the map
 		{
-			if (tile->terType == ETerrainType::WATER  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
+			if(tile->terType == ETerrainType::WATER  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
 				return o->pos + offset;
 		}
 	}

@@ -54,6 +54,22 @@ public:
 	}
 
 	/**
+	 * Gets all full names of matching resources, e.g. names of files in filesystem.
+	 *
+	 * @return std::set with names.
+	 */
+	virtual std::set<boost::filesystem::path> getResourceNames(const ResourceID & resourceName) const
+	{
+		std::set<boost::filesystem::path> result;
+		auto rn = getResourceName(resourceName);
+		if(rn)
+		{
+			result.insert(*rn);
+		}
+		return result;
+	}
+
+	/**
 	 * Get list of files that matches filter function
 	 *
 	 * @param filter Filter that returns true if specified ID matches filter

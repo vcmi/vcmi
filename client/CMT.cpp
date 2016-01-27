@@ -441,6 +441,11 @@ int main(int argc, char** argv)
 	CCS->musich->setVolume(settings["general"]["music"].Float());
     logGlobal->infoStream()<<"Initializing screen and sound handling: "<<pomtime.getDiff();
 
+#ifdef __APPLE__
+	// Ctrl+click should be treated as a right click on Mac OS X
+	SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
+#endif
+
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
 	boost::thread loading(init);
