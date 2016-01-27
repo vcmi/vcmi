@@ -86,6 +86,12 @@ CTown::~CTown()
 		str.dellNull();
 }
 
+std::vector<BattleHex> CTown::defaultMoatHexes()
+{
+	static const BattleHex moatHexes[] = {11, 28, 44, 61, 77, 111, 129, 146, 164, 181};
+	return std::vector<BattleHex>(moatHexes, moatHexes + ARRAY_COUNT(moatHexes));
+}
+
 CTownHandler::CTownHandler()
 {
 	VLC->townh = this;
@@ -543,8 +549,13 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 
 	town.moatDamage = source["moatDamage"].Float();
 
-	town.moatHexes = source["moatHexes"].convertTo<std::vector<BattleHex> >();
-	
+	// Mods Compatability for pre 0.99
+	if(source["moatHexes"].isNull())
+	{
+		town.moatHexes = CTown::defaultMoatHexes();
+	}
+	else
+		town.moatHexes = source["moatHexes"].convertTo<std::vector<BattleHex> >();
 
 	town.mageLevel = source["mageGuild"].Float();
 	town.names = source["names"].convertTo<std::vector<std::string> >();

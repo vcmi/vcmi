@@ -137,6 +137,8 @@ class DLL_LINKAGE CTown
 public:
 	CTown();
 	~CTown();
+	// TODO: remove once save and mod compatability not needed
+	static std::vector<BattleHex> defaultMoatHexes();
 
 	CFaction * faction;
 	
@@ -207,7 +209,16 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & names & faction & creatures & dwellings & dwellingNames & buildings & hordeLvl & mageLevel
-			& primaryRes & warMachine & clientInfo & moatDamage & moatHexes & defaultTavernChance;
+			& primaryRes & warMachine & clientInfo & moatDamage;
+		if(version >= 758)
+		{
+			h & moatHexes;
+		}
+		else if(!h.saving)
+		{
+			moatHexes = defaultMoatHexes();
+		}
+		h & defaultTavernChance;
 
 		auto findNull = [](const std::pair<BuildingID, ConstTransitivePtr<CBuilding>> &building)
 		{ return building.second == nullptr; };

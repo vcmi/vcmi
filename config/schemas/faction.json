@@ -233,7 +233,6 @@
 				"moatHexes": {
 					"type" : "array",
 					"description" : "Numbers of battlefield hexes affected by moat during siege",
-					"minItems" : 1,
 					"items" : { "type" : "number" }
 				},
 				"musicTheme": {
