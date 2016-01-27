@@ -7,6 +7,7 @@
 #include "mapHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/FileStream.h"
 #include "CPreGame.h"
 #include "windows/CCastleInterface.h"
 #include "../lib/CConsoleHandler.h"

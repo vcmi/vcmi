@@ -2,6 +2,7 @@
 #include "CModHandler.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "JsonNode.h"
+#include "filesystem/FileStream.h"
 #include "filesystem/Filesystem.h"
 #include "filesystem/AdapterLoaders.h"
 #include "filesystem/CFilesystemLoader.h"
@@ -901,6 +902,6 @@ void CModHandler::afterLoad()
 	}
 	modSettings["core"] = coreMod.saveLocalData();
 
-	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);
+	FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::out | std::ofstream::trunc);
 	file << modSettings;
 }
