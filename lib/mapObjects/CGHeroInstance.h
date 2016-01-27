@@ -20,6 +20,7 @@
 class CHero;
 class CGBoat;
 class CGTownInstance;
+class CMap;
 struct TerrainTile;
 struct TurnInfo;
 
@@ -211,6 +212,8 @@ public:
 	void updateSkill(SecondarySkill which, int val);
 
 	bool hasVisions(const CGObjectInstance * target, const int subtype) const;
+	/// If this hero perishes, the scenario is failed
+	bool isMissionCritical() const;
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
