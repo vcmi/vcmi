@@ -1,5 +1,7 @@
 #pragma once
 
+#include "StdInc.h"
+
 namespace Ui {
 	class CSettingsView;
 }
@@ -7,13 +9,13 @@ namespace Ui {
 class CSettingsView : public QWidget
 {
 	Q_OBJECT
-	
+
 public:
 	explicit CSettingsView(QWidget *parent = 0);
 	~CSettingsView();
 
 	void loadSettings();
-	
+
 private slots:
 	void on_comboBoxResolution_currentIndexChanged(const QString &arg1);
 

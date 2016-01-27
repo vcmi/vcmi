@@ -1219,8 +1219,8 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 				// remove heroes which didn't reached the end of the scenario, but were available at the start
 				for(auto hero : lostCrossoverHeroes)
 				{
-					crossoverHeroes.heroesFromAnyPreviousScenarios.erase(range::remove_if(crossoverHeroes.heroesFromAnyPreviousScenarios,
-						CGObjectInstanceBySubIdFinder(hero)), crossoverHeroes.heroesFromAnyPreviousScenarios.end());
+					vstd::erase_if(crossoverHeroes.heroesFromAnyPreviousScenarios,
+					               CGObjectInstanceBySubIdFinder(hero));
 				}
 
 				// now add heroes which completed the scenario
@@ -1658,15 +1658,16 @@ void CGameState::initStartingBonus()
 		switch(scenarioOps->playerInfos[elem.first].bonus)
 		{
 		case PlayerSettings::GOLD:
-			elem.second.resources[Res::GOLD] += rand.nextInt(500, 1000);
+			elem.second.resources[Res::GOLD] += rand.nextInt(5, 10) * 100;
 			break;
 		case PlayerSettings::RESOURCE:
 			{
 				int res = VLC->townh->factions[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
 				if(res == Res::WOOD_AND_ORE)
 				{
-					elem.second.resources[Res::WOOD] += rand.nextInt(5, 10);
-					elem.second.resources[Res::ORE] += rand.nextInt(5, 10);
+					int amount = rand.nextInt(5, 10);
+					elem.second.resources[Res::WOOD] += amount;
+					elem.second.resources[Res::ORE] += amount;
 				}
 				else
 				{
@@ -2267,7 +2268,7 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(PlayerColor player) c
 
 	for (const TriggeredEvent & event : map->triggeredEvents)
 	{
-		if ((event.trigger.test(evaluateEvent)))
+		if (event.trigger.test(evaluateEvent))
 		{
 			if (event.effect.type == EventEffect::VICTORY)
 				return EVictoryLossCheckResult::victory(event.onFulfill, event.effect.toOtherMessage);
@@ -2284,7 +2285,7 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(PlayerColor player) c
 	return EVictoryLossCheckResult();
 }
 
-bool CGameState::checkForVictory( PlayerColor player, const EventCondition & condition ) const
+bool CGameState::checkForVictory(PlayerColor player, const EventCondition & condition) const
 {
 	const PlayerState *p = CGameInfoCallback::getPlayer(player);
 	switch (condition.condition)

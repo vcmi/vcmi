@@ -124,6 +124,11 @@ static inline double distance(int3 a, int3 b)
 }
 static void giveExp(BattleResult &r)
 {
+	if(r.winner > 1)
+	{
+		// draw
+		return;
+	}
 	r.exp[0] = 0;
 	r.exp[1] = 0;
 	for(auto i = r.casualties[!r.winner].begin(); i!=r.casualties[!r.winner].end(); i++)
@@ -471,7 +476,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	const CArmedInstance *bEndArmy2 = gs->curB->sides.at(1).armyObject;
 	const BattleResult::EResult result = battleResult.get()->result;
 
-	auto findBattleQuery = [this] () -> std::shared_ptr<CBattleQuery>
+	auto findBattleQuery = [this]() -> std::shared_ptr<CBattleQuery>
 	{
 		for(auto &q : queries.allQueries())
 		{
@@ -526,66 +531,70 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	}
 
 
-	std::vector<ui32> arts; //display them in window
+	std::vector<const CArtifactInstance *> arts; //display them in window
 
-	if (result == BattleResult::NORMAL && finishingBattle->winnerHero)
+	if(result == BattleResult::NORMAL && finishingBattle->winnerHero)
 	{
-		if (finishingBattle->loserHero)
+		auto sendMoveArtifact = [&](const CArtifactInstance *art, MoveArtifact *ma)
 		{
-			auto artifactsWorn = finishingBattle->loserHero->artifactsWorn; //TODO: wrap it into a function, somehow (boost::variant -_-)
+			arts.push_back(art);
+			ma->dst = ArtifactLocation(finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
+			sendAndApply(ma);
+		};
+		if(finishingBattle->loserHero)
+		{
+			//TODO: wrap it into a function, somehow (boost::variant -_-)
+			auto artifactsWorn = finishingBattle->loserHero->artifactsWorn;
 			for (auto artSlot : artifactsWorn)
 			{
 				MoveArtifact ma;
-				ma.src = ArtifactLocation (finishingBattle->loserHero, artSlot.first);
+				ma.src = ArtifactLocation(finishingBattle->loserHero, artSlot.first);
 				const CArtifactInstance * art =  ma.src.getArt();
-				if (art && !art->artType->isBig() && art->artType->id != ArtifactID::SPELLBOOK) // don't move war machines or locked arts (spellbook)
+				if(art && !art->artType->isBig() &&
+				    art->artType->id != ArtifactID::SPELLBOOK)
+						// don't move war machines or locked arts (spellbook)
 				{
-					arts.push_back (art->artType->id);
-					ma.dst = ArtifactLocation (finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
-					sendAndApply(&ma);
+					sendMoveArtifact(art, &ma);
 				}
 			}
-			while (!finishingBattle->loserHero->artifactsInBackpack.empty())
+			while(!finishingBattle->loserHero->artifactsInBackpack.empty())
 			{
 				//we assume that no big artifacts can be found
 				MoveArtifact ma;
-				ma.src = ArtifactLocation (finishingBattle->loserHero,
+				ma.src = ArtifactLocation(finishingBattle->loserHero,
 					ArtifactPosition(GameConstants::BACKPACK_START)); //backpack automatically shifts arts to beginning
 				const CArtifactInstance * art =  ma.src.getArt();
-				arts.push_back (art->artType->id);
-				ma.dst = ArtifactLocation (finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
-				sendAndApply(&ma);
+				if(art->artType->id != ArtifactID::GRAIL) //grail may not be won
+				{
+					sendMoveArtifact(art, &ma);
+				}
 			}
-			if (finishingBattle->loserHero->commander) //TODO: what if commanders belong to no hero?
+			if(finishingBattle->loserHero->commander) //TODO: what if commanders belong to no hero?
 			{
 				artifactsWorn = finishingBattle->loserHero->commander->artifactsWorn;
-				for (auto artSlot : artifactsWorn)
+				for(auto artSlot : artifactsWorn)
 				{
 					MoveArtifact ma;
-					ma.src = ArtifactLocation (finishingBattle->loserHero->commander.get(), artSlot.first);
+					ma.src = ArtifactLocation(finishingBattle->loserHero->commander.get(), artSlot.first);
 					const CArtifactInstance * art =  ma.src.getArt();
 					if (art && !art->artType->isBig())
 					{
-						arts.push_back (art->artType->id);
-						ma.dst = ArtifactLocation (finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
-						sendAndApply(&ma);
+						sendMoveArtifact(art, &ma);
 					}
 				}
 			}
 		}
-		for (auto armySlot : gs->curB->battleGetArmyObject(!battleResult.data->winner)->stacks)
+		for(auto armySlot : gs->curB->battleGetArmyObject(!battleResult.data->winner)->stacks)
 		{
 			auto artifactsWorn = armySlot.second->artifactsWorn;
 			for (auto artSlot : artifactsWorn)
 			{
 				MoveArtifact ma;
-				ma.src = ArtifactLocation (armySlot.second, artSlot.first);
+				ma.src = ArtifactLocation(armySlot.second, artSlot.first);
 				const CArtifactInstance * art =  ma.src.getArt();
 				if (art && !art->artType->isBig())
 				{
-					arts.push_back (art->artType->id);
-					ma.dst = ArtifactLocation (finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
-					sendAndApply(&ma);
+					sendMoveArtifact(art, &ma);
 				}
 			}
 		}
@@ -593,23 +602,25 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	sendAndApply(battleResult.data); //after this point casualties objects are destroyed
 
-	if (arts.size()) //display loot
+	if(arts.size()) //display loot
 	{
 		InfoWindow iw;
 		iw.player = finishingBattle->winnerHero->tempOwner;
 
 		iw.text.addTxt (MetaString::GENERAL_TXT, 30); //You have captured enemy artifact
 
-		for (auto id : arts) //TODO; separate function to display loot for various ojects?
+		for(auto art : arts) //TODO; separate function to display loot for various ojects?
 		{
-			iw.components.push_back (Component (Component::ARTIFACT, id, 0, 0));
+			iw.components.push_back(Component(
+				Component::ARTIFACT, art->artType->id,
+				art->artType->id == ArtifactID::SPELL_SCROLL? art->getGivenSpellID() : 0, 0));
 			if(iw.components.size() >= 14)
 			{
 				sendAndApply(&iw);
 				iw.components.clear();
 			}
 		}
-		if (iw.components.size())
+		if(iw.components.size())
 		{
 			sendAndApply(&iw);
 		}
@@ -712,7 +723,7 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 
 	setBattle(nullptr);
 
-	if(visitObjectAfterVictory && result.winner==0)
+	if(visitObjectAfterVictory && result.winner==0 && !finishingBattle->winnerHero->stacks.empty())
 	{
 		logGlobal->traceStream() << "post-victory visit";
 		visitObjectOnTile(*getTile(finishingBattle->winnerHero->getPosition()), finishingBattle->winnerHero);
@@ -734,12 +745,33 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 			sah.army[0].setCreature(SlotID(0), finishingBattle->loserHero->type->initialArmy.at(0).creature, 1);
 		}
 
-		if(const CGHeroInstance *another =  getPlayer(finishingBattle->loser)->availableHeroes.at(1))
+		if(const CGHeroInstance *another =  getPlayer(finishingBattle->loser)->availableHeroes.at(0))
 			sah.hid[1] = another->subID;
 		else
 			sah.hid[1] = -1;
 
 		sendAndApply(&sah);
+	}
+	if(result.winner != 2 && finishingBattle->winnerHero && finishingBattle->winnerHero->stacks.empty())
+	{
+		RemoveObject ro(finishingBattle->winnerHero->id);
+		sendAndApply(&ro);
+
+		if (VLC->modh->settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS)
+		{
+			SetAvailableHeroes sah;
+			sah.player = finishingBattle->victor;
+			sah.hid[0] = finishingBattle->winnerHero->subID;
+			sah.army[0].clear();
+			sah.army[0].setCreature(SlotID(0), finishingBattle->winnerHero->type->initialArmy.at(0).creature, 1);
+
+			if(const CGHeroInstance *another =  getPlayer(finishingBattle->victor)->availableHeroes.at(0))
+				sah.hid[1] = another->subID;
+			else
+				sah.hid[1] = -1;
+
+			sendAndApply(&sah);
+		}
 	}
 }
 
@@ -926,13 +958,16 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 			{
 				const bool result = apply->applyOnGH(this,&c,pack, player);
 				if(!result)
-					complain("Got false in applying... that request must have been fishy!");
-                logGlobal->traceStream() << "Message successfully applied (result=" << result << ")!";
+				{
+					complain((boost::format("Got false in applying %s... that request must have been fishy!")
+				            % typeid(*pack).name()).str());
+				}
+				logGlobal->traceStream() << "Message successfully applied (result=" << result << ")!";
 				sendPackageResponse(true);
 			}
 			else
 			{
-                logGlobal->errorStream() << "Message cannot be applied, cannot find applier (unregistered type)!";
+				logGlobal->errorStream() << "Message cannot be applied, cannot find applier (unregistered type)!";
 				sendPackageResponse(false);
 			}
 
@@ -2113,7 +2148,6 @@ void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroI
 
 void CGameHandler::removeArtifact(const ArtifactLocation &al)
 {
-	assert(al.getArt());
 	EraseArtifact ea;
 	ea.al = al;
 	sendAndApply(&ea);
@@ -3038,7 +3072,7 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 		sendAndApply(&da);
 	}
 
-	return false;
+	return true;
 }
 
 bool CGameHandler::buyArtifact( ObjectInstanceID hid, ArtifactID aid )
@@ -3320,22 +3354,26 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 //		|| (getHeroCount(player, false) >= GameConstants::MAX_HEROES_PER_PLAYER && complain("Cannot hire hero, only 8 wandering heroes are allowed!")))
 	if((p->resources.at(Res::GOLD) < GameConstants::HERO_GOLD_COST && complain("Not enough gold for buying hero!"))
 		|| ((!t) && (getHeroCount(player, false) >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER && complain("Cannot hire hero, too many wandering heroes already!")))
-			|| ((t) && (getHeroCount(player, true) >= VLC->modh->settings.MAX_HEROES_AVAILABLE_PER_PLAYER && complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))) )
-
-	return false;
+		|| ((t) && (getHeroCount(player, true) >= VLC->modh->settings.MAX_HEROES_AVAILABLE_PER_PLAYER && complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))) )
+	{
+		return false;
+	}
 
 	if(t) //tavern in town
 	{
-		if(    (!t->hasBuilt(BuildingID::TAVERN)  && complain("No tavern!"))
-			|| (t->visitingHero  && complain("There is visiting hero - no place!")))
+		if((!t->hasBuilt(BuildingID::TAVERN) && complain("No tavern!"))
+			 || (t->visitingHero  && complain("There is visiting hero - no place!")))
+		{
 			return false;
+		}
 	}
 	else if(obj->ID == Obj::TAVERN)
 	{
-		if(getTile(obj->visitablePos())->visitableObjects.back() != obj  &&  complain("Tavern entry must be unoccupied!"))
+		if(getTile(obj->visitablePos())->visitableObjects.back() != obj && complain("Tavern entry must be unoccupied!"))
+		{
 			return false;
+		}
 	}
-
 
 	const CGHeroInstance *nh = p->availableHeroes.at(hid);
 	if (!nh)
@@ -3351,13 +3389,14 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	hr.tile = obj->visitablePos() + nh->getVisitableOffset();
 	sendAndApply(&hr);
 
-
 	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->unusedHeroesFromPool();
 
 	const CGHeroInstance *theOtherHero = p->availableHeroes.at(!hid);
 	const CGHeroInstance *newHero = nullptr;
 	if (theOtherHero) //on XXL maps all heroes can be imprisoned :(
+	{
 		newHero = gs->hpool.pickHeroFor(false, player, getNativeTown(player), pool, gs->getRandomGenerator(), theOtherHero->type->heroClass);
+	}
 
 	SetAvailableHeroes sah;
 	sah.player = player;
@@ -3369,7 +3408,9 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 		sah.army[hid].setCreature(SlotID(0), newHero->type->initialArmy[0].creature, 1);
 	}
 	else
+	{
 		sah.hid[hid] = -1;
+	}
 
 	sah.hid[!hid] = theOtherHero ? theOtherHero->subID : -1;
 	sendAndApply(&sah);
@@ -4025,6 +4066,16 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
 			if(!hero->hasStackAtSlot(SlotID(i)))
 				insertNewStack(StackLocation(hero, SlotID(i)), blackKnight, 10);
+	}
+	else if(message == "vcmiglaurung") //gives 5000 crystal dragons into each slot
+	{
+		CGHeroInstance *hero = gs->getHero(currObj);
+		const CCreature *crystalDragon = VLC->creh->creatures.at(133);
+		if(!hero) return;
+
+		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
+			if(!hero->hasStackAtSlot(SlotID(i)))
+				insertNewStack(StackLocation(hero, SlotID(i)), crystalDragon, 5000);
 	}
 	else if(message == "vcminoldor") //all war machines
 	{
@@ -5651,16 +5702,18 @@ void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact 
 
 void CGameHandler::setBattleResult(BattleResult::EResult resultType, int victoriusSide)
 {
-	if(battleResult.get())
+	boost::unique_lock<boost::mutex> guard(battleResult.mx);
+	if(battleResult.data)
 	{
-		complain("There is already set result?");
+		complain((boost::format("The battle result has been already set (to %d, asked to %d)")
+		          % battleResult.data->result % resultType).str());
 		return;
 	}
 	auto br = new BattleResult;
 	br->result = resultType;
 	br->winner = victoriusSide; //surrendering side loses
 	gs->curB->calculateCasualties(br->casualties);
-	battleResult.set(br);
+	battleResult.data = br;
 }
 
 void CGameHandler::commitPackage( CPackForClient *pack )

@@ -1177,25 +1177,23 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 
 		int3 closestTile = int3(-1,-1,-1);
 		float minDistance = 1e10;
+
 		for (auto visitablePos : info.visitableFromBottomPositions) //objects that are not visitable from top must be accessible from bottom or side
 		{
 			int3 closestFreeTile = findClosestTile(freePaths, visitablePos);
 			if (closestFreeTile.dist2d(visitablePos) < minDistance)
 			{
-				closestTile = visitablePos + int3 (0, 1, 0); //start below object (y+1), possibly even outside the map (?)
+				closestTile = visitablePos + int3 (0, 1, 0); //start below object (y+1), possibly even outside the map, to not make path up through it
 				minDistance = closestFreeTile.dist2d(visitablePos);
 			}
 		}
-		if (!closestTile.valid())
+		for (auto visitablePos : info.visitableFromTopPositions) //all objects are accessible from any direction
 		{
-			for (auto visitablePos : info.visitableFromTopPositions) //all objects are accessible from any direction
+			int3 closestFreeTile = findClosestTile(freePaths, visitablePos);
+			if (closestFreeTile.dist2d(visitablePos) < minDistance)
 			{
-				int3 closestFreeTile = findClosestTile(freePaths, visitablePos);
-				if (closestFreeTile.dist2d(visitablePos) < minDistance)
-				{
-					closestTile = visitablePos;
-					minDistance = closestFreeTile.dist2d(visitablePos);
-				}
+				closestTile = visitablePos;
+				minDistance = closestFreeTile.dist2d(visitablePos);
 			}
 		}
 		assert (closestTile.valid());
@@ -1246,6 +1244,8 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 			for (auto treasure : treasures)
 			{
 				int3 visitableOffset = treasure.second->getVisitableOffset();
+				if (treasure.second->ID == Obj::SEER_HUT) //FIXME: find generic solution or figure out why Seer Hut doesn't behave correctly
+					visitableOffset.x += 1;
 				placeObject(gen, treasure.second, treasure.first + visitableOffset);
 			}
 			if (addMonster(gen, guardPos, currentValue, false))
@@ -2668,8 +2668,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 
 	//seer huts with creatures or generic rewards
 
-	//if (questArtZone) //we won't be placing seer huts if there is no zone left to place arties
-	if (false) //FIXME: Seer Huts are bugged
+	if (questArtZone) //we won't be placing seer huts if there is no zone left to place arties
 	{
 		static const int genericSeerHuts = 8;
 		int seerHutsPerType = 0;
@@ -2726,6 +2725,9 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
 				obj->quest->m5arts.push_back(artid);
+				obj->quest->lastDay = -1;
+				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
+
 				gen->banQuestArt(artid);
 				gen->map->addQuest(obj);
 
@@ -2762,6 +2764,9 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
 				obj->quest->m5arts.push_back(artid);
+				obj->quest->lastDay = -1;
+				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
+
 				gen->banQuestArt(artid);
 				gen->map->addQuest(obj);
 
@@ -2784,6 +2789,9 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
 				obj->quest->m5arts.push_back(artid);
+				obj->quest->lastDay = -1;
+				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
+
 				gen->banQuestArt(artid);
 				gen->map->addQuest(obj);
 

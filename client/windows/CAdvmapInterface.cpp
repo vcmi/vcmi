@@ -322,18 +322,21 @@ void CTerrainRect::showAnim(SDL_Surface * to)
 		show(to); // currently the same; maybe we should pass some flag to map handler so it redraws ONLY tiles that need redraw instead of full
 }
 
-int3 CTerrainRect::whichTileIsIt(const int & x, const int & y)
+int3 CTerrainRect::whichTileIsIt(const int x, const int y)
 {
 	int3 ret;
-	ret.x = adventureInt->position.x + ((GH.current->motion.x-CGI->mh->offsetX-pos.x)/32);
-	ret.y = adventureInt->position.y + ((GH.current->motion.y-CGI->mh->offsetY-pos.y)/32);
+	ret.x = adventureInt->position.x + ((x-CGI->mh->offsetX-pos.x)/32);
+	ret.y = adventureInt->position.y + ((y-CGI->mh->offsetY-pos.y)/32);
 	ret.z = adventureInt->position.z;
 	return ret;
 }
 
 int3 CTerrainRect::whichTileIsIt()
 {
-	return whichTileIsIt(GH.current->motion.x,GH.current->motion.y);
+	if(GH.current)
+		return whichTileIsIt(GH.current->motion.x,GH.current->motion.y);
+	else
+		return int3(-1);
 }
 
 int3 CTerrainRect::tileCountOnScreen()
@@ -755,14 +758,15 @@ void CAdvMapInt::updateSleepWake(const CGHeroInstance *h)
 
 void CAdvMapInt::updateMoveHero(const CGHeroInstance *h, tribool hasPath)
 {
-	//default value is for everywhere but CPlayerInterface::moveHero, because paths are not updated from there immediately
-	if (hasPath == boost::indeterminate)
-		 hasPath = LOCPLINT->paths[h].nodes.size() ? true : false;
-	if (!h)
+	if(!h)
 	{
 		moveHero->block(true);
 		return;
 	}
+	//default value is for everywhere but CPlayerInterface::moveHero, because paths are not updated from there immediately
+	if(boost::logic::indeterminate(hasPath))
+		hasPath = LOCPLINT->paths[h].nodes.size() ? true : false;
+
 	moveHero->block(!hasPath || (h->movement == 0));
 }
 
@@ -1417,13 +1421,13 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 	bool canSelect = topBlocking && topBlocking->ID == Obj::HERO && topBlocking->tempOwner == LOCPLINT->playerID;
 	canSelect |= topBlocking && topBlocking->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, topBlocking->tempOwner);
 
-	if (selection->ID != Obj::HERO) //hero is not selected (presumably town)
+	if(selection->ID != Obj::HERO) //hero is not selected (presumably town)
 	{
 		assert(!terrain.currentPath); //path can be active only when hero is selected
 		if(selection == topBlocking) //selected town clicked
 			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
-		else if ( canSelect )
-				select(static_cast<const CArmedInstance*>(topBlocking), false);
+		else if(canSelect)
+			select(static_cast<const CArmedInstance*>(topBlocking), false);
 		return;
 	}
 	else if(const CGHeroInstance * currentHero = curHero()) //hero is selected
@@ -1441,22 +1445,26 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 		}
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
-			if (terrain.currentPath  &&  terrain.currentPath->endPos() == mapPos)//we'll be moving
+			if(terrain.currentPath && terrain.currentPath->endPos() == mapPos)//we'll be moving
 			{
-				if (CGI->mh->canStartHeroMovement())
-					LOCPLINT->moveHero(currentHero,*terrain.currentPath);
+				if(CGI->mh->canStartHeroMovement())
+					LOCPLINT->moveHero(currentHero, *terrain.currentPath);
 				return;
 			}
-			else/* if(mp.z == currentHero->pos.z)*/ //remove old path and find a new one if we clicked on the map level on which hero is present
+			else //remove old path and find a new one if we clicked on accessible tile
 			{
 				CGPath &path = LOCPLINT->paths[currentHero];
-				terrain.currentPath = &path;
-				bool gotPath = LOCPLINT->cb->getPathsInfo(currentHero)->getPath(path, mapPos); //try getting path, erase if failed
-				updateMoveHero(currentHero);
-				if (!gotPath)
-					LOCPLINT->eraseCurrentPathOf(currentHero);
+				CGPath newpath;
+				bool gotPath = LOCPLINT->cb->getPathsInfo(currentHero)->getPath(newpath, mapPos); //try getting path, erase if failed
+				if(gotPath && newpath.nodes.size())
+					path = newpath;
+
+				if(path.nodes.size())
+					terrain.currentPath = &path;
 				else
-					return;
+					LOCPLINT->eraseCurrentPathOf(currentHero);
+
+				updateMoveHero(currentHero);
 			}
 		}
 	} //end of hero is selected "case"
@@ -1701,6 +1709,18 @@ void CAdvMapInt::adjustActiveness(bool aiTurnStart)
 		deactivate();
 	adventureInt->duringAITurn = aiTurnStart;
 	if(wasActive)
+		activate();
+}
+
+void CAdvMapInt::quickCombatLock()
+{
+	if(!duringAITurn)
+		deactivate();
+}
+
+void CAdvMapInt::quickCombatUnlock()
+{
+	if(!duringAITurn)
 		activate();
 }
 

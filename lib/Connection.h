@@ -27,7 +27,7 @@
 #include "mapping/CCampaignHandler.h" //for CCampaignState
 #include "rmg/CMapGenerator.h" // for CMapGenOptions
 
-const ui32 version = 755;
+const ui32 version = 757;
 const ui32 minSupportedVersion = 753;
 
 class CISer;
@@ -39,6 +39,7 @@ class CGameState;
 class CCreature;
 class LibClasses;
 class CHero;
+class FileStream;
 struct CPack;
 extern DLL_LINKAGE LibClasses * VLC;
 namespace mpl = boost::mpl;
@@ -1550,14 +1551,14 @@ public:
 
 	COSer serializer;
 
-	std::string fName;
-	std::unique_ptr<std::ofstream> sfile;
+	boost::filesystem::path fName;
+	std::unique_ptr<FileStream> sfile;
 
-	CSaveFile(const std::string &fname); //throws!
+	CSaveFile(const boost::filesystem::path &fname); //throws!
 	~CSaveFile();
 	int write(const void * data, unsigned size) override;
 
-	void openNextFile(const std::string &fname); //throws!
+	void openNextFile(const boost::filesystem::path &fname); //throws!
 	void clear();
     void reportState(CLogger * out) override;
 
@@ -1577,8 +1578,8 @@ class DLL_LINKAGE CLoadFile
 public:
 	CISer serializer;
 
-	std::string fName;
-	std::unique_ptr<boost::filesystem::ifstream> sfile;
+	boost::filesystem::path fName;
+	std::unique_ptr<FileStream> sfile;
 
 	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = version); //throws!
 	~CLoadFile();
@@ -1606,7 +1607,7 @@ public:
 	std::unique_ptr<CLoadFile> primaryFile, controlFile;
 	bool foundDesync;
 
-	CLoadIntegrityValidator(const std::string &primaryFileName, const std::string &controlFileName, int minimalVersion = version); //throws!
+	CLoadIntegrityValidator(const boost::filesystem::path &primaryFileName, const boost::filesystem::path &controlFileName, int minimalVersion = version); //throws!
 
 	int read( void * data, unsigned size) override; //throws!
 	void checkMagicBytes(const std::string &text);

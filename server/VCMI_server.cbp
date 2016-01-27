@@ -3,13 +3,14 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="VCMI_server" />
-		<Option pch_mode="2" />
+		<Option pch_mode="0" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug-win32">
 				<Option platforms="Windows;" />
 				<Option output="../VCMI_server" prefix_auto="1" extension_auto="1" />
-				<Option object_output="../obj/Debug/Server" />
+				<Option working_dir="../" />
+				<Option object_output="../obj/Server/Debug/x86" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
@@ -25,7 +26,8 @@
 			<Target title="Release-win32">
 				<Option platforms="Windows;" />
 				<Option output="../VCMI_server" prefix_auto="1" extension_auto="1" />
-				<Option object_output="../obj/Release/Server" />
+				<Option working_dir="../" />
+				<Option object_output="../obj/Server/Release/x86" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
@@ -42,7 +44,8 @@
 			<Target title="Debug-win64">
 				<Option platforms="Windows;" />
 				<Option output="../VCMI_server" prefix_auto="1" extension_auto="1" />
-				<Option object_output="../obj/Debug/Server" />
+				<Option working_dir="../" />
+				<Option object_output="../obj/Server/Debug/x86" />
 				<Option type="1" />
 				<Option compiler="gnu_gcc_compiler_x64" />
 				<Option use_console_runner="0" />
@@ -59,6 +62,7 @@
 		<Compiler>
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
+			<Add option="-std=gnu++11" />
 			<Add option="-fexceptions" />
 			<Add option="-Wpointer-arith" />
 			<Add option="-Wno-switch" />
@@ -67,6 +71,8 @@
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
+			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
+			<Add option="-D_WIN32" />
 			<Add directory="$(#boost.include)" />
 			<Add directory="../include" />
 			<Add directory="$(#sdl2.include)" />

@@ -17,6 +17,7 @@ set(lib_SRCS
 		filesystem/CFileInputStream.cpp
 		filesystem/CZipLoader.cpp
 		filesystem/Filesystem.cpp
+		filesystem/FileStream.cpp
 		filesystem/ResourceID.cpp
 
 		mapObjects/CArmedInstance.cpp

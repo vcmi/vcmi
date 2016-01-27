@@ -41,7 +41,7 @@ public:
 	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;
 	bool existsResource(const ResourceID & resourceName) const override;
 	std::string getMountPoint() const override;
-	boost::optional<std::string> getResourceName(const ResourceID & resourceName) const override;
+	boost::optional<boost::filesystem::path> getResourceName(const ResourceID & resourceName) const override;
 	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
 
 private:
@@ -59,15 +59,8 @@ class DLL_LINKAGE CFilesystemList : public ISimpleResourceLoader
 	std::set<ISimpleResourceLoader *> writeableLoaders;
 
 	//FIXME: this is only compile fix, should be removed in the end
-	CFilesystemList(CFilesystemList &) 
-    { 
-		//class is not copyable 
-    } 
-    CFilesystemList &operator=(CFilesystemList &) 
-    { 
-        //class is not copyable 
-        return *this; 
-    }
+	CFilesystemList(CFilesystemList &) = delete;
+	CFilesystemList &operator=(CFilesystemList &) = delete;
 
 public:
 	CFilesystemList();
@@ -77,7 +70,8 @@ public:
 	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;
 	bool existsResource(const ResourceID & resourceName) const override;
 	std::string getMountPoint() const override;
-	boost::optional<std::string> getResourceName(const ResourceID & resourceName) const override;
+	boost::optional<boost::filesystem::path> getResourceName(const ResourceID & resourceName) const override;
+	std::set<boost::filesystem::path> getResourceNames(const ResourceID & resourceName) const override;
 	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
 	bool createResource(std::string filename, bool update = false) override;
 	std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourceID & resourceName) const override;

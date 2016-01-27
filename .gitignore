@@ -14,6 +14,7 @@
 *.pro.user
 *.pro.user.*
 *.swp
+*.h.gch
 *~
 /CMakeLists.txt.user
 CMakeCache.txt

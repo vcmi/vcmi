@@ -73,11 +73,11 @@ void CGarrisonSlot::hover (bool on)
 			{
 				if(upg == EGarrisonType::UP)
 				{
-					temp = CGI->generaltexth->tcommands[32]; //Select %s (visiting)
+					temp = CGI->generaltexth->tcommands[12]; //Select %s (in garrison)
 				}
 				else if(owner->armedObjs[0] && (owner->armedObjs[0]->ID == Obj::TOWN || owner->armedObjs[0]->ID == Obj::HERO))
 				{
-					temp = CGI->generaltexth->tcommands[12]; //Select %s (in garrison)
+					temp = CGI->generaltexth->tcommands[32]; //Select %s (visiting)
 				}
 				else
 				{

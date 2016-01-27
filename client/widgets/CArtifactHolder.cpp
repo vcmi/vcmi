@@ -32,7 +32,7 @@
  */
 
 CArtPlace::CArtPlace(Point position, const CArtifactInstance * Art):
-    locked(false), picked(false), marked(false), ourArt(Art)
+	locked(false), picked(false), marked(false), ourArt(Art)
 {
 	pos += position;
 	pos.w = pos.h = 44;
@@ -180,7 +180,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 						if(srcInBackpack && srcInSameHero)
 						{
 							if(!ourArt								//cannot move from backpack to AFTER backpack -> combined with vstd::amin above it will guarantee that dest is at most the last artifact
-							  || ourOwner->commonInfo->src.slotID < ourOwner->commonInfo->dst.slotID) //rearranging arts in backpack after taking src artifact, the dest id will be shifted
+								|| ourOwner->commonInfo->src.slotID < ourOwner->commonInfo->dst.slotID) //rearranging arts in backpack after taking src artifact, the dest id will be shifted
 								vstd::advance(ourOwner->commonInfo->dst.slotID, -1);
 						}
 						if(srcInSameHero && ourOwner->commonInfo->dst.slotID == ourOwner->commonInfo->src.slotID) //we came to src == dst
@@ -214,6 +214,32 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 	}
 }
 
+bool CArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition slot,
+                              const CGHeroInstance *hero)
+{
+	std::vector<const CArtifact *> assemblyPossibilities = art->assemblyPossibilities(hero);
+
+	// If the artifact can be assembled, display dialog.
+	for(const CArtifact *combination : assemblyPossibilities)
+	{
+		LOCPLINT->showArtifactAssemblyDialog(
+			art->artType->id,
+			combination->id,
+			true,
+			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combination->id),
+			0);
+
+		if(assemblyPossibilities.size() > 2)
+		{
+			logGlobal->warnStream() << boost::format(
+				"More than one possibility of assembling on %s... taking only first")
+				% art->artType->Name();
+		}
+		return true;
+	}
+	return false;
+}
+
 void CArtPlace::clickRight(tribool down, bool previousState)
 {
 	if(down && ourArt && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
@@ -225,20 +251,8 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 				std::vector<const CArtifact *> assemblyPossibilities = ourArt->assemblyPossibilities(ourOwner->curHero);
 
 				// If the artifact can be assembled, display dialog.
-				for(const CArtifact *combination : assemblyPossibilities)
+				if (askToAssemble(ourArt, slotID, ourOwner->curHero))
 				{
-					LOCPLINT->showArtifactAssemblyDialog(
-						ourArt->artType->id,
-						combination->id,
-						true,
-						std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, true, combination->id),
-						0);
-
-					if(assemblyPossibilities.size() > 2)
-					{
-                        logGlobal->warnStream() << "More than one possibility of assembling... taking only first";
-						break;
-					}
 					return;
 				}
 
@@ -303,10 +317,10 @@ void CArtPlace::deselect ()
 		for(int i = 0; i < GameConstants::BACKPACK_START; i++)
 		{
 			auto place = ourOwner->getArtPlace(i);
-			
+
 			if(nullptr != place)//getArtPlace may return null
 				place->pickSlot(false);
-		}			
+		}
 	}
 
 	CCS->curh->dragAndDropCursor(nullptr);
@@ -372,70 +386,36 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 		image->disable();
 		text = std::string();
 		hoverText = CGI->generaltexth->allTexts[507];
+		return;
+	}
+
+	image->enable();
+	image->setFrame(locked ? ArtifactID::ART_LOCK : art->artType->iconIndex);
+
+	text = art->getEffectiveDescription(ourOwner->curHero);
+
+	if(art->artType->id == ArtifactID::SPELL_SCROLL)
+	{
+		int spellID = art->getGivenSpellID();
+		if(spellID >= 0)
+		{
+			//add spell component info (used to provide a pic in r-click popup)
+			baseType = CComponent::spell;
+			type = spellID;
+			bonusValue = 0;
+		}
 	}
 	else
 	{
-		image->enable();
-		image->setFrame(locked ? ArtifactID::ART_LOCK : art->artType->iconIndex);
-
-		std::string artDesc = ourArt->artType->Description();
-		if (vstd::contains (artDesc, '{'))
-			text = artDesc;
-		else
-			text = '{' + ourArt->artType->Name() + "}\n\n" + artDesc; //workaround for new artifacts with single name, turns it to H3-style
-
-		if(art->artType->id == ArtifactID::SPELL_SCROLL)
-		{
-			// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
-			// so we want to replace text in [...] with a spell name
-			// however other language versions don't have name placeholder at all, so we have to be careful
-			int spellID = art->getGivenSpellID();
-			size_t nameStart = text.find_first_of('[');
-			size_t nameEnd = text.find_first_of(']', nameStart);
-			if(spellID >= 0)
-			{
-				if(nameStart != std::string::npos  &&  nameEnd != std::string::npos)
-					text = text.replace(nameStart, nameEnd - nameStart + 1, CGI->spellh->objects[spellID]->name);
-
-				//add spell component info (used to provide a pic in r-click popup)
-				baseType = CComponent::spell;
-				type = spellID;
-				bonusValue = 0;
-			}
-		}
-		else
-		{
-			baseType = CComponent::artifact;
-			type = art->artType->id;
-			bonusValue = 0;
-		}
-		if (art->artType->constituents) //display info about components of combined artifact
-		{
-			//TODO
-		}
-		else if (art->artType->constituentOf.size()) //display info about set
-		{
-			std::string artList;
-			auto combinedArt = art->artType->constituentOf[0];
-			text += "\n\n";
-			text += "{" + combinedArt->Name() + "}";
-			int wornArtifacts = 0;
-			for (auto a : *combinedArt->constituents) //TODO: can the artifact be a part of more than one set?
-			{
-				artList += "\n" + a->Name();
-				if (ourOwner->curHero->hasArt(a->id, true))
-					wornArtifacts++;
-			}
-			text += " (" + boost::str(boost::format("%d") % wornArtifacts) +  " / " +
-				boost::str(boost::format("%d") % combinedArt->constituents->size()) + ")" + artList;
-			//TODO: fancy colors and fonts for this text
-		}
-
-		if (locked) // Locks should appear as empty.
-			hoverText = CGI->generaltexth->allTexts[507];
-		else
-			hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % ourArt->artType->Name());
+		baseType = CComponent::artifact;
+		type = art->artType->id;
+		bonusValue = 0;
 	}
+
+	if (locked) // Locks should appear as empty.
+		hoverText = CGI->generaltexth->allTexts[507];
+	else
+		hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % ourArt->artType->Name());
 }
 
 void CArtifactsOfHero::SCommonPart::reset()
@@ -454,12 +434,12 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 		backpackPos = 0;
 
 	// Fill the slots for worn artifacts and backpack.
-	
+
 	for(auto p : artWorn)
 	{
 		setSlotData(p.second, p.first);
 	}
-	
+
 	scrollBackpack(0);
 }
 
@@ -587,8 +567,8 @@ void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, ArtifactPosition slotID)
 
 	if(const ArtSlotInfo *asi = curHero->getSlot(slotID))
 	{
-		artPlace->setArtifact(asi->artifact);
 		artPlace->lockSlot(asi->locked);
+		artPlace->setArtifact(asi->artifact);
 	}
 	else
 		artPlace->setArtifact(nullptr);
@@ -797,7 +777,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 	}
 	else if(src.slot >= GameConstants::BACKPACK_START &&
 	        src.slot <  commonInfo->src.slotID &&
-			src.isHolder(commonInfo->src.AOH->curHero)) //artifact taken from before currently picked one
+			    src.isHolder(commonInfo->src.AOH->curHero)) //artifact taken from before currently picked one
 	{
 		//int fixedSlot = src.hero->getArtPos(commonInfo->src.art);
 		vstd::advance(commonInfo->src.slotID, -1);
@@ -811,14 +791,14 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 	}
 
 	updateParentWindow();
- 	int shift = 0;
+	int shift = 0;
 // 	if(dst.slot >= Arts::BACKPACK_START && dst.slot - Arts::BACKPACK_START < backpackPos)
 // 		shift++;
 //
- 	if(src.slot < GameConstants::BACKPACK_START  &&  dst.slot - GameConstants::BACKPACK_START < backpackPos)
+	if(src.slot < GameConstants::BACKPACK_START  &&  dst.slot - GameConstants::BACKPACK_START < backpackPos)
 		shift++;
 	if(dst.slot < GameConstants::BACKPACK_START  &&  src.slot - GameConstants::BACKPACK_START < backpackPos)
- 		shift--;
+		shift--;
 
 	if( (isCurHeroSrc && src.slot >= GameConstants::BACKPACK_START)
 	 || (isCurHeroDst && dst.slot >= GameConstants::BACKPACK_START) )
@@ -853,7 +833,7 @@ CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 		for(CArtPlace *ap : backpack)
 			if(ap->slotID == slot)
 				return ap;
-		return nullptr;				
+		return nullptr;
 	}
 }
 
