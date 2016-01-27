@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include "FileStream.h"
+#include "../minizip/ioapi.h"
 
 #ifdef USE_SYSTEM_MINIZIP
 #include <minizip/unzip.h>
@@ -56,8 +57,9 @@ zlib_filefunc64_def* FileStream::GetMinizipFilefunc()
 {
 	static zlib_filefunc64_def MinizipFilefunc;
 	static bool initialized = false;
-	if (!initialized) {
-		fill_fopen64_filefunc((&MinizipFilefunc));
+	if (!initialized)
+	{
+		fill_fopen64_filefunc(&MinizipFilefunc);
 		MinizipFilefunc.zopen64_file = &MinizipOpenFunc;
 		initialized = true;
 	}

@@ -95,7 +95,7 @@ std::set<std::string> CFilesystemList::getResourceNames(const ResourceID & resou
 		auto rn = loader->getResourceName(resourceName);
 		if(rn)
 		{
-			paths.insert(*rn);
+			paths.insert(rn->string());
 		}
 	}
 	return std::move(paths);

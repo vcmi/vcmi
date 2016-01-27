@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StdInc.h"
+#include "../StdInc.h"
 
 namespace Ui {
 	class CSettingsView;
