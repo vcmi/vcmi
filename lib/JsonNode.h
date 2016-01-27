@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- 
+
 #pragma once
 
 class JsonNode;
@@ -55,6 +55,7 @@ public:
 	explicit JsonNode(const char * data, size_t datasize);
 	//Create tree from JSON file
  	explicit JsonNode(ResourceID && fileURI);
+ 	explicit JsonNode(const ResourceID & fileURI);
 	explicit JsonNode(ResourceID && fileURI, bool & isValidSyntax);
 	//Copy c-tor
 	JsonNode(const JsonNode &copy);
@@ -125,9 +126,9 @@ namespace JsonUtils
 	/**
 	 * @brief parse short bonus format, excluding type
 	 * @note sets duration to Permament
-	 */	
+	 */
 	DLL_LINKAGE void parseTypedBonusShort(const JsonVector &source, Bonus *dest);
-	
+
 	///
 	DLL_LINKAGE Bonus * parseBonus (const JsonVector &ability_vec);
 	DLL_LINKAGE Bonus * parseBonus (const JsonNode &bonus);
@@ -144,7 +145,7 @@ namespace JsonUtils
 	 * @note this function will destroy data in source
 	 */
 	DLL_LINKAGE void merge(JsonNode & dest, JsonNode & source);
-	
+
 	/**
 	 * @brief recursively merges source into dest, replacing identical fields
 	 * struct : recursively calls this function
@@ -152,12 +153,12 @@ namespace JsonUtils
 	 * values : value in source will replace value in dest
 	 * null   : if value in source is present but set to null it will delete entry in dest
 	 * @note this function will preserve data stored in source by creating copy
-	 */ 
+	 */
 	DLL_LINKAGE void mergeCopy(JsonNode & dest, JsonNode source);
-	
+
     /** @brief recursively merges descendant into copy of base node
      * Result emulates inheritance semantic
-     * 
+     *
      *
      */
 	DLL_LINKAGE void inherit(JsonNode & descendant, const JsonNode & base);
@@ -200,7 +201,7 @@ namespace JsonDetail
 {
 	// conversion helpers for JsonNode::convertTo (partial template function instantiation is illegal in c++)
 
-	template <typename T, int arithm> 
+	template <typename T, int arithm>
 	struct JsonConvImpl;
 
 	template <typename T>
@@ -229,7 +230,7 @@ namespace JsonDetail
 			///this should be triggered only for numeric types and enums
 			static_assert(boost::mpl::or_<std::is_arithmetic<Type>, std::is_enum<Type>, boost::is_class<Type> >::value, "Unsupported type for JsonNode::convertTo()!");
 			return JsonConvImpl<Type, boost::mpl::or_<std::is_enum<Type>, boost::is_class<Type> >::value >::convertImpl(node);
-				
+
 		}
 	};
 
