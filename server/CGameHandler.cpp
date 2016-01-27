@@ -124,6 +124,11 @@ static inline double distance(int3 a, int3 b)
 }
 static void giveExp(BattleResult &r)
 {
+	if(r.winner > 1)
+	{
+		// draw
+		return;
+	}
 	r.exp[0] = 0;
 	r.exp[1] = 0;
 	for(auto i = r.casualties[!r.winner].begin(); i!=r.casualties[!r.winner].end(); i++)
@@ -718,7 +723,7 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 
 	setBattle(nullptr);
 
-	if(visitObjectAfterVictory && result.winner==0)
+	if(visitObjectAfterVictory && result.winner==0 && !finishingBattle->winnerHero->stacks.empty())
 	{
 		logGlobal->traceStream() << "post-victory visit";
 		visitObjectOnTile(*getTile(finishingBattle->winnerHero->getPosition()), finishingBattle->winnerHero);
@@ -740,7 +745,25 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 			sah.army[0].setCreature(SlotID(0), finishingBattle->loserHero->type->initialArmy.at(0).creature, 1);
 		}
 
-		if(const CGHeroInstance *another =  getPlayer(finishingBattle->loser)->availableHeroes.at(1))
+		if(const CGHeroInstance *another =  getPlayer(finishingBattle->loser)->availableHeroes.at(0))
+			sah.hid[1] = another->subID;
+		else
+			sah.hid[1] = -1;
+
+		sendAndApply(&sah);
+	}
+	if(result.winner != 2 && finishingBattle->winnerHero && finishingBattle->winnerHero->stacks.empty())
+	{
+		RemoveObject ro(finishingBattle->winnerHero->id);
+		sendAndApply(&ro);
+
+		SetAvailableHeroes sah;
+		sah.player = finishingBattle->victor;
+		sah.hid[0] = finishingBattle->winnerHero->subID;
+		sah.army[0].clear();
+		sah.army[0].setCreature(SlotID(0), finishingBattle->winnerHero->type->initialArmy.at(0).creature, 1);
+
+		if(const CGHeroInstance *another =  getPlayer(finishingBattle->victor)->availableHeroes.at(0))
 			sah.hid[1] = another->subID;
 		else
 			sah.hid[1] = -1;
@@ -5676,16 +5699,18 @@ void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact 
 
 void CGameHandler::setBattleResult(BattleResult::EResult resultType, int victoriusSide)
 {
-	if(battleResult.get())
+	boost::unique_lock<boost::mutex> guard(battleResult.mx);
+	if(battleResult.data)
 	{
-		complain("There is already set result?");
+		complain((boost::format("The battle result has been already set (to %d, asked to %d)")
+		          % battleResult.data->result % resultType).str());
 		return;
 	}
 	auto br = new BattleResult;
 	br->result = resultType;
 	br->winner = victoriusSide; //surrendering side loses
 	gs->curB->calculateCasualties(br->casualties);
-	battleResult.set(br);
+	battleResult.data = br;
 }
 
 void CGameHandler::commitPackage( CPackForClient *pack )
