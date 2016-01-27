@@ -87,9 +87,9 @@ boost::optional<boost::filesystem::path> CFilesystemList::getResourceName(const 
 	return boost::optional<boost::filesystem::path>();
 }
 
-std::set<std::string> CFilesystemList::getResourceNames(const ResourceID & resourceName) const
+std::set<boost::filesystem::path> CFilesystemList::getResourceNames(const ResourceID & resourceName) const
 {
-	std::set<std::string> paths;
+	std::set<boost::filesystem::path> paths;
 	for(auto& loader : getResourcesWithName(resourceName))
 	{
 		auto rn = loader->getResourceName(resourceName);

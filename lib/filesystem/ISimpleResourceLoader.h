@@ -58,9 +58,9 @@ public:
 	 *
 	 * @return std::set with names.
 	 */
-	virtual std::set<std::string> getResourceNames(const ResourceID & resourceName) const
+	virtual std::set<boost::filesystem::path> getResourceNames(const ResourceID & resourceName) const
 	{
-		std::set<std::string> result;
+		std::set<boost::filesystem::path> result;
 		auto rn = getResourceName(resourceName);
 		if(rn)
 		{
