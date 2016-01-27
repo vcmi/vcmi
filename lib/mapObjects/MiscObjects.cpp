@@ -24,7 +24,7 @@
 #include "../CPlayerState.h"
 
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
-ui8 CGObelisk::obeliskCount; //how many obelisks are on map
+ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
 std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
 
 ///helpers
@@ -60,7 +60,7 @@ static std::string & visitedTxt(const bool visited)
 
 void CPlayersVisited::setPropertyDer( ui8 what, ui32 val )
 {
-	if(what == 10)
+	if(what == CPlayersVisited::OBJPROP_VISITED)
 		players.insert(PlayerColor(val));
 }
 
@@ -1314,7 +1314,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	iw.soundID = soundBase::gazebo;
 	iw.player = h->getOwner();
 	if(!wasVisited(h->tempOwner))
-		cb->setObjProperty(id, 10, h->tempOwner.getNum());
+		cb->setObjProperty(id, CGWitchHut::OBJPROP_VISITED, h->tempOwner.getNum());
 	ui32 txt_id;
 	if(h->getSecSkillLevel(SecondarySkill(ability))) //you already know this skill
 	{
@@ -1424,7 +1424,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	if(!wasVisited(h->tempOwner))
-		cb->setObjProperty(id, 10, h->tempOwner.getNum());
+		cb->setObjProperty(id, CGShrine::OBJPROP_VISITED, h->tempOwner.getNum());
 
 	InfoWindow iw;
 	iw.soundID = soundBase::temple;
@@ -1826,7 +1826,7 @@ void CCartographer::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answ
 		//water = 0; land = 1; underground = 2;
 		cb->getAllTiles (fw.tiles, hero->tempOwner, subID - 1, !subID + 1); //reveal appropriate tiles
 		cb->sendAndApply (&fw);
-		cb->setObjProperty (id, 10, hero->tempOwner.getNum());
+		cb->setObjProperty (id, CCartographer::OBJPROP_VISITED, hero->tempOwner.getNum());
 	}
 }
 
@@ -1848,11 +1848,16 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 		iw.text.addTxt(MetaString::ADVOB_TXT, 96);
 		cb->sendAndApply(&iw);
 
-		cb->setObjProperty(id, 20, h->tempOwner.getNum()); //increment general visited obelisks counter
+		// increment general visited obelisks counter
+		cb->setObjProperty(id, CGObelisk::OBJPROP_INC, team.getNum());
 
 		openWindow(OpenWindow::PUZZLE_MAP, h->tempOwner.getNum());
 
-		cb->setObjProperty(id, 10, h->tempOwner.getNum()); //mark that particular obelisk as visited
+		// mark that particular obelisk as visited for all players in the team
+		for (auto & color : ts->players)
+		{
+			cb->setObjProperty(id, CGObelisk::OBJPROP_VISITED, color.getNum());
+		}
 	}
 	else
 	{
@@ -1867,6 +1872,12 @@ void CGObelisk::initObj()
 	obeliskCount++;
 }
 
+void CGObelisk::reset()
+{
+	obeliskCount = 0;
+	visited.clear();
+}
+
 std::string CGObelisk::getHoverText(PlayerColor player) const
 {
 	return getObjectName() + " " + visitedTxt(wasVisited(player));
@@ -1874,20 +1885,26 @@ std::string CGObelisk::getHoverText(PlayerColor player) const
 
 void CGObelisk::setPropertyDer( ui8 what, ui32 val )
 {
-	CPlayersVisited::setPropertyDer(what, val);
 	switch(what)
 	{
-	case 20:
-		assert(val < PlayerColor::PLAYER_LIMIT_I);
-		visited[TeamID(val)]++;
+		case CGObelisk::OBJPROP_INC:
+			{
+				assert(val < PlayerColor::PLAYER_LIMIT_I);
+				auto progress = ++visited[TeamID(val)];
+				logGlobal->debugStream() << boost::format("Player %d: obelisk progress %d / %d")
+					% val % static_cast<int>(progress) % static_cast<int>(obeliskCount);
 
-		if(visited[TeamID(val)] > obeliskCount)
-		{
-            logGlobal->errorStream() << "Error: Visited " << visited[TeamID(val)] << "\t\t" << obeliskCount;
-			assert(0);
-		}
+				if(progress > obeliskCount)
+				{
+					logGlobal->errorStream() << "Error: Visited " << progress << "\t\t" << obeliskCount;
+					assert(0);
+				}
 
-		break;
+				break;
+			}
+		default:
+			CPlayersVisited::setPropertyDer(what, val);
+			break;
 	}
 }
 

@@ -534,7 +534,7 @@ void CGSeerHut::newTurn() const
 {
 	if (quest->lastDay >= 0 && quest->lastDay < cb->getDate()-1) //time is up
 	{
-		cb->setObjProperty (id, 10, CQuest::COMPLETE);
+		cb->setObjProperty (id, CGSeerHut::OBJPROP_VISITED, CQuest::COMPLETE);
 	}
 }
 
@@ -551,7 +551,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 		if (firstVisit)
 		{
 			isCustom = quest->isCustomFirst;
-			cb->setObjProperty (id, 10, CQuest::IN_PROGRESS);
+			cb->setObjProperty (id, CGSeerHut::OBJPROP_VISITED, CQuest::IN_PROGRESS);
 
 			AddQuest aq;
 			aq.quest = QuestInfo (quest, this, visitablePos());
@@ -658,7 +658,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			default:
 				break;
 		}
-		cb->setObjProperty (id, 10, CQuest::COMPLETE); //mission complete
+		cb->setObjProperty (id, CGSeerHut::OBJPROP_VISITED, CQuest::COMPLETE); //mission complete
 		completeQuest(h); //make sure to remove QuestGuard at the very end
 	}
 }

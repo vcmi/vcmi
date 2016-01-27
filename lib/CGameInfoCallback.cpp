@@ -727,15 +727,16 @@ int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool
 	return -1;
 }
 
-int3 CPlayerSpecificInfoCallback::getGrailPos( double &outKnownRatio )
+int3 CPlayerSpecificInfoCallback::getGrailPos( double *outKnownRatio )
 {
 	if (!player || CGObelisk::obeliskCount == 0)
 	{
-		outKnownRatio = 0.0;
+		*outKnownRatio = 0.0;
 	}
 	else
 	{
-		outKnownRatio = static_cast<double>(CGObelisk::visited[gs->getPlayerTeam(*player)->id]) / CGObelisk::obeliskCount;
+		*outKnownRatio = static_cast<double>(CGObelisk::visited[gs->getPlayerTeam(*player)->id])
+			/ CGObelisk::obeliskCount;
 	}
 	return gs->map->grailPos;
 }
