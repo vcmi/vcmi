@@ -416,7 +416,7 @@ void CGSeerHut::init()
 {
 	seerName = *RandomGeneratorUtil::nextItem(VLC->generaltexth->seerNames, cb->gameState()->getRandomGenerator());
 	quest->textOption = cb->gameState()->getRandomGenerator().nextInt(2);
-	quest->completedOption = cb->gameState()->getRandomGenerator().nextInt(1, 5);
+	quest->completedOption = cb->gameState()->getRandomGenerator().nextInt(1, 3);
 }
 
 void CGSeerHut::initObj()
@@ -746,6 +746,7 @@ void CGQuestGuard::init()
 {
 	blockVisit = true;
 	quest->textOption = cb->gameState()->getRandomGenerator().nextInt(3, 5);
+	quest->completedOption = cb->gameState()->getRandomGenerator().nextInt(4, 5);
 }
 
 void CGQuestGuard::completeQuest(const CGHeroInstance *h) const
