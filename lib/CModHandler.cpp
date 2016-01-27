@@ -554,7 +554,7 @@ void CModHandler::loadConfigFromFile (std::string name)
 	std::string paths;
 	for(auto& p : CResourceHandler::get()->getResourceNames(ResourceID("config/" + name)))
 	{
-		paths += p + ", ";
+		paths += p.string() + ", ";
 	}
 	paths = paths.substr(0, paths.size() - 2);
 	logGlobal->debugStream() << "Loading hardcoded features settings from [" << paths << "], result:";
