@@ -129,7 +129,7 @@ public:
 
 	inline bool isInitialized() const
 	{ // has this hero been on the map at least once?
-		return movement == UNINITIALIZED_MOVEMENT && mana == UNINITIALIZED_MANA;
+		return movement != UNINITIALIZED_MOVEMENT && mana != UNINITIALIZED_MANA;
 	}
 
 	//int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
