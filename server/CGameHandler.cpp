@@ -757,18 +757,21 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 		RemoveObject ro(finishingBattle->winnerHero->id);
 		sendAndApply(&ro);
 
-		SetAvailableHeroes sah;
-		sah.player = finishingBattle->victor;
-		sah.hid[0] = finishingBattle->winnerHero->subID;
-		sah.army[0].clear();
-		sah.army[0].setCreature(SlotID(0), finishingBattle->winnerHero->type->initialArmy.at(0).creature, 1);
+		if (VLC->modh->settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS)
+		{
+			SetAvailableHeroes sah;
+			sah.player = finishingBattle->victor;
+			sah.hid[0] = finishingBattle->winnerHero->subID;
+			sah.army[0].clear();
+			sah.army[0].setCreature(SlotID(0), finishingBattle->winnerHero->type->initialArmy.at(0).creature, 1);
 
-		if(const CGHeroInstance *another =  getPlayer(finishingBattle->victor)->availableHeroes.at(0))
-			sah.hid[1] = another->subID;
-		else
-			sah.hid[1] = -1;
+			if(const CGHeroInstance *another =  getPlayer(finishingBattle->victor)->availableHeroes.at(0))
+				sah.hid[1] = another->subID;
+			else
+				sah.hid[1] = -1;
 
-		sendAndApply(&sah);
+			sendAndApply(&sah);
+		}
 	}
 }
 

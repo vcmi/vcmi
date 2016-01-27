@@ -56,6 +56,15 @@ JsonNode::JsonNode(ResourceID && fileURI):
 	*this = parser.parse(fileURI.getName());
 }
 
+JsonNode::JsonNode(const ResourceID & fileURI):
+	type(DATA_NULL)
+{
+	auto file = CResourceHandler::get()->load(fileURI)->readAll();
+
+	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second);
+	*this = parser.parse(fileURI.getName());
+}
+
 JsonNode::JsonNode(ResourceID && fileURI, bool &isValidSyntax):
 	type(DATA_NULL)
 {
@@ -328,7 +337,7 @@ void JsonUtils::parseTypedBonusShort(const JsonVector& source, Bonus *dest)
 	resolveIdentifier(source[2],dest->subtype);
 	dest->additionalInfo = source[3].Float();
 	dest->duration = Bonus::PERMANENT; //TODO: handle flags (as integer)
-	dest->turnsRemain = 0;	
+	dest->turnsRemain = 0;
 }
 
 
@@ -343,7 +352,7 @@ Bonus * JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with
 		return b;
 	}
 	b->type = it->second;
-	
+
 	parseTypedBonusShort(ability_vec, b);
 	return b;
 }
