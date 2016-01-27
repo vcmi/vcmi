@@ -2268,7 +2268,7 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(PlayerColor player) c
 
 	for (const TriggeredEvent & event : map->triggeredEvents)
 	{
-		if ((event.trigger.test(evaluateEvent)))
+		if (event.trigger.test(evaluateEvent))
 		{
 			if (event.effect.type == EventEffect::VICTORY)
 				return EVictoryLossCheckResult::victory(event.onFulfill, event.effect.toOtherMessage);
@@ -2285,7 +2285,7 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(PlayerColor player) c
 	return EVictoryLossCheckResult();
 }
 
-bool CGameState::checkForVictory( PlayerColor player, const EventCondition & condition ) const
+bool CGameState::checkForVictory(PlayerColor player, const EventCondition & condition) const
 {
 	const PlayerState *p = CGameInfoCallback::getPlayer(player);
 	switch (condition.condition)

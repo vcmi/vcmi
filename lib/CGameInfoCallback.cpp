@@ -66,6 +66,10 @@ const PlayerState * CGameInfoCallback::getPlayer(PlayerColor color, bool verbose
 {
 	//funtion written from scratch since it's accessed A LOT by AI
 
+	if(!color.isValidPlayer())
+	{
+		return nullptr;
+	}
 	auto player = gs->players.find(color);
 	if (player != gs->players.end())
 	{
@@ -229,13 +233,13 @@ bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown
 	{
 		if(!detailed && nullptr != selectedObject)
 		{
-			const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);		
+			const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 			if(nullptr != selectedHero)
-				detailed = selectedHero->hasVisions(town, 1);			
+				detailed = selectedHero->hasVisions(town, 1);
 		}
-		
+
 		dest.initFromTown(static_cast<const CGTownInstance *>(town), detailed);
-	}		
+	}
 	else if(town->ID == Obj::GARRISON || town->ID == Obj::GARRISON2)
 		dest.initFromArmy(static_cast<const CArmedInstance *>(town), detailed);
 	else
@@ -268,28 +272,28 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	ERROR_RET_VAL_IF(!isVisible(h->getPosition(false)), "That hero is not visible!", false);
 
 	bool accessFlag = hasAccess(h->tempOwner);
-	
+
 	if(!accessFlag && nullptr != selectedObject)
 	{
-		const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);		
+		const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 		if(nullptr != selectedHero)
-			accessFlag = selectedHero->hasVisions(hero, 1);			
+			accessFlag = selectedHero->hasVisions(hero, 1);
 	}
-	
+
 	dest.initFromHero(h, accessFlag);
-	
+
 	//DISGUISED bonus implementation
-	
+
 	if(getPlayerRelations(getLocalPlayer(), hero->tempOwner) == PlayerRelations::ENEMIES)
 	{
-		//todo: bonus cashing	
+		//todo: bonus cashing
 		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(Bonus::DISGUISED, 0));
-		
-		auto doBasicDisguise = [disguiseLevel](InfoAboutHero & info)		
+
+		auto doBasicDisguise = [disguiseLevel](InfoAboutHero & info)
 		{
 			int maxAIValue = 0;
 			const CCreature * mostStrong = nullptr;
-			
+
 			for(auto & elem : info.army)
 			{
 				if(elem.second.type->AIValue > maxAIValue)
@@ -298,7 +302,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 					mostStrong = elem.second.type;
 				}
 			}
-			
+
 			if(nullptr == mostStrong)//just in case
 				logGlobal->errorStream() << "CGameInfoCallback::getHeroInfo: Unable to select most strong stack" << disguiseLevel;
 			else
@@ -307,25 +311,25 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 					elem.second.type = mostStrong;
 				}
 		};
-		
-		auto doAdvancedDisguise = [accessFlag, &doBasicDisguise](InfoAboutHero & info)		
+
+		auto doAdvancedDisguise = [accessFlag, &doBasicDisguise](InfoAboutHero & info)
 		{
 			doBasicDisguise(info);
-			
+
 			for(auto & elem : info.army)
 				elem.second.count = 0;
 		};
-		
-		auto doExpertDisguise = [this,h](InfoAboutHero & info)		
+
+		auto doExpertDisguise = [this,h](InfoAboutHero & info)
 		{
 			for(auto & elem : info.army)
 				elem.second.count = 0;
-			
+
 			const auto factionIndex = getStartInfo(false)->playerInfos.at(h->tempOwner).castle;
-			
+
 			int maxAIValue = 0;
 			const CCreature * mostStrong = nullptr;
-			
+
 			for(auto creature : VLC->creh->creatures)
 			{
 				if(creature->faction == factionIndex && creature->AIValue > maxAIValue)
@@ -334,35 +338,35 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 					mostStrong = creature;
 				}
 			}
-			
+
 			if(nullptr != mostStrong) //possible, faction may have no creatures at all
 				for(auto & elem : info.army)
 					elem.second.type = mostStrong;
-		};				
-		
-		
+		};
+
+
 		switch (disguiseLevel)
 		{
 		case 0:
 			//no bonus at all - do nothing
-			break;		
+			break;
 		case 1:
 			doBasicDisguise(dest);
-			break;		
+			break;
 		case 2:
 			doAdvancedDisguise(dest);
-			break;		
+			break;
 		case 3:
 			doExpertDisguise(dest);
-			break;		
+			break;
 		default:
 			//invalid value
 			logGlobal->errorStream() << "CGameInfoCallback::getHeroInfo: Invalid DISGUISED bonus value " << disguiseLevel;
 			break;
 		}
-		
+
 	}
-	
+
 	return true;
 }
 
@@ -486,7 +490,7 @@ std::shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVi
 
 
 	boost::multi_array<TerrainTile*, 3> tileArray(boost::extents[width][height][levels]);
-	
+
 	for (size_t x = 0; x < width; x++)
 		for (size_t y = 0; y < height; y++)
 			for (size_t z = 0; z < levels; z++)
@@ -964,4 +968,3 @@ void IGameEventRealizer::setObjProperty(ObjectInstanceID objid, int prop, si64 v
 	sob.val = static_cast<ui32>(val);
 	commitPackage(&sob);
 }
-

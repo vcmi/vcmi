@@ -23,6 +23,7 @@
 #include "../CCreatureHandler.h"
 #include "../BattleState.h"
 #include "../CTownHandler.h"
+#include "../mapping/CMap.h"
 #include "CGTownInstance.h"
 
 ///helpers
@@ -1453,4 +1454,28 @@ bool CGHeroInstance::hasVisions(const CGObjectInstance * target, const int subty
 	//logGlobal->debug(boost::to_string(boost::format("Visions: dist %d, mult %d, range %d") % distance % visionsMultiplier % visionsRange));
 
 	return (distance < visionsRange) && (target->pos.z == pos.z);
+}
+
+bool CGHeroInstance::isMissionCritical() const
+{
+	for(const TriggeredEvent & event : IObjectInterface::cb->getMapHeader()->triggeredEvents)
+	{
+		if(event.trigger.test([&](const EventCondition & condition)
+		{
+			if (condition.condition == EventCondition::CONTROL && condition.object)
+			{
+				auto hero = dynamic_cast<const CGHeroInstance*>(condition.object);
+				return (hero != this);
+			}
+			else if(condition.condition == EventCondition::IS_HUMAN)
+			{
+				return true;
+			}
+			return false;
+		}))
+		{
+			return true;
+		}
+	}
+	return false;
 }
