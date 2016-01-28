@@ -130,7 +130,7 @@ public:
 		h & rewardType & rID & rVal & seerName;
 	}
 protected:
-	static constexpr int OBJPROP_VISITED = 10;
+	static const int OBJPROP_VISITED = 10;
 
 	void setPropertyDer(ui8 what, ui32 val) override;
 };
