@@ -1324,6 +1324,25 @@ void CGameHandler::newTurn()
 
 	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->hpool.heroesPool;
 
+	for(auto& hp : pool)
+	{
+		auto hero = hp.second;
+		if(hero->isInitialized() && hero->stacks.size())
+		{
+			// reset retreated or surrendered heroes
+			auto maxmove = hero->maxMovePoints(true);
+			// if movement is greater than maxmove, we should decrease it
+			if(hero->movement != maxmove || hero->mana < hero->manaLimit())
+			{
+				NewTurn::Hero hth;
+				hth.id = hero->id;
+				hth.move = maxmove;
+				hth.mana = std::max((si32)(0), std::max(hero->mana, std::min((si32)(hero->mana + hero->manaRegain()), hero->manaLimit())));
+				n.heroes.insert(hth);
+			}
+		}
+	}
+
 	for (auto & elem : gs->players)
 	{
 		if(elem.first == PlayerColor::NEUTRAL)
@@ -1351,7 +1370,9 @@ void CGameHandler::newTurn()
 					banned = h->type->heroClass;
 				}
 				else
+				{
 					sah.hid[j] = -1;
+				}
 			}
 
 			sendAndApply(&sah);
