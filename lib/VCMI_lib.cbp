@@ -213,8 +213,6 @@
 		<Unit filename="filesystem/CBinaryReader.h" />
 		<Unit filename="filesystem/CCompressedStream.cpp" />
 		<Unit filename="filesystem/CCompressedStream.h" />
-		<Unit filename="filesystem/CFileInfo.cpp" />
-		<Unit filename="filesystem/CFileInfo.h" />
 		<Unit filename="filesystem/CFileInputStream.cpp" />
 		<Unit filename="filesystem/CFileInputStream.h" />
 		<Unit filename="filesystem/CFilesystemLoader.cpp" />
