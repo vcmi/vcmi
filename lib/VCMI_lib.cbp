@@ -19,7 +19,6 @@
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-Og" />
-					<Add directory="$(#zlib.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-lws2_32" />
@@ -33,9 +32,6 @@
 					<Add option="-lboost_date_time$(#boost.libsuffix)" />
 					<Add option="-liconv" />
 					<Add option="-ldbghelp" />
-					<Add directory="$(#sdl2.lib)" />
-					<Add directory="$(#boost.lib32)" />
-					<Add directory="$(#zlib.lib)" />
 				</Linker>
 			</Target>
 			<Target title="Release-win32">
@@ -48,7 +44,6 @@
 				<Compiler>
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O2" />
-					<Add directory="$(#zlib.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -62,9 +57,6 @@
 					<Add option="-lboost_locale$(#boost.libsuffix)" />
 					<Add option="-lboost_date_time$(#boost.libsuffix)" />
 					<Add option="-liconv" />
-					<Add directory="$(#sdl2.lib)" />
-					<Add directory="$(#boost.lib32)" />
-					<Add directory="$(#zlib.lib)" />
 				</Linker>
 			</Target>
 			<Target title="Debug-win64">
@@ -110,18 +102,21 @@
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-Wno-unused-local-typedefs" />
+			<Add option="-isystem $(#boost.include)" />
 			<Add option="-DVCMI_DLL" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add option="-D_WIN32" />
-			<Add directory="$(#boost.include)" />
-			<Add directory="../include" />
-			<Add directory="../lib" />
+			<Add directory="." />
 			<Add directory="$(#sdl2.include)" />
+			<Add directory="$(#zlib.include)" />
 		</Compiler>
 		<Linker>
 			<Add directory="../" />
+			<Add directory="$(#sdl2.lib)" />
+			<Add directory="$(#boost.lib32)" />
+			<Add directory="$(#zlib.lib)" />
 		</Linker>
 		<Unit filename="AI_Base.h" />
 		<Unit filename="BattleAction.cpp" />

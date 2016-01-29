@@ -46,10 +46,12 @@ static inline std::string readName(std::string name)
 	return name;
 }
 
+#if 0
 ResourceID::ResourceID()
 	:type(EResType::OTHER)
 {
 }
+#endif
 
 ResourceID::ResourceID(std::string name_)
 	:type{readType(name_)},
@@ -62,7 +64,7 @@ ResourceID::ResourceID(std::string name_, EResType::Type type_)
 	name{readName(std::move(name_))}
 {
 }
-
+#if 0
 std::string ResourceID::getName() const
 {
 	return name;
@@ -72,7 +74,7 @@ EResType::Type ResourceID::getType() const
 {
 	return type;
 }
-#if 0
+
 void ResourceID::setName(std::string name)
 {
 	// setName shouldn't be used if type is UNDEFINED

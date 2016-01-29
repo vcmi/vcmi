@@ -70,7 +70,7 @@ public:
 	/**
 	 * Default c-tor.
 	 */
-	ResourceID();
+	//ResourceID();
 
 	/**
 	 * Ctor. Can be used to create identifier for resource loading using one parameter
@@ -98,8 +98,8 @@ public:
 		return name == other.name && type == other.type;
 	}
 
-	std::string getName() const;
-	EResType::Type getType() const;
+	std::string		getName() const {return name;}
+	EResType::Type	getType() const {return type;}
 	//void setName(std::string name);
 	//void setType(EResType::Type type);
 
