@@ -32,6 +32,7 @@
 					<Add option="-lboost_date_time$(#boost.libsuffix)" />
 					<Add option="-liconv" />
 					<Add option="-ldbghelp" />
+					<Add directory="$(#boost.lib32)" />
 				</Linker>
 			</Target>
 			<Target title="Release-win32">
@@ -57,6 +58,7 @@
 					<Add option="-lboost_locale$(#boost.libsuffix)" />
 					<Add option="-lboost_date_time$(#boost.libsuffix)" />
 					<Add option="-liconv" />
+					<Add directory="$(#boost.lib32)" />
 				</Linker>
 			</Target>
 			<Target title="Debug-win64">
@@ -115,7 +117,6 @@
 		<Linker>
 			<Add directory="../" />
 			<Add directory="$(#sdl2.lib)" />
-			<Add directory="$(#boost.lib32)" />
 			<Add directory="$(#zlib.lib)" />
 		</Linker>
 		<Unit filename="AI_Base.h" />
