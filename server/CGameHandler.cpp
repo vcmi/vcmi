@@ -1148,6 +1148,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 				handleDamageFromObstacle(*theLastObstacle, curStack);
 			}
 	}
+	updateDrawbridgeState();
 	return ret;
 }
 
@@ -3448,6 +3449,40 @@ bool CGameHandler::queryReply(QueryID qid, ui32 answer, PlayerColor player)
 }
 
 static EndAction end_action;
+
+void CGameHandler::updateDrawbridgeState()
+{
+	BattleDrawbridgeStateChanged db;
+	db.state = gs->curB->si.drawbridgeState;
+	if(gs->curB->si.wallState[EWallPart::GATE] == EWallState::DESTROYED)
+	{
+		db.state = EDrawbridgeState::LOWERED_BORKED;
+	}
+	else if(db.state == EDrawbridgeState::LOWERED)
+	{
+		if(gs->curB->battleGetStackByPos(BattleHex(94), false) ||
+			gs->curB->battleGetStackByPos(BattleHex(95), false) ||
+			gs->curB->battleGetStackByPos(BattleHex(96), false))
+		{
+			db.state = EDrawbridgeState::LOWERED;
+		}
+		else
+			db.state = EDrawbridgeState::RAISED;
+	}
+	else if(db.state == EDrawbridgeState::RAISED || db.state == EDrawbridgeState::RAISED_BLOCKED)
+	{
+		if(gs->curB->battleGetStackByPos(BattleHex(94), false))
+			db.state = EDrawbridgeState::RAISED_BLOCKED;
+		else if(gs->curB->battleGetStackByPos(BattleHex(95), false) ||
+			gs->curB->battleGetStackByPos(BattleHex(96), false))
+		{
+			db.state = EDrawbridgeState::LOWERED;
+		}
+		else
+			db.state = EDrawbridgeState::RAISED;
+	}
+	sendAndApply(&db);
+}
 
 bool CGameHandler::makeBattleAction( BattleAction &ba )
 {

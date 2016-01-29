@@ -442,6 +442,15 @@ si8 CBattleInfoEssentials::battleGetWallState(int partOfWall) const
 	return getBattle()->si.wallState[partOfWall];
 }
 
+EDrawbridgeState CBattleInfoEssentials::battleGetDrawbridgeState() const
+{
+	RETURN_IF_NOT_BATTLE(EDrawbridgeState::NONE);
+	if(getBattle()->town == nullptr || getBattle()->town->fortLevel() == CGTownInstance::NONE)
+		return EDrawbridgeState::NONE;
+
+	return getBattle()->si.drawbridgeState;
+}
+
 si8 CBattleInfoCallback::battleHasWallPenalty( const CStack * stack, BattleHex destHex ) const
 {
 	return battleHasWallPenalty(stack, stack->position, destHex);
@@ -1129,9 +1138,20 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	}
 
 	//gate -> should be before stacks
-	if(battleGetSiegeLevel() > 0 && battleGetWallState(EWallPart::GATE) != EWallState::DESTROYED)
+	if(battleGetSiegeLevel() > 0)
 	{
-		ret[95] = ret[96] = EAccessibility::GATE; //block gate's hexes
+		EAccessibility::EAccessibility accessability = EAccessibility::ACCESSIBLE;
+		switch(battleGetDrawbridgeState())
+		{
+		case EDrawbridgeState::RAISED:
+			accessability = EAccessibility::GATE;
+			break;
+
+		case EDrawbridgeState::RAISED_BLOCKED:
+			accessability = EAccessibility::UNAVAILABLE;
+			break;
+		}
+		ret[95] = ret[96] = accessability;
 	}
 
 	//tiles occupied by standing stacks

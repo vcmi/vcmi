@@ -200,6 +200,7 @@ public:
 	PlayerColor getPlayerAt(CConnection *c) const;
 
 	void playerMessage( PlayerColor player, const std::string &message, ObjectInstanceID currObj);
+	void updateDrawbridgeState();
 	bool makeBattleAction(BattleAction &ba);
 	bool makeAutomaticAction(const CStack *stack, BattleAction &ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
 	bool makeCustomAction(BattleAction &ba);
