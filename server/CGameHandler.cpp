@@ -3914,7 +3914,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			BattleStackAdded bsa;
 			bsa.attacker = summoner->attackerOwned;
 
-			bsa.creID = summonedType; 
+			bsa.creID = summonedType;
 			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID.toEnum());
 			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;//todo: ignore AGE effect
 
@@ -5887,7 +5887,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 	PlayerColor color = army->tempOwner;
 	if(color == PlayerColor::UNFLAGGABLE)
 		color = PlayerColor::NEUTRAL;
-		
+
 	auto killStack = [&, this](const SlotID slot, const CStackInstance * instance)
 	{
 		StackLocation sl(army, slot);
@@ -5928,46 +5928,66 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 
 	for(CStack *st : bat->stacks)
 	{
-		if(vstd::contains(st->state, EBattleStackState::SUMMONED)) //don't take into account summoned stacks
+		if(vstd::contains(st->state, EBattleStackState::SUMMONED)) //don't take into account temporary summoned stacks
 			continue;
 		if (st->owner != color) //remove only our stacks
 			continue;
 
+		logGlobal->debugStream() << "Calculating casualties for " << st->nodeName();
+
 		//FIXME: this info is also used in BattleInfo::calculateCasualties, refactor
 		st->count = std::max (0, st->count - st->resurrected);
 
-		if (!st->count && !st->base) //we can imagine stacks of war machines that are not spawned by artifacts?
+		if(st->slot == SlotID::ARROW_TOWERS_SLOT)
+		{
+			//do nothing
+			logGlobal->debugStream() << "Ignored arrow towers stack";
+		}
+		else if(st->slot == SlotID::WAR_MACHINES_SLOT)
 		{
 			auto warMachine = VLC->arth->creatureToMachineID(st->type->idNumber);
-			//catapult artifact remain even if "creature" killed in siege
-			if(warMachine != ArtifactID::NONE && warMachine != ArtifactID::CATAPULT)
+
+			if(warMachine == ArtifactID::NONE)
 			{
+				logGlobal->errorStream() << "Invalid creature in war machine virtual slot: " << st->nodeName();
+			}
+			//catapult artifact remain even if "creature" killed in siege
+			else if(warMachine != ArtifactID::CATAPULT && !st->count)
+			{
+				logGlobal->debugStream() << "War machine has been destroyed";
 				auto hero = dynamic_ptr_cast<CGHeroInstance> (army);
 				if (hero)
 					removedWarMachines.push_back (ArtifactLocation(hero, hero->getArtPos(warMachine, true)));
+				else
+					logGlobal->errorStream() << "War machine in army without hero";
 			}
 		}
-		
-		if(army->slotEmpty(st->slot))
+		else if(st->slot == SlotID::SUMMONED_SLOT_PLACEHOLDER)
 		{
-			if(st->slot == SlotID::SUMMONED_SLOT_PLACEHOLDER && !vstd::contains(st->state, EBattleStackState::SUMMONED) && st->alive() && st->count > 0)
+			if(st->alive() && st->count > 0)
 			{
+				logGlobal->debugStream() << "Stack has been permanently summoned";
 				//this stack was permanently summoned
 				const CreatureID summonedType = st->type->idNumber;
 				summoned[summonedType] += st->count;
-			}			
+			}
 		}
-		else
+		else if(st->base && !army->slotEmpty(st->slot))
 		{
 			if(st->count == 0 || !st->alive())
 			{
 				killStack(st->slot, st->base);
+				logGlobal->debugStream() << "Stack has been destroyed";
 			}
 			else if(st->count < army->getStackCount(st->slot))
-			{			
+			{
 				StackLocation sl(army, st->slot);
 				newStackCounts.push_back(TStackAndItsNewCount(sl, st->count));
 			}
+		}
+		else
+		{
+			logGlobal->warnStream() << "Unhandled stack " << st->nodeName();
 		}
 	}
 }
