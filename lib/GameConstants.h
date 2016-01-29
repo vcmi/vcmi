@@ -510,6 +510,15 @@ namespace EWallState
 	};
 }
 
+enum class EDrawbridgeState
+{
+	NONE,
+	RAISED,
+	RAISED_BLOCKED, //dead or alive stack blocking from outside
+	LOWERED,
+	LOWERED_BORKED //gate is destroyed
+};
+
 namespace ETileType
 {
 	enum ETileType

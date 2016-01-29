@@ -1689,6 +1689,19 @@ struct BattleObstaclePlaced : public CPackForClient //3020
 	}
 };
 
+struct BattleDrawbridgeStateChanged : public CPackForClient//3021
+{
+	BattleDrawbridgeStateChanged(){type = 3021;};
+
+	DLL_LINKAGE void applyGs(CGameState *gs);
+
+	EDrawbridgeState state;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & state;
+	}
+};
+
 
 struct ShowInInfobox : public CPackForClient //107
 {
