@@ -39,8 +39,8 @@ private:
 	//offset[group][frame] - offset of frame data in file
 	std::map<size_t, std::vector <size_t> > offset;
 
-	std::unique_ptr<ui8[]>			data;
-	std::unique_ptr<SDL_Color[]>	palette;
+	std::unique_ptr<ui8[]>       data;
+	std::unique_ptr<SDL_Color[]> palette;
 
 public:
 	CDefFile(std::string Name);

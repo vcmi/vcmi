@@ -75,9 +75,9 @@ class CFileCache
 	static const int cacheSize = 50; //Max number of cached files
 	struct FileData
 	{
-		ResourceID				name;
-		size_t					size;
-		std::unique_ptr<ui8[]>	data;
+		ResourceID             name;
+		size_t                 size;
+		std::unique_ptr<ui8[]> data;
 
 		std::unique_ptr<ui8[]> getCopy()
 		{

@@ -53,17 +53,15 @@ ResourceID::ResourceID()
 }
 #endif
 
-ResourceID::ResourceID(std::string name_)
-	:type{readType(name_)},
+ResourceID::ResourceID(std::string name_):
+	type{readType(name_)},
 	name{readName(std::move(name_))}
-{
-}
+{}
 
-ResourceID::ResourceID(std::string name_, EResType::Type type_)
-	:type{type_},
+ResourceID::ResourceID(std::string name_, EResType::Type type_):
+	type{type_},
 	name{readName(std::move(name_))}
-{
-}
+{}
 #if 0
 std::string ResourceID::getName() const
 {
