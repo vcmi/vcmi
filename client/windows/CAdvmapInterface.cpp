@@ -1069,7 +1069,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			LOCPLINT->proposeLoadingGame();
 		return;
 	case SDLK_s:
-		if(isActive())
+		if(isActive() && key.type == SDL_KEYUP)
 			GH.pushInt(new CSavingScreen(CPlayerInterface::howManyPeople > 1));
 		return;
 	case SDLK_d:
