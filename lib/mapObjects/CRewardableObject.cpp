@@ -422,7 +422,7 @@ void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 
 void CRewardableObject::newTurn() const
 {
-	if (resetDuration != 0 && cb->getDate(Date::DAY) > 1 && cb->getDate(Date::DAY) % (resetDuration) == 1)
+	if (resetDuration != 0 && cb->getDate(Date::DAY) > 1 && (cb->getDate(Date::DAY) % resetDuration) == 1)
 		cb->setObjProperty(id, ObjProperty::REWARD_RESET, 0);
 }
 
@@ -1003,14 +1003,28 @@ void CGVisitableOPW::initObj()
 		soundID = soundBase::GENIE;
 		onEmpty.addTxt(MetaString::ADVOB_TXT, 165);
 
-		info.resize(2);
-		info[0].limiter.dayOfWeek = 7; // double amount on sunday
-		info[0].reward.resources[Res::GOLD] = 1000;
-		info[1].reward.resources[Res::GOLD] = 500;
+		info.resize(1);
+		info[0].reward.resources[Res::GOLD] = 500;
 		info[0].message.addTxt(MetaString::ADVOB_TXT, 164);
-		info[1].message.addTxt(MetaString::ADVOB_TXT, 164);
 		break;
 	}
+}
+
+void CGVisitableOPW::setPropertyDer(ui8 what, ui32 val)
+{
+	if(ID == Obj::WATER_WHEEL && what == ObjProperty::REWARD_RESET)
+	{
+		auto& reward = info[0].reward.resources[Res::GOLD];
+		if(info[0].numOfGrants == 0)
+		{
+			reward = 1000;
+		}
+		else
+		{
+			reward = 500;
+		}
+	}
+	CRewardableObject::setPropertyDer(what, val);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -306,6 +306,8 @@ public:
 
 	CGVisitableOPW();
 
+	void setPropertyDer(ui8 what, ui32 val) override;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CRewardableObject&>(*this);
