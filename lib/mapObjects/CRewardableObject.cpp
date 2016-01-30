@@ -87,19 +87,25 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 	return ret;
 }
 
+CVisitInfo CRewardableObject::getVisitInfo(int index, const CGHeroInstance *) const
+{
+	return info[index];
+}
+
 void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 {
 	auto grantRewardWithMessage = [&](int index) -> void
 	{
-		logGlobal->debugStream() << "Granting reward " << index << ". Message says: " << info[index].message.toString();
+		auto vi = getVisitInfo(index, h);
+		logGlobal->debugStream() << "Granting reward " << index << ". Message says: " << vi.message.toString();
 		// show message only if it is not empty
-		if (!info[index].message.toString().empty())
+		if (!vi.message.toString().empty())
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
 			iw.soundID = soundID;
-			iw.text = info[index].message;
-			info[index].reward.loadComponents(iw.components, h);
+			iw.text = vi.message;
+			vi.reward.loadComponents(iw.components, h);
 			cb->showInfoDialog(&iw);
 		}
 		// grant reward afterwards. Note that it may remove object
@@ -112,7 +118,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 		sd.soundID = soundID;
 		sd.text = onSelect;
 		for (auto index : rewards)
-			sd.components.push_back(info[index].reward.getDisplayedComponent(h));
+			sd.components.push_back(getVisitInfo(index, h).reward.getDisplayedComponent(h));
 		cb->showBlockingDialog(&sd);
 	};
 
@@ -175,7 +181,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 
 void CRewardableObject::heroLevelUpDone(const CGHeroInstance *hero) const
 {
-	grantRewardAfterLevelup(info[selectedReward], hero);
+	grantRewardAfterLevelup(getVisitInfo(selectedReward, hero), hero);
 }
 
 void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
@@ -205,7 +211,7 @@ void CRewardableObject::grantReward(ui32 rewardID, const CGHeroInstance * hero) 
 	cb->sendAndApply(&cov);
 	cb->setObjProperty(id, ObjProperty::REWARD_SELECT, rewardID);
 
-	grantRewardBeforeLevelup(info[rewardID], hero);
+	grantRewardBeforeLevelup(getVisitInfo(rewardID, hero), hero);
 }
 
 void CRewardableObject::grantRewardBeforeLevelup(const CVisitInfo & info, const CGHeroInstance * hero) const
@@ -733,27 +739,47 @@ void CGBonusingObject::initObj()
 		break;
 	case Obj::STABLES:
 		configureMessage(info[0], 137, 136, soundBase::STORE);
-
 		configureBonusDuration(info[0], Bonus::ONE_WEEK, Bonus::LAND_MOVEMENT, 400, 0);
 		info[0].reward.movePoints = 400;
-		//TODO: upgrade champions to cavaliers
-/*
-		bool someUpgradeDone = false;
+		break;
+	}
+}
 
-		for (auto i = h->Slots().begin(); i != h->Slots().end(); ++i)
+CVisitInfo CGBonusingObject::getVisitInfo(int index, const CGHeroInstance *h) const
+{
+	if(ID == Obj::STABLES)
+	{
+		assert(index == 0);
+		for(auto& slot : h->Slots())
 		{
-			if(i->second->type->idNumber == CreatureID::CAVALIER)
+			if(slot.second->type->idNumber == CreatureID::CAVALIER)
 			{
-				cb->changeStackType(StackLocation(h, i->first), VLC->creh->creatures[CreatureID::CHAMPION]);
-				someUpgradeDone = true;
+				CVisitInfo vi(info[0]);
+				vi.message.clear();
+				vi.message.addTxt(MetaString::ADVOB_TXT, 138);
+				vi.reward.extraComponents.push_back(Component(
+					Component::CREATURE, CreatureID::CHAMPION, 0, 1));
+				return std::move(vi);
 			}
 		}
-		if (someUpgradeDone)
+	}
+	return info[index];
+}
+
+void CGBonusingObject::onHeroVisit(const CGHeroInstance *h) const
+{
+	CRewardableObject::onHeroVisit(h);
+	if(ID == Obj::STABLES)
+	{
+		//regardless of whether this hero visited stables or not, cavaliers must be upgraded
+		for(auto& slot : h->Slots())
 		{
-			grantMessage.addTxt(MetaString::ADVOB_TXT, 138);
-			iw.components.push_back(Component(Component::CREATURE,11,0,1));
-		}*/
-		break;
+			if(slot.second->type->idNumber == CreatureID::CAVALIER)
+			{
+				cb->changeStackType(StackLocation(h, slot.first),
+									VLC->creh->creatures[CreatureID::CHAMPION]);
+			}
+		}
 	}
 }
 
