@@ -1337,7 +1337,7 @@ void CGameHandler::newTurn()
 				NewTurn::Hero hth;
 				hth.id = hero->id;
 				hth.move = maxmove;
-				hth.mana = std::max((si32)(0), std::max(hero->mana, std::min((si32)(hero->mana + hero->manaRegain()), hero->manaLimit())));
+				hth.mana = hero->getManaNewTurn();
 				n.heroes.insert(hth);
 			}
 		}
@@ -1389,11 +1389,7 @@ void CGameHandler::newTurn()
 			hth.id = h->id;
 			// TODO: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
 			hth.move = h->maxMovePoints(gs->map->getTile(h->getPosition(false)).terType != ETerrainType::WATER, new TurnInfo(h, 1));
-
-			if(h->visitedTown && h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1)) //if hero starts turn in town with mage guild
-				hth.mana = std::max(h->mana, h->manaLimit()); //restore all mana
-			else
-				hth.mana = std::max((si32)(0), std::max(h->mana, std::min((si32)(h->mana + h->manaRegain()), h->manaLimit())));
+			hth.mana = h->getManaNewTurn();
 
 			n.heroes.insert(hth);
 
