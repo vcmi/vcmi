@@ -80,10 +80,8 @@ class CMusicHandler;
 //Class for handling one music file
 class MusicEntry
 {
-	std::pair<std::unique_ptr<ui8[]>, size_t> data;
 	CMusicHandler *owner;
 	Mix_Music *music;
-	SDL_RWops *musicFile;
 
 	int loop; // -1 = indefinite
 	//if not null - set from which music will be randomly selected
@@ -116,7 +114,7 @@ private:
 
 	std::unique_ptr<MusicEntry> current;
 	std::unique_ptr<MusicEntry> next;
-	
+
 	void queueNext(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped);
 	void queueNext(std::unique_ptr<MusicEntry> queued);
 
