@@ -1324,6 +1324,25 @@ void CGameHandler::newTurn()
 
 	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->hpool.heroesPool;
 
+	for(auto& hp : pool)
+	{
+		auto hero = hp.second;
+		if(hero->isInitialized() && hero->stacks.size())
+		{
+			// reset retreated or surrendered heroes
+			auto maxmove = hero->maxMovePoints(true);
+			// if movement is greater than maxmove, we should decrease it
+			if(hero->movement != maxmove || hero->mana < hero->manaLimit())
+			{
+				NewTurn::Hero hth;
+				hth.id = hero->id;
+				hth.move = maxmove;
+				hth.mana = hero->getManaNewTurn();
+				n.heroes.insert(hth);
+			}
+		}
+	}
+
 	for (auto & elem : gs->players)
 	{
 		if(elem.first == PlayerColor::NEUTRAL)
@@ -1351,7 +1370,9 @@ void CGameHandler::newTurn()
 					banned = h->type->heroClass;
 				}
 				else
+				{
 					sah.hid[j] = -1;
+				}
 			}
 
 			sendAndApply(&sah);
@@ -1368,11 +1389,7 @@ void CGameHandler::newTurn()
 			hth.id = h->id;
 			// TODO: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
 			hth.move = h->maxMovePoints(gs->map->getTile(h->getPosition(false)).terType != ETerrainType::WATER, new TurnInfo(h, 1));
-
-			if(h->visitedTown && h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1)) //if hero starts turn in town with mage guild
-				hth.mana = std::max(h->mana, h->manaLimit()); //restore all mana
-			else
-				hth.mana = std::max((si32)(0), std::max(h->mana, std::min((si32)(h->mana + h->manaRegain()), h->manaLimit())));
+			hth.mana = h->getManaNewTurn();
 
 			n.heroes.insert(hth);
 
