@@ -33,7 +33,7 @@ class CSelector : std::function<bool(const Bonus*)>
 public:
 	CSelector() {}
 	template<typename T>
-	CSelector(const T &t,	//SFINAE trick -> include this c-tor in overload resolution only if parameter is class 
+	CSelector(const T &t,	//SFINAE trick -> include this c-tor in overload resolution only if parameter is class
 							//(includes functors, lambdas) or function. Without that VC is going mad about ambiguities.
 		typename std::enable_if < boost::mpl::or_ < std::is_class<T>, std::is_function<T >> ::value>::type *dummy = nullptr)
 		: TBase(t)
@@ -79,7 +79,7 @@ public:
 	BONUS_NAME(MORALE) \
 	BONUS_NAME(LUCK) \
 	BONUS_NAME(PRIMARY_SKILL) /*uses subtype to pick skill; additional info if set: 1 - only melee, 2 - only distance*/  \
-	BONUS_NAME(SIGHT_RADIOUS) \
+	BONUS_NAME(SIGHT_RADIOUS) /*the correct word is RADIUS, but this one's already used in mods */\
 	BONUS_NAME(MANA_REGENERATION) /*points per turn apart from normal (1 + mysticism)*/  \
 	BONUS_NAME(FULL_MANA_REGENERATION) /*all mana points are replenished every day*/  \
 	BONUS_NAME(NONEVIL_ALIGNMENT_MIX) /*good and neutral creatures can be mixed without morale penalty*/  \
@@ -219,7 +219,7 @@ public:
 	BONUS_NAME(VISIONS) /* subtype - spell level */\
 	BONUS_NAME(NO_TERRAIN_PENALTY) /* subtype - terrain type */\
 	/* end of list */
-	
+
 
 #define BONUS_SOURCE_LIST \
 	BONUS_SOURCE(ARTIFACT)\
@@ -345,7 +345,7 @@ struct DLL_LINKAGE Bonus
 	static bool NTurns(const Bonus *hb)
 	{
 		return hb->duration & Bonus::N_TURNS;
-	}	
+	}
 	static bool OneDay(const Bonus *hb)
 	{
 		return hb->duration & Bonus::ONE_DAY;
@@ -754,7 +754,7 @@ public:
 		: ptr(Ptr)
 	{
 	}
-	
+
 	CSelector operator()(const T &valueToCompareAgainst) const
 	{
 		auto ptr2 = ptr; //We need a COPY because we don't want to reference this (might be outlived by lambda)

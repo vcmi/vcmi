@@ -143,7 +143,7 @@ public:
 	/// Returns true if player can pass through visitable tiles of this object
 	virtual bool passableFor(PlayerColor color) const;
 	/// Range of revealed map around this object, counting from getSightCenter()
-	virtual int getSightRadious() const;
+	virtual int getSightRadius() const;
 	/// returns (x,y,0) offset to a visitable tile of object
 	virtual int3 getVisitableOffset() const;
 	/// Called mostly during map randomization to turn random object into a regular one (e.g. "Random Monster" into "Pikeman")

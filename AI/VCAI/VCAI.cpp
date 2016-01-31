@@ -2554,7 +2554,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 
 int3 VCAI::explorationNewPoint(HeroPtr h)
 {
-	int radius = h->getSightRadious();
+	int radius = h->getSightRadius();
 	CCallback * cbp = cb.get();
 	const CGHeroInstance * hero = h.get();
 
@@ -2603,7 +2603,7 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 int3 VCAI::explorationDesperate(HeroPtr h)
 {
 	auto sm = getCachedSectorMap(h);
-	int radius = h->getSightRadious();
+	int radius = h->getSightRadius();
 
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
 	tiles.resize(radius);
