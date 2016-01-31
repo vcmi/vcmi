@@ -104,9 +104,10 @@ public:
 	/// if set to true, object will be removed after granting reward
 	bool removeObject;
 
-	/// Generates list of components that describes reward
-	virtual void loadComponents(std::vector<Component> & comps) const;
-	Component getDisplayedComponent() const;
+	/// Generates list of components that describes reward for a specific hero
+	virtual void loadComponents(std::vector<Component> & comps,
+	                            const CGHeroInstance * h) const;
+	Component getDisplayedComponent(const CGHeroInstance * h) const;
 
 	CRewardInfo() :
 		gainedExp(0),

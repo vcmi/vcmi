@@ -99,7 +99,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			iw.player = h->tempOwner;
 			iw.soundID = soundID;
 			iw.text = info[index].message;
-			info[index].reward.loadComponents(iw.components);
+			info[index].reward.loadComponents(iw.components, h);
 			cb->showInfoDialog(&iw);
 		}
 		// grant reward afterwards. Note that it may remove object
@@ -112,7 +112,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 		sd.soundID = soundID;
 		sd.text = onSelect;
 		for (auto index : rewards)
-			sd.components.push_back(info[index].reward.getDisplayedComponent());
+			sd.components.push_back(info[index].reward.getDisplayedComponent(h));
 		cb->showBlockingDialog(&sd);
 	};
 
@@ -341,19 +341,24 @@ bool CRewardableObject::wasVisited (const CGHeroInstance * h) const
 	}
 }
 
-void CRewardInfo::loadComponents(std::vector<Component> & comps) const
+void CRewardInfo::loadComponents(std::vector<Component> & comps,
+                                 const CGHeroInstance * h) const
 {
 	for (auto comp : extraComponents)
 		comps.push_back(comp);
 
-	if (gainedExp)    comps.push_back(Component(Component::EXPERIENCE, 0, gainedExp, 0));
+	if (gainedExp)
+	{
+		comps.push_back(Component(
+			Component::EXPERIENCE, 0, h->calculateXp(gainedExp), 0));
+	}
 	if (gainedLevels) comps.push_back(Component(Component::EXPERIENCE, 0, gainedLevels, 0));
 
-	if (manaDiff)   comps.push_back(Component(Component::PRIM_SKILL, 5, manaDiff,   0));
+	if (manaDiff) comps.push_back(Component(Component::PRIM_SKILL, 5, manaDiff, 0));
 
 	for (size_t i=0; i<primary.size(); i++)
 	{
-		if (primary[i] !=0)
+		if (primary[i] != 0)
 			comps.push_back(Component(Component::PRIM_SKILL, i, primary[i], 0));
 	}
 
@@ -376,10 +381,10 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps) const
 	}
 }
 
-Component CRewardInfo::getDisplayedComponent() const
+Component CRewardInfo::getDisplayedComponent(const CGHeroInstance * h) const
 {
 	std::vector<Component> comps;
-	loadComponents(comps);
+	loadComponents(comps, h);
 	assert(!comps.empty());
 	return comps.front();
 }
