@@ -76,10 +76,10 @@ public:
 
 	struct DLL_LINKAGE Patrol
 	{
-		Patrol(){patrolling=false;initialPos=int3();patrolRadious=-1;};
+		Patrol(){patrolling=false;initialPos=int3();patrolRadius=-1;};
 		bool patrolling;
 		int3 initialPos;
-		ui32 patrolRadious;
+		ui32 patrolRadius;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & patrolling;
@@ -92,7 +92,7 @@ public:
 				patrolling = false;
 				initialPos = int3();
 			}
-			h & patrolRadious;
+			h & patrolRadius;
 		}
 	} patrol;
 
@@ -134,7 +134,7 @@ public:
 	}
 
 	//int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
-	int getSightRadious() const override; //sight distance (should be used if player-owned structure)
+	int getSightRadius() const override; //sight distance (should be used if player-owned structure)
 	//////////////////////////////////////////////////////////////////////////
 
 	int getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral

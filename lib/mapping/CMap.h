@@ -306,7 +306,7 @@ public:
 	std::vector<bool> allowedAbilities;
 	std::list<CMapEvent> events;
 	int3 grailPos;
-	int grailRadious;
+	int grailRadius;
 
 	//Central lists of items in game. Position of item in the vectors below is their (instance) id.
 	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;

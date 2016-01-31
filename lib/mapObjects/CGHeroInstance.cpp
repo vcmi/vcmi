@@ -1067,7 +1067,7 @@ int3 CGHeroInstance::getSightCenter() const
 	return getPosition(false);
 }*/
 
-int CGHeroInstance::getSightRadious() const
+int CGHeroInstance::getSightRadius() const
 {
 	return 5 + getSecSkillLevel(SecondarySkill::SCOUTING) + valOfBonuses(Bonus::SIGHT_RADIOUS); //default + scouting
 }

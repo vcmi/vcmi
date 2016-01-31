@@ -55,4 +55,4 @@ struct SharedMem
 		delete mr;
 		boost::interprocess::shared_memory_object::remove("vcmi_memory");
 	}
-};
+};
