@@ -23,13 +23,13 @@
 
 bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 {
-	if (dayOfWeek != 0)
+	if(dayOfWeek != 0)
 	{
 		if (IObjectInterface::cb->getDate(Date::DAY_OF_WEEK) != dayOfWeek)
 			return false;
 	}
 
-	for (auto & reqStack : creatures)
+	for(auto & reqStack : creatures)
 	{
 		size_t count = 0;
 		for (auto slot : hero->Slots())
@@ -42,25 +42,25 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
-	if (!IObjectInterface::cb->getPlayer(hero->tempOwner)->resources.canAfford(resources))
+	if(!IObjectInterface::cb->getPlayer(hero->tempOwner)->resources.canAfford(resources))
 		return false;
 
-	if (minLevel > hero->level)
+	if(minLevel > hero->level)
 		return false;
 
-	for (size_t i=0; i<primary.size(); i++)
+	for(size_t i=0; i<primary.size(); i++)
 	{
 		if (primary[i] > hero->getPrimSkillLevel(PrimarySkill::PrimarySkill(i)))
 			return false;
 	}
 
-	for (auto & skill : secondary)
+	for(auto & skill : secondary)
 	{
 		if (skill.second > hero->getSecSkillLevel(skill.first))
 			return false;
 	}
 
-	for (auto & art : artifacts)
+	for(auto & art : artifacts)
 	{
 		if (!hero->hasArt(art))
 			return false;
@@ -73,11 +73,11 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 {
 	std::vector<ui32> ret;
 
-	for (size_t i=0; i<info.size(); i++)
+	for(size_t i=0; i<info.size(); i++)
 	{
 		const CVisitInfo & visit = info[i];
 
-		if ((visit.limiter.numOfGrants == 0 || visit.numOfGrants < visit.limiter.numOfGrants) // reward has unlimited uses or some are still available
+		if((visit.limiter.numOfGrants == 0 || visit.numOfGrants < visit.limiter.numOfGrants) // reward has unlimited uses or some are still available
 			&& visit.limiter.heroAllowed(hero))
 		{
 			logGlobal->debugStream() << "Reward " << i << " is allowed";
@@ -122,7 +122,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 		cb->showBlockingDialog(&sd);
 	};
 
-	if (!wasVisited(h))
+	if(!wasVisited(h))
 	{
 		auto rewards = getAvailableRewards(h);
 		logGlobal->debugStream() << "Visiting object with " << rewards.size() << " possible rewards";
@@ -186,10 +186,10 @@ void CRewardableObject::heroLevelUpDone(const CGHeroInstance *hero) const
 
 void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
-	if (answer == 0)
+	if(answer == 0)
 		return; // player refused
 
-	if (answer > 0 && answer-1 < info.size())
+	if(answer > 0 && answer-1 < info.size())
 	{
 		auto list = getAvailableRewards(hero);
 		grantReward(list[answer - 1], hero);
@@ -224,7 +224,7 @@ void CRewardableObject::grantRewardBeforeLevelup(const CVisitInfo & info, const 
 
 	cb->giveResources(hero->tempOwner, info.reward.resources);
 
-	for (auto & entry : info.reward.secondary)
+	for(auto & entry : info.reward.secondary)
 	{
 		int current = hero->getSecSkillLevel(entry.first);
 		if( (current != 0 && current < entry.second) ||
@@ -241,11 +241,11 @@ void CRewardableObject::grantRewardBeforeLevelup(const CVisitInfo & info, const 
 	si64 expToGive = 0;
 	expToGive += VLC->heroh->reqExp(hero->level+info.reward.gainedLevels) - VLC->heroh->reqExp(hero->level);
 	expToGive += hero->calculateXp(info.reward.gainedExp);
-	if (expToGive)
+	if(expToGive)
 		cb->changePrimSkill(hero, PrimarySkill::EXPERIENCE, expToGive);
 
 	// hero is not blocked by levelup dialog - grant remainer immediately
-	if (!cb->isVisitCoveredByAnotherQuery(this, hero))
+	if(!cb->isVisitCoveredByAnotherQuery(this, hero))
 	{
 		grantRewardAfterLevelup(info, hero);
 	}
@@ -253,7 +253,7 @@ void CRewardableObject::grantRewardBeforeLevelup(const CVisitInfo & info, const 
 
 void CRewardableObject::grantRewardAfterLevelup(const CVisitInfo & info, const CGHeroInstance * hero) const
 {
-	if (info.reward.manaDiff || info.reward.manaPercentage >= 0)
+	if(info.reward.manaDiff || info.reward.manaPercentage >= 0)
 	{
 		si32 mana = hero->mana;
 		if (info.reward.manaPercentage >= 0)
@@ -275,7 +275,7 @@ void CRewardableObject::grantRewardAfterLevelup(const CVisitInfo & info, const C
 		cb->setMovePoints(&smp);
 	}
 
-	for (const Bonus & bonus : info.reward.bonuses)
+	for(const Bonus & bonus : info.reward.bonuses)
 	{
 		assert(bonus.source == Bonus::OBJECT);
 		assert(bonus.sid == ID);
@@ -286,16 +286,16 @@ void CRewardableObject::grantRewardAfterLevelup(const CVisitInfo & info, const C
 		cb->giveHeroBonus(&gb);
 	}
 
-	for (ArtifactID art : info.reward.artifacts)
+	for(ArtifactID art : info.reward.artifacts)
 		cb->giveHeroNewArtifact(hero, VLC->arth->artifacts[art],ArtifactPosition::FIRST_AVAILABLE);
 
-	if (!info.reward.spells.empty())
+	if(!info.reward.spells.empty())
 	{
 		std::set<SpellID> spellsToGive(info.reward.spells.begin(), info.reward.spells.end());
 		cb->changeSpells(hero, true, spellsToGive);
 	}
 
-	if (!info.reward.creatures.empty())
+	if(!info.reward.creatures.empty())
 	{
 		CCreatureSet creatures;
 		for (auto & crea : info.reward.creatures)
@@ -306,11 +306,11 @@ void CRewardableObject::grantRewardAfterLevelup(const CVisitInfo & info, const C
 
 	onRewardGiven(hero);
 
-	if (info.reward.removeObject)
+	if(info.reward.removeObject)
 		cb->removeObject(this);
 }
 
-bool CRewardableObject::wasVisited (PlayerColor player) const
+bool CRewardableObject::wasVisited(PlayerColor player) const
 {
 	switch (visitMode)
 	{
@@ -332,7 +332,7 @@ bool CRewardableObject::wasVisited (PlayerColor player) const
 	}
 }
 
-bool CRewardableObject::wasVisited (const CGHeroInstance * h) const
+bool CRewardableObject::wasVisited(const CGHeroInstance * h) const
 {
 	switch (visitMode)
 	{
@@ -781,6 +781,32 @@ void CGBonusingObject::onHeroVisit(const CGHeroInstance *h) const
 			}
 		}
 	}
+}
+
+bool CGBonusingObject::wasVisited(const CGHeroInstance * h) const
+{
+	if(ID == Obj::STABLES)
+	{
+		for(auto& slot : h->Slots())
+		{
+			if(slot.second->type->idNumber == CreatureID::CAVALIER)
+			{
+				// always display the reward message if the hero got cavaliers
+				return false;
+			}
+		}
+	}
+	return CRewardableObject::wasVisited(h);
+}
+
+void CGBonusingObject::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
+{
+	if(ID == Obj::STABLES && CRewardableObject::wasVisited(hero))
+	{
+		// reward message has been displayed - do not give the actual bonus
+		return;
+	}
+	CRewardableObject::grantReward(rewardID, hero);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

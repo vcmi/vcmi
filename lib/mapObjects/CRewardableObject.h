@@ -159,8 +159,6 @@ public:
 /// Inherits from CArmedInstance for proper trasfer of armies
 class DLL_LINKAGE CRewardableObject : public CArmedInstance
 {
-	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
-
 	/// function that must be called if hero got level-up during grantReward call
 	void grantRewardAfterLevelup(const CVisitInfo & reward, const CGHeroInstance * hero) const;
 
@@ -187,6 +185,8 @@ protected:
 
 	/// filters list of visit info and returns rewards that can be granted to current hero
 	virtual std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const;
+
+	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
 
 	virtual CVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const;
 
@@ -219,8 +219,8 @@ public:
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
-	bool wasVisited (PlayerColor player) const override;
-	bool wasVisited (const CGHeroInstance * h) const override;
+	bool wasVisited(PlayerColor player) const override;
+	bool wasVisited(const CGHeroInstance * h) const override;
 
 	/// gives reward to player or ask for choice in case of multiple rewards
 	void onHeroVisit(const CGHeroInstance *h) const override;
@@ -269,12 +269,16 @@ class DLL_LINKAGE CGBonusingObject : public CRewardableObject //objects giving b
 protected:
 	CVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const override;
 
+	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
+
 public:
 	void initObj() override;
 
 	CGBonusingObject();
 
 	void onHeroVisit(const CGHeroInstance *h) const override;
+
+	bool wasVisited(const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
