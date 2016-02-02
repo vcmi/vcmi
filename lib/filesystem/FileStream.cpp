@@ -7,10 +7,7 @@
 #include "../minizip/unzip.h"
 #endif
 
-#include "../minizip/ioapi.h"
-
 #include <cstdio>
-
 
 #ifdef VCMI_WINDOWS
 	#ifndef _CRT_SECURE_NO_WARNINGS
