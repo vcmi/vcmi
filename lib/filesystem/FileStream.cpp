@@ -1,12 +1,13 @@
 #include "StdInc.h"
 #include "FileStream.h"
-#include "../minizip/ioapi.h"
 
 #ifdef USE_SYSTEM_MINIZIP
 #include <minizip/unzip.h>
 #else
 #include "../minizip/unzip.h"
 #endif
+
+#include "../minizip/ioapi.h"
 
 #include <cstdio>
 
