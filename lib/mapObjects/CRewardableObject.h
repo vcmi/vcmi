@@ -164,6 +164,7 @@ class DLL_LINKAGE CRewardableObject : public CArmedInstance
 
 	/// grants reward to hero
 	void grantRewardBeforeLevelup(const CVisitInfo & reward, const CGHeroInstance * hero) const;
+
 protected:
 	/// controls selection of reward granted to player
 	enum ESelectMode
@@ -185,9 +186,11 @@ protected:
 	/// filters list of visit info and returns rewards that can be granted to current hero
 	virtual std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const;
 
-	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
+	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
 
-	/// Rewars that can be granted by an object
+	virtual CVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const;
+
+	/// Rewards that can be granted by an object
 	std::vector<CVisitInfo> info;
 
 	/// MetaString's that contain text for messages for specific situations
@@ -216,8 +219,8 @@ public:
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
-	bool wasVisited (PlayerColor player) const override;
-	bool wasVisited (const CGHeroInstance * h) const override;
+	bool wasVisited(PlayerColor player) const override;
+	bool wasVisited(const CGHeroInstance * h) const override;
 
 	/// gives reward to player or ask for choice in case of multiple rewards
 	void onHeroVisit(const CGHeroInstance *h) const override;
@@ -263,10 +266,19 @@ public:
 
 class DLL_LINKAGE CGBonusingObject : public CRewardableObject //objects giving bonuses to luck/morale/movement
 {
+protected:
+	CVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const override;
+
+	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
+
 public:
 	void initObj() override;
 
 	CGBonusingObject();
+
+	void onHeroVisit(const CGHeroInstance *h) const override;
+
+	bool wasVisited(const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
