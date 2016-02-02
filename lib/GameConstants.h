@@ -236,6 +236,9 @@ class SlotID : public BaseForID<SlotID, si32>
 	friend class CNonConstInfoCallback;
 
 	DLL_LINKAGE static const SlotID COMMANDER_SLOT_PLACEHOLDER;
+	DLL_LINKAGE static const SlotID SUMMONED_SLOT_PLACEHOLDER; ///<for all summoned creatures, only during battle
+	DLL_LINKAGE static const SlotID WAR_MACHINES_SLOT; ///<for all war machines during battle
+	DLL_LINKAGE static const SlotID ARROW_TOWERS_SLOT; ///<for all arrow towers during battle
 
 	bool validSlot() const
 	{
@@ -443,11 +446,11 @@ namespace ESpellCastProblem
 
 namespace ECastingMode
 {
-	enum ECastingMode 
+	enum ECastingMode
 	{
 		HERO_CASTING, AFTER_ATTACK_CASTING, //also includes cast before attack
 		MAGIC_MIRROR, CREATURE_ACTIVE_CASTING, ENCHANTER_CASTING,
-		SPELL_LIKE_ATTACK, 
+		SPELL_LIKE_ATTACK,
 		PASSIVE_CASTING//f.e. opening battle spells
 	};
 }

@@ -313,7 +313,7 @@ void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 	}
 }
 
-int CGTownInstance::getSightRadious() const //returns sight distance
+int CGTownInstance::getSightRadius() const //returns sight distance
 {
 	if (subID == ETownType::TOWER)
 	{
@@ -1109,7 +1109,7 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 		FoWChange fw;
 		fw.player = hero->tempOwner;
 		fw.mode = 1;
-		cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadious(), tempOwner, 1);
+		cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadius(), tempOwner, 1);
 		cb->sendAndApply (&fw);
 	}
 }

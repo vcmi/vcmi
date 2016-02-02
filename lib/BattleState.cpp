@@ -469,7 +469,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		auto handleWarMachine= [&](int side, ArtifactPosition artslot, CreatureID cretype, BattleHex hex)
 		{
 			if(heroes[side] && heroes[side]->getArt(artslot))
-				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, SlotID(255), hex));
+				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, SlotID::WAR_MACHINES_SLOT, hex));
 		};
 
 		handleWarMachine(0, ArtifactPosition::MACH1, CreatureID::BALLISTA, 52);
@@ -526,15 +526,15 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	if (curB->town && curB->town->fortLevel() >= CGTownInstance::CITADEL)
 	{
 		// keep tower
-		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -2);
+		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID::ARROW_TOWERS_SLOT, -2);
 		stacks.push_back(stack);
 
 		if (curB->town->fortLevel() >= CGTownInstance::CASTLE)
 		{
 			// lower tower + upper tower
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -4);
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID::ARROW_TOWERS_SLOT, -4);
 			stacks.push_back(stack);
-			stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -3);
+			stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID::ARROW_TOWERS_SLOT, -3);
 			stacks.push_back(stack);
 		}
 
@@ -712,7 +712,7 @@ std::shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile)
 
 BattlefieldBI::BattlefieldBI BattleInfo::battlefieldTypeToBI(BFieldType bfieldType)
 {
-	static const std::map<BFieldType, BattlefieldBI::BattlefieldBI> theMap = 
+	static const std::map<BFieldType, BattlefieldBI::BattlefieldBI> theMap =
 	{
 		{BFieldType::CLOVER_FIELD, BattlefieldBI::CLOVER_FIELD},
 		{BFieldType::CURSED_GROUND, BattlefieldBI::CURSED_GROUND},
@@ -1141,7 +1141,7 @@ bool CStack::ableToRetaliate() const //FIXME: crash after clone is killed
 
 ui8 CStack::counterAttacksTotal() const
 {
-	//after dispell bonus should remain during current round 
+	//after dispell bonus should remain during current round
 	ui8 val = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
 	vstd::amax(counterAttacksTotalCache, val);
 	return counterAttacksTotalCache;
@@ -1183,9 +1183,9 @@ ui32 CStack::calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) cons
 ui8 CStack::getSpellSchoolLevel(const CSpell * spell, int * outSelectedSchool) const
 {
 	int skill = valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, spell->id));
-	
+
 	vstd::abetween(skill, 0, 3);
-	
+
 	return skill;
 }
 

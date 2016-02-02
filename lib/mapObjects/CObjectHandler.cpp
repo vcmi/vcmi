@@ -243,7 +243,7 @@ int3 CGObjectInstance::getSightCenter() const
 	return visitablePos();
 }
 
-int CGObjectInstance::getSightRadious() const
+int CGObjectInstance::getSightRadius() const
 {
 	return 3;
 }
