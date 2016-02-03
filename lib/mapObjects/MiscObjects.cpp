@@ -589,14 +589,50 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 	}
 }
 
+static const std::string CHARACTER_JSON [] =
+{
+	"compliant", "friendly", "aggressive", "hostile", "savage"
+};
+
 void CGCreature::writeJsonOptions(JsonNode& json) const
 {
+	assert(vstd::iswithin(character, 0, 4));
+	json["character"].String() = CHARACTER_JSON[character];
 
+	if(hasStackAtSlot(SlotID(0)))
+	{
+		auto sta = getStack(SlotID(0));
+		json["amount"].Float() = sta.count;
+	}
+
+	json["noGrowing"].Bool() = notGrowingTeam;
+	json["neverFlees"].Bool() = neverFlees;
+	json["rewardMessage"].String() = message;
+	json["rewardArtifact"].String() = (gainedArtifact == ArtifactID(ArtifactID::NONE) ? "" : gainedArtifact.toArtifact()->identifier);
 }
 
 void CGCreature::readJsonOptions(const JsonNode& json)
 {
+	character = vstd::find_pos(CHARACTER_JSON,json["character"].String());
+	vstd::amin(character, 0);
 
+	auto  hlp = new CStackInstance();
+	hlp->count = json["amount"].Float();
+	//type will be set during initialization
+	putStack(SlotID(0), hlp);
+
+	notGrowingTeam = json["noGrowing"].Bool();
+	neverFlees = json["neverFlees"].Bool();
+	message = json["rewardMessage"].String();
+
+	gainedArtifact = ArtifactID(ArtifactID::NONE);
+
+	if(json["rewardArtifact"].String() != "")
+	{
+		auto artid = VLC->modh->identifiers.getIdentifier("core", "artifact", json["rewardArtifact"].String());
+		if(artid)
+			gainedArtifact = ArtifactID(artid.get());
+	}
 }
 
 //CGMine
@@ -2101,10 +2137,10 @@ void CGLighthouse::giveBonusTo( PlayerColor player ) const
 
 void CGLighthouse::writeJsonOptions(JsonNode& json) const
 {
-
+	CGObjectInstance::writeOwner(json);
 }
 
 void CGLighthouse::readJsonOptions(const JsonNode& json)
 {
-
+	CGObjectInstance::readOwner(json);
 }
