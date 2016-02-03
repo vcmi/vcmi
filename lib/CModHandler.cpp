@@ -551,21 +551,42 @@ CModHandler::CModHandler()
 
 void CModHandler::loadConfigFromFile (std::string name)
 {
+	std::string paths;
+	for(auto& p : CResourceHandler::get()->getResourceNames(ResourceID("config/" + name)))
+	{
+		paths += p + ", ";
+	}
+	paths = paths.substr(0, paths.size() - 2);
+	logGlobal->debugStream() << "Loading hardcoded features settings from [" << paths << "], result:";
 	settings.data = JsonUtils::assembleFromFiles("config/" + name);
 	const JsonNode & hardcodedFeatures = settings.data["hardcodedFeatures"];
 	settings.MAX_HEROES_AVAILABLE_PER_PLAYER = hardcodedFeatures["MAX_HEROES_AVAILABLE_PER_PLAYER"].Float();
+	logGlobal->debugStream() << "\tMAX_HEROES_AVAILABLE_PER_PLAYER\t" << settings.MAX_HEROES_AVAILABLE_PER_PLAYER;
 	settings.MAX_HEROES_ON_MAP_PER_PLAYER = hardcodedFeatures["MAX_HEROES_ON_MAP_PER_PLAYER"].Float();
+	logGlobal->debugStream() << "\tMAX_HEROES_ON_MAP_PER_PLAYER\t" << settings.MAX_HEROES_ON_MAP_PER_PLAYER;
 	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Float();
+	logGlobal->debugStream() << "\tCREEP_SIZE\t" << settings.CREEP_SIZE;
 	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Float();
+	logGlobal->debugStream() << "\tWEEKLY_GROWTH\t" << settings.WEEKLY_GROWTH;
 	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Float();
+	logGlobal->debugStream() << "\tNEUTRAL_STACK_EXP\t" << settings.NEUTRAL_STACK_EXP;
 	settings.MAX_BUILDING_PER_TURN = hardcodedFeatures["MAX_BUILDING_PER_TURN"].Float();
+	logGlobal->debugStream() << "\tMAX_BUILDING_PER_TURN\t" << settings.MAX_BUILDING_PER_TURN;
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
+	logGlobal->debugStream() << "\tDWELLINGS_ACCUMULATE_CREATURES\t" << settings.DWELLINGS_ACCUMULATE_CREATURES;
 	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
+	logGlobal->debugStream() << "\tALL_CREATURES_GET_DOUBLE_MONTHS\t" << settings.ALL_CREATURES_GET_DOUBLE_MONTHS;
+	settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS = hardcodedFeatures["WINNING_HERO_WITH_NO_TROOPS_RETREATS"].Bool();
+	logGlobal->debugStream() << "\tWINNING_HERO_WITH_NO_TROOPS_RETREATS\t" << settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS;
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
+  logGlobal->debugStream() << "\tSTACK_EXP\t" << modules.STACK_EXP;
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
+	logGlobal->debugStream() << "\tSTACK_ARTIFACT\t" << modules.STACK_ARTIFACT;
 	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
+	logGlobal->debugStream() << "\tCOMMANDERS\t" << modules.COMMANDERS;
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
+	logGlobal->debugStream() << "\tMITHRIL\t" << modules.MITHRIL;
 }
 
 // currentList is passed by value to get current list of depending mods

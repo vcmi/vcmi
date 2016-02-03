@@ -7,6 +7,7 @@
 #include "../CMessage.h"
 #include "../CGameInfo.h"
 #include "../widgets/Images.h"
+#include "../widgets/CArtifactHolder.h"
 #include "../windows/CAdvmapInterface.h"
 
 #include "../../lib/CArtHandler.h"
@@ -144,14 +145,26 @@ size_t CComponent::getIndex()
 
 std::string CComponent::getDescription()
 {
-	switch (compType)
+	switch(compType)
 	{
 	case primskill:  return (subtype < 4)? CGI->generaltexth->arraytxt[2+subtype] //Primary skill
 										 : CGI->generaltexth->allTexts[149]; //mana
 	case secskill:   return CGI->generaltexth->skillInfoTexts[subtype][val-1];
 	case resource:   return CGI->generaltexth->allTexts[242];
 	case creature:   return "";
-	case artifact:   return CGI->arth->artifacts[subtype]->Description();
+	case artifact:
+	{
+		std::unique_ptr<CArtifactInstance> art;
+		if (subtype != ArtifactID::SPELL_SCROLL)
+		{
+			art.reset(CArtifactInstance::createNewArtifactInstance(subtype));
+		}
+		else
+		{
+			art.reset(CArtifactInstance::createScroll(static_cast<SpellID>(val)));
+		}
+		return art->getEffectiveDescription();
+	}
 	case experience: return CGI->generaltexth->allTexts[241];
 	case spell:      return CGI->spellh->objects[subtype]->getLevelInfo(val).description;
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
@@ -166,7 +179,7 @@ std::string CComponent::getDescription()
 
 std::string CComponent::getSubtitle()
 {
-	if (!perDay)
+	if(!perDay)
 		return getSubtitleInternal();
 
 	std::string ret = CGI->generaltexth->allTexts[3];

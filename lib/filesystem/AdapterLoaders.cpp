@@ -87,6 +87,20 @@ boost::optional<std::string> CFilesystemList::getResourceName(const ResourceID &
 	return boost::optional<std::string>();
 }
 
+std::set<std::string> CFilesystemList::getResourceNames(const ResourceID & resourceName) const
+{
+	std::set<std::string> paths;
+	for(auto& loader : getResourcesWithName(resourceName))
+	{
+		auto rn = loader->getResourceName(resourceName);
+		if(rn)
+		{
+			paths.insert(*rn);
+		}
+	}
+	return std::move(paths);
+}
+
 std::unordered_set<ResourceID> CFilesystemList::getFilteredFiles(std::function<bool(const ResourceID &)> filter) const
 {
 	std::unordered_set<ResourceID> ret;

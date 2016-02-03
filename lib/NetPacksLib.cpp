@@ -362,6 +362,10 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		p->heroes -= h;
 		h->detachFrom(h->whereShouldBeAttached(gs));
 		h->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
+		vstd::erase_if(h->artifactsInBackpack, [](const ArtSlotInfo& asi)
+		{
+			return asi.artifact->artType->id == ArtifactID::GRAIL;
+		});
 
 		if(h->visitedTown)
 		{
@@ -590,7 +594,11 @@ DLL_LINKAGE void HeroRecruited::applyGs( CGameState *gs )
 
 	h->setOwner(player);
 	h->pos = tile;
-	h->movement =  h->maxMovePoints(true);
+	bool fresh = !h->isInitialized();
+	if(fresh)
+	{ // this is a fresh hero who hasn't appeared yet
+		h->movement = h->maxMovePoints(true);
+	}
 
 	gs->hpool.heroesPool.erase(hid);
 	if(h->id == ObjectInstanceID())
@@ -604,7 +612,10 @@ DLL_LINKAGE void HeroRecruited::applyGs( CGameState *gs )
 	gs->map->heroesOnMap.push_back(h);
 	p->heroes.push_back(h);
 	h->attachTo(p);
-	h->initObj();
+	if(fresh)
+	{
+		h->initObj();
+	}
 	gs->map->addBlockVisTiles(h);
 
 	if(t)

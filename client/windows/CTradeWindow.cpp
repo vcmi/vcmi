@@ -269,7 +269,7 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 		case ARTIFACT_TYPE:
 		case ARTIFACT_PLACEHOLDER:
 			if(id >= 0)
-				adventureInt->handleRightClick(CGI->arth->artifacts[id]->Description(), down);
+				adventureInt->handleRightClick(hlp->getEffectiveDescription(), down);
 			break;
 		}
 	}
@@ -500,14 +500,14 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 		int h, w, x, y, dx, dy;
 		int leftToRightOffset;
 		getBaseForPositions(type, dx, dy, x, y, h, w, !Left, leftToRightOffset);
-		
-		const std::vector<Rect> tmp = 
+
+		const std::vector<Rect> tmp =
 		{
 			genRect(h, w, x, y), genRect(h, w, x + dx, y), genRect(h, w, x + 2*dx, y),
 			genRect(h, w, x, y + dy), genRect(h, w, x + dx, y + dy), genRect(h, w, x + 2*dx, y + dy),
-			genRect(h, w, x + dx, y + 2*dy)			
+			genRect(h, w, x + dx, y + 2*dy)
 		};
-		
+
 		vstd::concatenate(poss, tmp);
 
 		if(!Left)

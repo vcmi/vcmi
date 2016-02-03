@@ -23,6 +23,7 @@
 #include "../CCreatureHandler.h"
 #include "../BattleState.h"
 #include "../CTownHandler.h"
+#include "../mapping/CMap.h"
 #include "CGTownInstance.h"
 
 ///helpers
@@ -220,7 +221,9 @@ CGHeroInstance::CGHeroInstance()
 	setNodeType(HERO);
 	ID = Obj::HERO;
 	tacticFormationEnabled = inTownGarrison = false;
-	mana = movement = portrait = -1;
+	mana = UNINITIALIZED_MANA;
+	movement = UNINITIALIZED_MOVEMENT;
+	portrait = UNINITIALIZED_PORTRAIT;
 	isStanding = true;
 	moveDir = 4;
 	level = 1;
@@ -1465,4 +1468,27 @@ void CGHeroInstance::readJsonOptions(const JsonNode& json)
 	CArmedInstance::readJsonOptions(json);
 	CGObjectInstance::readOwner(json);
 	CArtifactSet::readJson(json["artifacts"]);
+}
+bool CGHeroInstance::isMissionCritical() const
+{
+	for(const TriggeredEvent & event : IObjectInterface::cb->getMapHeader()->triggeredEvents)
+	{
+		if(event.trigger.test([&](const EventCondition & condition)
+		{
+			if (condition.condition == EventCondition::CONTROL && condition.object)
+			{
+				auto hero = dynamic_cast<const CGHeroInstance*>(condition.object);
+				return (hero != this);
+			}
+			else if(condition.condition == EventCondition::IS_HUMAN)
+			{
+				return true;
+			}
+			return false;
+		}))
+		{
+			return true;
+		}
+	}
+	return false;
 }
