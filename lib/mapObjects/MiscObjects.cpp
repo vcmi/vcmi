@@ -941,14 +941,17 @@ void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGResource::writeJsonOptions(JsonNode& json) const
 {
-
+	CCreatureSet::writeJson(json["guards"]);
+	json["amount"].Float() = amount;
+	json["guardMessage"].String() = message;
 }
 
 void CGResource::readJsonOptions(const JsonNode& json)
 {
-
+	CCreatureSet::readJson(json["guards"]);
+	amount = json["amount"].Float();
+	message = json["guardMessage"].String();
 }
-
 
 CGTeleport::CGTeleport() :
 	type(UNKNOWN), channel(TeleportChannelID())
