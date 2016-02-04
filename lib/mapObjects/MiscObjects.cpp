@@ -613,6 +613,12 @@ void CGCreature::writeJsonOptions(JsonNode& json) const
 	json["neverFlees"].Bool() = neverFlees;
 	json["rewardMessage"].String() = message;
 	json["rewardArtifact"].String() = (gainedArtifact == ArtifactID(ArtifactID::NONE) ? "" : gainedArtifact.toArtifact()->identifier);
+
+	if(resources.nonZero())
+	{
+		for(size_t idx = 0; idx < resources.size(); idx++)
+			json["rewardResources"][GameConstants::RESOURCE_NAMES[idx]].Float() = resources[idx];
+	}
 }
 
 void CGCreature::readJsonOptions(const JsonNode& json)
@@ -637,6 +643,9 @@ void CGCreature::readJsonOptions(const JsonNode& json)
 		if(artid)
 			gainedArtifact = ArtifactID(artid.get());
 	}
+
+	TResources tmp(json["rewardResources"]);
+	std::swap(tmp,resources);
 }
 
 //CGMine
