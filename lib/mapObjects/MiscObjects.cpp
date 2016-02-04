@@ -1694,12 +1694,12 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGSignBottle::writeJsonOptions(JsonNode& json) const
 {
-
+	json["text"].String() = message;
 }
 
 void CGSignBottle::readJsonOptions(const JsonNode& json)
 {
-
+	message = json["text"].String();
 }
 
 void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
